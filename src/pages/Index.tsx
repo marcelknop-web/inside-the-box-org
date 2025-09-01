@@ -1,4 +1,3 @@
-import { GeometricSymbol } from '@/components/GeometricSymbol';
 import { Header } from '@/components/Header';
 
 const Index = () => {

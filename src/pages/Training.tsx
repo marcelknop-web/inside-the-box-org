@@ -1,4 +1,3 @@
-import { GeometricSymbol } from '@/components/GeometricSymbol';
 import { TrainingCard } from '@/components/TrainingCard';
 import { MethodIcon } from '@/components/MethodIcon';
 import { Header } from '@/components/Header';

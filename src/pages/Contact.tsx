@@ -1,4 +1,3 @@
-import { GeometricSymbol } from '@/components/GeometricSymbol';
 import { Header } from '@/components/Header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
