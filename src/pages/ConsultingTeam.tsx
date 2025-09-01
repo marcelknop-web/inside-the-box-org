@@ -16,8 +16,7 @@ const ConsultingTeam = () => {
             
             <div className="space-y-8 text-foreground leading-relaxed">
               <p className="text-lg font-sans">
-                Our cybersecurity consulting and audit services are delivered by <span className="text-highlight font-semibold">experienced cybersecurity professionals</span> 
-                who bring real-world expertise from enterprise consulting, risk management, and compliance auditing.
+                <span className="text-highlight font-semibold">Experienced cybersecurity professionals</span> with proven expertise in consulting and compliance auditing.
               </p>
               
               <div className="space-y-8">
