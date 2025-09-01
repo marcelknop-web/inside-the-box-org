@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 const Start = () => {
   return (
     <div className="min-h-screen">
-      <Header />
+      
       
       {/* Hero Section */}
       <main className="container mx-auto px-6 py-12">
