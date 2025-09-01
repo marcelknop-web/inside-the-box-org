@@ -1,33 +1,8 @@
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Phone, Mail } from 'lucide-react';
-import { useState } from 'react';
 
 const Contact = () => {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    message: ''
-  });
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Handle form submission
-    console.log('Form submitted:', formData);
-    // Reset form
-    setFormData({ name: '', email: '', message: '' });
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
-
   return (
     <div className="min-h-screen">
       <Header />
@@ -67,59 +42,6 @@ const Contact = () => {
                     <p><a href="mailto:marcel@inside-the-box.org" className="text-highlight hover:text-primary transition-electric">marcel@inside-the-box.org</a></p>
                   </div>
                 </div>
-              </div>
-
-              {/* Contact Form */}
-              <div className="bg-highlight/5 border border-highlight/20 rounded-lg p-6">
-                <h2 className="text-highlight text-2xl font-bold font-mono mb-6">
-                  Quick Request
-                </h2>
-                
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Input
-                        type="text"
-                        name="name"
-                        placeholder="Your Name"
-                        value={formData.name}
-                        onChange={handleChange}
-                        required
-                        className="bg-background border-border focus:border-highlight"
-                      />
-                    </div>
-                    <div>
-                      <Input
-                        type="email"
-                        name="email"
-                        placeholder="Your Email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        required
-                        className="bg-background border-border focus:border-highlight"
-                      />
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <Textarea
-                      name="message"
-                      placeholder="Your message or questions about our training programs..."
-                      value={formData.message}
-                      onChange={handleChange}
-                      required
-                      rows={4}
-                      className="bg-background border-border focus:border-highlight resize-none"
-                    />
-                  </div>
-                  
-                  <Button 
-                    type="submit"
-                    className="bg-highlight/10 border-2 border-highlight/30 rounded-lg text-highlight font-mono hover:text-primary hover:bg-highlight/20 hover:border-highlight/50 transition-electric px-6 py-3"
-                  >
-                    Send Request
-                  </Button>
-                </form>
               </div>
               
               <div className="pt-8">
