@@ -16,8 +16,8 @@
     --popover: 220 20% 11%;
     --popover-foreground: 0 0% 98%;
 
-    /* Electric yellow primary - signature Berlin electronic color */
-    --primary: 51 100% 50%;
+    /* Optimized electric yellow - warm, attention-grabbing but not harsh */
+    --primary: 45 95% 55%;
     --primary-foreground: 220 20% 9%;
 
     /* Subtle secondary grays */
@@ -27,12 +27,12 @@
     --muted: 220 15% 20%;
     --muted-foreground: 220 10% 60%;
 
-    /* Neon accent for highlights */
-    --accent: 51 100% 50%;
+    /* Refined accent for visual harmony */
+    --accent: 45 90% 58%;
     --accent-foreground: 220 20% 9%;
 
-    /* Vibrant teal for highlighted text - complements yellow */
-    --highlight: 180 100% 60%;
+    /* Optimized cyan - cooler, professional, complements warm yellow */
+    --highlight: 185 85% 55%;
     --highlight-foreground: 220 20% 9%;
 
     /* High contrast color for key elements */
@@ -45,17 +45,17 @@
     /* Electronic borders and inputs */
     --border: 220 15% 25%;
     --input: 220 15% 15%;
-    --ring: 51 100% 50%;
+    --ring: 45 95% 55%;
 
-    /* Electronic gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(51 100% 50%), hsl(51 90% 55%));
+    /* Electronic gradients with optimized colors */
+    --gradient-primary: linear-gradient(135deg, hsl(45 95% 55%), hsl(45 90% 58%));
     --gradient-dark: linear-gradient(180deg, hsl(220 20% 11%), hsl(220 25% 8%));
-    --gradient-glow: linear-gradient(135deg, hsl(51 100% 50% / 0.2), hsl(51 80% 60% / 0.1));
+    --gradient-glow: linear-gradient(135deg, hsl(45 95% 55% / 0.2), hsl(45 85% 60% / 0.1));
 
-    /* Electronic shadows and effects */
-    --shadow-electric: 0 0 20px hsl(51 100% 50% / 0.3);
+    /* Electronic shadows and effects with balanced intensity */
+    --shadow-electric: 0 0 20px hsl(45 95% 55% / 0.25);
     --shadow-card: 0 4px 20px hsl(220 50% 5% / 0.5);
-    --glow-subtle: 0 0 10px hsl(51 100% 50% / 0.1);
+    --glow-subtle: 0 0 10px hsl(45 90% 58% / 0.12);
 
     --radius: 0.25rem;
 
