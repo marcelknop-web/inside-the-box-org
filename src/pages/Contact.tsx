@@ -60,8 +60,7 @@ const Contact = () => {
                     <h3 className="text-primary text-lg font-semibold">Phone</h3>
                   </div>
                   <div className="space-y-2 text-sm">
-                    <p>Marcel Knop: <a href="tel:+4915205691648" className="text-highlight hover:text-electric transition-electric">+49 1520 569 1648</a></p>
-                    <p>Andreas Funder: <a href="tel:+4917556978659" className="text-highlight hover:text-electric transition-electric">+49 175 5697865</a></p>
+                    <p><a href="tel:+4915205691648" className="text-highlight hover:text-electric transition-electric">+49 1520 569 1648</a></p>
                   </div>
                 </div>
                 
@@ -71,8 +70,7 @@ const Contact = () => {
                     <h3 className="text-primary text-lg font-semibold">Email</h3>
                   </div>
                   <div className="space-y-2 text-sm">
-                    <p>Marcel: <a href="mailto:marcel@inside-the-box.org" className="text-highlight hover:text-electric transition-electric">marcel@inside-the-box.org</a></p>
-                    <p>Andreas: <a href="mailto:andreas@inside-the-box.org" className="text-highlight hover:text-electric transition-electric">andreas@inside-the-box.org</a></p>
+                    <p><a href="mailto:marcel@inside-the-box.org" className="text-highlight hover:text-electric transition-electric">marcel@inside-the-box.org</a></p>
                   </div>
                 </div>
               </div>
