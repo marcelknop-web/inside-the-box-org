@@ -124,7 +124,7 @@ const Consulting = () => {
               </div>
               
               <div className="pt-8">
-                <div className="flex justify-center lg:justify-start space-x-4">
+                <div className="flex justify-center lg:justify-between space-x-4">
                   <a 
                     href="/consulting/team" 
                     className="bg-primary/10 border-2 border-primary/30 rounded-lg text-primary font-mono text-lg hover:text-highlight hover:bg-primary/20 hover:border-primary/50 transition-electric px-6 py-3 inline-block"
