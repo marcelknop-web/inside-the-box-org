@@ -11,7 +11,7 @@ export const GeometricSymbol = ({ size = 'lg', className = '' }: GeometricSymbol
   };
 
   return (
-    <div className={`${sizeClasses[size]} ${className} relative flex items-center justify-center animate-pulse-slow`}>
+    <div className={`${sizeClasses[size]} ${className} relative flex items-center justify-center animate-heartbeat`}>
       {/* Cross/Plus pattern with nested diamonds - matching original */}
       
       {/* Vertical bar with glow */}
