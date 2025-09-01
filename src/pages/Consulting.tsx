@@ -43,14 +43,14 @@ const Consulting = () => {
                 </a>
 
                 {/* TISAX, PCI-DSS */}
-                <div className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6 hover:bg-primary/20 hover:border-primary/50 transition-electric">
+                <a href="/tisax-pci-dss" className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6 hover:bg-primary/20 hover:border-primary/50 transition-electric block">
                   <h3 className="text-primary text-lg font-semibold font-mono mb-3">
                     TISAX, PCI-DSS
                   </h3>
                   <p className="text-sm text-foreground/80">
                     Trusted Information Security Assessment Exchange and Payment Card Industry Data Security Standard implementation.
                   </p>
-                </div>
+                </a>
 
                 {/* Assessments & Concepts */}
                 <div className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6 hover:bg-primary/20 hover:border-primary/50 transition-electric">
