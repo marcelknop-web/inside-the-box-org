@@ -3,7 +3,7 @@ import { Footer } from '@/components/Footer';
 
 const Start = () => {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen flex flex-col">
       {/* Header with consistent styling */}
       <header className="py-8">
         <div className="container mx-auto px-6 flex items-center justify-between">
@@ -24,7 +24,7 @@ const Start = () => {
         </div>
       </header>
       {/* Hero Section */}
-      <main className="container mx-auto px-6 py-12">
+      <main className="container mx-auto px-6 py-12 flex-1">
         <div className="flex flex-col lg:flex-row items-center justify-between mb-20">
           {/* Left: Geometric Symbol */}
           <div className="mb-12 lg:mb-0 lg:mr-20">
