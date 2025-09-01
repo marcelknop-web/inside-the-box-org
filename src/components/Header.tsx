@@ -9,14 +9,14 @@ export const Header = () => {
           <span className="text-electric text-xl font-mono group-hover:text-highlight transition-electric">INSIDE THE BOX</span>
         </a>
         
-        <nav className="hidden md:flex space-x-8">
-          <a href="#" className="font-mono text-sm hover:text-primary transition-electric">
+        <nav className="hidden md:flex space-x-4">
+          <a href="/training" className="bg-primary/10 border-2 border-primary/30 rounded-lg text-primary font-mono text-sm hover:text-highlight hover:bg-primary/20 hover:border-primary/50 transition-electric px-4 py-2">
             Training
           </a>
-          <a href="#" className="font-mono text-sm hover:text-primary transition-electric">
+          <a href="/technical-requirements" className="bg-primary/10 border-2 border-primary/30 rounded-lg text-primary font-mono text-sm hover:text-highlight hover:bg-primary/20 hover:border-primary/50 transition-electric px-4 py-2">
             Methods
           </a>
-          <a href="#" className="font-mono text-sm hover:text-primary transition-electric">
+          <a href="/why" className="bg-primary/10 border-2 border-primary/30 rounded-lg text-primary font-mono text-sm hover:text-highlight hover:bg-primary/20 hover:border-primary/50 transition-electric px-4 py-2">
             About
           </a>
         </nav>

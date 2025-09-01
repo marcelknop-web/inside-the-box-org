@@ -42,12 +42,14 @@ const Index = () => {
               </p>
               
               <div className="pt-8">
-                <a 
-                  href="/training" 
-                  className="text-electric font-mono text-lg underline hover:text-highlight transition-electric"
-                >
-                  What?
-                </a>
+                <div className="flex justify-center lg:justify-start">
+                  <a 
+                    href="/training" 
+                    className="bg-highlight/10 border-2 border-highlight/30 rounded-lg text-highlight font-mono text-lg hover:text-electric hover:bg-highlight/20 hover:border-highlight/50 transition-electric px-6 py-3 inline-block"
+                  >
+                    What?
+                  </a>
+                </div>
               </div>
             </div>
           </div>

@@ -94,12 +94,14 @@ const TechnicalRequirements = () => {
               </div>
               
               <div className="pt-8">
-                <a 
-                  href="/" 
-                  className="text-electric font-mono text-lg underline hover:text-highlight transition-electric"
-                >
-                  Why?
-                </a>
+                <div className="flex justify-center lg:justify-start">
+                  <a 
+                    href="/" 
+                    className="bg-highlight/10 border-2 border-highlight/30 rounded-lg text-highlight font-mono text-lg hover:text-electric hover:bg-highlight/20 hover:border-highlight/50 transition-electric px-6 py-3 inline-block"
+                  >
+                    Why?
+                  </a>
+                </div>
               </div>
             </div>
           </div>
