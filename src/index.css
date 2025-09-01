@@ -31,8 +31,8 @@
     --accent: 51 100% 50%;
     --accent-foreground: 220 20% 9%;
 
-    /* Complementary purple for highlighted text */
-    --highlight: 270 100% 75%;
+    /* Vibrant teal for highlighted text - complements yellow */
+    --highlight: 180 100% 60%;
     --highlight-foreground: 220 20% 9%;
 
     --destructive: 0 75% 60%;
