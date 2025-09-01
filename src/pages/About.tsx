@@ -17,28 +17,28 @@ const About = () => {
             
             <div className="space-y-8 text-foreground leading-relaxed">
               <p className="text-lg font-sans">
-                <span className="text-highlight font-semibold">INSIDE THE BOX</span> delivers practical cybersecurity training and expert consulting.
+                <span className="text-highlight font-semibold">INSIDE THE BOX</span> helps organizations build real cybersecurity resilience through practical training and expert guidance.
               </p>
               
               <div className="space-y-6">
                 <p className="text-lg font-sans">
-                  We combine real-world experience with hands-on learning for today's cybersecurity challenges.
+                  We believe cybersecurity isn't just about tools and policies - it's about people knowing exactly what to do when things go wrong.
                 </p>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6 hover:bg-primary/20 hover:border-primary/50 transition-electric">
                     <h3 className="text-primary text-xl font-bold font-mono mb-4">Training</h3>
                     <p className="text-sm text-foreground/80">
-                      Immersive cyber training range with realistic scenarios and hands-on exercises 
-                      to develop practical cybersecurity skills.
+                      Hands-on cyber training that simulates real attacks. Your team learns by doing, 
+                      not just reading about it.
                     </p>
                   </div>
                   
                   <div className="bg-highlight/10 border-2 border-highlight/30 rounded-lg p-6 hover:bg-highlight/20 hover:border-highlight/50 transition-electric">
                     <h3 className="text-highlight text-xl font-bold font-mono mb-4">Consulting</h3>
                     <p className="text-sm text-foreground/80">
-                      Expert cybersecurity consulting services including audits, compliance, 
-                      incident management, and strategic security planning.
+                      Strategic cybersecurity advice that actually works. We help you build defenses 
+                      that fit your organization's reality.
                     </p>
                   </div>
                 </div>

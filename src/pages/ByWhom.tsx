@@ -17,7 +17,7 @@ const ByWhom = () => {
             
             <div className="space-y-8 text-foreground leading-relaxed">
               <p className="text-lg font-sans">
-                <span className="text-highlight font-semibold">Experienced cybersecurity professionals</span> with proven expertise in consulting and incident response.
+                <span className="text-highlight font-semibold">Meet the team behind the training</span> - cybersecurity veterans who've seen it all and are here to share what actually works.
               </p>
               
               <div className="space-y-8">

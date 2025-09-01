@@ -17,19 +17,19 @@ const Index = () => {
             
             <div className="space-y-8 text-foreground leading-relaxed">
               <p className="text-lg font-sans">
-                Past cybersecurity incidents show that <span className="text-highlight font-semibold">human error causes most delays and mistakes</span> 
-                during crisis response. We created realistic training in a <span className="text-highlight font-semibold">simulated IT environment</span> 
-                to prepare teams for these complex situations.
+                When cyber incidents happen, <span className="text-highlight font-semibold">human error causes most of the confusion and delays</span>. 
+                We've seen it countless times - teams scramble, communication breaks down, and valuable time gets wasted.
               </p>
               
               <p className="text-lg font-sans">
-                Participants learn <span className="text-highlight font-semibold">key detection and remediation techniques</span> through 
-                <span className="text-highlight font-semibold">simulated live attacks</span>. Practice defense tactics safely while gaining 
-                experience in <span className="text-highlight font-semibold">cross-team coordination</span> with management, departments, and external partners.
+                That's why we built a <span className="text-highlight font-semibold">realistic training environment</span> where your team can 
+                practice handling real attacks safely. No guesswork, no theoretical scenarios - just hands-on experience with 
+                <span className="text-highlight font-semibold">actual attack simulations</span> and cross-team coordination.
               </p>
               
               <p className="text-lg font-sans">
-                Training covers <span className="text-highlight font-semibold">technical skills plus incident, emergency, and crisis management</span>.
+                Our training combines <span className="text-highlight font-semibold">technical defense skills with crisis management</span> - 
+                because when seconds count, you need both.
               </p>
               
               <div className="pt-8">

@@ -43,7 +43,7 @@ const Contact = () => {
             
             <div className="space-y-8 text-foreground leading-relaxed">
               <p className="text-lg font-sans">
-                Let's talk.
+                Ready to strengthen your cyber defenses? We're here to help.
               </p>
               
               {/* Contact Methods */}
