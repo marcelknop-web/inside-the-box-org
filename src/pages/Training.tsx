@@ -8,32 +8,32 @@ const Training = () => {
   const trainingTopics = [
     { 
       title: 'Host and Network Forensics', 
-      description: 'Dig deep into compromised systems and network traffic. Learn to piece together what happened and how.',
+      description: 'Analysis of compromised systems and network traffic patterns. Evidence extraction and attack timeline reconstruction.',
       icon: Server 
     },
     { 
       title: 'Crisis Management', 
-      description: 'When everything hits the fan, someone needs to take charge. Practice making tough calls under pressure.',
+      description: 'Incident response leadership methodologies. Critical decision-making frameworks under time pressure.',
       icon: AlertTriangle 
     }, 
     { 
       title: 'Malware Analysis', 
-      description: 'Take apart malicious code to understand what makes it tick. Know your enemy.',
+      description: 'Reverse engineering of malicious code. Attack vector analysis and countermeasure development.',
       icon: Bug 
     },
     { 
       title: 'SIEM', 
-      description: 'Keep your finger on the pulse of your network. Spot the bad guys before they spot you.',
+      description: 'Real-time security event monitoring and analysis. Alert configuration and threat investigation protocols.',
       icon: Shield 
     },
     { 
       title: 'Incident Management', 
-      description: 'Turn chaos into order. Build processes that actually work when you need them most.',
+      description: 'Systematic incident response process design. Documentation protocols and post-incident analysis.',
       icon: AlertCircle 
     },
     { 
       title: 'Crisis Communication', 
-      description: 'Keep stakeholders informed without causing panic. Master the art of crisis communication.',
+      description: 'Strategic stakeholder communication during security incidents. Executive reporting and external coordination.',
       icon: MessageSquare 
     }
   ];
@@ -77,17 +77,17 @@ const Training = () => {
             <MethodIcon 
               type="knowledge" 
               title="Knowledge transfer"
-              description="Learn from experts who've been in the trenches. Real insights, not textbook theory."
+              description="Structured learning modules covering cybersecurity fundamentals and advanced operational techniques."
             />
             <MethodIcon 
               type="group" 
               title="Group exercises"
-              description="Work together to solve problems. Because cyber defense is always a team sport."
+              description="Collaborative scenario-based training focused on team coordination and communication protocols."
             />
             <MethodIcon 
               type="cyber" 
               title="Live cyber attacks"
-              description="Face real attacks in a safe environment. No simulations - actual threat scenarios targeting your setup."
+              description="Controlled attack simulations using realistic threat scenarios within isolated environments."
             />
           </div>
           

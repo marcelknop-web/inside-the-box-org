@@ -17,7 +17,7 @@ const ISMS = () => {
             
             <div className="space-y-8 text-foreground leading-relaxed">
               <p className="text-lg font-sans mb-8">
-                Get your information security house in order with standards that actually make sense.
+                Information Security Management System development and certification support according to established frameworks.
               </p>
               
               {/* Services Overview */}
@@ -25,7 +25,7 @@ const ISMS = () => {
                 <div className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6">
                   <h2 className="text-primary text-xl font-bold font-mono mb-4">ISO 27001 Implementation</h2>
                   <p className="text-sm text-foreground/80 mb-4">
-                    Build an ISMS that works for your business, not against it.
+                    Establish and maintain ISMS frameworks that meet international certification standards.
                   </p>
                   <ul className="text-sm text-foreground/80 space-y-2">
                     <li>• Risk assessment and treatment</li>
@@ -38,7 +38,7 @@ const ISMS = () => {
                 <div className="bg-highlight/10 border-2 border-highlight/30 rounded-lg p-6">
                   <h2 className="text-highlight text-xl font-bold font-mono mb-4">BSI IT-Grundschutz</h2>
                   <p className="text-sm text-foreground/80 mb-4">
-                    Navigate German IT security standards without the headache.
+                    Implementation of BSI IT-Grundschutz methodology for systematic information security management.
                   </p>
                   <ul className="text-sm text-foreground/80 space-y-2">
                     <li>• IT-Grundschutz compendium</li>

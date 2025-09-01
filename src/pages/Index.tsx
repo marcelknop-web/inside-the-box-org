@@ -17,19 +17,19 @@ const Index = () => {
             
             <div className="space-y-8 text-foreground leading-relaxed">
               <p className="text-lg font-sans">
-                When cyber incidents happen, <span className="text-highlight font-semibold">human error causes most of the confusion and delays</span>. 
-                We've seen it countless times - teams scramble, communication breaks down, and valuable time gets wasted.
+                Analysis of cyber incidents consistently demonstrates that <span className="text-highlight font-semibold">human factors contribute significantly to response delays</span>. 
+                Organizations frequently experience coordination challenges and procedural gaps during critical security events.
               </p>
               
               <p className="text-lg font-sans">
-                That's why we built a <span className="text-highlight font-semibold">realistic training environment</span> where your team can 
-                practice handling real attacks safely. No guesswork, no theoretical scenarios - just hands-on experience with 
-                <span className="text-highlight font-semibold">actual attack simulations</span> and cross-team coordination.
+                Our approach utilizes <span className="text-highlight font-semibold">controlled simulation environments</span> where teams can 
+                develop competencies through <span className="text-highlight font-semibold">realistic attack scenarios</span>. This methodology enables 
+                practical skill development in crisis coordination and incident response procedures.
               </p>
               
               <p className="text-lg font-sans">
-                Our training combines <span className="text-highlight font-semibold">technical defense skills with crisis management</span> - 
-                because when seconds count, you need both.
+                The curriculum integrates <span className="text-highlight font-semibold">technical capabilities with organizational crisis management</span> 
+                to address comprehensive incident response requirements.
               </p>
               
               <div className="pt-8">
