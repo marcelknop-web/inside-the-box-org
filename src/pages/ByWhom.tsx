@@ -73,8 +73,8 @@ const ByWhom = () => {
                     </div>
 
                     <div>
-                      <h4 className="text-primary font-semibold mb-2">Notable Clients (350+ projects)</h4>
-                      <p className="text-xs">ADAC, Airbus, Alstom, BSI, German Armed Forces, Burda, Commerzbank, Continental, Daimler, Deutsche Bahn, Deutsche Bank, DKB, Deutsche Lufthansa, Deutsche Post, ERGO, Fraport, General Motors, LBBW, Media-Saturn, RWE, SAP, Siemens, Telekom, VW</p>
+                      <h4 className="text-primary font-semibold mb-2">Industry Sectors & Company Sizes</h4>
+                      <p className="text-xs">Financial Services, Automotive, Aerospace, Transportation, Energy, Telecommunications, Government & Defense, Healthcare, Manufacturing. From SME to DAX-30 corporations, Critical Infrastructure operators, and Public Sector organizations (350+ projects)</p>
                     </div>
                   </div>
                 </div>
