@@ -48,8 +48,8 @@ const Contact = () => {
             
             <div className="space-y-8 text-foreground leading-relaxed">
               <p className="text-lg font-sans">
-                Ready to enhance your <span className="text-highlight font-semibold">cybersecurity capabilities</span>? 
-                Get in touch with our experts.
+                Questions about our <span className="text-highlight font-semibold">training programs</span>? 
+                Let's talk.
               </p>
               
               {/* Contact Methods */}
