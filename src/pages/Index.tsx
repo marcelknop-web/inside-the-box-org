@@ -1,5 +1,6 @@
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
+import { AlertTriangle, Target, Users, Shield } from 'lucide-react';
 
 const Index = () => {
   return (
@@ -16,19 +17,34 @@ const Index = () => {
             </h1>
             
             <div className="space-y-8 text-foreground leading-relaxed">
-              <p className="text-lg font-sans">
-                Cyber incidents reveal that <span className="text-highlight font-semibold">human factors cause most response delays</span>. 
-                Organizations face coordination challenges during critical security events.
-              </p>
+              <div className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6">
+                <div className="flex items-start space-x-4">
+                  <AlertTriangle className="text-primary mt-1 flex-shrink-0" size={28} />
+                  <p className="text-lg font-sans">
+                    Cyber incidents reveal that <span className="text-highlight font-semibold">human factors cause most response delays</span>. 
+                    Organizations face coordination challenges during critical security events.
+                  </p>
+                </div>
+              </div>
               
-              <p className="text-lg font-sans">
-                Our <span className="text-highlight font-semibold">simulation environments</span> enable teams to develop competencies through 
-                <span className="text-highlight font-semibold">realistic attack scenarios</span> and practical crisis coordination.
-              </p>
+              <div className="bg-highlight/10 border-2 border-highlight/30 rounded-lg p-6">
+                <div className="flex items-start space-x-4">
+                  <Target className="text-highlight mt-1 flex-shrink-0" size={28} />
+                  <p className="text-lg font-sans">
+                    Our <span className="text-highlight font-semibold">simulation environments</span> enable teams to develop competencies through 
+                    <span className="text-highlight font-semibold">realistic attack scenarios</span> and practical crisis coordination.
+                  </p>
+                </div>
+              </div>
               
-              <p className="text-lg font-sans">
-                Training integrates <span className="text-highlight font-semibold">technical capabilities with crisis management</span>.
-              </p>
+              <div className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6">
+                <div className="flex items-start space-x-4">
+                  <Shield className="text-primary mt-1 flex-shrink-0" size={28} />
+                  <p className="text-lg font-sans">
+                    Training integrates <span className="text-highlight font-semibold">technical capabilities with crisis management</span>.
+                  </p>
+                </div>
+              </div>
               
               <div className="pt-8">
                 <div className="flex justify-center lg:justify-start space-x-4">
