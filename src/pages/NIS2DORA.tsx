@@ -76,27 +76,6 @@ const NIS2DORA = () => {
                   </div>
                 </div>
                 
-                <div className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6">
-                  <h2 className="text-primary text-xl font-bold font-mono mb-4">Key Deliverables</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-foreground/80">
-                    <div>
-                      <h3 className="font-semibold text-foreground mb-2">Assessment Reports</h3>
-                      <p>Comprehensive analysis of regulatory applicability and current compliance status.</p>
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-foreground mb-2">Implementation Roadmap</h3>
-                      <p>Detailed project plan with timelines, milestones, and resource requirements.</p>
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-foreground mb-2">Policy Framework</h3>
-                      <p>Documented policies, procedures, and controls aligned with regulatory requirements.</p>
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-foreground mb-2">Monitoring Program</h3>
-                      <p>Continuous compliance monitoring and reporting mechanisms.</p>
-                    </div>
-                  </div>
-                </div>
               </div>
               
               <div className="pt-8">
