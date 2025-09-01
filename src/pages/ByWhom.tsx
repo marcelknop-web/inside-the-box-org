@@ -16,8 +16,7 @@ const ByWhom = () => {
             
             <div className="space-y-8 text-foreground leading-relaxed">
               <p className="text-lg font-sans">
-                The cyber training range is developed and conducted by <span className="text-highlight font-semibold">experienced cybersecurity professionals</span> 
-                who bring real-world expertise from consulting and incident response.
+                <span className="text-highlight font-semibold">Experienced cybersecurity professionals</span> with proven expertise in consulting and incident response.
               </p>
               
               <div className="space-y-8">
