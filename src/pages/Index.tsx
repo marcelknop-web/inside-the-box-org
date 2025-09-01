@@ -21,7 +21,7 @@ const Index = () => {
                 <div className="flex items-start space-x-4">
                   <AlertTriangle className="text-primary mt-1 flex-shrink-0" size={28} />
                   <p className="text-lg font-sans">
-                    Cyber incidents reveal that <span className="text-highlight font-semibold">human factors cause most response delays</span>. 
+                    Cyber incidents reveal that <span className="text-primary font-semibold">human factors cause most response delays</span>. 
                     Organizations face coordination challenges during critical security events.
                   </p>
                 </div>
@@ -41,7 +41,7 @@ const Index = () => {
                 <div className="flex items-start space-x-4">
                   <Shield className="text-primary mt-1 flex-shrink-0" size={28} />
                   <p className="text-lg font-sans">
-                    Training integrates <span className="text-highlight font-semibold">technical capabilities with crisis management</span>.
+                    Training integrates <span className="text-primary font-semibold">technical capabilities with crisis management</span>.
                   </p>
                 </div>
               </div>
