@@ -126,10 +126,6 @@ const ByWhom = () => {
                       </div>
                     </div>
 
-                    <div>
-                      <h4 className="text-primary font-semibold mb-2">Specializations</h4>
-                      <p className="text-xs">Critical Infrastructures (KRITIS), EU NIS2, EU RCE, EU CRA, IT-SiG 2.0, Information Security Risk Management ISO/IEC 27005, Business Continuity Management ISO 22301, Internal Control Frameworks COBIT 2019, Audit Standards ISAE 3402</p>
-                    </div>
                   </div>
                 </div>
               </div>
