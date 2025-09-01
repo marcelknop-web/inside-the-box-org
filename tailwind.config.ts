@@ -19,8 +19,8 @@ export default {
 		},
 		extend: {
 			fontFamily: {
-				sans: ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
-				mono: ['Monaco', 'Menlo', 'Ubuntu Mono', 'monospace'],
+				sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+				mono: ['JetBrains Mono', 'Monaco', 'Menlo', 'monospace'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',
