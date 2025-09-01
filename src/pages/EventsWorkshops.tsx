@@ -93,7 +93,7 @@ const EventsWorkshops = () => {
                     href="/contact" 
                     className="bg-highlight/10 border-2 border-highlight/30 rounded-lg text-highlight font-mono text-lg hover:text-primary hover:bg-highlight/20 hover:border-highlight/50 transition-electric px-6 py-3 inline-block"
                   >
-                    Let's talk
+                    Contact
                   </a>
                 </div>
               </div>

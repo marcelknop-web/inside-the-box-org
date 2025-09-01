@@ -114,7 +114,7 @@ const Training = () => {
                 href="/contact" 
                 className="bg-highlight/10 border-2 border-highlight/30 rounded-lg text-highlight font-mono text-base sm:text-lg hover:text-primary hover:bg-highlight/20 hover:border-highlight/50 transition-electric flex-1 flex items-center justify-center p-4"
               >
-                Let's talk
+                Contact
               </a>
             </div>
           </div>
