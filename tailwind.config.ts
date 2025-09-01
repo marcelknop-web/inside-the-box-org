@@ -56,9 +56,9 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
-				contrast: {
-					DEFAULT: 'hsl(var(--contrast))',
-					foreground: 'hsl(var(--contrast-foreground))'
+				highlight: {
+					DEFAULT: 'hsl(var(--highlight))',
+					foreground: 'hsl(var(--highlight-foreground))'
 				}
 			},
 			backgroundImage: {

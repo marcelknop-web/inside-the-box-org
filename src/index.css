@@ -31,9 +31,9 @@
     --accent: 51 100% 50%;
     --accent-foreground: 220 20% 9%;
 
-    /* High contrast color for key elements */
-    --contrast: 0 0% 100%;
-    --contrast-foreground: 220 20% 9%;
+    /* Complementary purple for highlighted text */
+    --highlight: 270 100% 75%;
+    --highlight-foreground: 220 20% 9%;
 
     --destructive: 0 75% 60%;
     --destructive-foreground: 0 0% 98%;
