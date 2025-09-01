@@ -39,18 +39,18 @@ const Start = () => {
                   href="/why" 
                   className="block group"
                 >
-                  <h1 className="text-highlight text-3xl sm:text-4xl lg:text-6xl font-bold font-mono leading-tight hover:text-primary transition-electric">
+                  <div className="bg-cyan-500/10 border-2 border-cyan-500/30 rounded-lg text-cyan-400 font-mono text-3xl sm:text-4xl lg:text-6xl font-bold hover:text-cyan-300 hover:bg-cyan-500/20 hover:border-cyan-500/50 transition-electric px-8 py-6 text-center lg:text-left">
                     Cyber Training Range
-                  </h1>
+                  </div>
                 </a>
                 
                 <a 
                   href="/consulting" 
                   className="block group"
                 >
-                  <h2 className="text-primary text-3xl sm:text-4xl lg:text-6xl font-bold font-mono leading-tight hover:text-highlight transition-electric">
+                  <div className="bg-primary/10 border-2 border-primary/30 rounded-lg text-primary font-mono text-3xl sm:text-4xl lg:text-6xl font-bold hover:text-highlight hover:bg-primary/20 hover:border-primary/50 transition-electric px-8 py-6 text-center lg:text-left">
                     Cybersecurity Consulting
-                  </h2>
+                  </div>
                 </a>
               </div>
             </div>
