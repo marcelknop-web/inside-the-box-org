@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Start from "./pages/Start";
 import Index from "./pages/Index";
 import Training from "./pages/Training";
 import TechnicalRequirements from "./pages/TechnicalRequirements";
@@ -17,7 +18,8 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Index />} />
+          <Route path="/" element={<Start />} />
+          <Route path="/why" element={<Index />} />
           <Route path="/training" element={<Training />} />
           <Route path="/technical-requirements" element={<TechnicalRequirements />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
