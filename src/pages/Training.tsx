@@ -47,7 +47,7 @@ const Training = () => {
         <div className="max-w-6xl mx-auto">
           {/* Title and Topics */}
           <div className="space-y-8">
-            <h1 className="text-primary text-4xl lg:text-5xl font-bold font-mono mb-12 text-center hover:text-highlight transition-electric">
+            <h1 className="text-primary text-2xl sm:text-3xl lg:text-5xl font-bold font-mono mb-12 text-center hover:text-highlight transition-electric">
               Training Topics
             </h1>
             
@@ -70,7 +70,7 @@ const Training = () => {
 
         {/* Methods Section */}
         <section className="border-t border-border pt-16">
-          <h2 className="text-highlight text-3xl lg:text-4xl font-bold font-mono mb-12 text-center hover:text-primary transition-electric">
+          <h2 className="text-highlight text-xl sm:text-2xl lg:text-4xl font-bold font-mono mb-12 text-center hover:text-primary transition-electric">
             Methods
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-16">
