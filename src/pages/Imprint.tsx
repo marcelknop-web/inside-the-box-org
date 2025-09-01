@@ -18,10 +18,10 @@ const Imprint = () => {
             <div className="space-y-8 text-foreground leading-relaxed">
               <div className="space-y-4">
                 <p className="text-lg font-sans">
-                  <span className="text-cyan-400 font-semibold">Responsible for content</span><br />
-                  <span className="text-white">Marcel Knop<br />
+                  <span className="text-highlight font-semibold">Responsible for content</span><br />
+                  Marcel Knop<br />
                   Appenrother Weg 14<br />
-                  34308 Bad Emstal, Germany</span>
+                  34308 Bad Emstal, Germany
                 </p>
                 
                 <p className="text-lg font-sans">
