@@ -68,23 +68,6 @@ const ISMS = () => {
                   </div>
                 </div>
                 
-                <div className="bg-highlight/5 border border-highlight/20 rounded-lg p-6">
-                  <h2 className="text-highlight text-xl font-bold font-mono mb-4">Benefits</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-foreground/80">
-                    <div>
-                      <h3 className="font-semibold text-foreground mb-2">Enhanced Security</h3>
-                      <p>Systematic risk identification and mitigation.</p>
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-foreground mb-2">Compliance</h3>
-                      <p>Meet regulatory requirements and standards.</p>
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-foreground mb-2">Business Continuity</h3>
-                      <p>Protect critical processes and maintain resilience.</p>
-                    </div>
-                  </div>
-                </div>
               </div>
               
               <div className="pt-8">
