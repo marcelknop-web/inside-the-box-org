@@ -1,84 +1,57 @@
 import { GeometricSymbol } from '@/components/GeometricSymbol';
-import { TrainingCard } from '@/components/TrainingCard';
-import { MethodIcon } from '@/components/MethodIcon';
 import { Header } from '@/components/Header';
-import { Server, AlertTriangle, Bug, Shield, AlertCircle, MessageSquare } from 'lucide-react';
 
 const Index = () => {
-  const trainingTopics = [
-    { title: 'Host and Network Forensics', icon: Server },
-    { title: 'Crises Management', icon: AlertTriangle }, 
-    { title: 'Malware Analysis', icon: Bug },
-    { title: 'SIEM', icon: Shield },
-    { title: 'Incident Management', icon: AlertCircle },
-    { title: 'Crises Communication', icon: MessageSquare }
-  ];
-
   return (
     <div className="min-h-screen">
       <Header />
       
-      {/* Hero Section */}
+      {/* Main Content */}
       <main className="container mx-auto px-6 py-12">
-        <div className="flex flex-col lg:flex-row items-center justify-between mb-20">
+        <div className="flex flex-col lg:flex-row items-start justify-between">
           {/* Left: Geometric Symbol */}
-          <div className="mb-12 lg:mb-0">
+          <div className="mb-12 lg:mb-0 lg:mr-20">
             <GeometricSymbol size="lg" />
           </div>
           
-          {/* Right: Title and Topics */}
-          <div className="flex-1 lg:ml-20">
-            <h1 className="text-electric text-4xl lg:text-5xl font-bold font-mono mb-12 text-center lg:text-left">
-              Training Topics and Methods
+          {/* Right: Content */}
+          <div className="flex-1 max-w-3xl">
+            <h1 className="text-electric text-5xl font-bold font-mono mb-12">
+              Why?
             </h1>
             
-            {/* Training Topics Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-12">
-              {trainingTopics.map((topic, index) => (
-                <TrainingCard 
-                  key={index}
-                  title={topic.title}
-                  icon={topic.icon}
-                  onClick={() => console.log(`Selected: ${topic.title}`)}
-                />
-              ))}
+            <div className="space-y-8 text-foreground leading-relaxed">
+              <p className="text-lg font-sans">
+                Analyses of past cybersecurity incidents repeatedly show that <span className="text-highlight font-semibold">human error is the most common 
+                cause of delays and serious mistakes</span> in dealing with such events. In order to be better prepared for 
+                the dynamics and complexity of such rare situations, we have created realistic training in a <span className="text-highlight font-semibold">simulated 
+                IT environment</span> ("Cyber Training Range").
+              </p>
+              
+              <p className="text-lg font-sans">
+                During the training, participants are introduced to <span className="text-highlight font-semibold">key technologies and techniques</span> for detecting 
+                and remediating cyber attacks. This knowledge is then practiced by <span className="text-highlight font-semibold">analyzing and defending against 
+                simulated live attacks</span>. Within the cyber training range, participants can safely practice various 
+                defense and remediation tactics.
+              </p>
+              
+              <p className="text-lg font-sans">
+                In addition, participants gain experience in <span className="text-highlight font-semibold">interdisciplinary cooperation</span> with corporate 
+                management and communication, specialist departments and third parties. The training includes 
+                <span className="text-highlight font-semibold">technical elements as well as elements of incident, emergency and crisis management</span>.
+              </p>
+              
+              <div className="pt-8">
+                <a 
+                  href="/training" 
+                  className="text-electric font-mono text-lg underline hover:text-primary/80 transition-electric"
+                >
+                  What?
+                </a>
+              </div>
             </div>
           </div>
         </div>
-
-        {/* Methods Section */}
-        <section className="border-t border-border pt-16">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-16">
-            <MethodIcon 
-              type="knowledge" 
-              title="Knowledge transfer"
-            />
-            <MethodIcon 
-              type="group" 
-              title="Group exercises"
-            />
-            <MethodIcon 
-              type="cyber" 
-              title="Live cyber attacks"
-            />
-          </div>
-          
-          {/* Footer Links */}
-          <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-border">
-            <a 
-              href="#" 
-              className="text-electric font-mono text-sm underline hover:text-primary/80 transition-electric mb-4 md:mb-0"
-            >
-              By whom?
-            </a>
-            <a 
-              href="/technical-requirements" 
-              className="text-electric font-mono text-sm underline hover:text-primary/80 transition-electric"
-            >
-              Technical requirements
-            </a>
-          </div>
-        </section>
       </main>
     </div>
   );

@@ -95,7 +95,7 @@ const TechnicalRequirements = () => {
               
               <div className="pt-8">
                 <a 
-                  href="/why" 
+                  href="/" 
                   className="text-electric font-mono text-lg underline hover:text-primary/80 transition-electric"
                 >
                   Why?
