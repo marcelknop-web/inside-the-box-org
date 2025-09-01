@@ -17,7 +17,7 @@ const ConsultingTeam = () => {
             
             <div className="space-y-8 text-foreground leading-relaxed">
               <p className="text-lg font-sans">
-                <span className="text-highlight font-semibold">Experienced cybersecurity professionals</span> with proven consulting and auditing expertise.
+                <span className="text-highlight font-semibold">35+ years' experience</span> in cybersecurity consulting and auditing.
               </p>
               
               <div className="space-y-8">
