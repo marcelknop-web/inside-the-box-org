@@ -19,6 +19,10 @@ import TISAXPCIDSS from "./pages/TISAXPCIDSS";
 import AssessmentsConcepts from "./pages/AssessmentsConcepts";
 import IncidentManagement from "./pages/IncidentManagement";
 import CyberCrisisManagement from "./pages/CyberCrisisManagement";
+import ArenaTraining from "./pages/ArenaTraining";
+import EventsWorkshops from "./pages/EventsWorkshops";
+import Publications from "./pages/Publications";
+import VirtualCISO from "./pages/VirtualCISO";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -46,6 +50,10 @@ const App = () => (
           <Route path="/assessments-concepts" element={<AssessmentsConcepts />} />
           <Route path="/incident-management" element={<IncidentManagement />} />
           <Route path="/cyber-crisis-management" element={<CyberCrisisManagement />} />
+          <Route path="/arena-training" element={<ArenaTraining />} />
+          <Route path="/events-workshops" element={<EventsWorkshops />} />
+          <Route path="/publications" element={<Publications />} />
+          <Route path="/virtual-ciso" element={<VirtualCISO />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -82,49 +82,45 @@ const Consulting = () => {
                   </p>
                 </a>
 
-                {/* Arena Training, TIBER Test - Coming Soon */}
-                <div className="bg-foreground/5 border-2 border-foreground/20 rounded-lg p-6 opacity-70 cursor-not-allowed">
-                  <h3 className="text-foreground/60 text-lg font-semibold font-mono mb-3">
+                {/* Arena Training, TIBER Test */}
+                <a href="/arena-training" className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6 hover:bg-primary/20 hover:border-primary/50 transition-electric block">
+                  <h3 className="text-primary text-lg font-semibold font-mono mb-3">
                     Arena Training, TIBER Test
-                    <span className="text-xs font-normal ml-2 bg-foreground/10 px-2 py-1 rounded">Coming Soon</span>
                   </h3>
-                  <p className="text-sm text-foreground/50">
+                  <p className="text-sm text-foreground/80">
                     Threat Intelligence-based Ethical Red Teaming and advanced cybersecurity training programs.
                   </p>
-                </div>
+                </a>
 
-                {/* Events & Workshops - Coming Soon */}
-                <div className="bg-foreground/5 border-2 border-foreground/20 rounded-lg p-6 opacity-70 cursor-not-allowed">
-                  <h3 className="text-foreground/60 text-lg font-semibold font-mono mb-3">
+                {/* Events & Workshops */}
+                <a href="/events-workshops" className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6 hover:bg-primary/20 hover:border-primary/50 transition-electric block">
+                  <h3 className="text-primary text-lg font-semibold font-mono mb-3">
                     Events & Workshops
-                    <span className="text-xs font-normal ml-2 bg-foreground/10 px-2 py-1 rounded">Coming Soon</span>
                   </h3>
-                  <p className="text-sm text-foreground/50">
+                  <p className="text-sm text-foreground/80">
                     Cybersecurity awareness workshops, training events, and educational seminars.
                   </p>
-                </div>
+                </a>
 
-                {/* Publications, Trainings - Coming Soon */}
-                <div className="bg-foreground/5 border-2 border-foreground/20 rounded-lg p-6 opacity-70 cursor-not-allowed">
-                  <h3 className="text-foreground/60 text-lg font-semibold font-mono mb-3">
+                {/* Publications, Trainings */}
+                <a href="/publications" className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6 hover:bg-primary/20 hover:border-primary/50 transition-electric block">
+                  <h3 className="text-primary text-lg font-semibold font-mono mb-3">
                     Publications, Trainings
-                    <span className="text-xs font-normal ml-2 bg-foreground/10 px-2 py-1 rounded">Coming Soon</span>
                   </h3>
-                  <p className="text-sm text-foreground/50">
+                  <p className="text-sm text-foreground/80">
                     Industry publications, thought leadership content, and specialized training programs.
                   </p>
-                </div>
+                </a>
 
-                {/* Virtual CISO - Coming Soon */}
-                <div className="bg-foreground/5 border-2 border-foreground/20 rounded-lg p-6 opacity-70 cursor-not-allowed">
-                  <h3 className="text-foreground/60 text-lg font-semibold font-mono mb-3">
+                {/* Virtual CISO */}
+                <a href="/virtual-ciso" className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6 hover:bg-primary/20 hover:border-primary/50 transition-electric block">
+                  <h3 className="text-primary text-lg font-semibold font-mono mb-3">
                     Virtual CISO
-                    <span className="text-xs font-normal ml-2 bg-foreground/10 px-2 py-1 rounded">Coming Soon</span>
                   </h3>
-                  <p className="text-sm text-foreground/50">
+                  <p className="text-sm text-foreground/80">
                     Outsourced Chief Information Security Officer services for strategic cybersecurity leadership.
                   </p>
-                </div>
+                </a>
               </div>
               
               <div className="pt-8">
