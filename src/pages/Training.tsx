@@ -70,7 +70,7 @@ const Training = () => {
             <div className="flex">
               <a 
                 href="/" 
-                className="card-electric text-electric font-mono text-sm hover:text-highlight transition-electric flex-1 flex items-center justify-center p-4"
+                className="bg-highlight/10 border-2 border-highlight/30 rounded-lg text-highlight font-mono text-sm hover:text-electric hover:bg-highlight/20 hover:border-highlight/50 transition-electric flex-1 flex items-center justify-center p-4"
               >
                 Why?
               </a>
@@ -78,7 +78,7 @@ const Training = () => {
             <div className="flex">
               <a 
                 href="/technical-requirements" 
-                className="card-electric text-electric font-mono text-sm hover:text-highlight transition-electric flex-1 flex items-center justify-center p-4"
+                className="bg-highlight/10 border-2 border-highlight/30 rounded-lg text-highlight font-mono text-sm hover:text-electric hover:bg-highlight/20 hover:border-highlight/50 transition-electric flex-1 flex items-center justify-center p-4"
               >
                 Technical requirements
               </a>
