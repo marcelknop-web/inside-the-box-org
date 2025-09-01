@@ -43,7 +43,6 @@ const Contact = () => {
             
             <div className="space-y-8 text-foreground leading-relaxed">
               <p className="text-lg font-sans">
-                Questions about our <span className="text-highlight font-semibold">training and consulting programs</span>? 
                 Let's talk.
               </p>
               
