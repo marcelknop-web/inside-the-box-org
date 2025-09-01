@@ -1,0 +1,136 @@
+import { Header } from '@/components/Header';
+import { Footer } from '@/components/Footer';
+
+const NIS2DORA = () => {
+  return (
+    <div className="min-h-screen">
+      <Header />
+      
+      {/* Main Content */}
+      <main className="container mx-auto px-6 py-12">
+        <div className="max-w-4xl mx-auto">
+          {/* Content */}
+          <div className="space-y-8">
+            <h1 className="text-primary text-xl sm:text-2xl lg:text-5xl font-bold font-mono mb-12">
+              NIS-2, DORA, PART-IS
+            </h1>
+            
+            <div className="space-y-8 text-foreground leading-relaxed">
+              <p className="text-lg font-sans mb-8">
+                Comprehensive compliance support for Network and Information Security Directive, Digital Operational Resilience Act, and PART-IS requirements.
+              </p>
+              
+              {/* Services Overview */}
+              <div className="space-y-6">
+                <div className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6">
+                  <h2 className="text-primary text-xl font-bold font-mono mb-4">Impact Analysis</h2>
+                  <p className="text-sm text-foreground/80 mb-4">
+                    Determine the scope and implications of regulatory requirements for your organization.
+                  </p>
+                  <ul className="text-sm text-foreground/80 space-y-2">
+                    <li>• Assessment of regulatory applicability and scope determination</li>
+                    <li>• Identification of critical business functions and dependencies</li>
+                    <li>• Cross-divisional impact analysis including affiliated entities</li>
+                    <li>• Regulatory threshold and exemption evaluation</li>
+                  </ul>
+                </div>
+                
+                <div className="bg-highlight/10 border-2 border-highlight/30 rounded-lg p-6">
+                  <h2 className="text-highlight text-xl font-bold font-mono mb-4">GAP Analysis</h2>
+                  <p className="text-sm text-foreground/80 mb-4">
+                    Systematic evaluation of current capabilities against regulatory requirements.
+                  </p>
+                  <ul className="text-sm text-foreground/80 space-y-2">
+                    <li>• Current state assessment and compliance gap identification</li>
+                    <li>• Risk-based prioritization of remediation activities</li>
+                    <li>• Implementation timeline development with milestone planning</li>
+                    <li>• Resource allocation and responsibility assignment</li>
+                  </ul>
+                </div>
+                
+                <div className="bg-primary/5 border border-primary/20 rounded-lg p-6">
+                  <h2 className="text-primary text-xl font-bold font-mono mb-4">Implementation of Measures</h2>
+                  <p className="text-sm text-foreground/80 mb-4">
+                    Development and deployment of technical and organizational measures for compliance.
+                  </p>
+                  <ul className="text-sm text-foreground/80 space-y-2">
+                    <li>• Technical and organizational measure (TOM) development</li>
+                    <li>• Continuous monitoring and effectiveness assessment</li>
+                    <li>• Cybersecurity awareness program implementation</li>
+                    <li>• Incident response and reporting mechanism establishment</li>
+                  </ul>
+                </div>
+                
+                <div className="bg-highlight/5 border border-highlight/20 rounded-lg p-6">
+                  <h2 className="text-highlight text-xl font-bold font-mono mb-4">Regulatory Framework Coverage</h2>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-foreground/80">
+                    <div>
+                      <h3 className="font-semibold text-foreground mb-2">NIS-2 Directive</h3>
+                      <p>Network and Information Systems security requirements for essential and important entities.</p>
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-foreground mb-2">DORA</h3>
+                      <p>Digital Operational Resilience Act for financial services ICT risk management.</p>
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-foreground mb-2">PART-IS</h3>
+                      <p>Proportionate and risk-based approaches to information security compliance.</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6">
+                  <h2 className="text-primary text-xl font-bold font-mono mb-4">Key Deliverables</h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-foreground/80">
+                    <div>
+                      <h3 className="font-semibold text-foreground mb-2">Assessment Reports</h3>
+                      <p>Comprehensive analysis of regulatory applicability and current compliance status.</p>
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-foreground mb-2">Implementation Roadmap</h3>
+                      <p>Detailed project plan with timelines, milestones, and resource requirements.</p>
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-foreground mb-2">Policy Framework</h3>
+                      <p>Documented policies, procedures, and controls aligned with regulatory requirements.</p>
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-foreground mb-2">Monitoring Program</h3>
+                      <p>Continuous compliance monitoring and reporting mechanisms.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="pt-8">
+                <div className="flex justify-center lg:justify-start space-x-4 flex-wrap gap-y-4">
+                  <a 
+                    href="/consulting" 
+                    className="bg-primary/10 border-2 border-primary/30 rounded-lg text-primary font-mono text-lg hover:text-highlight hover:bg-primary/20 hover:border-primary/50 transition-electric px-6 py-3 inline-block"
+                  >
+                    All Consulting Services
+                  </a>
+                  <a 
+                    href="/consulting/team" 
+                    className="bg-primary/10 border-2 border-primary/30 rounded-lg text-primary font-mono text-lg hover:text-highlight hover:bg-primary/20 hover:border-primary/50 transition-electric px-6 py-3 inline-block"
+                  >
+                    Meet Our Team
+                  </a>
+                  <a 
+                    href="/contact" 
+                    className="bg-highlight/10 border-2 border-highlight/30 rounded-lg text-highlight font-mono text-lg hover:text-primary hover:bg-highlight/20 hover:border-highlight/50 transition-electric px-6 py-3 inline-block"
+                  >
+                    Let's talk
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+      <Footer />
+    </div>
+  );
+};
+
+export default NIS2DORA;

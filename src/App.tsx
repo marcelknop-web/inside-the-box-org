@@ -14,6 +14,7 @@ import ConsultingTeam from "./pages/ConsultingTeam";
 import About from "./pages/About";
 import Imprint from "./pages/Imprint";
 import ISMS from "./pages/ISMS";
+import NIS2DORA from "./pages/NIS2DORA";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -36,6 +37,7 @@ const App = () => (
           <Route path="/consulting/team" element={<ConsultingTeam />} />
           <Route path="/imprint" element={<Imprint />} />
           <Route path="/isms" element={<ISMS />} />
+          <Route path="/nis2-dora" element={<NIS2DORA />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

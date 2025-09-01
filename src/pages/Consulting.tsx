@@ -33,14 +33,14 @@ const Consulting = () => {
                 </a>
 
                 {/* NIS-2, DORA */}
-                <div className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6 hover:bg-primary/20 hover:border-primary/50 transition-electric">
+                <a href="/nis2-dora" className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6 hover:bg-primary/20 hover:border-primary/50 transition-electric block">
                   <h3 className="text-primary text-lg font-semibold font-mono mb-3">
                     NIS-2, DORA, PART-IS
                   </h3>
                   <p className="text-sm text-foreground/80">
                     Network and Information Security Directive, Digital Operational Resilience Act, and PART-IS compliance consulting.
                   </p>
-                </div>
+                </a>
 
                 {/* TISAX, PCI-DSS */}
                 <div className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6 hover:bg-primary/20 hover:border-primary/50 transition-electric">
