@@ -12,6 +12,7 @@ import TechnicalRequirements from "./pages/TechnicalRequirements";
 import Consulting from "./pages/Consulting";
 import ConsultingTeam from "./pages/ConsultingTeam";
 import About from "./pages/About";
+import Imprint from "./pages/Imprint";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -32,6 +33,7 @@ const App = () => (
           <Route path="/technical-requirements" element={<TechnicalRequirements />} />
           <Route path="/consulting" element={<Consulting />} />
           <Route path="/consulting/team" element={<ConsultingTeam />} />
+          <Route path="/imprint" element={<Imprint />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

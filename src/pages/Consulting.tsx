@@ -1,4 +1,5 @@
 import { Header } from '@/components/Header';
+import { Footer } from '@/components/Footer';
 
 const Consulting = () => {
   return (
@@ -136,6 +137,7 @@ const Consulting = () => {
           </div>
         </div>
       </main>
+      <Footer />
     </div>
   );
 };

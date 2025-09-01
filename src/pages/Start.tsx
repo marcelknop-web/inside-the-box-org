@@ -1,4 +1,5 @@
 import { GeometricSymbol } from '@/components/GeometricSymbol';
+import { Footer } from '@/components/Footer';
 
 const Start = () => {
   return (
@@ -59,6 +60,7 @@ const Start = () => {
           </div>
         </div>
       </main>
+      <Footer />
     </div>
   );
 };

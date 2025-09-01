@@ -1,4 +1,5 @@
 import { Header } from '@/components/Header';
+import { Footer } from '@/components/Footer';
 
 const ByWhom = () => {
   return (
@@ -133,6 +134,7 @@ const ByWhom = () => {
           </div>
         </div>
       </main>
+      <Footer />
     </div>
   );
 };

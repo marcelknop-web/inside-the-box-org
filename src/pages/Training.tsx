@@ -1,6 +1,7 @@
 import { TrainingCard } from '@/components/TrainingCard';
 import { MethodIcon } from '@/components/MethodIcon';
 import { Header } from '@/components/Header';
+import { Footer } from '@/components/Footer';
 import { Server, AlertTriangle, Bug, Shield, AlertCircle, MessageSquare } from 'lucide-react';
 
 const Training = () => {
@@ -83,6 +84,7 @@ const Training = () => {
           </div>
         </section>
       </main>
+      <Footer />
     </div>
   );
 };
