@@ -7,7 +7,7 @@ export const Footer = () => {
   return (
     <footer className="border-t border-border py-6 mt-16 bg-black">
       <div className="container mx-auto px-6">
-        <div className="flex justify-center">
+        <div className="flex justify-center items-center space-x-6">
           {!isImprintPage && (
             <a 
               href="/imprint" 
@@ -16,6 +16,9 @@ export const Footer = () => {
               Imprint
             </a>
           )}
+          <p className="text-foreground/70 text-sm font-mono">
+            Last updated: 1st September, 2025
+          </p>
         </div>
       </div>
     </footer>

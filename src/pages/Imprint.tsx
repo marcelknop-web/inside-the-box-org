@@ -90,12 +90,6 @@ const Imprint = () => {
                   </a>
                 </div>
               </div>
-              
-              <div className="pt-4 text-center">
-                <p className="text-sm text-foreground/60">
-                  Last updated: 1st September, 2025
-                </p>
-              </div>
             </div>
           </div>
         </div>
