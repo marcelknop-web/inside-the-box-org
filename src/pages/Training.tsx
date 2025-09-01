@@ -29,7 +29,7 @@ const Training = () => {
           {/* Right: Title and Topics */}
           <div className="flex-1 lg:ml-20">
             <h1 className="text-highlight text-4xl lg:text-5xl font-bold font-mono mb-12 text-center lg:text-left hover:text-electric transition-electric">
-              Training Topics and Methods
+              Training Topics
             </h1>
             
             {/* Training Topics Grid */}
@@ -50,6 +50,9 @@ const Training = () => {
 
         {/* Methods Section */}
         <section className="border-t border-border pt-16">
+          <h2 className="text-electric text-3xl lg:text-4xl font-bold font-mono mb-12 text-center hover:text-highlight transition-electric">
+            Training Methods
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-16">
             <MethodIcon 
               type="knowledge" 
