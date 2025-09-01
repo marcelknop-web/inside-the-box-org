@@ -6,8 +6,8 @@
 
 @layer base {
   :root {
-    /* Electronic dark theme */
-    --background: 220 20% 9%;
+    /* Electronic dark theme with brighter background */
+    --background: 220 15% 14%;
     --foreground: 0 0% 98%;
 
     --card: 220 20% 11%;
@@ -88,8 +88,30 @@
   }
 
   body {
-    @apply bg-background text-foreground antialiased;
+    @apply text-foreground antialiased;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+    background: 
+      /* Uneven brightness overlay */
+      radial-gradient(circle at 20% 30%, hsl(220 15% 16% / 0.8) 0%, transparent 50%),
+      radial-gradient(circle at 80% 70%, hsl(220 15% 18% / 0.6) 0%, transparent 50%),
+      radial-gradient(circle at 40% 80%, hsl(220 15% 15% / 0.7) 0%, transparent 50%),
+      /* Millimeter grid */
+      linear-gradient(hsl(220 10% 25% / 0.3) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(220 10% 25% / 0.3) 1px, transparent 1px),
+      /* Major grid lines every 10mm */
+      linear-gradient(hsl(220 10% 30% / 0.5) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(220 10% 30% / 0.5) 1px, transparent 1px),
+      /* Base background */
+      hsl(var(--background));
+    background-size: 
+      100% 100%,
+      100% 100%, 
+      100% 100%,
+      4px 4px,
+      4px 4px,
+      40px 40px,
+      40px 40px,
+      100% 100%;
   }
 
   /* Electronic animations */
