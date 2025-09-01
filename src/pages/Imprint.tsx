@@ -26,8 +26,8 @@ const Imprint = () => {
                 
                 <p className="text-lg font-sans">
                   <span className="text-highlight font-semibold">Contact</span><br />
-                  <a href="mailto:marcel@inside-the-box.org" className="text-highlight hover:text-primary transition-electric">marcel@inside-the-box.org</a><br />
-                  <a href="tel:+4915205691648" className="text-highlight hover:text-primary transition-electric">+49 1520 569 1648</a>
+                  <a href="mailto:marcel@inside-the-box.org" className="text-white hover:text-primary transition-electric">marcel@inside-the-box.org</a><br />
+                  <a href="tel:+4915205691648" className="text-white hover:text-primary transition-electric">+49 1520 569 1648</a>
                 </p>
                 
                 <p className="text-lg font-sans">
