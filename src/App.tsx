@@ -11,6 +11,7 @@ import Contact from "./pages/Contact";
 import TechnicalRequirements from "./pages/TechnicalRequirements";
 import Consulting from "./pages/Consulting";
 import ConsultingTeam from "./pages/ConsultingTeam";
+import About from "./pages/About";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,6 +27,7 @@ const App = () => (
           <Route path="/why" element={<Index />} />
           <Route path="/training" element={<Training />} />
           <Route path="/by-whom" element={<ByWhom />} />
+          <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/technical-requirements" element={<TechnicalRequirements />} />
           <Route path="/consulting" element={<Consulting />} />
