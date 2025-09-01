@@ -43,7 +43,7 @@ const Contact = () => {
             
             <div className="space-y-8 text-foreground leading-relaxed">
               <p className="text-lg font-sans">
-                Discuss your cybersecurity requirements.
+                Let's talk.
               </p>
               
               {/* Contact Methods */}
