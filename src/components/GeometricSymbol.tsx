@@ -32,9 +32,9 @@ export const GeometricSymbol = ({ size = 'lg', className = '' }: GeometricSymbol
       {/* Right diamond with enhanced glow */}
       <div className="absolute right-2 top-1/2 transform -translate-y-1/2 w-16 h-16 border-2 border-primary/80 rotate-45 animate-glow-slow" />
       
-      {/* Center diamond with strongest glow */}
+      {/* Center diamond with subtle glow */}
       <div className="absolute inset-1/4 border-2 border-primary rotate-45 animate-glow-slow" style={{
-        boxShadow: '0 0 10px hsl(var(--primary) / 0.4), 0 0 20px hsl(var(--primary) / 0.2)'
+        boxShadow: '0 0 3px hsl(var(--primary) / 0.2)'
       }} />
       
       {/* Inner nested squares with subtle glow */}
