@@ -1,15 +1,13 @@
 import { GeometricSymbol } from '@/components/GeometricSymbol';
-import { Header } from '@/components/Header';
-import { Button } from '@/components/ui/button';
 
 const Start = () => {
   return (
     <div className="min-h-screen">
-      {/* Header with name only */}
+      {/* Header with consistent styling */}
       <header className="py-8">
         <div className="container mx-auto px-6 flex items-center justify-between">
           <a href="/" className="group">
-            <span className="text-electric text-xl font-mono group-hover:text-highlight transition-electric">INSIDE THE BOX</span>
+            <span className="text-primary text-xl font-mono group-hover:text-highlight transition-electric">INSIDE THE BOX</span>
           </a>
           <nav className="hidden md:flex space-x-4">
             <a href="/training" className="bg-primary/10 border-2 border-primary/30 rounded-lg text-primary font-mono text-sm hover:text-highlight hover:bg-primary/20 hover:border-primary/50 transition-electric px-4 py-2">
@@ -40,7 +38,7 @@ const Start = () => {
                   href="/why" 
                   className="block group"
                 >
-                  <h1 className="text-highlight text-3xl sm:text-4xl lg:text-6xl font-bold font-mono leading-tight hover:text-electric transition-electric">
+                  <h1 className="text-highlight text-3xl sm:text-4xl lg:text-6xl font-bold font-mono leading-tight hover:text-primary transition-electric">
                     Cyber Training Range
                   </h1>
                 </a>
@@ -49,7 +47,7 @@ const Start = () => {
                   href="/consulting" 
                   className="block group"
                 >
-                  <h2 className="text-electric text-3xl sm:text-4xl lg:text-6xl font-bold font-mono leading-tight hover:text-highlight transition-electric">
+                  <h2 className="text-primary text-3xl sm:text-4xl lg:text-6xl font-bold font-mono leading-tight hover:text-highlight transition-electric">
                     Cybersecurity Consulting
                   </h2>
                 </a>

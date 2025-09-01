@@ -10,7 +10,7 @@ const ByWhom = () => {
         <div className="max-w-4xl mx-auto">
           {/* Content */}
           <div className="space-y-8">
-            <h1 className="text-electric text-5xl font-bold font-mono mb-12">
+            <h1 className="text-primary text-5xl font-bold font-mono mb-12">
               By Whom?
             </h1>
             

@@ -10,7 +10,7 @@ const Consulting = () => {
         <div className="max-w-4xl mx-auto">
           {/* Content */}
           <div className="space-y-8">
-            <h1 className="text-electric text-5xl font-bold font-mono mb-12">
+            <h1 className="text-primary text-5xl font-bold font-mono mb-12">
               Cybersecurity Consulting
             </h1>
             
@@ -126,7 +126,7 @@ const Consulting = () => {
                 <div className="flex justify-center lg:justify-start">
                   <a 
                     href="/consulting/team" 
-                    className="bg-highlight/10 border-2 border-highlight/30 rounded-lg text-highlight font-mono text-lg hover:text-electric hover:bg-highlight/20 hover:border-highlight/50 transition-electric px-6 py-3 inline-block"
+                    className="bg-highlight/10 border-2 border-highlight/30 rounded-lg text-highlight font-mono text-lg hover:text-primary hover:bg-highlight/20 hover:border-highlight/50 transition-electric px-6 py-3 inline-block"
                   >
                     By Whom?
                   </a>

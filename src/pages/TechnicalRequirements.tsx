@@ -22,7 +22,7 @@ const TechnicalRequirements = () => {
               </p>
               
               <div className="space-y-6">
-                <h2 className="text-electric text-2xl font-bold font-mono hover:text-highlight transition-electric">
+                <h2 className="text-primary text-2xl font-bold font-mono hover:text-highlight transition-electric">
                   System Requirements
                 </h2>
                 
@@ -50,7 +50,7 @@ const TechnicalRequirements = () => {
               </div>
               
               <div className="space-y-6">
-                <h2 className="text-electric text-2xl font-bold font-mono hover:text-highlight transition-electric">
+                <h2 className="text-primary text-2xl font-bold font-mono hover:text-highlight transition-electric">
                   Network Requirements
                 </h2>
                 
@@ -71,7 +71,7 @@ const TechnicalRequirements = () => {
               </div>
               
               <div className="space-y-6">
-                <h2 className="text-electric text-2xl font-bold font-mono hover:text-highlight transition-electric">
+                <h2 className="text-primary text-2xl font-bold font-mono hover:text-highlight transition-electric">
                   Preparation
                 </h2>
                 

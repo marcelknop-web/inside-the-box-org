@@ -36,7 +36,7 @@ const Contact = () => {
         <div className="max-w-4xl mx-auto">
           {/* Content */}
           <div className="space-y-8">
-            <h1 className="text-electric text-5xl font-bold font-mono mb-12">
+            <h1 className="text-primary text-5xl font-bold font-mono mb-12">
               Contact
             </h1>
             
@@ -53,7 +53,7 @@ const Contact = () => {
                     <h3 className="text-primary text-lg font-semibold">Phone</h3>
                   </div>
                   <div className="space-y-2 text-sm">
-                    <p><a href="tel:+4915205691648" className="text-highlight hover:text-electric transition-electric">+49 1520 569 1648</a></p>
+                    <p><a href="tel:+4915205691648" className="text-highlight hover:text-primary transition-electric">+49 1520 569 1648</a></p>
                   </div>
                 </div>
                 
@@ -63,7 +63,7 @@ const Contact = () => {
                     <h3 className="text-primary text-lg font-semibold">Email</h3>
                   </div>
                   <div className="space-y-2 text-sm">
-                    <p><a href="mailto:marcel@inside-the-box.org" className="text-highlight hover:text-electric transition-electric">marcel@inside-the-box.org</a></p>
+                    <p><a href="mailto:marcel@inside-the-box.org" className="text-highlight hover:text-primary transition-electric">marcel@inside-the-box.org</a></p>
                   </div>
                 </div>
               </div>
@@ -114,7 +114,7 @@ const Contact = () => {
                   
                   <Button 
                     type="submit"
-                    className="bg-highlight/10 border-2 border-highlight/30 rounded-lg text-highlight font-mono hover:text-electric hover:bg-highlight/20 hover:border-highlight/50 transition-electric px-6 py-3"
+                    className="bg-highlight/10 border-2 border-highlight/30 rounded-lg text-highlight font-mono hover:text-primary hover:bg-highlight/20 hover:border-highlight/50 transition-electric px-6 py-3"
                   >
                     Send Request
                   </Button>
