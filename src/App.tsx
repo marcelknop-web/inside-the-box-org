@@ -13,6 +13,7 @@ import Consulting from "./pages/Consulting";
 import ConsultingTeam from "./pages/ConsultingTeam";
 import About from "./pages/About";
 import Imprint from "./pages/Imprint";
+import ISMS from "./pages/ISMS";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -34,6 +35,7 @@ const App = () => (
           <Route path="/consulting" element={<Consulting />} />
           <Route path="/consulting/team" element={<ConsultingTeam />} />
           <Route path="/imprint" element={<Imprint />} />
+          <Route path="/isms" element={<ISMS />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

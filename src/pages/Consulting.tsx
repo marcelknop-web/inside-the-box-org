@@ -23,14 +23,14 @@ const Consulting = () => {
               {/* Services Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* ISMS ISO 27001, BSI GS */}
-                <div className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6 hover:bg-primary/20 hover:border-primary/50 transition-electric">
+                <a href="/isms" className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6 hover:bg-primary/20 hover:border-primary/50 transition-electric block">
                   <h3 className="text-primary text-lg font-semibold font-mono mb-3">
                     ISMS ISO 27001, BSI GS
                   </h3>
                   <p className="text-sm text-foreground/80">
                     Information Security Management System implementation and certification according to ISO 27001 and BSI IT-Grundschutz standards.
                   </p>
-                </div>
+                </a>
 
                 {/* NIS-2, DORA */}
                 <div className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6 hover:bg-primary/20 hover:border-primary/50 transition-electric">
