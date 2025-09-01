@@ -28,7 +28,7 @@ const Training = () => {
           
           {/* Right: Title and Topics */}
           <div className="flex-1 lg:ml-20">
-            <h1 className="text-electric text-4xl lg:text-5xl font-bold font-mono mb-12 text-center lg:text-left">
+            <h1 className="text-highlight text-4xl lg:text-5xl font-bold font-mono mb-12 text-center lg:text-left hover:text-electric transition-electric">
               Training Topics and Methods
             </h1>
             
@@ -67,13 +67,13 @@ const Training = () => {
           <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-border">
             <a 
               href="/" 
-              className="text-electric font-mono text-sm underline hover:text-primary/80 transition-electric mb-4 md:mb-0"
+              className="text-electric font-mono text-sm underline hover:text-highlight transition-electric mb-4 md:mb-0"
             >
               Why?
             </a>
             <a 
               href="/technical-requirements" 
-              className="text-electric font-mono text-sm underline hover:text-primary/80 transition-electric"
+              className="text-electric font-mono text-sm underline hover:text-highlight transition-electric"
             >
               Technical requirements
             </a>

@@ -16,7 +16,7 @@ const Index = () => {
           
           {/* Right: Content */}
           <div className="flex-1 max-w-3xl">
-            <h1 className="text-electric text-5xl font-bold font-mono mb-12">
+            <h1 className="text-highlight text-5xl font-bold font-mono mb-12">
               Why?
             </h1>
             
@@ -44,7 +44,7 @@ const Index = () => {
               <div className="pt-8">
                 <a 
                   href="/training" 
-                  className="text-electric font-mono text-lg underline hover:text-primary/80 transition-electric"
+                  className="text-electric font-mono text-lg underline hover:text-highlight transition-electric"
                 >
                   What?
                 </a>

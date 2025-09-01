@@ -16,7 +16,7 @@ const TechnicalRequirements = () => {
           
           {/* Right: Content */}
           <div className="flex-1 max-w-3xl">
-            <h1 className="text-electric text-5xl font-bold font-mono mb-12">
+            <h1 className="text-highlight text-5xl font-bold font-mono mb-12">
               Technical Requirements
             </h1>
             
@@ -28,7 +28,7 @@ const TechnicalRequirements = () => {
               </p>
               
               <div className="space-y-6">
-                <h2 className="text-electric text-2xl font-bold font-mono">
+                <h2 className="text-electric text-2xl font-bold font-mono hover:text-highlight transition-electric">
                   System Requirements
                 </h2>
                 
@@ -56,7 +56,7 @@ const TechnicalRequirements = () => {
               </div>
               
               <div className="space-y-6">
-                <h2 className="text-electric text-2xl font-bold font-mono">
+                <h2 className="text-electric text-2xl font-bold font-mono hover:text-highlight transition-electric">
                   Network Requirements
                 </h2>
                 
@@ -77,7 +77,7 @@ const TechnicalRequirements = () => {
               </div>
               
               <div className="space-y-6">
-                <h2 className="text-electric text-2xl font-bold font-mono">
+                <h2 className="text-electric text-2xl font-bold font-mono hover:text-highlight transition-electric">
                   Preparation
                 </h2>
                 
@@ -96,7 +96,7 @@ const TechnicalRequirements = () => {
               <div className="pt-8">
                 <a 
                   href="/" 
-                  className="text-electric font-mono text-lg underline hover:text-primary/80 transition-electric"
+                  className="text-electric font-mono text-lg underline hover:text-highlight transition-electric"
                 >
                   Why?
                 </a>
