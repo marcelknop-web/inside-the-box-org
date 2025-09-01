@@ -67,10 +67,6 @@ const ByWhom = () => {
                       </div>
                     </div>
 
-                    <div>
-                      <h4 className="text-primary font-semibold mb-2">Industry Sectors & Company Sizes</h4>
-                      <p className="text-xs">Financial Services, Automotive, Aerospace, Transportation, Energy, Telecommunications, Government & Defense, Healthcare, Manufacturing. From SME to DAX-30 corporations, Critical Infrastructure operators, and Public Sector organizations (350+ projects)</p>
-                    </div>
                   </div>
                 </div>
 
