@@ -6,12 +6,36 @@ import { Server, AlertTriangle, Bug, Shield, AlertCircle, MessageSquare } from '
 
 const Training = () => {
   const trainingTopics = [
-    { title: 'Host and Network Forensics', icon: Server },
-    { title: 'Crises Management', icon: AlertTriangle }, 
-    { title: 'Malware Analysis', icon: Bug },
-    { title: 'SIEM', icon: Shield },
-    { title: 'Incident Management', icon: AlertCircle },
-    { title: 'Crises Communication', icon: MessageSquare }
+    { 
+      title: 'Host and Network Forensics', 
+      description: 'Analyze compromised systems and network traffic. Extract evidence and reconstruct attack timelines.',
+      icon: Server 
+    },
+    { 
+      title: 'Crisis Management', 
+      description: 'Lead incident response teams. Make critical decisions under pressure and coordinate recovery efforts.',
+      icon: AlertTriangle 
+    }, 
+    { 
+      title: 'Malware Analysis', 
+      description: 'Reverse engineer malicious code. Understand attack methods and develop countermeasures.',
+      icon: Bug 
+    },
+    { 
+      title: 'SIEM', 
+      description: 'Monitor security events in real-time. Configure alerts and investigate suspicious activities.',
+      icon: Shield 
+    },
+    { 
+      title: 'Incident Management', 
+      description: 'Structure response processes. Document incidents and implement lessons learned.',
+      icon: AlertCircle 
+    },
+    { 
+      title: 'Crisis Communication', 
+      description: 'Manage stakeholder communication. Report to executives and coordinate with external parties.',
+      icon: MessageSquare 
+    }
   ];
 
   return (
@@ -33,6 +57,7 @@ const Training = () => {
                 <div key={index} className="flex">
                   <TrainingCard 
                     title={topic.title}
+                    description={topic.description}
                     icon={topic.icon}
                     className="flex-1"
                     onClick={() => console.log(`Selected: ${topic.title}`)}
