@@ -82,42 +82,46 @@ const Consulting = () => {
                   </p>
                 </a>
 
-                {/* Arena Training, TIBER Test */}
-                <div className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6 hover:bg-primary/20 hover:border-primary/50 transition-electric">
-                  <h3 className="text-primary text-lg font-semibold font-mono mb-3">
+                {/* Arena Training, TIBER Test - Coming Soon */}
+                <div className="bg-foreground/5 border-2 border-foreground/20 rounded-lg p-6 opacity-70 cursor-not-allowed">
+                  <h3 className="text-foreground/60 text-lg font-semibold font-mono mb-3">
                     Arena Training, TIBER Test
+                    <span className="text-xs font-normal ml-2 bg-foreground/10 px-2 py-1 rounded">Coming Soon</span>
                   </h3>
-                  <p className="text-sm text-foreground/80">
+                  <p className="text-sm text-foreground/50">
                     Threat Intelligence-based Ethical Red Teaming and advanced cybersecurity training programs.
                   </p>
                 </div>
 
-                {/* Events & Workshops */}
-                <div className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6 hover:bg-primary/20 hover:border-primary/50 transition-electric">
-                  <h3 className="text-primary text-lg font-semibold font-mono mb-3">
+                {/* Events & Workshops - Coming Soon */}
+                <div className="bg-foreground/5 border-2 border-foreground/20 rounded-lg p-6 opacity-70 cursor-not-allowed">
+                  <h3 className="text-foreground/60 text-lg font-semibold font-mono mb-3">
                     Events & Workshops
+                    <span className="text-xs font-normal ml-2 bg-foreground/10 px-2 py-1 rounded">Coming Soon</span>
                   </h3>
-                  <p className="text-sm text-foreground/80">
+                  <p className="text-sm text-foreground/50">
                     Cybersecurity awareness workshops, training events, and educational seminars.
                   </p>
                 </div>
 
-                {/* Publications, Trainings */}
-                <div className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6 hover:bg-primary/20 hover:border-primary/50 transition-electric">
-                  <h3 className="text-primary text-lg font-semibold font-mono mb-3">
+                {/* Publications, Trainings - Coming Soon */}
+                <div className="bg-foreground/5 border-2 border-foreground/20 rounded-lg p-6 opacity-70 cursor-not-allowed">
+                  <h3 className="text-foreground/60 text-lg font-semibold font-mono mb-3">
                     Publications, Trainings
+                    <span className="text-xs font-normal ml-2 bg-foreground/10 px-2 py-1 rounded">Coming Soon</span>
                   </h3>
-                  <p className="text-sm text-foreground/80">
+                  <p className="text-sm text-foreground/50">
                     Industry publications, thought leadership content, and specialized training programs.
                   </p>
                 </div>
 
-                {/* Virtual CISO */}
-                <div className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6 hover:bg-primary/20 hover:border-primary/50 transition-electric">
-                  <h3 className="text-primary text-lg font-semibold font-mono mb-3">
+                {/* Virtual CISO - Coming Soon */}
+                <div className="bg-foreground/5 border-2 border-foreground/20 rounded-lg p-6 opacity-70 cursor-not-allowed">
+                  <h3 className="text-foreground/60 text-lg font-semibold font-mono mb-3">
                     Virtual CISO
+                    <span className="text-xs font-normal ml-2 bg-foreground/10 px-2 py-1 rounded">Coming Soon</span>
                   </h3>
-                  <p className="text-sm text-foreground/80">
+                  <p className="text-sm text-foreground/50">
                     Outsourced Chief Information Security Officer services for strategic cybersecurity leadership.
                   </p>
                 </div>
