@@ -53,34 +53,34 @@ const Consulting = () => {
                 </a>
 
                 {/* Assessments & Concepts */}
-                <div className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6 hover:bg-primary/20 hover:border-primary/50 transition-electric">
+                <a href="/assessments-concepts" className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6 hover:bg-primary/20 hover:border-primary/50 transition-electric block">
                   <h3 className="text-primary text-lg font-semibold font-mono mb-3">
                     Assessments & Concepts
                   </h3>
                   <p className="text-sm text-foreground/80">
                     Comprehensive security assessments and strategic cybersecurity concept development.
                   </p>
-                </div>
+                </a>
 
                 {/* Incident Management */}
-                <div className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6 hover:bg-primary/20 hover:border-primary/50 transition-electric">
+                <a href="/incident-management" className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6 hover:bg-primary/20 hover:border-primary/50 transition-electric block">
                   <h3 className="text-primary text-lg font-semibold font-mono mb-3">
                     Incident Management
                   </h3>
                   <p className="text-sm text-foreground/80">
                     Security incident response planning, implementation, and crisis management procedures.
                   </p>
-                </div>
+                </a>
 
                 {/* Cyber Crisis Management */}
-                <div className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6 hover:bg-primary/20 hover:border-primary/50 transition-electric">
+                <a href="/cyber-crisis-management" className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6 hover:bg-primary/20 hover:border-primary/50 transition-electric block">
                   <h3 className="text-primary text-lg font-semibold font-mono mb-3">
                     Cyber Crisis Management
                   </h3>
                   <p className="text-sm text-foreground/80">
                     Crisis management strategy development and cyber crisis simulation exercises.
                   </p>
-                </div>
+                </a>
 
                 {/* Arena Training, TIBER Test */}
                 <div className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6 hover:bg-primary/20 hover:border-primary/50 transition-electric">

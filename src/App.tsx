@@ -16,6 +16,9 @@ import Imprint from "./pages/Imprint";
 import ISMS from "./pages/ISMS";
 import NIS2DORA from "./pages/NIS2DORA";
 import TISAXPCIDSS from "./pages/TISAXPCIDSS";
+import AssessmentsConcepts from "./pages/AssessmentsConcepts";
+import IncidentManagement from "./pages/IncidentManagement";
+import CyberCrisisManagement from "./pages/CyberCrisisManagement";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -40,6 +43,9 @@ const App = () => (
           <Route path="/isms" element={<ISMS />} />
           <Route path="/nis2-dora" element={<NIS2DORA />} />
           <Route path="/tisax-pci-dss" element={<TISAXPCIDSS />} />
+          <Route path="/assessments-concepts" element={<AssessmentsConcepts />} />
+          <Route path="/incident-management" element={<IncidentManagement />} />
+          <Route path="/cyber-crisis-management" element={<CyberCrisisManagement />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
