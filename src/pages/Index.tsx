@@ -2,16 +2,15 @@ import { GeometricSymbol } from '@/components/GeometricSymbol';
 import { TrainingCard } from '@/components/TrainingCard';
 import { MethodIcon } from '@/components/MethodIcon';
 import { Header } from '@/components/Header';
-import { Server, AlertTriangle, Bug, Shield, AlertCircle, MessageSquare } from 'lucide-react';
 
 const Index = () => {
   const trainingTopics = [
-    { title: 'Host and Network Forensics', icon: Server },
-    { title: 'Crises Management', icon: AlertTriangle }, 
-    { title: 'Malware Analysis', icon: Bug },
-    { title: 'SIEM', icon: Shield },
-    { title: 'Incident Management', icon: AlertCircle },
-    { title: 'Crises Communication', icon: MessageSquare }
+    'Host and Network Forensics',
+    'Crises Management', 
+    'Malware Analysis',
+    'SIEM',
+    'Incident Management',
+    'Crises Communication'
   ];
 
   return (
@@ -37,9 +36,8 @@ const Index = () => {
               {trainingTopics.map((topic, index) => (
                 <TrainingCard 
                   key={index}
-                  title={topic.title}
-                  icon={topic.icon}
-                  onClick={() => console.log(`Selected: ${topic.title}`)}
+                  title={topic}
+                  onClick={() => console.log(`Selected: ${topic}`)}
                 />
               ))}
             </div>
