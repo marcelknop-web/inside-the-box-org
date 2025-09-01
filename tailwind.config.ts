@@ -19,6 +19,7 @@ export default {
 		},
 		extend: {
 			fontFamily: {
+				sans: ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
 				mono: ['Monaco', 'Menlo', 'Ubuntu Mono', 'monospace'],
 			},
 			colors: {
@@ -54,6 +55,10 @@ export default {
 				card: {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
+				},
+				contrast: {
+					DEFAULT: 'hsl(var(--contrast))',
+					foreground: 'hsl(var(--contrast-foreground))'
 				}
 			},
 			backgroundImage: {
