@@ -17,7 +17,7 @@ const TISAXPCIDSS = () => {
             
             <div className="space-y-8 text-foreground leading-relaxed">
               <p className="text-lg font-sans mb-8">
-                Specialized consulting for Trusted Information Security Assessment Exchange and Payment Card Industry Data Security Standard compliance.
+                TISAX and PCI-DSS compliance consulting.
               </p>
               
               {/* Services Overview */}

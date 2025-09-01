@@ -8,32 +8,32 @@ const Training = () => {
   const trainingTopics = [
     { 
       title: 'Host and Network Forensics', 
-      description: 'Analysis of compromised systems and network traffic patterns. Evidence extraction and attack timeline reconstruction.',
+      description: 'Analyze compromised systems and reconstruct attack timelines.',
       icon: Server 
     },
     { 
       title: 'Crisis Management', 
-      description: 'Incident response leadership methodologies. Critical decision-making frameworks under time pressure.',
+      description: 'Lead incident response teams under pressure.',
       icon: AlertTriangle 
     }, 
     { 
       title: 'Malware Analysis', 
-      description: 'Reverse engineering of malicious code. Attack vector analysis and countermeasure development.',
+      description: 'Reverse engineer malicious code and develop countermeasures.',
       icon: Bug 
     },
     { 
       title: 'SIEM', 
-      description: 'Real-time security event monitoring and analysis. Alert configuration and threat investigation protocols.',
+      description: 'Monitor security events and investigate threats.',
       icon: Shield 
     },
     { 
       title: 'Incident Management', 
-      description: 'Systematic incident response process design. Documentation protocols and post-incident analysis.',
+      description: 'Structure response processes and document incidents.',
       icon: AlertCircle 
     },
     { 
       title: 'Crisis Communication', 
-      description: 'Strategic stakeholder communication during security incidents. Executive reporting and external coordination.',
+      description: 'Manage stakeholder communication during incidents.',
       icon: MessageSquare 
     }
   ];
@@ -77,17 +77,17 @@ const Training = () => {
             <MethodIcon 
               type="knowledge" 
               title="Knowledge transfer"
-              description="Structured learning modules covering cybersecurity fundamentals and advanced operational techniques."
+              description="Expert-led sessions covering cybersecurity fundamentals."
             />
             <MethodIcon 
               type="group" 
               title="Group exercises"
-              description="Collaborative scenario-based training focused on team coordination and communication protocols."
+              description="Team-based scenarios for coordination practice."
             />
             <MethodIcon 
               type="cyber" 
               title="Live cyber attacks"
-              description="Controlled attack simulations using realistic threat scenarios within isolated environments."
+              description="Real-time attack simulations in controlled environments."
             />
           </div>
           

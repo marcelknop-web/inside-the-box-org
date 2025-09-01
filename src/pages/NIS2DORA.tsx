@@ -17,7 +17,7 @@ const NIS2DORA = () => {
             
             <div className="space-y-8 text-foreground leading-relaxed">
               <p className="text-lg font-sans mb-8">
-                Comprehensive compliance support for Network and Information Security Directive, Digital Operational Resilience Act, and PART-IS requirements.
+                NIS-2, DORA, and PART-IS compliance support.
               </p>
               
               {/* Services Overview */}

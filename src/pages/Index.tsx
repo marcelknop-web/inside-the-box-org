@@ -17,19 +17,17 @@ const Index = () => {
             
             <div className="space-y-8 text-foreground leading-relaxed">
               <p className="text-lg font-sans">
-                Analysis of cyber incidents consistently demonstrates that <span className="text-highlight font-semibold">human factors contribute significantly to response delays</span>. 
-                Organizations frequently experience coordination challenges and procedural gaps during critical security events.
+                Cyber incidents reveal that <span className="text-highlight font-semibold">human factors cause most response delays</span>. 
+                Organizations face coordination challenges during critical security events.
               </p>
               
               <p className="text-lg font-sans">
-                Our approach utilizes <span className="text-highlight font-semibold">controlled simulation environments</span> where teams can 
-                develop competencies through <span className="text-highlight font-semibold">realistic attack scenarios</span>. This methodology enables 
-                practical skill development in crisis coordination and incident response procedures.
+                Our <span className="text-highlight font-semibold">simulation environments</span> enable teams to develop competencies through 
+                <span className="text-highlight font-semibold">realistic attack scenarios</span> and practical crisis coordination.
               </p>
               
               <p className="text-lg font-sans">
-                The curriculum integrates <span className="text-highlight font-semibold">technical capabilities with organizational crisis management</span> 
-                to address comprehensive incident response requirements.
+                Training integrates <span className="text-highlight font-semibold">technical capabilities with crisis management</span>.
               </p>
               
               <div className="pt-8">

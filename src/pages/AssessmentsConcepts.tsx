@@ -17,7 +17,7 @@ const AssessmentsConcepts = () => {
             
             <div className="space-y-8 text-foreground leading-relaxed">
               <p className="text-lg font-sans mb-8">
-                Strategic security assessment and concept development to establish appropriate protective measures for responsible digitalization.
+                Security assessment and concept development for responsible digitalization.
               </p>
               
               {/* Services Overview */}

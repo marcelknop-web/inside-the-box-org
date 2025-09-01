@@ -17,7 +17,7 @@ const Consulting = () => {
             
             <div className="space-y-8 text-foreground leading-relaxed">
               <p className="text-lg font-sans mb-8">
-                Comprehensive cybersecurity advisory services addressing organizational risk management and compliance requirements.
+                Cybersecurity advisory services for risk management and compliance.
               </p>
               
               {/* Services Grid */}

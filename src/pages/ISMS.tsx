@@ -17,7 +17,7 @@ const ISMS = () => {
             
             <div className="space-y-8 text-foreground leading-relaxed">
               <p className="text-lg font-sans mb-8">
-                Information Security Management System development and certification support according to established frameworks.
+                ISMS development and certification support.
               </p>
               
               {/* Services Overview */}
@@ -25,12 +25,11 @@ const ISMS = () => {
                 <div className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6">
                   <h2 className="text-primary text-xl font-bold font-mono mb-4">ISO 27001 Implementation</h2>
                   <p className="text-sm text-foreground/80 mb-4">
-                    Establish and maintain ISMS frameworks that meet international certification standards.
+                    ISMS frameworks meeting international standards.
                   </p>
                   <ul className="text-sm text-foreground/80 space-y-2">
                     <li>• Risk assessment and treatment</li>
-                    <li>• Security policy development</li>
-                    <li>• Implementation roadmap</li>
+                    <li>• Policy development</li>
                     <li>• Certification support</li>
                   </ul>
                 </div>
@@ -38,12 +37,11 @@ const ISMS = () => {
                 <div className="bg-highlight/10 border-2 border-highlight/30 rounded-lg p-6">
                   <h2 className="text-highlight text-xl font-bold font-mono mb-4">BSI IT-Grundschutz</h2>
                   <p className="text-sm text-foreground/80 mb-4">
-                    Implementation of BSI IT-Grundschutz methodology for systematic information security management.
+                    BSI IT-Grundschutz methodology implementation.
                   </p>
                   <ul className="text-sm text-foreground/80 space-y-2">
                     <li>• IT-Grundschutz compendium</li>
                     <li>• Security safeguards</li>
-                    <li>• Documentation and compliance</li>
                     <li>• BSI certification</li>
                   </ul>
                 </div>

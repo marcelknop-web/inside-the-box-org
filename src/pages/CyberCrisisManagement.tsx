@@ -17,7 +17,7 @@ const CyberCrisisManagement = () => {
             
             <div className="space-y-8 text-foreground leading-relaxed">
               <p className="text-lg font-sans mb-8">
-                Comprehensive cyber crisis management capability development through strategic planning, scenario preparation, and realistic simulation exercises.
+                Cyber crisis management through planning and simulation exercises.
               </p>
               
               {/* Services Overview */}

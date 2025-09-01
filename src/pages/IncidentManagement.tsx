@@ -17,7 +17,7 @@ const IncidentManagement = () => {
             
             <div className="space-y-8 text-foreground leading-relaxed">
               <p className="text-lg font-sans mb-8">
-                Comprehensive security incident management framework development and operational capability enhancement.
+                Security incident management framework development.
               </p>
               
               {/* Services Overview */}
