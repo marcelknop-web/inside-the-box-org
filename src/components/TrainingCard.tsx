@@ -11,12 +11,12 @@ export const TrainingCard = ({ title, icon: Icon, className = '', onClick }: Tra
   return (
     <div 
       className={`
-        card-electric cursor-pointer group
+        card-electric cursor-pointer group h-full flex flex-col justify-center
         ${className}
       `}
       onClick={onClick}
     >
-      <div className="flex flex-col items-center space-y-3">
+      <div className="flex flex-col items-center space-y-3 p-2">
         <Icon size={32} className="text-primary/60 group-hover:text-primary transition-electric" />
         <h3 className="text-sm font-mono tracking-wide text-center text-foreground group-hover:text-primary transition-electric">
           {title}

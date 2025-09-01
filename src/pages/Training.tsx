@@ -35,12 +35,14 @@ const Training = () => {
             {/* Training Topics Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-12">
               {trainingTopics.map((topic, index) => (
-                <TrainingCard 
-                  key={index}
-                  title={topic.title}
-                  icon={topic.icon}
-                  onClick={() => console.log(`Selected: ${topic.title}`)}
-                />
+                <div key={index} className="flex">
+                  <TrainingCard 
+                    title={topic.title}
+                    icon={topic.icon}
+                    className="flex-1"
+                    onClick={() => console.log(`Selected: ${topic.title}`)}
+                  />
+                </div>
               ))}
             </div>
           </div>
