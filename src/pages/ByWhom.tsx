@@ -23,73 +23,92 @@ const ByWhom = () => {
             <div className="space-y-8 text-foreground leading-relaxed">
               <p className="text-lg font-sans">
                 The cyber training range is developed and conducted by <span className="text-highlight font-semibold">experienced cybersecurity professionals</span> 
-                who have worked in both offensive and defensive security roles across various industries.
+                who bring real-world expertise from consulting and incident response.
               </p>
               
-              <div className="space-y-6">
-                <h2 className="text-electric text-2xl font-bold font-mono hover:text-highlight transition-electric">
-                  Our Team
-                </h2>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6 hover:bg-primary/20 hover:border-primary/50 transition-electric">
-                    <h3 className="text-primary text-lg font-semibold mb-3">Security Researchers</h3>
-                    <ul className="space-y-2 text-sm">
-                      <li>• Active threat intelligence analysis</li>
-                      <li>• Vulnerability research and disclosure</li>
-                      <li>• Advanced persistent threat tracking</li>
-                      <li>• Zero-day exploit development</li>
-                    </ul>
-                  </div>
+              <div className="space-y-8">
+                {/* Marcel Knop Profile */}
+                <div className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6 hover:bg-primary/20 hover:border-primary/50 transition-electric">
+                  <h2 className="text-primary text-2xl font-bold font-mono mb-4">Marcel Knop</h2>
+                  <h3 className="text-highlight text-lg font-semibold mb-4">Senior Consultant</h3>
                   
-                  <div className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6 hover:bg-primary/20 hover:border-primary/50 transition-electric">
-                    <h3 className="text-primary text-lg font-semibold mb-3">Incident Response Experts</h3>
-                    <ul className="space-y-2 text-sm">
-                      <li>• Fortune 500 company breaches</li>
-                      <li>• Critical infrastructure protection</li>
-                      <li>• Government sector security</li>
-                      <li>• International incident coordination</li>
-                    </ul>
-                  </div>
-                  
-                  <div className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6 hover:bg-primary/20 hover:border-primary/50 transition-electric">
-                    <h3 className="text-primary text-lg font-semibold mb-3">Penetration Testers</h3>
-                    <ul className="space-y-2 text-sm">
-                      <li>• Red team operations</li>
-                      <li>• Social engineering assessments</li>
-                      <li>• Network and application security</li>
-                      <li>• Physical security testing</li>
-                    </ul>
-                  </div>
-                  
-                  <div className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6 hover:bg-primary/20 hover:border-primary/50 transition-electric">
-                    <h3 className="text-primary text-lg font-semibold mb-3">Training Specialists</h3>
-                    <ul className="space-y-2 text-sm">
-                      <li>• Adult learning methodologies</li>
-                      <li>• Simulation environment design</li>
-                      <li>• Performance assessment</li>
-                      <li>• Curriculum development</li>
-                    </ul>
+                  <div className="space-y-4 text-sm">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <h4 className="text-primary font-semibold mb-2">Education & Qualifications</h4>
+                        <ul className="space-y-1">
+                          <li>• Dipl.-Ing. Mechanical Engineering</li>
+                          <li>• CISSP, CISA</li>
+                          <li>• ISO/IEC 27001 + 22301 Lead Auditor</li>
+                          <li>• BSI Baseline Protection Practitioner</li>
+                        </ul>
+                      </div>
+                      <div>
+                        <h4 className="text-primary font-semibold mb-2">Professional Experience</h4>
+                        <ul className="space-y-1">
+                          <li>• KPMG: Consultant to Senior Manager</li>
+                          <li>• Accenture: Senior Manager</li>
+                          <li>• Ernst & Young: Senior Manager</li>
+                          <li>• 350+ cybersecurity projects</li>
+                        </ul>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <h4 className="text-primary font-semibold mb-2">Consulting Services</h4>
+                      <ul className="space-y-1">
+                        <li>• Cybersecurity consulting and audits</li>
+                        <li>• ISMS, TISAX, NIS-2, PCI-DSS implementation</li>
+                        <li>• Cyber crisis management and exercises, TIBER, BCM</li>
+                      </ul>
+                    </div>
+
+                    <div>
+                      <h4 className="text-primary font-semibold mb-2">Notable Clients</h4>
+                      <p className="text-xs">ADAC, Airbus, Alstom, BSI, German Armed Forces, Continental, Daimler, Deutsche Bahn, Deutsche Bank, Deutsche Lufthansa, SAP, Siemens, Telekom, VW</p>
+                    </div>
                   </div>
                 </div>
-              </div>
-              
-              <div className="space-y-6">
-                <h2 className="text-electric text-2xl font-bold font-mono hover:text-highlight transition-electric">
-                  Qualifications & Certifications
-                </h2>
-                
-                <p className="text-lg font-sans">
-                  Our instructors hold industry-recognized certifications and have <span className="text-highlight font-semibold">real-world experience</span> 
-                  in handling major cybersecurity incidents. They bring practical knowledge from:
-                </p>
-                
-                <ul className="space-y-3 text-lg font-sans ml-6">
-                  <li>• <span className="text-highlight font-semibold">CISSP, CISM, GCIH</span> - Advanced security certifications</li>
-                  <li>• <span className="text-highlight font-semibold">CEH, OSCP, GPEN</span> - Penetration testing expertise</li>
-                  <li>• <span className="text-highlight font-semibold">Military & Government</span> - National security experience</li>
-                  <li>• <span className="text-highlight font-semibold">Academic Research</span> - Published cybersecurity research</li>
-                </ul>
+
+                {/* Andreas Funder Profile */}
+                <div className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6 hover:bg-primary/20 hover:border-primary/50 transition-electric">
+                  <h2 className="text-primary text-2xl font-bold font-mono mb-4">Andreas Funder</h2>
+                  <h3 className="text-highlight text-lg font-semibold mb-4">Senior Consultant</h3>
+                  
+                  <div className="space-y-4 text-sm">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <h4 className="text-primary font-semibold mb-2">Education & Qualifications</h4>
+                        <ul className="space-y-1">
+                          <li>• B.Sc. Business Administration</li>
+                          <li>• ISO/IEC 27001 Lead Auditor + Implementer</li>
+                          <li>• ISO/IEC 27005 Risk Manager</li>
+                          <li>• BSI IT-Grundschutz Practitioner</li>
+                          <li>• Data Privacy Auditor (DSA-TÜV)</li>
+                        </ul>
+                      </div>
+                      <div>
+                        <h4 className="text-primary font-semibold mb-2">Specialized Expertise</h4>
+                        <ul className="space-y-1">
+                          <li>• Critical Infrastructures (KRITIS)</li>
+                          <li>• EU NIS2, EU RCE, EU CRA</li>
+                          <li>• Business Continuity Management</li>
+                          <li>• Risk Management ISO 31000</li>
+                        </ul>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <h4 className="text-primary font-semibold mb-2">Consulting Services</h4>
+                      <ul className="space-y-1">
+                        <li>• Information Security, ISMS, Cyber Security Strategy</li>
+                        <li>• ISO/IEC 27001, PCI-DSS, NIST, BSI IT-Grundschutz, TISAX</li>
+                        <li>• Information Security Risk Management</li>
+                        <li>• Data Privacy EU GDPR, BDSG</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
               </div>
               
               <div className="pt-8">
