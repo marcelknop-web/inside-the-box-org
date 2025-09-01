@@ -35,6 +35,10 @@
     --highlight: 180 100% 60%;
     --highlight-foreground: 220 20% 9%;
 
+    /* High contrast color for key elements */
+    --contrast: 0 0% 100%;
+    --contrast-foreground: 220 20% 9%;
+
     --destructive: 0 75% 60%;
     --destructive-foreground: 0 0% 98%;
 
