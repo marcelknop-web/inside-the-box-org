@@ -72,10 +72,10 @@ const Training = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-8 border-t border-border">
             <div className="flex">
               <a 
-                href="/" 
+                href="/by-whom" 
                 className="bg-primary/10 border-2 border-primary/30 rounded-lg text-primary font-mono text-sm hover:text-highlight hover:bg-primary/20 hover:border-primary/50 transition-electric flex-1 flex items-center justify-center p-4"
               >
-                Why?
+                By Whom?
               </a>
             </div>
             <div className="flex">
