@@ -23,7 +23,7 @@ const Start = () => {
                   href="/why" 
                   className="block group"
                 >
-                  <h1 className="text-highlight text-5xl lg:text-6xl font-bold font-mono leading-tight hover:text-electric transition-electric">
+                  <h1 className="text-highlight text-3xl sm:text-4xl lg:text-6xl font-bold font-mono leading-tight hover:text-electric transition-electric">
                     Cyber Training Range
                   </h1>
                 </a>
@@ -32,7 +32,7 @@ const Start = () => {
                   href="/consulting" 
                   className="block group"
                 >
-                  <h2 className="text-electric text-5xl lg:text-6xl font-bold font-mono leading-tight hover:text-highlight transition-electric">
+                  <h2 className="text-electric text-3xl sm:text-4xl lg:text-6xl font-bold font-mono leading-tight hover:text-highlight transition-electric">
                     Cybersecurity Consulting
                   </h2>
                 </a>
