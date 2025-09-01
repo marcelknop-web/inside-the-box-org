@@ -24,10 +24,10 @@ const ArenaTraining = () => {
               <div className="space-y-6">
                 <div className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6">
                   <h2 className="text-primary text-xl font-bold font-mono mb-4">Arena Training</h2>
-                  <p className="text-sm text-foreground/80 mb-4">
+                  <p className="text-base sm:text-lg text-foreground/80 mb-4">
                     Comprehensive cybersecurity training in realistic attack scenarios.
                   </p>
-                  <ul className="text-sm text-foreground/80 space-y-2">
+                  <ul className="text-base sm:text-lg text-foreground/80 space-y-2">
                     <li>• Analysis of host and network-based attacks</li>
                     <li>• SIEM monitoring of live communication</li>
                     <li>• Techniques and tactics to prevent detection</li>
@@ -36,10 +36,10 @@ const ArenaTraining = () => {
                 
                 <div className="bg-highlight/10 border-2 border-highlight/30 rounded-lg p-6">
                   <h2 className="text-highlight text-xl font-bold font-mono mb-4">TIBER Test</h2>
-                  <p className="text-sm text-foreground/80 mb-4">
+                  <p className="text-base sm:text-lg text-foreground/80 mb-4">
                     Threat Intelligence-based Ethical Red Teaming coordination and management.
                   </p>
-                  <ul className="text-sm text-foreground/80 space-y-2">
+                  <ul className="text-base sm:text-lg text-foreground/80 space-y-2">
                     <li>• Scenario creation and safeguard definition</li>
                     <li>• Team communication moderation</li>
                     <li>• Testing coordination and documentation</li>
@@ -48,7 +48,7 @@ const ArenaTraining = () => {
                 
                 <div className="bg-primary/5 border border-primary/20 rounded-lg p-6">
                   <h2 className="text-primary text-xl font-bold font-mono mb-4">Training Methodology</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-foreground/80">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-base sm:text-lg text-foreground/80">
                     <div>
                       <h3 className="font-semibold text-foreground mb-2">Realistic Scenarios</h3>
                       <p>Live attack simulations using actual threat intelligence and attack patterns.</p>

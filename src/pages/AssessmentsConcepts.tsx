@@ -24,10 +24,10 @@ const AssessmentsConcepts = () => {
               <div className="space-y-6">
                 <div className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6">
                   <h2 className="text-primary text-xl font-bold font-mono mb-4">Threat & Risk Assessment</h2>
-                  <p className="text-sm text-foreground/80 mb-4">
+                  <p className="text-base sm:text-lg text-foreground/80 mb-4">
                     Comprehensive identification and analysis of cybersecurity threats and organizational risk exposure.
                   </p>
-                  <ul className="text-sm text-foreground/80 space-y-2">
+                  <ul className="text-base sm:text-lg text-foreground/80 space-y-2">
                     <li>• Threat landscape analysis and attack vectors</li>
                     <li>• Asset inventory and criticality assessment</li>
                     <li>• Risk quantification and business impact evaluation</li>
@@ -36,10 +36,10 @@ const AssessmentsConcepts = () => {
                 
                 <div className="bg-highlight/10 border-2 border-highlight/30 rounded-lg p-6">
                   <h2 className="text-highlight text-xl font-bold font-mono mb-4">Security Controls Design</h2>
-                  <p className="text-sm text-foreground/80 mb-4">
+                  <p className="text-base sm:text-lg text-foreground/80 mb-4">
                     Development of tailored security control frameworks addressing identified risks and compliance requirements.
                   </p>
-                  <ul className="text-sm text-foreground/80 space-y-2">
+                  <ul className="text-base sm:text-lg text-foreground/80 space-y-2">
                     <li>• Control objective definition and mapping</li>
                     <li>• Technical and organizational measure specification</li>
                     <li>• Cost-benefit analysis and investment prioritization</li>
@@ -48,10 +48,10 @@ const AssessmentsConcepts = () => {
                 
                 <div className="bg-primary/5 border border-primary/20 rounded-lg p-6">
                   <h2 className="text-primary text-xl font-bold font-mono mb-4">Roles & Responsibilities</h2>
-                  <p className="text-sm text-foreground/80 mb-4">
+                  <p className="text-base sm:text-lg text-foreground/80 mb-4">
                     Definition of organizational roles, responsibilities, and governance structures for security management.
                   </p>
-                  <ul className="text-sm text-foreground/80 space-y-2">
+                  <ul className="text-base sm:text-lg text-foreground/80 space-y-2">
                     <li>• Security governance framework</li>
                     <li>• Role definition and responsibility assignment</li>
                     <li>• Escalation procedures and decision-making</li>
@@ -60,10 +60,10 @@ const AssessmentsConcepts = () => {
                 
                 <div className="bg-highlight/5 border border-highlight/20 rounded-lg p-6">
                   <h2 className="text-highlight text-xl font-bold font-mono mb-4">Implementation Planning</h2>
-                  <p className="text-sm text-foreground/80 mb-4">
+                  <p className="text-base sm:text-lg text-foreground/80 mb-4">
                     Strategic roadmap development for systematic security concept implementation and operationalization.
                   </p>
-                  <ul className="text-sm text-foreground/80 space-y-2">
+                  <ul className="text-base sm:text-lg text-foreground/80 space-y-2">
                     <li>• Implementation phasing and milestones</li>
                     <li>• Resource planning and budget allocation</li>
                     <li>• Change management and communication</li>
@@ -72,10 +72,10 @@ const AssessmentsConcepts = () => {
                 
                 <div className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6">
                   <h2 className="text-primary text-xl font-bold font-mono mb-4">Measurement & Monitoring</h2>
-                  <p className="text-sm text-foreground/80 mb-4">
+                  <p className="text-base sm:text-lg text-foreground/80 mb-4">
                     Establishment of metrics, monitoring capabilities, and continuous improvement processes.
                   </p>
-                  <ul className="text-sm text-foreground/80 space-y-2">
+                  <ul className="text-base sm:text-lg text-foreground/80 space-y-2">
                     <li>• KPI definition and measurement</li>
                     <li>• Security dashboard and reporting</li>
                     <li>• Continuous monitoring and improvement</li>

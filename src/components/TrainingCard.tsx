@@ -19,10 +19,10 @@ export const TrainingCard = ({ title, description, icon: Icon, className = '', o
     >
       <div className="flex flex-col items-center space-y-3 p-4">
         <Icon size={28} className="text-primary/80 group-hover:text-primary transition-electric" />
-        <h3 className="text-sm font-mono tracking-wide text-center text-primary/90 group-hover:text-primary transition-electric">
+        <h3 className="text-base sm:text-lg font-mono tracking-wide text-center text-primary/90 group-hover:text-primary transition-electric">
           {title}
         </h3>
-        <p className="text-xs text-center text-foreground/70 leading-relaxed">
+        <p className="text-sm sm:text-base text-center text-foreground/70 leading-relaxed">
           {description}
         </p>
       </div>
