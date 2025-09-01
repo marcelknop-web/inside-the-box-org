@@ -17,7 +17,7 @@ const ISMS = () => {
             
             <div className="space-y-8 text-foreground leading-relaxed">
               <p className="text-lg font-sans mb-8">
-                Comprehensive Information Security Management System implementation and certification according to ISO 27001 and BSI IT-Grundschutz standards.
+                Information Security Management System implementation and certification.
               </p>
               
               {/* Services Overview */}
@@ -25,13 +25,12 @@ const ISMS = () => {
                 <div className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6">
                   <h2 className="text-primary text-xl font-bold font-mono mb-4">ISO 27001 Implementation</h2>
                   <p className="text-sm text-foreground/80 mb-4">
-                    Establish and maintain an Information Security Management System (ISMS) that meets international standards and helps protect your organization's information assets.
+                    Establish and maintain an ISMS that meets international standards.
                   </p>
                   <ul className="text-sm text-foreground/80 space-y-2">
-                    <li>• Risk assessment and treatment planning</li>
+                    <li>• Risk assessment and treatment</li>
                     <li>• Security policy development</li>
-                    <li>• Implementation roadmap creation</li>
-                    <li>• Internal audit preparation</li>
+                    <li>• Implementation roadmap</li>
                     <li>• Certification support</li>
                   </ul>
                 </div>
@@ -39,14 +38,13 @@ const ISMS = () => {
                 <div className="bg-highlight/10 border-2 border-highlight/30 rounded-lg p-6">
                   <h2 className="text-highlight text-xl font-bold font-mono mb-4">BSI IT-Grundschutz</h2>
                   <p className="text-sm text-foreground/80 mb-4">
-                    Implementation of the German Federal Office for Information Security (BSI) IT-Grundschutz methodology for systematic IT security management.
+                    German BSI IT-Grundschutz methodology for systematic IT security.
                   </p>
                   <ul className="text-sm text-foreground/80 space-y-2">
-                    <li>• IT-Grundschutz compendium application</li>
-                    <li>• Security safeguards implementation</li>
+                    <li>• IT-Grundschutz compendium</li>
+                    <li>• Security safeguards</li>
                     <li>• Documentation and compliance</li>
-                    <li>• Regular security reviews</li>
-                    <li>• BSI certification preparation</li>
+                    <li>• BSI certification</li>
                   </ul>
                 </div>
                 
@@ -54,20 +52,20 @@ const ISMS = () => {
                   <h2 className="text-primary text-xl font-bold font-mono mb-4">Our Approach</h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-foreground/80">
                     <div>
-                      <h3 className="font-semibold text-foreground mb-2">Assessment Phase</h3>
-                      <p>Comprehensive analysis of your current security posture and identification of gaps against ISO 27001 and BSI standards.</p>
+                      <h3 className="font-semibold text-foreground mb-2">Assessment</h3>
+                      <p>Analysis of current security posture and gap identification.</p>
                     </div>
                     <div>
-                      <h3 className="font-semibold text-foreground mb-2">Implementation Phase</h3>
-                      <p>Structured rollout of security controls, policies, and procedures tailored to your organization's specific needs.</p>
+                      <h3 className="font-semibold text-foreground mb-2">Implementation</h3>
+                      <p>Structured rollout of security controls and procedures.</p>
                     </div>
                     <div>
-                      <h3 className="font-semibold text-foreground mb-2">Certification Support</h3>
-                      <p>Guidance through the certification process, including preparation for external audits and ongoing compliance.</p>
+                      <h3 className="font-semibold text-foreground mb-2">Certification</h3>
+                      <p>Support through external audits and compliance.</p>
                     </div>
                     <div>
-                      <h3 className="font-semibold text-foreground mb-2">Continuous Improvement</h3>
-                      <p>Ongoing support for maintaining and improving your ISMS to adapt to evolving threats and business requirements.</p>
+                      <h3 className="font-semibold text-foreground mb-2">Maintenance</h3>
+                      <p>Ongoing ISMS improvement and threat adaptation.</p>
                     </div>
                   </div>
                 </div>
@@ -77,15 +75,15 @@ const ISMS = () => {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-foreground/80">
                     <div>
                       <h3 className="font-semibold text-foreground mb-2">Enhanced Security</h3>
-                      <p>Systematic approach to identifying and mitigating information security risks.</p>
+                      <p>Systematic risk identification and mitigation.</p>
                     </div>
                     <div>
                       <h3 className="font-semibold text-foreground mb-2">Compliance</h3>
-                      <p>Meet regulatory requirements and demonstrate due diligence to stakeholders.</p>
+                      <p>Meet regulatory requirements and standards.</p>
                     </div>
                     <div>
                       <h3 className="font-semibold text-foreground mb-2">Business Continuity</h3>
-                      <p>Protect critical business processes and maintain operational resilience.</p>
+                      <p>Protect critical processes and maintain resilience.</p>
                     </div>
                   </div>
                 </div>
