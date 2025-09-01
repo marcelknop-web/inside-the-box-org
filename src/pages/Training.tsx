@@ -66,19 +66,23 @@ const Training = () => {
           </div>
           
           {/* Footer Links */}
-          <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-border">
-            <a 
-              href="/" 
-              className="text-electric font-mono text-sm underline hover:text-highlight transition-electric mb-4 md:mb-0"
-            >
-              Why?
-            </a>
-            <a 
-              href="/technical-requirements" 
-              className="text-electric font-mono text-sm underline hover:text-highlight transition-electric"
-            >
-              Technical requirements
-            </a>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-8 border-t border-border">
+            <div className="flex">
+              <a 
+                href="/" 
+                className="card-electric text-electric font-mono text-sm hover:text-highlight transition-electric flex-1 flex items-center justify-center p-4"
+              >
+                Why?
+              </a>
+            </div>
+            <div className="flex">
+              <a 
+                href="/technical-requirements" 
+                className="card-electric text-electric font-mono text-sm hover:text-highlight transition-electric flex-1 flex items-center justify-center p-4"
+              >
+                Technical requirements
+              </a>
+            </div>
           </div>
         </section>
       </main>
