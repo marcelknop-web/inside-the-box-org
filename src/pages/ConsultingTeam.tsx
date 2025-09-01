@@ -16,8 +16,8 @@ const ConsultingTeam = () => {
             
             <div className="space-y-8 text-foreground leading-relaxed">
               <p className="text-lg font-sans">
-                The cyber training range is developed and conducted by <span className="text-highlight font-semibold">experienced cybersecurity professionals</span> 
-                who bring real-world expertise from consulting and incident response.
+                Our cybersecurity consulting and audit services are delivered by <span className="text-highlight font-semibold">experienced cybersecurity professionals</span> 
+                who bring real-world expertise from enterprise consulting, risk management, and compliance auditing.
               </p>
               
               <div className="space-y-8">
