@@ -72,7 +72,7 @@ const Index = () => {
               By whom?
             </a>
             <a 
-              href="#" 
+              href="/technical-requirements" 
               className="text-electric font-mono text-sm underline hover:text-primary/80 transition-electric"
             >
               Technical requirements
