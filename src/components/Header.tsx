@@ -6,7 +6,7 @@ export const Header = () => {
       <div className="container mx-auto px-6 flex items-center justify-between">
         <a href="/" className="flex items-center space-x-4 group">
           <GeometricSymbol size="sm" />
-          <span className="text-primary text-xl font-mono group-hover:text-highlight transition-electric">INSIDE THE BOX</span>
+          <span className="text-primary text-xl font-mono group-hover:text-highlight transition-electric">inside-the-box.org</span>
         </a>
         
         <nav className="hidden md:flex space-x-4">
