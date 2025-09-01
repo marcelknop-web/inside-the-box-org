@@ -125,10 +125,10 @@ const Consulting = () => {
               <div className="pt-8">
                 <div className="flex justify-center lg:justify-start">
                   <a 
-                    href="/contact" 
+                    href="/by-whom" 
                     className="bg-highlight/10 border-2 border-highlight/30 rounded-lg text-highlight font-mono text-lg hover:text-electric hover:bg-highlight/20 hover:border-highlight/50 transition-electric px-6 py-3 inline-block"
                   >
-                    Get in Touch
+                    By Whom?
                   </a>
                 </div>
               </div>
