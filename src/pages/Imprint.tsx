@@ -18,24 +18,24 @@ const Imprint = () => {
             <div className="space-y-8 text-foreground leading-relaxed">
               <div className="space-y-4">
                 <p className="text-lg font-sans">
-                  <span className="text-highlight font-semibold">Responsible for content:</span><br />
+                  <span className="text-highlight font-semibold">Responsible for content</span><br />
                   Marcel Knop<br />
                   Appenrother Weg 14<br />
                   34308 Bad Emstal, Germany
                 </p>
                 
                 <p className="text-lg font-sans">
-                  <span className="text-highlight font-semibold">Contact:</span><br />
+                  <span className="text-highlight font-semibold">Contact</span><br />
                   <a href="mailto:marcel@inside-the-box.org" className="text-highlight hover:text-primary transition-electric">marcel@inside-the-box.org</a><br />
                   <a href="tel:+4915205691648" className="text-highlight hover:text-primary transition-electric">+49 1520 569 1648</a>
                 </p>
                 
                 <p className="text-lg font-sans">
-                  <span className="text-highlight font-semibold">VAT ID:</span> DE328906053
+                  <span className="text-highlight font-semibold">VAT ID</span> DE328906053
                 </p>
                 
                 <p className="text-lg font-sans">
-                  <span className="text-highlight font-semibold">Professional liability insurance:</span><br />
+                  <span className="text-highlight font-semibold">Professional liability insurance</span><br />
                   Hiscox SA<br />
                   Arnulfstr. 31<br />
                   80636 Munich, Germany
