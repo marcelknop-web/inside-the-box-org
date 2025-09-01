@@ -17,7 +17,7 @@ const Consulting = () => {
             
             <div className="space-y-8 text-foreground leading-relaxed">
               <p className="text-lg font-sans mb-8">
-                Comprehensive cybersecurity consulting services tailored to your organization's needs.
+                Cybersecurity consulting tailored to your organization's needs.
               </p>
               
               {/* Services Grid */}

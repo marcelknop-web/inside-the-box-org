@@ -17,14 +17,12 @@ const About = () => {
             
             <div className="space-y-8 text-foreground leading-relaxed">
               <p className="text-lg font-sans">
-                <span className="text-highlight font-semibold">INSIDE THE BOX</span> provides comprehensive cybersecurity solutions 
-                through practical training and expert consulting services.
+                <span className="text-highlight font-semibold">INSIDE THE BOX</span> delivers practical cybersecurity training and expert consulting.
               </p>
               
               <div className="space-y-6">
                 <p className="text-lg font-sans">
-                  Our approach combines real-world experience with hands-on learning to prepare organizations 
-                  and individuals for today's cybersecurity challenges.
+                  We combine real-world experience with hands-on learning for today's cybersecurity challenges.
                 </p>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
