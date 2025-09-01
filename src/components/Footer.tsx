@@ -5,7 +5,7 @@ export const Footer = () => {
   const isImprintPage = location.pathname === '/imprint';
   
   return (
-    <footer className="border-t border-border py-6 mt-16 bg-gradient-to-b from-background to-black/80">
+    <footer className="border-t border-border py-6 mt-16 bg-black">
       <div className="container mx-auto px-6">
         <div className="flex justify-center">
           {!isImprintPage && (
