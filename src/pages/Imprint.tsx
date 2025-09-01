@@ -93,7 +93,7 @@ const Imprint = () => {
               
               <div className="pt-4 text-center">
                 <p className="text-sm text-foreground/60">
-                  Last updated: 17th May, 2025
+                  Last updated: 1st September, 2025
                 </p>
               </div>
             </div>
