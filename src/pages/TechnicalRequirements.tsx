@@ -22,12 +22,12 @@ const TechnicalRequirements = () => {
               </p>
               
               <div className="space-y-6">
-                <h2 className="text-primary text-2xl font-bold font-mono hover:text-highlight transition-electric">
+                <h2 className="text-primary text-2xl font-bold font-mono">
                   System Requirements
                 </h2>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6 hover:bg-primary/20 hover:border-primary/50 transition-electric">
+                  <div className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6">
                     <h3 className="text-primary text-lg font-semibold font-mono mb-3">
                       Hardware
                     </h3>
@@ -39,7 +39,7 @@ const TechnicalRequirements = () => {
                     </ul>
                   </div>
                   
-                  <div className="bg-highlight/10 border-2 border-highlight/30 rounded-lg p-6 hover:bg-highlight/20 hover:border-highlight/50 transition-electric">
+                  <div className="bg-highlight/10 border-2 border-highlight/30 rounded-lg p-6">
                     <h3 className="text-highlight text-lg font-semibold font-mono mb-3">
                       Software
                     </h3>
@@ -54,7 +54,7 @@ const TechnicalRequirements = () => {
               </div>
               
               <div className="space-y-6">
-                <h2 className="text-primary text-2xl font-bold font-mono hover:text-highlight transition-electric">
+                <h2 className="text-primary text-2xl font-bold font-mono">
                   Network Configuration
                 </h2>
                 
@@ -76,7 +76,7 @@ const TechnicalRequirements = () => {
               </div>
               
               <div className="space-y-6">
-                <h2 className="text-primary text-2xl font-bold font-mono hover:text-highlight transition-electric">
+                <h2 className="text-primary text-2xl font-bold font-mono">
                   Pre-Training Setup
                 </h2>
                 
