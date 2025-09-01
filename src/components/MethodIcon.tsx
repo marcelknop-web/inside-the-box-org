@@ -17,7 +17,7 @@ export const MethodIcon = ({ type, title, className = '' }: MethodIconProps) => 
   
   return (
     <div className={`flex flex-col items-center space-y-3 group ${className}`}>
-      <div className="p-6 border-electric rounded-lg group-hover:bg-primary/5 transition-electric">
+      <div className="p-6 bg-card border border-border rounded-lg group-hover:bg-card/80 transition-electric">
         <Icon size={48} className="text-muted-foreground group-hover:text-primary transition-electric" />
       </div>
       <span className="text-sm font-mono text-muted-foreground group-hover:text-primary transition-electric text-center">
