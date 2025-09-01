@@ -48,7 +48,7 @@ const ISMS = () => {
                 
                 <div className="bg-primary/5 border border-primary/20 rounded-lg p-6">
                   <h2 className="text-primary text-xl font-bold font-mono mb-4">Our Approach</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-foreground/80">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-base sm:text-lg text-foreground/80">
                     <div>
                       <h3 className="font-semibold text-foreground mb-2">Assessment</h3>
                       <p>Analysis of current security posture and gap identification.</p>

@@ -26,7 +26,7 @@ const ByWhom = () => {
                   <h2 className="text-primary text-2xl font-bold font-mono mb-4">Marcel Knop</h2>
                   <h3 className="text-highlight text-lg font-semibold mb-4">Senior Consultant</h3>
                   
-                  <div className="space-y-4 text-sm">
+                  <div className="space-y-4 text-base sm:text-lg">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <h4 className="text-primary font-semibold mb-2">Education & Qualifications</h4>
@@ -74,7 +74,7 @@ const ByWhom = () => {
                   <h2 className="text-primary text-2xl font-bold font-mono mb-4">Andreas Funder</h2>
                   <h3 className="text-highlight text-lg font-semibold mb-4">Senior Consultant</h3>
                   
-                  <div className="space-y-4 text-sm">
+                  <div className="space-y-4 text-base sm:text-lg">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <h4 className="text-primary font-semibold mb-2">Education & Qualifications</h4>

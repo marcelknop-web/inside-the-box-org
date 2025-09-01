@@ -84,7 +84,7 @@ const IncidentManagement = () => {
                 
                 <div className="bg-highlight/10 border-2 border-highlight/30 rounded-lg p-6">
                   <h2 className="text-highlight text-xl font-bold font-mono mb-4">Key Capabilities</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-foreground/80">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-base sm:text-lg text-foreground/80">
                     <div>
                       <h3 className="font-semibold text-foreground mb-2">24/7 Response</h3>
                       <p>Round-the-clock incident response capability with appropriate staffing and escalation procedures.</p>

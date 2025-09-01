@@ -84,7 +84,7 @@ const CyberCrisisManagement = () => {
                 
                 <div className="bg-highlight/10 border-2 border-highlight/30 rounded-lg p-6">
                   <h2 className="text-highlight text-xl font-bold font-mono mb-4">Training Methodologies</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-foreground/80">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-base sm:text-lg text-foreground/80">
                     <div>
                       <h3 className="font-semibold text-foreground mb-2">Tabletop Exercises</h3>
                       <p>Discussion-based scenario walkthroughs for strategic planning and coordination practice.</p>
@@ -102,7 +102,7 @@ const CyberCrisisManagement = () => {
                 
                 <div className="bg-primary/5 border border-primary/20 rounded-lg p-6">
                   <h2 className="text-primary text-xl font-bold font-mono mb-4">Expected Outcomes</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-foreground/80">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-base sm:text-lg text-foreground/80">
                     <div>
                       <h3 className="font-semibold text-foreground mb-2">Enhanced Readiness</h3>
                       <p>Improved organizational preparedness and response capability for cyber crisis situations.</p>
