@@ -48,7 +48,7 @@ const Contact = () => {
               
               {/* Contact Methods */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                <div className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6 hover:bg-primary/20 hover:border-primary/50 transition-electric">
+                <div className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6">
                   <div className="flex items-center space-x-3 mb-3">
                     <Phone size={24} className="text-primary" />
                     <h3 className="text-primary text-lg font-semibold">Phone</h3>
@@ -58,7 +58,7 @@ const Contact = () => {
                   </div>
                 </div>
                 
-                <div className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6 hover:bg-primary/20 hover:border-primary/50 transition-electric">
+                <div className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6">
                   <div className="flex items-center space-x-3 mb-3">
                     <Mail size={24} className="text-primary" />
                     <h3 className="text-primary text-lg font-semibold">Email</h3>

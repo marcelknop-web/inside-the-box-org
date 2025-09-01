@@ -22,7 +22,7 @@ const ByWhom = () => {
               
               <div className="space-y-8">
                 {/* Marcel Knop Profile */}
-                <div className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6 hover:bg-primary/20 hover:border-primary/50 transition-electric">
+                <div className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6">
                   <h2 className="text-primary text-2xl font-bold font-mono mb-4">Marcel Knop</h2>
                   <h3 className="text-highlight text-lg font-semibold mb-4">Senior Consultant</h3>
                   
@@ -70,7 +70,7 @@ const ByWhom = () => {
                 </div>
 
                 {/* Andreas Funder Profile */}
-                <div className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6 hover:bg-primary/20 hover:border-primary/50 transition-electric">
+                <div className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6">
                   <h2 className="text-primary text-2xl font-bold font-mono mb-4">Andreas Funder</h2>
                   <h3 className="text-highlight text-lg font-semibold mb-4">Senior Consultant</h3>
                   
