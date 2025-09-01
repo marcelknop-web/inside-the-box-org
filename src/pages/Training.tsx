@@ -77,14 +77,17 @@ const Training = () => {
             <MethodIcon 
               type="knowledge" 
               title="Knowledge transfer"
+              description="Expert-led sessions covering cybersecurity fundamentals and advanced techniques."
             />
             <MethodIcon 
               type="group" 
               title="Group exercises"
+              description="Collaborative problem-solving scenarios that build teamwork and communication skills."
             />
             <MethodIcon 
               type="cyber" 
               title="Live cyber attacks"
+              description="Real-time simulated attacks where participants defend against actual threat scenarios."
             />
           </div>
           
