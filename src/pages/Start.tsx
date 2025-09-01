@@ -5,9 +5,12 @@ import { Button } from '@/components/ui/button';
 const Start = () => {
   return (
     <div className="min-h-screen">
-      {/* Header without logo */}
+      {/* Header with name only */}
       <header className="py-8">
-        <div className="container mx-auto px-6 flex items-center justify-end">
+        <div className="container mx-auto px-6 flex items-center justify-between">
+          <a href="/" className="group">
+            <span className="text-electric text-xl font-mono group-hover:text-highlight transition-electric">INSIDE THE BOX</span>
+          </a>
           <nav className="hidden md:flex space-x-4">
             <a href="/training" className="bg-primary/10 border-2 border-primary/30 rounded-lg text-primary font-mono text-sm hover:text-highlight hover:bg-primary/20 hover:border-primary/50 transition-electric px-4 py-2">
               Training

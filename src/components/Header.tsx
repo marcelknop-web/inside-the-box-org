@@ -4,8 +4,7 @@ export const Header = () => {
   return (
     <header className="py-8">
       <div className="container mx-auto px-6 flex items-center justify-between">
-        <a href="/" className="flex items-center space-x-4 group">
-          <GeometricSymbol size="sm" />
+        <a href="/" className="group">
           <span className="text-electric text-xl font-mono group-hover:text-highlight transition-electric">INSIDE THE BOX</span>
         </a>
         
