@@ -13,10 +13,13 @@ const Contact = () => {
           {/* Content */}
           <div className="space-y-8">
             <h1 className="text-primary text-2xl sm:text-3xl lg:text-5xl font-bold font-mono mb-12">
-              Let's talk
+              Contact
             </h1>
             
             <div className="space-y-8 text-foreground leading-relaxed">
+              <p className="text-lg font-sans">
+                Let's talk.
+              </p>
               
               <div className="text-white text-lg font-mono">
                 <p>marcel@inside-the-box.org</p>
