@@ -49,23 +49,32 @@ const ByWhom = () => {
                           <li>• KPMG: Consultant to Senior Manager</li>
                           <li>• Accenture: Senior Manager</li>
                           <li>• Ernst & Young: Senior Manager</li>
-                          <li>• 350+ cybersecurity projects</li>
                         </ul>
                       </div>
                     </div>
                     
-                    <div>
-                      <h4 className="text-primary font-semibold mb-2">Consulting Services</h4>
-                      <ul className="space-y-1">
-                        <li>• Cybersecurity consulting and audits</li>
-                        <li>• ISMS, TISAX, NIS-2, PCI-DSS implementation</li>
-                        <li>• Cyber crisis management and exercises, TIBER, BCM</li>
-                      </ul>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <h4 className="text-primary font-semibold mb-2">Consulting Services</h4>
+                        <ul className="space-y-1">
+                          <li>• Cybersecurity consulting and audits</li>
+                          <li>• ISMS, TISAX, NIS-2, PCI-DSS implementation</li>
+                          <li>• Cyber crisis management and exercises</li>
+                          <li>• TIBER, BCM</li>
+                        </ul>
+                      </div>
+                      <div>
+                        <h4 className="text-primary font-semibold mb-2">Languages</h4>
+                        <ul className="space-y-1">
+                          <li>• German (mother tongue)</li>
+                          <li>• English (business fluent)</li>
+                        </ul>
+                      </div>
                     </div>
 
                     <div>
-                      <h4 className="text-primary font-semibold mb-2">Notable Clients</h4>
-                      <p className="text-xs">ADAC, Airbus, Alstom, BSI, German Armed Forces, Continental, Daimler, Deutsche Bahn, Deutsche Bank, Deutsche Lufthansa, SAP, Siemens, Telekom, VW</p>
+                      <h4 className="text-primary font-semibold mb-2">Notable Clients (350+ projects)</h4>
+                      <p className="text-xs">ADAC, Airbus, Alstom, BSI, German Armed Forces, Burda, Commerzbank, Continental, Daimler, Deutsche Bahn, Deutsche Bank, DKB, Deutsche Lufthansa, Deutsche Post, ERGO, Fraport, General Motors, LBBW, Media-Saturn, RWE, SAP, Siemens, Telekom, VW</p>
                     </div>
                   </div>
                 </div>
@@ -88,24 +97,38 @@ const ByWhom = () => {
                         </ul>
                       </div>
                       <div>
-                        <h4 className="text-primary font-semibold mb-2">Specialized Expertise</h4>
+                        <h4 className="text-primary font-semibold mb-2">Professional Experience</h4>
                         <ul className="space-y-1">
-                          <li>• Critical Infrastructures (KRITIS)</li>
-                          <li>• EU NIS2, EU RCE, EU CRA</li>
-                          <li>• Business Continuity Management</li>
-                          <li>• Risk Management ISO 31000</li>
+                          <li>• PwC: Manager, Cybersecurity and Privacy</li>
+                          <li>• Ernst & Young: Senior Consultant</li>
+                          <li>• CSPi: Consultant Security and Data Privacy</li>
                         </ul>
                       </div>
                     </div>
                     
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <h4 className="text-primary font-semibold mb-2">Consulting Services</h4>
+                        <ul className="space-y-1">
+                          <li>• Information Security, ISMS Strategy</li>
+                          <li>• ISO/IEC 27001, PCI-DSS, NIST, TISAX</li>
+                          <li>• Risk Management, Business Continuity</li>
+                          <li>• EU GDPR, Critical Infrastructure (KRITIS)</li>
+                        </ul>
+                      </div>
+                      <div>
+                        <h4 className="text-primary font-semibold mb-2">Languages</h4>
+                        <ul className="space-y-1">
+                          <li>• German (mother tongue)</li>
+                          <li>• English (business fluent)</li>
+                          <li>• French (professional working)</li>
+                        </ul>
+                      </div>
+                    </div>
+
                     <div>
-                      <h4 className="text-primary font-semibold mb-2">Consulting Services</h4>
-                      <ul className="space-y-1">
-                        <li>• Information Security, ISMS, Cyber Security Strategy</li>
-                        <li>• ISO/IEC 27001, PCI-DSS, NIST, BSI IT-Grundschutz, TISAX</li>
-                        <li>• Information Security Risk Management</li>
-                        <li>• Data Privacy EU GDPR, BDSG</li>
-                      </ul>
+                      <h4 className="text-primary font-semibold mb-2">Specializations</h4>
+                      <p className="text-xs">Critical Infrastructures (KRITIS), EU NIS2, EU RCE, EU CRA, IT-SiG 2.0, Information Security Risk Management ISO/IEC 27005, Business Continuity Management ISO 22301, Internal Control Frameworks COBIT 2019, Audit Standards ISAE 3402</p>
                     </div>
                   </div>
                 </div>
