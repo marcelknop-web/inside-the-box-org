@@ -34,14 +34,9 @@ const Contact = () => {
       
       {/* Main Content */}
       <main className="container mx-auto px-6 py-12">
-        <div className="flex flex-col lg:flex-row items-start justify-between">
-          {/* Left: Geometric Symbol */}
-          <div className="mb-12 lg:mb-0 lg:mr-20">
-            <GeometricSymbol size="lg" />
-          </div>
-          
-          {/* Right: Content */}
-          <div className="flex-1 max-w-3xl">
+        <div className="max-w-4xl mx-auto">
+          {/* Content */}
+          <div className="space-y-8">
             <h1 className="text-electric text-5xl font-bold font-mono mb-12">
               Contact
             </h1>

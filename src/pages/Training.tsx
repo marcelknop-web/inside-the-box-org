@@ -20,15 +20,10 @@ const Training = () => {
       
       {/* Hero Section */}
       <main className="container mx-auto px-6 py-12">
-        <div className="flex flex-col lg:flex-row items-center justify-between mb-20">
-          {/* Left: Geometric Symbol */}
-          <div className="mb-12 lg:mb-0">
-            <GeometricSymbol size="lg" />
-          </div>
-          
-          {/* Right: Title and Topics */}
-          <div className="flex-1 lg:ml-20">
-            <h1 className="text-electric text-4xl lg:text-5xl font-bold font-mono mb-12 text-center lg:text-left hover:text-highlight transition-electric">
+        <div className="max-w-6xl mx-auto">
+          {/* Title and Topics */}
+          <div className="space-y-8">
+            <h1 className="text-electric text-4xl lg:text-5xl font-bold font-mono mb-12 text-center hover:text-highlight transition-electric">
               Training Topics
             </h1>
             
