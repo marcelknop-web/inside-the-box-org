@@ -27,12 +27,12 @@ const Index = () => {
                 </div>
               </div>
               
-              <div className="bg-highlight/10 border-2 border-highlight/30 rounded-lg p-6">
+              <div className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6">
                 <div className="flex items-start space-x-4">
-                  <Target className="text-highlight mt-1 flex-shrink-0" size={28} />
+                  <Target className="text-primary mt-1 flex-shrink-0" size={28} />
                   <p className="text-lg font-sans">
-                    Our <span className="text-highlight font-semibold">simulation environments</span> enable teams to develop competencies through 
-                    <span className="text-highlight font-semibold">realistic attack scenarios</span> and practical crisis coordination.
+                    Our <span className="text-primary font-semibold">simulation environments</span> enable teams to develop competencies through 
+                    <span className="text-primary font-semibold">realistic attack scenarios</span> and practical crisis coordination.
                   </p>
                 </div>
               </div>
