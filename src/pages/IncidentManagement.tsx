@@ -28,11 +28,9 @@ const IncidentManagement = () => {
                     Development of structured incident response procedures and operational playbooks.
                   </p>
                   <ul className="text-sm text-foreground/80 space-y-2">
-                    <li>• Incident classification and severity level definition</li>
-                    <li>• Response team structure and role assignment</li>
-                    <li>• Escalation procedures and communication protocols</li>
-                    <li>• Response workflow and decision-making frameworks</li>
-                    <li>• Legal and regulatory compliance integration</li>
+                    <li>• Incident classification and severity levels</li>
+                    <li>• Response team structure and roles</li>
+                    <li>• Escalation and communication protocols</li>
                   </ul>
                 </div>
                 
@@ -42,11 +40,9 @@ const IncidentManagement = () => {
                     Implementation of incident detection capabilities and analytical processes for effective threat identification.
                   </p>
                   <ul className="text-sm text-foreground/80 space-y-2">
-                    <li>• Security monitoring and alerting system design</li>
-                    <li>• Incident detection rule development and tuning</li>
-                    <li>• Forensic analysis methodology and tooling</li>
-                    <li>• Threat intelligence integration and correlation</li>
-                    <li>• Evidence collection and preservation procedures</li>
+                    <li>• Security monitoring and alerting systems</li>
+                    <li>• Forensic analysis methodology</li>
+                    <li>• Evidence collection and preservation</li>
                   </ul>
                 </div>
                 
@@ -56,11 +52,9 @@ const IncidentManagement = () => {
                     Strategic approaches for incident containment, threat eradication, and system recovery operations.
                   </p>
                   <ul className="text-sm text-foreground/80 space-y-2">
-                    <li>• Containment strategy development and implementation</li>
-                    <li>• Network segmentation and isolation procedures</li>
-                    <li>• Malware removal and system cleaning protocols</li>
-                    <li>• System hardening and vulnerability remediation</li>
-                    <li>• Backup and recovery process optimization</li>
+                    <li>• Containment strategy development</li>
+                    <li>• Network segmentation and isolation</li>
+                    <li>• System hardening and recovery</li>
                   </ul>
                 </div>
                 
@@ -70,11 +64,9 @@ const IncidentManagement = () => {
                     Systematic recovery operations and post-incident analysis for continuous improvement.
                   </p>
                   <ul className="text-sm text-foreground/80 space-y-2">
-                    <li>• Business continuity and disaster recovery coordination</li>
-                    <li>• System restoration and operational validation</li>
-                    <li>• Post-incident review and root cause analysis</li>
-                    <li>• Lessons learned documentation and knowledge transfer</li>
-                    <li>• Process improvement and capability enhancement</li>
+                    <li>• Business continuity coordination</li>
+                    <li>• Post-incident review and analysis</li>
+                    <li>• Process improvement implementation</li>
                   </ul>
                 </div>
                 
@@ -84,11 +76,9 @@ const IncidentManagement = () => {
                     Practical training programs and simulation exercises to develop incident response capabilities.
                   </p>
                   <ul className="text-sm text-foreground/80 space-y-2">
-                    <li>• Incident response team training and certification</li>
-                    <li>• Tabletop exercises and scenario-based simulations</li>
-                    <li>• Technical skills development and tool proficiency</li>
-                    <li>• Cross-functional coordination and communication training</li>
-                    <li>• Regular drill execution and performance evaluation</li>
+                    <li>• Incident response team training</li>
+                    <li>• Tabletop exercises and simulations</li>
+                    <li>• Technical skills development</li>
                   </ul>
                 </div>
                 

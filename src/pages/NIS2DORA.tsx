@@ -28,10 +28,9 @@ const NIS2DORA = () => {
                     Determine the scope and implications of regulatory requirements for your organization.
                   </p>
                   <ul className="text-sm text-foreground/80 space-y-2">
-                    <li>• Assessment of regulatory applicability and scope determination</li>
-                    <li>• Identification of critical business functions and dependencies</li>
-                    <li>• Cross-divisional impact analysis including affiliated entities</li>
-                    <li>• Regulatory threshold and exemption evaluation</li>
+                    <li>• Regulatory applicability assessment</li>
+                    <li>• Critical business function identification</li>
+                    <li>• Cross-divisional impact analysis</li>
                   </ul>
                 </div>
                 
@@ -41,10 +40,9 @@ const NIS2DORA = () => {
                     Systematic evaluation of current capabilities against regulatory requirements.
                   </p>
                   <ul className="text-sm text-foreground/80 space-y-2">
-                    <li>• Current state assessment and compliance gap identification</li>
-                    <li>• Risk-based prioritization of remediation activities</li>
-                    <li>• Implementation timeline development with milestone planning</li>
-                    <li>• Resource allocation and responsibility assignment</li>
+                    <li>• Current state assessment and gap identification</li>
+                    <li>• Risk-based prioritization of activities</li>
+                    <li>• Implementation timeline development</li>
                   </ul>
                 </div>
                 
@@ -54,10 +52,9 @@ const NIS2DORA = () => {
                     Development and deployment of technical and organizational measures for compliance.
                   </p>
                   <ul className="text-sm text-foreground/80 space-y-2">
-                    <li>• Technical and organizational measure (TOM) development</li>
+                    <li>• Technical and organizational measure development</li>
                     <li>• Continuous monitoring and effectiveness assessment</li>
-                    <li>• Cybersecurity awareness program implementation</li>
-                    <li>• Incident response and reporting mechanism establishment</li>
+                    <li>• Incident response and reporting mechanisms</li>
                   </ul>
                 </div>
                 

@@ -28,11 +28,9 @@ const CyberCrisisManagement = () => {
                     Development of comprehensive crisis management plans and organizational preparedness frameworks.
                   </p>
                   <ul className="text-sm text-foreground/80 space-y-2">
-                    <li>• Crisis management governance structure and authority definition</li>
-                    <li>• Crisis team composition and role assignment</li>
-                    <li>• Decision-making frameworks under time pressure and uncertainty</li>
-                    <li>• Crisis communication protocols and stakeholder management</li>
-                    <li>• Business continuity integration and operational resilience</li>
+                    <li>• Crisis management governance and authority</li>
+                    <li>• Crisis team composition and roles</li>
+                    <li>• Decision-making frameworks under pressure</li>
                   </ul>
                 </div>
                 
@@ -42,11 +40,9 @@ const CyberCrisisManagement = () => {
                     Creation of realistic crisis scenarios based on current threat intelligence and organizational risk profile.
                   </p>
                   <ul className="text-sm text-foreground/80 space-y-2">
-                    <li>• Threat-informed scenario design and narrative development</li>
-                    <li>• Multi-stage crisis progression and escalation modeling</li>
-                    <li>• Cross-functional impact analysis and dependency mapping</li>
-                    <li>• Regulatory and legal implication integration</li>
-                    <li>• Media and public perception consideration</li>
+                    <li>• Threat-informed scenario design</li>
+                    <li>• Crisis progression and escalation modeling</li>
+                    <li>• Cross-functional impact analysis</li>
                   </ul>
                 </div>
                 
@@ -56,11 +52,9 @@ const CyberCrisisManagement = () => {
                     Immersive crisis simulation training using controlled cyber training range environments.
                   </p>
                   <ul className="text-sm text-foreground/80 space-y-2">
-                    <li>• Realistic cyber attack simulation and live crisis injection</li>
-                    <li>• Cross-functional team coordination and communication testing</li>
-                    <li>• Decision-making under pressure and time constraints</li>
-                    <li>• Stakeholder interaction and external communication practice</li>
-                    <li>• Crisis escalation and de-escalation procedure validation</li>
+                    <li>• Live cyber attack simulation</li>
+                    <li>• Team coordination and communication testing</li>
+                    <li>• Decision-making under pressure</li>
                   </ul>
                 </div>
                 
@@ -70,11 +64,9 @@ const CyberCrisisManagement = () => {
                     Specialized training for crisis leadership and executive decision-making during cyber incidents.
                   </p>
                   <ul className="text-sm text-foreground/80 space-y-2">
-                    <li>• Executive crisis leadership training and coaching</li>
-                    <li>• Strategic decision-making frameworks and tools</li>
-                    <li>• Crisis communication and media interaction skills</li>
-                    <li>• Board and stakeholder reporting under crisis conditions</li>
-                    <li>• Legal and regulatory coordination during incidents</li>
+                    <li>• Executive crisis leadership training</li>
+                    <li>• Strategic decision-making frameworks</li>
+                    <li>• Crisis communication and media skills</li>
                   </ul>
                 </div>
                 
@@ -84,11 +76,9 @@ const CyberCrisisManagement = () => {
                     Strategic communication planning and execution for internal and external stakeholder management.
                   </p>
                   <ul className="text-sm text-foreground/80 space-y-2">
-                    <li>• Crisis communication strategy and messaging development</li>
-                    <li>• Media relations and public statement coordination</li>
-                    <li>• Employee communication and internal information management</li>
-                    <li>• Customer and partner notification procedures</li>
-                    <li>• Regulatory reporting and compliance communication</li>
+                    <li>• Crisis communication strategy development</li>
+                    <li>• Media relations and public statements</li>
+                    <li>• Regulatory reporting and compliance</li>
                   </ul>
                 </div>
                 
