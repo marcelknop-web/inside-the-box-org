@@ -12,20 +12,32 @@ export const GeometricSymbol = ({ size = 'lg', className = '' }: GeometricSymbol
 
   return (
     <div className={`${sizeClasses[size]} ${className} relative flex items-center justify-center animate-pulse-slow`}>
-      {/* Outer diamond */}
-      <div className="absolute inset-0 border-2 border-primary/60 rotate-45 rounded-lg animate-glow" />
+      {/* Cross/Plus pattern with nested diamonds - matching original */}
       
-      {/* Second layer */}
-      <div className="absolute inset-4 border-2 border-primary/80 rotate-45 rounded-lg" />
+      {/* Vertical bar */}
+      <div className="absolute w-6 h-full border-l-2 border-r-2 border-primary/60" />
       
-      {/* Third layer */}
-      <div className="absolute inset-8 border-2 border-primary rotate-45 rounded-lg" />
+      {/* Horizontal bar */}
+      <div className="absolute w-full h-6 border-t-2 border-b-2 border-primary/60" />
       
-      {/* Inner core */}
-      <div className="absolute inset-12 bg-primary/20 rotate-45 rounded-lg" />
+      {/* Top diamond */}
+      <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-16 h-16 border-2 border-primary/80 rotate-45" />
       
-      {/* Central dot */}
-      <div className="w-2 h-2 bg-primary rounded-full z-10 animate-pulse" />
+      {/* Bottom diamond */}
+      <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 w-16 h-16 border-2 border-primary/80 rotate-45" />
+      
+      {/* Left diamond */}
+      <div className="absolute left-2 top-1/2 transform -translate-y-1/2 w-16 h-16 border-2 border-primary/80 rotate-45" />
+      
+      {/* Right diamond */}
+      <div className="absolute right-2 top-1/2 transform -translate-y-1/2 w-16 h-16 border-2 border-primary/80 rotate-45" />
+      
+      {/* Center diamond */}
+      <div className="absolute inset-1/4 border-2 border-primary rotate-45 animate-glow" />
+      
+      {/* Inner nested squares */}
+      <div className="absolute inset-1/3 border-2 border-primary/60 rotate-45" />
+      <div className="absolute inset-2/5 bg-primary/10 rotate-45" />
     </div>
   );
 };

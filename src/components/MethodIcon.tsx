@@ -1,4 +1,4 @@
-import { Users, BookOpen, Zap } from 'lucide-react';
+import { Presentation, Users, Flag } from 'lucide-react';
 
 interface MethodIconProps {
   type: 'knowledge' | 'group' | 'cyber';
@@ -7,9 +7,9 @@ interface MethodIconProps {
 }
 
 const iconMap = {
-  knowledge: BookOpen,
+  knowledge: Presentation,
   group: Users,
-  cyber: Zap,
+  cyber: Flag,
 };
 
 export const MethodIcon = ({ type, title, className = '' }: MethodIconProps) => {
