@@ -13,7 +13,7 @@ const Index = () => {
           {/* Main Titles */}
           <div className="text-center mb-16">
             <h1 className="text-primary text-4xl sm:text-5xl lg:text-7xl font-bold font-mono mb-4">
-              Inside the Box
+              inside-the-box.org
             </h1>
             <h2 className="text-highlight text-xl sm:text-2xl lg:text-3xl font-semibold font-mono mb-2">
               Cybersecurity Consulting
