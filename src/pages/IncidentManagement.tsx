@@ -82,27 +82,6 @@ const IncidentManagement = () => {
                   </ul>
                 </div>
                 
-                <div className="bg-highlight/10 border-2 border-highlight/30 rounded-lg p-6">
-                  <h2 className="text-highlight text-xl font-bold font-mono mb-4">Key Capabilities</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-base sm:text-lg text-foreground/80">
-                    <div>
-                      <h3 className="font-semibold text-foreground mb-2">24/7 Response</h3>
-                      <p>Round-the-clock incident response capability with appropriate staffing and escalation procedures.</p>
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-foreground mb-2">Threat Hunting</h3>
-                      <p>Proactive threat hunting capabilities to identify advanced persistent threats and insider risks.</p>
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-foreground mb-2">Digital Forensics</h3>
-                      <p>Comprehensive digital forensics capabilities for evidence collection and incident attribution.</p>
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-foreground mb-2">Legal Coordination</h3>
-                      <p>Integration with legal counsel and law enforcement for regulatory compliance and prosecution support.</p>
-                    </div>
-                  </div>
-                </div>
               </div>
               
               <div className="pt-8">
