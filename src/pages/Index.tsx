@@ -10,11 +10,24 @@ const Index = () => {
       {/* Main Content */}
       <main className="container mx-auto px-6 py-12">
         <div className="max-w-4xl mx-auto">
+          {/* Main Titles */}
+          <div className="text-center mb-16">
+            <h1 className="text-primary text-4xl sm:text-5xl lg:text-7xl font-bold font-mono mb-4">
+              Inside the Box
+            </h1>
+            <h2 className="text-highlight text-xl sm:text-2xl lg:text-3xl font-semibold font-mono mb-2">
+              Cybersecurity Consulting
+            </h2>
+            <h3 className="text-accent text-lg sm:text-xl lg:text-2xl font-medium font-mono">
+              Cyber Training Range
+            </h3>
+          </div>
+          
           {/* Content */}
           <div className="space-y-8">
-            <h1 className="text-highlight text-2xl sm:text-3xl lg:text-5xl font-bold font-mono mb-12">
+            <h2 className="text-highlight text-2xl sm:text-3xl lg:text-4xl font-bold font-mono mb-12">
               Why?
-            </h1>
+            </h2>
             
             <div className="space-y-8 text-foreground leading-relaxed">
               <div className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6">
