@@ -88,7 +88,7 @@ const ConsultingTeam = () => {
                         <img 
                           src="/lovable-uploads/11e7ca2e-054c-44e6-8555-9f230229ef12.png" 
                           alt="Andreas Funder - Senior Cybersecurity Consultant" 
-                          className="w-full h-full rounded-full object-cover object-[50%_30%] border border-primary/20"
+                          className="w-full h-full rounded-full object-cover object-[50%_30%] border border-primary/20 scale-110"
                         />
                       </div>
                     </div>
