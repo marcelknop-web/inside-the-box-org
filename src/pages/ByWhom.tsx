@@ -30,7 +30,7 @@ const ByWhom = () => {
                       <img 
                         src="/lovable-uploads/0b083536-ec9e-4eda-b874-e926cc196404.png" 
                         alt="Marcel Knop - Senior Cybersecurity Consultant" 
-                        className="w-32 h-32 rounded-full object-cover object-center border-2 border-primary/30"
+                        className="w-32 h-32 rounded-full object-cover object-[50%_35%] border-2 border-primary/30"
                       />
                     </div>
                     <div className="flex-1">
