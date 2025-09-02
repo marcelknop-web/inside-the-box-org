@@ -1,5 +1,6 @@
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
+import andreasHeadshot from '@/assets/andreas-funder-headshot.jpg';
 
 const ByWhom = () => {
   return (
@@ -71,8 +72,19 @@ const ByWhom = () => {
 
                 {/* Andreas Funder Profile */}
                 <div className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6">
-                  <h2 className="text-primary text-2xl font-bold font-mono mb-4">Andreas Funder</h2>
-                  <h3 className="text-highlight text-lg font-semibold mb-4">Senior Consultant</h3>
+                  <div className="flex flex-col md:flex-row gap-6 mb-4">
+                    <div className="flex-shrink-0">
+                      <img 
+                        src={andreasHeadshot} 
+                        alt="Andreas Funder - Senior Cybersecurity Consultant" 
+                        className="w-32 h-32 rounded-full object-cover border-2 border-primary/30"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <h2 className="text-primary text-2xl font-bold font-mono mb-2">Andreas Funder</h2>
+                      <h3 className="text-highlight text-lg font-semibold mb-4">Senior Consultant</h3>
+                    </div>
+                  </div>
                   
                   <div className="space-y-4 text-base sm:text-lg">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
