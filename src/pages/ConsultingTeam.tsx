@@ -5,11 +5,11 @@ import { Footer } from '@/components/Footer';
 
 const ConsultingTeam = () => {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen flex flex-col">
       <Header />
       
       {/* Main Content */}
-      <main className="container mx-auto px-6 py-12">
+      <main className="flex-1 container mx-auto px-6 py-12">
         <div className="max-w-4xl mx-auto">
           {/* Content */}
           <div className="space-y-8">
@@ -145,18 +145,18 @@ const ConsultingTeam = () => {
               </div>
               
               <div className="pt-8">
-                <div className="flex justify-between space-x-4">
+                <div className="flex flex-col sm:flex-row sm:justify-center gap-4">
                   <a 
                     href="/contact" 
-                    className="bg-highlight/10 border-2 border-highlight/30 rounded-lg text-highlight font-mono text-lg hover:text-primary hover:bg-highlight/20 hover:border-highlight/50 transition-electric px-6 py-3 inline-block"
+                    className="bg-highlight/10 border-2 border-highlight/30 rounded-lg text-highlight font-mono text-lg hover:text-primary hover:bg-highlight/20 hover:border-highlight/50 transition-electric px-6 py-3 text-center w-full sm:w-32"
                   >
                     Contact
                   </a>
                   <a 
                     href="/consulting" 
-                    className="bg-primary/10 border-2 border-primary/30 rounded-lg text-primary font-mono text-lg hover:text-highlight hover:bg-primary/20 hover:border-primary/50 transition-electric px-6 py-3 inline-block"
+                    className="bg-primary/10 border-2 border-primary/30 rounded-lg text-primary font-mono text-lg hover:text-highlight hover:bg-primary/20 hover:border-primary/50 transition-electric px-6 py-3 text-center w-full sm:w-32"
                   >
-                    Back to Consulting Services
+                    Consulting
                   </a>
                 </div>
               </div>

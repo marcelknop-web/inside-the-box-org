@@ -36,7 +36,7 @@ const Index = () => {
           </InfoCard>
           
           <div className="pt-8">
-            <div className="flex justify-between space-x-4">
+            <div className="flex flex-col sm:flex-row sm:justify-center gap-4">
               <LinkButton href="/training">How?</LinkButton>
               <LinkButton href="/contact" variant="highlight">Contact</LinkButton>
             </div>

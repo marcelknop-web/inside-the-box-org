@@ -45,18 +45,18 @@ const Contact = () => {
               </div>
               
               <div className="pt-8">
-                <div className="flex justify-between space-x-4">
+                <div className="flex flex-col sm:flex-row sm:justify-center gap-4">
                   <a 
-                    href="/why" 
-                    className="bg-primary/10 border-2 border-primary/30 rounded-lg text-primary font-mono text-lg hover:text-highlight hover:bg-primary/20 hover:border-primary/50 transition-electric px-6 py-3 inline-block"
+                    href="/training" 
+                    className="bg-primary/10 border-2 border-primary/30 rounded-lg text-primary font-mono text-lg hover:text-highlight hover:bg-primary/20 hover:border-primary/50 transition-electric px-6 py-3 text-center w-full sm:w-32"
                   >
-                    View Training
+                    Training
                   </a>
                   <a 
                     href="/consulting" 
-                    className="bg-primary/10 border-2 border-primary/30 rounded-lg text-primary font-mono text-lg hover:text-highlight hover:bg-primary/20 hover:border-primary/50 transition-electric px-6 py-3 inline-block"
+                    className="bg-primary/10 border-2 border-primary/30 rounded-lg text-primary font-mono text-lg hover:text-highlight hover:bg-primary/20 hover:border-primary/50 transition-electric px-6 py-3 text-center w-full sm:w-32"
                   >
-                    View Consulting
+                    Consulting
                   </a>
                 </div>
               </div>
