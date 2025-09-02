@@ -24,10 +24,10 @@ const EventsWorkshops = () => {
               <div className="space-y-6">
                 <div className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6">
                   <h2 className="text-primary text-xl font-bold font-mono mb-4">Event Moderation</h2>
-                  <p className="text-sm text-foreground/80 mb-4">
+                  <p className="text-base text-foreground/80 mb-4">
                     Expert facilitation of cybersecurity conferences, seminars, and workshops.
                   </p>
-                  <ul className="text-sm text-foreground/80 space-y-2">
+                  <ul className="text-base text-foreground/80 space-y-2">
                     <li>• Conference and seminar moderation</li>
                     <li>• Panel discussion facilitation</li>
                     <li>• Workshop design and execution</li>
@@ -36,10 +36,10 @@ const EventsWorkshops = () => {
                 
                 <div className="bg-highlight/10 border-2 border-highlight/30 rounded-lg p-6">
                   <h2 className="text-highlight text-xl font-bold font-mono mb-4">Training Workshops</h2>
-                  <p className="text-sm text-foreground/80 mb-4">
+                  <p className="text-base text-foreground/80 mb-4">
                     Cybersecurity awareness and technical training workshop development.
                   </p>
-                  <ul className="text-sm text-foreground/80 space-y-2">
+                  <ul className="text-base text-foreground/80 space-y-2">
                     <li>• Security awareness programs</li>
                     <li>• Technical skill development</li>
                     <li>• Crisis management exercises</li>
@@ -48,17 +48,17 @@ const EventsWorkshops = () => {
                 
                 <div className="bg-primary/5 border border-primary/20 rounded-lg p-6">
                   <h2 className="text-primary text-xl font-bold font-mono mb-4">Client References</h2>
-                  <p className="text-sm text-foreground/80 mb-4">
+                  <p className="text-base text-foreground/80 mb-4">
                     Trusted by leading organizations across government, industry, and academia.
                   </p>
-                  <div className="text-sm text-foreground/70 leading-relaxed">
+                  <div className="text-base text-foreground/70 leading-relaxed">
                     <p>Beamtenbund • Bechtle • Bitkom • BSI • CDU • DENIC • DDPS (CH) • DIIR • DWT • Fast Lane • Euroforum • HPI • IIR • ISACA • Management Circle • SoftwareONE • University of the Bundeswehr and Giessen</p>
                   </div>
                 </div>
                 
                 <div className="bg-highlight/5 border border-highlight/20 rounded-lg p-6">
                   <h2 className="text-highlight text-xl font-bold font-mono mb-4">Event Types</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-foreground/80">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-base text-foreground/80">
                     <div>
                       <h3 className="font-semibold text-foreground mb-2">Conferences</h3>
                       <p>Large-scale cybersecurity conferences and industry events.</p>

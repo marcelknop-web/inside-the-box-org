@@ -26,7 +26,7 @@ export const TrainingCard = ({ title, description, icon: Icon, className = '', o
         <h3 className={`text-base sm:text-lg font-mono tracking-wide text-center text-primary/90 ${hasRealOnClick ? 'group-hover:text-primary transition-electric' : ''}`}>
           {title}
         </h3>
-        <p className="text-sm sm:text-base text-center text-foreground/70 leading-relaxed">
+        <p className="text-base sm:text-lg text-center text-foreground/70 leading-relaxed">
           {description}
         </p>
       </div>

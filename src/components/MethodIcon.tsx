@@ -24,7 +24,7 @@ export const MethodIcon = ({ type, title, description, className = '' }: MethodI
           <span className="text-base sm:text-lg font-mono text-highlight/90 text-center">
             {title}
           </span>
-          <p className="text-sm sm:text-base text-center text-foreground/70 leading-relaxed">
+          <p className="text-base sm:text-lg text-center text-foreground/70 leading-relaxed">
             {description}
           </p>
         </div>
