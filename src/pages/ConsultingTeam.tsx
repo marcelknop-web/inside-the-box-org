@@ -27,7 +27,7 @@ const ConsultingTeam = () => {
                         <img 
                           src="/lovable-uploads/0b083536-ec9e-4eda-b874-e926cc196404.png" 
                           alt="Marcel Knop - Senior Cybersecurity Consultant" 
-                          className="w-full h-full rounded-full object-cover object-[50%_35%] border border-primary/20"
+                          className="w-full h-full rounded-full object-cover object-[50%_40%] border border-primary/20 scale-110"
                         />
                       </div>
                     </div>
