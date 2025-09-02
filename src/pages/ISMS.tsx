@@ -7,7 +7,7 @@ const ISMS = () => {
   return (
     <PageLayout>
       <div className="space-y-8">
-        <h1 className="text-primary text-xl sm:text-2xl lg:text-5xl font-bold font-mono mb-12">
+        <h1 className="text-primary text-2xl sm:text-3xl lg:text-5xl font-bold font-mono mb-12">
           ISMS ISO 27001, BSI GS
         </h1>
         
@@ -41,7 +41,7 @@ const ISMS = () => {
             </ServiceCard>
             
             <InfoCard variant="subtle">
-              <h2 className="text-primary text-xl font-bold font-mono mb-4">Our Approach</h2>
+              <h2 className="text-primary text-xl sm:text-2xl lg:text-3xl font-bold font-mono mb-4">Our Approach</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-base sm:text-lg text-foreground/80">
                 <div>
                   <h3 className="font-semibold text-foreground mb-2">Assessment</h3>

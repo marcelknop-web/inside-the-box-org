@@ -7,10 +7,10 @@ const Index = () => {
   return (
     <PageLayout>
       <div className="space-y-8">
-        <h1 className="text-primary text-3xl sm:text-4xl lg:text-6xl font-bold font-mono mb-8">
+        <h1 className="text-primary text-2xl sm:text-3xl lg:text-5xl font-bold font-mono mb-8">
           Cyber Training Range
         </h1>
-        <h2 className="text-highlight text-2xl sm:text-3xl lg:text-4xl font-bold font-mono mb-12">
+        <h2 className="text-highlight text-xl sm:text-2xl lg:text-3xl font-bold font-mono mb-12">
           Why?
         </h2>
         

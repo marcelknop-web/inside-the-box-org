@@ -11,7 +11,7 @@ const IncidentManagement = () => {
         <div className="max-w-4xl mx-auto">
           {/* Content */}
           <div className="space-y-8">
-            <h1 className="text-primary text-xl sm:text-2xl lg:text-5xl font-bold font-mono mb-12">
+            <h1 className="text-primary text-2xl sm:text-3xl lg:text-5xl font-bold font-mono mb-12">
               Incident Management
             </h1>
             
@@ -23,7 +23,7 @@ const IncidentManagement = () => {
               {/* Services Overview */}
               <div className="space-y-6">
                 <div className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6">
-                  <h2 className="text-primary text-xl font-bold font-mono mb-4">Incident Response Planning</h2>
+                  <h2 className="text-primary text-xl sm:text-2xl lg:text-3xl font-bold font-mono mb-4">Incident Response Planning</h2>
                   <p className="text-sm text-foreground/80 mb-4">
                     Development of structured incident response procedures and operational playbooks.
                   </p>
@@ -35,7 +35,7 @@ const IncidentManagement = () => {
                 </div>
                 
                 <div className="bg-highlight/10 border-2 border-highlight/30 rounded-lg p-6">
-                  <h2 className="text-highlight text-xl font-bold font-mono mb-4">Detection & Analysis</h2>
+                  <h2 className="text-highlight text-xl sm:text-2xl lg:text-3xl font-bold font-mono mb-4">Detection & Analysis</h2>
                   <p className="text-sm text-foreground/80 mb-4">
                     Implementation of incident detection capabilities and analytical processes for effective threat identification.
                   </p>
@@ -47,7 +47,7 @@ const IncidentManagement = () => {
                 </div>
                 
                 <div className="bg-primary/5 border border-primary/20 rounded-lg p-6">
-                  <h2 className="text-primary text-xl font-bold font-mono mb-4">Containment & Eradication</h2>
+                  <h2 className="text-primary text-xl sm:text-2xl lg:text-3xl font-bold font-mono mb-4">Containment & Eradication</h2>
                   <p className="text-sm text-foreground/80 mb-4">
                     Strategic approaches for incident containment, threat eradication, and system recovery operations.
                   </p>
@@ -59,7 +59,7 @@ const IncidentManagement = () => {
                 </div>
                 
                 <div className="bg-highlight/5 border border-highlight/20 rounded-lg p-6">
-                  <h2 className="text-highlight text-xl font-bold font-mono mb-4">Recovery & Lessons Learned</h2>
+                  <h2 className="text-highlight text-xl sm:text-2xl lg:text-3xl font-bold font-mono mb-4">Recovery & Lessons Learned</h2>
                   <p className="text-sm text-foreground/80 mb-4">
                     Systematic recovery operations and post-incident analysis for continuous improvement.
                   </p>
@@ -71,7 +71,7 @@ const IncidentManagement = () => {
                 </div>
                 
                 <div className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6">
-                  <h2 className="text-primary text-xl font-bold font-mono mb-4">Training & Simulation</h2>
+                  <h2 className="text-primary text-xl sm:text-2xl lg:text-3xl font-bold font-mono mb-4">Training & Simulation</h2>
                   <p className="text-sm text-foreground/80 mb-4">
                     Practical training programs and simulation exercises to develop incident response capabilities.
                   </p>

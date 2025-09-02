@@ -11,7 +11,7 @@ const EventsWorkshops = () => {
         <div className="max-w-4xl mx-auto">
           {/* Content */}
           <div className="space-y-8">
-            <h1 className="text-primary text-xl sm:text-2xl lg:text-5xl font-bold font-mono mb-12">
+            <h1 className="text-primary text-2xl sm:text-3xl lg:text-5xl font-bold font-mono mb-12">
               Events & Workshops
             </h1>
             
@@ -48,7 +48,7 @@ const EventsWorkshops = () => {
               {/* Services Overview */}
               <div className="space-y-6">
                 <div className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6">
-                  <h2 className="text-primary text-xl font-bold font-mono mb-4">Event Moderation</h2>
+                  <h2 className="text-primary text-xl sm:text-2xl lg:text-3xl font-bold font-mono mb-4">Event Moderation</h2>
                   <p className="text-base text-foreground/80 mb-4">
                     Expert facilitation of cybersecurity conferences, seminars, and workshops.
                   </p>
@@ -60,7 +60,7 @@ const EventsWorkshops = () => {
                 </div>
                 
                 <div className="bg-highlight/10 border-2 border-highlight/30 rounded-lg p-6">
-                  <h2 className="text-highlight text-xl font-bold font-mono mb-4">Training Workshops</h2>
+                  <h2 className="text-highlight text-xl sm:text-2xl lg:text-3xl font-bold font-mono mb-4">Training Workshops</h2>
                   <p className="text-base text-foreground/80 mb-4">
                     Cybersecurity awareness and technical training workshop development.
                   </p>
@@ -72,7 +72,7 @@ const EventsWorkshops = () => {
                 </div>
                 
                 <div className="bg-primary/5 border border-primary/20 rounded-lg p-6">
-                  <h2 className="text-primary text-xl font-bold font-mono mb-4">Client References</h2>
+                  <h2 className="text-primary text-xl sm:text-2xl lg:text-3xl font-bold font-mono mb-4">Client References</h2>
                   <p className="text-base text-foreground/80 mb-4">
                     Trusted by leading organizations across government, industry, and academia.
                   </p>
@@ -82,7 +82,7 @@ const EventsWorkshops = () => {
                 </div>
                 
                 <div className="bg-highlight/5 border border-highlight/20 rounded-lg p-6">
-                  <h2 className="text-highlight text-xl font-bold font-mono mb-4">Event Types</h2>
+                  <h2 className="text-highlight text-xl sm:text-2xl lg:text-3xl font-bold font-mono mb-4">Event Types</h2>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-base text-foreground/80">
                     <div>
                       <h3 className="font-semibold text-foreground mb-2">Conferences</h3>
