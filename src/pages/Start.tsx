@@ -32,7 +32,7 @@ const Start = () => {
           </div>
           
           {/* Main Options */}
-          <div className="w-full max-w-4xl space-y-8">
+          <div className="w-full max-w-6xl space-y-8">
             <a 
               href="/why" 
               className="block group"
