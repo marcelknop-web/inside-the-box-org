@@ -16,26 +16,26 @@ const EventsWorkshops = () => {
             </h1>
             
             {/* Image Gallery */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            <div className="grid grid-cols-3 gap-4 mb-12">
               <div className="rounded-lg overflow-hidden border-2 border-primary/20">
                 <img 
                   src="/lovable-uploads/949dec6c-5ce6-4f3b-9bc0-5336078c4454.png" 
                   alt="Cyber Defense Strategies Whiteboard" 
-                  className="w-full h-48 object-cover"
+                  className="w-full h-24 sm:h-32 object-cover"
                 />
               </div>
               <div className="rounded-lg overflow-hidden border-2 border-primary/20">
                 <img 
                   src="/lovable-uploads/f463db5a-733d-4e4e-b151-d3e33ebe8997.png" 
                   alt="Training Room Session" 
-                  className="w-full h-48 object-cover"
+                  className="w-full h-24 sm:h-32 object-cover"
                 />
               </div>
               <div className="rounded-lg overflow-hidden border-2 border-primary/20">
                 <img 
                   src="/lovable-uploads/48ad82c3-84e8-4161-93d5-d79b509f7cc4.png" 
                   alt="Conference Presentation" 
-                  className="w-full h-48 object-cover"
+                  className="w-full h-24 sm:h-32 object-cover"
                 />
               </div>
             </div>
