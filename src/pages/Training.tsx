@@ -39,11 +39,11 @@ const Training = () => {
   ];
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen flex flex-col">
       <Header />
       
       {/* Hero Section */}
-      <main className="container mx-auto px-6 py-12">
+      <main className="flex-1 container mx-auto px-6 py-12">
         <div className="max-w-6xl mx-auto">
           {/* Title and Topics */}
           <div className="space-y-8">

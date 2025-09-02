@@ -5,11 +5,11 @@ import { Footer } from '@/components/Footer';
 
 const ByWhom = () => {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen flex flex-col">
       <Header />
       
       {/* Main Content */}
-      <main className="container mx-auto px-6 py-12">
+      <main className="flex-1 container mx-auto px-6 py-12">
         <div className="max-w-4xl mx-auto">
           {/* Content */}
           <div className="space-y-8">
