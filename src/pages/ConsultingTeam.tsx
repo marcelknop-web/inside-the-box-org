@@ -1,7 +1,7 @@
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import andreasHeadshot from '@/assets/andreas-funder-photo.png';
-import marcelHeadshot from '@/assets/marcel-knop-photo.png';
+
 
 const ConsultingTeam = () => {
   return (
@@ -24,7 +24,7 @@ const ConsultingTeam = () => {
                   <div className="flex flex-col md:flex-row gap-6 mb-4">
                     <div className="flex-shrink-0">
                       <img 
-                        src={marcelHeadshot} 
+                        src="/lovable-uploads/0b083536-ec9e-4eda-b874-e926cc196404.png" 
                         alt="Marcel Knop - Senior Cybersecurity Consultant" 
                         className="w-32 h-32 rounded-full object-cover border-2 border-primary/30"
                       />
