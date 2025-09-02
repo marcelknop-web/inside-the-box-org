@@ -92,21 +92,13 @@ const Training = () => {
           </div>
           
           {/* Footer Links */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 pt-8 border-t border-border">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-8 border-t border-border">
             <div className="flex">
               <a 
                 href="/by-whom" 
                 className="bg-primary/10 border-2 border-primary/30 rounded-lg text-primary font-mono text-base sm:text-lg hover:text-highlight hover:bg-primary/20 hover:border-primary/50 transition-electric flex-1 flex items-center justify-center p-4"
               >
                 By Whom?
-              </a>
-            </div>
-            <div className="flex">
-              <a 
-                href="/consulting/team" 
-                className="bg-primary/10 border-2 border-primary/30 rounded-lg text-primary font-mono text-base sm:text-lg hover:text-highlight hover:bg-primary/20 hover:border-primary/50 transition-electric flex-1 flex items-center justify-center p-4"
-              >
-                Meet the Team
               </a>
             </div>
             <div className="flex">
