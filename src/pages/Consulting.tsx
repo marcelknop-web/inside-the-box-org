@@ -65,7 +65,7 @@ const Consulting = () => {
         </h1>
         
         <div className="space-y-8 text-foreground leading-relaxed">
-          <p className="text-lg font-sans mb-4">
+          <p className="text-lg font-sans mb-2">
             Cybersecurity advisory services for risk management and compliance.
           </p>
           <p className="text-lg font-sans mb-8">
