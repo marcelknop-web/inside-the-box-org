@@ -1,6 +1,6 @@
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
-import andreasHeadshot from '@/assets/andreas-funder-photo.png';
+
 
 
 const ConsultingTeam = () => {
@@ -83,7 +83,7 @@ const ConsultingTeam = () => {
                   <div className="flex flex-col md:flex-row gap-6 mb-4">
                     <div className="flex-shrink-0">
                       <img 
-                        src={andreasHeadshot} 
+                        src="/lovable-uploads/11e7ca2e-054c-44e6-8555-9f230229ef12.png" 
                         alt="Andreas Funder - Senior Cybersecurity Consultant" 
                         className="w-32 h-32 rounded-full object-cover border-2 border-primary/30"
                       />
