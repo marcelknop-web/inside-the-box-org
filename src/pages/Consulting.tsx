@@ -74,7 +74,7 @@ const Consulting = () => {
               <div className="text-foreground/80 font-sans">Clients Successfully Served</div>
             </div>
             <div className="bg-highlight/10 border-2 border-highlight/30 rounded-lg p-6 text-center">
-              <div className="text-3xl font-bold text-highlight font-mono mb-2">15+</div>
+              <div className="text-3xl font-bold text-highlight font-mono mb-2">20+</div>
               <div className="text-foreground/80 font-sans">Industry Sectors</div>
             </div>
             <div className="bg-highlight/10 border-2 border-highlight/30 rounded-lg p-6 text-center">
