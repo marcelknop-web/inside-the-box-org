@@ -19,8 +19,8 @@ const EventsWorkshops = () => {
             <div className="grid grid-cols-3 gap-4 mb-12">
               <div className="rounded-lg overflow-hidden border-2 border-primary/20">
                 <img 
-                  src="/lovable-uploads/949dec6c-5ce6-4f3b-9bc0-5336078c4454.png" 
-                  alt="Cyber Defense Strategies Whiteboard" 
+                  src="/lovable-uploads/fc4cff06-0e9d-41c4-bac3-73a041a924b3.png" 
+                  alt="Cybersecurity Training Presentation" 
                   className="w-full h-24 sm:h-32 object-cover"
                 />
               </div>
