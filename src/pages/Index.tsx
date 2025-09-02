@@ -21,8 +21,8 @@ const Index = () => {
           
           <InfoCard icon={Target}>
             <p className="text-lg font-sans">
-              Our <span className="text-primary font-semibold">simulation environments</span> enable teams to develop competencies through 
-              <span className="text-primary font-semibold">realistic attack scenarios</span> and practical crisis coordination.
+               Our <span className="text-primary font-semibold">simulation environments</span> enable teams to develop competencies through{" "}
+               <span className="text-primary font-semibold">realistic attack scenarios</span> and practical crisis coordination.
             </p>
           </InfoCard>
           
