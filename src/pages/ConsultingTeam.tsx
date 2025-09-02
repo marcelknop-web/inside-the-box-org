@@ -1,7 +1,7 @@
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import andreasHeadshot from '@/assets/andreas-funder-photo.png';
-import marcelHeadshot from '@/assets/marcel-knop-headshot.jpg';
+import marcelHeadshot from '@/assets/marcel-knop-photo.png';
 
 const ConsultingTeam = () => {
   return (
