@@ -39,7 +39,7 @@ const Start = () => {
                   href="/consulting" 
                   className="block group"
                 >
-                  <div className="bg-primary/10 border-2 border-primary/30 rounded-lg text-primary font-mono text-3xl sm:text-4xl lg:text-6xl font-bold hover:text-highlight hover:bg-primary/20 hover:border-primary/50 transition-electric px-8 py-6 text-center lg:text-left">
+                  <div className="bg-primary/10 border-2 border-primary/30 rounded-lg text-primary font-mono text-3xl sm:text-4xl lg:text-5xl font-bold hover:text-highlight hover:bg-primary/20 hover:border-primary/50 transition-electric px-8 py-6 text-center lg:text-left">
                     Cybersecurity Consulting
                   </div>
                 </a>
