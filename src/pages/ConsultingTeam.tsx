@@ -42,18 +42,18 @@ const ConsultingTeam = () => {
                       <div>
                         <h4 className="text-primary font-semibold mb-2">Education & Qualifications</h4>
                         <ul className="space-y-1">
-                          <li>• Dipl.-Ing. Mechanical Engineering</li>
-                          <li>• CISSP, CISA</li>
-                          <li>• ISO/IEC 27001 + 22301 Lead Auditor</li>
-                          <li>• BSI Baseline Protection Practitioner</li>
+                          <li className="pl-4 -indent-4">• Dipl.-Ing. Mechanical Engineering</li>
+                          <li className="pl-4 -indent-4">• CISSP, CISA</li>
+                          <li className="pl-4 -indent-4">• ISO/IEC 27001 + 22301 Lead Auditor</li>
+                          <li className="pl-4 -indent-4">• BSI Baseline Protection Practitioner</li>
                         </ul>
                       </div>
                       <div>
                         <h4 className="text-primary font-semibold mb-2">Professional Experience</h4>
                         <ul className="space-y-1">
-                          <li>• KPMG: Consultant to Senior Manager</li>
-                          <li>• Accenture: Senior Manager</li>
-                          <li>• Ernst & Young: Senior Manager</li>
+                          <li className="pl-4 -indent-4">• KPMG: Consultant to Senior Manager</li>
+                          <li className="pl-4 -indent-4">• Accenture: Senior Manager</li>
+                          <li className="pl-4 -indent-4">• Ernst & Young: Senior Manager</li>
                         </ul>
                       </div>
                     </div>
@@ -62,17 +62,17 @@ const ConsultingTeam = () => {
                       <div>
                         <h4 className="text-primary font-semibold mb-2">Consulting Services</h4>
                         <ul className="space-y-1">
-                          <li>• Cybersecurity consulting and audits</li>
-                          <li>• ISMS, TISAX, NIS-2, PCI-DSS implementation</li>
-                          <li>• Cyber crisis management and exercises</li>
-                          <li>• TIBER, BCM</li>
+                          <li className="pl-4 -indent-4">• Cybersecurity consulting and audits</li>
+                          <li className="pl-4 -indent-4">• ISMS, TISAX, NIS-2, PCI-DSS implementation</li>
+                          <li className="pl-4 -indent-4">• Cyber crisis management and exercises</li>
+                          <li className="pl-4 -indent-4">• TIBER, BCM</li>
                         </ul>
                       </div>
                       <div>
                         <h4 className="text-primary font-semibold mb-2">Languages</h4>
                         <ul className="space-y-1">
-                          <li>• German (mother tongue)</li>
-                          <li>• English (business fluent)</li>
+                          <li className="pl-4 -indent-4">• German (mother tongue)</li>
+                          <li className="pl-4 -indent-4">• English (business fluent)</li>
                         </ul>
                       </div>
                     </div>
@@ -103,19 +103,19 @@ const ConsultingTeam = () => {
                       <div>
                         <h4 className="text-primary font-semibold mb-2">Education & Qualifications</h4>
                         <ul className="space-y-1">
-                          <li>• B.Sc. Business Administration</li>
-                          <li>• ISO/IEC 27001 Lead Auditor + Implementer</li>
-                          <li>• ISO/IEC 27005 Risk Manager</li>
-                          <li>• BSI IT-Grundschutz Practitioner</li>
-                          <li>• Data Privacy Auditor (DSA-TÜV)</li>
+                          <li className="pl-4 -indent-4">• B.Sc. Business Administration</li>
+                          <li className="pl-4 -indent-4">• ISO/IEC 27001 Lead Auditor + Implementer</li>
+                          <li className="pl-4 -indent-4">• ISO/IEC 27005 Risk Manager</li>
+                          <li className="pl-4 -indent-4">• BSI IT-Grundschutz Practitioner</li>
+                          <li className="pl-4 -indent-4">• Data Privacy Auditor (DSA-TÜV)</li>
                         </ul>
                       </div>
                       <div>
                         <h4 className="text-primary font-semibold mb-2">Professional Experience</h4>
                         <ul className="space-y-1">
-                          <li>• PwC: Manager, Cybersecurity and Privacy</li>
-                          <li>• Ernst & Young: Senior Consultant</li>
-                          <li>• CSPi: Consultant Security and Data Privacy</li>
+                          <li className="pl-4 -indent-4">• PwC: Manager, Cybersecurity and Privacy</li>
+                          <li className="pl-4 -indent-4">• Ernst & Young: Senior Consultant</li>
+                          <li className="pl-4 -indent-4">• CSPi: Consultant Security and Data Privacy</li>
                         </ul>
                       </div>
                     </div>
@@ -124,18 +124,18 @@ const ConsultingTeam = () => {
                       <div>
                         <h4 className="text-primary font-semibold mb-2">Consulting Services</h4>
                         <ul className="space-y-1">
-                          <li>• Information Security, ISMS Strategy</li>
-                          <li>• ISO/IEC 27001, PCI-DSS, NIST, TISAX</li>
-                          <li>• Risk Management, Business Continuity</li>
-                          <li>• EU GDPR, Critical Infrastructure (KRITIS)</li>
+                          <li className="pl-4 -indent-4">• Information Security, ISMS Strategy</li>
+                          <li className="pl-4 -indent-4">• ISO/IEC 27001, PCI-DSS, NIST, TISAX</li>
+                          <li className="pl-4 -indent-4">• Risk Management, Business Continuity</li>
+                          <li className="pl-4 -indent-4">• EU GDPR, Critical Infrastructure (KRITIS)</li>
                         </ul>
                       </div>
                       <div>
                         <h4 className="text-primary font-semibold mb-2">Languages</h4>
                         <ul className="space-y-1">
-                          <li>• German (mother tongue)</li>
-                          <li>• English (business fluent)</li>
-                          <li>• French (professional working)</li>
+                          <li className="pl-4 -indent-4">• German (mother tongue)</li>
+                          <li className="pl-4 -indent-4">• English (business fluent)</li>
+                          <li className="pl-4 -indent-4">• French (professional working)</li>
                         </ul>
                       </div>
                     </div>
