@@ -27,11 +27,13 @@ const ByWhom = () => {
                 <div className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6">
                   <div className="flex flex-col md:flex-row gap-6 mb-4">
                     <div className="flex-shrink-0">
-                      <img 
-                        src="/lovable-uploads/0b083536-ec9e-4eda-b874-e926cc196404.png" 
-                        alt="Marcel Knop - Senior Cybersecurity Consultant" 
-                        className="w-32 h-32 rounded-full object-cover object-[50%_35%] border-2 border-primary/30"
-                      />
+                      <div className="w-32 h-32 rounded-full bg-primary/5 p-1">
+                        <img 
+                          src="/lovable-uploads/0b083536-ec9e-4eda-b874-e926cc196404.png" 
+                          alt="Marcel Knop - Senior Cybersecurity Consultant" 
+                          className="w-full h-full rounded-full object-cover object-[50%_35%] border border-primary/20"
+                        />
+                      </div>
                     </div>
                     <div className="flex-1">
                       <h2 className="text-primary text-2xl font-bold font-mono mb-2">Marcel Knop</h2>
@@ -86,11 +88,13 @@ const ByWhom = () => {
                 <div className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6">
                   <div className="flex flex-col md:flex-row gap-6 mb-4">
                     <div className="flex-shrink-0">
-                      <img 
-                        src="/lovable-uploads/11e7ca2e-054c-44e6-8555-9f230229ef12.png" 
-                        alt="Andreas Funder - Senior Cybersecurity Consultant" 
-                        className="w-32 h-32 rounded-full object-cover object-[50%_35%] border-2 border-primary/30"
-                      />
+                      <div className="w-32 h-32 rounded-full bg-primary/5 p-1">
+                        <img 
+                          src="/lovable-uploads/11e7ca2e-054c-44e6-8555-9f230229ef12.png" 
+                          alt="Andreas Funder - Senior Cybersecurity Consultant" 
+                          className="w-full h-full rounded-full object-cover object-[50%_35%] border border-primary/20"
+                        />
+                      </div>
                     </div>
                     <div className="flex-1">
                       <h2 className="text-primary text-2xl font-bold font-mono mb-2">Andreas Funder</h2>
