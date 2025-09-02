@@ -21,11 +21,6 @@ const Contact = () => {
                 Let's talk.
               </p>
               
-              <div className="text-white text-lg font-mono">
-                <p>marcel@inside-the-box.org</p>
-                <p>+49 1520 569 1648</p>
-              </div>
-              
               {/* Contact Methods */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                 <div className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6">
