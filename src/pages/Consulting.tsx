@@ -68,6 +68,21 @@ const Consulting = () => {
             Cybersecurity advisory services for risk management and compliance.
           </p>
           
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            <div className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6 text-center">
+              <div className="text-3xl font-bold text-primary font-mono mb-2">350+</div>
+              <div className="text-foreground/80 font-sans">Clients Successfully Served</div>
+            </div>
+            <div className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6 text-center">
+              <div className="text-3xl font-bold text-primary font-mono mb-2">15+</div>
+              <div className="text-foreground/80 font-sans">Industry Sectors</div>
+            </div>
+            <div className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6 text-center">
+              <div className="text-3xl font-bold text-primary font-mono mb-2">35+</div>
+              <div className="text-foreground/80 font-sans">Years Combined Expertise</div>
+            </div>
+          </div>
+          
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {services.map((service, index) => (
               <ServiceCard
