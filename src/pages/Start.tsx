@@ -25,35 +25,31 @@ const Start = () => {
       </header>
       {/* Hero Section */}
       <main className="container mx-auto px-6 py-12 flex-1">
-        <div className="flex flex-col lg:flex-row items-center justify-between mb-20">
-          {/* Left: Geometric Symbol */}
-          <div className="mb-12 lg:mb-0 lg:mr-20">
+        <div className="flex flex-col items-center justify-center text-center space-y-12">
+          {/* Geometric Symbol */}
+          <div>
             <GeometricSymbol size="lg" />
           </div>
           
-          {/* Right: Main Options */}
-          <div className="flex-1 max-w-4xl">
-            <div className="text-center lg:text-left space-y-12">
-              <div className="space-y-8">
-                <a 
-                  href="/why" 
-                  className="block group"
-                >
-                  <div className="bg-cyan-500/10 border-2 border-cyan-500/30 rounded-lg text-cyan-400 font-mono text-3xl sm:text-4xl lg:text-6xl font-bold hover:text-cyan-300 hover:bg-cyan-500/20 hover:border-cyan-500/50 transition-electric px-8 py-6 text-center lg:text-left">
-                    Cyber Training Range
-                  </div>
-                </a>
-                
-                <a 
-                  href="/consulting" 
-                  className="block group"
-                >
-                  <div className="bg-primary/10 border-2 border-primary/30 rounded-lg text-primary font-mono text-3xl sm:text-4xl lg:text-6xl font-bold hover:text-highlight hover:bg-primary/20 hover:border-primary/50 transition-electric px-8 py-6 text-center lg:text-left">
-                    Cybersecurity Consulting
-                  </div>
-                </a>
+          {/* Main Options */}
+          <div className="w-full max-w-4xl space-y-8">
+            <a 
+              href="/why" 
+              className="block group"
+            >
+              <div className="bg-cyan-500/10 border-2 border-cyan-500/30 rounded-lg text-cyan-400 font-mono text-3xl sm:text-4xl lg:text-6xl font-bold hover:text-cyan-300 hover:bg-cyan-500/20 hover:border-cyan-500/50 transition-electric px-8 py-6">
+                Cyber Training Range
               </div>
-            </div>
+            </a>
+            
+            <a 
+              href="/consulting" 
+              className="block group"
+            >
+              <div className="bg-primary/10 border-2 border-primary/30 rounded-lg text-primary font-mono text-3xl sm:text-4xl lg:text-5xl font-bold hover:text-highlight hover:bg-primary/20 hover:border-primary/50 transition-electric px-8 py-6">
+                Cybersecurity Consulting
+              </div>
+            </a>
           </div>
         </div>
       </main>
