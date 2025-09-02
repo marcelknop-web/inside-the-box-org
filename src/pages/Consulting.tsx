@@ -66,7 +66,7 @@ const Consulting = () => {
         
         <div className="space-y-8 text-foreground leading-relaxed">
           <p className="text-lg font-sans mb-8">
-            Cybersecurity advisory services for risk management and compliance. Supporting boards, internal audit, IT departments, and business stakeholders.
+            Cybersecurity advisory services for risk management and compliance. On behalf of boards, internal audit, IT departments, and business stakeholders.
           </p>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
