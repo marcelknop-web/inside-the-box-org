@@ -1,6 +1,6 @@
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
-import andreasHeadshot from '@/assets/andreas-funder-headshot.jpg';
+import andreasHeadshot from '@/assets/andreas-funder-photo.png';
 import marcelHeadshot from '@/assets/marcel-knop-headshot.jpg';
 
 const ByWhom = () => {
@@ -30,7 +30,7 @@ const ByWhom = () => {
                       <img 
                         src={marcelHeadshot} 
                         alt="Marcel Knop - Senior Cybersecurity Consultant" 
-                        className="w-32 h-32 rounded-full object-cover border-2 border-primary/30 filter grayscale"
+                        className="w-32 h-32 rounded-full object-cover border-2 border-primary/30"
                       />
                     </div>
                     <div className="flex-1">
@@ -89,7 +89,7 @@ const ByWhom = () => {
                       <img 
                         src={andreasHeadshot} 
                         alt="Andreas Funder - Senior Cybersecurity Consultant" 
-                        className="w-32 h-32 rounded-full object-cover border-2 border-primary/30 filter grayscale"
+                        className="w-32 h-32 rounded-full object-cover border-2 border-primary/30"
                       />
                     </div>
                     <div className="flex-1">
