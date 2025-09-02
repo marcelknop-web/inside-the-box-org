@@ -31,9 +31,6 @@ const Publications = () => {
                     <a href="https://www.heise.de/select/ix/2021/10/2019809530193925811" target="_blank" rel="noopener noreferrer" className="text-highlight hover:text-primary transition-electric text-base underline block">
                       Read on heise.de
                     </a>
-                    <a href="https://www.inside-the-box.org/_files/ugd/11f56a_252cf48472d945c3939701c64918059d.pdf" target="_blank" rel="noopener noreferrer" className="text-highlight hover:text-primary transition-electric text-base underline block">
-                      Download PDF
-                    </a>
                   </div>
                 </div>
                 
@@ -45,9 +42,6 @@ const Publications = () => {
                   <div className="space-y-2">
                     <a href="https://www.heise.de/select/ix/archiv/2015/7/seite-78" target="_blank" rel="noopener noreferrer" className="text-highlight hover:text-primary transition-electric text-base underline block">
                       Read on heise.de
-                    </a>
-                    <a href="https://www.inside-the-box.org/_files/ugd/11f56a_42590b73cc604856be569cda33e694e1.pdf" target="_blank" rel="noopener noreferrer" className="text-highlight hover:text-primary transition-electric text-base underline block">
-                      Download PDF
                     </a>
                   </div>
                 </div>
