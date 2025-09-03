@@ -59,6 +59,10 @@ export default {
 				highlight: {
 					DEFAULT: 'hsl(var(--highlight))',
 					foreground: 'hsl(var(--highlight-foreground))'
+				},
+				linkedin: {
+					DEFAULT: 'hsl(var(--linkedin))',
+					foreground: 'hsl(var(--linkedin-foreground))'
 				}
 			},
 			backgroundImage: {

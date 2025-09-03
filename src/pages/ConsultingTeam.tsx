@@ -39,7 +39,7 @@ const ConsultingTeam = () => {
                           href="https://www.linkedin.com/in/inside-the-box" 
                           target="_blank" 
                           rel="noopener noreferrer"
-                          className="text-primary hover:text-highlight transition-electric"
+                          className="text-linkedin hover:text-linkedin/80 transition-electric"
                         >
                           <Linkedin size={24} />
                         </a>
@@ -110,7 +110,7 @@ const ConsultingTeam = () => {
                           href="https://www.linkedin.com/in/andreasfunder/" 
                           target="_blank" 
                           rel="noopener noreferrer"
-                          className="text-primary hover:text-highlight transition-electric"
+                          className="text-linkedin hover:text-linkedin/80 transition-electric"
                         >
                           <Linkedin size={24} />
                         </a>

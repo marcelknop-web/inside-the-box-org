@@ -35,6 +35,10 @@
     --highlight: 185 85% 55%;
     --highlight-foreground: 220 20% 9%;
 
+    /* LinkedIn cyan - distinctive brand color */
+    --linkedin: 185 100% 50%;
+    --linkedin-foreground: 220 20% 9%;
+
     /* High contrast color for key elements */
     --contrast: 0 0% 100%;
     --contrast-foreground: 220 20% 9%;
