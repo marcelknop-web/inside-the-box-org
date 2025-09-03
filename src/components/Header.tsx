@@ -4,10 +4,10 @@ export const Header = () => {
   return (
     <header className="py-8">
       <div className="container mx-auto px-6 flex items-center justify-center md:justify-between">
-        <a href="/" className="w-full md:w-auto flex items-center justify-center md:justify-start space-x-4 group">
-          <GeometricSymbol size="sm" className="hidden md:block" />
-          <span className="text-primary text-xl font-mono group-hover:text-highlight transition-electric whitespace-nowrap text-center">inside-the-box.org</span>
-        </a>
+          <a href="/" className="w-full md:w-auto flex items-center justify-center md:justify-start space-x-4 group">
+            <GeometricSymbol size="sm" />
+            <span className="text-primary text-xl font-mono group-hover:text-highlight transition-electric whitespace-nowrap text-center">inside-the-box.org</span>
+          </a>
         
         <nav className="hidden md:flex space-x-4">
           <a href="/why" className="bg-primary/10 border-2 border-primary/30 rounded-lg text-primary font-mono text-base hover:text-highlight hover:bg-primary/20 hover:border-primary/50 transition-electric px-4 py-2">
