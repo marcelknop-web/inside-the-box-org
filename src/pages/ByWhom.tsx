@@ -43,9 +43,9 @@ const ByWhom = () => {
                           href="https://www.linkedin.com/in/inside-the-box" 
                           target="_blank" 
                           rel="noopener noreferrer"
-                          className="text-linkedin hover:text-linkedin/80 transition-electric"
+                          className="bg-white rounded-full p-1 text-linkedin hover:text-linkedin/80 transition-electric"
                         >
-                          <Linkedin size={24} />
+                          <Linkedin size={20} />
                         </a>
                       </div>
                       <h3 className="text-highlight text-lg font-semibold">Senior Consultant</h3>
@@ -114,9 +114,9 @@ const ByWhom = () => {
                           href="https://www.linkedin.com/in/andreasfunder/" 
                           target="_blank" 
                           rel="noopener noreferrer"
-                          className="text-linkedin hover:text-linkedin/80 transition-electric"
+                          className="bg-white rounded-full p-1 text-linkedin hover:text-linkedin/80 transition-electric"
                         >
-                          <Linkedin size={24} />
+                          <Linkedin size={20} />
                         </a>
                       </div>
                       <h3 className="text-highlight text-lg font-semibold mb-4">Senior Consultant</h3>
