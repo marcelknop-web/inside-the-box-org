@@ -1,5 +1,6 @@
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
+import { Linkedin } from 'lucide-react';
 
 
 
@@ -36,7 +37,17 @@ const ByWhom = () => {
                       </div>
                     </div>
                     <div className="flex-1">
-                      <h2 className="text-primary text-2xl font-bold font-mono mb-2">Marcel Knop</h2>
+                      <div className="flex items-center gap-3 mb-2">
+                        <h2 className="text-primary text-2xl font-bold font-mono">Marcel Knop</h2>
+                        <a 
+                          href="https://www.linkedin.com/in/inside-the-box" 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-primary hover:text-highlight transition-electric"
+                        >
+                          <Linkedin size={24} />
+                        </a>
+                      </div>
                       <h3 className="text-highlight text-lg font-semibold">Senior Consultant</h3>
                     </div>
                   </div>
@@ -97,7 +108,17 @@ const ByWhom = () => {
                       </div>
                     </div>
                     <div className="flex-1">
-                      <h2 className="text-primary text-2xl font-bold font-mono mb-2">Andreas Funder</h2>
+                      <div className="flex items-center gap-3 mb-2">
+                        <h2 className="text-primary text-2xl font-bold font-mono">Andreas Funder</h2>
+                        <a 
+                          href="https://www.linkedin.com/in/andreasfunder/" 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-primary hover:text-highlight transition-electric"
+                        >
+                          <Linkedin size={24} />
+                        </a>
+                      </div>
                       <h3 className="text-highlight text-lg font-semibold mb-4">Senior Consultant</h3>
                     </div>
                   </div>
