@@ -39,7 +39,7 @@ const EventsWorkshops = () => {
         
         <div className="space-y-8 text-foreground leading-relaxed">
           <p className="text-lg font-sans mb-8">
-            Professional moderation of cybersecurity training sessions, workshops, and events.
+            Moderation of cybersecurity training sessions, workshops, and events.
           </p>
           
           <div className="space-y-6">
