@@ -18,7 +18,7 @@ export const Footer = () => {
           )}
           {isImprintPage && (
             <p className="text-foreground/70 text-sm font-mono">
-              Last updated: 1st September, 2025
+              Last updated: 4th September, 2025
             </p>
           )}
         </div>
