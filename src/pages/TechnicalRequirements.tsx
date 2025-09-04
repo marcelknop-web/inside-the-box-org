@@ -54,14 +54,7 @@ const TechnicalRequirements = () => {
           </div>
           
           <div className="pt-8">
-            {/* Mobile Layout */}
-            <div className="flex flex-col space-y-4 md:hidden">
-              <LinkButton href="/training">Back to Training</LinkButton>
-              <LinkButton href="/contact" variant="highlight">Contact</LinkButton>
-            </div>
-            
-            {/* Desktop Layout */}
-            <div className="hidden md:flex justify-between">
+            <div className="flex justify-between space-x-4 flex-wrap gap-y-4">
               <LinkButton href="/training">Back to Training</LinkButton>
               <LinkButton href="/contact" variant="highlight">Contact</LinkButton>
             </div>
