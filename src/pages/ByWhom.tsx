@@ -173,7 +173,6 @@ const ByWhom = () => {
               <div className="pt-8">
                 {/* Mobile Layout */}
                 <div className="flex flex-col space-y-4 md:hidden">
-                  <LinkButton href="/training">Return to Trainings</LinkButton>
                   <LinkButton href="/consulting">Return to Consulting</LinkButton>
                   <LinkButton href="/contact" variant="highlight">Contact</LinkButton>
                 </div>
