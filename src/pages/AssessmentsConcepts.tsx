@@ -28,9 +28,9 @@ const AssessmentsConcepts = () => {
                     Comprehensive identification and analysis of cybersecurity threats and organizational risk exposure.
                   </p>
                   <ul className="text-base sm:text-lg text-foreground/80 space-y-2">
-                    <li>• Threat landscape analysis and attack vectors</li>
-                    <li>• Penetration testing and vulnerability scanning</li>
-                    <li>• Risk quantification and business impact evaluation</li>
+                    <li className="pl-4 -indent-4">• Threat landscape analysis and attack vectors</li>
+                    <li className="pl-4 -indent-4">• Penetration testing and vulnerability scanning</li>
+                    <li className="pl-4 -indent-4">• Risk quantification and business impact evaluation</li>
                   </ul>
                 </div>
                 
@@ -40,9 +40,9 @@ const AssessmentsConcepts = () => {
                     Development of tailored security control frameworks addressing identified risks and compliance requirements.
                   </p>
                   <ul className="text-base sm:text-lg text-foreground/80 space-y-2">
-                    <li>• Control objective definition and mapping</li>
-                    <li>• Technical and organizational measure specification</li>
-                    <li>• Cost-benefit analysis and investment prioritization</li>
+                    <li className="pl-4 -indent-4">• Control objective definition and mapping</li>
+                    <li className="pl-4 -indent-4">• Technical and organizational measure specification</li>
+                    <li className="pl-4 -indent-4">• Cost-benefit analysis and investment prioritization</li>
                   </ul>
                 </div>
                 
@@ -52,9 +52,9 @@ const AssessmentsConcepts = () => {
                     Definition of organizational roles, responsibilities, and governance structures for security management.
                   </p>
                   <ul className="text-base sm:text-lg text-foreground/80 space-y-2">
-                    <li>• Security governance framework</li>
-                    <li>• Role definition and responsibility assignment</li>
-                    <li>• Escalation procedures and decision-making</li>
+                    <li className="pl-4 -indent-4">• Security governance framework</li>
+                    <li className="pl-4 -indent-4">• Role definition and responsibility assignment</li>
+                    <li className="pl-4 -indent-4">• Escalation procedures and decision-making</li>
                   </ul>
                 </div>
                 
@@ -64,9 +64,9 @@ const AssessmentsConcepts = () => {
                     Strategic roadmap development for systematic security concept implementation and operationalization.
                   </p>
                   <ul className="text-base sm:text-lg text-foreground/80 space-y-2">
-                    <li>• Implementation phasing and milestones</li>
-                    <li>• Resource planning and budget allocation</li>
-                    <li>• Change management and communication</li>
+                    <li className="pl-4 -indent-4">• Implementation phasing and milestones</li>
+                    <li className="pl-4 -indent-4">• Resource planning and budget allocation</li>
+                    <li className="pl-4 -indent-4">• Change management and communication</li>
                   </ul>
                 </div>
                 
@@ -76,9 +76,9 @@ const AssessmentsConcepts = () => {
                     Establishment of metrics, monitoring capabilities, and continuous improvement processes.
                   </p>
                   <ul className="text-base sm:text-lg text-foreground/80 space-y-2">
-                    <li>• KPI definition and measurement</li>
-                    <li>• Security dashboard and reporting</li>
-                    <li>• Continuous monitoring and improvement</li>
+                    <li className="pl-4 -indent-4">• KPI definition and measurement</li>
+                    <li className="pl-4 -indent-4">• Security dashboard and reporting</li>
+                    <li className="pl-4 -indent-4">• Continuous monitoring and improvement</li>
                   </ul>
                 </div>
               </div>

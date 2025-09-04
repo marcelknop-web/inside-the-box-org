@@ -28,9 +28,9 @@ const CyberCrisisManagement = () => {
                     Development of comprehensive crisis management plans and organizational preparedness frameworks.
                   </p>
                   <ul className="text-sm text-foreground/80 space-y-2">
-                    <li>• Crisis management governance and authority</li>
-                    <li>• Crisis team composition and roles</li>
-                    <li>• Decision-making frameworks under pressure</li>
+                    <li className="pl-4 -indent-4">• Crisis management governance and authority</li>
+                    <li className="pl-4 -indent-4">• Crisis team composition and roles</li>
+                    <li className="pl-4 -indent-4">• Decision-making frameworks under pressure</li>
                   </ul>
                 </div>
                 
@@ -40,9 +40,9 @@ const CyberCrisisManagement = () => {
                     Creation of realistic crisis scenarios based on current threat intelligence and organizational risk profile.
                   </p>
                   <ul className="text-sm text-foreground/80 space-y-2">
-                    <li>• Threat-informed scenario design</li>
-                    <li>• Crisis progression and escalation modeling</li>
-                    <li>• Cross-functional impact analysis</li>
+                    <li className="pl-4 -indent-4">• Threat-informed scenario design</li>
+                    <li className="pl-4 -indent-4">• Crisis progression and escalation modeling</li>
+                    <li className="pl-4 -indent-4">• Cross-functional impact analysis</li>
                   </ul>
                 </div>
                 
@@ -52,9 +52,9 @@ const CyberCrisisManagement = () => {
                     Immersive crisis simulation training using controlled cyber training range environments.
                   </p>
                   <ul className="text-sm text-foreground/80 space-y-2">
-                    <li>• Live cyber attack simulation</li>
-                    <li>• Team coordination and communication testing</li>
-                    <li>• Decision-making under pressure</li>
+                    <li className="pl-4 -indent-4">• Live cyber attack simulation</li>
+                    <li className="pl-4 -indent-4">• Team coordination and communication testing</li>
+                    <li className="pl-4 -indent-4">• Decision-making under pressure</li>
                   </ul>
                 </div>
                 
@@ -64,9 +64,9 @@ const CyberCrisisManagement = () => {
                     Specialized training for crisis leadership and executive decision-making during cyber incidents.
                   </p>
                   <ul className="text-sm text-foreground/80 space-y-2">
-                    <li>• Executive crisis leadership training</li>
-                    <li>• Strategic decision-making frameworks</li>
-                    <li>• Crisis communication and media skills</li>
+                    <li className="pl-4 -indent-4">• Executive crisis leadership training</li>
+                    <li className="pl-4 -indent-4">• Strategic decision-making frameworks</li>
+                    <li className="pl-4 -indent-4">• Crisis communication and media skills</li>
                   </ul>
                 </div>
                 
@@ -76,9 +76,9 @@ const CyberCrisisManagement = () => {
                     Strategic communication planning and execution for internal and external stakeholder management.
                   </p>
                   <ul className="text-sm text-foreground/80 space-y-2">
-                    <li>• Crisis communication strategy development</li>
-                    <li>• Media relations and public statements</li>
-                    <li>• Regulatory reporting and compliance</li>
+                    <li className="pl-4 -indent-4">• Crisis communication strategy development</li>
+                    <li className="pl-4 -indent-4">• Media relations and public statements</li>
+                    <li className="pl-4 -indent-4">• Regulatory reporting and compliance</li>
                   </ul>
                 </div>
                 

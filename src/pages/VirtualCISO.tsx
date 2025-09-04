@@ -28,9 +28,9 @@ const VirtualCISO = () => {
                     Executive-level cybersecurity guidance and strategic decision-making support.
                   </p>
                   <ul className="text-sm text-foreground/80 space-y-2">
-                    <li>• Cybersecurity strategy development</li>
-                    <li>• Risk management and governance</li>
-                    <li>• Board and executive reporting</li>
+                    <li className="pl-4 -indent-4">• Cybersecurity strategy development</li>
+                    <li className="pl-4 -indent-4">• Risk management and governance</li>
+                    <li className="pl-4 -indent-4">• Board and executive reporting</li>
                   </ul>
                 </div>
                 
@@ -40,9 +40,9 @@ const VirtualCISO = () => {
                     Day-to-day security operations oversight and program management.
                   </p>
                   <ul className="text-sm text-foreground/80 space-y-2">
-                    <li>• Security program implementation</li>
-                    <li>• Team leadership and development</li>
-                    <li>• Vendor and technology management</li>
+                    <li className="pl-4 -indent-4">• Security program implementation</li>
+                    <li className="pl-4 -indent-4">• Team leadership and development</li>
+                    <li className="pl-4 -indent-4">• Vendor and technology management</li>
                   </ul>
                 </div>
                 
@@ -52,9 +52,9 @@ const VirtualCISO = () => {
                     Regulatory compliance management and security assurance programs.
                   </p>
                   <ul className="text-sm text-foreground/80 space-y-2">
-                    <li>• Regulatory compliance oversight</li>
-                    <li>• Audit coordination and management</li>
-                    <li>• Policy and procedure development</li>
+                    <li className="pl-4 -indent-4">• Regulatory compliance oversight</li>
+                    <li className="pl-4 -indent-4">• Audit coordination and management</li>
+                    <li className="pl-4 -indent-4">• Policy and procedure development</li>
                   </ul>
                 </div>
                 

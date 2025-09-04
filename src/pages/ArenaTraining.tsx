@@ -28,9 +28,9 @@ const ArenaTraining = () => {
                     Comprehensive cybersecurity training in realistic attack scenarios.
                   </p>
                   <ul className="text-base sm:text-lg text-foreground/80 space-y-2">
-                    <li>• Analysis of host and network-based attacks</li>
-                    <li>• SIEM monitoring of live communication</li>
-                    <li>• Techniques and tactics to prevent detection</li>
+                    <li className="pl-4 -indent-4">• Analysis of host and network-based attacks</li>
+                    <li className="pl-4 -indent-4">• SIEM monitoring of live communication</li>
+                    <li className="pl-4 -indent-4">• Techniques and tactics to prevent detection</li>
                   </ul>
                 </div>
                 
@@ -40,9 +40,9 @@ const ArenaTraining = () => {
                     Threat Intelligence-based Ethical Red Teaming coordination and management.
                   </p>
                   <ul className="text-base sm:text-lg text-foreground/80 space-y-2">
-                    <li>• Scenario creation and safeguard definition</li>
-                    <li>• Team communication moderation</li>
-                    <li>• Testing coordination and documentation</li>
+                    <li className="pl-4 -indent-4">• Scenario creation and safeguard definition</li>
+                    <li className="pl-4 -indent-4">• Team communication moderation</li>
+                    <li className="pl-4 -indent-4">• Testing coordination and documentation</li>
                   </ul>
                 </div>
                 

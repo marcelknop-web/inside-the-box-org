@@ -28,9 +28,9 @@ const NIS2DORA = () => {
                     Determine the scope and implications of regulatory requirements for your organization.
                   </p>
                   <ul className="text-sm text-foreground/80 space-y-2">
-                    <li>• Regulatory applicability assessment</li>
-                    <li>• Critical business function identification</li>
-                    <li>• Cross-divisional impact analysis</li>
+                    <li className="pl-4 -indent-4">• Regulatory applicability assessment</li>
+                    <li className="pl-4 -indent-4">• Critical business function identification</li>
+                    <li className="pl-4 -indent-4">• Cross-divisional impact analysis</li>
                   </ul>
                 </div>
                 
@@ -40,9 +40,9 @@ const NIS2DORA = () => {
                     Systematic evaluation of current capabilities against regulatory requirements.
                   </p>
                   <ul className="text-sm text-foreground/80 space-y-2">
-                    <li>• Current state assessment and gap identification</li>
-                    <li>• Risk-based prioritization of activities</li>
-                    <li>• Implementation timeline development</li>
+                    <li className="pl-4 -indent-4">• Current state assessment and gap identification</li>
+                    <li className="pl-4 -indent-4">• Risk-based prioritization of activities</li>
+                    <li className="pl-4 -indent-4">• Implementation timeline development</li>
                   </ul>
                 </div>
                 
@@ -52,9 +52,9 @@ const NIS2DORA = () => {
                     Development and deployment of technical and organizational measures for compliance.
                   </p>
                   <ul className="text-sm text-foreground/80 space-y-2">
-                    <li>• Technical and organizational measure development</li>
-                    <li>• Continuous monitoring and effectiveness assessment</li>
-                    <li>• Incident response and reporting mechanisms</li>
+                    <li className="pl-4 -indent-4">• Technical and organizational measure development</li>
+                    <li className="pl-4 -indent-4">• Continuous monitoring and effectiveness assessment</li>
+                    <li className="pl-4 -indent-4">• Incident response and reporting mechanisms</li>
                   </ul>
                 </div>
                 
