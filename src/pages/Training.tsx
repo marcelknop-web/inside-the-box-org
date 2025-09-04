@@ -1,7 +1,6 @@
 import { TrainingCard } from '@/components/TrainingCard';
 import { MethodIcon } from '@/components/MethodIcon';
-import { Header } from '@/components/Header';
-import { Footer } from '@/components/Footer';
+import { PageLayout } from '@/components/PageLayout';
 import { Server, AlertTriangle, Bug, Shield, AlertCircle, MessageSquare } from 'lucide-react';
 
 const Training = () => {
@@ -39,36 +38,28 @@ const Training = () => {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      
-      {/* Hero Section */}
-      <main className="flex-1 container mx-auto px-6 py-12">
-        <div className="max-w-6xl mx-auto">
-          {/* Title and Topics */}
-          <div className="space-y-8">
-            <h1 className="text-primary text-2xl sm:text-3xl lg:text-5xl font-bold font-mono mb-6 text-left hover:text-highlight transition-electric">
-              Training Topics
-            </h1>
-            <p className="text-white text-base sm:text-lg mb-12">
-              From Command Line to Boardroom.
-            </p>
-            
-            {/* Training Topics Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-12">
-              {trainingTopics.map((topic, index) => (
-                <div key={index} className="flex">
-                  <TrainingCard 
-                    title={topic.title}
-                    description={topic.description}
-                    icon={topic.icon}
-                    className="flex-1"
-                    onClick={() => console.log(`Selected: ${topic.title}`)}
-                  />
-                </div>
-              ))}
+    <PageLayout maxWidth="wide">
+      <div className="space-y-8">
+        <h1 className="text-primary text-2xl sm:text-3xl lg:text-5xl font-bold font-mono mb-6 text-left hover:text-highlight transition-electric">
+          Training Topics
+        </h1>
+        <p className="text-white text-base sm:text-lg mb-12">
+          From Command Line to Boardroom.
+        </p>
+        
+        {/* Training Topics Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-12">
+          {trainingTopics.map((topic, index) => (
+            <div key={index} className="flex">
+              <TrainingCard 
+                title={topic.title}
+                description={topic.description}
+                icon={topic.icon}
+                className="flex-1"
+                onClick={() => console.log(`Selected: ${topic.title}`)}
+              />
             </div>
-          </div>
+          ))}
         </div>
 
         {/* Methods Section */}
@@ -122,9 +113,8 @@ const Training = () => {
             </div>
           </div>
         </section>
-      </main>
-      <Footer />
-    </div>
+      </div>
+    </PageLayout>
   );
 };
 
