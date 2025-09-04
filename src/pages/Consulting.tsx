@@ -75,7 +75,7 @@ const Consulting = () => {
         </h1>
         
         <div className="space-y-8 text-foreground leading-relaxed">
-          <p className="text-lg font-sans mb-12">
+          <p className="text-lg font-sans mb-8">
             On behalf of boards, internal and external audit, IT departments, and business stakeholders.
           </p>
           
