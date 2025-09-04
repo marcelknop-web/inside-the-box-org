@@ -40,17 +40,17 @@ const Index = () => {
             <div className="bg-cyan-500/10 border-2 border-cyan-500/30 rounded-lg p-6 text-center">
               <Target className="text-cyan-400 mx-auto mb-4" size={40} />
               <div className="text-3xl font-bold text-cyan-400 font-mono mb-2">40+</div>
-              <div className="text-foreground/80 font-sans">Trainings Conducted</div>
+              <div className="text-foreground/80 font-sans">Trainings Delivered</div>
             </div>
             <div className="bg-cyan-500/10 border-2 border-cyan-500/30 rounded-lg p-6 text-center">
               <Users className="text-cyan-400 mx-auto mb-4" size={40} />
               <div className="text-3xl font-bold text-cyan-400 font-mono mb-2">150+</div>
-              <div className="text-foreground/80 font-sans">Participants</div>
+              <div className="text-foreground/80 font-sans">People Trained</div>
             </div>
             <div className="bg-cyan-500/10 border-2 border-cyan-500/30 rounded-lg p-6 text-center">
               <Globe className="text-cyan-400 mx-auto mb-4" size={40} />
               <div className="text-3xl font-bold text-cyan-400 font-mono mb-2">4</div>
-              <div className="text-foreground/80 font-sans">Countries</div>
+              <div className="text-foreground/80 font-sans">Countries Covered</div>
             </div>
           </div>
           
