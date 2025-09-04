@@ -41,7 +41,7 @@ const Start = () => {
               href="/why" 
               className="block group"
             >
-              <div className="bg-warning/10 border-2 border-warning/30 rounded-lg text-warning font-mono text-xl sm:text-2xl lg:text-4xl font-bold hover:text-warning/80 hover:bg-warning/20 hover:border-warning/50 transition-electric px-6 py-4 flex items-center justify-center space-x-4">
+              <div className="bg-cyan-500/10 border-2 border-cyan-500/30 rounded-lg text-cyan-400 font-mono text-xl sm:text-2xl lg:text-4xl font-bold hover:text-cyan-300 hover:bg-cyan-500/20 hover:border-cyan-500/50 transition-electric px-6 py-4 flex items-center justify-center space-x-4">
                 <Target size={32} className="flex-shrink-0" />
                 <span>Cyber Training Range</span>
               </div>
