@@ -1,7 +1,7 @@
 import { PageLayout } from '@/components/PageLayout';
 import { ServiceCard } from '@/components/ServiceCard';
 import { LinkButton } from '@/components/LinkButton';
-import { Users, Building2, Award, ShieldCheck, Network, CreditCard, Search, AlertTriangle, Radio, Target, Calendar, FileText, UserCheck } from 'lucide-react';
+import { Users, Building2, Award, ShieldCheck, Network, CreditCard, Search, AlertTriangle, Radio, Target, Calendar, FileText, UserCheck, Globe } from 'lucide-react';
 
 const Consulting = () => {
   const services = [
@@ -97,6 +97,24 @@ const Consulting = () => {
               <Award className="text-highlight mx-auto mb-4" size={40} />
               <div className="text-3xl font-bold text-highlight font-mono mb-2">35+</div>
               <div className="text-foreground/80 font-sans">Years Combined Expertise</div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            <div className="bg-cyan-500/10 border-2 border-cyan-500/30 rounded-lg p-6 text-center">
+              <Target className="text-cyan-400 mx-auto mb-4" size={40} />
+              <div className="text-3xl font-bold text-cyan-400 font-mono mb-2">40+</div>
+              <div className="text-foreground/80 font-sans">Trainings Conducted</div>
+            </div>
+            <div className="bg-cyan-500/10 border-2 border-cyan-500/30 rounded-lg p-6 text-center">
+              <Users className="text-cyan-400 mx-auto mb-4" size={40} />
+              <div className="text-3xl font-bold text-cyan-400 font-mono mb-2">150+</div>
+              <div className="text-foreground/80 font-sans">Participants</div>
+            </div>
+            <div className="bg-cyan-500/10 border-2 border-cyan-500/30 rounded-lg p-6 text-center">
+              <Globe className="text-cyan-400 mx-auto mb-4" size={40} />
+              <div className="text-3xl font-bold text-cyan-400 font-mono mb-2">4</div>
+              <div className="text-foreground/80 font-sans">Countries</div>
             </div>
           </div>
           
