@@ -1,5 +1,7 @@
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
+import { InfoCard } from '@/components/InfoCard';
+import { Search, TrendingUp, Shield, Building2, Landmark, Plane } from 'lucide-react';
 
 const NIS2DORA = () => {
   return (
@@ -22,7 +24,7 @@ const NIS2DORA = () => {
               
               {/* Services Overview */}
               <div className="space-y-6">
-                <div className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6">
+                <InfoCard icon={Search} variant="primary">
                   <h2 className="text-primary text-xl sm:text-2xl lg:text-3xl font-bold font-mono mb-4">Impact Analysis</h2>
                   <p className="text-sm text-foreground/80 mb-4">
                     Determine the scope and implications of regulatory requirements for your organization.
@@ -32,9 +34,9 @@ const NIS2DORA = () => {
                     <li className="pl-4 -indent-4">• Critical business function identification</li>
                     <li className="pl-4 -indent-4">• Cross-divisional impact analysis</li>
                   </ul>
-                </div>
+                </InfoCard>
                 
-                <div className="bg-highlight/10 border-2 border-highlight/30 rounded-lg p-6">
+                <InfoCard icon={TrendingUp} variant="highlight">
                   <h2 className="text-highlight text-xl sm:text-2xl lg:text-3xl font-bold font-mono mb-4">GAP Analysis</h2>
                   <p className="text-sm text-foreground/80 mb-4">
                     Systematic evaluation of current capabilities against regulatory requirements.
@@ -44,9 +46,9 @@ const NIS2DORA = () => {
                     <li className="pl-4 -indent-4">• Risk-based prioritization of activities</li>
                     <li className="pl-4 -indent-4">• Implementation timeline development</li>
                   </ul>
-                </div>
+                </InfoCard>
                 
-                <div className="bg-primary/5 border border-primary/20 rounded-lg p-6">
+                <InfoCard icon={Shield} variant="subtle">
                   <h2 className="text-primary text-xl sm:text-2xl lg:text-3xl font-bold font-mono mb-4">Implementation of Measures</h2>
                   <p className="text-sm text-foreground/80 mb-4">
                     Development and deployment of technical and organizational measures for compliance.
@@ -56,22 +58,31 @@ const NIS2DORA = () => {
                     <li className="pl-4 -indent-4">• Continuous monitoring and effectiveness assessment</li>
                     <li className="pl-4 -indent-4">• Incident response and reporting mechanisms</li>
                   </ul>
-                </div>
+                </InfoCard>
                 
                 <div className="bg-highlight/5 border border-highlight/20 rounded-lg p-6">
                   <h2 className="text-highlight text-xl sm:text-2xl lg:text-3xl font-bold font-mono mb-4">Regulatory Framework Coverage</h2>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-base sm:text-lg text-foreground/80">
-                    <div>
-                      <h3 className="font-semibold text-foreground mb-2">NIS-2 Directive</h3>
-                      <p>Network and Information Systems security requirements for essential and important entities.</p>
+                    <div className="flex items-start space-x-3">
+                      <Building2 className="text-highlight mt-1 flex-shrink-0" size={24} />
+                      <div>
+                        <h3 className="font-semibold text-foreground mb-2">NIS-2 Directive</h3>
+                        <p>Network and Information Systems security requirements for essential and important entities.</p>
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="font-semibold text-foreground mb-2">DORA</h3>
-                      <p>Digital Operational Resilience Act for financial services ICT risk management.</p>
+                    <div className="flex items-start space-x-3">
+                      <Landmark className="text-highlight mt-1 flex-shrink-0" size={24} />
+                      <div>
+                        <h3 className="font-semibold text-foreground mb-2">DORA</h3>
+                        <p>Digital Operational Resilience Act for financial services ICT risk management.</p>
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="font-semibold text-foreground mb-2">PART-IS</h3>
-                      <p>Proportionate and risk-based approaches to information security compliance.</p>
+                    <div className="flex items-start space-x-3">
+                      <Plane className="text-highlight mt-1 flex-shrink-0" size={24} />
+                      <div>
+                        <h3 className="font-semibold text-foreground mb-2">PART-IS</h3>
+                        <p>Aviation regulation compliance for proportionate and risk-based approaches to information security.</p>
+                      </div>
                     </div>
                   </div>
                 </div>
