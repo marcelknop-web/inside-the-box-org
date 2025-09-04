@@ -38,7 +38,7 @@ const Training = () => {
   ];
 
   return (
-    <PageLayout maxWidth="wide">
+    <PageLayout>
       <div className="space-y-8">
         <h1 className="text-primary text-2xl sm:text-3xl lg:text-5xl font-bold font-mono mb-6 text-left hover:text-highlight transition-electric">
           Training Topics
