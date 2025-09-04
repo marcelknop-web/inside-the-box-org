@@ -10,8 +10,8 @@ const Index = () => {
         <h1 className="text-primary text-2xl sm:text-3xl lg:text-5xl font-bold font-mono mb-8">
           Cyber Training Range
         </h1>
-        <h2 className="text-highlight text-xl sm:text-2xl lg:text-3xl font-bold font-mono mb-12">
-          Why?
+        <h2 className="text-foreground text-xl sm:text-2xl lg:text-3xl font-bold font-mono mb-12">
+          Expect the unexpected
         </h2>
         
         <div className="space-y-8 text-foreground leading-relaxed">
