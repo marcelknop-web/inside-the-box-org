@@ -86,17 +86,17 @@ const Consulting = () => {
             <div className="bg-highlight/10 border-2 border-highlight/30 rounded-lg p-6 text-center">
               <Users className="text-highlight mx-auto mb-4" size={40} />
               <div className="text-3xl font-bold text-highlight font-mono mb-2">270+</div>
-              <div className="text-foreground/80 font-sans">Clients</div>
+              <div className="text-foreground/80 font-sans">Clients Served</div>
             </div>
             <div className="bg-highlight/10 border-2 border-highlight/30 rounded-lg p-6 text-center">
               <Building2 className="text-highlight mx-auto mb-4" size={40} />
               <div className="text-3xl font-bold text-highlight font-mono mb-2">20+</div>
-              <div className="text-foreground/80 font-sans">Industries</div>
+              <div className="text-foreground/80 font-sans">Industry Sectors</div>
             </div>
             <div className="bg-highlight/10 border-2 border-highlight/30 rounded-lg p-6 text-center">
               <Award className="text-highlight mx-auto mb-4" size={40} />
               <div className="text-3xl font-bold text-highlight font-mono mb-2">35+</div>
-              <div className="text-foreground/80 font-sans">Years Experience</div>
+              <div className="text-foreground/80 font-sans">Years Combined Expertise</div>
             </div>
           </div>
           
