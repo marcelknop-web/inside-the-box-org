@@ -1,5 +1,6 @@
 import { GeometricSymbol } from '@/components/GeometricSymbol';
 import { Footer } from '@/components/Footer';
+import { Target, Shield } from 'lucide-react';
 
 const Start = () => {
   return (
@@ -40,8 +41,9 @@ const Start = () => {
               href="/why" 
               className="block group"
             >
-              <div className="bg-cyan-500/10 border-2 border-cyan-500/30 rounded-lg text-cyan-400 font-mono text-xl sm:text-2xl lg:text-4xl font-bold hover:text-cyan-300 hover:bg-cyan-500/20 hover:border-cyan-500/50 transition-electric px-6 py-4">
-                Cyber Training Range
+              <div className="bg-cyan-500/10 border-2 border-cyan-500/30 rounded-lg text-cyan-400 font-mono text-xl sm:text-2xl lg:text-4xl font-bold hover:text-cyan-300 hover:bg-cyan-500/20 hover:border-cyan-500/50 transition-electric px-6 py-4 flex items-center justify-center space-x-4">
+                <Target size={32} className="flex-shrink-0" />
+                <span>Cyber Training Range</span>
               </div>
             </a>
             
@@ -49,8 +51,9 @@ const Start = () => {
               href="/consulting" 
               className="block group"
             >
-              <div className="bg-primary/10 border-2 border-primary/30 rounded-lg text-primary font-mono text-xl sm:text-2xl lg:text-4xl font-bold hover:text-highlight hover:bg-primary/20 hover:border-primary/50 transition-electric px-6 py-4">
-                Cybersecurity Consulting
+              <div className="bg-primary/10 border-2 border-primary/30 rounded-lg text-primary font-mono text-xl sm:text-2xl lg:text-4xl font-bold hover:text-highlight hover:bg-primary/20 hover:border-primary/50 transition-electric px-6 py-4 flex items-center justify-center space-x-4">
+                <Shield size={32} className="flex-shrink-0" />
+                <span>Cybersecurity Consulting</span>
               </div>
             </a>
           </div>
