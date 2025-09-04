@@ -74,7 +74,7 @@ const EventsWorkshops = () => {
               description="Trusted by leading organizations across government, industry, and academia."
             >
               <div className="text-base text-foreground/70 leading-relaxed mt-4">
-                <p>Beamtenbund • Bechtle • Bitkom • BSI • CDU • DENIC • DDPS (CH) • DIIR • DWT • Fast Lane • Euroforum • HPI • IIR • ISACA • Management Circle • SoftwareONE • University of the Bundeswehr and Giessen</p>
+                <p>Beamtenbund • Bechtle • Bitkom • BSI • CDU • DENIC • DDPS (CH) • DIIR • DWT • Fast Lane • Euroforum • HPI • IIR • ISACA • Management Circle • SoftwareONE • University of the Bundeswehr • University of Giessen</p>
               </div>
             </ServiceCard>
             
