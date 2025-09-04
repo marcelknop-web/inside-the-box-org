@@ -19,6 +19,10 @@ const ConsultingTeam = () => {
             </h1>
             
             <div className="space-y-8 text-foreground leading-relaxed">
+              <p className="text-lg font-sans">
+                <span className="text-highlight font-semibold">Senior cybersecurity consultants</span> with combined 35+ years of professional consulting expertise.
+              </p>
+              
               <div className="space-y-8">
                 {/* Marcel Knop Profile */}
                 <div className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6">
