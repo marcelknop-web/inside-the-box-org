@@ -29,10 +29,8 @@ const AssessmentsConcepts = () => {
                   </p>
                   <ul className="text-base sm:text-lg text-foreground/80 space-y-2">
                     <li>• Threat landscape analysis and attack vectors</li>
-                    <li>• Asset inventory and criticality assessment</li>
+                    <li>• Penetration testing and vulnerability scanning</li>
                     <li>• Risk quantification and business impact evaluation</li>
-                    <li>• Penetration testing</li>
-                    <li>• Vulnerability scanning</li>
                   </ul>
                 </div>
                 
