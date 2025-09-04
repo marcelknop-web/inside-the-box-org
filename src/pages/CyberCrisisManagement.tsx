@@ -2,7 +2,7 @@ import { PageLayout } from '@/components/PageLayout';
 import { ServiceCard } from '@/components/ServiceCard';
 import { InfoCard } from '@/components/InfoCard';
 import { LinkButton } from '@/components/LinkButton';
-import { ClipboardList, Zap, Target, Crown, MessageSquare, Users, Gamepad2, MonitorSpeaker, Monitor } from 'lucide-react';
+import { ClipboardList, Zap, Target, Crown, MessageSquare, Users, Gamepad2, MonitorSpeaker, Monitor, ShieldCheck, CheckCircle, Users2, Lightbulb } from 'lucide-react';
 
 const CyberCrisisManagement = () => {
   return (
@@ -104,21 +104,33 @@ const CyberCrisisManagement = () => {
             <InfoCard variant="subtle">
               <h2 className="text-primary text-xl sm:text-2xl lg:text-3xl font-bold font-mono mb-4">Expected Outcomes</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-base sm:text-lg text-foreground/80">
-                <div>
-                  <h3 className="font-semibold text-foreground mb-2">Enhanced Readiness</h3>
-                  <p>Improved organizational preparedness and response capability for cyber crisis situations.</p>
+                <div className="flex items-start space-x-3">
+                  <ShieldCheck className="text-primary mt-1 flex-shrink-0" size={24} />
+                  <div>
+                    <h3 className="font-semibold text-foreground mb-2">Enhanced Readiness</h3>
+                    <p>Improved organizational preparedness and response capability for cyber crisis situations.</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-semibold text-foreground mb-2">Tested Procedures</h3>
-                  <p>Validated crisis management procedures and identification of improvement opportunities.</p>
+                <div className="flex items-start space-x-3">
+                  <CheckCircle className="text-primary mt-1 flex-shrink-0" size={24} />
+                  <div>
+                    <h3 className="font-semibold text-foreground mb-2">Tested Procedures</h3>
+                    <p>Validated crisis management procedures and identification of improvement opportunities.</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-semibold text-foreground mb-2">Team Coordination</h3>
-                  <p>Strengthened cross-functional collaboration and communication under crisis conditions.</p>
+                <div className="flex items-start space-x-3">
+                  <Users2 className="text-primary mt-1 flex-shrink-0" size={24} />
+                  <div>
+                    <h3 className="font-semibold text-foreground mb-2">Team Coordination</h3>
+                    <p>Strengthened cross-functional collaboration and communication under crisis conditions.</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-semibold text-foreground mb-2">Leadership Confidence</h3>
-                  <p>Increased executive confidence in crisis decision-making and stakeholder management.</p>
+                <div className="flex items-start space-x-3">
+                  <Lightbulb className="text-primary mt-1 flex-shrink-0" size={24} />
+                  <div>
+                    <h3 className="font-semibold text-foreground mb-2">Leadership Confidence</h3>
+                    <p>Increased executive confidence in crisis decision-making and stakeholder management.</p>
+                  </div>
                 </div>
               </div>
             </InfoCard>
