@@ -1,116 +1,95 @@
-import { Header } from '@/components/Header';
-import { Footer } from '@/components/Footer';
+import { PageLayout } from '@/components/PageLayout';
+import { ServiceCard } from '@/components/ServiceCard';
+import { LinkButton } from '@/components/LinkButton';
+import { Search, Shield, Users, Calendar, BarChart } from 'lucide-react';
 
 const AssessmentsConcepts = () => {
   return (
-    <div className="min-h-screen">
-      <Header />
-      
-      {/* Main Content */}
-      <main className="container mx-auto px-6 py-12">
-        <div className="max-w-4xl mx-auto">
-          {/* Content */}
-          <div className="space-y-8">
-            <h1 className="text-primary text-2xl sm:text-3xl lg:text-5xl font-bold font-mono mb-12">
-              Assessments & Concepts
-            </h1>
+    <PageLayout>
+      <div className="space-y-8">
+        <h1 className="text-primary text-2xl sm:text-3xl lg:text-5xl font-bold font-mono mb-12">
+          Assessments & Concepts
+        </h1>
+        
+        <div className="space-y-8 text-foreground leading-relaxed">
+          <p className="text-lg font-sans mb-8">
+            Security assessment and concept development for responsible digitalization.
+          </p>
+          
+          <div className="space-y-6">
+            <ServiceCard
+              icon={Search}
+              title="Threat & Risk Assessment"
+              description="Comprehensive identification and analysis of cybersecurity threats and organizational risk exposure."
+            >
+              <ul className="text-base text-foreground/80 space-y-2 mt-4">
+                <li className="pl-4 -indent-4">• Threat landscape analysis and attack vectors</li>
+                <li className="pl-4 -indent-4">• Penetration testing and vulnerability scanning</li>
+                <li className="pl-4 -indent-4">• Risk quantification and business impact evaluation</li>
+              </ul>
+            </ServiceCard>
             
-            <div className="space-y-8 text-foreground leading-relaxed">
-              <p className="text-lg font-sans mb-8">
-                Security assessment and concept development for responsible digitalization.
-              </p>
-              
-              {/* Services Overview */}
-              <div className="space-y-6">
-                <div className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6">
-                  <h2 className="text-primary text-xl sm:text-2xl lg:text-3xl font-bold font-mono mb-4">Threat & Risk Assessment</h2>
-                  <p className="text-base sm:text-lg text-foreground/80 mb-4">
-                    Comprehensive identification and analysis of cybersecurity threats and organizational risk exposure.
-                  </p>
-                  <ul className="text-base sm:text-lg text-foreground/80 space-y-2">
-                    <li className="pl-4 -indent-4">• Threat landscape analysis and attack vectors</li>
-                    <li className="pl-4 -indent-4">• Penetration testing and vulnerability scanning</li>
-                    <li className="pl-4 -indent-4">• Risk quantification and business impact evaluation</li>
-                  </ul>
-                </div>
-                
-                <div className="bg-highlight/10 border-2 border-highlight/30 rounded-lg p-6">
-                  <h2 className="text-highlight text-xl sm:text-2xl lg:text-3xl font-bold font-mono mb-4">Security Controls Design</h2>
-                  <p className="text-base sm:text-lg text-foreground/80 mb-4">
-                    Development of tailored security control frameworks addressing identified risks and compliance requirements.
-                  </p>
-                  <ul className="text-base sm:text-lg text-foreground/80 space-y-2">
-                    <li className="pl-4 -indent-4">• Control objective definition and mapping</li>
-                    <li className="pl-4 -indent-4">• Technical and organizational measure specification</li>
-                    <li className="pl-4 -indent-4">• Cost-benefit analysis and investment prioritization</li>
-                  </ul>
-                </div>
-                
-                <div className="bg-primary/5 border border-primary/20 rounded-lg p-6">
-                  <h2 className="text-primary text-xl sm:text-2xl lg:text-3xl font-bold font-mono mb-4">Roles & Responsibilities</h2>
-                  <p className="text-base sm:text-lg text-foreground/80 mb-4">
-                    Definition of organizational roles, responsibilities, and governance structures for security management.
-                  </p>
-                  <ul className="text-base sm:text-lg text-foreground/80 space-y-2">
-                    <li className="pl-4 -indent-4">• Security governance framework</li>
-                    <li className="pl-4 -indent-4">• Role definition and responsibility assignment</li>
-                    <li className="pl-4 -indent-4">• Escalation procedures and decision-making</li>
-                  </ul>
-                </div>
-                
-                <div className="bg-highlight/5 border border-highlight/20 rounded-lg p-6">
-                  <h2 className="text-highlight text-xl sm:text-2xl lg:text-3xl font-bold font-mono mb-4">Implementation Planning</h2>
-                  <p className="text-base sm:text-lg text-foreground/80 mb-4">
-                    Strategic roadmap development for systematic security concept implementation and operationalization.
-                  </p>
-                  <ul className="text-base sm:text-lg text-foreground/80 space-y-2">
-                    <li className="pl-4 -indent-4">• Implementation phasing and milestones</li>
-                    <li className="pl-4 -indent-4">• Resource planning and budget allocation</li>
-                    <li className="pl-4 -indent-4">• Change management and communication</li>
-                  </ul>
-                </div>
-                
-                <div className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6">
-                  <h2 className="text-primary text-xl sm:text-2xl lg:text-3xl font-bold font-mono mb-4">Measurement & Monitoring</h2>
-                  <p className="text-base sm:text-lg text-foreground/80 mb-4">
-                    Establishment of metrics, monitoring capabilities, and continuous improvement processes.
-                  </p>
-                  <ul className="text-base sm:text-lg text-foreground/80 space-y-2">
-                    <li className="pl-4 -indent-4">• KPI definition and measurement</li>
-                    <li className="pl-4 -indent-4">• Security dashboard and reporting</li>
-                    <li className="pl-4 -indent-4">• Continuous monitoring and improvement</li>
-                  </ul>
-                </div>
-              </div>
-              
-              <div className="pt-8">
-                <div className="flex justify-between space-x-4 flex-wrap gap-y-4">
-                  <a 
-                    href="/consulting" 
-                    className="bg-primary/10 border-2 border-primary/30 rounded-lg text-primary font-mono text-lg hover:text-highlight hover:bg-primary/20 hover:border-primary/50 transition-electric px-6 py-3 inline-block"
-                  >
-                    All Consulting Services
-                  </a>
-                  <a 
-                    href="/consulting/team" 
-                    className="bg-primary/10 border-2 border-primary/30 rounded-lg text-primary font-mono text-lg hover:text-highlight hover:bg-primary/20 hover:border-primary/50 transition-electric px-6 py-3 inline-block"
-                  >
-                    Meet the Team
-                  </a>
-                  <a 
-                    href="/contact" 
-                    className="bg-highlight/10 border-2 border-highlight/30 rounded-lg text-highlight font-mono text-lg hover:text-primary hover:bg-highlight/20 hover:border-highlight/50 transition-electric px-6 py-3 inline-block"
-                  >
-                    Contact
-                  </a>
-                </div>
-              </div>
+            <ServiceCard
+              icon={Shield}
+              title="Security Controls Design"
+              description="Development of tailored security control frameworks addressing identified risks and compliance requirements."
+              variant="highlight"
+            >
+              <ul className="text-base text-foreground/80 space-y-2 mt-4">
+                <li className="pl-4 -indent-4">• Control objective definition and mapping</li>
+                <li className="pl-4 -indent-4">• Technical and organizational measure specification</li>
+                <li className="pl-4 -indent-4">• Cost-benefit analysis and investment prioritization</li>
+              </ul>
+            </ServiceCard>
+            
+            <ServiceCard
+              icon={Users}
+              title="Roles & Responsibilities"
+              description="Definition of organizational roles, responsibilities, and governance structures for security management."
+            >
+              <ul className="text-base text-foreground/80 space-y-2 mt-4">
+                <li className="pl-4 -indent-4">• Security governance framework</li>
+                <li className="pl-4 -indent-4">• Role definition and responsibility assignment</li>
+                <li className="pl-4 -indent-4">• Escalation procedures and decision-making</li>
+              </ul>
+            </ServiceCard>
+            
+            <ServiceCard
+              icon={Calendar}
+              title="Implementation Planning"
+              description="Strategic roadmap development for systematic security concept implementation and operationalization."
+              variant="highlight"
+            >
+              <ul className="text-base text-foreground/80 space-y-2 mt-4">
+                <li className="pl-4 -indent-4">• Implementation phasing and milestones</li>
+                <li className="pl-4 -indent-4">• Resource planning and budget allocation</li>
+                <li className="pl-4 -indent-4">• Change management and communication</li>
+              </ul>
+            </ServiceCard>
+            
+            <ServiceCard
+              icon={BarChart}
+              title="Measurement & Monitoring"
+              description="Establishment of metrics, monitoring capabilities, and continuous improvement processes."
+            >
+              <ul className="text-base text-foreground/80 space-y-2 mt-4">
+                <li className="pl-4 -indent-4">• KPI definition and measurement</li>
+                <li className="pl-4 -indent-4">• Security dashboard and reporting</li>
+                <li className="pl-4 -indent-4">• Continuous monitoring and improvement</li>
+              </ul>
+            </ServiceCard>
+          </div>
+          
+          <div className="pt-8">
+            <div className="flex justify-between space-x-4 flex-wrap gap-y-4">
+              <LinkButton href="/consulting">All Consulting Services</LinkButton>
+              <LinkButton href="/consulting/team">Meet the Team</LinkButton>
+              <LinkButton href="/contact" variant="highlight">Contact</LinkButton>
             </div>
           </div>
         </div>
-      </main>
-      <Footer />
-    </div>
+      </div>
+    </PageLayout>
   );
 };
 

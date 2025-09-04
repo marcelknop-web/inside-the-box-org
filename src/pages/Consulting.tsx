@@ -1,59 +1,69 @@
 import { PageLayout } from '@/components/PageLayout';
 import { ServiceCard } from '@/components/ServiceCard';
 import { LinkButton } from '@/components/LinkButton';
-import { Users, Building2, Award } from 'lucide-react';
+import { Users, Building2, Award, ShieldCheck, Network, CreditCard, Search, AlertTriangle, Radio, Target, Calendar, FileText, UserCheck } from 'lucide-react';
 
 const Consulting = () => {
   const services = [
     {
       title: 'ISMS ISO 27001, BSI GS',
       description: 'Information Security Management System implementation and certification according to ISO 27001 and BSI IT-Grundschutz standards.',
-      href: '/isms'
+      href: '/isms',
+      icon: ShieldCheck
     },
     {
       title: 'NIS-2, DORA, PART-IS',
       description: 'Network and Information Security Directive, Digital Operational Resilience Act, and PART-IS compliance consulting.',
-      href: '/nis2-dora'
+      href: '/nis2-dora',
+      icon: Network
     },
     {
       title: 'TISAX, PCI-DSS',
       description: 'Trusted Information Security Assessment Exchange and Payment Card Industry Data Security Standard implementation.',
-      href: '/tisax-pci-dss'
+      href: '/tisax-pci-dss',
+      icon: CreditCard
     },
     {
       title: 'Assessments & Concepts',
       description: 'Comprehensive security assessments and strategic cybersecurity concept development.',
-      href: '/assessments-concepts'
+      href: '/assessments-concepts',
+      icon: Search
     },
     {
       title: 'Incident Management',
       description: 'Security incident response planning, implementation, and crisis management procedures.',
-      href: '/incident-management'
+      href: '/incident-management',
+      icon: AlertTriangle
     },
     {
       title: 'Cyber Crisis Management',
       description: 'Crisis management strategy development and cyber crisis simulation exercises.',
-      href: '/cyber-crisis-management'
+      href: '/cyber-crisis-management',
+      icon: Radio
     },
     {
       title: 'Arena Training, TIBER Test',
       description: 'Threat Intelligence-based Ethical Red Teaming and advanced cybersecurity training programs.',
-      href: '/arena-training'
+      href: '/arena-training',
+      icon: Target
     },
     {
       title: 'Events & Workshops',
       description: 'Cybersecurity awareness workshops, training events, and educational seminars.',
-      href: '/events-workshops'
+      href: '/events-workshops',
+      icon: Calendar
     },
     {
       title: 'Publications, Trainings',
       description: 'Industry publications, thought leadership content, and specialized training programs.',
-      href: '/publications'
+      href: '/publications',
+      icon: FileText
     },
     {
       title: 'Virtual CISO',
       description: 'Outsourced Chief Information Security Officer services for strategic cybersecurity leadership.',
-      href: '/virtual-ciso'
+      href: '/virtual-ciso',
+      icon: UserCheck
     }
   ];
 
@@ -95,6 +105,7 @@ const Consulting = () => {
               <ServiceCard
                 key={index}
                 href={service.href}
+                icon={service.icon}
                 title={service.title}
                 description={service.description}
               />
