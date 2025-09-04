@@ -31,6 +31,8 @@ const AssessmentsConcepts = () => {
                     <li>• Threat landscape analysis and attack vectors</li>
                     <li>• Asset inventory and criticality assessment</li>
                     <li>• Risk quantification and business impact evaluation</li>
+                    <li>• Penetration testing</li>
+                    <li>• Vulnerability scanning</li>
                   </ul>
                 </div>
                 
