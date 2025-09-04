@@ -21,8 +21,8 @@ export const ServiceCard = ({
   className = '' 
 }: ServiceCardProps) => {
   const variantClasses = {
-    primary: 'bg-primary/10 border-2 border-primary/30 hover:bg-primary/20 hover:border-primary/50',
-    highlight: 'bg-highlight/10 border-2 border-highlight/30 hover:bg-highlight/20 hover:border-highlight/50'
+    primary: href ? 'bg-primary/10 border-2 border-primary/30 hover:bg-primary/20 hover:border-primary/50' : 'bg-primary/10 border-2 border-primary/30',
+    highlight: href ? 'bg-highlight/10 border-2 border-highlight/30 hover:bg-highlight/20 hover:border-highlight/50' : 'bg-highlight/10 border-2 border-highlight/30'
   };
 
   const titleColor = variant === 'primary' ? 'text-primary' : 'text-highlight';
