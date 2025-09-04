@@ -70,12 +70,12 @@ const Consulting = () => {
   return (
     <PageLayout>
       <div className="space-y-8">
-        <h1 className="text-primary text-2xl sm:text-3xl lg:text-5xl font-bold font-mono mb-12">
+        <h1 className="text-primary text-2xl sm:text-3xl lg:text-5xl font-bold font-mono mb-8">
           Cybersecurity Consulting
         </h1>
         
         <div className="space-y-8 text-foreground leading-relaxed">
-          <p className="text-lg font-sans mb-8">
+          <p className="text-lg font-sans mb-12">
             On behalf of boards, internal and external audit, IT departments, and business stakeholders.
           </p>
           
