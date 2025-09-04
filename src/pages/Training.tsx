@@ -12,25 +12,25 @@ const Training = () => {
       icon: Server 
     },
     { 
-      title: 'Crisis Management', 
-      description: 'Lead incident response teams under pressure.',
-      icon: AlertTriangle 
-    }, 
+      title: 'SIEM', 
+      description: 'Monitor security events and investigate threats.',
+      icon: Shield 
+    },
     { 
       title: 'Malware Analysis', 
       description: 'Reverse engineer malicious code and develop countermeasures.',
       icon: Bug 
     },
     { 
-      title: 'SIEM', 
-      description: 'Monitor security events and investigate threats.',
-      icon: Shield 
-    },
-    { 
       title: 'Incident Management', 
       description: 'Structure response processes and document incidents.',
       icon: AlertCircle 
     },
+    { 
+      title: 'Crisis Management', 
+      description: 'Lead incident response teams under pressure.',
+      icon: AlertTriangle 
+    }, 
     { 
       title: 'Crisis Communication', 
       description: 'Manage stakeholder communication during incidents.',
