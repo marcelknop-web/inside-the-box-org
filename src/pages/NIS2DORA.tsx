@@ -81,7 +81,7 @@ const NIS2DORA = () => {
                       <Plane className="text-highlight mt-1 flex-shrink-0" size={24} />
                       <div>
                         <h3 className="font-semibold text-foreground mb-2">PART-IS</h3>
-                        <p>Aviation regulation compliance for proportionate and risk-based approaches to information security.</p>
+                        <p>EASA aviation regulation compliance for proportionate and risk-based approaches to information security.</p>
                       </div>
                     </div>
                   </div>
