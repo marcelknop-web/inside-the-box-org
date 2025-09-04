@@ -1,6 +1,6 @@
 import { GeometricSymbol } from '@/components/GeometricSymbol';
 import { Footer } from '@/components/Footer';
-import { Target, Shield } from 'lucide-react';
+import { Target, Shield, Users, Globe, Award } from 'lucide-react';
 
 const Start = () => {
   return (
@@ -33,6 +33,25 @@ const Start = () => {
           {/* Geometric Symbol */}
           <div>
             <GeometricSymbol size="lg" />
+          </div>
+
+          {/* Statistics Section */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-4xl">
+            <div className="bg-cyan-500/10 border-2 border-cyan-500/30 rounded-lg p-6 text-center">
+              <Target className="text-cyan-400 mx-auto mb-4" size={40} />
+              <div className="text-3xl font-bold text-cyan-400 font-mono mb-2">40+</div>
+              <div className="text-foreground/80 font-sans">Trainings Conducted</div>
+            </div>
+            <div className="bg-cyan-500/10 border-2 border-cyan-500/30 rounded-lg p-6 text-center">
+              <Users className="text-cyan-400 mx-auto mb-4" size={40} />
+              <div className="text-3xl font-bold text-cyan-400 font-mono mb-2">150+</div>
+              <div className="text-foreground/80 font-sans">Participants</div>
+            </div>
+            <div className="bg-cyan-500/10 border-2 border-cyan-500/30 rounded-lg p-6 text-center">
+              <Globe className="text-cyan-400 mx-auto mb-4" size={40} />
+              <div className="text-3xl font-bold text-cyan-400 font-mono mb-2">4</div>
+              <div className="text-foreground/80 font-sans">Countries</div>
+            </div>
           </div>
           
           {/* Main Options */}
