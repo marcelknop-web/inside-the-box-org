@@ -64,7 +64,7 @@ const Training = () => {
 
         {/* Methods Section */}
         <section className="border-t border-border pt-16">
-          <h2 className="text-highlight text-xl sm:text-2xl lg:text-4xl font-bold font-mono mb-12 text-center hover:text-primary transition-electric">
+          <h2 className="text-highlight text-2xl sm:text-3xl lg:text-5xl font-bold font-mono mb-12 text-left hover:text-primary transition-electric">
             Methods
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-16">
