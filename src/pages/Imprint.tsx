@@ -55,9 +55,8 @@ const Imprint = () => {
               <div className="bg-highlight/10 border-2 border-highlight/30 rounded-lg p-6">
                 <h2 className="text-highlight text-xl font-bold font-mono mb-4">Copyright</h2>
                 <p className="text-base text-foreground/80">
-                  All content on this site is subject to German copyright law. Use beyond private purposes 
-                  requires written consent. If you notice any violations, please notify me — I will remove 
-                  the content promptly.
+                  All content on this site is subject to German copyright law. If you notice any violations, please notify me — I will remove 
+                  the content promptly. Use beyond private purposes requires written consent.
                 </p>
               </div>
               
