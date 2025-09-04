@@ -1,81 +1,67 @@
-import { Header } from '@/components/Header';
-import { Footer } from '@/components/Footer';
+import { PageLayout } from '@/components/PageLayout';
+import { ServiceCard } from '@/components/ServiceCard';
+import { LinkButton } from '@/components/LinkButton';
+import { Monitor, Network } from 'lucide-react';
 
 const TechnicalRequirements = () => {
   return (
-    <div className="min-h-screen">
-      <Header />
-      
-      {/* Main Content */}
-      <main className="container mx-auto px-6 py-12">
-        <div className="max-w-4xl mx-auto">
-          {/* Content */}
-          <div className="space-y-8">
-            <h1 className="text-primary text-2xl sm:text-3xl lg:text-5xl font-bold font-mono mb-12">
-              Technical Requirements
-            </h1>
+    <PageLayout>
+      <div className="space-y-8">
+        <h1 className="text-primary text-2xl sm:text-3xl lg:text-5xl font-bold font-mono mb-12">
+          Technical Requirements
+        </h1>
+        
+        <div className="space-y-8 text-foreground leading-relaxed">
+          <p className="text-lg font-sans mb-8">
+            Training takes place in a <span className="text-highlight font-semibold">virtual environment</span>. 
+            Participants connect via <span className="text-highlight font-semibold">RDP from their own devices</span>.
+          </p>
+          
+          <div className="space-y-6">
+            <h2 className="text-primary text-2xl font-bold font-mono mb-6">
+              Requirements
+            </h2>
             
-            <div className="space-y-8 text-foreground leading-relaxed">
-              <p className="text-lg font-sans">
-                Training takes place in a <span className="text-highlight font-semibold">virtual environment</span>. 
-                Participants connect via <span className="text-highlight font-semibold">RDP from their own devices</span>.
-              </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <ServiceCard
+                icon={Monitor}
+                title="System"
+                description="Hardware and software requirements for training participation."
+              >
+                <ul className="text-base text-foreground/80 space-y-2 mt-4">
+                  <li className="pl-4 -indent-4">• Modern computer (Windows/Mac/Linux)</li>
+                  <li className="pl-4 -indent-4">• 8GB RAM minimum</li>
+                  <li className="pl-4 -indent-4">• Stable internet (10+ Mbps)</li>
+                  <li className="pl-4 -indent-4">• 1920x1080 resolution</li>
+                  <li className="pl-4 -indent-4">• RDP client installed</li>
+                </ul>
+              </ServiceCard>
               
-              <div className="space-y-6">
-                <h2 className="text-primary text-2xl font-bold font-mono">
-                  Requirements
-                </h2>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6">
-                    <h3 className="text-primary text-lg font-semibold font-mono mb-3">
-                      System
-                    </h3>
-                    <ul className="space-y-2 text-sm">
-                      <li>• Modern computer (Windows/Mac/Linux)</li>
-                      <li>• 8GB RAM minimum</li>
-                      <li>• Stable internet (10+ Mbps)</li>
-                      <li>• 1920x1080 resolution</li>
-                      <li>• RDP client installed</li>
-                    </ul>
-                  </div>
-                  
-                  <div className="bg-highlight/10 border-2 border-highlight/30 rounded-lg p-6">
-                    <h3 className="text-highlight text-lg font-semibold font-mono mb-3">
-                      Network
-                    </h3>
-                    <ul className="space-y-2 text-sm">
-                      <li>• <span className="font-mono">RDP: 3389/tcp</span></li>
-                      <li>• <span className="font-mono">HTTPS: 443/tcp</span></li>
-                      <li>• Test connectivity beforehand</li>
-                      <li>• Backup communication ready</li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="pt-8">
-                <div className="flex justify-between space-x-4">
-                  <a 
-                    href="/training" 
-                    className="bg-primary/10 border-2 border-primary/30 rounded-lg text-primary font-mono text-lg hover:text-highlight hover:bg-primary/20 hover:border-primary/50 transition-electric px-6 py-3 inline-block"
-                  >
-                    Back to Training
-                  </a>
-                  <a 
-                    href="/contact" 
-                    className="bg-highlight/10 border-2 border-highlight/30 rounded-lg text-highlight font-mono text-lg hover:text-primary hover:bg-highlight/20 hover:border-highlight/50 transition-electric px-6 py-3 inline-block"
-                  >
-                    Contact
-                  </a>
-                </div>
-              </div>
+              <ServiceCard
+                icon={Network}
+                title="Network"
+                description="Network connectivity and port requirements for training access."
+                variant="highlight"
+              >
+                <ul className="text-base text-foreground/80 space-y-2 mt-4">
+                  <li className="pl-4 -indent-4">• <span className="font-mono">RDP: 3389/tcp</span></li>
+                  <li className="pl-4 -indent-4">• <span className="font-mono">HTTPS: 443/tcp</span></li>
+                  <li className="pl-4 -indent-4">• Test connectivity beforehand</li>
+                  <li className="pl-4 -indent-4">• Backup communication ready</li>
+                </ul>
+              </ServiceCard>
+            </div>
+          </div>
+          
+          <div className="pt-8">
+            <div className="flex justify-between space-x-4 flex-wrap gap-y-4">
+              <LinkButton href="/training">Back to Training</LinkButton>
+              <LinkButton href="/contact" variant="highlight">Contact</LinkButton>
             </div>
           </div>
         </div>
-      </main>
-      <Footer />
-    </div>
+      </div>
+    </PageLayout>
   );
 };
 
