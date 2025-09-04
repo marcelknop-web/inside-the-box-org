@@ -11,7 +11,7 @@ const Index = () => {
           Cyber Training Range
         </h1>
         <p className="text-lg font-sans mb-12 text-foreground">
-          Expect the unexpected
+          Expect the unexpected.
         </p>
         
         <div className="space-y-8 text-foreground leading-relaxed">
