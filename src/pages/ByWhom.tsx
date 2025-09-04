@@ -1,5 +1,6 @@
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
+import { LinkButton } from '@/components/LinkButton';
 import { Linkedin } from 'lucide-react';
 
 
@@ -172,46 +173,16 @@ const ByWhom = () => {
               <div className="pt-8">
                 {/* Mobile Layout */}
                 <div className="flex flex-col space-y-4 md:hidden">
-                  <a 
-                    href="/training" 
-                    className="bg-primary/10 border-2 border-primary/30 rounded-lg text-primary font-mono text-lg hover:text-highlight hover:bg-primary/20 hover:border-primary/50 transition-electric px-6 py-3 text-center"
-                  >
-                    Return to Trainings
-                  </a>
-                  <a 
-                    href="/consulting" 
-                    className="bg-primary/10 border-2 border-primary/30 rounded-lg text-primary font-mono text-lg hover:text-highlight hover:bg-primary/20 hover:border-primary/50 transition-electric px-6 py-3 text-center"
-                  >
-                    Return to Consulting
-                  </a>
-                  <a 
-                    href="/contact" 
-                    className="bg-highlight/10 border-2 border-highlight/30 rounded-lg text-highlight font-mono text-lg hover:text-primary hover:bg-highlight/20 hover:border-highlight/50 transition-electric px-6 py-3 text-center"
-                  >
-                    Contact
-                  </a>
+                  <LinkButton href="/training">Return to Trainings</LinkButton>
+                  <LinkButton href="/consulting">Return to Consulting</LinkButton>
+                  <LinkButton href="/contact" variant="highlight">Contact</LinkButton>
                 </div>
                 
                 {/* Desktop Layout */}
-                <div className="hidden md:flex justify-between items-center">
-                  <a 
-                    href="/training" 
-                    className="bg-primary/10 border-2 border-primary/30 rounded-lg text-primary font-mono text-lg hover:text-highlight hover:bg-primary/20 hover:border-primary/50 transition-electric px-6 py-3"
-                  >
-                    Return to Trainings
-                  </a>
-                  <a 
-                    href="/consulting" 
-                    className="bg-primary/10 border-2 border-primary/30 rounded-lg text-primary font-mono text-lg hover:text-highlight hover:bg-primary/20 hover:border-primary/50 transition-electric px-6 py-3"
-                  >
-                    Return to Consulting
-                  </a>
-                  <a 
-                    href="/contact" 
-                    className="bg-highlight/10 border-2 border-highlight/30 rounded-lg text-highlight font-mono text-lg hover:text-primary hover:bg-highlight/20 hover:border-highlight/50 transition-electric px-6 py-3"
-                  >
-                    Contact
-                  </a>
+                <div className="hidden md:flex justify-between space-x-4">
+                  <LinkButton href="/training">Return to Trainings</LinkButton>
+                  <LinkButton href="/consulting">Return to Consulting</LinkButton>
+                  <LinkButton href="/contact" variant="highlight">Contact</LinkButton>
                 </div>
               </div>
             </div>
