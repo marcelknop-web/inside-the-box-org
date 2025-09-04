@@ -11,14 +11,14 @@ const Training = () => {
       icon: Server 
     },
     { 
-      title: 'SIEM', 
-      description: 'Monitor security events and investigate threats.',
-      icon: Shield 
-    },
-    { 
       title: 'Malware Analysis', 
       description: 'Reverse engineer malicious code and develop countermeasures.',
       icon: Bug 
+    },
+    { 
+      title: 'SIEM', 
+      description: 'Monitor security events and investigate threats.',
+      icon: Shield 
     },
     { 
       title: 'Incident Management', 
