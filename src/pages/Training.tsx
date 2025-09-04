@@ -68,7 +68,7 @@ const Training = () => {
             Methods
           </h2>
           <p className="text-white text-base sm:text-lg mb-12">
-            Understanding, communicating, practicing.
+            Understanding, communicating, and practicing.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-16">
             <MethodIcon 
