@@ -47,9 +47,12 @@ const Training = () => {
         <div className="max-w-6xl mx-auto">
           {/* Title and Topics */}
           <div className="space-y-8">
-            <h1 className="text-primary text-2xl sm:text-3xl lg:text-5xl font-bold font-mono mb-12 text-center hover:text-highlight transition-electric">
+            <h1 className="text-primary text-2xl sm:text-3xl lg:text-5xl font-bold font-mono mb-4 text-center hover:text-highlight transition-electric">
               Training Topics
             </h1>
+            <p className="text-foreground text-lg text-center mb-12">
+              From Command Line to Boardroom
+            </p>
             
             {/* Training Topics Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-12">
