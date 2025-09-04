@@ -81,7 +81,7 @@ const ISMS = () => {
           <div className="pt-8">
             <div className="flex justify-between space-x-4 flex-wrap gap-y-4">
               <LinkButton href="/consulting">All Consulting Services</LinkButton>
-              <LinkButton href="/consulting/team">By Whom?</LinkButton>
+              <LinkButton href="/consulting/team">By Whom</LinkButton>
               <LinkButton href="/contact" variant="highlight">Contact</LinkButton>
             </div>
           </div>

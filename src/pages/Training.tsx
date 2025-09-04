@@ -98,7 +98,7 @@ const Training = () => {
                 href="/by-whom" 
                 className="bg-primary/10 border-2 border-primary/30 rounded-lg text-primary font-mono text-base sm:text-lg hover:text-highlight hover:bg-primary/20 hover:border-primary/50 transition-electric flex-1 flex items-center justify-center p-4"
               >
-                By Whom?
+                By Whom
               </a>
             </div>
             <div className="flex">
