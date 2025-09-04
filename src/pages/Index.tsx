@@ -10,9 +10,9 @@ const Index = () => {
         <h1 className="text-primary text-2xl sm:text-3xl lg:text-5xl font-bold font-mono mb-8">
           Cyber Training Range
         </h1>
-        <h2 className="text-foreground text-xl sm:text-2xl lg:text-3xl font-bold font-mono mb-12">
+        <p className="text-lg font-sans mb-12 text-foreground">
           Expect the unexpected
-        </h2>
+        </p>
         
         <div className="space-y-8 text-foreground leading-relaxed">
           <InfoCard icon={AlertTriangle}>
