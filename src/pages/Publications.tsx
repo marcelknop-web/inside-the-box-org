@@ -91,7 +91,15 @@ const Publications = () => {
           </div>
           
           <div className="pt-8">
-            <div className="flex justify-between space-x-4 flex-wrap gap-y-4">
+            {/* Mobile Layout */}
+            <div className="flex flex-col space-y-4 md:hidden">
+              <LinkButton href="/consulting">All Consulting Services</LinkButton>
+              <LinkButton href="/consulting/team">By Whom</LinkButton>
+              <LinkButton href="/contact" variant="highlight">Contact</LinkButton>
+            </div>
+            
+            {/* Desktop Layout */}
+            <div className="hidden md:flex justify-between space-x-4">
               <LinkButton href="/consulting">All Consulting Services</LinkButton>
               <LinkButton href="/consulting/team">By Whom</LinkButton>
               <LinkButton href="/contact" variant="highlight">Contact</LinkButton>
