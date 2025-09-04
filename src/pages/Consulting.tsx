@@ -25,7 +25,7 @@ const Consulting = () => {
     },
     {
       title: 'Assessments & Concepts',
-      description: 'Comprehensive security assessments and strategic cybersecurity concept development.',
+      description: 'Comprehensive security assessments, penetration tests, and strategic cybersecurity concept development.',
       href: '/assessments-concepts',
       icon: Search
     },
