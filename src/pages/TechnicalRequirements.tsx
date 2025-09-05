@@ -12,9 +12,9 @@ const TechnicalRequirements = () => {
         </h1>
         
         <div className="space-y-8 text-foreground leading-relaxed">
-          <p className="text-lg font-sans mb-8">
-            Training takes place in a <span className="text-highlight font-semibold">virtual environment</span>. 
-            Participants connect via <span className="text-highlight font-semibold">RDP from their own devices</span>.
+          <p className="text-lg font-sans mb-8 text-white">
+            Training takes place in a virtual environment. 
+            Participants connect via RDP from their own devices.
           </p>
           
           <div className="space-y-6">
