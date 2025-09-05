@@ -170,12 +170,41 @@ const ConsultingTeam = () => {
               </div>
               
               <div className="pt-8">
-                <div className="flex justify-between space-x-4">
+                {/* Mobile Layout */}
+                <div className="flex flex-col space-y-4 md:hidden">
+                  <a 
+                    href="/consulting" 
+                    className="bg-primary/10 border-2 border-primary/30 rounded-lg text-primary font-mono text-lg hover:text-highlight hover:bg-primary/20 hover:border-primary/50 transition-electric px-6 py-3 inline-block text-center"
+                  >
+                    Back to Consulting
+                  </a>
+                  <a 
+                    href="/training" 
+                    className="bg-primary/10 border-2 border-primary/30 rounded-lg text-primary font-mono text-lg hover:text-highlight hover:bg-primary/20 hover:border-primary/50 transition-electric px-6 py-3 inline-block text-center"
+                  >
+                    Back to Training
+                  </a>
+                  <a 
+                    href="/contact" 
+                    className="bg-highlight/10 border-2 border-highlight/30 rounded-lg text-highlight font-mono text-lg hover:text-primary hover:bg-highlight/20 hover:border-highlight/50 transition-electric px-6 py-3 inline-block text-center"
+                  >
+                    Contact
+                  </a>
+                </div>
+                
+                {/* Desktop Layout */}
+                <div className="hidden md:flex justify-between space-x-4">
                   <a 
                     href="/consulting" 
                     className="bg-primary/10 border-2 border-primary/30 rounded-lg text-primary font-mono text-lg hover:text-highlight hover:bg-primary/20 hover:border-primary/50 transition-electric px-6 py-3 inline-block"
                   >
-                    Back to Consulting Services
+                    Back to Consulting
+                  </a>
+                  <a 
+                    href="/training" 
+                    className="bg-primary/10 border-2 border-primary/30 rounded-lg text-primary font-mono text-lg hover:text-highlight hover:bg-primary/20 hover:border-primary/50 transition-electric px-6 py-3 inline-block"
+                  >
+                    Back to Training
                   </a>
                   <a 
                     href="/contact" 
