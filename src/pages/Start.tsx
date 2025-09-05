@@ -31,10 +31,6 @@ const Start = () => {
       {/* Hero Section */}
       <main className="container mx-auto px-6 py-12 flex-1">
         <div className="flex flex-col items-center justify-center text-center space-y-12">
-          {/* Geometric Symbol */}
-          <div>
-            <GeometricSymbol size="lg" />
-          </div>
           
           {/* Main Options */}
           <div className="w-full max-w-3xl space-y-8">
