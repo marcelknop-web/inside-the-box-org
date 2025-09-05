@@ -8,8 +8,7 @@ const Start = () => {
       {/* Header with consistent styling */}
       <header className="py-8">
         <div className="container mx-auto px-6 flex items-center justify-center md:justify-between">
-          <a href="/" className="w-full md:w-auto flex items-center justify-center md:justify-start space-x-4 group">
-            <GeometricSymbol size="sm" />
+          <a href="/" className="w-full md:w-auto flex items-center justify-center md:justify-start group">
             <span className="text-primary text-xl font-mono group-hover:text-highlight transition-electric whitespace-nowrap text-center">inside-the-box.org</span>
           </a>
           <nav className="hidden md:flex space-x-4">
