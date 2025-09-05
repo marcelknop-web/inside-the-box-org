@@ -56,7 +56,7 @@ const ConsultingTeam = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <h4 className="text-primary font-semibold mb-2">Education & Qualifications</h4>
-                        <ul className="space-y-1 text-white">
+                        <ul className="space-y-1">
                           <li className="pl-4 -indent-4">• Dipl.-Ing. Mechanical Engineering</li>
                           <li className="pl-4 -indent-4">• CISSP, CISA</li>
                           <li className="pl-4 -indent-4">• ISO/IEC 27001 + 22301 Lead Auditor</li>
@@ -65,7 +65,7 @@ const ConsultingTeam = () => {
                       </div>
                       <div>
                         <h4 className="text-primary font-semibold mb-2">Professional Experience</h4>
-                        <ul className="space-y-1 text-white">
+                        <ul className="space-y-1">
                           <li className="pl-4 -indent-4">• KPMG: Consultant to Senior Manager</li>
                           <li className="pl-4 -indent-4">• Accenture: Senior Manager</li>
                           <li className="pl-4 -indent-4">• Ernst & Young: Senior Manager</li>
@@ -76,7 +76,7 @@ const ConsultingTeam = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <h4 className="text-primary font-semibold mb-2">Consulting Services</h4>
-                        <ul className="space-y-1 text-white">
+                        <ul className="space-y-1">
                           <li className="pl-4 -indent-4">• Cybersecurity consulting and audits</li>
                           <li className="pl-4 -indent-4">• ISMS, TISAX, NIS-2, PCI-DSS implementation</li>
                           <li className="pl-4 -indent-4">• Cyber crisis management and exercises</li>
@@ -85,7 +85,7 @@ const ConsultingTeam = () => {
                       </div>
                       <div>
                         <h4 className="text-primary font-semibold mb-2">Languages</h4>
-                        <ul className="space-y-1 text-white">
+                        <ul className="space-y-1">
                           <li className="pl-4 -indent-4">• German (mother tongue)</li>
                           <li className="pl-4 -indent-4">• English (business fluent)</li>
                         </ul>
@@ -127,7 +127,7 @@ const ConsultingTeam = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <h4 className="text-primary font-semibold mb-2">Education & Qualifications</h4>
-                        <ul className="space-y-1 text-white">
+                        <ul className="space-y-1">
                           <li className="pl-4 -indent-4">• B.Sc. Business Administration</li>
                           <li className="pl-4 -indent-4">• ISO/IEC 27001 Lead Auditor + Implementer</li>
                           <li className="pl-4 -indent-4">• ISO/IEC 27005 Risk Manager</li>
@@ -137,7 +137,7 @@ const ConsultingTeam = () => {
                       </div>
                       <div>
                         <h4 className="text-primary font-semibold mb-2">Professional Experience</h4>
-                        <ul className="space-y-1 text-white">
+                        <ul className="space-y-1">
                           <li className="pl-4 -indent-4">• PwC: Manager, Cybersecurity and Privacy</li>
                           <li className="pl-4 -indent-4">• Ernst & Young: Senior Consultant</li>
                           <li className="pl-4 -indent-4">• CSPi: Consultant Security and Data Privacy</li>
@@ -148,7 +148,7 @@ const ConsultingTeam = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <h4 className="text-primary font-semibold mb-2">Consulting Services</h4>
-                        <ul className="space-y-1 text-white">
+                        <ul className="space-y-1">
                           <li className="pl-4 -indent-4">• Information Security, ISMS Strategy</li>
                           <li className="pl-4 -indent-4">• ISO/IEC 27001, PCI-DSS, NIST, TISAX</li>
                           <li className="pl-4 -indent-4">• Risk Management, Business Continuity</li>
@@ -157,7 +157,7 @@ const ConsultingTeam = () => {
                       </div>
                       <div>
                         <h4 className="text-primary font-semibold mb-2">Languages</h4>
-                        <ul className="space-y-1 text-white">
+                        <ul className="space-y-1">
                           <li className="pl-4 -indent-4">• German (mother tongue)</li>
                           <li className="pl-4 -indent-4">• English (business fluent)</li>
                           <li className="pl-4 -indent-4">• French (professional working)</li>
