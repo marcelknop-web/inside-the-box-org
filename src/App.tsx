@@ -24,6 +24,7 @@ import EventsWorkshops from "./pages/EventsWorkshops";
 import Publications from "./pages/Publications";
 import VirtualCISO from "./pages/VirtualCISO";
 import NotFound from "./pages/NotFound";
+import { PresentationTemplate } from "./pages/PresentationTemplate";
 
 const queryClient = new QueryClient();
 
@@ -54,6 +55,7 @@ const App = () => (
           <Route path="/events-workshops" element={<EventsWorkshops />} />
           <Route path="/publications" element={<Publications />} />
           <Route path="/virtual-ciso" element={<VirtualCISO />} />
+          <Route path="/presentation-template" element={<PresentationTemplate />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
