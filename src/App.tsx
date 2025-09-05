@@ -23,6 +23,7 @@ import ArenaTraining from "./pages/ArenaTraining";
 import EventsWorkshops from "./pages/EventsWorkshops";
 import Publications from "./pages/Publications";
 import VirtualCISO from "./pages/VirtualCISO";
+import DesignSystem from "./pages/DesignSystem";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -54,6 +55,7 @@ const App = () => (
           <Route path="/events-workshops" element={<EventsWorkshops />} />
           <Route path="/publications" element={<Publications />} />
           <Route path="/virtual-ciso" element={<VirtualCISO />} />
+          <Route path="/design-system" element={<DesignSystem />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
