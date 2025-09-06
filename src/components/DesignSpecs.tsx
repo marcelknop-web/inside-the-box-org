@@ -67,7 +67,7 @@ export const DesignSpecs = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-4xl font-bold text-electric mb-2">Design System</h1>
-          <p className="text-muted-foreground">Complete design specifications for PowerPoint presentations</p>
+          <p className="text-muted-foreground">Complete design specifications</p>
         </div>
         <Button onClick={downloadSpecs} className="flex items-center gap-2">
           <Download className="w-4 h-4" />
