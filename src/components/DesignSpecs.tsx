@@ -37,7 +37,7 @@ export const DesignSpecs = () => {
 
   const downloadSpecs = () => {
     const specs = {
-      brand: 'Inside-the-Box Design System',
+      brand: 'Design System',
       colors: colors.map(c => ({ name: c.name, hsl: c.hsl, hex: c.hex, usage: c.usage })),
       typography,
       spacing,
@@ -54,7 +54,7 @@ export const DesignSpecs = () => {
     const dataStr = JSON.stringify(specs, null, 2);
     const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
     
-    const exportFileDefaultName = 'inside-the-box-design-specs.json';
+    const exportFileDefaultName = 'design-specs.json';
     
     const linkElement = document.createElement('a');
     linkElement.setAttribute('href', dataUri);
@@ -66,7 +66,7 @@ export const DesignSpecs = () => {
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-4xl font-bold text-electric mb-2">Inside-the-Box Design System</h1>
+          <h1 className="text-4xl font-bold text-electric mb-2">Design System</h1>
           <p className="text-muted-foreground">Complete design specifications for PowerPoint presentations</p>
         </div>
         <Button onClick={downloadSpecs} className="flex items-center gap-2">
