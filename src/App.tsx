@@ -24,6 +24,11 @@ import EventsWorkshops from "./pages/EventsWorkshops";
 import Publications from "./pages/Publications";
 import VirtualCISO from "./pages/VirtualCISO";
 import DesignSystem from "./pages/DesignSystem";
+import ComponentLibrary from "./pages/ComponentLibrary";
+import ColorPalette from "./pages/ColorPalette";
+import TemplateGallery from "./pages/TemplateGallery";
+import DesignTokens from "./pages/DesignTokens";
+import DesignHome from "./pages/DesignHome";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -36,6 +41,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Start />} />
+          <Route path="/design" element={<DesignHome />} />
           <Route path="/why" element={<Index />} />
           <Route path="/training" element={<Training />} />
           <Route path="/by-whom" element={<ByWhom />} />
@@ -56,6 +62,10 @@ const App = () => (
           <Route path="/publications" element={<Publications />} />
           <Route path="/virtual-ciso" element={<VirtualCISO />} />
           <Route path="/design-system" element={<DesignSystem />} />
+          <Route path="/components" element={<ComponentLibrary />} />
+          <Route path="/colors" element={<ColorPalette />} />
+          <Route path="/templates" element={<TemplateGallery />} />
+          <Route path="/tokens" element={<DesignTokens />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
