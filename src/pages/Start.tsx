@@ -1,6 +1,6 @@
 import { GeometricSymbol } from '@/components/GeometricSymbol';
 
-import { Target, Shield, Palette } from 'lucide-react';
+import { Target, Shield } from 'lucide-react';
 
 const Start = () => {
   return (
@@ -54,16 +54,6 @@ const Start = () => {
               <div className="bg-primary/10 border-2 border-primary/30 rounded-lg text-primary font-mono text-xl sm:text-2xl lg:text-4xl font-bold hover:text-highlight hover:bg-primary/20 hover:border-primary/50 transition-electric px-6 py-4 flex items-center justify-center space-x-4">
                 <Shield size={32} className="flex-shrink-0" />
                 <span>Cybersecurity Consulting</span>
-              </div>
-            </a>
-
-            <a 
-              href="/design" 
-              className="block group"
-            >
-              <div className="bg-purple-500/10 border-2 border-purple-500/30 rounded-lg text-purple-400 font-mono text-xl sm:text-2xl lg:text-4xl font-bold hover:text-purple-300 hover:bg-purple-500/20 hover:border-purple-500/50 transition-electric px-6 py-4 flex items-center justify-center space-x-4">
-                <Palette size={32} className="flex-shrink-0" />
-                <span>Design System Studio</span>
               </div>
             </a>
           </div>
