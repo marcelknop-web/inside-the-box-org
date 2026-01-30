@@ -1,5 +1,5 @@
 import { GeometricSymbol } from '@/components/GeometricSymbol';
-import { Footer } from '@/components/Footer';
+
 import { Target, Shield, Palette } from 'lucide-react';
 
 const Start = () => {
@@ -69,7 +69,7 @@ const Start = () => {
           </div>
         </div>
       </main>
-      <Footer />
+      
     </div>
   );
 };
