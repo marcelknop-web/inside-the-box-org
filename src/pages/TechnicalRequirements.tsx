@@ -46,7 +46,7 @@ const TechnicalRequirements = () => {
                 <ul className="text-base text-foreground/80 space-y-2 mt-4">
                   <li className="pl-4 -indent-4">• <span className="font-mono">RDP: 7000-7020/TCP outbound</span></li>
                   <li className="pl-4 -indent-4">• <span className="font-mono">HTTPS: 443/TCP outbound</span></li>
-                  <li className="pl-4 -indent-4">• No inbound connections from the internet required</li>
+                  <li className="pl-4 -indent-4">• No inbound internet connections required</li>
                   <li className="pl-4 -indent-4">• Test connectivity beforehand</li>
                   <li className="pl-4 -indent-4">• Backup communication ready</li>
                 </ul>
