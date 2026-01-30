@@ -1,5 +1,4 @@
 import { Header } from '@/components/Header';
-import { Footer } from '@/components/Footer';
 import { Linkedin } from 'lucide-react';
 
 
@@ -218,7 +217,7 @@ const ConsultingTeam = () => {
           </div>
         </div>
       </main>
-      <Footer />
+      
     </div>
   );
 };

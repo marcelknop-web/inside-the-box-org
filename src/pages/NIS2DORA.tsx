@@ -1,5 +1,4 @@
 import { Header } from '@/components/Header';
-import { Footer } from '@/components/Footer';
 import { InfoCard } from '@/components/InfoCard';
 import { Search, TrendingUp, Shield, Building2, Landmark, Plane } from 'lucide-react';
 
@@ -138,7 +137,7 @@ const NIS2DORA = () => {
           </div>
         </div>
       </main>
-      <Footer />
+      
     </div>
   );
 };

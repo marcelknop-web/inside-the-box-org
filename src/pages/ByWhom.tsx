@@ -1,5 +1,4 @@
 import { Header } from '@/components/Header';
-import { Footer } from '@/components/Footer';
 import { LinkButton } from '@/components/LinkButton';
 import { Linkedin } from 'lucide-react';
 
@@ -189,7 +188,7 @@ const ByWhom = () => {
           </div>
         </div>
       </main>
-      <Footer />
+      
     </div>
   );
 };

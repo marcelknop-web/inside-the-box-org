@@ -1,5 +1,4 @@
 import { Header } from '@/components/Header';
-import { Footer } from '@/components/Footer';
 
 const Imprint = () => {
   return (
@@ -93,7 +92,7 @@ const Imprint = () => {
           </div>
         </div>
       </main>
-      <Footer />
+      
     </div>
   );
 };

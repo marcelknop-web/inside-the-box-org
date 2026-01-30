@@ -1,5 +1,4 @@
 import { Header } from '@/components/Header';
-import { Footer } from '@/components/Footer';
 import { ReactNode } from 'react';
 
 interface PageLayoutProps {
@@ -18,7 +17,7 @@ export const PageLayout = ({ children, maxWidth = 'default' }: PageLayoutProps) 
           {children}
         </div>
       </main>
-      <Footer />
+      
     </div>
   );
 };
