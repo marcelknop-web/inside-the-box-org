@@ -1,6 +1,7 @@
 import { TrainingCard } from '@/components/TrainingCard';
 import { MethodIcon } from '@/components/MethodIcon';
 import { PageLayout } from '@/components/PageLayout';
+import { PageNavButtons } from '@/components/PageNavButtons';
 import { Server, AlertTriangle, Bug, Shield, AlertCircle, MessageSquare } from 'lucide-react';
 
 const Training = () => {
@@ -40,10 +41,10 @@ const Training = () => {
   return (
     <PageLayout>
       <div className="space-y-8">
-        <h1 className="text-primary text-2xl sm:text-3xl lg:text-5xl font-bold font-mono mb-6 text-left hover:text-highlight transition-electric">
+        <h1 className="text-primary text-2xl sm:text-3xl lg:text-5xl font-bold font-mono mb-6">
           Training Topics
         </h1>
-        <p className="text-white text-base sm:text-lg mb-12">
+        <p className="text-lg font-sans mb-12">
           From Command Line to Boardroom.
         </p>
         
@@ -56,7 +57,6 @@ const Training = () => {
                 description={topic.description}
                 icon={topic.icon}
                 className="flex-1"
-                onClick={() => console.log(`Selected: ${topic.title}`)}
               />
             </div>
           ))}
@@ -64,10 +64,10 @@ const Training = () => {
 
         {/* Methods Section */}
         <section className="border-t border-border pt-16">
-          <h2 className="text-highlight text-2xl sm:text-3xl lg:text-5xl font-bold font-mono mb-6 text-left hover:text-primary transition-electric">
+          <h2 className="text-highlight text-2xl sm:text-3xl lg:text-5xl font-bold font-mono mb-6">
             Methods
           </h2>
-          <p className="text-white text-base sm:text-lg mb-12">
+          <p className="text-lg font-sans mb-12">
             Understanding, communicating, and practicing.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-16">
@@ -88,33 +88,11 @@ const Training = () => {
             />
           </div>
           
-          {/* Footer Links */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-8 border-t border-border">
-            <div className="flex">
-              <a 
-                href="/by-whom" 
-                className="bg-primary/10 border-2 border-primary/30 rounded-lg text-primary font-mono text-base sm:text-lg hover:text-highlight hover:bg-primary/20 hover:border-primary/50 transition-electric flex-1 flex items-center justify-center p-4"
-              >
-                By Whom
-              </a>
-            </div>
-            <div className="flex">
-              <a 
-                href="/technical-requirements" 
-                className="bg-primary/10 border-2 border-primary/30 rounded-lg text-primary font-mono text-base sm:text-lg hover:text-highlight hover:bg-primary/20 hover:border-primary/50 transition-electric flex-1 flex items-center justify-center p-4"
-              >
-                Technical requirements
-              </a>
-            </div>
-            <div className="flex">
-              <a 
-                href="/contact" 
-                className="bg-highlight/10 border-2 border-highlight/30 rounded-lg text-highlight font-mono text-base sm:text-lg hover:text-primary hover:bg-highlight/20 hover:border-highlight/50 transition-electric flex-1 flex items-center justify-center p-4"
-              >
-                Contact
-              </a>
-            </div>
-          </div>
+          <PageNavButtons buttons={[
+            { href: '/by-whom', label: 'By Whom' },
+            { href: '/technical-requirements', label: 'Technical Requirements' },
+            { href: '/contact', label: 'Contact', variant: 'highlight' },
+          ]} />
         </section>
       </div>
     </PageLayout>

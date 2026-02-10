@@ -1,7 +1,7 @@
 import { PageLayout } from '@/components/PageLayout';
 import { ServiceCard } from '@/components/ServiceCard';
 import { InfoCard } from '@/components/InfoCard';
-import { LinkButton } from '@/components/LinkButton';
+import { PageNavButtons } from '@/components/PageNavButtons';
 import { Mic, Users, Award, Presentation, Wrench, GraduationCap } from 'lucide-react';
 
 const EventsWorkshops = () => {
@@ -100,21 +100,11 @@ const EventsWorkshops = () => {
             </InfoCard>
           </div>
           
-          <div className="pt-8">
-            {/* Mobile Layout */}
-            <div className="flex flex-col space-y-4 md:hidden">
-              <LinkButton href="/consulting">All Consulting Services</LinkButton>
-              <LinkButton href="/consulting/team">By Whom</LinkButton>
-              <LinkButton href="/contact" variant="highlight">Contact</LinkButton>
-            </div>
-            
-            {/* Desktop Layout */}
-            <div className="hidden md:flex justify-between space-x-4">
-              <LinkButton href="/consulting">All Consulting Services</LinkButton>
-              <LinkButton href="/consulting/team">By Whom</LinkButton>
-              <LinkButton href="/contact" variant="highlight">Contact</LinkButton>
-            </div>
-          </div>
+          <PageNavButtons buttons={[
+            { href: '/consulting', label: 'All Consulting Services' },
+            { href: '/consulting/team', label: 'By Whom' },
+            { href: '/contact', label: 'Contact', variant: 'highlight' },
+          ]} />
         </div>
       </div>
     </PageLayout>

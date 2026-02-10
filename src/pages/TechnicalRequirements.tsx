@@ -1,6 +1,6 @@
 import { PageLayout } from '@/components/PageLayout';
 import { ServiceCard } from '@/components/ServiceCard';
-import { LinkButton } from '@/components/LinkButton';
+import { PageNavButtons } from '@/components/PageNavButtons';
 import { Monitor, Network } from 'lucide-react';
 
 const TechnicalRequirements = () => {
@@ -12,7 +12,7 @@ const TechnicalRequirements = () => {
         </h1>
         
         <div className="space-y-8 text-foreground leading-relaxed">
-          <p className="text-lg font-sans mb-8 text-white">
+          <p className="text-lg font-sans mb-8">
             Training takes place in a virtual environment. 
             Participants connect via RDP from their own devices.
           </p>
@@ -54,19 +54,10 @@ const TechnicalRequirements = () => {
             </div>
           </div>
           
-          <div className="pt-8">
-            {/* Mobile Layout */}
-            <div className="flex flex-col space-y-4 md:hidden">
-              <LinkButton href="/training">Back to Training</LinkButton>
-              <LinkButton href="/contact" variant="highlight">Contact</LinkButton>
-            </div>
-            
-            {/* Desktop Layout */}
-            <div className="hidden md:flex justify-between space-x-4">
-              <LinkButton href="/training">Back to Training</LinkButton>
-              <LinkButton href="/contact" variant="highlight">Contact</LinkButton>
-            </div>
-          </div>
+          <PageNavButtons buttons={[
+            { href: '/training', label: 'Back to Training' },
+            { href: '/contact', label: 'Contact', variant: 'highlight' },
+          ]} />
         </div>
       </div>
     </PageLayout>
