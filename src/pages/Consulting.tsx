@@ -1,6 +1,6 @@
 import { PageLayout } from '@/components/PageLayout';
 import { ServiceCard } from '@/components/ServiceCard';
-import { LinkButton } from '@/components/LinkButton';
+import { PageNavButtons } from '@/components/PageNavButtons';
 import { Users, Building2, Award, ShieldCheck, Network, CreditCard, Search, AlertTriangle, Radio, Target, Calendar, FileText, UserCheck } from 'lucide-react';
 
 const Consulting = () => {
@@ -110,12 +110,10 @@ const Consulting = () => {
             </div>
           </div>
           
-          <div className="pt-8">
-            <div className="flex justify-between space-x-4">
-              <LinkButton href="/consulting/team">By Whom</LinkButton>
-              <LinkButton href="/contact" variant="highlight">Contact</LinkButton>
-            </div>
-          </div>
+          <PageNavButtons buttons={[
+            { href: '/consulting/team', label: 'By Whom' },
+            { href: '/contact', label: 'Contact', variant: 'highlight' },
+          ]} />
         </div>
       </div>
     </PageLayout>

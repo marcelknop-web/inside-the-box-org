@@ -1,6 +1,6 @@
 import { PageLayout } from '@/components/PageLayout';
 import { InfoCard } from '@/components/InfoCard';
-import { LinkButton } from '@/components/LinkButton';
+import { PageNavButtons } from '@/components/PageNavButtons';
 import { AlertTriangle, Target, Shield, Users, Globe } from 'lucide-react';
 
 const Index = () => {
@@ -54,12 +54,10 @@ const Index = () => {
             </div>
           </div>
           
-          <div className="pt-8">
-            <div className="flex justify-between space-x-4">
-              <LinkButton href="/training">How?</LinkButton>
-              <LinkButton href="/contact" variant="highlight">Contact</LinkButton>
-            </div>
-          </div>
+          <PageNavButtons buttons={[
+            { href: '/training', label: 'How?' },
+            { href: '/contact', label: 'Contact', variant: 'highlight' },
+          ]} />
         </div>
       </div>
     </PageLayout>
