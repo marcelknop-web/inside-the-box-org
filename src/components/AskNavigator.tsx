@@ -34,11 +34,17 @@ export const AskNavigator = ({ isOpen, onClose }: AskNavigatorProps) => {
         body: { question: question.trim() },
       });
 
-      if (fnError) throw fnError;
+      console.log('Edge function response:', { data, fnError });
+
+      if (fnError) {
+        console.error('Edge function error details:', fnError, JSON.stringify(fnError));
+        throw fnError;
+      }
       if (data?.error) throw new Error(data.error);
 
       setResponse(data as AiResponse);
     } catch (e: any) {
+      console.error('Ask navigator catch:', e, typeof e, JSON.stringify(e));
       setError(e.message || 'Etwas ist schiefgelaufen. Bitte versuche es erneut.');
     } finally {
       setIsLoading(false);
