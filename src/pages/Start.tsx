@@ -106,33 +106,6 @@ const Start = () => {
 
             {/* Inline Ask Navigator */}
             <div className="space-y-4">
-              {/* Response above input */}
-              {response && (
-                <div className="space-y-3 animate-in fade-in slide-in-from-bottom-2 duration-300 text-left">
-                  <p className="text-foreground text-sm font-mono leading-relaxed">{response.message}</p>
-                  {response.links?.length > 0 && (
-                    <ul className="space-y-1 pl-4">
-                      {response.links.map((link, i) => (
-                        <li key={i} className="list-disc marker:text-yellow-400">
-                          <a
-                            href={link.url}
-                            className="text-yellow-400 font-mono text-sm hover:underline transition-electric"
-                          >
-                            {link.label}
-                          </a>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              )}
-
-              {error && (
-                <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-3 text-sm text-destructive font-mono">
-                  {error}
-                </div>
-              )}
-
               {/* Input always visible */}
               <div className="flex space-x-2">
                 <div className="relative flex-1">
@@ -164,6 +137,33 @@ const Start = () => {
                   </button>
                 )}
               </div>
+
+              {error && (
+                <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-3 text-sm text-destructive font-mono">
+                  {error}
+                </div>
+              )}
+
+              {/* Response below input */}
+              {response && (
+                <div className="space-y-3 animate-in fade-in slide-in-from-bottom-2 duration-300 text-left">
+                  <p className="text-foreground text-sm font-mono leading-relaxed">{response.message}</p>
+                  {response.links?.length > 0 && (
+                    <ul className="space-y-1 pl-4">
+                      {response.links.map((link, i) => (
+                        <li key={i} className="list-disc marker:text-yellow-400">
+                          <a
+                            href={link.url}
+                            className="text-yellow-400 font-mono text-sm hover:underline transition-electric"
+                          >
+                            {link.label}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>
