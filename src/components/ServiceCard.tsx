@@ -37,7 +37,7 @@ export const ServiceCard = ({
             <h3 className={`${titleColor} text-lg font-semibold font-mono mb-3`}>
               {title}
             </h3>
-            <p className="text-base sm:text-lg text-foreground/80">
+            <p className={`text-base sm:text-lg ${titleColor}`}>
               {description}
             </p>
             {children}
@@ -49,7 +49,7 @@ export const ServiceCard = ({
           <h3 className={`${titleColor} text-lg font-semibold font-mono mb-3`}>
             {title}
           </h3>
-          <p className="text-base sm:text-lg text-foreground/80">
+          <p className={`text-base sm:text-lg ${titleColor}`}>
             {description}
           </p>
           {children}
