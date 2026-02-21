@@ -92,7 +92,7 @@ const Consulting = () => {
           </div>
           
           {/* Statistics Section */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-highlight/10 border-2 border-highlight/30 rounded-lg p-6 text-center">
               <Users className="text-highlight mx-auto mb-4" size={40} />
               <div className="text-3xl font-bold text-highlight font-mono mb-2">270+</div>

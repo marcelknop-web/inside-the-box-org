@@ -70,7 +70,7 @@ const Training = () => {
           <p className="text-lg font-sans mb-12">
             Understanding, communicating, and practicing.
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-16">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <MethodIcon 
               type="knowledge" 
               title="Knowledge transfer"

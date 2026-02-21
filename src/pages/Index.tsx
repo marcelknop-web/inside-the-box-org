@@ -36,7 +36,7 @@ const Index = () => {
           </InfoCard>
 
           {/* Statistics Section */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-cyan-500/10 border-2 border-cyan-500/30 rounded-lg p-6 text-center">
               <Target className="text-cyan-400 mx-auto mb-4" size={40} />
               <div className="text-3xl font-bold text-cyan-400 font-mono mb-2">40+</div>
