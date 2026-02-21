@@ -144,24 +144,27 @@ const Start = () => {
               )}
 
               {response && (
-                <div className="space-y-3 animate-in fade-in slide-in-from-bottom-2 duration-300 text-left">
+                <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300 text-left">
                   <p className="text-foreground text-sm font-mono leading-relaxed">{response.message}</p>
                   {response.links?.length > 0 && (
-                    <div className="space-y-2">
+                    <ul className="space-y-1 pl-4">
                       {response.links.map((link, i) => (
-                        <a
-                          key={i}
-                          href={link.url}
-                          className="flex items-center justify-between bg-highlight/10 border-2 border-highlight/30 rounded-lg px-4 py-3 text-highlight font-mono text-sm hover:bg-highlight/20 hover:border-highlight/50 transition-electric group"
-                        >
-                          <span>{link.label}</span>
-                          <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-                        </a>
+                        <li key={i} className="list-disc text-highlight marker:text-highlight">
+                          <a
+                            href={link.url}
+                            className="text-highlight font-mono text-sm hover:underline transition-electric"
+                          >
+                            {link.label}
+                          </a>
+                        </li>
                       ))}
-                    </div>
+                    </ul>
                   )}
-                  <button onClick={reset} className="text-muted-foreground text-xs font-mono hover:text-highlight transition-electric">
-                    Neue Frage stellen →
+                  <button
+                    onClick={reset}
+                    className="w-full bg-highlight/10 border-2 border-highlight/30 rounded-lg px-4 py-4 text-highlight font-mono text-lg hover:bg-highlight/20 hover:border-highlight/50 transition-electric"
+                  >
+                    Neue Frage stellen
                   </button>
                 </div>
               )}
