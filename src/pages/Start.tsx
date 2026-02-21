@@ -98,7 +98,7 @@ const Start = () => {
                   onClick={() => setAskActive(true)}
                   className="block w-full"
                 >
-                  <div className="bg-highlight/10 border-2 border-highlight/30 rounded-lg text-highlight font-mono text-xl sm:text-2xl lg:text-4xl font-bold hover:text-primary hover:bg-highlight/20 hover:border-highlight/50 transition-electric px-6 py-4 flex items-center justify-center space-x-4">
+                  <div className="bg-highlight/10 border-2 border-highlight/30 rounded-lg text-highlight font-mono text-base hover:text-primary hover:bg-highlight/20 hover:border-highlight/50 transition-electric px-4 py-2 flex items-center justify-center space-x-4">
                     <MessageCircle size={32} className="flex-shrink-0" />
                     <span>Ask me anything</span>
                   </div>
