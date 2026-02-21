@@ -149,7 +149,7 @@ const Start = () => {
                   {response.links?.length > 0 && (
                     <ul className="space-y-1 pl-4">
                       {response.links.map((link, i) => (
-                        <li key={i} className="list-disc text-highlight marker:text-highlight">
+                        <li key={i} className="list-disc text-highlight marker:text-yellow-400">
                           <a
                             href={link.url}
                             className="text-highlight font-mono text-sm hover:underline transition-electric"
