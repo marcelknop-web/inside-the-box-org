@@ -17,6 +17,7 @@ const Start = () => {
   const [response, setResponse] = useState<AiResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [isFocused, setIsFocused] = useState(false);
 
   const handleAsk = async () => {
     if (!question.trim() || isLoading) return;
@@ -105,28 +106,35 @@ const Start = () => {
 
             {/* Inline Ask Navigator */}
             <div className="space-y-4">
-              <div className="flex items-center justify-center space-x-2 text-highlight font-mono text-lg">
-                <MessageCircle size={20} />
-                <span>Ask me anything</span>
-              </div>
-
               <div className="flex space-x-2">
-                <input
-                  type="text"
-                  value={question}
-                  onChange={e => setQuestion(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  placeholder="z.B. Wie werde ich NIS2-konform?"
-                  className="flex-1 bg-background border-2 border-highlight/30 rounded-lg px-4 py-3 text-foreground font-mono text-sm placeholder:text-muted-foreground focus:outline-none focus:border-highlight/50 transition-electric"
-                  disabled={isLoading}
-                />
-                <button
-                  onClick={handleAsk}
-                  disabled={isLoading || !question.trim()}
-                  className="bg-highlight/10 border-2 border-highlight/30 rounded-lg px-4 text-highlight hover:bg-highlight/20 hover:border-highlight/50 transition-electric disabled:opacity-40"
-                >
-                  {isLoading ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
-                </button>
+                <div className="relative flex-1">
+                  {!question && !isFocused && (
+                    <div className="absolute inset-0 flex items-center justify-center space-x-2 text-highlight font-mono text-lg pointer-events-none">
+                      <MessageCircle size={20} />
+                      <span>Ask me anything</span>
+                    </div>
+                  )}
+                  <input
+                    type="text"
+                    value={question}
+                    onChange={e => setQuestion(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    onFocus={() => setIsFocused(true)}
+                    onBlur={() => setIsFocused(false)}
+                    className="w-full bg-highlight/10 border-2 border-highlight/30 rounded-lg px-4 py-4 text-highlight font-mono text-lg text-center placeholder:text-highlight/40 focus:outline-none focus:border-highlight/50 transition-electric"
+                    disabled={isLoading}
+                    placeholder={isFocused ? "z.B. Wie werde ich NIS2-konform?" : ""}
+                  />
+                </div>
+                {(question.trim() || isLoading) && (
+                  <button
+                    onClick={handleAsk}
+                    disabled={isLoading || !question.trim()}
+                    className="bg-highlight/10 border-2 border-highlight/30 rounded-lg px-4 text-highlight hover:bg-highlight/20 hover:border-highlight/50 transition-electric disabled:opacity-40"
+                  >
+                    {isLoading ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
+                  </button>
+                )}
               </div>
 
               {error && (
