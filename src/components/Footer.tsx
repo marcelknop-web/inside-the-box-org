@@ -11,7 +11,7 @@ export const Footer = () => {
           {!isImprintPage && (
             <a 
               href="/imprint" 
-              className="bg-highlight/10 border-2 border-highlight/30 rounded-lg text-highlight font-mono text-sm hover:text-primary hover:bg-highlight/20 hover:border-highlight/50 transition-electric px-4 py-2"
+              className="bg-highlight/10 border-2 border-highlight/30 rounded-lg text-highlight font-mono text-sm hover:text-primary hover:bg-highlight/20 hover:border-highlight/50 transition-electric px-16 py-2"
             >
               Imprint
             </a>
