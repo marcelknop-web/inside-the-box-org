@@ -1,5 +1,4 @@
 import { PageLayout } from '@/components/PageLayout';
-import { Footer } from '@/components/Footer';
 import { PageNavButtons } from '@/components/PageNavButtons';
 import { Phone, Mail } from 'lucide-react';
 
@@ -41,12 +40,10 @@ const Contact = () => {
           
           <PageNavButtons buttons={[
             { href: '/why', label: 'View Training' },
+            { href: '/imprint', label: 'Imprint', variant: 'highlight' },
             { href: '/consulting', label: 'View Consulting' },
           ]} />
         </div>
-      </div>
-      <div className="mt-16">
-        <Footer />
       </div>
     </PageLayout>
   );

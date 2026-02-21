@@ -23,9 +23,9 @@ export const PageNavButtons = ({ buttons }: PageNavButtonsProps) => {
       </div>
       
       {/* Desktop Layout */}
-      <div className="hidden md:flex justify-between space-x-4">
+      <div className="hidden md:flex justify-between gap-4">
         {buttons.map((btn, i) => (
-          <LinkButton key={i} href={btn.href} variant={btn.variant || 'primary'}>
+          <LinkButton key={i} href={btn.href} variant={btn.variant || 'primary'} className="flex-1 text-center">
             {btn.label}
           </LinkButton>
         ))}
