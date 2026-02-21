@@ -125,7 +125,7 @@ const Start = () => {
                     onBlur={() => setIsFocused(false)}
                     className="w-full bg-highlight/10 border-2 border-highlight/30 rounded-lg px-4 py-4 text-highlight font-mono text-lg text-center placeholder:text-highlight/40 focus:outline-none focus:border-highlight/50 transition-electric"
                     disabled={isLoading}
-                    placeholder={isFocused || response ? "Was möchtest du noch wissen?" : ""}
+                    placeholder={isFocused || response ? "What else would you like to know?" : ""}
                   />
                 </div>
                 {(question.trim() || isLoading) && (
