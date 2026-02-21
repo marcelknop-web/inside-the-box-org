@@ -18,24 +18,26 @@ const Start = () => {
     if (askActive) inputRef.current?.focus();
   }, [askActive]);
 
-  const handleAsk = async (retries = 1) => {
+  const handleAsk = async () => {
     if (!question.trim() || isLoading) return;
     setIsLoading(true);
     setError('');
     setResponse(null);
     try {
-      const { data, error: fnError } = await supabase.functions.invoke('ask-navigator', {
-        body: { question: question.trim() },
+      const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ask-navigator`;
+      const resp = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        },
+        body: JSON.stringify({ question: question.trim() }),
       });
-      if (fnError) {
-        if (retries > 0) {
-          // Retry once on cold start / network issues
-          await new Promise(r => setTimeout(r, 1500));
-          setIsLoading(false);
-          return handleAsk(retries - 1);
-        }
-        throw fnError;
+      if (!resp.ok) {
+        const errData = await resp.json().catch(() => ({}));
+        throw new Error(errData.error || `Fehler ${resp.status}`);
       }
+      const data = await resp.json();
       if (data?.error) throw new Error(data.error);
       setResponse(data as AiResponse);
     } catch (e: any) {
