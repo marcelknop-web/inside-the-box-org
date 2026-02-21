@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { MessageCircle, Send, X, Loader2, ArrowRight } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
 
 interface NavLink {
   url: string;
@@ -30,21 +29,30 @@ export const AskNavigator = ({ isOpen, onClose }: AskNavigatorProps) => {
     setResponse(null);
 
     try {
-      const { data, error: fnError } = await supabase.functions.invoke('ask-navigator', {
-        body: { question: question.trim() },
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+      
+      const res = await fetch(`${supabaseUrl}/functions/v1/ask-navigator`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': supabaseKey,
+          'Authorization': `Bearer ${supabaseKey}`,
+        },
+        body: JSON.stringify({ question: question.trim() }),
       });
 
-      console.log('Edge function response:', { data, fnError });
-
-      if (fnError) {
-        console.error('Edge function error details:', fnError, JSON.stringify(fnError));
-        throw fnError;
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`Server error ${res.status}: ${text}`);
       }
+
+      const data = await res.json();
       if (data?.error) throw new Error(data.error);
 
       setResponse(data as AiResponse);
     } catch (e: any) {
-      console.error('Ask navigator catch:', e, typeof e, JSON.stringify(e));
+      console.error('Ask navigator error:', e);
       setError(e.message || 'Etwas ist schiefgelaufen. Bitte versuche es erneut.');
     } finally {
       setIsLoading(false);
