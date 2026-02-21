@@ -21,11 +21,7 @@ const Start = () => {
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    inputRef.current?.focus();
-  }, []);
-
-  useEffect(() => {
-    inputRef.current?.focus();
+    if (response) inputRef.current?.focus();
   }, [response]);
 
   const handleAsk = async () => {
