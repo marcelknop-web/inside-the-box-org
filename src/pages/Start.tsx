@@ -1,14 +1,73 @@
 import { useState } from 'react';
 import { GeometricSymbol } from '@/components/GeometricSymbol';
-import { AskNavigator } from '@/components/AskNavigator';
-import { Target, Shield, MessageCircle } from 'lucide-react';
+import { Target, Shield, Send, Loader2, ArrowRight, MessageCircle } from 'lucide-react';
+
+interface NavLink {
+  url: string;
+  label: string;
+}
+
+interface AiResponse {
+  message: string;
+  links: NavLink[];
+}
 
 const Start = () => {
-  const [askOpen, setAskOpen] = useState(false);
+  const [question, setQuestion] = useState('');
+  const [response, setResponse] = useState<AiResponse | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleAsk = async () => {
+    if (!question.trim() || isLoading) return;
+    setIsLoading(true);
+    setError('');
+    setResponse(null);
+
+    try {
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://jbhfqocscbvcvzlgwvvy.supabase.co';
+      const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpiaGZxb2NzY2J2Y3Z6bGd3dnZ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE2OTM2NTksImV4cCI6MjA4NzI2OTY1OX0.gwIYZtnr5HEMgEHsFgYOFlyQOpm-KBWTavu0IWEyLyE';
+      const res = await fetch(`${supabaseUrl}/functions/v1/ask-navigator`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': supabaseKey,
+          'Authorization': `Bearer ${supabaseKey}`,
+        },
+        body: JSON.stringify({ question: question.trim() }),
+      });
+
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`Server error ${res.status}: ${text}`);
+      }
+
+      const data = await res.json();
+      if (data?.error) throw new Error(data.error);
+      setResponse(data as AiResponse);
+    } catch (e: any) {
+      console.error('Ask navigator error:', e);
+      setError(e.message || 'Etwas ist schiefgelaufen. Bitte versuche es erneut.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleAsk();
+    }
+  };
+
+  const reset = () => {
+    setQuestion('');
+    setResponse(null);
+    setError('');
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Header with consistent styling */}
       <header className="py-8">
         <div className="container mx-auto px-6 flex items-center justify-center md:justify-between">
           <a href="/" className="w-full md:w-auto flex items-center justify-center md:justify-start group">
@@ -23,7 +82,6 @@ const Start = () => {
         </div>
       </header>
 
-      {/* Hero Section */}
       <main className="container mx-auto px-6 py-12 flex-1">
         <div className="flex flex-col items-center justify-center text-center space-y-12">
           <div>
@@ -45,19 +103,64 @@ const Start = () => {
               </div>
             </a>
 
-            <button
-              onClick={() => setAskOpen(true)}
-              className="bg-highlight/10 border-2 border-highlight/30 rounded-lg text-highlight font-mono text-lg hover:bg-highlight/20 hover:border-highlight/50 transition-electric px-6 py-4 flex items-center justify-center space-x-3 w-full"
-            >
-              <MessageCircle size={24} className="flex-shrink-0" />
-              <span>Ask me anything</span>
-            </button>
+            {/* Inline Ask Navigator */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-center space-x-2 text-highlight font-mono text-lg">
+                <MessageCircle size={20} />
+                <span>Ask me anything</span>
+              </div>
 
+              <div className="flex space-x-2">
+                <input
+                  type="text"
+                  value={question}
+                  onChange={e => setQuestion(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder="z.B. Wie werde ich NIS2-konform?"
+                  className="flex-1 bg-background border-2 border-highlight/30 rounded-lg px-4 py-3 text-foreground font-mono text-sm placeholder:text-muted-foreground focus:outline-none focus:border-highlight/50 transition-electric"
+                  disabled={isLoading}
+                />
+                <button
+                  onClick={handleAsk}
+                  disabled={isLoading || !question.trim()}
+                  className="bg-highlight/10 border-2 border-highlight/30 rounded-lg px-4 text-highlight hover:bg-highlight/20 hover:border-highlight/50 transition-electric disabled:opacity-40"
+                >
+                  {isLoading ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
+                </button>
+              </div>
+
+              {error && (
+                <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-3 text-sm text-destructive font-mono">
+                  {error}
+                </div>
+              )}
+
+              {response && (
+                <div className="space-y-3 animate-in fade-in slide-in-from-bottom-2 duration-300 text-left">
+                  <p className="text-foreground text-sm font-mono leading-relaxed">{response.message}</p>
+                  {response.links?.length > 0 && (
+                    <div className="space-y-2">
+                      {response.links.map((link, i) => (
+                        <a
+                          key={i}
+                          href={link.url}
+                          className="flex items-center justify-between bg-highlight/10 border-2 border-highlight/30 rounded-lg px-4 py-3 text-highlight font-mono text-sm hover:bg-highlight/20 hover:border-highlight/50 transition-electric group"
+                        >
+                          <span>{link.label}</span>
+                          <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                        </a>
+                      ))}
+                    </div>
+                  )}
+                  <button onClick={reset} className="text-muted-foreground text-xs font-mono hover:text-highlight transition-electric">
+                    Neue Frage stellen →
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </main>
-
-      <AskNavigator isOpen={askOpen} onClose={() => setAskOpen(false)} />
     </div>
   );
 };
