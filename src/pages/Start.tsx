@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { GeometricSymbol } from '@/components/GeometricSymbol';
 import { Target, Shield, Send, Loader2, ArrowRight, MessageCircle } from 'lucide-react';
 
@@ -18,6 +18,11 @@ const Start = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [isFocused, setIsFocused] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, [response]);
 
   const handleAsk = async () => {
     if (!question.trim() || isLoading) return;
@@ -117,6 +122,7 @@ const Start = () => {
                     </div>
                   )}
                   <input
+                    ref={inputRef}
                     type="text"
                     value={question}
                     onChange={e => setQuestion(e.target.value)}
