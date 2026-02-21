@@ -24,7 +24,10 @@ const Start = () => {
     setError('');
     setResponse(null);
     try {
-      const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ask-navigator`;
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+      console.log('Ask navigator - URL:', supabaseUrl, 'Key exists:', !!supabaseKey);
+      const url = `${supabaseUrl}/functions/v1/ask-navigator`;
       const resp = await fetch(url, {
         method: 'POST',
         headers: {
