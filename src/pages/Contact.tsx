@@ -12,7 +12,7 @@ const Contact = () => {
         
         <div className="space-y-8 text-foreground leading-relaxed">
           <p className="text-lg font-sans">
-            Talk to Marcel.
+            Get in touch with Marcel.
           </p>
           
           {/* Contact Methods */}
