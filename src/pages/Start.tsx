@@ -22,6 +22,10 @@ const Start = () => {
 
   useEffect(() => {
     inputRef.current?.focus();
+  }, []);
+
+  useEffect(() => {
+    inputRef.current?.focus();
   }, [response]);
 
   const handleAsk = async () => {
