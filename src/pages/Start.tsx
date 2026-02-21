@@ -1,7 +1,10 @@
+import { useState } from 'react';
 import { GeometricSymbol } from '@/components/GeometricSymbol';
-import { Target, Shield } from 'lucide-react';
+import { AskNavigator } from '@/components/AskNavigator';
+import { Target, Shield, MessageCircle } from 'lucide-react';
 
 const Start = () => {
+  const [askOpen, setAskOpen] = useState(false);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -42,9 +45,19 @@ const Start = () => {
               </div>
             </a>
 
+            <button
+              onClick={() => setAskOpen(true)}
+              className="bg-highlight/10 border-2 border-highlight/30 rounded-lg text-highlight font-mono text-lg hover:bg-highlight/20 hover:border-highlight/50 transition-electric px-6 py-4 flex items-center justify-center space-x-3 w-full"
+            >
+              <MessageCircle size={24} className="flex-shrink-0" />
+              <span>Ask me anything</span>
+            </button>
+
           </div>
         </div>
       </main>
+
+      <AskNavigator isOpen={askOpen} onClose={() => setAskOpen(false)} />
     </div>
   );
 };
