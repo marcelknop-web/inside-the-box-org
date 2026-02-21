@@ -109,10 +109,10 @@ const Start = () => {
                   </div>
                 </button>
               ) : (
-                <div className="bg-highlight/10 border-2 border-highlight/30 rounded-lg transition-electric px-6 py-4 space-y-4">
+                <div className="bg-highlight/10 border-2 border-highlight/30 rounded-lg transition-electric px-4 py-3 space-y-3">
                   {/* Input row */}
-                  <div className="flex items-center space-x-3">
-                    <MessageCircle size={28} className="text-highlight flex-shrink-0" />
+                  <div className="flex items-center space-x-2">
+                    <span className="text-highlight font-mono text-xs">›</span>
                     <input
                       ref={inputRef}
                       type="text"
@@ -120,7 +120,7 @@ const Start = () => {
                       onChange={e => setQuestion(e.target.value)}
                       onKeyDown={handleKeyDown}
                       placeholder="Ask me anything..."
-                      className="flex-1 bg-transparent border-none outline-none text-highlight font-mono text-xl sm:text-2xl lg:text-3xl font-bold placeholder:text-highlight/40 placeholder:font-normal"
+                      className="flex-1 bg-transparent border-none outline-none text-highlight font-mono text-sm placeholder:text-highlight/40"
                       disabled={isLoading}
                     />
                     <button
@@ -128,7 +128,7 @@ const Start = () => {
                       disabled={isLoading || !question.trim()}
                       className="text-highlight hover:text-primary transition-electric disabled:opacity-30 flex-shrink-0"
                     >
-                      {isLoading ? <Loader2 size={24} className="animate-spin" /> : <Send size={24} />}
+                      {isLoading ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
                     </button>
                   </div>
 
@@ -139,24 +139,24 @@ const Start = () => {
 
                   {/* Response */}
                   {response && (
-                    <div className="space-y-3 text-left animate-in fade-in slide-in-from-bottom-2 duration-300">
-                      <p className="text-foreground text-sm font-mono leading-relaxed">{response.message}</p>
+                    <div className="space-y-2 text-left animate-in fade-in slide-in-from-bottom-2 duration-300">
+                      <p className="text-foreground text-xs font-mono leading-relaxed">{response.message}</p>
                       {response.links?.length > 0 && (
-                        <div className="space-y-2">
+                        <div className="space-y-1">
                           {response.links.map((link, i) => (
                             <a
                               key={i}
                               href={link.url}
-                              className="flex items-center justify-between bg-highlight/10 border-2 border-highlight/30 rounded-lg px-4 py-3 text-highlight font-mono text-sm hover:bg-highlight/20 hover:border-highlight/50 transition-electric group"
+                              className="flex items-center justify-between bg-highlight/10 border border-highlight/30 rounded px-3 py-2 text-highlight font-mono text-xs hover:bg-highlight/20 hover:border-highlight/50 transition-electric group"
                             >
-                              <span>{link.label}</span>
-                              <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                              <span>→ {link.label}</span>
+                              <ArrowRight size={12} className="group-hover:translate-x-1 transition-transform" />
                             </a>
                           ))}
                         </div>
                       )}
                       <button onClick={reset} className="text-muted-foreground text-xs font-mono hover:text-highlight transition-electric">
-                        Neue Frage stellen →
+                        › neue anfrage_
                       </button>
                     </div>
                   )}
