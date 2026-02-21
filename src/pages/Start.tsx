@@ -1,61 +1,7 @@
-import { useState, useRef, useEffect } from 'react';
 import { GeometricSymbol } from '@/components/GeometricSymbol';
-import { Target, Shield, MessageCircle, Send, Loader2, ArrowRight } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
-
-interface NavLink { url: string; label: string; }
-interface AiResponse { message: string; links: NavLink[]; }
+import { Target, Shield } from 'lucide-react';
 
 const Start = () => {
-  const [askActive, setAskActive] = useState(false);
-  const [question, setQuestion] = useState('');
-  const [response, setResponse] = useState<AiResponse | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    if (askActive) inputRef.current?.focus();
-  }, [askActive]);
-
-  const handleAsk = async () => {
-    if (!question.trim() || isLoading) return;
-    setIsLoading(true);
-    setError('');
-    setResponse(null);
-    try {
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-      const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-      console.log('Ask navigator - URL:', supabaseUrl, 'Key exists:', !!supabaseKey);
-      const url = `${supabaseUrl}/functions/v1/ask-navigator`;
-      const resp = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-        },
-        body: JSON.stringify({ question: question.trim() }),
-      });
-      if (!resp.ok) {
-        const errData = await resp.json().catch(() => ({}));
-        throw new Error(errData.error || `Fehler ${resp.status}`);
-      }
-      const data = await resp.json();
-      if (data?.error) throw new Error(data.error);
-      setResponse(data as AiResponse);
-    } catch (e: any) {
-      setError(e.message || 'Etwas ist schiefgelaufen. Bitte versuche es erneut.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleAsk(); }
-    if (e.key === 'Escape') { setAskActive(false); setQuestion(''); setResponse(null); setError(''); }
-  };
-
-  const reset = () => { setQuestion(''); setResponse(null); setError(''); };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -96,73 +42,6 @@ const Start = () => {
               </div>
             </a>
 
-            {/* Ask me anything – inline */}
-            <div className="w-full">
-              {!askActive ? (
-                <button
-                  onClick={() => setAskActive(true)}
-                  className="block w-full"
-                >
-                  <div className="bg-highlight/10 border-2 border-highlight/30 rounded-lg text-highlight font-mono text-base hover:text-primary hover:bg-highlight/20 hover:border-highlight/50 transition-electric px-4 py-2 flex items-center justify-center space-x-4">
-                    <MessageCircle size={32} className="flex-shrink-0" />
-                    <span>Ask me anything</span>
-                  </div>
-                </button>
-              ) : (
-                <div className="bg-highlight/10 border-2 border-highlight/30 rounded-lg transition-electric px-4 py-3 space-y-3">
-                  {/* Input row */}
-                  <div className="flex items-center space-x-2">
-                    <span className="text-highlight font-mono text-xs">›</span>
-                    <input
-                      ref={inputRef}
-                      type="text"
-                      value={question}
-                      onChange={e => setQuestion(e.target.value)}
-                      onKeyDown={handleKeyDown}
-                      placeholder="Ask me anything..."
-                      className="flex-1 bg-transparent border-none outline-none text-highlight font-mono text-sm placeholder:text-highlight/40"
-                      disabled={isLoading}
-                    />
-                    <button
-                      onClick={() => handleAsk()}
-                      disabled={isLoading || !question.trim()}
-                      className="text-highlight hover:text-primary transition-electric disabled:opacity-30 flex-shrink-0"
-                    >
-                      {isLoading ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
-                    </button>
-                  </div>
-
-                  {/* Error */}
-                  {error && (
-                    <p className="text-destructive text-sm font-mono">{error}</p>
-                  )}
-
-                  {/* Response */}
-                  {response && (
-                    <div className="space-y-2 text-left animate-in fade-in slide-in-from-bottom-2 duration-300">
-                      <p className="text-foreground text-xs font-mono leading-relaxed">{response.message}</p>
-                      {response.links?.length > 0 && (
-                        <div className="space-y-1">
-                          {response.links.map((link, i) => (
-                            <a
-                              key={i}
-                              href={link.url}
-                              className="flex items-center justify-between bg-highlight/10 border border-highlight/30 rounded px-3 py-2 text-highlight font-mono text-xs hover:bg-highlight/20 hover:border-highlight/50 transition-electric group"
-                            >
-                              <span>→ {link.label}</span>
-                              <ArrowRight size={12} className="group-hover:translate-x-1 transition-transform" />
-                            </a>
-                          ))}
-                        </div>
-                      )}
-                      <button onClick={reset} className="text-muted-foreground text-xs font-mono hover:text-highlight transition-electric">
-                        › neue anfrage_
-                      </button>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
           </div>
         </div>
       </main>
