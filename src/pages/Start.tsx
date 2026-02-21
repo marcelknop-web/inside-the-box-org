@@ -46,6 +46,7 @@ const Start = () => {
       const data = await res.json();
       if (data?.error) throw new Error(data.error);
       setResponse(data as AiResponse);
+      setQuestion('');
     } catch (e: any) {
       console.error('Ask navigator error:', e);
       setError(e.message || 'Etwas ist schiefgelaufen. Bitte versuche es erneut.');
@@ -124,7 +125,7 @@ const Start = () => {
                     onBlur={() => setIsFocused(false)}
                     className="w-full bg-highlight/10 border-2 border-highlight/30 rounded-lg px-4 py-4 text-highlight font-mono text-lg text-center placeholder:text-highlight/40 focus:outline-none focus:border-highlight/50 transition-electric"
                     disabled={isLoading}
-                    placeholder={isFocused || response ? "Nächste Frage stellen..." : ""}
+                    placeholder={isFocused || response ? "Was möchtest du noch wissen?" : ""}
                   />
                 </div>
                 {(question.trim() || isLoading) && (
