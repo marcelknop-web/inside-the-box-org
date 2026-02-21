@@ -28,7 +28,7 @@ const TechnicalRequirements = () => {
                 title="System"
                 description="Hardware and software requirements for training participation."
               >
-                <ul className="text-base text-primary space-y-2 mt-4">
+                <ul className="text-base text-foreground space-y-2 mt-4">
                   <li className="pl-4 -indent-4">• Modern computer (Windows/Mac/Linux)</li>
                   <li className="pl-4 -indent-4">• 8GB RAM minimum</li>
                   <li className="pl-4 -indent-4">• Stable internet (10+ Mbps)</li>
@@ -42,7 +42,7 @@ const TechnicalRequirements = () => {
                 title="Network"
                 description="Network connectivity and port requirements for training access."
               >
-                <ul className="text-base text-primary space-y-2 mt-4">
+                <ul className="text-base text-foreground space-y-2 mt-4">
                   <li className="pl-4 -indent-4">• <span className="font-mono">RDP: 7000-7020/TCP outbound</span></li>
                   <li className="pl-4 -indent-4">• <span className="font-mono">HTTPS: 443/TCP outbound</span></li>
                   <li className="pl-4 -indent-4">• No inbound internet connections required</li>
