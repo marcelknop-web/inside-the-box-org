@@ -106,9 +106,37 @@ const Start = () => {
 
             {/* Inline Ask Navigator */}
             <div className="space-y-4">
+              {/* Response above input */}
+              {response && (
+                <div className="space-y-3 animate-in fade-in slide-in-from-bottom-2 duration-300 text-left">
+                  <p className="text-foreground text-sm font-mono leading-relaxed">{response.message}</p>
+                  {response.links?.length > 0 && (
+                    <ul className="space-y-1 pl-4">
+                      {response.links.map((link, i) => (
+                        <li key={i} className="list-disc marker:text-yellow-400">
+                          <a
+                            href={link.url}
+                            className="text-yellow-400 font-mono text-sm hover:underline transition-electric"
+                          >
+                            {link.label}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              )}
+
+              {error && (
+                <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-3 text-sm text-destructive font-mono">
+                  {error}
+                </div>
+              )}
+
+              {/* Input always visible */}
               <div className="flex space-x-2">
                 <div className="relative flex-1">
-                  {!question && !isFocused && (
+                  {!question && !isFocused && !response && (
                     <div className="absolute inset-0 flex items-center justify-center space-x-2 text-highlight font-mono text-lg pointer-events-none">
                       <MessageCircle size={20} />
                       <span>Ask me anything</span>
@@ -123,7 +151,7 @@ const Start = () => {
                     onBlur={() => setIsFocused(false)}
                     className="w-full bg-highlight/10 border-2 border-highlight/30 rounded-lg px-4 py-4 text-highlight font-mono text-lg text-center placeholder:text-highlight/40 focus:outline-none focus:border-highlight/50 transition-electric"
                     disabled={isLoading}
-                    placeholder={isFocused ? "z.B. Wie werde ich NIS2-konform?" : ""}
+                    placeholder={isFocused || response ? "Nächste Frage stellen..." : ""}
                   />
                 </div>
                 {(question.trim() || isLoading) && (
@@ -136,38 +164,6 @@ const Start = () => {
                   </button>
                 )}
               </div>
-
-              {error && (
-                <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-3 text-sm text-destructive font-mono">
-                  {error}
-                </div>
-              )}
-
-              {response && (
-                <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300 text-left">
-                  <p className="text-foreground text-sm font-mono leading-relaxed">{response.message}</p>
-                  {response.links?.length > 0 && (
-                    <ul className="space-y-1 pl-4">
-                      {response.links.map((link, i) => (
-                        <li key={i} className="list-disc text-highlight marker:text-yellow-400">
-                          <a
-                            href={link.url}
-                            className="text-highlight font-mono text-sm hover:underline transition-electric"
-                          >
-                            {link.label}
-                          </a>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                  <button
-                    onClick={reset}
-                    className="w-full bg-highlight/10 border-2 border-highlight/30 rounded-lg px-4 py-4 text-highlight font-mono text-lg hover:bg-highlight/20 hover:border-highlight/50 transition-electric"
-                  >
-                    Neue Frage stellen
-                  </button>
-                </div>
-              )}
             </div>
           </div>
         </div>
