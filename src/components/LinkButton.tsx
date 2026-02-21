@@ -32,7 +32,7 @@ export const LinkButton = ({
       className={`
         ${variantClasses[variant]}
         ${sizeClasses[size]}
-        rounded-lg font-mono transition-electric inline-block
+        rounded-lg font-mono transition-electric inline-flex items-center justify-center
         ${className}
       `}
     >
