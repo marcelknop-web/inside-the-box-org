@@ -18,7 +18,7 @@ const Start = () => {
     if (askActive) inputRef.current?.focus();
   }, [askActive]);
 
-  const handleAsk = async () => {
+  const handleAsk = async (retries = 1) => {
     if (!question.trim() || isLoading) return;
     setIsLoading(true);
     setError('');
@@ -27,11 +27,19 @@ const Start = () => {
       const { data, error: fnError } = await supabase.functions.invoke('ask-navigator', {
         body: { question: question.trim() },
       });
-      if (fnError) throw fnError;
+      if (fnError) {
+        if (retries > 0) {
+          // Retry once on cold start / network issues
+          await new Promise(r => setTimeout(r, 1500));
+          setIsLoading(false);
+          return handleAsk(retries - 1);
+        }
+        throw fnError;
+      }
       if (data?.error) throw new Error(data.error);
       setResponse(data as AiResponse);
     } catch (e: any) {
-      setError(e.message || 'Etwas ist schiefgelaufen.');
+      setError(e.message || 'Etwas ist schiefgelaufen. Bitte versuche es erneut.');
     } finally {
       setIsLoading(false);
     }
@@ -111,7 +119,7 @@ const Start = () => {
                       disabled={isLoading}
                     />
                     <button
-                      onClick={handleAsk}
+                      onClick={() => handleAsk()}
                       disabled={isLoading || !question.trim()}
                       className="text-highlight hover:text-primary transition-electric disabled:opacity-30 flex-shrink-0"
                     >
