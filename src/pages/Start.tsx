@@ -106,7 +106,7 @@ const Start = () => {
                       value={question}
                       onChange={e => setQuestion(e.target.value)}
                       onKeyDown={handleKeyDown}
-                      placeholder="Stell mir eine Frage..."
+                      placeholder="Ask me anything..."
                       className="flex-1 bg-transparent border-none outline-none text-highlight font-mono text-xl sm:text-2xl lg:text-3xl font-bold placeholder:text-highlight/40 placeholder:font-normal"
                       disabled={isLoading}
                     />
