@@ -36,8 +36,8 @@ const Imprint = () => {
             </p>
           </div>
           
-          <div className="bg-highlight/10 border-2 border-highlight/30 rounded-lg p-6">
-            <h2 className="text-highlight text-xl font-bold font-mono mb-4">Disclaimer</h2>
+          <div className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6">
+            <h2 className="text-primary text-xl font-bold font-mono mb-4">Disclaimer</h2>
             <p className="text-base text-foreground/80">
               Despite careful content control, I assume no liability for the content of external links. 
               The operators of linked pages are solely responsible for their content. Liability for own 
@@ -46,16 +46,16 @@ const Imprint = () => {
             </p>
           </div>
           
-          <div className="bg-highlight/10 border-2 border-highlight/30 rounded-lg p-6">
-            <h2 className="text-highlight text-xl font-bold font-mono mb-4">Copyright</h2>
+          <div className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6">
+            <h2 className="text-primary text-xl font-bold font-mono mb-4">Copyright</h2>
             <p className="text-base text-foreground/80">
               All content on this site is subject to German copyright law. If you notice any violations, please notify me — I will remove 
               the content promptly. Use beyond private purposes requires written consent.
             </p>
           </div>
           
-          <div className="bg-highlight/10 border-2 border-highlight/30 rounded-lg p-6">
-            <h2 className="text-highlight text-xl font-bold font-mono mb-4">Data Protection</h2>
+          <div className="bg-primary/10 border-2 border-primary/30 rounded-lg p-6">
+            <h2 className="text-primary text-xl font-bold font-mono mb-4">Data Protection</h2>
             <p className="text-base text-foreground/80">
               Use of published contact data for unsolicited advertising is prohibited.
             </p>
