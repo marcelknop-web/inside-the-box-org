@@ -16,61 +16,38 @@ function runSystemChecks(): SystemCheckResult[] {
   const isWindows = /Windows/.test(ua);
   const isMac = /Macintosh|Mac OS/.test(ua);
   const isLinux = /Linux/.test(ua) && !/Android/.test(ua);
-  const osName = isWindows ? 'Windows' : isMac ? 'macOS' : isLinux ? 'Linux' : 'Unknown';
+  const isMobile = /Android|iPhone|iPad|iPod/.test(ua);
+  const osName = isWindows ? 'Windows' : isMac ? 'macOS' : isLinux ? 'Linux' : isMobile ? 'Mobile Device' : 'Unknown';
   results.push({
     label: 'Operating System',
-    status: isWindows || isMac || isLinux ? 'pass' : 'unknown',
-    detail: osName,
+    status: isMobile ? 'fail' : (isWindows || isMac || isLinux) ? 'pass' : 'unknown',
+    detail: isMobile ? `${osName} — a desktop OS is required for RDP` : osName,
   });
 
-  // 2. RAM check (navigator.deviceMemory – Chrome/Edge only)
-  const mem = (navigator as any).deviceMemory as number | undefined;
-  if (mem !== undefined) {
-    results.push({
-      label: 'RAM',
-      status: mem >= 8 ? 'pass' : 'fail',
-      detail: `${mem} GB detected${mem < 8 ? ' (minimum 8 GB)' : ''}`,
-    });
-  } else {
-    results.push({
-      label: 'RAM',
-      status: 'unknown',
-      detail: 'Not detectable in this browser',
-    });
-  }
-
-  // 3. Screen resolution
-  const w = window.screen.width;
-  const h = window.screen.height;
-  const resOk = w >= 1920 && h >= 1080;
+  // 2. Screen resolution (physical screen, not browser window)
+  const w = window.screen.width * (window.devicePixelRatio || 1);
+  const h = window.screen.height * (window.devicePixelRatio || 1);
+  const logicalW = window.screen.width;
+  const logicalH = window.screen.height;
+  // RDP needs at least 1280×720 logical resolution; 1920×1080 recommended
+  const minOk = logicalW >= 1280 && logicalH >= 720;
+  const recommended = logicalW >= 1920 && logicalH >= 1080;
   results.push({
     label: 'Screen Resolution',
-    status: resOk ? 'pass' : 'fail',
-    detail: `${w}×${h}${!resOk ? ' (minimum 1920×1080)' : ''}`,
+    status: recommended ? 'pass' : minOk ? 'pass' : 'fail',
+    detail: `${logicalW}×${logicalH}${recommended ? '' : minOk ? ' (OK, 1920×1080 recommended)' : ' (minimum 1280×720 required)'}`,
   });
 
-  // 4. Internet speed estimate (navigator.connection – Chrome/Edge only)
-  const conn = (navigator as any).connection as { downlink?: number } | undefined;
-  if (conn?.downlink !== undefined) {
-    const mbps = conn.downlink;
-    results.push({
-      label: 'Internet Speed',
-      status: mbps >= 10 ? 'pass' : mbps >= 5 ? 'unknown' : 'fail',
-      detail: `~${mbps} Mbps${mbps < 10 ? ' (minimum 10 Mbps recommended)' : ''}`,
-    });
-  } else {
-    results.push({
-      label: 'Internet Speed',
-      status: 'unknown',
-      detail: 'Not detectable in this browser',
-    });
-  }
-
-  // 5. RDP client – cannot be checked from browser
+  // 3. Browser check – modern browser with sufficient capabilities
+  const isChrome = /Chrome\//.test(ua) && !/Edge/.test(ua);
+  const isFirefox = /Firefox\//.test(ua);
+  const isSafari = /Safari\//.test(ua) && !/Chrome/.test(ua);
+  const isEdge = /Edg\//.test(ua);
+  const browserName = isEdge ? 'Edge' : isChrome ? 'Chrome' : isFirefox ? 'Firefox' : isSafari ? 'Safari' : 'Unknown';
   results.push({
-    label: 'RDP Client',
-    status: 'unknown',
-    detail: 'Please verify manually that an RDP client is installed',
+    label: 'Browser',
+    status: (isChrome || isFirefox || isSafari || isEdge) ? 'pass' : 'unknown',
+    detail: browserName,
   });
 
   return results;
@@ -90,7 +67,6 @@ export const SystemCheck = () => {
 
   const handleRun = useCallback(() => {
     setLoading(true);
-    // Small delay so the spinner is visible
     setTimeout(() => {
       setResults(runSystemChecks());
       setLoading(false);
@@ -104,7 +80,7 @@ export const SystemCheck = () => {
     <ServiceCard
       icon={Monitor}
       title="System Check"
-      description="Checks your device against the minimum system requirements: operating system, RAM, screen resolution, and internet speed. Some values may not be detectable in all browsers."
+      description="Checks your device against the basic requirements for RDP access: operating system, screen resolution, and browser compatibility."
     >
       <div className="mt-4 space-y-4">
         <button
@@ -135,7 +111,7 @@ export const SystemCheck = () => {
               <div className="flex items-start gap-2 mt-3 p-3 rounded border border-green-500/30 bg-green-500/10 text-green-500">
                 <CheckCircle className="w-5 h-5 mt-0.5 flex-shrink-0" />
                 <p className="text-base font-sans">
-                  All checks passed — your system meets the requirements.
+                  All checks passed — your system meets the requirements for RDP access.
                 </p>
               </div>
             ) : anyFail ? (
@@ -149,7 +125,7 @@ export const SystemCheck = () => {
               <div className="flex items-start gap-2 mt-3 p-3 rounded border border-yellow-500/30 bg-yellow-500/10 text-yellow-500">
                 <HelpCircle className="w-5 h-5 mt-0.5 flex-shrink-0" />
                 <p className="text-base font-sans">
-                  Some values could not be detected. Please verify manually.
+                  Some values could not be determined. Please verify manually.
                 </p>
               </div>
             )}
