@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { ServiceCard } from '@/components/ServiceCard';
 import { Monitor, CheckCircle, XCircle, HelpCircle, Loader2 } from 'lucide-react';
+import { useLanguage } from '@/i18n/LanguageContext';
 
 interface SystemCheckResult {
   label: string;
@@ -8,7 +9,7 @@ interface SystemCheckResult {
   detail: string;
 }
 
-function runSystemChecks(): SystemCheckResult[] {
+function runSystemChecks(t: (key: string) => string): SystemCheckResult[] {
   const results: SystemCheckResult[] = [];
 
   // 1. OS check
@@ -19,32 +20,29 @@ function runSystemChecks(): SystemCheckResult[] {
   const isMobile = /Android|iPhone|iPad|iPod/.test(ua);
   const osName = isWindows ? 'Windows' : isMac ? 'macOS' : isLinux ? 'Linux' : isMobile ? 'Mobile Device' : 'Unknown';
   results.push({
-    label: 'Operating System',
+    label: t('techReq.sysCheckLabelOS'),
     status: isMobile ? 'fail' : (isWindows || isMac || isLinux) ? 'pass' : 'unknown',
-    detail: isMobile ? `${osName} — a desktop OS is required for RDP` : osName,
+    detail: isMobile ? `${osName} — ${t('techReq.sysCheckMobileFail')}` : osName,
   });
 
-  // 2. Screen resolution (physical screen, not browser window)
-  const w = window.screen.width * (window.devicePixelRatio || 1);
-  const h = window.screen.height * (window.devicePixelRatio || 1);
+  // 2. Screen resolution
   const logicalW = window.screen.width;
   const logicalH = window.screen.height;
-  // RDP needs at least 1280×720 logical resolution; 1920×1080 recommended
   const minOk = logicalW >= 1024 && logicalH >= 768;
   results.push({
-    label: 'Screen Resolution',
+    label: t('techReq.sysCheckLabelScreen'),
     status: minOk ? 'pass' : 'fail',
-    detail: `${logicalW}×${logicalH}${minOk ? '' : ' (minimum 1024×768 required)'}`,
+    detail: `${logicalW}×${logicalH}${minOk ? '' : ` (${t('techReq.sysCheckMinRes')})`}`,
   });
 
-  // 3. Browser check – modern browser with sufficient capabilities
+  // 3. Browser check
   const isChrome = /Chrome\//.test(ua) && !/Edge/.test(ua);
   const isFirefox = /Firefox\//.test(ua);
   const isSafari = /Safari\//.test(ua) && !/Chrome/.test(ua);
   const isEdge = /Edg\//.test(ua);
   const browserName = isEdge ? 'Edge' : isChrome ? 'Chrome' : isFirefox ? 'Firefox' : isSafari ? 'Safari' : 'Unknown';
   results.push({
-    label: 'Browser',
+    label: t('techReq.sysCheckLabelBrowser'),
     status: (isChrome || isFirefox || isSafari || isEdge) ? 'pass' : 'unknown',
     detail: browserName,
   });
@@ -54,23 +52,27 @@ function runSystemChecks(): SystemCheckResult[] {
 
 const statusIcon = (status: SystemCheckResult['status']) => {
   switch (status) {
-    case 'pass': return <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />;
-    case 'fail': return <XCircle className="w-4 h-4 text-destructive flex-shrink-0" />;
-    case 'unknown': return <HelpCircle className="w-4 h-4 text-yellow-500 flex-shrink-0" />;
+    case 'pass':
+      return <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />;
+    case 'fail':
+      return <XCircle className="w-5 h-5 text-destructive flex-shrink-0" />;
+    default:
+      return <HelpCircle className="w-5 h-5 text-yellow-500 flex-shrink-0" />;
   }
 };
 
 export const SystemCheck = () => {
+  const { t } = useLanguage();
   const [results, setResults] = useState<SystemCheckResult[] | null>(null);
   const [loading, setLoading] = useState(false);
 
   const handleRun = useCallback(() => {
     setLoading(true);
     setTimeout(() => {
-      setResults(runSystemChecks());
+      setResults(runSystemChecks(t));
       setLoading(false);
-    }, 400);
-  }, []);
+    }, 800);
+  }, [t]);
 
   const allPass = results?.every((r) => r.status === 'pass');
   const anyFail = results?.some((r) => r.status === 'fail');
@@ -78,9 +80,9 @@ export const SystemCheck = () => {
   return (
     <ServiceCard
       icon={Monitor}
-      title="System Check"
+      title={t('techReq.sysCheckCardTitle')}
       variant="highlight"
-      description="Checks your device against the basic requirements for RDP access: operating system, screen resolution, and browser compatibility."
+      description={t('techReq.sysCheckCardDesc')}
     >
       <div className="mt-4 space-y-4">
         <button
@@ -89,9 +91,9 @@ export const SystemCheck = () => {
           className="flex items-center gap-2 bg-highlight text-highlight-foreground px-5 py-2 rounded font-mono text-sm hover:opacity-90 disabled:opacity-50 transition-opacity whitespace-nowrap"
         >
           {loading ? (
-            <><Loader2 className="w-4 h-4 animate-spin" /> Checking…</>
+            <><Loader2 className="w-4 h-4 animate-spin" /> {t('techReq.sysCheckRunning')}</>
           ) : (
-            <><Monitor className="w-4 h-4" /> Run Check</>
+            <><Monitor className="w-4 h-4" /> {t('techReq.sysCheckRunBtn')}</>
           )}
         </button>
 
@@ -111,21 +113,21 @@ export const SystemCheck = () => {
               <div className="flex items-start gap-2 mt-3 p-3 rounded border border-green-500/30 bg-green-500/10 text-green-500">
                 <CheckCircle className="w-5 h-5 mt-0.5 flex-shrink-0" />
                 <p className="text-base font-sans">
-                  All checks passed — your system meets the requirements for RDP access.
+                  {t('techReq.sysCheckAllPass')}
                 </p>
               </div>
             ) : anyFail ? (
               <div className="flex items-start gap-2 mt-3 p-3 rounded border border-destructive/30 bg-destructive/10 text-destructive">
                 <XCircle className="w-5 h-5 mt-0.5 flex-shrink-0" />
                 <p className="text-base font-sans">
-                  Some requirements are not met. Please review the items above.
+                  {t('techReq.sysCheckSomeFail')}
                 </p>
               </div>
             ) : (
               <div className="flex items-start gap-2 mt-3 p-3 rounded border border-yellow-500/30 bg-yellow-500/10 text-yellow-500">
                 <HelpCircle className="w-5 h-5 mt-0.5 flex-shrink-0" />
                 <p className="text-base font-sans">
-                  Some values could not be determined. Please verify manually.
+                  {t('techReq.sysCheckUnknown')}
                 </p>
               </div>
             )}
