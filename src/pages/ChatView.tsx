@@ -520,8 +520,9 @@ const ChatView = () => {
             ))}
           </div>
 
-          <div className="border-t border-border p-3">
+          <div className="border-t border-border p-3 flex items-center justify-between">
             <span className="text-xs font-mono text-muted-foreground">inside-the-box.org</span>
+            <a href="/legacy/imprint" className="text-[10px] font-mono text-muted-foreground hover:text-highlight transition-electric">{t('contact.imprint')}</a>
           </div>
         </div>
       </div>
@@ -627,9 +628,6 @@ const ChatView = () => {
                 <Send size={16} />
               </button>
             </div>
-            <p className="text-[10px] text-muted-foreground font-mono text-center mt-2">
-              inside-the-box Navigator kann Fehler machen. Angaben bitte prüfen.
-            </p>
           </div>
         </div>
       </div>
