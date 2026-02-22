@@ -340,8 +340,23 @@ const useServiceContent = () => {
       <div className="space-y-3">
         <Block><SectionTitle>{t('publications.title')}</SectionTitle><p>{t('publications.intro')}</p></Block>
         <CardBlock icon={Shield} title={t('publications.pub1Title')} desc={t('publications.pub1Desc')} />
+        <div className="pl-10">
+          <a href="https://www.heise.de/select/ix/2021/10/2019809530193925811" target="_blank" rel="noopener noreferrer" className="text-highlight hover:text-primary transition-electric text-sm font-sans underline">
+            → {t('publications.readOnHeise')}
+          </a>
+        </div>
         <CardBlock icon={Radio} title={t('publications.pub2Title')} desc={t('publications.pub2Desc')} variant="highlight" />
+        <div className="pl-10">
+          <a href="https://www.heise.de/select/ix/archiv/2015/7/seite-78" target="_blank" rel="noopener noreferrer" className="text-highlight hover:text-primary transition-electric text-sm font-sans underline">
+            → {t('publications.readOnHeise')}
+          </a>
+        </div>
         <CardBlock icon={Video} title={t('publications.pub3Title')} desc={t('publications.pub3Desc')} />
+        <div className="pl-10">
+          <a href="https://vimeo.com/295582173" target="_blank" rel="noopener noreferrer" className="text-highlight hover:text-primary transition-electric text-sm font-sans underline">
+            → {t('publications.watchOnVimeo')}
+          </a>
+        </div>
         <Block className="bg-secondary/30">
           <SubTitle>{t('publications.certTitle')}</SubTitle>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-2">
