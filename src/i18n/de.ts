@@ -105,7 +105,7 @@ export const de = {
     iso27001Title: 'ISO 27001 Implementierung',
     iso27001Desc: 'ISMS-Implementierung von der initialen Gap-Analyse bis zur Zertifizierung. Wir wenden strukturierte Risikomethoden an, entwickeln auditfähige Dokumentation und begleiten den gesamten Zertifizierungsprozess – einschließlich Stage-1/Stage-2-Vorbereitung und Voraudits mit der gewählten Zertifizierungsstelle.',
     bsiTitle: 'BSI IT-Grundschutz',
-    bsiDesc: 'BSI IT-Grundschutz-Implementierung über alle Schutzniveaus – Basis, Standard oder Kern. Wir übernehmen Strukturanalyse, Schutzbedarfsfeststellung und Modellierung und bereiten Sie auf IS-Revision oder BSI-Zertifizierung vor. Praktische Erfahrung in KRITIS- und Behördenumgebungen.',
+    bsiDesc: 'BSI IT-Grundschutz-Implementierung nach allen Vorgehensweisen – Basis-Absicherung, Standard-Absicherung oder Kern-Absicherung. Wir übernehmen Strukturanalyse, Schutzbedarfsfeststellung und Modellierung und bereiten Sie auf IS-Revision oder BSI-Zertifizierung vor. Praktische Erfahrung in KRITIS- und Behördenumgebungen.',
     approachTitle: 'Unser Ansatz',
     assessmentTitle: 'Assessment',
     assessmentDesc: 'Gap-Analyse gegen den Zielstandard durch Interviews, Dokumentenprüfung und technische Stichproben – geliefert als priorisierter Maßnahmenplan für Management und IT-Leitung.',
