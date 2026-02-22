@@ -469,10 +469,10 @@ const useServiceContent = () => {
           <Block><SectionTitle>{t('byWhom.title')}</SectionTitle><p>{t('byWhom.intro')}</p></Block>
           {profiles.map(p => (
             <Block key={p.name} className="bg-secondary/30">
-              <div className="flex items-center gap-3 mb-3">
-                <img src={p.imageUrl} alt={p.name} className="w-12 h-12 rounded-full object-cover border-2 border-primary/30" />
+              <div className="flex items-center gap-4 mb-4">
+                <img src={p.imageUrl} alt={p.name} className="w-20 h-20 rounded-full object-cover border-2 border-primary/40 shadow-lg" />
                 <div>
-                  <p className="text-primary font-bold text-sm font-sans">{p.name}</p>
+                  <p className="text-primary font-bold text-base font-sans">{p.name}</p>
                   <p className="text-foreground text-sm font-sans">{p.role}</p>
                 </div>
                 {p.linkedinUrl && (
