@@ -150,63 +150,63 @@ const TechnicalRequirements = () => {
               Connectivity Check
             </h2>
 
-            <div className="bg-card border border-border rounded-lg p-6 space-y-4">
-              <p className="text-base text-foreground font-sans">
-                Tests whether your device can reach the required TCP ports (RDP 7000–7020, HTTPS 443) through your local network and firewall.
-                The test connects from your browser to <span className="font-mono">portquiz.net</span>, a public service that listens on all TCP ports.
-                If a port shows as blocked, your network may be filtering outbound traffic on that port.
-              </p>
+            <ServiceCard
+              icon={Wifi}
+              title="Connectivity Test"
+              description="Tests whether your device can reach the required TCP ports (RDP 7000–7020, HTTPS 443) through your local network and firewall. The test connects from your browser to portquiz.net, a public service that listens on all TCP ports."
+            >
+              <div className="mt-4 space-y-4">
+                <button
+                  onClick={runCheck}
+                  disabled={loading}
+                  className="flex items-center gap-2 bg-primary text-primary-foreground px-5 py-2 rounded font-mono text-sm hover:opacity-90 disabled:opacity-50 transition-opacity whitespace-nowrap"
+                >
+                  {loading ? (
+                    <><Loader2 className="w-4 h-4 animate-spin" /> {progress.done}/{progress.total}</>
+                  ) : (
+                    <><Wifi className="w-4 h-4" /> Run Test</>
+                  )}
+                </button>
 
-              <button
-                onClick={runCheck}
-                disabled={loading}
-                className="flex items-center gap-2 bg-primary text-primary-foreground px-5 py-2 rounded font-mono text-sm hover:opacity-90 disabled:opacity-50 transition-opacity whitespace-nowrap"
-              >
-                {loading ? (
-                  <><Loader2 className="w-4 h-4 animate-spin" /> {progress.done}/{progress.total}</>
-                ) : (
-                  <><Wifi className="w-4 h-4" /> Run Test</>
-                )}
-              </button>
+                {results && (
+                  <div className="space-y-4 pt-2">
+                    {PORT_GROUPS.map((group) => {
+                      const groupResults = getGroupResults(group.ports);
+                      const reachable = groupResults.filter((r) => r.status === 'reachable').length;
+                      const total = groupResults.length;
 
-              {results && (
-                <div className="space-y-4 pt-2">
-                  {PORT_GROUPS.map((group) => {
-                    const groupResults = getGroupResults(group.ports);
-                    const reachable = groupResults.filter((r) => r.status === 'reachable').length;
-                    const total = groupResults.length;
-
-                    return (
-                      <div key={group.label} className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <span className="font-mono text-base text-foreground font-semibold">{group.label}</span>
-                          <span className={`font-mono text-base ${reachable === total ? 'text-green-500' : reachable > 0 ? 'text-yellow-500' : 'text-destructive'}`}>
-                            {reachable}/{total} reachable
-                          </span>
-                        </div>
-                        <div className="flex flex-wrap gap-1.5">
-                          {groupResults.map((r) => (
-                            <span
-                              key={r.port}
-                              title={`${r.latencyMs}ms – ${r.status}`}
-                              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-mono border ${statusClass(r.status)}`}
-                            >
-                              {statusIcon(r.status)}
-                              {r.port}
+                      return (
+                        <div key={group.label} className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="font-mono text-base text-foreground font-semibold">{group.label}</span>
+                            <span className={`font-mono text-base ${reachable === total ? 'text-green-500' : reachable > 0 ? 'text-yellow-500' : 'text-destructive'}`}>
+                              {reachable}/{total} reachable
                             </span>
-                          ))}
+                          </div>
+                          <div className="flex flex-wrap gap-1.5">
+                            {groupResults.map((r) => (
+                              <span
+                                key={r.port}
+                                title={`${r.latencyMs}ms – ${r.status}`}
+                                className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-mono border ${statusClass(r.status)}`}
+                              >
+                                {statusIcon(r.status)}
+                                {r.port}
+                              </span>
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
 
-                  <p className="text-base text-foreground mt-2">
-                    <HelpCircle className="w-4 h-4 inline mr-1" />
-                    This test runs directly from your browser to verify your network allows outbound connections.
-                  </p>
-                </div>
-              )}
-            </div>
+                    <p className="text-base text-foreground mt-2">
+                      <HelpCircle className="w-4 h-4 inline mr-1" />
+                      If a port shows as blocked, your network may be filtering outbound traffic on that port.
+                    </p>
+                  </div>
+                )}
+              </div>
+            </ServiceCard>
           </div>
           
           <PageNavButtons buttons={[
