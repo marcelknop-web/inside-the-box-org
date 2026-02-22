@@ -39,28 +39,28 @@ const ISMS = () => {
                   <Search className="text-primary mt-1 flex-shrink-0" size={20} />
                   <div>
                     <h3 className="font-semibold text-foreground mb-2">Assessment</h3>
-                    <p>Analysis of current security posture and gap identification.</p>
+                    <p>Gap analysis against the target standard through interviews, document review, and technical spot checks – delivered as a prioritized action plan for management and IT leadership.</p>
                   </div>
                 </div>
                 <div className="flex items-start space-x-3">
                   <Settings className="text-primary mt-1 flex-shrink-0" size={20} />
                   <div>
                     <h3 className="font-semibold text-foreground mb-2">Implementation</h3>
-                    <p>Structured rollout of security controls and procedures.</p>
+                    <p>We build ISMS documentation, policies, and controls jointly with your teams – not off-the-shelf templates. Pragmatic, audit-ready, scaled to your organization.</p>
                   </div>
                 </div>
                 <div className="flex items-start space-x-3">
                   <Award className="text-primary mt-1 flex-shrink-0" size={20} />
                   <div>
                     <h3 className="font-semibold text-foreground mb-2">Certification</h3>
-                    <p>Support through external audits and compliance.</p>
+                    <p>Full audit support: certification body coordination, internal pre-audits, interview preparation, and finding remediation – aiming for a clean Stage-2 result.</p>
                   </div>
                 </div>
                 <div className="flex items-start space-x-3">
                   <RotateCcw className="text-primary mt-1 flex-shrink-0" size={20} />
                   <div>
                     <h3 className="font-semibold text-foreground mb-2">Maintenance</h3>
-                    <p>Ongoing ISMS improvement and threat adaptation.</p>
+                    <p>Surveillance audits, management reviews, updated risk assessments, and integration of new threat intelligence. Your ISMS stays current, not just certified.</p>
                   </div>
                 </div>
               </div>
