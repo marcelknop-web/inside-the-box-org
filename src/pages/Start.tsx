@@ -154,7 +154,7 @@ const Start = () => {
               {/* Response below input */}
               {response && (
                 <div className="space-y-3 animate-in fade-in slide-in-from-bottom-2 duration-300 text-left">
-                  <p className="text-foreground text-sm font-mono leading-relaxed">{response.message}</p>
+                  <p className="text-foreground text-lg font-mono leading-relaxed">{response.message}</p>
                   {response.links?.length > 0 && (
                     <ul className="space-y-1 pl-4">
                       {response.links.map((link, i) => (
