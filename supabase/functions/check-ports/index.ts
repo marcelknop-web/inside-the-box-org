@@ -31,10 +31,16 @@ async function checkPort(host: string, port: number, timeoutMs: number): Promise
     (conn as Deno.Conn).close();
     return { port, reachable: true, latencyMs };
   } catch (e) {
+    const latencyMs = Date.now() - start;
+    const msg = e instanceof Error ? e.message : "unknown error";
+    // "Connection refused" means the TCP packet reached the server — network is OPEN.
+    // Only a timeout indicates a firewall blocking the port.
+    const isRefused = msg.toLowerCase().includes("connection refused");
     return {
       port,
-      reachable: false,
-      error: e instanceof Error ? e.message : "unknown error",
+      reachable: isRefused ? true : false,
+      latencyMs,
+      error: isRefused ? undefined : msg,
     };
   }
 }
