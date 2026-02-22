@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { GeometricSymbol } from '@/components/GeometricSymbol';
 import { PageMeta } from '@/components/PageMeta';
-import { Target, Shield, Send, Loader2, ArrowRight, MessageCircle } from 'lucide-react';
+import { useLanguage } from '@/i18n/LanguageContext';
+import { Target, Shield, Send, Loader2, MessageCircle } from 'lucide-react';
 
 interface NavLink {
   url: string;
@@ -14,6 +15,7 @@ interface AiResponse {
 }
 
 const Start = () => {
+  const { language, setLanguage, t } = useLanguage();
   const [question, setQuestion] = useState('');
   const [response, setResponse] = useState<AiResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -76,17 +78,23 @@ const Start = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <PageMeta title="Cybersecurity Consulting & Cyber Training Range" description="Expert cybersecurity consulting and cyber training range services. ISMS, ISO 27001, NIS-2, TISAX, incident response, and cyber crisis management." />
+      <PageMeta title={t('start.metaTitle')} description={t('start.metaDesc')} />
       <header className="py-8">
         <div className="container mx-auto px-6 flex items-center justify-center md:justify-between">
           <a href="/" className="w-full md:w-auto flex items-center justify-center md:justify-start group">
             <span className="text-primary text-xl font-mono group-hover:text-highlight transition-electric whitespace-nowrap text-center">inside-the-box.org</span>
           </a>
-          <nav className="hidden md:flex space-x-4">
-            <a href="/why" className="bg-primary/10 border-2 border-primary/30 rounded-lg text-primary font-mono text-base hover:text-highlight hover:bg-primary/20 hover:border-primary/50 transition-electric px-4 py-2">Training</a>
-            <a href="/consulting" className="bg-primary/10 border-2 border-primary/30 rounded-lg text-primary font-mono text-base hover:text-highlight hover:bg-primary/20 hover:border-primary/50 transition-electric px-4 py-2">Consulting</a>
-            <a href="/by-whom" className="bg-primary/10 border-2 border-primary/30 rounded-lg text-primary font-mono text-base hover:text-highlight hover:bg-primary/20 hover:border-primary/50 transition-electric px-4 py-2">By Whom</a>
-            <a href="/contact" className="bg-primary/10 border-2 border-primary/30 rounded-lg text-primary font-mono text-base hover:text-highlight hover:bg-primary/20 hover:border-primary/50 transition-electric px-4 py-2">Contact</a>
+          <nav className="hidden md:flex space-x-4 items-center">
+            <a href="/why" className="bg-primary/10 border-2 border-primary/30 rounded-lg text-primary font-mono text-base hover:text-highlight hover:bg-primary/20 hover:border-primary/50 transition-electric px-4 py-2">{t('nav.training')}</a>
+            <a href="/consulting" className="bg-primary/10 border-2 border-primary/30 rounded-lg text-primary font-mono text-base hover:text-highlight hover:bg-primary/20 hover:border-primary/50 transition-electric px-4 py-2">{t('nav.consulting')}</a>
+            <a href="/by-whom" className="bg-primary/10 border-2 border-primary/30 rounded-lg text-primary font-mono text-base hover:text-highlight hover:bg-primary/20 hover:border-primary/50 transition-electric px-4 py-2">{t('nav.byWhom')}</a>
+            <a href="/contact" className="bg-primary/10 border-2 border-primary/30 rounded-lg text-primary font-mono text-base hover:text-highlight hover:bg-primary/20 hover:border-primary/50 transition-electric px-4 py-2">{t('nav.contact')}</a>
+            <button
+              onClick={() => setLanguage(language === 'en' ? 'de' : 'en')}
+              className="bg-highlight/10 border-2 border-highlight/30 rounded-lg text-highlight font-mono text-sm hover:bg-highlight/20 hover:border-highlight/50 transition-electric px-3 py-2 uppercase tracking-wider"
+            >
+              {language === 'en' ? 'DE' : 'EN'}
+            </button>
           </nav>
         </div>
       </header>
@@ -101,26 +109,25 @@ const Start = () => {
             <a href="/why" className="block group">
               <div className="bg-primary/10 border-2 border-primary/30 rounded-lg text-primary font-mono text-xl sm:text-2xl lg:text-4xl font-bold hover:text-highlight hover:bg-primary/20 hover:border-primary/50 transition-electric px-6 py-4 flex items-center justify-center space-x-4">
                 <Target size={32} className="flex-shrink-0" />
-                <span>Cyber Training Range</span>
+                <span>{t('start.cyberTrainingRange')}</span>
               </div>
             </a>
 
             <a href="/consulting" className="block group">
               <div className="bg-primary/10 border-2 border-primary/30 rounded-lg text-primary font-mono text-xl sm:text-2xl lg:text-4xl font-bold hover:text-highlight hover:bg-primary/20 hover:border-primary/50 transition-electric px-6 py-4 flex items-center justify-center space-x-4">
                 <Shield size={32} className="flex-shrink-0" />
-                <span>Cybersecurity Consulting</span>
+                <span>{t('start.cybersecurityConsulting')}</span>
               </div>
             </a>
 
             {/* Inline Ask Navigator */}
             <div className="space-y-4">
-              {/* Input always visible */}
               <div className="flex space-x-2">
                 <div className="relative flex-1">
                   {!question && !isFocused && !response && (
                     <div className="absolute inset-0 flex items-center justify-center space-x-2 text-highlight font-mono text-lg pointer-events-none">
                       <MessageCircle size={20} />
-                      <span>Ask me anything</span>
+                      <span>{t('start.askMeAnything')}</span>
                     </div>
                   )}
                   <input
@@ -133,7 +140,7 @@ const Start = () => {
                     onBlur={() => setIsFocused(false)}
                     className="w-full bg-highlight/10 border-2 border-highlight/30 rounded-lg px-4 py-4 text-highlight font-mono text-lg text-center placeholder:text-highlight/40 focus:outline-none focus:border-highlight/50 transition-electric"
                     disabled={isLoading}
-                    placeholder={isFocused || response ? "Ask me anything" : ""}
+                    placeholder={isFocused || response ? t('start.askMeAnything') : ""}
                   />
                 </div>
                 {(question.trim() || isLoading) && (
@@ -142,7 +149,7 @@ const Start = () => {
                     disabled={isLoading || !question.trim()}
                     className="bg-highlight/10 border-2 border-highlight/30 rounded-lg px-4 text-highlight hover:bg-highlight/20 hover:border-highlight/50 transition-electric disabled:opacity-40"
                   >
-                    {isLoading ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
+                    {isLoading ? <span className="animate-spin"><Send size={18} /></span> : <Send size={18} />}
                   </button>
                 )}
               </div>
@@ -153,7 +160,6 @@ const Start = () => {
                 </div>
               )}
 
-              {/* Response below input */}
               {response && (
                 <div className="space-y-3 animate-in fade-in slide-in-from-bottom-2 duration-300 text-left">
                   <p className="text-foreground text-lg font-mono leading-relaxed">{response.message}</p>
@@ -161,10 +167,7 @@ const Start = () => {
                     <ul className="space-y-1 pl-4">
                       {response.links.map((link, i) => (
                         <li key={i} className="list-disc marker:text-primary">
-                          <a
-                            href={link.url}
-                            className="text-primary font-mono text-lg hover:underline transition-electric"
-                          >
+                          <a href={link.url} className="text-primary font-mono text-lg hover:underline transition-electric">
                             {link.label}
                           </a>
                         </li>
