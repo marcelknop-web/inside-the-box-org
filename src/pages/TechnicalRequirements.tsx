@@ -1,9 +1,54 @@
 import { PageLayout } from '@/components/PageLayout';
 import { ServiceCard } from '@/components/ServiceCard';
 import { PageNavButtons } from '@/components/PageNavButtons';
-import { Monitor, Network } from 'lucide-react';
+import { Monitor, Network, Wifi, CheckCircle, XCircle, Loader2 } from 'lucide-react';
+import { useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+
+interface PortResult {
+  port: number;
+  reachable: boolean;
+  latencyMs?: number;
+  error?: string;
+}
+
+const DEFAULT_HOST = 'cyberrange.inside-the-box.org';
+
+const PORT_GROUPS = [
+  { label: 'RDP (Training)', ports: Array.from({ length: 21 }, (_, i) => 7000 + i) },
+  { label: 'HTTPS', ports: [443] },
+];
 
 const TechnicalRequirements = () => {
+  const [host, setHost] = useState(DEFAULT_HOST);
+  const [results, setResults] = useState<PortResult[] | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const runCheck = async () => {
+    setLoading(true);
+    setError(null);
+    setResults(null);
+
+    const allPorts = PORT_GROUPS.flatMap((g) => g.ports);
+
+    try {
+      const { data, error: fnError } = await supabase.functions.invoke('check-ports', {
+        body: { host, ports: allPorts, timeout: 5000 },
+      });
+
+      if (fnError) throw fnError;
+      setResults(data.results as PortResult[]);
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'Connection test failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getGroupResults = (ports: number[]) =>
+    results?.filter((r) => ports.includes(r.port)) ?? [];
+
   return (
     <PageLayout>
       <div className="space-y-8">
@@ -50,6 +95,82 @@ const TechnicalRequirements = () => {
                   <li className="pl-4 -indent-4">• Backup communication ready</li>
                 </ul>
               </ServiceCard>
+            </div>
+          </div>
+
+          {/* Connectivity Check */}
+          <div className="space-y-6">
+            <h2 className="text-primary text-2xl font-bold font-mono mb-6">
+              Connectivity Check
+            </h2>
+
+            <div className="bg-card border border-border rounded-lg p-6 space-y-4">
+              <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-end">
+                <div className="flex-1 w-full">
+                  <label htmlFor="host" className="block text-sm font-mono text-muted-foreground mb-1">
+                    Target Host
+                  </label>
+                  <input
+                    id="host"
+                    type="text"
+                    value={host}
+                    onChange={(e) => setHost(e.target.value)}
+                    className="w-full bg-background border border-border rounded px-3 py-2 font-mono text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                  />
+                </div>
+                <button
+                  onClick={runCheck}
+                  disabled={loading || !host.trim()}
+                  className="flex items-center gap-2 bg-primary text-primary-foreground px-5 py-2 rounded font-mono text-sm hover:opacity-90 disabled:opacity-50 transition-opacity whitespace-nowrap"
+                >
+                  {loading ? (
+                    <><Loader2 className="w-4 h-4 animate-spin" /> Testing…</>
+                  ) : (
+                    <><Wifi className="w-4 h-4" /> Run Test</>
+                  )}
+                </button>
+              </div>
+
+              {error && (
+                <p className="text-destructive font-mono text-sm">{error}</p>
+              )}
+
+              {results && (
+                <div className="space-y-4 pt-2">
+                  {PORT_GROUPS.map((group) => {
+                    const groupResults = getGroupResults(group.ports);
+                    const reachable = groupResults.filter((r) => r.reachable).length;
+                    const total = groupResults.length;
+
+                    return (
+                      <div key={group.label} className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="font-mono text-sm font-semibold">{group.label}</span>
+                          <span className={`font-mono text-sm ${reachable === total ? 'text-green-500' : reachable > 0 ? 'text-yellow-500' : 'text-destructive'}`}>
+                            {reachable}/{total} reachable
+                          </span>
+                        </div>
+                        <div className="flex flex-wrap gap-1.5">
+                          {groupResults.map((r) => (
+                            <span
+                              key={r.port}
+                              title={r.reachable ? `${r.latencyMs}ms` : r.error}
+                              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-mono border ${
+                                r.reachable
+                                  ? 'border-green-500/30 bg-green-500/10 text-green-500'
+                                  : 'border-destructive/30 bg-destructive/10 text-destructive'
+                              }`}
+                            >
+                              {r.reachable ? <CheckCircle className="w-3 h-3" /> : <XCircle className="w-3 h-3" />}
+                              {r.port}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           </div>
           
