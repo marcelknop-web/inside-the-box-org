@@ -132,7 +132,7 @@ const TechnicalRequirements = () => {
             </h2>
 
             <div className="bg-card border border-border rounded-lg p-6 space-y-4">
-              <p className="text-sm text-muted-foreground font-sans">
+              <p className="text-base text-foreground font-sans">
                 Prüft ob die benötigten TCP-Ports (RDP 7000–7020, HTTPS 443) von unserem Server aus erreichbar sind.
                 Der Test verbindet sich mit <span className="font-mono">portquiz.net</span>, einem öffentlichen Dienst der auf allen TCP-Ports antwortet.
               </p>
@@ -159,8 +159,8 @@ const TechnicalRequirements = () => {
                     return (
                       <div key={group.label} className="space-y-2">
                         <div className="flex items-center justify-between">
-                          <span className="font-mono text-sm font-semibold">{group.label}</span>
-                          <span className={`font-mono text-sm ${reachable === total ? 'text-green-500' : reachable > 0 ? 'text-yellow-500' : 'text-destructive'}`}>
+                          <span className="font-mono text-base text-foreground font-semibold">{group.label}</span>
+                          <span className={`font-mono text-base ${reachable === total ? 'text-green-500' : reachable > 0 ? 'text-yellow-500' : 'text-destructive'}`}>
                             {reachable}/{total} reachable
                           </span>
                         </div>
@@ -180,8 +180,8 @@ const TechnicalRequirements = () => {
                     );
                   })}
 
-                  <p className="text-xs text-muted-foreground mt-2">
-                    <HelpCircle className="w-3 h-3 inline mr-1" />
+                  <p className="text-base text-foreground mt-2">
+                    <HelpCircle className="w-4 h-4 inline mr-1" />
                     Tests TCP connectivity to <span className="font-mono">portquiz.net</span> from our server.
                   </p>
                 </div>
