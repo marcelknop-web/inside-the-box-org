@@ -39,34 +39,22 @@ const EventsWorkshops = () => {
         
         <div className="space-y-8 text-foreground leading-relaxed">
           <p className="text-lg font-sans mb-8">
-            Moderation of cybersecurity training sessions, workshops, and events.
+            Expert moderation and training delivery for cybersecurity conferences, workshops, and seminars – adapted to audience level and organizational context.
           </p>
           
           <div className="space-y-6">
             <ServiceCard
               icon={Mic}
               title="Event Moderation"
-              description="Expert facilitation of cybersecurity conferences, seminars, and workshops."
-            >
-              <ul className="text-base text-foreground/80 space-y-2 mt-4">
-                <li className="pl-4 -indent-4">• Conference and seminar moderation</li>
-                <li className="pl-4 -indent-4">• Panel discussion facilitation</li>
-                <li className="pl-4 -indent-4">• Workshop design and execution</li>
-              </ul>
-            </ServiceCard>
+              description="Conference and seminar moderation, panel facilitation, and workshop design. Technically grounded, audience-aware, and structured for outcomes rather than attendance numbers."
+            />
             
             <ServiceCard
               icon={Users}
               title="Training Workshops"
-              description="Cybersecurity awareness and technical training workshop development."
+              description="Security awareness programs, technical skill development, and crisis management exercises – designed for practitioners, not PowerPoint compliance."
               variant="highlight"
-            >
-              <ul className="text-base text-foreground/80 space-y-2 mt-4">
-                <li className="pl-4 -indent-4">• Security awareness programs</li>
-                <li className="pl-4 -indent-4">• Technical skill development</li>
-                <li className="pl-4 -indent-4">• Crisis management exercises</li>
-              </ul>
-            </ServiceCard>
+            />
             
             <ServiceCard
               icon={Award}
@@ -74,7 +62,7 @@ const EventsWorkshops = () => {
               description="Trusted by leading organizations across government, industry, and academia."
             >
               <div className="text-base text-foreground/70 leading-relaxed mt-4">
-                <p>Beamtenbund • Bechtle • Bitkom • BSI • CDU • DENIC • DDPS (CH) • DIIR • DWT • Fast Lane • Euroforum • HPI • IIR • ISACA • Management Circle • SoftwareONE • Bundeswehr University • University of Giessen</p>
+                <p>Beamtenbund · Bechtle · Bitkom · BSI · CDU · DENIC · DDPS (CH) · DIIR · DWT · Fast Lane · Euroforum · HPI · IIR · ISACA · Management Circle · SoftwareONE · Bundeswehr University · University of Giessen</p>
               </div>
             </ServiceCard>
             
@@ -84,17 +72,17 @@ const EventsWorkshops = () => {
                 <div className="flex flex-col items-center text-center space-y-2">
                   <Presentation className="text-primary" size={24} />
                   <h3 className="font-semibold text-foreground mb-2">Conferences</h3>
-                  <p>Large-scale cybersecurity conferences and industry events.</p>
+                  <p>Large-scale industry events and keynote moderation.</p>
                 </div>
                 <div className="flex flex-col items-center text-center space-y-2">
                   <Wrench className="text-primary" size={24} />
                   <h3 className="font-semibold text-foreground mb-2">Workshops</h3>
-                  <p>Interactive training sessions and skill-building workshops.</p>
+                  <p>Interactive, hands-on sessions with measurable learning outcomes.</p>
                 </div>
                 <div className="flex flex-col items-center text-center space-y-2">
                   <GraduationCap className="text-primary" size={24} />
                   <h3 className="font-semibold text-foreground mb-2">Seminars</h3>
-                  <p>Educational seminars and awareness training programs.</p>
+                  <p>Targeted awareness and education programs for defined audiences.</p>
                 </div>
               </div>
             </InfoCard>
