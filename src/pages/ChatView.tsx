@@ -3,6 +3,7 @@ import { Send, Plus, MessageCircle, Shield, Target, BookOpen, AlertTriangle, Eye
 import { PageMeta } from '@/components/PageMeta';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { consultantProfiles } from '@/data/consultantProfiles';
+import { GeometricSymbol } from '@/components/GeometricSymbol';
 import { LucideIcon } from 'lucide-react';
 
 interface NavLink { url: string; label: string; }
@@ -606,7 +607,11 @@ const ChatView = () => {
           </span>
         </div>
 
-        <div ref={contentAreaRef} className="flex-1 overflow-y-auto">
+        <div ref={contentAreaRef} className="flex-1 overflow-y-auto relative">
+          {/* Subtle background logo */}
+          <div className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-[0.03]">
+            <GeometricSymbol size="lg" className="w-[400px] h-[400px]" />
+          </div>
           {!activeService && messages.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center px-4">
               <div className="mb-6">
