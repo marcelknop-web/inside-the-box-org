@@ -124,7 +124,7 @@ const TechnicalRequirements = () => {
                   <li className="pl-4 -indent-4">• Modern computer (Windows/Mac/Linux)</li>
                   <li className="pl-4 -indent-4">• 8GB RAM minimum</li>
                   <li className="pl-4 -indent-4">• Stable internet (10+ Mbps)</li>
-                  <li className="pl-4 -indent-4">• 1024x768 resolution (1920x1080 recommended)</li>
+                  <li className="pl-4 -indent-4">• 1024x768 resolution minimum</li>
                   <li className="pl-4 -indent-4">• RDP client installed</li>
                 </ul>
               </ServiceCard>
