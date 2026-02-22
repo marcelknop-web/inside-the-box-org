@@ -34,7 +34,7 @@ const NIS2DORA = () => {
               </p>
             </InfoCard>
             
-            <InfoCard icon={Shield} variant="subtle">
+            <InfoCard icon={Shield} variant="primary">
               <h2 className="text-primary text-xl sm:text-2xl lg:text-3xl font-bold font-mono mb-4">Implementation of Measures</h2>
               <p className="text-base text-foreground font-sans">
                 Technical and organizational measures developed with your teams and validated against regulatory expectations – including incident reporting workflows and monitoring mechanisms.
