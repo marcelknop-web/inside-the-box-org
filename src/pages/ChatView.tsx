@@ -378,48 +378,50 @@ const useServiceContent = () => {
   return { contentMap, bindSetActive };
 };
 
-// ── Sidebar config ──────────────────────────────────────────────────────────
-
 interface SidebarItem { id: string; icon: LucideIcon; label: string; }
 interface SidebarGroup { title: string; items: SidebarItem[]; }
 
-const SIDEBAR_GROUPS: SidebarGroup[] = [
-  {
-    title: 'Training',
-    items: [
-      { id: 'why', icon: Target, label: 'Cyber Training Range' },
-      { id: 'training', icon: Swords, label: 'Trainingsthemen' },
-    ],
-  },
-  {
-    title: 'Beratung',
-    items: [
-      { id: 'consulting', icon: Shield, label: 'Übersicht' },
-      { id: 'isms', icon: ShieldCheck, label: 'ISMS ISO 27001' },
-      { id: 'nis2-dora', icon: Network, label: 'NIS-2, DORA, PART-IS' },
-      { id: 'tisax-pci-dss', icon: CreditCard, label: 'TISAX, PCI-DSS' },
-      { id: 'assessments-concepts', icon: Search, label: 'Assessments & Konzepte' },
-      { id: 'incident-management', icon: Flame, label: 'Incident Management' },
-      { id: 'cyber-crisis-management', icon: Swords, label: 'Cyber-Krisenmanagement' },
-      { id: 'arena-training', icon: Target, label: 'Arena Training, TIBER' },
-      { id: 'events-workshops', icon: Calendar, label: 'Events & Workshops' },
-      { id: 'publications', icon: FileText, label: 'Publikationen' },
-      { id: 'virtual-ciso', icon: UserCheck, label: 'Virtual CISO' },
-    ],
-  },
-  {
-    title: 'Über uns',
-    items: [
-      { id: 'by-whom', icon: Users, label: 'Von Wem' },
-      { id: 'contact', icon: Mail, label: 'Kontakt' },
-    ],
-  },
-];
+const useSidebarGroups = (): SidebarGroup[] => {
+  const { t } = useLanguage();
+  return [
+    {
+      title: t('nav.training'),
+      items: [
+        { id: 'why', icon: Target, label: t('start.cyberTrainingRange') },
+        { id: 'training', icon: Swords, label: t('training.title') },
+      ],
+    },
+    {
+      title: t('nav.consulting'),
+      items: [
+        { id: 'consulting', icon: Shield, label: t('consulting.title') },
+        { id: 'isms', icon: ShieldCheck, label: t('consulting.ismsTitle') },
+        { id: 'nis2-dora', icon: Network, label: t('consulting.nis2Title') },
+        { id: 'tisax-pci-dss', icon: CreditCard, label: t('consulting.tisaxTitle') },
+        { id: 'assessments-concepts', icon: Search, label: t('consulting.assessTitle') },
+        { id: 'incident-management', icon: Flame, label: t('consulting.incidentTitle') },
+        { id: 'cyber-crisis-management', icon: Swords, label: t('consulting.crisisTitle') },
+        { id: 'arena-training', icon: Target, label: t('consulting.arenaTitle') },
+        { id: 'events-workshops', icon: Calendar, label: t('consulting.eventsTitle') },
+        { id: 'publications', icon: FileText, label: t('consulting.pubTitle') },
+        { id: 'virtual-ciso', icon: UserCheck, label: t('vciso.title') },
+      ],
+    },
+    {
+      title: t('nav.byWhom'),
+      items: [
+        { id: 'by-whom', icon: Users, label: t('nav.byWhom') },
+        { id: 'contact', icon: Mail, label: t('nav.contact') },
+      ],
+    },
+  ];
+};
 
 // ── Main component ──────────────────────────────────────────────────────────
 
 const ChatView = () => {
   const { language, setLanguage, t } = useLanguage();
+  const sidebarGroups = useSidebarGroups();
   const [activeService, setActiveService] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
@@ -497,7 +499,7 @@ const ChatView = () => {
           </div>
 
           <div className="flex-1 overflow-y-auto px-2 pb-4">
-            {SIDEBAR_GROUPS.map((group) => (
+            {sidebarGroups.map((group) => (
               <div key={group.title} className="mb-3">
                 <p className="px-2 py-1.5 text-[10px] font-mono text-muted-foreground uppercase tracking-wider">{group.title}</p>
                 {group.items.map((item) => (
@@ -531,7 +533,7 @@ const ChatView = () => {
             {sidebarOpen ? <ChevronLeft size={18} /> : <Menu size={18} />}
           </button>
           <span className="text-sm font-mono text-foreground">
-            {activeService ? (SIDEBAR_GROUPS.flatMap(g => g.items).find(i => i.id === activeService)?.label || 'inside-the-box') : 'inside-the-box Navigator'}
+            {activeService ? (sidebarGroups.flatMap(g => g.items).find(i => i.id === activeService)?.label || 'inside-the-box') : 'inside-the-box Navigator'}
           </span>
         </div>
 
@@ -574,7 +576,7 @@ const ChatView = () => {
                       <ul className="mt-2 space-y-1">
                         {msg.links.map((link, j) => {
                           // Convert internal links to service navigation
-                          const serviceId = SIDEBAR_GROUPS.flatMap(g => g.items).find(s => link.url.includes(s.id))?.id;
+                          const serviceId = sidebarGroups.flatMap(g => g.items).find(s => link.url.includes(s.id))?.id;
                           return (
                             <li key={j}>
                               {serviceId ? (
