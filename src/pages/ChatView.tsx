@@ -27,13 +27,18 @@ const SubTitle = ({ children, variant = 'primary' }: { children: ReactNode; vari
   <h3 className={`${variant === 'highlight' ? 'text-highlight' : 'text-primary'} font-semibold font-mono text-sm mb-1`}>{children}</h3>
 );
 
-const CardBlock = ({ icon: Icon, title, desc, variant = 'primary' }: { icon: LucideIcon; title: string; desc: string; variant?: 'primary' | 'highlight' }) => (
+const CardBlock = ({ icon: Icon, title, desc, variant = 'primary', link, linkLabel }: { icon: LucideIcon; title: string; desc: string; variant?: 'primary' | 'highlight'; link?: string; linkLabel?: string }) => (
   <div className={`rounded-xl p-4 ${variant === 'highlight' ? 'bg-highlight/5 border border-highlight/20' : 'bg-primary/5 border border-primary/20'}`}>
     <div className="flex items-start gap-3">
       <Icon size={18} className={`mt-0.5 flex-shrink-0 ${variant === 'highlight' ? 'text-highlight' : 'text-primary'}`} />
       <div>
         <SubTitle variant={variant}>{title}</SubTitle>
         <p className="text-foreground text-sm font-sans leading-relaxed tracking-wide">{desc}</p>
+        {link && linkLabel && (
+          <a href={link} target="_blank" rel="noopener noreferrer" className="inline-block mt-2 text-highlight hover:text-primary transition-electric text-sm font-sans underline">
+            → {linkLabel}
+          </a>
+        )}
       </div>
     </div>
   </div>
@@ -339,24 +344,9 @@ const useServiceContent = () => {
     publications: () => (
       <div className="space-y-3">
         <Block><SectionTitle>{t('publications.title')}</SectionTitle><p>{t('publications.intro')}</p></Block>
-        <CardBlock icon={Shield} title={t('publications.pub1Title')} desc={t('publications.pub1Desc')} />
-        <div className="pl-10">
-          <a href="https://www.heise.de/select/ix/2021/10/2019809530193925811" target="_blank" rel="noopener noreferrer" className="text-highlight hover:text-primary transition-electric text-sm font-sans underline">
-            → {t('publications.readOnHeise')}
-          </a>
-        </div>
-        <CardBlock icon={Radio} title={t('publications.pub2Title')} desc={t('publications.pub2Desc')} variant="highlight" />
-        <div className="pl-10">
-          <a href="https://www.heise.de/select/ix/archiv/2015/7/seite-78" target="_blank" rel="noopener noreferrer" className="text-highlight hover:text-primary transition-electric text-sm font-sans underline">
-            → {t('publications.readOnHeise')}
-          </a>
-        </div>
-        <CardBlock icon={Video} title={t('publications.pub3Title')} desc={t('publications.pub3Desc')} />
-        <div className="pl-10">
-          <a href="https://vimeo.com/295582173" target="_blank" rel="noopener noreferrer" className="text-highlight hover:text-primary transition-electric text-sm font-sans underline">
-            → {t('publications.watchOnVimeo')}
-          </a>
-        </div>
+        <CardBlock icon={Shield} title={t('publications.pub1Title')} desc={t('publications.pub1Desc')} link="https://www.heise.de/select/ix/2021/10/2019809530193925811" linkLabel={t('publications.readOnHeise')} />
+        <CardBlock icon={Radio} title={t('publications.pub2Title')} desc={t('publications.pub2Desc')} variant="highlight" link="https://www.heise.de/select/ix/archiv/2015/7/seite-78" linkLabel={t('publications.readOnHeise')} />
+        <CardBlock icon={Video} title={t('publications.pub3Title')} desc={t('publications.pub3Desc')} link="https://vimeo.com/295582173" linkLabel={t('publications.watchOnVimeo')} />
         <Block className="bg-secondary/30">
           <SubTitle>{t('publications.certTitle')}</SubTitle>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-2">
@@ -752,7 +742,7 @@ const ChatView = () => {
               ))}
             </div>
             <div className="border-t border-border p-3 flex items-center justify-between bg-primary/10">
-              <span className="text-sm font-rounded font-bold text-primary">inside-the-box.org</span>
+              <button onClick={() => { setActiveService(null); setMessages([]); setSidebarOpen(false); }} className="text-sm font-rounded font-bold text-primary hover:text-highlight transition-electric cursor-pointer bg-transparent border-none p-0">inside-the-box.org</button>
               <button onClick={() => setLanguage(language === 'en' ? 'de' : 'en')} className="rounded-lg border border-border px-2.5 py-1.5 text-xs font-rounded text-muted-foreground hover:bg-secondary hover:text-foreground transition-electric uppercase tracking-wider">
                 {language === 'en' ? 'DE' : 'EN'}
               </button>
@@ -793,7 +783,7 @@ const ChatView = () => {
               ))}
             </div>
             <div className="border-t border-border p-3 bg-primary/10">
-              <span className="text-sm font-rounded font-bold text-primary">inside-the-box.org</span>
+              <button onClick={() => { setActiveService(null); setMessages([]); }} className="text-sm font-rounded font-bold text-primary hover:text-highlight transition-electric cursor-pointer bg-transparent border-none p-0">inside-the-box.org</button>
             </div>
           </div>
         </div>
