@@ -2,6 +2,7 @@ import { PageLayout } from '@/components/PageLayout';
 import { ServiceCard } from '@/components/ServiceCard';
 import { SystemCheck } from '@/components/SystemCheck';
 import { PageNavButtons } from '@/components/PageNavButtons';
+import { Progress } from '@/components/ui/progress';
 import { Monitor, Network, Wifi, CheckCircle, XCircle, Loader2, HelpCircle } from 'lucide-react';
 import { useState, useCallback } from 'react';
 
@@ -12,7 +13,7 @@ interface PortResult {
 }
 
 const HOST = 'portquiz.net';
-const TIMEOUT_MS = 6000;
+const TIMEOUT_MS = 12000;
 
 const PORT_GROUPS = [
   { label: 'RDP (Training)', ports: Array.from({ length: 21 }, (_, i) => 7000 + i) },
@@ -43,7 +44,7 @@ function probePort(host: string, port: number, timeoutMs: number): Promise<PortR
       const elapsed = performance.now() - start;
       // Fast error (<3s) = connection was made (server responded, just not an image)
       // Slow error (≥3s) = likely blocked
-      settle(elapsed < 3000 ? 'reachable' : 'blocked');
+      settle(elapsed < 5000 ? 'reachable' : 'blocked');
     };
     img.src = `http://${host}:${port}/?cachebust=${Date.now()}-${port}`;
   });
@@ -63,7 +64,6 @@ const TechnicalRequirements = () => {
 
     const collected: PortResult[] = [];
 
-    // Test in batches of 5 to avoid overwhelming the browser
     for (let i = 0; i < allPorts.length; i += 5) {
       const batch = allPorts.slice(i, i + 5);
       const batchResults = await Promise.all(
@@ -71,11 +71,9 @@ const TechnicalRequirements = () => {
       );
       collected.push(...batchResults);
       setProgress({ done: collected.length, total: allPorts.length });
-      setResults([...collected]);
     }
 
-
-
+    setResults([...collected]);
     setLoading(false);
   }, []);
 
@@ -168,11 +166,18 @@ const TechnicalRequirements = () => {
                   className="flex items-center gap-2 bg-highlight text-highlight-foreground px-5 py-2 rounded font-mono text-sm hover:opacity-90 disabled:opacity-50 transition-opacity whitespace-nowrap"
                 >
                   {loading ? (
-                    <><Loader2 className="w-4 h-4 animate-spin" /> {progress.done}/{progress.total}</>
+                    <><Loader2 className="w-4 h-4 animate-spin" /> Testing…</>
                   ) : (
                     <><Wifi className="w-4 h-4" /> Run Test</>
                   )}
                 </button>
+
+                {loading && (
+                  <div className="space-y-2">
+                    <Progress value={(progress.done / progress.total) * 100} className="h-2" />
+                    <p className="text-sm font-mono text-muted-foreground">{progress.done}/{progress.total} ports checked</p>
+                  </div>
+                )}
 
                 {results && (
                   <div className="space-y-4 pt-2">
