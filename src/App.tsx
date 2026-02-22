@@ -45,33 +45,33 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <Routes>
-              <Route path="/" element={<Start />} />
-              <Route path="/design" element={<DesignHome />} />
-              <Route path="/why" element={<Index />} />
-              <Route path="/training" element={<Training />} />
-              <Route path="/by-whom" element={<ByWhom />} />
-              
-              <Route path="/contact" element={<Contact />} />
-              <Route path="/technical-requirements" element={<TechnicalRequirements />} />
-              <Route path="/consulting" element={<Consulting />} />
-              <Route path="/consulting/team" element={<ConsultingTeam />} />
-              <Route path="/imprint" element={<Imprint />} />
-              <Route path="/isms" element={<ISMS />} />
-              <Route path="/nis2-dora" element={<NIS2DORA />} />
-              <Route path="/tisax-pci-dss" element={<TISAXPCIDSS />} />
-              <Route path="/assessments-concepts" element={<AssessmentsConcepts />} />
-              <Route path="/incident-management" element={<IncidentManagement />} />
-              <Route path="/cyber-crisis-management" element={<CyberCrisisManagement />} />
-              <Route path="/arena-training" element={<ArenaTraining />} />
-              <Route path="/events-workshops" element={<EventsWorkshops />} />
-              <Route path="/publications" element={<Publications />} />
-              <Route path="/virtual-ciso" element={<VirtualCISO />} />
-              <Route path="/design-system" element={<DesignSystem />} />
-              <Route path="/components" element={<ComponentLibrary />} />
-              <Route path="/colors" element={<ColorPalette />} />
-              <Route path="/templates" element={<TemplateGallery />} />
-              <Route path="/tokens" element={<DesignTokens />} />
-              <Route path="/c" element={<ChatView />} />
+              <Route path="/" element={<ChatView />} />
+              {/* Legacy/archive routes */}
+              <Route path="/legacy" element={<Start />} />
+              <Route path="/legacy/design" element={<DesignHome />} />
+              <Route path="/legacy/why" element={<Index />} />
+              <Route path="/legacy/training" element={<Training />} />
+              <Route path="/legacy/by-whom" element={<ByWhom />} />
+              <Route path="/legacy/contact" element={<Contact />} />
+              <Route path="/legacy/technical-requirements" element={<TechnicalRequirements />} />
+              <Route path="/legacy/consulting" element={<Consulting />} />
+              <Route path="/legacy/consulting/team" element={<ConsultingTeam />} />
+              <Route path="/legacy/imprint" element={<Imprint />} />
+              <Route path="/legacy/isms" element={<ISMS />} />
+              <Route path="/legacy/nis2-dora" element={<NIS2DORA />} />
+              <Route path="/legacy/tisax-pci-dss" element={<TISAXPCIDSS />} />
+              <Route path="/legacy/assessments-concepts" element={<AssessmentsConcepts />} />
+              <Route path="/legacy/incident-management" element={<IncidentManagement />} />
+              <Route path="/legacy/cyber-crisis-management" element={<CyberCrisisManagement />} />
+              <Route path="/legacy/arena-training" element={<ArenaTraining />} />
+              <Route path="/legacy/events-workshops" element={<EventsWorkshops />} />
+              <Route path="/legacy/publications" element={<Publications />} />
+              <Route path="/legacy/virtual-ciso" element={<VirtualCISO />} />
+              <Route path="/legacy/design-system" element={<DesignSystem />} />
+              <Route path="/legacy/components" element={<ComponentLibrary />} />
+              <Route path="/legacy/colors" element={<ColorPalette />} />
+              <Route path="/legacy/templates" element={<TemplateGallery />} />
+              <Route path="/legacy/tokens" element={<DesignTokens />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
