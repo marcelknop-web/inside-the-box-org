@@ -149,7 +149,7 @@ const TechnicalRequirements = () => {
 
           {/* System & Connectivity Checks */}
           <div className="space-y-6">
-            <h2 className="text-primary text-2xl font-bold font-mono mb-6">
+            <h2 className="text-highlight text-2xl font-bold font-mono mb-6">
               System &amp; Connectivity Check
             </h2>
 
