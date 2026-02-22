@@ -21,7 +21,7 @@ const PORT_GROUPS = [
 
 
 const TechnicalRequirements = () => {
-  const [host, setHost] = useState(DEFAULT_HOST);
+  const host = DEFAULT_HOST;
   const [results, setResults] = useState<PortResult[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState({ done: 0, total: 0 });
@@ -55,7 +55,7 @@ const TechnicalRequirements = () => {
       setProgress({ done: allPorts.length, total: allPorts.length });
       setLoading(false);
     }
-  }, [host]);
+  }, []);
 
   const getGroupResults = (ports: number[]) =>
     results?.filter((r) => ports.includes(r.port)) ?? [];
@@ -133,35 +133,21 @@ const TechnicalRequirements = () => {
 
             <div className="bg-card border border-border rounded-lg p-6 space-y-4">
               <p className="text-sm text-muted-foreground font-sans">
-                Verifies TCP connectivity to <span className="font-mono">portquiz.net</span> — a public service that listens on all TCP ports.
-                If a port is reachable, your network allows outbound TCP on that port.
+                Prüft ob die benötigten TCP-Ports (RDP 7000–7020, HTTPS 443) von unserem Server aus erreichbar sind.
+                Der Test verbindet sich mit <span className="font-mono">portquiz.net</span>, einem öffentlichen Dienst der auf allen TCP-Ports antwortet.
               </p>
 
-              <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-end">
-                <div className="flex-1 w-full">
-                  <label htmlFor="host" className="block text-sm font-mono text-muted-foreground mb-1">
-                    Target Host
-                  </label>
-                  <input
-                    id="host"
-                    type="text"
-                    value={host}
-                    onChange={(e) => setHost(e.target.value)}
-                    className="w-full bg-background border border-border rounded px-3 py-2 font-mono text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-                  />
-                </div>
-                <button
-                  onClick={runCheck}
-                  disabled={loading || !host.trim()}
-                  className="flex items-center gap-2 bg-primary text-primary-foreground px-5 py-2 rounded font-mono text-sm hover:opacity-90 disabled:opacity-50 transition-opacity whitespace-nowrap"
-                >
-                  {loading ? (
-                    <><Loader2 className="w-4 h-4 animate-spin" /> {progress.done}/{progress.total}</>
-                  ) : (
-                    <><Wifi className="w-4 h-4" /> Run Test</>
-                  )}
-                </button>
-              </div>
+              <button
+                onClick={runCheck}
+                disabled={loading}
+                className="flex items-center gap-2 bg-primary text-primary-foreground px-5 py-2 rounded font-mono text-sm hover:opacity-90 disabled:opacity-50 transition-opacity whitespace-nowrap"
+              >
+                {loading ? (
+                  <><Loader2 className="w-4 h-4 animate-spin" /> Testing…</>
+                ) : (
+                  <><Wifi className="w-4 h-4" /> Run Test</>
+                )}
+              </button>
 
               {results && (
                 <div className="space-y-4 pt-2">
