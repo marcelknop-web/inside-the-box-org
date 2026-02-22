@@ -1,5 +1,5 @@
-import { useState, useRef, useEffect, ReactNode } from 'react';
-import { Send, Plus, MessageCircle, Shield, Target, BookOpen, AlertTriangle, Eye, Flame, Swords, Calendar, FileText, UserCheck, ChevronLeft, Menu, ShieldCheck, Search, Settings, Award, RotateCcw, Network, CreditCard, CheckCircle, FileCheck, Car, BarChart, RefreshCw, GraduationCap, ClipboardList, Zap, Crown, Users, Gamepad2, Monitor, Users2, Lightbulb, Flag, Crosshair, CheckSquare, Mic, Presentation, Wrench, Radio, Video, DollarSign, Phone, Mail, Server, Bug, AlertCircle, MessageSquare, Globe, Building2, Plane, Landmark, Scale, Wifi } from 'lucide-react';
+import { useState, useRef, useEffect, ReactNode, useCallback } from 'react';
+import { Send, Plus, MessageCircle, Shield, Target, BookOpen, AlertTriangle, Eye, Flame, Swords, Calendar, FileText, UserCheck, ChevronLeft, Menu, ShieldCheck, Search, Settings, Award, RotateCcw, Network, CreditCard, CheckCircle, FileCheck, Car, BarChart, RefreshCw, GraduationCap, ClipboardList, Zap, Crown, Users, Gamepad2, Monitor, Users2, Lightbulb, Flag, Crosshair, CheckSquare, Mic, Presentation, Wrench, Radio, Video, DollarSign, Phone, Mail, Server, Bug, AlertCircle, MessageSquare, Globe, Building2, Plane, Landmark, Scale, Wifi, XCircle, HelpCircle, Loader2 } from 'lucide-react';
 import { PageMeta } from '@/components/PageMeta';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { consultantProfiles } from '@/data/consultantProfiles';
@@ -54,6 +54,150 @@ const GridItem = ({ icon: Icon, title, desc, variant = 'primary' }: { icon: Luci
     </div>
   </div>
 );
+
+// ── Inline System Check (chat-style) ────────────────────────────────────────
+
+interface SysResult { label: string; status: 'pass' | 'fail' | 'unknown'; detail: string; }
+
+const InlineSystemCheck = ({ t }: { t: (k: string) => string }) => {
+  const [results, setResults] = useState<SysResult[] | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const run = useCallback(() => {
+    setLoading(true);
+    setTimeout(() => {
+      const ua = navigator.userAgent;
+      const isWin = /Windows/.test(ua); const isMac = /Macintosh|Mac OS/.test(ua);
+      const isLinux = /Linux/.test(ua) && !/Android/.test(ua);
+      const isMobile = /Android|iPhone|iPad|iPod/.test(ua);
+      const osName = isWin ? 'Windows' : isMac ? 'macOS' : isLinux ? 'Linux' : isMobile ? 'Mobile' : 'Unknown';
+      const lW = window.screen.width; const lH = window.screen.height; const minOk = lW >= 1024 && lH >= 768;
+      const isChrome = /Chrome\//.test(ua) && !/Edge/.test(ua);
+      const isFF = /Firefox\//.test(ua); const isSafari = /Safari\//.test(ua) && !/Chrome/.test(ua); const isEdge = /Edg\//.test(ua);
+      const browser = isEdge ? 'Edge' : isChrome ? 'Chrome' : isFF ? 'Firefox' : isSafari ? 'Safari' : 'Unknown';
+      setResults([
+        { label: t('techReq.sysCheckLabelOS'), status: isMobile ? 'fail' : (isWin || isMac || isLinux) ? 'pass' : 'unknown', detail: osName },
+        { label: t('techReq.sysCheckLabelScreen'), status: minOk ? 'pass' : 'fail', detail: `${lW}×${lH}` },
+        { label: t('techReq.sysCheckLabelBrowser'), status: (isChrome || isFF || isSafari || isEdge) ? 'pass' : 'unknown', detail: browser },
+      ]);
+      setLoading(false);
+    }, 600);
+  }, [t]);
+
+  const icon = (s: SysResult['status']) => s === 'pass' ? <CheckCircle className="w-3.5 h-3.5 text-green-500" /> : s === 'fail' ? <XCircle className="w-3.5 h-3.5 text-destructive" /> : <HelpCircle className="w-3.5 h-3.5 text-yellow-500" />;
+
+  return (
+    <div className="rounded-xl p-4 bg-highlight/5 border border-highlight/20">
+      <div className="flex items-center gap-2 mb-2">
+        <Monitor size={16} className="text-highlight" />
+        <SubTitle variant="highlight">{t('techReq.sysCheckCardTitle')}</SubTitle>
+      </div>
+      <p className="text-xs text-foreground/70 mb-3">{t('techReq.sysCheckCardDesc')}</p>
+      <button onClick={run} disabled={loading} className="flex items-center gap-2 bg-highlight text-highlight-foreground px-4 py-1.5 rounded font-mono text-xs hover:opacity-90 disabled:opacity-50 transition-opacity">
+        {loading ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> {t('techReq.sysCheckRunning')}</> : <><Monitor className="w-3.5 h-3.5" /> {t('techReq.sysCheckRunBtn')}</>}
+      </button>
+      {results && (
+        <div className="mt-3 space-y-1.5">
+          {results.map(r => (
+            <div key={r.label} className="flex items-center gap-2 text-xs">
+              {icon(r.status)}
+              <span className="font-mono font-semibold text-foreground">{r.label}</span>
+              <span className="text-muted-foreground">{r.detail}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ── Inline Connectivity Check (chat-style) ──────────────────────────────────
+
+const PROBE_HOST = 'portquiz.net';
+const PROBE_TIMEOUT = 12000;
+const PROBE_GROUPS = [
+  { label: 'RDP (Training)', ports: Array.from({ length: 21 }, (_, i) => 7000 + i) },
+  { label: 'HTTPS', ports: [443] },
+];
+
+function probePort(host: string, port: number, timeoutMs: number): Promise<{ port: number; status: 'reachable' | 'blocked'; latencyMs: number }> {
+  return new Promise(resolve => {
+    const start = performance.now();
+    const img = new Image();
+    let settled = false;
+    const settle = (status: 'reachable' | 'blocked') => { if (settled) return; settled = true; clearTimeout(timer); img.src = ''; resolve({ port, status, latencyMs: Math.round(performance.now() - start) }); };
+    const timer = setTimeout(() => settle('blocked'), timeoutMs);
+    img.onload = () => settle('reachable');
+    img.onerror = () => settle(performance.now() - start < 5000 ? 'reachable' : 'blocked');
+    img.src = `http://${host}:${port}/?cb=${Date.now()}-${port}`;
+  });
+}
+
+const InlineConnectivityCheck = ({ t, language }: { t: (k: string) => string; language: string }) => {
+  const [results, setResults] = useState<{ port: number; status: 'reachable' | 'blocked'; latencyMs: number }[] | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState({ done: 0, total: 0 });
+
+  const run = useCallback(async () => {
+    setLoading(true); setResults(null);
+    const allPorts = PROBE_GROUPS.flatMap(g => g.ports);
+    setProgress({ done: 0, total: allPorts.length });
+    const collected: typeof results extends infer T ? NonNullable<T> : never = [];
+    for (let i = 0; i < allPorts.length; i += 5) {
+      const batch = await Promise.all(allPorts.slice(i, i + 5).map(p => probePort(PROBE_HOST, p, PROBE_TIMEOUT)));
+      collected.push(...batch);
+      setProgress({ done: collected.length, total: allPorts.length });
+    }
+    setResults([...collected]); setLoading(false);
+  }, []);
+
+  return (
+    <div className="rounded-xl p-4 bg-highlight/5 border border-highlight/20">
+      <div className="flex items-center gap-2 mb-2">
+        <Wifi size={16} className="text-highlight" />
+        <SubTitle variant="highlight">{t('techReq.connectivityTitle')}</SubTitle>
+      </div>
+      <p className="text-xs text-foreground/70 mb-3">{t('techReq.connectivityDesc')}</p>
+      <button onClick={run} disabled={loading} className="flex items-center gap-2 bg-highlight text-highlight-foreground px-4 py-1.5 rounded font-mono text-xs hover:opacity-90 disabled:opacity-50 transition-opacity">
+        {loading ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> {t('techReq.testing')}</> : <><Wifi className="w-3.5 h-3.5" /> {t('techReq.runTest')}</>}
+      </button>
+      {loading && (
+        <div className="mt-2">
+          <div className="w-full h-1.5 rounded bg-secondary overflow-hidden">
+            <div className="h-full bg-highlight transition-all" style={{ width: `${(progress.done / progress.total) * 100}%` }} />
+          </div>
+          <p className="text-[10px] font-mono text-muted-foreground mt-1">{progress.done}/{progress.total} {t('techReq.portsChecked')}</p>
+        </div>
+      )}
+      {results && (
+        <div className="mt-3 space-y-2">
+          {PROBE_GROUPS.map(group => {
+            const gr = results.filter(r => group.ports.includes(r.port));
+            const ok = gr.filter(r => r.status === 'reachable').length;
+            return (
+              <div key={group.label}>
+                <div className="flex items-center justify-between text-xs font-mono mb-1">
+                  <span className="text-foreground font-semibold">{group.label}</span>
+                  <span className={ok === gr.length ? 'text-green-500' : ok > 0 ? 'text-yellow-500' : 'text-destructive'}>{ok}/{gr.length} {t('techReq.reachable')}</span>
+                </div>
+                <div className="flex flex-wrap gap-1">
+                  {gr.map(r => (
+                    <span key={r.port} className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-mono border ${r.status === 'reachable' ? 'border-green-500/30 bg-green-500/10 text-green-500' : 'border-destructive/30 bg-destructive/10 text-destructive'}`}>
+                      {r.status === 'reachable' ? <CheckCircle className="w-2.5 h-2.5" /> : <XCircle className="w-2.5 h-2.5" />} {r.port}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+          <div className={`flex items-start gap-2 mt-2 p-2 rounded border text-xs ${results.every(r => r.status === 'reachable') ? 'border-green-500/30 bg-green-500/10 text-green-500' : 'border-destructive/30 bg-destructive/10 text-destructive'}`}>
+            {results.every(r => r.status === 'reachable') ? <><CheckCircle className="w-4 h-4 mt-0.5 flex-shrink-0" /><p>{t('techReq.allPortsOk')}</p></> : <><XCircle className="w-4 h-4 mt-0.5 flex-shrink-0" /><p>{t('techReq.someBlocked')}</p></>}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
 
 // ── Service content renderers ───────────────────────────────────────────────
 
@@ -430,9 +574,10 @@ const useServiceContent = () => {
               </ul>
             </div>
           </div>
-          <Block className="bg-secondary/30">
-            <p className="text-xs text-foreground/60">{t('techReq.connectivityDesc')}</p>
-          </Block>
+          {/* Inline System Check */}
+          <InlineSystemCheck t={t} />
+          {/* Inline Connectivity Check */}
+          <InlineConnectivityCheck t={t} language={language} />
         </div>
       );
     },
