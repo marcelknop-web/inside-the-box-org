@@ -8,61 +8,61 @@ const Consulting = () => {
   const services = [
     {
       title: 'ISMS ISO 27001, BSI GS',
-      description: 'Information Security Management System implementation and certification according to ISO 27001 and BSI IT-Grundschutz standards.',
+      description: 'ISMS implementation and certification support.',
       href: '/isms',
       icon: ShieldCheck
     },
     {
       title: 'NIS-2, DORA, PART-IS',
-      description: 'Network and Information Security Directive, Digital Operational Resilience Act, and PART-IS compliance consulting.',
+      description: 'Regulatory compliance across three distinct frameworks.',
       href: '/nis2-dora',
       icon: Network
     },
     {
       title: 'TISAX, PCI-DSS',
-      description: 'Trusted Information Security Assessment Exchange and Payment Card Industry Data Security Standard implementation.',
+      description: 'Compliance consulting for automotive and payment environments.',
       href: '/tisax-pci-dss',
       icon: CreditCard
     },
     {
       title: 'Assessments & Concepts',
-      description: 'Comprehensive security assessments, penetration tests, and strategic cybersecurity concept development.',
+      description: 'Threat analysis, penetration testing, and security concept development.',
       href: '/assessments-concepts',
       icon: Search
     },
     {
       title: 'Incident Management',
-      description: 'Security incident response planning, implementation, and crisis management procedures.',
+      description: 'Response planning, detection, and crisis procedures.',
       href: '/incident-management',
       icon: AlertTriangle
     },
     {
       title: 'Cyber Crisis Management',
-      description: 'Crisis management strategy development and cyber crisis simulation exercises.',
+      description: 'Crisis strategy and simulation exercises.',
       href: '/cyber-crisis-management',
       icon: Radio
     },
     {
       title: 'Arena Training, TIBER Test',
-      description: 'Threat Intelligence-based Ethical Red Teaming and advanced cybersecurity training programs.',
+      description: 'Red team training and TIBER-EU/DE coordination.',
       href: '/arena-training',
       icon: Target
     },
     {
       title: 'Events & Workshops',
-      description: 'Cybersecurity awareness workshops, training events, and educational seminars.',
+      description: 'Moderation, awareness training, and technical workshops.',
       href: '/events-workshops',
       icon: Calendar
     },
     {
-      title: 'Publications, Trainings',
-      description: 'Industry publications, thought leadership content, and specialized training programs.',
+      title: 'Publications & Training',
+      description: 'Industry publications and certification programs.',
       href: '/publications',
       icon: FileText
     },
     {
       title: 'Virtual CISO',
-      description: 'Outsourced Chief Information Security Officer services for strategic cybersecurity leadership.',
+      description: 'Flexible executive security leadership.',
       href: '/virtual-ciso',
       icon: UserCheck
     }
@@ -78,7 +78,7 @@ const Consulting = () => {
         
         <div className="space-y-8 text-foreground leading-relaxed">
           <p className="text-lg font-sans mb-8">
-            On behalf of boards, internal and external audit, IT departments, and business stakeholders.
+            Practical security consulting for boards, audit functions, IT departments, and business stakeholders – across strategy, compliance, and operational response.
           </p>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
