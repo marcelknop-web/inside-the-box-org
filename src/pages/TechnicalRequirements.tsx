@@ -3,7 +3,6 @@ import { ServiceCard } from '@/components/ServiceCard';
 import { PageNavButtons } from '@/components/PageNavButtons';
 import { Monitor, Network, Wifi, CheckCircle, XCircle, Loader2, HelpCircle } from 'lucide-react';
 import { useState, useCallback } from 'react';
-import { toast } from '@/hooks/use-toast';
 
 interface PortResult {
   port: number;
@@ -74,13 +73,7 @@ const TechnicalRequirements = () => {
       setResults([...collected]);
     }
 
-    const allReachable = collected.every((r) => r.status === 'reachable');
-    if (allReachable) {
-      toast({
-        title: '✅ All ports reachable',
-        description: 'Your network is ready for the training. No firewall issues detected.',
-      });
-    }
+
 
     setLoading(false);
   }, []);
@@ -208,10 +201,21 @@ const TechnicalRequirements = () => {
                       );
                     })}
 
-                    <p className="text-base text-foreground mt-2">
-                      <HelpCircle className="w-4 h-4 inline mr-1" />
-                      If a port shows as blocked, your network may be filtering outbound traffic on that port.
-                    </p>
+                    {results.every((r) => r.status === 'reachable') ? (
+                      <div className="flex items-start gap-2 mt-3 p-3 rounded border border-green-500/30 bg-green-500/10 text-green-500">
+                        <CheckCircle className="w-5 h-5 mt-0.5 flex-shrink-0" />
+                        <p className="text-base font-sans">
+                          All ports reachable — your network is ready for the training. No firewall issues detected.
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="flex items-start gap-2 mt-3 p-3 rounded border border-destructive/30 bg-destructive/10 text-destructive">
+                        <XCircle className="w-5 h-5 mt-0.5 flex-shrink-0" />
+                        <p className="text-base font-sans">
+                          Some ports are blocked. Your network may be filtering outbound traffic. Please contact your IT department.
+                        </p>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
