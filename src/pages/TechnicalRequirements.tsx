@@ -3,6 +3,7 @@ import { ServiceCard } from '@/components/ServiceCard';
 import { PageNavButtons } from '@/components/PageNavButtons';
 import { Monitor, Network, Wifi, CheckCircle, XCircle, Loader2, HelpCircle } from 'lucide-react';
 import { useState, useCallback } from 'react';
+import { toast } from '@/hooks/use-toast';
 
 interface PortResult {
   port: number;
@@ -71,6 +72,14 @@ const TechnicalRequirements = () => {
       collected.push(...batchResults);
       setProgress({ done: collected.length, total: allPorts.length });
       setResults([...collected]);
+    }
+
+    const allReachable = collected.every((r) => r.status === 'reachable');
+    if (allReachable) {
+      toast({
+        title: '✅ All ports reachable',
+        description: 'Your network configuration is ready for the training environment.',
+      });
     }
 
     setLoading(false);
