@@ -2,12 +2,14 @@ import { PageLayout } from '@/components/PageLayout';
 import { ServiceCard } from '@/components/ServiceCard';
 import { InfoCard } from '@/components/InfoCard';
 import { PageNavButtons } from '@/components/PageNavButtons';
+import { PageMeta } from '@/components/PageMeta';
 import { Target, Flag, Gamepad2, Users, Crosshair, CheckSquare } from 'lucide-react';
 
 const ArenaTraining = () => {
   return (
     <PageLayout>
       <div className="space-y-8">
+        <PageMeta title="Arena Training, TIBER Test" description="Advanced red team training and TIBER-EU/TIBER-DE coordination for financial sector and critical infrastructure." />
         <h1 className="text-primary text-2xl sm:text-3xl lg:text-5xl font-bold font-mono mb-12">
           Arena Training, TIBER Test
         </h1>

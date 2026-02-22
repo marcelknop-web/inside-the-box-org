@@ -1,12 +1,14 @@
 import { PageLayout } from '@/components/PageLayout';
 import { ServiceCard } from '@/components/ServiceCard';
 import { PageNavButtons } from '@/components/PageNavButtons';
+import { PageMeta } from '@/components/PageMeta';
 import { FileText, Eye, Shield, RefreshCw, GraduationCap } from 'lucide-react';
 
 const IncidentManagement = () => {
   return (
     <PageLayout>
       <div className="space-y-8">
+        <PageMeta title="Incident Management" description="Incident response framework development. Response planning, detection, containment, recovery, and team training." />
         <h1 className="text-primary text-2xl sm:text-3xl lg:text-5xl font-bold font-mono mb-12">
           Incident Management
         </h1>

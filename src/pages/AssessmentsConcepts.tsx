@@ -1,12 +1,14 @@
 import { PageLayout } from '@/components/PageLayout';
 import { ServiceCard } from '@/components/ServiceCard';
 import { PageNavButtons } from '@/components/PageNavButtons';
+import { PageMeta } from '@/components/PageMeta';
 import { Search, Shield, Users, Calendar, BarChart } from 'lucide-react';
 
 const AssessmentsConcepts = () => {
   return (
     <PageLayout>
       <div className="space-y-8">
+        <PageMeta title="Assessments & Concepts" description="Structured security assessments and actionable concepts. Threat analysis, controls design, and implementation roadmaps." />
         <h1 className="text-primary text-2xl sm:text-3xl lg:text-5xl font-bold font-mono mb-12">
           Assessments & Concepts
         </h1>

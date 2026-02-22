@@ -2,12 +2,14 @@ import { PageLayout } from '@/components/PageLayout';
 import { ServiceCard } from '@/components/ServiceCard';
 import { InfoCard } from '@/components/InfoCard';
 import { PageNavButtons } from '@/components/PageNavButtons';
-import { ClipboardList, Zap, Target, Crown, MessageSquare, Users, Gamepad2, MonitorSpeaker, Monitor, ShieldCheck, CheckCircle, Users2, Lightbulb } from 'lucide-react';
+import { PageMeta } from '@/components/PageMeta';
+import { ClipboardList, Zap, Target, Crown, MessageSquare, Users, Gamepad2, Monitor, ShieldCheck, Users2, Lightbulb } from 'lucide-react';
 
 const CyberCrisisManagement = () => {
   return (
     <PageLayout>
       <div className="space-y-8">
+        <PageMeta title="Cyber Crisis Management" description="Crisis management capability through planning and simulation. Scenario development, leadership training, and cyber range exercises." />
         <h1 className="text-primary text-2xl sm:text-3xl lg:text-5xl font-bold font-mono mb-12">
           Cyber Crisis Management
         </h1>

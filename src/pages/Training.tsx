@@ -2,6 +2,7 @@ import { TrainingCard } from '@/components/TrainingCard';
 import { MethodIcon } from '@/components/MethodIcon';
 import { PageLayout } from '@/components/PageLayout';
 import { PageNavButtons } from '@/components/PageNavButtons';
+import { PageMeta } from '@/components/PageMeta';
 import { Server, AlertTriangle, Bug, Shield, AlertCircle, MessageSquare } from 'lucide-react';
 
 const Training = () => {
@@ -41,6 +42,7 @@ const Training = () => {
   return (
     <PageLayout>
       <div className="space-y-8">
+        <PageMeta title="Training Topics" description="Cybersecurity training from command line to boardroom. Host forensics, malware analysis, SIEM, incident management, and crisis communication." />
         <h1 className="text-primary text-2xl sm:text-3xl lg:text-5xl font-bold font-mono mb-6">
           Training Topics
         </h1>

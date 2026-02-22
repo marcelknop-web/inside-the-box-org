@@ -2,12 +2,14 @@ import { PageLayout } from '@/components/PageLayout';
 import { ServiceCard } from '@/components/ServiceCard';
 import { InfoCard } from '@/components/InfoCard';
 import { PageNavButtons } from '@/components/PageNavButtons';
+import { PageMeta } from '@/components/PageMeta';
 import { Mic, Users, Award, Presentation, Wrench, GraduationCap } from 'lucide-react';
 
 const EventsWorkshops = () => {
   return (
     <PageLayout>
       <div className="space-y-8">
+        <PageMeta title="Events & Workshops" description="Expert moderation and training delivery for cybersecurity conferences, workshops, and seminars." />
         <h1 className="text-primary text-2xl sm:text-3xl lg:text-5xl font-bold font-mono mb-12">
           Events & Workshops
         </h1>
