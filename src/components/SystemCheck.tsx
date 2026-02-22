@@ -80,13 +80,14 @@ export const SystemCheck = () => {
     <ServiceCard
       icon={Monitor}
       title="System Check"
+      variant="highlight"
       description="Checks your device against the basic requirements for RDP access: operating system, screen resolution, and browser compatibility."
     >
       <div className="mt-4 space-y-4">
         <button
           onClick={handleRun}
           disabled={loading}
-          className="flex items-center gap-2 bg-primary text-primary-foreground px-5 py-2 rounded font-mono text-sm hover:opacity-90 disabled:opacity-50 transition-opacity whitespace-nowrap"
+          className="flex items-center gap-2 bg-highlight text-highlight-foreground px-5 py-2 rounded font-mono text-sm hover:opacity-90 disabled:opacity-50 transition-opacity whitespace-nowrap"
         >
           {loading ? (
             <><Loader2 className="w-4 h-4 animate-spin" /> Checking…</>

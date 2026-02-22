@@ -158,13 +158,14 @@ const TechnicalRequirements = () => {
             <ServiceCard
               icon={Wifi}
               title="Connectivity Test"
+              variant="highlight"
               description="Tests whether your device can reach the required TCP ports (RDP 7000–7020, HTTPS 443) through your local network and firewall. The test connects from your browser to portquiz.net, a public service that listens on all TCP ports."
             >
               <div className="mt-4 space-y-4">
                 <button
                   onClick={runCheck}
                   disabled={loading}
-                  className="flex items-center gap-2 bg-primary text-primary-foreground px-5 py-2 rounded font-mono text-sm hover:opacity-90 disabled:opacity-50 transition-opacity whitespace-nowrap"
+                  className="flex items-center gap-2 bg-highlight text-highlight-foreground px-5 py-2 rounded font-mono text-sm hover:opacity-90 disabled:opacity-50 transition-opacity whitespace-nowrap"
                 >
                   {loading ? (
                     <><Loader2 className="w-4 h-4 animate-spin" /> {progress.done}/{progress.total}</>
