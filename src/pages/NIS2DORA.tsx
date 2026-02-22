@@ -25,7 +25,7 @@ const NIS2DORA = () => {
               </p>
             </InfoCard>
             
-            <InfoCard icon={TrendingUp} variant="highlight">
+            <InfoCard icon={TrendingUp} variant="primary">
               <h2 className="text-primary text-xl sm:text-2xl lg:text-3xl font-bold font-mono mb-4">GAP Analysis</h2>
               <p className="text-base text-foreground/80">
                 Current state against regulatory requirements – prioritized by risk, not alphabetical order. Output: a realistic implementation roadmap, not a checklist.
