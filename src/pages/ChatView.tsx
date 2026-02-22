@@ -819,7 +819,7 @@ const ChatView = () => {
               </div>
               <h1 className="text-xl md:text-2xl font-mono text-foreground mb-2 text-center">Willkommen bei inside-the-box</h1>
               <p className="text-sm text-foreground font-mono text-center max-w-md px-2">
-                Wir beraten und trainieren rund um Cybersecurity, Informationssicherheit und Krisenmanagement. Entdecken Sie unsere Leistungen in der Seitenleiste – oder stellen Sie uns direkt eine Frage.
+                Marcel Knop und Andreas Funder – zwei Freiberufler mit über 35 Jahren Erfahrung in Cybersecurity, Informationssicherheit und Krisenmanagement. Entdecken Sie unsere Leistungen in der Seitenleiste – oder stellen Sie uns direkt eine Frage.
               </p>
             </div>
           ) : (
