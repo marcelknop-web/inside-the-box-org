@@ -10,28 +10,27 @@ interface PortResult {
   latencyMs: number;
 }
 
-const DEFAULT_HOST = 'cyberrange.inside-the-box.org';
+const DEFAULT_HOST = 'portquiz.net';
 
 const PORT_GROUPS = [
   { label: 'RDP (Training)', ports: Array.from({ length: 21 }, (_, i) => 7000 + i) },
   { label: 'HTTPS', ports: [443] },
 ];
 
-// Heuristic: attempt fetch to the port. 
-// - If connection is refused quickly (<1s) → likely blocked by firewall
-// - If it times out or takes longer → port is probably reachable (RDP won't respond to HTTP but the TCP handshake starts)
-// - This is a heuristic, not 100% reliable
-async function probePort(host: string, port: number, timeoutMs = 5000): Promise<PortResult> {
+// portquiz.net listens on ALL TCP ports and responds with HTTP.
+// If the client's firewall blocks a port, the connection will fail fast.
+// If the port is open, portquiz will respond (even on non-standard ports).
+async function probePort(host: string, port: number, timeoutMs = 6000): Promise<PortResult> {
   const start = performance.now();
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
-    await fetch(`https://${host}:${port}`, {
+    // portquiz.net responds on HTTP, use no-cors to avoid CORS issues
+    await fetch(`http://${host}:${port}`, {
       mode: 'no-cors',
       signal: controller.signal,
     });
-    // If we get here, something responded (unlikely for RDP, but possible for 443)
     const latency = Math.round(performance.now() - start);
     return { port, status: 'reachable', latencyMs: latency };
   } catch (e: unknown) {
@@ -39,29 +38,33 @@ async function probePort(host: string, port: number, timeoutMs = 5000): Promise<
     clearTimeout(timer);
 
     if (e instanceof DOMException && e.name === 'AbortError') {
-      // Timed out → TCP connection likely in progress → port probably reachable
-      return { port, status: 'reachable', latencyMs: latency };
-    }
-
-    // Fast failure (<800ms) typically means connection refused / blocked
-    // Slower failure means the connection attempt reached the host
-    if (latency < 800) {
+      // Timed out → likely blocked by firewall (portquiz normally responds fast)
       return { port, status: 'blocked', latencyMs: latency };
     }
+
+    // portquiz responds quickly when reachable; slow failure or specific errors indicate blocking
+    if (latency > 3000) {
+      return { port, status: 'blocked', latencyMs: latency };
+    }
+    // Fast network error could mean mixed-content block or actual connectivity
+    return { port, status: 'uncertain', latencyMs: latency };
     return { port, status: 'uncertain', latencyMs: latency };
   } finally {
     clearTimeout(timer);
   }
 }
 
-const POWERSHELL_SCRIPT = `# Port Connectivity Test - inside-the-box.org
+const POWERSHELL_SCRIPT = `# Outbound Port Connectivity Test
+# Tests whether your firewall allows outbound TCP on training ports.
+# Uses portquiz.net (responds on all TCP ports).
 # Run in PowerShell: .\\test-ports.ps1
 
-$host_target = "cyberrange.inside-the-box.org"
+$host_target = "portquiz.net"
 $ports = @(443) + (7000..7020)
 $timeout = 3000
 
-Write-Host "Testing connectivity to $host_target..." -ForegroundColor Cyan
+Write-Host "Testing outbound port connectivity via portquiz.net..." -ForegroundColor Cyan
+Write-Host "If a port is reachable, your firewall allows outbound TCP on that port." -ForegroundColor DarkGray
 Write-Host ""
 
 foreach ($port in $ports) {
@@ -70,40 +73,43 @@ foreach ($port in $ports) {
         $result = $tcp.BeginConnect($host_target, $port, $null, $null)
         $success = $result.AsyncWaitHandle.WaitOne($timeout)
         if ($success -and $tcp.Connected) {
-            Write-Host "  Port $port : REACHABLE" -ForegroundColor Green
+            Write-Host "  Port $port : OPEN (outbound allowed)" -ForegroundColor Green
         } else {
-            Write-Host "  Port $port : BLOCKED/TIMEOUT" -ForegroundColor Red
+            Write-Host "  Port $port : BLOCKED by firewall" -ForegroundColor Red
         }
     } catch {
-        Write-Host "  Port $port : BLOCKED" -ForegroundColor Red
+        Write-Host "  Port $port : BLOCKED by firewall" -ForegroundColor Red
     } finally {
         $tcp.Close()
     }
 }
 Write-Host ""
-Write-Host "Done." -ForegroundColor Cyan
+Write-Host "Done. If all ports show OPEN, your network is ready for training." -ForegroundColor Cyan
 `;
 
 const BASH_SCRIPT = `#!/bin/bash
-# Port Connectivity Test - inside-the-box.org
+# Outbound Port Connectivity Test
+# Tests whether your firewall allows outbound TCP on training ports.
+# Uses portquiz.net (responds on all TCP ports).
 # Run: chmod +x test-ports.sh && ./test-ports.sh
 
-HOST="cyberrange.inside-the-box.org"
+HOST="portquiz.net"
 TIMEOUT=3
 
-echo "Testing connectivity to $HOST..."
+echo "Testing outbound port connectivity via portquiz.net..."
+echo "If a port is reachable, your firewall allows outbound TCP on that port."
 echo ""
 
 for PORT in 443 $(seq 7000 7020); do
     if timeout $TIMEOUT bash -c "echo >/dev/tcp/$HOST/$PORT" 2>/dev/null; then
-        echo -e "  Port $PORT : \\033[32mREACHABLE\\033[0m"
+        echo -e "  Port $PORT : \\033[32mOPEN (outbound allowed)\\033[0m"
     else
-        echo -e "  Port $PORT : \\033[31mBLOCKED/TIMEOUT\\033[0m"
+        echo -e "  Port $PORT : \\033[31mBLOCKED by firewall\\033[0m"
     fi
 done
 
 echo ""
-echo "Done."
+echo "Done. If all ports show OPEN, your network is ready for training."
 `;
 
 function downloadScript(content: string, filename: string) {
@@ -221,8 +227,9 @@ const TechnicalRequirements = () => {
 
             <div className="bg-card border border-border rounded-lg p-6 space-y-4">
               <p className="text-sm text-muted-foreground font-sans">
-                This test checks whether <strong>your browser</strong> can reach the required ports. 
-                Results are heuristic — for a reliable test, use the download scripts below.
+                Tests whether your firewall allows <strong>outbound TCP connections</strong> on the required ports.
+                Uses <span className="font-mono">portquiz.net</span> — a public service that listens on all TCP ports.
+                For a definitive result, use the download scripts below.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-end">
