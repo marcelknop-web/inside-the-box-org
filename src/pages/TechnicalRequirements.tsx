@@ -3,6 +3,7 @@ import { ServiceCard } from '@/components/ServiceCard';
 import { SystemCheck } from '@/components/SystemCheck';
 import { PageNavButtons } from '@/components/PageNavButtons';
 import { Progress } from '@/components/ui/progress';
+import { useLanguage } from '@/i18n/LanguageContext';
 import { Monitor, Network, Wifi, CheckCircle, XCircle, Loader2, HelpCircle } from 'lucide-react';
 import { useState, useCallback } from 'react';
 
@@ -25,7 +26,6 @@ function probePort(host: string, port: number, timeoutMs: number): Promise<PortR
     const start = performance.now();
     const img = new Image();
     let settled = false;
-
     const settle = (status: PortResult['status']) => {
       if (settled) return;
       settled = true;
@@ -33,17 +33,10 @@ function probePort(host: string, port: number, timeoutMs: number): Promise<PortR
       img.src = '';
       resolve({ port, status, latencyMs: Math.round(performance.now() - start) });
     };
-
     const timer = setTimeout(() => settle('blocked'), timeoutMs);
-
-    // portquiz.net responds with HTTP on every port.
-    // On success or error the image load fires quickly → port is reachable.
-    // On timeout → port is blocked by firewall.
     img.onload = () => settle('reachable');
     img.onerror = () => {
       const elapsed = performance.now() - start;
-      // Fast error (<3s) = connection was made (server responded, just not an image)
-      // Slow error (≥3s) = likely blocked
       settle(elapsed < 5000 ? 'reachable' : 'blocked');
     };
     img.src = `http://${host}:${port}/?cachebust=${Date.now()}-${port}`;
@@ -51,34 +44,36 @@ function probePort(host: string, port: number, timeoutMs: number): Promise<PortR
 }
 
 const TechnicalRequirements = () => {
+  const { t, language } = useLanguage();
   const [results, setResults] = useState<PortResult[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState({ done: 0, total: 0 });
 
+  const systemItems = language === 'de'
+    ? ['Moderner Computer (Windows/Mac/Linux)', 'Mindestens 8GB RAM', 'Stabile Internetverbindung (10+ Mbps)', 'Mindestauflösung 1024x768', 'RDP-Client installiert']
+    : ['Modern computer (Windows/Mac/Linux)', '8GB RAM minimum', 'Stable internet (10+ Mbps)', '1024x768 resolution minimum', 'RDP client installed'];
+
+  const networkItems = language === 'de'
+    ? ['RDP: 7000-7020/TCP ausgehend', 'HTTPS: 443/TCP ausgehend', 'Keine eingehenden Internetverbindungen erforderlich', 'Konnektivität vorab testen', 'Backup-Kommunikation bereithalten']
+    : ['RDP: 7000-7020/TCP outbound', 'HTTPS: 443/TCP outbound', 'No inbound internet connections required', 'Test connectivity beforehand', 'Backup communication ready'];
+
   const runCheck = useCallback(async () => {
     setLoading(true);
     setResults(null);
-
     const allPorts = PORT_GROUPS.flatMap((g) => g.ports);
     setProgress({ done: 0, total: allPorts.length });
-
     const collected: PortResult[] = [];
-
     for (let i = 0; i < allPorts.length; i += 5) {
       const batch = allPorts.slice(i, i + 5);
-      const batchResults = await Promise.all(
-        batch.map((p) => probePort(HOST, p, TIMEOUT_MS))
-      );
+      const batchResults = await Promise.all(batch.map((p) => probePort(HOST, p, TIMEOUT_MS)));
       collected.push(...batchResults);
       setProgress({ done: collected.length, total: allPorts.length });
     }
-
     setResults([...collected]);
     setLoading(false);
   }, []);
 
-  const getGroupResults = (ports: number[]) =>
-    results?.filter((r) => ports.includes(r.port)) ?? [];
+  const getGroupResults = (ports: number[]) => results?.filter((r) => ports.includes(r.port)) ?? [];
 
   const statusIcon = (status: PortResult['status']) => {
     switch (status) {
@@ -100,82 +95,47 @@ const TechnicalRequirements = () => {
     <PageLayout>
       <div className="space-y-8">
         <h1 className="text-primary text-2xl sm:text-3xl lg:text-5xl font-bold font-mono mb-12">
-          Technical Requirements
+          {t('techReq.title')}
         </h1>
         
         <div className="space-y-8 text-foreground leading-relaxed">
-          <p className="text-lg font-sans mb-8">
-            Training takes place in a virtual environment. 
-            Participants connect via RDP from their own devices.
-          </p>
+          <p className="text-lg font-sans mb-8">{t('techReq.intro')}</p>
           
           <div className="space-y-6">
-            <h2 className="text-primary text-2xl font-bold font-mono mb-6">
-              Requirements
-            </h2>
+            <h2 className="text-primary text-2xl font-bold font-mono mb-6">{t('techReq.requirements')}</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <ServiceCard
-                icon={Monitor}
-                title="System"
-                description="Hardware and software requirements for training participation."
-              >
+              <ServiceCard icon={Monitor} title={t('techReq.systemTitle')} description={t('techReq.systemDesc')}>
                 <ul className="text-base text-foreground space-y-2 mt-4">
-                  <li className="pl-4 -indent-4">• Modern computer (Windows/Mac/Linux)</li>
-                  <li className="pl-4 -indent-4">• 8GB RAM minimum</li>
-                  <li className="pl-4 -indent-4">• Stable internet (10+ Mbps)</li>
-                  <li className="pl-4 -indent-4">• 1024x768 resolution minimum</li>
-                  <li className="pl-4 -indent-4">• RDP client installed</li>
+                  {systemItems.map((item, i) => (
+                    <li key={i} className="pl-4 -indent-4">• {item}</li>
+                  ))}
                 </ul>
               </ServiceCard>
               
-              <ServiceCard
-                icon={Network}
-                title="Network"
-                description="Network connectivity and port requirements for training access."
-              >
+              <ServiceCard icon={Network} title={t('techReq.networkTitle')} description={t('techReq.networkDesc')}>
                 <ul className="text-base text-foreground space-y-2 mt-4">
-                  <li className="pl-4 -indent-4">• <span className="font-mono">RDP: 7000-7020/TCP outbound</span></li>
-                  <li className="pl-4 -indent-4">• <span className="font-mono">HTTPS: 443/TCP outbound</span></li>
-                  <li className="pl-4 -indent-4">• No inbound internet connections required</li>
-                  <li className="pl-4 -indent-4">• Test connectivity beforehand</li>
-                  <li className="pl-4 -indent-4">• Backup communication ready</li>
+                  {networkItems.map((item, i) => (
+                    <li key={i} className="pl-4 -indent-4">• <span className="font-mono">{item}</span></li>
+                  ))}
                 </ul>
               </ServiceCard>
             </div>
           </div>
 
-          {/* System & Connectivity Checks */}
           <div className="space-y-6">
-            <h2 className="text-highlight text-2xl font-bold font-mono mb-6">
-              System &amp; Connectivity Check
-            </h2>
-
+            <h2 className="text-highlight text-2xl font-bold font-mono mb-6">{t('techReq.systemCheckTitle')}</h2>
             <SystemCheck />
-
-            <ServiceCard
-              icon={Wifi}
-              title="Connectivity Test"
-              variant="highlight"
-              description="Tests whether your device can reach the required TCP ports (RDP 7000–7020, HTTPS 443) through your local network and firewall. The test connects from your browser to portquiz.net, a public service that listens on all TCP ports."
-            >
+            <ServiceCard icon={Wifi} title={t('techReq.connectivityTitle')} variant="highlight" description={t('techReq.connectivityDesc')}>
               <div className="mt-4 space-y-4">
-                <button
-                  onClick={runCheck}
-                  disabled={loading}
-                  className="flex items-center gap-2 bg-highlight text-highlight-foreground px-5 py-2 rounded font-mono text-sm hover:opacity-90 disabled:opacity-50 transition-opacity whitespace-nowrap"
-                >
-                  {loading ? (
-                    <><Loader2 className="w-4 h-4 animate-spin" /> Testing…</>
-                  ) : (
-                    <><Wifi className="w-4 h-4" /> Run Test</>
-                  )}
+                <button onClick={runCheck} disabled={loading} className="flex items-center gap-2 bg-highlight text-highlight-foreground px-5 py-2 rounded font-mono text-sm hover:opacity-90 disabled:opacity-50 transition-opacity whitespace-nowrap">
+                  {loading ? (<><Loader2 className="w-4 h-4 animate-spin" /> {t('techReq.testing')}</>) : (<><Wifi className="w-4 h-4" /> {t('techReq.runTest')}</>)}
                 </button>
 
                 {loading && (
                   <div className="space-y-2">
                     <Progress value={(progress.done / progress.total) * 100} className="h-2" />
-                    <p className="text-sm font-mono text-muted-foreground">{progress.done}/{progress.total} ports checked</p>
+                    <p className="text-sm font-mono text-muted-foreground">{progress.done}/{progress.total} {t('techReq.portsChecked')}</p>
                   </div>
                 )}
 
@@ -185,24 +145,18 @@ const TechnicalRequirements = () => {
                       const groupResults = getGroupResults(group.ports);
                       const reachable = groupResults.filter((r) => r.status === 'reachable').length;
                       const total = groupResults.length;
-
                       return (
                         <div key={group.label} className="space-y-2">
                           <div className="flex items-center justify-between">
                             <span className="font-mono text-base text-foreground font-semibold">{group.label}</span>
                             <span className={`font-mono text-base ${reachable === total ? 'text-green-500' : reachable > 0 ? 'text-yellow-500' : 'text-destructive'}`}>
-                              {reachable}/{total} reachable
+                              {reachable}/{total} {t('techReq.reachable')}
                             </span>
                           </div>
                           <div className="flex flex-wrap gap-1.5">
                             {groupResults.map((r) => (
-                              <span
-                                key={r.port}
-                                title={`${r.latencyMs}ms – ${r.status}`}
-                                className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-mono border ${statusClass(r.status)}`}
-                              >
-                                {statusIcon(r.status)}
-                                {r.port}
+                              <span key={r.port} title={`${r.latencyMs}ms – ${r.status}`} className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-mono border ${statusClass(r.status)}`}>
+                                {statusIcon(r.status)} {r.port}
                               </span>
                             ))}
                           </div>
@@ -213,16 +167,12 @@ const TechnicalRequirements = () => {
                     {results.every((r) => r.status === 'reachable') ? (
                       <div className="flex items-start gap-2 mt-3 p-3 rounded border border-green-500/30 bg-green-500/10 text-green-500">
                         <CheckCircle className="w-5 h-5 mt-0.5 flex-shrink-0" />
-                        <p className="text-base font-sans">
-                          All ports reachable — your network is ready for the training. No firewall issues detected.
-                        </p>
+                        <p className="text-base font-sans">{t('techReq.allPortsOk')}</p>
                       </div>
                     ) : (
                       <div className="flex items-start gap-2 mt-3 p-3 rounded border border-destructive/30 bg-destructive/10 text-destructive">
                         <XCircle className="w-5 h-5 mt-0.5 flex-shrink-0" />
-                        <p className="text-base font-sans">
-                          Some ports are blocked. Your network may be filtering outbound traffic. Please contact your IT department.
-                        </p>
+                        <p className="text-base font-sans">{t('techReq.someBlocked')}</p>
                       </div>
                     )}
                   </div>
@@ -232,8 +182,8 @@ const TechnicalRequirements = () => {
           </div>
           
           <PageNavButtons buttons={[
-            { href: '/training', label: 'Back to Training' },
-            { href: '/contact', label: 'Contact', variant: 'highlight' },
+            { href: '/training', label: t('techReq.backToTraining') },
+            { href: '/contact', label: t('nav.contact'), variant: 'highlight' },
           ]} />
         </div>
       </div>

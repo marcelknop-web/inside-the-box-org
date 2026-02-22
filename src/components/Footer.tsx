@@ -1,7 +1,9 @@
 import { useLocation } from 'react-router-dom';
+import { useLanguage } from '@/i18n/LanguageContext';
 
 export const Footer = () => {
   const location = useLocation();
+  const { t } = useLanguage();
   const isImprintPage = location.pathname === '/imprint';
   
   return (
@@ -13,12 +15,12 @@ export const Footer = () => {
               href="/imprint" 
               className="bg-highlight/10 border-2 border-highlight/30 rounded-lg text-highlight font-mono text-sm hover:text-primary hover:bg-highlight/20 hover:border-highlight/50 transition-electric px-16 py-2"
             >
-              Imprint
+              {t('footer.imprint')}
             </a>
           )}
           {isImprintPage && (
             <p className="text-foreground text-sm font-mono">
-              Last updated: 4th September, 2025
+              {t('imprint.lastUpdated')}
             </p>
           )}
         </div>

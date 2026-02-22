@@ -2,60 +2,33 @@ import { PageLayout } from '@/components/PageLayout';
 import { ServiceCard } from '@/components/ServiceCard';
 import { PageNavButtons } from '@/components/PageNavButtons';
 import { PageMeta } from '@/components/PageMeta';
+import { useLanguage } from '@/i18n/LanguageContext';
 import { Search, Shield, Users, Calendar, BarChart } from 'lucide-react';
 
 const AssessmentsConcepts = () => {
+  const { t } = useLanguage();
+
   return (
     <PageLayout>
       <div className="space-y-8">
-        <PageMeta title="Assessments & Concepts" description="Structured security assessments and actionable concepts. Threat analysis, controls design, and implementation roadmaps." />
-        <h1 className="text-primary text-2xl sm:text-3xl lg:text-5xl font-bold font-mono mb-12">
-          Assessments & Concepts
-        </h1>
+        <PageMeta title={t('assessments.title')} description={t('assessments.metaDesc')} />
+        <h1 className="text-primary text-2xl sm:text-3xl lg:text-5xl font-bold font-mono mb-12">{t('assessments.title')}</h1>
         
         <div className="space-y-8 text-foreground leading-relaxed">
-          <p className="text-lg font-sans mb-8">
-            Structured security assessments and actionable concepts – from threat analysis to implementation roadmap.
-          </p>
+          <p className="text-lg font-sans mb-8">{t('assessments.intro')}</p>
           
           <div className="space-y-6">
-            <ServiceCard
-              icon={Search}
-              title="Threat & Risk Assessment"
-              description="Threat landscape analysis, attack vector mapping, and vulnerability identification – combined with risk quantification tied to actual business impact, not theoretical severity scores."
-            />
-            
-            <ServiceCard
-              icon={Shield}
-              title="Security Controls Design"
-              description="Control frameworks mapped to identified risks and compliance requirements. We specify what is needed, why, and at what cost – so decisions can be made on facts, not vendor recommendations."
-              variant="highlight"
-            />
-            
-            <ServiceCard
-              icon={Users}
-              title="Roles & Responsibilities"
-              description="Clear governance structures: who owns security decisions, who escalates, and who acts. Defined on paper and verified against operational reality."
-            />
-            
-            <ServiceCard
-              icon={Calendar}
-              title="Implementation Planning"
-              description="Phased roadmap with realistic milestones, resource requirements, and budget allocation. Includes change management where organizational resistance is a known risk factor."
-              variant="highlight"
-            />
-            
-            <ServiceCard
-              icon={BarChart}
-              title="Measurement & Monitoring"
-              description="KPI definition, reporting structures, and monitoring mechanisms that reflect actual security posture – not compliance theater. Built to survive the first management review."
-            />
+            <ServiceCard icon={Search} title={t('assessments.threatTitle')} description={t('assessments.threatDesc')} />
+            <ServiceCard icon={Shield} title={t('assessments.controlsTitle')} description={t('assessments.controlsDesc')} variant="highlight" />
+            <ServiceCard icon={Users} title={t('assessments.rolesTitle')} description={t('assessments.rolesDesc')} />
+            <ServiceCard icon={Calendar} title={t('assessments.planningTitle')} description={t('assessments.planningDesc')} variant="highlight" />
+            <ServiceCard icon={BarChart} title={t('assessments.measureTitle')} description={t('assessments.measureDesc')} />
           </div>
           
           <PageNavButtons buttons={[
-            { href: '/consulting', label: 'All Consulting Services' },
-            { href: '/consulting/team', label: 'By Whom' },
-            { href: '/contact', label: 'Contact', variant: 'highlight' },
+            { href: '/consulting', label: t('common.allConsulting') },
+            { href: '/consulting/team', label: t('nav.byWhom') },
+            { href: '/contact', label: t('nav.contact'), variant: 'highlight' },
           ]} />
         </div>
       </div>
