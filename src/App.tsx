@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { LanguageProvider } from "./i18n/LanguageContext";
 import Start from "./pages/Start";
+import ChatView from "./pages/ChatView";
 import Index from "./pages/Index";
 import Training from "./pages/Training";
 import ByWhom from "./pages/ByWhom";
@@ -70,6 +71,7 @@ const App = () => (
               <Route path="/colors" element={<ColorPalette />} />
               <Route path="/templates" element={<TemplateGallery />} />
               <Route path="/tokens" element={<DesignTokens />} />
+              <Route path="/c" element={<ChatView />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
