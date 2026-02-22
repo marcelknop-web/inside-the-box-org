@@ -22,28 +22,28 @@ const NIS2DORA = () => {
           <div className="space-y-6">
             <InfoCard icon={Search} variant="primary">
               <h2 className="text-primary text-xl sm:text-2xl lg:text-3xl font-bold font-mono mb-4">Impact Analysis</h2>
-              <p className="text-base text-foreground/80">
+              <p className="text-base text-foreground font-sans">
                 Determine whether and how regulations apply to your organization – including entity classification, critical function mapping, and cross-divisional obligations.
               </p>
             </InfoCard>
             
             <InfoCard icon={TrendingUp} variant="primary">
               <h2 className="text-primary text-xl sm:text-2xl lg:text-3xl font-bold font-mono mb-4">GAP Analysis</h2>
-              <p className="text-base text-foreground/80">
+              <p className="text-base text-foreground font-sans">
                 Current state against regulatory requirements – prioritized by risk, not alphabetical order. Output: a realistic implementation roadmap, not a checklist.
               </p>
             </InfoCard>
             
             <InfoCard icon={Shield} variant="subtle">
               <h2 className="text-primary text-xl sm:text-2xl lg:text-3xl font-bold font-mono mb-4">Implementation of Measures</h2>
-              <p className="text-base text-foreground/80">
+              <p className="text-base text-foreground font-sans">
                 Technical and organizational measures developed with your teams and validated against regulatory expectations – including incident reporting workflows and monitoring mechanisms.
               </p>
             </InfoCard>
             
             <div className="bg-highlight/5 border border-highlight/20 rounded-lg p-6">
               <h2 className="text-highlight text-xl sm:text-2xl lg:text-3xl font-bold font-mono mb-4">Framework Coverage</h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-base sm:text-lg text-foreground/80">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-base sm:text-lg text-foreground font-sans">
                 <div className="flex items-start space-x-3">
                   <Building2 className="text-highlight mt-1 flex-shrink-0" size={24} />
                   <div>

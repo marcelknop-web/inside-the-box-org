@@ -42,17 +42,17 @@ const Index = () => {
             <div className="bg-highlight/10 border-2 border-highlight/30 rounded-lg p-6 text-center">
               <Target className="text-highlight mx-auto mb-4" size={40} />
               <div className="text-3xl font-bold text-highlight font-mono mb-2">40+</div>
-              <div className="text-foreground/80 font-sans">Trainings Delivered</div>
+              <div className="text-foreground font-sans">Trainings Delivered</div>
             </div>
             <div className="bg-highlight/10 border-2 border-highlight/30 rounded-lg p-6 text-center">
               <Users className="text-highlight mx-auto mb-4" size={40} />
               <div className="text-3xl font-bold text-highlight font-mono mb-2">350+</div>
-              <div className="text-foreground/80 font-sans">People Trained</div>
+              <div className="text-foreground font-sans">People Trained</div>
             </div>
             <div className="bg-highlight/10 border-2 border-highlight/30 rounded-lg p-6 text-center">
               <Globe className="text-highlight mx-auto mb-4" size={40} />
               <div className="text-3xl font-bold text-highlight font-mono mb-2">6</div>
-              <div className="text-foreground/80 font-sans">Countries Covered</div>
+              <div className="text-foreground font-sans">Countries Covered</div>
             </div>
           </div>
           

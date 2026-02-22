@@ -54,7 +54,7 @@ const CyberCrisisManagement = () => {
             
             <InfoCard variant="highlight">
               <h2 className="text-highlight text-xl sm:text-2xl lg:text-3xl font-bold font-mono mb-4">Training Methodologies</h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-base sm:text-lg text-foreground/80">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-base sm:text-lg text-foreground font-sans">
                 <div className="flex flex-col items-center text-center space-y-2">
                   <Users className="text-highlight" size={24} />
                   <h3 className="font-semibold text-foreground mb-2">Tabletop</h3>
@@ -75,7 +75,7 @@ const CyberCrisisManagement = () => {
             
             <InfoCard variant="subtle">
               <h2 className="text-primary text-xl sm:text-2xl lg:text-3xl font-bold font-mono mb-4">Expected Outcomes</h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-base sm:text-lg text-foreground/80">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-base sm:text-lg text-foreground font-sans">
                 <div className="flex items-start space-x-3">
                   <ShieldCheck className="text-primary mt-1 flex-shrink-0" size={24} />
                   <div>

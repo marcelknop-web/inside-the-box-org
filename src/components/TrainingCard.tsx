@@ -26,7 +26,7 @@ export const TrainingCard = ({ title, description, icon: Icon, className = '', o
         <h3 className={`text-base sm:text-lg font-mono tracking-wide text-center text-primary/90 ${isInteractive ? 'group-hover:text-primary transition-electric' : ''}`}>
           {title}
         </h3>
-        <p className="text-base sm:text-lg text-center text-foreground/70 leading-relaxed line-clamp-3">
+        <p className="text-base sm:text-lg text-center text-foreground font-sans leading-relaxed line-clamp-3">
           {description}
         </p>
       </div>

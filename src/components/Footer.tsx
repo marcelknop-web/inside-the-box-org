@@ -17,7 +17,7 @@ export const Footer = () => {
             </a>
           )}
           {isImprintPage && (
-            <p className="text-foreground/70 text-sm font-mono">
+            <p className="text-foreground text-sm font-mono">
               Last updated: 4th September, 2025
             </p>
           )}
