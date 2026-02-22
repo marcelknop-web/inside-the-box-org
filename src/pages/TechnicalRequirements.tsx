@@ -1,15 +1,13 @@
 import { PageLayout } from '@/components/PageLayout';
 import { ServiceCard } from '@/components/ServiceCard';
 import { PageNavButtons } from '@/components/PageNavButtons';
-import { Monitor, Network, Wifi, CheckCircle, XCircle, Loader2 } from 'lucide-react';
-import { useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { Monitor, Network, Wifi, CheckCircle, XCircle, Loader2, HelpCircle, Download } from 'lucide-react';
+import { useState, useCallback } from 'react';
 
 interface PortResult {
   port: number;
-  reachable: boolean;
-  latencyMs?: number;
-  error?: string;
+  status: 'reachable' | 'blocked' | 'uncertain';
+  latencyMs: number;
 }
 
 const DEFAULT_HOST = 'cyberrange.inside-the-box.org';
@@ -19,35 +17,152 @@ const PORT_GROUPS = [
   { label: 'HTTPS', ports: [443] },
 ];
 
+// Heuristic: attempt fetch to the port. 
+// - If connection is refused quickly (<1s) → likely blocked by firewall
+// - If it times out or takes longer → port is probably reachable (RDP won't respond to HTTP but the TCP handshake starts)
+// - This is a heuristic, not 100% reliable
+async function probePort(host: string, port: number, timeoutMs = 5000): Promise<PortResult> {
+  const start = performance.now();
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    await fetch(`https://${host}:${port}`, {
+      mode: 'no-cors',
+      signal: controller.signal,
+    });
+    // If we get here, something responded (unlikely for RDP, but possible for 443)
+    const latency = Math.round(performance.now() - start);
+    return { port, status: 'reachable', latencyMs: latency };
+  } catch (e: unknown) {
+    const latency = Math.round(performance.now() - start);
+    clearTimeout(timer);
+
+    if (e instanceof DOMException && e.name === 'AbortError') {
+      // Timed out → TCP connection likely in progress → port probably reachable
+      return { port, status: 'reachable', latencyMs: latency };
+    }
+
+    // Fast failure (<800ms) typically means connection refused / blocked
+    // Slower failure means the connection attempt reached the host
+    if (latency < 800) {
+      return { port, status: 'blocked', latencyMs: latency };
+    }
+    return { port, status: 'uncertain', latencyMs: latency };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+const POWERSHELL_SCRIPT = `# Port Connectivity Test - inside-the-box.org
+# Run in PowerShell: .\\test-ports.ps1
+
+$host_target = "cyberrange.inside-the-box.org"
+$ports = @(443) + (7000..7020)
+$timeout = 3000
+
+Write-Host "Testing connectivity to $host_target..." -ForegroundColor Cyan
+Write-Host ""
+
+foreach ($port in $ports) {
+    $tcp = New-Object System.Net.Sockets.TcpClient
+    try {
+        $result = $tcp.BeginConnect($host_target, $port, $null, $null)
+        $success = $result.AsyncWaitHandle.WaitOne($timeout)
+        if ($success -and $tcp.Connected) {
+            Write-Host "  Port $port : REACHABLE" -ForegroundColor Green
+        } else {
+            Write-Host "  Port $port : BLOCKED/TIMEOUT" -ForegroundColor Red
+        }
+    } catch {
+        Write-Host "  Port $port : BLOCKED" -ForegroundColor Red
+    } finally {
+        $tcp.Close()
+    }
+}
+Write-Host ""
+Write-Host "Done." -ForegroundColor Cyan
+`;
+
+const BASH_SCRIPT = `#!/bin/bash
+# Port Connectivity Test - inside-the-box.org
+# Run: chmod +x test-ports.sh && ./test-ports.sh
+
+HOST="cyberrange.inside-the-box.org"
+TIMEOUT=3
+
+echo "Testing connectivity to $HOST..."
+echo ""
+
+for PORT in 443 $(seq 7000 7020); do
+    if timeout $TIMEOUT bash -c "echo >/dev/tcp/$HOST/$PORT" 2>/dev/null; then
+        echo -e "  Port $PORT : \\033[32mREACHABLE\\033[0m"
+    else
+        echo -e "  Port $PORT : \\033[31mBLOCKED/TIMEOUT\\033[0m"
+    fi
+done
+
+echo ""
+echo "Done."
+`;
+
+function downloadScript(content: string, filename: string) {
+  const blob = new Blob([content], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 const TechnicalRequirements = () => {
   const [host, setHost] = useState(DEFAULT_HOST);
   const [results, setResults] = useState<PortResult[] | null>(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [progress, setProgress] = useState({ done: 0, total: 0 });
 
-  const runCheck = async () => {
+  const runCheck = useCallback(async () => {
     setLoading(true);
-    setError(null);
     setResults(null);
 
     const allPorts = PORT_GROUPS.flatMap((g) => g.ports);
+    setProgress({ done: 0, total: allPorts.length });
 
-    try {
-      const { data, error: fnError } = await supabase.functions.invoke('check-ports', {
-        body: { host, ports: allPorts, timeout: 5000 },
-      });
+    const allResults: PortResult[] = [];
 
-      if (fnError) throw fnError;
-      setResults(data.results as PortResult[]);
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Connection test failed');
-    } finally {
-      setLoading(false);
+    // Test in batches of 5 to avoid overwhelming the browser
+    for (let i = 0; i < allPorts.length; i += 5) {
+      const batch = allPorts.slice(i, i + 5);
+      const batchResults = await Promise.all(
+        batch.map((port) => probePort(host, port))
+      );
+      allResults.push(...batchResults);
+      setProgress({ done: allResults.length, total: allPorts.length });
     }
-  };
+
+    setResults(allResults);
+    setLoading(false);
+  }, [host]);
 
   const getGroupResults = (ports: number[]) =>
     results?.filter((r) => ports.includes(r.port)) ?? [];
+
+  const statusIcon = (status: PortResult['status']) => {
+    switch (status) {
+      case 'reachable': return <CheckCircle className="w-3 h-3" />;
+      case 'blocked': return <XCircle className="w-3 h-3" />;
+      case 'uncertain': return <HelpCircle className="w-3 h-3" />;
+    }
+  };
+
+  const statusClass = (status: PortResult['status']) => {
+    switch (status) {
+      case 'reachable': return 'border-green-500/30 bg-green-500/10 text-green-500';
+      case 'blocked': return 'border-destructive/30 bg-destructive/10 text-destructive';
+      case 'uncertain': return 'border-yellow-500/30 bg-yellow-500/10 text-yellow-500';
+    }
+  };
 
   return (
     <PageLayout>
@@ -105,6 +220,11 @@ const TechnicalRequirements = () => {
             </h2>
 
             <div className="bg-card border border-border rounded-lg p-6 space-y-4">
+              <p className="text-sm text-muted-foreground font-sans">
+                This test checks whether <strong>your browser</strong> can reach the required ports. 
+                Results are heuristic — for a reliable test, use the download scripts below.
+              </p>
+
               <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-end">
                 <div className="flex-1 w-full">
                   <label htmlFor="host" className="block text-sm font-mono text-muted-foreground mb-1">
@@ -124,22 +244,18 @@ const TechnicalRequirements = () => {
                   className="flex items-center gap-2 bg-primary text-primary-foreground px-5 py-2 rounded font-mono text-sm hover:opacity-90 disabled:opacity-50 transition-opacity whitespace-nowrap"
                 >
                   {loading ? (
-                    <><Loader2 className="w-4 h-4 animate-spin" /> Testing…</>
+                    <><Loader2 className="w-4 h-4 animate-spin" /> {progress.done}/{progress.total}</>
                   ) : (
                     <><Wifi className="w-4 h-4" /> Run Test</>
                   )}
                 </button>
               </div>
 
-              {error && (
-                <p className="text-destructive font-mono text-sm">{error}</p>
-              )}
-
               {results && (
                 <div className="space-y-4 pt-2">
                   {PORT_GROUPS.map((group) => {
                     const groupResults = getGroupResults(group.ports);
-                    const reachable = groupResults.filter((r) => r.reachable).length;
+                    const reachable = groupResults.filter((r) => r.status === 'reachable').length;
                     const total = groupResults.length;
 
                     return (
@@ -154,14 +270,10 @@ const TechnicalRequirements = () => {
                           {groupResults.map((r) => (
                             <span
                               key={r.port}
-                              title={r.reachable ? `${r.latencyMs}ms` : r.error}
-                              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-mono border ${
-                                r.reachable
-                                  ? 'border-green-500/30 bg-green-500/10 text-green-500'
-                                  : 'border-destructive/30 bg-destructive/10 text-destructive'
-                              }`}
+                              title={`${r.latencyMs}ms – ${r.status}`}
+                              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-mono border ${statusClass(r.status)}`}
                             >
-                              {r.reachable ? <CheckCircle className="w-3 h-3" /> : <XCircle className="w-3 h-3" />}
+                              {statusIcon(r.status)}
                               {r.port}
                             </span>
                           ))}
@@ -169,8 +281,34 @@ const TechnicalRequirements = () => {
                       </div>
                     );
                   })}
+
+                  <p className="text-xs text-muted-foreground mt-2">
+                    <HelpCircle className="w-3 h-3 inline mr-1" />
+                    Yellow = uncertain result. Use the scripts below for a definitive test.
+                  </p>
                 </div>
               )}
+
+              {/* Download Scripts */}
+              <div className="border-t border-border pt-4 mt-4">
+                <p className="text-sm font-mono text-muted-foreground mb-3">
+                  Reliable local test scripts:
+                </p>
+                <div className="flex flex-wrap gap-3">
+                  <button
+                    onClick={() => downloadScript(POWERSHELL_SCRIPT, 'test-ports.ps1')}
+                    className="flex items-center gap-2 border border-border px-4 py-2 rounded font-mono text-sm text-foreground hover:bg-accent transition-colors"
+                  >
+                    <Download className="w-4 h-4" /> PowerShell (.ps1)
+                  </button>
+                  <button
+                    onClick={() => downloadScript(BASH_SCRIPT, 'test-ports.sh')}
+                    className="flex items-center gap-2 border border-border px-4 py-2 rounded font-mono text-sm text-foreground hover:bg-accent transition-colors"
+                  >
+                    <Download className="w-4 h-4" /> Bash (.sh)
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
           
