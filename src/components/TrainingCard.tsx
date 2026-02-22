@@ -1,3 +1,5 @@
+// ============= Full file contents =============
+
 import { LucideIcon } from 'lucide-react';
 
 interface TrainingCardProps {
@@ -26,7 +28,7 @@ export const TrainingCard = ({ title, description, icon: Icon, className = '', o
         <h3 className={`text-base sm:text-lg font-mono tracking-wide text-center text-primary/90 ${isInteractive ? 'group-hover:text-primary transition-electric' : ''}`}>
           {title}
         </h3>
-        <p className="text-base sm:text-lg text-center text-foreground font-sans leading-relaxed line-clamp-3">
+        <p className="text-base sm:text-lg text-center text-foreground font-sans leading-relaxed line-clamp-4">
           {description}
         </p>
       </div>
