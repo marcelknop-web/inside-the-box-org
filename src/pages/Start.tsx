@@ -161,7 +161,7 @@ const Start = () => {
                         <li key={i} className="list-disc marker:text-yellow-400">
                           <a
                             href={link.url}
-                            className="text-yellow-400 font-mono text-sm hover:underline transition-electric"
+                            className="text-yellow-400 font-mono text-lg hover:underline transition-electric"
                           >
                             {link.label}
                           </a>
