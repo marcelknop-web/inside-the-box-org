@@ -872,26 +872,28 @@ const ChatView = () => {
           )}
         </div>
 
-        {/* Input */}
-        <div className="border-t border-border p-2 md:p-4 flex-shrink-0">
-          <div className="max-w-3xl mx-auto">
-            <div className="relative flex items-end bg-secondary rounded-2xl border border-border focus-within:border-primary/40 transition-electric">
-              <textarea
-                ref={inputRef}
-                value={input}
-                onChange={e => setInput(e.target.value)}
-                onKeyDown={handleKeyDown}
-                rows={1}
-                placeholder="Nachricht an inside-the-box…"
-                className="flex-1 bg-transparent px-3 md:px-4 py-3 text-sm font-mono text-foreground placeholder:text-muted-foreground resize-none focus:outline-none max-h-[200px]"
-                disabled={isLoading}
-              />
-              <button onClick={handleSend} disabled={!input.trim() || isLoading} className="m-1.5 p-2 rounded-xl bg-primary text-primary-foreground disabled:opacity-30 hover:bg-primary/80 transition-electric">
-                <Send size={16} />
-              </button>
+        {/* Input - on mobile only show on welcome/chat screen, not on service pages */}
+        {(!isMobile || !activeService) && (
+          <div className="border-t border-border p-2 md:p-4 flex-shrink-0">
+            <div className="max-w-3xl mx-auto">
+              <div className="relative flex items-end bg-secondary rounded-2xl border border-border focus-within:border-primary/40 transition-electric">
+                <textarea
+                  ref={inputRef}
+                  value={input}
+                  onChange={e => setInput(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  rows={1}
+                  placeholder="Nachricht an inside-the-box…"
+                  className="flex-1 bg-transparent px-3 md:px-4 py-3 text-sm font-mono text-foreground placeholder:text-muted-foreground resize-none focus:outline-none max-h-[200px]"
+                  disabled={isLoading}
+                />
+                <button onClick={handleSend} disabled={!input.trim() || isLoading} className="m-1.5 p-2 rounded-xl bg-primary text-primary-foreground disabled:opacity-30 hover:bg-primary/80 transition-electric">
+                  <Send size={16} />
+                </button>
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
