@@ -2,7 +2,7 @@ import { PageLayout } from '@/components/PageLayout';
 import { InfoCard } from '@/components/InfoCard';
 import { PageNavButtons } from '@/components/PageNavButtons';
 import { PageMeta } from '@/components/PageMeta';
-import { AlertTriangle, Target, Shield, Users, Globe } from 'lucide-react';
+import { AlertTriangle, Target, Users, Globe } from 'lucide-react';
 
 const Index = () => {
   return (
@@ -19,21 +19,14 @@ const Index = () => {
         <div className="space-y-8 text-foreground leading-relaxed">
           <InfoCard icon={AlertTriangle}>
             <p className="text-lg font-sans">
-              Cyber incidents reveal that <span className="text-primary font-semibold">human factors cause most response delays</span>. 
-              Organizations face coordination challenges during critical security events.
+              Most response failures are not technical – they are organizational. When an incident hits, <span className="text-primary font-semibold">coordination breaks down before systems do</span>.
             </p>
           </InfoCard>
           
           <InfoCard icon={Target}>
             <p className="text-lg font-sans">
-               Our <span className="text-primary font-semibold">simulation environments</span> enable teams to develop competencies through{" "}
-               <span className="text-primary font-semibold">realistic attack scenarios</span> and practical crisis coordination.
-            </p>
-          </InfoCard>
-          
-          <InfoCard icon={Shield}>
-            <p className="text-lg font-sans">
-              Training integrates <span className="text-primary font-semibold">technical capabilities with crisis management</span>.
+               Our <span className="text-primary font-semibold">simulation environments</span> train teams under realistic attack conditions, combining{" "}
+               <span className="text-primary font-semibold">technical response with crisis decision-making</span> in a controlled setting.
             </p>
           </InfoCard>
 

@@ -8,7 +8,7 @@ import { Server, AlertTriangle, Bug, Shield, AlertCircle, MessageSquare } from '
 const Training = () => {
   const trainingTopics = [
     { 
-      title: 'Host and Network Forensics', 
+      title: 'Host & Network Forensics', 
       description: 'Analyze compromised systems and reconstruct attack timelines.',
       icon: Server 
     },
@@ -19,22 +19,22 @@ const Training = () => {
     },
     { 
       title: 'SIEM', 
-      description: 'Monitor security events and investigate threats.',
+      description: 'Monitor security events and investigate threats in real time.',
       icon: Shield 
     },
     { 
       title: 'Incident Management', 
-      description: 'Structure response processes and document incidents.',
+      description: 'Structure response processes and document incidents under operational conditions.',
       icon: AlertCircle 
     },
     { 
       title: 'Crisis Management', 
-      description: 'Lead incident response teams under pressure.',
+      description: 'Lead response teams under pressure with competing priorities and incomplete information.',
       icon: AlertTriangle 
     }, 
     { 
       title: 'Crisis Communication', 
-      description: 'Manage stakeholder communication during incidents.',
+      description: 'Manage internal and external stakeholder communication when the situation is still developing.',
       icon: MessageSquare 
     }
   ];
