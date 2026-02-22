@@ -13,71 +13,41 @@ const IncidentManagement = () => {
         
         <div className="space-y-8 text-foreground leading-relaxed">
           <p className="text-lg font-sans mb-8">
-            Security incident management framework development.
+            Framework development for organizations that need to respond to incidents – not just document that they have a plan.
           </p>
           
           <div className="space-y-6">
             <ServiceCard
               icon={FileText}
               title="Incident Response Planning"
-              description="Development of structured incident response procedures and operational playbooks."
-            >
-              <ul className="text-base text-foreground/80 space-y-2 mt-4">
-                <li className="pl-4 -indent-4">• Incident classification and severity levels</li>
-                <li className="pl-4 -indent-4">• Response team structure and roles</li>
-                <li className="pl-4 -indent-4">• Escalation and communication protocols</li>
-              </ul>
-            </ServiceCard>
+              description="Structured response procedures and operational playbooks: classification criteria, team roles, escalation paths, and communication protocols – ready before an incident occurs."
+            />
             
             <ServiceCard
               icon={Eye}
               title="Detection & Analysis"
-              description="Implementation of incident detection capabilities and analytical processes for effective threat identification."
+              description="Monitoring and alerting architecture, forensic methodology, and evidence handling procedures – built to hold up under legal and regulatory scrutiny."
               variant="highlight"
-            >
-              <ul className="text-base text-foreground/80 space-y-2 mt-4">
-                <li className="pl-4 -indent-4">• Security monitoring and alerting systems</li>
-                <li className="pl-4 -indent-4">• Forensic analysis methodology</li>
-                <li className="pl-4 -indent-4">• Evidence collection and preservation</li>
-              </ul>
-            </ServiceCard>
+            />
             
             <ServiceCard
               icon={Shield}
               title="Containment & Eradication"
-              description="Strategic approaches for incident containment, threat eradication, and system recovery operations."
-            >
-              <ul className="text-base text-foreground/80 space-y-2 mt-4">
-                <li className="pl-4 -indent-4">• Containment strategy development</li>
-                <li className="pl-4 -indent-4">• Network segmentation and isolation</li>
-                <li className="pl-4 -indent-4">• System hardening and recovery</li>
-              </ul>
-            </ServiceCard>
+              description="Containment strategies, network isolation procedures, and recovery operations – developed for your environment, not copied from a framework template."
+            />
             
             <ServiceCard
               icon={RefreshCw}
               title="Recovery & Lessons Learned"
-              description="Systematic recovery operations and post-incident analysis for continuous improvement."
+              description="Business continuity coordination, post-incident review, and documented process improvements. The incident report is the starting point, not the deliverable."
               variant="highlight"
-            >
-              <ul className="text-base text-foreground/80 space-y-2 mt-4">
-                <li className="pl-4 -indent-4">• Business continuity coordination</li>
-                <li className="pl-4 -indent-4">• Post-incident review and analysis</li>
-                <li className="pl-4 -indent-4">• Process improvement implementation</li>
-              </ul>
-            </ServiceCard>
+            />
             
             <ServiceCard
               icon={GraduationCap}
               title="Training & Simulation"
-              description="Practical training programs and simulation exercises to develop incident response capabilities."
-            >
-              <ul className="text-base text-foreground/80 space-y-2 mt-4">
-                <li className="pl-4 -indent-4">• Incident response team training</li>
-                <li className="pl-4 -indent-4">• Tabletop exercises and simulations</li>
-                <li className="pl-4 -indent-4">• Technical skills development</li>
-              </ul>
-            </ServiceCard>
+              description="Tabletop exercises and technical training for response teams – scenario-based, realistic, and calibrated to your threat profile. Experience across industrial, financial, and public sector environments."
+            />
           </div>
           
           <PageNavButtons buttons={[
