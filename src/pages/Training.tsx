@@ -41,17 +41,19 @@ const Training = () => {
 
   return (
     <PageLayout>
-      <div className="space-y-8">
+      <div className="space-y-12">
         <PageMeta title="Training Topics" description="Cybersecurity training from command line to boardroom. Host forensics, malware analysis, SIEM, incident management, and crisis communication." />
-        <h1 className="text-primary text-2xl sm:text-3xl lg:text-5xl font-bold font-mono mb-6">
-          Training Topics
-        </h1>
-        <p className="text-lg font-sans mb-12">
-          From Command Line to Boardroom.
-        </p>
+        <div>
+          <h1 className="text-primary text-2xl sm:text-3xl lg:text-5xl font-bold font-mono mb-6">
+            Training Topics
+          </h1>
+          <p className="text-lg font-sans">
+            From Command Line to Boardroom.
+          </p>
+        </div>
         
         {/* Training Topics Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {trainingTopics.map((topic, index) => (
             <div key={index} className="flex">
               <TrainingCard 
@@ -65,11 +67,11 @@ const Training = () => {
         </div>
 
         {/* Methods Section */}
-        <section className="border-t border-border pt-16">
+        <section>
           <h2 className="text-highlight text-2xl sm:text-3xl lg:text-5xl font-bold font-mono mb-6">
             Methods
           </h2>
-          <p className="text-lg font-sans mb-12">
+          <p className="text-lg font-sans mb-8">
             Understanding, communicating, and practicing.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -89,13 +91,13 @@ const Training = () => {
               description="Real-time attack simulations in controlled environments."
             />
           </div>
-          
-          <PageNavButtons buttons={[
-            { href: '/by-whom', label: 'By Whom' },
-            { href: '/technical-requirements', label: 'Technical Requirements' },
-            { href: '/contact', label: 'Contact', variant: 'highlight' },
-          ]} />
         </section>
+          
+        <PageNavButtons buttons={[
+          { href: '/by-whom', label: 'By Whom' },
+          { href: '/technical-requirements', label: 'Technical Requirements' },
+          { href: '/contact', label: 'Contact', variant: 'highlight' },
+        ]} />
       </div>
     </PageLayout>
   );
