@@ -21,27 +21,16 @@ const ISMS = () => {
             <ServiceCard
               icon={ShieldCheck}
               title="ISO 27001 Implementation"
-              description="ISMS frameworks meeting international standards."
-            >
-              <ul className="text-base text-foreground/80 space-y-2 mt-4">
-                <li className="pl-4 -indent-4">• Risk assessment and treatment</li>
-                <li className="pl-4 -indent-4">• Policy development</li>
-                <li className="pl-4 -indent-4">• Certification support</li>
-              </ul>
-            </ServiceCard>
+              description="ISMS implementation from initial gap analysis to certification. We apply structured risk methods, develop audit-ready documentation, and accompany the full certification process – including Stage-1/Stage-2 preparation and pre-audits with your chosen certification body."
+            />
             
             <ServiceCard
               icon={FileText}
               title="BSI IT-Grundschutz"
-              description="BSI IT-Grundschutz methodology implementation."
+              description="BSI IT-Grundschutz implementation across all protection levels – Basis, Standard, or Core. We handle structural analysis, protection needs assessment, and modelling, then prepare you for IS-audit or BSI certification. Practical experience in KRITIS and public sector environments."
               variant="highlight"
-            >
-              <ul className="text-base text-foreground/80 space-y-2 mt-4">
-                <li className="pl-4 -indent-4">• IT-Grundschutz compendium</li>
-                <li className="pl-4 -indent-4">• Security safeguards</li>
-                <li className="pl-4 -indent-4">• BSI certification</li>
-              </ul>
-            </ServiceCard>
+            />
+            
             
             <InfoCard variant="subtle">
               <h2 className="text-primary text-xl sm:text-2xl lg:text-3xl font-bold font-mono mb-4">Our Approach</h2>
