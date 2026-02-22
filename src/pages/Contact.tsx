@@ -1,11 +1,13 @@
 import { PageLayout } from '@/components/PageLayout';
 import { PageNavButtons } from '@/components/PageNavButtons';
+import { PageMeta } from '@/components/PageMeta';
 import { Phone, Mail } from 'lucide-react';
 
 const Contact = () => {
   return (
     <PageLayout>
       <div className="space-y-8">
+        <PageMeta title="Contact" description="Get in touch with Marcel Knop for cybersecurity consulting, training, and CISO services." />
         <h1 className="text-primary text-2xl sm:text-3xl lg:text-5xl font-bold font-mono mb-12">
           Contact
         </h1>

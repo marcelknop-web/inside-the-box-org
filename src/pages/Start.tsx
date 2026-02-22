@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { GeometricSymbol } from '@/components/GeometricSymbol';
+import { PageMeta } from '@/components/PageMeta';
 import { Target, Shield, Send, Loader2, ArrowRight, MessageCircle } from 'lucide-react';
 
 interface NavLink {
@@ -75,6 +76,7 @@ const Start = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <PageMeta title="Cybersecurity Consulting & Cyber Training Range" description="Expert cybersecurity consulting and cyber training range services. ISMS, ISO 27001, NIS-2, TISAX, incident response, and cyber crisis management." />
       <header className="py-8">
         <div className="container mx-auto px-6 flex items-center justify-center md:justify-between">
           <a href="/" className="w-full md:w-auto flex items-center justify-center md:justify-start group">
@@ -158,10 +160,10 @@ const Start = () => {
                   {response.links?.length > 0 && (
                     <ul className="space-y-1 pl-4">
                       {response.links.map((link, i) => (
-                        <li key={i} className="list-disc marker:text-yellow-400">
+                        <li key={i} className="list-disc marker:text-primary">
                           <a
                             href={link.url}
-                            className="text-yellow-400 font-mono text-lg hover:underline transition-electric"
+                            className="text-primary font-mono text-lg hover:underline transition-electric"
                           >
                             {link.label}
                           </a>

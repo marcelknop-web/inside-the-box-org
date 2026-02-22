@@ -2,12 +2,14 @@ import { PageLayout } from '@/components/PageLayout';
 import { ServiceCard } from '@/components/ServiceCard';
 import { InfoCard } from '@/components/InfoCard';
 import { PageNavButtons } from '@/components/PageNavButtons';
+import { PageMeta } from '@/components/PageMeta';
 import { Settings, CheckCircle, FileCheck, Car, CreditCard } from 'lucide-react';
 
 const TISAXPCIDSS = () => {
   return (
     <PageLayout>
       <div className="space-y-8">
+        <PageMeta title="TISAX, PCI-DSS" description="Compliance consulting for automotive suppliers and payment card environments. From initial scoping to label or certification." />
         <h1 className="text-primary text-2xl sm:text-3xl lg:text-5xl font-bold font-mono mb-12">
           TISAX, PCI-DSS
         </h1>

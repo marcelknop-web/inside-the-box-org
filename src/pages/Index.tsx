@@ -1,12 +1,14 @@
 import { PageLayout } from '@/components/PageLayout';
 import { InfoCard } from '@/components/InfoCard';
 import { PageNavButtons } from '@/components/PageNavButtons';
+import { PageMeta } from '@/components/PageMeta';
 import { AlertTriangle, Target, Shield, Users, Globe } from 'lucide-react';
 
 const Index = () => {
   return (
     <PageLayout>
       <div className="space-y-8">
+        <PageMeta title="Cyber Training Range" description="Realistic cyber attack simulations and crisis coordination training. 40+ trainings delivered, 350+ people trained across 6 countries." />
         <h1 className="text-primary text-2xl sm:text-3xl lg:text-5xl font-bold font-mono mb-8">
           Cyber Training Range
         </h1>
@@ -37,19 +39,19 @@ const Index = () => {
 
           {/* Statistics Section */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-cyan-500/10 border-2 border-cyan-500/30 rounded-lg p-6 text-center">
-              <Target className="text-cyan-400 mx-auto mb-4" size={40} />
-              <div className="text-3xl font-bold text-cyan-400 font-mono mb-2">40+</div>
+            <div className="bg-highlight/10 border-2 border-highlight/30 rounded-lg p-6 text-center">
+              <Target className="text-highlight mx-auto mb-4" size={40} />
+              <div className="text-3xl font-bold text-highlight font-mono mb-2">40+</div>
               <div className="text-foreground/80 font-sans">Trainings Delivered</div>
             </div>
-            <div className="bg-cyan-500/10 border-2 border-cyan-500/30 rounded-lg p-6 text-center">
-              <Users className="text-cyan-400 mx-auto mb-4" size={40} />
-              <div className="text-3xl font-bold text-cyan-400 font-mono mb-2">350+</div>
+            <div className="bg-highlight/10 border-2 border-highlight/30 rounded-lg p-6 text-center">
+              <Users className="text-highlight mx-auto mb-4" size={40} />
+              <div className="text-3xl font-bold text-highlight font-mono mb-2">350+</div>
               <div className="text-foreground/80 font-sans">People Trained</div>
             </div>
-            <div className="bg-cyan-500/10 border-2 border-cyan-500/30 rounded-lg p-6 text-center">
-              <Globe className="text-cyan-400 mx-auto mb-4" size={40} />
-              <div className="text-3xl font-bold text-cyan-400 font-mono mb-2">6</div>
+            <div className="bg-highlight/10 border-2 border-highlight/30 rounded-lg p-6 text-center">
+              <Globe className="text-highlight mx-auto mb-4" size={40} />
+              <div className="text-3xl font-bold text-highlight font-mono mb-2">6</div>
               <div className="text-foreground/80 font-sans">Countries Covered</div>
             </div>
           </div>

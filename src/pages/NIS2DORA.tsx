@@ -1,12 +1,14 @@
 import { PageLayout } from '@/components/PageLayout';
 import { InfoCard } from '@/components/InfoCard';
 import { PageNavButtons } from '@/components/PageNavButtons';
+import { PageMeta } from '@/components/PageMeta';
 import { Search, TrendingUp, Shield, Building2, Landmark, Plane } from 'lucide-react';
 
 const NIS2DORA = () => {
   return (
     <PageLayout>
       <div className="space-y-8">
+        <PageMeta title="NIS-2, DORA, PART-IS" description="Regulatory compliance across NIS-2, DORA, and PART-IS frameworks. Impact analysis, gap analysis, and implementation support." />
         <h1 className="text-primary text-2xl sm:text-3xl lg:text-5xl font-bold font-mono mb-12">
           NIS-2, DORA, PART-IS
         </h1>

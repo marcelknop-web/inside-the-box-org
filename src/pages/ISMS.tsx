@@ -2,12 +2,14 @@ import { PageLayout } from '@/components/PageLayout';
 import { ServiceCard } from '@/components/ServiceCard';
 import { InfoCard } from '@/components/InfoCard';
 import { PageNavButtons } from '@/components/PageNavButtons';
+import { PageMeta } from '@/components/PageMeta';
 import { ShieldCheck, FileText, Search, Settings, Award, RotateCcw } from 'lucide-react';
 
 const ISMS = () => {
   return (
     <PageLayout>
       <div className="space-y-8">
+        <PageMeta title="ISMS ISO 27001, BSI GS" description="ISMS implementation from gap analysis to certification. ISO 27001 and BSI IT-Grundschutz across all protection levels." />
         <h1 className="text-primary text-2xl sm:text-3xl lg:text-5xl font-bold font-mono mb-12">
           ISMS ISO 27001, BSI GS
         </h1>
