@@ -21,6 +21,7 @@ export default {
 			fontFamily: {
 				sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
 				mono: ['JetBrains Mono', 'Monaco', 'Menlo', 'monospace'],
+				rounded: ['Nunito', 'Inter', 'sans-serif'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',
