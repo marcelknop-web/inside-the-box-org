@@ -817,9 +817,9 @@ const ChatView = () => {
                   <MessageCircle size={24} className="text-primary" />
                 </div>
               </div>
-              <h1 className="text-xl md:text-2xl font-mono text-foreground mb-2 text-center">Wie kann ich helfen?</h1>
+              <h1 className="text-xl md:text-2xl font-mono text-foreground mb-2 text-center">Willkommen bei inside-the-box</h1>
               <p className="text-sm text-foreground font-mono text-center max-w-md px-2">
-                Fragen Sie mich zu unseren Cybersecurity-Services – oder wählen Sie ein Thema in der Seitenleiste.
+                Wir beraten und trainieren rund um Cybersecurity, Informationssicherheit und Krisenmanagement. Entdecken Sie unsere Leistungen in der Seitenleiste – oder stellen Sie uns direkt eine Frage.
               </p>
             </div>
           ) : (
