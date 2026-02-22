@@ -40,8 +40,8 @@ const Contact = () => {
           
           <PageNavButtons buttons={[
             { href: '/why', label: 'View Training' },
-            { href: '/imprint', label: 'Imprint', variant: 'highlight' },
             { href: '/consulting', label: 'View Consulting' },
+            { href: '/imprint', label: 'Imprint', variant: 'highlight' },
           ]} />
         </div>
       </div>
