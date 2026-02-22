@@ -32,7 +32,7 @@ const CardBlock = ({ icon: Icon, title, desc, variant = 'primary' }: { icon: Luc
       <Icon size={18} className={`mt-0.5 flex-shrink-0 ${variant === 'highlight' ? 'text-highlight' : 'text-primary'}`} />
       <div>
         <SubTitle variant={variant}>{title}</SubTitle>
-        <p className="text-foreground/80 text-sm">{desc}</p>
+        <p className="text-foreground text-sm">{desc}</p>
       </div>
     </div>
   </div>
@@ -41,7 +41,7 @@ const CardBlock = ({ icon: Icon, title, desc, variant = 'primary' }: { icon: Luc
 const StatBlock = ({ value, label }: { value: string; label: string }) => (
   <div className="bg-highlight/5 border border-highlight/20 rounded-xl p-3 text-center">
     <div className="text-xl font-bold text-highlight font-mono">{value}</div>
-    <div className="text-xs text-foreground/70">{label}</div>
+    <div className="text-xs text-foreground">{label}</div>
   </div>
 );
 
@@ -50,7 +50,7 @@ const GridItem = ({ icon: Icon, title, desc, variant = 'primary' }: { icon: Luci
     <Icon size={16} className={`mt-0.5 flex-shrink-0 ${variant === 'highlight' ? 'text-highlight' : 'text-primary'}`} />
     <div>
       <p className={`font-semibold text-xs ${variant === 'highlight' ? 'text-highlight' : 'text-primary'}`}>{title}</p>
-      <p className="text-foreground/70 text-xs">{desc}</p>
+      <p className="text-foreground text-xs">{desc}</p>
     </div>
   </div>
 );
@@ -92,7 +92,7 @@ const InlineSystemCheck = ({ t }: { t: (k: string) => string }) => {
         <Monitor size={16} className="text-highlight" />
         <SubTitle variant="highlight">{t('techReq.sysCheckCardTitle')}</SubTitle>
       </div>
-      <p className="text-xs text-foreground/70 mb-3">{t('techReq.sysCheckCardDesc')}</p>
+      <p className="text-xs text-foreground mb-3">{t('techReq.sysCheckCardDesc')}</p>
       <button onClick={run} disabled={loading} className="flex items-center gap-2 bg-highlight text-highlight-foreground px-4 py-1.5 rounded font-mono text-xs hover:opacity-90 disabled:opacity-50 transition-opacity">
         {loading ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> {t('techReq.sysCheckRunning')}</> : <><Monitor className="w-3.5 h-3.5" /> {t('techReq.sysCheckRunBtn')}</>}
       </button>
@@ -102,7 +102,7 @@ const InlineSystemCheck = ({ t }: { t: (k: string) => string }) => {
             <div key={r.label} className="flex items-center gap-2 text-xs">
               {icon(r.status)}
               <span className="font-mono font-semibold text-foreground">{r.label}</span>
-              <span className="text-muted-foreground">{r.detail}</span>
+              <span className="text-foreground">{r.detail}</span>
             </div>
           ))}
         </div>
@@ -157,7 +157,7 @@ const InlineConnectivityCheck = ({ t, language }: { t: (k: string) => string; la
         <Wifi size={16} className="text-highlight" />
         <SubTitle variant="highlight">{t('techReq.connectivityTitle')}</SubTitle>
       </div>
-      <p className="text-xs text-foreground/70 mb-3">{t('techReq.connectivityDesc')}</p>
+      <p className="text-xs text-foreground mb-3">{t('techReq.connectivityDesc')}</p>
       <button onClick={run} disabled={loading} className="flex items-center gap-2 bg-highlight text-highlight-foreground px-4 py-1.5 rounded font-mono text-xs hover:opacity-90 disabled:opacity-50 transition-opacity">
         {loading ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> {t('techReq.testing')}</> : <><Wifi className="w-3.5 h-3.5" /> {t('techReq.runTest')}</>}
       </button>
@@ -166,7 +166,7 @@ const InlineConnectivityCheck = ({ t, language }: { t: (k: string) => string; la
           <div className="w-full h-1.5 rounded bg-secondary overflow-hidden">
             <div className="h-full bg-highlight transition-all" style={{ width: `${(progress.done / progress.total) * 100}%` }} />
           </div>
-          <p className="text-[10px] font-mono text-muted-foreground mt-1">{progress.done}/{progress.total} {t('techReq.portsChecked')}</p>
+          <p className="text-[10px] font-mono text-foreground mt-1">{progress.done}/{progress.total} {t('techReq.portsChecked')}</p>
         </div>
       )}
       {results && (
@@ -373,12 +373,12 @@ const useServiceContent = () => {
         <Block>
           <SectionTitle>{t('index.title')}</SectionTitle>
           <p className="text-lg font-semibold mb-2">{t('index.subtitle')}</p>
-          <p className="text-foreground/80" dangerouslySetInnerHTML={{
+           <p className="text-foreground" dangerouslySetInnerHTML={{
             __html: t('index.card1').replace(/<span>/g, '<span class="text-primary font-semibold">')
           }} />
         </Block>
         <Block className="bg-secondary/30">
-          <p className="text-foreground/80" dangerouslySetInnerHTML={{
+          <p className="text-foreground" dangerouslySetInnerHTML={{
             __html: t('index.card2').replace(/<span>/g, '<span class="text-primary font-semibold">')
           }} />
         </Block>
@@ -403,7 +403,7 @@ const useServiceContent = () => {
         <CardBlock icon={MessageSquare} title={t('training.crisisComm')} desc={t('training.crisisCommDesc')} variant="highlight" />
         <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
           <SubTitle variant="highlight">{t('training.methodsTitle')}</SubTitle>
-          <p className="text-xs text-foreground/70 mb-2">{t('training.methodsSubtitle')}</p>
+          <p className="text-xs text-foreground mb-2">{t('training.methodsSubtitle')}</p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <GridItem icon={BookOpen} title={t('training.knowledgeTransfer')} desc={t('training.knowledgeTransferDesc')} variant="highlight" />
             <GridItem icon={Users} title={t('training.groupExercises')} desc={t('training.groupExercisesDesc')} variant="highlight" />
@@ -435,7 +435,7 @@ const useServiceContent = () => {
               <s.icon size={14} className="text-primary mt-0.5 flex-shrink-0" />
               <div>
                 <p className="text-primary font-semibold text-xs">{s.title} →</p>
-                <p className="text-foreground/70 text-xs">{s.desc}</p>
+                <p className="text-foreground text-xs">{s.desc}</p>
               </div>
             </div>
           ))}
@@ -472,7 +472,7 @@ const useServiceContent = () => {
                 <img src={p.imageUrl} alt={p.name} className="w-12 h-12 rounded-full object-cover border-2 border-primary/30" />
                 <div>
                   <p className="text-primary font-bold text-sm">{p.name}</p>
-                  <p className="text-foreground/60 text-xs">{p.role}</p>
+                  <p className="text-foreground text-xs">{p.role}</p>
                 </div>
                 {p.linkedinUrl && (
                   <a href={p.linkedinUrl} target="_blank" rel="noopener noreferrer" className="ml-auto text-highlight text-xs hover:underline">LinkedIn</a>
@@ -482,7 +482,7 @@ const useServiceContent = () => {
                 {p.sections.map((s, i) => (
                   <div key={i}>
                     <p className="text-primary font-semibold text-xs mb-1">{s.title}</p>
-                    <ul className="text-xs text-foreground/70 space-y-0.5">
+                     <ul className="text-xs text-foreground space-y-0.5">
                       {s.items.map((item, j) => <li key={j}>• {item}</li>)}
                     </ul>
                   </div>
@@ -502,14 +502,14 @@ const useServiceContent = () => {
               <Phone size={16} className="text-primary" />
               <SubTitle>{t('contact.phone')}</SubTitle>
             </div>
-            <a href="tel:+4915205691648" className="text-foreground/80 text-sm hover:text-highlight transition-electric">+49 1520 569 1648</a>
+            <a href="tel:+4915205691648" className="text-foreground text-sm hover:text-highlight transition-electric">+49 1520 569 1648</a>
           </div>
           <div className="rounded-xl p-4 bg-primary/5 border border-primary/20">
             <div className="flex items-center gap-2 mb-2">
               <Mail size={16} className="text-primary" />
               <SubTitle>{t('contact.email')}</SubTitle>
             </div>
-            <a href="mailto:marcel@inside-the-box.org" className="text-foreground/80 text-sm hover:text-highlight transition-electric">marcel@inside-the-box.org</a>
+            <a href="mailto:marcel@inside-the-box.org" className="text-foreground text-sm hover:text-highlight transition-electric">marcel@inside-the-box.org</a>
           </div>
         </div>
       </div>
@@ -518,21 +518,21 @@ const useServiceContent = () => {
       <div className="space-y-3">
         <Block><SectionTitle>{t('imprint.title')}</SectionTitle></Block>
         <Block className="bg-secondary/30">
-          <p className="text-foreground/80 text-sm">
+          <p className="text-foreground text-sm">
             <span className="text-primary font-semibold">{t('imprint.responsible')}</span><br />
             Marcel Knop<br />
             Appenrother Weg 14<br />
             34308 Bad Emstal, Germany
           </p>
-          <p className="text-foreground/80 text-sm mt-3">
+           <p className="text-foreground text-sm mt-3">
             <span className="text-primary font-semibold">{t('imprint.contactLabel')}</span><br />
             <a href="mailto:marcel@inside-the-box.org" className="hover:text-highlight transition-electric">marcel@inside-the-box.org</a><br />
             <a href="tel:+4915205691648" className="hover:text-highlight transition-electric">+49 1520 569 1648</a>
           </p>
-          <p className="text-foreground/80 text-sm mt-3">
+           <p className="text-foreground text-sm mt-3">
             <span className="text-primary font-semibold">{t('imprint.vatId')}</span> DE328906053
           </p>
-          <p className="text-foreground/80 text-sm mt-3">
+          <p className="text-foreground text-sm mt-3">
             <span className="text-primary font-semibold">{t('imprint.insurance')}</span><br />
             Hiscox SA · Arnulfstr. 31 · 80636 Munich, Germany
           </p>
@@ -558,8 +558,8 @@ const useServiceContent = () => {
                 <Monitor size={16} className="text-primary" />
                 <SubTitle>{t('techReq.systemTitle')}</SubTitle>
               </div>
-              <p className="text-xs text-foreground/70 mb-2">{t('techReq.systemDesc')}</p>
-              <ul className="text-xs text-foreground/70 space-y-0.5">
+               <p className="text-xs text-foreground mb-2">{t('techReq.systemDesc')}</p>
+               <ul className="text-xs text-foreground space-y-0.5">
                 {systemItems.map((item, i) => <li key={i}>• {item}</li>)}
               </ul>
             </div>
@@ -568,8 +568,8 @@ const useServiceContent = () => {
                 <Wifi size={16} className="text-highlight" />
                 <SubTitle variant="highlight">{t('techReq.networkTitle')}</SubTitle>
               </div>
-              <p className="text-xs text-foreground/70 mb-2">{t('techReq.networkDesc')}</p>
-              <ul className="text-xs text-foreground/70 space-y-0.5">
+               <p className="text-xs text-foreground mb-2">{t('techReq.networkDesc')}</p>
+               <ul className="text-xs text-foreground space-y-0.5">
                 {networkItems.map((item, i) => <li key={i}>• <span className="font-mono">{item}</span></li>)}
               </ul>
             </div>
@@ -723,7 +723,7 @@ const ChatView = () => {
                     className={`w-full flex items-center gap-2.5 rounded-lg px-3 py-2 text-left transition-electric group ${
                       activeService === item.id
                         ? 'bg-secondary text-foreground'
-                        : 'text-foreground/70 hover:bg-secondary/50 hover:text-foreground'
+                        : 'text-foreground hover:bg-secondary/50'
                     }`}
                   >
                     <item.icon size={14} className={`flex-shrink-0 ${activeService === item.id ? 'text-primary' : 'text-muted-foreground group-hover:text-primary'}`} />
@@ -734,9 +734,8 @@ const ChatView = () => {
             ))}
           </div>
 
-          <div className="border-t border-border p-3 flex items-center justify-between">
-            <span className="text-xs font-mono text-muted-foreground">inside-the-box.org</span>
-            <button onClick={() => selectService('imprint')} className="text-[10px] font-mono text-muted-foreground hover:text-highlight transition-electric">{t('imprint.title')}</button>
+          <div className="border-t border-border p-3">
+            <span className="text-xs font-mono text-foreground">inside-the-box.org</span>
           </div>
         </div>
       </div>
@@ -765,7 +764,7 @@ const ChatView = () => {
                 </div>
               </div>
               <h1 className="text-2xl font-mono text-foreground mb-2">Wie kann ich helfen?</h1>
-              <p className="text-sm text-muted-foreground font-mono text-center max-w-md">
+              <p className="text-sm text-foreground font-mono text-center max-w-md">
                 Fragen Sie mich zu unseren Cybersecurity-Services – oder wählen Sie ein Thema in der Seitenleiste.
               </p>
             </div>
