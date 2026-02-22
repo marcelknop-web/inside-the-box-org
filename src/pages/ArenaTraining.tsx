@@ -14,34 +14,22 @@ const ArenaTraining = () => {
         
         <div className="space-y-8 text-foreground leading-relaxed">
           <p className="text-lg font-sans mb-8">
-            Advanced threat intelligence-based ethical red teaming and cyber training programs.
+            Advanced red team training and regulatory TIBER coordination – for organizations that need to test beyond compliance checkboxes.
           </p>
           
           <div className="space-y-6">
             <ServiceCard
               icon={Target}
               title="Arena Training"
-              description="Comprehensive cybersecurity training in realistic attack scenarios."
-            >
-              <ul className="text-base text-foreground/80 space-y-2 mt-4">
-                <li className="pl-4 -indent-4">• Analysis of host and network-based attacks</li>
-                <li className="pl-4 -indent-4">• SIEM monitoring of live communication</li>
-                <li className="pl-4 -indent-4">• Techniques and tactics to prevent detection</li>
-              </ul>
-            </ServiceCard>
+              description="Hands-on training in realistic attack environments: host and network-based attack analysis, live SIEM monitoring, and detection evasion techniques – from both sides of the kill chain."
+            />
             
             <ServiceCard
               icon={Flag}
               title="TIBER Test"
-              description="Threat Intelligence-based Ethical Red Teaming coordination and management."
+              description="End-to-end TIBER-EU/TIBER-DE coordination: scenario design, safeguard definition, team communication, and full documentation for regulatory submission. Experience with financial sector and critical infrastructure engagements."
               variant="highlight"
-            >
-              <ul className="text-base text-foreground/80 space-y-2 mt-4">
-                <li className="pl-4 -indent-4">• Scenario creation and safeguard definition</li>
-                <li className="pl-4 -indent-4">• Team communication moderation</li>
-                <li className="pl-4 -indent-4">• Testing coordination and documentation</li>
-              </ul>
-            </ServiceCard>
+            />
             
             <InfoCard variant="subtle">
               <h2 className="text-primary text-xl sm:text-2xl lg:text-3xl font-bold font-mono mb-4">Training Methodology</h2>
@@ -50,28 +38,28 @@ const ArenaTraining = () => {
                   <Gamepad2 className="text-primary mt-1 flex-shrink-0" size={20} />
                   <div>
                     <h3 className="font-semibold text-foreground mb-2">Realistic Scenarios</h3>
-                    <p>Live attack simulations using actual threat intelligence and attack patterns.</p>
+                    <p>Live simulations built on current threat intelligence, not synthetic exercises.</p>
                   </div>
                 </div>
                 <div className="flex items-start space-x-3">
                   <Crosshair className="text-primary mt-1 flex-shrink-0" size={20} />
                   <div>
                     <h3 className="font-semibold text-foreground mb-2">Hands-on Practice</h3>
-                    <p>Direct engagement with cybersecurity tools and defensive techniques.</p>
+                    <p>Direct tool engagement for both offensive and defensive roles.</p>
                   </div>
                 </div>
                 <div className="flex items-start space-x-3">
                   <Users className="text-primary mt-1 flex-shrink-0" size={20} />
                   <div>
                     <h3 className="font-semibold text-foreground mb-2">Team Coordination</h3>
-                    <p>Multi-team exercises involving threat intelligence, red team, and blue team coordination.</p>
+                    <p>Red, blue, and threat intelligence teams operating under realistic operational constraints.</p>
                   </div>
                 </div>
                 <div className="flex items-start space-x-3">
                   <CheckSquare className="text-primary mt-1 flex-shrink-0" size={20} />
                   <div>
                     <h3 className="font-semibold text-foreground mb-2">Regulatory Compliance</h3>
-                    <p>Authority contact procedures and regulatory reporting requirements.</p>
+                    <p>Authority notification procedures and reporting requirements integrated into the exercise design from the start.</p>
                   </div>
                 </div>
               </div>
