@@ -63,14 +63,14 @@ const EventsWorkshops = () => {
               title="Client References"
               description="Trusted by leading organizations across government, industry, and academia."
             >
-              <div className="text-base text-foreground/70 leading-relaxed mt-4">
+              <div className="text-base text-foreground font-sans leading-relaxed mt-4">
                 <p>Beamtenbund · Bechtle · Bitkom · BSI · CDU · DENIC · DDPS (CH) · DIIR · DWT · Fast Lane · Euroforum · HPI · IIR · ISACA · Management Circle · SoftwareONE · Bundeswehr University · University of Giessen</p>
               </div>
             </ServiceCard>
             
             <InfoCard variant="subtle">
               <h2 className="text-primary text-xl sm:text-2xl lg:text-3xl font-bold font-mono mb-4">Event Types</h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-base sm:text-lg text-foreground/80">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-base sm:text-lg text-foreground font-sans">
                 <div className="flex flex-col items-center text-center space-y-2">
                   <Presentation className="text-primary" size={24} />
                   <h3 className="font-semibold text-foreground mb-2">Conferences</h3>
