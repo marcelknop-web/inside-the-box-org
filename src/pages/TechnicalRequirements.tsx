@@ -3,25 +3,52 @@ import { ServiceCard } from '@/components/ServiceCard';
 import { PageNavButtons } from '@/components/PageNavButtons';
 import { Monitor, Network, Wifi, CheckCircle, XCircle, Loader2, HelpCircle } from 'lucide-react';
 import { useState, useCallback } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 
 interface PortResult {
   port: number;
   status: 'reachable' | 'blocked' | 'uncertain';
   latencyMs?: number;
-  error?: string;
 }
 
-const DEFAULT_HOST = 'portquiz.net';
+const HOST = 'portquiz.net';
+const TIMEOUT_MS = 6000;
 
 const PORT_GROUPS = [
   { label: 'RDP (Training)', ports: Array.from({ length: 21 }, (_, i) => 7000 + i) },
   { label: 'HTTPS', ports: [443] },
 ];
 
+function probePort(host: string, port: number, timeoutMs: number): Promise<PortResult> {
+  return new Promise((resolve) => {
+    const start = performance.now();
+    const img = new Image();
+    let settled = false;
+
+    const settle = (status: PortResult['status']) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      img.src = '';
+      resolve({ port, status, latencyMs: Math.round(performance.now() - start) });
+    };
+
+    const timer = setTimeout(() => settle('blocked'), timeoutMs);
+
+    // portquiz.net responds with HTTP on every port.
+    // On success or error the image load fires quickly → port is reachable.
+    // On timeout → port is blocked by firewall.
+    img.onload = () => settle('reachable');
+    img.onerror = () => {
+      const elapsed = performance.now() - start;
+      // Fast error (<3s) = connection was made (server responded, just not an image)
+      // Slow error (≥3s) = likely blocked
+      settle(elapsed < 3000 ? 'reachable' : 'blocked');
+    };
+    img.src = `http://${host}:${port}/?cachebust=${Date.now()}-${port}`;
+  });
+}
 
 const TechnicalRequirements = () => {
-  const host = DEFAULT_HOST;
   const [results, setResults] = useState<PortResult[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState({ done: 0, total: 0 });
@@ -33,28 +60,20 @@ const TechnicalRequirements = () => {
     const allPorts = PORT_GROUPS.flatMap((g) => g.ports);
     setProgress({ done: 0, total: allPorts.length });
 
-    try {
-      const { data, error } = await supabase.functions.invoke('check-ports', {
-        body: { host, ports: allPorts, timeout: 5000 },
-      });
+    const collected: PortResult[] = [];
 
-      if (error) throw error;
-
-      const mapped: PortResult[] = (data.results as Array<{ port: number; reachable: boolean; latencyMs?: number; error?: string }>).map(
-        (r) => ({
-          port: r.port,
-          status: r.reachable ? 'reachable' as const : 'blocked' as const,
-          latencyMs: r.latencyMs,
-          error: r.error,
-        })
+    // Test in batches of 5 to avoid overwhelming the browser
+    for (let i = 0; i < allPorts.length; i += 5) {
+      const batch = allPorts.slice(i, i + 5);
+      const batchResults = await Promise.all(
+        batch.map((p) => probePort(HOST, p, TIMEOUT_MS))
       );
-      setResults(mapped);
-    } catch (e: unknown) {
-      setResults(allPorts.map((p) => ({ port: p, status: 'uncertain' as const })));
-    } finally {
-      setProgress({ done: allPorts.length, total: allPorts.length });
-      setLoading(false);
+      collected.push(...batchResults);
+      setProgress({ done: collected.length, total: allPorts.length });
+      setResults([...collected]);
     }
+
+    setLoading(false);
   }, []);
 
   const getGroupResults = (ports: number[]) =>
@@ -133,8 +152,9 @@ const TechnicalRequirements = () => {
 
             <div className="bg-card border border-border rounded-lg p-6 space-y-4">
               <p className="text-base text-foreground font-sans">
-                Prüft ob die benötigten TCP-Ports (RDP 7000–7020, HTTPS 443) von unserem Server aus erreichbar sind.
-                Der Test verbindet sich mit <span className="font-mono">portquiz.net</span>, einem öffentlichen Dienst der auf allen TCP-Ports antwortet.
+                Tests whether your device can reach the required TCP ports (RDP 7000–7020, HTTPS 443) through your local network and firewall.
+                The test connects from your browser to <span className="font-mono">portquiz.net</span>, a public service that listens on all TCP ports.
+                If a port shows as blocked, your network may be filtering outbound traffic on that port.
               </p>
 
               <button
@@ -143,7 +163,7 @@ const TechnicalRequirements = () => {
                 className="flex items-center gap-2 bg-primary text-primary-foreground px-5 py-2 rounded font-mono text-sm hover:opacity-90 disabled:opacity-50 transition-opacity whitespace-nowrap"
               >
                 {loading ? (
-                  <><Loader2 className="w-4 h-4 animate-spin" /> Testing…</>
+                  <><Loader2 className="w-4 h-4 animate-spin" /> {progress.done}/{progress.total}</>
                 ) : (
                   <><Wifi className="w-4 h-4" /> Run Test</>
                 )}
@@ -182,7 +202,7 @@ const TechnicalRequirements = () => {
 
                   <p className="text-base text-foreground mt-2">
                     <HelpCircle className="w-4 h-4 inline mr-1" />
-                    Tests TCP connectivity to <span className="font-mono">portquiz.net</span> from our server.
+                    This test runs directly from your browser to verify your network allows outbound connections.
                   </p>
                 </div>
               )}
