@@ -710,7 +710,7 @@ const ChatView = () => {
           <div className="absolute inset-0 bg-black/60" onClick={() => setSidebarOpen(false)} />
           <div className="relative w-[280px] h-full flex flex-col bg-card animate-in slide-in-from-left duration-200">
             <div className="p-3 flex items-center justify-between">
-              <button onClick={newChat} className="flex-1 flex items-center gap-2 rounded-lg border border-border px-3 py-2.5 text-sm font-mono text-foreground hover:bg-secondary transition-electric">
+              <button onClick={newChat} className="flex-1 flex items-center gap-2 rounded-lg border border-border px-3 py-2.5 text-sm font-rounded text-foreground hover:bg-secondary transition-electric">
                 <Plus size={16} /><span>Neuer Chat</span>
               </button>
               <button onClick={() => setSidebarOpen(false)} className="ml-2 p-2 rounded-lg text-muted-foreground hover:bg-secondary transition-electric">
@@ -720,7 +720,7 @@ const ChatView = () => {
             <div className="flex-1 overflow-y-auto px-2 pb-4">
               {sidebarGroups.map((group) => (
                 <div key={group.title} className="mb-3">
-                  <p className="px-2 py-1.5 text-[10px] font-mono text-muted-foreground uppercase tracking-wider">{group.title}</p>
+                  <p className="px-2 py-1.5 text-[10px] font-rounded font-semibold text-muted-foreground uppercase tracking-wider">{group.title}</p>
                   {group.items.map((item) => (
                     <button
                       key={item.id}
@@ -730,15 +730,15 @@ const ChatView = () => {
                       }`}
                     >
                       <item.icon size={14} className={`flex-shrink-0 ${activeService === item.id ? 'text-primary' : 'text-muted-foreground group-hover:text-primary'}`} />
-                      <span className="truncate font-mono text-xs">{item.label}</span>
+                      <span className="truncate font-rounded text-sm">{item.label}</span>
                     </button>
                   ))}
                 </div>
               ))}
             </div>
             <div className="border-t border-border p-3 flex items-center justify-between">
-              <span className="text-xs font-mono text-foreground">inside-the-box.org</span>
-              <button onClick={() => setLanguage(language === 'en' ? 'de' : 'en')} className="rounded-lg border border-border px-2.5 py-1.5 text-xs font-mono text-muted-foreground hover:bg-secondary hover:text-foreground transition-electric uppercase tracking-wider">
+              <span className="text-xs font-rounded text-foreground">inside-the-box.org</span>
+              <button onClick={() => setLanguage(language === 'en' ? 'de' : 'en')} className="rounded-lg border border-border px-2.5 py-1.5 text-xs font-rounded text-muted-foreground hover:bg-secondary hover:text-foreground transition-electric uppercase tracking-wider">
                 {language === 'en' ? 'DE' : 'EN'}
               </button>
             </div>
@@ -751,17 +751,17 @@ const ChatView = () => {
         <div className={`${sidebarOpen ? 'w-64' : 'w-0'} transition-all duration-300 flex-shrink-0 overflow-hidden`}>
           <div className="w-64 h-full flex flex-col bg-card border-r border-border">
             <div className="p-3 flex gap-2">
-              <button onClick={newChat} className="flex-1 flex items-center gap-2 rounded-lg border border-border px-3 py-2.5 text-sm font-mono text-foreground hover:bg-secondary transition-electric">
+              <button onClick={newChat} className="flex-1 flex items-center gap-2 rounded-lg border border-border px-3 py-2.5 text-sm font-rounded text-foreground hover:bg-secondary transition-electric">
                 <Plus size={16} /><span>Neuer Chat</span>
               </button>
-              <button onClick={() => setLanguage(language === 'en' ? 'de' : 'en')} className="rounded-lg border border-border px-2.5 py-2.5 text-xs font-mono text-muted-foreground hover:bg-secondary hover:text-foreground transition-electric uppercase tracking-wider">
+              <button onClick={() => setLanguage(language === 'en' ? 'de' : 'en')} className="rounded-lg border border-border px-2.5 py-2.5 text-xs font-rounded text-muted-foreground hover:bg-secondary hover:text-foreground transition-electric uppercase tracking-wider">
                 {language === 'en' ? 'DE' : 'EN'}
               </button>
             </div>
             <div className="flex-1 overflow-y-auto px-2 pb-4">
               {sidebarGroups.map((group) => (
                 <div key={group.title} className="mb-3">
-                  <p className="px-2 py-1.5 text-[10px] font-mono text-muted-foreground uppercase tracking-wider">{group.title}</p>
+                  <p className="px-2 py-1.5 text-[10px] font-rounded font-semibold text-muted-foreground uppercase tracking-wider">{group.title}</p>
                   {group.items.map((item) => (
                     <button
                       key={item.id}
@@ -771,14 +771,14 @@ const ChatView = () => {
                       }`}
                     >
                       <item.icon size={14} className={`flex-shrink-0 ${activeService === item.id ? 'text-primary' : 'text-muted-foreground group-hover:text-primary'}`} />
-                      <span className="truncate font-mono text-xs">{item.label}</span>
+                      <span className="truncate font-rounded text-sm">{item.label}</span>
                     </button>
                   ))}
                 </div>
               ))}
             </div>
             <div className="border-t border-border p-3">
-              <span className="text-xs font-mono text-foreground">inside-the-box.org</span>
+              <span className="text-xs font-rounded text-foreground">inside-the-box.org</span>
             </div>
           </div>
         </div>
