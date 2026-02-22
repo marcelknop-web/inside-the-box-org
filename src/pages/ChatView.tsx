@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, ReactNode, useCallback } from 'react';
-import { Send, Plus, MessageCircle, Shield, Target, BookOpen, AlertTriangle, Eye, Flame, Swords, Calendar, FileText, UserCheck, ChevronLeft, Menu, ShieldCheck, Search, Settings, Award, RotateCcw, Network, CreditCard, CheckCircle, FileCheck, Car, BarChart, RefreshCw, GraduationCap, ClipboardList, Zap, Crown, Users, Gamepad2, Monitor, Users2, Lightbulb, Flag, Crosshair, CheckSquare, Mic, Presentation, Wrench, Radio, Video, DollarSign, Phone, Mail, Server, Bug, AlertCircle, MessageSquare, Globe, Building2, Plane, Landmark, Scale, Wifi, XCircle, HelpCircle, Loader2 } from 'lucide-react';
+import { Send, Plus, MessageCircle, Shield, Target, BookOpen, AlertTriangle, Eye, Flame, Swords, Calendar, FileText, UserCheck, ChevronLeft, Menu, ShieldCheck, Search, Settings, Award, RotateCcw, Network, CreditCard, CheckCircle, FileCheck, Car, BarChart, RefreshCw, GraduationCap, ClipboardList, Zap, Crown, Users, Gamepad2, Monitor, Users2, Lightbulb, Flag, Crosshair, CheckSquare, Mic, Presentation, Wrench, Radio, Video, DollarSign, Phone, Mail, Server, Bug, AlertCircle, MessageSquare, Globe, Building2, Plane, Landmark, Scale, Wifi, XCircle, HelpCircle, Loader2, X } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { PageMeta } from '@/components/PageMeta';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { consultantProfiles } from '@/data/consultantProfiles';
@@ -688,9 +689,12 @@ const ChatView = () => {
 
   const newChat = () => { setActiveService(null); setMessages([]); setInput(''); inputRef.current?.focus(); };
 
+  const isMobile = useIsMobile();
+
   const selectService = (id: string) => {
     setActiveService(id);
     setMessages([]);
+    if (isMobile) setSidebarOpen(false);
     inputRef.current?.focus();
   };
 
@@ -700,61 +704,106 @@ const ChatView = () => {
     <div className="h-screen flex overflow-hidden" style={{ background: 'hsl(var(--background))' }}>
       <PageMeta title="inside-the-box" description="Cybersecurity Navigator" />
 
-      {/* Sidebar */}
-      <div className={`${sidebarOpen ? 'w-64' : 'w-0'} transition-all duration-300 flex-shrink-0 overflow-hidden`}>
-        <div className="w-64 h-full flex flex-col bg-card border-r border-border">
-          <div className="p-3 flex gap-2">
-            <button onClick={newChat} className="flex-1 flex items-center gap-2 rounded-lg border border-border px-3 py-2.5 text-sm font-mono text-foreground hover:bg-secondary transition-electric">
-              <Plus size={16} /><span>Neuer Chat</span>
-            </button>
-            <button onClick={() => setLanguage(language === 'en' ? 'de' : 'en')} className="rounded-lg border border-border px-2.5 py-2.5 text-xs font-mono text-muted-foreground hover:bg-secondary hover:text-foreground transition-electric uppercase tracking-wider">
-              {language === 'en' ? 'DE' : 'EN'}
-            </button>
-          </div>
-
-          <div className="flex-1 overflow-y-auto px-2 pb-4">
-            {sidebarGroups.map((group) => (
-              <div key={group.title} className="mb-3">
-                <p className="px-2 py-1.5 text-[10px] font-mono text-muted-foreground uppercase tracking-wider">{group.title}</p>
-                {group.items.map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() => selectService(item.id)}
-                    className={`w-full flex items-center gap-2.5 rounded-lg px-3 py-2 text-left transition-electric group ${
-                      activeService === item.id
-                        ? 'bg-secondary text-foreground'
-                        : 'text-foreground hover:bg-secondary/50'
-                    }`}
-                  >
-                    <item.icon size={14} className={`flex-shrink-0 ${activeService === item.id ? 'text-primary' : 'text-muted-foreground group-hover:text-primary'}`} />
-                    <span className="truncate font-mono text-xs">{item.label}</span>
-                  </button>
-                ))}
-              </div>
-            ))}
-          </div>
-
-          <div className="border-t border-border p-3">
-            <span className="text-xs font-mono text-foreground">inside-the-box.org</span>
+      {/* Mobile sidebar overlay */}
+      {isMobile && sidebarOpen && (
+        <div className="fixed inset-0 z-50 flex">
+          <div className="absolute inset-0 bg-black/60" onClick={() => setSidebarOpen(false)} />
+          <div className="relative w-[280px] h-full flex flex-col bg-card animate-in slide-in-from-left duration-200">
+            <div className="p-3 flex items-center justify-between">
+              <button onClick={newChat} className="flex-1 flex items-center gap-2 rounded-lg border border-border px-3 py-2.5 text-sm font-mono text-foreground hover:bg-secondary transition-electric">
+                <Plus size={16} /><span>Neuer Chat</span>
+              </button>
+              <button onClick={() => setSidebarOpen(false)} className="ml-2 p-2 rounded-lg text-muted-foreground hover:bg-secondary transition-electric">
+                <X size={18} />
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto px-2 pb-4">
+              {sidebarGroups.map((group) => (
+                <div key={group.title} className="mb-3">
+                  <p className="px-2 py-1.5 text-[10px] font-mono text-muted-foreground uppercase tracking-wider">{group.title}</p>
+                  {group.items.map((item) => (
+                    <button
+                      key={item.id}
+                      onClick={() => selectService(item.id)}
+                      className={`w-full flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-left transition-electric group ${
+                        activeService === item.id ? 'bg-secondary text-foreground' : 'text-foreground hover:bg-secondary/50'
+                      }`}
+                    >
+                      <item.icon size={14} className={`flex-shrink-0 ${activeService === item.id ? 'text-primary' : 'text-muted-foreground group-hover:text-primary'}`} />
+                      <span className="truncate font-mono text-xs">{item.label}</span>
+                    </button>
+                  ))}
+                </div>
+              ))}
+            </div>
+            <div className="border-t border-border p-3 flex items-center justify-between">
+              <span className="text-xs font-mono text-foreground">inside-the-box.org</span>
+              <button onClick={() => setLanguage(language === 'en' ? 'de' : 'en')} className="rounded-lg border border-border px-2.5 py-1.5 text-xs font-mono text-muted-foreground hover:bg-secondary hover:text-foreground transition-electric uppercase tracking-wider">
+                {language === 'en' ? 'DE' : 'EN'}
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      )}
+
+      {/* Desktop sidebar */}
+      {!isMobile && (
+        <div className={`${sidebarOpen ? 'w-64' : 'w-0'} transition-all duration-300 flex-shrink-0 overflow-hidden`}>
+          <div className="w-64 h-full flex flex-col bg-card border-r border-border">
+            <div className="p-3 flex gap-2">
+              <button onClick={newChat} className="flex-1 flex items-center gap-2 rounded-lg border border-border px-3 py-2.5 text-sm font-mono text-foreground hover:bg-secondary transition-electric">
+                <Plus size={16} /><span>Neuer Chat</span>
+              </button>
+              <button onClick={() => setLanguage(language === 'en' ? 'de' : 'en')} className="rounded-lg border border-border px-2.5 py-2.5 text-xs font-mono text-muted-foreground hover:bg-secondary hover:text-foreground transition-electric uppercase tracking-wider">
+                {language === 'en' ? 'DE' : 'EN'}
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto px-2 pb-4">
+              {sidebarGroups.map((group) => (
+                <div key={group.title} className="mb-3">
+                  <p className="px-2 py-1.5 text-[10px] font-mono text-muted-foreground uppercase tracking-wider">{group.title}</p>
+                  {group.items.map((item) => (
+                    <button
+                      key={item.id}
+                      onClick={() => selectService(item.id)}
+                      className={`w-full flex items-center gap-2.5 rounded-lg px-3 py-2 text-left transition-electric group ${
+                        activeService === item.id ? 'bg-secondary text-foreground' : 'text-foreground hover:bg-secondary/50'
+                      }`}
+                    >
+                      <item.icon size={14} className={`flex-shrink-0 ${activeService === item.id ? 'text-primary' : 'text-muted-foreground group-hover:text-primary'}`} />
+                      <span className="truncate font-mono text-xs">{item.label}</span>
+                    </button>
+                  ))}
+                </div>
+              ))}
+            </div>
+            <div className="border-t border-border p-3">
+              <span className="text-xs font-mono text-foreground">inside-the-box.org</span>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Main */}
       <div className="flex-1 flex flex-col min-w-0">
         <div className="h-12 border-b border-border flex items-center px-3 gap-2 flex-shrink-0">
           <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-1.5 rounded-md hover:bg-secondary text-muted-foreground transition-electric">
-            {sidebarOpen ? <ChevronLeft size={18} /> : <Menu size={18} />}
+            {!isMobile && sidebarOpen ? <ChevronLeft size={18} /> : <Menu size={18} />}
           </button>
-          <span className="text-sm font-mono text-foreground">
+          <span className="flex-1 text-sm font-mono text-foreground truncate text-center md:text-left">
             {activeService ? (sidebarGroups.flatMap(g => g.items).find(i => i.id === activeService)?.label || 'inside-the-box') : 'inside-the-box Navigator'}
           </span>
+          {isMobile && (
+            <button onClick={newChat} className="p-1.5 rounded-md hover:bg-secondary text-muted-foreground transition-electric">
+              <Plus size={18} />
+            </button>
+          )}
         </div>
 
         <div ref={contentAreaRef} className="flex-1 overflow-y-auto relative">
           {/* Subtle background logo */}
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-[0.03]">
-            <GeometricSymbol size="lg" className="w-[400px] h-[400px]" />
+            <GeometricSymbol size="lg" className="w-[400px] h-[400px] md:w-[400px] md:h-[400px] w-[250px] h-[250px]" />
           </div>
           {!activeService && messages.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center px-4">
@@ -763,14 +812,13 @@ const ChatView = () => {
                   <MessageCircle size={24} className="text-primary" />
                 </div>
               </div>
-              <h1 className="text-2xl font-mono text-foreground mb-2">Wie kann ich helfen?</h1>
-              <p className="text-sm text-foreground font-mono text-center max-w-md">
+              <h1 className="text-xl md:text-2xl font-mono text-foreground mb-2 text-center">Wie kann ich helfen?</h1>
+              <p className="text-sm text-foreground font-mono text-center max-w-md px-2">
                 Fragen Sie mich zu unseren Cybersecurity-Services – oder wählen Sie ein Thema in der Seitenleiste.
               </p>
             </div>
           ) : (
-            <div className="max-w-3xl mx-auto w-full px-4 py-6 space-y-4">
-              {/* Service content as assistant "response" */}
+            <div className="max-w-3xl mx-auto w-full px-3 md:px-4 py-4 md:py-6 space-y-4">
               {serviceContent && (
                 <div className="flex gap-3">
                   <div className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -779,21 +827,18 @@ const ChatView = () => {
                   <div className="flex-1 min-w-0">{serviceContent}</div>
                 </div>
               )}
-
-              {/* Chat messages */}
               {messages.map((msg, i) => (
-                <div key={i} className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : ''}`}>
+                <div key={i} className={`flex gap-2 md:gap-3 ${msg.role === 'user' ? 'justify-end' : ''}`}>
                   {msg.role === 'assistant' && (
                     <div className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 mt-0.5">
                       <MessageCircle size={14} className="text-primary" />
                     </div>
                   )}
-                  <div className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm font-mono leading-relaxed ${msg.role === 'user' ? 'bg-secondary text-foreground' : 'text-foreground'}`}>
+                  <div className={`max-w-[85%] md:max-w-[80%] rounded-2xl px-3 md:px-4 py-2.5 text-sm font-mono leading-relaxed ${msg.role === 'user' ? 'bg-secondary text-foreground' : 'text-foreground'}`}>
                     <p>{msg.content}</p>
                     {msg.links && msg.links.length > 0 && (
                       <ul className="mt-2 space-y-1">
                         {msg.links.map((link, j) => {
-                          // Convert internal links to service navigation
                           const serviceId = sidebarGroups.flatMap(g => g.items).find(s => link.url.includes(s.id))?.id;
                           return (
                             <li key={j}>
@@ -828,7 +873,7 @@ const ChatView = () => {
         </div>
 
         {/* Input */}
-        <div className="border-t border-border p-4 flex-shrink-0">
+        <div className="border-t border-border p-2 md:p-4 flex-shrink-0">
           <div className="max-w-3xl mx-auto">
             <div className="relative flex items-end bg-secondary rounded-2xl border border-border focus-within:border-primary/40 transition-electric">
               <textarea
@@ -838,7 +883,7 @@ const ChatView = () => {
                 onKeyDown={handleKeyDown}
                 rows={1}
                 placeholder="Nachricht an inside-the-box…"
-                className="flex-1 bg-transparent px-4 py-3 text-sm font-mono text-foreground placeholder:text-muted-foreground resize-none focus:outline-none max-h-[200px]"
+                className="flex-1 bg-transparent px-3 md:px-4 py-3 text-sm font-mono text-foreground placeholder:text-muted-foreground resize-none focus:outline-none max-h-[200px]"
                 disabled={isLoading}
               />
               <button onClick={handleSend} disabled={!input.trim() || isLoading} className="m-1.5 p-2 rounded-xl bg-primary text-primary-foreground disabled:opacity-30 hover:bg-primary/80 transition-electric">
