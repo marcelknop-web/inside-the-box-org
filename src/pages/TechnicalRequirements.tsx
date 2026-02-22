@@ -78,7 +78,7 @@ const TechnicalRequirements = () => {
     if (allReachable) {
       toast({
         title: '✅ All ports reachable',
-        description: 'Your network configuration is ready for the training environment.',
+        description: 'Your network is ready for the training. No firewall issues detected.',
       });
     }
 
