@@ -30,12 +30,12 @@ function runSystemChecks(): SystemCheckResult[] {
   const logicalW = window.screen.width;
   const logicalH = window.screen.height;
   // RDP needs at least 1280×720 logical resolution; 1920×1080 recommended
-  const minOk = logicalW >= 1280 && logicalH >= 720;
+  const minOk = logicalW >= 1024 && logicalH >= 768;
   const recommended = logicalW >= 1920 && logicalH >= 1080;
   results.push({
     label: 'Screen Resolution',
     status: recommended ? 'pass' : minOk ? 'pass' : 'fail',
-    detail: `${logicalW}×${logicalH}${recommended ? '' : minOk ? ' (OK, 1920×1080 recommended)' : ' (minimum 1280×720 required)'}`,
+    detail: `${logicalW}×${logicalH}${recommended ? '' : minOk ? ' (OK, 1920×1080 recommended)' : ' (minimum 1024×768 required)'}`,
   });
 
   // 3. Browser check – modern browser with sufficient capabilities
