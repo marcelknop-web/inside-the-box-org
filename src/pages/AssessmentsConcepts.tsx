@@ -13,71 +13,41 @@ const AssessmentsConcepts = () => {
         
         <div className="space-y-8 text-foreground leading-relaxed">
           <p className="text-lg font-sans mb-8">
-            Security assessment and concept development for responsible digitalization.
+            Structured security assessments and actionable concepts – from threat analysis to implementation roadmap.
           </p>
           
           <div className="space-y-6">
             <ServiceCard
               icon={Search}
               title="Threat & Risk Assessment"
-              description="Comprehensive identification and analysis of cybersecurity threats and organizational risk exposure."
-            >
-              <ul className="text-base text-foreground/80 space-y-2 mt-4">
-                <li className="pl-4 -indent-4">• Threat landscape analysis and attack vectors</li>
-                <li className="pl-4 -indent-4">• Penetration testing and vulnerability scanning</li>
-                <li className="pl-4 -indent-4">• Risk quantification and business impact evaluation</li>
-              </ul>
-            </ServiceCard>
+              description="Threat landscape analysis, attack vector mapping, and vulnerability identification – combined with risk quantification tied to actual business impact, not theoretical severity scores."
+            />
             
             <ServiceCard
               icon={Shield}
               title="Security Controls Design"
-              description="Development of tailored security control frameworks addressing identified risks and compliance requirements."
+              description="Control frameworks mapped to identified risks and compliance requirements. We specify what is needed, why, and at what cost – so decisions can be made on facts, not vendor recommendations."
               variant="highlight"
-            >
-              <ul className="text-base text-foreground/80 space-y-2 mt-4">
-                <li className="pl-4 -indent-4">• Control objective definition and mapping</li>
-                <li className="pl-4 -indent-4">• Technical and organizational measure specification</li>
-                <li className="pl-4 -indent-4">• Cost-benefit analysis and investment prioritization</li>
-              </ul>
-            </ServiceCard>
+            />
             
             <ServiceCard
               icon={Users}
               title="Roles & Responsibilities"
-              description="Definition of organizational roles, responsibilities, and governance structures for security management."
-            >
-              <ul className="text-base text-foreground/80 space-y-2 mt-4">
-                <li className="pl-4 -indent-4">• Security governance framework</li>
-                <li className="pl-4 -indent-4">• Role definition and responsibility assignment</li>
-                <li className="pl-4 -indent-4">• Escalation procedures and decision-making</li>
-              </ul>
-            </ServiceCard>
+              description="Clear governance structures: who owns security decisions, who escalates, and who acts. Defined on paper and verified against operational reality."
+            />
             
             <ServiceCard
               icon={Calendar}
               title="Implementation Planning"
-              description="Strategic roadmap development for systematic security concept implementation and operationalization."
+              description="Phased roadmap with realistic milestones, resource requirements, and budget allocation. Includes change management where organizational resistance is a known risk factor."
               variant="highlight"
-            >
-              <ul className="text-base text-foreground/80 space-y-2 mt-4">
-                <li className="pl-4 -indent-4">• Implementation phasing and milestones</li>
-                <li className="pl-4 -indent-4">• Resource planning and budget allocation</li>
-                <li className="pl-4 -indent-4">• Change management and communication</li>
-              </ul>
-            </ServiceCard>
+            />
             
             <ServiceCard
               icon={BarChart}
               title="Measurement & Monitoring"
-              description="Establishment of metrics, monitoring capabilities, and continuous improvement processes."
-            >
-              <ul className="text-base text-foreground/80 space-y-2 mt-4">
-                <li className="pl-4 -indent-4">• KPI definition and measurement</li>
-                <li className="pl-4 -indent-4">• Security dashboard and reporting</li>
-                <li className="pl-4 -indent-4">• Continuous monitoring and improvement</li>
-              </ul>
-            </ServiceCard>
+              description="KPI definition, reporting structures, and monitoring mechanisms that reflect actual security posture – not compliance theater. Built to survive the first management review."
+            />
           </div>
           
           <PageNavButtons buttons={[
