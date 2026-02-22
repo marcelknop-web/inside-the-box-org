@@ -736,8 +736,8 @@ const ChatView = () => {
                 </div>
               ))}
             </div>
-            <div className="border-t border-border p-3 flex items-center justify-between">
-              <span className="text-xs font-rounded text-foreground">inside-the-box.org</span>
+            <div className="border-t border-border p-3 flex items-center justify-between bg-primary/10">
+              <span className="text-sm font-rounded font-bold text-primary">inside-the-box.org</span>
               <button onClick={() => setLanguage(language === 'en' ? 'de' : 'en')} className="rounded-lg border border-border px-2.5 py-1.5 text-xs font-rounded text-muted-foreground hover:bg-secondary hover:text-foreground transition-electric uppercase tracking-wider">
                 {language === 'en' ? 'DE' : 'EN'}
               </button>
@@ -777,8 +777,8 @@ const ChatView = () => {
                 </div>
               ))}
             </div>
-            <div className="border-t border-border p-3">
-              <span className="text-xs font-rounded text-foreground">inside-the-box.org</span>
+            <div className="border-t border-border p-3 bg-primary/10">
+              <span className="text-sm font-rounded font-bold text-primary">inside-the-box.org</span>
             </div>
           </div>
         </div>
