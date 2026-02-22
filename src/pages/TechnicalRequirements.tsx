@@ -1,7 +1,7 @@
 import { PageLayout } from '@/components/PageLayout';
 import { ServiceCard } from '@/components/ServiceCard';
 import { PageNavButtons } from '@/components/PageNavButtons';
-import { Monitor, Network, Wifi, CheckCircle, XCircle, Loader2, HelpCircle, Download } from 'lucide-react';
+import { Monitor, Network, Wifi, CheckCircle, XCircle, Loader2, HelpCircle } from 'lucide-react';
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -19,73 +19,6 @@ const PORT_GROUPS = [
   { label: 'HTTPS', ports: [443] },
 ];
 
-const POWERSHELL_SCRIPT = `# Outbound Port Connectivity Test
-# Tests whether your firewall allows outbound TCP on training ports.
-# Uses portquiz.net (responds on all TCP ports).
-# Run in PowerShell: .\\test-ports.ps1
-
-$host_target = "portquiz.net"
-$ports = @(443) + (7000..7020)
-$timeout = 3000
-
-Write-Host "Testing outbound port connectivity via portquiz.net..." -ForegroundColor Cyan
-Write-Host "If a port is reachable, your firewall allows outbound TCP on that port." -ForegroundColor DarkGray
-Write-Host ""
-
-foreach ($port in $ports) {
-    $tcp = New-Object System.Net.Sockets.TcpClient
-    try {
-        $result = $tcp.BeginConnect($host_target, $port, $null, $null)
-        $success = $result.AsyncWaitHandle.WaitOne($timeout)
-        if ($success -and $tcp.Connected) {
-            Write-Host "  Port $port : OPEN (outbound allowed)" -ForegroundColor Green
-        } else {
-            Write-Host "  Port $port : BLOCKED by firewall" -ForegroundColor Red
-        }
-    } catch {
-        Write-Host "  Port $port : BLOCKED by firewall" -ForegroundColor Red
-    } finally {
-        $tcp.Close()
-    }
-}
-Write-Host ""
-Write-Host "Done. If all ports show OPEN, your network is ready for training." -ForegroundColor Cyan
-`;
-
-const BASH_SCRIPT = `#!/bin/bash
-# Outbound Port Connectivity Test
-# Tests whether your firewall allows outbound TCP on training ports.
-# Uses portquiz.net (responds on all TCP ports).
-# Run: chmod +x test-ports.sh && ./test-ports.sh
-
-HOST="portquiz.net"
-TIMEOUT=3
-
-echo "Testing outbound port connectivity via portquiz.net..."
-echo "If a port is reachable, your firewall allows outbound TCP on that port."
-echo ""
-
-for PORT in 443 $(seq 7000 7020); do
-    if timeout $TIMEOUT bash -c "echo >/dev/tcp/$HOST/$PORT" 2>/dev/null; then
-        echo -e "  Port $PORT : \\033[32mOPEN (outbound allowed)\\033[0m"
-    else
-        echo -e "  Port $PORT : \\033[31mBLOCKED by firewall\\033[0m"
-    fi
-done
-
-echo ""
-echo "Done. If all ports show OPEN, your network is ready for training."
-`;
-
-function downloadScript(content: string, filename: string) {
-  const blob = new Blob([content], { type: 'text/plain' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  a.click();
-  URL.revokeObjectURL(url);
-}
 
 const TechnicalRequirements = () => {
   const [host, setHost] = useState(DEFAULT_HOST);
@@ -202,7 +135,6 @@ const TechnicalRequirements = () => {
               <p className="text-sm text-muted-foreground font-sans">
                 Verifies TCP connectivity to <span className="font-mono">portquiz.net</span> — a public service that listens on all TCP ports.
                 If a port is reachable, your network allows outbound TCP on that port.
-                For a <strong>client-side firewall test</strong>, download and run the scripts below on your machine.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-end">
@@ -264,31 +196,10 @@ const TechnicalRequirements = () => {
 
                   <p className="text-xs text-muted-foreground mt-2">
                     <HelpCircle className="w-3 h-3 inline mr-1" />
-                    This tests server-side connectivity. For a definitive client-side test, run the scripts below on your machine.
+                    Tests TCP connectivity to <span className="font-mono">portquiz.net</span> from our server.
                   </p>
                 </div>
               )}
-
-              {/* Download Scripts */}
-              <div className="border-t border-border pt-4 mt-4">
-                <p className="text-sm font-mono text-muted-foreground mb-3">
-                  Client-side test scripts (run on your machine):
-                </p>
-                <div className="flex flex-wrap gap-3">
-                  <button
-                    onClick={() => downloadScript(POWERSHELL_SCRIPT, 'test-ports.ps1')}
-                    className="flex items-center gap-2 border border-border px-4 py-2 rounded font-mono text-sm text-foreground hover:bg-accent transition-colors"
-                  >
-                    <Download className="w-4 h-4" /> PowerShell (.ps1)
-                  </button>
-                  <button
-                    onClick={() => downloadScript(BASH_SCRIPT, 'test-ports.sh')}
-                    className="flex items-center gap-2 border border-border px-4 py-2 rounded font-mono text-sm text-foreground hover:bg-accent transition-colors"
-                  >
-                    <Download className="w-4 h-4" /> Bash (.sh)
-                  </button>
-                </div>
-              </div>
             </div>
           </div>
           
