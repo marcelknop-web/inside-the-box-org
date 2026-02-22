@@ -1,5 +1,6 @@
 import { PageLayout } from '@/components/PageLayout';
 import { ServiceCard } from '@/components/ServiceCard';
+import { SystemCheck } from '@/components/SystemCheck';
 import { PageNavButtons } from '@/components/PageNavButtons';
 import { Monitor, Network, Wifi, CheckCircle, XCircle, Loader2, HelpCircle } from 'lucide-react';
 import { useState, useCallback } from 'react';
@@ -146,11 +147,13 @@ const TechnicalRequirements = () => {
             </div>
           </div>
 
-          {/* Connectivity Check */}
+          {/* System & Connectivity Checks */}
           <div className="space-y-6">
             <h2 className="text-primary text-2xl font-bold font-mono mb-6">
-              Connectivity Check
+              System &amp; Connectivity Check
             </h2>
+
+            <SystemCheck />
 
             <ServiceCard
               icon={Wifi}
