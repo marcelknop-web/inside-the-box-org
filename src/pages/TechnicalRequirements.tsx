@@ -3,11 +3,13 @@ import { ServiceCard } from '@/components/ServiceCard';
 import { PageNavButtons } from '@/components/PageNavButtons';
 import { Monitor, Network, Wifi, CheckCircle, XCircle, Loader2, HelpCircle, Download } from 'lucide-react';
 import { useState, useCallback } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 interface PortResult {
   port: number;
   status: 'reachable' | 'blocked' | 'uncertain';
-  latencyMs: number;
+  latencyMs?: number;
+  error?: string;
 }
 
 const DEFAULT_HOST = 'portquiz.net';
@@ -16,43 +18,6 @@ const PORT_GROUPS = [
   { label: 'RDP (Training)', ports: Array.from({ length: 21 }, (_, i) => 7000 + i) },
   { label: 'HTTPS', ports: [443] },
 ];
-
-// portquiz.net listens on ALL TCP ports and responds with HTTP.
-// If the client's firewall blocks a port, the connection will fail fast.
-// If the port is open, portquiz will respond (even on non-standard ports).
-async function probePort(host: string, port: number, timeoutMs = 6000): Promise<PortResult> {
-  const start = performance.now();
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
-
-  try {
-    // portquiz.net responds on HTTP, use no-cors to avoid CORS issues
-    await fetch(`http://${host}:${port}`, {
-      mode: 'no-cors',
-      signal: controller.signal,
-    });
-    const latency = Math.round(performance.now() - start);
-    return { port, status: 'reachable', latencyMs: latency };
-  } catch (e: unknown) {
-    const latency = Math.round(performance.now() - start);
-    clearTimeout(timer);
-
-    if (e instanceof DOMException && e.name === 'AbortError') {
-      // Timed out → likely blocked by firewall (portquiz normally responds fast)
-      return { port, status: 'blocked', latencyMs: latency };
-    }
-
-    // portquiz responds quickly when reachable; slow failure or specific errors indicate blocking
-    if (latency > 3000) {
-      return { port, status: 'blocked', latencyMs: latency };
-    }
-    // Fast network error could mean mixed-content block or actual connectivity
-    return { port, status: 'uncertain', latencyMs: latency };
-    return { port, status: 'uncertain', latencyMs: latency };
-  } finally {
-    clearTimeout(timer);
-  }
-}
 
 const POWERSHELL_SCRIPT = `# Outbound Port Connectivity Test
 # Tests whether your firewall allows outbound TCP on training ports.
@@ -135,20 +100,28 @@ const TechnicalRequirements = () => {
     const allPorts = PORT_GROUPS.flatMap((g) => g.ports);
     setProgress({ done: 0, total: allPorts.length });
 
-    const allResults: PortResult[] = [];
+    try {
+      const { data, error } = await supabase.functions.invoke('check-ports', {
+        body: { host, ports: allPorts, timeout: 5000 },
+      });
 
-    // Test in batches of 5 to avoid overwhelming the browser
-    for (let i = 0; i < allPorts.length; i += 5) {
-      const batch = allPorts.slice(i, i + 5);
-      const batchResults = await Promise.all(
-        batch.map((port) => probePort(host, port))
+      if (error) throw error;
+
+      const mapped: PortResult[] = (data.results as Array<{ port: number; reachable: boolean; latencyMs?: number; error?: string }>).map(
+        (r) => ({
+          port: r.port,
+          status: r.reachable ? 'reachable' as const : 'blocked' as const,
+          latencyMs: r.latencyMs,
+          error: r.error,
+        })
       );
-      allResults.push(...batchResults);
-      setProgress({ done: allResults.length, total: allPorts.length });
+      setResults(mapped);
+    } catch (e: unknown) {
+      setResults(allPorts.map((p) => ({ port: p, status: 'uncertain' as const })));
+    } finally {
+      setProgress({ done: allPorts.length, total: allPorts.length });
+      setLoading(false);
     }
-
-    setResults(allResults);
-    setLoading(false);
   }, [host]);
 
   const getGroupResults = (ports: number[]) =>
@@ -227,9 +200,9 @@ const TechnicalRequirements = () => {
 
             <div className="bg-card border border-border rounded-lg p-6 space-y-4">
               <p className="text-sm text-muted-foreground font-sans">
-                Tests whether your firewall allows <strong>outbound TCP connections</strong> on the required ports.
-                Uses <span className="font-mono">portquiz.net</span> — a public service that listens on all TCP ports.
-                For a definitive result, use the download scripts below.
+                Verifies TCP connectivity to <span className="font-mono">portquiz.net</span> — a public service that listens on all TCP ports.
+                If a port is reachable, your network allows outbound TCP on that port.
+                For a <strong>client-side firewall test</strong>, download and run the scripts below on your machine.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-end">
@@ -291,7 +264,7 @@ const TechnicalRequirements = () => {
 
                   <p className="text-xs text-muted-foreground mt-2">
                     <HelpCircle className="w-3 h-3 inline mr-1" />
-                    Yellow = uncertain result. Use the scripts below for a definitive test.
+                    This tests server-side connectivity. For a definitive client-side test, run the scripts below on your machine.
                   </p>
                 </div>
               )}
@@ -299,7 +272,7 @@ const TechnicalRequirements = () => {
               {/* Download Scripts */}
               <div className="border-t border-border pt-4 mt-4">
                 <p className="text-sm font-mono text-muted-foreground mb-3">
-                  Reliable local test scripts:
+                  Client-side test scripts (run on your machine):
                 </p>
                 <div className="flex flex-wrap gap-3">
                   <button
