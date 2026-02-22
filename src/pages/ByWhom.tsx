@@ -11,7 +11,7 @@ const ByWhom = () => {
           By Whom
         </h1>
         
-        <div className="space-y-8 text-foreground leading-relaxed">
+        <div className="space-y-12 text-foreground leading-relaxed">
           <p className="text-lg font-sans">
             Two senior cybersecurity consultants with combined 35+ years of professional consulting expertise.
           </p>
