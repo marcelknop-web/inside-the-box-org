@@ -9,19 +9,19 @@ const Publications = () => {
     <PageLayout>
       <div className="space-y-8">
         <h1 className="text-primary text-2xl sm:text-3xl lg:text-5xl font-bold font-mono mb-12">
-          Publications, Trainings
+          Publications & Training
         </h1>
         
         <div className="space-y-8 text-foreground leading-relaxed">
           <p className="text-lg font-sans mb-8">
-            Industry publications, thought leadership content, and specialized training programs.
+            Selected publications, keynotes, and certification programs for cybersecurity professionals and decision-makers.
           </p>
           
           <div className="space-y-6">
             <ServiceCard
               icon={Shield}
-              title="Cyber Training Ranges, iX 10/2021"
-              description="Article about Cyber Training Ranges for conducting cyber crisis exercises (German)."
+              title="Cyber Training Ranges — iX 10/2021"
+              description="Practical guidance on designing and conducting cyber crisis exercises using training range environments."
             >
               <div className="mt-4">
                 <a href="https://www.heise.de/select/ix/2021/10/2019809530193925811" target="_blank" rel="noopener noreferrer" className="text-highlight hover:text-primary transition-electric text-base underline">
@@ -32,8 +32,8 @@ const Publications = () => {
             
             <ServiceCard
               icon={Radio}
-              title="Management of Cyber Crises, iX 07/2015"
-              description="Article on management of crisis, and specifically on cyber crisis (German)."
+              title="Management of Cyber Crises — iX 07/2015"
+              description="Structured approach to cyber crisis management for organizations and response teams."
               variant="highlight"
             >
               <div className="mt-4">
@@ -46,7 +46,7 @@ const Publications = () => {
             <ServiceCard
               icon={Video}
               title="DENIC Annual Meeting Keynote"
-              description="Distinctive elements and obstacles in the management of cyber crises (German)."
+              description="Distinctive elements and obstacles in cyber crisis management – executive audience."
             >
               <div className="mt-4">
                 <a href="https://vimeo.com/295582173" target="_blank" rel="noopener noreferrer" className="text-highlight hover:text-primary transition-electric text-base underline">
@@ -62,28 +62,21 @@ const Publications = () => {
                   <Award className="text-primary mt-1 flex-shrink-0" size={20} />
                   <div>
                     <h3 className="font-semibold text-foreground mb-2">ISACA Programs</h3>
-                    <p>Cybersecurity expert training and certification programs.</p>
-                  </div>
-                </div>
-                <div className="flex items-start space-x-3">
-                  <FileText className="text-primary mt-1 flex-shrink-0" size={20} />
-                  <div>
-                    <h3 className="font-semibold text-foreground mb-2">Industry Content</h3>
-                    <p>Published articles and thought leadership in cybersecurity publications.</p>
+                    <p>Cybersecurity expert training and certification delivery, including curriculum development and examination preparation.</p>
                   </div>
                 </div>
                 <div className="flex items-start space-x-3">
                   <Presentation className="text-primary mt-1 flex-shrink-0" size={20} />
                   <div>
                     <h3 className="font-semibold text-foreground mb-2">Conference Presentations</h3>
-                    <p>Keynote speeches and presentations at industry conferences.</p>
+                    <p>Keynotes and technical presentations at industry-level events across government, finance, and critical infrastructure sectors.</p>
                   </div>
                 </div>
                 <div className="flex items-start space-x-3">
                   <BookOpen className="text-primary mt-1 flex-shrink-0" size={20} />
                   <div>
                     <h3 className="font-semibold text-foreground mb-2">Educational Resources</h3>
-                    <p>Training materials and educational content for cybersecurity professionals.</p>
+                    <p>Training materials developed for practitioners and security managers – field-tested, not academic.</p>
                   </div>
                 </div>
               </div>
