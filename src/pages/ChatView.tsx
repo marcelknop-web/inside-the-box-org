@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, ReactNode } from 'react';
-import { Send, Plus, MessageCircle, Shield, Target, BookOpen, AlertTriangle, Eye, Flame, Swords, Calendar, FileText, UserCheck, ChevronLeft, Menu, ShieldCheck, Search, Settings, Award, RotateCcw, Network, CreditCard, CheckCircle, FileCheck, Car, BarChart, RefreshCw, GraduationCap, ClipboardList, Zap, Crown, Users, Gamepad2, Monitor, Users2, Lightbulb, Flag, Crosshair, CheckSquare, Mic, Presentation, Wrench, Radio, Video, DollarSign, Phone, Mail, Server, Bug, AlertCircle, MessageSquare, Globe, Building2, Plane, Landmark } from 'lucide-react';
+import { Send, Plus, MessageCircle, Shield, Target, BookOpen, AlertTriangle, Eye, Flame, Swords, Calendar, FileText, UserCheck, ChevronLeft, Menu, ShieldCheck, Search, Settings, Award, RotateCcw, Network, CreditCard, CheckCircle, FileCheck, Car, BarChart, RefreshCw, GraduationCap, ClipboardList, Zap, Crown, Users, Gamepad2, Monitor, Users2, Lightbulb, Flag, Crosshair, CheckSquare, Mic, Presentation, Wrench, Radio, Video, DollarSign, Phone, Mail, Server, Bug, AlertCircle, MessageSquare, Globe, Building2, Plane, Landmark, Scale, Wifi } from 'lucide-react';
 import { PageMeta } from '@/components/PageMeta';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { consultantProfiles } from '@/data/consultantProfiles';
@@ -369,6 +369,72 @@ const useServiceContent = () => {
         </div>
       </div>
     ),
+    imprint: () => (
+      <div className="space-y-3">
+        <Block><SectionTitle>{t('imprint.title')}</SectionTitle></Block>
+        <Block className="bg-secondary/30">
+          <p className="text-foreground/80 text-sm">
+            <span className="text-primary font-semibold">{t('imprint.responsible')}</span><br />
+            Marcel Knop<br />
+            Appenrother Weg 14<br />
+            34308 Bad Emstal, Germany
+          </p>
+          <p className="text-foreground/80 text-sm mt-3">
+            <span className="text-primary font-semibold">{t('imprint.contactLabel')}</span><br />
+            <a href="mailto:marcel@inside-the-box.org" className="hover:text-highlight transition-electric">marcel@inside-the-box.org</a><br />
+            <a href="tel:+4915205691648" className="hover:text-highlight transition-electric">+49 1520 569 1648</a>
+          </p>
+          <p className="text-foreground/80 text-sm mt-3">
+            <span className="text-primary font-semibold">{t('imprint.vatId')}</span> DE328906053
+          </p>
+          <p className="text-foreground/80 text-sm mt-3">
+            <span className="text-primary font-semibold">{t('imprint.insurance')}</span><br />
+            Hiscox SA · Arnulfstr. 31 · 80636 Munich, Germany
+          </p>
+        </Block>
+        <CardBlock icon={Scale} title={t('imprint.disclaimer')} desc={t('imprint.disclaimerText')} />
+        <CardBlock icon={FileText} title={t('imprint.copyright')} desc={t('imprint.copyrightText')} variant="highlight" />
+        <CardBlock icon={Shield} title={t('imprint.dataProtection')} desc={t('imprint.dataProtectionText')} />
+      </div>
+    ),
+    'tech-requirements': () => {
+      const systemItems = language === 'de'
+        ? ['Moderner Computer (Windows/Mac/Linux)', 'Mindestens 8GB RAM', 'Stabile Internetverbindung (10+ Mbps)', 'Mindestauflösung 1024×768', 'RDP-Client installiert']
+        : ['Modern computer (Windows/Mac/Linux)', '8GB RAM minimum', 'Stable internet (10+ Mbps)', '1024×768 resolution minimum', 'RDP client installed'];
+      const networkItems = language === 'de'
+        ? ['RDP: 7000–7020/TCP ausgehend', 'HTTPS: 443/TCP ausgehend', 'Keine eingehenden Verbindungen erforderlich', 'Konnektivität vorab testen']
+        : ['RDP: 7000–7020/TCP outbound', 'HTTPS: 443/TCP outbound', 'No inbound connections required', 'Test connectivity beforehand'];
+      return (
+        <div className="space-y-3">
+          <Block><SectionTitle>{t('techReq.title')}</SectionTitle><p>{t('techReq.intro')}</p></Block>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            <div className="rounded-xl p-4 bg-primary/5 border border-primary/20">
+              <div className="flex items-center gap-2 mb-2">
+                <Monitor size={16} className="text-primary" />
+                <SubTitle>{t('techReq.systemTitle')}</SubTitle>
+              </div>
+              <p className="text-xs text-foreground/70 mb-2">{t('techReq.systemDesc')}</p>
+              <ul className="text-xs text-foreground/70 space-y-0.5">
+                {systemItems.map((item, i) => <li key={i}>• {item}</li>)}
+              </ul>
+            </div>
+            <div className="rounded-xl p-4 bg-highlight/5 border border-highlight/20">
+              <div className="flex items-center gap-2 mb-2">
+                <Wifi size={16} className="text-highlight" />
+                <SubTitle variant="highlight">{t('techReq.networkTitle')}</SubTitle>
+              </div>
+              <p className="text-xs text-foreground/70 mb-2">{t('techReq.networkDesc')}</p>
+              <ul className="text-xs text-foreground/70 space-y-0.5">
+                {networkItems.map((item, i) => <li key={i}>• <span className="font-mono">{item}</span></li>)}
+              </ul>
+            </div>
+          </div>
+          <Block className="bg-secondary/30">
+            <p className="text-xs text-foreground/60">{t('techReq.connectivityDesc')}</p>
+          </Block>
+        </div>
+      );
+    },
   };
 
   // We need setActive to be available inside consulting content
@@ -389,6 +455,7 @@ const useSidebarGroups = (): SidebarGroup[] => {
       items: [
         { id: 'why', icon: Target, label: t('start.cyberTrainingRange') },
         { id: 'training', icon: Swords, label: t('training.title') },
+        { id: 'tech-requirements', icon: Monitor, label: t('techReq.title') },
       ],
     },
     {
@@ -412,6 +479,7 @@ const useSidebarGroups = (): SidebarGroup[] => {
       items: [
         { id: 'by-whom', icon: Users, label: t('nav.byWhom') },
         { id: 'contact', icon: Mail, label: t('nav.contact') },
+        { id: 'imprint', icon: Scale, label: t('imprint.title') },
       ],
     },
   ];
@@ -522,7 +590,7 @@ const ChatView = () => {
 
           <div className="border-t border-border p-3 flex items-center justify-between">
             <span className="text-xs font-mono text-muted-foreground">inside-the-box.org</span>
-            <a href="/legacy/imprint" className="text-[10px] font-mono text-muted-foreground hover:text-highlight transition-electric">{t('contact.imprint')}</a>
+            <button onClick={() => selectService('imprint')} className="text-[10px] font-mono text-muted-foreground hover:text-highlight transition-electric">{t('imprint.title')}</button>
           </div>
         </div>
       </div>
