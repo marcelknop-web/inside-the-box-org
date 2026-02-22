@@ -24,7 +24,7 @@ const SectionTitle = ({ children }: { children: ReactNode }) => (
 );
 
 const SubTitle = ({ children, variant = 'primary' }: { children: ReactNode; variant?: 'primary' | 'highlight' }) => (
-  <h3 className={`${variant === 'highlight' ? 'text-highlight' : 'text-primary'} font-semibold font-mono mb-1`}>{children}</h3>
+  <h3 className={`${variant === 'highlight' ? 'text-highlight' : 'text-primary'} font-semibold font-mono text-sm mb-1`}>{children}</h3>
 );
 
 const CardBlock = ({ icon: Icon, title, desc, variant = 'primary' }: { icon: LucideIcon; title: string; desc: string; variant?: 'primary' | 'highlight' }) => (
@@ -33,7 +33,7 @@ const CardBlock = ({ icon: Icon, title, desc, variant = 'primary' }: { icon: Luc
       <Icon size={18} className={`mt-0.5 flex-shrink-0 ${variant === 'highlight' ? 'text-highlight' : 'text-primary'}`} />
       <div>
         <SubTitle variant={variant}>{title}</SubTitle>
-        <p className="text-foreground text-sm">{desc}</p>
+        <p className="text-foreground text-sm font-mono">{desc}</p>
       </div>
     </div>
   </div>
@@ -42,7 +42,7 @@ const CardBlock = ({ icon: Icon, title, desc, variant = 'primary' }: { icon: Luc
 const StatBlock = ({ value, label }: { value: string; label: string }) => (
   <div className="bg-highlight/5 border border-highlight/20 rounded-xl p-3 text-center">
     <div className="text-xl font-bold text-highlight font-mono">{value}</div>
-    <div className="text-xs text-foreground">{label}</div>
+    <div className="text-sm font-mono text-foreground">{label}</div>
   </div>
 );
 
@@ -50,8 +50,8 @@ const GridItem = ({ icon: Icon, title, desc, variant = 'primary' }: { icon: Luci
   <div className="flex items-start gap-2">
     <Icon size={16} className={`mt-0.5 flex-shrink-0 ${variant === 'highlight' ? 'text-highlight' : 'text-primary'}`} />
     <div>
-      <p className={`font-semibold text-xs ${variant === 'highlight' ? 'text-highlight' : 'text-primary'}`}>{title}</p>
-      <p className="text-foreground text-xs">{desc}</p>
+      <p className={`font-semibold text-sm font-mono ${variant === 'highlight' ? 'text-highlight' : 'text-primary'}`}>{title}</p>
+      <p className="text-foreground text-sm font-mono">{desc}</p>
     </div>
   </div>
 );
@@ -93,14 +93,14 @@ const InlineSystemCheck = ({ t }: { t: (k: string) => string }) => {
         <Monitor size={16} className="text-highlight" />
         <SubTitle variant="highlight">{t('techReq.sysCheckCardTitle')}</SubTitle>
       </div>
-      <p className="text-xs text-foreground mb-3">{t('techReq.sysCheckCardDesc')}</p>
-      <button onClick={run} disabled={loading} className="flex items-center gap-2 bg-highlight text-highlight-foreground px-4 py-1.5 rounded font-mono text-xs hover:opacity-90 disabled:opacity-50 transition-opacity">
-        {loading ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> {t('techReq.sysCheckRunning')}</> : <><Monitor className="w-3.5 h-3.5" /> {t('techReq.sysCheckRunBtn')}</>}
+      <p className="text-sm font-mono text-foreground mb-3">{t('techReq.sysCheckCardDesc')}</p>
+      <button onClick={run} disabled={loading} className="flex items-center gap-2 bg-highlight text-highlight-foreground px-4 py-1.5 rounded font-mono text-sm hover:opacity-90 disabled:opacity-50 transition-opacity">
+        {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> {t('techReq.sysCheckRunning')}</> : <><Monitor className="w-4 h-4" /> {t('techReq.sysCheckRunBtn')}</>}
       </button>
       {results && (
         <div className="mt-3 space-y-1.5">
           {results.map(r => (
-            <div key={r.label} className="flex items-center gap-2 text-xs">
+            <div key={r.label} className="flex items-center gap-2 text-sm font-mono">
               {icon(r.status)}
               <span className="font-mono font-semibold text-foreground">{r.label}</span>
               <span className="text-foreground">{r.detail}</span>
@@ -158,16 +158,16 @@ const InlineConnectivityCheck = ({ t, language }: { t: (k: string) => string; la
         <Wifi size={16} className="text-highlight" />
         <SubTitle variant="highlight">{t('techReq.connectivityTitle')}</SubTitle>
       </div>
-      <p className="text-xs text-foreground mb-3">{t('techReq.connectivityDesc')}</p>
-      <button onClick={run} disabled={loading} className="flex items-center gap-2 bg-highlight text-highlight-foreground px-4 py-1.5 rounded font-mono text-xs hover:opacity-90 disabled:opacity-50 transition-opacity">
-        {loading ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> {t('techReq.testing')}</> : <><Wifi className="w-3.5 h-3.5" /> {t('techReq.runTest')}</>}
+      <p className="text-sm font-mono text-foreground mb-3">{t('techReq.connectivityDesc')}</p>
+      <button onClick={run} disabled={loading} className="flex items-center gap-2 bg-highlight text-highlight-foreground px-4 py-1.5 rounded font-mono text-sm hover:opacity-90 disabled:opacity-50 transition-opacity">
+        {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> {t('techReq.testing')}</> : <><Wifi className="w-4 h-4" /> {t('techReq.runTest')}</>}
       </button>
       {loading && (
         <div className="mt-2">
           <div className="w-full h-1.5 rounded bg-secondary overflow-hidden">
             <div className="h-full bg-highlight transition-all" style={{ width: `${(progress.done / progress.total) * 100}%` }} />
           </div>
-          <p className="text-[10px] font-mono text-foreground mt-1">{progress.done}/{progress.total} {t('techReq.portsChecked')}</p>
+          <p className="text-sm font-mono text-foreground mt-1">{progress.done}/{progress.total} {t('techReq.portsChecked')}</p>
         </div>
       )}
       {results && (
@@ -177,13 +177,13 @@ const InlineConnectivityCheck = ({ t, language }: { t: (k: string) => string; la
             const ok = gr.filter(r => r.status === 'reachable').length;
             return (
               <div key={group.label}>
-                <div className="flex items-center justify-between text-xs font-mono mb-1">
+                <div className="flex items-center justify-between text-sm font-mono mb-1">
                   <span className="text-foreground font-semibold">{group.label}</span>
                   <span className={ok === gr.length ? 'text-green-500' : ok > 0 ? 'text-yellow-500' : 'text-destructive'}>{ok}/{gr.length} {t('techReq.reachable')}</span>
                 </div>
                 <div className="flex flex-wrap gap-1">
                   {gr.map(r => (
-                    <span key={r.port} className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-mono border ${r.status === 'reachable' ? 'border-green-500/30 bg-green-500/10 text-green-500' : 'border-destructive/30 bg-destructive/10 text-destructive'}`}>
+                    <span key={r.port} className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-sm font-mono border ${r.status === 'reachable' ? 'border-green-500/30 bg-green-500/10 text-green-500' : 'border-destructive/30 bg-destructive/10 text-destructive'}`}>
                       {r.status === 'reachable' ? <CheckCircle className="w-2.5 h-2.5" /> : <XCircle className="w-2.5 h-2.5" />} {r.port}
                     </span>
                   ))}
@@ -191,7 +191,7 @@ const InlineConnectivityCheck = ({ t, language }: { t: (k: string) => string; la
               </div>
             );
           })}
-          <div className={`flex items-start gap-2 mt-2 p-2 rounded border text-xs ${results.every(r => r.status === 'reachable') ? 'border-green-500/30 bg-green-500/10 text-green-500' : 'border-destructive/30 bg-destructive/10 text-destructive'}`}>
+          <div className={`flex items-start gap-2 mt-2 p-2 rounded border text-sm font-mono ${results.every(r => r.status === 'reachable') ? 'border-green-500/30 bg-green-500/10 text-green-500' : 'border-destructive/30 bg-destructive/10 text-destructive'}`}>
             {results.every(r => r.status === 'reachable') ? <><CheckCircle className="w-4 h-4 mt-0.5 flex-shrink-0" /><p>{t('techReq.allPortsOk')}</p></> : <><XCircle className="w-4 h-4 mt-0.5 flex-shrink-0" /><p>{t('techReq.someBlocked')}</p></>}
           </div>
         </div>
@@ -404,7 +404,7 @@ const useServiceContent = () => {
         <CardBlock icon={MessageSquare} title={t('training.crisisComm')} desc={t('training.crisisCommDesc')} variant="highlight" />
         <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
           <SubTitle variant="highlight">{t('training.methodsTitle')}</SubTitle>
-          <p className="text-xs text-foreground mb-2">{t('training.methodsSubtitle')}</p>
+          <p className="text-sm font-mono text-foreground mb-2">{t('training.methodsSubtitle')}</p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <GridItem icon={BookOpen} title={t('training.knowledgeTransfer')} desc={t('training.knowledgeTransferDesc')} variant="highlight" />
             <GridItem icon={Users} title={t('training.groupExercises')} desc={t('training.groupExercisesDesc')} variant="highlight" />
@@ -435,8 +435,8 @@ const useServiceContent = () => {
             <div key={s.id} className="rounded-xl p-3 bg-primary/5 border border-primary/20 flex items-start gap-2 cursor-pointer hover:bg-primary/10 transition-electric" onClick={() => setActive(s.id)}>
               <s.icon size={14} className="text-primary mt-0.5 flex-shrink-0" />
               <div>
-                <p className="text-primary font-semibold text-xs">{s.title} →</p>
-                <p className="text-foreground text-xs">{s.desc}</p>
+                <p className="text-primary font-semibold text-sm font-mono">{s.title} →</p>
+                <p className="text-foreground text-sm font-mono">{s.desc}</p>
               </div>
             </div>
           ))}
@@ -472,18 +472,18 @@ const useServiceContent = () => {
               <div className="flex items-center gap-3 mb-3">
                 <img src={p.imageUrl} alt={p.name} className="w-12 h-12 rounded-full object-cover border-2 border-primary/30" />
                 <div>
-                  <p className="text-primary font-bold text-sm">{p.name}</p>
-                  <p className="text-foreground text-xs">{p.role}</p>
+                  <p className="text-primary font-bold text-sm font-mono">{p.name}</p>
+                  <p className="text-foreground text-sm font-mono">{p.role}</p>
                 </div>
                 {p.linkedinUrl && (
-                  <a href={p.linkedinUrl} target="_blank" rel="noopener noreferrer" className="ml-auto text-highlight text-xs hover:underline">LinkedIn</a>
+                  <a href={p.linkedinUrl} target="_blank" rel="noopener noreferrer" className="ml-auto text-highlight text-sm font-mono hover:underline">LinkedIn</a>
                 )}
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {p.sections.map((s, i) => (
                   <div key={i}>
-                    <p className="text-primary font-semibold text-xs mb-1">{s.title}</p>
-                     <ul className="text-xs text-foreground space-y-0.5">
+                    <p className="text-primary font-semibold text-sm font-mono mb-1">{s.title}</p>
+                     <ul className="text-sm font-mono text-foreground space-y-0.5">
                       {s.items.map((item, j) => <li key={j}>• {item}</li>)}
                     </ul>
                   </div>
@@ -503,14 +503,14 @@ const useServiceContent = () => {
               <Phone size={16} className="text-primary" />
               <SubTitle>{t('contact.phone')}</SubTitle>
             </div>
-            <a href="tel:+4915205691648" className="text-foreground text-sm hover:text-highlight transition-electric">+49 1520 569 1648</a>
+            <a href="tel:+4915205691648" className="text-foreground text-sm font-mono hover:text-highlight transition-electric">+49 1520 569 1648</a>
           </div>
           <div className="rounded-xl p-4 bg-primary/5 border border-primary/20">
             <div className="flex items-center gap-2 mb-2">
               <Mail size={16} className="text-primary" />
               <SubTitle>{t('contact.email')}</SubTitle>
             </div>
-            <a href="mailto:marcel@inside-the-box.org" className="text-foreground text-sm hover:text-highlight transition-electric">marcel@inside-the-box.org</a>
+            <a href="mailto:marcel@inside-the-box.org" className="text-foreground text-sm font-mono hover:text-highlight transition-electric">marcel@inside-the-box.org</a>
           </div>
         </div>
       </div>
@@ -519,21 +519,21 @@ const useServiceContent = () => {
       <div className="space-y-3">
         <Block><SectionTitle>{t('imprint.title')}</SectionTitle></Block>
         <Block className="bg-secondary/30">
-          <p className="text-foreground text-sm">
+          <p className="text-foreground text-sm font-mono">
             <span className="text-primary font-semibold">{t('imprint.responsible')}</span><br />
             Marcel Knop<br />
             Appenrother Weg 14<br />
             34308 Bad Emstal, Germany
           </p>
-           <p className="text-foreground text-sm mt-3">
+           <p className="text-foreground text-sm font-mono mt-3">
             <span className="text-primary font-semibold">{t('imprint.contactLabel')}</span><br />
             <a href="mailto:marcel@inside-the-box.org" className="hover:text-highlight transition-electric">marcel@inside-the-box.org</a><br />
             <a href="tel:+4915205691648" className="hover:text-highlight transition-electric">+49 1520 569 1648</a>
           </p>
-           <p className="text-foreground text-sm mt-3">
+           <p className="text-foreground text-sm font-mono mt-3">
             <span className="text-primary font-semibold">{t('imprint.vatId')}</span> DE328906053
           </p>
-          <p className="text-foreground text-sm mt-3">
+          <p className="text-foreground text-sm font-mono mt-3">
             <span className="text-primary font-semibold">{t('imprint.insurance')}</span><br />
             Hiscox SA · Arnulfstr. 31 · 80636 Munich, Germany
           </p>
@@ -559,8 +559,8 @@ const useServiceContent = () => {
                 <Monitor size={16} className="text-primary" />
                 <SubTitle>{t('techReq.systemTitle')}</SubTitle>
               </div>
-               <p className="text-xs text-foreground mb-2">{t('techReq.systemDesc')}</p>
-               <ul className="text-xs text-foreground space-y-0.5">
+               <p className="text-sm font-mono text-foreground mb-2">{t('techReq.systemDesc')}</p>
+               <ul className="text-sm font-mono text-foreground space-y-0.5">
                 {systemItems.map((item, i) => <li key={i}>• {item}</li>)}
               </ul>
             </div>
@@ -569,8 +569,8 @@ const useServiceContent = () => {
                 <Wifi size={16} className="text-highlight" />
                 <SubTitle variant="highlight">{t('techReq.networkTitle')}</SubTitle>
               </div>
-               <p className="text-xs text-foreground mb-2">{t('techReq.networkDesc')}</p>
-               <ul className="text-xs text-foreground space-y-0.5">
+               <p className="text-sm font-mono text-foreground mb-2">{t('techReq.networkDesc')}</p>
+               <ul className="text-sm font-mono text-foreground space-y-0.5">
                 {networkItems.map((item, i) => <li key={i}>• <span className="font-mono">{item}</span></li>)}
               </ul>
             </div>
@@ -843,9 +843,9 @@ const ChatView = () => {
                           return (
                             <li key={j}>
                               {serviceId ? (
-                                <button onClick={() => selectService(serviceId)} className="text-primary hover:underline text-xs text-left">→ {link.label}</button>
+                                <button onClick={() => selectService(serviceId)} className="text-primary hover:underline text-sm font-mono text-left">→ {link.label}</button>
                               ) : (
-                                <a href={link.url} className="text-primary hover:underline text-xs">→ {link.label}</a>
+                                <a href={link.url} className="text-primary hover:underline text-sm font-mono">→ {link.label}</a>
                               )}
                             </li>
                           );
