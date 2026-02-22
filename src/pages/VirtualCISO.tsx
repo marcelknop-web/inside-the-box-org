@@ -28,7 +28,7 @@ const VirtualCISO = () => {
               icon={Settings}
               title="Operational Excellence"
               description="Security program oversight, team guidance, and vendor management – maintaining continuity and accountability without a permanent headcount."
-              variant="highlight"
+              variant="primary"
             />
             
             <ServiceCard
@@ -37,32 +37,32 @@ const VirtualCISO = () => {
               description="Regulatory compliance management, audit coordination, and policy development. One point of ownership across frameworks, assessments, and reporting obligations."
             />
             
-            <InfoCard variant="subtle">
-              <h2 className="text-primary text-xl sm:text-2xl lg:text-3xl font-bold font-mono mb-4">Service Model</h2>
+            <InfoCard variant="highlight">
+              <h2 className="text-highlight text-xl sm:text-2xl lg:text-3xl font-bold font-mono mb-4">Service Model</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-base sm:text-lg text-foreground/80">
                 <div className="flex items-start space-x-3">
-                  <UserCheck className="text-primary mt-1 flex-shrink-0" size={20} />
+                  <UserCheck className="text-highlight mt-1 flex-shrink-0" size={20} />
                   <div>
                     <h3 className="font-semibold text-foreground mb-2">Flexible</h3>
                     <p>Part-time or project-based engagement scaled to your current needs.</p>
                   </div>
                 </div>
                 <div className="flex items-start space-x-3">
-                  <DollarSign className="text-primary mt-1 flex-shrink-0" size={20} />
+                  <DollarSign className="text-highlight mt-1 flex-shrink-0" size={20} />
                   <div>
                     <h3 className="font-semibold text-foreground mb-2">Cost-effective</h3>
                     <p>Senior expertise at a fraction of full-time executive cost.</p>
                   </div>
                 </div>
                 <div className="flex items-start space-x-3">
-                  <Zap className="text-primary mt-1 flex-shrink-0" size={20} />
+                  <Zap className="text-highlight mt-1 flex-shrink-0" size={20} />
                   <div>
                     <h3 className="font-semibold text-foreground mb-2">Immediate</h3>
                     <p>No onboarding lag. Operational from day one.</p>
                   </div>
                 </div>
                 <div className="flex items-start space-x-3">
-                  <Award className="text-primary mt-1 flex-shrink-0" size={20} />
+                  <Award className="text-highlight mt-1 flex-shrink-0" size={20} />
                   <div>
                     <h3 className="font-semibold text-foreground mb-2">Experienced</h3>
                     <p>Background in enterprise security management across regulated industries.</p>
