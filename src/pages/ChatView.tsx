@@ -401,13 +401,16 @@ const useServiceContent = () => {
           <SectionTitle>{t('index.title')}</SectionTitle>
           <p className="text-lg font-semibold mb-2">{t('index.subtitle')}</p>
         </Block>
-        <Block className="bg-primary/5 border border-primary/20 rounded-xl">
+        <Block className="bg-primary/10 border-2 border-primary/30 rounded-xl">
           <p className="text-foreground mb-3" dangerouslySetInnerHTML={{
             __html: t('index.card1').replace(/<span>/g, '<span class="text-primary font-semibold">')
           }} />
-          <p className="text-foreground whitespace-pre-line">{t('index.card1b')}</p>
+          <ul className="list-disc list-inside text-foreground mb-3 space-y-1">
+            {t('index.card1bullets').split('\n').map((b, i) => <li key={i}>{b}</li>)}
+          </ul>
+          <p className="text-foreground font-semibold">{t('index.card1outro')}</p>
         </Block>
-        <Block className="bg-primary/5 border border-primary/20 rounded-xl">
+        <Block className="bg-primary/10 border-2 border-primary/30 rounded-xl">
           <p className="text-foreground whitespace-pre-line mb-3" dangerouslySetInnerHTML={{
             __html: t('index.card2').replace(/<span>/g, '<span class="text-primary font-semibold">')
           }} />
