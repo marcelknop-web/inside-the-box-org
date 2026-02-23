@@ -27,13 +27,21 @@ const SubTitle = ({ children, variant = 'primary' }: { children: ReactNode; vari
   <h3 className={`${variant === 'highlight' ? 'text-highlight' : 'text-primary'} font-semibold font-mono text-sm mb-1`}>{children}</h3>
 );
 
-const CardBlock = ({ icon: Icon, title, desc, variant = 'primary', link, linkLabel }: { icon: LucideIcon; title: string; desc: string; variant?: 'primary' | 'highlight'; link?: string; linkLabel?: string }) => (
+const CardBlock = ({ icon: Icon, title, desc, variant = 'primary', link, linkLabel, bullets, result }: { icon: LucideIcon; title: string; desc: string; variant?: 'primary' | 'highlight'; link?: string; linkLabel?: string; bullets?: string[]; result?: string }) => (
   <div className={`rounded-xl p-4 ${variant === 'highlight' ? 'bg-highlight/5 border border-highlight/20' : 'bg-primary/5 border border-primary/20'}`}>
     <div className="flex items-start gap-3">
       <Icon size={22} className={`mt-0.5 flex-shrink-0 ${variant === 'highlight' ? 'text-highlight' : 'text-primary'}`} />
       <div>
         <SubTitle variant={variant}>{title}</SubTitle>
         <p className="text-foreground text-sm md:text-base font-sans leading-relaxed tracking-wide whitespace-pre-line">{desc}</p>
+        {bullets && bullets.length > 0 && (
+          <ul className="text-foreground text-sm md:text-base font-sans leading-relaxed tracking-wide space-y-1.5 mt-2">
+            {bullets.map((b, i) => (
+              <li key={i} className="flex items-start gap-2"><span className="flex-shrink-0">•</span><span>{b}</span></li>
+            ))}
+          </ul>
+        )}
+        {result && <p className="mt-2 text-sm font-semibold text-highlight font-mono">{result}</p>}
         {link && linkLabel && (
           <a href={link} target="_blank" rel="noopener noreferrer" className="inline-block mt-2 text-highlight hover:text-primary transition-electric text-sm font-sans underline">
             → {linkLabel}
@@ -377,10 +385,10 @@ const useServiceContent = () => {
     'ai-workflows': () => (
       <div className="space-y-3">
         <Block><SectionTitle>{t('aiWorkflows.title')}</SectionTitle><p>{t('aiWorkflows.intro')}</p></Block>
-        <CardBlock icon={Zap} title={t('aiWorkflows.irTitle')} desc={`${t('aiWorkflows.irDesc')}\n• ${t('aiWorkflows.irBullet1')}\n• ${t('aiWorkflows.irBullet2')}\n• ${t('aiWorkflows.irBullet3')}\n${t('aiWorkflows.irResult')}`} />
-        <CardBlock icon={FileText} title={t('aiWorkflows.policyTitle')} desc={`${t('aiWorkflows.policyDesc')}\n• ${t('aiWorkflows.policyBullet1')}\n• ${t('aiWorkflows.policyBullet2')}\n• ${t('aiWorkflows.policyBullet3')}\n${t('aiWorkflows.policyResult')}`} variant="highlight" />
-        <CardBlock icon={Search} title={t('aiWorkflows.auditTitle')} desc={`${t('aiWorkflows.auditDesc')}\n• ${t('aiWorkflows.auditBullet1')}\n• ${t('aiWorkflows.auditBullet2')}\n• ${t('aiWorkflows.auditBullet3')}\n${t('aiWorkflows.auditResult')}`} />
-        <CardBlock icon={Gamepad2} title={t('aiWorkflows.crisisTitle')} desc={`${t('aiWorkflows.crisisDesc')}\n• ${t('aiWorkflows.crisisBullet1')}\n• ${t('aiWorkflows.crisisBullet2')}\n• ${t('aiWorkflows.crisisBullet3')}\n${t('aiWorkflows.crisisResult')}`} variant="highlight" />
+        <CardBlock icon={Zap} title={t('aiWorkflows.irTitle')} desc={t('aiWorkflows.irDesc')} bullets={[t('aiWorkflows.irBullet1'), t('aiWorkflows.irBullet2'), t('aiWorkflows.irBullet3')]} result={t('aiWorkflows.irResult')} />
+        <CardBlock icon={FileText} title={t('aiWorkflows.policyTitle')} desc={t('aiWorkflows.policyDesc')} variant="highlight" bullets={[t('aiWorkflows.policyBullet1'), t('aiWorkflows.policyBullet2'), t('aiWorkflows.policyBullet3')]} result={t('aiWorkflows.policyResult')} />
+        <CardBlock icon={Search} title={t('aiWorkflows.auditTitle')} desc={t('aiWorkflows.auditDesc')} bullets={[t('aiWorkflows.auditBullet1'), t('aiWorkflows.auditBullet2'), t('aiWorkflows.auditBullet3')]} result={t('aiWorkflows.auditResult')} />
+        <CardBlock icon={Gamepad2} title={t('aiWorkflows.crisisTitle')} desc={t('aiWorkflows.crisisDesc')} variant="highlight" bullets={[t('aiWorkflows.crisisBullet1'), t('aiWorkflows.crisisBullet2'), t('aiWorkflows.crisisBullet3')]} result={t('aiWorkflows.crisisResult')} />
         <Block className="bg-highlight/10 border border-highlight/30 rounded-xl">
           <SubTitle variant="highlight">{t('aiWorkflows.ctaTitle')}</SubTitle>
           <p className="text-foreground whitespace-pre-line">{t('aiWorkflows.ctaDesc')}</p>
