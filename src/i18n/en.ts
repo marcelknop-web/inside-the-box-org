@@ -18,7 +18,7 @@ export const en = {
     subtitle: 'Expect the unexpected.',
     metaDesc: 'Realistic cyber attack simulations and crisis coordination training. 40+ trainings delivered, 350+ people trained across 6 countries.',
     card1: 'In cyber incidents, technology rarely fails first – <span>the organization</span> does.',
-    card1b: 'Communication stalls. Decisions are delayed. Responsibilities are unclear.\nThat\'s exactly what we train.',
+    card1b: 'Communication stalls.\nDecisions are delayed.\nResponsibilities are unclear.\n\nOur Cyber Training Range makes exactly this visible – before it becomes critical.',
     card2: 'Our <span>Cyber Training Range</span> simulates realistic attacks in a controlled environment.\n\nTechnical teams respond operationally. Leaders make decisions under time pressure. The crisis team coordinates.',
     card2outro: 'This reveals how resilient your organization truly is.',
     trainingsDelivered: 'Trainings Delivered',
