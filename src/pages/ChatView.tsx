@@ -647,6 +647,7 @@ const ChatView = () => {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarInitialized, setSidebarInitialized] = useState(false);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const contentAreaRef = useRef<HTMLDivElement>(null);
@@ -696,7 +697,13 @@ const ChatView = () => {
 
   const isMobile = useIsMobile();
   
-  useEffect(() => { if (!isMobile) setSidebarOpen(true); }, [isMobile]);
+  useEffect(() => {
+    if (!sidebarInitialized && typeof window !== 'undefined') {
+      const mobile = window.innerWidth < 768;
+      setSidebarOpen(!mobile);
+      setSidebarInitialized(true);
+    }
+  }, [sidebarInitialized]);
 
   const selectService = (id: string) => {
     setActiveService(id);
