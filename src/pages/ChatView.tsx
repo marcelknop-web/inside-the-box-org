@@ -571,7 +571,7 @@ const useServiceContent = () => {
                 {systemItems.map((item, i) => <li key={i}>• {item}</li>)}
               </ul>
             </div>
-            <div className="rounded-xl p-4 bg-highlight/5 border border-highlight/20">
+            <div className="rounded-xl p-4 bg-primary/5 border border-primary/20">
               <div className="flex items-center gap-2 mb-2">
                 <Wifi size={16} className="text-primary" />
                 <SubTitle variant="primary">{t('techReq.networkTitle')}</SubTitle>
