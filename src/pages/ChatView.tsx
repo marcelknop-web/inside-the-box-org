@@ -286,7 +286,7 @@ const useServiceContent = () => {
         <CardBlock icon={Target} title={t('cyberCrisis.simTitle')} desc={t('cyberCrisis.simDesc')} />
         <CardBlock icon={Crown} title={t('cyberCrisis.leaderTitle')} desc={t('cyberCrisis.leaderDesc')} variant="highlight" />
         <CardBlock icon={MessageSquare} title={t('cyberCrisis.commTitle')} desc={t('cyberCrisis.commDesc')} />
-        <Block><SectionTitle>{t('cyberCrisis.methTitle')}</SectionTitle></Block>
+        <Block><h2 className="text-highlight text-lg font-bold font-mono mb-3">{t('cyberCrisis.methTitle')}</h2></Block>
         <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <GridItem icon={Users} title={t('cyberCrisis.tabletop')} desc={t('cyberCrisis.tabletopDesc')} variant="highlight" />
