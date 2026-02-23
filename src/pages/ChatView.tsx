@@ -281,11 +281,13 @@ const useServiceContent = () => {
     'incident-management': () => (
       <div className="space-y-3">
         <Block><SectionTitle>{t('incident.title')}</SectionTitle><p>{t('incident.intro')}</p></Block>
-        <CardBlock icon={FileText} title={t('incident.planTitle')} desc={t('incident.planDesc')} />
-        <CardBlock icon={Eye} title={t('incident.detectionTitle')} desc={t('incident.detectionDesc')} variant="highlight" />
-        <CardBlock icon={AlertTriangle} title={t('incident.containTitle')} desc={t('incident.containDesc')} />
-        <CardBlock icon={RefreshCw} title={t('incident.recoveryTitle')} desc={t('incident.recoveryDesc')} variant="highlight" />
-        <CardBlock icon={GraduationCap} title={t('incident.simTitle')} desc={t('incident.simDesc')} />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <CardBlock icon={FileText} title={t('incident.planTitle')} desc={t('incident.planDesc')} />
+          <CardBlock icon={Eye} title={t('incident.detectionTitle')} desc={t('incident.detectionDesc')} variant="highlight" />
+          <CardBlock icon={AlertTriangle} title={t('incident.containTitle')} desc={t('incident.containDesc')} />
+          <CardBlock icon={RefreshCw} title={t('incident.recoveryTitle')} desc={t('incident.recoveryDesc')} variant="highlight" />
+          <CardBlock icon={GraduationCap} title={t('incident.simTitle')} desc={t('incident.simDesc')} />
+        </div>
       </div>
     ),
     'cyber-crisis-management': () => (
