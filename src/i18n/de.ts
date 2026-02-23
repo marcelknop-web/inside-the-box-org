@@ -19,7 +19,7 @@ export const de = {
     metaDesc: 'Realistische Cyberangriff-Simulationen und Krisenkoordinationstraining. 40+ Trainings, 350+ Teilnehmer in 6 Ländern.',
     card1: 'Bei Cybervorfällen scheitert selten die Technik zuerst – sondern die <span>Organisation</span>.',
     card1bullets: 'Kommunikation stockt.\nEntscheidungen verzögern sich.\nZuständigkeiten sind unklar.',
-    card1outro: 'Unsere Cyber Training Range macht genau das sichtbar – bevor es kritisch wird.',
+    card1outro: 'Unsere Cyber Training Range macht das sichtbar – bevor es kritisch wird.',
     card2: 'Unsere <span>Cyber Training Range</span> simuliert realistische Angriffe in einer kontrollierten Umgebung.',
     card2bullets: 'Technische Teams reagieren operativ.\nFührungskräfte treffen Entscheidungen unter Zeitdruck.\nDer Krisenstab koordiniert.',
     card2outro: 'So wird sichtbar, wie belastbar Ihre Organisation wirklich ist.',
