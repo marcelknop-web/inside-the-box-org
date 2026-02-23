@@ -901,7 +901,7 @@ const ChatView = () => {
           if (hideOnServiceMobileOrTablet) return null;
           if (!showInput) {
             return (
-              <div className="absolute bottom-6 right-6 z-10">
+              <div className="absolute bottom-16 right-6 z-10">
                 <button
                   onClick={() => { setChatOpen(true); setTimeout(() => inputRef.current?.focus(), 100); }}
                   className="w-14 h-14 rounded-full bg-highlight text-highlight-foreground shadow-lg flex items-center justify-center hover:bg-highlight/80 transition-electric"
