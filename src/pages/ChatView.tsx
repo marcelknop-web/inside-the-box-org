@@ -658,8 +658,8 @@ const ChatView = () => {
   const { contentMap, bindSetActive } = useServiceContent();
   bindSetActive((id) => { setActiveService(id); setMessages([]); });
 
-  useEffect(() => { if (window.innerWidth >= 768) inputRef.current?.focus(); }, []);
-  useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
+  useEffect(() => { if (window.innerWidth > 1024) inputRef.current?.focus(); }, []);
+  useEffect(() => { if (messages.length > 0) messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
   useEffect(() => {
     if (contentAreaRef.current) contentAreaRef.current.scrollTop = 0;
   }, [activeService]);
@@ -715,7 +715,13 @@ const ChatView = () => {
     }
   }, [sidebarInitialized]);
 
-  const isTablet = typeof window !== 'undefined' && window.innerWidth >= 768 && window.innerWidth <= 1024;
+  const [isTablet, setIsTablet] = useState(false);
+  useEffect(() => {
+    const check = () => setIsTablet(window.innerWidth >= 768 && window.innerWidth <= 1024);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
 
   const selectService = (id: string) => {
     setActiveService(id);
