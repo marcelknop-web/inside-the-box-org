@@ -3,7 +3,7 @@ import { ServiceCard } from '@/components/ServiceCard';
 import { PageNavButtons } from '@/components/PageNavButtons';
 import { PageMeta } from '@/components/PageMeta';
 import { useLanguage } from '@/i18n/LanguageContext';
-import { Users, Building2, Award, ShieldCheck, Network, CreditCard, Search, AlertTriangle, Radio, Target, Calendar, FileText, UserCheck } from 'lucide-react';
+import { Users, Building2, Award, ShieldCheck, Network, CreditCard, Search, AlertTriangle, Radio, Target, Calendar, FileText, UserCheck, Zap } from 'lucide-react';
 
 const Consulting = () => {
   const { t } = useLanguage();
@@ -19,6 +19,7 @@ const Consulting = () => {
     { title: t('consulting.eventsTitle'), description: t('consulting.eventsDesc'), href: '/events-workshops', icon: Calendar },
     { title: t('consulting.pubTitle'), description: t('consulting.pubDesc'), href: '/publications', icon: FileText },
     { title: t('consulting.vcisoTitle'), description: t('consulting.vcisoDesc'), href: '/virtual-ciso', icon: UserCheck },
+    { title: t('consulting.aiWorkflowsTitle'), description: t('consulting.aiWorkflowsDesc'), href: '/ai-workflows', icon: Zap },
   ];
 
   return (
