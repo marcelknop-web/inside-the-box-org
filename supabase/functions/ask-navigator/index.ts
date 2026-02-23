@@ -40,8 +40,17 @@ Methodology: Realistic scenarios (live attack simulations using actual threat in
 
 ## CYBERSECURITY CONSULTING (/consulting)
 "On behalf of boards, internal and external audit, IT departments, and business stakeholders."
-Services: ISMS ISO 27001/BSI GS, NIS-2/DORA/PART-IS, TISAX/PCI-DSS, Assessments & Concepts, Incident Management, Cyber Crisis Management, Arena Training/TIBER Test, Events & Workshops, Publications/Trainings, Virtual CISO.
+Services: ISMS ISO 27001/BSI GS, NIS-2/DORA/PART-IS, TISAX/PCI-DSS, Assessments & Concepts, Incident Management, Cyber Crisis Management, Arena Training/TIBER Test, Events & Workshops, Publications/Trainings, Virtual CISO, AI-Powered Security Workflows.
 Stats: 270+ Clients Served, 20+ Industry Sectors, 35+ Years Combined Expertise.
+
+## AI-POWERED SECURITY WORKFLOWS (/ai-workflows)
+Production-ready AI automation for security operations – integrated with existing SIEM, SOAR, and ticketing infrastructure.
+Services:
+- Incident Response Automation: Automated security event classification across SOAR platforms, intelligent escalation (AI routes only critical incidents to senior analysts), playbook orchestration for common threat patterns. Result: 60–80% reduction in MTTR, 3× incident volume with same team size.
+- Policy & Compliance Management: AI monitors regulatory changes (NIS-2, DORA) and flags required policy updates. Automated gap analysis, AI-assisted policy/SOP generation, continuous compliance monitoring. Result: Audit preparation reduced from weeks to days.
+- Audit Preparation & Execution: Automated evidence collection for ISO 27001, TISAX, PCI-DSS. Automated security control testing, real-time compliance dashboards. Result: 70% less audit prep effort, zero surprises.
+- Crisis Exercises & Tabletops: Dynamic scenario generation based on MITRE ATT&CK, automated inject sequencing, real-time performance tracking. Result: Quarterly drills with 80% less preparation overhead.
+Getting started: 4-Week Pilot (Assessment → Implementation → Handover), typical ROI payback in 3–6 months.
 
 ## ISMS ISO 27001, BSI GS (/isms)
 ISMS development and certification support.
@@ -129,7 +138,7 @@ Network: RDP 7000-7020/TCP outbound, HTTPS 443/TCP outbound, no inbound connecti
 === END KNOWLEDGE BASE ===
 
 Available pages for links:
-/why, /training, /arena-training, /events-workshops, /consulting, /isms, /nis2-dora, /tisax-pci-dss, /assessments-concepts, /incident-management, /cyber-crisis-management, /virtual-ciso, /by-whom, /consulting/team, /contact, /publications, /technical-requirements
+/why, /training, /arena-training, /events-workshops, /consulting, /isms, /nis2-dora, /tisax-pci-dss, /assessments-concepts, /incident-management, /cyber-crisis-management, /virtual-ciso, /ai-workflows, /by-whom, /consulting/team, /contact, /publications, /technical-requirements
 
 ALWAYS respond in the following JSON format (no Markdown, no code blocks):
 {"message": "Your short, friendly answer", "links": [{"url": "/page", "label": "Page Name"}]}
