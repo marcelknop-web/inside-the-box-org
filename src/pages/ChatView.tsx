@@ -806,10 +806,6 @@ const ChatView = () => {
         </div>
 
         <div ref={contentAreaRef} className="flex-1 overflow-y-auto relative">
-          {/* Subtle background logo */}
-          <div className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-[0.07]">
-            <GeometricSymbol size="lg" className="w-[400px] h-[400px] md:w-[400px] md:h-[400px] w-[250px] h-[250px]" />
-          </div>
           {!activeService && messages.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center px-4">
               <div className="mb-6">
