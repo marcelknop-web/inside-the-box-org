@@ -33,7 +33,7 @@ const CardBlock = ({ icon: Icon, title, desc, variant = 'primary', link, linkLab
       <Icon size={22} className={`mt-0.5 flex-shrink-0 ${variant === 'highlight' ? 'text-highlight' : 'text-primary'}`} />
       <div>
         <SubTitle variant={variant}>{title}</SubTitle>
-        <p className="text-foreground text-sm md:text-base font-sans leading-relaxed tracking-wide">{desc}</p>
+        <p className="text-foreground text-sm md:text-base font-sans leading-relaxed tracking-wide whitespace-pre-line">{desc}</p>
         {link && linkLabel && (
           <a href={link} target="_blank" rel="noopener noreferrer" className="inline-block mt-2 text-highlight hover:text-primary transition-electric text-sm font-sans underline">
             → {linkLabel}
@@ -377,10 +377,14 @@ const useServiceContent = () => {
     'ai-workflows': () => (
       <div className="space-y-3">
         <Block><SectionTitle>{t('aiWorkflows.title')}</SectionTitle><p>{t('aiWorkflows.intro')}</p></Block>
-        <CardBlock icon={Zap} title={t('aiWorkflows.irTitle')} desc={t('aiWorkflows.irDesc')} />
-        <CardBlock icon={FileText} title={t('aiWorkflows.policyTitle')} desc={t('aiWorkflows.policyDesc')} variant="highlight" />
-        <CardBlock icon={Search} title={t('aiWorkflows.auditTitle')} desc={t('aiWorkflows.auditDesc')} />
-        <CardBlock icon={Gamepad2} title={t('aiWorkflows.crisisTitle')} desc={t('aiWorkflows.crisisDesc')} variant="highlight" />
+        <CardBlock icon={Zap} title={t('aiWorkflows.irTitle')} desc={`${t('aiWorkflows.irDesc')}\n▸ ${t('aiWorkflows.irBullet1')}\n▸ ${t('aiWorkflows.irBullet2')}\n▸ ${t('aiWorkflows.irBullet3')}\n${t('aiWorkflows.irResult')}`} />
+        <CardBlock icon={FileText} title={t('aiWorkflows.policyTitle')} desc={`${t('aiWorkflows.policyDesc')}\n▸ ${t('aiWorkflows.policyBullet1')}\n▸ ${t('aiWorkflows.policyBullet2')}\n▸ ${t('aiWorkflows.policyBullet3')}\n${t('aiWorkflows.policyResult')}`} variant="highlight" />
+        <CardBlock icon={Search} title={t('aiWorkflows.auditTitle')} desc={`${t('aiWorkflows.auditDesc')}\n▸ ${t('aiWorkflows.auditBullet1')}\n▸ ${t('aiWorkflows.auditBullet2')}\n▸ ${t('aiWorkflows.auditBullet3')}\n${t('aiWorkflows.auditResult')}`} />
+        <CardBlock icon={Gamepad2} title={t('aiWorkflows.crisisTitle')} desc={`${t('aiWorkflows.crisisDesc')}\n▸ ${t('aiWorkflows.crisisBullet1')}\n▸ ${t('aiWorkflows.crisisBullet2')}\n▸ ${t('aiWorkflows.crisisBullet3')}\n${t('aiWorkflows.crisisResult')}`} variant="highlight" />
+        <Block className="bg-highlight/10 border border-highlight/30 rounded-xl">
+          <SubTitle variant="highlight">{t('aiWorkflows.ctaTitle')}</SubTitle>
+          <p className="text-foreground whitespace-pre-line">{t('aiWorkflows.ctaDesc')}</p>
+        </Block>
       </div>
     ),
     why: () => (
