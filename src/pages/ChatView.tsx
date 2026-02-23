@@ -308,12 +308,12 @@ const useServiceContent = () => {
             <GridItem icon={Monitor} title={t('cyberCrisis.cyberRange')} desc={t('cyberCrisis.cyberRangeDesc')} variant="highlight" />
           </div>
         </Block>
-        <Block className="bg-secondary/30">
-          <SubTitle>{t('cyberCrisis.outcomesTitle')}</SubTitle>
+        <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
+          <SubTitle variant="highlight">{t('cyberCrisis.outcomesTitle')}</SubTitle>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-2">
-            <GridItem icon={ShieldCheck} title={t('cyberCrisis.readiness')} desc={t('cyberCrisis.readinessDesc')} />
-            <GridItem icon={Users2} title={t('cyberCrisis.coordination')} desc={t('cyberCrisis.coordinationDesc')} />
-            <GridItem icon={Lightbulb} title={t('cyberCrisis.leadership')} desc={t('cyberCrisis.leadershipDesc')} />
+            <GridItem icon={ShieldCheck} title={t('cyberCrisis.readiness')} desc={t('cyberCrisis.readinessDesc')} variant="highlight" />
+            <GridItem icon={Users2} title={t('cyberCrisis.coordination')} desc={t('cyberCrisis.coordinationDesc')} variant="highlight" />
+            <GridItem icon={Lightbulb} title={t('cyberCrisis.leadership')} desc={t('cyberCrisis.leadershipDesc')} variant="highlight" />
           </div>
         </Block>
       </div>
