@@ -359,14 +359,14 @@ const useServiceContent = () => {
       <div className="space-y-3">
         <Block><SectionTitle>{t('publications.title')}</SectionTitle><p>{t('publications.intro')}</p></Block>
         <CardBlock icon={Shield} title={t('publications.pub1Title')} desc={t('publications.pub1Desc')} link="https://www.heise.de/select/ix/2021/10/2019809530193925811" linkLabel={t('publications.readOnHeise')} />
-        <CardBlock icon={Radio} title={t('publications.pub2Title')} desc={t('publications.pub2Desc')} variant="highlight" link="https://www.heise.de/select/ix/archiv/2015/7/seite-78" linkLabel={t('publications.readOnHeise')} />
+        <CardBlock icon={Radio} title={t('publications.pub2Title')} desc={t('publications.pub2Desc')} link="https://www.heise.de/select/ix/archiv/2015/7/seite-78" linkLabel={t('publications.readOnHeise')} />
         <CardBlock icon={Video} title={t('publications.pub3Title')} desc={t('publications.pub3Desc')} link="https://vimeo.com/295582173" linkLabel={t('publications.watchOnVimeo')} />
-        <Block className="bg-secondary/30">
-          <SubTitle>{t('publications.certTitle')}</SubTitle>
+        <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
+          <SubTitle variant="highlight">{t('publications.certTitle')}</SubTitle>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-2">
-            <GridItem icon={Award} title={t('publications.isacaTitle')} desc={t('publications.isacaDesc')} />
-            <GridItem icon={Presentation} title={t('publications.confTitle')} desc={t('publications.confDesc')} />
-            <GridItem icon={BookOpen} title={t('publications.eduTitle')} desc={t('publications.eduDesc')} />
+            <GridItem icon={Award} title={t('publications.isacaTitle')} desc={t('publications.isacaDesc')} variant="highlight" />
+            <GridItem icon={Presentation} title={t('publications.confTitle')} desc={t('publications.confDesc')} variant="highlight" />
+            <GridItem icon={BookOpen} title={t('publications.eduTitle')} desc={t('publications.eduDesc')} variant="highlight" />
           </div>
         </Block>
       </div>
