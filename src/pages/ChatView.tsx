@@ -747,7 +747,7 @@ const ChatView = () => {
                         activeService === item.id ? 'bg-highlight/10 text-highlight' : 'text-foreground hover:bg-highlight/5 hover:text-highlight'
                       }`}
                     >
-                      <item.icon size={16} className={`flex-shrink-0 ${activeService === item.id ? 'text-highlight' : 'text-highlight/50 group-hover:text-highlight'}`} />
+                      <item.icon size={16} className={`flex-shrink-0 ${activeService === item.id ? 'text-highlight' : 'text-foreground/60 group-hover:text-highlight'}`} />
                       <span className="truncate font-rounded text-base">{item.label}</span>
                     </button>
                   ))}
@@ -785,7 +785,7 @@ const ChatView = () => {
                         activeService === item.id ? 'bg-highlight/10 text-highlight' : 'text-foreground hover:bg-highlight/5 hover:text-highlight'
                       }`}
                     >
-                      <item.icon size={16} className={`flex-shrink-0 ${activeService === item.id ? 'text-highlight' : 'text-highlight/50 group-hover:text-highlight'}`} />
+                      <item.icon size={16} className={`flex-shrink-0 ${activeService === item.id ? 'text-highlight' : 'text-foreground/60 group-hover:text-highlight'}`} />
                       <span className="truncate font-rounded text-base">{item.label}</span>
                     </button>
                   ))}
