@@ -14,7 +14,7 @@ interface ChatMessage { role: 'user' | 'assistant'; content: string; links?: Nav
 // ── Chat-styled content blocks ──────────────────────────────────────────────
 
 const Block = ({ children, className = '' }: { children: ReactNode; className?: string }) => (
-  <div className={`rounded-2xl px-5 py-4 text-sm font-sans leading-relaxed tracking-wide text-foreground ${className}`}>
+  <div className={`rounded-2xl px-5 py-4 text-sm md:text-base font-sans leading-relaxed tracking-wide text-foreground ${className}`}>
     {children}
   </div>
 );
@@ -33,7 +33,7 @@ const CardBlock = ({ icon: Icon, title, desc, variant = 'primary', link, linkLab
       <Icon size={18} className={`mt-0.5 flex-shrink-0 ${variant === 'highlight' ? 'text-highlight' : 'text-primary'}`} />
       <div>
         <SubTitle variant={variant}>{title}</SubTitle>
-        <p className="text-foreground text-sm font-sans leading-relaxed tracking-wide">{desc}</p>
+        <p className="text-foreground text-sm md:text-base font-sans leading-relaxed tracking-wide">{desc}</p>
         {link && linkLabel && (
           <a href={link} target="_blank" rel="noopener noreferrer" className="inline-block mt-2 text-highlight hover:text-primary transition-electric text-sm font-sans underline">
             → {linkLabel}
@@ -55,8 +55,8 @@ const GridItem = ({ icon: Icon, title, desc, variant = 'primary' }: { icon: Luci
   <div className="flex items-start gap-2">
     <Icon size={16} className={`mt-0.5 flex-shrink-0 ${variant === 'highlight' ? 'text-highlight' : 'text-primary'}`} />
     <div>
-      <p className={`font-semibold text-sm font-sans ${variant === 'highlight' ? 'text-highlight' : 'text-primary'}`}>{title}</p>
-      <p className="text-foreground text-sm font-sans leading-relaxed tracking-wide">{desc}</p>
+      <p className={`font-semibold text-sm md:text-base font-sans ${variant === 'highlight' ? 'text-highlight' : 'text-primary'}`}>{title}</p>
+      <p className="text-foreground text-sm md:text-base font-sans leading-relaxed tracking-wide">{desc}</p>
     </div>
   </div>
 );
