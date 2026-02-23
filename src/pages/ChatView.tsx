@@ -293,11 +293,13 @@ const useServiceContent = () => {
     'cyber-crisis-management': () => (
       <div className="space-y-3">
         <Block><SectionTitle>{t('cyberCrisis.title')}</SectionTitle><p>{t('cyberCrisis.intro')}</p></Block>
-        <CardBlock icon={ClipboardList} title={t('cyberCrisis.planTitle')} desc={t('cyberCrisis.planDesc')} />
-        <CardBlock icon={Zap} title={t('cyberCrisis.scenarioTitle')} desc={t('cyberCrisis.scenarioDesc')} variant="highlight" />
-        <CardBlock icon={Target} title={t('cyberCrisis.simTitle')} desc={t('cyberCrisis.simDesc')} />
-        <CardBlock icon={Crown} title={t('cyberCrisis.leaderTitle')} desc={t('cyberCrisis.leaderDesc')} variant="highlight" />
-        <CardBlock icon={MessageSquare} title={t('cyberCrisis.commTitle')} desc={t('cyberCrisis.commDesc')} />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <CardBlock icon={ClipboardList} title={t('cyberCrisis.planTitle')} desc={t('cyberCrisis.planDesc')} />
+          <CardBlock icon={Zap} title={t('cyberCrisis.scenarioTitle')} desc={t('cyberCrisis.scenarioDesc')} variant="highlight" />
+          <CardBlock icon={Target} title={t('cyberCrisis.simTitle')} desc={t('cyberCrisis.simDesc')} />
+          <CardBlock icon={Crown} title={t('cyberCrisis.leaderTitle')} desc={t('cyberCrisis.leaderDesc')} variant="highlight" />
+          <CardBlock icon={MessageSquare} title={t('cyberCrisis.commTitle')} desc={t('cyberCrisis.commDesc')} />
+        </div>
         <Block><h2 className="text-highlight text-lg font-bold font-mono mb-3">{t('cyberCrisis.methTitle')}</h2></Block>
         <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
