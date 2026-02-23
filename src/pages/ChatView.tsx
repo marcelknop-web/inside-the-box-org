@@ -715,11 +715,14 @@ const ChatView = () => {
     }
   }, [sidebarInitialized]);
 
+  const isTablet = typeof window !== 'undefined' && window.innerWidth >= 768 && window.innerWidth <= 1024;
+
   const selectService = (id: string) => {
     setActiveService(id);
     setMessages([]);
     if (isMobile) setSidebarOpen(false);
-    if (!isMobile) inputRef.current?.focus();
+    // Only focus input on large desktop screens, not on iPad/tablet
+    if (!isMobile && !isTablet) inputRef.current?.focus();
   };
 
   const serviceContent = activeService && contentMap[activeService] ? contentMap[activeService]() : null;
@@ -887,9 +890,9 @@ const ChatView = () => {
         {/* Input - desktop: always show (except service on mobile). Mobile welcome: show floating button, expand on click */}
         {(() => {
           const isWelcome = !activeService && messages.length === 0;
-          const showInput = !isMobile || chatOpen || !isWelcome;
-          const hideOnServiceMobile = isMobile && !!activeService;
-          if (hideOnServiceMobile) return null;
+          const showInput = (!isMobile && !isTablet) || chatOpen || !isWelcome;
+          const hideOnServiceMobileOrTablet = (isMobile || isTablet) && !!activeService;
+          if (hideOnServiceMobileOrTablet) return null;
           if (!showInput) {
             return (
               <div className="absolute bottom-6 right-6 z-10">
