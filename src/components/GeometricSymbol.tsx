@@ -11,34 +11,32 @@ export const GeometricSymbol = ({ size = 'lg', className = '' }: GeometricSymbol
   };
 
   return (
-    <div className={`${sizeClasses[size]} ${className} relative flex items-center justify-center animate-heartbeat`}>
-      {/* Cross/Plus pattern with nested diamonds - matching original */}
+    <div className={`${sizeClasses[size]} ${className} relative flex items-center justify-center`}>
+      {/* Cross/Plus pattern with nested diamonds */}
       
-      {/* Vertical bar with glow */}
-      <div className="absolute w-6 h-full border-l-2 border-r-2 border-primary/60 animate-glow-slow" />
+      {/* Vertical bar */}
+      <div className="absolute w-6 h-full border-l-2 border-r-2 border-primary/60" />
       
-      {/* Horizontal bar with glow */}
-      <div className="absolute w-full h-6 border-t-2 border-b-2 border-primary/60 animate-glow-slow" />
+      {/* Horizontal bar */}
+      <div className="absolute w-full h-6 border-t-2 border-b-2 border-primary/60" />
       
-      {/* Top diamond with enhanced glow */}
-      <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-16 h-16 border-2 border-primary/80 rotate-45 animate-glow-slow" />
+      {/* Top diamond */}
+      <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-16 h-16 border-2 border-primary/80 rotate-45" />
       
-      {/* Bottom diamond with enhanced glow */}
-      <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 w-16 h-16 border-2 border-primary/80 rotate-45 animate-glow-slow" />
+      {/* Bottom diamond */}
+      <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 w-16 h-16 border-2 border-primary/80 rotate-45" />
       
-      {/* Left diamond with enhanced glow */}
-      <div className="absolute left-2 top-1/2 transform -translate-y-1/2 w-16 h-16 border-2 border-primary/80 rotate-45 animate-glow-slow" />
+      {/* Left diamond */}
+      <div className="absolute left-2 top-1/2 transform -translate-y-1/2 w-16 h-16 border-2 border-primary/80 rotate-45" />
       
-      {/* Right diamond with enhanced glow */}
-      <div className="absolute right-2 top-1/2 transform -translate-y-1/2 w-16 h-16 border-2 border-primary/80 rotate-45 animate-glow-slow" />
+      {/* Right diamond */}
+      <div className="absolute right-2 top-1/2 transform -translate-y-1/2 w-16 h-16 border-2 border-primary/80 rotate-45" />
       
-      {/* Center diamond with subtle glow */}
-      <div className="absolute inset-1/4 border-2 border-primary rotate-45 animate-glow-slow" style={{
-        boxShadow: '0 0 3px hsl(var(--primary) / 0.2)'
-      }} />
+      {/* Center diamond */}
+      <div className="absolute inset-1/4 border-2 border-primary rotate-45" />
       
-      {/* Inner nested squares with subtle glow */}
-      <div className="absolute inset-1/3 border-2 border-primary/60 rotate-45 animate-glow-slow" />
+      {/* Inner nested squares */}
+      <div className="absolute inset-1/3 border-2 border-primary/60 rotate-45" />
       <div className="absolute inset-2/5 bg-primary/10 rotate-45" />
     </div>
   );
