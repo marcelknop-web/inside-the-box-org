@@ -738,7 +738,7 @@ const ChatView = () => {
             <div className="flex-1 overflow-y-auto px-2 pb-4">
               {sidebarGroups.map((group) => (
                 <div key={group.title} className="mb-3">
-                  <p className="px-2 py-1.5 text-xs font-rounded font-semibold text-highlight/60 uppercase tracking-wider">{group.title}</p>
+                  <p className="px-2 py-1.5 text-xs font-rounded font-bold text-accent uppercase tracking-wider">{group.title}</p>
                   {group.items.map((item) => (
                     <button
                       key={item.id}
@@ -776,7 +776,7 @@ const ChatView = () => {
             <div className="flex-1 overflow-y-auto px-2 pb-4">
               {sidebarGroups.map((group) => (
                 <div key={group.title} className="mb-3">
-                  <p className="px-2 py-1.5 text-xs font-rounded font-semibold text-highlight/60 uppercase tracking-wider">{group.title}</p>
+                  <p className="px-2 py-1.5 text-xs font-rounded font-bold text-accent uppercase tracking-wider">{group.title}</p>
                   {group.items.map((item) => (
                     <button
                       key={item.id}
