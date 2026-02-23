@@ -649,6 +649,7 @@ const ChatView = () => {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
   const [sidebarInitialized, setSidebarInitialized] = useState(false);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -699,6 +700,7 @@ const ChatView = () => {
     setActiveService(null); 
     setMessages([]); 
     setInput(''); 
+    setChatOpen(false);
     if (window.innerWidth >= 768) inputRef.current?.focus(); 
     if (window.innerWidth < 768) setSidebarOpen(false);
   };
@@ -882,28 +884,46 @@ const ChatView = () => {
           )}
         </div>
 
-        {/* Input - on mobile only show on welcome/chat screen, not on service pages */}
-        {(!isMobile || !activeService) && (
-          <div className="border-t border-border px-2 md:px-4 py-1.5 md:py-2 flex-shrink-0">
-            <div className="max-w-3xl mx-auto">
-              <div className="relative flex items-center bg-secondary rounded-xl border border-highlight/30 focus-within:border-highlight/60 transition-electric">
-                <textarea
-                  ref={inputRef}
-                  value={input}
-                  onChange={e => setInput(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  rows={1}
-                  placeholder={t('welcome.chatPlaceholder')}
-                  className="flex-1 bg-transparent px-3 md:px-4 py-2 text-base md:text-sm font-mono text-highlight placeholder:text-highlight/50 resize-none focus:outline-none max-h-[120px]"
-                  disabled={isLoading}
-                />
-                <button onClick={handleSend} disabled={!input.trim() || isLoading} className="m-1 p-1.5 rounded-lg bg-highlight text-highlight-foreground disabled:opacity-30 hover:bg-highlight/80 transition-electric">
-                  <Send size={14} />
+        {/* Input - desktop: always show (except service on mobile). Mobile welcome: show floating button, expand on click */}
+        {(() => {
+          const isWelcome = !activeService && messages.length === 0;
+          const showInput = !isMobile || chatOpen || !isWelcome;
+          const hideOnServiceMobile = isMobile && !!activeService;
+          if (hideOnServiceMobile) return null;
+          if (!showInput) {
+            return (
+              <div className="absolute bottom-6 right-6 z-10">
+                <button
+                  onClick={() => { setChatOpen(true); setTimeout(() => inputRef.current?.focus(), 100); }}
+                  className="w-14 h-14 rounded-full bg-highlight text-highlight-foreground shadow-lg flex items-center justify-center hover:bg-highlight/80 transition-electric"
+                >
+                  <MessageCircle size={24} />
                 </button>
               </div>
+            );
+          }
+          return (
+            <div className="border-t border-border px-2 md:px-4 py-1.5 md:py-2 flex-shrink-0">
+              <div className="max-w-3xl mx-auto">
+                <div className="relative flex items-center bg-secondary rounded-xl border border-highlight/30 focus-within:border-highlight/60 transition-electric">
+                  <textarea
+                    ref={inputRef}
+                    value={input}
+                    onChange={e => setInput(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    rows={1}
+                    placeholder={t('welcome.chatPlaceholder')}
+                    className="flex-1 bg-transparent px-3 md:px-4 py-2 text-base md:text-sm font-mono text-highlight placeholder:text-highlight/50 resize-none focus:outline-none max-h-[120px]"
+                    disabled={isLoading}
+                  />
+                  <button onClick={handleSend} disabled={!input.trim() || isLoading} className="m-1 p-1.5 rounded-lg bg-highlight text-highlight-foreground disabled:opacity-30 hover:bg-highlight/80 transition-electric">
+                    <Send size={14} />
+                  </button>
+                </div>
+              </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
       </div>
     </div>
   );
