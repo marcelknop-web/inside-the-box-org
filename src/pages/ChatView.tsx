@@ -758,7 +758,7 @@ const ChatView = () => {
             </div>
             <div className="border-t border-border p-3 flex items-center justify-between bg-primary/10">
               <button onClick={() => { setActiveService(null); setMessages([]); setSidebarOpen(false); }} className="text-sm font-rounded font-bold text-primary hover:text-highlight transition-electric cursor-pointer bg-transparent border-none p-0">inside-the-box.org</button>
-              <button onClick={() => setLanguage(language === 'en' ? 'de' : 'en')} className="rounded-lg border border-border px-2.5 py-1.5 text-xs font-rounded text-muted-foreground hover:bg-secondary hover:text-foreground transition-electric uppercase tracking-wider">
+              <button onClick={() => setLanguage(language === 'en' ? 'de' : 'en')} className="rounded-lg border border-highlight/30 px-2.5 py-1.5 text-xs font-rounded font-bold text-highlight hover:bg-highlight/10 hover:border-highlight/50 transition-electric uppercase tracking-wider">
                 {language === 'en' ? 'DE' : 'EN'}
               </button>
             </div>
@@ -774,7 +774,7 @@ const ChatView = () => {
               <button onClick={newChat} className="flex-1 flex items-center gap-2 rounded-lg border border-border px-3 py-2.5 text-sm font-rounded text-foreground hover:bg-secondary transition-electric">
                 <Plus size={16} /><span>Neuer Chat</span>
               </button>
-              <button onClick={() => setLanguage(language === 'en' ? 'de' : 'en')} className="rounded-lg border border-border px-2.5 py-2.5 text-xs font-rounded text-muted-foreground hover:bg-secondary hover:text-foreground transition-electric uppercase tracking-wider">
+              <button onClick={() => setLanguage(language === 'en' ? 'de' : 'en')} className="rounded-lg border border-highlight/30 px-2.5 py-2.5 text-xs font-rounded font-bold text-highlight hover:bg-highlight/10 hover:border-highlight/50 transition-electric uppercase tracking-wider">
                 {language === 'en' ? 'DE' : 'EN'}
               </button>
             </div>
