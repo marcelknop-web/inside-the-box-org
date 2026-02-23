@@ -1,8 +1,12 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { en } from './en';
 import { de } from './de';
+import { fr } from './fr';
 
-type Language = 'en' | 'de';
+type Language = 'en' | 'de' | 'fr';
+const LANG_CYCLE: Language[] = ['en', 'de', 'fr'];
+export const nextLanguage = (current: Language): Language => LANG_CYCLE[(LANG_CYCLE.indexOf(current) + 1) % LANG_CYCLE.length];
+export const langLabel = (lang: Language): string => lang.toUpperCase();
 type Translations = typeof en;
 
 interface LanguageContextType {
@@ -13,7 +17,7 @@ interface LanguageContextType {
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
-const translations: Record<Language, Translations> = { en, de };
+const translations: Record<Language, Translations> = { en, de, fr };
 
 function getNestedValue(obj: any, path: string): string {
   const val = path.split('.').reduce((acc, part) => acc?.[part], obj);
@@ -23,7 +27,7 @@ function getNestedValue(obj: any, path: string): string {
 export const LanguageProvider = ({ children }: { children: ReactNode }) => {
   const [language, setLanguageState] = useState<Language>(() => {
     const stored = localStorage.getItem('language');
-    return (stored === 'de' || stored === 'en') ? stored : 'en';
+    return (stored === 'de' || stored === 'en' || stored === 'fr') ? stored : 'en';
   });
 
   const setLanguage = (lang: Language) => {

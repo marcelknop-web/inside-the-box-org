@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { GeometricSymbol } from '@/components/GeometricSymbol';
 import { PageMeta } from '@/components/PageMeta';
-import { useLanguage } from '@/i18n/LanguageContext';
+import { useLanguage, nextLanguage } from '@/i18n/LanguageContext';
 import { Target, Shield, Send, Loader2, MessageCircle } from 'lucide-react';
 
 interface NavLink {
@@ -90,10 +90,10 @@ const Start = () => {
             <a href="/by-whom" className="bg-highlight/10 border-2 border-highlight/30 rounded-lg text-highlight font-mono text-base hover:text-primary hover:bg-highlight/20 hover:border-highlight/50 transition-electric px-4 py-2">{t('nav.byWhom')}</a>
             <a href="/contact" className="bg-highlight/10 border-2 border-highlight/30 rounded-lg text-highlight font-mono text-base hover:text-primary hover:bg-highlight/20 hover:border-highlight/50 transition-electric px-4 py-2">{t('nav.contact')}</a>
             <button
-              onClick={() => setLanguage(language === 'en' ? 'de' : 'en')}
+              onClick={() => setLanguage(nextLanguage(language))}
               className="bg-highlight/10 border-2 border-highlight/30 rounded-lg text-highlight font-mono text-sm font-bold hover:bg-highlight/20 hover:border-highlight/50 transition-electric px-3 py-2 uppercase tracking-wider"
             >
-              {language === 'en' ? 'DE' : 'EN'}
+              {language.toUpperCase()}
             </button>
           </nav>
         </div>

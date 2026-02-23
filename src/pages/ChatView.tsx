@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, ReactNode, useCallback } from 'react';
 import { Send, Plus, MessageCircle, Shield, Target, BookOpen, AlertTriangle, Eye, Flame, Swords, Calendar, FileText, UserCheck, ChevronLeft, Menu, ShieldCheck, Search, Settings, Award, RotateCcw, Network, CreditCard, CheckCircle, FileCheck, Car, BarChart, RefreshCw, GraduationCap, ClipboardList, Zap, Crown, Users, Gamepad2, Monitor, Users2, Lightbulb, Flag, Crosshair, CheckSquare, Mic, Presentation, Wrench, Radio, Video, DollarSign, Phone, Mail, Server, Bug, AlertCircle, MessageSquare, Globe, Building2, Plane, Landmark, Scale, Wifi, XCircle, HelpCircle, Loader2, X, Linkedin } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { PageMeta } from '@/components/PageMeta';
-import { useLanguage } from '@/i18n/LanguageContext';
+import { useLanguage, nextLanguage } from '@/i18n/LanguageContext';
 import { consultantProfiles } from '@/data/consultantProfiles';
 import { GeometricSymbol } from '@/components/GeometricSymbol';
 import { LucideIcon } from 'lucide-react';
@@ -456,14 +456,14 @@ const useServiceContent = () => {
     'by-whom': () => {
       const profiles = consultantProfiles.map((profile) => {
         const key = profile.name === 'Marcel Knop' ? 'marcel' : 'andreas';
-        if (language === 'de') {
+        if (language !== 'en') {
           return {
             ...profile,
             sections: [
-              { title: t(`profiles.${key}.eduTitle`), items: key === 'marcel' ? ['Dipl.-Ing. Maschinenbau', 'CISSP, CISA', 'ISO/IEC 27001 + 22301 Lead Auditor', 'BSI Grundschutz-Praktiker'] : ['B.Sc. Betriebswirtschaftslehre', 'ISO/IEC 27001 Lead Auditor + Implementer', 'ISO/IEC 27005 Risk Manager', 'BSI IT-Grundschutz-Praktiker', 'Datenschutzauditor (DSA-TÜV)'] },
-              { title: t(`profiles.${key}.expTitle`), items: key === 'marcel' ? ['KPMG: Consultant bis Senior Manager', 'Accenture: Senior Manager', 'Ernst & Young: Senior Manager'] : ['PwC: Manager, Cybersecurity und Datenschutz', 'Ernst & Young: Senior Consultant', 'CSPi: Consultant Security und Datenschutz'] },
-              { title: t(`profiles.${key}.servTitle`), items: key === 'marcel' ? ['Cybersecurity-Beratung und Audits', 'ISMS, TISAX, NIS-2, PCI-DSS Implementierung', 'Cyber-Krisenmanagement und Übungen', 'TIBER, BCM'] : ['Informationssicherheit, ISMS-Strategie', 'ISO/IEC 27001, PCI-DSS, NIST, TISAX', 'Risikomanagement, Business Continuity', 'EU-DSGVO, Kritische Infrastrukturen (KRITIS)'] },
-              { title: t(`profiles.${key}.langTitle`), items: key === 'marcel' ? ['Deutsch (Muttersprache)', 'Englisch (verhandlungssicher)'] : ['Deutsch (Muttersprache)', 'Englisch (verhandlungssicher)', 'Französisch (fachsprachlich)'] },
+              { title: t(`profiles.${key}.eduTitle`), items: language === 'de' ? (key === 'marcel' ? ['Dipl.-Ing. Maschinenbau', 'CISSP, CISA', 'ISO/IEC 27001 + 22301 Lead Auditor', 'BSI Grundschutz-Praktiker'] : ['B.Sc. Betriebswirtschaftslehre', 'ISO/IEC 27001 Lead Auditor + Implementer', 'ISO/IEC 27005 Risk Manager', 'BSI IT-Grundschutz-Praktiker', 'Datenschutzauditor (DSA-TÜV)']) : (key === 'marcel' ? ['Dipl.-Ing. Génie mécanique', 'CISSP, CISA', 'ISO/IEC 27001 + 22301 Lead Auditor', 'BSI Baseline Protection Practitioner'] : ['B.Sc. Administration des affaires', 'ISO/IEC 27001 Lead Auditor + Implementer', 'ISO/IEC 27005 Risk Manager', 'BSI IT-Grundschutz Practitioner', 'Auditeur protection des données (DSA-TÜV)']) },
+              { title: t(`profiles.${key}.expTitle`), items: language === 'de' ? (key === 'marcel' ? ['KPMG: Consultant bis Senior Manager', 'Accenture: Senior Manager', 'Ernst & Young: Senior Manager'] : ['PwC: Manager, Cybersecurity und Datenschutz', 'Ernst & Young: Senior Consultant', 'CSPi: Consultant Security und Datenschutz']) : (key === 'marcel' ? ['KPMG : Consultant à Senior Manager', 'Accenture : Senior Manager', 'Ernst & Young : Senior Manager'] : ['PwC : Manager, Cybersécurité et Protection des données', 'Ernst & Young : Senior Consultant', 'CSPi : Consultant Sécurité et Protection des données']) },
+              { title: t(`profiles.${key}.servTitle`), items: language === 'de' ? (key === 'marcel' ? ['Cybersecurity-Beratung und Audits', 'ISMS, TISAX, NIS-2, PCI-DSS Implementierung', 'Cyber-Krisenmanagement und Übungen', 'TIBER, BCM'] : ['Informationssicherheit, ISMS-Strategie', 'ISO/IEC 27001, PCI-DSS, NIST, TISAX', 'Risikomanagement, Business Continuity', 'EU-DSGVO, Kritische Infrastrukturen (KRITIS)']) : (key === 'marcel' ? ['Conseil et audits en cybersécurité', 'Implémentation SMSI, TISAX, NIS-2, PCI-DSS', 'Gestion de cyber-crise et exercices', 'TIBER, BCM'] : ['Sécurité de l\'information, Stratégie SMSI', 'ISO/IEC 27001, PCI-DSS, NIST, TISAX', 'Gestion des risques, Continuité d\'activité', 'RGPD UE, Infrastructures critiques (KRITIS)']) },
+              { title: t(`profiles.${key}.langTitle`), items: language === 'de' ? (key === 'marcel' ? ['Deutsch (Muttersprache)', 'Englisch (verhandlungssicher)'] : ['Deutsch (Muttersprache)', 'Englisch (verhandlungssicher)', 'Französisch (fachsprachlich)']) : (key === 'marcel' ? ['Allemand (langue maternelle)', 'Anglais (courant professionnel)'] : ['Allemand (langue maternelle)', 'Anglais (courant professionnel)', 'Français (professionnel)']) },
             ],
           };
         }
@@ -553,9 +553,13 @@ const useServiceContent = () => {
     'tech-requirements': () => {
       const systemItems = language === 'de'
         ? ['Moderner Computer (Windows/Mac/Linux)', 'Mindestens 8GB RAM', 'Stabile Internetverbindung (10+ Mbps)', 'Mindestauflösung 1024×768', 'RDP-Client installiert']
+        : language === 'fr'
+        ? ['Ordinateur moderne (Windows/Mac/Linux)', '8 Go de RAM minimum', 'Internet stable (10+ Mbps)', 'Résolution minimum 1024×768', 'Client RDP installé']
         : ['Modern computer (Windows/Mac/Linux)', '8GB RAM minimum', 'Stable internet (10+ Mbps)', '1024×768 resolution minimum', 'RDP client installed'];
       const networkItems = language === 'de'
         ? ['RDP: 7000–7020/TCP ausgehend', 'HTTPS: 443/TCP ausgehend', 'Keine eingehenden Verbindungen erforderlich', 'Konnektivität vorab testen']
+        : language === 'fr'
+        ? ['RDP : 7000–7020/TCP sortant', 'HTTPS : 443/TCP sortant', 'Aucune connexion entrante requise', 'Tester la connectivité au préalable']
         : ['RDP: 7000–7020/TCP outbound', 'HTTPS: 443/TCP outbound', 'No inbound connections required', 'Test connectivity beforehand'];
       return (
         <div className="space-y-3">
@@ -768,8 +772,8 @@ const ChatView = () => {
               ))}
             </div>
             <div className="border-t border-border p-3 flex items-center justify-center">
-              <button onClick={() => setLanguage(language === 'en' ? 'de' : 'en')} className="rounded-lg border border-highlight/30 px-2.5 py-1.5 text-xs font-rounded font-bold text-highlight hover:bg-highlight/10 hover:border-highlight/50 transition-electric uppercase tracking-wider">
-                {language === 'en' ? 'DE' : 'EN'}
+              <button onClick={() => setLanguage(nextLanguage(language))} className="rounded-lg border border-highlight/30 px-2.5 py-1.5 text-xs font-rounded font-bold text-highlight hover:bg-highlight/10 hover:border-highlight/50 transition-electric uppercase tracking-wider">
+                {language.toUpperCase()}
               </button>
             </div>
           </div>
@@ -782,8 +786,8 @@ const ChatView = () => {
           <div className="w-64 h-full flex flex-col bg-card border-r border-border">
             <div className="h-12 px-3 flex items-center justify-between bg-primary/10 border-b border-border flex-shrink-0">
               <button onClick={() => { setActiveService(null); setMessages([]); }} className="flex items-center gap-2 text-sm font-rounded font-bold text-primary hover:text-highlight transition-electric cursor-pointer bg-transparent border-none p-0"><GeometricSymbol size="xs" />inside-the-box.org</button>
-              <button onClick={() => setLanguage(language === 'en' ? 'de' : 'en')} className="rounded-lg border border-highlight/30 px-2.5 py-2.5 text-xs font-rounded font-bold text-highlight hover:bg-highlight/10 hover:border-highlight/50 transition-electric uppercase tracking-wider">
-                {language === 'en' ? 'DE' : 'EN'}
+              <button onClick={() => setLanguage(nextLanguage(language))} className="rounded-lg border border-highlight/30 px-2.5 py-2.5 text-xs font-rounded font-bold text-highlight hover:bg-highlight/10 hover:border-highlight/50 transition-electric uppercase tracking-wider">
+                {language.toUpperCase()}
               </button>
             </div>
             <div className="flex-1 overflow-y-auto px-2 pb-4">
