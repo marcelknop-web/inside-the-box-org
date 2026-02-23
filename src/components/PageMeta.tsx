@@ -6,7 +6,7 @@ interface PageMetaProps {
 }
 
 export const PageMeta = ({ title, description }: PageMetaProps) => {
-  const fullTitle = `${title} | inside-the-box.org`;
+  const fullTitle = 'inside-the-box.org';
   
   return (
     <Helmet>
