@@ -27,18 +27,17 @@ export const ProfileCard = ({ name, role, imageUrl, linkedinUrl, sections }: Pro
           </div>
         </div>
         <div className="flex-1">
-          <div className="flex items-center gap-3 mb-2">
-            <h2 className="text-primary text-2xl font-bold font-mono">{name}</h2>
-            <a 
-              href={linkedinUrl} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="bg-white rounded-full p-1 text-linkedin hover:text-linkedin/80 transition-electric"
-            >
-              <Linkedin size={20} />
-            </a>
-          </div>
-          <h3 className="text-highlight text-lg font-semibold">{role}</h3>
+          <h2 className="text-primary text-2xl font-bold font-mono mb-1">{name}</h2>
+          <h3 className="text-highlight text-lg font-semibold mb-2">{role}</h3>
+          <a 
+            href={linkedinUrl} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 bg-white rounded-full px-3 py-1 text-linkedin hover:text-linkedin/80 transition-electric"
+          >
+            <Linkedin size={18} />
+            <span className="text-sm font-semibold">LinkedIn</span>
+          </a>
         </div>
       </div>
       
