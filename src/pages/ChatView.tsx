@@ -223,12 +223,12 @@ const useServiceContent = () => {
       <div className="space-y-3">
         <Block><SectionTitle>{t('isms.title')}</SectionTitle><p>{t('isms.intro')}</p></Block>
         <CardBlock icon={ShieldCheck} title={t('isms.iso27001Title')} desc={t('isms.iso27001Desc')} />
-        <CardBlock icon={FileText} title={t('isms.bsiTitle')} desc={t('isms.bsiDesc')} variant="highlight" />
-        <Block className="bg-secondary/30">
-          <SectionTitle>{t('isms.approachTitle')}</SectionTitle>
+        <CardBlock icon={FileText} title={t('isms.bsiTitle')} desc={t('isms.bsiDesc')} />
+        <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
+          <SubTitle variant="highlight">{t('isms.approachTitle')}</SubTitle>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <GridItem icon={Search} title={t('isms.assessmentTitle')} desc={t('isms.assessmentDesc')} />
-            <GridItem icon={Settings} title={t('isms.implementationTitle')} desc={t('isms.implementationDesc')} />
+            <GridItem icon={Search} title={t('isms.assessmentTitle')} desc={t('isms.assessmentDesc')} variant="highlight" />
+            <GridItem icon={Settings} title={t('isms.implementationTitle')} desc={t('isms.implementationDesc')} variant="highlight" />
             <GridItem icon={Award} title={t('isms.certificationTitle')} desc={t('isms.certificationDesc')} />
             <GridItem icon={RotateCcw} title={t('isms.maintenanceTitle')} desc={t('isms.maintenanceDesc')} />
           </div>
