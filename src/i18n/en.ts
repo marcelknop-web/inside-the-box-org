@@ -365,6 +365,6 @@ export const en = {
   },
   welcome: {
     title: 'Welcome to inside-the-box',
-    intro: 'Marcel Knop and Andreas Funder – two freelance consultants with over 35 years of combined experience in cybersecurity, information security, and crisis management. Explore our services in the sidebar – or ask us a question directly.',
+    intro: 'Marcel Knop & Andreas Funder – Cybersecurity consulting and training.',
   },
 };
