@@ -822,7 +822,7 @@ const ChatView = () => {
           <span className="flex-1 text-sm font-mono font-bold text-accent truncate text-center md:text-left">
             {activeService 
               ? (sidebarGroups.flatMap(g => g.items).find(i => i.id === activeService)?.label || 'inside-the-box') 
-              : (isMobile ? 'inside-the-box' : 'Cybersecurity Beratung und Training – Marcel Knop und Andreas Funder')}
+              : (isMobile ? 'inside-the-box' : t('welcome.headerTitle'))}
           </span>
           {isMobile && (
             <button onClick={newChat} className="p-1.5 rounded-md hover:bg-secondary text-muted-foreground transition-electric">
