@@ -650,7 +650,7 @@ const useSidebarGroups = (): SidebarGroup[] => {
         { id: 'assessments-concepts', icon: Search, label: t('consulting.assessTitle') },
         { id: 'incident-management', icon: Flame, label: t('consulting.incidentTitle') },
         { id: 'cyber-crisis-management', icon: Swords, label: t('consulting.crisisTitle') },
-        { id: 'arena-training', icon: Target, label: t('consulting.arenaTitle') },
+        { id: 'arena-training', icon: Target, label: t('consulting.arenaSidebarLabel') },
         { id: 'events-workshops', icon: Calendar, label: t('consulting.eventsTitle') },
         { id: 'publications', icon: FileText, label: t('consulting.pubTitle') },
         { id: 'virtual-ciso', icon: UserCheck, label: t('vciso.title') },
