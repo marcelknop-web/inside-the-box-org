@@ -62,7 +62,7 @@ const statusIcon = (status: SystemCheckResult['status']) => {
 };
 
 export const SystemCheck = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [results, setResults] = useState<SystemCheckResult[] | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -99,6 +99,12 @@ export const SystemCheck = () => {
 
         {results && (
           <div className="space-y-3 pt-2">
+            <div className="flex items-center justify-between mb-2">
+              <span className="font-mono text-base text-foreground font-semibold">{t('techReq.sysCheckCardTitle')}</span>
+              <span className={`font-mono text-base ${allPass ? 'text-green-500' : anyFail ? 'text-destructive' : 'text-yellow-500'}`}>
+                {results.filter(r => r.status === 'pass').length}/{results.length} {language === 'de' ? 'bestanden' : language === 'fr' ? 'réussi' : 'passed'}
+              </span>
+            </div>
             {results.map((r) => (
               <div key={r.label} className="flex items-center gap-3">
                 {statusIcon(r.status)}
