@@ -99,8 +99,8 @@ const Start = () => {
         </div>
       </header>
 
-      <main className="container mx-auto px-6 py-12 flex-1">
-        <div className="flex flex-col items-center justify-center text-center space-y-12">
+      <main className="container mx-auto px-6 py-12 flex-1 flex flex-col">
+        <div className="flex flex-col items-center justify-start text-center space-y-12 pt-4 md:pt-8">
           <div>
             <GeometricSymbol size="lg" />
           </div>
