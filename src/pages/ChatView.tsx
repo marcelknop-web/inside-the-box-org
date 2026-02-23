@@ -834,7 +834,7 @@ const ChatView = () => {
               </p>
             </div>
           ) : (
-            <div className="max-w-3xl mx-auto w-full px-3 md:px-4 py-4 md:py-6 space-y-4">
+            <div className="w-full px-3 md:px-6 lg:px-10 py-4 md:py-6 space-y-4">
               {serviceContent && (
                 <div className="flex gap-3">
                   <div className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 mt-0.5">
