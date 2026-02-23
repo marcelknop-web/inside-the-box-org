@@ -82,7 +82,7 @@ const Start = () => {
       <header className="py-8">
         <div className="container mx-auto px-6 flex items-center justify-center md:justify-between">
           <a href="/" className="w-full md:w-auto flex items-center justify-center md:justify-start group">
-            <span className="text-primary text-xl font-mono group-hover:text-highlight transition-electric whitespace-nowrap text-center">inside-the-box.org</span>
+            <span className="text-highlight text-xl font-bold font-mono group-hover:text-primary transition-electric whitespace-nowrap text-center">inside-the-box.org</span>
           </a>
           <nav className="hidden md:flex space-x-4 items-center">
             <a href="/why" className="bg-primary/10 border-2 border-primary/30 rounded-lg text-primary font-mono text-base hover:text-highlight hover:bg-primary/20 hover:border-primary/50 transition-electric px-4 py-2">{t('nav.training')}</a>
@@ -91,7 +91,7 @@ const Start = () => {
             <a href="/contact" className="bg-primary/10 border-2 border-primary/30 rounded-lg text-primary font-mono text-base hover:text-highlight hover:bg-primary/20 hover:border-primary/50 transition-electric px-4 py-2">{t('nav.contact')}</a>
             <button
               onClick={() => setLanguage(language === 'en' ? 'de' : 'en')}
-              className="bg-highlight/10 border-2 border-highlight/30 rounded-lg text-highlight font-mono text-sm hover:bg-highlight/20 hover:border-highlight/50 transition-electric px-3 py-2 uppercase tracking-wider"
+              className="bg-highlight/10 border-2 border-highlight/30 rounded-lg text-highlight font-mono text-sm font-bold hover:bg-highlight/20 hover:border-highlight/50 transition-electric px-3 py-2 uppercase tracking-wider"
             >
               {language === 'en' ? 'DE' : 'EN'}
             </button>
