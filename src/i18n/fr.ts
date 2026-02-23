@@ -19,7 +19,7 @@ export const fr = {
     metaDesc: 'Simulations réalistes de cyberattaques et formation à la coordination de crise. Plus de 40 formations, plus de 350 personnes formées dans 6 pays.',
     card1: 'Lors de cyber-incidents, la technologie échoue rarement en premier – c\'est <span>l\'organisation</span>.',
     card1bullets: 'La communication bloque.\nLes décisions sont retardées.\nLes responsabilités sont floues.',
-    card1outro: 'Notre Cyber Training Range rend exactement cela visible – avant que cela ne devienne critique.',
+    card1outro: 'Notre Cyber Training Range rend cela visible – avant que ça ne devienne critique.',
     card2: 'Notre <span>Cyber Training Range</span> simule des attaques réalistes dans un environnement contrôlé.',
     card2bullets: 'Les équipes techniques réagissent opérationnellement.\nLes dirigeants prennent des décisions sous pression.\nLa cellule de crise coordonne.',
     card2outro: 'Cela révèle la véritable résilience de votre organisation.',
