@@ -10,46 +10,43 @@ const MatrixStart = () => {
   const [showContent, setShowContent] = useState(false);
   const [soundOn, setSoundOn] = useState(false);
 
-  // Pentatonic scale frequencies for rain drops (dark minor feel)
-  const rainNotes = useRef([
-    130.81, 155.56, 174.61, 196.0, 233.08,  // C3 Eb3 F3 G3 Bb3
-    261.63, 311.13, 349.23, 392.0, 466.16,  // C4 Eb4 F4 G4 Bb4
-    523.25, 622.25, 698.46, 783.99,          // C5 Eb5 F5 G5
-  ]);
-
-  // Trigger a rain-synced tone
+  // Trigger a raindrop "plip" sound when a column resets
   const triggerRainDrop = useCallback((columnRatio: number) => {
     const ctx = audioCtxRef.current;
     const master = masterRef.current;
     if (!ctx || !master) return;
 
-    const notes = rainNotes.current;
-    // Map column position (0-1) to note index for spatial sound
-    const noteIdx = Math.floor(columnRatio * notes.length);
-    const freq = notes[Math.min(noteIdx, notes.length - 1)];
+    // Only trigger some — not every reset needs a drop
+    if (Math.random() > 0.3) return;
 
     const t = ctx.currentTime;
     const osc = ctx.createOscillator();
     const g = ctx.createGain();
     const pan = ctx.createStereoPanner();
+    const filter = ctx.createBiquadFilter();
 
-    osc.type = Math.random() > 0.7 ? 'triangle' : 'sine';
+    // Short filtered click/plip — like a raindrop hitting glass
+    osc.type = 'sine';
+    const freq = 2000 + Math.random() * 4000;
     osc.frequency.setValueAtTime(freq, t);
+    osc.frequency.exponentialRampToValueAtTime(freq * 0.3, t + 0.08);
 
-    // Stereo position based on column
-    pan.pan.setValueAtTime((columnRatio * 2 - 1) * 0.8, t);
+    filter.type = 'bandpass';
+    filter.frequency.setValueAtTime(freq * 0.8, t);
+    filter.Q.setValueAtTime(3, t);
 
-    // Soft attack, slow decay — like a raindrop resonance
-    const vol = 0.015 + Math.random() * 0.02;
-    g.gain.setValueAtTime(0, t);
-    g.gain.linearRampToValueAtTime(vol, t + 0.02);
-    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.8 + Math.random() * 1.2);
+    pan.pan.setValueAtTime((columnRatio * 2 - 1) * 0.7, t);
 
-    osc.connect(g);
+    const vol = 0.02 + Math.random() * 0.03;
+    g.gain.setValueAtTime(vol, t);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.04 + Math.random() * 0.06);
+
+    osc.connect(filter);
+    filter.connect(g);
     g.connect(pan);
     pan.connect(master);
     osc.start(t);
-    osc.stop(t + 2.5);
+    osc.stop(t + 0.15);
   }, []);
 
   // Matrix rain
@@ -129,86 +126,85 @@ const MatrixStart = () => {
     };
   }, [triggerRainDrop]);
 
-  // Ambient background sound
+  // Rain sound synced to matrix activity
   const startSound = useCallback(() => {
     if (audioCtxRef.current) return;
 
     const ctx = new AudioContext();
     audioCtxRef.current = ctx;
 
-    // Master gain with slow fade-in
     const master = ctx.createGain();
     master.gain.setValueAtTime(0, ctx.currentTime);
-    master.gain.linearRampToValueAtTime(1, ctx.currentTime + 5);
+    master.gain.linearRampToValueAtTime(1, ctx.currentTime + 3);
     masterRef.current = master;
+    master.connect(ctx.destination);
 
-    // Large reverb for cathedral-like space
-    const reverb = ctx.createConvolver();
+    // === RAIN SOUND ===
+    // Layered filtered noise to simulate realistic rain
+
     const sr = ctx.sampleRate;
-    const len = sr * 5;
-    const impulse = ctx.createBuffer(2, len, sr);
+    const bufLen = sr * 2;
+    const noiseBuf = ctx.createBuffer(2, bufLen, sr);
     for (let ch = 0; ch < 2; ch++) {
-      const data = impulse.getChannelData(ch);
-      for (let i = 0; i < len; i++) {
-        data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.0);
+      const data = noiseBuf.getChannelData(ch);
+      for (let i = 0; i < bufLen; i++) {
+        data[i] = Math.random() * 2 - 1;
       }
     }
-    reverb.buffer = impulse;
-    const reverbGain = ctx.createGain();
-    reverbGain.gain.setValueAtTime(0.5, ctx.currentTime);
 
-    // Dry + wet routing
-    master.connect(ctx.destination);
-    master.connect(reverb);
-    reverb.connect(reverbGain);
-    reverbGain.connect(ctx.destination);
+    // Main rain — bandpass filtered white noise (steady rain)
+    const rain1 = ctx.createBufferSource();
+    rain1.buffer = noiseBuf;
+    rain1.loop = true;
+    const rainFilter1 = ctx.createBiquadFilter();
+    rainFilter1.type = 'bandpass';
+    rainFilter1.frequency.setValueAtTime(3000, ctx.currentTime);
+    rainFilter1.Q.setValueAtTime(0.5, ctx.currentTime);
+    const rainGain1 = ctx.createGain();
+    rainGain1.gain.setValueAtTime(0.12, ctx.currentTime);
+    rain1.connect(rainFilter1);
+    rainFilter1.connect(rainGain1);
+    rainGain1.connect(master);
+    rain1.start();
 
-    // Deep sub-bass drone — low filtered noise
-    const noiseLen = sr * 2;
-    const noiseBuf = ctx.createBuffer(1, noiseLen, sr);
-    const noiseData = noiseBuf.getChannelData(0);
-    for (let i = 0; i < noiseLen; i++) {
-      noiseData[i] = Math.random() * 2 - 1;
-    }
-    const noise = ctx.createBufferSource();
-    noise.buffer = noiseBuf;
-    noise.loop = true;
-    const noiseFilter = ctx.createBiquadFilter();
-    noiseFilter.type = 'lowpass';
-    noiseFilter.frequency.setValueAtTime(60, ctx.currentTime);
-    noiseFilter.Q.setValueAtTime(8, ctx.currentTime);
-    const noiseGain = ctx.createGain();
-    noiseGain.gain.setValueAtTime(0.08, ctx.currentTime);
-    noise.connect(noiseFilter);
-    noiseFilter.connect(noiseGain);
-    noiseGain.connect(master);
-    noise.start();
+    // High shimmer — light rain patter on surfaces
+    const rain2 = ctx.createBufferSource();
+    rain2.buffer = noiseBuf;
+    rain2.loop = true;
+    const rainFilter2 = ctx.createBiquadFilter();
+    rainFilter2.type = 'highpass';
+    rainFilter2.frequency.setValueAtTime(6000, ctx.currentTime);
+    const rainGain2 = ctx.createGain();
+    rainGain2.gain.setValueAtTime(0.04, ctx.currentTime);
+    rain2.connect(rainFilter2);
+    rainFilter2.connect(rainGain2);
+    rainGain2.connect(master);
+    rain2.start();
 
-    // Slow breathing pad – Cm chord, very quiet
-    const createPad = (freq: number, vol: number) => {
-      const osc = ctx.createOscillator();
-      const g = ctx.createGain();
-      const lfo = ctx.createOscillator();
-      const lfoG = ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(freq, ctx.currentTime);
-      lfo.type = 'sine';
-      lfo.frequency.setValueAtTime(0.04 + Math.random() * 0.03, ctx.currentTime);
-      lfoG.gain.setValueAtTime(vol * 0.4, ctx.currentTime);
-      lfo.connect(lfoG);
-      lfoG.connect(g.gain);
-      g.gain.setValueAtTime(0, ctx.currentTime);
-      g.gain.linearRampToValueAtTime(vol, ctx.currentTime + 8);
-      osc.connect(g);
-      g.connect(master);
-      osc.start();
-      lfo.start();
-    };
+    // Low rumble — distant heavy rain / thunder ambience
+    const rain3 = ctx.createBufferSource();
+    rain3.buffer = noiseBuf;
+    rain3.loop = true;
+    const rainFilter3 = ctx.createBiquadFilter();
+    rainFilter3.type = 'lowpass';
+    rainFilter3.frequency.setValueAtTime(200, ctx.currentTime);
+    rainFilter3.Q.setValueAtTime(2, ctx.currentTime);
+    const rainGain3 = ctx.createGain();
+    rainGain3.gain.setValueAtTime(0.06, ctx.currentTime);
+    rain3.connect(rainFilter3);
+    rainFilter3.connect(rainGain3);
+    rainGain3.connect(master);
+    rain3.start();
 
-    createPad(65.41, 0.03);   // C2
-    createPad(130.81, 0.02);  // C3
-    createPad(155.56, 0.018); // Eb3
-    createPad(196.0, 0.015);  // G3
+    // Slow LFO on main rain intensity — gusts of rain
+    const lfo = ctx.createOscillator();
+    const lfoGain = ctx.createGain();
+    lfo.type = 'sine';
+    lfo.frequency.setValueAtTime(0.15, ctx.currentTime);
+    lfoGain.gain.setValueAtTime(0.04, ctx.currentTime);
+    lfo.connect(lfoGain);
+    lfoGain.connect(rainGain1.gain);
+    lfo.start();
 
     setSoundOn(true);
   }, []);
