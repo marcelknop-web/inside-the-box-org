@@ -895,10 +895,10 @@ const ChatView = () => {
 
         {/* Input - desktop: always show (except service on mobile). Mobile welcome: show floating button, expand on click */}
         {(() => {
-          const isWelcome = !activeService && messages.length === 0;
-          const showInput = (!isMobile && !isTablet) || chatOpen || !isWelcome;
-          const hideOnServiceMobileOrTablet = (isMobile || isTablet) && !!activeService;
-          if (hideOnServiceMobileOrTablet) return null;
+          const isTouchDevice = isMobile || isTablet;
+          // On touch devices: show FAB unless user explicitly opened chat; hide completely on service pages
+          if (isTouchDevice && !!activeService) return null;
+          const showInput = !isTouchDevice || chatOpen;
           if (!showInput) {
             return (
               <div className="absolute bottom-16 right-6 z-10">
