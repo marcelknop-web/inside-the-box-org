@@ -43,7 +43,7 @@ const CardBlock = ({ icon: Icon, title, desc, variant = 'primary', link, linkLab
         )}
         {result && <p className="mt-2 text-sm font-semibold text-primary font-mono">{result}</p>}
         {link && linkLabel && (
-          <a href={link} target="_blank" rel="noopener noreferrer" className="inline-block mt-2 text-highlight hover:text-primary transition-electric text-sm font-sans underline">
+          <a href={link} target="_blank" rel="noopener noreferrer" className={`inline-block mt-2 transition-electric text-sm font-sans underline ${variant === 'highlight' ? 'text-highlight hover:text-primary' : 'text-primary hover:text-highlight'}`}>
             → {linkLabel}
           </a>
         )}
