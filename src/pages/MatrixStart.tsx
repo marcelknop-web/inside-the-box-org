@@ -87,48 +87,87 @@ const MatrixStart = () => {
     const ctx = new AudioContext();
     audioCtxRef.current = ctx;
 
-    // Deep ambient drone
-    const createDrone = (freq: number, gain: number) => {
+    const master = ctx.createGain();
+    master.gain.setValueAtTime(0, ctx.currentTime);
+    master.gain.linearRampToValueAtTime(1, ctx.currentTime + 4);
+    const reverb = ctx.createConvolver();
+    const sampleRate = ctx.sampleRate;
+    const length = sampleRate * 4;
+    const impulse = ctx.createBuffer(2, length, sampleRate);
+    for (let ch = 0; ch < 2; ch++) {
+      const data = impulse.getChannelData(ch);
+      for (let i = 0; i < length; i++) {
+        data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / length, 2.5);
+      }
+    }
+    reverb.buffer = impulse;
+    const reverbGain = ctx.createGain();
+    reverbGain.gain.setValueAtTime(0.4, ctx.currentTime);
+    master.connect(ctx.destination);
+    master.connect(reverb);
+    reverb.connect(reverbGain);
+    reverbGain.connect(ctx.destination);
+
+    // Slow orchestral pad – layered sine/triangle waves with gentle LFO
+    const createPad = (freq: number, vol: number, type: OscillatorType = 'sine') => {
       const osc = ctx.createOscillator();
       const g = ctx.createGain();
-      const filter = ctx.createBiquadFilter();
-      osc.type = 'sawtooth';
+      const lfo = ctx.createOscillator();
+      const lfoGain = ctx.createGain();
+      osc.type = type;
       osc.frequency.setValueAtTime(freq, ctx.currentTime);
-      filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(400, ctx.currentTime);
-      filter.Q.setValueAtTime(5, ctx.currentTime);
-      g.gain.setValueAtTime(0, ctx.currentTime);
-      g.gain.linearRampToValueAtTime(gain, ctx.currentTime + 3);
-      osc.connect(filter);
-      filter.connect(g);
-      g.connect(ctx.destination);
+      lfo.type = 'sine';
+      lfo.frequency.setValueAtTime(0.08 + Math.random() * 0.05, ctx.currentTime);
+      lfoGain.gain.setValueAtTime(vol * 0.3, ctx.currentTime);
+      lfo.connect(lfoGain);
+      lfoGain.connect(g.gain);
+      g.gain.setValueAtTime(vol * 0.5, ctx.currentTime);
+      g.gain.linearRampToValueAtTime(vol, ctx.currentTime + 6);
+      osc.connect(g);
+      g.connect(master);
       osc.start();
-      return { osc, gain: g };
+      lfo.start();
     };
 
-    // Random digital blips
-    const createBlips = () => {
-      const scheduleBlip = () => {
-        const osc = ctx.createOscillator();
-        const g = ctx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(800 + Math.random() * 4000, ctx.currentTime);
-        g.gain.setValueAtTime(0, ctx.currentTime);
-        g.gain.linearRampToValueAtTime(0.03 + Math.random() * 0.04, ctx.currentTime + 0.01);
-        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05 + Math.random() * 0.15);
-        osc.connect(g);
-        g.connect(ctx.destination);
-        osc.start();
-        osc.stop(ctx.currentTime + 0.3);
-        setTimeout(scheduleBlip, 50 + Math.random() * 300);
-      };
-      scheduleBlip();
-    };
+    // Deep orchestral chord: Cm (C-Eb-G) across octaves
+    createPad(65.41, 0.05, 'sine');       // C2
+    createPad(130.81, 0.04, 'triangle');  // C3
+    createPad(155.56, 0.035, 'sine');     // Eb3
+    createPad(196.0, 0.03, 'triangle');   // G3
+    createPad(261.63, 0.02, 'sine');      // C4
+    createPad(311.13, 0.015, 'sine');     // Eb4
 
-    createDrone(55, 0.06);
-    createDrone(82.5, 0.04);
-    createDrone(110, 0.025);
-    createBlips();
+    // Very slow evolving high tone
+    const highOsc = ctx.createOscillator();
+    const highGain = ctx.createGain();
+    highOsc.type = 'sine';
+    highOsc.frequency.setValueAtTime(523.25, ctx.currentTime);
+    highOsc.frequency.linearRampToValueAtTime(392.0, ctx.currentTime + 20);
+    highOsc.frequency.linearRampToValueAtTime(523.25, ctx.currentTime + 40);
+    highGain.gain.setValueAtTime(0, ctx.currentTime);
+    highGain.gain.linearRampToValueAtTime(0.012, ctx.currentTime + 8);
+    highOsc.connect(highGain);
+    highGain.connect(master);
+    highOsc.start();
+
+    // Sparse low resonant pulses instead of blips
+    const schedulePulse = () => {
+      if (!audioCtxRef.current) return;
+      const t = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const g = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(80 + Math.random() * 120, t);
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(0.03, t + 0.5);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 3);
+      osc.connect(g);
+      g.connect(master);
+      osc.start(t);
+      osc.stop(t + 3.5);
+      setTimeout(schedulePulse, 2000 + Math.random() * 5000);
+    };
+    setTimeout(schedulePulse, 3000);
 
     setSoundOn(true);
   }, []);
@@ -243,7 +282,7 @@ const MatrixStart = () => {
         {new Date().toISOString().replace('T', ' ').slice(0, 19)}
       </div>
       <div className="absolute bottom-4 left-4 font-mono text-xs z-20" style={{ color: 'rgba(0,255,65,0.3)' }}>
-        NODE://SECURE
+        marcel@inside-the-box.org
       </div>
       <div className="absolute bottom-4 right-4 font-mono text-xs z-20" style={{ color: 'rgba(0,255,65,0.3)' }}>
         inside-the-box.org
