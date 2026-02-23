@@ -34,7 +34,7 @@ import TemplateGallery from "./pages/TemplateGallery";
 import DesignTokens from "./pages/DesignTokens";
 import DesignHome from "./pages/DesignHome";
 import NotFound from "./pages/NotFound";
-import MatrixStart from "./pages/MatrixStart";
+import ArtificialStressSimulator from "./pages/ArtificialStressSimulator";
 
 const queryClient = new QueryClient();
 
@@ -75,7 +75,7 @@ const App = () => (
               <Route path="/legacy/colors" element={<ColorPalette />} />
               <Route path="/legacy/templates" element={<TemplateGallery />} />
               <Route path="/legacy/tokens" element={<DesignTokens />} />
-              <Route path="/matrix" element={<MatrixStart />} />
+              <Route path="/matrix" element={<ArtificialStressSimulator />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
