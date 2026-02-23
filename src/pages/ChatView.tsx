@@ -255,13 +255,13 @@ const useServiceContent = () => {
       <div className="space-y-3">
         <Block><SectionTitle>{t('tisax.title')}</SectionTitle><p>{t('tisax.intro')}</p></Block>
         <CardBlock icon={Settings} title={t('tisax.implTitle')} desc={t('tisax.implDesc')} />
-        <CardBlock icon={CheckCircle} title={t('tisax.reviewsTitle')} desc={t('tisax.reviewsDesc')} variant="highlight" />
+        <CardBlock icon={CheckCircle} title={t('tisax.reviewsTitle')} desc={t('tisax.reviewsDesc')} />
         <CardBlock icon={FileCheck} title={t('tisax.auditTitle')} desc={t('tisax.auditDesc')} />
-        <Block className="bg-secondary/30">
-          <SubTitle>{t('tisax.frameworkTitle')}</SubTitle>
+        <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
+          <SubTitle variant="highlight">{t('tisax.frameworkTitle')}</SubTitle>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
-            <GridItem icon={Car} title={t('tisax.tisaxName')} desc={t('tisax.tisaxDesc')} />
-            <GridItem icon={CreditCard} title={t('tisax.pciName')} desc={t('tisax.pciDesc')} />
+            <GridItem icon={Car} title={t('tisax.tisaxName')} desc={t('tisax.tisaxDesc')} variant="highlight" />
+            <GridItem icon={CreditCard} title={t('tisax.pciName')} desc={t('tisax.pciDesc')} variant="highlight" />
           </div>
         </Block>
       </div>
