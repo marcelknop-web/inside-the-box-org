@@ -11,12 +11,14 @@ const MatrixStart = () => {
   const [soundOn, setSoundOn] = useState(false);
   const [clientIp, setClientIp] = useState('...');
 
-  // Fetch client IP
+  // Fetch client IP safely
   useEffect(() => {
-    fetch('https://api.ipify.org?format=json')
+    const controller = new AbortController();
+    fetch('https://api.ipify.org?format=json', { signal: controller.signal })
       .then(r => r.json())
-      .then(d => setClientIp(d.ip))
-      .catch(() => setClientIp('unknown'));
+      .then(d => { if (!controller.signal.aborted) setClientIp(d.ip); })
+      .catch(() => { if (!controller.signal.aborted) setClientIp('unknown'); });
+    return () => controller.abort();
   }, []);
 
   // Trigger a raindrop "plip" sound when a column resets
@@ -66,11 +68,19 @@ const MatrixStart = () => {
     let columns: number[] = [];
     const fontSize = 14;
 
+    let prevWidth = 0;
+
     const resize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      const colCount = Math.floor(canvas.width / fontSize);
-      columns = Array.from({ length: colCount }, () => Math.random() * canvas.height / fontSize);
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      canvas.width = w;
+      canvas.height = h;
+      // Only reset columns when width changes (not height — iOS address bar)
+      if (Math.abs(w - prevWidth) > 1) {
+        const colCount = Math.floor(w / fontSize);
+        columns = Array.from({ length: colCount }, () => Math.random() * h / fontSize);
+        prevWidth = w;
+      }
     };
 
     resize();
