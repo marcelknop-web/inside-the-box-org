@@ -287,7 +287,7 @@ const MatrixStart = () => {
               transform: 'scale(2.5)',
             }}
           />
-          <div className="relative" style={{ filter: 'drop-shadow(0 0 20px rgba(0,255,65,0.6))' }}>
+        <div className="relative matrix-glow-pulse">
             <GeometricSymbol size="lg" className="matrix-symbol" />
           </div>
         </div>
@@ -359,6 +359,19 @@ const MatrixStart = () => {
         }
         .matrix-symbol .bg-primary\\/10 {
           background-color: rgba(0, 255, 65, 0.1) !important;
+        }
+        @keyframes hypnotic-glow {
+          0%, 100% {
+            filter: drop-shadow(0 0 15px rgba(0,255,65,0.4)) drop-shadow(0 0 40px rgba(0,255,65,0.15));
+            opacity: 0.85;
+          }
+          50% {
+            filter: drop-shadow(0 0 35px rgba(0,255,65,0.8)) drop-shadow(0 0 80px rgba(0,255,65,0.4)) drop-shadow(0 0 120px rgba(0,255,65,0.15));
+            opacity: 1;
+          }
+        }
+        .matrix-glow-pulse {
+          animation: hypnotic-glow 4s ease-in-out infinite;
         }
       `}</style>
     </div>
