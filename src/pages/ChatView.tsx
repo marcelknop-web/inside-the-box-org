@@ -796,7 +796,9 @@ const ChatView = () => {
             {!isMobile && sidebarOpen ? <ChevronLeft size={18} /> : <Menu size={18} />}
           </button>
           <span className="flex-1 text-sm font-mono text-foreground truncate text-center md:text-left">
-            {activeService ? (sidebarGroups.flatMap(g => g.items).find(i => i.id === activeService)?.label || 'inside-the-box') : 'Cybersecurity Beratung und Training – Marcel Knop und Andreas Funder'}
+            {activeService 
+              ? (sidebarGroups.flatMap(g => g.items).find(i => i.id === activeService)?.label || 'inside-the-box') 
+              : (isMobile ? 'inside-the-box' : 'Cybersecurity Beratung und Training – Marcel Knop und Andreas Funder')}
           </span>
           {isMobile && (
             <button onClick={newChat} className="p-1.5 rounded-md hover:bg-secondary text-muted-foreground transition-electric">
