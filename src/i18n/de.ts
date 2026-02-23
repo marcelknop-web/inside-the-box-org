@@ -18,7 +18,7 @@ export const de = {
     subtitle: 'Erwarten Sie das Unerwartete.',
     metaDesc: 'Realistische Cyberangriff-Simulationen und Krisenkoordinationstraining. 40+ Trainings, 350+ Teilnehmer in 6 Ländern.',
     card1: 'Bei Cybervorfällen scheitert selten die Technik zuerst – sondern die <span>Organisation</span>.',
-    card1b: 'Kommunikation stockt. Entscheidungen verzögern sich. Zuständigkeiten sind unklar.\nGenau das trainieren wir.',
+    card1b: 'Kommunikation stockt.\nEntscheidungen verzögern sich.\nZuständigkeiten sind unklar.\n\nUnsere Cyber Training Range macht genau das sichtbar – bevor es kritisch wird.',
     card2: 'Unsere <span>Cyber Training Range</span> simuliert realistische Angriffe in einer kontrollierten Umgebung.\n\nTechnische Teams reagieren operativ. Führungskräfte treffen Entscheidungen unter Zeitdruck. Der Krisenstab koordiniert.',
     card2outro: 'So wird sichtbar, wie belastbar Ihre Organisation wirklich ist.',
     trainingsDelivered: 'Trainings durchgeführt',
