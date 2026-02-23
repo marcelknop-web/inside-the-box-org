@@ -9,6 +9,15 @@ const MatrixStart = () => {
   const masterRef = useRef<GainNode | null>(null);
   const [showContent, setShowContent] = useState(false);
   const [soundOn, setSoundOn] = useState(false);
+  const [clientIp, setClientIp] = useState('...');
+
+  // Fetch client IP
+  useEffect(() => {
+    fetch('https://api.ipify.org?format=json')
+      .then(r => r.json())
+      .then(d => setClientIp(d.ip))
+      .catch(() => setClientIp('unknown'));
+  }, []);
 
   // Trigger a raindrop "plip" sound when a column resets
   const triggerRainDrop = useCallback((columnRatio: number) => {
@@ -313,7 +322,7 @@ const MatrixStart = () => {
 
       {/* Corner decorations */}
       <div className="absolute top-4 left-4 font-mono text-xs z-20" style={{ color: 'rgba(0,255,65,0.3)' }}>
-        SYS://MATRIX_v2.1
+        CLIENT://{clientIp}
       </div>
       <div className="absolute top-4 right-4 font-mono text-xs z-20" style={{ color: 'rgba(0,255,65,0.3)' }}>
         {new Date().toISOString().replace('T', ' ').slice(0, 19)}
