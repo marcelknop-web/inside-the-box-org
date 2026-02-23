@@ -655,7 +655,7 @@ const ChatView = () => {
   const { contentMap, bindSetActive } = useServiceContent();
   bindSetActive((id) => { setActiveService(id); setMessages([]); });
 
-  useEffect(() => { inputRef.current?.focus(); }, []);
+  useEffect(() => { if (window.innerWidth >= 768) inputRef.current?.focus(); }, []);
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
   useEffect(() => {
     if (contentAreaRef.current) contentAreaRef.current.scrollTop = 0;
@@ -693,7 +693,13 @@ const ChatView = () => {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
   };
 
-  const newChat = () => { setActiveService(null); setMessages([]); setInput(''); inputRef.current?.focus(); };
+  const newChat = () => { 
+    setActiveService(null); 
+    setMessages([]); 
+    setInput(''); 
+    if (window.innerWidth >= 768) inputRef.current?.focus(); 
+    if (window.innerWidth < 768) setSidebarOpen(false);
+  };
 
   const isMobile = useIsMobile();
   
@@ -709,7 +715,7 @@ const ChatView = () => {
     setActiveService(id);
     setMessages([]);
     if (isMobile) setSidebarOpen(false);
-    inputRef.current?.focus();
+    if (!isMobile) inputRef.current?.focus();
   };
 
   const serviceContent = activeService && contentMap[activeService] ? contentMap[activeService]() : null;
