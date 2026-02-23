@@ -68,18 +68,15 @@ const MatrixStart = () => {
     let columns: number[] = [];
     const fontSize = 14;
 
-    let prevWidth = 0;
-
     const resize = () => {
       const w = window.innerWidth;
       const h = window.innerHeight;
       canvas.width = w;
       canvas.height = h;
-      // Only reset columns when width changes (not height — iOS address bar)
-      if (Math.abs(w - prevWidth) > 1) {
-        const colCount = Math.floor(w / fontSize);
+      const colCount = Math.floor(w / fontSize);
+      // Preserve existing columns if count hasn't changed (iOS address bar resize)
+      if (columns.length !== colCount) {
         columns = Array.from({ length: colCount }, () => Math.random() * h / fontSize);
-        prevWidth = w;
       }
     };
 
