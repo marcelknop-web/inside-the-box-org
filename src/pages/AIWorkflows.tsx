@@ -14,7 +14,7 @@ const BulletList = ({ items }: { items: string[] }) => (
 );
 
 const ResultBadge = ({ text }: { text: string }) => (
-  <p className="mt-3 text-sm font-semibold text-highlight font-mono">{text}</p>
+  <p className="mt-3 text-sm font-semibold text-primary font-mono">{text}</p>
 );
 
 const AIWorkflows = () => {
