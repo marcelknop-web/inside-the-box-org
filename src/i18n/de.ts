@@ -337,6 +337,7 @@ export const de = {
   },
   techReq: {
     title: 'Technische Voraussetzungen',
+    sidebarLabel: 'Tech-Setup',
     intro: 'Das Training findet in einer virtuellen Umgebung statt. Teilnehmer verbinden sich per RDP von ihren eigenen Geräten.',
     requirements: 'Voraussetzungen',
     systemTitle: 'System',
