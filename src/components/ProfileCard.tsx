@@ -48,7 +48,7 @@ export const ProfileCard = ({ name, role, imageUrl, linkedinUrl, sections }: Pro
               <h4 className="text-primary font-semibold mb-2">{section.title}</h4>
               <ul className="space-y-1">
                 {section.items.map((item, j) => (
-                  <li key={j} className="pl-4 -indent-4">• {item}</li>
+                  <li key={j} className="flex items-start gap-2"><span className="flex-shrink-0">•</span><span>{item}</span></li>
                 ))}
               </ul>
             </div>
@@ -60,7 +60,7 @@ export const ProfileCard = ({ name, role, imageUrl, linkedinUrl, sections }: Pro
               <h4 className="text-primary font-semibold mb-2">{section.title}</h4>
               <ul className="space-y-1">
                 {section.items.map((item, j) => (
-                  <li key={j} className="pl-4 -indent-4">• {item}</li>
+                  <li key={j} className="flex items-start gap-2"><span className="flex-shrink-0">•</span><span>{item}</span></li>
                 ))}
               </ul>
             </div>
