@@ -305,7 +305,7 @@ const MatrixStart = () => {
 
         {/* Subtitle with typing effect */}
         <p
-          className="font-mono text-sm md:text-base tracking-[0.5em] uppercase"
+          className="font-mono text-sm md:text-base tracking-[0.5em] uppercase text-center"
           style={{
             color: 'rgba(0,255,65,0.6)',
             textShadow: '0 0 10px rgba(0,255,65,0.3)',
