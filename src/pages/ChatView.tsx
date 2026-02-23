@@ -882,8 +882,8 @@ const ChatView = () => {
               {serviceContent && (() => {
                 const ActiveIcon = sidebarGroups.flatMap(g => g.items).find(i => i.id === activeService)?.icon || MessageCircle;
                 return (
-                <div className="flex gap-3">
-                  <div className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <div className="flex gap-3 items-start">
+                  <div className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 mt-[18px]">
                     <ActiveIcon size={14} className="text-primary" />
                   </div>
                   <div className="flex-1 min-w-0">{serviceContent}</div>
