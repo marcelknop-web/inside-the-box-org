@@ -30,7 +30,7 @@ const SubTitle = ({ children, variant = 'primary' }: { children: ReactNode; vari
 const CardBlock = ({ icon: Icon, title, desc, variant = 'primary', link, linkLabel }: { icon: LucideIcon; title: string; desc: string; variant?: 'primary' | 'highlight'; link?: string; linkLabel?: string }) => (
   <div className={`rounded-xl p-4 ${variant === 'highlight' ? 'bg-highlight/5 border border-highlight/20' : 'bg-primary/5 border border-primary/20'}`}>
     <div className="flex items-start gap-3">
-      <Icon size={18} className={`mt-0.5 flex-shrink-0 ${variant === 'highlight' ? 'text-highlight' : 'text-primary'}`} />
+      <Icon size={22} className={`mt-0.5 flex-shrink-0 ${variant === 'highlight' ? 'text-highlight' : 'text-primary'}`} />
       <div>
         <SubTitle variant={variant}>{title}</SubTitle>
         <p className="text-foreground text-sm md:text-base font-sans leading-relaxed tracking-wide">{desc}</p>
@@ -53,7 +53,7 @@ const StatBlock = ({ value, label }: { value: string; label: string }) => (
 
 const GridItem = ({ icon: Icon, title, desc, variant = 'primary' }: { icon: LucideIcon; title: string; desc: string; variant?: 'primary' | 'highlight' }) => (
   <div className="flex items-start gap-2">
-    <Icon size={16} className={`mt-0.5 flex-shrink-0 ${variant === 'highlight' ? 'text-highlight' : 'text-primary'}`} />
+    <Icon size={20} className={`mt-0.5 flex-shrink-0 ${variant === 'highlight' ? 'text-highlight' : 'text-primary'}`} />
     <div>
       <p className={`font-semibold text-sm md:text-base font-sans ${variant === 'highlight' ? 'text-highlight' : 'text-primary'}`}>{title}</p>
       <p className="text-foreground text-sm md:text-base font-sans leading-relaxed tracking-wide">{desc}</p>
@@ -231,8 +231,8 @@ const useServiceContent = () => {
       <div className="space-y-3">
         <Block><SectionTitle>{t('nis2.title')}</SectionTitle><p>{t('nis2.intro')}</p></Block>
         <CardBlock icon={Search} title={t('nis2.impactTitle')} desc={t('nis2.impactDesc')} />
-        <CardBlock icon={Shield} title={t('nis2.gapTitle')} desc={t('nis2.gapDesc')} />
-        <CardBlock icon={Shield} title={t('nis2.measuresTitle')} desc={t('nis2.measuresDesc')} />
+        <CardBlock icon={AlertCircle} title={t('nis2.gapTitle')} desc={t('nis2.gapDesc')} />
+        <CardBlock icon={ShieldCheck} title={t('nis2.measuresTitle')} desc={t('nis2.measuresDesc')} />
         <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
           <SubTitle variant="highlight">{t('nis2.frameworkTitle')}</SubTitle>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-2">
@@ -262,7 +262,7 @@ const useServiceContent = () => {
       <div className="space-y-3">
         <Block><SectionTitle>{t('assessments.title')}</SectionTitle><p>{t('assessments.intro')}</p></Block>
         <CardBlock icon={Search} title={t('assessments.threatTitle')} desc={t('assessments.threatDesc')} />
-        <CardBlock icon={Shield} title={t('assessments.controlsTitle')} desc={t('assessments.controlsDesc')} variant="highlight" />
+        <CardBlock icon={ShieldCheck} title={t('assessments.controlsTitle')} desc={t('assessments.controlsDesc')} variant="highlight" />
         <CardBlock icon={Users} title={t('assessments.rolesTitle')} desc={t('assessments.rolesDesc')} />
         <CardBlock icon={Calendar} title={t('assessments.planningTitle')} desc={t('assessments.planningDesc')} variant="highlight" />
         <CardBlock icon={BarChart} title={t('assessments.measureTitle')} desc={t('assessments.measureDesc')} />
@@ -273,7 +273,7 @@ const useServiceContent = () => {
         <Block><SectionTitle>{t('incident.title')}</SectionTitle><p>{t('incident.intro')}</p></Block>
         <CardBlock icon={FileText} title={t('incident.planTitle')} desc={t('incident.planDesc')} />
         <CardBlock icon={Eye} title={t('incident.detectionTitle')} desc={t('incident.detectionDesc')} variant="highlight" />
-        <CardBlock icon={Shield} title={t('incident.containTitle')} desc={t('incident.containDesc')} />
+        <CardBlock icon={AlertTriangle} title={t('incident.containTitle')} desc={t('incident.containDesc')} />
         <CardBlock icon={RefreshCw} title={t('incident.recoveryTitle')} desc={t('incident.recoveryDesc')} variant="highlight" />
         <CardBlock icon={GraduationCap} title={t('incident.simTitle')} desc={t('incident.simDesc')} />
       </div>
