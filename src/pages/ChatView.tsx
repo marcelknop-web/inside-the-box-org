@@ -637,7 +637,7 @@ const useSidebarGroups = (): SidebarGroup[] => {
       items: [
         { id: 'why', icon: Target, label: t('start.cyberTrainingRange') },
         { id: 'training', icon: Swords, label: t('training.title') },
-        { id: 'tech-requirements', icon: Monitor, label: t('techReq.title') },
+        { id: 'tech-requirements', icon: Monitor, label: t('techReq.sidebarLabel') },
       ],
     },
     {

@@ -337,6 +337,7 @@ export const fr = {
   },
   techReq: {
     title: 'Prérequis techniques',
+    sidebarLabel: 'Config technique',
     intro: 'La formation se déroule dans un environnement virtuel. Les participants se connectent via RDP depuis leurs propres appareils.',
     requirements: 'Prérequis',
     systemTitle: 'Système',
