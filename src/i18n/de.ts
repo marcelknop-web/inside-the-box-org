@@ -84,6 +84,7 @@ export const de = {
     crisisTitle: 'Cyber-Krisenmanagement',
     crisisDesc: 'Krisenstrategie und Simulationsübungen.',
     arenaTitle: 'Arena Training, TIBER Test',
+    arenaSidebarLabel: 'Arena & TIBER',
     arenaDesc: 'Red-Team-Training und TIBER-EU/DE-Koordination.',
     eventsTitle: 'Events & Workshops',
     eventsDesc: 'Moderation, Awareness-Training und technische Workshops.',
