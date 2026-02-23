@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, ReactNode, useCallback } from 'react';
-import { Send, Plus, MessageCircle, Shield, Target, BookOpen, AlertTriangle, Eye, Flame, Swords, Calendar, FileText, UserCheck, ChevronLeft, Menu, ShieldCheck, Search, Settings, Award, RotateCcw, Network, CreditCard, CheckCircle, FileCheck, Car, BarChart, RefreshCw, GraduationCap, ClipboardList, Zap, Crown, Users, Gamepad2, Monitor, Users2, Lightbulb, Flag, Crosshair, CheckSquare, Mic, Presentation, Wrench, Radio, Video, DollarSign, Phone, Mail, Server, Bug, AlertCircle, MessageSquare, Globe, Building2, Plane, Landmark, Scale, Wifi, XCircle, HelpCircle, Loader2, X } from 'lucide-react';
+import { Send, Plus, MessageCircle, Shield, Target, BookOpen, AlertTriangle, Eye, Flame, Swords, Calendar, FileText, UserCheck, ChevronLeft, Menu, ShieldCheck, Search, Settings, Award, RotateCcw, Network, CreditCard, CheckCircle, FileCheck, Car, BarChart, RefreshCw, GraduationCap, ClipboardList, Zap, Crown, Users, Gamepad2, Monitor, Users2, Lightbulb, Flag, Crosshair, CheckSquare, Mic, Presentation, Wrench, Radio, Video, DollarSign, Phone, Mail, Server, Bug, AlertCircle, MessageSquare, Globe, Building2, Plane, Landmark, Scale, Wifi, XCircle, HelpCircle, Loader2, X, Linkedin } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { PageMeta } from '@/components/PageMeta';
 import { useLanguage } from '@/i18n/LanguageContext';
@@ -474,15 +474,17 @@ const useServiceContent = () => {
           <Block><SectionTitle>{t('byWhom.title')}</SectionTitle><p>{t('byWhom.intro')}</p></Block>
           {profiles.map(p => (
             <Block key={p.name} className="bg-secondary/30">
-              <div className="flex items-center gap-4 mb-4">
+              <div className="flex items-start gap-4 mb-4">
                 <img src={p.imageUrl} alt={p.name} className="w-20 h-20 rounded-full object-cover border-2 border-primary/40 shadow-lg" />
                 <div>
                   <p className="text-primary font-bold text-base font-sans">{p.name}</p>
-                  <p className="text-foreground text-sm font-sans">{p.role}</p>
+                  <p className="text-foreground text-sm font-sans mb-1">{p.role}</p>
+                  {p.linkedinUrl && (
+                    <a href={p.linkedinUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-highlight text-sm font-sans hover:underline">
+                      <Linkedin size={14} /> LinkedIn
+                    </a>
+                  )}
                 </div>
-                {p.linkedinUrl && (
-                  <a href={p.linkedinUrl} target="_blank" rel="noopener noreferrer" className="ml-auto text-highlight text-sm font-sans hover:underline">LinkedIn</a>
-                )}
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {p.sections.map((s, i) => (
