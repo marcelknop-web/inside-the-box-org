@@ -19,7 +19,7 @@ export const en = {
     metaDesc: 'Realistic cyber attack simulations and crisis coordination training. 40+ trainings delivered, 350+ people trained across 6 countries.',
     card1: 'In cyber incidents, technology rarely fails first – <span>the organization</span> does.',
     card1bullets: 'Communication stalls.\nDecisions are delayed.\nResponsibilities are unclear.',
-    card1outro: 'Our Cyber Training Range makes exactly this visible – before it becomes critical.',
+    card1outro: 'Our Cyber Training Range makes this visible – before it becomes critical.',
     card2: 'Our <span>Cyber Training Range</span> simulates realistic attacks in a controlled environment.',
     card2bullets: 'Technical teams respond operationally.\nLeaders make decisions under time pressure.\nThe crisis team coordinates.',
     card2outro: 'This reveals how resilient your organization truly is.',
