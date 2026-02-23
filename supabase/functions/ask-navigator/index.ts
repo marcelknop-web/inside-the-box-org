@@ -13,7 +13,33 @@ serve(async (req) => {
   }
 
   try {
-    const { question } = await req.json();
+    const body = await req.json();
+    const question = body?.question;
+
+    // Validate input type and presence
+    if (!question || typeof question !== "string") {
+      return new Response(
+        JSON.stringify({ error: "Invalid question format" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const trimmed = question.trim();
+
+    // Enforce length limits
+    if (trimmed.length < 3) {
+      return new Response(
+        JSON.stringify({ error: "Question too short" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    if (trimmed.length > 1000) {
+      return new Response(
+        JSON.stringify({ error: "Question too long (max 1000 characters)" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
@@ -29,7 +55,7 @@ serve(async (req) => {
           model: "google/gemini-3-flash-preview",
           messages: [
             { role: "system", content: SYSTEM_PROMPT },
-            { role: "user", content: question },
+            { role: "user", content: trimmed },
           ],
         }),
       }
