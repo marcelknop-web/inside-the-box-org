@@ -366,6 +366,7 @@ export const de = {
   },
   welcome: {
     title: 'Willkommen bei inside-the-box',
+    headerTitle: 'Cybersecurity Beratung und Training – Marcel Knop und Andreas Funder',
     intro: 'Marcel Knop & Andreas Funder – Cybersecurity-Beratung und Training.',
     chatPlaceholder: 'Stellen Sie eine Frage…',
   },
