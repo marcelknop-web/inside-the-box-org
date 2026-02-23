@@ -828,7 +828,7 @@ const ChatView = () => {
               <div className="mb-6">
                 <GeometricSymbol size="sm" className="w-16 h-16 opacity-60" />
               </div>
-              <h1 className="text-xl md:text-2xl font-mono text-foreground mb-2 text-center">{t('welcome.title')}</h1>
+              <h1 className="text-xl md:text-2xl font-mono font-bold text-highlight mb-2 text-center">{t('welcome.title')}</h1>
               <p className="text-sm text-foreground font-mono text-center max-w-md px-2">
                 {t('welcome.intro')}
               </p>
