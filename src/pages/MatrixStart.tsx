@@ -25,33 +25,29 @@ const MatrixStart = () => {
     const master = masterRef.current;
     if (!ctx || !master) return;
 
-    // Only trigger some — not every reset needs a drop
-    if (Math.random() > 0.3) return;
+    // Sparse sci-fi blips synced to column resets
+    if (Math.random() > 0.2) return;
 
     const t = ctx.currentTime;
     const osc = ctx.createOscillator();
     const g = ctx.createGain();
     const pan = ctx.createStereoPanner();
-    const filter = ctx.createBiquadFilter();
 
-    // Short filtered click/plip — like a raindrop hitting glass
-    osc.type = 'sine';
-    const freq = 2000 + Math.random() * 4000;
-    osc.frequency.setValueAtTime(freq, t);
-    osc.frequency.exponentialRampToValueAtTime(freq * 0.3, t + 0.08);
-
-    filter.type = 'bandpass';
-    filter.frequency.setValueAtTime(freq * 0.8, t);
-    filter.Q.setValueAtTime(3, t);
+    // Descending sci-fi chirp
+    osc.type = Math.random() > 0.5 ? 'sine' : 'square';
+    const freq = 600 + columnRatio * 1200;
+    osc.frequency.setValueAtTime(freq * 2, t);
+    osc.frequency.exponentialRampToValueAtTime(freq * 0.5, t + 0.15);
 
     pan.pan.setValueAtTime((columnRatio * 2 - 1) * 0.7, t);
 
-    const vol = 0.02 + Math.random() * 0.03;
+    const vol = 0.008 + Math.random() * 0.012;
     g.gain.setValueAtTime(vol, t);
-    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.04 + Math.random() * 0.06);
+    g.gain.linearRampToValueAtTime(vol * 0.8, t + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.12 + Math.random() * 0.1);
 
-    osc.connect(filter);
-    filter.connect(g);
+    osc.connect(g);
+    g.connect(pan);
     g.connect(pan);
     pan.connect(master);
     osc.start(t);
@@ -148,72 +144,94 @@ const MatrixStart = () => {
     masterRef.current = master;
     master.connect(ctx.destination);
 
-    // === RAIN SOUND ===
-    // Layered filtered noise to simulate realistic rain
+    // === CLASSIC SCI-FI / UFO SOUND ===
+    // Theremin-style wobble + eerie harmonics + sub pulse
 
-    const sr = ctx.sampleRate;
-    const bufLen = sr * 2;
-    const noiseBuf = ctx.createBuffer(2, bufLen, sr);
-    for (let ch = 0; ch < 2; ch++) {
-      const data = noiseBuf.getChannelData(ch);
-      for (let i = 0; i < bufLen; i++) {
-        data[i] = Math.random() * 2 - 1;
-      }
-    }
+    // Theremin lead — slow sweeping sine with vibrato
+    const theremin = ctx.createOscillator();
+    const thereminGain = ctx.createGain();
+    const thereminVibrato = ctx.createOscillator();
+    const thereminVibratoGain = ctx.createGain();
+    theremin.type = 'sine';
+    theremin.frequency.setValueAtTime(400, ctx.currentTime);
+    // Slow sweep up and down
+    theremin.frequency.linearRampToValueAtTime(800, ctx.currentTime + 12);
+    theremin.frequency.linearRampToValueAtTime(350, ctx.currentTime + 24);
+    theremin.frequency.linearRampToValueAtTime(900, ctx.currentTime + 36);
+    theremin.frequency.linearRampToValueAtTime(400, ctx.currentTime + 48);
+    thereminVibrato.type = 'sine';
+    thereminVibrato.frequency.setValueAtTime(5.5, ctx.currentTime);
+    thereminVibratoGain.gain.setValueAtTime(12, ctx.currentTime);
+    thereminVibrato.connect(thereminVibratoGain);
+    thereminVibratoGain.connect(theremin.frequency);
+    thereminGain.gain.setValueAtTime(0, ctx.currentTime);
+    thereminGain.gain.linearRampToValueAtTime(0.06, ctx.currentTime + 4);
+    theremin.connect(thereminGain);
+    thereminGain.connect(master);
+    theremin.start();
+    thereminVibrato.start();
 
-    // Main rain — bandpass filtered white noise (steady rain)
-    const rain1 = ctx.createBufferSource();
-    rain1.buffer = noiseBuf;
-    rain1.loop = true;
-    const rainFilter1 = ctx.createBiquadFilter();
-    rainFilter1.type = 'bandpass';
-    rainFilter1.frequency.setValueAtTime(3000, ctx.currentTime);
-    rainFilter1.Q.setValueAtTime(0.5, ctx.currentTime);
-    const rainGain1 = ctx.createGain();
-    rainGain1.gain.setValueAtTime(0.12, ctx.currentTime);
-    rain1.connect(rainFilter1);
-    rainFilter1.connect(rainGain1);
-    rainGain1.connect(master);
-    rain1.start();
+    // Eerie high-pitched whistle — classic UFO whine
+    const whistle = ctx.createOscillator();
+    const whistleGain = ctx.createGain();
+    const whistleLfo = ctx.createOscillator();
+    const whistleLfoGain = ctx.createGain();
+    whistle.type = 'sine';
+    whistle.frequency.setValueAtTime(1200, ctx.currentTime);
+    whistle.frequency.linearRampToValueAtTime(2000, ctx.currentTime + 8);
+    whistle.frequency.linearRampToValueAtTime(1000, ctx.currentTime + 20);
+    whistle.frequency.linearRampToValueAtTime(1800, ctx.currentTime + 32);
+    whistleLfo.type = 'sine';
+    whistleLfo.frequency.setValueAtTime(0.3, ctx.currentTime);
+    whistleLfoGain.gain.setValueAtTime(0.025, ctx.currentTime);
+    whistleLfo.connect(whistleLfoGain);
+    whistleLfoGain.connect(whistleGain.gain);
+    whistleGain.gain.setValueAtTime(0, ctx.currentTime);
+    whistleGain.gain.linearRampToValueAtTime(0.02, ctx.currentTime + 6);
+    whistle.connect(whistleGain);
+    whistleGain.connect(master);
+    whistle.start();
+    whistleLfo.start();
 
-    // High shimmer — light rain patter on surfaces
-    const rain2 = ctx.createBufferSource();
-    rain2.buffer = noiseBuf;
-    rain2.loop = true;
-    const rainFilter2 = ctx.createBiquadFilter();
-    rainFilter2.type = 'highpass';
-    rainFilter2.frequency.setValueAtTime(6000, ctx.currentTime);
-    const rainGain2 = ctx.createGain();
-    rainGain2.gain.setValueAtTime(0.04, ctx.currentTime);
-    rain2.connect(rainFilter2);
-    rainFilter2.connect(rainGain2);
-    rainGain2.connect(master);
-    rain2.start();
+    // Sub-bass pulsing hum — mothership engine
+    const sub = ctx.createOscillator();
+    const subGain = ctx.createGain();
+    const subLfo = ctx.createOscillator();
+    const subLfoGain = ctx.createGain();
+    sub.type = 'triangle';
+    sub.frequency.setValueAtTime(55, ctx.currentTime);
+    subLfo.type = 'sine';
+    subLfo.frequency.setValueAtTime(0.5, ctx.currentTime);
+    subLfoGain.gain.setValueAtTime(0.04, ctx.currentTime);
+    subLfo.connect(subLfoGain);
+    subLfoGain.connect(subGain.gain);
+    subGain.gain.setValueAtTime(0, ctx.currentTime);
+    subGain.gain.linearRampToValueAtTime(0.08, ctx.currentTime + 5);
+    sub.connect(subGain);
+    subGain.connect(master);
+    sub.start();
+    subLfo.start();
 
-    // Low rumble — distant heavy rain / thunder ambience
-    const rain3 = ctx.createBufferSource();
-    rain3.buffer = noiseBuf;
-    rain3.loop = true;
-    const rainFilter3 = ctx.createBiquadFilter();
-    rainFilter3.type = 'lowpass';
-    rainFilter3.frequency.setValueAtTime(200, ctx.currentTime);
-    rainFilter3.Q.setValueAtTime(2, ctx.currentTime);
-    const rainGain3 = ctx.createGain();
-    rainGain3.gain.setValueAtTime(0.06, ctx.currentTime);
-    rain3.connect(rainFilter3);
-    rainFilter3.connect(rainGain3);
-    rainGain3.connect(master);
-    rain3.start();
-
-    // Slow LFO on main rain intensity — gusts of rain
-    const lfo = ctx.createOscillator();
-    const lfoGain = ctx.createGain();
-    lfo.type = 'sine';
-    lfo.frequency.setValueAtTime(0.15, ctx.currentTime);
-    lfoGain.gain.setValueAtTime(0.04, ctx.currentTime);
-    lfo.connect(lfoGain);
-    lfoGain.connect(rainGain1.gain);
-    lfo.start();
+    // Metallic ring — detuned overtones
+    [2.3, 3.7, 5.1].forEach((ratio, idx) => {
+      const osc = ctx.createOscillator();
+      const g = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(55 * ratio, ctx.currentTime);
+      const lfo2 = ctx.createOscillator();
+      const lfo2G = ctx.createGain();
+      lfo2.type = 'sine';
+      lfo2.frequency.setValueAtTime(0.1 + idx * 0.07, ctx.currentTime);
+      lfo2G.gain.setValueAtTime(0.008, ctx.currentTime);
+      lfo2.connect(lfo2G);
+      lfo2G.connect(g.gain);
+      g.gain.setValueAtTime(0, ctx.currentTime);
+      g.gain.linearRampToValueAtTime(0.012, ctx.currentTime + 6 + idx * 2);
+      osc.connect(g);
+      g.connect(master);
+      osc.start();
+      lfo2.start();
+    });
 
     setSoundOn(true);
   }, []);
