@@ -43,7 +43,7 @@ export const ProfileCard = ({ name, role, imageUrl, linkedinUrl, sections }: Pro
       </div>
       
       <div className="space-y-4 text-base sm:text-lg">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-2 gap-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-[auto_auto] gap-x-8 gap-y-4 justify-start">
           {sections.slice(0, 2).map((section, i) => (
             <div key={i}>
               <h4 className="text-primary font-semibold mb-2">{section.title}</h4>
@@ -55,7 +55,7 @@ export const ProfileCard = ({ name, role, imageUrl, linkedinUrl, sections }: Pro
             </div>
           ))}
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-2 gap-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-[auto_auto] gap-x-8 gap-y-4 justify-start">
           {sections.slice(2, 4).map((section, i) => (
             <div key={i}>
               <h4 className="text-primary font-semibold mb-2">{section.title}</h4>
