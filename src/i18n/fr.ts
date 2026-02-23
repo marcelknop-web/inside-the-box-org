@@ -91,7 +91,7 @@ export const fr = {
     pubDesc: 'Publications sectorielles et programmes de certification.',
     vcisoTitle: 'CISO Virtuel',
     vcisoDesc: 'Direction sécurité exécutive flexible.',
-    aiWorkflowsTitle: 'Workflows assistés par l\'IA',
+    aiWorkflowsTitle: 'Workflows IA',
     aiWorkflowsDesc: 'Automatisation IA pour les opérations de sécurité et la conformité.',
     clientsServed: 'Clients servis',
     industrySectors: 'Secteurs d\'activité',
