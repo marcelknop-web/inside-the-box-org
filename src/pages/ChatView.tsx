@@ -229,8 +229,8 @@ const useServiceContent = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <GridItem icon={Search} title={t('isms.assessmentTitle')} desc={t('isms.assessmentDesc')} variant="highlight" />
             <GridItem icon={Settings} title={t('isms.implementationTitle')} desc={t('isms.implementationDesc')} variant="highlight" />
-            <GridItem icon={Award} title={t('isms.certificationTitle')} desc={t('isms.certificationDesc')} />
-            <GridItem icon={RotateCcw} title={t('isms.maintenanceTitle')} desc={t('isms.maintenanceDesc')} />
+            <GridItem icon={Award} title={t('isms.certificationTitle')} desc={t('isms.certificationDesc')} variant="highlight" />
+            <GridItem icon={RotateCcw} title={t('isms.maintenanceTitle')} desc={t('isms.maintenanceDesc')} variant="highlight" />
           </div>
         </Block>
       </div>
