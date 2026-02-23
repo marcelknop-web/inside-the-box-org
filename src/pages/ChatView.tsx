@@ -400,19 +400,17 @@ const useServiceContent = () => {
         <Block>
           <SectionTitle>{t('index.title')}</SectionTitle>
           <p className="text-lg font-semibold mb-2">{t('index.subtitle')}</p>
-          <p className="text-foreground" dangerouslySetInnerHTML={{
-            __html: t('index.card1').replace(/<span>/g, '<span class="text-primary font-semibold">')
-          }} />
-        </Block>
-        <Block className="bg-secondary/30">
-          <p className="text-foreground whitespace-pre-line">{t('index.card1b')}</p>
-        </Block>
-        <Block>
-          <p className="text-foreground whitespace-pre-line" dangerouslySetInnerHTML={{
-            __html: t('index.card2').replace(/<span>/g, '<span class="text-primary font-semibold">')
-          }} />
         </Block>
         <Block className="bg-primary/5 border border-primary/20 rounded-xl">
+          <p className="text-foreground mb-3" dangerouslySetInnerHTML={{
+            __html: t('index.card1').replace(/<span>/g, '<span class="text-primary font-semibold">')
+          }} />
+          <p className="text-foreground whitespace-pre-line">{t('index.card1b')}</p>
+        </Block>
+        <Block className="bg-primary/5 border border-primary/20 rounded-xl">
+          <p className="text-foreground whitespace-pre-line mb-3" dangerouslySetInnerHTML={{
+            __html: t('index.card2').replace(/<span>/g, '<span class="text-primary font-semibold">')
+          }} />
           <p className="text-foreground font-semibold">{t('index.card2outro')}</p>
         </Block>
         <div className="grid grid-cols-3 gap-2">
