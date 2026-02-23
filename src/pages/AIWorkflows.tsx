@@ -44,11 +44,6 @@ const AIWorkflows = () => {
               <BulletList items={[t('aiWorkflows.auditBullet1'), t('aiWorkflows.auditBullet2'), t('aiWorkflows.auditBullet3')]} />
               <ResultBadge text={t('aiWorkflows.auditResult')} />
             </ServiceCard>
-
-            <ServiceCard icon={Gamepad2} title={t('aiWorkflows.crisisTitle')} description={t('aiWorkflows.crisisDesc')}>
-              <BulletList items={[t('aiWorkflows.crisisBullet1'), t('aiWorkflows.crisisBullet2'), t('aiWorkflows.crisisBullet3')]} />
-              <ResultBadge text={t('aiWorkflows.crisisResult')} />
-            </ServiceCard>
           </div>
 
           <ServiceCard icon={Rocket} title={t('aiWorkflows.ctaTitle')} description={t('aiWorkflows.ctaDesc')} variant="highlight" />
