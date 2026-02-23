@@ -362,11 +362,11 @@ const MatrixStart = () => {
         }
         @keyframes hypnotic-glow {
           0%, 100% {
-            filter: drop-shadow(0 0 15px rgba(0,255,65,0.4)) drop-shadow(0 0 40px rgba(0,255,65,0.15));
+            filter: drop-shadow(0 0 30px rgba(0,255,65,0.5)) drop-shadow(0 0 80px rgba(0,255,65,0.25)) drop-shadow(0 0 150px rgba(0,255,65,0.1));
             opacity: 0.85;
           }
           50% {
-            filter: drop-shadow(0 0 35px rgba(0,255,65,0.8)) drop-shadow(0 0 80px rgba(0,255,65,0.4)) drop-shadow(0 0 120px rgba(0,255,65,0.15));
+            filter: drop-shadow(0 0 60px rgba(0,255,65,0.9)) drop-shadow(0 0 150px rgba(0,255,65,0.5)) drop-shadow(0 0 250px rgba(0,255,65,0.25)) drop-shadow(0 0 400px rgba(0,255,65,0.1));
             opacity: 1;
           }
         }
