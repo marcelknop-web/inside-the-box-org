@@ -26,6 +26,7 @@ import ArenaTraining from "./pages/ArenaTraining";
 import EventsWorkshops from "./pages/EventsWorkshops";
 import Publications from "./pages/Publications";
 import VirtualCISO from "./pages/VirtualCISO";
+import AIWorkflows from "./pages/AIWorkflows";
 import DesignSystem from "./pages/DesignSystem";
 import ComponentLibrary from "./pages/ComponentLibrary";
 import ColorPalette from "./pages/ColorPalette";
@@ -67,6 +68,7 @@ const App = () => (
               <Route path="/legacy/events-workshops" element={<EventsWorkshops />} />
               <Route path="/legacy/publications" element={<Publications />} />
               <Route path="/legacy/virtual-ciso" element={<VirtualCISO />} />
+              <Route path="/legacy/ai-workflows" element={<AIWorkflows />} />
               <Route path="/legacy/design-system" element={<DesignSystem />} />
               <Route path="/legacy/components" element={<ComponentLibrary />} />
               <Route path="/legacy/colors" element={<ColorPalette />} />

@@ -374,6 +374,15 @@ const useServiceContent = () => {
         </Block>
       </div>
     ),
+    'ai-workflows': () => (
+      <div className="space-y-3">
+        <Block><SectionTitle>{t('aiWorkflows.title')}</SectionTitle><p>{t('aiWorkflows.intro')}</p></Block>
+        <CardBlock icon={Zap} title={t('aiWorkflows.irTitle')} desc={t('aiWorkflows.irDesc')} />
+        <CardBlock icon={FileText} title={t('aiWorkflows.policyTitle')} desc={t('aiWorkflows.policyDesc')} variant="highlight" />
+        <CardBlock icon={Search} title={t('aiWorkflows.auditTitle')} desc={t('aiWorkflows.auditDesc')} />
+        <CardBlock icon={Gamepad2} title={t('aiWorkflows.crisisTitle')} desc={t('aiWorkflows.crisisDesc')} variant="highlight" />
+      </div>
+    ),
     why: () => (
       <div className="space-y-3">
         <Block>
@@ -436,6 +445,7 @@ const useServiceContent = () => {
             { icon: Calendar, title: t('consulting.eventsTitle'), desc: t('consulting.eventsDesc'), id: 'events-workshops' },
             { icon: FileText, title: t('consulting.pubTitle'), desc: t('consulting.pubDesc'), id: 'publications' },
             { icon: UserCheck, title: t('consulting.vcisoTitle'), desc: t('consulting.vcisoDesc'), id: 'virtual-ciso' },
+            { icon: Zap, title: t('consulting.aiWorkflowsTitle'), desc: t('consulting.aiWorkflowsDesc'), id: 'ai-workflows' },
           ].map(s => (
             <div key={s.id} className="rounded-xl p-3 bg-primary/5 border border-primary/20 flex items-start gap-2 cursor-pointer hover:bg-primary/10 transition-electric" onClick={() => setActive(s.id)}>
               <s.icon size={14} className="text-primary mt-0.5 flex-shrink-0" />
@@ -630,6 +640,7 @@ const useSidebarGroups = (): SidebarGroup[] => {
         { id: 'events-workshops', icon: Calendar, label: t('consulting.eventsTitle') },
         { id: 'publications', icon: FileText, label: t('consulting.pubTitle') },
         { id: 'virtual-ciso', icon: UserCheck, label: t('vciso.title') },
+        { id: 'ai-workflows', icon: Zap, label: t('consulting.aiWorkflowsTitle') },
       ],
     },
     {
