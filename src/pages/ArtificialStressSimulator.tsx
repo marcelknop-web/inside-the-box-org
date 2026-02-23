@@ -84,41 +84,42 @@ const MatrixStart = () => {
     window.addEventListener('resize', resize);
 
     let frameCount = 0;
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    // Throttle more aggressively on mobile to prevent GPU exhaustion
+    const frameSkip = isMobile ? 3 : 2;
+
     const draw = () => {
       frameCount++;
-      // Slow down: only update every 2nd frame for ~30fps rain
-      const shouldUpdate = frameCount % 2 === 0;
+      const shouldUpdate = frameCount % frameSkip === 0;
 
       ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       if (shouldUpdate) {
+        ctx.font = `${fontSize}px monospace`;
         for (let i = 0; i < columns.length; i++) {
           const char = MATRIX_CHARS[Math.floor(Math.random() * MATRIX_CHARS.length)];
           const x = i * fontSize;
           const y = columns[i] * fontSize;
 
           const brightness = Math.random();
-          if (brightness > 0.95) {
+          if (!isMobile && brightness > 0.95) {
             ctx.fillStyle = '#ffffff';
             ctx.shadowColor = '#00ff41';
             ctx.shadowBlur = 15;
-          } else if (brightness > 0.7) {
+          } else if (!isMobile && brightness > 0.7) {
             ctx.fillStyle = '#00ff41';
             ctx.shadowColor = '#00ff41';
             ctx.shadowBlur = 8;
           } else {
             ctx.fillStyle = `rgba(0, 255, 65, ${0.3 + brightness * 0.5})`;
-            ctx.shadowBlur = 0;
           }
 
-          ctx.font = `${fontSize}px monospace`;
           ctx.fillText(char, x, y);
           ctx.shadowBlur = 0;
 
           if (y > canvas.height && Math.random() > 0.975) {
             columns[i] = 0;
-            // Trigger sound synced to this column reset
             triggerRainDrop(i / columns.length);
           }
           columns[i]++;
@@ -369,16 +370,17 @@ const MatrixStart = () => {
         }
         @keyframes hypnotic-glow {
           0%, 100% {
-            filter: drop-shadow(0 0 50px rgba(0,255,65,0.5)) drop-shadow(0 0 120px rgba(0,255,65,0.3)) drop-shadow(0 0 250px rgba(0,255,65,0.15)) drop-shadow(0 0 400px rgba(0,255,65,0.05));
+            filter: drop-shadow(0 0 30px rgba(0,255,65,0.5)) drop-shadow(0 0 80px rgba(0,255,65,0.2));
             opacity: 0.8;
           }
           50% {
-            filter: drop-shadow(0 0 100px rgba(0,255,65,1)) drop-shadow(0 0 250px rgba(0,255,65,0.6)) drop-shadow(0 0 450px rgba(0,255,65,0.3)) drop-shadow(0 0 700px rgba(0,255,65,0.15));
+            filter: drop-shadow(0 0 60px rgba(0,255,65,0.8)) drop-shadow(0 0 120px rgba(0,255,65,0.3));
             opacity: 1;
           }
         }
         .matrix-glow-pulse {
           animation: hypnotic-glow 4s ease-in-out infinite;
+          will-change: filter, opacity;
         }
       `}</style>
     </div>
