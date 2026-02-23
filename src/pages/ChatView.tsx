@@ -743,7 +743,7 @@ const ChatView = () => {
                     <button
                       key={item.id}
                       onClick={() => selectService(item.id)}
-                      className={`w-full flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-left transition-electric group ${
+                      className={`w-full flex items-center gap-2.5 rounded-lg px-3 py-1.5 text-left transition-electric group ${
                         activeService === item.id ? 'bg-highlight/10 text-highlight' : 'text-foreground hover:bg-highlight/5 hover:text-highlight'
                       }`}
                     >
@@ -781,7 +781,7 @@ const ChatView = () => {
                     <button
                       key={item.id}
                       onClick={() => selectService(item.id)}
-                      className={`w-full flex items-center gap-2.5 rounded-lg px-3 py-2 text-left transition-electric group ${
+                      className={`w-full flex items-center gap-2.5 rounded-lg px-3 py-1.5 text-left transition-electric group ${
                         activeService === item.id ? 'bg-highlight/10 text-highlight' : 'text-foreground hover:bg-highlight/5 hover:text-highlight'
                       }`}
                     >
