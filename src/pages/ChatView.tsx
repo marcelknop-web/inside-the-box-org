@@ -110,17 +110,37 @@ const InlineSystemCheck = ({ t }: { t: (k: string) => string }) => {
       <button onClick={run} disabled={loading} className="flex items-center gap-2 bg-highlight text-highlight-foreground px-4 py-1.5 rounded font-mono text-sm hover:opacity-90 disabled:opacity-50 transition-opacity">
         {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> {t('techReq.sysCheckRunning')}</> : <><Monitor className="w-4 h-4" /> {t('techReq.sysCheckRunBtn')}</>}
       </button>
-      {results && (
-        <div className="mt-3 space-y-1.5">
-          {results.map(r => (
-            <div key={r.label} className="flex items-center gap-2 text-sm font-sans">
-              {icon(r.status)}
-              <span className="font-sans font-semibold text-foreground">{r.label}</span>
-              <span className="text-foreground">{r.detail}</span>
-            </div>
-          ))}
-        </div>
-      )}
+      {results && (() => {
+        const allPass = results.every(r => r.status === 'pass');
+        const anyFail = results.some(r => r.status === 'fail');
+        return (
+          <div className="mt-3 space-y-1.5">
+            {results.map(r => (
+              <div key={r.label} className="flex items-center gap-2 text-sm font-sans">
+                {icon(r.status)}
+                <span className="font-sans font-semibold text-foreground">{r.label}</span>
+                <span className="text-foreground">{r.detail}</span>
+              </div>
+            ))}
+            {allPass ? (
+              <div className="flex items-start gap-2 mt-3 p-3 rounded border border-green-500/30 bg-green-500/10 text-green-500">
+                <CheckCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                <p className="text-sm font-sans">{t('techReq.sysCheckAllPass')}</p>
+              </div>
+            ) : anyFail ? (
+              <div className="flex items-start gap-2 mt-3 p-3 rounded border border-destructive/30 bg-destructive/10 text-destructive">
+                <XCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                <p className="text-sm font-sans">{t('techReq.sysCheckSomeFail')}</p>
+              </div>
+            ) : (
+              <div className="flex items-start gap-2 mt-3 p-3 rounded border border-yellow-500/30 bg-yellow-500/10 text-yellow-500">
+                <HelpCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                <p className="text-sm font-sans">{t('techReq.sysCheckUnknown')}</p>
+              </div>
+            )}
+          </div>
+        );
+      })()}
     </div>
   );
 };
