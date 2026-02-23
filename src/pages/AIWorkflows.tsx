@@ -35,7 +35,7 @@ const AIWorkflows = () => {
               <ResultBadge text={t('aiWorkflows.irResult')} />
             </ServiceCard>
 
-            <ServiceCard icon={FileCheck} title={t('aiWorkflows.policyTitle')} description={t('aiWorkflows.policyDesc')} variant="highlight">
+            <ServiceCard icon={FileCheck} title={t('aiWorkflows.policyTitle')} description={t('aiWorkflows.policyDesc')}>
               <BulletList items={[t('aiWorkflows.policyBullet1'), t('aiWorkflows.policyBullet2'), t('aiWorkflows.policyBullet3')]} />
               <ResultBadge text={t('aiWorkflows.policyResult')} />
             </ServiceCard>
@@ -45,7 +45,7 @@ const AIWorkflows = () => {
               <ResultBadge text={t('aiWorkflows.auditResult')} />
             </ServiceCard>
 
-            <ServiceCard icon={Gamepad2} title={t('aiWorkflows.crisisTitle')} description={t('aiWorkflows.crisisDesc')} variant="highlight">
+            <ServiceCard icon={Gamepad2} title={t('aiWorkflows.crisisTitle')} description={t('aiWorkflows.crisisDesc')}>
               <BulletList items={[t('aiWorkflows.crisisBullet1'), t('aiWorkflows.crisisBullet2'), t('aiWorkflows.crisisBullet3')]} />
               <ResultBadge text={t('aiWorkflows.crisisResult')} />
             </ServiceCard>
