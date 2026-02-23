@@ -276,7 +276,7 @@ export const de = {
     workshopsTitle: 'Trainings-Workshops',
     workshopsDesc: 'Security-Awareness-Programme, technische Kompetenzentwicklung und Krisenmanagement-Übungen – konzipiert für Praktiker, nicht PowerPoint-Compliance.',
     referencesTitle: 'Kundenreferenzen',
-    referencesDesc: 'Vertrauenspartner führender Organisationen aus Verwaltung, Wirtschaft und Wissenschaft.',
+    referencesDesc: 'Beamtenbund · Bechtle · Bitkom · BSI · CDU · DENIC · DDPS (CH) · DIIR · DWT · Fast Lane · Euroforum · HPI · IIR · ISACA · Management Circle · SoftwareONE · Bundeswehr University · University of Giessen',
     eventTypesTitle: 'Veranstaltungstypen',
     conferences: 'Konferenzen',
     conferencesDesc: 'Großveranstaltungen und Keynote-Moderation.',
