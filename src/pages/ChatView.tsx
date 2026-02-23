@@ -323,10 +323,10 @@ const useServiceContent = () => {
     'events-workshops': () => (
       <div className="space-y-3">
         <Block><SectionTitle>{t('events.title')}</SectionTitle><p>{t('events.intro')}</p></Block>
-        <div className="grid grid-cols-3 gap-2">
-          <img src="/lovable-uploads/fc4cff06-0e9d-41c4-bac3-73a041a924b3.png" alt="Presentation" className="rounded-lg w-full h-20 object-cover border border-border" />
-          <img src="/lovable-uploads/f463db5a-733d-4e4e-b151-d3e33ebe8997.png" alt="Training" className="rounded-lg w-full h-20 object-cover border border-border" />
-          <img src="/lovable-uploads/48ad82c3-84e8-4161-93d5-d79b509f7cc4.png" alt="Conference" className="rounded-lg w-full h-20 object-cover border border-border" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <img src="/lovable-uploads/fc4cff06-0e9d-41c4-bac3-73a041a924b3.png" alt="Presentation" className="rounded-xl w-full h-40 md:h-48 object-cover border border-border" />
+          <img src="/lovable-uploads/f463db5a-733d-4e4e-b151-d3e33ebe8997.png" alt="Training" className="rounded-xl w-full h-40 md:h-48 object-cover border border-border" />
+          <img src="/lovable-uploads/48ad82c3-84e8-4161-93d5-d79b509f7cc4.png" alt="Conference" className="rounded-xl w-full h-40 md:h-48 object-cover border border-border" />
         </div>
         <CardBlock icon={Mic} title={t('events.moderationTitle')} desc={t('events.moderationDesc')} />
         <CardBlock icon={Users} title={t('events.workshopsTitle')} desc={t('events.workshopsDesc')} variant="highlight" />
