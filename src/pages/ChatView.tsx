@@ -343,14 +343,17 @@ const useServiceContent = () => {
           <img src="/lovable-uploads/48ad82c3-84e8-4161-93d5-d79b509f7cc4.png" alt="Conference" className="rounded-xl w-full h-40 md:h-48 object-cover border border-border" />
         </div>
         <CardBlock icon={Mic} title={t('events.moderationTitle')} desc={t('events.moderationDesc')} />
-        <CardBlock icon={Users} title={t('events.workshopsTitle')} desc={t('events.workshopsDesc')} variant="highlight" />
+        <CardBlock icon={Users} title={t('events.workshopsTitle')} desc={t('events.workshopsDesc')} />
         <CardBlock icon={Award} title={t('events.referencesTitle')} desc={t('events.referencesDesc')} />
-        <Block className="bg-secondary/30">
-          <SubTitle>{t('events.eventTypesTitle')}</SubTitle>
+        <Block className="bg-primary/5 border border-primary/20 rounded-xl">
+          <p className="text-foreground text-sm md:text-base font-sans leading-relaxed">Beamtenbund · Bechtle · Bitkom · BSI · CDU · DENIC · DDPS (CH) · DIIR · DWT · Fast Lane · Euroforum · HPI · IIR · ISACA · Management Circle · SoftwareONE · Bundeswehr University · University of Giessen</p>
+        </Block>
+        <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
+          <SubTitle variant="highlight">{t('events.eventTypesTitle')}</SubTitle>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-2">
-            <GridItem icon={Presentation} title={t('events.conferences')} desc={t('events.conferencesDesc')} />
-            <GridItem icon={Wrench} title={t('events.workshops')} desc={t('events.workshopsDescShort')} />
-            <GridItem icon={GraduationCap} title={t('events.seminars')} desc={t('events.seminarsDesc')} />
+            <GridItem icon={Presentation} title={t('events.conferences')} desc={t('events.conferencesDesc')} variant="highlight" />
+            <GridItem icon={Wrench} title={t('events.workshops')} desc={t('events.workshopsDescShort')} variant="highlight" />
+            <GridItem icon={GraduationCap} title={t('events.seminars')} desc={t('events.seminarsDesc')} variant="highlight" />
           </div>
         </Block>
       </div>
