@@ -392,6 +392,10 @@ const useServiceContent = () => {
         <Block className="bg-highlight/10 border border-highlight/30 rounded-xl">
           <SubTitle variant="highlight">{t('aiWorkflows.ctaTitle')}</SubTitle>
           <p className="text-foreground whitespace-pre-line">{t('aiWorkflows.ctaDesc')}</p>
+          <a href="https://ttx-machine.inside-the-box.org/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 mt-3 px-4 py-2 bg-highlight/20 border border-highlight/40 rounded-lg text-highlight font-mono text-sm hover:bg-highlight/30 transition-electric">
+            <Gamepad2 size={16} />
+            Cyberkrisen-Übung testen ↗
+          </a>
         </Block>
       </div>
     ),
