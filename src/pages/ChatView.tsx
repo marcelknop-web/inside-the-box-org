@@ -706,7 +706,7 @@ const ChatView = () => {
   const serviceContent = activeService && contentMap[activeService] ? contentMap[activeService]() : null;
 
   return (
-    <div className="h-screen flex overflow-hidden" style={{ background: 'hsl(var(--background))' }}>
+    <div className="h-screen flex overflow-hidden bg-transparent">
       <PageMeta title="inside-the-box" description="Cybersecurity Navigator" />
 
       {/* Mobile sidebar overlay */}
