@@ -810,7 +810,7 @@ const ChatView = () => {
           <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-1.5 rounded-md hover:bg-secondary text-muted-foreground transition-electric">
             {!isMobile && sidebarOpen ? <ChevronLeft size={18} /> : <Menu size={18} />}
           </button>
-          <span className="flex-1 text-sm font-mono font-bold text-highlight truncate text-center md:text-left">
+          <span className="flex-1 text-sm font-mono font-bold text-accent truncate text-center md:text-left">
             {activeService 
               ? (sidebarGroups.flatMap(g => g.items).find(i => i.id === activeService)?.label || 'inside-the-box') 
               : (isMobile ? 'inside-the-box' : 'Cybersecurity Beratung und Training – Marcel Knop und Andreas Funder')}
@@ -828,7 +828,7 @@ const ChatView = () => {
               <div className="mb-6">
                 <GeometricSymbol size="sm" className="w-16 h-16 opacity-60" />
               </div>
-              <h1 className="text-xl md:text-2xl font-mono font-bold text-highlight mb-2 text-center">{t('welcome.title')}</h1>
+              <h1 className="text-xl md:text-2xl font-mono font-bold text-accent mb-2 text-center">{t('welcome.title')}</h1>
               <p className="text-sm text-foreground font-mono text-center max-w-md px-2">
                 {t('welcome.intro')}
               </p>
