@@ -8,7 +8,7 @@ export const de = {
   },
   start: {
     cyberTrainingRange: 'Cyber Training Range',
-    cybersecurityConsulting: 'Cybersecurity-Beratung',
+    cybersecurityConsulting: 'Beratungs-Übersicht',
     askMeAnything: 'Stellen Sie eine Frage',
     metaTitle: 'Cybersecurity-Beratung & Cyber Training Range',
     metaDesc: 'Experten-Cybersecurity-Beratung und Cyber Training Range. ISMS, ISO 27001, NIS-2, TISAX, Incident Response und Cyber-Krisenmanagement.',

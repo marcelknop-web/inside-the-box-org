@@ -8,7 +8,7 @@ export const fr = {
   },
   start: {
     cyberTrainingRange: 'Cyber Training Range',
-    cybersecurityConsulting: 'Conseil en Cybersécurité',
+    cybersecurityConsulting: 'Aperçu du conseil',
     askMeAnything: 'Posez-moi une question',
     metaTitle: 'Conseil en Cybersécurité & Cyber Training Range',
     metaDesc: 'Conseil expert en cybersécurité et services de cyber training range. SMSI, ISO 27001, NIS-2, TISAX, réponse aux incidents et gestion de cyber-crises.',
