@@ -400,13 +400,47 @@ const useServiceContent = () => {
         <Block>
           <SectionTitle>{t('index.title')}</SectionTitle>
           <p className="text-lg font-semibold mb-2">{t('index.subtitle')}</p>
-           <p className="text-foreground" dangerouslySetInnerHTML={{
+           <p className="text-foreground whitespace-pre-line" dangerouslySetInnerHTML={{
             __html: t('index.card1').replace(/<span>/g, '<span class="text-primary font-semibold">')
           }} />
         </Block>
         <Block className="bg-secondary/30">
-          <p className="text-foreground" dangerouslySetInnerHTML={{
-            __html: t('index.card2').replace(/<span>/g, '<span class="text-primary font-semibold">')
+          <p className="text-foreground whitespace-pre-line" dangerouslySetInnerHTML={{
+            __html: t('index.card1b').replace(/<span>/g, '<span class="text-primary font-semibold">')
+          }} />
+        </Block>
+        <Block>
+          <SubTitle>{t('index.section2Title')}</SubTitle>
+          <p className="text-foreground mb-3">{t('index.section2Intro')}</p>
+          <ul className="space-y-1.5 text-foreground text-sm">
+            <li className="flex items-start gap-2"><span className="text-primary mt-0.5">▸</span>{t('index.section2Bullet1')}</li>
+            <li className="flex items-start gap-2"><span className="text-primary mt-0.5">▸</span>{t('index.section2Bullet2')}</li>
+            <li className="flex items-start gap-2"><span className="text-primary mt-0.5">▸</span>{t('index.section2Bullet3')}</li>
+          </ul>
+          <p className="text-foreground mt-3 font-semibold">{t('index.section2Outro')}</p>
+        </Block>
+        <Block className="bg-primary/5 border border-primary/20 rounded-xl">
+          <SubTitle>{t('index.section3Title')}</SubTitle>
+          <p className="text-foreground mb-3">{t('index.section3Intro')}</p>
+          <ul className="space-y-1.5 text-foreground text-sm">
+            <li className="flex items-start gap-2"><span className="text-primary mt-0.5">▸</span>{t('index.section3Q1')}</li>
+            <li className="flex items-start gap-2"><span className="text-primary mt-0.5">▸</span>{t('index.section3Q2')}</li>
+            <li className="flex items-start gap-2"><span className="text-primary mt-0.5">▸</span>{t('index.section3Q3')}</li>
+            <li className="flex items-start gap-2"><span className="text-primary mt-0.5">▸</span>{t('index.section3Q4')}</li>
+            <li className="flex items-start gap-2"><span className="text-primary mt-0.5">▸</span>{t('index.section3Q5')}</li>
+          </ul>
+          <p className="text-foreground mt-3 font-semibold">{t('index.section3Outro')}</p>
+        </Block>
+        <Block className="bg-secondary/30">
+          <SubTitle>{t('index.section4Title')}</SubTitle>
+          <p className="text-foreground whitespace-pre-line" dangerouslySetInnerHTML={{
+            __html: t('index.section4Text').replace(/<span>/g, '<span class="text-primary font-semibold">')
+          }} />
+        </Block>
+        <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
+          <SubTitle variant="highlight">{t('index.section5Title')}</SubTitle>
+          <p className="text-foreground whitespace-pre-line" dangerouslySetInnerHTML={{
+            __html: t('index.section5Text').replace(/<span>/g, '<span class="text-highlight font-semibold">')
           }} />
         </Block>
         <div className="grid grid-cols-3 gap-2">
