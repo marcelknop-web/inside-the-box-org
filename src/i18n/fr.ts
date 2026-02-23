@@ -276,7 +276,7 @@ export const fr = {
     workshopsTitle: 'Ateliers de formation',
     workshopsDesc: 'Programmes de sensibilisation à la sécurité, développement de compétences techniques et exercices de gestion de crise – conçus pour les praticiens.',
     referencesTitle: 'Références clients',
-    referencesDesc: 'Partenaire de confiance d\'organisations leaders dans le gouvernement, l\'industrie et le monde académique.',
+    referencesDesc: 'Beamtenbund · Bechtle · Bitkom · BSI · CDU · DENIC · DDPS (CH) · DIIR · DWT · Fast Lane · Euroforum · HPI · IIR · ISACA · Management Circle · SoftwareONE · Bundeswehr University · University of Giessen',
     eventTypesTitle: 'Types d\'événements',
     conferences: 'Conférences',
     conferencesDesc: 'Événements d\'envergure et modération de keynotes.',

@@ -345,9 +345,6 @@ const useServiceContent = () => {
         <CardBlock icon={Mic} title={t('events.moderationTitle')} desc={t('events.moderationDesc')} />
         <CardBlock icon={Users} title={t('events.workshopsTitle')} desc={t('events.workshopsDesc')} />
         <CardBlock icon={Award} title={t('events.referencesTitle')} desc={t('events.referencesDesc')} />
-        <Block className="bg-primary/5 border border-primary/20 rounded-xl">
-          <p className="text-foreground text-sm md:text-base font-sans leading-relaxed">Beamtenbund · Bechtle · Bitkom · BSI · CDU · DENIC · DDPS (CH) · DIIR · DWT · Fast Lane · Euroforum · HPI · IIR · ISACA · Management Circle · SoftwareONE · Bundeswehr University · University of Giessen</p>
-        </Block>
         <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
           <SubTitle variant="highlight">{t('events.eventTypesTitle')}</SubTitle>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-2">
