@@ -879,14 +879,17 @@ const ChatView = () => {
             </div>
           ) : (
             <div className="w-full px-3 md:px-6 lg:px-10 py-4 md:py-6 space-y-4">
-              {serviceContent && (
+              {serviceContent && (() => {
+                const ActiveIcon = sidebarGroups.flatMap(g => g.items).find(i => i.id === activeService)?.icon || MessageCircle;
+                return (
                 <div className="flex gap-3">
                   <div className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <MessageCircle size={14} className="text-primary" />
+                    <ActiveIcon size={14} className="text-primary" />
                   </div>
                   <div className="flex-1 min-w-0">{serviceContent}</div>
                 </div>
-              )}
+                );
+              })()}
               {messages.map((msg, i) => (
                 <div key={i} className={`flex gap-2 md:gap-3 ${msg.role === 'user' ? 'justify-end' : ''}`}>
                   {msg.role === 'assistant' && (
