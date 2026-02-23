@@ -884,7 +884,7 @@ const ChatView = () => {
         {(!isMobile || !activeService) && (
           <div className="border-t border-border px-2 md:px-4 py-1.5 md:py-2 flex-shrink-0">
             <div className="max-w-3xl mx-auto">
-              <div className="relative flex items-center bg-secondary rounded-xl border border-border focus-within:border-primary/40 transition-electric">
+              <div className="relative flex items-center bg-secondary rounded-xl border border-highlight/30 focus-within:border-highlight/60 transition-electric">
                 <textarea
                   ref={inputRef}
                   value={input}
