@@ -895,7 +895,7 @@ const ChatView = () => {
                   className="flex-1 bg-transparent px-3 md:px-4 py-2 text-base md:text-sm font-mono text-highlight placeholder:text-highlight/50 resize-none focus:outline-none max-h-[120px]"
                   disabled={isLoading}
                 />
-                <button onClick={handleSend} disabled={!input.trim() || isLoading} className="m-1 p-1.5 rounded-lg bg-primary text-primary-foreground disabled:opacity-30 hover:bg-primary/80 transition-electric">
+                <button onClick={handleSend} disabled={!input.trim() || isLoading} className="m-1 p-1.5 rounded-lg bg-highlight text-highlight-foreground disabled:opacity-30 hover:bg-highlight/80 transition-electric">
                   <Send size={14} />
                 </button>
               </div>
