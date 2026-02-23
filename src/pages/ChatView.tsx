@@ -900,7 +900,7 @@ const ChatView = () => {
                   onKeyDown={handleKeyDown}
                   rows={1}
                   placeholder="Nachricht an inside-the-box…"
-                  className="flex-1 bg-transparent px-3 md:px-4 py-2 text-sm font-mono text-foreground placeholder:text-muted-foreground resize-none focus:outline-none max-h-[120px]"
+                  className="flex-1 bg-transparent px-3 md:px-4 py-2 text-base md:text-sm font-mono text-foreground placeholder:text-muted-foreground resize-none focus:outline-none max-h-[120px]"
                   disabled={isLoading}
                 />
                 <button onClick={handleSend} disabled={!input.trim() || isLoading} className="m-1 p-1.5 rounded-lg bg-primary text-primary-foreground disabled:opacity-30 hover:bg-primary/80 transition-electric">
