@@ -422,12 +422,14 @@ const useServiceContent = () => {
           <SectionTitle>{t('training.title')}</SectionTitle>
           <p>{t('training.subtitle')}</p>
         </Block>
-        <CardBlock icon={Server} title={t('training.hostForensics')} desc={t('training.hostForensicsDesc')} />
-        <CardBlock icon={Bug} title={t('training.malwareAnalysis')} desc={t('training.malwareAnalysisDesc')} variant="highlight" />
-        <CardBlock icon={Shield} title={t('training.siem')} desc={t('training.siemDesc')} />
-        <CardBlock icon={AlertCircle} title={t('training.incidentMgmt')} desc={t('training.incidentMgmtDesc')} variant="highlight" />
-        <CardBlock icon={AlertTriangle} title={t('training.crisisMgmt')} desc={t('training.crisisMgmtDesc')} />
-        <CardBlock icon={MessageSquare} title={t('training.crisisComm')} desc={t('training.crisisCommDesc')} variant="highlight" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <CardBlock icon={Server} title={t('training.hostForensics')} desc={t('training.hostForensicsDesc')} />
+          <CardBlock icon={Bug} title={t('training.malwareAnalysis')} desc={t('training.malwareAnalysisDesc')} variant="highlight" />
+          <CardBlock icon={Shield} title={t('training.siem')} desc={t('training.siemDesc')} />
+          <CardBlock icon={AlertCircle} title={t('training.incidentMgmt')} desc={t('training.incidentMgmtDesc')} variant="highlight" />
+          <CardBlock icon={AlertTriangle} title={t('training.crisisMgmt')} desc={t('training.crisisMgmtDesc')} />
+          <CardBlock icon={MessageSquare} title={t('training.crisisComm')} desc={t('training.crisisCommDesc')} variant="highlight" />
+        </div>
         <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
           <SubTitle variant="highlight">{t('training.methodsTitle')}</SubTitle>
           <p className="text-sm font-sans leading-relaxed tracking-wide text-foreground mb-2">{t('training.methodsSubtitle')}</p>
