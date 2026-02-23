@@ -1,5 +1,5 @@
 import { GeometricSymbol } from './GeometricSymbol';
-import { useLanguage } from '@/i18n/LanguageContext';
+import { useLanguage, nextLanguage } from '@/i18n/LanguageContext';
 
 export const Header = () => {
   const { language, setLanguage, t } = useLanguage();
@@ -26,10 +26,10 @@ export const Header = () => {
             {t('nav.contact')}
           </a>
           <button
-            onClick={() => setLanguage(language === 'en' ? 'de' : 'en')}
+            onClick={() => setLanguage(nextLanguage(language))}
             className="bg-highlight/10 border-2 border-highlight/30 rounded-lg text-highlight font-mono text-sm hover:bg-highlight/20 hover:border-highlight/50 transition-electric px-3 py-2 uppercase tracking-wider"
           >
-            {language === 'en' ? 'DE' : 'EN'}
+            {language.toUpperCase()}
           </button>
         </nav>
       </div>
