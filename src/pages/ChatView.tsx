@@ -269,11 +269,13 @@ const useServiceContent = () => {
     'assessments-concepts': () => (
       <div className="space-y-3">
         <Block><SectionTitle>{t('assessments.title')}</SectionTitle><p>{t('assessments.intro')}</p></Block>
-        <CardBlock icon={Search} title={t('assessments.threatTitle')} desc={t('assessments.threatDesc')} />
-        <CardBlock icon={ShieldCheck} title={t('assessments.controlsTitle')} desc={t('assessments.controlsDesc')} variant="highlight" />
-        <CardBlock icon={Users} title={t('assessments.rolesTitle')} desc={t('assessments.rolesDesc')} />
-        <CardBlock icon={Calendar} title={t('assessments.planningTitle')} desc={t('assessments.planningDesc')} variant="highlight" />
-        <CardBlock icon={BarChart} title={t('assessments.measureTitle')} desc={t('assessments.measureDesc')} />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <CardBlock icon={Search} title={t('assessments.threatTitle')} desc={t('assessments.threatDesc')} />
+          <CardBlock icon={ShieldCheck} title={t('assessments.controlsTitle')} desc={t('assessments.controlsDesc')} variant="highlight" />
+          <CardBlock icon={Users} title={t('assessments.rolesTitle')} desc={t('assessments.rolesDesc')} />
+          <CardBlock icon={Calendar} title={t('assessments.planningTitle')} desc={t('assessments.planningDesc')} variant="highlight" />
+          <CardBlock icon={BarChart} title={t('assessments.measureTitle')} desc={t('assessments.measureDesc')} />
+        </div>
       </div>
     ),
     'incident-management': () => (
