@@ -813,9 +813,7 @@ const ChatView = () => {
           {!activeService && messages.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center px-4">
               <div className="mb-6">
-                <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center">
-                  <MessageCircle size={24} className="text-primary" />
-                </div>
+                <GeometricSymbol size="sm" className="w-16 h-16 opacity-60" />
               </div>
               <h1 className="text-xl md:text-2xl font-mono text-foreground mb-2 text-center">{t('welcome.title')}</h1>
               <p className="text-sm text-foreground font-mono text-center max-w-md px-2">
