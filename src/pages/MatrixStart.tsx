@@ -311,7 +311,7 @@ const MatrixStart = () => {
             textShadow: '0 0 10px rgba(0,255,65,0.3)',
           }}
         >
-          Cybersecurity Training &amp; Consulting
+          Künstlicher Stress-Simulator v1
         </p>
 
         {/* Decorative line */}
