@@ -573,8 +573,8 @@ const useServiceContent = () => {
             </div>
             <div className="rounded-xl p-4 bg-highlight/5 border border-highlight/20">
               <div className="flex items-center gap-2 mb-2">
-                <Wifi size={16} className="text-highlight" />
-                <SubTitle variant="highlight">{t('techReq.networkTitle')}</SubTitle>
+                <Wifi size={16} className="text-primary" />
+                <SubTitle variant="primary">{t('techReq.networkTitle')}</SubTitle>
               </div>
                <p className="text-sm font-sans leading-relaxed text-foreground mb-2">{t('techReq.networkDesc')}</p>
                <ul className="text-sm font-sans text-foreground space-y-0.5">
