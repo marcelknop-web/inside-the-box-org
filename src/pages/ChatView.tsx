@@ -646,7 +646,7 @@ const ChatView = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const contentAreaRef = useRef<HTMLDivElement>(null);
@@ -695,6 +695,8 @@ const ChatView = () => {
   const newChat = () => { setActiveService(null); setMessages([]); setInput(''); inputRef.current?.focus(); };
 
   const isMobile = useIsMobile();
+  
+  useEffect(() => { if (!isMobile) setSidebarOpen(true); }, [isMobile]);
 
   const selectService = (id: string) => {
     setActiveService(id);
