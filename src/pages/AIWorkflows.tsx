@@ -6,12 +6,9 @@ import { useLanguage } from '@/i18n/LanguageContext';
 import { Zap, FileCheck, Search, Gamepad2, Rocket } from 'lucide-react';
 
 const BulletList = ({ items }: { items: string[] }) => (
-  <ul className="mt-3 space-y-1.5 text-sm sm:text-base text-foreground">
+  <ul className="text-sm sm:text-base text-foreground space-y-2 mt-3">
     {items.map((item, i) => (
-      <li key={i} className="flex items-start gap-2">
-        <span className="text-primary mt-1 flex-shrink-0">▸</span>
-        <span>{item}</span>
-      </li>
+      <li key={i} className="pl-4 -indent-4">• {item}</li>
     ))}
   </ul>
 );

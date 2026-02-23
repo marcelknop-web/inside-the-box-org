@@ -377,10 +377,10 @@ const useServiceContent = () => {
     'ai-workflows': () => (
       <div className="space-y-3">
         <Block><SectionTitle>{t('aiWorkflows.title')}</SectionTitle><p>{t('aiWorkflows.intro')}</p></Block>
-        <CardBlock icon={Zap} title={t('aiWorkflows.irTitle')} desc={`${t('aiWorkflows.irDesc')}\n▸ ${t('aiWorkflows.irBullet1')}\n▸ ${t('aiWorkflows.irBullet2')}\n▸ ${t('aiWorkflows.irBullet3')}\n${t('aiWorkflows.irResult')}`} />
-        <CardBlock icon={FileText} title={t('aiWorkflows.policyTitle')} desc={`${t('aiWorkflows.policyDesc')}\n▸ ${t('aiWorkflows.policyBullet1')}\n▸ ${t('aiWorkflows.policyBullet2')}\n▸ ${t('aiWorkflows.policyBullet3')}\n${t('aiWorkflows.policyResult')}`} variant="highlight" />
-        <CardBlock icon={Search} title={t('aiWorkflows.auditTitle')} desc={`${t('aiWorkflows.auditDesc')}\n▸ ${t('aiWorkflows.auditBullet1')}\n▸ ${t('aiWorkflows.auditBullet2')}\n▸ ${t('aiWorkflows.auditBullet3')}\n${t('aiWorkflows.auditResult')}`} />
-        <CardBlock icon={Gamepad2} title={t('aiWorkflows.crisisTitle')} desc={`${t('aiWorkflows.crisisDesc')}\n▸ ${t('aiWorkflows.crisisBullet1')}\n▸ ${t('aiWorkflows.crisisBullet2')}\n▸ ${t('aiWorkflows.crisisBullet3')}\n${t('aiWorkflows.crisisResult')}`} variant="highlight" />
+        <CardBlock icon={Zap} title={t('aiWorkflows.irTitle')} desc={`${t('aiWorkflows.irDesc')}\n• ${t('aiWorkflows.irBullet1')}\n• ${t('aiWorkflows.irBullet2')}\n• ${t('aiWorkflows.irBullet3')}\n${t('aiWorkflows.irResult')}`} />
+        <CardBlock icon={FileText} title={t('aiWorkflows.policyTitle')} desc={`${t('aiWorkflows.policyDesc')}\n• ${t('aiWorkflows.policyBullet1')}\n• ${t('aiWorkflows.policyBullet2')}\n• ${t('aiWorkflows.policyBullet3')}\n${t('aiWorkflows.policyResult')}`} variant="highlight" />
+        <CardBlock icon={Search} title={t('aiWorkflows.auditTitle')} desc={`${t('aiWorkflows.auditDesc')}\n• ${t('aiWorkflows.auditBullet1')}\n• ${t('aiWorkflows.auditBullet2')}\n• ${t('aiWorkflows.auditBullet3')}\n${t('aiWorkflows.auditResult')}`} />
+        <CardBlock icon={Gamepad2} title={t('aiWorkflows.crisisTitle')} desc={`${t('aiWorkflows.crisisDesc')}\n• ${t('aiWorkflows.crisisBullet1')}\n• ${t('aiWorkflows.crisisBullet2')}\n• ${t('aiWorkflows.crisisBullet3')}\n${t('aiWorkflows.crisisResult')}`} variant="highlight" />
         <Block className="bg-highlight/10 border border-highlight/30 rounded-xl">
           <SubTitle variant="highlight">{t('aiWorkflows.ctaTitle')}</SubTitle>
           <p className="text-foreground whitespace-pre-line">{t('aiWorkflows.ctaDesc')}</p>
