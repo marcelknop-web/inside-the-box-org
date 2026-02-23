@@ -738,17 +738,17 @@ const ChatView = () => {
             <div className="flex-1 overflow-y-auto px-2 pb-4">
               {sidebarGroups.map((group) => (
                 <div key={group.title} className="mb-3">
-                  <p className="px-2 py-1.5 text-[10px] font-rounded font-semibold text-muted-foreground uppercase tracking-wider">{group.title}</p>
+                  <p className="px-2 py-1.5 text-xs font-rounded font-semibold text-highlight/60 uppercase tracking-wider">{group.title}</p>
                   {group.items.map((item) => (
                     <button
                       key={item.id}
                       onClick={() => selectService(item.id)}
                       className={`w-full flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-left transition-electric group ${
-                        activeService === item.id ? 'bg-secondary text-foreground' : 'text-foreground hover:bg-secondary/50'
+                        activeService === item.id ? 'bg-highlight/10 text-highlight' : 'text-highlight/80 hover:bg-highlight/5 hover:text-highlight'
                       }`}
                     >
-                      <item.icon size={14} className={`flex-shrink-0 ${activeService === item.id ? 'text-primary' : 'text-muted-foreground group-hover:text-primary'}`} />
-                      <span className="truncate font-rounded text-sm">{item.label}</span>
+                      <item.icon size={16} className={`flex-shrink-0 ${activeService === item.id ? 'text-highlight' : 'text-highlight/50 group-hover:text-highlight'}`} />
+                      <span className="truncate font-rounded text-base">{item.label}</span>
                     </button>
                   ))}
                 </div>
@@ -776,17 +776,17 @@ const ChatView = () => {
             <div className="flex-1 overflow-y-auto px-2 pb-4">
               {sidebarGroups.map((group) => (
                 <div key={group.title} className="mb-3">
-                  <p className="px-2 py-1.5 text-[10px] font-rounded font-semibold text-muted-foreground uppercase tracking-wider">{group.title}</p>
+                  <p className="px-2 py-1.5 text-xs font-rounded font-semibold text-highlight/60 uppercase tracking-wider">{group.title}</p>
                   {group.items.map((item) => (
                     <button
                       key={item.id}
                       onClick={() => selectService(item.id)}
                       className={`w-full flex items-center gap-2.5 rounded-lg px-3 py-2 text-left transition-electric group ${
-                        activeService === item.id ? 'bg-secondary text-foreground' : 'text-foreground hover:bg-secondary/50'
+                        activeService === item.id ? 'bg-highlight/10 text-highlight' : 'text-highlight/80 hover:bg-highlight/5 hover:text-highlight'
                       }`}
                     >
-                      <item.icon size={14} className={`flex-shrink-0 ${activeService === item.id ? 'text-primary' : 'text-muted-foreground group-hover:text-primary'}`} />
-                      <span className="truncate font-rounded text-sm">{item.label}</span>
+                      <item.icon size={16} className={`flex-shrink-0 ${activeService === item.id ? 'text-highlight' : 'text-highlight/50 group-hover:text-highlight'}`} />
+                      <span className="truncate font-rounded text-base">{item.label}</span>
                     </button>
                   ))}
                 </div>
