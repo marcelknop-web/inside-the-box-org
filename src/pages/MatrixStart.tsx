@@ -6,8 +6,51 @@ const MATRIX_CHARS = 'アイウエオカキクケコサシスセソタチツテ�
 const MatrixStart = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
+  const masterRef = useRef<GainNode | null>(null);
   const [showContent, setShowContent] = useState(false);
   const [soundOn, setSoundOn] = useState(false);
+
+  // Pentatonic scale frequencies for rain drops (dark minor feel)
+  const rainNotes = useRef([
+    130.81, 155.56, 174.61, 196.0, 233.08,  // C3 Eb3 F3 G3 Bb3
+    261.63, 311.13, 349.23, 392.0, 466.16,  // C4 Eb4 F4 G4 Bb4
+    523.25, 622.25, 698.46, 783.99,          // C5 Eb5 F5 G5
+  ]);
+
+  // Trigger a rain-synced tone
+  const triggerRainDrop = useCallback((columnRatio: number) => {
+    const ctx = audioCtxRef.current;
+    const master = masterRef.current;
+    if (!ctx || !master) return;
+
+    const notes = rainNotes.current;
+    // Map column position (0-1) to note index for spatial sound
+    const noteIdx = Math.floor(columnRatio * notes.length);
+    const freq = notes[Math.min(noteIdx, notes.length - 1)];
+
+    const t = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const g = ctx.createGain();
+    const pan = ctx.createStereoPanner();
+
+    osc.type = Math.random() > 0.7 ? 'triangle' : 'sine';
+    osc.frequency.setValueAtTime(freq, t);
+
+    // Stereo position based on column
+    pan.pan.setValueAtTime((columnRatio * 2 - 1) * 0.8, t);
+
+    // Soft attack, slow decay — like a raindrop resonance
+    const vol = 0.015 + Math.random() * 0.02;
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(vol, t + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.8 + Math.random() * 1.2);
+
+    osc.connect(g);
+    g.connect(pan);
+    pan.connect(master);
+    osc.start(t);
+    osc.stop(t + 2.5);
+  }, []);
 
   // Matrix rain
   useEffect(() => {
@@ -31,46 +74,52 @@ const MatrixStart = () => {
     resize();
     window.addEventListener('resize', resize);
 
+    let frameCount = 0;
     const draw = () => {
+      frameCount++;
+      // Slow down: only update every 2nd frame for ~30fps rain
+      const shouldUpdate = frameCount % 2 === 0;
+
       ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      for (let i = 0; i < columns.length; i++) {
-        const char = MATRIX_CHARS[Math.floor(Math.random() * MATRIX_CHARS.length)];
-        const x = i * fontSize;
-        const y = columns[i] * fontSize;
+      if (shouldUpdate) {
+        for (let i = 0; i < columns.length; i++) {
+          const char = MATRIX_CHARS[Math.floor(Math.random() * MATRIX_CHARS.length)];
+          const x = i * fontSize;
+          const y = columns[i] * fontSize;
 
-        // Random brightness for depth
-        const brightness = Math.random();
-        if (brightness > 0.95) {
-          ctx.fillStyle = '#ffffff';
-          ctx.shadowColor = '#00ff41';
-          ctx.shadowBlur = 15;
-        } else if (brightness > 0.7) {
-          ctx.fillStyle = '#00ff41';
-          ctx.shadowColor = '#00ff41';
-          ctx.shadowBlur = 8;
-        } else {
-          ctx.fillStyle = `rgba(0, 255, 65, ${0.3 + brightness * 0.5})`;
+          const brightness = Math.random();
+          if (brightness > 0.95) {
+            ctx.fillStyle = '#ffffff';
+            ctx.shadowColor = '#00ff41';
+            ctx.shadowBlur = 15;
+          } else if (brightness > 0.7) {
+            ctx.fillStyle = '#00ff41';
+            ctx.shadowColor = '#00ff41';
+            ctx.shadowBlur = 8;
+          } else {
+            ctx.fillStyle = `rgba(0, 255, 65, ${0.3 + brightness * 0.5})`;
+            ctx.shadowBlur = 0;
+          }
+
+          ctx.font = `${fontSize}px monospace`;
+          ctx.fillText(char, x, y);
           ctx.shadowBlur = 0;
-        }
 
-        ctx.font = `${fontSize}px monospace`;
-        ctx.fillText(char, x, y);
-        ctx.shadowBlur = 0;
-
-        if (y > canvas.height && Math.random() > 0.975) {
-          columns[i] = 0;
+          if (y > canvas.height && Math.random() > 0.975) {
+            columns[i] = 0;
+            // Trigger sound synced to this column reset
+            triggerRainDrop(i / columns.length);
+          }
+          columns[i]++;
         }
-        columns[i]++;
       }
 
       animId = requestAnimationFrame(draw);
     };
 
     draw();
-
-    // Show content after delay
     const timer = setTimeout(() => setShowContent(true), 1500);
 
     return () => {
@@ -78,96 +127,88 @@ const MatrixStart = () => {
       window.removeEventListener('resize', resize);
       clearTimeout(timer);
     };
-  }, []);
+  }, [triggerRainDrop]);
 
-  // Ambient Matrix sound using Web Audio API
+  // Ambient background sound
   const startSound = useCallback(() => {
     if (audioCtxRef.current) return;
 
     const ctx = new AudioContext();
     audioCtxRef.current = ctx;
 
+    // Master gain with slow fade-in
     const master = ctx.createGain();
     master.gain.setValueAtTime(0, ctx.currentTime);
-    master.gain.linearRampToValueAtTime(1, ctx.currentTime + 4);
+    master.gain.linearRampToValueAtTime(1, ctx.currentTime + 5);
+    masterRef.current = master;
+
+    // Large reverb for cathedral-like space
     const reverb = ctx.createConvolver();
-    const sampleRate = ctx.sampleRate;
-    const length = sampleRate * 4;
-    const impulse = ctx.createBuffer(2, length, sampleRate);
+    const sr = ctx.sampleRate;
+    const len = sr * 5;
+    const impulse = ctx.createBuffer(2, len, sr);
     for (let ch = 0; ch < 2; ch++) {
       const data = impulse.getChannelData(ch);
-      for (let i = 0; i < length; i++) {
-        data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / length, 2.5);
+      for (let i = 0; i < len; i++) {
+        data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.0);
       }
     }
     reverb.buffer = impulse;
     const reverbGain = ctx.createGain();
-    reverbGain.gain.setValueAtTime(0.4, ctx.currentTime);
+    reverbGain.gain.setValueAtTime(0.5, ctx.currentTime);
+
+    // Dry + wet routing
     master.connect(ctx.destination);
     master.connect(reverb);
     reverb.connect(reverbGain);
     reverbGain.connect(ctx.destination);
 
-    // Slow orchestral pad – layered sine/triangle waves with gentle LFO
-    const createPad = (freq: number, vol: number, type: OscillatorType = 'sine') => {
+    // Deep sub-bass drone — low filtered noise
+    const noiseLen = sr * 2;
+    const noiseBuf = ctx.createBuffer(1, noiseLen, sr);
+    const noiseData = noiseBuf.getChannelData(0);
+    for (let i = 0; i < noiseLen; i++) {
+      noiseData[i] = Math.random() * 2 - 1;
+    }
+    const noise = ctx.createBufferSource();
+    noise.buffer = noiseBuf;
+    noise.loop = true;
+    const noiseFilter = ctx.createBiquadFilter();
+    noiseFilter.type = 'lowpass';
+    noiseFilter.frequency.setValueAtTime(60, ctx.currentTime);
+    noiseFilter.Q.setValueAtTime(8, ctx.currentTime);
+    const noiseGain = ctx.createGain();
+    noiseGain.gain.setValueAtTime(0.08, ctx.currentTime);
+    noise.connect(noiseFilter);
+    noiseFilter.connect(noiseGain);
+    noiseGain.connect(master);
+    noise.start();
+
+    // Slow breathing pad – Cm chord, very quiet
+    const createPad = (freq: number, vol: number) => {
       const osc = ctx.createOscillator();
       const g = ctx.createGain();
       const lfo = ctx.createOscillator();
-      const lfoGain = ctx.createGain();
-      osc.type = type;
+      const lfoG = ctx.createGain();
+      osc.type = 'sine';
       osc.frequency.setValueAtTime(freq, ctx.currentTime);
       lfo.type = 'sine';
-      lfo.frequency.setValueAtTime(0.08 + Math.random() * 0.05, ctx.currentTime);
-      lfoGain.gain.setValueAtTime(vol * 0.3, ctx.currentTime);
-      lfo.connect(lfoGain);
-      lfoGain.connect(g.gain);
-      g.gain.setValueAtTime(vol * 0.5, ctx.currentTime);
-      g.gain.linearRampToValueAtTime(vol, ctx.currentTime + 6);
+      lfo.frequency.setValueAtTime(0.04 + Math.random() * 0.03, ctx.currentTime);
+      lfoG.gain.setValueAtTime(vol * 0.4, ctx.currentTime);
+      lfo.connect(lfoG);
+      lfoG.connect(g.gain);
+      g.gain.setValueAtTime(0, ctx.currentTime);
+      g.gain.linearRampToValueAtTime(vol, ctx.currentTime + 8);
       osc.connect(g);
       g.connect(master);
       osc.start();
       lfo.start();
     };
 
-    // Deep orchestral chord: Cm (C-Eb-G) across octaves
-    createPad(65.41, 0.05, 'sine');       // C2
-    createPad(130.81, 0.04, 'triangle');  // C3
-    createPad(155.56, 0.035, 'sine');     // Eb3
-    createPad(196.0, 0.03, 'triangle');   // G3
-    createPad(261.63, 0.02, 'sine');      // C4
-    createPad(311.13, 0.015, 'sine');     // Eb4
-
-    // Very slow evolving high tone
-    const highOsc = ctx.createOscillator();
-    const highGain = ctx.createGain();
-    highOsc.type = 'sine';
-    highOsc.frequency.setValueAtTime(523.25, ctx.currentTime);
-    highOsc.frequency.linearRampToValueAtTime(392.0, ctx.currentTime + 20);
-    highOsc.frequency.linearRampToValueAtTime(523.25, ctx.currentTime + 40);
-    highGain.gain.setValueAtTime(0, ctx.currentTime);
-    highGain.gain.linearRampToValueAtTime(0.012, ctx.currentTime + 8);
-    highOsc.connect(highGain);
-    highGain.connect(master);
-    highOsc.start();
-
-    // Sparse low resonant pulses instead of blips
-    const schedulePulse = () => {
-      if (!audioCtxRef.current) return;
-      const t = ctx.currentTime;
-      const osc = ctx.createOscillator();
-      const g = ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(80 + Math.random() * 120, t);
-      g.gain.setValueAtTime(0, t);
-      g.gain.linearRampToValueAtTime(0.03, t + 0.5);
-      g.gain.exponentialRampToValueAtTime(0.001, t + 3);
-      osc.connect(g);
-      g.connect(master);
-      osc.start(t);
-      osc.stop(t + 3.5);
-      setTimeout(schedulePulse, 2000 + Math.random() * 5000);
-    };
-    setTimeout(schedulePulse, 3000);
+    createPad(65.41, 0.03);   // C2
+    createPad(130.81, 0.02);  // C3
+    createPad(155.56, 0.018); // Eb3
+    createPad(196.0, 0.015);  // G3
 
     setSoundOn(true);
   }, []);
