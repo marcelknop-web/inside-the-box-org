@@ -893,14 +893,14 @@ const ChatView = () => {
         <div ref={contentAreaRef} className="flex-1 overflow-y-auto relative">
           {!activeService && messages.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center px-4">
-              <button onClick={() => setSidebarOpen(true)} className="mb-6 cursor-pointer bg-transparent border-none p-0 hover:opacity-80 transition-electric">
-                <GeometricSymbol size="sm" className="w-16 h-16 opacity-60" />
+              <button onClick={() => setSidebarOpen(true)} className="mb-6 cursor-pointer bg-transparent border-none p-0 transition-electric group/welcome">
+                <GeometricSymbol size="sm" className="w-16 h-16 opacity-60 group-hover/welcome:opacity-100 transition-electric" hoverCyan />
               </button>
-              <button onClick={() => setSidebarOpen(true)} className="cursor-pointer bg-transparent border-none p-0 hover:opacity-80 transition-electric">
-                <h1 className="text-xl md:text-2xl font-mono font-bold text-accent mb-2 text-center">{t('welcome.title')}</h1>
+              <button onClick={() => setSidebarOpen(true)} className="cursor-pointer bg-transparent border-none p-0 transition-electric">
+                <h1 className="text-xl md:text-2xl font-mono font-bold text-accent hover:text-highlight mb-2 text-center transition-electric">{t('welcome.title')}</h1>
               </button>
-              <button onClick={() => setSidebarOpen(true)} className="cursor-pointer bg-transparent border-none p-0 hover:opacity-80 transition-electric">
-                <p className="text-sm text-foreground font-mono text-center max-w-md px-2">
+              <button onClick={() => setSidebarOpen(true)} className="cursor-pointer bg-transparent border-none p-0 transition-electric">
+                <p className="text-sm text-foreground hover:text-highlight font-mono text-center max-w-md px-2 transition-electric">
                   {t('welcome.intro')}
                 </p>
               </button>
