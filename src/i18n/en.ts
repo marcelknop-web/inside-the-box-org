@@ -3,6 +3,7 @@ export const en = {
     training: 'Training',
     consulting: 'Consulting',
     byWhom: 'By Whom',
+    profiles: 'Profiles',
     contact: 'Contact',
   },
   start: {

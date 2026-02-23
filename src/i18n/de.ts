@@ -3,6 +3,7 @@ export const de = {
     training: 'Training',
     consulting: 'Beratung',
     byWhom: 'Von Wem',
+    profiles: 'Profile',
     contact: 'Kontakt',
   },
   start: {

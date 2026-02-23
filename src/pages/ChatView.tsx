@@ -631,7 +631,7 @@ const useSidebarGroups = (): SidebarGroup[] => {
     {
       title: t('nav.byWhom'),
       items: [
-        { id: 'by-whom', icon: Users, label: t('nav.byWhom') },
+        { id: 'by-whom', icon: Users, label: t('nav.profiles') },
         { id: 'contact', icon: Mail, label: t('nav.contact') },
         { id: 'imprint', icon: Scale, label: t('imprint.title') },
       ],
