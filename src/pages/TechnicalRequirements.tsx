@@ -108,7 +108,7 @@ const TechnicalRequirements = () => {
               <ServiceCard icon={Monitor} title={t('techReq.systemTitle')} description={t('techReq.systemDesc')}>
                 <ul className="text-base text-foreground space-y-2 mt-4">
                   {systemItems.map((item, i) => (
-                    <li key={i} className="pl-4 -indent-4">• {item}</li>
+                    <li key={i} className="flex items-start gap-2"><span className="flex-shrink-0">•</span><span>{item}</span></li>
                   ))}
                 </ul>
               </ServiceCard>
@@ -116,7 +116,7 @@ const TechnicalRequirements = () => {
               <ServiceCard icon={Network} title={t('techReq.networkTitle')} description={t('techReq.networkDesc')}>
                 <ul className="text-base text-foreground space-y-2 mt-4">
                   {networkItems.map((item, i) => (
-                    <li key={i} className="pl-4 -indent-4">• <span className="font-mono">{item}</span></li>
+                    <li key={i} className="flex items-start gap-2"><span className="flex-shrink-0">•</span><span className="font-mono">{item}</span></li>
                   ))}
                 </ul>
               </ServiceCard>
