@@ -322,14 +322,14 @@ const useServiceContent = () => {
       <div className="space-y-3">
         <Block><SectionTitle>{t('arena.title')}</SectionTitle><p>{t('arena.intro')}</p></Block>
         <CardBlock icon={Target} title={t('arena.arenaTitle')} desc={t('arena.arenaDesc')} />
-        <CardBlock icon={Flag} title={t('arena.tiberTitle')} desc={t('arena.tiberDesc')} variant="highlight" />
-        <Block className="bg-secondary/30">
-          <SubTitle>{t('arena.methTitle')}</SubTitle>
+        <CardBlock icon={Flag} title={t('arena.tiberTitle')} desc={t('arena.tiberDesc')} />
+        <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
+          <SubTitle variant="highlight">{t('arena.methTitle')}</SubTitle>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
-            <GridItem icon={Gamepad2} title={t('arena.realisticTitle')} desc={t('arena.realisticDesc')} />
-            <GridItem icon={Crosshair} title={t('arena.handsOnTitle')} desc={t('arena.handsOnDesc')} />
-            <GridItem icon={Users} title={t('arena.teamTitle')} desc={t('arena.teamDesc')} />
-            <GridItem icon={CheckSquare} title={t('arena.regulatoryTitle')} desc={t('arena.regulatoryDesc')} />
+            <GridItem icon={Gamepad2} title={t('arena.realisticTitle')} desc={t('arena.realisticDesc')} variant="highlight" />
+            <GridItem icon={Crosshair} title={t('arena.handsOnTitle')} desc={t('arena.handsOnDesc')} variant="highlight" />
+            <GridItem icon={Users} title={t('arena.teamTitle')} desc={t('arena.teamDesc')} variant="highlight" />
+            <GridItem icon={CheckSquare} title={t('arena.regulatoryTitle')} desc={t('arena.regulatoryDesc')} variant="highlight" />
           </div>
         </Block>
       </div>
