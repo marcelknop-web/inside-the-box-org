@@ -3,11 +3,34 @@ import { GeometricSymbol } from '@/components/GeometricSymbol';
 import { useMatrixRain } from '@/hooks/useMatrixRain';
 import { useMatrixAudio } from '@/hooks/useMatrixAudio';
 
+const useTypewriter = (text: string, startDelay: number, charDelay = 80) => {
+  const [displayed, setDisplayed] = useState('');
+  useEffect(() => {
+    let i = 0;
+    let timeout: ReturnType<typeof setTimeout>;
+    const start = setTimeout(() => {
+      const tick = () => {
+        if (i < text.length) {
+          i++;
+          setDisplayed(text.slice(0, i));
+          timeout = setTimeout(tick, charDelay);
+        }
+      };
+      tick();
+    }, startDelay);
+    return () => { clearTimeout(start); clearTimeout(timeout); };
+  }, [text, startDelay, charDelay]);
+  return displayed;
+};
+
 const MatrixStart = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [showContent, setShowContent] = useState(false);
   const [clientIp, setClientIp] = useState('...');
   const { soundOn, startSound, stopSound, triggerRainDrop } = useMatrixAudio();
+
+  const title = useTypewriter('inside-the-box', 1800, 90);
+  const subtitle = useTypewriter('Artificial Stress Simulator v1', 3200, 50);
 
   useMatrixRain(canvasRef, triggerRainDrop);
 
@@ -72,7 +95,9 @@ const MatrixStart = () => {
             textShadow: '0 0 10px rgba(255,26,26,0.7), 0 0 40px rgba(255,26,26,0.3), 0 0 80px rgba(255,26,26,0.1)',
           }}
         >
-          <a href="/" className="text-[#ff1a1a] hover:text-[#f5c542] transition-colors duration-300">inside-the-box</a>
+          <a href="/" className="text-[#ff1a1a] hover:text-[#f5c542] transition-colors duration-300">
+            {title}<span className="animate-pulse">_</span>
+          </a>
         </h1>
 
         {/* Subtitle */}
@@ -83,7 +108,7 @@ const MatrixStart = () => {
             textShadow: '0 0 10px rgba(255,26,26,0.3)',
           }}
         >
-          Artificial Stress Simulator v1
+          {subtitle}<span className="animate-pulse">_</span>
         </p>
 
         {/* Decorative line */}
