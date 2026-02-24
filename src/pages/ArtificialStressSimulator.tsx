@@ -365,7 +365,7 @@ const MatrixStart = () => {
         marcel@inside-the-box.org
       </div>
       <div className="absolute bottom-4 right-4 font-mono text-xs z-20" style={{ color: '#ff1a1a', textShadow: '0 0 8px rgba(255,26,26,0.6)' }}>
-        inside-the-box.org
+        <a href="/" className="hover:text-[#f5c542] transition-colors duration-300" style={{ color: 'inherit' }}>inside-the-box.org</a>
       </div>
 
       {/* Custom styles for matrix symbol override */}
