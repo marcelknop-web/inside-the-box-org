@@ -415,6 +415,12 @@ const MatrixStart = () => {
         .matrix-btn-active {
           border-color: rgba(255,26,26,0.7);
         }
+        .matrix-start-btn:hover {
+          animation: none !important;
+          border-color: #00e5ff !important;
+          box-shadow: 0 0 20px rgba(0,229,255,0.3), inset 0 0 15px rgba(0,229,255,0.08) !important;
+          text-shadow: 0 0 10px rgba(0,229,255,0.6), 0 0 30px rgba(0,229,255,0.3) !important;
+        }
       `}</style>
     </div>
   );
