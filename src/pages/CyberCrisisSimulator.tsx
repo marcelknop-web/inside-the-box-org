@@ -398,7 +398,7 @@ const CyberCrisisSimulator = forwardRef<CrisisSimulatorHandle, CrisisSimulatorPr
     if (!started) setStartScreenTitleDone(false);
   }, [started]);
 
-  const StartScreen = () => (
+  const startScreenJSX = (
     <div className={`flex-1 flex items-center justify-center ${embedded ? "py-5" : ""} overflow-y-auto`}>
       <div className="text-center max-w-[520px] px-4">
         <div className="flex justify-center mb-4">
@@ -647,7 +647,7 @@ const CyberCrisisSimulator = forwardRef<CrisisSimulatorHandle, CrisisSimulatorPr
       <div className="text-foreground flex flex-col min-h-[400px]" style={{ height: "calc(100vh - 120px)" }}>
         <style>{sharedStyles}</style>
         {!started ? (
-          <StartScreen />
+          startScreenJSX
         ) : (
           <>
             <CompactStatusBar />
@@ -732,7 +732,7 @@ const CyberCrisisSimulator = forwardRef<CrisisSimulatorHandle, CrisisSimulatorPr
           <SidebarPanel />
           <div className="flex-1 flex flex-col overflow-hidden">
             {started && <PhaseBar />}
-            {!started ? <StartScreen /> : (
+            {!started ? startScreenJSX : (
               <>
                 {chatAreaJSX}
                 {!evalDone && <InputArea />}
