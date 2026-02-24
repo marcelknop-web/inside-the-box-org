@@ -9,7 +9,7 @@ export const fr = {
   start: {
     cyberTrainingRange: 'Cyber Training Range',
     cybersecurityConsulting: 'Aperçu du conseil',
-    askMeAnything: 'Posez-moi une question',
+    askMeAnything: 'INPUT',
     metaTitle: 'Conseil en Cybersécurité & Cyber Training Range',
     metaDesc: 'Conseil expert en cybersécurité et services de cyber training range. SMSI, ISO 27001, NIS-2, TISAX, réponse aux incidents et gestion de cyber-crises.',
   },
@@ -407,7 +407,7 @@ export const fr = {
     title: 'Bienvenue chez inside-the-box',
     headerTitle: 'inside-the-box.org',
     intro: 'Marcel Knop & Andreas Funder –<br/>Conseil et formation en cybersécurité.',
-    chatPlaceholder: 'Posez-moi une question…',
+    chatPlaceholder: 'INPUT',
   },
   crisisSim: {
     sidebarLabel: 'Essayer ?',
