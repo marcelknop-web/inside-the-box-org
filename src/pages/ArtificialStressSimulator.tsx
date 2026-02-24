@@ -299,8 +299,8 @@ const MatrixStart = () => {
               transform: 'scale(2.5)',
             }}
           />
-        <a href="/" className="relative matrix-glow-pulse block">
-            <GeometricSymbol size="lg" className="matrix-symbol" />
+        <a href="/" className="relative matrix-glow-pulse block group/logo">
+            <GeometricSymbol size="lg" className="matrix-symbol group-hover/logo:matrix-symbol-hover" />
           </a>
         </div>
 
@@ -355,16 +355,16 @@ const MatrixStart = () => {
       </div>
 
       {/* Corner decorations */}
-      <div className="absolute top-4 left-4 font-mono text-xs z-20" style={{ color: 'rgba(255,26,26,0.3)' }}>
+      <div className="absolute top-4 left-4 font-mono text-xs z-20" style={{ color: '#ff1a1a', textShadow: '0 0 8px rgba(255,26,26,0.6)' }}>
         CLIENT://{clientIp}
       </div>
-      <div className="absolute top-4 right-4 font-mono text-xs z-20" style={{ color: 'rgba(255,26,26,0.3)' }}>
+      <div className="absolute top-4 right-4 font-mono text-xs z-20" style={{ color: '#ff1a1a', textShadow: '0 0 8px rgba(255,26,26,0.6)' }}>
         {new Date().toISOString().replace('T', ' ').slice(0, 19)}
       </div>
-      <div className="absolute bottom-4 left-4 font-mono text-xs z-20" style={{ color: 'rgba(255,26,26,0.3)' }}>
+      <div className="absolute bottom-4 left-4 font-mono text-xs z-20" style={{ color: '#ff1a1a', textShadow: '0 0 8px rgba(255,26,26,0.6)' }}>
         marcel@inside-the-box.org
       </div>
-      <div className="absolute bottom-4 right-4 font-mono text-xs z-20" style={{ color: 'rgba(255,26,26,0.3)' }}>
+      <div className="absolute bottom-4 right-4 font-mono text-xs z-20" style={{ color: '#ff1a1a', textShadow: '0 0 8px rgba(255,26,26,0.6)' }}>
         inside-the-box.org
       </div>
 
@@ -372,9 +372,17 @@ const MatrixStart = () => {
       <style>{`
         .matrix-symbol div {
           border-color: #ff1a1a !important;
+          transition: border-color 0.3s ease;
         }
-        .matrix-symbol .bg-primary\\\\/10 {
+        .matrix-symbol .bg-primary\\/10 {
           background-color: rgba(255, 26, 26, 0.1) !important;
+          transition: background-color 0.3s ease;
+        }
+        .group\\/logo:hover .matrix-symbol-hover div {
+          border-color: #f5c542 !important;
+        }
+        .group\\/logo:hover .matrix-symbol-hover .bg-primary\\/10 {
+          background-color: rgba(245, 197, 66, 0.15) !important;
         }
         @keyframes hypnotic-glow {
           0%, 100% {
@@ -389,6 +397,10 @@ const MatrixStart = () => {
         .matrix-glow-pulse {
           animation: hypnotic-glow 4s ease-in-out infinite;
           will-change: filter, opacity;
+        }
+        .group\\/logo:hover .matrix-glow-pulse {
+          animation: none;
+          filter: drop-shadow(0 0 40px rgba(245,197,66,0.6)) drop-shadow(0 0 100px rgba(245,197,66,0.25));
         }
         @keyframes pulse-glow {
           0%, 100% {
