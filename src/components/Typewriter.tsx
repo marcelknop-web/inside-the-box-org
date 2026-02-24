@@ -25,6 +25,13 @@ const Typewriter = ({ text, mode = 'typewriter', delay = 0, charDelay = 70, curs
   const [step, setStep] = useState(0);
   const doneRef = useRef(false);
 
+  // Reset when text or mode changes (e.g. navigating between pages)
+  useEffect(() => {
+    setStep(0);
+    setStarted(delay === 0);
+    doneRef.current = false;
+  }, [text, mode, delay]);
+
   const stableOnDone = useCallback(() => {
     if (!doneRef.current) { doneRef.current = true; onDone?.(); }
   }, [onDone]);

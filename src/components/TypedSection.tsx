@@ -1,4 +1,4 @@
-import { ReactNode, useState } from 'react';
+import { ReactNode, useState, useEffect } from 'react';
 import Typewriter, { type RevealMode } from './Typewriter';
 import { StaggerReveal } from './StaggerReveal';
 
@@ -26,6 +26,11 @@ const TypedSection = ({
   stagger = 400,
 }: TypedSectionProps) => {
   const [titleDone, setTitleDone] = useState(false);
+
+  // Reset when title changes (e.g. navigating between pages)
+  useEffect(() => {
+    setTitleDone(false);
+  }, [title]);
 
   return (
     <div className="space-y-3">
