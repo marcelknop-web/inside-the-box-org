@@ -84,7 +84,7 @@ const Ehrenerklaerung = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full bg-white"
-              style={{ borderColor: '#c0d0d8' }}
+              style={{ borderColor: '#c0d0d8', color: '#1a2a3a' }}
             />
             <Button type="submit" className="w-full py-5" style={{ background: '#5a8a9a', color: 'white' }}>
               Zugang
@@ -176,7 +176,7 @@ const Ehrenerklaerung = () => {
                         <Button variant="outline" className={cn(
                           "w-full bg-white border-0 border-b-2 rounded-none shadow-none font-normal justify-between focus-visible:ring-0 hover:bg-white",
                           !field.value && "text-muted-foreground"
-                        )} style={{ borderColor: '#c0d0d8' }}>
+                        )} style={{ borderColor: '#c0d0d8', color: '#1a2a3a' }}>
                           {field.value ? format(field.value, 'dd.MM.yyyy') : ''}
                           <CalendarIcon className="h-4 w-4 opacity-50" />
                         </Button>
