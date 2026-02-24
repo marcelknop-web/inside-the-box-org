@@ -6,7 +6,7 @@ import { useLanguage, nextLanguage } from '@/i18n/LanguageContext';
 import { consultantProfiles } from '@/data/consultantProfiles';
 import { GeometricSymbol } from '@/components/GeometricSymbol';
 import { LucideIcon } from 'lucide-react';
-import CyberCrisisSimulator from './CyberCrisisSimulator';
+import CyberCrisisSimulator, { type CrisisSimulatorHandle } from './CyberCrisisSimulator';
 
 interface NavLink { url: string; label: string; }
 interface AiResponse { message: string; links: NavLink[]; }
@@ -654,9 +654,7 @@ const useServiceContent = () => {
         </div>
       );
     },
-    'crisis-sim': () => (
-      <CyberCrisisSimulator embedded />
-    ),
+    'crisis-sim': () => null, // handled separately in ChatView to pass ref
   };
 
   // We need setActive to be available inside consulting content
@@ -722,6 +720,7 @@ const ChatView = () => {
   const [chatOpen, setChatOpen] = useState(false);
   const [sidebarInitialized, setSidebarInitialized] = useState(false);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const crisisRef = useRef<CrisisSimulatorHandle>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const contentAreaRef = useRef<HTMLDivElement>(null);
 
@@ -741,6 +740,14 @@ const ChatView = () => {
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
     const userMsg = input.trim();
+    
+    // Route to crisis simulator if active
+    if (activeService === 'crisis-sim' && crisisRef.current?.isActive()) {
+      setInput('');
+      crisisRef.current.sendExternalMessage(userMsg);
+      return;
+    }
+    
     setInput('');
     setMessages(prev => [...prev, { role: 'user', content: userMsg }]);
     setIsLoading(true);
@@ -801,7 +808,9 @@ const ChatView = () => {
     if (!isMobile && !isTablet) inputRef.current?.focus();
   };
 
-  const serviceContent = activeService && contentMap[activeService] ? contentMap[activeService]() : null;
+  const serviceContent = activeService === 'crisis-sim'
+    ? <CyberCrisisSimulator embedded ref={crisisRef} />
+    : activeService && contentMap[activeService] ? contentMap[activeService]() : null;
 
   return (
     <div className="h-screen flex overflow-hidden bg-transparent">
@@ -971,10 +980,8 @@ const ChatView = () => {
         {/* Input - desktop: always show (except service on mobile). Mobile welcome: show floating button, expand on click */}
         {(() => {
           const isTouchDevice = isMobile || isTablet;
-          // Hide ChatView input when crisis simulator is active (it has its own input)
-          if (activeService === 'crisis-sim') return null;
-          // On touch devices: show FAB unless user explicitly opened chat; hide completely on service pages
-          if (isTouchDevice && !!activeService) return null;
+          // On touch devices: show FAB unless user explicitly opened chat; hide completely on service pages (except crisis-sim)
+          if (isTouchDevice && !!activeService && activeService !== 'crisis-sim') return null;
           const showInput = !isTouchDevice || chatOpen;
           if (!showInput) {
             return (
@@ -1000,9 +1007,9 @@ const ChatView = () => {
                     rows={1}
                     placeholder={t('welcome.chatPlaceholder')}
                     className="flex-1 bg-transparent px-3 md:px-4 py-2 text-base md:text-sm font-mono text-highlight placeholder:text-highlight/50 resize-none focus:outline-none max-h-[120px]"
-                    disabled={isLoading}
+                    disabled={isLoading || (activeService === 'crisis-sim' && crisisRef.current?.isLoading())}
                   />
-                  <button onClick={handleSend} disabled={!input.trim() || isLoading} className="m-1 p-1.5 rounded-lg bg-highlight text-highlight-foreground disabled:opacity-30 hover:bg-highlight/80 transition-electric">
+                  <button onClick={handleSend} disabled={!input.trim() || isLoading || (activeService === 'crisis-sim' && crisisRef.current?.isLoading())} className="m-1 p-1.5 rounded-lg bg-highlight text-highlight-foreground disabled:opacity-30 hover:bg-highlight/80 transition-electric">
                     <Send size={14} />
                   </button>
                 </div>

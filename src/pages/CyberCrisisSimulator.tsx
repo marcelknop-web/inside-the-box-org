@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useEffect, useCallback, useImperativeHandle, forwardRef } from "react";
 import { Send } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/i18n/LanguageContext";
@@ -123,8 +123,14 @@ interface CrisisSimulatorProps {
   embedded?: boolean;
 }
 
+export interface CrisisSimulatorHandle {
+  sendExternalMessage: (text: string) => void;
+  isActive: () => boolean;
+  isLoading: () => boolean;
+}
+
 // ─── MAIN COMPONENT ──────────────────────────────────────────────
-const CyberCrisisSimulator: React.FC<CrisisSimulatorProps> = ({ embedded = false }) => {
+const CyberCrisisSimulator = forwardRef<CrisisSimulatorHandle, CrisisSimulatorProps>(({ embedded = false }, ref) => {
   const { language, t } = useLanguage();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -253,6 +259,17 @@ const CyberCrisisSimulator: React.FC<CrisisSimulatorProps> = ({ embedded = false
     if (evalKeywordsPattern.test(text)) setTimerActive(false);
     sendMessage(text);
   };
+
+  // ─── EXPOSE HANDLE FOR EXTERNAL INPUT ─────────────────────────
+  useImperativeHandle(ref, () => ({
+    sendExternalMessage: (text: string) => {
+      if (loading || evalDone) return;
+      if (evalKeywordsPattern.test(text)) setTimerActive(false);
+      sendMessage(text);
+    },
+    isActive: () => started && !evalDone,
+    isLoading: () => loading,
+  }), [started, evalDone, loading, sendMessage, evalKeywordsPattern]);
 
   const formatTime = (s: number) => {
     const m = Math.floor(Math.max(0, s) / 60);
@@ -565,7 +582,23 @@ const CyberCrisisSimulator: React.FC<CrisisSimulatorProps> = ({ embedded = false
             )}
             <div className="flex-1 flex flex-col overflow-hidden">
               <ChatArea />
-              {!evalDone && <InputArea />}
+              {/* Quick actions bar above ChatView's shared input */}
+              {!evalDone && started && (
+                <div className="border-t border-border/50 px-2 py-1.5 flex-shrink-0">
+                  <div className="flex flex-wrap gap-1.5 justify-center">
+                    {quickActions.map((qa, i) => (
+                      <button
+                        key={i}
+                        className={`crisis-qbtn ${"isEval" in qa && qa.isEval ? "crisis-qbtn-eval" : ""}`}
+                        onClick={() => handleQuickAction(qa.text)}
+                        disabled={loading}
+                      >
+                        {qa.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </>
         )}
@@ -612,6 +645,6 @@ const CyberCrisisSimulator: React.FC<CrisisSimulatorProps> = ({ embedded = false
       </div>
     </>
   );
-};
+});
 
 export default CyberCrisisSimulator;
