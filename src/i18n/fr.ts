@@ -409,4 +409,7 @@ export const fr = {
     intro: 'Marcel Knop & Andreas Funder – Conseil et formation en cybersécurité.',
     chatPlaceholder: 'Posez-moi une question…',
   },
+  crisisSim: {
+    sidebarLabel: 'Simulateur crise',
+  },
 };

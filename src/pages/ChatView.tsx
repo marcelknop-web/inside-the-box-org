@@ -662,7 +662,7 @@ const useServiceContent = () => {
   return { contentMap, bindSetActive };
 };
 
-interface SidebarItem { id: string; icon: LucideIcon; label: string; }
+interface SidebarItem { id: string; icon: LucideIcon; label: string; href?: string; }
 interface SidebarGroup { title: string; items: SidebarItem[]; }
 
 const useSidebarGroups = (): SidebarGroup[] => {
@@ -674,6 +674,7 @@ const useSidebarGroups = (): SidebarGroup[] => {
         { id: 'why', icon: Target, label: t('start.cyberTrainingRange') },
         { id: 'training', icon: Swords, label: t('training.title') },
         { id: 'tech-requirements', icon: Monitor, label: t('techReq.sidebarLabel') },
+        { id: 'crisis-sim', icon: AlertTriangle, label: t('crisisSim.sidebarLabel'), href: '/crisis' },
       ],
     },
     {
@@ -820,7 +821,7 @@ const ChatView = () => {
                   {group.items.map((item) => (
                     <button
                       key={item.id}
-                      onClick={() => selectService(item.id)}
+                      onClick={() => item.href ? window.open(item.href, '_blank') : selectService(item.id)}
                       className={`w-full flex items-center gap-2.5 rounded-lg px-3 py-1 text-left transition-electric group ${
                         activeService === item.id ? 'bg-highlight/10 text-highlight' : 'text-foreground hover:bg-highlight/5 hover:text-highlight'
                       }`}
@@ -858,7 +859,7 @@ const ChatView = () => {
                   {group.items.map((item) => (
                     <button
                       key={item.id}
-                      onClick={() => selectService(item.id)}
+                      onClick={() => item.href ? window.open(item.href, '_blank') : selectService(item.id)}
                       className={`w-full flex items-center gap-2.5 rounded-lg px-3 py-1 text-left transition-electric group ${
                         activeService === item.id ? 'bg-highlight/10 text-highlight' : 'text-foreground hover:bg-highlight/5 hover:text-highlight'
                       }`}
