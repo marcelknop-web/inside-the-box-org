@@ -1,18 +1,16 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { GeometricSymbol } from '@/components/GeometricSymbol';
+import { useMatrixRain } from '@/hooks/useMatrixRain';
+import { useMatrixAudio } from '@/hooks/useMatrixAudio';
 
-const MATRIX_CHARS = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン0123456789ABCDEFINSIDETHEBOX';
-
-// Alarm red color: #ff1a1a / rgb(255,26,26)
 const MatrixStart = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const audioCtxRef = useRef<AudioContext | null>(null);
-  const masterRef = useRef<GainNode | null>(null);
   const [showContent, setShowContent] = useState(false);
-  const [soundOn, setSoundOn] = useState(false);
   const [clientIp, setClientIp] = useState('...');
+  const { soundOn, startSound, stopSound, triggerRainDrop } = useMatrixAudio();
 
-  // Fetch client IP on mount
+  useMatrixRain(canvasRef, triggerRainDrop);
+
   useEffect(() => {
     const controller = new AbortController();
     fetch('https://api.ipify.org?format=json', { signal: controller.signal })
@@ -22,246 +20,9 @@ const MatrixStart = () => {
     return () => controller.abort();
   }, []);
 
-  const triggerRainDrop = useCallback((columnRatio: number) => {
-    const ctx = audioCtxRef.current;
-    const master = masterRef.current;
-    if (!ctx || !master) return;
-
-    if (Math.random() > 0.2) return;
-
-    const t = ctx.currentTime;
-    const osc = ctx.createOscillator();
-    const g = ctx.createGain();
-    const pan = ctx.createStereoPanner();
-
-    osc.type = Math.random() > 0.5 ? 'sine' : 'square';
-    const freq = 600 + columnRatio * 1200;
-    osc.frequency.setValueAtTime(freq * 2, t);
-    osc.frequency.exponentialRampToValueAtTime(freq * 0.5, t + 0.15);
-
-    pan.pan.setValueAtTime((columnRatio * 2 - 1) * 0.7, t);
-
-    const vol = 0.008 + Math.random() * 0.012;
-    g.gain.setValueAtTime(vol, t);
-    g.gain.linearRampToValueAtTime(vol * 0.8, t + 0.02);
-    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.12 + Math.random() * 0.1);
-
-    osc.connect(g);
-    g.connect(pan);
-    g.connect(pan);
-    pan.connect(master);
-    osc.start(t);
-    osc.stop(t + 0.15);
-  }, []);
-
-  // Matrix rain
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    let animId: number;
-    let columns: number[] = [];
-    let offsets: number[] = [];       // horizontal sway offset per column
-    let swayPhase: number[] = [];     // sine phase per column
-    let swaySpeed: number[] = [];     // how fast each column sways
-    let swayAmplitude: number[] = []; // how far each column sways
-    const fontSize = 14;
-
-    const initSway = (count: number) => {
-      offsets = Array.from({ length: count }, () => 0);
-      swayPhase = Array.from({ length: count }, () => Math.random() * Math.PI * 2);
-      swaySpeed = Array.from({ length: count }, () => 0.02 + Math.random() * 0.04);
-      swayAmplitude = Array.from({ length: count }, () => 1.5 + Math.random() * 2.5);
-    };
-
-    const resize = () => {
-      const w = window.innerWidth;
-      const h = window.innerHeight;
-      canvas.width = w;
-      canvas.height = h;
-      const colCount = Math.floor(w / fontSize);
-      if (columns.length !== colCount) {
-        columns = Array.from({ length: colCount }, () => Math.random() * h / fontSize);
-        initSway(colCount);
-      }
-    };
-
-    resize();
-    window.addEventListener('resize', resize);
-
-    let frameCount = 0;
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-    const frameSkip = isMobile ? 3 : 2;
-
-    const draw = () => {
-      frameCount++;
-      const shouldUpdate = frameCount % frameSkip === 0;
-
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      if (shouldUpdate) {
-        ctx.font = `${fontSize}px monospace`;
-        for (let i = 0; i < columns.length; i++) {
-          const char = MATRIX_CHARS[Math.floor(Math.random() * MATRIX_CHARS.length)];
-
-          // Update sway
-          swayPhase[i] += swaySpeed[i];
-          offsets[i] = Math.sin(swayPhase[i]) * swayAmplitude[i] * fontSize * 0.3;
-
-          const x = i * fontSize + offsets[i];
-          const y = columns[i] * fontSize;
-
-          const brightness = Math.random();
-          if (!isMobile && brightness > 0.95) {
-            ctx.fillStyle = '#ffffff';
-            ctx.shadowColor = '#ff1a1a';
-            ctx.shadowBlur = 15;
-          } else if (!isMobile && brightness > 0.7) {
-            ctx.fillStyle = '#ff1a1a';
-            ctx.shadowColor = '#ff1a1a';
-            ctx.shadowBlur = 8;
-          } else {
-            ctx.fillStyle = `rgba(255, 26, 26, ${0.3 + brightness * 0.5})`;
-          }
-
-          ctx.fillText(char, x, y);
-          ctx.shadowBlur = 0;
-
-          if (y > canvas.height && Math.random() > 0.975) {
-            columns[i] = 0;
-            triggerRainDrop(i / columns.length);
-          }
-          columns[i]++;
-        }
-      }
-
-      animId = requestAnimationFrame(draw);
-    };
-
-    draw();
     const timer = setTimeout(() => setShowContent(true), 1500);
-
-    return () => {
-      cancelAnimationFrame(animId);
-      window.removeEventListener('resize', resize);
-      clearTimeout(timer);
-    };
-  }, [triggerRainDrop]);
-
-  const startSound = useCallback(() => {
-    if (audioCtxRef.current) return;
-
-    const ctx = new AudioContext();
-    audioCtxRef.current = ctx;
-
-    const master = ctx.createGain();
-    master.gain.setValueAtTime(0, ctx.currentTime);
-    master.gain.linearRampToValueAtTime(1, ctx.currentTime + 3);
-    masterRef.current = master;
-    master.connect(ctx.destination);
-
-    const theremin = ctx.createOscillator();
-    const thereminGain = ctx.createGain();
-    const thereminVibrato = ctx.createOscillator();
-    const thereminVibratoGain = ctx.createGain();
-    theremin.type = 'sine';
-    theremin.frequency.setValueAtTime(400, ctx.currentTime);
-    theremin.frequency.linearRampToValueAtTime(800, ctx.currentTime + 12);
-    theremin.frequency.linearRampToValueAtTime(350, ctx.currentTime + 24);
-    theremin.frequency.linearRampToValueAtTime(900, ctx.currentTime + 36);
-    theremin.frequency.linearRampToValueAtTime(400, ctx.currentTime + 48);
-    thereminVibrato.type = 'sine';
-    thereminVibrato.frequency.setValueAtTime(5.5, ctx.currentTime);
-    thereminVibratoGain.gain.setValueAtTime(12, ctx.currentTime);
-    thereminVibrato.connect(thereminVibratoGain);
-    thereminVibratoGain.connect(theremin.frequency);
-    thereminGain.gain.setValueAtTime(0, ctx.currentTime);
-    thereminGain.gain.linearRampToValueAtTime(0.06, ctx.currentTime + 4);
-    theremin.connect(thereminGain);
-    thereminGain.connect(master);
-    theremin.start();
-    thereminVibrato.start();
-
-    const whistle = ctx.createOscillator();
-    const whistleGain = ctx.createGain();
-    const whistleLfo = ctx.createOscillator();
-    const whistleLfoGain = ctx.createGain();
-    whistle.type = 'sine';
-    whistle.frequency.setValueAtTime(1200, ctx.currentTime);
-    whistle.frequency.linearRampToValueAtTime(2000, ctx.currentTime + 8);
-    whistle.frequency.linearRampToValueAtTime(1000, ctx.currentTime + 20);
-    whistle.frequency.linearRampToValueAtTime(1800, ctx.currentTime + 32);
-    whistleLfo.type = 'sine';
-    whistleLfo.frequency.setValueAtTime(0.3, ctx.currentTime);
-    whistleLfoGain.gain.setValueAtTime(0.025, ctx.currentTime);
-    whistleLfo.connect(whistleLfoGain);
-    whistleLfoGain.connect(whistleGain.gain);
-    whistleGain.gain.setValueAtTime(0, ctx.currentTime);
-    whistleGain.gain.linearRampToValueAtTime(0.02, ctx.currentTime + 6);
-    whistle.connect(whistleGain);
-    whistleGain.connect(master);
-    whistle.start();
-    whistleLfo.start();
-
-    const sub = ctx.createOscillator();
-    const subGain = ctx.createGain();
-    const subLfo = ctx.createOscillator();
-    const subLfoGain = ctx.createGain();
-    sub.type = 'triangle';
-    sub.frequency.setValueAtTime(55, ctx.currentTime);
-    subLfo.type = 'sine';
-    subLfo.frequency.setValueAtTime(0.5, ctx.currentTime);
-    subLfoGain.gain.setValueAtTime(0.04, ctx.currentTime);
-    subLfo.connect(subLfoGain);
-    subLfoGain.connect(subGain.gain);
-    subGain.gain.setValueAtTime(0, ctx.currentTime);
-    subGain.gain.linearRampToValueAtTime(0.08, ctx.currentTime + 5);
-    sub.connect(subGain);
-    subGain.connect(master);
-    sub.start();
-    subLfo.start();
-
-    [2.3, 3.7, 5.1].forEach((ratio, idx) => {
-      const osc = ctx.createOscillator();
-      const g = ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(55 * ratio, ctx.currentTime);
-      const lfo2 = ctx.createOscillator();
-      const lfo2G = ctx.createGain();
-      lfo2.type = 'sine';
-      lfo2.frequency.setValueAtTime(0.1 + idx * 0.07, ctx.currentTime);
-      lfo2G.gain.setValueAtTime(0.008, ctx.currentTime);
-      lfo2.connect(lfo2G);
-      lfo2G.connect(g.gain);
-      g.gain.setValueAtTime(0, ctx.currentTime);
-      g.gain.linearRampToValueAtTime(0.012, ctx.currentTime + 6 + idx * 2);
-      osc.connect(g);
-      g.connect(master);
-      osc.start();
-      lfo2.start();
-    });
-
-    setSoundOn(true);
-  }, []);
-
-  const stopSound = useCallback(() => {
-    if (audioCtxRef.current) {
-      audioCtxRef.current.close();
-      audioCtxRef.current = null;
-      setSoundOn(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    return () => {
-      if (audioCtxRef.current) {
-        audioCtxRef.current.close();
-      }
-    };
+    return () => clearTimeout(timer);
   }, []);
 
   return (
@@ -299,7 +60,7 @@ const MatrixStart = () => {
               transform: 'scale(2.5)',
             }}
           />
-        <a href="/" className="relative matrix-glow-pulse matrix-logo-link block">
+          <a href="/" className="relative matrix-glow-pulse matrix-logo-link block">
             <GeometricSymbol size="lg" className="matrix-symbol" />
           </a>
         </div>
@@ -357,7 +118,6 @@ const MatrixStart = () => {
         <a href="/" className="text-[#ff1a1a] hover:text-[#f5c542] transition-colors duration-300">inside-the-box.org</a>
       </div>
 
-      {/* Custom styles for matrix symbol override */}
       <style>{`
         .matrix-symbol div {
           border-color: #ff1a1a !important;
