@@ -382,38 +382,36 @@ const CyberCrisisSimulator = forwardRef<CrisisSimulatorHandle, CrisisSimulatorPr
     </div>
   );
 
-  // ─── CHAT AREA ─────────────────────────────────────────────────
-  const ChatArea = () => {
-    const visibleMsgs = messages.filter(m => m.content !== "START_SIMULATION" && m.type !== "sys");
-    return (
-      <div className={`crisis-chat-scroll flex-1 overflow-y-auto ${embedded ? "px-3 py-2" : "px-5 py-4"}`}>
-        {visibleMsgs.map((msg, i) => {
-          const style = getRoleStyle(msg);
-          const isLatestAssistant = msg.role === "assistant" && i === visibleMsgs.length - 1 && !typewriterDone.has(i);
-          return (
-            <div key={i} className={`py-3 border-b border-border/30 ${style.borderClass || ""} ${msg.type === "inject" ? "bg-primary/5" : ""}`}>
-              <div className={`text-[10px] uppercase tracking-widest font-semibold mb-1 ${style.colorClass}`}>
-                {style.label}
-              </div>
-              <div className={`${msg.type === "user" ? "text-foreground" : "text-foreground/85"} text-sm md:text-base leading-relaxed`}>
-                {msg.role === "assistant" && isLatestAssistant ? (
-                  <TypewriterText
-                    content={msg.content}
-                    onDone={() => setTypewriterDone(prev => new Set(prev).add(i))}
-                    renderFn={renderMarkdown}
-                  />
-                ) : (
-                  msg.role === "assistant" ? renderMarkdown(msg.content) : msg.content
-                )}
-              </div>
+  // ─── CHAT AREA (inline, not a component to avoid re-mounts) ────
+  const visibleMsgs = messages.filter(m => m.content !== "START_SIMULATION" && m.type !== "sys");
+  const chatAreaJSX = (
+    <div className={`crisis-chat-scroll flex-1 overflow-y-auto ${embedded ? "px-3 py-2" : "px-5 py-4"}`}>
+      {visibleMsgs.map((msg, i) => {
+        const style = getRoleStyle(msg);
+        const isLatestAssistant = msg.role === "assistant" && i === visibleMsgs.length - 1 && !typewriterDone.has(i);
+        return (
+          <div key={i} className={`py-3 border-b border-border/30 ${style.borderClass || ""} ${msg.type === "inject" ? "bg-primary/5" : ""}`}>
+            <div className={`text-[10px] uppercase tracking-widest font-semibold mb-1 ${style.colorClass}`}>
+              {style.label}
             </div>
-          );
-        })}
-        {loading && <TypingIndicator label={t('crisisSim.roleSitRoom')} />}
-        <div ref={chatEndRef} />
-      </div>
-    );
-  };
+            <div className={`${msg.type === "user" ? "text-foreground" : "text-foreground/85"} text-sm md:text-base leading-relaxed`}>
+              {msg.role === "assistant" && isLatestAssistant ? (
+                <TypewriterText
+                  content={msg.content}
+                  onDone={() => setTypewriterDone(prev => new Set(prev).add(i))}
+                  renderFn={renderMarkdown}
+                />
+              ) : (
+                msg.role === "assistant" ? renderMarkdown(msg.content) : msg.content
+              )}
+            </div>
+          </div>
+        );
+      })}
+      {loading && <TypingIndicator label={t('crisisSim.roleSitRoom')} />}
+      <div ref={chatEndRef} />
+    </div>
+  );
 
   // ─── INPUT AREA (ChatView style) ──────────────────────────────
   const [qaOpen, setQaOpen] = useState(false);
@@ -581,7 +579,7 @@ const CyberCrisisSimulator = forwardRef<CrisisSimulatorHandle, CrisisSimulatorPr
               </div>
             )}
             <div className="flex-1 flex flex-col overflow-hidden">
-              <ChatArea />
+              {chatAreaJSX}
               {/* Quick actions bar above ChatView's shared input */}
               {!evalDone && started && (
                 <div className="border-t border-border/50 px-2 py-1.5 flex-shrink-0">
@@ -636,7 +634,7 @@ const CyberCrisisSimulator = forwardRef<CrisisSimulatorHandle, CrisisSimulatorPr
             {started && <PhaseBar />}
             {!started ? <StartScreen /> : (
               <>
-                <ChatArea />
+                {chatAreaJSX}
                 {!evalDone && <InputArea />}
               </>
             )}
