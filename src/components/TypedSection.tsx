@@ -1,4 +1,4 @@
-import { ReactNode, useState, useEffect } from 'react';
+import { ReactNode, useState, useEffect, useRef } from 'react';
 import Typewriter, { type RevealMode } from './Typewriter';
 import { StaggerReveal } from './StaggerReveal';
 
@@ -26,13 +26,23 @@ const TypedSection = ({
   stagger = 400,
 }: TypedSectionProps) => {
   const [titleDone, setTitleDone] = useState(false);
-
-  // Reset when section identity changes (navigation or reveal mode changes)
-  useEffect(() => {
-    setTitleDone(false);
-  }, [title, mode, charDelay]);
-
+  const [suppressIntro, setSuppressIntro] = useState(false);
   const sectionKey = `${title}-${mode}-${charDelay}`;
+  const prevKeyRef = useRef(sectionKey);
+
+  // Reset when section identity changes — suppress intro transition to avoid flash
+  useEffect(() => {
+    if (prevKeyRef.current !== sectionKey) {
+      prevKeyRef.current = sectionKey;
+      setSuppressIntro(true);
+      setTitleDone(false);
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setSuppressIntro(false);
+        });
+      });
+    }
+  }, [sectionKey]);
 
   return (
     <div className="space-y-3">
@@ -42,10 +52,10 @@ const TypedSection = ({
         </h2>
         {intro && (
           <div
-            className="transition-all duration-500 ease-out"
             style={{
               opacity: titleDone ? 1 : 0,
               transform: titleDone ? 'translateY(0)' : 'translateY(8px)',
+              transition: suppressIntro ? 'none' : 'opacity 500ms ease-out, transform 500ms ease-out',
             }}
           >
             {intro}
