@@ -355,7 +355,7 @@ const CyberCrisisSimulator: React.FC<CrisisSimulatorProps> = ({ embedded = false
           {t('crisisSim.roleSubtitle')}
         </div>
         <div
-          className="border border-border/50 p-4 md:p-5 mb-6 text-left leading-relaxed text-foreground/80 text-sm md:text-base"
+          className="mb-8 text-left leading-relaxed text-foreground/80 text-sm md:text-base max-w-lg mx-auto"
           dangerouslySetInnerHTML={{ __html: t('crisisSim.startDesc') }}
         />
         <button className="crisis-start-btn" onClick={handleStart} disabled={loading}>
@@ -540,7 +540,7 @@ const CyberCrisisSimulator: React.FC<CrisisSimulatorProps> = ({ embedded = false
   // ─── EMBEDDED RENDER (inside ChatView) ─────────────────────────
   if (embedded) {
     return (
-      <div className="text-foreground border border-border/50 flex flex-col min-h-[400px]" style={{ height: "calc(100vh - 120px)" }}>
+      <div className="text-foreground flex flex-col min-h-[400px]" style={{ height: "calc(100vh - 120px)" }}>
         <style>{sharedStyles}</style>
         {!started ? (
           <StartScreen />
