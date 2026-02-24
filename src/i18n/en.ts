@@ -416,6 +416,8 @@ export const en = {
     roleSubtitle: '/ Crisis Team Leader',
     startDesc: 'You assume the role of the <strong>Crisis Team Leader</strong> during an ongoing cyber attack. Scenario: Phishing campaign after DMZ compromise · <strong>250,000 affected customers</strong>. Duration: <strong>5 minutes</strong> · Automatic evaluation using TTX assessment matrix.',
     connecting: 'CONNECTING...',
+    hardModeButton: 'HARD MODE',
+    hardModeHint: '🔊 HARD = ambient stress soundscape',
     startButton: 'START EXERCISE',
     inputPrefix: 'CTL ▶',
     inputPlaceholder: 'Enter instruction...',

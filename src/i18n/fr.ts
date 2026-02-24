@@ -416,6 +416,8 @@ export const fr = {
     roleSubtitle: '/ Direction cellule de crise',
     startDesc: 'Vous assumez le rôle du <strong>Directeur de la cellule de crise</strong> lors d\'une cyberattaque en cours. Scénario : Campagne de phishing après compromission DMZ · <strong>250 000 clients concernés</strong>. Durée : <strong>5 minutes</strong> · Évaluation automatique selon la matrice TTX.',
     connecting: 'CONNEXION...',
+    hardModeButton: 'MODE DIFFICILE',
+    hardModeHint: '🔊 DIFFICILE = ambiance sonore de stress',
     startButton: 'DÉMARRER L\'EXERCICE',
     inputPrefix: 'DCC ▶',
     inputPlaceholder: 'Entrez une instruction...',

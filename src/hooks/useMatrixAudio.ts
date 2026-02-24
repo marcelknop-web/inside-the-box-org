@@ -1,6 +1,6 @@
 import { useRef, useState, useCallback, useEffect } from 'react';
 
-export function useMatrixAudio() {
+export function useMatrixAudio(volumeMultiplier = 1) {
   const audioCtxRef = useRef<AudioContext | null>(null);
   const masterRef = useRef<GainNode | null>(null);
   const [soundOn, setSoundOn] = useState(false);
@@ -42,7 +42,7 @@ export function useMatrixAudio() {
 
     const master = ctx.createGain();
     master.gain.setValueAtTime(0, t);
-    master.gain.linearRampToValueAtTime(1, t + 3);
+    master.gain.linearRampToValueAtTime(volumeMultiplier, t + 3);
     masterRef.current = master;
     master.connect(ctx.destination);
 
