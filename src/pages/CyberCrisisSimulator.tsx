@@ -5,6 +5,8 @@ import { useLanguage } from "@/i18n/LanguageContext";
 import { SYSTEM_PROMPTS } from "./crisisSystemPrompts";
 import { GeometricSymbol } from "@/components/GeometricSymbol";
 import { useMatrixAudio } from "@/hooks/useMatrixAudio";
+import Typewriter from "@/components/Typewriter";
+import { StaggerReveal } from "@/components/StaggerReveal";
 
 // ─── TYPES ───────────────────────────────────────────────────────
 interface Message {
@@ -389,10 +391,17 @@ const CyberCrisisSimulator = forwardRef<CrisisSimulatorHandle, CrisisSimulatorPr
   );
 
   // ─── START SCREEN ──────────────────────────────────────────────
+  const [startScreenTitleDone, setStartScreenTitleDone] = useState(false);
+
+  // Reset when component identity changes
+  useEffect(() => {
+    if (!started) setStartScreenTitleDone(false);
+  }, [started]);
+
   const StartScreen = () => (
     <div className={`flex-1 flex items-center justify-center ${embedded ? "py-5" : ""} overflow-y-auto`}>
       <div className="text-center max-w-[520px] px-4">
-        <div className="flex justify-center mb-4">
+        <div className="flex justify-center mb-4 transition-opacity duration-500" style={{ opacity: 1 }}>
           <div className="opacity-70" style={{ transform: 'scale(2.5)', transformOrigin: 'center center', width: 24, height: 24, margin: '20px auto' }}>
             <GeometricSymbol size="xs" />
           </div>
@@ -401,26 +410,31 @@ const CyberCrisisSimulator = forwardRef<CrisisSimulatorHandle, CrisisSimulatorPr
           {t('crisisSim.ttxLabel')}
         </div>
         <div className="text-foreground text-lg md:text-xl font-semibold tracking-wide mb-1 font-mono">
-          {t('crisisSim.title')}
-        </div>
-        <div className="text-primary text-sm mb-6">
-          {t('crisisSim.roleSubtitle')}
+          <Typewriter text={t('crisisSim.title')} mode="scramble" charDelay={60} onDone={() => setStartScreenTitleDone(true)} />
         </div>
         <div
-          className="mb-8 text-left leading-relaxed text-foreground/80 text-sm md:text-base max-w-lg mx-auto [&_strong]:text-primary [&_strong]:font-semibold"
-          dangerouslySetInnerHTML={{ __html: t('crisisSim.startDesc') }}
-        />
-        <div className="flex flex-col sm:flex-row gap-3 items-center justify-center">
-          <button className="crisis-start-btn" onClick={() => handleStart(false)} disabled={loading}>
-            <span>{loading ? t('crisisSim.connecting') : t('crisisSim.startButton')}</span>
-          </button>
-          <button className="crisis-start-btn crisis-hard-btn" onClick={() => handleStart(true)} disabled={loading}>
-            <span>{loading ? t('crisisSim.connecting') : t('crisisSim.hardModeButton')}</span>
-          </button>
+          className="text-primary text-sm mb-6 transition-all duration-500 ease-out"
+          style={{ opacity: startScreenTitleDone ? 1 : 0, transform: startScreenTitleDone ? 'translateY(0)' : 'translateY(8px)' }}
+        >
+          {t('crisisSim.roleSubtitle')}
         </div>
-        <div className="text-muted-foreground text-xs mt-3 font-mono">
-          {t('crisisSim.hardModeHint')}
-        </div>
+        <StaggerReveal stagger={300} startDelay={startScreenTitleDone ? 500 : 999999}>
+          <div
+            className="mb-4 text-left leading-relaxed text-foreground/80 text-sm md:text-base max-w-lg mx-auto [&_strong]:text-primary [&_strong]:font-semibold"
+            dangerouslySetInnerHTML={{ __html: t('crisisSim.startDesc') }}
+          />
+          <div className="flex flex-col sm:flex-row gap-3 items-center justify-center">
+            <button className="crisis-start-btn" onClick={() => handleStart(false)} disabled={loading}>
+              <span>{loading ? t('crisisSim.connecting') : t('crisisSim.startButton')}</span>
+            </button>
+            <button className="crisis-start-btn crisis-hard-btn" onClick={() => handleStart(true)} disabled={loading}>
+              <span>{loading ? t('crisisSim.connecting') : t('crisisSim.hardModeButton')}</span>
+            </button>
+          </div>
+          <div className="text-muted-foreground text-xs mt-3 font-mono">
+            {t('crisisSim.hardModeHint')}
+          </div>
+        </StaggerReveal>
       </div>
     </div>
   );
