@@ -334,12 +334,16 @@ const MatrixStart = () => {
         {/* Sound toggle */}
         <button
           onClick={soundOn ? stopSound : startSound}
-          className="mt-10 font-mono text-xs tracking-widest uppercase px-6 py-2 border transition-all duration-300"
+          className="mt-10 font-mono text-sm md:text-base tracking-widest uppercase px-8 py-3 border-2 rounded transition-all duration-500"
           style={{
-            color: soundOn ? '#00ff41' : 'rgba(0,255,65,0.4)',
-            borderColor: soundOn ? 'rgba(0,255,65,0.5)' : 'rgba(0,255,65,0.2)',
-            textShadow: soundOn ? '0 0 8px rgba(0,255,65,0.5)' : 'none',
-            background: soundOn ? 'rgba(0,255,65,0.05)' : 'transparent',
+            color: soundOn ? '#00ff41' : '#00ff41',
+            borderColor: soundOn ? 'rgba(0,255,65,0.7)' : 'rgba(0,255,65,0.5)',
+            textShadow: '0 0 10px rgba(0,255,65,0.6), 0 0 30px rgba(0,255,65,0.3)',
+            background: soundOn ? 'rgba(0,255,65,0.1)' : 'rgba(0,255,65,0.03)',
+            boxShadow: soundOn
+              ? '0 0 20px rgba(0,255,65,0.4), inset 0 0 20px rgba(0,255,65,0.1)'
+              : '0 0 15px rgba(0,255,65,0.2), inset 0 0 10px rgba(0,255,65,0.05)',
+            animation: soundOn ? 'none' : 'pulse-glow 2s ease-in-out infinite',
           }}
         >
           {soundOn ? '♫ Sound On' : '♪ Enable Sound'}
@@ -381,6 +385,16 @@ const MatrixStart = () => {
         .matrix-glow-pulse {
           animation: hypnotic-glow 4s ease-in-out infinite;
           will-change: filter, opacity;
+        }
+        @keyframes pulse-glow {
+          0%, 100% {
+            box-shadow: 0 0 15px rgba(0,255,65,0.2), inset 0 0 10px rgba(0,255,65,0.05);
+            border-color: rgba(0,255,65,0.5);
+          }
+          50% {
+            box-shadow: 0 0 25px rgba(0,255,65,0.5), inset 0 0 15px rgba(0,255,65,0.1);
+            border-color: rgba(0,255,65,0.8);
+          }
         }
       `}</style>
     </div>
