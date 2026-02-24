@@ -145,6 +145,8 @@ const CyberCrisisSimulator = forwardRef<CrisisSimulatorHandle, CrisisSimulatorPr
   const chatEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const timerExpiredRef = useRef(false);
+  const messagesRef = useRef<Message[]>([]);
+  messagesRef.current = messages;
 
   const systemPrompt = SYSTEM_PROMPTS[language] || SYSTEM_PROMPTS.en;
   const phases = [
@@ -199,7 +201,8 @@ const CyberCrisisSimulator = forwardRef<CrisisSimulatorHandle, CrisisSimulatorPr
 
   const sendMessage = useCallback(async (text: string, isSystem = false) => {
     const userMsg: Message = { role: "user", content: text, type: isSystem ? "sys" : "user" };
-    const newMsgs = [...messages, userMsg];
+    const currentMsgs = messagesRef.current;
+    const newMsgs = [...currentMsgs, userMsg];
     setMessages(newMsgs);
     setInput("");
     setLoading(true);
@@ -211,8 +214,11 @@ const CyberCrisisSimulator = forwardRef<CrisisSimulatorHandle, CrisisSimulatorPr
       let type: Message["type"] = "sim";
       if (reply.includes("INJECT")) {
         type = "inject";
-        if (!injects.i1) setInjects(p => ({ ...p, i1: true }));
-        else if (!injects.i2) setInjects(p => ({ ...p, i2: true }));
+        setInjects(p => {
+          if (!p.i1) return { ...p, i1: true };
+          if (!p.i2) return { ...p, i2: true };
+          return p;
+        });
       }
       if (reply.includes(evalMarker)) {
         type = "eval";
@@ -228,7 +234,7 @@ const CyberCrisisSimulator = forwardRef<CrisisSimulatorHandle, CrisisSimulatorPr
     } finally {
       setLoading(false);
     }
-  }, [messages, injects, sendToEdge, evalMarker, t]);
+  }, [sendToEdge, evalMarker, t]);
 
   const handleStart = async () => {
     setStarted(true);
@@ -499,11 +505,11 @@ const CyberCrisisSimulator = forwardRef<CrisisSimulatorHandle, CrisisSimulatorPr
     .crisis-chat-scroll::-webkit-scrollbar-track { background: transparent; }
     .crisis-chat-scroll::-webkit-scrollbar-thumb { background: hsl(var(--border)); }
     .crisis-qbtn { 
-      background: transparent; border: 1px solid hsl(var(--border)); color: hsl(var(--primary)); 
+      background: transparent; border: 1px solid hsl(var(--highlight)); color: hsl(var(--highlight)); 
       padding: 5px 10px; font-family: 'JetBrains Mono', monospace; font-size: 11px;
       text-transform: uppercase; letter-spacing: 0.08em; cursor: pointer; transition: all 0.2s;
     }
-    .crisis-qbtn:hover { background: hsl(var(--primary) / 0.1); border-color: hsl(var(--primary)); }
+    .crisis-qbtn:hover { background: hsl(var(--highlight) / 0.1); border-color: hsl(var(--highlight)); }
     .crisis-qbtn-eval { border-color: hsl(var(--destructive)); color: hsl(var(--destructive)); }
     .crisis-qbtn-eval:hover { background: hsl(var(--destructive) / 0.1); }
     .crisis-start-btn {
