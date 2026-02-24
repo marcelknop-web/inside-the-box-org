@@ -42,6 +42,8 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 const Ehrenerklaerung = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [password, setPassword] = useState('');
   const [submitted, setSubmitted] = useState(false);
 
   const form = useForm<FormValues>({
@@ -56,6 +58,42 @@ const Ehrenerklaerung = () => {
       initialen: '',
     },
   });
+
+  const handlePasswordSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (password === 'brain99') {
+      setIsAuthenticated(true);
+    } else {
+      alert('Falsches Passwort');
+    }
+  };
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #e8eff5 0%, #f0f4f8 100%)' }}>
+        <div className="w-full max-w-sm space-y-6 px-6">
+          <div className="text-center">
+            <GeometricSymbol size="sm" />
+            <h1 className="text-2xl font-bold mt-4" style={{ color: '#4a6b7a' }}>Ehrenerklärung</h1>
+            <p className="text-sm mt-2" style={{ color: '#7a9aaa' }}>Bitte Passwort eingeben</p>
+          </div>
+          <form onSubmit={handlePasswordSubmit} className="space-y-4">
+            <Input
+              type="password"
+              placeholder="Passwort"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full bg-white"
+              style={{ borderColor: '#c0d0d8' }}
+            />
+            <Button type="submit" className="w-full py-5" style={{ background: '#5a8a9a', color: 'white' }}>
+              Zugang
+            </Button>
+          </form>
+        </div>
+      </div>
+    );
+  }
 
   const onSubmit = (data: FormValues) => {
     console.log('Ehrenerklärung submitted:', { ...data, email: '[redacted]' });
