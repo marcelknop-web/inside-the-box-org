@@ -337,9 +337,8 @@ const MatrixStart = () => {
         {/* Sound toggle */}
         <button
           onClick={soundOn ? stopSound : startSound}
-          className="matrix-start-btn mt-10 font-mono text-sm md:text-base tracking-widest uppercase px-8 py-3 border-2 rounded transition-all duration-500 text-[#ff1a1a] hover:text-[#00e5ff]"
+          className={`matrix-start-btn mt-10 font-mono text-sm md:text-base tracking-widest uppercase px-8 py-3 border-2 rounded transition-all duration-500 text-[#ff1a1a] hover:text-[#00e5ff] hover:border-[#00e5ff] ${soundOn ? 'matrix-btn-active' : 'matrix-btn-idle'}`}
           style={{
-            borderColor: soundOn ? 'rgba(255,26,26,0.7)' : 'rgba(255,26,26,0.5)',
             textShadow: '0 0 10px rgba(255,26,26,0.6), 0 0 30px rgba(255,26,26,0.3)',
             background: soundOn ? 'rgba(255,26,26,0.1)' : 'rgba(255,26,26,0.03)',
             boxShadow: soundOn
@@ -409,6 +408,12 @@ const MatrixStart = () => {
             box-shadow: 0 0 25px rgba(255,26,26,0.5), inset 0 0 15px rgba(255,26,26,0.1);
             border-color: rgba(255,26,26,0.8);
           }
+        }
+        .matrix-btn-idle {
+          border-color: rgba(255,26,26,0.5);
+        }
+        .matrix-btn-active {
+          border-color: rgba(255,26,26,0.7);
         }
       `}</style>
     </div>
