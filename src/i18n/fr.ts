@@ -410,9 +410,9 @@ export const fr = {
     chatPlaceholder: 'Posez-moi une question…',
   },
   crisisSim: {
-    sidebarLabel: 'Simulateur crise',
+    sidebarLabel: 'Essayer ?',
     ttxLabel: 'Formation Cybersécurité · TTX',
-    title: 'Simulateur de Cyber-Crise',
+    title: 'Essayer ?',
     roleSubtitle: '/ Direction cellule de crise',
     startDesc: 'Vous assumez le rôle du <strong>Directeur de la cellule de crise</strong> lors d\'une cyberattaque en cours. Scénario : Campagne de phishing après compromission DMZ · <strong>250 000 clients concernés</strong>. Durée : <strong>5 minutes</strong> · Évaluation automatique selon la matrice TTX.',
     connecting: 'CONNEXION...',
@@ -457,5 +457,6 @@ export const fr = {
     evalKeywords: 'évaluation|bilan|fin',
     timerExpiredToken: '[TEMPS_ÉCOULÉ]',
     evalMarker: 'ÉVALUATION DE L\'EXERCICE',
+    quickActions: 'Actions rapides',
   },
 };

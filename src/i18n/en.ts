@@ -410,9 +410,9 @@ export const en = {
     chatPlaceholder: 'Ask me anything…',
   },
   crisisSim: {
-    sidebarLabel: 'Crisis Sim',
+    sidebarLabel: 'Try it out?',
     ttxLabel: 'Cybersecurity Training · TTX',
-    title: 'Cyber Crisis Simulator',
+    title: 'Try it out?',
     roleSubtitle: '/ Crisis Team Leader',
     startDesc: 'You assume the role of the <strong>Crisis Team Leader</strong> during an ongoing cyber attack. Scenario: Phishing campaign after DMZ compromise · <strong>250,000 affected customers</strong>. Duration: <strong>5 minutes</strong> · Automatic evaluation using TTX assessment matrix.',
     connecting: 'CONNECTING...',
@@ -457,5 +457,6 @@ export const en = {
     evalKeywords: 'evaluation|assessment|end',
     timerExpiredToken: '[TIMER_EXPIRED]',
     evalMarker: 'EXERCISE EVALUATION',
+    quickActions: 'Quick Actions',
   },
 };

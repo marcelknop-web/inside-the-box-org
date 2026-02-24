@@ -410,9 +410,9 @@ export const de = {
     chatPlaceholder: 'Stellen Sie eine Frage…',
   },
   crisisSim: {
-    sidebarLabel: 'Krisensimulator',
+    sidebarLabel: 'Mal probieren?',
     ttxLabel: 'Cybersecurity Training · TTX',
-    title: 'Cyber Crisis Simulator',
+    title: 'Mal probieren?',
     roleSubtitle: '/ Krisenstabsleitung',
     startDesc: 'Sie übernehmen die Rolle des <strong>Leiters des Krisenstabs</strong> während eines laufenden Cyberangriffs. Szenario: Phishing-Kampagne nach DMZ-Kompromittierung · <strong>250.000 betroffene Kunden</strong>. Dauer: <strong>5 Minuten</strong> · Automatische Auswertung nach TTX-Bewertungsmatrix.',
     connecting: 'VERBINDE...',
@@ -457,5 +457,6 @@ export const de = {
     evalKeywords: 'auswertung|bewertung|ende',
     timerExpiredToken: '[TIMER_ABGELAUFEN]',
     evalMarker: 'ÜBUNGSAUSWERTUNG',
+    quickActions: 'Schnellaktionen',
   },
 };

@@ -353,21 +353,21 @@ const CyberCrisisSimulator: React.FC<CrisisSimulatorProps> = ({ embedded = false
 
   // ─── START SCREEN ──────────────────────────────────────────────
   const StartScreen = () => (
-    <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: embedded ? "40px 0" : 0 }}>
-      <div style={{ textAlign: "center", maxWidth: 520, padding: "0 24px" }}>
-        <DiamondLogo size={58} />
-        <div style={{ color: C.textDim, fontSize: 10, textTransform: "uppercase", letterSpacing: "0.2em", marginTop: 24, marginBottom: 8 }}>
+    <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: embedded ? "20px 0" : 0, overflowY: "auto" }}>
+      <div style={{ textAlign: "center", maxWidth: 520, padding: "0 16px" }}>
+        <DiamondLogo size={embedded ? 40 : 58} />
+        <div style={{ color: C.textDim, fontSize: 9, textTransform: "uppercase", letterSpacing: "0.2em", marginTop: embedded ? 12 : 24, marginBottom: 6 }}>
           {t('crisisSim.ttxLabel')}
         </div>
-        <div style={{ color: C.textLight, fontSize: 20, fontWeight: 600, letterSpacing: "0.05em", marginBottom: 24 }}>
+        <div style={{ color: C.textLight, fontSize: embedded ? 18 : 20, fontWeight: 600, letterSpacing: "0.05em", marginBottom: embedded ? 12 : 24 }}>
           {t('crisisSim.title')}<br />
-          <span style={{ color: C.gold, fontSize: 14 }}>{t('crisisSim.roleSubtitle')}</span>
+          <span style={{ color: C.gold, fontSize: embedded ? 12 : 14 }}>{t('crisisSim.roleSubtitle')}</span>
         </div>
         <div
-          style={{ border: `1px solid ${C.borderVis}`, padding: 20, marginBottom: 32, textAlign: "left", fontSize: 12, lineHeight: 1.7, color: C.text }}
+          style={{ border: `1px solid ${C.borderVis}`, padding: embedded ? 12 : 20, marginBottom: embedded ? 16 : 32, textAlign: "left", fontSize: embedded ? 11 : 12, lineHeight: 1.6, color: C.text }}
           dangerouslySetInnerHTML={{ __html: t('crisisSim.startDesc') }}
         />
-        <button className="crisis-start-btn" onClick={handleStart} disabled={loading}>
+        <button className="crisis-start-btn" onClick={handleStart} disabled={loading} style={embedded ? { padding: "10px 24px", fontSize: 13 } : undefined}>
           <span>{loading ? t('crisisSim.connecting') : t('crisisSim.startButton')}</span>
         </button>
       </div>
@@ -376,21 +376,21 @@ const CyberCrisisSimulator: React.FC<CrisisSimulatorProps> = ({ embedded = false
 
   // ─── CHAT AREA ─────────────────────────────────────────────────
   const ChatArea = () => (
-    <div className="crisis-chat-scroll" style={{ flex: 1, overflowY: "auto", padding: "16px 20px" }}>
+    <div className="crisis-chat-scroll" style={{ flex: 1, overflowY: "auto", padding: embedded ? "8px 12px" : "16px 20px" }}>
       {messages.filter(m => m.content !== "START_SIMULATION" && m.type !== "sys").map((msg, i) => {
         const style = getRoleStyle(msg);
         return (
           <div key={i} style={{
-            padding: "12px 0",
+            padding: embedded ? "8px 0" : "12px 0",
             borderBottom: `1px solid ${C.borderThin}`,
             borderLeft: style.borderLeft || "none",
             paddingLeft: style.borderLeft ? 12 : 0,
             background: msg.type === "inject" ? "rgba(201,138,58,0.06)" : "transparent",
           }}>
-            <div style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.12em", color: style.color, fontWeight: 600, marginBottom: 6 }}>
+            <div style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.12em", color: style.color, fontWeight: 600, marginBottom: 4 }}>
               {style.label}
             </div>
-            <div style={{ color: msg.type === "inject" ? C.injectText : msg.type === "user" ? C.textLight : C.text, fontSize: 13, lineHeight: 1.6 }}>
+            <div style={{ color: msg.type === "inject" ? C.injectText : msg.type === "user" ? C.textLight : C.text, fontSize: embedded ? 12 : 13, lineHeight: 1.5 }}>
               {msg.role === "assistant" ? renderMarkdown(msg.content) : msg.content}
             </div>
           </div>
@@ -402,40 +402,70 @@ const CyberCrisisSimulator: React.FC<CrisisSimulatorProps> = ({ embedded = false
   );
 
   // ─── INPUT AREA ────────────────────────────────────────────────
+  const [qaOpen, setQaOpen] = useState(false);
+  const isMobile = typeof window !== "undefined" && window.innerWidth < 640;
+
   const InputArea = () => (
-    <div style={{ borderTop: `1px solid ${C.borderThin}`, background: C.surface, backdropFilter: "blur(10px)", padding: "12px 16px", flexShrink: 0 }}>
-      <div style={{ display: "flex", alignItems: "center", border: `1px solid ${C.borderThin}`, marginBottom: 8 }}>
-        <div style={{ padding: "8px 12px", borderRight: `1px solid ${C.borderThin}`, color: C.gold, fontSize: 12, fontWeight: 600, letterSpacing: "0.1em", flexShrink: 0 }}>{t('crisisSim.inputPrefix')}</div>
+    <div style={{ borderTop: `1px solid ${C.borderThin}`, background: C.surface, backdropFilter: "blur(10px)", padding: embedded ? "8px 10px" : "12px 16px", flexShrink: 0 }}>
+      <div style={{ display: "flex", alignItems: "center", border: `1px solid ${C.borderThin}`, marginBottom: 6 }}>
+        <div style={{ padding: "6px 8px", borderRight: `1px solid ${C.borderThin}`, color: C.gold, fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", flexShrink: 0 }}>{t('crisisSim.inputPrefix')}</div>
         <textarea
           ref={textareaRef}
           value={input}
           onChange={e => setInput(e.target.value)}
           onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
-          rows={2}
-          style={{ flex: 1, background: "transparent", border: "none", outline: "none", color: C.textLight, fontFamily: "'IBM Plex Mono', monospace", fontSize: 13, padding: "8px 12px", resize: "none" }}
+          rows={1}
+          style={{ flex: 1, background: "transparent", border: "none", outline: "none", color: C.textLight, fontFamily: "'IBM Plex Mono', monospace", fontSize: 13, padding: "6px 8px", resize: "none" }}
           placeholder={t('crisisSim.inputPlaceholder')}
           disabled={loading}
         />
         <button
           onClick={handleSend}
           disabled={loading || !input.trim()}
-          style={{ padding: "8px 16px", background: "transparent", border: "none", borderLeft: `1px solid ${C.borderThin}`, color: !input.trim() || loading ? C.textDim : C.gold, fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em", cursor: !input.trim() || loading ? "default" : "pointer", fontWeight: 600 }}
+          style={{ padding: "6px 12px", background: "transparent", border: "none", borderLeft: `1px solid ${C.borderThin}`, color: !input.trim() || loading ? C.textDim : C.gold, fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em", cursor: !input.trim() || loading ? "default" : "pointer", fontWeight: 600 }}
         >
           {t('crisisSim.sendButton')}
         </button>
       </div>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-        {quickActions.map((qa, i) => (
+      {/* Quick Actions: collapsible on embedded/mobile */}
+      {embedded ? (
+        <>
           <button
-            key={i}
-            className={`crisis-qbtn ${"isEval" in qa && qa.isEval ? "crisis-qbtn-eval" : ""}`}
-            onClick={() => handleQuickAction(qa.text)}
-            disabled={loading}
+            onClick={() => setQaOpen(!qaOpen)}
+            style={{ background: "transparent", border: `1px solid ${qaOpen ? C.gold : C.borderVis}`, color: qaOpen ? C.gold : C.textDim, padding: "3px 10px", fontSize: 9, fontFamily: "'IBM Plex Mono', monospace", textTransform: "uppercase", letterSpacing: "0.08em", cursor: "pointer", marginBottom: qaOpen ? 6 : 0, width: "100%" }}
           >
-            {qa.label}
+            {qaOpen ? "▾ " : "▸ "}{t('crisisSim.quickActions')}
           </button>
-        ))}
-      </div>
+          {qaOpen && (
+            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              {quickActions.map((qa, i) => (
+                <button
+                  key={i}
+                  className={`crisis-qbtn ${"isEval" in qa && qa.isEval ? "crisis-qbtn-eval" : ""}`}
+                  onClick={() => { handleQuickAction(qa.text); setQaOpen(false); }}
+                  disabled={loading}
+                  style={{ width: "100%", textAlign: "left", padding: "6px 10px" }}
+                >
+                  {qa.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </>
+      ) : (
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+          {quickActions.map((qa, i) => (
+            <button
+              key={i}
+              className={`crisis-qbtn ${"isEval" in qa && qa.isEval ? "crisis-qbtn-eval" : ""}`}
+              onClick={() => handleQuickAction(qa.text)}
+              disabled={loading}
+            >
+              {qa.label}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 
