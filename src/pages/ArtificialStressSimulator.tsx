@@ -348,7 +348,7 @@ const MatrixStart = () => {
         CLIENT://{clientIp}
       </div>
       <div className="absolute top-4 right-4 font-mono text-xs z-20" style={{ color: '#ff1a1a', textShadow: '0 0 8px rgba(255,26,26,0.6)' }}>
-        {new Date().toISOString().replace('T', ' ').slice(0, 19)}
+        {new Date().toLocaleString('de-DE', { timeZone: 'Europe/Berlin', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }).replace(',', '')}
       </div>
       <div className="absolute bottom-4 left-4 font-mono text-xs z-20" style={{ textShadow: '0 0 8px rgba(255,26,26,0.6)' }}>
         <a href="mailto:marcel@inside-the-box.org" className="text-[#ff1a1a] hover:text-[#f5c542] transition-colors duration-300">marcel@inside-the-box.org</a>
