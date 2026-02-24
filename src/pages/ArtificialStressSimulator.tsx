@@ -337,15 +337,7 @@ const MatrixStart = () => {
         {/* Sound toggle */}
         <button
           onClick={soundOn ? stopSound : startSound}
-          className={`matrix-start-btn mt-10 font-mono text-sm md:text-base tracking-widest uppercase px-8 py-3 border-2 rounded transition-all duration-500 text-[#ff1a1a] hover:text-[#00e5ff] hover:border-[#00e5ff] ${soundOn ? 'matrix-btn-active' : 'matrix-btn-idle'}`}
-          style={{
-            textShadow: '0 0 10px rgba(255,26,26,0.6), 0 0 30px rgba(255,26,26,0.3)',
-            background: soundOn ? 'rgba(255,26,26,0.1)' : 'rgba(255,26,26,0.03)',
-            boxShadow: soundOn
-              ? '0 0 20px rgba(255,26,26,0.4), inset 0 0 20px rgba(255,26,26,0.1)'
-              : '0 0 15px rgba(255,26,26,0.2), inset 0 0 10px rgba(255,26,26,0.05)',
-            animation: soundOn ? 'none' : 'pulse-glow 2s ease-in-out infinite',
-          }}
+          className={`matrix-start-btn mt-10 font-mono text-sm md:text-base tracking-widest uppercase px-8 py-3 border-2 rounded transition-all duration-500 ${soundOn ? 'matrix-btn-active' : 'matrix-btn-idle'}`}
         >
           {soundOn ? '■ Stop' : '▶ Start'}
         </button>
@@ -409,17 +401,28 @@ const MatrixStart = () => {
             border-color: rgba(255,26,26,0.8);
           }
         }
+        .matrix-start-btn {
+          color: #ff1a1a;
+          text-shadow: 0 0 10px rgba(255,26,26,0.6), 0 0 30px rgba(255,26,26,0.3);
+          background: rgba(255,26,26,0.03);
+          box-shadow: 0 0 15px rgba(255,26,26,0.2), inset 0 0 10px rgba(255,26,26,0.05);
+        }
         .matrix-btn-idle {
           border-color: rgba(255,26,26,0.5);
+          animation: pulse-glow 2s ease-in-out infinite;
         }
         .matrix-btn-active {
           border-color: rgba(255,26,26,0.7);
+          background: rgba(255,26,26,0.1);
+          box-shadow: 0 0 20px rgba(255,26,26,0.4), inset 0 0 20px rgba(255,26,26,0.1);
         }
         .matrix-start-btn:hover {
-          animation: none !important;
-          border-color: #00e5ff !important;
-          box-shadow: 0 0 20px rgba(0,229,255,0.3), inset 0 0 15px rgba(0,229,255,0.08) !important;
-          text-shadow: 0 0 10px rgba(0,229,255,0.6), 0 0 30px rgba(0,229,255,0.3) !important;
+          animation: none;
+          color: #00e5ff;
+          border-color: #00e5ff;
+          box-shadow: 0 0 20px rgba(0,229,255,0.3), inset 0 0 15px rgba(0,229,255,0.08);
+          text-shadow: 0 0 10px rgba(0,229,255,0.6), 0 0 30px rgba(0,229,255,0.3);
+          background: rgba(0,229,255,0.05);
         }
       `}</style>
     </div>
