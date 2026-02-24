@@ -416,6 +416,8 @@ export const de = {
     roleSubtitle: '/ Krisenstabsleitung',
     startDesc: 'Sie übernehmen die Rolle des <strong>Leiters des Krisenstabs</strong> während eines laufenden Cyberangriffs. Szenario: Phishing-Kampagne nach DMZ-Kompromittierung · <strong>250.000 betroffene Kunden</strong>. Dauer: <strong>5 Minuten</strong> · Automatische Auswertung nach TTX-Bewertungsmatrix.',
     connecting: 'VERBINDE...',
+    hardModeButton: 'HARD MODE',
+    hardModeHint: '🔊 HARD = Stress-Soundkulisse im Hintergrund',
     startButton: 'ÜBUNG STARTEN',
     inputPrefix: 'KSL ▶',
     inputPlaceholder: 'Anweisung eingeben...',

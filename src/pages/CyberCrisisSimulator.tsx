@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { SYSTEM_PROMPTS } from "./crisisSystemPrompts";
 import { GeometricSymbol } from "@/components/GeometricSymbol";
+import { useMatrixAudio } from "@/hooks/useMatrixAudio";
 
 // ─── TYPES ───────────────────────────────────────────────────────
 interface Message {
@@ -144,6 +145,7 @@ const CyberCrisisSimulator = forwardRef<CrisisSimulatorHandle, CrisisSimulatorPr
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [started, setStarted] = useState(false);
+  const [hardMode, setHardMode] = useState(false);
   const [secondsLeft, setSecondsLeft] = useState(300);
   const [timerActive, setTimerActive] = useState(false);
   const [evalDone, setEvalDone] = useState(false);
@@ -155,6 +157,8 @@ const CyberCrisisSimulator = forwardRef<CrisisSimulatorHandle, CrisisSimulatorPr
   const timerExpiredRef = useRef(false);
   const messagesRef = useRef<Message[]>([]);
   messagesRef.current = messages;
+
+  const { startSound, stopSound } = useMatrixAudio(0.25);
 
   const systemPrompt = SYSTEM_PROMPTS[language] || SYSTEM_PROMPTS.en;
   const phases = [
@@ -244,9 +248,13 @@ const CyberCrisisSimulator = forwardRef<CrisisSimulatorHandle, CrisisSimulatorPr
     }
   }, [sendToEdge, evalMarker, t]);
 
-  const handleStart = async () => {
+  const handleStart = async (isHard = false) => {
     setStarted(true);
+    setHardMode(isHard);
     setLoading(true);
+    if (isHard) {
+      startSound();
+    }
     try {
       const reply = await sendToEdge([{ role: "user", content: "START_SIMULATION" }]);
       const msg: Message = { role: "assistant", content: reply, type: "sim" };
@@ -258,6 +266,17 @@ const CyberCrisisSimulator = forwardRef<CrisisSimulatorHandle, CrisisSimulatorPr
       setLoading(false);
     }
   };
+
+  // Stop sound when exercise ends or component unmounts
+  useEffect(() => {
+    if (evalDone && hardMode) {
+      stopSound();
+    }
+  }, [evalDone, hardMode, stopSound]);
+
+  useEffect(() => {
+    return () => { stopSound(); };
+  }, [stopSound]);
 
   const handleSend = () => {
     if (!input.trim() || loading || evalDone) return;
@@ -389,9 +408,17 @@ const CyberCrisisSimulator = forwardRef<CrisisSimulatorHandle, CrisisSimulatorPr
           className="mb-8 text-left leading-relaxed text-foreground/80 text-sm md:text-base max-w-lg mx-auto [&_strong]:text-primary [&_strong]:font-semibold"
           dangerouslySetInnerHTML={{ __html: t('crisisSim.startDesc') }}
         />
-        <button className="crisis-start-btn" onClick={handleStart} disabled={loading}>
-          <span>{loading ? t('crisisSim.connecting') : t('crisisSim.startButton')}</span>
-        </button>
+        <div className="flex flex-col sm:flex-row gap-3 items-center justify-center">
+          <button className="crisis-start-btn" onClick={() => handleStart(false)} disabled={loading}>
+            <span>{loading ? t('crisisSim.connecting') : t('crisisSim.startButton')}</span>
+          </button>
+          <button className="crisis-start-btn crisis-hard-btn" onClick={() => handleStart(true)} disabled={loading}>
+            <span>{loading ? t('crisisSim.connecting') : t('crisisSim.hardModeButton')}</span>
+          </button>
+        </div>
+        <div className="text-muted-foreground text-xs mt-3 font-mono">
+          {t('crisisSim.hardModeHint')}
+        </div>
       </div>
     </div>
   );
@@ -534,6 +561,14 @@ const CyberCrisisSimulator = forwardRef<CrisisSimulatorHandle, CrisisSimulatorPr
     .crisis-start-btn:hover::before { left: 0; }
     .crisis-start-btn:hover { color: hsl(var(--primary-foreground)); }
     .crisis-start-btn span { position: relative; z-index: 1; }
+    .crisis-hard-btn {
+      border-color: hsl(var(--destructive));
+      color: hsl(var(--destructive));
+    }
+    .crisis-hard-btn::before {
+      background: hsl(var(--destructive)) !important;
+    }
+    .crisis-hard-btn:hover { color: hsl(var(--primary-foreground)); }
   `;
 
   // ─── COMPACT STATUS BAR (embedded mobile) ───────────────────────
