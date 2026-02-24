@@ -386,7 +386,7 @@ const CyberCrisisSimulator = forwardRef<CrisisSimulatorHandle, CrisisSimulatorPr
           {t('crisisSim.roleSubtitle')}
         </div>
         <div
-          className="mb-8 text-left leading-relaxed text-foreground/80 text-sm md:text-base max-w-lg mx-auto"
+          className="mb-8 text-left leading-relaxed text-foreground/80 text-sm md:text-base max-w-lg mx-auto [&_strong]:text-primary [&_strong]:font-semibold"
           dangerouslySetInnerHTML={{ __html: t('crisisSim.startDesc') }}
         />
         <button className="crisis-start-btn" onClick={handleStart} disabled={loading}>
