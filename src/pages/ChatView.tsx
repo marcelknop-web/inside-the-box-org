@@ -8,6 +8,7 @@ import { GeometricSymbol } from '@/components/GeometricSymbol';
 import { LucideIcon } from 'lucide-react';
 import CyberCrisisSimulator, { type CrisisSimulatorHandle } from './CyberCrisisSimulator';
 import { StaggerReveal } from '@/components/StaggerReveal';
+import GlitchText from '@/components/GlitchText';
 
 interface NavLink { url: string; label: string; }
 interface AiResponse { message: string; links: NavLink[]; }
@@ -427,7 +428,17 @@ const useServiceContent = () => {
       <StaggerReveal>
         <Block>
           <SectionTitle>{t('index.title')}</SectionTitle>
-          <p className="text-lg font-semibold mb-2">{t('index.subtitle')}</p>
+          <p className="text-lg font-semibold mb-2">
+            {(() => {
+              const subtitle = t('index.subtitle');
+              // Match the "glitch word": Unerwartete (DE), unexpected (EN), inattendu (FR)
+              const match = subtitle.match(/(.*?)(Unerwartete|unexpected|l'inattendu|inattendu)(.*)/i);
+              if (match) {
+                return <>{match[1]}<GlitchText>{match[2]}</GlitchText>{match[3]}</>;
+              }
+              return subtitle;
+            })()}
+          </p>
         </Block>
         <Block className="bg-primary/10 border-2 border-primary/30 rounded-xl">
           <p className="text-foreground mb-3" dangerouslySetInnerHTML={{
