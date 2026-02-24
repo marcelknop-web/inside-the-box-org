@@ -45,7 +45,7 @@ const TypedSection = ({
           </div>
         )}
       </div>
-      <StaggerReveal stagger={stagger} startDelay={titleDone ? 0 : 999999}>
+      <StaggerReveal stagger={stagger} startDelay={titleDone ? 500 : 999999}>
         {children}
       </StaggerReveal>
     </div>
