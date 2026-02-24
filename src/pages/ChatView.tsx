@@ -426,7 +426,7 @@ const useServiceContent = () => {
       </StaggerReveal>
     ),
     why: () => (
-      <StaggerReveal stagger={400} startDelay={3200}>
+      <div className="space-y-3">
         <Block>
           <SectionTitle><Typewriter text={t('index.title')} charDelay={80} /></SectionTitle>
           <p className="text-lg font-semibold mb-2">
@@ -440,30 +440,32 @@ const useServiceContent = () => {
             })()}
           </p>
         </Block>
-        <Block className="bg-primary/10 border-2 border-primary/30 rounded-xl">
-          <p className="text-foreground mb-3" dangerouslySetInnerHTML={{
-            __html: t('index.card1').replace(/<span>/g, '<span class="text-primary font-semibold">')
-          }} />
-          <ul className="list-disc list-inside text-foreground mb-3 space-y-1">
-            {t('index.card1bullets').split('\n').map((b, i) => <li key={i}>{b}</li>)}
-          </ul>
-          <p className="text-primary font-semibold">{t('index.card1outro')}</p>
-        </Block>
-        <Block className="bg-primary/10 border-2 border-primary/30 rounded-xl">
-          <p className="text-foreground mb-3" dangerouslySetInnerHTML={{
-            __html: t('index.card2').replace(/<span>/g, '<span class="text-primary font-semibold">')
-          }} />
-          <ul className="list-disc list-inside text-foreground mb-3 space-y-1">
-            {t('index.card2bullets').split('\n').map((b, i) => <li key={i}>{b}</li>)}
-          </ul>
-          <p className="text-primary font-semibold">{t('index.card2outro')}</p>
-        </Block>
-        <div className="grid grid-cols-3 gap-2">
-          <StatBlock value="40+" label={t('index.trainingsDelivered')} />
-          <StatBlock value="350+" label={t('index.peopleTrained')} />
-          <StatBlock value="6" label={t('index.countriesCovered')} />
-        </div>
-      </StaggerReveal>
+        <StaggerReveal stagger={400} startDelay={3200}>
+          <Block className="bg-primary/10 border-2 border-primary/30 rounded-xl">
+            <p className="text-foreground mb-3" dangerouslySetInnerHTML={{
+              __html: t('index.card1').replace(/<span>/g, '<span class="text-primary font-semibold">')
+            }} />
+            <ul className="list-disc list-inside text-foreground mb-3 space-y-1">
+              {t('index.card1bullets').split('\n').map((b, i) => <li key={i}>{b}</li>)}
+            </ul>
+            <p className="text-primary font-semibold">{t('index.card1outro')}</p>
+          </Block>
+          <Block className="bg-primary/10 border-2 border-primary/30 rounded-xl">
+            <p className="text-foreground mb-3" dangerouslySetInnerHTML={{
+              __html: t('index.card2').replace(/<span>/g, '<span class="text-primary font-semibold">')
+            }} />
+            <ul className="list-disc list-inside text-foreground mb-3 space-y-1">
+              {t('index.card2bullets').split('\n').map((b, i) => <li key={i}>{b}</li>)}
+            </ul>
+            <p className="text-primary font-semibold">{t('index.card2outro')}</p>
+          </Block>
+          <div className="grid grid-cols-3 gap-2">
+            <StatBlock value="40+" label={t('index.trainingsDelivered')} />
+            <StatBlock value="350+" label={t('index.peopleTrained')} />
+            <StatBlock value="6" label={t('index.countriesCovered')} />
+          </div>
+        </StaggerReveal>
+      </div>
     ),
     training: () => (
       <StaggerReveal>
