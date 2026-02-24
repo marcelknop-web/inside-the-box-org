@@ -1,4 +1,4 @@
-import { ReactNode, Children, useEffect, useState, useRef } from 'react';
+import { ReactNode, Children, useEffect, useState } from 'react';
 
 interface StaggerRevealProps {
   children: ReactNode;
@@ -7,28 +7,27 @@ interface StaggerRevealProps {
   stagger?: number;
 }
 
-export const StaggerReveal = ({ children, className = '', stagger = 120 }: StaggerRevealProps) => {
-  const [visible, setVisible] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
+export const StaggerReveal = ({ children, className = '', stagger = 180 }: StaggerRevealProps) => {
+  const items = Children.toArray(children);
+  const [visibleCount, setVisibleCount] = useState(0);
 
   useEffect(() => {
-    // Trigger on mount
-    const t = requestAnimationFrame(() => setVisible(true));
-    return () => cancelAnimationFrame(t);
-  }, []);
-
-  const items = Children.toArray(children);
+    if (visibleCount >= items.length) return;
+    const timer = setTimeout(() => {
+      setVisibleCount(prev => prev + 1);
+    }, visibleCount === 0 ? 80 : stagger);
+    return () => clearTimeout(timer);
+  }, [visibleCount, items.length, stagger]);
 
   return (
-    <div ref={ref} className={`space-y-3 ${className}`}>
+    <div className={`space-y-3 ${className}`}>
       {items.map((child, i) => (
         <div
           key={i}
           className="transition-all duration-500 ease-out"
           style={{
-            opacity: visible ? 1 : 0,
-            transform: visible ? 'translateY(0)' : 'translateY(16px)',
-            transitionDelay: `${i * stagger}ms`,
+            opacity: i < visibleCount ? 1 : 0,
+            transform: i < visibleCount ? 'translateY(0)' : 'translateY(14px)',
           }}
         >
           {child}
