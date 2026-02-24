@@ -142,7 +142,7 @@ const Ehrenerklaerung = () => {
                 <FormItem>
                   <FormLabel className="text-sm font-normal" style={{ color: '#4a6b7a' }}>Vorname</FormLabel>
                   <FormControl>
-                    <Input {...field} className="bg-white border-0 border-b-2 rounded-none shadow-none focus-visible:ring-0 focus-visible:border-[#4a8b9a]" style={{ borderColor: '#c0d0d8' }} />
+                    <Input {...field} className="bg-white border-0 border-b-2 rounded-none shadow-none focus-visible:ring-0 focus-visible:border-[#4a8b9a]" style={{ borderColor: '#c0d0d8', color: '#1a2a3a' }} />
                   </FormControl>
                 </FormItem>
               )} />
@@ -150,7 +150,7 @@ const Ehrenerklaerung = () => {
                 <FormItem>
                   <FormLabel className="text-sm font-normal" style={{ color: '#4a6b7a' }}>Nachname</FormLabel>
                   <FormControl>
-                    <Input {...field} className="bg-white border-0 border-b-2 rounded-none shadow-none focus-visible:ring-0 focus-visible:border-[#4a8b9a]" style={{ borderColor: '#c0d0d8' }} />
+                    <Input {...field} className="bg-white border-0 border-b-2 rounded-none shadow-none focus-visible:ring-0 focus-visible:border-[#4a8b9a]" style={{ borderColor: '#c0d0d8', color: '#1a2a3a' }} />
                   </FormControl>
                 </FormItem>
               )} />
@@ -162,7 +162,7 @@ const Ehrenerklaerung = () => {
                 <FormItem>
                   <FormLabel className="text-sm font-normal" style={{ color: '#4a6b7a' }}>E-Mail-Adresse *</FormLabel>
                   <FormControl>
-                    <Input type="email" {...field} className="bg-white border-0 border-b-2 rounded-none shadow-none focus-visible:ring-0 focus-visible:border-[#4a8b9a]" style={{ borderColor: '#c0d0d8' }} />
+                    <Input type="email" {...field} className="bg-white border-0 border-b-2 rounded-none shadow-none focus-visible:ring-0 focus-visible:border-[#4a8b9a]" style={{ borderColor: '#c0d0d8', color: '#1a2a3a' }} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -248,7 +248,7 @@ const Ehrenerklaerung = () => {
                   Falls eine Frage mit Ja beantwortet wurde, bitte erläutern:
                 </FormLabel>
                 <FormControl>
-                  <Textarea {...field} rows={4} className="bg-white border rounded-lg shadow-none focus-visible:ring-0 resize-none" style={{ borderColor: '#c0d0d8' }} />
+                  <Textarea {...field} rows={4} className="bg-white border rounded-lg shadow-none focus-visible:ring-0 resize-none" style={{ borderColor: '#c0d0d8', color: '#1a2a3a' }} />
                 </FormControl>
               </FormItem>
             )} />
@@ -258,7 +258,7 @@ const Ehrenerklaerung = () => {
               <FormItem>
                 <FormLabel className="text-sm font-normal" style={{ color: '#4a6b7a' }}>Initialen *</FormLabel>
                 <FormControl>
-                  <Input {...field} className="bg-white border rounded-lg shadow-none focus-visible:ring-0" style={{ borderColor: '#c0d0d8' }} />
+                  <Input {...field} className="bg-white border rounded-lg shadow-none focus-visible:ring-0" style={{ borderColor: '#c0d0d8', color: '#1a2a3a' }} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
