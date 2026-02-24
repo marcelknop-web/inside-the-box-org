@@ -11,7 +11,7 @@ interface StaggerRevealProps {
   resetKey?: string | number;
 }
 
-export const StaggerReveal = ({ children, className = '', stagger = 180, startDelay = 0, resetKey }: StaggerRevealProps) => {
+export const StaggerReveal = ({ children, className = '', stagger = 600, startDelay = 0, resetKey }: StaggerRevealProps) => {
   const items = Children.toArray(children);
   const [visibleCount, setVisibleCount] = useState(0);
   const [started, setStarted] = useState(startDelay <= 0);

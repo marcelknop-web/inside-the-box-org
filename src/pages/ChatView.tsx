@@ -429,7 +429,7 @@ const useServiceContent = () => {
             })()}
           </p>
         </Block>
-        <StaggerReveal stagger={400} startDelay={3200}>
+        <StaggerReveal stagger={600} startDelay={3200}>
           <Block className="bg-primary/10 border-2 border-primary/30 rounded-xl">
             <p className="text-foreground mb-3" dangerouslySetInnerHTML={{
               __html: t('index.card1').replace(/<span>/g, '<span class="text-primary font-semibold">')
