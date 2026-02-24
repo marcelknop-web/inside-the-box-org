@@ -105,7 +105,7 @@ const MatrixStart = () => {
       </div>
 
       {/* Corner decorations */}
-      <div className="absolute top-4 left-4 font-mono text-xs z-20" style={{ color: '#ff1a1a', textShadow: '0 0 8px rgba(255,26,26,0.6)' }}>
+      <div className="absolute top-4 left-1/2 -translate-x-1/2 md:left-4 md:translate-x-0 font-mono text-xs z-20" style={{ color: '#ff1a1a', textShadow: '0 0 8px rgba(255,26,26,0.6)' }}>
         CLIENT://{clientIp}
       </div>
       <div className="absolute top-4 right-4 font-mono text-xs z-20 hidden md:block" style={{ color: '#ff1a1a', textShadow: '0 0 8px rgba(255,26,26,0.6)' }}>
@@ -114,7 +114,7 @@ const MatrixStart = () => {
       <div className="absolute bottom-4 left-4 font-mono text-xs z-20 hidden md:block" style={{ textShadow: '0 0 8px rgba(255,26,26,0.6)' }}>
         <a href="mailto:marcel@inside-the-box.org" className="text-[#ff1a1a] hover:text-[#f5c542] transition-colors duration-300">marcel@inside-the-box.org</a>
       </div>
-      <div className="absolute bottom-4 right-4 font-mono text-xs z-20" style={{ textShadow: '0 0 8px rgba(255,26,26,0.6)' }}>
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 md:left-auto md:translate-x-0 md:right-4 font-mono text-xs z-20" style={{ textShadow: '0 0 8px rgba(255,26,26,0.6)' }}>
         <a href="/" className="text-[#ff1a1a] hover:text-[#f5c542] transition-colors duration-300">inside-the-box.org</a>
       </div>
 
