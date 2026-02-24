@@ -27,16 +27,18 @@ const TypedSection = ({
 }: TypedSectionProps) => {
   const [titleDone, setTitleDone] = useState(false);
 
-  // Reset when title changes (e.g. navigating between pages)
+  // Reset when section identity changes (navigation or reveal mode changes)
   useEffect(() => {
     setTitleDone(false);
-  }, [title]);
+  }, [title, mode, charDelay]);
+
+  const sectionKey = `${title}-${mode}-${charDelay}`;
 
   return (
     <div className="space-y-3">
       <div className="rounded-2xl px-5 py-4 text-sm md:text-base font-sans leading-relaxed tracking-wide text-foreground">
         <h2 className="text-primary text-lg font-bold font-mono mb-3">
-          <Typewriter text={title} mode={mode} charDelay={charDelay} onDone={() => setTitleDone(true)} />
+          <Typewriter key={sectionKey} text={title} mode={mode} charDelay={charDelay} onDone={() => setTitleDone(true)} />
         </h2>
         {intro && (
           <div
@@ -50,7 +52,7 @@ const TypedSection = ({
           </div>
         )}
       </div>
-      <StaggerReveal stagger={stagger} startDelay={titleDone ? 500 : 999999}>
+      <StaggerReveal resetKey={sectionKey} stagger={stagger} startDelay={titleDone ? 500 : 999999}>
         {children}
       </StaggerReveal>
     </div>
