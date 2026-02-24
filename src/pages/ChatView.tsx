@@ -923,13 +923,29 @@ const ChatView = () => {
                 <GeometricSymbol size="sm" className="w-16 h-16 opacity-60 group-hover/welcome:opacity-100 transition-electric" hoverCyan />
               </button>
               <button onClick={() => setSidebarOpen(true)} className="cursor-pointer bg-transparent border-none p-0 transition-electric">
-                <h1 className="text-xl md:text-2xl font-mono font-bold text-accent hover:text-highlight mb-2 text-center transition-electric">{t('welcome.title')}</h1>
+                <h1 className="text-xl md:text-2xl font-mono font-bold text-accent hover:text-highlight mb-2 text-center transition-electric">
+                  <Typewriter text={t('welcome.title')} charDelay={60} />
+                </h1>
               </button>
-              <button onClick={() => setSidebarOpen(true)} className="cursor-pointer bg-transparent border-none p-0 transition-electric">
-                <p className="text-sm text-foreground hover:text-highlight font-mono text-center max-w-md px-2 transition-electric"
-                  dangerouslySetInnerHTML={{ __html: t('welcome.intro') }}
-                />
-              </button>
+              <div
+                className="transition-all duration-700 ease-out"
+                style={{
+                  opacity: 0,
+                  transform: 'translateY(10px)',
+                  animation: 'fade-slide-in 700ms ease-out 2.2s forwards',
+                }}
+              >
+                <button onClick={() => setSidebarOpen(true)} className="cursor-pointer bg-transparent border-none p-0 transition-electric">
+                  <p className="text-sm text-foreground hover:text-highlight font-mono text-center max-w-md px-2 transition-electric"
+                    dangerouslySetInnerHTML={{ __html: t('welcome.intro') }}
+                  />
+                </button>
+              </div>
+              <style>{`
+                @keyframes fade-slide-in {
+                  to { opacity: 1; transform: translateY(0); }
+                }
+              `}</style>
             </div>
           ) : (
             <div className="w-full px-3 md:px-6 lg:px-10 py-4 md:py-6 space-y-4">
