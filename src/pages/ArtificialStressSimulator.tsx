@@ -308,7 +308,6 @@ const MatrixStart = () => {
         <h1
           className="font-mono text-2xl md:text-4xl lg:text-5xl font-bold tracking-[0.3em] uppercase mb-4"
           style={{
-            color: '#ff1a1a',
             textShadow: '0 0 10px rgba(255,26,26,0.7), 0 0 40px rgba(255,26,26,0.3), 0 0 80px rgba(255,26,26,0.1)',
           }}
         >
@@ -364,8 +363,8 @@ const MatrixStart = () => {
       <div className="absolute bottom-4 left-4 font-mono text-xs z-20" style={{ textShadow: '0 0 8px rgba(255,26,26,0.6)' }}>
         <a href="mailto:marcel@inside-the-box.org" className="text-[#ff1a1a] hover:text-[#f5c542] transition-colors duration-300">marcel@inside-the-box.org</a>
       </div>
-      <div className="absolute bottom-4 right-4 font-mono text-xs z-20" style={{ color: '#ff1a1a', textShadow: '0 0 8px rgba(255,26,26,0.6)' }}>
-        <a href="/" className="hover:text-[#f5c542] transition-colors duration-300" style={{ color: 'inherit' }}>inside-the-box.org</a>
+      <div className="absolute bottom-4 right-4 font-mono text-xs z-20" style={{ textShadow: '0 0 8px rgba(255,26,26,0.6)' }}>
+        <a href="/" className="text-[#ff1a1a] hover:text-[#f5c542] transition-colors duration-300">inside-the-box.org</a>
       </div>
 
       {/* Custom styles for matrix symbol override */}
