@@ -3,6 +3,7 @@ import { GeometricSymbol } from '@/components/GeometricSymbol';
 
 const MATRIX_CHARS = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン0123456789ABCDEFINSIDETHEBOX';
 
+// Alarm red color: #ff1a1a / rgb(255,26,26)
 const MatrixStart = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
@@ -11,7 +12,7 @@ const MatrixStart = () => {
   const [soundOn, setSoundOn] = useState(false);
   const [clientIp, setClientIp] = useState('...');
 
-  // Fetch client IP safely
+  // Fetch client IP on mount
   useEffect(() => {
     const controller = new AbortController();
     fetch('https://api.ipify.org?format=json', { signal: controller.signal })
@@ -21,13 +22,11 @@ const MatrixStart = () => {
     return () => controller.abort();
   }, []);
 
-  // Trigger a raindrop "plip" sound when a column resets
   const triggerRainDrop = useCallback((columnRatio: number) => {
     const ctx = audioCtxRef.current;
     const master = masterRef.current;
     if (!ctx || !master) return;
 
-    // Sparse sci-fi blips synced to column resets
     if (Math.random() > 0.2) return;
 
     const t = ctx.currentTime;
@@ -35,7 +34,6 @@ const MatrixStart = () => {
     const g = ctx.createGain();
     const pan = ctx.createStereoPanner();
 
-    // Descending sci-fi chirp
     osc.type = Math.random() > 0.5 ? 'sine' : 'square';
     const freq = 600 + columnRatio * 1200;
     osc.frequency.setValueAtTime(freq * 2, t);
@@ -74,7 +72,6 @@ const MatrixStart = () => {
       canvas.width = w;
       canvas.height = h;
       const colCount = Math.floor(w / fontSize);
-      // Preserve existing columns if count hasn't changed (iOS address bar resize)
       if (columns.length !== colCount) {
         columns = Array.from({ length: colCount }, () => Math.random() * h / fontSize);
       }
@@ -85,7 +82,6 @@ const MatrixStart = () => {
 
     let frameCount = 0;
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-    // Throttle more aggressively on mobile to prevent GPU exhaustion
     const frameSkip = isMobile ? 3 : 2;
 
     const draw = () => {
@@ -105,14 +101,14 @@ const MatrixStart = () => {
           const brightness = Math.random();
           if (!isMobile && brightness > 0.95) {
             ctx.fillStyle = '#ffffff';
-            ctx.shadowColor = '#00ff41';
+            ctx.shadowColor = '#ff1a1a';
             ctx.shadowBlur = 15;
           } else if (!isMobile && brightness > 0.7) {
-            ctx.fillStyle = '#00ff41';
-            ctx.shadowColor = '#00ff41';
+            ctx.fillStyle = '#ff1a1a';
+            ctx.shadowColor = '#ff1a1a';
             ctx.shadowBlur = 8;
           } else {
-            ctx.fillStyle = `rgba(0, 255, 65, ${0.3 + brightness * 0.5})`;
+            ctx.fillStyle = `rgba(255, 26, 26, ${0.3 + brightness * 0.5})`;
           }
 
           ctx.fillText(char, x, y);
@@ -139,7 +135,6 @@ const MatrixStart = () => {
     };
   }, [triggerRainDrop]);
 
-  // Rain sound synced to matrix activity
   const startSound = useCallback(() => {
     if (audioCtxRef.current) return;
 
@@ -152,17 +147,12 @@ const MatrixStart = () => {
     masterRef.current = master;
     master.connect(ctx.destination);
 
-    // === CLASSIC SCI-FI / UFO SOUND ===
-    // Theremin-style wobble + eerie harmonics + sub pulse
-
-    // Theremin lead — slow sweeping sine with vibrato
     const theremin = ctx.createOscillator();
     const thereminGain = ctx.createGain();
     const thereminVibrato = ctx.createOscillator();
     const thereminVibratoGain = ctx.createGain();
     theremin.type = 'sine';
     theremin.frequency.setValueAtTime(400, ctx.currentTime);
-    // Slow sweep up and down
     theremin.frequency.linearRampToValueAtTime(800, ctx.currentTime + 12);
     theremin.frequency.linearRampToValueAtTime(350, ctx.currentTime + 24);
     theremin.frequency.linearRampToValueAtTime(900, ctx.currentTime + 36);
@@ -179,7 +169,6 @@ const MatrixStart = () => {
     theremin.start();
     thereminVibrato.start();
 
-    // Eerie high-pitched whistle — classic UFO whine
     const whistle = ctx.createOscillator();
     const whistleGain = ctx.createGain();
     const whistleLfo = ctx.createOscillator();
@@ -201,7 +190,6 @@ const MatrixStart = () => {
     whistle.start();
     whistleLfo.start();
 
-    // Sub-bass pulsing hum — mothership engine
     const sub = ctx.createOscillator();
     const subGain = ctx.createGain();
     const subLfo = ctx.createOscillator();
@@ -220,7 +208,6 @@ const MatrixStart = () => {
     sub.start();
     subLfo.start();
 
-    // Metallic ring — detuned overtones
     [2.3, 3.7, 5.1].forEach((ratio, idx) => {
       const osc = ctx.createOscillator();
       const g = ctx.createGain();
@@ -291,7 +278,7 @@ const MatrixStart = () => {
           <div
             className="absolute inset-0 blur-xl"
             style={{
-              background: 'radial-gradient(circle, rgba(0,255,65,0.3) 0%, transparent 70%)',
+              background: 'radial-gradient(circle, rgba(255,26,26,0.3) 0%, transparent 70%)',
               transform: 'scale(2.5)',
             }}
           />
@@ -304,19 +291,19 @@ const MatrixStart = () => {
         <h1
           className="font-mono text-2xl md:text-4xl lg:text-5xl font-bold tracking-[0.3em] uppercase mb-4"
           style={{
-            color: '#00ff41',
-            textShadow: '0 0 10px rgba(0,255,65,0.7), 0 0 40px rgba(0,255,65,0.3), 0 0 80px rgba(0,255,65,0.1)',
+            color: '#ff1a1a',
+            textShadow: '0 0 10px rgba(255,26,26,0.7), 0 0 40px rgba(255,26,26,0.3), 0 0 80px rgba(255,26,26,0.1)',
           }}
         >
           inside-the-box
         </h1>
 
-        {/* Subtitle with typing effect */}
+        {/* Subtitle */}
         <p
           className="font-mono text-sm md:text-base tracking-[0.5em] uppercase text-center"
           style={{
-            color: 'rgba(0,255,65,0.6)',
-            textShadow: '0 0 10px rgba(0,255,65,0.3)',
+            color: 'rgba(255,26,26,0.6)',
+            textShadow: '0 0 10px rgba(255,26,26,0.3)',
           }}
         >
           Artificial Stress Simulator v1
@@ -326,8 +313,8 @@ const MatrixStart = () => {
         <div
           className="mt-8 h-px w-48 md:w-64"
           style={{
-            background: 'linear-gradient(90deg, transparent, #00ff41, transparent)',
-            boxShadow: '0 0 10px rgba(0,255,65,0.5)',
+            background: 'linear-gradient(90deg, transparent, #ff1a1a, transparent)',
+            boxShadow: '0 0 10px rgba(255,26,26,0.5)',
           }}
         />
 
@@ -336,13 +323,13 @@ const MatrixStart = () => {
           onClick={soundOn ? stopSound : startSound}
           className="mt-10 font-mono text-sm md:text-base tracking-widest uppercase px-8 py-3 border-2 rounded transition-all duration-500"
           style={{
-            color: soundOn ? '#00ff41' : '#00ff41',
-            borderColor: soundOn ? 'rgba(0,255,65,0.7)' : 'rgba(0,255,65,0.5)',
-            textShadow: '0 0 10px rgba(0,255,65,0.6), 0 0 30px rgba(0,255,65,0.3)',
-            background: soundOn ? 'rgba(0,255,65,0.1)' : 'rgba(0,255,65,0.03)',
+            color: '#ff1a1a',
+            borderColor: soundOn ? 'rgba(255,26,26,0.7)' : 'rgba(255,26,26,0.5)',
+            textShadow: '0 0 10px rgba(255,26,26,0.6), 0 0 30px rgba(255,26,26,0.3)',
+            background: soundOn ? 'rgba(255,26,26,0.1)' : 'rgba(255,26,26,0.03)',
             boxShadow: soundOn
-              ? '0 0 20px rgba(0,255,65,0.4), inset 0 0 20px rgba(0,255,65,0.1)'
-              : '0 0 15px rgba(0,255,65,0.2), inset 0 0 10px rgba(0,255,65,0.05)',
+              ? '0 0 20px rgba(255,26,26,0.4), inset 0 0 20px rgba(255,26,26,0.1)'
+              : '0 0 15px rgba(255,26,26,0.2), inset 0 0 10px rgba(255,26,26,0.05)',
             animation: soundOn ? 'none' : 'pulse-glow 2s ease-in-out infinite',
           }}
         >
@@ -351,34 +338,34 @@ const MatrixStart = () => {
       </div>
 
       {/* Corner decorations */}
-      <div className="absolute top-4 left-4 font-mono text-xs z-20" style={{ color: 'rgba(0,255,65,0.3)' }}>
+      <div className="absolute top-4 left-4 font-mono text-xs z-20" style={{ color: 'rgba(255,26,26,0.3)' }}>
         CLIENT://{clientIp}
       </div>
-      <div className="absolute top-4 right-4 font-mono text-xs z-20" style={{ color: 'rgba(0,255,65,0.3)' }}>
+      <div className="absolute top-4 right-4 font-mono text-xs z-20" style={{ color: 'rgba(255,26,26,0.3)' }}>
         {new Date().toISOString().replace('T', ' ').slice(0, 19)}
       </div>
-      <div className="absolute bottom-4 left-4 font-mono text-xs z-20" style={{ color: 'rgba(0,255,65,0.3)' }}>
+      <div className="absolute bottom-4 left-4 font-mono text-xs z-20" style={{ color: 'rgba(255,26,26,0.3)' }}>
         marcel@inside-the-box.org
       </div>
-      <div className="absolute bottom-4 right-4 font-mono text-xs z-20" style={{ color: 'rgba(0,255,65,0.3)' }}>
+      <div className="absolute bottom-4 right-4 font-mono text-xs z-20" style={{ color: 'rgba(255,26,26,0.3)' }}>
         inside-the-box.org
       </div>
 
       {/* Custom styles for matrix symbol override */}
       <style>{`
         .matrix-symbol div {
-          border-color: #00ff41 !important;
+          border-color: #ff1a1a !important;
         }
-        .matrix-symbol .bg-primary\\/10 {
-          background-color: rgba(0, 255, 65, 0.1) !important;
+        .matrix-symbol .bg-primary\\\\/10 {
+          background-color: rgba(255, 26, 26, 0.1) !important;
         }
         @keyframes hypnotic-glow {
           0%, 100% {
-            filter: drop-shadow(0 0 30px rgba(0,255,65,0.5)) drop-shadow(0 0 80px rgba(0,255,65,0.2));
+            filter: drop-shadow(0 0 30px rgba(255,26,26,0.5)) drop-shadow(0 0 80px rgba(255,26,26,0.2));
             opacity: 0.8;
           }
           50% {
-            filter: drop-shadow(0 0 60px rgba(0,255,65,0.8)) drop-shadow(0 0 120px rgba(0,255,65,0.3));
+            filter: drop-shadow(0 0 60px rgba(255,26,26,0.8)) drop-shadow(0 0 120px rgba(255,26,26,0.3));
             opacity: 1;
           }
         }
@@ -388,12 +375,12 @@ const MatrixStart = () => {
         }
         @keyframes pulse-glow {
           0%, 100% {
-            box-shadow: 0 0 15px rgba(0,255,65,0.2), inset 0 0 10px rgba(0,255,65,0.05);
-            border-color: rgba(0,255,65,0.5);
+            box-shadow: 0 0 15px rgba(255,26,26,0.2), inset 0 0 10px rgba(255,26,26,0.05);
+            border-color: rgba(255,26,26,0.5);
           }
           50% {
-            box-shadow: 0 0 25px rgba(0,255,65,0.5), inset 0 0 15px rgba(0,255,65,0.1);
-            border-color: rgba(0,255,65,0.8);
+            box-shadow: 0 0 25px rgba(255,26,26,0.5), inset 0 0 15px rgba(255,26,26,0.1);
+            border-color: rgba(255,26,26,0.8);
           }
         }
       `}</style>
