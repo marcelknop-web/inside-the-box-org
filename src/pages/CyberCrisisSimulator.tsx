@@ -241,7 +241,7 @@ const CyberCrisisSimulator = forwardRef<CrisisSimulatorHandle, CrisisSimulatorPr
       const assistantMsg: Message = { role: "assistant", content: reply, type };
       setMessages(prev => [...prev, assistantMsg]);
     } catch (e) {
-      const errMsg: Message = { role: "assistant", content: t('crisisSim.connectionError'), type: "sys" };
+      const errMsg: Message = { role: "assistant", content: t('crisisSim.connectionError'), type: "sim" };
       setMessages(prev => [...prev, errMsg]);
     } finally {
       setLoading(false);
@@ -261,7 +261,7 @@ const CyberCrisisSimulator = forwardRef<CrisisSimulatorHandle, CrisisSimulatorPr
       setMessages([{ role: "user", content: "START_SIMULATION", type: "sys" }, msg]);
       setTimerActive(true);
     } catch {
-      setMessages([{ role: "assistant", content: t('crisisSim.connectionFailed'), type: "sys" }]);
+      setMessages([{ role: "assistant", content: t('crisisSim.connectionFailed'), type: "sim" }]);
     } finally {
       setLoading(false);
     }
