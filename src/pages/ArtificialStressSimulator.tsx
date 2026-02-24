@@ -333,7 +333,7 @@ const MatrixStart = () => {
             animation: soundOn ? 'none' : 'pulse-glow 2s ease-in-out infinite',
           }}
         >
-          {soundOn ? '■ Stop' : '▶ Start Stress Simulator'}
+          {soundOn ? '■ Stop' : '▶ Start'}
         </button>
       </div>
 
