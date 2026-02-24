@@ -406,7 +406,7 @@ export const fr = {
   welcome: {
     title: 'Bienvenue chez inside-the-box',
     headerTitle: 'inside-the-box.org',
-    intro: 'Marcel Knop & Andreas Funder – Conseil et formation en cybersécurité.',
+    intro: 'Marcel Knop & Andreas Funder –<br/>Conseil et formation en cybersécurité.',
     chatPlaceholder: 'Posez-moi une question…',
   },
   crisisSim: {
