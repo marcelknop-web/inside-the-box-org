@@ -312,7 +312,7 @@ const MatrixStart = () => {
             textShadow: '0 0 10px rgba(255,26,26,0.7), 0 0 40px rgba(255,26,26,0.3), 0 0 80px rgba(255,26,26,0.1)',
           }}
         >
-          inside-the-box
+          <a href="/" className="hover:text-[#f5c542] transition-colors duration-300" style={{ color: 'inherit' }}>inside-the-box</a>
         </h1>
 
         {/* Subtitle */}
