@@ -393,7 +393,9 @@ const CyberCrisisSimulator = forwardRef<CrisisSimulatorHandle, CrisisSimulatorPr
     <div className={`flex-1 flex items-center justify-center ${embedded ? "py-5" : ""} overflow-y-auto`}>
       <div className="text-center max-w-[520px] px-4">
         <div className="flex justify-center mb-4">
-          <GeometricSymbol size="sm" className="w-12 h-12 md:w-16 md:h-16 opacity-70" />
+          <div className="opacity-70" style={{ transform: 'scale(2.5)', transformOrigin: 'center center', width: 24, height: 24, margin: '20px auto' }}>
+            <GeometricSymbol size="xs" />
+          </div>
         </div>
         <div className="text-muted-foreground text-xs uppercase tracking-[0.2em] mb-2">
           {t('crisisSim.ttxLabel')}
