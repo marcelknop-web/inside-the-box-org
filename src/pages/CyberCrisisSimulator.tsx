@@ -62,7 +62,7 @@ function renderMarkdown(text: string) {
   const flushTable = () => {
     if (tableRows.length > 0) {
       elements.push(
-        <table key={`t-${elements.length}`} className="w-full border-collapse my-2 font-mono text-xs md:text-sm">
+        <table key={`t-${elements.length}`} className="w-full border-collapse my-2 font-mono text-sm md:text-base">
           <tbody>
             {tableRows.map((row, ri) => (
               <tr key={ri} className="border-b border-border/50">
@@ -93,9 +93,9 @@ function renderMarkdown(text: string) {
     }
 
     if (line.startsWith("## ")) {
-      elements.push(<div key={i} className="text-primary uppercase tracking-widest font-bold text-sm md:text-base mt-4 mb-1.5 pb-1 border-b border-border/50 font-mono">{line.slice(3)}</div>);
+      elements.push(<div key={i} className="text-primary uppercase tracking-widest font-bold text-base md:text-lg mt-4 mb-1.5 pb-1 border-b border-border/50 font-mono">{line.slice(3)}</div>);
     } else if (line.startsWith("### ")) {
-      elements.push(<div key={i} className="text-highlight font-semibold text-sm mt-3 mb-1 font-mono">{line.slice(4)}</div>);
+      elements.push(<div key={i} className="text-highlight font-semibold text-base mt-3 mb-1 font-mono">{line.slice(4)}</div>);
     } else if (line === "---") {
       elements.push(<hr key={i} className="border-t border-border/50 my-2" />);
     } else if (line.trim() === "") {
@@ -103,7 +103,7 @@ function renderMarkdown(text: string) {
     } else {
       const parts = line.split(/(\*\*.*?\*\*)/g);
       elements.push(
-        <div key={i} className="leading-relaxed text-sm md:text-base">
+        <div key={i} className="leading-relaxed text-base md:text-lg">
           {parts.map((part, pi) => {
             if (part.startsWith("**") && part.endsWith("**")) {
               return <span key={pi} className="text-primary font-semibold">{part.slice(2, -2)}</span>;
@@ -397,10 +397,10 @@ const CyberCrisisSimulator = forwardRef<CrisisSimulatorHandle, CrisisSimulatorPr
         const isLatestAssistant = msg.role === "assistant" && i === visibleMsgs.length - 1 && !typewriterDone.has(i);
         return (
           <div key={i} className={`py-3 border-b border-border/30 ${style.borderClass || ""} ${msg.type === "inject" ? "bg-primary/5" : ""}`}>
-            <div className={`text-[10px] uppercase tracking-widest font-semibold mb-1 ${style.colorClass}`}>
+            <div className={`text-xs uppercase tracking-widest font-semibold mb-1.5 ${style.colorClass}`}>
               {style.label}
             </div>
-            <div className={`${msg.type === "user" ? "text-foreground" : "text-foreground/85"} text-sm md:text-base leading-relaxed`}>
+            <div className={`${msg.type === "user" ? "text-foreground" : "text-foreground/85"} text-base md:text-lg leading-relaxed`}>
               {msg.role === "assistant" && isLatestAssistant ? (
                 <TypewriterText
                   content={msg.content}
