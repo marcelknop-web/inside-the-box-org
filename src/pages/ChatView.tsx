@@ -245,7 +245,7 @@ const useServiceContent = () => {
 
   const contentMap: Record<string, () => ReactNode> = {
     isms: () => (
-      <TypedSection title={t('isms.title')} mode="typewriter" charDelay={30} intro={<p>{t('isms.intro')}</p>}>
+      <TypedSection title={t('isms.title')} mode="typewriter" charDelay={18} intro={<p>{t('isms.intro')}</p>}>
         <CardBlock icon={ShieldCheck} title={t('isms.iso27001Title')} desc={t('isms.iso27001Desc')} />
         <CardBlock icon={FileText} title={t('isms.bsiTitle')} desc={t('isms.bsiDesc')} />
         <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
@@ -260,7 +260,7 @@ const useServiceContent = () => {
       </TypedSection>
     ),
     'nis2-dora': () => (
-      <TypedSection title={t('nis2.title')} mode="typewriter" charDelay={30} intro={<p>{t('nis2.intro')}</p>}>
+      <TypedSection title={t('nis2.title')} mode="typewriter" charDelay={18} intro={<p>{t('nis2.intro')}</p>}>
         <CardBlock icon={Search} title={t('nis2.impactTitle')} desc={t('nis2.impactDesc')} />
         <CardBlock icon={AlertCircle} title={t('nis2.gapTitle')} desc={t('nis2.gapDesc')} />
         <CardBlock icon={ShieldCheck} title={t('nis2.measuresTitle')} desc={t('nis2.measuresDesc')} />
@@ -275,7 +275,7 @@ const useServiceContent = () => {
       </TypedSection>
     ),
     'tisax-pci-dss': () => (
-      <TypedSection title={t('tisax.title')} mode="typewriter" charDelay={30} intro={<p>{t('tisax.intro')}</p>}>
+      <TypedSection title={t('tisax.title')} mode="typewriter" charDelay={18} intro={<p>{t('tisax.intro')}</p>}>
         <CardBlock icon={Settings} title={t('tisax.implTitle')} desc={t('tisax.implDesc')} />
         <CardBlock icon={CheckCircle} title={t('tisax.reviewsTitle')} desc={t('tisax.reviewsDesc')} />
         <CardBlock icon={FileCheck} title={t('tisax.auditTitle')} desc={t('tisax.auditDesc')} />
@@ -289,7 +289,7 @@ const useServiceContent = () => {
       </TypedSection>
     ),
     'assessments-concepts': () => (
-      <TypedSection title={t('assessments.title')} mode="typewriter" charDelay={30} intro={<p>{t('assessments.intro')}</p>}>
+      <TypedSection title={t('assessments.title')} mode="typewriter" charDelay={18} intro={<p>{t('assessments.intro')}</p>}>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <CardBlock icon={Search} title={t('assessments.threatTitle')} desc={t('assessments.threatDesc')} />
           <CardBlock icon={ShieldCheck} title={t('assessments.controlsTitle')} desc={t('assessments.controlsDesc')} variant="highlight" />
@@ -300,7 +300,7 @@ const useServiceContent = () => {
       </TypedSection>
     ),
     'incident-management': () => (
-      <TypedSection title={t('incident.title')} mode="typewriter" charDelay={30} intro={<p>{t('incident.intro')}</p>}>
+      <TypedSection title={t('incident.title')} mode="typewriter" charDelay={18} intro={<p>{t('incident.intro')}</p>}>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <CardBlock icon={FileText} title={t('incident.planTitle')} desc={t('incident.planDesc')} />
           <CardBlock icon={Eye} title={t('incident.detectionTitle')} desc={t('incident.detectionDesc')} variant="highlight" />
@@ -311,7 +311,7 @@ const useServiceContent = () => {
       </TypedSection>
     ),
     'cyber-crisis-management': () => (
-      <TypedSection title={t('cyberCrisis.title')} mode="typewriter" charDelay={30} intro={<p>{t('cyberCrisis.intro')}</p>}>
+      <TypedSection title={t('cyberCrisis.title')} mode="typewriter" charDelay={18} intro={<p>{t('cyberCrisis.intro')}</p>}>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <CardBlock icon={ClipboardList} title={t('cyberCrisis.planTitle')} desc={t('cyberCrisis.planDesc')} />
           <CardBlock icon={Zap} title={t('cyberCrisis.scenarioTitle')} desc={t('cyberCrisis.scenarioDesc')} variant="highlight" />
@@ -338,7 +338,7 @@ const useServiceContent = () => {
       </TypedSection>
     ),
     'arena-training': () => (
-      <TypedSection title={t('arena.title')} mode="typewriter" charDelay={30} intro={<p>{t('arena.intro')}</p>}>
+      <TypedSection title={t('arena.title')} mode="typewriter" charDelay={18} intro={<p>{t('arena.intro')}</p>}>
         <CardBlock icon={Target} title={t('arena.arenaTitle')} desc={t('arena.arenaDesc')} />
         <CardBlock icon={Flag} title={t('arena.tiberTitle')} desc={t('arena.tiberDesc')} />
         <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
@@ -353,7 +353,7 @@ const useServiceContent = () => {
       </TypedSection>
     ),
     'events-workshops': () => (
-      <TypedSection title={t('events.title')} mode="typewriter" charDelay={30} intro={<p>{t('events.intro')}</p>}>
+      <TypedSection title={t('events.title')} mode="typewriter" charDelay={18} intro={<p>{t('events.intro')}</p>}>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <img src="/lovable-uploads/fc4cff06-0e9d-41c4-bac3-73a041a924b3.png" alt="Presentation" className="rounded-xl w-full h-40 md:h-48 object-cover border border-border" />
           <img src="/lovable-uploads/f463db5a-733d-4e4e-b151-d3e33ebe8997.png" alt="Training" className="rounded-xl w-full h-40 md:h-48 object-cover border border-border" />
@@ -373,7 +373,7 @@ const useServiceContent = () => {
       </TypedSection>
     ),
     publications: () => (
-      <TypedSection title={t('publications.title')} mode="typewriter" charDelay={30} intro={<p>{t('publications.intro')}</p>}>
+      <TypedSection title={t('publications.title')} mode="typewriter" charDelay={18} intro={<p>{t('publications.intro')}</p>}>
         <CardBlock icon={Shield} title={t('publications.pub1Title')} desc={t('publications.pub1Desc')} link="https://www.heise.de/select/ix/2021/10/2019809530193925811" linkLabel={t('publications.readOnHeise')} />
         <CardBlock icon={Radio} title={t('publications.pub2Title')} desc={t('publications.pub2Desc')} link="https://www.heise.de/select/ix/archiv/2015/7/seite-78" linkLabel={t('publications.readOnHeise')} />
         <CardBlock icon={Video} title={t('publications.pub3Title')} desc={t('publications.pub3Desc')} link="https://vimeo.com/295582173" linkLabel={t('publications.watchOnVimeo')} />
@@ -388,7 +388,7 @@ const useServiceContent = () => {
       </TypedSection>
     ),
     'virtual-ciso': () => (
-      <TypedSection title={t('vciso.title')} mode="typewriter" charDelay={30} intro={<p>{t('vciso.intro')}</p>}>
+      <TypedSection title={t('vciso.title')} mode="typewriter" charDelay={18} intro={<p>{t('vciso.intro')}</p>}>
         <CardBlock icon={Crown} title={t('vciso.stratTitle')} desc={t('vciso.stratDesc')} />
         <CardBlock icon={Settings} title={t('vciso.opsTitle')} desc={t('vciso.opsDesc')} />
         <CardBlock icon={CheckSquare} title={t('vciso.compTitle')} desc={t('vciso.compDesc')} />
@@ -404,7 +404,7 @@ const useServiceContent = () => {
       </TypedSection>
     ),
     'ai-workflows': () => (
-      <TypedSection title={t('aiWorkflows.title')} mode="typewriter" charDelay={30} intro={<p>{t('aiWorkflows.intro')}</p>}>
+      <TypedSection title={t('aiWorkflows.title')} mode="typewriter" charDelay={18} intro={<p>{t('aiWorkflows.intro')}</p>}>
         <CardBlock icon={Zap} title={t('aiWorkflows.irTitle')} desc={t('aiWorkflows.irDesc')} bullets={[t('aiWorkflows.irBullet1'), t('aiWorkflows.irBullet2'), t('aiWorkflows.irBullet3')]} result={t('aiWorkflows.irResult')} />
         <CardBlock icon={FileText} title={t('aiWorkflows.policyTitle')} desc={t('aiWorkflows.policyDesc')} bullets={[t('aiWorkflows.policyBullet1'), t('aiWorkflows.policyBullet2'), t('aiWorkflows.policyBullet3')]} result={t('aiWorkflows.policyResult')} />
         <CardBlock icon={Search} title={t('aiWorkflows.auditTitle')} desc={t('aiWorkflows.auditDesc')} bullets={[t('aiWorkflows.auditBullet1'), t('aiWorkflows.auditBullet2'), t('aiWorkflows.auditBullet3')]} result={t('aiWorkflows.auditResult')} />
@@ -417,15 +417,15 @@ const useServiceContent = () => {
     why: () => (
       <div className="space-y-3">
         <Block>
-          <SectionTitle><Typewriter text={t('index.title')} charDelay={80} /></SectionTitle>
+          <SectionTitle><Typewriter text={t('index.title')} charDelay={18} /></SectionTitle>
           <p className="text-lg font-semibold mb-2">
             {(() => {
               const subtitle = t('index.subtitle');
               const match = subtitle.match(/(.*?)(Unerwartete|unexpected|l'inattendu|inattendu)(.*)/i);
               if (match) {
-                return <><Typewriter text={match[1]} delay={1400} charDelay={50} cursor={false} /><GlitchText>{match[2]}</GlitchText><Typewriter text={match[3]} delay={2200} charDelay={50} /></>;
+                return <><Typewriter text={match[1]} delay={1400} charDelay={18} cursor={false} /><GlitchText>{match[2]}</GlitchText><Typewriter text={match[3]} delay={2200} charDelay={18} /></>;
               }
-              return <Typewriter text={subtitle} delay={1400} charDelay={50} />;
+              return <Typewriter text={subtitle} delay={1400} charDelay={18} />;
             })()}
           </p>
         </Block>
@@ -457,7 +457,7 @@ const useServiceContent = () => {
       </div>
     ),
     training: () => (
-      <TypedSection title={t('training.title')} mode="typewriter" charDelay={30} intro={<p>{t('training.subtitle')}</p>}>
+      <TypedSection title={t('training.title')} mode="typewriter" charDelay={18} intro={<p>{t('training.subtitle')}</p>}>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <CardBlock icon={Server} title={t('training.hostForensics')} desc={t('training.hostForensicsDesc')} />
           <CardBlock icon={Bug} title={t('training.malwareAnalysis')} desc={t('training.malwareAnalysisDesc')} />
@@ -478,7 +478,7 @@ const useServiceContent = () => {
       </TypedSection>
     ),
     consulting: () => (
-      <TypedSection title={t('consulting.title')} mode="typewriter" charDelay={30} intro={<p>{t('consulting.intro')}</p>}>
+      <TypedSection title={t('consulting.title')} mode="typewriter" charDelay={18} intro={<p>{t('consulting.intro')}</p>}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
           {[
             { icon: ShieldCheck, title: t('consulting.ismsTitle'), desc: t('consulting.ismsDesc'), id: 'isms' },
@@ -526,7 +526,7 @@ const useServiceContent = () => {
         return profile;
       });
       return (
-        <TypedSection title={t('byWhom.title')} mode="typewriter" charDelay={30} intro={<p>{t('byWhom.intro')}</p>}>
+        <TypedSection title={t('byWhom.title')} mode="typewriter" charDelay={18} intro={<p>{t('byWhom.intro')}</p>}>
           {profiles.map(p => (
             <Block key={p.name} className="bg-secondary/30">
               <div className="flex items-start gap-4 mb-4">
@@ -557,7 +557,7 @@ const useServiceContent = () => {
       );
     },
     contact: () => (
-      <TypedSection title={t('contact.title')} mode="typewriter" charDelay={30} intro={<p>{t('contact.intro')}</p>}>
+      <TypedSection title={t('contact.title')} mode="typewriter" charDelay={18} intro={<p>{t('contact.intro')}</p>}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
           <div className="rounded-xl p-4 bg-primary/5 border border-primary/20">
             <div className="flex items-center gap-2 mb-2">
@@ -577,7 +577,7 @@ const useServiceContent = () => {
       </TypedSection>
     ),
     imprint: () => (
-      <TypedSection title={t('imprint.title')} mode="typewriter" charDelay={30}>
+      <TypedSection title={t('imprint.title')} mode="typewriter" charDelay={18}>
         <Block className="bg-secondary/30">
           <p className="text-foreground text-sm font-sans leading-relaxed">
             <span className="text-primary font-semibold">{t('imprint.responsible')}</span><br />
@@ -615,7 +615,7 @@ const useServiceContent = () => {
         ? ['RDP : 7000–7020/TCP sortant', 'HTTPS : 443/TCP sortant', 'Aucune connexion entrante requise', 'Tester la connectivité au préalable']
         : ['RDP: 7000–7020/TCP outbound', 'HTTPS: 443/TCP outbound', 'No inbound connections required', 'Test connectivity beforehand'];
       return (
-        <TypedSection title={t('techReq.title')} mode="typewriter" charDelay={30} intro={<p>{t('techReq.intro')}</p>}>
+        <TypedSection title={t('techReq.title')} mode="typewriter" charDelay={18} intro={<p>{t('techReq.intro')}</p>}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             <div className="rounded-xl p-4 bg-primary/5 border border-primary/20">
               <div className="flex items-center gap-2 mb-2">
