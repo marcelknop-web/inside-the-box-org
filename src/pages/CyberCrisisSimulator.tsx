@@ -18,22 +18,30 @@ interface InjectState {
 }
 
 // ─── TYPEWRITER COMPONENT ────────────────────────────────────────
-const TypewriterText = ({ content, onDone, renderFn }: { content: string; onDone: () => void; renderFn: (text: string) => React.ReactNode[] }) => {
+const TypewriterText = ({ content, onDone, renderFn, onTick }: { content: string; onDone: () => void; renderFn: (text: string) => React.ReactNode[]; onTick?: () => void }) => {
   const [displayed, setDisplayed] = useState("");
   const indexRef = useRef(0);
+  const tickCountRef = useRef(0);
 
   useEffect(() => {
     indexRef.current = 0;
+    tickCountRef.current = 0;
     setDisplayed("");
     const interval = setInterval(() => {
       indexRef.current += 1;
+      tickCountRef.current += 1;
       const next = content.slice(0, indexRef.current);
       setDisplayed(next);
+      // Auto-scroll every ~40 chars (roughly every new line)
+      if (tickCountRef.current % 40 === 0) {
+        onTick?.();
+      }
       if (indexRef.current >= content.length) {
         clearInterval(interval);
+        onTick?.();
         onDone();
       }
-    }, 8); // fast but visible
+    }, 8);
     return () => clearInterval(interval);
   }, [content]);
 
@@ -406,6 +414,7 @@ const CyberCrisisSimulator = forwardRef<CrisisSimulatorHandle, CrisisSimulatorPr
                   content={msg.content}
                   onDone={() => setTypewriterDone(prev => new Set(prev).add(i))}
                   renderFn={renderMarkdown}
+                  onTick={() => chatEndRef.current?.scrollIntoView({ behavior: "smooth" })}
                 />
               ) : (
                 msg.role === "assistant" ? renderMarkdown(msg.content) : msg.content
