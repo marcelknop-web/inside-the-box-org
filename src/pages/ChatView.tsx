@@ -7,6 +7,7 @@ import { consultantProfiles } from '@/data/consultantProfiles';
 import { GeometricSymbol } from '@/components/GeometricSymbol';
 import { LucideIcon } from 'lucide-react';
 import CyberCrisisSimulator, { type CrisisSimulatorHandle } from './CyberCrisisSimulator';
+import { StaggerReveal } from '@/components/StaggerReveal';
 
 interface NavLink { url: string; label: string; }
 interface AiResponse { message: string; links: NavLink[]; }
@@ -241,7 +242,7 @@ const useServiceContent = () => {
 
   const contentMap: Record<string, () => ReactNode> = {
     isms: () => (
-      <div className="space-y-3">
+      <StaggerReveal>
         <Block><SectionTitle>{t('isms.title')}</SectionTitle><p>{t('isms.intro')}</p></Block>
         <CardBlock icon={ShieldCheck} title={t('isms.iso27001Title')} desc={t('isms.iso27001Desc')} />
         <CardBlock icon={FileText} title={t('isms.bsiTitle')} desc={t('isms.bsiDesc')} />
@@ -254,10 +255,10 @@ const useServiceContent = () => {
             <GridItem icon={RotateCcw} title={t('isms.maintenanceTitle')} desc={t('isms.maintenanceDesc')} variant="highlight" />
           </div>
         </Block>
-      </div>
+      </StaggerReveal>
     ),
     'nis2-dora': () => (
-      <div className="space-y-3">
+      <StaggerReveal>
         <Block><SectionTitle>{t('nis2.title')}</SectionTitle><p>{t('nis2.intro')}</p></Block>
         <CardBlock icon={Search} title={t('nis2.impactTitle')} desc={t('nis2.impactDesc')} />
         <CardBlock icon={AlertCircle} title={t('nis2.gapTitle')} desc={t('nis2.gapDesc')} />
@@ -270,10 +271,10 @@ const useServiceContent = () => {
             <GridItem icon={Plane} title={t('nis2.partisName')} desc={t('nis2.partisDesc')} variant="highlight" />
           </div>
         </Block>
-      </div>
+      </StaggerReveal>
     ),
     'tisax-pci-dss': () => (
-      <div className="space-y-3">
+      <StaggerReveal>
         <Block><SectionTitle>{t('tisax.title')}</SectionTitle><p>{t('tisax.intro')}</p></Block>
         <CardBlock icon={Settings} title={t('tisax.implTitle')} desc={t('tisax.implDesc')} />
         <CardBlock icon={CheckCircle} title={t('tisax.reviewsTitle')} desc={t('tisax.reviewsDesc')} />
@@ -285,10 +286,10 @@ const useServiceContent = () => {
             <GridItem icon={CreditCard} title={t('tisax.pciName')} desc={t('tisax.pciDesc')} variant="highlight" />
           </div>
         </Block>
-      </div>
+      </StaggerReveal>
     ),
     'assessments-concepts': () => (
-      <div className="space-y-3">
+      <StaggerReveal>
         <Block><SectionTitle>{t('assessments.title')}</SectionTitle><p>{t('assessments.intro')}</p></Block>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <CardBlock icon={Search} title={t('assessments.threatTitle')} desc={t('assessments.threatDesc')} />
@@ -297,10 +298,10 @@ const useServiceContent = () => {
           <CardBlock icon={Calendar} title={t('assessments.planningTitle')} desc={t('assessments.planningDesc')} variant="highlight" />
           <CardBlock icon={BarChart} title={t('assessments.measureTitle')} desc={t('assessments.measureDesc')} />
         </div>
-      </div>
+      </StaggerReveal>
     ),
     'incident-management': () => (
-      <div className="space-y-3">
+      <StaggerReveal>
         <Block><SectionTitle>{t('incident.title')}</SectionTitle><p>{t('incident.intro')}</p></Block>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <CardBlock icon={FileText} title={t('incident.planTitle')} desc={t('incident.planDesc')} />
@@ -309,10 +310,10 @@ const useServiceContent = () => {
           <CardBlock icon={RefreshCw} title={t('incident.recoveryTitle')} desc={t('incident.recoveryDesc')} variant="highlight" />
           <CardBlock icon={GraduationCap} title={t('incident.simTitle')} desc={t('incident.simDesc')} />
         </div>
-      </div>
+      </StaggerReveal>
     ),
     'cyber-crisis-management': () => (
-      <div className="space-y-3">
+      <StaggerReveal>
         <Block><SectionTitle>{t('cyberCrisis.title')}</SectionTitle><p>{t('cyberCrisis.intro')}</p></Block>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <CardBlock icon={ClipboardList} title={t('cyberCrisis.planTitle')} desc={t('cyberCrisis.planDesc')} />
@@ -337,10 +338,10 @@ const useServiceContent = () => {
             <GridItem icon={Lightbulb} title={t('cyberCrisis.leadership')} desc={t('cyberCrisis.leadershipDesc')} variant="highlight" />
           </div>
         </Block>
-      </div>
+      </StaggerReveal>
     ),
     'arena-training': () => (
-      <div className="space-y-3">
+      <StaggerReveal>
         <Block><SectionTitle>{t('arena.title')}</SectionTitle><p>{t('arena.intro')}</p></Block>
         <CardBlock icon={Target} title={t('arena.arenaTitle')} desc={t('arena.arenaDesc')} />
         <CardBlock icon={Flag} title={t('arena.tiberTitle')} desc={t('arena.tiberDesc')} />
@@ -353,10 +354,10 @@ const useServiceContent = () => {
             <GridItem icon={CheckSquare} title={t('arena.regulatoryTitle')} desc={t('arena.regulatoryDesc')} variant="highlight" />
           </div>
         </Block>
-      </div>
+      </StaggerReveal>
     ),
     'events-workshops': () => (
-      <div className="space-y-3">
+      <StaggerReveal>
         <Block><SectionTitle>{t('events.title')}</SectionTitle><p>{t('events.intro')}</p></Block>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <img src="/lovable-uploads/fc4cff06-0e9d-41c4-bac3-73a041a924b3.png" alt="Presentation" className="rounded-xl w-full h-40 md:h-48 object-cover border border-border" />
@@ -374,10 +375,10 @@ const useServiceContent = () => {
             <GridItem icon={GraduationCap} title={t('events.seminars')} desc={t('events.seminarsDesc')} variant="highlight" />
           </div>
         </Block>
-      </div>
+      </StaggerReveal>
     ),
     publications: () => (
-      <div className="space-y-3">
+      <StaggerReveal>
         <Block><SectionTitle>{t('publications.title')}</SectionTitle><p>{t('publications.intro')}</p></Block>
         <CardBlock icon={Shield} title={t('publications.pub1Title')} desc={t('publications.pub1Desc')} link="https://www.heise.de/select/ix/2021/10/2019809530193925811" linkLabel={t('publications.readOnHeise')} />
         <CardBlock icon={Radio} title={t('publications.pub2Title')} desc={t('publications.pub2Desc')} link="https://www.heise.de/select/ix/archiv/2015/7/seite-78" linkLabel={t('publications.readOnHeise')} />
@@ -390,10 +391,10 @@ const useServiceContent = () => {
             <GridItem icon={BookOpen} title={t('publications.eduTitle')} desc={t('publications.eduDesc')} variant="highlight" />
           </div>
         </Block>
-      </div>
+      </StaggerReveal>
     ),
     'virtual-ciso': () => (
-      <div className="space-y-3">
+      <StaggerReveal>
         <Block><SectionTitle>{t('vciso.title')}</SectionTitle><p>{t('vciso.intro')}</p></Block>
         <CardBlock icon={Crown} title={t('vciso.stratTitle')} desc={t('vciso.stratDesc')} />
         <CardBlock icon={Settings} title={t('vciso.opsTitle')} desc={t('vciso.opsDesc')} />
@@ -407,10 +408,10 @@ const useServiceContent = () => {
             <GridItem icon={Award} title={t('vciso.experienced')} desc={t('vciso.experiencedDesc')} variant="highlight" />
           </div>
         </Block>
-      </div>
+      </StaggerReveal>
     ),
     'ai-workflows': () => (
-      <div className="space-y-3">
+      <StaggerReveal>
         <Block><SectionTitle>{t('aiWorkflows.title')}</SectionTitle><p>{t('aiWorkflows.intro')}</p></Block>
         <CardBlock icon={Zap} title={t('aiWorkflows.irTitle')} desc={t('aiWorkflows.irDesc')} bullets={[t('aiWorkflows.irBullet1'), t('aiWorkflows.irBullet2'), t('aiWorkflows.irBullet3')]} result={t('aiWorkflows.irResult')} />
         <CardBlock icon={FileText} title={t('aiWorkflows.policyTitle')} desc={t('aiWorkflows.policyDesc')} bullets={[t('aiWorkflows.policyBullet1'), t('aiWorkflows.policyBullet2'), t('aiWorkflows.policyBullet3')]} result={t('aiWorkflows.policyResult')} />
@@ -420,10 +421,10 @@ const useServiceContent = () => {
           <SubTitle variant="highlight">{t('aiWorkflows.ctaTitle')}</SubTitle>
           <p className="text-foreground whitespace-pre-line">{t('aiWorkflows.ctaDesc')}</p>
         </Block>
-      </div>
+      </StaggerReveal>
     ),
     why: () => (
-      <div className="space-y-3">
+      <StaggerReveal>
         <Block>
           <SectionTitle>{t('index.title')}</SectionTitle>
           <p className="text-lg font-semibold mb-2">{t('index.subtitle')}</p>
@@ -451,10 +452,10 @@ const useServiceContent = () => {
           <StatBlock value="350+" label={t('index.peopleTrained')} />
           <StatBlock value="6" label={t('index.countriesCovered')} />
         </div>
-      </div>
+      </StaggerReveal>
     ),
     training: () => (
-      <div className="space-y-3">
+      <StaggerReveal>
         <Block>
           <SectionTitle>{t('training.title')}</SectionTitle>
           <p>{t('training.subtitle')}</p>
@@ -476,10 +477,10 @@ const useServiceContent = () => {
             <GridItem icon={Zap} title={t('training.liveCyberAttacks')} desc={t('training.liveCyberAttacksDesc')} variant="highlight" />
           </div>
         </Block>
-      </div>
+      </StaggerReveal>
     ),
     consulting: () => (
-      <div className="space-y-3">
+      <StaggerReveal>
         <Block>
           <SectionTitle>{t('consulting.title')}</SectionTitle>
           <p>{t('consulting.intro')}</p>
@@ -512,7 +513,7 @@ const useServiceContent = () => {
           <StatBlock value="20+" label={t('consulting.industrySectors')} />
           <StatBlock value="35+" label={t('consulting.yearsCombined')} />
         </div>
-      </div>
+      </StaggerReveal>
     ),
     'by-whom': () => {
       const profiles = consultantProfiles.map((profile) => {
@@ -531,7 +532,7 @@ const useServiceContent = () => {
         return profile;
       });
       return (
-        <div className="space-y-3">
+        <StaggerReveal>
           <Block><SectionTitle>{t('byWhom.title')}</SectionTitle><p>{t('byWhom.intro')}</p></Block>
           {profiles.map(p => (
             <Block key={p.name} className="bg-secondary/30">
@@ -559,11 +560,11 @@ const useServiceContent = () => {
               </div>
             </Block>
           ))}
-        </div>
+        </StaggerReveal>
       );
     },
     contact: () => (
-      <div className="space-y-3">
+      <StaggerReveal>
         <Block><SectionTitle>{t('contact.title')}</SectionTitle><p>{t('contact.intro')}</p></Block>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
           <div className="rounded-xl p-4 bg-primary/5 border border-primary/20">
@@ -581,10 +582,10 @@ const useServiceContent = () => {
             <a href="mailto:marcel@inside-the-box.org" className="text-foreground text-sm font-sans hover:text-highlight transition-electric">marcel@inside-the-box.org</a>
           </div>
         </div>
-      </div>
+      </StaggerReveal>
     ),
     imprint: () => (
-      <div className="space-y-3">
+      <StaggerReveal>
         <Block><SectionTitle>{t('imprint.title')}</SectionTitle></Block>
         <Block className="bg-secondary/30">
           <p className="text-foreground text-sm font-sans leading-relaxed">
@@ -609,7 +610,7 @@ const useServiceContent = () => {
         <CardBlock icon={Scale} title={t('imprint.disclaimer')} desc={t('imprint.disclaimerText')} />
         <CardBlock icon={FileText} title={t('imprint.copyright')} desc={t('imprint.copyrightText')} variant="highlight" />
         <CardBlock icon={Shield} title={t('imprint.dataProtection')} desc={t('imprint.dataProtectionText')} />
-      </div>
+      </StaggerReveal>
     ),
     'tech-requirements': () => {
       const systemItems = language === 'de'
@@ -623,7 +624,7 @@ const useServiceContent = () => {
         ? ['RDP : 7000–7020/TCP sortant', 'HTTPS : 443/TCP sortant', 'Aucune connexion entrante requise', 'Tester la connectivité au préalable']
         : ['RDP: 7000–7020/TCP outbound', 'HTTPS: 443/TCP outbound', 'No inbound connections required', 'Test connectivity beforehand'];
       return (
-        <div className="space-y-3">
+        <StaggerReveal>
           <Block><SectionTitle>{t('techReq.title')}</SectionTitle><p>{t('techReq.intro')}</p></Block>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             <div className="rounded-xl p-4 bg-primary/5 border border-primary/20">
@@ -651,7 +652,7 @@ const useServiceContent = () => {
           <InlineSystemCheck t={t} />
           {/* Inline Connectivity Check */}
           <InlineConnectivityCheck t={t} language={language} />
-        </div>
+        </StaggerReveal>
       );
     },
     'crisis-sim': () => null, // handled separately in ChatView to pass ref
