@@ -361,8 +361,8 @@ const MatrixStart = () => {
       <div className="absolute top-4 right-4 font-mono text-xs z-20" style={{ color: '#ff1a1a', textShadow: '0 0 8px rgba(255,26,26,0.6)' }}>
         {new Date().toISOString().replace('T', ' ').slice(0, 19)}
       </div>
-      <div className="absolute bottom-4 left-4 font-mono text-xs z-20" style={{ color: '#ff1a1a', textShadow: '0 0 8px rgba(255,26,26,0.6)' }}>
-        marcel@inside-the-box.org
+      <div className="absolute bottom-4 left-4 font-mono text-xs z-20" style={{ textShadow: '0 0 8px rgba(255,26,26,0.6)' }}>
+        <a href="mailto:marcel@inside-the-box.org" className="text-[#ff1a1a] hover:text-[#f5c542] transition-colors duration-300">marcel@inside-the-box.org</a>
       </div>
       <div className="absolute bottom-4 right-4 font-mono text-xs z-20" style={{ color: '#ff1a1a', textShadow: '0 0 8px rgba(255,26,26,0.6)' }}>
         <a href="/" className="hover:text-[#f5c542] transition-colors duration-300" style={{ color: 'inherit' }}>inside-the-box.org</a>
