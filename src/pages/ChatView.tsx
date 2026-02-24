@@ -10,6 +10,7 @@ import CyberCrisisSimulator, { type CrisisSimulatorHandle } from './CyberCrisisS
 import { StaggerReveal } from '@/components/StaggerReveal';
 import GlitchText from '@/components/GlitchText';
 import Typewriter from '@/components/Typewriter';
+import TypedSection from '@/components/TypedSection';
 
 interface NavLink { url: string; label: string; }
 interface AiResponse { message: string; links: NavLink[]; }
@@ -244,207 +245,174 @@ const useServiceContent = () => {
 
   const contentMap: Record<string, () => ReactNode> = {
     isms: () => (
-      <div className="space-y-3">
-        <Block><SectionTitle><Typewriter text={t('isms.title')} charDelay={80} /></SectionTitle><p>{t('isms.intro')}</p></Block>
-        <StaggerReveal stagger={400} startDelay={1500}>
-          <CardBlock icon={ShieldCheck} title={t('isms.iso27001Title')} desc={t('isms.iso27001Desc')} />
-          <CardBlock icon={FileText} title={t('isms.bsiTitle')} desc={t('isms.bsiDesc')} />
-          <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
-            <SubTitle variant="highlight">{t('isms.approachTitle')}</SubTitle>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <GridItem icon={Search} title={t('isms.assessmentTitle')} desc={t('isms.assessmentDesc')} variant="highlight" />
-              <GridItem icon={Settings} title={t('isms.implementationTitle')} desc={t('isms.implementationDesc')} variant="highlight" />
-              <GridItem icon={Award} title={t('isms.certificationTitle')} desc={t('isms.certificationDesc')} variant="highlight" />
-              <GridItem icon={RotateCcw} title={t('isms.maintenanceTitle')} desc={t('isms.maintenanceDesc')} variant="highlight" />
-            </div>
-          </Block>
-        </StaggerReveal>
-      </div>
+      <TypedSection title={t('isms.title')} mode="typewriter" intro={<p>{t('isms.intro')}</p>}>
+        <CardBlock icon={ShieldCheck} title={t('isms.iso27001Title')} desc={t('isms.iso27001Desc')} />
+        <CardBlock icon={FileText} title={t('isms.bsiTitle')} desc={t('isms.bsiDesc')} />
+        <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
+          <SubTitle variant="highlight">{t('isms.approachTitle')}</SubTitle>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <GridItem icon={Search} title={t('isms.assessmentTitle')} desc={t('isms.assessmentDesc')} variant="highlight" />
+            <GridItem icon={Settings} title={t('isms.implementationTitle')} desc={t('isms.implementationDesc')} variant="highlight" />
+            <GridItem icon={Award} title={t('isms.certificationTitle')} desc={t('isms.certificationDesc')} variant="highlight" />
+            <GridItem icon={RotateCcw} title={t('isms.maintenanceTitle')} desc={t('isms.maintenanceDesc')} variant="highlight" />
+          </div>
+        </Block>
+      </TypedSection>
     ),
     'nis2-dora': () => (
-      <div className="space-y-3">
-        <Block><SectionTitle><Typewriter text={t('nis2.title')} charDelay={80} /></SectionTitle><p>{t('nis2.intro')}</p></Block>
-        <StaggerReveal stagger={400} startDelay={1500}>
-          <CardBlock icon={Search} title={t('nis2.impactTitle')} desc={t('nis2.impactDesc')} />
-          <CardBlock icon={AlertCircle} title={t('nis2.gapTitle')} desc={t('nis2.gapDesc')} />
-          <CardBlock icon={ShieldCheck} title={t('nis2.measuresTitle')} desc={t('nis2.measuresDesc')} />
-          <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
-            <SubTitle variant="highlight">{t('nis2.frameworkTitle')}</SubTitle>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-2">
-              <GridItem icon={Building2} title={t('nis2.nis2Name')} desc={t('nis2.nis2Desc')} variant="highlight" />
-              <GridItem icon={Landmark} title={t('nis2.doraName')} desc={t('nis2.doraDesc')} variant="highlight" />
-              <GridItem icon={Plane} title={t('nis2.partisName')} desc={t('nis2.partisDesc')} variant="highlight" />
-            </div>
-          </Block>
-        </StaggerReveal>
-      </div>
+      <TypedSection title={t('nis2.title')} mode="decode" intro={<p>{t('nis2.intro')}</p>}>
+        <CardBlock icon={Search} title={t('nis2.impactTitle')} desc={t('nis2.impactDesc')} />
+        <CardBlock icon={AlertCircle} title={t('nis2.gapTitle')} desc={t('nis2.gapDesc')} />
+        <CardBlock icon={ShieldCheck} title={t('nis2.measuresTitle')} desc={t('nis2.measuresDesc')} />
+        <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
+          <SubTitle variant="highlight">{t('nis2.frameworkTitle')}</SubTitle>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-2">
+            <GridItem icon={Building2} title={t('nis2.nis2Name')} desc={t('nis2.nis2Desc')} variant="highlight" />
+            <GridItem icon={Landmark} title={t('nis2.doraName')} desc={t('nis2.doraDesc')} variant="highlight" />
+            <GridItem icon={Plane} title={t('nis2.partisName')} desc={t('nis2.partisDesc')} variant="highlight" />
+          </div>
+        </Block>
+      </TypedSection>
     ),
     'tisax-pci-dss': () => (
-      <div className="space-y-3">
-        <Block><SectionTitle><Typewriter text={t('tisax.title')} charDelay={80} /></SectionTitle><p>{t('tisax.intro')}</p></Block>
-        <StaggerReveal stagger={400} startDelay={1500}>
-          <CardBlock icon={Settings} title={t('tisax.implTitle')} desc={t('tisax.implDesc')} />
-          <CardBlock icon={CheckCircle} title={t('tisax.reviewsTitle')} desc={t('tisax.reviewsDesc')} />
-          <CardBlock icon={FileCheck} title={t('tisax.auditTitle')} desc={t('tisax.auditDesc')} />
-          <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
-            <SubTitle variant="highlight">{t('tisax.frameworkTitle')}</SubTitle>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
-              <GridItem icon={Car} title={t('tisax.tisaxName')} desc={t('tisax.tisaxDesc')} variant="highlight" />
-              <GridItem icon={CreditCard} title={t('tisax.pciName')} desc={t('tisax.pciDesc')} variant="highlight" />
-            </div>
-          </Block>
-        </StaggerReveal>
-      </div>
+      <TypedSection title={t('tisax.title')} mode="cascade" intro={<p>{t('tisax.intro')}</p>}>
+        <CardBlock icon={Settings} title={t('tisax.implTitle')} desc={t('tisax.implDesc')} />
+        <CardBlock icon={CheckCircle} title={t('tisax.reviewsTitle')} desc={t('tisax.reviewsDesc')} />
+        <CardBlock icon={FileCheck} title={t('tisax.auditTitle')} desc={t('tisax.auditDesc')} />
+        <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
+          <SubTitle variant="highlight">{t('tisax.frameworkTitle')}</SubTitle>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
+            <GridItem icon={Car} title={t('tisax.tisaxName')} desc={t('tisax.tisaxDesc')} variant="highlight" />
+            <GridItem icon={CreditCard} title={t('tisax.pciName')} desc={t('tisax.pciDesc')} variant="highlight" />
+          </div>
+        </Block>
+      </TypedSection>
     ),
     'assessments-concepts': () => (
-      <div className="space-y-3">
-        <Block><SectionTitle><Typewriter text={t('assessments.title')} charDelay={80} /></SectionTitle><p>{t('assessments.intro')}</p></Block>
-        <StaggerReveal stagger={400} startDelay={1500}>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <CardBlock icon={Search} title={t('assessments.threatTitle')} desc={t('assessments.threatDesc')} />
-            <CardBlock icon={ShieldCheck} title={t('assessments.controlsTitle')} desc={t('assessments.controlsDesc')} variant="highlight" />
-            <CardBlock icon={Users} title={t('assessments.rolesTitle')} desc={t('assessments.rolesDesc')} />
-            <CardBlock icon={Calendar} title={t('assessments.planningTitle')} desc={t('assessments.planningDesc')} variant="highlight" />
-            <CardBlock icon={BarChart} title={t('assessments.measureTitle')} desc={t('assessments.measureDesc')} />
-          </div>
-        </StaggerReveal>
-      </div>
+      <TypedSection title={t('assessments.title')} mode="word" intro={<p>{t('assessments.intro')}</p>}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <CardBlock icon={Search} title={t('assessments.threatTitle')} desc={t('assessments.threatDesc')} />
+          <CardBlock icon={ShieldCheck} title={t('assessments.controlsTitle')} desc={t('assessments.controlsDesc')} variant="highlight" />
+          <CardBlock icon={Users} title={t('assessments.rolesTitle')} desc={t('assessments.rolesDesc')} />
+          <CardBlock icon={Calendar} title={t('assessments.planningTitle')} desc={t('assessments.planningDesc')} variant="highlight" />
+          <CardBlock icon={BarChart} title={t('assessments.measureTitle')} desc={t('assessments.measureDesc')} />
+        </div>
+      </TypedSection>
     ),
     'incident-management': () => (
-      <div className="space-y-3">
-        <Block><SectionTitle><Typewriter text={t('incident.title')} charDelay={80} /></SectionTitle><p>{t('incident.intro')}</p></Block>
-        <StaggerReveal stagger={400} startDelay={1500}>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <CardBlock icon={FileText} title={t('incident.planTitle')} desc={t('incident.planDesc')} />
-            <CardBlock icon={Eye} title={t('incident.detectionTitle')} desc={t('incident.detectionDesc')} variant="highlight" />
-            <CardBlock icon={AlertTriangle} title={t('incident.containTitle')} desc={t('incident.containDesc')} />
-            <CardBlock icon={RefreshCw} title={t('incident.recoveryTitle')} desc={t('incident.recoveryDesc')} variant="highlight" />
-            <CardBlock icon={GraduationCap} title={t('incident.simTitle')} desc={t('incident.simDesc')} />
-          </div>
-        </StaggerReveal>
-      </div>
+      <TypedSection title={t('incident.title')} mode="scramble" intro={<p>{t('incident.intro')}</p>}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <CardBlock icon={FileText} title={t('incident.planTitle')} desc={t('incident.planDesc')} />
+          <CardBlock icon={Eye} title={t('incident.detectionTitle')} desc={t('incident.detectionDesc')} variant="highlight" />
+          <CardBlock icon={AlertTriangle} title={t('incident.containTitle')} desc={t('incident.containDesc')} />
+          <CardBlock icon={RefreshCw} title={t('incident.recoveryTitle')} desc={t('incident.recoveryDesc')} variant="highlight" />
+          <CardBlock icon={GraduationCap} title={t('incident.simTitle')} desc={t('incident.simDesc')} />
+        </div>
+      </TypedSection>
     ),
     'cyber-crisis-management': () => (
-      <div className="space-y-3">
-        <Block><SectionTitle><Typewriter text={t('cyberCrisis.title')} charDelay={80} /></SectionTitle><p>{t('cyberCrisis.intro')}</p></Block>
-        <StaggerReveal stagger={400} startDelay={1500}>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <CardBlock icon={ClipboardList} title={t('cyberCrisis.planTitle')} desc={t('cyberCrisis.planDesc')} />
-            <CardBlock icon={Zap} title={t('cyberCrisis.scenarioTitle')} desc={t('cyberCrisis.scenarioDesc')} variant="highlight" />
-            <CardBlock icon={Target} title={t('cyberCrisis.simTitle')} desc={t('cyberCrisis.simDesc')} />
-            <CardBlock icon={Crown} title={t('cyberCrisis.leaderTitle')} desc={t('cyberCrisis.leaderDesc')} variant="highlight" />
-            <CardBlock icon={MessageSquare} title={t('cyberCrisis.commTitle')} desc={t('cyberCrisis.commDesc')} />
+      <TypedSection title={t('cyberCrisis.title')} mode="decode" intro={<p>{t('cyberCrisis.intro')}</p>}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <CardBlock icon={ClipboardList} title={t('cyberCrisis.planTitle')} desc={t('cyberCrisis.planDesc')} />
+          <CardBlock icon={Zap} title={t('cyberCrisis.scenarioTitle')} desc={t('cyberCrisis.scenarioDesc')} variant="highlight" />
+          <CardBlock icon={Target} title={t('cyberCrisis.simTitle')} desc={t('cyberCrisis.simDesc')} />
+          <CardBlock icon={Crown} title={t('cyberCrisis.leaderTitle')} desc={t('cyberCrisis.leaderDesc')} variant="highlight" />
+          <CardBlock icon={MessageSquare} title={t('cyberCrisis.commTitle')} desc={t('cyberCrisis.commDesc')} />
+        </div>
+        <Block><h2 className="text-highlight text-lg font-bold font-mono mb-3">{t('cyberCrisis.methTitle')}</h2></Block>
+        <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <GridItem icon={Users} title={t('cyberCrisis.tabletop')} desc={t('cyberCrisis.tabletopDesc')} variant="highlight" />
+            <GridItem icon={Gamepad2} title={t('cyberCrisis.liveSim')} desc={t('cyberCrisis.liveSimDesc')} variant="highlight" />
+            <GridItem icon={Monitor} title={t('cyberCrisis.cyberRange')} desc={t('cyberCrisis.cyberRangeDesc')} variant="highlight" />
           </div>
-          <Block><h2 className="text-highlight text-lg font-bold font-mono mb-3">{t('cyberCrisis.methTitle')}</h2></Block>
-          <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <GridItem icon={Users} title={t('cyberCrisis.tabletop')} desc={t('cyberCrisis.tabletopDesc')} variant="highlight" />
-              <GridItem icon={Gamepad2} title={t('cyberCrisis.liveSim')} desc={t('cyberCrisis.liveSimDesc')} variant="highlight" />
-              <GridItem icon={Monitor} title={t('cyberCrisis.cyberRange')} desc={t('cyberCrisis.cyberRangeDesc')} variant="highlight" />
-            </div>
-          </Block>
-          <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
-            <SubTitle variant="highlight">{t('cyberCrisis.outcomesTitle')}</SubTitle>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-2">
-              <GridItem icon={ShieldCheck} title={t('cyberCrisis.readiness')} desc={t('cyberCrisis.readinessDesc')} variant="highlight" />
-              <GridItem icon={Users2} title={t('cyberCrisis.coordination')} desc={t('cyberCrisis.coordinationDesc')} variant="highlight" />
-              <GridItem icon={Lightbulb} title={t('cyberCrisis.leadership')} desc={t('cyberCrisis.leadershipDesc')} variant="highlight" />
-            </div>
-          </Block>
-        </StaggerReveal>
-      </div>
+        </Block>
+        <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
+          <SubTitle variant="highlight">{t('cyberCrisis.outcomesTitle')}</SubTitle>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-2">
+            <GridItem icon={ShieldCheck} title={t('cyberCrisis.readiness')} desc={t('cyberCrisis.readinessDesc')} variant="highlight" />
+            <GridItem icon={Users2} title={t('cyberCrisis.coordination')} desc={t('cyberCrisis.coordinationDesc')} variant="highlight" />
+            <GridItem icon={Lightbulb} title={t('cyberCrisis.leadership')} desc={t('cyberCrisis.leadershipDesc')} variant="highlight" />
+          </div>
+        </Block>
+      </TypedSection>
     ),
     'arena-training': () => (
-      <div className="space-y-3">
-        <Block><SectionTitle><Typewriter text={t('arena.title')} charDelay={80} /></SectionTitle><p>{t('arena.intro')}</p></Block>
-        <StaggerReveal stagger={400} startDelay={1500}>
-          <CardBlock icon={Target} title={t('arena.arenaTitle')} desc={t('arena.arenaDesc')} />
-          <CardBlock icon={Flag} title={t('arena.tiberTitle')} desc={t('arena.tiberDesc')} />
-          <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
-            <SubTitle variant="highlight">{t('arena.methTitle')}</SubTitle>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
-              <GridItem icon={Gamepad2} title={t('arena.realisticTitle')} desc={t('arena.realisticDesc')} variant="highlight" />
-              <GridItem icon={Crosshair} title={t('arena.handsOnTitle')} desc={t('arena.handsOnDesc')} variant="highlight" />
-              <GridItem icon={Users} title={t('arena.teamTitle')} desc={t('arena.teamDesc')} variant="highlight" />
-              <GridItem icon={CheckSquare} title={t('arena.regulatoryTitle')} desc={t('arena.regulatoryDesc')} variant="highlight" />
-            </div>
-          </Block>
-        </StaggerReveal>
-      </div>
+      <TypedSection title={t('arena.title')} mode="scramble" intro={<p>{t('arena.intro')}</p>}>
+        <CardBlock icon={Target} title={t('arena.arenaTitle')} desc={t('arena.arenaDesc')} />
+        <CardBlock icon={Flag} title={t('arena.tiberTitle')} desc={t('arena.tiberDesc')} />
+        <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
+          <SubTitle variant="highlight">{t('arena.methTitle')}</SubTitle>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
+            <GridItem icon={Gamepad2} title={t('arena.realisticTitle')} desc={t('arena.realisticDesc')} variant="highlight" />
+            <GridItem icon={Crosshair} title={t('arena.handsOnTitle')} desc={t('arena.handsOnDesc')} variant="highlight" />
+            <GridItem icon={Users} title={t('arena.teamTitle')} desc={t('arena.teamDesc')} variant="highlight" />
+            <GridItem icon={CheckSquare} title={t('arena.regulatoryTitle')} desc={t('arena.regulatoryDesc')} variant="highlight" />
+          </div>
+        </Block>
+      </TypedSection>
     ),
     'events-workshops': () => (
-      <div className="space-y-3">
-        <Block><SectionTitle><Typewriter text={t('events.title')} charDelay={80} /></SectionTitle><p>{t('events.intro')}</p></Block>
-        <StaggerReveal stagger={400} startDelay={1500}>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <img src="/lovable-uploads/fc4cff06-0e9d-41c4-bac3-73a041a924b3.png" alt="Presentation" className="rounded-xl w-full h-40 md:h-48 object-cover border border-border" />
-            <img src="/lovable-uploads/f463db5a-733d-4e4e-b151-d3e33ebe8997.png" alt="Training" className="rounded-xl w-full h-40 md:h-48 object-cover border border-border" />
-            <img src="/lovable-uploads/48ad82c3-84e8-4161-93d5-d79b509f7cc4.png" alt="Conference" className="rounded-xl w-full h-40 md:h-48 object-cover border border-border" />
+      <TypedSection title={t('events.title')} mode="cascade" intro={<p>{t('events.intro')}</p>}>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <img src="/lovable-uploads/fc4cff06-0e9d-41c4-bac3-73a041a924b3.png" alt="Presentation" className="rounded-xl w-full h-40 md:h-48 object-cover border border-border" />
+          <img src="/lovable-uploads/f463db5a-733d-4e4e-b151-d3e33ebe8997.png" alt="Training" className="rounded-xl w-full h-40 md:h-48 object-cover border border-border" />
+          <img src="/lovable-uploads/48ad82c3-84e8-4161-93d5-d79b509f7cc4.png" alt="Conference" className="rounded-xl w-full h-40 md:h-48 object-cover border border-border" />
+        </div>
+        <CardBlock icon={Mic} title={t('events.moderationTitle')} desc={t('events.moderationDesc')} />
+        <CardBlock icon={Users} title={t('events.workshopsTitle')} desc={t('events.workshopsDesc')} />
+        <CardBlock icon={Award} title={t('events.referencesTitle')} desc={t('events.referencesDesc')} />
+        <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
+          <SubTitle variant="highlight">{t('events.eventTypesTitle')}</SubTitle>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-2">
+            <GridItem icon={Presentation} title={t('events.conferences')} desc={t('events.conferencesDesc')} variant="highlight" />
+            <GridItem icon={Wrench} title={t('events.workshops')} desc={t('events.workshopsDescShort')} variant="highlight" />
+            <GridItem icon={GraduationCap} title={t('events.seminars')} desc={t('events.seminarsDesc')} variant="highlight" />
           </div>
-          <CardBlock icon={Mic} title={t('events.moderationTitle')} desc={t('events.moderationDesc')} />
-          <CardBlock icon={Users} title={t('events.workshopsTitle')} desc={t('events.workshopsDesc')} />
-          <CardBlock icon={Award} title={t('events.referencesTitle')} desc={t('events.referencesDesc')} />
-          <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
-            <SubTitle variant="highlight">{t('events.eventTypesTitle')}</SubTitle>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-2">
-              <GridItem icon={Presentation} title={t('events.conferences')} desc={t('events.conferencesDesc')} variant="highlight" />
-              <GridItem icon={Wrench} title={t('events.workshops')} desc={t('events.workshopsDescShort')} variant="highlight" />
-              <GridItem icon={GraduationCap} title={t('events.seminars')} desc={t('events.seminarsDesc')} variant="highlight" />
-            </div>
-          </Block>
-        </StaggerReveal>
-      </div>
+        </Block>
+      </TypedSection>
     ),
     publications: () => (
-      <div className="space-y-3">
-        <Block><SectionTitle><Typewriter text={t('publications.title')} charDelay={80} /></SectionTitle><p>{t('publications.intro')}</p></Block>
-        <StaggerReveal stagger={400} startDelay={1500}>
-          <CardBlock icon={Shield} title={t('publications.pub1Title')} desc={t('publications.pub1Desc')} link="https://www.heise.de/select/ix/2021/10/2019809530193925811" linkLabel={t('publications.readOnHeise')} />
-          <CardBlock icon={Radio} title={t('publications.pub2Title')} desc={t('publications.pub2Desc')} link="https://www.heise.de/select/ix/archiv/2015/7/seite-78" linkLabel={t('publications.readOnHeise')} />
-          <CardBlock icon={Video} title={t('publications.pub3Title')} desc={t('publications.pub3Desc')} link="https://vimeo.com/295582173" linkLabel={t('publications.watchOnVimeo')} />
-          <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
-            <SubTitle variant="highlight">{t('publications.certTitle')}</SubTitle>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-2">
-              <GridItem icon={Award} title={t('publications.isacaTitle')} desc={t('publications.isacaDesc')} variant="highlight" />
-              <GridItem icon={Presentation} title={t('publications.confTitle')} desc={t('publications.confDesc')} variant="highlight" />
-              <GridItem icon={BookOpen} title={t('publications.eduTitle')} desc={t('publications.eduDesc')} variant="highlight" />
-            </div>
-          </Block>
-        </StaggerReveal>
-      </div>
+      <TypedSection title={t('publications.title')} mode="word" intro={<p>{t('publications.intro')}</p>}>
+        <CardBlock icon={Shield} title={t('publications.pub1Title')} desc={t('publications.pub1Desc')} link="https://www.heise.de/select/ix/2021/10/2019809530193925811" linkLabel={t('publications.readOnHeise')} />
+        <CardBlock icon={Radio} title={t('publications.pub2Title')} desc={t('publications.pub2Desc')} link="https://www.heise.de/select/ix/archiv/2015/7/seite-78" linkLabel={t('publications.readOnHeise')} />
+        <CardBlock icon={Video} title={t('publications.pub3Title')} desc={t('publications.pub3Desc')} link="https://vimeo.com/295582173" linkLabel={t('publications.watchOnVimeo')} />
+        <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
+          <SubTitle variant="highlight">{t('publications.certTitle')}</SubTitle>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-2">
+            <GridItem icon={Award} title={t('publications.isacaTitle')} desc={t('publications.isacaDesc')} variant="highlight" />
+            <GridItem icon={Presentation} title={t('publications.confTitle')} desc={t('publications.confDesc')} variant="highlight" />
+            <GridItem icon={BookOpen} title={t('publications.eduTitle')} desc={t('publications.eduDesc')} variant="highlight" />
+          </div>
+        </Block>
+      </TypedSection>
     ),
     'virtual-ciso': () => (
-      <div className="space-y-3">
-        <Block><SectionTitle><Typewriter text={t('vciso.title')} charDelay={80} /></SectionTitle><p>{t('vciso.intro')}</p></Block>
-        <StaggerReveal stagger={400} startDelay={1500}>
-          <CardBlock icon={Crown} title={t('vciso.stratTitle')} desc={t('vciso.stratDesc')} />
-          <CardBlock icon={Settings} title={t('vciso.opsTitle')} desc={t('vciso.opsDesc')} />
-          <CardBlock icon={CheckSquare} title={t('vciso.compTitle')} desc={t('vciso.compDesc')} />
-          <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
-            <SubTitle variant="highlight">{t('vciso.modelTitle')}</SubTitle>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
-              <GridItem icon={UserCheck} title={t('vciso.flexible')} desc={t('vciso.flexibleDesc')} variant="highlight" />
-              <GridItem icon={DollarSign} title={t('vciso.costEffective')} desc={t('vciso.costEffectiveDesc')} variant="highlight" />
-              <GridItem icon={Zap} title={t('vciso.immediate')} desc={t('vciso.immediateDesc')} variant="highlight" />
-              <GridItem icon={Award} title={t('vciso.experienced')} desc={t('vciso.experiencedDesc')} variant="highlight" />
-            </div>
-          </Block>
-        </StaggerReveal>
-      </div>
+      <TypedSection title={t('vciso.title')} mode="decode" intro={<p>{t('vciso.intro')}</p>}>
+        <CardBlock icon={Crown} title={t('vciso.stratTitle')} desc={t('vciso.stratDesc')} />
+        <CardBlock icon={Settings} title={t('vciso.opsTitle')} desc={t('vciso.opsDesc')} />
+        <CardBlock icon={CheckSquare} title={t('vciso.compTitle')} desc={t('vciso.compDesc')} />
+        <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
+          <SubTitle variant="highlight">{t('vciso.modelTitle')}</SubTitle>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
+            <GridItem icon={UserCheck} title={t('vciso.flexible')} desc={t('vciso.flexibleDesc')} variant="highlight" />
+            <GridItem icon={DollarSign} title={t('vciso.costEffective')} desc={t('vciso.costEffectiveDesc')} variant="highlight" />
+            <GridItem icon={Zap} title={t('vciso.immediate')} desc={t('vciso.immediateDesc')} variant="highlight" />
+            <GridItem icon={Award} title={t('vciso.experienced')} desc={t('vciso.experiencedDesc')} variant="highlight" />
+          </div>
+        </Block>
+      </TypedSection>
     ),
     'ai-workflows': () => (
-      <div className="space-y-3">
-        <Block><SectionTitle><Typewriter text={t('aiWorkflows.title')} charDelay={80} /></SectionTitle><p>{t('aiWorkflows.intro')}</p></Block>
-        <StaggerReveal stagger={400} startDelay={1500}>
-          <CardBlock icon={Zap} title={t('aiWorkflows.irTitle')} desc={t('aiWorkflows.irDesc')} bullets={[t('aiWorkflows.irBullet1'), t('aiWorkflows.irBullet2'), t('aiWorkflows.irBullet3')]} result={t('aiWorkflows.irResult')} />
-          <CardBlock icon={FileText} title={t('aiWorkflows.policyTitle')} desc={t('aiWorkflows.policyDesc')} bullets={[t('aiWorkflows.policyBullet1'), t('aiWorkflows.policyBullet2'), t('aiWorkflows.policyBullet3')]} result={t('aiWorkflows.policyResult')} />
-          <CardBlock icon={Search} title={t('aiWorkflows.auditTitle')} desc={t('aiWorkflows.auditDesc')} bullets={[t('aiWorkflows.auditBullet1'), t('aiWorkflows.auditBullet2'), t('aiWorkflows.auditBullet3')]} result={t('aiWorkflows.auditResult')} />
-          <Block className="bg-highlight/10 border border-highlight/30 rounded-xl">
-            <SubTitle variant="highlight">{t('aiWorkflows.ctaTitle')}</SubTitle>
-            <p className="text-foreground whitespace-pre-line">{t('aiWorkflows.ctaDesc')}</p>
-          </Block>
-        </StaggerReveal>
-      </div>
+      <TypedSection title={t('aiWorkflows.title')} mode="scramble" intro={<p>{t('aiWorkflows.intro')}</p>}>
+        <CardBlock icon={Zap} title={t('aiWorkflows.irTitle')} desc={t('aiWorkflows.irDesc')} bullets={[t('aiWorkflows.irBullet1'), t('aiWorkflows.irBullet2'), t('aiWorkflows.irBullet3')]} result={t('aiWorkflows.irResult')} />
+        <CardBlock icon={FileText} title={t('aiWorkflows.policyTitle')} desc={t('aiWorkflows.policyDesc')} bullets={[t('aiWorkflows.policyBullet1'), t('aiWorkflows.policyBullet2'), t('aiWorkflows.policyBullet3')]} result={t('aiWorkflows.policyResult')} />
+        <CardBlock icon={Search} title={t('aiWorkflows.auditTitle')} desc={t('aiWorkflows.auditDesc')} bullets={[t('aiWorkflows.auditBullet1'), t('aiWorkflows.auditBullet2'), t('aiWorkflows.auditBullet3')]} result={t('aiWorkflows.auditResult')} />
+        <Block className="bg-highlight/10 border border-highlight/30 rounded-xl">
+          <SubTitle variant="highlight">{t('aiWorkflows.ctaTitle')}</SubTitle>
+          <p className="text-foreground whitespace-pre-line">{t('aiWorkflows.ctaDesc')}</p>
+        </Block>
+      </TypedSection>
     ),
     why: () => (
       <div className="space-y-3">
@@ -489,69 +457,57 @@ const useServiceContent = () => {
       </div>
     ),
     training: () => (
-      <div className="space-y-3">
-        <Block>
-          <SectionTitle><Typewriter text={t('training.title')} charDelay={80} /></SectionTitle>
-          <p>{t('training.subtitle')}</p>
-        </Block>
-        <StaggerReveal stagger={400} startDelay={1500}>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <CardBlock icon={Server} title={t('training.hostForensics')} desc={t('training.hostForensicsDesc')} />
-            <CardBlock icon={Bug} title={t('training.malwareAnalysis')} desc={t('training.malwareAnalysisDesc')} />
-            <CardBlock icon={Shield} title={t('training.siem')} desc={t('training.siemDesc')} />
-            <CardBlock icon={AlertCircle} title={t('training.incidentMgmt')} desc={t('training.incidentMgmtDesc')} />
-            <CardBlock icon={AlertTriangle} title={t('training.crisisMgmt')} desc={t('training.crisisMgmtDesc')} />
-            <CardBlock icon={MessageSquare} title={t('training.crisisComm')} desc={t('training.crisisCommDesc')} />
+      <TypedSection title={t('training.title')} mode="cascade" intro={<p>{t('training.subtitle')}</p>}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <CardBlock icon={Server} title={t('training.hostForensics')} desc={t('training.hostForensicsDesc')} />
+          <CardBlock icon={Bug} title={t('training.malwareAnalysis')} desc={t('training.malwareAnalysisDesc')} />
+          <CardBlock icon={Shield} title={t('training.siem')} desc={t('training.siemDesc')} />
+          <CardBlock icon={AlertCircle} title={t('training.incidentMgmt')} desc={t('training.incidentMgmtDesc')} />
+          <CardBlock icon={AlertTriangle} title={t('training.crisisMgmt')} desc={t('training.crisisMgmtDesc')} />
+          <CardBlock icon={MessageSquare} title={t('training.crisisComm')} desc={t('training.crisisCommDesc')} />
+        </div>
+        <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
+          <SubTitle variant="highlight">{t('training.methodsTitle')}</SubTitle>
+          <p className="text-sm font-sans leading-relaxed tracking-wide text-foreground mb-2">{t('training.methodsSubtitle')}</p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <GridItem icon={BookOpen} title={t('training.knowledgeTransfer')} desc={t('training.knowledgeTransferDesc')} variant="highlight" />
+            <GridItem icon={Users} title={t('training.groupExercises')} desc={t('training.groupExercisesDesc')} variant="highlight" />
+            <GridItem icon={Zap} title={t('training.liveCyberAttacks')} desc={t('training.liveCyberAttacksDesc')} variant="highlight" />
           </div>
-          <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
-            <SubTitle variant="highlight">{t('training.methodsTitle')}</SubTitle>
-            <p className="text-sm font-sans leading-relaxed tracking-wide text-foreground mb-2">{t('training.methodsSubtitle')}</p>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <GridItem icon={BookOpen} title={t('training.knowledgeTransfer')} desc={t('training.knowledgeTransferDesc')} variant="highlight" />
-              <GridItem icon={Users} title={t('training.groupExercises')} desc={t('training.groupExercisesDesc')} variant="highlight" />
-              <GridItem icon={Zap} title={t('training.liveCyberAttacks')} desc={t('training.liveCyberAttacksDesc')} variant="highlight" />
-            </div>
-          </Block>
-        </StaggerReveal>
-      </div>
+        </Block>
+      </TypedSection>
     ),
     consulting: () => (
-      <div className="space-y-3">
-        <Block>
-          <SectionTitle><Typewriter text={t('consulting.title')} charDelay={80} /></SectionTitle>
-          <p>{t('consulting.intro')}</p>
-        </Block>
-        <StaggerReveal stagger={400} startDelay={1500}>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-            {[
-              { icon: ShieldCheck, title: t('consulting.ismsTitle'), desc: t('consulting.ismsDesc'), id: 'isms' },
-              { icon: Network, title: t('consulting.nis2Title'), desc: t('consulting.nis2Desc'), id: 'nis2-dora' },
-              { icon: CreditCard, title: t('consulting.tisaxTitle'), desc: t('consulting.tisaxDesc'), id: 'tisax-pci-dss' },
-              { icon: Search, title: t('consulting.assessTitle'), desc: t('consulting.assessDesc'), id: 'assessments-concepts' },
-              { icon: Flame, title: t('consulting.incidentTitle'), desc: t('consulting.incidentDesc'), id: 'incident-management' },
-              { icon: Swords, title: t('consulting.crisisTitle'), desc: t('consulting.crisisDesc'), id: 'cyber-crisis-management' },
-              { icon: Target, title: t('consulting.arenaTitle'), desc: t('consulting.arenaDesc'), id: 'arena-training' },
-              { icon: Calendar, title: t('consulting.eventsTitle'), desc: t('consulting.eventsDesc'), id: 'events-workshops' },
-              { icon: FileText, title: t('consulting.pubTitle'), desc: t('consulting.pubDesc'), id: 'publications' },
-              { icon: UserCheck, title: t('consulting.vcisoTitle'), desc: t('consulting.vcisoDesc'), id: 'virtual-ciso' },
-              { icon: Zap, title: t('consulting.aiWorkflowsTitle'), desc: t('consulting.aiWorkflowsDesc'), id: 'ai-workflows' },
-            ].map(s => (
-              <div key={s.id} className="rounded-xl p-3 bg-primary/5 border border-primary/20 flex items-start gap-2 cursor-pointer hover:bg-primary/10 transition-electric" onClick={() => setActive(s.id)}>
-                <s.icon size={14} className="text-primary mt-0.5 flex-shrink-0" />
-                <div>
-                  <p className="text-primary font-semibold text-sm font-sans">{s.title} →</p>
-                  <p className="text-foreground text-sm font-sans leading-relaxed">{s.desc}</p>
-                </div>
+      <TypedSection title={t('consulting.title')} mode="word" intro={<p>{t('consulting.intro')}</p>}>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+          {[
+            { icon: ShieldCheck, title: t('consulting.ismsTitle'), desc: t('consulting.ismsDesc'), id: 'isms' },
+            { icon: Network, title: t('consulting.nis2Title'), desc: t('consulting.nis2Desc'), id: 'nis2-dora' },
+            { icon: CreditCard, title: t('consulting.tisaxTitle'), desc: t('consulting.tisaxDesc'), id: 'tisax-pci-dss' },
+            { icon: Search, title: t('consulting.assessTitle'), desc: t('consulting.assessDesc'), id: 'assessments-concepts' },
+            { icon: Flame, title: t('consulting.incidentTitle'), desc: t('consulting.incidentDesc'), id: 'incident-management' },
+            { icon: Swords, title: t('consulting.crisisTitle'), desc: t('consulting.crisisDesc'), id: 'cyber-crisis-management' },
+            { icon: Target, title: t('consulting.arenaTitle'), desc: t('consulting.arenaDesc'), id: 'arena-training' },
+            { icon: Calendar, title: t('consulting.eventsTitle'), desc: t('consulting.eventsDesc'), id: 'events-workshops' },
+            { icon: FileText, title: t('consulting.pubTitle'), desc: t('consulting.pubDesc'), id: 'publications' },
+            { icon: UserCheck, title: t('consulting.vcisoTitle'), desc: t('consulting.vcisoDesc'), id: 'virtual-ciso' },
+            { icon: Zap, title: t('consulting.aiWorkflowsTitle'), desc: t('consulting.aiWorkflowsDesc'), id: 'ai-workflows' },
+          ].map(s => (
+            <div key={s.id} className="rounded-xl p-3 bg-primary/5 border border-primary/20 flex items-start gap-2 cursor-pointer hover:bg-primary/10 transition-electric" onClick={() => setActive(s.id)}>
+              <s.icon size={14} className="text-primary mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="text-primary font-semibold text-sm font-sans">{s.title} →</p>
+                <p className="text-foreground text-sm font-sans leading-relaxed">{s.desc}</p>
               </div>
-            ))}
-          </div>
-          <div className="grid grid-cols-3 gap-2">
-            <StatBlock value="270+" label={t('consulting.clientsServed')} />
-            <StatBlock value="20+" label={t('consulting.industrySectors')} />
-            <StatBlock value="35+" label={t('consulting.yearsCombined')} />
-          </div>
-        </StaggerReveal>
-      </div>
+            </div>
+          ))}
+        </div>
+        <div className="grid grid-cols-3 gap-2">
+          <StatBlock value="270+" label={t('consulting.clientsServed')} />
+          <StatBlock value="20+" label={t('consulting.industrySectors')} />
+          <StatBlock value="35+" label={t('consulting.yearsCombined')} />
+        </div>
+      </TypedSection>
     ),
     'by-whom': () => {
       const profiles = consultantProfiles.map((profile) => {
@@ -570,91 +526,82 @@ const useServiceContent = () => {
         return profile;
       });
       return (
-        <div className="space-y-3">
-          <Block><SectionTitle><Typewriter text={t('byWhom.title')} charDelay={80} /></SectionTitle><p>{t('byWhom.intro')}</p></Block>
-          <StaggerReveal stagger={400} startDelay={1500}>
-            {profiles.map(p => (
-              <Block key={p.name} className="bg-secondary/30">
-                <div className="flex items-start gap-4 mb-4">
-                  <img src={p.imageUrl} alt={p.name} className="w-20 h-20 rounded-full object-cover border-2 border-primary/40 shadow-lg" />
-                  <div>
-                    <p className="text-primary font-bold text-base font-sans">{p.name}</p>
-                    <p className="text-foreground text-sm font-sans mb-1">{p.role}</p>
-                    {p.linkedinUrl && (
-                      <a href={p.linkedinUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-highlight text-sm font-sans hover:underline">
-                        <Linkedin size={14} /> LinkedIn
-                      </a>
-                    )}
+        <TypedSection title={t('byWhom.title')} mode="typewriter" intro={<p>{t('byWhom.intro')}</p>}>
+          {profiles.map(p => (
+            <Block key={p.name} className="bg-secondary/30">
+              <div className="flex items-start gap-4 mb-4">
+                <img src={p.imageUrl} alt={p.name} className="w-20 h-20 rounded-full object-cover border-2 border-primary/40 shadow-lg" />
+                <div>
+                  <p className="text-primary font-bold text-base font-sans">{p.name}</p>
+                  <p className="text-foreground text-sm font-sans mb-1">{p.role}</p>
+                  {p.linkedinUrl && (
+                    <a href={p.linkedinUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-highlight text-sm font-sans hover:underline">
+                      <Linkedin size={14} /> LinkedIn
+                    </a>
+                  )}
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {p.sections.map((s, i) => (
+                  <div key={i}>
+                    <p className="text-primary font-semibold text-sm font-sans mb-1">{s.title}</p>
+                     <ul className="text-sm font-sans text-foreground space-y-0.5">
+                      {s.items.map((item, j) => <li key={j}>• {item}</li>)}
+                    </ul>
                   </div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {p.sections.map((s, i) => (
-                    <div key={i}>
-                      <p className="text-primary font-semibold text-sm font-sans mb-1">{s.title}</p>
-                       <ul className="text-sm font-sans text-foreground space-y-0.5">
-                        {s.items.map((item, j) => <li key={j}>• {item}</li>)}
-                      </ul>
-                    </div>
-                  ))}
-                </div>
-              </Block>
-            ))}
-          </StaggerReveal>
-        </div>
+                ))}
+              </div>
+            </Block>
+          ))}
+        </TypedSection>
       );
     },
     contact: () => (
-      <div className="space-y-3">
-        <Block><SectionTitle><Typewriter text={t('contact.title')} charDelay={80} /></SectionTitle><p>{t('contact.intro')}</p></Block>
-        <StaggerReveal stagger={400} startDelay={1500}>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-            <div className="rounded-xl p-4 bg-primary/5 border border-primary/20">
-              <div className="flex items-center gap-2 mb-2">
-                <Phone size={16} className="text-primary" />
-                <SubTitle>{t('contact.phone')}</SubTitle>
-              </div>
-              <a href="tel:+4915205691648" className="text-foreground text-sm font-sans hover:text-highlight transition-electric">+49 1520 569 1648</a>
+      <TypedSection title={t('contact.title')} mode="cascade" intro={<p>{t('contact.intro')}</p>}>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+          <div className="rounded-xl p-4 bg-primary/5 border border-primary/20">
+            <div className="flex items-center gap-2 mb-2">
+              <Phone size={16} className="text-primary" />
+              <SubTitle>{t('contact.phone')}</SubTitle>
             </div>
-            <div className="rounded-xl p-4 bg-primary/5 border border-primary/20">
-              <div className="flex items-center gap-2 mb-2">
-                <Mail size={16} className="text-primary" />
-                <SubTitle>{t('contact.email')}</SubTitle>
-              </div>
-              <a href="mailto:marcel@inside-the-box.org" className="text-foreground text-sm font-sans hover:text-highlight transition-electric">marcel@inside-the-box.org</a>
-            </div>
+            <a href="tel:+4915205691648" className="text-foreground text-sm font-sans hover:text-highlight transition-electric">+49 1520 569 1648</a>
           </div>
-        </StaggerReveal>
-      </div>
+          <div className="rounded-xl p-4 bg-primary/5 border border-primary/20">
+            <div className="flex items-center gap-2 mb-2">
+              <Mail size={16} className="text-primary" />
+              <SubTitle>{t('contact.email')}</SubTitle>
+            </div>
+            <a href="mailto:marcel@inside-the-box.org" className="text-foreground text-sm font-sans hover:text-highlight transition-electric">marcel@inside-the-box.org</a>
+          </div>
+        </div>
+      </TypedSection>
     ),
     imprint: () => (
-      <div className="space-y-3">
-        <Block><SectionTitle><Typewriter text={t('imprint.title')} charDelay={80} /></SectionTitle></Block>
-        <StaggerReveal stagger={400} startDelay={1200}>
-          <Block className="bg-secondary/30">
-            <p className="text-foreground text-sm font-sans leading-relaxed">
-              <span className="text-primary font-semibold">{t('imprint.responsible')}</span><br />
-              Marcel Knop<br />
-              Appenrother Weg 14<br />
-              34308 Bad Emstal, Germany
-            </p>
-             <p className="text-foreground text-sm font-sans leading-relaxed mt-3">
-              <span className="text-primary font-semibold">{t('imprint.contactLabel')}</span><br />
-              <a href="mailto:marcel@inside-the-box.org" className="hover:text-highlight transition-electric">marcel@inside-the-box.org</a><br />
-              <a href="tel:+4915205691648" className="hover:text-highlight transition-electric">+49 1520 569 1648</a>
-            </p>
-             <p className="text-foreground text-sm font-sans leading-relaxed mt-3">
-              <span className="text-primary font-semibold">{t('imprint.vatId')}</span> DE328906053
-            </p>
-            <p className="text-foreground text-sm font-sans leading-relaxed mt-3">
-              <span className="text-primary font-semibold">{t('imprint.insurance')}</span><br />
-              Hiscox SA · Arnulfstr. 31 · 80636 Munich, Germany
-            </p>
-          </Block>
-          <CardBlock icon={Scale} title={t('imprint.disclaimer')} desc={t('imprint.disclaimerText')} />
-          <CardBlock icon={FileText} title={t('imprint.copyright')} desc={t('imprint.copyrightText')} variant="highlight" />
-          <CardBlock icon={Shield} title={t('imprint.dataProtection')} desc={t('imprint.dataProtectionText')} />
-        </StaggerReveal>
-      </div>
+      <TypedSection title={t('imprint.title')} mode="word">
+        <Block className="bg-secondary/30">
+          <p className="text-foreground text-sm font-sans leading-relaxed">
+            <span className="text-primary font-semibold">{t('imprint.responsible')}</span><br />
+            Marcel Knop<br />
+            Appenrother Weg 14<br />
+            34308 Bad Emstal, Germany
+          </p>
+           <p className="text-foreground text-sm font-sans leading-relaxed mt-3">
+            <span className="text-primary font-semibold">{t('imprint.contactLabel')}</span><br />
+            <a href="mailto:marcel@inside-the-box.org" className="hover:text-highlight transition-electric">marcel@inside-the-box.org</a><br />
+            <a href="tel:+4915205691648" className="hover:text-highlight transition-electric">+49 1520 569 1648</a>
+          </p>
+           <p className="text-foreground text-sm font-sans leading-relaxed mt-3">
+            <span className="text-primary font-semibold">{t('imprint.vatId')}</span> DE328906053
+          </p>
+          <p className="text-foreground text-sm font-sans leading-relaxed mt-3">
+            <span className="text-primary font-semibold">{t('imprint.insurance')}</span><br />
+            Hiscox SA · Arnulfstr. 31 · 80636 Munich, Germany
+          </p>
+        </Block>
+        <CardBlock icon={Scale} title={t('imprint.disclaimer')} desc={t('imprint.disclaimerText')} />
+        <CardBlock icon={FileText} title={t('imprint.copyright')} desc={t('imprint.copyrightText')} variant="highlight" />
+        <CardBlock icon={Shield} title={t('imprint.dataProtection')} desc={t('imprint.dataProtectionText')} />
+      </TypedSection>
     ),
     'tech-requirements': () => {
       const systemItems = language === 'de'
@@ -668,35 +615,32 @@ const useServiceContent = () => {
         ? ['RDP : 7000–7020/TCP sortant', 'HTTPS : 443/TCP sortant', 'Aucune connexion entrante requise', 'Tester la connectivité au préalable']
         : ['RDP: 7000–7020/TCP outbound', 'HTTPS: 443/TCP outbound', 'No inbound connections required', 'Test connectivity beforehand'];
       return (
-        <div className="space-y-3">
-          <Block><SectionTitle><Typewriter text={t('techReq.title')} charDelay={80} /></SectionTitle><p>{t('techReq.intro')}</p></Block>
-          <StaggerReveal stagger={400} startDelay={1500}>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-              <div className="rounded-xl p-4 bg-primary/5 border border-primary/20">
-                <div className="flex items-center gap-2 mb-2">
-                  <Monitor size={16} className="text-primary" />
-                  <SubTitle>{t('techReq.systemTitle')}</SubTitle>
-                </div>
-                 <p className="text-sm font-sans leading-relaxed text-foreground mb-2">{t('techReq.systemDesc')}</p>
-                 <ul className="text-sm font-sans text-foreground space-y-0.5">
-                  {systemItems.map((item, i) => <li key={i}>• {item}</li>)}
-                </ul>
+        <TypedSection title={t('techReq.title')} mode="decode" intro={<p>{t('techReq.intro')}</p>}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            <div className="rounded-xl p-4 bg-primary/5 border border-primary/20">
+              <div className="flex items-center gap-2 mb-2">
+                <Monitor size={16} className="text-primary" />
+                <SubTitle>{t('techReq.systemTitle')}</SubTitle>
               </div>
-              <div className="rounded-xl p-4 bg-primary/5 border border-primary/20">
-                <div className="flex items-center gap-2 mb-2">
-                  <Wifi size={16} className="text-primary" />
-                  <SubTitle variant="primary">{t('techReq.networkTitle')}</SubTitle>
-                </div>
-                 <p className="text-sm font-sans leading-relaxed text-foreground mb-2">{t('techReq.networkDesc')}</p>
-                 <ul className="text-sm font-sans text-foreground space-y-0.5">
-                  {networkItems.map((item, i) => <li key={i}>• <span className="font-mono">{item}</span></li>)}
-                </ul>
-              </div>
+               <p className="text-sm font-sans leading-relaxed text-foreground mb-2">{t('techReq.systemDesc')}</p>
+               <ul className="text-sm font-sans text-foreground space-y-0.5">
+                {systemItems.map((item, i) => <li key={i}>• {item}</li>)}
+              </ul>
             </div>
-            <InlineSystemCheck t={t} />
-            <InlineConnectivityCheck t={t} language={language} />
-          </StaggerReveal>
-        </div>
+            <div className="rounded-xl p-4 bg-primary/5 border border-primary/20">
+              <div className="flex items-center gap-2 mb-2">
+                <Wifi size={16} className="text-primary" />
+                <SubTitle variant="primary">{t('techReq.networkTitle')}</SubTitle>
+              </div>
+               <p className="text-sm font-sans leading-relaxed text-foreground mb-2">{t('techReq.networkDesc')}</p>
+               <ul className="text-sm font-sans text-foreground space-y-0.5">
+                {networkItems.map((item, i) => <li key={i}>• <span className="font-mono">{item}</span></li>)}
+              </ul>
+            </div>
+          </div>
+          <InlineSystemCheck t={t} />
+          <InlineConnectivityCheck t={t} language={language} />
+        </TypedSection>
       );
     },
     'crisis-sim': () => null, // handled separately in ChatView to pass ref
