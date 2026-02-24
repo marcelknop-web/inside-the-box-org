@@ -7,18 +7,31 @@ interface StaggerRevealProps {
   stagger?: number;
   /** Wait this long before revealing the first child */
   startDelay?: number;
+  /** Reset animation sequence when this value changes */
+  resetKey?: string | number;
 }
 
-export const StaggerReveal = ({ children, className = '', stagger = 180, startDelay = 0 }: StaggerRevealProps) => {
+export const StaggerReveal = ({ children, className = '', stagger = 180, startDelay = 0, resetKey }: StaggerRevealProps) => {
   const items = Children.toArray(children);
   const [visibleCount, setVisibleCount] = useState(0);
-  const [started, setStarted] = useState(startDelay === 0);
+  const [started, setStarted] = useState(startDelay <= 0);
 
+  // Reset item reveal count when section changes
   useEffect(() => {
-    if (startDelay <= 0) return;
+    setVisibleCount(0);
+  }, [resetKey]);
+
+  // Start gate is fully controlled by startDelay and section identity
+  useEffect(() => {
+    if (startDelay <= 0) {
+      setStarted(true);
+      return;
+    }
+
+    setStarted(false);
     const t = setTimeout(() => setStarted(true), startDelay);
     return () => clearTimeout(t);
-  }, [startDelay]);
+  }, [startDelay, resetKey]);
 
   useEffect(() => {
     if (!started || visibleCount >= items.length) return;
