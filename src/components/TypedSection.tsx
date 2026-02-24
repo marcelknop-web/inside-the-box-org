@@ -23,7 +23,7 @@ const TypedSection = ({
   charDelay = 18,
   intro,
   children,
-  stagger = 400,
+  stagger = 600,
 }: TypedSectionProps) => {
   const [titleDone, setTitleDone] = useState(false);
   const [introVisible, setIntroVisible] = useState(false);
