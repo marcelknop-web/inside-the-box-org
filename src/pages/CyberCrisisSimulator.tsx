@@ -1,91 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-
-// ─── SYSTEM PROMPT ───────────────────────────────────────────────
-const SYSTEM_PROMPT = `Du bist ein KI-gesteuerter Krisenübungs-Simulator für eine Cybersecurity Tabletop-Übung (TTX).
-
-DEINE ROLLE:
-Du spielst gleichzeitig: LAGEZENTRALE (Moderator), HELPDESK, IT-SECURITY, DSB/LEGAL, INJECT-QUELLE.
-Der Spieler ist der Leiter des Krisenstabs (KSL).
-
-SZENARIO (nicht vorweg offenbaren):
-Angriffskette:
-1. SQL-Injection/RCE auf Testsystem in DMZ
-2. Privilege Escalation auf Testsystem
-3. Exfiltration: 250.000 Echtkundendatensätze (E-Mail, Stammdaten, Zugangsdaten)
-4. SMTP-Server auf Testsystem installiert
-5. 250.000 Phishing-Mails versandt (Passwort-Reset-Link → Litauen)
-6. Credential Harvesting auf externer Fake-Seite
-7. Account Takeover + Bestellbetrug
-8. Kunden ausgesperrt
-
-Randbedingungen (geheim bis Phase 2):
-- Nur Testsystem kompromittiert, keine laterale Bewegung erkennbar
-- Phishing-Webserver: Litauen
-- Anzahl Klicker: UNBEKANNT
-- 250.000 Echtdaten lagen auf Testsystem = Verstoß Minimalprinzip
-
-Injects (nach 2-3 Minuten Spielzeit einbringen):
-INJECT 1: Erpressungs-E-Mail eingeht: "Zahlen Sie 10.000 EUR Bitcoin in 24h sonst veröffentliche ich auf X. Anlage: 50 Datensätze."
-INJECT 2: IT-Security meldet: Kundenstammdaten wurden auf Testsystem nicht nur gestohlen sondern teilweise verändert. Umfang unklar. Synchronisierung mit Produktivsystem wird geprüft.
-
-ABLAUF:
-
-Eröffnung (EXAKT SO):
-"LAGEZENTRALE — 08:45 Uhr
-
-Das Helpdesk meldet eine ungewöhnlich hohe Anzahl von Anrufen. Kunden berichten, dass sie sich seit heute Morgen nicht mehr auf der IBO-Webseite anmelden können.
-
-Zusätzlich erhalten wir erste Hinweise, dass Kunden eine merkwürdige E-Mail erhalten haben sollen, die angeblich von uns stammt.
-
-Das ist alles, was wir aktuell wissen. Sie übernehmen die Lageführung. Die Uhr läuft."
-
-Progression:
-- Nach 1-2 Antworten: HELPDESK ~300 Anrufe + SMTP-Anomalie DMZ freigeben
-- Nach 3-4 Antworten: vollständigen technischen Befund freigeben
-- Nach 4-5 Antworten: INJECT 1 einbringen (beginne mit "INJECT —")
-- 1-2 Antworten nach Inject 1: INJECT 2 einbringen
-
-Spielerführung:
-- Druckfragen bei unvollständigen Reaktionen stellen
-- Korrekte Maßnahmen kurz sachlich bestätigen
-- Fehlende Aspekte als Rollenhinweis einbringen (z.B. "DSB: 72h-Frist läuft bereits.")
-- Antworten maximal 4-6 Zeilen kurz halten
-
-AUSWERTUNG (bei Empfang von "[TIMER_ABGELAUFEN]" oder wenn Spieler "Auswertung/Ende" schreibt):
-
-Erstelle strukturierte Auswertung:
-
-## ÜBUNGSAUSWERTUNG
-
-**Gesamtbewertung:** [1-5 Sterne ★]
-
-### Stärken
-[Was der Spieler gut gemacht hat]
-
-### Lücken / Verbesserungspotenzial
-[Was fehlte oder zu spät kam]
-
-### Bewertungsmatrix
-| Bereich | Bewertung |
-|---|---|
-| Ersterkennung & Alarmierung | |
-| Technische Analyse | |
-| Eindämmungsmaßnahmen | |
-| Meldepflichten DSGVO/NIS2 | |
-| Kundenkommunikation | |
-| Umgang mit Erpressung (Inject 1) | |
-| Umgang mit Datenmutation (Inject 2) | |
-
-### Top-3 Lücken
-1. ...
-2. ...
-3. ...
-
-### Empfohlene Vertiefungsthemen
-[Basierend auf identifizierten Lücken]
-
-Nur bewerten was der Spieler tatsächlich geschrieben hat. Sachlich, keine Bewertung erfundener Aktionen. Sprache: DEUTSCH.`;
+import { useLanguage } from "@/i18n/LanguageContext";
+import { SYSTEM_PROMPTS } from "./crisisSystemPrompts";
 
 // ─── TYPES ───────────────────────────────────────────────────────
 interface Message {
@@ -98,24 +14,6 @@ interface InjectState {
   i1: boolean;
   i2: boolean;
 }
-
-// ─── QUICK ACTIONS ───────────────────────────────────────────────
-const QUICK_ACTIONS = [
-  { label: "Krisenteam einberufen", text: "Krisenteam sofort einberufen. Incident-Response-Plan aktivieren. Wer ist der Incident Commander?" },
-  { label: "Testsystem isolieren", text: "IT-Security: Testsystem sofort vom Netzwerk trennen. Kein Shutdown – erst forensische Kopie erstellen." },
-  { label: "DSB / 72h-Frist", text: "DSB: Datenpanne prüfen. DSGVO Art. 33 – 72h-Frist bewerten. Läuft die Frist bereits?" },
-  { label: "Kundenkommunikation", text: "Kommunikation: Kundenmitteilung und Hotline vorbereiten. Kein Statement ohne Freigabe." },
-  { label: "Strafanzeige § 202a", text: "Rechtsabteilung: Strafanzeige § 202a StGB einleiten. Erpressung § 253 StGB dokumentieren." },
-  { label: "Auswertung anfordern", text: "Auswertung", isEval: true },
-] as const;
-
-// ─── PHASES ──────────────────────────────────────────────────────
-const PHASES = [
-  { id: 1, label: "Erstreaktion" },
-  { id: 2, label: "Lageanalyse" },
-  { id: 3, label: "Eindämmung" },
-  { id: 4, label: "Auswertung" },
-];
 
 // ─── COLORS ──────────────────────────────────────────────────────
 const C = {
@@ -146,9 +44,9 @@ const DiamondLogo = ({ size = 22 }: { size?: number }) => (
 );
 
 // ─── TYPING INDICATOR ────────────────────────────────────────────
-const TypingIndicator = () => (
+const TypingIndicator = ({ label }: { label: string }) => (
   <div style={{ display: "flex", gap: 6, alignItems: "center", padding: "12px 0" }}>
-    <span style={{ color: C.textDim, fontFamily: "IBM Plex Mono, monospace", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em", marginRight: 8 }}>LAGEZENTRALE</span>
+    <span style={{ color: C.textDim, fontFamily: "IBM Plex Mono, monospace", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em", marginRight: 8 }}>{label}</span>
     {[0, 1, 2].map(i => (
       <svg key={i} width="8" height="8" viewBox="0 0 10 10" style={{ animation: `crisisDiamondPulse 1.2s ${i * 0.2}s infinite ease-in-out` }}>
         <polygon points="5,0 10,5 5,10 0,5" fill={C.gold} />
@@ -230,6 +128,7 @@ interface CrisisSimulatorProps {
 
 // ─── MAIN COMPONENT ──────────────────────────────────────────────
 const CyberCrisisSimulator: React.FC<CrisisSimulatorProps> = ({ embedded = false }) => {
+  const { language, t } = useLanguage();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -242,6 +141,28 @@ const CyberCrisisSimulator: React.FC<CrisisSimulatorProps> = ({ embedded = false
   const chatEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const timerExpiredRef = useRef(false);
+
+  // ─── I18N HELPERS ──────────────────────────────────────────────
+  const systemPrompt = SYSTEM_PROMPTS[language] || SYSTEM_PROMPTS.en;
+  const phases = [
+    { id: 1, label: t('crisisSim.phase1') },
+    { id: 2, label: t('crisisSim.phase2') },
+    { id: 3, label: t('crisisSim.phase3') },
+    { id: 4, label: t('crisisSim.phase4') },
+  ];
+  const quickActions = [
+    { label: t('crisisSim.qaConveneTeam'), text: t('crisisSim.qaConveneTeamText') },
+    { label: t('crisisSim.qaIsolateSystem'), text: t('crisisSim.qaIsolateSystemText') },
+    { label: t('crisisSim.qaDpo72h'), text: t('crisisSim.qaDpo72hText') },
+    { label: t('crisisSim.qaCustomerComm'), text: t('crisisSim.qaCustomerCommText') },
+    { label: t('crisisSim.qaCriminalComplaint'), text: t('crisisSim.qaCriminalComplaintText') },
+    { label: t('crisisSim.qaRequestEval'), text: t('crisisSim.qaRequestEvalText'), isEval: true },
+  ];
+  const scenarioItems = t('crisisSim.scenarioItems').split('|');
+  const legalItems = t('crisisSim.legalItems').split('|');
+  const evalKeywordsPattern = new RegExp(t('crisisSim.evalKeywords'), 'i');
+  const timerExpiredToken = t('crisisSim.timerExpiredToken');
+  const evalMarker = t('crisisSim.evalMarker');
 
   const userMsgCount = messages.filter(m => m.role === "user" && m.content !== "START_SIMULATION").length;
   const activePhase = evalDone ? 4 : userMsgCount >= 5 ? 3 : userMsgCount >= 2 ? 2 : 1;
@@ -261,17 +182,17 @@ const CyberCrisisSimulator: React.FC<CrisisSimulatorProps> = ({ embedded = false
     if (secondsLeft <= 0 && timerActive && !timerExpiredRef.current) {
       timerExpiredRef.current = true;
       setTimerActive(false);
-      sendMessage("[TIMER_ABGELAUFEN]", true);
+      sendMessage(timerExpiredToken, true);
     }
   }, [secondsLeft, timerActive]);
 
   const sendToEdge = useCallback(async (msgs: { role: string; content: string }[]) => {
     const { data, error } = await supabase.functions.invoke("crisis-chat", {
-      body: { messages: msgs, system: SYSTEM_PROMPT },
+      body: { messages: msgs, system: systemPrompt },
     });
     if (error) throw error;
     return data.content as string;
-  }, []);
+  }, [systemPrompt]);
 
   const sendMessage = useCallback(async (text: string, isSystem = false) => {
     const userMsg: Message = { role: "user", content: text, type: isSystem ? "sys" : "user" };
@@ -290,7 +211,7 @@ const CyberCrisisSimulator: React.FC<CrisisSimulatorProps> = ({ embedded = false
         if (!injects.i1) setInjects(p => ({ ...p, i1: true }));
         else if (!injects.i2) setInjects(p => ({ ...p, i2: true }));
       }
-      if (reply.includes("ÜBUNGSAUSWERTUNG")) {
+      if (reply.includes(evalMarker)) {
         type = "eval";
         setEvalDone(true);
         setTimerActive(false);
@@ -299,12 +220,12 @@ const CyberCrisisSimulator: React.FC<CrisisSimulatorProps> = ({ embedded = false
       const assistantMsg: Message = { role: "assistant", content: reply, type };
       setMessages(prev => [...prev, assistantMsg]);
     } catch (e) {
-      const errMsg: Message = { role: "assistant", content: "SYSTEM: Verbindungsfehler – bitte erneut versuchen.", type: "sys" };
+      const errMsg: Message = { role: "assistant", content: t('crisisSim.connectionError'), type: "sys" };
       setMessages(prev => [...prev, errMsg]);
     } finally {
       setLoading(false);
     }
-  }, [messages, injects, sendToEdge]);
+  }, [messages, injects, sendToEdge, evalMarker, t]);
 
   const handleStart = async () => {
     setStarted(true);
@@ -315,7 +236,7 @@ const CyberCrisisSimulator: React.FC<CrisisSimulatorProps> = ({ embedded = false
       setMessages([{ role: "user", content: "START_SIMULATION", type: "sys" }, msg]);
       setTimerActive(true);
     } catch {
-      setMessages([{ role: "assistant", content: "SYSTEM: Verbindung fehlgeschlagen. Ist der API-Key konfiguriert?", type: "sys" }]);
+      setMessages([{ role: "assistant", content: t('crisisSim.connectionFailed'), type: "sys" }]);
     } finally {
       setLoading(false);
     }
@@ -324,7 +245,7 @@ const CyberCrisisSimulator: React.FC<CrisisSimulatorProps> = ({ embedded = false
   const handleSend = () => {
     if (!input.trim() || loading || evalDone) return;
     const text = input.trim();
-    if (/auswertung|bewertung|ende/i.test(text)) {
+    if (evalKeywordsPattern.test(text)) {
       setTimerActive(false);
     }
     sendMessage(text);
@@ -332,7 +253,7 @@ const CyberCrisisSimulator: React.FC<CrisisSimulatorProps> = ({ embedded = false
 
   const handleQuickAction = (text: string) => {
     if (loading || evalDone) return;
-    if (/auswertung/i.test(text)) setTimerActive(false);
+    if (evalKeywordsPattern.test(text)) setTimerActive(false);
     sendMessage(text);
   };
 
@@ -346,20 +267,20 @@ const CyberCrisisSimulator: React.FC<CrisisSimulatorProps> = ({ embedded = false
   const timerClass = secondsLeft <= 0 ? "" : secondsLeft < 60 ? "crisis-timer-critical" : secondsLeft < 120 ? "crisis-timer-warning" : "";
 
   const getRoleStyle = (msg: Message): { label: string; color: string; borderLeft?: string } => {
-    if (msg.type === "user") return { label: "KRISENSTABSLEITER", color: C.blue };
-    if (msg.type === "inject") return { label: "!! INJECT", color: C.inject, borderLeft: `3px solid ${C.inject}` };
-    if (msg.type === "eval") return { label: "AUSWERTUNG", color: C.green };
-    if (msg.type === "sys") return { label: "SYSTEM", color: C.red };
-    return { label: "LAGEZENTRALE", color: C.textDim };
+    if (msg.type === "user") return { label: t('crisisSim.roleCrisisLead'), color: C.blue };
+    if (msg.type === "inject") return { label: t('crisisSim.roleInject'), color: C.inject, borderLeft: `3px solid ${C.inject}` };
+    if (msg.type === "eval") return { label: t('crisisSim.roleEval'), color: C.green };
+    if (msg.type === "sys") return { label: t('crisisSim.roleSystem'), color: C.red };
+    return { label: t('crisisSim.roleSitRoom'), color: C.textDim };
   };
 
-  // ─── SIDEBAR PANEL (shared between standalone & embedded) ─────
+  // ─── SIDEBAR PANEL ────────────────────────────────────────────
   const SidebarPanel = () => (
     <div style={{ width: embedded ? "100%" : 210, flexShrink: 0, background: C.surface, backdropFilter: "blur(10px)", borderRight: embedded ? "none" : `1px solid ${C.borderThin}`, display: "flex", flexDirection: embedded ? "row" : "column", padding: embedded ? "12px" : "16px 12px", gap: embedded ? 16 : 20, overflowY: "auto", fontSize: 11, flexWrap: embedded ? "wrap" : "nowrap", borderBottom: embedded ? `1px solid ${C.borderThin}` : "none" }}>
-      {/* PHASEN */}
+      {/* PHASES */}
       <div style={{ minWidth: embedded ? 140 : "auto" }}>
-        <div style={{ color: C.gold, fontWeight: 700, fontSize: 10, textTransform: "uppercase", letterSpacing: "0.15em", marginBottom: 8 }}>Übungsphasen</div>
-        {PHASES.map(p => {
+        <div style={{ color: C.gold, fontWeight: 700, fontSize: 10, textTransform: "uppercase", letterSpacing: "0.15em", marginBottom: 8 }}>{t('crisisSim.exercisePhases')}</div>
+        {phases.map(p => {
           const isActive = p.id === activePhase;
           const isDone = completedPhases.includes(p.id);
           return (
@@ -378,32 +299,32 @@ const CyberCrisisSimulator: React.FC<CrisisSimulatorProps> = ({ embedded = false
 
       {/* INJECT STATUS */}
       <div style={{ minWidth: embedded ? 160 : "auto" }}>
-        <div style={{ color: C.gold, fontWeight: 700, fontSize: 10, textTransform: "uppercase", letterSpacing: "0.15em", marginBottom: 8 }}>Inject-Status</div>
+        <div style={{ color: C.gold, fontWeight: 700, fontSize: 10, textTransform: "uppercase", letterSpacing: "0.15em", marginBottom: 8 }}>{t('crisisSim.injectStatus')}</div>
         {[
-          { label: "Inject 1 – Erpressung", active: injects.i1 },
-          { label: "Inject 2 – Datenmutation", active: injects.i2 },
+          { label: t('crisisSim.inject1Label'), active: injects.i1 },
+          { label: t('crisisSim.inject2Label'), active: injects.i2 },
         ].map((inj, i) => (
           <div key={i} style={{ padding: "4px 0", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: `1px solid ${C.borderThin}`, gap: 8 }}>
             <span style={{ fontSize: 10, color: C.textDim }}>{inj.label}</span>
             <span style={{ fontSize: 9, padding: "1px 6px", border: `1px solid ${inj.active ? C.red : C.borderVis}`, color: inj.active ? C.red : C.textDim, textTransform: "uppercase", letterSpacing: "0.1em" }}>
-              {inj.active ? "AKTIV" : "BEREIT"}
+              {inj.active ? t('crisisSim.injectActive') : t('crisisSim.injectReady')}
             </span>
           </div>
         ))}
       </div>
 
-      {/* SZENARIO */}
+      {/* SCENARIO */}
       <div style={{ minWidth: embedded ? 140 : "auto" }}>
-        <div style={{ color: C.gold, fontWeight: 700, fontSize: 10, textTransform: "uppercase", letterSpacing: "0.15em", marginBottom: 8 }}>Szenario</div>
-        {["DMZ-Kompromittierung", "Phishing · 250k Kunden", "Credential Harvesting", "Account Takeover", "Erpressung"].map((s, i) => (
+        <div style={{ color: C.gold, fontWeight: 700, fontSize: 10, textTransform: "uppercase", letterSpacing: "0.15em", marginBottom: 8 }}>{t('crisisSim.scenario')}</div>
+        {scenarioItems.map((s, i) => (
           <div key={i} style={{ color: C.textDim, fontSize: 10, padding: "2px 0" }}>{s}</div>
         ))}
       </div>
 
-      {/* RECHTSGRUNDLAGEN */}
+      {/* LEGAL */}
       <div style={{ minWidth: embedded ? 140 : "auto" }}>
-        <div style={{ color: C.gold, fontWeight: 700, fontSize: 10, textTransform: "uppercase", letterSpacing: "0.15em", marginBottom: 8 }}>Rechtsgrundlagen</div>
-        {["Art. 33/34 DSGVO · 72h", "§ 202a / 263 / 253 StGB", "NIS-2 / BSIG", "ISO/IEC 27035"].map((s, i) => (
+        <div style={{ color: C.gold, fontWeight: 700, fontSize: 10, textTransform: "uppercase", letterSpacing: "0.15em", marginBottom: 8 }}>{t('crisisSim.legalBasis')}</div>
+        {legalItems.map((s, i) => (
           <div key={i} style={{ color: C.textDim, fontSize: 10, padding: "2px 0" }}>{s}</div>
         ))}
       </div>
@@ -413,7 +334,7 @@ const CyberCrisisSimulator: React.FC<CrisisSimulatorProps> = ({ embedded = false
   // ─── PHASE BAR ─────────────────────────────────────────────────
   const PhaseBar = () => (
     <div style={{ display: "flex", borderBottom: `1px solid ${C.borderThin}`, flexShrink: 0 }}>
-      {PHASES.map(p => {
+      {phases.map(p => {
         const isActive = p.id === activePhase;
         const isDone = completedPhases.includes(p.id);
         return (
@@ -436,19 +357,18 @@ const CyberCrisisSimulator: React.FC<CrisisSimulatorProps> = ({ embedded = false
       <div style={{ textAlign: "center", maxWidth: 520, padding: "0 24px" }}>
         <DiamondLogo size={58} />
         <div style={{ color: C.textDim, fontSize: 10, textTransform: "uppercase", letterSpacing: "0.2em", marginTop: 24, marginBottom: 8 }}>
-          Cybersecurity Training · TTX
+          {t('crisisSim.ttxLabel')}
         </div>
         <div style={{ color: C.textLight, fontSize: 20, fontWeight: 600, letterSpacing: "0.05em", marginBottom: 24 }}>
-          Cyber Crisis Simulator<br />
-          <span style={{ color: C.gold, fontSize: 14 }}>/ Krisenstabsleitung</span>
+          {t('crisisSim.title')}<br />
+          <span style={{ color: C.gold, fontSize: 14 }}>{t('crisisSim.roleSubtitle')}</span>
         </div>
-        <div style={{ border: `1px solid ${C.borderVis}`, padding: 20, marginBottom: 32, textAlign: "left", fontSize: 12, lineHeight: 1.7, color: C.text }}>
-          Sie übernehmen die Rolle des <span style={{ color: C.goldLight, fontWeight: 600 }}>Leiters des Krisenstabs</span> während eines laufenden Cyberangriffs.
-          Szenario: Phishing-Kampagne nach DMZ-Kompromittierung · <span style={{ color: C.goldLight, fontWeight: 600 }}>250.000 betroffene Kunden</span>.
-          Dauer: <span style={{ color: C.goldLight, fontWeight: 600 }}>5 Minuten</span> · Automatische Auswertung nach TTX-Bewertungsmatrix.
-        </div>
+        <div
+          style={{ border: `1px solid ${C.borderVis}`, padding: 20, marginBottom: 32, textAlign: "left", fontSize: 12, lineHeight: 1.7, color: C.text }}
+          dangerouslySetInnerHTML={{ __html: t('crisisSim.startDesc') }}
+        />
         <button className="crisis-start-btn" onClick={handleStart} disabled={loading}>
-          <span>{loading ? "VERBINDE..." : "ÜBUNG STARTEN"}</span>
+          <span>{loading ? t('crisisSim.connecting') : t('crisisSim.startButton')}</span>
         </button>
       </div>
     </div>
@@ -476,7 +396,7 @@ const CyberCrisisSimulator: React.FC<CrisisSimulatorProps> = ({ embedded = false
           </div>
         );
       })}
-      {loading && <TypingIndicator />}
+      {loading && <TypingIndicator label={t('crisisSim.roleSitRoom')} />}
       <div ref={chatEndRef} />
     </div>
   );
@@ -485,7 +405,7 @@ const CyberCrisisSimulator: React.FC<CrisisSimulatorProps> = ({ embedded = false
   const InputArea = () => (
     <div style={{ borderTop: `1px solid ${C.borderThin}`, background: C.surface, backdropFilter: "blur(10px)", padding: "12px 16px", flexShrink: 0 }}>
       <div style={{ display: "flex", alignItems: "center", border: `1px solid ${C.borderThin}`, marginBottom: 8 }}>
-        <div style={{ padding: "8px 12px", borderRight: `1px solid ${C.borderThin}`, color: C.gold, fontSize: 12, fontWeight: 600, letterSpacing: "0.1em", flexShrink: 0 }}>KSL ▶</div>
+        <div style={{ padding: "8px 12px", borderRight: `1px solid ${C.borderThin}`, color: C.gold, fontSize: 12, fontWeight: 600, letterSpacing: "0.1em", flexShrink: 0 }}>{t('crisisSim.inputPrefix')}</div>
         <textarea
           ref={textareaRef}
           value={input}
@@ -493,7 +413,7 @@ const CyberCrisisSimulator: React.FC<CrisisSimulatorProps> = ({ embedded = false
           onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
           rows={2}
           style={{ flex: 1, background: "transparent", border: "none", outline: "none", color: C.textLight, fontFamily: "'IBM Plex Mono', monospace", fontSize: 13, padding: "8px 12px", resize: "none" }}
-          placeholder="Anweisung eingeben..."
+          placeholder={t('crisisSim.inputPlaceholder')}
           disabled={loading}
         />
         <button
@@ -501,11 +421,11 @@ const CyberCrisisSimulator: React.FC<CrisisSimulatorProps> = ({ embedded = false
           disabled={loading || !input.trim()}
           style={{ padding: "8px 16px", background: "transparent", border: "none", borderLeft: `1px solid ${C.borderThin}`, color: !input.trim() || loading ? C.textDim : C.gold, fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em", cursor: !input.trim() || loading ? "default" : "pointer", fontWeight: 600 }}
         >
-          SENDEN
+          {t('crisisSim.sendButton')}
         </button>
       </div>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-        {QUICK_ACTIONS.map((qa, i) => (
+        {quickActions.map((qa, i) => (
           <button
             key={i}
             className={`crisis-qbtn ${"isEval" in qa && qa.isEval ? "crisis-qbtn-eval" : ""}`}
@@ -563,7 +483,7 @@ const CyberCrisisSimulator: React.FC<CrisisSimulatorProps> = ({ embedded = false
     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "6px 12px", background: C.surface, backdropFilter: "blur(10px)", borderBottom: `1px solid ${C.borderThin}`, flexShrink: 0, gap: 8 }}>
       {/* Phase dots */}
       <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-        {PHASES.map(p => {
+        {phases.map(p => {
           const isActive = p.id === activePhase;
           const isDone = completedPhases.includes(p.id);
           return (
@@ -603,10 +523,8 @@ const CyberCrisisSimulator: React.FC<CrisisSimulatorProps> = ({ embedded = false
         <style>{sharedStyles}</style>
 
         {!started ? (
-          /* ── PRE-START: clean start screen only ── */
           <StartScreen />
         ) : (
-          /* ── RUNNING: compact status + chat ── */
           <>
             <CompactStatusBar />
 
@@ -614,14 +532,14 @@ const CyberCrisisSimulator: React.FC<CrisisSimulatorProps> = ({ embedded = false
             {infoPanelOpen && (
               <div style={{ background: C.surface, borderBottom: `1px solid ${C.borderThin}`, padding: "10px 12px", display: "flex", flexWrap: "wrap", gap: 12, fontSize: 10, maxHeight: 180, overflowY: "auto" }}>
                 <div style={{ minWidth: 120 }}>
-                  <div style={{ color: C.gold, fontWeight: 700, fontSize: 9, textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: 4 }}>Szenario</div>
-                  {["DMZ-Kompromittierung", "Phishing · 250k Kunden", "Credential Harvesting", "Account Takeover", "Erpressung"].map((s, i) => (
+                  <div style={{ color: C.gold, fontWeight: 700, fontSize: 9, textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: 4 }}>{t('crisisSim.scenario')}</div>
+                  {scenarioItems.map((s, i) => (
                     <div key={i} style={{ color: C.textDim, fontSize: 9, padding: "1px 0" }}>{s}</div>
                   ))}
                 </div>
                 <div style={{ minWidth: 120 }}>
-                  <div style={{ color: C.gold, fontWeight: 700, fontSize: 9, textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: 4 }}>Rechtsgrundlagen</div>
-                  {["Art. 33/34 DSGVO · 72h", "§ 202a / 263 / 253 StGB", "NIS-2 / BSIG", "ISO/IEC 27035"].map((s, i) => (
+                  <div style={{ color: C.gold, fontWeight: 700, fontSize: 9, textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: 4 }}>{t('crisisSim.legalBasis')}</div>
+                  {legalItems.map((s, i) => (
                     <div key={i} style={{ color: C.textDim, fontSize: 9, padding: "1px 0" }}>{s}</div>
                   ))}
                 </div>
@@ -672,10 +590,10 @@ const CyberCrisisSimulator: React.FC<CrisisSimulatorProps> = ({ embedded = false
             <DiamondLogo size={22} />
             <span style={{ color: C.gold, fontWeight: 600, fontSize: 13, letterSpacing: "0.08em" }}>inside-the-box</span>
             <span style={{ color: C.textDim, margin: "0 4px" }}>/</span>
-            <span style={{ color: C.textDim, fontSize: 11, letterSpacing: "0.05em" }}>Cyber Crisis Simulator · TTX · Phishing-Kampagne</span>
+            <span style={{ color: C.textDim, fontSize: 11, letterSpacing: "0.05em" }}>{t('crisisSim.topbarScenario')}</span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <span style={{ border: `1px solid ${C.borderVis}`, padding: "2px 8px", fontSize: 11, color: C.gold, letterSpacing: "0.1em" }}>DE</span>
+            <span style={{ border: `1px solid ${C.borderVis}`, padding: "2px 8px", fontSize: 11, color: C.gold, letterSpacing: "0.1em" }}>{language.toUpperCase()}</span>
             {started && (
               <div className={timerClass} style={{ fontWeight: 700, fontSize: 16, color: timerColor, letterSpacing: "0.05em", fontVariantNumeric: "tabular-nums" }}>
                 {formatTime(secondsLeft)}
