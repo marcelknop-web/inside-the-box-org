@@ -15,7 +15,7 @@ interface TypedSectionProps {
 }
 
 /**
- * Sequences: title types in → intro fades → boxes stagger in.
+ * Sequences: title types in → 500ms pause → intro types in → 500ms pause → boxes stagger in.
  */
 const TypedSection = ({
   title,
@@ -26,23 +26,37 @@ const TypedSection = ({
   stagger = 400,
 }: TypedSectionProps) => {
   const [titleDone, setTitleDone] = useState(false);
+  const [introVisible, setIntroVisible] = useState(false);
+  const [introDone, setIntroDone] = useState(!intro); // if no intro, skip
   const [suppressIntro, setSuppressIntro] = useState(false);
   const sectionKey = `${title}-${mode}-${charDelay}`;
   const prevKeyRef = useRef(sectionKey);
 
-  // Reset when section identity changes — suppress intro transition to avoid flash
+  // Reset when section identity changes
   useEffect(() => {
     if (prevKeyRef.current !== sectionKey) {
       prevKeyRef.current = sectionKey;
       setSuppressIntro(true);
       setTitleDone(false);
+      setIntroVisible(false);
+      setIntroDone(!intro);
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           setSuppressIntro(false);
         });
       });
     }
-  }, [sectionKey]);
+  }, [sectionKey, intro]);
+
+  // 500ms pause after title before showing intro
+  useEffect(() => {
+    if (!titleDone || !intro) return;
+    const t = setTimeout(() => setIntroVisible(true), 500);
+    return () => clearTimeout(t);
+  }, [titleDone, intro]);
+
+  // Determine when content blocks can start (after intro done + 500ms)
+  const blocksReady = intro ? introDone : titleDone;
 
   return (
     <div className="space-y-3">
@@ -50,22 +64,43 @@ const TypedSection = ({
         <h2 className="text-primary text-lg font-bold font-mono mb-3">
           <Typewriter key={sectionKey} text={title} mode={mode} charDelay={charDelay} onDone={() => setTitleDone(true)} />
         </h2>
-        {intro && (
+        {intro && introVisible && (
           <div
             style={{
-              opacity: titleDone ? 1 : 0,
-              transform: titleDone ? 'translateY(0)' : 'translateY(8px)',
-              transition: suppressIntro ? 'none' : 'opacity 500ms ease-out, transform 500ms ease-out',
+              opacity: 1,
+              transition: suppressIntro ? 'none' : 'opacity 200ms ease-out',
             }}
           >
-            {intro}
+            <IntroTypewriter intro={intro} mode={mode} charDelay={charDelay} sectionKey={sectionKey} onDone={() => setIntroDone(true)} />
           </div>
         )}
       </div>
-      <StaggerReveal resetKey={sectionKey} stagger={stagger} startDelay={titleDone ? 500 : 999999}>
+      <StaggerReveal resetKey={sectionKey} stagger={stagger} startDelay={blocksReady ? 500 : 999999}>
         {children}
       </StaggerReveal>
     </div>
+  );
+};
+
+/** Extracts text from a ReactNode intro (typically <p>text</p>) and types it */
+const IntroTypewriter = ({ intro, mode, charDelay, sectionKey, onDone }: { intro: ReactNode; mode: RevealMode; charDelay: number; sectionKey: string; onDone: () => void }) => {
+  // Extract text content from the ReactNode
+  const extractText = (node: ReactNode): string => {
+    if (typeof node === 'string') return node;
+    if (typeof node === 'number') return String(node);
+    if (Array.isArray(node)) return node.map(extractText).join('');
+    if (node && typeof node === 'object' && 'props' in node) {
+      return extractText((node as any).props.children);
+    }
+    return '';
+  };
+
+  const text = extractText(intro);
+
+  return (
+    <p>
+      <Typewriter key={`${sectionKey}-intro`} text={text} mode={mode} charDelay={charDelay} onDone={onDone} />
+    </p>
   );
 };
 
