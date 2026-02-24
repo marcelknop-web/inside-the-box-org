@@ -35,6 +35,7 @@ import DesignTokens from "./pages/DesignTokens";
 import DesignHome from "./pages/DesignHome";
 import NotFound from "./pages/NotFound";
 import ArtificialStressSimulator from "./pages/ArtificialStressSimulator";
+import Ehrenerklaerung from "./pages/Ehrenerklaerung";
 
 const queryClient = new QueryClient();
 
@@ -76,6 +77,7 @@ const App = () => (
               <Route path="/legacy/templates" element={<TemplateGallery />} />
               <Route path="/legacy/tokens" element={<DesignTokens />} />
               <Route path="/matrix" element={<ArtificialStressSimulator />} />
+              <Route path="/ehrenerklaerung" element={<Ehrenerklaerung />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
