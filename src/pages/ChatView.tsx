@@ -971,6 +971,8 @@ const ChatView = () => {
         {/* Input - desktop: always show (except service on mobile). Mobile welcome: show floating button, expand on click */}
         {(() => {
           const isTouchDevice = isMobile || isTablet;
+          // Hide ChatView input when crisis simulator is active (it has its own input)
+          if (activeService === 'crisis-sim') return null;
           // On touch devices: show FAB unless user explicitly opened chat; hide completely on service pages
           if (isTouchDevice && !!activeService) return null;
           const showInput = !isTouchDevice || chatOpen;
