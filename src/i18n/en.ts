@@ -409,4 +409,7 @@ export const en = {
     intro: 'Marcel Knop & Andreas Funder – Cybersecurity consulting and training.',
     chatPlaceholder: 'Ask me anything…',
   },
+  crisisSim: {
+    sidebarLabel: 'Crisis Sim',
+  },
 };
