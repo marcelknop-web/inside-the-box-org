@@ -238,6 +238,7 @@ const CyberCrisisSimulator: React.FC<CrisisSimulatorProps> = ({ embedded = false
   const [timerActive, setTimerActive] = useState(false);
   const [evalDone, setEvalDone] = useState(false);
   const [injects, setInjects] = useState<InjectState>({ i1: false, i2: false });
+  const [infoPanelOpen, setInfoPanelOpen] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const timerExpiredRef = useRef(false);
@@ -557,40 +558,82 @@ const CyberCrisisSimulator: React.FC<CrisisSimulatorProps> = ({ embedded = false
     .crisis-start-btn span { position: relative; z-index: 1; }
   `;
 
+  // ─── COMPACT STATUS BAR (embedded mobile) ───────────────────────
+  const CompactStatusBar = () => (
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "6px 12px", background: C.surface, backdropFilter: "blur(10px)", borderBottom: `1px solid ${C.borderThin}`, flexShrink: 0, gap: 8 }}>
+      {/* Phase dots */}
+      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+        {PHASES.map(p => {
+          const isActive = p.id === activePhase;
+          const isDone = completedPhases.includes(p.id);
+          return (
+            <div key={p.id} style={{ display: "flex", alignItems: "center", gap: 4 }}>
+              <span style={{ width: 8, height: 8, borderRadius: "50%", background: isDone ? C.green : isActive ? C.gold : C.textDim, flexShrink: 0, border: isActive ? `1px solid ${C.gold}` : "none" }} />
+              <span style={{ fontSize: 9, color: isDone ? C.green : isActive ? C.gold : C.textDim, textTransform: "uppercase", letterSpacing: "0.05em", display: isActive ? "inline" : "none" }}>{p.label}</span>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Inject badges */}
+      <div style={{ display: "flex", gap: 4 }}>
+        {injects.i1 && <span style={{ fontSize: 8, padding: "1px 4px", border: `1px solid ${C.red}`, color: C.red, textTransform: "uppercase" }}>INJ1</span>}
+        {injects.i2 && <span style={{ fontSize: 8, padding: "1px 4px", border: `1px solid ${C.red}`, color: C.red, textTransform: "uppercase" }}>INJ2</span>}
+      </div>
+
+      {/* Timer */}
+      <div className={timerClass} style={{ fontWeight: 700, fontSize: 16, color: timerColor, letterSpacing: "0.05em", fontVariantNumeric: "tabular-nums", flexShrink: 0 }}>
+        {formatTime(secondsLeft)}
+      </div>
+
+      {/* Info toggle */}
+      <button
+        onClick={() => setInfoPanelOpen(!infoPanelOpen)}
+        style={{ background: "transparent", border: `1px solid ${infoPanelOpen ? C.gold : C.borderVis}`, color: infoPanelOpen ? C.gold : C.textDim, padding: "2px 6px", fontSize: 9, fontFamily: "'IBM Plex Mono', monospace", textTransform: "uppercase", letterSpacing: "0.08em", cursor: "pointer", flexShrink: 0 }}
+      >
+        INFO
+      </button>
+    </div>
+  );
+
   // ─── EMBEDDED RENDER (inside ChatView) ─────────────────────────
   if (embedded) {
     return (
-      <div style={{ fontFamily: "'IBM Plex Mono', monospace", color: C.text, background: C.bg, border: `1px solid ${C.borderThin}`, display: "flex", flexDirection: "column", height: "calc(100vh - 120px)", minHeight: 500 }}>
+      <div style={{ fontFamily: "'IBM Plex Mono', monospace", color: C.text, background: C.bg, border: `1px solid ${C.borderThin}`, display: "flex", flexDirection: "column", height: "calc(100vh - 120px)", minHeight: 400 }}>
         <style>{sharedStyles}</style>
 
-        {/* TOPBAR (embedded — compact) */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 16px", background: C.surface, backdropFilter: "blur(10px)", borderBottom: `1px solid ${C.borderThin}`, flexShrink: 0 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <DiamondLogo size={18} />
-            <span style={{ color: C.gold, fontWeight: 600, fontSize: 12, letterSpacing: "0.08em" }}>Cyber Crisis Simulator</span>
-            <span style={{ color: C.textDim, fontSize: 10, letterSpacing: "0.05em" }}>· TTX · Phishing-Kampagne</span>
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            {started && (
-              <div className={timerClass} style={{ fontWeight: 700, fontSize: 16, color: timerColor, letterSpacing: "0.05em", fontVariantNumeric: "tabular-nums" }}>
-                {formatTime(secondsLeft)}
+        {!started ? (
+          /* ── PRE-START: clean start screen only ── */
+          <StartScreen />
+        ) : (
+          /* ── RUNNING: compact status + chat ── */
+          <>
+            <CompactStatusBar />
+
+            {/* Collapsible info panel */}
+            {infoPanelOpen && (
+              <div style={{ background: C.surface, borderBottom: `1px solid ${C.borderThin}`, padding: "10px 12px", display: "flex", flexWrap: "wrap", gap: 12, fontSize: 10, maxHeight: 180, overflowY: "auto" }}>
+                <div style={{ minWidth: 120 }}>
+                  <div style={{ color: C.gold, fontWeight: 700, fontSize: 9, textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: 4 }}>Szenario</div>
+                  {["DMZ-Kompromittierung", "Phishing · 250k Kunden", "Credential Harvesting", "Account Takeover", "Erpressung"].map((s, i) => (
+                    <div key={i} style={{ color: C.textDim, fontSize: 9, padding: "1px 0" }}>{s}</div>
+                  ))}
+                </div>
+                <div style={{ minWidth: 120 }}>
+                  <div style={{ color: C.gold, fontWeight: 700, fontSize: 9, textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: 4 }}>Rechtsgrundlagen</div>
+                  {["Art. 33/34 DSGVO · 72h", "§ 202a / 263 / 253 StGB", "NIS-2 / BSIG", "ISO/IEC 27035"].map((s, i) => (
+                    <div key={i} style={{ color: C.textDim, fontSize: 9, padding: "1px 0" }}>{s}</div>
+                  ))}
+                </div>
               </div>
             )}
-          </div>
-        </div>
 
-        {/* INFO BAR (horizontal sidebar replacement) */}
-        <SidebarPanel />
-
-        {/* PHASE BAR */}
-        {started && <PhaseBar />}
-
-        {/* CONTENT */}
-        {!started ? <StartScreen /> : (
-          <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
-            <ChatArea />
-            {!evalDone && <InputArea />}
-          </div>
+            {/* Chat + Input */}
+            <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+              <ChatArea />
+              {!evalDone && <InputArea />}
+            </div>
+          </>
         )}
       </div>
     );
