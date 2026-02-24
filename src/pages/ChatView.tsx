@@ -9,6 +9,7 @@ import { LucideIcon } from 'lucide-react';
 import CyberCrisisSimulator, { type CrisisSimulatorHandle } from './CyberCrisisSimulator';
 import { StaggerReveal } from '@/components/StaggerReveal';
 import GlitchText from '@/components/GlitchText';
+import Typewriter from '@/components/Typewriter';
 
 interface NavLink { url: string; label: string; }
 interface AiResponse { message: string; links: NavLink[]; }
@@ -427,16 +428,15 @@ const useServiceContent = () => {
     why: () => (
       <StaggerReveal>
         <Block>
-          <SectionTitle>{t('index.title')}</SectionTitle>
+          <SectionTitle><Typewriter text={t('index.title')} charDelay={80} /></SectionTitle>
           <p className="text-lg font-semibold mb-2">
             {(() => {
               const subtitle = t('index.subtitle');
-              // Match the "glitch word": Unerwartete (DE), unexpected (EN), inattendu (FR)
               const match = subtitle.match(/(.*?)(Unerwartete|unexpected|l'inattendu|inattendu)(.*)/i);
               if (match) {
-                return <>{match[1]}<GlitchText>{match[2]}</GlitchText>{match[3]}</>;
+                return <><Typewriter text={match[1]} delay={1400} charDelay={50} cursor={false} /><GlitchText>{match[2]}</GlitchText><Typewriter text={match[3]} delay={2200} charDelay={50} /></>;
               }
-              return subtitle;
+              return <Typewriter text={subtitle} delay={1400} charDelay={50} />;
             })()}
           </p>
         </Block>
