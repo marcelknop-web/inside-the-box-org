@@ -15,41 +15,23 @@ interface InjectState {
   i2: boolean;
 }
 
-// ─── COLORS ──────────────────────────────────────────────────────
-const C = {
-  bg: "#1c2130",
-  surface: "rgba(20, 25, 38, 0.93)",
-  gold: "#c9943a",
-  goldLight: "#e8b84b",
-  text: "#cfc8b4",
-  textDim: "#6a6250",
-  textLight: "#ede5cc",
-  borderThin: "rgba(201,148,58,0.17)",
-  borderVis: "rgba(201,148,58,0.33)",
-  red: "#b83030",
-  green: "#68a87c",
-  blue: "#5b7fa6",
-  inject: "#c98a3a",
-  injectText: "#e8c87a",
-};
-
-// ─── DIAMOND LOGO ────────────────────────────────────────────────
+// ─── DIAMOND LOGO (uses design tokens) ──────────────────────────
 const DiamondLogo = ({ size = 22 }: { size?: number }) => (
   <svg width={size} height={size} viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <polygon points="20,2 38,20 20,38 2,20" stroke={C.gold} strokeWidth="1.2" fill="none" />
-    <polygon points="20,7 33,20 20,33 7,20" stroke={C.gold} strokeWidth="1" fill="none" />
-    <polygon points="20,12 28,20 20,28 12,20" stroke={C.gold} strokeWidth="0.8" fill="none" />
-    <polygon points="20,16 24,20 20,24 16,20" stroke={C.gold} strokeWidth="0.6" fill="none" />
+    <polygon points="20,2 38,20 20,38 2,20" stroke="hsl(var(--primary))" strokeWidth="1.2" fill="none" />
+    <polygon points="20,7 33,20 20,33 7,20" stroke="hsl(var(--primary))" strokeWidth="1" fill="none" />
+    <polygon points="20,12 28,20 20,28 12,20" stroke="hsl(var(--primary))" strokeWidth="0.8" fill="none" />
+    <polygon points="20,16 24,20 20,24 16,20" stroke="hsl(var(--primary))" strokeWidth="0.6" fill="none" />
   </svg>
 );
 
 // ─── TYPING INDICATOR ────────────────────────────────────────────
 const TypingIndicator = ({ label }: { label: string }) => (
-  <div style={{ display: "flex", gap: 6, alignItems: "center", padding: "12px 0" }}>
-    <span style={{ color: C.textDim, fontFamily: "IBM Plex Mono, monospace", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em", marginRight: 8 }}>{label}</span>
+  <div className="flex gap-1.5 items-center py-3">
+    <span className="text-muted-foreground font-mono text-[11px] uppercase tracking-widest mr-2">{label}</span>
     {[0, 1, 2].map(i => (
       <svg key={i} width="8" height="8" viewBox="0 0 10 10" style={{ animation: `crisisDiamondPulse 1.2s ${i * 0.2}s infinite ease-in-out` }}>
-        <polygon points="5,0 10,5 5,10 0,5" fill={C.gold} />
+        <polygon points="5,0 10,5 5,10 0,5" fill="hsl(var(--primary))" />
       </svg>
     ))}
   </div>
@@ -65,12 +47,12 @@ function renderMarkdown(text: string) {
   const flushTable = () => {
     if (tableRows.length > 0) {
       elements.push(
-        <table key={`t-${elements.length}`} style={{ width: "100%", borderCollapse: "collapse", margin: "8px 0", fontFamily: "IBM Plex Mono, monospace", fontSize: 12 }}>
+        <table key={`t-${elements.length}`} className="w-full border-collapse my-2 font-mono text-xs">
           <tbody>
             {tableRows.map((row, ri) => (
-              <tr key={ri} style={{ borderBottom: `1px solid ${C.borderThin}` }}>
+              <tr key={ri} className="border-b border-border/50">
                 {row.map((cell, ci) => (
-                  <td key={ci} style={{ padding: "4px 8px", color: ri === 0 ? C.gold : C.textDim }}>{cell.trim()}</td>
+                  <td key={ci} className={`px-2 py-1 ${ri === 0 ? "text-primary" : "text-muted-foreground"}`}>{cell.trim()}</td>
                 ))}
               </tr>
             ))}
@@ -96,20 +78,20 @@ function renderMarkdown(text: string) {
     }
 
     if (line.startsWith("## ")) {
-      elements.push(<div key={i} style={{ color: C.gold, textTransform: "uppercase", letterSpacing: "0.1em", fontWeight: 700, fontSize: 14, marginTop: 16, marginBottom: 6, paddingBottom: 4, borderBottom: `1px solid ${C.borderThin}`, fontFamily: "IBM Plex Mono, monospace" }}>{line.slice(3)}</div>);
+      elements.push(<div key={i} className="text-primary uppercase tracking-widest font-bold text-sm mt-4 mb-1.5 pb-1 border-b border-border/50 font-mono">{line.slice(3)}</div>);
     } else if (line.startsWith("### ")) {
-      elements.push(<div key={i} style={{ color: C.blue, fontWeight: 600, fontSize: 13, marginTop: 12, marginBottom: 4, fontFamily: "IBM Plex Mono, monospace" }}>{line.slice(4)}</div>);
+      elements.push(<div key={i} className="text-highlight font-semibold text-[13px] mt-3 mb-1 font-mono">{line.slice(4)}</div>);
     } else if (line === "---") {
-      elements.push(<hr key={i} style={{ border: "none", borderTop: `1px solid ${C.borderThin}`, margin: "8px 0" }} />);
+      elements.push(<hr key={i} className="border-t border-border/50 my-2" />);
     } else if (line.trim() === "") {
-      elements.push(<div key={i} style={{ height: 8 }} />);
+      elements.push(<div key={i} className="h-2" />);
     } else {
       const parts = line.split(/(\*\*.*?\*\*)/g);
       elements.push(
-        <div key={i} style={{ lineHeight: 1.6, fontFamily: "IBM Plex Mono, monospace", fontSize: 13 }}>
+        <div key={i} className="leading-relaxed text-[13px]">
           {parts.map((part, pi) => {
             if (part.startsWith("**") && part.endsWith("**")) {
-              return <span key={pi} style={{ color: C.goldLight, fontWeight: 600 }}>{part.slice(2, -2)}</span>;
+              return <span key={pi} className="text-primary font-semibold">{part.slice(2, -2)}</span>;
             }
             return <span key={pi}>{part}</span>;
           })}
@@ -263,50 +245,45 @@ const CyberCrisisSimulator: React.FC<CrisisSimulatorProps> = ({ embedded = false
     return `${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
   };
 
-  const timerColor = secondsLeft <= 0 ? C.textDim : secondsLeft < 60 ? C.red : secondsLeft < 120 ? "#d4a030" : C.gold;
+  const timerColor = secondsLeft <= 0 ? "text-muted-foreground" : secondsLeft < 60 ? "text-destructive" : secondsLeft < 120 ? "text-primary" : "text-primary";
   const timerClass = secondsLeft <= 0 ? "" : secondsLeft < 60 ? "crisis-timer-critical" : secondsLeft < 120 ? "crisis-timer-warning" : "";
 
-  const getRoleStyle = (msg: Message): { label: string; color: string; borderLeft?: string } => {
-    if (msg.type === "user") return { label: t('crisisSim.roleCrisisLead'), color: C.blue };
-    if (msg.type === "inject") return { label: t('crisisSim.roleInject'), color: C.inject, borderLeft: `3px solid ${C.inject}` };
-    if (msg.type === "eval") return { label: t('crisisSim.roleEval'), color: C.green };
-    if (msg.type === "sys") return { label: t('crisisSim.roleSystem'), color: C.red };
-    return { label: t('crisisSim.roleSitRoom'), color: C.textDim };
+  const getRoleStyle = (msg: Message): { label: string; colorClass: string; borderClass?: string } => {
+    if (msg.type === "user") return { label: t('crisisSim.roleCrisisLead'), colorClass: "text-highlight" };
+    if (msg.type === "inject") return { label: t('crisisSim.roleInject'), colorClass: "text-primary", borderClass: "border-l-2 border-primary/40 pl-3" };
+    if (msg.type === "eval") return { label: t('crisisSim.roleEval'), colorClass: "text-green-400" };
+    if (msg.type === "sys") return { label: t('crisisSim.roleSystem'), colorClass: "text-destructive" };
+    return { label: t('crisisSim.roleSitRoom'), colorClass: "text-muted-foreground" };
   };
 
   // ─── SIDEBAR PANEL ────────────────────────────────────────────
   const SidebarPanel = () => (
-    <div style={{ width: embedded ? "100%" : 210, flexShrink: 0, background: C.surface, backdropFilter: "blur(10px)", borderRight: embedded ? "none" : `1px solid ${C.borderThin}`, display: "flex", flexDirection: embedded ? "row" : "column", padding: embedded ? "12px" : "16px 12px", gap: embedded ? 16 : 20, overflowY: "auto", fontSize: 11, flexWrap: embedded ? "wrap" : "nowrap", borderBottom: embedded ? `1px solid ${C.borderThin}` : "none" }}>
+    <div className={`flex-shrink-0 ${embedded ? "w-full flex flex-row flex-wrap gap-4 p-3 border-b border-border/50" : "w-[210px] flex flex-col gap-5 p-4 border-r border-border/50"} bg-card/40 backdrop-blur-sm overflow-y-auto text-[11px]`}>
       {/* PHASES */}
-      <div style={{ minWidth: embedded ? 140 : "auto" }}>
-        <div style={{ color: C.gold, fontWeight: 700, fontSize: 10, textTransform: "uppercase", letterSpacing: "0.15em", marginBottom: 8 }}>{t('crisisSim.exercisePhases')}</div>
+      <div className={embedded ? "min-w-[140px]" : ""}>
+        <div className="text-primary font-bold text-[10px] uppercase tracking-[0.15em] mb-2">{t('crisisSim.exercisePhases')}</div>
         {phases.map(p => {
           const isActive = p.id === activePhase;
           const isDone = completedPhases.includes(p.id);
           return (
-            <div key={p.id} style={{
-              padding: "4px 8px", marginBottom: 2, display: "flex", alignItems: "center", gap: 8,
-              borderLeft: isActive ? `2px solid ${C.gold}` : "2px solid transparent",
-              background: isActive ? "rgba(201,148,58,0.08)" : "transparent",
-              color: isDone ? C.green : isActive ? C.gold : C.textDim,
-            }}>
-              <span style={{ width: 6, height: 6, borderRadius: "50%", background: isDone ? C.green : isActive ? C.gold : C.textDim, flexShrink: 0 }} />
-              <span style={{ fontSize: 11 }}>{isDone ? "✓ " : ""}{p.label}</span>
+            <div key={p.id} className={`py-1 px-2 mb-0.5 flex items-center gap-2 ${isActive ? "border-l-2 border-primary bg-primary/5" : "border-l-2 border-transparent"}`}>
+              <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${isDone ? "bg-green-400" : isActive ? "bg-primary" : "bg-muted-foreground/50"}`} />
+              <span className={`text-[11px] ${isDone ? "text-green-400" : isActive ? "text-primary" : "text-muted-foreground"}`}>{isDone ? "✓ " : ""}{p.label}</span>
             </div>
           );
         })}
       </div>
 
       {/* INJECT STATUS */}
-      <div style={{ minWidth: embedded ? 160 : "auto" }}>
-        <div style={{ color: C.gold, fontWeight: 700, fontSize: 10, textTransform: "uppercase", letterSpacing: "0.15em", marginBottom: 8 }}>{t('crisisSim.injectStatus')}</div>
+      <div className={embedded ? "min-w-[160px]" : ""}>
+        <div className="text-primary font-bold text-[10px] uppercase tracking-[0.15em] mb-2">{t('crisisSim.injectStatus')}</div>
         {[
           { label: t('crisisSim.inject1Label'), active: injects.i1 },
           { label: t('crisisSim.inject2Label'), active: injects.i2 },
         ].map((inj, i) => (
-          <div key={i} style={{ padding: "4px 0", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: `1px solid ${C.borderThin}`, gap: 8 }}>
-            <span style={{ fontSize: 10, color: C.textDim }}>{inj.label}</span>
-            <span style={{ fontSize: 9, padding: "1px 6px", border: `1px solid ${inj.active ? C.red : C.borderVis}`, color: inj.active ? C.red : C.textDim, textTransform: "uppercase", letterSpacing: "0.1em" }}>
+          <div key={i} className="py-1 flex justify-between items-center border-b border-border/30 gap-2">
+            <span className="text-[10px] text-muted-foreground">{inj.label}</span>
+            <span className={`text-[9px] px-1.5 py-0.5 border uppercase tracking-wider ${inj.active ? "border-destructive text-destructive" : "border-border text-muted-foreground"}`}>
               {inj.active ? t('crisisSim.injectActive') : t('crisisSim.injectReady')}
             </span>
           </div>
@@ -314,18 +291,18 @@ const CyberCrisisSimulator: React.FC<CrisisSimulatorProps> = ({ embedded = false
       </div>
 
       {/* SCENARIO */}
-      <div style={{ minWidth: embedded ? 140 : "auto" }}>
-        <div style={{ color: C.gold, fontWeight: 700, fontSize: 10, textTransform: "uppercase", letterSpacing: "0.15em", marginBottom: 8 }}>{t('crisisSim.scenario')}</div>
+      <div className={embedded ? "min-w-[140px]" : ""}>
+        <div className="text-primary font-bold text-[10px] uppercase tracking-[0.15em] mb-2">{t('crisisSim.scenario')}</div>
         {scenarioItems.map((s, i) => (
-          <div key={i} style={{ color: C.textDim, fontSize: 10, padding: "2px 0" }}>{s}</div>
+          <div key={i} className="text-muted-foreground text-[10px] py-0.5">{s}</div>
         ))}
       </div>
 
       {/* LEGAL */}
-      <div style={{ minWidth: embedded ? 140 : "auto" }}>
-        <div style={{ color: C.gold, fontWeight: 700, fontSize: 10, textTransform: "uppercase", letterSpacing: "0.15em", marginBottom: 8 }}>{t('crisisSim.legalBasis')}</div>
+      <div className={embedded ? "min-w-[140px]" : ""}>
+        <div className="text-primary font-bold text-[10px] uppercase tracking-[0.15em] mb-2">{t('crisisSim.legalBasis')}</div>
         {legalItems.map((s, i) => (
-          <div key={i} style={{ color: C.textDim, fontSize: 10, padding: "2px 0" }}>{s}</div>
+          <div key={i} className="text-muted-foreground text-[10px] py-0.5">{s}</div>
         ))}
       </div>
     </div>
@@ -333,17 +310,12 @@ const CyberCrisisSimulator: React.FC<CrisisSimulatorProps> = ({ embedded = false
 
   // ─── PHASE BAR ─────────────────────────────────────────────────
   const PhaseBar = () => (
-    <div style={{ display: "flex", borderBottom: `1px solid ${C.borderThin}`, flexShrink: 0 }}>
+    <div className="flex border-b border-border/50 flex-shrink-0">
       {phases.map(p => {
         const isActive = p.id === activePhase;
         const isDone = completedPhases.includes(p.id);
         return (
-          <div key={p.id} style={{
-            flex: 1, padding: "8px 12px", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.1em",
-            color: isDone ? C.green : isActive ? C.gold : C.textDim,
-            borderBottom: isActive ? `2px solid ${C.gold}` : isDone ? `2px solid ${C.green}` : "2px solid transparent",
-            textAlign: "center",
-          }}>
+          <div key={p.id} className={`flex-1 py-2 px-3 text-[10px] uppercase tracking-wider text-center ${isDone ? "text-green-400 border-b-2 border-green-400" : isActive ? "text-primary border-b-2 border-primary" : "text-muted-foreground border-b-2 border-transparent"}`}>
             Phase {p.id}: {p.label}
           </div>
         );
@@ -353,18 +325,18 @@ const CyberCrisisSimulator: React.FC<CrisisSimulatorProps> = ({ embedded = false
 
   // ─── START SCREEN ──────────────────────────────────────────────
   const StartScreen = () => (
-    <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: embedded ? "20px 0" : 0, overflowY: "auto" }}>
-      <div style={{ textAlign: "center", maxWidth: 520, padding: "0 16px" }}>
+    <div className={`flex-1 flex items-center justify-center ${embedded ? "py-5" : ""} overflow-y-auto`}>
+      <div className="text-center max-w-[520px] px-4">
         <DiamondLogo size={embedded ? 40 : 58} />
-        <div style={{ color: C.textDim, fontSize: 9, textTransform: "uppercase", letterSpacing: "0.2em", marginTop: embedded ? 12 : 24, marginBottom: 6 }}>
+        <div className="text-muted-foreground text-[9px] uppercase tracking-[0.2em] mt-4 mb-1.5">
           {t('crisisSim.ttxLabel')}
         </div>
-        <div style={{ color: C.textLight, fontSize: embedded ? 18 : 20, fontWeight: 600, letterSpacing: "0.05em", marginBottom: embedded ? 12 : 24 }}>
+        <div className={`text-foreground ${embedded ? "text-lg" : "text-xl"} font-semibold tracking-wide mb-4`}>
           {t('crisisSim.title')}<br />
-          <span style={{ color: C.gold, fontSize: embedded ? 12 : 14 }}>{t('crisisSim.roleSubtitle')}</span>
+          <span className="text-primary text-sm">{t('crisisSim.roleSubtitle')}</span>
         </div>
         <div
-          style={{ border: `1px solid ${C.borderVis}`, padding: embedded ? 12 : 20, marginBottom: embedded ? 16 : 32, textAlign: "left", fontSize: embedded ? 11 : 12, lineHeight: 1.6, color: C.text }}
+          className={`border border-border/50 ${embedded ? "p-3 mb-4 text-[11px]" : "p-5 mb-8 text-xs"} text-left leading-relaxed text-foreground/80`}
           dangerouslySetInnerHTML={{ __html: t('crisisSim.startDesc') }}
         />
         <button className="crisis-start-btn" onClick={handleStart} disabled={loading} style={embedded ? { padding: "10px 24px", fontSize: 13 } : undefined}>
@@ -376,21 +348,15 @@ const CyberCrisisSimulator: React.FC<CrisisSimulatorProps> = ({ embedded = false
 
   // ─── CHAT AREA ─────────────────────────────────────────────────
   const ChatArea = () => (
-    <div className="crisis-chat-scroll" style={{ flex: 1, overflowY: "auto", padding: embedded ? "8px 12px" : "16px 20px" }}>
+    <div className={`crisis-chat-scroll flex-1 overflow-y-auto ${embedded ? "px-3 py-2" : "px-5 py-4"}`}>
       {messages.filter(m => m.content !== "START_SIMULATION" && m.type !== "sys").map((msg, i) => {
         const style = getRoleStyle(msg);
         return (
-          <div key={i} style={{
-            padding: embedded ? "8px 0" : "12px 0",
-            borderBottom: `1px solid ${C.borderThin}`,
-            borderLeft: style.borderLeft || "none",
-            paddingLeft: style.borderLeft ? 12 : 0,
-            background: msg.type === "inject" ? "rgba(201,138,58,0.06)" : "transparent",
-          }}>
-            <div style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.12em", color: style.color, fontWeight: 600, marginBottom: 4 }}>
+          <div key={i} className={`${embedded ? "py-2" : "py-3"} border-b border-border/30 ${style.borderClass || ""} ${msg.type === "inject" ? "bg-primary/5" : ""}`}>
+            <div className={`text-[10px] uppercase tracking-widest font-semibold mb-1 ${style.colorClass}`}>
               {style.label}
             </div>
-            <div style={{ color: msg.type === "inject" ? C.injectText : msg.type === "user" ? C.textLight : C.text, fontSize: embedded ? 12 : 13, lineHeight: 1.5 }}>
+            <div className={`${msg.type === "user" ? "text-foreground" : "text-foreground/85"} ${embedded ? "text-xs" : "text-[13px]"} leading-relaxed`}>
               {msg.role === "assistant" ? renderMarkdown(msg.content) : msg.content}
             </div>
           </div>
@@ -403,26 +369,26 @@ const CyberCrisisSimulator: React.FC<CrisisSimulatorProps> = ({ embedded = false
 
   // ─── INPUT AREA ────────────────────────────────────────────────
   const [qaOpen, setQaOpen] = useState(false);
-  const isMobile = typeof window !== "undefined" && window.innerWidth < 640;
 
   const InputArea = () => (
-    <div style={{ borderTop: `1px solid ${C.borderThin}`, background: C.surface, backdropFilter: "blur(10px)", padding: embedded ? "8px 10px" : "12px 16px", flexShrink: 0 }}>
-      <div style={{ display: "flex", alignItems: "center", border: `1px solid ${C.borderThin}`, marginBottom: 6 }}>
-        <div style={{ padding: "6px 8px", borderRight: `1px solid ${C.borderThin}`, color: C.gold, fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", flexShrink: 0 }}>{t('crisisSim.inputPrefix')}</div>
+    <div className={`border-t border-border/50 bg-card/40 backdrop-blur-sm ${embedded ? "p-2" : "p-3"} flex-shrink-0`}>
+      <div className="flex items-center border border-border/50 mb-1.5">
+        <div className="px-2 py-1.5 border-r border-border/50 text-primary text-[11px] font-semibold tracking-wider flex-shrink-0 font-mono">{t('crisisSim.inputPrefix')}</div>
         <textarea
           ref={textareaRef}
           value={input}
           onChange={e => setInput(e.target.value)}
           onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
           rows={1}
-          style={{ flex: 1, background: "transparent", border: "none", outline: "none", color: C.textLight, fontFamily: "'IBM Plex Mono', monospace", fontSize: 13, padding: "6px 8px", resize: "none" }}
+          className="flex-1 bg-transparent border-none outline-none text-foreground font-mono text-[13px] px-2 py-1.5 resize-none placeholder:text-muted-foreground"
           placeholder={t('crisisSim.inputPlaceholder')}
           disabled={loading}
         />
         <button
           onClick={handleSend}
           disabled={loading || !input.trim()}
-          style={{ padding: "6px 12px", background: "transparent", border: "none", borderLeft: `1px solid ${C.borderThin}`, color: !input.trim() || loading ? C.textDim : C.gold, fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em", cursor: !input.trim() || loading ? "default" : "pointer", fontWeight: 600 }}
+          className={`px-3 py-1.5 bg-transparent border-none border-l border-border/50 font-mono text-[11px] uppercase tracking-wider font-semibold ${!input.trim() || loading ? "text-muted-foreground cursor-default" : "text-primary cursor-pointer hover:text-accent"}`}
+          style={{ borderLeft: "1px solid hsl(var(--border) / 0.5)" }}
         >
           {t('crisisSim.sendButton')}
         </button>
@@ -432,12 +398,12 @@ const CyberCrisisSimulator: React.FC<CrisisSimulatorProps> = ({ embedded = false
         <>
           <button
             onClick={() => setQaOpen(!qaOpen)}
-            style={{ background: "transparent", border: `1px solid ${qaOpen ? C.gold : C.borderVis}`, color: qaOpen ? C.gold : C.textDim, padding: "3px 10px", fontSize: 9, fontFamily: "'IBM Plex Mono', monospace", textTransform: "uppercase", letterSpacing: "0.08em", cursor: "pointer", marginBottom: qaOpen ? 6 : 0, width: "100%" }}
+            className={`w-full bg-transparent border text-[9px] font-mono uppercase tracking-wider cursor-pointer py-1 px-2.5 ${qaOpen ? "border-primary text-primary mb-1.5" : "border-border text-muted-foreground"}`}
           >
             {qaOpen ? "▾ " : "▸ "}{t('crisisSim.quickActions')}
           </button>
           {qaOpen && (
-            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            <div className="flex flex-col gap-1">
               {quickActions.map((qa, i) => (
                 <button
                   key={i}
@@ -453,7 +419,7 @@ const CyberCrisisSimulator: React.FC<CrisisSimulatorProps> = ({ embedded = false
           )}
         </>
       ) : (
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+        <div className="flex flex-wrap gap-1.5">
           {quickActions.map((qa, i) => (
             <button
               key={i}
@@ -471,7 +437,6 @@ const CyberCrisisSimulator: React.FC<CrisisSimulatorProps> = ({ embedded = false
 
   // ─── SHARED STYLES ─────────────────────────────────────────────
   const sharedStyles = `
-    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&display=swap');
     @keyframes crisisDiamondPulse {
       0%, 100% { opacity: 0.2; transform: scale(0.7); }
       50% { opacity: 1; transform: scale(1.1); }
@@ -484,62 +449,62 @@ const CyberCrisisSimulator: React.FC<CrisisSimulatorProps> = ({ embedded = false
     .crisis-timer-critical { animation: crisisTimerFlicker 0.6s infinite; }
     .crisis-chat-scroll::-webkit-scrollbar { width: 4px; }
     .crisis-chat-scroll::-webkit-scrollbar-track { background: transparent; }
-    .crisis-chat-scroll::-webkit-scrollbar-thumb { background: ${C.borderVis}; }
+    .crisis-chat-scroll::-webkit-scrollbar-thumb { background: hsl(var(--border)); }
     .crisis-qbtn { 
-      background: transparent; border: 1px solid ${C.borderVis}; color: ${C.gold}; 
-      padding: 5px 10px; font-family: 'IBM Plex Mono', monospace; font-size: 11px;
+      background: transparent; border: 1px solid hsl(var(--border)); color: hsl(var(--primary)); 
+      padding: 5px 10px; font-family: 'JetBrains Mono', monospace; font-size: 11px;
       text-transform: uppercase; letter-spacing: 0.08em; cursor: pointer; transition: all 0.2s;
     }
-    .crisis-qbtn:hover { background: rgba(201,148,58,0.12); border-color: ${C.gold}; }
-    .crisis-qbtn-eval { border-color: ${C.red}; color: ${C.red}; }
-    .crisis-qbtn-eval:hover { background: rgba(184,48,48,0.12); }
+    .crisis-qbtn:hover { background: hsl(var(--primary) / 0.1); border-color: hsl(var(--primary)); }
+    .crisis-qbtn-eval { border-color: hsl(var(--destructive)); color: hsl(var(--destructive)); }
+    .crisis-qbtn-eval:hover { background: hsl(var(--destructive) / 0.1); }
     .crisis-start-btn {
-      background: transparent; border: 1px solid ${C.gold}; color: ${C.gold};
-      padding: 12px 32px; font-family: 'IBM Plex Mono', monospace; font-size: 14px;
+      background: transparent; border: 1px solid hsl(var(--primary)); color: hsl(var(--primary));
+      padding: 12px 32px; font-family: 'JetBrains Mono', monospace; font-size: 14px;
       text-transform: uppercase; letter-spacing: 0.15em; cursor: pointer; transition: all 0.3s;
       position: relative; overflow: hidden;
     }
     .crisis-start-btn::before {
       content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
-      background: ${C.gold}; transition: left 0.3s; z-index: 0;
+      background: hsl(var(--primary)); transition: left 0.3s; z-index: 0;
     }
     .crisis-start-btn:hover::before { left: 0; }
-    .crisis-start-btn:hover { color: ${C.bg}; }
+    .crisis-start-btn:hover { color: hsl(var(--primary-foreground)); }
     .crisis-start-btn span { position: relative; z-index: 1; }
   `;
 
   // ─── COMPACT STATUS BAR (embedded mobile) ───────────────────────
   const CompactStatusBar = () => (
-    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "6px 12px", background: C.surface, backdropFilter: "blur(10px)", borderBottom: `1px solid ${C.borderThin}`, flexShrink: 0, gap: 8 }}>
+    <div className="flex items-center justify-between px-3 py-1.5 bg-card/40 backdrop-blur-sm border-b border-border/50 flex-shrink-0 gap-2">
       {/* Phase dots */}
-      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+      <div className="flex items-center gap-1.5">
         {phases.map(p => {
           const isActive = p.id === activePhase;
           const isDone = completedPhases.includes(p.id);
           return (
-            <div key={p.id} style={{ display: "flex", alignItems: "center", gap: 4 }}>
-              <span style={{ width: 8, height: 8, borderRadius: "50%", background: isDone ? C.green : isActive ? C.gold : C.textDim, flexShrink: 0, border: isActive ? `1px solid ${C.gold}` : "none" }} />
-              <span style={{ fontSize: 9, color: isDone ? C.green : isActive ? C.gold : C.textDim, textTransform: "uppercase", letterSpacing: "0.05em", display: isActive ? "inline" : "none" }}>{p.label}</span>
+            <div key={p.id} className="flex items-center gap-1">
+              <span className={`w-2 h-2 rounded-full flex-shrink-0 ${isDone ? "bg-green-400" : isActive ? "bg-primary border border-primary" : "bg-muted-foreground/40"}`} />
+              {isActive && <span className="text-[9px] text-primary uppercase tracking-wider">{p.label}</span>}
             </div>
           );
         })}
       </div>
 
       {/* Inject badges */}
-      <div style={{ display: "flex", gap: 4 }}>
-        {injects.i1 && <span style={{ fontSize: 8, padding: "1px 4px", border: `1px solid ${C.red}`, color: C.red, textTransform: "uppercase" }}>INJ1</span>}
-        {injects.i2 && <span style={{ fontSize: 8, padding: "1px 4px", border: `1px solid ${C.red}`, color: C.red, textTransform: "uppercase" }}>INJ2</span>}
+      <div className="flex gap-1">
+        {injects.i1 && <span className="text-[8px] px-1 py-0.5 border border-destructive text-destructive uppercase">INJ1</span>}
+        {injects.i2 && <span className="text-[8px] px-1 py-0.5 border border-destructive text-destructive uppercase">INJ2</span>}
       </div>
 
       {/* Timer */}
-      <div className={timerClass} style={{ fontWeight: 700, fontSize: 16, color: timerColor, letterSpacing: "0.05em", fontVariantNumeric: "tabular-nums", flexShrink: 0 }}>
+      <div className={`font-bold text-base tracking-wider tabular-nums flex-shrink-0 font-mono ${timerColor} ${timerClass}`}>
         {formatTime(secondsLeft)}
       </div>
 
       {/* Info toggle */}
       <button
         onClick={() => setInfoPanelOpen(!infoPanelOpen)}
-        style={{ background: "transparent", border: `1px solid ${infoPanelOpen ? C.gold : C.borderVis}`, color: infoPanelOpen ? C.gold : C.textDim, padding: "2px 6px", fontSize: 9, fontFamily: "'IBM Plex Mono', monospace", textTransform: "uppercase", letterSpacing: "0.08em", cursor: "pointer", flexShrink: 0 }}
+        className={`bg-transparent border px-1.5 py-0.5 text-[9px] font-mono uppercase tracking-wider cursor-pointer flex-shrink-0 ${infoPanelOpen ? "border-primary text-primary" : "border-border text-muted-foreground"}`}
       >
         INFO
       </button>
@@ -549,7 +514,7 @@ const CyberCrisisSimulator: React.FC<CrisisSimulatorProps> = ({ embedded = false
   // ─── EMBEDDED RENDER (inside ChatView) ─────────────────────────
   if (embedded) {
     return (
-      <div style={{ fontFamily: "'IBM Plex Mono', monospace", color: C.text, background: C.bg, border: `1px solid ${C.borderThin}`, display: "flex", flexDirection: "column", height: "calc(100vh - 120px)", minHeight: 400 }}>
+      <div className="text-foreground border border-border/50 flex flex-col min-h-[400px]" style={{ height: "calc(100vh - 120px)" }}>
         <style>{sharedStyles}</style>
 
         {!started ? (
@@ -560,24 +525,24 @@ const CyberCrisisSimulator: React.FC<CrisisSimulatorProps> = ({ embedded = false
 
             {/* Collapsible info panel */}
             {infoPanelOpen && (
-              <div style={{ background: C.surface, borderBottom: `1px solid ${C.borderThin}`, padding: "10px 12px", display: "flex", flexWrap: "wrap", gap: 12, fontSize: 10, maxHeight: 180, overflowY: "auto" }}>
-                <div style={{ minWidth: 120 }}>
-                  <div style={{ color: C.gold, fontWeight: 700, fontSize: 9, textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: 4 }}>{t('crisisSim.scenario')}</div>
+              <div className="bg-card/40 border-b border-border/50 p-2.5 flex flex-wrap gap-3 text-[10px] max-h-[180px] overflow-y-auto">
+                <div className="min-w-[120px]">
+                  <div className="text-primary font-bold text-[9px] uppercase tracking-widest mb-1">{t('crisisSim.scenario')}</div>
                   {scenarioItems.map((s, i) => (
-                    <div key={i} style={{ color: C.textDim, fontSize: 9, padding: "1px 0" }}>{s}</div>
+                    <div key={i} className="text-muted-foreground text-[9px] py-px">{s}</div>
                   ))}
                 </div>
-                <div style={{ minWidth: 120 }}>
-                  <div style={{ color: C.gold, fontWeight: 700, fontSize: 9, textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: 4 }}>{t('crisisSim.legalBasis')}</div>
+                <div className="min-w-[120px]">
+                  <div className="text-primary font-bold text-[9px] uppercase tracking-widest mb-1">{t('crisisSim.legalBasis')}</div>
                   {legalItems.map((s, i) => (
-                    <div key={i} style={{ color: C.textDim, fontSize: 9, padding: "1px 0" }}>{s}</div>
+                    <div key={i} className="text-muted-foreground text-[9px] py-px">{s}</div>
                   ))}
                 </div>
               </div>
             )}
 
             {/* Chat + Input */}
-            <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+            <div className="flex-1 flex flex-col overflow-hidden">
               <ChatArea />
               {!evalDone && <InputArea />}
             </div>
@@ -590,42 +555,23 @@ const CyberCrisisSimulator: React.FC<CrisisSimulatorProps> = ({ embedded = false
   // ─── STANDALONE RENDER (full page at /crisis) ──────────────────
   return (
     <>
-      <style>{`
-        ${sharedStyles}
-        body { overflow: hidden; }
-      `}</style>
+      <style>{sharedStyles}</style>
 
-      {/* MM GRID BG */}
-      <div style={{ position: "fixed", inset: 0, zIndex: 0, background: C.bg }}>
-        <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" style={{ position: "absolute", inset: 0 }}>
-          <defs>
-            <pattern id="smallGrid" width="8" height="8" patternUnits="userSpaceOnUse">
-              <path d="M 8 0 L 0 0 0 8" fill="none" stroke={C.gold} strokeWidth="0.28" opacity="0.22" />
-            </pattern>
-            <pattern id="largeGrid" width="80" height="80" patternUnits="userSpaceOnUse">
-              <rect width="80" height="80" fill="url(#smallGrid)" />
-              <path d="M 80 0 L 0 0 0 80" fill="none" stroke={C.gold} strokeWidth="0.65" opacity="0.32" />
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#largeGrid)" />
-        </svg>
-      </div>
-
-      {/* APP SHELL */}
-      <div style={{ position: "fixed", inset: 0, zIndex: 1, display: "flex", flexDirection: "column", fontFamily: "'IBM Plex Mono', monospace", color: C.text }}>
+      {/* APP SHELL – transparent, inherits site bg */}
+      <div className="fixed inset-0 z-10 flex flex-col text-foreground">
 
         {/* TOPBAR */}
-        <div style={{ height: 52, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 16px", background: C.surface, backdropFilter: "blur(10px)", borderBottom: `1px solid ${C.borderThin}`, flexShrink: 0 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <div className="h-[52px] flex items-center justify-between px-4 bg-card/60 backdrop-blur-sm border-b border-border/50 flex-shrink-0">
+          <div className="flex items-center gap-2.5">
             <DiamondLogo size={22} />
-            <span style={{ color: C.gold, fontWeight: 600, fontSize: 13, letterSpacing: "0.08em" }}>inside-the-box</span>
-            <span style={{ color: C.textDim, margin: "0 4px" }}>/</span>
-            <span style={{ color: C.textDim, fontSize: 11, letterSpacing: "0.05em" }}>{t('crisisSim.topbarScenario')}</span>
+            <span className="text-primary font-semibold text-[13px] tracking-wider">inside-the-box</span>
+            <span className="text-muted-foreground mx-1">/</span>
+            <span className="text-muted-foreground text-[11px] tracking-wider">{t('crisisSim.topbarScenario')}</span>
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <span style={{ border: `1px solid ${C.borderVis}`, padding: "2px 8px", fontSize: 11, color: C.gold, letterSpacing: "0.1em" }}>{language.toUpperCase()}</span>
+          <div className="flex items-center gap-3">
+            <span className="border border-border px-2 py-0.5 text-[11px] text-primary tracking-wider font-mono">{language.toUpperCase()}</span>
             {started && (
-              <div className={timerClass} style={{ fontWeight: 700, fontSize: 16, color: timerColor, letterSpacing: "0.05em", fontVariantNumeric: "tabular-nums" }}>
+              <div className={`font-bold text-base tracking-wider tabular-nums font-mono ${timerColor} ${timerClass}`}>
                 {formatTime(secondsLeft)}
               </div>
             )}
@@ -633,14 +579,12 @@ const CyberCrisisSimulator: React.FC<CrisisSimulatorProps> = ({ embedded = false
         </div>
 
         {/* BODY */}
-        <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
+        <div className="flex flex-1 overflow-hidden">
           {/* SIDEBAR (vertical) */}
-          <div style={{ width: 210, flexShrink: 0, background: C.surface, backdropFilter: "blur(10px)", borderRight: `1px solid ${C.borderThin}`, display: "flex", flexDirection: "column", padding: "16px 12px", gap: 20, overflowY: "auto", fontSize: 11 }}>
-            <SidebarPanel />
-          </div>
+          <SidebarPanel />
 
           {/* MAIN */}
-          <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+          <div className="flex-1 flex flex-col overflow-hidden">
             {started && <PhaseBar />}
             {!started ? <StartScreen /> : (
               <>
