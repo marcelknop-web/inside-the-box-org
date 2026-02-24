@@ -150,7 +150,7 @@ const TypingIndicator = () => (
   <div style={{ display: "flex", gap: 6, alignItems: "center", padding: "12px 0" }}>
     <span style={{ color: C.textDim, fontFamily: "IBM Plex Mono, monospace", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em", marginRight: 8 }}>LAGEZENTRALE</span>
     {[0, 1, 2].map(i => (
-      <svg key={i} width="8" height="8" viewBox="0 0 10 10" style={{ animation: `diamondPulse 1.2s ${i * 0.2}s infinite ease-in-out` }}>
+      <svg key={i} width="8" height="8" viewBox="0 0 10 10" style={{ animation: `crisisDiamondPulse 1.2s ${i * 0.2}s infinite ease-in-out` }}>
         <polygon points="5,0 10,5 5,10 0,5" fill={C.gold} />
       </svg>
     ))}
@@ -188,7 +188,7 @@ function renderMarkdown(text: string) {
     const line = lines[i];
 
     if (line.startsWith("|")) {
-      if (line.replace(/[|\-\s]/g, "").length === 0) continue; // separator row
+      if (line.replace(/[|\-\s]/g, "").length === 0) continue;
       inTable = true;
       const cells = line.split("|").filter(c => c.trim() !== "");
       tableRows.push(cells);
@@ -206,7 +206,6 @@ function renderMarkdown(text: string) {
     } else if (line.trim() === "") {
       elements.push(<div key={i} style={{ height: 8 }} />);
     } else {
-      // Bold handling
       const parts = line.split(/(\*\*.*?\*\*)/g);
       elements.push(
         <div key={i} style={{ lineHeight: 1.6, fontFamily: "IBM Plex Mono, monospace", fontSize: 13 }}>
@@ -224,8 +223,13 @@ function renderMarkdown(text: string) {
   return elements;
 }
 
+// ─── PROPS ───────────────────────────────────────────────────────
+interface CrisisSimulatorProps {
+  embedded?: boolean;
+}
+
 // ─── MAIN COMPONENT ──────────────────────────────────────────────
-const CyberCrisisSimulator: React.FC = () => {
+const CyberCrisisSimulator: React.FC<CrisisSimulatorProps> = ({ embedded = false }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -238,24 +242,20 @@ const CyberCrisisSimulator: React.FC = () => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const timerExpiredRef = useRef(false);
 
-  // Determine active phase from message count
   const userMsgCount = messages.filter(m => m.role === "user" && m.content !== "START_SIMULATION").length;
   const activePhase = evalDone ? 4 : userMsgCount >= 5 ? 3 : userMsgCount >= 2 ? 2 : 1;
   const completedPhases = Array.from({ length: activePhase - 1 }, (_, i) => i + 1);
 
-  // Auto-scroll
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, loading]);
 
-  // Timer
   useEffect(() => {
     if (!timerActive || secondsLeft <= 0) return;
     const id = setInterval(() => setSecondsLeft(s => s - 1), 1000);
     return () => clearInterval(id);
   }, [timerActive, secondsLeft]);
 
-  // Timer expired
   useEffect(() => {
     if (secondsLeft <= 0 && timerActive && !timerExpiredRef.current) {
       timerExpiredRef.current = true;
@@ -342,7 +342,7 @@ const CyberCrisisSimulator: React.FC = () => {
   };
 
   const timerColor = secondsLeft <= 0 ? C.textDim : secondsLeft < 60 ? C.red : secondsLeft < 120 ? "#d4a030" : C.gold;
-  const timerClass = secondsLeft <= 0 ? "" : secondsLeft < 60 ? "timer-critical" : secondsLeft < 120 ? "timer-warning" : "";
+  const timerClass = secondsLeft <= 0 ? "" : secondsLeft < 60 ? "crisis-timer-critical" : secondsLeft < 120 ? "crisis-timer-warning" : "";
 
   const getRoleStyle = (msg: Message): { label: string; color: string; borderLeft?: string } => {
     if (msg.type === "user") return { label: "KRISENSTABSLEITER", color: C.blue };
@@ -352,47 +352,256 @@ const CyberCrisisSimulator: React.FC = () => {
     return { label: "LAGEZENTRALE", color: C.textDim };
   };
 
-  // ─── RENDER ──────────────────────────────────────────────────
+  // ─── SIDEBAR PANEL (shared between standalone & embedded) ─────
+  const SidebarPanel = () => (
+    <div style={{ width: embedded ? "100%" : 210, flexShrink: 0, background: C.surface, backdropFilter: "blur(10px)", borderRight: embedded ? "none" : `1px solid ${C.borderThin}`, display: "flex", flexDirection: embedded ? "row" : "column", padding: embedded ? "12px" : "16px 12px", gap: embedded ? 16 : 20, overflowY: "auto", fontSize: 11, flexWrap: embedded ? "wrap" : "nowrap", borderBottom: embedded ? `1px solid ${C.borderThin}` : "none" }}>
+      {/* PHASEN */}
+      <div style={{ minWidth: embedded ? 140 : "auto" }}>
+        <div style={{ color: C.gold, fontWeight: 700, fontSize: 10, textTransform: "uppercase", letterSpacing: "0.15em", marginBottom: 8 }}>Übungsphasen</div>
+        {PHASES.map(p => {
+          const isActive = p.id === activePhase;
+          const isDone = completedPhases.includes(p.id);
+          return (
+            <div key={p.id} style={{
+              padding: "4px 8px", marginBottom: 2, display: "flex", alignItems: "center", gap: 8,
+              borderLeft: isActive ? `2px solid ${C.gold}` : "2px solid transparent",
+              background: isActive ? "rgba(201,148,58,0.08)" : "transparent",
+              color: isDone ? C.green : isActive ? C.gold : C.textDim,
+            }}>
+              <span style={{ width: 6, height: 6, borderRadius: "50%", background: isDone ? C.green : isActive ? C.gold : C.textDim, flexShrink: 0 }} />
+              <span style={{ fontSize: 11 }}>{isDone ? "✓ " : ""}{p.label}</span>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* INJECT STATUS */}
+      <div style={{ minWidth: embedded ? 160 : "auto" }}>
+        <div style={{ color: C.gold, fontWeight: 700, fontSize: 10, textTransform: "uppercase", letterSpacing: "0.15em", marginBottom: 8 }}>Inject-Status</div>
+        {[
+          { label: "Inject 1 – Erpressung", active: injects.i1 },
+          { label: "Inject 2 – Datenmutation", active: injects.i2 },
+        ].map((inj, i) => (
+          <div key={i} style={{ padding: "4px 0", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: `1px solid ${C.borderThin}`, gap: 8 }}>
+            <span style={{ fontSize: 10, color: C.textDim }}>{inj.label}</span>
+            <span style={{ fontSize: 9, padding: "1px 6px", border: `1px solid ${inj.active ? C.red : C.borderVis}`, color: inj.active ? C.red : C.textDim, textTransform: "uppercase", letterSpacing: "0.1em" }}>
+              {inj.active ? "AKTIV" : "BEREIT"}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      {/* SZENARIO */}
+      <div style={{ minWidth: embedded ? 140 : "auto" }}>
+        <div style={{ color: C.gold, fontWeight: 700, fontSize: 10, textTransform: "uppercase", letterSpacing: "0.15em", marginBottom: 8 }}>Szenario</div>
+        {["DMZ-Kompromittierung", "Phishing · 250k Kunden", "Credential Harvesting", "Account Takeover", "Erpressung"].map((s, i) => (
+          <div key={i} style={{ color: C.textDim, fontSize: 10, padding: "2px 0" }}>{s}</div>
+        ))}
+      </div>
+
+      {/* RECHTSGRUNDLAGEN */}
+      <div style={{ minWidth: embedded ? 140 : "auto" }}>
+        <div style={{ color: C.gold, fontWeight: 700, fontSize: 10, textTransform: "uppercase", letterSpacing: "0.15em", marginBottom: 8 }}>Rechtsgrundlagen</div>
+        {["Art. 33/34 DSGVO · 72h", "§ 202a / 263 / 253 StGB", "NIS-2 / BSIG", "ISO/IEC 27035"].map((s, i) => (
+          <div key={i} style={{ color: C.textDim, fontSize: 10, padding: "2px 0" }}>{s}</div>
+        ))}
+      </div>
+    </div>
+  );
+
+  // ─── PHASE BAR ─────────────────────────────────────────────────
+  const PhaseBar = () => (
+    <div style={{ display: "flex", borderBottom: `1px solid ${C.borderThin}`, flexShrink: 0 }}>
+      {PHASES.map(p => {
+        const isActive = p.id === activePhase;
+        const isDone = completedPhases.includes(p.id);
+        return (
+          <div key={p.id} style={{
+            flex: 1, padding: "8px 12px", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.1em",
+            color: isDone ? C.green : isActive ? C.gold : C.textDim,
+            borderBottom: isActive ? `2px solid ${C.gold}` : isDone ? `2px solid ${C.green}` : "2px solid transparent",
+            textAlign: "center",
+          }}>
+            Phase {p.id}: {p.label}
+          </div>
+        );
+      })}
+    </div>
+  );
+
+  // ─── START SCREEN ──────────────────────────────────────────────
+  const StartScreen = () => (
+    <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: embedded ? "40px 0" : 0 }}>
+      <div style={{ textAlign: "center", maxWidth: 520, padding: "0 24px" }}>
+        <DiamondLogo size={58} />
+        <div style={{ color: C.textDim, fontSize: 10, textTransform: "uppercase", letterSpacing: "0.2em", marginTop: 24, marginBottom: 8 }}>
+          Cybersecurity Training · TTX
+        </div>
+        <div style={{ color: C.textLight, fontSize: 20, fontWeight: 600, letterSpacing: "0.05em", marginBottom: 24 }}>
+          Cyber Crisis Simulator<br />
+          <span style={{ color: C.gold, fontSize: 14 }}>/ Krisenstabsleitung</span>
+        </div>
+        <div style={{ border: `1px solid ${C.borderVis}`, padding: 20, marginBottom: 32, textAlign: "left", fontSize: 12, lineHeight: 1.7, color: C.text }}>
+          Sie übernehmen die Rolle des <span style={{ color: C.goldLight, fontWeight: 600 }}>Leiters des Krisenstabs</span> während eines laufenden Cyberangriffs.
+          Szenario: Phishing-Kampagne nach DMZ-Kompromittierung · <span style={{ color: C.goldLight, fontWeight: 600 }}>250.000 betroffene Kunden</span>.
+          Dauer: <span style={{ color: C.goldLight, fontWeight: 600 }}>5 Minuten</span> · Automatische Auswertung nach TTX-Bewertungsmatrix.
+        </div>
+        <button className="crisis-start-btn" onClick={handleStart} disabled={loading}>
+          <span>{loading ? "VERBINDE..." : "ÜBUNG STARTEN"}</span>
+        </button>
+      </div>
+    </div>
+  );
+
+  // ─── CHAT AREA ─────────────────────────────────────────────────
+  const ChatArea = () => (
+    <div className="crisis-chat-scroll" style={{ flex: 1, overflowY: "auto", padding: "16px 20px" }}>
+      {messages.filter(m => m.content !== "START_SIMULATION" && m.type !== "sys").map((msg, i) => {
+        const style = getRoleStyle(msg);
+        return (
+          <div key={i} style={{
+            padding: "12px 0",
+            borderBottom: `1px solid ${C.borderThin}`,
+            borderLeft: style.borderLeft || "none",
+            paddingLeft: style.borderLeft ? 12 : 0,
+            background: msg.type === "inject" ? "rgba(201,138,58,0.06)" : "transparent",
+          }}>
+            <div style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.12em", color: style.color, fontWeight: 600, marginBottom: 6 }}>
+              {style.label}
+            </div>
+            <div style={{ color: msg.type === "inject" ? C.injectText : msg.type === "user" ? C.textLight : C.text, fontSize: 13, lineHeight: 1.6 }}>
+              {msg.role === "assistant" ? renderMarkdown(msg.content) : msg.content}
+            </div>
+          </div>
+        );
+      })}
+      {loading && <TypingIndicator />}
+      <div ref={chatEndRef} />
+    </div>
+  );
+
+  // ─── INPUT AREA ────────────────────────────────────────────────
+  const InputArea = () => (
+    <div style={{ borderTop: `1px solid ${C.borderThin}`, background: C.surface, backdropFilter: "blur(10px)", padding: "12px 16px", flexShrink: 0 }}>
+      <div style={{ display: "flex", alignItems: "center", border: `1px solid ${C.borderThin}`, marginBottom: 8 }}>
+        <div style={{ padding: "8px 12px", borderRight: `1px solid ${C.borderThin}`, color: C.gold, fontSize: 12, fontWeight: 600, letterSpacing: "0.1em", flexShrink: 0 }}>KSL ▶</div>
+        <textarea
+          ref={textareaRef}
+          value={input}
+          onChange={e => setInput(e.target.value)}
+          onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
+          rows={2}
+          style={{ flex: 1, background: "transparent", border: "none", outline: "none", color: C.textLight, fontFamily: "'IBM Plex Mono', monospace", fontSize: 13, padding: "8px 12px", resize: "none" }}
+          placeholder="Anweisung eingeben..."
+          disabled={loading}
+        />
+        <button
+          onClick={handleSend}
+          disabled={loading || !input.trim()}
+          style={{ padding: "8px 16px", background: "transparent", border: "none", borderLeft: `1px solid ${C.borderThin}`, color: !input.trim() || loading ? C.textDim : C.gold, fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em", cursor: !input.trim() || loading ? "default" : "pointer", fontWeight: 600 }}
+        >
+          SENDEN
+        </button>
+      </div>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+        {QUICK_ACTIONS.map((qa, i) => (
+          <button
+            key={i}
+            className={`crisis-qbtn ${"isEval" in qa && qa.isEval ? "crisis-qbtn-eval" : ""}`}
+            onClick={() => handleQuickAction(qa.text)}
+            disabled={loading}
+          >
+            {qa.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+
+  // ─── SHARED STYLES ─────────────────────────────────────────────
+  const sharedStyles = `
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&display=swap');
+    @keyframes crisisDiamondPulse {
+      0%, 100% { opacity: 0.2; transform: scale(0.7); }
+      50% { opacity: 1; transform: scale(1.1); }
+    }
+    @keyframes crisisTimerFlicker {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    .crisis-timer-warning { animation: crisisTimerFlicker 1.5s infinite; }
+    .crisis-timer-critical { animation: crisisTimerFlicker 0.6s infinite; }
+    .crisis-chat-scroll::-webkit-scrollbar { width: 4px; }
+    .crisis-chat-scroll::-webkit-scrollbar-track { background: transparent; }
+    .crisis-chat-scroll::-webkit-scrollbar-thumb { background: ${C.borderVis}; }
+    .crisis-qbtn { 
+      background: transparent; border: 1px solid ${C.borderVis}; color: ${C.gold}; 
+      padding: 5px 10px; font-family: 'IBM Plex Mono', monospace; font-size: 11px;
+      text-transform: uppercase; letter-spacing: 0.08em; cursor: pointer; transition: all 0.2s;
+    }
+    .crisis-qbtn:hover { background: rgba(201,148,58,0.12); border-color: ${C.gold}; }
+    .crisis-qbtn-eval { border-color: ${C.red}; color: ${C.red}; }
+    .crisis-qbtn-eval:hover { background: rgba(184,48,48,0.12); }
+    .crisis-start-btn {
+      background: transparent; border: 1px solid ${C.gold}; color: ${C.gold};
+      padding: 12px 32px; font-family: 'IBM Plex Mono', monospace; font-size: 14px;
+      text-transform: uppercase; letter-spacing: 0.15em; cursor: pointer; transition: all 0.3s;
+      position: relative; overflow: hidden;
+    }
+    .crisis-start-btn::before {
+      content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+      background: ${C.gold}; transition: left 0.3s; z-index: 0;
+    }
+    .crisis-start-btn:hover::before { left: 0; }
+    .crisis-start-btn:hover { color: ${C.bg}; }
+    .crisis-start-btn span { position: relative; z-index: 1; }
+  `;
+
+  // ─── EMBEDDED RENDER (inside ChatView) ─────────────────────────
+  if (embedded) {
+    return (
+      <div style={{ fontFamily: "'IBM Plex Mono', monospace", color: C.text, background: C.bg, border: `1px solid ${C.borderThin}`, display: "flex", flexDirection: "column", height: "calc(100vh - 120px)", minHeight: 500 }}>
+        <style>{sharedStyles}</style>
+
+        {/* TOPBAR (embedded — compact) */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 16px", background: C.surface, backdropFilter: "blur(10px)", borderBottom: `1px solid ${C.borderThin}`, flexShrink: 0 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <DiamondLogo size={18} />
+            <span style={{ color: C.gold, fontWeight: 600, fontSize: 12, letterSpacing: "0.08em" }}>Cyber Crisis Simulator</span>
+            <span style={{ color: C.textDim, fontSize: 10, letterSpacing: "0.05em" }}>· TTX · Phishing-Kampagne</span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            {started && (
+              <div className={timerClass} style={{ fontWeight: 700, fontSize: 16, color: timerColor, letterSpacing: "0.05em", fontVariantNumeric: "tabular-nums" }}>
+                {formatTime(secondsLeft)}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* INFO BAR (horizontal sidebar replacement) */}
+        <SidebarPanel />
+
+        {/* PHASE BAR */}
+        {started && <PhaseBar />}
+
+        {/* CONTENT */}
+        {!started ? <StartScreen /> : (
+          <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+            <ChatArea />
+            {!evalDone && <InputArea />}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // ─── STANDALONE RENDER (full page at /crisis) ──────────────────
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&display=swap');
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        ${sharedStyles}
         body { overflow: hidden; }
-        @keyframes diamondPulse {
-          0%, 100% { opacity: 0.2; transform: scale(0.7); }
-          50% { opacity: 1; transform: scale(1.1); }
-        }
-        @keyframes timerFlicker {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.5; }
-        }
-        .timer-warning { animation: timerFlicker 1.5s infinite; }
-        .timer-critical { animation: timerFlicker 0.6s infinite; }
-        .chat-scroll::-webkit-scrollbar { width: 4px; }
-        .chat-scroll::-webkit-scrollbar-track { background: transparent; }
-        .chat-scroll::-webkit-scrollbar-thumb { background: ${C.borderVis}; }
-        .qbtn { 
-          background: transparent; border: 1px solid ${C.borderVis}; color: ${C.gold}; 
-          padding: 5px 10px; font-family: 'IBM Plex Mono', monospace; font-size: 11px;
-          text-transform: uppercase; letter-spacing: 0.08em; cursor: pointer; transition: all 0.2s;
-        }
-        .qbtn:hover { background: rgba(201,148,58,0.12); border-color: ${C.gold}; }
-        .qbtn-eval { border-color: ${C.red}; color: ${C.red}; }
-        .qbtn-eval:hover { background: rgba(184,48,48,0.12); }
-        .start-btn {
-          background: transparent; border: 1px solid ${C.gold}; color: ${C.gold};
-          padding: 12px 32px; font-family: 'IBM Plex Mono', monospace; font-size: 14px;
-          text-transform: uppercase; letter-spacing: 0.15em; cursor: pointer; transition: all 0.3s;
-          position: relative; overflow: hidden;
-        }
-        .start-btn::before {
-          content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
-          background: ${C.gold}; transition: left 0.3s; z-index: 0;
-        }
-        .start-btn:hover::before { left: 0; }
-        .start-btn:hover { color: ${C.bg}; }
-        .start-btn span { position: relative; z-index: 1; }
       `}</style>
 
       {/* MM GRID BG */}
@@ -434,172 +643,18 @@ const CyberCrisisSimulator: React.FC = () => {
 
         {/* BODY */}
         <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
-
-          {/* SIDEBAR */}
+          {/* SIDEBAR (vertical) */}
           <div style={{ width: 210, flexShrink: 0, background: C.surface, backdropFilter: "blur(10px)", borderRight: `1px solid ${C.borderThin}`, display: "flex", flexDirection: "column", padding: "16px 12px", gap: 20, overflowY: "auto", fontSize: 11 }}>
-
-            {/* PHASEN */}
-            <div>
-              <div style={{ color: C.gold, fontWeight: 700, fontSize: 10, textTransform: "uppercase", letterSpacing: "0.15em", marginBottom: 8 }}>Übungsphasen</div>
-              {PHASES.map(p => {
-                const isActive = p.id === activePhase;
-                const isDone = completedPhases.includes(p.id);
-                return (
-                  <div key={p.id} style={{
-                    padding: "6px 8px", marginBottom: 2, display: "flex", alignItems: "center", gap: 8,
-                    borderLeft: isActive ? `2px solid ${C.gold}` : "2px solid transparent",
-                    background: isActive ? "rgba(201,148,58,0.08)" : "transparent",
-                    color: isDone ? C.green : isActive ? C.gold : C.textDim,
-                  }}>
-                    <span style={{ width: 6, height: 6, borderRadius: "50%", background: isDone ? C.green : isActive ? C.gold : C.textDim, flexShrink: 0 }} />
-                    <span style={{ fontSize: 11 }}>{isDone ? "✓ " : ""}{p.label}</span>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* INJECT STATUS */}
-            <div>
-              <div style={{ color: C.gold, fontWeight: 700, fontSize: 10, textTransform: "uppercase", letterSpacing: "0.15em", marginBottom: 8 }}>Inject-Status</div>
-              {[
-                { label: "Inject 1 – Erpressung", active: injects.i1 },
-                { label: "Inject 2 – Datenmutation", active: injects.i2 },
-              ].map((inj, i) => (
-                <div key={i} style={{ padding: "5px 0", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: `1px solid ${C.borderThin}` }}>
-                  <span style={{ fontSize: 10, color: C.textDim }}>{inj.label}</span>
-                  <span style={{ fontSize: 9, padding: "1px 6px", border: `1px solid ${inj.active ? C.red : C.borderVis}`, color: inj.active ? C.red : C.textDim, textTransform: "uppercase", letterSpacing: "0.1em" }}>
-                    {inj.active ? "AKTIV" : "BEREIT"}
-                  </span>
-                </div>
-              ))}
-            </div>
-
-            {/* SZENARIO */}
-            <div>
-              <div style={{ color: C.gold, fontWeight: 700, fontSize: 10, textTransform: "uppercase", letterSpacing: "0.15em", marginBottom: 8 }}>Szenario</div>
-              {["DMZ-Kompromittierung", "Phishing · 250k Kunden", "Credential Harvesting", "Account Takeover", "Erpressung"].map((s, i) => (
-                <div key={i} style={{ color: C.textDim, fontSize: 10, padding: "2px 0" }}>{s}</div>
-              ))}
-            </div>
-
-            {/* RECHTSGRUNDLAGEN */}
-            <div>
-              <div style={{ color: C.gold, fontWeight: 700, fontSize: 10, textTransform: "uppercase", letterSpacing: "0.15em", marginBottom: 8 }}>Rechtsgrundlagen</div>
-              {["Art. 33/34 DSGVO · 72h", "§ 202a / 263 / 253 StGB", "NIS-2 / BSIG", "ISO/IEC 27035"].map((s, i) => (
-                <div key={i} style={{ color: C.textDim, fontSize: 10, padding: "2px 0" }}>{s}</div>
-              ))}
-            </div>
+            <SidebarPanel />
           </div>
 
           {/* MAIN */}
           <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
-
-            {/* PHASE BAR */}
-            {started && (
-              <div style={{ display: "flex", borderBottom: `1px solid ${C.borderThin}`, flexShrink: 0 }}>
-                {PHASES.map(p => {
-                  const isActive = p.id === activePhase;
-                  const isDone = completedPhases.includes(p.id);
-                  return (
-                    <div key={p.id} style={{
-                      flex: 1, padding: "8px 12px", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.1em",
-                      color: isDone ? C.green : isActive ? C.gold : C.textDim,
-                      borderBottom: isActive ? `2px solid ${C.gold}` : isDone ? `2px solid ${C.green}` : "2px solid transparent",
-                      textAlign: "center",
-                    }}>
-                      Phase {p.id}: {p.label}
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-
-            {/* START SCREEN */}
-            {!started ? (
-              <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <div style={{ textAlign: "center", maxWidth: 520, padding: "0 24px" }}>
-                  <DiamondLogo size={58} />
-                  <div style={{ color: C.textDim, fontSize: 10, textTransform: "uppercase", letterSpacing: "0.2em", marginTop: 24, marginBottom: 8 }}>
-                    Cybersecurity Training · TTX
-                  </div>
-                  <div style={{ color: C.textLight, fontSize: 20, fontWeight: 600, letterSpacing: "0.05em", marginBottom: 24 }}>
-                    Cyber Crisis Simulator<br />
-                    <span style={{ color: C.gold, fontSize: 14 }}>/ Krisenstabsleitung</span>
-                  </div>
-                  <div style={{ border: `1px solid ${C.borderVis}`, padding: 20, marginBottom: 32, textAlign: "left", fontSize: 12, lineHeight: 1.7, color: C.text }}>
-                    Sie übernehmen die Rolle des <span style={{ color: C.goldLight, fontWeight: 600 }}>Leiters des Krisenstabs</span> während eines laufenden Cyberangriffs.
-                    Szenario: Phishing-Kampagne nach DMZ-Kompromittierung · <span style={{ color: C.goldLight, fontWeight: 600 }}>250.000 betroffene Kunden</span>.
-                    Dauer: <span style={{ color: C.goldLight, fontWeight: 600 }}>5 Minuten</span> · Automatische Auswertung nach TTX-Bewertungsmatrix.
-                  </div>
-                  <button className="start-btn" onClick={handleStart} disabled={loading}>
-                    <span>{loading ? "VERBINDE..." : "ÜBUNG STARTEN"}</span>
-                  </button>
-                </div>
-              </div>
-            ) : (
+            {started && <PhaseBar />}
+            {!started ? <StartScreen /> : (
               <>
-                {/* CHAT */}
-                <div className="chat-scroll" style={{ flex: 1, overflowY: "auto", padding: "16px 20px" }}>
-                  {messages.filter(m => m.content !== "START_SIMULATION" && m.type !== "sys").map((msg, i) => {
-                    const style = getRoleStyle(msg);
-                    return (
-                      <div key={i} style={{
-                        padding: "12px 0",
-                        borderBottom: `1px solid ${C.borderThin}`,
-                        borderLeft: style.borderLeft || "none",
-                        paddingLeft: style.borderLeft ? 12 : 0,
-                        background: msg.type === "inject" ? "rgba(201,138,58,0.06)" : "transparent",
-                      }}>
-                        <div style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.12em", color: style.color, fontWeight: 600, marginBottom: 6 }}>
-                          {style.label}
-                        </div>
-                        <div style={{ color: msg.type === "inject" ? C.injectText : msg.type === "user" ? C.textLight : C.text, fontSize: 13, lineHeight: 1.6 }}>
-                          {msg.role === "assistant" ? renderMarkdown(msg.content) : msg.content}
-                        </div>
-                      </div>
-                    );
-                  })}
-                  {loading && <TypingIndicator />}
-                  <div ref={chatEndRef} />
-                </div>
-
-                {/* INPUT */}
-                {!evalDone && (
-                  <div style={{ borderTop: `1px solid ${C.borderThin}`, background: C.surface, backdropFilter: "blur(10px)", padding: "12px 16px", flexShrink: 0 }}>
-                    <div style={{ display: "flex", alignItems: "center", border: `1px solid ${C.borderThin}`, marginBottom: 8 }}>
-                      <div style={{ padding: "8px 12px", borderRight: `1px solid ${C.borderThin}`, color: C.gold, fontSize: 12, fontWeight: 600, letterSpacing: "0.1em", flexShrink: 0 }}>KSL ▶</div>
-                      <textarea
-                        ref={textareaRef}
-                        value={input}
-                        onChange={e => setInput(e.target.value)}
-                        onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
-                        rows={2}
-                        style={{ flex: 1, background: "transparent", border: "none", outline: "none", color: C.textLight, fontFamily: "'IBM Plex Mono', monospace", fontSize: 13, padding: "8px 12px", resize: "none" }}
-                        placeholder="Anweisung eingeben..."
-                        disabled={loading}
-                      />
-                      <button
-                        onClick={handleSend}
-                        disabled={loading || !input.trim()}
-                        style={{ padding: "8px 16px", background: "transparent", border: "none", borderLeft: `1px solid ${C.borderThin}`, color: !input.trim() || loading ? C.textDim : C.gold, fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em", cursor: !input.trim() || loading ? "default" : "pointer", fontWeight: 600 }}
-                      >
-                        SENDEN
-                      </button>
-                    </div>
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                      {QUICK_ACTIONS.map((qa, i) => (
-                        <button
-                          key={i}
-                          className={`qbtn ${"isEval" in qa && qa.isEval ? "qbtn-eval" : ""}`}
-                          onClick={() => handleQuickAction(qa.text)}
-                          disabled={loading}
-                        >
-                          {qa.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                <ChatArea />
+                {!evalDone && <InputArea />}
               </>
             )}
           </div>
