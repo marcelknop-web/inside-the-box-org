@@ -64,7 +64,18 @@ const MatrixStart = () => {
 
     let animId: number;
     let columns: number[] = [];
+    let offsets: number[] = [];       // horizontal sway offset per column
+    let swayPhase: number[] = [];     // sine phase per column
+    let swaySpeed: number[] = [];     // how fast each column sways
+    let swayAmplitude: number[] = []; // how far each column sways
     const fontSize = 14;
+
+    const initSway = (count: number) => {
+      offsets = Array.from({ length: count }, () => 0);
+      swayPhase = Array.from({ length: count }, () => Math.random() * Math.PI * 2);
+      swaySpeed = Array.from({ length: count }, () => 0.02 + Math.random() * 0.04);
+      swayAmplitude = Array.from({ length: count }, () => 1.5 + Math.random() * 2.5);
+    };
 
     const resize = () => {
       const w = window.innerWidth;
@@ -74,6 +85,7 @@ const MatrixStart = () => {
       const colCount = Math.floor(w / fontSize);
       if (columns.length !== colCount) {
         columns = Array.from({ length: colCount }, () => Math.random() * h / fontSize);
+        initSway(colCount);
       }
     };
 
@@ -95,7 +107,12 @@ const MatrixStart = () => {
         ctx.font = `${fontSize}px monospace`;
         for (let i = 0; i < columns.length; i++) {
           const char = MATRIX_CHARS[Math.floor(Math.random() * MATRIX_CHARS.length)];
-          const x = i * fontSize;
+
+          // Update sway
+          swayPhase[i] += swaySpeed[i];
+          offsets[i] = Math.sin(swayPhase[i]) * swayAmplitude[i] * fontSize * 0.3;
+
+          const x = i * fontSize + offsets[i];
           const y = columns[i] * fontSize;
 
           const brightness = Math.random();
