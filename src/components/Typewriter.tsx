@@ -33,7 +33,7 @@ const MATRIX_CHARS = 'アイウエオカキクケコサシスセソタチツテ�
 const randChar = () => GLITCH_CHARS[Math.floor(Math.random() * GLITCH_CHARS.length)];
 const randMatrix = () => MATRIX_CHARS[Math.floor(Math.random() * MATRIX_CHARS.length)];
 
-const Typewriter = ({ text, mode = 'typewriter', delay = 0, charDelay = 70, cursor = true, onDone }: TypewriterProps) => {
+const Typewriter = ({ text, mode = 'typewriter', delay = 0, charDelay = 18, cursor = true, onDone }: TypewriterProps) => {
   const [started, setStarted] = useState(delay === 0);
   const [step, setStep] = useState(0);
   const doneRef = useRef(false);
