@@ -914,9 +914,9 @@ const ChatView = () => {
                 <h1 className="text-xl md:text-2xl font-mono font-bold text-accent hover:text-highlight mb-2 text-center transition-electric">{t('welcome.title')}</h1>
               </button>
               <button onClick={() => setSidebarOpen(true)} className="cursor-pointer bg-transparent border-none p-0 transition-electric">
-                <p className="text-sm text-foreground hover:text-highlight font-mono text-center max-w-md px-2 transition-electric">
-                  {t('welcome.intro')}
-                </p>
+                <p className="text-sm text-foreground hover:text-highlight font-mono text-center max-w-md px-2 transition-electric"
+                  dangerouslySetInnerHTML={{ __html: t('welcome.intro') }}
+                />
               </button>
             </div>
           ) : (
