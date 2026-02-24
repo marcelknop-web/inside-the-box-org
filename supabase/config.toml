@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.check-ports]
 verify_jwt = false
+
+[functions.crisis-chat]
+verify_jwt = false
