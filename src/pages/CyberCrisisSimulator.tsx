@@ -492,10 +492,10 @@ const CyberCrisisSimulator = forwardRef<CrisisSimulatorHandle, CrisisSimulatorPr
               </button>
               {qaOpen && (
                 <div className="flex flex-col gap-1">
-                  {quickActions.map((qa, i) => (
+                  {quickActions.filter(qa => !("isEval" in qa && qa.isEval)).map((qa, i) => (
                     <button
                       key={i}
-                      className={`crisis-qbtn ${"isEval" in qa && qa.isEval ? "crisis-qbtn-eval" : ""}`}
+                      className="crisis-qbtn"
                       onClick={() => { handleQuickAction(qa.text); setQaOpen(false); }}
                       disabled={loading}
                       style={{ width: "100%", textAlign: "left", padding: "6px 10px" }}
@@ -503,15 +503,39 @@ const CyberCrisisSimulator = forwardRef<CrisisSimulatorHandle, CrisisSimulatorPr
                       {qa.label}
                     </button>
                   ))}
+                  <div className="mt-3">
+                    {quickActions.filter(qa => "isEval" in qa && qa.isEval).map((qa, i) => (
+                      <button
+                        key={`eval-${i}`}
+                        className="crisis-qbtn crisis-qbtn-eval"
+                        onClick={() => { handleQuickAction(qa.text); setQaOpen(false); }}
+                        disabled={loading}
+                        style={{ width: "100%", textAlign: "left", padding: "6px 10px" }}
+                      >
+                        {qa.label}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               )}
             </>
           ) : (
-            <div className="flex flex-wrap gap-1.5">
-              {quickActions.map((qa, i) => (
+            <div className="flex flex-wrap gap-1.5 items-center">
+              {quickActions.filter(qa => !("isEval" in qa && qa.isEval)).map((qa, i) => (
                 <button
                   key={i}
-                  className={`crisis-qbtn ${"isEval" in qa && qa.isEval ? "crisis-qbtn-eval" : ""}`}
+                  className="crisis-qbtn"
+                  onClick={() => handleQuickAction(qa.text)}
+                  disabled={loading}
+                >
+                  {qa.label}
+                </button>
+              ))}
+              <div className="w-4" />
+              {quickActions.filter(qa => "isEval" in qa && qa.isEval).map((qa, i) => (
+                <button
+                  key={`eval-${i}`}
+                  className="crisis-qbtn crisis-qbtn-eval"
                   onClick={() => handleQuickAction(qa.text)}
                   disabled={loading}
                 >
@@ -633,11 +657,22 @@ const CyberCrisisSimulator = forwardRef<CrisisSimulatorHandle, CrisisSimulatorPr
               {/* Quick actions bar above ChatView's shared input */}
               {!evalDone && started && (
                 <div className="border-t border-border/50 px-2 py-1.5 flex-shrink-0">
-                  <div className="flex flex-wrap gap-1.5 justify-center">
-                    {quickActions.map((qa, i) => (
+                  <div className="flex flex-wrap gap-1.5 justify-center items-center">
+                    {quickActions.filter(qa => !("isEval" in qa && qa.isEval)).map((qa, i) => (
                       <button
                         key={i}
-                        className={`crisis-qbtn ${"isEval" in qa && qa.isEval ? "crisis-qbtn-eval" : ""}`}
+                        className="crisis-qbtn"
+                        onClick={() => handleQuickAction(qa.text)}
+                        disabled={loading}
+                      >
+                        {qa.label}
+                      </button>
+                    ))}
+                    <div className="w-4" />
+                    {quickActions.filter(qa => "isEval" in qa && qa.isEval).map((qa, i) => (
+                      <button
+                        key={`eval-${i}`}
+                        className="crisis-qbtn crisis-qbtn-eval"
                         onClick={() => handleQuickAction(qa.text)}
                         disabled={loading}
                       >
