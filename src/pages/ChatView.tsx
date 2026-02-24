@@ -1006,7 +1006,7 @@ const ChatView = () => {
                     onKeyDown={handleKeyDown}
                     rows={1}
                     placeholder={t('welcome.chatPlaceholder')}
-                    className="flex-1 bg-transparent px-3 md:px-4 py-2 text-base md:text-sm font-mono text-highlight placeholder:text-highlight/50 resize-none focus:outline-none max-h-[120px]"
+                    className="flex-1 bg-transparent px-3 md:px-4 py-2 text-base md:text-sm font-mono text-foreground placeholder:text-highlight/50 resize-none focus:outline-none max-h-[120px]"
                     disabled={isLoading || (activeService === 'crisis-sim' && crisisRef.current?.isLoading())}
                   />
                   <button onClick={handleSend} disabled={!input.trim() || isLoading || (activeService === 'crisis-sim' && crisisRef.current?.isLoading())} className="m-1 p-1.5 rounded-lg bg-highlight text-highlight-foreground disabled:opacity-30 hover:bg-highlight/80 transition-electric">
