@@ -1,4 +1,4 @@
-import { ReactNode, Children, useEffect, useState } from 'react';
+import { ReactNode, Children, useEffect, useState, useRef } from 'react';
 
 interface StaggerRevealProps {
   children: ReactNode;
@@ -15,13 +15,27 @@ export const StaggerReveal = ({ children, className = '', stagger = 180, startDe
   const items = Children.toArray(children);
   const [visibleCount, setVisibleCount] = useState(0);
   const [started, setStarted] = useState(startDelay <= 0);
+  // Suppress transition during resets to avoid flash
+  const [suppressTransition, setSuppressTransition] = useState(false);
+  const prevKeyRef = useRef(resetKey);
 
-  // Reset item reveal count when section changes
+  // Reset when section changes — suppress transition to avoid flash
   useEffect(() => {
-    setVisibleCount(0);
+    if (prevKeyRef.current !== resetKey) {
+      prevKeyRef.current = resetKey;
+      setSuppressTransition(true);
+      setVisibleCount(0);
+      setStarted(false);
+      // Re-enable transitions after a frame
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setSuppressTransition(false);
+        });
+      });
+    }
   }, [resetKey]);
 
-  // Start gate is fully controlled by startDelay and section identity
+  // Start gate
   useEffect(() => {
     if (startDelay <= 0) {
       setStarted(true);
@@ -46,10 +60,10 @@ export const StaggerReveal = ({ children, className = '', stagger = 180, startDe
       {items.map((child, i) => (
         <div
           key={i}
-          className="transition-all duration-500 ease-out"
           style={{
             opacity: i < visibleCount ? 1 : 0,
             transform: i < visibleCount ? 'translateY(0)' : 'translateY(14px)',
+            transition: suppressTransition ? 'none' : 'opacity 500ms ease-out, transform 500ms ease-out',
           }}
         >
           {child}
