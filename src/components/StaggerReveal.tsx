@@ -5,19 +5,28 @@ interface StaggerRevealProps {
   className?: string;
   /** Delay between each child in ms */
   stagger?: number;
+  /** Wait this long before revealing the first child */
+  startDelay?: number;
 }
 
-export const StaggerReveal = ({ children, className = '', stagger = 180 }: StaggerRevealProps) => {
+export const StaggerReveal = ({ children, className = '', stagger = 180, startDelay = 0 }: StaggerRevealProps) => {
   const items = Children.toArray(children);
   const [visibleCount, setVisibleCount] = useState(0);
+  const [started, setStarted] = useState(startDelay === 0);
 
   useEffect(() => {
-    if (visibleCount >= items.length) return;
+    if (startDelay <= 0) return;
+    const t = setTimeout(() => setStarted(true), startDelay);
+    return () => clearTimeout(t);
+  }, [startDelay]);
+
+  useEffect(() => {
+    if (!started || visibleCount >= items.length) return;
     const timer = setTimeout(() => {
       setVisibleCount(prev => prev + 1);
     }, visibleCount === 0 ? 80 : stagger);
     return () => clearTimeout(timer);
-  }, [visibleCount, items.length, stagger]);
+  }, [started, visibleCount, items.length, stagger]);
 
   return (
     <div className={`space-y-3 ${className}`}>

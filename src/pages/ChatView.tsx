@@ -426,7 +426,7 @@ const useServiceContent = () => {
       </StaggerReveal>
     ),
     why: () => (
-      <StaggerReveal>
+      <StaggerReveal stagger={400} startDelay={3200}>
         <Block>
           <SectionTitle><Typewriter text={t('index.title')} charDelay={80} /></SectionTitle>
           <p className="text-lg font-semibold mb-2">
