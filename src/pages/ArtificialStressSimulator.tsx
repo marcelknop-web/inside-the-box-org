@@ -60,9 +60,9 @@ const MatrixStart = () => {
               transform: 'scale(2.5)',
             }}
           />
-          <a href="/" className="relative matrix-glow-pulse matrix-logo-link block">
+          <div className="relative matrix-glow-pulse">
             <GeometricSymbol size="lg" className="matrix-symbol" />
-          </a>
+          </div>
         </div>
 
         {/* Title */}
