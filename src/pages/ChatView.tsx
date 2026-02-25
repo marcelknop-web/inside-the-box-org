@@ -604,7 +604,7 @@ const useServiceContent = () => {
       );
     },
     contact: () => (
-      <TypedSection title={t('contact.title')} mode="typewriter" charDelay={18} intro={<p>{t('contact.intro')}</p>}>
+      <TypedSection title={t('contact.title')} mode="typewriter" charDelay={8} intro={<p>{t('contact.intro')}</p>}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
           <div className="rounded-xl p-4 bg-primary/5 border border-primary/20">
             <div className="flex items-center gap-2 mb-2">
@@ -624,7 +624,7 @@ const useServiceContent = () => {
       </TypedSection>
     ),
     imprint: () => (
-      <TypedSection title={t('imprint.title')} mode="typewriter" charDelay={18}>
+      <TypedSection title={t('imprint.title')} mode="typewriter" charDelay={8}>
         <Block className="bg-secondary/30">
           <p className="text-foreground text-sm font-sans leading-relaxed">
             <span className="text-primary font-semibold">{t('imprint.responsible')}</span><br />

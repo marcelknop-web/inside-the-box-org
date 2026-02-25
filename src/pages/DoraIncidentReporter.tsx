@@ -205,7 +205,7 @@ export default function DoraIncidentReporter({ embedded = false }: { embedded?: 
       <div className={wrapperClass}>
         <PageMeta title="DORA Incident Check" description="DORA Art. 19 Incident Check" />
         <h1 className="text-2xl md:text-3xl font-bold text-primary font-mono mb-6">
-          <Typewriter text={t(I18N.title)} charDelay={12} />
+          <Typewriter text={t(I18N.title)} charDelay={8} />
         </h1>
         <div>
           <div className={`${vs.bgColor} ${vs.borderColor} border-2 rounded-lg p-6 mb-6 text-center`}>
@@ -268,7 +268,7 @@ export default function DoraIncidentReporter({ embedded = false }: { embedded?: 
     <div className={wrapperClass}>
       <PageMeta title="DORA Incident Check" description="DORA Art. 19 Incident Check" />
       <h1 className="text-2xl md:text-3xl font-bold text-primary font-mono mb-6">
-        <Typewriter text={t(I18N.title)} charDelay={12} />
+        <Typewriter text={t(I18N.title)} charDelay={8} />
       </h1>
       <div>
         <div className="mb-6">
