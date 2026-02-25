@@ -142,6 +142,7 @@ export const en = {
     doraDesc: 'ICT risk management, resilience testing, and third-party oversight for financial sector organizations.',
     partisName: 'PART-IS',
     partisDesc: 'Proportionate, risk-based IS compliance under EASA regulation. One of few consulting practices with hands-on PART-IS project experience.',
+    doraCheckTitle: 'Try it – DORA Reporting Obligation Check',
   },
   tisax: {
     title: 'TISAX, PCI-DSS',

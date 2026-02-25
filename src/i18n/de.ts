@@ -142,6 +142,7 @@ export const de = {
     doraDesc: 'IKT-Risikomanagement, Resilienz-Tests und Drittparteien-Überwachung für Finanzorganisationen.',
     partisName: 'PART-IS',
     partisDesc: 'Verhältnismäßige, risikobasierte IS-Compliance unter EASA-Regulierung. Eine der wenigen Beratungspraxen mit praktischer PART-IS-Projekterfahrung.',
+    doraCheckTitle: 'Ausprobieren – DORA Meldepflicht-Check',
   },
   tisax: {
     title: 'TISAX, PCI-DSS',

@@ -273,6 +273,12 @@ const useServiceContent = () => {
             <GridItem icon={Plane} title={t('nis2.partisName')} desc={t('nis2.partisDesc')} variant="highlight" />
           </div>
         </Block>
+        <Block className="bg-highlight/10 border border-highlight/30 rounded-xl">
+          <SubTitle variant="highlight">{t('nis2.doraCheckTitle')}</SubTitle>
+          <LinkButton href="/ki-workflows" variant="highlight" size="md">
+            🔍 {t('aiWorkflows.doraCheckButton')}
+          </LinkButton>
+        </Block>
       </TypedSection>
     ),
     'tisax-pci-dss': () => (

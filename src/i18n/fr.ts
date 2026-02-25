@@ -142,6 +142,7 @@ export const fr = {
     doraDesc: 'Gestion des risques TIC, tests de résilience et supervision des tiers pour les organisations du secteur financier.',
     partisName: 'PART-IS',
     partisDesc: 'Conformité IS proportionnée et basée sur les risques selon la réglementation EASA. L\'une des rares pratiques de conseil avec une expérience PART-IS concrète.',
+    doraCheckTitle: 'Essayer – Vérification d\'obligation DORA',
   },
   tisax: {
     title: 'TISAX, PCI-DSS',
