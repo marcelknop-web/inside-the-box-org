@@ -414,6 +414,7 @@ export const fr = {
     ttxLabel: 'Formation Cybersécurité · TTX',
     title: 'Essayer ?',
     roleSubtitle: '/ Direction cellule de crise',
+    scenarioIntro: 'Un e-commerçant de taille moyenne. 250 000 comptes clients. Lundi matin, 08h45 – le helpdesk est submergé. Quelque chose ne va pas. Vous avez 5 minutes.',
     startDesc: 'Vous assumez le rôle du <strong>Directeur de la cellule de crise</strong> lors d\'une cyberattaque en cours. Scénario : Campagne de phishing après compromission DMZ · <strong>250 000 clients concernés</strong>. Durée : <strong>5 minutes</strong> · Évaluation automatique selon la matrice TTX.',
     connecting: 'CONNEXION...',
     hardModeButton: 'MODE DIFFICILE',

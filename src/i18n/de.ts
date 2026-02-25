@@ -414,6 +414,7 @@ export const de = {
     ttxLabel: 'Cybersecurity Training · TTX',
     title: 'Mal probieren?',
     roleSubtitle: '/ Krisenstabsleitung',
+    scenarioIntro: 'Ein mittelständischer Online-Händler. 250.000 Kundenkonten. Montagmorgen, 08:45 Uhr – das Helpdesk läuft heiß. Irgendetwas stimmt nicht. Sie haben 5 Minuten.',
     startDesc: 'Sie übernehmen die Rolle des <strong>Leiters des Krisenstabs</strong> während eines laufenden Cyberangriffs. Szenario: Phishing-Kampagne nach DMZ-Kompromittierung · <strong>250.000 betroffene Kunden</strong>. Dauer: <strong>5 Minuten</strong> · Automatische Auswertung nach TTX-Bewertungsmatrix.',
     connecting: 'VERBINDE...',
     hardModeButton: 'HARD MODE',

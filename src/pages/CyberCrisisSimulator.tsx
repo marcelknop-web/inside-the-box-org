@@ -414,8 +414,11 @@ const CyberCrisisSimulator = forwardRef<CrisisSimulatorHandle, CrisisSimulatorPr
         </div>
         {startScreenTitleDone && (
           <>
-            <div className="text-primary text-sm mb-6">
+            <div className="text-primary text-sm mb-4">
               {t('crisisSim.roleSubtitle')}
+            </div>
+            <div className="mb-5 text-foreground/60 text-sm md:text-base italic max-w-lg mx-auto leading-relaxed">
+              {t('crisisSim.scenarioIntro')}
             </div>
             <div
               className="mb-4 text-left leading-relaxed text-foreground/80 text-sm md:text-base max-w-lg mx-auto [&_strong]:text-primary [&_strong]:font-semibold"
