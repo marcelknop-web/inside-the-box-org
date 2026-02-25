@@ -23,7 +23,7 @@ const useTypewriter = (text: string, startDelay: number, charDelay = 80) => {
   return displayed;
 };
 
-const MatrixStart = () => {
+const MatrixStart = ({ embedded = false }: { embedded?: boolean }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [showContent, setShowContent] = useState(false);
   const [clientIp, setClientIp] = useState('...');
@@ -48,8 +48,14 @@ const MatrixStart = () => {
     return () => clearTimeout(timer);
   }, []);
 
+  const containerClass = embedded
+    ? "relative w-full bg-black overflow-hidden rounded-lg"
+    : "fixed inset-0 bg-black overflow-hidden cursor-default select-none";
+
+  const containerStyle = embedded ? { minHeight: '70vh' } : undefined;
+
   return (
-    <div className="fixed inset-0 bg-black overflow-hidden cursor-default select-none">
+    <div className={containerClass} style={containerStyle}>
       <canvas ref={canvasRef} className="absolute inset-0" />
 
       {/* Scanline overlay */}
@@ -215,3 +221,4 @@ const MatrixStart = () => {
 };
 
 export default MatrixStart;
+export type { };

@@ -8,6 +8,7 @@ import { GeometricSymbol } from '@/components/GeometricSymbol';
 import { LucideIcon } from 'lucide-react';
 import CyberCrisisSimulator, { type CrisisSimulatorHandle } from './CyberCrisisSimulator';
 import DoraIncidentReporter from './DoraIncidentReporter';
+import ArtificialStressSimulator from './ArtificialStressSimulator';
 import { StaggerReveal } from '@/components/StaggerReveal';
 import GlitchText from '@/components/GlitchText';
 import Typewriter from '@/components/Typewriter';
@@ -442,13 +443,13 @@ const useServiceContent = () => {
                 <p className="text-foreground/70 text-xs">{t('aiWorkflows.agentDoraDesc') || 'Meldepflicht-Prüfung nach DORA Art. 19 mit KI-Begründung'}</p>
               </div>
             </button>
-            <a href="/matrix" className="flex items-start gap-3 p-3 rounded-lg border border-primary/20 bg-primary/5 hover:bg-primary/10 hover:border-primary/40 transition-electric text-left">
+            <button onClick={() => setActive('stress-sim')} className="flex items-start gap-3 p-3 rounded-lg border border-primary/20 bg-primary/5 hover:bg-primary/10 hover:border-primary/40 transition-electric text-left">
               <Bug size={20} className="text-primary mt-0.5 flex-shrink-0" />
               <div>
-                <p className="text-primary font-semibold font-mono text-sm">{t('aiWorkflows.agentStressTitle') || 'Stress Simulator'}</p>
-                <p className="text-foreground/70 text-xs">{t('aiWorkflows.agentStressDesc') || 'KI-gestützter Stresstest für Ihre Incident-Reaktionsfähigkeit'}</p>
+                <p className="text-primary font-semibold font-mono text-sm">{t('aiWorkflows.agentStressTitle')}</p>
+                <p className="text-foreground/70 text-xs">{t('aiWorkflows.agentStressDesc')}</p>
               </div>
-            </a>
+            </button>
             <button onClick={() => { setActive(''); }} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
               <MessageSquare size={20} className="text-highlight mt-0.5 flex-shrink-0" />
               <div>
@@ -847,6 +848,8 @@ const ChatView = () => {
     ? <CyberCrisisSimulator embedded ref={crisisRef} />
     : activeService === 'dora-check'
     ? <DoraIncidentReporter embedded />
+    : activeService === 'stress-sim'
+    ? <ArtificialStressSimulator embedded />
     : activeService && contentMap[activeService] ? contentMap[activeService]() : null;
 
   return (
@@ -975,7 +978,7 @@ const ChatView = () => {
           ) : (
             <div className="w-full px-3 md:px-6 lg:px-10 py-4 md:py-6 space-y-4">
               {serviceContent && (() => {
-                if (activeService === 'crisis-sim') {
+                if (activeService === 'crisis-sim' || activeService === 'stress-sim') {
                   return <div className="flex-1 min-w-0">{serviceContent}</div>;
                 }
                 const ActiveIcon = sidebarGroups.flatMap(g => g.items).find(i => i.id === activeService)?.icon || MessageCircle;
@@ -1037,7 +1040,7 @@ const ChatView = () => {
         {(() => {
           const isTouchDevice = isMobile || isTablet;
           // On touch devices: show FAB unless user explicitly opened chat; hide completely on service pages (except crisis-sim)
-          if (isTouchDevice && !!activeService && activeService !== 'crisis-sim') return null;
+          if (isTouchDevice && !!activeService && activeService !== 'crisis-sim' && activeService !== 'stress-sim') return null;
           const showInput = !isTouchDevice || chatOpen;
           if (!showInput) {
             return (
