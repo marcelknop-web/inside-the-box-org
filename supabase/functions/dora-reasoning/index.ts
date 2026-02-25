@@ -12,17 +12,19 @@ serve(async (req) => {
   }
 
   try {
-    const { answers, verdict } = await req.json();
+    const { answers, verdict, language } = await req.json();
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    const verdictLabel =
-      verdict === "major"
-        ? "MAJOR INCIDENT – Meldepflicht"
-        : verdict === "borderline"
-        ? "GRENZFALL – Rücksprache empfohlen"
-        : "Kein Major Incident";
+    const langLabels: Record<string, Record<string, string>> = {
+      de: { major: "MAJOR INCIDENT – Meldepflicht", borderline: "GRENZFALL – Rücksprache empfohlen", none: "Kein Major Incident", instruction: "Schreibe eine kurze, prägnante Begründung (2-3 Sätze) auf Deutsch" },
+      en: { major: "MAJOR INCIDENT – Reporting obligation", borderline: "BORDERLINE – Consultation recommended", none: "No Major Incident", instruction: "Write a short, concise reasoning (2-3 sentences) in English" },
+      fr: { major: "INCIDENT MAJEUR – Obligation de notification", borderline: "CAS LIMITE – Consultation recommandée", none: "Pas d'incident majeur", instruction: "Rédigez une justification courte et concise (2-3 phrases) en français" },
+    };
+
+    const lang = langLabels[language] || langLabels.de;
+    const verdictLabel = lang[verdict] || lang.none;
 
     const answersText = Object.entries(answers)
       .map(([key, val]: [string, any]) => `${key}: ${val.label} (${val.value})`)
@@ -41,7 +43,7 @@ serve(async (req) => {
           messages: [
             {
               role: "system",
-              content: `Du bist ein DORA-Regulierungsexperte. Basierend auf den Antworten eines Incident-Checks und dem regelbasierten Ergebnis, schreibe eine kurze, prägnante Begründung (2-3 Sätze) auf Deutsch, warum der Vorfall als "${verdictLabel}" eingestuft wird. Beziehe dich auf konkrete DORA Art. 19 Kriterien. Antworte nur mit dem Begründungstext, keine Überschrift.`,
+              content: `Du bist ein DORA-Regulierungsexperte. Basierend auf den Antworten eines Incident-Checks und dem regelbasierten Ergebnis, ${lang.instruction}, warum der Vorfall als "${verdictLabel}" eingestuft wird. Beziehe dich auf konkrete DORA Art. 19 Kriterien. Antworte nur mit dem Begründungstext, keine Überschrift.`,
             },
             {
               role: "user",
