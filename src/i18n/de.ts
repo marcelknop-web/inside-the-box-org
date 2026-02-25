@@ -255,7 +255,7 @@ export const de = {
     agentCrisisDesc: 'Realistische Cyber-Krisenszenarien mit KI-Simulation',
     agentDoraDesc: 'Meldepflicht-Prüfung nach DORA Art. 19 mit KI-Begründung',
     agentStressTitle: 'Stress Simulator',
-    agentStressDesc: 'KI-gestützter Stresstest für Ihre Incident-Reaktionsfähigkeit',
+    agentStressDesc: 'Störgeräusche für realistische Krisenstabsübungen',
     agentChatTitle: 'Ask me anything',
     agentChatDesc: 'KI-Berater für Fragen rund um Cybersecurity – DE, EN, FR',
     agentTisaxDesc: 'TISAX-Einstufung nach VDA ISA Kriterien',
