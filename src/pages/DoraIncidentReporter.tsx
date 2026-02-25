@@ -120,8 +120,8 @@ const VERDICT_CONFIG = {
   },
 };
 
-export default function DoraIncidentReporter() {
-  const [started, setStarted] = useState(false);
+export default function DoraIncidentReporter({ embedded = false }: { embedded?: boolean }) {
+  const [started, setStarted] = useState(embedded);
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, { value: string; weight: number; label: string }>>({});
   const [verdict, setVerdict] = useState<Verdict | null>(null);
@@ -210,6 +210,8 @@ export default function DoraIncidentReporter() {
     doc.save(`DORA-Check_${new Date().toISOString().slice(0, 10)}.pdf`);
   };
 
+  const wrapperClass = embedded ? 'flex items-center justify-center p-4' : 'min-h-screen flex items-center justify-center p-4';
+
   // Entry button screen
   if (!started) {
     return (
@@ -229,7 +231,7 @@ export default function DoraIncidentReporter() {
   if (verdict) {
     const vc = VERDICT_CONFIG[verdict];
     return (
-      <div className="min-h-screen flex items-center justify-center p-4">
+      <div className={wrapperClass}>
         <PageMeta title="DORA Incident Check – Ergebnis" description="Ergebnis des DORA Art. 19 Incident Checks" />
         <div className="w-full max-w-xl">
           {/* Verdict banner */}
@@ -291,7 +293,7 @@ export default function DoraIncidentReporter() {
   // Wizard steps
   const step = STEPS[currentStep];
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
+    <div className={wrapperClass}>
       <PageMeta title="DORA Incident Check" description="Regelbasierter DORA Art. 19 Incident Check" />
       <div className="w-full max-w-xl">
         {/* Progress */}

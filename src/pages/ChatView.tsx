@@ -7,6 +7,7 @@ import { consultantProfiles } from '@/data/consultantProfiles';
 import { GeometricSymbol } from '@/components/GeometricSymbol';
 import { LucideIcon } from 'lucide-react';
 import CyberCrisisSimulator, { type CrisisSimulatorHandle } from './CyberCrisisSimulator';
+import DoraIncidentReporter from './DoraIncidentReporter';
 import { StaggerReveal } from '@/components/StaggerReveal';
 import GlitchText from '@/components/GlitchText';
 import Typewriter from '@/components/Typewriter';
@@ -275,9 +276,9 @@ const useServiceContent = () => {
         </Block>
         <Block className="bg-highlight/10 border border-highlight/30 rounded-xl">
           <SubTitle variant="highlight">{t('nis2.doraCheckTitle')}</SubTitle>
-          <LinkButton href="/ki-workflows" variant="highlight" size="md">
+          <button onClick={() => setActive('dora-check')} className="text-base sm:text-lg px-6 py-3 bg-highlight/10 border-2 border-highlight/30 text-highlight hover:text-primary hover:bg-highlight/20 hover:border-highlight/50 rounded-lg font-mono transition-electric inline-flex items-center justify-center">
             🔍 {t('aiWorkflows.doraCheckButton')}
-          </LinkButton>
+          </button>
         </Block>
       </TypedSection>
     ),
@@ -416,9 +417,9 @@ const useServiceContent = () => {
         <CardBlock icon={FileText} title={t('aiWorkflows.policyTitle')} desc={t('aiWorkflows.policyDesc')} bullets={[t('aiWorkflows.policyBullet1'), t('aiWorkflows.policyBullet2'), t('aiWorkflows.policyBullet3')]} result={t('aiWorkflows.policyResult')} />
         <CardBlock icon={Search} title={t('aiWorkflows.auditTitle')} desc={t('aiWorkflows.auditDesc')} bullets={[t('aiWorkflows.auditBullet1'), t('aiWorkflows.auditBullet2'), t('aiWorkflows.auditBullet3')]} result={t('aiWorkflows.auditResult')} />
         <Block className="bg-highlight/10 border border-highlight/30 rounded-xl">
-          <LinkButton href="/ki-workflows" variant="highlight" size="md">
+          <button onClick={() => setActive('dora-check')} className="text-base sm:text-lg px-6 py-3 bg-highlight/10 border-2 border-highlight/30 text-highlight hover:text-primary hover:bg-highlight/20 hover:border-highlight/50 rounded-lg font-mono transition-electric inline-flex items-center justify-center">
             🔍 {t('aiWorkflows.doraCheckButton')}
-          </LinkButton>
+          </button>
         </Block>
         <Block className="bg-highlight/10 border border-highlight/30 rounded-xl">
           <SubTitle variant="highlight">{t('aiWorkflows.ctaTitle')}</SubTitle>
@@ -811,6 +812,8 @@ const ChatView = () => {
 
   const serviceContent = activeService === 'crisis-sim'
     ? <CyberCrisisSimulator embedded ref={crisisRef} />
+    : activeService === 'dora-check'
+    ? <DoraIncidentReporter embedded />
     : activeService && contentMap[activeService] ? contentMap[activeService]() : null;
 
   return (
