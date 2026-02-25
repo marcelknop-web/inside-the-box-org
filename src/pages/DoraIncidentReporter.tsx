@@ -213,7 +213,7 @@ export default function DoraIncidentReporter({ embedded = false }: { embedded?: 
             <h2 className={`text-xl md:text-2xl font-mono font-bold ${vs.color}`}>{verdictTitles[verdict]}</h2>
           </div>
 
-          <div className="bg-card border border-border rounded-lg p-5 mb-5">
+          <div className="bg-card/40 border border-border rounded-lg p-5 mb-5">
             <h3 className="text-primary font-mono text-sm mb-2 uppercase tracking-wider">{t(I18N.reasoning)}</h3>
             {loadingReasoning ? (
               <div className="flex items-center gap-2 text-muted-foreground text-sm">
@@ -225,7 +225,7 @@ export default function DoraIncidentReporter({ embedded = false }: { embedded?: 
           </div>
 
           {verdict === 'major' && (
-            <div className="bg-card border border-border rounded-lg p-5 mb-5">
+            <div className="bg-card/40 border border-border rounded-lg p-5 mb-5">
               <h3 className="text-primary font-mono text-sm mb-3 uppercase tracking-wider">{t(I18N.deadlines)}</h3>
               <div className="space-y-3 text-sm">
                 <div className="flex items-start gap-3">
