@@ -252,7 +252,7 @@ export default function TisaxAssessmentClassifier({ embedded = false }: { embedd
           </div>
 
           {/* Summary table */}
-          <div className="bg-card/40 border border-primary/20 rounded-lg mb-5 overflow-hidden">
+          <div className="bg-highlight/5 border border-highlight/20 rounded-lg mb-5 overflow-hidden">
             <Table>
               <TableHeader>
                 <TableRow className="border-primary/20">
@@ -277,7 +277,7 @@ export default function TisaxAssessmentClassifier({ embedded = false }: { embedd
           </div>
 
           {/* AI reasoning */}
-          <div className="bg-card/40 border border-border rounded-lg p-5 mb-5">
+          <div className="bg-highlight/5 border border-highlight/20 rounded-lg p-5 mb-5">
             <h3 className="text-primary font-mono text-sm mb-2 uppercase tracking-wider">{t(I18N.reasoning)}</h3>
             {loadingReasoning ? (
               <div className="flex items-center gap-2 text-muted-foreground text-sm">
@@ -290,7 +290,7 @@ export default function TisaxAssessmentClassifier({ embedded = false }: { embedd
 
           {/* Next steps */}
           {verdict !== 'none' && (
-            <div className="bg-card/40 border border-border rounded-lg p-5 mb-5">
+            <div className="bg-highlight/5 border border-highlight/20 rounded-lg p-5 mb-5">
               <h3 className="text-primary font-mono text-sm mb-3 uppercase tracking-wider">{t(I18N.nextSteps)}</h3>
               <div className="space-y-2 text-sm">
                 <div className="flex items-start gap-3">
@@ -354,7 +354,7 @@ export default function TisaxAssessmentClassifier({ embedded = false }: { embedd
                 key={opt.value}
                 onClick={() => handleAnswer(step.id, opt)}
                 className={`w-full text-left px-5 py-4 rounded-lg border-2 font-mono text-sm md:text-base transition-electric
-                  ${isSelected ? 'border-primary bg-primary/15 text-primary' : 'border-border bg-card text-foreground/80 hover:border-primary/40 hover:bg-primary/5'}`}
+                  ${isSelected ? 'border-primary bg-primary/15 text-primary' : 'border-border bg-transparent text-foreground/80 hover:border-primary/40 hover:bg-primary/5'}`}
               >
                 {opt.label}
               </button>
