@@ -246,6 +246,7 @@ export const fr = {
     crisisBullet2: 'Séquençage automatisé des injects pendant les exercices',
     crisisBullet3: 'Suivi des performances en temps réel',
     crisisResult: 'Résultat : Exercices trimestriels avec 80 % de préparation en moins',
+    doraCheckButton: 'Lancer le DORA Incident Check',
     ctaTitle: 'Commencer',
     ctaDesc: 'Pilote de 4 semaines : Évaluation → Implémentation → Transfert\nROI : Retour sur investissement typique en 3–6 mois',
   },
