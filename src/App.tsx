@@ -10,6 +10,7 @@ import NotFound from "./pages/NotFound";
 import ArtificialStressSimulator from "./pages/ArtificialStressSimulator";
 import Ehrenerklaerung from "./pages/Ehrenerklaerung";
 import CyberCrisisSimulator from "./pages/CyberCrisisSimulator";
+import DoraIncidentReporter from "./pages/DoraIncidentReporter";
 
 const queryClient = new QueryClient();
 
@@ -26,6 +27,7 @@ const App = () => (
               <Route path="/matrix" element={<ArtificialStressSimulator />} />
               <Route path="/ehrenerklaerung" element={<Ehrenerklaerung />} />
               <Route path="/crisis" element={<CyberCrisisSimulator />} />
+              <Route path="/ki-workflows" element={<DoraIncidentReporter />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
