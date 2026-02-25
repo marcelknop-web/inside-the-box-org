@@ -246,6 +246,7 @@ export const de = {
     crisisBullet2: 'Automatisierte Inject-Sequenzierung während Übungen',
     crisisBullet3: 'Echtzeit-Performance-Tracking',
     crisisResult: 'Ergebnis: Quartalsübungen mit 80 % weniger Vorbereitungsaufwand',
+    doraCheckButton: 'DORA Incident Check starten',
     ctaTitle: 'Jetzt starten',
     ctaDesc: '4-Wochen-Pilot: Assessment → Implementierung → Übergabe\nROI: Typische Amortisation in 3–6 Monaten',
   },

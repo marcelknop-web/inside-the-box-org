@@ -273,11 +273,8 @@ export default function DoraIncidentReporter() {
           )}
 
           {/* Actions */}
-          <div className="flex flex-col sm:flex-row gap-3 mb-5">
-            <Button onClick={exportPdf} variant="outline" className="flex-1 border-primary/30 text-primary hover:bg-primary/10 font-mono">
-              <Download className="w-4 h-4 mr-2" /> PDF exportieren
-            </Button>
-            <Button onClick={restart} variant="outline" className="flex-1 border-muted-foreground/30 text-muted-foreground hover:bg-muted/30 font-mono">
+          <div className="flex justify-center mb-5">
+            <Button onClick={restart} variant="outline" className="border-muted-foreground/30 text-muted-foreground hover:bg-muted/30 font-mono">
               <RotateCcw className="w-4 h-4 mr-2" /> Neu starten
             </Button>
           </div>

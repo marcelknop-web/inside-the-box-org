@@ -246,6 +246,7 @@ export const en = {
     crisisBullet2: 'Automated inject sequencing during exercises',
     crisisBullet3: 'Real-time performance tracking',
     crisisResult: 'Result: Quarterly drills with 80% less preparation overhead',
+    doraCheckButton: 'Start DORA Incident Check',
     ctaTitle: 'Get Started',
     ctaDesc: '4-Week Pilot: Assessment → Implementation → Handover\nROI: Typical payback 3–6 months',
   },

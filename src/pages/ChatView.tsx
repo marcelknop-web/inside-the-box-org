@@ -11,6 +11,7 @@ import { StaggerReveal } from '@/components/StaggerReveal';
 import GlitchText from '@/components/GlitchText';
 import Typewriter from '@/components/Typewriter';
 import TypedSection from '@/components/TypedSection';
+import { LinkButton } from '@/components/LinkButton';
 
 interface NavLink { url: string; label: string; }
 interface AiResponse { message: string; links: NavLink[]; }
@@ -408,6 +409,11 @@ const useServiceContent = () => {
         <CardBlock icon={Zap} title={t('aiWorkflows.irTitle')} desc={t('aiWorkflows.irDesc')} bullets={[t('aiWorkflows.irBullet1'), t('aiWorkflows.irBullet2'), t('aiWorkflows.irBullet3')]} result={t('aiWorkflows.irResult')} />
         <CardBlock icon={FileText} title={t('aiWorkflows.policyTitle')} desc={t('aiWorkflows.policyDesc')} bullets={[t('aiWorkflows.policyBullet1'), t('aiWorkflows.policyBullet2'), t('aiWorkflows.policyBullet3')]} result={t('aiWorkflows.policyResult')} />
         <CardBlock icon={Search} title={t('aiWorkflows.auditTitle')} desc={t('aiWorkflows.auditDesc')} bullets={[t('aiWorkflows.auditBullet1'), t('aiWorkflows.auditBullet2'), t('aiWorkflows.auditBullet3')]} result={t('aiWorkflows.auditResult')} />
+        <Block className="bg-highlight/10 border border-highlight/30 rounded-xl">
+          <LinkButton href="/ki-workflows" variant="highlight" size="md">
+            🔍 {t('aiWorkflows.doraCheckButton')}
+          </LinkButton>
+        </Block>
         <Block className="bg-highlight/10 border border-highlight/30 rounded-xl">
           <SubTitle variant="highlight">{t('aiWorkflows.ctaTitle')}</SubTitle>
           <p className="text-foreground whitespace-pre-line">{t('aiWorkflows.ctaDesc')}</p>
