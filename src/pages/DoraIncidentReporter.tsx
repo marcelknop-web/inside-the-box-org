@@ -184,7 +184,7 @@ export default function DoraIncidentReporter({ embedded = false }: { embedded?: 
   const goBack = () => { if (currentStep > 0) setCurrentStep(currentStep - 1); };
   const restart = () => { setStarted(embedded); setCurrentStep(0); setAnswers({}); setVerdict(null); setReasoning(''); };
 
-  const wrapperClass = embedded ? 'flex items-center justify-center p-4' : 'min-h-screen flex items-center justify-center p-4';
+  const wrapperClass = embedded ? 'space-y-3' : 'min-h-screen p-4 max-w-2xl mx-auto';
 
   // Entry button (standalone only)
   if (!started) {
@@ -207,7 +207,7 @@ export default function DoraIncidentReporter({ embedded = false }: { embedded?: 
         <h1 className="text-2xl md:text-3xl font-bold text-primary font-mono mb-6">
           <Typewriter text={t(I18N.title)} charDelay={12} />
         </h1>
-        <div className="w-full max-w-xl">
+        <div>
           <div className={`${vs.bgColor} ${vs.borderColor} border-2 rounded-lg p-6 mb-6 text-center`}>
             <div className="text-4xl mb-2">{vs.emoji}</div>
             <h2 className={`text-xl md:text-2xl font-mono font-bold ${vs.color}`}>{verdictTitles[verdict]}</h2>
@@ -265,7 +265,7 @@ export default function DoraIncidentReporter({ embedded = false }: { embedded?: 
       <h1 className="text-2xl md:text-3xl font-bold text-primary font-mono mb-6">
         <Typewriter text={t(I18N.title)} charDelay={12} />
       </h1>
-      <div className="w-full max-w-xl">
+      <div>
         <div className="mb-6">
           <div className="flex justify-between text-xs text-muted-foreground font-mono mb-2">
             <span>{t(I18N.step)} {currentStep + 1} / {steps.length}</span>
