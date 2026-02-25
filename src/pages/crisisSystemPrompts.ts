@@ -33,7 +33,7 @@ ABLAUF:
 Eröffnung (EXAKT SO):
 "LAGEZENTRALE — 08:45 Uhr
 
-Das Helpdesk meldet eine ungewöhnlich hohe Anzahl von Anrufen. Kunden berichten, dass sie sich seit heute Morgen nicht mehr auf der IBO-Webseite anmelden können.
+Das Helpdesk meldet eine ungewöhnlich hohe Anzahl von Anrufen. Kunden berichten, dass sie sich seit heute Morgen nicht mehr auf der ShopHaven-Webseite anmelden können.
 
 Zusätzlich erhalten wir erste Hinweise, dass Kunden eine merkwürdige E-Mail erhalten haben sollen, die angeblich von uns stammt.
 
@@ -118,7 +118,7 @@ FLOW:
 Opening (EXACTLY like this):
 "SITUATION ROOM — 08:45
 
-The helpdesk reports an unusually high number of calls. Customers report they have been unable to log into the IBO website since this morning.
+The helpdesk reports an unusually high number of calls. Customers report they have been unable to log into the ShopHaven website since this morning.
 
 Additionally, we are receiving initial reports that customers may have received a suspicious email allegedly from us.
 
@@ -203,7 +203,7 @@ DÉROULEMENT :
 Ouverture (EXACTEMENT comme ceci) :
 "CENTRE OPÉRATIONNEL — 08h45
 
-Le helpdesk signale un nombre inhabituellement élevé d'appels. Des clients rapportent qu'ils ne peuvent plus se connecter au site web IBO depuis ce matin.
+Le helpdesk signale un nombre inhabituellement élevé d'appels. Des clients rapportent qu'ils ne peuvent plus se connecter au site web ShopHaven depuis ce matin.
 
 De plus, nous recevons les premiers signalements indiquant que des clients auraient reçu un email suspect prétendument envoyé par nous.
 
