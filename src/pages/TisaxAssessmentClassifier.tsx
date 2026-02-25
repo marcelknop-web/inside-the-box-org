@@ -314,11 +314,6 @@ export default function TisaxAssessmentClassifier({ embedded = false }: { embedd
             <Button onClick={restart} variant="outline" className="border-highlight/30 text-highlight hover:bg-highlight/10 hover:border-highlight/50 font-mono">
               <RotateCcw className="w-4 h-4 mr-2" /> {t(I18N.restart)}
             </Button>
-            <Button asChild variant="outline" className="border-primary/30 text-primary hover:bg-primary/10 hover:border-primary/50 font-mono">
-              <a href="/chat?section=ki-workflows">
-                <ArrowLeft className="w-4 h-4 mr-2" /> {t(I18N.backToWorkflows)}
-              </a>
-            </Button>
           </div>
 
           <p className="text-muted-foreground text-xs text-center italic">{t(I18N.disclaimer)}</p>
