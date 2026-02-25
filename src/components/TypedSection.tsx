@@ -20,7 +20,7 @@ interface TypedSectionProps {
 const TypedSection = ({
   title,
   mode = 'typewriter',
-  charDelay = 5,
+  charDelay = 6,
   intro,
   children,
   stagger = 600,
