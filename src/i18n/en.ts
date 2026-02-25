@@ -258,6 +258,7 @@ export const en = {
     agentStressDesc: 'AI-powered stress test for your incident response capabilities',
     agentChatTitle: 'Ask me anything',
     agentChatDesc: 'Trilingual AI advisor for all cybersecurity questions',
+    agentTisaxDesc: 'TISAX Assessment Level classification based on VDA ISA criteria',
   },
   arena: {
     title: 'Arena Training, TIBER Test',
