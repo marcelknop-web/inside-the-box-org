@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, RotateCcw, Download } from 'lucide-react';
+import { ArrowLeft, RotateCcw } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { PageMeta } from '@/components/PageMeta';
 import Typewriter from '@/components/Typewriter';
@@ -281,51 +281,6 @@ export default function PciDssSaqNavigator({ embedded = false }: { embedded?: bo
     }
   };
 
-  const exportPdf = async () => {
-    const { default: jsPDF } = await import('jspdf');
-    const doc = new jsPDF();
-    const vs = verdict ? VERDICT_STYLES[verdict] : null;
-    const now = new Date().toLocaleString(lang === 'fr' ? 'fr-FR' : lang === 'de' ? 'de-DE' : 'en-GB');
-
-    doc.setFontSize(18);
-    doc.text('PCI-DSS SAQ Navigator', 20, 25);
-    doc.setFontSize(10);
-    doc.text(now, 20, 33);
-
-    doc.setFontSize(14);
-    doc.text(vs ? t(vs.label) : '', 20, 48);
-
-    doc.setFontSize(10);
-    let y = 60;
-
-    // Merchant Level
-    if (answers.volume) {
-      const ml = getMerchantLevel(answers.volume.value);
-      doc.text(`${t(I18N.merchantLevel)}: ${t(ml)}`, 20, y);
-      y += 10;
-    }
-
-    Object.entries(answers).forEach(([key, val]) => {
-      if (!activeStepIds.includes(key)) return;
-      const stepLabel = t(STEP_LABELS[key] || { de: key, en: key, fr: key });
-      const imp = getImpact(val.weight);
-      doc.text(`${stepLabel}: ${val.label} (${t(imp.label)})`, 20, y);
-      y += 7;
-    });
-
-    y += 5;
-    if (reasoning) {
-      doc.setFontSize(10);
-      const lines = doc.splitTextToSize(reasoning, 170);
-      doc.text(lines, 20, y);
-      y += lines.length * 5 + 5;
-    }
-
-    doc.setFontSize(8);
-    doc.text(t(I18N.disclaimer), 20, y + 5);
-    doc.save(`PCI-DSS-SAQ-Check-${new Date().toISOString().slice(0, 10)}.pdf`);
-  };
-
   const goBack = () => { if (currentStep > 0) setCurrentStep(currentStep - 1); };
   const restart = () => { setStarted(embedded); setCurrentStep(0); setAnswers({}); setVerdict(null); setReasoning(''); };
 
@@ -427,9 +382,6 @@ export default function PciDssSaqNavigator({ embedded = false }: { embedded?: bo
 
           {/* Action buttons */}
           <div className="flex justify-center gap-3 mb-5 flex-wrap">
-            <Button onClick={exportPdf} variant="outline" className="border-primary/30 text-primary hover:bg-primary/10 hover:border-primary/50 font-mono">
-              <Download className="w-4 h-4 mr-2" /> {t(I18N.exportPdf)}
-            </Button>
             <Button onClick={restart} variant="outline" className="border-highlight/30 text-highlight hover:bg-highlight/10 hover:border-highlight/50 font-mono">
               <RotateCcw className="w-4 h-4 mr-2" /> {t(I18N.restart)}
             </Button>
