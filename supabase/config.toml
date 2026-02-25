@@ -11,3 +11,6 @@ verify_jwt = false
 
 [functions.pci-reasoning]
 verify_jwt = false
+
+[functions.verify-access]
+verify_jwt = false

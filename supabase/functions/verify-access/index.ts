@@ -5,10 +5,10 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
-// ─── RATE LIMITING (in-memory, resets on cold start) ─────────────
+// ─── RATE LIMITING ───────────────────────────────────────────────
 const RATE_LIMIT_WINDOW_MS = 60_000;
-const MAX_REQUESTS_PER_WINDOW = 10;
-const MAX_DAILY_REQUESTS = 300;
+const MAX_REQUESTS_PER_WINDOW = 5;
+const MAX_DAILY_REQUESTS = 200;
 
 interface RateEntry { count: number; resetAt: number; }
 const ipRateMap = new Map<string, RateEntry>();
@@ -40,44 +40,13 @@ setInterval(() => {
   }
 }, 300_000);
 
-// ─── PORT CHECK LOGIC ────────────────────────────────────────────
+// ─── PASSWORD STORE ──────────────────────────────────────────────
+// Passwords are stored as env vars. Format: RESOURCE_PASSWORD_<RESOURCE_NAME>
+// For Ehrenerklaerung: RESOURCE_PASSWORD_EHRENERKLAERUNG
 
-interface PortCheckRequest {
-  host: string;
-  ports: number[];
-  timeout?: number;
-}
-
-interface PortResult {
-  port: number;
-  reachable: boolean;
-  latencyMs?: number;
-  error?: string;
-}
-
-async function checkPort(host: string, port: number, timeoutMs: number): Promise<PortResult> {
-  const start = Date.now();
-  try {
-    const conn = await Promise.race([
-      Deno.connect({ hostname: host, port }),
-      new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error("timeout")), timeoutMs)
-      ),
-    ]);
-    const latencyMs = Date.now() - start;
-    (conn as Deno.Conn).close();
-    return { port, reachable: true, latencyMs };
-  } catch (e) {
-    const latencyMs = Date.now() - start;
-    const msg = e instanceof Error ? e.message : "unknown error";
-    const isRefused = msg.toLowerCase().includes("connection refused");
-    return {
-      port,
-      reachable: isRefused ? true : false,
-      latencyMs,
-      error: isRefused ? undefined : msg,
-    };
-  }
+function getResourcePassword(resource: string): string | undefined {
+  const key = `RESOURCE_PASSWORD_${resource.toUpperCase()}`;
+  return Deno.env.get(key);
 }
 
 // ─── HANDLER ─────────────────────────────────────────────────────
@@ -93,35 +62,48 @@ serve(async (req) => {
   const rl = getRateLimitResult(ip);
   if (!rl.allowed) {
     return new Response(
-      JSON.stringify({ error: "Too many requests, please wait." }),
+      JSON.stringify({ error: "Zu viele Versuche, bitte warte einen Moment." }),
       { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json", "Retry-After": String(rl.retryAfter ?? 60) } }
     );
   }
 
   try {
-    const { host, ports, timeout = 5000 } = (await req.json()) as PortCheckRequest;
+    const body = await req.json();
+    const { password, resource } = body;
 
-    if (!host || !ports?.length) {
+    if (!password || typeof password !== "string" || !resource || typeof resource !== "string") {
       return new Response(
-        JSON.stringify({ error: "host and ports[] are required" }),
+        JSON.stringify({ error: "Invalid request" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // Limit to max 25 ports per request
-    const portsToCheck = ports.slice(0, 25);
-    const results = await Promise.all(
-      portsToCheck.map((p) => checkPort(host, p, Math.min(timeout, 10000)))
-    );
+    if (password.length > 100 || resource.length > 50) {
+      return new Response(
+        JSON.stringify({ error: "Invalid input" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
-    return new Response(JSON.stringify({ host, results }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    const expected = getResourcePassword(resource.trim());
+    if (!expected) {
+      return new Response(
+        JSON.stringify({ authenticated: false }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const authenticated = password === expected;
+
+    return new Response(
+      JSON.stringify({ authenticated }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
   } catch (e) {
-    const msg = e instanceof Error ? e.message : "unknown error";
-    return new Response(JSON.stringify({ error: msg }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    console.error("verify-access error:", e);
+    return new Response(
+      JSON.stringify({ error: "Server error" }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
   }
 });
