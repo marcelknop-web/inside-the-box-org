@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { format } from 'date-fns';
-import { CalendarIcon } from 'lucide-react';
+import { CalendarIcon, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -26,6 +26,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { GeometricSymbol } from '@/components/GeometricSymbol';
+import { supabase } from '@/integrations/supabase/client';
 
 const formSchema = z.object({
   vorname: z.string().trim().max(100).optional(),
@@ -44,6 +45,8 @@ type FormValues = z.infer<typeof formSchema>;
 const Ehrenerklaerung = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [verifying, setVerifying] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
   const form = useForm<FormValues>({
@@ -59,12 +62,24 @@ const Ehrenerklaerung = () => {
     },
   });
 
-  const handlePasswordSubmit = (e: React.FormEvent) => {
+  const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === 'brain99') {
-      setIsAuthenticated(true);
-    } else {
-      alert('Falsches Passwort');
+    setPasswordError('');
+    setVerifying(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('verify-access', {
+        body: { password, resource: 'ehrenerklaerung' },
+      });
+      if (error) throw error;
+      if (data?.authenticated) {
+        setIsAuthenticated(true);
+      } else {
+        setPasswordError('Falsches Passwort');
+      }
+    } catch {
+      setPasswordError('Fehler bei der Überprüfung. Bitte erneut versuchen.');
+    } finally {
+      setVerifying(false);
     }
   };
 
@@ -85,9 +100,13 @@ const Ehrenerklaerung = () => {
               onChange={(e) => setPassword(e.target.value)}
               className="w-full bg-white"
               style={{ borderColor: '#c0d0d8', color: '#1a2a3a' }}
+              disabled={verifying}
             />
-            <Button type="submit" className="w-full py-5" style={{ background: '#5a8a9a', color: 'white' }}>
-              Zugang
+            {passwordError && (
+              <p className="text-sm text-red-500 text-center">{passwordError}</p>
+            )}
+            <Button type="submit" className="w-full py-5" style={{ background: '#5a8a9a', color: 'white' }} disabled={verifying}>
+              {verifying ? <><Loader2 className="w-4 h-4 animate-spin mr-2" /> Prüfe...</> : 'Zugang'}
             </Button>
           </form>
         </div>
