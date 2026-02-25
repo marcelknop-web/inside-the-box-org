@@ -417,11 +417,6 @@ const useServiceContent = () => {
         <CardBlock icon={FileText} title={t('aiWorkflows.policyTitle')} desc={t('aiWorkflows.policyDesc')} bullets={[t('aiWorkflows.policyBullet1'), t('aiWorkflows.policyBullet2'), t('aiWorkflows.policyBullet3')]} result={t('aiWorkflows.policyResult')} />
         <CardBlock icon={Search} title={t('aiWorkflows.auditTitle')} desc={t('aiWorkflows.auditDesc')} bullets={[t('aiWorkflows.auditBullet1'), t('aiWorkflows.auditBullet2'), t('aiWorkflows.auditBullet3')]} result={t('aiWorkflows.auditResult')} />
         <Block className="bg-highlight/10 border border-highlight/30 rounded-xl">
-          <button onClick={() => setActive('dora-check')} className="text-base sm:text-lg px-6 py-3 bg-highlight/10 border-2 border-highlight/30 text-highlight hover:text-primary hover:bg-highlight/20 hover:border-highlight/50 rounded-lg font-mono transition-electric inline-flex items-center justify-center">
-            🔍 {t('aiWorkflows.doraCheckButton')}
-          </button>
-        </Block>
-        <Block className="bg-highlight/10 border border-highlight/30 rounded-xl">
           <SubTitle variant="highlight">{t('aiWorkflows.ctaTitle')}</SubTitle>
           <p className="text-foreground whitespace-pre-line">{t('aiWorkflows.ctaDesc')}</p>
         </Block>
