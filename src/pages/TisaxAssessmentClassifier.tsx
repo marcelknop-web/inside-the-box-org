@@ -242,7 +242,7 @@ export default function TisaxAssessmentClassifier({ embedded = false }: { embedd
     return (
       <div className={wrapperClass}>
         <PageMeta title="TISAX Assessment Check" description="TISAX Assessment Level Classifier" />
-        <h1 className="text-2xl md:text-3xl font-bold text-primary font-mono mb-6">
+        <h1 className={`${embedded ? 'text-lg' : 'text-2xl md:text-3xl'} font-bold text-primary font-mono mb-3`}>
           <Typewriter text={t(I18N.title)} charDelay={8} />
         </h1>
         <div>
@@ -327,7 +327,7 @@ export default function TisaxAssessmentClassifier({ embedded = false }: { embedd
   return (
     <div className={wrapperClass}>
       <PageMeta title="TISAX Assessment Check" description="TISAX Assessment Level Classifier" />
-      <h1 className="text-2xl md:text-3xl font-bold text-primary font-mono mb-6">
+      <h1 className={`${embedded ? 'text-lg' : 'text-2xl md:text-3xl'} font-bold text-primary font-mono mb-3`}>
         <Typewriter text={t(I18N.title)} charDelay={8} />
       </h1>
       <div>
