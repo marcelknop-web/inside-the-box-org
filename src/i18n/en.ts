@@ -414,6 +414,7 @@ export const en = {
     ttxLabel: 'Cybersecurity Training · TTX',
     title: 'Try it out?',
     roleSubtitle: '/ Crisis Team Leader',
+    scenarioIntro: 'A mid-sized online retailer. 250,000 customer accounts. Monday morning, 08:45 – the helpdesk is overwhelmed. Something is wrong. You have 5 minutes.',
     startDesc: 'You assume the role of the <strong>Crisis Team Leader</strong> during an ongoing cyber attack. Scenario: Phishing campaign after DMZ compromise · <strong>250,000 affected customers</strong>. Duration: <strong>5 minutes</strong> · Automatic evaluation using TTX assessment matrix.',
     connecting: 'CONNECTING...',
     hardModeButton: 'HARD MODE',
