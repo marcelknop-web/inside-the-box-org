@@ -421,40 +421,40 @@ const useServiceContent = () => {
           <SubTitle variant="highlight">{t('aiWorkflows.ctaTitle')}</SubTitle>
           <p className="text-foreground whitespace-pre-line">{t('aiWorkflows.ctaDesc')}</p>
         </Block>
-        <Block className="bg-primary/10 border-2 border-primary/30 rounded-xl">
-          <SubTitle variant="primary">
-            {t('aiWorkflows.tryAgentsTitle') || '🤖 KI-Agents zum Ausprobieren'}
+        <Block className="bg-highlight/10 border-2 border-highlight/30 rounded-xl">
+          <SubTitle variant="highlight">
+            {t('aiWorkflows.tryAgentsTitle')}
           </SubTitle>
           <p className="text-foreground text-sm mb-3">
-            {t('aiWorkflows.tryAgentsDesc') || 'Testen Sie unsere KI-gestützten Tools direkt auf dieser Website:'}
+            {t('aiWorkflows.tryAgentsDesc')}
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            <button onClick={() => setActive('crisis-sim')} className="flex items-start gap-3 p-3 rounded-lg border border-primary/20 bg-primary/5 hover:bg-primary/10 hover:border-primary/40 transition-electric text-left">
-              <AlertTriangle size={20} className="text-primary mt-0.5 flex-shrink-0" />
+            <button onClick={() => setActive('crisis-sim')} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
+              <AlertTriangle size={20} className="text-highlight mt-0.5 flex-shrink-0" />
               <div>
-                <p className="text-primary font-semibold font-mono text-sm">{t('crisisSim.sidebarLabel')}</p>
-                <p className="text-foreground/70 text-xs">{t('aiWorkflows.agentCrisisDesc') || 'Realistische Cyber-Krisenszenarien mit KI-Simulation'}</p>
+                <p className="text-highlight font-semibold font-mono text-sm">{t('crisisSim.sidebarLabel')}</p>
+                <p className="text-foreground/70 text-xs">{t('aiWorkflows.agentCrisisDesc')}</p>
               </div>
             </button>
-            <button onClick={() => setActive('dora-check')} className="flex items-start gap-3 p-3 rounded-lg border border-primary/20 bg-primary/5 hover:bg-primary/10 hover:border-primary/40 transition-electric text-left">
-              <Landmark size={20} className="text-primary mt-0.5 flex-shrink-0" />
+            <button onClick={() => setActive('dora-check')} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
+              <Landmark size={20} className="text-highlight mt-0.5 flex-shrink-0" />
               <div>
-                <p className="text-primary font-semibold font-mono text-sm">DORA Incident Check</p>
-                <p className="text-foreground/70 text-xs">{t('aiWorkflows.agentDoraDesc') || 'Meldepflicht-Prüfung nach DORA Art. 19 mit KI-Begründung'}</p>
+                <p className="text-highlight font-semibold font-mono text-sm">DORA Incident Check</p>
+                <p className="text-foreground/70 text-xs">{t('aiWorkflows.agentDoraDesc')}</p>
               </div>
             </button>
-            <button onClick={() => setActive('stress-sim')} className="flex items-start gap-3 p-3 rounded-lg border border-primary/20 bg-primary/5 hover:bg-primary/10 hover:border-primary/40 transition-electric text-left">
-              <Bug size={20} className="text-primary mt-0.5 flex-shrink-0" />
+            <button onClick={() => setActive('stress-sim')} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
+              <Bug size={20} className="text-highlight mt-0.5 flex-shrink-0" />
               <div>
-                <p className="text-primary font-semibold font-mono text-sm">{t('aiWorkflows.agentStressTitle')}</p>
+                <p className="text-highlight font-semibold font-mono text-sm">{t('aiWorkflows.agentStressTitle')}</p>
                 <p className="text-foreground/70 text-xs">{t('aiWorkflows.agentStressDesc')}</p>
               </div>
             </button>
             <button onClick={() => { setActive(''); }} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
               <MessageSquare size={20} className="text-highlight mt-0.5 flex-shrink-0" />
               <div>
-                <p className="text-highlight font-semibold font-mono text-sm">{t('aiWorkflows.agentChatTitle') || 'Ask me anything'}</p>
-                <p className="text-foreground/70 text-xs">{t('aiWorkflows.agentChatDesc') || 'Trilingualer KI-Berater für alle Fragen zu Cybersecurity'}</p>
+                <p className="text-highlight font-semibold font-mono text-sm">{t('aiWorkflows.agentChatTitle')}</p>
+                <p className="text-foreground/70 text-xs">{t('aiWorkflows.agentChatDesc')}</p>
               </div>
             </button>
           </div>
