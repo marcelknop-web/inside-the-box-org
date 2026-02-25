@@ -251,7 +251,7 @@ export const de = {
     ctaTitle: 'Jetzt starten',
     ctaDesc: '4-Wochen-Pilot: Assessment → Implementierung → Übergabe\nROI: Typische Amortisation in 3–6 Monaten',
     tryAgentsTitle: '🤖 KI-Agents zum Ausprobieren',
-    tryAgentsDesc: 'Testen Sie unsere KI-gestützten Tools direkt auf dieser Website:',
+    tryAgentsDesc: 'Testen Sie unsere KI-gestützten Beispiele direkt auf dieser Website:',
     agentCrisisDesc: 'Realistische Cyber-Krisenszenarien mit KI-Simulation',
     agentDoraDesc: 'Meldepflicht-Prüfung nach DORA Art. 19 mit KI-Begründung',
     agentStressTitle: 'Stress Simulator',
