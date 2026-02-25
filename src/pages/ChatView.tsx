@@ -10,6 +10,7 @@ import CyberCrisisSimulator, { type CrisisSimulatorHandle } from './CyberCrisisS
 import DoraIncidentReporter from './DoraIncidentReporter';
 import ArtificialStressSimulator from './ArtificialStressSimulator';
 import TisaxAssessmentClassifier from './TisaxAssessmentClassifier';
+import PciDssSaqNavigator from './PciDssSaqNavigator';
 import { StaggerReveal } from '@/components/StaggerReveal';
 import GlitchText from '@/components/GlitchText';
 import Typewriter from '@/components/Typewriter';
@@ -458,6 +459,13 @@ const useServiceContent = () => {
                 <p className="text-foreground/70 text-xs">{t('aiWorkflows.agentTisaxDesc')}</p>
               </div>
             </button>
+            <button onClick={() => setActive('pci-check')} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
+              <CreditCard size={20} className="text-highlight mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="text-highlight font-semibold font-mono text-sm">PCI-DSS SAQ Navigator</p>
+                <p className="text-foreground/70 text-xs">{t('aiWorkflows.agentPciDesc')}</p>
+              </div>
+            </button>
             <button onClick={() => { setActive(''); }} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
               <MessageSquare size={20} className="text-highlight mt-0.5 flex-shrink-0" />
               <div>
@@ -860,6 +868,8 @@ const ChatView = () => {
     ? <ArtificialStressSimulator embedded />
     : activeService === 'tisax-check'
     ? <TisaxAssessmentClassifier embedded />
+    : activeService === 'pci-check'
+    ? <PciDssSaqNavigator embedded />
     : activeService && contentMap[activeService] ? contentMap[activeService]() : null;
 
   return (

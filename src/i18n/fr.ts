@@ -259,6 +259,7 @@ export const fr = {
     agentChatTitle: 'Ask me anything',
     agentChatDesc: 'Conseiller IA trilingue pour toutes les questions de cybersécurité',
     agentTisaxDesc: 'Classification du niveau d\'évaluation TISAX selon les critères VDA ISA',
+    agentPciDesc: 'Détermination du type SAQ selon PCI DSS v4.0 avec classification du niveau marchand',
   },
   arena: {
     title: 'Arena Training, Test TIBER',
