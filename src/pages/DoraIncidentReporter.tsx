@@ -245,9 +245,14 @@ export default function DoraIncidentReporter({ embedded = false }: { embedded?: 
             </div>
           )}
 
-          <div className="flex justify-center mb-5">
+          <div className="flex justify-center gap-3 mb-5 flex-wrap">
             <Button onClick={restart} variant="outline" className="border-highlight/30 text-highlight hover:bg-highlight/10 hover:border-highlight/50 font-mono">
               <RotateCcw className="w-4 h-4 mr-2" /> {t(I18N.restart)}
+            </Button>
+            <Button asChild variant="outline" className="border-primary/30 text-primary hover:bg-primary/10 hover:border-primary/50 font-mono">
+              <a href="/chat?section=nis2-dora">
+                <ArrowLeft className="w-4 h-4 mr-2" /> {t({ de: 'Zurück zu NIS/DORA', en: 'Back to NIS/DORA', fr: 'Retour à NIS/DORA' })}
+              </a>
             </Button>
           </div>
 
