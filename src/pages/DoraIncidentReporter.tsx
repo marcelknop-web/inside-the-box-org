@@ -246,7 +246,7 @@ export default function DoraIncidentReporter({ embedded = false }: { embedded?: 
           )}
 
           <div className="flex justify-center mb-5">
-            <Button onClick={restart} variant="outline" className="border-muted-foreground/30 text-muted-foreground hover:bg-muted/30 font-mono">
+            <Button onClick={restart} variant="outline" className="border-highlight/30 text-highlight hover:bg-highlight/10 hover:border-highlight/50 font-mono">
               <RotateCcw className="w-4 h-4 mr-2" /> {t(I18N.restart)}
             </Button>
           </div>
