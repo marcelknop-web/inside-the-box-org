@@ -97,6 +97,7 @@ serve(async (req) => {
               content: `Ergebnis: ${verdictLabel}\n\nAntworten:\n${answersText}`,
             },
           ],
+          max_tokens: 1200,
         }),
       }
     );

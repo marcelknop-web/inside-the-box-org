@@ -104,6 +104,7 @@ serve(async (req) => {
             { role: "system", content: SYSTEM_PROMPT },
             { role: "user", content: trimmed },
           ],
+          max_tokens: 1200,
         }),
       }
     );
