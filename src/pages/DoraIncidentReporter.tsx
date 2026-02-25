@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ArrowRight, RotateCcw, Download, AlertTriangle, CheckCircle, AlertCircle } from 'lucide-react';
+import Typewriter from '@/components/Typewriter';
 import { supabase } from '@/integrations/supabase/client';
 import jsPDF from 'jspdf';
 import { PageMeta } from '@/components/PageMeta';
@@ -233,6 +234,9 @@ export default function DoraIncidentReporter({ embedded = false }: { embedded?: 
     return (
       <div className={wrapperClass}>
         <PageMeta title="DORA Incident Check – Ergebnis" description="Ergebnis des DORA Art. 19 Incident Checks" />
+        <h1 className="text-2xl md:text-3xl font-bold text-primary font-mono mb-6">
+          <Typewriter text="DORA Incident Check" charDelay={12} />
+        </h1>
         <div className="w-full max-w-xl">
           {/* Verdict banner */}
           <div className={`${vc.bgColor} ${vc.borderColor} border-2 rounded-lg p-6 mb-6 text-center`}>
@@ -295,6 +299,9 @@ export default function DoraIncidentReporter({ embedded = false }: { embedded?: 
   return (
     <div className={wrapperClass}>
       <PageMeta title="DORA Incident Check" description="Regelbasierter DORA Art. 19 Incident Check" />
+      <h1 className="text-2xl md:text-3xl font-bold text-primary font-mono mb-6">
+        <Typewriter text="DORA Incident Check" charDelay={12} />
+      </h1>
       <div className="w-full max-w-xl">
         {/* Progress */}
         <div className="mb-6">
