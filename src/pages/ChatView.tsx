@@ -370,9 +370,12 @@ const useServiceContent = () => {
           <img src="/lovable-uploads/48ad82c3-84e8-4161-93d5-d79b509f7cc4.png" alt="Conference" className="rounded-xl w-full h-40 md:h-48 object-cover border border-border" />
         </div>
         <TypedSection title={t('events.title')} mode="typewriter" intro={<p>{t('events.intro')}</p>}>
+        <Block className="bg-muted/30 border border-border rounded-xl">
+          <p className="text-sm font-sans italic text-primary leading-relaxed tracking-wide">{t('events.tagline')}</p>
+        </Block>
         <CardBlock icon={Mic} title={t('events.moderationTitle')} desc={t('events.moderationDesc')} />
         <CardBlock icon={Users} title={t('events.workshopsTitle')} desc={t('events.workshopsDesc')} />
-        <CardBlock icon={Award} title={t('events.referencesTitle')} desc={t('events.referencesDesc')} />
+        <CardBlock icon={Award} title={t('events.referencesTitle')} desc={`${t('events.referencesIntro')}\n\n${t('events.referencesDesc')}`} />
         <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
           <SubTitle variant="highlight">{t('events.eventTypesTitle')}</SubTitle>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-2">
