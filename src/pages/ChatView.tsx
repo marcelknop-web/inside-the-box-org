@@ -999,21 +999,21 @@ const ChatView = () => {
                     <Typewriter text={t('welcome.heroClaim')} mode="scramble" delay={2200} charDelay={18} cursor={false} onDone={() => setClaimDone(true)} />
                   </p>
                 </button>
-                {/* Subtitle – fades in after claim */}
+                {/* Subtitle & Signature – fade in after claim */}
                 <div
+                  className="flex flex-col items-center w-full"
                   style={{
                     opacity: claimDone ? 1 : 0,
                     transform: claimDone ? 'translateY(0)' : 'translateY(8px)',
                     transition: 'opacity 600ms ease-out, transform 600ms ease-out',
                   }}
                 >
-                  <button onClick={() => setSidebarOpen(true)} className="cursor-pointer bg-transparent border-none p-0 transition-electric" style={{ marginBottom: '28px' }}>
+                  <button onClick={() => setSidebarOpen(true)} className="cursor-pointer bg-transparent border-none p-0 w-full transition-electric" style={{ marginBottom: '16px' }}>
                     <p className="font-mono text-center" style={{ fontSize: 'clamp(0.85rem, 2vw, 1.0rem)', letterSpacing: '0.02em', color: 'rgba(255,255,255,0.72)' }}>
                       {t('welcome.heroSubtitle')}
                     </p>
                   </button>
-                  {/* Signature */}
-                  <button onClick={() => setSidebarOpen(true)} className="cursor-pointer bg-transparent border-none p-0 transition-electric" style={{ marginTop: '8px' }}>
+                  <button onClick={() => setSidebarOpen(true)} className="cursor-pointer bg-transparent border-none p-0 w-full transition-electric">
                     <p className="font-mono text-center" style={{ fontSize: 'clamp(0.75rem, 1.8vw, 0.88rem)', letterSpacing: '0.02em', color: 'rgba(255,255,255,0.58)' }}>
                       {t('welcome.heroSignature')}
                     </p>
