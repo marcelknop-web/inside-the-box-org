@@ -302,9 +302,15 @@ const useServiceContent = () => {
     ),
     'tisax-pci-dss': () => (
       <TypedSection title={t('tisax.title')} mode="typewriter" intro={<p>{t('tisax.intro')}</p>}>
-        <CardBlock icon={Settings} title={t('tisax.implTitle')} desc={t('tisax.implDesc')} />
-        <CardBlock icon={CheckCircle} title={t('tisax.reviewsTitle')} desc={t('tisax.reviewsDesc')} />
-        <CardBlock icon={FileCheck} title={t('tisax.auditTitle')} desc={t('tisax.auditDesc')} />
+        <Block className="bg-primary/5 border border-primary/20 rounded-xl">
+          <SubTitle>{t('tisax.approachTitle')}</SubTitle>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
+            <GridItem icon={Search} title={t('tisax.step1Title')} desc={t('tisax.step1Desc')} />
+            <GridItem icon={Settings} title={t('tisax.step2Title')} desc={t('tisax.step2Desc')} />
+            <GridItem icon={CheckCircle} title={t('tisax.step3Title')} desc={t('tisax.step3Desc')} />
+            <GridItem icon={FileCheck} title={t('tisax.step4Title')} desc={t('tisax.step4Desc')} />
+          </div>
+        </Block>
         <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
           <SubTitle variant="highlight">{t('tisax.frameworkTitle')}</SubTitle>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
