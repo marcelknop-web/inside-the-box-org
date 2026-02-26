@@ -79,7 +79,7 @@ const GridItem = ({ icon: Icon, title, desc, variant = 'primary', href }: { icon
       ) : (
         <p className={`font-semibold text-sm md:text-base font-sans ${variant === 'highlight' ? 'text-highlight' : 'text-primary'}`}>{title}</p>
       )}
-      <p className="text-foreground text-sm md:text-base font-sans leading-relaxed tracking-wide">{desc}</p>
+      <p className="text-foreground text-sm md:text-base font-sans leading-relaxed tracking-wide whitespace-pre-line">{desc}</p>
     </div>
   </div>
 );
@@ -271,6 +271,9 @@ const useServiceContent = () => {
     ),
     'nis2-dora': () => (
       <TypedSection title={t('nis2.title')} mode="typewriter" intro={<p>{t('nis2.intro')}</p>}>
+        <Block className="bg-muted/30 border border-border rounded-xl">
+          <p className="text-sm font-sans italic text-primary leading-relaxed tracking-wide">{t('nis2.tagline')}</p>
+        </Block>
         <CardBlock icon={Search} title={t('nis2.impactTitle')} desc={t('nis2.impactDesc')} />
         <CardBlock icon={AlertCircle} title={t('nis2.gapTitle')} desc={t('nis2.gapDesc')} />
         <CardBlock icon={ShieldCheck} title={t('nis2.measuresTitle')} desc={t('nis2.measuresDesc')} />
@@ -284,6 +287,7 @@ const useServiceContent = () => {
         </Block>
         <Block className="bg-highlight/10 border border-highlight/30 rounded-xl">
           <SubTitle variant="highlight">{t('nis2.doraCheckTitle')}</SubTitle>
+          <p className="text-sm font-sans text-foreground/70 leading-relaxed mb-3">{t('nis2.doraCheckDesc')}</p>
           <button onClick={() => setActive('dora-check')} className="text-base sm:text-lg px-6 py-3 bg-highlight/10 border-2 border-highlight/30 text-highlight hover:text-primary hover:bg-highlight/20 hover:border-highlight/50 rounded-lg font-mono transition-electric inline-flex items-center justify-center">
             🔍 {t('aiWorkflows.doraCheckButton')}
           </button>
