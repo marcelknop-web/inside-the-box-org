@@ -19,9 +19,9 @@ export default {
 		},
 		extend: {
 		fontFamily: {
-				sans: ['IBM Plex Sans', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
+				sans: ['DM Sans', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
 				mono: ['IBM Plex Mono', 'Monaco', 'Menlo', 'monospace'],
-				rounded: ['IBM Plex Sans', 'sans-serif'],
+				rounded: ['DM Sans', 'sans-serif'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',
