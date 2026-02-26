@@ -62,7 +62,13 @@ serve(async (req) => {
     const { answers, verdict, language } = await req.json();
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
+    if (!LOVABLE_API_KEY) {
+      console.error("LOVABLE_API_KEY is not configured");
+      return new Response(
+        JSON.stringify({ error: "Service temporarily unavailable" }),
+        { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
     const langLabels: Record<string, Record<string, string>> = {
       de: { major: "MAJOR INCIDENT – Meldepflicht", borderline: "GRENZFALL – Rücksprache empfohlen", none: "Kein Major Incident", instruction: "Schreibe eine kurze, prägnante Begründung (2-3 Sätze) auf Deutsch" },
@@ -116,8 +122,11 @@ serve(async (req) => {
         );
       }
       const t = await response.text();
-      console.error("AI gateway error:", response.status, t);
-      throw new Error("AI service error");
+      console.error("[dora-reasoning] upstream error:", response.status, t);
+      return new Response(
+        JSON.stringify({ error: "Service temporarily unavailable" }),
+        { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
     const data = await response.json();
@@ -129,7 +138,7 @@ serve(async (req) => {
   } catch (e) {
     console.error("dora-reasoning error:", e);
     return new Response(
-      JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }),
+      JSON.stringify({ error: "Service temporarily unavailable" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }

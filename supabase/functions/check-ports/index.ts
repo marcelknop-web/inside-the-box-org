@@ -40,6 +40,15 @@ setInterval(() => {
   }
 }, 300_000);
 
+// ─── SSRF PROTECTION ─────────────────────────────────────────────
+
+const ALLOWED_HOST = "portquiz.net";
+
+function isAllowedHost(host: string): boolean {
+  const normalized = host.trim().toLowerCase();
+  return normalized === ALLOWED_HOST;
+}
+
 // ─── PORT CHECK LOGIC ────────────────────────────────────────────
 
 interface PortCheckRequest {
@@ -108,6 +117,13 @@ serve(async (req) => {
       );
     }
 
+    if (!isAllowedHost(host)) {
+      return new Response(
+        JSON.stringify({ error: "Host not allowed" }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     // Limit to max 25 ports per request
     const portsToCheck = ports.slice(0, 25);
     const results = await Promise.all(
@@ -118,8 +134,8 @@ serve(async (req) => {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
-    const msg = e instanceof Error ? e.message : "unknown error";
-    return new Response(JSON.stringify({ error: msg }), {
+    console.error("check-ports error:", e);
+    return new Response(JSON.stringify({ error: "Service error" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
