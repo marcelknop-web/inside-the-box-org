@@ -399,41 +399,41 @@ const CyberCrisisSimulator = forwardRef<CrisisSimulatorHandle, CrisisSimulatorPr
   }, [started]);
 
   const startScreenJSX = (
-    <div className={`flex-1 flex items-center justify-center ${embedded ? "py-5" : ""} overflow-y-auto`}>
-      <div className="text-center max-w-[520px] px-4">
-        <div className="flex justify-center mb-4">
-          <div className="opacity-70" style={{ transform: 'scale(2.5)', transformOrigin: 'center center', width: 24, height: 24, margin: '20px auto' }}>
+    <div className={`flex-1 flex items-center justify-center ${embedded ? "py-2" : ""} overflow-y-auto`}>
+      <div className={`text-center px-4 ${embedded ? "max-w-[600px]" : "max-w-[520px]"}`}>
+        <div className="flex justify-center mb-1">
+          <div className="opacity-70" style={{ transform: embedded ? 'scale(1.8)' : 'scale(2.5)', transformOrigin: 'center center', width: 24, height: 24, margin: embedded ? '8px auto' : '20px auto' }}>
             <GeometricSymbol size="xs" />
           </div>
         </div>
-        <div className="text-muted-foreground text-xs uppercase tracking-[0.2em] mb-2">
+        <div className="text-muted-foreground text-xs uppercase tracking-[0.2em] mb-1">
           {t('crisisSim.ttxLabel')}
         </div>
-        <div className="text-foreground text-lg md:text-xl font-semibold tracking-wide mb-1 font-mono">
+        <div className={`text-foreground font-semibold tracking-wide mb-1 font-mono ${embedded ? "text-base" : "text-lg md:text-xl"}`}>
           <Typewriter text={t('crisisSim.title')} mode="scramble" charDelay={60} onDone={() => setStartScreenTitleDone(true)} />
         </div>
         {startScreenTitleDone && (
           <>
-            <div className="text-primary text-sm mb-4">
+            <div className={`text-primary ${embedded ? "text-xs mb-1.5" : "text-sm mb-4"}`}>
               {t('crisisSim.roleSubtitle')}
             </div>
-            <div className="mb-5 text-foreground/60 text-sm md:text-base italic max-w-lg mx-auto leading-relaxed whitespace-pre-line">
+            <div className={`text-foreground/60 italic max-w-lg mx-auto leading-relaxed whitespace-pre-line ${embedded ? "text-xs mb-2" : "text-sm md:text-base mb-5"}`}>
               {t('crisisSim.scenarioIntro')}
             </div>
-            <div className="mb-4 text-center leading-relaxed text-foreground/80 text-sm md:text-base max-w-lg mx-auto whitespace-pre-line">
+            <div className={`text-center leading-relaxed text-foreground/80 max-w-lg mx-auto whitespace-pre-line ${embedded ? "text-xs mb-2" : "text-sm md:text-base mb-4"}`}>
               {t('crisisSim.startDesc').split(/<strong>|<\/strong>/).map((part, i) =>
                 i % 2 === 1 ? <strong key={i} className="text-primary font-semibold">{part}</strong> : part
               )}
             </div>
-            <div className="flex flex-col sm:flex-row gap-3 items-center justify-center">
-              <button className="crisis-start-btn" onClick={() => handleStart(false)} disabled={loading}>
+            <div className={`flex flex-col sm:flex-row items-center justify-center ${embedded ? "gap-2" : "gap-3"}`}>
+              <button className={`crisis-start-btn ${embedded ? "crisis-start-btn-compact" : ""}`} onClick={() => handleStart(false)} disabled={loading}>
                 <span>{loading ? t('crisisSim.connecting') : t('crisisSim.startButton')}</span>
               </button>
-              <button className="crisis-start-btn crisis-hard-btn" onClick={() => handleStart(true)} disabled={loading}>
+              <button className={`crisis-start-btn crisis-hard-btn ${embedded ? "crisis-start-btn-compact" : ""}`} onClick={() => handleStart(true)} disabled={loading}>
                 <span>{loading ? t('crisisSim.connecting') : t('crisisSim.hardModeButton')}</span>
               </button>
             </div>
-            <div className="text-muted-foreground text-xs mt-3 font-mono">
+            <div className={`text-muted-foreground text-xs font-mono ${embedded ? "mt-1.5" : "mt-3"}`}>
               {t('crisisSim.hardModeHint')}
             </div>
           </>
@@ -612,6 +612,7 @@ const CyberCrisisSimulator = forwardRef<CrisisSimulatorHandle, CrisisSimulatorPr
       background: hsl(var(--destructive)) !important;
     }
     .crisis-hard-btn:hover { color: hsl(var(--primary-foreground)); }
+    .crisis-start-btn-compact { padding: 8px 24px; font-size: 12px; }
   `;
 
   // ─── COMPACT STATUS BAR (embedded mobile) ───────────────────────
