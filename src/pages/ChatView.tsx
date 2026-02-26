@@ -255,11 +255,12 @@ const useServiceContent = () => {
 
   const contentMap: Record<string, () => ReactNode> = {
     isms: () => (
-      <TypedSection title={t('isms.title')} mode="typewriter" intro={<p>{t('isms.intro')}</p>}>
+      <TypedSection title={t('isms.title')} mode="typewriter" intro={<><p className="text-muted-foreground italic font-mono text-sm mb-3">{t('isms.subtitle')}</p><p>{t('isms.intro')}</p></>}>
         <CardBlock icon={ShieldCheck} title={t('isms.iso27001Title')} desc={t('isms.iso27001Desc')} />
         <CardBlock icon={FileText} title={t('isms.bsiTitle')} desc={t('isms.bsiDesc')} />
         <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
           <SubTitle variant="highlight">{t('isms.approachTitle')}</SubTitle>
+          <p className="text-muted-foreground text-sm mb-3">{t('isms.approachSubtitle')}</p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <GridItem icon={Search} title={t('isms.assessmentTitle')} desc={t('isms.assessmentDesc')} variant="highlight" />
             <GridItem icon={Settings} title={t('isms.implementationTitle')} desc={t('isms.implementationDesc')} variant="highlight" />
