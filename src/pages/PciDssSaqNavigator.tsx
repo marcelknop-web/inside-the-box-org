@@ -421,7 +421,7 @@ export default function PciDssSaqNavigator({ embedded = false }: { embedded?: bo
                 key={opt.value}
                 onClick={() => handleAnswer(step.id, opt)}
                 className={`w-full text-left px-5 py-4 rounded-lg border-2 font-mono text-sm md:text-base transition-electric
-                  ${isSelected ? 'border-primary bg-primary/15 text-primary' : 'border-border bg-transparent text-foreground/80 hover:border-primary/40 hover:bg-primary/5'}`}
+                  ${isSelected ? 'border-highlight bg-highlight/15 text-highlight' : 'border-primary/40 bg-transparent text-foreground/80 hover:border-highlight hover:bg-highlight/5 hover:text-highlight'}`}
               >
                 {opt.label}
               </button>
