@@ -442,9 +442,9 @@ export const de = {
     contact: 'Kontakt',
   },
   welcome: {
-    title: 'Cybersecurity Consulting',
+    title: 'inside-the-box',
     headerTitle: 'inside-the-box.org',
-    intro: 'Analyse. Training. Umsetzung.<br/><br/>Marcel Knop & Andreas Funder',
+    intro: 'Cybersecurity Consulting<br/><br/>Analyse. Training. Umsetzung.<br/><br/>Marcel Knop & Andreas Funder',
     chatPlaceholder: 'INPUT',
   },
   crisisSim: {
