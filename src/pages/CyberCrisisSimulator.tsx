@@ -420,10 +420,11 @@ const CyberCrisisSimulator = forwardRef<CrisisSimulatorHandle, CrisisSimulatorPr
             <div className="mb-5 text-foreground/60 text-sm md:text-base italic max-w-lg mx-auto leading-relaxed">
               {t('crisisSim.scenarioIntro')}
             </div>
-            <div
-              className="mb-4 text-left leading-relaxed text-foreground/80 text-sm md:text-base max-w-lg mx-auto [&_strong]:text-primary [&_strong]:font-semibold"
-              dangerouslySetInnerHTML={{ __html: t('crisisSim.startDesc') }}
-            />
+            <div className="mb-4 text-left leading-relaxed text-foreground/80 text-sm md:text-base max-w-lg mx-auto">
+              {t('crisisSim.startDesc').split(/<strong>|<\/strong>/).map((part, i) =>
+                i % 2 === 1 ? <strong key={i} className="text-primary font-semibold">{part}</strong> : part
+              )}
+            </div>
             <div className="flex flex-col sm:flex-row gap-3 items-center justify-center">
               <button className="crisis-start-btn" onClick={() => handleStart(false)} disabled={loading}>
                 <span>{loading ? t('crisisSim.connecting') : t('crisisSim.startButton')}</span>

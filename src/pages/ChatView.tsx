@@ -489,18 +489,22 @@ const useServiceContent = () => {
         </Block>
         <StaggerReveal stagger={600} startDelay={3200}>
           <Block className="bg-primary/10 border-2 border-primary/30 rounded-xl">
-            <p className="text-foreground mb-3" dangerouslySetInnerHTML={{
-              __html: t('index.card1').replace(/<span>/g, '<span class="text-primary font-semibold">')
-            }} />
+            <p className="text-foreground mb-3">
+              {t('index.card1').split(/<span>|<\/span>/).map((part, i) =>
+                i % 2 === 1 ? <span key={i} className="text-primary font-semibold">{part}</span> : part
+              )}
+            </p>
             <ul className="list-disc list-inside text-foreground mb-3 space-y-1">
               {t('index.card1bullets').split('\n').map((b, i) => <li key={i}>{b}</li>)}
             </ul>
             <p className="text-primary font-semibold">{t('index.card1outro')}</p>
           </Block>
           <Block className="bg-primary/10 border-2 border-primary/30 rounded-xl">
-            <p className="text-foreground mb-3" dangerouslySetInnerHTML={{
-              __html: t('index.card2').replace(/<span>/g, '<span class="text-primary font-semibold">')
-            }} />
+            <p className="text-foreground mb-3">
+              {t('index.card2').split(/<span>|<\/span>/).map((part, i) =>
+                i % 2 === 1 ? <span key={i} className="text-primary font-semibold">{part}</span> : part
+              )}
+            </p>
             <ul className="list-disc list-inside text-foreground mb-3 space-y-1">
               {t('index.card2bullets').split('\n').map((b, i) => <li key={i}>{b}</li>)}
             </ul>
@@ -970,9 +974,11 @@ const ChatView = () => {
                 }}
               >
                 <button onClick={() => setSidebarOpen(true)} className="cursor-pointer bg-transparent border-none p-0 transition-electric">
-                  <p className="text-sm text-foreground hover:text-highlight font-mono text-center max-w-md px-2 transition-electric"
-                    dangerouslySetInnerHTML={{ __html: t('welcome.intro') }}
-                  />
+                  <p className="text-sm text-foreground hover:text-highlight font-mono text-center max-w-md px-2 transition-electric">
+                    {t('welcome.intro').split('<br/>').map((line, i, arr) => (
+                      <span key={i}>{line}{i < arr.length - 1 && <br />}</span>
+                    ))}
+                  </p>
                 </button>
               </div>
               <style>{`
