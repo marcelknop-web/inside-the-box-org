@@ -458,11 +458,11 @@ const useServiceContent = () => {
     ),
     'ai-workflows': () => (
       <TypedSection title={t('aiWorkflows.title')} mode="typewriter" intro={<p>{t('aiWorkflows.intro')}</p>}>
-        <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
+        <Block className="bg-primary/5 border border-primary/20 rounded-xl">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <GridItem icon={Zap} title={t('aiWorkflows.irTitle')} desc={`${t('aiWorkflows.irDesc')}\n\n• ${t('aiWorkflows.irBullet1')}\n• ${t('aiWorkflows.irBullet2')}\n• ${t('aiWorkflows.irBullet3')}\n\n${t('aiWorkflows.irResult')}`} variant="highlight" />
-            <GridItem icon={FileText} title={t('aiWorkflows.policyTitle')} desc={`${t('aiWorkflows.policyDesc')}\n\n• ${t('aiWorkflows.policyBullet1')}\n• ${t('aiWorkflows.policyBullet2')}\n• ${t('aiWorkflows.policyBullet3')}\n\n${t('aiWorkflows.policyResult')}`} variant="highlight" />
-            <GridItem icon={Search} title={t('aiWorkflows.auditTitle')} desc={`${t('aiWorkflows.auditDesc')}\n\n• ${t('aiWorkflows.auditBullet1')}\n• ${t('aiWorkflows.auditBullet2')}\n• ${t('aiWorkflows.auditBullet3')}\n\n${t('aiWorkflows.auditResult')}`} variant="highlight" />
+            <GridItem icon={Zap} title={t('aiWorkflows.irTitle')} desc={`${t('aiWorkflows.irDesc')}\n\n• ${t('aiWorkflows.irBullet1')}\n• ${t('aiWorkflows.irBullet2')}\n• ${t('aiWorkflows.irBullet3')}\n\n${t('aiWorkflows.irResult')}`} />
+            <GridItem icon={FileText} title={t('aiWorkflows.policyTitle')} desc={`${t('aiWorkflows.policyDesc')}\n\n• ${t('aiWorkflows.policyBullet1')}\n• ${t('aiWorkflows.policyBullet2')}\n• ${t('aiWorkflows.policyBullet3')}\n\n${t('aiWorkflows.policyResult')}`} />
+            <GridItem icon={Search} title={t('aiWorkflows.auditTitle')} desc={`${t('aiWorkflows.auditDesc')}\n\n• ${t('aiWorkflows.auditBullet1')}\n• ${t('aiWorkflows.auditBullet2')}\n• ${t('aiWorkflows.auditBullet3')}\n\n${t('aiWorkflows.auditResult')}`} />
           </div>
         </Block>
         <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
@@ -811,6 +811,7 @@ const useSidebarGroups = (): SidebarGroup[] => {
       items: [
         { id: 'by-whom', icon: Users, label: t('nav.profiles') },
         { id: 'contact', icon: Mail, label: t('nav.contact') },
+        { id: 'imprint', icon: Scale, label: t('nav.imprint') },
       ],
     },
   ];
