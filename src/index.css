@@ -2,89 +2,92 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Berlin Electronic Design System - Clean, minimalist, industrial aesthetic */
+/* inside-the-box.org – Dark Navy Design System */
 
 @layer base {
   :root {
-    /* Modern dark theme with optimal accessibility and eye comfort */
-    --background: 215 16% 12%;
-    --foreground: 0 0% 95%;
+    /* Backgrounds */
+    --background: 216 33% 5%;       /* #080b10 */
+    --foreground: 220 67% 96%;      /* #f0f4fc */
 
-    --card: 215 18% 9%;
-    --card-foreground: 0 0% 98%;
+    --card: 216 26% 7%;             /* #0e1218 */
+    --card-foreground: 220 67% 96%;
 
-    --popover: 220 20% 11%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 216 26% 7%;
+    --popover-foreground: 220 67% 96%;
 
-    /* Optimized electric yellow - warm, attention-grabbing but not harsh */
-    --primary: 45 95% 55%;
-    --primary-foreground: 220 20% 9%;
+    /* Primary: Gold accent */
+    --primary: 45 100% 48%;         /* #f5b800 */
+    --primary-foreground: 216 33% 5%;
 
-    /* Subtle secondary grays */
-    --secondary: 215 14% 16%;
-    --secondary-foreground: 0 0% 90%;
+    /* Secondary: bg-2 level */
+    --secondary: 216 33% 12%;       /* #141c28 */
+    --secondary-foreground: 220 67% 96%;
 
-    --muted: 215 12% 20%;
-    --muted-foreground: 220 10% 60%;
+    /* Muted: bg-3 / hover */
+    --muted: 216 34% 16%;           /* #1a2535 */
+    --muted-foreground: 213 34% 66%; /* #8ba5c5 */
 
-    /* Refined accent for visual harmony */
-    --accent: 45 90% 58%;
-    --accent-foreground: 220 20% 9%;
+    /* Accent: Gold (same as primary) */
+    --accent: 45 100% 48%;
+    --accent-foreground: 216 33% 5%;
 
-    /* Optimized cyan - cooler, professional, complements warm yellow */
-    --highlight: 185 85% 55%;
-    --highlight-foreground: 220 20% 9%;
+    /* Highlight: Cyan */
+    --highlight: 187 100% 42%;      /* #00bcd4 */
+    --highlight-foreground: 216 33% 5%;
 
-    /* LinkedIn blue - official brand color */
+    /* LinkedIn */
     --linkedin: 201 100% 35%;
     --linkedin-foreground: 0 0% 98%;
 
-    /* High contrast color for key elements */
+    /* Contrast */
     --contrast: 0 0% 100%;
-    --contrast-foreground: 220 20% 9%;
+    --contrast-foreground: 216 33% 5%;
 
-    --destructive: 0 75% 60%;
-    --destructive-foreground: 0 0% 98%;
+    /* Status */
+    --destructive: 0 84% 60%;       /* #ef4444 */
+    --destructive-foreground: 220 67% 96%;
 
-    /* Electronic borders and inputs */
-    --border: 215 14% 22%;
-    --input: 220 15% 15%;
-    --ring: 45 95% 55%;
+    /* Borders & inputs */
+    --border: 214 32% 17%;          /* #1e2a3a */
+    --input: 216 33% 12%;           /* #141c28 */
+    --ring: 45 100% 48%;
 
-    /* Electronic gradients with optimized colors */
-    --gradient-primary: linear-gradient(135deg, hsl(45 95% 55%), hsl(45 90% 58%));
-    --gradient-dark: linear-gradient(180deg, hsl(220 20% 11%), hsl(220 25% 8%));
-    --gradient-glow: linear-gradient(135deg, hsl(45 95% 55% / 0.2), hsl(45 85% 60% / 0.1));
+    /* Dim / glow tokens */
+    --accent-dim: 45 100% 48% / 0.10;
+    --accent-glow: 45 100% 48% / 0.22;
+    --accent2-dim: 187 100% 42% / 0.10;
 
-    /* Electronic shadows and effects with balanced intensity */
-    --shadow-electric: 0 0 20px hsl(45 95% 55% / 0.25);
-    --shadow-card: 0 4px 20px hsl(220 50% 5% / 0.5);
-    --glow-subtle: 0 0 10px hsl(45 90% 58% / 0.12);
+    /* Disabled text */
+    --text-disabled: 216 25% 35%;   /* #435570 */
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(45 100% 48%), hsl(45 90% 54%));
+    --gradient-dark: linear-gradient(180deg, hsl(216 26% 7%), hsl(216 33% 4%));
+    --gradient-glow: linear-gradient(135deg, hsl(45 100% 48% / 0.2), hsl(45 90% 54% / 0.1));
+
+    /* Shadows */
+    --shadow-electric: 0 0 20px hsl(45 100% 48% / 0.25);
+    --shadow-card: 0 4px 20px hsl(216 50% 3% / 0.6);
+    --glow-subtle: 0 0 10px hsl(45 100% 48% / 0.12);
 
     --radius: 0.25rem;
 
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Sidebar */
+    --sidebar-background: 216 26% 7%;
+    --sidebar-foreground: 220 67% 96%;
+    --sidebar-primary: 45 100% 48%;
+    --sidebar-primary-foreground: 216 33% 5%;
+    --sidebar-accent: 216 34% 16%;
+    --sidebar-accent-foreground: 220 67% 96%;
+    --sidebar-border: 214 32% 17%;
+    --sidebar-ring: 45 100% 48%;
   }
 
-  /* Light mode maintains electronic feel with inversed colors */
   .light {
     --background: 0 0% 98%;
-    --foreground: 220 20% 9%;
-    --primary: 220 20% 9%;
+    --foreground: 216 33% 5%;
+    --primary: 216 33% 5%;
     --primary-foreground: 0 0% 98%;
     --border: 220 15% 90%;
   }
@@ -97,44 +100,27 @@
 
   body {
     @apply text-foreground antialiased;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-    background: 
-      /* Modern depth overlays with softer contrast */
-      radial-gradient(circle at 20% 30%, hsl(215 18% 15% / 0.85) 0%, transparent 45%),
-      radial-gradient(circle at 80% 70%, hsl(215 16% 18% / 0.7) 0%, transparent 50%),
-      radial-gradient(circle at 40% 80%, hsl(215 20% 14% / 0.8) 0%, transparent 40%),
-      radial-gradient(ellipse at 70% 20%, hsl(215 15% 20% / 0.5) 0%, transparent 60%),
-      radial-gradient(ellipse at 10% 90%, hsl(215 18% 11% / 0.6) 0%, transparent 55%),
-      /* Refined millimeter grid with better contrast balance */
-      linear-gradient(hsl(215 12% 35% / 0.4) 1px, transparent 1px),
-      linear-gradient(90deg, hsl(215 12% 35% / 0.4) 1px, transparent 1px),
-      /* Sub-grid for technical precision */
-      linear-gradient(hsl(215 10% 30% / 0.2) 0.5px, transparent 0.5px),
-      linear-gradient(90deg, hsl(215 10% 30% / 0.2) 0.5px, transparent 0.5px),
-      /* Major grid lines with professional prominence */
-      linear-gradient(hsl(215 15% 42% / 0.6) 2px, transparent 2px),
-      linear-gradient(90deg, hsl(215 15% 42% / 0.6) 2px, transparent 2px),
-      /* Subtle texture for depth without overwhelm */
-      radial-gradient(circle at 60% 40%, hsl(215 12% 18% / 0.3) 0%, transparent 80%),
-      /* Modern base gradient with warmer undertones */
-      linear-gradient(135deg, hsl(215 16% 11%) 0%, hsl(215 18% 13%) 100%);
-    background-size: 
-      100% 100%,
-      100% 100%, 
-      100% 100%,
-      120% 120%,
-      110% 110%,
-      5px 5px,
-      5px 5px,
-      2.5px 2.5px,
-      2.5px 2.5px,
-      50px 50px,
-      50px 50px,
-      200px 200px,
-      100% 100%;
+    font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background:
+      radial-gradient(circle at 20% 30%, hsl(216 26% 9% / 0.85) 0%, transparent 45%),
+      radial-gradient(circle at 80% 70%, hsl(216 26% 10% / 0.7) 0%, transparent 50%),
+      radial-gradient(circle at 40% 80%, hsl(216 30% 8% / 0.8) 0%, transparent 40%),
+      radial-gradient(ellipse at 70% 20%, hsl(216 26% 12% / 0.5) 0%, transparent 60%),
+      radial-gradient(ellipse at 10% 90%, hsl(216 26% 6% / 0.6) 0%, transparent 55%),
+      linear-gradient(hsl(214 28% 22% / 0.4) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(214 28% 22% / 0.4) 1px, transparent 1px),
+      linear-gradient(hsl(214 24% 18% / 0.2) 0.5px, transparent 0.5px),
+      linear-gradient(90deg, hsl(214 24% 18% / 0.2) 0.5px, transparent 0.5px),
+      linear-gradient(hsl(214 30% 26% / 0.6) 2px, transparent 2px),
+      linear-gradient(90deg, hsl(214 30% 26% / 0.6) 2px, transparent 2px),
+      radial-gradient(circle at 60% 40%, hsl(216 26% 10% / 0.3) 0%, transparent 80%),
+      linear-gradient(135deg, hsl(216 33% 5%) 0%, hsl(216 26% 7%) 100%);
+    background-size:
+      100% 100%, 100% 100%, 100% 100%, 120% 120%, 110% 110%,
+      5px 5px, 5px 5px, 2.5px 2.5px, 2.5px 2.5px,
+      50px 50px, 50px 50px, 200px 200px, 100% 100%;
   }
 
-  /* Enhanced electronic animations */
   .animate-glow {
     animation: glow 3s ease-in-out infinite alternate;
   }
@@ -157,28 +143,28 @@
 }
 
 @keyframes glow {
-  from { 
+  from {
     box-shadow: var(--glow-subtle);
     filter: brightness(1);
   }
-  to { 
+  to {
     box-shadow: var(--shadow-electric);
     filter: brightness(1.1);
   }
 }
 
 @keyframes glow-slow {
-  0% { 
+  0% {
     opacity: 0.7;
     box-shadow: 0 0 2px hsl(var(--primary) / 0.1);
     filter: brightness(0.95) saturate(0.98);
   }
-  50% { 
+  50% {
     opacity: 1;
     box-shadow: 0 0 6px hsl(var(--primary) / 0.25);
     filter: brightness(1.05) saturate(1.02);
   }
-  100% { 
+  100% {
     opacity: 0.7;
     box-shadow: 0 0 2px hsl(var(--primary) / 0.1);
     filter: brightness(0.95) saturate(0.98);
@@ -186,60 +172,69 @@
 }
 
 @keyframes heartbeat {
-  0% { 
+  0% {
     opacity: 0.5;
     filter: brightness(0.85);
     box-shadow: 0 0 3px hsl(var(--primary) / 0.15);
   }
-  25% { 
+  25% {
     opacity: 0.7;
     filter: brightness(0.95);
     box-shadow: 0 0 6px hsl(var(--primary) / 0.25);
   }
-  50% { 
+  50% {
     opacity: 0.9;
     filter: brightness(1.1);
     box-shadow: 0 0 10px hsl(var(--primary) / 0.35);
   }
-  75% { 
+  75% {
     opacity: 0.7;
     filter: brightness(0.95);
     box-shadow: 0 0 6px hsl(var(--primary) / 0.25);
   }
-  100% { 
+  100% {
     opacity: 0.5;
     filter: brightness(0.85);
     box-shadow: 0 0 3px hsl(var(--primary) / 0.15);
   }
 }
 
-/* Custom electronic components */
+/* Component utilities */
 @layer components {
   .card-electric {
     @apply bg-card border border-border rounded-lg p-6 transition-electric hover:shadow-[var(--shadow-card)] hover:border-primary/30;
   }
-  
+
   .button-electric {
     @apply bg-primary text-primary-foreground px-6 py-3 rounded-md font-medium transition-electric hover:shadow-[var(--shadow-electric)] hover:scale-105;
   }
-  
+
   .text-electric {
     @apply text-primary font-bold tracking-wide;
   }
-  
+
   .border-electric {
     @apply border-2 border-primary/20 hover:border-primary/60 transition-electric;
   }
-  
+
   .geometric-pattern {
     @apply relative before:absolute before:inset-0 before:bg-gradient-to-br before:from-primary/20 before:to-transparent before:rounded-lg;
   }
-  
+
   .hover-scale {
     @apply transition-transform duration-200 hover:scale-105;
   }
-  
+
   .story-link {
     @apply relative inline-block after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-primary after:origin-bottom-right after:transition-transform after:duration-300 hover:after:scale-x-100 hover:after:origin-bottom-left;
+  }
+
+  /* Result line style per spec */
+  .result-line {
+    font-family: 'IBM Plex Mono', monospace;
+    color: hsl(var(--primary));
+    background: hsl(var(--accent-dim));
+    border-left: 2px solid hsl(var(--primary));
+    padding: 0.25rem 0.75rem;
   }
 }

@@ -18,10 +18,10 @@ export default {
 			}
 		},
 		extend: {
-			fontFamily: {
-				sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
-				mono: ['JetBrains Mono', 'Monaco', 'Menlo', 'monospace'],
-				rounded: ['Nunito', 'Inter', 'sans-serif'],
+		fontFamily: {
+				sans: ['IBM Plex Sans', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
+				mono: ['IBM Plex Mono', 'Monaco', 'Menlo', 'monospace'],
+				rounded: ['IBM Plex Sans', 'sans-serif'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',
