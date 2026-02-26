@@ -29,7 +29,7 @@ const MatrixStart = ({ embedded = false }: { embedded?: boolean }) => {
   const [clientIp, setClientIp] = useState('...');
   const { soundOn, startSound, stopSound, triggerRainDrop } = useMatrixAudio();
 
-  const title = useTypewriter('inside-the-box', 1800, 90);
+  const title = useTypewriter('inside-the-box.org', 1800, 90);
   const subtitle = useTypewriter('Artificial Stress Simulator v1', 3200, 50);
 
   useMatrixRain(canvasRef, triggerRainDrop);
