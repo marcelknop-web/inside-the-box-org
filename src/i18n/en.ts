@@ -310,7 +310,7 @@ export const en = {
     pub3Desc: 'Distinctive elements and obstacles in cyber crisis management – executive audience.',
     watchOnVimeo: 'Watch on Vimeo',
     certTitle: 'Training & Certification',
-    isacaTitle: 'ISACA Programs',
+    isacaTitle: 'ISACA CSE',
     isacaDesc: 'Cybersecurity expert training and certification delivery, including curriculum development and examination preparation.',
     confTitle: 'Conference Presentations',
     confDesc: 'Keynotes and technical presentations at industry-level events across government, finance, and critical infrastructure sectors.',

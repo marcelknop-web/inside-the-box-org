@@ -70,11 +70,15 @@ const StatBlock = ({ value, label }: { value: string; label: string }) => (
   </div>
 );
 
-const GridItem = ({ icon: Icon, title, desc, variant = 'primary' }: { icon: LucideIcon; title: string; desc: string; variant?: 'primary' | 'highlight' }) => (
+const GridItem = ({ icon: Icon, title, desc, variant = 'primary', href }: { icon: LucideIcon; title: string; desc: string; variant?: 'primary' | 'highlight'; href?: string }) => (
   <div className="flex items-start gap-2">
     <Icon size={20} className={`mt-0.5 flex-shrink-0 ${variant === 'highlight' ? 'text-highlight' : 'text-primary'}`} />
     <div>
-      <p className={`font-semibold text-sm md:text-base font-sans ${variant === 'highlight' ? 'text-highlight' : 'text-primary'}`}>{title}</p>
+      {href ? (
+        <a href={href} target="_blank" rel="noopener noreferrer" className={`font-semibold text-sm md:text-base font-sans underline hover:opacity-80 ${variant === 'highlight' ? 'text-highlight' : 'text-primary'}`}>{title}</a>
+      ) : (
+        <p className={`font-semibold text-sm md:text-base font-sans ${variant === 'highlight' ? 'text-highlight' : 'text-primary'}`}>{title}</p>
+      )}
       <p className="text-foreground text-sm md:text-base font-sans leading-relaxed tracking-wide">{desc}</p>
     </div>
   </div>
@@ -386,7 +390,7 @@ const useServiceContent = () => {
         <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
           <SubTitle variant="highlight">{t('publications.certTitle')}</SubTitle>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-2">
-            <GridItem icon={Award} title={t('publications.isacaTitle')} desc={t('publications.isacaDesc')} variant="highlight" />
+            <GridItem icon={Award} title={t('publications.isacaTitle')} desc={t('publications.isacaDesc')} variant="highlight" href="https://www.isaca.de/seminare/zertifikate/nationale-zertifikate/cyber-security-expert-cse.html" />
             <GridItem icon={Presentation} title={t('publications.confTitle')} desc={t('publications.confDesc')} variant="highlight" />
             <GridItem icon={BookOpen} title={t('publications.eduTitle')} desc={t('publications.eduDesc')} variant="highlight" />
           </div>
