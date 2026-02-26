@@ -302,35 +302,29 @@ const useServiceContent = () => {
     ),
     'assessments-concepts': () => (
       <TypedSection title={t('assessments.title')} mode="typewriter" intro={<p>{t('assessments.intro')}</p>}>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <CardBlock icon={Search} title={t('assessments.threatTitle')} desc={t('assessments.threatDesc')} />
-          <CardBlock icon={ShieldCheck} title={t('assessments.controlsTitle')} desc={t('assessments.controlsDesc')} variant="highlight" />
-          <CardBlock icon={Users} title={t('assessments.rolesTitle')} desc={t('assessments.rolesDesc')} />
-          <CardBlock icon={Calendar} title={t('assessments.planningTitle')} desc={t('assessments.planningDesc')} variant="highlight" />
-          <CardBlock icon={BarChart} title={t('assessments.measureTitle')} desc={t('assessments.measureDesc')} />
-        </div>
+        <CardBlock icon={Search} title={t('assessments.threatTitle')} desc={t('assessments.threatDesc')} />
+        <CardBlock icon={ShieldCheck} title={t('assessments.controlsTitle')} desc={t('assessments.controlsDesc')} variant="highlight" />
+        <CardBlock icon={Users} title={t('assessments.rolesTitle')} desc={t('assessments.rolesDesc')} />
+        <CardBlock icon={Calendar} title={t('assessments.planningTitle')} desc={t('assessments.planningDesc')} variant="highlight" />
+        <CardBlock icon={BarChart} title={t('assessments.measureTitle')} desc={t('assessments.measureDesc')} />
       </TypedSection>
     ),
     'incident-management': () => (
       <TypedSection title={t('incident.title')} mode="typewriter" intro={<p>{t('incident.intro')}</p>}>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <CardBlock icon={FileText} title={t('incident.planTitle')} desc={t('incident.planDesc')} />
-          <CardBlock icon={Eye} title={t('incident.detectionTitle')} desc={t('incident.detectionDesc')} variant="highlight" />
-          <CardBlock icon={AlertTriangle} title={t('incident.containTitle')} desc={t('incident.containDesc')} />
-          <CardBlock icon={RefreshCw} title={t('incident.recoveryTitle')} desc={t('incident.recoveryDesc')} variant="highlight" />
-          <CardBlock icon={GraduationCap} title={t('incident.simTitle')} desc={t('incident.simDesc')} />
-        </div>
+        <CardBlock icon={FileText} title={t('incident.planTitle')} desc={t('incident.planDesc')} />
+        <CardBlock icon={Eye} title={t('incident.detectionTitle')} desc={t('incident.detectionDesc')} variant="highlight" />
+        <CardBlock icon={AlertTriangle} title={t('incident.containTitle')} desc={t('incident.containDesc')} />
+        <CardBlock icon={RefreshCw} title={t('incident.recoveryTitle')} desc={t('incident.recoveryDesc')} variant="highlight" />
+        <CardBlock icon={GraduationCap} title={t('incident.simTitle')} desc={t('incident.simDesc')} />
       </TypedSection>
     ),
     'cyber-crisis-management': () => (
       <TypedSection title={t('cyberCrisis.title')} mode="typewriter" intro={<p>{t('cyberCrisis.intro')}</p>}>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <CardBlock icon={ClipboardList} title={t('cyberCrisis.planTitle')} desc={t('cyberCrisis.planDesc')} />
-          <CardBlock icon={Zap} title={t('cyberCrisis.scenarioTitle')} desc={t('cyberCrisis.scenarioDesc')} variant="highlight" />
-          <CardBlock icon={Target} title={t('cyberCrisis.simTitle')} desc={t('cyberCrisis.simDesc')} />
-          <CardBlock icon={Crown} title={t('cyberCrisis.leaderTitle')} desc={t('cyberCrisis.leaderDesc')} variant="highlight" />
-          <CardBlock icon={MessageSquare} title={t('cyberCrisis.commTitle')} desc={t('cyberCrisis.commDesc')} />
-        </div>
+        <CardBlock icon={ClipboardList} title={t('cyberCrisis.planTitle')} desc={t('cyberCrisis.planDesc')} />
+        <CardBlock icon={Zap} title={t('cyberCrisis.scenarioTitle')} desc={t('cyberCrisis.scenarioDesc')} variant="highlight" />
+        <CardBlock icon={Target} title={t('cyberCrisis.simTitle')} desc={t('cyberCrisis.simDesc')} />
+        <CardBlock icon={Crown} title={t('cyberCrisis.leaderTitle')} desc={t('cyberCrisis.leaderDesc')} variant="highlight" />
+        <CardBlock icon={MessageSquare} title={t('cyberCrisis.commTitle')} desc={t('cyberCrisis.commDesc')} />
         <Block><h2 className="text-highlight text-lg font-bold font-mono mb-3">{t('cyberCrisis.methTitle')}</h2></Block>
         <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
