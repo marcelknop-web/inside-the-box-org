@@ -20,7 +20,7 @@ export const en = {
     ismsBsi: 'ISMS ISO 27001 / BSI',
     tisaxPci: 'TISAX / PCI-DSS',
     incidentMgmt: 'Incident Management',
-    cyberCrisisMgmt: 'Cyber Crisis Management',
+    cyberCrisisMgmt: 'Crisis Management',
     redTeam: 'Red Team / TIBER',
     assessments: 'Assessments & Concepts',
     virtualCiso: 'Virtual CISO',
