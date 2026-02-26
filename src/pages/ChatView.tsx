@@ -271,9 +271,6 @@ const useServiceContent = () => {
     ),
     'nis2-dora': () => (
       <TypedSection title={t('nis2.title')} mode="typewriter" intro={<p>{t('nis2.intro')}</p>}>
-        <Block className="bg-muted/30 border border-border rounded-xl">
-          <p className="text-sm font-sans italic text-primary leading-relaxed tracking-wide">{t('nis2.tagline')}</p>
-        </Block>
         <CardBlock icon={Search} title={t('nis2.impactTitle')} desc={t('nis2.impactDesc')} />
         <CardBlock icon={AlertCircle} title={t('nis2.gapTitle')} desc={t('nis2.gapDesc')} />
         <CardBlock icon={ShieldCheck} title={t('nis2.measuresTitle')} desc={t('nis2.measuresDesc')} />
