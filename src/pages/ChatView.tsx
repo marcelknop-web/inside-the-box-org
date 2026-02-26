@@ -255,17 +255,21 @@ const useServiceContent = () => {
 
   const contentMap: Record<string, () => ReactNode> = {
     isms: () => (
-      <TypedSection title={t('isms.title')} mode="typewriter" intro={<p>{t('isms.subtitle')} — {t('isms.intro')}</p>}>
-        <CardBlock icon={ShieldCheck} title={t('isms.iso27001Title')} desc={t('isms.iso27001Desc')} />
-        <CardBlock icon={FileText} title={t('isms.bsiTitle')} desc={t('isms.bsiDesc')} />
+      <TypedSection title={t('isms.title')} mode="typewriter" intro={<p>{t('isms.intro')}</p>}>
         <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
           <SubTitle variant="highlight">{t('isms.approachTitle')}</SubTitle>
-          <p className="text-muted-foreground text-sm mb-3">{t('isms.approachSubtitle')}</p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <GridItem icon={Search} title={t('isms.assessmentTitle')} desc={t('isms.assessmentDesc')} variant="highlight" />
-            <GridItem icon={Settings} title={t('isms.implementationTitle')} desc={t('isms.implementationDesc')} variant="highlight" />
-            <GridItem icon={Award} title={t('isms.certificationTitle')} desc={t('isms.certificationDesc')} variant="highlight" />
-            <GridItem icon={RotateCcw} title={t('isms.maintenanceTitle')} desc={t('isms.maintenanceDesc')} variant="highlight" />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
+            <GridItem icon={Search} title={t('isms.step1Title')} desc={t('isms.step1Desc')} variant="highlight" />
+            <GridItem icon={Settings} title={t('isms.step2Title')} desc={t('isms.step2Desc')} variant="highlight" />
+            <GridItem icon={Award} title={t('isms.step3Title')} desc={t('isms.step3Desc')} variant="highlight" />
+            <GridItem icon={RotateCcw} title={t('isms.step4Title')} desc={t('isms.step4Desc')} variant="highlight" />
+          </div>
+        </Block>
+        <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
+          <SubTitle variant="highlight">{t('isms.frameworkTitle')}</SubTitle>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
+            <GridItem icon={ShieldCheck} title={t('isms.iso27001Title')} desc={t('isms.iso27001Desc')} variant="highlight" />
+            <GridItem icon={FileText} title={t('isms.bsiTitle')} desc={t('isms.bsiDesc')} variant="highlight" />
           </div>
         </Block>
       </TypedSection>
