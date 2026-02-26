@@ -296,12 +296,6 @@ const useServiceContent = () => {
             <GridItem icon={Plane} title={t('nis2.partisName')} desc={t('nis2.partisDesc')} variant="highlight" />
           </div>
         </Block>
-        <Block className="bg-highlight/10 border border-highlight/30 rounded-xl">
-          <SubTitle variant="highlight">{t('nis2.doraCheckTitle')}</SubTitle>
-          <button onClick={() => setActive('dora-check')} className="text-base sm:text-lg px-6 py-3 bg-highlight/10 border-2 border-highlight/30 text-highlight hover:text-primary hover:bg-highlight/20 hover:border-highlight/50 rounded-lg font-mono transition-electric inline-flex items-center justify-center">
-            🔍 {t('aiWorkflows.doraCheckButton')}
-          </button>
-        </Block>
       </TypedSection>
     ),
     'tisax-pci-dss': () => (
