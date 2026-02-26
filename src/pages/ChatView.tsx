@@ -70,11 +70,11 @@ const StatBlock = ({ value, label }: { value: string; label: string }) => (
   </div>
 );
 
-const GridItem = ({ icon: Icon, title, desc, variant = 'primary', href }: { icon: LucideIcon; title: string; desc: string; variant?: 'primary' | 'highlight'; href?: string }) => {
+const GridItem = ({ icon: Icon, title, desc, variant = 'primary', href, className }: { icon: LucideIcon; title: string; desc: string; variant?: 'primary' | 'highlight'; href?: string; className?: string }) => {
   const colorClass = variant === 'highlight' ? 'text-highlight' : 'text-primary';
   const bgClass = variant === 'highlight' ? 'bg-highlight/5' : 'bg-primary/5';
   return (
-    <div className={`${bgClass} rounded-lg p-3 flex items-start gap-2.5`}>
+    <div className={`${bgClass} rounded-lg p-3 flex items-start gap-2.5 ${className || ''}`}>
       <Icon size={18} className={`mt-1 flex-shrink-0 ${colorClass}`} />
       <div className="space-y-1">
         {href ? (
@@ -438,16 +438,20 @@ const useServiceContent = () => {
     ),
     'virtual-ciso': () => (
       <TypedSection title={t('vciso.title')} mode="typewriter" intro={<p>{t('vciso.intro')}</p>}>
-        <CardBlock icon={Crown} title={t('vciso.stratTitle')} desc={t('vciso.stratDesc')} />
-        <CardBlock icon={Settings} title={t('vciso.opsTitle')} desc={t('vciso.opsDesc')} />
-        <CardBlock icon={CheckSquare} title={t('vciso.compTitle')} desc={t('vciso.compDesc')} />
+        <Block className="bg-primary/5 border border-primary/20 rounded-xl">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <GridItem icon={Crown} title={t('vciso.stratTitle')} desc={t('vciso.stratDesc')} />
+            <GridItem icon={Settings} title={t('vciso.opsTitle')} desc={t('vciso.opsDesc')} />
+            <GridItem icon={CheckSquare} title={t('vciso.compTitle')} desc={t('vciso.compDesc')} className="md:col-span-2" />
+          </div>
+        </Block>
         <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
           <SubTitle variant="highlight">{t('vciso.modelTitle')}</SubTitle>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
             <GridItem icon={UserCheck} title={t('vciso.flexible')} desc={t('vciso.flexibleDesc')} variant="highlight" />
-            <GridItem icon={DollarSign} title={t('vciso.costEffective')} desc={t('vciso.costEffectiveDesc')} variant="highlight" />
             <GridItem icon={Zap} title={t('vciso.immediate')} desc={t('vciso.immediateDesc')} variant="highlight" />
             <GridItem icon={Award} title={t('vciso.experienced')} desc={t('vciso.experiencedDesc')} variant="highlight" />
+            <GridItem icon={DollarSign} title={t('vciso.costEffective')} desc={t('vciso.costEffectiveDesc')} variant="highlight" />
           </div>
         </Block>
       </TypedSection>
