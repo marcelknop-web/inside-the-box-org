@@ -322,11 +322,15 @@ const useServiceContent = () => {
     ),
     'assessments-concepts': () => (
       <TypedSection title={t('assessments.title')} mode="typewriter" intro={<p>{t('assessments.intro')}</p>}>
-        <CardBlock icon={Search} title={t('assessments.threatTitle')} desc={t('assessments.threatDesc')} />
-        <CardBlock icon={ShieldCheck} title={t('assessments.controlsTitle')} desc={t('assessments.controlsDesc')} variant="highlight" />
-        <CardBlock icon={Users} title={t('assessments.rolesTitle')} desc={t('assessments.rolesDesc')} />
-        <CardBlock icon={Calendar} title={t('assessments.planningTitle')} desc={t('assessments.planningDesc')} variant="highlight" />
-        <CardBlock icon={BarChart} title={t('assessments.measureTitle')} desc={t('assessments.measureDesc')} />
+        <Block className="bg-primary/5 border border-primary/20 rounded-xl">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <GridItem icon={Search} title={t('assessments.step1Title')} desc={`${t('assessments.step1Subtitle')}\n\n${t('assessments.step1Desc')}`} />
+            <GridItem icon={ShieldCheck} title={t('assessments.step2Title')} desc={`${t('assessments.step2Subtitle')}\n\n${t('assessments.step2Desc')}`} />
+            <GridItem icon={Users} title={t('assessments.step3Title')} desc={`${t('assessments.step3Subtitle')}\n\n${t('assessments.step3Desc')}`} />
+            <GridItem icon={Calendar} title={t('assessments.step4Title')} desc={`${t('assessments.step4Subtitle')}\n\n${t('assessments.step4Desc')}`} />
+            <GridItem icon={BarChart} title={t('assessments.step5Title')} desc={`${t('assessments.step5Subtitle')}\n\n${t('assessments.step5Desc')}`} />
+          </div>
+        </Block>
       </TypedSection>
     ),
     'incident-management': () => (
