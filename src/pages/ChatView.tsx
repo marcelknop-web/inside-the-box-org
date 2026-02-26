@@ -409,10 +409,11 @@ const useServiceContent = () => {
         <CardBlock icon={Award} title={t('events.referencesTitle')} desc={`${t('events.referencesIntro')}\n\n${t('events.referencesDesc')}`} />
         <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
           <SubTitle variant="highlight">{t('events.eventTypesTitle')}</SubTitle>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
             <GridItem icon={Presentation} title={t('events.conferences')} desc={t('events.conferencesDesc')} variant="highlight" />
             <GridItem icon={Wrench} title={t('events.workshops')} desc={t('events.workshopsDescShort')} variant="highlight" />
             <GridItem icon={GraduationCap} title={t('events.seminars')} desc={t('events.seminarsDesc')} variant="highlight" />
+            <GridItem icon={ShieldCheck} title={t('events.isacaTitle')} desc={t('events.isacaDesc')} variant="highlight" href="https://www.isaca.de/seminare/seminare/seminare-f%C3%BCr-manager1/cyber-security-expert-20-04-2026.html" />
           </div>
         </Block>
       </TypedSection>

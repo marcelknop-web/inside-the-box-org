@@ -332,6 +332,8 @@ export const en = {
     workshopsDescShort: 'Interactive sessions with defined objectives and measurable outcomes.',
     seminars: 'Seminars',
     seminarsDesc: 'Training programs for defined audiences – from technical teams to management.',
+    isacaTitle: 'ISACA CSE Certificate',
+    isacaDesc: 'Cyber Security Expert (CSE) certification training – in cooperation with ISACA Germany.',
   },
   publications: {
     title: 'Publications & Training',
