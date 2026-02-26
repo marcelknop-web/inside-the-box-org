@@ -670,27 +670,25 @@ const useServiceContent = () => {
         : ['RDP: 7000–7020/TCP outbound', 'HTTPS: 443/TCP outbound', 'No inbound connections required', 'Test connectivity beforehand'];
       return (
         <TypedSection title={t('techReq.title')} mode="typewriter" charDelay={18} intro={<p>{t('techReq.intro')}</p>}>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-            <div className="rounded-xl p-4 bg-primary/5 border border-primary/20">
-              <div className="flex items-center gap-2 mb-2">
-                <Monitor size={16} className="text-primary" />
-                <SubTitle>{t('techReq.systemTitle')}</SubTitle>
-              </div>
-               <p className="text-sm font-sans leading-relaxed text-foreground mb-2">{t('techReq.systemDesc')}</p>
-               <ul className="text-sm font-sans text-foreground space-y-0.5">
-                {systemItems.map((item, i) => <li key={i}>• {item}</li>)}
-              </ul>
+          <div className="rounded-xl p-4 bg-primary/5 border border-primary/20">
+            <div className="flex items-center gap-2 mb-2">
+              <Monitor size={16} className="text-primary" />
+              <SubTitle>{t('techReq.systemTitle')}</SubTitle>
             </div>
-            <div className="rounded-xl p-4 bg-primary/5 border border-primary/20">
-              <div className="flex items-center gap-2 mb-2">
-                <Wifi size={16} className="text-primary" />
-                <SubTitle variant="primary">{t('techReq.networkTitle')}</SubTitle>
-              </div>
-               <p className="text-sm font-sans leading-relaxed text-foreground mb-2">{t('techReq.networkDesc')}</p>
-               <ul className="text-sm font-sans text-foreground space-y-0.5">
-                {networkItems.map((item, i) => <li key={i}>• <span className="font-mono">{item}</span></li>)}
-              </ul>
+             <p className="text-sm font-sans leading-relaxed text-foreground mb-2">{t('techReq.systemDesc')}</p>
+             <ul className="text-sm font-sans text-foreground space-y-0.5">
+              {systemItems.map((item, i) => <li key={i}>• {item}</li>)}
+            </ul>
+          </div>
+          <div className="rounded-xl p-4 bg-primary/5 border border-primary/20">
+            <div className="flex items-center gap-2 mb-2">
+              <Wifi size={16} className="text-primary" />
+              <SubTitle variant="primary">{t('techReq.networkTitle')}</SubTitle>
             </div>
+             <p className="text-sm font-sans leading-relaxed text-foreground mb-2">{t('techReq.networkDesc')}</p>
+             <ul className="text-sm font-sans text-foreground space-y-0.5">
+              {networkItems.map((item, i) => <li key={i}>• <span className="font-mono">{item}</span></li>)}
+            </ul>
           </div>
           <InlineSystemCheck t={t} />
           <InlineConnectivityCheck t={t} language={language} />
