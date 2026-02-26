@@ -256,13 +256,13 @@ const useServiceContent = () => {
   const contentMap: Record<string, () => ReactNode> = {
     isms: () => (
       <TypedSection title={t('isms.title')} mode="typewriter" intro={<p>{t('isms.intro')}</p>}>
-        <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
-          <SubTitle variant="highlight">{t('isms.approachTitle')}</SubTitle>
+        <Block className="bg-primary/5 border border-primary/20 rounded-xl">
+          <SubTitle>{t('isms.approachTitle')}</SubTitle>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
-            <GridItem icon={Search} title={t('isms.step1Title')} desc={t('isms.step1Desc')} variant="highlight" />
-            <GridItem icon={Settings} title={t('isms.step2Title')} desc={t('isms.step2Desc')} variant="highlight" />
-            <GridItem icon={Award} title={t('isms.step3Title')} desc={t('isms.step3Desc')} variant="highlight" />
-            <GridItem icon={RotateCcw} title={t('isms.step4Title')} desc={t('isms.step4Desc')} variant="highlight" />
+            <GridItem icon={Search} title={t('isms.step1Title')} desc={t('isms.step1Desc')} />
+            <GridItem icon={Settings} title={t('isms.step2Title')} desc={t('isms.step2Desc')} />
+            <GridItem icon={Award} title={t('isms.step3Title')} desc={t('isms.step3Desc')} />
+            <GridItem icon={RotateCcw} title={t('isms.step4Title')} desc={t('isms.step4Desc')} />
           </div>
         </Block>
         <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
