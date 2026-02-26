@@ -74,15 +74,15 @@ const GridItem = ({ icon: Icon, title, desc, variant = 'primary', href, classNam
   const colorClass = variant === 'highlight' ? 'text-highlight' : 'text-primary';
   const bgClass = variant === 'highlight' ? 'bg-highlight/5' : 'bg-primary/5';
   return (
-    <div className={`${bgClass} rounded-lg p-3 flex items-start gap-2.5 ${className || ''}`}>
+    <div className={`${bgClass} rounded-lg p-3 flex items-start gap-2.5 overflow-hidden ${className || ''}`}>
       <Icon size={18} className={`mt-1 flex-shrink-0 ${colorClass}`} />
-      <div className="space-y-1">
+      <div className="space-y-1 min-w-0">
         {href ? (
           <a href={href} target="_blank" rel="noopener noreferrer" className={`font-semibold text-sm md:text-base font-sans underline hover:opacity-80 ${colorClass}`}>{title}</a>
         ) : (
           <p className={`font-semibold text-sm md:text-base font-sans ${colorClass}`}>{title}</p>
         )}
-        <p className="text-foreground/80 text-sm md:text-[15px] font-sans leading-relaxed whitespace-pre-line">{desc}</p>
+        <p className="text-foreground/80 text-sm md:text-[15px] font-sans leading-relaxed whitespace-pre-line break-words">{desc}</p>
       </div>
     </div>
   );
