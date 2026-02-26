@@ -235,7 +235,7 @@ export const de = {
     simTitle: 'Simulation & Stresstests',
     simDesc: 'Live-Simulationen in kontrollierten Cyber-Range-Umgebungen. Koordination, Kommunikation, Führung und technische Reaktion gleichzeitig getestet – unter Zeitdruck.',
     leaderTitle: 'Führung im Krisenfall',
-    leaderDesc: 'Krisenführungsentwicklung für Führungskräfte. Strategische Entscheidungsfindung, Stakeholder-Management und Medienhandling, während die Lage sich noch entwickelt.',
+    leaderDesc: 'Führungskräfte trainieren, unter Druck die richtigen Entscheidungen zu treffen – Stakeholder steuern, Medienanfragen handeln, Lage einordnen, bevor alle Fakten auf dem Tisch liegen.',
     commTitle: 'Krisenkommunikation',
     commDesc: 'Vordefinierte interne und externe Kommunikationslogik. Regulatorische Meldepflichten, Stakeholder-Protokolle und Medienstatements, vorbereitet bevor sie benötigt werden.',
     methTitle: 'Methoden',
