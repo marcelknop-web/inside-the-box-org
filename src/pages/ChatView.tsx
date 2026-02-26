@@ -525,7 +525,7 @@ const useServiceContent = () => {
       </div>
     ),
     training: () => (
-      <TypedSection title={t('training.title')} mode="typewriter" intro={<p>{t('training.subtitle')}</p>}>
+      <TypedSection title={t('training.title')} mode="typewriter" intro={<><p>{t('training.subtitle')}</p><p className="mt-1">{t('training.intro')}</p></>}>
         <CardBlock icon={Server} title={t('training.hostForensics')} desc={t('training.hostForensicsDesc')} />
         <CardBlock icon={Bug} title={t('training.malwareAnalysis')} desc={t('training.malwareAnalysisDesc')} />
         <CardBlock icon={Shield} title={t('training.siem')} desc={t('training.siemDesc')} />
