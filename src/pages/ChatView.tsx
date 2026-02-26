@@ -439,21 +439,14 @@ const useServiceContent = () => {
     'virtual-ciso': () => (
       <TypedSection title={t('vciso.title')} mode="typewriter" intro={<p>{t('vciso.intro')}</p>}>
         <Block className="bg-primary/5 border border-primary/20 rounded-xl">
-          <SubTitle>{t('vciso.whatWeDo')}</SubTitle>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
-            <GridItem icon={Crown} title={t('vciso.stratTitle')} desc={t('vciso.stratDesc')} />
-            <GridItem icon={Settings} title={t('vciso.opsTitle')} desc={t('vciso.opsDesc')} />
-            <GridItem icon={CheckSquare} title={t('vciso.compTitle')} desc={t('vciso.compDesc')} className="md:col-span-2" />
-          </div>
+          <p className="text-foreground text-sm font-sans leading-relaxed">{t('vciso.body1')}</p>
+          <p className="text-foreground text-sm font-sans leading-relaxed mt-3">{t('vciso.body2')}</p>
+          <p className="text-foreground text-sm font-sans leading-relaxed mt-3">{t('vciso.body3')}</p>
+          <p className="text-foreground text-sm font-sans leading-relaxed mt-3">{t('vciso.body4')}</p>
         </Block>
         <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
           <SubTitle variant="highlight">{t('vciso.modelTitle')}</SubTitle>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
-            <GridItem icon={UserCheck} title={t('vciso.flexible')} desc={t('vciso.flexibleDesc')} variant="highlight" />
-            <GridItem icon={Zap} title={t('vciso.immediate')} desc={t('vciso.immediateDesc')} variant="highlight" />
-            <GridItem icon={Award} title={t('vciso.experienced')} desc={t('vciso.experiencedDesc')} variant="highlight" />
-            <GridItem icon={DollarSign} title={t('vciso.costEffective')} desc={t('vciso.costEffectiveDesc')} variant="highlight" />
-          </div>
+          <p className="text-foreground/80 text-sm font-sans leading-relaxed whitespace-pre-line mt-2">{t('vciso.modelDesc')}</p>
         </Block>
       </TypedSection>
     ),
