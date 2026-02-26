@@ -5,6 +5,7 @@ export const en = {
     byWhom: 'By Whom',
     profiles: 'Profiles',
     contact: 'Contact',
+    imprint: 'Imprint',
     groupTraining: 'Training & Simulation',
     groupRegulation: 'Regulation & Compliance',
     groupOperations: 'Security Operations',

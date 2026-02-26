@@ -5,6 +5,7 @@ export const fr = {
     byWhom: 'Par Qui',
     profiles: 'Profils',
     contact: 'Contact',
+    imprint: 'Mentions légales',
     groupTraining: 'Formation & Simulation',
     groupRegulation: 'Régulation & Conformité',
     groupOperations: 'Opérations de Sécurité',
