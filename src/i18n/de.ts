@@ -166,7 +166,7 @@ export const de = {
     partisName: 'PART-IS',
     partisDesc: 'Verhältnismäßige, risikobasierte IS-Compliance im EASA-Kontext.\n\nPraktische Projekterfahrung in der Umsetzung von PART-IS-Anforderungen – keine theoretische Ableitung.',
     doraCheckTitle: 'Ausprobieren – DORA Meldepflicht-Check',
-    doraCheckDesc: 'Testen Sie Ihre Incident-Meldefähigkeit unter realistischen Bedingungen.',
+    doraCheckDesc: 'DORA Quick-Check der Meldefähigkeit',
   },
   tisax: {
     title: 'TISAX, PCI-DSS',

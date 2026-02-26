@@ -166,7 +166,7 @@ export const fr = {
     partisName: 'PART-IS',
     partisDesc: 'Conformité IS proportionnée et basée sur les risques dans le contexte EASA.\n\nExpérience pratique de projet dans la mise en œuvre des exigences PART-IS – pas de dérivation théorique.',
     doraCheckTitle: 'Essayer – Vérification d\'obligation DORA',
-    doraCheckDesc: 'Testez votre capacité de signalement d\'incidents dans des conditions réalistes.',
+    doraCheckDesc: 'DORA Quick-Check de la capacité de signalement',
   },
   tisax: {
     title: 'TISAX, PCI-DSS',
