@@ -6,6 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { PageMeta } from '@/components/PageMeta';
 import Typewriter from '@/components/Typewriter';
 import { useLanguage } from '@/i18n/LanguageContext';
+import { StaggerReveal } from '@/components/StaggerReveal';
 import {
   Table, TableHeader, TableBody, TableRow, TableHead, TableCell,
 } from '@/components/ui/table';
@@ -307,22 +308,22 @@ export default function PciDssSaqNavigator({ embedded = false }: { embedded?: bo
         <h1 className={`${embedded ? 'text-lg' : 'text-2xl md:text-3xl'} font-bold text-primary font-mono mb-3`}>
           <Typewriter text={t(I18N.title)} charDelay={8} />
         </h1>
-        <div>
-          <div className={`${vs.bgColor} ${vs.borderColor} border-2 rounded-lg p-6 mb-6 text-center`}>
+        <StaggerReveal stagger={400}>
+          <div className={`${vs.bgColor} ${vs.borderColor} border-2 rounded-lg p-6 text-center`}>
             <div className="text-4xl mb-2">{vs.emoji}</div>
             <h2 className={`text-xl md:text-2xl font-mono font-bold ${vs.color}`}>{t(vs.label)}</h2>
           </div>
 
           {/* Merchant Level */}
           {answers.volume && verdict !== 'none' && (
-            <div className="bg-highlight/5 border border-highlight/20 rounded-lg p-4 mb-5">
+            <div className="bg-highlight/5 border border-highlight/20 rounded-lg p-4">
               <h3 className="text-primary font-mono text-sm mb-1 uppercase tracking-wider">{t(I18N.merchantLevel)}</h3>
               <p className="text-foreground/80 text-sm font-mono">{t(getMerchantLevel(answers.volume.value))}</p>
             </div>
           )}
 
           {/* Summary table */}
-          <div className="bg-highlight/5 border border-highlight/20 rounded-lg mb-5 overflow-hidden">
+          <div className="bg-highlight/5 border border-highlight/20 rounded-lg overflow-hidden">
             <Table>
               <TableHeader>
                 <TableRow className="border-primary/20">
@@ -348,7 +349,7 @@ export default function PciDssSaqNavigator({ embedded = false }: { embedded?: bo
           </div>
 
           {/* AI reasoning */}
-          <div className="bg-highlight/5 border border-highlight/20 rounded-lg p-5 mb-5">
+          <div className="bg-highlight/5 border border-highlight/20 rounded-lg p-5">
             <h3 className="text-primary font-mono text-sm mb-2 uppercase tracking-wider">{t(I18N.reasoning)}</h3>
             {loadingReasoning ? (
               <div className="flex items-center gap-2 text-muted-foreground text-sm">
@@ -361,7 +362,7 @@ export default function PciDssSaqNavigator({ embedded = false }: { embedded?: bo
 
           {/* Next steps */}
           {verdict !== 'none' && (
-            <div className="bg-highlight/5 border border-highlight/20 rounded-lg p-5 mb-5">
+            <div className="bg-highlight/5 border border-highlight/20 rounded-lg p-5">
               <h3 className="text-primary font-mono text-sm mb-3 uppercase tracking-wider">{t(I18N.nextSteps)}</h3>
               <div className="space-y-2 text-sm">
                 <div className="flex items-start gap-3">
@@ -381,14 +382,14 @@ export default function PciDssSaqNavigator({ embedded = false }: { embedded?: bo
           )}
 
           {/* Action buttons */}
-          <div className="flex justify-center gap-3 mb-5 flex-wrap">
+          <div className="flex justify-center gap-3 flex-wrap">
             <Button onClick={restart} variant="outline" className="border-highlight/30 text-highlight hover:bg-highlight/10 hover:border-highlight/50 font-mono">
               <RotateCcw className="w-4 h-4 mr-2" /> {t(I18N.restart)}
             </Button>
           </div>
 
           <p className="text-muted-foreground text-xs text-center italic">{t(I18N.disclaimer)}</p>
-        </div>
+        </StaggerReveal>
       </div>
     );
   }
@@ -412,7 +413,7 @@ export default function PciDssSaqNavigator({ embedded = false }: { embedded?: bo
 
         <h2 className="text-lg md:text-xl font-mono text-primary mb-6 leading-snug">{step.question}</h2>
 
-        <div className="space-y-3 mb-6">
+        <StaggerReveal resetKey={step.id} stagger={300} className="mb-6">
           {step.options.map((opt) => {
             const isSelected = answers[step.id]?.value === opt.value;
             return (
@@ -426,7 +427,7 @@ export default function PciDssSaqNavigator({ embedded = false }: { embedded?: bo
               </button>
             );
           })}
-        </div>
+        </StaggerReveal>
 
         {currentStep > 0 && (
           <button onClick={goBack} className="flex items-center gap-2 text-muted-foreground text-sm font-mono hover:text-primary transition-electric">
