@@ -310,7 +310,7 @@ export const de = {
     pub3Desc: 'Besonderheiten und Hindernisse im Cyber-Krisenmanagement – Führungskräfte-Publikum.',
     watchOnVimeo: 'Auf Vimeo ansehen',
     certTitle: 'Training & Zertifizierung',
-    isacaTitle: 'ISACA-Programme',
+    isacaTitle: 'ISACA CSE',
     isacaDesc: 'Cybersecurity-Training und Zertifizierungsdurchführung, einschließlich Curriculum-Entwicklung und Prüfungsvorbereitung.',
     confTitle: 'Konferenzvorträge',
     confDesc: 'Keynotes und technische Präsentationen bei Branchenveranstaltungen in den Bereichen Verwaltung, Finanzen und kritische Infrastrukturen.',

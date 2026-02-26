@@ -310,7 +310,7 @@ export const fr = {
     pub3Desc: 'Éléments distinctifs et obstacles dans la gestion de cyber-crise – public dirigeant.',
     watchOnVimeo: 'Regarder sur Vimeo',
     certTitle: 'Formation & Certification',
-    isacaTitle: 'Programmes ISACA',
+    isacaTitle: 'ISACA CSE',
     isacaDesc: 'Formation et certification d\'experts en cybersécurité, y compris développement de programmes et préparation aux examens.',
     confTitle: 'Présentations en conférence',
     confDesc: 'Keynotes et présentations techniques lors d\'événements sectoriels dans les domaines du gouvernement, de la finance et des infrastructures critiques.',
