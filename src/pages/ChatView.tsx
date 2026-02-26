@@ -82,7 +82,7 @@ const GridItem = ({ icon: Icon, title, desc, variant = 'primary', href, classNam
         ) : (
           <p className={`font-semibold text-sm md:text-base font-sans ${colorClass}`}>{title}</p>
         )}
-        <p className="text-foreground/80 text-sm font-sans leading-relaxed whitespace-pre-line">{desc}</p>
+        <p className="text-foreground/80 text-sm md:text-[15px] font-sans leading-relaxed whitespace-pre-line">{desc}</p>
       </div>
     </div>
   );
@@ -333,7 +333,7 @@ const useServiceContent = () => {
               <p className="text-primary font-semibold text-sm font-sans">{t('assessments.step1Title')}</p>
             </div>
             <p className="text-primary/70 text-xs font-semibold font-sans uppercase tracking-wide">{t('assessments.step1Subtitle')}</p>
-            <p className="text-foreground/80 text-sm font-sans leading-relaxed whitespace-pre-line">{t('assessments.step1Desc')}</p>
+            <p className="text-foreground/80 text-sm md:text-[15px] font-sans leading-relaxed whitespace-pre-line">{t('assessments.step1Desc')}</p>
           </div>
           <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 flex flex-col gap-2">
             <div className="flex items-center gap-2">
@@ -341,7 +341,7 @@ const useServiceContent = () => {
               <p className="text-primary font-semibold text-sm font-sans">{t('assessments.step2Title')}</p>
             </div>
             <p className="text-primary/70 text-xs font-semibold font-sans uppercase tracking-wide">{t('assessments.step2Subtitle')}</p>
-            <p className="text-foreground/80 text-sm font-sans leading-relaxed whitespace-pre-line">{t('assessments.step2Desc')}</p>
+            <p className="text-foreground/80 text-sm md:text-[15px] font-sans leading-relaxed whitespace-pre-line">{t('assessments.step2Desc')}</p>
           </div>
           <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 flex flex-col gap-2">
             <div className="flex items-center gap-2">
@@ -349,7 +349,7 @@ const useServiceContent = () => {
               <p className="text-primary font-semibold text-sm font-sans">{t('assessments.step3Title')}</p>
             </div>
             <p className="text-primary/70 text-xs font-semibold font-sans uppercase tracking-wide">{t('assessments.step3Subtitle')}</p>
-            <p className="text-foreground/80 text-sm font-sans leading-relaxed whitespace-pre-line">{t('assessments.step3Desc')}</p>
+            <p className="text-foreground/80 text-sm md:text-[15px] font-sans leading-relaxed whitespace-pre-line">{t('assessments.step3Desc')}</p>
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -359,7 +359,7 @@ const useServiceContent = () => {
               <p className="text-primary font-semibold text-sm font-sans">{t('assessments.step4Title')}</p>
             </div>
             <p className="text-primary/70 text-xs font-semibold font-sans uppercase tracking-wide">{t('assessments.step4Subtitle')}</p>
-            <p className="text-foreground/80 text-sm font-sans leading-relaxed whitespace-pre-line">{t('assessments.step4Desc')}</p>
+            <p className="text-foreground/80 text-sm md:text-[15px] font-sans leading-relaxed whitespace-pre-line">{t('assessments.step4Desc')}</p>
           </div>
           <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 flex flex-col gap-2">
             <div className="flex items-center gap-2">
@@ -367,7 +367,7 @@ const useServiceContent = () => {
               <p className="text-primary font-semibold text-sm font-sans">{t('assessments.step5Title')}</p>
             </div>
             <p className="text-primary/70 text-xs font-semibold font-sans uppercase tracking-wide">{t('assessments.step5Subtitle')}</p>
-            <p className="text-foreground/80 text-sm font-sans leading-relaxed whitespace-pre-line">{t('assessments.step5Desc')}</p>
+            <p className="text-foreground/80 text-sm md:text-[15px] font-sans leading-relaxed whitespace-pre-line">{t('assessments.step5Desc')}</p>
           </div>
         </div>
       </TypedSection>
@@ -474,34 +474,34 @@ const useServiceContent = () => {
     'virtual-ciso': () => (
       <TypedSection title={t('vciso.title')} mode="typewriter" intro={<p>{t('vciso.intro')}</p>}>
         <Block className="bg-primary/5 border border-primary/20 rounded-xl">
-          <p className="text-foreground/90 text-sm font-sans leading-relaxed font-medium">{t('vciso.body1')}</p>
+          <p className="text-foreground/90 text-sm md:text-[15px] font-sans leading-relaxed font-medium">{t('vciso.body1')}</p>
         </Block>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 flex flex-col gap-2">
             <div className="flex items-center gap-2">
               <Crown size={18} className="text-primary flex-shrink-0" />
-              <p className="text-primary font-semibold text-sm font-sans">{t('vciso.label2')}</p>
+              <p className="text-primary font-semibold text-sm md:text-[15px] font-sans">{t('vciso.label2')}</p>
             </div>
-            <p className="text-foreground/80 text-sm font-sans leading-relaxed">{t('vciso.body2')}</p>
+            <p className="text-foreground/80 text-sm md:text-[15px] font-sans leading-relaxed">{t('vciso.body2')}</p>
           </div>
           <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 flex flex-col gap-2">
             <div className="flex items-center gap-2">
               <Settings size={18} className="text-primary flex-shrink-0" />
-              <p className="text-primary font-semibold text-sm font-sans">{t('vciso.label3')}</p>
+              <p className="text-primary font-semibold text-sm md:text-[15px] font-sans">{t('vciso.label3')}</p>
             </div>
-            <p className="text-foreground/80 text-sm font-sans leading-relaxed">{t('vciso.body3')}</p>
+            <p className="text-foreground/80 text-sm md:text-[15px] font-sans leading-relaxed">{t('vciso.body3')}</p>
           </div>
           <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 flex flex-col gap-2">
             <div className="flex items-center gap-2">
               <CheckSquare size={18} className="text-primary flex-shrink-0" />
-              <p className="text-primary font-semibold text-sm font-sans">{t('vciso.label4')}</p>
+              <p className="text-primary font-semibold text-sm md:text-[15px] font-sans">{t('vciso.label4')}</p>
             </div>
-            <p className="text-foreground/80 text-sm font-sans leading-relaxed">{t('vciso.body4')}</p>
+            <p className="text-foreground/80 text-sm md:text-[15px] font-sans leading-relaxed">{t('vciso.body4')}</p>
           </div>
         </div>
         <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
           <SubTitle variant="highlight">{t('vciso.modelTitle')}</SubTitle>
-          <p className="text-foreground/80 text-sm font-sans leading-relaxed whitespace-pre-line mt-2">{t('vciso.modelDesc')}</p>
+          <p className="text-foreground/80 text-sm md:text-[15px] font-sans leading-relaxed whitespace-pre-line mt-2">{t('vciso.modelDesc')}</p>
         </Block>
       </TypedSection>
     ),
@@ -518,7 +518,7 @@ const useServiceContent = () => {
           <SubTitle variant="highlight">
             {t('aiWorkflows.tryAgentsTitle')}
           </SubTitle>
-          <p className="text-foreground text-sm mb-3">
+          <p className="text-foreground text-sm md:text-[15px] mb-3">
             {t('aiWorkflows.tryAgentsDesc')}
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -656,7 +656,7 @@ const useServiceContent = () => {
             <s.icon size={14} className="text-primary mt-0.5 flex-shrink-0" />
             <div>
               <p className="text-primary font-semibold text-sm font-sans">{s.title} →</p>
-              <p className="text-foreground text-sm font-sans leading-relaxed">{s.desc}</p>
+              <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{s.desc}</p>
             </div>
           </div>
         ))}
@@ -691,7 +691,7 @@ const useServiceContent = () => {
                 <img src={p.imageUrl} alt={p.name} className="w-20 h-20 rounded-full object-cover border-2 border-primary/40 shadow-lg" />
                 <div>
                   <p className="text-primary font-bold text-base font-sans">{p.name}</p>
-                  <p className="text-foreground text-sm font-sans mb-1">{p.role}</p>
+                  <p className="text-foreground text-sm md:text-[15px] font-sans mb-1">{p.role}</p>
                   {p.linkedinUrl && (
                     <a href={p.linkedinUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-highlight text-sm font-sans hover:underline">
                       <Linkedin size={14} /> LinkedIn
@@ -722,14 +722,14 @@ const useServiceContent = () => {
               <Phone size={16} className="text-primary" />
               <SubTitle>{t('contact.phone')}</SubTitle>
             </div>
-            <a href="tel:+4915205691648" className="text-foreground text-sm font-sans hover:text-highlight transition-electric">+49 1520 569 1648</a>
+            <a href="tel:+4915205691648" className="text-foreground text-sm md:text-[15px] font-sans hover:text-highlight transition-electric">+49 1520 569 1648</a>
           </div>
           <div className="rounded-xl p-4 bg-primary/5 border border-primary/20">
             <div className="flex items-center gap-2 mb-2">
               <Mail size={16} className="text-primary" />
               <SubTitle>{t('contact.email')}</SubTitle>
             </div>
-            <a href="mailto:marcel@inside-the-box.org" className="text-foreground text-sm font-sans hover:text-highlight transition-electric">marcel@inside-the-box.org</a>
+            <a href="mailto:marcel@inside-the-box.org" className="text-foreground text-sm md:text-[15px] font-sans hover:text-highlight transition-electric">marcel@inside-the-box.org</a>
           </div>
         </div>
       </TypedSection>
@@ -737,21 +737,21 @@ const useServiceContent = () => {
     imprint: () => (
       <TypedSection title={t('imprint.title')} mode="typewriter" charDelay={8}>
         <Block className="bg-secondary/30">
-          <p className="text-foreground text-sm font-sans leading-relaxed">
+          <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">
             <span className="text-primary font-semibold">{t('imprint.responsible')}</span><br />
             Marcel Knop<br />
             Appenrother Weg 14<br />
             34308 Bad Emstal, Germany
           </p>
-           <p className="text-foreground text-sm font-sans leading-relaxed mt-3">
+           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mt-3">
             <span className="text-primary font-semibold">{t('imprint.contactLabel')}</span><br />
             <a href="mailto:marcel@inside-the-box.org" className="hover:text-highlight transition-electric">marcel@inside-the-box.org</a><br />
             <a href="tel:+4915205691648" className="hover:text-highlight transition-electric">+49 1520 569 1648</a>
           </p>
-           <p className="text-foreground text-sm font-sans leading-relaxed mt-3">
+           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mt-3">
             <span className="text-primary font-semibold">{t('imprint.vatId')}</span> DE328906053
           </p>
-          <p className="text-foreground text-sm font-sans leading-relaxed mt-3">
+          <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mt-3">
             <span className="text-primary font-semibold">{t('imprint.insurance')}</span><br />
             Hiscox SA · Arnulfstr. 31 · 80636 Munich, Germany
           </p>
