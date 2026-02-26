@@ -373,8 +373,12 @@ const useServiceContent = () => {
     ),
     'arena-training': () => (
       <TypedSection title={t('arena.title')} mode="typewriter" intro={<p>{t('arena.intro')}</p>}>
-        <CardBlock icon={Target} title={t('arena.arenaTitle')} desc={t('arena.arenaDesc')} />
-        <CardBlock icon={Flag} title={t('arena.tiberTitle')} desc={t('arena.tiberDesc')} />
+        <Block className="bg-primary/5 border border-primary/20 rounded-xl">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <GridItem icon={Target} title={t('arena.arenaTitle')} desc={t('arena.arenaDesc')} />
+            <GridItem icon={Flag} title={t('arena.tiberTitle')} desc={t('arena.tiberDesc')} />
+          </div>
+        </Block>
         <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
           <SubTitle variant="highlight">{t('arena.methTitle')}</SubTitle>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
