@@ -105,7 +105,13 @@ serve(async (req) => {
 
     const { messages, system } = body;
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
+    if (!LOVABLE_API_KEY) {
+      console.error("LOVABLE_API_KEY not configured");
+      return new Response(
+        JSON.stringify({ error: "Service temporarily unavailable" }),
+        { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
     // Call Lovable AI Gateway (OpenAI-compatible)
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -126,7 +132,7 @@ serve(async (req) => {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("Lovable AI error:", response.status, errorText);
+      console.error("[crisis-chat] upstream error:", response.status, errorText);
       if (response.status === 429) {
         return new Response(
           JSON.stringify({ error: "API-Limit erreicht. Bitte später erneut versuchen." }),
@@ -139,7 +145,10 @@ serve(async (req) => {
           { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
-      throw new Error(`AI gateway error ${response.status}`);
+      return new Response(
+        JSON.stringify({ error: "Service temporarily unavailable" }),
+        { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
     const data = await response.json();
@@ -151,7 +160,7 @@ serve(async (req) => {
   } catch (e) {
     console.error("crisis-chat error:", e);
     return new Response(
-      JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }),
+      JSON.stringify({ error: "Service temporarily unavailable" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
