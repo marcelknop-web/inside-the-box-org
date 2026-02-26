@@ -439,7 +439,8 @@ const useServiceContent = () => {
     'virtual-ciso': () => (
       <TypedSection title={t('vciso.title')} mode="typewriter" intro={<p>{t('vciso.intro')}</p>}>
         <Block className="bg-primary/5 border border-primary/20 rounded-xl">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <SubTitle>{t('vciso.whatWeDo')}</SubTitle>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
             <GridItem icon={Crown} title={t('vciso.stratTitle')} desc={t('vciso.stratDesc')} />
             <GridItem icon={Settings} title={t('vciso.opsTitle')} desc={t('vciso.opsDesc')} />
             <GridItem icon={CheckSquare} title={t('vciso.compTitle')} desc={t('vciso.compDesc')} className="md:col-span-2" />
