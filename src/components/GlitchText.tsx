@@ -23,7 +23,7 @@ const GlitchText = ({ children }: { children: string }) => {
 
   return (
     <span
-      className="inline-block relative"
+      className="inline relative"
       style={glitching ? {
         animation: 'glitch-flicker 80ms steps(2, end) infinite',
       } : undefined}

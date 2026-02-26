@@ -12,7 +12,7 @@ export const en = {
     groupInsights: 'Insights',
     groupAbout: 'About Us',
     cyberTrainingRange: 'Cyber Training Range',
-    crisisExercises: 'Crisis Exercises',
+    crisisExercises: 'Training Topics',
     workshops: 'Workshops',
     tryIt: '"Want to try?"',
     nis2Dora: 'NIS-2 / DORA / PART-IS',
