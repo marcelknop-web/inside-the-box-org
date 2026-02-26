@@ -276,9 +276,14 @@ const useServiceContent = () => {
     ),
     'nis2-dora': () => (
       <TypedSection title={t('nis2.title')} mode="typewriter" intro={<p>{t('nis2.intro')}</p>}>
-        <CardBlock icon={Search} title={t('nis2.impactTitle')} desc={t('nis2.impactDesc')} />
-        <CardBlock icon={AlertCircle} title={t('nis2.gapTitle')} desc={t('nis2.gapDesc')} />
-        <CardBlock icon={ShieldCheck} title={t('nis2.measuresTitle')} desc={t('nis2.measuresDesc')} />
+        <Block className="bg-primary/5 border border-primary/20 rounded-xl">
+          <SubTitle>{t('nis2.approachTitle')}</SubTitle>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-2">
+            <GridItem icon={Search} title={t('nis2.step1Title')} desc={t('nis2.step1Desc')} />
+            <GridItem icon={AlertCircle} title={t('nis2.step2Title')} desc={t('nis2.step2Desc')} />
+            <GridItem icon={ShieldCheck} title={t('nis2.step3Title')} desc={t('nis2.step3Desc')} />
+          </div>
+        </Block>
         <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
           <SubTitle variant="highlight">{t('nis2.frameworkTitle')}</SubTitle>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-2">
@@ -289,7 +294,6 @@ const useServiceContent = () => {
         </Block>
         <Block className="bg-highlight/10 border border-highlight/30 rounded-xl">
           <SubTitle variant="highlight">{t('nis2.doraCheckTitle')}</SubTitle>
-          <p className="text-sm font-sans text-foreground/70 leading-relaxed mb-3">{t('nis2.doraCheckDesc')}</p>
           <button onClick={() => setActive('dora-check')} className="text-base sm:text-lg px-6 py-3 bg-highlight/10 border-2 border-highlight/30 text-highlight hover:text-primary hover:bg-highlight/20 hover:border-highlight/50 rounded-lg font-mono transition-electric inline-flex items-center justify-center">
             🔍 {t('aiWorkflows.doraCheckButton')}
           </button>
