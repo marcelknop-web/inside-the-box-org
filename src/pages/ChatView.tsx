@@ -458,9 +458,13 @@ const useServiceContent = () => {
     ),
     'ai-workflows': () => (
       <TypedSection title={t('aiWorkflows.title')} mode="typewriter" intro={<p>{t('aiWorkflows.intro')}</p>}>
-        <CardBlock icon={Zap} title={t('aiWorkflows.irTitle')} desc={t('aiWorkflows.irDesc')} variant="highlight" bullets={[t('aiWorkflows.irBullet1'), t('aiWorkflows.irBullet2'), t('aiWorkflows.irBullet3')]} result={t('aiWorkflows.irResult')} />
-        <CardBlock icon={FileText} title={t('aiWorkflows.policyTitle')} desc={t('aiWorkflows.policyDesc')} variant="highlight" bullets={[t('aiWorkflows.policyBullet1'), t('aiWorkflows.policyBullet2'), t('aiWorkflows.policyBullet3')]} result={t('aiWorkflows.policyResult')} />
-        <CardBlock icon={Search} title={t('aiWorkflows.auditTitle')} desc={t('aiWorkflows.auditDesc')} variant="highlight" bullets={[t('aiWorkflows.auditBullet1'), t('aiWorkflows.auditBullet2'), t('aiWorkflows.auditBullet3')]} result={t('aiWorkflows.auditResult')} />
+        <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <GridItem icon={Zap} title={t('aiWorkflows.irTitle')} desc={`${t('aiWorkflows.irDesc')}\n\n• ${t('aiWorkflows.irBullet1')}\n• ${t('aiWorkflows.irBullet2')}\n• ${t('aiWorkflows.irBullet3')}\n\n${t('aiWorkflows.irResult')}`} variant="highlight" />
+            <GridItem icon={FileText} title={t('aiWorkflows.policyTitle')} desc={`${t('aiWorkflows.policyDesc')}\n\n• ${t('aiWorkflows.policyBullet1')}\n• ${t('aiWorkflows.policyBullet2')}\n• ${t('aiWorkflows.policyBullet3')}\n\n${t('aiWorkflows.policyResult')}`} variant="highlight" />
+            <GridItem icon={Search} title={t('aiWorkflows.auditTitle')} desc={`${t('aiWorkflows.auditDesc')}\n\n• ${t('aiWorkflows.auditBullet1')}\n• ${t('aiWorkflows.auditBullet2')}\n• ${t('aiWorkflows.auditBullet3')}\n\n${t('aiWorkflows.auditResult')}`} variant="highlight" />
+          </div>
+        </Block>
         <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
           <SubTitle variant="highlight">
             {t('aiWorkflows.tryAgentsTitle')}
