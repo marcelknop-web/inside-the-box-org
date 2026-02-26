@@ -420,7 +420,7 @@ const CyberCrisisSimulator = forwardRef<CrisisSimulatorHandle, CrisisSimulatorPr
             <div className="mb-5 text-foreground/60 text-sm md:text-base italic max-w-lg mx-auto leading-relaxed whitespace-pre-line">
               {t('crisisSim.scenarioIntro')}
             </div>
-            <div className="mb-4 text-left leading-relaxed text-foreground/80 text-sm md:text-base max-w-lg mx-auto whitespace-pre-line">
+            <div className="mb-4 text-center leading-relaxed text-foreground/80 text-sm md:text-base max-w-lg mx-auto whitespace-pre-line">
               {t('crisisSim.startDesc').split(/<strong>|<\/strong>/).map((part, i) =>
                 i % 2 === 1 ? <strong key={i} className="text-primary font-semibold">{part}</strong> : part
               )}
