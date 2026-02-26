@@ -70,19 +70,23 @@ const StatBlock = ({ value, label }: { value: string; label: string }) => (
   </div>
 );
 
-const GridItem = ({ icon: Icon, title, desc, variant = 'primary', href }: { icon: LucideIcon; title: string; desc: string; variant?: 'primary' | 'highlight'; href?: string }) => (
-  <div className="flex items-start gap-2">
-    <Icon size={20} className={`mt-0.5 flex-shrink-0 ${variant === 'highlight' ? 'text-highlight' : 'text-primary'}`} />
-    <div>
-      {href ? (
-        <a href={href} target="_blank" rel="noopener noreferrer" className={`font-semibold text-sm md:text-base font-sans underline hover:opacity-80 ${variant === 'highlight' ? 'text-highlight' : 'text-primary'}`}>{title}</a>
-      ) : (
-        <p className={`font-semibold text-sm md:text-base font-sans ${variant === 'highlight' ? 'text-highlight' : 'text-primary'}`}>{title}</p>
-      )}
-      <p className="text-foreground text-sm md:text-base font-sans leading-relaxed tracking-wide whitespace-pre-line">{desc}</p>
+const GridItem = ({ icon: Icon, title, desc, variant = 'primary', href }: { icon: LucideIcon; title: string; desc: string; variant?: 'primary' | 'highlight'; href?: string }) => {
+  const colorClass = variant === 'highlight' ? 'text-highlight' : 'text-primary';
+  const bgClass = variant === 'highlight' ? 'bg-highlight/5' : 'bg-primary/5';
+  return (
+    <div className={`${bgClass} rounded-lg p-3 flex items-start gap-2.5`}>
+      <Icon size={18} className={`mt-1 flex-shrink-0 ${colorClass}`} />
+      <div className="space-y-1">
+        {href ? (
+          <a href={href} target="_blank" rel="noopener noreferrer" className={`font-semibold text-sm md:text-base font-sans underline hover:opacity-80 ${colorClass}`}>{title}</a>
+        ) : (
+          <p className={`font-semibold text-sm md:text-base font-sans ${colorClass}`}>{title}</p>
+        )}
+        <p className="text-foreground/80 text-sm font-sans leading-relaxed whitespace-pre-line">{desc}</p>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 // ── Inline System Check (chat-style) ────────────────────────────────────────
 
