@@ -444,7 +444,10 @@ export const en = {
   welcome: {
     title: 'inside-the-box',
     headerTitle: 'inside-the-box.org',
-    intro: 'Cybersecurity Consulting<br/><br/>Analysis. Training. Implementation.<br/><br/>Marcel Knop & Andreas Funder',
+    heroSubtitle: 'Cybersecurity Consulting',
+    heroClaim: 'Analysis. Training. Implementation.',
+    heroSignature: 'Marcel Knop & Andreas Funder',
+    intro: '',
     chatPlaceholder: 'INPUT',
   },
   crisisSim: {

@@ -979,28 +979,41 @@ const ChatView = () => {
 
         <div ref={contentAreaRef} className="flex-1 overflow-y-auto relative">
           {!activeService && messages.length === 0 ? (
-            <div className="h-full flex flex-col items-center justify-center px-4">
-              <button onClick={() => setSidebarOpen(true)} className="mb-6 cursor-pointer bg-transparent border-none p-0 transition-electric group/welcome">
+            <div className="h-full flex flex-col items-center justify-center px-4" style={{ gap: 0 }}>
+              <button onClick={() => setSidebarOpen(true)} className="mb-8 cursor-pointer bg-transparent border-none p-0 transition-electric group/welcome">
                 <GeometricSymbol size="sm" className="w-16 h-16 opacity-60 group-hover/welcome:opacity-100 transition-electric" hoverCyan />
               </button>
-              <button onClick={() => setSidebarOpen(true)} className="cursor-pointer bg-transparent border-none p-0 transition-electric">
-                <h1 className="text-xl md:text-2xl font-mono font-bold text-accent hover:text-highlight mb-2 text-center transition-electric">
+              {/* Brand name */}
+              <button onClick={() => setSidebarOpen(true)} className="cursor-pointer bg-transparent border-none p-0 transition-electric" style={{ marginBottom: '40px' }}>
+                <h1 className="font-mono font-bold text-accent hover:text-highlight text-center transition-electric" style={{ fontSize: 'clamp(1.5rem, 4vw, 2.4rem)', letterSpacing: '-0.01em' }}>
                   <Typewriter text={t('welcome.title')} charDelay={60} />
                 </h1>
               </button>
+              {/* Animated hero content */}
               <div
-                className="transition-all duration-700 ease-out"
+                className="transition-all duration-700 ease-out flex flex-col items-center"
                 style={{
                   opacity: 0,
                   transform: 'translateY(10px)',
                   animation: 'fade-slide-in 700ms ease-out 2.2s forwards',
                 }}
               >
-                <button onClick={() => setSidebarOpen(true)} className="cursor-pointer bg-transparent border-none p-0 transition-electric">
-                  <p className="text-sm text-foreground hover:text-highlight font-mono text-center max-w-md px-2 transition-electric">
-                    {t('welcome.intro').split('<br/>').map((line, i, arr) => (
-                      <span key={i}>{line}{i < arr.length - 1 && <br />}</span>
-                    ))}
+                {/* Claim */}
+                <button onClick={() => setSidebarOpen(true)} className="cursor-pointer bg-transparent border-none p-0 transition-electric" style={{ marginBottom: '32px' }}>
+                  <p className="font-mono font-medium text-center" style={{ fontSize: 'clamp(0.95rem, 2.5vw, 1.15rem)', letterSpacing: '0.04em', color: '#ffffff' }}>
+                    {t('welcome.heroClaim')}
+                  </p>
+                </button>
+                {/* Subtitle */}
+                <button onClick={() => setSidebarOpen(true)} className="cursor-pointer bg-transparent border-none p-0 transition-electric" style={{ marginBottom: '28px' }}>
+                  <p className="font-mono text-center" style={{ fontSize: 'clamp(0.85rem, 2vw, 1.0rem)', letterSpacing: '0.02em', color: 'rgba(255,255,255,0.72)' }}>
+                    {t('welcome.heroSubtitle')}
+                  </p>
+                </button>
+                {/* Signature */}
+                <button onClick={() => setSidebarOpen(true)} className="cursor-pointer bg-transparent border-none p-0 transition-electric" style={{ marginTop: '8px' }}>
+                  <p className="font-mono text-center" style={{ fontSize: 'clamp(0.75rem, 1.8vw, 0.88rem)', letterSpacing: '0.02em', color: 'rgba(255,255,255,0.58)' }}>
+                    {t('welcome.heroSignature')}
                   </p>
                 </button>
               </div>
