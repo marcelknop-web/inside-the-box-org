@@ -787,6 +787,7 @@ const ChatView = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
   const [sidebarInitialized, setSidebarInitialized] = useState(false);
+  const [claimDone, setClaimDone] = useState(false);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const crisisRef = useRef<CrisisSimulatorHandle>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -990,38 +991,34 @@ const ChatView = () => {
                 </h1>
               </button>
               {/* Animated hero content */}
-              <div
-                className="transition-all duration-700 ease-out flex flex-col items-center"
-                style={{
-                  opacity: 0,
-                  transform: 'translateY(10px)',
-                  animation: 'fade-slide-in 700ms ease-out 2.2s forwards',
-                }}
-              >
-                {/* Claim */}
+              <div className="flex flex-col items-center">
+                {/* Claim – scramble decode reveal */}
                 <button onClick={() => setSidebarOpen(true)} className="cursor-pointer bg-transparent border-none p-0 transition-electric" style={{ marginBottom: '32px' }}>
-                  <p className="font-mono font-medium text-center" style={{ fontSize: 'clamp(0.95rem, 2.5vw, 1.15rem)', letterSpacing: '0.04em', color: '#ffffff' }}>
-                    {t('welcome.heroClaim')}
+                  <p className="font-mono font-semibold text-center uppercase" style={{ fontSize: 'clamp(1.0rem, 2.8vw, 1.25rem)', letterSpacing: '0.12em', color: '#ffffff' }}>
+                    <Typewriter text={t('welcome.heroClaim')} mode="scramble" delay={2200} charDelay={18} cursor={false} onDone={() => setClaimDone(true)} />
                   </p>
                 </button>
-                {/* Subtitle */}
-                <button onClick={() => setSidebarOpen(true)} className="cursor-pointer bg-transparent border-none p-0 transition-electric" style={{ marginBottom: '28px' }}>
-                  <p className="font-mono text-center" style={{ fontSize: 'clamp(0.85rem, 2vw, 1.0rem)', letterSpacing: '0.02em', color: 'rgba(255,255,255,0.72)' }}>
-                    {t('welcome.heroSubtitle')}
-                  </p>
-                </button>
-                {/* Signature */}
-                <button onClick={() => setSidebarOpen(true)} className="cursor-pointer bg-transparent border-none p-0 transition-electric" style={{ marginTop: '8px' }}>
-                  <p className="font-mono text-center" style={{ fontSize: 'clamp(0.75rem, 1.8vw, 0.88rem)', letterSpacing: '0.02em', color: 'rgba(255,255,255,0.58)' }}>
-                    {t('welcome.heroSignature')}
-                  </p>
-                </button>
+                {/* Subtitle – fades in after claim */}
+                <div
+                  style={{
+                    opacity: claimDone ? 1 : 0,
+                    transform: claimDone ? 'translateY(0)' : 'translateY(8px)',
+                    transition: 'opacity 600ms ease-out, transform 600ms ease-out',
+                  }}
+                >
+                  <button onClick={() => setSidebarOpen(true)} className="cursor-pointer bg-transparent border-none p-0 transition-electric" style={{ marginBottom: '28px' }}>
+                    <p className="font-mono text-center" style={{ fontSize: 'clamp(0.85rem, 2vw, 1.0rem)', letterSpacing: '0.02em', color: 'rgba(255,255,255,0.72)' }}>
+                      {t('welcome.heroSubtitle')}
+                    </p>
+                  </button>
+                  {/* Signature */}
+                  <button onClick={() => setSidebarOpen(true)} className="cursor-pointer bg-transparent border-none p-0 transition-electric" style={{ marginTop: '8px' }}>
+                    <p className="font-mono text-center" style={{ fontSize: 'clamp(0.75rem, 1.8vw, 0.88rem)', letterSpacing: '0.02em', color: 'rgba(255,255,255,0.58)' }}>
+                      {t('welcome.heroSignature')}
+                    </p>
+                  </button>
+                </div>
               </div>
-              <style>{`
-                @keyframes fade-slide-in {
-                  to { opacity: 1; transform: translateY(0); }
-                }
-              `}</style>
             </div>
           ) : (
             <div className="w-full px-3 md:px-6 lg:px-10 py-4 md:py-6 space-y-4">
