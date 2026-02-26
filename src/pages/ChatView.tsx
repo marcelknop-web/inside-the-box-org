@@ -439,11 +439,31 @@ const useServiceContent = () => {
     'virtual-ciso': () => (
       <TypedSection title={t('vciso.title')} mode="typewriter" intro={<p>{t('vciso.intro')}</p>}>
         <Block className="bg-primary/5 border border-primary/20 rounded-xl">
-          <p className="text-foreground text-sm font-sans leading-relaxed">{t('vciso.body1')}</p>
-          <p className="text-foreground text-sm font-sans leading-relaxed mt-3">{t('vciso.body2')}</p>
-          <p className="text-foreground text-sm font-sans leading-relaxed mt-3">{t('vciso.body3')}</p>
-          <p className="text-foreground text-sm font-sans leading-relaxed mt-3">{t('vciso.body4')}</p>
+          <p className="text-foreground/90 text-sm font-sans leading-relaxed font-medium">{t('vciso.body1')}</p>
         </Block>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 flex flex-col gap-2">
+            <div className="flex items-center gap-2">
+              <Crown size={18} className="text-primary flex-shrink-0" />
+              <p className="text-primary font-semibold text-sm font-sans">{t('vciso.label2')}</p>
+            </div>
+            <p className="text-foreground/80 text-sm font-sans leading-relaxed">{t('vciso.body2')}</p>
+          </div>
+          <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 flex flex-col gap-2">
+            <div className="flex items-center gap-2">
+              <Settings size={18} className="text-primary flex-shrink-0" />
+              <p className="text-primary font-semibold text-sm font-sans">{t('vciso.label3')}</p>
+            </div>
+            <p className="text-foreground/80 text-sm font-sans leading-relaxed">{t('vciso.body3')}</p>
+          </div>
+          <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 flex flex-col gap-2">
+            <div className="flex items-center gap-2">
+              <CheckSquare size={18} className="text-primary flex-shrink-0" />
+              <p className="text-primary font-semibold text-sm font-sans">{t('vciso.label4')}</p>
+            </div>
+            <p className="text-foreground/80 text-sm font-sans leading-relaxed">{t('vciso.body4')}</p>
+          </div>
+        </div>
         <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
           <SubTitle variant="highlight">{t('vciso.modelTitle')}</SubTitle>
           <p className="text-foreground/80 text-sm font-sans leading-relaxed whitespace-pre-line mt-2">{t('vciso.modelDesc')}</p>
