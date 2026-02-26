@@ -326,15 +326,50 @@ const useServiceContent = () => {
     ),
     'assessments-concepts': () => (
       <TypedSection title={t('assessments.title')} mode="typewriter" intro={<p>{t('assessments.intro')}</p>}>
-        <Block className="bg-primary/5 border border-primary/20 rounded-xl">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <GridItem icon={Search} title={t('assessments.step1Title')} desc={`${t('assessments.step1Subtitle')}\n\n${t('assessments.step1Desc')}`} />
-            <GridItem icon={ShieldCheck} title={t('assessments.step2Title')} desc={`${t('assessments.step2Subtitle')}\n\n${t('assessments.step2Desc')}`} />
-            <GridItem icon={Users} title={t('assessments.step3Title')} desc={`${t('assessments.step3Subtitle')}\n\n${t('assessments.step3Desc')}`} />
-            <GridItem icon={Calendar} title={t('assessments.step4Title')} desc={`${t('assessments.step4Subtitle')}\n\n${t('assessments.step4Desc')}`} />
-            <GridItem icon={BarChart} title={t('assessments.step5Title')} desc={`${t('assessments.step5Subtitle')}\n\n${t('assessments.step5Desc')}`} />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 flex flex-col gap-2">
+            <div className="flex items-center gap-2">
+              <Search size={18} className="text-primary flex-shrink-0" />
+              <p className="text-primary font-semibold text-sm font-sans">{t('assessments.step1Title')}</p>
+            </div>
+            <p className="text-primary/70 text-xs font-semibold font-sans uppercase tracking-wide">{t('assessments.step1Subtitle')}</p>
+            <p className="text-foreground/80 text-sm font-sans leading-relaxed whitespace-pre-line">{t('assessments.step1Desc')}</p>
           </div>
-        </Block>
+          <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 flex flex-col gap-2">
+            <div className="flex items-center gap-2">
+              <ShieldCheck size={18} className="text-primary flex-shrink-0" />
+              <p className="text-primary font-semibold text-sm font-sans">{t('assessments.step2Title')}</p>
+            </div>
+            <p className="text-primary/70 text-xs font-semibold font-sans uppercase tracking-wide">{t('assessments.step2Subtitle')}</p>
+            <p className="text-foreground/80 text-sm font-sans leading-relaxed whitespace-pre-line">{t('assessments.step2Desc')}</p>
+          </div>
+          <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 flex flex-col gap-2">
+            <div className="flex items-center gap-2">
+              <Users size={18} className="text-primary flex-shrink-0" />
+              <p className="text-primary font-semibold text-sm font-sans">{t('assessments.step3Title')}</p>
+            </div>
+            <p className="text-primary/70 text-xs font-semibold font-sans uppercase tracking-wide">{t('assessments.step3Subtitle')}</p>
+            <p className="text-foreground/80 text-sm font-sans leading-relaxed whitespace-pre-line">{t('assessments.step3Desc')}</p>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 flex flex-col gap-2">
+            <div className="flex items-center gap-2">
+              <Calendar size={18} className="text-primary flex-shrink-0" />
+              <p className="text-primary font-semibold text-sm font-sans">{t('assessments.step4Title')}</p>
+            </div>
+            <p className="text-primary/70 text-xs font-semibold font-sans uppercase tracking-wide">{t('assessments.step4Subtitle')}</p>
+            <p className="text-foreground/80 text-sm font-sans leading-relaxed whitespace-pre-line">{t('assessments.step4Desc')}</p>
+          </div>
+          <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 flex flex-col gap-2">
+            <div className="flex items-center gap-2">
+              <BarChart size={18} className="text-primary flex-shrink-0" />
+              <p className="text-primary font-semibold text-sm font-sans">{t('assessments.step5Title')}</p>
+            </div>
+            <p className="text-primary/70 text-xs font-semibold font-sans uppercase tracking-wide">{t('assessments.step5Subtitle')}</p>
+            <p className="text-foreground/80 text-sm font-sans leading-relaxed whitespace-pre-line">{t('assessments.step5Desc')}</p>
+          </div>
+        </div>
       </TypedSection>
     ),
     'incident-management': () => (
