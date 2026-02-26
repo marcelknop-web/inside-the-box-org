@@ -722,50 +722,50 @@ const useSidebarGroups = (): SidebarGroup[] => {
   const { t } = useLanguage();
   return [
     {
-      title: 'Training & Simulation',
+      title: t('nav.groupTraining'),
       items: [
-        { id: 'why', icon: Target, label: 'Cyber Training Range' },
-        { id: 'training', icon: Swords, label: 'Krisenübungen' },
-        { id: 'events-workshops', icon: Calendar, label: 'Workshops' },
-        { id: 'crisis-sim', icon: AlertTriangle, label: '„Mal probieren?"' },
+        { id: 'why', icon: Target, label: t('nav.cyberTrainingRange') },
+        { id: 'training', icon: Swords, label: t('nav.crisisExercises') },
+        { id: 'events-workshops', icon: Calendar, label: t('nav.workshops') },
+        { id: 'crisis-sim', icon: AlertTriangle, label: t('nav.tryIt') },
       ],
     },
     {
-      title: 'Regulierung & Compliance',
+      title: t('nav.groupRegulation'),
       items: [
-        { id: 'nis2-dora', icon: Network, label: 'NIS-2 / DORA / PART-IS' },
-        { id: 'isms', icon: ShieldCheck, label: 'ISMS ISO 27001 / BSI' },
-        { id: 'tisax-pci-dss', icon: CreditCard, label: 'TISAX / PCI-DSS' },
+        { id: 'nis2-dora', icon: Network, label: t('nav.nis2Dora') },
+        { id: 'isms', icon: ShieldCheck, label: t('nav.ismsBsi') },
+        { id: 'tisax-pci-dss', icon: CreditCard, label: t('nav.tisaxPci') },
       ],
     },
     {
-      title: 'Security Operations',
+      title: t('nav.groupOperations'),
       items: [
-        { id: 'incident-management', icon: Flame, label: 'Incident Management' },
-        { id: 'cyber-crisis-management', icon: Swords, label: 'Cyber-Krisenmanagement' },
-        { id: 'arena-training', icon: Target, label: 'Red Team / TIBER' },
+        { id: 'incident-management', icon: Flame, label: t('nav.incidentMgmt') },
+        { id: 'cyber-crisis-management', icon: Swords, label: t('nav.cyberCrisisMgmt') },
+        { id: 'arena-training', icon: Target, label: t('nav.redTeam') },
       ],
     },
     {
-      title: 'Strategie & Governance',
+      title: t('nav.groupStrategy'),
       items: [
-        { id: 'assessments-concepts', icon: Search, label: 'Assessments & Konzepte' },
-        { id: 'virtual-ciso', icon: UserCheck, label: 'Virtual CISO' },
-        { id: 'ai-workflows', icon: Zap, label: 'KI-gestützte Workflows' },
+        { id: 'assessments-concepts', icon: Search, label: t('nav.assessments') },
+        { id: 'virtual-ciso', icon: UserCheck, label: t('nav.virtualCiso') },
+        { id: 'ai-workflows', icon: Zap, label: t('nav.aiWorkflows') },
       ],
     },
     {
-      title: 'Insights',
+      title: t('nav.groupInsights'),
       items: [
-        { id: 'publications', icon: FileText, label: 'Publikationen' },
-        { id: 'events-workshops', icon: Calendar, label: 'Events' },
+        { id: 'publications', icon: FileText, label: t('nav.publications') },
+        { id: 'events-workshops', icon: Calendar, label: t('nav.events') },
       ],
     },
     {
-      title: 'Über uns',
+      title: t('nav.groupAbout'),
       items: [
-        { id: 'by-whom', icon: Users, label: 'Profile' },
-        { id: 'contact', icon: Mail, label: 'Kontakt' },
+        { id: 'by-whom', icon: Users, label: t('nav.profiles') },
+        { id: 'contact', icon: Mail, label: t('nav.contact') },
       ],
     },
   ];
