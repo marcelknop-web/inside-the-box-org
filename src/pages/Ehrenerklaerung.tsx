@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -28,6 +28,9 @@ import {
 import { GeometricSymbol } from '@/components/GeometricSymbol';
 import { supabase } from '@/integrations/supabase/client';
 
+const ACCESS_TOKEN_STORAGE_KEY = 'ehrenerklaerung_access_token';
+const RESOURCE_NAME = 'ehrenerklaerung';
+
 const formSchema = z.object({
   vorname: z.string().trim().max(100).optional(),
   nachname: z.string().trim().max(100).optional(),
@@ -44,9 +47,13 @@ type FormValues = z.infer<typeof formSchema>;
 
 const Ehrenerklaerung = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [authChecking, setAuthChecking] = useState(true);
+  const [accessToken, setAccessToken] = useState('');
   const [password, setPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [verifying, setVerifying] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
   const [submitted, setSubmitted] = useState(false);
 
   const form = useForm<FormValues>({
@@ -62,16 +69,72 @@ const Ehrenerklaerung = () => {
     },
   });
 
+  useEffect(() => {
+    let active = true;
+
+    const validateSavedToken = async () => {
+      const storedToken = sessionStorage.getItem(ACCESS_TOKEN_STORAGE_KEY);
+      if (!storedToken) {
+        if (active) setAuthChecking(false);
+        return;
+      }
+
+      try {
+        const { data, error } = await supabase.functions.invoke('verify-access', {
+          body: {
+            action: 'validate_token',
+            resource: RESOURCE_NAME,
+            accessToken: storedToken,
+          },
+        });
+
+        if (error || !data?.authenticated) {
+          sessionStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
+          if (active) {
+            setIsAuthenticated(false);
+            setAccessToken('');
+          }
+        } else if (active) {
+          setIsAuthenticated(true);
+          setAccessToken(storedToken);
+        }
+      } finally {
+        if (active) setAuthChecking(false);
+      }
+    };
+
+    void validateSavedToken();
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const clearAccess = () => {
+    sessionStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
+    setIsAuthenticated(false);
+    setAccessToken('');
+  };
+
   const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setPasswordError('');
     setVerifying(true);
+
     try {
       const { data, error } = await supabase.functions.invoke('verify-access', {
-        body: { password, resource: 'ehrenerklaerung' },
+        body: {
+          action: 'authenticate',
+          password,
+          resource: RESOURCE_NAME,
+        },
       });
+
       if (error) throw error;
-      if (data?.authenticated) {
+
+      if (data?.authenticated && typeof data?.accessToken === 'string') {
+        sessionStorage.setItem(ACCESS_TOKEN_STORAGE_KEY, data.accessToken);
+        setAccessToken(data.accessToken);
         setIsAuthenticated(true);
       } else {
         setPasswordError('Falsches Passwort');
@@ -82,6 +145,52 @@ const Ehrenerklaerung = () => {
       setVerifying(false);
     }
   };
+
+  const onSubmit = async (data: FormValues) => {
+    if (!accessToken) {
+      setSubmitError('Sitzung abgelaufen. Bitte erneut anmelden.');
+      clearAccess();
+      return;
+    }
+
+    setSubmitError('');
+    setSubmitting(true);
+
+    try {
+      const { data: response, error } = await supabase.functions.invoke('verify-access', {
+        body: {
+          action: 'submit',
+          resource: RESOURCE_NAME,
+          accessToken,
+          submission: {
+            ...data,
+            geburtsdatum: data.geburtsdatum ? data.geburtsdatum.toISOString() : null,
+          },
+        },
+      });
+
+      if (error) throw error;
+      if (!response?.submitted) throw new Error('Submission failed');
+
+      setSubmitted(true);
+    } catch {
+      setSubmitError('Übermittlung fehlgeschlagen. Bitte erneut versuchen.');
+      clearAccess();
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  if (authChecking) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #e8eff5 0%, #f0f4f8 100%)' }}>
+        <div className="flex items-center gap-2" style={{ color: '#4a6b7a' }}>
+          <Loader2 className="w-4 h-4 animate-spin" />
+          <span>Prüfe Zugang...</span>
+        </div>
+      </div>
+    );
+  }
 
   if (!isAuthenticated) {
     return (
@@ -113,11 +222,6 @@ const Ehrenerklaerung = () => {
       </div>
     );
   }
-
-  const onSubmit = (data: FormValues) => {
-    console.log('Ehrenerklärung submitted:', { ...data, email: '[redacted]' });
-    setSubmitted(true);
-  };
 
   if (submitted) {
     return (
@@ -193,8 +297,8 @@ const Ehrenerklaerung = () => {
                     <PopoverTrigger asChild>
                       <FormControl>
                         <Button variant="outline" className={cn(
-                          "w-full bg-white border-0 border-b-2 rounded-none shadow-none font-normal justify-between focus-visible:ring-0 hover:bg-white",
-                          !field.value && "text-muted-foreground"
+                          'w-full bg-white border-0 border-b-2 rounded-none shadow-none font-normal justify-between focus-visible:ring-0 hover:bg-white',
+                          !field.value && 'text-muted-foreground',
                         )} style={{ borderColor: '#c0d0d8', color: '#1a2a3a' }}>
                           {field.value ? format(field.value, 'dd.MM.yyyy') : ''}
                           <CalendarIcon className="h-4 w-4 opacity-50" />
@@ -298,10 +402,14 @@ const Ehrenerklaerung = () => {
               </FormItem>
             )} />
 
+            {submitError && (
+              <p className="text-sm text-red-500 text-center">{submitError}</p>
+            )}
+
             {/* Submit */}
             <div className="pt-2">
-              <Button type="submit" className="w-full py-6 text-base font-medium rounded-lg" style={{ background: '#5a8a9a', color: 'white' }}>
-                Absenden
+              <Button type="submit" className="w-full py-6 text-base font-medium rounded-lg" style={{ background: '#5a8a9a', color: 'white' }} disabled={submitting}>
+                {submitting ? <><Loader2 className="w-4 h-4 animate-spin mr-2" />Sende...</> : 'Absenden'}
               </Button>
               <p className="text-center text-sm mt-3" style={{ color: '#7a9aaa' }}>Vielen Dank!</p>
             </div>
@@ -313,3 +421,4 @@ const Ehrenerklaerung = () => {
 };
 
 export default Ehrenerklaerung;
+
