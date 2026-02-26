@@ -722,37 +722,50 @@ const useSidebarGroups = (): SidebarGroup[] => {
   const { t } = useLanguage();
   return [
     {
-      title: t('nav.training'),
+      title: 'Training & Simulation',
       items: [
-        { id: 'why', icon: Target, label: t('start.cyberTrainingRange') },
-        { id: 'training', icon: Swords, label: t('training.title') },
-        { id: 'tech-requirements', icon: Monitor, label: t('techReq.sidebarLabel') },
-        { id: 'crisis-sim', icon: AlertTriangle, label: t('crisisSim.sidebarLabel') },
+        { id: 'why', icon: Target, label: 'Cyber Training Range' },
+        { id: 'training', icon: Swords, label: 'Krisenübungen' },
+        { id: 'events-workshops', icon: Calendar, label: 'Workshops' },
+        { id: 'crisis-sim', icon: AlertTriangle, label: '„Mal probieren?"' },
       ],
     },
     {
-      title: t('nav.consulting'),
+      title: 'Regulierung & Compliance',
       items: [
-        { id: 'consulting', icon: Shield, label: t('consulting.title') },
-        { id: 'isms', icon: ShieldCheck, label: t('consulting.ismsTitle') },
-        { id: 'nis2-dora', icon: Network, label: t('consulting.nis2Title') },
-        { id: 'tisax-pci-dss', icon: CreditCard, label: t('consulting.tisaxTitle') },
-        { id: 'assessments-concepts', icon: Search, label: t('consulting.assessTitle') },
-        { id: 'incident-management', icon: Flame, label: t('consulting.incidentTitle') },
-        { id: 'cyber-crisis-management', icon: Swords, label: t('consulting.crisisTitle') },
-        { id: 'arena-training', icon: Target, label: t('consulting.arenaSidebarLabel') },
-        { id: 'events-workshops', icon: Calendar, label: t('consulting.eventsTitle') },
-        { id: 'publications', icon: FileText, label: t('consulting.pubTitle') },
-        { id: 'virtual-ciso', icon: UserCheck, label: t('vciso.title') },
-        { id: 'ai-workflows', icon: Zap, label: t('consulting.aiWorkflowsTitle') },
+        { id: 'nis2-dora', icon: Network, label: 'NIS-2 / DORA / PART-IS' },
+        { id: 'isms', icon: ShieldCheck, label: 'ISMS ISO 27001 / BSI' },
+        { id: 'tisax-pci-dss', icon: CreditCard, label: 'TISAX / PCI-DSS' },
       ],
     },
     {
-      title: t('nav.byWhom'),
+      title: 'Security Operations',
       items: [
-        { id: 'by-whom', icon: Users, label: t('nav.profiles') },
-        { id: 'contact', icon: Mail, label: t('nav.contact') },
-        { id: 'imprint', icon: Scale, label: t('imprint.title') },
+        { id: 'incident-management', icon: Flame, label: 'Incident Management' },
+        { id: 'cyber-crisis-management', icon: Swords, label: 'Cyber-Krisenmanagement' },
+        { id: 'arena-training', icon: Target, label: 'Red Team / TIBER' },
+      ],
+    },
+    {
+      title: 'Strategie & Governance',
+      items: [
+        { id: 'assessments-concepts', icon: Search, label: 'Assessments & Konzepte' },
+        { id: 'virtual-ciso', icon: UserCheck, label: 'Virtual CISO' },
+        { id: 'ai-workflows', icon: Zap, label: 'KI-gestützte Workflows' },
+      ],
+    },
+    {
+      title: 'Insights',
+      items: [
+        { id: 'publications', icon: FileText, label: 'Publikationen' },
+        { id: 'events-workshops', icon: Calendar, label: 'Events' },
+      ],
+    },
+    {
+      title: 'Über uns',
+      items: [
+        { id: 'by-whom', icon: Users, label: 'Profile' },
+        { id: 'contact', icon: Mail, label: 'Kontakt' },
       ],
     },
   ];
