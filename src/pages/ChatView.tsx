@@ -70,7 +70,7 @@ const StatBlock = ({ value, label }: { value: string; label: string }) => (
   </div>
 );
 
-const GridItem = ({ icon: Icon, title, desc, variant = 'primary', href, className }: { icon: LucideIcon; title: string; desc: string; variant?: 'primary' | 'highlight'; href?: string; className?: string }) => {
+const GridItem = ({ icon: Icon, title, subtitle, desc, variant = 'primary', href, className }: { icon: LucideIcon; title: string; subtitle?: string; desc: string; variant?: 'primary' | 'highlight'; href?: string; className?: string }) => {
   const colorClass = variant === 'highlight' ? 'text-highlight' : 'text-primary';
   const bgClass = variant === 'highlight' ? 'bg-highlight/5' : 'bg-primary/5';
   return (
@@ -82,6 +82,7 @@ const GridItem = ({ icon: Icon, title, desc, variant = 'primary', href, classNam
         ) : (
           <p className={`font-semibold text-sm md:text-base font-sans ${colorClass}`}>{title}</p>
         )}
+        {subtitle && <p className={`${colorClass}/70 text-xs font-semibold font-sans uppercase tracking-wide`}>{subtitle}</p>}
         <p className="text-foreground/80 text-sm md:text-[15px] font-sans leading-relaxed whitespace-pre-line break-words">{desc}</p>
       </div>
     </div>
@@ -255,7 +256,7 @@ const InlineConnectivityCheck = ({ t, language }: { t: (k: string) => string; la
 // ── Service content renderers ───────────────────────────────────────────────
 
 const useServiceContent = () => {
-  const { t, language } = useLanguage();
+  const { t, tArray, language } = useLanguage();
 
   const contentMap: Record<string, () => ReactNode> = {
     isms: () => (
@@ -323,48 +324,13 @@ const useServiceContent = () => {
     'assessments-concepts': () => (
       <TypedSection title={t('assessments.title')} mode="typewriter" intro={<p>{t('assessments.intro')}</p>}>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 flex flex-col gap-2">
-            <div className="flex items-center gap-2">
-              <Search size={18} className="text-primary flex-shrink-0" />
-              <p className="text-primary font-semibold text-sm font-sans">{t('assessments.step1Title')}</p>
-            </div>
-            <p className="text-primary/70 text-xs font-semibold font-sans uppercase tracking-wide">{t('assessments.step1Subtitle')}</p>
-            <p className="text-foreground/80 text-sm md:text-[15px] font-sans leading-relaxed whitespace-pre-line">{t('assessments.step1Desc')}</p>
-          </div>
-          <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 flex flex-col gap-2">
-            <div className="flex items-center gap-2">
-              <ShieldCheck size={18} className="text-primary flex-shrink-0" />
-              <p className="text-primary font-semibold text-sm font-sans">{t('assessments.step2Title')}</p>
-            </div>
-            <p className="text-primary/70 text-xs font-semibold font-sans uppercase tracking-wide">{t('assessments.step2Subtitle')}</p>
-            <p className="text-foreground/80 text-sm md:text-[15px] font-sans leading-relaxed whitespace-pre-line">{t('assessments.step2Desc')}</p>
-          </div>
-          <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 flex flex-col gap-2">
-            <div className="flex items-center gap-2">
-              <Users size={18} className="text-primary flex-shrink-0" />
-              <p className="text-primary font-semibold text-sm font-sans">{t('assessments.step3Title')}</p>
-            </div>
-            <p className="text-primary/70 text-xs font-semibold font-sans uppercase tracking-wide">{t('assessments.step3Subtitle')}</p>
-            <p className="text-foreground/80 text-sm md:text-[15px] font-sans leading-relaxed whitespace-pre-line">{t('assessments.step3Desc')}</p>
-          </div>
+          <GridItem icon={Search} title={t('assessments.step1Title')} subtitle={t('assessments.step1Subtitle')} desc={t('assessments.step1Desc')} />
+          <GridItem icon={ShieldCheck} title={t('assessments.step2Title')} subtitle={t('assessments.step2Subtitle')} desc={t('assessments.step2Desc')} />
+          <GridItem icon={Users} title={t('assessments.step3Title')} subtitle={t('assessments.step3Subtitle')} desc={t('assessments.step3Desc')} />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 flex flex-col gap-2">
-            <div className="flex items-center gap-2">
-              <Calendar size={18} className="text-primary flex-shrink-0" />
-              <p className="text-primary font-semibold text-sm font-sans">{t('assessments.step4Title')}</p>
-            </div>
-            <p className="text-primary/70 text-xs font-semibold font-sans uppercase tracking-wide">{t('assessments.step4Subtitle')}</p>
-            <p className="text-foreground/80 text-sm md:text-[15px] font-sans leading-relaxed whitespace-pre-line">{t('assessments.step4Desc')}</p>
-          </div>
-          <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 flex flex-col gap-2">
-            <div className="flex items-center gap-2">
-              <BarChart size={18} className="text-primary flex-shrink-0" />
-              <p className="text-primary font-semibold text-sm font-sans">{t('assessments.step5Title')}</p>
-            </div>
-            <p className="text-primary/70 text-xs font-semibold font-sans uppercase tracking-wide">{t('assessments.step5Subtitle')}</p>
-            <p className="text-foreground/80 text-sm md:text-[15px] font-sans leading-relaxed whitespace-pre-line">{t('assessments.step5Desc')}</p>
-          </div>
+          <GridItem icon={Calendar} title={t('assessments.step4Title')} subtitle={t('assessments.step4Subtitle')} desc={t('assessments.step4Desc')} />
+          <GridItem icon={BarChart} title={t('assessments.step5Title')} subtitle={t('assessments.step5Subtitle')} desc={t('assessments.step5Desc')} />
         </div>
       </TypedSection>
     ),
@@ -473,27 +439,9 @@ const useServiceContent = () => {
           <p className="text-foreground/90 text-sm md:text-[15px] font-sans leading-relaxed font-medium">{t('vciso.body1')}</p>
         </Block>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 flex flex-col gap-2">
-            <div className="flex items-center gap-2">
-              <Crown size={18} className="text-primary flex-shrink-0" />
-              <p className="text-primary font-semibold text-sm md:text-[15px] font-sans">{t('vciso.label2')}</p>
-            </div>
-            <p className="text-foreground/80 text-sm md:text-[15px] font-sans leading-relaxed">{t('vciso.body2')}</p>
-          </div>
-          <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 flex flex-col gap-2">
-            <div className="flex items-center gap-2">
-              <Settings size={18} className="text-primary flex-shrink-0" />
-              <p className="text-primary font-semibold text-sm md:text-[15px] font-sans">{t('vciso.label3')}</p>
-            </div>
-            <p className="text-foreground/80 text-sm md:text-[15px] font-sans leading-relaxed">{t('vciso.body3')}</p>
-          </div>
-          <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 flex flex-col gap-2">
-            <div className="flex items-center gap-2">
-              <CheckSquare size={18} className="text-primary flex-shrink-0" />
-              <p className="text-primary font-semibold text-sm md:text-[15px] font-sans">{t('vciso.label4')}</p>
-            </div>
-            <p className="text-foreground/80 text-sm md:text-[15px] font-sans leading-relaxed">{t('vciso.body4')}</p>
-          </div>
+          <GridItem icon={Crown} title={t('vciso.label2')} desc={t('vciso.body2')} />
+          <GridItem icon={Settings} title={t('vciso.label3')} desc={t('vciso.body3')} />
+          <GridItem icon={CheckSquare} title={t('vciso.label4')} desc={t('vciso.body4')} />
         </div>
         <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
           <SubTitle variant="highlight">{t('vciso.modelTitle')}</SubTitle>
@@ -666,18 +614,15 @@ const useServiceContent = () => {
     'by-whom': () => {
       const profiles = consultantProfiles.map((profile) => {
         const key = profile.name === 'Marcel Knop' ? 'marcel' : 'andreas';
-        if (language !== 'en') {
-          return {
-            ...profile,
-            sections: [
-              { title: t(`profiles.${key}.eduTitle`), items: language === 'de' ? (key === 'marcel' ? ['Dipl.-Ing. Maschinenbau', 'CISSP, CISA', 'ISO/IEC 27001 + 22301 Lead Auditor', 'BSI Grundschutz-Praktiker'] : ['B.Sc. Betriebswirtschaftslehre', 'ISO/IEC 27001 Lead Auditor + Implementer', 'ISO/IEC 27005 Risk Manager', 'BSI IT-Grundschutz-Praktiker', 'Datenschutzauditor (DSA-TÜV)']) : (key === 'marcel' ? ['Dipl.-Ing. Génie mécanique', 'CISSP, CISA', 'ISO/IEC 27001 + 22301 Lead Auditor', 'BSI Baseline Protection Practitioner'] : ['B.Sc. Administration des affaires', 'ISO/IEC 27001 Lead Auditor + Implementer', 'ISO/IEC 27005 Risk Manager', 'BSI IT-Grundschutz Practitioner', 'Auditeur protection des données (DSA-TÜV)']) },
-              { title: t(`profiles.${key}.expTitle`), items: language === 'de' ? (key === 'marcel' ? ['KPMG: Consultant bis Senior Manager', 'Accenture: Senior Manager', 'Ernst & Young: Senior Manager'] : ['PwC: Manager, Cybersecurity und Datenschutz', 'Ernst & Young: Senior Consultant', 'CSPi: Consultant Security und Datenschutz']) : (key === 'marcel' ? ['KPMG : Consultant à Senior Manager', 'Accenture : Senior Manager', 'Ernst & Young : Senior Manager'] : ['PwC : Manager, Cybersécurité et Protection des données', 'Ernst & Young : Senior Consultant', 'CSPi : Consultant Sécurité et Protection des données']) },
-              { title: t(`profiles.${key}.servTitle`), items: language === 'de' ? (key === 'marcel' ? ['Cybersecurity-Beratung und Audits', 'ISMS, TISAX, NIS-2, PCI-DSS Implementierung', 'Cyber-Krisenmanagement und Übungen', 'TIBER, BCM'] : ['Informationssicherheit, ISMS-Strategie', 'ISO/IEC 27001, PCI-DSS, NIST, TISAX', 'Risikomanagement, Business Continuity', 'EU-DSGVO, Kritische Infrastrukturen (KRITIS)']) : (key === 'marcel' ? ['Conseil et audits en cybersécurité', 'Implémentation SMSI, TISAX, NIS-2, PCI-DSS', 'Gestion de cyber-crise et exercices', 'TIBER, BCM'] : ['Sécurité de l\'information, Stratégie SMSI', 'ISO/IEC 27001, PCI-DSS, NIST, TISAX', 'Gestion des risques, Continuité d\'activité', 'RGPD UE, Infrastructures critiques (KRITIS)']) },
-              { title: t(`profiles.${key}.langTitle`), items: language === 'de' ? (key === 'marcel' ? ['Deutsch (Muttersprache)', 'Englisch (verhandlungssicher)'] : ['Deutsch (Muttersprache)', 'Englisch (verhandlungssicher)', 'Französisch (fachsprachlich)']) : (key === 'marcel' ? ['Allemand (langue maternelle)', 'Anglais (courant professionnel)'] : ['Allemand (langue maternelle)', 'Anglais (courant professionnel)', 'Français (professionnel)']) },
-            ],
-          };
-        }
-        return profile;
+        return {
+          ...profile,
+          sections: [
+            { title: t(`profiles.${key}.eduTitle`), items: tArray(`profiles.${key}.edu`) },
+            { title: t(`profiles.${key}.expTitle`), items: tArray(`profiles.${key}.exp`) },
+            { title: t(`profiles.${key}.servTitle`), items: tArray(`profiles.${key}.serv`) },
+            { title: t(`profiles.${key}.langTitle`), items: tArray(`profiles.${key}.lang`) },
+          ],
+        };
       });
       return (
         <TypedSection title={t('byWhom.title')} mode="typewriter" intro={<p>{t('byWhom.intro')}</p>}>
@@ -758,16 +703,8 @@ const useServiceContent = () => {
       </TypedSection>
     ),
     'tech-requirements': () => {
-      const systemItems = language === 'de'
-        ? ['Moderner Computer (Windows/Mac/Linux)', 'Mindestens 8GB RAM', 'Stabile Internetverbindung (10+ Mbps)', 'Mindestauflösung 1024×768', 'RDP-Client installiert']
-        : language === 'fr'
-        ? ['Ordinateur moderne (Windows/Mac/Linux)', '8 Go de RAM minimum', 'Internet stable (10+ Mbps)', 'Résolution minimum 1024×768', 'Client RDP installé']
-        : ['Modern computer (Windows/Mac/Linux)', '8GB RAM minimum', 'Stable internet (10+ Mbps)', '1024×768 resolution minimum', 'RDP client installed'];
-      const networkItems = language === 'de'
-        ? ['RDP: 7000–7020/TCP ausgehend', 'HTTPS: 443/TCP ausgehend', 'Keine eingehenden Verbindungen erforderlich', 'Konnektivität vorab testen']
-        : language === 'fr'
-        ? ['RDP : 7000–7020/TCP sortant', 'HTTPS : 443/TCP sortant', 'Aucune connexion entrante requise', 'Tester la connectivité au préalable']
-        : ['RDP: 7000–7020/TCP outbound', 'HTTPS: 443/TCP outbound', 'No inbound connections required', 'Test connectivity beforehand'];
+      const systemItems = tArray('techReq.systemItems');
+      const networkItems = tArray('techReq.networkItems');
       return (
         <TypedSection title={t('techReq.title')} mode="typewriter" charDelay={18} intro={<p>{t('techReq.intro')}</p>}>
           <div className="rounded-xl p-4 bg-primary/5 border border-primary/20">
@@ -807,6 +744,28 @@ const useServiceContent = () => {
 
 interface SidebarItem { id: string; icon: LucideIcon; label: string; }
 interface SidebarGroup { title: string; items: SidebarItem[]; }
+
+const SidebarItems = ({ groups, activeId, onSelect }: { groups: SidebarGroup[]; activeId: string | null; onSelect: (id: string) => void }) => (
+  <div className="flex-1 overflow-y-auto px-2 pb-4">
+    {groups.map((group) => (
+      <div key={group.title} className="mb-3">
+        <p className="px-2 py-1.5 text-xs font-rounded font-bold text-accent uppercase tracking-wider">{group.title}</p>
+        {group.items.map((item) => (
+          <button
+            key={item.id}
+            onClick={() => onSelect(item.id)}
+            className={`w-full flex items-center gap-2.5 rounded-lg px-3 py-1 text-left transition-electric group ${
+              activeId === item.id ? 'bg-highlight/10 text-highlight' : 'text-foreground hover:bg-highlight/5 hover:text-highlight'
+            }`}
+          >
+            <item.icon size={16} className={`flex-shrink-0 ${activeId === item.id ? 'text-highlight' : 'text-foreground/60 group-hover:text-highlight'}`} />
+            <span className="truncate font-rounded text-base">{item.label}</span>
+          </button>
+        ))}
+      </div>
+    ))}
+  </div>
+);
 
 const useSidebarGroups = (): SidebarGroup[] => {
   const { t } = useLanguage();
@@ -988,25 +947,7 @@ const ChatView = () => {
                 <X size={18} />
               </button>
             </div>
-            <div className="flex-1 overflow-y-auto px-2 pb-4">
-              {sidebarGroups.map((group) => (
-                <div key={group.title} className="mb-3">
-                  <p className="px-2 py-1.5 text-xs font-rounded font-bold text-accent uppercase tracking-wider">{group.title}</p>
-                  {group.items.map((item) => (
-                    <button
-                      key={item.id}
-                      onClick={() => selectService(item.id)}
-                      className={`w-full flex items-center gap-2.5 rounded-lg px-3 py-1 text-left transition-electric group ${
-                        activeService === item.id ? 'bg-highlight/10 text-highlight' : 'text-foreground hover:bg-highlight/5 hover:text-highlight'
-                      }`}
-                    >
-                      <item.icon size={16} className={`flex-shrink-0 ${activeService === item.id ? 'text-highlight' : 'text-foreground/60 group-hover:text-highlight'}`} />
-                      <span className="truncate font-rounded text-base">{item.label}</span>
-                    </button>
-                  ))}
-                </div>
-              ))}
-            </div>
+            <SidebarItems groups={sidebarGroups} activeId={activeService} onSelect={selectService} />
             <div className="border-t border-border p-3 flex items-center justify-center">
               <button onClick={() => setLanguage(nextLanguage(language))} className="rounded-lg border border-highlight/30 px-2.5 py-1.5 text-xs font-rounded font-bold text-highlight hover:bg-highlight/10 hover:border-highlight/50 transition-electric uppercase tracking-wider">
                 {language.toUpperCase()}
@@ -1026,25 +967,7 @@ const ChatView = () => {
                 {language.toUpperCase()}
               </button>
             </div>
-            <div className="flex-1 overflow-y-auto px-2 pb-4">
-              {sidebarGroups.map((group) => (
-                <div key={group.title} className="mb-3">
-                  <p className="px-2 py-1.5 text-xs font-rounded font-bold text-accent uppercase tracking-wider">{group.title}</p>
-                  {group.items.map((item) => (
-                    <button
-                      key={item.id}
-                      onClick={() => selectService(item.id)}
-                      className={`w-full flex items-center gap-2.5 rounded-lg px-3 py-1 text-left transition-electric group ${
-                        activeService === item.id ? 'bg-highlight/10 text-highlight' : 'text-foreground hover:bg-highlight/5 hover:text-highlight'
-                      }`}
-                    >
-                      <item.icon size={16} className={`flex-shrink-0 ${activeService === item.id ? 'text-highlight' : 'text-foreground/60 group-hover:text-highlight'}`} />
-                      <span className="truncate font-rounded text-base">{item.label}</span>
-                    </button>
-                  ))}
-                </div>
-              ))}
-            </div>
+            <SidebarItems groups={sidebarGroups} activeId={activeService} onSelect={selectService} />
           </div>
         </div>
       )}

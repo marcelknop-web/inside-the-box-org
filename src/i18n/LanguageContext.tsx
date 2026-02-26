@@ -13,14 +13,19 @@ interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
   t: (key: string) => string;
+  tArray: (key: string) => string[];
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 const translations: Record<Language, Translations> = { en, de, fr };
 
+function getNestedRaw(obj: any, path: string): any {
+  return path.split('.').reduce((acc, part) => acc?.[part], obj);
+}
+
 function getNestedValue(obj: any, path: string): string {
-  const val = path.split('.').reduce((acc, part) => acc?.[part], obj);
+  const val = getNestedRaw(obj, path);
   return typeof val === 'string' ? val : path;
 }
 
@@ -39,8 +44,13 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
     return getNestedValue(translations[language], key);
   };
 
+  const tArray = (key: string): string[] => {
+    const val = getNestedRaw(translations[language], key);
+    return Array.isArray(val) ? val : [];
+  };
+
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, t }}>
+    <LanguageContext.Provider value={{ language, setLanguage, t, tArray }}>
       {children}
     </LanguageContext.Provider>
   );
