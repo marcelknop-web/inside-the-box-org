@@ -332,6 +332,8 @@ export const fr = {
     workshopsDescShort: 'Sessions interactives avec objectifs définis et résultats mesurables.',
     seminars: 'Séminaires',
     seminarsDesc: 'Programmes de formation ciblés – de la technique au management.',
+    isacaTitle: 'Certificat ISACA CSE',
+    isacaDesc: 'Formation certifiante Cyber Security Expert (CSE) – en coopération avec ISACA Germany.',
   },
   publications: {
     title: 'Publications & Formation',
