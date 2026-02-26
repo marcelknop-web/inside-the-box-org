@@ -255,7 +255,7 @@ const useServiceContent = () => {
 
   const contentMap: Record<string, () => ReactNode> = {
     isms: () => (
-      <TypedSection title={t('isms.title')} mode="typewriter" intro={<><p className="text-muted-foreground italic font-mono text-sm mb-3">{t('isms.subtitle')}</p><p>{t('isms.intro')}</p></>}>
+      <TypedSection title={t('isms.title')} mode="typewriter" intro={<p>{t('isms.subtitle')} — {t('isms.intro')}</p>}>
         <CardBlock icon={ShieldCheck} title={t('isms.iso27001Title')} desc={t('isms.iso27001Desc')} />
         <CardBlock icon={FileText} title={t('isms.bsiTitle')} desc={t('isms.bsiDesc')} />
         <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
@@ -992,10 +992,10 @@ const ChatView = () => {
                 </h1>
               </button>
               {/* Animated hero content */}
-              <div className="flex flex-col items-center">
+              <div className="flex flex-col items-center w-full">
                 {/* Claim – scramble decode reveal */}
-                <button onClick={() => setSidebarOpen(true)} className="cursor-pointer bg-transparent border-none p-0 transition-electric" style={{ marginBottom: '32px' }}>
-                  <p className="font-mono font-semibold text-center uppercase" style={{ fontSize: 'clamp(1.0rem, 2.8vw, 1.25rem)', letterSpacing: '0.12em', color: '#ffffff' }}>
+                <button onClick={() => setSidebarOpen(true)} className="cursor-pointer bg-transparent border-none p-0 w-full text-center transition-electric" style={{ marginBottom: '32px' }}>
+                  <p className="font-mono font-semibold text-center uppercase" style={{ fontSize: 'clamp(0.85rem, 2.8vw, 1.25rem)', letterSpacing: '0.12em', color: '#ffffff' }}>
                     <Typewriter text={t('welcome.heroClaim')} mode="scramble" delay={2200} charDelay={18} cursor={false} onDone={() => setClaimDone(true)} />
                   </p>
                 </button>
@@ -1008,12 +1008,12 @@ const ChatView = () => {
                     transition: 'opacity 600ms ease-out, transform 600ms ease-out',
                   }}
                 >
-                  <button onClick={() => setSidebarOpen(true)} className="cursor-pointer bg-transparent border-none p-0 w-full transition-electric" style={{ marginBottom: '16px' }}>
+                  <button onClick={() => setSidebarOpen(true)} className="cursor-pointer bg-transparent border-none p-0 w-full text-center transition-electric" style={{ marginBottom: '16px' }}>
                     <p className="font-mono text-center" style={{ fontSize: 'clamp(0.85rem, 2vw, 1.0rem)', letterSpacing: '0.02em', color: 'rgba(255,255,255,0.72)' }}>
                       {t('welcome.heroSubtitle')}
                     </p>
                   </button>
-                  <button onClick={() => setSidebarOpen(true)} className="cursor-pointer bg-transparent border-none p-0 w-full transition-electric">
+                  <button onClick={() => setSidebarOpen(true)} className="cursor-pointer bg-transparent border-none p-0 w-full text-center transition-electric">
                     <p className="font-mono text-center" style={{ fontSize: 'clamp(0.75rem, 1.8vw, 0.88rem)', letterSpacing: '0.02em', color: 'rgba(255,255,255,0.58)' }}>
                       {t('welcome.heroSignature')}
                     </p>
