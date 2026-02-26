@@ -331,11 +331,15 @@ const useServiceContent = () => {
     ),
     'incident-management': () => (
       <TypedSection title={t('incident.title')} mode="typewriter" intro={<p>{t('incident.intro')}</p>}>
-        <CardBlock icon={FileText} title={t('incident.planTitle')} desc={t('incident.planDesc')} />
-        <CardBlock icon={Eye} title={t('incident.detectionTitle')} desc={t('incident.detectionDesc')} variant="highlight" />
-        <CardBlock icon={AlertTriangle} title={t('incident.containTitle')} desc={t('incident.containDesc')} />
-        <CardBlock icon={RefreshCw} title={t('incident.recoveryTitle')} desc={t('incident.recoveryDesc')} variant="highlight" />
-        <CardBlock icon={GraduationCap} title={t('incident.simTitle')} desc={t('incident.simDesc')} />
+        <Block className="bg-primary/5 border border-primary/20 rounded-xl">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <GridItem icon={ShieldCheck} title={t('incident.step1Title')} desc={t('incident.step1Desc')} />
+            <GridItem icon={Eye} title={t('incident.step2Title')} desc={t('incident.step2Desc')} />
+            <GridItem icon={AlertTriangle} title={t('incident.step3Title')} desc={t('incident.step3Desc')} />
+            <GridItem icon={RefreshCw} title={t('incident.step4Title')} desc={t('incident.step4Desc')} />
+            <GridItem icon={GraduationCap} title={t('incident.step5Title')} desc={t('incident.step5Desc')} />
+          </div>
+        </Block>
       </TypedSection>
     ),
     'cyber-crisis-management': () => (
