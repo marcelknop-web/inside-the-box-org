@@ -227,7 +227,7 @@ export const de = {
   cyberCrisis: {
     title: 'Cyber-Krisenmanagement',
     metaDesc: 'Krisenfähigkeit durch Struktur, Entscheidungsklarheit und realistische Belastungstests.',
-    intro: 'Krisenfähigkeit durch Struktur, Entscheidungsklarheit und realistische Belastungstests – nicht Ordner, die unberührt bleiben.',
+    intro: 'Krisenfähigkeit durch Struktur, Entscheidungsklarheit und realistische Belastungstests – nicht Ordner, die keiner kennt.',
     planTitle: 'Governance & Vorbereitung',
     planDesc: 'Definierte Governance-Strukturen, Eskalationsschwellen und Entscheidungsbefugnisse, bevor der Druck kommt. Klarheit darüber, wer was entscheidet – und mit welchem Mandat.',
     scenarioTitle: 'Szenarioentwicklung',
