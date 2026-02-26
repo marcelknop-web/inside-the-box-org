@@ -246,36 +246,36 @@
 /* Mobile typography (max-width: 640px) */
 @media (max-width: 640px) {
   body {
-    font-size: 15px;
+    font-size: 16px;
   }
 
   /* Navigation items */
   nav a, nav button {
-    font-size: 14px;
+    font-size: 15px;
   }
 
   /* Card headings */
   .card-electric h3,
   .card-electric h4,
   [class*="CardTitle"] {
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 500;
   }
 
   /* Body text */
   p, li, span {
-    font-size: 14px;
-    line-height: 1.65;
+    font-size: 15px;
+    line-height: 1.7;
   }
 
   /* Labels / meta (monospace) */
   .font-mono, code, [class*="mono"] {
-    font-size: 12px;
-    letter-spacing: 0.06em;
+    font-size: 13px;
+    letter-spacing: 0.05em;
   }
 
   /* Result lines */
   .result-line {
-    font-size: 12px;
+    font-size: 13px;
   }
 }
