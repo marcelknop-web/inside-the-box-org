@@ -166,7 +166,7 @@ export const en = {
     partisName: 'PART-IS',
     partisDesc: 'Proportionate, risk-based IS compliance in the EASA context.\n\nHands-on project experience implementing PART-IS requirements – not theoretical derivation.',
     doraCheckTitle: 'Try it – DORA Reporting Obligation Check',
-    doraCheckDesc: 'Test your incident reporting capability under realistic conditions.',
+    doraCheckDesc: 'DORA quick check of reporting capability',
   },
   tisax: {
     title: 'TISAX, PCI-DSS',
