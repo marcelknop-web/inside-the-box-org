@@ -282,9 +282,11 @@ const useServiceContent = () => {
       <TypedSection title={t('nis2.title')} mode="typewriter" intro={<p>{t('nis2.intro')}</p>}>
         <Block className="bg-primary/5 border border-primary/20 rounded-xl">
           <SubTitle>{t('nis2.approachTitle')}</SubTitle>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
             <GridItem icon={Search} title={t('nis2.step1Title')} desc={t('nis2.step1Desc')} />
             <GridItem icon={AlertCircle} title={t('nis2.step2Title')} desc={t('nis2.step2Desc')} />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
             <GridItem icon={ShieldCheck} title={t('nis2.step3Title')} desc={t('nis2.step3Desc')} />
           </div>
         </Block>
