@@ -581,13 +581,6 @@ const useServiceContent = () => {
                 <p className="text-foreground/80 text-xs">{t('aiWorkflows.agentNis2QuizDesc')}</p>
               </div>
             </button>
-            <button onClick={() => { setActive(''); }} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
-              <MessageSquare size={20} className="text-highlight mt-0.5 flex-shrink-0" />
-              <div>
-                <p className="text-highlight font-semibold font-mono text-sm">{t('aiWorkflows.agentChatTitle')}</p>
-                <p className="text-foreground/80 text-xs">{t('aiWorkflows.agentChatDesc')}</p>
-              </div>
-            </button>
             <button onClick={() => setYtDialogOpen(true)} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
               <Play size={20} className="text-highlight mt-0.5 flex-shrink-0" />
               <div>
