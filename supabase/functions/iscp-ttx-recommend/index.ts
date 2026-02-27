@@ -29,7 +29,6 @@ Analysiere die ISCP-Scores und antworte KURZ und PRÄGNANT:
 
 1. **Priorisierung** — Liste die ISCPs nach Dringlichkeit. Pro ISCP maximal 5 Wörter Begründung.
 2. **Szenario** — Ein realistisches Angriffsszenario in 3–4 Sätzen, das die kritischsten ISCPs abdeckt.
-3. **Möglicher nächster Schritt** — Eine vorsichtige Empfehlung in 1–2 Sätzen. Formuliere zurückhaltend, da dir möglicherweise wichtiger Kontext fehlt. Nutze Formulierungen wie „könnte sinnvoll sein", „wäre zu prüfen" oder „je nach Kontext".
 
 Keine langen Erklärungen. Keine Maturity-Level-Analyse. Verwende → als Aufzählungszeichen, KEINE * oder - Bullets.
 ${langMap[language] || langMap.de}`;
