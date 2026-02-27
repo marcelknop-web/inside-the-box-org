@@ -6,6 +6,11 @@ import { useLanguage } from '@/i18n/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Sparkles, RotateCcw, CheckCircle2, AlertTriangle, XCircle, Plus, X, ChevronDown, ChevronUp } from 'lucide-react';
 
+const DEFAULT_ISCPS = [
+  'E-Mail & Kommunikation', 'Identitäts- & Zugriffsmanagement',
+  'Cloud-Dienste', 'Backup & Recovery', 'Patch-Management',
+];
+
 type Level = -1 | 0 | 1 | 2 | 3;
 
 interface CriteriaRatings {
@@ -87,7 +92,7 @@ function useCriteria(t: (key: string) => string) {
 }
 
 export default function IspcTtxPrioritizer({ embedded = false }: { embedded?: boolean }) {
-  const { language, t, tArray } = useLanguage();
+  const { language, t } = useLanguage();
   const [entries, setEntries] = useState<IscpEntry[]>([]);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [showResult, setShowResult] = useState(false);
@@ -96,14 +101,14 @@ export default function IspcTtxPrioritizer({ embedded = false }: { embedded?: bo
   const [newIscp, setNewIscp] = useState('');
 
   const criteria = useCriteria(t);
-  const defaultIscps = tArray('iscp.defaultIscps');
+  
 
   useEffect(() => {
     try {
       const stored = localStorage.getItem(LS_KEY);
       if (stored) setEntries(JSON.parse(stored));
-      else setEntries(defaultIscps.map(name => ({ name, criteria: emptyCriteria() })));
-    } catch { setEntries(defaultIscps.map(name => ({ name, criteria: emptyCriteria() }))); }
+      else setEntries(DEFAULT_ISCPS.map(name => ({ name, criteria: emptyCriteria() })));
+    } catch { setEntries(DEFAULT_ISCPS.map(name => ({ name, criteria: emptyCriteria() }))); }
   }, []);
 
   useEffect(() => {
@@ -133,7 +138,8 @@ export default function IspcTtxPrioritizer({ embedded = false }: { embedded?: bo
   const medCount = sorted.filter(r => r.score >= 1.5 && r.score < 2.5).length;
 
   const restart = () => {
-    setEntries(defaultIscps.map(name => ({ name, criteria: emptyCriteria() })));
+    setEntries(DEFAULT_ISCPS.map(name => ({ name, criteria: emptyCriteria() })));
+    localStorage.removeItem(LS_KEY);
     setShowResult(false);
     setAiResult('');
     setExpanded(null);
@@ -260,7 +266,7 @@ export default function IspcTtxPrioritizer({ embedded = false }: { embedded?: bo
           const done = completeness(e.criteria);
           const score = calcScore(e.criteria);
           const sc = score > 0 ? scoreColor(score) : null;
-          const isCustom = !defaultIscps.includes(e.name);
+          const isCustom = !DEFAULT_ISCPS.includes(e.name);
 
           return (
             <div key={e.name} className="bg-card border border-border rounded-lg overflow-hidden">
