@@ -844,7 +844,6 @@ const useSidebarGroups = (): SidebarGroup[] => {
       items: [
         { id: 'why', icon: Target, label: t('nav.cyberTrainingRange') },
         { id: 'training', icon: Swords, label: t('nav.crisisExercises') },
-        { id: 'events-workshops', icon: Calendar, label: t('nav.workshops') },
         { id: 'crisis-sim', icon: AlertTriangle, label: t('nav.tryIt') },
       ],
     },
@@ -876,7 +875,7 @@ const useSidebarGroups = (): SidebarGroup[] => {
       title: t('nav.groupInsights'),
       items: [
         { id: 'publications', icon: FileText, label: t('nav.publications') },
-        { id: 'events-workshops', icon: Calendar, label: t('nav.events') },
+        { id: 'events-workshops', icon: Calendar, label: t('nav.eventsWorkshops') },
       ],
     },
     {
