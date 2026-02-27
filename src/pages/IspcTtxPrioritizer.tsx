@@ -9,9 +9,7 @@ import { Sparkles, RotateCcw, CheckCircle2, AlertTriangle, XCircle, Plus, X, Che
 const DEFAULT_ISCPS = [
   'E-Mail & Kommunikation', 'Endgeräte-Management', 'Identitäts- & Zugriffsmanagement',
   'Firewall & Perimeter', 'VPN & Remote-Zugang', 'Cloud-Dienste',
-  'Backup & Recovery', 'Privilegierte Zugänge (PAM)', 'Multi-Faktor-Authentifizierung',
-  'Patch-Management', 'Netzwerk-Infrastruktur', 'Dateiablage & Kollaboration',
-  'Virtualisierung', 'Zertifikats-Management (PKI)',
+  'Backup & Recovery', 'Patch-Management',
 ];
 
 type Level = 0 | 1 | 2 | 3; // 0=unbewertet
