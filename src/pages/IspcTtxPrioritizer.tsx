@@ -36,9 +36,9 @@ const CRITERIA = [
 ];
 
 const LEVEL_CONFIG: Record<number, { label: string; color: string; bg: string; border: string }> = {
-  1: { label: 'Niedrig', color: 'text-[#22c55e]', bg: 'bg-[#22c55e]/15', border: 'border-[#22c55e]/40' },
-  2: { label: 'Mittel', color: 'text-[#f59e0b]', bg: 'bg-[#f59e0b]/15', border: 'border-[#f59e0b]/40' },
-  3: { label: 'Hoch', color: 'text-[#ef4444]', bg: 'bg-[#ef4444]/15', border: 'border-[#ef4444]/40' },
+  1: { label: 'Niedrig', color: 'text-primary', bg: 'bg-primary/10', border: 'border-primary/30' },
+  2: { label: 'Mittel', color: 'text-primary', bg: 'bg-primary/20', border: 'border-primary/50' },
+  3: { label: 'Hoch', color: 'text-primary', bg: 'bg-primary/30', border: 'border-primary/70' },
 };
 
 const SCORE_ICONS = { low: CheckCircle2, med: AlertTriangle, high: XCircle };
