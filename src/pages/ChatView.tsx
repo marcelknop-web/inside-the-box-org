@@ -461,7 +461,7 @@ const useServiceContent = () => {
               <div className="space-y-1 min-w-0">
                 <p className="font-semibold text-sm md:text-base font-sans text-primary group-hover:underline">{t('events.upcomingIsacaCse')}</p>
                 <p className="text-highlight text-sm font-mono font-semibold">{t('events.upcomingIsacaCseDate')}</p>
-                <p className="text-foreground/70 text-xs font-mono">{t('events.upcomingIsacaCseLocation')} · {t('events.upcomingIsacaCsePrice')}</p>
+                <p className="text-foreground/70 text-xs font-mono">{t('events.upcomingIsacaCseLocation')}</p>
                 <p className="text-primary text-xs font-mono mt-1">{t('events.upcomingIsacaCseLink')}</p>
               </div>
             </a>
@@ -470,7 +470,7 @@ const useServiceContent = () => {
               <div className="space-y-1 min-w-0">
                 <p className="font-semibold text-sm md:text-base font-sans text-primary group-hover:underline">{t('events.upcomingBechtleSoc')}</p>
                 <p className="text-highlight text-sm font-mono font-semibold">{t('events.upcomingBechtleSocDate')}</p>
-                <p className="text-foreground/70 text-xs font-mono">{t('events.upcomingBechtleSocLocation')} · {t('events.upcomingBechtleSocPrice')}</p>
+                <p className="text-foreground/70 text-xs font-mono">{t('events.upcomingBechtleSocLocation')}</p>
                 <p className="text-primary text-xs font-mono mt-1">{t('events.upcomingBechtleSocLink')}</p>
               </div>
             </a>
