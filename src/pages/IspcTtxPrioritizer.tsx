@@ -6,10 +6,27 @@ import { useLanguage } from '@/i18n/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Sparkles, RotateCcw, CheckCircle2, AlertTriangle, XCircle, Plus, X, ChevronDown, ChevronUp } from 'lucide-react';
 
-const DEFAULT_ISCPS = [
-  'E-Mail & Kommunikation', 'Identitäts- & Zugriffsmanagement',
-  'Cloud-Dienste', 'Backup & Recovery', 'Patch-Management',
-];
+// All default ISCP names across languages, indexed by position
+const DEFAULT_NAMES_BY_LANG: Record<string, string[]> = {
+  de: ['E-Mail & Kommunikation', 'Identitäts- & Zugriffsmanagement', 'Cloud-Dienste', 'Backup & Recovery', 'Patch-Management'],
+  en: ['Email & Communication', 'Identity & Access Management', 'Cloud Services', 'Backup & Recovery', 'Patch Management'],
+  fr: ['E-mail & Communication', 'Gestion des identités & accès', 'Services cloud', 'Sauvegarde & Restauration', 'Gestion des correctifs'],
+};
+const ALL_DEFAULT_NAMES = new Set(Object.values(DEFAULT_NAMES_BY_LANG).flat());
+
+function translateDefaults(entries: IscpEntry[], targetLang: string): IscpEntry[] {
+  const target = DEFAULT_NAMES_BY_LANG[targetLang] || DEFAULT_NAMES_BY_LANG.en;
+  // Build reverse lookup: any default name → its index
+  const nameToIndex: Record<string, number> = {};
+  for (const names of Object.values(DEFAULT_NAMES_BY_LANG)) {
+    names.forEach((n, i) => { nameToIndex[n] = i; });
+  }
+  return entries.map(e => {
+    const idx = nameToIndex[e.name];
+    if (idx !== undefined && target[idx]) return { ...e, name: target[idx] };
+    return e;
+  });
+}
 
 type Level = -1 | 0 | 1 | 2 | 3;
 
@@ -137,7 +154,7 @@ function useCriteria(t: (key: string) => string) {
 }
 
 export default function IspcTtxPrioritizer({ embedded = false }: { embedded?: boolean }) {
-  const { language, t } = useLanguage();
+  const { language, t, tArray } = useLanguage();
   const [entries, setEntries] = useState<IscpEntry[]>([]);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [showResult, setShowResult] = useState(false);
@@ -146,15 +163,18 @@ export default function IspcTtxPrioritizer({ embedded = false }: { embedded?: bo
   const [newIscp, setNewIscp] = useState('');
 
   const criteria = useCriteria(t);
-  
+  const defaultIscps = DEFAULT_NAMES_BY_LANG[language] || DEFAULT_NAMES_BY_LANG.en;
 
   useEffect(() => {
     try {
       const stored = localStorage.getItem(LS_KEY);
-      if (stored) setEntries(JSON.parse(stored));
-      else setEntries(DEFAULT_ISCPS.map(name => ({ name, criteria: emptyCriteria() })));
-    } catch { setEntries(DEFAULT_ISCPS.map(name => ({ name, criteria: emptyCriteria() }))); }
-  }, []);
+      if (stored) {
+        setEntries(translateDefaults(JSON.parse(stored), language));
+      } else {
+        setEntries(defaultIscps.map(name => ({ name, criteria: emptyCriteria() })));
+      }
+    } catch { setEntries(defaultIscps.map(name => ({ name, criteria: emptyCriteria() }))); }
+  }, [language]);
 
   useEffect(() => {
     if (entries.length) localStorage.setItem(LS_KEY, JSON.stringify(entries));
@@ -183,7 +203,7 @@ export default function IspcTtxPrioritizer({ embedded = false }: { embedded?: bo
   const medCount = sorted.filter(r => r.score >= 1.5 && r.score < 2.5).length;
 
   const restart = () => {
-    setEntries(DEFAULT_ISCPS.map(name => ({ name, criteria: emptyCriteria() })));
+    setEntries(defaultIscps.map(name => ({ name, criteria: emptyCriteria() })));
     localStorage.removeItem(LS_KEY);
     setShowResult(false);
     setAiResult('');
@@ -311,7 +331,7 @@ export default function IspcTtxPrioritizer({ embedded = false }: { embedded?: bo
           const done = completeness(e.criteria);
           const score = calcScore(e.criteria);
           const sc = score > 0 ? scoreColor(score) : null;
-          const isCustom = !DEFAULT_ISCPS.includes(e.name);
+          const isCustom = !ALL_DEFAULT_NAMES.has(e.name);
 
           return (
             <div key={e.name} className="bg-card border border-border rounded-lg overflow-hidden">
