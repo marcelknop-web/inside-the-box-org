@@ -448,7 +448,7 @@ export const de = {
     contact: 'Kontakt',
   },
   welcome: {
-    title: 'inside-the-box',
+    title: 'inside-the-box.org',
     headerTitle: 'inside-the-box.org',
     heroSubtitle: 'Cybersecurity Consulting',
     heroClaim: 'Analyse. Training. Umsetzung.',
