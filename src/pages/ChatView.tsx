@@ -15,6 +15,7 @@ import ArtificialStressSimulator from './ArtificialStressSimulator';
 import TisaxAssessmentClassifier from './TisaxAssessmentClassifier';
 import PciDssSaqNavigator from './PciDssSaqNavigator';
 import IspcTtxPrioritizer from './IspcTtxPrioritizer';
+import Nis2AwarenessQuiz from './Nis2AwarenessQuiz';
 import { StaggerReveal } from '@/components/StaggerReveal';
 import GlitchText from '@/components/GlitchText';
 import Typewriter from '@/components/Typewriter';
@@ -573,6 +574,13 @@ const useServiceContent = () => {
                 <p className="text-foreground/80 text-xs">{t('aiWorkflows.agentPciDesc')}</p>
               </div>
             </button>
+            <button onClick={() => setActive('nis2-quiz')} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
+              <Scale size={20} className="text-highlight mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="text-highlight font-semibold font-mono text-sm">NIS-2 Awareness Quiz</p>
+                <p className="text-foreground/80 text-xs">{t('aiWorkflows.agentNis2QuizDesc')}</p>
+              </div>
+            </button>
             <button onClick={() => { setActive(''); }} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
               <MessageSquare size={20} className="text-highlight mt-0.5 flex-shrink-0" />
               <div>
@@ -1018,6 +1026,8 @@ const ChatView = () => {
     ? <PciDssSaqNavigator embedded />
     : activeService === 'ttx-check'
     ? <IspcTtxPrioritizer embedded />
+    : activeService === 'nis2-quiz'
+    ? <Nis2AwarenessQuiz embedded />
     : activeService === 'system-check'
     ? <InlineSystemCheck t={t} />
     : activeService && contentMap[activeService] ? contentMap[activeService]() : null;

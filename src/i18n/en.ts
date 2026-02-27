@@ -302,6 +302,7 @@ export const en = {
     agentTisaxDesc: 'Assessment and classification assistant per VDA ISA',
     agentPciDesc: 'SAQ type determination per PCI DSS v4.0',
     agentTtxDesc: 'ISCP prioritization for tabletop exercises',
+    agentNis2QuizDesc: 'Knowledge test on the NIS-2 directive',
     agentYtTitle: 'Realistic Injects for Crisis Exercises',
     agentYtDesc: 'AI-generated video scenarios for immersive exercises',
   },

@@ -52,6 +52,9 @@ An interactive AI-powered wizard that determines the correct PCI-DSS Self-Assess
 ## ARTIFICIAL STRESS SIMULATOR (/matrix)
 A "Hard Mode" ambient stress environment with Matrix-style visual rain effect and optional audio soundscape. Used as an add-on during the Cyber Crisis Simulator to increase pressure and simulate realistic crisis conditions.
 
+## NIS-2 AWARENESS QUIZ (/nis2-quiz)
+An interactive quiz with 10 randomly selected questions (from a pool of 15) about the NIS-2 directive. The questions are designed to go beyond basic knowledge – covering topics like entity classification, reporting obligations, management liability, supply chain security, sanctions, ENISA's role, and the relationship between NIS-2 and GDPR. Each question includes a detailed explanation after answering. Available in German, English, and French.
+
 ## ARENA TRAINING, TIBER TEST (/arena-training)
 Advanced threat intelligence-based ethical red teaming and cyber training programs.
 Arena Training: Hands-on training in realistic attack environments – host and network-based attack analysis, live SIEM monitoring, and detection evasion techniques from both sides of the kill chain.
@@ -163,7 +166,7 @@ Data protection: Use of published contact data for unsolicited advertising is pr
 === END KNOWLEDGE BASE ===
 
 Available pages for links:
-/why, /training, /tech-requirements, /arena-training, /events-workshops, /consulting, /isms, /nis2-dora, /tisax-pci-dss, /assessments-concepts, /incident-management, /cyber-crisis-management, /virtual-ciso, /ai-workflows, /by-whom, /contact, /publications, /imprint, /crisis, /ki-workflows, /pci-check, /matrix
+/why, /training, /tech-requirements, /arena-training, /events-workshops, /consulting, /isms, /nis2-dora, /tisax-pci-dss, /assessments-concepts, /incident-management, /cyber-crisis-management, /virtual-ciso, /ai-workflows, /by-whom, /contact, /publications, /imprint, /crisis, /ki-workflows, /pci-check, /matrix, /nis2-quiz
 
 ALWAYS respond in the following JSON format (no Markdown, no code blocks):
 {"message": "Your short, friendly answer", "links": [{"url": "/page", "label": "Page Name"}]}
