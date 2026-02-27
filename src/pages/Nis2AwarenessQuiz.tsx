@@ -592,24 +592,25 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
         <PageMeta title="NIS-2 Awareness Quiz" description="NIS-2 Awareness Quiz" />
         <div className="text-center space-y-6 max-w-md">
           <div className="text-5xl animate-bounce">💎</div>
-          <h1 className="text-2xl md:text-3xl font-bold text-primary font-mono">NIS-2 Awareness Quiz</h1>
-          <p className="text-foreground/80 text-sm font-mono leading-relaxed">{t(I18N.intro)}</p>
+           <h1 className="text-2xl md:text-3xl font-bold text-primary font-mono tracking-wide">NIS-2 Awareness Quiz</h1>
+          <p className="text-foreground/80 text-sm leading-relaxed">{t(I18N.intro)}</p>
           
           {/* Personal best display */}
           {bestScore > 0 && (
-            <div className="flex items-center justify-center gap-2 text-highlight font-mono text-sm">
+             <div className="flex items-center justify-center gap-2 text-highlight text-sm">
               <Star size={14} className="fill-highlight" />
-              <span>{t({ de: 'Persönlicher Rekord', en: 'Personal Best', fr: 'Record personnel' })}: {bestScore}/{QUIZ_SIZE}</span>
+              <span className="font-mono">{bestScore}/{QUIZ_SIZE}</span>
+              <span>{t({ de: 'Persönlicher Rekord', en: 'Personal Best', fr: 'Record personnel' })}</span>
             </div>
           )}
           
-          <button onClick={() => setStarted(true)} className="px-8 py-4 font-mono text-lg border-2 border-primary/60 bg-primary/10 text-primary rounded-lg transition-electric hover:bg-primary/20 hover:border-primary hover:shadow-[var(--shadow-electric)] flex items-center gap-3 mx-auto group">
+          <button onClick={() => setStarted(true)} className="px-8 py-4 text-lg font-semibold border-2 border-primary/60 bg-primary/10 text-primary rounded-lg transition-electric hover:bg-primary/20 hover:border-primary hover:shadow-[var(--shadow-electric)] flex items-center gap-3 mx-auto group">
             <span className="group-hover:scale-110 transition-transform">{t(I18N.start)}</span>
           </button>
           
           {/* Teaser stats */}
-          <div className="flex items-center justify-center gap-4 text-muted-foreground text-xs font-mono">
-            <span className="flex items-center gap-1"><Clock size={12} /> {QUESTION_TIME}s/{t({ de: 'Frage', en: 'question', fr: 'question' })}</span>
+           <div className="flex items-center justify-center gap-4 text-muted-foreground text-xs">
+            <span className="flex items-center gap-1"><Clock size={12} /> <span className="font-mono">{QUESTION_TIME}s</span>/{t({ de: 'Frage', en: 'question', fr: 'question' })}</span>
             <span className="flex items-center gap-1"><Flame size={12} /> {t({ de: 'Streak-Bonus', en: 'Streak bonus', fr: 'Bonus série' })}</span>
             <span className="flex items-center gap-1"><Zap size={12} /> {t({ de: 'Speed-Bonus', en: 'Speed bonus', fr: 'Bonus vitesse' })}</span>
           </div>
@@ -631,7 +632,7 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
     return (
       <div className={wrapperClass}>
         <PageMeta title="NIS-2 Awareness Quiz" description="NIS-2 Awareness Quiz" />
-        <h1 className={`${embedded ? 'text-lg' : 'text-2xl md:text-3xl'} font-bold text-primary font-mono mb-3`}>
+        <h1 className={`${embedded ? 'text-lg' : 'text-2xl md:text-3xl'} font-bold text-primary font-mono tracking-wide mb-3`}>
           <Typewriter text={t(I18N.title)} charDelay={8} />
         </h1>
         <StaggerReveal stagger={400}>
@@ -655,29 +656,29 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
               </div>
             )}
             <div className="text-4xl mb-3">{won ? '🏆' : (timeRanOut ? '⏰' : '💔')}</div>
-            <h2 className={`text-xl md:text-2xl font-mono font-bold ${won ? 'text-primary' : 'text-[hsl(0,75%,55%)]'}`}>
+            <h2 className={`text-xl md:text-2xl font-bold ${won ? 'text-primary' : 'text-[hsl(0,75%,55%)]'}`}>
               {won ? t(I18N.won) : (timeRanOut ? t({ de: 'Zeit abgelaufen!', en: 'Time\'s up!', fr: 'Temps écoulé !' }) : t(I18N.gameOver))}
             </h2>
             <div className="mt-4 space-y-1">
-              <p className="text-foreground/60 text-xs font-mono uppercase tracking-wider">
+               <p className="text-foreground/60 text-xs uppercase tracking-wider">
                 {won ? t(I18N.reached) : t(I18N.secured)}
               </p>
               <p className="text-3xl font-mono font-bold text-primary">€ {won ? '64.000' : finalAmount}</p>
               {!won && (
-                <p className="text-foreground/50 text-xs font-mono">
-                  {t(I18N.reached)}: € {MONEY_LEVELS[currentQ]} · {t(I18N.secured)}: € {finalAmount}
+                <p className="text-foreground/50 text-xs">
+                  {t(I18N.reached)}: <span className="font-mono">€ {MONEY_LEVELS[currentQ]}</span> · {t(I18N.secured)}: <span className="font-mono">€ {finalAmount}</span>
                 </p>
               )}
             </div>
             
             {/* Stats row */}
-            <div className="mt-4 flex items-center justify-center gap-4 text-xs font-mono">
+             <div className="mt-4 flex items-center justify-center gap-4 text-xs">
               <span className="flex items-center gap-1 text-primary">
-                <CheckCircle2 size={12} /> {score}/{QUIZ_SIZE}
+                <CheckCircle2 size={12} /> <span className="font-mono">{score}/{QUIZ_SIZE}</span>
               </span>
               {speedBonuses > 0 && (
                 <span className="flex items-center gap-1 text-highlight">
-                  <Zap size={12} /> {speedBonuses}x {t({ de: 'Speed', en: 'Speed', fr: 'Vitesse' })}
+                  <Zap size={12} /> <span className="font-mono">{speedBonuses}x</span> {t({ de: 'Speed', en: 'Speed', fr: 'Vitesse' })}
                 </span>
               )}
               {isNewBest && score > 0 && (
@@ -691,7 +692,7 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
           {/* Last question explanation */}
           {!won && !timeRanOut && (
             <div className="bg-highlight/5 border border-highlight/20 rounded-lg p-5">
-              <p className="text-foreground/60 text-xs font-mono mb-2">{q.question[lang] || q.question.en}</p>
+              <p className="text-foreground/60 text-xs mb-2">{q.question[lang] || q.question.en}</p>
               <div className="flex items-start gap-2">
                 <XCircle className="w-4 h-4 text-[hsl(0,75%,55%)] mt-0.5 flex-shrink-0" />
                 <p className="text-foreground/80 text-sm leading-relaxed">{q.explanation[lang] || q.explanation.en}</p>
@@ -701,18 +702,18 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
 
           {/* Challenge to beat score */}
           <div className="text-center">
-            <p className="text-muted-foreground text-xs font-mono mb-3">
+            <p className="text-muted-foreground text-xs mb-3">
               {won
                 ? t({ de: 'Kannst du es nochmal schaffen?', en: 'Can you do it again?', fr: 'Pouvez-vous recommencer ?' })
                 : t({ de: `Nur ${FAKE_DIFFICULTY[q.id] || 50}% beantworten diese Frage richtig.`, en: `Only ${FAKE_DIFFICULTY[q.id] || 50}% answer this question correctly.`, fr: `Seulement ${FAKE_DIFFICULTY[q.id] || 50}% répondent correctement.` })
               }
             </p>
-            <Button onClick={restart} variant="outline" className="border-highlight/30 text-highlight hover:bg-highlight/10 hover:border-highlight/50 font-mono">
+            <Button onClick={restart} variant="outline" className="border-highlight/30 text-highlight hover:bg-highlight/10 hover:border-highlight/50 font-medium">
               <RotateCcw className="w-4 h-4 mr-2" /> {t(I18N.restart)}
             </Button>
           </div>
 
-          <p className="text-muted-foreground text-xs text-center italic">{t(I18N.disclaimer)}</p>
+          <p className="text-muted-foreground text-[11px] text-center italic">{t(I18N.disclaimer)}</p>
         </StaggerReveal>
       </div>
     );
@@ -732,12 +733,12 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
       {/* ── Top HUD bar ── */}
       <div className="mb-4 space-y-2">
         <div className="flex items-center justify-between">
-          <h1 className={`${embedded ? 'text-lg' : 'text-xl md:text-2xl'} font-bold text-primary font-mono`}>
+          <h1 className={`${embedded ? 'text-lg' : 'text-xl md:text-2xl'} font-bold text-primary font-mono tracking-wide`}>
             <Typewriter text={t(I18N.title)} charDelay={8} />
           </h1>
           {/* Streak indicator */}
           {streak > 1 && (
-            <div className="flex items-center gap-1 text-primary font-mono text-sm font-bold animate-pulse">
+            <div className="flex items-center gap-1 text-primary text-sm font-bold animate-pulse">
               <Flame size={16} className={`${streak >= 5 ? 'text-[hsl(15,90%,55%)]' : 'text-primary'}`} />
               <span>{streak}x</span>
             </div>
@@ -770,7 +771,7 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
               style={{ width: `${timerPct}%` }}
             />
           </div>
-          <span className={`font-mono text-xs tabular-nums min-w-[2.5rem] text-right ${
+          <span className={`font-mono text-xs tabular-nums min-w-[2.5rem] text-right tracking-tight ${
             timerCritical ? 'text-[hsl(0,75%,55%)] font-bold animate-pulse' : timerUrgent ? 'text-primary' : 'text-muted-foreground'
           }`}>
             <Clock size={10} className="inline mr-1" />{timeLeft}s
@@ -786,8 +787,8 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
         <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
           <div className="bg-card/95 border-2 border-primary rounded-xl p-6 text-center animate-bounce shadow-[var(--shadow-electric)]">
             <Trophy className="w-8 h-8 text-primary mx-auto mb-2" />
-            <p className="text-primary font-mono font-bold text-lg">€ {MONEY_LEVELS[currentQ]} {t({ de: 'gesichert!', en: 'secured!', fr: 'sécurisé !' })}</p>
-            <p className="text-highlight text-xs font-mono mt-1">{t(I18N.safetyNet)}</p>
+             <p className="text-primary font-bold text-lg"><span className="font-mono">€ {MONEY_LEVELS[currentQ]}</span> {t({ de: 'gesichert!', en: 'secured!', fr: 'sécurisé !' })}</p>
+            <p className="text-highlight text-xs mt-1">{t(I18N.safetyNet)}</p>
           </div>
         </div>
       )}
@@ -844,7 +845,7 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
 
             {/* Question */}
             <div className="bg-primary/5 border border-primary/30 rounded-xl p-4 md:p-5">
-              <p className="text-primary font-mono text-sm leading-relaxed">
+              <p className="text-primary text-sm leading-relaxed">
                 {q.question[lang] || q.question.en}
               </p>
             </div>
@@ -859,8 +860,8 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
 
                 if (isHidden) {
                   return (
-                    <div key={val} className="px-4 py-3 rounded-lg border-2 border-muted/20 bg-transparent opacity-20 font-mono text-sm">
-                      <span className="font-bold mr-2">{OPTION_LETTERS[i]}:</span>
+                     <div key={val} className="px-4 py-3 rounded-lg border-2 border-muted/20 bg-transparent opacity-20 text-sm">
+                      <span className="font-mono font-bold mr-2">{OPTION_LETTERS[i]}:</span>
                       <span className="line-through">{opt.label[lang] || opt.label.en}</span>
                     </div>
                   );
@@ -885,9 +886,9 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
                     key={val}
                     onClick={() => handleSelect(val)}
                     disabled={confirmed}
-                    className={`text-left px-4 py-3 rounded-lg border-2 font-mono text-sm transition-all duration-200 disabled:cursor-default ${borderClass} active:scale-[0.98]`}
+                    className={`text-left px-4 py-3 rounded-lg border-2 text-sm transition-all duration-200 disabled:cursor-default ${borderClass} active:scale-[0.98]`}
                   >
-                    <span className="font-bold text-highlight mr-2">{OPTION_LETTERS[i]}:</span>
+                    <span className="font-mono font-bold text-highlight mr-2">{OPTION_LETTERS[i]}:</span>
                     {opt.label[lang] || opt.label.en}
                   </button>
                 );
@@ -898,7 +899,7 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
           {/* Audience results */}
           {audienceResults && (
             <div className="bg-highlight/5 border border-highlight/20 rounded-lg p-3 animate-fade-in">
-              <p className="text-highlight font-mono text-xs mb-2 uppercase tracking-wider">{t(I18N.audience)}</p>
+              <p className="text-highlight text-xs mb-2 uppercase tracking-wider">{t(I18N.audience)}</p>
               <div className="flex items-end gap-3 h-16">
                 {q.options.map((opt, i) => {
                   const pct = audienceResults[opt.value] || 0;
@@ -925,7 +926,7 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
             <div className="flex items-center justify-center gap-3 animate-fade-in">
               <Button
                 onClick={handleConfirm}
-                className="bg-primary text-primary-foreground hover:bg-primary/80 font-mono px-6 animate-pulse hover:animate-none shadow-[var(--shadow-electric)]"
+                className="bg-primary text-primary-foreground hover:bg-primary/80 font-semibold px-6 animate-pulse hover:animate-none shadow-[var(--shadow-electric)]"
               >
                 {t(I18N.confirm)}
               </Button>
@@ -938,10 +939,10 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
               <div className={`flex items-start gap-2 p-4 rounded-lg border ${isCorrect ? 'border-[hsl(122,39%,45%)]/30 bg-[hsl(122,39%,45%,0.05)]' : 'border-[hsl(0,75%,55%)]/30 bg-[hsl(0,75%,55%,0.05)]'}`}>
                 {isCorrect ? <CheckCircle2 className="w-5 h-5 text-[hsl(122,39%,45%)] mt-0.5 flex-shrink-0" /> : <XCircle className="w-5 h-5 text-[hsl(0,75%,55%)] mt-0.5 flex-shrink-0" />}
                 <div>
-                  <p className={`font-mono text-sm font-semibold mb-1 ${isCorrect ? 'text-[hsl(122,39%,45%)]' : 'text-[hsl(0,75%,55%)]'}`}>
+                   <p className={`text-sm font-semibold mb-1 ${isCorrect ? 'text-[hsl(122,39%,45%)]' : 'text-[hsl(0,75%,55%)]'}`}>
                     {isCorrect ? t(I18N.correct) : t(I18N.incorrect)}
                     {isCorrect && streak > 1 && (
-                      <span className="ml-2 text-primary text-xs">
+                      <span className="ml-2 text-primary text-xs font-mono">
                         🔥 {streak}x Streak!
                       </span>
                     )}
@@ -952,7 +953,7 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
 
               {isCorrect && !won && (
                 <div className="flex justify-end">
-                  <Button onClick={handleNext} className="bg-highlight text-highlight-foreground hover:bg-highlight/80 font-mono group">
+                  <Button onClick={handleNext} className="bg-highlight text-highlight-foreground hover:bg-highlight/80 font-semibold group">
                     {t(I18N.next)} <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </div>
