@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { RotateCcw, CheckCircle2, XCircle, ArrowRight, Percent, Users, Trophy } from 'lucide-react';
 import { PageMeta } from '@/components/PageMeta';
@@ -6,6 +6,7 @@ import Typewriter from '@/components/Typewriter';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { StaggerReveal } from '@/components/StaggerReveal';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useMillionaireSound } from '@/hooks/useMillionaireSound';
 
 interface QuizQuestion {
   id: string;
@@ -381,6 +382,7 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
   const lang = language as 'de' | 'en' | 'fr';
   const t = (obj: Record<string, string>) => obj[lang] || obj.en;
   const isMobile = useIsMobile();
+  const { playQuestionReveal, playCorrect, playWrong } = useMillionaireSound();
 
   const [started, setStarted] = useState(embedded);
   const [seed, setSeed] = useState(() => Date.now());
@@ -398,6 +400,13 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
   const [hiddenOptions, setHiddenOptions] = useState<string[]>([]);
   const [audienceResults, setAudienceResults] = useState<Record<string, number> | null>(null);
 
+  // Play question reveal sound when a new question appears
+  useEffect(() => {
+    if (started && !gameOver && !won) {
+      playQuestionReveal();
+    }
+  }, [currentQ, started]);
+
   const handleSelect = (value: string) => {
     if (confirmed) return;
     setSelected(value);
@@ -409,10 +418,12 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
     const isCorrect = selected === questions[currentQ].correct;
     if (isCorrect) {
       setScore(currentQ + 1);
+      playCorrect();
       if (currentQ === QUIZ_SIZE - 1) {
         setWon(true);
       }
     } else {
+      playWrong();
       setGameOver(true);
     }
   };
