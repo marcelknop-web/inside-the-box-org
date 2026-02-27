@@ -530,7 +530,7 @@ export const en = {
     whatIsTtx: 'What is a TTX?',
     whatIsTtxText: 'A Tabletop Exercise is a discussion-based exercise where teams walk through an incident scenario — without shutting down real systems.',
     howTo: 'How it works:',
-    howToText: 'Tap an ISCP and rate it on 4 criteria. Once 3 ISCPs are rated, you can view the results.',
+    howToText: 'Select an ISCP and rate it on 4 criteria. Results are available once 3 ISCPs have been rated.',
     rated: 'rated',
     complete: 'complete',
     addTopic: 'Add custom topic…',
