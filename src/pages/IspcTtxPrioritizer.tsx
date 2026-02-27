@@ -14,7 +14,7 @@ const DEFAULT_ISCPS = [
   'Virtualisierung', 'Zertifikats-Management (PKI)',
 ];
 
-type Rating = 0 | 1 | 2 | 3; // 0=unbewertet, 1=niedrig, 2=mittel, 3=hoch
+type Rating = 0 | 1 | 2 | 3 | 4 | 5;
 
 interface IscpRating {
   name: string;
@@ -22,9 +22,11 @@ interface IscpRating {
 }
 
 const RATING_CONFIG: Record<number, { label: string; color: string; bg: string; border: string; icon: typeof CheckCircle2 }> = {
-  1: { label: 'Niedrig', color: 'text-[#22c55e]', bg: 'bg-[#22c55e]/15', border: 'border-[#22c55e]/40', icon: CheckCircle2 },
-  2: { label: 'Mittel', color: 'text-[#f59e0b]', bg: 'bg-[#f59e0b]/15', border: 'border-[#f59e0b]/40', icon: AlertTriangle },
-  3: { label: 'Hoch', color: 'text-[#ef4444]', bg: 'bg-[#ef4444]/15', border: 'border-[#ef4444]/40', icon: XCircle },
+  1: { label: 'Sehr niedrig', color: 'text-[#22c55e]', bg: 'bg-[#22c55e]/15', border: 'border-[#22c55e]/40', icon: CheckCircle2 },
+  2: { label: 'Niedrig', color: 'text-[#4ade80]', bg: 'bg-[#4ade80]/15', border: 'border-[#4ade80]/40', icon: CheckCircle2 },
+  3: { label: 'Mittel', color: 'text-[#f59e0b]', bg: 'bg-[#f59e0b]/15', border: 'border-[#f59e0b]/40', icon: AlertTriangle },
+  4: { label: 'Hoch', color: 'text-[#f97316]', bg: 'bg-[#f97316]/15', border: 'border-[#f97316]/40', icon: XCircle },
+  5: { label: 'Kritisch', color: 'text-[#ef4444]', bg: 'bg-[#ef4444]/15', border: 'border-[#ef4444]/40', icon: XCircle },
 };
 
 const LS_KEY = 'iscp-quick-ratings';
@@ -63,8 +65,9 @@ export default function IspcTtxPrioritizer({ embedded = false }: { embedded?: bo
     [ratings]
   );
 
-  const highCount = sorted.filter(r => r.rating === 3).length;
-  const medCount = sorted.filter(r => r.rating === 2).length;
+  const critCount = sorted.filter(r => r.rating >= 4).length;
+  const medCount = sorted.filter(r => r.rating === 3).length;
+  const lowCount = sorted.length - critCount - medCount;
 
   const restart = () => {
     setRatings(DEFAULT_ISCPS.map(name => ({ name, rating: 0 })));
@@ -78,7 +81,7 @@ export default function IspcTtxPrioritizer({ embedded = false }: { embedded?: bo
     try {
       const payload = sorted.map(r => ({
         name: r.name,
-        score: r.rating === 3 ? 4.2 : r.rating === 2 ? 3.0 : 1.5,
+        score: r.rating >= 4 ? 4.5 : r.rating === 3 ? 3.0 : r.rating === 2 ? 2.0 : 1.0,
         maturityLevel: 1,
         lastTested: 'nicht bekannt',
         factors: { BI: r.rating + 1, TLT: 3, CP: 3, AF: r.rating, PI: r.rating },
@@ -110,15 +113,15 @@ export default function IspcTtxPrioritizer({ embedded = false }: { embedded?: bo
         {/* Summary */}
         <div className="grid grid-cols-3 gap-3 mb-4">
           <div className="bg-[#ef4444]/10 border border-[#ef4444]/20 rounded-xl p-3 text-center">
-            <span className="text-[#ef4444] text-2xl font-bold font-mono">{highCount}</span>
-            <p className="text-foreground/70 text-xs font-mono mt-1">Hoch</p>
+            <span className="text-[#ef4444] text-2xl font-bold font-mono">{critCount}</span>
+            <p className="text-foreground/70 text-xs font-mono mt-1">Hoch / Kritisch</p>
           </div>
           <div className="bg-[#f59e0b]/10 border border-[#f59e0b]/20 rounded-xl p-3 text-center">
             <span className="text-[#f59e0b] text-2xl font-bold font-mono">{medCount}</span>
             <p className="text-foreground/70 text-xs font-mono mt-1">Mittel</p>
           </div>
           <div className="bg-[#22c55e]/10 border border-[#22c55e]/20 rounded-xl p-3 text-center">
-            <span className="text-[#22c55e] text-2xl font-bold font-mono">{sorted.length - highCount - medCount}</span>
+            <span className="text-[#22c55e] text-2xl font-bold font-mono">{lowCount}</span>
             <p className="text-foreground/70 text-xs font-mono mt-1">Niedrig</p>
           </div>
         </div>
@@ -203,7 +206,7 @@ export default function IspcTtxPrioritizer({ embedded = false }: { embedded?: bo
           <div key={r.name} className="bg-card border border-border rounded-lg px-4 py-3 flex items-center gap-3 flex-wrap sm:flex-nowrap">
             <span className="text-foreground text-sm font-mono flex-1 min-w-[140px]">{r.name}</span>
             <div className="flex gap-1.5 items-center">
-              {([1, 2, 3] as Rating[]).map(val => {
+              {([1, 2, 3, 4, 5] as Rating[]).map(val => {
                 const cfg = RATING_CONFIG[val];
                 const active = r.rating === val;
                 return (
