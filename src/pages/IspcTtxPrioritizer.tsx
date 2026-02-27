@@ -276,7 +276,7 @@ export default function IspcTtxPrioritizer({ embedded = false }: { embedded?: bo
                               className={`px-3 py-1.5 rounded-md text-xs font-mono font-semibold border transition-all
                                 ${active
                                   ? `${cfg.bg} ${cfg.border} ${cfg.color}`
-                                  : 'border-border text-muted-foreground hover:border-foreground/30 hover:text-foreground/70'}`}
+                                  : 'border-primary/40 text-muted-foreground hover:border-primary/60 hover:text-foreground/70'}`}
                             >
                               {cfg.label}
                             </button>
