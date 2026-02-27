@@ -6,35 +6,19 @@ import { useLanguage } from '@/i18n/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Sparkles, RotateCcw, CheckCircle2, AlertTriangle, XCircle, Plus, X, ChevronDown, ChevronUp } from 'lucide-react';
 
-const DEFAULT_ISCPS = [
-  'E-Mail & Kommunikation', 'Identitäts- & Zugriffsmanagement',
-  'Cloud-Dienste', 'Backup & Recovery', 'Patch-Management',
-];
-
-type Level = -1 | 0 | 1 | 2 | 3; // -1=unbewertet, 0=weiß nicht
+type Level = -1 | 0 | 1 | 2 | 3;
 
 interface CriteriaRatings {
-  bi: Level;  // Business Impact
-  tlt: Level; // Time since Last Test
-  cp: Level;  // Complexity
-  af: Level;  // Audit Findings
+  bi: Level;
+  tlt: Level;
+  cp: Level;
+  af: Level;
 }
 
 interface IscpEntry {
   name: string;
   criteria: CriteriaRatings;
 }
-
-const CRITERIA = [
-  { key: 'bi' as const, label: 'Business Impact', short: 'BI', description: 'Kritikalität für den Geschäftsbetrieb',
-    levels: { 1: 'Gering', 2: 'Mittel', 3: 'Kritisch' } },
-  { key: 'tlt' as const, label: 'Letzter Test', short: 'LT', description: 'Wie lange liegt der letzte Test zurück?',
-    levels: { 1: 'Kürzlich', 2: 'Länger her', 3: 'Nie getestet' } },
-  { key: 'cp' as const, label: 'Komplexität', short: 'KX', description: 'Abhängigkeiten & Schnittstellen',
-    levels: { 1: 'Einfach', 2: 'Mittel', 3: 'Komplex' } },
-  { key: 'af' as const, label: 'Offene Findings', short: 'AF', description: 'Ungelöste Audit-Findings',
-    levels: { 1: 'Keine', 2: 'Wenige', 3: 'Mehrere' } },
-];
 
 const LEVEL_STYLE: Record<number, { bg: string; border: string; color: string }> = {
   0: { color: 'text-primary', bg: 'bg-primary/10', border: 'border-primary/30' },
@@ -62,10 +46,8 @@ function completeness(c: CriteriaRatings): number {
 }
 
 function renderAiResult(text: string) {
-  // Split by markdown headings (### or ##) and render as styled sections
   const sections = text.split(/(?=###?\s)/).filter(Boolean);
   if (sections.length <= 1) {
-    // No headings found — render lines with bold handling
     return text.split('\n').filter(Boolean).map((line, i) => {
       const rendered = line.replace(/\*\*(.*?)\*\*/g, '<strong class="text-primary">$1</strong>');
       return <p key={i} dangerouslySetInnerHTML={{ __html: rendered }} />;
@@ -82,7 +64,7 @@ function renderAiResult(text: string) {
     return (
       <div key={i} className="border-l-2 border-highlight/30 pl-3">
         <p className="text-highlight text-xs font-semibold uppercase tracking-wider mb-1">{heading}</p>
-        <p className="text-foreground/80 text-sm whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: rendered }} />
+        <p className="text-foreground text-sm whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: rendered }} />
       </div>
     );
   });
@@ -91,8 +73,21 @@ function renderAiResult(text: string) {
 const LS_KEY = 'iscp-criteria-ratings';
 const emptyCriteria = (): CriteriaRatings => ({ bi: -1, tlt: -1, cp: -1, af: -1 });
 
+function useCriteria(t: (key: string) => string) {
+  return [
+    { key: 'bi' as const, label: t('iscp.bi'), description: t('iscp.biDesc'),
+      levels: { 1: t('iscp.biLow'), 2: t('iscp.biMed'), 3: t('iscp.biHigh') } },
+    { key: 'tlt' as const, label: t('iscp.tlt'), description: t('iscp.tltDesc'),
+      levels: { 1: t('iscp.tltLow'), 2: t('iscp.tltMed'), 3: t('iscp.tltHigh') } },
+    { key: 'cp' as const, label: t('iscp.cp'), description: t('iscp.cpDesc'),
+      levels: { 1: t('iscp.cpLow'), 2: t('iscp.cpMed'), 3: t('iscp.cpHigh') } },
+    { key: 'af' as const, label: t('iscp.af'), description: t('iscp.afDesc'),
+      levels: { 1: t('iscp.afLow'), 2: t('iscp.afMed'), 3: t('iscp.afHigh') } },
+  ];
+}
+
 export default function IspcTtxPrioritizer({ embedded = false }: { embedded?: boolean }) {
-  const { language } = useLanguage();
+  const { language, t, tArray } = useLanguage();
   const [entries, setEntries] = useState<IscpEntry[]>([]);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [showResult, setShowResult] = useState(false);
@@ -100,12 +95,15 @@ export default function IspcTtxPrioritizer({ embedded = false }: { embedded?: bo
   const [aiLoading, setAiLoading] = useState(false);
   const [newIscp, setNewIscp] = useState('');
 
+  const criteria = useCriteria(t);
+  const defaultIscps = tArray('iscp.defaultIscps');
+
   useEffect(() => {
     try {
       const stored = localStorage.getItem(LS_KEY);
       if (stored) setEntries(JSON.parse(stored));
-      else setEntries(DEFAULT_ISCPS.map(name => ({ name, criteria: emptyCriteria() })));
-    } catch { setEntries(DEFAULT_ISCPS.map(name => ({ name, criteria: emptyCriteria() }))); }
+      else setEntries(defaultIscps.map(name => ({ name, criteria: emptyCriteria() })));
+    } catch { setEntries(defaultIscps.map(name => ({ name, criteria: emptyCriteria() }))); }
   }, []);
 
   useEffect(() => {
@@ -135,7 +133,7 @@ export default function IspcTtxPrioritizer({ embedded = false }: { embedded?: bo
   const medCount = sorted.filter(r => r.score >= 1.5 && r.score < 2.5).length;
 
   const restart = () => {
-    setEntries(DEFAULT_ISCPS.map(name => ({ name, criteria: emptyCriteria() })));
+    setEntries(defaultIscps.map(name => ({ name, criteria: emptyCriteria() })));
     setShowResult(false);
     setAiResult('');
     setExpanded(null);
@@ -156,10 +154,10 @@ export default function IspcTtxPrioritizer({ embedded = false }: { embedded?: bo
         body: { iscps: payload, language },
       });
       if (error) throw error;
-      setAiResult(data?.recommendation || 'Keine Empfehlung generiert.');
+      setAiResult(data?.recommendation || t('iscp.aiEmpty'));
     } catch (e) {
       console.error('AI error:', e);
-      setAiResult('Fehler bei der KI-Analyse. Bitte erneut versuchen.');
+      setAiResult(t('iscp.aiError'));
     } finally {
       setAiLoading(false);
     }
@@ -171,22 +169,22 @@ export default function IspcTtxPrioritizer({ embedded = false }: { embedded?: bo
   if (showResult) {
     return (
       <div className={wrapperClass}>
-        <PageMeta title="ISCP TTX Prioritizer" description="ISCP-Bewertung für Tabletop Exercises" />
+        <PageMeta title="ISCP TTX Prioritizer" description="ISCP TTX Prioritization" />
 
         <div className="flex items-center justify-between mb-2">
-          <h1 className={`${embedded ? 'text-lg' : 'text-xl'} font-bold text-primary font-mono`}>Ergebnis</h1>
+          <h1 className={`${embedded ? 'text-lg' : 'text-xl'} font-bold text-primary font-mono`}>{t('iscp.resultTitle')}</h1>
           <div className="flex gap-3 text-xs font-mono">
-            <span className="text-[#ef4444]">● {highCount} hoch</span>
-            <span className="text-[#f59e0b]">● {medCount} mittel</span>
-            <span className="text-[#22c55e]">● {sorted.length - highCount - medCount} niedrig</span>
+            <span className="text-[#ef4444]">● {highCount} {t('iscp.high')}</span>
+            <span className="text-[#f59e0b]">● {medCount} {t('iscp.medium')}</span>
+            <span className="text-[#22c55e]">● {sorted.length - highCount - medCount} {t('iscp.low')}</span>
           </div>
         </div>
-        <p className="text-muted-foreground text-sm font-mono mb-4">
-          Ranking nach Dringlichkeit — je höher der Score, desto eher sollte das ISCP im nächsten TTX getestet werden.
+        <p className="text-foreground/80 text-sm font-mono mb-4">
+          {t('iscp.resultIntro')}
         </p>
 
         <div className="space-y-1 mb-4">
-          {sorted.map((r, i) => {
+          {sorted.map((r) => {
             const sc = scoreColor(r.score);
             const Icon = sc.icon;
             return (
@@ -205,23 +203,23 @@ export default function IspcTtxPrioritizer({ embedded = false }: { embedded?: bo
           className="w-full bg-primary/15 text-primary border border-primary/30 hover:bg-primary/25 font-mono mb-3"
         >
           {aiLoading ? (
-            <><span className="animate-pulse mr-2">●</span> Analyse läuft…</>
+            <><span className="animate-pulse mr-2">●</span> {t('iscp.analyzing')}</>
           ) : (
-            <><Sparkles className="w-4 h-4 mr-2" /> TTX-Vorschlag generieren</>
+            <><Sparkles className="w-4 h-4 mr-2" /> {t('iscp.ttxSuggestion')}</>
           )}
         </Button>
 
         {aiResult && (
           <div className="bg-card border border-highlight/20 rounded-lg p-4 mb-3">
-            <h3 className="text-highlight font-mono text-xs uppercase tracking-wider mb-3">TTX-Vorschlag</h3>
-            <div className="text-foreground/90 text-sm leading-relaxed font-mono space-y-3">
+            <h3 className="text-highlight font-mono text-xs uppercase tracking-wider mb-3">{t('iscp.ttxSuggestionLabel')}</h3>
+            <div className="text-foreground text-sm leading-relaxed font-mono space-y-3">
               {renderAiResult(aiResult)}
             </div>
           </div>
         )}
 
         <Button onClick={restart} variant="outline" size="sm" className="border-highlight/30 text-highlight hover:bg-highlight/10 hover:border-highlight/50 font-mono">
-          <RotateCcw className="w-4 h-4 mr-2" /> Neu bewerten
+          <RotateCcw className="w-4 h-4 mr-2" /> {t('iscp.restart')}
         </Button>
       </div>
     );
@@ -230,27 +228,27 @@ export default function IspcTtxPrioritizer({ embedded = false }: { embedded?: bo
   // ── Rating view ──
   return (
     <div className={wrapperClass}>
-      <PageMeta title="ISCP TTX Prioritizer" description="ISCP-Bewertung für Tabletop Exercises" />
+      <PageMeta title="ISCP TTX Prioritizer" description="ISCP TTX Prioritization" />
       <h1 className={`${embedded ? 'text-lg' : 'text-2xl md:text-3xl'} font-bold text-primary font-mono mb-2`}>
-        ISCP Quick Check — TTX-Priorisierung
+        {t('iscp.title')}
       </h1>
-      <p className="text-muted-foreground text-sm font-mono mb-3">
-        Wie dringend muss dieses ISCP im nächsten Tabletop Exercise getestet werden?
+      <p className="text-foreground/80 text-sm font-mono mb-3">
+        {t('iscp.subtitle')}
       </p>
       <div className="bg-card border border-border rounded-lg p-4 mb-5 space-y-2">
-        <p className="text-foreground/90 text-sm leading-relaxed">
-          <span className="text-primary font-semibold">Was ist ein ISCP?</span> — Ein Information Security Continuity Plan beschreibt, wie ein IT-Service bei einem Ausfall wiederhergestellt wird.
+        <p className="text-foreground text-sm leading-relaxed">
+          <span className="text-primary font-semibold">{t('iscp.whatIsIscp')}</span> — {t('iscp.whatIsIscpText')}
         </p>
-        <p className="text-foreground/90 text-sm leading-relaxed">
-          <span className="text-primary font-semibold">Was ist ein TTX?</span> — Ein Tabletop Exercise ist eine Übung am Tisch, bei der Teams den Ernstfall durchspielen — ohne echte Systeme abzuschalten.
+        <p className="text-foreground text-sm leading-relaxed">
+          <span className="text-primary font-semibold">{t('iscp.whatIsTtx')}</span> — {t('iscp.whatIsTtxText')}
         </p>
-        <p className="text-foreground/70 text-xs leading-relaxed">
-          <strong>So geht's:</strong> Tippe auf ein ISCP und bewerte es nach 4 Kriterien: Business Impact, Letzter Test, Komplexität und Offene Findings. Ab 3 bewerteten ISCPs kannst du die Auswertung sehen.
+        <p className="text-foreground/80 text-xs leading-relaxed">
+          <strong>{t('iscp.howTo')}</strong> {t('iscp.howToText')}
         </p>
       </div>
 
-      <p className="text-muted-foreground text-xs font-mono mb-2">
-        {ratedEntries.length}/{entries.length} bewertet · {fullyRated.length} vollständig
+      <p className="text-foreground/80 text-xs font-mono mb-2">
+        {ratedEntries.length}/{entries.length} {t('iscp.rated')} · {fullyRated.length} {t('iscp.complete')}
       </p>
       <div className="w-full bg-secondary rounded-full h-2 mb-5">
         <div className="bg-primary h-2 rounded-full transition-all duration-300" style={{ width: `${progress}%` }} />
@@ -262,7 +260,7 @@ export default function IspcTtxPrioritizer({ embedded = false }: { embedded?: bo
           const done = completeness(e.criteria);
           const score = calcScore(e.criteria);
           const sc = score > 0 ? scoreColor(score) : null;
-          const isCustom = !DEFAULT_ISCPS.includes(e.name);
+          const isCustom = !defaultIscps.includes(e.name);
 
           return (
             <div key={e.name} className="bg-card border border-border rounded-lg overflow-hidden">
@@ -274,10 +272,10 @@ export default function IspcTtxPrioritizer({ embedded = false }: { embedded?: bo
                 {done > 0 && sc && (
                   <span className={`text-xs font-mono font-bold ${sc.color}`}>{score}</span>
                 )}
-                <span className="text-muted-foreground text-xs font-mono">{done}/4</span>
-                {isOpen ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+                <span className="text-foreground/60 text-xs font-mono">{done}/4</span>
+                {isOpen ? <ChevronUp className="w-4 h-4 text-foreground/60" /> : <ChevronDown className="w-4 h-4 text-foreground/60" />}
                 {isCustom && (
-                  <button onClick={(ev) => { ev.stopPropagation(); setEntries(prev => prev.filter(x => x.name !== e.name)); }} className="text-muted-foreground hover:text-destructive">
+                  <button onClick={(ev) => { ev.stopPropagation(); setEntries(prev => prev.filter(x => x.name !== e.name)); }} className="text-foreground/60 hover:text-destructive">
                     <X className="w-3.5 h-3.5" />
                   </button>
                 )}
@@ -285,15 +283,15 @@ export default function IspcTtxPrioritizer({ embedded = false }: { embedded?: bo
 
               {isOpen && (
                 <div className="px-4 pb-4 space-y-3 border-t border-border pt-3">
-                  {CRITERIA.map(cr => (
+                  {criteria.map(cr => (
                     <div key={cr.key}>
                       <p className="text-foreground/80 text-xs font-mono mb-1.5">
                         <span className="font-semibold text-foreground">{cr.label}</span>
-                        <span className="text-muted-foreground ml-1">— {cr.description}</span>
+                        <span className="text-foreground/60 ml-1">— {cr.description}</span>
                       </p>
                       <div className="flex gap-1.5 flex-wrap">
                         {([0, 1, 2, 3] as Level[]).map(val => {
-                          const label = val === 0 ? 'Weiß nicht' : cr.levels[val as 1|2|3];
+                          const label = val === 0 ? t('iscp.dontKnow') : cr.levels[val as 1|2|3];
                           const style = LEVEL_STYLE[val];
                           const active = e.criteria[cr.key] === val;
                           return (
@@ -303,7 +301,7 @@ export default function IspcTtxPrioritizer({ embedded = false }: { embedded?: bo
                               className={`px-3 py-1.5 rounded-md text-xs font-mono font-semibold border transition-all
                                 ${active
                                   ? `${style.bg} ${style.border} ${style.color}`
-                                  : 'border-primary/40 text-muted-foreground hover:border-primary/60 hover:text-foreground/70'}`}
+                                  : 'border-primary/40 text-foreground/60 hover:border-primary/60 hover:text-foreground/80'}`}
                             >
                               {label}
                             </button>
@@ -330,7 +328,7 @@ export default function IspcTtxPrioritizer({ embedded = false }: { embedded?: bo
         <Input
           value={newIscp}
           onChange={ev => setNewIscp(ev.target.value)}
-          placeholder="Eigenes Thema hinzufügen…"
+          placeholder={t('iscp.addTopic')}
           className="font-mono text-sm flex-1"
         />
         <Button type="submit" variant="outline" size="sm" disabled={!newIscp.trim()} className="font-mono">
@@ -343,7 +341,7 @@ export default function IspcTtxPrioritizer({ embedded = false }: { embedded?: bo
         disabled={ratedEntries.length < 3}
         className="w-full bg-primary/15 text-primary border border-primary/30 hover:bg-primary/25 font-mono disabled:opacity-40"
       >
-        Auswertung anzeigen ({ratedEntries.length} bewertet)
+        {t('iscp.showResult')} ({ratedEntries.length} {t('iscp.rated')})
       </Button>
     </div>
   );
