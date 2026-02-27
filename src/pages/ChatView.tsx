@@ -418,26 +418,41 @@ const useServiceContent = () => {
         </Block>
 
         <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
-          <div className="text-center mb-5">
+          <div className="text-center mb-4">
             <SubTitle variant="highlight">{t('events.evalTitle')}</SubTitle>
-            <p className="text-foreground text-xl font-semibold font-sans mt-2 mb-1">{t('events.evalCourse')}</p>
-            <p className="text-muted-foreground text-sm font-mono">{t('events.evalPeriod')}</p>
+            <p className="text-foreground text-lg font-semibold font-sans mt-1">{t('events.evalCourse')}</p>
+            <p className="text-muted-foreground text-xs font-mono mt-0.5">{t('events.evalSubtitle')}</p>
+            <p className="text-muted-foreground text-xs font-mono mt-1 opacity-70">{t('events.evalPeriod')}</p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <div className="bg-card/60 border border-border rounded-lg p-5 flex flex-col items-center text-center">
-              <span className="text-muted-foreground text-xs font-mono uppercase tracking-widest mb-3">{t('events.evalSatisfaction')}</span>
-              <span className="text-highlight text-4xl font-bold font-mono">94%</span>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4">
+            <div className="bg-card/60 border border-border rounded-lg p-3 flex flex-col items-center text-center">
+              <span className="text-muted-foreground text-[10px] font-mono uppercase tracking-widest mb-1">{t('events.evalSatisfaction')}</span>
+              <span className="text-highlight text-2xl font-bold font-mono">100%</span>
             </div>
-            <div className="bg-card/60 border border-border rounded-lg p-5 flex flex-col items-center text-center">
-              <span className="text-muted-foreground text-xs font-mono uppercase tracking-widest mb-3">{t('events.evalRecommendation')}</span>
-              <span className="text-highlight text-4xl font-bold font-mono mb-1">93%</span>
-              <span className="text-muted-foreground text-xs mt-1">{t('events.evalRecommendationSub')}</span>
+            <div className="bg-card/60 border border-border rounded-lg p-3 flex flex-col items-center text-center">
+              <span className="text-muted-foreground text-[10px] font-mono uppercase tracking-widest mb-1">{t('events.evalRecommendation')}</span>
+              <span className="text-highlight text-2xl font-bold font-mono">100%</span>
             </div>
-            <div className="bg-card/60 border border-border rounded-lg p-5 flex flex-col items-center text-center">
-              <span className="text-muted-foreground text-xs font-mono uppercase tracking-widest mb-3">{t('events.evalScore')}</span>
-              <span className="text-primary text-4xl font-bold font-mono">87%</span>
+            <div className="bg-card/60 border border-border rounded-lg p-3 flex flex-col items-center text-center">
+              <span className="text-muted-foreground text-[10px] font-mono uppercase tracking-widest mb-1">{t('events.evalExpectation')}</span>
+              <span className="text-primary text-lg font-bold font-mono">{t('events.evalExpectationValue')}</span>
+            </div>
+            <div className="bg-card/60 border border-border rounded-lg p-3 flex flex-col items-center text-center">
+              <span className="text-muted-foreground text-[10px] font-mono uppercase tracking-widest mb-1">{t('events.evalPractice')}</span>
+              <span className="text-primary text-lg font-bold font-mono">{t('events.evalPracticeValue')}</span>
             </div>
           </div>
+
+          <div className="space-y-1.5 mb-3">
+            {['evalQuote1', 'evalQuote2', 'evalQuote3'].map((key) => (
+              <p key={key} className="text-muted-foreground text-xs italic leading-relaxed pl-3 border-l-2 border-highlight/30">
+                {t(`events.${key}` as any)}
+              </p>
+            ))}
+          </div>
+
+          <p className="text-muted-foreground text-[10px] font-mono text-center opacity-60">{t('events.evalQuality')}</p>
         </Block>
 
       </TypedSection>
