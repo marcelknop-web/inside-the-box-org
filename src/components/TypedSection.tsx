@@ -1,5 +1,6 @@
 import { ReactNode, useState, useEffect, useRef } from 'react';
 import Typewriter, { type RevealMode } from './Typewriter';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { StaggerReveal } from './StaggerReveal';
 
 interface TypedSectionProps {
@@ -25,8 +26,10 @@ const TypedSection = ({
   children,
   stagger = 350,
 }: TypedSectionProps) => {
-  const [titleDone, setTitleDone] = useState(false);
+  const isMobile = useIsMobile();
+  const effectiveStagger = isMobile ? Math.max(stagger, 600) : stagger;
   const [introVisible, setIntroVisible] = useState(false);
+  const [titleDone, setTitleDone] = useState(false);
   const [introDone, setIntroDone] = useState(!intro); // if no intro, skip
   const [suppressIntro, setSuppressIntro] = useState(false);
   const sectionKey = `${title}-${mode}-${charDelay}`;
@@ -75,7 +78,7 @@ const TypedSection = ({
           </div>
         )}
       </div>
-      <StaggerReveal resetKey={sectionKey} stagger={stagger} startDelay={blocksReady ? 500 : 999999}>
+      <StaggerReveal resetKey={sectionKey} stagger={effectiveStagger} startDelay={blocksReady ? 500 : 999999}>
         {children}
       </StaggerReveal>
     </div>
