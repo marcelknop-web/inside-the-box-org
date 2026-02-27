@@ -425,7 +425,7 @@ const useServiceContent = () => {
             <p className="text-foreground/70 text-xs font-mono mt-1">{t('events.evalPeriod')}</p>
           </div>
 
-          <div className="grid grid-cols-3 gap-3 mb-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
             <div className="bg-highlight/5 border border-highlight/20 rounded-xl p-4 flex flex-col items-center text-center">
               <span className="text-foreground/80 text-xs font-mono uppercase tracking-widest mb-1">{t('events.evalSatisfaction')}</span>
               <span className="text-highlight text-3xl font-bold font-mono">94%</span>
