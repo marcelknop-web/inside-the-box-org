@@ -377,5 +377,94 @@ export function useMillionaireSound() {
     } catch {}
   }, []);
 
-  return { playQuestionReveal, playCorrect, playWrong };
+  // Short "lock-in" click when selecting an answer option
+  const playSelect = useCallback(() => {
+    try {
+      const ctx = getCtx();
+      const now = ctx.currentTime;
+
+      const master = ctx.createGain();
+      master.gain.setValueAtTime(0.2, now);
+      master.connect(ctx.destination);
+
+      // Bright metallic tap
+      const osc = ctx.createOscillator();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(1200, now);
+      osc.frequency.exponentialRampToValueAtTime(600, now + 0.08);
+
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0.25, now);
+      g.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+
+      osc.connect(g);
+      g.connect(master);
+      osc.start(now);
+      osc.stop(now + 0.15);
+
+      // Secondary harmonic ping
+      const osc2 = ctx.createOscillator();
+      osc2.type = 'triangle';
+      osc2.frequency.setValueAtTime(880, now);
+
+      const g2 = ctx.createGain();
+      g2.gain.setValueAtTime(0.1, now);
+      g2.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+
+      osc2.connect(g2);
+      g2.connect(master);
+      osc2.start(now);
+      osc2.stop(now + 0.12);
+    } catch {}
+  }, []);
+
+  // "Final answer" confirm lock sound
+  const playConfirm = useCallback(() => {
+    try {
+      const ctx = getCtx();
+      const now = ctx.currentTime;
+
+      const master = ctx.createGain();
+      master.gain.setValueAtTime(0.2, now);
+      master.connect(ctx.destination);
+
+      const reverb = createReverb(ctx, 1, 2.5);
+      const revG = ctx.createGain();
+      revG.gain.setValueAtTime(0.15, now);
+      reverb.connect(revG);
+      revG.connect(master);
+
+      // Two-tone "lock" sound (like WWM final answer confirmation)
+      [{ freq: 440, start: 0 }, { freq: 554, start: 0.12 }].forEach(({ freq, start }) => {
+        const osc = ctx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, now + start);
+
+        const g = ctx.createGain();
+        g.gain.setValueAtTime(0, now + start);
+        g.gain.linearRampToValueAtTime(0.2, now + start + 0.01);
+        g.gain.exponentialRampToValueAtTime(0.001, now + start + 0.3);
+
+        osc.connect(g);
+        g.connect(master);
+        g.connect(reverb);
+        osc.start(now + start);
+        osc.stop(now + start + 0.35);
+      });
+
+      // Low undertone for gravitas
+      const sub = ctx.createOscillator();
+      sub.type = 'sine';
+      sub.frequency.setValueAtTime(110, now);
+      const subG = ctx.createGain();
+      subG.gain.setValueAtTime(0.08, now);
+      subG.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+      sub.connect(subG);
+      subG.connect(master);
+      sub.start(now);
+      sub.stop(now + 0.55);
+    } catch {}
+  }, []);
+
+  return { playQuestionReveal, playCorrect, playWrong, playSelect, playConfirm };
 }

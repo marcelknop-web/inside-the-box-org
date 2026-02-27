@@ -382,7 +382,7 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
   const lang = language as 'de' | 'en' | 'fr';
   const t = (obj: Record<string, string>) => obj[lang] || obj.en;
   const isMobile = useIsMobile();
-  const { playQuestionReveal, playCorrect, playWrong } = useMillionaireSound();
+  const { playQuestionReveal, playCorrect, playWrong, playSelect, playConfirm } = useMillionaireSound();
 
   const [started, setStarted] = useState(embedded);
   const [seed, setSeed] = useState(() => Date.now());
@@ -409,21 +409,23 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
 
   const handleSelect = (value: string) => {
     if (confirmed) return;
+    playSelect();
     setSelected(value);
   };
 
   const handleConfirm = () => {
     if (!selected || confirmed) return;
+    playConfirm();
     setConfirmed(true);
     const isCorrect = selected === questions[currentQ].correct;
     if (isCorrect) {
       setScore(currentQ + 1);
-      playCorrect();
+      setTimeout(() => playCorrect(), 400);
       if (currentQ === QUIZ_SIZE - 1) {
         setWon(true);
       }
     } else {
-      playWrong();
+      setTimeout(() => playWrong(), 400);
       setGameOver(true);
     }
   };
