@@ -7,9 +7,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { Sparkles, RotateCcw, CheckCircle2, AlertTriangle, XCircle, Plus, X, ChevronDown, ChevronUp } from 'lucide-react';
 
 const DEFAULT_ISCPS = [
-  'E-Mail & Kommunikation', 'Endgeräte-Management', 'Identitäts- & Zugriffsmanagement',
-  'Firewall & Perimeter', 'VPN & Remote-Zugang', 'Cloud-Dienste',
-  'Backup & Recovery', 'Patch-Management',
+  'E-Mail & Kommunikation', 'Identitäts- & Zugriffsmanagement',
+  'Cloud-Dienste', 'Backup & Recovery', 'Patch-Management',
 ];
 
 type Level = -1 | 0 | 1 | 2 | 3; // -1=unbewertet, 0=weiß nicht
