@@ -336,7 +336,7 @@ export const en = {
     isacaDesc: 'Cyber Security Expert (CSE) certification training – in cooperation with ISACA Germany.',
     evalTitle: 'Seminar Evaluation',
     evalCourse: 'Cyber Security Expert',
-    evalPeriod: '2024–2025 · 5 Cohorts · n = 30 Participants',
+    evalPeriod: '2025 · 5 Cohorts · n = 30 Participants',
     evalSatisfaction: 'Ø Satisfaction',
     evalRecommendation: 'Recommendation',
     evalRecommendationSub: 'extremely + very likely',
