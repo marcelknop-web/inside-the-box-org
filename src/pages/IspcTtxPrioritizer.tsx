@@ -71,7 +71,7 @@ function renderAiResult(text: string) {
     return (
       <div key={i} className="border-l-2 border-highlight/30 pl-3">
         <p className="text-highlight text-xs font-semibold uppercase tracking-wider mb-1">{heading}</p>
-        <p className="text-foreground text-sm whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: body }} />
+        <p className="text-foreground text-sm md:text-[15px] leading-relaxed whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: body }} />
       </div>
     );
   });
@@ -218,9 +218,9 @@ export default function IspcTtxPrioritizer({ embedded = false }: { embedded?: bo
         </Button>
 
         {aiResult && (
-          <div className="bg-card border border-highlight/20 rounded-lg p-4 mb-3">
+          <div className="bg-highlight/5 border border-highlight/20 rounded-lg p-4 mb-3">
             <h3 className="text-highlight font-mono text-xs uppercase tracking-wider mb-3">{t('iscp.ttxSuggestionLabel')}</h3>
-            <div className="text-foreground text-sm leading-relaxed font-mono space-y-3">
+            <div className="text-foreground text-sm md:text-[15px] leading-relaxed font-sans space-y-3">
               {renderAiResult(aiResult)}
             </div>
           </div>
