@@ -1,11 +1,11 @@
-import { useState, useMemo } from 'react';
-import { Progress } from '@/components/ui/progress';
+import { useState, useMemo, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
-import { RotateCcw, CheckCircle2, XCircle, ArrowRight } from 'lucide-react';
+import { RotateCcw, CheckCircle2, XCircle, ArrowRight, Percent, Users, Trophy } from 'lucide-react';
 import { PageMeta } from '@/components/PageMeta';
 import Typewriter from '@/components/Typewriter';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { StaggerReveal } from '@/components/StaggerReveal';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface QuizQuestion {
   id: string;
@@ -320,29 +320,49 @@ const ALL_QUESTIONS: QuizQuestion[] = [
 
 const QUIZ_SIZE = 10;
 
+// Money ladder levels (bottom to top)
+const MONEY_LEVELS = [
+  '100',
+  '200',
+  '500',
+  '1.000',
+  '2.000',
+  '4.000',
+  '8.000',
+  '16.000',
+  '32.000',
+  '64.000',
+];
+
+// Safety nets (indices in the MONEY_LEVELS array)
+const SAFETY_NETS = [4, 9]; // at level 5 (2.000) and level 10 (64.000)
+
+const OPTION_LETTERS = ['A', 'B', 'C', 'D'];
+
 const I18N = {
   title: { de: 'NIS-2 Awareness Quiz', en: 'NIS-2 Awareness Quiz', fr: 'Quiz NIS-2 Awareness' },
   intro: {
-    de: 'Testen Sie Ihr Wissen zur NIS-2-Richtlinie. 10 Fragen, die über Basiswissen hinausgehen – praxisnah, regulatorisch fundiert und mit Erklärungen.',
-    en: 'Test your knowledge of the NIS-2 directive. 10 questions that go beyond the basics – practical, grounded in regulation, and with explanations.',
-    fr: 'Testez vos connaissances sur la directive NIS-2. 10 questions qui vont au-delà des bases – pratiques, fondées sur la réglementation et avec des explications.',
+    de: 'Testen Sie Ihr Wissen zur NIS-2-Richtlinie – im Stil von „Wer wird Millionär". 10 Fragen, 2 Joker, Sicherheitsstufen. Wie weit kommen Sie?',
+    en: 'Test your NIS-2 knowledge – "Who Wants to Be a Millionaire" style. 10 questions, 2 lifelines, safety nets. How far can you go?',
+    fr: 'Testez vos connaissances NIS-2 – style « Qui veut gagner des millions ». 10 questions, 2 jokers, filets de sécurité. Jusqu\'où irez-vous ?',
   },
   start: { de: '🎯 Quiz starten', en: '🎯 Start Quiz', fr: '🎯 Lancer le quiz' },
-  question: { de: 'Frage', en: 'Question', fr: 'Question' },
-  of: { de: 'von', en: 'of', fr: 'de' },
   correct: { de: 'Richtig!', en: 'Correct!', fr: 'Correct !' },
   incorrect: { de: 'Leider falsch.', en: 'Incorrect.', fr: 'Incorrect.' },
+  gameOver: { de: 'Spiel beendet', en: 'Game Over', fr: 'Fin du jeu' },
   next: { de: 'Nächste Frage', en: 'Next Question', fr: 'Question suivante' },
-  showResult: { de: 'Ergebnis anzeigen', en: 'Show Result', fr: 'Afficher le résultat' },
   restart: { de: 'Erneut starten', en: 'Restart', fr: 'Recommencer' },
-  resultTitle: { de: 'Ihr Ergebnis', en: 'Your Result', fr: 'Votre résultat' },
-  outOf: { de: 'von', en: 'out of', fr: 'sur' },
-  excellent: { de: 'Exzellent – fundiertes NIS-2-Wissen.', en: 'Excellent – solid NIS-2 knowledge.', fr: 'Excellent – connaissances NIS-2 solides.' },
-  good: { de: 'Gut – solide Grundlage mit Vertiefungspotenzial.', en: 'Good – solid foundation with room to deepen.', fr: 'Bien – base solide avec un potentiel d\'approfondissement.' },
-  needsWork: { de: 'Hier gibt es Nachholbedarf – NIS-2 betrifft möglicherweise Ihre Organisation.', en: 'There\'s catching up to do – NIS-2 may affect your organization.', fr: 'Il y a du rattrapage à faire – NIS-2 peut concerner votre organisation.' },
+  won: { de: 'Alle Fragen richtig beantwortet!', en: 'All questions answered correctly!', fr: 'Toutes les questions correctement répondues !' },
+  reached: { de: 'Erreicht', en: 'Reached', fr: 'Atteint' },
+  secured: { de: 'Gesichert', en: 'Secured', fr: 'Sécurisé' },
   disclaimer: { de: 'Dieses Quiz dient der Sensibilisierung und ersetzt keine Rechtsberatung.', en: 'This quiz is for awareness purposes and does not constitute legal advice.', fr: 'Ce quiz est à des fins de sensibilisation et ne constitue pas un avis juridique.' },
-  explanation: { de: 'Erklärung', en: 'Explanation', fr: 'Explication' },
-  backToWorkflows: { de: 'Zurück zu KI-Workflows', en: 'Back to AI Workflows', fr: 'Retour aux workflows IA' },
+  fiftyFifty: { de: '50:50', en: '50:50', fr: '50:50' },
+  audience: { de: 'Publikum', en: 'Audience', fr: 'Public' },
+  jokerUsed: { de: 'Bereits verwendet', en: 'Already used', fr: 'Déjà utilisé' },
+  safetyNet: { de: 'Sicherheitsstufe', en: 'Safety Net', fr: 'Filet de sécurité' },
+  finalAnswer: { de: 'Letzte Antwort?', en: 'Final answer?', fr: 'Dernier mot ?' },
+  confirm: { de: 'Ja, endgültig!', en: 'Yes, final!', fr: 'Oui, définitif !' },
+  change: { de: 'Andere Antwort', en: 'Change answer', fr: 'Changer de réponse' },
 };
 
 function shuffle<T>(arr: T[], seed: number): T[] {
@@ -360,54 +380,123 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
   const { language } = useLanguage();
   const lang = language as 'de' | 'en' | 'fr';
   const t = (obj: Record<string, string>) => obj[lang] || obj.en;
+  const isMobile = useIsMobile();
 
   const [started, setStarted] = useState(embedded);
-  const [seed] = useState(() => Date.now());
+  const [seed, setSeed] = useState(() => Date.now());
   const questions = useMemo(() => shuffle(ALL_QUESTIONS, seed).slice(0, QUIZ_SIZE), [seed]);
   const [currentQ, setCurrentQ] = useState(0);
   const [selected, setSelected] = useState<string | null>(null);
-  const [answered, setAnswered] = useState(false);
+  const [confirmed, setConfirmed] = useState(false);
   const [score, setScore] = useState(0);
-  const [finished, setFinished] = useState(false);
-
-  const progress = ((currentQ) / QUIZ_SIZE) * 100;
+  const [gameOver, setGameOver] = useState(false);
+  const [won, setWon] = useState(false);
+  
+  // Lifelines
+  const [fiftyFiftyUsed, setFiftyFiftyUsed] = useState(false);
+  const [audienceUsed, setAudienceUsed] = useState(false);
+  const [hiddenOptions, setHiddenOptions] = useState<string[]>([]);
+  const [audienceResults, setAudienceResults] = useState<Record<string, number> | null>(null);
 
   const handleSelect = (value: string) => {
-    if (answered) return;
+    if (confirmed) return;
     setSelected(value);
-    setAnswered(true);
-    if (value === questions[currentQ].correct) {
-      setScore(s => s + 1);
+  };
+
+  const handleConfirm = () => {
+    if (!selected || confirmed) return;
+    setConfirmed(true);
+    const isCorrect = selected === questions[currentQ].correct;
+    if (isCorrect) {
+      setScore(currentQ + 1);
+      if (currentQ === QUIZ_SIZE - 1) {
+        setWon(true);
+      }
+    } else {
+      setGameOver(true);
     }
   };
 
   const handleNext = () => {
-    if (currentQ < QUIZ_SIZE - 1) {
-      setCurrentQ(q => q + 1);
-      setSelected(null);
-      setAnswered(false);
-    } else {
-      setFinished(true);
-    }
+    setCurrentQ(q => q + 1);
+    setSelected(null);
+    setConfirmed(false);
+    setHiddenOptions([]);
+    setAudienceResults(null);
   };
 
+  const useFiftyFifty = useCallback(() => {
+    if (fiftyFiftyUsed || confirmed) return;
+    setFiftyFiftyUsed(true);
+    const q = questions[currentQ];
+    const wrongOptions = q.options.filter(o => o.value !== q.correct).map(o => o.value);
+    // Remove 2 wrong options
+    const shuffled = shuffle(wrongOptions, Date.now());
+    setHiddenOptions(shuffled.slice(0, 2));
+    if (selected && shuffled.slice(0, 2).includes(selected)) {
+      setSelected(null);
+    }
+  }, [fiftyFiftyUsed, confirmed, questions, currentQ, selected]);
+
+  const useAudience = useCallback(() => {
+    if (audienceUsed || confirmed) return;
+    setAudienceUsed(true);
+    const q = questions[currentQ];
+    // Simulate audience: correct answer gets 45-75%, rest distributed
+    const correctPct = 45 + Math.floor(Math.random() * 30);
+    const remaining = 100 - correctPct;
+    const others = q.options.filter(o => o.value !== q.correct && !hiddenOptions.includes(o.value));
+    const results: Record<string, number> = {};
+    results[q.correct] = correctPct;
+    let left = remaining;
+    others.forEach((o, i) => {
+      if (i === others.length - 1) {
+        results[o.value] = left;
+      } else {
+        const pct = Math.floor(Math.random() * left * 0.7);
+        results[o.value] = pct;
+        left -= pct;
+      }
+    });
+    // Hidden options get 0
+    hiddenOptions.forEach(h => { results[h] = 0; });
+    setAudienceResults(results);
+  }, [audienceUsed, confirmed, questions, currentQ, hiddenOptions]);
+
   const restart = () => {
+    setSeed(Date.now());
     setStarted(embedded);
     setCurrentQ(0);
     setSelected(null);
-    setAnswered(false);
+    setConfirmed(false);
     setScore(0);
-    setFinished(false);
+    setGameOver(false);
+    setWon(false);
+    setFiftyFiftyUsed(false);
+    setAudienceUsed(false);
+    setHiddenOptions([]);
+    setAudienceResults(null);
   };
 
-  const wrapperClass = embedded ? 'space-y-3' : 'min-h-screen p-4 max-w-2xl mx-auto';
+  // Calculate secured amount (last safety net passed)
+  const getSecuredLevel = () => {
+    for (let i = SAFETY_NETS.length - 1; i >= 0; i--) {
+      if (score > SAFETY_NETS[i]) return SAFETY_NETS[i];
+    }
+    return -1;
+  };
 
+  const wrapperClass = embedded ? 'space-y-3' : 'min-h-screen p-4 max-w-3xl mx-auto';
+
+  // ── Entry screen ──
   if (!started) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <PageMeta title="NIS-2 Awareness Quiz" description="NIS-2 Awareness Quiz" />
-        <div className="text-center space-y-4 max-w-md">
-          <p className="text-foreground/80 text-sm font-mono">{t(I18N.intro)}</p>
+        <div className="text-center space-y-6 max-w-md">
+          <div className="text-5xl">💎</div>
+          <h1 className="text-2xl md:text-3xl font-bold text-primary font-mono">NIS-2 Awareness Quiz</h1>
+          <p className="text-foreground/80 text-sm font-mono leading-relaxed">{t(I18N.intro)}</p>
           <button onClick={() => setStarted(true)} className="px-8 py-4 font-mono text-lg border-2 border-primary/60 bg-primary/10 text-primary rounded-lg transition-electric hover:bg-primary/20 hover:border-primary hover:shadow-[var(--shadow-electric)] flex items-center gap-3 mx-auto">
             {t(I18N.start)}
           </button>
@@ -416,13 +505,13 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
     );
   }
 
-  if (finished) {
-    const ratio = score / QUIZ_SIZE;
-    const emoji = ratio >= 0.8 ? '🏆' : ratio >= 0.5 ? '📊' : '📚';
-    const feedback = ratio >= 0.8 ? t(I18N.excellent) : ratio >= 0.5 ? t(I18N.good) : t(I18N.needsWork);
-    const color = ratio >= 0.8 ? 'text-[hsl(122,39%,45%)]' : ratio >= 0.5 ? 'text-primary' : 'text-[hsl(33,96%,49%)]';
-    const borderColor = ratio >= 0.8 ? 'border-[hsl(122,39%,45%)]' : ratio >= 0.5 ? 'border-primary' : 'border-[hsl(33,96%,49%)]';
-    const bgColor = ratio >= 0.8 ? 'bg-[hsl(122,39%,45%,0.1)]' : ratio >= 0.5 ? 'bg-primary/10' : 'bg-[hsl(33,96%,49%,0.1)]';
+  // ── Game Over / Won screen ──
+  if (gameOver || won) {
+    const securedLevel = getSecuredLevel();
+    const finalLevel = won ? QUIZ_SIZE - 1 : (securedLevel >= 0 ? securedLevel : -1);
+    const finalAmount = finalLevel >= 0 ? MONEY_LEVELS[finalLevel] : '0';
+    const q = questions[currentQ];
+    const isCorrect = selected === q.correct;
 
     return (
       <div className={wrapperClass}>
@@ -431,15 +520,37 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
           <Typewriter text={t(I18N.title)} charDelay={8} />
         </h1>
         <StaggerReveal stagger={400}>
-          <div className={`${bgColor} ${borderColor} border-2 rounded-lg p-6 text-center`}>
-            <div className="text-4xl mb-2">{emoji}</div>
-            <h2 className={`text-xl md:text-2xl font-mono font-bold ${color}`}>
-              {t(I18N.resultTitle)}: {score} {t(I18N.outOf)} {QUIZ_SIZE}
+          {/* Result */}
+          <div className={`border-2 rounded-lg p-6 text-center ${won ? 'border-primary bg-primary/10' : 'border-[hsl(0,75%,55%)] bg-[hsl(0,75%,55%,0.1)]'}`}>
+            <div className="text-4xl mb-3">{won ? '🏆' : '💔'}</div>
+            <h2 className={`text-xl md:text-2xl font-mono font-bold ${won ? 'text-primary' : 'text-[hsl(0,75%,55%)]'}`}>
+              {won ? t(I18N.won) : t(I18N.gameOver)}
             </h2>
-            <p className="text-foreground/80 text-sm mt-2">{feedback}</p>
+            <div className="mt-4 space-y-1">
+              <p className="text-foreground/60 text-xs font-mono uppercase tracking-wider">
+                {won ? t(I18N.reached) : t(I18N.secured)}
+              </p>
+              <p className="text-3xl font-mono font-bold text-primary">€ {won ? '64.000' : finalAmount}</p>
+              {!won && (
+                <p className="text-foreground/50 text-xs font-mono">
+                  {t(I18N.reached)}: € {MONEY_LEVELS[currentQ]} · {t(I18N.secured)}: € {finalAmount}
+                </p>
+              )}
+            </div>
           </div>
 
-          <div className="flex justify-center gap-3 flex-wrap">
+          {/* Last question explanation */}
+          {!won && (
+            <div className="bg-highlight/5 border border-highlight/20 rounded-lg p-5">
+              <p className="text-foreground/60 text-xs font-mono mb-2">{q.question[lang] || q.question.en}</p>
+              <div className="flex items-start gap-2">
+                <XCircle className="w-4 h-4 text-[hsl(0,75%,55%)] mt-0.5 flex-shrink-0" />
+                <p className="text-foreground/80 text-sm leading-relaxed">{q.explanation[lang] || q.explanation.en}</p>
+              </div>
+            </div>
+          )}
+
+          <div className="flex justify-center">
             <Button onClick={restart} variant="outline" className="border-highlight/30 text-highlight hover:bg-highlight/10 hover:border-highlight/50 font-mono">
               <RotateCcw className="w-4 h-4 mr-2" /> {t(I18N.restart)}
             </Button>
@@ -451,73 +562,208 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
     );
   }
 
+  // ── Active game ──
   const q = questions[currentQ];
-  const isCorrect = selected === q.correct;
+  const isCorrect = confirmed && selected === q.correct;
+  const isWrong = confirmed && selected !== q.correct;
+  const showLadder = !isMobile;
 
   return (
     <div className={wrapperClass}>
       <PageMeta title="NIS-2 Awareness Quiz" description="NIS-2 Awareness Quiz" />
-      <h1 className={`${embedded ? 'text-lg' : 'text-2xl md:text-3xl'} font-bold text-primary font-mono mb-3`}>
+      <h1 className={`${embedded ? 'text-lg' : 'text-2xl md:text-3xl'} font-bold text-primary font-mono mb-4`}>
         <Typewriter text={t(I18N.title)} charDelay={8} />
       </h1>
-      <div>
-        <div className="mb-6">
-          <div className="flex justify-between text-xs text-muted-foreground font-mono mb-2">
-            <span>{t(I18N.question)} {currentQ + 1} {t(I18N.of)} {QUIZ_SIZE}</span>
-            <span>{Math.round(progress)}%</span>
+
+      <div className={`flex gap-4 ${showLadder ? '' : 'flex-col'}`}>
+        {/* Main question area */}
+        <div className="flex-1 min-w-0 space-y-4">
+          {/* Joker bar */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={useFiftyFifty}
+              disabled={fiftyFiftyUsed || confirmed}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border font-mono text-xs transition-electric
+                ${fiftyFiftyUsed
+                  ? 'border-muted/30 text-muted-foreground/40 cursor-not-allowed line-through'
+                  : 'border-highlight/40 text-highlight hover:bg-highlight/10 hover:border-highlight/60'}`}
+              title={fiftyFiftyUsed ? t(I18N.jokerUsed) : t(I18N.fiftyFifty)}
+            >
+              <Percent size={14} /> 50:50
+            </button>
+            <button
+              onClick={useAudience}
+              disabled={audienceUsed || confirmed}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border font-mono text-xs transition-electric
+                ${audienceUsed
+                  ? 'border-muted/30 text-muted-foreground/40 cursor-not-allowed line-through'
+                  : 'border-highlight/40 text-highlight hover:bg-highlight/10 hover:border-highlight/60'}`}
+              title={audienceUsed ? t(I18N.jokerUsed) : t(I18N.audience)}
+            >
+              <Users size={14} /> {t(I18N.audience)}
+            </button>
+            {/* Mobile: current level */}
+            {!showLadder && (
+              <span className="ml-auto text-primary font-mono text-sm font-bold">
+                € {MONEY_LEVELS[currentQ]}
+              </span>
+            )}
           </div>
-          <Progress value={progress} className="h-2 bg-muted" />
-        </div>
 
-        <h2 className="text-base md:text-lg font-mono text-primary mb-5 leading-snug">{q.question[lang] || q.question.en}</h2>
+          {/* Question */}
+          <div className="bg-primary/5 border border-primary/30 rounded-xl p-4 md:p-5">
+            <p className="text-primary font-mono text-sm leading-relaxed">
+              {q.question[lang] || q.question.en}
+            </p>
+          </div>
 
-        <StaggerReveal resetKey={q.id} stagger={200} className="mb-4">
-          {q.options.map((opt) => {
-            const val = opt.value;
-            const isThis = selected === val;
-            const isAnswer = val === q.correct;
-            let borderClass = 'border-primary/40 bg-transparent text-foreground/80 hover:border-highlight hover:bg-highlight/5 hover:text-highlight';
-            if (answered) {
-              if (isAnswer) {
-                borderClass = 'border-[hsl(122,39%,45%)] bg-[hsl(122,39%,45%,0.1)] text-[hsl(122,39%,45%)]';
-              } else if (isThis && !isCorrect) {
-                borderClass = 'border-[hsl(0,75%,55%)] bg-[hsl(0,75%,55%,0.1)] text-[hsl(0,75%,55%)]';
-              } else {
-                borderClass = 'border-muted/40 bg-transparent text-muted-foreground/60';
-              }
-            }
-            return (
-              <button
-                key={val}
-                onClick={() => handleSelect(val)}
-                disabled={answered}
-                className={`w-full text-left px-5 py-4 rounded-lg border-2 font-mono text-sm transition-electric disabled:cursor-default ${borderClass}`}
-              >
-                {opt.label[lang] || opt.label.en}
-              </button>
-            );
-          })}
-        </StaggerReveal>
-
-        {answered && (
-          <StaggerReveal stagger={300}>
-            <div className={`flex items-start gap-2 p-4 rounded-lg border ${isCorrect ? 'border-[hsl(122,39%,45%)]/30 bg-[hsl(122,39%,45%,0.05)]' : 'border-[hsl(0,75%,55%)]/30 bg-[hsl(0,75%,55%,0.05)]'}`}>
-              {isCorrect ? <CheckCircle2 className="w-5 h-5 text-[hsl(122,39%,45%)] mt-0.5 flex-shrink-0" /> : <XCircle className="w-5 h-5 text-[hsl(0,75%,55%)] mt-0.5 flex-shrink-0" />}
-              <div>
-                <p className={`font-mono text-sm font-semibold mb-1 ${isCorrect ? 'text-[hsl(122,39%,45%)]' : 'text-[hsl(0,75%,55%)]'}`}>
-                  {isCorrect ? t(I18N.correct) : t(I18N.incorrect)}
-                </p>
-                <p className="text-foreground/80 text-sm leading-relaxed">{q.explanation[lang] || q.explanation.en}</p>
+          {/* Audience results */}
+          {audienceResults && (
+            <div className="bg-highlight/5 border border-highlight/20 rounded-lg p-3">
+              <p className="text-highlight font-mono text-xs mb-2 uppercase tracking-wider">{t(I18N.audience)}</p>
+              <div className="flex items-end gap-3 h-16">
+                {q.options.map((opt, i) => {
+                  const pct = audienceResults[opt.value] || 0;
+                  if (hiddenOptions.includes(opt.value)) return null;
+                  return (
+                    <div key={opt.value} className="flex-1 flex flex-col items-center gap-1">
+                      <span className="text-foreground/60 font-mono text-[10px]">{pct}%</span>
+                      <div className="w-full bg-muted/30 rounded-sm overflow-hidden" style={{ height: '40px' }}>
+                        <div
+                          className="w-full bg-highlight/60 rounded-sm transition-all duration-700"
+                          style={{ height: `${pct * 0.4}px`, marginTop: `${40 - pct * 0.4}px` }}
+                        />
+                      </div>
+                      <span className="text-highlight font-mono text-xs font-bold">{OPTION_LETTERS[i]}</span>
+                    </div>
+                  );
+                })}
               </div>
             </div>
+          )}
 
-            <div className="flex justify-end">
-              <Button onClick={handleNext} className="bg-highlight text-highlight-foreground hover:bg-highlight/80 font-mono">
-                {currentQ < QUIZ_SIZE - 1 ? t(I18N.next) : t(I18N.showResult)}
-                <ArrowRight className="w-4 h-4 ml-2" />
+          {/* Answer options – A/B/C/D diamond style */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {q.options.map((opt, i) => {
+              const val = opt.value;
+              const isHidden = hiddenOptions.includes(val);
+              const isThis = selected === val;
+              const isAnswer = val === q.correct;
+
+              if (isHidden) {
+                return (
+                  <div key={val} className="px-4 py-3 rounded-lg border-2 border-muted/20 bg-transparent opacity-20 font-mono text-sm">
+                    <span className="font-bold mr-2">{OPTION_LETTERS[i]}:</span>
+                    <span className="line-through">{opt.label[lang] || opt.label.en}</span>
+                  </div>
+                );
+              }
+
+              let borderClass = 'border-primary/30 bg-transparent text-foreground/80 hover:border-highlight hover:bg-highlight/5';
+              if (isThis && !confirmed) {
+                borderClass = 'border-highlight bg-highlight/15 text-highlight';
+              }
+              if (confirmed) {
+                if (isAnswer) {
+                  borderClass = 'border-[hsl(122,39%,45%)] bg-[hsl(122,39%,45%,0.15)] text-[hsl(122,39%,45%)]';
+                } else if (isThis && !isCorrect) {
+                  borderClass = 'border-[hsl(0,75%,55%)] bg-[hsl(0,75%,55%,0.15)] text-[hsl(0,75%,55%)]';
+                } else {
+                  borderClass = 'border-muted/20 bg-transparent text-muted-foreground/40';
+                }
+              }
+
+              return (
+                <button
+                  key={val}
+                  onClick={() => handleSelect(val)}
+                  disabled={confirmed}
+                  className={`text-left px-4 py-3 rounded-lg border-2 font-mono text-sm transition-electric disabled:cursor-default ${borderClass}`}
+                >
+                  <span className="font-bold text-highlight mr-2">{OPTION_LETTERS[i]}:</span>
+                  {opt.label[lang] || opt.label.en}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Confirm / Next button */}
+          {selected && !confirmed && (
+            <div className="flex items-center justify-center gap-3">
+              <Button
+                onClick={handleConfirm}
+                className="bg-primary text-primary-foreground hover:bg-primary/80 font-mono px-6 animate-pulse hover:animate-none"
+              >
+                {t(I18N.confirm)}
               </Button>
             </div>
-          </StaggerReveal>
+          )}
+
+          {/* Explanation after confirm */}
+          {confirmed && (
+            <StaggerReveal stagger={300}>
+              <div className={`flex items-start gap-2 p-4 rounded-lg border ${isCorrect ? 'border-[hsl(122,39%,45%)]/30 bg-[hsl(122,39%,45%,0.05)]' : 'border-[hsl(0,75%,55%)]/30 bg-[hsl(0,75%,55%,0.05)]'}`}>
+                {isCorrect ? <CheckCircle2 className="w-5 h-5 text-[hsl(122,39%,45%)] mt-0.5 flex-shrink-0" /> : <XCircle className="w-5 h-5 text-[hsl(0,75%,55%)] mt-0.5 flex-shrink-0" />}
+                <div>
+                  <p className={`font-mono text-sm font-semibold mb-1 ${isCorrect ? 'text-[hsl(122,39%,45%)]' : 'text-[hsl(0,75%,55%)]'}`}>
+                    {isCorrect ? t(I18N.correct) : t(I18N.incorrect)}
+                  </p>
+                  <p className="text-foreground/80 text-sm leading-relaxed">{q.explanation[lang] || q.explanation.en}</p>
+                </div>
+              </div>
+
+              {isCorrect && !won && (
+                <div className="flex justify-end">
+                  <Button onClick={handleNext} className="bg-highlight text-highlight-foreground hover:bg-highlight/80 font-mono">
+                    {t(I18N.next)} <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </div>
+              )}
+            </StaggerReveal>
+          )}
+        </div>
+
+        {/* Money Ladder (desktop only) */}
+        {showLadder && (
+          <div className="w-36 flex-shrink-0">
+            <div className="sticky top-4 space-y-0">
+              {[...MONEY_LEVELS].reverse().map((level, reverseIdx) => {
+                const idx = MONEY_LEVELS.length - 1 - reverseIdx;
+                const isCurrent = idx === currentQ;
+                const isPassed = idx < score;
+                const isSafetyNet = SAFETY_NETS.includes(idx);
+                const isReached = idx <= currentQ;
+
+                let textColor = 'text-foreground/30';
+                let bg = 'bg-transparent';
+                let border = 'border-transparent';
+
+                if (isCurrent && !gameOver) {
+                  textColor = 'text-primary';
+                  bg = 'bg-primary/15';
+                  border = 'border-primary/50';
+                } else if (isPassed) {
+                  textColor = 'text-[hsl(122,39%,45%)]';
+                  bg = 'bg-[hsl(122,39%,45%,0.05)]';
+                } else if (isSafetyNet && isReached) {
+                  textColor = 'text-highlight';
+                }
+
+                return (
+                  <div
+                    key={level}
+                    className={`flex items-center justify-between px-2 py-1 rounded border text-xs font-mono transition-all duration-300 ${textColor} ${bg} ${border}`}
+                  >
+                    <span className="text-[10px] opacity-60">{idx + 1}</span>
+                    <span className={`font-semibold ${isSafetyNet ? 'font-bold' : ''}`}>
+                      € {level}
+                    </span>
+                    {isSafetyNet && <Trophy size={10} className="text-highlight opacity-60" />}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         )}
       </div>
     </div>
