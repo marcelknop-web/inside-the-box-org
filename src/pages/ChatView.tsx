@@ -421,38 +421,38 @@ const useServiceContent = () => {
           <div className="text-center mb-4">
             <SubTitle variant="highlight">{t('events.evalTitle')}</SubTitle>
             <p className="text-foreground text-lg font-semibold font-sans mt-1">{t('events.evalCourse')}</p>
-            <p className="text-muted-foreground text-xs font-mono mt-0.5">{t('events.evalSubtitle')}</p>
+            <p className="text-muted-foreground text-sm font-mono mt-0.5">{t('events.evalSubtitle')}</p>
             <p className="text-muted-foreground text-xs font-mono mt-1 opacity-70">{t('events.evalPeriod')}</p>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4">
-            <div className="bg-card/60 border border-border rounded-lg p-3 flex flex-col items-center text-center">
-              <span className="text-muted-foreground text-[10px] font-mono uppercase tracking-widest mb-1">{t('events.evalSatisfaction')}</span>
-              <span className="text-highlight text-2xl font-bold font-mono">100%</span>
+            <div className="bg-card/60 border border-border rounded-lg p-4 flex flex-col items-center text-center">
+              <span className="text-muted-foreground text-xs font-mono uppercase tracking-widest mb-1">{t('events.evalSatisfaction')}</span>
+              <span className="text-highlight text-3xl font-bold font-mono">100%</span>
             </div>
-            <div className="bg-card/60 border border-border rounded-lg p-3 flex flex-col items-center text-center">
-              <span className="text-muted-foreground text-[10px] font-mono uppercase tracking-widest mb-1">{t('events.evalRecommendation')}</span>
-              <span className="text-highlight text-2xl font-bold font-mono">100%</span>
+            <div className="bg-card/60 border border-border rounded-lg p-4 flex flex-col items-center text-center">
+              <span className="text-muted-foreground text-xs font-mono uppercase tracking-widest mb-1">{t('events.evalRecommendation')}</span>
+              <span className="text-highlight text-3xl font-bold font-mono">100%</span>
             </div>
-            <div className="bg-card/60 border border-border rounded-lg p-3 flex flex-col items-center text-center">
-              <span className="text-muted-foreground text-[10px] font-mono uppercase tracking-widest mb-1">{t('events.evalExpectation')}</span>
-              <span className="text-primary text-lg font-bold font-mono">{t('events.evalExpectationValue')}</span>
+            <div className="bg-card/60 border border-border rounded-lg p-4 flex flex-col items-center text-center">
+              <span className="text-muted-foreground text-xs font-mono uppercase tracking-widest mb-1">{t('events.evalExpectation')}</span>
+              <span className="text-primary text-xl font-bold font-mono">{t('events.evalExpectationValue')}</span>
             </div>
-            <div className="bg-card/60 border border-border rounded-lg p-3 flex flex-col items-center text-center">
-              <span className="text-muted-foreground text-[10px] font-mono uppercase tracking-widest mb-1">{t('events.evalPractice')}</span>
-              <span className="text-primary text-lg font-bold font-mono">{t('events.evalPracticeValue')}</span>
+            <div className="bg-card/60 border border-border rounded-lg p-4 flex flex-col items-center text-center">
+              <span className="text-muted-foreground text-xs font-mono uppercase tracking-widest mb-1">{t('events.evalPractice')}</span>
+              <span className="text-primary text-xl font-bold font-mono">{t('events.evalPracticeValue')}</span>
             </div>
           </div>
 
-          <div className="space-y-1.5 mb-3">
+          <div className="space-y-2 mb-4">
             {['evalQuote1', 'evalQuote2', 'evalQuote3'].map((key) => (
-              <p key={key} className="text-muted-foreground text-xs italic leading-relaxed pl-3 border-l-2 border-highlight/30">
+              <p key={key} className="text-muted-foreground text-sm italic leading-relaxed pl-3 border-l-2 border-highlight/30">
                 {t(`events.${key}` as any)}
               </p>
             ))}
           </div>
 
-          <p className="text-muted-foreground text-[10px] font-mono text-center opacity-60">{t('events.evalQuality')}</p>
+          <p className="text-muted-foreground text-xs font-mono text-center opacity-60">{t('events.evalQuality')}</p>
         </Block>
 
       </TypedSection>
