@@ -866,11 +866,12 @@ const useSidebarGroups = (): SidebarGroup[] => {
   const { t } = useLanguage();
   return [
     {
-      title: t('nav.groupTraining'),
+      title: t('nav.groupCyberResilience'),
       items: [
+        { id: 'cyber-crisis-management', icon: Swords, label: t('nav.krisenmanagement') },
+        { id: 'crisis-sim', icon: AlertTriangle, label: t('nav.tabletopExercises') },
         { id: 'why', icon: Target, label: t('nav.cyberTrainingRange') },
-        { id: 'training', icon: Swords, label: t('nav.crisisExercises') },
-        { id: 'crisis-sim', icon: AlertTriangle, label: t('nav.tryIt') },
+        { id: 'arena-training', icon: Target, label: t('nav.redTeam') },
       ],
     },
     {
@@ -882,18 +883,18 @@ const useSidebarGroups = (): SidebarGroup[] => {
       ],
     },
     {
-      title: t('nav.groupOperations'),
+      title: t('nav.groupGovernance'),
       items: [
-        { id: 'incident-management', icon: Flame, label: t('nav.incidentMgmt') },
-        { id: 'cyber-crisis-management', icon: Swords, label: t('nav.cyberCrisisMgmt') },
-        { id: 'arena-training', icon: Target, label: t('nav.redTeam') },
+        { id: 'virtual-ciso', icon: UserCheck, label: t('nav.virtualCiso') },
+        { id: 'assessments-concepts', icon: Search, label: t('nav.assessments') },
+        { id: 'security-concepts', icon: ShieldCheck, label: t('nav.securityConcepts') },
       ],
     },
     {
-      title: t('nav.groupStrategy'),
+      title: t('nav.groupOperations'),
       items: [
-        { id: 'assessments-concepts', icon: Search, label: t('nav.assessments') },
-        { id: 'virtual-ciso', icon: UserCheck, label: t('nav.virtualCiso') },
+        { id: 'incident-management', icon: Flame, label: t('nav.incidentMgmt') },
+        { id: 'soc-siem', icon: Network, label: t('nav.socSiem') },
       ],
     },
     {
