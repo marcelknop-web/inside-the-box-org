@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect, ReactNode, useCallback } from 'react';
+
 import { supabase } from '@/integrations/supabase/client';
-import { Send, Plus, MessageCircle, Shield, Target, BookOpen, AlertTriangle, Eye, Flame, Swords, Calendar, FileText, UserCheck, ChevronLeft, Menu, ShieldCheck, Search, Settings, Award, RotateCcw, Network, CreditCard, CheckCircle, FileCheck, Car, BarChart, RefreshCw, GraduationCap, ClipboardList, Zap, Crown, Users, Gamepad2, Monitor, Users2, Lightbulb, Flag, Crosshair, CheckSquare, Mic, Presentation, Wrench, Radio, Video, DollarSign, Phone, Mail, Server, Bug, AlertCircle, MessageSquare, Globe, Building2, Plane, Landmark, Scale, Wifi, XCircle, HelpCircle, Loader2, X, Linkedin } from 'lucide-react';
+import { Send, Plus, MessageCircle, Shield, Target, BookOpen, AlertTriangle, Eye, Flame, Swords, Calendar, FileText, UserCheck, ChevronLeft, Menu, ShieldCheck, Search, Settings, Award, RotateCcw, Network, CreditCard, CheckCircle, FileCheck, Car, BarChart, RefreshCw, GraduationCap, ClipboardList, Zap, Crown, Users, Gamepad2, Monitor, Users2, Lightbulb, Flag, Crosshair, CheckSquare, Mic, Presentation, Wrench, Radio, Video, DollarSign, Phone, Mail, Server, Bug, AlertCircle, MessageSquare, Globe, Building2, Plane, Landmark, Scale, Wifi, XCircle, HelpCircle, Loader2, X, Linkedin, Play } from 'lucide-react';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { PageMeta } from '@/components/PageMeta';
 import { useLanguage, nextLanguage } from '@/i18n/LanguageContext';
@@ -258,6 +260,7 @@ const InlineConnectivityCheck = ({ t, language }: { t: (k: string) => string; la
 
 const useServiceContent = () => {
   const { t, tArray, language } = useLanguage();
+  const [ytDialogOpen, setYtDialogOpen] = useState(false);
 
   const contentMap: Record<string, () => ReactNode> = {
     isms: () => (
@@ -577,7 +580,30 @@ const useServiceContent = () => {
                 <p className="text-foreground/80 text-xs">{t('aiWorkflows.agentChatDesc')}</p>
               </div>
             </button>
+            <button onClick={() => setYtDialogOpen(true)} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
+              <Play size={20} className="text-highlight mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="text-highlight font-semibold font-mono text-sm">{t('aiWorkflows.agentYtTitle')}</p>
+                <p className="text-foreground/80 text-xs">{t('aiWorkflows.agentYtDesc')}</p>
+              </div>
+            </button>
           </div>
+          <Dialog open={ytDialogOpen} onOpenChange={setYtDialogOpen}>
+            <DialogContent className="sm:max-w-[720px] p-0 bg-background border-highlight/30">
+              <DialogTitle className="sr-only">{t('aiWorkflows.agentYtTitle')}</DialogTitle>
+              <div className="aspect-video w-full">
+                {ytDialogOpen && (
+                  <iframe
+                    className="w-full h-full rounded-lg"
+                    src="https://www.youtube.com/embed/T8cfqFS77es?autoplay=1"
+                    title="Realistische Einspieler in Krisenstabsübungen"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                )}
+              </div>
+            </DialogContent>
+          </Dialog>
         </Block>
         <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
           <SubTitle variant="highlight">{t('aiWorkflows.ctaTitle')}</SubTitle>

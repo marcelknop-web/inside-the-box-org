@@ -296,6 +296,8 @@ export const de = {
     agentTisaxDesc: 'Einstufungs- und Bewertungsassistent nach VDA ISA',
     agentPciDesc: 'SAQ-Typ-Ermittlung nach PCI DSS v4.0',
     agentTtxDesc: 'ISCP-Priorisierung für Tabletop Exercises',
+    agentYtTitle: 'Realistische Einspieler in Krisenstabsübungen',
+    agentYtDesc: 'KI-generierte Video-Szenarien für immersive Übungen',
   },
   arena: {
     title: 'Arena Training · TIBER Test',
