@@ -294,6 +294,7 @@ export const en = {
     agentChatDesc: 'Multilingual AI advisor for security questions',
     agentTisaxDesc: 'Assessment and classification assistant per VDA ISA',
     agentPciDesc: 'SAQ type determination per PCI DSS v4.0',
+    agentTtxDesc: 'ISCP prioritization for tabletop exercises',
   },
   arena: {
     title: 'Arena Training · TIBER Test',
