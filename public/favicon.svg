@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" fill="#0a0a14"/>
+  <!-- Cross: vertical bar -->
+  <rect x="224" y="64" width="64" height="384" fill="none" stroke="#f5b800" stroke-width="12"/>
+  <!-- Cross: horizontal bar -->
+  <rect x="64" y="224" width="384" height="64" fill="none" stroke="#f5b800" stroke-width="12"/>
+  <!-- Diamond top -->
+  <rect x="172" y="172" width="168" height="168" transform="rotate(45 256 170)" fill="none" stroke="#f5b800" stroke-width="10"/>
+  <!-- Diamond bottom -->
+  <rect x="172" y="172" width="168" height="168" transform="rotate(45 256 342)" fill="none" stroke="#f5b800" stroke-width="10"/>
+  <!-- Diamond left -->
+  <rect x="172" y="172" width="168" height="168" transform="rotate(45 170 256)" fill="none" stroke="#f5b800" stroke-width="10"/>
+  <!-- Diamond right -->
+  <rect x="172" y="172" width="168" height="168" transform="rotate(45 342 256)" fill="none" stroke="#f5b800" stroke-width="10"/>
+  <!-- Inner diamond -->
+  <rect x="192" y="192" width="128" height="128" transform="rotate(45 256 256)" fill="none" stroke="#f5b800" stroke-width="12"/>
+  <!-- Innermost diamond -->
+  <rect x="220" y="220" width="72" height="72" transform="rotate(45 256 256)" fill="none" stroke="#f5b800" stroke-width="8"/>
+  <!-- Center filled diamond -->
+  <rect x="240" y="240" width="32" height="32" transform="rotate(45 256 256)" fill="#f5b800" opacity="0.4"/>
+</svg>
