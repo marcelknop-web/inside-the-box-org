@@ -578,48 +578,95 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
       <div className={`flex gap-4 ${showLadder ? '' : 'flex-col'}`}>
         {/* Main question area */}
         <div className="flex-1 min-w-0 space-y-4">
-          {/* Joker bar */}
-          <div className="flex items-center gap-2">
-            <button
-              onClick={useFiftyFifty}
-              disabled={fiftyFiftyUsed || confirmed}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border font-mono text-xs transition-electric
-                ${fiftyFiftyUsed
-                  ? 'border-muted/30 text-muted-foreground/40 cursor-not-allowed line-through'
-                  : 'border-highlight/40 text-highlight hover:bg-highlight/10 hover:border-highlight/60'}`}
-              title={fiftyFiftyUsed ? t(I18N.jokerUsed) : t(I18N.fiftyFifty)}
-            >
-              <Percent size={14} /> 50:50
-            </button>
-            <button
-              onClick={useAudience}
-              disabled={audienceUsed || confirmed}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border font-mono text-xs transition-electric
-                ${audienceUsed
-                  ? 'border-muted/30 text-muted-foreground/40 cursor-not-allowed line-through'
-                  : 'border-highlight/40 text-highlight hover:bg-highlight/10 hover:border-highlight/60'}`}
-              title={audienceUsed ? t(I18N.jokerUsed) : t(I18N.audience)}
-            >
-              <Users size={14} /> {t(I18N.audience)}
-            </button>
-            {/* Mobile: current level */}
-            {!showLadder && (
-              <span className="ml-auto text-primary font-mono text-sm font-bold">
-                € {MONEY_LEVELS[currentQ]}
-              </span>
-            )}
-          </div>
+          <StaggerReveal key={`question-${currentQ}`} stagger={isMobile ? 600 : 350}>
+            {/* Joker bar */}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={useFiftyFifty}
+                disabled={fiftyFiftyUsed || confirmed}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border font-mono text-xs transition-electric
+                  ${fiftyFiftyUsed
+                    ? 'border-muted/30 text-muted-foreground/40 cursor-not-allowed line-through'
+                    : 'border-highlight/40 text-highlight hover:bg-highlight/10 hover:border-highlight/60'}`}
+                title={fiftyFiftyUsed ? t(I18N.jokerUsed) : t(I18N.fiftyFifty)}
+              >
+                <Percent size={14} /> 50:50
+              </button>
+              <button
+                onClick={useAudience}
+                disabled={audienceUsed || confirmed}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border font-mono text-xs transition-electric
+                  ${audienceUsed
+                    ? 'border-muted/30 text-muted-foreground/40 cursor-not-allowed line-through'
+                    : 'border-highlight/40 text-highlight hover:bg-highlight/10 hover:border-highlight/60'}`}
+                title={audienceUsed ? t(I18N.jokerUsed) : t(I18N.audience)}
+              >
+                <Users size={14} /> {t(I18N.audience)}
+              </button>
+              {/* Mobile: current level */}
+              {!showLadder && (
+                <span className="ml-auto text-primary font-mono text-sm font-bold">
+                  € {MONEY_LEVELS[currentQ]}
+                </span>
+              )}
+            </div>
 
-          {/* Question */}
-          <div className="bg-primary/5 border border-primary/30 rounded-xl p-4 md:p-5">
-            <p className="text-primary font-mono text-sm leading-relaxed">
-              {q.question[lang] || q.question.en}
-            </p>
-          </div>
+            {/* Question */}
+            <div className="bg-primary/5 border border-primary/30 rounded-xl p-4 md:p-5">
+              <p className="text-primary font-mono text-sm leading-relaxed">
+                {q.question[lang] || q.question.en}
+              </p>
+            </div>
 
-          {/* Audience results */}
+            {/* Answer options – A/B/C/D diamond style */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {q.options.map((opt, i) => {
+                const val = opt.value;
+                const isHidden = hiddenOptions.includes(val);
+                const isThis = selected === val;
+                const isAnswer = val === q.correct;
+
+                if (isHidden) {
+                  return (
+                    <div key={val} className="px-4 py-3 rounded-lg border-2 border-muted/20 bg-transparent opacity-20 font-mono text-sm">
+                      <span className="font-bold mr-2">{OPTION_LETTERS[i]}:</span>
+                      <span className="line-through">{opt.label[lang] || opt.label.en}</span>
+                    </div>
+                  );
+                }
+
+                let borderClass = 'border-primary/30 bg-transparent text-foreground/80 hover:border-highlight hover:bg-highlight/5';
+                if (isThis && !confirmed) {
+                  borderClass = 'border-highlight bg-highlight/15 text-highlight';
+                }
+                if (confirmed) {
+                  if (isAnswer) {
+                    borderClass = 'border-[hsl(122,39%,45%)] bg-[hsl(122,39%,45%,0.15)] text-[hsl(122,39%,45%)]';
+                  } else if (isThis && !isCorrect) {
+                    borderClass = 'border-[hsl(0,75%,55%)] bg-[hsl(0,75%,55%,0.15)] text-[hsl(0,75%,55%)]';
+                  } else {
+                    borderClass = 'border-muted/20 bg-transparent text-muted-foreground/40';
+                  }
+                }
+
+                return (
+                  <button
+                    key={val}
+                    onClick={() => handleSelect(val)}
+                    disabled={confirmed}
+                    className={`text-left px-4 py-3 rounded-lg border-2 font-mono text-sm transition-electric disabled:cursor-default ${borderClass}`}
+                  >
+                    <span className="font-bold text-highlight mr-2">{OPTION_LETTERS[i]}:</span>
+                    {opt.label[lang] || opt.label.en}
+                  </button>
+                );
+              })}
+            </div>
+          </StaggerReveal>
+
+          {/* Audience results (outside stagger, shown dynamically) */}
           {audienceResults && (
-            <div className="bg-highlight/5 border border-highlight/20 rounded-lg p-3">
+            <div className="bg-highlight/5 border border-highlight/20 rounded-lg p-3 animate-fade-in">
               <p className="text-highlight font-mono text-xs mb-2 uppercase tracking-wider">{t(I18N.audience)}</p>
               <div className="flex items-end gap-3 h-16">
                 {q.options.map((opt, i) => {
@@ -642,54 +689,9 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
             </div>
           )}
 
-          {/* Answer options – A/B/C/D diamond style */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            {q.options.map((opt, i) => {
-              const val = opt.value;
-              const isHidden = hiddenOptions.includes(val);
-              const isThis = selected === val;
-              const isAnswer = val === q.correct;
-
-              if (isHidden) {
-                return (
-                  <div key={val} className="px-4 py-3 rounded-lg border-2 border-muted/20 bg-transparent opacity-20 font-mono text-sm">
-                    <span className="font-bold mr-2">{OPTION_LETTERS[i]}:</span>
-                    <span className="line-through">{opt.label[lang] || opt.label.en}</span>
-                  </div>
-                );
-              }
-
-              let borderClass = 'border-primary/30 bg-transparent text-foreground/80 hover:border-highlight hover:bg-highlight/5';
-              if (isThis && !confirmed) {
-                borderClass = 'border-highlight bg-highlight/15 text-highlight';
-              }
-              if (confirmed) {
-                if (isAnswer) {
-                  borderClass = 'border-[hsl(122,39%,45%)] bg-[hsl(122,39%,45%,0.15)] text-[hsl(122,39%,45%)]';
-                } else if (isThis && !isCorrect) {
-                  borderClass = 'border-[hsl(0,75%,55%)] bg-[hsl(0,75%,55%,0.15)] text-[hsl(0,75%,55%)]';
-                } else {
-                  borderClass = 'border-muted/20 bg-transparent text-muted-foreground/40';
-                }
-              }
-
-              return (
-                <button
-                  key={val}
-                  onClick={() => handleSelect(val)}
-                  disabled={confirmed}
-                  className={`text-left px-4 py-3 rounded-lg border-2 font-mono text-sm transition-electric disabled:cursor-default ${borderClass}`}
-                >
-                  <span className="font-bold text-highlight mr-2">{OPTION_LETTERS[i]}:</span>
-                  {opt.label[lang] || opt.label.en}
-                </button>
-              );
-            })}
-          </div>
-
           {/* Confirm / Next button */}
           {selected && !confirmed && (
-            <div className="flex items-center justify-center gap-3">
+            <div className="flex items-center justify-center gap-3 animate-fade-in">
               <Button
                 onClick={handleConfirm}
                 className="bg-primary text-primary-foreground hover:bg-primary/80 font-mono px-6 animate-pulse hover:animate-none"
