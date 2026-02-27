@@ -421,35 +421,35 @@ const useServiceContent = () => {
           <div className="text-center mb-4">
             <SubTitle variant="highlight">{t('events.evalTitle')}</SubTitle>
             <p className="text-foreground text-lg font-semibold font-sans mt-1">{t('events.evalCourse')}</p>
-            <p className="text-muted-foreground text-sm font-mono mt-0.5">{t('events.evalSubtitle')}</p>
-            <p className="text-muted-foreground text-xs font-mono mt-1 opacity-70">{t('events.evalPeriod')}</p>
+            <p className="text-foreground text-sm font-mono mt-0.5">{t('events.evalSubtitle')}</p>
+            <p className="text-foreground/70 text-xs font-mono mt-1">{t('events.evalPeriod')}</p>
           </div>
 
           <div className="grid grid-cols-3 gap-3 mb-4">
             <div className="bg-highlight/5 border border-highlight/20 rounded-xl p-4 flex flex-col items-center text-center">
-              <span className="text-muted-foreground text-xs font-mono uppercase tracking-widest mb-1">{t('events.evalSatisfaction')}</span>
+              <span className="text-foreground/80 text-xs font-mono uppercase tracking-widest mb-1">{t('events.evalSatisfaction')}</span>
               <span className="text-highlight text-3xl font-bold font-mono">94%</span>
             </div>
             <div className="bg-highlight/5 border border-highlight/20 rounded-xl p-4 flex flex-col items-center text-center">
-              <span className="text-muted-foreground text-xs font-mono uppercase tracking-widest mb-1">{t('events.evalRecommendation')}</span>
+              <span className="text-foreground/80 text-xs font-mono uppercase tracking-widest mb-1">{t('events.evalRecommendation')}</span>
               <span className="text-highlight text-3xl font-bold font-mono">93%</span>
-              <span className="text-muted-foreground text-xs font-mono mt-1">{t('events.evalRecommendationSub')}</span>
+              <span className="text-foreground/70 text-xs font-mono mt-1">{t('events.evalRecommendationSub')}</span>
             </div>
             <div className="bg-highlight/5 border border-highlight/20 rounded-xl p-4 flex flex-col items-center text-center">
-              <span className="text-muted-foreground text-xs font-mono uppercase tracking-widest mb-1">{t('events.evalEmpfScore')}</span>
+              <span className="text-foreground/80 text-xs font-mono uppercase tracking-widest mb-1">{t('events.evalEmpfScore')}</span>
               <span className="text-primary text-3xl font-bold font-mono">87%</span>
             </div>
           </div>
 
           <div className="space-y-2 mb-4">
             {['evalQuote1', 'evalQuote2', 'evalQuote3'].map((key) => (
-              <p key={key} className="text-muted-foreground text-sm italic leading-relaxed pl-3 border-l-2 border-highlight/30">
+              <p key={key} className="text-foreground/80 text-sm italic leading-relaxed pl-3 border-l-2 border-highlight/30">
                 {t(`events.${key}` as any)}
               </p>
             ))}
           </div>
 
-          <p className="text-muted-foreground text-xs font-mono text-center opacity-60">{t('events.evalQuality')}</p>
+          <p className="text-foreground/60 text-xs font-mono text-center">{t('events.evalQuality')}</p>
         </Block>
 
       </TypedSection>
