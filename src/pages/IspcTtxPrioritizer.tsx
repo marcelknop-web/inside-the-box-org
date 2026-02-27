@@ -12,7 +12,7 @@ const DEFAULT_ISCPS = [
   'Backup & Recovery', 'Patch-Management',
 ];
 
-type Level = 0 | 1 | 2 | 3; // 0=unbewertet
+type Level = -1 | 0 | 1 | 2 | 3; // -1=unbewertet, 0=weiß nicht
 
 interface CriteriaRatings {
   bi: Level;  // Business Impact
@@ -27,16 +27,21 @@ interface IscpEntry {
 }
 
 const CRITERIA = [
-  { key: 'bi' as const, label: 'Business Impact', short: 'BI', description: 'Kritikalität für den Geschäftsbetrieb' },
-  { key: 'tlt' as const, label: 'Letzter Test', short: 'LT', description: 'Wie lange liegt der letzte Test zurück?' },
-  { key: 'cp' as const, label: 'Komplexität', short: 'KX', description: 'Abhängigkeiten & Schnittstellen' },
-  { key: 'af' as const, label: 'Offene Findings', short: 'AF', description: 'Ungelöste Audit-Findings' },
+  { key: 'bi' as const, label: 'Business Impact', short: 'BI', description: 'Kritikalität für den Geschäftsbetrieb',
+    levels: { 1: 'Gering', 2: 'Mittel', 3: 'Kritisch' } },
+  { key: 'tlt' as const, label: 'Letzter Test', short: 'LT', description: 'Wie lange liegt der letzte Test zurück?',
+    levels: { 1: 'Kürzlich', 2: 'Länger her', 3: 'Nie / Unklar' } },
+  { key: 'cp' as const, label: 'Komplexität', short: 'KX', description: 'Abhängigkeiten & Schnittstellen',
+    levels: { 1: 'Einfach', 2: 'Mittel', 3: 'Komplex' } },
+  { key: 'af' as const, label: 'Offene Findings', short: 'AF', description: 'Ungelöste Audit-Findings',
+    levels: { 1: 'Keine', 2: 'Wenige', 3: 'Mehrere' } },
 ];
 
-const LEVEL_CONFIG: Record<number, { label: string; color: string; bg: string; border: string }> = {
-  1: { label: 'Niedrig', color: 'text-primary', bg: 'bg-primary/10', border: 'border-primary/30' },
-  2: { label: 'Mittel', color: 'text-primary', bg: 'bg-primary/20', border: 'border-primary/50' },
-  3: { label: 'Hoch', color: 'text-primary', bg: 'bg-primary/30', border: 'border-primary/70' },
+const LEVEL_STYLE: Record<number, { bg: string; border: string; color: string }> = {
+  0: { color: 'text-muted-foreground', bg: 'bg-muted/30', border: 'border-muted-foreground/30' },
+  1: { color: 'text-primary', bg: 'bg-primary/10', border: 'border-primary/30' },
+  2: { color: 'text-primary', bg: 'bg-primary/20', border: 'border-primary/50' },
+  3: { color: 'text-primary', bg: 'bg-primary/30', border: 'border-primary/70' },
 };
 
 const SCORE_ICONS = { low: CheckCircle2, med: AlertTriangle, high: XCircle };
@@ -54,11 +59,11 @@ function scoreColor(score: number) {
 }
 
 function completeness(c: CriteriaRatings): number {
-  return [c.bi, c.tlt, c.cp, c.af].filter(v => v > 0).length;
+  return [c.bi, c.tlt, c.cp, c.af].filter(v => v >= 0).length;
 }
 
 const LS_KEY = 'iscp-criteria-ratings';
-const emptyCriteria = (): CriteriaRatings => ({ bi: 0, tlt: 0, cp: 0, af: 0 });
+const emptyCriteria = (): CriteriaRatings => ({ bi: -1, tlt: -1, cp: -1, af: -1 });
 
 export default function IspcTtxPrioritizer({ embedded = false }: { embedded?: boolean }) {
   const { language } = useLanguage();
@@ -83,7 +88,7 @@ export default function IspcTtxPrioritizer({ embedded = false }: { embedded?: bo
 
   const setCriterion = (name: string, key: keyof CriteriaRatings, val: Level) => {
     setEntries(prev => prev.map(e =>
-      e.name === name ? { ...e, criteria: { ...e.criteria, [key]: e.criteria[key] === val ? 0 : val } } : e
+      e.name === name ? { ...e, criteria: { ...e.criteria, [key]: val } } : e
     ));
     setShowResult(false);
     setAiResult('');
@@ -265,9 +270,10 @@ export default function IspcTtxPrioritizer({ embedded = false }: { embedded?: bo
                         <span className="font-semibold text-foreground">{cr.label}</span>
                         <span className="text-muted-foreground ml-1">— {cr.description}</span>
                       </p>
-                      <div className="flex gap-1.5">
-                        {([1, 2, 3] as Level[]).map(val => {
-                          const cfg = LEVEL_CONFIG[val];
+                      <div className="flex gap-1.5 flex-wrap">
+                        {([0, 1, 2, 3] as Level[]).map(val => {
+                          const label = val === 0 ? 'Weiß nicht' : cr.levels[val as 1|2|3];
+                          const style = LEVEL_STYLE[val];
                           const active = e.criteria[cr.key] === val;
                           return (
                             <button
@@ -275,10 +281,10 @@ export default function IspcTtxPrioritizer({ embedded = false }: { embedded?: bo
                               onClick={() => setCriterion(e.name, cr.key, val)}
                               className={`px-3 py-1.5 rounded-md text-xs font-mono font-semibold border transition-all
                                 ${active
-                                  ? `${cfg.bg} ${cfg.border} ${cfg.color}`
+                                  ? `${style.bg} ${style.border} ${style.color}`
                                   : 'border-primary/40 text-muted-foreground hover:border-primary/60 hover:text-foreground/70'}`}
                             >
-                              {cfg.label}
+                              {label}
                             </button>
                           );
                         })}
