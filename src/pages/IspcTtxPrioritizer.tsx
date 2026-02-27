@@ -51,9 +51,10 @@ function completeness(c: CriteriaRatings): number {
 }
 
 function renderAiResult(text: string) {
-  const sections = text.split(/(?=###?\s)/).filter(Boolean);
+  const sections = text.split(/(?=^#{1,4}\s)/m).filter(Boolean);
   const boldify = (s: string) => s.replace(/\*\*(.*?)\*\*/g, '<strong class="text-primary">$1</strong>');
   const isBullet = (line: string) => /^(\d+\.\s|\*\s+|[-–→•]\s)/.test(line);
+  const isHeading = (line: string) => /^#{1,4}\s/.test(line);
   const stripBullet = (line: string) => line.replace(/^(\d+\.\s|\*\s+|[-–→•]\s+)/, '');
 
   const renderLines = (lines: string[]) => {
@@ -69,7 +70,7 @@ function renderAiResult(text: string) {
         bulletBuffer = [];
       }
     };
-    lines.forEach((line, i) => {
+    lines.filter(l => !isHeading(l)).forEach((line, i) => {
       if (isBullet(line)) {
         bulletBuffer.push(stripBullet(line));
       } else {
@@ -86,7 +87,7 @@ function renderAiResult(text: string) {
   }
   return sections.map((section, i) => {
     const lines = section.trim().split('\n').filter(Boolean);
-    const headingMatch = lines[0]?.match(/^###?\s*\d*\.?\s*(.*)/);
+    const headingMatch = lines[0]?.match(/^#{1,4}\s*\d*\.?\s*(.*)/);
     const heading = headingMatch ? headingMatch[1] : lines[0];
     const bodyLines = headingMatch ? lines.slice(1) : lines;
     return (
