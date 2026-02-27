@@ -55,9 +55,10 @@ function renderAiResult(text: string) {
   const formatLine = (line: string) =>
     line
       .replace(/\*\*(.*?)\*\*/g, '<strong class="text-primary">$1</strong>')
-      .replace(/^\d+\.\s/gm, '→ ')
-      .replace(/^\*\s+/gm, '→ ')
-      .replace(/^[-–]\s+/gm, '→ ');
+      .replace(/^\d+\.\s/gm, '• ')
+      .replace(/^\*\s+/gm, '• ')
+      .replace(/^[-–]\s+/gm, '• ')
+      .replace(/^→\s*/gm, '• ');
   if (sections.length <= 1) {
     return text.split('\n').filter(Boolean).map((line, i) => {
       return <p key={i} className="text-foreground text-sm" dangerouslySetInnerHTML={{ __html: formatLine(line) }} />;
