@@ -145,33 +145,23 @@ export default function IspcTtxPrioritizer({ embedded = false }: { embedded?: bo
     return (
       <div className={wrapperClass}>
         <PageMeta title="ISCP TTX Prioritizer" description="ISCP-Bewertung für Tabletop Exercises" />
-        <h1 className={`${embedded ? 'text-lg' : 'text-2xl md:text-3xl'} font-bold text-primary font-mono mb-3`}>
-          TTX-Priorisierung
-        </h1>
 
-        <div className="grid grid-cols-3 gap-3 mb-4">
-          <div className="bg-[#ef4444]/10 border border-[#ef4444]/20 rounded-xl p-3 text-center">
-            <span className="text-[#ef4444] text-2xl font-bold font-mono">{highCount}</span>
-            <p className="text-foreground/70 text-xs font-mono mt-1">Hoch</p>
-          </div>
-          <div className="bg-[#f59e0b]/10 border border-[#f59e0b]/20 rounded-xl p-3 text-center">
-            <span className="text-[#f59e0b] text-2xl font-bold font-mono">{medCount}</span>
-            <p className="text-foreground/70 text-xs font-mono mt-1">Mittel</p>
-          </div>
-          <div className="bg-[#22c55e]/10 border border-[#22c55e]/20 rounded-xl p-3 text-center">
-            <span className="text-[#22c55e] text-2xl font-bold font-mono">{sorted.length - highCount - medCount}</span>
-            <p className="text-foreground/70 text-xs font-mono mt-1">Niedrig</p>
+        <div className="flex items-center justify-between mb-4">
+          <h1 className={`${embedded ? 'text-lg' : 'text-xl'} font-bold text-primary font-mono`}>Ergebnis</h1>
+          <div className="flex gap-3 text-xs font-mono">
+            <span className="text-[#ef4444]">● {highCount} hoch</span>
+            <span className="text-[#f59e0b]">● {medCount} mittel</span>
+            <span className="text-[#22c55e]">● {sorted.length - highCount - medCount} niedrig</span>
           </div>
         </div>
 
-        <div className="space-y-1.5 mb-4">
+        <div className="space-y-1 mb-4">
           {sorted.map((r, i) => {
             const sc = scoreColor(r.score);
             const Icon = sc.icon;
             return (
-              <div key={r.name} className={`flex items-center gap-3 ${sc.bg} ${sc.border} border rounded-lg px-4 py-2.5`}>
-                <span className={`text-xs font-mono font-bold ${sc.color} w-5`}>{i + 1}.</span>
-                <Icon className={`w-4 h-4 ${sc.color} shrink-0`} />
+              <div key={r.name} className={`flex items-center gap-2 ${sc.bg} ${sc.border} border rounded-md px-3 py-2`}>
+                <Icon className={`w-3.5 h-3.5 ${sc.color} shrink-0`} />
                 <span className="text-foreground text-sm font-mono flex-1">{r.name}</span>
                 <span className={`text-xs font-mono font-semibold ${sc.color}`}>{r.score}</span>
               </div>
@@ -187,7 +177,7 @@ export default function IspcTtxPrioritizer({ embedded = false }: { embedded?: bo
           {aiLoading ? (
             <><span className="animate-pulse mr-2">●</span> Analyse läuft…</>
           ) : (
-            <><Sparkles className="w-4 h-4 mr-2" /> KI-Empfehlung für nächstes TTX</>
+            <><Sparkles className="w-4 h-4 mr-2" /> KI-Empfehlung</>
           )}
         </Button>
 
@@ -198,7 +188,7 @@ export default function IspcTtxPrioritizer({ embedded = false }: { embedded?: bo
           </div>
         )}
 
-        <Button onClick={restart} variant="outline" className="border-highlight/30 text-highlight hover:bg-highlight/10 hover:border-highlight/50 font-mono">
+        <Button onClick={restart} variant="outline" size="sm" className="border-highlight/30 text-highlight hover:bg-highlight/10 hover:border-highlight/50 font-mono">
           <RotateCcw className="w-4 h-4 mr-2" /> Neu bewerten
         </Button>
       </div>
