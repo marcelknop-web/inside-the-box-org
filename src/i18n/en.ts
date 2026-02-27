@@ -27,6 +27,7 @@ export const en = {
     aiWorkflows: 'AI-Powered Workflows',
     publications: 'Publications',
     events: 'Events',
+    eventsWorkshops: 'Events & Workshops',
   },
   start: {
     cyberTrainingRange: 'Cyber Training Range',
