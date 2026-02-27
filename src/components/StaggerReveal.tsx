@@ -56,7 +56,7 @@ export const StaggerReveal = ({ children, className = '', stagger = 350, startDe
   }, [started, visibleCount, items.length, stagger]);
 
   return (
-    <div className={`space-y-3 ${className}`}>
+    <div className={`space-y-5 md:space-y-3 ${className}`}>
       {items.map((child, i) => (
         <div
           key={i}
