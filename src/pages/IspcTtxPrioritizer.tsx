@@ -3,14 +3,17 @@ import { Button } from '@/components/ui/button';
 import { PageMeta } from '@/components/PageMeta';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
-import { Sparkles, RotateCcw, CheckCircle2, AlertTriangle, XCircle } from 'lucide-react';
+import { Sparkles, RotateCcw, CheckCircle2, AlertTriangle, XCircle, Plus, X } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 
 const DEFAULT_ISCPS = [
-  'Active Directory', 'Azure Hosting', 'Client Systems', 'DNS',
-  'Exchange Online / Email', 'Firewall', 'IAM', 'Intune', 'MFA',
-  'Microsoft Teams', 'PAM360 / Jump-Host', 'PKI Certificate',
-  'Proxy-Services', 'SD-WAN', 'SharePoint / OneDrive', 'Switches',
-  'Virtualized Infrastructure', 'Voice-Service', 'VPN-Gateway', 'WSUS',
+  'E-Mail & Kommunikation', 'Endgeräte-Management', 'Identitäts- & Zugriffsmanagement',
+  'Netzwerk-Infrastruktur', 'Firewall & Perimeter', 'VPN & Remote-Zugang',
+  'Cloud-Hosting & -Dienste', 'Verzeichnisdienste', 'Namensauflösung (DNS)',
+  'Virtualisierung', 'Dateiablage & Kollaboration', 'Zertifikats-Management (PKI)',
+  'Privilegierte Zugänge (PAM)', 'Proxy & Web-Filter', 'WAN / SD-WAN',
+  'Netzwerk-Switching', 'Telefonie / Voice', 'Patch-Management',
+  'Multi-Faktor-Authentifizierung', 'Backup & Recovery',
 ];
 
 type Rating = 0 | 1 | 2 | 3; // 0=unbewertet, 1=niedrig, 2=mittel, 3=hoch
@@ -34,7 +37,7 @@ export default function IspcTtxPrioritizer({ embedded = false }: { embedded?: bo
   const [showResult, setShowResult] = useState(false);
   const [aiResult, setAiResult] = useState('');
   const [aiLoading, setAiLoading] = useState(false);
-
+  const [newIscp, setNewIscp] = useState('');
   useEffect(() => {
     try {
       const stored = localStorage.getItem(LS_KEY);
@@ -195,11 +198,13 @@ export default function IspcTtxPrioritizer({ embedded = false }: { embedded?: bo
       </div>
 
       {/* ISCP list */}
-      <div className="space-y-2 mb-5">
-        {ratings.map(r => (
+      <div className="space-y-2 mb-3">
+        {ratings.map(r => {
+          const isCustom = !DEFAULT_ISCPS.includes(r.name);
+          return (
           <div key={r.name} className="bg-card border border-border rounded-lg px-4 py-3 flex items-center gap-3 flex-wrap sm:flex-nowrap">
             <span className="text-foreground text-sm font-mono flex-1 min-w-[140px]">{r.name}</span>
-            <div className="flex gap-1.5">
+            <div className="flex gap-1.5 items-center">
               {([1, 2, 3] as Rating[]).map(val => {
                 const cfg = RATING_CONFIG[val];
                 const active = r.rating === val;
@@ -216,10 +221,35 @@ export default function IspcTtxPrioritizer({ embedded = false }: { embedded?: bo
                   </button>
                 );
               })}
+              {isCustom && (
+                <button onClick={() => setRatings(prev => prev.filter(x => x.name !== r.name))} className="text-muted-foreground hover:text-destructive ml-1">
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
             </div>
           </div>
-        ))}
+        )})}
       </div>
+
+      {/* Add custom ISCP */}
+      <form onSubmit={(e) => {
+        e.preventDefault();
+        const trimmed = newIscp.trim();
+        if (trimmed && !ratings.find(r => r.name.toLowerCase() === trimmed.toLowerCase())) {
+          setRatings(prev => [...prev, { name: trimmed, rating: 0 }]);
+          setNewIscp('');
+        }
+      }} className="flex gap-2 mb-5">
+        <Input
+          value={newIscp}
+          onChange={e => setNewIscp(e.target.value)}
+          placeholder="Eigenes Thema hinzufügen…"
+          className="font-mono text-sm flex-1"
+        />
+        <Button type="submit" variant="outline" size="sm" disabled={!newIscp.trim()} className="font-mono">
+          <Plus className="w-4 h-4" />
+        </Button>
+      </form>
 
       {/* Submit */}
       <Button
