@@ -899,9 +899,9 @@ const useSidebarGroups = (): SidebarGroup[] => {
     {
       title: t('nav.groupInsights'),
       items: [
-        { id: 'ai-workflows', icon: Zap, label: t('nav.aiWorkflows') },
         { id: 'publications', icon: FileText, label: t('nav.publications') },
         { id: 'events-workshops', icon: Calendar, label: t('nav.eventsWorkshops') },
+        { id: 'ai-workflows', icon: Zap, label: t('nav.aiWorkflows') },
       ],
     },
     {
