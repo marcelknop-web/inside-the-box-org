@@ -717,5 +717,81 @@ export function useMillionaireSound() {
     } catch {}
   }, []);
 
-  return { playQuestionReveal, playCorrect, playWrong, playSelect, playConfirm, playVictory, playDefeat };
+  // Soft clock tick for countdown timer
+  const playTick = useCallback(() => {
+    try {
+      const ctx = getCtx();
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(1800, now);
+      osc.frequency.exponentialRampToValueAtTime(1200, now + 0.03);
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0.04, now);
+      g.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+      osc.connect(g);
+      g.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.06);
+    } catch {}
+  }, []);
+
+  // Urgent ticking when time is low
+  const playTickUrgent = useCallback(() => {
+    try {
+      const ctx = getCtx();
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(900, now);
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0.06, now);
+      g.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+      osc.connect(g);
+      g.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.1);
+    } catch {}
+  }, []);
+
+  // Milestone celebration (safety net reached)
+  const playMilestone = useCallback(() => {
+    try {
+      const ctx = getCtx();
+      const now = ctx.currentTime;
+      const master = ctx.createGain();
+      master.gain.setValueAtTime(0.15, now);
+      master.connect(ctx.destination);
+
+      // Quick sparkle arpeggio
+      [880, 1108.7, 1318.5, 1760].forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, now + i * 0.06);
+        const g = ctx.createGain();
+        g.gain.setValueAtTime(0.12, now + i * 0.06);
+        g.gain.exponentialRampToValueAtTime(0.001, now + i * 0.06 + 0.3);
+        osc.connect(g);
+        g.connect(master);
+        osc.start(now + i * 0.06);
+        osc.stop(now + i * 0.06 + 0.35);
+      });
+
+      // Chime
+      const chime = ctx.createOscillator();
+      chime.type = 'triangle';
+      chime.frequency.setValueAtTime(2637, now + 0.2);
+      const cg = ctx.createGain();
+      cg.gain.setValueAtTime(0.08, now + 0.2);
+      cg.gain.exponentialRampToValueAtTime(0.001, now + 0.8);
+      chime.connect(cg);
+      cg.connect(master);
+      chime.start(now + 0.2);
+      chime.stop(now + 0.85);
+
+      master.gain.linearRampToValueAtTime(0, now + 1.0);
+    } catch {}
+  }, []);
+
+  return { playQuestionReveal, playCorrect, playWrong, playSelect, playConfirm, playVictory, playDefeat, playTick, playTickUrgent, playMilestone };
 }

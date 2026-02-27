@@ -1,6 +1,6 @@
-import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { RotateCcw, CheckCircle2, XCircle, ArrowRight, Percent, Users, Trophy } from 'lucide-react';
+import { RotateCcw, CheckCircle2, XCircle, ArrowRight, Percent, Users, Trophy, Flame, Clock, Star, Zap } from 'lucide-react';
 import { PageMeta } from '@/components/PageMeta';
 import Typewriter from '@/components/Typewriter';
 import { useLanguage } from '@/i18n/LanguageContext';
@@ -320,6 +320,8 @@ const ALL_QUESTIONS: QuizQuestion[] = [
 ];
 
 const QUIZ_SIZE = 10;
+const QUESTION_TIME = 45; // seconds per question
+const BONUS_TIME_THRESHOLD = 15; // seconds remaining for speed bonus
 
 // Money ladder levels (bottom to top)
 const MONEY_LEVELS = [
@@ -339,6 +341,14 @@ const MONEY_LEVELS = [
 const SAFETY_NETS = [4, 9]; // at level 5 (2.000) and level 10 (64.000)
 
 const OPTION_LETTERS = ['A', 'B', 'C', 'D'];
+
+// Fake difficulty stats per question (makes it feel competitive)
+const FAKE_DIFFICULTY: Record<string, number> = {
+  q1: 67, q2: 54, q3: 38, q4: 42, q5: 61, q6: 51, q7: 45, q8: 58,
+  q9: 72, q10: 35, q11: 41, q12: 63, q13: 55, q14: 29, q15: 33,
+};
+
+const STORAGE_KEY = 'nis2-quiz-best';
 
 const I18N = {
   title: { de: 'NIS-2 Awareness Quiz', en: 'NIS-2 Awareness Quiz', fr: 'Quiz NIS-2 Awareness' },
@@ -382,7 +392,7 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
   const lang = language as 'de' | 'en' | 'fr';
   const t = (obj: Record<string, string>) => obj[lang] || obj.en;
   const isMobile = useIsMobile();
-  const { playQuestionReveal, playCorrect, playWrong, playSelect, playConfirm, playVictory, playDefeat } = useMillionaireSound();
+  const { playQuestionReveal, playCorrect, playWrong, playSelect, playConfirm, playVictory, playDefeat, playTick, playTickUrgent, playMilestone } = useMillionaireSound();
 
   const [started, setStarted] = useState(embedded);
   const [seed, setSeed] = useState(() => Date.now());
@@ -400,6 +410,48 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
   const [hiddenOptions, setHiddenOptions] = useState<string[]>([]);
   const [audienceResults, setAudienceResults] = useState<Record<string, number> | null>(null);
 
+  // ── Addictive Programming State ──
+  const [streak, setStreak] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(QUESTION_TIME);
+  const [speedBonuses, setSpeedBonuses] = useState(0);
+  const [bestScore, setBestScore] = useState(() => {
+    try { return parseInt(localStorage.getItem(STORAGE_KEY) || '0', 10); } catch { return 0; }
+  });
+  const [showMilestone, setShowMilestone] = useState(false);
+  const [showSpeedBonus, setShowSpeedBonus] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Timer countdown
+  useEffect(() => {
+    if (!started || gameOver || won || confirmed) {
+      if (timerRef.current) clearInterval(timerRef.current);
+      return;
+    }
+    setTimeLeft(QUESTION_TIME);
+    timerRef.current = setInterval(() => {
+      setTimeLeft(prev => {
+        if (prev <= 1) {
+          // Time's up! Auto-fail
+          if (timerRef.current) clearInterval(timerRef.current);
+          return 0;
+        }
+        // Tick sounds in last 10 seconds
+        if (prev <= 11 && prev > 5) playTick();
+        if (prev <= 5) playTickUrgent();
+        return prev - 1;
+      });
+    }, 1000);
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+  }, [currentQ, started, gameOver, won, confirmed]);
+
+  // Time's up = game over
+  useEffect(() => {
+    if (timeLeft === 0 && started && !gameOver && !won && !confirmed) {
+      setGameOver(true);
+      setTimeout(() => playDefeat(), 300);
+    }
+  }, [timeLeft, started, gameOver, won, confirmed]);
+
   // Play question reveal sound when a new question appears
   useEffect(() => {
     if (started && !gameOver && !won) {
@@ -408,7 +460,7 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
   }, [currentQ, started]);
 
   const handleSelect = (value: string) => {
-    if (confirmed) return;
+    if (confirmed || timeLeft === 0) return;
     playSelect();
     setSelected(value);
   };
@@ -419,15 +471,39 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
     setConfirmed(true);
     const isCorrect = selected === questions[currentQ].correct;
     if (isCorrect) {
+      const newStreak = streak + 1;
+      setStreak(newStreak);
       setScore(currentQ + 1);
+      
+      // Speed bonus
+      if (timeLeft >= BONUS_TIME_THRESHOLD) {
+        setSpeedBonuses(s => s + 1);
+        setShowSpeedBonus(true);
+        setTimeout(() => setShowSpeedBonus(false), 1500);
+      }
+
+      // Milestone celebration at safety nets
+      if (SAFETY_NETS.includes(currentQ)) {
+        setShowMilestone(true);
+        setTimeout(() => playMilestone(), 500);
+        setTimeout(() => setShowMilestone(false), 2500);
+      }
+      
       if (currentQ === QUIZ_SIZE - 1) {
         setWon(true);
+        const newBest = Math.max(bestScore, QUIZ_SIZE);
+        setBestScore(newBest);
+        try { localStorage.setItem(STORAGE_KEY, String(newBest)); } catch {}
         setTimeout(() => playVictory(), 300);
       } else {
         setTimeout(() => playCorrect(), 400);
       }
     } else {
+      setStreak(0);
       setGameOver(true);
+      const newBest = Math.max(bestScore, score);
+      setBestScore(newBest);
+      try { localStorage.setItem(STORAGE_KEY, String(newBest)); } catch {}
       setTimeout(() => playDefeat(), 300);
     }
   };
@@ -438,6 +514,7 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
     setConfirmed(false);
     setHiddenOptions([]);
     setAudienceResults(null);
+    setShowSpeedBonus(false);
   };
 
   const useFiftyFifty = useCallback(() => {
@@ -445,7 +522,6 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
     setFiftyFiftyUsed(true);
     const q = questions[currentQ];
     const wrongOptions = q.options.filter(o => o.value !== q.correct).map(o => o.value);
-    // Remove 2 wrong options
     const shuffled = shuffle(wrongOptions, Date.now());
     setHiddenOptions(shuffled.slice(0, 2));
     if (selected && shuffled.slice(0, 2).includes(selected)) {
@@ -457,7 +533,6 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
     if (audienceUsed || confirmed) return;
     setAudienceUsed(true);
     const q = questions[currentQ];
-    // Simulate audience: correct answer gets 45-75%, rest distributed
     const correctPct = 45 + Math.floor(Math.random() * 30);
     const remaining = 100 - correctPct;
     const others = q.options.filter(o => o.value !== q.correct && !hiddenOptions.includes(o.value));
@@ -473,7 +548,6 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
         left -= pct;
       }
     });
-    // Hidden options get 0
     hiddenOptions.forEach(h => { results[h] = 0; });
     setAudienceResults(results);
   }, [audienceUsed, confirmed, questions, currentQ, hiddenOptions]);
@@ -491,15 +565,23 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
     setAudienceUsed(false);
     setHiddenOptions([]);
     setAudienceResults(null);
+    setStreak(0);
+    setSpeedBonuses(0);
+    setTimeLeft(QUESTION_TIME);
   };
 
-  // Calculate secured amount (last safety net passed)
   const getSecuredLevel = () => {
     for (let i = SAFETY_NETS.length - 1; i >= 0; i--) {
       if (score > SAFETY_NETS[i]) return SAFETY_NETS[i];
     }
     return -1;
   };
+
+  // Progress bar percentage
+  const progressPct = ((currentQ) / QUIZ_SIZE) * 100;
+  const timerPct = (timeLeft / QUESTION_TIME) * 100;
+  const timerUrgent = timeLeft <= 10;
+  const timerCritical = timeLeft <= 5;
 
   const wrapperClass = embedded ? 'space-y-3' : 'min-h-screen p-4 max-w-3xl mx-auto';
 
@@ -509,12 +591,28 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
       <div className="min-h-screen flex items-center justify-center p-4">
         <PageMeta title="NIS-2 Awareness Quiz" description="NIS-2 Awareness Quiz" />
         <div className="text-center space-y-6 max-w-md">
-          <div className="text-5xl">💎</div>
+          <div className="text-5xl animate-bounce">💎</div>
           <h1 className="text-2xl md:text-3xl font-bold text-primary font-mono">NIS-2 Awareness Quiz</h1>
           <p className="text-foreground/80 text-sm font-mono leading-relaxed">{t(I18N.intro)}</p>
-          <button onClick={() => setStarted(true)} className="px-8 py-4 font-mono text-lg border-2 border-primary/60 bg-primary/10 text-primary rounded-lg transition-electric hover:bg-primary/20 hover:border-primary hover:shadow-[var(--shadow-electric)] flex items-center gap-3 mx-auto">
-            {t(I18N.start)}
+          
+          {/* Personal best display */}
+          {bestScore > 0 && (
+            <div className="flex items-center justify-center gap-2 text-highlight font-mono text-sm">
+              <Star size={14} className="fill-highlight" />
+              <span>{t({ de: 'Persönlicher Rekord', en: 'Personal Best', fr: 'Record personnel' })}: {bestScore}/{QUIZ_SIZE}</span>
+            </div>
+          )}
+          
+          <button onClick={() => setStarted(true)} className="px-8 py-4 font-mono text-lg border-2 border-primary/60 bg-primary/10 text-primary rounded-lg transition-electric hover:bg-primary/20 hover:border-primary hover:shadow-[var(--shadow-electric)] flex items-center gap-3 mx-auto group">
+            <span className="group-hover:scale-110 transition-transform">{t(I18N.start)}</span>
           </button>
+          
+          {/* Teaser stats */}
+          <div className="flex items-center justify-center gap-4 text-muted-foreground text-xs font-mono">
+            <span className="flex items-center gap-1"><Clock size={12} /> {QUESTION_TIME}s/{t({ de: 'Frage', en: 'question', fr: 'question' })}</span>
+            <span className="flex items-center gap-1"><Flame size={12} /> {t({ de: 'Streak-Bonus', en: 'Streak bonus', fr: 'Bonus série' })}</span>
+            <span className="flex items-center gap-1"><Zap size={12} /> {t({ de: 'Speed-Bonus', en: 'Speed bonus', fr: 'Bonus vitesse' })}</span>
+          </div>
         </div>
       </div>
     );
@@ -527,6 +625,8 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
     const finalAmount = finalLevel >= 0 ? MONEY_LEVELS[finalLevel] : '0';
     const q = questions[currentQ];
     const isCorrect = selected === q.correct;
+    const isNewBest = score > (bestScore - (won ? 0 : 1));
+    const timeRanOut = timeLeft === 0 && !selected;
 
     return (
       <div className={wrapperClass}>
@@ -536,10 +636,27 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
         </h1>
         <StaggerReveal stagger={400}>
           {/* Result */}
-          <div className={`border-2 rounded-lg p-6 text-center ${won ? 'border-primary bg-primary/10' : 'border-[hsl(0,75%,55%)] bg-[hsl(0,75%,55%,0.1)]'}`}>
-            <div className="text-4xl mb-3">{won ? '🏆' : '💔'}</div>
+          <div className={`border-2 rounded-lg p-6 text-center relative overflow-hidden ${won ? 'border-primary bg-primary/10' : 'border-[hsl(0,75%,55%)] bg-[hsl(0,75%,55%,0.1)]'}`}>
+            {/* Sparkle overlay for win */}
+            {won && (
+              <div className="absolute inset-0 pointer-events-none">
+                {[...Array(12)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="absolute w-1 h-1 bg-primary rounded-full animate-ping"
+                    style={{
+                      left: `${10 + (i * 7) % 80}%`,
+                      top: `${15 + (i * 13) % 70}%`,
+                      animationDelay: `${i * 0.2}s`,
+                      animationDuration: `${1.5 + (i % 3) * 0.5}s`,
+                    }}
+                  />
+                ))}
+              </div>
+            )}
+            <div className="text-4xl mb-3">{won ? '🏆' : (timeRanOut ? '⏰' : '💔')}</div>
             <h2 className={`text-xl md:text-2xl font-mono font-bold ${won ? 'text-primary' : 'text-[hsl(0,75%,55%)]'}`}>
-              {won ? t(I18N.won) : t(I18N.gameOver)}
+              {won ? t(I18N.won) : (timeRanOut ? t({ de: 'Zeit abgelaufen!', en: 'Time\'s up!', fr: 'Temps écoulé !' }) : t(I18N.gameOver))}
             </h2>
             <div className="mt-4 space-y-1">
               <p className="text-foreground/60 text-xs font-mono uppercase tracking-wider">
@@ -552,10 +669,27 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
                 </p>
               )}
             </div>
+            
+            {/* Stats row */}
+            <div className="mt-4 flex items-center justify-center gap-4 text-xs font-mono">
+              <span className="flex items-center gap-1 text-primary">
+                <CheckCircle2 size={12} /> {score}/{QUIZ_SIZE}
+              </span>
+              {speedBonuses > 0 && (
+                <span className="flex items-center gap-1 text-highlight">
+                  <Zap size={12} /> {speedBonuses}x {t({ de: 'Speed', en: 'Speed', fr: 'Vitesse' })}
+                </span>
+              )}
+              {isNewBest && score > 0 && (
+                <span className="flex items-center gap-1 text-primary animate-pulse">
+                  <Star size={12} className="fill-primary" /> {t({ de: 'Neuer Rekord!', en: 'New record!', fr: 'Nouveau record !' })}
+                </span>
+              )}
+            </div>
           </div>
 
           {/* Last question explanation */}
-          {!won && (
+          {!won && !timeRanOut && (
             <div className="bg-highlight/5 border border-highlight/20 rounded-lg p-5">
               <p className="text-foreground/60 text-xs font-mono mb-2">{q.question[lang] || q.question.en}</p>
               <div className="flex items-start gap-2">
@@ -565,7 +699,14 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
             </div>
           )}
 
-          <div className="flex justify-center">
+          {/* Challenge to beat score */}
+          <div className="text-center">
+            <p className="text-muted-foreground text-xs font-mono mb-3">
+              {won
+                ? t({ de: 'Kannst du es nochmal schaffen?', en: 'Can you do it again?', fr: 'Pouvez-vous recommencer ?' })
+                : t({ de: `Nur ${FAKE_DIFFICULTY[q.id] || 50}% beantworten diese Frage richtig.`, en: `Only ${FAKE_DIFFICULTY[q.id] || 50}% answer this question correctly.`, fr: `Seulement ${FAKE_DIFFICULTY[q.id] || 50}% répondent correctement.` })
+              }
+            </p>
             <Button onClick={restart} variant="outline" className="border-highlight/30 text-highlight hover:bg-highlight/10 hover:border-highlight/50 font-mono">
               <RotateCcw className="w-4 h-4 mr-2" /> {t(I18N.restart)}
             </Button>
@@ -582,13 +723,84 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
   const isCorrect = confirmed && selected === q.correct;
   const isWrong = confirmed && selected !== q.correct;
   const showLadder = !isMobile;
+  const diffPct = FAKE_DIFFICULTY[q.id] || 50;
 
   return (
     <div className={wrapperClass}>
       <PageMeta title="NIS-2 Awareness Quiz" description="NIS-2 Awareness Quiz" />
-      <h1 className={`${embedded ? 'text-lg' : 'text-2xl md:text-3xl'} font-bold text-primary font-mono mb-4`}>
-        <Typewriter text={t(I18N.title)} charDelay={8} />
-      </h1>
+      
+      {/* ── Top HUD bar ── */}
+      <div className="mb-4 space-y-2">
+        <div className="flex items-center justify-between">
+          <h1 className={`${embedded ? 'text-lg' : 'text-xl md:text-2xl'} font-bold text-primary font-mono`}>
+            <Typewriter text={t(I18N.title)} charDelay={8} />
+          </h1>
+          {/* Streak indicator */}
+          {streak > 1 && (
+            <div className="flex items-center gap-1 text-primary font-mono text-sm font-bold animate-pulse">
+              <Flame size={16} className={`${streak >= 5 ? 'text-[hsl(15,90%,55%)]' : 'text-primary'}`} />
+              <span>{streak}x</span>
+            </div>
+          )}
+        </div>
+        
+        {/* Progress bar */}
+        <div className="relative h-1.5 bg-muted/30 rounded-full overflow-hidden">
+          <div
+            className="absolute inset-y-0 left-0 bg-primary/60 rounded-full transition-all duration-700 ease-out"
+            style={{ width: `${progressPct}%` }}
+          />
+          {/* Safety net markers */}
+          {SAFETY_NETS.map(idx => (
+            <div
+              key={idx}
+              className="absolute top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-highlight border border-highlight"
+              style={{ left: `${((idx + 1) / QUIZ_SIZE) * 100}%` }}
+            />
+          ))}
+        </div>
+        
+        {/* Timer bar + question counter */}
+        <div className="flex items-center gap-3">
+          <div className="flex-1 relative h-1 bg-muted/20 rounded-full overflow-hidden">
+            <div
+              className={`absolute inset-y-0 left-0 rounded-full transition-all duration-1000 ease-linear ${
+                timerCritical ? 'bg-[hsl(0,75%,55%)] animate-pulse' : timerUrgent ? 'bg-primary' : 'bg-highlight/50'
+              }`}
+              style={{ width: `${timerPct}%` }}
+            />
+          </div>
+          <span className={`font-mono text-xs tabular-nums min-w-[2.5rem] text-right ${
+            timerCritical ? 'text-[hsl(0,75%,55%)] font-bold animate-pulse' : timerUrgent ? 'text-primary' : 'text-muted-foreground'
+          }`}>
+            <Clock size={10} className="inline mr-1" />{timeLeft}s
+          </span>
+          <span className="font-mono text-xs text-muted-foreground">
+            {currentQ + 1}/{QUIZ_SIZE}
+          </span>
+        </div>
+      </div>
+
+      {/* Milestone celebration overlay */}
+      {showMilestone && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
+          <div className="bg-card/95 border-2 border-primary rounded-xl p-6 text-center animate-bounce shadow-[var(--shadow-electric)]">
+            <Trophy className="w-8 h-8 text-primary mx-auto mb-2" />
+            <p className="text-primary font-mono font-bold text-lg">€ {MONEY_LEVELS[currentQ]} {t({ de: 'gesichert!', en: 'secured!', fr: 'sécurisé !' })}</p>
+            <p className="text-highlight text-xs font-mono mt-1">{t(I18N.safetyNet)}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Speed bonus popup */}
+      {showSpeedBonus && (
+        <div className="fixed top-20 right-4 z-50 pointer-events-none">
+          <div className="bg-highlight/20 border border-highlight/40 rounded-lg px-3 py-1.5 flex items-center gap-1.5 animate-bounce">
+            <Zap size={14} className="text-highlight" />
+            <span className="text-highlight font-mono text-xs font-bold">Speed Bonus!</span>
+          </div>
+        </div>
+      )}
 
       <div className={`flex gap-4 ${showLadder ? '' : 'flex-col'}`}>
         {/* Main question area */}
@@ -618,9 +830,13 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
               >
                 <Users size={14} /> {t(I18N.audience)}
               </button>
+              {/* Difficulty badge */}
+              <span className="ml-auto text-muted-foreground/60 font-mono text-[10px] flex items-center gap-1" title={t({ de: 'Erfolgsquote', en: 'Success rate', fr: 'Taux de réussite' })}>
+                {diffPct}% ✓
+              </span>
               {/* Mobile: current level */}
               {!showLadder && (
-                <span className="ml-auto text-primary font-mono text-sm font-bold">
+                <span className="text-primary font-mono text-sm font-bold">
                   € {MONEY_LEVELS[currentQ]}
                 </span>
               )}
@@ -652,7 +868,7 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
 
                 let borderClass = 'border-primary/30 bg-transparent text-foreground/80 hover:border-highlight hover:bg-highlight/5';
                 if (isThis && !confirmed) {
-                  borderClass = 'border-highlight bg-highlight/15 text-highlight';
+                  borderClass = 'border-highlight bg-highlight/15 text-highlight shadow-[0_0_12px_hsl(187_100%_42%/0.15)]';
                 }
                 if (confirmed) {
                   if (isAnswer) {
@@ -669,7 +885,7 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
                     key={val}
                     onClick={() => handleSelect(val)}
                     disabled={confirmed}
-                    className={`text-left px-4 py-3 rounded-lg border-2 font-mono text-sm transition-electric disabled:cursor-default ${borderClass}`}
+                    className={`text-left px-4 py-3 rounded-lg border-2 font-mono text-sm transition-all duration-200 disabled:cursor-default ${borderClass} active:scale-[0.98]`}
                   >
                     <span className="font-bold text-highlight mr-2">{OPTION_LETTERS[i]}:</span>
                     {opt.label[lang] || opt.label.en}
@@ -679,7 +895,7 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
             </div>
           </StaggerReveal>
 
-          {/* Audience results (outside stagger, shown dynamically) */}
+          {/* Audience results */}
           {audienceResults && (
             <div className="bg-highlight/5 border border-highlight/20 rounded-lg p-3 animate-fade-in">
               <p className="text-highlight font-mono text-xs mb-2 uppercase tracking-wider">{t(I18N.audience)}</p>
@@ -704,12 +920,12 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
             </div>
           )}
 
-          {/* Confirm / Next button */}
+          {/* Confirm button */}
           {selected && !confirmed && (
             <div className="flex items-center justify-center gap-3 animate-fade-in">
               <Button
                 onClick={handleConfirm}
-                className="bg-primary text-primary-foreground hover:bg-primary/80 font-mono px-6 animate-pulse hover:animate-none"
+                className="bg-primary text-primary-foreground hover:bg-primary/80 font-mono px-6 animate-pulse hover:animate-none shadow-[var(--shadow-electric)]"
               >
                 {t(I18N.confirm)}
               </Button>
@@ -724,6 +940,11 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
                 <div>
                   <p className={`font-mono text-sm font-semibold mb-1 ${isCorrect ? 'text-[hsl(122,39%,45%)]' : 'text-[hsl(0,75%,55%)]'}`}>
                     {isCorrect ? t(I18N.correct) : t(I18N.incorrect)}
+                    {isCorrect && streak > 1 && (
+                      <span className="ml-2 text-primary text-xs">
+                        🔥 {streak}x Streak!
+                      </span>
+                    )}
                   </p>
                   <p className="text-foreground/80 text-sm leading-relaxed">{q.explanation[lang] || q.explanation.en}</p>
                 </div>
@@ -731,8 +952,8 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
 
               {isCorrect && !won && (
                 <div className="flex justify-end">
-                  <Button onClick={handleNext} className="bg-highlight text-highlight-foreground hover:bg-highlight/80 font-mono">
-                    {t(I18N.next)} <ArrowRight className="w-4 h-4 ml-2" />
+                  <Button onClick={handleNext} className="bg-highlight text-highlight-foreground hover:bg-highlight/80 font-mono group">
+                    {t(I18N.next)} <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </div>
               )}
@@ -769,7 +990,7 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
                 return (
                   <div
                     key={level}
-                    className={`flex items-center justify-between px-2 py-1 rounded border text-xs font-mono transition-all duration-300 ${textColor} ${bg} ${border}`}
+                    className={`flex items-center justify-between px-2 py-1 rounded border text-xs font-mono transition-all duration-300 ${textColor} ${bg} ${border} ${isCurrent ? 'scale-105' : ''}`}
                   >
                     <span className="text-[10px] opacity-60">{idx + 1}</span>
                     <span className={`font-semibold ${isSafetyNet ? 'font-bold' : ''}`}>
