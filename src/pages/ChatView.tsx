@@ -979,9 +979,13 @@ const ChatView = () => {
           <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-1.5 rounded-md hover:bg-secondary text-muted-foreground transition-electric">
             {!isMobile && sidebarOpen ? <ChevronLeft size={18} /> : <Menu size={18} />}
           </button>
-          <a href="/" className="flex-1 text-sm font-mono font-bold text-accent truncate text-center md:text-left hover:text-highlight transition-electric">
-            inside-the-box.org
-          </a>
+          {activeService ? (
+            <a href="/" className="flex-1 text-sm font-mono font-bold text-accent truncate text-center md:text-left hover:text-highlight transition-electric">
+              inside-the-box.org
+            </a>
+          ) : (
+            <span className="flex-1" />
+          )}
           {isMobile && (
             <button onClick={newChat} className="p-1.5 rounded-md hover:bg-secondary text-muted-foreground transition-electric">
               <Plus size={18} />
