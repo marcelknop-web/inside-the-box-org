@@ -200,7 +200,7 @@ export default function IspcTtxPrioritizer({ embedded = false }: { embedded?: bo
     <div className={wrapperClass}>
       <PageMeta title="ISCP TTX Prioritizer" description="ISCP-Bewertung für Tabletop Exercises" />
       <h1 className={`${embedded ? 'text-lg' : 'text-2xl md:text-3xl'} font-bold text-primary font-mono mb-2`}>
-        ISCP Quick Check
+        ISCP Quick Check — TTX-Priorisierung
       </h1>
       <p className="text-muted-foreground text-sm font-mono mb-3">
         Wie dringend muss dieses ISCP im nächsten Tabletop Exercise getestet werden?
