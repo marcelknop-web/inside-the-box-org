@@ -52,27 +52,47 @@ function completeness(c: CriteriaRatings): number {
 
 function renderAiResult(text: string) {
   const sections = text.split(/(?=###?\s)/).filter(Boolean);
-  const formatLine = (line: string) =>
-    line
-      .replace(/\*\*(.*?)\*\*/g, '<strong class="text-primary">$1</strong>')
-      .replace(/^\d+\.\s/gm, '• ')
-      .replace(/^\*\s+/gm, '• ')
-      .replace(/^[-–]\s+/gm, '• ')
-      .replace(/^→\s*/gm, '• ');
-  if (sections.length <= 1) {
-    return text.split('\n').filter(Boolean).map((line, i) => {
-      return <p key={i} className="text-foreground text-sm" dangerouslySetInnerHTML={{ __html: formatLine(line) }} />;
+  const boldify = (s: string) => s.replace(/\*\*(.*?)\*\*/g, '<strong class="text-primary">$1</strong>');
+  const isBullet = (line: string) => /^(\d+\.\s|\*\s+|[-–→•]\s)/.test(line);
+  const stripBullet = (line: string) => line.replace(/^(\d+\.\s|\*\s+|[-–→•]\s+)/, '');
+
+  const renderLines = (lines: string[]) => {
+    const elements: JSX.Element[] = [];
+    let bulletBuffer: string[] = [];
+    const flushBullets = () => {
+      if (bulletBuffer.length) {
+        elements.push(
+          <ul key={`ul-${elements.length}`} className="list-disc list-inside text-foreground text-sm md:text-[15px] leading-relaxed space-y-1">
+            {bulletBuffer.map((b, j) => <li key={j} dangerouslySetInnerHTML={{ __html: boldify(b) }} />)}
+          </ul>
+        );
+        bulletBuffer = [];
+      }
+    };
+    lines.forEach((line, i) => {
+      if (isBullet(line)) {
+        bulletBuffer.push(stripBullet(line));
+      } else {
+        flushBullets();
+        elements.push(<p key={`p-${i}`} className="text-foreground text-sm md:text-[15px] leading-relaxed" dangerouslySetInnerHTML={{ __html: boldify(line) }} />);
+      }
     });
+    flushBullets();
+    return elements;
+  };
+
+  if (sections.length <= 1) {
+    return renderLines(text.split('\n').filter(Boolean));
   }
   return sections.map((section, i) => {
     const lines = section.trim().split('\n').filter(Boolean);
     const headingMatch = lines[0]?.match(/^###?\s*\d*\.?\s*(.*)/);
     const heading = headingMatch ? headingMatch[1] : lines[0];
-    const body = (headingMatch ? lines.slice(1) : lines).map(formatLine).join('\n');
+    const bodyLines = headingMatch ? lines.slice(1) : lines;
     return (
       <div key={i} className="border-l-2 border-highlight/30 pl-3">
         <p className="text-highlight text-xs font-semibold uppercase tracking-wider mb-1">{heading}</p>
-        <p className="text-foreground text-sm md:text-[15px] leading-relaxed whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: body }} />
+        <div className="space-y-1">{renderLines(bodyLines)}</div>
       </div>
     );
   });
@@ -188,7 +208,7 @@ export default function IspcTtxPrioritizer({ embedded = false }: { embedded?: bo
             <span className="text-[#22c55e]">● {sorted.length - highCount - medCount} {t('iscp.low')}</span>
           </div>
         </div>
-        <p className="text-foreground/80 text-sm font-mono mb-4">
+        <p className="text-foreground text-sm md:text-[15px] leading-relaxed mb-4">
           {t('iscp.resultIntro')}
         </p>
 
@@ -199,7 +219,7 @@ export default function IspcTtxPrioritizer({ embedded = false }: { embedded?: bo
             return (
               <div key={r.name} className={`flex items-center gap-2 ${sc.bg} ${sc.border} border rounded-md px-3 py-2`}>
                 <Icon className={`w-3.5 h-3.5 ${sc.color} shrink-0`} />
-                <span className="text-foreground text-sm font-mono flex-1">{r.name}</span>
+                <span className="text-foreground text-sm md:text-[15px] flex-1">{r.name}</span>
                 <span className={`text-xs font-mono font-semibold ${sc.color}`}>{r.score}</span>
               </div>
             );
