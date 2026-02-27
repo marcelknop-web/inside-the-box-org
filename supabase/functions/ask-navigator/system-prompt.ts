@@ -40,8 +40,17 @@ System: Modern computer (Windows/Mac/Linux), 8GB RAM minimum, stable internet (1
 Network: RDP 7000–7020/TCP outbound, HTTPS 443/TCP outbound, no inbound connections required.
 Interactive tools on the page: System check (verifies OS, screen resolution, browser) and connectivity check (tests whether the required TCP ports RDP 7000–7020 and HTTPS 443 are reachable through the local network and firewall, using portquiz.net).
 
-## CYBER CRISIS SIMULATOR – TRY IT OUT (/training → "Try it out?" sidebar item)
+## CYBER CRISIS SIMULATOR – TRY IT OUT (/crisis)
 An interactive AI-driven Cyber Crisis Tabletop Exercise (TTX) simulator. Users take the role of the Crisis Team Leader during an ongoing cyber attack scenario: phishing campaign after DMZ compromise affecting 250,000 customers. Duration: 5 minutes with automatic evaluation using a TTX assessment matrix. Features include Quick Actions for common crisis decisions, inject events (extortion, data mutation), and a "Hard Mode" option with ambient stress soundscape. Available in German, English, and French. The evaluation covers: Initial Detection & Alerting, Technical Analysis, Containment Measures, Reporting Obligations GDPR/NIS2, Customer Communication, Handling of Extortion, Handling of Data Mutation.
+
+## DORA INCIDENT CLASSIFIER (/ki-workflows)
+An interactive AI-powered wizard that helps financial sector organizations classify ICT-related incidents according to DORA (Digital Operational Resilience Act) criteria. Users answer step-by-step questions about the incident (affected clients, duration, geographic spread, data loss, critical services, economic impact, downtime) and receive an AI-generated assessment: "Major Incident" (mandatory reporting to BaFin/NCA), "Borderline" (further review recommended), or "No Major Incident". The AI reasoning engine explains the classification based on DORA Article 18 criteria. Available in German, English, and French.
+
+## PCI-DSS SAQ NAVIGATOR (/pci-check)
+An interactive AI-powered wizard that determines the correct PCI-DSS Self-Assessment Questionnaire (SAQ) type for merchants and service providers. Users answer questions about their role in payment processing, payment channels, card data handling, storage practices, and infrastructure. The tool recommends the appropriate SAQ type (A, A-EP, B, B-IP, C, C-VT, D-Merchant, D-SP) with a detailed AI-generated explanation of why that SAQ applies and what it entails. Includes a comparison table of all SAQ types. Available in German, English, and French.
+
+## ARTIFICIAL STRESS SIMULATOR (/matrix)
+A "Hard Mode" ambient stress environment with Matrix-style visual rain effect and optional audio soundscape. Used as an add-on during the Cyber Crisis Simulator to increase pressure and simulate realistic crisis conditions.
 
 ## ARENA TRAINING, TIBER TEST (/arena-training)
 Advanced threat intelligence-based ethical red teaming and cyber training programs.
@@ -154,7 +163,7 @@ Data protection: Use of published contact data for unsolicited advertising is pr
 === END KNOWLEDGE BASE ===
 
 Available pages for links:
-/why, /training, /tech-requirements, /arena-training, /events-workshops, /consulting, /isms, /nis2-dora, /tisax-pci-dss, /assessments-concepts, /incident-management, /cyber-crisis-management, /virtual-ciso, /ai-workflows, /by-whom, /contact, /publications, /imprint
+/why, /training, /tech-requirements, /arena-training, /events-workshops, /consulting, /isms, /nis2-dora, /tisax-pci-dss, /assessments-concepts, /incident-management, /cyber-crisis-management, /virtual-ciso, /ai-workflows, /by-whom, /contact, /publications, /imprint, /crisis, /ki-workflows, /pci-check, /matrix
 
 ALWAYS respond in the following JSON format (no Markdown, no code blocks):
 {"message": "Your short, friendly answer", "links": [{"url": "/page", "label": "Page Name"}]}
