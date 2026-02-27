@@ -416,6 +416,28 @@ const useServiceContent = () => {
             <GridItem icon={ShieldCheck} title={t('events.isacaTitle')} desc={t('events.isacaDesc')} variant="highlight" href="https://www.isaca.de/seminare/seminare/seminare-f%C3%BCr-manager1/cyber-security-expert-20-04-2026.html" />
           </div>
         </Block>
+
+        <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
+          <SubTitle variant="highlight">{t('events.evalTitle')}</SubTitle>
+          <p className="text-foreground text-lg font-sans mt-1 mb-1">{t('events.evalCourse')}</p>
+          <p className="text-muted-foreground text-sm font-mono mb-4">{t('events.evalPeriod')}</p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="bg-card/60 border border-border rounded-lg p-4 flex flex-col">
+              <span className="text-muted-foreground text-xs font-mono uppercase tracking-widest mb-2">{t('events.evalSatisfaction')}</span>
+              <span className="text-highlight text-3xl font-bold font-mono">94%</span>
+            </div>
+            <div className="bg-card/60 border border-border rounded-lg p-4 flex flex-col">
+              <span className="text-muted-foreground text-xs font-mono uppercase tracking-widest mb-2">{t('events.evalRecommendation')}</span>
+              <span className="text-highlight text-3xl font-bold font-mono mb-1">93%</span>
+              <span className="text-muted-foreground text-xs">{t('events.evalRecommendationSub')}</span>
+            </div>
+            <div className="bg-card/60 border border-border rounded-lg p-4 flex flex-col">
+              <span className="text-muted-foreground text-xs font-mono uppercase tracking-widest mb-2">{t('events.evalScore')}</span>
+              <span className="text-primary text-3xl font-bold font-mono">87%</span>
+            </div>
+          </div>
+        </Block>
+
       </TypedSection>
       </>
     ),

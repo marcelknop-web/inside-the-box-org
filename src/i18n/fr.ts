@@ -334,6 +334,13 @@ export const fr = {
     seminarsDesc: 'Programmes de formation ciblés – de la technique au management.',
     isacaTitle: 'Certificat ISACA CSE',
     isacaDesc: 'Formation certifiante Cyber Security Expert (CSE) – en coopération avec ISACA Germany.',
+    evalTitle: 'Évaluation du séminaire',
+    evalCourse: 'Cyber Security Expert',
+    evalPeriod: '2024–2025 · 5 sessions · n = 30 participants',
+    evalSatisfaction: 'Ø Satisfaction',
+    evalRecommendation: 'Recommandation',
+    evalRecommendationSub: 'extrêmement + très probable',
+    evalScore: 'Ø Score rec.',
   },
   publications: {
     title: 'Publications & Formation',

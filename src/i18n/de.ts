@@ -334,6 +334,13 @@ export const de = {
     seminarsDesc: 'Schulungsprogramme für abgegrenzte Zielgruppen – von Technik bis Management.',
     isacaTitle: 'ISACA CSE Zertifikat',
     isacaDesc: 'Zertifikatstraining zum Cyber Security Expert (CSE) – in Kooperation mit ISACA Germany.',
+    evalTitle: 'Seminarbewertung',
+    evalCourse: 'Cyber Security Expert',
+    evalPeriod: '2024–2025 · 5 Durchgänge · n = 30 Teilnehmer',
+    evalSatisfaction: 'Ø Zufriedenheit',
+    evalRecommendation: 'Weiterempfehlung',
+    evalRecommendationSub: 'äußerst + sehr wahrscheinlich',
+    evalScore: 'Ø Empf.-Score',
   },
   publications: {
     title: 'Publikationen & Training',

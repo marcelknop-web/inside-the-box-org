@@ -334,6 +334,13 @@ export const en = {
     seminarsDesc: 'Training programs for defined audiences – from technical teams to management.',
     isacaTitle: 'ISACA CSE Certificate',
     isacaDesc: 'Cyber Security Expert (CSE) certification training – in cooperation with ISACA Germany.',
+    evalTitle: 'Seminar Evaluation',
+    evalCourse: 'Cyber Security Expert',
+    evalPeriod: '2024–2025 · 5 Cohorts · n = 30 Participants',
+    evalSatisfaction: 'Ø Satisfaction',
+    evalRecommendation: 'Recommendation',
+    evalRecommendationSub: 'extremely + very likely',
+    evalScore: 'Ø Rec. Score',
   },
   publications: {
     title: 'Publications & Training',
