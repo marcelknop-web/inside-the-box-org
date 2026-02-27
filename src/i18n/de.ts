@@ -30,7 +30,7 @@ export const de = {
     securityConcepts: 'Sicherheitskonzepte',
     virtualCiso: 'Virtual CISO',
     socSiem: 'SOC / SIEM',
-    aiWorkflows: 'KI-gestützte Workflows',
+    aiWorkflows: 'KI-Lab',
     publications: 'Publikationen',
     events: 'Events',
     eventsWorkshops: 'Events & Workshops',
