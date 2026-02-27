@@ -425,17 +425,17 @@ const useServiceContent = () => {
             <p className="text-muted-foreground text-xs font-mono mt-1 opacity-70">{t('events.evalPeriod')}</p>
           </div>
 
-          <div className="grid grid-cols-3 gap-2 mb-4">
-            <div className="bg-card/60 border border-border rounded-lg p-4 flex flex-col items-center text-center">
+          <div className="grid grid-cols-3 gap-3 mb-4">
+            <div className="bg-highlight/5 border border-highlight/20 rounded-xl p-4 flex flex-col items-center text-center">
               <span className="text-muted-foreground text-xs font-mono uppercase tracking-widest mb-1">{t('events.evalSatisfaction')}</span>
               <span className="text-highlight text-3xl font-bold font-mono">94%</span>
             </div>
-            <div className="bg-card/60 border border-border rounded-lg p-4 flex flex-col items-center text-center">
+            <div className="bg-highlight/5 border border-highlight/20 rounded-xl p-4 flex flex-col items-center text-center">
               <span className="text-muted-foreground text-xs font-mono uppercase tracking-widest mb-1">{t('events.evalRecommendation')}</span>
               <span className="text-highlight text-3xl font-bold font-mono">93%</span>
               <span className="text-muted-foreground text-xs font-mono mt-1">{t('events.evalRecommendationSub')}</span>
             </div>
-            <div className="bg-card/60 border border-border rounded-lg p-4 flex flex-col items-center text-center">
+            <div className="bg-highlight/5 border border-highlight/20 rounded-xl p-4 flex flex-col items-center text-center">
               <span className="text-muted-foreground text-xs font-mono uppercase tracking-widest mb-1">{t('events.evalEmpfScore')}</span>
               <span className="text-primary text-3xl font-bold font-mono">87%</span>
             </div>
