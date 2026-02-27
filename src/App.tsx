@@ -13,6 +13,7 @@ import CyberCrisisSimulator from "./pages/CyberCrisisSimulator";
 import DoraIncidentReporter from "./pages/DoraIncidentReporter";
 import PciDssSaqNavigator from "./pages/PciDssSaqNavigator";
 import IspcTtxPrioritizer from "./pages/IspcTtxPrioritizer";
+import Nis2AwarenessQuiz from "./pages/Nis2AwarenessQuiz";
 
 const queryClient = new QueryClient();
 
@@ -32,6 +33,7 @@ const App = () => (
               <Route path="/ki-workflows" element={<DoraIncidentReporter />} />
               <Route path="/pci-check" element={<PciDssSaqNavigator />} />
               <Route path="/ttx-prioritizer" element={<IspcTtxPrioritizer />} />
+              <Route path="/nis2-quiz" element={<Nis2AwarenessQuiz />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
