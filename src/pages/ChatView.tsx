@@ -869,7 +869,7 @@ const useSidebarGroups = (): SidebarGroup[] => {
       title: t('nav.groupCyberResilience'),
       items: [
         { id: 'cyber-crisis-management', icon: Swords, label: t('nav.krisenmanagement') },
-        { id: 'crisis-sim', icon: AlertTriangle, label: t('nav.tabletopExercises') },
+        
         { id: 'why', icon: Target, label: t('nav.cyberTrainingRange') },
         { id: 'arena-training', icon: Target, label: t('nav.redTeam') },
         { id: 'incident-management', icon: Flame, label: t('nav.incidentMgmt') },
