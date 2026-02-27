@@ -29,7 +29,7 @@ const CRITERIA = [
   { key: 'bi' as const, label: 'Business Impact', short: 'BI', description: 'Kritikalität für den Geschäftsbetrieb',
     levels: { 1: 'Gering', 2: 'Mittel', 3: 'Kritisch' } },
   { key: 'tlt' as const, label: 'Letzter Test', short: 'LT', description: 'Wie lange liegt der letzte Test zurück?',
-    levels: { 1: 'Kürzlich', 2: 'Länger her', 3: 'Nie / Unklar' } },
+    levels: { 1: 'Kürzlich', 2: 'Länger her', 3: 'Nie getestet' } },
   { key: 'cp' as const, label: 'Komplexität', short: 'KX', description: 'Abhängigkeiten & Schnittstellen',
     levels: { 1: 'Einfach', 2: 'Mittel', 3: 'Komplex' } },
   { key: 'af' as const, label: 'Offene Findings', short: 'AF', description: 'Ungelöste Audit-Findings',
@@ -59,6 +59,33 @@ function scoreColor(score: number) {
 
 function completeness(c: CriteriaRatings): number {
   return [c.bi, c.tlt, c.cp, c.af].filter(v => v >= 0).length;
+}
+
+function renderAiResult(text: string) {
+  // Split by markdown headings (### or ##) and render as styled sections
+  const sections = text.split(/(?=###?\s)/).filter(Boolean);
+  if (sections.length <= 1) {
+    // No headings found — render lines with bold handling
+    return text.split('\n').filter(Boolean).map((line, i) => {
+      const rendered = line.replace(/\*\*(.*?)\*\*/g, '<strong class="text-primary">$1</strong>');
+      return <p key={i} dangerouslySetInnerHTML={{ __html: rendered }} />;
+    });
+  }
+  return sections.map((section, i) => {
+    const lines = section.trim().split('\n').filter(Boolean);
+    const headingMatch = lines[0]?.match(/^###?\s*\d*\.?\s*(.*)/);
+    const heading = headingMatch ? headingMatch[1] : lines[0];
+    const body = (headingMatch ? lines.slice(1) : lines).join('\n');
+    const rendered = body
+      .replace(/\*\*(.*?)\*\*/g, '<strong class="text-primary">$1</strong>')
+      .replace(/^\d+\.\s/gm, '→ ');
+    return (
+      <div key={i} className="border-l-2 border-highlight/30 pl-3">
+        <p className="text-highlight text-xs font-semibold uppercase tracking-wider mb-1">{heading}</p>
+        <p className="text-foreground/80 text-sm whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: rendered }} />
+      </div>
+    );
+  });
 }
 
 const LS_KEY = 'iscp-criteria-ratings';
@@ -146,7 +173,7 @@ export default function IspcTtxPrioritizer({ embedded = false }: { embedded?: bo
       <div className={wrapperClass}>
         <PageMeta title="ISCP TTX Prioritizer" description="ISCP-Bewertung für Tabletop Exercises" />
 
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-2">
           <h1 className={`${embedded ? 'text-lg' : 'text-xl'} font-bold text-primary font-mono`}>Ergebnis</h1>
           <div className="flex gap-3 text-xs font-mono">
             <span className="text-[#ef4444]">● {highCount} hoch</span>
@@ -154,6 +181,9 @@ export default function IspcTtxPrioritizer({ embedded = false }: { embedded?: bo
             <span className="text-[#22c55e]">● {sorted.length - highCount - medCount} niedrig</span>
           </div>
         </div>
+        <p className="text-muted-foreground text-sm font-mono mb-4">
+          Ranking nach Dringlichkeit — je höher der Score, desto eher sollte das ISCP im nächsten TTX getestet werden.
+        </p>
 
         <div className="space-y-1 mb-4">
           {sorted.map((r, i) => {
@@ -177,14 +207,16 @@ export default function IspcTtxPrioritizer({ embedded = false }: { embedded?: bo
           {aiLoading ? (
             <><span className="animate-pulse mr-2">●</span> Analyse läuft…</>
           ) : (
-            <><Sparkles className="w-4 h-4 mr-2" /> KI-Empfehlung</>
+            <><Sparkles className="w-4 h-4 mr-2" /> TTX-Vorschlag generieren</>
           )}
         </Button>
 
         {aiResult && (
           <div className="bg-card border border-highlight/20 rounded-lg p-4 mb-3">
-            <h3 className="text-highlight font-mono text-xs uppercase tracking-wider mb-2">KI-Empfehlung</h3>
-            <div className="text-foreground/90 text-sm leading-relaxed whitespace-pre-wrap font-mono">{aiResult}</div>
+            <h3 className="text-highlight font-mono text-xs uppercase tracking-wider mb-3">TTX-Vorschlag</h3>
+            <div className="text-foreground/90 text-sm leading-relaxed font-mono space-y-3">
+              {renderAiResult(aiResult)}
+            </div>
           </div>
         )}
 
