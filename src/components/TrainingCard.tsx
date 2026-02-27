@@ -24,7 +24,9 @@ export const TrainingCard = ({ title, description, icon: Icon, className = '', o
       onClick={onClick}
     >
       <div className="flex flex-col items-center space-y-3 p-4">
-        <Icon size={28} className={`text-primary/80 ${isInteractive ? 'group-hover:text-primary transition-electric' : ''}`} />
+        <div className={`w-11 h-11 rounded-lg flex items-center justify-center bg-primary/15 ${isInteractive ? 'group-hover:bg-primary/25 transition-electric' : ''}`}>
+          <Icon size={22} className={`text-primary/80 ${isInteractive ? 'group-hover:text-primary transition-electric' : ''}`} />
+        </div>
         <h3 className={`text-base sm:text-lg font-mono tracking-wide text-center text-primary/90 ${isInteractive ? 'group-hover:text-primary transition-electric' : ''}`}>
           {title}
         </h3>
