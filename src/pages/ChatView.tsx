@@ -887,14 +887,12 @@ const useSidebarGroups = (): SidebarGroup[] => {
       items: [
         { id: 'virtual-ciso', icon: UserCheck, label: t('nav.virtualCiso') },
         { id: 'assessments-concepts', icon: Search, label: t('nav.assessments') },
-        { id: 'security-concepts', icon: ShieldCheck, label: t('nav.securityConcepts') },
       ],
     },
     {
       title: t('nav.groupOperations'),
       items: [
         { id: 'incident-management', icon: Flame, label: t('nav.incidentMgmt') },
-        { id: 'soc-siem', icon: Network, label: t('nav.socSiem') },
       ],
     },
     {
