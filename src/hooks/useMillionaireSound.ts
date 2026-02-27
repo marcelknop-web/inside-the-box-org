@@ -466,5 +466,256 @@ export function useMillionaireSound() {
     } catch {}
   }, []);
 
-  return { playQuestionReveal, playCorrect, playWrong, playSelect, playConfirm };
+  // Super Bowl style victory fanfare
+  const playVictory = useCallback(() => {
+    try {
+      const ctx = getCtx();
+      const now = ctx.currentTime;
+
+      const master = ctx.createGain();
+      master.gain.setValueAtTime(0.3, now);
+      master.connect(ctx.destination);
+
+      const reverb = createReverb(ctx, 3, 1.5);
+      const revG = ctx.createGain();
+      revG.gain.setValueAtTime(0.35, now);
+      reverb.connect(revG);
+      revG.connect(master);
+
+      // ═══ MASSIVE BRASS FANFARE (Super Bowl touchdown style) ═══
+      const fanfare = [
+        // Triumphant ascending D major → power chord
+        { freq: 293.7, start: 0, dur: 0.2 },     // D4
+        { freq: 370,   start: 0.1, dur: 0.2 },    // F#4
+        { freq: 440,   start: 0.2, dur: 0.2 },    // A4
+        { freq: 587.3, start: 0.3, dur: 0.3 },    // D5
+        { freq: 740,   start: 0.4, dur: 0.3 },    // F#5
+        { freq: 880,   start: 0.5, dur: 0.5 },    // A5
+        // Power hold
+        { freq: 1174.7, start: 0.65, dur: 1.2 },  // D6 (screaming top)
+      ];
+
+      fanfare.forEach(({ freq, start, dur }) => {
+        for (const type of ['sawtooth', 'square'] as OscillatorType[]) {
+          const osc = ctx.createOscillator();
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, now + start);
+          // Vibrato
+          const lfo = ctx.createOscillator();
+          lfo.frequency.setValueAtTime(5.5, now + start);
+          const lfoG = ctx.createGain();
+          lfoG.gain.setValueAtTime(3, now + start);
+          lfo.connect(lfoG);
+          lfoG.connect(osc.frequency);
+          lfo.start(now + start);
+          lfo.stop(now + start + dur + 0.1);
+
+          const filter = ctx.createBiquadFilter();
+          filter.type = 'lowpass';
+          filter.frequency.setValueAtTime(1000, now + start);
+          filter.frequency.linearRampToValueAtTime(4000, now + start + 0.04);
+          filter.frequency.exponentialRampToValueAtTime(1500, now + start + dur);
+
+          const g = ctx.createGain();
+          const vol = type === 'sawtooth' ? 0.06 : 0.025;
+          g.gain.setValueAtTime(0, now + start);
+          g.gain.linearRampToValueAtTime(vol, now + start + 0.02);
+          g.gain.setValueAtTime(vol * 0.85, now + start + dur * 0.7);
+          g.gain.exponentialRampToValueAtTime(0.001, now + start + dur);
+
+          osc.connect(filter);
+          filter.connect(g);
+          g.connect(master);
+          g.connect(reverb);
+          osc.start(now + start);
+          osc.stop(now + start + dur + 0.15);
+        }
+      });
+
+      // ═══ STADIUM ORGAN POWER CHORD (sustained) ═══
+      [293.7, 370, 440, 587.3].forEach((freq) => {
+        const osc = ctx.createOscillator();
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(freq, now + 0.7);
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(600, now + 0.7);
+        const g = ctx.createGain();
+        g.gain.setValueAtTime(0, now + 0.7);
+        g.gain.linearRampToValueAtTime(0.04, now + 0.8);
+        g.gain.setValueAtTime(0.04, now + 1.8);
+        g.gain.exponentialRampToValueAtTime(0.001, now + 2.8);
+        osc.connect(filter);
+        filter.connect(g);
+        g.connect(master);
+        g.connect(reverb);
+        osc.start(now + 0.7);
+        osc.stop(now + 2.9);
+      });
+
+      // ═══ TIMPANI HITS (punctuation) ═══
+      [0, 0.3, 0.65, 1.8].forEach((t) => {
+        const osc = ctx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(73, now + t);
+        osc.frequency.exponentialRampToValueAtTime(55, now + t + 0.15);
+        const g = ctx.createGain();
+        g.gain.setValueAtTime(0.2, now + t);
+        g.gain.exponentialRampToValueAtTime(0.001, now + t + 0.3);
+        osc.connect(g);
+        g.connect(master);
+        osc.start(now + t);
+        osc.stop(now + t + 0.35);
+      });
+
+      // ═══ CYMBAL CRASH ═══
+      const bufSize = ctx.sampleRate * 3;
+      const noiseBuf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
+      const nd = noiseBuf.getChannelData(0);
+      for (let i = 0; i < bufSize; i++) nd[i] = Math.random() * 2 - 1;
+      const noise = ctx.createBufferSource();
+      noise.buffer = noiseBuf;
+      const hpf = ctx.createBiquadFilter();
+      hpf.type = 'highpass';
+      hpf.frequency.setValueAtTime(5000, now + 0.65);
+      const ng = ctx.createGain();
+      ng.gain.setValueAtTime(0, now + 0.65);
+      ng.gain.linearRampToValueAtTime(0.1, now + 0.67);
+      ng.gain.exponentialRampToValueAtTime(0.001, now + 2.5);
+      noise.connect(hpf);
+      hpf.connect(ng);
+      ng.connect(master);
+      ng.connect(reverb);
+      noise.start(now + 0.65);
+      noise.stop(now + 2.6);
+
+      // ═══ CROWD ROAR (filtered noise burst) ═══
+      const crowdBuf = ctx.createBuffer(2, ctx.sampleRate * 3, ctx.sampleRate);
+      for (let ch = 0; ch < 2; ch++) {
+        const cd = crowdBuf.getChannelData(ch);
+        for (let i = 0; i < cd.length; i++) {
+          cd[i] = (Math.random() * 2 - 1) * (0.8 + Math.sin(i * 0.0003) * 0.2);
+        }
+      }
+      const crowd = ctx.createBufferSource();
+      crowd.buffer = crowdBuf;
+      const crowdBPF = ctx.createBiquadFilter();
+      crowdBPF.type = 'bandpass';
+      crowdBPF.frequency.setValueAtTime(800, now + 0.6);
+      crowdBPF.Q.setValueAtTime(0.5, now + 0.6);
+      const crowdG = ctx.createGain();
+      crowdG.gain.setValueAtTime(0, now + 0.6);
+      crowdG.gain.linearRampToValueAtTime(0.08, now + 0.9);
+      crowdG.gain.setValueAtTime(0.08, now + 1.8);
+      crowdG.gain.exponentialRampToValueAtTime(0.001, now + 3.0);
+      crowd.connect(crowdBPF);
+      crowdBPF.connect(crowdG);
+      crowdG.connect(master);
+      crowd.start(now + 0.6);
+      crowd.stop(now + 3.1);
+
+      master.gain.setValueAtTime(0.3, now + 2.5);
+      master.gain.linearRampToValueAtTime(0, now + 3.2);
+    } catch {}
+  }, []);
+
+  // Schadenfreude "wah wah wah wahhh" trombone fail sound
+  const playDefeat = useCallback(() => {
+    try {
+      const ctx = getCtx();
+      const now = ctx.currentTime;
+
+      const master = ctx.createGain();
+      master.gain.setValueAtTime(0.25, now);
+      master.connect(ctx.destination);
+
+      const reverb = createReverb(ctx, 2, 2);
+      const revG = ctx.createGain();
+      revG.gain.setValueAtTime(0.25, now);
+      reverb.connect(revG);
+      revG.connect(master);
+
+      // ═══ TROMBONE "WAH WAH WAH WAHHH" ═══
+      const wahNotes = [
+        { freq: 311, endFreq: 293.7, start: 0, dur: 0.4 },    // Eb4 → D4
+        { freq: 293.7, endFreq: 277.2, start: 0.45, dur: 0.4 }, // D4 → C#4
+        { freq: 277.2, endFreq: 261.6, start: 0.9, dur: 0.4 },  // C#4 → C4
+        { freq: 261.6, endFreq: 185, start: 1.35, dur: 1.0 },   // C4 → F#3 (long sad slide down)
+      ];
+
+      wahNotes.forEach(({ freq, endFreq, start, dur }) => {
+        // Trombone = sawtooth with wah filter
+        const osc = ctx.createOscillator();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(freq, now + start);
+        osc.frequency.linearRampToValueAtTime(endFreq, now + start + dur);
+
+        // Wah-wah filter sweep
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.Q.setValueAtTime(5, now + start);
+        filter.frequency.setValueAtTime(freq * 3, now + start);
+        filter.frequency.linearRampToValueAtTime(freq * 1.5, now + start + dur * 0.3);
+        filter.frequency.linearRampToValueAtTime(freq * 3, now + start + dur * 0.6);
+        filter.frequency.linearRampToValueAtTime(endFreq * 1.2, now + start + dur);
+
+        // Vibrato for last note
+        if (start > 1) {
+          const lfo = ctx.createOscillator();
+          lfo.frequency.setValueAtTime(5, now + start);
+          const lfoG = ctx.createGain();
+          lfoG.gain.setValueAtTime(4, now + start);
+          lfo.connect(lfoG);
+          lfoG.connect(osc.frequency);
+          lfo.start(now + start);
+          lfo.stop(now + start + dur + 0.1);
+        }
+
+        const g = ctx.createGain();
+        g.gain.setValueAtTime(0, now + start);
+        g.gain.linearRampToValueAtTime(0.12, now + start + 0.02);
+        g.gain.setValueAtTime(0.1, now + start + dur * 0.8);
+        g.gain.exponentialRampToValueAtTime(0.001, now + start + dur);
+
+        osc.connect(filter);
+        filter.connect(g);
+        g.connect(master);
+        g.connect(reverb);
+        osc.start(now + start);
+        osc.stop(now + start + dur + 0.15);
+
+        // Sub octave for thickness
+        const sub = ctx.createOscillator();
+        sub.type = 'sine';
+        sub.frequency.setValueAtTime(freq / 2, now + start);
+        sub.frequency.linearRampToValueAtTime(endFreq / 2, now + start + dur);
+        const subG = ctx.createGain();
+        subG.gain.setValueAtTime(0, now + start);
+        subG.gain.linearRampToValueAtTime(0.06, now + start + 0.02);
+        subG.gain.exponentialRampToValueAtTime(0.001, now + start + dur);
+        sub.connect(subG);
+        subG.connect(master);
+        sub.start(now + start);
+        sub.stop(now + start + dur + 0.1);
+      });
+
+      // ═══ SAD BASS DRUM THUD at the end ═══
+      const kick = ctx.createOscillator();
+      kick.type = 'sine';
+      kick.frequency.setValueAtTime(80, now + 2.3);
+      kick.frequency.exponentialRampToValueAtTime(30, now + 2.6);
+      const kickG = ctx.createGain();
+      kickG.gain.setValueAtTime(0.2, now + 2.3);
+      kickG.gain.exponentialRampToValueAtTime(0.001, now + 2.7);
+      kick.connect(kickG);
+      kickG.connect(master);
+      kick.start(now + 2.3);
+      kick.stop(now + 2.8);
+
+      master.gain.setValueAtTime(0.25, now + 2.2);
+      master.gain.linearRampToValueAtTime(0, now + 2.8);
+    } catch {}
+  }, []);
+
+  return { playQuestionReveal, playCorrect, playWrong, playSelect, playConfirm, playVictory, playDefeat };
 }
