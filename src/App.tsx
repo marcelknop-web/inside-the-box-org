@@ -12,6 +12,7 @@ import Ehrenerklaerung from "./pages/Ehrenerklaerung";
 import CyberCrisisSimulator from "./pages/CyberCrisisSimulator";
 import DoraIncidentReporter from "./pages/DoraIncidentReporter";
 import PciDssSaqNavigator from "./pages/PciDssSaqNavigator";
+import IspcTtxPrioritizer from "./pages/IspcTtxPrioritizer";
 
 const queryClient = new QueryClient();
 
@@ -30,6 +31,7 @@ const App = () => (
               <Route path="/crisis" element={<CyberCrisisSimulator />} />
               <Route path="/ki-workflows" element={<DoraIncidentReporter />} />
               <Route path="/pci-check" element={<PciDssSaqNavigator />} />
+              <Route path="/ttx-prioritizer" element={<IspcTtxPrioritizer />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
