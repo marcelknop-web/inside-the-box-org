@@ -27,7 +27,9 @@ export const InfoCard = ({
     <div className={`${variantClasses[variant]} rounded-lg p-6 ${className}`}>
       {Icon && (
         <div className="flex items-start space-x-4">
-          <Icon className={`${iconColor} mt-1 flex-shrink-0`} size={28} />
+          <div className={`flex-shrink-0 w-11 h-11 rounded-lg flex items-center justify-center ${(variant === 'highlight' || variant === 'subtle-highlight') ? 'bg-highlight/15' : 'bg-primary/15'}`}>
+            <Icon className={`${iconColor}`} size={22} />
+          </div>
           <div className="flex-1">{children}</div>
         </div>
       )}
