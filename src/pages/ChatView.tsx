@@ -872,6 +872,7 @@ const useSidebarGroups = (): SidebarGroup[] => {
         { id: 'crisis-sim', icon: AlertTriangle, label: t('nav.tabletopExercises') },
         { id: 'why', icon: Target, label: t('nav.cyberTrainingRange') },
         { id: 'arena-training', icon: Target, label: t('nav.redTeam') },
+        { id: 'incident-management', icon: Flame, label: t('nav.incidentMgmt') },
       ],
     },
     {
@@ -887,12 +888,6 @@ const useSidebarGroups = (): SidebarGroup[] => {
       items: [
         { id: 'virtual-ciso', icon: UserCheck, label: t('nav.virtualCiso') },
         { id: 'assessments-concepts', icon: Search, label: t('nav.assessments') },
-      ],
-    },
-    {
-      title: t('nav.groupOperations'),
-      items: [
-        { id: 'incident-management', icon: Flame, label: t('nav.incidentMgmt') },
       ],
     },
     {
