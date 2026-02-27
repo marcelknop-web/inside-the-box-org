@@ -37,7 +37,7 @@ const CRITERIA = [
 ];
 
 const LEVEL_STYLE: Record<number, { bg: string; border: string; color: string }> = {
-  0: { color: 'text-muted-foreground', bg: 'bg-muted/30', border: 'border-muted-foreground/30' },
+  0: { color: 'text-primary', bg: 'bg-primary/10', border: 'border-primary/30' },
   1: { color: 'text-primary', bg: 'bg-primary/10', border: 'border-primary/30' },
   2: { color: 'text-primary', bg: 'bg-primary/20', border: 'border-primary/50' },
   3: { color: 'text-primary', bg: 'bg-primary/30', border: 'border-primary/70' },
