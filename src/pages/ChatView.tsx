@@ -508,49 +508,49 @@ const useServiceContent = () => {
               <AlertTriangle size={20} className="text-highlight mt-0.5 flex-shrink-0" />
               <div>
                 <p className="text-highlight font-semibold font-mono text-sm">{t('crisisSim.sidebarLabel')}</p>
-                <p className="text-foreground/70 text-xs">{t('aiWorkflows.agentCrisisDesc')}</p>
-              </div>
-            </button>
-            <button onClick={() => setActive('dora-check')} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
-              <Landmark size={20} className="text-highlight mt-0.5 flex-shrink-0" />
-              <div>
-                <p className="text-highlight font-semibold font-mono text-sm">DORA Incident Check</p>
-                <p className="text-foreground/70 text-xs">{t('aiWorkflows.agentDoraDesc')}</p>
+                <p className="text-foreground/80 text-xs">{t('aiWorkflows.agentCrisisDesc')}</p>
               </div>
             </button>
             <button onClick={() => setActive('stress-sim')} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
               <Bug size={20} className="text-highlight mt-0.5 flex-shrink-0" />
               <div>
                 <p className="text-highlight font-semibold font-mono text-sm">{t('aiWorkflows.agentStressTitle')}</p>
-                <p className="text-foreground/70 text-xs">{t('aiWorkflows.agentStressDesc')}</p>
-              </div>
-            </button>
-            <button onClick={() => setActive('tisax-check')} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
-              <Car size={20} className="text-highlight mt-0.5 flex-shrink-0" />
-              <div>
-                <p className="text-highlight font-semibold font-mono text-sm">TISAX Assessment Check</p>
-                <p className="text-foreground/70 text-xs">{t('aiWorkflows.agentTisaxDesc')}</p>
-              </div>
-            </button>
-            <button onClick={() => setActive('pci-check')} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
-              <CreditCard size={20} className="text-highlight mt-0.5 flex-shrink-0" />
-              <div>
-                <p className="text-highlight font-semibold font-mono text-sm">PCI-DSS SAQ Navigator</p>
-                <p className="text-foreground/70 text-xs">{t('aiWorkflows.agentPciDesc')}</p>
+                <p className="text-foreground/80 text-xs">{t('aiWorkflows.agentStressDesc')}</p>
               </div>
             </button>
             <button onClick={() => setActive('ttx-check')} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
               <ClipboardList size={20} className="text-highlight mt-0.5 flex-shrink-0" />
               <div>
                 <p className="text-highlight font-semibold font-mono text-sm">ISCP Quick Check</p>
-                <p className="text-foreground/70 text-xs">{t('aiWorkflows.agentTtxDesc')}</p>
+                <p className="text-foreground/80 text-xs">{t('aiWorkflows.agentTtxDesc')}</p>
+              </div>
+            </button>
+            <button onClick={() => setActive('dora-check')} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
+              <Landmark size={20} className="text-highlight mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="text-highlight font-semibold font-mono text-sm">DORA Incident Check</p>
+                <p className="text-foreground/80 text-xs">{t('aiWorkflows.agentDoraDesc')}</p>
+              </div>
+            </button>
+            <button onClick={() => setActive('tisax-check')} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
+              <Car size={20} className="text-highlight mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="text-highlight font-semibold font-mono text-sm">TISAX Assessment Check</p>
+                <p className="text-foreground/80 text-xs">{t('aiWorkflows.agentTisaxDesc')}</p>
+              </div>
+            </button>
+            <button onClick={() => setActive('pci-check')} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
+              <CreditCard size={20} className="text-highlight mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="text-highlight font-semibold font-mono text-sm">PCI-DSS SAQ Navigator</p>
+                <p className="text-foreground/80 text-xs">{t('aiWorkflows.agentPciDesc')}</p>
               </div>
             </button>
             <button onClick={() => { setActive(''); }} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
               <MessageSquare size={20} className="text-highlight mt-0.5 flex-shrink-0" />
               <div>
                 <p className="text-highlight font-semibold font-mono text-sm">{t('aiWorkflows.agentChatTitle')}</p>
-                <p className="text-foreground/70 text-xs">{t('aiWorkflows.agentChatDesc')}</p>
+                <p className="text-foreground/80 text-xs">{t('aiWorkflows.agentChatDesc')}</p>
               </div>
             </button>
           </div>

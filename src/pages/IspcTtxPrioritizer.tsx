@@ -52,24 +52,26 @@ function completeness(c: CriteriaRatings): number {
 
 function renderAiResult(text: string) {
   const sections = text.split(/(?=###?\s)/).filter(Boolean);
+  const formatLine = (line: string) =>
+    line
+      .replace(/\*\*(.*?)\*\*/g, '<strong class="text-primary">$1</strong>')
+      .replace(/^\d+\.\s/gm, '→ ')
+      .replace(/^\*\s+/gm, '→ ')
+      .replace(/^[-–]\s+/gm, '→ ');
   if (sections.length <= 1) {
     return text.split('\n').filter(Boolean).map((line, i) => {
-      const rendered = line.replace(/\*\*(.*?)\*\*/g, '<strong class="text-primary">$1</strong>');
-      return <p key={i} dangerouslySetInnerHTML={{ __html: rendered }} />;
+      return <p key={i} className="text-foreground text-sm" dangerouslySetInnerHTML={{ __html: formatLine(line) }} />;
     });
   }
   return sections.map((section, i) => {
     const lines = section.trim().split('\n').filter(Boolean);
     const headingMatch = lines[0]?.match(/^###?\s*\d*\.?\s*(.*)/);
     const heading = headingMatch ? headingMatch[1] : lines[0];
-    const body = (headingMatch ? lines.slice(1) : lines).join('\n');
-    const rendered = body
-      .replace(/\*\*(.*?)\*\*/g, '<strong class="text-primary">$1</strong>')
-      .replace(/^\d+\.\s/gm, '→ ');
+    const body = (headingMatch ? lines.slice(1) : lines).map(formatLine).join('\n');
     return (
       <div key={i} className="border-l-2 border-highlight/30 pl-3">
         <p className="text-highlight text-xs font-semibold uppercase tracking-wider mb-1">{heading}</p>
-        <p className="text-foreground text-sm whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: rendered }} />
+        <p className="text-foreground text-sm whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: body }} />
       </div>
     );
   });
