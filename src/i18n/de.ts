@@ -294,6 +294,7 @@ export const de = {
     agentChatDesc: 'Mehrsprachiger KI-Berater für Security-Fragestellungen',
     agentTisaxDesc: 'Einstufungs- und Bewertungsassistent nach VDA ISA',
     agentPciDesc: 'SAQ-Typ-Ermittlung nach PCI DSS v4.0',
+    agentTtxDesc: 'ISCP-Priorisierung für Tabletop Exercises',
   },
   arena: {
     title: 'Arena Training · TIBER Test',
