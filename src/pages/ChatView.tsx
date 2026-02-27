@@ -449,7 +449,7 @@ const useServiceContent = () => {
             ))}
           </div>
 
-          <p className="text-foreground/60 text-xs font-mono text-center">{t('events.evalQuality')}</p>
+          <p className="text-foreground text-xs font-mono text-center">{t('events.evalQuality')}</p>
         </Block>
 
       </TypedSection>
