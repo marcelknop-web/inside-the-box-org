@@ -51,11 +51,36 @@ function completeness(c: CriteriaRatings): number {
 }
 
 function renderAiResult(text: string) {
-  const sections = text.split(/(?=^#{1,4}\s)/m).filter(Boolean);
   const boldify = (s: string) => s.replace(/\*\*(.*?)\*\*/g, '<strong class="text-primary">$1</strong>');
   const isBullet = (line: string) => /^(\d+\.\s|\*\s+|[-–→•]\s)/.test(line);
   const isHeading = (line: string) => /^#{1,4}\s/.test(line);
+  const isBoldHeading = (line: string) => /^\*\*[^*]+\*\*\s*$/.test(line.trim()) || /^\d+\.\s*\*\*[^*]+\*\*\s*$/.test(line.trim());
   const stripBullet = (line: string) => line.replace(/^(\d+\.\s|\*\s+|[-–→•]\s+)/, '');
+  const extractHeading = (line: string) => {
+    const m = line.match(/^#{1,4}\s*\d*\.?\s*(.*)/);
+    if (m) return m[1];
+    const b = line.match(/^\d*\.?\s*\*\*(.*?)\*\*\s*$/);
+    if (b) return b[1];
+    return line;
+  };
+
+  // Split into sections by markdown headings OR bold-only lines
+  const allLines = text.split('\n').filter(Boolean);
+  const sections: { heading: string; body: string[] }[] = [];
+  let current: { heading: string; body: string[] } | null = null;
+
+  allLines.forEach(line => {
+    if (isHeading(line) || isBoldHeading(line)) {
+      if (current) sections.push(current);
+      current = { heading: extractHeading(line), body: [] };
+    } else if (current) {
+      if (!isHeading(line)) current.body.push(line);
+    } else {
+      // Lines before any heading
+      if (!current) current = { heading: '', body: [line] };
+    }
+  });
+  if (current) sections.push(current);
 
   const renderLines = (lines: string[]) => {
     const elements: JSX.Element[] = [];
@@ -70,7 +95,7 @@ function renderAiResult(text: string) {
         bulletBuffer = [];
       }
     };
-    lines.filter(l => !isHeading(l)).forEach((line, i) => {
+    lines.forEach((line, i) => {
       if (isBullet(line)) {
         bulletBuffer.push(stripBullet(line));
       } else {
@@ -82,18 +107,14 @@ function renderAiResult(text: string) {
     return elements;
   };
 
-  if (sections.length <= 1) {
-    return renderLines(text.split('\n').filter(Boolean));
-  }
   return sections.map((section, i) => {
-    const lines = section.trim().split('\n').filter(Boolean);
-    const headingMatch = lines[0]?.match(/^#{1,4}\s*\d*\.?\s*(.*)/);
-    const heading = headingMatch ? headingMatch[1] : lines[0];
-    const bodyLines = headingMatch ? lines.slice(1) : lines;
+    if (!section.heading) {
+      return <div key={i} className="space-y-1">{renderLines(section.body)}</div>;
+    }
     return (
       <div key={i} className="border-l-2 border-highlight/30 pl-3">
-        <p className="text-highlight text-xs font-semibold uppercase tracking-wider mb-1">{heading}</p>
-        <div className="space-y-1">{renderLines(bodyLines)}</div>
+        <p className="text-highlight text-xs font-semibold uppercase tracking-wider mb-1">{section.heading}</p>
+        <div className="space-y-1">{renderLines(section.body)}</div>
       </div>
     );
   });
