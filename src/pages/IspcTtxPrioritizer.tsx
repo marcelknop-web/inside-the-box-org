@@ -8,12 +8,9 @@ import { Input } from '@/components/ui/input';
 
 const DEFAULT_ISCPS = [
   'E-Mail & Kommunikation', 'Endgeräte-Management', 'Identitäts- & Zugriffsmanagement',
-  'Netzwerk-Infrastruktur', 'Firewall & Perimeter', 'VPN & Remote-Zugang',
-  'Cloud-Hosting & -Dienste', 'Verzeichnisdienste', 'Namensauflösung (DNS)',
-  'Virtualisierung', 'Dateiablage & Kollaboration', 'Zertifikats-Management (PKI)',
-  'Privilegierte Zugänge (PAM)', 'Proxy & Web-Filter', 'WAN / SD-WAN',
-  'Netzwerk-Switching', 'Telefonie / Voice', 'Patch-Management',
-  'Multi-Faktor-Authentifizierung', 'Backup & Recovery',
+  'Firewall & Perimeter', 'VPN & Remote-Zugang', 'Cloud-Dienste',
+  'Backup & Recovery', 'Privilegierte Zugänge (PAM)', 'Multi-Faktor-Authentifizierung',
+  'Patch-Management',
 ];
 
 type Rating = 0 | 1 | 2 | 3; // 0=unbewertet, 1=niedrig, 2=mittel, 3=hoch
