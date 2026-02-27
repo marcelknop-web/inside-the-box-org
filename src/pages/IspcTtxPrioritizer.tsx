@@ -168,11 +168,25 @@ export default function IspcTtxPrioritizer({ embedded = false }: { embedded?: bo
   return (
     <div className={wrapperClass}>
       <PageMeta title="ISCP TTX Prioritizer" description="Schnelle ISCP-Bewertung für Tabletop Exercises" />
-      <h1 className={`${embedded ? 'text-lg' : 'text-2xl md:text-3xl'} font-bold text-primary font-mono mb-1`}>
+      <h1 className={`${embedded ? 'text-lg' : 'text-2xl md:text-3xl'} font-bold text-primary font-mono mb-2`}>
         ISCP Quick Check
       </h1>
-      <p className="text-muted-foreground text-sm font-mono mb-4">
-        Bewerte jedes ISCP nach Testpriorität · {rated.length}/{ratings.length} bewertet
+      <p className="text-muted-foreground text-sm font-mono mb-3">
+        Wie dringend muss dieses ISCP im nächsten Tabletop Exercise getestet werden?
+      </p>
+      <div className="bg-card border border-border rounded-lg p-4 mb-5 space-y-2">
+        <p className="text-foreground/90 text-sm leading-relaxed">
+          <span className="text-primary font-semibold">Was ist ein ISCP?</span> — Ein Information Security Continuity Plan beschreibt, wie ein IT-Service bei einem Ausfall wiederhergestellt wird.
+        </p>
+        <p className="text-foreground/90 text-sm leading-relaxed">
+          <span className="text-primary font-semibold">Was ist ein TTX?</span> — Ein Tabletop Exercise ist eine Übung am Tisch, bei der Teams den Ernstfall durchspielen — ohne echte Systeme abzuschalten.
+        </p>
+        <p className="text-foreground/70 text-xs leading-relaxed">
+          <strong>So geht's:</strong> Bewerte jedes ISCP nach Testpriorität (Niedrig / Mittel / Hoch). Je höher die Bewertung, desto dringender sollte es im nächsten TTX getestet werden. Ab 3 Bewertungen kannst du die Auswertung sehen und eine KI-Empfehlung generieren.
+        </p>
+      </div>
+      <p className="text-muted-foreground text-xs font-mono mb-2">
+        {rated.length}/{ratings.length} bewertet
       </p>
 
       {/* Progress bar */}
