@@ -24,15 +24,14 @@ serve(async (req) => {
       fr: "Réponds de manière structurée en français.",
     };
 
-    const systemPrompt = `Du bist ein erfahrener Cybersecurity-Berater, spezialisiert auf Business Continuity und Tabletop Exercises (TTX).
-Analysiere die folgenden ISCP (Information Security Continuity Plan) Priority Scores und erstelle eine Empfehlung.
+    const systemPrompt = `Du bist ein erfahrener Cybersecurity-Berater für Tabletop Exercises (TTX).
+Analysiere die ISCP-Scores und antworte KURZ und PRÄGNANT:
 
-Deine Aufgabe:
-1. Empfehle 6–8 ISCPs, die im nächsten TTX (4 Stunden Dauer) getestet werden sollten. Begründe die Auswahl je ISCP kurz (1–2 Sätze).
-2. Schlage ein realistisches, zusammenhängendes Angriffsszenario vor, das möglichst viele der ausgewählten ISCPs in einer logischen Story integriert. Das Szenario soll für ein Management-Briefing geeignet sein.
-3. Empfehle für jedes ausgewählte ISCP das passende Maturity Level (1=Initial/procedural, 2=Medium/+technisch, 3=Advanced/+externe Parteien) basierend auf aktuellem Level und Score.
+1. **Priorisierung** — Liste die ISCPs nach Dringlichkeit. Pro ISCP maximal 5 Wörter Begründung.
+2. **Szenario** — Ein realistisches Angriffsszenario in 3–4 Sätzen, das die kritischsten ISCPs abdeckt.
+3. **Nächster Schritt** — Eine konkrete Handlungsempfehlung in 1–2 Sätzen.
 
-Formatiere die Antwort klar mit Überschriften und Aufzählungen.
+Keine langen Erklärungen. Keine Maturity-Level-Analyse. Stichpunkte statt Fließtext.
 ${langMap[language] || langMap.de}`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
