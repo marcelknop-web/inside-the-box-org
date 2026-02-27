@@ -894,12 +894,12 @@ const useSidebarGroups = (): SidebarGroup[] => {
       items: [
         { id: 'assessments-concepts', icon: Search, label: t('nav.assessments') },
         { id: 'virtual-ciso', icon: UserCheck, label: t('nav.virtualCiso') },
-        { id: 'ai-workflows', icon: Zap, label: t('nav.aiWorkflows') },
       ],
     },
     {
       title: t('nav.groupInsights'),
       items: [
+        { id: 'ai-workflows', icon: Zap, label: t('nav.aiWorkflows') },
         { id: 'publications', icon: FileText, label: t('nav.publications') },
         { id: 'events-workshops', icon: Calendar, label: t('nav.eventsWorkshops') },
       ],
