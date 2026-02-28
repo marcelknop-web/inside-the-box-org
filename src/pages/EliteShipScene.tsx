@@ -110,10 +110,7 @@ const FALL_SPEED_MAX = 26;
 const NEAR_BLUR_DIST = 6;
 const FAR_BLUR_DIST = 50;
 
-function Rain({ linePosRef, aliveRef }: {
-  linePosRef: React.MutableRefObject<Float32Array | null>;
-  aliveRef: React.MutableRefObject<Uint8Array | null>;
-}) {
+function Rain() {
   const linesRef = useRef<THREE.LineSegments>(null);
   const dotsRef = useRef<THREE.Points>(null);
   const { camera } = useThree();
@@ -146,8 +143,6 @@ function Rain({ linePosRef, aliveRef }: {
       // Dot color
       dc[i * 4] = 0.1; dc[i * 4 + 1] = 1; dc[i * 4 + 2] = 0.7; dc[i * 4 + 3] = 0;
     }
-    linePosRef.current = lp;
-    aliveRef.current = al;
     return { linePos: lp, dotPos: dp, speeds: spd, dotSizes: ds, alive: al, lineCol: lc, dotCol: dc };
   }, []);
 
@@ -295,110 +290,6 @@ function Rain({ linePosRef, aliveRef }: {
   );
 }
 
-/* ── Mandelbrot Background Skybox ── */
-const mandelbrotVertexShader = `
-varying vec2 vUv;
-void main() {
-  vUv = uv;
-  gl_Position = vec4(position.xy, 0.999, 1.0);
-}
-`;
-
-const mandelbrotFragmentShader = `
-precision highp float;
-varying vec2 vUv;
-uniform float uTime;
-
-// Smooth coloring palette
-vec3 palette(float t) {
-  vec3 a = vec3(0.02, 0.01, 0.03);
-  vec3 b = vec3(0.4, 0.6, 0.3);
-  vec3 c = vec3(1.0, 1.0, 1.0);
-  vec3 d = vec3(0.0, 0.15, 0.2);
-  return a + b * cos(6.28318 * (c * t + d));
-}
-
-void main() {
-  // Slowly drift through interesting Mandelbrot regions
-  float speed = uTime * 0.012;
-  
-  // Cycle through spectacular coordinates
-  float phase = mod(speed, 4.0);
-  vec2 center;
-  float zoom;
-  
-  if (phase < 1.0) {
-    // Seahorse valley
-    float t = phase;
-    center = vec2(-0.745, 0.186);
-    zoom = 0.004 * exp(-t * 2.5);
-  } else if (phase < 2.0) {
-    float t = phase - 1.0;
-    // Elephant valley  
-    center = vec2(0.282, 0.0073);
-    zoom = 0.006 * exp(-t * 2.5);
-  } else if (phase < 3.0) {
-    float t = phase - 2.0;
-    // Spiral arms
-    center = vec2(-0.1011, 0.9563);
-    zoom = 0.01 * exp(-t * 2.5);
-  } else {
-    float t = phase - 3.0;
-    // Mini-brot
-    center = vec2(-1.7497, 0.0);
-    zoom = 0.02 * exp(-t * 2.5);
-  }
-  
-  vec2 c = center + (vUv - 0.5) * vec2(zoom * 1.777, zoom);
-  vec2 z = vec2(0.0);
-  
-  float iter = 0.0;
-  const float MAX_ITER = 256.0;
-  
-  for (float i = 0.0; i < MAX_ITER; i++) {
-    z = vec2(z.x * z.x - z.y * z.y, 2.0 * z.x * z.y) + c;
-    if (dot(z, z) > 256.0) { iter = i; break; }
-    iter = i;
-  }
-  
-  if (iter >= MAX_ITER - 1.0) {
-    gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
-  } else {
-    // Smooth iteration count
-    float sl = iter - log2(log2(dot(z, z))) + 4.0;
-    float t = sl / 60.0 + uTime * 0.01;
-    vec3 col = palette(t);
-    // Keep it dark/subtle as background
-    col *= 0.35;
-    gl_FragColor = vec4(col, 1.0);
-  }
-}
-`;
-
-function MandelbrotBackground() {
-  const matRef = useRef<THREE.ShaderMaterial>(null);
-  
-  useFrame(({ clock }) => {
-    if (matRef.current) {
-      matRef.current.uniforms.uTime.value = clock.elapsedTime;
-    }
-  });
-
-  return (
-    <mesh renderOrder={-100} frustumCulled={false}>
-      <planeGeometry args={[2, 2]} />
-      <shaderMaterial
-        ref={matRef}
-        vertexShader={mandelbrotVertexShader}
-        fragmentShader={mandelbrotFragmentShader}
-        uniforms={{ uTime: { value: 0 } }}
-        depthWrite={false}
-        depthTest={false}
-      />
-    </mesh>
-  );
-}
-
 /* ── Realistic Starfield ── */
 const STAR_COUNT = 20000;
 function RealisticStarfield() {
@@ -415,14 +306,16 @@ function RealisticStarfield() {
       pos[i3] = r * Math.sin(phi) * Math.cos(theta);
       pos[i3 + 1] = r * Math.sin(phi) * Math.sin(theta);
       pos[i3 + 2] = r * Math.cos(phi);
-      const mag = Math.pow(Math.random(), 4);
+      // Realistic magnitude distribution: most stars dim, very few bright
+      const mag = Math.pow(Math.random(), 4); // heavily skewed to dim
       const temp = Math.random();
       const brightness = 0.15 + mag * 0.85;
       if (temp < 0.5) { col[i3] = 0.9 * brightness; col[i3+1] = 0.92 * brightness; col[i3+2] = 1.0 * brightness; }
       else if (temp < 0.75) { col[i3] = 1.0 * brightness; col[i3+1] = 0.96 * brightness; col[i3+2] = 0.88 * brightness; }
       else if (temp < 0.9) { col[i3] = 0.65 * brightness; col[i3+1] = 0.8 * brightness; col[i3+2] = 1.0 * brightness; }
       else if (temp < 0.97) { col[i3] = 1.0 * brightness; col[i3+1] = 0.85 * brightness; col[i3+2] = 0.5 * brightness; }
-      else { col[i3] = 1.0 * brightness; col[i3+1] = 0.55 * brightness; col[i3+2] = 0.3 * brightness; }
+      else { col[i3] = 1.0 * brightness; col[i3+1] = 0.55 * brightness; col[i3+2] = 0.3 * brightness; } // rare red giants
+      // Size: tiny for most, a few prominent
       sz[i] = mag < 0.15 ? 0.08 + Math.random() * 0.06 : mag < 0.7 ? 0.14 + mag * 0.3 : 0.5 + mag * 1.2;
     }
     return { positions: pos, baseColors: col, sizes: sz };
@@ -445,6 +338,7 @@ function RealisticStarfield() {
     const t = clock.elapsedTime;
     const colAttr = pointsRef.current.geometry.attributes.color as THREE.BufferAttribute;
     const col = colAttr.array as Float32Array;
+    // Only twinkle brighter stars (every 4th) for perf, rest stay static
     for (let i = 0; i < STAR_COUNT; i += 4) {
       const brightness = 0.7 + 0.3 * Math.sin(t * twinkleSpeeds[i] + twinklePhases[i]);
       const i3 = i * 3;
@@ -475,136 +369,32 @@ function RealisticStarfield() {
   );
 }
 
-/* ── Hypnotic Camera with raindrop follow – all movements damped ── */
-function CockpitCamera({ rainPositions, rainAlive }: {
-  rainPositions: React.MutableRefObject<Float32Array | null>;
-  rainAlive: React.MutableRefObject<Uint8Array | null>;
-}) {
+/* ── Hypnotic Camera ── */
+function CockpitCamera() {
   const { camera } = useThree();
   const t = useRef(0);
-  // Smoothed camera state (position + lookAt lerped every frame)
-  const smoothPos = useRef(new THREE.Vector3(0, 2, 0));
-  const smoothLook = useRef(new THREE.Vector3(0, 1.5, 1));
-  const smoothRoll = useRef(0);
-  const LERP_SPEED = 1.2; // lower = smoother/slower transitions
-
-  const followRef = useRef<{
-    active: boolean;
-    dropIdx: number;
-    duration: number;
-    elapsed: number;
-    offsetX: number;
-    offsetZ: number;
-  }>({ active: false, dropIdx: -1, duration: 0, elapsed: 0, offsetX: 0, offsetZ: 0 });
-  const cooldownRef = useRef(0);
-
+  // Lemniscate-inspired figure-8 path for hypnotic looping
   useFrame((_, dt) => {
-    t.current += dt * 0.04;
+    t.current += dt * 0.04; // slow, trance-like
     const a = t.current;
+    // Figure-8 lemniscate in XZ, gentle Y breathing
     const scale = 35;
     const denom = 1 + Math.sin(a) * Math.sin(a);
+    const x = scale * Math.cos(a) / denom;
+    const z = scale * Math.sin(a) * Math.cos(a) / denom;
+    // Layered sine waves for dreamy vertical float
+    const y = 2 + Math.sin(a * 0.37) * 1.5 + Math.sin(a * 0.13) * 0.8;
 
-    // Base lemniscate path with more vertical drift for horizon-losing effect
-    const nx = scale * Math.cos(a) / denom;
-    const nz = scale * Math.sin(a) * Math.cos(a) / denom;
-    // More pronounced Y movement – gentle banking that loses the horizon
-    const ny = 2
-      + Math.sin(a * 0.37) * 2.5
-      + Math.sin(a * 0.13) * 1.5
-      + Math.sin(a * 0.71) * 0.8;
-
-    // Look-at: further ahead on curve for smoother anticipation
-    const la = a + 0.18;
+    camera.position.set(x, Math.max(y, -3), z);
+    // Look slightly ahead on the curve + gentle vertical sway
+    const la = a + 0.12;
     const ld = 1 + Math.sin(la) * Math.sin(la);
-    const nlx = scale * Math.cos(la) / ld;
-    const nlz = scale * Math.sin(la) * Math.cos(la) / ld;
-    const nly = 1.5 + Math.sin(la * 0.37) * 1.8 + Math.sin(la * 0.71) * 0.6;
-
-    // Gentle roll that drifts the horizon – subtle, never violent
-    const targetRoll = Math.sin(a * 0.17) * 0.06 + Math.sin(a * 0.31) * 0.03;
-
-    // Target position & look (may be overridden by follow)
-    let tx = nx, ty = Math.max(ny, -3), tz = nz;
-    let tlx = nlx, tly = nly, tlz = nlz;
-    let tRoll = targetRoll;
-
-    const follow = followRef.current;
-    cooldownRef.current -= dt;
-
-    // Try to start follow
-    if (!follow.active && cooldownRef.current <= 0 && rainPositions.current && rainAlive.current) {
-      if (Math.random() < 0.002) {
-        const rp = rainPositions.current;
-        const ra = rainAlive.current;
-        const candidates: number[] = [];
-        for (let i = 0; i < ra.length; i++) {
-          if (ra[i] === 0) continue;
-          const dx = rp[i * 6] - nx;
-          const dz = rp[i * 6 + 2] - nz;
-          if (dx * dx + dz * dz < 600) candidates.push(i);
-        }
-        if (candidates.length > 0) {
-          const idx = candidates[(Math.random() * candidates.length) | 0];
-          follow.active = true;
-          follow.dropIdx = idx;
-          follow.duration = 3 + Math.random() * 4; // 3-7s
-          follow.elapsed = 0;
-          follow.offsetX = (Math.random() - 0.5) * 2.5;
-          follow.offsetZ = (Math.random() - 0.5) * 2.5;
-        }
-      }
-    }
-
-    if (follow.active && rainPositions.current && rainAlive.current) {
-      follow.elapsed += dt;
-      const rp = rainPositions.current;
-      const ra = rainAlive.current;
-      const idx = follow.dropIdx;
-
-      if (ra[idx] === 0 || follow.elapsed >= follow.duration) {
-        follow.active = false;
-        cooldownRef.current = 10 + Math.random() * 15;
-      } else {
-        // Very slow ease: 2s in, 2s out
-        const blendIn = Math.min(follow.elapsed / 2.0, 1);
-        const blendOut = Math.min((follow.duration - follow.elapsed) / 2.0, 1);
-        const blend = Math.min(blendIn, blendOut);
-        const smooth = blend * blend * (3 - 2 * blend);
-
-        const dx = rp[idx * 6];
-        const dy = rp[idx * 6 + 1];
-        const dz = rp[idx * 6 + 2];
-
-        const fx = dx + follow.offsetX;
-        const fy = dy + 2;
-        const fz = dz + follow.offsetZ + 4;
-
-        tx = nx + (fx - nx) * smooth;
-        ty = Math.max(ny + (fy - ny) * smooth, -3);
-        tz = nz + (fz - nz) * smooth;
-
-        tlx = nlx + (dx - nlx) * smooth;
-        tly = nly + (dy - 1.5 - nly) * smooth;
-        tlz = nlz + (dz - nlz) * smooth;
-
-        // Slight extra roll during follow
-        tRoll = targetRoll * (1 - smooth * 0.5) + smooth * Math.sin(a * 0.5) * 0.04;
-      }
-    }
-
-    // Lerp everything – no sudden jumps ever
-    const lerpFactor = 1 - Math.exp(-LERP_SPEED * dt);
-    smoothPos.current.x += (tx - smoothPos.current.x) * lerpFactor;
-    smoothPos.current.y += (ty - smoothPos.current.y) * lerpFactor;
-    smoothPos.current.z += (tz - smoothPos.current.z) * lerpFactor;
-    smoothLook.current.x += (tlx - smoothLook.current.x) * lerpFactor;
-    smoothLook.current.y += (tly - smoothLook.current.y) * lerpFactor;
-    smoothLook.current.z += (tlz - smoothLook.current.z) * lerpFactor;
-    smoothRoll.current += (tRoll - smoothRoll.current) * lerpFactor;
-
-    camera.position.copy(smoothPos.current);
-    camera.lookAt(smoothLook.current);
-    camera.rotation.z = smoothRoll.current;
+    const lx = scale * Math.cos(la) / ld;
+    const lz = scale * Math.sin(la) * Math.cos(la) / ld;
+    const ly = 1.5 + Math.sin(la * 0.37) * 1.2;
+    camera.lookAt(lx, ly, lz);
+    // Subtle roll for disorientation
+    camera.rotation.z = Math.sin(a * 0.23) * 0.03;
   });
   return null;
 }
@@ -672,8 +462,6 @@ export default function EliteShipScene() {
   const surfaceRocks = useSurfaceRocks();
   const floatingRocks = useFloatingRocks();
   const ambient = use432HzAmbient();
-  const rainPosRef = useRef<Float32Array | null>(null);
-  const rainAliveRef = useRef<Uint8Array | null>(null);
 
   return (
     <div className="relative w-full h-screen overflow-hidden" style={{ background: BG }}>
@@ -682,10 +470,9 @@ export default function EliteShipScene() {
         gl={{ antialias: true, alpha: false }}
         style={{ background: BG }}
       >
-        <MandelbrotBackground />
-        <CockpitCamera rainPositions={rainPosRef} rainAlive={rainAliveRef} />
+        <CockpitCamera />
         <RealisticStarfield />
-        <Rain linePosRef={rainPosRef} aliveRef={rainAliveRef} />
+        <Rain />
         {surfaceRocks.map((r, i) => <Rock key={`s${i}`} {...r} />)}
         {floatingRocks.map((r, i) => <Rock key={`f${i}`} {...r} />)}
       </Canvas>
