@@ -306,6 +306,8 @@ export const de = {
     agentCisoDesc: 'Strategische Budget-Simulation – 5 Runden als CISO eines regulierten Unternehmens überleben',
     agentThreatDropTitle: 'ThreatDrop',
     agentThreatDropDesc: 'KI-generiertes Experten-Quiz – jede Frage wird in Echtzeit erzeugt, auf CISO/SOC-Lead-Niveau',
+    agentTriggerTriageTitle: 'Trigger Triage',
+    agentTriggerTriageDesc: 'Schießstand-Spiel – Incidents blitzschnell der richtigen Priorität zuordnen',
     agentYtTitle: 'Video-Einspieler für Übungen',
     agentYtDesc: 'KI-generierte Nachrichten-Videos als realistische Lagebilder in Krisenstabsübungen',
   },
