@@ -48,7 +48,14 @@ const labels: Record<string, Record<string, string>> = {
     insider: 'Insider Incident',
     cloudMisconfig: 'Cloud Misconfiguration',
     zeroDay: 'Zero Day Exploit',
-    overBudget: 'Budget überschritten!',
+    start: 'Simulation starten',
+    introRole: 'Du bist CISO eines regulierten Unternehmens.',
+    introGoal: 'Ziel: 5 Runden überleben, ohne dass Marktwert, Reputation oder regulatorisches Risiko kollabieren.',
+    introMech1: 'Jede Runde verteilst du 100 Budgetpunkte auf 6 Kategorien.',
+    introMech2: 'Danach trifft ein zufälliger Cyberangriff dein Unternehmen.',
+    introMech3: 'Deine Investitionen bestimmen, ob der Angriff erkannt wird und wie hoch der Schaden ausfällt.',
+    introMech4: 'Ab Runde 3 drohen zusätzliche regulatorische Strafen.',
+    introGameOver: 'Game Over bei: Marktwert ≤ 0 · Reputation ≤ 0 · Reg. Risiko ≥ 80',
   },
   en: {
     title: 'CISO Budget Simulator',
@@ -92,6 +99,14 @@ const labels: Record<string, Record<string, string>> = {
     cloudMisconfig: 'Cloud Misconfiguration',
     zeroDay: 'Zero Day Exploit',
     overBudget: 'Over budget!',
+    start: 'Start Simulation',
+    introRole: 'You are the CISO of a regulated enterprise.',
+    introGoal: 'Goal: Survive 5 rounds without market value, reputation, or regulatory risk collapsing.',
+    introMech1: 'Each round you allocate 100 budget points across 6 categories.',
+    introMech2: 'Then a random cyberattack hits your organization.',
+    introMech3: 'Your investments determine if the attack is detected and how much damage is dealt.',
+    introMech4: 'From round 3, additional regulatory penalties apply.',
+    introGameOver: 'Game Over at: Market Value ≤ 0 · Reputation ≤ 0 · Reg. Risk ≥ 80',
   },
   fr: {
     title: 'CISO Budget Simulator',
@@ -135,6 +150,14 @@ const labels: Record<string, Record<string, string>> = {
     cloudMisconfig: 'Misconfiguration Cloud',
     zeroDay: 'Exploit Zero Day',
     overBudget: 'Budget dépassé !',
+    start: 'Démarrer la simulation',
+    introRole: 'Vous êtes le CISO d\'une entreprise réglementée.',
+    introGoal: 'Objectif : Survivre 5 tours sans que la valeur marchande, la réputation ou le risque réglementaire ne s\'effondrent.',
+    introMech1: 'Chaque tour, vous répartissez 100 points de budget sur 6 catégories.',
+    introMech2: 'Ensuite, une cyberattaque aléatoire frappe votre organisation.',
+    introMech3: 'Vos investissements déterminent si l\'attaque est détectée et l\'ampleur des dégâts.',
+    introMech4: 'À partir du tour 3, des pénalités réglementaires supplémentaires s\'appliquent.',
+    introGameOver: 'Fin de partie si : Valeur ≤ 0 · Réputation ≤ 0 · Risque rég. ≥ 80',
   },
 };
 
@@ -240,7 +263,7 @@ const CisoSimulator = ({ embedded = false }: { embedded?: boolean }) => {
   const t = useCallback((key: string) => labels[language]?.[key] ?? labels.en[key] ?? key, [language]);
 
   const [round, setRound] = useState(1);
-  const [phase, setPhase] = useState<'allocate' | 'result' | 'gameover' | 'victory'>('allocate');
+  const [phase, setPhase] = useState<'intro' | 'allocate' | 'result' | 'gameover' | 'victory'>('intro');
   const [state, setState] = useState<GameState>({
     marketValue: 100, reputation: 100, regRisk: 0,
     levels: [1, 1, 1, 1, 1, 0], // soc=1, backup=1, awareness=1, hardening=1, redteam=1, savings=0
@@ -348,7 +371,7 @@ const CisoSimulator = ({ embedded = false }: { embedded?: boolean }) => {
 
   const restart = useCallback(() => {
     setRound(1);
-    setPhase('allocate');
+    setPhase('intro');
     setState({ marketValue: 100, reputation: 100, regRisk: 0, levels: [1, 1, 1, 1, 1, 0] });
     setAllocation([20, 20, 20, 20, 20, 0]);
     setResults([]);
@@ -372,24 +395,48 @@ const CisoSimulator = ({ embedded = false }: { embedded?: boolean }) => {
           </a>
         )}
 
-        <div className="flex items-center justify-between mb-6">
-          <div>
+        {phase === 'intro' ? (
+          <div className="space-y-4">
             <h1 className="text-xl md:text-2xl font-bold font-mono text-primary">{t('title')}</h1>
-            <p className="text-sm text-muted-foreground font-sans mt-1">{t('subtitle')}</p>
+            <div className="bg-card border border-border rounded-xl p-5 space-y-3">
+              <p className="text-foreground font-sans font-semibold">{t('introRole')}</p>
+              <p className="text-foreground/80 font-sans text-sm">{t('introGoal')}</p>
+              <ul className="space-y-2 text-sm font-sans text-foreground/80">
+                <li className="flex items-start gap-2"><span className="text-primary font-mono font-bold">1.</span> {t('introMech1')}</li>
+                <li className="flex items-start gap-2"><span className="text-primary font-mono font-bold">2.</span> {t('introMech2')}</li>
+                <li className="flex items-start gap-2"><span className="text-primary font-mono font-bold">3.</span> {t('introMech3')}</li>
+                <li className="flex items-start gap-2"><span className="text-primary font-mono font-bold">4.</span> {t('introMech4')}</li>
+              </ul>
+              <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-3 text-sm font-mono text-destructive">
+                {t('introGameOver')}
+              </div>
+            </div>
+            <Button onClick={() => setPhase('allocate')} className="w-full font-mono" size="lg">
+              <Shield size={16} className="mr-2" /> {t('start')}
+            </Button>
           </div>
-          <div className="text-right">
-            <span className="text-sm font-mono text-highlight font-bold">{t('round')} {round} {t('of')} 5</span>
-          </div>
-        </div>
+        ) : (
+          <>
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h1 className="text-xl md:text-2xl font-bold font-mono text-primary">{t('title')}</h1>
+                <p className="text-sm text-muted-foreground font-sans mt-1">{t('subtitle')}</p>
+              </div>
+              <div className="text-right">
+                <span className="text-sm font-mono text-highlight font-bold">{t('round')} {round} {t('of')} 5</span>
+              </div>
+            </div>
 
-        {/* Stats Bar */}
-        <div className="grid grid-cols-3 md:grid-cols-5 gap-2 mb-6">
-          <StatCard label={t('marketValue')} value={state.marketValue} max={100} color="primary" />
-          <StatCard label={t('reputation')} value={state.reputation} max={100} color="highlight" />
-          <StatCard label={t('regRisk')} value={state.regRisk} max={80} color="destructive" invert />
-          <StatCard label={t('detection')} value={state.levels[0]} max={5} color="primary" isLevel />
-          <StatCard label={t('resilience')} value={state.levels[3]} max={5} color="primary" isLevel />
-        </div>
+            {/* Stats Bar */}
+            <div className="grid grid-cols-3 md:grid-cols-5 gap-2 mb-6">
+              <StatCard label={t('marketValue')} value={state.marketValue} max={100} color="primary" />
+              <StatCard label={t('reputation')} value={state.reputation} max={100} color="highlight" />
+              <StatCard label={t('regRisk')} value={state.regRisk} max={80} color="destructive" invert />
+              <StatCard label={t('detection')} value={state.levels[0]} max={5} color="primary" isLevel />
+              <StatCard label={t('resilience')} value={state.levels[3]} max={5} color="primary" isLevel />
+            </div>
+          </>
+        )}
 
         {/* Phase: Allocate */}
         {phase === 'allocate' && (
