@@ -85,6 +85,7 @@ const C = {
   lime: '#a7ff1a', yellow: '#ffd000', red: '#ff3b3b',
   white: '#ffffff', grid: 'rgba(255,255,255,0.04)',
   dim: 'rgba(255,255,255,0.25)',
+  neutral: '#8ba5c5', // neutral UI color for buttons
 };
 
 /* ══════════════════════════════════════
@@ -526,8 +527,9 @@ const ThreatDropQuiz = ({ embedded }: { embedded?: boolean }) => {
     const c = canvasRef.current; if (!c) return;
     const handle = (cx: number, cy: number) => {
       const g = gs.current; const { w, h } = sizeRef.current;
+      const mobBtnH = ('ontouchstart' in window) ? 72 : 56;
       if (g.phase !== 'play') { startGame(); return; }
-      if (cy > h - 70) { classifyThreat(Math.max(0, Math.min(3, Math.floor(cx / (w / 4))))); }
+      if (cy > h - mobBtnH) { classifyThreat(Math.max(0, Math.min(3, Math.floor(cx / (w / 4))))); }
     };
     const onClick = (e: MouseEvent) => { const r = c.getBoundingClientRect(); handle(e.clientX - r.left, e.clientY - r.top); };
     const onTouch = (e: TouchEvent) => { e.preventDefault(); const r = c.getBoundingClientRect(); const t = e.touches[0]; handle(t.clientX - r.left, t.clientY - r.top); };
@@ -601,28 +603,69 @@ const ThreatDropQuiz = ({ embedded }: { embedded?: boolean }) => {
         ctx.setLineDash([]);
       }
 
-      // Lane buttons
-      const btnH = 60, btnY = h - btnH;
+      // ── SKYLINE SILHOUETTE (replaces colored lane boxes) ──
+      const skyH = 90;
+      const skyY = h - skyH;
+      ctx.fillStyle = 'rgba(10,14,22,0.85)';
+      ctx.beginPath();
+      ctx.moveTo(0, h);
+      // Generate deterministic skyline buildings
+      const bldgs = [
+        [0, 0.6], [0.04, 0.45], [0.08, 0.7], [0.12, 0.35], [0.16, 0.55],
+        [0.2, 0.8], [0.24, 0.5], [0.28, 0.65], [0.32, 0.9], [0.36, 0.4],
+        [0.4, 0.6], [0.44, 0.75], [0.48, 0.5], [0.52, 0.85], [0.56, 0.45],
+        [0.6, 0.7], [0.64, 0.55], [0.68, 0.8], [0.72, 0.4], [0.76, 0.65],
+        [0.8, 0.9], [0.84, 0.5], [0.88, 0.6], [0.92, 0.75], [0.96, 0.45], [1, 0.6],
+      ];
+      for (const [xp, hp] of bldgs) {
+        const bx = xp * w;
+        const by = skyY + skyH * (1 - hp);
+        ctx.lineTo(bx, by);
+        ctx.lineTo(bx + w * 0.02, by);
+      }
+      ctx.lineTo(w, h);
+      ctx.closePath();
+      ctx.fill();
+      // Subtle window lights
+      ctx.fillStyle = 'rgba(245,184,0,0.06)';
+      for (let i = 0; i < 40; i++) {
+        const wx = ((i * 37 + 13) % 100) / 100 * w;
+        const wy = skyY + 20 + ((i * 53 + 7) % 60);
+        if (wy < h - 4) { ctx.fillRect(wx, wy, 2, 2); }
+      }
+
+      // ── MOBILE TOUCH BUTTONS (neutral, no color hints) ──
+      const mob = 'ontouchstart' in window;
+      const btnH = mob ? 72 : 56;
+      const btnY = h - btnH;
+      const btnGap = 3;
       for (let i = 0; i < 4; i++) {
-        const lane = LANES[i]; const bx = i * lw; const selected = g.selectedLane === i;
-        ctx.fillStyle = selected ? lane.color + '25' : '#0d0f18';
-        ctx.fillRect(bx, btnY, lw, btnH);
-        ctx.strokeStyle = selected ? lane.color : lane.color + '30';
+        const lane = LANES[i]; const bx = i * lw + btnGap; const bw = lw - btnGap * 2;
+        const selected = g.selectedLane === i;
+        // All buttons same neutral style – no lane-specific colors
+        ctx.fillStyle = selected ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.04)';
+        rRect(ctx, bx, btnY, bw, btnH - 2, 6);
+        ctx.fill();
+        ctx.strokeStyle = selected ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.12)';
         ctx.lineWidth = selected ? 2 : 1;
-        ctx.strokeRect(bx + 0.5, btnY + 0.5, lw - 1, btnH - 1);
+        rRect(ctx, bx, btnY, bw, btnH - 2, 6);
+        ctx.stroke();
         ctx.textAlign = 'center';
-        ctx.font = '18px monospace'; ctx.fillStyle = lane.color + (selected ? 'ff' : '90');
-        ctx.fillText(lane.sym, bx + lw / 2, btnY + 24);
-        ctx.font = 'bold 8px monospace'; ctx.fillStyle = lane.color + (selected ? 'dd' : '60');
-        ctx.fillText(lane.name, bx + lw / 2, btnY + 40);
-        ctx.font = '7px monospace'; ctx.fillStyle = 'rgba(255,255,255,0.18)';
-        ctx.fillText(txt.laneDescs[i], bx + lw / 2, btnY + 52);
+        // Key number prominent
+        ctx.font = `bold ${mob ? 22 : 18}px monospace`; ctx.fillStyle = selected ? C.white : 'rgba(255,255,255,0.6)';
+        ctx.fillText(lane.key, bx + bw / 2, btnY + (mob ? 28 : 22));
+        // Lane name smaller
+        ctx.font = `bold ${mob ? 11 : 9}px monospace`; ctx.fillStyle = selected ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.35)';
+        ctx.fillText(lane.name, bx + bw / 2, btnY + (mob ? 46 : 38));
+        // Description
+        ctx.font = `${mob ? 8 : 7}px monospace`; ctx.fillStyle = 'rgba(255,255,255,0.18)';
+        ctx.fillText(txt.laneDescs[i], bx + bw / 2, btnY + (mob ? 60 : 50));
       }
 
       // ── THREATS (with shapes!) ──
       for (const t of g.threats) {
+        const col = t.caught ? t.feedbackColor : (t.missed ? C.red : C.white);
         let alpha = 1, scale = 1;
-        const col = t.caught || t.missed ? t.feedbackColor : C.white;
         if (t.caught) { alpha = 1 - t.timer / 0.5; scale = 1 + t.timer * 1.5; }
         if (t.missed && !t.caught) { alpha = Math.max(0, 1 - t.timer / 0.5); }
 
@@ -633,9 +676,9 @@ const ThreatDropQuiz = ({ embedded }: { embedded?: boolean }) => {
 
         const urgency = Math.max(0, 1 - Math.abs(t.y - deadlineY) / 250);
         const glowPulse = 0.7 + Math.sin(now * 0.008 + t.id * 2) * 0.3;
-        const glowColor = t.caught ? LANES[t.lane].color : (urgency > 0.5 ? C.red : LANES[t.lane].color);
+        const glowColor = t.caught ? LANES[t.lane].color : (urgency > 0.5 ? C.red : C.white);
         ctx.shadowColor = glowColor;
-        ctx.shadowBlur = (10 + urgency * 20) * glowPulse;
+        ctx.shadowBlur = (8 + urgency * 15) * glowPulse;
 
         // Draw shape – bigger sprite
         drawShape(ctx, t.shape, 55, col);
@@ -718,9 +761,10 @@ const ThreatDropQuiz = ({ embedded }: { embedded?: boolean }) => {
         const ly = h * 0.56;
         for (let i = 0; i < 4; i++) {
           const y = ly + i * 24;
-          ctx.fillStyle = LANES[i].color; ctx.font = '16px monospace';
+          ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.font = '14px monospace';
           ctx.fillText(LANES[i].sym, w / 2 - 100, y + 2);
           ctx.font = 'bold 10px monospace'; ctx.textAlign = 'left';
+          ctx.fillStyle = 'rgba(255,255,255,0.7)';
           ctx.fillText(LANES[i].key + '  ' + LANES[i].name, w / 2 - 80, y + 2);
           ctx.font = '9px monospace'; ctx.fillStyle = 'rgba(255,255,255,0.35)';
           ctx.fillText('– ' + txt.laneDescs[i], w / 2 + 10, y + 2);
