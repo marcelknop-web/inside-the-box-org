@@ -492,7 +492,7 @@ const CisoSimulator = ({ embedded = false }: { embedded?: boolean }) => {
 
         {/* Phase: Allocate */}
         {phase === 'allocate' && (
-          <div className="space-y-4">
+          <StaggerReveal key={`alloc-${round}`} stagger={120} startDelay={200}>
             <div className="flex items-center justify-between">
               <p className="text-sm font-mono text-foreground">{t('budget')}: <span className="font-bold">100</span></p>
               <p className={`text-sm font-mono font-bold ${overBudget ? 'text-destructive' : totalAllocated === 100 ? 'text-success' : 'text-warning'}`}>
@@ -500,38 +500,36 @@ const CisoSimulator = ({ embedded = false }: { embedded?: boolean }) => {
               </p>
             </div>
 
-            <div className="space-y-3">
-              {CATEGORIES.map((cat, i) => (
-                <div key={cat} className="bg-card rounded-lg border border-primary/30 p-3">
-                  <div className="flex items-center justify-between mb-2">
-                    <label className="text-sm font-mono text-foreground">{t(cat)}</label>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-mono font-bold text-primary w-8 text-right">{allocation[i]}</span>
-                      {i < 5 && (
-                        <span className={`text-xs font-mono px-1.5 py-0.5 rounded ${pointsToLevelGain(allocation[i]) > 0 ? 'bg-success/10 text-success' : 'bg-muted text-muted-foreground'}`}>
-                          {pointsToLevelGain(allocation[i]) > 0 ? `+${pointsToLevelGain(allocation[i])}` : t('levelNone')}
-                        </span>
-                      )}
-                    </div>
+            {CATEGORIES.map((cat, i) => (
+              <div key={cat} className="bg-card rounded-lg border border-primary/30 p-3">
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-sm font-mono text-foreground">{t(cat)}</label>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-mono font-bold text-primary w-8 text-right">{allocation[i]}</span>
+                    {i < 5 && (
+                      <span className={`text-xs font-mono px-1.5 py-0.5 rounded ${pointsToLevelGain(allocation[i]) > 0 ? 'bg-success/10 text-success' : 'bg-muted text-muted-foreground'}`}>
+                        {pointsToLevelGain(allocation[i]) > 0 ? `+${pointsToLevelGain(allocation[i])}` : t('levelNone')}
+                      </span>
+                    )}
                   </div>
-                  <input
-                    type="range"
-                    min={0}
-                    max={100}
-                    step={5}
-                    value={allocation[i]}
-                    onChange={e => setCategory(i, Number(e.target.value))}
-                    className="ciso-slider w-full h-2 rounded-lg appearance-none bg-secondary cursor-pointer"
-                  />
-                  {i < 5 && (
-                    <div className="flex justify-between text-[10px] font-mono text-muted-foreground mt-1">
-                      <span>Lv {state.levels[i]}</span>
-                      <span>→ Lv {clamp(state.levels[i] + pointsToLevelGain(allocation[i]), 0, 5)}</span>
-                    </div>
-                  )}
                 </div>
-              ))}
-            </div>
+                <input
+                  type="range"
+                  min={0}
+                  max={100}
+                  step={5}
+                  value={allocation[i]}
+                  onChange={e => setCategory(i, Number(e.target.value))}
+                  className="ciso-slider w-full h-2 rounded-lg appearance-none bg-secondary cursor-pointer"
+                />
+                {i < 5 && (
+                  <div className="flex justify-between text-[10px] font-mono text-muted-foreground mt-1">
+                    <span>Lv {state.levels[i]}</span>
+                    <span>→ Lv {clamp(state.levels[i] + pointsToLevelGain(allocation[i]), 0, 5)}</span>
+                  </div>
+                )}
+              </div>
+            ))}
 
             <Button
               onClick={submitBudget}
@@ -541,23 +539,113 @@ const CisoSimulator = ({ embedded = false }: { embedded?: boolean }) => {
             >
               <Shield size={16} className="mr-2" /> {t('submit')} <ChevronRight size={16} className="ml-2" />
             </Button>
-          </div>
+          </StaggerReveal>
         )}
 
         {/* Phase: Result */}
         {phase === 'result' && latestResult && (
-          <div className="space-y-4">
-            <ResultCard result={latestResult} t={t} />
+          <StaggerReveal key={`result-${round}`} stagger={400} startDelay={300}>
+            <div className="bg-card border border-border rounded-xl p-4 md:p-5">
+              <div className="flex items-center gap-2">
+                <AlertTriangle size={18} className={latestResult.wasDetected ? 'text-warning' : 'text-destructive'} />
+                <h3 className="font-mono font-bold text-foreground">{t('round')} {latestResult.round} — {t(latestResult.attackKey)}</h3>
+              </div>
+            </div>
+
+            <div className="bg-card border border-border rounded-xl p-4 md:p-5">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm font-mono">
+                <div>
+                  <p className="text-muted-foreground text-xs">{t('detectionProb')}</p>
+                  <p className="text-foreground font-bold">{latestResult.detectionPct}%</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground text-xs">{t('detected')}</p>
+                  <p className={`font-bold ${latestResult.wasDetected ? 'text-success' : 'text-destructive'}`}>
+                    {latestResult.wasDetected ? t('yes') : t('no')}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground text-xs">{t('damage')}</p>
+                  <p className="text-destructive font-bold">-{latestResult.finalDamage}</p>
+                </div>
+              </div>
+            </div>
+
+            {(latestResult.regPenalty || latestResult.regPenaltyHigh) && (
+              <div className={`rounded-lg p-2 text-sm font-mono ${latestResult.regPenaltyHigh ? 'bg-destructive/15 text-destructive border border-destructive/30' : 'bg-warning/15 text-warning border border-warning/30'}`}>
+                ⚠ {latestResult.regPenaltyHigh ? t('regPenaltyHigh') : t('regPenalty')}
+              </div>
+            )}
+
+            <div className="bg-card border border-border rounded-xl p-4 md:p-5">
+              <div className="grid grid-cols-3 gap-2 text-center text-sm font-mono">
+                <div>
+                  <p className="text-muted-foreground text-[10px]">{t('marketValue')}</p>
+                  <p className="text-foreground">
+                    <span className="text-muted-foreground">{latestResult.statsBefore.marketValue}</span>
+                    <span className="mx-1">→</span>
+                    <span className={latestResult.statsAfter.marketValue < latestResult.statsBefore.marketValue ? 'text-destructive font-bold' : 'text-success font-bold'}>{latestResult.statsAfter.marketValue}</span>
+                  </p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground text-[10px]">{t('reputation')}</p>
+                  <p className="text-foreground">
+                    <span className="text-muted-foreground">{latestResult.statsBefore.reputation}</span>
+                    <span className="mx-1">→</span>
+                    <span className={latestResult.statsAfter.reputation < latestResult.statsBefore.reputation ? 'text-destructive font-bold' : 'text-success font-bold'}>{latestResult.statsAfter.reputation}</span>
+                  </p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground text-[10px]">{t('regRisk')}</p>
+                  <p className="text-foreground">
+                    <span className="text-muted-foreground">{latestResult.statsBefore.regRisk}</span>
+                    <span className="mx-1">→</span>
+                    <span className={latestResult.statsAfter.regRisk > latestResult.statsBefore.regRisk ? 'text-destructive font-bold' : 'text-success font-bold'}>{latestResult.statsAfter.regRisk}</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-card border border-border rounded-xl p-4 md:p-5">
+              <p className="text-xs font-mono text-muted-foreground mb-1">{t('analysis')}</p>
+              {latestResult.analysis.map((line, i) => (
+                <p key={i} className="text-sm font-sans text-foreground leading-relaxed">• {line}</p>
+              ))}
+            </div>
+
             <Button onClick={nextRound} className="w-full font-mono" size="lg">
               {t('nextRound')} <ChevronRight size={16} className="ml-2" />
             </Button>
-          </div>
+          </StaggerReveal>
         )}
 
         {/* Phase: Game Over */}
         {phase === 'gameover' && latestResult && (
-          <div className="space-y-4">
-            <ResultCard result={latestResult} t={t} />
+          <StaggerReveal key="gameover" stagger={500} startDelay={400}>
+            <div className="bg-card border border-border rounded-xl p-4 md:p-5">
+              <div className="flex items-center gap-2">
+                <AlertTriangle size={18} className="text-destructive" />
+                <h3 className="font-mono font-bold text-foreground">{t('round')} {latestResult.round} — {t(latestResult.attackKey)}</h3>
+              </div>
+            </div>
+
+            <div className="bg-card border border-border rounded-xl p-4 md:p-5">
+              <div className="grid grid-cols-3 gap-2 text-center text-sm font-mono">
+                <div>
+                  <p className="text-muted-foreground text-[10px]">{t('marketValue')}</p>
+                  <p><span className="text-muted-foreground">{latestResult.statsBefore.marketValue}</span> <span className="mx-1">→</span> <span className="text-destructive font-bold">{latestResult.statsAfter.marketValue}</span></p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground text-[10px]">{t('reputation')}</p>
+                  <p><span className="text-muted-foreground">{latestResult.statsBefore.reputation}</span> <span className="mx-1">→</span> <span className="text-destructive font-bold">{latestResult.statsAfter.reputation}</span></p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground text-[10px]">{t('regRisk')}</p>
+                  <p><span className="text-muted-foreground">{latestResult.statsBefore.regRisk}</span> <span className="mx-1">→</span> <span className="text-destructive font-bold">{latestResult.statsAfter.regRisk}</span></p>
+                </div>
+              </div>
+            </div>
+
             <div className="bg-destructive/10 border border-destructive/30 rounded-xl p-6 text-center">
               <Skull size={40} className="mx-auto text-destructive mb-3" />
               <h2 className="text-xl font-bold font-mono text-destructive">{t('gameOver')}</h2>
@@ -567,16 +655,23 @@ const CisoSimulator = ({ embedded = false }: { embedded?: boolean }) => {
                 {state.regRisk >= 80 && `${t('regRisk')} ≥ 80`}
               </p>
             </div>
+
             <Button onClick={restart} variant="outline" className="w-full font-mono" size="lg">
               <RotateCcw size={16} className="mr-2" /> {t('restart')}
             </Button>
-          </div>
+          </StaggerReveal>
         )}
 
         {/* Phase: Victory */}
         {phase === 'victory' && latestResult && (
-          <div className="space-y-4">
-            <ResultCard result={latestResult} t={t} />
+          <StaggerReveal key="victory" stagger={500} startDelay={400}>
+            <div className="bg-card border border-border rounded-xl p-4 md:p-5">
+              <div className="flex items-center gap-2">
+                <AlertTriangle size={18} className={latestResult.wasDetected ? 'text-warning' : 'text-destructive'} />
+                <h3 className="font-mono font-bold text-foreground">{t('round')} {latestResult.round} — {t(latestResult.attackKey)}</h3>
+              </div>
+            </div>
+
             <div className="bg-success/10 border border-success/30 rounded-xl p-6 text-center">
               <Trophy size={40} className="mx-auto text-success mb-3" />
               <h2 className="text-xl font-bold font-mono text-success">{t('victory')}</h2>
@@ -596,10 +691,11 @@ const CisoSimulator = ({ embedded = false }: { embedded?: boolean }) => {
                 </div>
               </div>
             </div>
+
             <Button onClick={restart} variant="outline" className="w-full font-mono" size="lg">
               <RotateCcw size={16} className="mr-2" /> {t('restart')}
             </Button>
-          </div>
+          </StaggerReveal>
         )}
 
         {/* History */}
@@ -692,70 +788,5 @@ const StatCard = ({ label, value, max, color, invert, isLevel }: {
   );
 };
 
-const ResultCard = ({ result, t }: { result: RoundResult; t: (k: string) => string }) => (
-  <div className="bg-card border border-border rounded-xl p-4 md:p-5 space-y-3">
-    <div className="flex items-center gap-2 mb-1">
-      <AlertTriangle size={18} className={result.wasDetected ? 'text-warning' : 'text-destructive'} />
-      <h3 className="font-mono font-bold text-foreground">{t('round')} {result.round} — {t(result.attackKey)}</h3>
-    </div>
-
-    <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm font-mono">
-      <div>
-        <p className="text-muted-foreground text-xs">{t('detectionProb')}</p>
-        <p className="text-foreground font-bold">{result.detectionPct}%</p>
-      </div>
-      <div>
-        <p className="text-muted-foreground text-xs">{t('detected')}</p>
-        <p className={`font-bold ${result.wasDetected ? 'text-success' : 'text-destructive'}`}>
-          {result.wasDetected ? t('yes') : t('no')}
-        </p>
-      </div>
-      <div>
-        <p className="text-muted-foreground text-xs">{t('damage')}</p>
-        <p className="text-destructive font-bold">-{result.finalDamage}</p>
-      </div>
-    </div>
-
-    {(result.regPenalty || result.regPenaltyHigh) && (
-      <div className={`rounded-lg p-2 text-sm font-mono ${result.regPenaltyHigh ? 'bg-destructive/15 text-destructive border border-destructive/30' : 'bg-warning/15 text-warning border border-warning/30'}`}>
-        ⚠ {result.regPenaltyHigh ? t('regPenaltyHigh') : t('regPenalty')}
-      </div>
-    )}
-
-    <div className="grid grid-cols-3 gap-2 text-center text-sm font-mono">
-      <div>
-        <p className="text-muted-foreground text-[10px]">{t('marketValue')}</p>
-        <p className="text-foreground">
-          <span className="text-muted-foreground">{result.statsBefore.marketValue}</span>
-          <span className="mx-1">→</span>
-          <span className={result.statsAfter.marketValue < result.statsBefore.marketValue ? 'text-destructive font-bold' : 'text-success font-bold'}>{result.statsAfter.marketValue}</span>
-        </p>
-      </div>
-      <div>
-        <p className="text-muted-foreground text-[10px]">{t('reputation')}</p>
-        <p className="text-foreground">
-          <span className="text-muted-foreground">{result.statsBefore.reputation}</span>
-          <span className="mx-1">→</span>
-          <span className={result.statsAfter.reputation < result.statsBefore.reputation ? 'text-destructive font-bold' : 'text-success font-bold'}>{result.statsAfter.reputation}</span>
-        </p>
-      </div>
-      <div>
-        <p className="text-muted-foreground text-[10px]">{t('regRisk')}</p>
-        <p className="text-foreground">
-          <span className="text-muted-foreground">{result.statsBefore.regRisk}</span>
-          <span className="mx-1">→</span>
-          <span className={result.statsAfter.regRisk > result.statsBefore.regRisk ? 'text-destructive font-bold' : 'text-success font-bold'}>{result.statsAfter.regRisk}</span>
-        </p>
-      </div>
-    </div>
-
-    <div className="border-t border-border pt-2">
-      <p className="text-xs font-mono text-muted-foreground mb-1">{t('analysis')}</p>
-      {result.analysis.map((line, i) => (
-        <p key={i} className="text-sm font-sans text-foreground leading-relaxed">• {line}</p>
-      ))}
-    </div>
-  </div>
-);
 
 export default CisoSimulator;
