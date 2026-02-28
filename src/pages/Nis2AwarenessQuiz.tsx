@@ -226,154 +226,69 @@ const ALL_QUESTIONS: QuizQuestion[] = [
     },
     options: [
       { label: { de: 'Kein Denkfehler – Art. 6 Nr. 1 definiert Netz- und Informationssysteme als elektronische Kommunikationsnetze; Air-Gapped-Systeme ohne Netzanbindung fallen definitionsgemäß nicht darunter', en: 'No flaw – Art. 6(1) defines network and information systems as electronic communications networks; air-gapped systems without network connectivity don\'t fall under this definition', fr: 'Aucune erreur – l\'Art. 6(1) définit les systèmes comme des réseaux de communication ; les systèmes air-gapped n\'en font pas partie' }, value: 'a' },
-      { label: { de: 'NIS-2 erfasst alle Netz- und Informationssysteme, die für die Erbringung des Dienstes relevant sind – die OT-Steuerung eines Wasserversorgers gehört zwingend dazu', en: 'NIS-2 covers all network and information systems relevant to service delivery – a water utility\'s OT systems are necessarily included', fr: 'NIS-2 couvre tous les systèmes pertinents pour la fourniture du service – les systèmes OT d\'un fournisseur d\'eau sont inclus' }, value: 'b' },
-      { label: { de: 'Der Denkfehler liegt in der Annahme eines echten Air Gaps – NIS-2 Art. 21 verlangt eine Verifizierung der Netzsegmentierung durch unabhängige Dritte', en: 'The flaw is assuming a true air gap – NIS-2 Art. 21 requires verification of network segmentation by independent third parties', fr: 'L\'erreur est de supposer un vrai air gap – l\'Art. 21 NIS-2 exige une vérification par des tiers indépendants' }, value: 'c' },
-      { label: { de: 'NIS-2 adressiert OT nur indirekt über die NIS-Kooperationsgruppe – die direkte Regulierung von OT-Systemen erfolgt über die Maschinenverordnung 2023/1230', en: 'NIS-2 only addresses OT indirectly through the NIS Cooperation Group – direct regulation of OT systems falls under the Machinery Regulation 2023/1230', fr: 'NIS-2 n\'adresse l\'OT qu\'indirectement – la régulation directe relève du Règlement Machines 2023/1230' }, value: 'd' },
+      { label: { de: 'NIS-2 betrifft die Sicherheit der Dienste, nicht einzelner Netzwerksegmente – wenn die Wasserversorgung von OT abhängt, ist auch das OT-Netz im Scope', en: 'NIS-2 concerns the security of services, not individual network segments – if water supply depends on OT, the OT network is also in scope', fr: 'NIS-2 concerne la sécurité des services, pas des segments réseau individuels – si l\'approvisionnement en eau dépend de l\'OT, le réseau OT est aussi dans le périmètre' }, value: 'b' },
+      { label: { de: 'Der Air Gap ist ausreichend, aber NIS-2 verlangt eine dokumentierte Risikoanalyse, die beweist, dass die Trennung wirksam ist und regelmäßig getestet wird', en: 'The air gap is sufficient, but NIS-2 requires a documented risk analysis proving the separation is effective and regularly tested', fr: 'L\'air gap est suffisant, mais NIS-2 exige une analyse de risque documentée prouvant l\'efficacité de la séparation' }, value: 'c' },
+      { label: { de: 'NIS-2 erfasst OT-Systeme nur bei Betreibern kritischer Infrastruktur nach dem KRITIS-Dachgesetz – ein normaler Wasserversorger unter den KRITIS-Schwellenwerten ist nicht betroffen', en: 'NIS-2 only covers OT systems at critical infrastructure operators under the CRITIS umbrella law – a normal water utility below CRITIS thresholds is not affected', fr: 'NIS-2 ne couvre les systèmes OT que chez les opérateurs d\'infrastructure critique – un fournisseur d\'eau normal n\'est pas concerné' }, value: 'd' },
     ],
     correct: 'b',
     explanation: {
-      de: 'NIS-2 bezieht sich auf die Sicherheit der Dienste, nicht nur auf internetverbundene Systeme. Die OT-Steuerung eines Wasserversorgers ist das Kernstück der Dienstleistung. Zudem sind echte Air Gaps in der Praxis selten: USB-Wartungsschnittstellen, Fernwartungszugänge oder veraltete Protokolle schaffen oft unbemerkte Verbindungen.',
-      en: 'NIS-2 relates to service security, not just internet-connected systems. A water utility\'s OT control is the core of service delivery. Additionally, true air gaps are rare: USB maintenance interfaces, remote access, or legacy protocols often create unnoticed connections.',
-      fr: 'NIS-2 concerne la sécurité des services, pas seulement les systèmes connectés. Les systèmes OT d\'un fournisseur d\'eau sont au cœur du service. De plus, les vrais air gaps sont rares en pratique.',
+      de: 'NIS-2 adressiert die Sicherheit der erbrachten Dienste, nicht einzelner Netzwerksegmente. Wenn die Wasserversorgung (wesentlicher Dienst) von OT-Systemen abhängt, fallen diese in den Scope – unabhängig davon, ob sie mit dem Internet verbunden sind. Zudem sind echte Air Gaps in der Praxis selten; USB-Transfers, Wartungszugänge und Updates schaffen regelmäßig Brücken.',
+      en: 'NIS-2 addresses the security of services provided, not individual network segments. If water supply (essential service) depends on OT systems, they\'re in scope – regardless of internet connectivity. Moreover, true air gaps are rare in practice; USB transfers, maintenance access, and updates regularly create bridges.',
+      fr: 'NIS-2 adresse la sécurité des services fournis, pas des segments réseau individuels. Si l\'approvisionnement en eau dépend des systèmes OT, ils sont dans le périmètre.',
     },
   },
   {
     id: 'q12',
     question: {
-      de: 'Der Geschäftsführer eines Chemieunternehmens (wesentliche Einrichtung) lässt sich im Vorstand durch ein NIS-2-Briefing des CISOs informieren. Er selbst nimmt an keiner Cybersicherheitsschulung teil: „Ich habe es zur Kenntnis genommen." Reicht das?',
-      en: 'The CEO of a chemical company (essential entity) receives a NIS-2 briefing from the CISO at a board meeting. He doesn\'t attend cybersecurity training: "I\'ve taken note." Is that sufficient?',
-      fr: 'Le PDG d\'une entreprise chimique (entité essentielle) reçoit un briefing NIS-2 du RSSI. Il ne participe à aucune formation : « J\'en ai pris note. » Est-ce suffisant ?',
+      de: 'Ein Unternehmen führt Penetrationstests durch einen externen Dienstleister durch. Die Ergebnisse zeigen 47 Schwachstellen, davon 3 kritische. Der CISO priorisiert die Behebung nach CVSS-Score. Was übersieht er aus NIS-2-Perspektive?',
+      en: 'A company runs pen tests through an external provider. Results show 47 vulnerabilities, 3 critical. The CISO prioritizes remediation by CVSS score. What\'s he missing from a NIS-2 perspective?',
+      fr: 'Une entreprise fait des tests de pénétration. Les résultats montrent 47 vulnérabilités, dont 3 critiques. Le RSSI priorise par score CVSS. Qu\'oublie-t-il du point de vue NIS-2 ?',
     },
     options: [
-      { label: { de: 'Ja – Art. 20 Abs. 2 verlangt „ausreichende Kenntnisse und Fähigkeiten" der Leitungsorgane; ein qualifiziertes CISO-Briefing mit dokumentierter Kenntnisnahme erfüllt diese Anforderung', en: 'Yes – Art. 20(2) requires "sufficient knowledge and skills" of management; a qualified CISO briefing with documented acknowledgment meets this requirement', fr: 'Oui – l\'Art. 20(2) exige des « connaissances suffisantes » ; un briefing qualifié du RSSI documenté suffit' }, value: 'a' },
-      { label: { de: 'Ja – die Schulungspflicht kann durch Delegation an den CISO erfüllt werden, solange dieser die Geschäftsleitung nachweislich regelmäßig informiert', en: 'Yes – the training obligation can be fulfilled through delegation to the CISO, as long as management is demonstrably regularly informed', fr: 'Oui – l\'obligation de formation peut être déléguée au RSSI tant que la direction est régulièrement informée' }, value: 'b' },
-      { label: { de: 'Nein – NIS-2 verlangt, dass Leitungsorgane selbst an Schulungen teilnehmen, um Risiken eigenständig beurteilen und Maßnahmen genehmigen zu können', en: 'No – NIS-2 requires management bodies to personally attend training to independently assess risks and approve measures', fr: 'Non – NIS-2 exige que les organes de direction participent personnellement à des formations' }, value: 'c' },
-      { label: { de: 'Nein – die Geschäftsleitung muss zusätzlich eine von der ENISA akkreditierte Zertifizierung in Cybersicherheits-Governance nachweisen', en: 'No – management must additionally demonstrate an ENISA-accredited certification in cybersecurity governance', fr: 'Non – la direction doit en plus obtenir une certification accréditée par l\'ENISA en gouvernance de cybersécurité' }, value: 'd' },
-    ],
-    correct: 'c',
-    explanation: {
-      de: 'NIS-2 Artikel 20 verlangt explizit, dass Mitglieder der Leitungsorgane an Cybersicherheitsschulungen teilnehmen – nicht nur informiert werden. Ziel ist, dass sie Risiken selbst erkennen und bewerten können. Ein Briefing durch den CISO ersetzt keine eigene Schulungsteilnahme.',
-      en: 'NIS-2 Article 20 explicitly requires management body members to attend cybersecurity training – not just be informed. The goal is to acquire sufficient knowledge to recognize and assess risks. A CISO briefing does not replace personal training.',
-      fr: 'L\'article 20 de NIS-2 exige explicitement que les membres des organes de direction participent à des formations en cybersécurité – pas seulement être informés.',
-    },
-  },
-  {
-    id: 'q13',
-    question: {
-      de: 'Ein Telekommunikationsanbieter erleidet einen Datenbankausfall. 50.000 Kunden können 6 Stunden lang keine Anrufe tätigen. Der Vorfall hatte keine böswillige Ursache – ein fehlerhaftes Software-Update war schuld. Muss das unter NIS-2 gemeldet werden?',
-      en: 'A telecom provider experiences a database failure. 50,000 customers can\'t make calls for 6 hours. No malicious cause – a faulty software update was responsible. Must this be reported under NIS-2?',
-      fr: 'Un opérateur télécom subit une panne. 50 000 clients ne peuvent téléphoner pendant 6 heures. Pas de cause malveillante – une mise à jour défectueuse. Faut-il le signaler selon NIS-2 ?',
-    },
-    options: [
-      { label: { de: 'Nein – Art. 23 NIS-2 definiert „erhebliche Sicherheitsvorfälle" als Ereignisse mit böswilliger oder vorsätzlicher Ursache; rein technisches Versagen fällt unter die EECC-Meldepflicht (Richtlinie 2018/1972)', en: 'No – Art. 23 NIS-2 defines "significant security incidents" as events with malicious or intentional cause; purely technical failures fall under the EECC reporting obligation (Directive 2018/1972)', fr: 'Non – l\'Art. 23 définit les incidents comme ayant une cause malveillante ; les pannes techniques relèvent de l\'EECC' }, value: 'a' },
-      { label: { de: 'Nein – die Erheblichkeitsschwelle nach den ENISA-Leitlinien setzt mindestens 100.000 betroffene Nutzer oder 12 Stunden Ausfallzeit voraus', en: 'No – the significance threshold per ENISA guidelines requires at least 100,000 affected users or 12 hours of downtime', fr: 'Non – le seuil de gravité selon les lignes directrices de l\'ENISA requiert au moins 100 000 utilisateurs ou 12 heures' }, value: 'b' },
-      { label: { de: 'Ja – NIS-2 umfasst alle erheblichen Sicherheitsvorfälle, unabhängig davon ob sie böswillig, fahrlässig oder durch technisches Versagen verursacht wurden', en: 'Yes – NIS-2 covers all significant security incidents regardless of cause – malicious, negligent, or technical failure', fr: 'Oui – NIS-2 couvre tous les incidents significatifs, quelle qu\'en soit la cause' }, value: 'c' },
-      { label: { de: 'Ja, aber nur gegenüber dem Software-Hersteller im Rahmen der koordinierten Schwachstellenoffenlegung nach Art. 12 NIS-2', en: 'Yes, but only to the software vendor as part of coordinated vulnerability disclosure under Art. 12 NIS-2', fr: 'Oui, mais uniquement au fournisseur de logiciel dans le cadre de la divulgation coordonnée selon l\'Art. 12' }, value: 'd' },
-    ],
-    correct: 'c',
-    explanation: {
-      de: 'NIS-2 unterscheidet nicht nach der Ursache eines Vorfalls. Erhebliche Sicherheitsvorfälle sind meldepflichtig – egal ob durch Cyberangriff, menschliches Versagen oder technisches Versagen verursacht. Bei 50.000 betroffenen Kunden und 6 Stunden Ausfall sind die Erheblichkeitskriterien klar erfüllt.',
-      en: 'NIS-2 does not distinguish by cause. Significant security incidents must be reported – whether caused by cyber attack, human error, or technical failure. With 50,000 affected customers and 6 hours of outage, significance criteria are clearly met.',
-      fr: 'NIS-2 ne distingue pas selon la cause. Les incidents significatifs doivent être signalés. Avec 50 000 clients affectés et 6 heures de panne, les critères de gravité sont clairement remplis.',
-    },
-  },
-  {
-    id: 'q14',
-    question: {
-      de: 'Eine Universität (8.000 Studierende, 2.000 MA) betreibt ein Rechenzentrum, das auch von drei Krankenhäusern genutzt wird. Der Kanzler: „Bildungseinrichtungen fallen nicht unter NIS-2." Hat er recht?',
-      en: 'A university (8,000 students, 2,000 staff) operates a data center also used by three hospitals. The chancellor: "Educational institutions don\'t fall under NIS-2." Is he right?',
-      fr: 'Une université (8 000 étudiants, 2 000 employés) exploite un centre de données utilisé par trois hôpitaux. Le chancelier : « Les établissements d\'enseignement ne relèvent pas de NIS-2. » A-t-il raison ?',
-    },
-    options: [
-      { label: { de: 'Ja – Art. 2 Abs. 5 NIS-2 nimmt Bildungs- und Forschungseinrichtungen ausdrücklich vom Anwendungsbereich aus, sofern sie nicht in Annex I oder II gelistet sind', en: 'Yes – Art. 2(5) NIS-2 explicitly exempts educational and research institutions from scope unless listed in Annex I or II', fr: 'Oui – l\'Art. 2(5) exempte explicitement les établissements d\'enseignement sauf s\'ils sont dans l\'Annexe I ou II' }, value: 'a' },
-      { label: { de: 'Formal möglicherweise korrekt für die Universität selbst, aber das Rechenzentrum als IT-Infrastrukturdienstleister für Krankenhäuser könnte eigenständig erfasst sein', en: 'Formally possibly correct for the university itself, but the data center as IT infrastructure provider for hospitals could be independently covered', fr: 'Formellement peut-être correct pour l\'université, mais le centre de données comme fournisseur d\'infrastructure pour des hôpitaux pourrait être couvert indépendamment' }, value: 'b' },
-      { label: { de: 'Nein – mit 2.000 MA überschreitet die Universität den Schwellenwert und fällt als große Einrichtung automatisch unter NIS-2, unabhängig vom Sektor', en: 'No – with 2,000 employees the university exceeds the threshold and automatically falls under NIS-2 as a large entity, regardless of sector', fr: 'Non – avec 2 000 employés, l\'université dépasse le seuil et relève automatiquement de NIS-2' }, value: 'c' },
-      { label: { de: 'Ja – aber die Universität unterliegt stattdessen der sektorspezifischen Regulierung durch das BSI-Gesetz im Rahmen der KRITIS-Verordnung für den Sektor Forschung', en: 'Yes – but the university is instead subject to sector-specific regulation under the BSI Act within the CRITIS ordinance for the research sector', fr: 'Oui – mais l\'université est soumise à la réglementation sectorielle du BSI pour le secteur recherche' }, value: 'd' },
+      { label: { de: 'Nichts – CVSS-basierte Priorisierung entspricht dem Stand der Technik und erfüllt die Anforderungen von Art. 21 Abs. 2 lit. e an die Schwachstellenbehandlung', en: 'Nothing – CVSS-based prioritization meets the state of the art and fulfills Art. 21(2)(e) vulnerability handling requirements', fr: 'Rien – la priorisation CVSS correspond à l\'état de l\'art et satisfait les exigences de l\'Art. 21(2)(e)' }, value: 'a' },
+      { label: { de: 'Den Geschäftskontext – NIS-2 fordert risikobasierte Bewertung: Eine CVSS-5.0-Schwachstelle auf einem System mit Kundendaten kann kritischer sein als eine CVSS-9.8 auf einem isolierten Testsystem', en: 'The business context – NIS-2 requires risk-based assessment: a CVSS 5.0 vulnerability on a customer data system can be more critical than a CVSS 9.8 on an isolated test system', fr: 'Le contexte métier – NIS-2 exige une évaluation basée sur les risques : une vulnérabilité CVSS 5.0 sur un système client peut être plus critique qu\'un CVSS 9.8 sur un système de test isolé' }, value: 'b' },
+      { label: { de: 'Die Meldepflicht – kritische Schwachstellen, die bei einem Penetrationstest entdeckt werden, müssen gemäß Art. 23 innerhalb von 72h an das CSIRT gemeldet werden', en: 'The reporting obligation – critical vulnerabilities found in pen tests must be reported to the CSIRT within 72h under Art. 23', fr: 'L\'obligation de notification – les vulnérabilités critiques trouvées lors de tests doivent être signalées au CSIRT dans les 72h' }, value: 'c' },
+      { label: { de: 'Die Haftungsfrage – bei Kenntnis kritischer Schwachstellen beginnt eine 30-Tage-Frist, in der die Geschäftsleitung persönlich für nicht behobene Schwachstellen haftet', en: 'The liability question – upon knowledge of critical vulnerabilities, a 30-day deadline begins during which management is personally liable for unpatched vulnerabilities', fr: 'La question de responsabilité – un délai de 30 jours commence, pendant lequel la direction est personnellement responsable' }, value: 'd' },
     ],
     correct: 'b',
     explanation: {
-      de: 'Die Frage ist trickreicher als sie aussieht: Das Rechenzentrum, das IT-Dienste für Krankenhäuser (Gesundheitssektor, NIS-2 Annex I) erbringt, agiert faktisch als IT-Infrastrukturdienstleister und kann unabhängig von der Universität unter NIS-2 fallen. Die Funktion bestimmt die Einstufung, nicht die Trägerschaft.',
-      en: 'Trickier than it looks: the data center providing IT services to hospitals (health sector, NIS-2 Annex I) effectively acts as an IT infrastructure provider and can fall under NIS-2 independently. Function determines classification, not ownership.',
-      fr: 'Plus complexe qu\'il n\'y paraît : le centre de données fournissant des services IT aux hôpitaux (secteur santé, Annexe I) agit comme fournisseur d\'infrastructure IT et peut relever de NIS-2 indépendamment. La fonction détermine la classification, pas la propriété.',
-    },
-  },
-  {
-    id: 'q15',
-    question: {
-      de: 'Ein Konzern hat NIS-2 in seiner deutschen Hauptgesellschaft umgesetzt. Er eröffnet Tochtergesellschaften in Frankreich und Polen, die eigenständige Dienste erbringen. Der Group CISO: „Unser deutsches ISMS gilt für den ganzen Konzern." Warum ist das problematisch?',
-      en: 'A corporation implemented NIS-2 in its German parent company. It opens subsidiaries in France and Poland providing independent services. The Group CISO: "Our German ISMS applies to the entire group." Why is this problematic?',
-      fr: 'Un groupe a mis en œuvre NIS-2 dans sa société mère allemande. Il ouvre des filiales en France et Pologne avec des services indépendants. Le RSSI Groupe : « Notre SMSI allemand s\'applique à tout le groupe. » Pourquoi est-ce problématique ?',
-    },
-    options: [
-      { label: { de: 'Kein Problem – Art. 26 NIS-2 ermöglicht eine Konzernbetrachtung, bei der die Muttergesellschaft die Compliance für alle EU-Tochtergesellschaften zentral nachweisen kann', en: 'No problem – Art. 26 NIS-2 enables a group-level approach where the parent company can centrally demonstrate compliance for all EU subsidiaries', fr: 'Pas de problème – l\'Art. 26 permet une approche groupe où la société mère peut démontrer la conformité centralement' }, value: 'a' },
-      { label: { de: 'Weil NIS-2 als Richtlinie national umgesetzt wird – jede Tochtergesellschaft unterliegt den Anforderungen und der Aufsicht des Landes, in dem sie tätig ist', en: 'Because NIS-2 as a directive is nationally implemented – each subsidiary is subject to the requirements and supervision of its operating country', fr: 'Parce que NIS-2 est transposée nationalement – chaque filiale est soumise aux exigences du pays où elle opère' }, value: 'b' },
-      { label: { de: 'Weil die ANSSI (Frankreich) und das CSIRT (Polen) jeweils eine eigenständige Registrierung nach Art. 3 verlangen, das ISMS aber trotzdem konzernweit gültig bleibt', en: 'Because ANSSI (France) and CSIRT (Poland) each require independent registration under Art. 3, but the ISMS remains valid group-wide', fr: 'Parce que l\'ANSSI et le CSIRT exigent chacun un enregistrement, mais le SMSI reste valide pour le groupe' }, value: 'c' },
-      { label: { de: 'Weil das deutsche NIS-2-Umsetzungsgesetz (NIS2UmsuCG) strengere Anforderungen definiert als die französische und polnische Umsetzung – ein Export des ISMS würde Over-Compliance bedeuten', en: 'Because the German NIS-2 implementation law (NIS2UmsuCG) defines stricter requirements than the French and Polish implementations – exporting the ISMS would mean over-compliance', fr: 'Parce que la loi allemande de transposition définit des exigences plus strictes – exporter le SMSI créerait une sur-conformité' }, value: 'd' },
-    ],
-    correct: 'b',
-    explanation: {
-      de: 'NIS-2 ist eine EU-Richtlinie, keine Verordnung – sie wird national umgesetzt, mit potenziell unterschiedlichen Anforderungen, Schwellenwerten und Aufsichtsstrukturen. Tochtergesellschaften, die eigenständige Dienste erbringen, unterliegen der jeweiligen nationalen Umsetzung. Ein zentrales ISMS kann die Basis bilden, muss aber an lokale Anforderungen angepasst werden.',
-      en: 'NIS-2 is a directive, not a regulation – it is nationally implemented with potentially different requirements, thresholds, and supervisory structures. Subsidiaries providing independent services are subject to their respective national implementation. A central ISMS can form the basis but must be adapted to local requirements.',
-      fr: 'NIS-2 est une directive, pas un règlement – elle est transposée nationalement avec des exigences potentiellement différentes. Les filiales fournissant des services indépendants sont soumises à la transposition nationale respective.',
+      de: 'NIS-2 verlangt einen gefahrenübergreifenden, risikobasierten Ansatz. CVSS bewertet die technische Schwere einer Schwachstelle, nicht das Geschäftsrisiko. Eine Schwachstelle mit niedrigem CVSS-Score auf einem geschäftskritischen System mit Kundendaten kann ein höheres Risiko darstellen als eine technisch kritischere Schwachstelle auf einem isolierten System.',
+      en: 'NIS-2 requires an all-hazards, risk-based approach. CVSS scores assess technical severity, not business risk. A vulnerability with a low CVSS score on a business-critical customer data system can pose higher risk than a technically more critical vulnerability on an isolated system.',
+      fr: 'NIS-2 exige une approche basée sur les risques. Le CVSS évalue la sévérité technique, pas le risque métier.',
     },
   },
 ];
 
 const QUIZ_SIZE = 10;
-const QUESTION_TIME = 45; // seconds per question
-const BONUS_TIME_THRESHOLD = 15; // seconds remaining for speed bonus
-
-// Money ladder levels (bottom to top)
-const MONEY_LEVELS = [
-  '100',
-  '200',
-  '500',
-  '1.000',
-  '2.000',
-  '4.000',
-  '8.000',
-  '16.000',
-  '32.000',
-  '64.000',
-];
-
-// Safety nets (indices in the MONEY_LEVELS array)
-const SAFETY_NETS = [4, 9]; // at level 5 (2.000) and level 10 (64.000)
-
+const MONEY_LEVELS = ['100', '200', '500', '1.000', '2.000', '4.000', '8.000', '16.000', '32.000', '64.000'];
+const SAFETY_NETS = [4, 8]; // indices where money is secured
 const OPTION_LETTERS = ['A', 'B', 'C', 'D'];
-
-// Fake difficulty stats per question (makes it feel competitive)
-const FAKE_DIFFICULTY: Record<string, number> = {
-  q1: 67, q2: 54, q3: 38, q4: 42, q5: 61, q6: 51, q7: 45, q8: 58,
-  q9: 72, q10: 35, q11: 41, q12: 63, q13: 55, q14: 29, q15: 33,
-};
-
-const STORAGE_KEY = 'nis2-quiz-best';
+const QUESTION_TIME = 45;
+const BONUS_TIME_THRESHOLD = 30;
+const STORAGE_KEY = 'nis2_quiz_best';
 
 const I18N = {
-  title: { de: 'NIS-2 Awareness Quiz', en: 'NIS-2 Awareness Quiz', fr: 'Quiz NIS-2 Awareness' },
-  intro: {
-    de: 'Testen Sie Ihr Wissen zur NIS-2-Richtlinie – im Stil von „Wer wird Millionär". 10 Fragen, 2 Joker, Sicherheitsstufen. Wie weit kommen Sie?',
-    en: 'Test your NIS-2 knowledge – "Who Wants to Be a Millionaire" style. 10 questions, 2 lifelines, safety nets. How far can you go?',
-    fr: 'Testez vos connaissances NIS-2 – style « Qui veut gagner des millions ». 10 questions, 2 jokers, filets de sécurité. Jusqu\'où irez-vous ?',
-  },
-  start: { de: '🎯 Quiz starten', en: '🎯 Start Quiz', fr: '🎯 Lancer le quiz' },
+  title: { de: 'NIS-2 Awareness Quiz', en: 'NIS-2 Awareness Quiz', fr: 'Quiz NIS-2' },
+  intro: { de: 'Teste dein Wissen zur NIS-2-Richtlinie. 10 praxisnahe Szenarien aus dem Management- und IT-Alltag – im Millionär-Stil. Wie weit kommst du?', en: 'Test your NIS-2 knowledge. 10 practical scenarios from management and IT – millionaire style. How far can you go?', fr: 'Testez vos connaissances NIS-2. 10 scénarios pratiques – style millionnaire.' },
+  start: { de: 'Quiz starten', en: 'Start Quiz', fr: 'Commencer' },
   correct: { de: 'Richtig!', en: 'Correct!', fr: 'Correct !' },
   incorrect: { de: 'Leider falsch.', en: 'Incorrect.', fr: 'Incorrect.' },
-  gameOver: { de: 'Spiel beendet', en: 'Game Over', fr: 'Fin du jeu' },
-  next: { de: 'Nächste Frage', en: 'Next Question', fr: 'Question suivante' },
-  restart: { de: 'Erneut starten', en: 'Restart', fr: 'Recommencer' },
-  won: { de: 'Alle Fragen richtig beantwortet!', en: 'All questions answered correctly!', fr: 'Toutes les questions correctement répondues !' },
+  next: { de: 'Weiter', en: 'Next', fr: 'Suivant' },
+  confirm: { de: 'Letzte Antwort', en: 'Final Answer', fr: 'Réponse finale' },
+  restart: { de: 'Neues Spiel', en: 'New Game', fr: 'Nouvelle partie' },
+  won: { de: 'Gewonnen!', en: 'You won!', fr: 'Gagné !' },
+  gameOver: { de: 'Ausgeschieden!', en: 'Game Over!', fr: 'Éliminé !' },
   reached: { de: 'Erreicht', en: 'Reached', fr: 'Atteint' },
   secured: { de: 'Gesichert', en: 'Secured', fr: 'Sécurisé' },
-  disclaimer: { de: 'Dieses Quiz dient der Sensibilisierung und ersetzt keine Rechtsberatung.', en: 'This quiz is for awareness purposes and does not constitute legal advice.', fr: 'Ce quiz est à des fins de sensibilisation et ne constitue pas un avis juridique.' },
-  fiftyFifty: { de: '50:50', en: '50:50', fr: '50:50' },
+  fiftyFifty: { de: '50:50 Joker', en: '50:50 Lifeline', fr: 'Joker 50:50' },
   audience: { de: 'Publikum', en: 'Audience', fr: 'Public' },
-  jokerUsed: { de: 'Bereits verwendet', en: 'Already used', fr: 'Déjà utilisé' },
-  safetyNet: { de: 'Sicherheitsstufe', en: 'Safety Net', fr: 'Filet de sécurité' },
-  finalAnswer: { de: 'Letzte Antwort?', en: 'Final answer?', fr: 'Dernier mot ?' },
-  confirm: { de: 'Ja, endgültig!', en: 'Yes, final!', fr: 'Oui, définitif !' },
-  change: { de: 'Andere Antwort', en: 'Change answer', fr: 'Changer de réponse' },
+  jokerUsed: { de: 'Joker verbraucht', en: 'Lifeline used', fr: 'Joker utilisé' },
+  safetyNet: { de: 'Sicherheitsstufe!', en: 'Safety net!', fr: 'Filet de sécurité !' },
+  disclaimer: { de: 'Hinweis: Dieses Quiz dient der Sensibilisierung und ersetzt keine Rechtsberatung.', en: 'Note: This quiz is for awareness purposes and does not constitute legal advice.', fr: 'Note : Ce quiz est à des fins de sensibilisation et ne constitue pas un avis juridique.' },
+};
+
+const FAKE_DIFFICULTY: Record<string, number> = {
+  q1: 38, q2: 42, q3: 31, q4: 45, q5: 52, q6: 35, q7: 28, q8: 48, q9: 55, q10: 33, q11: 40, q12: 37,
 };
 
 function shuffle<T>(arr: T[], seed: number): T[] {
@@ -404,13 +319,11 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
   const [gameOver, setGameOver] = useState(false);
   const [won, setWon] = useState(false);
   
-  // Lifelines
   const [fiftyFiftyUsed, setFiftyFiftyUsed] = useState(false);
   const [audienceUsed, setAudienceUsed] = useState(false);
   const [hiddenOptions, setHiddenOptions] = useState<string[]>([]);
   const [audienceResults, setAudienceResults] = useState<Record<string, number> | null>(null);
 
-  // ── Addictive Programming State ──
   const [streak, setStreak] = useState(0);
   const [timeLeft, setTimeLeft] = useState(QUESTION_TIME);
   const [speedBonuses, setSpeedBonuses] = useState(0);
@@ -421,7 +334,6 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
   const [showSpeedBonus, setShowSpeedBonus] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Timer countdown
   useEffect(() => {
     if (!started || gameOver || won || confirmed) {
       if (timerRef.current) clearInterval(timerRef.current);
@@ -431,11 +343,9 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
     timerRef.current = setInterval(() => {
       setTimeLeft(prev => {
         if (prev <= 1) {
-          // Time's up! Auto-fail
           if (timerRef.current) clearInterval(timerRef.current);
           return 0;
         }
-        // Tick sounds in last 10 seconds
         if (prev <= 11 && prev > 5) playTick();
         if (prev <= 5) playTickUrgent();
         return prev - 1;
@@ -444,7 +354,6 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
   }, [currentQ, started, gameOver, won, confirmed]);
 
-  // Time's up = game over
   useEffect(() => {
     if (timeLeft === 0 && started && !gameOver && !won && !confirmed) {
       setGameOver(true);
@@ -452,7 +361,6 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
     }
   }, [timeLeft, started, gameOver, won, confirmed]);
 
-  // Play question reveal sound when a new question appears
   useEffect(() => {
     if (started && !gameOver && !won) {
       playQuestionReveal();
@@ -474,21 +382,16 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
       const newStreak = streak + 1;
       setStreak(newStreak);
       setScore(currentQ + 1);
-      
-      // Speed bonus
       if (timeLeft >= BONUS_TIME_THRESHOLD) {
         setSpeedBonuses(s => s + 1);
         setShowSpeedBonus(true);
         setTimeout(() => setShowSpeedBonus(false), 1500);
       }
-
-      // Milestone celebration at safety nets
       if (SAFETY_NETS.includes(currentQ)) {
         setShowMilestone(true);
         setTimeout(() => playMilestone(), 500);
         setTimeout(() => setShowMilestone(false), 2500);
       }
-      
       if (currentQ === QUIZ_SIZE - 1) {
         setWon(true);
         const newBest = Math.max(bestScore, QUIZ_SIZE);
@@ -577,143 +480,118 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
     return -1;
   };
 
-  // Progress bar percentage
   const progressPct = ((currentQ) / QUIZ_SIZE) * 100;
   const timerPct = (timeLeft / QUESTION_TIME) * 100;
   const timerUrgent = timeLeft <= 10;
   const timerCritical = timeLeft <= 5;
 
-  const wrapperClass = embedded ? 'space-y-3' : 'min-h-screen p-4 max-w-3xl mx-auto bg-transparent';
+  const wrapperClass = embedded ? 'space-y-3' : 'min-h-screen p-4 max-w-4xl mx-auto bg-transparent';
+  const diamondClip = 'polygon(3% 50%, 6% 0%, 94% 0%, 97% 50%, 94% 100%, 6% 100%)';
 
   // ── Entry screen ──
   if (!started) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <PageMeta title="NIS-2 Awareness Quiz" description="NIS-2 Awareness Quiz" />
-        <div className="text-center space-y-6 max-w-md">
-          <div className="text-5xl animate-bounce">💎</div>
-           <h1 className="text-2xl md:text-3xl font-bold text-primary font-mono tracking-wide">NIS-2 Awareness Quiz</h1>
-          <p className="text-foreground/80 text-sm leading-relaxed">{t(I18N.intro)}</p>
-          
-          {/* Personal best display */}
+        <div className="text-center space-y-8 max-w-md relative">
+          <div className="absolute inset-0 -top-20 bg-[radial-gradient(ellipse_at_center,hsl(45_100%_48%/0.08)_0%,transparent_70%)] pointer-events-none" />
+          <div className="relative mx-auto w-28 h-28">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-primary/10 to-transparent rounded-full animate-pulse" />
+            <div className="absolute inset-3 rotate-45 border-2 border-primary/60 bg-gradient-to-br from-primary/20 to-card flex items-center justify-center shadow-[0_0_40px_hsl(45_100%_48%/0.3)]">
+              <span className="text-3xl -rotate-45">💎</span>
+            </div>
+          </div>
+          <div className="space-y-3">
+            <h1 className="text-3xl md:text-4xl font-bold text-primary font-mono tracking-widest uppercase">NIS-2</h1>
+            <p className="text-lg text-foreground/70 font-mono tracking-wide">Awareness Quiz</p>
+            <div className="w-16 h-0.5 bg-gradient-to-r from-transparent via-primary to-transparent mx-auto" />
+          </div>
+          <p className="text-foreground/60 text-sm leading-relaxed max-w-sm mx-auto">{t(I18N.intro)}</p>
           {bestScore > 0 && (
-             <div className="flex items-center justify-center gap-2 text-highlight text-sm">
-              <Star size={14} className="fill-highlight" />
-              <span className="font-mono">{bestScore}/{QUIZ_SIZE}</span>
-              <span>{t({ de: 'Persönlicher Rekord', en: 'Personal Best', fr: 'Record personnel' })}</span>
+            <div className="flex items-center justify-center gap-2 text-primary text-sm">
+              <Star size={14} className="fill-primary" />
+              <span className="font-mono font-bold">{bestScore}/{QUIZ_SIZE}</span>
+              <span className="text-foreground/50">{t({ de: 'Persönlicher Rekord', en: 'Personal Best', fr: 'Record personnel' })}</span>
             </div>
           )}
-          
-          <button onClick={() => setStarted(true)} className="px-8 py-4 text-lg font-semibold border-2 border-primary/60 bg-primary/10 text-primary rounded-lg transition-electric hover:bg-primary/20 hover:border-primary hover:shadow-[var(--shadow-electric)] flex items-center gap-3 mx-auto group">
-            <span className="group-hover:scale-110 transition-transform">{t(I18N.start)}</span>
+          <button onClick={() => setStarted(true)} className="relative group px-10 py-4 mx-auto" style={{ clipPath: diamondClip }}>
+            <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-primary/30 to-primary/20 group-hover:from-primary/30 group-hover:via-primary/50 group-hover:to-primary/30 transition-all duration-500" />
+            <div className="absolute inset-[1px] bg-gradient-to-b from-card via-secondary to-card" style={{ clipPath: diamondClip }} />
+            <span className="relative text-primary font-mono font-bold text-lg tracking-wider uppercase group-hover:text-foreground transition-colors">{t(I18N.start)}</span>
           </button>
-          
-          {/* Teaser stats */}
-           <div className="flex items-center justify-center gap-4 text-muted-foreground text-xs">
-            <span className="flex items-center gap-1"><Clock size={12} /> <span className="font-mono">{QUESTION_TIME}s</span>/{t({ de: 'Frage', en: 'question', fr: 'question' })}</span>
-            <span className="flex items-center gap-1"><Flame size={12} /> {t({ de: 'Streak-Bonus', en: 'Streak bonus', fr: 'Bonus série' })}</span>
-            <span className="flex items-center gap-1"><Zap size={12} /> {t({ de: 'Speed-Bonus', en: 'Speed bonus', fr: 'Bonus vitesse' })}</span>
+          <div className="flex items-center justify-center gap-6 text-muted-foreground text-xs">
+            <span className="flex items-center gap-1.5"><Clock size={12} className="text-primary/60" /> <span className="font-mono">{QUESTION_TIME}s</span></span>
+            <span className="flex items-center gap-1.5"><Flame size={12} className="text-primary/60" /> Streak</span>
+            <span className="flex items-center gap-1.5"><Zap size={12} className="text-primary/60" /> Speed</span>
           </div>
         </div>
       </div>
     );
   }
 
-  // ── Game Over / Won screen ──
+  // ── Game Over / Won ──
   if (gameOver || won) {
     const securedLevel = getSecuredLevel();
     const finalLevel = won ? QUIZ_SIZE - 1 : (securedLevel >= 0 ? securedLevel : -1);
     const finalAmount = finalLevel >= 0 ? MONEY_LEVELS[finalLevel] : '0';
     const q = questions[currentQ];
-    const isCorrect = selected === q.correct;
     const isNewBest = score > (bestScore - (won ? 0 : 1));
     const timeRanOut = timeLeft === 0 && !selected;
 
     return (
       <div className={wrapperClass}>
         <PageMeta title="NIS-2 Awareness Quiz" description="NIS-2 Awareness Quiz" />
-        <h1 className={`${embedded ? 'text-lg' : 'text-2xl md:text-3xl'} font-bold text-primary font-mono tracking-wide mb-3`}>
-          <Typewriter text={t(I18N.title)} charDelay={8} />
-        </h1>
+        <div className="text-center mb-6">
+          <h1 className={`${embedded ? 'text-lg' : 'text-2xl md:text-3xl'} font-bold text-primary font-mono tracking-widest uppercase`}>
+            <Typewriter text={t(I18N.title)} charDelay={8} />
+          </h1>
+        </div>
         <StaggerReveal stagger={400}>
-          {/* Result */}
-          <div className={`border-2 rounded-lg p-6 text-center relative overflow-hidden ${won ? 'border-primary bg-primary/10' : 'border-[hsl(0,75%,55%)] bg-[hsl(0,75%,55%,0.1)]'}`}>
-            {/* Sparkle overlay for win */}
+          <div className={`relative rounded-2xl p-8 text-center overflow-hidden border ${won ? 'border-primary/40' : 'border-destructive/40'}`}>
+            <div className={`absolute inset-0 ${won ? 'bg-[radial-gradient(ellipse_at_center,hsl(45_100%_48%/0.1)_0%,transparent_70%)]' : 'bg-[radial-gradient(ellipse_at_center,hsl(0_84%_60%/0.08)_0%,transparent_70%)]'}`} />
             {won && (
               <div className="absolute inset-0 pointer-events-none">
-                {[...Array(12)].map((_, i) => (
-                  <div
-                    key={i}
-                    className="absolute w-1 h-1 bg-primary rounded-full animate-ping"
-                    style={{
-                      left: `${10 + (i * 7) % 80}%`,
-                      top: `${15 + (i * 13) % 70}%`,
-                      animationDelay: `${i * 0.2}s`,
-                      animationDuration: `${1.5 + (i % 3) * 0.5}s`,
-                    }}
-                  />
+                {[...Array(20)].map((_, i) => (
+                  <div key={i} className="absolute w-1 h-1 bg-primary rounded-full animate-ping" style={{ left: `${5 + (i * 5) % 90}%`, top: `${10 + (i * 11) % 80}%`, animationDelay: `${i * 0.15}s`, animationDuration: `${1 + (i % 4) * 0.4}s` }} />
                 ))}
               </div>
             )}
-            <div className="text-4xl mb-3">{won ? '🏆' : (timeRanOut ? '⏰' : '💔')}</div>
-            <h2 className={`text-xl md:text-2xl font-bold ${won ? 'text-primary' : 'text-[hsl(0,75%,55%)]'}`}>
-              {won ? t(I18N.won) : (timeRanOut ? t({ de: 'Zeit abgelaufen!', en: 'Time\'s up!', fr: 'Temps écoulé !' }) : t(I18N.gameOver))}
-            </h2>
-            <div className="mt-4 space-y-1">
-               <p className="text-foreground/60 text-xs uppercase tracking-wider">
-                {won ? t(I18N.reached) : t(I18N.secured)}
-              </p>
-              <p className="text-3xl font-mono font-bold text-primary">€ {won ? '64.000' : finalAmount}</p>
-              {!won && (
-                <p className="text-foreground/50 text-xs">
-                  {t(I18N.reached)}: <span className="font-mono">€ {MONEY_LEVELS[currentQ]}</span> · {t(I18N.secured)}: <span className="font-mono">€ {finalAmount}</span>
-                </p>
-              )}
-            </div>
-            
-            {/* Stats row */}
-             <div className="mt-4 flex items-center justify-center gap-4 text-xs">
-              <span className="flex items-center gap-1 text-primary">
-                <CheckCircle2 size={12} /> <span className="font-mono">{score}/{QUIZ_SIZE}</span>
-              </span>
-              {speedBonuses > 0 && (
-                <span className="flex items-center gap-1 text-highlight">
-                  <Zap size={12} /> <span className="font-mono">{speedBonuses}x</span> {t({ de: 'Speed', en: 'Speed', fr: 'Vitesse' })}
-                </span>
-              )}
-              {isNewBest && score > 0 && (
-                <span className="flex items-center gap-1 text-primary animate-pulse">
-                  <Star size={12} className="fill-primary" /> {t({ de: 'Neuer Rekord!', en: 'New record!', fr: 'Nouveau record !' })}
-                </span>
-              )}
+            <div className="relative z-10">
+              <div className="text-5xl mb-4">{won ? '🏆' : (timeRanOut ? '⏰' : '💔')}</div>
+              <h2 className={`text-2xl md:text-3xl font-bold font-mono tracking-wider ${won ? 'text-primary' : 'text-destructive'}`}>
+                {won ? t(I18N.won) : (timeRanOut ? t({ de: 'Zeit abgelaufen!', en: 'Time\'s up!', fr: 'Temps écoulé !' }) : t(I18N.gameOver))}
+              </h2>
+              <div className="mt-6 space-y-2">
+                <p className="text-foreground/40 text-xs uppercase tracking-[0.2em] font-mono">{won ? t(I18N.reached) : t(I18N.secured)}</p>
+                <p className="text-4xl md:text-5xl font-mono font-black text-primary drop-shadow-[0_0_20px_hsl(45_100%_48%/0.4)]">€ {won ? '64.000' : finalAmount}</p>
+                {!won && <p className="text-foreground/40 text-xs font-mono">{t(I18N.reached)}: € {MONEY_LEVELS[currentQ]} · {t(I18N.secured)}: € {finalAmount}</p>}
+              </div>
+              <div className="mt-6 flex items-center justify-center gap-6 text-xs">
+                <span className="flex items-center gap-1.5 text-primary"><CheckCircle2 size={14} /> <span className="font-mono font-bold">{score}/{QUIZ_SIZE}</span></span>
+                {speedBonuses > 0 && <span className="flex items-center gap-1.5 text-highlight"><Zap size={14} /> <span className="font-mono font-bold">{speedBonuses}x</span></span>}
+                {isNewBest && score > 0 && <span className="flex items-center gap-1.5 text-primary animate-pulse"><Star size={14} className="fill-primary" /> {t({ de: 'Neuer Rekord!', en: 'New record!', fr: 'Nouveau record !' })}</span>}
+              </div>
             </div>
           </div>
-
-          {/* Last question explanation */}
           {!won && !timeRanOut && (
-            <div className="bg-highlight/5 border border-highlight/20 rounded-lg p-5">
-              <p className="text-foreground/60 text-xs mb-2">{q.question[lang] || q.question.en}</p>
+            <div className="bg-card/80 border border-border rounded-xl p-5">
+              <p className="text-foreground/50 text-xs mb-3 font-mono">{q.question[lang] || q.question.en}</p>
               <div className="flex items-start gap-2">
-                <XCircle className="w-4 h-4 text-[hsl(0,75%,55%)] mt-0.5 flex-shrink-0" />
-                <p className="text-foreground/80 text-sm leading-relaxed">{q.explanation[lang] || q.explanation.en}</p>
+                <XCircle className="w-4 h-4 text-destructive mt-0.5 flex-shrink-0" />
+                <p className="text-foreground/70 text-sm leading-relaxed">{q.explanation[lang] || q.explanation.en}</p>
               </div>
             </div>
           )}
-
-          {/* Challenge to beat score */}
-          <div className="text-center">
-            <p className="text-muted-foreground text-xs mb-3">
-              {won
-                ? t({ de: 'Kannst du es nochmal schaffen?', en: 'Can you do it again?', fr: 'Pouvez-vous recommencer ?' })
-                : t({ de: `Nur ${FAKE_DIFFICULTY[q.id] || 50}% beantworten diese Frage richtig.`, en: `Only ${FAKE_DIFFICULTY[q.id] || 50}% answer this question correctly.`, fr: `Seulement ${FAKE_DIFFICULTY[q.id] || 50}% répondent correctement.` })
-              }
+          <div className="text-center space-y-3">
+            <p className="text-muted-foreground text-xs">
+              {won ? t({ de: 'Kannst du es nochmal schaffen?', en: 'Can you do it again?', fr: 'Pouvez-vous recommencer ?' })
+                : t({ de: `Nur ${FAKE_DIFFICULTY[q.id] || 50}% beantworten diese Frage richtig.`, en: `Only ${FAKE_DIFFICULTY[q.id] || 50}% answer this question correctly.`, fr: `Seulement ${FAKE_DIFFICULTY[q.id] || 50}% répondent correctement.` })}
             </p>
-            <Button onClick={restart} variant="outline" className="border-highlight/30 text-highlight hover:bg-highlight/10 hover:border-highlight/50 font-medium">
+            <Button onClick={restart} variant="outline" className="border-primary/40 text-primary hover:bg-primary/10 hover:border-primary/60 font-mono font-bold tracking-wider">
               <RotateCcw className="w-4 h-4 mr-2" /> {t(I18N.restart)}
             </Button>
           </div>
-
-          <p className="text-muted-foreground text-[11px] text-center italic">{t(I18N.disclaimer)}</p>
+          <p className="text-muted-foreground text-[10px] text-center italic">{t(I18N.disclaimer)}</p>
         </StaggerReveal>
       </div>
     );
@@ -730,127 +608,85 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
     <div className={wrapperClass}>
       <PageMeta title="NIS-2 Awareness Quiz" description="NIS-2 Awareness Quiz" />
       
-      {/* ── Top HUD bar ── */}
-      <div className="mb-4 space-y-2">
+      {/* Top HUD */}
+      <div className="mb-5 space-y-3">
         <div className="flex items-center justify-between">
-          <h1 className={`${embedded ? 'text-lg' : 'text-xl md:text-2xl'} font-bold text-primary font-mono tracking-wide`}>
+          <h1 className={`${embedded ? 'text-lg' : 'text-xl md:text-2xl'} font-bold text-primary font-mono tracking-widest uppercase`}>
             <Typewriter text={t(I18N.title)} charDelay={8} />
           </h1>
-          {/* Streak indicator */}
           {streak > 1 && (
-            <div className="flex items-center gap-1 text-primary text-sm font-bold animate-pulse">
-              <Flame size={16} className={`${streak >= 5 ? 'text-[hsl(15,90%,55%)]' : 'text-primary'}`} />
+            <div className="flex items-center gap-1 text-primary text-sm font-bold animate-pulse font-mono">
+              <Flame size={16} className={streak >= 5 ? 'text-destructive' : ''} />
               <span>{streak}x</span>
             </div>
           )}
         </div>
-        
-        {/* Progress bar */}
-        <div className="relative h-1.5 bg-muted/30 rounded-full overflow-hidden">
-          <div
-            className="absolute inset-y-0 left-0 bg-primary/60 rounded-full transition-all duration-700 ease-out"
-            style={{ width: `${progressPct}%` }}
-          />
-          {/* Safety net markers */}
+        <div className="relative">
+          <div className="h-1 bg-muted/20 rounded-full overflow-hidden">
+            <div className="h-full bg-gradient-to-r from-primary/40 via-primary/70 to-primary/40 rounded-full transition-all duration-700" style={{ width: `${progressPct}%` }} />
+          </div>
           {SAFETY_NETS.map(idx => (
-            <div
-              key={idx}
-              className="absolute top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-highlight border border-highlight"
-              style={{ left: `${((idx + 1) / QUIZ_SIZE) * 100}%` }}
-            />
+            <div key={idx} className="absolute top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-primary border border-primary shadow-[0_0_6px_hsl(45_100%_48%/0.5)]" style={{ left: `${((idx + 1) / QUIZ_SIZE) * 100}%` }} />
           ))}
         </div>
-        
-        {/* Timer bar + question counter */}
         <div className="flex items-center gap-3">
-          <div className="flex-1 relative h-1 bg-muted/20 rounded-full overflow-hidden">
-            <div
-              className={`absolute inset-y-0 left-0 rounded-full transition-all duration-1000 ease-linear ${
-                timerCritical ? 'bg-[hsl(0,75%,55%)] animate-pulse' : timerUrgent ? 'bg-primary' : 'bg-highlight/50'
-              }`}
-              style={{ width: `${timerPct}%` }}
-            />
+          <div className="flex-1 relative h-1 bg-muted/15 rounded-full overflow-hidden">
+            <div className={`h-full rounded-full transition-all duration-1000 ease-linear ${timerCritical ? 'bg-destructive animate-pulse' : timerUrgent ? 'bg-primary' : 'bg-highlight/40'}`} style={{ width: `${timerPct}%` }} />
           </div>
-          <span className={`font-mono text-xs tabular-nums min-w-[2.5rem] text-right tracking-tight ${
-            timerCritical ? 'text-[hsl(0,75%,55%)] font-bold animate-pulse' : timerUrgent ? 'text-primary' : 'text-muted-foreground'
-          }`}>
+          <span className={`font-mono text-xs tabular-nums min-w-[2.5rem] text-right ${timerCritical ? 'text-destructive font-bold animate-pulse' : timerUrgent ? 'text-primary' : 'text-muted-foreground'}`}>
             <Clock size={10} className="inline mr-1" />{timeLeft}s
           </span>
-          <span className="font-mono text-xs text-muted-foreground">
-            {currentQ + 1}/{QUIZ_SIZE}
-          </span>
+          <span className="font-mono text-xs text-muted-foreground/60">{currentQ + 1}/{QUIZ_SIZE}</span>
         </div>
       </div>
 
-      {/* Milestone celebration overlay */}
+      {/* Milestone */}
       {showMilestone && (
         <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
-          <div className="bg-card/95 border-2 border-primary rounded-xl p-6 text-center animate-bounce shadow-[var(--shadow-electric)]">
-            <Trophy className="w-8 h-8 text-primary mx-auto mb-2" />
-             <p className="text-primary font-bold text-lg"><span className="font-mono">€ {MONEY_LEVELS[currentQ]}</span> {t({ de: 'gesichert!', en: 'secured!', fr: 'sécurisé !' })}</p>
-            <p className="text-highlight text-xs mt-1">{t(I18N.safetyNet)}</p>
+          <div className="bg-card/95 border-2 border-primary rounded-2xl p-8 text-center animate-bounce shadow-[0_0_60px_hsl(45_100%_48%/0.3)]">
+            <Trophy className="w-10 h-10 text-primary mx-auto mb-3" />
+            <p className="text-primary font-bold text-xl font-mono">€ {MONEY_LEVELS[currentQ]}</p>
+            <p className="text-primary/60 text-xs mt-1 uppercase tracking-widest">{t(I18N.safetyNet)}</p>
           </div>
         </div>
       )}
 
-      {/* Speed bonus popup */}
+      {/* Speed bonus */}
       {showSpeedBonus && (
         <div className="fixed top-20 right-4 z-50 pointer-events-none">
-          <div className="bg-highlight/20 border border-highlight/40 rounded-lg px-3 py-1.5 flex items-center gap-1.5 animate-bounce">
-            <Zap size={14} className="text-highlight" />
-            <span className="text-highlight font-mono text-xs font-bold">Speed Bonus!</span>
+          <div className="bg-highlight/20 border border-highlight/40 rounded-lg px-4 py-2 flex items-center gap-2 animate-bounce shadow-[0_0_20px_hsl(187_100%_42%/0.2)]">
+            <Zap size={16} className="text-highlight" />
+            <span className="text-highlight font-mono text-sm font-bold">Speed Bonus!</span>
           </div>
         </div>
       )}
 
-      <div className={`flex gap-4 ${showLadder ? '' : 'flex-col'}`}>
-        {/* Main question area */}
+      <div className={`flex gap-5 ${showLadder ? '' : 'flex-col'}`}>
         <div className="flex-1 min-w-0 space-y-4">
           <StaggerReveal key={`question-${currentQ}`} stagger={isMobile ? 600 : 350}>
-            {/* Joker bar */}
+            {/* Jokers */}
             <div className="flex items-center gap-2">
-              <button
-                onClick={useFiftyFifty}
-                disabled={fiftyFiftyUsed || confirmed}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border font-mono text-xs transition-electric
-                  ${fiftyFiftyUsed
-                    ? 'border-muted/30 text-muted-foreground/40 cursor-not-allowed line-through'
-                    : 'border-highlight/40 text-highlight hover:bg-highlight/10 hover:border-highlight/60'}`}
-                title={fiftyFiftyUsed ? t(I18N.jokerUsed) : t(I18N.fiftyFifty)}
-              >
+              <button onClick={useFiftyFifty} disabled={fiftyFiftyUsed || confirmed}
+                className={`flex items-center gap-1.5 px-4 py-2 rounded-full border font-mono text-xs transition-all duration-300 ${fiftyFiftyUsed ? 'border-muted/20 text-muted-foreground/30 cursor-not-allowed line-through opacity-40' : 'border-primary/40 text-primary hover:bg-primary/10 hover:border-primary/60 hover:shadow-[0_0_12px_hsl(45_100%_48%/0.15)]'}`}>
                 <Percent size={14} /> 50:50
               </button>
-              <button
-                onClick={useAudience}
-                disabled={audienceUsed || confirmed}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border font-mono text-xs transition-electric
-                  ${audienceUsed
-                    ? 'border-muted/30 text-muted-foreground/40 cursor-not-allowed line-through'
-                    : 'border-highlight/40 text-highlight hover:bg-highlight/10 hover:border-highlight/60'}`}
-                title={audienceUsed ? t(I18N.jokerUsed) : t(I18N.audience)}
-              >
+              <button onClick={useAudience} disabled={audienceUsed || confirmed}
+                className={`flex items-center gap-1.5 px-4 py-2 rounded-full border font-mono text-xs transition-all duration-300 ${audienceUsed ? 'border-muted/20 text-muted-foreground/30 cursor-not-allowed line-through opacity-40' : 'border-primary/40 text-primary hover:bg-primary/10 hover:border-primary/60 hover:shadow-[0_0_12px_hsl(45_100%_48%/0.15)]'}`}>
                 <Users size={14} /> {t(I18N.audience)}
               </button>
-              {/* Difficulty badge */}
-              <span className="ml-auto text-muted-foreground/60 font-mono text-[10px] flex items-center gap-1" title={t({ de: 'Erfolgsquote', en: 'Success rate', fr: 'Taux de réussite' })}>
-                {diffPct}% ✓
-              </span>
-              {/* Mobile: current level */}
-              {!showLadder && (
-                <span className="text-primary font-mono text-sm font-bold">
-                  € {MONEY_LEVELS[currentQ]}
-                </span>
-              )}
+              <span className="ml-auto text-muted-foreground/40 font-mono text-[10px]">{diffPct}% ✓</span>
+              {!showLadder && <span className="text-primary font-mono text-sm font-bold drop-shadow-[0_0_8px_hsl(45_100%_48%/0.3)]">€ {MONEY_LEVELS[currentQ]}</span>}
             </div>
 
-            {/* Question */}
-            <div className="bg-primary/5 border border-primary/30 rounded-xl p-4 md:p-5">
-              <p className="text-primary text-sm leading-relaxed">
-                {q.question[lang] || q.question.en}
-              </p>
+            {/* Question panel */}
+            <div className="relative">
+              <div className="absolute -inset-[1px] bg-gradient-to-r from-transparent via-primary/40 to-transparent rounded-2xl" />
+              <div className="relative bg-gradient-to-b from-secondary via-card to-secondary rounded-2xl p-5 md:p-6 border border-primary/20">
+                <p className="text-foreground text-sm md:text-base leading-relaxed text-center font-medium">{q.question[lang] || q.question.en}</p>
+              </div>
             </div>
 
-            {/* Answer options – A/B/C/D diamond style */}
+            {/* Answer options */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {q.options.map((opt, i) => {
                 const val = opt.value;
@@ -860,36 +696,54 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
 
                 if (isHidden) {
                   return (
-                     <div key={val} className="px-4 py-3 rounded-lg border-2 border-muted/20 bg-transparent opacity-20 text-sm">
-                      <span className="font-mono font-bold mr-2">{OPTION_LETTERS[i]}:</span>
-                      <span className="line-through">{opt.label[lang] || opt.label.en}</span>
+                    <div key={val} className="relative px-5 py-3 text-sm opacity-15" style={{ clipPath: diamondClip }}>
+                      <div className="absolute inset-0 bg-muted/20" style={{ clipPath: diamondClip }} />
+                      <span className="relative font-mono font-bold mr-2 text-muted-foreground">{OPTION_LETTERS[i]}:</span>
+                      <span className="relative line-through text-muted-foreground">{opt.label[lang] || opt.label.en}</span>
                     </div>
                   );
                 }
 
-                let borderClass = 'border-primary/30 bg-transparent text-foreground/80 hover:border-highlight hover:bg-highlight/5';
+                let outerGradient = 'from-primary/20 via-primary/40 to-primary/20';
+                let innerBg = 'from-secondary via-card to-secondary';
+                let textClass = 'text-foreground/80';
+                let glowClass = '';
+
                 if (isThis && !confirmed) {
-                  borderClass = 'border-highlight bg-highlight/15 text-highlight shadow-[0_0_12px_hsl(187_100%_42%/0.15)]';
+                  outerGradient = 'from-primary/50 via-primary/80 to-primary/50';
+                  innerBg = 'from-primary/20 via-primary/10 to-primary/20';
+                  textClass = 'text-primary';
+                  glowClass = 'shadow-[0_0_20px_hsl(45_100%_48%/0.2)]';
                 }
                 if (confirmed) {
                   if (isAnswer) {
-                    borderClass = 'border-[hsl(122,39%,45%)] bg-[hsl(122,39%,45%,0.15)] text-[hsl(122,39%,45%)]';
+                    outerGradient = 'from-success/50 via-success/80 to-success/50';
+                    innerBg = 'from-success/15 via-success/10 to-success/15';
+                    textClass = 'text-success';
+                    glowClass = 'shadow-[0_0_20px_hsl(142_71%_45%/0.2)]';
                   } else if (isThis && !isCorrect) {
-                    borderClass = 'border-[hsl(0,75%,55%)] bg-[hsl(0,75%,55%,0.15)] text-[hsl(0,75%,55%)]';
+                    outerGradient = 'from-destructive/50 via-destructive/80 to-destructive/50';
+                    innerBg = 'from-destructive/15 via-destructive/10 to-destructive/15';
+                    textClass = 'text-destructive';
+                    glowClass = 'shadow-[0_0_20px_hsl(0_84%_60%/0.2)]';
                   } else {
-                    borderClass = 'border-muted/20 bg-transparent text-muted-foreground/40';
+                    outerGradient = 'from-muted/20 via-muted/30 to-muted/20';
+                    innerBg = 'from-muted/10 via-card to-muted/10';
+                    textClass = 'text-muted-foreground/40';
                   }
                 }
 
                 return (
-                  <button
-                    key={val}
-                    onClick={() => handleSelect(val)}
-                    disabled={confirmed}
-                    className={`text-left px-4 py-3 rounded-lg border-2 text-sm transition-all duration-200 disabled:cursor-default ${borderClass} active:scale-[0.98]`}
-                  >
-                    <span className="font-mono font-bold text-highlight mr-2">{OPTION_LETTERS[i]}:</span>
-                    {opt.label[lang] || opt.label.en}
+                  <button key={val} onClick={() => handleSelect(val)} disabled={confirmed}
+                    className={`relative text-left transition-all duration-300 active:scale-[0.98] disabled:cursor-default ${glowClass} group`}
+                    style={{ clipPath: diamondClip }}>
+                    <div className={`absolute inset-0 bg-gradient-to-r ${outerGradient}`} style={{ clipPath: diamondClip }} />
+                    <div className={`absolute inset-[1px] bg-gradient-to-b ${innerBg}`} style={{ clipPath: diamondClip }} />
+                    <div className={`relative px-5 py-3 text-sm ${textClass}`}>
+                      <span className="font-mono font-bold mr-2 text-primary/80">{OPTION_LETTERS[i]}:</span>
+                      {opt.label[lang] || opt.label.en}
+                    </div>
+                    {!confirmed && <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" style={{ clipPath: diamondClip }} />}
                   </button>
                 );
               })}
@@ -898,22 +752,19 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
 
           {/* Audience results */}
           {audienceResults && (
-            <div className="bg-highlight/5 border border-highlight/20 rounded-lg p-3 animate-fade-in">
-              <p className="text-highlight text-xs mb-2 uppercase tracking-wider">{t(I18N.audience)}</p>
-              <div className="flex items-end gap-3 h-16">
+            <div className="bg-card/80 border border-primary/20 rounded-xl p-4 animate-fade-in">
+              <p className="text-primary text-xs mb-2 uppercase tracking-[0.15em] font-mono">{t(I18N.audience)}</p>
+              <div className="flex items-end gap-3 h-20">
                 {q.options.map((opt, i) => {
                   const pct = audienceResults[opt.value] || 0;
                   if (hiddenOptions.includes(opt.value)) return null;
                   return (
                     <div key={opt.value} className="flex-1 flex flex-col items-center gap-1">
-                      <span className="text-foreground/60 font-mono text-[10px]">{pct}%</span>
-                      <div className="w-full bg-muted/30 rounded-sm overflow-hidden" style={{ height: '40px' }}>
-                        <div
-                          className="w-full bg-highlight/60 rounded-sm transition-all duration-700"
-                          style={{ height: `${pct * 0.4}px`, marginTop: `${40 - pct * 0.4}px` }}
-                        />
+                      <span className="text-foreground/50 font-mono text-[10px]">{pct}%</span>
+                      <div className="w-full bg-muted/20 rounded-sm overflow-hidden" style={{ height: '48px' }}>
+                        <div className="w-full bg-gradient-to-t from-primary/60 to-primary/30 rounded-sm transition-all duration-700" style={{ height: `${pct * 0.48}px`, marginTop: `${48 - pct * 0.48}px` }} />
                       </div>
-                      <span className="text-highlight font-mono text-xs font-bold">{OPTION_LETTERS[i]}</span>
+                      <span className="text-primary font-mono text-xs font-bold">{OPTION_LETTERS[i]}</span>
                     </div>
                   );
                 })}
@@ -921,86 +772,84 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
             </div>
           )}
 
-          {/* Confirm button */}
+          {/* Confirm */}
           {selected && !confirmed && (
-            <div className="flex items-center justify-center gap-3 animate-fade-in">
-              <Button
-                onClick={handleConfirm}
-                className="bg-primary text-primary-foreground hover:bg-primary/80 font-semibold px-6 animate-pulse hover:animate-none shadow-[var(--shadow-electric)]"
-              >
-                {t(I18N.confirm)}
-              </Button>
+            <div className="flex items-center justify-center animate-fade-in">
+              <button onClick={handleConfirm} className="relative group px-8 py-3" style={{ clipPath: diamondClip }}>
+                <div className="absolute inset-0 bg-gradient-to-r from-primary/40 via-primary/70 to-primary/40 animate-pulse group-hover:animate-none group-hover:from-primary/60 group-hover:via-primary group-hover:to-primary/60 transition-all" style={{ clipPath: diamondClip }} />
+                <div className="absolute inset-[1px] bg-gradient-to-b from-card via-secondary to-card" style={{ clipPath: diamondClip }} />
+                <span className="relative text-primary font-mono font-bold tracking-wider uppercase text-sm group-hover:text-foreground transition-colors">{t(I18N.confirm)}</span>
+              </button>
             </div>
           )}
 
-          {/* Explanation after confirm */}
+          {/* Explanation */}
           {confirmed && (
             <StaggerReveal stagger={300}>
-              <div className={`flex items-start gap-2 p-4 rounded-lg border ${isCorrect ? 'border-[hsl(122,39%,45%)]/30 bg-[hsl(122,39%,45%,0.05)]' : 'border-[hsl(0,75%,55%)]/30 bg-[hsl(0,75%,55%,0.05)]'}`}>
-                {isCorrect ? <CheckCircle2 className="w-5 h-5 text-[hsl(122,39%,45%)] mt-0.5 flex-shrink-0" /> : <XCircle className="w-5 h-5 text-[hsl(0,75%,55%)] mt-0.5 flex-shrink-0" />}
+              <div className={`flex items-start gap-3 p-4 rounded-xl border ${isCorrect ? 'border-success/30 bg-success/5' : 'border-destructive/30 bg-destructive/5'}`}>
+                {isCorrect ? <CheckCircle2 className="w-5 h-5 text-success mt-0.5 flex-shrink-0" /> : <XCircle className="w-5 h-5 text-destructive mt-0.5 flex-shrink-0" />}
                 <div>
-                   <p className={`text-sm font-semibold mb-1 ${isCorrect ? 'text-[hsl(122,39%,45%)]' : 'text-[hsl(0,75%,55%)]'}`}>
+                  <p className={`text-sm font-bold mb-1 font-mono ${isCorrect ? 'text-success' : 'text-destructive'}`}>
                     {isCorrect ? t(I18N.correct) : t(I18N.incorrect)}
-                    {isCorrect && streak > 1 && (
-                      <span className="ml-2 text-primary text-xs font-mono">
-                        🔥 {streak}x Streak!
-                      </span>
-                    )}
+                    {isCorrect && streak > 1 && <span className="ml-2 text-primary text-xs">🔥 {streak}x Streak!</span>}
                   </p>
-                  <p className="text-foreground/80 text-sm leading-relaxed">{q.explanation[lang] || q.explanation.en}</p>
+                  <p className="text-foreground/70 text-sm leading-relaxed">{q.explanation[lang] || q.explanation.en}</p>
                 </div>
               </div>
-
               {isCorrect && !won && (
                 <div className="flex justify-end">
-                  <Button onClick={handleNext} className="bg-highlight text-highlight-foreground hover:bg-highlight/80 font-semibold group">
-                    {t(I18N.next)} <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-                  </Button>
+                  <button onClick={handleNext} className="relative group px-6 py-2.5" style={{ clipPath: diamondClip }}>
+                    <div className="absolute inset-0 bg-gradient-to-r from-highlight/30 via-highlight/50 to-highlight/30 group-hover:from-highlight/50 group-hover:via-highlight/70 group-hover:to-highlight/50 transition-all" style={{ clipPath: diamondClip }} />
+                    <div className="absolute inset-[1px] bg-gradient-to-b from-card via-secondary to-card" style={{ clipPath: diamondClip }} />
+                    <span className="relative flex items-center gap-2 text-highlight font-mono font-bold text-sm group-hover:text-foreground transition-colors">
+                      {t(I18N.next)} <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    </span>
+                  </button>
                 </div>
               )}
             </StaggerReveal>
           )}
         </div>
 
-        {/* Money Ladder (desktop only) */}
+        {/* Money Ladder */}
         {showLadder && (
-          <div className="w-36 flex-shrink-0">
-            <div className="sticky top-4 space-y-0">
-              {[...MONEY_LEVELS].reverse().map((level, reverseIdx) => {
-                const idx = MONEY_LEVELS.length - 1 - reverseIdx;
-                const isCurrent = idx === currentQ;
-                const isPassed = idx < score;
-                const isSafetyNet = SAFETY_NETS.includes(idx);
-                const isReached = idx <= currentQ;
+          <div className="w-40 flex-shrink-0">
+            <div className="sticky top-4">
+              <div className="bg-gradient-to-b from-card via-secondary/50 to-card rounded-xl border border-primary/10 p-2 space-y-0">
+                {[...MONEY_LEVELS].reverse().map((level, reverseIdx) => {
+                  const idx = MONEY_LEVELS.length - 1 - reverseIdx;
+                  const isCurrent = idx === currentQ;
+                  const isPassed = idx < score;
+                  const isSafetyNet = SAFETY_NETS.includes(idx);
+                  const isReached = idx <= currentQ;
 
-                let textColor = 'text-foreground/30';
-                let bg = 'bg-transparent';
-                let border = 'border-transparent';
+                  let textColor = 'text-foreground/20';
+                  let bg = '';
+                  let borderStyle = 'border-transparent';
+                  let glow = '';
 
-                if (isCurrent && !gameOver) {
-                  textColor = 'text-primary';
-                  bg = 'bg-primary/15';
-                  border = 'border-primary/50';
-                } else if (isPassed) {
-                  textColor = 'text-[hsl(122,39%,45%)]';
-                  bg = 'bg-[hsl(122,39%,45%,0.05)]';
-                } else if (isSafetyNet && isReached) {
-                  textColor = 'text-highlight';
-                }
+                  if (isCurrent && !gameOver) {
+                    textColor = 'text-primary';
+                    bg = 'bg-primary/10';
+                    borderStyle = 'border-primary/40';
+                    glow = 'shadow-[0_0_12px_hsl(45_100%_48%/0.15)]';
+                  } else if (isPassed) {
+                    textColor = 'text-success/70';
+                    bg = 'bg-success/5';
+                  } else if (isSafetyNet) {
+                    textColor = isReached ? 'text-primary/80' : 'text-primary/40';
+                  }
 
-                return (
-                  <div
-                    key={level}
-                    className={`flex items-center justify-between px-2 py-1 rounded border text-xs font-mono transition-all duration-300 ${textColor} ${bg} ${border} ${isCurrent ? 'scale-105' : ''}`}
-                  >
-                    <span className="text-[10px] opacity-60">{idx + 1}</span>
-                    <span className={`font-semibold ${isSafetyNet ? 'font-bold' : ''}`}>
-                      € {level}
-                    </span>
-                    {isSafetyNet && <Trophy size={10} className="text-highlight opacity-60" />}
-                  </div>
-                );
-              })}
+                  return (
+                    <div key={level} className={`flex items-center justify-between px-2.5 py-1 rounded-lg border text-xs font-mono transition-all duration-500 ${textColor} ${bg} ${borderStyle} ${glow} ${isCurrent ? 'scale-105 font-bold' : ''}`}>
+                      <span className="text-[10px] opacity-40 w-4">{idx + 1}</span>
+                      <span className={isSafetyNet ? 'font-black' : 'font-semibold'}>€ {level}</span>
+                      {isSafetyNet && <Trophy size={10} className="text-primary/50" />}
+                      {!isSafetyNet && <span className="w-[10px]" />}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
         )}
