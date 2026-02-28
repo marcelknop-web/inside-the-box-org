@@ -1,8 +1,9 @@
-import { useState, useCallback, useMemo } from 'react';
-import { Shield, TrendingDown, AlertTriangle, ChevronRight, RotateCcw, Skull, Trophy, ArrowLeft } from 'lucide-react';
+import { useState, useCallback, useMemo, useRef } from 'react';
+import { Shield, TrendingDown, AlertTriangle, ChevronRight, RotateCcw, Skull, Trophy, ArrowLeft, Volume2, VolumeX } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PageMeta } from '@/components/PageMeta';
 import { useLanguage } from '@/i18n/LanguageContext';
+import { useCisoSound } from '@/hooks/useCisoSound';
 
 // ── i18n ────────────────────────────────────────────────────────────────────
 
@@ -55,6 +56,7 @@ const labels: Record<string, Record<string, string>> = {
     introMech2: 'Danach trifft ein zufälliger Cyberangriff dein Unternehmen.',
     introMech3: 'Deine Investitionen bestimmen, ob der Angriff erkannt wird und wie hoch der Schaden ausfällt.',
     introMech4: 'Ab Runde 3 drohen zusätzliche regulatorische Strafen.',
+    introGui: 'Nutze die gelben Schieberegler, um dein Budget auf die Kategorien zu verteilen. Die Summe darf 100 nicht überschreiten. Bestätige dann mit dem Button.',
     introGameOver: 'Game Over bei: Marktwert ≤ 0 · Reputation ≤ 0 · Reg. Risiko ≥ 80',
   },
   en: {
@@ -106,6 +108,7 @@ const labels: Record<string, Record<string, string>> = {
     introMech2: 'Then a random cyberattack hits your organization.',
     introMech3: 'Your investments determine if the attack is detected and how much damage is dealt.',
     introMech4: 'From round 3, additional regulatory penalties apply.',
+    introGui: 'Use the yellow sliders to distribute your budget across categories. The total must not exceed 100. Then confirm with the button.',
     introGameOver: 'Game Over at: Market Value ≤ 0 · Reputation ≤ 0 · Reg. Risk ≥ 80',
   },
   fr: {
@@ -157,6 +160,7 @@ const labels: Record<string, Record<string, string>> = {
     introMech2: 'Ensuite, une cyberattaque aléatoire frappe votre organisation.',
     introMech3: 'Vos investissements déterminent si l\'attaque est détectée et l\'ampleur des dégâts.',
     introMech4: 'À partir du tour 3, des pénalités réglementaires supplémentaires s\'appliquent.',
+    introGui: 'Utilisez les curseurs jaunes pour répartir votre budget. Le total ne doit pas dépasser 100. Confirmez ensuite avec le bouton.',
     introGameOver: 'Fin de partie si : Valeur ≤ 0 · Réputation ≤ 0 · Risque rég. ≥ 80',
   },
 };
@@ -261,12 +265,15 @@ function generateAnalysis(
 const CisoSimulator = ({ embedded = false }: { embedded?: boolean }) => {
   const { language } = useLanguage();
   const t = useCallback((key: string) => labels[language]?.[key] ?? labels.en[key] ?? key, [language]);
+  const sound = useCisoSound();
+  const [soundEnabled, setSoundEnabled] = useState(true);
+  const lastSliderTickRef = useRef(0);
 
   const [round, setRound] = useState(1);
   const [phase, setPhase] = useState<'intro' | 'allocate' | 'result' | 'gameover' | 'victory'>('intro');
   const [state, setState] = useState<GameState>({
     marketValue: 100, reputation: 100, regRisk: 0,
-    levels: [1, 1, 1, 1, 1, 0], // soc=1, backup=1, awareness=1, hardening=1, redteam=1, savings=0
+    levels: [1, 1, 1, 1, 1, 0],
   });
   const [allocation, setAllocation] = useState<number[]>([20, 20, 20, 20, 20, 0]);
   const [results, setResults] = useState<RoundResult[]>([]);
@@ -280,10 +287,19 @@ const CisoSimulator = ({ embedded = false }: { embedded?: boolean }) => {
       next[idx] = val;
       return next;
     });
-  }, []);
+    // Throttled tick sound
+    if (soundEnabled) {
+      const now = Date.now();
+      if (now - lastSliderTickRef.current > 80) {
+        lastSliderTickRef.current = now;
+        sound.playSliderTick();
+      }
+    }
+  }, [soundEnabled, sound]);
 
   const submitBudget = useCallback(() => {
     if (overBudget) return;
+    if (soundEnabled) sound.playConfirm();
 
     // Update levels
     const newLevels = state.levels.map((lvl, i) => {
@@ -353,6 +369,24 @@ const CisoSimulator = ({ embedded = false }: { embedded?: boolean }) => {
     setResults(prev => [...prev, result]);
     setState({ marketValue: mv, reputation: rep, regRisk: reg, levels: newLevels });
 
+    // Sound effects based on outcome
+    if (soundEnabled) {
+      setTimeout(() => sound.playAttackAlert(), 200);
+      setTimeout(() => {
+        if (mv <= 0 || rep <= 0 || reg >= 80) {
+          sound.playGameOver();
+        } else if (round >= 5) {
+          sound.playVictory();
+        } else if (regPenalty || regPenaltyHigh) {
+          sound.playRegPenalty();
+        } else if (wasDetected) {
+          sound.playDetected();
+        } else {
+          sound.playUndetected();
+        }
+      }, 1200);
+    }
+
     // Check game over
     if (mv <= 0 || rep <= 0 || reg >= 80) {
       setPhase('gameover');
@@ -361,13 +395,14 @@ const CisoSimulator = ({ embedded = false }: { embedded?: boolean }) => {
     } else {
       setPhase('result');
     }
-  }, [state, allocation, round, overBudget, totalAllocated, language]);
+  }, [state, allocation, round, overBudget, totalAllocated, language, soundEnabled, sound]);
 
   const nextRound = useCallback(() => {
     setRound(r => r + 1);
     setAllocation([20, 20, 20, 20, 20, 0]);
     setPhase('allocate');
-  }, []);
+    if (soundEnabled) sound.playRoundStart();
+  }, [soundEnabled, sound]);
 
   const restart = useCallback(() => {
     setRound(1);
@@ -407,6 +442,7 @@ const CisoSimulator = ({ embedded = false }: { embedded?: boolean }) => {
                 <li className="flex items-start gap-2"><span className="text-primary font-mono font-bold">3.</span> {t('introMech3')}</li>
                 <li className="flex items-start gap-2"><span className="text-primary font-mono font-bold">4.</span> {t('introMech4')}</li>
               </ul>
+              <p className="text-foreground/70 font-sans text-sm italic border-l-2 border-primary/30 pl-3">{t('introGui')}</p>
               <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-3 text-sm font-mono text-destructive">
                 {t('introGameOver')}
               </div>
@@ -422,7 +458,14 @@ const CisoSimulator = ({ embedded = false }: { embedded?: boolean }) => {
                 <h1 className="text-xl md:text-2xl font-bold font-mono text-primary">{t('title')}</h1>
                 <p className="text-sm text-muted-foreground font-sans mt-1">{t('subtitle')}</p>
               </div>
-              <div className="text-right">
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setSoundEnabled(s => !s)}
+                  className="p-1.5 rounded-md text-muted-foreground hover:text-primary transition-colors"
+                  title={soundEnabled ? 'Mute' : 'Unmute'}
+                >
+                  {soundEnabled ? <Volume2 size={16} /> : <VolumeX size={16} />}
+                </button>
                 <span className="text-sm font-mono text-highlight font-bold">{t('round')} {round} {t('of')} 5</span>
               </div>
             </div>
@@ -450,7 +493,7 @@ const CisoSimulator = ({ embedded = false }: { embedded?: boolean }) => {
 
             <div className="space-y-3">
               {CATEGORIES.map((cat, i) => (
-                <div key={cat} className="bg-card rounded-lg border border-border p-3">
+                <div key={cat} className="bg-card rounded-lg border border-primary/30 p-3">
                   <div className="flex items-center justify-between mb-2">
                     <label className="text-sm font-mono text-foreground">{t(cat)}</label>
                     <div className="flex items-center gap-2">
@@ -469,7 +512,7 @@ const CisoSimulator = ({ embedded = false }: { embedded?: boolean }) => {
                     step={5}
                     value={allocation[i]}
                     onChange={e => setCategory(i, Number(e.target.value))}
-                    className="w-full accent-primary h-2 rounded-lg appearance-none bg-secondary cursor-pointer"
+                    className="ciso-slider w-full h-2 rounded-lg appearance-none bg-secondary cursor-pointer"
                   />
                   {i < 5 && (
                     <div className="flex justify-between text-[10px] font-mono text-muted-foreground mt-1">
@@ -566,6 +609,51 @@ const CisoSimulator = ({ embedded = false }: { embedded?: boolean }) => {
           </div>
         )}
       </div>
+
+      {/* Slider styling */}
+      <style>{`
+        .ciso-slider {
+          -webkit-appearance: none;
+          appearance: none;
+          height: 8px;
+          border-radius: 4px;
+          background: hsl(var(--secondary));
+          outline: none;
+        }
+        .ciso-slider::-webkit-slider-thumb {
+          -webkit-appearance: none;
+          appearance: none;
+          width: 20px;
+          height: 20px;
+          border-radius: 50%;
+          background: hsl(var(--primary));
+          border: 3px solid hsl(var(--primary));
+          box-shadow: 0 0 8px hsl(var(--primary) / 0.5);
+          cursor: pointer;
+          transition: box-shadow 0.2s;
+        }
+        .ciso-slider::-webkit-slider-thumb:hover {
+          box-shadow: 0 0 14px hsl(var(--primary) / 0.8);
+        }
+        .ciso-slider::-moz-range-thumb {
+          width: 20px;
+          height: 20px;
+          border-radius: 50%;
+          background: hsl(var(--primary));
+          border: 3px solid hsl(var(--primary));
+          box-shadow: 0 0 8px hsl(var(--primary) / 0.5);
+          cursor: pointer;
+        }
+        .ciso-slider::-webkit-slider-runnable-track {
+          height: 8px;
+          border-radius: 4px;
+        }
+        .ciso-slider::-moz-range-track {
+          height: 8px;
+          border-radius: 4px;
+          background: hsl(var(--secondary));
+        }
+      `}</style>
     </div>
   );
 };
