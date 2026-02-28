@@ -105,7 +105,7 @@ type ThreatShape = 'eye' | 'skull' | 'bolt' | 'bug' | 'shield' | 'lock' | 'flame
 const drawShape = (ctx: CanvasRenderingContext2D, shape: ThreatShape, size: number, color: string) => {
   ctx.strokeStyle = color;
   ctx.fillStyle = color + '20';
-  ctx.lineWidth = 1.5;
+  ctx.lineWidth = 2.5;
   const s = size;
   switch (shape) {
     case 'eye': // radar/eye
@@ -548,17 +548,17 @@ const ThreatDropQuiz = ({ embedded }: { embedded?: boolean }) => {
         ctx.shadowBlur = 6 + urgency * 14;
 
         // Draw shape instead of box
-        drawShape(ctx, t.shape, 22, col);
+        drawShape(ctx, t.shape, 38, col);
         ctx.shadowBlur = 0;
 
         // Label below shape
-        ctx.font = 'bold 9px monospace'; ctx.textAlign = 'center';
+        ctx.font = 'bold 13px monospace'; ctx.textAlign = 'center';
         ctx.fillStyle = col;
-        ctx.fillText(t.label, 0, 22);
+        ctx.fillText(t.label, 0, 38);
 
         // Hint
-        ctx.font = '7px monospace'; ctx.fillStyle = 'rgba(255,255,255,0.3)';
-        ctx.fillText(t.hint, 0, 32);
+        ctx.font = '11px monospace'; ctx.fillStyle = 'rgba(255,255,255,0.45)';
+        ctx.fillText(t.hint, 0, 54);
 
         if (t.caught) {
           ctx.font = '10px monospace'; ctx.fillStyle = LANES[t.lane].color;
