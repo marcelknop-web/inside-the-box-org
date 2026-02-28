@@ -258,6 +258,22 @@ function pointsToLevelGain(pts: number): number {
 }
 
 function clamp(v: number, min: number, max: number) { return Math.max(min, Math.min(max, v)); }
+
+// ── Leaderboard helpers ──
+const CISO_BOARD_KEY = 'ciso_sim_top5';
+interface CisoBoardEntry { rounds: number; mv: number; rep: number; reg: number; won: boolean; date: string; }
+const getCisoBoard = (): CisoBoardEntry[] => { try { return JSON.parse(localStorage.getItem(CISO_BOARD_KEY) || '[]'); } catch { return []; } };
+const saveCisoBoard = (rounds: number, mv: number, rep: number, reg: number, won: boolean) => {
+  const board = getCisoBoard();
+  board.push({ rounds, mv, rep, reg, won, date: new Date().toLocaleDateString() });
+  // Sort: victories first (by mv desc), then losses (by rounds desc)
+  board.sort((a, b) => {
+    if (a.won !== b.won) return a.won ? -1 : 1;
+    if (a.won && b.won) return b.mv - a.mv;
+    return b.rounds - a.rounds;
+  });
+  try { localStorage.setItem(CISO_BOARD_KEY, JSON.stringify(board.slice(0, 5))); } catch {}
+};
 function randInt(min: number, max: number) { return Math.floor(Math.random() * (max - min + 1)) + min; }
 
 interface GameState {
@@ -452,8 +468,10 @@ const CisoSimulator = ({ embedded = false }: { embedded?: boolean }) => {
 
     // Check game over
     if (mv <= 0 || rep <= 0 || reg >= 80) {
+      saveCisoBoard(round, mv, rep, reg, false);
       setPhase('gameover');
     } else if (round >= 5) {
+      saveCisoBoard(round, mv, rep, reg, true);
       setPhase('victory');
     } else {
       setPhase('result');
@@ -762,6 +780,30 @@ const CisoSimulator = ({ embedded = false }: { embedded?: boolean }) => {
               </p>
             </div>
 
+            {/* TOP 5 LEADERBOARD */}
+            {(() => {
+              const board = getCisoBoard();
+              if (board.length === 0) return null;
+              return (
+                <div className="bg-card/60 border border-primary/20 rounded-xl p-4">
+                  <h3 className="text-center font-mono font-bold text-xs text-primary/80 tracking-[0.2em] mb-3">─── TOP 5 ───</h3>
+                  <div className="space-y-1.5">
+                    {board.map((e, i) => {
+                      const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '  ';
+                      return (
+                        <div key={i} className={`flex items-center justify-between text-xs font-mono px-2 py-1 rounded ${i === 0 ? 'text-foreground/80' : 'text-muted-foreground'}`}>
+                          <span>{medal} R{e.rounds}</span>
+                          <span className={e.won ? 'text-success' : 'text-destructive'}>{e.won ? '✓' : '✗'}</span>
+                          <span>MV:{e.mv} Rep:{e.rep}</span>
+                          <span className="text-[10px]">{e.date}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })()}
+
             <Button onClick={restart} variant="outline" className="w-full font-mono" size="lg">
               <RotateCcw size={16} className="mr-2" /> {t('restart')}
             </Button>
@@ -834,6 +876,30 @@ const CisoSimulator = ({ embedded = false }: { embedded?: boolean }) => {
                 </div>
               </div>
             </div>
+
+            {/* TOP 5 LEADERBOARD */}
+            {(() => {
+              const board = getCisoBoard();
+              if (board.length === 0) return null;
+              return (
+                <div className="bg-card/60 border border-primary/20 rounded-xl p-4">
+                  <h3 className="text-center font-mono font-bold text-xs text-primary/80 tracking-[0.2em] mb-3">─── TOP 5 ───</h3>
+                  <div className="space-y-1.5">
+                    {board.map((e, i) => {
+                      const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '  ';
+                      return (
+                        <div key={i} className={`flex items-center justify-between text-xs font-mono px-2 py-1 rounded ${i === 0 ? 'text-foreground/80' : 'text-muted-foreground'}`}>
+                          <span>{medal} R{e.rounds}</span>
+                          <span className={e.won ? 'text-success' : 'text-destructive'}>{e.won ? '✓' : '✗'}</span>
+                          <span>MV:{e.mv} Rep:{e.rep}</span>
+                          <span className="text-[10px]">{e.date}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })()}
 
             <Button onClick={restart} variant="outline" className="w-full font-mono" size="lg">
               <RotateCcw size={16} className="mr-2" /> {t('restart')}

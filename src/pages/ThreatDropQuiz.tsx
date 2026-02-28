@@ -384,8 +384,17 @@ const stopBGMusic = (bg: BGMusic | null) => {
    HELPERS
    ══════════════════════════════════════ */
 const HI_KEY = 'threatdrop-hi';
+const BOARD_KEY = 'threatdrop-top5';
+interface BoardEntry { score: number; combo: number; date: string; }
 const getHi = () => { try { return +(localStorage.getItem(HI_KEY) || 0); } catch { return 0; } };
 const saveHi = (s: number) => { try { if (s > getHi()) localStorage.setItem(HI_KEY, '' + s); } catch {} };
+const getBoard = (): BoardEntry[] => { try { return JSON.parse(localStorage.getItem(BOARD_KEY) || '[]'); } catch { return []; } };
+const saveBoard = (score: number, combo: number) => {
+  const board = getBoard();
+  board.push({ score, combo, date: new Date().toLocaleDateString() });
+  board.sort((a, b) => b.score - a.score);
+  try { localStorage.setItem(BOARD_KEY, JSON.stringify(board.slice(0, 5))); } catch {}
+};
 
 const mkGS = (): GS => ({
   phase: 'start', selectedLane: -1,
@@ -478,7 +487,7 @@ const ThreatDropQuiz = ({ embedded }: { embedded?: boolean }) => {
       if (g.shield) g.shield = false;
       else { g.lives--; g.combo = 0; g.shakeT = 0.3; g.flashT = 0.3; }
       if (ac) sfxMiss(ac);
-      if (g.lives <= 0) { g.phase = 'over'; saveHi(g.score); g.hi = Math.max(g.hi, g.score); if (ac) sfxGameOver(ac); stopBGMusic(bgMusicRef.current); bgMusicRef.current = null; }
+      if (g.lives <= 0) { g.phase = 'over'; saveHi(g.score); saveBoard(g.score, g.bestCombo); g.hi = Math.max(g.hi, g.score); if (ac) sfxGameOver(ac); stopBGMusic(bgMusicRef.current); bgMusicRef.current = null; }
     }
     g.selectedLane = -1;
   }, []);
@@ -563,7 +572,7 @@ const ThreatDropQuiz = ({ embedded }: { embedded?: boolean }) => {
             g.popups.push({ text: '✕ ' + LANES[t.lane].name, x: t.x, y: t.y - 20, life: 1.0, color: C.red });
             if (g.shield) g.shield = false;
             else { g.lives--; g.combo = 0; g.shakeT = 0.3; g.flashT = 0.3; if (ac) sfxMiss(ac); }
-            if (g.lives <= 0) { g.phase = 'over'; saveHi(g.score); g.hi = Math.max(g.hi, g.score); if (ac) sfxGameOver(ac); stopBGMusic(bgMusicRef.current); bgMusicRef.current = null; }
+            if (g.lives <= 0) { g.phase = 'over'; saveHi(g.score); saveBoard(g.score, g.bestCombo); g.hi = Math.max(g.hi, g.score); if (ac) sfxGameOver(ac); stopBGMusic(bgMusicRef.current); bgMusicRef.current = null; }
           }
         }
         g.threats = g.threats.filter(t => !rm.includes(t.id));
@@ -731,18 +740,38 @@ const ThreatDropQuiz = ({ embedded }: { embedded?: boolean }) => {
 
       /* ── GAME OVER ── */
       if (g.phase === 'over') {
-        ctx.fillStyle = 'rgba(5,6,10,0.75)'; ctx.fillRect(0, 0, w, h);
+        ctx.fillStyle = 'rgba(5,6,10,0.80)'; ctx.fillRect(0, 0, w, h);
         ctx.textAlign = 'center';
+        const sy = h * 0.15;
         ctx.shadowColor = C.red; ctx.shadowBlur = 20; ctx.font = 'bold 26px monospace'; ctx.fillStyle = C.red;
-        ctx.fillText(txt.gameOver, w / 2, h * 0.30); ctx.shadowBlur = 0;
-        ctx.font = 'bold 38px monospace'; ctx.fillStyle = C.white; ctx.fillText('' + g.score, w / 2, h * 0.44);
-        ctx.font = '10px monospace'; ctx.fillStyle = 'rgba(255,255,255,0.4)'; ctx.fillText('SCORE', w / 2, h * 0.44 + 18);
-        if (g.bestCombo > 1) { ctx.fillStyle = C.cyan; ctx.fillText(txt.bestCombo + ' ' + g.bestCombo + '×', w / 2, h * 0.56); }
+        ctx.fillText(txt.gameOver, w / 2, sy); ctx.shadowBlur = 0;
+        ctx.font = 'bold 38px monospace'; ctx.fillStyle = C.white; ctx.fillText('' + g.score, w / 2, sy + 50);
+        ctx.font = '10px monospace'; ctx.fillStyle = 'rgba(255,255,255,0.4)'; ctx.fillText('SCORE', w / 2, sy + 68);
+        if (g.bestCombo > 1) { ctx.fillStyle = C.cyan; ctx.fillText(txt.bestCombo + ' ' + g.bestCombo + '×', w / 2, sy + 90); }
         ctx.fillStyle = g.score >= g.hi && g.hi > 0 ? C.yellow : 'rgba(255,255,255,0.35)';
-        ctx.fillText('HI ' + g.hi + (g.score >= g.hi && g.score > 0 ? ' ★ NEW' : ''), w / 2, h * 0.64);
+        ctx.fillText('HI ' + g.hi + (g.score >= g.hi && g.score > 0 ? ' ★ NEW RECORD' : ''), w / 2, sy + 110);
+
+        // ── TOP 5 LEADERBOARD ──
+        const board = getBoard();
+        if (board.length > 0) {
+          const lbY = sy + 135;
+          ctx.font = 'bold 10px monospace'; ctx.fillStyle = C.yellow + '90';
+          ctx.fillText('─── TOP 5 ───', w / 2, lbY);
+          for (let i = 0; i < board.length; i++) {
+            const e = board[i];
+            const isCurrentRun = e.score === g.score && e.date === new Date().toLocaleDateString();
+            const y = lbY + 18 + i * 18;
+            ctx.font = '10px monospace';
+            ctx.fillStyle = isCurrentRun ? C.yellow : (i === 0 ? C.cyan : C.dim);
+            const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '  ';
+            ctx.fillText(`${medal} ${e.score}pts  ${e.combo}×combo  ${e.date}`, w / 2, y);
+          }
+        }
+
         const mob = 'ontouchstart' in window;
         const blink = Math.sin(now * 0.005) > 0;
-        if (blink) { ctx.fillStyle = C.yellow; ctx.font = 'bold 12px monospace'; ctx.fillText(mob ? txt.tapRestart : txt.restart, w / 2, h * 0.77); }
+        const restartY = sy + 135 + (board.length > 0 ? 18 + board.length * 18 + 14 : 30);
+        if (blink) { ctx.fillStyle = C.yellow; ctx.font = 'bold 12px monospace'; ctx.fillText(mob ? txt.tapRestart : txt.restart, w / 2, restartY); }
       }
 
       animRef.current = requestAnimationFrame(loop);
