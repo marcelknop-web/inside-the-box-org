@@ -304,6 +304,8 @@ export const en = {
     agentTtxDesc: 'Prioritizes recovery plans (ISCP) for tabletop exercises by criticality',
     agentNis2QuizDesc: 'Gamified quiz with 15 questions on the NIS-2 directive – with timer and high score',
     agentCisoDesc: 'Strategic budget simulation – survive 5 rounds as CISO of a regulated enterprise',
+    agentThreatDropTitle: 'ThreatDrop',
+    agentThreatDropDesc: 'AI-generated expert quiz – each question is created in real-time at CISO/SOC lead level',
     agentYtTitle: 'Video Injects for Exercises',
     agentYtDesc: 'AI-generated news videos as realistic situational briefings in crisis exercises',
   },
