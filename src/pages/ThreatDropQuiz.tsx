@@ -1,10 +1,9 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { Button } from '@/components/ui/button';
-import { Loader2, RotateCcw, CheckCircle2, XCircle, Zap, Trophy, Target, Clock, ArrowRight, Shield } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Loader2, RotateCcw, CheckCircle2, XCircle, Zap, Trophy, Target, ArrowRight, Shield, Flame, Star } from 'lucide-react';
 import { PageMeta } from '@/components/PageMeta';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
-import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ThreatDropQuestion {
   id: string;
@@ -29,19 +28,19 @@ const labels: Record<string, Record<string, string>> = {
     next: 'Nächste Frage',
     restart: 'Neues Spiel',
     correct: 'Richtig!',
-    wrong: 'Falsch.',
+    wrong: 'Leider falsch.',
     rationale: 'Begründung',
     score: 'Score',
     streak: 'Serie',
     question: 'Frage',
-    difficulty: 'Schwierigkeit',
-    tags: 'Themen',
-    skill: 'Kompetenz',
+    difficulty: 'Level',
     selectAnswer: 'Wählen Sie eine Antwort.',
-    gameIntro: 'Jede Frage wird in Echtzeit von KI generiert – auf Experten-Niveau.',
-    start: 'Erste Frage laden',
+    gameIntro: 'Testen Sie Ihr Wissen auf SOC-Lead- und CISO-Niveau. Jede Frage wird in Echtzeit von KI generiert.',
+    start: 'Quiz starten',
     context: 'Kontext',
-    confidence: 'KI-Konfidenz',
+    perfect: 'Perfekt!',
+    goodJob: 'Gut gemacht!',
+    keepGoing: 'Weiter so!',
   },
   en: {
     title: 'ThreatDrop',
@@ -52,19 +51,19 @@ const labels: Record<string, Record<string, string>> = {
     next: 'Next question',
     restart: 'New game',
     correct: 'Correct!',
-    wrong: 'Wrong.',
+    wrong: 'Incorrect.',
     rationale: 'Rationale',
     score: 'Score',
     streak: 'Streak',
     question: 'Question',
-    difficulty: 'Difficulty',
-    tags: 'Topics',
-    skill: 'Skill',
+    difficulty: 'Level',
     selectAnswer: 'Select an answer.',
-    gameIntro: 'Each question is AI-generated in real-time – at expert level.',
-    start: 'Load first question',
+    gameIntro: 'Test your knowledge at SOC Lead and CISO level. Each question is AI-generated in real-time.',
+    start: 'Start Quiz',
     context: 'Context',
-    confidence: 'AI Confidence',
+    perfect: 'Perfect!',
+    goodJob: 'Well done!',
+    keepGoing: 'Keep going!',
   },
   fr: {
     title: 'ThreatDrop',
@@ -75,26 +74,71 @@ const labels: Record<string, Record<string, string>> = {
     next: 'Question suivante',
     restart: 'Nouveau jeu',
     correct: 'Correct !',
-    wrong: 'Faux.',
+    wrong: 'Incorrect.',
     rationale: 'Explication',
     score: 'Score',
     streak: 'Série',
     question: 'Question',
-    difficulty: 'Difficulté',
-    tags: 'Thèmes',
-    skill: 'Compétence',
+    difficulty: 'Niveau',
     selectAnswer: 'Sélectionnez une réponse.',
-    gameIntro: 'Chaque question est générée en temps réel par IA – niveau expert.',
-    start: 'Charger la première question',
+    gameIntro: 'Testez vos connaissances au niveau SOC Lead et CISO. Chaque question est générée en temps réel par IA.',
+    start: 'Démarrer le quiz',
     context: 'Contexte',
-    confidence: 'Confiance IA',
+    perfect: 'Parfait !',
+    goodJob: 'Bien joué !',
+    keepGoing: 'Continuez !',
   },
 };
+
+/* ── Score Ring SVG ── */
+const ScoreRing = ({ score, total }: { score: number; total: number }) => {
+  const pct = total === 0 ? 0 : score / total;
+  const r = 28;
+  const circ = 2 * Math.PI * r;
+  const offset = circ * (1 - pct);
+
+  return (
+    <div className="relative w-[72px] h-[72px] flex items-center justify-center">
+      <svg width="72" height="72" viewBox="0 0 72 72" className="absolute">
+        <circle cx="36" cy="36" r={r} fill="none" stroke="hsl(var(--muted))" strokeWidth="5" />
+        <motion.circle
+          cx="36" cy="36" r={r}
+          fill="none"
+          stroke="hsl(var(--highlight))"
+          strokeWidth="5"
+          strokeLinecap="round"
+          strokeDasharray={circ}
+          initial={{ strokeDashoffset: circ }}
+          animate={{ strokeDashoffset: offset }}
+          transition={{ duration: 0.6, ease: 'easeOut' }}
+          transform="rotate(-90 36 36)"
+        />
+      </svg>
+      <span className="text-highlight font-mono font-bold text-lg z-10">{score}</span>
+    </div>
+  );
+};
+
+/* ── Difficulty dots ── */
+const DifficultyDots = ({ level }: { level: number }) => (
+  <div className="flex gap-1 items-center">
+    {[1, 2, 3, 4, 5].map(i => (
+      <motion.div
+        key={i}
+        className={`w-2 h-2 rounded-full ${i <= level ? 'bg-primary' : 'bg-muted'}`}
+        initial={{ scale: 0 }}
+        animate={{ scale: 1 }}
+        transition={{ delay: i * 0.05 }}
+      />
+    ))}
+  </div>
+);
+
+const optionLetters = ['A', 'B', 'C', 'D'];
 
 const ThreatDropQuiz = ({ embedded }: { embedded?: boolean }) => {
   const { language } = useLanguage();
   const t = (key: string) => labels[language]?.[key] ?? labels.en[key] ?? key;
-  const isMobile = useIsMobile();
 
   const [phase, setPhase] = useState<'intro' | 'loading' | 'question' | 'answered' | 'error'>('intro');
   const [question, setQuestion] = useState<ThreatDropQuestion | null>(null);
@@ -104,29 +148,20 @@ const ThreatDropQuiz = ({ embedded }: { embedded?: boolean }) => {
   const [totalAnswered, setTotalAnswered] = useState(0);
   const [usedIds, setUsedIds] = useState<string[]>([]);
   const resultRef = useRef<HTMLDivElement>(null);
-  const questionRef = useRef<HTMLDivElement>(null);
 
   const fetchQuestion = useCallback(async () => {
     setPhase('loading');
     setQuestion(null);
     setSelectedIdx(null);
-
     try {
       const { data, error } = await supabase.functions.invoke('threatdrop-question', {
         body: { language, usedIds },
       });
-
-      if (error || data?.error) {
-        console.error('ThreatDrop error:', error || data?.error);
-        setPhase('error');
-        return;
-      }
-
+      if (error || data?.error) { setPhase('error'); return; }
       setQuestion(data as ThreatDropQuestion);
       setUsedIds(prev => [...prev, data.id]);
       setPhase('question');
-    } catch (e) {
-      console.error('ThreatDrop fetch error:', e);
+    } catch {
       setPhase('error');
     }
   }, [language, usedIds]);
@@ -144,23 +179,11 @@ const ThreatDropQuiz = ({ embedded }: { embedded?: boolean }) => {
     setPhase('answered');
   };
 
-  // Auto-scroll to result after answering
   useEffect(() => {
     if (phase === 'answered' && resultRef.current) {
-      setTimeout(() => {
-        resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      }, 100);
+      setTimeout(() => resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 150);
     }
   }, [phase]);
-
-  // Auto-scroll to question after loading
-  useEffect(() => {
-    if (phase === 'question' && questionRef.current) {
-      setTimeout(() => {
-        questionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 100);
-    }
-  }, [phase, question]);
 
   const handleRestart = () => {
     setScore(0);
@@ -170,170 +193,311 @@ const ThreatDropQuiz = ({ embedded }: { embedded?: boolean }) => {
     setPhase('intro');
   };
 
-  const optionLetters = ['A', 'B', 'C', 'D'];
+  const isCorrect = selectedIdx === question?.correct;
 
   return (
     <div className={`${embedded ? '' : 'min-h-screen bg-background'} p-4 md:p-6 max-w-3xl mx-auto`}>
       {!embedded && <PageMeta title="ThreatDrop" description="Expert Cybersecurity Quiz" />}
 
-      {/* Header */}
-      <div className="mb-6">
-        <div className="flex items-center gap-3 mb-2">
-          <Shield className="text-highlight w-7 h-7" />
-          <h1 className="text-highlight font-mono font-bold text-xl">{t('title')}</h1>
+      {/* ── Header with Score ── */}
+      <div className="flex items-center justify-between mb-5">
+        <div className="flex items-center gap-3">
+          <motion.div
+            animate={{ rotate: [0, 10, -10, 0] }}
+            transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+          >
+            <Shield className="text-highlight w-7 h-7" />
+          </motion.div>
+          <div>
+            <h1 className="text-highlight font-mono font-bold text-xl leading-tight">{t('title')}</h1>
+            <p className="text-muted-foreground text-xs font-sans">{t('subtitle')}</p>
+          </div>
         </div>
-        <p className="text-foreground/70 text-sm font-sans">{t('subtitle')}</p>
+
+        {totalAnswered > 0 && (
+          <div className="flex items-center gap-3">
+            {streak >= 3 && (
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                className="flex items-center gap-1 px-2 py-1 rounded-full bg-primary/15 border border-primary/30"
+              >
+                <Flame className="w-4 h-4 text-primary" />
+                <span className="text-primary font-mono font-bold text-sm">{streak}×</span>
+              </motion.div>
+            )}
+            <ScoreRing score={score} total={totalAnswered} />
+          </div>
+        )}
       </div>
 
-      {/* Score bar */}
-      {totalAnswered > 0 && (
-        <div className="flex gap-4 mb-4 p-3 rounded-xl bg-highlight/5 border border-highlight/20">
-          <div className="flex items-center gap-1.5 text-sm font-mono">
-            <Trophy className="w-4 h-4 text-highlight" />
-            <span className="text-highlight font-bold">{score}/{totalAnswered}</span>
-            <span className="text-foreground/50">{t('score')}</span>
-          </div>
-          {streak > 1 && (
-            <div className="flex items-center gap-1.5 text-sm font-mono">
-              <Zap className="w-4 h-4 text-primary" />
-              <span className="text-primary font-bold">{streak}×</span>
-              <span className="text-foreground/50">{t('streak')}</span>
+      <AnimatePresence mode="wait">
+        {/* ── INTRO ── */}
+        {phase === 'intro' && (
+          <motion.div
+            key="intro"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="space-y-5"
+          >
+            <div className="relative rounded-2xl overflow-hidden border border-highlight/20 bg-gradient-to-br from-highlight/5 via-card to-primary/5 p-8 text-center">
+              <motion.div
+                animate={{ scale: [1, 1.1, 1], opacity: [0.6, 1, 0.6] }}
+                transition={{ duration: 3, repeat: Infinity }}
+                className="absolute inset-0 bg-gradient-to-r from-highlight/5 via-transparent to-primary/5"
+              />
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: 'spring', stiffness: 200, delay: 0.2 }}
+              >
+                <Shield className="w-16 h-16 text-highlight mx-auto mb-4" />
+              </motion.div>
+              <p className="text-foreground text-sm font-sans leading-relaxed max-w-md mx-auto relative z-10">
+                {t('gameIntro')}
+              </p>
             </div>
-          )}
-        </div>
-      )}
 
-      {/* Intro phase */}
-      {phase === 'intro' && (
-        <div className="space-y-4">
-          <div className="rounded-xl p-5 bg-primary/5 border border-primary/20">
-            <p className="text-foreground text-sm font-sans leading-relaxed">{t('gameIntro')}</p>
-          </div>
-          <Button onClick={fetchQuestion} className="w-full bg-highlight text-highlight-foreground hover:bg-highlight/90 font-mono">
-            <Zap className="w-4 h-4 mr-2" />
-            {t('start')}
-          </Button>
-        </div>
-      )}
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={fetchQuestion}
+              className="w-full py-3.5 rounded-xl bg-highlight text-highlight-foreground font-mono font-bold text-sm flex items-center justify-center gap-2 hover:bg-highlight/90 transition-colors"
+            >
+              <Zap className="w-5 h-5" />
+              {t('start')}
+            </motion.button>
+          </motion.div>
+        )}
 
-      {/* Loading */}
-      {phase === 'loading' && (
-        <div className="flex flex-col items-center justify-center py-16 gap-4">
-          <Loader2 className="w-8 h-8 text-highlight animate-spin" />
-          <p className="text-foreground/70 text-sm font-mono">{t('loading')}</p>
-        </div>
-      )}
-
-      {/* Error */}
-      {phase === 'error' && (
-        <div className="space-y-4">
-          <div className="rounded-xl p-5 bg-destructive/10 border border-destructive/20 text-center">
-            <XCircle className="w-8 h-8 text-destructive mx-auto mb-2" />
-            <p className="text-destructive text-sm font-sans">{t('error')}</p>
-          </div>
-          <Button onClick={fetchQuestion} variant="outline" className="w-full font-mono">
-            <RotateCcw className="w-4 h-4 mr-2" />
-            {t('retry')}
-          </Button>
-        </div>
-      )}
-
-      {/* Question / Answered */}
-      {(phase === 'question' || phase === 'answered') && question && (
-        <div ref={questionRef} className="space-y-4">
-          {/* Question header */}
-          <div className="rounded-xl p-4 bg-highlight/5 border border-highlight/20">
-            <div className="flex items-start gap-2 mb-2">
-              <Target className="w-5 h-5 text-highlight mt-0.5 flex-shrink-0" />
-              <p className="text-highlight font-mono font-bold text-sm">{question.threat_title}</p>
+        {/* ── LOADING ── */}
+        {phase === 'loading' && (
+          <motion.div
+            key="loading"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="flex flex-col items-center justify-center py-20 gap-5"
+          >
+            <div className="relative">
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+                className="w-16 h-16 rounded-full border-2 border-highlight/20 border-t-highlight"
+              />
+              <Shield className="w-6 h-6 text-highlight absolute inset-0 m-auto" />
             </div>
-            {question.context && (
-              <p className="text-foreground/80 text-sm font-sans leading-relaxed mb-3 pl-7">{question.context}</p>
-            )}
-            {/* Tags */}
-            <div className="flex flex-wrap gap-1.5 pl-7">
-              {question.domain_tags.map(tag => (
-                <span key={tag} className="px-2 py-0.5 rounded text-[10px] font-mono bg-highlight/10 text-highlight border border-highlight/20">
-                  {tag}
-                </span>
-              ))}
-              <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-primary/10 text-primary border border-primary/20">
-                {t('difficulty')}: {question.difficulty}/5
+            <p className="text-muted-foreground text-sm font-mono">{t('loading')}</p>
+          </motion.div>
+        )}
+
+        {/* ── ERROR ── */}
+        {phase === 'error' && (
+          <motion.div
+            key="error"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            className="space-y-4"
+          >
+            <div className="rounded-xl p-6 bg-destructive/10 border border-destructive/20 text-center">
+              <XCircle className="w-10 h-10 text-destructive mx-auto mb-3" />
+              <p className="text-destructive text-sm font-sans">{t('error')}</p>
+            </div>
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={fetchQuestion}
+              className="w-full py-3 rounded-xl border border-border bg-secondary text-foreground font-mono text-sm flex items-center justify-center gap-2 hover:bg-muted transition-colors"
+            >
+              <RotateCcw className="w-4 h-4" />
+              {t('retry')}
+            </motion.button>
+          </motion.div>
+        )}
+
+        {/* ── QUESTION / ANSWERED ── */}
+        {(phase === 'question' || phase === 'answered') && question && (
+          <motion.div
+            key={question.id}
+            initial={{ opacity: 0, x: 40 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -40 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+            className="space-y-4"
+          >
+            {/* Question number + difficulty */}
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground text-xs font-mono">
+                {t('question')} #{totalAnswered + (phase === 'question' ? 1 : 0)}
               </span>
+              <div className="flex items-center gap-2">
+                <span className="text-muted-foreground text-[10px] font-mono uppercase">{t('difficulty')}</span>
+                <DifficultyDots level={question.difficulty} />
+              </div>
             </div>
-          </div>
 
-          {/* Options */}
-          <div className="space-y-2">
-            {question.options.map((opt, idx) => {
-              const isSelected = selectedIdx === idx;
-              const isCorrect = idx === question.correct;
-              const isAnswered = phase === 'answered';
+            {/* Question card */}
+            <div className="rounded-2xl border border-highlight/20 bg-card overflow-hidden">
+              {/* Domain tags strip */}
+              <div className="flex gap-1.5 px-4 pt-3 pb-2 flex-wrap">
+                {question.domain_tags.map((tag, i) => (
+                  <motion.span
+                    key={tag}
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.1 }}
+                    className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-highlight/10 text-highlight border border-highlight/20"
+                  >
+                    {tag}
+                  </motion.span>
+                ))}
+              </div>
 
-              let borderColor = 'border-border hover:border-highlight/40';
-              let bgColor = 'bg-secondary/30 hover:bg-highlight/5';
-              if (isAnswered) {
-                if (isCorrect) {
-                  borderColor = 'border-green-500/50';
-                  bgColor = 'bg-green-500/10';
-                } else if (isSelected && !isCorrect) {
-                  borderColor = 'border-destructive/50';
-                  bgColor = 'bg-destructive/10';
-                } else {
-                  borderColor = 'border-border/50';
-                  bgColor = 'bg-secondary/20 opacity-60';
-                }
-              }
-
-              return (
-                <button
-                  key={idx}
-                  onClick={() => !isAnswered && handleAnswer(idx)}
-                  disabled={isAnswered}
-                  className={`w-full text-left p-3 rounded-lg border transition-all ${borderColor} ${bgColor} ${!isAnswered ? 'cursor-pointer' : 'cursor-default'}`}
-                >
-                  <div className="flex items-start gap-3">
-                    <span className={`font-mono font-bold text-sm mt-0.5 flex-shrink-0 ${isAnswered && isCorrect ? 'text-green-500' : isAnswered && isSelected ? 'text-destructive' : 'text-highlight'}`}>
-                      {optionLetters[idx]}
-                    </span>
-                    <span className="text-foreground text-sm font-sans leading-relaxed">{opt.replace(/^[A-D]\s+/, '')}</span>
-                    {isAnswered && isCorrect && <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5 ml-auto" />}
-                    {isAnswered && isSelected && !isCorrect && <XCircle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5 ml-auto" />}
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Result / Rationale */}
-          {phase === 'answered' && (
-            <div ref={resultRef} className="space-y-3">
-              <div className={`rounded-xl p-4 border ${selectedIdx === question.correct ? 'bg-green-500/10 border-green-500/30' : 'bg-destructive/10 border-destructive/30'}`}>
-                <div className="flex items-center gap-2 mb-2">
-                  {selectedIdx === question.correct
-                    ? <CheckCircle2 className="w-5 h-5 text-green-500" />
-                    : <XCircle className="w-5 h-5 text-destructive" />
-                  }
-                  <span className={`font-mono font-bold text-sm ${selectedIdx === question.correct ? 'text-green-500' : 'text-destructive'}`}>
-                    {selectedIdx === question.correct ? t('correct') : t('wrong')}
-                  </span>
+              {/* Title + Context */}
+              <div className="px-4 pb-4">
+                <div className="flex items-start gap-2 mb-2">
+                  <Target className="w-4 h-4 text-highlight mt-1 flex-shrink-0" />
+                  <h2 className="text-foreground font-mono font-bold text-sm leading-snug">{question.threat_title}</h2>
                 </div>
-                <p className="text-foreground/80 text-sm font-sans leading-relaxed">{question.rationale}</p>
-              </div>
-
-              <div className="flex gap-2">
-                <Button onClick={fetchQuestion} className="flex-1 bg-highlight text-highlight-foreground hover:bg-highlight/90 font-mono">
-                  <ArrowRight className="w-4 h-4 mr-2" />
-                  {t('next')}
-                </Button>
-                <Button onClick={handleRestart} variant="outline" className="font-mono">
-                  <RotateCcw className="w-4 h-4" />
-                </Button>
+                {question.context && (
+                  <p className="text-muted-foreground text-sm font-sans leading-relaxed pl-6">{question.context}</p>
+                )}
               </div>
             </div>
-          )}
-        </div>
-      )}
+
+            {/* Options */}
+            <div className="space-y-2">
+              {question.options.map((opt, idx) => {
+                const isSelected = selectedIdx === idx;
+                const isCorrectOpt = idx === question.correct;
+                const isAnswered = phase === 'answered';
+
+                let borderClass = 'border-border/60 hover:border-highlight/40';
+                let bgClass = 'bg-card hover:bg-highlight/5';
+                let textClass = 'text-muted-foreground';
+
+                if (isAnswered) {
+                  if (isCorrectOpt) {
+                    borderClass = 'border-green-500/50';
+                    bgClass = 'bg-green-500/10';
+                    textClass = 'text-green-400';
+                  } else if (isSelected) {
+                    borderClass = 'border-destructive/50';
+                    bgClass = 'bg-destructive/10';
+                    textClass = 'text-destructive';
+                  } else {
+                    borderClass = 'border-border/30';
+                    bgClass = 'bg-card/50 opacity-50';
+                  }
+                }
+
+                return (
+                  <motion.button
+                    key={idx}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1 + idx * 0.05 }}
+                    whileHover={!isAnswered ? { scale: 1.01, x: 4 } : {}}
+                    whileTap={!isAnswered ? { scale: 0.99 } : {}}
+                    onClick={() => !isAnswered && handleAnswer(idx)}
+                    disabled={isAnswered}
+                    className={`w-full text-left p-3.5 rounded-xl border transition-colors ${borderClass} ${bgClass} ${!isAnswered ? 'cursor-pointer' : 'cursor-default'}`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <span className={`font-mono font-bold text-sm mt-0.5 flex-shrink-0 w-6 h-6 rounded-md flex items-center justify-center ${
+                        isAnswered && isCorrectOpt ? 'bg-green-500/20 text-green-400' :
+                        isAnswered && isSelected ? 'bg-destructive/20 text-destructive' :
+                        'bg-highlight/10 text-highlight'
+                      }`}>
+                        {optionLetters[idx]}
+                      </span>
+                      <span className="text-foreground text-sm font-sans leading-relaxed flex-1">{opt.replace(/^[A-D]\s+/, '')}</span>
+                      {isAnswered && isCorrectOpt && (
+                        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring' }}>
+                          <CheckCircle2 className="w-5 h-5 text-green-400 flex-shrink-0" />
+                        </motion.div>
+                      )}
+                      {isAnswered && isSelected && !isCorrectOpt && (
+                        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring' }}>
+                          <XCircle className="w-5 h-5 text-destructive flex-shrink-0" />
+                        </motion.div>
+                      )}
+                    </div>
+                  </motion.button>
+                );
+              })}
+            </div>
+
+            {/* ── Result + Rationale ── */}
+            {phase === 'answered' && (
+              <motion.div
+                ref={resultRef}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="space-y-3"
+              >
+                {/* Feedback banner */}
+                <div className={`rounded-2xl p-5 border ${isCorrect ? 'bg-green-500/10 border-green-500/30' : 'bg-destructive/10 border-destructive/30'}`}>
+                  <div className="flex items-center gap-3 mb-3">
+                    {isCorrect ? (
+                      <motion.div
+                        initial={{ rotate: -180, scale: 0 }}
+                        animate={{ rotate: 0, scale: 1 }}
+                        transition={{ type: 'spring', stiffness: 200 }}
+                      >
+                        <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center">
+                          <Star className="w-5 h-5 text-green-400" />
+                        </div>
+                      </motion.div>
+                    ) : (
+                      <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}>
+                        <div className="w-10 h-10 rounded-full bg-destructive/20 flex items-center justify-center">
+                          <XCircle className="w-5 h-5 text-destructive" />
+                        </div>
+                      </motion.div>
+                    )}
+                    <div>
+                      <p className={`font-mono font-bold text-sm ${isCorrect ? 'text-green-400' : 'text-destructive'}`}>
+                        {isCorrect ? t('correct') : t('wrong')}
+                      </p>
+                      {isCorrect && streak >= 3 && (
+                        <p className="text-primary text-xs font-mono flex items-center gap-1">
+                          <Flame className="w-3 h-3" /> {streak}× {t('streak')}!
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <p className="text-foreground/80 text-sm font-sans leading-relaxed">{question.rationale}</p>
+                </div>
+
+                {/* Action buttons */}
+                <div className="flex gap-2">
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={fetchQuestion}
+                    className="flex-1 py-3 rounded-xl bg-highlight text-highlight-foreground font-mono font-bold text-sm flex items-center justify-center gap-2 hover:bg-highlight/90 transition-colors"
+                  >
+                    <ArrowRight className="w-4 h-4" />
+                    {t('next')}
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={handleRestart}
+                    className="px-4 py-3 rounded-xl border border-border bg-secondary text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                  >
+                    <RotateCcw className="w-4 h-4" />
+                  </motion.button>
+                </div>
+              </motion.div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
