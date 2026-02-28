@@ -7,6 +7,7 @@ import { HelmetProvider } from "react-helmet-async";
 import { LanguageProvider } from "./i18n/LanguageContext";
 import ChatView from "./pages/ChatView";
 import NotFound from "./pages/NotFound";
+import CyberFrogger from "./pages/CyberFrogger";
 
 const queryClient = new QueryClient();
 
@@ -20,6 +21,7 @@ const App = () => (
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<ChatView />} />
+              <Route path="/cyber-frogger" element={<CyberFrogger />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
