@@ -212,7 +212,7 @@ const Ehrenerklaerung = () => {
               disabled={verifying}
             />
             {passwordError && (
-              <p className="text-sm text-red-500 text-center">{passwordError}</p>
+              <p className="text-sm text-destructive text-center">{passwordError}</p>
             )}
             <Button type="submit" className="w-full py-5" style={{ background: '#5a8a9a', color: 'white' }} disabled={verifying}>
               {verifying ? <><Loader2 className="w-4 h-4 animate-spin mr-2" /> Prüfe...</> : 'Zugang'}
@@ -403,7 +403,7 @@ const Ehrenerklaerung = () => {
             )} />
 
             {submitError && (
-              <p className="text-sm text-red-500 text-center">{submitError}</p>
+              <p className="text-sm text-destructive text-center">{submitError}</p>
             )}
 
             {/* Submit */}

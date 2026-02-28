@@ -47,6 +47,10 @@
     /* Status */
     --destructive: 0 84% 60%;       /* #ef4444 */
     --destructive-foreground: 220 67% 96%;
+    --success: 142 71% 45%;         /* #22c55e */
+    --success-foreground: 216 33% 5%;
+    --warning: 45 93% 58%;          /* #eab308 */
+    --warning-foreground: 216 33% 5%;
 
     /* Borders & inputs */
     --border: 214 32% 17%;          /* #1e2a3a */
