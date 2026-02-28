@@ -27,8 +27,8 @@ const labels: Record<string, Record<string, string>> = {
     cat4: 'Architecture Hardening',
     cat5: 'Red Team / Testing',
     cat6: 'Einsparung',
-    submit: 'Budget bestätigen',
-    nextRound: 'Nächste Runde',
+    submit: 'Budget bestätigen & Runde starten',
+    nextRound: 'Weiter zu Runde',
     attackType: 'Angriffstyp',
     detectionProb: 'Detection-Wahrscheinlichkeit',
     detected: 'Entdeckt',
@@ -38,8 +38,8 @@ const labels: Record<string, Record<string, string>> = {
     analysis: 'Analyse',
     gameOver: 'Game Over',
     victory: 'Simulation bestanden',
-    victoryDesc: 'Du hast 5 Runden als CISO überlebt.',
-    restart: 'Neustart',
+    victoryDesc: 'Du hast 5 Runden als CISO überlebt. Dein Unternehmen ist intakt.',
+    restart: 'Nochmal spielen',
     back: 'Zurück',
     regPenalty: 'Regulatorische Strafe!',
     regPenaltyHigh: 'Kritisches regulatorisches Versagen!',
@@ -59,6 +59,20 @@ const labels: Record<string, Record<string, string>> = {
     introMech4: 'Ab Runde 3 drohen zusätzliche regulatorische Strafen.',
     introGui: 'Nutze die gelben Schieberegler, um dein Budget auf die Kategorien zu verteilen. Die Summe darf 100 nicht überschreiten. Bestätige dann mit dem Button.',
     introGameOver: 'Game Over bei: Marktwert ≤ 0 · Reputation ≤ 0 · Reg. Risiko ≥ 80',
+    // Phase guidance
+    phaseStep: 'Schritt',
+    phase1Label: 'Budget verteilen',
+    phase2Label: 'Angriff',
+    phase3Label: 'Auswertung',
+    allocateInstruction: 'Verteile dein Security-Budget auf die 6 Kategorien.',
+    allocateHint: 'Bewege die Schieberegler und achte darauf, dass die Summe ≤ 100 bleibt.',
+    resultHeadline: 'Angriff auf dein Unternehmen!',
+    resultDetectedMsg: 'Dein SOC hat den Angriff rechtzeitig erkannt. Schaden wurde reduziert.',
+    resultUndetectedMsg: 'Der Angriff blieb unbemerkt. Voller Schaden trifft dein Unternehmen.',
+    resultNextHint: 'Überprüfe die Auswirkungen und plane die nächste Runde.',
+    gameOverExplain: 'Dein Unternehmen hat die Krise nicht überstanden.',
+    victoryExplain: 'Du hast alle 5 Angriffswellen erfolgreich navigiert.',
+    roundWarning3: '⚠ Ab dieser Runde greift regulatorischer Druck!',
   },
   en: {
     title: 'CISO Budget Simulator',
@@ -78,8 +92,8 @@ const labels: Record<string, Record<string, string>> = {
     cat4: 'Architecture Hardening',
     cat5: 'Red Team / Testing',
     cat6: 'Savings',
-    submit: 'Confirm Budget',
-    nextRound: 'Next Round',
+    submit: 'Confirm Budget & Start Round',
+    nextRound: 'Continue to Round',
     attackType: 'Attack Type',
     detectionProb: 'Detection Probability',
     detected: 'Detected',
@@ -89,8 +103,8 @@ const labels: Record<string, Record<string, string>> = {
     analysis: 'Analysis',
     gameOver: 'Game Over',
     victory: 'Simulation Passed',
-    victoryDesc: 'You survived 5 rounds as CISO.',
-    restart: 'Restart',
+    victoryDesc: 'You survived 5 rounds as CISO. Your company is intact.',
+    restart: 'Play Again',
     back: 'Back',
     regPenalty: 'Regulatory Penalty!',
     regPenaltyHigh: 'Critical Regulatory Failure!',
@@ -111,6 +125,19 @@ const labels: Record<string, Record<string, string>> = {
     introMech4: 'From round 3, additional regulatory penalties apply.',
     introGui: 'Use the yellow sliders to distribute your budget across categories. The total must not exceed 100. Then confirm with the button.',
     introGameOver: 'Game Over at: Market Value ≤ 0 · Reputation ≤ 0 · Reg. Risk ≥ 80',
+    phaseStep: 'Step',
+    phase1Label: 'Allocate Budget',
+    phase2Label: 'Attack',
+    phase3Label: 'Assessment',
+    allocateInstruction: 'Distribute your security budget across the 6 categories.',
+    allocateHint: 'Move the sliders and make sure the total stays ≤ 100.',
+    resultHeadline: 'Attack on your organization!',
+    resultDetectedMsg: 'Your SOC detected the attack in time. Damage was reduced.',
+    resultUndetectedMsg: 'The attack went unnoticed. Full damage hits your organization.',
+    resultNextHint: 'Review the impact and plan your next round.',
+    gameOverExplain: 'Your organization did not survive the crisis.',
+    victoryExplain: 'You successfully navigated all 5 attack waves.',
+    roundWarning3: '⚠ Regulatory pressure kicks in from this round!',
   },
   fr: {
     title: 'CISO Budget Simulator',
@@ -130,8 +157,8 @@ const labels: Record<string, Record<string, string>> = {
     cat4: 'Durcissement Architecture',
     cat5: 'Red Team / Tests',
     cat6: 'Économies',
-    submit: 'Confirmer le budget',
-    nextRound: 'Tour suivant',
+    submit: 'Confirmer le budget & lancer le tour',
+    nextRound: 'Continuer au tour',
     attackType: 'Type d\'attaque',
     detectionProb: 'Probabilité de détection',
     detected: 'Détecté',
@@ -141,8 +168,8 @@ const labels: Record<string, Record<string, string>> = {
     analysis: 'Analyse',
     gameOver: 'Fin de partie',
     victory: 'Simulation réussie',
-    victoryDesc: 'Vous avez survécu 5 tours en tant que CISO.',
-    restart: 'Recommencer',
+    victoryDesc: 'Vous avez survécu 5 tours en tant que CISO. Votre entreprise est intacte.',
+    restart: 'Rejouer',
     back: 'Retour',
     regPenalty: 'Pénalité réglementaire !',
     regPenaltyHigh: 'Échec réglementaire critique !',
@@ -163,6 +190,19 @@ const labels: Record<string, Record<string, string>> = {
     introMech4: 'À partir du tour 3, des pénalités réglementaires supplémentaires s\'appliquent.',
     introGui: 'Utilisez les curseurs jaunes pour répartir votre budget. Le total ne doit pas dépasser 100. Confirmez ensuite avec le bouton.',
     introGameOver: 'Fin de partie si : Valeur ≤ 0 · Réputation ≤ 0 · Risque rég. ≥ 80',
+    phaseStep: 'Étape',
+    phase1Label: 'Répartir le budget',
+    phase2Label: 'Attaque',
+    phase3Label: 'Évaluation',
+    allocateInstruction: 'Répartissez votre budget sécurité sur les 6 catégories.',
+    allocateHint: 'Déplacez les curseurs et assurez-vous que le total reste ≤ 100.',
+    resultHeadline: 'Attaque contre votre organisation !',
+    resultDetectedMsg: 'Votre SOC a détecté l\'attaque à temps. Les dégâts ont été réduits.',
+    resultUndetectedMsg: 'L\'attaque est passée inaperçue. Dégâts complets.',
+    resultNextHint: 'Examinez l\'impact et planifiez le prochain tour.',
+    gameOverExplain: 'Votre organisation n\'a pas survécu à la crise.',
+    victoryExplain: 'Vous avez navigué avec succès les 5 vagues d\'attaques.',
+    roundWarning3: '⚠ La pression réglementaire commence à ce tour !',
   },
 };
 
@@ -462,10 +502,10 @@ const CisoSimulator = ({ embedded = false }: { embedded?: boolean }) => {
           </div>
         ) : (
           <>
-            <div className="flex items-center justify-between mb-6">
+            {/* Persistent header with round + sound */}
+            <div className="flex items-center justify-between mb-4">
               <div>
                 <h1 className="text-xl md:text-2xl font-bold font-mono text-primary">{t('title')}</h1>
-                <p className="text-sm text-muted-foreground font-sans mt-1">{t('subtitle')}</p>
               </div>
               <div className="flex items-center gap-3">
                 <button
@@ -475,12 +515,18 @@ const CisoSimulator = ({ embedded = false }: { embedded?: boolean }) => {
                 >
                   {soundEnabled ? <Volume2 size={16} /> : <VolumeX size={16} />}
                 </button>
-                <span className="text-sm font-mono text-highlight font-bold">{t('round')} {round} {t('of')} 5</span>
               </div>
             </div>
 
+            {/* Step indicator */}
+            <PhaseSteps
+              currentPhase={phase}
+              round={round}
+              t={t}
+            />
+
             {/* Stats Bar */}
-            <div className="grid grid-cols-3 md:grid-cols-5 gap-2 mb-6">
+            <div className="grid grid-cols-3 md:grid-cols-5 gap-2 mb-5">
               <StatCard label={t('marketValue')} value={state.marketValue} max={100} color="primary" />
               <StatCard label={t('reputation')} value={state.reputation} max={100} color="highlight" />
               <StatCard label={t('regRisk')} value={state.regRisk} max={80} color="destructive" invert />
@@ -493,6 +539,19 @@ const CisoSimulator = ({ embedded = false }: { embedded?: boolean }) => {
         {/* Phase: Allocate */}
         {phase === 'allocate' && (
           <StaggerReveal key={`alloc-${round}`} stagger={120} startDelay={200}>
+            {/* Round warning for round 3+ */}
+            {round >= 3 && (
+              <div className="bg-warning/10 border border-warning/30 rounded-lg p-3 text-sm font-mono text-warning">
+                {t('roundWarning3')}
+              </div>
+            )}
+
+            {/* Instruction banner */}
+            <div className="bg-card border border-primary/20 rounded-xl p-4">
+              <p className="text-sm font-sans font-semibold text-foreground">{t('allocateInstruction')}</p>
+              <p className="text-xs font-sans text-muted-foreground mt-1">{t('allocateHint')}</p>
+            </div>
+
             <div className="flex items-center justify-between">
               <p className="text-sm font-mono text-foreground">{t('budget')}: <span className="font-bold">100</span></p>
               <p className={`text-sm font-mono font-bold ${overBudget ? 'text-destructive' : totalAllocated === 100 ? 'text-success' : 'text-warning'}`}>
@@ -544,40 +603,47 @@ const CisoSimulator = ({ embedded = false }: { embedded?: boolean }) => {
 
         {/* Phase: Result */}
         {phase === 'result' && latestResult && (
-          <StaggerReveal key={`result-${round}`} stagger={400} startDelay={300}>
-            <div className="bg-card border border-border rounded-xl p-4 md:p-5">
-              <div className="flex items-center gap-2">
+          <StaggerReveal key={`result-${round}`} stagger={500} startDelay={300}>
+            {/* Headline: what happened */}
+            <div className={`rounded-xl p-4 border ${latestResult.wasDetected ? 'bg-success/5 border-success/30' : 'bg-destructive/5 border-destructive/30'}`}>
+              <div className="flex items-center gap-2 mb-2">
                 <AlertTriangle size={18} className={latestResult.wasDetected ? 'text-warning' : 'text-destructive'} />
-                <h3 className="font-mono font-bold text-foreground">{t('round')} {latestResult.round} — {t(latestResult.attackKey)}</h3>
+                <h3 className="font-mono font-bold text-foreground">{t(latestResult.attackKey)}</h3>
               </div>
+              <p className="text-sm font-sans text-foreground/80">
+                {latestResult.wasDetected ? t('resultDetectedMsg') : t('resultUndetectedMsg')}
+              </p>
             </div>
 
+            {/* Key metrics */}
             <div className="bg-card border border-border rounded-xl p-4 md:p-5">
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm font-mono">
-                <div>
-                  <p className="text-muted-foreground text-xs">{t('detectionProb')}</p>
-                  <p className="text-foreground font-bold">{latestResult.detectionPct}%</p>
+              <div className="grid grid-cols-3 gap-3 text-sm font-mono">
+                <div className="text-center">
+                  <p className="text-muted-foreground text-xs mb-1">{t('detectionProb')}</p>
+                  <p className="text-foreground font-bold text-lg">{latestResult.detectionPct}%</p>
                 </div>
-                <div>
-                  <p className="text-muted-foreground text-xs">{t('detected')}</p>
-                  <p className={`font-bold ${latestResult.wasDetected ? 'text-success' : 'text-destructive'}`}>
-                    {latestResult.wasDetected ? t('yes') : t('no')}
+                <div className="text-center">
+                  <p className="text-muted-foreground text-xs mb-1">{t('detected')}</p>
+                  <p className={`font-bold text-lg ${latestResult.wasDetected ? 'text-success' : 'text-destructive'}`}>
+                    {latestResult.wasDetected ? '✓ ' + t('yes') : '✗ ' + t('no')}
                   </p>
                 </div>
-                <div>
-                  <p className="text-muted-foreground text-xs">{t('damage')}</p>
-                  <p className="text-destructive font-bold">-{latestResult.finalDamage}</p>
+                <div className="text-center">
+                  <p className="text-muted-foreground text-xs mb-1">{t('damage')}</p>
+                  <p className="text-destructive font-bold text-lg">-{latestResult.finalDamage}</p>
                 </div>
               </div>
             </div>
 
             {(latestResult.regPenalty || latestResult.regPenaltyHigh) && (
-              <div className={`rounded-lg p-2 text-sm font-mono ${latestResult.regPenaltyHigh ? 'bg-destructive/15 text-destructive border border-destructive/30' : 'bg-warning/15 text-warning border border-warning/30'}`}>
-                ⚠ {latestResult.regPenaltyHigh ? t('regPenaltyHigh') : t('regPenalty')}
+              <div className={`rounded-lg p-3 text-sm font-mono ${latestResult.regPenaltyHigh ? 'bg-destructive/15 text-destructive border border-destructive/30' : 'bg-warning/15 text-warning border border-warning/30'}`}>
+                {latestResult.regPenaltyHigh ? t('regPenaltyHigh') : t('regPenalty')}
               </div>
             )}
 
+            {/* Impact on stats */}
             <div className="bg-card border border-border rounded-xl p-4 md:p-5">
+              <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-2">Auswirkung</p>
               <div className="grid grid-cols-3 gap-2 text-center text-sm font-mono">
                 <div>
                   <p className="text-muted-foreground text-[10px]">{t('marketValue')}</p>
@@ -606,29 +672,39 @@ const CisoSimulator = ({ embedded = false }: { embedded?: boolean }) => {
               </div>
             </div>
 
+            {/* Analysis */}
             <div className="bg-card border border-border rounded-xl p-4 md:p-5">
-              <p className="text-xs font-mono text-muted-foreground mb-1">{t('analysis')}</p>
+              <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-2">{t('analysis')}</p>
               {latestResult.analysis.map((line, i) => (
                 <p key={i} className="text-sm font-sans text-foreground leading-relaxed">• {line}</p>
               ))}
             </div>
 
-            <Button onClick={nextRound} className="w-full font-mono" size="lg">
-              {t('nextRound')} <ChevronRight size={16} className="ml-2" />
-            </Button>
+            {/* CTA */}
+            <div className="bg-card border border-primary/20 rounded-xl p-4 text-center">
+              <p className="text-xs font-sans text-muted-foreground mb-3">{t('resultNextHint')}</p>
+              <Button onClick={nextRound} className="w-full font-mono" size="lg">
+                {t('nextRound')} {round + 1} <ChevronRight size={16} className="ml-2" />
+              </Button>
+            </div>
           </StaggerReveal>
         )}
 
         {/* Phase: Game Over */}
         {phase === 'gameover' && latestResult && (
-          <StaggerReveal key="gameover" stagger={500} startDelay={400}>
-            <div className="bg-card border border-border rounded-xl p-4 md:p-5">
-              <div className="flex items-center gap-2">
+          <StaggerReveal key="gameover" stagger={600} startDelay={400}>
+            {/* What happened */}
+            <div className="bg-destructive/5 border border-destructive/30 rounded-xl p-4">
+              <div className="flex items-center gap-2 mb-2">
                 <AlertTriangle size={18} className="text-destructive" />
-                <h3 className="font-mono font-bold text-foreground">{t('round')} {latestResult.round} — {t(latestResult.attackKey)}</h3>
+                <h3 className="font-mono font-bold text-foreground">{t(latestResult.attackKey)}</h3>
               </div>
+              <p className="text-sm font-sans text-foreground/80">
+                {latestResult.wasDetected ? t('resultDetectedMsg') : t('resultUndetectedMsg')}
+              </p>
             </div>
 
+            {/* Final stats */}
             <div className="bg-card border border-border rounded-xl p-4 md:p-5">
               <div className="grid grid-cols-3 gap-2 text-center text-sm font-mono">
                 <div>
@@ -646,14 +722,53 @@ const CisoSimulator = ({ embedded = false }: { embedded?: boolean }) => {
               </div>
             </div>
 
+            {/* Game Over banner */}
             <div className="bg-destructive/10 border border-destructive/30 rounded-xl p-6 text-center">
               <Skull size={40} className="mx-auto text-destructive mb-3" />
               <h2 className="text-xl font-bold font-mono text-destructive">{t('gameOver')}</h2>
-              <p className="text-sm text-muted-foreground mt-2 font-sans">
-                {state.marketValue <= 0 && `${t('marketValue')} = 0`}
-                {state.reputation <= 0 && `${t('reputation')} = 0`}
+              <p className="text-sm text-foreground/70 mt-2 font-sans">{t('gameOverExplain')}</p>
+              <p className="text-xs text-muted-foreground mt-2 font-mono">
+                {state.marketValue <= 0 && `${t('marketValue')} = 0  `}
+                {state.reputation <= 0 && `${t('reputation')} = 0  `}
                 {state.regRisk >= 80 && `${t('regRisk')} ≥ 80`}
               </p>
+            </div>
+
+            <Button onClick={restart} variant="outline" className="w-full font-mono" size="lg">
+              <RotateCcw size={16} className="mr-2" /> {t('restart')}
+            </Button>
+          </StaggerReveal>
+        )}
+
+        {/* Phase: Victory */}
+        {phase === 'victory' && latestResult && (
+          <StaggerReveal key="victory" stagger={600} startDelay={400}>
+            <div className="bg-success/5 border border-success/30 rounded-xl p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <Shield size={18} className="text-success" />
+                <h3 className="font-mono font-bold text-foreground">{t(latestResult.attackKey)} — {t('round')} 5</h3>
+              </div>
+              <p className="text-sm font-sans text-foreground/80">{t('victoryExplain')}</p>
+            </div>
+
+            <div className="bg-success/10 border border-success/30 rounded-xl p-6 text-center">
+              <Trophy size={40} className="mx-auto text-success mb-3" />
+              <h2 className="text-xl font-bold font-mono text-success">{t('victory')}</h2>
+              <p className="text-sm text-foreground/70 mt-2 font-sans">{t('victoryDesc')}</p>
+              <div className="flex gap-4 justify-center mt-4">
+                <div className="text-center">
+                  <p className="text-lg font-bold font-mono text-primary">{state.marketValue}</p>
+                  <p className="text-xs text-muted-foreground">{t('marketValue')}</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-lg font-bold font-mono text-highlight">{state.reputation}</p>
+                  <p className="text-xs text-muted-foreground">{t('reputation')}</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-lg font-bold font-mono text-destructive">{state.regRisk}</p>
+                  <p className="text-xs text-muted-foreground">{t('regRisk')}</p>
+                </div>
+              </div>
             </div>
 
             <Button onClick={restart} variant="outline" className="w-full font-mono" size="lg">
@@ -764,6 +879,60 @@ const CisoSimulator = ({ embedded = false }: { embedded?: boolean }) => {
 };
 
 // ── Sub-Components ──────────────────────────────────────────────────────────
+
+const PhaseSteps = ({ currentPhase, round, t }: {
+  currentPhase: string; round: number; t: (k: string) => string;
+}) => {
+  const steps = [
+    { key: 'allocate', label: t('phase1Label'), num: 1 },
+    { key: 'attack', label: t('phase2Label'), num: 2 },
+    { key: 'result', label: t('phase3Label'), num: 3 },
+  ];
+  const activeIdx = currentPhase === 'allocate' ? 0 : 1; // result/gameover/victory = step 2-3
+
+  return (
+    <div className="mb-5">
+      {/* Round badge */}
+      <div className="flex items-center justify-between mb-3">
+        <span className="text-sm font-mono text-highlight font-bold">{t('round')} {round} {t('of')} 5</span>
+        <div className="h-1.5 flex-1 mx-4 rounded bg-secondary overflow-hidden">
+          <div
+            className="h-full rounded bg-primary transition-all duration-500"
+            style={{ width: `${(round / 5) * 100}%` }}
+          />
+        </div>
+      </div>
+      {/* Step pills */}
+      <div className="flex gap-2">
+        {steps.map((step, i) => {
+          const isActive = (currentPhase === 'allocate' && i === 0) ||
+            ((currentPhase === 'result' || currentPhase === 'gameover' || currentPhase === 'victory') && i >= 1);
+          const isCurrent = (currentPhase === 'allocate' && i === 0) ||
+            ((currentPhase === 'result' || currentPhase === 'gameover' || currentPhase === 'victory') && i === 2);
+          return (
+            <div
+              key={step.key}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-mono transition-all ${
+                isCurrent
+                  ? 'bg-primary/20 text-primary border border-primary/40'
+                  : isActive
+                    ? 'bg-primary/10 text-primary/60'
+                    : 'bg-muted text-muted-foreground'
+              }`}
+            >
+              <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                isCurrent ? 'bg-primary text-primary-foreground' : isActive ? 'bg-primary/30 text-primary' : 'bg-muted-foreground/20'
+              }`}>
+                {step.num}
+              </span>
+              {step.label}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
 
 const StatCard = ({ label, value, max, color, invert, isLevel }: {
   label: string; value: number; max: number; color: string; invert?: boolean; isLevel?: boolean;
