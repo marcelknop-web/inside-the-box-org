@@ -290,13 +290,15 @@ function use432HzAmbient() {
   const ctxRef = useRef<AudioContext | null>(null);
   const nodesRef = useRef<{ oscs: OscillatorNode[]; gains: GainNode[]; master: GainNode } | null>(null);
 
-  const start = useCallback(() => {
+  const start = useCallback(async () => {
     if (ctxRef.current) return;
     const ctx = new AudioContext();
+    // Resume context (required by browsers after user gesture)
+    if (ctx.state === 'suspended') await ctx.resume();
     ctxRef.current = ctx;
 
     const master = ctx.createGain();
-    master.gain.value = 0;
+    master.gain.setValueAtTime(0, ctx.currentTime);
     master.gain.linearRampToValueAtTime(0.35, ctx.currentTime + 3);
     master.connect(ctx.destination);
 
