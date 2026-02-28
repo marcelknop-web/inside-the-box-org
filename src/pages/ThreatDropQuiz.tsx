@@ -187,14 +187,28 @@ const SPRITES: Record<ThreatShape, number[]> = {
   ],
 };
 
-const drawShape = (ctx: CanvasRenderingContext2D, shape: ThreatShape, size: number, color: string) => {
+const drawShape = (ctx: CanvasRenderingContext2D, shape: ThreatShape, size: number, color: string, time = 0) => {
   const sprite = SPRITES[shape];
   const cols = 11;
   const rows = sprite.length;
   const px = size / cols;
-  ctx.fillStyle = color;
   const ox = -(cols * px) / 2;
   const oy = -(rows * px) / 2;
+  const totalH = rows * px;
+
+  // Dynamic gradient if color is 'gradient' – animated hue shift
+  if (color === 'gradient') {
+    const hue1 = (time * 0.04) % 360;
+    const hue2 = (hue1 + 120) % 360;
+    const grad = ctx.createLinearGradient(ox, oy, ox, oy + totalH);
+    grad.addColorStop(0, `hsl(${hue1}, 85%, 65%)`);
+    grad.addColorStop(0.5, `hsl(${(hue1 + 60) % 360}, 90%, 55%)`);
+    grad.addColorStop(1, `hsl(${hue2}, 80%, 60%)`);
+    ctx.fillStyle = grad;
+  } else {
+    ctx.fillStyle = color;
+  }
+
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
       if (sprite[r] & (1 << (cols - 1 - c))) {
@@ -680,12 +694,13 @@ const ThreatDropQuiz = ({ embedded }: { embedded?: boolean }) => {
         ctx.shadowColor = glowColor;
         ctx.shadowBlur = (8 + urgency * 15) * glowPulse;
 
-        // Draw shape – bigger sprite
-        drawShape(ctx, t.shape, 55, col);
+        // Draw shape – dynamic gradient for active threats, lane color for caught
+        const spriteColor = (!t.caught && !t.missed) ? 'gradient' : col;
+        drawShape(ctx, t.shape, 55, spriteColor, now);
 
         // Second pass for glow layer
         ctx.globalAlpha = alpha * 0.3 * glowPulse;
-        drawShape(ctx, t.shape, 60, glowColor);
+        drawShape(ctx, t.shape, 60, glowColor, now);
         ctx.globalAlpha = alpha;
         ctx.shadowBlur = 0;
 

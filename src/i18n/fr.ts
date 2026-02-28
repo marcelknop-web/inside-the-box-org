@@ -308,6 +308,8 @@ export const fr = {
     agentThreatDropDesc: 'Quiz expert généré par IA – chaque question est créée en temps réel au niveau CISO/SOC Lead',
     agentTriggerTriageTitle: 'Trigger Triage',
     agentTriggerTriageDesc: 'Jeu de stand de tir – classer les incidents par priorité sous pression temporelle',
+    agentFroggerTitle: 'Cyber Frogger',
+    agentFroggerDesc: 'Naviguez à travers les cybermenaces et les journaux d\'audit – classique arcade et cybersécurité',
     agentYtTitle: 'Vidéos d\'injection pour exercices',
     agentYtDesc: 'Vidéos d\'actualité générées par IA comme briefings situationnels réalistes en exercices de crise',
   },

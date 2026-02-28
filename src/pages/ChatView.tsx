@@ -19,6 +19,7 @@ import Nis2AwarenessQuiz from './Nis2AwarenessQuiz';
 import CisoSimulator from './CisoSimulator';
 import ThreatDropQuiz from './ThreatDropQuiz';
 import TriggerTriage from './TriggerTriage';
+import CyberFrogger from './CyberFrogger';
 import { StaggerReveal } from '@/components/StaggerReveal';
 import GlitchText from '@/components/GlitchText';
 import Typewriter from '@/components/Typewriter';
@@ -605,6 +606,13 @@ const useServiceContent = () => {
                 <p className="text-foreground/80 text-xs">{t('aiWorkflows.agentTriggerTriageDesc')}</p>
               </div>
             </button>
+            <button onClick={() => setActive('cyber-frogger')} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
+              <Gamepad2 size={20} className="text-highlight mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="text-highlight font-semibold font-mono text-sm">{t('aiWorkflows.agentFroggerTitle')}</p>
+                <p className="text-foreground/80 text-xs">{t('aiWorkflows.agentFroggerDesc')}</p>
+              </div>
+            </button>
             <button onClick={() => setYtDialogOpen(true)} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
               <Play size={20} className="text-highlight mt-0.5 flex-shrink-0" />
               <div>
@@ -1051,6 +1059,8 @@ const ChatView = () => {
     ? <ThreatDropQuiz embedded />
     : activeService === 'trigger-triage'
     ? <TriggerTriage embedded />
+    : activeService === 'cyber-frogger'
+    ? <CyberFrogger embedded />
     : activeService === 'system-check'
     ? <InlineSystemCheck t={t} />
     : activeService && contentMap[activeService] ? contentMap[activeService]() : null;

@@ -308,6 +308,8 @@ export const de = {
     agentThreatDropDesc: 'KI-generiertes Experten-Quiz – jede Frage wird in Echtzeit erzeugt, auf CISO/SOC-Lead-Niveau',
     agentTriggerTriageTitle: 'Trigger Triage',
     agentTriggerTriageDesc: 'Schießstand-Spiel – Incidents blitzschnell der richtigen Priorität zuordnen',
+    agentFroggerTitle: 'Cyber Frogger',
+    agentFroggerDesc: 'Navigieren Sie durch Cyber-Bedrohungen und Audit-Logs – Arcade-Klassiker trifft Cybersecurity',
     agentYtTitle: 'Video-Einspieler für Übungen',
     agentYtDesc: 'KI-generierte Nachrichten-Videos als realistische Lagebilder in Krisenstabsübungen',
   },
