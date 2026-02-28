@@ -532,7 +532,64 @@ function use432HzAmbient() {
   return { playing, start, stop };
 }
 
+/* ── Laser Flash Overlay ── */
+function LaserFlash() {
+  const [flash, setFlash] = useState<{ opacity: number; hue: number; lines: { x1: number; y1: number; x2: number; y2: number; w: number }[] } | null>(null);
+  const timerRef = useRef<number | null>(null);
 
+  useEffect(() => {
+    const trigger = () => {
+      // Random complex laser burst
+      const lineCount = 4 + Math.floor(Math.random() * 8);
+      const hue = Math.random() * 60 + 140; // cyan-green-blue range
+      const lines = Array.from({ length: lineCount }, () => {
+        const cx = 30 + Math.random() * 40;
+        const cy = 20 + Math.random() * 60;
+        const angle = Math.random() * Math.PI * 2;
+        const len = 15 + Math.random() * 70;
+        return {
+          x1: cx, y1: cy,
+          x2: cx + Math.cos(angle) * len, y2: cy + Math.sin(angle) * len,
+          w: 0.3 + Math.random() * 2.5,
+        };
+      });
+      setFlash({ opacity: 0.9 + Math.random() * 0.1, hue, lines });
+      // Rapid fade: 80-180ms
+      setTimeout(() => setFlash(prev => prev ? { ...prev, opacity: prev.opacity * 0.4 } : null), 40);
+      setTimeout(() => setFlash(prev => prev ? { ...prev, opacity: prev.opacity * 0.2 } : null), 90);
+      setTimeout(() => setFlash(null), 160 + Math.random() * 60);
+      // Next flash: 8-35 seconds
+      timerRef.current = window.setTimeout(trigger, 8000 + Math.random() * 27000);
+    };
+    timerRef.current = window.setTimeout(trigger, 5000 + Math.random() * 10000);
+    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
+  }, []);
+
+  if (!flash) return null;
+  const c = `hsl(${flash.hue}, 100%, 75%)`;
+  const cBright = `hsl(${flash.hue}, 100%, 95%)`;
+  return (
+    <div className="absolute inset-0 pointer-events-none z-20" style={{ opacity: flash.opacity }}>
+      {/* Screen flash */}
+      <div className="absolute inset-0" style={{
+        background: `radial-gradient(ellipse at ${40 + Math.random() * 20}% ${30 + Math.random() * 40}%, ${c}18, transparent 70%)`,
+      }} />
+      {/* Laser lines */}
+      <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+        {flash.lines.map((l, i) => (
+          <g key={i}>
+            {/* Glow */}
+            <line x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2}
+              stroke={c} strokeWidth={l.w * 3} opacity={0.3} strokeLinecap="round" />
+            {/* Core */}
+            <line x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2}
+              stroke={cBright} strokeWidth={l.w} opacity={0.9} strokeLinecap="round" />
+          </g>
+        ))}
+      </svg>
+    </div>
+  );
+}
 
 /* ── Main ── */
 export default function EliteShipScene() {
@@ -550,10 +607,10 @@ export default function EliteShipScene() {
         <CockpitCamera />
         <RealisticStarfield />
         <Rain />
-        
         {surfaceRocks.map((r, i) => <Rock key={`s${i}`} {...r} />)}
         {floatingRocks.map((r, i) => <Rock key={`f${i}`} {...r} />)}
       </Canvas>
+      <LaserFlash />
       <CockpitHUD />
 
       <button
