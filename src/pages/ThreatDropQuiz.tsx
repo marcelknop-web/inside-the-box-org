@@ -584,21 +584,28 @@ const ThreatDropQuiz = ({ embedded }: { embedded?: boolean }) => {
         ctx.scale(scale, scale);
 
         const urgency = Math.max(0, 1 - Math.abs(t.y - deadlineY) / 250);
-        ctx.shadowColor = t.caught ? LANES[t.lane].color : (urgency > 0.5 ? C.red : C.cyan);
-        ctx.shadowBlur = 6 + urgency * 14;
+        const glowPulse = 0.7 + Math.sin(now * 0.008 + t.id * 2) * 0.3;
+        const glowColor = t.caught ? LANES[t.lane].color : (urgency > 0.5 ? C.red : LANES[t.lane].color);
+        ctx.shadowColor = glowColor;
+        ctx.shadowBlur = (10 + urgency * 20) * glowPulse;
 
-        // Draw shape instead of box
-        drawShape(ctx, t.shape, 38, col);
+        // Draw shape – bigger sprite
+        drawShape(ctx, t.shape, 55, col);
+
+        // Second pass for glow layer
+        ctx.globalAlpha = alpha * 0.3 * glowPulse;
+        drawShape(ctx, t.shape, 60, glowColor);
+        ctx.globalAlpha = alpha;
         ctx.shadowBlur = 0;
 
         // Label below shape
-        ctx.font = 'bold 13px monospace'; ctx.textAlign = 'center';
+        ctx.font = 'bold 14px monospace'; ctx.textAlign = 'center';
         ctx.fillStyle = col;
-        ctx.fillText(t.label, 0, 38);
+        ctx.fillText(t.label, 0, 46);
 
         // Hint
-        ctx.font = '11px monospace'; ctx.fillStyle = 'rgba(255,255,255,0.45)';
-        ctx.fillText(t.hint, 0, 54);
+        ctx.font = '11px monospace'; ctx.fillStyle = 'rgba(255,255,255,0.5)';
+        ctx.fillText(t.hint, 0, 62);
 
         if (t.caught) {
           ctx.font = '10px monospace'; ctx.fillStyle = LANES[t.lane].color;
