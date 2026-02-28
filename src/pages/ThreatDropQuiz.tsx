@@ -542,10 +542,9 @@ const ThreatDropQuiz = ({ embedded }: { embedded?: boolean }) => {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       if (g.shakeT > 0) { const i = g.shakeT * 15; ctx.translate((Math.random() - 0.5) * i, (Math.random() - 0.5) * i); }
 
-      ctx.fillStyle = C.bg; ctx.fillRect(-10, -10, w + 20, h + 20);
-      ctx.strokeStyle = C.grid; ctx.lineWidth = 1;
-      for (let x = 0; x < w; x += 40) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
-      for (let y = 0; y < h; y += 40) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
+      ctx.clearRect(-10, -10, w + 20, h + 20);
+      // Semi-transparent overlay to dim the millimeter paper slightly
+      ctx.fillStyle = 'rgba(5,6,10,0.55)'; ctx.fillRect(-10, -10, w + 20, h + 20);
 
       if (g.phase === 'play') {
         ctx.setLineDash([6, 8]); ctx.strokeStyle = C.red + '30'; ctx.lineWidth = 1;
@@ -716,7 +715,7 @@ const ThreatDropQuiz = ({ embedded }: { embedded?: boolean }) => {
   return (
     <div ref={containerRef}
       className={`relative overflow-hidden ${embedded ? 'w-full h-[500px] rounded-xl' : 'w-full h-screen'}`}
-      style={{ background: C.bg, cursor: 'pointer' }}>
+      style={{ cursor: 'pointer' }}>
       {!embedded && <PageMeta title="ThreatDrop" description="Arcade Cybersecurity Game" />}
       <canvas ref={canvasRef} className="block w-full h-full" />
     </div>
