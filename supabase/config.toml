@@ -17,3 +17,6 @@ verify_jwt = false
 
 [functions.threatdrop-question]
 verify_jwt = false
+
+[functions.elevenlabs-music]
+verify_jwt = false
