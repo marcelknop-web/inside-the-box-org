@@ -102,13 +102,11 @@ function useFloatingRocks() {
   }, []);
 }
 
-/* ── Rain particle system with physics ── */
+/* ── Infinite Rain – no ground, no spawn edge ── */
 const RAIN_COUNT = 1200;
-const RAIN_AREA = { x: 120, y: 40, z: 80 };
-const GROUND_Y = -7;
-const GRAVITY = -12;
-const TERMINAL_VELOCITY = -25;
-const SPLASH_FADE = 0.3;
+const RAIN_SPREAD = { x: 120, y: 80, z: 80 };
+const FALL_SPEED_MIN = 12;
+const FALL_SPEED_MAX = 22;
 
 function Rain() {
   const pointsRef = useRef<THREE.Points>(null);
@@ -116,21 +114,17 @@ function Rain() {
   const { camera } = useThree();
   const timeRef = useRef(0);
 
-  const { positions, velocities, alphas, splashTimers } = useMemo(() => {
+  const { positions, speeds } = useMemo(() => {
     const pos = new Float32Array(RAIN_COUNT * 3);
-    const vel = new Float32Array(RAIN_COUNT);
-    const alpha = new Float32Array(RAIN_COUNT);
-    const splash = new Float32Array(RAIN_COUNT);
+    const spd = new Float32Array(RAIN_COUNT);
     for (let i = 0; i < RAIN_COUNT; i++) {
       const i3 = i * 3;
-      pos[i3] = (Math.random() - 0.5) * RAIN_AREA.x;
-      pos[i3 + 1] = Math.random() * RAIN_AREA.y - 5;
-      pos[i3 + 2] = (Math.random() - 0.5) * RAIN_AREA.z;
-      vel[i] = -8 - Math.random() * 6;
-      alpha[i] = 0.15 + Math.random() * 0.4;
-      splash[i] = 0;
+      pos[i3] = (Math.random() - 0.5) * RAIN_SPREAD.x;
+      pos[i3 + 1] = (Math.random() - 0.5) * RAIN_SPREAD.y;
+      pos[i3 + 2] = (Math.random() - 0.5) * RAIN_SPREAD.z;
+      spd[i] = FALL_SPEED_MIN + Math.random() * (FALL_SPEED_MAX - FALL_SPEED_MIN);
     }
-    return { positions: pos, velocities: vel, alphas: alpha, splashTimers: splash };
+    return { positions: pos, speeds: spd };
   }, []);
 
   const colorsArr = useMemo(() => {
@@ -145,69 +139,43 @@ function Rain() {
     if (!pointsRef.current) return;
     timeRef.current += dt;
 
-    // Cyclic rain: shorter periods, more frequent showers
-    const cycle = timeRef.current * 0.35; // faster cycle ~18s
+    const cycle = timeRef.current * 0.35;
     const intensity = Math.max(0, Math.sin(cycle) * 0.5 + Math.sin(cycle * 1.7) * 0.3 + Math.sin(cycle * 3.1) * 0.2);
     if (matRef.current) {
       matRef.current.opacity = intensity * 0.6;
     }
 
     const posAttr = pointsRef.current.geometry.attributes.position as THREE.BufferAttribute;
-    const colAttr = pointsRef.current.geometry.attributes.color as THREE.BufferAttribute;
     const pos = posAttr.array as Float32Array;
-    const col = colAttr.array as Float32Array;
     const camX = camera.position.x;
+    const camY = camera.position.y;
     const camZ = camera.position.z;
-
-    // Only simulate particles proportional to intensity
-    const activeCount = Math.floor(RAIN_COUNT * Math.max(0.05, intensity));
+    const halfY = RAIN_SPREAD.y * 0.5;
+    const halfX = RAIN_SPREAD.x * 0.5;
+    const halfZ = RAIN_SPREAD.z * 0.5;
 
     for (let i = 0; i < RAIN_COUNT; i++) {
       const i3 = i * 3;
+      // Constant fall – no gravity, no ground
+      pos[i3 + 1] -= speeds[i] * dt;
+      // Subtle horizontal drift
+      pos[i3] += Math.sin(pos[i3 + 1] * 0.5) * 0.015;
 
-      // Hide inactive particles far away
-      if (i >= activeCount && splashTimers[i] <= 0) {
-        pos[i3 + 1] = -100;
-        continue;
+      // Wrap seamlessly around camera – appears from above, disappears below
+      if (pos[i3 + 1] < camY - halfY) {
+        pos[i3 + 1] = camY + halfY + Math.random() * 5;
+        pos[i3] = camX + (Math.random() - 0.5) * RAIN_SPREAD.x;
+        pos[i3 + 2] = camZ + (Math.random() - 0.5) * RAIN_SPREAD.z;
       }
-
-      if (splashTimers[i] > 0) {
-        splashTimers[i] -= dt;
-        const t = splashTimers[i] / SPLASH_FADE;
-        col[i3] = 0 + (1 - t) * 0.5;
-        col[i3 + 1] = 1;
-        col[i3 + 2] = 0.67 + (1 - t) * 0.33;
-        pos[i3] += (Math.random() - 0.5) * 0.3;
-        pos[i3 + 2] += (Math.random() - 0.5) * 0.3;
-        pos[i3 + 1] = GROUND_Y + 0.1;
-        if (splashTimers[i] <= 0) {
-          pos[i3] = camX + (Math.random() - 0.5) * RAIN_AREA.x;
-          pos[i3 + 1] = camera.position.y + 10 + Math.random() * RAIN_AREA.y * 0.5;
-          pos[i3 + 2] = camZ + (Math.random() - 0.5) * RAIN_AREA.z;
-          velocities[i] = -8 - Math.random() * 6;
-          col[i3] = 0; col[i3 + 1] = 1; col[i3 + 2] = 0.67;
-        }
-      } else {
-        velocities[i] += GRAVITY * dt;
-        if (velocities[i] < TERMINAL_VELOCITY) velocities[i] = TERMINAL_VELOCITY;
-        pos[i3 + 1] += velocities[i] * dt;
-        pos[i3] += Math.sin(pos[i3 + 1] * 0.5) * 0.02;
-        if (pos[i3 + 1] <= GROUND_Y) {
-          pos[i3 + 1] = GROUND_Y;
-          splashTimers[i] = SPLASH_FADE * (0.5 + Math.random() * 0.5);
-        }
-        const dx = pos[i3] - camX;
-        const dz = pos[i3 + 2] - camZ;
-        if (dx * dx + dz * dz > 3600) {
-          pos[i3] = camX + (Math.random() - 0.5) * RAIN_AREA.x;
-          pos[i3 + 1] = camera.position.y + 10 + Math.random() * 20;
-          pos[i3 + 2] = camZ + (Math.random() - 0.5) * RAIN_AREA.z;
-          velocities[i] = -8 - Math.random() * 6;
-        }
+      // Keep horizontally centered on camera
+      if (Math.abs(pos[i3] - camX) > halfX) {
+        pos[i3] = camX + (Math.random() - 0.5) * RAIN_SPREAD.x;
+      }
+      if (Math.abs(pos[i3 + 2] - camZ) > halfZ) {
+        pos[i3 + 2] = camZ + (Math.random() - 0.5) * RAIN_SPREAD.z;
       }
     }
     posAttr.needsUpdate = true;
-    colAttr.needsUpdate = true;
   });
 
   return (
