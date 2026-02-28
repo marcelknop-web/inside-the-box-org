@@ -583,7 +583,7 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
   const timerUrgent = timeLeft <= 10;
   const timerCritical = timeLeft <= 5;
 
-  const wrapperClass = embedded ? 'space-y-3' : 'min-h-screen p-4 max-w-3xl mx-auto';
+  const wrapperClass = embedded ? 'space-y-3' : 'min-h-screen p-4 max-w-3xl mx-auto bg-transparent';
 
   // ── Entry screen ──
   if (!started) {

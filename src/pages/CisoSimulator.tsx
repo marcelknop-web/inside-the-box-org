@@ -479,7 +479,7 @@ const CisoSimulator = ({ embedded = false }: { embedded?: boolean }) => {
 
   const containerClass = embedded
     ? 'w-full max-w-3xl mx-auto p-4 md:p-6'
-    : 'min-h-screen bg-background p-4 md:p-8';
+    : 'min-h-screen p-4 md:p-8';
 
   return (
     <div className={containerClass}>

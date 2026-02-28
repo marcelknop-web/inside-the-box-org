@@ -584,19 +584,10 @@ const TriggerTriage = ({ embedded }: { embedded?: boolean }) => {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       if (g.shakeT > 0) { const i = g.shakeT * 14; ctx.translate((Math.random() - 0.5) * i, (Math.random() - 0.5) * i); }
 
-      // ── Background ──
-      const wallGrad = ctx.createLinearGradient(0, 0, 0, h);
-      wallGrad.addColorStop(0, '#0c0e16');
-      wallGrad.addColorStop(0.4, '#111420');
-      wallGrad.addColorStop(1, '#08090e');
-      ctx.fillStyle = wallGrad;
+      // ── Background – transparent with subtle overlay ──
+      ctx.clearRect(0, 0, w, h);
+      ctx.fillStyle = 'rgba(10,12,18,0.55)';
       ctx.fillRect(0, 0, w, h);
-
-      // Subtle grid
-      ctx.strokeStyle = 'rgba(255,255,255,0.02)';
-      ctx.lineWidth = 1;
-      for (let x = 0; x < w; x += 50) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
-      for (let y = 0; y < h; y += 50) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
 
       const targets = getTargets(w, h);
 
@@ -1003,7 +994,7 @@ const TriggerTriage = ({ embedded }: { embedded?: boolean }) => {
     <div
       ref={containerRef}
       className={`relative overflow-hidden ${embedded ? 'w-full h-[500px] rounded-xl' : 'w-full h-screen'}`}
-      style={{ background: C.bg }}
+      style={{ background: 'transparent' }}
     >
       {!embedded && <PageMeta title="Trigger Triage" description="Incident Priority Shooting Range" />}
       <canvas ref={canvasRef} className="block w-full h-full" />

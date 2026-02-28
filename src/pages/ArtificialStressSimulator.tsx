@@ -49,8 +49,8 @@ const MatrixStart = ({ embedded = false }: { embedded?: boolean }) => {
   }, []);
 
   const containerClass = embedded
-    ? "relative w-full bg-black overflow-hidden rounded-lg"
-    : "fixed inset-0 bg-black overflow-hidden cursor-default select-none";
+    ? "relative w-full bg-black/60 overflow-hidden rounded-lg"
+    : "fixed inset-0 bg-black/60 overflow-hidden cursor-default select-none";
 
   const containerStyle = embedded ? { minHeight: '70vh' } : undefined;
 
