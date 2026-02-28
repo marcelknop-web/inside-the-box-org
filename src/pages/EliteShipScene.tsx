@@ -102,35 +102,43 @@ function useFloatingRocks() {
   }, []);
 }
 
-/* ── Infinite Rain – no ground, no spawn edge ── */
+/* ── Infinite Rain – natural cycle, depth blur ── */
 const RAIN_COUNT = 1200;
 const RAIN_SPREAD = { x: 120, y: 80, z: 80 };
 const FALL_SPEED_MIN = 12;
 const FALL_SPEED_MAX = 22;
+const NEAR_BLUR_DIST = 6;   // drops closer than this get blurry/large
+const FAR_BLUR_DIST = 50;   // drops farther than this fade out
 
 function Rain() {
   const pointsRef = useRef<THREE.Points>(null);
-  const matRef = useRef<THREE.PointsMaterial>(null);
   const { camera } = useThree();
   const timeRef = useRef(0);
 
-  const { positions, speeds } = useMemo(() => {
+  const { positions, speeds, sizes, alphas } = useMemo(() => {
     const pos = new Float32Array(RAIN_COUNT * 3);
     const spd = new Float32Array(RAIN_COUNT);
+    const sz = new Float32Array(RAIN_COUNT);
+    const al = new Float32Array(RAIN_COUNT);
     for (let i = 0; i < RAIN_COUNT; i++) {
       const i3 = i * 3;
       pos[i3] = (Math.random() - 0.5) * RAIN_SPREAD.x;
       pos[i3 + 1] = (Math.random() - 0.5) * RAIN_SPREAD.y;
       pos[i3 + 2] = (Math.random() - 0.5) * RAIN_SPREAD.z;
       spd[i] = FALL_SPEED_MIN + Math.random() * (FALL_SPEED_MAX - FALL_SPEED_MIN);
+      sz[i] = 0.1;
+      al[i] = 1;
     }
-    return { positions: pos, speeds: spd };
+    return { positions: pos, speeds: spd, sizes: sz, alphas: al };
   }, []);
 
+  // alive[i]: 1 = active, 0 = fell out of view, waiting for next cycle
+  const alive = useMemo(() => new Uint8Array(RAIN_COUNT).fill(1), []);
+
   const colorsArr = useMemo(() => {
-    const c = new Float32Array(RAIN_COUNT * 3);
+    const c = new Float32Array(RAIN_COUNT * 4); // RGBA
     for (let i = 0; i < RAIN_COUNT; i++) {
-      c[i * 3] = 0; c[i * 3 + 1] = 1; c[i * 3 + 2] = 0.67;
+      c[i * 4] = 0; c[i * 4 + 1] = 1; c[i * 4 + 2] = 0.67; c[i * 4 + 3] = 0.5;
     }
     return c;
   }, []);
@@ -139,57 +147,101 @@ function Rain() {
     if (!pointsRef.current) return;
     timeRef.current += dt;
 
+    // Cyclic intensity – controls spawning, NOT opacity
     const cycle = timeRef.current * 0.35;
     const intensity = Math.max(0, Math.sin(cycle) * 0.5 + Math.sin(cycle * 1.7) * 0.3 + Math.sin(cycle * 3.1) * 0.2);
-    if (matRef.current) {
-      matRef.current.opacity = intensity * 0.6;
-    }
+    const spawning = intensity > 0.05;
 
     const posAttr = pointsRef.current.geometry.attributes.position as THREE.BufferAttribute;
+    const colAttr = pointsRef.current.geometry.attributes.color as THREE.BufferAttribute;
+    const sizeAttr = pointsRef.current.geometry.attributes.size as THREE.BufferAttribute;
     const pos = posAttr.array as Float32Array;
-    const camX = camera.position.x;
-    const camY = camera.position.y;
-    const camZ = camera.position.z;
+    const col = colAttr.array as Float32Array;
+    const sz = sizeAttr.array as Float32Array;
+    const camPos = camera.position;
     const halfY = RAIN_SPREAD.y * 0.5;
-    const halfX = RAIN_SPREAD.x * 0.5;
-    const halfZ = RAIN_SPREAD.z * 0.5;
 
     for (let i = 0; i < RAIN_COUNT; i++) {
       const i3 = i * 3;
-      // Constant fall – no gravity, no ground
-      pos[i3 + 1] -= speeds[i] * dt;
-      // Subtle horizontal drift
-      pos[i3] += Math.sin(pos[i3 + 1] * 0.5) * 0.015;
+      const i4 = i * 4;
 
-      // Wrap seamlessly around camera – appears from above, disappears below
-      if (pos[i3 + 1] < camY - halfY) {
-        pos[i3 + 1] = camY + halfY + Math.random() * 5;
-        pos[i3] = camX + (Math.random() - 0.5) * RAIN_SPREAD.x;
-        pos[i3 + 2] = camZ + (Math.random() - 0.5) * RAIN_SPREAD.z;
+      if (alive[i] === 0) {
+        // Dead drop – respawn only if cycle is active
+        if (spawning && Math.random() < intensity * 0.08) {
+          alive[i] = 1;
+          pos[i3] = camPos.x + (Math.random() - 0.5) * RAIN_SPREAD.x;
+          pos[i3 + 1] = camPos.y + halfY + Math.random() * 10;
+          pos[i3 + 2] = camPos.z + (Math.random() - 0.5) * RAIN_SPREAD.z;
+          speeds[i] = FALL_SPEED_MIN + Math.random() * (FALL_SPEED_MAX - FALL_SPEED_MIN);
+        } else {
+          // Park offscreen
+          pos[i3 + 1] = -9999;
+          col[i4 + 3] = 0;
+          sz[i] = 0;
+          continue;
+        }
       }
-      // Keep horizontally centered on camera
-      if (Math.abs(pos[i3] - camX) > halfX) {
-        pos[i3] = camX + (Math.random() - 0.5) * RAIN_SPREAD.x;
+
+      // Fall
+      pos[i3 + 1] -= speeds[i] * dt;
+      pos[i3] += Math.sin(pos[i3 + 1] * 0.5) * 0.012;
+
+      // Depth from camera
+      const dx = pos[i3] - camPos.x;
+      const dy = pos[i3 + 1] - camPos.y;
+      const dz = pos[i3 + 2] - camPos.z;
+      const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
+
+      // Depth-of-field: close drops are big & blurry, mid-range sharp, far fades
+      if (dist < NEAR_BLUR_DIST) {
+        // Very close – large, semi-transparent (bokeh-like blur)
+        const t = dist / NEAR_BLUR_DIST; // 0=touching camera, 1=at threshold
+        sz[i] = 0.6 + (1 - t) * 1.2; // bigger when closer
+        col[i4 + 3] = 0.12 + t * 0.25; // faint when super close
+        col[i4] = 0.15; col[i4 + 1] = 0.9; col[i4 + 2] = 0.6;
+      } else if (dist < FAR_BLUR_DIST) {
+        // Mid-range – sharp, bright
+        sz[i] = 0.08 + Math.random() * 0.04;
+        col[i4 + 3] = 0.35 + Math.random() * 0.25;
+        col[i4] = 0; col[i4 + 1] = 1; col[i4 + 2] = 0.67;
+      } else {
+        // Far – small, fading
+        const t = Math.min((dist - FAR_BLUR_DIST) / 30, 1);
+        sz[i] = 0.06;
+        col[i4 + 3] = 0.2 * (1 - t);
+        col[i4] = 0; col[i4 + 1] = 0.8; col[i4 + 2] = 0.55;
       }
-      if (Math.abs(pos[i3 + 2] - camZ) > halfZ) {
-        pos[i3 + 2] = camZ + (Math.random() - 0.5) * RAIN_SPREAD.z;
+
+      // Fell below view – die naturally, don't respawn immediately
+      if (pos[i3 + 1] < camPos.y - halfY - 10) {
+        alive[i] = 0;
+        continue;
+      }
+
+      // Horizontal wrap (seamless)
+      if (Math.abs(dx) > RAIN_SPREAD.x * 0.5) {
+        pos[i3] = camPos.x + (Math.random() - 0.5) * RAIN_SPREAD.x;
+      }
+      if (Math.abs(dz) > RAIN_SPREAD.z * 0.5) {
+        pos[i3 + 2] = camPos.z + (Math.random() - 0.5) * RAIN_SPREAD.z;
       }
     }
     posAttr.needsUpdate = true;
+    colAttr.needsUpdate = true;
+    sizeAttr.needsUpdate = true;
   });
 
   return (
     <points ref={pointsRef}>
       <bufferGeometry>
         <bufferAttribute attach="attributes-position" args={[positions, 3]} />
-        <bufferAttribute attach="attributes-color" args={[colorsArr, 3]} />
+        <bufferAttribute attach="attributes-color" args={[colorsArr, 4]} />
+        <bufferAttribute attach="attributes-size" args={[sizes, 1]} />
       </bufferGeometry>
       <pointsMaterial
-        ref={matRef}
-        size={0.12}
+        size={0.15}
         vertexColors
         transparent
-        opacity={0}
         sizeAttenuation
         depthWrite={false}
         blending={THREE.AdditiveBlending}
