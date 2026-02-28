@@ -7,55 +7,46 @@ import { ConvexGeometry } from 'three/addons/geometries/ConvexGeometry.js';
 const LINE_COLOR = '#00ffaa';
 const BG = '#000000';
 
-/* ── Build a random convex polyhedron from scratch ── */
-function buildPolyhedronAsteroid(seed: number, radius: number): { geo: THREE.BufferGeometry; edges: Float32Array } {
+/* ── Random convex polyhedron ── */
+function buildPolyhedron(seed: number, radius: number): { geo: THREE.BufferGeometry; edges: Float32Array } {
   const rng = (i: number) => {
     let x = Math.sin(seed * 9301 + i * 49297 + 0.1) * 49297;
     return x - Math.floor(x);
   };
 
-  // Generate random vertices on a deformed sphere
-  const numVerts = 6 + Math.floor(rng(0) * 7); // 6–12 vertices
+  const numVerts = 5 + Math.floor(rng(0) * 8);
   const verts: THREE.Vector3[] = [];
-
   for (let i = 0; i < numVerts; i++) {
-    // Distribute points using golden spiral for even coverage
-    const y = 1 - (i / (numVerts - 1)) * 2; // -1 to 1
-    const radiusAtY = Math.sqrt(1 - y * y);
-    const theta = ((2 * Math.PI * i) / 1.618033988749895) + rng(i + 20) * 0.8;
-    const r = radius * (0.5 + rng(i + 50) * 0.8); // varied distance
+    const y = 1 - (i / (numVerts - 1)) * 2;
+    const ry = Math.sqrt(1 - y * y);
+    const theta = (2 * Math.PI * i) / 1.618033988749895 + rng(i + 20) * 0.8;
+    const r = radius * (0.5 + rng(i + 50) * 0.8);
     verts.push(new THREE.Vector3(
-      Math.cos(theta) * radiusAtY * r,
-      y * r * (0.6 + rng(i + 70) * 0.8),
-      Math.sin(theta) * radiusAtY * r
+      Math.cos(theta) * ry * r,
+      y * r * (0.4 + rng(i + 70) * 0.9),
+      Math.sin(theta) * ry * r
     ));
   }
 
-  // Build convex hull using ConvexGeometry approach:
-  // Use Three.js ConvexGeometry via manual triangulation
   const geo = new ConvexGeometry(verts);
-
-  // Non-uniform stretch for variety
-  const sx = 0.7 + rng(100) * 0.7;
-  const sy = 0.5 + rng(101) * 1.0;
-  const sz = 0.7 + rng(102) * 0.7;
+  const sx = 0.6 + rng(100) * 0.8;
+  const sy = 0.3 + rng(101) * 0.7;
+  const sz = 0.6 + rng(102) * 0.8;
   geo.scale(sx, sy, sz);
   geo.computeVertexNormals();
 
   const edgesGeo = new THREE.EdgesGeometry(geo, 1);
   const arr = new Float32Array(edgesGeo.attributes.position.array);
   edgesGeo.dispose();
-
   return { geo, edges: arr };
 }
 
-/* ── Single Asteroid ── */
-function Asteroid({ seed, radius, position: pos, rotSpeed }: {
-  seed: number; radius: number; position: [number, number, number];
-  rotSpeed: [number, number, number];
+/* ── Single polyhedron rock ── */
+function Rock({ seed, radius, position: pos, rotSpeed }: {
+  seed: number; radius: number; position: [number, number, number]; rotSpeed: [number, number, number];
 }) {
   const ref = useRef<THREE.Group>(null);
-  const { geo, edges } = useMemo(() => buildPolyhedronAsteroid(seed, radius), [seed, radius]);
+  const { geo, edges } = useMemo(() => buildPolyhedron(seed, radius), [seed, radius]);
 
   useFrame((_, dt) => {
     if (!ref.current) return;
@@ -73,118 +64,153 @@ function Asteroid({ seed, radius, position: pos, rotSpeed }: {
         <bufferGeometry>
           <bufferAttribute attach="attributes-position" args={[edges, 3]} />
         </bufferGeometry>
-        <lineBasicMaterial color={LINE_COLOR} transparent opacity={0.85} depthTest />
+        <lineBasicMaterial color={LINE_COLOR} transparent opacity={0.8} depthTest />
       </lineSegments>
     </group>
   );
 }
 
-/* ── Asteroid field ── */
-const ASTEROIDS = (() => {
-  const rng = (i: number, off: number) => {
-    let x = Math.sin(i * 127.1 + off * 311.7) * 43758.5453;
-    return x - Math.floor(x);
-  };
-  return Array.from({ length: 18 }, (_, i) => ({
-    seed: i * 17 + 3,
-    radius: 1.5 + rng(i, 0) * 6,
-    position: [
-      15 + rng(i, 1) * 80,
-      rng(i, 2) * 30 - 15,
-      rng(i, 3) * 60 - 30,
-    ] as [number, number, number],
-    rotSpeed: [
-      (rng(i, 7) - 0.5) * 0.2,
-      (rng(i, 8) - 0.5) * 0.3,
-      (rng(i, 9) - 0.5) * 0.15,
-    ] as [number, number, number],
-  }));
-})();
+/* ── Surface: grid of polyhedra forming terrain ── */
+function useSurfaceRocks() {
+  return useMemo(() => {
+    const rng = (i: number, off: number) => {
+      let x = Math.sin(i * 127.1 + off * 311.7) * 43758.5453;
+      return x - Math.floor(x);
+    };
+    const rocks: { seed: number; radius: number; position: [number, number, number]; rotSpeed: [number, number, number] }[] = [];
+    const gridX = 20;
+    const gridZ = 12;
+    const spacing = 6;
+    let idx = 0;
+    for (let gx = 0; gx < gridX; gx++) {
+      for (let gz = 0; gz < gridZ; gz++) {
+        const r = 1.5 + rng(idx, 0) * 3;
+        const jitterX = (rng(idx, 1) - 0.5) * spacing * 0.7;
+        const jitterZ = (rng(idx, 2) - 0.5) * spacing * 0.7;
+        const jitterY = (rng(idx, 3) - 0.5) * 1.5;
+        rocks.push({
+          seed: idx * 13 + 7,
+          radius: r,
+          position: [
+            gx * spacing + jitterX - (gridX * spacing) / 2 + 40,
+            -8 + jitterY - r * 0.15,
+            gz * spacing + jitterZ - (gridZ * spacing) / 2,
+          ],
+          rotSpeed: [
+            (rng(idx, 7) - 0.5) * 0.02,
+            (rng(idx, 8) - 0.5) * 0.03,
+            (rng(idx, 9) - 0.5) * 0.01,
+          ],
+        });
+        idx++;
+      }
+    }
+    return rocks;
+  }, []);
+}
 
-/* ── First-person camera ── */
+/* ── Floating rocks above surface for depth ── */
+function useFloatingRocks() {
+  return useMemo(() => {
+    const rng = (i: number, off: number) => {
+      let x = Math.sin(i * 73.1 + off * 419.3) * 31758.5453;
+      return x - Math.floor(x);
+    };
+    return Array.from({ length: 12 }, (_, i) => ({
+      seed: i * 31 + 100,
+      radius: 0.8 + rng(i, 0) * 2.5,
+      position: [
+        rng(i, 1) * 100 - 20,
+        -3 + rng(i, 2) * 8,
+        rng(i, 3) * 50 - 25,
+      ] as [number, number, number],
+      rotSpeed: [
+        (rng(i, 7) - 0.5) * 0.15,
+        (rng(i, 8) - 0.5) * 0.2,
+        (rng(i, 9) - 0.5) * 0.1,
+      ] as [number, number, number],
+    }));
+  }, []);
+}
+
+/* ── First-person camera flying over surface ── */
 function CockpitCamera() {
   const { camera } = useThree();
   const t = useRef(0);
 
   const curve = useMemo(() => {
-    const waypoints = [
-      new THREE.Vector3(-10, 0, 0),
-      ...ASTEROIDS.slice(0, 10).map((a, i) => {
-        const off = ((i % 3) - 1) * 6;
-        return new THREE.Vector3(
-          a.position[0] + off,
-          a.position[1] + ((i % 2) ? 5 : -4),
-          a.position[2] + off
-        );
-      }),
-      new THREE.Vector3(100, 4, -5),
-      new THREE.Vector3(80, -4, -20),
-      new THREE.Vector3(40, 3, -10),
-      new THREE.Vector3(10, -2, 8),
-      new THREE.Vector3(-10, 0, 0),
+    const pts = [
+      new THREE.Vector3(-20, 2, 0),
+      new THREE.Vector3(0, 3, -8),
+      new THREE.Vector3(20, 1.5, -12),
+      new THREE.Vector3(40, 4, -5),
+      new THREE.Vector3(55, 2, 5),
+      new THREE.Vector3(70, 3, 15),
+      new THREE.Vector3(80, 1, 8),
+      new THREE.Vector3(90, 4, -3),
+      new THREE.Vector3(75, 2.5, -15),
+      new THREE.Vector3(50, 1.5, -10),
+      new THREE.Vector3(30, 3.5, 0),
+      new THREE.Vector3(10, 2, 10),
+      new THREE.Vector3(-10, 3, 5),
+      new THREE.Vector3(-20, 2, 0),
     ];
-    return new THREE.CatmullRomCurve3(waypoints, true, 'centripetal', 0.5);
+    return new THREE.CatmullRomCurve3(pts, true, 'centripetal', 0.5);
   }, []);
 
   useFrame((_, dt) => {
-    t.current += dt * 0.01;
+    t.current += dt * 0.008;
     const p = t.current % 1;
-    camera.position.copy(curve.getPointAt(p));
-    camera.lookAt(curve.getPointAt((p + 0.02) % 1));
+    const pos = curve.getPointAt(p);
+    const look = curve.getPointAt((p + 0.015) % 1);
+    // Keep camera above surface
+    pos.y = Math.max(pos.y, -4);
+    camera.position.copy(pos);
+    camera.lookAt(look);
   });
 
   return null;
 }
 
-/* ── Cockpit overlay ── */
+/* ── Cockpit frame – clean, no inner graphics ── */
 function CockpitHUD() {
+  const c = LINE_COLOR;
   return (
-    <div className="absolute inset-0 pointer-events-none select-none" style={{ fontFamily: '"Courier New", monospace' }}>
-      <div className="absolute inset-0 opacity-[0.03]" style={{
-        backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,170,0.08) 2px, rgba(0,255,170,0.08) 4px)',
-      }} />
-
+    <div className="absolute inset-0 pointer-events-none select-none">
       <svg className="absolute inset-0 w-full h-full" viewBox="0 0 1920 1080" preserveAspectRatio="none">
-        <path d="M 0 880 Q 960 780 1920 880 L 1920 1080 L 0 1080 Z" fill={BG} stroke={LINE_COLOR} strokeWidth="1.5" opacity="0.5" />
-        <path d="M 100 920 Q 960 850 1820 920" fill="none" stroke={LINE_COLOR} strokeWidth="0.5" opacity="0.2" />
-        <polygon points="0,0 110,0 60,1080 0,1080" fill={BG} stroke={LINE_COLOR} strokeWidth="1" opacity="0.35" />
-        <polygon points="1920,0 1810,0 1860,1080 1920,1080" fill={BG} stroke={LINE_COLOR} strokeWidth="1" opacity="0.35" />
-        <polygon points="0,0 1920,0 1920,50 1100,30 820,30 0,50" fill={BG} stroke={LINE_COLOR} strokeWidth="0.8" opacity="0.3" />
-        <line x1="60" y1="1080" x2="500" y2="780" stroke={LINE_COLOR} strokeWidth="1" opacity="0.25" />
-        <line x1="1860" y1="1080" x2="1420" y2="780" stroke={LINE_COLOR} strokeWidth="1" opacity="0.25" />
-        <rect x="820" y="910" width="280" height="90" rx="3" fill="none" stroke={LINE_COLOR} strokeWidth="0.8" opacity="0.3" />
-        <line x1="860" y1="935" x2="1060" y2="935" stroke={LINE_COLOR} strokeWidth="0.4" opacity="0.15" />
-        <line x1="860" y1="955" x2="1060" y2="955" stroke={LINE_COLOR} strokeWidth="0.4" opacity="0.15" />
-        <line x1="860" y1="975" x2="1000" y2="975" stroke={LINE_COLOR} strokeWidth="0.4" opacity="0.15" />
-        <circle cx="960" cy="440" r="35" fill="none" stroke={LINE_COLOR} strokeWidth="0.5" opacity="0.18" />
-        <circle cx="960" cy="440" r="12" fill="none" stroke={LINE_COLOR} strokeWidth="0.3" opacity="0.12" strokeDasharray="3 3" />
-        <line x1="960" y1="395" x2="960" y2="415" stroke={LINE_COLOR} strokeWidth="0.5" opacity="0.18" />
-        <line x1="960" y1="465" x2="960" y2="485" stroke={LINE_COLOR} strokeWidth="0.5" opacity="0.18" />
-        <line x1="915" y1="440" x2="935" y2="440" stroke={LINE_COLOR} strokeWidth="0.5" opacity="0.18" />
-        <line x1="985" y1="440" x2="1005" y2="440" stroke={LINE_COLOR} strokeWidth="0.5" opacity="0.18" />
-      </svg>
+        {/* ── Dashboard / lower panel ── */}
+        <path d="M 0 850 Q 960 760 1920 850 L 1920 1080 L 0 1080 Z" fill={BG} stroke={c} strokeWidth="1.5" opacity="0.6" />
+        <path d="M 80 890 Q 960 820 1840 890" fill="none" stroke={c} strokeWidth="0.6" opacity="0.2" />
+        <path d="M 150 930 Q 960 870 1770 930" fill="none" stroke={c} strokeWidth="0.4" opacity="0.12" />
 
-      <div className="absolute top-14 left-20 text-[11px] tracking-[0.2em] uppercase" style={{ color: LINE_COLOR }}>
-        <div className="opacity-45">FORWARD VIEW</div>
-        <div className="opacity-25 mt-1">SECTOR 9 · BELT DELTA-7</div>
-      </div>
-      <div className="absolute top-14 right-20 text-[11px] text-right tracking-[0.15em]" style={{ color: LINE_COLOR }}>
-        <div className="opacity-45">SPEED: 284 M/S</div>
-        <div className="opacity-25 mt-1">FUEL: ██████████ 92%</div>
-        <div className="opacity-25">HULL: ██████████ 100%</div>
-      </div>
-      <div className="absolute bottom-32 left-20 text-[10px] tracking-[0.15em]" style={{ color: LINE_COLOR }}>
-        <div className="opacity-25">CONTACTS: 18</div>
-        <div className="opacity-25">THREAT: NONE</div>
-      </div>
-      <div className="absolute bottom-5 left-1/2 -translate-x-1/2 text-[10px] tracking-[0.3em] uppercase opacity-20" style={{ color: LINE_COLOR }}>
-        ── COBRA MK III ──
-      </div>
+        {/* ── Left pillar ── */}
+        <polygon points="0,0 90,0 50,850 0,850" fill={BG} stroke={c} strokeWidth="1" opacity="0.4" />
+        <line x1="45" y1="100" x2="50" y2="750" stroke={c} strokeWidth="0.4" opacity="0.12" />
+
+        {/* ── Right pillar ── */}
+        <polygon points="1920,0 1830,0 1870,850 1920,850" fill={BG} stroke={c} strokeWidth="1" opacity="0.4" />
+        <line x1="1875" y1="100" x2="1870" y2="750" stroke={c} strokeWidth="0.4" opacity="0.12" />
+
+        {/* ── Top frame ── */}
+        <polygon points="0,0 1920,0 1920,40 1080,25 840,25 0,40" fill={BG} stroke={c} strokeWidth="0.8" opacity="0.35" />
+
+        {/* ── Lower V-struts ── */}
+        <line x1="50" y1="850" x2="420" y2="760" stroke={c} strokeWidth="0.8" opacity="0.2" />
+        <line x1="1870" y1="850" x2="1500" y2="760" stroke={c} strokeWidth="0.8" opacity="0.2" />
+
+        {/* ── Instrument bezels (no content inside) ── */}
+        <rect x="140" y="900" width="200" height="80" rx="4" fill="none" stroke={c} strokeWidth="0.6" opacity="0.2" />
+        <rect x="860" y="895" width="200" height="85" rx="4" fill="none" stroke={c} strokeWidth="0.6" opacity="0.2" />
+        <rect x="1580" y="900" width="200" height="80" rx="4" fill="none" stroke={c} strokeWidth="0.6" opacity="0.2" />
+      </svg>
     </div>
   );
 }
 
 export default function EliteShipScene() {
+  const surfaceRocks = useSurfaceRocks();
+  const floatingRocks = useFloatingRocks();
+
   return (
     <div className="relative w-full h-screen overflow-hidden" style={{ background: BG }}>
       <Canvas
@@ -193,8 +219,9 @@ export default function EliteShipScene() {
         style={{ background: BG }}
       >
         <CockpitCamera />
-        <Stars radius={250} depth={120} count={4000} factor={2.5} saturation={0} fade speed={0.3} />
-        {ASTEROIDS.map((a, i) => <Asteroid key={i} {...a} />)}
+        <Stars radius={300} depth={150} count={5000} factor={2} saturation={0} fade speed={0.2} />
+        {surfaceRocks.map((r, i) => <Rock key={`s${i}`} {...r} />)}
+        {floatingRocks.map((r, i) => <Rock key={`f${i}`} {...r} />)}
       </Canvas>
       <CockpitHUD />
     </div>
