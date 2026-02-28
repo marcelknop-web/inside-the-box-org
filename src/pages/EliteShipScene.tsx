@@ -231,7 +231,7 @@ function Rain() {
 }
 
 /* ── Realistic Starfield ── */
-const STAR_COUNT = 8000;
+const STAR_COUNT = 20000;
 function RealisticStarfield() {
   const pointsRef = useRef<THREE.Points>(null);
   const { positions, baseColors, sizes } = useMemo(() => {
@@ -242,21 +242,26 @@ function RealisticStarfield() {
       const i3 = i * 3;
       const theta = Math.random() * Math.PI * 2;
       const phi = Math.acos(2 * Math.random() - 1);
-      const r = 200 + Math.random() * 200;
+      const r = 150 + Math.random() * 350;
       pos[i3] = r * Math.sin(phi) * Math.cos(theta);
       pos[i3 + 1] = r * Math.sin(phi) * Math.sin(theta);
       pos[i3 + 2] = r * Math.cos(phi);
+      // Realistic magnitude distribution: most stars dim, very few bright
+      const mag = Math.pow(Math.random(), 4); // heavily skewed to dim
       const temp = Math.random();
-      if (temp < 0.6) { col[i3] = 0.95; col[i3+1] = 0.95; col[i3+2] = 1.0; }
-      else if (temp < 0.8) { col[i3] = 1.0; col[i3+1] = 0.95; col[i3+2] = 0.8; }
-      else if (temp < 0.92) { col[i3] = 0.7; col[i3+1] = 0.85; col[i3+2] = 1.0; }
-      else { col[i3] = 1.0; col[i3+1] = 0.7; col[i3+2] = 0.4; }
-      sz[i] = Math.pow(Math.random(), 3) * 1.8 + 0.15;
+      const brightness = 0.15 + mag * 0.85;
+      if (temp < 0.5) { col[i3] = 0.9 * brightness; col[i3+1] = 0.92 * brightness; col[i3+2] = 1.0 * brightness; }
+      else if (temp < 0.75) { col[i3] = 1.0 * brightness; col[i3+1] = 0.96 * brightness; col[i3+2] = 0.88 * brightness; }
+      else if (temp < 0.9) { col[i3] = 0.65 * brightness; col[i3+1] = 0.8 * brightness; col[i3+2] = 1.0 * brightness; }
+      else if (temp < 0.97) { col[i3] = 1.0 * brightness; col[i3+1] = 0.85 * brightness; col[i3+2] = 0.5 * brightness; }
+      else { col[i3] = 1.0 * brightness; col[i3+1] = 0.55 * brightness; col[i3+2] = 0.3 * brightness; } // rare red giants
+      // Size: tiny for most, a few prominent
+      sz[i] = mag < 0.15 ? 0.08 + Math.random() * 0.06 : mag < 0.7 ? 0.14 + mag * 0.3 : 0.5 + mag * 1.2;
     }
     return { positions: pos, baseColors: col, sizes: sz };
   }, []);
 
-  const renderColors = useMemo(() => new Float32Array(STAR_COUNT * 3), []);
+  const renderColors = useMemo(() => new Float32Array(baseColors), [baseColors]);
   const twinklePhases = useMemo(() => {
     const p = new Float32Array(STAR_COUNT);
     for (let i = 0; i < STAR_COUNT; i++) p[i] = Math.random() * Math.PI * 2;
@@ -264,7 +269,7 @@ function RealisticStarfield() {
   }, []);
   const twinkleSpeeds = useMemo(() => {
     const s = new Float32Array(STAR_COUNT);
-    for (let i = 0; i < STAR_COUNT; i++) s[i] = 0.3 + Math.random() * 2.0;
+    for (let i = 0; i < STAR_COUNT; i++) s[i] = 0.2 + Math.random() * 1.5;
     return s;
   }, []);
 
@@ -273,8 +278,9 @@ function RealisticStarfield() {
     const t = clock.elapsedTime;
     const colAttr = pointsRef.current.geometry.attributes.color as THREE.BufferAttribute;
     const col = colAttr.array as Float32Array;
-    for (let i = 0; i < STAR_COUNT; i++) {
-      const brightness = 0.6 + 0.4 * Math.sin(t * twinkleSpeeds[i] + twinklePhases[i]);
+    // Only twinkle brighter stars (every 4th) for perf, rest stay static
+    for (let i = 0; i < STAR_COUNT; i += 4) {
+      const brightness = 0.7 + 0.3 * Math.sin(t * twinkleSpeeds[i] + twinklePhases[i]);
       const i3 = i * 3;
       col[i3] = baseColors[i3] * brightness;
       col[i3+1] = baseColors[i3+1] * brightness;
@@ -293,8 +299,8 @@ function RealisticStarfield() {
       <pointsMaterial
         vertexColors
         transparent
-        opacity={0.9}
-        size={0.6}
+        opacity={1}
+        size={0.35}
         sizeAttenuation
         depthWrite={false}
         blending={THREE.AdditiveBlending}
@@ -357,102 +363,138 @@ function CockpitHUD() {
   );
 }
 
-/* ── 432Hz Ambient Synthesizer (Web Audio API) ── */
+/* ── Evolving 432Hz Ambient Synthesizer ── */
 function use432HzAmbient() {
   const [playing, setPlaying] = useState(false);
   const ctxRef = useRef<AudioContext | null>(null);
-  const nodesRef = useRef<{ oscs: OscillatorNode[]; gains: GainNode[]; master: GainNode } | null>(null);
+  const nodesRef = useRef<any>(null);
+  const evolveRef = useRef<number | null>(null);
 
   const start = useCallback(async () => {
     if (ctxRef.current) return;
     const ctx = new AudioContext();
-    // Resume context (required by browsers after user gesture)
     if (ctx.state === 'suspended') await ctx.resume();
     ctxRef.current = ctx;
 
     const master = ctx.createGain();
     master.gain.setValueAtTime(0, ctx.currentTime);
-    master.gain.linearRampToValueAtTime(0.35, ctx.currentTime + 3);
+    master.gain.linearRampToValueAtTime(0.12, ctx.currentTime + 6); // gentler max volume
     master.connect(ctx.destination);
 
-    // Frequencies based on 432Hz tuning (A=432, harmonics & sub-harmonics)
-    const freqs = [
-      54,      // sub bass C
-      108,     // bass C
-      162,     // fifth G
-      216,     // octave C
-      324,     // fifth G
-      432,     // A4 at 432Hz
-      540,     // C overtone
-      648,     // E overtone
+    // Reverb via convolver (simple algorithmic)
+    const reverbLen = 3 * ctx.sampleRate;
+    const reverbBuf = ctx.createBuffer(2, reverbLen, ctx.sampleRate);
+    for (let ch = 0; ch < 2; ch++) {
+      const d = reverbBuf.getChannelData(ch);
+      for (let i = 0; i < reverbLen; i++) {
+        d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / reverbLen, 2.5);
+      }
+    }
+    const reverb = ctx.createConvolver();
+    reverb.buffer = reverbBuf;
+    const reverbGain = ctx.createGain();
+    reverbGain.gain.value = 0.4;
+    reverb.connect(reverbGain);
+    reverbGain.connect(master);
+
+    const dry = ctx.createGain();
+    dry.gain.value = 0.6;
+    dry.connect(master);
+
+    // Voice configurations that rotate through moods
+    const voices = [
+      // Mood 0: Deep space (low, wide)
+      { freqs: [54, 108, 162, 216, 432], vols: [0.06, 0.04, 0.03, 0.02, 0.015] },
+      // Mood 1: Ascending hope (mid, bright)
+      { freqs: [108, 216, 324, 432, 648], vols: [0.04, 0.035, 0.03, 0.025, 0.01] },
+      // Mood 2: Celestial choir (high, ethereal)
+      { freqs: [216, 324, 432, 540, 864], vols: [0.03, 0.025, 0.03, 0.02, 0.008] },
+      // Mood 3: Ocean depth (very low, warm)
+      { freqs: [36, 72, 108, 144, 216], vols: [0.05, 0.04, 0.035, 0.02, 0.015] },
+      // Mood 4: Crystal resonance (fifths, shimmering)
+      { freqs: [162, 216, 324, 432, 648], vols: [0.03, 0.025, 0.03, 0.02, 0.012] },
     ];
 
     const oscs: OscillatorNode[] = [];
     const gains: GainNode[] = [];
 
-    freqs.forEach((freq, i) => {
+    // Create 5 oscillator voices
+    for (let i = 0; i < 5; i++) {
       const osc = ctx.createOscillator();
-      osc.type = i < 2 ? 'sine' : i < 5 ? 'sine' : 'sine';
-      osc.frequency.value = freq;
-      // Gentle detune for warmth
-      osc.detune.value = (Math.random() - 0.5) * 4;
-
+      osc.type = 'sine';
+      osc.frequency.value = voices[0].freqs[i];
+      osc.detune.value = (Math.random() - 0.5) * 6;
       const gain = ctx.createGain();
-      // Lower frequencies louder, higher softer
-      const vol = i < 2 ? 0.12 : i < 4 ? 0.08 : 0.04;
-      gain.gain.value = vol;
+      gain.gain.value = voices[0].vols[i];
 
-      // Slow LFO for evolving texture
+      // Individual slow LFO for organic movement
       const lfo = ctx.createOscillator();
       lfo.type = 'sine';
-      lfo.frequency.value = 0.05 + Math.random() * 0.1; // Very slow
+      lfo.frequency.value = 0.02 + Math.random() * 0.06;
       const lfoGain = ctx.createGain();
-      lfoGain.gain.value = vol * 0.3;
+      lfoGain.gain.value = voices[0].vols[i] * 0.25;
       lfo.connect(lfoGain);
       lfoGain.connect(gain.gain);
       lfo.start();
 
       osc.connect(gain);
-      gain.connect(master);
+      gain.connect(dry);
+      gain.connect(reverb);
       osc.start();
       oscs.push(osc);
       gains.push(gain);
-    });
+    }
 
-    // Binaural beat: 432Hz in one implicit channel, slight offset for theta waves
+    // Subtle binaural (very quiet)
     const binOsc = ctx.createOscillator();
     binOsc.type = 'sine';
-    binOsc.frequency.value = 432 + 6; // 6Hz theta difference
+    binOsc.frequency.value = 432 + 4; // 4Hz theta
     const binGain = ctx.createGain();
-    binGain.gain.value = 0.02;
+    binGain.gain.value = 0.008;
     binOsc.connect(binGain);
-    binGain.connect(master);
+    binGain.connect(dry);
     binOsc.start();
     oscs.push(binOsc);
     gains.push(binGain);
 
-    nodesRef.current = { oscs, gains, master };
+    nodesRef.current = { oscs, gains, master, voices };
     setPlaying(true);
+
+    // Evolving mood transitions every ~25 seconds
+    let moodIndex = 0;
+    const evolve = () => {
+      if (!ctxRef.current) return;
+      moodIndex = (moodIndex + 1) % voices.length;
+      const mood = voices[moodIndex];
+      const now = ctxRef.current.currentTime;
+      for (let i = 0; i < 5; i++) {
+        oscs[i].frequency.linearRampToValueAtTime(mood.freqs[i], now + 12); // slow 12s crossfade
+        gains[i].gain.linearRampToValueAtTime(mood.vols[i], now + 10);
+      }
+      evolveRef.current = window.setTimeout(evolve, 25000 + Math.random() * 15000);
+    };
+    evolveRef.current = window.setTimeout(evolve, 20000);
   }, []);
 
   const stop = useCallback(() => {
     if (!ctxRef.current || !nodesRef.current) return;
+    if (evolveRef.current) clearTimeout(evolveRef.current);
     const { master, oscs } = nodesRef.current;
     const ctx = ctxRef.current;
-    // Fade out
-    master.gain.linearRampToValueAtTime(0, ctx.currentTime + 2);
+    master.gain.linearRampToValueAtTime(0, ctx.currentTime + 4);
     setTimeout(() => {
-      oscs.forEach(o => { try { o.stop(); } catch {} });
+      oscs.forEach((o: OscillatorNode) => { try { o.stop(); } catch {} });
       ctx.close();
       ctxRef.current = null;
       nodesRef.current = null;
       setPlaying(false);
-    }, 2200);
+    }, 4500);
   }, []);
 
   useEffect(() => () => {
+    if (evolveRef.current) clearTimeout(evolveRef.current);
     if (ctxRef.current) {
-      nodesRef.current?.oscs.forEach(o => { try { o.stop(); } catch {} });
+      nodesRef.current?.oscs.forEach((o: OscillatorNode) => { try { o.stop(); } catch {} });
       ctxRef.current.close();
     }
   }, []);
