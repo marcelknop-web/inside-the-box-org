@@ -1,5 +1,6 @@
 import { useState, useCallback, useMemo, useRef } from 'react';
 import { Shield, TrendingDown, AlertTriangle, ChevronRight, RotateCcw, Skull, Trophy, ArrowLeft, Volume2, VolumeX } from 'lucide-react';
+import { StaggerReveal } from '@/components/StaggerReveal';
 import { Button } from '@/components/ui/button';
 import { PageMeta } from '@/components/PageMeta';
 import { useLanguage } from '@/i18n/LanguageContext';
@@ -433,23 +434,31 @@ const CisoSimulator = ({ embedded = false }: { embedded?: boolean }) => {
         {phase === 'intro' ? (
           <div className="space-y-4">
             <h1 className="text-xl md:text-2xl font-bold font-mono text-primary">{t('title')}</h1>
-            <div className="bg-card border border-border rounded-xl p-5 space-y-3">
-              <p className="text-foreground font-sans font-semibold">{t('introRole')}</p>
-              <p className="text-foreground/80 font-sans text-sm">{t('introGoal')}</p>
-              <ul className="space-y-2 text-sm font-sans text-foreground/80">
-                <li className="flex items-start gap-2"><span className="text-primary font-mono font-bold">1.</span> {t('introMech1')}</li>
-                <li className="flex items-start gap-2"><span className="text-primary font-mono font-bold">2.</span> {t('introMech2')}</li>
-                <li className="flex items-start gap-2"><span className="text-primary font-mono font-bold">3.</span> {t('introMech3')}</li>
-                <li className="flex items-start gap-2"><span className="text-primary font-mono font-bold">4.</span> {t('introMech4')}</li>
-              </ul>
-              <p className="text-foreground/70 font-sans text-sm italic border-l-2 border-primary/30 pl-3">{t('introGui')}</p>
+            <StaggerReveal stagger={500} startDelay={300}>
+              <div className="bg-card border border-border rounded-xl p-5">
+                <p className="text-foreground font-sans font-semibold">{t('introRole')}</p>
+              </div>
+              <div className="bg-card border border-border rounded-xl p-5">
+                <p className="text-foreground/80 font-sans text-sm">{t('introGoal')}</p>
+              </div>
+              <div className="bg-card border border-border rounded-xl p-5 space-y-2">
+                <ul className="space-y-2 text-sm font-sans text-foreground/80">
+                  <li className="flex items-start gap-2"><span className="text-primary font-mono font-bold">1.</span> {t('introMech1')}</li>
+                  <li className="flex items-start gap-2"><span className="text-primary font-mono font-bold">2.</span> {t('introMech2')}</li>
+                  <li className="flex items-start gap-2"><span className="text-primary font-mono font-bold">3.</span> {t('introMech3')}</li>
+                  <li className="flex items-start gap-2"><span className="text-primary font-mono font-bold">4.</span> {t('introMech4')}</li>
+                </ul>
+              </div>
+              <div className="bg-card border border-border rounded-xl p-5">
+                <p className="text-foreground/70 font-sans text-sm italic border-l-2 border-primary/30 pl-3">{t('introGui')}</p>
+              </div>
               <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-3 text-sm font-mono text-destructive">
                 {t('introGameOver')}
               </div>
-            </div>
-            <Button onClick={() => setPhase('allocate')} className="w-full font-mono" size="lg">
-              <Shield size={16} className="mr-2" /> {t('start')}
-            </Button>
+              <Button onClick={() => setPhase('allocate')} className="w-full font-mono" size="lg">
+                <Shield size={16} className="mr-2" /> {t('start')}
+              </Button>
+            </StaggerReveal>
           </div>
         ) : (
           <>
