@@ -1,4 +1,4 @@
-import { ReactNode, Children, useEffect, useState, useRef, createRef } from 'react';
+import { ReactNode, Children, useEffect, useState, useRef } from 'react';
 
 interface StaggerRevealProps {
   children: ReactNode;
@@ -9,23 +9,15 @@ interface StaggerRevealProps {
   startDelay?: number;
   /** Reset animation sequence when this value changes */
   resetKey?: string | number;
-  /** Disable auto-scroll into view (default: enabled) */
-  noAutoScroll?: boolean;
 }
 
-export const StaggerReveal = ({ children, className = '', stagger = 350, startDelay = 0, resetKey, noAutoScroll = false }: StaggerRevealProps) => {
+export const StaggerReveal = ({ children, className = '', stagger = 350, startDelay = 0, resetKey }: StaggerRevealProps) => {
   const items = Children.toArray(children);
   const [visibleCount, setVisibleCount] = useState(0);
   const [started, setStarted] = useState(startDelay <= 0);
   // Suppress transition during resets to avoid flash
   const [suppressTransition, setSuppressTransition] = useState(false);
   const prevKeyRef = useRef(resetKey);
-  const itemRefs = useRef<Array<React.RefObject<HTMLDivElement>>>([]);
-
-  // Keep refs array in sync with items count
-  if (itemRefs.current.length !== items.length) {
-    itemRefs.current = items.map((_, i) => itemRefs.current[i] || createRef<HTMLDivElement>());
-  }
 
   // Reset when section changes — suppress transition to avoid flash
   useEffect(() => {
@@ -63,25 +55,12 @@ export const StaggerReveal = ({ children, className = '', stagger = 350, startDe
     return () => clearTimeout(timer);
   }, [started, visibleCount, items.length, stagger]);
 
-  // Auto-scroll the latest revealed item into view
-  useEffect(() => {
-    if (noAutoScroll || visibleCount === 0 || suppressTransition) return;
-    const lastIdx = visibleCount - 1;
-    const el = itemRefs.current[lastIdx]?.current;
-    if (!el) return;
-    // Small delay so the transition has started and element has dimensions
-    const t = setTimeout(() => {
-      el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }, 80);
-    return () => clearTimeout(t);
-  }, [visibleCount, noAutoScroll, suppressTransition]);
 
   return (
     <div className={`space-y-5 md:space-y-3 ${className}`}>
       {items.map((child, i) => (
         <div
           key={i}
-          ref={itemRefs.current[i]}
           style={{
             opacity: i < visibleCount ? 1 : 0,
             transform: i < visibleCount ? 'translateY(0)' : 'translateY(14px)',

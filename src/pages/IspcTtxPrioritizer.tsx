@@ -236,11 +236,6 @@ export default function IspcTtxPrioritizer({ embedded = false }: { embedded?: bo
   };
 
   // Auto-scroll to AI result when it appears
-  useEffect(() => {
-    if (aiResult && aiResultRef.current) {
-      setTimeout(() => aiResultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 150);
-    }
-  }, [aiResult]);
 
   const wrapperClass = embedded ? 'space-y-3' : 'min-h-screen p-4 md:p-6 max-w-3xl mx-auto';
 

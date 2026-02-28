@@ -63,14 +63,6 @@ const TypedSection = ({
 
   const introRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll when intro becomes visible
-  useEffect(() => {
-    if (introVisible && introRef.current) {
-      setTimeout(() => {
-        introRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      }, 100);
-    }
-  }, [introVisible]);
 
   return (
     <div className="space-y-5 md:space-y-3">
