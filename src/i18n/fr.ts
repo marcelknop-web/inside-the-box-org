@@ -304,6 +304,8 @@ export const fr = {
     agentTtxDesc: 'Priorise les plans de reprise (ISCP) pour exercices sur table selon la criticité',
     agentNis2QuizDesc: 'Quiz gamifié de 15 questions sur la directive NIS-2 – avec timer et meilleur score',
     agentCisoDesc: 'Simulation stratégique de budget – survivre 5 tours en tant que CISO d\'une entreprise réglementée',
+    agentThreatDropTitle: 'ThreatDrop',
+    agentThreatDropDesc: 'Quiz expert généré par IA – chaque question est créée en temps réel au niveau CISO/SOC Lead',
     agentYtTitle: 'Vidéos d\'injection pour exercices',
     agentYtDesc: 'Vidéos d\'actualité générées par IA comme briefings situationnels réalistes en exercices de crise',
   },
