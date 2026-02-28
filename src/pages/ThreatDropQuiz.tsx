@@ -207,7 +207,7 @@ const drawShape = (ctx: CanvasRenderingContext2D, shape: ThreatShape, size: numb
    THREATS
    ══════════════════════════════════════ */
 const THREATS: { label: string; lane: number; hint: string; shape: ThreatShape }[] = [
-  // DETECT (0)
+  // DETECT (0) – 20 threats
   { label: 'SUSPICIOUS LOGIN',   lane: 0, hint: '👁 alert triggered',     shape: 'eye' },
   { label: 'PHISHING EMAIL',     lane: 0, hint: '👁 spotted in inbox',    shape: 'eye' },
   { label: 'PORT SCAN',          lane: 0, hint: '👁 scanning activity',   shape: 'wave' },
@@ -218,7 +218,17 @@ const THREATS: { label: string; lane: number; hint: string; shape: ThreatShape }
   { label: 'NEW DEVICE',         lane: 0, hint: '👁 unknown endpoint',    shape: 'eye' },
   { label: 'RECON SCAN',         lane: 0, hint: '👁 probing detected',    shape: 'wave' },
   { label: 'IDS ALERT',          lane: 0, hint: '👁 intrusion signal',    shape: 'eye' },
-  // CONTAIN (1)
+  { label: 'DNS ANOMALY',        lane: 0, hint: '👁 odd DNS queries',     shape: 'wave' },
+  { label: 'CREDENTIAL DUMP',    lane: 0, hint: '👁 hash extraction seen', shape: 'eye' },
+  { label: 'C2 BEACON',          lane: 0, hint: '👁 callback detected',   shape: 'bolt' },
+  { label: 'GOLDEN TICKET',      lane: 0, hint: '👁 Kerberos anomaly',    shape: 'eye' },
+  { label: 'LATERAL MOVEMENT',   lane: 0, hint: '👁 host-hopping seen',   shape: 'wave' },
+  { label: 'DGA TRAFFIC',        lane: 0, hint: '👁 random domains',      shape: 'wave' },
+  { label: 'USB INSERT',         lane: 0, hint: '👁 removable media',     shape: 'eye' },
+  { label: 'PRIVILEGE ESCALATION', lane: 0, hint: '👁 admin gained',      shape: 'bolt' },
+  { label: 'DATA STAGING',       lane: 0, hint: '👁 files collected',     shape: 'eye' },
+  { label: 'BEACONING',          lane: 0, hint: '👁 periodic callbacks',  shape: 'wave' },
+  // CONTAIN (1) – 20 threats
   { label: 'ISOLATE HOST',       lane: 1, hint: '🛡 cut off spread',      shape: 'shield' },
   { label: 'BLOCK IP',           lane: 1, hint: '🛡 firewall rule',       shape: 'shield' },
   { label: 'DISABLE ACCOUNT',    lane: 1, hint: '🛡 lock compromised',    shape: 'lock' },
@@ -229,7 +239,17 @@ const THREATS: { label: string; lane: number; hint: string; shape: ThreatShape }
   { label: 'FREEZE ACCOUNT',     lane: 1, hint: '🛡 prevent lateral move', shape: 'lock' },
   { label: 'BLOCK DOMAIN',       lane: 1, hint: '🛡 DNS sinkhole',        shape: 'shield' },
   { label: 'VPN LOCKOUT',        lane: 1, hint: '🛡 revoke remote access', shape: 'lock' },
-  // ERADICATE (2)
+  { label: 'DISABLE WIFI',       lane: 1, hint: '🛡 cut wireless access', shape: 'shield' },
+  { label: 'SUSPEND MFA',        lane: 1, hint: '🛡 reset auth factor',   shape: 'lock' },
+  { label: 'BLOCK USB',          lane: 1, hint: '🛡 disable removable',   shape: 'shield' },
+  { label: 'RATE LIMIT',         lane: 1, hint: '🛡 throttle requests',   shape: 'shield' },
+  { label: 'GEO-BLOCK',          lane: 1, hint: '🛡 block foreign IPs',   shape: 'shield' },
+  { label: 'CAPTIVE PORTAL',     lane: 1, hint: '🛡 redirect traffic',    shape: 'shield' },
+  { label: 'VLAN ISOLATION',     lane: 1, hint: '🛡 segment subnet',      shape: 'shield' },
+  { label: 'DISABLE MAILBOX',    lane: 1, hint: '🛡 stop mail forwarding', shape: 'lock' },
+  { label: 'BLOCK ATTACHMENT',   lane: 1, hint: '🛡 strip file types',    shape: 'shield' },
+  { label: 'PAUSE PIPELINE',     lane: 1, hint: '🛡 stop CI/CD deploy',   shape: 'lock' },
+  // ERADICATE (2) – 20 threats
   { label: 'DELETE MALWARE',     lane: 2, hint: '🧹 remove malicious file', shape: 'bug' },
   { label: 'PATCH VULN',         lane: 2, hint: '🧹 fix the hole',        shape: 'bug' },
   { label: 'REMOVE BACKDOOR',    lane: 2, hint: '🧹 close hidden entry',  shape: 'skull' },
@@ -240,7 +260,17 @@ const THREATS: { label: string; lane: number; hint: string; shape: ThreatShape }
   { label: 'REMOVE IMPLANT',     lane: 2, hint: '🧹 APT artifact gone',   shape: 'skull' },
   { label: 'FIX CONFIG',         lane: 2, hint: '🧹 correct misconfig',   shape: 'bug' },
   { label: 'KILL CRYPTOMINER',   lane: 2, hint: '🧹 stop resource theft', shape: 'bug' },
-  // RECOVER (3)
+  { label: 'PURGE PERSISTENCE',  lane: 2, hint: '🧹 remove scheduled task', shape: 'skull' },
+  { label: 'CLEAN REGISTRY',     lane: 2, hint: '🧹 remove run keys',    shape: 'bug' },
+  { label: 'DELETE ROGUE CERT',  lane: 2, hint: '🧹 remove fake CA',     shape: 'skull' },
+  { label: 'REMOVE KEYLOGGER',   lane: 2, hint: '🧹 stop input capture', shape: 'bug' },
+  { label: 'WIPE RANSOMWARE',    lane: 2, hint: '🧹 delete encryptor',   shape: 'skull' },
+  { label: 'CLEAN BOOT SECTOR',  lane: 2, hint: '🧹 fix MBR/GPT',       shape: 'skull' },
+  { label: 'REMOVE DROPPER',     lane: 2, hint: '🧹 delete installer',   shape: 'bug' },
+  { label: 'PURGE CRON JOB',     lane: 2, hint: '🧹 remove rogue job',   shape: 'skull' },
+  { label: 'FIX DNS HIJACK',     lane: 2, hint: '🧹 restore DNS config', shape: 'bug' },
+  { label: 'CLEAN FIRMWARE',     lane: 2, hint: '🧹 reflash device',     shape: 'skull' },
+  // RECOVER (3) – 20 threats
   { label: 'RESTORE BACKUP',     lane: 3, hint: '🔄 bring data back',     shape: 'flame' },
   { label: 'REBUILD SERVER',     lane: 3, hint: '🔄 fresh system image',  shape: 'flame' },
   { label: 'REISSUE CERTS',      lane: 3, hint: '🔄 new certificates',    shape: 'lock' },
@@ -251,6 +281,16 @@ const THREATS: { label: string; lane: number; hint: string; shape: ThreatShape }
   { label: 'REBUILD DNS',        lane: 3, hint: '🔄 fix resolution',      shape: 'wave' },
   { label: 'FAILOVER',           lane: 3, hint: '🔄 switch to standby',   shape: 'flame' },
   { label: 'SERVICE RESTART',    lane: 3, hint: '🔄 bring back online',   shape: 'flame' },
+  { label: 'RESTORE AD',         lane: 3, hint: '🔄 rebuild directory',   shape: 'flame' },
+  { label: 'RENEW SSL',          lane: 3, hint: '🔄 fresh TLS certs',     shape: 'lock' },
+  { label: 'REBUILD CLUSTER',    lane: 3, hint: '🔄 recreate nodes',      shape: 'flame' },
+  { label: 'RESTORE CONFIG',     lane: 3, hint: '🔄 apply known-good',    shape: 'flame' },
+  { label: 'REIMAGE LAPTOP',     lane: 3, hint: '🔄 fresh OS install',    shape: 'flame' },
+  { label: 'RESTORE MAIL',       lane: 3, hint: '🔄 recover mailbox',     shape: 'flame' },
+  { label: 'REBUILD FIREWALL',   lane: 3, hint: '🔄 restore ruleset',     shape: 'shield' },
+  { label: 'RE-ENABLE MFA',      lane: 3, hint: '🔄 reconfigure 2FA',     shape: 'lock' },
+  { label: 'RESTORE SIEM',       lane: 3, hint: '🔄 reconnect logging',   shape: 'wave' },
+  { label: 'DISASTER RECOVERY',  lane: 3, hint: '🔄 full site failover',  shape: 'flame' },
 ];
 
 /* ══════════════════════════════════════

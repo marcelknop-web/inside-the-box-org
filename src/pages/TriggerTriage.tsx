@@ -305,30 +305,13 @@ const wrapText = (ctx: CanvasRenderingContext2D, text: string, maxW: number): st
   if (line) lines.push(line);
   return lines;
 };
-/* Space Invaders pixel sprites for targets (11 cols × 8 rows) */
-const INVADER_SPRITES = [
-  // P1 CRITICAL – menacing squid
-  [0b00100000100, 0b00010001000, 0b00111111100, 0b01101110110, 0b11111111111, 0b10111111101, 0b10100000101, 0b00011011000],
-  // P2 MEDIUM – crab
-  [0b00001110000, 0b00111111100, 0b01111111110, 0b11100100111, 0b11111111111, 0b00010001000, 0b00101010100, 0b10100000101],
-  // P3 LOW – octopus
-  [0b00100000100, 0b10010001001, 0b10111111101, 0b11101110111, 0b11111111111, 0b01111111110, 0b00100000100, 0b01000000010],
-];
-
-const drawInvader = (ctx: CanvasRenderingContext2D, prioIdx: number, size: number, color: string) => {
-  const sprite = INVADER_SPRITES[prioIdx % INVADER_SPRITES.length];
-  const cols = 11, rows = sprite.length;
-  const px = size / cols;
+/* Draw large priority number in target center */
+const drawPrioNumber = (ctx: CanvasRenderingContext2D, num: number, size: number, color: string) => {
+  ctx.font = `bold ${Math.round(size * 0.7)}px monospace`;
   ctx.fillStyle = color;
-  const ox = -(cols * px) / 2;
-  const oy = -(rows * px) / 2;
-  for (let r = 0; r < rows; r++) {
-    for (let c = 0; c < cols; c++) {
-      if (sprite[r] & (1 << (cols - 1 - c))) {
-        ctx.fillRect(ox + c * px, oy + r * px, px + 0.5, px + 0.5);
-      }
-    }
-  }
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(String(num), 0, 0);
 };
 
 /* Target geometry – 3 BIG prominent targets */
@@ -761,14 +744,14 @@ const TriggerTriage = ({ embedded }: { embedded?: boolean }) => {
         ctx.shadowColor = prio.color;
         ctx.shadowBlur = (isHover ? 25 : 12) * glowPulse;
 
-        // Space Invaders pixel sprite in center
+        // Large priority number in center
         ctx.save();
         ctx.translate(t.x, t.y);
-        const spriteSize = t.r * 1.1;
-        drawInvader(ctx, i, spriteSize, prio.color + (isHover ? 'ee' : 'aa'));
+        const numSize = t.r * 1.1;
+        drawPrioNumber(ctx, i + 1, numSize, prio.color + (isHover ? 'ee' : 'aa'));
         // Glow layer
         ctx.globalAlpha = 0.25 * glowPulse;
-        drawInvader(ctx, i, spriteSize * 1.08, prio.color);
+        drawPrioNumber(ctx, i + 1, numSize * 1.08, prio.color);
         ctx.globalAlpha = 1;
         ctx.restore();
         ctx.shadowBlur = 0;
