@@ -266,6 +266,15 @@ const OPTION_LETTERS = ['A', 'B', 'C', 'D'];
 const QUESTION_TIME = 45;
 const BONUS_TIME_THRESHOLD = 30;
 const STORAGE_KEY = 'nis2_quiz_best';
+const BOARD_KEY = 'nis2_quiz_top5';
+interface NisBoardEntry { score: number; amount: string; date: string; }
+const getNisBoard = (): NisBoardEntry[] => { try { return JSON.parse(localStorage.getItem(BOARD_KEY) || '[]'); } catch { return []; } };
+const saveNisBoard = (score: number, amount: string) => {
+  const board = getNisBoard();
+  board.push({ score, amount, date: new Date().toLocaleDateString() });
+  board.sort((a, b) => b.score - a.score);
+  try { localStorage.setItem(BOARD_KEY, JSON.stringify(board.slice(0, 5))); } catch {}
+};
 
 const I18N = {
   title: { de: 'NIS-2 Awareness Quiz', en: 'NIS-2 Awareness Quiz', fr: 'Quiz NIS-2' },
@@ -397,6 +406,7 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
         const newBest = Math.max(bestScore, QUIZ_SIZE);
         setBestScore(newBest);
         try { localStorage.setItem(STORAGE_KEY, String(newBest)); } catch {}
+        saveNisBoard(QUIZ_SIZE, '64.000');
         setTimeout(() => playVictory(), 300);
       } else {
         setTimeout(() => playCorrect(), 400);
@@ -407,6 +417,9 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
       const newBest = Math.max(bestScore, score);
       setBestScore(newBest);
       try { localStorage.setItem(STORAGE_KEY, String(newBest)); } catch {}
+      const secLevel = SAFETY_NETS.filter(idx => idx < currentQ).reverse()[0];
+      const secAmount = secLevel !== undefined ? MONEY_LEVELS[secLevel] : '0';
+      saveNisBoard(score, secAmount);
       setTimeout(() => playDefeat(), 300);
     }
   };
@@ -582,6 +595,29 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
               </div>
             </div>
           )}
+          {/* ── TOP 5 LEADERBOARD ── */}
+          {(() => {
+            const board = getNisBoard();
+            if (board.length === 0) return null;
+            return (
+              <div className="bg-card/60 border border-primary/20 rounded-xl p-4">
+                <h3 className="text-center font-mono font-bold text-xs text-primary/80 tracking-[0.2em] mb-3">─── TOP 5 ───</h3>
+                <div className="space-y-1.5">
+                  {board.map((e, i) => {
+                    const isCurrentRun = e.score === score && e.date === new Date().toLocaleDateString();
+                    const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '  ';
+                    return (
+                      <div key={i} className={`flex items-center justify-between text-xs font-mono px-2 py-1 rounded ${isCurrentRun ? 'bg-primary/10 text-primary' : i === 0 ? 'text-foreground/80' : 'text-muted-foreground'}`}>
+                        <span>{medal} {e.score}/{QUIZ_SIZE}</span>
+                        <span>€ {e.amount}</span>
+                        <span className="text-[10px]">{e.date}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })()}
           <div className="text-center space-y-3">
             <p className="text-muted-foreground text-xs">
               {won ? t({ de: 'Kannst du es nochmal schaffen?', en: 'Can you do it again?', fr: 'Pouvez-vous recommencer ?' })
