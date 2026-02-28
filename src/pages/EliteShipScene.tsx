@@ -295,6 +295,110 @@ function Rain({ linePosRef, aliveRef }: {
   );
 }
 
+/* ── Mandelbrot Background Skybox ── */
+const mandelbrotVertexShader = `
+varying vec2 vUv;
+void main() {
+  vUv = uv;
+  gl_Position = vec4(position.xy, 0.999, 1.0);
+}
+`;
+
+const mandelbrotFragmentShader = `
+precision highp float;
+varying vec2 vUv;
+uniform float uTime;
+
+// Smooth coloring palette
+vec3 palette(float t) {
+  vec3 a = vec3(0.02, 0.01, 0.03);
+  vec3 b = vec3(0.4, 0.6, 0.3);
+  vec3 c = vec3(1.0, 1.0, 1.0);
+  vec3 d = vec3(0.0, 0.15, 0.2);
+  return a + b * cos(6.28318 * (c * t + d));
+}
+
+void main() {
+  // Slowly drift through interesting Mandelbrot regions
+  float speed = uTime * 0.012;
+  
+  // Cycle through spectacular coordinates
+  float phase = mod(speed, 4.0);
+  vec2 center;
+  float zoom;
+  
+  if (phase < 1.0) {
+    // Seahorse valley
+    float t = phase;
+    center = vec2(-0.745, 0.186);
+    zoom = 0.004 * exp(-t * 2.5);
+  } else if (phase < 2.0) {
+    float t = phase - 1.0;
+    // Elephant valley  
+    center = vec2(0.282, 0.0073);
+    zoom = 0.006 * exp(-t * 2.5);
+  } else if (phase < 3.0) {
+    float t = phase - 2.0;
+    // Spiral arms
+    center = vec2(-0.1011, 0.9563);
+    zoom = 0.01 * exp(-t * 2.5);
+  } else {
+    float t = phase - 3.0;
+    // Mini-brot
+    center = vec2(-1.7497, 0.0);
+    zoom = 0.02 * exp(-t * 2.5);
+  }
+  
+  vec2 c = center + (vUv - 0.5) * vec2(zoom * 1.777, zoom);
+  vec2 z = vec2(0.0);
+  
+  float iter = 0.0;
+  const float MAX_ITER = 256.0;
+  
+  for (float i = 0.0; i < MAX_ITER; i++) {
+    z = vec2(z.x * z.x - z.y * z.y, 2.0 * z.x * z.y) + c;
+    if (dot(z, z) > 256.0) { iter = i; break; }
+    iter = i;
+  }
+  
+  if (iter >= MAX_ITER - 1.0) {
+    gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+  } else {
+    // Smooth iteration count
+    float sl = iter - log2(log2(dot(z, z))) + 4.0;
+    float t = sl / 60.0 + uTime * 0.01;
+    vec3 col = palette(t);
+    // Keep it dark/subtle as background
+    col *= 0.35;
+    gl_FragColor = vec4(col, 1.0);
+  }
+}
+`;
+
+function MandelbrotBackground() {
+  const matRef = useRef<THREE.ShaderMaterial>(null);
+  
+  useFrame(({ clock }) => {
+    if (matRef.current) {
+      matRef.current.uniforms.uTime.value = clock.elapsedTime;
+    }
+  });
+
+  return (
+    <mesh renderOrder={-100} frustumCulled={false}>
+      <planeGeometry args={[2, 2]} />
+      <shaderMaterial
+        ref={matRef}
+        vertexShader={mandelbrotVertexShader}
+        fragmentShader={mandelbrotFragmentShader}
+        uniforms={{ uTime: { value: 0 } }}
+        depthWrite={false}
+        depthTest={false}
+      />
+    </mesh>
+  );
+}
+
 /* ── Realistic Starfield ── */
 const STAR_COUNT = 20000;
 function RealisticStarfield() {
@@ -311,16 +415,14 @@ function RealisticStarfield() {
       pos[i3] = r * Math.sin(phi) * Math.cos(theta);
       pos[i3 + 1] = r * Math.sin(phi) * Math.sin(theta);
       pos[i3 + 2] = r * Math.cos(phi);
-      // Realistic magnitude distribution: most stars dim, very few bright
-      const mag = Math.pow(Math.random(), 4); // heavily skewed to dim
+      const mag = Math.pow(Math.random(), 4);
       const temp = Math.random();
       const brightness = 0.15 + mag * 0.85;
       if (temp < 0.5) { col[i3] = 0.9 * brightness; col[i3+1] = 0.92 * brightness; col[i3+2] = 1.0 * brightness; }
       else if (temp < 0.75) { col[i3] = 1.0 * brightness; col[i3+1] = 0.96 * brightness; col[i3+2] = 0.88 * brightness; }
       else if (temp < 0.9) { col[i3] = 0.65 * brightness; col[i3+1] = 0.8 * brightness; col[i3+2] = 1.0 * brightness; }
       else if (temp < 0.97) { col[i3] = 1.0 * brightness; col[i3+1] = 0.85 * brightness; col[i3+2] = 0.5 * brightness; }
-      else { col[i3] = 1.0 * brightness; col[i3+1] = 0.55 * brightness; col[i3+2] = 0.3 * brightness; } // rare red giants
-      // Size: tiny for most, a few prominent
+      else { col[i3] = 1.0 * brightness; col[i3+1] = 0.55 * brightness; col[i3+2] = 0.3 * brightness; }
       sz[i] = mag < 0.15 ? 0.08 + Math.random() * 0.06 : mag < 0.7 ? 0.14 + mag * 0.3 : 0.5 + mag * 1.2;
     }
     return { positions: pos, baseColors: col, sizes: sz };
@@ -343,7 +445,6 @@ function RealisticStarfield() {
     const t = clock.elapsedTime;
     const colAttr = pointsRef.current.geometry.attributes.color as THREE.BufferAttribute;
     const col = colAttr.array as Float32Array;
-    // Only twinkle brighter stars (every 4th) for perf, rest stay static
     for (let i = 0; i < STAR_COUNT; i += 4) {
       const brightness = 0.7 + 0.3 * Math.sin(t * twinkleSpeeds[i] + twinklePhases[i]);
       const i3 = i * 3;
@@ -581,6 +682,7 @@ export default function EliteShipScene() {
         gl={{ antialias: true, alpha: false }}
         style={{ background: BG }}
       >
+        <MandelbrotBackground />
         <CockpitCamera rainPositions={rainPosRef} rainAlive={rainAliveRef} />
         <RealisticStarfield />
         <Rain linePosRef={rainPosRef} aliveRef={rainAliveRef} />
