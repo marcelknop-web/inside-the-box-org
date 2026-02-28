@@ -303,6 +303,7 @@ export const de = {
     agentPciDesc: 'Findet den richtigen SAQ-Typ für Ihre Kartenzahlungsumgebung nach PCI DSS v4.0',
     agentTtxDesc: 'Priorisiert Wiederanlaufpläne (ISCP) für Tabletop-Übungen nach Kritikalität',
     agentNis2QuizDesc: 'Gamifizierter Wissenstest mit 15 Fragen zur NIS-2-Richtlinie – mit Timer und Highscore',
+    agentCisoDesc: 'Strategische Budget-Simulation – 5 Runden als CISO eines regulierten Unternehmens überleben',
     agentYtTitle: 'Video-Einspieler für Übungen',
     agentYtDesc: 'KI-generierte Nachrichten-Videos als realistische Lagebilder in Krisenstabsübungen',
   },
