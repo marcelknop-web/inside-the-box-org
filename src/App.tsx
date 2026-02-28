@@ -8,7 +8,7 @@ import { LanguageProvider } from "./i18n/LanguageContext";
 import ChatView from "./pages/ChatView";
 import NotFound from "./pages/NotFound";
 import CyberFrogger from "./pages/CyberFrogger";
-import MoonCrashExercise from "./pages/MoonCrashExercise";
+import EliteShipScene from "./pages/EliteShipScene";
 
 const queryClient = new QueryClient();
 
@@ -23,7 +23,7 @@ const App = () => (
             <Routes>
               <Route path="/" element={<ChatView />} />
               <Route path="/cyber-frogger" element={<CyberFrogger />} />
-              <Route path="/moon-crash" element={<MoonCrashExercise />} />
+              <Route path="/elite-ship" element={<EliteShipScene />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
