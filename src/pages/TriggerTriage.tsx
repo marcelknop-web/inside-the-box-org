@@ -1,5 +1,60 @@
 import { useRef, useEffect, useCallback, useState } from 'react';
 import { PageMeta } from '@/components/PageMeta';
+import { useLanguage } from '@/i18n/LanguageContext';
+
+/* ══════════════════════════════════════
+   I18N
+   ══════════════════════════════════════ */
+const TT = {
+  en: {
+    title: '🎯 TRIGGER TRIAGE', subtitle: 'INCIDENT PRIORITY SHOOTING RANGE',
+    howTo: '🎯 HOW TO PLAY',
+    howToLines: ['1.  Read the incident report above', '2.  Judge: How critical is it?', '3.  Shoot the matching priority target!', '', 'You have 10 seconds per incident.', 'Faster = more points. 3 lives.'],
+    controls: 'KEYS 1-5 TO SHOOT  |  SPACE TO START',
+    tapStart: '▶ TAP TO START', pressSpace: '▶ PRESS SPACE',
+    rangeClosed: 'RANGE CLOSED', finalScore: 'FINAL SCORE',
+    correct: 'CORRECT', wrong: 'WRONG', accuracy: 'ACCURACY',
+    bestStreak: 'BEST STREAK', best: 'BEST',
+    tapRestart: '▶ TAP TO RETRY', restart: '▶ SPACE / R TO RETRY',
+    shootPrompt: '▼  SHOOT THE CORRECT PRIORITY  ▼',
+    incidentReport: '📋 INCIDENT REPORT',
+    round: 'ROUND',
+    ratings: ['🔰 Rookie', '📋 Needs Practice', '🎯 On Target', '⭐ Senior Responder', '🏆 Expert Analyst'],
+    prioHints: ['Everything down', 'Major impact', 'Limited impact', 'Minor issue', 'No action needed'],
+  },
+  de: {
+    title: '🎯 TRIGGER TRIAGE', subtitle: 'INCIDENT PRIORITÄTS-SCHIEßSTAND',
+    howTo: '🎯 SO GEHT\'S',
+    howToLines: ['1.  Incident-Meldung oben lesen', '2.  Einschätzen: Wie kritisch?', '3.  Auf die richtige Priorität schießen!', '', '10 Sekunden pro Incident.', 'Schneller = mehr Punkte. 3 Leben.'],
+    controls: 'TASTEN 1-5 SCHIEßEN  |  LEERTASTE START',
+    tapStart: '▶ TIPPEN ZUM START', pressSpace: '▶ LEERTASTE',
+    rangeClosed: 'STAND GESCHLOSSEN', finalScore: 'ENDERGEBNIS',
+    correct: 'RICHTIG', wrong: 'FALSCH', accuracy: 'TREFFERQUOTE',
+    bestStreak: 'BESTE SERIE', best: 'REKORD',
+    tapRestart: '▶ TIPPEN FÜR NEUSTART', restart: '▶ LEERTASTE / R',
+    shootPrompt: '▼  RICHTIGE PRIORITÄT SCHIEßEN  ▼',
+    incidentReport: '📋 INCIDENT-MELDUNG',
+    round: 'RUNDE',
+    ratings: ['🔰 Anfänger', '📋 Übung nötig', '🎯 Auf Kurs', '⭐ Senior Analyst', '🏆 Experte'],
+    prioHints: ['Totalausfall', 'Großer Impact', 'Begrenzter Impact', 'Geringes Risiko', 'Kein Handlungsbedarf'],
+  },
+  fr: {
+    title: '🎯 TRIGGER TRIAGE', subtitle: 'STAND DE TIR PRIORITÉ INCIDENTS',
+    howTo: '🎯 COMMENT JOUER',
+    howToLines: ['1.  Lire le rapport d\'incident', '2.  Évaluer : quelle criticité ?', '3.  Tirer sur la bonne priorité !', '', '10 secondes par incident.', 'Plus vite = plus de points. 3 vies.'],
+    controls: 'TOUCHES 1-5 TIRER  |  ESPACE DÉMARRER',
+    tapStart: '▶ APPUYER POUR DÉMARRER', pressSpace: '▶ APPUYER ESPACE',
+    rangeClosed: 'STAND FERMÉ', finalScore: 'SCORE FINAL',
+    correct: 'CORRECT', wrong: 'FAUX', accuracy: 'PRÉCISION',
+    bestStreak: 'MEILLEURE SÉRIE', best: 'RECORD',
+    tapRestart: '▶ APPUYER POUR REJOUER', restart: '▶ ESPACE / R',
+    shootPrompt: '▼  TIRER SUR LA BONNE PRIORITÉ  ▼',
+    incidentReport: '📋 RAPPORT D\'INCIDENT',
+    round: 'TOUR',
+    ratings: ['🔰 Débutant', '📋 À améliorer', '🎯 En bonne voie', '⭐ Analyste confirmé', '🏆 Expert'],
+    prioHints: ['Panne totale', 'Impact majeur', 'Impact limité', 'Problème mineur', 'Aucune action requise'],
+  },
+};
 
 /* ══════════════════════════════════════
    COLORS
@@ -276,7 +331,11 @@ const TriggerTriage = ({ embedded }: { embedded?: boolean }) => {
   const audioRef = useRef<AudioContext | null>(null);
   const bgRef = useRef<BGMusic | null>(null);
   const [, forceRender] = useState(0);
-  const lastTickRef = useRef(0); // for countdown tick sound
+  const lastTickRef = useRef(0);
+  const { language } = useLanguage();
+  const langRef = useRef(language);
+  langRef.current = language;
+  
 
   const ensureAudio = useCallback(() => {
     if (!audioRef.current) { try { audioRef.current = new AudioContext(); } catch {} }
@@ -445,6 +504,9 @@ const TriggerTriage = ({ embedded }: { embedded?: boolean }) => {
       const g = gs.current;
       const { w, h } = sizeRef.current;
       if (w === 0) { animRef.current = requestAnimationFrame(loop); return; }
+      const ac = audioRef.current;
+      const lang = langRef.current as 'en' | 'de' | 'fr';
+      const txt = TT[lang];
       const ac = audioRef.current;
 
       /* ── UPDATE ── */
