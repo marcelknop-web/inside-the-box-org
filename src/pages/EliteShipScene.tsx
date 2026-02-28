@@ -2,53 +2,47 @@ import React, { useRef, useMemo } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Stars } from '@react-three/drei';
 import * as THREE from 'three';
+import { ConvexGeometry } from 'three/addons/geometries/ConvexGeometry.js';
 
 const LINE_COLOR = '#00ffaa';
 const BG = '#000000';
 
-/* ── Build irregular convex polygon asteroid ── */
-function buildAsteroid(seed: number, radius: number, segments: number): { geo: THREE.BufferGeometry; edges: Float32Array } {
+/* ── Build a random convex polyhedron from scratch ── */
+function buildPolyhedronAsteroid(seed: number, radius: number): { geo: THREE.BufferGeometry; edges: Float32Array } {
   const rng = (i: number) => {
     let x = Math.sin(seed * 9301 + i * 49297 + 0.1) * 49297;
     return x - Math.floor(x);
   };
 
-  // Use different base shapes for variety
-  const shapeType = Math.floor(rng(0) * 4);
-  let geo: THREE.BufferGeometry;
+  // Generate random vertices on a deformed sphere
+  const numVerts = 6 + Math.floor(rng(0) * 7); // 6–12 vertices
+  const verts: THREE.Vector3[] = [];
 
-  switch (shapeType) {
-    case 0:
-      geo = new THREE.DodecahedronGeometry(radius, 0);
-      break;
-    case 1:
-      geo = new THREE.OctahedronGeometry(radius, 0);
-      break;
-    case 2:
-      geo = new THREE.TetrahedronGeometry(radius * 1.2, 1);
-      break;
-    default:
-      geo = new THREE.IcosahedronGeometry(radius, 0);
-      break;
+  for (let i = 0; i < numVerts; i++) {
+    // Distribute points using golden spiral for even coverage
+    const y = 1 - (i / (numVerts - 1)) * 2; // -1 to 1
+    const radiusAtY = Math.sqrt(1 - y * y);
+    const theta = ((2 * Math.PI * i) / 1.618033988749895) + rng(i + 20) * 0.8;
+    const r = radius * (0.5 + rng(i + 50) * 0.8); // varied distance
+    verts.push(new THREE.Vector3(
+      Math.cos(theta) * radiusAtY * r,
+      y * r * (0.6 + rng(i + 70) * 0.8),
+      Math.sin(theta) * radiusAtY * r
+    ));
   }
 
-  // Non-uniform scale for elongated/flattened shapes
-  const scaleX = 0.6 + rng(100) * 0.8;
-  const scaleY = 0.5 + rng(101) * 0.9;
-  const scaleZ = 0.6 + rng(102) * 0.8;
-  geo.scale(scaleX, scaleY, scaleZ);
+  // Build convex hull using ConvexGeometry approach:
+  // Use Three.js ConvexGeometry via manual triangulation
+  const geo = new ConvexGeometry(verts);
 
-  // Displace vertices for irregular surface
-  const pos = geo.attributes.position;
-  for (let i = 0; i < pos.count; i++) {
-    const x = pos.getX(i), y = pos.getY(i), z = pos.getZ(i);
-    const len = Math.sqrt(x * x + y * y + z * z) || 1;
-    const n = 0.7 + rng(i + 50) * 0.6;
-    pos.setXYZ(i, x * n, y * n, z * n);
-  }
+  // Non-uniform stretch for variety
+  const sx = 0.7 + rng(100) * 0.7;
+  const sy = 0.5 + rng(101) * 1.0;
+  const sz = 0.7 + rng(102) * 0.7;
+  geo.scale(sx, sy, sz);
   geo.computeVertexNormals();
 
-  const edgesGeo = new THREE.EdgesGeometry(geo, 8);
+  const edgesGeo = new THREE.EdgesGeometry(geo, 1);
   const arr = new Float32Array(edgesGeo.attributes.position.array);
   edgesGeo.dispose();
 
@@ -56,12 +50,12 @@ function buildAsteroid(seed: number, radius: number, segments: number): { geo: T
 }
 
 /* ── Single Asteroid ── */
-function Asteroid({ seed, radius, position: pos, rotSpeed, segments }: {
+function Asteroid({ seed, radius, position: pos, rotSpeed }: {
   seed: number; radius: number; position: [number, number, number];
-  rotSpeed: [number, number, number]; segments: number;
+  rotSpeed: [number, number, number];
 }) {
   const ref = useRef<THREE.Group>(null);
-  const { geo, edges } = useMemo(() => buildAsteroid(seed, radius, segments), [seed, radius, segments]);
+  const { geo, edges } = useMemo(() => buildPolyhedronAsteroid(seed, radius), [seed, radius]);
 
   useFrame((_, dt) => {
     if (!ref.current) return;
@@ -94,7 +88,6 @@ const ASTEROIDS = (() => {
   return Array.from({ length: 18 }, (_, i) => ({
     seed: i * 17 + 3,
     radius: 1.5 + rng(i, 0) * 6,
-    segments: 4 + Math.floor(rng(i, 10) * 4),
     position: [
       15 + rng(i, 1) * 80,
       rng(i, 2) * 30 - 15,
@@ -143,33 +136,26 @@ function CockpitCamera() {
   return null;
 }
 
-/* ── Cockpit overlay (no 3D objects, pure SVG frame) ── */
+/* ── Cockpit overlay ── */
 function CockpitHUD() {
   return (
     <div className="absolute inset-0 pointer-events-none select-none" style={{ fontFamily: '"Courier New", monospace' }}>
-      {/* Scanlines */}
       <div className="absolute inset-0 opacity-[0.03]" style={{
         backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,170,0.08) 2px, rgba(0,255,170,0.08) 4px)',
       }} />
 
       <svg className="absolute inset-0 w-full h-full" viewBox="0 0 1920 1080" preserveAspectRatio="none">
-        {/* Lower cockpit frame */}
         <path d="M 0 880 Q 960 780 1920 880 L 1920 1080 L 0 1080 Z" fill={BG} stroke={LINE_COLOR} strokeWidth="1.5" opacity="0.5" />
         <path d="M 100 920 Q 960 850 1820 920" fill="none" stroke={LINE_COLOR} strokeWidth="0.5" opacity="0.2" />
-        {/* Side pillars */}
         <polygon points="0,0 110,0 60,1080 0,1080" fill={BG} stroke={LINE_COLOR} strokeWidth="1" opacity="0.35" />
         <polygon points="1920,0 1810,0 1860,1080 1920,1080" fill={BG} stroke={LINE_COLOR} strokeWidth="1" opacity="0.35" />
-        {/* Top bar */}
         <polygon points="0,0 1920,0 1920,50 1100,30 820,30 0,50" fill={BG} stroke={LINE_COLOR} strokeWidth="0.8" opacity="0.3" />
-        {/* V-struts lower */}
         <line x1="60" y1="1080" x2="500" y2="780" stroke={LINE_COLOR} strokeWidth="1" opacity="0.25" />
         <line x1="1860" y1="1080" x2="1420" y2="780" stroke={LINE_COLOR} strokeWidth="1" opacity="0.25" />
-        {/* Center console */}
         <rect x="820" y="910" width="280" height="90" rx="3" fill="none" stroke={LINE_COLOR} strokeWidth="0.8" opacity="0.3" />
         <line x1="860" y1="935" x2="1060" y2="935" stroke={LINE_COLOR} strokeWidth="0.4" opacity="0.15" />
         <line x1="860" y1="955" x2="1060" y2="955" stroke={LINE_COLOR} strokeWidth="0.4" opacity="0.15" />
         <line x1="860" y1="975" x2="1000" y2="975" stroke={LINE_COLOR} strokeWidth="0.4" opacity="0.15" />
-        {/* Reticle */}
         <circle cx="960" cy="440" r="35" fill="none" stroke={LINE_COLOR} strokeWidth="0.5" opacity="0.18" />
         <circle cx="960" cy="440" r="12" fill="none" stroke={LINE_COLOR} strokeWidth="0.3" opacity="0.12" strokeDasharray="3 3" />
         <line x1="960" y1="395" x2="960" y2="415" stroke={LINE_COLOR} strokeWidth="0.5" opacity="0.18" />
@@ -178,7 +164,6 @@ function CockpitHUD() {
         <line x1="985" y1="440" x2="1005" y2="440" stroke={LINE_COLOR} strokeWidth="0.5" opacity="0.18" />
       </svg>
 
-      {/* Text readouts */}
       <div className="absolute top-14 left-20 text-[11px] tracking-[0.2em] uppercase" style={{ color: LINE_COLOR }}>
         <div className="opacity-45">FORWARD VIEW</div>
         <div className="opacity-25 mt-1">SECTOR 9 · BELT DELTA-7</div>
