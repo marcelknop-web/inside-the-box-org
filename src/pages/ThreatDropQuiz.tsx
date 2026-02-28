@@ -117,72 +117,111 @@ const sfxGameOver = (ctx: AudioContext) => { tone(ctx, 440, 0.2, 'square', 0.1);
 const sfxStart = (ctx: AudioContext) => { tone(ctx, 440, 0.06); setTimeout(() => tone(ctx, 660, 0.06), 50); setTimeout(() => tone(ctx, 880, 0.1), 100); };
 
 /* ══════════════════════════════════════
-   BACKGROUND MUSIC – procedural chiptune loop
-   Simple catchy 80s arpeggio pattern
+   BACKGROUND MUSIC – OMD-style synth-pop riff
+   Bright, driving, catchy 80s earworm
    ══════════════════════════════════════ */
 interface BGMusic {
   ctx: AudioContext;
   running: boolean;
-  timer: ReturnType<typeof setInterval> | null;
+  timers: ReturnType<typeof setInterval>[];
   step: number;
   gainNode: GainNode;
 }
 
-const MUSIC_NOTES = [
-  // A minor pentatonic arpeggio pattern – catchy & loopable
-  // Each sub-array = [freq, duration_ms, type]
-  220, 262, 330, 392, 440, 392, 330, 262,   // ascending & descending
-  220, 330, 440, 523, 440, 330, 262, 220,   // variation
-  294, 349, 440, 523, 587, 523, 440, 349,   // key change up
-  262, 330, 392, 440, 523, 440, 392, 330,   // resolve
+// D-major synth-pop riff inspired by 80s new wave – catchy arpeggio
+// D=294, E=330, F#=370, G=392, A=440, B=494, C#=554, D5=587
+const LEAD_RIFF = [
+  587, 554, 494, 440, 494, 554, 587, 554,   // descending hook (iconic feel)
+  494, 440, 392, 440, 494, 440, 392, 370,   // answer phrase
+  587, 554, 494, 440, 494, 554, 587, 659,   // repeat with lift
+  587, 554, 494, 440, 392, 440, 494, 587,   // resolve upward
+];
+
+// Bass line – root notes pumping
+const BASS_LINE = [
+  294, 294, 294, 294, 392, 392, 392, 392,   // D → G
+  440, 440, 440, 440, 370, 370, 370, 370,   // A → F#
+  294, 294, 294, 294, 392, 392, 392, 392,   // D → G
+  440, 440, 494, 494, 294, 294, 294, 294,   // A → B → D
 ];
 
 const startBGMusic = (ctx: AudioContext): BGMusic => {
   const gainNode = ctx.createGain();
-  gainNode.gain.value = 0.04; // very subtle
+  gainNode.gain.value = 0.12; // louder – earworm!
   gainNode.connect(ctx.destination);
 
-  const bg: BGMusic = { ctx, running: true, timer: null, step: 0, gainNode };
+  const bg: BGMusic = { ctx, running: true, timers: [], step: 0, gainNode };
 
-  const playNote = () => {
+  // Lead synth – bright square wave with slight detune for fatness
+  const playLead = () => {
     if (!bg.running) return;
-    const freq = MUSIC_NOTES[bg.step % MUSIC_NOTES.length];
+    const freq = LEAD_RIFF[bg.step % LEAD_RIFF.length];
+
+    // Main osc
+    const osc1 = ctx.createOscillator();
+    const osc2 = ctx.createOscillator(); // detuned for chorus
+    const ng = ctx.createGain();
+    osc1.type = 'square'; osc1.frequency.value = freq;
+    osc2.type = 'sawtooth'; osc2.frequency.value = freq * 1.003; // slight detune
+    ng.gain.setValueAtTime(0.14, ctx.currentTime);
+    ng.gain.setValueAtTime(0.14, ctx.currentTime + 0.06);
+    ng.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.14);
+    osc1.connect(ng); osc2.connect(ng); ng.connect(bg.gainNode);
+    osc1.start(); osc2.start();
+    osc1.stop(ctx.currentTime + 0.15); osc2.stop(ctx.currentTime + 0.15);
+  };
+
+  // Pumping bass – triangle wave, sub octave
+  const playBass = () => {
+    if (!bg.running) return;
+    const freq = BASS_LINE[bg.step % BASS_LINE.length] / 2; // octave down
     const osc = ctx.createOscillator();
-    const noteGain = ctx.createGain();
-    osc.type = bg.step % 4 === 0 ? 'square' : 'triangle';
-    osc.frequency.value = freq;
-    noteGain.gain.setValueAtTime(0.15, ctx.currentTime);
-    noteGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.18);
-    osc.connect(noteGain);
-    noteGain.connect(bg.gainNode);
-    osc.start();
-    osc.stop(ctx.currentTime + 0.2);
+    const ng = ctx.createGain();
+    osc.type = 'triangle'; osc.frequency.value = freq;
+    ng.gain.setValueAtTime(0.18, ctx.currentTime);
+    ng.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.13);
+    osc.connect(ng); ng.connect(bg.gainNode);
+    osc.start(); osc.stop(ctx.currentTime + 0.14);
+  };
 
-    // Subtle bass on every 4th step
-    if (bg.step % 4 === 0) {
-      const bass = ctx.createOscillator();
-      const bassG = ctx.createGain();
-      bass.type = 'triangle';
-      bass.frequency.value = freq / 2;
-      bassG.gain.setValueAtTime(0.08, ctx.currentTime);
-      bassG.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.22);
-      bass.connect(bassG);
-      bassG.connect(bg.gainNode);
-      bass.start();
-      bass.stop(ctx.currentTime + 0.25);
-    }
+  // Hi-hat tick – noise burst on off-beats
+  let hatStep = 0;
+  const playHat = () => {
+    if (!bg.running) return;
+    const bufLen = Math.floor(ctx.sampleRate * 0.03);
+    const buf = ctx.createBuffer(1, bufLen, ctx.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < bufLen; i++) data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufLen, 4);
+    const src = ctx.createBufferSource(); src.buffer = buf;
+    const hg = ctx.createGain();
+    // Accent pattern: louder on beats 0,2 of each group of 4
+    const accent = hatStep % 2 === 0 ? 0.06 : 0.03;
+    hg.gain.setValueAtTime(accent, ctx.currentTime);
+    hg.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.04);
+    src.connect(hg); hg.connect(bg.gainNode);
+    src.start();
+    hatStep++;
+  };
 
+  const tick = () => {
+    if (!bg.running) return;
+    playLead();
+    playBass();
     bg.step++;
   };
 
-  bg.timer = setInterval(playNote, 180); // ~166 BPM
+  // ~140 BPM sixteenth notes → 107ms per step
+  bg.timers.push(setInterval(tick, 107));
+  // Hi-hat runs at double speed (eighth notes)
+  bg.timers.push(setInterval(playHat, 107));
+
   return bg;
 };
 
 const stopBGMusic = (bg: BGMusic | null) => {
   if (!bg) return;
   bg.running = false;
-  if (bg.timer) clearInterval(bg.timer);
+  bg.timers.forEach(t => clearInterval(t));
 };
 
 /* ══════════════════════════════════════
