@@ -10,7 +10,7 @@ const TT = {
     title: '🎯 TRIGGER TRIAGE', subtitle: 'INCIDENT PRIORITY SHOOTING RANGE',
     howTo: '🎯 HOW TO PLAY',
     howToLines: ['1.  Read the incident report above', '2.  Judge: How critical is it?', '3.  Shoot the matching priority target!', '', 'You have 10 seconds per incident.', 'Faster = more points. 3 lives.'],
-    controls: 'KEYS 1-5 TO SHOOT  |  SPACE TO START',
+    controls: 'KEYS 1-3 TO SHOOT  |  SPACE TO START',
     tapStart: '▶ TAP TO START', pressSpace: '▶ PRESS SPACE',
     rangeClosed: 'RANGE CLOSED', finalScore: 'FINAL SCORE',
     correct: 'CORRECT', wrong: 'WRONG', accuracy: 'ACCURACY',
@@ -20,13 +20,13 @@ const TT = {
     incidentReport: '📋 INCIDENT REPORT',
     round: 'ROUND',
     ratings: ['🔰 Rookie', '📋 Needs Practice', '🎯 On Target', '⭐ Senior Responder', '🏆 Expert Analyst'],
-    prioHints: ['Everything down', 'Major impact', 'Limited impact', 'Minor issue', 'No action needed'],
+    prioHints: ['Systems down, data breach', 'Degraded but contained', 'Housekeeping / info only'],
   },
   de: {
     title: '🎯 TRIGGER TRIAGE', subtitle: 'INCIDENT PRIORITÄTS-SCHIEßSTAND',
     howTo: '🎯 SO GEHT\'S',
     howToLines: ['1.  Incident-Meldung oben lesen', '2.  Einschätzen: Wie kritisch?', '3.  Auf die richtige Priorität schießen!', '', '10 Sekunden pro Incident.', 'Schneller = mehr Punkte. 3 Leben.'],
-    controls: 'TASTEN 1-5 SCHIEßEN  |  LEERTASTE START',
+    controls: 'TASTEN 1-3 SCHIEßEN  |  LEERTASTE START',
     tapStart: '▶ TIPPEN ZUM START', pressSpace: '▶ LEERTASTE',
     rangeClosed: 'STAND GESCHLOSSEN', finalScore: 'ENDERGEBNIS',
     correct: 'RICHTIG', wrong: 'FALSCH', accuracy: 'TREFFERQUOTE',
@@ -36,13 +36,13 @@ const TT = {
     incidentReport: '📋 INCIDENT-MELDUNG',
     round: 'RUNDE',
     ratings: ['🔰 Anfänger', '📋 Übung nötig', '🎯 Auf Kurs', '⭐ Senior Analyst', '🏆 Experte'],
-    prioHints: ['Totalausfall', 'Großer Impact', 'Begrenzter Impact', 'Geringes Risiko', 'Kein Handlungsbedarf'],
+    prioHints: ['Totalausfall, Datenverlust', 'Beeinträchtigt, eingedämmt', 'Wartung / nur Info'],
   },
   fr: {
     title: '🎯 TRIGGER TRIAGE', subtitle: 'STAND DE TIR PRIORITÉ INCIDENTS',
     howTo: '🎯 COMMENT JOUER',
     howToLines: ['1.  Lire le rapport d\'incident', '2.  Évaluer : quelle criticité ?', '3.  Tirer sur la bonne priorité !', '', '10 secondes par incident.', 'Plus vite = plus de points. 3 vies.'],
-    controls: 'TOUCHES 1-5 TIRER  |  ESPACE DÉMARRER',
+    controls: 'TOUCHES 1-3 TIRER  |  ESPACE DÉMARRER',
     tapStart: '▶ APPUYER POUR DÉMARRER', pressSpace: '▶ APPUYER ESPACE',
     rangeClosed: 'STAND FERMÉ', finalScore: 'SCORE FINAL',
     correct: 'CORRECT', wrong: 'FAUX', accuracy: 'PRÉCISION',
@@ -52,7 +52,7 @@ const TT = {
     incidentReport: '📋 RAPPORT D\'INCIDENT',
     round: 'TOUR',
     ratings: ['🔰 Débutant', '📋 À améliorer', '🎯 En bonne voie', '⭐ Analyste confirmé', '🏆 Expert'],
-    prioHints: ['Panne totale', 'Impact majeur', 'Impact limité', 'Problème mineur', 'Aucune action requise'],
+    prioHints: ['Panne totale, fuite de données', 'Dégradé mais contenu', 'Maintenance / info uniquement'],
   },
 };
 
@@ -76,11 +76,9 @@ const C = {
    PRIORITY LEVELS
    ══════════════════════════════════════ */
 const PRIOS = [
-  { id: 1, name: 'CRITICAL', short: 'P1', color: C.red,    icon: '🔥', hint: 'Everything down' },
-  { id: 2, name: 'HIGH',     short: 'P2', color: C.orange, icon: '⚠️', hint: 'Major impact' },
-  { id: 3, name: 'MEDIUM',   short: 'P3', color: C.yellow, icon: '⚡', hint: 'Limited impact' },
-  { id: 4, name: 'LOW',      short: 'P4', color: C.green,  icon: '📋', hint: 'Minor issue' },
-  { id: 5, name: 'INFO',     short: 'P5', color: C.blue,   icon: 'ℹ️', hint: 'No action needed' },
+  { id: 1, name: 'CRITICAL', short: 'P1', color: C.red,    icon: '🔥', hint: 'Systems down, breach' },
+  { id: 2, name: 'MEDIUM',   short: 'P2', color: C.yellow, icon: '⚡', hint: 'Degraded, contained' },
+  { id: 3, name: 'LOW',      short: 'P3', color: C.green,  icon: '📋', hint: 'Housekeeping / info' },
 ];
 
 /* ══════════════════════════════════════
@@ -93,45 +91,39 @@ interface Incident {
 }
 
 const INCIDENTS: Incident[] = [
-  // P1 CRITICAL
+  // P1 CRITICAL (0)
   { text: 'Ransomware encrypting production servers',            detail: 'All customer-facing services down. Encryption spreading to backup systems.', prio: 0 },
   { text: 'Active data exfiltration detected',                   detail: 'Outbound transfer of 50GB customer PII to unknown IP. Still ongoing.', prio: 0 },
   { text: 'Core banking system completely unresponsive',          detail: 'Zero transactions processing. 200K customers affected. No failover.', prio: 0 },
   { text: 'Attacker has domain admin access',                    detail: 'Golden Ticket detected. Full AD compromise. Lateral movement active.', prio: 0 },
   { text: 'Payment processing system breached',                  detail: 'Credit card data actively being siphoned. PCI scope compromised.', prio: 0 },
   { text: 'Complete network outage across all sites',             detail: 'Core routers wiped. No connectivity between offices or data centers.', prio: 0 },
+  { text: 'VPN gateway compromised',                             detail: 'Unauthorized access via VPN. 30 sessions hijacked. Remote workers affected.', prio: 0 },
+  { text: 'Email server delivering phishing to customers',       detail: 'Compromised mail relay sending malware to customer list. 5K sent.', prio: 0 },
+  { text: 'DDoS attack degrading main website',                  detail: '70% packet loss on main site. CDN partially mitigating. Sales impacted.', prio: 0 },
+  { text: 'Insider deleting files from shared drives',           detail: 'Terminated employee still has access. Deleting files systematically.', prio: 0 },
 
-  // P2 HIGH
-  { text: 'VPN gateway compromised',                             detail: 'Unauthorized access via VPN. 30 sessions hijacked. Remote workers affected.', prio: 1 },
-  { text: 'Email server delivering phishing to customers',       detail: 'Compromised mail relay sending malware to customer list. 5K sent.', prio: 1 },
+  // P2 MEDIUM (1)
+  { text: 'Phishing campaign targeting employees',               detail: '12 employees clicked link. No credentials entered yet. Alert sent.', prio: 1 },
+  { text: 'Single workstation infected with adware',             detail: 'Marketing laptop showing pop-ups. No spread. User isolated.', prio: 1 },
+  { text: 'Expired SSL certificate on internal portal',          detail: 'HR portal certificate warning. Internal users only. Workaround exists.', prio: 1 },
+  { text: 'Brute-force attempts on staging server',              detail: 'Automated attempts from single IP. Account lockout working. No breach.', prio: 1 },
+  { text: 'Unpatched Apache on dev server found',                detail: 'CVE found on internal dev server. Not internet-facing. Patch available.', prio: 1 },
+  { text: 'USB policy violation detected',                       detail: 'Employee plugged personal USB. DLP blocked transfer. Quarantined.', prio: 1 },
   { text: 'Database replication lag causing data loss risk',      detail: 'Primary DB 45min ahead of replica. If primary fails, data loss.', prio: 1 },
   { text: 'Privilege escalation exploit on web server',          detail: 'Attacker gained root on web-01. Not yet spread. Customer data at risk.', prio: 1 },
-  { text: 'DDoS attack degrading main website',                  detail: '70% packet loss on main site. CDN partially mitigating. Sales impacted.', prio: 1 },
-  { text: 'Insider deleting files from shared drives',           detail: 'Terminated employee still has access. Deleting files systematically.', prio: 1 },
 
-  // P3 MEDIUM
-  { text: 'Phishing campaign targeting employees',               detail: '12 employees clicked link. No credentials entered yet. Alert sent.', prio: 2 },
-  { text: 'Single workstation infected with adware',             detail: 'Marketing laptop showing pop-ups. No spread. User isolated.', prio: 2 },
-  { text: 'Expired SSL certificate on internal portal',          detail: 'HR portal certificate warning. Internal users only. Workaround exists.', prio: 2 },
-  { text: 'Brute-force attempts on staging server',              detail: 'Automated attempts from single IP. Account lockout working. No breach.', prio: 2 },
-  { text: 'Unpatched Apache on dev server found',                detail: 'CVE found on internal dev server. Not internet-facing. Patch available.', prio: 2 },
-  { text: 'USB policy violation detected',                       detail: 'Employee plugged personal USB. DLP blocked transfer. Quarantined.', prio: 2 },
-
-  // P4 LOW
-  { text: 'Password rotation reminder overdue',                  detail: 'Service account password 10 days past policy. No compromise signs.', prio: 3 },
-  { text: 'Minor UI bug in admin dashboard',                     detail: 'Chart labels overlapping on one page. Functionality unaffected.', prio: 3 },
-  { text: 'Test environment DNS misconfiguration',               detail: 'Dev team can\'t resolve test domains. Production unaffected.', prio: 3 },
-  { text: 'Old firewall rules need cleanup',                     detail: '15 unused rules from old project. No security risk, just housekeeping.', prio: 3 },
-  { text: 'Guest network printer offline',                       detail: 'Conference room printer not responding. Lobby printer available.', prio: 3 },
-  { text: 'Antivirus license renewal in 30 days',                detail: 'Auto-renewal configured. No action required now.', prio: 3 },
-
-  // P5 INFO
-  { text: 'Monthly vulnerability report ready',                  detail: 'Scheduled scan completed. Report ready for review. No critical findings.', prio: 4 },
-  { text: 'New security training module published',              detail: 'Q2 training live. Employees have 30 days to complete.', prio: 4 },
-  { text: 'Routine firmware update available',                   detail: 'Switch firmware v3.2.1. Bug fixes only, no security patches.', prio: 4 },
-  { text: 'IT asset inventory audit completed',                  detail: 'All assets accounted for. 3 laptops need label updates.', prio: 4 },
-  { text: 'Security standup notes shared',                       detail: 'Meeting minutes distributed. No action items for your team.', prio: 4 },
-  { text: 'ISO 27001 documentation updated',                     detail: 'Annual review completed. Minor wording changes only.', prio: 4 },
+  // P3 LOW (2)
+  { text: 'Password rotation reminder overdue',                  detail: 'Service account password 10 days past policy. No compromise signs.', prio: 2 },
+  { text: 'Minor UI bug in admin dashboard',                     detail: 'Chart labels overlapping on one page. Functionality unaffected.', prio: 2 },
+  { text: 'Test environment DNS misconfiguration',               detail: 'Dev team can\'t resolve test domains. Production unaffected.', prio: 2 },
+  { text: 'Old firewall rules need cleanup',                     detail: '15 unused rules from old project. No security risk, just housekeeping.', prio: 2 },
+  { text: 'Guest network printer offline',                       detail: 'Conference room printer not responding. Lobby printer available.', prio: 2 },
+  { text: 'Antivirus license renewal in 30 days',                detail: 'Auto-renewal configured. No action required now.', prio: 2 },
+  { text: 'Monthly vulnerability report ready',                  detail: 'Scheduled scan completed. Report ready for review. No critical findings.', prio: 2 },
+  { text: 'New security training module published',              detail: 'Q2 training live. Employees have 30 days to complete.', prio: 2 },
+  { text: 'Routine firmware update available',                   detail: 'Switch firmware v3.2.1. Bug fixes only, no security patches.', prio: 2 },
+  { text: 'ISO 27001 documentation updated',                     detail: 'Annual review completed. Minor wording changes only.', prio: 2 },
 ];
 
 /* ══════════════════════════════════════
@@ -305,14 +297,15 @@ const wrapText = (ctx: CanvasRenderingContext2D, text: string, maxW: number): st
   return lines;
 };
 
-/* Target geometry – BIGGER targets, clear spacing */
+/* Target geometry – 3 BIG prominent targets */
 const getTargets = (w: number, h: number) => {
   const targetY = h * 0.62;
-  const radius = Math.min(w / 10, 52);
-  const totalW = 5 * radius * 2 + 4 * 12; // targets + gaps
+  const radius = Math.min(w / 7, 72);
+  const gap = 24;
+  const totalW = 3 * radius * 2 + 2 * gap;
   const startX = (w - totalW) / 2 + radius;
   return PRIOS.map((_, i) => ({
-    x: startX + i * (radius * 2 + 12),
+    x: startX + i * (radius * 2 + gap),
     y: targetY,
     r: radius,
   }));
@@ -446,7 +439,7 @@ const TriggerTriage = ({ embedded }: { embedded?: boolean }) => {
       if (g.phase === 'start' && (e.key === ' ' || e.key === 'Enter')) { e.preventDefault(); startGame(); return; }
       if (g.phase === 'over' && (e.key === 'r' || e.key === 'R' || e.key === ' ')) { e.preventDefault(); startGame(); return; }
       if (g.phase === 'play') {
-        if (e.key >= '1' && e.key <= '5') { e.preventDefault(); shoot(+e.key - 1); }
+        if (e.key >= '1' && e.key <= '3') { e.preventDefault(); shoot(+e.key - 1); }
       }
     };
     window.addEventListener('keydown', onKey);
@@ -759,24 +752,28 @@ const TriggerTriage = ({ embedded }: { embedded?: boolean }) => {
         // Priority label – PROMINENT
         ctx.textAlign = 'center';
 
+        // Icon inside bullseye
+        ctx.font = '22px monospace';
+        ctx.fillText(prio.icon, t.x, t.y + 8);
+
         // Priority badge
-        ctx.font = 'bold 14px monospace';
+        ctx.font = 'bold 20px monospace';
         ctx.fillStyle = prio.color;
-        ctx.fillText(prio.short, t.x, t.y + t.r + 18);
+        ctx.fillText(prio.short, t.x, t.y + t.r + 24);
 
         // Name
-        ctx.font = 'bold 9px monospace';
-        ctx.fillStyle = prio.color + 'bb';
-        ctx.fillText(prio.name, t.x, t.y + t.r + 32);
+        ctx.font = 'bold 12px monospace';
+        ctx.fillStyle = prio.color + 'cc';
+        ctx.fillText(prio.name, t.x, t.y + t.r + 42);
 
         // Hint
-        ctx.font = '8px monospace';
-        ctx.fillStyle = 'rgba(255,255,255,0.25)';
-        ctx.fillText(prio.hint, t.x, t.y + t.r + 44);
+        ctx.font = '10px monospace';
+        ctx.fillStyle = 'rgba(255,255,255,0.3)';
+        ctx.fillText(prio.hint, t.x, t.y + t.r + 56);
 
         // Key hint
-        ctx.font = '8px monospace'; ctx.fillStyle = 'rgba(255,255,255,0.12)';
-        ctx.fillText('[' + (i + 1) + ']', t.x, t.y + t.r + 56);
+        ctx.font = '10px monospace'; ctx.fillStyle = 'rgba(255,255,255,0.15)';
+        ctx.fillText('[' + (i + 1) + ']', t.x, t.y + t.r + 70);
       }
 
       // Bullet holes
@@ -863,20 +860,20 @@ const TriggerTriage = ({ embedded }: { embedded?: boolean }) => {
 
         // Priority legend – visual and clear
         const ly = h * 0.52;
-        ctx.font = 'bold 11px monospace';
-        for (let i = 0; i < 5; i++) {
-          const y = ly + i * 28;
+        ctx.font = 'bold 13px monospace';
+        for (let i = 0; i < 3; i++) {
+          const y = ly + i * 36;
           // Colored bullet
           ctx.fillStyle = PRIOS[i].color;
-          ctx.beginPath(); ctx.arc(w / 2 - 130, y - 3, 5, 0, Math.PI * 2); ctx.fill();
+          ctx.beginPath(); ctx.arc(w / 2 - 120, y - 3, 8, 0, Math.PI * 2); ctx.fill();
           // Label
           ctx.textAlign = 'left';
           ctx.fillStyle = PRIOS[i].color;
-          ctx.font = 'bold 11px monospace';
-          ctx.fillText(PRIOS[i].short + '  ' + PRIOS[i].name, w / 2 - 118, y);
+          ctx.font = 'bold 14px monospace';
+          ctx.fillText(PRIOS[i].short + '  ' + PRIOS[i].name, w / 2 - 105, y);
           // Description
-          ctx.font = '9px monospace'; ctx.fillStyle = 'rgba(255,255,255,0.35)';
-          ctx.fillText(PRIOS[i].hint, w / 2 + 20, y);
+          ctx.font = '10px monospace'; ctx.fillStyle = 'rgba(255,255,255,0.4)';
+          ctx.fillText(PRIOS[i].hint, w / 2 - 105, y + 16);
           ctx.textAlign = 'center';
         }
 
@@ -884,7 +881,7 @@ const TriggerTriage = ({ embedded }: { embedded?: boolean }) => {
         const mob = 'ontouchstart' in window;
         if (!mob) {
           ctx.fillStyle = 'rgba(255,255,255,0.15)'; ctx.font = '9px monospace';
-          ctx.fillText('KEYS 1-5 TO SHOOT  |  SPACE TO START', w / 2, h * 0.89);
+          ctx.fillText('KEYS 1-3 TO SHOOT  |  SPACE TO START', w / 2, h * 0.89);
         }
         const blink = Math.sin(now * 0.005) > 0;
         if (blink) { ctx.fillStyle = C.orange; ctx.font = 'bold 14px monospace'; ctx.fillText(mob ? '▶ TAP TO START' : '▶ PRESS SPACE', w / 2, h * 0.94); }
