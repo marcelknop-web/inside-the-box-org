@@ -305,6 +305,31 @@ const wrapText = (ctx: CanvasRenderingContext2D, text: string, maxW: number): st
   if (line) lines.push(line);
   return lines;
 };
+/* Space Invaders pixel sprites for targets (11 cols × 8 rows) */
+const INVADER_SPRITES = [
+  // P1 CRITICAL – menacing squid
+  [0b00100000100, 0b00010001000, 0b00111111100, 0b01101110110, 0b11111111111, 0b10111111101, 0b10100000101, 0b00011011000],
+  // P2 MEDIUM – crab
+  [0b00001110000, 0b00111111100, 0b01111111110, 0b11100100111, 0b11111111111, 0b00010001000, 0b00101010100, 0b10100000101],
+  // P3 LOW – octopus
+  [0b00100000100, 0b10010001001, 0b10111111101, 0b11101110111, 0b11111111111, 0b01111111110, 0b00100000100, 0b01000000010],
+];
+
+const drawInvader = (ctx: CanvasRenderingContext2D, prioIdx: number, size: number, color: string) => {
+  const sprite = INVADER_SPRITES[prioIdx % INVADER_SPRITES.length];
+  const cols = 11, rows = sprite.length;
+  const px = size / cols;
+  ctx.fillStyle = color;
+  const ox = -(cols * px) / 2;
+  const oy = -(rows * px) / 2;
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      if (sprite[r] & (1 << (cols - 1 - c))) {
+        ctx.fillRect(ox + c * px, oy + r * px, px + 0.5, px + 0.5);
+      }
+    }
+  }
+};
 
 /* Target geometry – 3 BIG prominent targets */
 const getTargets = (w: number, h: number) => {
@@ -732,12 +757,6 @@ const TriggerTriage = ({ embedded }: { embedded?: boolean }) => {
         ctx.lineWidth = 4;
         ctx.beginPath(); ctx.moveTo(t.x, t.y + t.r); ctx.lineTo(t.x, floorY); ctx.stroke();
 
-        // Target shadow/glow
-        if (isHover || isWrongShot) {
-          ctx.shadowColor = isWrongShot ? prio.color : 'rgba(255,255,255,0.3)';
-          ctx.shadowBlur = isWrongShot ? 25 : 15;
-        }
-
         // Outer circle fill
         ctx.beginPath(); ctx.arc(t.x, t.y, t.r, 0, Math.PI * 2);
         ctx.fillStyle = isHover ? '#1e2235' : '#161a28';
@@ -745,49 +764,46 @@ const TriggerTriage = ({ embedded }: { embedded?: boolean }) => {
         ctx.strokeStyle = prio.color + (isHover ? 'cc' : '55');
         ctx.lineWidth = isHover ? 3 : 2;
         ctx.stroke();
+
+        // Pulsing glow
+        const glowPulse = 0.6 + Math.sin(now * 0.005 + i * 2.5) * 0.4;
+        ctx.shadowColor = prio.color;
+        ctx.shadowBlur = (isHover ? 25 : 12) * glowPulse;
+
+        // Space Invaders pixel sprite in center
+        ctx.save();
+        ctx.translate(t.x, t.y);
+        const spriteSize = t.r * 1.1;
+        drawInvader(ctx, i, spriteSize, prio.color + (isHover ? 'ee' : 'aa'));
+        // Glow layer
+        ctx.globalAlpha = 0.25 * glowPulse;
+        drawInvader(ctx, i, spriteSize * 1.08, prio.color);
+        ctx.globalAlpha = 1;
+        ctx.restore();
         ctx.shadowBlur = 0;
 
-        // Concentric rings with color fill for bullseye
-        const ringAlpha = isHover ? '30' : '18';
-        ctx.beginPath(); ctx.arc(t.x, t.y, t.r * 0.75, 0, Math.PI * 2);
-        ctx.strokeStyle = prio.color + ringAlpha; ctx.lineWidth = 1; ctx.stroke();
-
-        ctx.beginPath(); ctx.arc(t.x, t.y, t.r * 0.50, 0, Math.PI * 2);
-        ctx.fillStyle = prio.color + '10';
-        ctx.fill();
-        ctx.strokeStyle = prio.color + ringAlpha; ctx.stroke();
-
-        // Bullseye center
-        ctx.beginPath(); ctx.arc(t.x, t.y, t.r * 0.22, 0, Math.PI * 2);
-        ctx.fillStyle = prio.color + (isHover ? 'cc' : '80');
-        ctx.fill();
-
         // Crosshairs
-        ctx.strokeStyle = prio.color + '15'; ctx.lineWidth = 1;
+        ctx.strokeStyle = prio.color + '12'; ctx.lineWidth = 1;
         ctx.beginPath(); ctx.moveTo(t.x - t.r, t.y); ctx.lineTo(t.x + t.r, t.y); ctx.stroke();
         ctx.beginPath(); ctx.moveTo(t.x, t.y - t.r); ctx.lineTo(t.x, t.y + t.r); ctx.stroke();
 
         // Priority label – PROMINENT
         ctx.textAlign = 'center';
 
-        // Icon inside bullseye
-        ctx.font = '22px monospace';
-        ctx.fillText(prio.icon, t.x, t.y + 8);
-
         // Priority badge
-        ctx.font = 'bold 20px monospace';
+        ctx.font = 'bold 22px monospace';
         ctx.fillStyle = prio.color;
-        ctx.fillText(prio.short, t.x, t.y + t.r + 24);
+        ctx.fillText(prio.short, t.x, t.y + t.r + 26);
 
         // Name
-        ctx.font = 'bold 12px monospace';
+        ctx.font = 'bold 13px monospace';
         ctx.fillStyle = prio.color + 'cc';
-        ctx.fillText(prio.name, t.x, t.y + t.r + 42);
+        ctx.fillText(prio.name, t.x, t.y + t.r + 44);
 
         // Hint
         ctx.font = '10px monospace';
         ctx.fillStyle = 'rgba(255,255,255,0.3)';
-        ctx.fillText(prio.hint, t.x, t.y + t.r + 56);
+        ctx.fillText(prio.hint, t.x, t.y + t.r + 58);
 
         // Key hint
         ctx.font = '10px monospace'; ctx.fillStyle = 'rgba(255,255,255,0.15)';
