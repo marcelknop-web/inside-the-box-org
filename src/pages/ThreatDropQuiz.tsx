@@ -605,7 +605,7 @@ const ThreatDropQuiz = ({ embedded }: { embedded?: boolean }) => {
       const ctx = c.getContext('2d'); if (!ctx) { animRef.current = requestAnimationFrame(loop); return; }
       const dpr = window.devicePixelRatio || 1;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      if (g.shakeT > 0) { const i = g.shakeT * 15; ctx.translate((Math.random() - 0.5) * i, (Math.random() - 0.5) * i); }
+      if (g.shakeT > 0 && g.phase === 'play') { const i = g.shakeT * 15; ctx.translate((Math.random() - 0.5) * i, (Math.random() - 0.5) * i); }
 
       ctx.clearRect(-10, -10, w + 20, h + 20);
       // Semi-transparent overlay to dim the millimeter paper slightly
