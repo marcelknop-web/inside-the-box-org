@@ -363,169 +363,32 @@ function CockpitHUD() {
   );
 }
 
-/* ── Heartbeat-Modulated 432Hz Ambient ── */
+/* ── Ambient Music Player ── */
 function use432HzAmbient() {
   const [playing, setPlaying] = useState(false);
-  const ctxRef = useRef<AudioContext | null>(null);
-  const nodesRef = useRef<any>(null);
-  const evolveRef = useRef<number | null>(null);
-  const heartRef = useRef<number | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  const start = useCallback(async () => {
-    if (ctxRef.current) return;
-    const ctx = new AudioContext();
-    if (ctx.state === 'suspended') await ctx.resume();
-    ctxRef.current = ctx;
-
-    const master = ctx.createGain();
-    master.gain.setValueAtTime(0, ctx.currentTime);
-    master.gain.linearRampToValueAtTime(0.42, ctx.currentTime + 8);
-    master.connect(ctx.destination);
-
-    // Reverb
-    const reverbLen = 4 * ctx.sampleRate;
-    const reverbBuf = ctx.createBuffer(2, reverbLen, ctx.sampleRate);
-    for (let ch = 0; ch < 2; ch++) {
-      const d = reverbBuf.getChannelData(ch);
-      for (let i = 0; i < reverbLen; i++) {
-        d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / reverbLen, 2.2);
-      }
-    }
-    const reverb = ctx.createConvolver();
-    reverb.buffer = reverbBuf;
-    const reverbGain = ctx.createGain();
-    reverbGain.gain.value = 0.5;
-    reverb.connect(reverbGain);
-    reverbGain.connect(master);
-
-    const dry = ctx.createGain();
-    dry.gain.value = 0.55;
-    dry.connect(master);
-
-    // Heartbeat modulation node
-    const heartGain = ctx.createGain();
-    heartGain.gain.value = 0.5;
-    heartGain.connect(dry);
-    heartGain.connect(reverb);
-
-    // Heartbeat scheduler: lub-dub pattern
-    const heartBPM = { current: 60 };
-    let heartRunning = true;
-    const scheduleHeart = () => {
-      if (!heartRunning || !ctxRef.current) return;
-      const now = ctxRef.current.currentTime;
-      const beat = 60 / heartBPM.current;
-      // Lub (strong)
-      heartGain.gain.setValueAtTime(0.45, now);
-      heartGain.gain.linearRampToValueAtTime(1.0, now + 0.07);
-      heartGain.gain.linearRampToValueAtTime(0.5, now + 0.18);
-      // Dub (softer)
-      heartGain.gain.setValueAtTime(0.5, now + 0.28);
-      heartGain.gain.linearRampToValueAtTime(0.8, now + 0.34);
-      heartGain.gain.linearRampToValueAtTime(0.45, now + 0.48);
-      heartRef.current = window.setTimeout(scheduleHeart, beat * 1000);
-    };
-    heartRef.current = window.setTimeout(scheduleHeart, 3500);
-
-    // Voices with BPM
-    const voices = [
-      { freqs: [54, 108, 162, 216, 432], vols: [0.08, 0.06, 0.04, 0.03, 0.02], bpm: 60 },
-      { freqs: [108, 216, 324, 432, 648], vols: [0.06, 0.05, 0.04, 0.035, 0.015], bpm: 66 },
-      { freqs: [216, 324, 432, 540, 864], vols: [0.05, 0.04, 0.045, 0.03, 0.012], bpm: 72 },
-      { freqs: [36, 72, 108, 144, 216], vols: [0.07, 0.06, 0.05, 0.03, 0.02], bpm: 54 },
-      { freqs: [108, 162, 216, 324, 432], vols: [0.06, 0.045, 0.04, 0.03, 0.018], bpm: 58 },
-    ];
-
-    const oscs: OscillatorNode[] = [];
-    const gains: GainNode[] = [];
-
-    for (let i = 0; i < 5; i++) {
-      const osc = ctx.createOscillator();
-      osc.type = 'sine';
-      osc.frequency.value = voices[0].freqs[i];
-      osc.detune.value = (Math.random() - 0.5) * 5;
-      const gain = ctx.createGain();
-      gain.gain.value = voices[0].vols[i];
-      const lfo = ctx.createOscillator();
-      lfo.type = 'sine';
-      lfo.frequency.value = 0.015 + Math.random() * 0.04;
-      const lfoGain = ctx.createGain();
-      lfoGain.gain.value = voices[0].vols[i] * 0.2;
-      lfo.connect(lfoGain);
-      lfoGain.connect(gain.gain);
-      lfo.start();
-      osc.connect(gain);
-      gain.connect(heartGain);
-      osc.start();
-      oscs.push(osc);
-      gains.push(gain);
-    }
-
-    // Sub-bass thump for heartbeat feel
-    const thump = ctx.createOscillator();
-    thump.type = 'sine';
-    thump.frequency.value = 40;
-    const thumpG = ctx.createGain();
-    thumpG.gain.value = 0.04;
-    thump.connect(thumpG);
-    thumpG.connect(heartGain);
-    thump.start();
-    oscs.push(thump);
-    gains.push(thumpG);
-
-    // Binaural
-    const bin = ctx.createOscillator();
-    bin.type = 'sine';
-    bin.frequency.value = 436;
-    const binG = ctx.createGain();
-    binG.gain.value = 0.012;
-    bin.connect(binG);
-    binG.connect(dry);
-    bin.start();
-    oscs.push(bin);
-    gains.push(binG);
-
-    nodesRef.current = { oscs, gains, master };
-    setPlaying(true);
-
-    let moodIdx = 0;
-    const evolve = () => {
-      if (!ctxRef.current) return;
-      moodIdx = (moodIdx + 1) % voices.length;
-      const mood = voices[moodIdx];
-      const now = ctxRef.current.currentTime;
-      for (let i = 0; i < 5; i++) {
-        oscs[i].frequency.linearRampToValueAtTime(mood.freqs[i], now + 14);
-        gains[i].gain.linearRampToValueAtTime(mood.vols[i], now + 12);
-      }
-      heartBPM.current = mood.bpm;
-      evolveRef.current = window.setTimeout(evolve, 28000 + Math.random() * 12000);
-    };
-    evolveRef.current = window.setTimeout(evolve, 22000);
+  const start = useCallback(() => {
+    if (audioRef.current) return;
+    const audio = new Audio('/audio/ambient-heartbeat.mp3');
+    audio.loop = true;
+    audio.volume = 0.7;
+    audioRef.current = audio;
+    audio.play().then(() => setPlaying(true)).catch(() => {});
   }, []);
 
   const stop = useCallback(() => {
-    if (!ctxRef.current || !nodesRef.current) return;
-    if (evolveRef.current) clearTimeout(evolveRef.current);
-    if (heartRef.current) clearTimeout(heartRef.current);
-    const { master, oscs } = nodesRef.current;
-    const ctx = ctxRef.current;
-    master.gain.linearRampToValueAtTime(0, ctx.currentTime + 4);
-    setTimeout(() => {
-      oscs.forEach((o: OscillatorNode) => { try { o.stop(); } catch {} });
-      ctx.close();
-      ctxRef.current = null;
-      nodesRef.current = null;
-      setPlaying(false);
-    }, 4500);
+    if (!audioRef.current) return;
+    audioRef.current.pause();
+    audioRef.current.src = '';
+    audioRef.current = null;
+    setPlaying(false);
   }, []);
 
   useEffect(() => () => {
-    if (evolveRef.current) clearTimeout(evolveRef.current);
-    if (heartRef.current) clearTimeout(heartRef.current);
-    if (ctxRef.current) {
-      nodesRef.current?.oscs.forEach((o: OscillatorNode) => { try { o.stop(); } catch {} });
-      ctxRef.current.close();
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.src = '';
     }
   }, []);
 
