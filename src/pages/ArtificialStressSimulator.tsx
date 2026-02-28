@@ -34,6 +34,25 @@ const MatrixStart = ({ embedded = false }: { embedded?: boolean }) => {
 
   useMatrixRain(canvasRef, triggerRainDrop);
 
+  // Auto-start sound on first user interaction (click/touch/key)
+  useEffect(() => {
+    if (soundOn) return;
+    const autoStart = () => {
+      startSound();
+      window.removeEventListener('click', autoStart);
+      window.removeEventListener('touchstart', autoStart);
+      window.removeEventListener('keydown', autoStart);
+    };
+    window.addEventListener('click', autoStart, { once: true });
+    window.addEventListener('touchstart', autoStart, { once: true });
+    window.addEventListener('keydown', autoStart, { once: true });
+    return () => {
+      window.removeEventListener('click', autoStart);
+      window.removeEventListener('touchstart', autoStart);
+      window.removeEventListener('keydown', autoStart);
+    };
+  }, [soundOn, startSound]);
+
   useEffect(() => {
     const controller = new AbortController();
     fetch('https://api.ipify.org?format=json', { signal: controller.signal })
