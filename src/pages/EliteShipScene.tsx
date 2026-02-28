@@ -102,151 +102,191 @@ function useFloatingRocks() {
   }, []);
 }
 
-/* ── Infinite Rain – natural cycle, depth blur ── */
-const RAIN_COUNT = 1200;
+/* ── Infinite Rain – streaks + droplets, depth blur ── */
+const RAIN_COUNT = 800;
 const RAIN_SPREAD = { x: 120, y: 80, z: 80 };
-const FALL_SPEED_MIN = 12;
-const FALL_SPEED_MAX = 22;
-const NEAR_BLUR_DIST = 6;   // drops closer than this get blurry/large
-const FAR_BLUR_DIST = 50;   // drops farther than this fade out
+const FALL_SPEED_MIN = 14;
+const FALL_SPEED_MAX = 26;
+const NEAR_BLUR_DIST = 6;
+const FAR_BLUR_DIST = 50;
 
 function Rain() {
-  const pointsRef = useRef<THREE.Points>(null);
+  const linesRef = useRef<THREE.LineSegments>(null);
+  const dotsRef = useRef<THREE.Points>(null);
   const { camera } = useThree();
   const timeRef = useRef(0);
 
-  const { positions, speeds, sizes, alphas } = useMemo(() => {
-    const pos = new Float32Array(RAIN_COUNT * 3);
+  // Each streak = 2 vertices (top + bottom of line segment)
+  const { linePos, dotPos, speeds, dotSizes, alive, lineCol, dotCol } = useMemo(() => {
+    const lp = new Float32Array(RAIN_COUNT * 6); // 2 verts * 3 coords
+    const dp = new Float32Array(RAIN_COUNT * 3);
     const spd = new Float32Array(RAIN_COUNT);
-    const sz = new Float32Array(RAIN_COUNT);
-    const al = new Float32Array(RAIN_COUNT);
+    const ds = new Float32Array(RAIN_COUNT);
+    const al = new Uint8Array(RAIN_COUNT).fill(1);
+    const lc = new Float32Array(RAIN_COUNT * 8); // 2 verts * RGBA
+    const dc = new Float32Array(RAIN_COUNT * 4);
     for (let i = 0; i < RAIN_COUNT; i++) {
-      const i3 = i * 3;
-      pos[i3] = (Math.random() - 0.5) * RAIN_SPREAD.x;
-      pos[i3 + 1] = (Math.random() - 0.5) * RAIN_SPREAD.y;
-      pos[i3 + 2] = (Math.random() - 0.5) * RAIN_SPREAD.z;
+      const x = (Math.random() - 0.5) * RAIN_SPREAD.x;
+      const y = (Math.random() - 0.5) * RAIN_SPREAD.y;
+      const z = (Math.random() - 0.5) * RAIN_SPREAD.z;
       spd[i] = FALL_SPEED_MIN + Math.random() * (FALL_SPEED_MAX - FALL_SPEED_MIN);
-      sz[i] = 0.1;
-      al[i] = 1;
+      // Line: top vertex
+      lp[i * 6] = x; lp[i * 6 + 1] = y; lp[i * 6 + 2] = z;
+      // Line: bottom vertex (streak length based on speed)
+      lp[i * 6 + 3] = x; lp[i * 6 + 4] = y - spd[i] * 0.06; lp[i * 6 + 5] = z;
+      // Dot at bottom
+      dp[i * 3] = x; dp[i * 3 + 1] = y; dp[i * 3 + 2] = z;
+      ds[i] = 0;
+      // Line colors (RGBA) – top bright, bottom fades
+      lc[i * 8] = 0; lc[i * 8 + 1] = 1; lc[i * 8 + 2] = 0.67; lc[i * 8 + 3] = 0.4;
+      lc[i * 8 + 4] = 0; lc[i * 8 + 5] = 0.7; lc[i * 8 + 6] = 0.5; lc[i * 8 + 7] = 0.05;
+      // Dot color
+      dc[i * 4] = 0.1; dc[i * 4 + 1] = 1; dc[i * 4 + 2] = 0.7; dc[i * 4 + 3] = 0;
     }
-    return { positions: pos, speeds: spd, sizes: sz, alphas: al };
+    return { linePos: lp, dotPos: dp, speeds: spd, dotSizes: ds, alive: al, lineCol: lc, dotCol: dc };
   }, []);
 
-  // alive[i]: 1 = active, 0 = fell out of view, waiting for next cycle
-  const alive = useMemo(() => new Uint8Array(RAIN_COUNT).fill(1), []);
-
-  const colorsArr = useMemo(() => {
-    const c = new Float32Array(RAIN_COUNT * 4); // RGBA
-    for (let i = 0; i < RAIN_COUNT; i++) {
-      c[i * 4] = 0; c[i * 4 + 1] = 1; c[i * 4 + 2] = 0.67; c[i * 4 + 3] = 0.5;
-    }
-    return c;
-  }, []);
+  // Track per-drop age for droplet effect at birth/death
+  const ages = useMemo(() => new Float32Array(RAIN_COUNT), []);
 
   useFrame((_, dt) => {
-    if (!pointsRef.current) return;
+    if (!linesRef.current || !dotsRef.current) return;
     timeRef.current += dt;
 
-    // Cyclic intensity – controls spawning, NOT opacity
     const cycle = timeRef.current * 0.35;
     const intensity = Math.max(0, Math.sin(cycle) * 0.5 + Math.sin(cycle * 1.7) * 0.3 + Math.sin(cycle * 3.1) * 0.2);
     const spawning = intensity > 0.05;
 
-    const posAttr = pointsRef.current.geometry.attributes.position as THREE.BufferAttribute;
-    const colAttr = pointsRef.current.geometry.attributes.color as THREE.BufferAttribute;
-    const sizeAttr = pointsRef.current.geometry.attributes.size as THREE.BufferAttribute;
-    const pos = posAttr.array as Float32Array;
-    const col = colAttr.array as Float32Array;
-    const sz = sizeAttr.array as Float32Array;
-    const camPos = camera.position;
+    const lAttr = linesRef.current.geometry.attributes.position as THREE.BufferAttribute;
+    const lcAttr = linesRef.current.geometry.attributes.color as THREE.BufferAttribute;
+    const dAttr = dotsRef.current.geometry.attributes.position as THREE.BufferAttribute;
+    const dcAttr = dotsRef.current.geometry.attributes.color as THREE.BufferAttribute;
+    const dsAttr = dotsRef.current.geometry.attributes.size as THREE.BufferAttribute;
+    const lp = lAttr.array as Float32Array;
+    const lc = lcAttr.array as Float32Array;
+    const dp = dAttr.array as Float32Array;
+    const dc = dcAttr.array as Float32Array;
+    const ds = dsAttr.array as Float32Array;
+    const cam = camera.position;
     const halfY = RAIN_SPREAD.y * 0.5;
 
     for (let i = 0; i < RAIN_COUNT; i++) {
+      const i6 = i * 6;
       const i3 = i * 3;
+      const i8 = i * 8;
       const i4 = i * 4;
 
       if (alive[i] === 0) {
-        // Dead drop – respawn only if cycle is active
-        if (spawning && Math.random() < intensity * 0.08) {
+        if (spawning && Math.random() < intensity * 0.06) {
           alive[i] = 1;
-          pos[i3] = camPos.x + (Math.random() - 0.5) * RAIN_SPREAD.x;
-          pos[i3 + 1] = camPos.y + halfY + Math.random() * 10;
-          pos[i3 + 2] = camPos.z + (Math.random() - 0.5) * RAIN_SPREAD.z;
+          ages[i] = 0;
+          const x = cam.x + (Math.random() - 0.5) * RAIN_SPREAD.x;
+          const y = cam.y + halfY + Math.random() * 10;
+          const z = cam.z + (Math.random() - 0.5) * RAIN_SPREAD.z;
           speeds[i] = FALL_SPEED_MIN + Math.random() * (FALL_SPEED_MAX - FALL_SPEED_MIN);
+          lp[i6] = x; lp[i6 + 1] = y; lp[i6 + 2] = z;
+          lp[i6 + 3] = x; lp[i6 + 4] = y; lp[i6 + 5] = z;
+          dp[i3] = x; dp[i3 + 1] = y; dp[i3 + 2] = z;
         } else {
-          // Park offscreen
-          pos[i3 + 1] = -9999;
-          col[i4 + 3] = 0;
-          sz[i] = 0;
+          lp[i6 + 1] = -9999; lp[i6 + 4] = -9999;
+          dp[i3 + 1] = -9999;
+          ds[i] = 0; dc[i4 + 3] = 0;
+          lc[i8 + 3] = 0; lc[i8 + 7] = 0;
           continue;
         }
       }
 
-      // Fall
-      pos[i3 + 1] -= speeds[i] * dt;
-      pos[i3] += Math.sin(pos[i3 + 1] * 0.5) * 0.012;
+      ages[i] += dt;
+      const fall = speeds[i] * dt;
+      const drift = Math.sin(lp[i6 + 1] * 0.5) * 0.012;
 
-      // Depth from camera
-      const dx = pos[i3] - camPos.x;
-      const dy = pos[i3 + 1] - camPos.y;
-      const dz = pos[i3 + 2] - camPos.z;
+      // Move top vertex
+      lp[i6] += drift;
+      lp[i6 + 1] -= fall;
+      lp[i6 + 2] += drift * 0.3;
+
+      // Streak length: short at birth (droplet), long in mid-flight, short at death
+      const birthFade = Math.min(ages[i] * 3, 1); // 0→1 over 0.33s
+      const streakLen = speeds[i] * 0.06 * birthFade;
+
+      // Bottom vertex = top - streak length
+      lp[i6 + 3] = lp[i6];
+      lp[i6 + 4] = lp[i6 + 1] - streakLen;
+      lp[i6 + 5] = lp[i6 + 2];
+
+      // Dot at tip (bottom of streak)
+      dp[i3] = lp[i6]; dp[i3 + 1] = lp[i6 + 1]; dp[i3 + 2] = lp[i6 + 2];
+
+      // Depth
+      const dx = lp[i6] - cam.x;
+      const dy = lp[i6 + 1] - cam.y;
+      const dz = lp[i6 + 2] - cam.z;
       const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
 
-      // Depth-of-field: close drops are big & blurry, mid-range sharp, far fades
+      // Droplet dot visible at birth and death (when streak is short)
+      const dropletVis = birthFade < 0.8 ? (1 - birthFade) * 0.6 : 0;
+
       if (dist < NEAR_BLUR_DIST) {
-        // Very close – large, semi-transparent (bokeh-like blur)
-        const t = dist / NEAR_BLUR_DIST; // 0=touching camera, 1=at threshold
-        sz[i] = 0.6 + (1 - t) * 1.2; // bigger when closer
-        col[i4 + 3] = 0.12 + t * 0.25; // faint when super close
-        col[i4] = 0.15; col[i4 + 1] = 0.9; col[i4 + 2] = 0.6;
+        const t = dist / NEAR_BLUR_DIST;
+        lc[i8 + 3] = 0.08 + t * 0.15; lc[i8 + 7] = 0.02;
+        ds[i] = 1.0 + (1 - t) * 2.0;
+        dc[i4 + 3] = (0.08 + t * 0.1) * (dropletVis + 0.3);
+        lc[i8] = 0.15; lc[i8 + 1] = 0.85; lc[i8 + 2] = 0.6;
+        lc[i8 + 4] = 0.1; lc[i8 + 5] = 0.6; lc[i8 + 6] = 0.4;
       } else if (dist < FAR_BLUR_DIST) {
-        // Mid-range – sharp, bright
-        sz[i] = 0.08 + Math.random() * 0.04;
-        col[i4 + 3] = 0.35 + Math.random() * 0.25;
-        col[i4] = 0; col[i4 + 1] = 1; col[i4 + 2] = 0.67;
+        const alpha = 0.25 + Math.random() * 0.2;
+        lc[i8 + 3] = alpha; lc[i8 + 7] = alpha * 0.15;
+        ds[i] = 0.15;
+        dc[i4 + 3] = dropletVis * 0.5;
+        lc[i8] = 0; lc[i8 + 1] = 1; lc[i8 + 2] = 0.67;
+        lc[i8 + 4] = 0; lc[i8 + 5] = 0.7; lc[i8 + 6] = 0.5;
       } else {
-        // Far – small, fading
         const t = Math.min((dist - FAR_BLUR_DIST) / 30, 1);
-        sz[i] = 0.06;
-        col[i4 + 3] = 0.2 * (1 - t);
-        col[i4] = 0; col[i4 + 1] = 0.8; col[i4 + 2] = 0.55;
+        lc[i8 + 3] = 0.12 * (1 - t); lc[i8 + 7] = 0;
+        ds[i] = 0.08;
+        dc[i4 + 3] = dropletVis * 0.2 * (1 - t);
+        lc[i8] = 0; lc[i8 + 1] = 0.75; lc[i8 + 2] = 0.5;
+        lc[i8 + 4] = 0; lc[i8 + 5] = 0.5; lc[i8 + 6] = 0.35;
       }
 
-      // Fell below view – die naturally, don't respawn immediately
-      if (pos[i3 + 1] < camPos.y - halfY - 10) {
+      // Die naturally
+      if (lp[i6 + 1] < cam.y - halfY - 10) {
         alive[i] = 0;
         continue;
       }
 
-      // Horizontal wrap (seamless)
-      if (Math.abs(dx) > RAIN_SPREAD.x * 0.5) {
-        pos[i3] = camPos.x + (Math.random() - 0.5) * RAIN_SPREAD.x;
-      }
-      if (Math.abs(dz) > RAIN_SPREAD.z * 0.5) {
-        pos[i3 + 2] = camPos.z + (Math.random() - 0.5) * RAIN_SPREAD.z;
-      }
+      // Horizontal wrap
+      if (Math.abs(dx) > RAIN_SPREAD.x * 0.5) lp[i6] = cam.x + (Math.random() - 0.5) * RAIN_SPREAD.x;
+      if (Math.abs(dz) > RAIN_SPREAD.z * 0.5) lp[i6 + 2] = cam.z + (Math.random() - 0.5) * RAIN_SPREAD.z;
+      lp[i6 + 3] = lp[i6]; lp[i6 + 5] = lp[i6 + 2];
     }
-    posAttr.needsUpdate = true;
-    colAttr.needsUpdate = true;
-    sizeAttr.needsUpdate = true;
+    lAttr.needsUpdate = true;
+    lcAttr.needsUpdate = true;
+    dAttr.needsUpdate = true;
+    dcAttr.needsUpdate = true;
+    dsAttr.needsUpdate = true;
   });
 
   return (
-    <points ref={pointsRef}>
-      <bufferGeometry>
-        <bufferAttribute attach="attributes-position" args={[positions, 3]} />
-        <bufferAttribute attach="attributes-color" args={[colorsArr, 4]} />
-        <bufferAttribute attach="attributes-size" args={[sizes, 1]} />
-      </bufferGeometry>
-      <pointsMaterial
-        size={0.15}
-        vertexColors
-        transparent
-        sizeAttenuation
-        depthWrite={false}
-        blending={THREE.AdditiveBlending}
-      />
-    </points>
+    <>
+      {/* Streak lines */}
+      <lineSegments ref={linesRef}>
+        <bufferGeometry>
+          <bufferAttribute attach="attributes-position" args={[linePos, 3]} />
+          <bufferAttribute attach="attributes-color" args={[lineCol, 4]} />
+        </bufferGeometry>
+        <lineBasicMaterial vertexColors transparent depthWrite={false} blending={THREE.AdditiveBlending} />
+      </lineSegments>
+      {/* Droplet dots at birth/close range */}
+      <points ref={dotsRef}>
+        <bufferGeometry>
+          <bufferAttribute attach="attributes-position" args={[dotPos, 3]} />
+          <bufferAttribute attach="attributes-color" args={[dotCol, 4]} />
+          <bufferAttribute attach="attributes-size" args={[dotSizes, 1]} />
+        </bufferGeometry>
+        <pointsMaterial vertexColors transparent sizeAttenuation depthWrite={false} blending={THREE.AdditiveBlending} />
+      </points>
+    </>
   );
 }
 
