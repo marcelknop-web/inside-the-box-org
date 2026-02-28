@@ -337,7 +337,7 @@ export default function CyberFrogger({ embedded = false }: { embedded?: boolean 
     return () => { window.removeEventListener('keydown', onKey); window.removeEventListener('keyup', onKeyUp); };
   }, [startGame, tryMove]);
 
-  // Touch controls
+  // Touch controls (swipe + D-pad)
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
@@ -346,6 +346,36 @@ export default function CyberFrogger({ embedded = false }: { embedded?: boolean 
     const onTouchStart = (e: TouchEvent) => {
       const g = gs.current;
       if (g.phase === 'start' || g.phase === 'over') { startGame(); return; }
+      if (g.phase !== 'play') return;
+
+      // Check D-pad hit
+      const c = canvasRef.current; if (!c) return;
+      const rect = c.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      const cw = c.width / dpr;
+      const ch = c.height / dpr;
+      const tx = (e.touches[0].clientX - rect.left) * (cw / rect.width);
+      const ty = (e.touches[0].clientY - rect.top) * (ch / rect.height);
+
+      const padSize = 52, padGap = 6;
+      const padX = cw - padSize * 3 - padGap * 2 - 16;
+      const padY = ch - padSize * 3 - padGap * 2 - 16;
+      const dirs = [
+        { dx: 0, dy: -1, col: 1, row: 0 },
+        { dx: -1, dy: 0, col: 0, row: 1 },
+        { dx: 1, dy: 0, col: 2, row: 1 },
+        { dx: 0, dy: 1, col: 1, row: 2 },
+      ];
+      for (const d of dirs) {
+        const bx = padX + d.col * (padSize + padGap);
+        const by = padY + d.row * (padSize + padGap);
+        if (tx >= bx && tx <= bx + padSize && ty >= by && ty <= by + padSize) {
+          tryMove(d.dx, d.dy);
+          e.preventDefault();
+          return;
+        }
+      }
+
       startX = e.touches[0].clientX;
       startY = e.touches[0].clientY;
     };
@@ -358,7 +388,7 @@ export default function CyberFrogger({ embedded = false }: { embedded?: boolean 
       else { tryMove(0, dy > 0 ? 1 : -1); }
     };
 
-    el.addEventListener('touchstart', onTouchStart, { passive: true });
+    el.addEventListener('touchstart', onTouchStart, { passive: false });
     el.addEventListener('touchend', onTouchEnd, { passive: true });
     return () => { el.removeEventListener('touchstart', onTouchStart); el.removeEventListener('touchend', onTouchEnd); };
   }, [startGame, tryMove]);
@@ -727,6 +757,34 @@ export default function CyberFrogger({ embedded = false }: { embedded?: boolean 
       }
 
       ctx.restore();
+
+      // ── MOBILE D-PAD OVERLAY ──
+      const isMob = 'ontouchstart' in window;
+      if (isMob && g.phase === 'play') {
+        const padSize = 52;
+        const padGap = 6;
+        const padX = cw - padSize * 3 - padGap * 2 - 16;
+        const padY = ch - padSize * 3 - padGap * 2 - 16;
+        const dirs = [
+          { label: '▲', col: 1, row: 0 },
+          { label: '◀', col: 0, row: 1 },
+          { label: '▶', col: 2, row: 1 },
+          { label: '▼', col: 1, row: 2 },
+        ];
+        for (const d of dirs) {
+          const dx = padX + d.col * (padSize + padGap);
+          const dy = padY + d.row * (padSize + padGap);
+          ctx.fillStyle = 'rgba(0,255,136,0.10)';
+          ctx.strokeStyle = 'rgba(0,255,136,0.35)';
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.roundRect(dx, dy, padSize, padSize, 10);
+          ctx.fill(); ctx.stroke();
+          ctx.font = 'bold 22px monospace'; ctx.textAlign = 'center';
+          ctx.fillStyle = 'rgba(0,255,136,0.6)';
+          ctx.fillText(d.label, dx + padSize / 2, dy + padSize / 2 + 8);
+        }
+      }
 
       // ── START SCREEN ──
       if (g.phase === 'start') {
