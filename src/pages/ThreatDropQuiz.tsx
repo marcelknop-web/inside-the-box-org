@@ -648,7 +648,7 @@ const ThreatDropQuiz = ({ embedded }: { embedded?: boolean }) => {
         if (wy < h - 4) { ctx.fillRect(wx, wy, 2, 2); }
       }
 
-      // ── MOBILE TOUCH BUTTONS (neutral, no color hints) ──
+      // ── ANSWER BUTTONS (vibrant lane colors, high contrast) ──
       const mob = 'ontouchstart' in window;
       const btnH = mob ? 72 : 56;
       const btnY = h - btnH;
@@ -656,23 +656,34 @@ const ThreatDropQuiz = ({ embedded }: { embedded?: boolean }) => {
       for (let i = 0; i < 4; i++) {
         const lane = LANES[i]; const bx = i * lw + btnGap; const bw = lw - btnGap * 2;
         const selected = g.selectedLane === i;
-        // All buttons same neutral style – no lane-specific colors
-        ctx.fillStyle = selected ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.04)';
-        rRect(ctx, bx, btnY, bw, btnH - 2, 6);
+        // Vibrant colored fill per lane
+        const baseAlpha = selected ? 0.45 : 0.22;
+        const btnGrad = ctx.createLinearGradient(bx, btnY, bx, btnY + btnH);
+        btnGrad.addColorStop(0, lane.color + (selected ? '70' : '38'));
+        btnGrad.addColorStop(1, lane.color + (selected ? '30' : '14'));
+        ctx.fillStyle = btnGrad;
+        rRect(ctx, bx, btnY, bw, btnH - 2, 8);
         ctx.fill();
-        ctx.strokeStyle = selected ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.12)';
-        ctx.lineWidth = selected ? 2 : 1;
-        rRect(ctx, bx, btnY, bw, btnH - 2, 6);
+        // Bright border in lane color
+        ctx.strokeStyle = lane.color + (selected ? 'dd' : '80');
+        ctx.lineWidth = selected ? 2.5 : 1.5;
+        rRect(ctx, bx, btnY, bw, btnH - 2, 8);
         ctx.stroke();
+        // Glow on selected
+        if (selected) {
+          ctx.shadowColor = lane.color; ctx.shadowBlur = 12;
+          rRect(ctx, bx, btnY, bw, btnH - 2, 8); ctx.stroke();
+          ctx.shadowBlur = 0;
+        }
         ctx.textAlign = 'center';
-        // Key number prominent
-        ctx.font = `bold ${mob ? 22 : 18}px monospace`; ctx.fillStyle = selected ? C.white : 'rgba(255,255,255,0.6)';
+        // Key number prominent – white for contrast
+        ctx.font = `bold ${mob ? 24 : 20}px monospace`; ctx.fillStyle = C.white;
         ctx.fillText(lane.key, bx + bw / 2, btnY + (mob ? 28 : 22));
-        // Lane name smaller
-        ctx.font = `bold ${mob ? 11 : 9}px monospace`; ctx.fillStyle = selected ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.35)';
+        // Lane name in lane color
+        ctx.font = `bold ${mob ? 12 : 10}px monospace`; ctx.fillStyle = lane.color;
         ctx.fillText(lane.name, bx + bw / 2, btnY + (mob ? 46 : 38));
         // Description
-        ctx.font = `${mob ? 8 : 7}px monospace`; ctx.fillStyle = 'rgba(255,255,255,0.18)';
+        ctx.font = `${mob ? 9 : 7}px monospace`; ctx.fillStyle = 'rgba(255,255,255,0.45)';
         ctx.fillText(txt.laneDescs[i], bx + bw / 2, btnY + (mob ? 60 : 50));
       }
 
