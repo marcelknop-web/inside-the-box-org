@@ -1,5 +1,6 @@
 import React, { useRef, useMemo, useState, useEffect, useCallback } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { Text } from '@react-three/drei';
 import * as THREE from 'three';
 import { ConvexGeometry } from 'three/addons/geometries/ConvexGeometry.js';
 
@@ -502,6 +503,57 @@ function use432HzAmbient() {
   return { playing, start, stop };
 }
 
+/* ── Monumental floating text ── */
+const BRAND_COLOR = '#f5b800';
+function MonumentalText() {
+  const groupRef = useRef<THREE.Group>(null);
+  // Multiple instances at different positions/rotations for monumental feel
+  const instances = useMemo(() => [
+    { pos: [45, 4, -25] as [number,number,number], rot: [0, -0.3, 0] as [number,number,number], scale: 8 },
+    { pos: [-30, 6, -35] as [number,number,number], rot: [0, 0.5, 0.02] as [number,number,number], scale: 6 },
+    { pos: [15, -2, 30] as [number,number,number], rot: [0, Math.PI + 0.2, 0] as [number,number,number], scale: 10 },
+    { pos: [-50, 8, 15] as [number,number,number], rot: [0, 0.8, -0.01] as [number,number,number], scale: 5 },
+    { pos: [70, 1, -10] as [number,number,number], rot: [0, -0.6, 0.015] as [number,number,number], scale: 7 },
+  ], []);
+
+  useFrame(({ clock }) => {
+    if (!groupRef.current) return;
+    const t = clock.elapsedTime;
+    groupRef.current.children.forEach((child, i) => {
+      // Gentle float and sway
+      child.position.y = instances[i].pos[1] + Math.sin(t * 0.15 + i * 1.8) * 1.2;
+      child.rotation.y = instances[i].rot[1] + Math.sin(t * 0.08 + i * 2.1) * 0.04;
+    });
+  });
+
+  return (
+    <group ref={groupRef}>
+      {instances.map((inst, i) => (
+        <Text
+          key={i}
+          position={inst.pos}
+          rotation={inst.rot}
+          fontSize={inst.scale}
+          font="/fonts/inter-bold.woff"
+          letterSpacing={0.08}
+          color={BRAND_COLOR}
+          anchorX="center"
+          anchorY="middle"
+          fillOpacity={0.12 + (i === 2 ? 0.06 : 0)}
+          outlineWidth={0.02 * inst.scale}
+          outlineColor={BRAND_COLOR}
+          outlineOpacity={0.08}
+          material-transparent
+          material-depthWrite={false}
+          material-blending={THREE.AdditiveBlending}
+        >
+          inside-the-box.org
+        </Text>
+      ))}
+    </group>
+  );
+}
+
 /* ── Main ── */
 export default function EliteShipScene() {
   const surfaceRocks = useSurfaceRocks();
@@ -518,6 +570,7 @@ export default function EliteShipScene() {
         <CockpitCamera />
         <RealisticStarfield />
         <Rain />
+        <MonumentalText />
         {surfaceRocks.map((r, i) => <Rock key={`s${i}`} {...r} />)}
         {floatingRocks.map((r, i) => <Rock key={`f${i}`} {...r} />)}
       </Canvas>
