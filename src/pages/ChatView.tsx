@@ -122,7 +122,7 @@ const InlineSystemCheck = ({ t }: { t: (k: string) => string }) => {
     }, 600);
   }, [t]);
 
-  const icon = (s: SysResult['status']) => s === 'pass' ? <CheckCircle className="w-3.5 h-3.5 text-green-500" /> : s === 'fail' ? <XCircle className="w-3.5 h-3.5 text-destructive" /> : <HelpCircle className="w-3.5 h-3.5 text-yellow-500" />;
+  const icon = (s: SysResult['status']) => s === 'pass' ? <CheckCircle className="w-3.5 h-3.5 text-success" /> : s === 'fail' ? <XCircle className="w-3.5 h-3.5 text-destructive" /> : <HelpCircle className="w-3.5 h-3.5 text-warning" />;
 
   return (
     <div className="rounded-xl p-4 bg-highlight/5 border border-highlight/20">
@@ -147,7 +147,7 @@ const InlineSystemCheck = ({ t }: { t: (k: string) => string }) => {
               </div>
             ))}
             {allPass ? (
-              <div className="flex items-start gap-2 mt-3 p-3 rounded border border-green-500/30 bg-green-500/10 text-green-500">
+              <div className="flex items-start gap-2 mt-3 p-3 rounded border border-success/30 bg-success/10 text-success">
                 <CheckCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
                 <p className="text-sm font-sans">{t('techReq.sysCheckAllPass')}</p>
               </div>
@@ -157,7 +157,7 @@ const InlineSystemCheck = ({ t }: { t: (k: string) => string }) => {
                 <p className="text-sm font-sans">{t('techReq.sysCheckSomeFail')}</p>
               </div>
             ) : (
-              <div className="flex items-start gap-2 mt-3 p-3 rounded border border-yellow-500/30 bg-yellow-500/10 text-yellow-500">
+              <div className="flex items-start gap-2 mt-3 p-3 rounded border border-warning/30 bg-warning/10 text-warning">
                 <HelpCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
                 <p className="text-sm font-sans">{t('techReq.sysCheckUnknown')}</p>
               </div>
@@ -236,11 +236,11 @@ const InlineConnectivityCheck = ({ t, language }: { t: (k: string) => string; la
               <div key={group.label}>
                 <div className="flex items-center justify-between text-sm font-mono mb-1">
                   <span className="text-foreground font-semibold">{group.label}</span>
-                  <span className={ok === gr.length ? 'text-green-500' : ok > 0 ? 'text-yellow-500' : 'text-destructive'}>{ok}/{gr.length} {t('techReq.reachable')}</span>
+                  <span className={ok === gr.length ? 'text-success' : ok > 0 ? 'text-warning' : 'text-destructive'}>{ok}/{gr.length} {t('techReq.reachable')}</span>
                 </div>
                 <div className="flex flex-wrap gap-1">
                   {gr.map(r => (
-                    <span key={r.port} className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-sm font-mono border ${r.status === 'reachable' ? 'border-green-500/30 bg-green-500/10 text-green-500' : 'border-destructive/30 bg-destructive/10 text-destructive'}`}>
+                    <span key={r.port} className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-sm font-mono border ${r.status === 'reachable' ? 'border-success/30 bg-success/10 text-success' : 'border-destructive/30 bg-destructive/10 text-destructive'}`}>
                       {r.status === 'reachable' ? <CheckCircle className="w-2.5 h-2.5" /> : <XCircle className="w-2.5 h-2.5" />} {r.port}
                     </span>
                   ))}
@@ -248,7 +248,7 @@ const InlineConnectivityCheck = ({ t, language }: { t: (k: string) => string; la
               </div>
             );
           })}
-          <div className={`flex items-start gap-2 mt-2 p-2 rounded border text-sm font-mono ${results.every(r => r.status === 'reachable') ? 'border-green-500/30 bg-green-500/10 text-green-500' : 'border-destructive/30 bg-destructive/10 text-destructive'}`}>
+          <div className={`flex items-start gap-2 mt-2 p-2 rounded border text-sm font-mono ${results.every(r => r.status === 'reachable') ? 'border-success/30 bg-success/10 text-success' : 'border-destructive/30 bg-destructive/10 text-destructive'}`}>
             {results.every(r => r.status === 'reachable') ? <><CheckCircle className="w-4 h-4 mt-0.5 flex-shrink-0" /><p>{t('techReq.allPortsOk')}</p></> : <><XCircle className="w-4 h-4 mt-0.5 flex-shrink-0" /><p>{t('techReq.someBlocked')}</p></>}
           </div>
         </div>
