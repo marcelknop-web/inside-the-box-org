@@ -507,7 +507,6 @@ const TriggerTriage = ({ embedded }: { embedded?: boolean }) => {
       const ac = audioRef.current;
       const lang = langRef.current as 'en' | 'de' | 'fr';
       const txt = TT[lang];
-      const ac = audioRef.current;
 
       /* ── UPDATE ── */
       if (g.phase === 'play') {
