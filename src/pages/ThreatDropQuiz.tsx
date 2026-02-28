@@ -98,68 +98,108 @@ const LANES = [
 ];
 
 /* ══════════════════════════════════════
-   THREAT SHAPES
+   THREAT SHAPES – Space Invaders pixel sprites
    ══════════════════════════════════════ */
 type ThreatShape = 'eye' | 'skull' | 'bolt' | 'bug' | 'shield' | 'lock' | 'flame' | 'wave';
 
+// 8-row pixel art sprites (each row is a binary bitmask, 11 columns wide)
+const SPRITES: Record<ThreatShape, number[]> = {
+  eye: [
+    0b00100000100,
+    0b00010001000,
+    0b00111111100,
+    0b01101110110,
+    0b11111111111,
+    0b10111111101,
+    0b10100000101,
+    0b00011011000,
+  ],
+  wave: [
+    0b00100000100,
+    0b10010001001,
+    0b10111111101,
+    0b11101110111,
+    0b11111111111,
+    0b01111111110,
+    0b00100000100,
+    0b01000000010,
+  ],
+  bug: [
+    0b00001110000,
+    0b00111111100,
+    0b01111111110,
+    0b11100100111,
+    0b11111111111,
+    0b00010001000,
+    0b00101010100,
+    0b10100000101,
+  ],
+  skull: [
+    0b01111111110,
+    0b11111111111,
+    0b11100100111,
+    0b11111111111,
+    0b01111111110,
+    0b00110001100,
+    0b01101010110,
+    0b11000000011,
+  ],
+  shield: [
+    0b00011111000,
+    0b01111111110,
+    0b11111111111,
+    0b11100000111,
+    0b11100000111,
+    0b11111111111,
+    0b11111111111,
+    0b01100000110,
+  ],
+  lock: [
+    0b00011011000,
+    0b00100000100,
+    0b01111111110,
+    0b11111111111,
+    0b11101010111,
+    0b11111111111,
+    0b01111111110,
+    0b00100000100,
+  ],
+  bolt: [
+    0b00010001000,
+    0b00110001100,
+    0b01111111110,
+    0b11011011011,
+    0b11111111111,
+    0b01111111110,
+    0b00010001000,
+    0b00110001100,
+  ],
+  flame: [
+    0b00001010000,
+    0b00010101000,
+    0b00111111100,
+    0b01111111110,
+    0b11111111111,
+    0b11110101111,
+    0b11100000111,
+    0b01000000010,
+  ],
+};
+
 const drawShape = (ctx: CanvasRenderingContext2D, shape: ThreatShape, size: number, color: string) => {
-  ctx.strokeStyle = color;
-  ctx.fillStyle = color + '20';
-  ctx.lineWidth = 2.5;
-  const s = size;
-  switch (shape) {
-    case 'eye': // radar/eye
-      ctx.beginPath(); ctx.ellipse(0, 0, s, s * 0.55, 0, 0, Math.PI * 2); ctx.stroke(); ctx.fill();
-      ctx.beginPath(); ctx.arc(0, 0, s * 0.25, 0, Math.PI * 2); ctx.fillStyle = color; ctx.fill();
-      break;
-    case 'skull': // danger skull
-      ctx.beginPath(); ctx.arc(0, -s * 0.15, s * 0.6, 0, Math.PI, true); ctx.lineTo(-s * 0.6, s * 0.3);
-      ctx.lineTo(-s * 0.2, s * 0.15); ctx.lineTo(0, s * 0.35); ctx.lineTo(s * 0.2, s * 0.15);
-      ctx.lineTo(s * 0.6, s * 0.3); ctx.closePath(); ctx.stroke(); ctx.fill();
-      ctx.fillStyle = C.bg; ctx.beginPath(); ctx.arc(-s * 0.2, -s * 0.15, s * 0.12, 0, Math.PI * 2); ctx.fill();
-      ctx.beginPath(); ctx.arc(s * 0.2, -s * 0.15, s * 0.12, 0, Math.PI * 2); ctx.fill();
-      break;
-    case 'bolt': // lightning
-      ctx.beginPath(); ctx.moveTo(s * 0.15, -s * 0.6); ctx.lineTo(-s * 0.1, -s * 0.05);
-      ctx.lineTo(s * 0.12, -s * 0.05); ctx.lineTo(-s * 0.15, s * 0.6);
-      ctx.lineTo(s * 0.1, s * 0.05); ctx.lineTo(-s * 0.12, s * 0.05); ctx.closePath();
-      ctx.stroke(); ctx.fill();
-      break;
-    case 'bug': // virus/bug
-      ctx.beginPath(); ctx.arc(0, 0, s * 0.35, 0, Math.PI * 2); ctx.stroke(); ctx.fill();
-      for (let i = 0; i < 6; i++) {
-        const a = (Math.PI * 2 * i) / 6;
-        ctx.beginPath(); ctx.moveTo(Math.cos(a) * s * 0.35, Math.sin(a) * s * 0.35);
-        ctx.lineTo(Math.cos(a) * s * 0.7, Math.sin(a) * s * 0.7); ctx.stroke();
+  const sprite = SPRITES[shape];
+  const cols = 11;
+  const rows = sprite.length;
+  const px = size / cols;
+  ctx.fillStyle = color;
+  const ox = -(cols * px) / 2;
+  const oy = -(rows * px) / 2;
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      if (sprite[r] & (1 << (cols - 1 - c))) {
+        ctx.fillRect(ox + c * px, oy + r * px, px + 0.5, px + 0.5);
       }
-      break;
-    case 'shield': // shield
-      ctx.beginPath(); ctx.moveTo(0, -s * 0.6); ctx.lineTo(s * 0.5, -s * 0.3);
-      ctx.lineTo(s * 0.5, s * 0.15); ctx.lineTo(0, s * 0.6);
-      ctx.lineTo(-s * 0.5, s * 0.15); ctx.lineTo(-s * 0.5, -s * 0.3); ctx.closePath();
-      ctx.stroke(); ctx.fill();
-      break;
-    case 'lock': // padlock
-      ctx.beginPath(); ctx.arc(0, -s * 0.15, s * 0.25, Math.PI, 0); ctx.stroke();
-      ctx.fillStyle = color + '20';
-      ctx.fillRect(-s * 0.35, -s * 0.1, s * 0.7, s * 0.55);
-      ctx.strokeRect(-s * 0.35, -s * 0.1, s * 0.7, s * 0.55);
-      ctx.fillStyle = color; ctx.beginPath(); ctx.arc(0, s * 0.12, s * 0.08, 0, Math.PI * 2); ctx.fill();
-      break;
-    case 'flame': // fire
-      ctx.beginPath(); ctx.moveTo(0, -s * 0.6);
-      ctx.bezierCurveTo(s * 0.4, -s * 0.2, s * 0.45, s * 0.3, 0, s * 0.6);
-      ctx.bezierCurveTo(-s * 0.45, s * 0.3, -s * 0.4, -s * 0.2, 0, -s * 0.6);
-      ctx.stroke(); ctx.fill();
-      break;
-    case 'wave': // signal wave
-      ctx.beginPath();
-      for (let i = 0; i < 3; i++) {
-        const r = s * (0.2 + i * 0.2);
-        ctx.beginPath(); ctx.arc(0, 0, r, -Math.PI * 0.4, Math.PI * 0.4); ctx.stroke();
-      }
-      ctx.fillStyle = color; ctx.beginPath(); ctx.arc(0, 0, s * 0.08, 0, Math.PI * 2); ctx.fill();
-      break;
+    }
   }
 };
 
