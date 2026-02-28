@@ -15,68 +15,73 @@ const C = {
    LANES – Incident Response Lifecycle
    ══════════════════════════════════════ */
 const LANES = [
-  { name: 'DETECT',    color: C.cyan,   sym: '◎', desc: 'Identify the threat',   key: '1' },
-  { name: 'CONTAIN',   color: C.pink,   sym: '◇', desc: 'Stop the spread',       key: '2' },
-  { name: 'ERADICATE', color: C.lime,   sym: '✕', desc: 'Remove the threat',     key: '3' },
-  { name: 'RECOVER',   color: C.yellow, sym: '↻', desc: 'Restore operations',    key: '4' },
+  { name: 'DETECT',    color: C.cyan,   sym: '◎', desc: 'Spot it / Alert',       key: '1' },
+  { name: 'CONTAIN',   color: C.pink,   sym: '◇', desc: 'Isolate / Block',       key: '2' },
+  { name: 'ERADICATE', color: C.lime,   sym: '✕', desc: 'Remove / Clean',        key: '3' },
+  { name: 'RECOVER',   color: C.yellow, sym: '↻', desc: 'Restore / Rebuild',     key: '4' },
 ];
 
 /* ══════════════════════════════════════
-   THREATS – mapped to correct IR phase
+   THREATS – easier, more intuitive mapping
+   Labels now include a tiny hint emoji so
+   players can reason about the answer.
    ══════════════════════════════════════ */
-const THREATS = [
-  // DETECT(0)
-  { label: 'MFA FATIGUE',  lane: 0 },
-  { label: 'DNS TUNNEL',   lane: 0 },
-  { label: 'EXFILTRATION', lane: 0 },
-  { label: 'PORT SCAN',    lane: 0 },
-  { label: 'C2 BEACON',    lane: 0 },
-  { label: 'BRUTE FORCE',  lane: 0 },
-  { label: 'PHISHING',     lane: 0 },
-  { label: 'CRED DUMP',    lane: 0 },
-  { label: 'ANOMALY',      lane: 0 },
-  { label: 'RECON SCAN',   lane: 0 },
-  // CONTAIN(1)
-  { label: 'GOLDEN TICKET', lane: 1 },
-  { label: 'OAUTH ABUSE',   lane: 1 },
-  { label: 'LATERAL MOVE',  lane: 1 },
-  { label: 'PRIV ESC',      lane: 1 },
-  { label: 'ZERO DAY',      lane: 1 },
-  { label: 'ROGUE ADMIN',   lane: 1 },
-  { label: 'INSIDER',       lane: 1 },
-  { label: 'SHADOW IT',     lane: 1 },
-  { label: 'VPN ABUSE',     lane: 1 },
-  { label: 'SUPPLY CHAIN',  lane: 1 },
-  // ERADICATE(2)
-  { label: 'WEB SHELL',    lane: 2 },
-  { label: 'MALWARE',      lane: 2 },
-  { label: 'ROOTKIT',      lane: 2 },
-  { label: 'BACKDOOR',     lane: 2 },
-  { label: 'CRYPTOMINER',  lane: 2 },
-  { label: 'RAT',          lane: 2 },
-  { label: 'TROJAN',       lane: 2 },
-  { label: 'WORM',         lane: 2 },
-  { label: 'BOTNET',       lane: 2 },
-  { label: 'APT IMPLANT',  lane: 2 },
-  // RECOVER(3)
-  { label: 'RANSOMWARE',   lane: 3 },
-  { label: 'BACKUP WIPE',  lane: 3 },
-  { label: 'DATA BREACH',  lane: 3 },
-  { label: 'DB CORRUPT',   lane: 3 },
-  { label: 'CONFIG DRIFT', lane: 3 },
-  { label: 'SITE DOWN',    lane: 3 },
-  { label: 'KEY LEAK',     lane: 3 },
-  { label: 'CERT EXPIRE',  lane: 3 },
-  { label: 'DNS HIJACK',   lane: 3 },
-  { label: 'LOG WIPE',     lane: 3 },
+const THREATS: { label: string; lane: number; hint: string }[] = [
+  // ── DETECT (0) – "Something is happening, we need to SEE it" ──
+  { label: 'SUSPICIOUS LOGIN',   lane: 0, hint: '👁 alert triggered' },
+  { label: 'PHISHING EMAIL',     lane: 0, hint: '👁 spotted in inbox' },
+  { label: 'PORT SCAN',          lane: 0, hint: '👁 scanning activity' },
+  { label: 'ANOMALY ALERT',      lane: 0, hint: '👁 unusual pattern' },
+  { label: 'BRUTE FORCE',        lane: 0, hint: '👁 repeated attempts' },
+  { label: 'LOG ALERT',          lane: 0, hint: '👁 SIEM triggered' },
+  { label: 'UNUSUAL TRAFFIC',    lane: 0, hint: '👁 network spike' },
+  { label: 'NEW DEVICE',         lane: 0, hint: '👁 unknown endpoint' },
+  { label: 'RECON SCAN',         lane: 0, hint: '👁 probing detected' },
+  { label: 'IDS ALERT',          lane: 0, hint: '👁 intrusion signal' },
+
+  // ── CONTAIN (1) – "Stop it from spreading, isolate it NOW" ──
+  { label: 'ISOLATE HOST',       lane: 1, hint: '🛡 cut off spread' },
+  { label: 'BLOCK IP',           lane: 1, hint: '🛡 firewall rule' },
+  { label: 'DISABLE ACCOUNT',    lane: 1, hint: '🛡 lock compromised user' },
+  { label: 'QUARANTINE',         lane: 1, hint: '🛡 isolate file' },
+  { label: 'SEGMENT NETWORK',    lane: 1, hint: '🛡 limit blast radius' },
+  { label: 'REVOKE TOKEN',       lane: 1, hint: '🛡 stop access' },
+  { label: 'KILL SESSION',       lane: 1, hint: '🛡 terminate connection' },
+  { label: 'FREEZE ACCOUNT',     lane: 1, hint: '🛡 prevent lateral move' },
+  { label: 'BLOCK DOMAIN',       lane: 1, hint: '🛡 DNS sinkhole' },
+  { label: 'VPN LOCKOUT',        lane: 1, hint: '🛡 revoke remote access' },
+
+  // ── ERADICATE (2) – "Remove the bad stuff completely" ──
+  { label: 'DELETE MALWARE',     lane: 2, hint: '🧹 remove malicious file' },
+  { label: 'PATCH VULN',         lane: 2, hint: '🧹 fix the hole' },
+  { label: 'REMOVE BACKDOOR',   lane: 2, hint: '🧹 close hidden entry' },
+  { label: 'CLEAN ROOTKIT',      lane: 2, hint: '🧹 deep system clean' },
+  { label: 'WIPE TROJAN',        lane: 2, hint: '🧹 eliminate payload' },
+  { label: 'PURGE RAT',          lane: 2, hint: '🧹 remove remote tool' },
+  { label: 'STRIP WEB SHELL',   lane: 2, hint: '🧹 delete injected code' },
+  { label: 'REMOVE IMPLANT',    lane: 2, hint: '🧹 APT artifact gone' },
+  { label: 'FIX CONFIG',         lane: 2, hint: '🧹 correct misconfig' },
+  { label: 'KILL CRYPTOMINER',  lane: 2, hint: '🧹 stop resource theft' },
+
+  // ── RECOVER (3) – "Get back to normal, restore services" ──
+  { label: 'RESTORE BACKUP',    lane: 3, hint: '🔄 bring data back' },
+  { label: 'REBUILD SERVER',    lane: 3, hint: '🔄 fresh system image' },
+  { label: 'REISSUE CERTS',     lane: 3, hint: '🔄 new certificates' },
+  { label: 'RESET PASSWORDS',   lane: 3, hint: '🔄 new credentials' },
+  { label: 'RESTORE DB',        lane: 3, hint: '🔄 data recovery' },
+  { label: 'REDEPLOY APP',      lane: 3, hint: '🔄 clean deployment' },
+  { label: 'ROTATE KEYS',       lane: 3, hint: '🔄 new API keys' },
+  { label: 'REBUILD DNS',       lane: 3, hint: '🔄 fix resolution' },
+  { label: 'FAILOVER',          lane: 3, hint: '🔄 switch to standby' },
+  { label: 'SERVICE RESTART',   lane: 3, hint: '🔄 bring back online' },
 ];
 
 /* ══════════════════════════════════════
    TYPES
    ══════════════════════════════════════ */
 interface Threat {
-  id: number; label: string; lane: number; // correct lane
-  x: number; y: number; speed: number;     // x = random horizontal position
+  id: number; label: string; lane: number; hint: string;
+  x: number; y: number; speed: number;
   caught: boolean; missed: boolean; timer: number;
   feedbackColor: string;
 }
@@ -84,18 +89,17 @@ interface Particle { x: number; y: number; vx: number; vy: number; life: number;
 interface Popup { text: string; x: number; y: number; life: number; color: string; }
 interface GS {
   phase: 'start' | 'play' | 'over';
-  selectedLane: number; // which lane the player has chosen (highlighted)
+  selectedLane: number;
   threats: Threat[]; particles: Particle[]; popups: Popup[];
   score: number; combo: number; bestCombo: number; lives: number;
   time: number; spawnT: number; baseSpd: number;
   shakeT: number; flashT: number; slowT: number; shield: boolean;
   nextId: number; hi: number;
-  // The active threat the player must classify
-  activeIdx: number; // index into threats array of the lowest active threat, or -1
+  activeIdx: number;
 }
 
 /* ══════════════════════════════════════
-   AUDIO – 80s Arcade Beeps
+   AUDIO – 80s Arcade SFX
    ══════════════════════════════════════ */
 const tone = (ctx: AudioContext, freq: number, dur: number, type: OscillatorType = 'square', vol = 0.12) => {
   const osc = ctx.createOscillator();
@@ -113,6 +117,75 @@ const sfxGameOver = (ctx: AudioContext) => { tone(ctx, 440, 0.2, 'square', 0.1);
 const sfxStart = (ctx: AudioContext) => { tone(ctx, 440, 0.06); setTimeout(() => tone(ctx, 660, 0.06), 50); setTimeout(() => tone(ctx, 880, 0.1), 100); };
 
 /* ══════════════════════════════════════
+   BACKGROUND MUSIC – procedural chiptune loop
+   Simple catchy 80s arpeggio pattern
+   ══════════════════════════════════════ */
+interface BGMusic {
+  ctx: AudioContext;
+  running: boolean;
+  timer: ReturnType<typeof setInterval> | null;
+  step: number;
+  gainNode: GainNode;
+}
+
+const MUSIC_NOTES = [
+  // A minor pentatonic arpeggio pattern – catchy & loopable
+  // Each sub-array = [freq, duration_ms, type]
+  220, 262, 330, 392, 440, 392, 330, 262,   // ascending & descending
+  220, 330, 440, 523, 440, 330, 262, 220,   // variation
+  294, 349, 440, 523, 587, 523, 440, 349,   // key change up
+  262, 330, 392, 440, 523, 440, 392, 330,   // resolve
+];
+
+const startBGMusic = (ctx: AudioContext): BGMusic => {
+  const gainNode = ctx.createGain();
+  gainNode.gain.value = 0.04; // very subtle
+  gainNode.connect(ctx.destination);
+
+  const bg: BGMusic = { ctx, running: true, timer: null, step: 0, gainNode };
+
+  const playNote = () => {
+    if (!bg.running) return;
+    const freq = MUSIC_NOTES[bg.step % MUSIC_NOTES.length];
+    const osc = ctx.createOscillator();
+    const noteGain = ctx.createGain();
+    osc.type = bg.step % 4 === 0 ? 'square' : 'triangle';
+    osc.frequency.value = freq;
+    noteGain.gain.setValueAtTime(0.15, ctx.currentTime);
+    noteGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.18);
+    osc.connect(noteGain);
+    noteGain.connect(bg.gainNode);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.2);
+
+    // Subtle bass on every 4th step
+    if (bg.step % 4 === 0) {
+      const bass = ctx.createOscillator();
+      const bassG = ctx.createGain();
+      bass.type = 'triangle';
+      bass.frequency.value = freq / 2;
+      bassG.gain.setValueAtTime(0.08, ctx.currentTime);
+      bassG.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.22);
+      bass.connect(bassG);
+      bassG.connect(bg.gainNode);
+      bass.start();
+      bass.stop(ctx.currentTime + 0.25);
+    }
+
+    bg.step++;
+  };
+
+  bg.timer = setInterval(playNote, 180); // ~166 BPM
+  return bg;
+};
+
+const stopBGMusic = (bg: BGMusic | null) => {
+  if (!bg) return;
+  bg.running = false;
+  if (bg.timer) clearInterval(bg.timer);
+};
+
+/* ══════════════════════════════════════
    HELPERS
    ══════════════════════════════════════ */
 const HI_KEY = 'threatdrop-hi';
@@ -123,19 +196,18 @@ const mkGS = (): GS => ({
   phase: 'start', selectedLane: -1,
   threats: [], particles: [], popups: [],
   score: 0, combo: 0, bestCombo: 0, lives: 3,
-  time: 0, spawnT: 1.8, baseSpd: 70,
+  time: 0, spawnT: 2.2, baseSpd: 55,
   shakeT: 0, flashT: 0, slowT: 0, shield: false,
   nextId: 0, hi: getHi(), activeIdx: -1,
 });
 
 const spawnThreat = (g: GS, w: number, yOff = 0) => {
   const t = THREATS[Math.floor(Math.random() * THREATS.length)];
-  // Threat falls down the center area (slight random offset)
   const centerX = w / 2 + (Math.random() - 0.5) * w * 0.3;
   g.threats.push({
-    id: g.nextId++, label: t.label, lane: t.lane,
+    id: g.nextId++, label: t.label, lane: t.lane, hint: t.hint,
     x: centerX, y: -50 + yOff,
-    speed: g.baseSpd + Math.min(g.combo * 2, 60),
+    speed: g.baseSpd + Math.min(g.combo * 1.5, 50),
     caught: false, missed: false, timer: 0, feedbackColor: '',
   });
 };
@@ -167,6 +239,7 @@ const ThreatDropQuiz = ({ embedded }: { embedded?: boolean }) => {
   const lastT = useRef(0);
   const sizeRef = useRef({ w: 0, h: 0 });
   const audioRef = useRef<AudioContext | null>(null);
+  const bgMusicRef = useRef<BGMusic | null>(null);
 
   const ensureAudio = useCallback(() => {
     if (!audioRef.current) { try { audioRef.current = new AudioContext(); } catch {} }
@@ -177,14 +250,22 @@ const ThreatDropQuiz = ({ embedded }: { embedded?: boolean }) => {
     const hi = gs.current.hi;
     gs.current = { ...mkGS(), phase: 'play', hi };
     const a = ensureAudio();
-    if (a) sfxStart(a);
+    if (a) {
+      sfxStart(a);
+      // Start bg music
+      stopBGMusic(bgMusicRef.current);
+      bgMusicRef.current = startBGMusic(a);
+    }
   }, [ensureAudio]);
 
-  /* ── Try to classify the lowest active threat ── */
+  // Stop music on game over or unmount
+  useEffect(() => {
+    return () => stopBGMusic(bgMusicRef.current);
+  }, []);
+
   const classifyThreat = useCallback((chosenLane: number) => {
     const g = gs.current;
     if (g.phase !== 'play') return;
-    // Find the lowest (closest to bottom) uncaught/unmissed threat
     let lowest: Threat | null = null;
     for (const t of g.threats) {
       if (t.caught || t.missed) continue;
@@ -194,26 +275,29 @@ const ThreatDropQuiz = ({ embedded }: { embedded?: boolean }) => {
     const ac = audioRef.current;
 
     if (chosenLane === lowest.lane) {
-      // CORRECT
       lowest.caught = true; lowest.timer = 0;
       lowest.feedbackColor = LANES[lowest.lane].color;
       const pts = 100 + g.combo * 15;
       g.score += pts; g.combo++; g.bestCombo = Math.max(g.bestCombo, g.combo);
       burst(g, lowest.x, lowest.y, LANES[lowest.lane].color);
       g.popups.push({ text: '+' + pts, x: lowest.x, y: lowest.y - 20, life: 0.8, color: LANES[lowest.lane].color });
-      g.baseSpd = Math.min(180, 70 + g.combo * 2);
+      g.baseSpd = Math.min(150, 55 + g.combo * 1.5);
       if (ac) { if (g.combo % 5 === 0) sfxCombo(ac); else sfxCatch(ac); }
       if (g.combo === 5) { g.slowT = 5; g.popups.push({ text: '⏱ SLOW TIME', x: sizeRef.current.w / 2, y: sizeRef.current.h / 2, life: 1.2, color: C.cyan }); }
       if (g.combo === 15) { g.shield = true; g.popups.push({ text: '◆ SHIELD', x: sizeRef.current.w / 2, y: sizeRef.current.h / 2, life: 1.2, color: C.pink }); }
     } else {
-      // WRONG – show correct answer briefly
       lowest.missed = true; lowest.timer = 0;
       lowest.feedbackColor = C.red;
       g.popups.push({ text: '✕ → ' + LANES[lowest.lane].name, x: lowest.x, y: lowest.y - 20, life: 1.2, color: C.red });
       if (g.shield) { g.shield = false; }
       else { g.lives--; g.combo = 0; g.shakeT = 0.3; g.flashT = 0.3; }
       if (ac) sfxMiss(ac);
-      if (g.lives <= 0) { g.phase = 'over'; saveHi(g.score); g.hi = Math.max(g.hi, g.score); if (ac) sfxGameOver(ac); }
+      if (g.lives <= 0) {
+        g.phase = 'over'; saveHi(g.score); g.hi = Math.max(g.hi, g.score);
+        if (ac) sfxGameOver(ac);
+        stopBGMusic(bgMusicRef.current);
+        bgMusicRef.current = null;
+      }
     }
     g.selectedLane = -1;
   }, []);
@@ -241,9 +325,7 @@ const ThreatDropQuiz = ({ embedded }: { embedded?: boolean }) => {
       if (g.phase === 'start' && (e.key === ' ' || e.key === 'Enter')) { e.preventDefault(); startGame(); return; }
       if (g.phase === 'over' && (e.key === 'r' || e.key === 'R' || e.key === ' ')) { e.preventDefault(); startGame(); return; }
       if (g.phase === 'play') {
-        // Direct lane selection = classification
         if (e.key >= '1' && e.key <= '4') { e.preventDefault(); classifyThreat(+e.key - 1); return; }
-        // Arrow keys highlight, Enter confirms
         if (e.key === 'ArrowLeft' || e.key === 'a') { e.preventDefault(); g.selectedLane = Math.max(0, (g.selectedLane < 0 ? 1 : g.selectedLane) - 1); }
         if (e.key === 'ArrowRight' || e.key === 'd') { e.preventDefault(); g.selectedLane = Math.min(3, (g.selectedLane < 0 ? 0 : g.selectedLane) + 1); }
         if (e.key === 'Enter' || e.key === ' ') {
@@ -256,7 +338,7 @@ const ThreatDropQuiz = ({ embedded }: { embedded?: boolean }) => {
     return () => window.removeEventListener('keydown', onKey);
   }, [startGame, classifyThreat]);
 
-  /* Touch / Click – tap on lane buttons at bottom */
+  /* Touch / Click */
   useEffect(() => {
     const c = canvasRef.current;
     if (!c) return;
@@ -264,7 +346,6 @@ const ThreatDropQuiz = ({ embedded }: { embedded?: boolean }) => {
       const g = gs.current;
       const { w, h } = sizeRef.current;
       if (g.phase !== 'play') { startGame(); return; }
-      // Bottom 70px = lane buttons
       if (cy > h - 70) {
         const lane = Math.max(0, Math.min(3, Math.floor(cx / (w / 4))));
         classifyThreat(lane);
@@ -287,20 +368,20 @@ const ThreatDropQuiz = ({ embedded }: { embedded?: boolean }) => {
       if (w === 0) { animRef.current = requestAnimationFrame(loop); return; }
 
       const lw = w / 4;
-      const deadlineY = h - 80; // threat must be classified before reaching here
+      const deadlineY = h - 80;
       const ac = audioRef.current;
 
       /* ── UPDATE ── */
       if (g.phase === 'play') {
         g.time += dt;
 
-        // Spawn
+        // Spawn – slower start
         g.spawnT -= dt;
         if (g.spawnT <= 0) {
           spawnThreat(g, w);
-          const interval = Math.max(1.2, 3.0 - g.time * 0.008 - g.combo * 0.03);
+          const interval = Math.max(1.5, 3.5 - g.time * 0.006 - g.combo * 0.02);
           g.spawnT = interval * (0.85 + Math.random() * 0.3);
-          if (g.combo >= 10 && Math.random() < 0.25) spawnThreat(g, w, -120);
+          if (g.combo >= 12 && Math.random() < 0.2) spawnThreat(g, w, -140);
         }
 
         const sm = g.slowT > 0 ? 0.35 : 1;
@@ -315,14 +396,18 @@ const ThreatDropQuiz = ({ embedded }: { embedded?: boolean }) => {
           }
           t.y += t.speed * sm * dt;
 
-          // Threat reached deadline without being classified
           if (t.y >= deadlineY) {
             t.missed = true; t.timer = 0;
             t.feedbackColor = C.red;
             g.popups.push({ text: '✕ ' + LANES[t.lane].name, x: t.x, y: t.y - 20, life: 1.0, color: C.red });
             if (g.shield) { g.shield = false; }
             else { g.lives--; g.combo = 0; g.shakeT = 0.3; g.flashT = 0.3; if (ac) sfxMiss(ac); }
-            if (g.lives <= 0) { g.phase = 'over'; saveHi(g.score); g.hi = Math.max(g.hi, g.score); if (ac) sfxGameOver(ac); }
+            if (g.lives <= 0) {
+              g.phase = 'over'; saveHi(g.score); g.hi = Math.max(g.hi, g.score);
+              if (ac) sfxGameOver(ac);
+              stopBGMusic(bgMusicRef.current);
+              bgMusicRef.current = null;
+            }
           }
         }
         g.threats = g.threats.filter(t => !rm.includes(t.id));
@@ -351,7 +436,7 @@ const ThreatDropQuiz = ({ embedded }: { embedded?: boolean }) => {
       for (let x = 0; x < w; x += 40) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
       for (let y = 0; y < h; y += 40) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
 
-      // Deadline line (dashed)
+      // Deadline line
       if (g.phase === 'play') {
         ctx.setLineDash([6, 8]);
         ctx.strokeStyle = C.red + '30'; ctx.lineWidth = 1;
@@ -366,28 +451,23 @@ const ThreatDropQuiz = ({ embedded }: { embedded?: boolean }) => {
         const lane = LANES[i];
         const bx = i * lw;
         const selected = g.selectedLane === i;
-        // Button background
         ctx.fillStyle = selected ? lane.color + '25' : '#0d0f18';
         ctx.fillRect(bx, btnY, lw, btnH);
-        // Border
         ctx.strokeStyle = selected ? lane.color : lane.color + '30';
         ctx.lineWidth = selected ? 2 : 1;
         ctx.strokeRect(bx + 0.5, btnY + 0.5, lw - 1, btnH - 1);
-        // Symbol
         ctx.textAlign = 'center';
         ctx.font = '18px monospace'; ctx.fillStyle = lane.color + (selected ? 'ff' : '90');
         ctx.fillText(lane.sym, bx + lw / 2, btnY + 24);
-        // Name
         ctx.font = 'bold 8px monospace'; ctx.fillStyle = lane.color + (selected ? 'dd' : '60');
         ctx.fillText(lane.name, bx + lw / 2, btnY + 40);
-        // Key hint
         ctx.font = '8px monospace'; ctx.fillStyle = 'rgba(255,255,255,0.2)';
         ctx.fillText(lane.key, bx + lw / 2, btnY + 52);
       }
 
       // ── THREATS ──
       for (const t of g.threats) {
-        const tw = Math.min(lw * 0.9, 130), th = 40;
+        const tw = Math.min(lw * 0.9, 140), th = 50;
         let alpha = 1, scale = 1;
         const col = t.caught || t.missed ? t.feedbackColor : C.white;
         if (t.caught) { alpha = 1 - t.timer / 0.5; scale = 1 + t.timer * 1.5; }
@@ -398,12 +478,10 @@ const ThreatDropQuiz = ({ embedded }: { embedded?: boolean }) => {
         ctx.translate(t.x, t.y);
         ctx.scale(scale, scale);
 
-        // Glow based on proximity to deadline
         const urgency = Math.max(0, 1 - Math.abs(t.y - deadlineY) / 250);
         ctx.shadowColor = t.caught ? LANES[t.lane].color : (urgency > 0.5 ? C.red : C.cyan);
         ctx.shadowBlur = 6 + urgency * 14;
 
-        // Card
         ctx.fillStyle = '#0c0e18ee';
         ctx.strokeStyle = col + (t.caught || t.missed ? '' : '80');
         ctx.lineWidth = t.caught ? 2.5 : 1.5;
@@ -415,9 +493,13 @@ const ThreatDropQuiz = ({ embedded }: { embedded?: boolean }) => {
         ctx.font = 'bold 11px monospace';
         ctx.textAlign = 'center';
         ctx.fillStyle = col;
-        ctx.fillText(t.label, 0, 4);
+        ctx.fillText(t.label, 0, -2);
 
-        // If caught, show correct lane icon
+        // Hint text below label (subtle)
+        ctx.font = '8px monospace';
+        ctx.fillStyle = 'rgba(255,255,255,0.35)';
+        ctx.fillText(t.hint, 0, 12);
+
         if (t.caught) {
           ctx.font = '10px monospace';
           ctx.fillStyle = LANES[t.lane].color;
@@ -467,36 +549,36 @@ const ThreatDropQuiz = ({ embedded }: { embedded?: boolean }) => {
         ctx.fillStyle = 'rgba(5,6,10,0.85)'; ctx.fillRect(0, 0, w, h);
         ctx.textAlign = 'center';
 
-        // Title
         ctx.shadowColor = C.cyan; ctx.shadowBlur = 25;
         ctx.font = 'bold 28px monospace'; ctx.fillStyle = C.cyan;
-        ctx.fillText('THREATDROP', w / 2, h * 0.14);
+        ctx.fillText('THREATDROP', w / 2, h * 0.12);
         ctx.shadowBlur = 0;
         ctx.font = '9px monospace'; ctx.fillStyle = 'rgba(255,255,255,0.4)';
-        ctx.fillText('INCIDENT RESPONSE ARCADE', w / 2, h * 0.14 + 20);
+        ctx.fillText('INCIDENT RESPONSE ARCADE', w / 2, h * 0.12 + 20);
 
-        // How to play
-        const ey = h * 0.25;
+        const ey = h * 0.22;
         ctx.font = 'bold 11px monospace'; ctx.fillStyle = C.yellow;
         ctx.fillText('HOW TO PLAY', w / 2, ey);
         ctx.font = '10px monospace'; ctx.fillStyle = 'rgba(255,255,255,0.6)';
         const lines = [
-          'Cyber threats fall from above.',
-          'Read each threat label and decide:',
-          'Which IR phase handles it?',
+          'Threats fall from above with a hint.',
+          'Read the hint and decide:',
+          'Which Incident Response phase fits?',
           '',
-          'Press 1-4 or click the lane to classify.',
-          'Be fast – threats won\'t wait!',
+          '👁 See it? → DETECT',
+          '🛡 Stop it? → CONTAIN',
+          '🧹 Remove it? → ERADICATE',
+          '🔄 Fix it? → RECOVER',
         ];
         for (let i = 0; i < lines.length; i++) {
           ctx.fillText(lines[i], w / 2, ey + 18 + i * 15);
         }
 
         // Lane legend
-        const ly = h * 0.52;
+        const ly = h * 0.56;
         ctx.font = 'bold 10px monospace';
         for (let i = 0; i < 4; i++) {
-          const y = ly + i * 26;
+          const y = ly + i * 24;
           ctx.fillStyle = LANES[i].color;
           ctx.font = '16px monospace';
           ctx.fillText(LANES[i].sym, w / 2 - 100, y + 2);
@@ -509,22 +591,22 @@ const ThreatDropQuiz = ({ embedded }: { embedded?: boolean }) => {
         }
 
         // Examples
-        const exY = ly + 4 * 26 + 14;
+        const exY = ly + 4 * 24 + 14;
         ctx.font = '9px monospace'; ctx.fillStyle = C.dim;
-        ctx.fillText('PHISHING → DETECT  |  ROOTKIT → ERADICATE', w / 2, exY);
-        ctx.fillText('PRIV ESC → CONTAIN  |  RANSOMWARE → RECOVER', w / 2, exY + 14);
+        ctx.fillText('👁 "spotted in inbox" → DETECT', w / 2, exY);
+        ctx.fillText('🛡 "lock compromised user" → CONTAIN', w / 2, exY + 14);
+        ctx.fillText('🧹 "remove malicious file" → ERADICATE', w / 2, exY + 28);
+        ctx.fillText('🔄 "bring data back" → RECOVER', w / 2, exY + 42);
 
-        // Controls
         const mob = 'ontouchstart' in window;
         if (!mob) {
           ctx.fillStyle = 'rgba(255,255,255,0.18)'; ctx.font = '9px monospace';
-          ctx.fillText('1-4 CLASSIFY  |  ← → + ENTER  |  SPACE START', w / 2, h * 0.88);
+          ctx.fillText('1-4 CLASSIFY  |  ← → + ENTER  |  SPACE START', w / 2, h * 0.90);
         }
 
-        // Start prompt
         const blink = Math.sin(now * 0.005) > 0;
-        if (blink) { ctx.fillStyle = C.yellow; ctx.font = 'bold 13px monospace'; ctx.fillText(mob ? 'TAP TO START' : 'PRESS SPACE', w / 2, h * 0.93); }
-        if (g.hi > 0) { ctx.fillStyle = C.yellow + '60'; ctx.font = '10px monospace'; ctx.fillText('HI ' + g.hi, w / 2, h * 0.97); }
+        if (blink) { ctx.fillStyle = C.yellow; ctx.font = 'bold 13px monospace'; ctx.fillText(mob ? 'TAP TO START' : 'PRESS SPACE', w / 2, h * 0.95); }
+        if (g.hi > 0) { ctx.fillStyle = C.yellow + '60'; ctx.font = '10px monospace'; ctx.fillText('HI ' + g.hi, w / 2, h * 0.98); }
       }
 
       /* ── GAME OVER ── */
