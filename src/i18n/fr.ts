@@ -303,6 +303,7 @@ export const fr = {
     agentPciDesc: 'Identifie le bon type SAQ pour votre environnement de paiement selon PCI DSS v4.0',
     agentTtxDesc: 'Priorise les plans de reprise (ISCP) pour exercices sur table selon la criticité',
     agentNis2QuizDesc: 'Quiz gamifié de 15 questions sur la directive NIS-2 – avec timer et meilleur score',
+    agentCisoDesc: 'Simulation stratégique de budget – survivre 5 tours en tant que CISO d\'une entreprise réglementée',
     agentYtTitle: 'Vidéos d\'injection pour exercices',
     agentYtDesc: 'Vidéos d\'actualité générées par IA comme briefings situationnels réalistes en exercices de crise',
   },
