@@ -30,11 +30,18 @@ const labels: Record<string, Record<string, string>> = {
     submit: 'Budget bestätigen & Runde starten',
     nextRound: 'Weiter zu Runde',
     attackType: 'Angriffstyp',
-    detectionProb: 'Detection-Wahrscheinlichkeit',
-    detected: 'Entdeckt',
+    detectionProb: 'Erkennungsrate',
+    detectionProbHint: 'Wie wahrscheinlich dein SOC den Angriff erkennt. Abhängig von SOC- und Awareness-Level.',
+    detected: 'Erkannt?',
     yes: 'Ja',
     no: 'Nein',
-    damage: 'Schaden nach Reduktionen',
+    damage: 'Schaden',
+    damageHint: 'Abzug vom Marktwert. Bei Erkennung halbiert, durch Resilience & Backup weiter reduziert.',
+    impactLabel: 'Auswirkung auf dein Unternehmen',
+    impactHint: 'Wie sich der Angriff auf deine drei Kernwerte auswirkt.',
+    marketValueHint: 'Sinkt durch Angriffsschaden und regulatorische Strafen.',
+    reputationHint: 'Sinkt stärker bei unentdeckten Angriffen.',
+    regRiskHint: 'Steigt bei jedem Angriff. Ab 40 und 60 drohen Strafabzüge.',
     analysis: 'Analyse',
     gameOver: 'Game Over',
     victory: 'Simulation bestanden',
@@ -95,11 +102,18 @@ const labels: Record<string, Record<string, string>> = {
     submit: 'Confirm Budget & Start Round',
     nextRound: 'Continue to Round',
     attackType: 'Attack Type',
-    detectionProb: 'Detection Probability',
-    detected: 'Detected',
+    detectionProb: 'Detection Rate',
+    detectionProbHint: 'How likely your SOC detects the attack. Depends on SOC and Awareness levels.',
+    detected: 'Detected?',
     yes: 'Yes',
     no: 'No',
-    damage: 'Damage After Reductions',
+    damage: 'Damage',
+    damageHint: 'Deducted from Market Value. Halved if detected, further reduced by Resilience & Backup.',
+    impactLabel: 'Impact on your organization',
+    impactHint: 'How the attack affects your three core metrics.',
+    marketValueHint: 'Decreases from attack damage and regulatory penalties.',
+    reputationHint: 'Drops more sharply from undetected attacks.',
+    regRiskHint: 'Increases with every attack. Penalties trigger at 40 and 60.',
     analysis: 'Analysis',
     gameOver: 'Game Over',
     victory: 'Simulation Passed',
@@ -160,11 +174,18 @@ const labels: Record<string, Record<string, string>> = {
     submit: 'Confirmer le budget & lancer le tour',
     nextRound: 'Continuer au tour',
     attackType: 'Type d\'attaque',
-    detectionProb: 'Probabilité de détection',
-    detected: 'Détecté',
+    detectionProb: 'Taux de détection',
+    detectionProbHint: 'Probabilité que votre SOC détecte l\'attaque. Dépend des niveaux SOC et Awareness.',
+    detected: 'Détecté ?',
     yes: 'Oui',
     no: 'Non',
-    damage: 'Dégâts après réductions',
+    damage: 'Dégâts',
+    damageHint: 'Déduits de la valeur marchande. Réduits de moitié si détecté, encore réduits par Résilience & Backup.',
+    impactLabel: 'Impact sur votre organisation',
+    impactHint: 'Comment l\'attaque affecte vos trois indicateurs clés.',
+    marketValueHint: 'Diminue par les dégâts et les pénalités réglementaires.',
+    reputationHint: 'Baisse davantage lors d\'attaques non détectées.',
+    regRiskHint: 'Augmente à chaque attaque. Pénalités à partir de 40 et 60.',
     analysis: 'Analyse',
     gameOver: 'Fin de partie',
     victory: 'Simulation réussie',
@@ -621,6 +642,7 @@ const CisoSimulator = ({ embedded = false }: { embedded?: boolean }) => {
                 <div className="text-center">
                   <p className="text-muted-foreground text-xs mb-1">{t('detectionProb')}</p>
                   <p className="text-foreground font-bold text-lg">{latestResult.detectionPct}%</p>
+                  <p className="text-muted-foreground text-[10px] mt-1 font-sans leading-tight">{t('detectionProbHint')}</p>
                 </div>
                 <div className="text-center">
                   <p className="text-muted-foreground text-xs mb-1">{t('detected')}</p>
@@ -631,6 +653,7 @@ const CisoSimulator = ({ embedded = false }: { embedded?: boolean }) => {
                 <div className="text-center">
                   <p className="text-muted-foreground text-xs mb-1">{t('damage')}</p>
                   <p className="text-destructive font-bold text-lg">-{latestResult.finalDamage}</p>
+                  <p className="text-muted-foreground text-[10px] mt-1 font-sans leading-tight">{t('damageHint')}</p>
                 </div>
               </div>
             </div>
@@ -643,7 +666,8 @@ const CisoSimulator = ({ embedded = false }: { embedded?: boolean }) => {
 
             {/* Impact on stats */}
             <div className="bg-card border border-border rounded-xl p-4 md:p-5">
-              <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-2">Auswirkung</p>
+              <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-1">{t('impactLabel')}</p>
+              <p className="text-muted-foreground text-[10px] font-sans mb-3">{t('impactHint')}</p>
               <div className="grid grid-cols-3 gap-2 text-center text-sm font-mono">
                 <div>
                   <p className="text-muted-foreground text-[10px]">{t('marketValue')}</p>
@@ -652,6 +676,7 @@ const CisoSimulator = ({ embedded = false }: { embedded?: boolean }) => {
                     <span className="mx-1">→</span>
                     <span className={latestResult.statsAfter.marketValue < latestResult.statsBefore.marketValue ? 'text-destructive font-bold' : 'text-success font-bold'}>{latestResult.statsAfter.marketValue}</span>
                   </p>
+                  <p className="text-muted-foreground text-[9px] font-sans mt-0.5 leading-tight">{t('marketValueHint')}</p>
                 </div>
                 <div>
                   <p className="text-muted-foreground text-[10px]">{t('reputation')}</p>
@@ -660,6 +685,7 @@ const CisoSimulator = ({ embedded = false }: { embedded?: boolean }) => {
                     <span className="mx-1">→</span>
                     <span className={latestResult.statsAfter.reputation < latestResult.statsBefore.reputation ? 'text-destructive font-bold' : 'text-success font-bold'}>{latestResult.statsAfter.reputation}</span>
                   </p>
+                  <p className="text-muted-foreground text-[9px] font-sans mt-0.5 leading-tight">{t('reputationHint')}</p>
                 </div>
                 <div>
                   <p className="text-muted-foreground text-[10px]">{t('regRisk')}</p>
@@ -668,6 +694,7 @@ const CisoSimulator = ({ embedded = false }: { embedded?: boolean }) => {
                     <span className="mx-1">→</span>
                     <span className={latestResult.statsAfter.regRisk > latestResult.statsBefore.regRisk ? 'text-destructive font-bold' : 'text-success font-bold'}>{latestResult.statsAfter.regRisk}</span>
                   </p>
+                  <p className="text-muted-foreground text-[9px] font-sans mt-0.5 leading-tight">{t('regRiskHint')}</p>
                 </div>
               </div>
             </div>
