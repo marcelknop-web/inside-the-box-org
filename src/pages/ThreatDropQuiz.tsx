@@ -1,503 +1,374 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Loader2, RotateCcw, CheckCircle2, XCircle, Zap, Trophy, Target, ArrowRight, Shield, Flame, Star } from 'lucide-react';
+import { useRef, useEffect, useCallback } from 'react';
 import { PageMeta } from '@/components/PageMeta';
-import { useLanguage } from '@/i18n/LanguageContext';
-import { supabase } from '@/integrations/supabase/client';
 
-interface ThreatDropQuestion {
-  id: string;
-  threat_title: string;
-  context: string;
-  options: string[];
-  correct: number;
-  rationale: string;
-  domain_tags: string[];
-  difficulty: number;
-  primary_skill: string;
-  confidence: number;
+/* ── COLORS ── */
+const C = {
+  bg: '#05060a', cyan: '#00e5ff', pink: '#ff2bd6',
+  lime: '#a7ff1a', yellow: '#ffd000', red: '#ff3b3b',
+  white: '#ffffff', grid: 'rgba(255,255,255,0.04)',
+};
+
+/* ── LANES ── */
+const LANES = [
+  { name: 'DETECT', color: C.cyan, sym: '◎' },
+  { name: 'CONTAIN', color: C.pink, sym: '◇' },
+  { name: 'ERADICATE', color: C.lime, sym: '✕' },
+  { name: 'RECOVER', color: C.yellow, sym: '↻' },
+];
+
+/* ── THREATS (40 entries) ── */
+const THREATS = [
+  { label: 'MFA FATIGUE', lane: 0 }, { label: 'DNS TUNNEL', lane: 0 },
+  { label: 'EXFILTRATION', lane: 0 }, { label: 'PORT SCAN', lane: 0 },
+  { label: 'C2 BEACON', lane: 0 }, { label: 'BRUTE FORCE', lane: 0 },
+  { label: 'PHISHING', lane: 0 }, { label: 'CRED DUMP', lane: 0 },
+  { label: 'ANOMALY', lane: 0 }, { label: 'RECON SCAN', lane: 0 },
+  { label: 'GOLDEN TICKET', lane: 1 }, { label: 'OAUTH ABUSE', lane: 1 },
+  { label: 'LATERAL MOVE', lane: 1 }, { label: 'PRIV ESC', lane: 1 },
+  { label: 'ZERO DAY', lane: 1 }, { label: 'APT IMPLANT', lane: 1 },
+  { label: 'ROGUE ADMIN', lane: 1 }, { label: 'INSIDER', lane: 1 },
+  { label: 'SHADOW IT', lane: 1 }, { label: 'VPN ABUSE', lane: 1 },
+  { label: 'SUPPLY CHAIN', lane: 2 }, { label: 'WEB SHELL', lane: 2 },
+  { label: 'MALWARE', lane: 2 }, { label: 'ROOTKIT', lane: 2 },
+  { label: 'BACKDOOR', lane: 2 }, { label: 'CRYPTOMINER', lane: 2 },
+  { label: 'RAT', lane: 2 }, { label: 'TROJAN', lane: 2 },
+  { label: 'WORM', lane: 2 }, { label: 'BOTNET', lane: 2 },
+  { label: 'RANSOMWARE', lane: 3 }, { label: 'BACKUP WIPE', lane: 3 },
+  { label: 'DATA BREACH', lane: 3 }, { label: 'DB CORRUPT', lane: 3 },
+  { label: 'CONFIG DRIFT', lane: 3 }, { label: 'SITE DOWN', lane: 3 },
+  { label: 'KEY LEAK', lane: 3 }, { label: 'CERT EXPIRE', lane: 3 },
+  { label: 'DNS HIJACK', lane: 3 }, { label: 'LOG WIPE', lane: 3 },
+];
+
+/* ── TYPES ── */
+interface Threat { id: number; label: string; lane: number; y: number; speed: number; caught: boolean; timer: number; }
+interface Particle { x: number; y: number; vx: number; vy: number; life: number; color: string; size: number; }
+interface Popup { text: string; x: number; y: number; life: number; color: string; }
+interface GS {
+  phase: 'start' | 'play' | 'over';
+  pLane: number; pX: number;
+  threats: Threat[]; particles: Particle[]; popups: Popup[];
+  score: number; combo: number; bestCombo: number; lives: number;
+  time: number; spawnT: number; baseSpd: number;
+  shakeT: number; flashT: number; slowT: number; shield: boolean;
+  nextId: number; hi: number;
 }
 
-const labels: Record<string, Record<string, string>> = {
-  de: {
-    title: 'ThreatDrop',
-    subtitle: 'Experten-Quiz für ISMS- und Cybersecurity-Profis.',
-    loading: 'Frage wird generiert…',
-    error: 'Fehler beim Laden. Bitte erneut versuchen.',
-    retry: 'Erneut versuchen',
-    next: 'Nächste Frage',
-    restart: 'Neues Spiel',
-    correct: 'Richtig!',
-    wrong: 'Leider falsch.',
-    rationale: 'Begründung',
-    score: 'Score',
-    streak: 'Serie',
-    question: 'Frage',
-    difficulty: 'Level',
-    selectAnswer: 'Wählen Sie eine Antwort.',
-    gameIntro: 'Testen Sie Ihr Wissen auf SOC-Lead- und CISO-Niveau. Jede Frage wird in Echtzeit von KI generiert.',
-    start: 'Quiz starten',
-    context: 'Kontext',
-    perfect: 'Perfekt!',
-    goodJob: 'Gut gemacht!',
-    keepGoing: 'Weiter so!',
-  },
-  en: {
-    title: 'ThreatDrop',
-    subtitle: 'Expert quiz for ISMS and cybersecurity professionals.',
-    loading: 'Generating question…',
-    error: 'Failed to load. Please try again.',
-    retry: 'Try again',
-    next: 'Next question',
-    restart: 'New game',
-    correct: 'Correct!',
-    wrong: 'Incorrect.',
-    rationale: 'Rationale',
-    score: 'Score',
-    streak: 'Streak',
-    question: 'Question',
-    difficulty: 'Level',
-    selectAnswer: 'Select an answer.',
-    gameIntro: 'Test your knowledge at SOC Lead and CISO level. Each question is AI-generated in real-time.',
-    start: 'Start Quiz',
-    context: 'Context',
-    perfect: 'Perfect!',
-    goodJob: 'Well done!',
-    keepGoing: 'Keep going!',
-  },
-  fr: {
-    title: 'ThreatDrop',
-    subtitle: 'Quiz expert pour professionnels SMSI et cybersécurité.',
-    loading: 'Génération de la question…',
-    error: 'Échec du chargement. Veuillez réessayer.',
-    retry: 'Réessayer',
-    next: 'Question suivante',
-    restart: 'Nouveau jeu',
-    correct: 'Correct !',
-    wrong: 'Incorrect.',
-    rationale: 'Explication',
-    score: 'Score',
-    streak: 'Série',
-    question: 'Question',
-    difficulty: 'Niveau',
-    selectAnswer: 'Sélectionnez une réponse.',
-    gameIntro: 'Testez vos connaissances au niveau SOC Lead et CISO. Chaque question est générée en temps réel par IA.',
-    start: 'Démarrer le quiz',
-    context: 'Contexte',
-    perfect: 'Parfait !',
-    goodJob: 'Bien joué !',
-    keepGoing: 'Continuez !',
-  },
+/* ── HELPERS ── */
+const HI_KEY = 'threatdrop-hi';
+const getHi = () => { try { return +(localStorage.getItem(HI_KEY) || 0); } catch { return 0; } };
+const saveHi = (s: number) => { try { if (s > getHi()) localStorage.setItem(HI_KEY, '' + s); } catch {} };
+
+const mkGS = (): GS => ({
+  phase: 'start', pLane: 1, pX: 0,
+  threats: [], particles: [], popups: [],
+  score: 0, combo: 0, bestCombo: 0, lives: 3,
+  time: 0, spawnT: 1.5, baseSpd: 110,
+  shakeT: 0, flashT: 0, slowT: 0, shield: false,
+  nextId: 0, hi: getHi(),
+});
+
+const spawn = (g: GS, yOff = 0) => {
+  const t = THREATS[Math.floor(Math.random() * THREATS.length)];
+  g.threats.push({ id: g.nextId++, label: t.label, lane: t.lane, y: -50 + yOff, speed: g.baseSpd + g.combo * 3, caught: false, timer: 0 });
 };
 
-/* ── Score Ring SVG ── */
-const ScoreRing = ({ score, total }: { score: number; total: number }) => {
-  const pct = total === 0 ? 0 : score / total;
-  const r = 28;
-  const circ = 2 * Math.PI * r;
-  const offset = circ * (1 - pct);
-
-  return (
-    <div className="relative w-[72px] h-[72px] flex items-center justify-center">
-      <svg width="72" height="72" viewBox="0 0 72 72" className="absolute">
-        <circle cx="36" cy="36" r={r} fill="none" stroke="hsl(var(--muted))" strokeWidth="5" />
-        <motion.circle
-          cx="36" cy="36" r={r}
-          fill="none"
-          stroke="hsl(var(--highlight))"
-          strokeWidth="5"
-          strokeLinecap="round"
-          strokeDasharray={circ}
-          initial={{ strokeDashoffset: circ }}
-          animate={{ strokeDashoffset: offset }}
-          transition={{ duration: 0.6, ease: 'easeOut' }}
-          transform="rotate(-90 36 36)"
-        />
-      </svg>
-      <span className="text-highlight font-mono font-bold text-lg z-10">{score}</span>
-    </div>
-  );
+const burst = (g: GS, x: number, y: number, color: string) => {
+  for (let i = 0; i < 18; i++) {
+    const a = (Math.PI * 2 * i) / 18 + Math.random() * 0.3;
+    const s = 80 + Math.random() * 120;
+    g.particles.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, life: 0.4 + Math.random() * 0.3, color, size: 2 + Math.random() * 3 });
+  }
 };
 
-/* ── Difficulty dots ── */
-const DifficultyDots = ({ level }: { level: number }) => (
-  <div className="flex gap-1 items-center">
-    {[1, 2, 3, 4, 5].map(i => (
-      <motion.div
-        key={i}
-        className={`w-2 h-2 rounded-full ${i <= level ? 'bg-primary' : 'bg-muted'}`}
-        initial={{ scale: 0 }}
-        animate={{ scale: 1 }}
-        transition={{ delay: i * 0.05 }}
-      />
-    ))}
-  </div>
-);
+const rRect = (ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) => {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y); ctx.lineTo(x + w - r, y); ctx.arcTo(x + w, y, x + w, y + r, r);
+  ctx.lineTo(x + w, y + h - r); ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
+  ctx.lineTo(x + r, y + h); ctx.arcTo(x, y + h, x, y + h - r, r);
+  ctx.lineTo(x, y + r); ctx.arcTo(x, y, x + r, y, r); ctx.closePath();
+};
 
-const optionLetters = ['A', 'B', 'C', 'D'];
-
+/* ── COMPONENT ── */
 const ThreatDropQuiz = ({ embedded }: { embedded?: boolean }) => {
-  const { language } = useLanguage();
-  const t = (key: string) => labels[language]?.[key] ?? labels.en[key] ?? key;
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const gs = useRef<GS>(mkGS());
+  const animRef = useRef(0);
+  const lastT = useRef(0);
+  const sizeRef = useRef({ w: 0, h: 0 });
 
-  const [phase, setPhase] = useState<'intro' | 'loading' | 'question' | 'answered' | 'error'>('intro');
-  const [question, setQuestion] = useState<ThreatDropQuestion | null>(null);
-  const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
-  const [score, setScore] = useState(0);
-  const [streak, setStreak] = useState(0);
-  const [totalAnswered, setTotalAnswered] = useState(0);
-  const [usedIds, setUsedIds] = useState<string[]>([]);
-  const resultRef = useRef<HTMLDivElement>(null);
+  const startGame = useCallback(() => {
+    const hi = gs.current.hi;
+    gs.current = { ...mkGS(), phase: 'play', hi };
+  }, []);
 
-  const fetchQuestion = useCallback(async () => {
-    setPhase('loading');
-    setQuestion(null);
-    setSelectedIdx(null);
-    try {
-      const { data, error } = await supabase.functions.invoke('threatdrop-question', {
-        body: { language, usedIds },
-      });
-      if (error || data?.error) { setPhase('error'); return; }
-      setQuestion(data as ThreatDropQuestion);
-      setUsedIds(prev => [...prev, data.id]);
-      setPhase('question');
-    } catch {
-      setPhase('error');
-    }
-  }, [language, usedIds]);
-
-  const handleAnswer = (idx: number) => {
-    if (phase !== 'question' || !question) return;
-    setSelectedIdx(idx);
-    setTotalAnswered(prev => prev + 1);
-    if (idx === question.correct) {
-      setScore(prev => prev + 1);
-      setStreak(prev => prev + 1);
-    } else {
-      setStreak(0);
-    }
-    setPhase('answered');
-  };
-
+  /* Resize */
   useEffect(() => {
-    if (phase === 'answered' && resultRef.current) {
-      setTimeout(() => resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 150);
-    }
-  }, [phase]);
+    const resize = () => {
+      const c = canvasRef.current, ct = containerRef.current;
+      if (!c || !ct) return;
+      const r = ct.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      c.width = r.width * dpr; c.height = r.height * dpr;
+      c.style.width = r.width + 'px'; c.style.height = r.height + 'px';
+      sizeRef.current = { w: r.width, h: r.height };
+    };
+    resize();
+    window.addEventListener('resize', resize);
+    return () => window.removeEventListener('resize', resize);
+  }, []);
 
-  const handleRestart = () => {
-    setScore(0);
-    setStreak(0);
-    setTotalAnswered(0);
-    setUsedIds([]);
-    setPhase('intro');
-  };
+  /* Keyboard */
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const g = gs.current;
+      if (g.phase === 'start' && (e.key === ' ' || e.key === 'Enter')) { e.preventDefault(); startGame(); return; }
+      if (g.phase === 'over' && (e.key === 'r' || e.key === 'R' || e.key === ' ')) { e.preventDefault(); startGame(); return; }
+      if (g.phase === 'play') {
+        if (e.key === 'ArrowLeft' || e.key === 'a') { e.preventDefault(); g.pLane = Math.max(0, g.pLane - 1); }
+        if (e.key === 'ArrowRight' || e.key === 'd') { e.preventDefault(); g.pLane = Math.min(3, g.pLane + 1); }
+        if (e.key >= '1' && e.key <= '4') { e.preventDefault(); g.pLane = +e.key - 1; }
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [startGame]);
 
-  const isCorrect = selectedIdx === question?.correct;
+  /* Touch / Click */
+  useEffect(() => {
+    const c = canvasRef.current;
+    if (!c) return;
+    const handle = (cx: number) => {
+      const g = gs.current;
+      if (g.phase !== 'play') { startGame(); return; }
+      const rect = c.getBoundingClientRect();
+      g.pLane = Math.max(0, Math.min(3, Math.floor((cx - rect.left) / (rect.width / 4))));
+    };
+    const onClick = (e: MouseEvent) => handle(e.clientX);
+    const onTouch = (e: TouchEvent) => { e.preventDefault(); handle(e.touches[0].clientX); };
+    const onTouchMove = (e: TouchEvent) => {
+      if (gs.current.phase !== 'play') return;
+      e.preventDefault();
+      const rect = c.getBoundingClientRect();
+      gs.current.pLane = Math.max(0, Math.min(3, Math.floor((e.touches[0].clientX - rect.left) / (rect.width / 4))));
+    };
+    c.addEventListener('mousedown', onClick);
+    c.addEventListener('touchstart', onTouch, { passive: false });
+    c.addEventListener('touchmove', onTouchMove, { passive: false });
+    return () => { c.removeEventListener('mousedown', onClick); c.removeEventListener('touchstart', onTouch); c.removeEventListener('touchmove', onTouchMove); };
+  }, [startGame]);
+
+  /* Game Loop */
+  useEffect(() => {
+    const loop = (now: number) => {
+      const dt = Math.min((now - lastT.current) / 1000, 0.05);
+      lastT.current = now;
+      const g = gs.current;
+      const { w, h } = sizeRef.current;
+      if (w === 0) { animRef.current = requestAnimationFrame(loop); return; }
+
+      const lw = w / 4;
+      const catchY = h - 58;
+
+      /* ── UPDATE ── */
+      if (g.phase === 'play') {
+        g.time += dt;
+        // Catcher lerp
+        const tx = g.pLane * lw + lw / 2;
+        g.pX += (tx - g.pX) * 0.18;
+        // Spawn
+        g.spawnT -= dt;
+        if (g.spawnT <= 0) {
+          spawn(g);
+          const interval = Math.max(0.7, 2.2 - g.time * 0.012);
+          g.spawnT = interval * (0.8 + Math.random() * 0.4);
+          if (g.combo >= 10 && Math.random() < 0.3) spawn(g, -80);
+        }
+        // Speed
+        const sm = g.slowT > 0 ? 0.35 : 1;
+        g.slowT = Math.max(0, g.slowT - dt);
+        // Threats
+        const rm: number[] = [];
+        for (const t of g.threats) {
+          if (t.caught) { t.timer += dt; if (t.timer > 0.25) rm.push(t.id); continue; }
+          t.y += t.speed * sm * dt;
+          if (t.y >= catchY - 35 && t.y <= catchY + 15 && !t.caught && g.pLane === t.lane) {
+            t.caught = true; t.timer = 0;
+            const pts = 100 + g.combo * 10;
+            g.score += pts; g.combo++; g.bestCombo = Math.max(g.bestCombo, g.combo);
+            burst(g, g.pX, catchY, LANES[t.lane].color);
+            g.popups.push({ text: '+' + pts, x: g.pX, y: catchY - 10, life: 0.7, color: LANES[t.lane].color });
+            g.baseSpd = 110 + g.combo * 3;
+            if (g.combo === 5) { g.slowT = 5; g.popups.push({ text: '⏱ SLOW TIME', x: w / 2, y: h / 2, life: 1.2, color: C.cyan }); }
+            if (g.combo === 15) { g.shield = true; g.popups.push({ text: '◆ SHIELD', x: w / 2, y: h / 2, life: 1.2, color: C.pink }); }
+          }
+          if (t.y > h + 20 && !t.caught) {
+            rm.push(t.id);
+            if (g.shield) { g.shield = false; } else { g.lives--; g.combo = 0; g.shakeT = 0.3; g.flashT = 0.3; }
+            if (g.lives <= 0) { g.phase = 'over'; saveHi(g.score); g.hi = Math.max(g.hi, g.score); }
+          }
+        }
+        g.threats = g.threats.filter(t => !rm.includes(t.id));
+        // Particles
+        for (const p of g.particles) { p.x += p.vx * dt; p.y += p.vy * dt; p.life -= dt; p.vy += 200 * dt; }
+        g.particles = g.particles.filter(p => p.life > 0);
+        // Popups
+        for (const p of g.popups) { p.y -= 60 * dt; p.life -= dt; }
+        g.popups = g.popups.filter(p => p.life > 0);
+        g.shakeT = Math.max(0, g.shakeT - dt);
+        g.flashT = Math.max(0, g.flashT - dt);
+      }
+
+      /* ── DRAW ── */
+      const c = canvasRef.current;
+      if (!c) { animRef.current = requestAnimationFrame(loop); return; }
+      const ctx = c.getContext('2d');
+      if (!ctx) { animRef.current = requestAnimationFrame(loop); return; }
+
+      const dpr = window.devicePixelRatio || 1;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      if (g.shakeT > 0) { const i = g.shakeT * 15; ctx.translate((Math.random() - 0.5) * i, (Math.random() - 0.5) * i); }
+
+      // BG
+      ctx.fillStyle = C.bg; ctx.fillRect(-10, -10, w + 20, h + 20);
+      // Grid
+      ctx.strokeStyle = C.grid; ctx.lineWidth = 1;
+      for (let x = 0; x < w; x += 40) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
+      for (let y = 0; y < h; y += 40) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
+      // Lane dividers
+      ctx.setLineDash([4, 8]); ctx.strokeStyle = 'rgba(255,255,255,0.08)'; ctx.lineWidth = 1;
+      for (let i = 1; i < 4; i++) { ctx.beginPath(); ctx.moveTo(i * lw, 0); ctx.lineTo(i * lw, h); ctx.stroke(); }
+      ctx.setLineDash([]);
+
+      // Lane labels + highlights
+      for (let i = 0; i < 4; i++) {
+        const lane = LANES[i]; const cx = i * lw + lw / 2;
+        if (g.phase === 'play' && g.pLane === i) { ctx.fillStyle = lane.color + '0a'; ctx.fillRect(i * lw, 0, lw, h); }
+        ctx.textAlign = 'center';
+        ctx.font = '16px monospace'; ctx.fillStyle = lane.color + (g.pLane === i ? 'cc' : '50');
+        ctx.fillText(lane.sym, cx, h - 22);
+        ctx.font = 'bold 9px monospace'; ctx.fillText(lane.name, cx, h - 8);
+      }
+
+      // Catcher
+      if (g.phase === 'play' || g.phase === 'over') {
+        const cw = lw * 0.8, ch = 10;
+        const lc = LANES[g.pLane].color;
+        ctx.shadowColor = lc; ctx.shadowBlur = 16;
+        ctx.fillStyle = lc + '35'; ctx.strokeStyle = lc; ctx.lineWidth = 2;
+        rRect(ctx, g.pX - cw / 2, catchY - ch / 2, cw, ch, 5); ctx.fill(); ctx.stroke();
+        ctx.beginPath(); ctx.arc(g.pX, catchY, 3, 0, Math.PI * 2); ctx.fillStyle = lc; ctx.fill();
+        ctx.shadowBlur = 0;
+        if (g.shield) { ctx.strokeStyle = C.pink + '50'; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(g.pX, catchY, cw / 2 + 6, 0, Math.PI * 2); ctx.stroke(); }
+      }
+
+      // Threats
+      for (const t of g.threats) {
+        const lc = LANES[t.lane].color; const cx = t.lane * lw + lw / 2;
+        const tw = lw * 0.72, th = 36;
+        let alpha = 1, scale = 1;
+        if (t.caught) { alpha = 1 - t.timer / 0.25; scale = 1 + t.timer * 2; }
+        ctx.save(); ctx.globalAlpha = alpha; ctx.translate(cx, t.y); ctx.scale(scale, scale);
+        ctx.shadowColor = lc; ctx.shadowBlur = 8 + Math.max(0, 1 - Math.abs(t.y - catchY) / 200) * 12;
+        ctx.fillStyle = '#0a0c14ee'; ctx.strokeStyle = lc; ctx.lineWidth = 1.5;
+        rRect(ctx, -tw / 2, -th / 2, tw, th, 6); ctx.fill(); ctx.stroke();
+        ctx.shadowBlur = 0;
+        ctx.font = 'bold 9px monospace'; ctx.textAlign = 'center'; ctx.fillStyle = lc;
+        ctx.fillText(t.label, 0, 4);
+        ctx.restore();
+      }
+
+      // Particles
+      for (const p of g.particles) {
+        ctx.globalAlpha = Math.min(1, p.life * 2.5); ctx.fillStyle = p.color;
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2); ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+
+      // Popups
+      for (const p of g.popups) {
+        ctx.globalAlpha = Math.min(1, p.life * 1.5); ctx.font = 'bold 14px monospace';
+        ctx.textAlign = 'center'; ctx.fillStyle = p.color; ctx.fillText(p.text, p.x, p.y);
+      }
+      ctx.globalAlpha = 1;
+
+      // HUD
+      if (g.phase === 'play' || g.phase === 'over') {
+        ctx.font = 'bold 16px monospace'; ctx.textAlign = 'left'; ctx.fillStyle = C.white;
+        ctx.fillText('' + g.score, 16, 28);
+        if (g.combo > 1) { ctx.textAlign = 'center'; ctx.fillStyle = C.cyan; ctx.font = 'bold 20px monospace'; ctx.fillText(g.combo + '×', w / 2, 30); }
+        ctx.textAlign = 'right';
+        for (let i = 0; i < 3; i++) { ctx.fillStyle = i < g.lives ? C.red : 'rgba(255,255,255,0.1)'; ctx.font = '16px monospace'; ctx.fillText('♥', w - 14 - (2 - i) * 22, 28); }
+        if (g.slowT > 0) { ctx.textAlign = 'left'; ctx.font = '10px monospace'; ctx.fillStyle = C.cyan; ctx.fillText('⏱ ' + g.slowT.toFixed(1) + 's', 16, 48); }
+      }
+
+      // Flash
+      if (g.flashT > 0) { ctx.fillStyle = `rgba(255,50,50,${g.flashT * 0.4})`; ctx.fillRect(-10, -10, w + 20, h + 20); }
+
+      // Scanlines
+      ctx.fillStyle = 'rgba(0,0,0,0.06)';
+      for (let y = 0; y < h; y += 3) ctx.fillRect(0, y, w, 1);
+
+      // Vignette
+      const vg = ctx.createRadialGradient(w / 2, h / 2, w * 0.3, w / 2, h / 2, w * 0.8);
+      vg.addColorStop(0, 'transparent'); vg.addColorStop(1, 'rgba(0,0,0,0.5)');
+      ctx.fillStyle = vg; ctx.fillRect(0, 0, w, h);
+
+      // START SCREEN
+      if (g.phase === 'start') {
+        ctx.fillStyle = 'rgba(5,6,10,0.7)'; ctx.fillRect(0, 0, w, h);
+        ctx.textAlign = 'center';
+        ctx.shadowColor = C.cyan; ctx.shadowBlur = 25; ctx.font = 'bold 30px monospace'; ctx.fillStyle = C.cyan;
+        ctx.fillText('THREATDROP', w / 2, h * 0.30); ctx.shadowBlur = 0;
+        ctx.font = '10px monospace'; ctx.fillStyle = 'rgba(255,255,255,0.45)';
+        ctx.fillText('INCIDENT RESPONSE ARCADE', w / 2, h * 0.30 + 26);
+        // Lanes legend
+        for (let i = 0; i < 4; i++) {
+          const lx = w / 2 + (i - 1.5) * (w < 400 ? 55 : 75);
+          ctx.fillStyle = LANES[i].color; ctx.font = '14px monospace'; ctx.fillText(LANES[i].sym, lx, h * 0.48);
+          ctx.font = '8px monospace'; ctx.fillText(LANES[i].name, lx, h * 0.48 + 14);
+        }
+        ctx.font = '10px monospace'; ctx.fillStyle = 'rgba(255,255,255,0.35)';
+        ctx.fillText('Catch threats in the correct response lane', w / 2, h * 0.60);
+        const mob = 'ontouchstart' in window;
+        if (!mob) { ctx.fillStyle = 'rgba(255,255,255,0.25)'; ctx.font = '9px monospace'; ctx.fillText('← → MOVE  |  1-4 DIRECT  |  SPACE START', w / 2, h * 0.68); }
+        const blink = Math.sin(now * 0.005) > 0;
+        if (blink) { ctx.fillStyle = C.yellow; ctx.font = 'bold 13px monospace'; ctx.fillText(mob ? 'TAP TO START' : 'PRESS SPACE', w / 2, h * 0.78); }
+        if (g.hi > 0) { ctx.fillStyle = C.yellow + '70'; ctx.font = '10px monospace'; ctx.fillText('HI ' + g.hi, w / 2, h * 0.87); }
+      }
+
+      // GAME OVER
+      if (g.phase === 'over') {
+        ctx.fillStyle = 'rgba(5,6,10,0.75)'; ctx.fillRect(0, 0, w, h);
+        ctx.textAlign = 'center';
+        ctx.shadowColor = C.red; ctx.shadowBlur = 20; ctx.font = 'bold 26px monospace'; ctx.fillStyle = C.red;
+        ctx.fillText('GAME OVER', w / 2, h * 0.30); ctx.shadowBlur = 0;
+        ctx.font = 'bold 38px monospace'; ctx.fillStyle = C.white; ctx.fillText('' + g.score, w / 2, h * 0.44);
+        ctx.font = '10px monospace'; ctx.fillStyle = 'rgba(255,255,255,0.4)'; ctx.fillText('SCORE', w / 2, h * 0.44 + 18);
+        if (g.bestCombo > 1) { ctx.fillStyle = C.cyan; ctx.fillText('BEST COMBO ' + g.bestCombo + '×', w / 2, h * 0.56); }
+        ctx.fillStyle = g.score >= g.hi && g.hi > 0 ? C.yellow : 'rgba(255,255,255,0.35)';
+        ctx.fillText('HI ' + g.hi + (g.score >= g.hi && g.score > 0 ? ' ★ NEW' : ''), w / 2, h * 0.64);
+        const mob = 'ontouchstart' in window;
+        const blink = Math.sin(now * 0.005) > 0;
+        if (blink) { ctx.fillStyle = C.yellow; ctx.font = 'bold 12px monospace'; ctx.fillText(mob ? 'TAP TO RESTART' : 'SPACE / R', w / 2, h * 0.77); }
+      }
+
+      animRef.current = requestAnimationFrame(loop);
+    };
+    lastT.current = performance.now();
+    animRef.current = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(animRef.current);
+  }, []);
 
   return (
-    <div className={`${embedded ? '' : 'min-h-screen bg-background'} p-4 md:p-6 max-w-3xl mx-auto`}>
-      {!embedded && <PageMeta title="ThreatDrop" description="Expert Cybersecurity Quiz" />}
-
-      {/* ── Header with Score ── */}
-      <div className="flex items-center justify-between mb-5">
-        <div className="flex items-center gap-3">
-          <motion.div
-            animate={{ rotate: [0, 10, -10, 0] }}
-            transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
-          >
-            <Shield className="text-highlight w-7 h-7" />
-          </motion.div>
-          <div>
-            <h1 className="text-highlight font-mono font-bold text-xl leading-tight">{t('title')}</h1>
-            <p className="text-muted-foreground text-xs font-sans">{t('subtitle')}</p>
-          </div>
-        </div>
-
-        {totalAnswered > 0 && (
-          <div className="flex items-center gap-3">
-            {streak >= 3 && (
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                className="flex items-center gap-1 px-2 py-1 rounded-full bg-primary/15 border border-primary/30"
-              >
-                <Flame className="w-4 h-4 text-primary" />
-                <span className="text-primary font-mono font-bold text-sm">{streak}×</span>
-              </motion.div>
-            )}
-            <ScoreRing score={score} total={totalAnswered} />
-          </div>
-        )}
-      </div>
-
-      <AnimatePresence mode="wait">
-        {/* ── INTRO ── */}
-        {phase === 'intro' && (
-          <motion.div
-            key="intro"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="space-y-5"
-          >
-            <div className="relative rounded-2xl overflow-hidden border border-highlight/20 bg-gradient-to-br from-highlight/5 via-card to-primary/5 p-8 text-center">
-              <motion.div
-                animate={{ scale: [1, 1.1, 1], opacity: [0.6, 1, 0.6] }}
-                transition={{ duration: 3, repeat: Infinity }}
-                className="absolute inset-0 bg-gradient-to-r from-highlight/5 via-transparent to-primary/5"
-              />
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ type: 'spring', stiffness: 200, delay: 0.2 }}
-              >
-                <Shield className="w-16 h-16 text-highlight mx-auto mb-4" />
-              </motion.div>
-              <p className="text-foreground text-sm font-sans leading-relaxed max-w-md mx-auto relative z-10">
-                {t('gameIntro')}
-              </p>
-            </div>
-
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={fetchQuestion}
-              className="w-full py-3.5 rounded-xl bg-highlight text-highlight-foreground font-mono font-bold text-sm flex items-center justify-center gap-2 hover:bg-highlight/90 transition-colors"
-            >
-              <Zap className="w-5 h-5" />
-              {t('start')}
-            </motion.button>
-          </motion.div>
-        )}
-
-        {/* ── LOADING ── */}
-        {phase === 'loading' && (
-          <motion.div
-            key="loading"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="flex flex-col items-center justify-center py-20 gap-5"
-          >
-            <div className="relative">
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-                className="w-16 h-16 rounded-full border-2 border-highlight/20 border-t-highlight"
-              />
-              <Shield className="w-6 h-6 text-highlight absolute inset-0 m-auto" />
-            </div>
-            <p className="text-muted-foreground text-sm font-mono">{t('loading')}</p>
-          </motion.div>
-        )}
-
-        {/* ── ERROR ── */}
-        {phase === 'error' && (
-          <motion.div
-            key="error"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0 }}
-            className="space-y-4"
-          >
-            <div className="rounded-xl p-6 bg-destructive/10 border border-destructive/20 text-center">
-              <XCircle className="w-10 h-10 text-destructive mx-auto mb-3" />
-              <p className="text-destructive text-sm font-sans">{t('error')}</p>
-            </div>
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={fetchQuestion}
-              className="w-full py-3 rounded-xl border border-border bg-secondary text-foreground font-mono text-sm flex items-center justify-center gap-2 hover:bg-muted transition-colors"
-            >
-              <RotateCcw className="w-4 h-4" />
-              {t('retry')}
-            </motion.button>
-          </motion.div>
-        )}
-
-        {/* ── QUESTION / ANSWERED ── */}
-        {(phase === 'question' || phase === 'answered') && question && (
-          <motion.div
-            key={question.id}
-            initial={{ opacity: 0, x: 40 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -40 }}
-            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-            className="space-y-4"
-          >
-            {/* Question number + difficulty */}
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground text-xs font-mono">
-                {t('question')} #{totalAnswered + (phase === 'question' ? 1 : 0)}
-              </span>
-              <div className="flex items-center gap-2">
-                <span className="text-muted-foreground text-[10px] font-mono uppercase">{t('difficulty')}</span>
-                <DifficultyDots level={question.difficulty} />
-              </div>
-            </div>
-
-            {/* Question card */}
-            <div className="rounded-2xl border border-highlight/20 bg-card overflow-hidden">
-              {/* Domain tags strip */}
-              <div className="flex gap-1.5 px-4 pt-3 pb-2 flex-wrap">
-                {question.domain_tags.map((tag, i) => (
-                  <motion.span
-                    key={tag}
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.1 }}
-                    className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-highlight/10 text-highlight border border-highlight/20"
-                  >
-                    {tag}
-                  </motion.span>
-                ))}
-              </div>
-
-              {/* Title + Context */}
-              <div className="px-4 pb-4">
-                <div className="flex items-start gap-2 mb-2">
-                  <Target className="w-4 h-4 text-highlight mt-1 flex-shrink-0" />
-                  <h2 className="text-foreground font-mono font-bold text-sm leading-snug">{question.threat_title}</h2>
-                </div>
-                {question.context && (
-                  <p className="text-muted-foreground text-sm font-sans leading-relaxed pl-6">{question.context}</p>
-                )}
-              </div>
-            </div>
-
-            {/* Options */}
-            <div className="space-y-2">
-              {question.options.map((opt, idx) => {
-                const isSelected = selectedIdx === idx;
-                const isCorrectOpt = idx === question.correct;
-                const isAnswered = phase === 'answered';
-
-                let borderClass = 'border-border/60 hover:border-highlight/40';
-                let bgClass = 'bg-card hover:bg-highlight/5';
-                let textClass = 'text-muted-foreground';
-
-                if (isAnswered) {
-                  if (isCorrectOpt) {
-                    borderClass = 'border-green-500/50';
-                    bgClass = 'bg-green-500/10';
-                    textClass = 'text-green-400';
-                  } else if (isSelected) {
-                    borderClass = 'border-destructive/50';
-                    bgClass = 'bg-destructive/10';
-                    textClass = 'text-destructive';
-                  } else {
-                    borderClass = 'border-border/30';
-                    bgClass = 'bg-card/50 opacity-50';
-                  }
-                }
-
-                return (
-                  <motion.button
-                    key={idx}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 + idx * 0.05 }}
-                    whileHover={!isAnswered ? { scale: 1.01, x: 4 } : {}}
-                    whileTap={!isAnswered ? { scale: 0.99 } : {}}
-                    onClick={() => !isAnswered && handleAnswer(idx)}
-                    disabled={isAnswered}
-                    className={`w-full text-left p-3.5 rounded-xl border transition-colors ${borderClass} ${bgClass} ${!isAnswered ? 'cursor-pointer' : 'cursor-default'}`}
-                  >
-                    <div className="flex items-start gap-3">
-                      <span className={`font-mono font-bold text-sm mt-0.5 flex-shrink-0 w-6 h-6 rounded-md flex items-center justify-center ${
-                        isAnswered && isCorrectOpt ? 'bg-green-500/20 text-green-400' :
-                        isAnswered && isSelected ? 'bg-destructive/20 text-destructive' :
-                        'bg-highlight/10 text-highlight'
-                      }`}>
-                        {optionLetters[idx]}
-                      </span>
-                      <span className="text-foreground text-sm font-sans leading-relaxed flex-1">{opt.replace(/^[A-D]\s+/, '')}</span>
-                      {isAnswered && isCorrectOpt && (
-                        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring' }}>
-                          <CheckCircle2 className="w-5 h-5 text-green-400 flex-shrink-0" />
-                        </motion.div>
-                      )}
-                      {isAnswered && isSelected && !isCorrectOpt && (
-                        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring' }}>
-                          <XCircle className="w-5 h-5 text-destructive flex-shrink-0" />
-                        </motion.div>
-                      )}
-                    </div>
-                  </motion.button>
-                );
-              })}
-            </div>
-
-            {/* ── Result + Rationale ── */}
-            {phase === 'answered' && (
-              <motion.div
-                ref={resultRef}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                className="space-y-3"
-              >
-                {/* Feedback banner */}
-                <div className={`rounded-2xl p-5 border ${isCorrect ? 'bg-green-500/10 border-green-500/30' : 'bg-destructive/10 border-destructive/30'}`}>
-                  <div className="flex items-center gap-3 mb-3">
-                    {isCorrect ? (
-                      <motion.div
-                        initial={{ rotate: -180, scale: 0 }}
-                        animate={{ rotate: 0, scale: 1 }}
-                        transition={{ type: 'spring', stiffness: 200 }}
-                      >
-                        <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center">
-                          <Star className="w-5 h-5 text-green-400" />
-                        </div>
-                      </motion.div>
-                    ) : (
-                      <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}>
-                        <div className="w-10 h-10 rounded-full bg-destructive/20 flex items-center justify-center">
-                          <XCircle className="w-5 h-5 text-destructive" />
-                        </div>
-                      </motion.div>
-                    )}
-                    <div>
-                      <p className={`font-mono font-bold text-sm ${isCorrect ? 'text-green-400' : 'text-destructive'}`}>
-                        {isCorrect ? t('correct') : t('wrong')}
-                      </p>
-                      {isCorrect && streak >= 3 && (
-                        <p className="text-primary text-xs font-mono flex items-center gap-1">
-                          <Flame className="w-3 h-3" /> {streak}× {t('streak')}!
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                  <p className="text-foreground/80 text-sm font-sans leading-relaxed">{question.rationale}</p>
-                </div>
-
-                {/* Action buttons */}
-                <div className="flex gap-2">
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={fetchQuestion}
-                    className="flex-1 py-3 rounded-xl bg-highlight text-highlight-foreground font-mono font-bold text-sm flex items-center justify-center gap-2 hover:bg-highlight/90 transition-colors"
-                  >
-                    <ArrowRight className="w-4 h-4" />
-                    {t('next')}
-                  </motion.button>
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={handleRestart}
-                    className="px-4 py-3 rounded-xl border border-border bg-secondary text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-                  >
-                    <RotateCcw className="w-4 h-4" />
-                  </motion.button>
-                </div>
-              </motion.div>
-            )}
-          </motion.div>
-        )}
-      </AnimatePresence>
+    <div
+      ref={containerRef}
+      className={`relative overflow-hidden ${embedded ? 'w-full h-[500px] rounded-xl' : 'w-full h-screen'}`}
+      style={{ background: C.bg, cursor: 'pointer' }}
+    >
+      {!embedded && <PageMeta title="ThreatDrop" description="Arcade Cybersecurity Game" />}
+      <canvas ref={canvasRef} className="block w-full h-full" />
     </div>
   );
 };
