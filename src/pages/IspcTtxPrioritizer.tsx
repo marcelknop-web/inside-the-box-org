@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { PageMeta } from '@/components/PageMeta';
@@ -161,6 +161,7 @@ export default function IspcTtxPrioritizer({ embedded = false }: { embedded?: bo
   const [aiResult, setAiResult] = useState('');
   const [aiLoading, setAiLoading] = useState(false);
   const [newIscp, setNewIscp] = useState('');
+  const aiResultRef = useRef<HTMLDivElement>(null);
 
   const criteria = useCriteria(t);
   const defaultIscps = DEFAULT_NAMES_BY_LANG[language] || DEFAULT_NAMES_BY_LANG.en;
@@ -234,6 +235,13 @@ export default function IspcTtxPrioritizer({ embedded = false }: { embedded?: bo
     }
   };
 
+  // Auto-scroll to AI result when it appears
+  useEffect(() => {
+    if (aiResult && aiResultRef.current) {
+      setTimeout(() => aiResultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 150);
+    }
+  }, [aiResult]);
+
   const wrapperClass = embedded ? 'space-y-3' : 'min-h-screen p-4 md:p-6 max-w-3xl mx-auto';
 
   // ── Result view ──
@@ -281,7 +289,7 @@ export default function IspcTtxPrioritizer({ embedded = false }: { embedded?: bo
         </Button>
 
         {aiResult && (
-          <div className="bg-highlight/5 border border-highlight/20 rounded-lg p-4 mb-3">
+          <div ref={aiResultRef} className="bg-highlight/5 border border-highlight/20 rounded-lg p-4 mb-3">
             <h3 className="text-highlight font-mono text-xs uppercase tracking-wider mb-3">{t('iscp.ttxSuggestionLabel')}</h3>
             <div className="text-foreground text-sm md:text-[15px] leading-relaxed font-sans space-y-3">
               {renderAiResult(aiResult)}

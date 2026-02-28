@@ -61,6 +61,17 @@ const TypedSection = ({
   // Determine when content blocks can start (after intro done + 500ms)
   const blocksReady = intro ? introDone : titleDone;
 
+  const introRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll when intro becomes visible
+  useEffect(() => {
+    if (introVisible && introRef.current) {
+      setTimeout(() => {
+        introRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }, 100);
+    }
+  }, [introVisible]);
+
   return (
     <div className="space-y-5 md:space-y-3">
       <div className="rounded-2xl px-5 py-4 text-sm md:text-base font-sans leading-relaxed tracking-wide text-foreground">
@@ -69,6 +80,7 @@ const TypedSection = ({
         </h2>
         {intro && introVisible && (
           <div
+            ref={introRef}
             style={{
               opacity: 1,
               transition: suppressIntro ? 'none' : 'opacity 200ms ease-out',
