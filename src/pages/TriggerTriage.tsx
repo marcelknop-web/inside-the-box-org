@@ -254,8 +254,17 @@ const stopBGMusic = (bg: BGMusic | null) => { if (!bg) return; bg.running = fals
    HELPERS
    ══════════════════════════════════════ */
 const HI_KEY = 'triggertriage-hi';
+const BOARD_KEY = 'triggertriage-top5';
+interface BoardEntry { score: number; acc: number; date: string; }
 const getHi = () => { try { return +(localStorage.getItem(HI_KEY) || 0); } catch { return 0; } };
 const saveHi = (s: number) => { try { if (s > getHi()) localStorage.setItem(HI_KEY, '' + s); } catch {} };
+const getBoard = (): BoardEntry[] => { try { return JSON.parse(localStorage.getItem(BOARD_KEY) || '[]'); } catch { return []; } };
+const saveBoard = (score: number, acc: number) => {
+  const board = getBoard();
+  board.push({ score, acc, date: new Date().toLocaleDateString() });
+  board.sort((a, b) => b.score - a.score);
+  try { localStorage.setItem(BOARD_KEY, JSON.stringify(board.slice(0, 5))); } catch {}
+};
 
 const pickIncident = (used: number[]): { incident: Incident; idx: number } => {
   const available = INCIDENTS.map((inc, i) => ({ inc, i })).filter(x => !used.includes(x.i));
@@ -339,7 +348,8 @@ const TriggerTriage = ({ embedded }: { embedded?: boolean }) => {
     const g = gs.current;
     if (g.round >= g.maxRounds || g.lives <= 0) {
       g.phase = 'over';
-      saveHi(g.score); g.hi = Math.max(g.hi, g.score);
+      const acc = g.correct + g.wrong > 0 ? Math.round((g.correct / (g.correct + g.wrong)) * 100) : 0;
+      saveHi(g.score); saveBoard(g.score, acc); g.hi = Math.max(g.hi, g.score);
       const ac = audioRef.current;
       if (ac) sfxGameOver(ac);
       stopBGMusic(bgRef.current); bgRef.current = null;
@@ -405,7 +415,8 @@ const TriggerTriage = ({ embedded }: { embedded?: boolean }) => {
       if (ac) setTimeout(() => sfxMiss(ac), 60);
       if (g.lives <= 0) {
         g.phase = 'over';
-        saveHi(g.score); g.hi = Math.max(g.hi, g.score);
+        const endAcc = g.correct + g.wrong > 0 ? Math.round((g.correct / (g.correct + g.wrong)) * 100) : 0;
+        saveHi(g.score); saveBoard(g.score, endAcc); g.hi = Math.max(g.hi, g.score);
         if (ac) sfxGameOver(ac);
         stopBGMusic(bgRef.current); bgRef.current = null;
         return;
@@ -517,7 +528,7 @@ const TriggerTriage = ({ embedded }: { embedded?: boolean }) => {
           g.shakeT = 0.3;
           if (ac) sfxTimeout(ac);
           if (g.lives <= 0) {
-            g.phase = 'over'; saveHi(g.score); g.hi = Math.max(g.hi, g.score);
+            g.phase = 'over'; const toAcc = g.correct + g.wrong > 0 ? Math.round((g.correct / (g.correct + g.wrong)) * 100) : 0; saveHi(g.score); saveBoard(g.score, toAcc); g.hi = Math.max(g.hi, g.score);
             if (ac) sfxGameOver(ac);
             stopBGMusic(bgRef.current); bgRef.current = null;
           } else {
@@ -586,6 +597,13 @@ const TriggerTriage = ({ embedded }: { embedded?: boolean }) => {
         if (g.streak > 1) {
           ctx.font = '10px monospace'; ctx.fillStyle = C.cyan;
           ctx.fillText(g.streak + '× STREAK', w / 2, 34);
+        }
+
+        // Highscore in HUD
+        if (g.hi > 0) {
+          ctx.textAlign = 'right';
+          ctx.font = '9px monospace'; ctx.fillStyle = C.yellow + '60';
+          ctx.fillText('HI ' + g.hi, w - 14, 36);
         }
 
         // Lives right
@@ -935,9 +953,27 @@ const TriggerTriage = ({ embedded }: { embedded?: boolean }) => {
         ctx.font = '10px monospace';
         ctx.fillText('BEST: ' + g.hi + (g.score >= g.hi && g.score > 0 ? ' ★ NEW RECORD' : ''), w / 2, sy + 108);
 
+        // ── TOP 5 LEADERBOARD ──
+        const board = getBoard();
+        if (board.length > 0) {
+          const lbY = sy + 130;
+          ctx.font = 'bold 10px monospace'; ctx.fillStyle = C.yellow + '90';
+          ctx.fillText('─── TOP 5 ───', w / 2, lbY);
+          for (let i = 0; i < board.length; i++) {
+            const e = board[i];
+            const isCurrentRun = e.score === g.score && e.date === new Date().toLocaleDateString();
+            const y = lbY + 18 + i * 18;
+            ctx.font = '10px monospace';
+            ctx.fillStyle = isCurrentRun ? C.yellow : (i === 0 ? C.cyan : C.dim);
+            const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '  ';
+            ctx.fillText(`${medal} ${e.score}pts  ${e.acc}%  ${e.date}`, w / 2, y);
+          }
+        }
+
         const mob = 'ontouchstart' in window;
         const blink = Math.sin(now * 0.005) > 0;
-        if (blink) { ctx.fillStyle = C.orange; ctx.font = 'bold 13px monospace'; ctx.fillText(mob ? '▶ TAP TO RETRY' : '▶ SPACE / R TO RETRY', w / 2, sy + 140); }
+        const restartY = sy + 130 + (board.length > 0 ? 18 + board.length * 18 + 14 : 20);
+        if (blink) { ctx.fillStyle = C.orange; ctx.font = 'bold 13px monospace'; ctx.fillText(mob ? '▶ TAP TO RETRY' : '▶ SPACE / R TO RETRY', w / 2, restartY); }
       }
 
       animRef.current = requestAnimationFrame(loop);
