@@ -1,4 +1,4 @@
-import React, { useRef, useMemo } from 'react';
+import React, { useRef, useMemo, useState, useEffect, useCallback } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Stars } from '@react-three/drei';
 import * as THREE from 'three';
@@ -207,9 +207,63 @@ function CockpitHUD() {
   );
 }
 
+/* ── Music player hook ── */
+function useMeditationMusic() {
+  const [status, setStatus] = useState<'idle' | 'loading' | 'playing' | 'error'>('idle');
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const start = useCallback(async () => {
+    if (status === 'loading' || status === 'playing') return;
+    setStatus('loading');
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/elevenlabs-music`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({
+            prompt: '432Hz deep space meditation, warm analog synthesizer pads, slow evolving ethereal textures, gentle harmonic overtones, binaural beats undertone, no percussion, no vocals, audiophile mastering quality, spacious hall reverb, cinematic ambient drone, 60 BPM',
+            duration: 120,
+          }),
+        }
+      );
+      if (!response.ok) throw new Error('Generation failed');
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const audio = new Audio(url);
+      audio.loop = true;
+      audio.volume = 0.6;
+      audioRef.current = audio;
+      await audio.play();
+      setStatus('playing');
+    } catch (e) {
+      console.error('Music error:', e);
+      setStatus('error');
+    }
+  }, [status]);
+
+  const stop = useCallback(() => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      audioRef.current = null;
+    }
+    setStatus('idle');
+  }, []);
+
+  useEffect(() => () => { audioRef.current?.pause(); }, []);
+
+  return { status, start, stop };
+}
+
 export default function EliteShipScene() {
   const surfaceRocks = useSurfaceRocks();
   const floatingRocks = useFloatingRocks();
+  const music = useMeditationMusic();
 
   return (
     <div className="relative w-full h-screen overflow-hidden" style={{ background: BG }}>
@@ -224,6 +278,24 @@ export default function EliteShipScene() {
         {floatingRocks.map((r, i) => <Rock key={`f${i}`} {...r} />)}
       </Canvas>
       <CockpitHUD />
+
+      {/* Music control */}
+      <button
+        onClick={music.status === 'playing' ? music.stop : music.start}
+        disabled={music.status === 'loading'}
+        className="absolute bottom-6 right-6 z-30 px-4 py-2 rounded border text-[11px] tracking-[0.2em] uppercase font-mono transition-opacity hover:opacity-100"
+        style={{
+          color: LINE_COLOR,
+          borderColor: LINE_COLOR + '40',
+          background: music.status === 'playing' ? LINE_COLOR + '15' : 'transparent',
+          opacity: 0.6,
+        }}
+      >
+        {music.status === 'loading' ? '◌ GENERATING…' :
+         music.status === 'playing' ? '■ STOP 432Hz' :
+         music.status === 'error' ? '✗ RETRY' :
+         '♫ 432Hz AMBIENT'}
+      </button>
     </div>
   );
 }
