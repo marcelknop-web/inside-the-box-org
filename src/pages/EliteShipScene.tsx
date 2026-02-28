@@ -1,6 +1,5 @@
 import React, { useRef, useMemo, useState, useEffect, useCallback } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { Stars } from '@react-three/drei';
 import * as THREE from 'three';
 import { ConvexGeometry } from 'three/addons/geometries/ConvexGeometry.js';
 
@@ -113,20 +112,21 @@ const SPLASH_FADE = 0.3;
 
 function Rain() {
   const pointsRef = useRef<THREE.Points>(null);
+  const matRef = useRef<THREE.PointsMaterial>(null);
   const { camera } = useThree();
+  const timeRef = useRef(0);
 
   const { positions, velocities, alphas, splashTimers } = useMemo(() => {
     const pos = new Float32Array(RAIN_COUNT * 3);
-    const vel = new Float32Array(RAIN_COUNT); // y velocity
+    const vel = new Float32Array(RAIN_COUNT);
     const alpha = new Float32Array(RAIN_COUNT);
     const splash = new Float32Array(RAIN_COUNT);
-
     for (let i = 0; i < RAIN_COUNT; i++) {
       const i3 = i * 3;
       pos[i3] = (Math.random() - 0.5) * RAIN_AREA.x;
       pos[i3 + 1] = Math.random() * RAIN_AREA.y - 5;
       pos[i3 + 2] = (Math.random() - 0.5) * RAIN_AREA.z;
-      vel[i] = -8 - Math.random() * 6; // initial downward velocity
+      vel[i] = -8 - Math.random() * 6;
       alpha[i] = 0.15 + Math.random() * 0.4;
       splash[i] = 0;
     }
@@ -136,45 +136,51 @@ function Rain() {
   const colorsArr = useMemo(() => {
     const c = new Float32Array(RAIN_COUNT * 3);
     for (let i = 0; i < RAIN_COUNT; i++) {
-      c[i * 3] = 0; c[i * 3 + 1] = 1; c[i * 3 + 2] = 0.67; // #00ffaa
+      c[i * 3] = 0; c[i * 3 + 1] = 1; c[i * 3 + 2] = 0.67;
     }
     return c;
   }, []);
 
-  const sizesArr = useMemo(() => {
-    const s = new Float32Array(RAIN_COUNT);
-    for (let i = 0; i < RAIN_COUNT; i++) s[i] = 0.06 + Math.random() * 0.08;
-    return s;
-  }, []);
-
   useFrame((_, dt) => {
     if (!pointsRef.current) return;
+    timeRef.current += dt;
+
+    // Cyclic rain intensity: fade in/out over ~20s cycle
+    const cycle = timeRef.current * 0.15; // period ~42s
+    const intensity = Math.max(0, Math.sin(cycle) * 0.7 + Math.sin(cycle * 2.3) * 0.3);
+    if (matRef.current) {
+      matRef.current.opacity = intensity * 0.6;
+    }
+
     const posAttr = pointsRef.current.geometry.attributes.position as THREE.BufferAttribute;
     const colAttr = pointsRef.current.geometry.attributes.color as THREE.BufferAttribute;
     const pos = posAttr.array as Float32Array;
     const col = colAttr.array as Float32Array;
-
     const camX = camera.position.x;
     const camZ = camera.position.z;
+
+    // Only simulate particles proportional to intensity
+    const activeCount = Math.floor(RAIN_COUNT * Math.max(0.05, intensity));
 
     for (let i = 0; i < RAIN_COUNT; i++) {
       const i3 = i * 3;
 
+      // Hide inactive particles far away
+      if (i >= activeCount && splashTimers[i] <= 0) {
+        pos[i3 + 1] = -100;
+        continue;
+      }
+
       if (splashTimers[i] > 0) {
-        // Splash phase: particle expands outward briefly then resets
         splashTimers[i] -= dt;
-        // Fade to white during splash
         const t = splashTimers[i] / SPLASH_FADE;
         col[i3] = 0 + (1 - t) * 0.5;
         col[i3 + 1] = 1;
         col[i3 + 2] = 0.67 + (1 - t) * 0.33;
-        // Slight outward motion
         pos[i3] += (Math.random() - 0.5) * 0.3;
         pos[i3 + 2] += (Math.random() - 0.5) * 0.3;
         pos[i3 + 1] = GROUND_Y + 0.1;
-
         if (splashTimers[i] <= 0) {
-          // Reset particle
           pos[i3] = camX + (Math.random() - 0.5) * RAIN_AREA.x;
           pos[i3 + 1] = camera.position.y + 10 + Math.random() * RAIN_AREA.y * 0.5;
           pos[i3 + 2] = camZ + (Math.random() - 0.5) * RAIN_AREA.z;
@@ -182,24 +188,17 @@ function Rain() {
           col[i3] = 0; col[i3 + 1] = 1; col[i3 + 2] = 0.67;
         }
       } else {
-        // Physics: gravity acceleration
         velocities[i] += GRAVITY * dt;
         if (velocities[i] < TERMINAL_VELOCITY) velocities[i] = TERMINAL_VELOCITY;
         pos[i3 + 1] += velocities[i] * dt;
-
-        // Wind drift
         pos[i3] += Math.sin(pos[i3 + 1] * 0.5) * 0.02;
-
-        // Ground collision
         if (pos[i3 + 1] <= GROUND_Y) {
           pos[i3 + 1] = GROUND_Y;
           splashTimers[i] = SPLASH_FADE * (0.5 + Math.random() * 0.5);
         }
-
-        // Recycle if too far from camera
         const dx = pos[i3] - camX;
         const dz = pos[i3 + 2] - camZ;
-        if (dx * dx + dz * dz > 3600) { // 60^2
+        if (dx * dx + dz * dz > 3600) {
           pos[i3] = camX + (Math.random() - 0.5) * RAIN_AREA.x;
           pos[i3 + 1] = camera.position.y + 10 + Math.random() * 20;
           pos[i3 + 2] = camZ + (Math.random() - 0.5) * RAIN_AREA.z;
@@ -207,12 +206,8 @@ function Rain() {
         }
       }
     }
-
     posAttr.needsUpdate = true;
     colAttr.needsUpdate = true;
-
-    // Follow camera loosely
-    pointsRef.current.position.set(0, 0, 0);
   });
 
   return (
@@ -222,10 +217,11 @@ function Rain() {
         <bufferAttribute attach="attributes-color" args={[colorsArr, 3]} />
       </bufferGeometry>
       <pointsMaterial
+        ref={matRef}
         size={0.12}
         vertexColors
         transparent
-        opacity={0.5}
+        opacity={0}
         sizeAttenuation
         depthWrite={false}
         blending={THREE.AdditiveBlending}
@@ -234,28 +230,105 @@ function Rain() {
   );
 }
 
-/* ── Camera ── */
+/* ── Realistic Starfield ── */
+const STAR_COUNT = 8000;
+function RealisticStarfield() {
+  const pointsRef = useRef<THREE.Points>(null);
+  const { positions, baseColors, sizes } = useMemo(() => {
+    const pos = new Float32Array(STAR_COUNT * 3);
+    const col = new Float32Array(STAR_COUNT * 3);
+    const sz = new Float32Array(STAR_COUNT);
+    for (let i = 0; i < STAR_COUNT; i++) {
+      const i3 = i * 3;
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.acos(2 * Math.random() - 1);
+      const r = 200 + Math.random() * 200;
+      pos[i3] = r * Math.sin(phi) * Math.cos(theta);
+      pos[i3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+      pos[i3 + 2] = r * Math.cos(phi);
+      const temp = Math.random();
+      if (temp < 0.6) { col[i3] = 0.95; col[i3+1] = 0.95; col[i3+2] = 1.0; }
+      else if (temp < 0.8) { col[i3] = 1.0; col[i3+1] = 0.95; col[i3+2] = 0.8; }
+      else if (temp < 0.92) { col[i3] = 0.7; col[i3+1] = 0.85; col[i3+2] = 1.0; }
+      else { col[i3] = 1.0; col[i3+1] = 0.7; col[i3+2] = 0.4; }
+      sz[i] = Math.pow(Math.random(), 3) * 1.8 + 0.15;
+    }
+    return { positions: pos, baseColors: col, sizes: sz };
+  }, []);
+
+  const renderColors = useMemo(() => new Float32Array(STAR_COUNT * 3), []);
+  const twinklePhases = useMemo(() => {
+    const p = new Float32Array(STAR_COUNT);
+    for (let i = 0; i < STAR_COUNT; i++) p[i] = Math.random() * Math.PI * 2;
+    return p;
+  }, []);
+  const twinkleSpeeds = useMemo(() => {
+    const s = new Float32Array(STAR_COUNT);
+    for (let i = 0; i < STAR_COUNT; i++) s[i] = 0.3 + Math.random() * 2.0;
+    return s;
+  }, []);
+
+  useFrame(({ clock }) => {
+    if (!pointsRef.current) return;
+    const t = clock.elapsedTime;
+    const colAttr = pointsRef.current.geometry.attributes.color as THREE.BufferAttribute;
+    const col = colAttr.array as Float32Array;
+    for (let i = 0; i < STAR_COUNT; i++) {
+      const brightness = 0.6 + 0.4 * Math.sin(t * twinkleSpeeds[i] + twinklePhases[i]);
+      const i3 = i * 3;
+      col[i3] = baseColors[i3] * brightness;
+      col[i3+1] = baseColors[i3+1] * brightness;
+      col[i3+2] = baseColors[i3+2] * brightness;
+    }
+    colAttr.needsUpdate = true;
+  });
+
+  return (
+    <points ref={pointsRef}>
+      <bufferGeometry>
+        <bufferAttribute attach="attributes-position" args={[positions, 3]} />
+        <bufferAttribute attach="attributes-color" args={[renderColors, 3]} />
+        <bufferAttribute attach="attributes-size" args={[sizes, 1]} />
+      </bufferGeometry>
+      <pointsMaterial
+        vertexColors
+        transparent
+        opacity={0.9}
+        size={0.6}
+        sizeAttenuation
+        depthWrite={false}
+        blending={THREE.AdditiveBlending}
+      />
+    </points>
+  );
+}
+
+/* ── Hypnotic Camera ── */
 function CockpitCamera() {
   const { camera } = useThree();
   const t = useRef(0);
-  const curve = useMemo(() => {
-    return new THREE.CatmullRomCurve3([
-      new THREE.Vector3(-20, 2, 0), new THREE.Vector3(0, 3, -8),
-      new THREE.Vector3(20, 1.5, -12), new THREE.Vector3(40, 4, -5),
-      new THREE.Vector3(55, 2, 5), new THREE.Vector3(70, 3, 15),
-      new THREE.Vector3(80, 1, 8), new THREE.Vector3(90, 4, -3),
-      new THREE.Vector3(75, 2.5, -15), new THREE.Vector3(50, 1.5, -10),
-      new THREE.Vector3(30, 3.5, 0), new THREE.Vector3(10, 2, 10),
-      new THREE.Vector3(-10, 3, 5), new THREE.Vector3(-20, 2, 0),
-    ], true, 'centripetal', 0.5);
-  }, []);
+  // Lemniscate-inspired figure-8 path for hypnotic looping
   useFrame((_, dt) => {
-    t.current += dt * 0.008;
-    const p = t.current % 1;
-    const pos = curve.getPointAt(p);
-    pos.y = Math.max(pos.y, -4);
-    camera.position.copy(pos);
-    camera.lookAt(curve.getPointAt((p + 0.015) % 1));
+    t.current += dt * 0.04; // slow, trance-like
+    const a = t.current;
+    // Figure-8 lemniscate in XZ, gentle Y breathing
+    const scale = 35;
+    const denom = 1 + Math.sin(a) * Math.sin(a);
+    const x = scale * Math.cos(a) / denom;
+    const z = scale * Math.sin(a) * Math.cos(a) / denom;
+    // Layered sine waves for dreamy vertical float
+    const y = 2 + Math.sin(a * 0.37) * 1.5 + Math.sin(a * 0.13) * 0.8;
+
+    camera.position.set(x, Math.max(y, -3), z);
+    // Look slightly ahead on the curve + gentle vertical sway
+    const la = a + 0.12;
+    const ld = 1 + Math.sin(la) * Math.sin(la);
+    const lx = scale * Math.cos(la) / ld;
+    const lz = scale * Math.sin(la) * Math.cos(la) / ld;
+    const ly = 1.5 + Math.sin(la * 0.37) * 1.2;
+    camera.lookAt(lx, ly, lz);
+    // Subtle roll for disorientation
+    camera.rotation.z = Math.sin(a * 0.23) * 0.03;
   });
   return null;
 }
@@ -401,7 +474,7 @@ export default function EliteShipScene() {
         style={{ background: BG }}
       >
         <CockpitCamera />
-        <Stars radius={300} depth={150} count={5000} factor={2} saturation={0} fade speed={0.2} />
+        <RealisticStarfield />
         <Rain />
         {surfaceRocks.map((r, i) => <Rock key={`s${i}`} {...r} />)}
         {floatingRocks.map((r, i) => <Rock key={`f${i}`} {...r} />)}
