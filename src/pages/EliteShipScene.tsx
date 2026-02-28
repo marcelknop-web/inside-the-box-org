@@ -1,6 +1,5 @@
 import React, { useRef, useMemo, useState, useEffect, useCallback } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { Text } from '@react-three/drei';
 import * as THREE from 'three';
 import { ConvexGeometry } from 'three/addons/geometries/ConvexGeometry.js';
 
@@ -364,12 +363,13 @@ function CockpitHUD() {
   );
 }
 
-/* ── Evolving 432Hz Ambient Synthesizer ── */
+/* ── Heartbeat-Modulated 432Hz Ambient ── */
 function use432HzAmbient() {
   const [playing, setPlaying] = useState(false);
   const ctxRef = useRef<AudioContext | null>(null);
   const nodesRef = useRef<any>(null);
   const evolveRef = useRef<number | null>(null);
+  const heartRef = useRef<number | null>(null);
 
   const start = useCallback(async () => {
     if (ctxRef.current) return;
@@ -379,107 +379,135 @@ function use432HzAmbient() {
 
     const master = ctx.createGain();
     master.gain.setValueAtTime(0, ctx.currentTime);
-    master.gain.linearRampToValueAtTime(0.12, ctx.currentTime + 6); // gentler max volume
+    master.gain.linearRampToValueAtTime(0.42, ctx.currentTime + 8);
     master.connect(ctx.destination);
 
-    // Reverb via convolver (simple algorithmic)
-    const reverbLen = 3 * ctx.sampleRate;
+    // Reverb
+    const reverbLen = 4 * ctx.sampleRate;
     const reverbBuf = ctx.createBuffer(2, reverbLen, ctx.sampleRate);
     for (let ch = 0; ch < 2; ch++) {
       const d = reverbBuf.getChannelData(ch);
       for (let i = 0; i < reverbLen; i++) {
-        d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / reverbLen, 2.5);
+        d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / reverbLen, 2.2);
       }
     }
     const reverb = ctx.createConvolver();
     reverb.buffer = reverbBuf;
     const reverbGain = ctx.createGain();
-    reverbGain.gain.value = 0.4;
+    reverbGain.gain.value = 0.5;
     reverb.connect(reverbGain);
     reverbGain.connect(master);
 
     const dry = ctx.createGain();
-    dry.gain.value = 0.6;
+    dry.gain.value = 0.55;
     dry.connect(master);
 
-    // Voice configurations that rotate through moods
+    // Heartbeat modulation node
+    const heartGain = ctx.createGain();
+    heartGain.gain.value = 0.5;
+    heartGain.connect(dry);
+    heartGain.connect(reverb);
+
+    // Heartbeat scheduler: lub-dub pattern
+    const heartBPM = { current: 60 };
+    let heartRunning = true;
+    const scheduleHeart = () => {
+      if (!heartRunning || !ctxRef.current) return;
+      const now = ctxRef.current.currentTime;
+      const beat = 60 / heartBPM.current;
+      // Lub (strong)
+      heartGain.gain.setValueAtTime(0.45, now);
+      heartGain.gain.linearRampToValueAtTime(1.0, now + 0.07);
+      heartGain.gain.linearRampToValueAtTime(0.5, now + 0.18);
+      // Dub (softer)
+      heartGain.gain.setValueAtTime(0.5, now + 0.28);
+      heartGain.gain.linearRampToValueAtTime(0.8, now + 0.34);
+      heartGain.gain.linearRampToValueAtTime(0.45, now + 0.48);
+      heartRef.current = window.setTimeout(scheduleHeart, beat * 1000);
+    };
+    heartRef.current = window.setTimeout(scheduleHeart, 3500);
+
+    // Voices with BPM
     const voices = [
-      // Mood 0: Deep space (low, wide)
-      { freqs: [54, 108, 162, 216, 432], vols: [0.06, 0.04, 0.03, 0.02, 0.015] },
-      // Mood 1: Ascending hope (mid, bright)
-      { freqs: [108, 216, 324, 432, 648], vols: [0.04, 0.035, 0.03, 0.025, 0.01] },
-      // Mood 2: Celestial choir (high, ethereal)
-      { freqs: [216, 324, 432, 540, 864], vols: [0.03, 0.025, 0.03, 0.02, 0.008] },
-      // Mood 3: Ocean depth (very low, warm)
-      { freqs: [36, 72, 108, 144, 216], vols: [0.05, 0.04, 0.035, 0.02, 0.015] },
-      // Mood 4: Crystal resonance (fifths, shimmering)
-      { freqs: [162, 216, 324, 432, 648], vols: [0.03, 0.025, 0.03, 0.02, 0.012] },
+      { freqs: [54, 108, 162, 216, 432], vols: [0.08, 0.06, 0.04, 0.03, 0.02], bpm: 60 },
+      { freqs: [108, 216, 324, 432, 648], vols: [0.06, 0.05, 0.04, 0.035, 0.015], bpm: 66 },
+      { freqs: [216, 324, 432, 540, 864], vols: [0.05, 0.04, 0.045, 0.03, 0.012], bpm: 72 },
+      { freqs: [36, 72, 108, 144, 216], vols: [0.07, 0.06, 0.05, 0.03, 0.02], bpm: 54 },
+      { freqs: [108, 162, 216, 324, 432], vols: [0.06, 0.045, 0.04, 0.03, 0.018], bpm: 58 },
     ];
 
     const oscs: OscillatorNode[] = [];
     const gains: GainNode[] = [];
 
-    // Create 5 oscillator voices
     for (let i = 0; i < 5; i++) {
       const osc = ctx.createOscillator();
       osc.type = 'sine';
       osc.frequency.value = voices[0].freqs[i];
-      osc.detune.value = (Math.random() - 0.5) * 6;
+      osc.detune.value = (Math.random() - 0.5) * 5;
       const gain = ctx.createGain();
       gain.gain.value = voices[0].vols[i];
-
-      // Individual slow LFO for organic movement
       const lfo = ctx.createOscillator();
       lfo.type = 'sine';
-      lfo.frequency.value = 0.02 + Math.random() * 0.06;
+      lfo.frequency.value = 0.015 + Math.random() * 0.04;
       const lfoGain = ctx.createGain();
-      lfoGain.gain.value = voices[0].vols[i] * 0.25;
+      lfoGain.gain.value = voices[0].vols[i] * 0.2;
       lfo.connect(lfoGain);
       lfoGain.connect(gain.gain);
       lfo.start();
-
       osc.connect(gain);
-      gain.connect(dry);
-      gain.connect(reverb);
+      gain.connect(heartGain);
       osc.start();
       oscs.push(osc);
       gains.push(gain);
     }
 
-    // Subtle binaural (very quiet)
-    const binOsc = ctx.createOscillator();
-    binOsc.type = 'sine';
-    binOsc.frequency.value = 432 + 4; // 4Hz theta
-    const binGain = ctx.createGain();
-    binGain.gain.value = 0.008;
-    binOsc.connect(binGain);
-    binGain.connect(dry);
-    binOsc.start();
-    oscs.push(binOsc);
-    gains.push(binGain);
+    // Sub-bass thump for heartbeat feel
+    const thump = ctx.createOscillator();
+    thump.type = 'sine';
+    thump.frequency.value = 40;
+    const thumpG = ctx.createGain();
+    thumpG.gain.value = 0.04;
+    thump.connect(thumpG);
+    thumpG.connect(heartGain);
+    thump.start();
+    oscs.push(thump);
+    gains.push(thumpG);
 
-    nodesRef.current = { oscs, gains, master, voices };
+    // Binaural
+    const bin = ctx.createOscillator();
+    bin.type = 'sine';
+    bin.frequency.value = 436;
+    const binG = ctx.createGain();
+    binG.gain.value = 0.012;
+    bin.connect(binG);
+    binG.connect(dry);
+    bin.start();
+    oscs.push(bin);
+    gains.push(binG);
+
+    nodesRef.current = { oscs, gains, master };
     setPlaying(true);
 
-    // Evolving mood transitions every ~25 seconds
-    let moodIndex = 0;
+    let moodIdx = 0;
     const evolve = () => {
       if (!ctxRef.current) return;
-      moodIndex = (moodIndex + 1) % voices.length;
-      const mood = voices[moodIndex];
+      moodIdx = (moodIdx + 1) % voices.length;
+      const mood = voices[moodIdx];
       const now = ctxRef.current.currentTime;
       for (let i = 0; i < 5; i++) {
-        oscs[i].frequency.linearRampToValueAtTime(mood.freqs[i], now + 12); // slow 12s crossfade
-        gains[i].gain.linearRampToValueAtTime(mood.vols[i], now + 10);
+        oscs[i].frequency.linearRampToValueAtTime(mood.freqs[i], now + 14);
+        gains[i].gain.linearRampToValueAtTime(mood.vols[i], now + 12);
       }
-      evolveRef.current = window.setTimeout(evolve, 25000 + Math.random() * 15000);
+      heartBPM.current = mood.bpm;
+      evolveRef.current = window.setTimeout(evolve, 28000 + Math.random() * 12000);
     };
-    evolveRef.current = window.setTimeout(evolve, 20000);
+    evolveRef.current = window.setTimeout(evolve, 22000);
   }, []);
 
   const stop = useCallback(() => {
     if (!ctxRef.current || !nodesRef.current) return;
     if (evolveRef.current) clearTimeout(evolveRef.current);
+    if (heartRef.current) clearTimeout(heartRef.current);
     const { master, oscs } = nodesRef.current;
     const ctx = ctxRef.current;
     master.gain.linearRampToValueAtTime(0, ctx.currentTime + 4);
@@ -494,6 +522,7 @@ function use432HzAmbient() {
 
   useEffect(() => () => {
     if (evolveRef.current) clearTimeout(evolveRef.current);
+    if (heartRef.current) clearTimeout(heartRef.current);
     if (ctxRef.current) {
       nodesRef.current?.oscs.forEach((o: OscillatorNode) => { try { o.stop(); } catch {} });
       ctxRef.current.close();
@@ -503,56 +532,7 @@ function use432HzAmbient() {
   return { playing, start, stop };
 }
 
-/* ── Monumental floating text ── */
-const BRAND_COLOR = '#f5b800';
-function MonumentalText() {
-  const groupRef = useRef<THREE.Group>(null);
-  // Multiple instances at different positions/rotations for monumental feel
-  const instances = useMemo(() => [
-    { pos: [45, 4, -25] as [number,number,number], rot: [0, -0.3, 0] as [number,number,number], scale: 8 },
-    { pos: [-30, 6, -35] as [number,number,number], rot: [0, 0.5, 0.02] as [number,number,number], scale: 6 },
-    { pos: [15, -2, 30] as [number,number,number], rot: [0, Math.PI + 0.2, 0] as [number,number,number], scale: 10 },
-    { pos: [-50, 8, 15] as [number,number,number], rot: [0, 0.8, -0.01] as [number,number,number], scale: 5 },
-    { pos: [70, 1, -10] as [number,number,number], rot: [0, -0.6, 0.015] as [number,number,number], scale: 7 },
-  ], []);
 
-  useFrame(({ clock }) => {
-    if (!groupRef.current) return;
-    const t = clock.elapsedTime;
-    groupRef.current.children.forEach((child, i) => {
-      // Gentle float and sway
-      child.position.y = instances[i].pos[1] + Math.sin(t * 0.15 + i * 1.8) * 1.2;
-      child.rotation.y = instances[i].rot[1] + Math.sin(t * 0.08 + i * 2.1) * 0.04;
-    });
-  });
-
-  return (
-    <group ref={groupRef}>
-      {instances.map((inst, i) => (
-        <Text
-          key={i}
-          position={inst.pos}
-          rotation={inst.rot}
-          fontSize={inst.scale}
-          font="/fonts/inter-bold.woff"
-          letterSpacing={0.08}
-          color={BRAND_COLOR}
-          anchorX="center"
-          anchorY="middle"
-          fillOpacity={0.12 + (i === 2 ? 0.06 : 0)}
-          outlineWidth={0.02 * inst.scale}
-          outlineColor={BRAND_COLOR}
-          outlineOpacity={0.08}
-          material-transparent
-          material-depthWrite={false}
-          material-blending={THREE.AdditiveBlending}
-        >
-          inside-the-box.org
-        </Text>
-      ))}
-    </group>
-  );
-}
 
 /* ── Main ── */
 export default function EliteShipScene() {
@@ -570,7 +550,7 @@ export default function EliteShipScene() {
         <CockpitCamera />
         <RealisticStarfield />
         <Rain />
-        <MonumentalText />
+        
         {surfaceRocks.map((r, i) => <Rock key={`s${i}`} {...r} />)}
         {floatingRocks.map((r, i) => <Rock key={`f${i}`} {...r} />)}
       </Canvas>
