@@ -55,6 +55,8 @@ export const de = {
     trainingsDelivered: 'realitätsnahe Cyber-Übungen',
     peopleTrained: 'Führungskräfte & Incident-Teams trainiert',
     countriesCovered: 'Länder im Einsatz',
+    techCheckTitle: 'Technik-Check Cyber Training Range',
+    techCheckDesc: 'Prüfen Sie vorab, ob Ihr System und Ihre Netzwerkverbindung die Anforderungen für die Cyber Training Range erfüllen.',
     howButton: 'Wie?',
   },
   training: {

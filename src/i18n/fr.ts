@@ -55,6 +55,8 @@ export const fr = {
     trainingsDelivered: 'cyber-exercices réalistes',
     peopleTrained: 'dirigeants & équipes d\'incidents formés',
     countriesCovered: 'pays en opération',
+    techCheckTitle: 'Vérification technique Cyber Training Range',
+    techCheckDesc: 'Vérifiez que votre système et votre connexion réseau répondent aux exigences du Cyber Training Range.',
     howButton: 'Comment ?',
   },
   training: {

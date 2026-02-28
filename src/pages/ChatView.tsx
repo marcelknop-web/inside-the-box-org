@@ -687,6 +687,14 @@ const useServiceContent = () => {
             <StatBlock value="350+" label={t('index.peopleTrained')} />
             <StatBlock value="6" label={t('index.countriesCovered')} />
           </div>
+          <Block className="bg-highlight/5 border-2 border-highlight/30 rounded-xl">
+            <SubTitle variant="highlight">{t('index.techCheckTitle')}</SubTitle>
+            <p className="text-sm font-sans leading-relaxed tracking-wide text-foreground mb-3">{t('index.techCheckDesc')}</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <InlineSystemCheck t={t} />
+              <InlineConnectivityCheck t={t} language={language} />
+            </div>
+          </Block>
         </StaggerReveal>
       </div>
     ),
