@@ -374,24 +374,27 @@ function RealisticStarfield() {
   );
 }
 
-/* ── Hypnotic Camera with raindrop follow ── */
+/* ── Hypnotic Camera with raindrop follow – all movements damped ── */
 function CockpitCamera({ rainPositions, rainAlive }: {
   rainPositions: React.MutableRefObject<Float32Array | null>;
   rainAlive: React.MutableRefObject<Uint8Array | null>;
 }) {
   const { camera } = useThree();
   const t = useRef(0);
-  // Raindrop follow state
+  // Smoothed camera state (position + lookAt lerped every frame)
+  const smoothPos = useRef(new THREE.Vector3(0, 2, 0));
+  const smoothLook = useRef(new THREE.Vector3(0, 1.5, 1));
+  const smoothRoll = useRef(0);
+  const LERP_SPEED = 1.2; // lower = smoother/slower transitions
+
   const followRef = useRef<{
     active: boolean;
     dropIdx: number;
-    progress: number;    // 0→1 blend into follow, then hold, then blend out
-    duration: number;    // total follow time
+    duration: number;
     elapsed: number;
     offsetX: number;
     offsetZ: number;
-    basePos: THREE.Vector3;
-  }>({ active: false, dropIdx: -1, progress: 0, duration: 0, elapsed: 0, offsetX: 0, offsetZ: 0, basePos: new THREE.Vector3() });
+  }>({ active: false, dropIdx: -1, duration: 0, elapsed: 0, offsetX: 0, offsetZ: 0 });
   const cooldownRef = useRef(0);
 
   useFrame((_, dt) => {
@@ -399,44 +402,54 @@ function CockpitCamera({ rainPositions, rainAlive }: {
     const a = t.current;
     const scale = 35;
     const denom = 1 + Math.sin(a) * Math.sin(a);
-    // Normal lemniscate path
+
+    // Base lemniscate path with more vertical drift for horizon-losing effect
     const nx = scale * Math.cos(a) / denom;
     const nz = scale * Math.sin(a) * Math.cos(a) / denom;
-    const ny = 2 + Math.sin(a * 0.37) * 1.5 + Math.sin(a * 0.13) * 0.8;
-    // Normal look-at
-    const la = a + 0.12;
+    // More pronounced Y movement – gentle banking that loses the horizon
+    const ny = 2
+      + Math.sin(a * 0.37) * 2.5
+      + Math.sin(a * 0.13) * 1.5
+      + Math.sin(a * 0.71) * 0.8;
+
+    // Look-at: further ahead on curve for smoother anticipation
+    const la = a + 0.18;
     const ld = 1 + Math.sin(la) * Math.sin(la);
     const nlx = scale * Math.cos(la) / ld;
     const nlz = scale * Math.sin(la) * Math.cos(la) / ld;
-    const nly = 1.5 + Math.sin(la * 0.37) * 1.2;
+    const nly = 1.5 + Math.sin(la * 0.37) * 1.8 + Math.sin(la * 0.71) * 0.6;
+
+    // Gentle roll that drifts the horizon – subtle, never violent
+    const targetRoll = Math.sin(a * 0.17) * 0.06 + Math.sin(a * 0.31) * 0.03;
+
+    // Target position & look (may be overridden by follow)
+    let tx = nx, ty = Math.max(ny, -3), tz = nz;
+    let tlx = nlx, tly = nly, tlz = nlz;
+    let tRoll = targetRoll;
 
     const follow = followRef.current;
     cooldownRef.current -= dt;
 
-    // Try to start a new follow
+    // Try to start follow
     if (!follow.active && cooldownRef.current <= 0 && rainPositions.current && rainAlive.current) {
-      // Random chance every frame (~1% per frame → roughly every 3-5s)
-      if (Math.random() < 0.003) {
+      if (Math.random() < 0.002) {
         const rp = rainPositions.current;
         const ra = rainAlive.current;
-        const count = ra.length;
-        // Pick a random alive drop near the camera
         const candidates: number[] = [];
-        for (let i = 0; i < count; i++) {
+        for (let i = 0; i < ra.length; i++) {
           if (ra[i] === 0) continue;
           const dx = rp[i * 6] - nx;
           const dz = rp[i * 6 + 2] - nz;
-          if (dx * dx + dz * dz < 900) candidates.push(i); // within 30 units
+          if (dx * dx + dz * dz < 600) candidates.push(i);
         }
         if (candidates.length > 0) {
           const idx = candidates[(Math.random() * candidates.length) | 0];
           follow.active = true;
           follow.dropIdx = idx;
-          follow.duration = 2 + Math.random() * 3; // 2-5 seconds
+          follow.duration = 3 + Math.random() * 4; // 3-7s
           follow.elapsed = 0;
-          follow.offsetX = (Math.random() - 0.5) * 3;
-          follow.offsetZ = (Math.random() - 0.5) * 3;
-          follow.basePos.set(nx, ny, nz);
+          follow.offsetX = (Math.random() - 0.5) * 2.5;
+          follow.offsetZ = (Math.random() - 0.5) * 2.5;
         }
       }
     }
@@ -447,48 +460,50 @@ function CockpitCamera({ rainPositions, rainAlive }: {
       const ra = rainAlive.current;
       const idx = follow.dropIdx;
 
-      // If drop died, end follow early
       if (ra[idx] === 0 || follow.elapsed >= follow.duration) {
         follow.active = false;
-        cooldownRef.current = 8 + Math.random() * 12; // 8-20s cooldown
+        cooldownRef.current = 10 + Math.random() * 15;
       } else {
-        // Smooth blend: ease in first 0.8s, hold, ease out last 0.8s
-        const blendIn = Math.min(follow.elapsed / 0.8, 1);
-        const blendOut = Math.min((follow.duration - follow.elapsed) / 0.8, 1);
+        // Very slow ease: 2s in, 2s out
+        const blendIn = Math.min(follow.elapsed / 2.0, 1);
+        const blendOut = Math.min((follow.duration - follow.elapsed) / 2.0, 1);
         const blend = Math.min(blendIn, blendOut);
-        const smooth = blend * blend * (3 - 2 * blend); // smoothstep
+        const smooth = blend * blend * (3 - 2 * blend);
 
-        // Drop position (top vertex of line segment)
         const dx = rp[idx * 6];
         const dy = rp[idx * 6 + 1];
         const dz = rp[idx * 6 + 2];
 
-        // Follow position: slightly behind and beside the drop
         const fx = dx + follow.offsetX;
-        const fy = dy + 1.5; // slightly above
-        const fz = dz + follow.offsetZ + 3; // behind
+        const fy = dy + 2;
+        const fz = dz + follow.offsetZ + 4;
 
-        // Blend between normal path and follow
-        const bx = nx + (fx - nx) * smooth;
-        const by = Math.max(ny + (fy - ny) * smooth, -3);
-        const bz = nz + (fz - nz) * smooth;
+        tx = nx + (fx - nx) * smooth;
+        ty = Math.max(ny + (fy - ny) * smooth, -3);
+        tz = nz + (fz - nz) * smooth;
 
-        camera.position.set(bx, by, bz);
+        tlx = nlx + (dx - nlx) * smooth;
+        tly = nly + (dy - 1.5 - nly) * smooth;
+        tlz = nlz + (dz - nlz) * smooth;
 
-        // Look: blend between normal look-at and the drop
-        const lx = nlx + (dx - nlx) * smooth;
-        const ly = nly + (dy - 1 - nly) * smooth; // look slightly below drop
-        const lz = nlz + (dz - nlz) * smooth;
-        camera.lookAt(lx, ly, lz);
-        camera.rotation.z = Math.sin(a * 0.23) * 0.03 * (1 - smooth * 0.7);
-        return;
+        // Slight extra roll during follow
+        tRoll = targetRoll * (1 - smooth * 0.5) + smooth * Math.sin(a * 0.5) * 0.04;
       }
     }
 
-    // Normal camera
-    camera.position.set(nx, Math.max(ny, -3), nz);
-    camera.lookAt(nlx, nly, nlz);
-    camera.rotation.z = Math.sin(a * 0.23) * 0.03;
+    // Lerp everything – no sudden jumps ever
+    const lerpFactor = 1 - Math.exp(-LERP_SPEED * dt);
+    smoothPos.current.x += (tx - smoothPos.current.x) * lerpFactor;
+    smoothPos.current.y += (ty - smoothPos.current.y) * lerpFactor;
+    smoothPos.current.z += (tz - smoothPos.current.z) * lerpFactor;
+    smoothLook.current.x += (tlx - smoothLook.current.x) * lerpFactor;
+    smoothLook.current.y += (tly - smoothLook.current.y) * lerpFactor;
+    smoothLook.current.z += (tlz - smoothLook.current.z) * lerpFactor;
+    smoothRoll.current += (tRoll - smoothRoll.current) * lerpFactor;
+
+    camera.position.copy(smoothPos.current);
+    camera.lookAt(smoothLook.current);
+    camera.rotation.z = smoothRoll.current;
   });
   return null;
 }
