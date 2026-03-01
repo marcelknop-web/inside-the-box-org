@@ -358,8 +358,12 @@ const useServiceContent = () => {
     ),
     'cyber-crisis-management': () => (
       <TypedSection title={t('cyberCrisis.title')} mode="typewriter" intro={<p>{t('cyberCrisis.intro')}</p>}>
+        <Block className="bg-card/40 rounded-xl">
+          <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{t('cyberCrisis.introDetail')}</p>
+        </Block>
         <Block className="bg-primary/5 border border-primary/20 rounded-xl">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <SubTitle>{t('cyberCrisis.sectionTitle')}</SubTitle>
+          <div className="grid grid-cols-1 gap-3 mt-2">
             <GridItem icon={ClipboardList} title={t('cyberCrisis.planTitle')} desc={t('cyberCrisis.planDesc')} />
             <GridItem icon={Zap} title={t('cyberCrisis.scenarioTitle')} desc={t('cyberCrisis.scenarioDesc')} />
             <GridItem icon={Target} title={t('cyberCrisis.simTitle')} desc={t('cyberCrisis.simDesc')} />
@@ -368,20 +372,22 @@ const useServiceContent = () => {
           </div>
         </Block>
         <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
-          <SubTitle variant="highlight">{t('cyberCrisis.methTitle')}</SubTitle>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-2">
-            <GridItem icon={Users} title={t('cyberCrisis.tabletop')} desc={t('cyberCrisis.tabletopDesc')} variant="highlight" />
-            <GridItem icon={Gamepad2} title={t('cyberCrisis.liveSim')} desc={t('cyberCrisis.liveSimDesc')} variant="highlight" />
-            <GridItem icon={Monitor} title={t('cyberCrisis.cyberRange')} desc={t('cyberCrisis.cyberRangeDesc')} variant="highlight" />
-          </div>
+          <SubTitle variant="highlight">{t('cyberCrisis.outcomesTitle')}</SubTitle>
+          <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mt-2">{t('cyberCrisis.outcomesDesc')}</p>
         </Block>
         <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
-          <SubTitle variant="highlight">{t('cyberCrisis.outcomesTitle')}</SubTitle>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-2">
-            <GridItem icon={ShieldCheck} title={t('cyberCrisis.readiness')} desc={t('cyberCrisis.readinessDesc')} variant="highlight" />
-            <GridItem icon={Users2} title={t('cyberCrisis.coordination')} desc={t('cyberCrisis.coordinationDesc')} variant="highlight" />
-            <GridItem icon={Lightbulb} title={t('cyberCrisis.leadership')} desc={t('cyberCrisis.leadershipDesc')} variant="highlight" />
-          </div>
+          <SubTitle variant="highlight">{t('cyberCrisis.refTitle')}</SubTitle>
+          <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mt-2">{t('cyberCrisis.refDesc')}</p>
+        </Block>
+        <Block className="bg-primary/5 border border-primary/20 rounded-xl">
+          <SubTitle>{t('cyberCrisis.ctaTitle')}</SubTitle>
+          <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mt-2">{t('cyberCrisis.ctaDesc')}</p>
+          <button
+            onClick={() => setActive('contact')}
+            className="mt-3 inline-flex items-center gap-2 text-primary font-mono font-bold text-sm hover:text-highlight transition-electric cursor-pointer bg-transparent border-none p-0"
+          >
+            {t('cyberCrisis.ctaButton')}
+          </button>
         </Block>
       </TypedSection>
     ),
