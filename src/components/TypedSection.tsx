@@ -105,7 +105,7 @@ const IntroTypewriter = ({ intro, mode, charDelay, sectionKey, onDone }: { intro
   const text = extractText(intro);
 
   return (
-    <p>
+    <p className="text-primary">
       <Typewriter key={`${sectionKey}-intro`} text={text} mode={mode} charDelay={charDelay} onDone={onDone} />
     </p>
   );
