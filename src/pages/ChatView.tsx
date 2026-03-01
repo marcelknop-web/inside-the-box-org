@@ -898,46 +898,34 @@ const useServiceContent = () => {
       </TypedSection>
     ),
     'by-whom': () => {
-      const profiles = consultantProfiles.map((profile) => {
-        const key = profile.name === 'Marcel Knop' ? 'marcel' : 'andreas';
-        return {
-          ...profile,
-          sections: [
-            { title: t(`profiles.${key}.eduTitle`), items: tArray(`profiles.${key}.edu`) },
-            { title: t(`profiles.${key}.expTitle`), items: tArray(`profiles.${key}.exp`) },
-            { title: t(`profiles.${key}.servTitle`), items: tArray(`profiles.${key}.serv`) },
-            { title: t(`profiles.${key}.langTitle`), items: tArray(`profiles.${key}.lang`) },
-          ],
-        };
-      });
+      const profileKeys = ['marcel', 'andreas'] as const;
       return (
         <TypedSection title={t('byWhom.title')} mode="typewriter" intro={<p>{t('byWhom.intro')}</p>}>
-          {profiles.map(p => (
-            <Block key={p.name} className="bg-secondary/30">
-              <div className="flex items-start gap-4 mb-4">
-                <img src={p.imageUrl} alt={p.name} className="w-20 h-20 rounded-full object-cover border-2 border-primary/40 shadow-lg" />
-                <div>
-                  <p className="text-primary font-bold text-base font-sans">{p.name}</p>
-                  <p className="text-foreground text-sm md:text-[15px] font-sans mb-1">{p.role}</p>
-                  {p.linkedinUrl && (
-                    <a href={p.linkedinUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-highlight text-sm font-sans hover:underline">
-                      <Linkedin size={14} /> LinkedIn
-                    </a>
-                  )}
-                </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {p.sections.map((s, i) => (
-                  <div key={i}>
-                    <p className="text-primary font-semibold text-sm font-sans mb-1">{s.title}</p>
-                     <ul className="text-sm font-sans text-foreground space-y-0.5">
-                      {s.items.map((item, j) => <li key={j}>• {item}</li>)}
-                    </ul>
+          {profileKeys.map(key => {
+            const profile = consultantProfiles.find(p => key === 'marcel' ? p.name === 'Marcel Knop' : p.name === 'Andreas Funder')!;
+            return (
+              <Block key={key} className="bg-secondary/30">
+                <div className="flex items-start gap-4 mb-4">
+                  <img src={profile.imageUrl} alt={profile.name} className="w-20 h-20 rounded-full object-cover border-2 border-primary/40 shadow-lg" />
+                  <div>
+                    <p className="text-primary font-bold text-base font-sans">{profile.name} · {profile.role}</p>
+                    {profile.linkedinUrl && (
+                      <a href={profile.linkedinUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-highlight text-sm font-sans hover:underline">
+                        <Linkedin size={14} /> LinkedIn →
+                      </a>
+                    )}
                   </div>
-                ))}
-              </div>
-            </Block>
-          ))}
+                </div>
+                <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mb-4">{t(`profiles.${key}.bio`)}</p>
+                <div className="space-y-1.5 text-sm font-sans">
+                  <p><span className="text-primary font-semibold">{t(`profiles.${key}.focusLabel`)}:</span> <span className="text-foreground/80">{t(`profiles.${key}.focus`)}</span></p>
+                  <p><span className="text-primary font-semibold">{t(`profiles.${key}.certsLabel`)}:</span> <span className="text-foreground/80">{t(`profiles.${key}.certs`)}</span></p>
+                  <p><span className="text-primary font-semibold">{t(`profiles.${key}.eduLabel`)}:</span> <span className="text-foreground/80">{t(`profiles.${key}.edu`)}</span></p>
+                  <p><span className="text-primary font-semibold">{t(`profiles.${key}.langLabel`)}:</span> <span className="text-foreground/80">{t(`profiles.${key}.lang`)}</span></p>
+                </div>
+              </Block>
+            );
+          })}
         </TypedSection>
       );
     },
