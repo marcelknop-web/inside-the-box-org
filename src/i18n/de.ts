@@ -366,7 +366,7 @@ export const de = {
     moderationDesc: 'Konferenz- und Seminarmoderation, Panelführung, Workshop-Design. Technisch fundiert, auf verwertbare Ergebnisse ausgerichtet. Komplexe Themen werden klar strukturiert – ohne fachliche Tiefe zu verlieren. Geeignet für Fachpublikum ebenso wie für gemischte Führungskräfte-Gruppen.',
     workshopsTitle: 'Trainings-Workshops',
     workshopsDesc: 'Security Awareness, technische Kompetenzentwicklung, Krisenübungen. Praxisnah konzipiert, auf konkrete Handlungskompetenz ausgerichtet. Kein Compliance-Training auf Folienbasis – sondern Inhalte, die im Berufsalltag tatsächlich anwendbar sind.',
-    referencesTitle: 'Auswahl bisheriger Mandate',
+    referencesTitle: 'Bisherige Veranstalter',
     referencesDesc: 'Beamtenbund · Bechtle · Bitkom · BSI · CDU · DENIC · DDPS (CH) · DIIR · DWT · Fast Lane · Euroforum · HPI · IIR · ISACA · Management Circle · SoftwareONE · Bundeswehr University · University of Giessen',
     isacaTitle: 'ISACA Cyber Security Expert (CSE)',
     isacaDesc: 'Zertifikatstraining in Kooperation mit ISACA Germany – geeignet für Management- und Technikzielgruppen, direkt anwendbar im Berufsalltag.',
