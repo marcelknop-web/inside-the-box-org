@@ -1,5 +1,5 @@
 import { useState, useCallback, useMemo, useRef } from 'react';
-import { Shield, TrendingDown, AlertTriangle, ChevronRight, RotateCcw, Skull, Trophy, ArrowLeft, Volume2, VolumeX } from 'lucide-react';
+import { Shield, TrendingDown, AlertTriangle, ChevronRight, RotateCcw, Skull, Trophy, ArrowLeft, Volume2, VolumeX, Eye, HardDrive, Brain, Castle, Target, PiggyBank, Zap, ShieldAlert, ShieldCheck, Activity } from 'lucide-react';
 import { StaggerReveal } from '@/components/StaggerReveal';
 import { Button } from '@/components/ui/button';
 import { PageMeta } from '@/components/PageMeta';
@@ -31,12 +31,12 @@ const labels: Record<string, Record<string, string>> = {
     nextRound: 'Weiter zu Runde',
     attackType: 'Angriffstyp',
     detectionProb: 'Erkennungsrate',
-    detectionProbHint: 'Wie wahrscheinlich Ihr SOC den Angriff erkennt. Abhängig von SOC- und Awareness-Level.',
+    detectionProbHint: 'Wie wahrscheinlich Ihr SOC den Angriff erkennt.',
     detected: 'Erkannt?',
     yes: 'Ja',
     no: 'Nein',
     damage: 'Schaden',
-    damageHint: 'Abzug vom Marktwert. Bei Erkennung halbiert, durch Resilience & Backup weiter reduziert.',
+    damageHint: 'Abzug vom Marktwert. Bei Erkennung halbiert.',
     impactLabel: 'Auswirkung auf Ihr Unternehmen',
     impactHint: 'Wie sich der Angriff auf Ihre drei Kernwerte auswirkt.',
     marketValueHint: 'Sinkt durch Angriffsschaden und regulatorische Strafen.',
@@ -50,7 +50,7 @@ const labels: Record<string, Record<string, string>> = {
     back: 'Zurück',
     regPenalty: 'Regulatorische Strafe!',
     regPenaltyHigh: 'Kritisches regulatorisches Versagen!',
-    levelNone: 'kein Effekt',
+    levelNone: '—',
     phishing: 'Phishing-Welle',
     ransomware: 'Ransomware',
     supplyChain: 'Supply Chain Attack',
@@ -65,15 +65,14 @@ const labels: Record<string, Record<string, string>> = {
     introMech2: 'Danach trifft ein zufälliger Cyberangriff Ihr Unternehmen.',
     introMech3: 'Ihre Investitionen bestimmen, ob der Angriff erkannt wird und wie hoch der Schaden ausfällt.',
     introMech4: 'Ab Runde 3 drohen zusätzliche regulatorische Strafen.',
-    introGui: 'Nutzen Sie die gelben Schieberegler, um Ihr Budget auf die Kategorien zu verteilen. Die Summe darf 100 nicht überschreiten. Bestätigen Sie dann mit dem Button.',
+    introGui: 'Nutzen Sie die Schieberegler, um Ihr Budget auf die Kategorien zu verteilen. Die Summe darf 100 nicht überschreiten.',
     introGameOver: 'Game Over bei: Marktwert ≤ 0 · Reputation ≤ 0 · Reg. Risiko ≥ 80',
-    // Phase guidance
     phaseStep: 'Schritt',
     phase1Label: 'Budget verteilen',
     phase2Label: 'Angriff',
     phase3Label: 'Auswertung',
     allocateInstruction: 'Verteilen Sie Ihr Security-Budget auf die 6 Kategorien.',
-    allocateHint: 'Bewegen Sie die Schieberegler und achten Sie darauf, dass die Summe ≤ 100 bleibt.',
+    allocateHint: 'Die Summe darf 100 nicht überschreiten.',
     resultHeadline: 'Angriff auf Ihr Unternehmen!',
     resultDetectedMsg: 'Ihr SOC hat den Angriff rechtzeitig erkannt. Schaden wurde reduziert.',
     resultUndetectedMsg: 'Der Angriff blieb unbemerkt. Voller Schaden trifft Ihr Unternehmen.',
@@ -81,6 +80,9 @@ const labels: Record<string, Record<string, string>> = {
     gameOverExplain: 'Ihr Unternehmen hat die Krise nicht überstanden.',
     victoryExplain: 'Sie haben alle 5 Angriffswellen erfolgreich navigiert.',
     roundWarning3: '⚠ Ab dieser Runde greift regulatorischer Druck!',
+    allocated: 'verteilt',
+    levelUp: 'Level-Up',
+    currentLevel: 'Level',
   },
   en: {
     title: 'CISO Budget Simulator',
@@ -104,12 +106,12 @@ const labels: Record<string, Record<string, string>> = {
     nextRound: 'Continue to Round',
     attackType: 'Attack Type',
     detectionProb: 'Detection Rate',
-    detectionProbHint: 'How likely your SOC detects the attack. Depends on SOC and Awareness levels.',
+    detectionProbHint: 'How likely your SOC detects the attack.',
     detected: 'Detected?',
     yes: 'Yes',
     no: 'No',
     damage: 'Damage',
-    damageHint: 'Deducted from Market Value. Halved if detected, further reduced by Resilience & Backup.',
+    damageHint: 'Deducted from Market Value. Halved if detected.',
     impactLabel: 'Impact on your organization',
     impactHint: 'How the attack affects your three core metrics.',
     marketValueHint: 'Decreases from attack damage and regulatory penalties.',
@@ -123,7 +125,7 @@ const labels: Record<string, Record<string, string>> = {
     back: 'Back',
     regPenalty: 'Regulatory Penalty!',
     regPenaltyHigh: 'Critical Regulatory Failure!',
-    levelNone: 'no effect',
+    levelNone: '—',
     phishing: 'Phishing Wave',
     ransomware: 'Ransomware',
     supplyChain: 'Supply Chain Attack',
@@ -138,14 +140,14 @@ const labels: Record<string, Record<string, string>> = {
     introMech2: 'Then a random cyberattack hits your organization.',
     introMech3: 'Your investments determine if the attack is detected and how much damage is dealt.',
     introMech4: 'From round 3, additional regulatory penalties apply.',
-    introGui: 'Use the yellow sliders to distribute your budget across categories. The total must not exceed 100. Then confirm with the button.',
+    introGui: 'Use the sliders to distribute your budget across categories. The total must not exceed 100.',
     introGameOver: 'Game Over at: Market Value ≤ 0 · Reputation ≤ 0 · Reg. Risk ≥ 80',
     phaseStep: 'Step',
     phase1Label: 'Allocate Budget',
     phase2Label: 'Attack',
     phase3Label: 'Assessment',
     allocateInstruction: 'Distribute your security budget across the 6 categories.',
-    allocateHint: 'Move the sliders and make sure the total stays ≤ 100.',
+    allocateHint: 'The total must not exceed 100.',
     resultHeadline: 'Attack on your organization!',
     resultDetectedMsg: 'Your SOC detected the attack in time. Damage was reduced.',
     resultUndetectedMsg: 'The attack went unnoticed. Full damage hits your organization.',
@@ -153,6 +155,9 @@ const labels: Record<string, Record<string, string>> = {
     gameOverExplain: 'Your organization did not survive the crisis.',
     victoryExplain: 'You successfully navigated all 5 attack waves.',
     roundWarning3: '⚠ Regulatory pressure kicks in from this round!',
+    allocated: 'allocated',
+    levelUp: 'Level Up',
+    currentLevel: 'Level',
   },
   fr: {
     title: 'CISO Budget Simulator',
@@ -176,12 +181,12 @@ const labels: Record<string, Record<string, string>> = {
     nextRound: 'Continuer au tour',
     attackType: 'Type d\'attaque',
     detectionProb: 'Taux de détection',
-    detectionProbHint: 'Probabilité que votre SOC détecte l\'attaque. Dépend des niveaux SOC et Awareness.',
+    detectionProbHint: 'Probabilité que votre SOC détecte l\'attaque.',
     detected: 'Détecté ?',
     yes: 'Oui',
     no: 'Non',
     damage: 'Dégâts',
-    damageHint: 'Déduits de la valeur marchande. Réduits de moitié si détecté, encore réduits par Résilience & Backup.',
+    damageHint: 'Déduits de la valeur marchande. Réduits de moitié si détecté.',
     impactLabel: 'Impact sur votre organisation',
     impactHint: 'Comment l\'attaque affecte vos trois indicateurs clés.',
     marketValueHint: 'Diminue par les dégâts et les pénalités réglementaires.',
@@ -195,7 +200,7 @@ const labels: Record<string, Record<string, string>> = {
     back: 'Retour',
     regPenalty: 'Pénalité réglementaire !',
     regPenaltyHigh: 'Échec réglementaire critique !',
-    levelNone: 'aucun effet',
+    levelNone: '—',
     phishing: 'Vague de Phishing',
     ransomware: 'Ransomware',
     supplyChain: 'Attaque Supply Chain',
@@ -210,14 +215,14 @@ const labels: Record<string, Record<string, string>> = {
     introMech2: 'Ensuite, une cyberattaque aléatoire frappe votre organisation.',
     introMech3: 'Vos investissements déterminent si l\'attaque est détectée et l\'ampleur des dégâts.',
     introMech4: 'À partir du tour 3, des pénalités réglementaires supplémentaires s\'appliquent.',
-    introGui: 'Utilisez les curseurs jaunes pour répartir votre budget. Le total ne doit pas dépasser 100. Confirmez ensuite avec le bouton.',
+    introGui: 'Utilisez les curseurs pour répartir votre budget. Le total ne doit pas dépasser 100.',
     introGameOver: 'Fin de partie si : Valeur ≤ 0 · Réputation ≤ 0 · Risque rég. ≥ 80',
     phaseStep: 'Étape',
     phase1Label: 'Répartir le budget',
     phase2Label: 'Attaque',
     phase3Label: 'Évaluation',
     allocateInstruction: 'Répartissez votre budget sécurité sur les 6 catégories.',
-    allocateHint: 'Déplacez les curseurs et assurez-vous que le total reste ≤ 100.',
+    allocateHint: 'Le total ne doit pas dépasser 100.',
     resultHeadline: 'Attaque contre votre organisation !',
     resultDetectedMsg: 'Votre SOC a détecté l\'attaque à temps. Les dégâts ont été réduits.',
     resultUndetectedMsg: 'L\'attaque est passée inaperçue. Dégâts complets.',
@@ -225,6 +230,9 @@ const labels: Record<string, Record<string, string>> = {
     gameOverExplain: 'Votre organisation n\'a pas survécu à la crise.',
     victoryExplain: 'Vous avez navigué avec succès les 5 vagues d\'attaques.',
     roundWarning3: '⚠ La pression réglementaire commence à ce tour !',
+    allocated: 'réparti',
+    levelUp: 'Montée niveau',
+    currentLevel: 'Niveau',
   },
 };
 
@@ -234,8 +242,8 @@ type AttackKey = 'phishing' | 'ransomware' | 'supplyChain' | 'insider' | 'cloudM
 
 interface Attack {
   key: AttackKey;
-  baseDamage: [number, number]; // [min, max]
-  baseDetection: number; // base detection %
+  baseDamage: [number, number];
+  baseDetection: number;
 }
 
 const ATTACKS: Attack[] = [
@@ -248,6 +256,15 @@ const ATTACKS: Attack[] = [
 ];
 
 const CATEGORIES = ['cat1', 'cat2', 'cat3', 'cat4', 'cat5', 'cat6'] as const;
+const CAT_ICONS = [Eye, HardDrive, Brain, Castle, Target, PiggyBank];
+const CAT_COLORS = [
+  'hsl(var(--primary))',
+  'hsl(var(--highlight))',
+  'hsl(160, 80%, 50%)',
+  'hsl(280, 60%, 60%)',
+  'hsl(30, 90%, 55%)',
+  'hsl(var(--muted-foreground))',
+];
 
 function pointsToLevelGain(pts: number): number {
   if (pts <= 20) return 0;
@@ -259,14 +276,12 @@ function pointsToLevelGain(pts: number): number {
 
 function clamp(v: number, min: number, max: number) { return Math.max(min, Math.min(max, v)); }
 
-// ── Leaderboard helpers ──
 const CISO_BOARD_KEY = 'ciso_sim_top5';
 interface CisoBoardEntry { rounds: number; mv: number; rep: number; reg: number; won: boolean; date: string; }
 const getCisoBoard = (): CisoBoardEntry[] => { try { return JSON.parse(localStorage.getItem(CISO_BOARD_KEY) || '[]'); } catch { return []; } };
 const saveCisoBoard = (rounds: number, mv: number, rep: number, reg: number, won: boolean) => {
   const board = getCisoBoard();
   board.push({ rounds, mv, rep, reg, won, date: new Date().toLocaleDateString() });
-  // Sort: victories first (by mv desc), then losses (by rounds desc)
   board.sort((a, b) => {
     if (a.won !== b.won) return a.won ? -1 : 1;
     if (a.won && b.won) return b.mv - a.mv;
@@ -280,7 +295,7 @@ interface GameState {
   marketValue: number;
   reputation: number;
   regRisk: number;
-  levels: number[]; // [soc, backup, awareness, hardening, redteam, savings]
+  levels: number[];
 }
 
 interface RoundResult {
@@ -297,18 +312,11 @@ interface RoundResult {
   statsAfter: Pick<GameState, 'marketValue' | 'reputation' | 'regRisk'>;
 }
 
-// ── Analysis Generator ──────────────────────────────────────────────────────
-
 function generateAnalysis(
-  lang: string,
-  attackKey: AttackKey,
-  wasDetected: boolean,
-  levels: number[],
-  allocation: number[],
+  lang: string, attackKey: AttackKey, wasDetected: boolean, levels: number[], allocation: number[],
 ): string[] {
-  const [soc, backup, awareness, hardening, redteam, savings] = levels;
+  const [soc, backup, awareness, hardening, redteam] = levels;
   const lines: string[] = [];
-
   if (lang === 'de') {
     if (wasDetected) lines.push('Angriff erkannt – Schaden konnte begrenzt werden.');
     else lines.push('Angriff blieb unentdeckt – voller Schaden, erhöhtes regulatorisches Risiko.');
@@ -316,7 +324,7 @@ function generateAnalysis(
     if (attackKey === 'ransomware' && backup < 2) lines.push('Backup-Level zu niedrig für Ransomware-Resilienz.');
     if (awareness < 2 && (attackKey === 'phishing' || attackKey === 'insider')) lines.push('Awareness-Defizit erhöht Anfälligkeit für Social Engineering.');
     if (hardening < 2 && (attackKey === 'cloudMisconfig' || attackKey === 'supplyChain')) lines.push('Architektur ungehärtet – Angriffsfläche zu groß.');
-    if (savings > 0 && allocation[5] > 30) lines.push(`${allocation[5]} Punkte eingespart – kurzfristiger Gewinn, langfristiges Risiko.`);
+    if (allocation[5] > 30) lines.push(`${allocation[5]} Punkte eingespart – kurzfristiger Gewinn, langfristiges Risiko.`);
     if (redteam >= 3) lines.push('Red-Team-Investment zahlt sich durch bessere Resilienz aus.');
   } else if (lang === 'fr') {
     if (wasDetected) lines.push('Attaque détectée – dégâts limités.');
@@ -324,7 +332,7 @@ function generateAnalysis(
     if (soc < 2) lines.push('Niveau SOC critique. Capacité de détection insuffisante.');
     if (attackKey === 'ransomware' && backup < 2) lines.push('Niveau de backup trop bas pour la résilience ransomware.');
     if (awareness < 2 && (attackKey === 'phishing' || attackKey === 'insider')) lines.push('Déficit de sensibilisation augmente la vulnérabilité.');
-    if (savings > 0 && allocation[5] > 30) lines.push(`${allocation[5]} points économisés – gain court terme, risque long terme.`);
+    if (allocation[5] > 30) lines.push(`${allocation[5]} points économisés – gain court terme, risque long terme.`);
   } else {
     if (wasDetected) lines.push('Attack detected – damage was contained.');
     else lines.push('Attack went undetected – full damage, increased regulatory risk.');
@@ -332,14 +340,91 @@ function generateAnalysis(
     if (attackKey === 'ransomware' && backup < 2) lines.push('Backup level too low for ransomware resilience.');
     if (awareness < 2 && (attackKey === 'phishing' || attackKey === 'insider')) lines.push('Awareness deficit increases social engineering vulnerability.');
     if (hardening < 2 && (attackKey === 'cloudMisconfig' || attackKey === 'supplyChain')) lines.push('Architecture unhardened – attack surface too large.');
-    if (savings > 0 && allocation[5] > 30) lines.push(`${allocation[5]} points saved – short-term gain, long-term risk.`);
+    if (allocation[5] > 30) lines.push(`${allocation[5]} points saved – short-term gain, long-term risk.`);
     if (redteam >= 3) lines.push('Red team investment paying off through better resilience.');
   }
-
   return lines.slice(0, 4);
 }
 
-// ── Component ───────────────────────────────────────────────────────────────
+// ── SVG Gauge Component ─────────────────────────────────────────────────────
+
+function CircularGauge({ value, max, label, color, invert, size = 80 }: {
+  value: number; max: number; label: string; color: string; invert?: boolean; size?: number;
+}) {
+  const pct = clamp((value / max) * 100, 0, 100);
+  const danger = invert ? pct > 70 : pct < 30;
+  const r = (size - 10) / 2;
+  const circ = 2 * Math.PI * r;
+  const strokePct = (pct / 100) * circ;
+  const strokeColor = danger ? 'hsl(var(--destructive))' : color;
+
+  return (
+    <div className="flex flex-col items-center gap-1">
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="drop-shadow-sm">
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="hsl(var(--secondary))" strokeWidth="5" />
+        <circle
+          cx={size / 2} cy={size / 2} r={r}
+          fill="none" stroke={strokeColor} strokeWidth="5"
+          strokeLinecap="round"
+          strokeDasharray={`${strokePct} ${circ}`}
+          transform={`rotate(-90 ${size / 2} ${size / 2})`}
+          className="transition-all duration-700 ease-out"
+        />
+        <text x={size / 2} y={size / 2 + 1} textAnchor="middle" dominantBaseline="middle"
+          fill={strokeColor} fontSize={size * 0.25} fontFamily="monospace" fontWeight="bold"
+        >
+          {value}
+        </text>
+      </svg>
+      <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider text-center leading-tight">{label}</span>
+    </div>
+  );
+}
+
+function LevelPips({ level, max = 5, color }: { level: number; max?: number; color: string }) {
+  return (
+    <div className="flex gap-0.5">
+      {Array.from({ length: max }, (_, i) => (
+        <div
+          key={i}
+          className="w-2.5 h-2.5 rounded-sm transition-all duration-300"
+          style={{
+            background: i < level ? color : 'hsl(var(--secondary))',
+            boxShadow: i < level ? `0 0 4px ${color}40` : 'none',
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+// ── Budget Distribution Bar ─────────────────────────────────────────────────
+
+function BudgetBar({ allocation }: { allocation: number[] }) {
+  const total = allocation.reduce((a, b) => a + b, 0);
+  return (
+    <div className="w-full h-3 rounded-full bg-secondary overflow-hidden flex">
+      {allocation.map((val, i) => (
+        val > 0 ? (
+          <div
+            key={i}
+            className="h-full transition-all duration-300 first:rounded-l-full last:rounded-r-full"
+            style={{
+              width: `${(val / Math.max(total, 100)) * 100}%`,
+              background: CAT_COLORS[i],
+              opacity: 0.85,
+            }}
+          />
+        ) : null
+      ))}
+      {total < 100 && (
+        <div className="h-full flex-1" style={{ background: 'transparent' }} />
+      )}
+    </div>
+  );
+}
+
+// ── Main Component ──────────────────────────────────────────────────────────
 
 const CisoSimulator = ({ embedded = false }: { embedded?: boolean }) => {
   const { language } = useLanguage();
@@ -366,7 +451,6 @@ const CisoSimulator = ({ embedded = false }: { embedded?: boolean }) => {
       next[idx] = val;
       return next;
     });
-    // Throttled tick sound
     if (soundEnabled) {
       const now = Date.now();
       if (now - lastSliderTickRef.current > 80) {
@@ -380,51 +464,38 @@ const CisoSimulator = ({ embedded = false }: { embedded?: boolean }) => {
     if (overBudget) return;
     if (soundEnabled) sound.playConfirm();
 
-    // Update levels
     const newLevels = state.levels.map((lvl, i) => {
-      if (i === 5) return 0; // savings has no level
+      if (i === 5) return 0;
       return clamp(lvl + pointsToLevelGain(allocation[i]), 0, 5);
     });
 
-    // Pick random attack
     const attack = ATTACKS[Math.floor(Math.random() * ATTACKS.length)];
     const rawDamage = randInt(attack.baseDamage[0], attack.baseDamage[1]);
 
-    // Detection
     const socLevel = newLevels[0];
     const awarenessLevel = newLevels[2];
     const detectionPct = clamp(attack.baseDetection + socLevel * 10 + awarenessLevel * 5, 0, 99);
     const wasDetected = Math.random() * 100 < detectionPct;
 
-    // Damage reduction
-    const resilienceLevel = newLevels[3]; // hardening = resilience
+    const resilienceLevel = newLevels[3];
     let finalDamage = wasDetected ? Math.floor(rawDamage / 2) : rawDamage;
     finalDamage = Math.max(0, finalDamage - resilienceLevel * 5);
     if (attack.key === 'ransomware' && newLevels[1] >= 2) {
       finalDamage = Math.floor(finalDamage / 2);
     }
 
-    // Apply effects
     let mv = state.marketValue - finalDamage;
     let rep = state.reputation - (wasDetected ? 5 : 15);
     let reg = state.regRisk + (wasDetected ? 5 : 15);
 
-    // Savings bonus: unspent budget adds to market value slightly
     const saved = 100 - totalAllocated;
     if (saved > 0) mv += Math.floor(saved * 0.3);
 
-    // Regulatory penalties (from round 3)
     let regPenalty = false;
     let regPenaltyHigh = false;
     if (round >= 3) {
-      if (reg > 60) {
-        mv -= 40;
-        regPenaltyHigh = true;
-      } else if (reg > 40) {
-        mv -= 20;
-        rep -= 10;
-        regPenalty = true;
-      }
+      if (reg > 60) { mv -= 40; regPenaltyHigh = true; }
+      else if (reg > 40) { mv -= 20; rep -= 10; regPenalty = true; }
     }
 
     mv = Math.max(mv, 0);
@@ -432,14 +503,8 @@ const CisoSimulator = ({ embedded = false }: { embedded?: boolean }) => {
     reg = Math.min(reg, 100);
 
     const result: RoundResult = {
-      round,
-      attackKey: attack.key,
-      detectionPct,
-      wasDetected,
-      rawDamage,
-      finalDamage,
-      regPenalty,
-      regPenaltyHigh,
+      round, attackKey: attack.key, detectionPct, wasDetected,
+      rawDamage, finalDamage, regPenalty, regPenaltyHigh,
       analysis: generateAnalysis(language, attack.key, wasDetected, newLevels, allocation),
       statsBefore: { marketValue: state.marketValue, reputation: state.reputation, regRisk: state.regRisk },
       statsAfter: { marketValue: mv, reputation: rep, regRisk: reg },
@@ -448,34 +513,20 @@ const CisoSimulator = ({ embedded = false }: { embedded?: boolean }) => {
     setResults(prev => [...prev, result]);
     setState({ marketValue: mv, reputation: rep, regRisk: reg, levels: newLevels });
 
-    // Sound effects based on outcome
     if (soundEnabled) {
       setTimeout(() => sound.playAttackAlert(), 200);
       setTimeout(() => {
-        if (mv <= 0 || rep <= 0 || reg >= 80) {
-          sound.playGameOver();
-        } else if (round >= 5) {
-          sound.playVictory();
-        } else if (regPenalty || regPenaltyHigh) {
-          sound.playRegPenalty();
-        } else if (wasDetected) {
-          sound.playDetected();
-        } else {
-          sound.playUndetected();
-        }
+        if (mv <= 0 || rep <= 0 || reg >= 80) sound.playGameOver();
+        else if (round >= 5) sound.playVictory();
+        else if (regPenalty || regPenaltyHigh) sound.playRegPenalty();
+        else if (wasDetected) sound.playDetected();
+        else sound.playUndetected();
       }, 1200);
     }
 
-    // Check game over
-    if (mv <= 0 || rep <= 0 || reg >= 80) {
-      saveCisoBoard(round, mv, rep, reg, false);
-      setPhase('gameover');
-    } else if (round >= 5) {
-      saveCisoBoard(round, mv, rep, reg, true);
-      setPhase('victory');
-    } else {
-      setPhase('result');
-    }
+    if (mv <= 0 || rep <= 0 || reg >= 80) { saveCisoBoard(round, mv, rep, reg, false); setPhase('gameover'); }
+    else if (round >= 5) { saveCisoBoard(round, mv, rep, reg, true); setPhase('victory'); }
+    else setPhase('result');
   }, [state, allocation, round, overBudget, totalAllocated, language, soundEnabled, sound]);
 
   const nextRound = useCallback(() => {
@@ -486,422 +537,398 @@ const CisoSimulator = ({ embedded = false }: { embedded?: boolean }) => {
   }, [soundEnabled, sound]);
 
   const restart = useCallback(() => {
-    setRound(1);
-    setPhase('intro');
+    setRound(1); setPhase('intro');
     setState({ marketValue: 100, reputation: 100, regRisk: 0, levels: [1, 1, 1, 1, 1, 0] });
-    setAllocation([20, 20, 20, 20, 20, 0]);
-    setResults([]);
+    setAllocation([20, 20, 20, 20, 20, 0]); setResults([]);
   }, []);
 
   const latestResult = results[results.length - 1];
 
   const containerClass = embedded
-    ? 'w-full max-w-3xl mx-auto p-4 md:p-6'
+    ? 'w-full max-w-4xl mx-auto p-4 md:p-6'
     : 'min-h-screen p-4 md:p-8';
 
   return (
     <div className={containerClass}>
       {!embedded && <PageMeta title="CISO Simulator" description="Cybersecurity Budget Simulation" />}
 
-      {/* Header */}
-      <div className="max-w-3xl mx-auto">
+      <div className="max-w-4xl mx-auto">
         {!embedded && (
           <a href="/" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-highlight transition-colors mb-4 font-mono">
             <ArrowLeft size={14} /> {t('back')}
           </a>
         )}
 
-        {phase === 'intro' ? (
-          <div className="space-y-4">
-            <h1 className="text-xl md:text-2xl font-bold font-mono text-primary">{t('title')}</h1>
-            <StaggerReveal stagger={500} startDelay={300}>
-              <div className="bg-card border border-border rounded-xl p-5">
-                <p className="text-foreground font-sans font-semibold">{t('introRole')}</p>
+        {/* ─── INTRO ─── */}
+        {phase === 'intro' && (
+          <div className="space-y-5">
+            <div className="text-center mb-2">
+              <Shield size={40} className="mx-auto text-primary mb-3" />
+              <h1 className="text-2xl md:text-3xl font-bold font-mono text-primary">{t('title')}</h1>
+              <p className="text-sm text-muted-foreground mt-1 font-sans">{t('subtitle')}</p>
+            </div>
+
+            <StaggerReveal stagger={400} startDelay={300}>
+              <div className="bg-card/80 border border-primary/20 rounded-xl p-5 backdrop-blur-sm">
+                <p className="text-foreground font-sans font-semibold text-lg">{t('introRole')}</p>
+                <p className="text-foreground/70 font-sans text-sm mt-2">{t('introGoal')}</p>
               </div>
-              <div className="bg-card border border-border rounded-xl p-5">
-                <p className="text-foreground/80 font-sans text-sm">{t('introGoal')}</p>
+
+              <div className="grid grid-cols-2 gap-3">
+                {[
+                  { icon: Shield, text: t('introMech1'), color: 'hsl(var(--primary))' },
+                  { icon: Zap, text: t('introMech2'), color: 'hsl(var(--destructive))' },
+                  { icon: Eye, text: t('introMech3'), color: 'hsl(var(--highlight))' },
+                  { icon: AlertTriangle, text: t('introMech4'), color: 'hsl(30, 90%, 55%)' },
+                ].map((item, i) => (
+                  <div key={i} className="bg-card/60 border border-border rounded-xl p-4 flex gap-3 items-start">
+                    <div className="p-2 rounded-lg shrink-0" style={{ background: item.color + '15' }}>
+                      <item.icon size={18} style={{ color: item.color }} />
+                    </div>
+                    <p className="text-sm font-sans text-foreground/80 leading-snug">{item.text}</p>
+                  </div>
+                ))}
               </div>
-              <div className="bg-card border border-border rounded-xl p-5 space-y-2">
-                <ul className="space-y-2 text-sm font-sans text-foreground/80">
-                  <li className="flex items-start gap-2"><span className="text-primary font-mono font-bold">1.</span> {t('introMech1')}</li>
-                  <li className="flex items-start gap-2"><span className="text-primary font-mono font-bold">2.</span> {t('introMech2')}</li>
-                  <li className="flex items-start gap-2"><span className="text-primary font-mono font-bold">3.</span> {t('introMech3')}</li>
-                  <li className="flex items-start gap-2"><span className="text-primary font-mono font-bold">4.</span> {t('introMech4')}</li>
-                </ul>
+
+              <div className="bg-destructive/8 border border-destructive/20 rounded-xl p-4 flex items-center gap-3">
+                <Skull size={20} className="text-destructive shrink-0" />
+                <p className="text-sm font-mono text-destructive/90">{t('introGameOver')}</p>
               </div>
-              <div className="bg-card border border-border rounded-xl p-5">
-                <p className="text-foreground/70 font-sans text-sm italic border-l-2 border-primary/30 pl-3">{t('introGui')}</p>
-              </div>
-              <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-3 text-sm font-mono text-destructive">
-                {t('introGameOver')}
-              </div>
-              <Button onClick={() => setPhase('allocate')} className="w-full font-mono" size="lg">
-                <Shield size={16} className="mr-2" /> {t('start')}
+
+              <Button onClick={() => setPhase('allocate')} className="w-full font-mono text-base" size="lg">
+                <Shield size={18} className="mr-2" /> {t('start')}
               </Button>
             </StaggerReveal>
           </div>
-        ) : (
+        )}
+
+        {/* ─── GAME PHASES ─── */}
+        {phase !== 'intro' && (
           <>
-            {/* Persistent header with round + sound */}
+            {/* Header bar */}
             <div className="flex items-center justify-between mb-4">
-              <div>
-                <h1 className="text-xl md:text-2xl font-bold font-mono text-primary">{t('title')}</h1>
-              </div>
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => setSoundEnabled(s => !s)}
-                  className="p-1.5 rounded-md text-muted-foreground hover:text-primary transition-colors"
-                  title={soundEnabled ? 'Mute' : 'Unmute'}
-                >
-                  {soundEnabled ? <Volume2 size={16} /> : <VolumeX size={16} />}
-                </button>
-              </div>
+              <h1 className="text-lg md:text-xl font-bold font-mono text-primary">{t('title')}</h1>
+              <button
+                onClick={() => setSoundEnabled(s => !s)}
+                className="p-1.5 rounded-md text-muted-foreground hover:text-primary transition-colors"
+              >
+                {soundEnabled ? <Volume2 size={16} /> : <VolumeX size={16} />}
+              </button>
             </div>
 
-            {/* Step indicator */}
-            <PhaseSteps
-              currentPhase={phase}
-              round={round}
-              t={t}
-            />
+            {/* Round progress */}
+            <div className="flex items-center gap-3 mb-4">
+              {[1, 2, 3, 4, 5].map(r => (
+                <div key={r} className="flex-1 flex flex-col items-center gap-1">
+                  <div
+                    className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-mono font-bold transition-all duration-500 ${
+                      r < round ? 'bg-primary/20 text-primary border border-primary/40' :
+                      r === round ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/30' :
+                      'bg-secondary text-muted-foreground'
+                    }`}
+                  >
+                    {r < round ? '✓' : r}
+                  </div>
+                  <div className={`h-0.5 w-full rounded ${r <= round ? 'bg-primary' : 'bg-secondary'} transition-all duration-500`} />
+                </div>
+              ))}
+            </div>
 
-            {/* Stats Bar */}
-            <div className="grid grid-cols-3 md:grid-cols-5 gap-2 mb-5">
-              <StatCard label={t('marketValue')} value={state.marketValue} max={100} color="primary" />
-              <StatCard label={t('reputation')} value={state.reputation} max={100} color="highlight" />
-              <StatCard label={t('regRisk')} value={state.regRisk} max={80} color="destructive" invert />
-              <StatCard label={t('detection')} value={state.levels[0]} max={5} color="primary" isLevel />
-              <StatCard label={t('resilience')} value={state.levels[3]} max={5} color="primary" isLevel />
+            {/* Phase steps */}
+            <div className="flex gap-1.5 mb-5">
+              {[
+                { label: t('phase1Label'), active: phase === 'allocate' },
+                { label: t('phase2Label'), active: phase === 'result' || phase === 'gameover' || phase === 'victory' },
+                { label: t('phase3Label'), active: phase === 'result' || phase === 'gameover' || phase === 'victory' },
+              ].map((step, i) => (
+                <div key={i} className={`flex-1 h-1 rounded-full transition-all duration-500 ${step.active ? 'bg-primary' : 'bg-secondary'}`} />
+              ))}
+            </div>
+
+            {/* Dashboard gauges */}
+            <div className="bg-card/60 border border-border rounded-xl p-4 mb-5">
+              <div className="flex items-center justify-around flex-wrap gap-3">
+                <CircularGauge value={state.marketValue} max={100} label={t('marketValue')} color="hsl(var(--primary))" size={72} />
+                <CircularGauge value={state.reputation} max={100} label={t('reputation')} color="hsl(var(--highlight))" size={72} />
+                <CircularGauge value={state.regRisk} max={80} label={t('regRisk')} color="hsl(var(--destructive))" invert size={72} />
+                <div className="flex flex-col items-center gap-1.5">
+                  <div className="flex items-center gap-1.5">
+                    <Eye size={13} className="text-primary" />
+                    <span className="text-[10px] font-mono text-muted-foreground uppercase">{t('detection')}</span>
+                  </div>
+                  <LevelPips level={state.levels[0]} color="hsl(var(--primary))" />
+                </div>
+                <div className="flex flex-col items-center gap-1.5">
+                  <div className="flex items-center gap-1.5">
+                    <Castle size={13} className="text-primary" />
+                    <span className="text-[10px] font-mono text-muted-foreground uppercase">{t('resilience')}</span>
+                  </div>
+                  <LevelPips level={state.levels[3]} color="hsl(var(--primary))" />
+                </div>
+              </div>
             </div>
           </>
         )}
 
-        {/* Phase: Allocate */}
+        {/* ─── ALLOCATE PHASE ─── */}
         {phase === 'allocate' && (
-          <StaggerReveal key={`alloc-${round}`} stagger={120} startDelay={200}>
-            {/* Round warning for round 3+ */}
+          <StaggerReveal key={`alloc-${round}`} stagger={80} startDelay={150}>
             {round >= 3 && (
-              <div className="bg-warning/10 border border-warning/30 rounded-lg p-3 text-sm font-mono text-warning">
-                {t('roundWarning3')}
+              <div className="bg-warning/10 border border-warning/30 rounded-xl p-3 text-sm font-mono text-warning flex items-center gap-2">
+                <AlertTriangle size={16} /> {t('roundWarning3')}
               </div>
             )}
 
-            {/* Instruction banner */}
-            <div className="bg-card border border-primary/20 rounded-xl p-4">
-              <p className="text-sm font-sans font-semibold text-foreground">{t('allocateInstruction')}</p>
-              <p className="text-xs font-sans text-muted-foreground mt-1">{t('allocateHint')}</p>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <p className="text-sm font-mono text-foreground">{t('budget')}: <span className="font-bold">100</span></p>
-              <p className={`text-sm font-mono font-bold ${overBudget ? 'text-destructive' : totalAllocated === 100 ? 'text-success' : 'text-warning'}`}>
-                {100 - totalAllocated} {t('remaining')} {overBudget && `— ${t('overBudget')}`}
-              </p>
-            </div>
-
-            {CATEGORIES.map((cat, i) => (
-              <div key={cat} className="bg-card rounded-lg border border-primary/30 p-3">
-                <div className="flex items-center justify-between mb-2">
-                  <label className="text-sm font-mono text-foreground">{t(cat)}</label>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-mono font-bold text-primary w-8 text-right">{allocation[i]}</span>
-                    {i < 5 && (
-                      <span className={`text-xs font-mono px-1.5 py-0.5 rounded ${pointsToLevelGain(allocation[i]) > 0 ? 'bg-success/10 text-success' : 'bg-muted text-muted-foreground'}`}>
-                        {pointsToLevelGain(allocation[i]) > 0 ? `+${pointsToLevelGain(allocation[i])}` : t('levelNone')}
-                      </span>
-                    )}
-                  </div>
-                </div>
-                <input
-                  type="range"
-                  min={0}
-                  max={100}
-                  step={5}
-                  value={allocation[i]}
-                  onChange={e => setCategory(i, Number(e.target.value))}
-                  className="ciso-slider w-full h-2 rounded-lg appearance-none bg-secondary cursor-pointer"
-                />
-                {i < 5 && (
-                  <div className="flex justify-between text-[10px] font-mono text-muted-foreground mt-1">
-                    <span>Lv {state.levels[i]}</span>
-                    <span>→ Lv {clamp(state.levels[i] + pointsToLevelGain(allocation[i]), 0, 5)}</span>
-                  </div>
-                )}
+            {/* Budget overview bar */}
+            <div className="bg-card/60 border border-border rounded-xl p-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-mono text-foreground font-semibold">{t('budget')}: 100</span>
+                <span className={`text-sm font-mono font-bold ${
+                  overBudget ? 'text-destructive' : totalAllocated === 100 ? 'text-green-500' : 'text-primary'
+                }`}>
+                  {totalAllocated} {t('allocated')} {overBudget && `· ${t('overBudget')}`}
+                </span>
               </div>
-            ))}
+              <BudgetBar allocation={allocation} />
+              <div className="flex gap-2 mt-2 flex-wrap">
+                {CATEGORIES.map((cat, i) => allocation[i] > 0 ? (
+                  <span key={i} className="text-[9px] font-mono flex items-center gap-1" style={{ color: CAT_COLORS[i] }}>
+                    <span className="w-2 h-2 rounded-sm" style={{ background: CAT_COLORS[i] }} />
+                    {allocation[i]}
+                  </span>
+                ) : null)}
+              </div>
+            </div>
 
-            <Button
-              onClick={submitBudget}
-              disabled={overBudget}
-              className="w-full font-mono"
-              size="lg"
-            >
-              <Shield size={16} className="mr-2" /> {t('submit')} <ChevronRight size={16} className="ml-2" />
+            {/* Category cards – 2-column grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {CATEGORIES.map((cat, i) => {
+                const Icon = CAT_ICONS[i];
+                const gain = i < 5 ? pointsToLevelGain(allocation[i]) : 0;
+                const newLevel = i < 5 ? clamp(state.levels[i] + gain, 0, 5) : 0;
+                return (
+                  <div key={cat} className="bg-card border border-border rounded-xl p-4 transition-all hover:border-primary/30">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: CAT_COLORS[i] + '18' }}>
+                        <Icon size={18} style={{ color: CAT_COLORS[i] }} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-mono font-semibold text-foreground truncate">{t(cat)}</p>
+                        {i < 5 && (
+                          <div className="flex items-center gap-2 mt-0.5">
+                            <LevelPips level={state.levels[i]} color={CAT_COLORS[i]} />
+                            {gain > 0 && (
+                              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-full bg-green-500/15 text-green-500 font-bold">
+                                → Lv {newLevel}
+                              </span>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                      <span className="text-lg font-mono font-bold min-w-[2.5rem] text-right" style={{ color: CAT_COLORS[i] }}>
+                        {allocation[i]}
+                      </span>
+                    </div>
+                    <input
+                      type="range" min={0} max={100} step={5}
+                      value={allocation[i]}
+                      onChange={e => setCategory(i, Number(e.target.value))}
+                      className="ciso-slider w-full"
+                      style={{ '--slider-color': CAT_COLORS[i] } as React.CSSProperties}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+
+            <Button onClick={submitBudget} disabled={overBudget} className="w-full font-mono text-base" size="lg">
+              <Shield size={18} className="mr-2" /> {t('submit')} <ChevronRight size={16} className="ml-2" />
             </Button>
           </StaggerReveal>
         )}
 
-        {/* Phase: Result */}
+        {/* ─── RESULT PHASE ─── */}
         {phase === 'result' && latestResult && (
-          <StaggerReveal key={`result-${round}`} stagger={500} startDelay={300}>
-            {/* Headline: what happened */}
-            <div className={`rounded-xl p-4 border ${latestResult.wasDetected ? 'bg-success/5 border-success/30' : 'bg-destructive/5 border-destructive/30'}`}>
-              <div className="flex items-center gap-2 mb-2">
-                <AlertTriangle size={18} className={latestResult.wasDetected ? 'text-warning' : 'text-destructive'} />
-                <h3 className="font-mono font-bold text-foreground">{t(latestResult.attackKey)}</h3>
-              </div>
-              <p className="text-sm font-sans text-foreground/80">
-                {latestResult.wasDetected ? t('resultDetectedMsg') : t('resultUndetectedMsg')}
-              </p>
-            </div>
-
-            {/* Key metrics */}
-            <div className="bg-card border border-border rounded-xl p-4 md:p-5">
-              <div className="grid grid-cols-3 gap-3 text-sm font-mono">
-                <div className="text-center">
-                  <p className="text-muted-foreground text-xs mb-1">{t('detectionProb')}</p>
-                  <p className="text-foreground font-bold text-lg">{latestResult.detectionPct}%</p>
-                  <p className="text-muted-foreground text-[10px] mt-1 font-sans leading-tight">{t('detectionProbHint')}</p>
+          <StaggerReveal key={`result-${round}`} stagger={400} startDelay={200}>
+            {/* Attack banner */}
+            <div className={`rounded-xl p-5 border-2 ${
+              latestResult.wasDetected
+                ? 'bg-green-500/5 border-green-500/30'
+                : 'bg-destructive/5 border-destructive/30'
+            }`}>
+              <div className="flex items-center gap-3 mb-3">
+                <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                  latestResult.wasDetected ? 'bg-green-500/15' : 'bg-destructive/15'
+                }`}>
+                  {latestResult.wasDetected
+                    ? <ShieldCheck size={24} className="text-green-500" />
+                    : <ShieldAlert size={24} className="text-destructive" />
+                  }
                 </div>
-                <div className="text-center">
-                  <p className="text-muted-foreground text-xs mb-1">{t('detected')}</p>
-                  <p className={`font-bold text-lg ${latestResult.wasDetected ? 'text-success' : 'text-destructive'}`}>
-                    {latestResult.wasDetected ? '✓ ' + t('yes') : '✗ ' + t('no')}
+                <div>
+                  <h3 className="font-mono font-bold text-foreground text-lg">{t(latestResult.attackKey)}</h3>
+                  <p className="text-sm font-sans text-foreground/70">
+                    {latestResult.wasDetected ? t('resultDetectedMsg') : t('resultUndetectedMsg')}
                   </p>
                 </div>
-                <div className="text-center">
-                  <p className="text-muted-foreground text-xs mb-1">{t('damage')}</p>
-                  <p className="text-destructive font-bold text-lg">-{latestResult.finalDamage}</p>
-                  <p className="text-muted-foreground text-[10px] mt-1 font-sans leading-tight">{t('damageHint')}</p>
-                </div>
+              </div>
+            </div>
+
+            {/* Key metrics row */}
+            <div className="grid grid-cols-3 gap-3">
+              <div className="bg-card border border-border rounded-xl p-4 text-center">
+                <Activity size={18} className="mx-auto text-primary mb-2" />
+                <p className="text-2xl font-mono font-bold text-primary">{latestResult.detectionPct}%</p>
+                <p className="text-[10px] font-mono text-muted-foreground uppercase mt-1">{t('detectionProb')}</p>
+              </div>
+              <div className="bg-card border border-border rounded-xl p-4 text-center">
+                {latestResult.wasDetected
+                  ? <ShieldCheck size={18} className="mx-auto text-green-500 mb-2" />
+                  : <ShieldAlert size={18} className="mx-auto text-destructive mb-2" />
+                }
+                <p className={`text-2xl font-mono font-bold ${latestResult.wasDetected ? 'text-green-500' : 'text-destructive'}`}>
+                  {latestResult.wasDetected ? '✓' : '✗'}
+                </p>
+                <p className="text-[10px] font-mono text-muted-foreground uppercase mt-1">{t('detected')}</p>
+              </div>
+              <div className="bg-card border border-border rounded-xl p-4 text-center">
+                <TrendingDown size={18} className="mx-auto text-destructive mb-2" />
+                <p className="text-2xl font-mono font-bold text-destructive">-{latestResult.finalDamage}</p>
+                <p className="text-[10px] font-mono text-muted-foreground uppercase mt-1">{t('damage')}</p>
               </div>
             </div>
 
             {(latestResult.regPenalty || latestResult.regPenaltyHigh) && (
-              <div className={`rounded-lg p-3 text-sm font-mono ${latestResult.regPenaltyHigh ? 'bg-destructive/15 text-destructive border border-destructive/30' : 'bg-warning/15 text-warning border border-warning/30'}`}>
-                {latestResult.regPenaltyHigh ? t('regPenaltyHigh') : t('regPenalty')}
+              <div className={`rounded-xl p-4 border-2 flex items-center gap-3 ${
+                latestResult.regPenaltyHigh
+                  ? 'bg-destructive/10 border-destructive/40 text-destructive'
+                  : 'bg-warning/10 border-warning/40 text-warning'
+              }`}>
+                <AlertTriangle size={20} />
+                <span className="text-sm font-mono font-bold">
+                  {latestResult.regPenaltyHigh ? t('regPenaltyHigh') : t('regPenalty')}
+                </span>
               </div>
             )}
 
-            {/* Impact on stats */}
-            <div className="bg-card border border-border rounded-xl p-4 md:p-5">
-              <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-1">{t('impactLabel')}</p>
-              <p className="text-muted-foreground text-[10px] font-sans mb-3">{t('impactHint')}</p>
-              <div className="grid grid-cols-3 gap-2 text-center text-sm font-mono">
-                <div>
-                  <p className="text-muted-foreground text-[10px]">{t('marketValue')}</p>
-                  <p className="text-foreground">
-                    <span className="text-muted-foreground">{latestResult.statsBefore.marketValue}</span>
-                    <span className="mx-1">→</span>
-                    <span className={latestResult.statsAfter.marketValue < latestResult.statsBefore.marketValue ? 'text-destructive font-bold' : 'text-success font-bold'}>{latestResult.statsAfter.marketValue}</span>
-                  </p>
-                  <p className="text-muted-foreground text-[9px] font-sans mt-0.5 leading-tight">{t('marketValueHint')}</p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground text-[10px]">{t('reputation')}</p>
-                  <p className="text-foreground">
-                    <span className="text-muted-foreground">{latestResult.statsBefore.reputation}</span>
-                    <span className="mx-1">→</span>
-                    <span className={latestResult.statsAfter.reputation < latestResult.statsBefore.reputation ? 'text-destructive font-bold' : 'text-success font-bold'}>{latestResult.statsAfter.reputation}</span>
-                  </p>
-                  <p className="text-muted-foreground text-[9px] font-sans mt-0.5 leading-tight">{t('reputationHint')}</p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground text-[10px]">{t('regRisk')}</p>
-                  <p className="text-foreground">
-                    <span className="text-muted-foreground">{latestResult.statsBefore.regRisk}</span>
-                    <span className="mx-1">→</span>
-                    <span className={latestResult.statsAfter.regRisk > latestResult.statsBefore.regRisk ? 'text-destructive font-bold' : 'text-success font-bold'}>{latestResult.statsAfter.regRisk}</span>
-                  </p>
-                  <p className="text-muted-foreground text-[9px] font-sans mt-0.5 leading-tight">{t('regRiskHint')}</p>
-                </div>
+            {/* Impact comparison */}
+            <div className="bg-card border border-border rounded-xl p-5">
+              <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-4">{t('impactLabel')}</p>
+              <div className="space-y-3">
+                {[
+                  { label: t('marketValue'), before: latestResult.statsBefore.marketValue, after: latestResult.statsAfter.marketValue, color: 'hsl(var(--primary))', max: 100 },
+                  { label: t('reputation'), before: latestResult.statsBefore.reputation, after: latestResult.statsAfter.reputation, color: 'hsl(var(--highlight))', max: 100 },
+                  { label: t('regRisk'), before: latestResult.statsBefore.regRisk, after: latestResult.statsAfter.regRisk, color: 'hsl(var(--destructive))', max: 80, invert: true },
+                ].map((metric, i) => {
+                  const diff = metric.after - metric.before;
+                  const isWorse = metric.invert ? diff > 0 : diff < 0;
+                  return (
+                    <div key={i} className="flex items-center gap-3">
+                      <span className="text-xs font-mono text-muted-foreground w-20 shrink-0">{metric.label}</span>
+                      <div className="flex-1 h-2.5 rounded-full bg-secondary overflow-hidden">
+                        <div
+                          className="h-full rounded-full transition-all duration-700"
+                          style={{
+                            width: `${clamp((metric.after / metric.max) * 100, 0, 100)}%`,
+                            background: isWorse ? 'hsl(var(--destructive))' : metric.color,
+                          }}
+                        />
+                      </div>
+                      <div className="flex items-center gap-1.5 w-24 justify-end">
+                        <span className="text-xs font-mono text-muted-foreground">{metric.before}</span>
+                        <span className="text-xs text-muted-foreground">→</span>
+                        <span className={`text-xs font-mono font-bold ${isWorse ? 'text-destructive' : 'text-green-500'}`}>
+                          {metric.after}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
             {/* Analysis */}
-            <div className="bg-card border border-border rounded-xl p-4 md:p-5">
-              <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-2">{t('analysis')}</p>
-              {latestResult.analysis.map((line, i) => (
-                <p key={i} className="text-sm font-sans text-foreground leading-relaxed">• {line}</p>
-              ))}
+            <div className="bg-card/60 border border-border rounded-xl p-5">
+              <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-3">{t('analysis')}</p>
+              <div className="space-y-2">
+                {latestResult.analysis.map((line, i) => (
+                  <p key={i} className="text-sm font-sans text-foreground/80 leading-relaxed flex items-start gap-2">
+                    <span className="text-primary mt-0.5">›</span> {line}
+                  </p>
+                ))}
+              </div>
             </div>
 
             {/* CTA */}
-            <div className="bg-card border border-primary/20 rounded-xl p-4 text-center">
-              <p className="text-xs font-sans text-muted-foreground mb-3">{t('resultNextHint')}</p>
-              <Button onClick={nextRound} className="w-full font-mono" size="lg">
-                {t('nextRound')} {round + 1} <ChevronRight size={16} className="ml-2" />
-              </Button>
-            </div>
+            <Button onClick={nextRound} className="w-full font-mono text-base" size="lg">
+              {t('nextRound')} {round + 1} <ChevronRight size={16} className="ml-2" />
+            </Button>
           </StaggerReveal>
         )}
 
-        {/* Phase: Game Over */}
+        {/* ─── GAME OVER ─── */}
         {phase === 'gameover' && latestResult && (
-          <StaggerReveal key="gameover" stagger={600} startDelay={400}>
-            {/* What happened */}
-            <div className="bg-destructive/5 border border-destructive/30 rounded-xl p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <AlertTriangle size={18} className="text-destructive" />
-                <h3 className="font-mono font-bold text-foreground">{t(latestResult.attackKey)}</h3>
+          <StaggerReveal key="gameover" stagger={500} startDelay={300}>
+            <div className="bg-destructive/5 border-2 border-destructive/30 rounded-xl p-5">
+              <div className="flex items-center gap-3 mb-2">
+                <ShieldAlert size={22} className="text-destructive" />
+                <h3 className="font-mono font-bold text-foreground text-lg">{t(latestResult.attackKey)}</h3>
               </div>
-              <p className="text-sm font-sans text-foreground/80">
+              <p className="text-sm font-sans text-foreground/70">
                 {latestResult.wasDetected ? t('resultDetectedMsg') : t('resultUndetectedMsg')}
               </p>
             </div>
 
-            {/* Final stats */}
-            <div className="bg-card border border-border rounded-xl p-4 md:p-5">
-              <div className="grid grid-cols-3 gap-2 text-center text-sm font-mono">
-                <div>
-                  <p className="text-muted-foreground text-[10px]">{t('marketValue')}</p>
-                  <p><span className="text-muted-foreground">{latestResult.statsBefore.marketValue}</span> <span className="mx-1">→</span> <span className="text-destructive font-bold">{latestResult.statsAfter.marketValue}</span></p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground text-[10px]">{t('reputation')}</p>
-                  <p><span className="text-muted-foreground">{latestResult.statsBefore.reputation}</span> <span className="mx-1">→</span> <span className="text-destructive font-bold">{latestResult.statsAfter.reputation}</span></p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground text-[10px]">{t('regRisk')}</p>
-                  <p><span className="text-muted-foreground">{latestResult.statsBefore.regRisk}</span> <span className="mx-1">→</span> <span className="text-destructive font-bold">{latestResult.statsAfter.regRisk}</span></p>
-                </div>
-              </div>
-            </div>
-
-            {/* Game Over banner */}
-            <div className="bg-destructive/10 border border-destructive/30 rounded-xl p-6 text-center">
-              <Skull size={40} className="mx-auto text-destructive mb-3" />
-              <h2 className="text-xl font-bold font-mono text-destructive">{t('gameOver')}</h2>
-              <p className="text-sm text-foreground/70 mt-2 font-sans">{t('gameOverExplain')}</p>
-              <p className="text-xs text-muted-foreground mt-2 font-mono">
-                {state.marketValue <= 0 && `${t('marketValue')} = 0  `}
-                {state.reputation <= 0 && `${t('reputation')} = 0  `}
-                {state.regRisk >= 80 && `${t('regRisk')} ≥ 80`}
-              </p>
-            </div>
-
-            {/* TOP 5 LEADERBOARD */}
-            {(() => {
-              const board = getCisoBoard();
-              if (board.length === 0) return null;
-              return (
-                <div className="bg-card/60 border border-primary/20 rounded-xl p-4">
-                  <h3 className="text-center font-mono font-bold text-xs text-primary/80 tracking-[0.2em] mb-3">─── TOP 5 ───</h3>
-                  <div className="space-y-1.5">
-                    {board.map((e, i) => {
-                      const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '  ';
-                      return (
-                        <div key={i} className={`flex items-center justify-between text-xs font-mono px-2 py-1 rounded ${i === 0 ? 'text-foreground/80' : 'text-muted-foreground'}`}>
-                          <span>{medal} R{e.rounds}</span>
-                          <span className={e.won ? 'text-success' : 'text-destructive'}>{e.won ? '✓' : '✗'}</span>
-                          <span>MV:{e.mv} Rep:{e.rep}</span>
-                          <span className="text-[10px]">{e.date}</span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              );
-            })()}
-
-            <Button onClick={restart} variant="outline" className="w-full font-mono" size="lg">
-              <RotateCcw size={16} className="mr-2" /> {t('restart')}
-            </Button>
-          </StaggerReveal>
-        )}
-
-        {/* Phase: Victory */}
-        {phase === 'victory' && latestResult && (
-          <StaggerReveal key="victory" stagger={600} startDelay={400}>
-            <div className="bg-success/5 border border-success/30 rounded-xl p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <Shield size={18} className="text-success" />
-                <h3 className="font-mono font-bold text-foreground">{t(latestResult.attackKey)} — {t('round')} 5</h3>
-              </div>
-              <p className="text-sm font-sans text-foreground/80">{t('victoryExplain')}</p>
-            </div>
-
-            <div className="bg-success/10 border border-success/30 rounded-xl p-6 text-center">
-              <Trophy size={40} className="mx-auto text-success mb-3" />
-              <h2 className="text-xl font-bold font-mono text-success">{t('victory')}</h2>
-              <p className="text-sm text-foreground/70 mt-2 font-sans">{t('victoryDesc')}</p>
+            <div className="bg-card border border-destructive/20 rounded-xl p-6 text-center">
+              <Skull size={48} className="mx-auto text-destructive mb-4" />
+              <h2 className="text-2xl font-bold font-mono text-destructive">{t('gameOver')}</h2>
+              <p className="text-sm text-foreground/60 mt-2 font-sans">{t('gameOverExplain')}</p>
               <div className="flex gap-4 justify-center mt-4">
-                <div className="text-center">
-                  <p className="text-lg font-bold font-mono text-primary">{state.marketValue}</p>
-                  <p className="text-xs text-muted-foreground">{t('marketValue')}</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-lg font-bold font-mono text-highlight">{state.reputation}</p>
-                  <p className="text-xs text-muted-foreground">{t('reputation')}</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-lg font-bold font-mono text-destructive">{state.regRisk}</p>
-                  <p className="text-xs text-muted-foreground">{t('regRisk')}</p>
-                </div>
+                {[
+                  { label: t('marketValue'), val: state.marketValue, bad: state.marketValue <= 0 },
+                  { label: t('reputation'), val: state.reputation, bad: state.reputation <= 0 },
+                  { label: t('regRisk'), val: state.regRisk, bad: state.regRisk >= 80 },
+                ].map((s, i) => (
+                  <div key={i} className="text-center">
+                    <p className={`text-xl font-bold font-mono ${s.bad ? 'text-destructive' : 'text-foreground/60'}`}>{s.val}</p>
+                    <p className="text-[10px] text-muted-foreground font-mono uppercase">{s.label}</p>
+                  </div>
+                ))}
               </div>
             </div>
 
-            <Button onClick={restart} variant="outline" className="w-full font-mono" size="lg">
+            <Leaderboard />
+
+            <Button onClick={restart} variant="outline" className="w-full font-mono text-base" size="lg">
               <RotateCcw size={16} className="mr-2" /> {t('restart')}
             </Button>
           </StaggerReveal>
         )}
 
-        {/* Phase: Victory */}
-        {phase === 'victory' && latestResult && (
-          <StaggerReveal key="victory" stagger={500} startDelay={400}>
-            <div className="bg-card border border-border rounded-xl p-4 md:p-5">
-              <div className="flex items-center gap-2">
-                <AlertTriangle size={18} className={latestResult.wasDetected ? 'text-warning' : 'text-destructive'} />
-                <h3 className="font-mono font-bold text-foreground">{t('round')} {latestResult.round} — {t(latestResult.attackKey)}</h3>
-              </div>
-            </div>
-
-            <div className="bg-success/10 border border-success/30 rounded-xl p-6 text-center">
-              <Trophy size={40} className="mx-auto text-success mb-3" />
-              <h2 className="text-xl font-bold font-mono text-success">{t('victory')}</h2>
-              <p className="text-sm text-muted-foreground mt-2 font-sans">{t('victoryDesc')}</p>
-              <div className="flex gap-4 justify-center mt-3">
-                <div className="text-center">
-                  <p className="text-lg font-bold font-mono text-primary">{state.marketValue}</p>
-                  <p className="text-xs text-muted-foreground">{t('marketValue')}</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-lg font-bold font-mono text-highlight">{state.reputation}</p>
-                  <p className="text-xs text-muted-foreground">{t('reputation')}</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-lg font-bold font-mono text-destructive">{state.regRisk}</p>
-                  <p className="text-xs text-muted-foreground">{t('regRisk')}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* TOP 5 LEADERBOARD */}
-            {(() => {
-              const board = getCisoBoard();
-              if (board.length === 0) return null;
-              return (
-                <div className="bg-card/60 border border-primary/20 rounded-xl p-4">
-                  <h3 className="text-center font-mono font-bold text-xs text-primary/80 tracking-[0.2em] mb-3">─── TOP 5 ───</h3>
-                  <div className="space-y-1.5">
-                    {board.map((e, i) => {
-                      const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '  ';
-                      return (
-                        <div key={i} className={`flex items-center justify-between text-xs font-mono px-2 py-1 rounded ${i === 0 ? 'text-foreground/80' : 'text-muted-foreground'}`}>
-                          <span>{medal} R{e.rounds}</span>
-                          <span className={e.won ? 'text-success' : 'text-destructive'}>{e.won ? '✓' : '✗'}</span>
-                          <span>MV:{e.mv} Rep:{e.rep}</span>
-                          <span className="text-[10px]">{e.date}</span>
-                        </div>
-                      );
-                    })}
+        {/* ─── VICTORY ─── */}
+        {phase === 'victory' && (
+          <StaggerReveal key="victory" stagger={500} startDelay={300}>
+            <div className="bg-green-500/5 border-2 border-green-500/30 rounded-xl p-6 text-center">
+              <Trophy size={48} className="mx-auto text-green-500 mb-4" />
+              <h2 className="text-2xl font-bold font-mono text-green-500">{t('victory')}</h2>
+              <p className="text-sm text-foreground/60 mt-2 font-sans">{t('victoryDesc')}</p>
+              <div className="flex gap-6 justify-center mt-5">
+                {[
+                  { label: t('marketValue'), val: state.marketValue, color: 'hsl(var(--primary))' },
+                  { label: t('reputation'), val: state.reputation, color: 'hsl(var(--highlight))' },
+                  { label: t('regRisk'), val: state.regRisk, color: 'hsl(var(--destructive))' },
+                ].map((s, i) => (
+                  <div key={i} className="text-center">
+                    <p className="text-2xl font-bold font-mono" style={{ color: s.color }}>{s.val}</p>
+                    <p className="text-[10px] text-muted-foreground font-mono uppercase">{s.label}</p>
                   </div>
-                </div>
-              );
-            })()}
+                ))}
+              </div>
+            </div>
 
-            <Button onClick={restart} variant="outline" className="w-full font-mono" size="lg">
+            <Leaderboard />
+
+            <Button onClick={restart} variant="outline" className="w-full font-mono text-base" size="lg">
               <RotateCcw size={16} className="mr-2" /> {t('restart')}
             </Button>
           </StaggerReveal>
@@ -909,62 +936,66 @@ const CisoSimulator = ({ embedded = false }: { embedded?: boolean }) => {
 
         {/* History */}
         {results.length > 1 && phase !== 'gameover' && phase !== 'victory' && (
-          <div className="mt-6 space-y-2">
+          <div className="mt-6 space-y-1.5">
             {results.slice(0, -1).reverse().map(r => (
-              <div key={r.round} className="bg-card/50 border border-border/50 rounded-lg p-3 text-xs font-mono">
-                <span className="text-muted-foreground">R{r.round}</span>
-                <span className="mx-2 text-foreground">{t(r.attackKey)}</span>
-                <span className={r.wasDetected ? 'text-success' : 'text-destructive'}>
-                  {r.wasDetected ? '✓' : '✗'} 
+              <div key={r.round} className="bg-card/40 border border-border/40 rounded-lg px-4 py-2.5 flex items-center gap-3 text-xs font-mono">
+                <span className="w-6 h-6 rounded-full bg-secondary flex items-center justify-center text-[10px] font-bold text-muted-foreground">
+                  {r.round}
                 </span>
-                <span className="ml-2 text-destructive">-{r.finalDamage}</span>
+                <span className="text-foreground flex-1">{t(r.attackKey)}</span>
+                <span className={r.wasDetected ? 'text-green-500' : 'text-destructive'}>
+                  {r.wasDetected ? '✓' : '✗'}
+                </span>
+                <span className="text-destructive">-{r.finalDamage}</span>
               </div>
             ))}
           </div>
         )}
       </div>
 
-      {/* Slider styling */}
+      {/* Slider CSS */}
       <style>{`
         .ciso-slider {
           -webkit-appearance: none;
           appearance: none;
-          height: 8px;
-          border-radius: 4px;
+          height: 6px;
+          border-radius: 3px;
           background: hsl(var(--secondary));
           outline: none;
+          cursor: pointer;
         }
         .ciso-slider::-webkit-slider-thumb {
           -webkit-appearance: none;
           appearance: none;
-          width: 20px;
-          height: 20px;
+          width: 18px;
+          height: 18px;
           border-radius: 50%;
-          background: hsl(var(--primary));
-          border: 3px solid hsl(var(--primary));
-          box-shadow: 0 0 8px hsl(var(--primary) / 0.5);
+          background: var(--slider-color, hsl(var(--primary)));
+          border: 2px solid hsl(var(--background));
+          box-shadow: 0 0 0 2px var(--slider-color, hsl(var(--primary))), 0 2px 6px rgba(0,0,0,0.2);
           cursor: pointer;
-          transition: box-shadow 0.2s;
+          transition: transform 0.15s ease, box-shadow 0.15s ease;
         }
         .ciso-slider::-webkit-slider-thumb:hover {
-          box-shadow: 0 0 14px hsl(var(--primary) / 0.8);
+          transform: scale(1.15);
+          box-shadow: 0 0 0 3px var(--slider-color, hsl(var(--primary))), 0 0 12px var(--slider-color, hsl(var(--primary)));
         }
         .ciso-slider::-moz-range-thumb {
-          width: 20px;
-          height: 20px;
+          width: 18px;
+          height: 18px;
           border-radius: 50%;
-          background: hsl(var(--primary));
-          border: 3px solid hsl(var(--primary));
-          box-shadow: 0 0 8px hsl(var(--primary) / 0.5);
+          background: var(--slider-color, hsl(var(--primary)));
+          border: 2px solid hsl(var(--background));
+          box-shadow: 0 0 0 2px var(--slider-color, hsl(var(--primary)));
           cursor: pointer;
         }
         .ciso-slider::-webkit-slider-runnable-track {
-          height: 8px;
-          border-radius: 4px;
+          height: 6px;
+          border-radius: 3px;
         }
         .ciso-slider::-moz-range-track {
-          height: 8px;
-          border-radius: 4px;
+          height: 6px;
+          border-radius: 3px;
           background: hsl(var(--secondary));
         }
       `}</style>
@@ -972,84 +1003,31 @@ const CisoSimulator = ({ embedded = false }: { embedded?: boolean }) => {
   );
 };
 
-// ── Sub-Components ──────────────────────────────────────────────────────────
+// ── Leaderboard Sub-Component ───────────────────────────────────────────────
 
-const PhaseSteps = ({ currentPhase, round, t }: {
-  currentPhase: string; round: number; t: (k: string) => string;
-}) => {
-  const steps = [
-    { key: 'allocate', label: t('phase1Label'), num: 1 },
-    { key: 'attack', label: t('phase2Label'), num: 2 },
-    { key: 'result', label: t('phase3Label'), num: 3 },
-  ];
-  const activeIdx = currentPhase === 'allocate' ? 0 : 1; // result/gameover/victory = step 2-3
-
+function Leaderboard() {
+  const board = getCisoBoard();
+  if (board.length === 0) return null;
   return (
-    <div className="mb-5">
-      {/* Round badge */}
-      <div className="flex items-center justify-between mb-3">
-        <span className="text-sm font-mono text-highlight font-bold">{t('round')} {round} {t('of')} 5</span>
-        <div className="h-1.5 flex-1 mx-4 rounded bg-secondary overflow-hidden">
-          <div
-            className="h-full rounded bg-primary transition-all duration-500"
-            style={{ width: `${(round / 5) * 100}%` }}
-          />
-        </div>
-      </div>
-      {/* Step pills */}
-      <div className="flex gap-2">
-        {steps.map((step, i) => {
-          const isActive = (currentPhase === 'allocate' && i === 0) ||
-            ((currentPhase === 'result' || currentPhase === 'gameover' || currentPhase === 'victory') && i >= 1);
-          const isCurrent = (currentPhase === 'allocate' && i === 0) ||
-            ((currentPhase === 'result' || currentPhase === 'gameover' || currentPhase === 'victory') && i === 2);
+    <div className="bg-card/60 border border-primary/15 rounded-xl p-4">
+      <h3 className="text-center font-mono font-bold text-xs text-primary/70 tracking-[0.2em] mb-3">─── TOP 5 ───</h3>
+      <div className="space-y-1">
+        {board.map((e, i) => {
+          const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '  ';
           return (
-            <div
-              key={step.key}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-mono transition-all ${
-                isCurrent
-                  ? 'bg-primary/20 text-primary border border-primary/40'
-                  : isActive
-                    ? 'bg-primary/10 text-primary/60'
-                    : 'bg-muted text-muted-foreground'
-              }`}
-            >
-              <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold ${
-                isCurrent ? 'bg-primary text-primary-foreground' : isActive ? 'bg-primary/30 text-primary' : 'bg-muted-foreground/20'
-              }`}>
-                {step.num}
-              </span>
-              {step.label}
+            <div key={i} className={`flex items-center justify-between text-xs font-mono px-3 py-1.5 rounded-lg ${
+              i === 0 ? 'bg-primary/5 text-foreground' : 'text-muted-foreground'
+            }`}>
+              <span className="w-16">{medal} R{e.rounds}</span>
+              <span className={`w-6 text-center ${e.won ? 'text-green-500' : 'text-destructive'}`}>{e.won ? '✓' : '✗'}</span>
+              <span className="flex-1 text-right">MV:{e.mv} Rep:{e.rep}</span>
+              <span className="text-[10px] ml-3 text-muted-foreground/60">{e.date}</span>
             </div>
           );
         })}
       </div>
     </div>
   );
-};
-
-const StatCard = ({ label, value, max, color, invert, isLevel }: {
-  label: string; value: number; max: number; color: string; invert?: boolean; isLevel?: boolean;
-}) => {
-  const pct = isLevel ? (value / max) * 100 : (value / max) * 100;
-  const danger = invert ? pct > 70 : pct < 30;
-  const colorClass = danger ? 'text-destructive' : `text-${color}`;
-
-  return (
-    <div className="bg-card border border-border rounded-lg p-2 text-center">
-      <p className={`text-lg font-bold font-mono ${colorClass}`}>
-        {isLevel ? `${value}/5` : value}
-      </p>
-      <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider truncate">{label}</p>
-      <div className="h-1 mt-1 rounded bg-secondary overflow-hidden">
-        <div
-          className={`h-full rounded transition-all duration-500 ${danger ? 'bg-destructive' : `bg-${color}`}`}
-          style={{ width: `${clamp(pct, 0, 100)}%` }}
-        />
-      </div>
-    </div>
-  );
-};
-
+}
 
 export default CisoSimulator;
