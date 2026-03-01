@@ -511,53 +511,46 @@ const useServiceContent = () => {
           <img src="/lovable-uploads/48ad82c3-84e8-4161-93d5-d79b509f7cc4.png" alt="Conference" className="rounded-xl w-full h-40 md:h-48 object-cover border border-border" />
         </div>
         <TypedSection title={t('events.title')} mode="typewriter" intro={<p>{t('events.intro')}</p>}>
-        
-        <CardBlock icon={Mic} title={t('events.moderationTitle')} desc={t('events.moderationDesc')} />
-        <CardBlock icon={Users} title={t('events.workshopsTitle')} desc={t('events.workshopsDesc')} />
-        <CardBlock icon={Award} title={t('events.referencesTitle')} desc={`${t('events.referencesIntro')}\n\n${t('events.referencesDesc')}`} />
-        <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
-          <SubTitle variant="highlight">{t('events.eventTypesTitle')}</SubTitle>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
-            <GridItem icon={Presentation} title={t('events.conferences')} desc={t('events.conferencesDesc')} variant="highlight" />
-            <GridItem icon={Wrench} title={t('events.workshops')} desc={t('events.workshopsDescShort')} variant="highlight" />
-            <GridItem icon={GraduationCap} title={t('events.seminars')} desc={t('events.seminarsDesc')} variant="highlight" />
-            <GridItem icon={ShieldCheck} title={t('events.isacaTitle')} desc={t('events.isacaDesc')} variant="highlight" href="https://www.isaca.de/seminare/seminare/seminare-f%C3%BCr-manager1/cyber-security-expert-20-04-2026.html" />
+
+        <Block className="bg-primary/5 border border-primary/20 rounded-xl">
+          <div className="grid grid-cols-1 gap-3">
+            <GridItem icon={Mic} title={t('events.moderationTitle')} desc={t('events.moderationDesc')} />
+            <GridItem icon={Users} title={t('events.workshopsTitle')} desc={t('events.workshopsDesc')} />
           </div>
         </Block>
 
-        <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
-          <div className="text-center mb-4">
-            <SubTitle variant="highlight">{t('events.evalTitle')}</SubTitle>
-            <p className="text-foreground text-lg font-semibold font-sans mt-1">{t('events.evalCourse')}</p>
-            <p className="text-foreground text-sm font-mono mt-0.5">{t('events.evalSubtitle')}</p>
-            <p className="text-foreground/70 text-xs font-mono mt-1">{t('events.evalPeriod')}</p>
-          </div>
+        <Block className="bg-card/40 rounded-xl">
+          <SubTitle>{t('events.referencesTitle')}</SubTitle>
+          <p className="text-foreground/80 text-sm md:text-[15px] font-sans leading-relaxed mt-2">{t('events.referencesDesc')}</p>
+        </Block>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+        <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
+          <SubTitle variant="highlight">{t('events.isacaTitle')}</SubTitle>
+          <p className="text-foreground/80 text-sm md:text-[15px] font-sans leading-relaxed mt-2">{t('events.isacaDesc')}</p>
+          <p className="text-foreground/70 text-xs font-mono mt-3">{t('events.evalPeriod')}</p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-3 mb-4">
             <div className="bg-highlight/5 border border-highlight/20 rounded-xl p-4 flex flex-col items-center text-center">
               <span className="text-foreground/80 text-xs font-mono uppercase tracking-widest mb-1">{t('events.evalSatisfaction')}</span>
-              <span className="text-highlight text-4xl sm:text-3xl font-bold font-mono">94%</span>
+              <span className="text-highlight text-4xl sm:text-3xl font-bold font-mono">94 %</span>
             </div>
             <div className="bg-highlight/5 border border-highlight/20 rounded-xl p-4 flex flex-col items-center text-center">
               <span className="text-foreground/80 text-xs font-mono uppercase tracking-widest mb-1">{t('events.evalRecommendation')}</span>
-              <span className="text-highlight text-4xl sm:text-3xl font-bold font-mono">93%</span>
-              <span className="text-foreground/70 text-xs font-mono mt-1">{t('events.evalRecommendationSub')}</span>
+              <span className="text-highlight text-4xl sm:text-3xl font-bold font-mono">93 %</span>
             </div>
             <div className="bg-highlight/5 border border-highlight/20 rounded-xl p-4 flex flex-col items-center text-center">
               <span className="text-foreground/80 text-xs font-mono uppercase tracking-widest mb-1">{t('events.evalEmpfScore')}</span>
-              <span className="text-primary text-4xl sm:text-3xl font-bold font-mono">87%</span>
+              <span className="text-primary text-4xl sm:text-3xl font-bold font-mono">87 %</span>
             </div>
           </div>
 
-          <div className="space-y-2 mb-4">
+          <div className="space-y-2 mb-2">
             {['evalQuote1', 'evalQuote2', 'evalQuote3'].map((key) => (
               <p key={key} className="text-foreground/80 text-sm italic leading-relaxed pl-3 border-l-2 border-highlight/30">
                 {t(`events.${key}` as any)}
               </p>
             ))}
           </div>
-
-          <p className="text-foreground text-xs font-mono text-center">{t('events.evalQuality')}</p>
         </Block>
 
         <Block className="bg-primary/5 border border-primary/20 rounded-xl">
@@ -582,6 +575,14 @@ const useServiceContent = () => {
               </div>
             </a>
           </div>
+        </Block>
+
+        <Block className="bg-card/40 rounded-xl">
+          <SubTitle>{t('events.ctaTitle')}</SubTitle>
+          <p className="text-foreground/80 text-sm md:text-[15px] font-sans leading-relaxed mt-2">{t('events.ctaDesc')}</p>
+          <button onClick={() => setActive('contact')} className="mt-3 text-primary hover:text-highlight font-mono text-sm transition-colors">
+            {t('events.ctaButton')}
+          </button>
         </Block>
 
       </TypedSection>
