@@ -1053,75 +1053,33 @@ function CockpitHUD({ flightInput }: { flightInput: React.MutableRefObject<Fligh
   );
 }
 
-/* ── Slow distant cyan meteor with luxurious glowing tail ── */
+/* ── Permanent distant comet – spawns once, ultra-long tail, always visible ── */
 function BackgroundMeteor() {
   const { camera } = useThree();
   const linesRef = useRef<THREE.LineSegments>(null);
   const headRef = useRef<THREE.Points>(null);
 
-  const TRAIL_SEGS = 180;
+  const TRAIL_SEGS = 400; // very long tail
   const trailPos = useMemo(() => new Float32Array(TRAIL_SEGS * 6), []);
   const trailCol = useMemo(() => new Float32Array(TRAIL_SEGS * 8), []);
   const headPos = useMemo(() => new Float32Array(3), []);
   const headSizes = useMemo(() => new Float32Array(1), []);
   const headCol = useMemo(() => new Float32Array(3), []);
 
-  interface MeteorState {
-    pos: THREE.Vector3;
-    vel: THREE.Vector3;
-    life: number;
-    maxLife: number;
-    tailLen: number;
-    brightness: number;
-    active: boolean;
-  }
-
-  const meteor = useRef<MeteorState>({
-    pos: new THREE.Vector3(), vel: new THREE.Vector3(),
-    life: 0, maxLife: 0, tailLen: 0, brightness: 0, active: false
-  });
-  const nextSpawn = useRef(0.5 + Math.random() * 2);
-  const elapsed = useRef(0);
+  // Comet orbits at a fixed offset relative to camera – always in view
+  const cometAngle = useRef(0); // orbital angle
+  const cometOffset = useMemo(() => ({
+    distance: 200,    // far away
+    height: 90,       // high up
+    angularSpeed: 0.008, // very slow orbital drift
+    startAngle: Math.random() * Math.PI * 2,
+  }), []);
   const posHistory = useRef<THREE.Vector3[]>([]);
+  const spawned = useRef(false);
+  const elapsed = useRef(0);
 
   useFrame((_, dt) => {
     elapsed.current += dt;
-    const t = elapsed.current;
-    const m = meteor.current;
-    const cam = camera.position;
-
-    // Spawn in front of the camera, high in the sky
-    if (!m.active && t > nextSpawn.current) {
-      // Get camera forward direction (where user is looking)
-      const fwd = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
-      // Spawn off to one side of the view, high up
-      const side = Math.random() > 0.5 ? 1 : -1;
-      const right = new THREE.Vector3().crossVectors(fwd, new THREE.Vector3(0, 1, 0)).normalize();
-      const dist = 150 + Math.random() * 100; // far but visible
-
-      m.pos.set(
-        cam.x + fwd.x * dist + right.x * side * (40 + Math.random() * 60),
-        cam.y + 60 + Math.random() * 80, // high above
-        cam.z + fwd.z * dist + right.z * side * (40 + Math.random() * 60)
-      );
-
-      // Slow, majestic – cross the sky horizontally
-      const speed = 2.5 + Math.random() * 2;
-      m.vel.set(
-        -right.x * side * speed * 0.8 + fwd.x * speed * 0.3,
-        -(0.05 + Math.random() * 0.1) * speed,
-        -right.z * side * speed * 0.8 + fwd.z * speed * 0.3
-      );
-
-      m.life = 0;
-      m.maxLife = 25 + Math.random() * 20;
-      m.tailLen = 120 + Math.random() * 60;
-      m.brightness = 1.0;
-      m.active = true;
-      posHistory.current = [];
-      nextSpawn.current = t + 35 + Math.random() * 45;
-    }
-
     if (!linesRef.current || !headRef.current) return;
 
     const lArr = linesRef.current.geometry.attributes.position.array as Float32Array;
@@ -1130,37 +1088,49 @@ function BackgroundMeteor() {
     const hsArr = headRef.current.geometry.attributes.size.array as Float32Array;
     const hcArr = headRef.current.geometry.attributes.color.array as Float32Array;
 
-    if (!m.active) {
+    // Wait 2s before appearing
+    if (elapsed.current < 2) {
       lArr.fill(-9999); cArr.fill(0); hArr.fill(-9999); hsArr[0] = 0;
       linesRef.current.geometry.attributes.position.needsUpdate = true;
-      linesRef.current.geometry.attributes.color.needsUpdate = true;
       headRef.current.geometry.attributes.position.needsUpdate = true;
-      headRef.current.geometry.attributes.size.needsUpdate = true;
       return;
     }
 
-    m.life += dt;
-    m.pos.addScaledVector(m.vel, dt);
-
-    // Record position every ~0.08s for smooth tail
-    const hLen = posHistory.current.length;
-    if (hLen === 0 || m.pos.distanceTo(posHistory.current[hLen - 1]) > 0.3) {
-      posHistory.current.push(m.pos.clone());
-      if (posHistory.current.length > 350) posHistory.current.shift();
+    if (!spawned.current) {
+      spawned.current = true;
+      cometAngle.current = cometOffset.startAngle;
     }
 
-    if (m.life > m.maxLife) { m.active = false; }
+    // Move comet in a slow arc across the sky, always relative to camera
+    cometAngle.current += cometOffset.angularSpeed * dt;
+    const a = cometAngle.current;
+    const cam = camera.position;
+    const d = cometOffset.distance;
+    const h = cometOffset.height;
 
-    const fadeIn = Math.min(m.life * 0.3, 1);
-    const fadeOut = Math.min((m.maxLife - m.life) * 0.2, 1);
-    const fade = fadeIn * fadeOut * m.brightness;
+    // Position on a large circle around camera, high up
+    const cx = cam.x + Math.cos(a) * d;
+    const cy = cam.y + h + Math.sin(a * 0.3) * 15; // gentle vertical wave
+    const cz = cam.z + Math.sin(a) * d;
+
+    // Record history for tail (world-space)
+    const currentPos = new THREE.Vector3(cx, cy, cz);
+    const hLen = posHistory.current.length;
+    if (hLen === 0 || currentPos.distanceTo(posHistory.current[hLen - 1]) > 0.15) {
+      posHistory.current.push(currentPos);
+      // Keep very long history for ultra-long tail
+      if (posHistory.current.length > 800) posHistory.current.shift();
+    }
+
+    // Fade in over 5s, never fade out
+    const fade = Math.min(1, (elapsed.current - 2) * 0.2);
 
     // Bright cyan head glow
-    hArr[0] = m.pos.x; hArr[1] = m.pos.y; hArr[2] = m.pos.z;
-    hsArr[0] = 12.0 * fade;
-    hcArr[0] = 0.4; hcArr[1] = 0.95; hcArr[2] = 1.0;
+    hArr[0] = cx; hArr[1] = cy; hArr[2] = cz;
+    hsArr[0] = 10.0 * fade;
+    hcArr[0] = 0.5; hcArr[1] = 0.95; hcArr[2] = 1.0;
 
-    // Tail from position history – cyan fading to deep blue
+    // Build tail from position history
     const history = posHistory.current;
     const histLen = history.length;
 
@@ -1178,20 +1148,17 @@ function BackgroundMeteor() {
         lArr[idx] = p0.x; lArr[idx+1] = p0.y; lArr[idx+2] = p0.z;
         lArr[idx+3] = p1.x; lArr[idx+4] = p1.y; lArr[idx+5] = p1.z;
       } else {
-        const tailDir = m.vel.clone().normalize();
-        const p0 = m.pos.clone().addScaledVector(tailDir, -t0 * m.tailLen);
-        const p1 = m.pos.clone().addScaledVector(tailDir, -t1 * m.tailLen);
-        lArr[idx] = p0.x; lArr[idx+1] = p0.y; lArr[idx+2] = p0.z;
-        lArr[idx+3] = p1.x; lArr[idx+4] = p1.y; lArr[idx+5] = p1.z;
+        lArr[idx] = cx; lArr[idx+1] = cy; lArr[idx+2] = cz;
+        lArr[idx+3] = cx; lArr[idx+4] = cy; lArr[idx+5] = cz;
       }
 
-      // Alpha: brighter near head, fine feathered falloff
-      const alpha0 = Math.pow(1 - t0, 2.0) * fade * 1.0;
-      const alpha1 = Math.pow(1 - t1, 2.0) * fade * 1.0;
-      // Bright white-cyan near head → deep cyan at tail
+      // Alpha: very gentle falloff for ultra-long visible tail
+      const alpha0 = Math.pow(1 - t0, 1.5) * fade * 0.9;
+      const alpha1 = Math.pow(1 - t1, 1.5) * fade * 0.9;
+      // White-cyan head → deep cyan → subtle blue at tip
       const w0 = 1 - t0; const w1 = 1 - t1;
-      cArr[cidx]   = w0 * 0.5;       cArr[cidx+1] = 0.35 + w0 * 0.6; cArr[cidx+2] = 0.6 + w0 * 0.4;  cArr[cidx+3] = alpha0;
-      cArr[cidx+4] = w1 * 0.5;       cArr[cidx+5] = 0.35 + w1 * 0.6; cArr[cidx+6] = 0.6 + w1 * 0.4;  cArr[cidx+7] = alpha1;
+      cArr[cidx]   = w0 * 0.5;       cArr[cidx+1] = 0.3 + w0 * 0.65; cArr[cidx+2] = 0.5 + w0 * 0.5;  cArr[cidx+3] = alpha0;
+      cArr[cidx+4] = w1 * 0.5;       cArr[cidx+5] = 0.3 + w1 * 0.65; cArr[cidx+6] = 0.5 + w1 * 0.5;  cArr[cidx+7] = alpha1;
     }
 
     linesRef.current.geometry.attributes.position.needsUpdate = true;
