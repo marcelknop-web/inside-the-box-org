@@ -1079,7 +1079,7 @@ function BackgroundMeteor() {
     pos: new THREE.Vector3(), vel: new THREE.Vector3(),
     life: 0, maxLife: 0, tailLen: 0, brightness: 0, active: false
   });
-  const nextSpawn = useRef(5 + Math.random() * 10);
+  const nextSpawn = useRef(0.5 + Math.random() * 2);
   const elapsed = useRef(0);
   const posHistory = useRef<THREE.Vector3[]>([]);
 
