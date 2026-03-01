@@ -460,6 +460,264 @@ function RealisticStarfield() {
   );
 }
 
+/* ── Milky Way Nebula (volumetric glow sprite band) ── */
+function MilkyWayNebula() {
+  const nebulaData = useMemo(() => {
+    const clouds: { pos: THREE.Vector3; scaleVec: THREE.Vector3; opacity: number; color: THREE.Color; rotation: number }[] = [];
+    const milkyAxis = new THREE.Vector3(0.3, 1, 0.2).normalize();
+    const perp1 = new THREE.Vector3().crossVectors(milkyAxis, new THREE.Vector3(1, 0, 0)).normalize();
+    const perp2 = new THREE.Vector3().crossVectors(milkyAxis, perp1).normalize();
+
+    for (let i = 0; i < 55; i++) {
+      const along = (Math.random() - 0.5) * 2;
+      const u1 = Math.random() || 0.001;
+      const u2 = Math.random();
+      const spread1 = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2) * 0.09;
+      const u3 = Math.random() || 0.001;
+      const u4 = Math.random();
+      const spread2 = Math.sqrt(-2 * Math.log(u3)) * Math.cos(2 * Math.PI * u4) * 0.09;
+
+      const dir = new THREE.Vector3()
+        .addScaledVector(milkyAxis, along)
+        .addScaledVector(perp1, spread1)
+        .addScaledVector(perp2, spread2)
+        .normalize();
+
+      const r = 155 + Math.random() * 45;
+      const pos = dir.multiplyScalar(r);
+
+      const colorRand = Math.random();
+      let color: THREE.Color;
+      if (colorRand < 0.4) {
+        color = new THREE.Color().setHSL(0.6 + Math.random() * 0.05, 0.15 + Math.random() * 0.1, 0.7 + Math.random() * 0.15);
+      } else if (colorRand < 0.7) {
+        color = new THREE.Color().setHSL(0.08 + Math.random() * 0.05, 0.2 + Math.random() * 0.15, 0.65 + Math.random() * 0.2);
+      } else if (colorRand < 0.88) {
+        color = new THREE.Color().setHSL(0.0 + Math.random() * 0.03, 0.3 + Math.random() * 0.2, 0.5 + Math.random() * 0.15);
+      } else {
+        color = new THREE.Color().setHSL(0.5 + Math.random() * 0.1, 0.2, 0.55 + Math.random() * 0.15);
+      }
+
+      const baseSize = 25 + Math.random() * 50;
+      clouds.push({
+        pos,
+        scaleVec: new THREE.Vector3(baseSize * (0.8 + Math.random() * 0.6), baseSize * (0.3 + Math.random() * 0.4), 1),
+        opacity: 0.015 + Math.random() * 0.035,
+        color,
+        rotation: Math.random() * Math.PI * 2,
+      });
+    }
+    return clouds;
+  }, []);
+
+  const nebulaTexture = useMemo(() => {
+    const size = 128;
+    const canvas = document.createElement('canvas');
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext('2d')!;
+    const gradient = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+    gradient.addColorStop(0, 'rgba(255,255,255,1)');
+    gradient.addColorStop(0.15, 'rgba(255,255,255,0.8)');
+    gradient.addColorStop(0.4, 'rgba(255,255,255,0.3)');
+    gradient.addColorStop(0.7, 'rgba(255,255,255,0.08)');
+    gradient.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, size, size);
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.needsUpdate = true;
+    return tex;
+  }, []);
+
+  return (
+    <group>
+      {nebulaData.map((cloud, i) => (
+        <sprite key={i} position={cloud.pos} scale={cloud.scaleVec} renderOrder={-1}>
+          <spriteMaterial
+            map={nebulaTexture}
+            color={cloud.color}
+            transparent
+            opacity={cloud.opacity}
+            depthWrite={false}
+            blending={THREE.AdditiveBlending}
+            rotation={cloud.rotation}
+          />
+        </sprite>
+      ))}
+    </group>
+  );
+}
+
+/* ── Shooting Stars ── */
+const MAX_SHOOTING_STARS = 5;
+const METEOR_SEGMENTS = 32;
+
+interface ShootingStar {
+  active: boolean;
+  startTime: number;
+  duration: number;
+  origin: THREE.Vector3;
+  direction: THREE.Vector3;
+  speed: number;
+  length: number;
+  color: THREE.Color;
+  brightness: number;
+}
+
+function ShootingStars() {
+  const starsRef = useRef<ShootingStar[]>([]);
+  const nextSpawn = useRef(2 + Math.random() * 4);
+  const meshRefs = useRef<(THREE.Mesh | null)[]>([]);
+
+  useMemo(() => {
+    starsRef.current = [];
+    for (let i = 0; i < MAX_SHOOTING_STARS; i++) {
+      starsRef.current.push({
+        active: false, startTime: 0, duration: 0,
+        origin: new THREE.Vector3(), direction: new THREE.Vector3(),
+        speed: 0, length: 0, color: new THREE.Color(1, 1, 1), brightness: 1,
+      });
+    }
+  }, []);
+
+  // Use a thin tapered tube for each meteor trail
+  const trailGeos = useMemo(() => {
+    return Array.from({ length: MAX_SHOOTING_STARS }, () => {
+      const geo = new THREE.BufferGeometry();
+      // 2 triangles per segment forming a ribbon
+      const verts = new Float32Array(METEOR_SEGMENTS * 6); // 2 verts * 3 coords per segment
+      const alphas = new Float32Array(METEOR_SEGMENTS * 2);
+      const indices: number[] = [];
+      for (let j = 0; j < METEOR_SEGMENTS - 1; j++) {
+        const a = j * 2, b = a + 1, c = a + 2, d = a + 3;
+        indices.push(a, c, b, b, c, d);
+      }
+      geo.setAttribute('position', new THREE.BufferAttribute(verts, 3));
+      geo.setAttribute('alpha', new THREE.BufferAttribute(alphas, 1));
+      geo.setIndex(indices);
+      return geo;
+    });
+  }, []);
+
+  const meteorMaterial = useMemo(() => new THREE.ShaderMaterial({
+    vertexShader: `
+      attribute float alpha;
+      varying float vAlpha;
+      void main() {
+        vAlpha = alpha;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }
+    `,
+    fragmentShader: `
+      varying float vAlpha;
+      void main() {
+        gl_FragColor = vec4(1.0, 1.0, 1.0, vAlpha);
+      }
+    `,
+    transparent: true,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+    side: THREE.DoubleSide,
+  }), []);
+
+  useFrame(({ clock, camera }) => {
+    const t = clock.elapsedTime;
+    const dt = 0.016;
+
+    nextSpawn.current -= dt;
+    if (nextSpawn.current <= 0) {
+      const slot = starsRef.current.find(s => !s.active);
+      if (slot) {
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.acos(0.3 + Math.random() * 0.5);
+        const r = 110 + Math.random() * 70;
+        slot.origin.set(
+          r * Math.sin(phi) * Math.cos(theta) + camera.position.x,
+          r * Math.sin(phi) * Math.sin(theta) + camera.position.y,
+          r * Math.cos(phi) + camera.position.z
+        );
+        const toCamera = new THREE.Vector3().subVectors(camera.position, slot.origin).normalize();
+        slot.direction.set(
+          toCamera.x + (Math.random() - 0.5) * 0.7,
+          toCamera.y + (Math.random() - 0.5) * 0.4,
+          toCamera.z + (Math.random() - 0.5) * 0.7
+        ).normalize();
+        slot.speed = 50 + Math.random() * 90;
+        slot.length = 6 + Math.random() * 18;
+        slot.duration = 0.3 + Math.random() * 1.0;
+        slot.startTime = t;
+        slot.active = true;
+        slot.brightness = 0.5 + Math.random() * 0.5;
+      }
+      nextSpawn.current = 3 + Math.random() * 10;
+    }
+
+    const up = camera.up.clone().normalize();
+    const camRight = new THREE.Vector3().crossVectors(
+      new THREE.Vector3().subVectors(camera.position, new THREE.Vector3()).normalize(),
+      up
+    ).normalize();
+
+    for (let si = 0; si < MAX_SHOOTING_STARS; si++) {
+      const star = starsRef.current[si];
+      const mesh = meshRefs.current[si];
+      if (!mesh) continue;
+
+      if (!star.active) { mesh.visible = false; continue; }
+
+      const elapsed = t - star.startTime;
+      if (elapsed > star.duration) { star.active = false; mesh.visible = false; continue; }
+
+      mesh.visible = true;
+      const progress = elapsed / star.duration;
+      const masterAlpha = progress < 0.08 ? progress / 0.08
+        : progress < 0.5 ? 1.0
+        : 1.0 - (progress - 0.5) / 0.5;
+
+      const headPos = star.origin.clone().addScaledVector(star.direction, elapsed * star.speed);
+      const perpDir = new THREE.Vector3().crossVectors(star.direction, camRight).normalize();
+
+      const posAttr = trailGeos[si].attributes.position as THREE.BufferAttribute;
+      const alphaAttr = trailGeos[si].attributes.alpha as THREE.BufferAttribute;
+      const pos = posAttr.array as Float32Array;
+      const alp = alphaAttr.array as Float32Array;
+
+      for (let j = 0; j < METEOR_SEGMENTS; j++) {
+        const frac = j / (METEOR_SEGMENTS - 1);
+        const trailPos = headPos.clone().addScaledVector(star.direction, -frac * star.length);
+        const width = (1 - frac) * 0.3 * star.brightness; // tapers to zero
+        const a = masterAlpha * star.brightness * Math.pow(1 - frac, 2.0);
+
+        // Two vertices forming ribbon width
+        pos[j * 6] = trailPos.x + perpDir.x * width;
+        pos[j * 6 + 1] = trailPos.y + perpDir.y * width;
+        pos[j * 6 + 2] = trailPos.z + perpDir.z * width;
+        pos[j * 6 + 3] = trailPos.x - perpDir.x * width;
+        pos[j * 6 + 4] = trailPos.y - perpDir.y * width;
+        pos[j * 6 + 5] = trailPos.z - perpDir.z * width;
+        alp[j * 2] = a;
+        alp[j * 2 + 1] = a;
+      }
+      posAttr.needsUpdate = true;
+      alphaAttr.needsUpdate = true;
+    }
+  });
+
+  return (
+    <group>
+      {trailGeos.map((geo, i) => (
+        <mesh
+          key={i}
+          ref={(el: THREE.Mesh | null) => { meshRefs.current[i] = el; }}
+          geometry={geo}
+          material={meteorMaterial}
+          visible={false}
+        />
+      ))}
+    </group>
+  );
+}
+
 /* ── Airplane-style camera: smooth circuits over the field ── */
 function CockpitCamera({ physics, audioRef }: { physics: RockPhysics; audioRef: React.MutableRefObject<AudioAnalysis> }) {
   const { camera } = useThree();
@@ -770,7 +1028,9 @@ export default function EliteShipScene({ embedded = false }: { embedded?: boolea
       >
         <PhysicsDriver physics={physics} />
         <CockpitCamera physics={physics} audioRef={analysisRef} />
+        <MilkyWayNebula />
         <RealisticStarfield />
+        <ShootingStars />
         <BackgroundMeteor />
         <Rain physics={physics} />
         <RockField physics={physics} />
