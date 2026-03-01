@@ -931,22 +931,17 @@ const useServiceContent = () => {
     },
     contact: () => (
       <TypedSection title={t('contact.title')} mode="typewriter" charDelay={8} intro={<p>{t('contact.intro')}</p>}>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-          <div className="rounded-xl p-4 bg-primary/5 border border-primary/20">
-            <div className="flex items-center gap-2 mb-2">
-              <Phone size={16} className="text-primary" />
-              <SubTitle>{t('contact.phone')}</SubTitle>
-            </div>
-            <a href="tel:+4915205691648" className="text-foreground text-sm md:text-[15px] font-sans hover:text-highlight transition-electric">+49 1520 569 1648</a>
+        <Block className="bg-secondary/30">
+          <p className="text-primary font-bold text-base font-sans mb-3">Marcel Knop</p>
+          <div className="space-y-1.5 text-sm md:text-[15px] font-sans">
+            <p>
+              <a href="tel:+4915205691648" className="text-foreground hover:text-highlight transition-electric">+49 1520 569 1648</a>
+            </p>
+            <p>
+              <a href="mailto:marcel@inside-the-box.org" className="text-foreground hover:text-highlight transition-electric">marcel@inside-the-box.org</a>
+            </p>
           </div>
-          <div className="rounded-xl p-4 bg-primary/5 border border-primary/20">
-            <div className="flex items-center gap-2 mb-2">
-              <Mail size={16} className="text-primary" />
-              <SubTitle>{t('contact.email')}</SubTitle>
-            </div>
-            <a href="mailto:marcel@inside-the-box.org" className="text-foreground text-sm md:text-[15px] font-sans hover:text-highlight transition-electric">marcel@inside-the-box.org</a>
-          </div>
-        </div>
+        </Block>
       </TypedSection>
     ),
     imprint: () => (

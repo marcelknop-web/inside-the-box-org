@@ -109,7 +109,7 @@ export const en = {
   contact: {
     title: 'Contact',
     metaDesc: 'Get in touch with Marcel Knop for cybersecurity consulting, training, and CISO services.',
-    intro: 'Get in touch with Marcel.',
+    intro: 'No form. No ticket system.',
     phone: 'Phone',
     email: 'Email',
     viewTraining: 'View Training',
