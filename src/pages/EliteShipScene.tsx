@@ -799,6 +799,21 @@ export default function EliteShipScene() {
         gl={{ antialias: true, alpha: false }}
         style={{ background: BG }}
       >
+        {/* Lighting: invisible sun from upper-right + subtle ambient */}
+        <directionalLight
+          position={[80, 60, -40]}
+          intensity={1.2}
+          color="#ddeedd"
+        />
+        <directionalLight
+          position={[-30, 20, 50]}
+          intensity={0.3}
+          color="#005533"
+        />
+        <ambientLight intensity={0.08} color="#0a2a1e" />
+        <hemisphereLight
+          args={['#112a20', '#000000', 0.15]}
+        />
         <PhysicsDriver physics={physics} />
         <CockpitCamera physics={physics} audioRef={analysisRef} />
         <RealisticStarfield />
