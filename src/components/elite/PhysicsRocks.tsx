@@ -243,7 +243,7 @@ export function DynamicRock({ index, physics }: { index: number; physics: RockPh
         <bufferGeometry>
           <bufferAttribute attach="attributes-position" args={[edges, 3]} />
         </bufferGeometry>
-        <lineBasicMaterial ref={lineMatRef} color={LINE_COLOR} transparent opacity={1.0} depthTest polygonOffset polygonOffsetFactor={-1} polygonOffsetUnits={-1} linewidth={2} />
+        <lineBasicMaterial ref={lineMatRef} color={LINE_COLOR} transparent opacity={1.0} depthTest polygonOffset polygonOffsetFactor={-1} polygonOffsetUnits={-1} linewidth={4} />
       </lineSegments>
     </group>
   );
