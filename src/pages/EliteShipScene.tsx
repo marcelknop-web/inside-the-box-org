@@ -66,95 +66,81 @@ function PhysicsDriver({ physics }: { physics: RockPhysics }) {
   return null;
 }
 
-/* ── Swarm rain: flies in from infinity, swarms between rock clumps, flies out to infinity ── */
-const RAIN_COUNT_DESKTOP = 1200;
-const RAIN_COUNT_MOBILE = 600;
-const NEAR_BLUR_DIST = 8;
-const FAR_BLUR_DIST = 60;
+/* ── Information exchange: data packets flow between rocks, larger blocks = more traffic ── */
+const INFO_COUNT_DESKTOP = 1400;
+const INFO_COUNT_MOBILE = 700;
 
-const PHASE_DEAD = 0;
-const PHASE_FLY_IN = 1;
-const PHASE_SWARM = 2;
-const PHASE_FLY_OUT = 3;
-
-const SPAWN_DIST_MIN = 120;
-const SPAWN_DIST_MAX = 230;
-const FLY_IN_SPEED_MIN = 35;
-const FLY_IN_SPEED_MAX = 65;
-const SWARM_SPEED = 22;
-const SWARM_STEER = 6.5;
-const SWARM_SWITCH_DIST = 7;
-const SWARM_MAX_HOPS_DESKTOP = 7;
-const SWARM_MAX_HOPS_MOBILE = 4;
-const FLY_OUT_ACCEL = 12;
-const FLY_OUT_MAX_AGE = 4.5;
-
-function Rain({ physics, mobile = false }: { physics: RockPhysics; mobile?: boolean }) {
+function InfoExchange({ physics, mobile = false }: { physics: RockPhysics; mobile?: boolean }) {
   const linesRef = useRef<THREE.LineSegments>(null);
   const dotsRef = useRef<THREE.Points>(null);
   const { camera } = useThree();
-  const timeRef = useRef(0);
-  const rainCount = mobile ? RAIN_COUNT_MOBILE : RAIN_COUNT_DESKTOP;
+  const count = mobile ? INFO_COUNT_MOBILE : INFO_COUNT_DESKTOP;
+
+  // Pre-compute cumulative weight table for size-biased rock selection
+  const weightTable = useMemo(() => {
+    const w = new Float32Array(physics.count);
+    let sum = 0;
+    for (let i = 0; i < physics.count; i++) {
+      const r = physics.radii[i];
+      sum += r * r; // weight ~ surface area
+      w[i] = sum;
+    }
+    // normalise
+    if (sum > 0) for (let i = 0; i < physics.count; i++) w[i] /= sum;
+    return w;
+  }, [physics.count, physics.radii]);
+
+  const pickRockWeighted = () => {
+    const t = Math.random();
+    // binary search
+    let lo = 0, hi = physics.count - 1;
+    while (lo < hi) {
+      const mid = (lo + hi) >> 1;
+      if (weightTable[mid] < t) lo = mid + 1; else hi = mid;
+    }
+    return lo;
+  };
 
   const data = useMemo(() => {
-    const lp = new Float32Array(rainCount * 6);
-    const dp = new Float32Array(rainCount * 3);
-    const ds = new Float32Array(rainCount);
-    const lc = new Float32Array(rainCount * 8);
-    const dc = new Float32Array(rainCount * 4);
-    const vx = new Float32Array(rainCount);
-    const vy = new Float32Array(rainCount);
-    const vz = new Float32Array(rainCount);
-    const ph = new Uint8Array(rainCount);
-    const ag = new Float32Array(rainCount);
-    const tr = new Int32Array(rainCount).fill(-1);
-    const hops = new Uint8Array(rainCount);
+    const lp = new Float32Array(count * 6);
+    const dp = new Float32Array(count * 3);
+    const ds = new Float32Array(count);
+    const lc = new Float32Array(count * 8);
+    const dc = new Float32Array(count * 4);
+    const vx = new Float32Array(count);
+    const vy = new Float32Array(count);
+    const vz = new Float32Array(count);
+    const alive = new Uint8Array(count);         // 0=dead, 1=active
+    const progress = new Float32Array(count);     // 0..1 journey progress
+    const sourceRock = new Int32Array(count).fill(-1);
+    const targetRock = new Int32Array(count).fill(-1);
+    const travelTime = new Float32Array(count);   // total travel duration
+    const age = new Float32Array(count);
+    const curveOffset = new Float32Array(count * 2); // lateral curve xy
 
-    for (let i = 0; i < rainCount; i++) {
+    for (let i = 0; i < count; i++) {
       lp[i * 6 + 1] = -9999;
       lp[i * 6 + 4] = -9999;
       dp[i * 3 + 1] = -9999;
     }
 
     return {
-      linePos: lp,
-      dotPos: dp,
-      dotSizes: ds,
-      lineCol: lc,
-      dotCol: dc,
-      velX: vx,
-      velY: vy,
-      velZ: vz,
-      phases: ph,
-      ages: ag,
-      targetRock: tr,
-      hopCount: hops,
+      linePos: lp, dotPos: dp, dotSizes: ds, lineCol: lc, dotCol: dc,
+      velX: vx, velY: vy, velZ: vz,
+      alive, progress, sourceRock, targetRock, travelTime, age, curveOffset,
     };
-  }, [rainCount]);
+  }, [count]);
+
 
   useFrame((_, dt) => {
     if (!linesRef.current || !dotsRef.current) return;
-    timeRef.current += dt;
 
     const {
-      linePos: lp,
-      lineCol: lc,
-      dotPos: dp,
-      dotCol: dc,
-      dotSizes: ds,
-      velX,
-      velY,
-      velZ,
-      phases,
-      ages,
-      targetRock,
-      hopCount,
+      linePos: lp, lineCol: lc, dotPos: dp, dotCol: dc, dotSizes: ds,
+      velX, velY, velZ,
+      alive, progress: prog, sourceRock: src, targetRock: tgt,
+      travelTime: tt, age, curveOffset: curve,
     } = data;
-
-    const cycle = timeRef.current * 0.28;
-    const pulse = Math.sin(cycle) * 0.55 + Math.sin(cycle * 1.9) * 0.3 + Math.sin(cycle * 3.4) * 0.15;
-    const intensity = Math.max(0, pulse);
-    const spawning = intensity > 0.12;
 
     const lAttr = linesRef.current.geometry.attributes.position as THREE.BufferAttribute;
     const lcAttr = linesRef.current.geometry.attributes.color as THREE.BufferAttribute;
@@ -167,287 +153,141 @@ function Rain({ physics, mobile = false }: { physics: RockPhysics; mobile?: bool
     const n = physics.count;
     if (n === 0) return;
 
-    const maxHops = mobile ? SWARM_MAX_HOPS_MOBILE : SWARM_MAX_HOPS_DESKTOP;
+    const clampDt = Math.min(dt, 0.033);
 
-    for (let i = 0; i < rainCount; i++) {
+    for (let i = 0; i < count; i++) {
       const i6 = i * 6;
-      const i3 = i * 3;
+      const ip3 = i * 3;
       const i8 = i * 8;
       const i4 = i * 4;
 
-      if (phases[i] === PHASE_DEAD) {
-        if (spawning && Math.random() < intensity * 0.1) {
-          // Choose source rock near camera
-          let source = -1;
-          for (let a = 0; a < 6; a++) {
-            const c = Math.floor(Math.random() * n);
-            const cx = c * 3;
-            const rdx = pp[cx] - cam.x;
-            const rdz = pp[cx + 2] - cam.z;
-            if (rdx * rdx + rdz * rdz < 95 * 95) {
-              source = c;
-              break;
-            }
-          }
-          if (source < 0) continue;
-
-          targetRock[i] = source;
-          hopCount[i] = 0;
-
-          const sIdx = source * 3;
-          const angle = Math.random() * Math.PI * 2;
-          const elev = (Math.random() - 0.25) * 1.35;
-          const spawnDist = SPAWN_DIST_MIN + Math.random() * (SPAWN_DIST_MAX - SPAWN_DIST_MIN);
-
-          const sx = pp[sIdx] + Math.cos(angle) * spawnDist;
-          const sy = pp[sIdx + 1] + elev * spawnDist * 0.4 + 30;
-          const sz = pp[sIdx + 2] + Math.sin(angle) * spawnDist;
-
-          const dx = pp[sIdx] - sx;
-          const dy = pp[sIdx + 1] - sy;
-          const dz = pp[sIdx + 2] - sz;
-          const dist = Math.sqrt(dx * dx + dy * dy + dz * dz) + 0.01;
-          const speed = FLY_IN_SPEED_MIN + Math.random() * (FLY_IN_SPEED_MAX - FLY_IN_SPEED_MIN);
-
-          velX[i] = (dx / dist) * speed;
-          velY[i] = (dy / dist) * speed;
-          velZ[i] = (dz / dist) * speed;
-
-          lp[i6] = sx;
-          lp[i6 + 1] = sy;
-          lp[i6 + 2] = sz;
-          lp[i6 + 3] = sx;
-          lp[i6 + 4] = sy;
-          lp[i6 + 5] = sz;
-          dp[i3] = sx;
-          dp[i3 + 1] = sy;
-          dp[i3 + 2] = sz;
-
-          phases[i] = PHASE_FLY_IN;
-          ages[i] = 0;
-        } else {
-          lp[i6 + 1] = -9999;
-          lp[i6 + 4] = -9999;
-          dp[i3 + 1] = -9999;
-          ds[i] = 0;
-          dc[i4 + 3] = 0;
-          lc[i8 + 3] = 0;
-          lc[i8 + 7] = 0;
+      // Spawn new packet
+      if (!alive[i]) {
+        // Continuous spawn: ~15% chance per dead particle per frame
+        if (Math.random() > 0.15) {
+          lp[i6 + 1] = -9999; lp[i6 + 4] = -9999; dp[ip3 + 1] = -9999;
+          ds[i] = 0; dc[i4 + 3] = 0; lc[i8 + 3] = 0; lc[i8 + 7] = 0;
           continue;
         }
+
+        // Pick source (weighted by size)
+        const s = pickRockWeighted();
+        // Pick target – different rock, prefer nearby
+        let t = s;
+        const sx3 = s * 3;
+        for (let a = 0; a < 15; a++) {
+          const cand = pickRockWeighted();
+          if (cand === s) continue;
+          const cx3 = cand * 3;
+          const ddx = pp[cx3] - pp[sx3];
+          const ddy = pp[cx3 + 1] - pp[sx3 + 1];
+          const ddz = pp[cx3 + 2] - pp[sx3 + 2];
+          const d = Math.sqrt(ddx * ddx + ddy * ddy + ddz * ddz);
+          if (d > 5 && d < 80) { t = cand; break; }
+        }
+        if (t === s) continue;
+
+        // Only spawn near camera
+        const rdx = pp[sx3] - cam.x;
+        const rdz = pp[sx3 + 2] - cam.z;
+        if (rdx * rdx + rdz * rdz > 100 * 100) continue;
+
+        src[i] = s;
+        tgt[i] = t;
+        age[i] = 0;
+        alive[i] = 1;
+        prog[i] = 0;
+
+        // Compute travel time from distance
+        const tx3 = t * 3;
+        const dx = pp[tx3] - pp[sx3];
+        const dy = pp[tx3 + 1] - pp[sx3 + 1];
+        const dz = pp[tx3 + 2] - pp[sx3 + 2];
+        const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
+        const speed = 18 + Math.random() * 14; // variable travel speed
+        tt[i] = dist / speed;
+
+        // Random curve offset for arc trajectory
+        curve[i * 2] = (Math.random() - 0.5) * 6;
+        curve[i * 2 + 1] = 2 + Math.random() * 5; // upward arc
+
+        // Start at source
+        lp[i6] = pp[sx3];
+        lp[i6 + 1] = pp[sx3 + 1];
+        lp[i6 + 2] = pp[sx3 + 2];
+        lp[i6 + 3] = pp[sx3];
+        lp[i6 + 4] = pp[sx3 + 1];
+        lp[i6 + 5] = pp[sx3 + 2];
       }
 
-      ages[i] += dt;
+      age[i] += clampDt;
+      prog[i] = Math.min(1, age[i] / Math.max(0.1, tt[i]));
 
-      // Fly-in to first clump
-      if (phases[i] === PHASE_FLY_IN) {
-        const ri = targetRock[i];
-        if (ri >= 0 && ri < n) {
-          const rix = ri * 3;
-          const dx = pp[rix] - lp[i6];
-          const dy = pp[rix + 1] - lp[i6 + 1];
-          const dz = pp[rix + 2] - lp[i6 + 2];
-          const dist = Math.sqrt(dx * dx + dy * dy + dz * dz) + 0.01;
+      const s3 = src[i] * 3;
+      const t3 = tgt[i] * 3;
 
-          const steer = 4.0 * dt;
-          velX[i] += (dx / dist) * steer;
-          velY[i] += (dy / dist) * steer;
-          velZ[i] += (dz / dist) * steer;
+      // Bezier arc: source → control point → target
+      const t01 = prog[i];
+      const inv = 1 - t01;
+      // Control point: midpoint + curve offset
+      const mx = (pp[s3] + pp[t3]) * 0.5 + curve[i * 2];
+      const my = (pp[s3 + 1] + pp[t3 + 1]) * 0.5 + curve[i * 2 + 1];
+      const mz = (pp[s3 + 2] + pp[t3 + 2]) * 0.5 + curve[i * 2] * 0.7;
 
-          if (dist < 20) {
-            phases[i] = PHASE_SWARM;
-            ages[i] = 0;
-          }
-        }
+      // Quadratic bezier
+      const px = inv * inv * pp[s3] + 2 * inv * t01 * mx + t01 * t01 * pp[t3];
+      const py = inv * inv * pp[s3 + 1] + 2 * inv * t01 * my + t01 * t01 * pp[t3 + 1];
+      const pz = inv * inv * pp[s3 + 2] + 2 * inv * t01 * mz + t01 * t01 * pp[t3 + 2];
 
-        if (ages[i] > 8) {
-          phases[i] = PHASE_DEAD;
-          continue;
-        }
-      }
+      lp[i6] = px;
+      lp[i6 + 1] = py;
+      lp[i6 + 2] = pz;
 
-      // Swarm between clumps – tight V-formation flock
-      if (phases[i] === PHASE_SWARM) {
-        let ri = targetRock[i];
-        if (ri < 0 || ri >= n) ri = Math.floor(Math.random() * n);
-        const rix = ri * 3;
+      // Velocity = bezier derivative for streak direction
+      const dvx = 2 * (inv * (mx - pp[s3]) + t01 * (pp[t3] - mx));
+      const dvy = 2 * (inv * (my - pp[s3 + 1]) + t01 * (pp[t3 + 1] - my));
+      const dvz = 2 * (inv * (mz - pp[s3 + 2]) + t01 * (pp[t3 + 2] - mz));
+      const spd = Math.sqrt(dvx * dvx + dvy * dvy + dvz * dvz) + 0.01;
 
-        // V-formation: rank = row in chevron, side = left/right wing
-        const rank = (i % 12);             // 0 = leader, 1-11 = followers
-        const side = (rank % 2 === 0) ? 1 : -1;
-        const row = Math.floor((rank + 1) / 2);  // 0,1,1,2,2,3,3...
+      // Short data-packet streak
+      const streakLen = Math.min(4.5, spd * 0.08);
+      lp[i6 + 3] = px - (dvx / spd) * streakLen;
+      lp[i6 + 4] = py - (dvy / spd) * streakLen;
+      lp[i6 + 5] = pz - (dvz / spd) * streakLen;
 
-        // Leader direction (average velocity of sub-flock)
-        const flockBase = i - rank;
-        const leader = flockBase >= 0 && flockBase < rainCount ? flockBase : i;
-        const ldrSpd = Math.sqrt(velX[leader] * velX[leader] + velZ[leader] * velZ[leader]) + 0.01;
-        const ldrDirX = velX[leader] / ldrSpd;
-        const ldrDirZ = velZ[leader] / ldrSpd;
-        // Perpendicular for wing spread
-        const perpX = -ldrDirZ;
-        const perpZ = ldrDirX;
+      dp[ip3] = px;
+      dp[ip3 + 1] = py;
+      dp[ip3 + 2] = pz;
 
-        // Tight chevron offset: each row steps back and sideways
-        const vSpread = 1.8;   // lateral spread per row
-        const vBack = 2.2;     // how far back each row trails
-        const wingX = perpX * side * row * vSpread;
-        const wingZ = perpZ * side * row * vBack;
-        const wingY = Math.sin(timeRef.current * 2.4 + i * 0.37) * 0.6; // gentle vertical bob
+      // Fade in/out at endpoints
+      const edgeFade = Math.min(t01 * 5, (1 - t01) * 5, 1);
 
-        const tx = pp[rix] + wingX - ldrDirX * row * vBack;
-        const ty = pp[rix + 1] + 3 + wingY;
-        const tz = pp[rix + 2] + wingZ - ldrDirZ * row * vBack;
+      // Distance-based brightness
+      const cdx = px - cam.x;
+      const cdy = py - cam.y;
+      const cdz = pz - cam.z;
+      const dist = Math.sqrt(cdx * cdx + cdy * cdy + cdz * cdz);
+      const distFade = dist < 8 ? dist / 8 : dist > 60 ? Math.max(0, 1 - (dist - 60) / 80) : 1;
 
-        const toX = tx - lp[i6];
-        const toY = ty - lp[i6 + 1];
-        const toZ = tz - lp[i6 + 2];
-        const toDist = Math.sqrt(toX * toX + toY * toY + toZ * toZ) + 0.01;
+      const alpha = edgeFade * distFade;
 
-        // Desired flock velocity
-        const desiredVx = (toX / toDist) * SWARM_SPEED;
-        const desiredVy = (toY / toDist) * (SWARM_SPEED * 0.45);
-        const desiredVz = (toZ / toDist) * SWARM_SPEED;
+      // Data-packet colors: cyan/teal with occasional bright white flash
+      const flash = Math.random() > 0.97 ? 1.0 : 0;
+      const r1 = 0.1 + flash * 0.9;
+      const g1 = 0.95;
+      const b1 = 0.75 + flash * 0.25;
+      const r2 = 0.0;
+      const g2 = 0.7;
+      const b2 = 0.55;
 
-        velX[i] += (desiredVx - velX[i]) * SWARM_STEER * dt;
-        velY[i] += (desiredVy - velY[i]) * SWARM_STEER * dt;
-        velZ[i] += (desiredVz - velZ[i]) * SWARM_STEER * dt;
+      lc[i8] = r1; lc[i8 + 1] = g1; lc[i8 + 2] = b1; lc[i8 + 3] = alpha * 0.55;
+      lc[i8 + 4] = r2; lc[i8 + 5] = g2; lc[i8 + 6] = b2; lc[i8 + 7] = alpha * 0.12;
+      dc[i4] = r1; dc[i4 + 1] = g1; dc[i4 + 2] = b1; dc[i4 + 3] = alpha * 0.35;
+      ds[i] = (0.4 + flash * 2.5) * alpha;
 
-        // Strong neighbor alignment (boid cohesion) – 4 neighbors
-        const neighbors = [
-          (i + 1) % rainCount,
-          (i - 1 + rainCount) % rainCount,
-          (i + 12) % rainCount,
-          (i + 23) % rainCount,
-        ];
-        for (let ni = 0; ni < 4; ni++) {
-          const nb = neighbors[ni];
-          if (phases[nb] === PHASE_SWARM) {
-            velX[i] += (velX[nb] - velX[i]) * 0.045;
-            velY[i] += (velY[nb] - velY[i]) * 0.035;
-            velZ[i] += (velZ[nb] - velZ[i]) * 0.045;
-          }
-        }
-
-        // Separation: avoid getting too close to immediate neighbors
-        for (let ni = 0; ni < 2; ni++) {
-          const nb = neighbors[ni];
-          if (phases[nb] !== PHASE_SWARM) continue;
-          const nbI6 = nb * 6;
-          const sepX = lp[i6] - lp[nbI6];
-          const sepY = lp[i6 + 1] - lp[nbI6 + 1];
-          const sepZ = lp[i6 + 2] - lp[nbI6 + 2];
-          const sepDist = Math.sqrt(sepX * sepX + sepY * sepY + sepZ * sepZ) + 0.01;
-          if (sepDist < 3.0) {
-            const push = (3.0 - sepDist) * 1.5;
-            velX[i] += (sepX / sepDist) * push;
-            velZ[i] += (sepZ / sepDist) * push;
-          }
-        }
-
-        // Gentle damping keeps flock tight
-        velX[i] *= 0.991;
-        velY[i] *= 0.991;
-        velZ[i] *= 0.991;
-
-        // Switch to a different clump when close – snap decision
-        if (toDist < SWARM_SWITCH_DIST) {
-          let next = ri;
-          for (let a = 0; a < 10; a++) {
-            const cand = Math.floor(Math.random() * n);
-            if (cand === ri) continue;
-            const cix = cand * 3;
-            const ddx = pp[cix] - pp[rix];
-            const ddy = pp[cix + 1] - pp[rix + 1];
-            const ddz = pp[cix + 2] - pp[rix + 2];
-            const d = Math.sqrt(ddx * ddx + ddy * ddy + ddz * ddz);
-            if (d > 15 && d < 100) {
-              next = cand;
-              break;
-            }
-          }
-          targetRock[i] = next;
-          hopCount[i] += 1;
-        }
-
-        if (hopCount[i] >= maxHops || ages[i] > 9) {
-          phases[i] = PHASE_FLY_OUT;
-          ages[i] = 0;
-          const speed = Math.sqrt(velX[i] * velX[i] + velY[i] * velY[i] + velZ[i] * velZ[i]) + 0.01;
-          const boost = Math.max(28, speed * 1.6);
-          velX[i] = (velX[i] / speed) * boost;
-          velY[i] = (velY[i] / speed) * boost;
-          velZ[i] = (velZ[i] / speed) * boost;
-        }
-      }
-
-      // Fly-out to infinity
-      if (phases[i] === PHASE_FLY_OUT) {
-        const speed = Math.sqrt(velX[i] * velX[i] + velY[i] * velY[i] + velZ[i] * velZ[i]) + 0.01;
-        velX[i] += (velX[i] / speed) * FLY_OUT_ACCEL * dt;
-        velY[i] += (velY[i] / speed) * FLY_OUT_ACCEL * dt;
-        velZ[i] += (velZ[i] / speed) * FLY_OUT_ACCEL * dt;
-        if (ages[i] > FLY_OUT_MAX_AGE) {
-          phases[i] = PHASE_DEAD;
-          continue;
-        }
-      }
-
-      // Integrate
-      lp[i6] += velX[i] * dt;
-      lp[i6 + 1] += velY[i] * dt;
-      lp[i6 + 2] += velZ[i] * dt;
-
-      // Streak geometry
-      const speed = Math.sqrt(velX[i] * velX[i] + velY[i] * velY[i] + velZ[i] * velZ[i]);
-      const invSpeed = speed > 0.01 ? 1 / speed : 0;
-      const streakMul = phases[i] === PHASE_FLY_IN ? 0.14 : phases[i] === PHASE_FLY_OUT ? 0.2 : 0.16;
-      const streakLen = Math.min(13, speed * streakMul);
-
-      lp[i6 + 3] = lp[i6] - velX[i] * invSpeed * streakLen;
-      lp[i6 + 4] = lp[i6 + 1] - velY[i] * invSpeed * streakLen;
-      lp[i6 + 5] = lp[i6 + 2] - velZ[i] * invSpeed * streakLen;
-
-      dp[i3] = lp[i6];
-      dp[i3 + 1] = lp[i6 + 1];
-      dp[i3 + 2] = lp[i6 + 2];
-
-      const dx = lp[i6] - cam.x;
-      const dy = lp[i6 + 1] - cam.y;
-      const dz = lp[i6 + 2] - cam.z;
-      const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
-
-      let phaseAlpha = 1;
-      if (phases[i] === PHASE_FLY_IN) {
-        phaseAlpha = Math.min(1, ages[i] * 1.6);
-      } else if (phases[i] === PHASE_FLY_OUT) {
-        phaseAlpha = Math.max(0, 1 - ages[i] / FLY_OUT_MAX_AGE);
-        phaseAlpha *= phaseAlpha;
-      }
-
-      if (dist < NEAR_BLUR_DIST) {
-        const t = dist / NEAR_BLUR_DIST;
-        lc[i8 + 3] = (0.3 + t * 0.3) * phaseAlpha;
-        lc[i8 + 7] = 0.04 * phaseAlpha;
-        ds[i] = (1.1 + (1 - t) * 2.1) * phaseAlpha;
-        dc[i4 + 3] = 0.2 * phaseAlpha;
-        lc[i8] = 0.2; lc[i8 + 1] = 0.92; lc[i8 + 2] = 0.72;
-        lc[i8 + 4] = 0.12; lc[i8 + 5] = 0.68; lc[i8 + 6] = 0.48;
-      } else if (dist < FAR_BLUR_DIST) {
-        const alpha = (0.28 + Math.random() * 0.18) * phaseAlpha;
-        lc[i8 + 3] = alpha;
-        lc[i8 + 7] = alpha * 0.2;
-        ds[i] = 0.2 * phaseAlpha;
-        dc[i4 + 3] = 0.11 * phaseAlpha;
-        lc[i8] = 0.02; lc[i8 + 1] = 0.95; lc[i8 + 2] = 0.7;
-        lc[i8 + 4] = 0; lc[i8 + 5] = 0.72; lc[i8 + 6] = 0.52;
-      } else {
-        const t = Math.min((dist - FAR_BLUR_DIST) / 85, 1);
-        lc[i8 + 3] = 0.17 * (1 - t) * phaseAlpha;
-        lc[i8 + 7] = 0;
-        ds[i] = 0.07 * phaseAlpha;
-        dc[i4 + 3] = 0.05 * (1 - t) * phaseAlpha;
-        lc[i8] = 0; lc[i8 + 1] = 0.78; lc[i8 + 2] = 0.56;
-        lc[i8 + 4] = 0; lc[i8 + 5] = 0.56; lc[i8 + 6] = 0.42;
+      // Kill when arrived
+      if (prog[i] >= 1) {
+        alive[i] = 0;
       }
     }
 
@@ -1373,7 +1213,7 @@ export default function EliteShipScene({ embedded = false }: { embedded?: boolea
         <RealisticStarfield mobile={mobile} />
         <ShootingStars />
         <BackgroundMeteor />
-        <Rain physics={physics} mobile={mobile} />
+        <InfoExchange physics={physics} mobile={mobile} />
         <RockField physics={physics} mobile={mobile} />
         <DebrisSystem physics={physics} />
       </Canvas>
