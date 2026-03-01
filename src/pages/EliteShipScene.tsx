@@ -362,240 +362,94 @@ function RealisticStarfield() {
   );
 }
 
-/* ── Music-reactive Thruster Camera (smooth) ── */
+/* ── Airplane-style camera: smooth circuits over the field ── */
 function CockpitCamera({ physics, audioRef }: { physics: RockPhysics; audioRef: React.MutableRefObject<AudioAnalysis> }) {
   const { camera } = useThree();
-  const pos = useRef(new THREE.Vector3(0, -5, 0));
-  const vel = useRef(new THREE.Vector3(0, 0, -3));
-  const orientation = useRef(new THREE.Quaternion());
-  const angVel = useRef(new THREE.Vector3(0, 0, 0));
-  const thrusterTime = useRef(0);
-  const thrusters = useRef<{ axis: THREE.Vector3; torqueAxis: THREE.Vector3; force: number; torque: number; startTime: number; duration: number }[]>([]);
-  const nextThrusterAt = useRef(0);
-  const currentTarget = useRef<number>(-1);
-  const targetCooldown = useRef(0);
+  const smoothPos = useRef(new THREE.Vector3(0, -2, 0));
+  const smoothQuat = useRef(new THREE.Quaternion());
   const smoothedAmplitude = useRef(0);
   const smoothedBass = useRef(0);
-  // Extra smoothing for camera output
-  const smoothPos = useRef(new THREE.Vector3(0, -5, 0));
-  const smoothQuat = useRef(new THREE.Quaternion());
+  const elapsed = useRef(0);
+
+  // Racetrack waypoints: oval path around and over the field
+  // Field is ~±150 X, ~±105 Z centered at 0, rocks at Y≈-8
+  const CRUISE_ALT = -3; // above the rocks at -8
+  const LOW_ALT = -6.5;  // low pass altitude
 
   useFrame((_, dt) => {
-    thrusterTime.current += dt;
-    const t = thrusterTime.current;
     const clampDt = Math.min(dt, 0.05);
-    const p = pos.current;
-    const pp = physics.positions;
-    const pr = physics.radii;
-    const n = physics.count;
+    elapsed.current += clampDt;
+    const t = elapsed.current;
 
-    // ── Audio reactivity (very smooth) ──
+    // Audio smoothing
     const audio = audioRef.current;
-    const amp = audio.amplitude;
-    const bass = audio.bass;
-    smoothedAmplitude.current += (amp - smoothedAmplitude.current) * 0.02; // very slow smoothing
-    smoothedBass.current += (bass - smoothedBass.current) * 0.03;
+    smoothedAmplitude.current += (audio.amplitude - smoothedAmplitude.current) * 0.02;
+    smoothedBass.current += (audio.bass - smoothedBass.current) * 0.03;
     const sa = smoothedAmplitude.current;
-    const sb = smoothedBass.current;
 
-    // Music modulates very gently – slow meditative cruise
-    const musicSpeedMult = 0.25 + sa * 0.4;
-    const musicThrustMult = 0.2 + sb * 0.5;
-    const musicThrusterInterval = 6.0 - sa * 2.0;
+    // Speed modulated by music
+    const baseSpeed = 0.012 + sa * 0.008; // circuit progress per second
 
-    // Beat triggers a very gentle directional nudge
-    if (audio.beat) {
-      const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(orientation.current);
-      thrusters.current.push({
-        axis: forward.clone().add(new THREE.Vector3((Math.random() - 0.5) * 0.08, (Math.random() - 0.5) * 0.05, 0)).normalize(),
-        torqueAxis: new THREE.Vector3((Math.random() - 0.5), (Math.random() - 0.5), (Math.random() - 0.5)).normalize(),
-        force: 0.4 + sb * 0.6,
-        torque: (Math.random() - 0.5) * 0.03,
-        startTime: t,
-        duration: 1.5 + Math.random() * 2.0, // very long, gentle burn
-      });
-    }
+    // ── Primary flight path: figure-8 / racetrack ──
+    // Use two overlapping sine waves for an interesting non-repeating path
+    const phase1 = t * baseSpeed;
+    const phase2 = t * baseSpeed * 0.618; // golden ratio offset
 
-    // ── NO collision avoidance – fly through freely ──
-    // Instead: find nearby rocks for cinematic close flyby targeting
-    const tmpVec = new THREE.Vector3();
-    const avoidForce = new THREE.Vector3(0, 0, 0); // minimal – just prevent literal overlap
-    const avoidTorque = new THREE.Vector3(0, 0, 0);
+    // Racetrack shape: elongated oval with figure-8 crossover
+    const rx = 110; // X radius
+    const rz = 70;  // Z radius
 
-    // Only prevent clipping through rock centers (very tight)
-    for (let oi = 0; oi < n; oi++) {
-      const ox = oi * 3;
-      tmpVec.set(p.x - pp[ox], p.y - pp[ox + 1], p.z - pp[ox + 2]);
-      const dist = tmpVec.length();
-      const surfaceDist = dist - pr[oi];
-      if (surfaceDist < 0.5) {
-        // Only nudge gently if literally inside a rock
-        avoidForce.addScaledVector(tmpVec.normalize(), 3.0 * (0.5 - surfaceDist));
-      }
-    }
+    const pathX = Math.sin(phase1) * rx + Math.sin(phase2 * 2.3) * 20;
+    const pathZ = Math.cos(phase1) * rz + Math.cos(phase2 * 1.7) * 15;
 
-    // ── Attraction: target rocks for close flybys ──
-    targetCooldown.current -= clampDt;
-    if (targetCooldown.current <= 0) {
-      const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(orientation.current);
-      let bestScore = -Infinity;
-      let bestIdx = -1;
+    // Altitude: smooth undulation, low passes over the center
+    const centerDist = Math.sqrt(pathX * pathX + pathZ * pathZ) / Math.max(rx, rz);
+    const altWave = Math.sin(phase1 * 2.1) * 0.5 + 0.5; // 0-1
+    const desiredAlt = centerDist < 0.5
+      ? LOW_ALT + altWave * 2.0 + sa * 1.0  // low over center
+      : CRUISE_ALT + altWave * 3.0 + sa * 0.5; // higher at edges
 
-      for (let oi = 0; oi < n; oi++) {
-        const ox = oi * 3;
-        tmpVec.set(pp[ox] - p.x, pp[ox + 1] - p.y, pp[ox + 2] - p.z);
-        const dist = tmpVec.length();
-        if (dist < 3 || dist > 50) continue;
-        const dot = tmpVec.normalize().dot(forward);
-        if (dot < -0.2) continue;
+    const targetPos = new THREE.Vector3(pathX, desiredAlt, pathZ);
 
-        // Prefer rocks that are close but slightly off-axis (= near-miss flyby)
-        const offAxis = Math.abs(1.0 - Math.abs(dot)); // higher = more off-center
-        let neighbors = 0;
-        for (let nj = 0; nj < Math.min(n, 200); nj++) {
-          if (nj === oi) continue;
-          const njx = nj * 3;
-          const ddx = pp[njx] - pp[ox], ddy = pp[njx + 1] - pp[ox + 1], ddz = pp[njx + 2] - pp[ox + 2];
-          if (ddx * ddx + ddy * ddy + ddz * ddz < 150) neighbors++;
-          if (neighbors > 6) break;
-        }
+    // ── Look direction: tangent of the flight path ──
+    const epsilon = 0.01;
+    const nextPhase1 = (t + epsilon) * baseSpeed;
+    const nextPhase2 = (t + epsilon) * baseSpeed * 0.618;
+    const nextX = Math.sin(nextPhase1) * rx + Math.sin(nextPhase2 * 2.3) * 20;
+    const nextZ = Math.cos(nextPhase1) * rz + Math.cos(nextPhase2 * 1.7) * 15;
+    const nextCenterDist = Math.sqrt(nextX * nextX + nextZ * nextZ) / Math.max(rx, rz);
+    const nextAltWave = Math.sin(nextPhase1 * 2.1) * 0.5 + 0.5;
+    const nextAlt = nextCenterDist < 0.5
+      ? LOW_ALT + nextAltWave * 2.0 + sa * 1.0
+      : CRUISE_ALT + nextAltWave * 3.0 + sa * 0.5;
 
-        // Score: prefer forward + close + off-axis (dramatic flyby) + dense areas
-        const score = dot * 1.5 + (1 - dist / 50) * 2.5 + offAxis * 3.0 + neighbors * 0.5 + Math.random() * 0.3;
-        if (score > bestScore) { bestScore = score; bestIdx = oi; }
-      }
-      currentTarget.current = bestIdx;
-      targetCooldown.current = 2.0 + Math.random() * 3.0;
-    }
+    const tangent = new THREE.Vector3(nextX - pathX, nextAlt - desiredAlt, nextZ - pathZ).normalize();
 
-    const attractForce = new THREE.Vector3(0, 0, 0);
-    if (currentTarget.current >= 0) {
-      const ox = currentTarget.current * 3;
-      tmpVec.set(pp[ox] - p.x, pp[ox + 1] - p.y, pp[ox + 2] - p.z);
-      const dist = tmpVec.length();
-      if (dist > 2) {
-        // Aim slightly offset for flyby – not directly at the rock
-        const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(orientation.current);
-        const right = new THREE.Vector3(1, 0, 0).applyQuaternion(orientation.current);
-        // Offset to the side for a cinematic pass
-        const offsetDir = right.clone().multiplyScalar((Math.sin(t * 0.3) > 0 ? 1 : -1) * 2.0);
-        tmpVec.add(offsetDir);
-        attractForce.copy(tmpVec.normalize()).multiplyScalar(1.5 + sa * 1.0);
-      }
-    }
+    // ── Bank angle: tilt into turns like an airplane ──
+    const prevPhase1 = (t - epsilon) * baseSpeed;
+    const prevPhase2 = (t - epsilon) * baseSpeed * 0.618;
+    const prevX = Math.sin(prevPhase1) * rx + Math.sin(prevPhase2 * 2.3) * 20;
+    const prevZ = Math.cos(prevPhase1) * rz + Math.cos(prevPhase2 * 1.7) * 15;
+    const prevTangent = new THREE.Vector3(pathX - prevX, 0, pathZ - prevZ).normalize();
+    const curvature = new THREE.Vector3(nextX - pathX, 0, nextZ - pathZ).normalize();
+    const cross = prevTangent.clone().cross(curvature);
+    const bankAngle = Math.atan2(cross.y, 1) * 0.6; // bank up to ~35°
 
-    // ── Boundary turnaround: fly across field, then curve back ──
-    // Field spans roughly ±150 X, ±105 Z
-    const FIELD_X = 120, FIELD_Z = 80;
-    const turnForce = new THREE.Vector3(0, 0, 0);
-    const distFromCenterX = Math.abs(p.x);
-    const distFromCenterZ = Math.abs(p.z);
+    // Build orientation: look along tangent with bank
+    const up = new THREE.Vector3(0, 1, 0);
+    const lookTarget = targetPos.clone().add(tangent.multiplyScalar(10));
+    const lookMatrix = new THREE.Matrix4().lookAt(targetPos, lookTarget, up);
+    const targetQuat = new THREE.Quaternion().setFromRotationMatrix(lookMatrix);
 
-    // When nearing field edge, apply strong inward force for graceful U-turn
-    if (distFromCenterX > FIELD_X * 0.7) {
-      const overshoot = (distFromCenterX - FIELD_X * 0.7) / (FIELD_X * 0.3);
-      turnForce.x -= Math.sign(p.x) * overshoot * overshoot * 3.0;
-    }
-    if (distFromCenterZ > FIELD_Z * 0.7) {
-      const overshoot = (distFromCenterZ - FIELD_Z * 0.7) / (FIELD_Z * 0.3);
-      turnForce.z -= Math.sign(p.z) * overshoot * overshoot * 3.0;
-    }
+    // Apply bank roll
+    const bankQuat = new THREE.Quaternion().setFromAxisAngle(
+      new THREE.Vector3(0, 0, 1), -bankAngle
+    );
+    targetQuat.multiply(bankQuat);
 
-    // ── Altitude: fly above the field, showing horizon ──
-    let nearbyYSum = 0, nearbyCount = 0;
-    for (let oi = 0; oi < n; oi++) {
-      const ox = oi * 3;
-      const ddx = pp[ox] - p.x, ddz = pp[ox + 2] - p.z;
-      if (ddx * ddx + ddz * ddz < 600) {
-        nearbyYSum += pp[ox + 1] + pr[oi];
-        nearbyCount++;
-      }
-    }
-    if (nearbyCount > 0) {
-      const avgTop = nearbyYSum / nearbyCount;
-      const altCycle = Math.sin(t * 0.04) * 0.5 + 0.5;
-      const desiredAlt = avgTop + 3.0 + altCycle * 4.0 + sa * 0.5;
-      const altDiff = desiredAlt - p.y;
-      turnForce.y += altDiff * 0.15;
-    } else {
-      turnForce.y += (-5 - p.y) * 0.1;
-    }
-
-    // ── Thruster bursts (music-synced, smoother) ──
-    if (t > nextThrusterAt.current) {
-      const ax = (Math.random() - 0.5) * 0.8;
-      const ay = (Math.random() - 0.5) * 0.3;
-      const az = -0.3 - Math.random() * 0.5;
-      const axis = new THREE.Vector3(ax, ay, az).normalize();
-      const tx = (Math.random() - 0.5) * 0.5;
-      const ty = (Math.random() - 0.5) * 0.5;
-      const tz = (Math.random() - 0.5) * 0.5;
-      const torqueAxis = new THREE.Vector3(tx, ty, tz).normalize();
-      thrusters.current.push({
-        axis, torqueAxis,
-        force: (0.2 + Math.random() * 0.6) * musicThrustMult,
-        torque: (Math.random() - 0.5) * 0.04,
-        startTime: t,
-        duration: 3.0 + Math.random() * 6.0, // very long, slow burns
-      });
-      nextThrusterAt.current = t + Math.max(3.0, musicThrusterInterval + Math.random() * 4.0);
-    }
-
-    const thrustAccel = new THREE.Vector3(0, 0, 0);
-    const torqueAccel = new THREE.Vector3(0, 0, 0);
-    thrusters.current = thrusters.current.filter(th => {
-      const elapsed = t - th.startTime;
-      if (elapsed > th.duration) return false;
-      // Smooth envelope: slow ramp up and down
-      const rampUp = Math.min(elapsed / 0.4, 1);
-      const rampDown = Math.min((th.duration - elapsed) / 0.5, 1);
-      const env = rampUp * rampDown;
-      const worldAxis = th.axis.clone().applyQuaternion(orientation.current);
-      thrustAccel.addScaledVector(worldAxis, th.force * env);
-      torqueAccel.addScaledVector(th.torqueAxis, th.torque * env);
-      return true;
-    });
-
-    const DRAG = 0.4; // higher drag for very smooth deceleration
-    const ANG_DRAG = 0.85; // heavy angular drag = barely any rotation jerk
-    vel.current.addScaledVector(thrustAccel, clampDt);
-    vel.current.addScaledVector(avoidForce, clampDt);
-    vel.current.addScaledVector(attractForce, clampDt);
-    vel.current.addScaledVector(turnForce, clampDt);
-    vel.current.multiplyScalar(1 - DRAG * clampDt);
-
-    const maxSpeed = 2.0 + sa * 2.0;    // much slower, meditative cruise
-    const minSpeed = 0.3 + sa * 0.3;
-    const speed = vel.current.length();
-    if (speed > maxSpeed) vel.current.multiplyScalar(maxSpeed / speed);
-    if (speed < minSpeed) vel.current.multiplyScalar(minSpeed / Math.max(speed, 0.01));
-
-    pos.current.addScaledVector(vel.current, clampDt * musicSpeedMult);
-
-    angVel.current.addScaledVector(torqueAccel, clampDt);
-    angVel.current.addScaledVector(avoidTorque, clampDt);
-    angVel.current.multiplyScalar(1 - ANG_DRAG * clampDt);
-    const angSpeed = angVel.current.length();
-    if (angSpeed > 0.15) angVel.current.multiplyScalar(0.15 / angSpeed); // very tight clamp
-
-    if (angSpeed > 0.0001) {
-      const halfAngle = angSpeed * clampDt * 0.5;
-      const s = Math.sin(halfAngle) / angSpeed;
-      const dq = new THREE.Quaternion(angVel.current.x * s, angVel.current.y * s, angVel.current.z * s, Math.cos(halfAngle));
-      orientation.current.premultiply(dq);
-      orientation.current.normalize();
-    }
-
-    // Align orientation toward velocity direction (very gentle)
-    if (speed > 0.3) {
-      const velDir = vel.current.clone().normalize();
-      const targetQ = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, -1), velDir);
-      orientation.current.slerp(targetQ, 0.008); // extremely gentle alignment
-    }
-
-    // ── Smooth camera output with heavy interpolation ──
-    smoothPos.current.lerp(pos.current, 0.03); // very heavy smoothing on position
-    smoothQuat.current.slerp(orientation.current, 0.03); // very heavy smoothing on rotation
+    // ── Smooth interpolation ──
+    smoothPos.current.lerp(targetPos, 0.04);
+    smoothQuat.current.slerp(targetQuat, 0.04);
 
     camera.position.copy(smoothPos.current);
     camera.quaternion.copy(smoothQuat.current);
