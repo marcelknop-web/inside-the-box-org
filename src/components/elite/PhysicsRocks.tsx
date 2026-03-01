@@ -3,7 +3,7 @@ import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { ConvexGeometry } from 'three/addons/geometries/ConvexGeometry.js';
 
-const LINE_COLOR = '#00ffaa';
+const LINE_COLOR = '#33ffbb';
 
 /* ── Build polyhedron geometry ── */
 function buildPolyhedron(seed: number, radius: number): { geo: THREE.BufferGeometry; edges: Float32Array } {
@@ -220,10 +220,10 @@ export function DynamicRock({ index, physics }: { index: number; physics: RockPh
     const dy = physics.positions[ix + 1] - camera.position.y;
     const dz = physics.positions[ix + 2] - camera.position.z;
     const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
-    const nearFactor = Math.max(0, 1 - dist / 100);
+    const nearFactor = Math.max(0, 1 - dist / 120);
 
     if (lineMatRef.current) {
-      lineMatRef.current.opacity = 0.35 + nearFactor * 0.65;
+      lineMatRef.current.opacity = 0.45 + nearFactor * 0.55;
     }
   });
 
@@ -243,7 +243,7 @@ export function DynamicRock({ index, physics }: { index: number; physics: RockPh
         <bufferGeometry>
           <bufferAttribute attach="attributes-position" args={[edges, 3]} />
         </bufferGeometry>
-        <lineBasicMaterial ref={lineMatRef} color={LINE_COLOR} transparent opacity={1.0} depthTest polygonOffset polygonOffsetFactor={-1} polygonOffsetUnits={-1} linewidth={1} />
+        <lineBasicMaterial ref={lineMatRef} color={LINE_COLOR} transparent opacity={1.0} depthTest polygonOffset polygonOffsetFactor={-1} polygonOffsetUnits={-1} linewidth={2} />
       </lineSegments>
     </group>
   );

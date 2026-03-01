@@ -372,38 +372,33 @@ function CockpitCamera({ physics, audioRef }: { physics: RockPhysics; audioRef: 
   const elapsed = useRef(0);
 
   // Flight closer to objects for better visibility
-  const CRUISE_ALT = -5.5; // closer to rocks at -8
-  const LOW_ALT = -7.0;    // very close low pass
+  const CRUISE_ALT = -5.5;
+  const LOW_ALT = -7.0;
 
-  // Store previous tangent for ultra-smooth banking
   const prevTangentRef = useRef(new THREE.Vector3(1, 0, 0));
   const smoothBank = useRef(0);
+  const smoothRoll = useRef(0); // extra barrel-roll angle
 
   useFrame((_, dt) => {
-    const clampDt = Math.min(dt, 0.033); // tighter dt clamp for consistency
+    const clampDt = Math.min(dt, 0.033);
     elapsed.current += clampDt;
     const t = elapsed.current;
 
-    // Audio smoothing (very gentle)
+    // Audio smoothing
     const audio = audioRef.current;
     smoothedAmplitude.current += (audio.amplitude - smoothedAmplitude.current) * 0.015;
     smoothedBass.current += (audio.bass - smoothedBass.current) * 0.02;
     const sa = smoothedAmplitude.current;
 
-    // Slow, steady speed – minimal music modulation for smoothness
     const baseSpeed = 0.009 + sa * 0.003;
-
-    // ── Simple smooth oval path (no secondary oscillations = no jitter) ──
     const phase = t * baseSpeed;
 
-    // Clean elliptical orbit, smaller radius = closer to objects
     const rx = 80;
     const rz = 55;
 
     const pathX = Math.sin(phase) * rx;
     const pathZ = Math.cos(phase) * rz;
 
-    // Smooth altitude: gentle sine wave, closer to the field
     const altWave = Math.sin(phase * 1.5) * 0.5 + 0.5;
     const centerDist = Math.sqrt(pathX * pathX + pathZ * pathZ) / Math.max(rx, rz);
     const desiredAlt = centerDist < 0.6
@@ -412,17 +407,39 @@ function CockpitCamera({ physics, audioRef }: { physics: RockPhysics; audioRef: 
 
     const targetPos = new THREE.Vector3(pathX, desiredAlt, pathZ);
 
-    // ── Tangent from analytic derivative (no epsilon jitter) ──
+    // Analytic tangent
     const dxdt = Math.cos(phase) * rx * baseSpeed;
     const dzdt = -Math.sin(phase) * rz * baseSpeed;
     const dydt = Math.cos(phase * 1.5) * 1.5 * baseSpeed * 0.5 * (centerDist < 0.6 ? 1.5 : 2.0);
     const tangent = new THREE.Vector3(dxdt, dydt, dzdt).normalize();
 
-    // ── Ultra-smooth banking from tangent change ──
+    // Smooth banking from tangent change
     const cross = prevTangentRef.current.clone().cross(tangent);
-    const rawBank = Math.atan2(cross.y, 1) * 0.4; // gentle bank max ~25°
-    smoothBank.current += (rawBank - smoothBank.current) * 0.02; // very slow bank transitions
+    const rawBank = Math.atan2(cross.y, 1) * 0.4;
+    smoothBank.current += (rawBank - smoothBank.current) * 0.02;
     prevTangentRef.current.copy(tangent);
+
+    // ── Occasional barrel rolls (slow, smooth full rotation around forward axis) ──
+    // Trigger a roll every ~40s of flight, lasting ~8s
+    const rollCycle = 40; // seconds between rolls
+    const rollDuration = 8; // seconds for one full roll
+    const rollPhase = t % rollCycle;
+    let targetRoll = 0;
+    if (rollPhase < rollDuration) {
+      // Smooth easing: sine curve for gentle start/end
+      const rollProgress = rollPhase / rollDuration;
+      targetRoll = Math.sin(rollProgress * Math.PI * 2 - Math.PI / 2) * Math.PI + Math.PI;
+      // Full 360° mapped through smooth sine: 0 → 2π
+      targetRoll = rollProgress * Math.PI * 2;
+    }
+    // Very smooth roll interpolation
+    const rollDiff = targetRoll - smoothRoll.current;
+    // Handle wrap-around
+    if (rollPhase >= rollDuration && Math.abs(smoothRoll.current) > 0.01) {
+      smoothRoll.current *= 0.97; // gently decay back to 0
+    } else if (rollPhase < rollDuration) {
+      smoothRoll.current += (targetRoll - smoothRoll.current) * 0.03;
+    }
 
     // Build orientation
     const up = new THREE.Vector3(0, 1, 0);
@@ -430,15 +447,16 @@ function CockpitCamera({ physics, audioRef }: { physics: RockPhysics; audioRef: 
     const lookMatrix = new THREE.Matrix4().lookAt(targetPos, lookTarget, up);
     const targetQuat = new THREE.Quaternion().setFromRotationMatrix(lookMatrix);
 
-    // Apply smooth bank roll
-    const bankQuat = new THREE.Quaternion().setFromAxisAngle(
-      new THREE.Vector3(0, 0, 1), -smoothBank.current
+    // Apply bank + barrel roll combined on forward axis
+    const totalRoll = smoothBank.current + smoothRoll.current;
+    const rollQuat = new THREE.Quaternion().setFromAxisAngle(
+      new THREE.Vector3(0, 0, 1), -totalRoll
     );
-    targetQuat.multiply(bankQuat);
+    targetQuat.multiply(rollQuat);
 
-    // ── Very heavy smoothing for buttery motion ──
+    // Buttery smooth interpolation
     smoothPos.current.lerp(targetPos, 0.02);
-    smoothQuat.current.slerp(targetQuat, 0.02);
+    smoothQuat.current.slerp(targetQuat, 0.025);
 
     camera.position.copy(smoothPos.current);
     camera.quaternion.copy(smoothQuat.current);
