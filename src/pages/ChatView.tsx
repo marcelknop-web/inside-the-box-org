@@ -422,6 +422,7 @@ const useServiceContent = () => {
         <Block className="bg-primary/5 border border-primary/20 rounded-xl">
           <SubTitle>{t('incident.sectionTitle')}</SubTitle>
           <div className="grid grid-cols-1 gap-3 mt-2">
+            <GridItem icon={Search} title={t('incident.step0Title')} desc={t('incident.step0Desc')} />
             <GridItem icon={ShieldCheck} title={t('incident.step1Title')} desc={t('incident.step1Desc')} />
             <GridItem icon={Eye} title={t('incident.step2Title')} desc={t('incident.step2Desc')} />
             <GridItem icon={AlertTriangle} title={t('incident.step3Title')} desc={t('incident.step3Desc')} />
@@ -486,20 +487,33 @@ const useServiceContent = () => {
     ),
     'arena-training': () => (
       <TypedSection title={t('arena.title')} mode="typewriter" intro={<p>{t('arena.intro')}</p>}>
+        <Block className="bg-card/40 rounded-xl">
+          <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{t('arena.introDetail')}</p>
+        </Block>
         <Block className="bg-primary/5 border border-primary/20 rounded-xl">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <SubTitle>{t('arena.sectionTitle')}</SubTitle>
+          <div className="grid grid-cols-1 gap-3 mt-2">
             <GridItem icon={Target} title={t('arena.arenaTitle')} desc={t('arena.arenaDesc')} />
             <GridItem icon={Flag} title={t('arena.tiberTitle')} desc={t('arena.tiberDesc')} />
           </div>
         </Block>
         <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
           <SubTitle variant="highlight">{t('arena.methTitle')}</SubTitle>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
-            <GridItem icon={Gamepad2} title={t('arena.realisticTitle')} desc={t('arena.realisticDesc')} variant="highlight" />
-            <GridItem icon={Crosshair} title={t('arena.handsOnTitle')} desc={t('arena.handsOnDesc')} variant="highlight" />
-            <GridItem icon={Users} title={t('arena.teamTitle')} desc={t('arena.teamDesc')} variant="highlight" />
-            <GridItem icon={CheckSquare} title={t('arena.regulatoryTitle')} desc={t('arena.regulatoryDesc')} variant="highlight" />
-          </div>
+          <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mt-2">{t('arena.methDesc')}</p>
+        </Block>
+        <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
+          <SubTitle variant="highlight">{t('arena.refTitle')}</SubTitle>
+          <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mt-2">{t('arena.refDesc')}</p>
+        </Block>
+        <Block className="bg-primary/5 border border-primary/20 rounded-xl">
+          <SubTitle>{t('arena.ctaTitle')}</SubTitle>
+          <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mt-2">{t('arena.ctaDesc')}</p>
+          <button
+            onClick={() => setActive('contact')}
+            className="mt-3 inline-flex items-center gap-2 text-primary font-mono font-bold text-sm hover:text-highlight transition-electric cursor-pointer bg-transparent border-none p-0"
+          >
+            {t('arena.ctaButton')}
+          </button>
         </Block>
       </TypedSection>
     ),
