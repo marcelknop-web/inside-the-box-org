@@ -589,43 +589,117 @@ function CockpitCamera({ physics, audioRef }: { physics: RockPhysics; audioRef: 
   return null;
 }
 
-/* ── Fog layers over rock field ── */
-function FogLayer({ y, opacity, size, color }: { y: number; opacity: number; size: number; color: string }) {
-  const meshRef = useRef<THREE.Mesh>(null);
+/* ── Glowing particles drifting between rock clusters ── */
+const GLOW_COUNT = 600;
+function GlowParticles({ physics }: { physics: RockPhysics }) {
+  const pointsRef = useRef<THREE.Points>(null);
   const { camera } = useThree();
 
-  useFrame(() => {
-    if (!meshRef.current) return;
-    meshRef.current.position.set(camera.position.x, y, camera.position.z);
+  const { positions, colors, sizes, velocities, phases } = useMemo(() => {
+    const pos = new Float32Array(GLOW_COUNT * 3);
+    const col = new Float32Array(GLOW_COUNT * 4);
+    const sz = new Float32Array(GLOW_COUNT);
+    const vel = new Float32Array(GLOW_COUNT * 3);
+    const ph = new Float32Array(GLOW_COUNT);
+
+    const pp = physics.positions;
+    const n = physics.count;
+
+    for (let i = 0; i < GLOW_COUNT; i++) {
+      // Place near random rocks
+      const ri = Math.floor(Math.random() * n);
+      const rx = ri * 3;
+      pos[i * 3] = pp[rx] + (Math.random() - 0.5) * 12;
+      pos[i * 3 + 1] = pp[rx + 1] + (Math.random() - 0.5) * 4;
+      pos[i * 3 + 2] = pp[rx + 2] + (Math.random() - 0.5) * 12;
+
+      // Gentle drift velocity
+      vel[i * 3] = (Math.random() - 0.5) * 0.3;
+      vel[i * 3 + 1] = (Math.random() - 0.5) * 0.1;
+      vel[i * 3 + 2] = (Math.random() - 0.5) * 0.3;
+
+      // Color: mix of cyan, green, white glows
+      const type = Math.random();
+      if (type < 0.4) {
+        col[i * 4] = 0.1; col[i * 4 + 1] = 1.0; col[i * 4 + 2] = 0.7; // cyan-green
+      } else if (type < 0.7) {
+        col[i * 4] = 0.0; col[i * 4 + 1] = 0.8; col[i * 4 + 2] = 1.0; // cyan
+      } else if (type < 0.9) {
+        col[i * 4] = 0.7; col[i * 4 + 1] = 1.0; col[i * 4 + 2] = 0.9; // white-green
+      } else {
+        col[i * 4] = 0.2; col[i * 4 + 1] = 1.0; col[i * 4 + 2] = 0.4; // pure green
+      }
+      col[i * 4 + 3] = 0.3 + Math.random() * 0.5;
+
+      sz[i] = 0.5 + Math.random() * 2.5;
+      ph[i] = Math.random() * Math.PI * 2;
+    }
+    return { positions: pos, colors: col, sizes: sz, velocities: vel, phases: ph };
+  }, [physics]);
+
+  useFrame(({ clock }) => {
+    if (!pointsRef.current) return;
+    const t = clock.elapsedTime;
+    const posAttr = pointsRef.current.geometry.attributes.position as THREE.BufferAttribute;
+    const colAttr = pointsRef.current.geometry.attributes.color as THREE.BufferAttribute;
+    const szAttr = pointsRef.current.geometry.attributes.size as THREE.BufferAttribute;
+    const pos = posAttr.array as Float32Array;
+    const col = colAttr.array as Float32Array;
+    const sz = szAttr.array as Float32Array;
+    const cam = camera.position;
+
+    for (let i = 0; i < GLOW_COUNT; i++) {
+      const i3 = i * 3;
+      const i4 = i * 4;
+
+      // Gentle drift
+      pos[i3] += velocities[i3] * 0.016;
+      pos[i3 + 1] += velocities[i3 + 1] * 0.016;
+      pos[i3 + 2] += velocities[i3 + 2] * 0.016;
+
+      // Pulsing glow
+      const pulse = 0.4 + 0.6 * Math.sin(t * (0.3 + phases[i] * 0.2) + phases[i]);
+      const baseSz = sizes[i];
+      sz[i] = baseSz * pulse;
+
+      // Alpha pulsing
+      const baseAlpha = colors[i4 + 3];
+      col[i4 + 3] = baseAlpha * pulse;
+
+      // Distance fade
+      const dx = pos[i3] - cam.x;
+      const dy = pos[i3 + 1] - cam.y;
+      const dz = pos[i3 + 2] - cam.z;
+      const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
+      if (dist > 80) col[i4 + 3] *= Math.max(0, 1 - (dist - 80) / 40);
+
+      // Brighten when very close for flyby glow effect
+      if (dist < 8) {
+        sz[i] *= 1.5 + (1 - dist / 8) * 2;
+        col[i4 + 3] = Math.min(1, col[i4 + 3] * 1.5);
+      }
+    }
+
+    posAttr.needsUpdate = true;
+    colAttr.needsUpdate = true;
+    szAttr.needsUpdate = true;
   });
 
   return (
-    <mesh ref={meshRef} rotation={[-Math.PI / 2, 0, 0]}>
-      <planeGeometry args={[size, size, 1, 1]} />
-      <meshBasicMaterial
-        color={color}
+    <points ref={pointsRef}>
+      <bufferGeometry>
+        <bufferAttribute attach="attributes-position" args={[positions, 3]} />
+        <bufferAttribute attach="attributes-color" args={[new Float32Array(colors), 4]} />
+        <bufferAttribute attach="attributes-size" args={[new Float32Array(sizes), 1]} />
+      </bufferGeometry>
+      <pointsMaterial
+        vertexColors
         transparent
-        opacity={opacity}
-        side={THREE.DoubleSide}
+        sizeAttenuation
         depthWrite={false}
         blending={THREE.AdditiveBlending}
       />
-    </mesh>
-  );
-}
-
-/* ── Multi-layer volumetric fog ── */
-function VolumetricFog() {
-  return (
-    <>
-      {/* Dense low fog at rock level */}
-      <FogLayer y={-7.0} opacity={0.12} size={400} color="#00ffaa" />
-      <FogLayer y={-7.8} opacity={0.08} size={350} color="#008866" />
-      {/* Higher atmospheric haze */}
-      <FogLayer y={-5.5} opacity={0.04} size={500} color="#004433" />
-      <FogLayer y={-9.0} opacity={0.06} size={300} color="#00aa77" />
-      <fog attach="fog" args={['#011a12', 15, 120]} />
-    </>
+    </points>
   );
 }
 
@@ -840,7 +914,7 @@ export default function EliteShipScene() {
         gl={{ antialias: true, alpha: false }}
         style={{ background: BG }}
       >
-        <VolumetricFog />
+        <GlowParticles physics={physics} />
         <PhysicsDriver physics={physics} />
         <CockpitCamera physics={physics} audioRef={analysisRef} />
         <RealisticStarfield />
