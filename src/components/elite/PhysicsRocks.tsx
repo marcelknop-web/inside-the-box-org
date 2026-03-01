@@ -223,7 +223,7 @@ export function DynamicRock({ index, physics }: { index: number; physics: RockPh
     const nearFactor = Math.max(0, 1 - dist / 80);
 
     if (lineMatRef.current) {
-      lineMatRef.current.opacity = 0.08 + nearFactor * nearFactor * 0.85;
+      lineMatRef.current.opacity = 0.2 + nearFactor * 0.8;
     }
   });
 
@@ -243,7 +243,7 @@ export function DynamicRock({ index, physics }: { index: number; physics: RockPh
         <bufferGeometry>
           <bufferAttribute attach="attributes-position" args={[edges, 3]} />
         </bufferGeometry>
-        <lineBasicMaterial ref={lineMatRef} color={LINE_COLOR} transparent opacity={0.8} depthTest polygonOffset polygonOffsetFactor={-1} polygonOffsetUnits={-1} />
+        <lineBasicMaterial ref={lineMatRef} color={LINE_COLOR} transparent opacity={1.0} depthTest polygonOffset polygonOffsetFactor={-1} polygonOffsetUnits={-1} linewidth={1} />
       </lineSegments>
     </group>
   );
