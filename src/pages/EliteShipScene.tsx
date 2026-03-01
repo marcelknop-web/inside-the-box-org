@@ -66,44 +66,55 @@ function PhysicsDriver({ physics }: { physics: RockPhysics }) {
   return null;
 }
 
-/* ── Rain near objects only ── */
-const RAIN_COUNT = 2000;
+/* ── Intermittent gravity rain between rocks ── */
+const RAIN_COUNT_DESKTOP = 1400;
+const RAIN_COUNT_MOBILE = 780;
 const RAIN_SPREAD_LOCAL = 20;
 const FALL_SPEED_MIN = 10;
 const FALL_SPEED_MAX = 22;
 const NEAR_BLUR_DIST = 8;
 const FAR_BLUR_DIST = 60;
+const RAIN_ATTRACT_RADIUS = 26;
+const RAIN_ATTRACT_STRENGTH = 15;
+const RAIN_LATERAL_DAMPING = 0.985;
 
-function Rain({ physics }: { physics: RockPhysics }) {
+function Rain({ physics, mobile = false }: { physics: RockPhysics; mobile?: boolean }) {
   const linesRef = useRef<THREE.LineSegments>(null);
   const dotsRef = useRef<THREE.Points>(null);
   const { camera } = useThree();
   const timeRef = useRef(0);
+  const rainCount = mobile ? RAIN_COUNT_MOBILE : RAIN_COUNT_DESKTOP;
 
-  const { linePos, dotPos, speeds, dotSizes, alive, lineCol, dotCol } = useMemo(() => {
-    const lp = new Float32Array(RAIN_COUNT * 6);
-    const dp = new Float32Array(RAIN_COUNT * 3);
-    const spd = new Float32Array(RAIN_COUNT);
-    const ds = new Float32Array(RAIN_COUNT);
-    const al = new Uint8Array(RAIN_COUNT).fill(0);
-    const lc = new Float32Array(RAIN_COUNT * 8);
-    const dc = new Float32Array(RAIN_COUNT * 4);
-    for (let i = 0; i < RAIN_COUNT; i++) {
-      lp[i * 6 + 1] = -9999; lp[i * 6 + 4] = -9999;
+  const { linePos, dotPos, dotSizes, alive, lineCol, dotCol, velX, velY, velZ } = useMemo(() => {
+    const lp = new Float32Array(rainCount * 6);
+    const dp = new Float32Array(rainCount * 3);
+    const ds = new Float32Array(rainCount);
+    const al = new Uint8Array(rainCount).fill(0);
+    const lc = new Float32Array(rainCount * 8);
+    const dc = new Float32Array(rainCount * 4);
+    const vx = new Float32Array(rainCount);
+    const vy = new Float32Array(rainCount);
+    const vz = new Float32Array(rainCount);
+
+    for (let i = 0; i < rainCount; i++) {
+      lp[i * 6 + 1] = -9999;
+      lp[i * 6 + 4] = -9999;
       dp[i * 3 + 1] = -9999;
     }
-    return { linePos: lp, dotPos: dp, speeds: spd, dotSizes: ds, alive: al, lineCol: lc, dotCol: dc };
-  }, []);
 
-  const ages = useMemo(() => new Float32Array(RAIN_COUNT), []);
+    return { linePos: lp, dotPos: dp, dotSizes: ds, alive: al, lineCol: lc, dotCol: dc, velX: vx, velY: vy, velZ: vz };
+  }, [rainCount]);
+
+  const ages = useMemo(() => new Float32Array(rainCount), [rainCount]);
 
   useFrame((_, dt) => {
     if (!linesRef.current || !dotsRef.current) return;
     timeRef.current += dt;
 
-    const cycle = timeRef.current * 0.35;
-    const intensity = Math.max(0, Math.sin(cycle) * 0.5 + Math.sin(cycle * 1.7) * 0.3 + Math.sin(cycle * 3.1) * 0.2);
-    const spawning = intensity > 0.05;
+    const cycle = timeRef.current * 0.28;
+    const pulse = Math.sin(cycle) * 0.55 + Math.sin(cycle * 1.9) * 0.3 + Math.sin(cycle * 3.4) * 0.15;
+    const intensity = Math.max(0, pulse);
+    const spawning = intensity > 0.16;
 
     const lAttr = linesRef.current.geometry.attributes.position as THREE.BufferAttribute;
     const lcAttr = linesRef.current.geometry.attributes.color as THREE.BufferAttribute;
@@ -118,113 +129,183 @@ function Rain({ physics }: { physics: RockPhysics }) {
     const cam = camera.position;
     const pp = physics.positions;
     const n = physics.count;
+    const attractRadiusSq = RAIN_ATTRACT_RADIUS * RAIN_ATTRACT_RADIUS;
 
-    for (let i = 0; i < RAIN_COUNT; i++) {
-      const i6 = i * 6, i3 = i * 3, i8 = i * 8, i4 = i * 4;
+    if (n === 0) return;
+
+    for (let i = 0; i < rainCount; i++) {
+      const i6 = i * 6;
+      const i3 = i * 3;
+      const i8 = i * 8;
+      const i4 = i * 4;
 
       if (alive[i] === 0) {
-        if (spawning && Math.random() < intensity * 0.15) {
+        if (spawning && Math.random() < intensity * 0.13) {
           let attempts = 0;
-          let rx = 0, ry = 0, rz = 0;
+          let rx = 0;
+          let ry = 0;
+          let rz = 0;
+
           while (attempts < 5) {
             const ri = Math.floor(Math.random() * n);
             const rix = ri * 3;
-            const rdx = pp[rix] - cam.x, rdz = pp[rix + 2] - cam.z;
-            if (rdx * rdx + rdz * rdz < 80 * 80) {
+            const rdx = pp[rix] - cam.x;
+            const rdz = pp[rix + 2] - cam.z;
+
+            if (rdx * rdx + rdz * rdz < 85 * 85) {
               rx = pp[rix] + (Math.random() - 0.5) * RAIN_SPREAD_LOCAL;
-              ry = pp[rix + 1] + 10 + Math.random() * 20;
+              ry = pp[rix + 1] + 10 + Math.random() * 18;
               rz = pp[rix + 2] + (Math.random() - 0.5) * RAIN_SPREAD_LOCAL;
               break;
             }
             attempts++;
           }
+
           if (attempts >= 5) continue;
 
           alive[i] = 1;
           ages[i] = 0;
-          speeds[i] = FALL_SPEED_MIN + Math.random() * (FALL_SPEED_MAX - FALL_SPEED_MIN);
-          lp[i6] = rx; lp[i6 + 1] = ry; lp[i6 + 2] = rz;
-          lp[i6 + 3] = rx; lp[i6 + 4] = ry; lp[i6 + 5] = rz;
-          dp[i3] = rx; dp[i3 + 1] = ry; dp[i3 + 2] = rz;
+          velX[i] = (Math.random() - 0.5) * 2.2;
+          velY[i] = -(FALL_SPEED_MIN + Math.random() * (FALL_SPEED_MAX - FALL_SPEED_MIN));
+          velZ[i] = (Math.random() - 0.5) * 2.2;
+
+          lp[i6] = rx;
+          lp[i6 + 1] = ry;
+          lp[i6 + 2] = rz;
+          lp[i6 + 3] = rx;
+          lp[i6 + 4] = ry;
+          lp[i6 + 5] = rz;
+          dp[i3] = rx;
+          dp[i3 + 1] = ry;
+          dp[i3 + 2] = rz;
         } else {
-          lp[i6 + 1] = -9999; lp[i6 + 4] = -9999;
+          lp[i6 + 1] = -9999;
+          lp[i6 + 4] = -9999;
           dp[i3 + 1] = -9999;
-          ds[i] = 0; dc[i4 + 3] = 0;
-          lc[i8 + 3] = 0; lc[i8 + 7] = 0;
+          ds[i] = 0;
+          dc[i4 + 3] = 0;
+          lc[i8 + 3] = 0;
+          lc[i8 + 7] = 0;
           continue;
         }
       }
 
       ages[i] += dt;
-      const fall = speeds[i] * dt;
-      const drift = Math.sin(lp[i6 + 1] * 0.5) * 0.012;
 
-      lp[i6] += drift;
-      lp[i6 + 1] -= fall;
-      lp[i6 + 2] += drift * 0.3;
+      // Sample nearest rock and pull droplet towards it (gravity-like attraction)
+      let nearestDistSq = Number.POSITIVE_INFINITY;
+      let nearestDx = 0;
+      let nearestDy = 0;
+      let nearestDz = 0;
+      const sampleCount = mobile ? 14 : 26;
+      const start = (i * 17 + ((timeRef.current * 11) | 0)) % n;
+      const step = Math.max(1, Math.floor(n / sampleCount));
 
-      const birthFade = Math.min(ages[i] * 3, 1);
-      const streakLen = speeds[i] * 0.14 * birthFade;
+      for (let s = 0, ri = start; s < sampleCount; s++, ri = (ri + step) % n) {
+        const rix = ri * 3;
+        const dx = pp[rix] - lp[i6];
+        const dy = pp[rix + 1] - lp[i6 + 1];
+        const dz = pp[rix + 2] - lp[i6 + 2];
+        const distSq = dx * dx + dy * dy + dz * dz;
+        if (distSq < nearestDistSq) {
+          nearestDistSq = distSq;
+          nearestDx = dx;
+          nearestDy = dy;
+          nearestDz = dz;
+        }
+      }
 
-      lp[i6 + 3] = lp[i6];
-      lp[i6 + 4] = lp[i6 + 1] - streakLen;
-      lp[i6 + 5] = lp[i6 + 2];
+      if (nearestDistSq < attractRadiusSq) {
+        const dist = Math.sqrt(nearestDistSq) + 0.001;
+        const invDist = 1 / dist;
+        const pull = (1 - Math.min(dist / RAIN_ATTRACT_RADIUS, 1)) * RAIN_ATTRACT_STRENGTH;
+        velX[i] += nearestDx * invDist * pull * dt;
+        velY[i] += nearestDy * invDist * pull * dt * 0.25;
+        velZ[i] += nearestDz * invDist * pull * dt;
+      }
 
-      dp[i3] = lp[i6]; dp[i3 + 1] = lp[i6 + 1]; dp[i3 + 2] = lp[i6 + 2];
+      // Base gravity + slight noise
+      velY[i] -= 7.5 * dt;
+      velX[i] = velX[i] * RAIN_LATERAL_DAMPING + Math.sin((i + timeRef.current) * 0.07) * 0.004;
+      velZ[i] = velZ[i] * RAIN_LATERAL_DAMPING + Math.cos((i + timeRef.current) * 0.05) * 0.004;
+
+      lp[i6] += velX[i] * dt;
+      lp[i6 + 1] += velY[i] * dt;
+      lp[i6 + 2] += velZ[i] * dt;
+
+      const speed = Math.sqrt(velX[i] * velX[i] + velY[i] * velY[i] + velZ[i] * velZ[i]);
+      const invSpeed = speed > 0.001 ? 1 / speed : 0;
+      const birthFade = Math.min(ages[i] * 2.8, 1);
+      const streakLen = (0.25 + Math.min(5.8, speed * 0.2)) * birthFade;
+
+      lp[i6 + 3] = lp[i6] - velX[i] * invSpeed * streakLen;
+      lp[i6 + 4] = lp[i6 + 1] - velY[i] * invSpeed * streakLen;
+      lp[i6 + 5] = lp[i6 + 2] - velZ[i] * invSpeed * streakLen;
+
+      dp[i3] = lp[i6];
+      dp[i3 + 1] = lp[i6 + 1];
+      dp[i3 + 2] = lp[i6 + 2];
 
       const dx = lp[i6] - cam.x;
       const dy = lp[i6 + 1] - cam.y;
       const dz = lp[i6 + 2] - cam.z;
       const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
 
-      let nearRock = false;
-      for (let ri = 0; ri < n; ri++) {
-        const rix = ri * 3;
-        const ddx = lp[i6] - pp[rix], ddy = lp[i6 + 1] - pp[rix + 1], ddz = lp[i6 + 2] - pp[rix + 2];
-        if (ddx * ddx + ddy * ddy + ddz * ddz < RAIN_SPREAD_LOCAL * RAIN_SPREAD_LOCAL * 4) {
-          nearRock = true;
-          break;
-        }
-      }
-
-      if (!nearRock) {
+      const nearRock = nearestDistSq < RAIN_SPREAD_LOCAL * RAIN_SPREAD_LOCAL * 5;
+      if (!nearRock || lp[i6 + 1] < cam.y - 55) {
         alive[i] = 0;
-        lp[i6 + 1] = -9999; lp[i6 + 4] = -9999;
+        lp[i6 + 1] = -9999;
+        lp[i6 + 4] = -9999;
         dp[i3 + 1] = -9999;
-        ds[i] = 0; dc[i4 + 3] = 0; lc[i8 + 3] = 0; lc[i8 + 7] = 0;
+        ds[i] = 0;
+        dc[i4 + 3] = 0;
+        lc[i8 + 3] = 0;
+        lc[i8 + 7] = 0;
         continue;
       }
 
-      const dropletVis = birthFade < 0.8 ? (1 - birthFade) * 0.6 : 0;
+      const attractionVis = nearestDistSq < attractRadiusSq ? 1 - Math.sqrt(nearestDistSq) / RAIN_ATTRACT_RADIUS : 0;
+      const dropletVis = birthFade < 0.9 ? (1 - birthFade) * 0.5 : 0;
 
       if (dist < NEAR_BLUR_DIST) {
         const t = dist / NEAR_BLUR_DIST;
-        lc[i8 + 3] = 0.2 + t * 0.35; lc[i8 + 7] = 0.06;
-        ds[i] = 1.5 + (1 - t) * 3.0;
-        dc[i4 + 3] = (0.15 + t * 0.2) * (dropletVis + 0.4);
-        lc[i8] = 0.15; lc[i8 + 1] = 0.9; lc[i8 + 2] = 0.65;
-        lc[i8 + 4] = 0.1; lc[i8 + 5] = 0.65; lc[i8 + 6] = 0.45;
+        lc[i8 + 3] = 0.24 + t * 0.34 + attractionVis * 0.08;
+        lc[i8 + 7] = 0.04;
+        ds[i] = 1.2 + (1 - t) * 2.4;
+        dc[i4 + 3] = (0.1 + t * 0.18) * (dropletVis + 0.35);
+        lc[i8] = 0.2;
+        lc[i8 + 1] = 0.92;
+        lc[i8 + 2] = 0.72;
+        lc[i8 + 4] = 0.12;
+        lc[i8 + 5] = 0.68;
+        lc[i8 + 6] = 0.48;
       } else if (dist < FAR_BLUR_DIST) {
-        const alpha = 0.4 + Math.random() * 0.3;
-        lc[i8 + 3] = alpha; lc[i8 + 7] = alpha * 0.2;
-        ds[i] = 0.3;
-        dc[i4 + 3] = dropletVis * 0.6;
-        lc[i8] = 0; lc[i8 + 1] = 1; lc[i8 + 2] = 0.67;
-        lc[i8 + 4] = 0; lc[i8 + 5] = 0.75; lc[i8 + 6] = 0.5;
+        const alpha = 0.35 + Math.random() * 0.24 + attractionVis * 0.12;
+        lc[i8 + 3] = alpha;
+        lc[i8 + 7] = alpha * 0.22;
+        ds[i] = 0.25;
+        dc[i4 + 3] = dropletVis * 0.55;
+        lc[i8] = 0.02;
+        lc[i8 + 1] = 0.95;
+        lc[i8 + 2] = 0.7;
+        lc[i8 + 4] = 0;
+        lc[i8 + 5] = 0.72;
+        lc[i8 + 6] = 0.52;
       } else {
-        const t = Math.min((dist - FAR_BLUR_DIST) / 30, 1);
-        lc[i8 + 3] = 0.25 * (1 - t); lc[i8 + 7] = 0;
-        ds[i] = 0.15;
-        dc[i4 + 3] = dropletVis * 0.35 * (1 - t);
-        lc[i8] = 0; lc[i8 + 1] = 0.8; lc[i8 + 2] = 0.55;
-        lc[i8 + 4] = 0; lc[i8 + 5] = 0.55; lc[i8 + 6] = 0.4;
-      }
-
-      if (lp[i6 + 1] < cam.y - 50) {
-        alive[i] = 0;
-        continue;
+        const t = Math.min((dist - FAR_BLUR_DIST) / 35, 1);
+        lc[i8 + 3] = (0.2 + attractionVis * 0.08) * (1 - t);
+        lc[i8 + 7] = 0;
+        ds[i] = 0.12;
+        dc[i4 + 3] = dropletVis * 0.3 * (1 - t);
+        lc[i8] = 0;
+        lc[i8 + 1] = 0.78;
+        lc[i8 + 2] = 0.56;
+        lc[i8 + 4] = 0;
+        lc[i8 + 5] = 0.56;
+        lc[i8 + 6] = 0.42;
       }
     }
+
     lAttr.needsUpdate = true;
     lcAttr.needsUpdate = true;
     dAttr.needsUpdate = true;
@@ -234,14 +315,14 @@ function Rain({ physics }: { physics: RockPhysics }) {
 
   return (
     <>
-      <lineSegments ref={linesRef}>
+      <lineSegments ref={linesRef} frustumCulled={false}>
         <bufferGeometry>
           <bufferAttribute attach="attributes-position" args={[linePos, 3]} />
           <bufferAttribute attach="attributes-color" args={[lineCol, 4]} />
         </bufferGeometry>
         <lineBasicMaterial vertexColors transparent depthWrite={false} blending={THREE.AdditiveBlending} />
       </lineSegments>
-      <points ref={dotsRef}>
+      <points ref={dotsRef} frustumCulled={false}>
         <bufferGeometry>
           <bufferAttribute attach="attributes-position" args={[dotPos, 3]} />
           <bufferAttribute attach="attributes-color" args={[dotCol, 4]} />
@@ -252,9 +333,8 @@ function Rain({ physics }: { physics: RockPhysics }) {
     </>
   );
 }
-
-/* ── Photorealistic Starfield with custom shader ── */
-const STAR_COUNT = 45000;
+const STAR_COUNT_DESKTOP = 28000;
+const STAR_COUNT_MOBILE = 12000;
 
 const starVertexShader = `
   attribute float size;
@@ -305,29 +385,28 @@ const starFragmentShader = `
   }
 `;
 
-function RealisticStarfield() {
+function RealisticStarfield({ mobile = false }: { mobile?: boolean }) {
   const pointsRef = useRef<THREE.Points>(null);
-  const shaderRef = useRef<THREE.ShaderMaterial>(null);
+  const twinkleTick = useRef(0);
+  const starCount = mobile ? STAR_COUNT_MOBILE : STAR_COUNT_DESKTOP;
 
   const { positions, colors, sizes, brightnesses, baseColors } = useMemo(() => {
-    const pos = new Float32Array(STAR_COUNT * 3);
-    const col = new Float32Array(STAR_COUNT * 3);
-    const sz = new Float32Array(STAR_COUNT);
-    const br = new Float32Array(STAR_COUNT);
+    const pos = new Float32Array(starCount * 3);
+    const col = new Float32Array(starCount * 3);
+    const sz = new Float32Array(starCount);
+    const br = new Float32Array(starCount);
 
     const milkyAxis = new THREE.Vector3(0.3, 1, 0.2).normalize();
     const perp1Base = new THREE.Vector3().crossVectors(milkyAxis, new THREE.Vector3(1, 0, 0)).normalize();
     const perp2Base = new THREE.Vector3().crossVectors(milkyAxis, perp1Base).normalize();
 
-    for (let i = 0; i < STAR_COUNT; i++) {
+    for (let i = 0; i < starCount; i++) {
       const i3 = i * 3;
       let theta = Math.random() * Math.PI * 2;
       let phi = Math.acos(2 * Math.random() - 1);
 
-      // 45% concentrated in milky way band with varying density
-      if (i < STAR_COUNT * 0.45) {
+      if (i < starCount * 0.45) {
         const along = (Math.random() - 0.5) * 2;
-        // Box-Muller for gaussian spread
         const u1 = Math.random() || 0.001;
         const u2 = Math.random();
         const gaussSpread = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2) * 0.15;
@@ -343,80 +422,80 @@ function RealisticStarfield() {
         phi = Math.acos(Math.max(-1, Math.min(1, dir.y)));
       }
 
-      // Vary distance for depth
       const r = 180 + Math.random() * 350;
       pos[i3] = r * Math.sin(phi) * Math.cos(theta);
       pos[i3 + 1] = r * Math.sin(phi) * Math.sin(theta);
       pos[i3 + 2] = r * Math.cos(phi);
 
-      // Realistic luminosity function (exponential falloff — many dim, few bright)
       const mag = Math.pow(Math.random(), 3.2);
       const brightness = 0.15 + mag * 0.85;
       br[i] = brightness;
 
-      // Realistic spectral color temperatures (Planck-like)
       const temp = Math.random();
-      let cr: number, cg: number, cb: number;
+      let cr: number;
+      let cg: number;
+      let cb: number;
       if (temp < 0.03) {
-        // O-type blue-white (very rare, very bright)
         cr = 0.62; cg = 0.72; cb = 1.0;
       } else if (temp < 0.13) {
-        // B-type blue
         cr = 0.68; cg = 0.8; cb = 1.0;
       } else if (temp < 0.35) {
-        // A-type white-blue (Sirius-like)
         cr = 0.88; cg = 0.92; cb = 1.0;
       } else if (temp < 0.55) {
-        // F-type yellow-white
         cr = 1.0; cg = 0.98; cb = 0.92;
       } else if (temp < 0.72) {
-        // G-type yellow (Sun-like)
         cr = 1.0; cg = 0.94; cb = 0.8;
       } else if (temp < 0.88) {
-        // K-type orange
         cr = 1.0; cg = 0.8; cb = 0.55;
       } else {
-        // M-type red (most common in reality)
         cr = 1.0; cg = 0.6; cb = 0.35;
       }
+
       col[i3] = cr * brightness;
       col[i3 + 1] = cg * brightness;
       col[i3 + 2] = cb * brightness;
 
-      // Size distribution: inverse square law feel
       sz[i] = mag < 0.05 ? 0.1 + Math.random() * 0.08
-            : mag < 0.3 ? 0.18 + mag * 0.4
-            : mag < 0.7 ? 0.4 + mag * 1.0
-            : mag < 0.9 ? 1.2 + mag * 2.5
-            : 3.5 + mag * 5.0; // very rare brilliant stars
+        : mag < 0.3 ? 0.18 + mag * 0.4
+        : mag < 0.7 ? 0.4 + mag * 1.0
+        : mag < 0.9 ? 1.2 + mag * 2.5
+        : 3.5 + mag * 5.0;
     }
+
     return { positions: pos, colors: col, sizes: sz, brightnesses: br, baseColors: new Float32Array(col) };
-  }, []);
+  }, [starCount]);
 
   const twinklePhases = useMemo(() => {
-    const p = new Float32Array(STAR_COUNT);
-    for (let i = 0; i < STAR_COUNT; i++) p[i] = Math.random() * Math.PI * 2;
+    const p = new Float32Array(starCount);
+    for (let i = 0; i < starCount; i++) p[i] = Math.random() * Math.PI * 2;
     return p;
-  }, []);
+  }, [starCount]);
+
   const twinkleSpeeds = useMemo(() => {
-    const s = new Float32Array(STAR_COUNT);
-    for (let i = 0; i < STAR_COUNT; i++) s[i] = 0.015 + Math.random() * 0.12;
+    const s = new Float32Array(starCount);
+    for (let i = 0; i < starCount; i++) s[i] = 0.015 + Math.random() * 0.12;
     return s;
-  }, []);
-  // Atmospheric scintillation – very subtle, only dim stars shimmer noticeably
+  }, [starCount]);
+
   const twinkleAmplitudes = useMemo(() => {
-    const a = new Float32Array(STAR_COUNT);
-    for (let i = 0; i < STAR_COUNT; i++) {
-      // Bright stars barely twinkle, dim stars shimmer gently
+    const a = new Float32Array(starCount);
+    for (let i = 0; i < starCount; i++) {
       const dimness = 1.0 - brightnesses[i];
       a[i] = 0.02 + dimness * dimness * 0.12;
     }
     return a;
-  }, [brightnesses]);
+  }, [brightnesses, starCount]);
 
   useFrame(({ clock, camera }) => {
     if (!pointsRef.current) return;
     pointsRef.current.position.copy(camera.position);
+
+    // Mobile: keep stars static for stability/performance
+    if (mobile) return;
+
+    // Desktop: update twinkle every other frame to reduce load
+    twinkleTick.current = (twinkleTick.current + 1) % 2;
+    if (twinkleTick.current !== 0) return;
 
     const t = clock.elapsedTime;
     const colAttr = pointsRef.current.geometry.attributes.color as THREE.BufferAttribute;
@@ -424,12 +503,10 @@ function RealisticStarfield() {
     const brAttr = pointsRef.current.geometry.attributes.brightness as THREE.BufferAttribute;
     const brArr = brAttr.array as Float32Array;
 
-    // Gentle atmospheric scintillation – slow, smooth, subtle
-    for (let i = 0; i < STAR_COUNT; i++) {
+    for (let i = 0; i < starCount; i++) {
       const amp = twinkleAmplitudes[i];
       const phase = twinklePhases[i];
       const speed = twinkleSpeeds[i];
-      // Smooth multi-frequency with very slow base
       const scint = 1.0 - amp * (
         0.6 * Math.sin(t * speed + phase) * Math.sin(t * speed + phase) +
         0.3 * Math.sin(t * speed * 1.7 + phase * 2.1) * Math.sin(t * speed * 1.7 + phase * 2.1) +
@@ -441,6 +518,7 @@ function RealisticStarfield() {
       col[i3 + 2] = baseColors[i3 + 2] * scint;
       brArr[i] = brightnesses[i] * scint;
     }
+
     colAttr.needsUpdate = true;
     brAttr.needsUpdate = true;
   });
@@ -454,7 +532,6 @@ function RealisticStarfield() {
         <bufferAttribute attach="attributes-brightness" args={[brightnesses, 1]} />
       </bufferGeometry>
       <shaderMaterial
-        ref={shaderRef}
         vertexShader={starVertexShader}
         fragmentShader={starFragmentShader}
         vertexColors
@@ -462,6 +539,7 @@ function RealisticStarfield() {
         depthWrite={false}
         depthTest={false}
         blending={THREE.AdditiveBlending}
+        toneMapped={false}
       />
     </points>
   );
@@ -1116,18 +1194,35 @@ export default function EliteShipScene({ embedded = false }: { embedded?: boolea
 
   return (
     <div className={`relative w-full ${embedded ? 'h-[80vh] rounded-xl overflow-hidden' : 'h-screen'} overflow-hidden`} style={{ background: BG }}>
+      {/* CSS fallback sky to guarantee visible stars even if GPU shader is throttled */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          zIndex: 0,
+          backgroundImage: [
+            'radial-gradient(circle at 18% 22%, rgba(170,255,235,0.22) 0.8px, transparent 1.4px)',
+            'radial-gradient(circle at 72% 58%, rgba(140,220,255,0.18) 0.8px, transparent 1.5px)',
+            'radial-gradient(circle at 42% 78%, rgba(255,255,255,0.12) 0.7px, transparent 1.3px)',
+            'linear-gradient(180deg, rgba(5,12,20,0.9) 0%, rgba(0,0,0,1) 100%)',
+          ].join(', '),
+          backgroundSize: '220px 220px, 320px 320px, 160px 160px, 100% 100%',
+          backgroundPosition: '0 0, 80px 40px, 40px 120px, 0 0',
+        }}
+      />
+
       <Canvas
+        className="relative z-10"
         camera={{ fov: 70, near: 0.1, far: 900 }}
-        gl={{ antialias: true, alpha: false }}
-        style={{ background: BG }}
+        gl={{ antialias: !mobile, alpha: true, powerPreference: mobile ? 'low-power' : 'high-performance' }}
+        style={{ background: 'transparent' }}
       >
         <PhysicsDriver physics={physics} />
         <CockpitCamera physics={physics} audioRef={analysisRef} flightInput={flightInput} />
         <MilkyWayNebula />
-        <RealisticStarfield />
+        <RealisticStarfield mobile={mobile} />
         <ShootingStars />
         <BackgroundMeteor />
-        <Rain physics={physics} />
+        <Rain physics={physics} mobile={mobile} />
         <RockField physics={physics} mobile={mobile} />
         <DebrisSystem physics={physics} />
       </Canvas>
