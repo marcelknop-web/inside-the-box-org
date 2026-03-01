@@ -196,7 +196,7 @@ export function stepPhysics(phys: RockPhysics, dt: number) {
 export function DynamicRock({ index, physics }: { index: number; physics: RockPhysics }) {
   const ref = useRef<THREE.Group>(null);
   const lineMatRef = useRef<THREE.LineBasicMaterial>(null);
-  const { geo: _geo, edges } = useMemo(
+  const { geo, edges } = useMemo(
     () => buildPolyhedron(physics.seeds[index], physics.radii[index]),
     [physics.seeds[index], physics.radii[index]]
   );
@@ -229,11 +229,21 @@ export function DynamicRock({ index, physics }: { index: number; physics: RockPh
 
   return (
     <group ref={ref}>
-      <lineSegments>
+      {/* Invisible solid mesh – writes to depth buffer to occlude hidden lines */}
+      <mesh geometry={geo} renderOrder={0}>
+        <meshBasicMaterial
+          color="#000000"
+          side={THREE.FrontSide}
+          depthWrite
+          colorWrite={false}
+        />
+      </mesh>
+      {/* Visible wireframe edges – depth tested against the solid */}
+      <lineSegments renderOrder={1}>
         <bufferGeometry>
           <bufferAttribute attach="attributes-position" args={[edges, 3]} />
         </bufferGeometry>
-        <lineBasicMaterial ref={lineMatRef} color={LINE_COLOR} transparent opacity={0.8} depthTest={false} />
+        <lineBasicMaterial ref={lineMatRef} color={LINE_COLOR} transparent opacity={0.8} depthTest polygonOffset polygonOffsetFactor={-1} polygonOffsetUnits={-1} />
       </lineSegments>
     </group>
   );
