@@ -1049,7 +1049,7 @@ export default function EliteShipScene({ embedded = false }: { embedded?: boolea
           opacity: 0.6,
         }}
       >
-        {playing ? '■ STOP 432Hz' : '♫ 432Hz AMBIENT'}
+        {playing ? '■ SOUND OFF' : '♫ SOUND ON'}
       </button>
     </div>
   );
