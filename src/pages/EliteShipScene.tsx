@@ -1264,6 +1264,38 @@ export default function EliteShipScene({ embedded = false }: { embedded?: boolea
       
       <CockpitHUD flightInput={flightInput} />
 
+      {/* Mobile touch zones overlay */}
+      {mobile && (
+        <div className="absolute inset-0 z-20 pointer-events-none flex">
+          {/* Left zone: pitch/roll joystick hint */}
+          <div className="w-1/2 h-full flex items-end justify-center pb-20 pointer-events-auto opacity-0 active:opacity-100 transition-opacity">
+            <div className="relative w-24 h-24">
+              <svg viewBox="0 0 96 96" className="w-full h-full" style={{ color: LINE_COLOR }}>
+                <circle cx="48" cy="48" r="46" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.3" />
+                <circle cx="48" cy="48" r="4" fill="currentColor" opacity="0.5" />
+                {/* Directional arrows */}
+                <path d="M48 12 L44 22 L52 22 Z" fill="currentColor" opacity="0.4" />
+                <path d="M48 84 L44 74 L52 74 Z" fill="currentColor" opacity="0.4" />
+                <path d="M12 48 L22 44 L22 52 Z" fill="currentColor" opacity="0.4" />
+                <path d="M84 48 L74 44 L74 52 Z" fill="currentColor" opacity="0.4" />
+              </svg>
+              <span className="absolute -bottom-5 left-0 right-0 text-center text-[8px] tracking-[0.15em] uppercase font-mono" style={{ color: LINE_COLOR, opacity: 0.4 }}>PITCH · ROLL</span>
+            </div>
+          </div>
+          {/* Right zone: throttle hint */}
+          <div className="w-1/2 h-full flex items-end justify-center pb-20 pointer-events-auto opacity-0 active:opacity-100 transition-opacity">
+            <div className="relative h-24 w-8">
+              <svg viewBox="0 0 32 96" className="w-full h-full" style={{ color: LINE_COLOR }}>
+                <rect x="12" y="4" width="8" height="88" rx="4" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.3" />
+                <path d="M16 12 L12 22 L20 22 Z" fill="currentColor" opacity="0.4" />
+                <path d="M16 84 L12 74 L20 74 Z" fill="currentColor" opacity="0.4" />
+              </svg>
+              <span className="absolute -bottom-5 left-0 right-0 text-center text-[8px] tracking-[0.15em] uppercase font-mono whitespace-nowrap" style={{ color: LINE_COLOR, opacity: 0.4 }}>THROTTLE</span>
+            </div>
+          </div>
+        </div>
+      )}
+
       <button
         onClick={playing ? stop : start}
         className="absolute bottom-6 right-6 z-30 px-4 py-2 rounded border text-[11px] tracking-[0.2em] uppercase font-mono transition-opacity hover:opacity-100"
