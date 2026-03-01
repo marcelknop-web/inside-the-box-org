@@ -270,9 +270,12 @@ const useServiceContent = () => {
   const contentMap: Record<string, () => ReactNode> = {
     isms: () => (
       <TypedSection title={t('isms.title')} mode="typewriter" intro={<p>{t('isms.intro')}</p>}>
+        <Block className="bg-card/40 rounded-xl">
+          <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{t('isms.introDetail')}</p>
+        </Block>
         <Block className="bg-primary/5 border border-primary/20 rounded-xl">
           <SubTitle>{t('isms.approachTitle')}</SubTitle>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
+          <div className="grid grid-cols-1 gap-3 mt-2">
             <GridItem icon={Search} title={t('isms.step1Title')} desc={t('isms.step1Desc')} />
             <GridItem icon={Settings} title={t('isms.step2Title')} desc={t('isms.step2Desc')} />
             <GridItem icon={Award} title={t('isms.step3Title')} desc={t('isms.step3Desc')} />
@@ -285,6 +288,20 @@ const useServiceContent = () => {
             <GridItem icon={ShieldCheck} title={t('isms.iso27001Title')} desc={t('isms.iso27001Desc')} variant="highlight" />
             <GridItem icon={FileText} title={t('isms.bsiTitle')} desc={t('isms.bsiDesc')} variant="highlight" />
           </div>
+        </Block>
+        <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
+          <SubTitle variant="highlight">{t('isms.refTitle')}</SubTitle>
+          <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mt-2">{t('isms.refDesc')}</p>
+        </Block>
+        <Block className="bg-primary/5 border border-primary/20 rounded-xl">
+          <SubTitle>{t('isms.ctaTitle')}</SubTitle>
+          <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mt-2">{t('isms.ctaDesc')}</p>
+          <button
+            onClick={() => setActive('contact')}
+            className="mt-3 inline-flex items-center gap-2 text-primary font-mono font-bold text-sm hover:text-highlight transition-electric cursor-pointer bg-transparent border-none p-0"
+          >
+            {t('isms.ctaButton')}
+          </button>
         </Block>
       </TypedSection>
     ),
