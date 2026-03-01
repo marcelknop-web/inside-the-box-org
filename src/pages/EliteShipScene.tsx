@@ -67,12 +67,11 @@ function PhysicsDriver({ physics }: { physics: RockPhysics }) {
 }
 
 /* ── Information exchange: data packets flow between rocks, larger blocks = more traffic ── */
-const INFO_COUNT_DESKTOP = 1400;
-const INFO_COUNT_MOBILE = 700;
+const INFO_COUNT_DESKTOP = 900;
+const INFO_COUNT_MOBILE = 400;
 
 function InfoExchange({ physics, mobile = false }: { physics: RockPhysics; mobile?: boolean }) {
   const linesRef = useRef<THREE.LineSegments>(null);
-  const dotsRef = useRef<THREE.Points>(null);
   const { camera } = useThree();
   const count = mobile ? INFO_COUNT_MOBILE : INFO_COUNT_DESKTOP;
 
@@ -103,50 +102,38 @@ function InfoExchange({ physics, mobile = false }: { physics: RockPhysics; mobil
 
   const data = useMemo(() => {
     const lp = new Float32Array(count * 6);
-    const dp = new Float32Array(count * 3);
-    const ds = new Float32Array(count);
     const lc = new Float32Array(count * 8);
-    const dc = new Float32Array(count * 4);
-    const vx = new Float32Array(count);
-    const vy = new Float32Array(count);
-    const vz = new Float32Array(count);
-    const alive = new Uint8Array(count);         // 0=dead, 1=active
-    const progress = new Float32Array(count);     // 0..1 journey progress
+    const alive = new Uint8Array(count);
+    const progress = new Float32Array(count);
     const sourceRock = new Int32Array(count).fill(-1);
     const targetRock = new Int32Array(count).fill(-1);
-    const travelTime = new Float32Array(count);   // total travel duration
+    const travelTime = new Float32Array(count);
     const age = new Float32Array(count);
-    const curveOffset = new Float32Array(count * 2); // lateral curve xy
+    const curveOffset = new Float32Array(count * 2);
 
     for (let i = 0; i < count; i++) {
       lp[i * 6 + 1] = -9999;
       lp[i * 6 + 4] = -9999;
-      dp[i * 3 + 1] = -9999;
     }
 
     return {
-      linePos: lp, dotPos: dp, dotSizes: ds, lineCol: lc, dotCol: dc,
-      velX: vx, velY: vy, velZ: vz,
+      linePos: lp, lineCol: lc,
       alive, progress, sourceRock, targetRock, travelTime, age, curveOffset,
     };
   }, [count]);
 
 
   useFrame((_, dt) => {
-    if (!linesRef.current || !dotsRef.current) return;
+    if (!linesRef.current) return;
 
     const {
-      linePos: lp, lineCol: lc, dotPos: dp, dotCol: dc, dotSizes: ds,
-      velX, velY, velZ,
+      linePos: lp, lineCol: lc,
       alive, progress: prog, sourceRock: src, targetRock: tgt,
       travelTime: tt, age, curveOffset: curve,
     } = data;
 
     const lAttr = linesRef.current.geometry.attributes.position as THREE.BufferAttribute;
     const lcAttr = linesRef.current.geometry.attributes.color as THREE.BufferAttribute;
-    const dAttr = dotsRef.current.geometry.attributes.position as THREE.BufferAttribute;
-    const dcAttr = dotsRef.current.geometry.attributes.color as THREE.BufferAttribute;
-    const dsAttr = dotsRef.current.geometry.attributes.size as THREE.BufferAttribute;
 
     const cam = camera.position;
     const pp = physics.positions;
@@ -157,16 +144,14 @@ function InfoExchange({ physics, mobile = false }: { physics: RockPhysics; mobil
 
     for (let i = 0; i < count; i++) {
       const i6 = i * 6;
-      const ip3 = i * 3;
       const i8 = i * 8;
-      const i4 = i * 4;
 
       // Spawn new packet
       if (!alive[i]) {
         // Continuous spawn: ~15% chance per dead particle per frame
         if (Math.random() > 0.15) {
-          lp[i6 + 1] = -9999; lp[i6 + 4] = -9999; dp[ip3 + 1] = -9999;
-          ds[i] = 0; dc[i4 + 3] = 0; lc[i8 + 3] = 0; lc[i8 + 7] = 0;
+          lp[i6 + 1] = -9999; lp[i6 + 4] = -9999;
+          lc[i8 + 3] = 0; lc[i8 + 7] = 0;
           continue;
         }
 
@@ -255,10 +240,6 @@ function InfoExchange({ physics, mobile = false }: { physics: RockPhysics; mobil
       lp[i6 + 4] = py - (dvy / spd) * streakLen;
       lp[i6 + 5] = pz - (dvz / spd) * streakLen;
 
-      dp[ip3] = px;
-      dp[ip3 + 1] = py;
-      dp[ip3 + 2] = pz;
-
       // Fade in/out at endpoints
       const edgeFade = Math.min(t01 * 5, (1 - t01) * 5, 1);
 
@@ -268,33 +249,24 @@ function InfoExchange({ physics, mobile = false }: { physics: RockPhysics; mobil
       const cdz = pz - cam.z;
       const dist = Math.sqrt(cdx * cdx + cdy * cdy + cdz * cdz);
 
-      if (dist < 8) {
-        const t = dist / 8;
-        lc[i8] = 0.2; lc[i8 + 1] = 0.92; lc[i8 + 2] = 0.72;
-        lc[i8 + 4] = 0.12; lc[i8 + 5] = 0.68; lc[i8 + 6] = 0.48;
-        lc[i8 + 3] = (0.3 + t * 0.3) * edgeFade;
-        lc[i8 + 7] = 0.04 * edgeFade;
-        ds[i] = (1.1 + (1 - t) * 2.1) * edgeFade;
-        dc[i4] = 0.2; dc[i4 + 1] = 0.92; dc[i4 + 2] = 0.72;
-        dc[i4 + 3] = 0.2 * edgeFade;
-      } else if (dist < 60) {
-        const a = (0.28 + Math.random() * 0.18) * edgeFade;
-        lc[i8] = 0.02; lc[i8 + 1] = 0.95; lc[i8 + 2] = 0.7;
+      if (dist < 12) {
+        const t = dist / 12;
+        lc[i8] = 0.2; lc[i8 + 1] = 0.95; lc[i8 + 2] = 0.72;
+        lc[i8 + 4] = 0.12; lc[i8 + 5] = 0.7; lc[i8 + 6] = 0.5;
+        lc[i8 + 3] = (0.35 + t * 0.25) * edgeFade;
+        lc[i8 + 7] = 0.06 * edgeFade;
+      } else if (dist < 70) {
+        const a = (0.3 + Math.random() * 0.15) * edgeFade;
+        lc[i8] = 0.05; lc[i8 + 1] = 0.95; lc[i8 + 2] = 0.7;
         lc[i8 + 4] = 0; lc[i8 + 5] = 0.72; lc[i8 + 6] = 0.52;
         lc[i8 + 3] = a;
         lc[i8 + 7] = a * 0.2;
-        ds[i] = 0.2 * edgeFade;
-        dc[i4] = 0.02; dc[i4 + 1] = 0.95; dc[i4 + 2] = 0.7;
-        dc[i4 + 3] = 0.11 * edgeFade;
       } else {
-        const t = Math.min((dist - 60) / 85, 1);
+        const t = Math.min((dist - 70) / 80, 1);
         lc[i8] = 0; lc[i8 + 1] = 0.78; lc[i8 + 2] = 0.56;
         lc[i8 + 4] = 0; lc[i8 + 5] = 0.56; lc[i8 + 6] = 0.42;
-        lc[i8 + 3] = 0.17 * (1 - t) * edgeFade;
+        lc[i8 + 3] = 0.2 * (1 - t) * edgeFade;
         lc[i8 + 7] = 0;
-        ds[i] = 0.07 * edgeFade;
-        dc[i4] = 0; dc[i4 + 1] = 0.78; dc[i4 + 2] = 0.56;
-        dc[i4 + 3] = 0.05 * (1 - t) * edgeFade;
       }
 
       // Kill when arrived
@@ -305,9 +277,6 @@ function InfoExchange({ physics, mobile = false }: { physics: RockPhysics; mobil
 
     lAttr.needsUpdate = true;
     lcAttr.needsUpdate = true;
-    dAttr.needsUpdate = true;
-    dcAttr.needsUpdate = true;
-    dsAttr.needsUpdate = true;
   });
 
   return (
