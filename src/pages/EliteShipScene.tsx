@@ -443,7 +443,7 @@ function RealisticStarfield() {
   });
 
   return (
-    <points ref={pointsRef}>
+    <points ref={pointsRef} renderOrder={-100}>
       <bufferGeometry>
         <bufferAttribute attach="attributes-position" args={[positions, 3]} />
         <bufferAttribute attach="attributes-color" args={[colors, 3]} />
@@ -457,6 +457,7 @@ function RealisticStarfield() {
         vertexColors
         transparent
         depthWrite={false}
+        depthTest={false}
         blending={THREE.AdditiveBlending}
       />
     </points>
@@ -535,13 +536,14 @@ function MilkyWayNebula() {
   return (
     <group>
       {nebulaData.map((cloud, i) => (
-        <sprite key={i} position={cloud.pos} scale={cloud.scaleVec} renderOrder={-1}>
+        <sprite key={i} position={cloud.pos} scale={cloud.scaleVec} renderOrder={-99}>
           <spriteMaterial
             map={nebulaTexture}
             color={cloud.color}
             transparent
             opacity={cloud.opacity}
             depthWrite={false}
+            depthTest={false}
             blending={THREE.AdditiveBlending}
             rotation={cloud.rotation}
           />
@@ -619,6 +621,7 @@ function ShootingStars() {
     `,
     transparent: true,
     depthWrite: false,
+    depthTest: false,
     blending: THREE.AdditiveBlending,
     side: THREE.DoubleSide,
   }), []);
