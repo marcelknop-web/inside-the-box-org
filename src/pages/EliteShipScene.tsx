@@ -103,15 +103,33 @@ function InfoExchange({ physics, mobile = false }: { physics: RockPhysics; mobil
     return w;
   }, [physics.count, physics.radii]);
 
-  const pickRockWeighted = () => {
-    const t = Math.random();
-    // binary search
-    let lo = 0, hi = physics.count - 1;
-    while (lo < hi) {
-      const mid = (lo + hi) >> 1;
-      if (weightTable[mid] < t) lo = mid + 1; else hi = mid;
+  // Pick a random rock (uniform) – used as source (any size)
+  const pickRockUniform = () => Math.floor(Math.random() * physics.count);
+
+  // Find the nearest rock that is strictly larger than rock s, within maxDist
+  const findLargerNeighbour = (s: number, maxDist: number): number => {
+    const sx3 = s * 3;
+    const sR = physics.radii[s];
+    const pp = physics.positions;
+    let bestIdx = -1;
+    let bestDist = maxDist;
+    // Sample up to 30 candidates for performance
+    const tries = Math.min(physics.count, 30);
+    for (let a = 0; a < tries; a++) {
+      const cand = Math.floor(Math.random() * physics.count);
+      if (cand === s) continue;
+      if (physics.radii[cand] <= sR * 1.15) continue; // must be meaningfully larger
+      const cx3 = cand * 3;
+      const ddx = pp[cx3] - pp[sx3];
+      const ddy = pp[cx3 + 1] - pp[sx3 + 1];
+      const ddz = pp[cx3 + 2] - pp[sx3 + 2];
+      const d = Math.sqrt(ddx * ddx + ddy * ddy + ddz * ddz);
+      if (d > 5 && d < bestDist) {
+        bestDist = d;
+        bestIdx = cand;
+      }
     }
-    return lo;
+    return bestIdx;
   };
 
   const data = useMemo(() => {
@@ -170,22 +188,11 @@ function InfoExchange({ physics, mobile = false }: { physics: RockPhysics; mobil
           continue;
         }
 
-        // Pick source (weighted by size)
-        const s = pickRockWeighted();
-        // Pick target – different rock, prefer nearby
-        let t = s;
+        // Routing: pick a random source, then find nearest LARGER rock as target
+        const s = pickRockUniform();
         const sx3 = s * 3;
-        for (let a = 0; a < 15; a++) {
-          const cand = pickRockWeighted();
-          if (cand === s) continue;
-          const cx3 = cand * 3;
-          const ddx = pp[cx3] - pp[sx3];
-          const ddy = pp[cx3 + 1] - pp[sx3 + 1];
-          const ddz = pp[cx3 + 2] - pp[sx3 + 2];
-          const d = Math.sqrt(ddx * ddx + ddy * ddy + ddz * ddz);
-          if (d > 5 && d < 80) { t = cand; break; }
-        }
-        if (t === s) continue;
+        const t = findLargerNeighbour(s, 80);
+        if (t < 0) continue; // no larger neighbour found
 
         // Only spawn near camera
         const rdx = pp[sx3] - cam.x;
