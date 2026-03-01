@@ -284,34 +284,36 @@ function InfoExchange({ physics, mobile = false }: { physics: RockPhysics; mobil
       const sunBoost = 1 + specular * 1.8 + glintStrength;
       const reflectMix = Math.min(specular * 2 + glintStrength * 0.5, 1);
 
+      // Cyan base (#00bcd4) → Gold (#f5b800) on reflection/glint
+      // Cyan RGB: 0, 0.737, 0.831  |  Gold RGB: 0.961, 0.722, 0
       if (dist < 12) {
         const td = dist / 12;
-        lc[i8]     = 0.2 + reflectMix * 0.8;
-        lc[i8 + 1] = 0.95 + reflectMix * 0.05;
-        lc[i8 + 2] = 0.72 + reflectMix * 0.28;
-        lc[i8 + 4] = 0.12 + reflectMix * 0.78;
-        lc[i8 + 5] = 0.7 + reflectMix * 0.3;
-        lc[i8 + 6] = 0.5 + reflectMix * 0.5;
+        lc[i8]     = reflectMix * 0.96;
+        lc[i8 + 1] = 0.74 + reflectMix * (0.72 - 0.74);
+        lc[i8 + 2] = 0.83 * (1 - reflectMix);
+        lc[i8 + 4] = reflectMix * 0.85;
+        lc[i8 + 5] = 0.6 + reflectMix * 0.1;
+        lc[i8 + 6] = 0.7 * (1 - reflectMix);
         lc[i8 + 3] = Math.min((0.35 + td * 0.25) * edgeFade * sunBoost, 1);
         lc[i8 + 7] = 0.06 * edgeFade * sunBoost;
       } else if (dist < 70) {
         const a = Math.min((0.3 + Math.random() * 0.15) * edgeFade * sunBoost, 1);
-        lc[i8]     = 0.05 + reflectMix * 0.9;
-        lc[i8 + 1] = 0.95 + reflectMix * 0.05;
-        lc[i8 + 2] = 0.7 + reflectMix * 0.3;
-        lc[i8 + 4] = reflectMix * 0.85;
-        lc[i8 + 5] = 0.72 + reflectMix * 0.28;
-        lc[i8 + 6] = 0.52 + reflectMix * 0.48;
+        lc[i8]     = reflectMix * 0.96;
+        lc[i8 + 1] = 0.74 + reflectMix * (0.72 - 0.74);
+        lc[i8 + 2] = 0.83 * (1 - reflectMix);
+        lc[i8 + 4] = reflectMix * 0.8;
+        lc[i8 + 5] = 0.55 + reflectMix * 0.15;
+        lc[i8 + 6] = 0.65 * (1 - reflectMix);
         lc[i8 + 3] = a;
         lc[i8 + 7] = a * 0.2;
       } else {
         const td = Math.min((dist - 70) / 80, 1);
         lc[i8]     = reflectMix * 0.7;
-        lc[i8 + 1] = 0.78 + reflectMix * 0.22;
-        lc[i8 + 2] = 0.56 + reflectMix * 0.44;
+        lc[i8 + 1] = 0.5 + reflectMix * 0.2;
+        lc[i8 + 2] = 0.6 * (1 - reflectMix);
         lc[i8 + 4] = reflectMix * 0.5;
-        lc[i8 + 5] = 0.56 + reflectMix * 0.44;
-        lc[i8 + 6] = 0.42 + reflectMix * 0.58;
+        lc[i8 + 5] = 0.4 + reflectMix * 0.15;
+        lc[i8 + 6] = 0.5 * (1 - reflectMix);
         lc[i8 + 3] = Math.min(0.2 * (1 - td) * edgeFade * sunBoost, 1);
         lc[i8 + 7] = 0;
       }
