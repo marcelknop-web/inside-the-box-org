@@ -56,12 +56,12 @@ function PhysicsDriver({ physics }: { physics: RockPhysics }) {
 }
 
 /* ── Rain near objects only ── */
-const RAIN_COUNT = 800;
-const RAIN_SPREAD_LOCAL = 15;
-const FALL_SPEED_MIN = 14;
-const FALL_SPEED_MAX = 26;
-const NEAR_BLUR_DIST = 6;
-const FAR_BLUR_DIST = 50;
+const RAIN_COUNT = 2000;
+const RAIN_SPREAD_LOCAL = 20;
+const FALL_SPEED_MIN = 10;
+const FALL_SPEED_MAX = 22;
+const NEAR_BLUR_DIST = 8;
+const FAR_BLUR_DIST = 60;
 
 function Rain({ physics }: { physics: RockPhysics }) {
   const linesRef = useRef<THREE.LineSegments>(null);
@@ -112,7 +112,7 @@ function Rain({ physics }: { physics: RockPhysics }) {
       const i6 = i * 6, i3 = i * 3, i8 = i * 8, i4 = i * 4;
 
       if (alive[i] === 0) {
-        if (spawning && Math.random() < intensity * 0.06) {
+        if (spawning && Math.random() < intensity * 0.15) {
           let attempts = 0;
           let rx = 0, ry = 0, rz = 0;
           while (attempts < 5) {
@@ -188,25 +188,25 @@ function Rain({ physics }: { physics: RockPhysics }) {
 
       if (dist < NEAR_BLUR_DIST) {
         const t = dist / NEAR_BLUR_DIST;
-        lc[i8 + 3] = 0.08 + t * 0.15; lc[i8 + 7] = 0.02;
-        ds[i] = 1.0 + (1 - t) * 2.0;
-        dc[i4 + 3] = (0.08 + t * 0.1) * (dropletVis + 0.3);
-        lc[i8] = 0.15; lc[i8 + 1] = 0.85; lc[i8 + 2] = 0.6;
-        lc[i8 + 4] = 0.1; lc[i8 + 5] = 0.6; lc[i8 + 6] = 0.4;
+        lc[i8 + 3] = 0.2 + t * 0.35; lc[i8 + 7] = 0.06;
+        ds[i] = 1.5 + (1 - t) * 3.0;
+        dc[i4 + 3] = (0.15 + t * 0.2) * (dropletVis + 0.4);
+        lc[i8] = 0.15; lc[i8 + 1] = 0.9; lc[i8 + 2] = 0.65;
+        lc[i8 + 4] = 0.1; lc[i8 + 5] = 0.65; lc[i8 + 6] = 0.45;
       } else if (dist < FAR_BLUR_DIST) {
-        const alpha = 0.25 + Math.random() * 0.2;
-        lc[i8 + 3] = alpha; lc[i8 + 7] = alpha * 0.15;
-        ds[i] = 0.15;
-        dc[i4 + 3] = dropletVis * 0.5;
+        const alpha = 0.4 + Math.random() * 0.3;
+        lc[i8 + 3] = alpha; lc[i8 + 7] = alpha * 0.2;
+        ds[i] = 0.3;
+        dc[i4 + 3] = dropletVis * 0.6;
         lc[i8] = 0; lc[i8 + 1] = 1; lc[i8 + 2] = 0.67;
-        lc[i8 + 4] = 0; lc[i8 + 5] = 0.7; lc[i8 + 6] = 0.5;
+        lc[i8 + 4] = 0; lc[i8 + 5] = 0.75; lc[i8 + 6] = 0.5;
       } else {
         const t = Math.min((dist - FAR_BLUR_DIST) / 30, 1);
-        lc[i8 + 3] = 0.12 * (1 - t); lc[i8 + 7] = 0;
-        ds[i] = 0.08;
-        dc[i4 + 3] = dropletVis * 0.2 * (1 - t);
-        lc[i8] = 0; lc[i8 + 1] = 0.75; lc[i8 + 2] = 0.5;
-        lc[i8 + 4] = 0; lc[i8 + 5] = 0.5; lc[i8 + 6] = 0.35;
+        lc[i8 + 3] = 0.25 * (1 - t); lc[i8 + 7] = 0;
+        ds[i] = 0.15;
+        dc[i4 + 3] = dropletVis * 0.35 * (1 - t);
+        lc[i8] = 0; lc[i8 + 1] = 0.8; lc[i8 + 2] = 0.55;
+        lc[i8 + 4] = 0; lc[i8 + 5] = 0.55; lc[i8 + 6] = 0.4;
       }
 
       if (lp[i6 + 1] < cam.y - 50) {
@@ -242,31 +242,73 @@ function Rain({ physics }: { physics: RockPhysics }) {
   );
 }
 
-/* ── Realistic Starfield ── */
-const STAR_COUNT = 20000;
+/* ── Realistic Starfield with Milky Way band ── */
+const STAR_COUNT = 30000;
 function RealisticStarfield() {
   const pointsRef = useRef<THREE.Points>(null);
   const { positions, baseColors, sizes } = useMemo(() => {
     const pos = new Float32Array(STAR_COUNT * 3);
     const col = new Float32Array(STAR_COUNT * 3);
     const sz = new Float32Array(STAR_COUNT);
+
+    // Milky Way band direction (tilted across sky)
+    const milkyAxis = new THREE.Vector3(0.3, 1, 0.2).normalize();
+
     for (let i = 0; i < STAR_COUNT; i++) {
       const i3 = i * 3;
-      const theta = Math.random() * Math.PI * 2;
-      const phi = Math.acos(2 * Math.random() - 1);
-      const r = 150 + Math.random() * 350;
+      let theta = Math.random() * Math.PI * 2;
+      let phi = Math.acos(2 * Math.random() - 1);
+
+      // Concentrate ~40% of stars near milky way band
+      if (i < STAR_COUNT * 0.4) {
+        const bandDir = milkyAxis.clone();
+        const perp1 = new THREE.Vector3().crossVectors(bandDir, new THREE.Vector3(1, 0, 0)).normalize();
+        const perp2 = new THREE.Vector3().crossVectors(bandDir, perp1).normalize();
+        const along = (Math.random() - 0.5) * 2;
+        const spread = (Math.random() - 0.5) * 0.25 + (Math.random() - 0.5) * 0.25; // tight gaussian-like
+        const spread2 = (Math.random() - 0.5) * 0.25 + (Math.random() - 0.5) * 0.25;
+        const dir = new THREE.Vector3()
+          .addScaledVector(bandDir, along)
+          .addScaledVector(perp1, spread)
+          .addScaledVector(perp2, spread2)
+          .normalize();
+        theta = Math.atan2(dir.z, dir.x);
+        phi = Math.acos(dir.y);
+      }
+
+      const r = 200 + Math.random() * 300;
       pos[i3] = r * Math.sin(phi) * Math.cos(theta);
       pos[i3 + 1] = r * Math.sin(phi) * Math.sin(theta);
       pos[i3 + 2] = r * Math.cos(phi);
-      const mag = Math.pow(Math.random(), 4);
+
+      // Realistic magnitude distribution (more dim stars)
+      const mag = Math.pow(Math.random(), 5);
+      const brightness = 0.08 + mag * 0.92;
+
+      // Spectral classes: O/B blue, A white, F/G yellow, K orange, M red
       const temp = Math.random();
-      const brightness = 0.15 + mag * 0.85;
-      if (temp < 0.5) { col[i3] = 0.9 * brightness; col[i3+1] = 0.92 * brightness; col[i3+2] = 1.0 * brightness; }
-      else if (temp < 0.75) { col[i3] = 1.0 * brightness; col[i3+1] = 0.96 * brightness; col[i3+2] = 0.88 * brightness; }
-      else if (temp < 0.9) { col[i3] = 0.65 * brightness; col[i3+1] = 0.8 * brightness; col[i3+2] = 1.0 * brightness; }
-      else if (temp < 0.97) { col[i3] = 1.0 * brightness; col[i3+1] = 0.85 * brightness; col[i3+2] = 0.5 * brightness; }
-      else { col[i3] = 1.0 * brightness; col[i3+1] = 0.55 * brightness; col[i3+2] = 0.3 * brightness; }
-      sz[i] = mag < 0.15 ? 0.08 + Math.random() * 0.06 : mag < 0.7 ? 0.14 + mag * 0.3 : 0.5 + mag * 1.2;
+      if (temp < 0.45) {
+        // A/F white-blue (most common visible)
+        col[i3] = 0.85 * brightness; col[i3+1] = 0.9 * brightness; col[i3+2] = 1.0 * brightness;
+      } else if (temp < 0.7) {
+        // G yellow-white (sun-like)
+        col[i3] = 1.0 * brightness; col[i3+1] = 0.97 * brightness; col[i3+2] = 0.85 * brightness;
+      } else if (temp < 0.85) {
+        // B blue
+        col[i3] = 0.6 * brightness; col[i3+1] = 0.75 * brightness; col[i3+2] = 1.0 * brightness;
+      } else if (temp < 0.94) {
+        // K orange
+        col[i3] = 1.0 * brightness; col[i3+1] = 0.78 * brightness; col[i3+2] = 0.45 * brightness;
+      } else {
+        // M red
+        col[i3] = 1.0 * brightness; col[i3+1] = 0.5 * brightness; col[i3+2] = 0.3 * brightness;
+      }
+
+      // Size: most stars tiny, few bright ones larger
+      sz[i] = mag < 0.1 ? 0.04 + Math.random() * 0.04
+            : mag < 0.5 ? 0.08 + mag * 0.2
+            : mag < 0.85 ? 0.2 + mag * 0.6
+            : 0.8 + mag * 1.5; // rare bright stars
     }
     return { positions: pos, baseColors: col, sizes: sz };
   }, []);
@@ -279,7 +321,7 @@ function RealisticStarfield() {
   }, []);
   const twinkleSpeeds = useMemo(() => {
     const s = new Float32Array(STAR_COUNT);
-    for (let i = 0; i < STAR_COUNT; i++) s[i] = 0.2 + Math.random() * 1.5;
+    for (let i = 0; i < STAR_COUNT; i++) s[i] = 0.1 + Math.random() * 0.8; // slower twinkle
     return s;
   }, []);
 
@@ -288,12 +330,13 @@ function RealisticStarfield() {
     const t = clock.elapsedTime;
     const colAttr = pointsRef.current.geometry.attributes.color as THREE.BufferAttribute;
     const col = colAttr.array as Float32Array;
-    for (let i = 0; i < STAR_COUNT; i += 4) {
-      const brightness = 0.7 + 0.3 * Math.sin(t * twinkleSpeeds[i] + twinklePhases[i]);
+    // Twinkle only brighter stars (every 3rd) for perf
+    for (let i = 0; i < STAR_COUNT; i += 3) {
+      const scintillation = 0.75 + 0.25 * Math.sin(t * twinkleSpeeds[i] + twinklePhases[i]);
       const i3 = i * 3;
-      col[i3] = baseColors[i3] * brightness;
-      col[i3+1] = baseColors[i3+1] * brightness;
-      col[i3+2] = baseColors[i3+2] * brightness;
+      col[i3] = baseColors[i3] * scintillation;
+      col[i3+1] = baseColors[i3+1] * scintillation;
+      col[i3+2] = baseColors[i3+2] * scintillation;
     }
     colAttr.needsUpdate = true;
   });
@@ -305,12 +348,12 @@ function RealisticStarfield() {
         <bufferAttribute attach="attributes-color" args={[renderColors, 3]} />
         <bufferAttribute attach="attributes-size" args={[sizes, 1]} />
       </bufferGeometry>
-      <pointsMaterial vertexColors transparent opacity={1} size={0.35} sizeAttenuation depthWrite={false} blending={THREE.AdditiveBlending} />
+      <pointsMaterial vertexColors transparent opacity={1} size={0.3} sizeAttenuation depthWrite={false} blending={THREE.AdditiveBlending} />
     </points>
   );
 }
 
-/* ── Music-reactive Thruster Camera ── */
+/* ── Music-reactive Thruster Camera (smooth) ── */
 function CockpitCamera({ physics, audioRef }: { physics: RockPhysics; audioRef: React.MutableRefObject<AudioAnalysis> }) {
   const { camera } = useThree();
   const pos = useRef(new THREE.Vector3(0, -5, 0));
@@ -324,6 +367,9 @@ function CockpitCamera({ physics, audioRef }: { physics: RockPhysics; audioRef: 
   const targetCooldown = useRef(0);
   const smoothedAmplitude = useRef(0);
   const smoothedBass = useRef(0);
+  // Extra smoothing for camera output
+  const smoothPos = useRef(new THREE.Vector3(0, -5, 0));
+  const smoothQuat = useRef(new THREE.Quaternion());
 
   useFrame((_, dt) => {
     thrusterTime.current += dt;
@@ -334,38 +380,37 @@ function CockpitCamera({ physics, audioRef }: { physics: RockPhysics; audioRef: 
     const pr = physics.radii;
     const n = physics.count;
 
-    // ── Audio reactivity ──
+    // ── Audio reactivity (very smooth) ──
     const audio = audioRef.current;
     const amp = audio.amplitude;
     const bass = audio.bass;
-    // Smooth the audio values for camera control
-    smoothedAmplitude.current += (amp - smoothedAmplitude.current) * 0.08;
-    smoothedBass.current += (bass - smoothedBass.current) * 0.1;
+    smoothedAmplitude.current += (amp - smoothedAmplitude.current) * 0.03; // slower smoothing
+    smoothedBass.current += (bass - smoothedBass.current) * 0.05;
     const sa = smoothedAmplitude.current;
     const sb = smoothedBass.current;
 
-    // Music modulates: speed range, thrust intensity, thruster frequency
-    const musicSpeedMult = 0.4 + sa * 1.2;        // 0.4x – 1.6x
-    const musicThrustMult = 0.5 + sb * 1.5;       // 0.5x – 2.0x
-    const musicThrusterInterval = 3.0 - sa * 2.2;  // 0.8s – 3.0s
+    // Music modulates gently
+    const musicSpeedMult = 0.5 + sa * 0.8;
+    const musicThrustMult = 0.4 + sb * 1.0;
+    const musicThrusterInterval = 4.0 - sa * 2.0;
 
-    // Beat triggers an extra thruster burst
+    // Beat triggers a gentle thruster burst
     if (audio.beat) {
       const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(orientation.current);
       thrusters.current.push({
-        axis: forward.clone().add(new THREE.Vector3((Math.random() - 0.5) * 0.3, (Math.random() - 0.5) * 0.3, 0)).normalize(),
+        axis: forward.clone().add(new THREE.Vector3((Math.random() - 0.5) * 0.15, (Math.random() - 0.5) * 0.15, 0)).normalize(),
         torqueAxis: new THREE.Vector3((Math.random() - 0.5), (Math.random() - 0.5), (Math.random() - 0.5)).normalize(),
-        force: 2.0 + sb * 3.0,
-        torque: (Math.random() - 0.5) * 0.3,
+        force: 1.0 + sb * 1.5, // gentler beats
+        torque: (Math.random() - 0.5) * 0.1,
         startTime: t,
-        duration: 0.3 + Math.random() * 0.5,
+        duration: 0.8 + Math.random() * 1.0, // longer, smoother burn
       });
     }
 
     // ── Collision avoidance ──
     const AVOID_RADIUS = 8;
     const HARD_RADIUS = 2.5;
-    const REPULSE_FORCE = 18;
+    const REPULSE_FORCE = 14;
     const avoidForce = new THREE.Vector3(0, 0, 0);
     const avoidTorque = new THREE.Vector3(0, 0, 0);
     const tmpVec = new THREE.Vector3();
@@ -380,21 +425,21 @@ function CockpitCamera({ physics, audioRef }: { physics: RockPhysics; audioRef: 
       if (surfaceDist < AVOID_RADIUS) {
         const dir = tmpVec.normalize();
         if (surfaceDist < HARD_RADIUS) {
-          const strength = REPULSE_FORCE * (1 + (HARD_RADIUS - surfaceDist) * 3);
+          const strength = REPULSE_FORCE * (1 + (HARD_RADIUS - surfaceDist) * 2);
           avoidForce.addScaledVector(dir, strength);
           const velToward = vel.current.dot(dir);
-          if (velToward < 0) vel.current.addScaledVector(dir, -velToward * 0.8);
+          if (velToward < 0) vel.current.addScaledVector(dir, -velToward * 0.6);
         } else {
           const t2 = (AVOID_RADIUS - surfaceDist) / (AVOID_RADIUS - HARD_RADIUS);
-          avoidForce.addScaledVector(dir, REPULSE_FORCE * t2 * t2 * 0.4);
+          avoidForce.addScaledVector(dir, REPULSE_FORCE * t2 * t2 * 0.3);
         }
         const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(orientation.current);
         const cross = new THREE.Vector3().crossVectors(forward, dir);
-        avoidTorque.addScaledVector(cross, surfaceDist < HARD_RADIUS ? 2.0 : 0.5);
+        avoidTorque.addScaledVector(cross, surfaceDist < HARD_RADIUS ? 1.0 : 0.25);
       }
     }
 
-    // ── Attraction: find dense rock cluster ahead & fly low over the field ──
+    // ── Attraction: find dense rock cluster ──
     targetCooldown.current -= clampDt;
     if (targetCooldown.current <= 0) {
       const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(orientation.current);
@@ -409,7 +454,6 @@ function CockpitCamera({ physics, audioRef }: { physics: RockPhysics; audioRef: 
         const dot = tmpVec.normalize().dot(forward);
         if (dot < -0.3) continue;
 
-        // Prefer closer rocks in dense areas
         let neighbors = 0;
         for (let nj = 0; nj < n; nj++) {
           if (nj === oi) continue;
@@ -423,7 +467,7 @@ function CockpitCamera({ physics, audioRef }: { physics: RockPhysics; audioRef: 
         if (score > bestScore) { bestScore = score; bestIdx = oi; }
       }
       currentTarget.current = bestIdx;
-      targetCooldown.current = 1.5 + Math.random() * 2.0;
+      targetCooldown.current = 2.5 + Math.random() * 3.0;
     }
 
     const attractForce = new THREE.Vector3(0, 0, 0);
@@ -432,9 +476,8 @@ function CockpitCamera({ physics, audioRef }: { physics: RockPhysics; audioRef: 
       tmpVec.set(pp[ox] - p.x, pp[ox + 1] - p.y, pp[ox + 2] - p.z);
       const dist = tmpVec.length();
       if (dist > 5) {
-        // Aim just barely above target – cruise low over the surface
         tmpVec.y += 1.5;
-        attractForce.copy(tmpVec.normalize()).multiplyScalar(3.5 + sa * 2.0);
+        attractForce.copy(tmpVec.normalize()).multiplyScalar(2.0 + sa * 1.5); // gentler attraction
       }
     }
 
@@ -443,7 +486,7 @@ function CockpitCamera({ physics, audioRef }: { physics: RockPhysics; audioRef: 
     for (let oi = 0; oi < n; oi++) {
       const ox = oi * 3;
       const ddx = pp[ox] - p.x, ddz = pp[ox + 2] - p.z;
-      if (ddx * ddx + ddz * ddz < 400) { // within 20 units
+      if (ddx * ddx + ddz * ddz < 400) {
         const rockTop = pp[ox + 1] + pr[oi];
         nearbyYSum += rockTop;
         if (rockTop > nearbyYMax) nearbyYMax = rockTop;
@@ -452,37 +495,31 @@ function CockpitCamera({ physics, audioRef }: { physics: RockPhysics; audioRef: 
     }
     if (nearbyCount > 0) {
       const avgTop = nearbyYSum / nearbyCount;
-      // Cruise just 2-3 units above the rock tops, music slightly modulates
       const desiredAlt = avgTop + 2.0 + sa * 1.5;
       const altDiff = desiredAlt - p.y;
-      // Pull toward desired altitude (both up and down)
-      attractForce.y += altDiff * 1.5;
+      attractForce.y += altDiff * 0.8; // gentler altitude correction
     } else {
-      // No rocks nearby – pull down toward rock field level
-      attractForce.y += (-6 - p.y) * 0.5;
+      attractForce.y += (-6 - p.y) * 0.3;
     }
 
-    // ── Thruster bursts (music-synced interval) ──
+    // ── Thruster bursts (music-synced, smoother) ──
     if (t > nextThrusterAt.current) {
-      const count = 1 + Math.floor(Math.random() * 2);
-      for (let i = 0; i < count; i++) {
-        const ax = (Math.random() - 0.5) * 2;
-        const ay = (Math.random() - 0.5) * 2;
-        const az = -0.5 - Math.random() * 1.5;
-        const axis = new THREE.Vector3(ax, ay, az).normalize();
-        const tx = (Math.random() - 0.5) * 2;
-        const ty = (Math.random() - 0.5) * 2;
-        const tz = (Math.random() - 0.5) * 2;
-        const torqueAxis = new THREE.Vector3(tx, ty, tz).normalize();
-        thrusters.current.push({
-          axis, torqueAxis,
-          force: (0.8 + Math.random() * 2.0) * musicThrustMult,
-          torque: (Math.random() - 0.5) * 0.25,
-          startTime: t,
-          duration: 0.5 + Math.random() * 3.0,
-        });
-      }
-      nextThrusterAt.current = t + Math.max(0.8, musicThrusterInterval + Math.random() * 1.5);
+      const ax = (Math.random() - 0.5) * 1.5;
+      const ay = (Math.random() - 0.5) * 1.5;
+      const az = -0.5 - Math.random() * 1.0;
+      const axis = new THREE.Vector3(ax, ay, az).normalize();
+      const tx = (Math.random() - 0.5) * 1.5;
+      const ty = (Math.random() - 0.5) * 1.5;
+      const tz = (Math.random() - 0.5) * 1.5;
+      const torqueAxis = new THREE.Vector3(tx, ty, tz).normalize();
+      thrusters.current.push({
+        axis, torqueAxis,
+        force: (0.5 + Math.random() * 1.5) * musicThrustMult,
+        torque: (Math.random() - 0.5) * 0.12, // much less rotational jerk
+        startTime: t,
+        duration: 1.0 + Math.random() * 4.0, // longer burns = smoother
+      });
+      nextThrusterAt.current = t + Math.max(1.5, musicThrusterInterval + Math.random() * 2.0);
     }
 
     const thrustAccel = new THREE.Vector3(0, 0, 0);
@@ -490,23 +527,25 @@ function CockpitCamera({ physics, audioRef }: { physics: RockPhysics; audioRef: 
     thrusters.current = thrusters.current.filter(th => {
       const elapsed = t - th.startTime;
       if (elapsed > th.duration) return false;
-      const env = elapsed < 0.15 ? elapsed / 0.15
-        : elapsed > th.duration - 0.2 ? (th.duration - elapsed) / 0.2 : 1.0;
+      // Smooth envelope: slow ramp up and down
+      const rampUp = Math.min(elapsed / 0.4, 1);
+      const rampDown = Math.min((th.duration - elapsed) / 0.5, 1);
+      const env = rampUp * rampDown;
       const worldAxis = th.axis.clone().applyQuaternion(orientation.current);
       thrustAccel.addScaledVector(worldAxis, th.force * env);
       torqueAccel.addScaledVector(th.torqueAxis, th.torque * env);
       return true;
     });
 
-    const DRAG = 0.15, ANG_DRAG = 0.4;
+    const DRAG = 0.25; // more drag = smoother
+    const ANG_DRAG = 0.7; // much more angular drag = less jerky rotation
     vel.current.addScaledVector(thrustAccel, clampDt);
     vel.current.addScaledVector(avoidForce, clampDt);
     vel.current.addScaledVector(attractForce, clampDt);
     vel.current.multiplyScalar(1 - DRAG * clampDt);
 
-    // Music-reactive speed limits
-    const maxSpeed = 8 + sa * 8;   // 8-16 based on music
-    const minSpeed = 1.0 + sa * 1.5; // 1-2.5
+    const maxSpeed = 6 + sa * 5;
+    const minSpeed = 0.8 + sa * 1.0;
     const speed = vel.current.length();
     if (speed > maxSpeed) vel.current.multiplyScalar(maxSpeed / speed);
     if (speed < minSpeed) vel.current.multiplyScalar(minSpeed / Math.max(speed, 0.01));
@@ -517,7 +556,7 @@ function CockpitCamera({ physics, audioRef }: { physics: RockPhysics; audioRef: 
     angVel.current.addScaledVector(avoidTorque, clampDt);
     angVel.current.multiplyScalar(1 - ANG_DRAG * clampDt);
     const angSpeed = angVel.current.length();
-    if (angSpeed > 0.8) angVel.current.multiplyScalar(0.8 / angSpeed);
+    if (angSpeed > 0.4) angVel.current.multiplyScalar(0.4 / angSpeed); // tighter clamp
 
     if (angSpeed > 0.0001) {
       const halfAngle = angSpeed * clampDt * 0.5;
@@ -527,14 +566,19 @@ function CockpitCamera({ physics, audioRef }: { physics: RockPhysics; audioRef: 
       orientation.current.normalize();
     }
 
+    // Align orientation toward velocity direction (gentle)
     if (speed > 0.5) {
       const velDir = vel.current.clone().normalize();
       const targetQ = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, -1), velDir);
-      orientation.current.slerp(targetQ, 0.02);
+      orientation.current.slerp(targetQ, 0.015); // gentler alignment
     }
 
-    camera.position.copy(pos.current);
-    camera.quaternion.copy(orientation.current);
+    // ── Smooth camera output with interpolation ──
+    smoothPos.current.lerp(pos.current, 0.06); // heavy smoothing on position
+    smoothQuat.current.slerp(orientation.current, 0.06); // heavy smoothing on rotation
+
+    camera.position.copy(smoothPos.current);
+    camera.quaternion.copy(smoothQuat.current);
   });
 
   return null;
@@ -564,6 +608,170 @@ function CockpitHUD() {
   );
 }
 
+/* ── Comets with long tails ── */
+const MAX_COMETS = 3;
+function Comets() {
+  const groupRef = useRef<THREE.Group>(null);
+  const { camera } = useThree();
+
+  interface CometData {
+    pos: THREE.Vector3;
+    vel: THREE.Vector3;
+    life: number;
+    maxLife: number;
+    brightness: number;
+    tailLen: number;
+  }
+
+  const comets = useRef<CometData[]>([]);
+  const nextSpawn = useRef(5 + Math.random() * 15);
+  const elapsed = useRef(0);
+
+  // Trail geometry: each comet gets TRAIL_SEGS segments
+  const TRAIL_SEGS = 60;
+  const trailPos = useMemo(() => new Float32Array(MAX_COMETS * TRAIL_SEGS * 6), []);
+  const trailCol = useMemo(() => new Float32Array(MAX_COMETS * TRAIL_SEGS * 8), []);
+  const linesRef = useRef<THREE.LineSegments>(null);
+  const headRef = useRef<THREE.Points>(null);
+  const headPos = useMemo(() => new Float32Array(MAX_COMETS * 3), []);
+  const headSizes = useMemo(() => new Float32Array(MAX_COMETS), []);
+  const headCol = useMemo(() => new Float32Array(MAX_COMETS * 3), []);
+
+  useFrame((_, dt) => {
+    elapsed.current += dt;
+    const t = elapsed.current;
+
+    // Spawn new comets
+    if (t > nextSpawn.current && comets.current.length < MAX_COMETS) {
+      const camPos = camera.position;
+      // Spawn far away in a random direction in the sky (above horizon)
+      const angle = Math.random() * Math.PI * 2;
+      const elev = 0.2 + Math.random() * 0.6; // above horizon
+      const dist = 120 + Math.random() * 80;
+      const startPos = new THREE.Vector3(
+        camPos.x + Math.cos(angle) * dist,
+        camPos.y + elev * dist * 0.5 + 30,
+        camPos.z + Math.sin(angle) * dist
+      );
+      // Velocity: cross the sky
+      const speed = 15 + Math.random() * 25;
+      const velAngle = angle + Math.PI + (Math.random() - 0.5) * 1.2;
+      const vel = new THREE.Vector3(
+        Math.cos(velAngle) * speed,
+        -(0.1 + Math.random() * 0.3) * speed, // slight downward
+        Math.sin(velAngle) * speed
+      );
+
+      comets.current.push({
+        pos: startPos,
+        vel,
+        life: 0,
+        maxLife: 4 + Math.random() * 6,
+        brightness: 0.5 + Math.random() * 0.5,
+        tailLen: 30 + Math.random() * 40,
+      });
+      nextSpawn.current = t + 8 + Math.random() * 20;
+    }
+
+    // Update comets
+    const deadIndices: number[] = [];
+    comets.current.forEach((c, ci) => {
+      c.life += dt;
+      c.pos.addScaledVector(c.vel, dt);
+
+      if (c.life > c.maxLife) {
+        deadIndices.push(ci);
+      }
+    });
+    // Remove dead
+    for (let i = deadIndices.length - 1; i >= 0; i--) {
+      comets.current.splice(deadIndices[i], 1);
+    }
+
+    // Update trail geometry
+    if (!linesRef.current || !headRef.current) return;
+    const lArr = linesRef.current.geometry.attributes.position.array as Float32Array;
+    const cArr = linesRef.current.geometry.attributes.color.array as Float32Array;
+    const hArr = headRef.current.geometry.attributes.position.array as Float32Array;
+    const hsArr = headRef.current.geometry.attributes.size.array as Float32Array;
+    const hcArr = headRef.current.geometry.attributes.color.array as Float32Array;
+
+    // Clear all
+    lArr.fill(-9999);
+    cArr.fill(0);
+    hArr.fill(-9999);
+    hsArr.fill(0);
+
+    comets.current.forEach((c, ci) => {
+      if (ci >= MAX_COMETS) return;
+      const fadeIn = Math.min(c.life * 2, 1);
+      const fadeOut = Math.min((c.maxLife - c.life) * 1.5, 1);
+      const fade = fadeIn * fadeOut * c.brightness;
+
+      // Head
+      hArr[ci * 3] = c.pos.x;
+      hArr[ci * 3 + 1] = c.pos.y;
+      hArr[ci * 3 + 2] = c.pos.z;
+      hsArr[ci] = 3.0 * fade;
+      hcArr[ci * 3] = 0.9; hcArr[ci * 3 + 1] = 1.0; hcArr[ci * 3 + 2] = 0.95;
+
+      // Trail segments behind the comet
+      const tailDir = c.vel.clone().normalize();
+      const baseOff = ci * TRAIL_SEGS;
+      for (let s = 0; s < TRAIL_SEGS; s++) {
+        const t0 = s / TRAIL_SEGS;
+        const t1 = (s + 1) / TRAIL_SEGS;
+        const idx = (baseOff + s) * 6;
+        const cidx = (baseOff + s) * 8;
+
+        const p0 = c.pos.clone().addScaledVector(tailDir, -t0 * c.tailLen);
+        const p1 = c.pos.clone().addScaledVector(tailDir, -t1 * c.tailLen);
+
+        lArr[idx] = p0.x; lArr[idx + 1] = p0.y; lArr[idx + 2] = p0.z;
+        lArr[idx + 3] = p1.x; lArr[idx + 4] = p1.y; lArr[idx + 5] = p1.z;
+
+        const alpha0 = (1 - t0) * fade * 0.7;
+        const alpha1 = (1 - t1) * fade * 0.7;
+        // Gradient: white-green head to dim green tail
+        cArr[cidx] = 0.3 + (1 - t0) * 0.7;
+        cArr[cidx + 1] = 1.0;
+        cArr[cidx + 2] = 0.5 + (1 - t0) * 0.5;
+        cArr[cidx + 3] = alpha0;
+        cArr[cidx + 4] = 0.2 + (1 - t1) * 0.6;
+        cArr[cidx + 5] = 0.9;
+        cArr[cidx + 6] = 0.4 + (1 - t1) * 0.4;
+        cArr[cidx + 7] = alpha1;
+      }
+    });
+
+    linesRef.current.geometry.attributes.position.needsUpdate = true;
+    linesRef.current.geometry.attributes.color.needsUpdate = true;
+    headRef.current.geometry.attributes.position.needsUpdate = true;
+    headRef.current.geometry.attributes.size.needsUpdate = true;
+    headRef.current.geometry.attributes.color.needsUpdate = true;
+  });
+
+  return (
+    <group ref={groupRef}>
+      <lineSegments ref={linesRef}>
+        <bufferGeometry>
+          <bufferAttribute attach="attributes-position" args={[trailPos, 3]} />
+          <bufferAttribute attach="attributes-color" args={[trailCol, 4]} />
+        </bufferGeometry>
+        <lineBasicMaterial vertexColors transparent depthWrite={false} blending={THREE.AdditiveBlending} />
+      </lineSegments>
+      <points ref={headRef}>
+        <bufferGeometry>
+          <bufferAttribute attach="attributes-position" args={[headPos, 3]} />
+          <bufferAttribute attach="attributes-size" args={[headSizes, 1]} />
+          <bufferAttribute attach="attributes-color" args={[headCol, 3]} />
+        </bufferGeometry>
+        <pointsMaterial vertexColors transparent sizeAttenuation depthWrite={false} blending={THREE.AdditiveBlending} />
+      </points>
+    </group>
+  );
+}
+
 /* ── Rock indices for rendering ── */
 function RockField({ physics }: { physics: RockPhysics }) {
   const indices = useMemo(() => Array.from({ length: physics.count }, (_, i) => i), [physics.count]);
@@ -590,6 +798,7 @@ export default function EliteShipScene() {
         <PhysicsDriver physics={physics} />
         <CockpitCamera physics={physics} audioRef={analysisRef} />
         <RealisticStarfield />
+        <Comets />
         <Rain physics={physics} />
         <RockField physics={physics} />
       </Canvas>
