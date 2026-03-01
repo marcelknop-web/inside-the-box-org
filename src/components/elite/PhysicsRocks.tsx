@@ -195,12 +195,14 @@ export function stepPhysics(phys: RockPhysics, dt: number) {
 /* ── Visual Rock (reads position from physics state) ── */
 export function DynamicRock({ index, physics }: { index: number; physics: RockPhysics }) {
   const ref = useRef<THREE.Group>(null);
+  const meshMatRef = useRef<THREE.MeshStandardMaterial>(null);
+  const lineMatRef = useRef<THREE.LineBasicMaterial>(null);
   const { geo, edges } = useMemo(
     () => buildPolyhedron(physics.seeds[index], physics.radii[index]),
     [physics.seeds[index], physics.radii[index]]
   );
 
-  useFrame(() => {
+  useFrame(({ camera }) => {
     if (!ref.current) return;
     const ix = index * 3;
     ref.current.position.set(
@@ -213,18 +215,48 @@ export function DynamicRock({ index, physics }: { index: number; physics: RockPh
       physics.rotations[ix + 1],
       physics.rotations[ix + 2]
     );
+
+    // Distance-based brightness: near objects glow brighter
+    const dx = physics.positions[ix] - camera.position.x;
+    const dy = physics.positions[ix + 1] - camera.position.y;
+    const dz = physics.positions[ix + 2] - camera.position.z;
+    const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
+
+    // Emissive intensity ramps up for near objects
+    const nearFactor = Math.max(0, 1 - dist / 60); // 0 at 60+, 1 at 0
+    const emissiveIntensity = nearFactor * nearFactor * 0.6;
+
+    if (meshMatRef.current) {
+      meshMatRef.current.emissiveIntensity = emissiveIntensity;
+    }
+    if (lineMatRef.current) {
+      // Near wireframes brighter, far ones dimmer
+      lineMatRef.current.opacity = 0.25 + nearFactor * 0.65;
+    }
   });
 
   return (
     <group ref={ref}>
       <mesh geometry={geo} renderOrder={0}>
-        <meshBasicMaterial color="#062a1e" side={THREE.FrontSide} depthWrite polygonOffset polygonOffsetFactor={1} polygonOffsetUnits={1} />
+        <meshStandardMaterial
+          ref={meshMatRef}
+          color="#0a3d2e"
+          emissive="#00ffaa"
+          emissiveIntensity={0}
+          roughness={0.7}
+          metalness={0.3}
+          side={THREE.FrontSide}
+          depthWrite
+          polygonOffset
+          polygonOffsetFactor={1}
+          polygonOffsetUnits={1}
+        />
       </mesh>
       <lineSegments renderOrder={1}>
         <bufferGeometry>
           <bufferAttribute attach="attributes-position" args={[edges, 3]} />
         </bufferGeometry>
-        <lineBasicMaterial color={LINE_COLOR} transparent opacity={0.8} depthTest />
+        <lineBasicMaterial ref={lineMatRef} color={LINE_COLOR} transparent opacity={0.8} depthTest />
       </lineSegments>
     </group>
   );
