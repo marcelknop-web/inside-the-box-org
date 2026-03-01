@@ -67,8 +67,8 @@ function PhysicsDriver({ physics }: { physics: RockPhysics }) {
 }
 
 /* ── Information exchange: data packets flow between rocks, larger blocks = more traffic ── */
-const INFO_COUNT_DESKTOP = 900;
-const INFO_COUNT_MOBILE = 400;
+const INFO_COUNT_DESKTOP = 250;
+const INFO_COUNT_MOBILE = 120;
 
 function InfoExchange({ physics, mobile = false }: { physics: RockPhysics; mobile?: boolean }) {
   const linesRef = useRef<THREE.LineSegments>(null);
