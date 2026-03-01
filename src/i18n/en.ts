@@ -332,6 +332,8 @@ export const en = {
     agentTriggerTriageDesc: 'Classify incidents to the correct priority at lightning speed',
     agentFroggerTitle: 'Cyber Frogger',
     agentFroggerDesc: 'Arcade format meets cybersecurity awareness',
+    eliteTitle: 'Had Enough of Security?',
+    eliteDesc: 'Switch off, fly, let go — a meditative 3D scene to unwind',
     agentYtTitle: 'Video Injects',
     agentYtDesc: 'AI-generated news videos as situational briefings for crisis exercises',
     ctaTitle: 'Getting Started',

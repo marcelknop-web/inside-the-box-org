@@ -332,6 +332,8 @@ export const de = {
     agentTriggerTriageDesc: 'Incidents blitzschnell der richtigen Priorität zuordnen',
     agentFroggerTitle: 'Cyber Frogger',
     agentFroggerDesc: 'Arcade-Format trifft Cybersecurity-Awareness',
+    eliteTitle: 'Keine Lust auf Security?',
+    eliteDesc: 'Abschalten, fliegen, loslassen – eine meditative 3D-Szene zum Entspannen',
     agentYtTitle: 'Video-Einspieler',
     agentYtDesc: 'KI-generierte Nachrichtenvideos als Lagebilder für Krisenübungen',
     ctaTitle: 'Einstieg',
