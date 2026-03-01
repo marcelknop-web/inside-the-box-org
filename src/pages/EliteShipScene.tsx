@@ -313,7 +313,7 @@ function RealisticStarfield() {
 /* ── Music-reactive Thruster Camera ── */
 function CockpitCamera({ physics, audioRef }: { physics: RockPhysics; audioRef: React.MutableRefObject<AudioAnalysis> }) {
   const { camera } = useThree();
-  const pos = useRef(new THREE.Vector3(0, 2, 0));
+  const pos = useRef(new THREE.Vector3(0, -5, 0));
   const vel = useRef(new THREE.Vector3(0, 0, -3));
   const orientation = useRef(new THREE.Quaternion());
   const angVel = useRef(new THREE.Vector3(0, 0, 0));
@@ -394,37 +394,36 @@ function CockpitCamera({ physics, audioRef }: { physics: RockPhysics; audioRef: 
       }
     }
 
-    // ── Attraction: find dense rock cluster ahead & fly over the field ──
+    // ── Attraction: find dense rock cluster ahead & fly low over the field ──
     targetCooldown.current -= clampDt;
     if (targetCooldown.current <= 0) {
       const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(orientation.current);
       let bestScore = -Infinity;
       let bestIdx = -1;
 
-      // Score rocks: prefer forward, nearby, and those surrounded by other rocks (dense clusters)
       for (let oi = 0; oi < n; oi++) {
         const ox = oi * 3;
         tmpVec.set(pp[ox] - p.x, pp[ox + 1] - p.y, pp[ox + 2] - p.z);
         const dist = tmpVec.length();
-        if (dist < 10 || dist > 80) continue;
+        if (dist < 6 || dist > 60) continue;
         const dot = tmpVec.normalize().dot(forward);
-        if (dot < -0.2) continue; // skip rocks behind us
+        if (dot < -0.3) continue;
 
-        // Count neighbors within 15 units = cluster density
+        // Prefer closer rocks in dense areas
         let neighbors = 0;
         for (let nj = 0; nj < n; nj++) {
           if (nj === oi) continue;
           const njx = nj * 3;
           const ddx = pp[njx] - pp[ox], ddy = pp[njx + 1] - pp[ox + 1], ddz = pp[njx + 2] - pp[ox + 2];
-          if (ddx * ddx + ddy * ddy + ddz * ddz < 225) neighbors++;
-          if (neighbors > 6) break; // enough to know it's dense
+          if (ddx * ddx + ddy * ddy + ddz * ddz < 200) neighbors++;
+          if (neighbors > 8) break;
         }
 
-        const score = dot * 2.0 + (1 - dist / 80) * 1.5 + neighbors * 0.4 + Math.random() * 0.3;
+        const score = dot * 2.5 + (1 - dist / 60) * 3.0 + neighbors * 0.6 + Math.random() * 0.2;
         if (score > bestScore) { bestScore = score; bestIdx = oi; }
       }
       currentTarget.current = bestIdx;
-      targetCooldown.current = 2.0 + Math.random() * 3.0;
+      targetCooldown.current = 1.5 + Math.random() * 2.0;
     }
 
     const attractForce = new THREE.Vector3(0, 0, 0);
@@ -432,31 +431,35 @@ function CockpitCamera({ physics, audioRef }: { physics: RockPhysics; audioRef: 
       const ox = currentTarget.current * 3;
       tmpVec.set(pp[ox] - p.x, pp[ox + 1] - p.y, pp[ox + 2] - p.z);
       const dist = tmpVec.length();
-      if (dist > 6) {
-        // Aim slightly above the target to fly OVER the field
-        tmpVec.y += 4;
-        attractForce.copy(tmpVec.normalize()).multiplyScalar(2.0 + sa * 1.5);
+      if (dist > 5) {
+        // Aim just barely above target – cruise low over the surface
+        tmpVec.y += 1.5;
+        attractForce.copy(tmpVec.normalize()).multiplyScalar(3.5 + sa * 2.0);
       }
     }
 
-    // ── Keep altitude above rock field ──
-    // Find average Y of nearby rocks to maintain height above them
-    let nearbyYSum = 0, nearbyCount = 0;
+    // ── Keep altitude just above rock field surface ──
+    let nearbyYSum = 0, nearbyYMax = -Infinity, nearbyCount = 0;
     for (let oi = 0; oi < n; oi++) {
       const ox = oi * 3;
       const ddx = pp[ox] - p.x, ddz = pp[ox + 2] - p.z;
-      if (ddx * ddx + ddz * ddz < 900) { // within 30 units
-        nearbyYSum += pp[ox + 1];
+      if (ddx * ddx + ddz * ddz < 400) { // within 20 units
+        const rockTop = pp[ox + 1] + pr[oi];
+        nearbyYSum += rockTop;
+        if (rockTop > nearbyYMax) nearbyYMax = rockTop;
         nearbyCount++;
       }
     }
     if (nearbyCount > 0) {
-      const avgY = nearbyYSum / nearbyCount;
-      const desiredAlt = avgY + 5 + sa * 4; // 5-9 units above rocks, music-modulated
+      const avgTop = nearbyYSum / nearbyCount;
+      // Cruise just 2-3 units above the rock tops, music slightly modulates
+      const desiredAlt = avgTop + 2.0 + sa * 1.5;
       const altDiff = desiredAlt - p.y;
-      if (altDiff > 0) {
-        attractForce.y += altDiff * 0.8; // gentle upward pull
-      }
+      // Pull toward desired altitude (both up and down)
+      attractForce.y += altDiff * 1.5;
+    } else {
+      // No rocks nearby – pull down toward rock field level
+      attractForce.y += (-6 - p.y) * 0.5;
     }
 
     // ── Thruster bursts (music-synced interval) ──
