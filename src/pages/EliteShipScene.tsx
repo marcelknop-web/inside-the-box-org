@@ -1052,13 +1052,13 @@ function CockpitHUD({ flightInput }: { flightInput: React.MutableRefObject<Fligh
   );
 }
 
-/* ── Slow background meteor with long glowing tail ── */
+/* ── Slow distant cyan meteor with luxurious glowing tail ── */
 function BackgroundMeteor() {
   const { camera } = useThree();
   const linesRef = useRef<THREE.LineSegments>(null);
   const headRef = useRef<THREE.Points>(null);
 
-  const TRAIL_SEGS = 120;
+  const TRAIL_SEGS = 180;
   const trailPos = useMemo(() => new Float32Array(TRAIL_SEGS * 6), []);
   const trailCol = useMemo(() => new Float32Array(TRAIL_SEGS * 8), []);
   const headPos = useMemo(() => new Float32Array(3), []);
@@ -1079,10 +1079,8 @@ function BackgroundMeteor() {
     pos: new THREE.Vector3(), vel: new THREE.Vector3(),
     life: 0, maxLife: 0, tailLen: 0, brightness: 0, active: false
   });
-  const nextSpawn = useRef(3 + Math.random() * 8);
+  const nextSpawn = useRef(5 + Math.random() * 10);
   const elapsed = useRef(0);
-
-  // Position history for smooth curved tail
   const posHistory = useRef<THREE.Vector3[]>([]);
 
   useFrame((_, dt) => {
@@ -1091,33 +1089,34 @@ function BackgroundMeteor() {
     const m = meteor.current;
     const cam = camera.position;
 
-    // Spawn in the far background sky
+    // Spawn far in the background sky
     if (!m.active && t > nextSpawn.current) {
       const skyAngle = Math.random() * Math.PI * 2;
-      const skyElev = 0.2 + Math.random() * 0.45;
-      const dist = 250 + Math.random() * 100;
+      const skyElev = 0.25 + Math.random() * 0.35;
+      const dist = 400 + Math.random() * 200; // very far
 
       m.pos.set(
         cam.x + Math.cos(skyAngle) * dist,
-        cam.y + skyElev * dist * 0.6 + 50,
+        cam.y + skyElev * dist * 0.5 + 80,
         cam.z + Math.sin(skyAngle) * dist
       );
 
-      const speed = 3 + Math.random() * 4;
-      const crossAngle = skyAngle + Math.PI * 0.4 + (Math.random() - 0.5) * 0.6;
+      // Very slow, majestic speed
+      const speed = 1.2 + Math.random() * 1.8;
+      const crossAngle = skyAngle + Math.PI * 0.35 + (Math.random() - 0.5) * 0.5;
       m.vel.set(
         Math.cos(crossAngle) * speed,
-        -(0.02 + Math.random() * 0.06) * speed,
+        -(0.01 + Math.random() * 0.03) * speed,
         Math.sin(crossAngle) * speed
       );
 
       m.life = 0;
-      m.maxLife = 15 + Math.random() * 20;
-      m.tailLen = 80 + Math.random() * 60;
-      m.brightness = 0.6 + Math.random() * 0.4;
+      m.maxLife = 30 + Math.random() * 25; // long crossing
+      m.tailLen = 140 + Math.random() * 80;
+      m.brightness = 0.7 + Math.random() * 0.3;
       m.active = true;
       posHistory.current = [];
-      nextSpawn.current = t + 25 + Math.random() * 40;
+      nextSpawn.current = t + 40 + Math.random() * 50;
     }
 
     if (!linesRef.current || !headRef.current) return;
@@ -1140,23 +1139,27 @@ function BackgroundMeteor() {
     m.life += dt;
     m.pos.addScaledVector(m.vel, dt);
 
-    posHistory.current.push(m.pos.clone());
-    if (posHistory.current.length > 200) posHistory.current.shift();
+    // Record position every ~0.08s for smooth tail
+    const hLen = posHistory.current.length;
+    if (hLen === 0 || m.pos.distanceTo(posHistory.current[hLen - 1]) > 0.3) {
+      posHistory.current.push(m.pos.clone());
+      if (posHistory.current.length > 350) posHistory.current.shift();
+    }
 
     if (m.life > m.maxLife) { m.active = false; }
 
-    const fadeIn = Math.min(m.life * 0.5, 1);
-    const fadeOut = Math.min((m.maxLife - m.life) * 0.3, 1);
+    const fadeIn = Math.min(m.life * 0.3, 1);
+    const fadeOut = Math.min((m.maxLife - m.life) * 0.2, 1);
     const fade = fadeIn * fadeOut * m.brightness;
 
-    // Head glow
+    // Cyan head glow (#00bcd4)
     hArr[0] = m.pos.x; hArr[1] = m.pos.y; hArr[2] = m.pos.z;
-    hsArr[0] = 4.0 * fade;
-    hcArr[0] = 1.0; hcArr[1] = 0.95; hcArr[2] = 0.8;
+    hsArr[0] = 5.0 * fade;
+    hcArr[0] = 0.3; hcArr[1] = 0.9; hcArr[2] = 1.0;
 
-    // Tail from position history
+    // Tail from position history – cyan fading to deep blue
     const history = posHistory.current;
-    const hLen = history.length;
+    const histLen = history.length;
 
     for (let s = 0; s < TRAIL_SEGS; s++) {
       const idx = s * 6;
@@ -1164,10 +1167,10 @@ function BackgroundMeteor() {
       const t0 = s / TRAIL_SEGS;
       const t1 = (s + 1) / TRAIL_SEGS;
 
-      const hi0 = Math.max(0, hLen - 1 - Math.floor(t0 * Math.min(hLen, TRAIL_SEGS)));
-      const hi1 = Math.max(0, hLen - 1 - Math.floor(t1 * Math.min(hLen, TRAIL_SEGS)));
+      const hi0 = Math.max(0, histLen - 1 - Math.floor(t0 * Math.min(histLen, TRAIL_SEGS)));
+      const hi1 = Math.max(0, histLen - 1 - Math.floor(t1 * Math.min(histLen, TRAIL_SEGS)));
 
-      if (hi0 < hLen && hi1 < hLen) {
+      if (hi0 < histLen && hi1 < histLen) {
         const p0 = history[hi0]; const p1 = history[hi1];
         lArr[idx] = p0.x; lArr[idx+1] = p0.y; lArr[idx+2] = p0.z;
         lArr[idx+3] = p1.x; lArr[idx+4] = p1.y; lArr[idx+5] = p1.z;
@@ -1179,11 +1182,14 @@ function BackgroundMeteor() {
         lArr[idx+3] = p1.x; lArr[idx+4] = p1.y; lArr[idx+5] = p1.z;
       }
 
-      const alpha0 = (1 - t0) * (1 - t0) * fade * 0.8;
-      const alpha1 = (1 - t1) * (1 - t1) * fade * 0.8;
+      // Alpha: quadratic falloff for fine, feathered tail
+      const alpha0 = Math.pow(1 - t0, 2.5) * fade * 0.65;
+      const alpha1 = Math.pow(1 - t1, 2.5) * fade * 0.65;
+      // Color: bright cyan near head → deep blue at tail end
       const w0 = 1 - t0; const w1 = 1 - t1;
-      cArr[cidx] = 0.2+w0*0.8; cArr[cidx+1] = 0.6+w0*0.4; cArr[cidx+2] = 0.8+w0*0.2; cArr[cidx+3] = alpha0;
-      cArr[cidx+4] = 0.2+w1*0.8; cArr[cidx+5] = 0.6+w1*0.4; cArr[cidx+6] = 0.8+w1*0.2; cArr[cidx+7] = alpha1;
+      // Head: (0.0, 0.74, 0.83) cyan  →  Tail: (0.0, 0.25, 0.55) deep blue
+      cArr[cidx]   = 0.0;            cArr[cidx+1] = 0.25 + w0 * 0.49; cArr[cidx+2] = 0.55 + w0 * 0.28; cArr[cidx+3] = alpha0;
+      cArr[cidx+4] = 0.0;            cArr[cidx+5] = 0.25 + w1 * 0.49; cArr[cidx+6] = 0.55 + w1 * 0.28; cArr[cidx+7] = alpha1;
     }
 
     linesRef.current.geometry.attributes.position.needsUpdate = true;
@@ -1195,14 +1201,14 @@ function BackgroundMeteor() {
 
   return (
     <group>
-      <lineSegments ref={linesRef}>
+      <lineSegments ref={linesRef} frustumCulled={false}>
         <bufferGeometry>
           <bufferAttribute attach="attributes-position" args={[trailPos, 3]} />
           <bufferAttribute attach="attributes-color" args={[trailCol, 4]} />
         </bufferGeometry>
         <lineBasicMaterial vertexColors transparent depthWrite={false} blending={THREE.AdditiveBlending} />
       </lineSegments>
-      <points ref={headRef}>
+      <points ref={headRef} frustumCulled={false}>
         <bufferGeometry>
           <bufferAttribute attach="attributes-position" args={[headPos, 3]} />
           <bufferAttribute attach="attributes-size" args={[headSizes, 1]} />
