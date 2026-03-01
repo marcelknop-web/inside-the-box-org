@@ -345,14 +345,36 @@ const useServiceContent = () => {
     ),
     'incident-management': () => (
       <TypedSection title={t('incident.title')} mode="typewriter" intro={<p>{t('incident.intro')}</p>}>
+        <Block className="bg-card/40 rounded-xl">
+          <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{t('incident.introDetail')}</p>
+        </Block>
         <Block className="bg-primary/5 border border-primary/20 rounded-xl">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <SubTitle>{t('incident.sectionTitle')}</SubTitle>
+          <div className="grid grid-cols-1 gap-3 mt-2">
             <GridItem icon={ShieldCheck} title={t('incident.step1Title')} desc={t('incident.step1Desc')} />
             <GridItem icon={Eye} title={t('incident.step2Title')} desc={t('incident.step2Desc')} />
             <GridItem icon={AlertTriangle} title={t('incident.step3Title')} desc={t('incident.step3Desc')} />
             <GridItem icon={RefreshCw} title={t('incident.step4Title')} desc={t('incident.step4Desc')} />
             <GridItem icon={GraduationCap} title={t('incident.step5Title')} desc={t('incident.step5Desc')} />
           </div>
+        </Block>
+        <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
+          <SubTitle variant="highlight">{t('incident.outcomesTitle')}</SubTitle>
+          <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mt-2">{t('incident.outcomesDesc')}</p>
+        </Block>
+        <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
+          <SubTitle variant="highlight">{t('incident.refTitle')}</SubTitle>
+          <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mt-2">{t('incident.refDesc')}</p>
+        </Block>
+        <Block className="bg-primary/5 border border-primary/20 rounded-xl">
+          <SubTitle>{t('incident.ctaTitle')}</SubTitle>
+          <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mt-2">{t('incident.ctaDesc')}</p>
+          <button
+            onClick={() => setActive('contact')}
+            className="mt-3 inline-flex items-center gap-2 text-primary font-mono font-bold text-sm hover:text-highlight transition-electric cursor-pointer bg-transparent border-none p-0"
+          >
+            {t('incident.ctaButton')}
+          </button>
         </Block>
       </TypedSection>
     ),
