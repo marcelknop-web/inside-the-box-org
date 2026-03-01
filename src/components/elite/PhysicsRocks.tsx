@@ -229,12 +229,16 @@ export function DynamicRock({ index, physics }: { index: number; physics: RockPh
 
   return (
     <group ref={ref}>
-      {/* Visible wireframe edges only – fully transparent, no hidden-line removal */}
+      {/* Invisible solid mesh for depth occlusion (hidden-line removal) */}
+      <mesh geometry={geo}>
+        <meshBasicMaterial colorWrite={false} side={THREE.FrontSide} />
+      </mesh>
+      {/* Visible wireframe edges with proper depth testing */}
       <lineSegments>
         <bufferGeometry>
           <bufferAttribute attach="attributes-position" args={[edges, 3]} />
         </bufferGeometry>
-        <lineBasicMaterial ref={lineMatRef} color={LINE_COLOR} transparent opacity={1.0} depthTest={false} linewidth={4} />
+        <lineBasicMaterial ref={lineMatRef} color={LINE_COLOR} transparent opacity={1.0} depthTest={true} linewidth={4} polygonOffset polygonOffsetFactor={-1} polygonOffsetUnits={-1} />
       </lineSegments>
     </group>
   );
