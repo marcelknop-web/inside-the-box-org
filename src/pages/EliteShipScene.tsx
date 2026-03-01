@@ -15,34 +15,34 @@ function useInitialRocks() {
       return x - Math.floor(x);
     };
     const rocks: { seed: number; radius: number; position: [number, number, number]; rotSpeed: [number, number, number] }[] = [];
-    // Dense carpet of rocks forming a horizon
-    const gridX = 50, gridZ = 30, spacing = 4;
+    // Wide flat plane of rocks – spread much wider, very thin Y
+    const gridX = 60, gridZ = 40, spacing = 3.5;
     let idx = 0;
     for (let gx = 0; gx < gridX; gx++) {
       for (let gz = 0; gz < gridZ; gz++) {
-        const r = 0.8 + rng(idx, 0) * 2.2;
+        const r = 0.6 + rng(idx, 0) * 1.8;
         rocks.push({
           seed: idx * 13 + 7, radius: r,
           position: [
-            gx * spacing + (rng(idx, 1) - 0.5) * spacing * 0.6 - (gridX * spacing) / 2,
-            -8 + (rng(idx, 3) - 0.5) * 1.0 - r * 0.1,
-            gz * spacing + (rng(idx, 2) - 0.5) * spacing * 0.6 - (gridZ * spacing) / 2,
+            gx * spacing + (rng(idx, 1) - 0.5) * spacing * 0.7 - (gridX * spacing) / 2,
+            -8 + (rng(idx, 3) - 0.5) * 0.3, // very flat – only ±0.15 Y variation
+            gz * spacing + (rng(idx, 2) - 0.5) * spacing * 0.7 - (gridZ * spacing) / 2,
           ],
-          rotSpeed: [(rng(idx, 7) - 0.5) * 0.08, (rng(idx, 8) - 0.5) * 0.1, (rng(idx, 9) - 0.5) * 0.06],
+          rotSpeed: [(rng(idx, 7) - 0.5) * 0.03, (rng(idx, 8) - 0.5) * 0.04, (rng(idx, 9) - 0.5) * 0.02], // slower rotation
         });
         idx++;
       }
     }
-    // Floating rocks above the carpet
+    // A few rocks at camera level for fly-through moments
     const rng2 = (i: number, off: number) => {
       let x = Math.sin(i * 73.1 + off * 419.3) * 31758.5453;
       return x - Math.floor(x);
     };
-    for (let i = 0; i < 30; i++) {
+    for (let i = 0; i < 40; i++) {
       rocks.push({
-        seed: i * 31 + 100, radius: 0.6 + rng2(i, 0) * 2.0,
-        position: [rng2(i, 1) * 160 - 80, -4 + rng2(i, 2) * 10, rng2(i, 3) * 100 - 50],
-        rotSpeed: [(rng2(i, 7) - 0.5) * 0.15, (rng2(i, 8) - 0.5) * 0.2, (rng2(i, 9) - 0.5) * 0.1],
+        seed: i * 31 + 100, radius: 0.4 + rng2(i, 0) * 1.2,
+        position: [rng2(i, 1) * 180 - 90, -8 + rng2(i, 2) * 3, rng2(i, 3) * 120 - 60],
+        rotSpeed: [(rng2(i, 7) - 0.5) * 0.02, (rng2(i, 8) - 0.5) * 0.03, (rng2(i, 9) - 0.5) * 0.015],
       });
     }
     return rocks;
@@ -407,39 +407,25 @@ function CockpitCamera({ physics, audioRef }: { physics: RockPhysics; audioRef: 
       });
     }
 
-    // ── Collision avoidance ──
-    const AVOID_RADIUS = 8;
-    const HARD_RADIUS = 2.5;
-    const REPULSE_FORCE = 14;
-    const avoidForce = new THREE.Vector3(0, 0, 0);
-    const avoidTorque = new THREE.Vector3(0, 0, 0);
+    // ── NO collision avoidance – fly through freely ──
+    // Instead: find nearby rocks for cinematic close flyby targeting
     const tmpVec = new THREE.Vector3();
+    const avoidForce = new THREE.Vector3(0, 0, 0); // minimal – just prevent literal overlap
+    const avoidTorque = new THREE.Vector3(0, 0, 0);
 
+    // Only prevent clipping through rock centers (very tight)
     for (let oi = 0; oi < n; oi++) {
       const ox = oi * 3;
       tmpVec.set(p.x - pp[ox], p.y - pp[ox + 1], p.z - pp[ox + 2]);
       const dist = tmpVec.length();
       const surfaceDist = dist - pr[oi];
-      if (dist > AVOID_RADIUS + pr[oi] + 5) continue;
-
-      if (surfaceDist < AVOID_RADIUS) {
-        const dir = tmpVec.normalize();
-        if (surfaceDist < HARD_RADIUS) {
-          const strength = REPULSE_FORCE * (1 + (HARD_RADIUS - surfaceDist) * 2);
-          avoidForce.addScaledVector(dir, strength);
-          const velToward = vel.current.dot(dir);
-          if (velToward < 0) vel.current.addScaledVector(dir, -velToward * 0.6);
-        } else {
-          const t2 = (AVOID_RADIUS - surfaceDist) / (AVOID_RADIUS - HARD_RADIUS);
-          avoidForce.addScaledVector(dir, REPULSE_FORCE * t2 * t2 * 0.3);
-        }
-        const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(orientation.current);
-        const cross = new THREE.Vector3().crossVectors(forward, dir);
-        avoidTorque.addScaledVector(cross, surfaceDist < HARD_RADIUS ? 1.0 : 0.25);
+      if (surfaceDist < 0.5) {
+        // Only nudge gently if literally inside a rock
+        avoidForce.addScaledVector(tmpVec.normalize(), 3.0 * (0.5 - surfaceDist));
       }
     }
 
-    // ── Attraction: find dense rock cluster ──
+    // ── Attraction: target rocks for close flybys ──
     targetCooldown.current -= clampDt;
     if (targetCooldown.current <= 0) {
       const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(orientation.current);
@@ -450,24 +436,27 @@ function CockpitCamera({ physics, audioRef }: { physics: RockPhysics; audioRef: 
         const ox = oi * 3;
         tmpVec.set(pp[ox] - p.x, pp[ox + 1] - p.y, pp[ox + 2] - p.z);
         const dist = tmpVec.length();
-        if (dist < 6 || dist > 60) continue;
+        if (dist < 3 || dist > 50) continue;
         const dot = tmpVec.normalize().dot(forward);
-        if (dot < -0.3) continue;
+        if (dot < -0.2) continue;
 
+        // Prefer rocks that are close but slightly off-axis (= near-miss flyby)
+        const offAxis = Math.abs(1.0 - Math.abs(dot)); // higher = more off-center
         let neighbors = 0;
-        for (let nj = 0; nj < n; nj++) {
+        for (let nj = 0; nj < Math.min(n, 200); nj++) {
           if (nj === oi) continue;
           const njx = nj * 3;
           const ddx = pp[njx] - pp[ox], ddy = pp[njx + 1] - pp[ox + 1], ddz = pp[njx + 2] - pp[ox + 2];
-          if (ddx * ddx + ddy * ddy + ddz * ddz < 200) neighbors++;
-          if (neighbors > 8) break;
+          if (ddx * ddx + ddy * ddy + ddz * ddz < 150) neighbors++;
+          if (neighbors > 6) break;
         }
 
-        const score = dot * 2.5 + (1 - dist / 60) * 3.0 + neighbors * 0.6 + Math.random() * 0.2;
+        // Score: prefer forward + close + off-axis (dramatic flyby) + dense areas
+        const score = dot * 1.5 + (1 - dist / 50) * 2.5 + offAxis * 3.0 + neighbors * 0.5 + Math.random() * 0.3;
         if (score > bestScore) { bestScore = score; bestIdx = oi; }
       }
       currentTarget.current = bestIdx;
-      targetCooldown.current = 2.5 + Math.random() * 3.0;
+      targetCooldown.current = 2.0 + Math.random() * 3.0;
     }
 
     const attractForce = new THREE.Vector3(0, 0, 0);
@@ -475,31 +464,36 @@ function CockpitCamera({ physics, audioRef }: { physics: RockPhysics; audioRef: 
       const ox = currentTarget.current * 3;
       tmpVec.set(pp[ox] - p.x, pp[ox + 1] - p.y, pp[ox + 2] - p.z);
       const dist = tmpVec.length();
-      if (dist > 5) {
-        tmpVec.y += 1.5;
-        attractForce.copy(tmpVec.normalize()).multiplyScalar(2.0 + sa * 1.5); // gentler attraction
+      if (dist > 2) {
+        // Aim slightly offset for flyby – not directly at the rock
+        const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(orientation.current);
+        const right = new THREE.Vector3(1, 0, 0).applyQuaternion(orientation.current);
+        // Offset to the side for a cinematic pass
+        const offsetDir = right.clone().multiplyScalar((Math.sin(t * 0.3) > 0 ? 1 : -1) * 2.0);
+        tmpVec.add(offsetDir);
+        attractForce.copy(tmpVec.normalize()).multiplyScalar(1.5 + sa * 1.0);
       }
     }
 
-    // ── Keep altitude just above rock field surface ──
-    let nearbyYSum = 0, nearbyYMax = -Infinity, nearbyCount = 0;
+    // ── Altitude: alternate between above and within the field ──
+    let nearbyYSum = 0, nearbyCount = 0;
     for (let oi = 0; oi < n; oi++) {
       const ox = oi * 3;
       const ddx = pp[ox] - p.x, ddz = pp[ox + 2] - p.z;
-      if (ddx * ddx + ddz * ddz < 400) {
-        const rockTop = pp[ox + 1] + pr[oi];
-        nearbyYSum += rockTop;
-        if (rockTop > nearbyYMax) nearbyYMax = rockTop;
+      if (ddx * ddx + ddz * ddz < 600) {
+        nearbyYSum += pp[ox + 1] + pr[oi];
         nearbyCount++;
       }
     }
     if (nearbyCount > 0) {
       const avgTop = nearbyYSum / nearbyCount;
-      const desiredAlt = avgTop + 2.0 + sa * 1.5;
+      // Sinusoidal altitude: sometimes skim surface, sometimes fly level through
+      const altCycle = Math.sin(t * 0.15) * 0.5 + 0.5; // 0-1
+      const desiredAlt = avgTop + 0.5 + altCycle * 3.0 + sa * 1.0;
       const altDiff = desiredAlt - p.y;
-      attractForce.y += altDiff * 0.8; // gentler altitude correction
+      attractForce.y += altDiff * 0.5;
     } else {
-      attractForce.y += (-6 - p.y) * 0.3;
+      attractForce.y += (-7 - p.y) * 0.3;
     }
 
     // ── Thruster bursts (music-synced, smoother) ──
@@ -544,8 +538,8 @@ function CockpitCamera({ physics, audioRef }: { physics: RockPhysics; audioRef: 
     vel.current.addScaledVector(attractForce, clampDt);
     vel.current.multiplyScalar(1 - DRAG * clampDt);
 
-    const maxSpeed = 6 + sa * 5;
-    const minSpeed = 0.8 + sa * 1.0;
+    const maxSpeed = 4 + sa * 3;    // slower, more cinematic
+    const minSpeed = 0.5 + sa * 0.5;
     const speed = vel.current.length();
     if (speed > maxSpeed) vel.current.multiplyScalar(maxSpeed / speed);
     if (speed < minSpeed) vel.current.multiplyScalar(minSpeed / Math.max(speed, 0.01));
