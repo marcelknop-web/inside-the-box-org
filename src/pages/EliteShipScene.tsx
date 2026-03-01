@@ -2,6 +2,7 @@ import React, { useRef, useMemo, useEffect } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { createRockPhysics, stepPhysics, DynamicRock, type RockPhysics } from '@/components/elite/PhysicsRocks';
+import { DebrisSystem } from '@/components/elite/DebrisSystem';
 import { useAudioAnalyser, type AudioAnalysis } from '@/hooks/useAudioAnalyser';
 
 const LINE_COLOR = '#00ffaa';
@@ -834,6 +835,7 @@ export default function EliteShipScene() {
         <Comets />
         <Rain physics={physics} />
         <RockField physics={physics} />
+        <DebrisSystem physics={physics} />
       </Canvas>
       
       <CockpitHUD />
