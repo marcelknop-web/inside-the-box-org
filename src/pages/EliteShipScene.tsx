@@ -384,26 +384,26 @@ function CockpitCamera({ physics, audioRef }: { physics: RockPhysics; audioRef: 
     const audio = audioRef.current;
     const amp = audio.amplitude;
     const bass = audio.bass;
-    smoothedAmplitude.current += (amp - smoothedAmplitude.current) * 0.03; // slower smoothing
-    smoothedBass.current += (bass - smoothedBass.current) * 0.05;
+    smoothedAmplitude.current += (amp - smoothedAmplitude.current) * 0.02; // very slow smoothing
+    smoothedBass.current += (bass - smoothedBass.current) * 0.03;
     const sa = smoothedAmplitude.current;
     const sb = smoothedBass.current;
 
-    // Music modulates gently
-    const musicSpeedMult = 0.5 + sa * 0.8;
-    const musicThrustMult = 0.4 + sb * 1.0;
-    const musicThrusterInterval = 4.0 - sa * 2.0;
+    // Music modulates very gently – slow meditative cruise
+    const musicSpeedMult = 0.25 + sa * 0.4;
+    const musicThrustMult = 0.2 + sb * 0.5;
+    const musicThrusterInterval = 6.0 - sa * 2.0;
 
-    // Beat triggers a gentle thruster burst
+    // Beat triggers a very gentle directional nudge
     if (audio.beat) {
       const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(orientation.current);
       thrusters.current.push({
-        axis: forward.clone().add(new THREE.Vector3((Math.random() - 0.5) * 0.15, (Math.random() - 0.5) * 0.15, 0)).normalize(),
+        axis: forward.clone().add(new THREE.Vector3((Math.random() - 0.5) * 0.08, (Math.random() - 0.5) * 0.05, 0)).normalize(),
         torqueAxis: new THREE.Vector3((Math.random() - 0.5), (Math.random() - 0.5), (Math.random() - 0.5)).normalize(),
-        force: 1.0 + sb * 1.5, // gentler beats
-        torque: (Math.random() - 0.5) * 0.1,
+        force: 0.4 + sb * 0.6,
+        torque: (Math.random() - 0.5) * 0.03,
         startTime: t,
-        duration: 0.8 + Math.random() * 1.0, // longer, smoother burn
+        duration: 1.5 + Math.random() * 2.0, // very long, gentle burn
       });
     }
 
@@ -487,33 +487,35 @@ function CockpitCamera({ physics, audioRef }: { physics: RockPhysics; audioRef: 
     }
     if (nearbyCount > 0) {
       const avgTop = nearbyYSum / nearbyCount;
-      // Sinusoidal altitude: sometimes skim surface, sometimes fly level through
-      const altCycle = Math.sin(t * 0.15) * 0.5 + 0.5; // 0-1
-      const desiredAlt = avgTop + 0.5 + altCycle * 3.0 + sa * 1.0;
+      // Slow sinusoidal altitude: long cycles between skimming and diving into the field
+      const altCycle = Math.sin(t * 0.06) * 0.5 + 0.5; // very slow 0-1 cycle (~100s period)
+      const diveCycle = Math.sin(t * 0.025) * 0.5 + 0.5; // ultra-slow dive cycle
+      // altCycle=0: skim just above rocks, altCycle=1: fly higher, diveCycle modulates into the field
+      const desiredAlt = avgTop - 0.5 + altCycle * 2.5 - diveCycle * 1.5 + sa * 0.5;
       const altDiff = desiredAlt - p.y;
-      attractForce.y += altDiff * 0.5;
+      attractForce.y += altDiff * 0.25; // very gentle altitude correction
     } else {
-      attractForce.y += (-7 - p.y) * 0.3;
+      attractForce.y += (-8 - p.y) * 0.15;
     }
 
     // ── Thruster bursts (music-synced, smoother) ──
     if (t > nextThrusterAt.current) {
-      const ax = (Math.random() - 0.5) * 1.5;
-      const ay = (Math.random() - 0.5) * 1.5;
-      const az = -0.5 - Math.random() * 1.0;
+      const ax = (Math.random() - 0.5) * 0.8;
+      const ay = (Math.random() - 0.5) * 0.3;
+      const az = -0.3 - Math.random() * 0.5;
       const axis = new THREE.Vector3(ax, ay, az).normalize();
-      const tx = (Math.random() - 0.5) * 1.5;
-      const ty = (Math.random() - 0.5) * 1.5;
-      const tz = (Math.random() - 0.5) * 1.5;
+      const tx = (Math.random() - 0.5) * 0.5;
+      const ty = (Math.random() - 0.5) * 0.5;
+      const tz = (Math.random() - 0.5) * 0.5;
       const torqueAxis = new THREE.Vector3(tx, ty, tz).normalize();
       thrusters.current.push({
         axis, torqueAxis,
-        force: (0.5 + Math.random() * 1.5) * musicThrustMult,
-        torque: (Math.random() - 0.5) * 0.12, // much less rotational jerk
+        force: (0.2 + Math.random() * 0.6) * musicThrustMult,
+        torque: (Math.random() - 0.5) * 0.04,
         startTime: t,
-        duration: 1.0 + Math.random() * 4.0, // longer burns = smoother
+        duration: 3.0 + Math.random() * 6.0, // very long, slow burns
       });
-      nextThrusterAt.current = t + Math.max(1.5, musicThrusterInterval + Math.random() * 2.0);
+      nextThrusterAt.current = t + Math.max(3.0, musicThrusterInterval + Math.random() * 4.0);
     }
 
     const thrustAccel = new THREE.Vector3(0, 0, 0);
@@ -531,15 +533,15 @@ function CockpitCamera({ physics, audioRef }: { physics: RockPhysics; audioRef: 
       return true;
     });
 
-    const DRAG = 0.25; // more drag = smoother
-    const ANG_DRAG = 0.7; // much more angular drag = less jerky rotation
+    const DRAG = 0.4; // higher drag for very smooth deceleration
+    const ANG_DRAG = 0.85; // heavy angular drag = barely any rotation jerk
     vel.current.addScaledVector(thrustAccel, clampDt);
     vel.current.addScaledVector(avoidForce, clampDt);
     vel.current.addScaledVector(attractForce, clampDt);
     vel.current.multiplyScalar(1 - DRAG * clampDt);
 
-    const maxSpeed = 4 + sa * 3;    // slower, more cinematic
-    const minSpeed = 0.5 + sa * 0.5;
+    const maxSpeed = 2.0 + sa * 2.0;    // much slower, meditative cruise
+    const minSpeed = 0.3 + sa * 0.3;
     const speed = vel.current.length();
     if (speed > maxSpeed) vel.current.multiplyScalar(maxSpeed / speed);
     if (speed < minSpeed) vel.current.multiplyScalar(minSpeed / Math.max(speed, 0.01));
@@ -550,7 +552,7 @@ function CockpitCamera({ physics, audioRef }: { physics: RockPhysics; audioRef: 
     angVel.current.addScaledVector(avoidTorque, clampDt);
     angVel.current.multiplyScalar(1 - ANG_DRAG * clampDt);
     const angSpeed = angVel.current.length();
-    if (angSpeed > 0.4) angVel.current.multiplyScalar(0.4 / angSpeed); // tighter clamp
+    if (angSpeed > 0.15) angVel.current.multiplyScalar(0.15 / angSpeed); // very tight clamp
 
     if (angSpeed > 0.0001) {
       const halfAngle = angSpeed * clampDt * 0.5;
@@ -560,22 +562,58 @@ function CockpitCamera({ physics, audioRef }: { physics: RockPhysics; audioRef: 
       orientation.current.normalize();
     }
 
-    // Align orientation toward velocity direction (gentle)
-    if (speed > 0.5) {
+    // Align orientation toward velocity direction (very gentle)
+    if (speed > 0.3) {
       const velDir = vel.current.clone().normalize();
       const targetQ = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, -1), velDir);
-      orientation.current.slerp(targetQ, 0.015); // gentler alignment
+      orientation.current.slerp(targetQ, 0.008); // extremely gentle alignment
     }
 
-    // ── Smooth camera output with interpolation ──
-    smoothPos.current.lerp(pos.current, 0.06); // heavy smoothing on position
-    smoothQuat.current.slerp(orientation.current, 0.06); // heavy smoothing on rotation
+    // ── Smooth camera output with heavy interpolation ──
+    smoothPos.current.lerp(pos.current, 0.03); // very heavy smoothing on position
+    smoothQuat.current.slerp(orientation.current, 0.03); // very heavy smoothing on rotation
 
     camera.position.copy(smoothPos.current);
     camera.quaternion.copy(smoothQuat.current);
   });
 
   return null;
+}
+
+/* ── Fog layer over rock field ── */
+function FogLayer() {
+  const meshRef = useRef<THREE.Mesh>(null);
+  const { camera } = useThree();
+
+  useFrame(() => {
+    if (!meshRef.current) return;
+    // Keep fog centered on camera XZ, at rock-field Y level
+    meshRef.current.position.set(camera.position.x, -7.5, camera.position.z);
+  });
+
+  return (
+    <mesh ref={meshRef} rotation={[-Math.PI / 2, 0, 0]}>
+      <planeGeometry args={[300, 300, 1, 1]} />
+      <meshBasicMaterial
+        color="#00ffaa"
+        transparent
+        opacity={0.035}
+        side={THREE.DoubleSide}
+        depthWrite={false}
+        blending={THREE.AdditiveBlending}
+      />
+    </mesh>
+  );
+}
+
+/* ── Multi-layer volumetric fog ── */
+function VolumetricFog() {
+  return (
+    <>
+      <FogLayer />
+      <fog attach="fog" args={['#011a12', 20, 160]} />
+    </>
+  );
 }
 
 /* ── Cockpit frame ── */
@@ -789,6 +827,7 @@ export default function EliteShipScene() {
         gl={{ antialias: true, alpha: false }}
         style={{ background: BG }}
       >
+        <VolumetricFog />
         <PhysicsDriver physics={physics} />
         <CockpitCamera physics={physics} audioRef={analysisRef} />
         <RealisticStarfield />
