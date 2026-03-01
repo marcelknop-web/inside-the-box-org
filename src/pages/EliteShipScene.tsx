@@ -1,72 +1,20 @@
 import React, { useRef, useMemo, useState, useEffect, useCallback } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
-import { ConvexGeometry } from 'three/addons/geometries/ConvexGeometry.js';
+import { createRockPhysics, stepPhysics, DynamicRock, type RockPhysics } from '@/components/elite/PhysicsRocks';
 
 const LINE_COLOR = '#00ffaa';
 const BG = '#000000';
 
-/* ── Random convex polyhedron ── */
-function buildPolyhedron(seed: number, radius: number): { geo: THREE.BufferGeometry; edges: Float32Array } {
-  const rng = (i: number) => {
-    let x = Math.sin(seed * 9301 + i * 49297 + 0.1) * 49297;
-    return x - Math.floor(x);
-  };
-  const numVerts = 5 + Math.floor(rng(0) * 8);
-  const verts: THREE.Vector3[] = [];
-  for (let i = 0; i < numVerts; i++) {
-    const y = 1 - (i / (numVerts - 1)) * 2;
-    const ry = Math.sqrt(1 - y * y);
-    const theta = (2 * Math.PI * i) / 1.618033988749895 + rng(i + 20) * 0.8;
-    const r = radius * (0.5 + rng(i + 50) * 0.8);
-    verts.push(new THREE.Vector3(
-      Math.cos(theta) * ry * r, y * r * (0.4 + rng(i + 70) * 0.9), Math.sin(theta) * ry * r
-    ));
-  }
-  const geo = new ConvexGeometry(verts);
-  geo.scale(0.6 + rng(100) * 0.8, 0.3 + rng(101) * 0.7, 0.6 + rng(102) * 0.8);
-  geo.computeVertexNormals();
-  const edgesGeo = new THREE.EdgesGeometry(geo, 1);
-  const arr = new Float32Array(edgesGeo.attributes.position.array);
-  edgesGeo.dispose();
-  return { geo, edges: arr };
-}
-
-/* ── Single polyhedron rock ── */
-function Rock({ seed, radius, position: pos, rotSpeed }: {
-  seed: number; radius: number; position: [number, number, number]; rotSpeed: [number, number, number];
-}) {
-  const ref = useRef<THREE.Group>(null);
-  const { geo, edges } = useMemo(() => buildPolyhedron(seed, radius), [seed, radius]);
-  useFrame((_, dt) => {
-    if (!ref.current) return;
-    ref.current.rotation.x += rotSpeed[0] * dt;
-    ref.current.rotation.y += rotSpeed[1] * dt;
-    ref.current.rotation.z += rotSpeed[2] * dt;
-  });
-  return (
-    <group ref={ref} position={pos}>
-      <mesh geometry={geo} renderOrder={0}>
-        <meshBasicMaterial color="#000000" side={THREE.FrontSide} depthWrite polygonOffset polygonOffsetFactor={1} polygonOffsetUnits={1} />
-      </mesh>
-      <lineSegments renderOrder={1}>
-        <bufferGeometry>
-          <bufferAttribute attach="attributes-position" args={[edges, 3]} />
-        </bufferGeometry>
-        <lineBasicMaterial color={LINE_COLOR} transparent opacity={0.8} depthTest />
-      </lineSegments>
-    </group>
-  );
-}
-
-/* ── Surface rocks ── */
-function useSurfaceRocks() {
+/* ── Generate initial rock data ── */
+function useInitialRocks() {
   return useMemo(() => {
     const rng = (i: number, off: number) => {
       let x = Math.sin(i * 127.1 + off * 311.7) * 43758.5453;
       return x - Math.floor(x);
     };
     const rocks: { seed: number; radius: number; position: [number, number, number]; rotSpeed: [number, number, number] }[] = [];
+    // Surface rocks
     const gridX = 20, gridZ = 12, spacing = 6;
     let idx = 0;
     for (let gx = 0; gx < gridX; gx++) {
@@ -79,74 +27,63 @@ function useSurfaceRocks() {
             -8 + (rng(idx, 3) - 0.5) * 1.5 - r * 0.15,
             gz * spacing + (rng(idx, 2) - 0.5) * spacing * 0.7 - (gridZ * spacing) / 2,
           ],
-          rotSpeed: [(rng(idx, 7) - 0.5) * 0.02, (rng(idx, 8) - 0.5) * 0.03, (rng(idx, 9) - 0.5) * 0.01],
+          rotSpeed: [(rng(idx, 7) - 0.5) * 0.08, (rng(idx, 8) - 0.5) * 0.1, (rng(idx, 9) - 0.5) * 0.06],
         });
         idx++;
       }
+    }
+    // Floating rocks
+    const rng2 = (i: number, off: number) => {
+      let x = Math.sin(i * 73.1 + off * 419.3) * 31758.5453;
+      return x - Math.floor(x);
+    };
+    for (let i = 0; i < 12; i++) {
+      rocks.push({
+        seed: i * 31 + 100, radius: 0.8 + rng2(i, 0) * 2.5,
+        position: [rng2(i, 1) * 100 - 20, -3 + rng2(i, 2) * 8, rng2(i, 3) * 50 - 25],
+        rotSpeed: [(rng2(i, 7) - 0.5) * 0.15, (rng2(i, 8) - 0.5) * 0.2, (rng2(i, 9) - 0.5) * 0.1],
+      });
     }
     return rocks;
   }, []);
 }
 
-function useFloatingRocks() {
-  return useMemo(() => {
-    const rng = (i: number, off: number) => {
-      let x = Math.sin(i * 73.1 + off * 419.3) * 31758.5453;
-      return x - Math.floor(x);
-    };
-    return Array.from({ length: 12 }, (_, i) => ({
-      seed: i * 31 + 100, radius: 0.8 + rng(i, 0) * 2.5,
-      position: [rng(i, 1) * 100 - 20, -3 + rng(i, 2) * 8, rng(i, 3) * 50 - 25] as [number, number, number],
-      rotSpeed: [(rng(i, 7) - 0.5) * 0.15, (rng(i, 8) - 0.5) * 0.2, (rng(i, 9) - 0.5) * 0.1] as [number, number, number],
-    }));
-  }, []);
+/* ── Physics simulation driver ── */
+function PhysicsDriver({ physics }: { physics: RockPhysics }) {
+  useFrame((_, dt) => stepPhysics(physics, dt));
+  return null;
 }
 
-/* ── Infinite Rain – streaks + droplets, depth blur ── */
+/* ── Rain near objects only ── */
 const RAIN_COUNT = 800;
-const RAIN_SPREAD = { x: 120, y: 80, z: 80 };
+const RAIN_SPREAD_LOCAL = 15; // spawn radius around each rock
 const FALL_SPEED_MIN = 14;
 const FALL_SPEED_MAX = 26;
 const NEAR_BLUR_DIST = 6;
 const FAR_BLUR_DIST = 50;
 
-function Rain() {
+function Rain({ physics }: { physics: RockPhysics }) {
   const linesRef = useRef<THREE.LineSegments>(null);
   const dotsRef = useRef<THREE.Points>(null);
   const { camera } = useThree();
   const timeRef = useRef(0);
 
-  // Each streak = 2 vertices (top + bottom of line segment)
   const { linePos, dotPos, speeds, dotSizes, alive, lineCol, dotCol } = useMemo(() => {
-    const lp = new Float32Array(RAIN_COUNT * 6); // 2 verts * 3 coords
+    const lp = new Float32Array(RAIN_COUNT * 6);
     const dp = new Float32Array(RAIN_COUNT * 3);
     const spd = new Float32Array(RAIN_COUNT);
     const ds = new Float32Array(RAIN_COUNT);
-    const al = new Uint8Array(RAIN_COUNT).fill(1);
-    const lc = new Float32Array(RAIN_COUNT * 8); // 2 verts * RGBA
+    const al = new Uint8Array(RAIN_COUNT).fill(0); // start dead, spawn near rocks
+    const lc = new Float32Array(RAIN_COUNT * 8);
     const dc = new Float32Array(RAIN_COUNT * 4);
+    // Hide all initially
     for (let i = 0; i < RAIN_COUNT; i++) {
-      const x = (Math.random() - 0.5) * RAIN_SPREAD.x;
-      const y = (Math.random() - 0.5) * RAIN_SPREAD.y;
-      const z = (Math.random() - 0.5) * RAIN_SPREAD.z;
-      spd[i] = FALL_SPEED_MIN + Math.random() * (FALL_SPEED_MAX - FALL_SPEED_MIN);
-      // Line: top vertex
-      lp[i * 6] = x; lp[i * 6 + 1] = y; lp[i * 6 + 2] = z;
-      // Line: bottom vertex (streak length based on speed)
-      lp[i * 6 + 3] = x; lp[i * 6 + 4] = y - spd[i] * 0.14; lp[i * 6 + 5] = z;
-      // Dot at bottom
-      dp[i * 3] = x; dp[i * 3 + 1] = y; dp[i * 3 + 2] = z;
-      ds[i] = 0;
-      // Line colors (RGBA) – top bright, bottom fades
-      lc[i * 8] = 0; lc[i * 8 + 1] = 1; lc[i * 8 + 2] = 0.67; lc[i * 8 + 3] = 0.4;
-      lc[i * 8 + 4] = 0; lc[i * 8 + 5] = 0.7; lc[i * 8 + 6] = 0.5; lc[i * 8 + 7] = 0.05;
-      // Dot color
-      dc[i * 4] = 0.1; dc[i * 4 + 1] = 1; dc[i * 4 + 2] = 0.7; dc[i * 4 + 3] = 0;
+      lp[i * 6 + 1] = -9999; lp[i * 6 + 4] = -9999;
+      dp[i * 3 + 1] = -9999;
     }
     return { linePos: lp, dotPos: dp, speeds: spd, dotSizes: ds, alive: al, lineCol: lc, dotCol: dc };
   }, []);
 
-  // Track per-drop age for droplet effect at birth/death
   const ages = useMemo(() => new Float32Array(RAIN_COUNT), []);
 
   useFrame((_, dt) => {
@@ -168,25 +105,37 @@ function Rain() {
     const dc = dcAttr.array as Float32Array;
     const ds = dsAttr.array as Float32Array;
     const cam = camera.position;
-    const halfY = RAIN_SPREAD.y * 0.5;
+    const pp = physics.positions;
+    const n = physics.count;
 
     for (let i = 0; i < RAIN_COUNT; i++) {
-      const i6 = i * 6;
-      const i3 = i * 3;
-      const i8 = i * 8;
-      const i4 = i * 4;
+      const i6 = i * 6, i3 = i * 3, i8 = i * 8, i4 = i * 4;
 
       if (alive[i] === 0) {
         if (spawning && Math.random() < intensity * 0.06) {
+          // Spawn near a random rock that's within 80 units of camera
+          let attempts = 0;
+          let rx = 0, ry = 0, rz = 0;
+          while (attempts < 5) {
+            const ri = Math.floor(Math.random() * n);
+            const rix = ri * 3;
+            const rdx = pp[rix] - cam.x, rdz = pp[rix + 2] - cam.z;
+            if (rdx * rdx + rdz * rdz < 80 * 80) {
+              rx = pp[rix] + (Math.random() - 0.5) * RAIN_SPREAD_LOCAL;
+              ry = pp[rix + 1] + 10 + Math.random() * 20;
+              rz = pp[rix + 2] + (Math.random() - 0.5) * RAIN_SPREAD_LOCAL;
+              break;
+            }
+            attempts++;
+          }
+          if (attempts >= 5) { continue; }
+
           alive[i] = 1;
           ages[i] = 0;
-          const x = cam.x + (Math.random() - 0.5) * RAIN_SPREAD.x;
-          const y = cam.y + halfY + Math.random() * 10;
-          const z = cam.z + (Math.random() - 0.5) * RAIN_SPREAD.z;
           speeds[i] = FALL_SPEED_MIN + Math.random() * (FALL_SPEED_MAX - FALL_SPEED_MIN);
-          lp[i6] = x; lp[i6 + 1] = y; lp[i6 + 2] = z;
-          lp[i6 + 3] = x; lp[i6 + 4] = y; lp[i6 + 5] = z;
-          dp[i3] = x; dp[i3 + 1] = y; dp[i3 + 2] = z;
+          lp[i6] = rx; lp[i6 + 1] = ry; lp[i6 + 2] = rz;
+          lp[i6 + 3] = rx; lp[i6 + 4] = ry; lp[i6 + 5] = rz;
+          dp[i3] = rx; dp[i3 + 1] = ry; dp[i3 + 2] = rz;
         } else {
           lp[i6 + 1] = -9999; lp[i6 + 4] = -9999;
           dp[i3 + 1] = -9999;
@@ -200,30 +149,43 @@ function Rain() {
       const fall = speeds[i] * dt;
       const drift = Math.sin(lp[i6 + 1] * 0.5) * 0.012;
 
-      // Move top vertex
       lp[i6] += drift;
       lp[i6 + 1] -= fall;
       lp[i6 + 2] += drift * 0.3;
 
-      // Streak length: short at birth (droplet), long in mid-flight, short at death
-      const birthFade = Math.min(ages[i] * 3, 1); // 0→1 over 0.33s
+      const birthFade = Math.min(ages[i] * 3, 1);
       const streakLen = speeds[i] * 0.14 * birthFade;
 
-      // Bottom vertex = top - streak length
       lp[i6 + 3] = lp[i6];
       lp[i6 + 4] = lp[i6 + 1] - streakLen;
       lp[i6 + 5] = lp[i6 + 2];
 
-      // Dot at tip (bottom of streak)
       dp[i3] = lp[i6]; dp[i3 + 1] = lp[i6 + 1]; dp[i3 + 2] = lp[i6 + 2];
 
-      // Depth
       const dx = lp[i6] - cam.x;
       const dy = lp[i6 + 1] - cam.y;
       const dz = lp[i6 + 2] - cam.z;
       const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
 
-      // Droplet dot visible at birth and death (when streak is short)
+      // Check proximity to any rock – fade out if too far from all rocks
+      let nearRock = false;
+      for (let ri = 0; ri < n; ri++) {
+        const rix = ri * 3;
+        const ddx = lp[i6] - pp[rix], ddy = lp[i6 + 1] - pp[rix + 1], ddz = lp[i6 + 2] - pp[rix + 2];
+        if (ddx * ddx + ddy * ddy + ddz * ddz < RAIN_SPREAD_LOCAL * RAIN_SPREAD_LOCAL * 4) {
+          nearRock = true;
+          break;
+        }
+      }
+
+      if (!nearRock) {
+        alive[i] = 0;
+        lp[i6 + 1] = -9999; lp[i6 + 4] = -9999;
+        dp[i3 + 1] = -9999;
+        ds[i] = 0; dc[i4 + 3] = 0; lc[i8 + 3] = 0; lc[i8 + 7] = 0;
+        continue;
+      }
+
       const dropletVis = birthFade < 0.8 ? (1 - birthFade) * 0.6 : 0;
 
       if (dist < NEAR_BLUR_DIST) {
@@ -249,16 +211,11 @@ function Rain() {
         lc[i8 + 4] = 0; lc[i8 + 5] = 0.5; lc[i8 + 6] = 0.35;
       }
 
-      // Die naturally
-      if (lp[i6 + 1] < cam.y - halfY - 10) {
+      // Die if too far below camera
+      if (lp[i6 + 1] < cam.y - 50) {
         alive[i] = 0;
         continue;
       }
-
-      // Horizontal wrap
-      if (Math.abs(dx) > RAIN_SPREAD.x * 0.5) lp[i6] = cam.x + (Math.random() - 0.5) * RAIN_SPREAD.x;
-      if (Math.abs(dz) > RAIN_SPREAD.z * 0.5) lp[i6 + 2] = cam.z + (Math.random() - 0.5) * RAIN_SPREAD.z;
-      lp[i6 + 3] = lp[i6]; lp[i6 + 5] = lp[i6 + 2];
     }
     lAttr.needsUpdate = true;
     lcAttr.needsUpdate = true;
@@ -269,7 +226,6 @@ function Rain() {
 
   return (
     <>
-      {/* Streak lines */}
       <lineSegments ref={linesRef}>
         <bufferGeometry>
           <bufferAttribute attach="attributes-position" args={[linePos, 3]} />
@@ -277,7 +233,6 @@ function Rain() {
         </bufferGeometry>
         <lineBasicMaterial vertexColors transparent depthWrite={false} blending={THREE.AdditiveBlending} />
       </lineSegments>
-      {/* Droplet dots at birth/close range */}
       <points ref={dotsRef}>
         <bufferGeometry>
           <bufferAttribute attach="attributes-position" args={[dotPos, 3]} />
@@ -306,16 +261,14 @@ function RealisticStarfield() {
       pos[i3] = r * Math.sin(phi) * Math.cos(theta);
       pos[i3 + 1] = r * Math.sin(phi) * Math.sin(theta);
       pos[i3 + 2] = r * Math.cos(phi);
-      // Realistic magnitude distribution: most stars dim, very few bright
-      const mag = Math.pow(Math.random(), 4); // heavily skewed to dim
+      const mag = Math.pow(Math.random(), 4);
       const temp = Math.random();
       const brightness = 0.15 + mag * 0.85;
       if (temp < 0.5) { col[i3] = 0.9 * brightness; col[i3+1] = 0.92 * brightness; col[i3+2] = 1.0 * brightness; }
       else if (temp < 0.75) { col[i3] = 1.0 * brightness; col[i3+1] = 0.96 * brightness; col[i3+2] = 0.88 * brightness; }
       else if (temp < 0.9) { col[i3] = 0.65 * brightness; col[i3+1] = 0.8 * brightness; col[i3+2] = 1.0 * brightness; }
       else if (temp < 0.97) { col[i3] = 1.0 * brightness; col[i3+1] = 0.85 * brightness; col[i3+2] = 0.5 * brightness; }
-      else { col[i3] = 1.0 * brightness; col[i3+1] = 0.55 * brightness; col[i3+2] = 0.3 * brightness; } // rare red giants
-      // Size: tiny for most, a few prominent
+      else { col[i3] = 1.0 * brightness; col[i3+1] = 0.55 * brightness; col[i3+2] = 0.3 * brightness; }
       sz[i] = mag < 0.15 ? 0.08 + Math.random() * 0.06 : mag < 0.7 ? 0.14 + mag * 0.3 : 0.5 + mag * 1.2;
     }
     return { positions: pos, baseColors: col, sizes: sz };
@@ -338,7 +291,6 @@ function RealisticStarfield() {
     const t = clock.elapsedTime;
     const colAttr = pointsRef.current.geometry.attributes.color as THREE.BufferAttribute;
     const col = colAttr.array as Float32Array;
-    // Only twinkle brighter stars (every 4th) for perf, rest stay static
     for (let i = 0; i < STAR_COUNT; i += 4) {
       const brightness = 0.7 + 0.3 * Math.sin(t * twinkleSpeeds[i] + twinklePhases[i]);
       const i3 = i * 3;
@@ -356,21 +308,13 @@ function RealisticStarfield() {
         <bufferAttribute attach="attributes-color" args={[renderColors, 3]} />
         <bufferAttribute attach="attributes-size" args={[sizes, 1]} />
       </bufferGeometry>
-      <pointsMaterial
-        vertexColors
-        transparent
-        opacity={1}
-        size={0.35}
-        sizeAttenuation
-        depthWrite={false}
-        blending={THREE.AdditiveBlending}
-      />
+      <pointsMaterial vertexColors transparent opacity={1} size={0.35} sizeAttenuation depthWrite={false} blending={THREE.AdditiveBlending} />
     </points>
   );
 }
 
-/* ── Physics-based Thruster Camera with collision avoidance ── */
-function CockpitCamera({ obstacles }: { obstacles: { position: [number, number, number]; radius: number }[] }) {
+/* ── Thruster Camera with collision avoidance (reads live physics positions) ── */
+function CockpitCamera({ physics }: { physics: RockPhysics }) {
   const { camera } = useThree();
   const pos = useRef(new THREE.Vector3(0, 2, 0));
   const vel = useRef(new THREE.Vector3(0, 0, -3));
@@ -379,15 +323,7 @@ function CockpitCamera({ obstacles }: { obstacles: { position: [number, number, 
   const thrusterTime = useRef(0);
   const thrusters = useRef<{ axis: THREE.Vector3; torqueAxis: THREE.Vector3; force: number; torque: number; startTime: number; duration: number }[]>([]);
   const nextThrusterAt = useRef(0);
-
-  // Precompute obstacle positions as Vector3 once
-  const obstaclePts = useMemo(() =>
-    obstacles.map(o => ({ pos: new THREE.Vector3(...o.position), r: o.radius })),
-    [obstacles]
-  );
-
-  // Find nearest interesting rock to steer toward (but not into)
-  const currentTarget = useRef<THREE.Vector3 | null>(null);
+  const currentTarget = useRef<number>(-1); // index into physics
   const targetCooldown = useRef(0);
 
   useFrame((_, dt) => {
@@ -395,77 +331,70 @@ function CockpitCamera({ obstacles }: { obstacles: { position: [number, number, 
     const t = thrusterTime.current;
     const clampDt = Math.min(dt, 0.05);
     const p = pos.current;
+    const pp = physics.positions;
+    const pr = physics.radii;
+    const n = physics.count;
 
-    // ── Collision avoidance: repulsion force field ──
-    const AVOID_RADIUS = 8;    // start avoiding at this distance from surface
-    const HARD_RADIUS = 2.5;   // hard repulsion shell
+    // ── Collision avoidance ──
+    const AVOID_RADIUS = 8;
+    const HARD_RADIUS = 2.5;
     const REPULSE_FORCE = 18;
     const avoidForce = new THREE.Vector3(0, 0, 0);
     const avoidTorque = new THREE.Vector3(0, 0, 0);
     const tmpVec = new THREE.Vector3();
 
-    for (const obs of obstaclePts) {
-      tmpVec.subVectors(p, obs.pos);
+    for (let oi = 0; oi < n; oi++) {
+      const ox = oi * 3;
+      tmpVec.set(p.x - pp[ox], p.y - pp[ox + 1], p.z - pp[ox + 2]);
       const dist = tmpVec.length();
-      const surfaceDist = dist - obs.r;
+      const surfaceDist = dist - pr[oi];
+      if (dist > AVOID_RADIUS + pr[oi] + 5) continue;
 
       if (surfaceDist < AVOID_RADIUS) {
         const dir = tmpVec.normalize();
         if (surfaceDist < HARD_RADIUS) {
-          // Hard repulsion – exponential push away
           const strength = REPULSE_FORCE * (1 + (HARD_RADIUS - surfaceDist) * 3);
           avoidForce.addScaledVector(dir, strength);
-          // Also deflect velocity away from obstacle
           const velToward = vel.current.dot(dir);
-          if (velToward < 0) {
-            vel.current.addScaledVector(dir, -velToward * 0.8);
-          }
+          if (velToward < 0) vel.current.addScaledVector(dir, -velToward * 0.8);
         } else {
-          // Soft deflection – inverse square
           const t2 = (AVOID_RADIUS - surfaceDist) / (AVOID_RADIUS - HARD_RADIUS);
           avoidForce.addScaledVector(dir, REPULSE_FORCE * t2 * t2 * 0.4);
         }
-        // Torque to turn away
         const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(orientation.current);
         const cross = new THREE.Vector3().crossVectors(forward, dir);
         avoidTorque.addScaledVector(cross, surfaceDist < HARD_RADIUS ? 2.0 : 0.5);
       }
     }
 
-    // ── Attraction: periodically pick a nearby rock to fly close to ──
+    // ── Attraction: pick a rock to fly toward ──
     targetCooldown.current -= clampDt;
-    if (targetCooldown.current <= 0 || !currentTarget.current) {
-      // Find rocks that are ahead and within range 15-60
+    if (targetCooldown.current <= 0) {
       const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(orientation.current);
       let bestScore = -Infinity;
-      let bestPos: THREE.Vector3 | null = null;
-      for (const obs of obstaclePts) {
-        tmpVec.subVectors(obs.pos, p);
+      let bestIdx = -1;
+      for (let oi = 0; oi < n; oi++) {
+        const ox = oi * 3;
+        tmpVec.set(pp[ox] - p.x, pp[ox + 1] - p.y, pp[ox + 2] - p.z);
         const dist = tmpVec.length();
         if (dist < 10 || dist > 70) continue;
         const dot = tmpVec.normalize().dot(forward);
-        // Prefer rocks roughly ahead and at medium distance
         const score = dot * 2 + (1 - dist / 70) + Math.random() * 0.5;
-        if (score > bestScore) {
-          bestScore = score;
-          bestPos = obs.pos;
-        }
+        if (score > bestScore) { bestScore = score; bestIdx = oi; }
       }
-      currentTarget.current = bestPos;
+      currentTarget.current = bestIdx;
       targetCooldown.current = 3 + Math.random() * 4;
     }
 
-    // Gentle attraction toward target (fly-by, not fly-into)
     const attractForce = new THREE.Vector3(0, 0, 0);
-    if (currentTarget.current) {
-      tmpVec.subVectors(currentTarget.current, p);
+    if (currentTarget.current >= 0) {
+      const ox = currentTarget.current * 3;
+      tmpVec.set(pp[ox] - p.x, pp[ox + 1] - p.y, pp[ox + 2] - p.z);
       const dist = tmpVec.length();
-      if (dist > 6) {
-        attractForce.copy(tmpVec.normalize()).multiplyScalar(1.5);
-      }
+      if (dist > 6) attractForce.copy(tmpVec.normalize()).multiplyScalar(1.5);
     }
 
-    // ── Schedule thruster bursts ──
+    // ── Thruster bursts ──
     if (t > nextThrusterAt.current) {
       const count = 1 + Math.floor(Math.random() * 2);
       for (let i = 0; i < count; i++) {
@@ -488,7 +417,6 @@ function CockpitCamera({ obstacles }: { obstacles: { position: [number, number, 
       nextThrusterAt.current = t + 1.5 + Math.random() * 4.0;
     }
 
-    // Accumulate thruster forces
     const thrustAccel = new THREE.Vector3(0, 0, 0);
     const torqueAccel = new THREE.Vector3(0, 0, 0);
     thrusters.current = thrusters.current.filter(th => {
@@ -502,10 +430,7 @@ function CockpitCamera({ obstacles }: { obstacles: { position: [number, number, 
       return true;
     });
 
-    // Sum all forces
-    const DRAG = 0.15;
-    const ANG_DRAG = 0.4;
-
+    const DRAG = 0.15, ANG_DRAG = 0.4;
     vel.current.addScaledVector(thrustAccel, clampDt);
     vel.current.addScaledVector(avoidForce, clampDt);
     vel.current.addScaledVector(attractForce, clampDt);
@@ -513,11 +438,10 @@ function CockpitCamera({ obstacles }: { obstacles: { position: [number, number, 
 
     const speed = vel.current.length();
     if (speed > 12) vel.current.multiplyScalar(12 / speed);
-    if (speed < 1.5) vel.current.multiplyScalar(1.5 / Math.max(speed, 0.01)); // keep minimum speed
+    if (speed < 1.5) vel.current.multiplyScalar(1.5 / Math.max(speed, 0.01));
 
     pos.current.addScaledVector(vel.current, clampDt);
 
-    // Angular
     angVel.current.addScaledVector(torqueAccel, clampDt);
     angVel.current.addScaledVector(avoidTorque, clampDt);
     angVel.current.multiplyScalar(1 - ANG_DRAG * clampDt);
@@ -527,20 +451,14 @@ function CockpitCamera({ obstacles }: { obstacles: { position: [number, number, 
     if (angSpeed > 0.0001) {
       const halfAngle = angSpeed * clampDt * 0.5;
       const s = Math.sin(halfAngle) / angSpeed;
-      const dq = new THREE.Quaternion(
-        angVel.current.x * s, angVel.current.y * s, angVel.current.z * s,
-        Math.cos(halfAngle)
-      );
+      const dq = new THREE.Quaternion(angVel.current.x * s, angVel.current.y * s, angVel.current.z * s, Math.cos(halfAngle));
       orientation.current.premultiply(dq);
       orientation.current.normalize();
     }
 
-    // Gently align orientation to velocity direction (ship faces where it flies)
     if (speed > 0.5) {
       const velDir = vel.current.clone().normalize();
-      const targetQ = new THREE.Quaternion().setFromUnitVectors(
-        new THREE.Vector3(0, 0, -1), velDir
-      );
+      const targetQ = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, -1), velDir);
       orientation.current.slerp(targetQ, 0.02);
     }
 
@@ -607,13 +525,20 @@ function use432HzAmbient() {
   return { playing, start, stop };
 }
 
-
+/* ── Rock indices for rendering ── */
+function RockField({ physics }: { physics: RockPhysics }) {
+  const indices = useMemo(() => Array.from({ length: physics.count }, (_, i) => i), [physics.count]);
+  return (
+    <>
+      {indices.map(i => <DynamicRock key={i} index={i} physics={physics} />)}
+    </>
+  );
+}
 
 /* ── Main ── */
 export default function EliteShipScene() {
-  const surfaceRocks = useSurfaceRocks();
-  const floatingRocks = useFloatingRocks();
-  const allObstacles = useMemo(() => [...surfaceRocks, ...floatingRocks], [surfaceRocks, floatingRocks]);
+  const initialRocks = useInitialRocks();
+  const physics = useMemo(() => createRockPhysics(initialRocks), [initialRocks]);
   const ambient = use432HzAmbient();
 
   return (
@@ -623,11 +548,11 @@ export default function EliteShipScene() {
         gl={{ antialias: true, alpha: false }}
         style={{ background: BG }}
       >
-        <CockpitCamera obstacles={allObstacles} />
+        <PhysicsDriver physics={physics} />
+        <CockpitCamera physics={physics} />
         <RealisticStarfield />
-        <Rain />
-        {surfaceRocks.map((r, i) => <Rock key={`s${i}`} {...r} />)}
-        {floatingRocks.map((r, i) => <Rock key={`f${i}`} {...r} />)}
+        <Rain physics={physics} />
+        <RockField physics={physics} />
       </Canvas>
       
       <CockpitHUD />
