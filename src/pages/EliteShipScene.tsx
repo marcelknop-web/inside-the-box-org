@@ -66,17 +66,25 @@ function PhysicsDriver({ physics }: { physics: RockPhysics }) {
   return null;
 }
 
-/* ── Intermittent gravity rain between rocks ── */
-const RAIN_COUNT_DESKTOP = 1400;
-const RAIN_COUNT_MOBILE = 780;
-const RAIN_SPREAD_LOCAL = 20;
-const FALL_SPEED_MIN = 10;
-const FALL_SPEED_MAX = 22;
+/* ── Gravity rain: flies in from infinity, attracted to rocks, flies out to infinity ── */
+const RAIN_COUNT_DESKTOP = 1200;
+const RAIN_COUNT_MOBILE = 600;
+const RAIN_ATTRACT_RADIUS = 28;
+const RAIN_ATTRACT_STRENGTH = 18;
 const NEAR_BLUR_DIST = 8;
 const FAR_BLUR_DIST = 60;
-const RAIN_ATTRACT_RADIUS = 26;
-const RAIN_ATTRACT_STRENGTH = 15;
-const RAIN_LATERAL_DAMPING = 0.985;
+
+const PHASE_DEAD = 0;
+const PHASE_FLY_IN = 1;
+const PHASE_NEAR = 2;
+const PHASE_FLY_OUT = 3;
+
+const SPAWN_DIST_MIN = 120;
+const SPAWN_DIST_MAX = 220;
+const FLY_IN_SPEED_MIN = 35;
+const FLY_IN_SPEED_MAX = 65;
+const FLY_OUT_ACCEL = 12;
+const FLY_OUT_MAX_AGE = 4.5;
 
 function Rain({ physics, mobile = false }: { physics: RockPhysics; mobile?: boolean }) {
   const linesRef = useRef<THREE.LineSegments>(null);
@@ -85,248 +93,205 @@ function Rain({ physics, mobile = false }: { physics: RockPhysics; mobile?: bool
   const timeRef = useRef(0);
   const rainCount = mobile ? RAIN_COUNT_MOBILE : RAIN_COUNT_DESKTOP;
 
-  const { linePos, dotPos, dotSizes, alive, lineCol, dotCol, velX, velY, velZ } = useMemo(() => {
+  const data = useMemo(() => {
     const lp = new Float32Array(rainCount * 6);
     const dp = new Float32Array(rainCount * 3);
     const ds = new Float32Array(rainCount);
-    const al = new Uint8Array(rainCount).fill(0);
     const lc = new Float32Array(rainCount * 8);
     const dc = new Float32Array(rainCount * 4);
     const vx = new Float32Array(rainCount);
     const vy = new Float32Array(rainCount);
     const vz = new Float32Array(rainCount);
-
+    const ph = new Uint8Array(rainCount);
+    const ag = new Float32Array(rainCount);
+    const tr = new Int32Array(rainCount).fill(-1);
     for (let i = 0; i < rainCount; i++) {
-      lp[i * 6 + 1] = -9999;
-      lp[i * 6 + 4] = -9999;
-      dp[i * 3 + 1] = -9999;
+      lp[i * 6 + 1] = -9999; lp[i * 6 + 4] = -9999; dp[i * 3 + 1] = -9999;
     }
-
-    return { linePos: lp, dotPos: dp, dotSizes: ds, alive: al, lineCol: lc, dotCol: dc, velX: vx, velY: vy, velZ: vz };
+    return { linePos: lp, dotPos: dp, dotSizes: ds, lineCol: lc, dotCol: dc, velX: vx, velY: vy, velZ: vz, phases: ph, ages: ag, targetRock: tr };
   }, [rainCount]);
-
-  const ages = useMemo(() => new Float32Array(rainCount), [rainCount]);
 
   useFrame((_, dt) => {
     if (!linesRef.current || !dotsRef.current) return;
     timeRef.current += dt;
+    const { linePos: lp, lineCol: lc, dotPos: dp, dotCol: dc, dotSizes: ds, velX, velY, velZ, phases, ages, targetRock } = data;
 
     const cycle = timeRef.current * 0.28;
     const pulse = Math.sin(cycle) * 0.55 + Math.sin(cycle * 1.9) * 0.3 + Math.sin(cycle * 3.4) * 0.15;
     const intensity = Math.max(0, pulse);
-    const spawning = intensity > 0.16;
+    const spawning = intensity > 0.12;
 
     const lAttr = linesRef.current.geometry.attributes.position as THREE.BufferAttribute;
     const lcAttr = linesRef.current.geometry.attributes.color as THREE.BufferAttribute;
     const dAttr = dotsRef.current.geometry.attributes.position as THREE.BufferAttribute;
     const dcAttr = dotsRef.current.geometry.attributes.color as THREE.BufferAttribute;
     const dsAttr = dotsRef.current.geometry.attributes.size as THREE.BufferAttribute;
-    const lp = lAttr.array as Float32Array;
-    const lc = lcAttr.array as Float32Array;
-    const dp = dAttr.array as Float32Array;
-    const dc = dcAttr.array as Float32Array;
-    const ds = dsAttr.array as Float32Array;
     const cam = camera.position;
     const pp = physics.positions;
     const n = physics.count;
-    const attractRadiusSq = RAIN_ATTRACT_RADIUS * RAIN_ATTRACT_RADIUS;
-
     if (n === 0) return;
 
     for (let i = 0; i < rainCount; i++) {
-      const i6 = i * 6;
-      const i3 = i * 3;
-      const i8 = i * 8;
-      const i4 = i * 4;
+      const i6 = i * 6, i3 = i * 3, i8 = i * 8, i4 = i * 4;
 
-      if (alive[i] === 0) {
-        if (spawning && Math.random() < intensity * 0.13) {
-          let attempts = 0;
-          let rx = 0;
-          let ry = 0;
-          let rz = 0;
-
-          while (attempts < 5) {
-            const ri = Math.floor(Math.random() * n);
-            const rix = ri * 3;
-            const rdx = pp[rix] - cam.x;
-            const rdz = pp[rix + 2] - cam.z;
-
-            if (rdx * rdx + rdz * rdz < 85 * 85) {
-              rx = pp[rix] + (Math.random() - 0.5) * RAIN_SPREAD_LOCAL;
-              ry = pp[rix + 1] + 10 + Math.random() * 18;
-              rz = pp[rix + 2] + (Math.random() - 0.5) * RAIN_SPREAD_LOCAL;
-              break;
-            }
-            attempts++;
+      // ── SPAWN: pick nearby rock, start far away ──
+      if (phases[i] === PHASE_DEAD) {
+        if (spawning && Math.random() < intensity * 0.1) {
+          let ri = -1;
+          for (let a = 0; a < 6; a++) {
+            const c = Math.floor(Math.random() * n);
+            const cx = c * 3;
+            const rdx = pp[cx] - cam.x, rdz = pp[cx + 2] - cam.z;
+            if (rdx * rdx + rdz * rdz < 90 * 90) { ri = c; break; }
           }
-
-          if (attempts >= 5) continue;
-
-          alive[i] = 1;
-          ages[i] = 0;
-          velX[i] = (Math.random() - 0.5) * 2.2;
-          velY[i] = -(FALL_SPEED_MIN + Math.random() * (FALL_SPEED_MAX - FALL_SPEED_MIN));
-          velZ[i] = (Math.random() - 0.5) * 2.2;
-
-          lp[i6] = rx;
-          lp[i6 + 1] = ry;
-          lp[i6 + 2] = rz;
-          lp[i6 + 3] = rx;
-          lp[i6 + 4] = ry;
-          lp[i6 + 5] = rz;
-          dp[i3] = rx;
-          dp[i3 + 1] = ry;
-          dp[i3 + 2] = rz;
+          if (ri < 0) continue;
+          targetRock[i] = ri;
+          const rix = ri * 3;
+          const sa = Math.random() * Math.PI * 2;
+          const se = (Math.random() - 0.3) * 1.4;
+          const sd = SPAWN_DIST_MIN + Math.random() * (SPAWN_DIST_MAX - SPAWN_DIST_MIN);
+          const sx = pp[rix] + Math.cos(sa) * sd;
+          const sy = pp[rix + 1] + se * sd * 0.4 + 30;
+          const sz = pp[rix + 2] + Math.sin(sa) * sd;
+          const tDx = pp[rix] - sx, tDy = pp[rix + 1] - sy, tDz = pp[rix + 2] - sz;
+          const tD = Math.sqrt(tDx * tDx + tDy * tDy + tDz * tDz) + 0.01;
+          const fs = FLY_IN_SPEED_MIN + Math.random() * (FLY_IN_SPEED_MAX - FLY_IN_SPEED_MIN);
+          velX[i] = (tDx / tD) * fs; velY[i] = (tDy / tD) * fs; velZ[i] = (tDz / tD) * fs;
+          lp[i6] = sx; lp[i6 + 1] = sy; lp[i6 + 2] = sz;
+          lp[i6 + 3] = sx; lp[i6 + 4] = sy; lp[i6 + 5] = sz;
+          dp[i3] = sx; dp[i3 + 1] = sy; dp[i3 + 2] = sz;
+          phases[i] = PHASE_FLY_IN; ages[i] = 0;
         } else {
-          lp[i6 + 1] = -9999;
-          lp[i6 + 4] = -9999;
-          dp[i3 + 1] = -9999;
-          ds[i] = 0;
-          dc[i4 + 3] = 0;
-          lc[i8 + 3] = 0;
-          lc[i8 + 7] = 0;
+          lp[i6 + 1] = -9999; lp[i6 + 4] = -9999; dp[i3 + 1] = -9999;
+          ds[i] = 0; dc[i4 + 3] = 0; lc[i8 + 3] = 0; lc[i8 + 7] = 0;
           continue;
         }
       }
 
       ages[i] += dt;
 
-      // Sample nearest rock and pull droplet towards it (gravity-like attraction)
-      let nearestDistSq = Number.POSITIVE_INFINITY;
-      let nearestDx = 0;
-      let nearestDy = 0;
-      let nearestDz = 0;
-      const sampleCount = mobile ? 14 : 26;
-      const start = (i * 17 + ((timeRef.current * 11) | 0)) % n;
-      const step = Math.max(1, Math.floor(n / sampleCount));
+      // ── FLY-IN: steer towards target rock ──
+      if (phases[i] === PHASE_FLY_IN) {
+        const ri = targetRock[i];
+        if (ri >= 0 && ri < n) {
+          const rix = ri * 3;
+          const tDx = pp[rix] - lp[i6], tDy = pp[rix + 1] - lp[i6 + 1], tDz = pp[rix + 2] - lp[i6 + 2];
+          const tD = Math.sqrt(tDx * tDx + tDy * tDy + tDz * tDz) + 0.01;
+          const steer = 4.0 * dt;
+          velX[i] += (tDx / tD) * steer; velY[i] += (tDy / tD) * steer; velZ[i] += (tDz / tD) * steer;
+          if (tD < RAIN_ATTRACT_RADIUS * 1.5) { phases[i] = PHASE_NEAR; ages[i] = 0; }
+        }
+        if (ages[i] > 8) { phases[i] = PHASE_DEAD; continue; }
+      }
 
-      for (let s = 0, ri = start; s < sampleCount; s++, ri = (ri + step) % n) {
-        const rix = ri * 3;
-        const dx = pp[rix] - lp[i6];
-        const dy = pp[rix + 1] - lp[i6 + 1];
-        const dz = pp[rix + 2] - lp[i6 + 2];
-        const distSq = dx * dx + dy * dy + dz * dz;
-        if (distSq < nearestDistSq) {
-          nearestDistSq = distSq;
-          nearestDx = dx;
-          nearestDy = dy;
-          nearestDz = dz;
+      // ── NEAR: gravitational swirl between rocks ──
+      if (phases[i] === PHASE_NEAR) {
+        let nDSq = 1e12, nDx = 0, nDy = 0, nDz = 0;
+        const sc = mobile ? 12 : 22;
+        const st = (i * 17 + ((timeRef.current * 11) | 0)) % n;
+        const sp = Math.max(1, Math.floor(n / sc));
+        for (let s = 0, si = st; s < sc; s++, si = (si + sp) % n) {
+          const rix = si * 3;
+          const ddx = pp[rix] - lp[i6], ddy = pp[rix + 1] - lp[i6 + 1], ddz = pp[rix + 2] - lp[i6 + 2];
+          const dSq = ddx * ddx + ddy * ddy + ddz * ddz;
+          if (dSq < nDSq) { nDSq = dSq; nDx = ddx; nDy = ddy; nDz = ddz; }
+        }
+        const arSq = RAIN_ATTRACT_RADIUS * RAIN_ATTRACT_RADIUS;
+        if (nDSq < arSq) {
+          const ad = Math.sqrt(nDSq) + 0.001;
+          const pull = (1 - Math.min(ad / RAIN_ATTRACT_RADIUS, 1)) * RAIN_ATTRACT_STRENGTH;
+          velX[i] += nDx / ad * pull * dt; velY[i] += nDy / ad * pull * dt * 0.3; velZ[i] += nDz / ad * pull * dt;
+        }
+        velY[i] -= 6.5 * dt; velX[i] *= 0.988; velZ[i] *= 0.988;
+        // Transition to fly-out after time or if drifted far from rocks
+        if (ages[i] > 1.5 + Math.sin(i * 7.3) * 1.2 + 1.3 || nDSq > arSq * 6) {
+          phases[i] = PHASE_FLY_OUT; ages[i] = 0;
+          const spd = Math.sqrt(velX[i] * velX[i] + velY[i] * velY[i] + velZ[i] * velZ[i]);
+          const boost = Math.max(22, spd * 1.6);
+          if (spd > 0.01) { velX[i] = (velX[i] / spd) * boost; velY[i] = (velY[i] / spd) * boost; velZ[i] = (velZ[i] / spd) * boost; }
+          else { const a = Math.random() * Math.PI * 2; velX[i] = Math.cos(a) * boost; velY[i] = -boost * 0.4; velZ[i] = Math.sin(a) * boost; }
         }
       }
 
-      if (nearestDistSq < attractRadiusSq) {
-        const dist = Math.sqrt(nearestDistSq) + 0.001;
-        const invDist = 1 / dist;
-        const pull = (1 - Math.min(dist / RAIN_ATTRACT_RADIUS, 1)) * RAIN_ATTRACT_STRENGTH;
-        velX[i] += nearestDx * invDist * pull * dt;
-        velY[i] += nearestDy * invDist * pull * dt * 0.25;
-        velZ[i] += nearestDz * invDist * pull * dt;
+      // ── FLY-OUT: accelerate into infinity ──
+      if (phases[i] === PHASE_FLY_OUT) {
+        const spd = Math.sqrt(velX[i] * velX[i] + velY[i] * velY[i] + velZ[i] * velZ[i]) + 0.01;
+        velX[i] += (velX[i] / spd) * FLY_OUT_ACCEL * dt;
+        velY[i] += (velY[i] / spd) * FLY_OUT_ACCEL * dt;
+        velZ[i] += (velZ[i] / spd) * FLY_OUT_ACCEL * dt;
+        if (ages[i] > FLY_OUT_MAX_AGE) { phases[i] = PHASE_DEAD; continue; }
       }
 
-      // Base gravity + slight noise
-      velY[i] -= 7.5 * dt;
-      velX[i] = velX[i] * RAIN_LATERAL_DAMPING + Math.sin((i + timeRef.current) * 0.07) * 0.004;
-      velZ[i] = velZ[i] * RAIN_LATERAL_DAMPING + Math.cos((i + timeRef.current) * 0.05) * 0.004;
+      // ── Integrate ──
+      lp[i6] += velX[i] * dt; lp[i6 + 1] += velY[i] * dt; lp[i6 + 2] += velZ[i] * dt;
 
-      lp[i6] += velX[i] * dt;
-      lp[i6 + 1] += velY[i] * dt;
-      lp[i6 + 2] += velZ[i] * dt;
+      // ── Streak ──
+      const spd = Math.sqrt(velX[i] * velX[i] + velY[i] * velY[i] + velZ[i] * velZ[i]);
+      const invSpd = spd > 0.01 ? 1 / spd : 0;
+      const sMul = phases[i] === PHASE_FLY_IN ? 0.12 : phases[i] === PHASE_FLY_OUT ? 0.18 : 0.15;
+      const sLen = Math.min(12, spd * sMul);
+      lp[i6 + 3] = lp[i6] - velX[i] * invSpd * sLen;
+      lp[i6 + 4] = lp[i6 + 1] - velY[i] * invSpd * sLen;
+      lp[i6 + 5] = lp[i6 + 2] - velZ[i] * invSpd * sLen;
+      dp[i3] = lp[i6]; dp[i3 + 1] = lp[i6 + 1]; dp[i3 + 2] = lp[i6 + 2];
 
-      const speed = Math.sqrt(velX[i] * velX[i] + velY[i] * velY[i] + velZ[i] * velZ[i]);
-      const invSpeed = speed > 0.001 ? 1 / speed : 0;
-      const birthFade = Math.min(ages[i] * 2.8, 1);
-      const streakLen = (0.25 + Math.min(5.8, speed * 0.2)) * birthFade;
-
-      lp[i6 + 3] = lp[i6] - velX[i] * invSpeed * streakLen;
-      lp[i6 + 4] = lp[i6 + 1] - velY[i] * invSpeed * streakLen;
-      lp[i6 + 5] = lp[i6 + 2] - velZ[i] * invSpeed * streakLen;
-
-      dp[i3] = lp[i6];
-      dp[i3 + 1] = lp[i6 + 1];
-      dp[i3 + 2] = lp[i6 + 2];
-
-      const dx = lp[i6] - cam.x;
-      const dy = lp[i6 + 1] - cam.y;
-      const dz = lp[i6 + 2] - cam.z;
+      // ── Distance + phase alpha ──
+      const dx = lp[i6] - cam.x, dy = lp[i6 + 1] - cam.y, dz = lp[i6 + 2] - cam.z;
       const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
 
-      const nearRock = nearestDistSq < RAIN_SPREAD_LOCAL * RAIN_SPREAD_LOCAL * 5;
-      if (!nearRock || lp[i6 + 1] < cam.y - 55) {
-        alive[i] = 0;
-        lp[i6 + 1] = -9999;
-        lp[i6 + 4] = -9999;
-        dp[i3 + 1] = -9999;
-        ds[i] = 0;
-        dc[i4 + 3] = 0;
-        lc[i8 + 3] = 0;
-        lc[i8 + 7] = 0;
-        continue;
+      let phaseAlpha = 1;
+      if (phases[i] === PHASE_FLY_IN) {
+        const ri = targetRock[i];
+        if (ri >= 0) {
+          const rix = ri * 3;
+          const tD = Math.sqrt((pp[rix] - lp[i6]) ** 2 + (pp[rix + 1] - lp[i6 + 1]) ** 2 + (pp[rix + 2] - lp[i6 + 2]) ** 2);
+          phaseAlpha = Math.max(0.04, 1 - tD / (SPAWN_DIST_MAX * 0.8));
+        }
+      } else if (phases[i] === PHASE_FLY_OUT) {
+        phaseAlpha = Math.max(0, 1 - ages[i] / FLY_OUT_MAX_AGE);
+        phaseAlpha *= phaseAlpha;
       }
 
-      const attractionVis = nearestDistSq < attractRadiusSq ? 1 - Math.sqrt(nearestDistSq) / RAIN_ATTRACT_RADIUS : 0;
-      const dropletVis = birthFade < 0.9 ? (1 - birthFade) * 0.5 : 0;
-
+      // ── Color by distance ──
       if (dist < NEAR_BLUR_DIST) {
         const t = dist / NEAR_BLUR_DIST;
-        lc[i8 + 3] = 0.24 + t * 0.34 + attractionVis * 0.08;
-        lc[i8 + 7] = 0.04;
-        ds[i] = 1.2 + (1 - t) * 2.4;
-        dc[i4 + 3] = (0.1 + t * 0.18) * (dropletVis + 0.35);
-        lc[i8] = 0.2;
-        lc[i8 + 1] = 0.92;
-        lc[i8 + 2] = 0.72;
-        lc[i8 + 4] = 0.12;
-        lc[i8 + 5] = 0.68;
-        lc[i8 + 6] = 0.48;
+        lc[i8 + 3] = (0.28 + t * 0.32) * phaseAlpha; lc[i8 + 7] = 0.04 * phaseAlpha;
+        ds[i] = (1.0 + (1 - t) * 2.0) * phaseAlpha; dc[i4 + 3] = 0.2 * phaseAlpha;
+        lc[i8] = 0.2; lc[i8 + 1] = 0.92; lc[i8 + 2] = 0.72;
+        lc[i8 + 4] = 0.12; lc[i8 + 5] = 0.68; lc[i8 + 6] = 0.48;
       } else if (dist < FAR_BLUR_DIST) {
-        const alpha = 0.35 + Math.random() * 0.24 + attractionVis * 0.12;
-        lc[i8 + 3] = alpha;
-        lc[i8 + 7] = alpha * 0.22;
-        ds[i] = 0.25;
-        dc[i4 + 3] = dropletVis * 0.55;
-        lc[i8] = 0.02;
-        lc[i8 + 1] = 0.95;
-        lc[i8 + 2] = 0.7;
-        lc[i8 + 4] = 0;
-        lc[i8 + 5] = 0.72;
-        lc[i8 + 6] = 0.52;
+        const alpha = (0.3 + Math.random() * 0.2) * phaseAlpha;
+        lc[i8 + 3] = alpha; lc[i8 + 7] = alpha * 0.2;
+        ds[i] = 0.2 * phaseAlpha; dc[i4 + 3] = 0.12 * phaseAlpha;
+        lc[i8] = 0.02; lc[i8 + 1] = 0.95; lc[i8 + 2] = 0.7;
+        lc[i8 + 4] = 0; lc[i8 + 5] = 0.72; lc[i8 + 6] = 0.52;
       } else {
-        const t = Math.min((dist - FAR_BLUR_DIST) / 35, 1);
-        lc[i8 + 3] = (0.2 + attractionVis * 0.08) * (1 - t);
-        lc[i8 + 7] = 0;
-        ds[i] = 0.12;
-        dc[i4 + 3] = dropletVis * 0.3 * (1 - t);
-        lc[i8] = 0;
-        lc[i8 + 1] = 0.78;
-        lc[i8 + 2] = 0.56;
-        lc[i8 + 4] = 0;
-        lc[i8 + 5] = 0.56;
-        lc[i8 + 6] = 0.42;
+        const t = Math.min((dist - FAR_BLUR_DIST) / 80, 1);
+        lc[i8 + 3] = 0.18 * (1 - t) * phaseAlpha; lc[i8 + 7] = 0;
+        ds[i] = 0.08 * phaseAlpha; dc[i4 + 3] = 0.06 * (1 - t) * phaseAlpha;
+        lc[i8] = 0; lc[i8 + 1] = 0.78; lc[i8 + 2] = 0.56;
+        lc[i8 + 4] = 0; lc[i8 + 5] = 0.56; lc[i8 + 6] = 0.42;
       }
     }
 
-    lAttr.needsUpdate = true;
-    lcAttr.needsUpdate = true;
-    dAttr.needsUpdate = true;
-    dcAttr.needsUpdate = true;
-    dsAttr.needsUpdate = true;
+    lAttr.needsUpdate = true; lcAttr.needsUpdate = true;
+    dAttr.needsUpdate = true; dcAttr.needsUpdate = true; dsAttr.needsUpdate = true;
   });
 
   return (
     <>
       <lineSegments ref={linesRef} frustumCulled={false}>
         <bufferGeometry>
-          <bufferAttribute attach="attributes-position" args={[linePos, 3]} />
-          <bufferAttribute attach="attributes-color" args={[lineCol, 4]} />
+          <bufferAttribute attach="attributes-position" args={[data.linePos, 3]} />
+          <bufferAttribute attach="attributes-color" args={[data.lineCol, 4]} />
         </bufferGeometry>
         <lineBasicMaterial vertexColors transparent depthWrite={false} blending={THREE.AdditiveBlending} />
       </lineSegments>
       <points ref={dotsRef} frustumCulled={false}>
         <bufferGeometry>
-          <bufferAttribute attach="attributes-position" args={[dotPos, 3]} />
-          <bufferAttribute attach="attributes-color" args={[dotCol, 4]} />
-          <bufferAttribute attach="attributes-size" args={[dotSizes, 1]} />
+          <bufferAttribute attach="attributes-position" args={[data.dotPos, 3]} />
+          <bufferAttribute attach="attributes-color" args={[data.dotCol, 4]} />
+          <bufferAttribute attach="attributes-size" args={[data.dotSizes, 1]} />
         </bufferGeometry>
         <pointsMaterial vertexColors transparent sizeAttenuation depthWrite={false} blending={THREE.AdditiveBlending} />
       </points>
