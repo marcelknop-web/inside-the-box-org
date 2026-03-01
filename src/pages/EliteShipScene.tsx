@@ -249,8 +249,8 @@ function InfoExchange({ physics, mobile = false }: { physics: RockPhysics; mobil
       const dvz = 2 * (inv * (mz - pp[s3 + 2]) + t01 * (pp[t3 + 2] - mz));
       const spd = Math.sqrt(dvx * dvx + dvy * dvy + dvz * dvz) + 0.01;
 
-      // Short data-packet streak
-      const streakLen = Math.min(4.5, spd * 0.08);
+      // Rain-like long streaks
+      const streakLen = Math.min(13, spd * 0.16);
       lp[i6 + 3] = px - (dvx / spd) * streakLen;
       lp[i6 + 4] = py - (dvy / spd) * streakLen;
       lp[i6 + 5] = pz - (dvz / spd) * streakLen;
@@ -262,28 +262,40 @@ function InfoExchange({ physics, mobile = false }: { physics: RockPhysics; mobil
       // Fade in/out at endpoints
       const edgeFade = Math.min(t01 * 5, (1 - t01) * 5, 1);
 
-      // Distance-based brightness
+      // Distance-based brightness (rain-style near/far blur)
       const cdx = px - cam.x;
       const cdy = py - cam.y;
       const cdz = pz - cam.z;
       const dist = Math.sqrt(cdx * cdx + cdy * cdy + cdz * cdz);
-      const distFade = dist < 8 ? dist / 8 : dist > 60 ? Math.max(0, 1 - (dist - 60) / 80) : 1;
 
-      const alpha = edgeFade * distFade;
-
-      // Data-packet colors: cyan/teal with occasional bright white flash
-      const flash = Math.random() > 0.97 ? 1.0 : 0;
-      const r1 = 0.1 + flash * 0.9;
-      const g1 = 0.95;
-      const b1 = 0.75 + flash * 0.25;
-      const r2 = 0.0;
-      const g2 = 0.7;
-      const b2 = 0.55;
-
-      lc[i8] = r1; lc[i8 + 1] = g1; lc[i8 + 2] = b1; lc[i8 + 3] = alpha * 0.55;
-      lc[i8 + 4] = r2; lc[i8 + 5] = g2; lc[i8 + 6] = b2; lc[i8 + 7] = alpha * 0.12;
-      dc[i4] = r1; dc[i4 + 1] = g1; dc[i4 + 2] = b1; dc[i4 + 3] = alpha * 0.35;
-      ds[i] = (0.4 + flash * 2.5) * alpha;
+      if (dist < 8) {
+        const t = dist / 8;
+        lc[i8] = 0.2; lc[i8 + 1] = 0.92; lc[i8 + 2] = 0.72;
+        lc[i8 + 4] = 0.12; lc[i8 + 5] = 0.68; lc[i8 + 6] = 0.48;
+        lc[i8 + 3] = (0.3 + t * 0.3) * edgeFade;
+        lc[i8 + 7] = 0.04 * edgeFade;
+        ds[i] = (1.1 + (1 - t) * 2.1) * edgeFade;
+        dc[i4] = 0.2; dc[i4 + 1] = 0.92; dc[i4 + 2] = 0.72;
+        dc[i4 + 3] = 0.2 * edgeFade;
+      } else if (dist < 60) {
+        const a = (0.28 + Math.random() * 0.18) * edgeFade;
+        lc[i8] = 0.02; lc[i8 + 1] = 0.95; lc[i8 + 2] = 0.7;
+        lc[i8 + 4] = 0; lc[i8 + 5] = 0.72; lc[i8 + 6] = 0.52;
+        lc[i8 + 3] = a;
+        lc[i8 + 7] = a * 0.2;
+        ds[i] = 0.2 * edgeFade;
+        dc[i4] = 0.02; dc[i4 + 1] = 0.95; dc[i4 + 2] = 0.7;
+        dc[i4 + 3] = 0.11 * edgeFade;
+      } else {
+        const t = Math.min((dist - 60) / 85, 1);
+        lc[i8] = 0; lc[i8 + 1] = 0.78; lc[i8 + 2] = 0.56;
+        lc[i8 + 4] = 0; lc[i8 + 5] = 0.56; lc[i8 + 6] = 0.42;
+        lc[i8 + 3] = 0.17 * (1 - t) * edgeFade;
+        lc[i8 + 7] = 0;
+        ds[i] = 0.07 * edgeFade;
+        dc[i4] = 0; dc[i4 + 1] = 0.78; dc[i4 + 2] = 0.56;
+        dc[i4 + 3] = 0.05 * (1 - t) * edgeFade;
+      }
 
       // Kill when arrived
       if (prog[i] >= 1) {
