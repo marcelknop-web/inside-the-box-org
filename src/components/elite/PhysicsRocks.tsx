@@ -220,10 +220,10 @@ export function DynamicRock({ index, physics }: { index: number; physics: RockPh
     const dy = physics.positions[ix + 1] - camera.position.y;
     const dz = physics.positions[ix + 2] - camera.position.z;
     const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
-    const nearFactor = Math.max(0, 1 - dist / 80);
+    const nearFactor = Math.max(0, 1 - dist / 100);
 
     if (lineMatRef.current) {
-      lineMatRef.current.opacity = 0.2 + nearFactor * 0.8;
+      lineMatRef.current.opacity = 0.35 + nearFactor * 0.65;
     }
   });
 

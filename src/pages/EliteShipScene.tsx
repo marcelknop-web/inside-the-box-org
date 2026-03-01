@@ -371,85 +371,74 @@ function CockpitCamera({ physics, audioRef }: { physics: RockPhysics; audioRef: 
   const smoothedBass = useRef(0);
   const elapsed = useRef(0);
 
-  // Racetrack waypoints: oval path around and over the field
-  // Field is ~±150 X, ~±105 Z centered at 0, rocks at Y≈-8
-  const CRUISE_ALT = -3; // above the rocks at -8
-  const LOW_ALT = -6.5;  // low pass altitude
+  // Flight closer to objects for better visibility
+  const CRUISE_ALT = -5.5; // closer to rocks at -8
+  const LOW_ALT = -7.0;    // very close low pass
+
+  // Store previous tangent for ultra-smooth banking
+  const prevTangentRef = useRef(new THREE.Vector3(1, 0, 0));
+  const smoothBank = useRef(0);
 
   useFrame((_, dt) => {
-    const clampDt = Math.min(dt, 0.05);
+    const clampDt = Math.min(dt, 0.033); // tighter dt clamp for consistency
     elapsed.current += clampDt;
     const t = elapsed.current;
 
-    // Audio smoothing
+    // Audio smoothing (very gentle)
     const audio = audioRef.current;
-    smoothedAmplitude.current += (audio.amplitude - smoothedAmplitude.current) * 0.02;
-    smoothedBass.current += (audio.bass - smoothedBass.current) * 0.03;
+    smoothedAmplitude.current += (audio.amplitude - smoothedAmplitude.current) * 0.015;
+    smoothedBass.current += (audio.bass - smoothedBass.current) * 0.02;
     const sa = smoothedAmplitude.current;
 
-    // Speed modulated by music
-    const baseSpeed = 0.012 + sa * 0.008; // circuit progress per second
+    // Slow, steady speed – minimal music modulation for smoothness
+    const baseSpeed = 0.009 + sa * 0.003;
 
-    // ── Primary flight path: figure-8 / racetrack ──
-    // Use two overlapping sine waves for an interesting non-repeating path
-    const phase1 = t * baseSpeed;
-    const phase2 = t * baseSpeed * 0.618; // golden ratio offset
+    // ── Simple smooth oval path (no secondary oscillations = no jitter) ──
+    const phase = t * baseSpeed;
 
-    // Racetrack shape: elongated oval with figure-8 crossover
-    const rx = 110; // X radius
-    const rz = 70;  // Z radius
+    // Clean elliptical orbit, smaller radius = closer to objects
+    const rx = 80;
+    const rz = 55;
 
-    const pathX = Math.sin(phase1) * rx + Math.sin(phase2 * 2.3) * 20;
-    const pathZ = Math.cos(phase1) * rz + Math.cos(phase2 * 1.7) * 15;
+    const pathX = Math.sin(phase) * rx;
+    const pathZ = Math.cos(phase) * rz;
 
-    // Altitude: smooth undulation, low passes over the center
+    // Smooth altitude: gentle sine wave, closer to the field
+    const altWave = Math.sin(phase * 1.5) * 0.5 + 0.5;
     const centerDist = Math.sqrt(pathX * pathX + pathZ * pathZ) / Math.max(rx, rz);
-    const altWave = Math.sin(phase1 * 2.1) * 0.5 + 0.5; // 0-1
-    const desiredAlt = centerDist < 0.5
-      ? LOW_ALT + altWave * 2.0 + sa * 1.0  // low over center
-      : CRUISE_ALT + altWave * 3.0 + sa * 0.5; // higher at edges
+    const desiredAlt = centerDist < 0.6
+      ? LOW_ALT + altWave * 1.5 + sa * 0.5
+      : CRUISE_ALT + altWave * 2.0 + sa * 0.3;
 
     const targetPos = new THREE.Vector3(pathX, desiredAlt, pathZ);
 
-    // ── Look direction: tangent of the flight path ──
-    const epsilon = 0.01;
-    const nextPhase1 = (t + epsilon) * baseSpeed;
-    const nextPhase2 = (t + epsilon) * baseSpeed * 0.618;
-    const nextX = Math.sin(nextPhase1) * rx + Math.sin(nextPhase2 * 2.3) * 20;
-    const nextZ = Math.cos(nextPhase1) * rz + Math.cos(nextPhase2 * 1.7) * 15;
-    const nextCenterDist = Math.sqrt(nextX * nextX + nextZ * nextZ) / Math.max(rx, rz);
-    const nextAltWave = Math.sin(nextPhase1 * 2.1) * 0.5 + 0.5;
-    const nextAlt = nextCenterDist < 0.5
-      ? LOW_ALT + nextAltWave * 2.0 + sa * 1.0
-      : CRUISE_ALT + nextAltWave * 3.0 + sa * 0.5;
+    // ── Tangent from analytic derivative (no epsilon jitter) ──
+    const dxdt = Math.cos(phase) * rx * baseSpeed;
+    const dzdt = -Math.sin(phase) * rz * baseSpeed;
+    const dydt = Math.cos(phase * 1.5) * 1.5 * baseSpeed * 0.5 * (centerDist < 0.6 ? 1.5 : 2.0);
+    const tangent = new THREE.Vector3(dxdt, dydt, dzdt).normalize();
 
-    const tangent = new THREE.Vector3(nextX - pathX, nextAlt - desiredAlt, nextZ - pathZ).normalize();
+    // ── Ultra-smooth banking from tangent change ──
+    const cross = prevTangentRef.current.clone().cross(tangent);
+    const rawBank = Math.atan2(cross.y, 1) * 0.4; // gentle bank max ~25°
+    smoothBank.current += (rawBank - smoothBank.current) * 0.02; // very slow bank transitions
+    prevTangentRef.current.copy(tangent);
 
-    // ── Bank angle: tilt into turns like an airplane ──
-    const prevPhase1 = (t - epsilon) * baseSpeed;
-    const prevPhase2 = (t - epsilon) * baseSpeed * 0.618;
-    const prevX = Math.sin(prevPhase1) * rx + Math.sin(prevPhase2 * 2.3) * 20;
-    const prevZ = Math.cos(prevPhase1) * rz + Math.cos(prevPhase2 * 1.7) * 15;
-    const prevTangent = new THREE.Vector3(pathX - prevX, 0, pathZ - prevZ).normalize();
-    const curvature = new THREE.Vector3(nextX - pathX, 0, nextZ - pathZ).normalize();
-    const cross = prevTangent.clone().cross(curvature);
-    const bankAngle = Math.atan2(cross.y, 1) * 0.6; // bank up to ~35°
-
-    // Build orientation: look along tangent with bank
+    // Build orientation
     const up = new THREE.Vector3(0, 1, 0);
-    const lookTarget = targetPos.clone().add(tangent.multiplyScalar(10));
+    const lookTarget = targetPos.clone().add(tangent.clone().multiplyScalar(10));
     const lookMatrix = new THREE.Matrix4().lookAt(targetPos, lookTarget, up);
     const targetQuat = new THREE.Quaternion().setFromRotationMatrix(lookMatrix);
 
-    // Apply bank roll
+    // Apply smooth bank roll
     const bankQuat = new THREE.Quaternion().setFromAxisAngle(
-      new THREE.Vector3(0, 0, 1), -bankAngle
+      new THREE.Vector3(0, 0, 1), -smoothBank.current
     );
     targetQuat.multiply(bankQuat);
 
-    // ── Smooth interpolation ──
-    smoothPos.current.lerp(targetPos, 0.04);
-    smoothQuat.current.slerp(targetQuat, 0.04);
+    // ── Very heavy smoothing for buttery motion ──
+    smoothPos.current.lerp(targetPos, 0.02);
+    smoothQuat.current.slerp(targetQuat, 0.02);
 
     camera.position.copy(smoothPos.current);
     camera.quaternion.copy(smoothQuat.current);
