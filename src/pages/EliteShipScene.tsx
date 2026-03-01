@@ -484,7 +484,24 @@ function CockpitCamera({ physics, audioRef }: { physics: RockPhysics; audioRef: 
       }
     }
 
-    // ── Altitude: alternate between above and within the field ──
+    // ── Boundary turnaround: fly across field, then curve back ──
+    // Field spans roughly ±150 X, ±105 Z
+    const FIELD_X = 120, FIELD_Z = 80;
+    const turnForce = new THREE.Vector3(0, 0, 0);
+    const distFromCenterX = Math.abs(p.x);
+    const distFromCenterZ = Math.abs(p.z);
+
+    // When nearing field edge, apply strong inward force for graceful U-turn
+    if (distFromCenterX > FIELD_X * 0.7) {
+      const overshoot = (distFromCenterX - FIELD_X * 0.7) / (FIELD_X * 0.3);
+      turnForce.x -= Math.sign(p.x) * overshoot * overshoot * 3.0;
+    }
+    if (distFromCenterZ > FIELD_Z * 0.7) {
+      const overshoot = (distFromCenterZ - FIELD_Z * 0.7) / (FIELD_Z * 0.3);
+      turnForce.z -= Math.sign(p.z) * overshoot * overshoot * 3.0;
+    }
+
+    // ── Altitude: fly above the field, showing horizon ──
     let nearbyYSum = 0, nearbyCount = 0;
     for (let oi = 0; oi < n; oi++) {
       const ox = oi * 3;
@@ -496,15 +513,12 @@ function CockpitCamera({ physics, audioRef }: { physics: RockPhysics; audioRef: 
     }
     if (nearbyCount > 0) {
       const avgTop = nearbyYSum / nearbyCount;
-      // Long altitude cycles: mostly flying above for horizon views, occasional dips
-      const altCycle = Math.sin(t * 0.04) * 0.5 + 0.5; // ~160s period
-      const diveCycle = Math.max(0, Math.sin(t * 0.018)); // only positive = occasional dive
-      // Spend most time above the field showing horizon, brief dives through
-      const desiredAlt = avgTop + 2.0 + altCycle * 5.0 - diveCycle * 4.0 + sa * 0.5;
+      const altCycle = Math.sin(t * 0.04) * 0.5 + 0.5;
+      const desiredAlt = avgTop + 3.0 + altCycle * 4.0 + sa * 0.5;
       const altDiff = desiredAlt - p.y;
-      attractForce.y += altDiff * 0.15; // gentle altitude correction
+      turnForce.y += altDiff * 0.15;
     } else {
-      attractForce.y += (-5 - p.y) * 0.1;
+      turnForce.y += (-5 - p.y) * 0.1;
     }
 
     // ── Thruster bursts (music-synced, smoother) ──
@@ -547,6 +561,7 @@ function CockpitCamera({ physics, audioRef }: { physics: RockPhysics; audioRef: 
     vel.current.addScaledVector(thrustAccel, clampDt);
     vel.current.addScaledVector(avoidForce, clampDt);
     vel.current.addScaledVector(attractForce, clampDt);
+    vel.current.addScaledVector(turnForce, clampDt);
     vel.current.multiplyScalar(1 - DRAG * clampDt);
 
     const maxSpeed = 2.0 + sa * 2.0;    // much slower, meditative cruise
@@ -799,21 +814,6 @@ export default function EliteShipScene() {
         gl={{ antialias: true, alpha: false }}
         style={{ background: BG }}
       >
-        {/* Lighting: invisible sun from upper-right + subtle ambient */}
-        <directionalLight
-          position={[80, 60, -40]}
-          intensity={1.2}
-          color="#ddeedd"
-        />
-        <directionalLight
-          position={[-30, 20, 50]}
-          intensity={0.3}
-          color="#005533"
-        />
-        <ambientLight intensity={0.08} color="#0a2a1e" />
-        <hemisphereLight
-          args={['#112a20', '#000000', 0.15]}
-        />
         <PhysicsDriver physics={physics} />
         <CockpitCamera physics={physics} audioRef={analysisRef} />
         <RealisticStarfield />
