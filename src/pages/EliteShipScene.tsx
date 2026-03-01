@@ -188,11 +188,34 @@ function InfoExchange({ physics, mobile = false }: { physics: RockPhysics; mobil
           continue;
         }
 
-        // Routing: pick a random source, then find nearest LARGER rock as target
-        const s = pickRockUniform();
+        // Routing: 80% uplink (small→large), 20% downlink (large→small)
+        const isDownlink = Math.random() < 0.2;
+        let s: number, t: number;
+        if (isDownlink) {
+          // Pick a large rock as source, find a smaller neighbour
+          const big = pickRockUniform();
+          const small = findLargerNeighbour(big, 80); // finds rock larger than big
+          // Invert: use big as source, find smaller instead
+          // Re-use logic: pick uniform, accept if smaller
+          let found = -1;
+          const bR = physics.radii[big];
+          for (let a = 0; a < 30; a++) {
+            const cand = Math.floor(Math.random() * physics.count);
+            if (cand === big || physics.radii[cand] >= bR * 0.85) continue;
+            const cx3 = cand * 3, bx3 = big * 3;
+            const ddx = pp[cx3] - pp[bx3], ddy = pp[cx3+1] - pp[bx3+1], ddz = pp[cx3+2] - pp[bx3+2];
+            const d = Math.sqrt(ddx*ddx + ddy*ddy + ddz*ddz);
+            if (d > 5 && d < 80) { found = cand; break; }
+          }
+          if (found < 0) continue;
+          s = big; t = found;
+        } else {
+          s = pickRockUniform();
+          const larger = findLargerNeighbour(s, 80);
+          if (larger < 0) continue;
+          t = larger;
+        }
         const sx3 = s * 3;
-        const t = findLargerNeighbour(s, 80);
-        if (t < 0) continue; // no larger neighbour found
 
         // Only spawn near camera
         const rdx = pp[sx3] - cam.x;
