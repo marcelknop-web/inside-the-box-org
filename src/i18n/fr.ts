@@ -332,6 +332,8 @@ export const fr = {
     agentTriggerTriageDesc: 'Classer les incidents par priorité à toute vitesse',
     agentFroggerTitle: 'Cyber Frogger',
     agentFroggerDesc: 'Format arcade et sensibilisation cybersécurité',
+    eliteTitle: 'Assez de sécurité ?',
+    eliteDesc: 'Déconnectez, volez, lâchez prise — une scène 3D méditative pour se détendre',
     agentYtTitle: 'Vidéos d\'injection',
     agentYtDesc: 'Vidéos d\'actualité générées par IA comme briefings pour exercices de crise',
     ctaTitle: 'Démarrage',
