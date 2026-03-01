@@ -311,23 +311,13 @@ function InfoExchange({ physics, mobile = false }: { physics: RockPhysics; mobil
   });
 
   return (
-    <>
-      <lineSegments ref={linesRef} frustumCulled={false}>
-        <bufferGeometry>
-          <bufferAttribute attach="attributes-position" args={[data.linePos, 3]} />
-          <bufferAttribute attach="attributes-color" args={[data.lineCol, 4]} />
-        </bufferGeometry>
-        <lineBasicMaterial vertexColors transparent depthWrite={false} blending={THREE.AdditiveBlending} />
-      </lineSegments>
-      <points ref={dotsRef} frustumCulled={false}>
-        <bufferGeometry>
-          <bufferAttribute attach="attributes-position" args={[data.dotPos, 3]} />
-          <bufferAttribute attach="attributes-color" args={[data.dotCol, 4]} />
-          <bufferAttribute attach="attributes-size" args={[data.dotSizes, 1]} />
-        </bufferGeometry>
-        <pointsMaterial vertexColors transparent sizeAttenuation depthWrite={false} blending={THREE.AdditiveBlending} />
-      </points>
-    </>
+    <lineSegments ref={linesRef} frustumCulled={false}>
+      <bufferGeometry>
+        <bufferAttribute attach="attributes-position" args={[data.linePos, 3]} />
+        <bufferAttribute attach="attributes-color" args={[data.lineCol, 4]} />
+      </bufferGeometry>
+      <lineBasicMaterial vertexColors transparent depthWrite={false} blending={THREE.AdditiveBlending} />
+    </lineSegments>
   );
 }
 
