@@ -42,8 +42,8 @@ const SectionTitle = ({ children }: { children: ReactNode }) => (
   <h2 className="text-primary text-lg font-bold font-mono mb-3">{children}</h2>
 );
 
-const SubTitle = ({ children, variant = 'primary' }: { children: ReactNode; variant?: 'primary' | 'highlight' }) => (
-  <h3 className={`${variant === 'highlight' ? 'text-highlight' : 'text-primary'} font-semibold font-mono text-sm mb-1`}>{children}</h3>
+const SubTitle = ({ children, variant: _variant }: { children: ReactNode; variant?: 'primary' | 'highlight' }) => (
+  <h3 className="text-primary font-semibold font-mono text-sm mb-1">{children}</h3>
 );
 
 const CardBlock = ({ icon: Icon, title, desc, variant = 'primary', link, linkLabel, bullets, result }: { icon: LucideIcon; title: string; desc: string; variant?: 'primary' | 'highlight'; link?: string; linkLabel?: string; bullets?: string[]; result?: string }) => (
