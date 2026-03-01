@@ -776,58 +776,57 @@ const useServiceContent = () => {
       </TypedSection>
     ),
     why: () => (
-      <div className="space-y-3">
-        <Block>
-          <SectionTitle><Typewriter text={t('index.title')} /></SectionTitle>
-          <p className="text-lg font-semibold mb-2">
-            {(() => {
-              const subtitle = t('index.subtitle');
-              const match = subtitle.match(/(.*?)(Unerwartete|unexpected|l'inattendu|inattendu)(.*)/i);
-              if (match) {
-                return <><Typewriter text={match[1]} delay={1400} cursor={false} /><GlitchText>{match[2]}</GlitchText><Typewriter text={match[3]} delay={2200} /></>;
-              }
-              return <Typewriter text={subtitle} delay={1400} />;
-            })()}
-          </p>
+      <TypedSection title={t('index.title')} mode="typewriter" intro={<p>{t('index.intro')}</p>}>
+        <Block className="bg-card/40 rounded-xl">
+          <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{t('index.introDetail')}</p>
         </Block>
-        <StaggerReveal stagger={600} startDelay={3200}>
-          <Block className="bg-primary/10 border-2 border-primary/30 rounded-xl">
-            <p className="text-foreground mb-3">
-              {t('index.card1').split(/<span>|<\/span>/).map((part, i) =>
-                i % 2 === 1 ? <span key={i} className="text-primary font-semibold">{part}</span> : part
-              )}
-            </p>
-            <ul className="list-disc list-inside text-foreground mb-3 space-y-1">
-              {t('index.card1bullets').split('\n').map((b, i) => <li key={i}>{b}</li>)}
-            </ul>
-            <p className="text-primary font-semibold">{t('index.card1outro')}</p>
-          </Block>
-          <Block className="bg-primary/10 border-2 border-primary/30 rounded-xl">
-            <p className="text-foreground mb-3">
-              {t('index.card2').split(/<span>|<\/span>/).map((part, i) =>
-                i % 2 === 1 ? <span key={i} className="text-primary font-semibold">{part}</span> : part
-              )}
-            </p>
-            <ul className="list-disc list-inside text-foreground mb-3 space-y-1">
-              {t('index.card2bullets').split('\n').map((b, i) => <li key={i}>{b}</li>)}
-            </ul>
-            <p className="text-primary font-semibold">{t('index.card2outro')}</p>
-          </Block>
-          <div className="grid grid-cols-3 gap-2">
+
+        <Block className="bg-primary/5 border border-primary/20 rounded-xl">
+          <SubTitle>{t('index.whatTitle')}</SubTitle>
+          <p className="text-foreground/80 text-sm md:text-[15px] font-sans leading-relaxed mt-2">{t('index.whatDesc')}</p>
+          <p className="text-primary font-semibold text-sm font-sans mt-3">{t('index.whatOutro')}</p>
+        </Block>
+
+        <Block className="bg-card/40 rounded-xl">
+          <SubTitle>{t('index.experienceTitle')}</SubTitle>
+          <div className="grid grid-cols-3 gap-2 mt-2">
             <StatBlock value="40+" label={t('index.trainingsDelivered')} />
             <StatBlock value="350+" label={t('index.peopleTrained')} />
             <StatBlock value="6" label={t('index.countriesCovered')} />
           </div>
-          <Block className="bg-highlight/5 border-2 border-highlight/30 rounded-xl">
-            <SubTitle variant="highlight">{t('index.techCheckTitle')}</SubTitle>
-            <p className="text-sm font-sans leading-relaxed tracking-wide text-foreground mb-3">{t('index.techCheckDesc')}</p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <InlineSystemCheck t={t} />
-              <InlineConnectivityCheck t={t} language={language} />
+        </Block>
+
+        <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
+          <SubTitle variant="highlight">{t('index.techCheckTitle')}</SubTitle>
+          <p className="text-sm font-sans leading-relaxed tracking-wide text-foreground mb-3">{t('index.techCheckDesc')}</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <InlineSystemCheck t={t} />
+            <InlineConnectivityCheck t={t} language={language} />
+          </div>
+        </Block>
+
+        <Block className="bg-primary/5 border border-primary/20 rounded-xl">
+          <SubTitle>{t('index.upcomingTitle')}</SubTitle>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
+            <a href="https://www.isaca.de/seminare/seminare/seminare-f%C3%BCr-manager1/cyber-security-expert-20-04-2026.html" target="_blank" rel="noopener noreferrer" className="bg-primary/5 rounded-lg p-4 flex items-start gap-3 hover:bg-primary/10 transition-colors group">
+              <ShieldCheck size={20} className="text-primary mt-0.5 flex-shrink-0" />
+              <div className="space-y-1 min-w-0">
+                <p className="font-semibold text-sm md:text-base font-sans text-primary group-hover:underline">{t('index.upcomingIsacaTitle')}</p>
+                <p className="text-highlight text-sm font-mono font-semibold">{t('index.upcomingIsacaDate')}</p>
+                <p className="text-primary text-xs font-mono mt-1">{t('index.upcomingIsacaLink')}</p>
+              </div>
+            </a>
+            <div className="bg-primary/5 rounded-lg p-4 flex items-start gap-3 cursor-pointer hover:bg-primary/10 transition-colors group" onClick={() => setActive('contact')}>
+              <Calendar size={20} className="text-primary mt-0.5 flex-shrink-0" />
+              <div className="space-y-1 min-w-0">
+                <p className="font-semibold text-sm md:text-base font-sans text-primary group-hover:underline">{t('index.upcomingCustomTitle')}</p>
+                <p className="text-foreground/70 text-sm font-sans">{t('index.upcomingCustomDesc')}</p>
+                <p className="text-primary text-xs font-mono mt-1">{t('index.upcomingCustomLink')}</p>
+              </div>
             </div>
-          </Block>
-        </StaggerReveal>
-      </div>
+          </div>
+        </Block>
+      </TypedSection>
     ),
     training: () => (
       <TypedSection title={t('training.title')} mode="typewriter" intro={<p>{t('training.subtitle')} {t('training.intro')}</p>}>
