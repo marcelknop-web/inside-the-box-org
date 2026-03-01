@@ -589,14 +589,24 @@ const useServiceContent = () => {
     ),
     publications: () => (
       <TypedSection title={t('publications.title')} mode="typewriter" intro={<p>{t('publications.intro')}</p>}>
-        <CardBlock icon={Shield} title={t('publications.pub1Title')} desc={t('publications.pub1Desc')} link="https://www.heise.de/select/ix/2021/10/2019809530193925811" linkLabel={t('publications.readOnHeise')} />
-        <CardBlock icon={Radio} title={t('publications.pub2Title')} desc={t('publications.pub2Desc')} link="https://www.heise.de/select/ix/archiv/2015/7/seite-78" linkLabel={t('publications.readOnHeise')} />
-        <CardBlock icon={Video} title={t('publications.pub3Title')} desc={t('publications.pub3Desc')} link="https://vimeo.com/295582173" linkLabel={t('publications.watchOnVimeo')} />
+        <Block className="bg-primary/5 border border-primary/20 rounded-xl">
+          <SubTitle>{t('publications.pubSectionTitle')}</SubTitle>
+          <div className="grid grid-cols-1 gap-3 mt-2">
+            <GridItem icon={Shield} title={t('publications.pub1Title')} desc={t('publications.pub1Desc')} href="https://www.heise.de/select/ix/2021/10/2019809530193925811" />
+            <GridItem icon={Radio} title={t('publications.pub2Title')} desc={t('publications.pub2Desc')} href="https://www.heise.de/select/ix/archiv/2015/7/seite-78" />
+          </div>
+        </Block>
+        <Block className="bg-primary/5 border border-primary/20 rounded-xl">
+          <SubTitle>{t('publications.talksSectionTitle')}</SubTitle>
+          <div className="grid grid-cols-1 gap-3 mt-2">
+            <GridItem icon={Video} title={t('publications.pub3Title')} desc={t('publications.pub3Desc')} href="https://vimeo.com/295582173" />
+          </div>
+          <p className="text-foreground/80 text-sm md:text-[15px] font-sans leading-relaxed mt-3">{t('publications.talksExtra')}</p>
+        </Block>
         <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
           <SubTitle variant="highlight">{t('publications.certTitle')}</SubTitle>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-2">
+          <div className="grid grid-cols-1 gap-3 mt-2">
             <GridItem icon={Award} title={t('publications.isacaTitle')} desc={t('publications.isacaDesc')} variant="highlight" href="https://www.isaca.de/seminare/zertifikate/nationale-zertifikate/cyber-security-expert-cse.html" />
-            <GridItem icon={Presentation} title={t('publications.confTitle')} desc={t('publications.confDesc')} variant="highlight" />
             <GridItem icon={BookOpen} title={t('publications.eduTitle')} desc={t('publications.eduDesc')} variant="highlight" />
           </div>
         </Block>
