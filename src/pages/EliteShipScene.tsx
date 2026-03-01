@@ -589,119 +589,6 @@ function CockpitCamera({ physics, audioRef }: { physics: RockPhysics; audioRef: 
   return null;
 }
 
-/* ── Glowing particles drifting between rock clusters ── */
-const GLOW_COUNT = 600;
-function GlowParticles({ physics }: { physics: RockPhysics }) {
-  const pointsRef = useRef<THREE.Points>(null);
-  const { camera } = useThree();
-
-  const { positions, colors, sizes, velocities, phases } = useMemo(() => {
-    const pos = new Float32Array(GLOW_COUNT * 3);
-    const col = new Float32Array(GLOW_COUNT * 4);
-    const sz = new Float32Array(GLOW_COUNT);
-    const vel = new Float32Array(GLOW_COUNT * 3);
-    const ph = new Float32Array(GLOW_COUNT);
-
-    const pp = physics.positions;
-    const n = physics.count;
-
-    for (let i = 0; i < GLOW_COUNT; i++) {
-      // Place near random rocks
-      const ri = Math.floor(Math.random() * n);
-      const rx = ri * 3;
-      pos[i * 3] = pp[rx] + (Math.random() - 0.5) * 12;
-      pos[i * 3 + 1] = pp[rx + 1] + (Math.random() - 0.5) * 4;
-      pos[i * 3 + 2] = pp[rx + 2] + (Math.random() - 0.5) * 12;
-
-      // Gentle drift velocity
-      vel[i * 3] = (Math.random() - 0.5) * 0.3;
-      vel[i * 3 + 1] = (Math.random() - 0.5) * 0.1;
-      vel[i * 3 + 2] = (Math.random() - 0.5) * 0.3;
-
-      // Color: mix of cyan, green, white glows
-      const type = Math.random();
-      if (type < 0.4) {
-        col[i * 4] = 0.1; col[i * 4 + 1] = 1.0; col[i * 4 + 2] = 0.7; // cyan-green
-      } else if (type < 0.7) {
-        col[i * 4] = 0.0; col[i * 4 + 1] = 0.8; col[i * 4 + 2] = 1.0; // cyan
-      } else if (type < 0.9) {
-        col[i * 4] = 0.7; col[i * 4 + 1] = 1.0; col[i * 4 + 2] = 0.9; // white-green
-      } else {
-        col[i * 4] = 0.2; col[i * 4 + 1] = 1.0; col[i * 4 + 2] = 0.4; // pure green
-      }
-      col[i * 4 + 3] = 0.3 + Math.random() * 0.5;
-
-      sz[i] = 0.5 + Math.random() * 2.5;
-      ph[i] = Math.random() * Math.PI * 2;
-    }
-    return { positions: pos, colors: col, sizes: sz, velocities: vel, phases: ph };
-  }, [physics]);
-
-  useFrame(({ clock }) => {
-    if (!pointsRef.current) return;
-    const t = clock.elapsedTime;
-    const posAttr = pointsRef.current.geometry.attributes.position as THREE.BufferAttribute;
-    const colAttr = pointsRef.current.geometry.attributes.color as THREE.BufferAttribute;
-    const szAttr = pointsRef.current.geometry.attributes.size as THREE.BufferAttribute;
-    const pos = posAttr.array as Float32Array;
-    const col = colAttr.array as Float32Array;
-    const sz = szAttr.array as Float32Array;
-    const cam = camera.position;
-
-    for (let i = 0; i < GLOW_COUNT; i++) {
-      const i3 = i * 3;
-      const i4 = i * 4;
-
-      // Gentle drift
-      pos[i3] += velocities[i3] * 0.016;
-      pos[i3 + 1] += velocities[i3 + 1] * 0.016;
-      pos[i3 + 2] += velocities[i3 + 2] * 0.016;
-
-      // Pulsing glow
-      const pulse = 0.4 + 0.6 * Math.sin(t * (0.3 + phases[i] * 0.2) + phases[i]);
-      const baseSz = sizes[i];
-      sz[i] = baseSz * pulse;
-
-      // Alpha pulsing
-      const baseAlpha = colors[i4 + 3];
-      col[i4 + 3] = baseAlpha * pulse;
-
-      // Distance fade
-      const dx = pos[i3] - cam.x;
-      const dy = pos[i3 + 1] - cam.y;
-      const dz = pos[i3 + 2] - cam.z;
-      const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
-      if (dist > 80) col[i4 + 3] *= Math.max(0, 1 - (dist - 80) / 40);
-
-      // Brighten when very close for flyby glow effect
-      if (dist < 8) {
-        sz[i] *= 1.5 + (1 - dist / 8) * 2;
-        col[i4 + 3] = Math.min(1, col[i4 + 3] * 1.5);
-      }
-    }
-
-    posAttr.needsUpdate = true;
-    colAttr.needsUpdate = true;
-    szAttr.needsUpdate = true;
-  });
-
-  return (
-    <points ref={pointsRef}>
-      <bufferGeometry>
-        <bufferAttribute attach="attributes-position" args={[positions, 3]} />
-        <bufferAttribute attach="attributes-color" args={[new Float32Array(colors), 4]} />
-        <bufferAttribute attach="attributes-size" args={[new Float32Array(sizes), 1]} />
-      </bufferGeometry>
-      <pointsMaterial
-        vertexColors
-        transparent
-        sizeAttenuation
-        depthWrite={false}
-        blending={THREE.AdditiveBlending}
-      />
-    </points>
-  );
-}
 
 /* ── Cockpit frame ── */
 function CockpitHUD() {
@@ -727,141 +614,139 @@ function CockpitHUD() {
   );
 }
 
-/* ── Comets with long tails ── */
-const MAX_COMETS = 3;
-function Comets() {
-  const groupRef = useRef<THREE.Group>(null);
+/* ── Slow background meteor with long glowing tail ── */
+function BackgroundMeteor() {
   const { camera } = useThree();
+  const linesRef = useRef<THREE.LineSegments>(null);
+  const headRef = useRef<THREE.Points>(null);
 
-  interface CometData {
+  const TRAIL_SEGS = 120;
+  const trailPos = useMemo(() => new Float32Array(TRAIL_SEGS * 6), []);
+  const trailCol = useMemo(() => new Float32Array(TRAIL_SEGS * 8), []);
+  const headPos = useMemo(() => new Float32Array(3), []);
+  const headSizes = useMemo(() => new Float32Array(1), []);
+  const headCol = useMemo(() => new Float32Array(3), []);
+
+  interface MeteorState {
     pos: THREE.Vector3;
     vel: THREE.Vector3;
     life: number;
     maxLife: number;
-    brightness: number;
     tailLen: number;
+    brightness: number;
+    active: boolean;
   }
 
-  const comets = useRef<CometData[]>([]);
-  const nextSpawn = useRef(5 + Math.random() * 15);
+  const meteor = useRef<MeteorState>({
+    pos: new THREE.Vector3(), vel: new THREE.Vector3(),
+    life: 0, maxLife: 0, tailLen: 0, brightness: 0, active: false
+  });
+  const nextSpawn = useRef(3 + Math.random() * 8);
   const elapsed = useRef(0);
 
-  // Trail geometry: each comet gets TRAIL_SEGS segments
-  const TRAIL_SEGS = 60;
-  const trailPos = useMemo(() => new Float32Array(MAX_COMETS * TRAIL_SEGS * 6), []);
-  const trailCol = useMemo(() => new Float32Array(MAX_COMETS * TRAIL_SEGS * 8), []);
-  const linesRef = useRef<THREE.LineSegments>(null);
-  const headRef = useRef<THREE.Points>(null);
-  const headPos = useMemo(() => new Float32Array(MAX_COMETS * 3), []);
-  const headSizes = useMemo(() => new Float32Array(MAX_COMETS), []);
-  const headCol = useMemo(() => new Float32Array(MAX_COMETS * 3), []);
+  // Position history for smooth curved tail
+  const posHistory = useRef<THREE.Vector3[]>([]);
 
   useFrame((_, dt) => {
     elapsed.current += dt;
     const t = elapsed.current;
+    const m = meteor.current;
+    const cam = camera.position;
 
-    // Spawn new comets
-    if (t > nextSpawn.current && comets.current.length < MAX_COMETS) {
-      const camPos = camera.position;
-      // Spawn far away in a random direction in the sky (above horizon)
-      const angle = Math.random() * Math.PI * 2;
-      const elev = 0.2 + Math.random() * 0.6; // above horizon
-      const dist = 120 + Math.random() * 80;
-      const startPos = new THREE.Vector3(
-        camPos.x + Math.cos(angle) * dist,
-        camPos.y + elev * dist * 0.5 + 30,
-        camPos.z + Math.sin(angle) * dist
-      );
-      // Velocity: cross the sky
-      const speed = 15 + Math.random() * 25;
-      const velAngle = angle + Math.PI + (Math.random() - 0.5) * 1.2;
-      const vel = new THREE.Vector3(
-        Math.cos(velAngle) * speed,
-        -(0.1 + Math.random() * 0.3) * speed, // slight downward
-        Math.sin(velAngle) * speed
+    // Spawn in the far background sky
+    if (!m.active && t > nextSpawn.current) {
+      const skyAngle = Math.random() * Math.PI * 2;
+      const skyElev = 0.2 + Math.random() * 0.45;
+      const dist = 250 + Math.random() * 100;
+
+      m.pos.set(
+        cam.x + Math.cos(skyAngle) * dist,
+        cam.y + skyElev * dist * 0.6 + 50,
+        cam.z + Math.sin(skyAngle) * dist
       );
 
-      comets.current.push({
-        pos: startPos,
-        vel,
-        life: 0,
-        maxLife: 4 + Math.random() * 6,
-        brightness: 0.5 + Math.random() * 0.5,
-        tailLen: 30 + Math.random() * 40,
-      });
-      nextSpawn.current = t + 8 + Math.random() * 20;
+      const speed = 3 + Math.random() * 4;
+      const crossAngle = skyAngle + Math.PI * 0.4 + (Math.random() - 0.5) * 0.6;
+      m.vel.set(
+        Math.cos(crossAngle) * speed,
+        -(0.02 + Math.random() * 0.06) * speed,
+        Math.sin(crossAngle) * speed
+      );
+
+      m.life = 0;
+      m.maxLife = 15 + Math.random() * 20;
+      m.tailLen = 80 + Math.random() * 60;
+      m.brightness = 0.6 + Math.random() * 0.4;
+      m.active = true;
+      posHistory.current = [];
+      nextSpawn.current = t + 25 + Math.random() * 40;
     }
 
-    // Update comets
-    const deadIndices: number[] = [];
-    comets.current.forEach((c, ci) => {
-      c.life += dt;
-      c.pos.addScaledVector(c.vel, dt);
-
-      if (c.life > c.maxLife) {
-        deadIndices.push(ci);
-      }
-    });
-    // Remove dead
-    for (let i = deadIndices.length - 1; i >= 0; i--) {
-      comets.current.splice(deadIndices[i], 1);
-    }
-
-    // Update trail geometry
     if (!linesRef.current || !headRef.current) return;
+
     const lArr = linesRef.current.geometry.attributes.position.array as Float32Array;
     const cArr = linesRef.current.geometry.attributes.color.array as Float32Array;
     const hArr = headRef.current.geometry.attributes.position.array as Float32Array;
     const hsArr = headRef.current.geometry.attributes.size.array as Float32Array;
     const hcArr = headRef.current.geometry.attributes.color.array as Float32Array;
 
-    // Clear all
-    lArr.fill(-9999);
-    cArr.fill(0);
-    hArr.fill(-9999);
-    hsArr.fill(0);
+    if (!m.active) {
+      lArr.fill(-9999); cArr.fill(0); hArr.fill(-9999); hsArr[0] = 0;
+      linesRef.current.geometry.attributes.position.needsUpdate = true;
+      linesRef.current.geometry.attributes.color.needsUpdate = true;
+      headRef.current.geometry.attributes.position.needsUpdate = true;
+      headRef.current.geometry.attributes.size.needsUpdate = true;
+      return;
+    }
 
-    comets.current.forEach((c, ci) => {
-      if (ci >= MAX_COMETS) return;
-      const fadeIn = Math.min(c.life * 2, 1);
-      const fadeOut = Math.min((c.maxLife - c.life) * 1.5, 1);
-      const fade = fadeIn * fadeOut * c.brightness;
+    m.life += dt;
+    m.pos.addScaledVector(m.vel, dt);
 
-      // Head
-      hArr[ci * 3] = c.pos.x;
-      hArr[ci * 3 + 1] = c.pos.y;
-      hArr[ci * 3 + 2] = c.pos.z;
-      hsArr[ci] = 3.0 * fade;
-      hcArr[ci * 3] = 0.9; hcArr[ci * 3 + 1] = 1.0; hcArr[ci * 3 + 2] = 0.95;
+    posHistory.current.push(m.pos.clone());
+    if (posHistory.current.length > 200) posHistory.current.shift();
 
-      // Trail segments behind the comet
-      const tailDir = c.vel.clone().normalize();
-      const baseOff = ci * TRAIL_SEGS;
-      for (let s = 0; s < TRAIL_SEGS; s++) {
-        const t0 = s / TRAIL_SEGS;
-        const t1 = (s + 1) / TRAIL_SEGS;
-        const idx = (baseOff + s) * 6;
-        const cidx = (baseOff + s) * 8;
+    if (m.life > m.maxLife) { m.active = false; }
 
-        const p0 = c.pos.clone().addScaledVector(tailDir, -t0 * c.tailLen);
-        const p1 = c.pos.clone().addScaledVector(tailDir, -t1 * c.tailLen);
+    const fadeIn = Math.min(m.life * 0.5, 1);
+    const fadeOut = Math.min((m.maxLife - m.life) * 0.3, 1);
+    const fade = fadeIn * fadeOut * m.brightness;
 
-        lArr[idx] = p0.x; lArr[idx + 1] = p0.y; lArr[idx + 2] = p0.z;
-        lArr[idx + 3] = p1.x; lArr[idx + 4] = p1.y; lArr[idx + 5] = p1.z;
+    // Head glow
+    hArr[0] = m.pos.x; hArr[1] = m.pos.y; hArr[2] = m.pos.z;
+    hsArr[0] = 4.0 * fade;
+    hcArr[0] = 1.0; hcArr[1] = 0.95; hcArr[2] = 0.8;
 
-        const alpha0 = (1 - t0) * fade * 0.7;
-        const alpha1 = (1 - t1) * fade * 0.7;
-        // Gradient: white-green head to dim green tail
-        cArr[cidx] = 0.3 + (1 - t0) * 0.7;
-        cArr[cidx + 1] = 1.0;
-        cArr[cidx + 2] = 0.5 + (1 - t0) * 0.5;
-        cArr[cidx + 3] = alpha0;
-        cArr[cidx + 4] = 0.2 + (1 - t1) * 0.6;
-        cArr[cidx + 5] = 0.9;
-        cArr[cidx + 6] = 0.4 + (1 - t1) * 0.4;
-        cArr[cidx + 7] = alpha1;
+    // Tail from position history
+    const history = posHistory.current;
+    const hLen = history.length;
+
+    for (let s = 0; s < TRAIL_SEGS; s++) {
+      const idx = s * 6;
+      const cidx = s * 8;
+      const t0 = s / TRAIL_SEGS;
+      const t1 = (s + 1) / TRAIL_SEGS;
+
+      const hi0 = Math.max(0, hLen - 1 - Math.floor(t0 * Math.min(hLen, TRAIL_SEGS)));
+      const hi1 = Math.max(0, hLen - 1 - Math.floor(t1 * Math.min(hLen, TRAIL_SEGS)));
+
+      if (hi0 < hLen && hi1 < hLen) {
+        const p0 = history[hi0]; const p1 = history[hi1];
+        lArr[idx] = p0.x; lArr[idx+1] = p0.y; lArr[idx+2] = p0.z;
+        lArr[idx+3] = p1.x; lArr[idx+4] = p1.y; lArr[idx+5] = p1.z;
+      } else {
+        const tailDir = m.vel.clone().normalize();
+        const p0 = m.pos.clone().addScaledVector(tailDir, -t0 * m.tailLen);
+        const p1 = m.pos.clone().addScaledVector(tailDir, -t1 * m.tailLen);
+        lArr[idx] = p0.x; lArr[idx+1] = p0.y; lArr[idx+2] = p0.z;
+        lArr[idx+3] = p1.x; lArr[idx+4] = p1.y; lArr[idx+5] = p1.z;
       }
-    });
+
+      const alpha0 = (1 - t0) * (1 - t0) * fade * 0.8;
+      const alpha1 = (1 - t1) * (1 - t1) * fade * 0.8;
+      const w0 = 1 - t0; const w1 = 1 - t1;
+      cArr[cidx] = 0.2+w0*0.8; cArr[cidx+1] = 0.6+w0*0.4; cArr[cidx+2] = 0.8+w0*0.2; cArr[cidx+3] = alpha0;
+      cArr[cidx+4] = 0.2+w1*0.8; cArr[cidx+5] = 0.6+w1*0.4; cArr[cidx+6] = 0.8+w1*0.2; cArr[cidx+7] = alpha1;
+    }
 
     linesRef.current.geometry.attributes.position.needsUpdate = true;
     linesRef.current.geometry.attributes.color.needsUpdate = true;
@@ -871,7 +756,7 @@ function Comets() {
   });
 
   return (
-    <group ref={groupRef}>
+    <group>
       <lineSegments ref={linesRef}>
         <bufferGeometry>
           <bufferAttribute attach="attributes-position" args={[trailPos, 3]} />
@@ -914,11 +799,10 @@ export default function EliteShipScene() {
         gl={{ antialias: true, alpha: false }}
         style={{ background: BG }}
       >
-        <GlowParticles physics={physics} />
         <PhysicsDriver physics={physics} />
         <CockpitCamera physics={physics} audioRef={analysisRef} />
         <RealisticStarfield />
-        <Comets />
+        <BackgroundMeteor />
         <Rain physics={physics} />
         <RockField physics={physics} />
         <DebrisSystem physics={physics} />
