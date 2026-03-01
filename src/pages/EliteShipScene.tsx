@@ -377,7 +377,7 @@ function CockpitCamera({ physics, audioRef }: { physics: RockPhysics; audioRef: 
 
   const prevTangentRef = useRef(new THREE.Vector3(1, 0, 0));
   const smoothBank = useRef(0);
-  const divePhase = useRef(0); // 0 = cruise, ramps up during dive
+  const smoothInversion = useRef(0); // continuous roll angle for disorientation
 
   useFrame((_, dt) => {
     const clampDt = Math.min(dt, 0.033);
@@ -399,36 +399,35 @@ function CockpitCamera({ physics, audioRef }: { physics: RockPhysics; audioRef: 
     const pathX = Math.sin(phase) * rx;
     const pathZ = Math.cos(phase) * rz;
 
-    // ── Dive maneuver: every ~30s, dive down for ~6s then climb back ──
-    const diveCycle = 30;
-    const diveDuration = 6;
-    const climbDuration = 8;
-    const cyclePos = t % diveCycle;
-    let diveTarget = 0;
-    if (cyclePos < diveDuration) {
-      // Smooth dive down using sine easing
-      diveTarget = Math.sin((cyclePos / diveDuration) * Math.PI) * 8;
-    } else if (cyclePos < diveDuration + climbDuration) {
-      // Gradual climb back to horizon
-      const climbProgress = (cyclePos - diveDuration) / climbDuration;
-      diveTarget = (1 - climbProgress) * 0.5; // gentle tail-off
-    }
-    divePhase.current += (diveTarget - divePhase.current) * 0.025;
+    // ── Disorienting roll: slow continuous rotation that drifts through
+    // inverted flight, sideways, upright – never settling clearly ──
+    // Multiple overlapping sine waves create unpredictable orientation
+    const rollTarget =
+      Math.sin(t * 0.04) * 1.8 +          // very slow primary roll (~157s cycle)
+      Math.sin(t * 0.071 + 1.3) * 1.2 +    // secondary drift
+      Math.sin(t * 0.023 + 3.7) * 0.7 +    // ultra-slow wobble
+      sa * Math.sin(t * 0.15) * 0.4;        // audio-reactive nudge
+    smoothInversion.current += (rollTarget - smoothInversion.current) * 0.012;
 
-    const altWave = Math.sin(phase * 1.5) * 0.5 + 0.5;
+    // Altitude also drifts unpredictably – sometimes above, sometimes below field
+    const altDrift =
+      Math.sin(t * 0.035) * 4.0 +
+      Math.sin(t * 0.08 + 2.1) * 2.5 +
+      Math.cos(t * 0.019) * 3.0;
+
     const centerDist = Math.sqrt(pathX * pathX + pathZ * pathZ) / Math.max(rx, rz);
-    const baseAlt = centerDist < 0.6
-      ? LOW_ALT + altWave * 1.5 + sa * 0.5
-      : CRUISE_ALT + altWave * 2.0 + sa * 0.3;
-    const desiredAlt = baseAlt - divePhase.current;
+    const desiredAlt = CRUISE_ALT + altDrift + sa * 0.5;
 
     const targetPos = new THREE.Vector3(pathX, desiredAlt, pathZ);
 
-    // Analytic tangent including dive pitch
+    // Analytic tangent
     const dxdt = Math.cos(phase) * rx * baseSpeed;
     const dzdt = -Math.sin(phase) * rz * baseSpeed;
-    const dydt = Math.cos(phase * 1.5) * 1.5 * baseSpeed * 0.5 * (centerDist < 0.6 ? 1.5 : 2.0)
-      - divePhase.current * 0.04; // pitch nose down during dive
+    // Pitch follows altitude drift derivative
+    const dydt =
+      Math.cos(t * 0.035) * 0.035 * 4.0 +
+      Math.cos(t * 0.08 + 2.1) * 0.08 * 2.5 +
+      -Math.sin(t * 0.019) * 0.019 * 3.0;
     const tangent = new THREE.Vector3(dxdt, dydt, dzdt).normalize();
 
     // Smooth banking from tangent change
@@ -437,15 +436,16 @@ function CockpitCamera({ physics, audioRef }: { physics: RockPhysics; audioRef: 
     smoothBank.current += (rawBank - smoothBank.current) * 0.02;
     prevTangentRef.current.copy(tangent);
 
-    // Build orientation (no barrel roll)
+    // Build orientation
     const up = new THREE.Vector3(0, 1, 0);
     const lookTarget = targetPos.clone().add(tangent.clone().multiplyScalar(10));
     const lookMatrix = new THREE.Matrix4().lookAt(targetPos, lookTarget, up);
     const targetQuat = new THREE.Quaternion().setFromRotationMatrix(lookMatrix);
 
-    // Apply bank only
+    // Apply bank + continuous disorienting roll
+    const totalRoll = smoothBank.current + smoothInversion.current;
     const rollQuat = new THREE.Quaternion().setFromAxisAngle(
-      new THREE.Vector3(0, 0, 1), -smoothBank.current
+      new THREE.Vector3(0, 0, 1), -totalRoll
     );
     targetQuat.multiply(rollQuat);
 
