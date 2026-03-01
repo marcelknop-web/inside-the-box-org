@@ -251,78 +251,146 @@ function Rain({ physics }: { physics: RockPhysics }) {
   );
 }
 
-/* ── Realistic Starfield with Milky Way band ── */
-const STAR_COUNT = 30000;
+/* ── Photorealistic Starfield with custom shader ── */
+const STAR_COUNT = 45000;
+
+const starVertexShader = `
+  attribute float size;
+  attribute float brightness;
+  varying vec3 vColor;
+  varying float vBrightness;
+  void main() {
+    vColor = color;
+    vBrightness = brightness;
+    vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+    gl_PointSize = size * (300.0 / -mvPosition.z);
+    gl_PointSize = clamp(gl_PointSize, 0.5, 45.0);
+    gl_Position = projectionMatrix * mvPosition;
+  }
+`;
+
+const starFragmentShader = `
+  varying vec3 vColor;
+  varying float vBrightness;
+  void main() {
+    vec2 uv = gl_PointCoord - 0.5;
+    float r = length(uv);
+    
+    // Airy disk approximation (realistic point spread function)
+    float core = exp(-r * r * 80.0); // tight bright core
+    float inner = exp(-r * r * 12.0) * 0.5; // inner glow
+    float outer = exp(-r * r * 3.0) * 0.15; // outer halo
+    
+    // Subtle diffraction spikes (4-point cross)
+    float spikes = 0.0;
+    if (vBrightness > 0.6) {
+      float sx = exp(-abs(uv.y) * 25.0) * exp(-abs(uv.x) * 6.0);
+      float sy = exp(-abs(uv.x) * 25.0) * exp(-abs(uv.y) * 6.0);
+      spikes = (sx + sy) * 0.12 * (vBrightness - 0.6) * 2.5;
+    }
+    
+    float intensity = core + inner + outer + spikes;
+    intensity *= vBrightness;
+    
+    // Chromatic fringing on bright stars
+    vec3 col = vColor;
+    if (vBrightness > 0.7) {
+      float fringe = outer * (vBrightness - 0.7) * 3.0;
+      col += vec3(-0.05, 0.0, 0.08) * fringe;
+    }
+    
+    gl_FragColor = vec4(col * intensity, intensity);
+  }
+`;
+
 function RealisticStarfield() {
   const pointsRef = useRef<THREE.Points>(null);
-  const { positions, baseColors, sizes } = useMemo(() => {
+  const shaderRef = useRef<THREE.ShaderMaterial>(null);
+
+  const { positions, colors, sizes, brightnesses, baseColors } = useMemo(() => {
     const pos = new Float32Array(STAR_COUNT * 3);
     const col = new Float32Array(STAR_COUNT * 3);
     const sz = new Float32Array(STAR_COUNT);
+    const br = new Float32Array(STAR_COUNT);
 
-    // Milky Way band direction (tilted across sky)
     const milkyAxis = new THREE.Vector3(0.3, 1, 0.2).normalize();
+    const perp1Base = new THREE.Vector3().crossVectors(milkyAxis, new THREE.Vector3(1, 0, 0)).normalize();
+    const perp2Base = new THREE.Vector3().crossVectors(milkyAxis, perp1Base).normalize();
 
     for (let i = 0; i < STAR_COUNT; i++) {
       const i3 = i * 3;
       let theta = Math.random() * Math.PI * 2;
       let phi = Math.acos(2 * Math.random() - 1);
 
-      // Concentrate ~40% of stars near milky way band
-      if (i < STAR_COUNT * 0.4) {
-        const bandDir = milkyAxis.clone();
-        const perp1 = new THREE.Vector3().crossVectors(bandDir, new THREE.Vector3(1, 0, 0)).normalize();
-        const perp2 = new THREE.Vector3().crossVectors(bandDir, perp1).normalize();
+      // 45% concentrated in milky way band with varying density
+      if (i < STAR_COUNT * 0.45) {
         const along = (Math.random() - 0.5) * 2;
-        const spread = (Math.random() - 0.5) * 0.25 + (Math.random() - 0.5) * 0.25; // tight gaussian-like
-        const spread2 = (Math.random() - 0.5) * 0.25 + (Math.random() - 0.5) * 0.25;
+        // Box-Muller for gaussian spread
+        const u1 = Math.random() || 0.001;
+        const u2 = Math.random();
+        const gaussSpread = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2) * 0.15;
+        const u3 = Math.random() || 0.001;
+        const u4 = Math.random();
+        const gaussSpread2 = Math.sqrt(-2 * Math.log(u3)) * Math.cos(2 * Math.PI * u4) * 0.15;
         const dir = new THREE.Vector3()
-          .addScaledVector(bandDir, along)
-          .addScaledVector(perp1, spread)
-          .addScaledVector(perp2, spread2)
+          .addScaledVector(milkyAxis, along)
+          .addScaledVector(perp1Base, gaussSpread)
+          .addScaledVector(perp2Base, gaussSpread2)
           .normalize();
         theta = Math.atan2(dir.z, dir.x);
-        phi = Math.acos(dir.y);
+        phi = Math.acos(Math.max(-1, Math.min(1, dir.y)));
       }
 
-      const r = 200 + Math.random() * 300;
+      // Vary distance for depth
+      const r = 180 + Math.random() * 350;
       pos[i3] = r * Math.sin(phi) * Math.cos(theta);
       pos[i3 + 1] = r * Math.sin(phi) * Math.sin(theta);
       pos[i3 + 2] = r * Math.cos(phi);
 
-      // Realistic magnitude distribution (more dim stars)
-      const mag = Math.pow(Math.random(), 2.5);
-      const brightness = 0.25 + mag * 0.75;
+      // Realistic luminosity function (exponential falloff — many dim, few bright)
+      const mag = Math.pow(Math.random(), 3.2);
+      const brightness = 0.15 + mag * 0.85;
+      br[i] = brightness;
 
-      // Spectral classes: O/B blue, A white, F/G yellow, K orange, M red
+      // Realistic spectral color temperatures (Planck-like)
       const temp = Math.random();
-      if (temp < 0.45) {
-        // A/F white-blue (most common visible)
-        col[i3] = 0.85 * brightness; col[i3+1] = 0.9 * brightness; col[i3+2] = 1.0 * brightness;
-      } else if (temp < 0.7) {
-        // G yellow-white (sun-like)
-        col[i3] = 1.0 * brightness; col[i3+1] = 0.97 * brightness; col[i3+2] = 0.85 * brightness;
-      } else if (temp < 0.85) {
-        // B blue
-        col[i3] = 0.6 * brightness; col[i3+1] = 0.75 * brightness; col[i3+2] = 1.0 * brightness;
-      } else if (temp < 0.94) {
-        // K orange
-        col[i3] = 1.0 * brightness; col[i3+1] = 0.78 * brightness; col[i3+2] = 0.45 * brightness;
+      let cr: number, cg: number, cb: number;
+      if (temp < 0.03) {
+        // O-type blue-white (very rare, very bright)
+        cr = 0.62; cg = 0.72; cb = 1.0;
+      } else if (temp < 0.13) {
+        // B-type blue
+        cr = 0.68; cg = 0.8; cb = 1.0;
+      } else if (temp < 0.35) {
+        // A-type white-blue (Sirius-like)
+        cr = 0.88; cg = 0.92; cb = 1.0;
+      } else if (temp < 0.55) {
+        // F-type yellow-white
+        cr = 1.0; cg = 0.98; cb = 0.92;
+      } else if (temp < 0.72) {
+        // G-type yellow (Sun-like)
+        cr = 1.0; cg = 0.94; cb = 0.8;
+      } else if (temp < 0.88) {
+        // K-type orange
+        cr = 1.0; cg = 0.8; cb = 0.55;
       } else {
-        // M red
-        col[i3] = 1.0 * brightness; col[i3+1] = 0.5 * brightness; col[i3+2] = 0.3 * brightness;
+        // M-type red (most common in reality)
+        cr = 1.0; cg = 0.6; cb = 0.35;
       }
+      col[i3] = cr * brightness;
+      col[i3 + 1] = cg * brightness;
+      col[i3 + 2] = cb * brightness;
 
-      // Size: most stars tiny, few bright ones larger
-      sz[i] = mag < 0.1 ? 0.15 + Math.random() * 0.1
-            : mag < 0.5 ? 0.25 + mag * 0.5
-            : mag < 0.85 ? 0.6 + mag * 1.2
-            : 1.8 + mag * 3.0; // rare bright stars
+      // Size distribution: inverse square law feel
+      sz[i] = mag < 0.05 ? 0.1 + Math.random() * 0.08
+            : mag < 0.3 ? 0.18 + mag * 0.4
+            : mag < 0.7 ? 0.4 + mag * 1.0
+            : mag < 0.9 ? 1.2 + mag * 2.5
+            : 3.5 + mag * 5.0; // very rare brilliant stars
     }
-    return { positions: pos, baseColors: col, sizes: sz };
+    return { positions: pos, colors: col, sizes: sz, brightnesses: br, baseColors: new Float32Array(col) };
   }, []);
 
-  const renderColors = useMemo(() => new Float32Array(baseColors), [baseColors]);
   const twinklePhases = useMemo(() => {
     const p = new Float32Array(STAR_COUNT);
     for (let i = 0; i < STAR_COUNT; i++) p[i] = Math.random() * Math.PI * 2;
@@ -330,34 +398,64 @@ function RealisticStarfield() {
   }, []);
   const twinkleSpeeds = useMemo(() => {
     const s = new Float32Array(STAR_COUNT);
-    for (let i = 0; i < STAR_COUNT; i++) s[i] = 0.1 + Math.random() * 0.8; // slower twinkle
+    for (let i = 0; i < STAR_COUNT; i++) s[i] = 0.08 + Math.random() * 0.6;
     return s;
   }, []);
+  // Atmospheric scintillation intensity per star (brighter stars twinkle more noticeably)
+  const twinkleAmplitudes = useMemo(() => {
+    const a = new Float32Array(STAR_COUNT);
+    for (let i = 0; i < STAR_COUNT; i++) {
+      a[i] = 0.05 + brightnesses[i] * 0.25;
+    }
+    return a;
+  }, [brightnesses]);
 
   useFrame(({ clock }) => {
     if (!pointsRef.current) return;
     const t = clock.elapsedTime;
     const colAttr = pointsRef.current.geometry.attributes.color as THREE.BufferAttribute;
     const col = colAttr.array as Float32Array;
-    // Twinkle only brighter stars (every 3rd) for perf
-    for (let i = 0; i < STAR_COUNT; i += 3) {
-      const scintillation = 0.75 + 0.25 * Math.sin(t * twinkleSpeeds[i] + twinklePhases[i]);
+    const brAttr = pointsRef.current.geometry.attributes.brightness as THREE.BufferAttribute;
+    const brArr = brAttr.array as Float32Array;
+
+    // Twinkle with atmospheric scintillation pattern
+    for (let i = 0; i < STAR_COUNT; i += 2) {
+      const amp = twinkleAmplitudes[i];
+      const phase = twinklePhases[i];
+      const speed = twinkleSpeeds[i];
+      // Multi-frequency scintillation for realism
+      const scint = 1.0 - amp * (
+        0.5 * (1 - Math.cos(t * speed + phase)) +
+        0.3 * (1 - Math.cos(t * speed * 2.7 + phase * 1.3)) +
+        0.2 * (1 - Math.cos(t * speed * 0.3 + phase * 0.7))
+      );
       const i3 = i * 3;
-      col[i3] = baseColors[i3] * scintillation;
-      col[i3+1] = baseColors[i3+1] * scintillation;
-      col[i3+2] = baseColors[i3+2] * scintillation;
+      col[i3] = baseColors[i3] * scint;
+      col[i3 + 1] = baseColors[i3 + 1] * scint;
+      col[i3 + 2] = baseColors[i3 + 2] * scint;
+      brArr[i] = brightnesses[i] * scint;
     }
     colAttr.needsUpdate = true;
+    brAttr.needsUpdate = true;
   });
 
   return (
     <points ref={pointsRef}>
       <bufferGeometry>
         <bufferAttribute attach="attributes-position" args={[positions, 3]} />
-        <bufferAttribute attach="attributes-color" args={[renderColors, 3]} />
+        <bufferAttribute attach="attributes-color" args={[colors, 3]} />
         <bufferAttribute attach="attributes-size" args={[sizes, 1]} />
+        <bufferAttribute attach="attributes-brightness" args={[brightnesses, 1]} />
       </bufferGeometry>
-      <pointsMaterial vertexColors transparent opacity={1} size={0.8} sizeAttenuation depthWrite={false} blending={THREE.AdditiveBlending} />
+      <shaderMaterial
+        ref={shaderRef}
+        vertexShader={starVertexShader}
+        fragmentShader={starFragmentShader}
+        vertexColors
+        transparent
+        depthWrite={false}
+        blending={THREE.AdditiveBlending}
+      />
     </points>
   );
 }
