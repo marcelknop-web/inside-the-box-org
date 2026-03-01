@@ -1,7 +1,8 @@
-import React, { useRef, useMemo, useState, useEffect, useCallback } from 'react';
+import React, { useRef, useMemo, useEffect } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { createRockPhysics, stepPhysics, DynamicRock, type RockPhysics } from '@/components/elite/PhysicsRocks';
+import { useAudioAnalyser, type AudioAnalysis } from '@/hooks/useAudioAnalyser';
 
 const LINE_COLOR = '#00ffaa';
 const BG = '#000000';
@@ -14,7 +15,6 @@ function useInitialRocks() {
       return x - Math.floor(x);
     };
     const rocks: { seed: number; radius: number; position: [number, number, number]; rotSpeed: [number, number, number] }[] = [];
-    // Surface rocks
     const gridX = 20, gridZ = 12, spacing = 6;
     let idx = 0;
     for (let gx = 0; gx < gridX; gx++) {
@@ -32,7 +32,6 @@ function useInitialRocks() {
         idx++;
       }
     }
-    // Floating rocks
     const rng2 = (i: number, off: number) => {
       let x = Math.sin(i * 73.1 + off * 419.3) * 31758.5453;
       return x - Math.floor(x);
@@ -56,7 +55,7 @@ function PhysicsDriver({ physics }: { physics: RockPhysics }) {
 
 /* ── Rain near objects only ── */
 const RAIN_COUNT = 800;
-const RAIN_SPREAD_LOCAL = 15; // spawn radius around each rock
+const RAIN_SPREAD_LOCAL = 15;
 const FALL_SPEED_MIN = 14;
 const FALL_SPEED_MAX = 26;
 const NEAR_BLUR_DIST = 6;
@@ -73,10 +72,9 @@ function Rain({ physics }: { physics: RockPhysics }) {
     const dp = new Float32Array(RAIN_COUNT * 3);
     const spd = new Float32Array(RAIN_COUNT);
     const ds = new Float32Array(RAIN_COUNT);
-    const al = new Uint8Array(RAIN_COUNT).fill(0); // start dead, spawn near rocks
+    const al = new Uint8Array(RAIN_COUNT).fill(0);
     const lc = new Float32Array(RAIN_COUNT * 8);
     const dc = new Float32Array(RAIN_COUNT * 4);
-    // Hide all initially
     for (let i = 0; i < RAIN_COUNT; i++) {
       lp[i * 6 + 1] = -9999; lp[i * 6 + 4] = -9999;
       dp[i * 3 + 1] = -9999;
@@ -113,7 +111,6 @@ function Rain({ physics }: { physics: RockPhysics }) {
 
       if (alive[i] === 0) {
         if (spawning && Math.random() < intensity * 0.06) {
-          // Spawn near a random rock that's within 80 units of camera
           let attempts = 0;
           let rx = 0, ry = 0, rz = 0;
           while (attempts < 5) {
@@ -128,7 +125,7 @@ function Rain({ physics }: { physics: RockPhysics }) {
             }
             attempts++;
           }
-          if (attempts >= 5) { continue; }
+          if (attempts >= 5) continue;
 
           alive[i] = 1;
           ages[i] = 0;
@@ -167,7 +164,6 @@ function Rain({ physics }: { physics: RockPhysics }) {
       const dz = lp[i6 + 2] - cam.z;
       const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
 
-      // Check proximity to any rock – fade out if too far from all rocks
       let nearRock = false;
       for (let ri = 0; ri < n; ri++) {
         const rix = ri * 3;
@@ -211,7 +207,6 @@ function Rain({ physics }: { physics: RockPhysics }) {
         lc[i8 + 4] = 0; lc[i8 + 5] = 0.5; lc[i8 + 6] = 0.35;
       }
 
-      // Die if too far below camera
       if (lp[i6 + 1] < cam.y - 50) {
         alive[i] = 0;
         continue;
@@ -313,8 +308,8 @@ function RealisticStarfield() {
   );
 }
 
-/* ── Thruster Camera with collision avoidance (reads live physics positions) ── */
-function CockpitCamera({ physics }: { physics: RockPhysics }) {
+/* ── Music-reactive Thruster Camera ── */
+function CockpitCamera({ physics, audioRef }: { physics: RockPhysics; audioRef: React.MutableRefObject<AudioAnalysis> }) {
   const { camera } = useThree();
   const pos = useRef(new THREE.Vector3(0, 2, 0));
   const vel = useRef(new THREE.Vector3(0, 0, -3));
@@ -323,8 +318,10 @@ function CockpitCamera({ physics }: { physics: RockPhysics }) {
   const thrusterTime = useRef(0);
   const thrusters = useRef<{ axis: THREE.Vector3; torqueAxis: THREE.Vector3; force: number; torque: number; startTime: number; duration: number }[]>([]);
   const nextThrusterAt = useRef(0);
-  const currentTarget = useRef<number>(-1); // index into physics
+  const currentTarget = useRef<number>(-1);
   const targetCooldown = useRef(0);
+  const smoothedAmplitude = useRef(0);
+  const smoothedBass = useRef(0);
 
   useFrame((_, dt) => {
     thrusterTime.current += dt;
@@ -334,6 +331,34 @@ function CockpitCamera({ physics }: { physics: RockPhysics }) {
     const pp = physics.positions;
     const pr = physics.radii;
     const n = physics.count;
+
+    // ── Audio reactivity ──
+    const audio = audioRef.current;
+    const amp = audio.amplitude;
+    const bass = audio.bass;
+    // Smooth the audio values for camera control
+    smoothedAmplitude.current += (amp - smoothedAmplitude.current) * 0.08;
+    smoothedBass.current += (bass - smoothedBass.current) * 0.1;
+    const sa = smoothedAmplitude.current;
+    const sb = smoothedBass.current;
+
+    // Music modulates: speed range, thrust intensity, thruster frequency
+    const musicSpeedMult = 0.4 + sa * 1.2;        // 0.4x – 1.6x
+    const musicThrustMult = 0.5 + sb * 1.5;       // 0.5x – 2.0x
+    const musicThrusterInterval = 3.0 - sa * 2.2;  // 0.8s – 3.0s
+
+    // Beat triggers an extra thruster burst
+    if (audio.beat) {
+      const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(orientation.current);
+      thrusters.current.push({
+        axis: forward.clone().add(new THREE.Vector3((Math.random() - 0.5) * 0.3, (Math.random() - 0.5) * 0.3, 0)).normalize(),
+        torqueAxis: new THREE.Vector3((Math.random() - 0.5), (Math.random() - 0.5), (Math.random() - 0.5)).normalize(),
+        force: 2.0 + sb * 3.0,
+        torque: (Math.random() - 0.5) * 0.3,
+        startTime: t,
+        duration: 0.3 + Math.random() * 0.5,
+      });
+    }
 
     // ── Collision avoidance ──
     const AVOID_RADIUS = 8;
@@ -367,23 +392,37 @@ function CockpitCamera({ physics }: { physics: RockPhysics }) {
       }
     }
 
-    // ── Attraction: pick a rock to fly toward ──
+    // ── Attraction: find dense rock cluster ahead & fly over the field ──
     targetCooldown.current -= clampDt;
     if (targetCooldown.current <= 0) {
       const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(orientation.current);
       let bestScore = -Infinity;
       let bestIdx = -1;
+
+      // Score rocks: prefer forward, nearby, and those surrounded by other rocks (dense clusters)
       for (let oi = 0; oi < n; oi++) {
         const ox = oi * 3;
         tmpVec.set(pp[ox] - p.x, pp[ox + 1] - p.y, pp[ox + 2] - p.z);
         const dist = tmpVec.length();
-        if (dist < 10 || dist > 70) continue;
+        if (dist < 10 || dist > 80) continue;
         const dot = tmpVec.normalize().dot(forward);
-        const score = dot * 2 + (1 - dist / 70) + Math.random() * 0.5;
+        if (dot < -0.2) continue; // skip rocks behind us
+
+        // Count neighbors within 15 units = cluster density
+        let neighbors = 0;
+        for (let nj = 0; nj < n; nj++) {
+          if (nj === oi) continue;
+          const njx = nj * 3;
+          const ddx = pp[njx] - pp[ox], ddy = pp[njx + 1] - pp[ox + 1], ddz = pp[njx + 2] - pp[ox + 2];
+          if (ddx * ddx + ddy * ddy + ddz * ddz < 225) neighbors++;
+          if (neighbors > 6) break; // enough to know it's dense
+        }
+
+        const score = dot * 2.0 + (1 - dist / 80) * 1.5 + neighbors * 0.4 + Math.random() * 0.3;
         if (score > bestScore) { bestScore = score; bestIdx = oi; }
       }
       currentTarget.current = bestIdx;
-      targetCooldown.current = 3 + Math.random() * 4;
+      targetCooldown.current = 2.0 + Math.random() * 3.0;
     }
 
     const attractForce = new THREE.Vector3(0, 0, 0);
@@ -391,10 +430,34 @@ function CockpitCamera({ physics }: { physics: RockPhysics }) {
       const ox = currentTarget.current * 3;
       tmpVec.set(pp[ox] - p.x, pp[ox + 1] - p.y, pp[ox + 2] - p.z);
       const dist = tmpVec.length();
-      if (dist > 6) attractForce.copy(tmpVec.normalize()).multiplyScalar(1.5);
+      if (dist > 6) {
+        // Aim slightly above the target to fly OVER the field
+        tmpVec.y += 4;
+        attractForce.copy(tmpVec.normalize()).multiplyScalar(2.0 + sa * 1.5);
+      }
     }
 
-    // ── Thruster bursts ──
+    // ── Keep altitude above rock field ──
+    // Find average Y of nearby rocks to maintain height above them
+    let nearbyYSum = 0, nearbyCount = 0;
+    for (let oi = 0; oi < n; oi++) {
+      const ox = oi * 3;
+      const ddx = pp[ox] - p.x, ddz = pp[ox + 2] - p.z;
+      if (ddx * ddx + ddz * ddz < 900) { // within 30 units
+        nearbyYSum += pp[ox + 1];
+        nearbyCount++;
+      }
+    }
+    if (nearbyCount > 0) {
+      const avgY = nearbyYSum / nearbyCount;
+      const desiredAlt = avgY + 5 + sa * 4; // 5-9 units above rocks, music-modulated
+      const altDiff = desiredAlt - p.y;
+      if (altDiff > 0) {
+        attractForce.y += altDiff * 0.8; // gentle upward pull
+      }
+    }
+
+    // ── Thruster bursts (music-synced interval) ──
     if (t > nextThrusterAt.current) {
       const count = 1 + Math.floor(Math.random() * 2);
       for (let i = 0; i < count; i++) {
@@ -408,13 +471,13 @@ function CockpitCamera({ physics }: { physics: RockPhysics }) {
         const torqueAxis = new THREE.Vector3(tx, ty, tz).normalize();
         thrusters.current.push({
           axis, torqueAxis,
-          force: 0.8 + Math.random() * 2.0,
+          force: (0.8 + Math.random() * 2.0) * musicThrustMult,
           torque: (Math.random() - 0.5) * 0.25,
           startTime: t,
           duration: 0.5 + Math.random() * 3.0,
         });
       }
-      nextThrusterAt.current = t + 1.5 + Math.random() * 4.0;
+      nextThrusterAt.current = t + Math.max(0.8, musicThrusterInterval + Math.random() * 1.5);
     }
 
     const thrustAccel = new THREE.Vector3(0, 0, 0);
@@ -436,11 +499,14 @@ function CockpitCamera({ physics }: { physics: RockPhysics }) {
     vel.current.addScaledVector(attractForce, clampDt);
     vel.current.multiplyScalar(1 - DRAG * clampDt);
 
+    // Music-reactive speed limits
+    const maxSpeed = 8 + sa * 8;   // 8-16 based on music
+    const minSpeed = 1.0 + sa * 1.5; // 1-2.5
     const speed = vel.current.length();
-    if (speed > 12) vel.current.multiplyScalar(12 / speed);
-    if (speed < 1.5) vel.current.multiplyScalar(1.5 / Math.max(speed, 0.01));
+    if (speed > maxSpeed) vel.current.multiplyScalar(maxSpeed / speed);
+    if (speed < minSpeed) vel.current.multiplyScalar(minSpeed / Math.max(speed, 0.01));
 
-    pos.current.addScaledVector(vel.current, clampDt);
+    pos.current.addScaledVector(vel.current, clampDt * musicSpeedMult);
 
     angVel.current.addScaledVector(torqueAccel, clampDt);
     angVel.current.addScaledVector(avoidTorque, clampDt);
@@ -493,38 +559,6 @@ function CockpitHUD() {
   );
 }
 
-/* ── Ambient Music Player ── */
-function use432HzAmbient() {
-  const [playing, setPlaying] = useState(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-
-  const start = useCallback(() => {
-    if (audioRef.current) return;
-    const audio = new Audio('/audio/ambient-heartbeat.mp3');
-    audio.loop = true;
-    audio.volume = 0.7;
-    audioRef.current = audio;
-    audio.play().then(() => setPlaying(true)).catch(() => {});
-  }, []);
-
-  const stop = useCallback(() => {
-    if (!audioRef.current) return;
-    audioRef.current.pause();
-    audioRef.current.src = '';
-    audioRef.current = null;
-    setPlaying(false);
-  }, []);
-
-  useEffect(() => () => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.src = '';
-    }
-  }, []);
-
-  return { playing, start, stop };
-}
-
 /* ── Rock indices for rendering ── */
 function RockField({ physics }: { physics: RockPhysics }) {
   const indices = useMemo(() => Array.from({ length: physics.count }, (_, i) => i), [physics.count]);
@@ -539,7 +573,7 @@ function RockField({ physics }: { physics: RockPhysics }) {
 export default function EliteShipScene() {
   const initialRocks = useInitialRocks();
   const physics = useMemo(() => createRockPhysics(initialRocks), [initialRocks]);
-  const ambient = use432HzAmbient();
+  const { playing, start, stop, analysisRef } = useAudioAnalyser();
 
   return (
     <div className="relative w-full h-screen overflow-hidden" style={{ background: BG }}>
@@ -549,7 +583,7 @@ export default function EliteShipScene() {
         style={{ background: BG }}
       >
         <PhysicsDriver physics={physics} />
-        <CockpitCamera physics={physics} />
+        <CockpitCamera physics={physics} audioRef={analysisRef} />
         <RealisticStarfield />
         <Rain physics={physics} />
         <RockField physics={physics} />
@@ -558,16 +592,16 @@ export default function EliteShipScene() {
       <CockpitHUD />
 
       <button
-        onClick={ambient.playing ? ambient.stop : ambient.start}
+        onClick={playing ? stop : start}
         className="absolute bottom-6 right-6 z-30 px-4 py-2 rounded border text-[11px] tracking-[0.2em] uppercase font-mono transition-opacity hover:opacity-100"
         style={{
           color: LINE_COLOR,
           borderColor: LINE_COLOR + '40',
-          background: ambient.playing ? LINE_COLOR + '15' : 'transparent',
+          background: playing ? LINE_COLOR + '15' : 'transparent',
           opacity: 0.6,
         }}
       >
-        {ambient.playing ? '■ STOP 432Hz' : '♫ 432Hz AMBIENT'}
+        {playing ? '■ STOP 432Hz' : '♫ 432Hz AMBIENT'}
       </button>
     </div>
   );
