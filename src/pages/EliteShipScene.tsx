@@ -16,33 +16,41 @@ function useInitialRocks() {
       return x - Math.floor(x);
     };
     const rocks: { seed: number; radius: number; position: [number, number, number]; rotSpeed: [number, number, number] }[] = [];
-    // Wide flat plane of rocks – spread much wider, very thin Y
-    const gridX = 60, gridZ = 40, spacing = 3.5;
+    // Wider spaced, jagged field – clusters with gaps between them
+    const gridX = 50, gridZ = 35, spacing = 6.0;
     let idx = 0;
     for (let gx = 0; gx < gridX; gx++) {
       for (let gz = 0; gz < gridZ; gz++) {
-        const r = 0.6 + rng(idx, 0) * 1.8;
+        // Skip ~40% of positions for gaps and negative space
+        const skip = rng(idx, 99);
+        if (skip < 0.4) { idx++; continue; }
+        
+        // Cluster factor: rocks tend to group in patches
+        const clusterNoise = Math.sin(gx * 0.4) * Math.cos(gz * 0.3) * 0.5 + 0.5;
+        if (clusterNoise < 0.25 && rng(idx, 88) < 0.6) { idx++; continue; }
+        
+        const r = 0.5 + rng(idx, 0) * 2.5; // more size variation = more jagged
         rocks.push({
           seed: idx * 13 + 7, radius: r,
           position: [
-            gx * spacing + (rng(idx, 1) - 0.5) * spacing * 0.7 - (gridX * spacing) / 2,
-            -8 + (rng(idx, 3) - 0.5) * 0.3, // very flat – only ±0.15 Y variation
-            gz * spacing + (rng(idx, 2) - 0.5) * spacing * 0.7 - (gridZ * spacing) / 2,
+            gx * spacing + (rng(idx, 1) - 0.5) * spacing * 0.9 - (gridX * spacing) / 2,
+            -8 + (rng(idx, 3) - 0.5) * 1.2, // more Y variation = more jagged terrain
+            gz * spacing + (rng(idx, 2) - 0.5) * spacing * 0.9 - (gridZ * spacing) / 2,
           ],
-          rotSpeed: [(rng(idx, 7) - 0.5) * 0.03, (rng(idx, 8) - 0.5) * 0.04, (rng(idx, 9) - 0.5) * 0.02], // slower rotation
+          rotSpeed: [(rng(idx, 7) - 0.5) * 0.03, (rng(idx, 8) - 0.5) * 0.04, (rng(idx, 9) - 0.5) * 0.02],
         });
         idx++;
       }
     }
-    // A few rocks at camera level for fly-through moments
+    // Scattered outliers at varying heights for dramatic silhouettes
     const rng2 = (i: number, off: number) => {
       let x = Math.sin(i * 73.1 + off * 419.3) * 31758.5453;
       return x - Math.floor(x);
     };
-    for (let i = 0; i < 40; i++) {
+    for (let i = 0; i < 60; i++) {
       rocks.push({
-        seed: i * 31 + 100, radius: 0.4 + rng2(i, 0) * 1.2,
-        position: [rng2(i, 1) * 180 - 90, -8 + rng2(i, 2) * 3, rng2(i, 3) * 120 - 60],
+        seed: i * 31 + 100, radius: 0.3 + rng2(i, 0) * 2.0,
+        position: [rng2(i, 1) * 260 - 130, -8 + rng2(i, 2) * 5 - 1, rng2(i, 3) * 180 - 90],
         rotSpeed: [(rng2(i, 7) - 0.5) * 0.02, (rng2(i, 8) - 0.5) * 0.03, (rng2(i, 9) - 0.5) * 0.015],
       });
     }
@@ -488,15 +496,15 @@ function CockpitCamera({ physics, audioRef }: { physics: RockPhysics; audioRef: 
     }
     if (nearbyCount > 0) {
       const avgTop = nearbyYSum / nearbyCount;
-      // Slow sinusoidal altitude: long cycles between skimming and diving into the field
-      const altCycle = Math.sin(t * 0.06) * 0.5 + 0.5; // very slow 0-1 cycle (~100s period)
-      const diveCycle = Math.sin(t * 0.025) * 0.5 + 0.5; // ultra-slow dive cycle
-      // altCycle=0: skim just above rocks, altCycle=1: fly higher, diveCycle modulates into the field
-      const desiredAlt = avgTop - 0.5 + altCycle * 2.5 - diveCycle * 1.5 + sa * 0.5;
+      // Long altitude cycles: mostly flying above for horizon views, occasional dips
+      const altCycle = Math.sin(t * 0.04) * 0.5 + 0.5; // ~160s period
+      const diveCycle = Math.max(0, Math.sin(t * 0.018)); // only positive = occasional dive
+      // Spend most time above the field showing horizon, brief dives through
+      const desiredAlt = avgTop + 2.0 + altCycle * 5.0 - diveCycle * 4.0 + sa * 0.5;
       const altDiff = desiredAlt - p.y;
-      attractForce.y += altDiff * 0.25; // very gentle altitude correction
+      attractForce.y += altDiff * 0.15; // gentle altitude correction
     } else {
-      attractForce.y += (-8 - p.y) * 0.15;
+      attractForce.y += (-5 - p.y) * 0.1;
     }
 
     // ── Thruster bursts (music-synced, smoother) ──
@@ -581,24 +589,23 @@ function CockpitCamera({ physics, audioRef }: { physics: RockPhysics; audioRef: 
   return null;
 }
 
-/* ── Fog layer over rock field ── */
-function FogLayer() {
+/* ── Fog layers over rock field ── */
+function FogLayer({ y, opacity, size, color }: { y: number; opacity: number; size: number; color: string }) {
   const meshRef = useRef<THREE.Mesh>(null);
   const { camera } = useThree();
 
   useFrame(() => {
     if (!meshRef.current) return;
-    // Keep fog centered on camera XZ, at rock-field Y level
-    meshRef.current.position.set(camera.position.x, -7.5, camera.position.z);
+    meshRef.current.position.set(camera.position.x, y, camera.position.z);
   });
 
   return (
     <mesh ref={meshRef} rotation={[-Math.PI / 2, 0, 0]}>
-      <planeGeometry args={[300, 300, 1, 1]} />
+      <planeGeometry args={[size, size, 1, 1]} />
       <meshBasicMaterial
-        color="#00ffaa"
+        color={color}
         transparent
-        opacity={0.035}
+        opacity={opacity}
         side={THREE.DoubleSide}
         depthWrite={false}
         blending={THREE.AdditiveBlending}
@@ -611,8 +618,13 @@ function FogLayer() {
 function VolumetricFog() {
   return (
     <>
-      <FogLayer />
-      <fog attach="fog" args={['#011a12', 20, 160]} />
+      {/* Dense low fog at rock level */}
+      <FogLayer y={-7.0} opacity={0.12} size={400} color="#00ffaa" />
+      <FogLayer y={-7.8} opacity={0.08} size={350} color="#008866" />
+      {/* Higher atmospheric haze */}
+      <FogLayer y={-5.5} opacity={0.04} size={500} color="#004433" />
+      <FogLayer y={-9.0} opacity={0.06} size={300} color="#00aa77" />
+      <fog attach="fog" args={['#011a12', 15, 120]} />
     </>
   );
 }
