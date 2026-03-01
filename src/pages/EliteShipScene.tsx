@@ -414,8 +414,10 @@ function RealisticStarfield() {
     return a;
   }, [brightnesses]);
 
-  useFrame(({ clock }) => {
+  useFrame(({ clock, camera }) => {
     if (!pointsRef.current) return;
+    pointsRef.current.position.copy(camera.position);
+
     const t = clock.elapsedTime;
     const colAttr = pointsRef.current.geometry.attributes.color as THREE.BufferAttribute;
     const col = colAttr.array as Float32Array;
@@ -444,7 +446,7 @@ function RealisticStarfield() {
   });
 
   return (
-    <points ref={pointsRef} renderOrder={-100}>
+    <points ref={pointsRef} renderOrder={-100} frustumCulled={false}>
       <bufferGeometry>
         <bufferAttribute attach="attributes-position" args={[positions, 3]} />
         <bufferAttribute attach="attributes-color" args={[colors, 3]} />
@@ -467,6 +469,7 @@ function RealisticStarfield() {
 
 /* ── Milky Way Nebula (volumetric glow sprite band) ── */
 function MilkyWayNebula() {
+  const groupRef = useRef<THREE.Group>(null);
   const nebulaData = useMemo(() => {
     const clouds: { pos: THREE.Vector3; scaleVec: THREE.Vector3; opacity: number; color: THREE.Color; rotation: number }[] = [];
     const milkyAxis = new THREE.Vector3(0.3, 1, 0.2).normalize();
@@ -534,10 +537,15 @@ function MilkyWayNebula() {
     return tex;
   }, []);
 
+  useFrame(({ camera }) => {
+    if (!groupRef.current) return;
+    groupRef.current.position.copy(camera.position);
+  });
+
   return (
-    <group>
+    <group ref={groupRef}>
       {nebulaData.map((cloud, i) => (
-        <sprite key={i} position={cloud.pos} scale={cloud.scaleVec} renderOrder={-99}>
+        <sprite key={i} position={cloud.pos} scale={cloud.scaleVec} renderOrder={-99} frustumCulled={false}>
           <spriteMaterial
             map={nebulaTexture}
             color={cloud.color}
@@ -1109,7 +1117,7 @@ export default function EliteShipScene({ embedded = false }: { embedded?: boolea
   return (
     <div className={`relative w-full ${embedded ? 'h-[80vh] rounded-xl overflow-hidden' : 'h-screen'} overflow-hidden`} style={{ background: BG }}>
       <Canvas
-        camera={{ fov: 70, near: 0.1, far: 500 }}
+        camera={{ fov: 70, near: 0.1, far: 900 }}
         gl={{ antialias: true, alpha: false }}
         style={{ background: BG }}
       >
