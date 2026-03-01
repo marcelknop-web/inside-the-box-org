@@ -15,31 +15,33 @@ function useInitialRocks() {
       return x - Math.floor(x);
     };
     const rocks: { seed: number; radius: number; position: [number, number, number]; rotSpeed: [number, number, number] }[] = [];
-    const gridX = 20, gridZ = 12, spacing = 6;
+    // Dense carpet of rocks forming a horizon
+    const gridX = 50, gridZ = 30, spacing = 4;
     let idx = 0;
     for (let gx = 0; gx < gridX; gx++) {
       for (let gz = 0; gz < gridZ; gz++) {
-        const r = 1.5 + rng(idx, 0) * 3;
+        const r = 0.8 + rng(idx, 0) * 2.2;
         rocks.push({
           seed: idx * 13 + 7, radius: r,
           position: [
-            gx * spacing + (rng(idx, 1) - 0.5) * spacing * 0.7 - (gridX * spacing) / 2 + 40,
-            -8 + (rng(idx, 3) - 0.5) * 1.5 - r * 0.15,
-            gz * spacing + (rng(idx, 2) - 0.5) * spacing * 0.7 - (gridZ * spacing) / 2,
+            gx * spacing + (rng(idx, 1) - 0.5) * spacing * 0.6 - (gridX * spacing) / 2,
+            -8 + (rng(idx, 3) - 0.5) * 1.0 - r * 0.1,
+            gz * spacing + (rng(idx, 2) - 0.5) * spacing * 0.6 - (gridZ * spacing) / 2,
           ],
           rotSpeed: [(rng(idx, 7) - 0.5) * 0.08, (rng(idx, 8) - 0.5) * 0.1, (rng(idx, 9) - 0.5) * 0.06],
         });
         idx++;
       }
     }
+    // Floating rocks above the carpet
     const rng2 = (i: number, off: number) => {
       let x = Math.sin(i * 73.1 + off * 419.3) * 31758.5453;
       return x - Math.floor(x);
     };
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < 30; i++) {
       rocks.push({
-        seed: i * 31 + 100, radius: 0.8 + rng2(i, 0) * 2.5,
-        position: [rng2(i, 1) * 100 - 20, -3 + rng2(i, 2) * 8, rng2(i, 3) * 50 - 25],
+        seed: i * 31 + 100, radius: 0.6 + rng2(i, 0) * 2.0,
+        position: [rng2(i, 1) * 160 - 80, -4 + rng2(i, 2) * 10, rng2(i, 3) * 100 - 50],
         rotSpeed: [(rng2(i, 7) - 0.5) * 0.15, (rng2(i, 8) - 0.5) * 0.2, (rng2(i, 9) - 0.5) * 0.1],
       });
     }
