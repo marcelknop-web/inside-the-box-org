@@ -290,23 +290,38 @@ const useServiceContent = () => {
     ),
     'nis2-dora': () => (
       <TypedSection title={t('nis2.title')} mode="typewriter" intro={<p>{t('nis2.intro')}</p>}>
+        <Block className="bg-card/40 rounded-xl">
+          <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{t('nis2.introDetail')}</p>
+        </Block>
         <Block className="bg-primary/5 border border-primary/20 rounded-xl">
           <SubTitle>{t('nis2.approachTitle')}</SubTitle>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
+          <div className="grid grid-cols-1 gap-3 mt-2">
             <GridItem icon={Search} title={t('nis2.step1Title')} desc={t('nis2.step1Desc')} />
             <GridItem icon={AlertCircle} title={t('nis2.step2Title')} desc={t('nis2.step2Desc')} />
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
             <GridItem icon={ShieldCheck} title={t('nis2.step3Title')} desc={t('nis2.step3Desc')} />
           </div>
         </Block>
         <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
           <SubTitle variant="highlight">{t('nis2.frameworkTitle')}</SubTitle>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-2">
+          <div className="grid grid-cols-1 gap-3 mt-2">
             <GridItem icon={Building2} title={t('nis2.nis2Name')} desc={t('nis2.nis2Desc')} variant="highlight" />
             <GridItem icon={Landmark} title={t('nis2.doraName')} desc={t('nis2.doraDesc')} variant="highlight" />
             <GridItem icon={Plane} title={t('nis2.partisName')} desc={t('nis2.partisDesc')} variant="highlight" />
           </div>
+        </Block>
+        <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
+          <SubTitle variant="highlight">{t('nis2.refTitle')}</SubTitle>
+          <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mt-2">{t('nis2.refDesc')}</p>
+        </Block>
+        <Block className="bg-primary/5 border border-primary/20 rounded-xl">
+          <SubTitle>{t('nis2.ctaTitle')}</SubTitle>
+          <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mt-2">{t('nis2.ctaDesc')}</p>
+          <button
+            onClick={() => setActive('contact')}
+            className="mt-3 inline-flex items-center gap-2 text-primary font-mono font-bold text-sm hover:text-highlight transition-electric cursor-pointer bg-transparent border-none p-0"
+          >
+            {t('nis2.ctaButton')}
+          </button>
         </Block>
       </TypedSection>
     ),
