@@ -1,4 +1,5 @@
 import React, { useRef, useMemo, useEffect, useState } from 'react';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { createRockPhysics, stepPhysics, DynamicRock, type RockPhysics } from '@/components/elite/PhysicsRocks';
@@ -1088,11 +1089,11 @@ function BackgroundMeteor() {
 }
 
 /* ── Rock indices for rendering ── */
-function RockField({ physics }: { physics: RockPhysics }) {
+function RockField({ physics, mobile = false }: { physics: RockPhysics; mobile?: boolean }) {
   const indices = useMemo(() => Array.from({ length: physics.count }, (_, i) => i), [physics.count]);
   return (
     <>
-      {indices.map(i => <DynamicRock key={i} index={i} physics={physics} />)}
+      {indices.map(i => <DynamicRock key={i} index={i} physics={physics} mobile={mobile} />)}
     </>
   );
 }
@@ -1103,6 +1104,7 @@ export default function EliteShipScene({ embedded = false }: { embedded?: boolea
   const physics = useMemo(() => createRockPhysics(initialRocks), [initialRocks]);
   const { playing, start, stop, analysisRef } = useAudioAnalyser();
   const flightInput = useFlightInput();
+  const mobile = useIsMobile();
 
   return (
     <div className={`relative w-full ${embedded ? 'h-[80vh] rounded-xl overflow-hidden' : 'h-screen'} overflow-hidden`} style={{ background: BG }}>
@@ -1118,7 +1120,7 @@ export default function EliteShipScene({ embedded = false }: { embedded?: boolea
         <ShootingStars />
         <BackgroundMeteor />
         <Rain physics={physics} />
-        <RockField physics={physics} />
+        <RockField physics={physics} mobile={mobile} />
         <DebrisSystem physics={physics} />
       </Canvas>
       

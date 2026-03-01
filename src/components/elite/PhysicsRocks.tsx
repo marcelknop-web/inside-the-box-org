@@ -193,7 +193,7 @@ export function stepPhysics(phys: RockPhysics, dt: number) {
 }
 
 /* ── Visual Rock (reads position from physics state) ── */
-export function DynamicRock({ index, physics }: { index: number; physics: RockPhysics }) {
+export function DynamicRock({ index, physics, mobile = false }: { index: number; physics: RockPhysics; mobile?: boolean }) {
   const ref = useRef<THREE.Group>(null);
   const lineMatRef = useRef<THREE.LineBasicMaterial>(null);
   const { geo, edges } = useMemo(
@@ -223,7 +223,9 @@ export function DynamicRock({ index, physics }: { index: number; physics: RockPh
     const nearFactor = Math.max(0, 1 - dist / 120);
 
     if (lineMatRef.current) {
-      lineMatRef.current.opacity = 0.45 + nearFactor * 0.55;
+      lineMatRef.current.opacity = mobile
+        ? 0.25 + nearFactor * 0.45
+        : 0.45 + nearFactor * 0.55;
     }
   });
 
@@ -238,7 +240,7 @@ export function DynamicRock({ index, physics }: { index: number; physics: RockPh
         <bufferGeometry>
           <bufferAttribute attach="attributes-position" args={[edges, 3]} />
         </bufferGeometry>
-        <lineBasicMaterial ref={lineMatRef} color={LINE_COLOR} transparent opacity={1.0} depthTest={true} linewidth={4} polygonOffset polygonOffsetFactor={-1} polygonOffsetUnits={-1} />
+        <lineBasicMaterial ref={lineMatRef} color={mobile ? '#55ffcc' : LINE_COLOR} transparent opacity={mobile ? 0.5 : 1.0} depthTest={true} linewidth={mobile ? 1 : 4} polygonOffset polygonOffsetFactor={-1} polygonOffsetUnits={-1} />
       </lineSegments>
     </group>
   );
