@@ -81,11 +81,11 @@ const SPAWN_DIST_MIN = 120;
 const SPAWN_DIST_MAX = 230;
 const FLY_IN_SPEED_MIN = 35;
 const FLY_IN_SPEED_MAX = 65;
-const SWARM_SPEED = 16;
-const SWARM_STEER = 3.2;
-const SWARM_SWITCH_DIST = 10;
-const SWARM_MAX_HOPS_DESKTOP = 5;
-const SWARM_MAX_HOPS_MOBILE = 3;
+const SWARM_SPEED = 22;
+const SWARM_STEER = 6.5;
+const SWARM_SWITCH_DIST = 7;
+const SWARM_MAX_HOPS_DESKTOP = 7;
+const SWARM_MAX_HOPS_MOBILE = 4;
 const FLY_OUT_ACCEL = 12;
 const FLY_OUT_MAX_AGE = 4.5;
 
@@ -266,59 +266,93 @@ function Rain({ physics, mobile = false }: { physics: RockPhysics; mobile?: bool
         }
       }
 
-      // Swarm between clumps (bird-flock-like)
+      // Swarm between clumps – tight V-formation flock
       if (phases[i] === PHASE_SWARM) {
         let ri = targetRock[i];
         if (ri < 0 || ri >= n) ri = Math.floor(Math.random() * n);
         const rix = ri * 3;
 
-        // Formation offsets for flock shape (deterministic by index/time)
-        const phase = timeRef.current * 1.8 + i * 0.27;
-        const wingX = Math.sin(phase) * 5.5;
-        const wingY = Math.sin(phase * 1.7) * 1.8;
-        const wingZ = Math.cos(phase * 0.9) * 5.5;
+        // V-formation: rank = row in chevron, side = left/right wing
+        const rank = (i % 12);             // 0 = leader, 1-11 = followers
+        const side = (rank % 2 === 0) ? 1 : -1;
+        const row = Math.floor((rank + 1) / 2);  // 0,1,1,2,2,3,3...
 
-        const tx = pp[rix] + wingX;
-        const ty = pp[rix + 1] + 4 + wingY;
-        const tz = pp[rix + 2] + wingZ;
+        // Leader direction (average velocity of sub-flock)
+        const flockBase = i - rank;
+        const leader = flockBase >= 0 && flockBase < rainCount ? flockBase : i;
+        const ldrSpd = Math.sqrt(velX[leader] * velX[leader] + velZ[leader] * velZ[leader]) + 0.01;
+        const ldrDirX = velX[leader] / ldrSpd;
+        const ldrDirZ = velZ[leader] / ldrSpd;
+        // Perpendicular for wing spread
+        const perpX = -ldrDirZ;
+        const perpZ = ldrDirX;
+
+        // Tight chevron offset: each row steps back and sideways
+        const vSpread = 1.8;   // lateral spread per row
+        const vBack = 2.2;     // how far back each row trails
+        const wingX = perpX * side * row * vSpread;
+        const wingZ = perpZ * side * row * vBack;
+        const wingY = Math.sin(timeRef.current * 2.4 + i * 0.37) * 0.6; // gentle vertical bob
+
+        const tx = pp[rix] + wingX - ldrDirX * row * vBack;
+        const ty = pp[rix + 1] + 3 + wingY;
+        const tz = pp[rix + 2] + wingZ - ldrDirZ * row * vBack;
 
         const toX = tx - lp[i6];
         const toY = ty - lp[i6 + 1];
         const toZ = tz - lp[i6 + 2];
         const toDist = Math.sqrt(toX * toX + toY * toY + toZ * toZ) + 0.01;
 
-        // Desired flock velocity + alignment with neighbors
+        // Desired flock velocity
         const desiredVx = (toX / toDist) * SWARM_SPEED;
-        const desiredVy = (toY / toDist) * (SWARM_SPEED * 0.55);
+        const desiredVy = (toY / toDist) * (SWARM_SPEED * 0.45);
         const desiredVz = (toZ / toDist) * SWARM_SPEED;
 
         velX[i] += (desiredVx - velX[i]) * SWARM_STEER * dt;
         velY[i] += (desiredVy - velY[i]) * SWARM_STEER * dt;
         velZ[i] += (desiredVz - velZ[i]) * SWARM_STEER * dt;
 
-        // Lightweight neighbor alignment (pseudo-boids)
-        const n1 = (i + 11) % rainCount;
-        const n2 = (i + 37) % rainCount;
-        if (phases[n1] === PHASE_SWARM) {
-          velX[i] += (velX[n1] - velX[i]) * 0.02;
-          velY[i] += (velY[n1] - velY[i]) * 0.02;
-          velZ[i] += (velZ[n1] - velZ[i]) * 0.02;
-        }
-        if (phases[n2] === PHASE_SWARM) {
-          velX[i] += (velX[n2] - velX[i]) * 0.015;
-          velY[i] += (velY[n2] - velY[i]) * 0.015;
-          velZ[i] += (velZ[n2] - velZ[i]) * 0.015;
+        // Strong neighbor alignment (boid cohesion) – 4 neighbors
+        const neighbors = [
+          (i + 1) % rainCount,
+          (i - 1 + rainCount) % rainCount,
+          (i + 12) % rainCount,
+          (i + 23) % rainCount,
+        ];
+        for (let ni = 0; ni < 4; ni++) {
+          const nb = neighbors[ni];
+          if (phases[nb] === PHASE_SWARM) {
+            velX[i] += (velX[nb] - velX[i]) * 0.045;
+            velY[i] += (velY[nb] - velY[i]) * 0.035;
+            velZ[i] += (velZ[nb] - velZ[i]) * 0.045;
+          }
         }
 
-        // Soft damping keeps flock cohesive
-        velX[i] *= 0.994;
-        velY[i] *= 0.994;
-        velZ[i] *= 0.994;
+        // Separation: avoid getting too close to immediate neighbors
+        for (let ni = 0; ni < 2; ni++) {
+          const nb = neighbors[ni];
+          if (phases[nb] !== PHASE_SWARM) continue;
+          const nbI6 = nb * 6;
+          const sepX = lp[i6] - lp[nbI6];
+          const sepY = lp[i6 + 1] - lp[nbI6 + 1];
+          const sepZ = lp[i6 + 2] - lp[nbI6 + 2];
+          const sepDist = Math.sqrt(sepX * sepX + sepY * sepY + sepZ * sepZ) + 0.01;
+          if (sepDist < 3.0) {
+            const push = (3.0 - sepDist) * 1.5;
+            velX[i] += (sepX / sepDist) * push;
+            velZ[i] += (sepZ / sepDist) * push;
+          }
+        }
 
-        // Switch to a different clump when close enough
+        // Gentle damping keeps flock tight
+        velX[i] *= 0.991;
+        velY[i] *= 0.991;
+        velZ[i] *= 0.991;
+
+        // Switch to a different clump when close – snap decision
         if (toDist < SWARM_SWITCH_DIST) {
           let next = ri;
-          for (let a = 0; a < 8; a++) {
+          for (let a = 0; a < 10; a++) {
             const cand = Math.floor(Math.random() * n);
             if (cand === ri) continue;
             const cix = cand * 3;
@@ -326,7 +360,7 @@ function Rain({ physics, mobile = false }: { physics: RockPhysics; mobile?: bool
             const ddy = pp[cix + 1] - pp[rix + 1];
             const ddz = pp[cix + 2] - pp[rix + 2];
             const d = Math.sqrt(ddx * ddx + ddy * ddy + ddz * ddz);
-            if (d > 18 && d < 130) {
+            if (d > 15 && d < 100) {
               next = cand;
               break;
             }
@@ -335,11 +369,11 @@ function Rain({ physics, mobile = false }: { physics: RockPhysics; mobile?: bool
           hopCount[i] += 1;
         }
 
-        if (hopCount[i] >= maxHops || ages[i] > 11) {
+        if (hopCount[i] >= maxHops || ages[i] > 9) {
           phases[i] = PHASE_FLY_OUT;
           ages[i] = 0;
           const speed = Math.sqrt(velX[i] * velX[i] + velY[i] * velY[i] + velZ[i] * velZ[i]) + 0.01;
-          const boost = Math.max(22, speed * 1.45);
+          const boost = Math.max(28, speed * 1.6);
           velX[i] = (velX[i] / speed) * boost;
           velY[i] = (velY[i] / speed) * boost;
           velZ[i] = (velZ[i] / speed) * boost;
