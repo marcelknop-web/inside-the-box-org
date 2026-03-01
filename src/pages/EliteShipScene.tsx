@@ -291,8 +291,8 @@ function RealisticStarfield() {
       pos[i3 + 2] = r * Math.cos(phi);
 
       // Realistic magnitude distribution (more dim stars)
-      const mag = Math.pow(Math.random(), 5);
-      const brightness = 0.08 + mag * 0.92;
+      const mag = Math.pow(Math.random(), 2.5);
+      const brightness = 0.25 + mag * 0.75;
 
       // Spectral classes: O/B blue, A white, F/G yellow, K orange, M red
       const temp = Math.random();
@@ -314,10 +314,10 @@ function RealisticStarfield() {
       }
 
       // Size: most stars tiny, few bright ones larger
-      sz[i] = mag < 0.1 ? 0.04 + Math.random() * 0.04
-            : mag < 0.5 ? 0.08 + mag * 0.2
-            : mag < 0.85 ? 0.2 + mag * 0.6
-            : 0.8 + mag * 1.5; // rare bright stars
+      sz[i] = mag < 0.1 ? 0.15 + Math.random() * 0.1
+            : mag < 0.5 ? 0.25 + mag * 0.5
+            : mag < 0.85 ? 0.6 + mag * 1.2
+            : 1.8 + mag * 3.0; // rare bright stars
     }
     return { positions: pos, baseColors: col, sizes: sz };
   }, []);
@@ -357,7 +357,7 @@ function RealisticStarfield() {
         <bufferAttribute attach="attributes-color" args={[renderColors, 3]} />
         <bufferAttribute attach="attributes-size" args={[sizes, 1]} />
       </bufferGeometry>
-      <pointsMaterial vertexColors transparent opacity={1} size={0.3} sizeAttenuation depthWrite={false} blending={THREE.AdditiveBlending} />
+      <pointsMaterial vertexColors transparent opacity={1} size={0.8} sizeAttenuation depthWrite={false} blending={THREE.AdditiveBlending} />
     </points>
   );
 }
