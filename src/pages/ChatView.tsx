@@ -953,12 +953,12 @@ const useServiceContent = () => {
             Appenrother Weg 14<br />
             34308 Bad Emstal, Germany
           </p>
-           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mt-3">
+          <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mt-3">
             <span className="text-primary font-semibold">{t('imprint.contactLabel')}</span><br />
             <a href="mailto:marcel@inside-the-box.org" className="hover:text-highlight transition-electric">marcel@inside-the-box.org</a><br />
             <a href="tel:+4915205691648" className="hover:text-highlight transition-electric">+49 1520 569 1648</a>
           </p>
-           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mt-3">
+          <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mt-3">
             <span className="text-primary font-semibold">{t('imprint.vatId')}</span> DE328906053
           </p>
           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mt-3">
@@ -967,7 +967,7 @@ const useServiceContent = () => {
           </p>
         </Block>
         <CardBlock icon={Scale} title={t('imprint.disclaimer')} desc={t('imprint.disclaimerText')} />
-        <CardBlock icon={FileText} title={t('imprint.copyright')} desc={t('imprint.copyrightText')} variant="highlight" />
+        <CardBlock icon={FileText} title={t('imprint.copyright')} desc={t('imprint.copyrightText')} />
         <CardBlock icon={Shield} title={t('imprint.dataProtection')} desc={t('imprint.dataProtectionText')} />
       </TypedSection>
     ),
