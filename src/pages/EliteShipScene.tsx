@@ -73,6 +73,20 @@ const INFO_COUNT_MOBILE = 400;
 function InfoExchange({ physics, mobile = false }: { physics: RockPhysics; mobile?: boolean }) {
   const linesRef = useRef<THREE.LineSegments>(null);
   const { camera } = useThree();
+  // Sunlight direction (top-right, slightly behind) – normalised
+  const sunDir = useMemo(() => new THREE.Vector3(0.6, 0.8, -0.3).normalize(), []);
+  const _tmpVec = useMemo(() => new THREE.Vector3(), []);
+  // Per-particle glint timing: random phase + period
+  const glintData = useMemo(() => {
+    const c = mobile ? INFO_COUNT_MOBILE : INFO_COUNT_DESKTOP;
+    const phase = new Float32Array(c);
+    const period = new Float32Array(c);
+    for (let i = 0; i < c; i++) {
+      phase[i] = Math.random() * 100;
+      period[i] = 3 + Math.random() * 8; // glint every 3-11s
+    }
+    return { phase, period };
+  }, [mobile]);
   const count = mobile ? INFO_COUNT_MOBILE : INFO_COUNT_DESKTOP;
 
   // Pre-compute cumulative weight table for size-biased rock selection
@@ -123,7 +137,7 @@ function InfoExchange({ physics, mobile = false }: { physics: RockPhysics; mobil
   }, [count]);
 
 
-  useFrame((_, dt) => {
+  useFrame(({ clock }, dt) => {
     if (!linesRef.current) return;
 
     const {
@@ -141,6 +155,7 @@ function InfoExchange({ physics, mobile = false }: { physics: RockPhysics; mobil
     if (n === 0) return;
 
     const clampDt = Math.min(dt, 0.033);
+    const elapsed = clock.elapsedTime;
 
     for (let i = 0; i < count; i++) {
       const i6 = i * 6;
@@ -243,29 +258,61 @@ function InfoExchange({ physics, mobile = false }: { physics: RockPhysics; mobil
       // Fade in/out at endpoints
       const edgeFade = Math.min(t01 * 5, (1 - t01) * 5, 1);
 
-      // Distance-based brightness (rain-style near/far blur)
+      // Distance-based brightness
       const cdx = px - cam.x;
       const cdy = py - cam.y;
       const cdz = pz - cam.z;
       const dist = Math.sqrt(cdx * cdx + cdy * cdy + cdz * cdz);
 
+      // ── Sunlight reflection: specular highlight on wire/filament ──
+      const nx = dvx / spd, ny = dvy / spd, nz = dvz / spd;
+      const vdx = cam.x - px, vdy = cam.y - py, vdz = cam.z - pz;
+      const vdLen = Math.sqrt(vdx * vdx + vdy * vdy + vdz * vdz) + 0.001;
+      const hx = sunDir.x + vdx / vdLen;
+      const hy = sunDir.y + vdy / vdLen;
+      const hz = sunDir.z + vdz / vdLen;
+      const hLen = Math.sqrt(hx * hx + hy * hy + hz * hz) + 0.001;
+      const dotTH = Math.abs(nx * hx / hLen + ny * hy / hLen + nz * hz / hLen);
+      const specular = Math.pow(1 - dotTH, 4);
+
+      // ── Occasional glint (brief intense flash) ──
+      const glintPhase = (elapsed + glintData.phase[i]) % glintData.period[i];
+      const glintStrength = glintPhase < 0.12
+        ? Math.pow(Math.sin(glintPhase / 0.12 * Math.PI), 2) * 2.5
+        : 0;
+
+      const sunBoost = 1 + specular * 1.8 + glintStrength;
+      const reflectMix = Math.min(specular * 2 + glintStrength * 0.5, 1);
+
       if (dist < 12) {
-        const t = dist / 12;
-        lc[i8] = 0.2; lc[i8 + 1] = 0.95; lc[i8 + 2] = 0.72;
-        lc[i8 + 4] = 0.12; lc[i8 + 5] = 0.7; lc[i8 + 6] = 0.5;
-        lc[i8 + 3] = (0.35 + t * 0.25) * edgeFade;
-        lc[i8 + 7] = 0.06 * edgeFade;
+        const td = dist / 12;
+        lc[i8]     = 0.2 + reflectMix * 0.8;
+        lc[i8 + 1] = 0.95 + reflectMix * 0.05;
+        lc[i8 + 2] = 0.72 + reflectMix * 0.28;
+        lc[i8 + 4] = 0.12 + reflectMix * 0.78;
+        lc[i8 + 5] = 0.7 + reflectMix * 0.3;
+        lc[i8 + 6] = 0.5 + reflectMix * 0.5;
+        lc[i8 + 3] = Math.min((0.35 + td * 0.25) * edgeFade * sunBoost, 1);
+        lc[i8 + 7] = 0.06 * edgeFade * sunBoost;
       } else if (dist < 70) {
-        const a = (0.3 + Math.random() * 0.15) * edgeFade;
-        lc[i8] = 0.05; lc[i8 + 1] = 0.95; lc[i8 + 2] = 0.7;
-        lc[i8 + 4] = 0; lc[i8 + 5] = 0.72; lc[i8 + 6] = 0.52;
+        const a = Math.min((0.3 + Math.random() * 0.15) * edgeFade * sunBoost, 1);
+        lc[i8]     = 0.05 + reflectMix * 0.9;
+        lc[i8 + 1] = 0.95 + reflectMix * 0.05;
+        lc[i8 + 2] = 0.7 + reflectMix * 0.3;
+        lc[i8 + 4] = reflectMix * 0.85;
+        lc[i8 + 5] = 0.72 + reflectMix * 0.28;
+        lc[i8 + 6] = 0.52 + reflectMix * 0.48;
         lc[i8 + 3] = a;
         lc[i8 + 7] = a * 0.2;
       } else {
-        const t = Math.min((dist - 70) / 80, 1);
-        lc[i8] = 0; lc[i8 + 1] = 0.78; lc[i8 + 2] = 0.56;
-        lc[i8 + 4] = 0; lc[i8 + 5] = 0.56; lc[i8 + 6] = 0.42;
-        lc[i8 + 3] = 0.2 * (1 - t) * edgeFade;
+        const td = Math.min((dist - 70) / 80, 1);
+        lc[i8]     = reflectMix * 0.7;
+        lc[i8 + 1] = 0.78 + reflectMix * 0.22;
+        lc[i8 + 2] = 0.56 + reflectMix * 0.44;
+        lc[i8 + 4] = reflectMix * 0.5;
+        lc[i8 + 5] = 0.56 + reflectMix * 0.44;
+        lc[i8 + 6] = 0.42 + reflectMix * 0.58;
+        lc[i8 + 3] = Math.min(0.2 * (1 - td) * edgeFade * sunBoost, 1);
         lc[i8 + 7] = 0;
       }
 
