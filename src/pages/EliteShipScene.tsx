@@ -398,14 +398,16 @@ function RealisticStarfield() {
   }, []);
   const twinkleSpeeds = useMemo(() => {
     const s = new Float32Array(STAR_COUNT);
-    for (let i = 0; i < STAR_COUNT; i++) s[i] = 0.08 + Math.random() * 0.6;
+    for (let i = 0; i < STAR_COUNT; i++) s[i] = 0.015 + Math.random() * 0.12;
     return s;
   }, []);
-  // Atmospheric scintillation intensity per star (brighter stars twinkle more noticeably)
+  // Atmospheric scintillation – very subtle, only dim stars shimmer noticeably
   const twinkleAmplitudes = useMemo(() => {
     const a = new Float32Array(STAR_COUNT);
     for (let i = 0; i < STAR_COUNT; i++) {
-      a[i] = 0.05 + brightnesses[i] * 0.25;
+      // Bright stars barely twinkle, dim stars shimmer gently
+      const dimness = 1.0 - brightnesses[i];
+      a[i] = 0.02 + dimness * dimness * 0.12;
     }
     return a;
   }, [brightnesses]);
@@ -418,16 +420,16 @@ function RealisticStarfield() {
     const brAttr = pointsRef.current.geometry.attributes.brightness as THREE.BufferAttribute;
     const brArr = brAttr.array as Float32Array;
 
-    // Twinkle with atmospheric scintillation pattern
-    for (let i = 0; i < STAR_COUNT; i += 2) {
+    // Gentle atmospheric scintillation – slow, smooth, subtle
+    for (let i = 0; i < STAR_COUNT; i++) {
       const amp = twinkleAmplitudes[i];
       const phase = twinklePhases[i];
       const speed = twinkleSpeeds[i];
-      // Multi-frequency scintillation for realism
+      // Smooth multi-frequency with very slow base
       const scint = 1.0 - amp * (
-        0.5 * (1 - Math.cos(t * speed + phase)) +
-        0.3 * (1 - Math.cos(t * speed * 2.7 + phase * 1.3)) +
-        0.2 * (1 - Math.cos(t * speed * 0.3 + phase * 0.7))
+        0.6 * Math.sin(t * speed + phase) * Math.sin(t * speed + phase) +
+        0.3 * Math.sin(t * speed * 1.7 + phase * 2.1) * Math.sin(t * speed * 1.7 + phase * 2.1) +
+        0.1 * Math.sin(t * speed * 0.4 + phase * 0.5) * Math.sin(t * speed * 0.4 + phase * 0.5)
       );
       const i3 = i * 3;
       col[i3] = baseColors[i3] * scint;
