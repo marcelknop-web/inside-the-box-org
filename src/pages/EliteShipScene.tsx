@@ -658,13 +658,13 @@ function RockField({ physics }: { physics: RockPhysics }) {
 }
 
 /* ── Main ── */
-export default function EliteShipScene() {
+export default function EliteShipScene({ embedded = false }: { embedded?: boolean }) {
   const initialRocks = useInitialRocks();
   const physics = useMemo(() => createRockPhysics(initialRocks), [initialRocks]);
   const { playing, start, stop, analysisRef } = useAudioAnalyser();
 
   return (
-    <div className="relative w-full h-screen overflow-hidden" style={{ background: BG }}>
+    <div className={`relative w-full ${embedded ? 'h-[80vh] rounded-xl overflow-hidden' : 'h-screen'} overflow-hidden`} style={{ background: BG }}>
       <Canvas
         camera={{ fov: 70, near: 0.1, far: 500 }}
         gl={{ antialias: true, alpha: false }}
