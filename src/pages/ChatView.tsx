@@ -652,20 +652,22 @@ const useServiceContent = () => {
     ),
     'ai-workflows': () => (
       <TypedSection title={t('aiWorkflows.title')} mode="typewriter" intro={<p>{t('aiWorkflows.intro')}</p>}>
+        <Block className="bg-card/40 rounded-xl">
+          <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{t('aiWorkflows.introDetail')}</p>
+        </Block>
+
         <Block className="bg-primary/5 border border-primary/20 rounded-xl">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <GridItem icon={Zap} title={t('aiWorkflows.irTitle')} desc={`${t('aiWorkflows.irDesc')}\n\n• ${t('aiWorkflows.irBullet1')}\n• ${t('aiWorkflows.irBullet2')}\n• ${t('aiWorkflows.irBullet3')}\n\n${t('aiWorkflows.irResult')}`} />
-            <GridItem icon={FileText} title={t('aiWorkflows.policyTitle')} desc={`${t('aiWorkflows.policyDesc')}\n\n• ${t('aiWorkflows.policyBullet1')}\n• ${t('aiWorkflows.policyBullet2')}\n• ${t('aiWorkflows.policyBullet3')}\n\n${t('aiWorkflows.policyResult')}`} />
-            <GridItem icon={Search} title={t('aiWorkflows.auditTitle')} desc={`${t('aiWorkflows.auditDesc')}\n\n• ${t('aiWorkflows.auditBullet1')}\n• ${t('aiWorkflows.auditBullet2')}\n• ${t('aiWorkflows.auditBullet3')}\n\n${t('aiWorkflows.auditResult')}`} />
+          <SubTitle>{t('aiWorkflows.areasTitle')}</SubTitle>
+          <div className="grid grid-cols-1 gap-3 mt-2">
+            <GridItem icon={Zap} title={t('aiWorkflows.irTitle')} desc={t('aiWorkflows.irDesc')} />
+            <GridItem icon={FileText} title={t('aiWorkflows.policyTitle')} desc={t('aiWorkflows.policyDesc')} />
+            <GridItem icon={Search} title={t('aiWorkflows.auditTitle')} desc={t('aiWorkflows.auditDesc')} />
           </div>
         </Block>
+
         <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
-          <SubTitle variant="highlight">
-            {t('aiWorkflows.tryAgentsTitle')}
-          </SubTitle>
-          <p className="text-foreground text-sm md:text-[15px] mb-3">
-            {t('aiWorkflows.tryAgentsDesc')}
-          </p>
+          <SubTitle variant="highlight">{t('aiWorkflows.tryAgentsTitle')}</SubTitle>
+          <p className="text-foreground text-sm md:text-[15px] mb-3">{t('aiWorkflows.tryAgentsDesc')}</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <button onClick={() => setActive('crisis-sim')} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
               <AlertTriangle size={20} className="text-highlight mt-0.5 flex-shrink-0" />
@@ -769,9 +771,13 @@ const useServiceContent = () => {
             </DialogContent>
           </Dialog>
         </Block>
-        <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
-          <SubTitle variant="highlight">{t('aiWorkflows.ctaTitle')}</SubTitle>
-          <p className="text-foreground whitespace-pre-line">{t('aiWorkflows.ctaDesc')}</p>
+
+        <Block className="bg-card/40 rounded-xl">
+          <SubTitle>{t('aiWorkflows.ctaTitle')}</SubTitle>
+          <p className="text-foreground/80 text-sm md:text-[15px] font-sans leading-relaxed mt-2">{t('aiWorkflows.ctaDesc')}</p>
+          <button onClick={() => setActive('contact')} className="mt-3 text-primary hover:text-highlight font-mono text-sm transition-colors">
+            {t('aiWorkflows.ctaButton')}
+          </button>
         </Block>
       </TypedSection>
     ),
