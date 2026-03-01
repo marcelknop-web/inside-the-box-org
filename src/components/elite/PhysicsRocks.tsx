@@ -218,7 +218,7 @@ export function DynamicRock({ index, physics }: { index: number; physics: RockPh
   return (
     <group ref={ref}>
       <mesh geometry={geo} renderOrder={0}>
-        <meshBasicMaterial color="#000000" side={THREE.FrontSide} depthWrite polygonOffset polygonOffsetFactor={1} polygonOffsetUnits={1} />
+        <meshBasicMaterial color="#062a1e" side={THREE.FrontSide} depthWrite polygonOffset polygonOffsetFactor={1} polygonOffsetUnits={1} />
       </mesh>
       <lineSegments renderOrder={1}>
         <bufferGeometry>
