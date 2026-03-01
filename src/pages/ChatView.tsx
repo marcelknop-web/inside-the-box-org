@@ -381,15 +381,37 @@ const useServiceContent = () => {
     ),
     'assessments-concepts': () => (
       <TypedSection title={t('assessments.title')} mode="typewriter" intro={<p>{t('assessments.intro')}</p>}>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          <GridItem icon={Search} title={t('assessments.step1Title')} subtitle={t('assessments.step1Subtitle')} desc={t('assessments.step1Desc')} />
-          <GridItem icon={ShieldCheck} title={t('assessments.step2Title')} subtitle={t('assessments.step2Subtitle')} desc={t('assessments.step2Desc')} />
-          <GridItem icon={Users} title={t('assessments.step3Title')} subtitle={t('assessments.step3Subtitle')} desc={t('assessments.step3Desc')} />
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <GridItem icon={Calendar} title={t('assessments.step4Title')} subtitle={t('assessments.step4Subtitle')} desc={t('assessments.step4Desc')} />
-          <GridItem icon={BarChart} title={t('assessments.step5Title')} subtitle={t('assessments.step5Subtitle')} desc={t('assessments.step5Desc')} />
-        </div>
+        <Block className="bg-card/40 rounded-xl">
+          <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{t('assessments.introDetail')}</p>
+        </Block>
+        <Block className="bg-primary/5 border border-primary/20 rounded-xl">
+          <SubTitle>{t('assessments.approachTitle')}</SubTitle>
+          <div className="grid grid-cols-1 gap-3 mt-2">
+            <GridItem icon={Search} title={t('assessments.step1Title')} desc={t('assessments.step1Desc')} />
+            <GridItem icon={ShieldCheck} title={t('assessments.step2Title')} desc={t('assessments.step2Desc')} />
+            <GridItem icon={Users} title={t('assessments.step3Title')} desc={t('assessments.step3Desc')} />
+            <GridItem icon={Calendar} title={t('assessments.step4Title')} desc={t('assessments.step4Desc')} />
+            <GridItem icon={BarChart} title={t('assessments.step5Title')} desc={t('assessments.step5Desc')} />
+          </div>
+        </Block>
+        <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
+          <SubTitle variant="highlight">{t('assessments.outcomesTitle')}</SubTitle>
+          <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mt-2">{t('assessments.outcomesDesc')}</p>
+        </Block>
+        <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
+          <SubTitle variant="highlight">{t('assessments.refTitle')}</SubTitle>
+          <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mt-2">{t('assessments.refDesc')}</p>
+        </Block>
+        <Block className="bg-primary/5 border border-primary/20 rounded-xl">
+          <SubTitle>{t('assessments.ctaTitle')}</SubTitle>
+          <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mt-2">{t('assessments.ctaDesc')}</p>
+          <button
+            onClick={() => setActive('contact')}
+            className="mt-3 inline-flex items-center gap-2 text-primary font-mono font-bold text-sm hover:text-highlight transition-electric cursor-pointer bg-transparent border-none p-0"
+          >
+            {t('assessments.ctaButton')}
+          </button>
+        </Block>
       </TypedSection>
     ),
     'incident-management': () => (
