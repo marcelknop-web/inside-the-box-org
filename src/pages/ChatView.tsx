@@ -582,17 +582,38 @@ const useServiceContent = () => {
     ),
     'virtual-ciso': () => (
       <TypedSection title={t('vciso.title')} mode="typewriter" intro={<p>{t('vciso.intro')}</p>}>
-        <Block className="bg-primary/5 border border-primary/20 rounded-xl">
-          <p className="text-foreground/90 text-sm md:text-[15px] font-sans leading-relaxed font-medium">{t('vciso.body1')}</p>
+        <Block className="bg-card/40 rounded-xl">
+          <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{t('vciso.introDetail')}</p>
         </Block>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          <GridItem icon={Crown} title={t('vciso.label2')} desc={t('vciso.body2')} />
-          <GridItem icon={Settings} title={t('vciso.label3')} desc={t('vciso.body3')} />
-          <GridItem icon={CheckSquare} title={t('vciso.label4')} desc={t('vciso.body4')} />
-        </div>
+        <Block className="bg-primary/5 border border-primary/20 rounded-xl">
+          <SubTitle>{t('vciso.sectionTitle')}</SubTitle>
+          <div className="grid grid-cols-1 gap-3 mt-2">
+            <GridItem icon={Crown} title={t('vciso.label2')} desc={t('vciso.body2')} />
+            <GridItem icon={Settings} title={t('vciso.label3')} desc={t('vciso.body3')} />
+            <GridItem icon={CheckSquare} title={t('vciso.label4')} desc={t('vciso.body4')} />
+          </div>
+        </Block>
         <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
           <SubTitle variant="highlight">{t('vciso.modelTitle')}</SubTitle>
-          <p className="text-foreground/80 text-sm md:text-[15px] font-sans leading-relaxed whitespace-pre-line mt-2">{t('vciso.modelDesc')}</p>
+          <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mt-2">{t('vciso.modelDesc')}</p>
+        </Block>
+        <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
+          <SubTitle variant="highlight">{t('vciso.fitTitle')}</SubTitle>
+          <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mt-2">{t('vciso.fitDesc')}</p>
+        </Block>
+        <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
+          <SubTitle variant="highlight">{t('vciso.refTitle')}</SubTitle>
+          <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mt-2">{t('vciso.refDesc')}</p>
+        </Block>
+        <Block className="bg-primary/5 border border-primary/20 rounded-xl">
+          <SubTitle>{t('vciso.ctaTitle')}</SubTitle>
+          <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mt-2">{t('vciso.ctaDesc')}</p>
+          <button
+            onClick={() => setActive('contact')}
+            className="mt-3 inline-flex items-center gap-2 text-primary font-mono font-bold text-sm hover:text-highlight transition-electric cursor-pointer bg-transparent border-none p-0"
+          >
+            {t('vciso.ctaButton')}
+          </button>
         </Block>
       </TypedSection>
     ),
