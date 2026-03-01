@@ -344,9 +344,12 @@ const useServiceContent = () => {
     ),
     'tisax-pci-dss': () => (
       <TypedSection title={t('tisax.title')} mode="typewriter" intro={<p>{t('tisax.intro')}</p>}>
+        <Block className="bg-card/40 rounded-xl">
+          <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{t('tisax.introDetail')}</p>
+        </Block>
         <Block className="bg-primary/5 border border-primary/20 rounded-xl">
           <SubTitle>{t('tisax.approachTitle')}</SubTitle>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
+          <div className="grid grid-cols-1 gap-3 mt-2">
             <GridItem icon={Search} title={t('tisax.step1Title')} desc={t('tisax.step1Desc')} />
             <GridItem icon={Settings} title={t('tisax.step2Title')} desc={t('tisax.step2Desc')} />
             <GridItem icon={CheckCircle} title={t('tisax.step3Title')} desc={t('tisax.step3Desc')} />
@@ -359,6 +362,20 @@ const useServiceContent = () => {
             <GridItem icon={Car} title={t('tisax.tisaxName')} desc={t('tisax.tisaxDesc')} variant="highlight" />
             <GridItem icon={CreditCard} title={t('tisax.pciName')} desc={t('tisax.pciDesc')} variant="highlight" />
           </div>
+        </Block>
+        <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
+          <SubTitle variant="highlight">{t('tisax.refTitle')}</SubTitle>
+          <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mt-2">{t('tisax.refDesc')}</p>
+        </Block>
+        <Block className="bg-primary/5 border border-primary/20 rounded-xl">
+          <SubTitle>{t('tisax.ctaTitle')}</SubTitle>
+          <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mt-2">{t('tisax.ctaDesc')}</p>
+          <button
+            onClick={() => setActive('contact')}
+            className="mt-3 inline-flex items-center gap-2 text-primary font-mono font-bold text-sm hover:text-highlight transition-electric cursor-pointer bg-transparent border-none p-0"
+          >
+            {t('tisax.ctaButton')}
+          </button>
         </Block>
       </TypedSection>
     ),
