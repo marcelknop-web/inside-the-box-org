@@ -1089,34 +1089,36 @@ function BackgroundMeteor() {
     const m = meteor.current;
     const cam = camera.position;
 
-    // Spawn far in the background sky
+    // Spawn in front of the camera, high in the sky
     if (!m.active && t > nextSpawn.current) {
-      const skyAngle = Math.random() * Math.PI * 2;
-      const skyElev = 0.25 + Math.random() * 0.35;
-      const dist = 400 + Math.random() * 200; // very far
+      // Get camera forward direction (where user is looking)
+      const fwd = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
+      // Spawn off to one side of the view, high up
+      const side = Math.random() > 0.5 ? 1 : -1;
+      const right = new THREE.Vector3().crossVectors(fwd, new THREE.Vector3(0, 1, 0)).normalize();
+      const dist = 150 + Math.random() * 100; // far but visible
 
       m.pos.set(
-        cam.x + Math.cos(skyAngle) * dist,
-        cam.y + skyElev * dist * 0.5 + 80,
-        cam.z + Math.sin(skyAngle) * dist
+        cam.x + fwd.x * dist + right.x * side * (40 + Math.random() * 60),
+        cam.y + 60 + Math.random() * 80, // high above
+        cam.z + fwd.z * dist + right.z * side * (40 + Math.random() * 60)
       );
 
-      // Very slow, majestic speed
-      const speed = 1.2 + Math.random() * 1.8;
-      const crossAngle = skyAngle + Math.PI * 0.35 + (Math.random() - 0.5) * 0.5;
+      // Slow, majestic – cross the sky horizontally
+      const speed = 2.5 + Math.random() * 2;
       m.vel.set(
-        Math.cos(crossAngle) * speed,
-        -(0.01 + Math.random() * 0.03) * speed,
-        Math.sin(crossAngle) * speed
+        -right.x * side * speed * 0.8 + fwd.x * speed * 0.3,
+        -(0.05 + Math.random() * 0.1) * speed,
+        -right.z * side * speed * 0.8 + fwd.z * speed * 0.3
       );
 
       m.life = 0;
-      m.maxLife = 30 + Math.random() * 25; // long crossing
-      m.tailLen = 140 + Math.random() * 80;
-      m.brightness = 0.7 + Math.random() * 0.3;
+      m.maxLife = 25 + Math.random() * 20;
+      m.tailLen = 120 + Math.random() * 60;
+      m.brightness = 1.0;
       m.active = true;
       posHistory.current = [];
-      nextSpawn.current = t + 40 + Math.random() * 50;
+      nextSpawn.current = t + 35 + Math.random() * 45;
     }
 
     if (!linesRef.current || !headRef.current) return;
@@ -1152,10 +1154,10 @@ function BackgroundMeteor() {
     const fadeOut = Math.min((m.maxLife - m.life) * 0.2, 1);
     const fade = fadeIn * fadeOut * m.brightness;
 
-    // Cyan head glow (#00bcd4)
+    // Bright cyan head glow
     hArr[0] = m.pos.x; hArr[1] = m.pos.y; hArr[2] = m.pos.z;
-    hsArr[0] = 5.0 * fade;
-    hcArr[0] = 0.3; hcArr[1] = 0.9; hcArr[2] = 1.0;
+    hsArr[0] = 12.0 * fade;
+    hcArr[0] = 0.4; hcArr[1] = 0.95; hcArr[2] = 1.0;
 
     // Tail from position history – cyan fading to deep blue
     const history = posHistory.current;
@@ -1182,14 +1184,13 @@ function BackgroundMeteor() {
         lArr[idx+3] = p1.x; lArr[idx+4] = p1.y; lArr[idx+5] = p1.z;
       }
 
-      // Alpha: quadratic falloff for fine, feathered tail
-      const alpha0 = Math.pow(1 - t0, 2.5) * fade * 0.65;
-      const alpha1 = Math.pow(1 - t1, 2.5) * fade * 0.65;
-      // Color: bright cyan near head → deep blue at tail end
+      // Alpha: brighter near head, fine feathered falloff
+      const alpha0 = Math.pow(1 - t0, 2.0) * fade * 1.0;
+      const alpha1 = Math.pow(1 - t1, 2.0) * fade * 1.0;
+      // Bright white-cyan near head → deep cyan at tail
       const w0 = 1 - t0; const w1 = 1 - t1;
-      // Head: (0.0, 0.74, 0.83) cyan  →  Tail: (0.0, 0.25, 0.55) deep blue
-      cArr[cidx]   = 0.0;            cArr[cidx+1] = 0.25 + w0 * 0.49; cArr[cidx+2] = 0.55 + w0 * 0.28; cArr[cidx+3] = alpha0;
-      cArr[cidx+4] = 0.0;            cArr[cidx+5] = 0.25 + w1 * 0.49; cArr[cidx+6] = 0.55 + w1 * 0.28; cArr[cidx+7] = alpha1;
+      cArr[cidx]   = w0 * 0.5;       cArr[cidx+1] = 0.35 + w0 * 0.6; cArr[cidx+2] = 0.6 + w0 * 0.4;  cArr[cidx+3] = alpha0;
+      cArr[cidx+4] = w1 * 0.5;       cArr[cidx+5] = 0.35 + w1 * 0.6; cArr[cidx+6] = 0.6 + w1 * 0.4;  cArr[cidx+7] = alpha1;
     }
 
     linesRef.current.geometry.attributes.position.needsUpdate = true;
