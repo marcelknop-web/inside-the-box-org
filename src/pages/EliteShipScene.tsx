@@ -66,23 +66,26 @@ function PhysicsDriver({ physics }: { physics: RockPhysics }) {
   return null;
 }
 
-/* ── Gravity rain: flies in from infinity, attracted to rocks, flies out to infinity ── */
+/* ── Swarm rain: flies in from infinity, swarms between rock clumps, flies out to infinity ── */
 const RAIN_COUNT_DESKTOP = 1200;
 const RAIN_COUNT_MOBILE = 600;
-const RAIN_ATTRACT_RADIUS = 28;
-const RAIN_ATTRACT_STRENGTH = 18;
 const NEAR_BLUR_DIST = 8;
 const FAR_BLUR_DIST = 60;
 
 const PHASE_DEAD = 0;
 const PHASE_FLY_IN = 1;
-const PHASE_NEAR = 2;
+const PHASE_SWARM = 2;
 const PHASE_FLY_OUT = 3;
 
 const SPAWN_DIST_MIN = 120;
-const SPAWN_DIST_MAX = 220;
+const SPAWN_DIST_MAX = 230;
 const FLY_IN_SPEED_MIN = 35;
 const FLY_IN_SPEED_MAX = 65;
+const SWARM_SPEED = 16;
+const SWARM_STEER = 3.2;
+const SWARM_SWITCH_DIST = 10;
+const SWARM_MAX_HOPS_DESKTOP = 5;
+const SWARM_MAX_HOPS_MOBILE = 3;
 const FLY_OUT_ACCEL = 12;
 const FLY_OUT_MAX_AGE = 4.5;
 
@@ -105,16 +108,48 @@ function Rain({ physics, mobile = false }: { physics: RockPhysics; mobile?: bool
     const ph = new Uint8Array(rainCount);
     const ag = new Float32Array(rainCount);
     const tr = new Int32Array(rainCount).fill(-1);
+    const hops = new Uint8Array(rainCount);
+
     for (let i = 0; i < rainCount; i++) {
-      lp[i * 6 + 1] = -9999; lp[i * 6 + 4] = -9999; dp[i * 3 + 1] = -9999;
+      lp[i * 6 + 1] = -9999;
+      lp[i * 6 + 4] = -9999;
+      dp[i * 3 + 1] = -9999;
     }
-    return { linePos: lp, dotPos: dp, dotSizes: ds, lineCol: lc, dotCol: dc, velX: vx, velY: vy, velZ: vz, phases: ph, ages: ag, targetRock: tr };
+
+    return {
+      linePos: lp,
+      dotPos: dp,
+      dotSizes: ds,
+      lineCol: lc,
+      dotCol: dc,
+      velX: vx,
+      velY: vy,
+      velZ: vz,
+      phases: ph,
+      ages: ag,
+      targetRock: tr,
+      hopCount: hops,
+    };
   }, [rainCount]);
 
   useFrame((_, dt) => {
     if (!linesRef.current || !dotsRef.current) return;
     timeRef.current += dt;
-    const { linePos: lp, lineCol: lc, dotPos: dp, dotCol: dc, dotSizes: ds, velX, velY, velZ, phases, ages, targetRock } = data;
+
+    const {
+      linePos: lp,
+      lineCol: lc,
+      dotPos: dp,
+      dotCol: dc,
+      dotSizes: ds,
+      velX,
+      velY,
+      velZ,
+      phases,
+      ages,
+      targetRock,
+      hopCount,
+    } = data;
 
     const cycle = timeRef.current * 0.28;
     const pulse = Math.sin(cycle) * 0.55 + Math.sin(cycle * 1.9) * 0.3 + Math.sin(cycle * 3.4) * 0.15;
@@ -126,156 +161,267 @@ function Rain({ physics, mobile = false }: { physics: RockPhysics; mobile?: bool
     const dAttr = dotsRef.current.geometry.attributes.position as THREE.BufferAttribute;
     const dcAttr = dotsRef.current.geometry.attributes.color as THREE.BufferAttribute;
     const dsAttr = dotsRef.current.geometry.attributes.size as THREE.BufferAttribute;
+
     const cam = camera.position;
     const pp = physics.positions;
     const n = physics.count;
     if (n === 0) return;
 
-    for (let i = 0; i < rainCount; i++) {
-      const i6 = i * 6, i3 = i * 3, i8 = i * 8, i4 = i * 4;
+    const maxHops = mobile ? SWARM_MAX_HOPS_MOBILE : SWARM_MAX_HOPS_DESKTOP;
 
-      // ── SPAWN: pick nearby rock, start far away ──
+    for (let i = 0; i < rainCount; i++) {
+      const i6 = i * 6;
+      const i3 = i * 3;
+      const i8 = i * 8;
+      const i4 = i * 4;
+
       if (phases[i] === PHASE_DEAD) {
         if (spawning && Math.random() < intensity * 0.1) {
-          let ri = -1;
+          // Choose source rock near camera
+          let source = -1;
           for (let a = 0; a < 6; a++) {
             const c = Math.floor(Math.random() * n);
             const cx = c * 3;
-            const rdx = pp[cx] - cam.x, rdz = pp[cx + 2] - cam.z;
-            if (rdx * rdx + rdz * rdz < 90 * 90) { ri = c; break; }
+            const rdx = pp[cx] - cam.x;
+            const rdz = pp[cx + 2] - cam.z;
+            if (rdx * rdx + rdz * rdz < 95 * 95) {
+              source = c;
+              break;
+            }
           }
-          if (ri < 0) continue;
-          targetRock[i] = ri;
-          const rix = ri * 3;
-          const sa = Math.random() * Math.PI * 2;
-          const se = (Math.random() - 0.3) * 1.4;
-          const sd = SPAWN_DIST_MIN + Math.random() * (SPAWN_DIST_MAX - SPAWN_DIST_MIN);
-          const sx = pp[rix] + Math.cos(sa) * sd;
-          const sy = pp[rix + 1] + se * sd * 0.4 + 30;
-          const sz = pp[rix + 2] + Math.sin(sa) * sd;
-          const tDx = pp[rix] - sx, tDy = pp[rix + 1] - sy, tDz = pp[rix + 2] - sz;
-          const tD = Math.sqrt(tDx * tDx + tDy * tDy + tDz * tDz) + 0.01;
-          const fs = FLY_IN_SPEED_MIN + Math.random() * (FLY_IN_SPEED_MAX - FLY_IN_SPEED_MIN);
-          velX[i] = (tDx / tD) * fs; velY[i] = (tDy / tD) * fs; velZ[i] = (tDz / tD) * fs;
-          lp[i6] = sx; lp[i6 + 1] = sy; lp[i6 + 2] = sz;
-          lp[i6 + 3] = sx; lp[i6 + 4] = sy; lp[i6 + 5] = sz;
-          dp[i3] = sx; dp[i3 + 1] = sy; dp[i3 + 2] = sz;
-          phases[i] = PHASE_FLY_IN; ages[i] = 0;
+          if (source < 0) continue;
+
+          targetRock[i] = source;
+          hopCount[i] = 0;
+
+          const sIdx = source * 3;
+          const angle = Math.random() * Math.PI * 2;
+          const elev = (Math.random() - 0.25) * 1.35;
+          const spawnDist = SPAWN_DIST_MIN + Math.random() * (SPAWN_DIST_MAX - SPAWN_DIST_MIN);
+
+          const sx = pp[sIdx] + Math.cos(angle) * spawnDist;
+          const sy = pp[sIdx + 1] + elev * spawnDist * 0.4 + 30;
+          const sz = pp[sIdx + 2] + Math.sin(angle) * spawnDist;
+
+          const dx = pp[sIdx] - sx;
+          const dy = pp[sIdx + 1] - sy;
+          const dz = pp[sIdx + 2] - sz;
+          const dist = Math.sqrt(dx * dx + dy * dy + dz * dz) + 0.01;
+          const speed = FLY_IN_SPEED_MIN + Math.random() * (FLY_IN_SPEED_MAX - FLY_IN_SPEED_MIN);
+
+          velX[i] = (dx / dist) * speed;
+          velY[i] = (dy / dist) * speed;
+          velZ[i] = (dz / dist) * speed;
+
+          lp[i6] = sx;
+          lp[i6 + 1] = sy;
+          lp[i6 + 2] = sz;
+          lp[i6 + 3] = sx;
+          lp[i6 + 4] = sy;
+          lp[i6 + 5] = sz;
+          dp[i3] = sx;
+          dp[i3 + 1] = sy;
+          dp[i3 + 2] = sz;
+
+          phases[i] = PHASE_FLY_IN;
+          ages[i] = 0;
         } else {
-          lp[i6 + 1] = -9999; lp[i6 + 4] = -9999; dp[i3 + 1] = -9999;
-          ds[i] = 0; dc[i4 + 3] = 0; lc[i8 + 3] = 0; lc[i8 + 7] = 0;
+          lp[i6 + 1] = -9999;
+          lp[i6 + 4] = -9999;
+          dp[i3 + 1] = -9999;
+          ds[i] = 0;
+          dc[i4 + 3] = 0;
+          lc[i8 + 3] = 0;
+          lc[i8 + 7] = 0;
           continue;
         }
       }
 
       ages[i] += dt;
 
-      // ── FLY-IN: steer towards target rock ──
+      // Fly-in to first clump
       if (phases[i] === PHASE_FLY_IN) {
         const ri = targetRock[i];
         if (ri >= 0 && ri < n) {
           const rix = ri * 3;
-          const tDx = pp[rix] - lp[i6], tDy = pp[rix + 1] - lp[i6 + 1], tDz = pp[rix + 2] - lp[i6 + 2];
-          const tD = Math.sqrt(tDx * tDx + tDy * tDy + tDz * tDz) + 0.01;
+          const dx = pp[rix] - lp[i6];
+          const dy = pp[rix + 1] - lp[i6 + 1];
+          const dz = pp[rix + 2] - lp[i6 + 2];
+          const dist = Math.sqrt(dx * dx + dy * dy + dz * dz) + 0.01;
+
           const steer = 4.0 * dt;
-          velX[i] += (tDx / tD) * steer; velY[i] += (tDy / tD) * steer; velZ[i] += (tDz / tD) * steer;
-          if (tD < RAIN_ATTRACT_RADIUS * 1.5) { phases[i] = PHASE_NEAR; ages[i] = 0; }
-        }
-        if (ages[i] > 8) { phases[i] = PHASE_DEAD; continue; }
-      }
+          velX[i] += (dx / dist) * steer;
+          velY[i] += (dy / dist) * steer;
+          velZ[i] += (dz / dist) * steer;
 
-      // ── NEAR: gravitational swirl between rocks ──
-      if (phases[i] === PHASE_NEAR) {
-        let nDSq = 1e12, nDx = 0, nDy = 0, nDz = 0;
-        const sc = mobile ? 12 : 22;
-        const st = (i * 17 + ((timeRef.current * 11) | 0)) % n;
-        const sp = Math.max(1, Math.floor(n / sc));
-        for (let s = 0, si = st; s < sc; s++, si = (si + sp) % n) {
-          const rix = si * 3;
-          const ddx = pp[rix] - lp[i6], ddy = pp[rix + 1] - lp[i6 + 1], ddz = pp[rix + 2] - lp[i6 + 2];
-          const dSq = ddx * ddx + ddy * ddy + ddz * ddz;
-          if (dSq < nDSq) { nDSq = dSq; nDx = ddx; nDy = ddy; nDz = ddz; }
+          if (dist < 20) {
+            phases[i] = PHASE_SWARM;
+            ages[i] = 0;
+          }
         }
-        const arSq = RAIN_ATTRACT_RADIUS * RAIN_ATTRACT_RADIUS;
-        if (nDSq < arSq) {
-          const ad = Math.sqrt(nDSq) + 0.001;
-          const pull = (1 - Math.min(ad / RAIN_ATTRACT_RADIUS, 1)) * RAIN_ATTRACT_STRENGTH;
-          velX[i] += nDx / ad * pull * dt; velY[i] += nDy / ad * pull * dt * 0.3; velZ[i] += nDz / ad * pull * dt;
-        }
-        velY[i] -= 6.5 * dt; velX[i] *= 0.988; velZ[i] *= 0.988;
-        // Transition to fly-out after time or if drifted far from rocks
-        if (ages[i] > 1.5 + Math.sin(i * 7.3) * 1.2 + 1.3 || nDSq > arSq * 6) {
-          phases[i] = PHASE_FLY_OUT; ages[i] = 0;
-          const spd = Math.sqrt(velX[i] * velX[i] + velY[i] * velY[i] + velZ[i] * velZ[i]);
-          const boost = Math.max(22, spd * 1.6);
-          if (spd > 0.01) { velX[i] = (velX[i] / spd) * boost; velY[i] = (velY[i] / spd) * boost; velZ[i] = (velZ[i] / spd) * boost; }
-          else { const a = Math.random() * Math.PI * 2; velX[i] = Math.cos(a) * boost; velY[i] = -boost * 0.4; velZ[i] = Math.sin(a) * boost; }
+
+        if (ages[i] > 8) {
+          phases[i] = PHASE_DEAD;
+          continue;
         }
       }
 
-      // ── FLY-OUT: accelerate into infinity ──
+      // Swarm between clumps (bird-flock-like)
+      if (phases[i] === PHASE_SWARM) {
+        let ri = targetRock[i];
+        if (ri < 0 || ri >= n) ri = Math.floor(Math.random() * n);
+        const rix = ri * 3;
+
+        // Formation offsets for flock shape (deterministic by index/time)
+        const phase = timeRef.current * 1.8 + i * 0.27;
+        const wingX = Math.sin(phase) * 5.5;
+        const wingY = Math.sin(phase * 1.7) * 1.8;
+        const wingZ = Math.cos(phase * 0.9) * 5.5;
+
+        const tx = pp[rix] + wingX;
+        const ty = pp[rix + 1] + 4 + wingY;
+        const tz = pp[rix + 2] + wingZ;
+
+        const toX = tx - lp[i6];
+        const toY = ty - lp[i6 + 1];
+        const toZ = tz - lp[i6 + 2];
+        const toDist = Math.sqrt(toX * toX + toY * toY + toZ * toZ) + 0.01;
+
+        // Desired flock velocity + alignment with neighbors
+        const desiredVx = (toX / toDist) * SWARM_SPEED;
+        const desiredVy = (toY / toDist) * (SWARM_SPEED * 0.55);
+        const desiredVz = (toZ / toDist) * SWARM_SPEED;
+
+        velX[i] += (desiredVx - velX[i]) * SWARM_STEER * dt;
+        velY[i] += (desiredVy - velY[i]) * SWARM_STEER * dt;
+        velZ[i] += (desiredVz - velZ[i]) * SWARM_STEER * dt;
+
+        // Lightweight neighbor alignment (pseudo-boids)
+        const n1 = (i + 11) % rainCount;
+        const n2 = (i + 37) % rainCount;
+        if (phases[n1] === PHASE_SWARM) {
+          velX[i] += (velX[n1] - velX[i]) * 0.02;
+          velY[i] += (velY[n1] - velY[i]) * 0.02;
+          velZ[i] += (velZ[n1] - velZ[i]) * 0.02;
+        }
+        if (phases[n2] === PHASE_SWARM) {
+          velX[i] += (velX[n2] - velX[i]) * 0.015;
+          velY[i] += (velY[n2] - velY[i]) * 0.015;
+          velZ[i] += (velZ[n2] - velZ[i]) * 0.015;
+        }
+
+        // Soft damping keeps flock cohesive
+        velX[i] *= 0.994;
+        velY[i] *= 0.994;
+        velZ[i] *= 0.994;
+
+        // Switch to a different clump when close enough
+        if (toDist < SWARM_SWITCH_DIST) {
+          let next = ri;
+          for (let a = 0; a < 8; a++) {
+            const cand = Math.floor(Math.random() * n);
+            if (cand === ri) continue;
+            const cix = cand * 3;
+            const ddx = pp[cix] - pp[rix];
+            const ddy = pp[cix + 1] - pp[rix + 1];
+            const ddz = pp[cix + 2] - pp[rix + 2];
+            const d = Math.sqrt(ddx * ddx + ddy * ddy + ddz * ddz);
+            if (d > 18 && d < 130) {
+              next = cand;
+              break;
+            }
+          }
+          targetRock[i] = next;
+          hopCount[i] += 1;
+        }
+
+        if (hopCount[i] >= maxHops || ages[i] > 11) {
+          phases[i] = PHASE_FLY_OUT;
+          ages[i] = 0;
+          const speed = Math.sqrt(velX[i] * velX[i] + velY[i] * velY[i] + velZ[i] * velZ[i]) + 0.01;
+          const boost = Math.max(22, speed * 1.45);
+          velX[i] = (velX[i] / speed) * boost;
+          velY[i] = (velY[i] / speed) * boost;
+          velZ[i] = (velZ[i] / speed) * boost;
+        }
+      }
+
+      // Fly-out to infinity
       if (phases[i] === PHASE_FLY_OUT) {
-        const spd = Math.sqrt(velX[i] * velX[i] + velY[i] * velY[i] + velZ[i] * velZ[i]) + 0.01;
-        velX[i] += (velX[i] / spd) * FLY_OUT_ACCEL * dt;
-        velY[i] += (velY[i] / spd) * FLY_OUT_ACCEL * dt;
-        velZ[i] += (velZ[i] / spd) * FLY_OUT_ACCEL * dt;
-        if (ages[i] > FLY_OUT_MAX_AGE) { phases[i] = PHASE_DEAD; continue; }
+        const speed = Math.sqrt(velX[i] * velX[i] + velY[i] * velY[i] + velZ[i] * velZ[i]) + 0.01;
+        velX[i] += (velX[i] / speed) * FLY_OUT_ACCEL * dt;
+        velY[i] += (velY[i] / speed) * FLY_OUT_ACCEL * dt;
+        velZ[i] += (velZ[i] / speed) * FLY_OUT_ACCEL * dt;
+        if (ages[i] > FLY_OUT_MAX_AGE) {
+          phases[i] = PHASE_DEAD;
+          continue;
+        }
       }
 
-      // ── Integrate ──
-      lp[i6] += velX[i] * dt; lp[i6 + 1] += velY[i] * dt; lp[i6 + 2] += velZ[i] * dt;
+      // Integrate
+      lp[i6] += velX[i] * dt;
+      lp[i6 + 1] += velY[i] * dt;
+      lp[i6 + 2] += velZ[i] * dt;
 
-      // ── Streak ──
-      const spd = Math.sqrt(velX[i] * velX[i] + velY[i] * velY[i] + velZ[i] * velZ[i]);
-      const invSpd = spd > 0.01 ? 1 / spd : 0;
-      const sMul = phases[i] === PHASE_FLY_IN ? 0.12 : phases[i] === PHASE_FLY_OUT ? 0.18 : 0.15;
-      const sLen = Math.min(12, spd * sMul);
-      lp[i6 + 3] = lp[i6] - velX[i] * invSpd * sLen;
-      lp[i6 + 4] = lp[i6 + 1] - velY[i] * invSpd * sLen;
-      lp[i6 + 5] = lp[i6 + 2] - velZ[i] * invSpd * sLen;
-      dp[i3] = lp[i6]; dp[i3 + 1] = lp[i6 + 1]; dp[i3 + 2] = lp[i6 + 2];
+      // Streak geometry
+      const speed = Math.sqrt(velX[i] * velX[i] + velY[i] * velY[i] + velZ[i] * velZ[i]);
+      const invSpeed = speed > 0.01 ? 1 / speed : 0;
+      const streakMul = phases[i] === PHASE_FLY_IN ? 0.14 : phases[i] === PHASE_FLY_OUT ? 0.2 : 0.16;
+      const streakLen = Math.min(13, speed * streakMul);
 
-      // ── Distance + phase alpha ──
-      const dx = lp[i6] - cam.x, dy = lp[i6 + 1] - cam.y, dz = lp[i6 + 2] - cam.z;
+      lp[i6 + 3] = lp[i6] - velX[i] * invSpeed * streakLen;
+      lp[i6 + 4] = lp[i6 + 1] - velY[i] * invSpeed * streakLen;
+      lp[i6 + 5] = lp[i6 + 2] - velZ[i] * invSpeed * streakLen;
+
+      dp[i3] = lp[i6];
+      dp[i3 + 1] = lp[i6 + 1];
+      dp[i3 + 2] = lp[i6 + 2];
+
+      const dx = lp[i6] - cam.x;
+      const dy = lp[i6 + 1] - cam.y;
+      const dz = lp[i6 + 2] - cam.z;
       const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
 
       let phaseAlpha = 1;
       if (phases[i] === PHASE_FLY_IN) {
-        const ri = targetRock[i];
-        if (ri >= 0) {
-          const rix = ri * 3;
-          const tD = Math.sqrt((pp[rix] - lp[i6]) ** 2 + (pp[rix + 1] - lp[i6 + 1]) ** 2 + (pp[rix + 2] - lp[i6 + 2]) ** 2);
-          phaseAlpha = Math.max(0.04, 1 - tD / (SPAWN_DIST_MAX * 0.8));
-        }
+        phaseAlpha = Math.min(1, ages[i] * 1.6);
       } else if (phases[i] === PHASE_FLY_OUT) {
         phaseAlpha = Math.max(0, 1 - ages[i] / FLY_OUT_MAX_AGE);
         phaseAlpha *= phaseAlpha;
       }
 
-      // ── Color by distance ──
       if (dist < NEAR_BLUR_DIST) {
         const t = dist / NEAR_BLUR_DIST;
-        lc[i8 + 3] = (0.28 + t * 0.32) * phaseAlpha; lc[i8 + 7] = 0.04 * phaseAlpha;
-        ds[i] = (1.0 + (1 - t) * 2.0) * phaseAlpha; dc[i4 + 3] = 0.2 * phaseAlpha;
+        lc[i8 + 3] = (0.3 + t * 0.3) * phaseAlpha;
+        lc[i8 + 7] = 0.04 * phaseAlpha;
+        ds[i] = (1.1 + (1 - t) * 2.1) * phaseAlpha;
+        dc[i4 + 3] = 0.2 * phaseAlpha;
         lc[i8] = 0.2; lc[i8 + 1] = 0.92; lc[i8 + 2] = 0.72;
         lc[i8 + 4] = 0.12; lc[i8 + 5] = 0.68; lc[i8 + 6] = 0.48;
       } else if (dist < FAR_BLUR_DIST) {
-        const alpha = (0.3 + Math.random() * 0.2) * phaseAlpha;
-        lc[i8 + 3] = alpha; lc[i8 + 7] = alpha * 0.2;
-        ds[i] = 0.2 * phaseAlpha; dc[i4 + 3] = 0.12 * phaseAlpha;
+        const alpha = (0.28 + Math.random() * 0.18) * phaseAlpha;
+        lc[i8 + 3] = alpha;
+        lc[i8 + 7] = alpha * 0.2;
+        ds[i] = 0.2 * phaseAlpha;
+        dc[i4 + 3] = 0.11 * phaseAlpha;
         lc[i8] = 0.02; lc[i8 + 1] = 0.95; lc[i8 + 2] = 0.7;
         lc[i8 + 4] = 0; lc[i8 + 5] = 0.72; lc[i8 + 6] = 0.52;
       } else {
-        const t = Math.min((dist - FAR_BLUR_DIST) / 80, 1);
-        lc[i8 + 3] = 0.18 * (1 - t) * phaseAlpha; lc[i8 + 7] = 0;
-        ds[i] = 0.08 * phaseAlpha; dc[i4 + 3] = 0.06 * (1 - t) * phaseAlpha;
+        const t = Math.min((dist - FAR_BLUR_DIST) / 85, 1);
+        lc[i8 + 3] = 0.17 * (1 - t) * phaseAlpha;
+        lc[i8 + 7] = 0;
+        ds[i] = 0.07 * phaseAlpha;
+        dc[i4 + 3] = 0.05 * (1 - t) * phaseAlpha;
         lc[i8] = 0; lc[i8 + 1] = 0.78; lc[i8 + 2] = 0.56;
         lc[i8 + 4] = 0; lc[i8 + 5] = 0.56; lc[i8 + 6] = 0.42;
       }
     }
 
-    lAttr.needsUpdate = true; lcAttr.needsUpdate = true;
-    dAttr.needsUpdate = true; dcAttr.needsUpdate = true; dsAttr.needsUpdate = true;
+    lAttr.needsUpdate = true;
+    lcAttr.needsUpdate = true;
+    dAttr.needsUpdate = true;
+    dcAttr.needsUpdate = true;
+    dsAttr.needsUpdate = true;
   });
 
   return (
@@ -298,8 +444,9 @@ function Rain({ physics, mobile = false }: { physics: RockPhysics; mobile?: bool
     </>
   );
 }
-const STAR_COUNT_DESKTOP = 28000;
-const STAR_COUNT_MOBILE = 12000;
+
+const STAR_COUNT_DESKTOP = 22000;
+const STAR_COUNT_MOBILE = 9000;
 
 const starVertexShader = `
   attribute float size;
@@ -310,8 +457,8 @@ const starVertexShader = `
     vColor = color;
     vBrightness = brightness;
     vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
-    gl_PointSize = size * (300.0 / -mvPosition.z);
-    gl_PointSize = clamp(gl_PointSize, 0.5, 45.0);
+    gl_PointSize = size * (320.0 / -mvPosition.z);
+    gl_PointSize = clamp(gl_PointSize, 0.8, 48.0);
     gl_Position = projectionMatrix * mvPosition;
   }
 `;
@@ -338,6 +485,7 @@ const starFragmentShader = `
     
     float intensity = core + inner + outer + spikes;
     intensity *= vBrightness;
+    intensity = max(intensity, 0.09 * vBrightness);
     
     // Chromatic fringing on bright stars
     vec3 col = vColor;
@@ -352,10 +500,9 @@ const starFragmentShader = `
 
 function RealisticStarfield({ mobile = false }: { mobile?: boolean }) {
   const pointsRef = useRef<THREE.Points>(null);
-  const twinkleTick = useRef(0);
   const starCount = mobile ? STAR_COUNT_MOBILE : STAR_COUNT_DESKTOP;
 
-  const { positions, colors, sizes, brightnesses, baseColors } = useMemo(() => {
+  const { positions, colors, sizes, brightnesses } = useMemo(() => {
     const pos = new Float32Array(starCount * 3);
     const col = new Float32Array(starCount * 3);
     const sz = new Float32Array(starCount);
@@ -393,7 +540,7 @@ function RealisticStarfield({ mobile = false }: { mobile?: boolean }) {
       pos[i3 + 2] = r * Math.cos(phi);
 
       const mag = Math.pow(Math.random(), 3.2);
-      const brightness = 0.15 + mag * 0.85;
+      const brightness = 0.2 + mag * 0.8;
       br[i] = brightness;
 
       const temp = Math.random();
@@ -420,72 +567,19 @@ function RealisticStarfield({ mobile = false }: { mobile?: boolean }) {
       col[i3 + 1] = cg * brightness;
       col[i3 + 2] = cb * brightness;
 
-      sz[i] = mag < 0.05 ? 0.1 + Math.random() * 0.08
-        : mag < 0.3 ? 0.18 + mag * 0.4
-        : mag < 0.7 ? 0.4 + mag * 1.0
-        : mag < 0.9 ? 1.2 + mag * 2.5
-        : 3.5 + mag * 5.0;
+      sz[i] = mag < 0.05 ? 0.12 + Math.random() * 0.09
+        : mag < 0.3 ? 0.2 + mag * 0.45
+        : mag < 0.7 ? 0.45 + mag * 1.05
+        : mag < 0.9 ? 1.3 + mag * 2.6
+        : 3.6 + mag * 5.2;
     }
 
-    return { positions: pos, colors: col, sizes: sz, brightnesses: br, baseColors: new Float32Array(col) };
+    return { positions: pos, colors: col, sizes: sz, brightnesses: br };
   }, [starCount]);
 
-  const twinklePhases = useMemo(() => {
-    const p = new Float32Array(starCount);
-    for (let i = 0; i < starCount; i++) p[i] = Math.random() * Math.PI * 2;
-    return p;
-  }, [starCount]);
-
-  const twinkleSpeeds = useMemo(() => {
-    const s = new Float32Array(starCount);
-    for (let i = 0; i < starCount; i++) s[i] = 0.015 + Math.random() * 0.12;
-    return s;
-  }, [starCount]);
-
-  const twinkleAmplitudes = useMemo(() => {
-    const a = new Float32Array(starCount);
-    for (let i = 0; i < starCount; i++) {
-      const dimness = 1.0 - brightnesses[i];
-      a[i] = 0.02 + dimness * dimness * 0.12;
-    }
-    return a;
-  }, [brightnesses, starCount]);
-
-  useFrame(({ clock, camera }) => {
+  useFrame(({ camera }) => {
     if (!pointsRef.current) return;
     pointsRef.current.position.copy(camera.position);
-
-    // Mobile: keep stars static for stability/performance
-    if (mobile) return;
-
-    // Desktop: update twinkle every other frame to reduce load
-    twinkleTick.current = (twinkleTick.current + 1) % 2;
-    if (twinkleTick.current !== 0) return;
-
-    const t = clock.elapsedTime;
-    const colAttr = pointsRef.current.geometry.attributes.color as THREE.BufferAttribute;
-    const col = colAttr.array as Float32Array;
-    const brAttr = pointsRef.current.geometry.attributes.brightness as THREE.BufferAttribute;
-    const brArr = brAttr.array as Float32Array;
-
-    for (let i = 0; i < starCount; i++) {
-      const amp = twinkleAmplitudes[i];
-      const phase = twinklePhases[i];
-      const speed = twinkleSpeeds[i];
-      const scint = 1.0 - amp * (
-        0.6 * Math.sin(t * speed + phase) * Math.sin(t * speed + phase) +
-        0.3 * Math.sin(t * speed * 1.7 + phase * 2.1) * Math.sin(t * speed * 1.7 + phase * 2.1) +
-        0.1 * Math.sin(t * speed * 0.4 + phase * 0.5) * Math.sin(t * speed * 0.4 + phase * 0.5)
-      );
-      const i3 = i * 3;
-      col[i3] = baseColors[i3] * scint;
-      col[i3 + 1] = baseColors[i3 + 1] * scint;
-      col[i3 + 2] = baseColors[i3 + 2] * scint;
-      brArr[i] = brightnesses[i] * scint;
-    }
-
-    colAttr.needsUpdate = true;
-    brAttr.needsUpdate = true;
   });
 
   return (
@@ -509,6 +603,63 @@ function RealisticStarfield({ mobile = false }: { mobile?: boolean }) {
     </points>
   );
 }
+
+function FallbackStarLayer({ mobile = false }: { mobile?: boolean }) {
+  const ref = useRef<THREE.Points>(null);
+  const count = mobile ? 1200 : 2200;
+
+  const { positions, colors, sizes } = useMemo(() => {
+    const pos = new Float32Array(count * 3);
+    const col = new Float32Array(count * 3);
+    const sz = new Float32Array(count);
+
+    for (let i = 0; i < count; i++) {
+      const i3 = i * 3;
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.acos(2 * Math.random() - 1);
+      const r = 230 + Math.random() * 220;
+      pos[i3] = r * Math.sin(phi) * Math.cos(theta);
+      pos[i3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+      pos[i3 + 2] = r * Math.cos(phi);
+
+      const warm = Math.random();
+      col[i3] = warm > 0.7 ? 1 : 0.85;
+      col[i3 + 1] = warm > 0.7 ? 0.82 : 0.9;
+      col[i3 + 2] = 1;
+
+      sz[i] = 0.55 + Math.random() * 0.95;
+    }
+
+    return { positions: pos, colors: col, sizes: sz };
+  }, [count]);
+
+  useFrame(({ camera }) => {
+    if (!ref.current) return;
+    ref.current.position.copy(camera.position);
+  });
+
+  return (
+    <points ref={ref} renderOrder={-101} frustumCulled={false}>
+      <bufferGeometry>
+        <bufferAttribute attach="attributes-position" args={[positions, 3]} />
+        <bufferAttribute attach="attributes-color" args={[colors, 3]} />
+        <bufferAttribute attach="attributes-size" args={[sizes, 1]} />
+      </bufferGeometry>
+      <pointsMaterial
+        vertexColors
+        transparent
+        opacity={0.5}
+        size={0.85}
+        sizeAttenuation
+        depthWrite={false}
+        depthTest={false}
+        blending={THREE.AdditiveBlending}
+        toneMapped={false}
+      />
+    </points>
+  );
+}
+
 
 /* ── Milky Way Nebula (volumetric glow sprite band) ── */
 function MilkyWayNebula() {
@@ -1184,6 +1335,7 @@ export default function EliteShipScene({ embedded = false }: { embedded?: boolea
         <PhysicsDriver physics={physics} />
         <CockpitCamera physics={physics} audioRef={analysisRef} flightInput={flightInput} />
         <MilkyWayNebula />
+        <FallbackStarLayer mobile={mobile} />
         <RealisticStarfield mobile={mobile} />
         <ShootingStars />
         <BackgroundMeteor />
