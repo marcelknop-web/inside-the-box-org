@@ -133,7 +133,7 @@ function Rain() {
       // Line: top vertex
       lp[i * 6] = x; lp[i * 6 + 1] = y; lp[i * 6 + 2] = z;
       // Line: bottom vertex (streak length based on speed)
-      lp[i * 6 + 3] = x; lp[i * 6 + 4] = y - spd[i] * 0.06; lp[i * 6 + 5] = z;
+      lp[i * 6 + 3] = x; lp[i * 6 + 4] = y - spd[i] * 0.14; lp[i * 6 + 5] = z;
       // Dot at bottom
       dp[i * 3] = x; dp[i * 3 + 1] = y; dp[i * 3 + 2] = z;
       ds[i] = 0;
@@ -207,7 +207,7 @@ function Rain() {
 
       // Streak length: short at birth (droplet), long in mid-flight, short at death
       const birthFade = Math.min(ages[i] * 3, 1); // 0→1 over 0.33s
-      const streakLen = speeds[i] * 0.06 * birthFade;
+      const streakLen = speeds[i] * 0.14 * birthFade;
 
       // Bottom vertex = top - streak length
       lp[i6 + 3] = lp[i6];
@@ -369,33 +369,117 @@ function RealisticStarfield() {
   );
 }
 
-/* ── Hypnotic Camera ── */
+/* ── Physics-based Thruster Camera ── */
 function CockpitCamera() {
   const { camera } = useThree();
-  const t = useRef(0);
-  // Lemniscate-inspired figure-8 path for hypnotic looping
-  useFrame((_, dt) => {
-    t.current += dt * 0.04; // slow, trance-like
-    const a = t.current;
-    // Figure-8 lemniscate in XZ, gentle Y breathing
-    const scale = 35;
-    const denom = 1 + Math.sin(a) * Math.sin(a);
-    const x = scale * Math.cos(a) / denom;
-    const z = scale * Math.sin(a) * Math.cos(a) / denom;
-    // Layered sine waves for dreamy vertical float
-    const y = 2 + Math.sin(a * 0.37) * 1.5 + Math.sin(a * 0.13) * 0.8;
+  // Physics state
+  const pos = useRef(new THREE.Vector3(0, 2, 0));
+  const vel = useRef(new THREE.Vector3(0, 0, -2)); // initial forward velocity
+  const orientation = useRef(new THREE.Quaternion());
+  const angVel = useRef(new THREE.Vector3(0, 0, 0)); // angular velocity (rad/s)
+  const thrusterTime = useRef(0);
 
-    camera.position.set(x, Math.max(y, -3), z);
-    // Look slightly ahead on the curve + gentle vertical sway
-    const la = a + 0.12;
-    const ld = 1 + Math.sin(la) * Math.sin(la);
-    const lx = scale * Math.cos(la) / ld;
-    const lz = scale * Math.sin(la) * Math.cos(la) / ld;
-    const ly = 1.5 + Math.sin(la * 0.37) * 1.2;
-    camera.lookAt(lx, ly, lz);
-    // Subtle roll for disorientation
-    camera.rotation.z = Math.sin(a * 0.23) * 0.03;
+  // Thruster schedule: random bursts that fire for a duration then stop
+  // Each thruster fires along a local axis with a force
+  const thrusters = useRef<{ axis: THREE.Vector3; torqueAxis: THREE.Vector3; force: number; torque: number; startTime: number; duration: number }[]>([]);
+  const nextThrusterAt = useRef(0);
+
+  useFrame((_, dt) => {
+    thrusterTime.current += dt;
+    const t = thrusterTime.current;
+    const clampDt = Math.min(dt, 0.05); // prevent physics explosion on tab switch
+
+    // Schedule new thruster bursts
+    if (t > nextThrusterAt.current) {
+      // Random number of simultaneous thrusters (1-3)
+      const count = 1 + Math.floor(Math.random() * 2);
+      for (let i = 0; i < count; i++) {
+        // Random local-space thrust direction
+        const ax = (Math.random() - 0.5) * 2;
+        const ay = (Math.random() - 0.5) * 2;
+        const az = -0.5 - Math.random() * 1.5; // bias forward
+        const axis = new THREE.Vector3(ax, ay, az).normalize();
+        // Random torque axis for rotation
+        const tx = (Math.random() - 0.5) * 2;
+        const ty = (Math.random() - 0.5) * 2;
+        const tz = (Math.random() - 0.5) * 2;
+        const torqueAxis = new THREE.Vector3(tx, ty, tz).normalize();
+
+        thrusters.current.push({
+          axis,
+          torqueAxis,
+          force: 0.8 + Math.random() * 2.5,
+          torque: (Math.random() - 0.5) * 0.3,
+          startTime: t,
+          duration: 0.5 + Math.random() * 3.0,
+        });
+      }
+      nextThrusterAt.current = t + 1.5 + Math.random() * 4.0;
+    }
+
+    // Accumulate thrust forces in world space
+    const thrustAccel = new THREE.Vector3(0, 0, 0);
+    const torqueAccel = new THREE.Vector3(0, 0, 0);
+
+    // Remove expired thrusters and apply active ones
+    thrusters.current = thrusters.current.filter(th => {
+      const elapsed = t - th.startTime;
+      if (elapsed > th.duration) return false;
+      // Smooth thrust envelope: ramp up, sustain, ramp down
+      const env = elapsed < 0.15 ? elapsed / 0.15
+        : elapsed > th.duration - 0.2 ? (th.duration - elapsed) / 0.2
+        : 1.0;
+      // Transform thrust axis from local to world space
+      const worldAxis = th.axis.clone().applyQuaternion(orientation.current);
+      thrustAccel.addScaledVector(worldAxis, th.force * env);
+      // Torque in local space
+      torqueAccel.addScaledVector(th.torqueAxis, th.torque * env);
+      return true;
+    });
+
+    // Linear drag (simulates space with light dampening for aesthetics)
+    const DRAG = 0.15;
+    const ANG_DRAG = 0.4;
+
+    // Update velocity: F = ma, assume m=1
+    vel.current.addScaledVector(thrustAccel, clampDt);
+    vel.current.multiplyScalar(1 - DRAG * clampDt);
+
+    // Clamp max speed for visual comfort
+    const speed = vel.current.length();
+    if (speed > 12) vel.current.multiplyScalar(12 / speed);
+
+    // Update position
+    pos.current.addScaledVector(vel.current, clampDt);
+
+    // Update angular velocity
+    angVel.current.addScaledVector(torqueAccel, clampDt);
+    angVel.current.multiplyScalar(1 - ANG_DRAG * clampDt);
+
+    // Clamp angular velocity
+    const angSpeed = angVel.current.length();
+    if (angSpeed > 0.8) angVel.current.multiplyScalar(0.8 / angSpeed);
+
+    // Apply angular velocity to orientation quaternion
+    // dq/dt = 0.5 * omega * q
+    if (angSpeed > 0.0001) {
+      const halfAngle = angSpeed * clampDt * 0.5;
+      const s = Math.sin(halfAngle) / angSpeed;
+      const dq = new THREE.Quaternion(
+        angVel.current.x * s,
+        angVel.current.y * s,
+        angVel.current.z * s,
+        Math.cos(halfAngle)
+      );
+      orientation.current.premultiply(dq);
+      orientation.current.normalize();
+    }
+
+    // Apply to camera
+    camera.position.copy(pos.current);
+    camera.quaternion.copy(orientation.current);
   });
+
   return null;
 }
 
