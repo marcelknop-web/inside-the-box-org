@@ -369,47 +369,118 @@ function RealisticStarfield() {
   );
 }
 
-/* ── Physics-based Thruster Camera ── */
-function CockpitCamera() {
+/* ── Physics-based Thruster Camera with collision avoidance ── */
+function CockpitCamera({ obstacles }: { obstacles: { position: [number, number, number]; radius: number }[] }) {
   const { camera } = useThree();
-  // Physics state
   const pos = useRef(new THREE.Vector3(0, 2, 0));
-  const vel = useRef(new THREE.Vector3(0, 0, -2)); // initial forward velocity
+  const vel = useRef(new THREE.Vector3(0, 0, -3));
   const orientation = useRef(new THREE.Quaternion());
-  const angVel = useRef(new THREE.Vector3(0, 0, 0)); // angular velocity (rad/s)
+  const angVel = useRef(new THREE.Vector3(0, 0, 0));
   const thrusterTime = useRef(0);
-
-  // Thruster schedule: random bursts that fire for a duration then stop
-  // Each thruster fires along a local axis with a force
   const thrusters = useRef<{ axis: THREE.Vector3; torqueAxis: THREE.Vector3; force: number; torque: number; startTime: number; duration: number }[]>([]);
   const nextThrusterAt = useRef(0);
+
+  // Precompute obstacle positions as Vector3 once
+  const obstaclePts = useMemo(() =>
+    obstacles.map(o => ({ pos: new THREE.Vector3(...o.position), r: o.radius })),
+    [obstacles]
+  );
+
+  // Find nearest interesting rock to steer toward (but not into)
+  const currentTarget = useRef<THREE.Vector3 | null>(null);
+  const targetCooldown = useRef(0);
 
   useFrame((_, dt) => {
     thrusterTime.current += dt;
     const t = thrusterTime.current;
-    const clampDt = Math.min(dt, 0.05); // prevent physics explosion on tab switch
+    const clampDt = Math.min(dt, 0.05);
+    const p = pos.current;
 
-    // Schedule new thruster bursts
+    // ── Collision avoidance: repulsion force field ──
+    const AVOID_RADIUS = 8;    // start avoiding at this distance from surface
+    const HARD_RADIUS = 2.5;   // hard repulsion shell
+    const REPULSE_FORCE = 18;
+    const avoidForce = new THREE.Vector3(0, 0, 0);
+    const avoidTorque = new THREE.Vector3(0, 0, 0);
+    const tmpVec = new THREE.Vector3();
+
+    for (const obs of obstaclePts) {
+      tmpVec.subVectors(p, obs.pos);
+      const dist = tmpVec.length();
+      const surfaceDist = dist - obs.r;
+
+      if (surfaceDist < AVOID_RADIUS) {
+        const dir = tmpVec.normalize();
+        if (surfaceDist < HARD_RADIUS) {
+          // Hard repulsion – exponential push away
+          const strength = REPULSE_FORCE * (1 + (HARD_RADIUS - surfaceDist) * 3);
+          avoidForce.addScaledVector(dir, strength);
+          // Also deflect velocity away from obstacle
+          const velToward = vel.current.dot(dir);
+          if (velToward < 0) {
+            vel.current.addScaledVector(dir, -velToward * 0.8);
+          }
+        } else {
+          // Soft deflection – inverse square
+          const t2 = (AVOID_RADIUS - surfaceDist) / (AVOID_RADIUS - HARD_RADIUS);
+          avoidForce.addScaledVector(dir, REPULSE_FORCE * t2 * t2 * 0.4);
+        }
+        // Torque to turn away
+        const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(orientation.current);
+        const cross = new THREE.Vector3().crossVectors(forward, dir);
+        avoidTorque.addScaledVector(cross, surfaceDist < HARD_RADIUS ? 2.0 : 0.5);
+      }
+    }
+
+    // ── Attraction: periodically pick a nearby rock to fly close to ──
+    targetCooldown.current -= clampDt;
+    if (targetCooldown.current <= 0 || !currentTarget.current) {
+      // Find rocks that are ahead and within range 15-60
+      const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(orientation.current);
+      let bestScore = -Infinity;
+      let bestPos: THREE.Vector3 | null = null;
+      for (const obs of obstaclePts) {
+        tmpVec.subVectors(obs.pos, p);
+        const dist = tmpVec.length();
+        if (dist < 10 || dist > 70) continue;
+        const dot = tmpVec.normalize().dot(forward);
+        // Prefer rocks roughly ahead and at medium distance
+        const score = dot * 2 + (1 - dist / 70) + Math.random() * 0.5;
+        if (score > bestScore) {
+          bestScore = score;
+          bestPos = obs.pos;
+        }
+      }
+      currentTarget.current = bestPos;
+      targetCooldown.current = 3 + Math.random() * 4;
+    }
+
+    // Gentle attraction toward target (fly-by, not fly-into)
+    const attractForce = new THREE.Vector3(0, 0, 0);
+    if (currentTarget.current) {
+      tmpVec.subVectors(currentTarget.current, p);
+      const dist = tmpVec.length();
+      if (dist > 6) {
+        attractForce.copy(tmpVec.normalize()).multiplyScalar(1.5);
+      }
+    }
+
+    // ── Schedule thruster bursts ──
     if (t > nextThrusterAt.current) {
-      // Random number of simultaneous thrusters (1-3)
       const count = 1 + Math.floor(Math.random() * 2);
       for (let i = 0; i < count; i++) {
-        // Random local-space thrust direction
         const ax = (Math.random() - 0.5) * 2;
         const ay = (Math.random() - 0.5) * 2;
-        const az = -0.5 - Math.random() * 1.5; // bias forward
+        const az = -0.5 - Math.random() * 1.5;
         const axis = new THREE.Vector3(ax, ay, az).normalize();
-        // Random torque axis for rotation
         const tx = (Math.random() - 0.5) * 2;
         const ty = (Math.random() - 0.5) * 2;
         const tz = (Math.random() - 0.5) * 2;
         const torqueAxis = new THREE.Vector3(tx, ty, tz).normalize();
-
         thrusters.current.push({
-          axis,
-          torqueAxis,
-          force: 0.8 + Math.random() * 2.5,
-          torque: (Math.random() - 0.5) * 0.3,
+          axis, torqueAxis,
+          force: 0.8 + Math.random() * 2.0,
+          torque: (Math.random() - 0.5) * 0.25,
           startTime: t,
           duration: 0.5 + Math.random() * 3.0,
         });
@@ -417,65 +488,62 @@ function CockpitCamera() {
       nextThrusterAt.current = t + 1.5 + Math.random() * 4.0;
     }
 
-    // Accumulate thrust forces in world space
+    // Accumulate thruster forces
     const thrustAccel = new THREE.Vector3(0, 0, 0);
     const torqueAccel = new THREE.Vector3(0, 0, 0);
-
-    // Remove expired thrusters and apply active ones
     thrusters.current = thrusters.current.filter(th => {
       const elapsed = t - th.startTime;
       if (elapsed > th.duration) return false;
-      // Smooth thrust envelope: ramp up, sustain, ramp down
       const env = elapsed < 0.15 ? elapsed / 0.15
-        : elapsed > th.duration - 0.2 ? (th.duration - elapsed) / 0.2
-        : 1.0;
-      // Transform thrust axis from local to world space
+        : elapsed > th.duration - 0.2 ? (th.duration - elapsed) / 0.2 : 1.0;
       const worldAxis = th.axis.clone().applyQuaternion(orientation.current);
       thrustAccel.addScaledVector(worldAxis, th.force * env);
-      // Torque in local space
       torqueAccel.addScaledVector(th.torqueAxis, th.torque * env);
       return true;
     });
 
-    // Linear drag (simulates space with light dampening for aesthetics)
+    // Sum all forces
     const DRAG = 0.15;
     const ANG_DRAG = 0.4;
 
-    // Update velocity: F = ma, assume m=1
     vel.current.addScaledVector(thrustAccel, clampDt);
+    vel.current.addScaledVector(avoidForce, clampDt);
+    vel.current.addScaledVector(attractForce, clampDt);
     vel.current.multiplyScalar(1 - DRAG * clampDt);
 
-    // Clamp max speed for visual comfort
     const speed = vel.current.length();
     if (speed > 12) vel.current.multiplyScalar(12 / speed);
+    if (speed < 1.5) vel.current.multiplyScalar(1.5 / Math.max(speed, 0.01)); // keep minimum speed
 
-    // Update position
     pos.current.addScaledVector(vel.current, clampDt);
 
-    // Update angular velocity
+    // Angular
     angVel.current.addScaledVector(torqueAccel, clampDt);
+    angVel.current.addScaledVector(avoidTorque, clampDt);
     angVel.current.multiplyScalar(1 - ANG_DRAG * clampDt);
-
-    // Clamp angular velocity
     const angSpeed = angVel.current.length();
     if (angSpeed > 0.8) angVel.current.multiplyScalar(0.8 / angSpeed);
 
-    // Apply angular velocity to orientation quaternion
-    // dq/dt = 0.5 * omega * q
     if (angSpeed > 0.0001) {
       const halfAngle = angSpeed * clampDt * 0.5;
       const s = Math.sin(halfAngle) / angSpeed;
       const dq = new THREE.Quaternion(
-        angVel.current.x * s,
-        angVel.current.y * s,
-        angVel.current.z * s,
+        angVel.current.x * s, angVel.current.y * s, angVel.current.z * s,
         Math.cos(halfAngle)
       );
       orientation.current.premultiply(dq);
       orientation.current.normalize();
     }
 
-    // Apply to camera
+    // Gently align orientation to velocity direction (ship faces where it flies)
+    if (speed > 0.5) {
+      const velDir = vel.current.clone().normalize();
+      const targetQ = new THREE.Quaternion().setFromUnitVectors(
+        new THREE.Vector3(0, 0, -1), velDir
+      );
+      orientation.current.slerp(targetQ, 0.02);
+    }
+
     camera.position.copy(pos.current);
     camera.quaternion.copy(orientation.current);
   });
@@ -545,6 +613,7 @@ function use432HzAmbient() {
 export default function EliteShipScene() {
   const surfaceRocks = useSurfaceRocks();
   const floatingRocks = useFloatingRocks();
+  const allObstacles = useMemo(() => [...surfaceRocks, ...floatingRocks], [surfaceRocks, floatingRocks]);
   const ambient = use432HzAmbient();
 
   return (
@@ -554,7 +623,7 @@ export default function EliteShipScene() {
         gl={{ antialias: true, alpha: false }}
         style={{ background: BG }}
       >
-        <CockpitCamera />
+        <CockpitCamera obstacles={allObstacles} />
         <RealisticStarfield />
         <Rain />
         {surfaceRocks.map((r, i) => <Rock key={`s${i}`} {...r} />)}
