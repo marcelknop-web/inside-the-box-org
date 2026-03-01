@@ -1186,21 +1186,8 @@ export default function EliteShipScene({ embedded = false }: { embedded?: boolea
 
   return (
     <div className={`relative w-full ${embedded ? 'h-[80vh] rounded-xl overflow-hidden' : 'h-screen'} overflow-hidden`} style={{ background: BG }}>
-      {/* CSS fallback sky to guarantee visible stars even if GPU shader is throttled */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          zIndex: 0,
-          backgroundImage: [
-            'radial-gradient(circle at 18% 22%, rgba(170,255,235,0.22) 0.8px, transparent 1.4px)',
-            'radial-gradient(circle at 72% 58%, rgba(140,220,255,0.18) 0.8px, transparent 1.5px)',
-            'radial-gradient(circle at 42% 78%, rgba(255,255,255,0.12) 0.7px, transparent 1.3px)',
-            'linear-gradient(180deg, rgba(5,12,20,0.9) 0%, rgba(0,0,0,1) 100%)',
-          ].join(', '),
-          backgroundSize: '220px 220px, 320px 320px, 160px 160px, 100% 100%',
-          backgroundPosition: '0 0, 80px 40px, 40px 120px, 0 0',
-        }}
-      />
+      {/* Solid black fallback behind WebGL canvas */}
+      <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 0, background: '#000' }} />
 
       <Canvas
         className="relative z-10"
