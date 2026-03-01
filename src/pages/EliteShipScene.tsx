@@ -377,7 +377,7 @@ function CockpitCamera({ physics, audioRef }: { physics: RockPhysics; audioRef: 
 
   const prevTangentRef = useRef(new THREE.Vector3(1, 0, 0));
   const smoothBank = useRef(0);
-  const smoothRoll = useRef(0); // extra barrel-roll angle
+  const divePhase = useRef(0); // 0 = cruise, ramps up during dive
 
   useFrame((_, dt) => {
     const clampDt = Math.min(dt, 0.033);
@@ -399,18 +399,36 @@ function CockpitCamera({ physics, audioRef }: { physics: RockPhysics; audioRef: 
     const pathX = Math.sin(phase) * rx;
     const pathZ = Math.cos(phase) * rz;
 
+    // ── Dive maneuver: every ~30s, dive down for ~6s then climb back ──
+    const diveCycle = 30;
+    const diveDuration = 6;
+    const climbDuration = 8;
+    const cyclePos = t % diveCycle;
+    let diveTarget = 0;
+    if (cyclePos < diveDuration) {
+      // Smooth dive down using sine easing
+      diveTarget = Math.sin((cyclePos / diveDuration) * Math.PI) * 8;
+    } else if (cyclePos < diveDuration + climbDuration) {
+      // Gradual climb back to horizon
+      const climbProgress = (cyclePos - diveDuration) / climbDuration;
+      diveTarget = (1 - climbProgress) * 0.5; // gentle tail-off
+    }
+    divePhase.current += (diveTarget - divePhase.current) * 0.025;
+
     const altWave = Math.sin(phase * 1.5) * 0.5 + 0.5;
     const centerDist = Math.sqrt(pathX * pathX + pathZ * pathZ) / Math.max(rx, rz);
-    const desiredAlt = centerDist < 0.6
+    const baseAlt = centerDist < 0.6
       ? LOW_ALT + altWave * 1.5 + sa * 0.5
       : CRUISE_ALT + altWave * 2.0 + sa * 0.3;
+    const desiredAlt = baseAlt - divePhase.current;
 
     const targetPos = new THREE.Vector3(pathX, desiredAlt, pathZ);
 
-    // Analytic tangent
+    // Analytic tangent including dive pitch
     const dxdt = Math.cos(phase) * rx * baseSpeed;
     const dzdt = -Math.sin(phase) * rz * baseSpeed;
-    const dydt = Math.cos(phase * 1.5) * 1.5 * baseSpeed * 0.5 * (centerDist < 0.6 ? 1.5 : 2.0);
+    const dydt = Math.cos(phase * 1.5) * 1.5 * baseSpeed * 0.5 * (centerDist < 0.6 ? 1.5 : 2.0)
+      - divePhase.current * 0.04; // pitch nose down during dive
     const tangent = new THREE.Vector3(dxdt, dydt, dzdt).normalize();
 
     // Smooth banking from tangent change
@@ -419,38 +437,15 @@ function CockpitCamera({ physics, audioRef }: { physics: RockPhysics; audioRef: 
     smoothBank.current += (rawBank - smoothBank.current) * 0.02;
     prevTangentRef.current.copy(tangent);
 
-    // ── Occasional barrel rolls (slow, smooth full rotation around forward axis) ──
-    // Trigger a roll every ~40s of flight, lasting ~8s
-    const rollCycle = 40; // seconds between rolls
-    const rollDuration = 8; // seconds for one full roll
-    const rollPhase = t % rollCycle;
-    let targetRoll = 0;
-    if (rollPhase < rollDuration) {
-      // Smooth easing: sine curve for gentle start/end
-      const rollProgress = rollPhase / rollDuration;
-      targetRoll = Math.sin(rollProgress * Math.PI * 2 - Math.PI / 2) * Math.PI + Math.PI;
-      // Full 360° mapped through smooth sine: 0 → 2π
-      targetRoll = rollProgress * Math.PI * 2;
-    }
-    // Very smooth roll interpolation
-    const rollDiff = targetRoll - smoothRoll.current;
-    // Handle wrap-around
-    if (rollPhase >= rollDuration && Math.abs(smoothRoll.current) > 0.01) {
-      smoothRoll.current *= 0.97; // gently decay back to 0
-    } else if (rollPhase < rollDuration) {
-      smoothRoll.current += (targetRoll - smoothRoll.current) * 0.03;
-    }
-
-    // Build orientation
+    // Build orientation (no barrel roll)
     const up = new THREE.Vector3(0, 1, 0);
     const lookTarget = targetPos.clone().add(tangent.clone().multiplyScalar(10));
     const lookMatrix = new THREE.Matrix4().lookAt(targetPos, lookTarget, up);
     const targetQuat = new THREE.Quaternion().setFromRotationMatrix(lookMatrix);
 
-    // Apply bank + barrel roll combined on forward axis
-    const totalRoll = smoothBank.current + smoothRoll.current;
+    // Apply bank only
     const rollQuat = new THREE.Quaternion().setFromAxisAngle(
-      new THREE.Vector3(0, 0, 1), -totalRoll
+      new THREE.Vector3(0, 0, 1), -smoothBank.current
     );
     targetQuat.multiply(rollQuat);
 
