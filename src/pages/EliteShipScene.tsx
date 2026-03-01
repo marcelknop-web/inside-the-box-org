@@ -4,6 +4,7 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { createRockPhysics, stepPhysics, DynamicRock, type RockPhysics } from '@/components/elite/PhysicsRocks';
 import { DebrisSystem } from '@/components/elite/DebrisSystem';
+import { ClusterExplosion } from '@/components/elite/ClusterExplosion';
 import { useAudioAnalyser, type AudioAnalysis } from '@/hooks/useAudioAnalyser';
 import { useFlightInput, type FlightInput } from '@/hooks/useFlightInput';
 
@@ -1260,6 +1261,7 @@ export default function EliteShipScene({ embedded = false }: { embedded?: boolea
         <InfoExchange physics={physics} mobile={mobile} />
         <RockField physics={physics} mobile={mobile} />
         <DebrisSystem physics={physics} />
+        <ClusterExplosion physics={physics} />
       </Canvas>
       
       <CockpitHUD flightInput={flightInput} />
