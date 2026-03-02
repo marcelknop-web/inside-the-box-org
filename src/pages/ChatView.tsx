@@ -1345,7 +1345,7 @@ const ChatView = () => {
                 }}
                 onTransitionEnd={() => { if (titleDone) setSubtitleDone(true); }}
               >
-                Wenn Prozesse unter Stress funktionieren müssen.
+                {t('welcome.heroSubtitle')}
               </p>
 
               {/* Claim – scramble, starts after subtitle */}
@@ -1370,7 +1370,7 @@ const ChatView = () => {
                 }}
               >
                 <p className="font-rounded text-base text-center text-foreground" style={{ fontWeight: 400 }}>
-                  Cybersecurity Consulting
+                  {t('welcome.heroConsulting')}
                 </p>
               </div>
 
@@ -1383,7 +1383,7 @@ const ChatView = () => {
                 }}
               >
                 <p className="font-rounded text-base text-center text-foreground" style={{ fontWeight: 500 }}>
-                  Marcel Knop · Andreas Funder
+                  {t('welcome.heroSignature')}
                 </p>
               </div>
             </div>
