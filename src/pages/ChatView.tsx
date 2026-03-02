@@ -1290,9 +1290,9 @@ const ChatView = () => {
           )}
         </div>
 
-        <div ref={contentAreaRef} className="flex-1 overflow-y-auto relative">
+        <div ref={contentAreaRef} className="flex-1 overflow-y-auto relative" style={{ contain: 'layout style' }}>
           {!activeService && messages.length === 0 ? (
-            <div className="h-full flex flex-col items-center justify-center px-4" style={{ gap: 0 }}>
+            <div className="h-full flex flex-col items-center justify-center px-4" style={{ gap: 0, contain: 'layout style' }}>
               <button onClick={() => setSidebarOpen(true)} className="mb-8 cursor-pointer bg-transparent border-none p-0 transition-electric group/welcome">
                 <GeometricSymbol size="sm" className="w-16 h-16 opacity-60 group-hover/welcome:opacity-100 transition-electric" hoverCyan />
               </button>
@@ -1306,7 +1306,7 @@ const ChatView = () => {
                 </h1>
               </button>
               {/* Animated hero content – all placeholders pre-reserve space */}
-              <div className="flex flex-col items-center w-full">
+              <div className="flex flex-col items-center w-full" style={{ contain: 'layout style' }}>
                 {/* Claim – scramble decode reveal */}
                 <button onClick={() => setSidebarOpen(true)} className="cursor-pointer bg-transparent border-none p-0 w-full text-center transition-electric relative" style={{ marginBottom: '32px' }}>
                   <p aria-hidden="true" className="font-mono font-semibold text-center uppercase invisible" style={{ fontSize: 'clamp(0.85rem, 2.8vw, 1.25rem)', letterSpacing: '0.12em' }}>
@@ -1316,12 +1316,13 @@ const ChatView = () => {
                     <Typewriter text={t('welcome.heroClaim')} mode="scramble" delay={2200} charDelay={18} cursor={false} onDone={() => setClaimDone(true)} />
                   </p>
                 </button>
-                {/* Subtitle & Signature – fade in after claim */}
+                {/* Subtitle & Signature – always visible in layout, opacity-only transition */}
                 <div
                   className="flex flex-col items-center w-full"
                   style={{
                     opacity: claimDone ? 1 : 0,
-                    transition: 'opacity 600ms ease-out',
+                    visibility: claimDone ? 'visible' : 'hidden',
+                    transition: 'opacity 600ms ease-out, visibility 0s linear' + (claimDone ? ' 0s' : ' 600ms'),
                   }}
                 >
                   <button onClick={() => setSidebarOpen(true)} className="cursor-pointer bg-transparent border-none p-0 w-full text-center transition-electric" style={{ marginBottom: '16px' }}>
