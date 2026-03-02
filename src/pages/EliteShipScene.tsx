@@ -12,32 +12,31 @@ const LINE_COLOR = '#00ffaa';
 const BG = '#000000';
 
 /* ── Generate initial rock data ── */
-function useInitialRocks() {
+function useInitialRocks(mobile: boolean) {
   return useMemo(() => {
     const rng = (i: number, off: number) => {
       let x = Math.sin(i * 127.1 + off * 311.7) * 43758.5453;
       return x - Math.floor(x);
     };
     const rocks: { seed: number; radius: number; position: [number, number, number]; rotSpeed: [number, number, number] }[] = [];
-    // Wider spaced, jagged field – clusters with gaps between them
-    const gridX = 50, gridZ = 35, spacing = 6.0;
+    // On mobile: smaller grid, fewer rocks (~300 vs ~1000)
+    const gridX = mobile ? 30 : 50, gridZ = mobile ? 20 : 35, spacing = 6.0;
+    const skipThreshold = mobile ? 0.55 : 0.4; // skip more on mobile
     let idx = 0;
     for (let gx = 0; gx < gridX; gx++) {
       for (let gz = 0; gz < gridZ; gz++) {
-        // Skip ~40% of positions for gaps and negative space
         const skip = rng(idx, 99);
-        if (skip < 0.4) { idx++; continue; }
+        if (skip < skipThreshold) { idx++; continue; }
         
-        // Cluster factor: rocks tend to group in patches
         const clusterNoise = Math.sin(gx * 0.4) * Math.cos(gz * 0.3) * 0.5 + 0.5;
         if (clusterNoise < 0.25 && rng(idx, 88) < 0.6) { idx++; continue; }
         
-        const r = 0.5 + rng(idx, 0) * 2.5; // more size variation = more jagged
+        const r = 0.5 + rng(idx, 0) * 2.5;
         rocks.push({
           seed: idx * 13 + 7, radius: r,
           position: [
             gx * spacing + (rng(idx, 1) - 0.5) * spacing * 0.9 - (gridX * spacing) / 2,
-            -8 + (rng(idx, 3) - 0.5) * 1.2, // more Y variation = more jagged terrain
+            -8 + (rng(idx, 3) - 0.5) * 1.2,
             gz * spacing + (rng(idx, 2) - 0.5) * spacing * 0.9 - (gridZ * spacing) / 2,
           ],
           rotSpeed: [(rng(idx, 7) - 0.5) * 0.03, (rng(idx, 8) - 0.5) * 0.04, (rng(idx, 9) - 0.5) * 0.02],
@@ -45,12 +44,12 @@ function useInitialRocks() {
         idx++;
       }
     }
-    // Scattered outliers at varying heights for dramatic silhouettes
+    const outlierCount = mobile ? 20 : 60;
     const rng2 = (i: number, off: number) => {
       let x = Math.sin(i * 73.1 + off * 419.3) * 31758.5453;
       return x - Math.floor(x);
     };
-    for (let i = 0; i < 60; i++) {
+    for (let i = 0; i < outlierCount; i++) {
       rocks.push({
         seed: i * 31 + 100, radius: 0.3 + rng2(i, 0) * 2.0,
         position: [rng2(i, 1) * 260 - 130, -8 + rng2(i, 2) * 5 - 1, rng2(i, 3) * 180 - 90],
@@ -58,12 +57,12 @@ function useInitialRocks() {
       });
     }
     return rocks;
-  }, []);
+  }, [mobile]);
 }
 
 /* ── Physics simulation driver ── */
-function PhysicsDriver({ physics }: { physics: RockPhysics }) {
-  useFrame((_, dt) => stepPhysics(physics, dt));
+function PhysicsDriver({ physics, mobile }: { physics: RockPhysics; mobile: boolean }) {
+  useFrame((_, dt) => stepPhysics(physics, dt, mobile));
   return null;
 }
 
@@ -1203,11 +1202,11 @@ function RockField({ physics, mobile = false }: { physics: RockPhysics; mobile?:
 
 /* ── Main ── */
 export default function EliteShipScene({ embedded = false }: { embedded?: boolean }) {
-  const initialRocks = useInitialRocks();
+  const mobile = useIsMobile();
+  const initialRocks = useInitialRocks(mobile);
   const physics = useMemo(() => createRockPhysics(initialRocks), [initialRocks]);
   const { playing, start, stop, analysisRef } = useAudioAnalyser();
   const flightInput = useFlightInput();
-  const mobile = useIsMobile();
 
   return (
     <div className={`relative w-full ${embedded ? 'h-[80vh] rounded-xl overflow-hidden' : 'h-screen'} overflow-hidden`} style={{ background: BG }}>
@@ -1220,7 +1219,7 @@ export default function EliteShipScene({ embedded = false }: { embedded?: boolea
         gl={{ antialias: !mobile, alpha: true, powerPreference: mobile ? 'low-power' : 'high-performance' }}
         style={{ background: 'transparent' }}
       >
-        <PhysicsDriver physics={physics} />
+        <PhysicsDriver physics={physics} mobile={mobile} />
         <CockpitCamera physics={physics} audioRef={analysisRef} flightInput={flightInput} />
         <MilkyWayNebula />
         <FallbackStarLayer mobile={mobile} />

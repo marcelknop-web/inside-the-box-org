@@ -163,8 +163,8 @@ export function DebrisSystem({ physics }: { physics: RockPhysics }) {
           spawnDebris(cx, cy, cz, avgVx, avgVy, avgVz, Math.min(r[i], r[j]), relSpeed);
         }
       }
-      // Only check ~100 pairs per rock for perf
-      if (i > 100) break;
+      // Limit collision checks for performance
+      if (i > 50) break;
     }
 
     // Update debris particles
