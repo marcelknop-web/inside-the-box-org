@@ -320,7 +320,7 @@ interface Threat {
 interface Particle { x: number; y: number; vx: number; vy: number; life: number; color: string; size: number; }
 interface Popup { text: string; x: number; y: number; life: number; color: string; }
 interface GS {
-  phase: 'start' | 'play' | 'over';
+  phase: 'start' | 'play' | 'ending' | 'over';
   selectedLane: number;
   threats: Threat[]; particles: Particle[]; popups: Popup[];
   score: number; combo: number; bestCombo: number; lives: number;
@@ -328,6 +328,7 @@ interface GS {
   shakeT: number; flashT: number; slowT: number; shield: boolean;
   nextId: number; hi: number;
   activeIdx: number;
+  endingTimer: number;
 }
 
 /* ══════════════════════════════════════
@@ -345,7 +346,30 @@ const tone = (ctx: AudioContext, freq: number, dur: number, type: OscillatorType
 const sfxCatch = (ctx: AudioContext) => { tone(ctx, 880, 0.08); setTimeout(() => tone(ctx, 1320, 0.06), 40); };
 const sfxMiss = (ctx: AudioContext) => { tone(ctx, 180, 0.25, 'sawtooth', 0.1); };
 const sfxCombo = (ctx: AudioContext) => { tone(ctx, 660, 0.06); setTimeout(() => tone(ctx, 990, 0.06), 50); setTimeout(() => tone(ctx, 1320, 0.1), 100); };
-const sfxGameOver = (ctx: AudioContext) => { tone(ctx, 440, 0.2, 'square', 0.1); setTimeout(() => tone(ctx, 330, 0.2, 'square', 0.1), 180); setTimeout(() => tone(ctx, 220, 0.4, 'sawtooth', 0.08), 360); };
+const sfxGameOver = (ctx: AudioContext) => {
+  // Dramatic descending melody with reverb-like tail
+  const t0 = ctx.currentTime;
+  const playNote = (freq: number, start: number, dur: number, type: OscillatorType = 'square', vol = 0.08) => {
+    const osc = ctx.createOscillator(); const g = ctx.createGain();
+    osc.type = type; osc.frequency.setValueAtTime(freq, t0 + start);
+    g.gain.setValueAtTime(vol, t0 + start);
+    g.gain.linearRampToValueAtTime(vol * 0.8, t0 + start + dur * 0.3);
+    g.gain.exponentialRampToValueAtTime(0.001, t0 + start + dur);
+    osc.connect(g); g.connect(ctx.destination);
+    osc.start(t0 + start); osc.stop(t0 + start + dur);
+  };
+  // Descending minor arpeggio
+  playNote(440, 0, 0.3, 'square', 0.1);
+  playNote(415, 0.25, 0.3, 'square', 0.09);
+  playNote(349, 0.5, 0.35, 'sawtooth', 0.08);
+  playNote(293, 0.8, 0.4, 'sawtooth', 0.07);
+  playNote(220, 1.1, 0.6, 'sawtooth', 0.06);
+  // Deep bass impact
+  playNote(55, 0.3, 1.2, 'sine', 0.12);
+  // Dissonant shimmer
+  playNote(233, 1.4, 0.8, 'sine', 0.03);
+  playNote(247, 1.5, 0.7, 'sine', 0.03);
+};
 const sfxStart = (ctx: AudioContext) => { tone(ctx, 440, 0.06); setTimeout(() => tone(ctx, 660, 0.06), 50); setTimeout(() => tone(ctx, 880, 0.1), 100); };
 
 /* ══════════════════════════════════════
@@ -417,7 +441,7 @@ const mkGS = (): GS => ({
   score: 0, combo: 0, bestCombo: 0, lives: 3,
   time: 0, spawnT: 2.2, baseSpd: 55,
   shakeT: 0, flashT: 0, slowT: 0, shield: false,
-  nextId: 0, hi: getHi(), activeIdx: -1,
+  nextId: 0, hi: getHi(), activeIdx: -1, endingTimer: 0,
 });
 
 const spawnThreat = (g: GS, w: number, yOff = 0) => {
@@ -502,7 +526,7 @@ const ThreatDropQuiz = ({ embedded }: { embedded?: boolean }) => {
       if (g.shield) g.shield = false;
       else { g.lives--; g.combo = 0; g.shakeT = 0.3; g.flashT = 0.3; }
       if (ac) sfxMiss(ac);
-      if (g.lives <= 0) { g.phase = 'over'; saveHi(g.score); saveBoard(g.score, g.bestCombo); g.hi = Math.max(g.hi, g.score); if (ac) sfxGameOver(ac); stopBGMusic(bgMusicRef.current); bgMusicRef.current = null; }
+      if (g.lives <= 0) { g.phase = 'ending'; g.endingTimer = 2.2; saveHi(g.score); saveBoard(g.score, g.bestCombo); g.hi = Math.max(g.hi, g.score); if (ac) sfxGameOver(ac); stopBGMusic(bgMusicRef.current); bgMusicRef.current = null; }
     }
     g.selectedLane = -1;
   }, []);
@@ -542,6 +566,7 @@ const ThreatDropQuiz = ({ embedded }: { embedded?: boolean }) => {
     const handle = (cx: number, cy: number) => {
       const g = gs.current; const { w, h } = sizeRef.current;
       const mobBtnH = ('ontouchstart' in window) ? 72 : 56;
+      if (g.phase !== 'play' && g.phase !== 'start') return; // block during ending/over
       if (g.phase !== 'play') { startGame(); return; }
       if (cy > h - mobBtnH) { classifyThreat(Math.max(0, Math.min(3, Math.floor(cx / (w / 4))))); }
     };
@@ -588,7 +613,7 @@ const ThreatDropQuiz = ({ embedded }: { embedded?: boolean }) => {
             g.popups.push({ text: '✕ ' + LANES[t.lane].name, x: t.x, y: t.y - 20, life: 1.0, color: C.red });
             if (g.shield) g.shield = false;
             else { g.lives--; g.combo = 0; g.shakeT = 0.3; g.flashT = 0.3; if (ac) sfxMiss(ac); }
-            if (g.lives <= 0) { g.phase = 'over'; saveHi(g.score); saveBoard(g.score, g.bestCombo); g.hi = Math.max(g.hi, g.score); if (ac) sfxGameOver(ac); stopBGMusic(bgMusicRef.current); bgMusicRef.current = null; }
+            if (g.lives <= 0) { g.phase = 'ending'; g.endingTimer = 2.2; saveHi(g.score); saveBoard(g.score, g.bestCombo); g.hi = Math.max(g.hi, g.score); if (ac) sfxGameOver(ac); stopBGMusic(bgMusicRef.current); bgMusicRef.current = null; }
           }
         }
         g.threats = g.threats.filter(t => !rm.includes(t.id));
@@ -598,6 +623,17 @@ const ThreatDropQuiz = ({ embedded }: { embedded?: boolean }) => {
         g.popups = g.popups.filter(p => p.life > 0);
         g.shakeT = Math.max(0, g.shakeT - dt);
         g.flashT = Math.max(0, g.flashT - dt);
+      }
+
+      /* ── ENDING TRANSITION ── */
+      if (g.phase === 'ending') {
+        g.endingTimer -= dt;
+        // Keep particles/popups alive during ending
+        for (const p of g.particles) { p.x += p.vx * dt; p.y += p.vy * dt; p.life -= dt; p.vy += 200 * dt; }
+        g.particles = g.particles.filter(p => p.life > 0);
+        for (const p of g.popups) { p.y -= 50 * dt; p.life -= dt; }
+        g.popups = g.popups.filter(p => p.life > 0);
+        if (g.endingTimer <= 0) g.phase = 'over';
       }
 
       /* ── DRAW ── */
@@ -808,7 +844,22 @@ const ThreatDropQuiz = ({ embedded }: { embedded?: boolean }) => {
         if (g.hi > 0) { ctx.fillStyle = C.yellow + '60'; ctx.font = '10px monospace'; ctx.fillText('HI ' + g.hi, w / 2, h * 0.98); }
       }
 
-      /* ── GAME OVER ── */
+      /* ── ENDING OVERLAY ── */
+      if (g.phase === 'ending') {
+        const progress = 1 - g.endingTimer / 2.2;
+        const alpha = Math.min(0.85, progress * 0.85);
+        ctx.fillStyle = `rgba(5,6,10,${alpha.toFixed(2)})`; ctx.fillRect(0, 0, w, h);
+        ctx.textAlign = 'center';
+        // Pulsing "GAME OVER" text fading in
+        const textAlpha = Math.min(1, progress * 1.5);
+        ctx.globalAlpha = textAlpha;
+        ctx.shadowColor = C.red; ctx.shadowBlur = 30 * textAlpha;
+        ctx.font = 'bold 28px monospace'; ctx.fillStyle = C.red;
+        ctx.fillText(txt.gameOver, w / 2, h * 0.45);
+        ctx.shadowBlur = 0;
+        ctx.globalAlpha = 1;
+      }
+
       if (g.phase === 'over') {
         ctx.fillStyle = 'rgba(5,6,10,0.80)'; ctx.fillRect(0, 0, w, h);
         ctx.textAlign = 'center';
