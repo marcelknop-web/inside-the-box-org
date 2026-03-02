@@ -1066,13 +1066,16 @@ function BackgroundMeteor() {
   const headSizes = useMemo(() => new Float32Array(1), []);
   const headCol = useMemo(() => new Float32Array(3), []);
 
-  // Comet orbits at a fixed offset relative to camera – always in view
-  const cometAngle = useRef(0); // orbital angle
+  // Comet follows an exact elliptical orbit relative to camera
+  const cometAngle = useRef(0); // orbital angle (true anomaly)
   const cometOffset = useMemo(() => ({
-    distance: 200,    // far away
-    height: 90,       // high up
-    angularSpeed: 0.008, // very slow orbital drift
+    semiMajor: 250,     // long axis radius
+    semiMinor: 120,     // short axis radius
+    height: 90,         // base height above camera
+    heightAmplitude: 25, // vertical oscillation on ellipse
+    angularSpeed: 0.006, // slow orbital drift
     startAngle: Math.random() * Math.PI * 2,
+    tilt: 0.15,         // slight tilt of orbital plane
   }), []);
   const posHistory = useRef<THREE.Vector3[]>([]);
   const spawned = useRef(false);
@@ -1101,17 +1104,16 @@ function BackgroundMeteor() {
       cometAngle.current = cometOffset.startAngle;
     }
 
-    // Move comet in a slow arc across the sky, always relative to camera
-    cometAngle.current += cometOffset.angularSpeed * dt;
+    // Advance angle – Kepler-like: faster near periapsis (closer to camera)
+    const e = cometOffset;
+    cometAngle.current += e.angularSpeed * dt;
     const a = cometAngle.current;
     const cam = camera.position;
-    const d = cometOffset.distance;
-    const h = cometOffset.height;
 
-    // Position on a large circle around camera, high up
-    const cx = cam.x + Math.cos(a) * d;
-    const cy = cam.y + h + Math.sin(a * 0.3) * 15; // gentle vertical wave
-    const cz = cam.z + Math.sin(a) * d;
+    // Exact elliptical position
+    const cx = cam.x + Math.cos(a) * e.semiMajor;
+    const cy = cam.y + e.height + Math.sin(a) * e.heightAmplitude * Math.cos(e.tilt);
+    const cz = cam.z + Math.sin(a) * e.semiMinor;
 
     // Record history for tail (world-space)
     const currentPos = new THREE.Vector3(cx, cy, cz);
