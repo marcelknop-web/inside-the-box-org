@@ -1340,15 +1340,15 @@ const ChatView = () => {
                   }}
                 >
                   <div className="w-full text-center" style={{ marginBottom: '24px' }}>
-                    <p className="font-rounded text-base text-center text-highlight" style={{ fontWeight: 400 }}>
+                    <p className="font-rounded text-base text-center text-foreground" style={{ fontWeight: 400 }}>
                       {t('welcome.heroSubtitle')}
                     </p>
                   </div>
                   <div className="w-full flex flex-col items-center gap-1">
-                    <p className="font-rounded text-base text-center text-highlight" style={{ fontWeight: 500 }}>
+                    <p className="font-rounded text-base text-center text-foreground" style={{ fontWeight: 500 }}>
                       Marcel Knop
                     </p>
-                    <p className="font-rounded text-base text-center text-highlight" style={{ fontWeight: 500 }}>
+                    <p className="font-rounded text-base text-center text-foreground" style={{ fontWeight: 500 }}>
                       Andreas Funder
                     </p>
                   </div>
