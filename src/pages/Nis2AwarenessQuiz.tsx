@@ -73,6 +73,7 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
   const [confirmed, setConfirmed] = useState(false);
   const [score, setScore] = useState(0);
   const [gameOver, setGameOver] = useState(false);
+  const [gameOverReady, setGameOverReady] = useState(false); // delayed flag for showing results
   const [won, setWon] = useState(false);
 
   const [fiftyFiftyUsed, setFiftyFiftyUsed] = useState(false);
@@ -150,6 +151,14 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
       setTimeout(() => playDefeat(), 300);
     }
   }, [timeLeft, started, gameOver, won, confirmed, question]);
+
+  // Delay game-over screen to let the defeat melody play
+  useEffect(() => {
+    if (gameOver && !gameOverReady) {
+      const timer = setTimeout(() => setGameOverReady(true), 2200);
+      return () => clearTimeout(timer);
+    }
+  }, [gameOver, gameOverReady]);
 
   const handleSelect = (idx: number) => {
     if (confirmed || timeLeft === 0 || !question) return;
@@ -256,6 +265,7 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
     setConfirmed(false);
     setScore(0);
     setGameOver(false);
+    setGameOverReady(false);
     setWon(false);
     setFiftyFiftyUsed(false);
     setAudienceUsed(false);
@@ -325,7 +335,7 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
   }
 
   // ── Game Over / Won ──
-  if (gameOver || won) {
+  if (gameOverReady || won) {
     const securedLevel = getSecuredLevel();
     const finalLevel = won ? QUIZ_SIZE - 1 : (securedLevel >= 0 ? securedLevel : -1);
     const finalAmount = finalLevel >= 0 ? MONEY_LEVELS[finalLevel] : '0';

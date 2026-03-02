@@ -134,7 +134,7 @@ interface BulletHole { x: number; y: number; life: number; }
 interface MuzzleFlash { x: number; y: number; life: number; }
 
 interface GS {
-  phase: 'start' | 'play' | 'result' | 'over';
+  phase: 'start' | 'play' | 'result' | 'ending' | 'over';
   currentIncident: Incident | null;
   incidentIdx: number;
   timer: number;
@@ -157,6 +157,7 @@ interface GS {
   hi: number;
   usedIncidents: number[];
   hoverTarget: number; // which target mouse is hovering (-1 = none)
+  endingTimer: number;
 }
 
 /* ══════════════════════════════════════
@@ -209,9 +210,24 @@ const sfxNewRound = (ctx: AudioContext) => {
   setTimeout(() => tone(ctx, 880, 0.1, 'sine', 0.1), 60);
 };
 const sfxGameOver = (ctx: AudioContext) => {
-  tone(ctx, 440, 0.2, 'square', 0.08);
-  setTimeout(() => tone(ctx, 330, 0.25, 'sawtooth', 0.06), 180);
-  setTimeout(() => tone(ctx, 220, 0.4, 'sawtooth', 0.05), 360);
+  const t0 = ctx.currentTime;
+  const playNote = (freq: number, start: number, dur: number, type: OscillatorType = 'square', vol = 0.08) => {
+    const osc = ctx.createOscillator(); const g = ctx.createGain();
+    osc.type = type; osc.frequency.setValueAtTime(freq, t0 + start);
+    g.gain.setValueAtTime(vol, t0 + start);
+    g.gain.linearRampToValueAtTime(vol * 0.8, t0 + start + dur * 0.3);
+    g.gain.exponentialRampToValueAtTime(0.001, t0 + start + dur);
+    osc.connect(g); g.connect(ctx.destination);
+    osc.start(t0 + start); osc.stop(t0 + start + dur);
+  };
+  playNote(440, 0, 0.3, 'square', 0.1);
+  playNote(415, 0.25, 0.3, 'square', 0.09);
+  playNote(349, 0.5, 0.35, 'sawtooth', 0.08);
+  playNote(293, 0.8, 0.4, 'sawtooth', 0.07);
+  playNote(220, 1.1, 0.6, 'sawtooth', 0.06);
+  playNote(55, 0.3, 1.2, 'sine', 0.12);
+  playNote(233, 1.4, 0.8, 'sine', 0.03);
+  playNote(247, 1.5, 0.7, 'sine', 0.03);
 };
 const sfxTick = (ctx: AudioContext) => { tone(ctx, 1000, 0.02, 'sine', 0.04); };
 
@@ -280,7 +296,7 @@ const mkGS = (): GS => ({
   correct: 0, wrong: 0, lives: 3,
   particles: [], bulletHoles: [], muzzleFlash: null,
   lastResult: null, lastCorrectPrio: -1, resultTimer: 0,
-  shakeT: 0, hi: getHi(), usedIncidents: [], hoverTarget: -1,
+  shakeT: 0, hi: getHi(), usedIncidents: [], hoverTarget: -1, endingTimer: 0,
 });
 
 const rRect = (ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) => {
@@ -355,7 +371,7 @@ const TriggerTriage = ({ embedded }: { embedded?: boolean }) => {
   const nextRound = useCallback(() => {
     const g = gs.current;
     if (g.round >= g.maxRounds || g.lives <= 0) {
-      g.phase = 'over';
+      g.phase = 'ending'; g.endingTimer = 2.2;
       const acc = g.correct + g.wrong > 0 ? Math.round((g.correct / (g.correct + g.wrong)) * 100) : 0;
       saveHi(g.score); saveBoard(g.score, acc); g.hi = Math.max(g.hi, g.score);
       const ac = audioRef.current;
@@ -422,7 +438,7 @@ const TriggerTriage = ({ embedded }: { embedded?: boolean }) => {
       g.shakeT = 0.35;
       if (ac) setTimeout(() => sfxMiss(ac), 60);
       if (g.lives <= 0) {
-        g.phase = 'over';
+        g.phase = 'ending'; g.endingTimer = 2.2;
         const endAcc = g.correct + g.wrong > 0 ? Math.round((g.correct / (g.correct + g.wrong)) * 100) : 0;
         saveHi(g.score); saveBoard(g.score, endAcc); g.hi = Math.max(g.hi, g.score);
         if (ac) sfxGameOver(ac);
@@ -472,6 +488,7 @@ const TriggerTriage = ({ embedded }: { embedded?: boolean }) => {
     const handle = (cx: number, cy: number) => {
       const g = gs.current;
       if (g.phase === 'start' || g.phase === 'over') { startGame(); return; }
+      if (g.phase === 'ending') return; // block input during ending
       if (g.phase !== 'play') return;
       const { w, h } = sizeRef.current;
       const targets = getTargets(w, h);
@@ -536,7 +553,7 @@ const TriggerTriage = ({ embedded }: { embedded?: boolean }) => {
           g.shakeT = 0.3;
           if (ac) sfxTimeout(ac);
           if (g.lives <= 0) {
-            g.phase = 'over'; const toAcc = g.correct + g.wrong > 0 ? Math.round((g.correct / (g.correct + g.wrong)) * 100) : 0; saveHi(g.score); saveBoard(g.score, toAcc); g.hi = Math.max(g.hi, g.score);
+            g.phase = 'ending'; g.endingTimer = 2.2; const toAcc = g.correct + g.wrong > 0 ? Math.round((g.correct / (g.correct + g.wrong)) * 100) : 0; saveHi(g.score); saveBoard(g.score, toAcc); g.hi = Math.max(g.hi, g.score);
             if (ac) sfxGameOver(ac);
             stopBGMusic(bgRef.current); bgRef.current = null;
           } else {
@@ -548,6 +565,11 @@ const TriggerTriage = ({ embedded }: { embedded?: boolean }) => {
       if (g.phase === 'result') {
         g.resultTimer -= dt;
         if (g.resultTimer <= 0) nextRound();
+      }
+
+      if (g.phase === 'ending') {
+        g.endingTimer -= dt;
+        if (g.endingTimer <= 0) g.phase = 'over';
       }
 
       for (const p of g.particles) { p.x += p.vx * dt; p.y += p.vy * dt; p.life -= dt; p.vy += 300 * dt; }
@@ -894,6 +916,21 @@ const TriggerTriage = ({ embedded }: { embedded?: boolean }) => {
         const blink = Math.sin(now * 0.005) > 0;
         if (blink) { ctx.fillStyle = C.orange; ctx.font = 'bold 14px monospace'; ctx.fillText(mob ? '▶ TAP TO START' : '▶ PRESS SPACE', w / 2, h * 0.94); }
         if (g.hi > 0) { ctx.fillStyle = C.yellow + '50'; ctx.font = '10px monospace'; ctx.fillText('BEST: ' + g.hi, w / 2, h * 0.98); }
+      }
+
+      /* ── ENDING OVERLAY ── */
+      if (g.phase === 'ending') {
+        const progress = 1 - g.endingTimer / 2.2;
+        const alpha = Math.min(0.85, progress * 0.85);
+        ctx.fillStyle = `rgba(8,9,14,${alpha.toFixed(2)})`; ctx.fillRect(0, 0, w, h);
+        ctx.textAlign = 'center';
+        const textAlpha = Math.min(1, progress * 1.5);
+        ctx.globalAlpha = textAlpha;
+        ctx.shadowColor = C.red; ctx.shadowBlur = 30 * textAlpha;
+        ctx.font = 'bold 28px monospace'; ctx.fillStyle = C.red;
+        ctx.fillText('RANGE CLOSED', w / 2, h * 0.45);
+        ctx.shadowBlur = 0;
+        ctx.globalAlpha = 1;
       }
 
       /* ── GAME OVER ── */

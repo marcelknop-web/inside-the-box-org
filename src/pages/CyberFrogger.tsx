@@ -137,7 +137,28 @@ const sfxSplash = () => {
   } catch {}
 };
 const sfxScore = () => { tone(523, 0.08); setTimeout(() => tone(659, 0.08), 60); setTimeout(() => tone(784, 0.12), 120); };
-const sfxGameOver = () => { tone(440, 0.2, 'square', 0.1); setTimeout(() => tone(330, 0.2, 'square', 0.1), 180); setTimeout(() => tone(220, 0.4, 'sawtooth', 0.08), 360); };
+const sfxGameOver = () => {
+  try {
+    const ac = getAC(); const t0 = ac.currentTime;
+    const playNote = (freq: number, start: number, dur: number, type: OscillatorType = 'square', vol = 0.08) => {
+      const osc = ac.createOscillator(); const g = ac.createGain();
+      osc.type = type; osc.frequency.setValueAtTime(freq, t0 + start);
+      g.gain.setValueAtTime(vol, t0 + start);
+      g.gain.linearRampToValueAtTime(vol * 0.8, t0 + start + dur * 0.3);
+      g.gain.exponentialRampToValueAtTime(0.001, t0 + start + dur);
+      osc.connect(g); g.connect(ac.destination);
+      osc.start(t0 + start); osc.stop(t0 + start + dur);
+    };
+    playNote(440, 0, 0.3, 'square', 0.1);
+    playNote(415, 0.25, 0.3, 'square', 0.09);
+    playNote(349, 0.5, 0.35, 'sawtooth', 0.08);
+    playNote(293, 0.8, 0.4, 'sawtooth', 0.07);
+    playNote(220, 1.1, 0.6, 'sawtooth', 0.06);
+    playNote(55, 0.3, 1.2, 'sine', 0.12);
+    playNote(233, 1.4, 0.8, 'sine', 0.03);
+    playNote(247, 1.5, 0.7, 'sine', 0.03);
+  } catch {}
+};
 const sfxLevelUp = () => { [523, 659, 784, 1047].forEach((f, i) => setTimeout(() => tone(f, 0.12, 'square', 0.06), i * 80)); };
 const sfxLand = () => { tone(200, 0.05, 'triangle', 0.04); };
 
@@ -178,7 +199,7 @@ interface Vehicle { x: number; w: number; speed: number; name: string; color: st
 interface Log { x: number; w: number; speed: number; name: string; dir: number; }
 
 interface GS {
-  phase: 'start' | 'play' | 'dying' | 'scoring' | 'over';
+  phase: 'start' | 'play' | 'dying' | 'scoring' | 'ending' | 'over';
   frogX: number; frogY: number;
   targetX: number; targetY: number; // animation target
   hopAnim: number; // 0 = done, >0 = animating
@@ -191,6 +212,7 @@ interface GS {
   scoreAnim: number;
   onLog: number; // index of log frog is on, -1 if none
   logSpeed: number; // current log's speed for riding
+  endingTimer: number;
 }
 
 const spawnLane = (laneIdx: number, w: number, level: number, isRiver: boolean): (Vehicle | Log)[] => {
@@ -240,7 +262,7 @@ const mkGS = (level = 1): GS => {
     timer: ROUND_TIME,
     filledSlots: new Array(SAFE_SLOTS).fill(false),
     deathAnim: 0, scoreAnim: 0,
-    onLog: -1, logSpeed: 0,
+    onLog: -1, logSpeed: 0, endingTimer: 0,
   };
 };
 
@@ -286,7 +308,8 @@ export default function CyberFrogger({ embedded = false }: { embedded?: boolean 
     const g = gs.current;
     g.lives--;
     if (g.lives <= 0) {
-      g.phase = 'over';
+      g.phase = 'ending';
+      g.endingTimer = 2.2;
       saveBoard(g.score, g.level);
       sfxGameOver();
     } else {
@@ -432,6 +455,11 @@ export default function CyberFrogger({ embedded = false }: { embedded?: boolean 
       ctx.fillRect(0, 0, cw, ch);
 
       // ── UPDATE ──
+      if (g.phase === 'ending') {
+        g.endingTimer -= dt;
+        if (g.endingTimer <= 0) g.phase = 'over';
+      }
+
       if (g.phase === 'play') {
         // Timer
         timerAccum.current += dt;
@@ -822,6 +850,21 @@ export default function CyberFrogger({ embedded = false }: { embedded?: boolean 
         if (!mob) { ctx.fillStyle = C.dim; ctx.font = '9px monospace'; ctx.fillText(txt.controls, cw / 2, ch * 0.90); }
         const blink = Math.sin(now * 0.005) > 0;
         if (blink) { ctx.fillStyle = C.yellow; ctx.font = 'bold 13px monospace'; ctx.fillText(mob ? txt.tapStart : txt.pressSpace, cw / 2, ch * 0.95); }
+      }
+
+      // ── ENDING OVERLAY ──
+      if (g.phase === 'ending') {
+        const progress = 1 - g.endingTimer / 2.2;
+        const alpha = Math.min(0.85, progress * 0.85);
+        ctx.fillStyle = `rgba(5,6,10,${alpha.toFixed(2)})`; ctx.fillRect(0, 0, cw, ch);
+        ctx.textAlign = 'center';
+        const textAlpha = Math.min(1, progress * 1.5);
+        ctx.globalAlpha = textAlpha;
+        ctx.shadowColor = C.red; ctx.shadowBlur = 30 * textAlpha;
+        ctx.font = 'bold 22px monospace'; ctx.fillStyle = C.red;
+        ctx.fillText(txt.gameOver, cw / 2, ch * 0.45);
+        ctx.shadowBlur = 0;
+        ctx.globalAlpha = 1;
       }
 
       // ── GAME OVER ──
