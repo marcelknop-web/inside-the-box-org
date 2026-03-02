@@ -33,7 +33,7 @@ export const en = {
     aiWorkflows: 'AI Lab',
     publications: 'Publications',
     events: 'Events',
-    eventsWorkshops: 'Events & Workshops',
+    eventsWorkshops: 'Events & Trainings',
   },
   start: {
     cyberTrainingRange: 'Cyber Training Range',
@@ -135,7 +135,7 @@ export const en = {
     arenaTitle: 'Arena Training, TIBER Test',
     arenaSidebarLabel: 'Arena & TIBER',
     arenaDesc: 'Red team training and TIBER-EU/DE coordination.',
-    eventsTitle: 'Events & Workshops',
+    eventsTitle: 'Events & Trainings',
     eventsDesc: 'Moderation, awareness training, and technical workshops.',
     pubTitle: 'Publications',
     pubDesc: 'Industry publications and technical presentations.',
@@ -359,7 +359,7 @@ export const en = {
     ctaButton: '→ Get in touch',
   },
   events: {
-    title: 'Events & Workshops',
+    title: 'Events & Trainings',
     metaDesc: 'Moderation and training that deliver impact beyond the event day.',
     intro: 'Moderation and training that deliver impact beyond the event day.',
     moderationTitle: 'Moderation',
