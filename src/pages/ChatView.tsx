@@ -1296,17 +1296,23 @@ const ChatView = () => {
               <button onClick={() => setSidebarOpen(true)} className="mb-8 cursor-pointer bg-transparent border-none p-0 transition-electric group/welcome">
                 <GeometricSymbol size="sm" className="w-16 h-16 opacity-60 group-hover/welcome:opacity-100 transition-electric" hoverCyan />
               </button>
-              {/* Brand name */}
-              <button onClick={() => setSidebarOpen(true)} className="cursor-pointer bg-transparent border-none p-0 transition-electric" style={{ marginBottom: '40px' }}>
-                <h1 className="font-mono font-bold text-accent hover:text-highlight text-center transition-electric" style={{ fontSize: 'clamp(1.5rem, 4vw, 2.4rem)', letterSpacing: '-0.01em' }}>
+              {/* Brand name – invisible placeholder reserves full height */}
+              <button onClick={() => setSidebarOpen(true)} className="cursor-pointer bg-transparent border-none p-0 transition-electric relative" style={{ marginBottom: '40px' }}>
+                <h1 aria-hidden="true" className="font-mono font-bold text-center invisible" style={{ fontSize: 'clamp(1.5rem, 4vw, 2.4rem)', letterSpacing: '-0.01em' }}>
+                  {t('welcome.title')}
+                </h1>
+                <h1 className="font-mono font-bold text-accent hover:text-highlight text-center transition-electric absolute inset-0" style={{ fontSize: 'clamp(1.5rem, 4vw, 2.4rem)', letterSpacing: '-0.01em' }}>
                   <Typewriter text={t('welcome.title')} charDelay={60} />
                 </h1>
               </button>
-              {/* Animated hero content */}
+              {/* Animated hero content – all placeholders pre-reserve space */}
               <div className="flex flex-col items-center w-full">
                 {/* Claim – scramble decode reveal */}
-                <button onClick={() => setSidebarOpen(true)} className="cursor-pointer bg-transparent border-none p-0 w-full text-center transition-electric" style={{ marginBottom: '32px' }}>
-                  <p className="font-mono font-semibold text-center uppercase" style={{ fontSize: 'clamp(0.85rem, 2.8vw, 1.25rem)', letterSpacing: '0.12em', color: '#ffffff' }}>
+                <button onClick={() => setSidebarOpen(true)} className="cursor-pointer bg-transparent border-none p-0 w-full text-center transition-electric relative" style={{ marginBottom: '32px' }}>
+                  <p aria-hidden="true" className="font-mono font-semibold text-center uppercase invisible" style={{ fontSize: 'clamp(0.85rem, 2.8vw, 1.25rem)', letterSpacing: '0.12em' }}>
+                    {t('welcome.heroClaim')}
+                  </p>
+                  <p className="font-mono font-semibold text-center uppercase absolute inset-0" style={{ fontSize: 'clamp(0.85rem, 2.8vw, 1.25rem)', letterSpacing: '0.12em', color: '#ffffff' }}>
                     <Typewriter text={t('welcome.heroClaim')} mode="scramble" delay={2200} charDelay={18} cursor={false} onDone={() => setClaimDone(true)} />
                   </p>
                 </button>
@@ -1315,8 +1321,7 @@ const ChatView = () => {
                   className="flex flex-col items-center w-full"
                   style={{
                     opacity: claimDone ? 1 : 0,
-                    transform: claimDone ? 'translateY(0)' : 'translateY(8px)',
-                    transition: 'opacity 600ms ease-out, transform 600ms ease-out',
+                    transition: 'opacity 600ms ease-out',
                   }}
                 >
                   <button onClick={() => setSidebarOpen(true)} className="cursor-pointer bg-transparent border-none p-0 w-full text-center transition-electric" style={{ marginBottom: '16px' }}>
