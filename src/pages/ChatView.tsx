@@ -1316,13 +1316,27 @@ const ChatView = () => {
                     <Typewriter text={t('welcome.heroClaim')} mode="scramble" delay={2200} charDelay={18} cursor={false} onDone={() => setClaimDone(true)} />
                   </p>
                 </button>
+                {/* Tagline – fade in after claim */}
+                <div
+                  className="w-full text-center"
+                  style={{
+                    marginBottom: '24px',
+                    opacity: claimDone ? 1 : 0,
+                    visibility: claimDone ? 'visible' : 'hidden',
+                    transition: 'opacity 800ms ease-out, visibility 0s linear' + (claimDone ? ' 0s' : ' 800ms'),
+                  }}
+                >
+                  <p className="font-sans text-center italic" style={{ fontSize: 'clamp(0.72rem, 1.6vw, 0.88rem)', letterSpacing: '0.02em', color: 'rgba(255,255,255,0.50)' }}>
+                    Wenn Prozesse unter Stress funktionieren müssen.
+                  </p>
+                </div>
                 {/* Subtitle & Signature – always visible in layout, opacity-only transition */}
                 <div
                   className="flex flex-col items-center w-full"
                   style={{
                     opacity: claimDone ? 1 : 0,
                     visibility: claimDone ? 'visible' : 'hidden',
-                    transition: 'opacity 600ms ease-out, visibility 0s linear' + (claimDone ? ' 0s' : ' 600ms'),
+                    transition: 'opacity 600ms ease-out 200ms, visibility 0s linear' + (claimDone ? ' 0s' : ' 800ms'),
                   }}
                 >
                   <button onClick={() => setSidebarOpen(true)} className="cursor-pointer bg-transparent border-none p-0 w-full text-center transition-electric" style={{ marginBottom: '12px' }}>
