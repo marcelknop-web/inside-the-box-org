@@ -1293,8 +1293,8 @@ const ChatView = () => {
         <div ref={contentAreaRef} className="flex-1 overflow-y-auto relative" style={{ contain: 'layout style' }}>
           {!activeService && messages.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center px-4 mx-auto max-w-2xl" style={{ gap: 0, contain: 'layout style' }}>
-              <div className="mb-8 group/welcome">
-                <GeometricSymbol size="sm" className="w-12 h-12 opacity-60 group-hover/welcome:opacity-100 transition-electric" hoverCyan />
+              <div className="mb-8">
+                <GeometricSymbol size="sm" className="w-12 h-12 opacity-60" />
               </div>
               {/* Brand name */}
               <div className="relative" style={{ marginBottom: '32px' }}>
@@ -1307,25 +1307,34 @@ const ChatView = () => {
               </div>
               {/* Hero content */}
               <div className="flex flex-col items-center w-full" style={{ contain: 'layout style' }}>
-                {/* Tagline */}
-                <div className="w-full text-center" style={{ marginBottom: '28px' }}>
-                  <p className="font-rounded text-center text-foreground/75" style={{ fontSize: 'clamp(0.78rem, 1.5vw, 0.9rem)', fontWeight: 500, letterSpacing: '0.005em' }}>
+                {/* Claim – scramble decode */}
+                <div className="w-full text-center relative" style={{ marginBottom: '28px' }}>
+                  <p aria-hidden="true" className="font-rounded text-center invisible" style={{ fontSize: 'clamp(0.78rem, 1.5vw, 0.9rem)', fontWeight: 500, letterSpacing: '0.005em' }}>
                     Wenn Prozesse unter Stress funktionieren müssen.
                   </p>
-                </div>
-                {/* Subtitle & Names */}
-                <div className="w-full text-center" style={{ marginBottom: '24px' }}>
-                  <p className="font-rounded text-base text-center text-foreground" style={{ fontWeight: 400 }}>
-                    Cybersecurity Consulting
+                  <p className="font-rounded text-center text-foreground/75 absolute inset-0" style={{ fontSize: 'clamp(0.78rem, 1.5vw, 0.9rem)', fontWeight: 500, letterSpacing: '0.005em' }}>
+                    <Typewriter text="Wenn Prozesse unter Stress funktionieren müssen." mode="scramble" delay={2200} charDelay={18} cursor={false} onDone={() => setClaimDone(true)} />
                   </p>
                 </div>
-                <div className="w-full flex flex-col items-center gap-1">
-                  <p className="font-rounded text-base text-center text-foreground" style={{ fontWeight: 500 }}>
-                    Marcel Knop
-                  </p>
-                  <p className="font-rounded text-base text-center text-foreground" style={{ fontWeight: 500 }}>
-                    Andreas Funder
-                  </p>
+                {/* Subtitle & Names – fade in after claim */}
+                <div
+                  className="flex flex-col items-center w-full"
+                  style={{
+                    opacity: claimDone ? 1 : 0,
+                    visibility: claimDone ? 'visible' : 'hidden',
+                    transition: 'opacity 600ms ease-out, visibility 0s linear' + (claimDone ? ' 0s' : ' 600ms'),
+                  }}
+                >
+                  <div className="w-full text-center" style={{ marginBottom: '16px' }}>
+                    <p className="font-rounded text-base text-center text-foreground" style={{ fontWeight: 400 }}>
+                      Cybersecurity Consulting
+                    </p>
+                  </div>
+                  <div className="w-full text-center">
+                    <p className="font-rounded text-base text-center text-foreground" style={{ fontWeight: 500 }}>
+                      Marcel Knop · Andreas Funder
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
