@@ -1307,51 +1307,25 @@ const ChatView = () => {
               </div>
               {/* Hero content */}
               <div className="flex flex-col items-center w-full" style={{ contain: 'layout style' }}>
-                {/* Claim – scramble decode */}
-                <div className="w-full text-center relative" style={{ marginBottom: '28px' }}>
-                  <p aria-hidden="true" className="font-rounded text-center uppercase invisible" style={{ fontSize: 'clamp(0.72rem, 1.8vw, 0.88rem)', letterSpacing: '0.05em', fontWeight: 600 }}>
-                    {t('welcome.heroClaim')}
-                  </p>
-                  <p className="font-rounded text-center uppercase text-foreground absolute inset-0" style={{ fontSize: 'clamp(0.72rem, 1.8vw, 0.88rem)', letterSpacing: '0.05em', fontWeight: 600 }}>
-                    <Typewriter text={t('welcome.heroClaim')} mode="scramble" delay={2200} charDelay={18} cursor={false} onDone={() => setClaimDone(true)} />
-                  </p>
-                </div>
                 {/* Tagline */}
-                <div
-                  className="w-full text-center"
-                  style={{
-                    marginBottom: '28px',
-                    opacity: claimDone ? 1 : 0,
-                    visibility: claimDone ? 'visible' : 'hidden',
-                    transition: 'opacity 800ms ease-out, visibility 0s linear' + (claimDone ? ' 0s' : ' 800ms'),
-                  }}
-                >
+                <div className="w-full text-center" style={{ marginBottom: '28px' }}>
                   <p className="font-rounded text-center text-foreground/75" style={{ fontSize: 'clamp(0.78rem, 1.5vw, 0.9rem)', fontWeight: 500, letterSpacing: '0.005em' }}>
                     Wenn Prozesse unter Stress funktionieren müssen.
                   </p>
                 </div>
                 {/* Subtitle & Names */}
-                <div
-                  className="flex flex-col items-center w-full"
-                  style={{
-                    opacity: claimDone ? 1 : 0,
-                    visibility: claimDone ? 'visible' : 'hidden',
-                    transition: 'opacity 600ms ease-out 200ms, visibility 0s linear' + (claimDone ? ' 0s' : ' 800ms'),
-                  }}
-                >
-                  <div className="w-full text-center" style={{ marginBottom: '24px' }}>
-                    <p className="font-rounded text-base text-center text-foreground" style={{ fontWeight: 400 }}>
-                      {t('welcome.heroSubtitle')}
-                    </p>
-                  </div>
-                  <div className="w-full flex flex-col items-center gap-1">
-                    <p className="font-rounded text-base text-center text-foreground" style={{ fontWeight: 500 }}>
-                      Marcel Knop
-                    </p>
-                    <p className="font-rounded text-base text-center text-foreground" style={{ fontWeight: 500 }}>
-                      Andreas Funder
-                    </p>
-                  </div>
+                <div className="w-full text-center" style={{ marginBottom: '24px' }}>
+                  <p className="font-rounded text-base text-center text-foreground" style={{ fontWeight: 400 }}>
+                    Cybersecurity Consulting
+                  </p>
+                </div>
+                <div className="w-full flex flex-col items-center gap-1">
+                  <p className="font-rounded text-base text-center text-foreground" style={{ fontWeight: 500 }}>
+                    Marcel Knop
+                  </p>
+                  <p className="font-rounded text-base text-center text-foreground" style={{ fontWeight: 500 }}>
+                    Andreas Funder
+                  </p>
                 </div>
               </div>
             </div>
