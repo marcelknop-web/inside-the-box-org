@@ -1312,8 +1312,8 @@ const ChatView = () => {
           {!activeService && messages.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center px-4 mx-auto max-w-2xl" style={{ gap: 0, contain: 'layout style' }}>
               {/* Logo – always visible */}
-              <div className="mb-8">
-                <GeometricSymbol size="sm" className="w-12 h-12 opacity-60" />
+              <div className="mb-8 animate-logo-breathe">
+                <GeometricSymbol size="sm" className="w-12 h-12" />
               </div>
 
               {/* Brand name – typewriter */}
