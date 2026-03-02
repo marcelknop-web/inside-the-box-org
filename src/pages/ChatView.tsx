@@ -1117,7 +1117,9 @@ const ChatView = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
   const [sidebarInitialized, setSidebarInitialized] = useState(false);
-  const [claimDone, setClaimDone] = useState(false);
+   const [titleDone, setTitleDone] = useState(false);
+   const [subtitleDone, setSubtitleDone] = useState(false);
+   const [claimDone, setClaimDone] = useState(false);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const crisisRef = useRef<CrisisSimulatorHandle>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -1293,54 +1295,74 @@ const ChatView = () => {
         <div ref={contentAreaRef} className="flex-1 overflow-y-auto relative" style={{ contain: 'layout style' }}>
           {!activeService && messages.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center px-4 mx-auto max-w-2xl" style={{ gap: 0, contain: 'layout style' }}>
+              {/* Logo – always visible */}
               <div className="mb-8">
                 <GeometricSymbol size="sm" className="w-12 h-12 opacity-60" />
               </div>
-              {/* Brand name */}
-              <div style={{ marginBottom: '32px', textAlign: 'center' }}>
-                <div className="relative">
-                  <h1 aria-hidden="true" className="font-rounded font-bold text-center invisible whitespace-nowrap" style={{ fontSize: 'clamp(1.3rem, 3.5vw, 2rem)', letterSpacing: '-0.02em' }}>
-                    {t('welcome.title')}
-                  </h1>
-                  <h1 className="font-rounded font-bold text-accent text-center absolute inset-0 whitespace-nowrap" style={{ fontSize: 'clamp(1.3rem, 3.5vw, 2rem)', letterSpacing: '-0.02em' }}>
-                    <Typewriter text={t('welcome.title')} charDelay={60} cursor={false} />
-                  </h1>
-                </div>
-                <p className="font-rounded text-primary text-center mt-2" style={{ fontSize: 'clamp(0.7rem, 1.4vw, 0.82rem)', fontWeight: 500, letterSpacing: '0.01em' }}>
-                  Wenn Prozesse unter Stress funktionieren müssen.
+
+              {/* Brand name – typewriter */}
+              <div className="relative" style={{ marginBottom: '8px' }}>
+                <h1 aria-hidden="true" className="font-rounded font-bold text-center invisible whitespace-nowrap" style={{ fontSize: 'clamp(1.3rem, 3.5vw, 2rem)', letterSpacing: '-0.02em' }}>
+                  {t('welcome.title')}
+                </h1>
+                <h1 className="font-rounded font-bold text-accent text-center absolute inset-0 whitespace-nowrap" style={{ fontSize: 'clamp(1.3rem, 3.5vw, 2rem)', letterSpacing: '-0.02em' }}>
+                  <Typewriter text={t('welcome.title')} charDelay={60} cursor={false} onDone={() => setTitleDone(true)} />
+                </h1>
+              </div>
+
+              {/* Subtitle – fade in after title */}
+              <p
+                className="font-rounded text-primary text-center"
+                style={{
+                  fontSize: 'clamp(0.7rem, 1.4vw, 0.82rem)',
+                  fontWeight: 500,
+                  letterSpacing: '0.01em',
+                  marginBottom: '28px',
+                  opacity: titleDone ? 1 : 0,
+                  transition: 'opacity 500ms ease-out',
+                }}
+                onTransitionEnd={() => { if (titleDone) setSubtitleDone(true); }}
+              >
+                Wenn Prozesse unter Stress funktionieren müssen.
+              </p>
+
+              {/* Claim – scramble, starts after subtitle */}
+              <div className="w-full text-center relative" style={{ marginBottom: '28px' }}>
+                <p aria-hidden="true" className="font-rounded text-center uppercase invisible" style={{ fontSize: 'clamp(0.72rem, 1.8vw, 0.88rem)', letterSpacing: '0.18em', fontWeight: 600 }}>
+                  {t('welcome.heroClaim')}
+                </p>
+                {subtitleDone && (
+                  <p className="font-rounded text-center uppercase text-foreground absolute inset-0" style={{ fontSize: 'clamp(0.72rem, 1.8vw, 0.88rem)', letterSpacing: '0.18em', fontWeight: 600 }}>
+                    <Typewriter text={t('welcome.heroClaim')} mode="scramble" charDelay={18} cursor={false} onDone={() => setClaimDone(true)} />
+                  </p>
+                )}
+              </div>
+
+              {/* Cybersecurity Consulting – fade after claim */}
+              <div
+                className="w-full text-center"
+                style={{
+                  marginBottom: '16px',
+                  opacity: claimDone ? 1 : 0,
+                  transition: 'opacity 600ms ease-out',
+                }}
+              >
+                <p className="font-rounded text-base text-center text-foreground" style={{ fontWeight: 400 }}>
+                  Cybersecurity Consulting
                 </p>
               </div>
-              {/* Hero content */}
-              <div className="flex flex-col items-center w-full" style={{ contain: 'layout style' }}>
-                {/* Claim – scramble decode */}
-                <div className="w-full text-center relative" style={{ marginBottom: '28px' }}>
-                  <p aria-hidden="true" className="font-rounded text-center uppercase invisible" style={{ fontSize: 'clamp(0.72rem, 1.8vw, 0.88rem)', letterSpacing: '0.05em', fontWeight: 600 }}>
-                    {t('welcome.heroClaim')}
-                  </p>
-                  <p className="font-rounded text-center uppercase text-foreground absolute inset-0" style={{ fontSize: 'clamp(0.72rem, 1.8vw, 0.88rem)', letterSpacing: '0.05em', fontWeight: 600 }}>
-                    <Typewriter text={t('welcome.heroClaim')} mode="scramble" delay={2200} charDelay={18} cursor={false} onDone={() => setClaimDone(true)} />
-                  </p>
-                </div>
-                {/* Subtitle & Names – fade in after claim */}
-                <div
-                  className="flex flex-col items-center w-full"
-                  style={{
-                    opacity: claimDone ? 1 : 0,
-                    visibility: claimDone ? 'visible' : 'hidden',
-                    transition: 'opacity 600ms ease-out, visibility 0s linear' + (claimDone ? ' 0s' : ' 600ms'),
-                  }}
-                >
-                  <div className="w-full text-center" style={{ marginBottom: '16px' }}>
-                    <p className="font-rounded text-base text-center text-foreground" style={{ fontWeight: 400 }}>
-                      Cybersecurity Consulting
-                    </p>
-                  </div>
-                  <div className="w-full text-center">
-                    <p className="font-rounded text-base text-center text-foreground" style={{ fontWeight: 500 }}>
-                      Marcel Knop · Andreas Funder
-                    </p>
-                  </div>
-                </div>
+
+              {/* Names – fade after claim (slightly delayed) */}
+              <div
+                className="w-full text-center"
+                style={{
+                  opacity: claimDone ? 1 : 0,
+                  transition: 'opacity 600ms ease-out 300ms',
+                }}
+              >
+                <p className="font-rounded text-base text-center text-foreground" style={{ fontWeight: 500 }}>
+                  Marcel Knop · Andreas Funder
+                </p>
               </div>
             </div>
           ) : (
