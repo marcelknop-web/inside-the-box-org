@@ -1293,40 +1293,40 @@ const ChatView = () => {
         <div ref={contentAreaRef} className="flex-1 overflow-y-auto relative" style={{ contain: 'layout style' }}>
           {!activeService && messages.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center px-4 mx-auto max-w-2xl" style={{ gap: 0, contain: 'layout style' }}>
-              <button onClick={() => setSidebarOpen(true)} className="mb-6 cursor-pointer bg-transparent border-none p-0 transition-electric group/welcome">
+              <div className="mb-8 group/welcome">
                 <GeometricSymbol size="sm" className="w-12 h-12 opacity-60 group-hover/welcome:opacity-100 transition-electric" hoverCyan />
-              </button>
-              {/* Brand name – invisible placeholder reserves full height */}
-              <button onClick={() => setSidebarOpen(true)} className="cursor-pointer bg-transparent border-none p-0 transition-electric relative" style={{ marginBottom: '20px' }}>
+              </div>
+              {/* Brand name */}
+              <div className="relative" style={{ marginBottom: '32px' }}>
                 <h1 aria-hidden="true" className="font-mono font-bold text-center invisible" style={{ fontSize: 'clamp(1.3rem, 3.5vw, 2rem)', letterSpacing: '-0.02em' }}>
                   {t('welcome.title')}
                 </h1>
-                <h1 className="font-mono font-bold text-accent hover:text-highlight text-center transition-electric absolute inset-0" style={{ fontSize: 'clamp(1.3rem, 3.5vw, 2rem)', letterSpacing: '-0.02em' }}>
+                <h1 className="font-mono font-bold text-accent text-center absolute inset-0" style={{ fontSize: 'clamp(1.3rem, 3.5vw, 2rem)', letterSpacing: '-0.02em' }}>
                   <Typewriter text={t('welcome.title')} charDelay={60} />
                 </h1>
-              </button>
-              {/* Animated hero content */}
+              </div>
+              {/* Hero content */}
               <div className="flex flex-col items-center w-full" style={{ contain: 'layout style' }}>
                 {/* Claim – scramble decode */}
-                <button onClick={() => setSidebarOpen(true)} className="cursor-pointer bg-transparent border-none p-0 w-full text-center transition-electric relative" style={{ marginBottom: '16px' }}>
-                  <p aria-hidden="true" className="font-mono font-semibold text-center uppercase invisible" style={{ fontSize: 'clamp(0.72rem, 1.8vw, 0.88rem)', letterSpacing: '0.06em' }}>
+                <div className="w-full text-center relative" style={{ marginBottom: '28px' }}>
+                  <p aria-hidden="true" className="font-mono text-center uppercase invisible" style={{ fontSize: 'clamp(0.72rem, 1.8vw, 0.88rem)', letterSpacing: '0.05em', fontWeight: 600 }}>
                     {t('welcome.heroClaim')}
                   </p>
-                  <p className="font-mono font-semibold text-center uppercase absolute inset-0" style={{ fontSize: 'clamp(0.72rem, 1.8vw, 0.88rem)', letterSpacing: '0.06em', color: 'rgba(255,255,255,0.9)' }}>
+                  <p className="font-mono text-center uppercase absolute inset-0" style={{ fontSize: 'clamp(0.72rem, 1.8vw, 0.88rem)', letterSpacing: '0.05em', fontWeight: 600, color: 'rgba(255,255,255,0.92)' }}>
                     <Typewriter text={t('welcome.heroClaim')} mode="scramble" delay={2200} charDelay={18} cursor={false} onDone={() => setClaimDone(true)} />
                   </p>
-                </button>
+                </div>
                 {/* Tagline */}
                 <div
                   className="w-full text-center"
                   style={{
-                    marginBottom: '20px',
+                    marginBottom: '24px',
                     opacity: claimDone ? 1 : 0,
                     visibility: claimDone ? 'visible' : 'hidden',
                     transition: 'opacity 800ms ease-out, visibility 0s linear' + (claimDone ? ' 0s' : ' 800ms'),
                   }}
                 >
-                  <p className="font-sans font-medium text-center" style={{ fontSize: 'clamp(0.7rem, 1.5vw, 0.82rem)', letterSpacing: '0.01em', color: 'rgba(255,255,255,0.55)' }}>
+                  <p className="font-sans text-center" style={{ fontSize: 'clamp(0.75rem, 1.6vw, 0.88rem)', fontWeight: 500, letterSpacing: '0.005em', color: 'rgba(255,255,255,0.62)' }}>
                     Wenn Prozesse unter Stress funktionieren müssen.
                   </p>
                 </div>
@@ -1339,16 +1339,16 @@ const ChatView = () => {
                     transition: 'opacity 600ms ease-out 200ms, visibility 0s linear' + (claimDone ? ' 0s' : ' 800ms'),
                   }}
                 >
-                  <button onClick={() => setSidebarOpen(true)} className="cursor-pointer bg-transparent border-none p-0 w-full text-center transition-electric" style={{ marginBottom: '8px' }}>
-                    <p className="font-sans font-normal text-center" style={{ fontSize: 'clamp(0.65rem, 1.3vw, 0.75rem)', letterSpacing: '0.01em', color: 'rgba(255,255,255,0.45)' }}>
+                  <div className="w-full text-center" style={{ marginBottom: '16px' }}>
+                    <p className="font-sans text-center" style={{ fontSize: 'clamp(0.65rem, 1.3vw, 0.75rem)', fontWeight: 400, letterSpacing: '0.01em', color: 'rgba(255,255,255,0.52)' }}>
                       {t('welcome.heroSubtitle')}
                     </p>
-                  </button>
-                  <button onClick={() => setSidebarOpen(true)} className="cursor-pointer bg-transparent border-none p-0 w-full text-center transition-electric">
-                    <p className="font-sans font-normal text-center" style={{ fontSize: 'clamp(0.6rem, 1.1vw, 0.7rem)', letterSpacing: '0.01em', color: 'rgba(255,255,255,0.35)' }}>
+                  </div>
+                  <div className="w-full text-center">
+                    <p className="font-sans text-center" style={{ fontSize: 'clamp(0.58rem, 1vw, 0.65rem)', fontWeight: 400, letterSpacing: '0.01em', color: 'rgba(255,255,255,0.32)' }}>
                       {t('welcome.heroSignature')}
                     </p>
-                  </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1432,8 +1432,8 @@ const ChatView = () => {
             );
           }
           return (
-            <div className="absolute bottom-4 left-4 right-4 z-10 md:left-auto md:right-6 md:w-[min(600px,calc(100%-2rem))] pointer-events-none">
-              <div className="pointer-events-auto">
+            <div className="absolute bottom-4 left-4 right-4 z-10 md:left-8 md:right-8 pointer-events-none">
+              <div className="max-w-2xl ml-auto pointer-events-auto">
                 <div className="relative flex items-center bg-secondary/90 backdrop-blur-md rounded-xl border border-highlight/30 focus-within:border-highlight/60 transition-electric shadow-lg">
                   <textarea
                     ref={inputRef}
