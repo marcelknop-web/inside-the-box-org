@@ -411,7 +411,7 @@ export const en = {
     eduTitle: 'Training Materials',
     eduDesc: 'Training materials for practitioners and security managers — developed from project practice, not from textbooks. Used in crisis exercises, awareness programs, and technical trainings.',
     ctaTitle: 'Next Step',
-    ctaDesc: 'An initial conversation takes 30 minutes. No pitch — just an assessment of whether the model fits your situation.',
+    ctaDesc: 'An initial conversation takes 30 minutes. No pitch — just an assessment of whether and which format fits your situation.',
     ctaButton: '→ Get in touch',
   },
   vciso: {
