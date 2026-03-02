@@ -1399,10 +1399,10 @@ const ChatView = () => {
           )}
         </div>
 
-        {/* Input - desktop: always show (except service on mobile). Mobile welcome: show floating button, expand on click */}
+        {/* Input – desktop: always visible floating at bottom; mobile/tablet: FAB toggle */}
         {(() => {
-          const isTouchDevice = isMobile || isTablet;
-          // On touch devices: show FAB unless user explicitly opened chat; hide completely on service pages (except crisis-sim)
+          const isTouchDevice = isMobile;
+          // On mobile with active service (except crisis/stress): hide completely
           if (isTouchDevice && !!activeService && activeService !== 'crisis-sim' && activeService !== 'stress-sim') return null;
           const showInput = !isTouchDevice || chatOpen;
           if (!showInput) {
@@ -1418,20 +1418,20 @@ const ChatView = () => {
             );
           }
           return (
-            <div className="border-t border-border px-2 md:px-4 py-1.5 md:py-2 flex-shrink-0">
-              <div className="max-w-3xl mx-auto">
-                <div className="relative flex items-center bg-secondary rounded-xl border border-highlight/30 focus-within:border-highlight/60 transition-electric">
+            <div className="absolute bottom-4 left-0 right-0 z-10 px-4 md:px-6 pointer-events-none">
+              <div className="max-w-2xl mx-auto pointer-events-auto">
+                <div className="relative flex items-center bg-secondary/90 backdrop-blur-md rounded-xl border border-highlight/30 focus-within:border-highlight/60 transition-electric shadow-lg">
                   <textarea
                     ref={inputRef}
                     value={input}
                     onChange={e => setInput(e.target.value)}
                     onKeyDown={handleKeyDown}
                     rows={1}
-                    placeholder={t('welcome.chatPlaceholder')}
-                    className="flex-1 bg-transparent px-3 md:px-4 py-2 text-base md:text-sm font-mono text-foreground placeholder:text-highlight/50 resize-none focus:outline-none max-h-[120px]"
+                    placeholder="Ask me anything …"
+                    className="flex-1 bg-transparent px-3 md:px-4 py-2.5 text-base md:text-sm font-mono text-foreground placeholder:text-muted-foreground resize-none focus:outline-none max-h-[120px]"
                     disabled={isLoading || (activeService === 'crisis-sim' && crisisRef.current?.isLoading())}
                   />
-                  <button onClick={handleSend} disabled={!input.trim() || isLoading || (activeService === 'crisis-sim' && crisisRef.current?.isLoading())} className="m-1 p-1.5 rounded-lg bg-highlight text-highlight-foreground disabled:opacity-30 hover:bg-highlight/80 transition-electric">
+                  <button onClick={handleSend} disabled={!input.trim() || isLoading || (activeService === 'crisis-sim' && crisisRef.current?.isLoading())} className="m-1.5 p-2 rounded-lg bg-highlight text-highlight-foreground disabled:opacity-30 hover:bg-highlight/80 transition-electric">
                     <Send size={14} />
                   </button>
                 </div>
