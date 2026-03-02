@@ -1298,11 +1298,11 @@ const ChatView = () => {
               </div>
               {/* Brand name */}
               <div className="relative" style={{ marginBottom: '32px' }}>
-                <h1 aria-hidden="true" className="font-rounded font-bold text-center invisible" style={{ fontSize: 'clamp(1.3rem, 3.5vw, 2rem)', letterSpacing: '-0.02em' }}>
+                <h1 aria-hidden="true" className="font-rounded font-bold text-center invisible whitespace-nowrap" style={{ fontSize: 'clamp(1.3rem, 3.5vw, 2rem)', letterSpacing: '-0.02em' }}>
                   {t('welcome.title')}
                 </h1>
-                <h1 className="font-rounded font-bold text-accent text-center absolute inset-0" style={{ fontSize: 'clamp(1.3rem, 3.5vw, 2rem)', letterSpacing: '-0.02em' }}>
-                  <Typewriter text={t('welcome.title')} charDelay={60} />
+                <h1 className="font-rounded font-bold text-accent text-center absolute inset-0 whitespace-nowrap" style={{ fontSize: 'clamp(1.3rem, 3.5vw, 2rem)', letterSpacing: '-0.02em' }}>
+                  <Typewriter text={t('welcome.title')} charDelay={60} cursor={false} />
                 </h1>
               </div>
               {/* Hero content */}
