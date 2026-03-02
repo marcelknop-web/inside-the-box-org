@@ -225,21 +225,22 @@ export function DynamicRock({ index, physics, mobile = false }: { index: number;
     const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
     const nearFactor = Math.max(0, 1 - dist / 120);
 
-    // Blink state from ClusterExplosion
+    // Blink state from ClusterExplosion (0 = normal, >0 = warning progress 0..1)
     const blink = physics.blinkMap[index];
 
     if (lineMatRef.current) {
       if (blink > 0) {
-        // Yellow-white blinking: frequency increases with progress
-        const blinkFreq = 3 + blink * 25;
-        const flash = Math.sin(clock.elapsedTime * blinkFreq) * 0.5 + 0.5;
-        const r = 1.0;
-        const g = 0.9 + flash * 0.1;
-        const b = 0.3 + flash * 0.7;
-        lineMatRef.current.color.setRGB(r, g, b);
-        lineMatRef.current.opacity = 0.5 + flash * 0.5;
+        // Flicker on/off: frequency increases with progress, hard on/off (no smooth sine)
+        const flickerFreq = 4 + blink * 30;
+        const on = Math.sin(clock.elapsedTime * flickerFreq) > 0;
+        lineMatRef.current.color.set(mobile ? '#55ffcc' : LINE_COLOR);
+        lineMatRef.current.opacity = on ? (mobile ? 0.6 : 0.9) : 0;
+        // Shrink the rock as it approaches explosion
+        const shrink = 1 - blink * 0.7;
+        ref.current.scale.setScalar(shrink);
       } else {
         // Normal green wireframe
+        ref.current.scale.setScalar(1);
         lineMatRef.current.color.set(mobile ? '#55ffcc' : LINE_COLOR);
         lineMatRef.current.opacity = mobile
           ? 0.25 + nearFactor * 0.45
