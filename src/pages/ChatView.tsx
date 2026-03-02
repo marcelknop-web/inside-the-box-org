@@ -1120,6 +1120,7 @@ const ChatView = () => {
    const [titleDone, setTitleDone] = useState(false);
    const [subtitleDone, setSubtitleDone] = useState(false);
    const [claimDone, setClaimDone] = useState(false);
+   const [chatBarReady, setChatBarReady] = useState(false);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const crisisRef = useRef<CrisisSimulatorHandle>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -1201,6 +1202,14 @@ const ChatView = () => {
     }
   }, [sidebarInitialized, claimDone, activeService]);
 
+  // Show chat bar after sidebar has opened (last element to appear)
+  useEffect(() => {
+    if (sidebarInitialized && !chatBarReady) {
+      const delay = activeService !== null ? 0 : 800;
+      const timer = setTimeout(() => setChatBarReady(true), delay);
+      return () => clearTimeout(timer);
+    }
+  }, [sidebarInitialized, chatBarReady, activeService]);
   const [isTablet, setIsTablet] = useState(false);
   useEffect(() => {
     const check = () => setIsTablet(window.innerWidth >= 768 && window.innerWidth <= 1024);
@@ -1459,10 +1468,11 @@ const ChatView = () => {
           }
           return (
             <div
-              className="fixed bottom-4 z-40 pointer-events-none"
+              className="fixed bottom-4 z-40 pointer-events-none transition-opacity duration-700 ease-out"
               style={{
                 left: isMobile ? '1rem' : (sidebarOpen ? 'calc(16rem + 1.5rem)' : '1.5rem'),
                 right: isMobile ? '1rem' : '0.75rem',
+                opacity: chatBarReady ? 1 : 0,
               }}
             >
               <div className="max-w-2xl ml-auto pointer-events-auto">
