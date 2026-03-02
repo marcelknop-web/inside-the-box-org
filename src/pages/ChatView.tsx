@@ -489,8 +489,15 @@ const useServiceContent = () => {
     'arena-training': () => (
       <TypedSection title={t('arena.title')} mode="typewriter" intro={<p>{t('arena.intro')}</p>}>
          <Block className="bg-card/40 rounded-xl">
+           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{t('arena.introDetail')}</p>
+         </Block>
+         <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
+           <SubTitle variant="highlight">{t('arena.stakesTitle')}</SubTitle>
+           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mt-2">{t('arena.stakesDesc')}</p>
+         </Block>
+         <Block className="bg-card/40 rounded-xl">
            <SubTitle variant="highlight">{t('arena.sectionTitle')}</SubTitle>
-           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mt-2">{t('arena.introDetail')}</p>
+           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mt-2">{t('arena.sectionDesc')}</p>
          </Block>
          <Block className="bg-primary/5 border border-primary/20 rounded-xl">
            <div className="grid grid-cols-1 gap-3">
