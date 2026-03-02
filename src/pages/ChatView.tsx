@@ -494,13 +494,15 @@ const useServiceContent = () => {
         <Block className="bg-primary/5 border border-primary/20 rounded-xl">
           <SubTitle>{t('arena.sectionTitle')}</SubTitle>
           <div className="grid grid-cols-1 gap-3 mt-2">
-            <GridItem icon={Target} title={t('arena.arenaTitle')} desc={t('arena.arenaDesc')} />
-            <GridItem icon={Flag} title={t('arena.tiberTitle')} desc={t('arena.tiberDesc')} />
+            <GridItem icon={Search} title={t('arena.scopingTitle')} desc={t('arena.scopingDesc')} />
+            <GridItem icon={Eye} title={t('arena.threatIntelTitle')} desc={t('arena.threatIntelDesc')} />
+            <GridItem icon={Target} title={t('arena.redTeamTitle')} desc={t('arena.redTeamDesc')} />
+            <GridItem icon={FileText} title={t('arena.reportingTitle')} desc={t('arena.reportingDesc')} />
           </div>
         </Block>
         <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
-          <SubTitle variant="highlight">{t('arena.methTitle')}</SubTitle>
-          <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mt-2">{t('arena.methDesc')}</p>
+          <SubTitle variant="highlight">{t('arena.targetTitle')}</SubTitle>
+          <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mt-2">{t('arena.targetDesc')}</p>
         </Block>
         <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
           <SubTitle variant="highlight">{t('arena.refTitle')}</SubTitle>
