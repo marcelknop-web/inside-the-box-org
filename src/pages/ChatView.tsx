@@ -1183,10 +1183,23 @@ const ChatView = () => {
   useEffect(() => {
     if (!sidebarInitialized && typeof window !== 'undefined') {
       const mobile = window.innerWidth < 768;
-      setSidebarOpen(!mobile);
-      setSidebarInitialized(true);
+      if (mobile) {
+        // Mobile: sidebar stays closed, mark initialized
+        setSidebarInitialized(true);
+      } else if (activeService !== null) {
+        // Desktop with active service: open immediately
+        setSidebarOpen(true);
+        setSidebarInitialized(true);
+      } else if (claimDone) {
+        // Desktop welcome screen: open after hero animation completes
+        const timer = setTimeout(() => {
+          setSidebarOpen(true);
+          setSidebarInitialized(true);
+        }, 400);
+        return () => clearTimeout(timer);
+      }
     }
-  }, [sidebarInitialized]);
+  }, [sidebarInitialized, claimDone, activeService]);
 
   const [isTablet, setIsTablet] = useState(false);
   useEffect(() => {
