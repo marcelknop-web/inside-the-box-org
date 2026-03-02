@@ -525,7 +525,7 @@ export const en = {
     title: 'inside-the-box.org',
     headerTitle: 'inside-the-box.org',
     heroSubtitle: 'Cybersecurity Consulting',
-    heroClaim: 'Analysis. Training. Implementation.',
+    heroClaim: 'Analysis. Implementation. Training.',
     heroSignature: 'Marcel Knop & Andreas Funder',
     intro: '',
     chatPlaceholder: 'INPUT',
