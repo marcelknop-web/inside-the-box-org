@@ -1330,7 +1330,7 @@ const ChatView = () => {
               <p
                 className="font-rounded text-primary text-center"
                 style={{
-                  fontSize: 'clamp(0.7rem, 1.4vw, 0.82rem)',
+                  fontSize: 'clamp(0.95rem, 2.2vw, 1.05rem)',
                   fontWeight: 500,
                   letterSpacing: '0.01em',
                   marginBottom: '28px',
@@ -1344,11 +1344,11 @@ const ChatView = () => {
 
               {/* Claim – scramble, starts after subtitle */}
               <div className="w-full text-center relative" style={{ marginBottom: '28px' }}>
-                <p aria-hidden="true" className="font-rounded text-center uppercase invisible" style={{ fontSize: 'clamp(0.72rem, 1.8vw, 0.88rem)', letterSpacing: '0.18em', fontWeight: 600 }}>
+                <p aria-hidden="true" className="font-rounded text-center uppercase invisible" style={{ fontSize: 'clamp(0.88rem, 2.2vw, 1.05rem)', letterSpacing: '0.18em', fontWeight: 600 }}>
                   {t('welcome.heroClaim')}
                 </p>
                 {subtitleDone && (
-                  <p className="font-rounded text-center uppercase text-foreground absolute inset-0" style={{ fontSize: 'clamp(0.72rem, 1.8vw, 0.88rem)', letterSpacing: '0.18em', fontWeight: 600 }}>
+                  <p className="font-rounded text-center uppercase text-foreground absolute inset-0" style={{ fontSize: 'clamp(0.88rem, 2.2vw, 1.05rem)', letterSpacing: '0.18em', fontWeight: 600 }}>
                     <Typewriter text={t('welcome.heroClaim')} mode="scramble" charDelay={18} cursor={false} onDone={() => setClaimDone(true)} />
                   </p>
                 )}
