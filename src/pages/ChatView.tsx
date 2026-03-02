@@ -1432,8 +1432,8 @@ const ChatView = () => {
             );
           }
           return (
-            <div className="absolute bottom-4 right-0 left-0 z-10 px-4 md:px-6 pointer-events-none">
-              <div className="max-w-2xl mx-auto pointer-events-auto">
+            <div className="absolute bottom-4 left-4 right-4 z-10 md:left-auto md:right-6 md:w-[min(600px,calc(100%-2rem))] pointer-events-none">
+              <div className="pointer-events-auto">
                 <div className="relative flex items-center bg-secondary/90 backdrop-blur-md rounded-xl border border-highlight/30 focus-within:border-highlight/60 transition-electric shadow-lg">
                   <textarea
                     ref={inputRef}
