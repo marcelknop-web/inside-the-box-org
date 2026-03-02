@@ -619,13 +619,6 @@ const useServiceContent = () => {
           </div>
           <p className="text-foreground/80 text-sm md:text-[15px] font-sans leading-relaxed mt-3">{t('publications.talksExtra')}</p>
         </Block>
-        <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
-          <SubTitle variant="highlight">{t('publications.certTitle')}</SubTitle>
-          <div className="grid grid-cols-1 gap-3 mt-2">
-            <GridItem icon={Award} title={t('publications.isacaTitle')} desc={t('publications.isacaDesc')} variant="highlight" href="https://www.isaca.de/seminare/zertifikate/nationale-zertifikate/cyber-security-expert-cse.html" />
-            <GridItem icon={BookOpen} title={t('publications.eduTitle')} desc={t('publications.eduDesc')} variant="highlight" />
-          </div>
-        </Block>
       </TypedSection>
     ),
     'virtual-ciso': () => (
