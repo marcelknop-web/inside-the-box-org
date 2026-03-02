@@ -1292,7 +1292,7 @@ const ChatView = () => {
 
         <div ref={contentAreaRef} className="flex-1 overflow-y-auto relative" style={{ contain: 'layout style' }}>
           {!activeService && messages.length === 0 ? (
-            <div className="h-full flex flex-col items-center justify-center px-4" style={{ gap: 0, contain: 'layout style' }}>
+            <div className="h-full flex flex-col items-center justify-center px-4 mx-auto max-w-2xl" style={{ gap: 0, contain: 'layout style' }}>
               <button onClick={() => setSidebarOpen(true)} className="mb-8 cursor-pointer bg-transparent border-none p-0 transition-electric group/welcome">
                 <GeometricSymbol size="sm" className="w-16 h-16 opacity-60 group-hover/welcome:opacity-100 transition-electric" hoverCyan />
               </button>
