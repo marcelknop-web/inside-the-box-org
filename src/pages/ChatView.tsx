@@ -619,6 +619,13 @@ const useServiceContent = () => {
           </div>
           <p className="text-foreground/80 text-sm md:text-[15px] font-sans leading-relaxed mt-3">{t('publications.talksExtra')}</p>
         </Block>
+        <Block className="bg-card/40 rounded-xl">
+          <SubTitle>{t('publications.ctaTitle')}</SubTitle>
+          <p className="text-foreground/80 text-sm md:text-[15px] font-sans leading-relaxed mt-2">{t('publications.ctaDesc')}</p>
+          <button onClick={() => setActive('contact')} className="mt-3 text-primary hover:text-highlight font-mono text-sm transition-colors">
+            {t('publications.ctaButton')}
+          </button>
+        </Block>
       </TypedSection>
     ),
     'virtual-ciso': () => (

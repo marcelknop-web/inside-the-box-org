@@ -410,6 +410,9 @@ export const en = {
     isacaDesc: 'Development and delivery of the certification program including curriculum and exam preparation. Target audience: security practitioners and managers.',
     eduTitle: 'Training Materials',
     eduDesc: 'Training materials for practitioners and security managers — developed from project practice, not from textbooks. Used in crisis exercises, awareness programs, and technical trainings.',
+    ctaTitle: 'Next Step',
+    ctaDesc: 'An initial conversation takes 30 minutes. No pitch — just an assessment of whether the model fits your situation.',
+    ctaButton: '→ Get in touch',
   },
   vciso: {
     title: 'Virtual CISO',
