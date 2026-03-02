@@ -525,7 +525,7 @@ export const fr = {
     title: 'inside-the-box.org',
     headerTitle: 'inside-the-box.org',
     heroSubtitle: 'Quand les processus doivent fonctionner sous pression.',
-    heroClaim: 'Analyse. Mise en œuvre. Formation.',
+    heroClaim: 'Analyse. Audit. Mise en œuvre. Formation.',
     heroConsulting: 'Conseil en Cybersécurité',
     heroSignature: 'Marcel Knop · Andreas Funder',
     intro: '',
