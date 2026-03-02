@@ -1,314 +1,60 @@
-import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { RotateCcw, CheckCircle2, XCircle, ArrowRight, Percent, Users, Trophy, Flame, Clock, Star, Zap } from 'lucide-react';
+import { RotateCcw, CheckCircle2, XCircle, ArrowRight, Percent, Users, Trophy, Flame, Clock, Star, Zap, Loader2 } from 'lucide-react';
 import { PageMeta } from '@/components/PageMeta';
 import Typewriter from '@/components/Typewriter';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { StaggerReveal } from '@/components/StaggerReveal';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useMillionaireSound } from '@/hooks/useMillionaireSound';
+import { supabase } from '@/integrations/supabase/client';
 
-interface QuizQuestion {
-  id: string;
-  question: Record<string, string>;
-  options: { label: Record<string, string>; value: string }[];
-  correct: string;
-  explanation: Record<string, string>;
+interface AiQuestion {
+  question: string;
+  options: string[];
+  correct: number;
+  explanation: string;
 }
 
-const ALL_QUESTIONS: QuizQuestion[] = [
-  {
-    id: 'q1',
-    question: {
-      de: 'Ein mittelständischer Energieversorger (800 MA) wird Opfer eines Ransomware-Angriffs. Die Geschäftsleitung beschließt, das Lösegeld zu zahlen und den Vorfall nicht zu melden, da die Stromversorgung nach 4 Stunden wiederhergestellt war. Was ist das größte Problem?',
-      en: 'A mid-sized energy provider (800 employees) suffers a ransomware attack. Management decides to pay the ransom and not report the incident since power was restored after 4 hours. What is the biggest problem?',
-      fr: 'Un fournisseur d\'énergie (800 employés) subit une attaque ransomware. La direction décide de payer la rançon et de ne pas signaler l\'incident car l\'alimentation a été rétablie après 4 heures. Quel est le plus gros problème ?',
-    },
-    options: [
-      { label: { de: 'Die Lösegeldzahlung – Art. 21 NIS-2 verbietet finanzielle Zugeständnisse an Angreifer, da sie kriminelle Infrastrukturen stärken', en: 'The ransom payment – Art. 21 NIS-2 prohibits financial concessions to attackers as they strengthen criminal infrastructure', fr: 'Le paiement de rançon – l\'Art. 21 NIS-2 interdit les concessions financières aux attaquants' }, value: 'a' },
-      { label: { de: 'Die unterlassene Meldung – die Frühwarnung an das CSIRT muss innerhalb von 24 Stunden erfolgen, unabhängig von der Wiederherstellung', en: 'The failure to report – the early warning to the CSIRT must be sent within 24 hours, regardless of recovery', fr: 'L\'absence de signalement – l\'alerte précoce au CSIRT doit être envoyée dans les 24 heures, indépendamment de la restauration' }, value: 'b' },
-      { label: { de: 'Die fehlende Abstimmung mit der ENISA – bei grenzüberschreitender Auswirkung muss vorab eine Koordination mit der EU-Agentur erfolgen', en: 'The missing coordination with ENISA – cross-border impact requires prior coordination with the EU agency', fr: 'L\'absence de coordination avec l\'ENISA – un impact transfrontalier nécessite une coordination préalable' }, value: 'c' },
-      { label: { de: 'Die unterlassene sofortige Abschaltung aller betroffenen Systeme – Art. 21 Abs. 2 verlangt die unverzügliche Isolierung kompromittierter Infrastruktur', en: 'The failure to immediately shut down all affected systems – Art. 21(2) requires immediate isolation of compromised infrastructure', fr: 'L\'absence d\'arrêt immédiat de tous les systèmes affectés – l\'Art. 21(2) exige l\'isolation immédiate' }, value: 'd' },
-    ],
-    correct: 'b',
-    explanation: {
-      de: 'Die Meldepflicht unter NIS-2 ist nicht an die Dauer oder erfolgreiche Eindämmung gekoppelt. Ein erheblicher Vorfall bei einem Energieversorger (wesentliche Einrichtung) muss innerhalb von 24h als Frühwarnung gemeldet werden. Die Lösegeldzahlung ist unter NIS-2 nicht explizit verboten, aber die Nicht-Meldung ist ein klarer Verstoß mit persönlichen Konsequenzen für die Geschäftsleitung.',
-      en: 'The reporting obligation under NIS-2 is not tied to duration or successful containment. A significant incident at an energy provider (essential entity) must be reported as an early warning within 24 hours. The ransom payment is not explicitly prohibited under NIS-2, but failure to report is a clear violation with personal consequences for management.',
-      fr: 'L\'obligation de notification sous NIS-2 n\'est pas liée à la durée ou au confinement réussi. Un incident significatif chez un fournisseur d\'énergie (entité essentielle) doit être signalé en alerte précoce dans les 24 heures.',
-    },
-  },
-  {
-    id: 'q2',
-    question: {
-      de: 'Ein Logistikunternehmen (120 MA, 25 Mio. € Umsatz) betreibt keine kritische Infrastruktur, liefert aber ausschließlich an Krankenhäuser. Der Geschäftsführer ist sicher, nicht unter NIS-2 zu fallen. Hat er recht?',
-      en: 'A logistics company (120 employees, €25M revenue) doesn\'t operate critical infrastructure but exclusively delivers to hospitals. The CEO is certain they don\'t fall under NIS-2. Is he right?',
-      fr: 'Une entreprise de logistique (120 employés, 25 M€ CA) ne gère pas d\'infrastructure critique mais livre exclusivement aux hôpitaux. Le PDG est certain de ne pas être soumis à NIS-2. A-t-il raison ?',
-    },
-    options: [
-      { label: { de: 'Ja – das Unternehmen liegt unter den Schwellenwerten für mittlere Unternehmen (mind. 50 MA und 10 Mio. € Umsatz), aber die Lieferketten-Klausel greift hier nicht, da keine eigene IT-Dienstleistung erbracht wird', en: 'Yes – the company is below the thresholds for medium enterprises (min. 50 employees and €10M revenue), but the supply chain clause doesn\'t apply here as no IT services are provided', fr: 'Oui – l\'entreprise est en dessous des seuils, et la clause de chaîne d\'approvisionnement ne s\'applique pas' }, value: 'a' },
-      { label: { de: 'Nein – als Teil der Lieferkette wesentlicher Einrichtungen kann die nationale Behörde das Unternehmen einbeziehen', en: 'No – as part of the supply chain of essential entities, the national authority can include the company', fr: 'Non – en tant que partie de la chaîne d\'approvisionnement d\'entités essentielles, l\'autorité nationale peut inclure l\'entreprise' }, value: 'b' },
-      { label: { de: 'Ja – Logistikunternehmen sind nur erfasst, wenn sie selbst Betreiber kritischer Infrastruktur nach dem KRITIS-Dachgesetz sind', en: 'Yes – logistics companies are only covered if they are critical infrastructure operators themselves under the CRITIS umbrella law', fr: 'Oui – les entreprises de logistique ne sont couvertes que si elles sont elles-mêmes opérateurs d\'infrastructure critique' }, value: 'c' },
-      { label: { de: 'Nein – die ausschließliche Belieferung von Krankenhäusern macht das Unternehmen automatisch zur wesentlichen Einrichtung nach Annex I', en: 'No – exclusively supplying hospitals automatically makes the company an essential entity under Annex I', fr: 'Non – la fourniture exclusive aux hôpitaux fait automatiquement de l\'entreprise une entité essentielle selon l\'Annexe I' }, value: 'd' },
-    ],
-    correct: 'b',
-    explanation: {
-      de: 'NIS-2 ermöglicht es den Mitgliedstaaten, Unternehmen unabhängig von Größenkriterien einzubeziehen, wenn sie eine kritische Rolle in der Lieferkette wesentlicher Einrichtungen spielen. Zudem ist der Transportsektor explizit in NIS-2 Annex I erfasst.',
-      en: 'NIS-2 allows member states to include companies regardless of size criteria if they play a critical role in the supply chain of essential entities. Additionally, the transport sector is explicitly covered in NIS-2 Annex I.',
-      fr: 'NIS-2 permet aux États membres d\'inclure des entreprises indépendamment des critères de taille si elles jouent un rôle critique dans la chaîne d\'approvisionnement d\'entités essentielles. De plus, le secteur des transports est explicitement couvert dans l\'Annexe I de NIS-2.',
-    },
-  },
-  {
-    id: 'q3',
-    question: {
-      de: 'Ein Finanzdienstleister nutzt für sein SIEM einen US-amerikanischen Cloud-Anbieter. Nach einer NIS-2-Prüfung wird die Abhängigkeit von diesem einzelnen Anbieter bemängelt. Der CISO argumentiert: „Aber der Anbieter ist ISO 27001-zertifiziert!" Warum reicht das nicht?',
-      en: 'A financial services company uses a US cloud provider for its SIEM. After a NIS-2 audit, the dependency on this single provider is flagged. The CISO argues: "But the provider is ISO 27001 certified!" Why isn\'t that enough?',
-      fr: 'Un prestataire financier utilise un fournisseur cloud américain pour son SIEM. Après un audit NIS-2, la dépendance à ce fournisseur est signalée. Le RSSI argue : « Mais le fournisseur est certifié ISO 27001 ! » Pourquoi cela ne suffit-il pas ?',
-    },
-    options: [
-      { label: { de: 'Weil ISO 27001 des Anbieters keine C5-Attestierung enthält, die für Cloud-Dienste in der EU nach Art. 21 Abs. 3 NIS-2 vorgeschrieben ist', en: 'Because the provider\'s ISO 27001 doesn\'t include C5 attestation, required for cloud services in the EU under Art. 21(3) NIS-2', fr: 'Parce que l\'ISO 27001 ne contient pas d\'attestation C5, requise pour les services cloud dans l\'UE' }, value: 'a' },
-      { label: { de: 'Weil ISO 27001 des Anbieters nichts über Konzentrationsrisiko, Verfügbarkeitsabhängigkeit und geopolitische Risiken im eigenen Risikomanagement aussagt', en: 'Because the provider\'s ISO 27001 says nothing about concentration risk, availability dependency, and geopolitical risks in your own risk management', fr: 'Parce que l\'ISO 27001 du fournisseur ne dit rien sur le risque de concentration et les risques géopolitiques dans votre propre gestion des risques' }, value: 'b' },
-      { label: { de: 'Weil der Anbieter als Auftragsverarbeiter zusätzlich eine SOC 2 Type II-Zertifizierung benötigt, die den Anforderungen der DORA-Verordnung entspricht', en: 'Because the provider as a processor additionally needs SOC 2 Type II certification that meets DORA regulation requirements', fr: 'Parce que le fournisseur en tant que sous-traitant nécessite une certification SOC 2 Type II conforme au DORA' }, value: 'c' },
-      { label: { de: 'Weil NIS-2 eine verpflichtende Datenlokalisierung innerhalb der EU vorschreibt und US-Anbieter diese Anforderung strukturell nicht erfüllen können', en: 'Because NIS-2 mandates data localization within the EU and US providers structurally cannot meet this requirement', fr: 'Parce que NIS-2 impose la localisation des données dans l\'UE et les fournisseurs américains ne peuvent structurellement pas répondre' }, value: 'd' },
-    ],
-    correct: 'b',
-    explanation: {
-      de: 'NIS-2 fordert eine ganzheitliche Risikobewertung der Lieferkette. Die ISO 27001-Zertifizierung eines Anbieters belegt dessen Sicherheitsniveau, adressiert aber nicht das Konzentrationsrisiko beim Kunden: Was passiert bei Ausfall des Anbieters, bei jurisdiktionsbedingten Zugriffsrisiken (CLOUD Act) oder bei geopolitischen Spannungen?',
-      en: 'NIS-2 requires a holistic supply chain risk assessment. A provider\'s ISO 27001 certification demonstrates their security level but doesn\'t address concentration risk at the customer: What happens if the provider fails, with jurisdiction-related access risks (CLOUD Act), or geopolitical tensions?',
-      fr: 'NIS-2 exige une évaluation holistique des risques de la chaîne d\'approvisionnement. La certification ISO 27001 d\'un fournisseur démontre son niveau de sécurité mais n\'adresse pas le risque de concentration chez le client.',
-    },
-  },
-  {
-    id: 'q4',
-    question: {
-      de: 'Ein Maschinenbauunternehmen (600 MA) hat sein ISMS gerade nach ISO 27001:2022 zertifizieren lassen. Der Vorstand sagt: „NIS-2 können wir abhaken." Die Compliance-Abteilung widerspricht. Wer hat recht – und was ist der blinde Fleck?',
-      en: 'A mechanical engineering company (600 employees) just certified its ISMS to ISO 27001:2022. The board says: "We can check off NIS-2." Compliance disagrees. Who is right – and what\'s the blind spot?',
-      fr: 'Une entreprise de génie mécanique (600 employés) vient de certifier son SMSI ISO 27001:2022. Le conseil dit : « NIS-2 est réglé. » La conformité conteste. Qui a raison – et quel est l\'angle mort ?',
-    },
-    options: [
-      { label: { de: 'Der Vorstand – ISO 27001:2022 wird von der EU-Kommission gemäß Art. 25 als gleichwertiger Nachweis anerkannt, sofern der Geltungsbereich die betroffenen Dienste abdeckt', en: 'The board – ISO 27001:2022 is recognized by the EU Commission under Art. 25 as equivalent proof, provided the scope covers affected services', fr: 'Le conseil – ISO 27001:2022 est reconnu par la Commission UE comme preuve équivalente selon l\'Art. 25' }, value: 'a' },
-      { label: { de: 'Die Compliance-Abteilung – ISO 27001 deckt weder die persönliche Haftung der Geschäftsleitung noch die spezifischen Meldepflichten und Schulungsvorgaben für Leitungsorgane ab', en: 'Compliance – ISO 27001 covers neither personal management liability nor specific reporting obligations and training requirements for management bodies', fr: 'La conformité – ISO 27001 ne couvre ni la responsabilité personnelle de la direction ni les obligations de notification et de formation spécifiques' }, value: 'b' },
-      { label: { de: 'Beide teilweise – ISO 27001 deckt die technischen Maßnahmen ab, es fehlt nur die formale Registrierung bei der nationalen Aufsichtsbehörde nach Art. 3', en: 'Both partially – ISO 27001 covers technical measures, only the formal registration with the national supervisory authority under Art. 3 is missing', fr: 'Les deux partiellement – ISO 27001 couvre les mesures techniques, seul l\'enregistrement formel manque' }, value: 'c' },
-      { label: { de: 'Die Compliance-Abteilung – aber nur, weil ISO 27001 keine expliziten Vorgaben für Business Continuity nach Art. 21 Abs. 2 lit. c enthält', en: 'Compliance – but only because ISO 27001 lacks explicit requirements for business continuity under Art. 21(2)(c)', fr: 'La conformité – mais uniquement parce qu\'ISO 27001 manque d\'exigences explicites pour la continuité d\'activité' }, value: 'd' },
-    ],
-    correct: 'b',
-    explanation: {
-      de: 'ISO 27001 ist eine hervorragende Grundlage, hat aber strukturelle Lücken gegenüber NIS-2: Die persönliche Genehmigungspflicht und Haftung der Leitungsorgane, die gestuften Meldefristen (24h/72h/1 Monat), die verpflichtende Cybersicherheitsschulung der Geschäftsleitung und die spezifischen Aufsichtsregime sind in ISO 27001 nicht vorgesehen.',
-      en: 'ISO 27001 is an excellent foundation but has structural gaps versus NIS-2: personal approval obligations and liability of management bodies, tiered reporting deadlines (24h/72h/1 month), mandatory cybersecurity training for management, and specific supervisory regimes are not covered.',
-      fr: 'ISO 27001 est une excellente base mais a des lacunes structurelles par rapport à NIS-2 : obligations d\'approbation personnelle et responsabilité des organes de direction, délais de notification échelonnés (24h/72h/1 mois), formation obligatoire pour la direction.',
-    },
-  },
-  {
-    id: 'q5',
-    question: {
-      de: 'Samstagnacht: Ihr SOC erkennt ungewöhnlichen Datenabfluss aus einem Entwicklungsserver. Der Analyst kann nicht sicher sagen, ob Kundendaten betroffen sind – die Forensik braucht noch mindestens 48 Stunden. Wie gehen Sie mit der Meldepflicht um?',
-      en: 'Saturday night: your SOC detects unusual data exfiltration from a dev server. The analyst can\'t confirm whether customer data is affected – forensics need at least 48 more hours. How do you handle the reporting obligation?',
-      fr: 'Samedi soir : votre SOC détecte une exfiltration inhabituelle depuis un serveur de développement. L\'analyste ne peut confirmer si des données clients sont concernées – l\'analyse forensique nécessite encore 48 heures. Comment gérez-vous la notification ?',
-    },
-    options: [
-      { label: { de: 'Zunächst die Forensik abschließen und dann innerhalb von 72h die vollständige Vorfallmeldung einreichen – eine Frühwarnung ohne belastbare Fakten würde die Behörde unnötig belasten', en: 'Complete forensics first and submit the full incident report within 72h – an early warning without solid facts would unnecessarily burden the authority', fr: 'Terminer l\'analyse forensique d\'abord et soumettre le rapport complet dans les 72h – une alerte sans faits fiables surchargerait l\'autorité' }, value: 'a' },
-      { label: { de: 'Innerhalb von 24h eine Frühwarnung absetzen mit den verfügbaren Informationen – die vollständige Bewertung folgt innerhalb von 72h', en: 'Send an early warning within 24h with available information – the full assessment follows within 72 hours', fr: 'Envoyer une alerte précoce dans les 24h avec les informations disponibles – l\'évaluation complète suit dans les 72 heures' }, value: 'b' },
-      { label: { de: 'Intern eskalieren und abwarten – ein Entwicklungsserver fällt als Nicht-Produktionssystem nicht unter die Meldepflicht nach Art. 23 NIS-2', en: 'Escalate internally and wait – a dev server as a non-production system doesn\'t fall under the reporting obligation of Art. 23 NIS-2', fr: 'Escalader en interne – un serveur de développement comme système non productif ne relève pas de l\'Art. 23' }, value: 'c' },
-      { label: { de: 'Parallel zur Forensik eine DSGVO-Meldung nach Art. 33 an die Datenschutzbehörde einreichen – diese erfüllt zugleich die NIS-2-Meldepflicht', en: 'Submit a GDPR notification under Art. 33 to the data protection authority in parallel with forensics – this simultaneously fulfills the NIS-2 obligation', fr: 'Soumettre une notification RGPD selon l\'Art. 33 – celle-ci remplit simultanément l\'obligation NIS-2' }, value: 'd' },
-    ],
-    correct: 'b',
-    explanation: {
-      de: 'NIS-2 kennt ein gestuftes Meldesystem: Die Frühwarnung (24h) muss bereits bei Verdacht auf einen erheblichen Vorfall erfolgen – eine vollständige Analyse ist dafür nicht nötig. Die Vorfallmeldung (72h) liefert dann eine erste Bewertung, der Abschlussbericht folgt innerhalb eines Monats.',
-      en: 'NIS-2 has a tiered reporting system: the early warning (24h) must be issued upon suspicion of a significant incident – a complete analysis is not required. The incident notification (72h) provides an initial assessment, with the final report following within one month.',
-      fr: 'NIS-2 prévoit un système de notification échelonné : l\'alerte précoce (24h) doit être émise dès la suspicion d\'un incident significatif – une analyse complète n\'est pas nécessaire.',
-    },
-  },
-  {
-    id: 'q6',
-    question: {
-      de: 'Ein Stadtwerk (wesentliche Einrichtung) lagert sein Patch-Management komplett an einen IT-Dienstleister aus. Dieser verzögert kritische Patches regelmäßig um 3–4 Wochen. Der IT-Leiter sagt: „Das ist das Problem des Dienstleisters – wir haben einen Vertrag." Wie sieht NIS-2 das?',
-      en: 'A municipal utility (essential entity) outsources its entire patch management to an IT provider. The provider regularly delays critical patches by 3–4 weeks. The IT lead says: "That\'s the provider\'s problem – we have a contract." How does NIS-2 see this?',
-      fr: 'Un service municipal (entité essentielle) externalise toute sa gestion des correctifs. Le prestataire retarde régulièrement les correctifs critiques de 3-4 semaines. Le responsable IT dit : « C\'est le problème du prestataire – nous avons un contrat. » Quel est le point de vue de NIS-2 ?',
-    },
-    options: [
-      { label: { de: 'Der IT-Leiter hat recht – gemäß Art. 21 Abs. 2 lit. d geht die Verantwortung durch vertragliche Sicherheitsvereinbarungen auf den Dienstleister über, sofern SLAs definiert sind', en: 'The IT lead is right – under Art. 21(2)(d), responsibility transfers to the provider through contractual security agreements, provided SLAs are defined', fr: 'Le responsable IT a raison – selon l\'Art. 21(2)(d), la responsabilité est transférée par les accords contractuels' }, value: 'a' },
-      { label: { de: 'Die Verantwortung bleibt beim Stadtwerk – es muss die Einhaltung überwachen, Eskalationsmechanismen etablieren und notfalls den Anbieter wechseln', en: 'Responsibility remains with the utility – it must monitor compliance, establish escalation mechanisms, and switch providers if necessary', fr: 'La responsabilité reste chez le service municipal – il doit surveiller la conformité, établir des mécanismes d\'escalade et changer de prestataire si nécessaire' }, value: 'b' },
-      { label: { de: 'NIS-2 sieht eine geteilte Verantwortung vor – das Stadtwerk haftet nur, wenn es die Verzögerung nachweislich kannte und nicht eskaliert hat', en: 'NIS-2 provides for shared responsibility – the utility is only liable if it demonstrably knew about the delay and didn\'t escalate', fr: 'NIS-2 prévoit une responsabilité partagée – le service municipal n\'est responsable que s\'il connaissait le retard' }, value: 'c' },
-      { label: { de: 'Problematisch erst bei nachgewiesenem Sicherheitsvorfall – die präventive Überwachung der Patch-Compliance ist eine Empfehlung, keine NIS-2-Pflicht', en: 'Only problematic upon a proven security incident – preventive patch compliance monitoring is a recommendation, not a NIS-2 obligation', fr: 'Problématique seulement en cas d\'incident prouvé – le suivi préventif est une recommandation, pas une obligation NIS-2' }, value: 'd' },
-    ],
-    correct: 'b',
-    explanation: {
-      de: 'Unter NIS-2 kann die Verantwortung für Risikomanagement nicht durch Outsourcing delegiert werden. Das Stadtwerk bleibt für die Sicherheit seiner Systeme verantwortlich – es muss die Leistung des Dienstleisters aktiv überwachen, SLAs mit konkreten Patch-Fristen definieren und im Extremfall den Anbieter wechseln.',
-      en: 'Under NIS-2, responsibility for risk management cannot be delegated through outsourcing. The utility remains responsible for the security of its systems – it must actively monitor provider performance, define SLAs with concrete patch timelines, and switch providers if needed.',
-      fr: 'Sous NIS-2, la responsabilité de la gestion des risques ne peut pas être déléguée par l\'externalisation. Le service municipal reste responsable de la sécurité de ses systèmes.',
-    },
-  },
-  {
-    id: 'q7',
-    question: {
-      de: 'Ein Pharmakonzern führt nach einem Cyberangriff eine Tabletop-Übung durch. Ergebnis: Der Krisenstab konnte keine Entscheidungen treffen, weil unklar war, wer final entscheidet – CEO, CISO oder der Leiter des Incident-Response-Teams. Welche NIS-2-Anforderung wurde primär verletzt?',
-      en: 'After a cyber attack, a pharmaceutical company runs a tabletop exercise. Result: the crisis team couldn\'t make decisions because it was unclear who has final authority – CEO, CISO, or IR team lead. Which NIS-2 requirement was primarily violated?',
-      fr: 'Après une cyberattaque, un groupe pharmaceutique mène un exercice. Résultat : l\'équipe de crise ne pouvait décider car il était flou qui avait l\'autorité finale. Quelle exigence NIS-2 a été violée ?',
-    },
-    options: [
-      { label: { de: 'Die Pflicht zur regelmäßigen Überprüfung der Risikomanagementmaßnahmen nach Art. 21 Abs. 2 lit. f – die Wirksamkeit der bestehenden Prozesse wurde nicht validiert', en: 'The obligation to regularly review risk management measures under Art. 21(2)(f) – the effectiveness of existing processes was not validated', fr: 'L\'obligation de réviser régulièrement les mesures selon l\'Art. 21(2)(f)' }, value: 'a' },
-      { label: { de: 'Die Anforderung an Krisenmanagement-Governance – klare Rollen, Entscheidungsbefugnisse und Verantwortlichkeiten müssen vorab definiert sein', en: 'The crisis management governance requirement – clear roles, decision authority, and responsibilities must be defined in advance', fr: 'L\'exigence de gouvernance de gestion de crise – rôles, autorité et responsabilités doivent être définis à l\'avance' }, value: 'b' },
-      { label: { de: 'Die Pflicht zur Einbindung der Geschäftsleitung nach Art. 20 – der CEO hätte als Leitungsorgan automatisch die finale Entscheidungsbefugnis gehabt', en: 'The obligation to involve management under Art. 20 – the CEO as a management body would have automatically had final decision authority', fr: 'L\'obligation d\'impliquer la direction selon l\'Art. 20 – le PDG aurait automatiquement eu l\'autorité finale' }, value: 'c' },
-      { label: { de: 'Die Meldepflicht gegenüber der Aufsichtsbehörde – das Ergebnis der Tabletop-Übung hätte als Schwachstelle innerhalb von 72h gemeldet werden müssen', en: 'The reporting obligation – the tabletop exercise result should have been reported as a vulnerability within 72h', fr: 'L\'obligation de notification – le résultat de l\'exercice aurait dû être signalé comme vulnérabilité dans les 72h' }, value: 'd' },
-    ],
-    correct: 'b',
-    explanation: {
-      de: 'NIS-2 fordert Maßnahmen zur Bewältigung von Sicherheitsvorfällen und zum Krisenmanagement. Dazu gehört zwingend eine klare Governance-Struktur: Wer entscheidet was, in welcher Reihenfolge, mit welcher Befugnis? Unklare Entscheidungsstrukturen im Krisenfall zeigen, dass die operativen Voraussetzungen für wirksames Krisenmanagement fehlen.',
-      en: 'NIS-2 requires measures for incident handling and crisis management. This mandates a clear governance structure: who decides what, in what order, with what authority? Unclear decision structures during a crisis demonstrate missing operational prerequisites for effective crisis management.',
-      fr: 'NIS-2 exige des mesures de gestion des incidents et de crise. Cela impose une structure de gouvernance claire : qui décide quoi, dans quel ordre, avec quelle autorité ?',
-    },
-  },
-  {
-    id: 'q8',
-    question: {
-      de: 'Ein deutsches SaaS-Unternehmen (200 MA, 30 Mio. € Umsatz) bietet Projektmanagement-Software an. 40% der Kunden sind öffentliche Verwaltungen. Der CEO meint: „Wir sind kein IT-Dienstleister im Sinne von NIS-2 – wir machen ja nur Software." Stimmt das?',
-      en: 'A German SaaS company (200 employees, €30M revenue) offers project management software. 40% of customers are public administrations. The CEO says: "We\'re not an IT service provider under NIS-2 – we just make software." Is that correct?',
-      fr: 'Une entreprise SaaS allemande (200 employés, 30 M€ CA) propose un logiciel de gestion de projets. 40% des clients sont des administrations. Le PDG dit : « Nous ne sommes pas un prestataire IT au sens de NIS-2. » Est-ce correct ?',
-    },
-    options: [
-      { label: { de: 'Ja – reine Softwareanbieter fallen unter die Produkthaftungsrichtlinie und den Cyber Resilience Act, nicht unter NIS-2', en: 'Yes – pure software vendors fall under the Product Liability Directive and Cyber Resilience Act, not NIS-2', fr: 'Oui – les éditeurs purs relèvent de la directive sur la responsabilité des produits et du CRA, pas de NIS-2' }, value: 'a' },
-      { label: { de: 'Falsch – ein SaaS-Anbieter betreibt die Infrastruktur und ist als Anbieter digitaler Dienste potenziell erfasst, besonders bei Kunden in der öffentlichen Verwaltung', en: 'Wrong – a SaaS provider operates infrastructure and is potentially covered as a digital service provider, especially with public administration clients', fr: 'Faux – un fournisseur SaaS exploite l\'infrastructure et est potentiellement couvert comme fournisseur de services numériques' }, value: 'b' },
-      { label: { de: 'Teilweise richtig – NIS-2 erfasst SaaS nur, wenn die Software sicherheitsrelevante Funktionen wie Zugangskontrolle oder Verschlüsselung bereitstellt', en: 'Partially correct – NIS-2 only covers SaaS if the software provides security-relevant functions like access control or encryption', fr: 'Partiellement correct – NIS-2 ne couvre le SaaS que si le logiciel fournit des fonctions de sécurité' }, value: 'c' },
-      { label: { de: 'Ja – mit 200 MA liegt das Unternehmen unter dem Schwellenwert von 250 MA für wichtige Einrichtungen nach Art. 2', en: 'Yes – with 200 employees the company is below the 250-employee threshold for important entities under Art. 2', fr: 'Oui – avec 200 employés, l\'entreprise est sous le seuil de 250 pour les entités importantes selon l\'Art. 2' }, value: 'd' },
-    ],
-    correct: 'b',
-    explanation: {
-      de: 'SaaS-Anbieter sind keine reinen Softwareverkäufer – sie betreiben Infrastruktur, verarbeiten Daten und stellen Dienste bereit. NIS-2 erfasst Anbieter digitaler Dienste (Annex II), darunter Cloud-Computing-Dienste. Mit 200 MA und 30 Mio. € Umsatz überschreitet das Unternehmen die Schwellenwerte.',
-      en: 'SaaS providers are not pure software sellers – they operate infrastructure, process data, and provide services. NIS-2 covers digital service providers (Annex II), including cloud computing services. With 200 employees and €30M revenue, the company exceeds the thresholds.',
-      fr: 'Les fournisseurs SaaS ne sont pas de simples vendeurs de logiciels – ils exploitent une infrastructure, traitent des données et fournissent des services. NIS-2 couvre les fournisseurs de services numériques (Annexe II).',
-    },
-  },
-  {
-    id: 'q9',
-    question: {
-      de: 'Nach einem Vorfall steht fest: Ein Mitarbeiter hat seinen privaten USB-Stick an einen Produktionsrechner angeschlossen und so Malware eingeschleust. Der Betriebsrat argumentiert, ein USB-Port-Verbot sei unverhältnismäßig. Wie positioniert sich NIS-2?',
-      en: 'After an incident: an employee connected a private USB stick to a production computer, introducing malware. The works council argues a USB port ban would be disproportionate. How does NIS-2 position itself?',
-      fr: 'Après un incident : un employé a connecté sa clé USB personnelle à un ordinateur de production, introduisant un malware. Le comité d\'entreprise argue qu\'une interdiction des ports USB serait disproportionnée. Quelle est la position de NIS-2 ?',
-    },
-    options: [
-      { label: { de: 'NIS-2 Art. 21 Abs. 2 lit. i fordert Sicherheit der Personalressourcen – ein technisches USB-Verbot an Produktionssystemen ist die Mindestanforderung zum Schutz vor Insider-Bedrohungen', en: 'NIS-2 Art. 21(2)(i) requires human resources security – a technical USB ban on production systems is the minimum requirement for insider threat protection', fr: 'L\'Art. 21(2)(i) exige la sécurité des ressources humaines – une interdiction USB est l\'exigence minimale' }, value: 'a' },
-      { label: { de: 'NIS-2 verlangt verhältnismäßige Maßnahmen auf Basis einer Risikoanalyse – die konkrete Maßnahme muss das Risiko adressieren, ohne pauschal zu sein', en: 'NIS-2 requires proportionate measures based on risk analysis – the measure must address the risk without being blanket', fr: 'NIS-2 exige des mesures proportionnées basées sur l\'analyse des risques – la mesure doit adresser le risque sans être générale' }, value: 'b' },
-      { label: { de: 'NIS-2 überlässt solche operativen Entscheidungen dem nationalen Arbeitsrecht – der Betriebsrat hat bei Maßnahmen mit Mitarbeiterbezug ein zwingendes Mitbestimmungsrecht', en: 'NIS-2 defers such operational decisions to national labor law – the works council has a mandatory co-determination right for employee-related measures', fr: 'NIS-2 laisse ces décisions au droit du travail national – le comité d\'entreprise a un droit de codécision' }, value: 'c' },
-      { label: { de: 'NIS-2 priorisiert technische Maßnahmen über organisatorische – die Implementierung einer Device-Control-Software mit Whitelisting wäre die konforme Lösung', en: 'NIS-2 prioritizes technical over organizational measures – implementing device control software with whitelisting would be the compliant solution', fr: 'NIS-2 priorise les mesures techniques – un logiciel de contrôle d\'appareils avec liste blanche serait conforme' }, value: 'd' },
-    ],
-    correct: 'b',
-    explanation: {
-      de: 'NIS-2 fordert einen risikobasierten, verhältnismäßigen Ansatz. Ein generelles USB-Verbot kann verhältnismäßig sein – muss es aber nicht. Die Organisation muss auf Basis ihrer Risikoanalyse entscheiden: selektives Whitelisting, technische Gerätekontrolle oder tatsächlich ein Verbot. Entscheidend ist die dokumentierte Risikobewertung.',
-      en: 'NIS-2 requires a risk-based, proportionate approach. A general USB ban may be proportionate – but doesn\'t have to be. The organization must decide based on its risk analysis. The documented risk assessment is what matters.',
-      fr: 'NIS-2 exige une approche proportionnée basée sur les risques. Une interdiction générale des USB peut être proportionnée – mais ne l\'est pas forcément. L\'évaluation documentée des risques est ce qui compte.',
-    },
-  },
-  {
-    id: 'q10',
-    question: {
-      de: 'Ein Automobilzulieferer hat gleichzeitig TISAX- und NIS-2-Anforderungen zu erfüllen. Der Compliance-Leiter schlägt vor, beides über ein einziges ISMS abzudecken. Sein Chef fragt: „Wo ist der Haken?"',
-      en: 'An automotive supplier must meet both TISAX and NIS-2 requirements. The compliance lead suggests covering both through a single ISMS. His boss asks: "What\'s the catch?"',
-      fr: 'Un sous-traitant automobile doit satisfaire TISAX et NIS-2. Le responsable conformité propose un seul SMSI. Son patron demande : « Où est le piège ? »',
-    },
-    options: [
-      { label: { de: 'Kein Haken – die EU-Kommission hat TISAX in der Durchführungsverordnung zu Art. 24 als sektorspezifisches Zertifizierungsschema anerkannt, das NIS-2-Konformität nachweist', en: 'No catch – the EU Commission recognized TISAX in the implementing regulation under Art. 24 as a sector-specific certification scheme proving NIS-2 compliance', fr: 'Aucun piège – la Commission UE a reconnu TISAX comme schéma de certification sectoriel selon l\'Art. 24' }, value: 'a' },
-      { label: { de: 'Ein gemeinsames ISMS ist sinnvoll als Basis, aber NIS-2 bringt eigenständige Anforderungen: Meldepflichten, persönliche Leitungshaftung und Aufsichtsregime, die TISAX nicht kennt', en: 'A shared ISMS makes sense as a foundation, but NIS-2 brings independent requirements: reporting obligations, personal management liability, and supervisory regimes that TISAX doesn\'t have', fr: 'Un SMSI commun a du sens comme base, mais NIS-2 apporte des exigences propres que TISAX ne connaît pas' }, value: 'b' },
-      { label: { de: 'Der Haken liegt im Scope – TISAX fokussiert auf Prototypenschutz und Informationssicherheit beim OEM-Datenaustausch, während NIS-2 die Verfügbarkeit der eigenen Dienste adressiert', en: 'The catch is the scope – TISAX focuses on prototype protection and information security in OEM data exchange, while NIS-2 addresses availability of own services', fr: 'Le piège est dans le périmètre – TISAX se concentre sur la protection des prototypes, NIS-2 sur la disponibilité' }, value: 'c' },
-      { label: { de: 'TISAX und NIS-2 verwenden unterschiedliche Reifegradmodelle – eine Harmonisierung der Bewertungsmethodik ist ohne externes Mapping-Framework nicht möglich', en: 'TISAX and NIS-2 use different maturity models – harmonizing assessment methodology is not possible without an external mapping framework', fr: 'TISAX et NIS-2 utilisent des modèles de maturité différents – l\'harmonisation n\'est pas possible sans framework de mapping' }, value: 'd' },
-    ],
-    correct: 'b',
-    explanation: {
-      de: 'Ein integriertes ISMS ist strategisch klug – man vermeidet Doppelarbeit. Der Haken: NIS-2 hat eigenständige Anforderungen, die über TISAX hinausgehen – insbesondere das gestufte Meldewesen (24h/72h), die persönliche Haftung der Geschäftsleitung, verpflichtende Management-Schulungen und das behördliche Aufsichtsregime.',
-      en: 'An integrated ISMS is strategically smart – you avoid duplicate work. The catch: NIS-2 has independent requirements beyond TISAX – particularly tiered reporting (24h/72h), personal management liability, mandatory management training, and the supervisory regime.',
-      fr: 'Un SMSI intégré est stratégiquement intelligent. Le piège : NIS-2 a des exigences propres au-delà de TISAX – notamment la notification échelonnée (24h/72h), la responsabilité personnelle de la direction et le régime de supervision.',
-    },
-  },
-  {
-    id: 'q11',
-    question: {
-      de: 'Ein Wasserversorger hat sein gesamtes OT-Netzwerk (Steuerungstechnik) vom IT-Netzwerk getrennt (Air Gap). Der Betriebsleiter: „Unsere Steuerungssysteme sind nicht mit dem Internet verbunden – NIS-2 betrifft nur das Office-Netz." Wo liegt der Denkfehler?',
-      en: 'A water utility has air-gapped its entire OT network from IT. The ops manager: "Our control systems aren\'t internet-connected – NIS-2 only affects the office network." Where\'s the flaw?',
-      fr: 'Un fournisseur d\'eau a isolé son réseau OT de l\'IT (air gap). Le directeur : « Nos systèmes de contrôle ne sont pas connectés – NIS-2 ne concerne que le réseau bureau. » Où est l\'erreur ?',
-    },
-    options: [
-      { label: { de: 'Kein Denkfehler – Art. 6 Nr. 1 definiert Netz- und Informationssysteme als elektronische Kommunikationsnetze; Air-Gapped-Systeme ohne Netzanbindung fallen definitionsgemäß nicht darunter', en: 'No flaw – Art. 6(1) defines network and information systems as electronic communications networks; air-gapped systems without network connectivity don\'t fall under this definition', fr: 'Aucune erreur – l\'Art. 6(1) définit les systèmes comme des réseaux de communication ; les systèmes air-gapped n\'en font pas partie' }, value: 'a' },
-      { label: { de: 'NIS-2 betrifft die Sicherheit der Dienste, nicht einzelner Netzwerksegmente – wenn die Wasserversorgung von OT abhängt, ist auch das OT-Netz im Scope', en: 'NIS-2 concerns the security of services, not individual network segments – if water supply depends on OT, the OT network is also in scope', fr: 'NIS-2 concerne la sécurité des services, pas des segments réseau individuels – si l\'approvisionnement en eau dépend de l\'OT, le réseau OT est aussi dans le périmètre' }, value: 'b' },
-      { label: { de: 'Der Air Gap ist ausreichend, aber NIS-2 verlangt eine dokumentierte Risikoanalyse, die beweist, dass die Trennung wirksam ist und regelmäßig getestet wird', en: 'The air gap is sufficient, but NIS-2 requires a documented risk analysis proving the separation is effective and regularly tested', fr: 'L\'air gap est suffisant, mais NIS-2 exige une analyse de risque documentée prouvant l\'efficacité de la séparation' }, value: 'c' },
-      { label: { de: 'NIS-2 erfasst OT-Systeme nur bei Betreibern kritischer Infrastruktur nach dem KRITIS-Dachgesetz – ein normaler Wasserversorger unter den KRITIS-Schwellenwerten ist nicht betroffen', en: 'NIS-2 only covers OT systems at critical infrastructure operators under the CRITIS umbrella law – a normal water utility below CRITIS thresholds is not affected', fr: 'NIS-2 ne couvre les systèmes OT que chez les opérateurs d\'infrastructure critique – un fournisseur d\'eau normal n\'est pas concerné' }, value: 'd' },
-    ],
-    correct: 'b',
-    explanation: {
-      de: 'NIS-2 adressiert die Sicherheit der erbrachten Dienste, nicht einzelner Netzwerksegmente. Wenn die Wasserversorgung (wesentlicher Dienst) von OT-Systemen abhängt, fallen diese in den Scope – unabhängig davon, ob sie mit dem Internet verbunden sind. Zudem sind echte Air Gaps in der Praxis selten; USB-Transfers, Wartungszugänge und Updates schaffen regelmäßig Brücken.',
-      en: 'NIS-2 addresses the security of services provided, not individual network segments. If water supply (essential service) depends on OT systems, they\'re in scope – regardless of internet connectivity. Moreover, true air gaps are rare in practice; USB transfers, maintenance access, and updates regularly create bridges.',
-      fr: 'NIS-2 adresse la sécurité des services fournis, pas des segments réseau individuels. Si l\'approvisionnement en eau dépend des systèmes OT, ils sont dans le périmètre.',
-    },
-  },
-  {
-    id: 'q12',
-    question: {
-      de: 'Ein Unternehmen führt Penetrationstests durch einen externen Dienstleister durch. Die Ergebnisse zeigen 47 Schwachstellen, davon 3 kritische. Der CISO priorisiert die Behebung nach CVSS-Score. Was übersieht er aus NIS-2-Perspektive?',
-      en: 'A company runs pen tests through an external provider. Results show 47 vulnerabilities, 3 critical. The CISO prioritizes remediation by CVSS score. What\'s he missing from a NIS-2 perspective?',
-      fr: 'Une entreprise fait des tests de pénétration. Les résultats montrent 47 vulnérabilités, dont 3 critiques. Le RSSI priorise par score CVSS. Qu\'oublie-t-il du point de vue NIS-2 ?',
-    },
-    options: [
-      { label: { de: 'Nichts – CVSS-basierte Priorisierung entspricht dem Stand der Technik und erfüllt die Anforderungen von Art. 21 Abs. 2 lit. e an die Schwachstellenbehandlung', en: 'Nothing – CVSS-based prioritization meets the state of the art and fulfills Art. 21(2)(e) vulnerability handling requirements', fr: 'Rien – la priorisation CVSS correspond à l\'état de l\'art et satisfait les exigences de l\'Art. 21(2)(e)' }, value: 'a' },
-      { label: { de: 'Den Geschäftskontext – NIS-2 fordert risikobasierte Bewertung: Eine CVSS-5.0-Schwachstelle auf einem System mit Kundendaten kann kritischer sein als eine CVSS-9.8 auf einem isolierten Testsystem', en: 'The business context – NIS-2 requires risk-based assessment: a CVSS 5.0 vulnerability on a customer data system can be more critical than a CVSS 9.8 on an isolated test system', fr: 'Le contexte métier – NIS-2 exige une évaluation basée sur les risques : une vulnérabilité CVSS 5.0 sur un système client peut être plus critique qu\'un CVSS 9.8 sur un système de test isolé' }, value: 'b' },
-      { label: { de: 'Die Meldepflicht – kritische Schwachstellen, die bei einem Penetrationstest entdeckt werden, müssen gemäß Art. 23 innerhalb von 72h an das CSIRT gemeldet werden', en: 'The reporting obligation – critical vulnerabilities found in pen tests must be reported to the CSIRT within 72h under Art. 23', fr: 'L\'obligation de notification – les vulnérabilités critiques trouvées lors de tests doivent être signalées au CSIRT dans les 72h' }, value: 'c' },
-      { label: { de: 'Die Haftungsfrage – bei Kenntnis kritischer Schwachstellen beginnt eine 30-Tage-Frist, in der die Geschäftsleitung persönlich für nicht behobene Schwachstellen haftet', en: 'The liability question – upon knowledge of critical vulnerabilities, a 30-day deadline begins during which management is personally liable for unpatched vulnerabilities', fr: 'La question de responsabilité – un délai de 30 jours commence, pendant lequel la direction est personnellement responsable' }, value: 'd' },
-    ],
-    correct: 'b',
-    explanation: {
-      de: 'NIS-2 verlangt einen gefahrenübergreifenden, risikobasierten Ansatz. CVSS bewertet die technische Schwere einer Schwachstelle, nicht das Geschäftsrisiko. Eine Schwachstelle mit niedrigem CVSS-Score auf einem geschäftskritischen System mit Kundendaten kann ein höheres Risiko darstellen als eine technisch kritischere Schwachstelle auf einem isolierten System.',
-      en: 'NIS-2 requires an all-hazards, risk-based approach. CVSS scores assess technical severity, not business risk. A vulnerability with a low CVSS score on a business-critical customer data system can pose higher risk than a technically more critical vulnerability on an isolated system.',
-      fr: 'NIS-2 exige une approche basée sur les risques. Le CVSS évalue la sévérité technique, pas le risque métier.',
-    },
-  },
-];
-
 const QUIZ_SIZE = 10;
-const MONEY_LEVELS = ['100', '200', '500', '1.000', '2.000', '4.000', '8.000', '16.000', '32.000', '64.000'];
-const SAFETY_NETS = [4, 8]; // indices where money is secured
-const OPTION_LETTERS = ['A', 'B', 'C', 'D'];
 const QUESTION_TIME = 45;
 const BONUS_TIME_THRESHOLD = 30;
+const SAFETY_NETS = [2, 5, 8]; // indices where money is secured
+const MONEY_LEVELS = ['50', '100', '200', '500', '1.000', '2.000', '4.000', '8.000', '16.000', '64.000'];
+const OPTION_LETTERS = ['A', 'B', 'C', 'D'];
 const STORAGE_KEY = 'nis2_quiz_best';
-const BOARD_KEY = 'nis2_quiz_top5';
-interface NisBoardEntry { score: number; amount: string; date: string; }
-const getNisBoard = (): NisBoardEntry[] => { try { return JSON.parse(localStorage.getItem(BOARD_KEY) || '[]'); } catch { return []; } };
-const saveNisBoard = (score: number, amount: string) => {
+
+const I18N: Record<string, Record<string, string>> = {
+  title: { de: 'NIS-2 Awareness Quiz', en: 'NIS-2 Awareness Quiz', fr: 'Quiz NIS-2' },
+  intro: { de: 'Zehn Fragen. Aufsteigende Schwierigkeit. Zwei Joker. Wie weit kommen Sie?', en: 'Ten questions. Rising difficulty. Two jokers. How far will you get?', fr: 'Dix questions. Difficulté croissante. Deux jokers. Jusqu\'où irez-vous ?' },
+  start: { de: 'Start', en: 'Start', fr: 'Commencer' },
+  confirm: { de: 'Finale Antwort', en: 'Final Answer', fr: 'Réponse finale' },
+  correct: { de: 'Richtig!', en: 'Correct!', fr: 'Correct !' },
+  incorrect: { de: 'Falsch!', en: 'Wrong!', fr: 'Faux !' },
+  next: { de: 'Weiter', en: 'Next', fr: 'Suivant' },
+  restart: { de: 'Nochmal spielen', en: 'Play again', fr: 'Rejouer' },
+  gameOver: { de: 'Leider verloren!', en: 'Game Over!', fr: 'Perdu !' },
+  won: { de: 'Gewonnen!', en: 'You Won!', fr: 'Gagné !' },
+  secured: { de: 'Gesichert', en: 'Secured', fr: 'Sécurisé' },
+  reached: { de: 'Erreicht', en: 'Reached', fr: 'Atteint' },
+  safetyNet: { de: 'Sicherheitsnetz erreicht', en: 'Safety net reached', fr: 'Filet de sécurité atteint' },
+  audience: { de: 'Publikum', en: 'Audience', fr: 'Public' },
+  disclaimer: { de: 'Dieses Quiz dient der Sensibilisierung und ersetzt keine Rechtsberatung.', en: 'This quiz is for awareness purposes and does not replace legal advice.', fr: 'Ce quiz est informatif et ne remplace pas un avis juridique.' },
+  loading: { de: 'Frage wird generiert...', en: 'Generating question...', fr: 'Génération de la question...' },
+  error: { de: 'Frage konnte nicht geladen werden. Erneut versuchen.', en: 'Failed to load question. Try again.', fr: 'Impossible de charger la question. Réessayer.' },
+};
+
+// Leaderboard
+interface BoardEntry { score: number; amount: string; date: string; }
+const BOARD_KEY = 'nis2_quiz_board';
+function getNisBoard(): BoardEntry[] {
+  try { return JSON.parse(localStorage.getItem(BOARD_KEY) || '[]').slice(0, 5); } catch { return []; }
+}
+function saveNisBoard(score: number, amount: string) {
   const board = getNisBoard();
   board.push({ score, amount, date: new Date().toLocaleDateString() });
-  board.sort((a, b) => b.score - a.score);
+  board.sort((a, b) => b.score - a.score || b.amount.localeCompare(a.amount));
   try { localStorage.setItem(BOARD_KEY, JSON.stringify(board.slice(0, 5))); } catch {}
-};
-
-const I18N = {
-  title: { de: 'NIS-2 Awareness Quiz', en: 'NIS-2 Awareness Quiz', fr: 'Quiz NIS-2' },
-  intro: { de: 'Teste dein Wissen zur NIS-2-Richtlinie. 10 praxisnahe Szenarien aus dem Management- und IT-Alltag – im Millionär-Stil. Wie weit kommst du?', en: 'Test your NIS-2 knowledge. 10 practical scenarios from management and IT – millionaire style. How far can you go?', fr: 'Testez vos connaissances NIS-2. 10 scénarios pratiques – style millionnaire.' },
-  start: { de: 'Quiz starten', en: 'Start Quiz', fr: 'Commencer' },
-  correct: { de: 'Richtig!', en: 'Correct!', fr: 'Correct !' },
-  incorrect: { de: 'Leider falsch.', en: 'Incorrect.', fr: 'Incorrect.' },
-  next: { de: 'Weiter', en: 'Next', fr: 'Suivant' },
-  confirm: { de: 'Letzte Antwort', en: 'Final Answer', fr: 'Réponse finale' },
-  restart: { de: 'Neues Spiel', en: 'New Game', fr: 'Nouvelle partie' },
-  won: { de: 'Gewonnen!', en: 'You won!', fr: 'Gagné !' },
-  gameOver: { de: 'Ausgeschieden!', en: 'Game Over!', fr: 'Éliminé !' },
-  reached: { de: 'Erreicht', en: 'Reached', fr: 'Atteint' },
-  secured: { de: 'Gesichert', en: 'Secured', fr: 'Sécurisé' },
-  fiftyFifty: { de: '50:50 Joker', en: '50:50 Lifeline', fr: 'Joker 50:50' },
-  audience: { de: 'Publikum', en: 'Audience', fr: 'Public' },
-  jokerUsed: { de: 'Joker verbraucht', en: 'Lifeline used', fr: 'Joker utilisé' },
-  safetyNet: { de: 'Sicherheitsstufe!', en: 'Safety net!', fr: 'Filet de sécurité !' },
-  disclaimer: { de: 'Hinweis: Dieses Quiz dient der Sensibilisierung und ersetzt keine Rechtsberatung.', en: 'Note: This quiz is for awareness purposes and does not constitute legal advice.', fr: 'Note : Ce quiz est à des fins de sensibilisation et ne constitue pas un avis juridique.' },
-};
-
-const FAKE_DIFFICULTY: Record<string, number> = {
-  q1: 38, q2: 42, q3: 31, q4: 45, q5: 52, q6: 35, q7: 28, q8: 48, q9: 55, q10: 33, q11: 40, q12: 37,
-};
-
-function shuffle<T>(arr: T[], seed: number): T[] {
-  const result = [...arr];
-  let s = seed;
-  for (let i = result.length - 1; i > 0; i--) {
-    s = (s * 16807 + 0) % 2147483647;
-    const j = s % (i + 1);
-    [result[i], result[j]] = [result[j], result[i]];
-  }
-  return result;
 }
 
 export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boolean }) {
@@ -319,19 +65,20 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
   const { playQuestionReveal, playCorrect, playWrong, playSelect, playConfirm, playVictory, playDefeat, playTick, playTickUrgent, playMilestone } = useMillionaireSound();
 
   const [started, setStarted] = useState(embedded);
-  const [seed, setSeed] = useState(() => Date.now());
-  const questions = useMemo(() => shuffle(ALL_QUESTIONS, seed).slice(0, QUIZ_SIZE), [seed]);
   const [currentQ, setCurrentQ] = useState(0);
+  const [question, setQuestion] = useState<AiQuestion | null>(null);
+  const [loadingQuestion, setLoadingQuestion] = useState(false);
+  const [loadError, setLoadError] = useState(false);
   const [selected, setSelected] = useState<string | null>(null);
   const [confirmed, setConfirmed] = useState(false);
   const [score, setScore] = useState(0);
   const [gameOver, setGameOver] = useState(false);
   const [won, setWon] = useState(false);
-  
+
   const [fiftyFiftyUsed, setFiftyFiftyUsed] = useState(false);
   const [audienceUsed, setAudienceUsed] = useState(false);
-  const [hiddenOptions, setHiddenOptions] = useState<string[]>([]);
-  const [audienceResults, setAudienceResults] = useState<Record<string, number> | null>(null);
+  const [hiddenOptions, setHiddenOptions] = useState<number[]>([]);
+  const [audienceResults, setAudienceResults] = useState<Record<number, number> | null>(null);
 
   const [streak, setStreak] = useState(0);
   const [timeLeft, setTimeLeft] = useState(QUESTION_TIME);
@@ -343,8 +90,38 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
   const [showSpeedBonus, setShowSpeedBonus] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  // Fetch question from edge function
+  const fetchQuestion = useCallback(async (questionIndex: number) => {
+    setLoadingQuestion(true);
+    setLoadError(false);
+    setQuestion(null);
+    try {
+      const difficulty = questionIndex + 1; // 1-10
+      const { data, error } = await supabase.functions.invoke('nis2-question', {
+        body: { language: lang, difficulty },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      setQuestion(data as AiQuestion);
+      setLoadingQuestion(false);
+      playQuestionReveal();
+    } catch (e) {
+      console.error('Failed to fetch NIS-2 question:', e);
+      setLoadError(true);
+      setLoadingQuestion(false);
+    }
+  }, [lang, playQuestionReveal]);
+
+  // Fetch first question when game starts
   useEffect(() => {
-    if (!started || gameOver || won || confirmed) {
+    if (started && !gameOver && !won && !question && !loadingQuestion) {
+      fetchQuestion(currentQ);
+    }
+  }, [started, currentQ, gameOver, won]);
+
+  // Timer
+  useEffect(() => {
+    if (!started || gameOver || won || confirmed || loadingQuestion || !question) {
       if (timerRef.current) clearInterval(timerRef.current);
       return;
     }
@@ -361,32 +138,30 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
       });
     }, 1000);
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
-  }, [currentQ, started, gameOver, won, confirmed]);
+  }, [currentQ, started, gameOver, won, confirmed, loadingQuestion, question]);
 
+  // Time out
   useEffect(() => {
-    if (timeLeft === 0 && started && !gameOver && !won && !confirmed) {
+    if (timeLeft === 0 && started && !gameOver && !won && !confirmed && question) {
       setGameOver(true);
+      const newBest = Math.max(bestScore, score);
+      setBestScore(newBest);
+      try { localStorage.setItem(STORAGE_KEY, String(newBest)); } catch {}
       setTimeout(() => playDefeat(), 300);
     }
-  }, [timeLeft, started, gameOver, won, confirmed]);
+  }, [timeLeft, started, gameOver, won, confirmed, question]);
 
-  useEffect(() => {
-    if (started && !gameOver && !won) {
-      playQuestionReveal();
-    }
-  }, [currentQ, started]);
-
-  const handleSelect = (value: string) => {
-    if (confirmed || timeLeft === 0) return;
+  const handleSelect = (idx: number) => {
+    if (confirmed || timeLeft === 0 || !question) return;
     playSelect();
-    setSelected(value);
+    setSelected(String(idx));
   };
 
   const handleConfirm = () => {
-    if (!selected || confirmed) return;
+    if (selected === null || confirmed || !question) return;
     playConfirm();
     setConfirmed(true);
-    const isCorrect = selected === questions[currentQ].correct;
+    const isCorrect = parseInt(selected) === question.correct;
     if (isCorrect) {
       const newStreak = streak + 1;
       setStreak(newStreak);
@@ -425,51 +200,56 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
   };
 
   const handleNext = () => {
-    setCurrentQ(q => q + 1);
+    const nextQ = currentQ + 1;
+    setCurrentQ(nextQ);
     setSelected(null);
     setConfirmed(false);
     setHiddenOptions([]);
     setAudienceResults(null);
     setShowSpeedBonus(false);
+    setQuestion(null);
+    fetchQuestion(nextQ);
   };
 
   const useFiftyFifty = useCallback(() => {
-    if (fiftyFiftyUsed || confirmed) return;
+    if (fiftyFiftyUsed || confirmed || !question) return;
     setFiftyFiftyUsed(true);
-    const q = questions[currentQ];
-    const wrongOptions = q.options.filter(o => o.value !== q.correct).map(o => o.value);
-    const shuffled = shuffle(wrongOptions, Date.now());
-    setHiddenOptions(shuffled.slice(0, 2));
-    if (selected && shuffled.slice(0, 2).includes(selected)) {
+    const wrongIndices = [0, 1, 2, 3].filter(i => i !== question.correct);
+    // Shuffle and pick 2
+    for (let i = wrongIndices.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [wrongIndices[i], wrongIndices[j]] = [wrongIndices[j], wrongIndices[i]];
+    }
+    const toHide = wrongIndices.slice(0, 2);
+    setHiddenOptions(toHide);
+    if (selected !== null && toHide.includes(parseInt(selected))) {
       setSelected(null);
     }
-  }, [fiftyFiftyUsed, confirmed, questions, currentQ, selected]);
+  }, [fiftyFiftyUsed, confirmed, question, selected]);
 
   const useAudience = useCallback(() => {
-    if (audienceUsed || confirmed) return;
+    if (audienceUsed || confirmed || !question) return;
     setAudienceUsed(true);
-    const q = questions[currentQ];
     const correctPct = 45 + Math.floor(Math.random() * 30);
     const remaining = 100 - correctPct;
-    const others = q.options.filter(o => o.value !== q.correct && !hiddenOptions.includes(o.value));
-    const results: Record<string, number> = {};
-    results[q.correct] = correctPct;
+    const others = [0, 1, 2, 3].filter(i => i !== question.correct && !hiddenOptions.includes(i));
+    const results: Record<number, number> = {};
+    results[question.correct] = correctPct;
     let left = remaining;
-    others.forEach((o, i) => {
+    others.forEach((idx, i) => {
       if (i === others.length - 1) {
-        results[o.value] = left;
+        results[idx] = left;
       } else {
         const pct = Math.floor(Math.random() * left * 0.7);
-        results[o.value] = pct;
+        results[idx] = pct;
         left -= pct;
       }
     });
     hiddenOptions.forEach(h => { results[h] = 0; });
     setAudienceResults(results);
-  }, [audienceUsed, confirmed, questions, currentQ, hiddenOptions]);
+  }, [audienceUsed, confirmed, question, hiddenOptions]);
 
   const restart = () => {
-    setSeed(Date.now());
     setStarted(embedded);
     setCurrentQ(0);
     setSelected(null);
@@ -484,6 +264,8 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
     setStreak(0);
     setSpeedBonuses(0);
     setTimeLeft(QUESTION_TIME);
+    setQuestion(null);
+    setLoadError(false);
   };
 
   const getSecuredLevel = () => {
@@ -527,7 +309,7 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
               <span className="text-foreground/50">{t({ de: 'Persönlicher Rekord', en: 'Personal Best', fr: 'Record personnel' })}</span>
             </div>
           )}
-          <button onClick={() => setStarted(true)} className="relative group px-10 py-4 mx-auto" style={{ clipPath: diamondClip }}>
+          <button onClick={() => { setStarted(true); fetchQuestion(0); }} className="relative group px-10 py-4 mx-auto" style={{ clipPath: diamondClip }}>
             <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-primary/30 to-primary/20 group-hover:from-primary/30 group-hover:via-primary/50 group-hover:to-primary/30 transition-all duration-500" />
             <div className="absolute inset-[1px] bg-gradient-to-b from-card via-secondary to-card" style={{ clipPath: diamondClip }} />
             <span className="relative text-primary font-mono font-bold text-lg tracking-wider uppercase group-hover:text-foreground transition-colors">{t(I18N.start)}</span>
@@ -547,9 +329,8 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
     const securedLevel = getSecuredLevel();
     const finalLevel = won ? QUIZ_SIZE - 1 : (securedLevel >= 0 ? securedLevel : -1);
     const finalAmount = finalLevel >= 0 ? MONEY_LEVELS[finalLevel] : '0';
-    const q = questions[currentQ];
     const isNewBest = score > (bestScore - (won ? 0 : 1));
-    const timeRanOut = timeLeft === 0 && !selected;
+    const timeRanOut = timeLeft === 0 && selected === null;
 
     return (
       <div className={wrapperClass}>
@@ -586,12 +367,12 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
               </div>
             </div>
           </div>
-          {!won && !timeRanOut && (
+          {!won && !timeRanOut && question && (
             <div className="bg-card/80 border border-border rounded-xl p-5">
-              <p className="text-foreground/50 text-xs mb-3 font-mono">{q.question[lang] || q.question.en}</p>
+              <p className="text-foreground/50 text-xs mb-3 font-mono">{question.question}</p>
               <div className="flex items-start gap-2">
                 <XCircle className="w-4 h-4 text-destructive mt-0.5 flex-shrink-0" />
-                <p className="text-foreground/70 text-sm leading-relaxed">{q.explanation[lang] || q.explanation.en}</p>
+                <p className="text-foreground/70 text-sm leading-relaxed">{question.explanation}</p>
               </div>
             </div>
           )}
@@ -621,7 +402,7 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
           <div className="text-center space-y-3">
             <p className="text-muted-foreground text-xs">
               {won ? t({ de: 'Kannst du es nochmal schaffen?', en: 'Can you do it again?', fr: 'Pouvez-vous recommencer ?' })
-                : t({ de: `Nur ${FAKE_DIFFICULTY[q.id] || 50}% beantworten diese Frage richtig.`, en: `Only ${FAKE_DIFFICULTY[q.id] || 50}% answer this question correctly.`, fr: `Seulement ${FAKE_DIFFICULTY[q.id] || 50}% répondent correctement.` })}
+                : t({ de: 'Jede Runde generiert neue Fragen – versuchen Sie es erneut.', en: 'Every round generates new questions – try again.', fr: 'Chaque tour génère de nouvelles questions – réessayez.' })}
             </p>
             <Button onClick={restart} variant="outline" className="border-primary/40 text-primary hover:bg-primary/10 hover:border-primary/60 font-mono font-bold tracking-wider">
               <RotateCcw className="w-4 h-4 mr-2" /> {t(I18N.restart)}
@@ -633,17 +414,49 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
     );
   }
 
+  // ── Loading question ──
+  if (loadingQuestion || !question) {
+    return (
+      <div className={wrapperClass}>
+        <PageMeta title="NIS-2 Awareness Quiz" description="NIS-2 Awareness Quiz" />
+        <div className="flex flex-col items-center justify-center gap-6 py-20">
+          <div className="relative">
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,hsl(45_100%_48%/0.1)_0%,transparent_70%)]" />
+            <Loader2 className="w-12 h-12 text-primary animate-spin" />
+          </div>
+          <div className="text-center space-y-2">
+            <p className="text-primary font-mono font-bold text-sm">{t(I18N.loading)}</p>
+            <p className="text-muted-foreground text-xs font-mono">
+              {t({ de: `Schwierigkeit: ${currentQ + 1}/10`, en: `Difficulty: ${currentQ + 1}/10`, fr: `Difficulté : ${currentQ + 1}/10` })}
+            </p>
+            <div className="flex items-center justify-center gap-1 mt-2">
+              {Array.from({ length: 10 }, (_, i) => (
+                <div key={i} className={`w-2 h-2 rounded-full transition-all ${i <= currentQ ? 'bg-primary' : 'bg-muted/30'}`} />
+              ))}
+            </div>
+          </div>
+          {loadError && (
+            <div className="text-center space-y-3">
+              <p className="text-destructive text-sm">{t(I18N.error)}</p>
+              <Button onClick={() => fetchQuestion(currentQ)} variant="outline" className="border-primary/40 text-primary">
+                <RotateCcw className="w-4 h-4 mr-2" /> {t({ de: 'Erneut versuchen', en: 'Retry', fr: 'Réessayer' })}
+              </Button>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   // ── Active game ──
-  const q = questions[currentQ];
-  const isCorrect = confirmed && selected === q.correct;
-  const isWrong = confirmed && selected !== q.correct;
+  const isCorrect = confirmed && selected !== null && parseInt(selected) === question.correct;
+  const isWrong = confirmed && selected !== null && parseInt(selected) !== question.correct;
   const showLadder = !isMobile;
-  const diffPct = FAKE_DIFFICULTY[q.id] || 50;
 
   return (
     <div className={wrapperClass}>
       <PageMeta title="NIS-2 Awareness Quiz" description="NIS-2 Awareness Quiz" />
-      
+
       {/* Top HUD */}
       <div className="mb-5 space-y-3">
         <div className="flex items-center justify-between">
@@ -710,7 +523,7 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
                 className={`flex items-center gap-1.5 px-4 py-2 rounded-full border font-mono text-xs transition-all duration-300 ${audienceUsed ? 'border-muted/20 text-muted-foreground/30 cursor-not-allowed line-through opacity-40' : 'border-primary/40 text-primary hover:bg-primary/10 hover:border-primary/60 hover:shadow-[0_0_12px_hsl(45_100%_48%/0.15)]'}`}>
                 <Users size={14} /> {t(I18N.audience)}
               </button>
-              <span className="ml-auto text-muted-foreground/40 font-mono text-[10px]">{diffPct}% ✓</span>
+              <span className="ml-auto text-muted-foreground/40 font-mono text-[10px]">⚡ {currentQ + 1}/10</span>
               {!showLadder && <span className="text-primary font-mono text-sm font-bold drop-shadow-[0_0_8px_hsl(45_100%_48%/0.3)]">€ {MONEY_LEVELS[currentQ]}</span>}
             </div>
 
@@ -718,24 +531,23 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
             <div className="relative">
               <div className="absolute -inset-[1px] bg-gradient-to-r from-transparent via-primary/40 to-transparent rounded-2xl" />
               <div className="relative bg-gradient-to-b from-secondary via-card to-secondary rounded-2xl p-5 md:p-6 border border-primary/20">
-                <p className="text-foreground text-sm md:text-base leading-relaxed text-center font-medium">{q.question[lang] || q.question.en}</p>
+                <p className="text-foreground text-sm md:text-base leading-relaxed text-center font-medium">{question.question}</p>
               </div>
             </div>
 
             {/* Answer options */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              {q.options.map((opt, i) => {
-                const val = opt.value;
-                const isHidden = hiddenOptions.includes(val);
-                const isThis = selected === val;
-                const isAnswer = val === q.correct;
+              {question.options.map((opt, i) => {
+                const isHidden = hiddenOptions.includes(i);
+                const isThis = selected === String(i);
+                const isAnswer = i === question.correct;
 
                 if (isHidden) {
                   return (
-                    <div key={val} className="relative px-5 py-3 text-sm opacity-15" style={{ clipPath: diamondClip }}>
+                    <div key={i} className="relative px-5 py-3 text-sm opacity-15" style={{ clipPath: diamondClip }}>
                       <div className="absolute inset-0 bg-muted/20" style={{ clipPath: diamondClip }} />
                       <span className="relative font-mono font-bold mr-2 text-muted-foreground">{OPTION_LETTERS[i]}:</span>
-                      <span className="relative line-through text-muted-foreground">{opt.label[lang] || opt.label.en}</span>
+                      <span className="relative line-through text-muted-foreground">{opt}</span>
                     </div>
                   );
                 }
@@ -770,14 +582,14 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
                 }
 
                 return (
-                  <button key={val} onClick={() => handleSelect(val)} disabled={confirmed}
+                  <button key={i} onClick={() => handleSelect(i)} disabled={confirmed}
                     className={`relative text-left transition-all duration-300 active:scale-[0.98] disabled:cursor-default ${glowClass} group`}
                     style={{ clipPath: diamondClip }}>
                     <div className={`absolute inset-0 bg-gradient-to-r ${outerGradient}`} style={{ clipPath: diamondClip }} />
                     <div className={`absolute inset-[1px] bg-gradient-to-b ${innerBg}`} style={{ clipPath: diamondClip }} />
                     <div className={`relative px-5 py-3 text-sm ${textClass}`}>
                       <span className="font-mono font-bold mr-2 text-primary/80">{OPTION_LETTERS[i]}:</span>
-                      {opt.label[lang] || opt.label.en}
+                      {opt}
                     </div>
                     {!confirmed && <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" style={{ clipPath: diamondClip }} />}
                   </button>
@@ -791,11 +603,11 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
             <div className="bg-card/80 border border-primary/20 rounded-xl p-4 animate-fade-in">
               <p className="text-primary text-xs mb-2 uppercase tracking-[0.15em] font-mono">{t(I18N.audience)}</p>
               <div className="flex items-end gap-3 h-20">
-                {q.options.map((opt, i) => {
-                  const pct = audienceResults[opt.value] || 0;
-                  if (hiddenOptions.includes(opt.value)) return null;
+                {question.options.map((_, i) => {
+                  const pct = audienceResults[i] || 0;
+                  if (hiddenOptions.includes(i)) return null;
                   return (
-                    <div key={opt.value} className="flex-1 flex flex-col items-center gap-1">
+                    <div key={i} className="flex-1 flex flex-col items-center gap-1">
                       <span className="text-foreground/50 font-mono text-[10px]">{pct}%</span>
                       <div className="w-full bg-muted/20 rounded-sm overflow-hidden" style={{ height: '48px' }}>
                         <div className="w-full bg-gradient-to-t from-primary/60 to-primary/30 rounded-sm transition-all duration-700" style={{ height: `${pct * 0.48}px`, marginTop: `${48 - pct * 0.48}px` }} />
@@ -809,7 +621,7 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
           )}
 
           {/* Confirm */}
-          {selected && !confirmed && (
+          {selected !== null && !confirmed && (
             <div className="flex items-center justify-center animate-fade-in">
               <button onClick={handleConfirm} className="relative group px-8 py-3" style={{ clipPath: diamondClip }}>
                 <div className="absolute inset-0 bg-gradient-to-r from-primary/40 via-primary/70 to-primary/40 animate-pulse group-hover:animate-none group-hover:from-primary/60 group-hover:via-primary group-hover:to-primary/60 transition-all" style={{ clipPath: diamondClip }} />
@@ -829,7 +641,7 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
                     {isCorrect ? t(I18N.correct) : t(I18N.incorrect)}
                     {isCorrect && streak > 1 && <span className="ml-2 text-primary text-xs">🔥 {streak}x Streak!</span>}
                   </p>
-                  <p className="text-foreground/70 text-sm leading-relaxed">{q.explanation[lang] || q.explanation.en}</p>
+                  <p className="text-foreground/70 text-sm leading-relaxed">{question.explanation}</p>
                 </div>
               </div>
               {isCorrect && !won && (
