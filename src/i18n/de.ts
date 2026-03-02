@@ -299,8 +299,8 @@ export const de = {
     outcomesDesc: 'Nach einer Übung wissen Sie konkret: Wo brechen Prozesse unter Last zusammen? Wer fällt aus der Rolle? Welche Entscheidung hätte die Lage verschlechtert? Dokumentierte Ergebnisse schaffen die Grundlage für gezielte Nachbesserung – und sind gegenüber Aufsichtsbehörden verwertbar.',
     refTitle: 'Referenzen',
     refDesc: 'Projekte aus Finanzdienstleistung, Energie, Automotive und kritischer Infrastruktur. Erfahrung mit regulatorischen Anforderungen nach BSI-Grundschutz, NIS-2, DORA und ISO 22301.',
-    ctaTitle: 'Nächster Schritt',
-    ctaDesc: 'Ein Erstgespräch dauert 30 Minuten. Kein Pitch, keine Präsentation – nur eine Einschätzung, wie krisenfähig die bestehenden Strukturen tatsächlich sind.',
+    ctaTitle: 'Sprechen wir darüber',
+    ctaDesc: '30 Minuten, kein Pitch – nur eine ehrliche Einschätzung, wo Ihre Krisenorganisation heute steht und was der wirkungsvollste nächste Schritt wäre.',
     ctaButton: '→ Kontakt aufnehmen',
   },
   aiWorkflows: {
