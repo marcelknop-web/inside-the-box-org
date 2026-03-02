@@ -173,7 +173,7 @@ export const en = {
     refTitle: 'References',
     refDesc: 'Projects in financial services, energy, automotive, public administration, and critical infrastructure. Certifications: CISSP, CISA, ISO 27001 Lead Auditor.',
     ctaTitle: 'Next Step',
-    ctaDesc: 'An initial conversation takes 30 minutes. No pitch — just an assessment of whether and where action is needed.',
+    ctaDesc: 'An initial conversation takes 30 minutes. No pitch — just an assessment of whether and how an ISMS can be built or evolved effectively.',
     ctaButton: '→ Get in touch',
     allConsulting: 'All Consulting Services',
   },
@@ -199,7 +199,7 @@ export const en = {
     refTitle: 'References',
     refDesc: 'Projects in financial services, energy, automotive, and critical infrastructure. Certifications: CISSP, CISA, ISO 27001 Lead Auditor.',
     ctaTitle: 'Next Step',
-    ctaDesc: 'An initial conversation takes 30 minutes. No pitch — just an assessment of whether and where action is needed.',
+    ctaDesc: 'An initial conversation takes 30 minutes. No pitch — just an assessment of where your regulatory posture stands and which steps take priority.',
     ctaButton: '→ Get in touch',
     doraCheckTitle: 'Check DORA Reporting Capability',
     doraCheckDesc: '',
@@ -226,7 +226,7 @@ export const en = {
     refTitle: 'References',
     refDesc: 'Projects in automotive and financial services. Experience from initial and follow-up assessments on both frameworks. Certifications: CISSP, CISA, ISO 27001 Lead Auditor.',
     ctaTitle: 'Next Step',
-    ctaDesc: 'An initial conversation takes 30 minutes. No pitch — just an assessment of whether and where action is needed.',
+    ctaDesc: 'An initial conversation takes 30 minutes. No pitch — just an assessment of which assessment approach fits your current situation.',
     ctaButton: '→ Get in touch',
   },
   assessments: {
@@ -250,7 +250,7 @@ export const en = {
     refTitle: 'References',
     refDesc: 'Assessments and concepts for organizations in financial services, energy, automotive, public administration, and critical infrastructure. Certifications: CISSP, CISA, ISO 27001 Lead Auditor.',
     ctaTitle: 'Next Step',
-    ctaDesc: 'An initial conversation takes 30 minutes. No pitch — just an assessment of whether and where action is needed.',
+    ctaDesc: 'An initial conversation takes 30 minutes. No pitch — just an assessment of which concepts or analyses have the greatest leverage right now.',
     ctaButton: '→ Get in touch',
   },
   incident: {
@@ -276,7 +276,7 @@ export const en = {
     refTitle: 'References',
     refDesc: 'Projects in financial services, energy, automotive, and critical infrastructure. Experience with regulatory requirements under NIS-2, DORA, BSI standards, and ISO 27035.',
     ctaTitle: 'Next Step',
-    ctaDesc: 'An initial conversation takes 30 minutes. No pitch — just an assessment of whether and where action is needed.',
+    ctaDesc: 'An initial conversation takes 30 minutes. No pitch — just an assessment of how resilient your current incident response capability really is.',
     ctaButton: '→ Get in touch',
   },
   cyberCrisis: {
@@ -300,7 +300,7 @@ export const en = {
     refTitle: 'References',
     refDesc: 'Projects in financial services, energy, automotive, and critical infrastructure. Experience with regulatory requirements under BSI standards, NIS-2, DORA, and ISO 22301.',
     ctaTitle: 'Next Step',
-    ctaDesc: 'An initial conversation takes 30 minutes. No pitch, no presentation — just an assessment of whether and where action is needed.',
+    ctaDesc: 'An initial conversation takes 30 minutes. No pitch, no presentation — just an assessment of how crisis-ready your existing structures actually are.',
     ctaButton: '→ Get in touch',
   },
   aiWorkflows: {
