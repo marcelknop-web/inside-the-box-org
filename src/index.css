@@ -221,7 +221,7 @@
 }
 
 .animate-logo-breathe {
-  animation: logo-breathe 6s ease-in-out infinite;
+  animation: logo-breathe 9s ease-in-out infinite;
   will-change: opacity, filter, transform;
 }
 
