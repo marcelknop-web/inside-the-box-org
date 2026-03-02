@@ -1301,7 +1301,7 @@ const ChatView = () => {
                 <h1 aria-hidden="true" className="font-rounded font-bold text-center invisible" style={{ fontSize: 'clamp(1.3rem, 3.5vw, 2rem)', letterSpacing: '-0.02em' }}>
                   {t('welcome.title')}
                 </h1>
-                <h1 className="font-rounded font-bold text-foreground text-center absolute inset-0" style={{ fontSize: 'clamp(1.3rem, 3.5vw, 2rem)', letterSpacing: '-0.02em' }}>
+                <h1 className="font-rounded font-bold text-accent text-center absolute inset-0" style={{ fontSize: 'clamp(1.3rem, 3.5vw, 2rem)', letterSpacing: '-0.02em' }}>
                   <Typewriter text={t('welcome.title')} charDelay={60} />
                 </h1>
               </div>
@@ -1309,11 +1309,11 @@ const ChatView = () => {
               <div className="flex flex-col items-center w-full" style={{ contain: 'layout style' }}>
                 {/* Claim – scramble decode */}
                 <div className="w-full text-center relative" style={{ marginBottom: '28px' }}>
-                  <p aria-hidden="true" className="font-rounded text-center invisible" style={{ fontSize: 'clamp(0.78rem, 1.5vw, 0.9rem)', fontWeight: 500, letterSpacing: '0.005em' }}>
-                    Wenn Prozesse unter Stress funktionieren müssen.
+                  <p aria-hidden="true" className="font-rounded text-center uppercase invisible" style={{ fontSize: 'clamp(0.72rem, 1.8vw, 0.88rem)', letterSpacing: '0.05em', fontWeight: 600 }}>
+                    {t('welcome.heroClaim')}
                   </p>
-                  <p className="font-rounded text-center text-foreground/75 absolute inset-0" style={{ fontSize: 'clamp(0.78rem, 1.5vw, 0.9rem)', fontWeight: 500, letterSpacing: '0.005em' }}>
-                    <Typewriter text="Wenn Prozesse unter Stress funktionieren müssen." mode="scramble" delay={2200} charDelay={18} cursor={false} onDone={() => setClaimDone(true)} />
+                  <p className="font-rounded text-center uppercase text-foreground absolute inset-0" style={{ fontSize: 'clamp(0.72rem, 1.8vw, 0.88rem)', letterSpacing: '0.05em', fontWeight: 600 }}>
+                    <Typewriter text={t('welcome.heroClaim')} mode="scramble" delay={2200} charDelay={18} cursor={false} onDone={() => setClaimDone(true)} />
                   </p>
                 </div>
                 {/* Subtitle & Names – fade in after claim */}
