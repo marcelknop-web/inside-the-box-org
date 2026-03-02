@@ -11,51 +11,74 @@ import { useFlightInput, type FlightInput } from '@/hooks/useFlightInput';
 const LINE_COLOR = '#00ffaa';
 const BG = '#000000';
 
-/* ── Generate initial rock data ── */
+/* ── Seeded RNG helper ── */
+function makeRng(baseSeed: number) {
+  let s = baseSeed;
+  return () => {
+    s = (s * 9301 + 49297) % 233280;
+    return s / 233280;
+  };
+}
+
+/* ── Generate polymer-chain rock formations ── */
 function useInitialRocks(mobile: boolean) {
   return useMemo(() => {
-    const rng = (i: number, off: number) => {
-      let x = Math.sin(i * 127.1 + off * 311.7) * 43758.5453;
-      return x - Math.floor(x);
-    };
     const rocks: { seed: number; radius: number; position: [number, number, number]; rotSpeed: [number, number, number] }[] = [];
-    // On mobile: smaller grid, fewer rocks (~300 vs ~1000)
-    const gridX = mobile ? 30 : 50, gridZ = mobile ? 20 : 35, spacing = 6.0;
-    const skipThreshold = mobile ? 0.55 : 0.4; // skip more on mobile
-    let idx = 0;
-    for (let gx = 0; gx < gridX; gx++) {
-      for (let gz = 0; gz < gridZ; gz++) {
-        const skip = rng(idx, 99);
-        if (skip < skipThreshold) { idx++; continue; }
-        
-        const clusterNoise = Math.sin(gx * 0.4) * Math.cos(gz * 0.3) * 0.5 + 0.5;
-        if (clusterNoise < 0.25 && rng(idx, 88) < 0.6) { idx++; continue; }
-        
-        const r = 0.5 + rng(idx, 0) * 2.5;
+    const chainCount = mobile ? 35 : 80;       // number of polymer chains
+    const fieldW = mobile ? 140 : 260;          // field width
+    const fieldD = mobile ? 90 : 180;           // field depth
+    const planeY = -8;
+
+    let globalIdx = 0;
+    const rng = makeRng(42);
+
+    for (let c = 0; c < chainCount; c++) {
+      // Chain origin: random position in the field
+      let cx = (rng() - 0.5) * fieldW;
+      let cy = planeY + (rng() - 0.5) * 1.0;
+      let cz = (rng() - 0.5) * fieldD;
+
+      // Chain direction: random angle on the XZ plane, slight Y variation
+      let angle = rng() * Math.PI * 2;
+      let pitch = (rng() - 0.5) * 0.3; // slight vertical wander
+
+      // Chain length: 3-12 rocks per chain
+      const chainLen = 3 + Math.floor(rng() * (mobile ? 7 : 10));
+
+      for (let n = 0; n < chainLen; n++) {
+        const r = 0.5 + rng() * 2.2; // rock radius
+        const seed = globalIdx * 13 + 7;
+
         rocks.push({
-          seed: idx * 13 + 7, radius: r,
-          position: [
-            gx * spacing + (rng(idx, 1) - 0.5) * spacing * 0.9 - (gridX * spacing) / 2,
-            -8 + (rng(idx, 3) - 0.5) * 1.2,
-            gz * spacing + (rng(idx, 2) - 0.5) * spacing * 0.9 - (gridZ * spacing) / 2,
+          seed,
+          radius: r,
+          position: [cx, cy, cz],
+          rotSpeed: [
+            (rng() - 0.5) * 0.03,
+            (rng() - 0.5) * 0.04,
+            (rng() - 0.5) * 0.02,
           ],
-          rotSpeed: [(rng(idx, 7) - 0.5) * 0.03, (rng(idx, 8) - 0.5) * 0.04, (rng(idx, 9) - 0.5) * 0.02],
         });
-        idx++;
+
+        // Next rock: place it touching this one at exactly one edge
+        // Distance = sum of radii (touching), direction follows chain with random bends
+        const nextR = 0.5 + rng() * 2.2;
+        const edgeDist = r + nextR; // exactly touching at edge
+
+        // Bend the chain: random angular deviation (polymer-like zigzag)
+        angle += (rng() - 0.5) * 1.2; // up to ~35° bend per link
+        pitch += (rng() - 0.5) * 0.2;
+        pitch = Math.max(-0.3, Math.min(0.3, pitch)); // clamp vertical
+
+        cx += Math.cos(angle) * Math.cos(pitch) * edgeDist;
+        cy += Math.sin(pitch) * edgeDist * 0.3; // gentle Y changes
+        cy = Math.max(planeY - 2, Math.min(planeY + 2, cy)); // stay near plane
+        cz += Math.sin(angle) * Math.cos(pitch) * edgeDist;
+
+        globalIdx++;
       }
     }
-    const outlierCount = mobile ? 20 : 60;
-    const rng2 = (i: number, off: number) => {
-      let x = Math.sin(i * 73.1 + off * 419.3) * 31758.5453;
-      return x - Math.floor(x);
-    };
-    for (let i = 0; i < outlierCount; i++) {
-      rocks.push({
-        seed: i * 31 + 100, radius: 0.3 + rng2(i, 0) * 2.0,
-        position: [rng2(i, 1) * 260 - 130, -8 + rng2(i, 2) * 5 - 1, rng2(i, 3) * 180 - 90],
-        rotSpeed: [(rng2(i, 7) - 0.5) * 0.02, (rng2(i, 8) - 0.5) * 0.03, (rng2(i, 9) - 0.5) * 0.015],
-      });
-    }
+
     return rocks;
   }, [mobile]);
 }
