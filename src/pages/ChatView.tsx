@@ -488,22 +488,18 @@ const useServiceContent = () => {
     ),
     'arena-training': () => (
       <TypedSection title={t('arena.title')} mode="typewriter" intro={<p>{t('arena.intro')}</p>}>
-        <Block className="bg-card/40 rounded-xl">
-          <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{t('arena.introDetail')}</p>
-        </Block>
-        <Block className="bg-primary/5 border border-primary/20 rounded-xl">
-          <SubTitle>{t('arena.sectionTitle')}</SubTitle>
-          <div className="grid grid-cols-1 gap-3 mt-2">
-            <GridItem icon={Search} title={t('arena.scopingTitle')} desc={t('arena.scopingDesc')} />
-            <GridItem icon={Eye} title={t('arena.threatIntelTitle')} desc={t('arena.threatIntelDesc')} />
-            <GridItem icon={Target} title={t('arena.redTeamTitle')} desc={t('arena.redTeamDesc')} />
-            <GridItem icon={FileText} title={t('arena.reportingTitle')} desc={t('arena.reportingDesc')} />
-          </div>
-        </Block>
-        <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
-          <SubTitle variant="highlight">{t('arena.targetTitle')}</SubTitle>
-          <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mt-2">{t('arena.targetDesc')}</p>
-        </Block>
+         <Block className="bg-card/40 rounded-xl">
+           <SubTitle variant="highlight">{t('arena.sectionTitle')}</SubTitle>
+           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mt-2">{t('arena.introDetail')}</p>
+         </Block>
+         <Block className="bg-primary/5 border border-primary/20 rounded-xl">
+           <div className="grid grid-cols-1 gap-3">
+             <GridItem icon={Search} title={t('arena.scopingTitle')} desc={t('arena.scopingDesc')} />
+             <GridItem icon={Eye} title={t('arena.threatIntelTitle')} desc={t('arena.threatIntelDesc')} />
+             <GridItem icon={Target} title={t('arena.redTeamTitle')} desc={t('arena.redTeamDesc')} />
+             <GridItem icon={FileText} title={t('arena.reportingTitle')} desc={t('arena.reportingDesc')} />
+           </div>
+         </Block>
         <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
           <SubTitle variant="highlight">{t('arena.refTitle')}</SubTitle>
           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mt-2">{t('arena.refDesc')}</p>
