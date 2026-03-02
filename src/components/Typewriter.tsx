@@ -406,13 +406,16 @@ const Typewriter = ({ text, mode = 'typewriter', delay = 0, charDelay = 8, curso
     }).join('');
 
     return (
-      <span className="font-mono">
+      <span className="font-mono" style={{ display: 'inline-block', width: '100%' }}>
         {rendered.split('').map((ch, i) => {
           const isResolved = i < resolvedCount;
           return (
             <span
               key={i}
               style={{
+                display: 'inline-block',
+                width: `${100 / text.length}%`,
+                textAlign: 'center',
                 opacity: ch ? 1 : 0,
                 color: !isResolved && ch !== ' ' ? 'hsl(var(--muted-foreground))' : undefined,
                 transition: 'color 150ms ease',
