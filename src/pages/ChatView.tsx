@@ -1298,10 +1298,10 @@ const ChatView = () => {
               </div>
               {/* Brand name */}
               <div className="relative" style={{ marginBottom: '32px' }}>
-                <h1 aria-hidden="true" className="font-mono font-bold text-center invisible" style={{ fontSize: 'clamp(1.3rem, 3.5vw, 2rem)', letterSpacing: '-0.02em' }}>
+                <h1 aria-hidden="true" className="font-rounded font-bold text-center invisible" style={{ fontSize: 'clamp(1.3rem, 3.5vw, 2rem)', letterSpacing: '-0.02em' }}>
                   {t('welcome.title')}
                 </h1>
-                <h1 className="font-mono font-bold text-accent text-center absolute inset-0" style={{ fontSize: 'clamp(1.3rem, 3.5vw, 2rem)', letterSpacing: '-0.02em' }}>
+                <h1 className="font-rounded font-bold text-foreground text-center absolute inset-0" style={{ fontSize: 'clamp(1.3rem, 3.5vw, 2rem)', letterSpacing: '-0.02em' }}>
                   <Typewriter text={t('welcome.title')} charDelay={60} />
                 </h1>
               </div>
@@ -1309,10 +1309,10 @@ const ChatView = () => {
               <div className="flex flex-col items-center w-full" style={{ contain: 'layout style' }}>
                 {/* Claim – scramble decode */}
                 <div className="w-full text-center relative" style={{ marginBottom: '28px' }}>
-                  <p aria-hidden="true" className="font-mono text-center uppercase invisible" style={{ fontSize: 'clamp(0.72rem, 1.8vw, 0.88rem)', letterSpacing: '0.05em', fontWeight: 600 }}>
+                  <p aria-hidden="true" className="font-rounded text-center uppercase invisible" style={{ fontSize: 'clamp(0.72rem, 1.8vw, 0.88rem)', letterSpacing: '0.05em', fontWeight: 600 }}>
                     {t('welcome.heroClaim')}
                   </p>
-                  <p className="font-mono text-center uppercase absolute inset-0" style={{ fontSize: 'clamp(0.72rem, 1.8vw, 0.88rem)', letterSpacing: '0.05em', fontWeight: 600, color: 'rgba(255,255,255,0.92)' }}>
+                  <p className="font-rounded text-center uppercase text-foreground absolute inset-0" style={{ fontSize: 'clamp(0.72rem, 1.8vw, 0.88rem)', letterSpacing: '0.05em', fontWeight: 600 }}>
                     <Typewriter text={t('welcome.heroClaim')} mode="scramble" delay={2200} charDelay={18} cursor={false} onDone={() => setClaimDone(true)} />
                   </p>
                 </div>
@@ -1320,17 +1320,17 @@ const ChatView = () => {
                 <div
                   className="w-full text-center"
                   style={{
-                    marginBottom: '24px',
+                    marginBottom: '28px',
                     opacity: claimDone ? 1 : 0,
                     visibility: claimDone ? 'visible' : 'hidden',
                     transition: 'opacity 800ms ease-out, visibility 0s linear' + (claimDone ? ' 0s' : ' 800ms'),
                   }}
                 >
-                  <p className="font-sans text-center" style={{ fontSize: 'clamp(0.75rem, 1.6vw, 0.88rem)', fontWeight: 500, letterSpacing: '0.005em', color: 'rgba(255,255,255,0.62)' }}>
+                  <p className="font-rounded text-center text-foreground/75" style={{ fontSize: 'clamp(0.78rem, 1.5vw, 0.9rem)', fontWeight: 500, letterSpacing: '0.005em' }}>
                     Wenn Prozesse unter Stress funktionieren müssen.
                   </p>
                 </div>
-                {/* Subtitle & Signature */}
+                {/* Subtitle & Names */}
                 <div
                   className="flex flex-col items-center w-full"
                   style={{
@@ -1339,14 +1339,17 @@ const ChatView = () => {
                     transition: 'opacity 600ms ease-out 200ms, visibility 0s linear' + (claimDone ? ' 0s' : ' 800ms'),
                   }}
                 >
-                  <div className="w-full text-center" style={{ marginBottom: '22px' }}>
-                    <p className="font-sans text-center" style={{ fontSize: 'clamp(0.65rem, 1.3vw, 0.75rem)', fontWeight: 400, letterSpacing: '0.01em', color: 'rgba(255,255,255,0.52)' }}>
+                  <div className="w-full text-center" style={{ marginBottom: '24px' }}>
+                    <p className="font-rounded text-center text-foreground/60" style={{ fontSize: 'clamp(0.68rem, 1.2vw, 0.78rem)', fontWeight: 400, letterSpacing: '0.01em' }}>
                       {t('welcome.heroSubtitle')}
                     </p>
                   </div>
-                  <div className="w-full text-center">
-                    <p className="font-sans font-medium text-center text-foreground/55" style={{ fontSize: 'clamp(0.72rem, 1.15vw, 0.82rem)', letterSpacing: '0.01em' }}>
-                      {t('welcome.heroSignature')}
+                  <div className="w-full flex flex-col items-center gap-1">
+                    <p className="font-rounded text-center text-foreground/50" style={{ fontSize: 'clamp(0.68rem, 1.1vw, 0.75rem)', fontWeight: 500, letterSpacing: '0.01em' }}>
+                      Marcel Knop
+                    </p>
+                    <p className="font-rounded text-center text-foreground/50" style={{ fontSize: 'clamp(0.68rem, 1.1vw, 0.75rem)', fontWeight: 500, letterSpacing: '0.01em' }}>
+                      Andreas Funder
                     </p>
                   </div>
                 </div>
