@@ -80,16 +80,18 @@ const DAMPING = 0.999;    // minimal damping – slow drift
 const SOFTENING = 3.0;    // prevents singularity at close range
 const RESTITUTION = 0.3;  // soft collision elasticity
 
-export function stepPhysics(phys: RockPhysics, dt: number) {
+export function stepPhysics(phys: RockPhysics, dt: number, mobile = false) {
   const n = phys.count;
   const p = phys.positions;
   const v = phys.velocities;
   const r = phys.radii;
   const m = phys.masses;
   const clampDt = Math.min(dt, 0.033);
+  const skipDist = mobile ? 30 : 60; // tighter cutoff on mobile
+  const stepSize = mobile ? 2 : 1;   // skip every other rock on mobile
 
-  // N-body gravity (O(n²) – fine for ~250 rocks if we skip distant pairs)
-  for (let i = 0; i < n; i++) {
+  // N-body gravity (O(n²) – reduced on mobile by stepping and tighter cutoff)
+  for (let i = 0; i < n; i += stepSize) {
     const ix = i * 3, iy = ix + 1, iz = ix + 2;
     let ax = 0, ay = 0, az = 0;
 
@@ -102,8 +104,8 @@ export function stepPhysics(phys: RockPhysics, dt: number) {
       const dist = Math.sqrt(distSq);
       const surfDist = dist - r[i] - r[j];
 
-      // Skip very distant pairs for performance
-      if (dist > 60) continue;
+      // Skip distant pairs
+      if (dist > skipDist) continue;
 
       const force = G * m[i] * m[j] / distSq;
       const fx = force * dx / dist;
