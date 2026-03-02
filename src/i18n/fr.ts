@@ -109,7 +109,7 @@ export const fr = {
   contact: {
     title: 'Contact',
     metaDesc: 'Contactez Marcel Knop pour le conseil en cybersécurité, la formation et les services CISO.',
-    intro: 'Pas de formulaire. Pas de système de tickets.',
+    intro: 'Let\'s talk.',
     phone: 'Téléphone',
     email: 'E-mail',
     viewTraining: 'Voir la formation',
