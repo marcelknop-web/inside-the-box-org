@@ -7,11 +7,11 @@ import type { RockPhysics } from './PhysicsRocks';
 const LINE_COLOR = '#33ffbb';
 const EXPLOSION_INTERVAL = 45;   // max 45 seconds between explosions
 const WARN_DURATION = 5;         // seconds of wireframe blinking before explosion
-const FRAGMENT_COUNT = 18;       // fragments per cluster explosion
+const FRAGMENT_COUNT = 36;       // more fragments per cluster explosion
 const SETTLE_SPEED = 0.4;
-const FRAGMENT_LIFETIME = 50;
+const FRAGMENT_LIFETIME = 55;
 const MAIN_PLANE_Y = -8;
-const CLUSTER_RADIUS = 15;       // how far to search for cluster neighbors
+const CLUSTER_RADIUS = 25;       // larger cluster search radius
 const MIN_CLUSTER_SIZE = 3;      // minimum rocks in a cluster to explode
 
 interface Fragment {
@@ -182,13 +182,13 @@ export function ClusterExplosion({ physics }: { physics: RockPhysics }) {
         for (let k = 0; k < fragsPerRock; k++) {
           // Primarily vertical explosion (perpendicular to the plane)
           const lateralAngle = Math.random() * Math.PI * 2;
-          const lateralSpeed = 0.5 + Math.random() * 1.5;
+          const lateralSpeed = 1.0 + Math.random() * 3.0;
           const goUp = k % 2 === 0;
-          const verticalSpeed = (goUp ? 1 : -1) * (3 + Math.random() * 5);
+          const verticalSpeed = (goUp ? 1 : -1) * (6 + Math.random() * 10);
 
           // Spread origin for landscape settling
-          const spreadX = (Math.random() - 0.5) * 8;
-          const spreadZ = (Math.random() - 0.5) * 8;
+          const spreadX = (Math.random() - 0.5) * 14;
+          const spreadZ = (Math.random() - 0.5) * 14;
 
           fragments.current.push({
             x: rx + (Math.random() - 0.5) * baseRadius,
