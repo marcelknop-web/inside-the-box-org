@@ -73,9 +73,9 @@ const CardBlock = ({ icon: Icon, title, desc, variant = 'primary', link, linkLab
 );
 
 const StatBlock = ({ value, label }: { value: string; label: string }) => (
-  <div className="bg-highlight/5 border border-highlight/20 rounded-xl p-3 text-center">
-    <div className="text-xl font-bold text-highlight font-mono">{value}</div>
-    <div className="text-sm font-sans text-foreground">{label}</div>
+  <div className="bg-highlight/5 border border-highlight/20 rounded-xl p-2 sm:p-3 text-center min-w-0">
+    <div className="text-lg sm:text-xl font-bold text-highlight font-mono">{value}</div>
+    <div className="text-xs sm:text-sm font-sans text-foreground leading-tight">{label}</div>
   </div>
 );
 
