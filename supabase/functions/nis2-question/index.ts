@@ -41,9 +41,9 @@ setInterval(() => {
   }
 }, 300_000);
 
-const SYSTEM_PROMPT = `Du erzeugst Experten-Quizfragen für ein NIS-2 Awareness Quiz im „Wer wird Millionär?"-Stil.
+const SYSTEM_PROMPT = `Du erzeugst praxisnahe Quizfragen für ein NIS-2 Awareness Quiz im „Wer wird Millionär?"-Stil.
 
-Zielgruppe: ISMS-Verantwortliche, CISOs, Compliance-Manager und Geschäftsleitungen.
+Zielgruppe: ISMS-Verantwortliche, CISOs, Compliance-Manager und Geschäftsleitungen in DACH-Unternehmen.
 
 WICHTIG:
 - Gib ausschließlich gültiges JSON zurück. Keine Erklärtexte, kein Markdown.
@@ -53,24 +53,35 @@ WICHTIG:
 - Die korrekte Antwort MUSS als Index (0-3) im Feld "correct" angegeben werden.
 - Die Optionen MÜSSEN als Array von 4 Strings zurückgegeben werden.
 - Vermeide „kommt drauf an"-Antworten. Wenn Kontext nötig ist, liefere ihn in der Frage.
-- Bevor du ausgibst, führe einen Selbstcheck durch:
-  (1) Ist genau 1 Antwort korrekt?
-  (2) Sind die falschen Optionen plausibel, aber klar falsch?
-  (3) Ist die Begründung knapp und fachlich korrekt?
-  Wenn ein Check fehlschlägt, generiere die Frage neu.
 - Verwende formale Ansprache (Siezen).
 
+STIL:
+- Formuliere Fragen konkret und praxisnah – wie sie in einer Schulung oder Auditsituation gestellt würden.
+- Bevorzuge Szenario-basierte Fragen ("Ihr Unternehmen hat 300 Mitarbeitende und betreibt...") gegenüber abstrakten Wissensfragen.
+- Vermeide trockene Definitionsfragen. Stattdessen: Anwendungswissen in realistischen Kontexten.
+- Die falschen Antworten sollen plausibel klingen, aber klar identifizierbar falsch sein – keine Trickfragen.
+- Die Erklärung soll kurz, fachlich korrekt und lehrreich sein – idealerweise mit Bezug auf den relevanten NIS-2-Artikel oder die nationale Umsetzung (NIS2UmsuCG).
+
 SCHWIERIGKEITSGRADE (1-10):
-- 1-2: Grundlagen – Was ist NIS-2? Wer ist betroffen? Grundlegende Meldepflichten.
-- 3-4: Anwendungswissen – Konkrete Szenarien, Fristen, Zuständigkeiten, Scope-Abgrenzung.
-- 5-6: Fortgeschritten – Lieferketten, Outsourcing-Verantwortung, Zusammenspiel mit ISO 27001/TISAX.
-- 7-8: Experte – Grenzfälle, Governance-Strukturen, OT/IT-Konvergenz, grenzüberschreitende Szenarien.
-- 9-10: CISO-Level – Strategische Entscheidungen unter Druck, Haftungsfragen, regulatorische Grauzonen, Tabletop-Szenarien mit mehreren Stakeholdern.
+- 1-2: Einstieg – Was ist NIS-2? Wer ist betroffen? Grundlegende Begriffe (wesentlich/wichtig, Sektoren).
+- 3-4: Grundlagen – Meldepflichten (24h/72h/1 Monat), Registrierungspflicht, Zuständigkeiten BSI/BBK.
+- 5-6: Anwendungswissen – Konkrete Szenarien zu Risikomanagement Art. 21, Lieferketten, Schulungspflichten, Outsourcing.
+- 7-8: Fortgeschritten – Zusammenspiel NIS-2/ISO 27001/TISAX/DORA, OT/IT-Konvergenz, persönliche Leitungshaftung, grenzüberschreitende Fälle.
+- 9-10: Experte – Strategische Entscheidungen unter Druck, regulatorische Grauzonen, Haftungsfragen Geschäftsleitung, Tabletop-Szenarien mit mehreren Stakeholdern, Aufsichtsregime.
 
 THEMEN (wähle passend zur Schwierigkeit):
-NIS-2 Scope & Anwendungsbereich, Meldepflichten (24h/72h/1 Monat), Persönliche Leitungshaftung,
-Risikomanagement Art. 21, Lieferkettensicherheit, Aufsichtsregime, Krisenmanagement/BCM,
-Zusammenspiel NIS-2/ISO 27001/TISAX/DORA, OT-Sicherheit, Schulungspflichten
+NIS-2 Scope & Sektorenzuordnung, Registrierungspflicht beim BSI, Meldepflichten (Erst-/Folge-/Abschlussmeldung),
+Persönliche Leitungshaftung § 38 NIS2UmsuCG, Risikomanagement Art. 21, Lieferkettensicherheit,
+Aufsichts- und Durchsetzungsmaßnahmen, Krisenmanagement/BCM, Zusammenspiel mit ISO 27001/TISAX/DORA,
+OT-Sicherheit in kritischer Infrastruktur, Schulungs- und Nachweispflichten, Bußgeldrahmen,
+Unterschied wesentliche/wichtige Einrichtungen, nationale Umsetzung (NIS2UmsuCG)
+
+SELBSTCHECK vor Ausgabe:
+(1) Ist genau 1 Antwort korrekt?
+(2) Sind die falschen Optionen plausibel, aber klar falsch?
+(3) Ist die Begründung knapp, fachlich korrekt und lehrreich?
+(4) Passt die Schwierigkeit zum angegebenen Level?
+Wenn ein Check fehlschlägt, generiere die Frage neu.
 
 AUSGABEFORMAT (JSON):
 {
