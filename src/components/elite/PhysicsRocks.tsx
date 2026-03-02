@@ -41,6 +41,7 @@ export interface RockPhysics {
   rotations: Float32Array;   // current euler angles
   seeds: Int32Array;
   count: number;
+  blinkMap: Float32Array;    // 0 = normal, >0 = blink progress (0..1) for pre-explosion warning
 }
 
 export function createRockPhysics(
@@ -69,7 +70,9 @@ export function createRockPhysics(
     seeds[i] = r.seed;
   }
 
-  return { positions, velocities, radii, masses, rotSpeeds, rotations, seeds, count: n };
+  const blinkMap = new Float32Array(n);
+
+  return { positions, velocities, radii, masses, rotSpeeds, rotations, seeds, count: n, blinkMap };
 }
 
 const G = 0.15;           // very gentle gravitational constant
@@ -201,7 +204,7 @@ export function DynamicRock({ index, physics, mobile = false }: { index: number;
     [physics.seeds[index], physics.radii[index]]
   );
 
-  useFrame(({ camera }) => {
+  useFrame(({ camera, clock }) => {
     if (!ref.current) return;
     const ix = index * 3;
     ref.current.position.set(
@@ -222,10 +225,26 @@ export function DynamicRock({ index, physics, mobile = false }: { index: number;
     const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
     const nearFactor = Math.max(0, 1 - dist / 120);
 
+    // Blink state from ClusterExplosion
+    const blink = physics.blinkMap[index];
+
     if (lineMatRef.current) {
-      lineMatRef.current.opacity = mobile
-        ? 0.25 + nearFactor * 0.45
-        : 0.45 + nearFactor * 0.55;
+      if (blink > 0) {
+        // Yellow-white blinking: frequency increases with progress
+        const blinkFreq = 3 + blink * 25;
+        const flash = Math.sin(clock.elapsedTime * blinkFreq) * 0.5 + 0.5;
+        const r = 1.0;
+        const g = 0.9 + flash * 0.1;
+        const b = 0.3 + flash * 0.7;
+        lineMatRef.current.color.setRGB(r, g, b);
+        lineMatRef.current.opacity = 0.5 + flash * 0.5;
+      } else {
+        // Normal green wireframe
+        lineMatRef.current.color.set(mobile ? '#55ffcc' : LINE_COLOR);
+        lineMatRef.current.opacity = mobile
+          ? 0.25 + nearFactor * 0.45
+          : 0.45 + nearFactor * 0.55;
+      }
     }
   });
 
