@@ -410,6 +410,9 @@ export const fr = {
     isacaDesc: 'Développement et conduite du programme de certification, y compris curriculum et préparation aux examens. Public cible : praticiens et responsables de la sécurité.',
     eduTitle: 'Supports de formation',
     eduDesc: 'Supports de formation pour praticiens et responsables sécurité — développés à partir de la pratique projet, pas des manuels. Utilisés dans les exercices de crise, les programmes de sensibilisation et les formations techniques.',
+    ctaTitle: 'Prochaine étape',
+    ctaDesc: 'Un premier échange dure 30 minutes. Pas de pitch — juste une évaluation de l\'adéquation avec votre situation.',
+    ctaButton: '→ Prendre contact',
   },
   vciso: {
     title: 'CISO Virtuel',

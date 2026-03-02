@@ -410,6 +410,9 @@ export const de = {
     isacaDesc: 'Entwicklung und Durchführung des Zertifizierungsprogramms einschließlich Curriculum und Prüfungsvorbereitung. Zielgruppe: Sicherheitspraktiker und -manager.',
     eduTitle: 'Schulungsmaterialien',
     eduDesc: 'Trainingsunterlagen für Praktiker und Sicherheitsmanager – entwickelt aus der Projektpraxis, nicht aus dem Lehrbuch. Eingesetzt in Krisenübungen, Awareness-Programmen und technischen Trainings.',
+    ctaTitle: 'Nächster Schritt',
+    ctaDesc: 'Ein Erstgespräch dauert 30 Minuten. Kein Pitch – nur eine Einschätzung, ob und wo Handlungsbedarf besteht.',
+    ctaButton: '→ Kontakt aufnehmen',
   },
   vciso: {
     title: 'Virtual CISO',
