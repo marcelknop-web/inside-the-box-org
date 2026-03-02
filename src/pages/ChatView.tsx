@@ -11,7 +11,7 @@ import { GeometricSymbol } from '@/components/GeometricSymbol';
 import { LucideIcon } from 'lucide-react';
 import CyberCrisisSimulator, { type CrisisSimulatorHandle } from './CyberCrisisSimulator';
 import DoraIncidentReporter from './DoraIncidentReporter';
-import ArtificialStressSimulator from './ArtificialStressSimulator';
+
 import TisaxAssessmentClassifier from './TisaxAssessmentClassifier';
 import PciDssSaqNavigator from './PciDssSaqNavigator';
 import IspcTtxPrioritizer from './IspcTtxPrioritizer';
@@ -702,13 +702,6 @@ const useServiceContent = () => {
                 <p className="text-foreground/80 text-xs">{t('aiWorkflows.agentCrisisDesc')}</p>
               </div>
             </button>
-            <button onClick={() => setActive('stress-sim')} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
-              <Bug size={20} className="text-highlight mt-0.5 flex-shrink-0" />
-              <div>
-                <p className="text-highlight font-semibold font-mono text-sm">{t('aiWorkflows.agentStressTitle')}</p>
-                <p className="text-foreground/80 text-xs">{t('aiWorkflows.agentStressDesc')}</p>
-              </div>
-            </button>
             <button onClick={() => setActive('ttx-check')} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
               <ClipboardList size={20} className="text-highlight mt-0.5 flex-shrink-0" />
               <div>
@@ -1230,8 +1223,6 @@ const ChatView = () => {
     ? <CyberCrisisSimulator embedded ref={crisisRef} />
     : activeService === 'dora-check'
     ? <DoraIncidentReporter embedded />
-    : activeService === 'stress-sim'
-    ? <ArtificialStressSimulator embedded />
     : activeService === 'tisax-check'
     ? <TisaxAssessmentClassifier embedded />
     : activeService === 'pci-check'
@@ -1390,7 +1381,7 @@ const ChatView = () => {
           ) : (
             <div className="w-full px-3 md:px-6 lg:px-10 py-4 md:py-6 space-y-4">
               {serviceContent && (() => {
-                if (activeService === 'crisis-sim' || activeService === 'stress-sim') {
+                if (activeService === 'crisis-sim') {
                   return <div className="flex-1 min-w-0">{serviceContent}</div>;
                 }
                 const ActiveIcon = sidebarGroups.flatMap(g => g.items).find(i => i.id === activeService)?.icon || MessageCircle;
@@ -1452,7 +1443,7 @@ const ChatView = () => {
         {(() => {
           const isTouchDevice = isMobile;
           // On mobile with active service (except crisis/stress): hide completely
-          if (isTouchDevice && !!activeService && activeService !== 'crisis-sim' && activeService !== 'stress-sim') return null;
+          if (isTouchDevice && !!activeService && activeService !== 'crisis-sim') return null;
           const showInput = !isTouchDevice || chatOpen;
           if (!showInput) {
             return (
