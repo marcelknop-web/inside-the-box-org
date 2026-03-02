@@ -1339,13 +1339,13 @@ const ChatView = () => {
                     transition: 'opacity 600ms ease-out 200ms, visibility 0s linear' + (claimDone ? ' 0s' : ' 800ms'),
                   }}
                 >
-                  <div className="w-full text-center" style={{ marginBottom: '16px' }}>
+                  <div className="w-full text-center" style={{ marginBottom: '22px' }}>
                     <p className="font-sans text-center" style={{ fontSize: 'clamp(0.65rem, 1.3vw, 0.75rem)', fontWeight: 400, letterSpacing: '0.01em', color: 'rgba(255,255,255,0.52)' }}>
                       {t('welcome.heroSubtitle')}
                     </p>
                   </div>
                   <div className="w-full text-center">
-                    <p className="font-sans text-center" style={{ fontSize: 'clamp(0.58rem, 1vw, 0.65rem)', fontWeight: 400, letterSpacing: '0.01em', color: 'rgba(255,255,255,0.32)' }}>
+                    <p className="font-sans font-medium text-center text-foreground/55" style={{ fontSize: 'clamp(0.72rem, 1.15vw, 0.82rem)', letterSpacing: '0.01em' }}>
                       {t('welcome.heroSignature')}
                     </p>
                   </div>
@@ -1432,7 +1432,13 @@ const ChatView = () => {
             );
           }
           return (
-            <div className="absolute bottom-4 left-4 right-4 z-10 md:left-8 md:right-8 pointer-events-none">
+            <div
+              className="fixed bottom-4 z-40 pointer-events-none"
+              style={{
+                left: isMobile ? '1rem' : (sidebarOpen ? 'calc(16rem + 1.5rem)' : '1.5rem'),
+                right: isMobile ? '1rem' : '0.75rem',
+              }}
+            >
               <div className="max-w-2xl ml-auto pointer-events-auto">
                 <div className="relative flex items-center bg-secondary/90 backdrop-blur-md rounded-xl border border-highlight/30 focus-within:border-highlight/60 transition-electric shadow-lg">
                   <textarea
