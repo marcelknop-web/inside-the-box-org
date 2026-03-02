@@ -173,7 +173,7 @@ export const fr = {
     refTitle: 'Références',
     refDesc: 'Projets dans les services financiers, l\'énergie, l\'automobile, l\'administration publique et les infrastructures critiques. Certifications : CISSP, CISA, ISO 27001 Lead Auditor.',
     ctaTitle: 'Prochaine étape',
-    ctaDesc: 'Une première conversation dure 30 minutes. Pas de pitch — juste une évaluation pour déterminer si et où une action est nécessaire.',
+    ctaDesc: 'Un premier échange dure 30 minutes. Pas de pitch — juste une évaluation de la manière dont un SMSI peut être construit ou développé efficacement.',
     ctaButton: '→ Prendre contact',
     allConsulting: 'Tous les services de conseil',
   },
@@ -199,7 +199,7 @@ export const fr = {
     refTitle: 'Références',
     refDesc: 'Projets dans les services financiers, l\'énergie, l\'automobile et les infrastructures critiques. Certifications : CISSP, CISA, ISO 27001 Lead Auditor.',
     ctaTitle: 'Prochaine étape',
-    ctaDesc: 'Une première conversation dure 30 minutes. Pas de pitch — juste une évaluation pour déterminer si et où une action est nécessaire.',
+    ctaDesc: 'Un premier échange dure 30 minutes. Pas de pitch — juste une évaluation de votre posture réglementaire et des priorités d\'action.',
     ctaButton: '→ Prendre contact',
     doraCheckTitle: 'Vérifier la capacité de signalement DORA',
     doraCheckDesc: '',
@@ -226,7 +226,7 @@ export const fr = {
     refTitle: 'Références',
     refDesc: 'Projets dans l\'automobile et les services financiers. Expérience d\'évaluations initiales et de suivi sur les deux référentiels. Certifications : CISSP, CISA, ISO 27001 Lead Auditor.',
     ctaTitle: 'Prochaine étape',
-    ctaDesc: 'Une première conversation dure 30 minutes. Pas de pitch — juste une évaluation pour déterminer si et où une action est nécessaire.',
+    ctaDesc: 'Un premier échange dure 30 minutes. Pas de pitch — juste une évaluation de l\'approche d\'assessment adaptée à votre situation.',
     ctaButton: '→ Prendre contact',
   },
   assessments: {
@@ -250,7 +250,7 @@ export const fr = {
     refTitle: 'Références',
     refDesc: 'Évaluations et concepts pour des organisations dans les services financiers, l\'énergie, l\'automobile, l\'administration publique et les infrastructures critiques. Certifications : CISSP, CISA, ISO 27001 Lead Auditor.',
     ctaTitle: 'Prochaine étape',
-    ctaDesc: 'Une première conversation dure 30 minutes. Pas de pitch — juste une évaluation pour déterminer si et où une action est nécessaire.',
+    ctaDesc: 'Un premier échange dure 30 minutes. Pas de pitch — juste une évaluation des concepts ou analyses ayant le plus grand impact actuellement.',
     ctaButton: '→ Prendre contact',
   },
   incident: {
@@ -276,7 +276,7 @@ export const fr = {
     refTitle: 'Références',
     refDesc: 'Projets dans les services financiers, l\'énergie, l\'automobile et les infrastructures critiques. Expérience avec les exigences réglementaires NIS-2, DORA, BSI et ISO 27035.',
     ctaTitle: 'Prochaine étape',
-    ctaDesc: 'Une première conversation dure 30 minutes. Pas de pitch — juste une évaluation pour déterminer si et où une action est nécessaire.',
+    ctaDesc: 'Un premier échange dure 30 minutes. Pas de pitch — juste une évaluation de la résilience réelle de votre capacité de réponse aux incidents.',
     ctaButton: '→ Prendre contact',
   },
   cyberCrisis: {
@@ -300,7 +300,7 @@ export const fr = {
     refTitle: 'Références',
     refDesc: 'Projets dans les services financiers, l\'énergie, l\'automobile et les infrastructures critiques. Expérience avec les exigences réglementaires selon BSI, NIS-2, DORA et ISO 22301.',
     ctaTitle: 'Prochaine étape',
-    ctaDesc: 'Une première conversation dure 30 minutes. Pas de pitch, pas de présentation — juste une évaluation pour déterminer si et où une action est nécessaire.',
+    ctaDesc: 'Un premier échange dure 30 minutes. Pas de pitch, pas de présentation — juste une évaluation de la capacité de crise réelle de vos structures existantes.',
     ctaButton: '→ Prendre contact',
   },
   aiWorkflows: {

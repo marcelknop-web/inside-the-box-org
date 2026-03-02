@@ -173,7 +173,7 @@ export const de = {
     refTitle: 'Referenzen',
     refDesc: 'Projekte aus Finanzdienstleistung, Energie, Automotive, öffentlicher Verwaltung und kritischer Infrastruktur. Zertifizierungen: CISSP, CISA, ISO 27001 Lead Auditor.',
     ctaTitle: 'Nächster Schritt',
-    ctaDesc: 'Ein erstes Gespräch dauert 30 Minuten. Kein Pitch – nur eine Einschätzung, ob und wo Handlungsbedarf besteht.',
+    ctaDesc: 'Ein Erstgespräch dauert 30 Minuten. Kein Pitch – nur eine Einschätzung, ob und wie ein ISMS sinnvoll aufgebaut oder weiterentwickelt werden kann.',
     ctaButton: '→ Kontakt aufnehmen',
     allConsulting: 'Alle Beratungsleistungen',
   },
@@ -199,7 +199,7 @@ export const de = {
     refTitle: 'Referenzen',
     refDesc: 'Projekte aus Finanzdienstleistung, Energie, Automotive und kritischer Infrastruktur. Zertifizierungen: CISSP, CISA, ISO 27001 Lead Auditor.',
     ctaTitle: 'Nächster Schritt',
-    ctaDesc: 'Ein erstes Gespräch dauert 30 Minuten. Kein Pitch – nur eine Einschätzung, ob und wo Handlungsbedarf besteht.',
+    ctaDesc: 'Ein Erstgespräch dauert 30 Minuten. Kein Pitch – nur eine Einschätzung, wo die regulatorische Lage steht und welche Schritte Priorität haben.',
     ctaButton: '→ Kontakt aufnehmen',
     doraCheckTitle: 'DORA Meldefähigkeit prüfen',
     doraCheckDesc: '',
@@ -226,7 +226,7 @@ export const de = {
     refTitle: 'Referenzen',
     refDesc: 'Projekte aus Automotive und Finanzdienstleistung. Erfahrung aus Erst- und Folgeassessments auf beiden Rahmenwerken. Zertifizierungen: CISSP, CISA, ISO 27001 Lead Auditor.',
     ctaTitle: 'Nächster Schritt',
-    ctaDesc: 'Ein erstes Gespräch dauert 30 Minuten. Kein Pitch – nur eine Einschätzung, ob und wo Handlungsbedarf besteht.',
+    ctaDesc: 'Ein Erstgespräch dauert 30 Minuten. Kein Pitch – nur eine Einschätzung, welcher Assessment-Ansatz zur aktuellen Situation passt.',
     ctaButton: '→ Kontakt aufnehmen',
   },
   assessments: {
@@ -250,7 +250,7 @@ export const de = {
     refTitle: 'Referenzen',
     refDesc: 'Assessments und Konzepte für Organisationen aus Finanzdienstleistung, Energie, Automotive, öffentlicher Verwaltung und kritischer Infrastruktur. Zertifizierungen: CISSP, CISA, ISO 27001 Lead Auditor.',
     ctaTitle: 'Nächster Schritt',
-    ctaDesc: 'Ein erstes Gespräch dauert 30 Minuten. Kein Pitch – nur eine Einschätzung, ob und wo Handlungsbedarf besteht.',
+    ctaDesc: 'Ein Erstgespräch dauert 30 Minuten. Kein Pitch – nur eine Einschätzung, welche Konzepte oder Analysen aktuell den größten Hebel haben.',
     ctaButton: '→ Kontakt aufnehmen',
   },
   incident: {
@@ -276,7 +276,7 @@ export const de = {
     refTitle: 'Referenzen',
     refDesc: 'Projekte aus Finanzdienstleistung, Energie, Automotive und kritischer Infrastruktur. Erfahrung mit regulatorischen Anforderungen nach NIS-2, DORA, BSI-Grundschutz und ISO 27035.',
     ctaTitle: 'Nächster Schritt',
-    ctaDesc: 'Ein erstes Gespräch dauert 30 Minuten. Kein Pitch – nur eine Einschätzung, ob und wo Handlungsbedarf besteht.',
+    ctaDesc: 'Ein Erstgespräch dauert 30 Minuten. Kein Pitch – nur eine Einschätzung, wie belastbar die bestehende Incident-Response-Fähigkeit ist.',
     ctaButton: '→ Kontakt aufnehmen',
   },
   cyberCrisis: {
@@ -300,7 +300,7 @@ export const de = {
     refTitle: 'Referenzen',
     refDesc: 'Projekte aus Finanzdienstleistung, Energie, Automotive und kritischer Infrastruktur. Erfahrung mit regulatorischen Anforderungen nach BSI-Grundschutz, NIS-2, DORA und ISO 22301.',
     ctaTitle: 'Nächster Schritt',
-    ctaDesc: 'Ein erstes Gespräch dauert 30 Minuten. Kein Pitch, keine Präsentation – nur eine Einschätzung, ob und wo Handlungsbedarf besteht.',
+    ctaDesc: 'Ein Erstgespräch dauert 30 Minuten. Kein Pitch, keine Präsentation – nur eine Einschätzung, wie krisenfähig die bestehenden Strukturen tatsächlich sind.',
     ctaButton: '→ Kontakt aufnehmen',
   },
   aiWorkflows: {
