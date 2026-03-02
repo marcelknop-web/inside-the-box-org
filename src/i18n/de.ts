@@ -33,7 +33,7 @@ export const de = {
     aiWorkflows: 'KI-Lab',
     publications: 'Publikationen',
     events: 'Events',
-    eventsWorkshops: 'Events & Workshops',
+    eventsWorkshops: 'Events & Trainings',
   },
   start: {
     cyberTrainingRange: 'Cyber Training Range',
@@ -135,7 +135,7 @@ export const de = {
     arenaTitle: 'Arena Training, TIBER Test',
     arenaSidebarLabel: 'Arena & TIBER',
     arenaDesc: 'Offensive und defensive Teams unter realistischen Bedingungen trainieren – inkl. TIBER-Koordination.',
-    eventsTitle: 'Events & Workshops',
+    eventsTitle: 'Events & Trainings',
     eventsDesc: 'Moderation, Awareness-Training und technische Workshops.',
     pubTitle: 'Publikationen',
     pubDesc: 'Branchenpublikationen und Fachvorträge.',
@@ -359,7 +359,7 @@ export const de = {
     ctaButton: '→ Kontakt aufnehmen',
   },
   events: {
-    title: 'Events & Workshops',
+    title: 'Events & Trainings',
     metaDesc: 'Moderation und Training, die über den Veranstaltungstag hinaus wirken.',
     intro: 'Moderation und Training, die über den Veranstaltungstag hinaus wirken.',
     moderationTitle: 'Moderation',
