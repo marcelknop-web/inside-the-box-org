@@ -5,12 +5,14 @@ import { ConvexGeometry } from 'three/addons/geometries/ConvexGeometry.js';
 import type { RockPhysics } from './PhysicsRocks';
 
 const LINE_COLOR = '#33ffbb';
-const EXPLOSION_INTERVAL = 60;
-const WARN_DURATION = 5;        // seconds of shrink+blink before explosion
-const FRAGMENT_COUNT = 12;
-const SETTLE_SPEED = 0.3;
-const FRAGMENT_LIFETIME = 45;
+const EXPLOSION_INTERVAL = 45;   // max 45 seconds between explosions
+const WARN_DURATION = 5;         // seconds of wireframe blinking before explosion
+const FRAGMENT_COUNT = 18;       // fragments per cluster explosion
+const SETTLE_SPEED = 0.4;
+const FRAGMENT_LIFETIME = 50;
 const MAIN_PLANE_Y = -8;
+const CLUSTER_RADIUS = 15;       // how far to search for cluster neighbors
+const MIN_CLUSTER_SIZE = 3;      // minimum rocks in a cluster to explode
 
 interface Fragment {
   x: number; y: number; z: number;
@@ -23,6 +25,8 @@ interface Fragment {
   alive: boolean;
   settling: boolean;
   originY: number;
+  originX: number;
+  originZ: number;
 }
 
 /* ── Build jagged shard ── */
@@ -84,61 +88,47 @@ function ExplosionFragment({ fragment }: { fragment: Fragment }) {
   );
 }
 
-/* ── Doomed rock warning indicator (shrink + blink overlay) ── */
-function DoomWarning({ physics, rockIdx, warnProgress }: { physics: RockPhysics; rockIdx: number; warnProgress: number }) {
-  const ref = useRef<THREE.Mesh>(null);
+/* ── Find a cluster of nearby rocks around a seed rock ── */
+function findCluster(physics: RockPhysics): number[] {
+  const n = physics.count;
+  if (n === 0) return [];
 
-  useFrame(({ clock }) => {
-    if (!ref.current || rockIdx < 0) return;
-    const ix = rockIdx * 3;
-    ref.current.position.set(
-      physics.positions[ix],
-      physics.positions[ix + 1],
-      physics.positions[ix + 2]
-    );
-    const r = physics.radii[rockIdx];
-    // Shrink from full size to ~30%
-    const shrink = 1 - warnProgress * 0.7;
-    ref.current.scale.setScalar(r * shrink * 2.5);
+  // Pick a random large rock as seed
+  const sorted: { idx: number; r: number }[] = [];
+  for (let i = 0; i < n; i++) sorted.push({ idx: i, r: physics.radii[i] });
+  sorted.sort((a, b) => b.r - a.r);
+  const topCount = Math.max(5, Math.floor(n * 0.15));
+  const seedIdx = sorted[Math.floor(Math.random() * topCount)].idx;
 
-    // Blink: frequency increases as it gets closer to exploding
-    const blinkFreq = 3 + warnProgress * 25;
-    const blink = Math.sin(clock.elapsedTime * blinkFreq) * 0.5 + 0.5;
-    const mat = ref.current.material as THREE.MeshBasicMaterial;
-    mat.opacity = blink * (0.3 + warnProgress * 0.5);
-  });
+  const sx = physics.positions[seedIdx * 3];
+  const sy = physics.positions[seedIdx * 3 + 1];
+  const sz = physics.positions[seedIdx * 3 + 2];
 
-  return (
-    <mesh ref={ref}>
-      <sphereGeometry args={[1, 8, 8]} />
-      <meshBasicMaterial color="#88ffcc" transparent opacity={0.3} depthWrite={false} blending={THREE.AdditiveBlending} />
-    </mesh>
-  );
+  // Gather all rocks within CLUSTER_RADIUS
+  const cluster: number[] = [];
+  for (let i = 0; i < n; i++) {
+    const ix = i * 3;
+    const dx = physics.positions[ix] - sx;
+    const dy = physics.positions[ix + 1] - sy;
+    const dz = physics.positions[ix + 2] - sz;
+    const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
+    if (dist < CLUSTER_RADIUS) {
+      cluster.push(i);
+    }
+  }
+
+  return cluster.length >= MIN_CLUSTER_SIZE ? cluster : [];
 }
 
 /* ── Cluster Explosion System ── */
 export function ClusterExplosion({ physics }: { physics: RockPhysics }) {
   const fragments = useRef<Fragment[]>([]);
-  const timer = useRef(EXPLOSION_INTERVAL * 0.7); // first explosion after ~18s
+  const timer = useRef(EXPLOSION_INTERVAL * 0.7); // first explosion after ~13s
   const [, setTick] = React.useState(0);
 
-  // Doomed rock state
-  const doomedRock = useRef(-1);
+  // Doomed cluster state
+  const doomedCluster = useRef<number[]>([]);
   const warnTimer = useRef(0);
-  const warnProgress = useRef(0);
-  // Store original radius to restore if needed
-  const originalRadius = useRef(0);
-  const shrinkApplied = useRef(false);
-
-  const findExplosionCenter = (): number => {
-    const n = physics.count;
-    if (n === 0) return -1;
-    const sorted: { idx: number; r: number }[] = [];
-    for (let i = 0; i < n; i++) sorted.push({ idx: i, r: physics.radii[i] });
-    sorted.sort((a, b) => b.r - a.r);
-    const topCount = Math.max(3, Math.floor(n * 0.15));
-    return sorted[Math.floor(Math.random() * topCount)].idx;
-  };
 
   useFrame((_, dt) => {
     const clampDt = Math.min(dt, 0.033);
@@ -146,67 +136,88 @@ export function ClusterExplosion({ physics }: { physics: RockPhysics }) {
 
     const triggerAt = EXPLOSION_INTERVAL - WARN_DURATION;
 
-    // Select doomed rock when warning phase starts
-    if (doomedRock.current < 0 && timer.current >= triggerAt) {
-      doomedRock.current = findExplosionCenter();
-      warnTimer.current = 0;
-      shrinkApplied.current = false;
-      if (doomedRock.current >= 0) {
-        originalRadius.current = physics.radii[doomedRock.current];
+    // Select doomed cluster when warning phase starts
+    if (doomedCluster.current.length === 0 && timer.current >= triggerAt) {
+      const cluster = findCluster(physics);
+      if (cluster.length > 0) {
+        doomedCluster.current = cluster;
+        warnTimer.current = 0;
       }
     }
 
-    // Warning phase: shrink the actual physics rock
-    if (doomedRock.current >= 0 && timer.current < EXPLOSION_INTERVAL) {
+    // Warning phase: set blinkMap for cluster rocks
+    if (doomedCluster.current.length > 0 && timer.current < EXPLOSION_INTERVAL) {
       warnTimer.current += clampDt;
-      warnProgress.current = Math.min(1, warnTimer.current / WARN_DURATION);
+      const progress = Math.min(1, warnTimer.current / WARN_DURATION);
 
-      // Shrink the rock in physics
-      const shrink = 1 - warnProgress.current * 0.7;
-      physics.radii[doomedRock.current] = originalRadius.current * shrink;
-      shrinkApplied.current = true;
+      for (const idx of doomedCluster.current) {
+        physics.blinkMap[idx] = progress;
+      }
     }
 
     // Trigger explosion
-    if (timer.current >= EXPLOSION_INTERVAL && doomedRock.current >= 0) {
+    if (timer.current >= EXPLOSION_INTERVAL && doomedCluster.current.length > 0) {
       timer.current = 0;
-      const idx = doomedRock.current;
-      const cx = physics.positions[idx * 3];
-      const cy = physics.positions[idx * 3 + 1];
-      const cz = physics.positions[idx * 3 + 2];
-      const baseRadius = originalRadius.current;
+      const cluster = doomedCluster.current;
 
-      // Restore physics radius
-      physics.radii[idx] = originalRadius.current;
+      // Compute cluster center
+      let cx = 0, cy = 0, cz = 0;
+      for (const idx of cluster) {
+        cx += physics.positions[idx * 3];
+        cy += physics.positions[idx * 3 + 1];
+        cz += physics.positions[idx * 3 + 2];
+      }
+      cx /= cluster.length;
+      cy /= cluster.length;
+      cz /= cluster.length;
 
-      for (let k = 0; k < FRAGMENT_COUNT; k++) {
-        const goUp = k < FRAGMENT_COUNT / 2;
-        const angle = Math.random() * Math.PI * 2;
-        const lateralSpeed = 1 + Math.random() * 3;
-        const verticalSpeed = (goUp ? 1 : -1) * (2 + Math.random() * 4);
+      // Spawn fragments from each rock in the cluster
+      const fragsPerRock = Math.max(1, Math.floor(FRAGMENT_COUNT / cluster.length));
+      for (const idx of cluster) {
+        const rx = physics.positions[idx * 3];
+        const ry = physics.positions[idx * 3 + 1];
+        const rz = physics.positions[idx * 3 + 2];
+        const baseRadius = physics.radii[idx];
 
-        fragments.current.push({
-          x: cx + (Math.random() - 0.5) * baseRadius,
-          y: cy + (Math.random() - 0.5) * baseRadius * 0.5,
-          z: cz + (Math.random() - 0.5) * baseRadius,
-          vx: Math.cos(angle) * lateralSpeed,
-          vy: verticalSpeed,
-          vz: Math.sin(angle) * lateralSpeed,
-          rx: 0, ry: 0, rz: 0,
-          rsx: (Math.random() - 0.5) * 0.8,
-          rsy: (Math.random() - 0.5) * 0.8,
-          rsz: (Math.random() - 0.5) * 0.8,
-          radius: baseRadius * (0.3 + Math.random() * 0.5),
-          seed: Math.floor(Math.random() * 99999),
-          age: 0,
-          alive: true,
-          settling: false,
-          originY: MAIN_PLANE_Y + (Math.random() - 0.5) * 2,
-        });
+        for (let k = 0; k < fragsPerRock; k++) {
+          // Primarily vertical explosion (perpendicular to the plane)
+          const lateralAngle = Math.random() * Math.PI * 2;
+          const lateralSpeed = 0.5 + Math.random() * 1.5;
+          const goUp = k % 2 === 0;
+          const verticalSpeed = (goUp ? 1 : -1) * (3 + Math.random() * 5);
+
+          // Spread origin for landscape settling
+          const spreadX = (Math.random() - 0.5) * 8;
+          const spreadZ = (Math.random() - 0.5) * 8;
+
+          fragments.current.push({
+            x: rx + (Math.random() - 0.5) * baseRadius,
+            y: ry + (Math.random() - 0.5) * baseRadius * 0.5,
+            z: rz + (Math.random() - 0.5) * baseRadius,
+            vx: Math.cos(lateralAngle) * lateralSpeed,
+            vy: verticalSpeed,
+            vz: Math.sin(lateralAngle) * lateralSpeed,
+            rx: 0, ry: 0, rz: 0,
+            rsx: (Math.random() - 0.5) * 0.6,
+            rsy: (Math.random() - 0.5) * 0.6,
+            rsz: (Math.random() - 0.5) * 0.6,
+            radius: baseRadius * (0.25 + Math.random() * 0.4),
+            seed: Math.floor(Math.random() * 99999),
+            age: 0,
+            alive: true,
+            settling: false,
+            // Settle to spread-out positions on the plane (landscape look)
+            originY: MAIN_PLANE_Y + (Math.random() - 0.5) * 1.5,
+            originX: rx + spreadX,
+            originZ: rz + spreadZ,
+          });
+        }
+
+        // Clear blink state
+        physics.blinkMap[idx] = 0;
       }
 
-      doomedRock.current = -1;
-      warnProgress.current = 0;
+      doomedCluster.current = [];
       setTick(t => t + 1);
     }
 
@@ -217,29 +228,37 @@ export function ClusterExplosion({ physics }: { physics: RockPhysics }) {
       f.age += clampDt;
       if (f.age > FRAGMENT_LIFETIME) { f.alive = false; needsRender = true; continue; }
 
-      if (f.age < 8) {
+      if (f.age < 6) {
+        // Explosion phase: primarily vertical movement
         f.x += f.vx * clampDt;
         f.y += f.vy * clampDt;
         f.z += f.vz * clampDt;
         f.vx *= 0.98; f.vy *= 0.97; f.vz *= 0.98;
       } else {
+        // Settling phase: drift toward spread-out landscape positions
         if (!f.settling) {
           f.settling = true;
-          f.vx *= 0.3; f.vz *= 0.3;
+          f.vx *= 0.2; f.vz *= 0.2; f.vy *= 0.1;
         }
-        const dy = f.originY - f.y;
-        f.vy += dy * SETTLE_SPEED * clampDt;
-        f.vy *= 0.99;
+        // Attract toward landscape target position
+        const dxTarget = f.originX - f.x;
+        const dyTarget = f.originY - f.y;
+        const dzTarget = f.originZ - f.z;
+        f.vx += dxTarget * SETTLE_SPEED * 0.3 * clampDt;
+        f.vy += dyTarget * SETTLE_SPEED * clampDt;
+        f.vz += dzTarget * SETTLE_SPEED * 0.3 * clampDt;
+        f.vx *= 0.99; f.vy *= 0.99; f.vz *= 0.99;
         f.x += f.vx * clampDt;
         f.y += f.vy * clampDt;
         f.z += f.vz * clampDt;
-        f.vx *= 0.999; f.vz *= 0.999;
       }
 
       f.rx += f.rsx * clampDt;
       f.ry += f.rsy * clampDt;
       f.rz += f.rsz * clampDt;
-      f.rsx *= 0.9995; f.rsy *= 0.9995; f.rsz *= 0.9995;
+      // Slow rotation as they settle
+      const rotDamp = f.settling ? 0.995 : 0.9995;
+      f.rsx *= rotDamp; f.rsy *= rotDamp; f.rsz *= rotDamp;
     }
 
     if (needsRender || Math.floor(timer.current * 2) % 2 === 0) {
@@ -249,13 +268,9 @@ export function ClusterExplosion({ physics }: { physics: RockPhysics }) {
   });
 
   const alive = fragments.current.filter(f => f.alive);
-  const showWarning = doomedRock.current >= 0;
 
   return (
     <>
-      {showWarning && (
-        <DoomWarning physics={physics} rockIdx={doomedRock.current} warnProgress={warnProgress.current} />
-      )}
       {alive.map((f, i) => (
         <ExplosionFragment key={`${f.seed}-${i}`} fragment={f} />
       ))}
