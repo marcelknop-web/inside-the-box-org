@@ -1297,13 +1297,18 @@ const ChatView = () => {
                 <GeometricSymbol size="sm" className="w-12 h-12 opacity-60" />
               </div>
               {/* Brand name */}
-              <div className="relative" style={{ marginBottom: '32px' }}>
-                <h1 aria-hidden="true" className="font-rounded font-bold text-center invisible whitespace-nowrap" style={{ fontSize: 'clamp(1.3rem, 3.5vw, 2rem)', letterSpacing: '-0.02em' }}>
-                  {t('welcome.title')}
-                </h1>
-                <h1 className="font-rounded font-bold text-accent text-center absolute inset-0 whitespace-nowrap" style={{ fontSize: 'clamp(1.3rem, 3.5vw, 2rem)', letterSpacing: '-0.02em' }}>
-                  <Typewriter text={t('welcome.title')} charDelay={60} cursor={false} />
-                </h1>
+              <div style={{ marginBottom: '32px', textAlign: 'center' }}>
+                <div className="relative">
+                  <h1 aria-hidden="true" className="font-rounded font-bold text-center invisible whitespace-nowrap" style={{ fontSize: 'clamp(1.3rem, 3.5vw, 2rem)', letterSpacing: '-0.02em' }}>
+                    {t('welcome.title')}
+                  </h1>
+                  <h1 className="font-rounded font-bold text-accent text-center absolute inset-0 whitespace-nowrap" style={{ fontSize: 'clamp(1.3rem, 3.5vw, 2rem)', letterSpacing: '-0.02em' }}>
+                    <Typewriter text={t('welcome.title')} charDelay={60} cursor={false} />
+                  </h1>
+                </div>
+                <p className="font-rounded text-primary text-center mt-2" style={{ fontSize: 'clamp(0.7rem, 1.4vw, 0.82rem)', fontWeight: 500, letterSpacing: '0.01em' }}>
+                  Wenn Prozesse unter Stress funktionieren müssen.
+                </p>
               </div>
               {/* Hero content */}
               <div className="flex flex-col items-center w-full" style={{ contain: 'layout style' }}>
