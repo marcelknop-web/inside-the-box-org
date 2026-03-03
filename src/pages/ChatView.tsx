@@ -37,7 +37,7 @@ interface ChatMessage { role: 'user' | 'assistant'; content: string; links?: Nav
 // ── Chat-styled content blocks ──────────────────────────────────────────────
 
 const Block = ({ children, className = '' }: { children: ReactNode; className?: string }) => (
-  <div className={`rounded-2xl px-5 py-4 text-sm md:text-base font-sans leading-relaxed tracking-wide text-foreground ${className}`}>
+  <div className={`rounded-2xl px-5 py-4 text-base font-sans leading-relaxed tracking-wide text-foreground ${className}`}>
     {children}
   </div>
 );
@@ -56,9 +56,9 @@ const CardBlock = ({ icon: Icon, title, desc, variant = 'primary', link, linkLab
       <Icon size={22} className={`mt-0.5 flex-shrink-0 ${variant === 'highlight' ? 'text-highlight' : 'text-primary'}`} />
       <div>
         <SubTitle variant={variant}>{title}</SubTitle>
-        <p className="text-foreground text-sm md:text-base font-sans leading-relaxed tracking-wide whitespace-pre-line">{desc}</p>
+        <p className="text-foreground text-base font-sans leading-relaxed tracking-wide whitespace-pre-line">{desc}</p>
         {bullets && bullets.length > 0 && (
-          <ul className="text-foreground text-sm md:text-base font-sans leading-relaxed tracking-wide space-y-1.5 mt-2">
+          <ul className="text-foreground text-base font-sans leading-relaxed tracking-wide space-y-1.5 mt-2">
             {bullets.map((b, i) => (
               <li key={i} className="flex items-start gap-2"><span className="flex-shrink-0">•</span><span>{b}</span></li>
             ))}
@@ -90,12 +90,12 @@ const GridItem = ({ icon: Icon, title, subtitle, desc, variant = 'primary', href
       <Icon size={18} className={`mt-1 flex-shrink-0 ${colorClass}`} />
       <div className="space-y-1 min-w-0">
         {href ? (
-          <a href={href} target="_blank" rel="noopener noreferrer" className={`font-semibold text-sm md:text-base font-sans underline hover:opacity-80 ${colorClass}`}>{title}</a>
+          <a href={href} target="_blank" rel="noopener noreferrer" className={`font-semibold text-base font-sans underline hover:opacity-80 ${colorClass}`}>{title}</a>
         ) : (
-          <p className={`font-semibold text-sm md:text-base font-sans ${colorClass}`}>{title}</p>
+          <p className={`font-semibold text-base font-sans ${colorClass}`}>{title}</p>
         )}
         {subtitle && <p className={`${colorClass}/70 text-xs font-semibold font-sans uppercase tracking-wide`}>{subtitle}</p>}
-        <p className="text-foreground/80 text-sm md:text-[15px] font-sans leading-relaxed whitespace-pre-line break-words">{desc}</p>
+        <p className="text-foreground/80 text-base font-sans leading-relaxed whitespace-pre-line break-words">{desc}</p>
       </div>
     </div>
   );
