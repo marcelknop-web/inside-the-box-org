@@ -54,9 +54,9 @@ function useInitialRocks(mobile: boolean) {
           radius: r,
           position: [cx, cy, cz],
           rotSpeed: [
-            (rng() - 0.5) * 0.03,
-            (rng() - 0.5) * 0.04,
-            (rng() - 0.5) * 0.02,
+            (rng() - 0.5) * 0.012,
+            (rng() - 0.5) * 0.015,
+            (rng() - 0.5) * 0.008,
           ],
         });
 
@@ -205,7 +205,7 @@ function InfoExchange({ physics, mobile = false }: { physics: RockPhysics; mobil
       // Spawn new packet
       if (!alive[i]) {
         // Continuous spawn: ~15% chance per dead particle per frame
-        if (Math.random() > 0.15) {
+        if (Math.random() > 0.06) {
           lp[i6 + 1] = -9999; lp[i6 + 4] = -9999;
           lc[i8 + 3] = 0; lc[i8 + 7] = 0;
           continue;
@@ -257,7 +257,7 @@ function InfoExchange({ physics, mobile = false }: { physics: RockPhysics; mobil
         const dy = pp[tx3 + 1] - pp[sx3 + 1];
         const dz = pp[tx3 + 2] - pp[sx3 + 2];
         const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
-        const speed = 18 + Math.random() * 14; // variable travel speed
+        const speed = 8 + Math.random() * 6; // slower, calmer travel speed
         tt[i] = dist / speed;
 
         // Random curve offset for arc trajectory
@@ -798,14 +798,14 @@ function ShootingStars() {
           toCamera.y + (Math.random() - 0.5) * 0.4,
           toCamera.z + (Math.random() - 0.5) * 0.7
         ).normalize();
-        slot.speed = 50 + Math.random() * 90;
+        slot.speed = 20 + Math.random() * 35;
         slot.length = 6 + Math.random() * 18;
         slot.duration = 0.3 + Math.random() * 1.0;
         slot.startTime = t;
         slot.active = true;
         slot.brightness = 0.5 + Math.random() * 0.5;
       }
-      nextSpawn.current = 3 + Math.random() * 10;
+      nextSpawn.current = 8 + Math.random() * 20;
     }
 
     const up = camera.up.clone().normalize();
@@ -913,7 +913,7 @@ function CockpitCamera({ physics, audioRef, flightInput }: { physics: RockPhysic
     smoothedBass.current += (audio.bass - smoothedBass.current) * 0.02;
     const sa = smoothedAmplitude.current;
 
-    const baseSpeed = 0.009 + sa * 0.003 + userSpeed.current;
+    const baseSpeed = 0.004 + sa * 0.001 + userSpeed.current;
     const phase = t * baseSpeed;
 
     const rx = 80;
@@ -922,17 +922,17 @@ function CockpitCamera({ physics, audioRef, flightInput }: { physics: RockPhysic
     const pathZ = Math.cos(phase) * rz;
 
     const rollTarget =
-      Math.sin(t * 0.04) * 1.8 +
-      Math.sin(t * 0.071 + 1.3) * 1.2 +
-      Math.sin(t * 0.023 + 3.7) * 0.7 +
-      sa * Math.sin(t * 0.15) * 0.4 +
+      Math.sin(t * 0.015) * 0.6 +
+      Math.sin(t * 0.028 + 1.3) * 0.4 +
+      Math.sin(t * 0.009 + 3.7) * 0.3 +
+      sa * Math.sin(t * 0.06) * 0.15 +
       userRoll.current; // user roll influence
-    smoothInversion.current += (rollTarget - smoothInversion.current) * 0.012;
+    smoothInversion.current += (rollTarget - smoothInversion.current) * 0.006;
 
     const altDrift =
-      Math.sin(t * 0.035) * 4.0 +
-      Math.sin(t * 0.08 + 2.1) * 2.5 +
-      Math.cos(t * 0.019) * 3.0 +
+      Math.sin(t * 0.012) * 2.5 +
+      Math.sin(t * 0.03 + 2.1) * 1.5 +
+      Math.cos(t * 0.008) * 2.0 +
       userPitch.current * 8; // user pitch raises/lowers camera
 
     const desiredAlt = CRUISE_ALT + altDrift + sa * 0.5;
