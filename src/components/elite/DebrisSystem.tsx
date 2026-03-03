@@ -7,7 +7,7 @@ import type { RockPhysics } from './PhysicsRocks';
 const LINE_COLOR = '#00ffaa';
 const MAX_DEBRIS = 120;           // fewer but more substantial pieces
 const DEBRIS_LIFETIME = 8.0;
-const GRAVITY = -9.81;
+const GRAVITY = -1.62; // Moon gravity
 const RESTITUTION = 0.25;
 const GROUND_Y = -8;
 const REST_THRESHOLD = 0.2;
