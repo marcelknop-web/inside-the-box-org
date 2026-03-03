@@ -66,8 +66,8 @@ const TypedSection = ({
 
   return (
     <div className="space-y-5 md:space-y-3">
-      <div className="rounded-2xl px-5 py-4 text-sm md:text-base font-sans leading-relaxed tracking-wide text-foreground">
-        <h2 className="text-primary text-lg font-bold font-mono mb-3">
+      <div className="rounded-2xl px-5 py-4 text-base font-sans leading-relaxed tracking-wide text-foreground">
+        <h2 className="text-primary text-xl font-bold font-mono mb-3">
           <Typewriter key={sectionKey} text={title} mode={mode} charDelay={charDelay} onDone={() => setTitleDone(true)} />
         </h2>
         {intro && introVisible && (

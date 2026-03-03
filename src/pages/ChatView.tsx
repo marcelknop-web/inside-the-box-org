@@ -43,11 +43,11 @@ const Block = ({ children, className = '' }: { children: ReactNode; className?: 
 );
 
 const SectionTitle = ({ children }: { children: ReactNode }) => (
-  <h2 className="text-primary text-lg font-bold font-mono mb-3">{children}</h2>
+  <h2 className="text-primary text-xl font-bold font-mono mb-3">{children}</h2>
 );
 
 const SubTitle = ({ children, variant: _v }: { children: ReactNode; variant?: 'primary' | 'highlight' }) => (
-  <h3 className="text-primary font-semibold font-mono text-sm mb-1">{children}</h3>
+  <h3 className="text-primary font-semibold font-mono text-base mb-1">{children}</h3>
 );
 
 const CardBlock = ({ icon: Icon, title, desc, variant = 'primary', link, linkLabel, bullets, result }: { icon: LucideIcon; title: string; desc: string; variant?: 'primary' | 'highlight'; link?: string; linkLabel?: string; bullets?: string[]; result?: string }) => (
