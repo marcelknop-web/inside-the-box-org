@@ -59,7 +59,33 @@ serve(async (req) => {
   }
 
   try {
-    const { answers, verdict, language } = await req.json();
+    const body = await req.json();
+    const { answers, verdict, language } = body;
+
+    // Input validation
+    if (!answers || typeof answers !== "object" || Array.isArray(answers)) {
+      return new Response(JSON.stringify({ error: "Invalid request: answers must be an object" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+    if (Object.keys(answers).length > 50) {
+      return new Response(JSON.stringify({ error: "Too many answers (max 50)" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+    if (typeof verdict !== "string" || verdict.length > 50) {
+      return new Response(JSON.stringify({ error: "Invalid verdict" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+    if (language !== undefined && (typeof language !== "string" || language.length > 5)) {
+      return new Response(JSON.stringify({ error: "Invalid language" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+    for (const val of Object.values(answers)) {
+      const v = val as any;
+      if (!v || typeof v !== "object" || typeof v.label !== "string" || v.label.length > 500) {
+        return new Response(JSON.stringify({ error: "Invalid answer entry" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
+    }
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
