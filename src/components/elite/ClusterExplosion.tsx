@@ -7,7 +7,7 @@ import type { RockPhysics } from './PhysicsRocks';
 const LINE_COLOR = '#33ffbb';
 const EXPLOSION_INTERVAL = 90;
 const WARN_DURATION = 5;
-const FRAGMENT_COUNT = 36;
+const FRAGMENT_COUNT = 12;
 const FRAGMENT_LIFETIME = 40;
 const CLUSTER_RADIUS = 25;
 const MIN_CLUSTER_SIZE = 3;
