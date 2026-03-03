@@ -1328,7 +1328,7 @@ const ChatView = () => {
                   {t('welcome.title')}
                 </h1>
                 <h1 className="font-rounded font-bold text-accent text-center absolute inset-0 whitespace-nowrap" style={{ fontSize: 'clamp(1.3rem, 3.5vw, 2rem)', letterSpacing: '-0.02em' }}>
-                  <Typewriter text={t('welcome.title')} charDelay={60} cursor={false} onDone={() => setTitleDone(true)} />
+                  <Typewriter text={t('welcome.title')} charDelay={60} cursor={false} onDone={() => { setTitleDone(true); setSubtitleDone(true); }} />
                 </h1>
               </div>
 
@@ -1340,10 +1340,7 @@ const ChatView = () => {
                   fontWeight: 500,
                   letterSpacing: '0.01em',
                   marginBottom: '28px',
-                  opacity: titleDone ? 1 : 0,
-                  transition: 'opacity 500ms ease-out',
                 }}
-                onTransitionEnd={() => { if (titleDone) setSubtitleDone(true); }}
               >
                 {t('welcome.heroSubtitle')}
               </p>
