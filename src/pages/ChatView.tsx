@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, ReactNode, useCallback } from 'react';
 
 import { supabase } from '@/integrations/supabase/client';
-import { Send, Plus, MessageCircle, Shield, Target, BookOpen, AlertTriangle, Eye, Flame, Swords, Calendar, FileText, UserCheck, ChevronLeft, Menu, ShieldCheck, Search, Settings, Award, RotateCcw, Network, CreditCard, CheckCircle, FileCheck, Car, BarChart, RefreshCw, GraduationCap, ClipboardList, Zap, Crown, Users, Gamepad2, Monitor, Crosshair, CheckSquare, Mic, Radio, Video, Mail, Server, Bug, AlertCircle, MessageSquare, Building2, Plane, Landmark, Scale, Wifi, XCircle, HelpCircle, Loader2, X, Linkedin, Play, TrendingDown, Rocket } from 'lucide-react';
+import { Send, Plus, MessageCircle, Shield, Target, BookOpen, AlertTriangle, Eye, Flame, Swords, Calendar, FileText, UserCheck, ChevronLeft, Menu, ShieldCheck, Search, Settings, Award, RotateCcw, Network, CreditCard, CheckCircle, FileCheck, Car, BarChart, RefreshCw, GraduationCap, ClipboardList, Zap, Crown, Users, Gamepad2, Monitor, Crosshair, CheckSquare, Mic, Radio, Video, Mail, Server, Bug, AlertCircle, MessageSquare, Building2, Plane, Landmark, Scale, Wifi, XCircle, HelpCircle, Loader2, X, Linkedin, Play, TrendingDown, Rocket, Fingerprint } from 'lucide-react';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { PageMeta } from '@/components/PageMeta';
@@ -426,9 +426,10 @@ const useServiceContent = () => {
             <GridItem icon={Search} title={t('incident.step0Title')} desc={t('incident.step0Desc')} />
             <GridItem icon={ShieldCheck} title={t('incident.step1Title')} desc={t('incident.step1Desc')} />
             <GridItem icon={Eye} title={t('incident.step2Title')} desc={t('incident.step2Desc')} />
-            <GridItem icon={AlertTriangle} title={t('incident.step3Title')} desc={t('incident.step3Desc')} />
-            <GridItem icon={RefreshCw} title={t('incident.step4Title')} desc={t('incident.step4Desc')} />
-            <GridItem icon={GraduationCap} title={t('incident.step5Title')} desc={t('incident.step5Desc')} />
+            <GridItem icon={Fingerprint} title={t('incident.step3Title')} desc={t('incident.step3Desc')} />
+            <GridItem icon={AlertTriangle} title={t('incident.step4Title')} desc={t('incident.step4Desc')} />
+            <GridItem icon={RefreshCw} title={t('incident.step5Title')} desc={t('incident.step5Desc')} />
+            <GridItem icon={GraduationCap} title={t('incident.step6Title')} desc={t('incident.step6Desc')} />
           </div>
         </Block>
         <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
