@@ -6,16 +6,94 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+// ─── RATE LIMITING (in-memory, resets on cold start) ─────────────
+const RATE_LIMIT_WINDOW_MS = 60_000;
+const MAX_REQUESTS_PER_WINDOW = 10;
+const MAX_DAILY_REQUESTS = 300;
+
+interface RateEntry { count: number; resetAt: number; }
+const ipRateMap = new Map<string, RateEntry>();
+let dailyCount = 0;
+let dailyResetAt = Date.now() + 86_400_000;
+
+function getRateLimitResult(ip: string): { allowed: boolean; retryAfter?: number } {
+  const now = Date.now();
+  if (now > dailyResetAt) { dailyCount = 0; dailyResetAt = now + 86_400_000; }
+  if (dailyCount >= MAX_DAILY_REQUESTS) return { allowed: false, retryAfter: 3600 };
+  const entry = ipRateMap.get(ip);
+  if (!entry || now > entry.resetAt) {
+    ipRateMap.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
+    dailyCount++;
+    return { allowed: true };
+  }
+  if (entry.count >= MAX_REQUESTS_PER_WINDOW) {
+    return { allowed: false, retryAfter: Math.ceil((entry.resetAt - now) / 1000) };
+  }
+  entry.count++;
+  dailyCount++;
+  return { allowed: true };
+}
+
+setInterval(() => {
+  const now = Date.now();
+  for (const [ip, entry] of ipRateMap) {
+    if (now > entry.resetAt) ipRateMap.delete(ip);
+  }
+}, 300_000);
+
+// ─── INPUT VALIDATION ────────────────────────────────────────────
+function validateRequest(body: any): string | null {
+  const { iscps, language } = body;
+  if (!Array.isArray(iscps)) return "iscps must be an array";
+  if (iscps.length === 0 || iscps.length > 30) return "iscps must have 1-30 entries";
+  for (const item of iscps) {
+    if (!item || typeof item !== "object") return "Each ISCP must be an object";
+    if (typeof item.name !== "string" || item.name.length > 200) return "Invalid ISCP name";
+    if (item.factors && typeof item.factors !== "object") return "Invalid factors";
+  }
+  if (language !== undefined && (typeof language !== "string" || language.length > 5)) {
+    return "Invalid language";
+  }
+  return null;
+}
+
+// ─── HANDLER ─────────────────────────────────────────────────────
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
+    || req.headers.get("cf-connecting-ip")
+    || "unknown";
+  const rl = getRateLimitResult(ip);
+  if (!rl.allowed) {
+    return new Response(
+      JSON.stringify({ error: "Zu viele Anfragen, bitte warte einen Moment." }),
+      { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json", "Retry-After": String(rl.retryAfter ?? 60) } }
+    );
+  }
+
   try {
-    const { iscps, language = "de" } = await req.json();
+    const body = await req.json();
+    const validationError = validateRequest(body);
+    if (validationError) {
+      return new Response(
+        JSON.stringify({ error: validationError }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const { iscps, language = "de" } = body;
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
+    if (!LOVABLE_API_KEY) {
+      console.error("LOVABLE_API_KEY is not configured");
+      return new Response(
+        JSON.stringify({ error: "Service temporarily unavailable" }),
+        { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
     const iscpSummary = iscps
-      .map((i: any) => `- ${i.name}: Score ${i.score}, Maturity Level ${i.maturityLevel}, Letzter Test: ${i.lastTested}, Faktoren: BI=${i.factors.BI} TLT=${i.factors.TLT} CP=${i.factors.CP} AF=${i.factors.AF} PI=${i.factors.PI}`)
+      .map((i: any) => `- ${String(i.name).slice(0, 200)}: Score ${i.score}, Maturity Level ${i.maturityLevel}, Letzter Test: ${i.lastTested}, Faktoren: BI=${i.factors?.BI} TLT=${i.factors?.TLT} CP=${i.factors?.CP} AF=${i.factors?.AF} PI=${i.factors?.PI}`)
       .join("\n");
 
     const langMap: Record<string, string> = {
@@ -62,7 +140,10 @@ ${langMap[language] || langMap.de}`;
       }
       const t = await response.text();
       console.error("AI gateway error:", status, t);
-      throw new Error("AI gateway error");
+      return new Response(
+        JSON.stringify({ error: "Service temporarily unavailable" }),
+        { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
     const data = await response.json();
@@ -73,7 +154,7 @@ ${langMap[language] || langMap.de}`;
     });
   } catch (e) {
     console.error("iscp-ttx-recommend error:", e);
-    return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }), {
+    return new Response(JSON.stringify({ error: "Service temporarily unavailable" }), {
       status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
