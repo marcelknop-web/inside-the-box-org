@@ -14,7 +14,7 @@ const CLUSTER_RADIUS = 25;
 const MIN_CLUSTER_SIZE = 3;
 
 // Realistic physics
-const GRAVITY = -9.81;
+const GRAVITY = -1.62; // Moon gravity
 const RESTITUTION = 0.3;
 const GROUND_FRICTION = 0.85;
 const AIR_DRAG = 0.998;
