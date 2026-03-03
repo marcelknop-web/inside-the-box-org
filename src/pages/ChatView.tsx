@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, ReactNode, useCallback } from 'react';
+import { useState, useRef, useEffect, ReactNode, useCallback, lazy, Suspense } from 'react';
 
 import { supabase } from '@/integrations/supabase/client';
 import { Send, Plus, MessageCircle, Shield, Target, BookOpen, AlertTriangle, Eye, Flame, Swords, Calendar, FileText, UserCheck, ChevronLeft, Menu, ShieldCheck, Search, Settings, Award, RotateCcw, Network, CreditCard, CheckCircle, FileCheck, Car, BarChart, RefreshCw, GraduationCap, ClipboardList, Zap, Crown, Users, Gamepad2, Monitor, Crosshair, CheckSquare, Mic, Radio, Video, Mail, Server, Bug, AlertCircle, MessageSquare, Building2, Plane, Landmark, Scale, Wifi, XCircle, HelpCircle, Loader2, X, Linkedin, Play, TrendingDown, Rocket, Fingerprint } from 'lucide-react';
@@ -9,18 +9,21 @@ import { useLanguage, nextLanguage } from '@/i18n/LanguageContext';
 import { consultantProfiles } from '@/data/consultantProfiles';
 import { GeometricSymbol } from '@/components/GeometricSymbol';
 import { LucideIcon } from 'lucide-react';
-import CyberCrisisSimulator, { type CrisisSimulatorHandle } from './CyberCrisisSimulator';
-import DoraIncidentReporter from './DoraIncidentReporter';
 
-import TisaxAssessmentClassifier from './TisaxAssessmentClassifier';
-import PciDssSaqNavigator from './PciDssSaqNavigator';
-import IspcTtxPrioritizer from './IspcTtxPrioritizer';
-import Nis2AwarenessQuiz from './Nis2AwarenessQuiz';
-import CisoSimulator from './CisoSimulator';
-import ThreatDropQuiz from './ThreatDropQuiz';
-import TriggerTriage from './TriggerTriage';
-import CyberFrogger from './CyberFrogger';
-import EliteShipScene from './EliteShipScene';
+// Lazy-load heavy page components to reduce initial bundle size
+import type { CrisisSimulatorHandle } from './CyberCrisisSimulator';
+const CyberCrisisSimulator = lazy(() => import('./CyberCrisisSimulator'));
+const DoraIncidentReporter = lazy(() => import('./DoraIncidentReporter'));
+const TisaxAssessmentClassifier = lazy(() => import('./TisaxAssessmentClassifier'));
+const PciDssSaqNavigator = lazy(() => import('./PciDssSaqNavigator'));
+const IspcTtxPrioritizer = lazy(() => import('./IspcTtxPrioritizer'));
+const Nis2AwarenessQuiz = lazy(() => import('./Nis2AwarenessQuiz'));
+const CisoSimulator = lazy(() => import('./CisoSimulator'));
+const ThreatDropQuiz = lazy(() => import('./ThreatDropQuiz'));
+const TriggerTriage = lazy(() => import('./TriggerTriage'));
+const CyberFrogger = lazy(() => import('./CyberFrogger'));
+const EliteShipScene = lazy(() => import('./EliteShipScene'));
+
 import { StaggerReveal } from '@/components/StaggerReveal';
 import GlitchText from '@/components/GlitchText';
 import Typewriter from '@/components/Typewriter';
@@ -1223,28 +1226,30 @@ const ChatView = () => {
     if (!isMobile && !isTablet) inputRef.current?.focus();
   };
 
+  const lazyFallback = <div className="flex items-center justify-center h-32"><Loader2 className="animate-spin text-primary" size={28} /></div>;
+
   const serviceContent = activeService === 'crisis-sim'
-    ? <CyberCrisisSimulator embedded ref={crisisRef} />
+    ? <Suspense fallback={lazyFallback}><CyberCrisisSimulator embedded ref={crisisRef} /></Suspense>
     : activeService === 'dora-check'
-    ? <DoraIncidentReporter embedded />
+    ? <Suspense fallback={lazyFallback}><DoraIncidentReporter embedded /></Suspense>
     : activeService === 'tisax-check'
-    ? <TisaxAssessmentClassifier embedded />
+    ? <Suspense fallback={lazyFallback}><TisaxAssessmentClassifier embedded /></Suspense>
     : activeService === 'pci-check'
-    ? <PciDssSaqNavigator embedded />
+    ? <Suspense fallback={lazyFallback}><PciDssSaqNavigator embedded /></Suspense>
     : activeService === 'ttx-check'
-    ? <IspcTtxPrioritizer embedded />
+    ? <Suspense fallback={lazyFallback}><IspcTtxPrioritizer embedded /></Suspense>
     : activeService === 'nis2-quiz'
-    ? <Nis2AwarenessQuiz embedded />
+    ? <Suspense fallback={lazyFallback}><Nis2AwarenessQuiz embedded /></Suspense>
     : activeService === 'ciso-sim'
-    ? <CisoSimulator embedded />
+    ? <Suspense fallback={lazyFallback}><CisoSimulator embedded /></Suspense>
     : activeService === 'threatdrop'
-    ? <ThreatDropQuiz embedded />
+    ? <Suspense fallback={lazyFallback}><ThreatDropQuiz embedded /></Suspense>
     : activeService === 'trigger-triage'
-    ? <TriggerTriage embedded />
+    ? <Suspense fallback={lazyFallback}><TriggerTriage embedded /></Suspense>
     : activeService === 'cyber-frogger'
-    ? <CyberFrogger embedded />
+    ? <Suspense fallback={lazyFallback}><CyberFrogger embedded /></Suspense>
     : activeService === 'elite-ship'
-    ? <EliteShipScene embedded />
+    ? <Suspense fallback={lazyFallback}><EliteShipScene embedded /></Suspense>
     : activeService === 'system-check'
     ? <InlineSystemCheck t={t} />
     : activeService && contentMap[activeService] ? contentMap[activeService]() : null;
