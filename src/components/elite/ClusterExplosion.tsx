@@ -9,18 +9,11 @@ const EXPLOSION_INTERVAL = 90;
 const WARN_DURATION = 5;
 const FRAGMENT_COUNT = 36;
 const FRAGMENT_LIFETIME = 40;
-const MAIN_PLANE_Y = -8;
 const CLUSTER_RADIUS = 25;
 const MIN_CLUSTER_SIZE = 3;
 
-// Realistic physics
-const GRAVITY = -1.62; // Moon gravity
-const RESTITUTION = 0.3;
-const GROUND_FRICTION = 0.85;
-const AIR_DRAG = 0.998;
-const ANGULAR_DAMPING = 0.997;
-const GROUND_ANGULAR_DAMP = 0.92;
-const REST_THRESHOLD = 0.15;
+// Linear flight into space — no gravity
+const ANGULAR_DAMPING = 0.999;
 
 interface Fragment {
   x: number; y: number; z: number;
@@ -31,8 +24,6 @@ interface Fragment {
   seed: number;
   age: number;
   alive: boolean;
-  resting: boolean;
-  groundY: number;
 }
 
 /* ── Build jagged shard ── */
@@ -197,8 +188,6 @@ export function ClusterExplosion({ physics }: { physics: RockPhysics }) {
             seed: Math.floor(Math.random() * 99999),
             age: 0,
             alive: true,
-            resting: false,
-            groundY: MAIN_PLANE_Y + (Math.random() - 0.5) * 1.0,
           });
         }
         physics.blinkMap[idx] = 0;
@@ -208,58 +197,17 @@ export function ClusterExplosion({ physics }: { physics: RockPhysics }) {
       setTick(t => t + 1);
     }
 
-    // Update fragments with realistic physics
+    // Update fragments — linear flight into space, no gravity
     let needsRender = false;
     for (const f of fragments.current) {
       if (!f.alive) continue;
       f.age += clampDt;
       if (f.age > FRAGMENT_LIFETIME) { f.alive = false; needsRender = true; continue; }
 
-      if (f.resting) {
-        // Already at rest on ground — just age out
-        f.rsx *= GROUND_ANGULAR_DAMP;
-        f.rsy *= GROUND_ANGULAR_DAMP;
-        f.rsz *= GROUND_ANGULAR_DAMP;
-        f.rx += f.rsx * clampDt;
-        f.ry += f.rsy * clampDt;
-        f.rz += f.rsz * clampDt;
-        continue;
-      }
-
-      // Apply gravity
-      f.vy += GRAVITY * clampDt;
-
-      // Air drag
-      f.vx *= AIR_DRAG;
-      f.vy *= AIR_DRAG;
-      f.vz *= AIR_DRAG;
-
-      // Integrate position
+      // Linear motion — no gravity, no drag, no ground
       f.x += f.vx * clampDt;
       f.y += f.vy * clampDt;
       f.z += f.vz * clampDt;
-
-      // Ground collision (bounce)
-      if (f.y <= f.groundY + f.radius * 0.3) {
-        f.y = f.groundY + f.radius * 0.3;
-        f.vy = -f.vy * RESTITUTION; // bounce with energy loss
-
-        // Friction on lateral velocity
-        f.vx *= GROUND_FRICTION;
-        f.vz *= GROUND_FRICTION;
-
-        // Transfer energy to angular spin on impact
-        f.rsx += f.vz * 0.3;
-        f.rsz -= f.vx * 0.3;
-
-        // Check if should come to rest
-        const speed = Math.sqrt(f.vx * f.vx + f.vy * f.vy + f.vz * f.vz);
-        if (speed < REST_THRESHOLD && Math.abs(f.vy) < 0.3) {
-          f.resting = true;
-          f.vx = 0; f.vy = 0; f.vz = 0;
-          f.y = f.groundY + f.radius * 0.3;
-        }
-      }
 
       // Angular motion
       f.rx += f.rsx * clampDt;

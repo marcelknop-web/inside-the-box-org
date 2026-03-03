@@ -253,16 +253,16 @@ export function DynamicRock({ index, physics, mobile = false }: { index: number;
 
   return (
     <group ref={ref}>
-      {/* Invisible solid mesh for depth occlusion (hidden-line removal) */}
+      {/* Solid dark mesh — clumpy asteroid look */}
       <mesh geometry={geo}>
-        <meshBasicMaterial colorWrite={false} side={THREE.FrontSide} />
+        <meshBasicMaterial color="#0a1f18" side={THREE.FrontSide} depthWrite />
       </mesh>
-      {/* Visible wireframe edges with proper depth testing */}
+      {/* Subtle edge highlight for shape definition */}
       <lineSegments>
         <bufferGeometry>
           <bufferAttribute attach="attributes-position" args={[edges, 3]} />
         </bufferGeometry>
-        <lineBasicMaterial ref={lineMatRef} color={mobile ? '#55ffcc' : LINE_COLOR} transparent opacity={mobile ? 0.5 : 1.0} depthTest={true} linewidth={mobile ? 1 : 4} polygonOffset polygonOffsetFactor={-1} polygonOffsetUnits={-1} />
+        <lineBasicMaterial ref={lineMatRef} color={mobile ? '#55ffcc' : LINE_COLOR} transparent opacity={mobile ? 0.15 : 0.2} depthTest={true} polygonOffset polygonOffsetFactor={-1} polygonOffsetUnits={-1} />
       </lineSegments>
     </group>
   );

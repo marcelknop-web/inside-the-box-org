@@ -5,12 +5,8 @@ import { ConvexGeometry } from 'three/addons/geometries/ConvexGeometry.js';
 import type { RockPhysics } from './PhysicsRocks';
 
 const LINE_COLOR = '#00ffaa';
-const MAX_DEBRIS = 120;           // fewer but more substantial pieces
+const MAX_DEBRIS = 120;
 const DEBRIS_LIFETIME = 8.0;
-const GRAVITY = -1.62; // Moon gravity
-const RESTITUTION = 0.25;
-const GROUND_Y = -8;
-const REST_THRESHOLD = 0.2;
 
 interface Debris {
   x: number; y: number; z: number;
@@ -21,8 +17,6 @@ interface Debris {
   seed: number;
   age: number;
   alive: boolean;
-  resting: boolean;
-  groundY: number;
 }
 
 /* ── Build a solid shard geometry ── */
@@ -124,8 +118,6 @@ export function DebrisSystem({ physics }: { physics: RockPhysics }) {
         seed: Math.floor(Math.random() * 99999),
         age: 0,
         alive: true,
-        resting: false,
-        groundY: GROUND_Y + (Math.random() - 0.5) * 0.8,
       };
 
       if (slot < debrisPool.current.length) {
@@ -183,7 +175,7 @@ export function DebrisSystem({ physics }: { physics: RockPhysics }) {
       }
     }
 
-    // Update debris with gravity physics
+    // Update debris — linear flight into space
     let anyChange = false;
     for (const d of debrisPool.current) {
       if (!d.alive) continue;
@@ -194,40 +186,15 @@ export function DebrisSystem({ physics }: { physics: RockPhysics }) {
         continue;
       }
 
-      if (d.resting) {
-        d.rsx *= 0.95; d.rsy *= 0.95; d.rsz *= 0.95;
-        d.rx += d.rsx * clampDt;
-        d.ry += d.rsy * clampDt;
-        d.rz += d.rsz * clampDt;
-        continue;
-      }
-
-      // Gravity
-      d.vy += GRAVITY * clampDt;
-
-      // Air drag
-      d.vx *= 0.999; d.vy *= 0.999; d.vz *= 0.999;
-
+      // Linear motion — no gravity, no drag, no ground
       d.x += d.vx * clampDt;
       d.y += d.vy * clampDt;
       d.z += d.vz * clampDt;
 
-      // Ground bounce
-      if (d.y <= d.groundY + d.radius * 0.3) {
-        d.y = d.groundY + d.radius * 0.3;
-        d.vy = -d.vy * RESTITUTION;
-        d.vx *= 0.8; d.vz *= 0.8;
-        const speed = Math.sqrt(d.vx * d.vx + d.vy * d.vy + d.vz * d.vz);
-        if (speed < REST_THRESHOLD) {
-          d.resting = true;
-          d.vx = 0; d.vy = 0; d.vz = 0;
-        }
-      }
-
       d.rx += d.rsx * clampDt;
       d.ry += d.rsy * clampDt;
       d.rz += d.rsz * clampDt;
-      d.rsx *= 0.998; d.rsy *= 0.998; d.rsz *= 0.998;
+      d.rsx *= 0.999; d.rsy *= 0.999; d.rsz *= 0.999;
     }
 
     tickTimer.current += clampDt;
