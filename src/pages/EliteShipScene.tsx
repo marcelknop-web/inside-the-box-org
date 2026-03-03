@@ -875,7 +875,7 @@ function ShootingStars() {
 }
 
 /* ── Airplane-style camera: smooth circuits over the field ── */
-function CockpitCamera({ physics, audioRef, flightInput }: { physics: RockPhysics; audioRef: React.MutableRefObject<AudioAnalysis>; flightInput: React.MutableRefObject<FlightInput> }) {
+function CockpitCamera({ physics, audioRef, flightInput, mobile = false }: { physics: RockPhysics; audioRef: React.MutableRefObject<AudioAnalysis>; flightInput: React.MutableRefObject<FlightInput>; mobile?: boolean }) {
   const { camera } = useThree();
   const smoothPos = useRef(new THREE.Vector3(0, -2, 0));
   const smoothQuat = useRef(new THREE.Quaternion());
@@ -883,7 +883,7 @@ function CockpitCamera({ physics, audioRef, flightInput }: { physics: RockPhysic
   const smoothedBass = useRef(0);
   const elapsed = useRef(0);
 
-  const CRUISE_ALT = -5.5;
+  const CRUISE_ALT = mobile ? -7.0 : -5.5;
 
   const prevTangentRef = useRef(new THREE.Vector3(1, 0, 0));
   const smoothBank = useRef(0);
@@ -916,8 +916,8 @@ function CockpitCamera({ physics, audioRef, flightInput }: { physics: RockPhysic
     const baseSpeed = 0.004 + sa * 0.001 + userSpeed.current;
     const phase = t * baseSpeed;
 
-    const rx = 80;
-    const rz = 55;
+    const rx = mobile ? 50 : 80;
+    const rz = mobile ? 35 : 55;
     const pathX = Math.sin(phase) * rx;
     const pathZ = Math.cos(phase) * rz;
 
@@ -1238,12 +1238,12 @@ export default function EliteShipScene({ embedded = false }: { embedded?: boolea
 
       <Canvas
         className="relative z-10"
-        camera={{ fov: 70, near: 0.1, far: 900 }}
+        camera={{ fov: mobile ? 85 : 70, near: 0.1, far: 900 }}
         gl={{ antialias: !mobile, alpha: true, powerPreference: mobile ? 'low-power' : 'high-performance' }}
         style={{ background: 'transparent' }}
       >
         <PhysicsDriver physics={physics} mobile={mobile} />
-        <CockpitCamera physics={physics} audioRef={analysisRef} flightInput={flightInput} />
+        <CockpitCamera physics={physics} audioRef={analysisRef} flightInput={flightInput} mobile={mobile} />
         <MilkyWayNebula />
         <FallbackStarLayer mobile={mobile} />
         <RealisticStarfield mobile={mobile} />
