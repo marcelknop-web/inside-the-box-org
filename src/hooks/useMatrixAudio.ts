@@ -40,11 +40,20 @@ export function useMatrixAudio(volumeMultiplier = 1) {
     audioCtxRef.current = ctx;
     const t = ctx.currentTime;
 
+    // Limiter to prevent clipping
+    const limiter = ctx.createDynamicsCompressor();
+    limiter.threshold.setValueAtTime(-6, t);
+    limiter.knee.setValueAtTime(3, t);
+    limiter.ratio.setValueAtTime(12, t);
+    limiter.attack.setValueAtTime(0.003, t);
+    limiter.release.setValueAtTime(0.15, t);
+    limiter.connect(ctx.destination);
+
     const master = ctx.createGain();
     master.gain.setValueAtTime(0, t);
-    master.gain.linearRampToValueAtTime(volumeMultiplier, t + 3);
+    master.gain.linearRampToValueAtTime(volumeMultiplier * 0.6, t + 3);
     masterRef.current = master;
-    master.connect(ctx.destination);
+    master.connect(limiter);
 
     // Theremin
     const theremin = ctx.createOscillator();
