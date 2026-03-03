@@ -1345,11 +1345,11 @@ const ChatView = () => {
 
               {/* Claim – scramble, starts after subtitle */}
               <div className="w-full text-center relative" style={{ marginBottom: '28px' }}>
-                <p aria-hidden="true" className="font-rounded text-center uppercase invisible" style={{ fontSize: 'clamp(0.88rem, 2.2vw, 1.05rem)', letterSpacing: '0.18em', fontWeight: 600 }}>
+                <p aria-hidden="true" className="font-mono text-center uppercase invisible" style={{ fontSize: 'clamp(0.82rem, 2vw, 0.95rem)', letterSpacing: '0.22em', fontWeight: 500 }}>
                   {t('welcome.heroClaim')}
                 </p>
                 {subtitleDone && (
-                  <p className="font-rounded text-center uppercase text-foreground absolute inset-0" style={{ fontSize: 'clamp(0.88rem, 2.2vw, 1.05rem)', letterSpacing: '0.18em', fontWeight: 600 }}>
+                  <p className="font-mono text-center uppercase text-foreground absolute inset-0" style={{ fontSize: 'clamp(0.82rem, 2vw, 0.95rem)', letterSpacing: '0.22em', fontWeight: 500 }}>
                     <Typewriter text={t('welcome.heroClaim')} mode="scramble" charDelay={18} cursor={false} onDone={() => setClaimDone(true)} />
                   </p>
                 )}
