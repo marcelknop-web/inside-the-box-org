@@ -6,13 +6,14 @@ export function useIsMobile() {
   const [isMobile, setIsMobile] = React.useState<boolean | undefined>(undefined)
 
   React.useEffect(() => {
-    const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`)
-    const onChange = () => {
-      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
+    const check = () => {
+      // Use the smaller dimension so landscape mobile is still detected
+      const minDim = Math.min(window.innerWidth, window.innerHeight)
+      setIsMobile(minDim < MOBILE_BREAKPOINT)
     }
-    mql.addEventListener("change", onChange)
-    setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
-    return () => mql.removeEventListener("change", onChange)
+    window.addEventListener("resize", check)
+    check()
+    return () => window.removeEventListener("resize", check)
   }, [])
 
   return !!isMobile
