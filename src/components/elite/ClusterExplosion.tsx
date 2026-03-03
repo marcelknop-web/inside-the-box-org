@@ -5,7 +5,7 @@ import { ConvexGeometry } from 'three/addons/geometries/ConvexGeometry.js';
 import type { RockPhysics } from './PhysicsRocks';
 
 const LINE_COLOR = '#33ffbb';
-const EXPLOSION_INTERVAL = 45;
+const EXPLOSION_INTERVAL = 90;
 const WARN_DURATION = 5;
 const FRAGMENT_COUNT = 36;
 const FRAGMENT_LIFETIME = 40;
@@ -182,7 +182,7 @@ export function ClusterExplosion({ physics }: { physics: RockPhysics }) {
           const vx = (dirX / dirLen) * radialBias + Math.cos(angle) * lateralRand;
           const vz = (dirZ / dirLen) * radialBias + Math.sin(angle) * lateralRand;
           // Strong upward launch (realistic explosion throws debris up)
-          const vy = 8 + Math.random() * 14;
+          const vy = 4 + Math.random() * 7;
 
           fragments.current.push({
             x: rx + (Math.random() - 0.5) * baseRadius,
