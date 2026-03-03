@@ -75,10 +75,10 @@ export function createRockPhysics(
   return { positions, velocities, radii, masses, rotSpeeds, rotations, seeds, count: n, blinkMap };
 }
 
-const G = 0.08;           // very gentle gravitational constant
-const DAMPING = 0.999;    // minimal damping – slow drift
+const G = 0.25;           // stronger gravity to keep cluster together
+const DAMPING = 0.995;    // more damping – rocks stay clumped
 const SOFTENING = 3.0;    // prevents singularity at close range
-const RESTITUTION = 0.3;  // soft collision elasticity
+const RESTITUTION = 0.2;  // softer collision – less bounce-away
 
 export function stepPhysics(phys: RockPhysics, dt: number, mobile = false) {
   const n = phys.count;
