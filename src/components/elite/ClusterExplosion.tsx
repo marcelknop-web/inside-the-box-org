@@ -5,12 +5,11 @@ import type { RockPhysics } from './PhysicsRocks';
 import { buildShard } from './shardGeometry';
 
 const LINE_COLOR = '#33ffbb';
-const EXPLOSION_INTERVAL = 90;
-const WARN_DURATION = 5;
-const FRAGMENT_COUNT = 12;
-const FRAGMENT_LIFETIME = 40;
-const CLUSTER_RADIUS = 25;
-const MIN_CLUSTER_SIZE = 3;
+const EXPLOSION_INTERVAL_MIN = 25;   // seconds between single-rock destructions
+const EXPLOSION_INTERVAL_MAX = 55;   // varied timing keeps it fresh
+const WARN_DURATION = 4;
+const FRAGMENT_COUNT = 8;            // fewer, cleaner fragments per rock
+const FRAGMENT_LIFETIME = 35;
 
 // Earth gravity ~9.81 m/s²
 const GRAVITY = -9.81;
@@ -63,116 +62,102 @@ function ExplosionFragment({ fragment }: { fragment: Fragment }) {
   );
 }
 
-/* ── Find a cluster of nearby rocks ── */
-function findCluster(physics: RockPhysics): number[] {
+/* ── Pick a single rock to destroy (varied selection) ── */
+function pickDoomedRock(physics: RockPhysics): number {
   const n = physics.count;
-  if (n === 0) return [];
-  const sorted: { idx: number; r: number }[] = [];
-  for (let i = 0; i < n; i++) sorted.push({ idx: i, r: physics.radii[i] });
-  sorted.sort((a, b) => b.r - a.r);
-  const topCount = Math.max(5, Math.floor(n * 0.15));
-  const seedIdx = sorted[Math.floor(Math.random() * topCount)].idx;
-  const sx = physics.positions[seedIdx * 3];
-  const sy = physics.positions[seedIdx * 3 + 1];
-  const sz = physics.positions[seedIdx * 3 + 2];
-  const cluster: number[] = [];
-  for (let i = 0; i < n; i++) {
-    const ix = i * 3;
-    const dx = physics.positions[ix] - sx;
-    const dy = physics.positions[ix + 1] - sy;
-    const dz = physics.positions[ix + 2] - sz;
-    if (dx * dx + dy * dy + dz * dz < CLUSTER_RADIUS * CLUSTER_RADIUS) {
-      cluster.push(i);
+  if (n === 0) return -1;
+  // Weighted toward medium-large rocks for visual impact, but occasionally small ones too
+  const roll = Math.random();
+  if (roll < 0.6) {
+    // Pick from top 25% by size
+    let bestIdx = 0;
+    let bestR = 0;
+    const tries = Math.min(n, 20);
+    for (let a = 0; a < tries; a++) {
+      const idx = Math.floor(Math.random() * n);
+      if (physics.radii[idx] > bestR) { bestR = physics.radii[idx]; bestIdx = idx; }
     }
+    return bestIdx;
   }
-  return cluster.length >= MIN_CLUSTER_SIZE ? cluster : [];
+  // Otherwise fully random
+  return Math.floor(Math.random() * n);
 }
 
-/* ── Cluster Explosion System ── */
+function randomInterval(): number {
+  return EXPLOSION_INTERVAL_MIN + Math.random() * (EXPLOSION_INTERVAL_MAX - EXPLOSION_INTERVAL_MIN);
+}
+
+/* ── Single Rock Explosion System ── */
 export function ClusterExplosion({ physics }: { physics: RockPhysics }) {
   const fragments = useRef<Fragment[]>([]);
-  const timer = useRef(EXPLOSION_INTERVAL * 0.7);
+  const nextInterval = useRef(randomInterval() * 0.6);
+  const timer = useRef(0);
   const [, setTick] = React.useState(0);
-  const doomedCluster = useRef<number[]>([]);
+  const doomedRock = useRef(-1);
   const warnTimer = useRef(0);
 
   useFrame((_, dt) => {
     const clampDt = Math.min(dt, 0.033);
     timer.current += clampDt;
-    const triggerAt = EXPLOSION_INTERVAL - WARN_DURATION;
+    const triggerAt = nextInterval.current - WARN_DURATION;
 
-    // Select doomed cluster
-    if (doomedCluster.current.length === 0 && timer.current >= triggerAt) {
-      const cluster = findCluster(physics);
-      if (cluster.length > 0) {
-        doomedCluster.current = cluster;
+    // Select doomed rock
+    if (doomedRock.current < 0 && timer.current >= triggerAt) {
+      const idx = pickDoomedRock(physics);
+      if (idx >= 0) {
+        doomedRock.current = idx;
         warnTimer.current = 0;
       }
     }
 
-    // Warning phase
-    if (doomedCluster.current.length > 0 && timer.current < EXPLOSION_INTERVAL) {
+    // Warning phase — single rock blinks
+    if (doomedRock.current >= 0 && timer.current < nextInterval.current) {
       warnTimer.current += clampDt;
       const progress = Math.min(1, warnTimer.current / WARN_DURATION);
-      for (const idx of doomedCluster.current) {
-        physics.blinkMap[idx] = progress;
-      }
+      physics.blinkMap[doomedRock.current] = progress;
     }
 
-    // Trigger explosion
-    if (timer.current >= EXPLOSION_INTERVAL && doomedCluster.current.length > 0) {
+    // Trigger explosion — single rock
+    if (timer.current >= nextInterval.current && doomedRock.current >= 0) {
       timer.current = 0;
-      const cluster = doomedCluster.current;
+      nextInterval.current = randomInterval(); // next interval is different
+      const idx = doomedRock.current;
 
-      let cx = 0, cy = 0, cz = 0;
-      for (const idx of cluster) {
-        cx += physics.positions[idx * 3];
-        cy += physics.positions[idx * 3 + 1];
-        cz += physics.positions[idx * 3 + 2];
+      const rx = physics.positions[idx * 3];
+      const ry = physics.positions[idx * 3 + 1];
+      const rz = physics.positions[idx * 3 + 2];
+      const baseRadius = physics.radii[idx];
+
+      // Varied fragment count per explosion (5-10)
+      const fragCount = 5 + Math.floor(Math.random() * (FRAGMENT_COUNT - 4));
+
+      for (let k = 0; k < fragCount; k++) {
+        const angle = Math.random() * Math.PI * 2;
+        const elevation = (Math.random() - 0.5) * Math.PI;
+        // Varied ejection speed — some lazy, some fast
+        const speed = 1.5 + Math.random() * 4;
+        const vx = Math.cos(angle) * Math.cos(elevation) * speed;
+        const vz = Math.sin(angle) * Math.cos(elevation) * speed;
+        const vy = Math.sin(elevation) * speed + (Math.random() - 0.5) * 2;
+
+        fragments.current.push({
+          x: rx + (Math.random() - 0.5) * baseRadius * 0.6,
+          y: ry + (Math.random() - 0.5) * baseRadius * 0.4,
+          z: rz + (Math.random() - 0.5) * baseRadius * 0.6,
+          vx, vy, vz,
+          rx: 0, ry: 0, rz: 0,
+          rsx: (Math.random() - 0.5) * 3,
+          rsy: (Math.random() - 0.5) * 3,
+          rsz: (Math.random() - 0.5) * 3,
+          radius: baseRadius * (0.15 + Math.random() * 0.35),
+          seed: Math.floor(Math.random() * 99999),
+          age: 0,
+          alive: true,
+        });
       }
-      cx /= cluster.length; cy /= cluster.length; cz /= cluster.length;
+      physics.blinkMap[idx] = 0;
 
-      const fragsPerRock = Math.max(1, Math.floor(FRAGMENT_COUNT / cluster.length));
-      for (const idx of cluster) {
-        const rx = physics.positions[idx * 3];
-        const ry = physics.positions[idx * 3 + 1];
-        const rz = physics.positions[idx * 3 + 2];
-        const baseRadius = physics.radii[idx];
-
-        // Direction away from cluster center (radial explosion)
-        const dirX = rx - cx, dirZ = rz - cz;
-        const dirLen = Math.sqrt(dirX * dirX + dirZ * dirZ) || 1;
-
-        for (let k = 0; k < fragsPerRock; k++) {
-          const angle = Math.random() * Math.PI * 2;
-          // Radial + random lateral speed
-          const radialBias = 1.5 + Math.random() * 2.5;
-          const lateralRand = (Math.random() - 0.5) * 2;
-          const vx = (dirX / dirLen) * radialBias + Math.cos(angle) * lateralRand;
-          const vz = (dirZ / dirLen) * radialBias + Math.sin(angle) * lateralRand;
-          // Strict 50/50 up/down split
-          const upward = k % 2 === 0;
-          const vy = (upward ? 1 : -1) * (3 + Math.random() * 5);
-
-          fragments.current.push({
-            x: rx + (Math.random() - 0.5) * baseRadius,
-            y: ry + (Math.random() - 0.5) * baseRadius * 0.5,
-            z: rz + (Math.random() - 0.5) * baseRadius,
-            vx, vy, vz,
-            rx: 0, ry: 0, rz: 0,
-            rsx: (Math.random() - 0.5) * 4,
-            rsy: (Math.random() - 0.5) * 4,
-            rsz: (Math.random() - 0.5) * 4,
-            radius: baseRadius * (0.2 + Math.random() * 0.4),
-            seed: Math.floor(Math.random() * 99999),
-            age: 0,
-            alive: true,
-          });
-        }
-        physics.blinkMap[idx] = 0;
-      }
-
-      doomedCluster.current = [];
+      doomedRock.current = -1;
       setTick(t => t + 1);
     }
 
