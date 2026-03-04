@@ -67,45 +67,110 @@ export function useAudioAnalyser() {
     rafRef.current = requestAnimationFrame(tick);
   }, []);
 
+  const gainARef = useRef<GainNode | null>(null);
+  const gainBRef = useRef<GainNode | null>(null);
+  const audioBRef = useRef<HTMLAudioElement | null>(null);
+  const sourceBRef = useRef<MediaElementAudioSourceNode | null>(null);
+  const crossfadeScheduled = useRef(false);
+
+  const CROSSFADE = 2.5; // seconds of overlap for seamless loop
+
   const start = useCallback(() => {
     if (audioRef.current) return;
 
-    const audio = new Audio('/audio/ambient-heartbeat.mp3');
-    audio.loop = true;
-    audio.volume = 0.7;
-    audioRef.current = audio;
-
     const ctx = new AudioContext();
-    const source = ctx.createMediaElementSource(audio);
     const analyser = ctx.createAnalyser();
     analyser.fftSize = 512;
     analyser.smoothingTimeConstant = 0.8;
-    source.connect(analyser);
     analyser.connect(ctx.destination);
 
     ctxRef.current = ctx;
     analyserRef.current = analyser;
     dataRef.current = new Uint8Array(analyser.frequencyBinCount);
 
+    const gainA = ctx.createGain();
+    gainA.connect(analyser);
+    gainARef.current = gainA;
+
+    const gainB = ctx.createGain();
+    gainB.gain.value = 0;
+    gainB.connect(analyser);
+    gainBRef.current = gainB;
+
+    const audio = new Audio('/audio/ambient-heartbeat.mp3');
+    audio.volume = 1;
+    audio.loop = false; // we handle looping manually
+    audioRef.current = audio;
+
+    const source = ctx.createMediaElementSource(audio);
+    source.connect(gainA);
+
+    // Prepare second audio element for crossfade
+    const audioB = new Audio('/audio/ambient-heartbeat.mp3');
+    audioB.volume = 1;
+    audioB.loop = false;
+    audioBRef.current = audioB;
+    const sourceB = ctx.createMediaElementSource(audioB);
+    sourceB.connect(gainB);
+    sourceBRef.current = sourceB;
+
+    // Crossfade handler: when track A nears end, fade in track B
+    const scheduleCrossfade = () => {
+      const checkLoop = () => {
+        const a = audioRef.current;
+        const b = audioBRef.current;
+        const gA = gainARef.current;
+        const gB = gainBRef.current;
+        if (!a || !b || !gA || !gB || !ctxRef.current) return;
+
+        const remaining = a.duration - a.currentTime;
+        if (remaining <= CROSSFADE && remaining > 0 && !crossfadeScheduled.current) {
+          crossfadeScheduled.current = true;
+          b.currentTime = 0;
+          b.play().catch(() => {});
+
+          // Crossfade: A out, B in
+          const now = ctxRef.current.currentTime;
+          gA.gain.setValueAtTime(0.7, now);
+          gA.gain.linearRampToValueAtTime(0, now + CROSSFADE);
+          gB.gain.setValueAtTime(0, now);
+          gB.gain.linearRampToValueAtTime(0.7, now + CROSSFADE);
+        }
+
+        // When A ends, swap roles
+        if (a.ended) {
+          // Swap: B becomes primary, A becomes secondary
+          audioRef.current = b;
+          audioBRef.current = a;
+          gainARef.current = gB;
+          gainBRef.current = gA;
+          crossfadeScheduled.current = false;
+        }
+
+        requestAnimationFrame(checkLoop);
+      };
+      requestAnimationFrame(checkLoop);
+    };
+
+    gainA.gain.value = 0.7;
     audio.play().then(() => {
       setPlaying(true);
       rafRef.current = requestAnimationFrame(tick);
+      scheduleCrossfade();
     }).catch(() => {});
   }, [tick]);
 
   const stop = useCallback(() => {
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.src = '';
-      audioRef.current = null;
-    }
-    if (ctxRef.current) {
-      ctxRef.current.close();
-      ctxRef.current = null;
-    }
+    if (audioRef.current) { audioRef.current.pause(); audioRef.current.src = ''; audioRef.current = null; }
+    if (audioBRef.current) { audioBRef.current.pause(); audioBRef.current.src = ''; audioBRef.current = null; }
+    if (ctxRef.current) { ctxRef.current.close(); ctxRef.current = null; }
     analyserRef.current = null;
     dataRef.current = null;
+    gainARef.current = null;
+    gainBRef.current = null;
+    sourceBRef.current = null;
+    crossfadeScheduled.current = false;
     analysisRef.current = { ...EMPTY };
     setPlaying(false);
   }, []);
@@ -113,6 +178,7 @@ export function useAudioAnalyser() {
   useEffect(() => () => {
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
     if (audioRef.current) { audioRef.current.pause(); audioRef.current.src = ''; }
+    if (audioBRef.current) { audioBRef.current.pause(); audioBRef.current.src = ''; }
     if (ctxRef.current) ctxRef.current.close();
   }, []);
 
