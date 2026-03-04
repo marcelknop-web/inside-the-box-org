@@ -508,6 +508,7 @@ function RealisticStarfield({ mobile = false }: { mobile?: boolean }) {
   useFrame(({ camera }) => {
     if (!pointsRef.current) return;
     pointsRef.current.position.copy(camera.position);
+    pointsRef.current.quaternion.copy(camera.quaternion);
   });
 
   return (
