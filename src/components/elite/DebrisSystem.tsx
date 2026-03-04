@@ -1,4 +1,4 @@
-import React, { useRef, useMemo } from 'react';
+import React, { useRef, useMemo, useCallback } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import type { RockPhysics } from './PhysicsRocks';
@@ -19,8 +19,6 @@ interface Debris {
   alive: boolean;
 }
 
-/* buildShard imported from shardGeometry.ts */
-
 /* ── Single debris shard visual ── */
 function DebrisShard({ debris }: { debris: Debris }) {
   const ref = useRef<THREE.Group>(null);
@@ -31,14 +29,13 @@ function DebrisShard({ debris }: { debris: Debris }) {
     if (!ref.current || !debris.alive) return;
     ref.current.position.set(debris.x, debris.y, debris.z);
     ref.current.rotation.set(debris.rx, debris.ry, debris.rz);
-    // Smooth fade — no flickering
     const fadeIn = Math.min(1, debris.age * 2);
     const fadeOut = debris.age > DEBRIS_LIFETIME - 3
       ? Math.max(0, (DEBRIS_LIFETIME - debris.age) / 3)
       : 1;
     const opacity = fadeIn * fadeOut;
     ref.current.visible = opacity > 0.02;
-    ref.current.scale.setScalar(1); // stable size, no shrinking
+    ref.current.scale.setScalar(1);
     if (lineMatRef.current) lineMatRef.current.opacity = opacity * 0.8;
   });
 
@@ -58,52 +55,78 @@ function DebrisShard({ debris }: { debris: Debris }) {
 }
 
 /* ── Debris System: detects collisions & spawns fragments ── */
+
+function initPool(): Debris[] {
+  const pool: Debris[] = [];
+  for (let i = 0; i < MAX_DEBRIS; i++) {
+    pool.push({
+      x: 0, y: 0, z: 0, vx: 0, vy: 0, vz: 0,
+      rx: 0, ry: 0, rz: 0, rsx: 0, rsy: 0, rsz: 0,
+      radius: 1, seed: 0, age: 0, alive: false,
+    });
+  }
+  return pool;
+}
+
 export function DebrisSystem({ physics }: { physics: RockPhysics }) {
-  const debrisPool = useRef<Debris[]>([]);
+  // Pre-allocate pool to avoid growing arrays at runtime
+  const debrisPool = useRef<Debris[]>(initPool());
+
   const nextSlot = useRef(0);
   const [, setTick] = React.useState(0);
   const tickTimer = useRef(0);
-  // Cooldown per rock pair to avoid spam
-  const collisionCooldown = useRef<Map<string, number>>(new Map());
+  // Cooldown: flat arrays instead of Map to avoid iterator GC
+  const cooldownKeysI = useRef(new Int32Array(200));
+  const cooldownKeysJ = useRef(new Int32Array(200));
+  const cooldownTimes = useRef(new Float32Array(200));
+  const cooldownCount = useRef(0);
 
-  const spawnDebris = (
-    px: number, py: number, pz: number,
-    parentVx: number, parentVy: number, parentVz: number,
-    parentRadius: number, impactForce: number
-  ) => {
-    // Fewer, larger shards — looks more substantial
-    const count = 1 + Math.floor(impactForce * 1.5);
-    for (let k = 0; k < Math.min(count, 3); k++) {
-      const slot = nextSlot.current % MAX_DEBRIS;
-      nextSlot.current++;
+  const getCooldown = (i: number, j: number): number => {
+    const ki = cooldownKeysI.current;
+    const kj = cooldownKeysJ.current;
+    const ct = cooldownTimes.current;
+    const n = cooldownCount.current;
+    for (let c = 0; c < n; c++) {
+      if (ki[c] === i && kj[c] === j) return ct[c];
+    }
+    return 0;
+  };
 
-      const spreadSpeed = 0.8 + impactForce * 1.5;
-      const angle = Math.random() * Math.PI * 2;
-
-      const d: Debris = {
-        x: px + (Math.random() - 0.5) * parentRadius * 0.3,
-        y: py + (Math.random() - 0.5) * parentRadius * 0.3,
-        z: pz + (Math.random() - 0.5) * parentRadius * 0.3,
-        vx: parentVx * 0.2 + Math.cos(angle) * spreadSpeed,
-        vy: parentVy * 0.2 + 2 + Math.random() * 4, // upward bias
-        vz: parentVz * 0.2 + Math.sin(angle) * spreadSpeed,
-        rx: 0, ry: 0, rz: 0,
-        rsx: (Math.random() - 0.5) * 2,
-        rsy: (Math.random() - 0.5) * 2,
-        rsz: (Math.random() - 0.5) * 2,
-        radius: parentRadius * (0.25 + Math.random() * 0.35),
-        seed: Math.floor(Math.random() * 99999),
-        age: 0,
-        alive: true,
-      };
-
-      if (slot < debrisPool.current.length) {
-        Object.assign(debrisPool.current[slot], d);
-      } else {
-        debrisPool.current.push(d);
-      }
+  const setCooldown = (i: number, j: number, time: number) => {
+    const ki = cooldownKeysI.current;
+    const kj = cooldownKeysJ.current;
+    const ct = cooldownTimes.current;
+    const n = cooldownCount.current;
+    for (let c = 0; c < n; c++) {
+      if (ki[c] === i && kj[c] === j) { ct[c] = time; return; }
+    }
+    if (n < 200) {
+      ki[n] = i; kj[n] = j; ct[n] = time;
+      cooldownCount.current = n + 1;
     }
   };
+
+  const decayCooldowns = (dt: number) => {
+    const ct = cooldownTimes.current;
+    const ki = cooldownKeysI.current;
+    const kj = cooldownKeysJ.current;
+    let n = cooldownCount.current;
+    let write = 0;
+    for (let c = 0; c < n; c++) {
+      ct[c] -= dt;
+      if (ct[c] > 0) {
+        if (write !== c) {
+          ki[write] = ki[c]; kj[write] = kj[c]; ct[write] = ct[c];
+        }
+        write++;
+      }
+    }
+    cooldownCount.current = write;
+  };
+
+  // Pre-allocated alive-index list to avoid filter() allocations
+  const aliveIndices = useRef(new Int32Array(MAX_DEBRIS));
+  const aliveCount = useRef(0);
 
   useFrame((_, dt) => {
     const clampDt = Math.min(dt, 0.033);
@@ -112,13 +135,9 @@ export function DebrisSystem({ physics }: { physics: RockPhysics }) {
     const v = physics.velocities;
     const r = physics.radii;
 
-    // Decay cooldowns
-    for (const [key, val] of collisionCooldown.current) {
-      if (val <= 0) collisionCooldown.current.delete(key);
-      else collisionCooldown.current.set(key, val - clampDt);
-    }
+    decayCooldowns(clampDt);
 
-    // Detect collisions — limited pairs, with cooldown
+    // Detect collisions
     const maxI = Math.min(n, 40);
     for (let i = 0; i < maxI; i++) {
       const ix = i * 3;
@@ -137,9 +156,10 @@ export function DebrisSystem({ physics }: { physics: RockPhysics }) {
         const relSpeed = Math.sqrt(dvx * dvx + dvy * dvy + dvz * dvz);
 
         if (relSpeed > 0.5) {
-          const key = i < j ? `${i}-${j}` : `${j}-${i}`;
-          if (collisionCooldown.current.has(key)) continue;
-          collisionCooldown.current.set(key, 1.5); // 1.5s cooldown
+          const ki = i < j ? i : j;
+          const kj = i < j ? j : i;
+          if (getCooldown(ki, kj) > 0) continue;
+          setCooldown(ki, kj, 1.5);
 
           const cx = (p[ix] + p[jx]) * 0.5;
           const cy = (p[ix + 1] + p[jx + 1]) * 0.5;
@@ -147,14 +167,40 @@ export function DebrisSystem({ physics }: { physics: RockPhysics }) {
           const avgVx = (v[ix] + v[jx]) * 0.5;
           const avgVy = (v[ix + 1] + v[jx + 1]) * 0.5;
           const avgVz = (v[ix + 2] + v[jx + 2]) * 0.5;
-          spawnDebris(cx, cy, cz, avgVx, avgVy, avgVz, Math.min(r[i], r[j]), relSpeed);
+
+          // Spawn debris
+          const count = 1 + Math.floor(relSpeed * 1.5);
+          const parentRadius = Math.min(r[i], r[j]);
+          for (let k = 0; k < Math.min(count, 3); k++) {
+            const slot = nextSlot.current % MAX_DEBRIS;
+            nextSlot.current++;
+            const d = debrisPool.current[slot];
+            const spreadSpeed = 0.8 + relSpeed * 1.5;
+            const angle = Math.random() * Math.PI * 2;
+            d.x = cx + (Math.random() - 0.5) * parentRadius * 0.3;
+            d.y = cy + (Math.random() - 0.5) * parentRadius * 0.3;
+            d.z = cz + (Math.random() - 0.5) * parentRadius * 0.3;
+            d.vx = avgVx * 0.2 + Math.cos(angle) * spreadSpeed;
+            d.vy = avgVy * 0.2 + 2 + Math.random() * 4;
+            d.vz = avgVz * 0.2 + Math.sin(angle) * spreadSpeed;
+            d.rx = 0; d.ry = 0; d.rz = 0;
+            d.rsx = (Math.random() - 0.5) * 2;
+            d.rsy = (Math.random() - 0.5) * 2;
+            d.rsz = (Math.random() - 0.5) * 2;
+            d.radius = parentRadius * (0.25 + Math.random() * 0.35);
+            d.seed = Math.floor(Math.random() * 99999);
+            d.age = 0;
+            d.alive = true;
+          }
         }
       }
     }
 
-    // Update debris — linear flight into space
+    // Update debris
     let anyChange = false;
-    for (const d of debrisPool.current) {
+    const pool = debrisPool.current;
+    for (let i = 0; i < MAX_DEBRIS; i++) {
+      const d = pool[i];
       if (!d.alive) continue;
       d.age += clampDt;
       if (d.age > DEBRIS_LIFETIME) {
@@ -162,17 +208,22 @@ export function DebrisSystem({ physics }: { physics: RockPhysics }) {
         anyChange = true;
         continue;
       }
-
-      // Linear motion — no gravity, no drag, no ground
       d.x += d.vx * clampDt;
       d.y += d.vy * clampDt;
       d.z += d.vz * clampDt;
-
       d.rx += d.rsx * clampDt;
       d.ry += d.rsy * clampDt;
       d.rz += d.rsz * clampDt;
       d.rsx *= 0.999; d.rsy *= 0.999; d.rsz *= 0.999;
     }
+
+    // Build alive list without allocating
+    let ac = 0;
+    const ai = aliveIndices.current;
+    for (let i = 0; i < MAX_DEBRIS; i++) {
+      if (pool[i].alive) { ai[ac] = i; ac++; }
+    }
+    aliveCount.current = ac;
 
     tickTimer.current += clampDt;
     if (tickTimer.current > 0.5 || anyChange) {
@@ -181,13 +232,16 @@ export function DebrisSystem({ physics }: { physics: RockPhysics }) {
     }
   });
 
-  const aliveDebris = debrisPool.current.filter(d => d.alive);
+  // Render alive debris (reads from pre-computed indices)
+  const pool = debrisPool.current;
+  const ac = aliveCount.current;
+  const ai = aliveIndices.current;
+  const elements: React.ReactNode[] = [];
+  for (let i = 0; i < ac; i++) {
+    const idx = ai[i];
+    const d = pool[idx];
+    elements.push(<DebrisShard key={idx} debris={d} />);
+  }
 
-  return (
-    <>
-      {aliveDebris.map((d, i) => (
-        <DebrisShard key={`${d.seed}-${i}`} debris={d} />
-      ))}
-    </>
-  );
+  return <>{elements}</>;
 }
