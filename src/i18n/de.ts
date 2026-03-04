@@ -318,7 +318,7 @@ export const de = {
     auditTitle: 'Prüfungs- und Kontrollunterstützung',
     auditDesc: 'Automatisierte Unterstützung bei Nachweisführung und Kontrollüberwachung: strukturierte Evidenzsammlung, laufende Überprüfung definierter Sicherheitsmaßnahmen, Management-Dashboards zur Statusübersicht. Reduzierter manueller Aufwand, höhere Transparenz.',
     tryAgentsTitle: 'KI-Lab – direkt im Browser testen',
-    tryAgentsDesc: 'Interaktive Tools aus der Praxis – kein Login, kein Download.',
+    tryAgentsDesc: 'Simulationen, Tests und Szenarien zum Ausprobieren – direkt im Browser.',
     agentCrisisDesc: 'KI-gesteuerte Szenarien mit Echtzeit-Entscheidungsdruck',
     agentStressTitle: 'Stress-Simulator',
     agentStressDesc: 'Realistische Störgeräusche für Übungen unter Zeitdruck',
