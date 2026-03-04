@@ -1145,7 +1145,9 @@ export default function EliteShipScene({ embedded = false }: { embedded?: boolea
       <Canvas
         className="relative z-10"
         camera={{ fov: mobile ? 85 : 70, near: 0.1, far: 900 }}
-        gl={{ antialias: !mobile, alpha: true, powerPreference: mobile ? 'low-power' : 'high-performance' }}
+        dpr={mobile ? 1 : Math.min(window.devicePixelRatio, 2)}
+        frameloop="always"
+        gl={{ antialias: !mobile, alpha: true, powerPreference: mobile ? 'low-power' : 'high-performance', stencil: false, depth: true }}
         style={{ background: 'transparent' }}
       >
         <PhysicsDriver physics={physics} mobile={mobile} />
