@@ -1204,11 +1204,11 @@ const ChatView = () => {
         setSidebarOpen(true);
         setSidebarInitialized(true);
       } else if (claimDone) {
-        // Desktop welcome screen: open after hero animation completes
+        // Desktop welcome screen: open after user has time to read content
         const timer = setTimeout(() => {
           setSidebarOpen(true);
           setSidebarInitialized(true);
-        }, 400);
+        }, 1800);
         return () => clearTimeout(timer);
       }
     }
