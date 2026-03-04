@@ -96,6 +96,7 @@ const INFO_COUNT_MOBILE = 120;
 
 function InfoExchange({ physics, mobile = false }: { physics: RockPhysics; mobile?: boolean }) {
   const meshRef = useRef<THREE.InstancedMesh>(null);
+  const dropsRef = useRef<THREE.Points>(null);
   const { camera } = useThree();
   const sunDir = useMemo(() => new THREE.Vector3(0.6, 0.8, -0.3).normalize(), []);
   const _obj = useMemo(() => new THREE.Object3D(), []);
@@ -230,6 +231,26 @@ function InfoExchange({ physics, mobile = false }: { physics: RockPhysics; mobil
     const curveOffset = new Float32Array(count * 2);
     return { alive, progress, sourceRock, targetRock, travelTime, age, curveOffset };
   }, [count]);
+
+  // Droplet system: leading + trailing particles per beam
+  const DROPS_PER_BEAM = 8; // 4 leading, 4 trailing
+  const totalDrops = count * DROPS_PER_BEAM;
+  const dropData = useMemo(() => {
+    const pos = new Float32Array(totalDrops * 3);
+    const col = new Float32Array(totalDrops * 4);
+    const sizes = new Float32Array(totalDrops);
+    for (let i = 0; i < totalDrops; i++) {
+      pos[i * 3 + 1] = -9999;
+      sizes[i] = 0;
+    }
+    return { pos, col, sizes };
+  }, [totalDrops]);
+
+  // Drop offsets: how far ahead/behind each droplet sits relative to beam center
+  const dropOffsets = useMemo(() => {
+    // Leading: +0.03, +0.06, +0.10, +0.15 | Trailing: -0.03, -0.06, -0.10, -0.15
+    return [-0.15, -0.10, -0.06, -0.03, 0.03, 0.06, 0.10, 0.15];
+  }, []);
 
   useFrame(({ clock }, dt) => {
     const mesh = meshRef.current;
@@ -410,6 +431,58 @@ function InfoExchange({ physics, mobile = false }: { physics: RockPhysics; mobil
         }
         alive[i] = 0;
       }
+      // ── Compute droplet positions for this beam ──
+      const dPos = dropData.pos;
+      const dCol = dropData.col;
+      const dSiz = dropData.sizes;
+      for (let d = 0; d < DROPS_PER_BEAM; d++) {
+        const di = (i * DROPS_PER_BEAM + d);
+        const di3 = di * 3;
+        const di4 = di * 4;
+        const dropT = Math.max(0, Math.min(1, t01 + dropOffsets[d]));
+
+        // If droplet is outside [0,1] range, hide it
+        if (t01 + dropOffsets[d] < 0 || t01 + dropOffsets[d] > 1) {
+          dPos[di3 + 1] = -9999;
+          dCol[di4 + 3] = 0;
+          dSiz[di] = 0;
+          continue;
+        }
+
+        // Evaluate bezier at dropT
+        const dInv = 1 - dropT;
+        const dpx = dInv * dInv * pp[s3] + 2 * dInv * dropT * mx + dropT * dropT * pp[t3];
+        const dpy = dInv * dInv * pp[s3 + 1] + 2 * dInv * dropT * my + dropT * dropT * pp[t3 + 1];
+        const dpz = dInv * dInv * pp[s3 + 2] + 2 * dInv * dropT * mz + dropT * dropT * pp[t3 + 2];
+
+        dPos[di3] = dpx;
+        dPos[di3 + 1] = dpy;
+        dPos[di3 + 2] = dpz;
+
+        // Size: smaller the further from beam center, creating a tapering droplet trail
+        const distFromCenter = Math.abs(dropOffsets[d]);
+        const dropSize = (0.15 - distFromCenter) * 1.8; // larger near beam, tiny far away
+        dSiz[di] = Math.max(0.02, dropSize);
+
+        // Color: same as beam but dimmer and with fade
+        const dropFade = 1 - distFromCenter / 0.16;
+        dCol[di4] = r * brightness * 0.7;
+        dCol[di4 + 1] = g * brightness * 0.7;
+        dCol[di4 + 2] = b * brightness * 0.7;
+        dCol[di4 + 3] = dropFade * 0.5 * edgeFade;
+      }
+    }
+
+    // Hide droplets for dead beams
+    for (let i = 0; i < count; i++) {
+      if (!alive[i]) {
+        for (let d = 0; d < DROPS_PER_BEAM; d++) {
+          const di = i * DROPS_PER_BEAM + d;
+          dropData.pos[di * 3 + 1] = -9999;
+          dropData.col[di * 4 + 3] = 0;
+          dropData.sizes[di] = 0;
+        }
+      }
     }
 
     // Decay infoBlink
@@ -421,10 +494,35 @@ function InfoExchange({ physics, mobile = false }: { physics: RockPhysics; mobil
 
     mesh.instanceMatrix.needsUpdate = true;
     if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+
+    // Update droplet geometry
+    if (dropsRef.current) {
+      const dGeom = dropsRef.current.geometry;
+      (dGeom.attributes.position as THREE.BufferAttribute).needsUpdate = true;
+      (dGeom.attributes.color as THREE.BufferAttribute).needsUpdate = true;
+      (dGeom.attributes.size as THREE.BufferAttribute).needsUpdate = true;
+    }
   });
 
   return (
-    <instancedMesh ref={meshRef} args={[spindleGeo, spindleMat, count]} frustumCulled={false} />
+    <group>
+      <instancedMesh ref={meshRef} args={[spindleGeo, spindleMat, count]} frustumCulled={false} />
+      <points ref={dropsRef} frustumCulled={false}>
+        <bufferGeometry>
+          <bufferAttribute attach="attributes-position" args={[dropData.pos, 3]} />
+          <bufferAttribute attach="attributes-color" args={[dropData.col, 4]} />
+          <bufferAttribute attach="attributes-size" args={[dropData.sizes, 1]} />
+        </bufferGeometry>
+        <pointsMaterial
+          vertexColors
+          transparent
+          depthWrite={false}
+          blending={THREE.AdditiveBlending}
+          sizeAttenuation
+          size={0.15}
+        />
+      </points>
+    </group>
   );
 }
 
