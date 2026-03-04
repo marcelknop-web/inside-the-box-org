@@ -163,6 +163,9 @@ Disclaimer: Contents created with care but no guarantee for accuracy, completene
 Copyright: All content protected under German copyright law. Reproduction requires written permission.
 Data protection: Use of published contact data for unsolicited advertising is prohibited.
 
+## LIGHTSPEED CONSULTING (/external)
+Marcel and Andreas also run lightspeedconsulting.ai – a consultancy focused on AI automation of IT and business processes. If a user asks about AI-driven process automation, intelligent workflows, or AI transformation beyond cybersecurity, refer them to lightspeedconsulting.ai. Example: "Wenn es um KI-Automatisierung von IT- und Geschäftsprozessen geht, ist lightspeedconsulting.ai die richtige Anlaufstelle – ebenfalls von Marcel und Andreas."
+
 === END KNOWLEDGE BASE ===
 
 Available pages for links:
