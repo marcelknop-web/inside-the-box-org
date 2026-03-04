@@ -1465,14 +1465,12 @@ const ChatView = () => {
           }
           return (
             <div
-              className="fixed bottom-4 z-40 pointer-events-none transition-opacity duration-700 ease-out"
+              className="px-3 md:px-6 pb-4 pt-2 flex-shrink-0 transition-opacity duration-700 ease-out"
               style={{
-                left: isMobile ? '1rem' : (sidebarOpen ? 'calc(16rem + 1.5rem)' : '1.5rem'),
-                right: isMobile ? '1rem' : '0.75rem',
                 opacity: chatBarReady ? 1 : 0,
               }}
             >
-              <div className="max-w-2xl ml-auto pointer-events-auto">
+              <div className="max-w-2xl ml-auto">
                 <div className="relative flex items-center bg-secondary/90 backdrop-blur-md rounded-xl border border-highlight/30 focus-within:border-highlight/60 transition-electric shadow-lg">
                   <textarea
                     ref={inputRef}
