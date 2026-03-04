@@ -112,6 +112,8 @@ export function useFlightInput(): React.MutableRefObject<FlightInput> {
   useEffect(() => {
     let raf: number;
     const THROTTLE_SPEED = 0.8;
+    const DEADZONE = 12;
+    const MAX_RADIUS = 60;
     let lastTime = performance.now();
 
     const tick = () => {
@@ -120,8 +122,6 @@ export function useFlightInput(): React.MutableRefObject<FlightInput> {
       lastTime = now;
       const k = keys.current;
       const ts = touchState.current;
-      const DEADZONE = 12;
-      const MAX_RADIUS = 60;
 
       // --- Keyboard ---
       let pitchTarget = 0;

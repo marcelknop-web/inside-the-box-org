@@ -1,4 +1,5 @@
 import { useCallback, useRef } from 'react';
+import { createReverb } from './createReverb';
 
 /**
  * Dramatic orchestral "Who Wants to Be a Millionaire" style stinger
@@ -12,22 +13,6 @@ export function useMillionaireSound() {
     audioCtxRef.current = ctx;
     if (ctx.state === 'suspended') ctx.resume();
     return ctx;
-  };
-
-  // Create convolver reverb for orchestral depth
-  const createReverb = (ctx: AudioContext, duration = 2, decay = 2) => {
-    const rate = ctx.sampleRate;
-    const length = rate * duration;
-    const impulse = ctx.createBuffer(2, length, rate);
-    for (let ch = 0; ch < 2; ch++) {
-      const data = impulse.getChannelData(ch);
-      for (let i = 0; i < length; i++) {
-        data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / length, decay);
-      }
-    }
-    const convolver = ctx.createConvolver();
-    convolver.buffer = impulse;
-    return convolver;
   };
 
   const playQuestionReveal = useCallback(() => {

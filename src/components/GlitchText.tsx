@@ -1,23 +1,26 @@
 import { useEffect, useState } from 'react';
 
+/**
+ * GlitchText – periodically applies a brief glitch flicker to its text.
+ * The keyframe animation is defined once in index.css (glitch-flicker).
+ */
 const GlitchText = ({ children }: { children: string }) => {
   const [glitching, setGlitching] = useState(false);
 
   useEffect(() => {
+    let timerId: ReturnType<typeof setTimeout>;
     const scheduleNext = () => {
-      // Random pause between 2–6 seconds
       const pause = 2000 + Math.random() * 4000;
-      return setTimeout(() => {
+      timerId = setTimeout(() => {
         setGlitching(true);
-        // Glitch lasts 100–400ms
         const duration = 100 + Math.random() * 300;
-        setTimeout(() => {
+        timerId = setTimeout(() => {
           setGlitching(false);
-          timerId = scheduleNext();
+          scheduleNext();
         }, duration);
       }, pause);
     };
-    let timerId = scheduleNext();
+    scheduleNext();
     return () => clearTimeout(timerId);
   }, []);
 
@@ -29,16 +32,6 @@ const GlitchText = ({ children }: { children: string }) => {
       } : undefined}
     >
       {children}
-      <style>{`
-        @keyframes glitch-flicker {
-          0% { opacity: 1; transform: translate(0); }
-          20% { opacity: 0.4; transform: translate(-2px, 1px) skewX(-5deg); }
-          40% { opacity: 0.9; transform: translate(1px, -1px) skewX(3deg); }
-          60% { opacity: 0.2; transform: translate(2px, 0) skewX(-2deg); }
-          80% { opacity: 0.8; transform: translate(-1px, 1px) skewX(4deg); }
-          100% { opacity: 1; transform: translate(0); }
-        }
-      `}</style>
     </span>
   );
 };

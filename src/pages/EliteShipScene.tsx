@@ -1011,6 +1011,7 @@ function BackgroundMeteor() {
   const posHistory = useRef<THREE.Vector3[]>([]);
   const spawned = useRef(false);
   const elapsed = useRef(0);
+  const _tmpVec3 = useMemo(() => new THREE.Vector3(), []);
 
   useFrame((_, dt) => {
     elapsed.current += dt;
@@ -1046,12 +1047,12 @@ function BackgroundMeteor() {
     const cy = cam.y + e.height + Math.sin(a) * e.heightAmplitude * Math.cos(e.tilt);
     const cz = cam.z + Math.sin(a) * e.semiMinor;
 
-    // Record history for tail (world-space)
-    const currentPos = new THREE.Vector3(cx, cy, cz);
+    // Record history for tail (world-space) — reuse Vector3 objects
+    const _currentPos = _tmpVec3 ?? new THREE.Vector3();
+    _currentPos.set(cx, cy, cz);
     const hLen = posHistory.current.length;
-    if (hLen === 0 || currentPos.distanceTo(posHistory.current[hLen - 1]) > 0.15) {
-      posHistory.current.push(currentPos);
-      // Keep very long history for ultra-long tail
+    if (hLen === 0 || _currentPos.distanceTo(posHistory.current[hLen - 1]) > 0.15) {
+      posHistory.current.push(_currentPos.clone());
       if (posHistory.current.length > 800) posHistory.current.shift();
     }
 
