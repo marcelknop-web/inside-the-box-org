@@ -1405,7 +1405,7 @@ const ChatView = () => {
               </div>
             </div>
           ) : (
-            <div className="w-full px-3 md:px-6 lg:px-10 py-4 md:py-6 space-y-4">
+            <div className="w-full px-3 md:px-6 lg:px-10 py-4 md:py-6 pb-20 space-y-4">
               {serviceContent && (() => {
                 if (activeService === 'crisis-sim' || activeService === 'elite-ship') {
                   return <div className="flex-1 min-w-0">{serviceContent}</div>;
