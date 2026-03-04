@@ -1,4 +1,4 @@
-import React, { useRef, useMemo, useEffect, useState } from 'react';
+import React, { useRef, useMemo } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
@@ -7,7 +7,7 @@ import { DebrisSystem } from '@/components/elite/DebrisSystem';
 import { ClusterExplosion } from '@/components/elite/ClusterExplosion';
 import { Pulsar } from '@/components/elite/Pulsar';
 import { useAudioAnalyser, type AudioAnalysis } from '@/hooks/useAudioAnalyser';
-import { useFlightInput, type FlightInput } from '@/hooks/useFlightInput';
+
 
 const LINE_COLOR = '#00ffaa';
 const BG = '#000000';
@@ -876,7 +876,7 @@ function ShootingStars() {
 }
 
 /* ── Airplane-style camera: smooth circuits over the field ── */
-function CockpitCamera({ physics, audioRef, flightInput, mobile = false }: { physics: RockPhysics; audioRef: React.MutableRefObject<AudioAnalysis>; flightInput: React.MutableRefObject<FlightInput>; mobile?: boolean }) {
+function CockpitCamera({ physics, audioRef, mobile = false }: { physics: RockPhysics; audioRef: React.MutableRefObject<AudioAnalysis>; mobile?: boolean }) {
   const { camera } = useThree();
   const smoothPos = useRef(new THREE.Vector3(0, -2, 0));
   const smoothQuat = useRef(new THREE.Quaternion());
@@ -890,23 +890,10 @@ function CockpitCamera({ physics, audioRef, flightInput, mobile = false }: { phy
   const smoothBank = useRef(0);
   const smoothInversion = useRef(0);
 
-  // User-controlled offsets
-  const userPitch = useRef(0);
-  const userRoll = useRef(0);
-  const userYaw = useRef(0);
-  const userSpeed = useRef(0);
-
   useFrame((_, dt) => {
     const clampDt = Math.min(dt, 0.033);
     elapsed.current += clampDt;
     const t = elapsed.current;
-    const fi = flightInput.current;
-
-    // Smooth user inputs
-    userPitch.current += (fi.pitch * 0.35 - userPitch.current) * 0.04;
-    userRoll.current += (fi.roll * 1.2 - userRoll.current) * 0.04;
-    userYaw.current += (fi.yaw * 0.5 - userYaw.current) * 0.04;
-    userSpeed.current += ((fi.throttle - 0.5) * 0.008 - userSpeed.current) * 0.03;
 
     // Audio smoothing
     const audio = audioRef.current;
@@ -914,7 +901,7 @@ function CockpitCamera({ physics, audioRef, flightInput, mobile = false }: { phy
     smoothedBass.current += (audio.bass - smoothedBass.current) * 0.02;
     const sa = smoothedAmplitude.current;
 
-    const baseSpeed = 0.004 + sa * 0.001 + userSpeed.current;
+    const baseSpeed = 0.004 + sa * 0.001;
     const phase = t * baseSpeed;
 
     const rx = mobile ? 50 : 80;
@@ -926,15 +913,13 @@ function CockpitCamera({ physics, audioRef, flightInput, mobile = false }: { phy
       Math.sin(t * 0.015) * 0.6 +
       Math.sin(t * 0.028 + 1.3) * 0.4 +
       Math.sin(t * 0.009 + 3.7) * 0.3 +
-      sa * Math.sin(t * 0.06) * 0.15 +
-      userRoll.current; // user roll influence
+      sa * Math.sin(t * 0.06) * 0.15;
     smoothInversion.current += (rollTarget - smoothInversion.current) * 0.006;
 
     const altDrift =
       Math.sin(t * 0.012) * 2.5 +
       Math.sin(t * 0.03 + 2.1) * 1.5 +
-      Math.cos(t * 0.008) * 2.0 +
-      userPitch.current * 8; // user pitch raises/lowers camera
+      Math.cos(t * 0.008) * 2.0;
 
     const desiredAlt = CRUISE_ALT + altDrift + sa * 0.5;
     const targetPos = new THREE.Vector3(pathX, desiredAlt, pathZ);
@@ -945,13 +930,7 @@ function CockpitCamera({ physics, audioRef, flightInput, mobile = false }: { phy
       Math.cos(t * 0.035) * 0.035 * 4.0 +
       Math.cos(t * 0.08 + 2.1) * 0.08 * 2.5 +
       -Math.sin(t * 0.019) * 0.019 * 3.0;
-    const tangent = new THREE.Vector3(dxdt, dydt + userPitch.current * 0.3, dzdt).normalize();
-
-    // Apply user yaw to tangent direction
-    if (Math.abs(userYaw.current) > 0.001) {
-      const yawQuat = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), userYaw.current * 0.05);
-      tangent.applyQuaternion(yawQuat);
-    }
+    const tangent = new THREE.Vector3(dxdt, dydt, dzdt).normalize();
 
     const cross = prevTangentRef.current.clone().cross(tangent);
     const rawBank = Math.atan2(cross.y, 1) * 0.4;
@@ -980,101 +959,6 @@ function CockpitCamera({ physics, audioRef, flightInput, mobile = false }: { phy
 }
 
 
-/* ── Cockpit frame with flight instruments ── */
-function CockpitHUD({ flightInput }: { flightInput: React.MutableRefObject<FlightInput> }) {
-  const c = LINE_COLOR;
-  const [, forceUpdate] = useState(0);
-
-  // Re-render HUD at ~20fps for instrument readouts
-  useEffect(() => {
-    const iv = setInterval(() => forceUpdate(n => n + 1), 50);
-    return () => clearInterval(iv);
-  }, []);
-
-  const fi = flightInput.current;
-  const throttlePct = Math.round(fi.throttle * 100);
-  const pitchDeg = Math.round(fi.pitch * 30);
-  const rollDeg = Math.round((fi.roll) * 45);
-
-  return (
-    <div className="absolute inset-0 pointer-events-none select-none">
-      <svg className="absolute inset-0 w-full h-full" viewBox="0 0 1920 1080" preserveAspectRatio="none">
-        {/* Cockpit frame */}
-        <path d="M 0 850 Q 960 760 1920 850 L 1920 1080 L 0 1080 Z" fill={BG} stroke={c} strokeWidth="1.5" opacity="0.6" />
-        <path d="M 80 890 Q 960 820 1840 890" fill="none" stroke={c} strokeWidth="0.6" opacity="0.2" />
-        <path d="M 150 930 Q 960 870 1770 930" fill="none" stroke={c} strokeWidth="0.4" opacity="0.12" />
-        <polygon points="0,0 90,0 50,850 0,850" fill={BG} stroke={c} strokeWidth="1" opacity="0.4" />
-        <line x1="45" y1="100" x2="50" y2="750" stroke={c} strokeWidth="0.4" opacity="0.12" />
-        <polygon points="1920,0 1830,0 1870,850 1920,850" fill={BG} stroke={c} strokeWidth="1" opacity="0.4" />
-        <line x1="1875" y1="100" x2="1870" y2="750" stroke={c} strokeWidth="0.4" opacity="0.12" />
-        <polygon points="0,0 1920,0 1920,40 1080,25 840,25 0,40" fill={BG} stroke={c} strokeWidth="0.8" opacity="0.35" />
-        <line x1="50" y1="850" x2="420" y2="760" stroke={c} strokeWidth="0.8" opacity="0.2" />
-        <line x1="1870" y1="850" x2="1500" y2="760" stroke={c} strokeWidth="0.8" opacity="0.2" />
-
-        {/* ── Left: Throttle bar ── */}
-        <rect x="140" y="880" width="40" height="140" rx="3" fill="none" stroke={c} strokeWidth="0.8" opacity="0.35" />
-        <rect x="143" y={880 + 140 - (fi.throttle * 134)} width="34" height={fi.throttle * 134} rx="2" fill={c} opacity="0.2" />
-        <text x="160" y="870" textAnchor="middle" fill={c} opacity="0.5" fontSize="14" fontFamily="monospace">THR</text>
-        <text x="160" y={880 + 140 - (fi.throttle * 134) - 4} textAnchor="middle" fill={c} opacity="0.7" fontSize="12" fontFamily="monospace">{throttlePct}%</text>
-        {/* Throttle tick marks */}
-        {[0, 25, 50, 75, 100].map(pct => (
-          <line key={pct} x1="133" y1={880 + 140 - (pct / 100 * 134)} x2="140" y2={880 + 140 - (pct / 100 * 134)} stroke={c} strokeWidth="0.5" opacity="0.3" />
-        ))}
-
-        {/* ── Center: Pitch ladder ── */}
-        <g transform="translate(960, 940)">
-          <text x="0" y="-50" textAnchor="middle" fill={c} opacity="0.4" fontSize="12" fontFamily="monospace">PITCH</text>
-          {/* Horizon line */}
-          <line x1="-60" y1="0" x2="60" y2="0" stroke={c} strokeWidth="0.6" opacity="0.3" />
-          {/* Pitch markers */}
-          {[-20, -10, 0, 10, 20].map(deg => {
-            const y = -deg * 1.5;
-            return (
-              <g key={deg}>
-                <line x1="-30" y1={y} x2={deg === 0 ? -60 : -20} y2={y} stroke={c} strokeWidth={deg === 0 ? '0.8' : '0.4'} opacity={deg === 0 ? 0.5 : 0.25} />
-                <line x1="30" y1={y} x2={deg === 0 ? 60 : 20} y2={y} stroke={c} strokeWidth={deg === 0 ? '0.8' : '0.4'} opacity={deg === 0 ? 0.5 : 0.25} />
-                {deg !== 0 && <text x="45" y={y + 4} fill={c} opacity="0.25" fontSize="9" fontFamily="monospace">{Math.abs(deg)}°</text>}
-              </g>
-            );
-          })}
-          {/* Current pitch indicator */}
-          <polygon points="-8,0 0,-6 8,0 0,6" fill={c} opacity="0.6" transform={`translate(0, ${-pitchDeg * 1.5})`} />
-          <text x="0" y="55" textAnchor="middle" fill={c} opacity="0.6" fontSize="13" fontFamily="monospace">{pitchDeg > 0 ? '+' : ''}{pitchDeg}°</text>
-        </g>
-
-        {/* ── Right: Roll indicator ── */}
-        <g transform="translate(1740, 940)">
-          <text x="0" y="-50" textAnchor="middle" fill={c} opacity="0.4" fontSize="12" fontFamily="monospace">ROLL</text>
-          {/* Arc */}
-          <path d="M -40 0 A 40 40 0 0 1 40 0" fill="none" stroke={c} strokeWidth="0.6" opacity="0.3" />
-          {/* Tick marks on arc */}
-          {[-45, -30, -15, 0, 15, 30, 45].map(deg => {
-            const rad = (deg - 90) * Math.PI / 180;
-            const x1 = Math.cos(rad) * 36, y1 = Math.sin(rad) * 36;
-            const x2 = Math.cos(rad) * 42, y2 = Math.sin(rad) * 42;
-            return <line key={deg} x1={x1} y1={y1} x2={x2} y2={y2} stroke={c} strokeWidth={deg === 0 ? '1' : '0.5'} opacity={deg === 0 ? 0.5 : 0.3} />;
-          })}
-          {/* Roll pointer */}
-          {(() => {
-            const rad = (-rollDeg - 90) * Math.PI / 180;
-            const px = Math.cos(rad) * 32, py = Math.sin(rad) * 32;
-            return <circle cx={px} cy={py} r="3" fill={c} opacity="0.7" />;
-          })()}
-          <text x="0" y="55" textAnchor="middle" fill={c} opacity="0.6" fontSize="13" fontFamily="monospace">{rollDeg > 0 ? '+' : ''}{rollDeg}°</text>
-        </g>
-
-        {/* Panel backgrounds */}
-        <rect x="860" y="875" width="200" height="105" rx="4" fill="none" stroke={c} strokeWidth="0.5" opacity="0.15" />
-        <rect x="1640" y="875" width="200" height="105" rx="4" fill="none" stroke={c} strokeWidth="0.5" opacity="0.15" />
-      </svg>
-
-      {/* Controls hint */}
-      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 text-center font-mono text-[9px] tracking-[0.15em] uppercase" style={{ color: c, opacity: 0.3 }}>
-        W/S Pitch · A/D Roll · Q/E Yaw · Shift/Space Throttle
-      </div>
-    </div>
-  );
-}
 
 /* ── Permanent distant comet – spawns once, ultra-long tail, always visible ── */
 function BackgroundMeteor() {
@@ -1230,7 +1114,6 @@ export default function EliteShipScene({ embedded = false }: { embedded?: boolea
   const initialRocks = useInitialRocks(mobile);
   const physics = useMemo(() => createRockPhysics(initialRocks), [initialRocks]);
   const { playing, start, stop, analysisRef } = useAudioAnalyser();
-  const flightInput = useFlightInput();
 
   return (
     <div className={`relative w-full ${embedded ? 'h-[80vh] rounded-xl overflow-hidden' : 'h-screen'} overflow-hidden`} style={{ background: BG }}>
@@ -1244,7 +1127,7 @@ export default function EliteShipScene({ embedded = false }: { embedded?: boolea
         style={{ background: 'transparent' }}
       >
         <PhysicsDriver physics={physics} mobile={mobile} />
-        <CockpitCamera physics={physics} audioRef={analysisRef} flightInput={flightInput} mobile={mobile} />
+        <CockpitCamera physics={physics} audioRef={analysisRef} mobile={mobile} />
         <MilkyWayNebula />
         <FallbackStarLayer mobile={mobile} />
         <RealisticStarfield mobile={mobile} />
@@ -1257,7 +1140,7 @@ export default function EliteShipScene({ embedded = false }: { embedded?: boolea
         <Pulsar />
       </Canvas>
       
-      {!mobile && <CockpitHUD flightInput={flightInput} />}
+
 
       <button
         onClick={playing ? stop : start}
