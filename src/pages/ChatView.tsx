@@ -1328,7 +1328,7 @@ const ChatView = () => {
 
         <div ref={contentAreaRef} className="flex-1 overflow-y-auto relative" style={{ contain: 'layout style' }}>
           {!activeService && messages.length === 0 ? (
-            <div className="min-h-full flex flex-col items-center justify-center px-4 mx-auto max-w-2xl" style={{ gap: 0, contain: 'layout style' }}>
+            <div className="min-h-full flex flex-col items-center justify-center px-4 max-w-2xl ml-auto mr-auto md:mr-[12%]" style={{ gap: 0, contain: 'layout style' }}>
               {/* Logo – always visible */}
               <div className="mb-8 animate-logo-breathe">
                 <GeometricSymbol size="sm" className="w-12 h-12" />
