@@ -376,6 +376,8 @@ function InfoExchange({ physics, mobile = false }: { physics: RockPhysics; mobil
       if (prog[i] >= 1) {
         if (tgt[i] >= 0 && tgt[i] < n) {
           physics.infoBlink[tgt[i]] = 1.0;
+          // Pick a random edge to highlight (modded by actual edge count in DynamicRock)
+          physics.infoHitEdge[tgt[i]] = Math.floor(Math.random() * 100);
         }
         alive[i] = 0;
       }

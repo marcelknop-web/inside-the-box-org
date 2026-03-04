@@ -1208,7 +1208,7 @@ const ChatView = () => {
         const timer = setTimeout(() => {
           setSidebarOpen(true);
           setSidebarInitialized(true);
-        }, 1800);
+        }, 2800);
         return () => clearTimeout(timer);
       }
     }
