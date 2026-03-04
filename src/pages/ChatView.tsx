@@ -303,7 +303,7 @@ const useServiceContent = () => {
           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mt-2">{t('isms.ctaDesc')}</p>
           <button
             onClick={() => setActive('contact')}
-            className="mt-3 inline-flex items-center gap-2 text-primary font-mono font-bold text-sm hover:text-highlight transition-electric cursor-pointer bg-transparent border-none p-0"
+            className="mt-3 inline-flex items-center gap-2 text-highlight font-mono font-bold text-sm hover:text-primary transition-electric cursor-pointer bg-transparent border-none p-0"
           >
             {t('isms.ctaButton')}
           </button>
@@ -340,7 +340,7 @@ const useServiceContent = () => {
           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mt-2">{t('nis2.ctaDesc')}</p>
           <button
             onClick={() => setActive('contact')}
-            className="mt-3 inline-flex items-center gap-2 text-primary font-mono font-bold text-sm hover:text-highlight transition-electric cursor-pointer bg-transparent border-none p-0"
+            className="mt-3 inline-flex items-center gap-2 text-highlight font-mono font-bold text-sm hover:text-primary transition-electric cursor-pointer bg-transparent border-none p-0"
           >
             {t('nis2.ctaButton')}
           </button>
@@ -377,7 +377,7 @@ const useServiceContent = () => {
           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mt-2">{t('tisax.ctaDesc')}</p>
           <button
             onClick={() => setActive('contact')}
-            className="mt-3 inline-flex items-center gap-2 text-primary font-mono font-bold text-sm hover:text-highlight transition-electric cursor-pointer bg-transparent border-none p-0"
+            className="mt-3 inline-flex items-center gap-2 text-highlight font-mono font-bold text-sm hover:text-primary transition-electric cursor-pointer bg-transparent border-none p-0"
           >
             {t('tisax.ctaButton')}
           </button>
@@ -412,7 +412,7 @@ const useServiceContent = () => {
           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mt-2">{t('assessments.ctaDesc')}</p>
           <button
             onClick={() => setActive('contact')}
-            className="mt-3 inline-flex items-center gap-2 text-primary font-mono font-bold text-sm hover:text-highlight transition-electric cursor-pointer bg-transparent border-none p-0"
+            className="mt-3 inline-flex items-center gap-2 text-highlight font-mono font-bold text-sm hover:text-primary transition-electric cursor-pointer bg-transparent border-none p-0"
           >
             {t('assessments.ctaButton')}
           </button>
@@ -449,7 +449,7 @@ const useServiceContent = () => {
           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mt-2">{t('incident.ctaDesc')}</p>
           <button
             onClick={() => setActive('contact')}
-            className="mt-3 inline-flex items-center gap-2 text-primary font-mono font-bold text-sm hover:text-highlight transition-electric cursor-pointer bg-transparent border-none p-0"
+            className="mt-3 inline-flex items-center gap-2 text-highlight font-mono font-bold text-sm hover:text-primary transition-electric cursor-pointer bg-transparent border-none p-0"
           >
             {t('incident.ctaButton')}
           </button>
@@ -484,7 +484,7 @@ const useServiceContent = () => {
           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mt-2">{t('cyberCrisis.ctaDesc')}</p>
           <button
             onClick={() => setActive('contact')}
-            className="mt-3 inline-flex items-center gap-2 text-primary font-mono font-bold text-sm hover:text-highlight transition-electric cursor-pointer bg-transparent border-none p-0"
+            className="mt-3 inline-flex items-center gap-2 text-highlight font-mono font-bold text-sm hover:text-primary transition-electric cursor-pointer bg-transparent border-none p-0"
           >
             {t('cyberCrisis.ctaButton')}
           </button>
@@ -521,7 +521,7 @@ const useServiceContent = () => {
           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mt-2">{t('arena.ctaDesc')}</p>
           <button
             onClick={() => setActive('contact')}
-            className="mt-3 inline-flex items-center gap-2 text-primary font-mono font-bold text-sm hover:text-highlight transition-electric cursor-pointer bg-transparent border-none p-0"
+            className="mt-3 inline-flex items-center gap-2 text-highlight font-mono font-bold text-sm hover:text-primary transition-electric cursor-pointer bg-transparent border-none p-0"
           >
             {t('arena.ctaButton')}
           </button>
@@ -607,7 +607,7 @@ const useServiceContent = () => {
           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mt-2">{t('events.ctaDesc')}</p>
           <button
             onClick={() => setActive('contact')}
-            className="mt-3 inline-flex items-center gap-2 text-primary font-mono font-bold text-sm hover:text-highlight transition-electric cursor-pointer bg-transparent border-none p-0"
+            className="mt-3 inline-flex items-center gap-2 text-highlight font-mono font-bold text-sm hover:text-primary transition-electric cursor-pointer bg-transparent border-none p-0"
           >
             {t('events.ctaButton')}
           </button>
@@ -637,7 +637,7 @@ const useServiceContent = () => {
           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mt-2">{t('publications.ctaDesc')}</p>
           <button
             onClick={() => setActive('contact')}
-            className="mt-3 inline-flex items-center gap-2 text-primary font-mono font-bold text-sm hover:text-highlight transition-electric cursor-pointer bg-transparent border-none p-0"
+            className="mt-3 inline-flex items-center gap-2 text-highlight font-mono font-bold text-sm hover:text-primary transition-electric cursor-pointer bg-transparent border-none p-0"
           >
             {t('publications.ctaButton')}
           </button>
@@ -674,7 +674,7 @@ const useServiceContent = () => {
           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mt-2">{t('vciso.ctaDesc')}</p>
           <button
             onClick={() => setActive('contact')}
-            className="mt-3 inline-flex items-center gap-2 text-primary font-mono font-bold text-sm hover:text-highlight transition-electric cursor-pointer bg-transparent border-none p-0"
+            className="mt-3 inline-flex items-center gap-2 text-highlight font-mono font-bold text-sm hover:text-primary transition-electric cursor-pointer bg-transparent border-none p-0"
           >
             {t('vciso.ctaButton')}
           </button>
@@ -815,7 +815,7 @@ const useServiceContent = () => {
           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mt-2">{t('aiWorkflows.ctaDesc')}</p>
           <button
             onClick={() => setActive('contact')}
-            className="mt-3 inline-flex items-center gap-2 text-primary font-mono font-bold text-sm hover:text-highlight transition-electric cursor-pointer bg-transparent border-none p-0"
+            className="mt-3 inline-flex items-center gap-2 text-highlight font-mono font-bold text-sm hover:text-primary transition-electric cursor-pointer bg-transparent border-none p-0"
           >
             {t('aiWorkflows.ctaButton')}
           </button>
