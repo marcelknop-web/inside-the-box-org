@@ -699,6 +699,7 @@ const useServiceContent = () => {
           <SubTitle variant="highlight">{t('aiWorkflows.tryAgentsTitle')}</SubTitle>
           <p className="text-foreground text-sm md:text-[15px] mb-3">{t('aiWorkflows.tryAgentsDesc')}</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {/* — Flagship: Krisensimulator — */}
             <button onClick={() => setActive('crisis-sim')} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
               <AlertTriangle size={20} className="text-highlight mt-0.5 flex-shrink-0" />
               <div>
@@ -706,13 +707,7 @@ const useServiceContent = () => {
                 <p className="text-foreground/80 text-xs">{t('aiWorkflows.agentCrisisDesc')}</p>
               </div>
             </button>
-            <button onClick={() => setActive('ttx-check')} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
-              <ClipboardList size={20} className="text-highlight mt-0.5 flex-shrink-0" />
-              <div>
-                <p className="text-highlight font-semibold font-mono text-sm">ISCP Quick Check</p>
-                <p className="text-foreground/80 text-xs">{t('aiWorkflows.agentTtxDesc')}</p>
-              </div>
-            </button>
+            {/* — Regulierungs-Checks — */}
             <button onClick={() => setActive('dora-check')} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
               <Landmark size={20} className="text-highlight mt-0.5 flex-shrink-0" />
               <div>
@@ -734,6 +729,15 @@ const useServiceContent = () => {
                 <p className="text-foreground/80 text-xs">{t('aiWorkflows.agentPciDesc')}</p>
               </div>
             </button>
+            {/* — Planung & Priorisierung — */}
+            <button onClick={() => setActive('ttx-check')} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
+              <ClipboardList size={20} className="text-highlight mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="text-highlight font-semibold font-mono text-sm">ISCP Quick Check</p>
+                <p className="text-foreground/80 text-xs">{t('aiWorkflows.agentTtxDesc')}</p>
+              </div>
+            </button>
+            {/* — Lern-Simulationen — */}
             <button onClick={() => setActive('nis2-quiz')} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
               <Scale size={20} className="text-highlight mt-0.5 flex-shrink-0" />
               <div>
@@ -755,6 +759,7 @@ const useServiceContent = () => {
                 <p className="text-foreground/80 text-xs">{t('aiWorkflows.agentThreatDropDesc')}</p>
               </div>
             </button>
+            {/* — Arcade — */}
             <button onClick={() => setActive('trigger-triage')} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
               <Crosshair size={20} className="text-highlight mt-0.5 flex-shrink-0" />
               <div>
@@ -769,18 +774,20 @@ const useServiceContent = () => {
                 <p className="text-foreground/80 text-xs">{t('aiWorkflows.agentFroggerDesc')}</p>
               </div>
             </button>
-            <button onClick={() => setActive('elite-ship')} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
-              <Rocket size={20} className="text-highlight mt-0.5 flex-shrink-0" />
-              <div>
-                <p className="text-highlight font-semibold font-mono text-sm">{t('aiWorkflows.eliteTitle')}</p>
-                <p className="text-foreground/80 text-xs">{t('aiWorkflows.eliteDesc')}</p>
-              </div>
-            </button>
+            {/* — Media — */}
             <button onClick={() => setYtDialogOpen(true)} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
               <Play size={20} className="text-highlight mt-0.5 flex-shrink-0" />
               <div>
                 <p className="text-highlight font-semibold font-mono text-sm">{t('aiWorkflows.agentYtTitle')}</p>
                 <p className="text-foreground/80 text-xs">{t('aiWorkflows.agentYtDesc')}</p>
+              </div>
+            </button>
+            {/* — Entspannung — */}
+            <button onClick={() => setActive('elite-ship')} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
+              <Rocket size={20} className="text-highlight mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="text-highlight font-semibold font-mono text-sm">{t('aiWorkflows.eliteTitle')}</p>
+                <p className="text-foreground/80 text-xs">{t('aiWorkflows.eliteDesc')}</p>
               </div>
             </button>
           </div>
