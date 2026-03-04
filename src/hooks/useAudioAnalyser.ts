@@ -73,7 +73,8 @@ export function useAudioAnalyser() {
   const sourceBRef = useRef<MediaElementAudioSourceNode | null>(null);
   const crossfadeScheduled = useRef(false);
 
-  const CROSSFADE = 2.5; // seconds of overlap for seamless loop
+  const CROSSFADE = 4.5; // seconds – longer overlap for harmonious blend
+  const crossfadeRafRef = useRef(0);
 
   const start = useCallback(() => {
     if (audioRef.current) return;
@@ -116,6 +117,10 @@ export function useAudioAnalyser() {
 
     // Crossfade handler: when track A nears end, fade in track B
     const scheduleCrossfade = () => {
+      const VOL = 0.7;
+      let fadeStart = 0;
+      let fading = false;
+
       const checkLoop = () => {
         const a = audioRef.current;
         const b = audioBRef.current;
@@ -124,32 +129,38 @@ export function useAudioAnalyser() {
         if (!a || !b || !gA || !gB || !ctxRef.current) return;
 
         const remaining = a.duration - a.currentTime;
+
+        // Start crossfade when approaching end
         if (remaining <= CROSSFADE && remaining > 0 && !crossfadeScheduled.current) {
           crossfadeScheduled.current = true;
+          fading = true;
+          fadeStart = performance.now();
           b.currentTime = 0;
           b.play().catch(() => {});
+        }
 
-          // Crossfade: A out, B in
-          const now = ctxRef.current.currentTime;
-          gA.gain.setValueAtTime(0.7, now);
-          gA.gain.linearRampToValueAtTime(0, now + CROSSFADE);
-          gB.gain.setValueAtTime(0, now);
-          gB.gain.linearRampToValueAtTime(0.7, now + CROSSFADE);
+        // Equal-power crossfade: cos/sin curves for constant perceived loudness
+        if (fading) {
+          const elapsed = (performance.now() - fadeStart) / 1000;
+          const t = Math.min(elapsed / CROSSFADE, 1);
+          // Equal-power: A = cos(t * π/2), B = sin(t * π/2)
+          gA.gain.setValueAtTime(VOL * Math.cos(t * Math.PI * 0.5), ctxRef.current.currentTime);
+          gB.gain.setValueAtTime(VOL * Math.sin(t * Math.PI * 0.5), ctxRef.current.currentTime);
         }
 
         // When A ends, swap roles
         if (a.ended) {
-          // Swap: B becomes primary, A becomes secondary
           audioRef.current = b;
           audioBRef.current = a;
           gainARef.current = gB;
           gainBRef.current = gA;
           crossfadeScheduled.current = false;
+          fading = false;
         }
 
-        requestAnimationFrame(checkLoop);
+        crossfadeRafRef.current = requestAnimationFrame(checkLoop);
       };
-      requestAnimationFrame(checkLoop);
+      crossfadeRafRef.current = requestAnimationFrame(checkLoop);
     };
 
     gainA.gain.value = 0.7;
@@ -162,6 +173,7 @@ export function useAudioAnalyser() {
 
   const stop = useCallback(() => {
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    if (crossfadeRafRef.current) cancelAnimationFrame(crossfadeRafRef.current);
     if (audioRef.current) { audioRef.current.pause(); audioRef.current.src = ''; audioRef.current = null; }
     if (audioBRef.current) { audioBRef.current.pause(); audioBRef.current.src = ''; audioBRef.current = null; }
     if (ctxRef.current) { ctxRef.current.close(); ctxRef.current = null; }
@@ -177,6 +189,7 @@ export function useAudioAnalyser() {
 
   useEffect(() => () => {
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    if (crossfadeRafRef.current) cancelAnimationFrame(crossfadeRafRef.current);
     if (audioRef.current) { audioRef.current.pause(); audioRef.current.src = ''; }
     if (audioBRef.current) { audioBRef.current.pause(); audioBRef.current.src = ''; }
     if (ctxRef.current) ctxRef.current.close();
