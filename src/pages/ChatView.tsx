@@ -1457,24 +1457,11 @@ const ChatView = () => {
           )}
         </div>
 
-        {/* Input – desktop: always visible floating at bottom; mobile/tablet: FAB toggle */}
+        {/* Input – always visible floating bar at bottom (desktop + mobile) */}
         {(() => {
           const isTouchDevice = isMobile;
           // On mobile with active service (except crisis/stress): hide completely
           if (isTouchDevice && !!activeService && activeService !== 'crisis-sim') return null;
-          const showInput = !isTouchDevice || chatOpen;
-          if (!showInput) {
-            return (
-              <div className="absolute bottom-16 right-6 z-10">
-                <button
-                  onClick={() => { setChatOpen(true); setTimeout(() => inputRef.current?.focus(), 100); }}
-                  className="w-14 h-14 rounded-full bg-highlight text-highlight-foreground shadow-lg flex items-center justify-center hover:bg-highlight/80 transition-electric"
-                >
-                  <MessageCircle size={24} />
-                </button>
-              </div>
-            );
-          }
           return (
             <div
               className="fixed bottom-4 z-40 pointer-events-none transition-opacity duration-700 ease-out"
