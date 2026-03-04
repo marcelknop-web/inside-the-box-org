@@ -861,25 +861,23 @@ function ShootingStars() {
 /* ── Airplane-style camera: smooth circuits over the field ── */
 function CockpitCamera({ physics, audioRef, mobile = false }: { physics: RockPhysics; audioRef: React.MutableRefObject<AudioAnalysis>; mobile?: boolean }) {
   const { camera } = useThree();
-  const startPhase = useMemo(() => Math.random() * 5000, []);
+  const orbitStartPhase = useMemo(() => Math.random() * Math.PI * 2, []);
+  const rollStartPhase = useMemo(() => Math.random() * Math.PI * 2, []);
   const CRUISE_ALT_VAL = mobile ? -7.0 : -5.5;
-  // Compute initial position from the random phase
+  // Compute initial position from random start phase (same curve as runtime)
   const initPos = useMemo(() => {
-    const t = startPhase;
-    const baseSpeed = 0.004;
-    const phase = t * baseSpeed;
     const rxVal = mobile ? 50 : 80;
     const rzVal = mobile ? 35 : 55;
-    const px = Math.sin(phase) * rxVal;
-    const alt = CRUISE_ALT_VAL + Math.sin(t * 0.012) * 2.5 + Math.sin(t * 0.03 + 2.1) * 1.5 + Math.cos(t * 0.008) * 2.0;
-    const pz = Math.cos(phase) * rzVal;
+    const px = Math.sin(orbitStartPhase) * rxVal;
+    const alt = CRUISE_ALT_VAL + Math.sin(0.4) * 1.6 + Math.sin(2.1) * 1.1;
+    const pz = Math.cos(orbitStartPhase) * rzVal;
     return new THREE.Vector3(px, alt, pz);
-  }, [startPhase, mobile, CRUISE_ALT_VAL]);
+  }, [orbitStartPhase, mobile, CRUISE_ALT_VAL]);
   const smoothPos = useRef(initPos.clone());
   const smoothQuat = useRef(new THREE.Quaternion());
   const smoothedAmplitude = useRef(0);
   const smoothedBass = useRef(0);
-  const elapsed = useRef(startPhase);
+  const elapsed = useRef(0);
   const firstFrame = useRef(true);
 
   const CRUISE_ALT = mobile ? -7.0 : -5.5;
@@ -904,50 +902,53 @@ function CockpitCamera({ physics, audioRef, mobile = false }: { physics: RockPhy
     elapsed.current += clampDt;
     const t = elapsed.current;
 
-    // Audio smoothing
+    // Audio smoothing (slow, so flight path stays silk-smooth)
     const audio = audioRef.current;
-    smoothedAmplitude.current += (audio.amplitude - smoothedAmplitude.current) * 0.015;
-    smoothedBass.current += (audio.bass - smoothedBass.current) * 0.02;
+    const audioBlend = 1 - Math.exp(-clampDt * 1.4);
+    smoothedAmplitude.current += (audio.amplitude - smoothedAmplitude.current) * audioBlend;
+    smoothedBass.current += (audio.bass - smoothedBass.current) * (1 - Math.exp(-clampDt * 1.8));
     const sa = smoothedAmplitude.current;
-
-    const baseSpeed = 0.004 + sa * 0.001;
-    const phase = t * baseSpeed;
 
     const rx = mobile ? 50 : 80;
     const rz = mobile ? 35 : 55;
+
+    // Gentle glider orbit with very low-frequency modulation
+    const orbitSpeed = (mobile ? 0.11 : 0.085) + sa * 0.008;
+    const phaseMod = Math.sin(t * 0.045 + 1.7) * 0.18;
+    const phase = orbitStartPhase + t * orbitSpeed + phaseMod;
+    const dPhaseDt = orbitSpeed + Math.cos(t * 0.045 + 1.7) * 0.18 * 0.045;
+
     const pathX = Math.sin(phase) * rx;
     const pathZ = Math.cos(phase) * rz;
 
-    const rollTarget =
-      Math.sin(t * 0.015) * 0.6 +
-      Math.sin(t * 0.028 + 1.3) * 0.4 +
-      Math.sin(t * 0.009 + 3.7) * 0.3 +
-      sa * Math.sin(t * 0.06) * 0.15;
-    smoothInversion.current += (rollTarget - smoothInversion.current) * 0.006;
-
-    const altDrift =
-      Math.sin(t * 0.012) * 2.5 +
-      Math.sin(t * 0.03 + 2.1) * 1.5 +
-      Math.cos(t * 0.008) * 2.0;
-
-    const desiredAlt = CRUISE_ALT + altDrift + sa * 0.5;
+    const altWave1 = Math.sin(t * 0.18 + 0.4) * 1.6;
+    const altWave2 = Math.sin(t * 0.07 + 2.1) * 1.1;
+    const desiredAlt = CRUISE_ALT + altWave1 + altWave2 + sa * 0.25;
     _targetPos.set(pathX, desiredAlt, pathZ);
 
-    const dxdt = Math.cos(phase) * rx * baseSpeed;
-    const dzdt = -Math.sin(phase) * rz * baseSpeed;
+    const dxdt = Math.cos(phase) * rx * dPhaseDt;
+    const dzdt = -Math.sin(phase) * rz * dPhaseDt;
     const dydt =
-      Math.cos(t * 0.035) * 0.035 * 4.0 +
-      Math.cos(t * 0.08 + 2.1) * 0.08 * 2.5 +
-      -Math.sin(t * 0.019) * 0.019 * 3.0;
+      Math.cos(t * 0.18 + 0.4) * 0.18 * 1.6 +
+      Math.cos(t * 0.07 + 2.1) * 0.07 * 1.1;
     _tangent.set(dxdt, dydt, dzdt).normalize();
 
+    // Subtle natural banking from curve changes
     _cross.copy(prevTangentRef.current).cross(_tangent);
-    const rawBank = Math.atan2(_cross.y, 1) * 0.4;
-    smoothBank.current += (rawBank - smoothBank.current) * 0.02;
+    const rawBank = THREE.MathUtils.clamp(_cross.y * 2.8, -0.35, 0.35);
+    smoothBank.current += (rawBank - smoothBank.current) * (1 - Math.exp(-clampDt * 2.4));
     prevTangentRef.current.copy(_tangent);
 
+    // Cinematic glider roll phases: sideflight + occasional upside-down passages
+    const inversionCarrier =
+      Math.sin(t * 0.05 + rollStartPhase) * 0.55 +
+      Math.sin(t * 0.021 + rollStartPhase * 0.7 + 1.2) * 0.25 +
+      Math.sin(t * 0.012 + rollStartPhase * 1.3 + 0.8) * 0.35;
+    const inversionTarget = inversionCarrier * Math.PI;
+    smoothInversion.current += (inversionTarget - smoothInversion.current) * (1 - Math.exp(-clampDt * 0.65));
+
     _up.set(0, 1, 0);
-    _lookTarget.copy(_targetPos).addScaledVector(_tangent, 10);
+    _lookTarget.copy(_targetPos).addScaledVector(_tangent, 14);
     _lookMatrix.lookAt(_targetPos, _lookTarget, _up);
     _targetQuat.setFromRotationMatrix(_lookMatrix);
 
@@ -961,8 +962,10 @@ function CockpitCamera({ physics, audioRef, mobile = false }: { physics: RockPhy
       smoothPos.current.copy(_targetPos);
       smoothQuat.current.copy(_targetQuat);
     } else {
-      smoothPos.current.lerp(_targetPos, 0.02);
-      smoothQuat.current.slerp(_targetQuat, 0.025);
+      const posBlend = 1 - Math.exp(-clampDt * (mobile ? 2.3 : 2.8));
+      const rotBlend = 1 - Math.exp(-clampDt * (mobile ? 2.1 : 2.6));
+      smoothPos.current.lerp(_targetPos, posBlend);
+      smoothQuat.current.slerp(_targetQuat, rotBlend);
     }
 
     camera.position.copy(smoothPos.current);
