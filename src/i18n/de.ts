@@ -378,7 +378,7 @@ export const de = {
     referencesTitle: 'Bisherige Veranstalter',
     referencesDesc: 'Beamtenbund · Bechtle · Bitkom · BSI · CDU · DENIC · DDPS (CH) · DIIR · DWT · Fast Lane · Euroforum · HPI · IIR · ISACA · Management Circle · SoftwareONE · Bundeswehr University · University of Giessen',
     isacaTitle: 'ISACA Cyber Security Expert (CSE)',
-    isacaDesc: 'Zertifikatstraining in Kooperation mit ISACA Germany – geeignet für Management- und Technikzielgruppen, direkt anwendbar im Berufsalltag.',
+    isacaDesc: 'Zertifikatstraining in Kooperation mit ISACA Germany – geeignet für Management- und Technikzielgruppen. Erkennung und Bewältigung von Cybervorfällen – von der Command Line bis zum Boardroom.',
     evalPeriod: '30 verifizierte Teilnehmerbewertungen · 2024–2025',
     evalSatisfaction: 'Ø Zufriedenheit',
     evalRecommendation: 'Weiterempfehlung',
