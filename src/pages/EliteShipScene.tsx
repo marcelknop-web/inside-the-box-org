@@ -31,7 +31,7 @@ function useInitialRocks(mobile: boolean) {
     const planeY = -8;
 
     let globalIdx = 0;
-    const rng = makeRng(42);
+    const rng = makeRng(Math.floor(Math.random() * 999999));
 
     for (let c = 0; c < chainCount; c++) {
       // Chain origin: random position in the field
@@ -865,7 +865,7 @@ function CockpitCamera({ physics, audioRef, mobile = false }: { physics: RockPhy
   const smoothQuat = useRef(new THREE.Quaternion());
   const smoothedAmplitude = useRef(0);
   const smoothedBass = useRef(0);
-  const elapsed = useRef(0);
+  const elapsed = useRef(Math.random() * 5000); // random start phase for unique view
 
   const CRUISE_ALT = mobile ? -7.0 : -5.5;
 
