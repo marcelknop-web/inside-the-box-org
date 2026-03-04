@@ -173,8 +173,8 @@ export function ClusterExplosion({ physics }: { physics: RockPhysics }) {
           const lateralRand = (Math.random() - 0.5) * 3;
           const vx = (dirX / dirLen) * radialBias + Math.cos(angle) * lateralRand;
           const vz = (dirZ / dirLen) * radialBias + Math.sin(angle) * lateralRand;
-          // Strong upward launch (realistic explosion throws debris up)
-          const vy = 4 + Math.random() * 7;
+          // Launch both up and down randomly
+          const vy = (Math.random() - 0.4) * 12;
 
           fragments.current.push({
             x: rx + (Math.random() - 0.5) * baseRadius,
