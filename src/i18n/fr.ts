@@ -378,7 +378,7 @@ export const fr = {
     referencesTitle: 'Sélection de mandats',
     referencesDesc: 'Beamtenbund · Bechtle · Bitkom · BSI · CDU · DENIC · DDPS (CH) · DIIR · DWT · Fast Lane · Euroforum · HPI · IIR · ISACA · Management Circle · SoftwareONE · Bundeswehr University · University of Giessen',
     isacaTitle: 'ISACA Cyber Security Expert (CSE)',
-    isacaDesc: 'Formation certifiante en coopération avec ISACA Germany – adaptée aux publics management et techniques, directement applicable au quotidien.',
+    isacaDesc: 'Formation certifiante en coopération avec ISACA Germany – pour publics management et techniques. Détection et gestion des cyberincidents – de la ligne de commande à la direction.',
     evalPeriod: '30 évaluations vérifiées de participants · 2024–2025',
     evalSatisfaction: 'Ø Satisfaction',
     evalRecommendation: 'Recommandation',

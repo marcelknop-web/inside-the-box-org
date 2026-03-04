@@ -16,19 +16,22 @@ uniform float uTime;
 uniform vec2 uCenter;
 uniform float uZoom;
 
-// Smooth color palette: gold (#f5b800) ↔ cyan (#00bcd4) ↔ deep navy
+// Professional palette: navy base, gold accents, cyan highlights
 vec3 palette(float t) {
-  vec3 gold  = vec3(0.961, 0.722, 0.0);
-  vec3 cyan  = vec3(0.0, 0.737, 0.831);
-  vec3 navy  = vec3(0.02, 0.04, 0.12);
-  vec3 white = vec3(1.0, 0.98, 0.9);
+  vec3 gold    = vec3(0.961, 0.722, 0.0);
+  vec3 cyan    = vec3(0.0, 0.737, 0.831);
+  vec3 navy    = vec3(0.035, 0.055, 0.15);
+  vec3 deepNav = vec3(0.01, 0.02, 0.06);
+  vec3 warmGld = vec3(0.85, 0.6, 0.05);
 
   t = fract(t);
-  if (t < 0.15) return mix(navy, cyan, t / 0.15);
-  if (t < 0.4)  return mix(cyan, gold, (t - 0.15) / 0.25);
-  if (t < 0.6)  return mix(gold, white, (t - 0.4) / 0.2);
-  if (t < 0.8)  return mix(white, cyan, (t - 0.6) / 0.2);
-  return mix(cyan, navy, (t - 0.8) / 0.2);
+  if (t < 0.2)  return mix(deepNav, navy, t / 0.2);
+  if (t < 0.35) return mix(navy, cyan * 0.7, (t - 0.2) / 0.15);
+  if (t < 0.5)  return mix(cyan * 0.7, cyan, (t - 0.35) / 0.15);
+  if (t < 0.65) return mix(cyan, warmGld, (t - 0.5) / 0.15);
+  if (t < 0.8)  return mix(warmGld, gold, (t - 0.65) / 0.15);
+  if (t < 0.9)  return mix(gold, navy, (t - 0.8) / 0.1);
+  return mix(navy, deepNav, (t - 0.9) / 0.1);
 }
 
 void main() {
@@ -220,7 +223,7 @@ export default function MandelbrotExplorer({ embedded }: Props) {
   }, [initGL]);
 
   return (
-    <div className={`relative ${embedded ? 'w-full h-full' : 'w-screen h-screen'} bg-[#010208] overflow-hidden`}>
+    <div className={`relative ${embedded ? 'fixed inset-0 z-40' : 'w-screen h-screen'} bg-[#010208] overflow-hidden`}>
       <canvas
         ref={canvasRef}
         className="w-full h-full block"
@@ -230,13 +233,9 @@ export default function MandelbrotExplorer({ embedded }: Props) {
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          background: 'radial-gradient(ellipse at center, transparent 50%, rgba(1,2,8,0.7) 100%)',
+          background: 'radial-gradient(ellipse at center, transparent 60%, rgba(1,2,8,0.6) 100%)',
         }}
       />
-      {/* Title overlay */}
-      <div className="absolute top-4 left-4 pointer-events-none select-none">
-        <p className="text-primary/60 font-mono text-xs tracking-widest uppercase">Mandelbrot Explorer</p>
-      </div>
     </div>
   );
 }
