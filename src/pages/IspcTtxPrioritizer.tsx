@@ -68,7 +68,8 @@ function completeness(c: CriteriaRatings): number {
 }
 
 function renderAiResult(text: string) {
-  const boldify = (s: string) => s.replace(/\*\*(.*?)\*\*/g, '<strong class="text-primary">$1</strong>');
+  const escapeHtml = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const boldify = (s: string) => escapeHtml(s).replace(/\*\*(.*?)\*\*/g, '<strong class="text-primary">$1</strong>');
   const isBullet = (line: string) => /^(\d+\.\s|\*\s+|[-–→•]\s)/.test(line);
   const isHeading = (line: string) => /^#{1,4}\s/.test(line);
   const isBoldHeading = (line: string) => /^\*\*[^*]+\*\*\s*$/.test(line.trim()) || /^\d+\.\s*\*\*[^*]+\*\*\s*$/.test(line.trim());
