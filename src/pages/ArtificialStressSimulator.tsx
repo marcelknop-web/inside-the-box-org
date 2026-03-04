@@ -168,73 +168,7 @@ const MatrixStart = ({ embedded = false }: { embedded?: boolean }) => {
         <a href="/" className="text-[#ff1a1a] hover:text-[#f5c542] transition-colors duration-300">inside-the-box.org</a>
       </div>
 
-      <style>{`
-        .matrix-symbol div {
-          border-color: #ff1a1a !important;
-          transition: border-color 0.3s ease;
-        }
-        .matrix-symbol .bg-primary\\/10 {
-          background-color: rgba(255, 26, 26, 0.1) !important;
-          transition: background-color 0.3s ease;
-        }
-        .matrix-logo-link:hover .matrix-symbol div {
-          border-color: #f5c542 !important;
-        }
-        .matrix-logo-link:hover .matrix-symbol .bg-primary\/10 {
-          background-color: rgba(245, 197, 66, 0.15) !important;
-        }
-        @keyframes hypnotic-glow {
-          0%, 100% {
-            filter: drop-shadow(0 0 30px rgba(255,26,26,0.5)) drop-shadow(0 0 80px rgba(255,26,26,0.2));
-            opacity: 0.8;
-          }
-          50% {
-            filter: drop-shadow(0 0 60px rgba(255,26,26,0.8)) drop-shadow(0 0 120px rgba(255,26,26,0.3));
-            opacity: 1;
-          }
-        }
-        .matrix-glow-pulse {
-          animation: hypnotic-glow 4s ease-in-out infinite;
-          will-change: filter, opacity;
-        }
-        .matrix-logo-link:hover {
-          animation: none;
-          filter: drop-shadow(0 0 40px rgba(245,197,66,0.6)) drop-shadow(0 0 100px rgba(245,197,66,0.25));
-        }
-        @keyframes pulse-glow {
-          0%, 100% {
-            box-shadow: 0 0 15px rgba(255,26,26,0.2), inset 0 0 10px rgba(255,26,26,0.05);
-            border-color: rgba(255,26,26,0.5);
-          }
-          50% {
-            box-shadow: 0 0 25px rgba(255,26,26,0.5), inset 0 0 15px rgba(255,26,26,0.1);
-            border-color: rgba(255,26,26,0.8);
-          }
-        }
-        .matrix-start-btn {
-          color: #ff1a1a;
-          text-shadow: 0 0 10px rgba(255,26,26,0.6), 0 0 30px rgba(255,26,26,0.3);
-          background: rgba(255,26,26,0.03);
-          box-shadow: 0 0 15px rgba(255,26,26,0.2), inset 0 0 10px rgba(255,26,26,0.05);
-        }
-        .matrix-btn-idle {
-          border-color: rgba(255,26,26,0.5);
-          animation: pulse-glow 2s ease-in-out infinite;
-        }
-        .matrix-btn-active {
-          border-color: rgba(255,26,26,0.7);
-          background: rgba(255,26,26,0.1);
-          box-shadow: 0 0 20px rgba(255,26,26,0.4), inset 0 0 20px rgba(255,26,26,0.1);
-        }
-        .matrix-start-btn:hover {
-          animation: none;
-          color: #00e5ff;
-          border-color: #00e5ff;
-          box-shadow: 0 0 20px rgba(0,229,255,0.3), inset 0 0 15px rgba(0,229,255,0.08);
-          text-shadow: 0 0 10px rgba(0,229,255,0.6), 0 0 30px rgba(0,229,255,0.3);
-          background: rgba(0,229,255,0.05);
-        }
-      `}</style>
+      {/* Matrix styles now in index.css */}
     </div>
   );
 };
