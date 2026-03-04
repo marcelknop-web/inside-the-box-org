@@ -377,13 +377,25 @@ const STAR_COUNT_DESKTOP = 22000;
 const STAR_COUNT_MOBILE = 9000;
 
 const starVertexShader = `
+  uniform float uTime;
   attribute float size;
   attribute float brightness;
   varying vec3 vColor;
   varying float vBrightness;
+  varying float vTwinkle;
   void main() {
     vColor = color;
     vBrightness = brightness;
+    
+    // Each star gets a unique twinkle phase from its position
+    float phase = position.x * 0.37 + position.y * 0.53 + position.z * 0.71;
+    // Multiple layered sine waves for organic feel
+    float twinkle = sin(uTime * 0.8 + phase) * 0.3
+                  + sin(uTime * 1.3 + phase * 2.1) * 0.2
+                  + sin(uTime * 2.7 + phase * 0.7) * 0.1;
+    // Brighter stars twinkle more noticeably
+    vTwinkle = 1.0 + twinkle * brightness * 0.35;
+    
     vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
     gl_PointSize = size * (320.0 / -mvPosition.z);
     gl_PointSize = clamp(gl_PointSize, 0.8, 48.0);
@@ -394,6 +406,7 @@ const starVertexShader = `
 const starFragmentShader = `
   varying vec3 vColor;
   varying float vBrightness;
+  varying float vTwinkle;
   void main() {
     vec2 uv = gl_PointCoord - 0.5;
     float r = length(uv);
@@ -412,8 +425,8 @@ const starFragmentShader = `
     }
     
     float intensity = core + inner + outer + spikes;
-    intensity *= vBrightness;
-    intensity = max(intensity, 0.09 * vBrightness);
+    intensity *= vBrightness * vTwinkle;
+    intensity = max(intensity, 0.06 * vBrightness);
     
     // Chromatic fringing on bright stars
     vec3 col = vColor;
@@ -505,10 +518,14 @@ function RealisticStarfield({ mobile = false }: { mobile?: boolean }) {
     return { positions: pos, colors: col, sizes: sz, brightnesses: br };
   }, [starCount]);
 
-  useFrame(({ camera }) => {
+  const shaderRef = useRef<THREE.ShaderMaterial>(null);
+  const timeUniform = useMemo(() => ({ uTime: { value: 0 } }), []);
+
+  useFrame(({ camera, clock }) => {
     if (!pointsRef.current) return;
     pointsRef.current.position.copy(camera.position);
     pointsRef.current.quaternion.copy(camera.quaternion);
+    timeUniform.uTime.value = clock.getElapsedTime();
   });
 
   return (
@@ -520,8 +537,10 @@ function RealisticStarfield({ mobile = false }: { mobile?: boolean }) {
         <bufferAttribute attach="attributes-brightness" args={[brightnesses, 1]} />
       </bufferGeometry>
       <shaderMaterial
+        ref={shaderRef}
         vertexShader={starVertexShader}
         fragmentShader={starFragmentShader}
+        uniforms={timeUniform}
         vertexColors
         transparent
         depthWrite={false}
@@ -1000,13 +1019,13 @@ function BackgroundMeteor() {
   // Comet follows an exact elliptical orbit relative to camera
   const cometAngle = useRef(0); // orbital angle (true anomaly)
   const cometOffset = useMemo(() => ({
-    semiMajor: 250,     // long axis radius
-    semiMinor: 120,     // short axis radius
-    height: 90,         // base height above camera
-    heightAmplitude: 25, // vertical oscillation on ellipse
-    angularSpeed: 0.006, // slow orbital drift
+    semiMajor: 180,      // long axis radius
+    semiMinor: 90,       // short axis radius
+    height: 45,          // base height above camera (lower = more visible)
+    heightAmplitude: 15, // vertical oscillation on ellipse
+    angularSpeed: 0.012, // slightly faster orbital drift
     startAngle: Math.random() * Math.PI * 2,
-    tilt: 0.15,         // slight tilt of orbital plane
+    tilt: 0.12,          // slight tilt of orbital plane
   }), []);
   const posHistory = useRef<THREE.Vector3[]>([]);
   const spawned = useRef(false);
