@@ -524,7 +524,6 @@ function RealisticStarfield({ mobile = false }: { mobile?: boolean }) {
   useFrame(({ camera, clock }) => {
     if (!pointsRef.current) return;
     pointsRef.current.position.copy(camera.position);
-    pointsRef.current.quaternion.copy(camera.quaternion);
     timeUniform.uTime.value = clock.getElapsedTime();
   });
 
