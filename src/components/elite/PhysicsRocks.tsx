@@ -19,6 +19,7 @@ export interface RockPhysics {
   count: number;
   blinkMap: Float32Array;    // 0 = normal, >0 = blink progress (0..1) for pre-explosion warning
   infoBlink: Float32Array;   // 0 = normal, >0 = yellow info-arrival flash (decays over time)
+  infoHitEdge: Int32Array;   // which edge index to highlight yellow on info hit
 }
 
 export function createRockPhysics(
@@ -49,8 +50,9 @@ export function createRockPhysics(
 
   const blinkMap = new Float32Array(n);
   const infoBlink = new Float32Array(n);
+  const infoHitEdge = new Int32Array(n);
 
-  return { positions, velocities, radii, masses, rotSpeeds, rotations, seeds, count: n, blinkMap, infoBlink };
+  return { positions, velocities, radii, masses, rotSpeeds, rotations, seeds, count: n, blinkMap, infoBlink, infoHitEdge };
 }
 
 const G = 0.25;           // stronger gravity to keep cluster together
@@ -176,13 +178,35 @@ export function stepPhysics(phys: RockPhysics, dt: number, mobile = false) {
 }
 
 /* ── Visual Rock (reads position from physics state) ── */
+/* Uses per-vertex colors so only the hit edge flashes yellow on info arrival */
+
+// Base green color components
+const BASE_R = 0.2, BASE_G = 1.0, BASE_B = 0.73;
+const BASE_MOB_R = 0.33, BASE_MOB_G = 1.0, BASE_MOB_B = 0.8;
+const HIT_R = 1.0, HIT_G = 0.87, HIT_B = 0.27; // #ffdd44
+
 export function DynamicRock({ index, physics, mobile = false }: { index: number; physics: RockPhysics; mobile?: boolean }) {
   const ref = useRef<THREE.Group>(null);
   const lineMatRef = useRef<THREE.LineBasicMaterial>(null);
+  const colorAttrRef = useRef<THREE.BufferAttribute>(null);
   const { geo, edges } = useMemo(
     () => buildPolyhedron(physics.seeds[index], physics.radii[index]),
     [physics.seeds[index], physics.radii[index]]
   );
+
+  const edgeCount = edges.length / 6; // 2 vertices × 3 coords per edge
+  const colorArray = useMemo(() => {
+    const arr = new Float32Array(edgeCount * 6); // 2 verts × 3 RGB per edge
+    const r = mobile ? BASE_MOB_R : BASE_R;
+    const g = mobile ? BASE_MOB_G : BASE_G;
+    const b = mobile ? BASE_MOB_B : BASE_B;
+    for (let i = 0; i < edgeCount; i++) {
+      const ci = i * 6;
+      arr[ci] = r; arr[ci + 1] = g; arr[ci + 2] = b;
+      arr[ci + 3] = r; arr[ci + 4] = g; arr[ci + 5] = b;
+    }
+    return arr;
+  }, [edgeCount, mobile]);
 
   useFrame(({ camera, clock }) => {
     if (!ref.current) return;
@@ -205,48 +229,65 @@ export function DynamicRock({ index, physics, mobile = false }: { index: number;
     const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
     const nearFactor = Math.max(0, 1 - dist / 120);
 
-    // Blink state from ClusterExplosion (0 = normal, >0 = warning progress 0..1)
     const blink = physics.blinkMap[index];
+    const ib = physics.infoBlink[index];
+    const hitEdge = physics.infoHitEdge[index] % edgeCount;
+
+    const br = mobile ? BASE_MOB_R : BASE_R;
+    const bg = mobile ? BASE_MOB_G : BASE_G;
+    const bb = mobile ? BASE_MOB_B : BASE_B;
 
     if (lineMatRef.current) {
       if (blink > 0) {
-        // Flicker on/off: frequency increases with progress, hard on/off (no smooth sine)
         const flickerFreq = 4 + blink * 30;
         const on = Math.sin(clock.elapsedTime * flickerFreq) > 0;
-        lineMatRef.current.color.set(mobile ? '#55ffcc' : LINE_COLOR);
         lineMatRef.current.opacity = on ? (mobile ? 0.6 : 0.9) : 0;
-        // Shrink the rock as it approaches explosion
         const shrink = 1 - blink * 0.7;
         ref.current.scale.setScalar(shrink);
-      } else if (physics.infoBlink[index] > 0.01) {
-        // Yellow flash from info packet arrival
-        const ib = physics.infoBlink[index];
-        lineMatRef.current.color.set('#ffdd44');
-        lineMatRef.current.opacity = ib * 0.9;
-        ref.current.scale.setScalar(1);
+        // All edges base color during blink
+        for (let e = 0; e < edgeCount; e++) {
+          const ci = e * 6;
+          colorArray[ci] = br; colorArray[ci + 1] = bg; colorArray[ci + 2] = bb;
+          colorArray[ci + 3] = br; colorArray[ci + 4] = bg; colorArray[ci + 5] = bb;
+        }
       } else {
-        // Normal green wireframe
         ref.current.scale.setScalar(1);
-        lineMatRef.current.color.set(mobile ? '#55ffcc' : LINE_COLOR);
         lineMatRef.current.opacity = mobile
           ? 0.25 + nearFactor * 0.45
           : 0.45 + nearFactor * 0.55;
+
+        // Per-edge coloring: hit edge yellow, rest green
+        const hasHit = ib > 0.01;
+        for (let e = 0; e < edgeCount; e++) {
+          const ci = e * 6;
+          if (hasHit && e === hitEdge) {
+            // Blend yellow based on infoBlink intensity
+            const mr = br + (HIT_R - br) * ib;
+            const mg = bg + (HIT_G - bg) * ib;
+            const mb = bb + (HIT_B - bb) * ib;
+            colorArray[ci] = mr; colorArray[ci + 1] = mg; colorArray[ci + 2] = mb;
+            colorArray[ci + 3] = mr; colorArray[ci + 4] = mg; colorArray[ci + 5] = mb;
+          } else {
+            colorArray[ci] = br; colorArray[ci + 1] = bg; colorArray[ci + 2] = bb;
+            colorArray[ci + 3] = br; colorArray[ci + 4] = bg; colorArray[ci + 5] = bb;
+          }
+        }
       }
+      if (colorAttrRef.current) colorAttrRef.current.needsUpdate = true;
     }
   });
 
   return (
     <group ref={ref}>
-      {/* Solid dark mesh — clumpy asteroid look */}
       <mesh geometry={geo}>
         <meshBasicMaterial color="#0a1f18" side={THREE.FrontSide} depthWrite />
       </mesh>
-      {/* Subtle edge highlight for shape definition */}
       <lineSegments>
         <bufferGeometry>
           <bufferAttribute attach="attributes-position" args={[edges, 3]} />
+          <bufferAttribute ref={colorAttrRef} attach="attributes-color" args={[colorArray, 3]} />
         </bufferGeometry>
-        <lineBasicMaterial ref={lineMatRef} color={mobile ? '#55ffcc' : LINE_COLOR} transparent opacity={mobile ? 0.15 : 0.2} depthTest={true} polygonOffset polygonOffsetFactor={-1} polygonOffsetUnits={-1} />
+        <lineBasicMaterial ref={lineMatRef} vertexColors transparent opacity={mobile ? 0.15 : 0.2} depthTest polygonOffset polygonOffsetFactor={-1} polygonOffsetUnits={-1} />
       </lineSegments>
     </group>
   );
