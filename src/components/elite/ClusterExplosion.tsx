@@ -12,7 +12,8 @@ const FRAGMENT_LIFETIME = 40;
 const CLUSTER_RADIUS = 25;
 const MIN_CLUSTER_SIZE = 3;
 
-// Linear flight into space — no gravity
+// Earth gravity ~9.81 m/s²
+const GRAVITY = -9.81;
 const ANGULAR_DAMPING = 0.999;
 
 interface Fragment {
@@ -197,14 +198,16 @@ export function ClusterExplosion({ physics }: { physics: RockPhysics }) {
       setTick(t => t + 1);
     }
 
-    // Update fragments — linear flight into space, no gravity
+    // Update fragments — earth gravity pulls them down
     let needsRender = false;
     for (const f of fragments.current) {
       if (!f.alive) continue;
       f.age += clampDt;
       if (f.age > FRAGMENT_LIFETIME) { f.alive = false; needsRender = true; continue; }
 
-      // Linear motion — no gravity, no drag, no ground
+      // Apply gravity to vertical velocity
+      f.vy += GRAVITY * clampDt;
+
       f.x += f.vx * clampDt;
       f.y += f.vy * clampDt;
       f.z += f.vz * clampDt;
