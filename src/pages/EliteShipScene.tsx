@@ -346,7 +346,7 @@ function InfoExchange({ physics, mobile = false }: { physics: RockPhysics; mobil
       // Spindle dimensions
       const beamLength = Math.min(18, spd * 0.35); // long streaks
       const widthCurve = Math.sin(t01 * Math.PI); // 0→1→0
-      const beamWidth = 0.03 * widthCurve + 0.003; // hauchfein at tips, thicker in middle
+      const beamWidth = 0.008 * widthCurve + 0.001; // ultra-slim futuristic filaments
 
       // Orient along velocity
       _lookTarget.set(px + dvx / spd, py + dvy / spd, pz + dvz / spd);
