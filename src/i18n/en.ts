@@ -318,7 +318,7 @@ export const en = {
     auditTitle: 'Review and Control Support',
     auditDesc: 'Automated support for evidence management and control monitoring: structured evidence collection, ongoing review of defined security controls, management dashboards for status overview. Reduced manual effort, greater transparency.',
     tryAgentsTitle: 'AI Lab – Test Directly in Your Browser',
-    tryAgentsDesc: 'Interactive tools from practice – no login, no download.',
+    tryAgentsDesc: 'Simulations, tests and scenarios to explore – directly in your browser.',
     agentCrisisDesc: 'AI-driven scenarios with real-time decision pressure',
     agentStressTitle: 'Stress Simulator',
     agentStressDesc: 'Realistic ambient noise for exercises under time pressure',

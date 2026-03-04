@@ -318,7 +318,7 @@ export const fr = {
     auditTitle: 'Support de contrôle et vérification',
     auditDesc: 'Support automatisé pour la gestion des preuves et la surveillance des contrôles : collecte structurée des preuves, vérification continue des mesures de sécurité définies, tableaux de bord de gestion pour la vue d\'ensemble. Effort manuel réduit, transparence accrue.',
     tryAgentsTitle: 'Labo IA – tester directement dans le navigateur',
-    tryAgentsDesc: 'Outils interactifs issus de la pratique – sans login, sans téléchargement.',
+    tryAgentsDesc: 'Simulations, tests et scénarios à explorer – directement dans le navigateur.',
     agentCrisisDesc: 'Scénarios IA avec pression décisionnelle en temps réel',
     agentStressTitle: 'Simulateur de Stress',
     agentStressDesc: 'Bruits ambiants réalistes pour exercices sous pression',
