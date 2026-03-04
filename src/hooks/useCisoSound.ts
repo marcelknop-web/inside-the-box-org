@@ -1,4 +1,5 @@
 import { useCallback, useRef } from 'react';
+import { createReverb } from './createReverb';
 
 /**
  * Cybersecurity-themed sound design for CISO Budget Simulator.
@@ -12,21 +13,6 @@ export function useCisoSound() {
     audioCtxRef.current = ctx;
     if (ctx.state === 'suspended') ctx.resume();
     return ctx;
-  };
-
-  const createReverb = (ctx: AudioContext, duration = 1.5, decay = 2) => {
-    const rate = ctx.sampleRate;
-    const length = rate * duration;
-    const impulse = ctx.createBuffer(2, length, rate);
-    for (let ch = 0; ch < 2; ch++) {
-      const data = impulse.getChannelData(ch);
-      for (let i = 0; i < length; i++) {
-        data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / length, decay);
-      }
-    }
-    const convolver = ctx.createConvolver();
-    convolver.buffer = impulse;
-    return convolver;
   };
 
   // Slider tick – short digital blip
