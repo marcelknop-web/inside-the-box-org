@@ -25,59 +25,38 @@ function makeRng(baseSeed: number) {
 function useInitialRocks(mobile: boolean) {
   return useMemo(() => {
     const rocks: { seed: number; radius: number; position: [number, number, number]; rotSpeed: [number, number, number] }[] = [];
-    const chainCount = mobile ? 35 : 80;       // number of polymer chains
-    const fieldW = mobile ? 140 : 260;          // field width
-    const fieldD = mobile ? 90 : 180;           // field depth
+    const count = mobile ? 45 : 100;
+    const fieldW = mobile ? 140 : 260;
+    const fieldD = mobile ? 90 : 180;
     const planeY = -8;
 
-    let globalIdx = 0;
     const rng = makeRng(Math.floor(Math.random() * 999999));
 
-    for (let c = 0; c < chainCount; c++) {
-      // Chain origin: random position in the field
-      let cx = (rng() - 0.5) * fieldW;
-      let cy = planeY + (rng() - 0.5) * 1.0;
-      let cz = (rng() - 0.5) * fieldD;
+    for (let i = 0; i < count; i++) {
+      // Varied radii: mostly small/medium, occasionally large
+      const sizeRoll = rng();
+      const r = sizeRoll < 0.6
+        ? 0.6 + rng() * 1.4        // small–medium
+        : sizeRoll < 0.9
+          ? 2.0 + rng() * 2.0      // large
+          : 4.0 + rng() * 2.5;     // rare, impressive
 
-      // Chain direction: random angle on the XZ plane, slight Y variation
-      let angle = rng() * Math.PI * 2;
-      let pitch = (rng() - 0.5) * 0.3; // slight vertical wander
+      const seed = i * 17 + 3;
 
-      // Chain length: 3-12 rocks per chain
-      const chainLen = 3 + Math.floor(rng() * (mobile ? 7 : 10));
-
-      for (let n = 0; n < chainLen; n++) {
-        const r = 0.5 + rng() * 2.2; // rock radius
-        const seed = globalIdx * 13 + 7;
-
-        rocks.push({
-          seed,
-          radius: r,
-          position: [cx, cy, cz],
-          rotSpeed: [
-            (rng() - 0.5) * 0.012,
-            (rng() - 0.5) * 0.015,
-            (rng() - 0.5) * 0.008,
-          ],
-        });
-
-        // Next rock: place it touching this one at exactly one edge
-        // Distance = sum of radii (touching), direction follows chain with random bends
-        const nextR = 0.5 + rng() * 2.2;
-        const edgeDist = r + nextR; // exactly touching at edge
-
-        // Bend the chain: random angular deviation (polymer-like zigzag)
-        angle += (rng() - 0.5) * 1.2; // up to ~35° bend per link
-        pitch += (rng() - 0.5) * 0.2;
-        pitch = Math.max(-0.3, Math.min(0.3, pitch)); // clamp vertical
-
-        cx += Math.cos(angle) * Math.cos(pitch) * edgeDist;
-        cy += Math.sin(pitch) * edgeDist * 0.3; // gentle Y changes
-        cy = Math.max(planeY - 2, Math.min(planeY + 2, cy)); // stay near plane
-        cz += Math.sin(angle) * Math.cos(pitch) * edgeDist;
-
-        globalIdx++;
-      }
+      rocks.push({
+        seed,
+        radius: r,
+        position: [
+          (rng() - 0.5) * fieldW,
+          planeY + (rng() - 0.5) * 6,
+          (rng() - 0.5) * fieldD,
+        ],
+        rotSpeed: [
+          (rng() - 0.5) * 0.01,
+          (rng() - 0.5) * 0.012,
+          (rng() - 0.5) * 0.007,
+        ],
+      });
     }
 
     return rocks;
