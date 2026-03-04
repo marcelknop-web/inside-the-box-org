@@ -866,10 +866,10 @@ function CockpitCamera({ physics, audioRef, mobile = false }: { physics: RockPhy
   const CRUISE_ALT_VAL = mobile ? -7.0 : -5.5;
   // Compute initial position from random start phase (same curve as runtime)
   const initPos = useMemo(() => {
-    const rxVal = mobile ? 50 : 80;
-    const rzVal = mobile ? 35 : 55;
+    const rxVal = mobile ? 28 : 38;
+    const rzVal = mobile ? 20 : 28;
     const px = Math.sin(orbitStartPhase) * rxVal;
-    const alt = CRUISE_ALT_VAL + Math.sin(0.4) * 1.6 + Math.sin(2.1) * 1.1;
+    const alt = CRUISE_ALT_VAL + Math.sin(0.4) * 4.5 + Math.sin(2.1) * 3.0;
     const pz = Math.cos(orbitStartPhase) * rzVal;
     return new THREE.Vector3(px, alt, pz);
   }, [orbitStartPhase, mobile, CRUISE_ALT_VAL]);
@@ -909,28 +909,32 @@ function CockpitCamera({ physics, audioRef, mobile = false }: { physics: RockPhy
     smoothedBass.current += (audio.bass - smoothedBass.current) * (1 - Math.exp(-clampDt * 1.8));
     const sa = smoothedAmplitude.current;
 
-    const rx = mobile ? 50 : 80;
-    const rz = mobile ? 35 : 55;
+    // Tighter orbit = closer to objects, slower speed = more time among them
+    const rx = mobile ? 28 : 38;
+    const rz = mobile ? 20 : 28;
 
-    // Gentle glider orbit with very low-frequency modulation
-    const orbitSpeed = (mobile ? 0.11 : 0.085) + sa * 0.008;
-    const phaseMod = Math.sin(t * 0.045 + 1.7) * 0.18;
+    // Slower glider orbit – keeps objects in view longer
+    const orbitSpeed = (mobile ? 0.055 : 0.042) + sa * 0.004;
+    const phaseMod = Math.sin(t * 0.03 + 1.7) * 0.25;
     const phase = orbitStartPhase + t * orbitSpeed + phaseMod;
-    const dPhaseDt = orbitSpeed + Math.cos(t * 0.045 + 1.7) * 0.18 * 0.045;
+    const dPhaseDt = orbitSpeed + Math.cos(t * 0.03 + 1.7) * 0.25 * 0.03;
 
     const pathX = Math.sin(phase) * rx;
     const pathZ = Math.cos(phase) * rz;
 
-    const altWave1 = Math.sin(t * 0.18 + 0.4) * 1.6;
-    const altWave2 = Math.sin(t * 0.07 + 2.1) * 1.1;
-    const desiredAlt = CRUISE_ALT + altWave1 + altWave2 + sa * 0.25;
+    // More dramatic altitude changes – dives down and sweeps up through the cluster
+    const altWave1 = Math.sin(t * 0.09 + 0.4) * 4.5;
+    const altWave2 = Math.sin(t * 0.035 + 2.1) * 3.0;
+    const altWave3 = Math.sin(t * 0.017 + 0.7) * 2.0;
+    const desiredAlt = CRUISE_ALT + altWave1 + altWave2 + altWave3 + sa * 0.2;
     _targetPos.set(pathX, desiredAlt, pathZ);
 
     const dxdt = Math.cos(phase) * rx * dPhaseDt;
     const dzdt = -Math.sin(phase) * rz * dPhaseDt;
     const dydt =
-      Math.cos(t * 0.18 + 0.4) * 0.18 * 1.6 +
-      Math.cos(t * 0.07 + 2.1) * 0.07 * 1.1;
+      Math.cos(t * 0.09 + 0.4) * 0.09 * 4.5 +
+      Math.cos(t * 0.035 + 2.1) * 0.035 * 3.0 +
+      Math.cos(t * 0.017 + 0.7) * 0.017 * 2.0;
     _tangent.set(dxdt, dydt, dzdt).normalize();
 
     // Subtle natural banking from curve changes
