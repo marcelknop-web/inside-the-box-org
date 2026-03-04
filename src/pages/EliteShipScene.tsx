@@ -90,9 +90,9 @@ function PhysicsDriver({ physics, mobile }: { physics: RockPhysics; mobile: bool
   return null;
 }
 
-/* ── Information exchange: data packets flow between rocks, larger blocks = more traffic ── */
-const INFO_COUNT_DESKTOP = 250;
-const INFO_COUNT_MOBILE = 120;
+/* ── Information exchange: sparse, individual data packets between rocks ── */
+const INFO_COUNT_DESKTOP = 35;
+const INFO_COUNT_MOBILE = 18;
 
 function InfoExchange({ physics, mobile = false }: { physics: RockPhysics; mobile?: boolean }) {
   const linesRef = useRef<THREE.LineSegments>(null);
@@ -196,7 +196,9 @@ function InfoExchange({ physics, mobile = false }: { physics: RockPhysics; mobil
       const i8 = i * 8;
 
       if (!alive[i]) {
-        if (Math.random() > 0.06) {
+        // Very sparse spawning — staggered by slot index for even distribution
+        const spawnChance = 0.008 + Math.sin(elapsed * 0.3 + i * 1.7) * 0.004;
+        if (Math.random() > spawnChance) {
           lp[i6 + 1] = -9999; lp[i6 + 4] = -9999;
           lc[i8 + 3] = 0; lc[i8 + 7] = 0;
           continue;
@@ -241,7 +243,7 @@ function InfoExchange({ physics, mobile = false }: { physics: RockPhysics; mobil
         const dy = pp[tx3 + 1] - pp[sx3 + 1];
         const dz = pp[tx3 + 2] - pp[sx3 + 2];
         const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
-        const speed = 3 + Math.random() * 2; // slower, calmer
+        const speed = 2 + Math.random() * 4; // varied: some drift slowly, some zip
         tt[i] = dist / speed;
 
         curve[i * 2] = (Math.random() - 0.5) * 6;
