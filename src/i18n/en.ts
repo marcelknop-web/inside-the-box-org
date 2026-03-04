@@ -336,6 +336,8 @@ export const en = {
     agentFroggerDesc: 'Arcade format meets cybersecurity awareness',
     eliteTitle: 'Had Enough of Security?',
     eliteDesc: 'Switch off, fly, let go — a meditative 3D scene to unwind',
+    mandelbrotTitle: 'Mandelbrot Explorer',
+    mandelbrotDesc: 'Dive into fractal worlds — a meditative flight through the Mandelbrot set',
     agentYtTitle: 'Video Injects',
     agentYtDesc: 'AI-generated news videos as situational briefings for crisis exercises',
     ctaTitle: 'Getting Started',

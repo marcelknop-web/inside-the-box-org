@@ -23,6 +23,7 @@ const ThreatDropQuiz = lazy(() => import('./ThreatDropQuiz'));
 const TriggerTriage = lazy(() => import('./TriggerTriage'));
 const CyberFrogger = lazy(() => import('./CyberFrogger'));
 const EliteShipScene = lazy(() => import('./EliteShipScene'));
+const MandelbrotExplorer = lazy(() => import('./MandelbrotExplorer'));
 
 import { StaggerReveal } from '@/components/StaggerReveal';
 import GlitchText from '@/components/GlitchText';
@@ -790,6 +791,13 @@ const useServiceContent = () => {
                 <p className="text-foreground/80 text-xs">{t('aiWorkflows.eliteDesc')}</p>
               </div>
             </button>
+            <button onClick={() => setActive('mandelbrot')} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
+              <Fingerprint size={20} className="text-highlight mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="text-highlight font-semibold font-mono text-sm">{t('aiWorkflows.mandelbrotTitle')}</p>
+                <p className="text-foreground/80 text-xs">{t('aiWorkflows.mandelbrotDesc')}</p>
+              </div>
+            </button>
           </div>
           <Dialog open={ytDialogOpen} onOpenChange={setYtDialogOpen}>
             <DialogContent className="sm:max-w-[720px] p-0 bg-background border-highlight/30">
@@ -1269,6 +1277,8 @@ const ChatView = () => {
     ? <Suspense fallback={lazyFallback}><CyberFrogger embedded /></Suspense>
     : activeService === 'elite-ship'
     ? <Suspense fallback={lazyFallback}><EliteShipScene embedded /></Suspense>
+    : activeService === 'mandelbrot'
+    ? <Suspense fallback={lazyFallback}><MandelbrotExplorer embedded /></Suspense>
     : activeService === 'system-check'
     ? <InlineSystemCheck t={t} />
     : activeService && contentMap[activeService] ? contentMap[activeService]() : null;
