@@ -303,7 +303,7 @@ const useServiceContent = () => {
           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mt-2">{t('isms.ctaDesc')}</p>
           <button
             onClick={() => setActive('contact')}
-            className="mt-3 inline-flex items-center gap-2 text-primary font-mono font-bold text-sm hover:text-highlight transition-electric cursor-pointer bg-transparent border-none p-0"
+            className="mt-3 inline-flex items-center gap-2 text-highlight font-mono font-bold text-sm hover:text-primary transition-electric cursor-pointer bg-transparent border-none p-0"
           >
             {t('isms.ctaButton')}
           </button>
