@@ -95,94 +95,22 @@ const INFO_COUNT_DESKTOP = 250;
 const INFO_COUNT_MOBILE = 120;
 
 function InfoExchange({ physics, mobile = false }: { physics: RockPhysics; mobile?: boolean }) {
-  const meshRef = useRef<THREE.InstancedMesh>(null);
-  const dropsRef = useRef<THREE.Points>(null);
+  const linesRef = useRef<THREE.LineSegments>(null);
   const { camera } = useThree();
   const sunDir = useMemo(() => new THREE.Vector3(0.6, 0.8, -0.3).normalize(), []);
-  const _obj = useMemo(() => new THREE.Object3D(), []);
-  const _lookTarget = useMemo(() => new THREE.Vector3(), []);
-  const _tmpColor = useMemo(() => new THREE.Color(), []);
-
-  const count = mobile ? INFO_COUNT_MOBILE : INFO_COUNT_DESKTOP;
-
-  // Per-particle glint timing
+  const _tmpVec = useMemo(() => new THREE.Vector3(), []);
   const glintData = useMemo(() => {
-    const phase = new Float32Array(count);
-    const period = new Float32Array(count);
-    for (let i = 0; i < count; i++) {
+    const c = mobile ? INFO_COUNT_MOBILE : INFO_COUNT_DESKTOP;
+    const phase = new Float32Array(c);
+    const period = new Float32Array(c);
+    for (let i = 0; i < c; i++) {
       phase[i] = Math.random() * 100;
       period[i] = 3 + Math.random() * 8;
     }
     return { phase, period };
-  }, [count]);
+  }, [mobile]);
+  const count = mobile ? INFO_COUNT_MOBILE : INFO_COUNT_DESKTOP;
 
-  // Spindle geometry: elongated diamond (octahedron stretched along Z)
-  const spindleGeo = useMemo(() => {
-    const segments = 10; // length segments for smooth taper
-    const radialSegs = 5; // pentagon cross-section
-    const verts: number[] = [];
-    const idxs: number[] = [];
-
-    // Front tip
-    verts.push(0, 0, -0.5);
-    // Rings along length
-    for (let s = 1; s < segments; s++) {
-      const t = s / segments; // 0..1
-      const z = -0.5 + t; // -0.5 to +0.5
-      const r = Math.sin(t * Math.PI); // 0→1→0 spindle profile
-      for (let r2 = 0; r2 < radialSegs; r2++) {
-        const angle = (r2 / radialSegs) * Math.PI * 2;
-        verts.push(Math.cos(angle) * r, Math.sin(angle) * r, z);
-      }
-    }
-    // Back tip
-    const backIdx = verts.length / 3;
-    verts.push(0, 0, 0.5);
-
-    // Triangles: front tip to first ring
-    for (let r2 = 0; r2 < radialSegs; r2++) {
-      const a = 1 + r2;
-      const b = 1 + (r2 + 1) % radialSegs;
-      idxs.push(0, a, b);
-    }
-    // Ring-to-ring quads
-    for (let s = 1; s < segments - 1; s++) {
-      const ringA = 1 + (s - 1) * radialSegs;
-      const ringB = 1 + s * radialSegs;
-      for (let r2 = 0; r2 < radialSegs; r2++) {
-        const a0 = ringA + r2;
-        const a1 = ringA + (r2 + 1) % radialSegs;
-        const b0 = ringB + r2;
-        const b1 = ringB + (r2 + 1) % radialSegs;
-        idxs.push(a0, b0, b1);
-        idxs.push(a0, b1, a1);
-      }
-    }
-    // Last ring to back tip
-    const lastRing = 1 + (segments - 2) * radialSegs;
-    for (let r2 = 0; r2 < radialSegs; r2++) {
-      const a = lastRing + r2;
-      const b = lastRing + (r2 + 1) % radialSegs;
-      idxs.push(a, backIdx, b);
-    }
-
-    const geo = new THREE.BufferGeometry();
-    geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(verts), 3));
-    geo.setIndex(idxs);
-    geo.computeVertexNormals();
-    return geo;
-  }, []);
-
-  // Material: additive blending, semi-transparent
-  const spindleMat = useMemo(() => new THREE.MeshBasicMaterial({
-    transparent: true,
-    opacity: 0.85,
-    depthWrite: false,
-    blending: THREE.AdditiveBlending,
-    side: THREE.DoubleSide,
-  }), []);
-
-  // Pre-compute cumulative weight table for size-biased rock selection
   const weightTable = useMemo(() => {
     const w = new Float32Array(physics.count);
     let sum = 0;
@@ -222,6 +150,8 @@ function InfoExchange({ physics, mobile = false }: { physics: RockPhysics; mobil
   };
 
   const data = useMemo(() => {
+    const lp = new Float32Array(count * 6);
+    const lc = new Float32Array(count * 8);
     const alive = new Uint8Array(count);
     const progress = new Float32Array(count);
     const sourceRock = new Int32Array(count).fill(-1);
@@ -229,37 +159,29 @@ function InfoExchange({ physics, mobile = false }: { physics: RockPhysics; mobil
     const travelTime = new Float32Array(count);
     const age = new Float32Array(count);
     const curveOffset = new Float32Array(count * 2);
-    return { alive, progress, sourceRock, targetRock, travelTime, age, curveOffset };
+
+    for (let i = 0; i < count; i++) {
+      lp[i * 6 + 1] = -9999;
+      lp[i * 6 + 4] = -9999;
+    }
+
+    return {
+      linePos: lp, lineCol: lc,
+      alive, progress, sourceRock, targetRock, travelTime, age, curveOffset,
+    };
   }, [count]);
 
-  // Droplet system: leading + trailing particles per beam
-  const DROPS_PER_BEAM = 8; // 4 leading, 4 trailing
-  const totalDrops = count * DROPS_PER_BEAM;
-  const dropData = useMemo(() => {
-    const pos = new Float32Array(totalDrops * 3);
-    const col = new Float32Array(totalDrops * 4);
-    const sizes = new Float32Array(totalDrops);
-    for (let i = 0; i < totalDrops; i++) {
-      pos[i * 3 + 1] = -9999;
-      sizes[i] = 0;
-    }
-    return { pos, col, sizes };
-  }, [totalDrops]);
-
-  // Drop offsets: how far ahead/behind each droplet sits relative to beam center
-  const dropOffsets = useMemo(() => {
-    // Leading: +0.03, +0.06, +0.10, +0.15 | Trailing: -0.03, -0.06, -0.10, -0.15
-    return [-0.15, -0.10, -0.06, -0.03, 0.03, 0.06, 0.10, 0.15];
-  }, []);
-
   useFrame(({ clock }, dt) => {
-    const mesh = meshRef.current;
-    if (!mesh) return;
+    if (!linesRef.current) return;
 
     const {
+      linePos: lp, lineCol: lc,
       alive, progress: prog, sourceRock: src, targetRock: tgt,
       travelTime: tt, age, curveOffset: curve,
     } = data;
+
+    const lAttr = linesRef.current.geometry.attributes.position as THREE.BufferAttribute;
+    const lcAttr = linesRef.current.geometry.attributes.color as THREE.BufferAttribute;
 
     const cam = camera.position;
     const pp = physics.positions;
@@ -269,22 +191,14 @@ function InfoExchange({ physics, mobile = false }: { physics: RockPhysics; mobil
     const clampDt = Math.min(dt, 0.033);
     const elapsed = clock.elapsedTime;
 
-    // Ensure instanceColor exists
-    if (!mesh.instanceColor) {
-      const colArr = new Float32Array(count * 3);
-      mesh.instanceColor = new THREE.InstancedBufferAttribute(colArr, 3);
-    }
-    const colors = mesh.instanceColor.array as Float32Array;
-
     for (let i = 0; i < count; i++) {
-      // Spawn new packet
+      const i6 = i * 6;
+      const i8 = i * 8;
+
       if (!alive[i]) {
         if (Math.random() > 0.06) {
-          _obj.position.set(0, -9999, 0);
-          _obj.scale.set(0, 0, 0);
-          _obj.updateMatrix();
-          mesh.setMatrixAt(i, _obj.matrix);
-          colors[i * 3] = 0; colors[i * 3 + 1] = 0; colors[i * 3 + 2] = 0;
+          lp[i6 + 1] = -9999; lp[i6 + 4] = -9999;
+          lc[i8 + 3] = 0; lc[i8 + 7] = 0;
           continue;
         }
 
@@ -298,24 +212,16 @@ function InfoExchange({ physics, mobile = false }: { physics: RockPhysics; mobil
             const cand = Math.floor(Math.random() * physics.count);
             if (cand === big || physics.radii[cand] >= bR * 0.85) continue;
             const cx3 = cand * 3, bx3 = big * 3;
-            const ddx = pp[cx3] - pp[bx3], ddy = pp[cx3 + 1] - pp[bx3 + 1], ddz = pp[cx3 + 2] - pp[bx3 + 2];
-            const d = Math.sqrt(ddx * ddx + ddy * ddy + ddz * ddz);
+            const ddx = pp[cx3] - pp[bx3], ddy = pp[cx3+1] - pp[bx3+1], ddz = pp[cx3+2] - pp[bx3+2];
+            const d = Math.sqrt(ddx*ddx + ddy*ddy + ddz*ddz);
             if (d > 5 && d < 80) { found = cand; break; }
           }
-          if (found < 0) {
-            _obj.position.set(0, -9999, 0); _obj.scale.set(0, 0, 0);
-            _obj.updateMatrix(); mesh.setMatrixAt(i, _obj.matrix);
-            continue;
-          }
+          if (found < 0) continue;
           s = big; t = found;
         } else {
           s = pickRockUniform();
           const larger = findLargerNeighbour(s, 80);
-          if (larger < 0) {
-            _obj.position.set(0, -9999, 0); _obj.scale.set(0, 0, 0);
-            _obj.updateMatrix(); mesh.setMatrixAt(i, _obj.matrix);
-            continue;
-          }
+          if (larger < 0) continue;
           t = larger;
         }
         const sx3 = s * 3;
@@ -340,6 +246,13 @@ function InfoExchange({ physics, mobile = false }: { physics: RockPhysics; mobil
 
         curve[i * 2] = (Math.random() - 0.5) * 6;
         curve[i * 2 + 1] = 2 + Math.random() * 5;
+
+        lp[i6] = pp[sx3];
+        lp[i6 + 1] = pp[sx3 + 1];
+        lp[i6 + 2] = pp[sx3 + 2];
+        lp[i6 + 3] = pp[sx3];
+        lp[i6 + 4] = pp[sx3 + 1];
+        lp[i6 + 5] = pp[sx3 + 2];
       }
 
       age[i] += clampDt;
@@ -358,31 +271,26 @@ function InfoExchange({ physics, mobile = false }: { physics: RockPhysics; mobil
       const py = inv * inv * pp[s3 + 1] + 2 * inv * t01 * my + t01 * t01 * pp[t3 + 1];
       const pz = inv * inv * pp[s3 + 2] + 2 * inv * t01 * mz + t01 * t01 * pp[t3 + 2];
 
-      // Velocity = bezier derivative
       const dvx = 2 * (inv * (mx - pp[s3]) + t01 * (pp[t3] - mx));
       const dvy = 2 * (inv * (my - pp[s3 + 1]) + t01 * (pp[t3 + 1] - my));
       const dvz = 2 * (inv * (mz - pp[s3 + 2]) + t01 * (pp[t3 + 2] - mz));
       const spd = Math.sqrt(dvx * dvx + dvy * dvy + dvz * dvz) + 0.01;
 
-      // Spindle dimensions
-      const beamLength = Math.min(18, spd * 0.35); // long streaks
-      const widthCurve = Math.sin(t01 * Math.PI); // 0→1→0
-      const beamWidth = 0.008 * widthCurve + 0.001; // ultra-slim futuristic filaments
+      const streakLen = Math.min(13, spd * 0.16);
+      lp[i6] = px;
+      lp[i6 + 1] = py;
+      lp[i6 + 2] = pz;
+      lp[i6 + 3] = px - (dvx / spd) * streakLen;
+      lp[i6 + 4] = py - (dvy / spd) * streakLen;
+      lp[i6 + 5] = pz - (dvz / spd) * streakLen;
 
-      // Orient along velocity
-      _lookTarget.set(px + dvx / spd, py + dvy / spd, pz + dvz / spd);
-      _obj.position.set(px, py, pz);
-      _obj.lookAt(_lookTarget);
-      _obj.scale.set(beamWidth, beamWidth, beamLength);
-      _obj.updateMatrix();
-      mesh.setMatrixAt(i, _obj.matrix);
-
-      // ── Color logic ──
       const edgeFade = Math.min(t01 * 5, (1 - t01) * 5, 1);
-      const cdx = px - cam.x, cdy = py - cam.y, cdz = pz - cam.z;
+
+      const cdx = px - cam.x;
+      const cdy = py - cam.y;
+      const cdz = pz - cam.z;
       const dist = Math.sqrt(cdx * cdx + cdy * cdy + cdz * cdz);
 
-      // Sunlight specular
       const nx = dvx / spd, ny = dvy / spd, nz = dvz / spd;
       const vdx = cam.x - px, vdy = cam.y - py, vdz = cam.z - pz;
       const vdLen = Math.sqrt(vdx * vdx + vdy * vdy + vdz * vdz) + 0.001;
@@ -393,7 +301,6 @@ function InfoExchange({ physics, mobile = false }: { physics: RockPhysics; mobil
       const dotTH = Math.abs(nx * hx / hLen + ny * hy / hLen + nz * hz / hLen);
       const specular = Math.pow(1 - dotTH, 4);
 
-      // Glint
       const glintPhase = (elapsed + glintData.phase[i]) % glintData.period[i];
       const glintStrength = glintPhase < 0.12
         ? Math.pow(Math.sin(glintPhase / 0.12 * Math.PI), 2) * 2.5
@@ -402,28 +309,38 @@ function InfoExchange({ physics, mobile = false }: { physics: RockPhysics; mobil
       const sunBoost = 1 + specular * 1.8 + glintStrength;
       const reflectMix = Math.min(specular * 2 + glintStrength * 0.5, 1);
 
-      // Brightness based on distance + edge fade
-      let brightness: number;
       if (dist < 12) {
-        brightness = (0.35 + (dist / 12) * 0.25) * edgeFade * sunBoost;
+        const td = dist / 12;
+        lc[i8]     = reflectMix * 0.96;
+        lc[i8 + 1] = 0.74 + reflectMix * (0.72 - 0.74);
+        lc[i8 + 2] = 0.83 * (1 - reflectMix);
+        lc[i8 + 4] = reflectMix * 0.85;
+        lc[i8 + 5] = 0.6 + reflectMix * 0.1;
+        lc[i8 + 6] = 0.7 * (1 - reflectMix);
+        lc[i8 + 3] = Math.min((0.35 + td * 0.25) * edgeFade * sunBoost, 1);
+        lc[i8 + 7] = 0.06 * edgeFade * sunBoost;
       } else if (dist < 70) {
-        brightness = (0.3 + Math.random() * 0.15) * edgeFade * sunBoost;
+        const a = Math.min((0.3 + Math.random() * 0.15) * edgeFade * sunBoost, 1);
+        lc[i8]     = reflectMix * 0.96;
+        lc[i8 + 1] = 0.74 + reflectMix * (0.72 - 0.74);
+        lc[i8 + 2] = 0.83 * (1 - reflectMix);
+        lc[i8 + 4] = reflectMix * 0.8;
+        lc[i8 + 5] = 0.55 + reflectMix * 0.15;
+        lc[i8 + 6] = 0.65 * (1 - reflectMix);
+        lc[i8 + 3] = a;
+        lc[i8 + 7] = a * 0.2;
       } else {
         const td = Math.min((dist - 70) / 80, 1);
-        brightness = 0.2 * (1 - td) * edgeFade * sunBoost;
+        lc[i8]     = reflectMix * 0.7;
+        lc[i8 + 1] = 0.5 + reflectMix * 0.2;
+        lc[i8 + 2] = 0.6 * (1 - reflectMix);
+        lc[i8 + 4] = reflectMix * 0.5;
+        lc[i8 + 5] = 0.4 + reflectMix * 0.15;
+        lc[i8 + 6] = 0.5 * (1 - reflectMix);
+        lc[i8 + 3] = Math.min(0.2 * (1 - td) * edgeFade * sunBoost, 1);
+        lc[i8 + 7] = 0;
       }
-      brightness = Math.min(brightness, 1.2);
 
-      // Cyan (#00bcd4) → Gold (#f5b800) on reflection
-      const r = reflectMix * 0.96;
-      const g = 0.74 + reflectMix * (0.72 - 0.74);
-      const b = 0.83 * (1 - reflectMix);
-
-      colors[i * 3] = r * brightness;
-      colors[i * 3 + 1] = g * brightness;
-      colors[i * 3 + 2] = b * brightness;
-
-      // Trigger blink on arrival
       if (prog[i] >= 1) {
         if (tgt[i] >= 0 && tgt[i] < n) {
           physics.infoBlink[tgt[i]] = 1.0;
@@ -431,98 +348,26 @@ function InfoExchange({ physics, mobile = false }: { physics: RockPhysics; mobil
         }
         alive[i] = 0;
       }
-      // ── Compute droplet positions for this beam ──
-      const dPos = dropData.pos;
-      const dCol = dropData.col;
-      const dSiz = dropData.sizes;
-      for (let d = 0; d < DROPS_PER_BEAM; d++) {
-        const di = (i * DROPS_PER_BEAM + d);
-        const di3 = di * 3;
-        const di4 = di * 4;
-        const dropT = Math.max(0, Math.min(1, t01 + dropOffsets[d]));
-
-        // If droplet is outside [0,1] range, hide it
-        if (t01 + dropOffsets[d] < 0 || t01 + dropOffsets[d] > 1) {
-          dPos[di3 + 1] = -9999;
-          dCol[di4 + 3] = 0;
-          dSiz[di] = 0;
-          continue;
-        }
-
-        // Evaluate bezier at dropT
-        const dInv = 1 - dropT;
-        const dpx = dInv * dInv * pp[s3] + 2 * dInv * dropT * mx + dropT * dropT * pp[t3];
-        const dpy = dInv * dInv * pp[s3 + 1] + 2 * dInv * dropT * my + dropT * dropT * pp[t3 + 1];
-        const dpz = dInv * dInv * pp[s3 + 2] + 2 * dInv * dropT * mz + dropT * dropT * pp[t3 + 2];
-
-        dPos[di3] = dpx;
-        dPos[di3 + 1] = dpy;
-        dPos[di3 + 2] = dpz;
-
-        // Size: smaller the further from beam center, creating a tapering droplet trail
-        const distFromCenter = Math.abs(dropOffsets[d]);
-        const dropSize = (0.15 - distFromCenter) * 1.8; // larger near beam, tiny far away
-        dSiz[di] = Math.max(0.02, dropSize);
-
-        // Color: same as beam but dimmer and with fade
-        const dropFade = 1 - distFromCenter / 0.16;
-        dCol[di4] = r * brightness * 0.7;
-        dCol[di4 + 1] = g * brightness * 0.7;
-        dCol[di4 + 2] = b * brightness * 0.7;
-        dCol[di4 + 3] = dropFade * 0.5 * edgeFade;
-      }
     }
 
-    // Hide droplets for dead beams
-    for (let i = 0; i < count; i++) {
-      if (!alive[i]) {
-        for (let d = 0; d < DROPS_PER_BEAM; d++) {
-          const di = i * DROPS_PER_BEAM + d;
-          dropData.pos[di * 3 + 1] = -9999;
-          dropData.col[di * 4 + 3] = 0;
-          dropData.sizes[di] = 0;
-        }
-      }
-    }
-
-    // Decay infoBlink
     for (let r = 0; r < n; r++) {
       if (physics.infoBlink[r] > 0) {
         physics.infoBlink[r] = Math.max(0, physics.infoBlink[r] - clampDt * 3);
       }
     }
 
-    mesh.instanceMatrix.needsUpdate = true;
-    if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
-
-    // Update droplet geometry
-    if (dropsRef.current) {
-      const dGeom = dropsRef.current.geometry;
-      (dGeom.attributes.position as THREE.BufferAttribute).needsUpdate = true;
-      (dGeom.attributes.color as THREE.BufferAttribute).needsUpdate = true;
-      (dGeom.attributes.size as THREE.BufferAttribute).needsUpdate = true;
-    }
+    lAttr.needsUpdate = true;
+    lcAttr.needsUpdate = true;
   });
 
   return (
-    <group>
-      <instancedMesh ref={meshRef} args={[spindleGeo, spindleMat, count]} frustumCulled={false} />
-      <points ref={dropsRef} frustumCulled={false}>
-        <bufferGeometry>
-          <bufferAttribute attach="attributes-position" args={[dropData.pos, 3]} />
-          <bufferAttribute attach="attributes-color" args={[dropData.col, 4]} />
-          <bufferAttribute attach="attributes-size" args={[dropData.sizes, 1]} />
-        </bufferGeometry>
-        <pointsMaterial
-          vertexColors
-          transparent
-          depthWrite={false}
-          blending={THREE.AdditiveBlending}
-          sizeAttenuation
-          size={0.15}
-        />
-      </points>
-    </group>
+    <lineSegments ref={linesRef} frustumCulled={false}>
+      <bufferGeometry>
+        <bufferAttribute attach="attributes-position" args={[data.linePos, 3]} />
+        <bufferAttribute attach="attributes-color" args={[data.lineCol, 4]} />
+      </bufferGeometry>
+      <lineBasicMaterial vertexColors transparent depthWrite={false} blending={THREE.AdditiveBlending} />
+    </lineSegments>
   );
 }
 
