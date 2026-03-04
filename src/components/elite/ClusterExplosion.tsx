@@ -146,12 +146,13 @@ export function ClusterExplosion({ physics }: { physics: RockPhysics }) {
         for (let k = 0; k < fragsPerRock; k++) {
           const angle = Math.random() * Math.PI * 2;
           // Radial + random lateral speed
-          const radialBias = 2 + Math.random() * 4;
-          const lateralRand = (Math.random() - 0.5) * 3;
+          const radialBias = 1.5 + Math.random() * 2.5;
+          const lateralRand = (Math.random() - 0.5) * 2;
           const vx = (dirX / dirLen) * radialBias + Math.cos(angle) * lateralRand;
           const vz = (dirZ / dirLen) * radialBias + Math.sin(angle) * lateralRand;
-          // Launch both up and down randomly
-          const vy = (Math.random() - 0.4) * 12;
+          // Strict 50/50 up/down split
+          const upward = k % 2 === 0;
+          const vy = (upward ? 1 : -1) * (3 + Math.random() * 5);
 
           fragments.current.push({
             x: rx + (Math.random() - 0.5) * baseRadius,
