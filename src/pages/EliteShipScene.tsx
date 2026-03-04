@@ -372,9 +372,19 @@ function InfoExchange({ physics, mobile = false }: { physics: RockPhysics; mobil
         lc[i8 + 7] = 0;
       }
 
-      // Kill when arrived
+      // Trigger yellow blink on target rock when packet arrives
       if (prog[i] >= 1) {
+        if (tgt[i] >= 0 && tgt[i] < n) {
+          physics.infoBlink[tgt[i]] = 1.0;
+        }
         alive[i] = 0;
+      }
+    }
+
+    // Decay infoBlink for all rocks
+    for (let r = 0; r < n; r++) {
+      if (physics.infoBlink[r] > 0) {
+        physics.infoBlink[r] = Math.max(0, physics.infoBlink[r] - clampDt * 3);
       }
     }
 

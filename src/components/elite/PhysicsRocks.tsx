@@ -42,6 +42,7 @@ export interface RockPhysics {
   seeds: Int32Array;
   count: number;
   blinkMap: Float32Array;    // 0 = normal, >0 = blink progress (0..1) for pre-explosion warning
+  infoBlink: Float32Array;   // 0 = normal, >0 = yellow info-arrival flash (decays over time)
 }
 
 export function createRockPhysics(
@@ -71,8 +72,9 @@ export function createRockPhysics(
   }
 
   const blinkMap = new Float32Array(n);
+  const infoBlink = new Float32Array(n);
 
-  return { positions, velocities, radii, masses, rotSpeeds, rotations, seeds, count: n, blinkMap };
+  return { positions, velocities, radii, masses, rotSpeeds, rotations, seeds, count: n, blinkMap, infoBlink };
 }
 
 const G = 0.25;           // stronger gravity to keep cluster together
@@ -240,6 +242,12 @@ export function DynamicRock({ index, physics, mobile = false }: { index: number;
         // Shrink the rock as it approaches explosion
         const shrink = 1 - blink * 0.7;
         ref.current.scale.setScalar(shrink);
+      } else if (physics.infoBlink[index] > 0.01) {
+        // Yellow flash from info packet arrival
+        const ib = physics.infoBlink[index];
+        lineMatRef.current.color.set('#ffdd44');
+        lineMatRef.current.opacity = ib * 0.9;
+        ref.current.scale.setScalar(1);
       } else {
         // Normal green wireframe
         ref.current.scale.setScalar(1);
