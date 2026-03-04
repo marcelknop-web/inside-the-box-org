@@ -11,8 +11,6 @@ const WARN_DURATION = 4;
 const FRAGMENT_COUNT = 8;            // fewer, cleaner fragments per rock
 const FRAGMENT_LIFETIME = 35;
 
-// Earth gravity ~9.81 m/s²
-const GRAVITY = -9.81;
 const ANGULAR_DAMPING = 0.999;
 
 interface Fragment {
@@ -126,6 +124,10 @@ export function ClusterExplosion({ physics }: { physics: RockPhysics }) {
       const rx = physics.positions[idx * 3];
       const ry = physics.positions[idx * 3 + 1];
       const rz = physics.positions[idx * 3 + 2];
+      // Inherit parent rock's velocity (Newton: conservation of momentum)
+      const pvx = physics.velocities[idx * 3];
+      const pvy = physics.velocities[idx * 3 + 1];
+      const pvz = physics.velocities[idx * 3 + 2];
       const baseRadius = physics.radii[idx];
 
       // Varied fragment count per explosion (5-10)
@@ -134,11 +136,12 @@ export function ClusterExplosion({ physics }: { physics: RockPhysics }) {
       for (let k = 0; k < fragCount; k++) {
         const angle = Math.random() * Math.PI * 2;
         const elevation = (Math.random() - 0.5) * Math.PI;
-        // Varied ejection speed — some lazy, some fast
+        // Ejection speed in rock's rest frame
         const speed = 1.5 + Math.random() * 4;
-        const vx = Math.cos(angle) * Math.cos(elevation) * speed;
-        const vz = Math.sin(angle) * Math.cos(elevation) * speed;
-        const vy = Math.sin(elevation) * speed + (Math.random() - 0.5) * 2;
+        // Fragment velocity = parent velocity + ejection impulse (Newton)
+        const vx = pvx + Math.cos(angle) * Math.cos(elevation) * speed;
+        const vz = pvz + Math.sin(angle) * Math.cos(elevation) * speed;
+        const vy = pvy + Math.sin(elevation) * speed;
 
         fragments.current.push({
           x: rx + (Math.random() - 0.5) * baseRadius * 0.6,
@@ -161,16 +164,14 @@ export function ClusterExplosion({ physics }: { physics: RockPhysics }) {
       setTick(t => t + 1);
     }
 
-    // Update fragments — earth gravity pulls them down
+    // Update fragments — no gravity in space, pure Newtonian drift
     let needsRender = false;
     for (const f of fragments.current) {
       if (!f.alive) continue;
       f.age += clampDt;
       if (f.age > FRAGMENT_LIFETIME) { f.alive = false; needsRender = true; continue; }
 
-      // Apply gravity to vertical velocity
-      f.vy += GRAVITY * clampDt;
-
+      // Pure inertial motion (Newton's first law)
       f.x += f.vx * clampDt;
       f.y += f.vy * clampDt;
       f.z += f.vz * clampDt;
