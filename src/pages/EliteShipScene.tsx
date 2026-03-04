@@ -735,6 +735,15 @@ function ShootingStars() {
   const nextSpawn = useRef(2 + Math.random() * 4);
   const meshRefs = useRef<(THREE.Mesh | null)[]>([]);
 
+  // Reusable vectors to avoid per-frame allocations
+  const _toCamera = useMemo(() => new THREE.Vector3(), []);
+  const _up = useMemo(() => new THREE.Vector3(), []);
+  const _camDir = useMemo(() => new THREE.Vector3(), []);
+  const _camRight = useMemo(() => new THREE.Vector3(), []);
+  const _headPos = useMemo(() => new THREE.Vector3(), []);
+  const _perpDir = useMemo(() => new THREE.Vector3(), []);
+  const _trailPos = useMemo(() => new THREE.Vector3(), []);
+
   useMemo(() => {
     starsRef.current = [];
     for (let i = 0; i < MAX_SHOOTING_STARS; i++) {
@@ -750,8 +759,7 @@ function ShootingStars() {
   const trailGeos = useMemo(() => {
     return Array.from({ length: MAX_SHOOTING_STARS }, () => {
       const geo = new THREE.BufferGeometry();
-      // 2 triangles per segment forming a ribbon
-      const verts = new Float32Array(METEOR_SEGMENTS * 6); // 2 verts * 3 coords per segment
+      const verts = new Float32Array(METEOR_SEGMENTS * 6);
       const alphas = new Float32Array(METEOR_SEGMENTS * 2);
       const indices: number[] = [];
       for (let j = 0; j < METEOR_SEGMENTS - 1; j++) {
@@ -803,11 +811,11 @@ function ShootingStars() {
           r * Math.sin(phi) * Math.sin(theta) + camera.position.y,
           r * Math.cos(phi) + camera.position.z
         );
-        const toCamera = new THREE.Vector3().subVectors(camera.position, slot.origin).normalize();
+        _toCamera.subVectors(camera.position, slot.origin).normalize();
         slot.direction.set(
-          toCamera.x + (Math.random() - 0.5) * 0.7,
-          toCamera.y + (Math.random() - 0.5) * 0.4,
-          toCamera.z + (Math.random() - 0.5) * 0.7
+          _toCamera.x + (Math.random() - 0.5) * 0.7,
+          _toCamera.y + (Math.random() - 0.5) * 0.4,
+          _toCamera.z + (Math.random() - 0.5) * 0.7
         ).normalize();
         slot.speed = 20 + Math.random() * 35;
         slot.length = 6 + Math.random() * 18;
@@ -819,11 +827,9 @@ function ShootingStars() {
       nextSpawn.current = 8 + Math.random() * 20;
     }
 
-    const up = camera.up.clone().normalize();
-    const camRight = new THREE.Vector3().crossVectors(
-      new THREE.Vector3().subVectors(camera.position, new THREE.Vector3()).normalize(),
-      up
-    ).normalize();
+    _up.copy(camera.up).normalize();
+    _camDir.copy(camera.position).normalize();
+    _camRight.crossVectors(_camDir, _up).normalize();
 
     for (let si = 0; si < MAX_SHOOTING_STARS; si++) {
       const star = starsRef.current[si];
@@ -841,8 +847,8 @@ function ShootingStars() {
         : progress < 0.5 ? 1.0
         : 1.0 - (progress - 0.5) / 0.5;
 
-      const headPos = star.origin.clone().addScaledVector(star.direction, elapsed * star.speed);
-      const perpDir = new THREE.Vector3().crossVectors(star.direction, camRight).normalize();
+      _headPos.copy(star.origin).addScaledVector(star.direction, elapsed * star.speed);
+      _perpDir.crossVectors(star.direction, _camRight).normalize();
 
       const posAttr = trailGeos[si].attributes.position as THREE.BufferAttribute;
       const alphaAttr = trailGeos[si].attributes.alpha as THREE.BufferAttribute;
@@ -851,17 +857,16 @@ function ShootingStars() {
 
       for (let j = 0; j < METEOR_SEGMENTS; j++) {
         const frac = j / (METEOR_SEGMENTS - 1);
-        const trailPos = headPos.clone().addScaledVector(star.direction, -frac * star.length);
-        const width = (1 - frac) * 0.3 * star.brightness; // tapers to zero
+        _trailPos.copy(_headPos).addScaledVector(star.direction, -frac * star.length);
+        const width = (1 - frac) * 0.3 * star.brightness;
         const a = masterAlpha * star.brightness * Math.pow(1 - frac, 2.0);
 
-        // Two vertices forming ribbon width
-        pos[j * 6] = trailPos.x + perpDir.x * width;
-        pos[j * 6 + 1] = trailPos.y + perpDir.y * width;
-        pos[j * 6 + 2] = trailPos.z + perpDir.z * width;
-        pos[j * 6 + 3] = trailPos.x - perpDir.x * width;
-        pos[j * 6 + 4] = trailPos.y - perpDir.y * width;
-        pos[j * 6 + 5] = trailPos.z - perpDir.z * width;
+        pos[j * 6] = _trailPos.x + _perpDir.x * width;
+        pos[j * 6 + 1] = _trailPos.y + _perpDir.y * width;
+        pos[j * 6 + 2] = _trailPos.z + _perpDir.z * width;
+        pos[j * 6 + 3] = _trailPos.x - _perpDir.x * width;
+        pos[j * 6 + 4] = _trailPos.y - _perpDir.y * width;
+        pos[j * 6 + 5] = _trailPos.z - _perpDir.z * width;
         alp[j * 2] = a;
         alp[j * 2 + 1] = a;
       }
@@ -900,6 +905,17 @@ function CockpitCamera({ physics, audioRef, mobile = false }: { physics: RockPhy
   const smoothBank = useRef(0);
   const smoothInversion = useRef(0);
 
+  // Reusable objects to avoid per-frame allocations
+  const _targetPos = useMemo(() => new THREE.Vector3(), []);
+  const _tangent = useMemo(() => new THREE.Vector3(), []);
+  const _up = useMemo(() => new THREE.Vector3(0, 1, 0), []);
+  const _lookTarget = useMemo(() => new THREE.Vector3(), []);
+  const _lookMatrix = useMemo(() => new THREE.Matrix4(), []);
+  const _targetQuat = useMemo(() => new THREE.Quaternion(), []);
+  const _rollQuat = useMemo(() => new THREE.Quaternion(), []);
+  const _rollAxis = useMemo(() => new THREE.Vector3(0, 0, 1), []);
+  const _cross = useMemo(() => new THREE.Vector3(), []);
+
   useFrame((_, dt) => {
     const clampDt = Math.min(dt, 0.033);
     elapsed.current += clampDt;
@@ -932,7 +948,7 @@ function CockpitCamera({ physics, audioRef, mobile = false }: { physics: RockPhy
       Math.cos(t * 0.008) * 2.0;
 
     const desiredAlt = CRUISE_ALT + altDrift + sa * 0.5;
-    const targetPos = new THREE.Vector3(pathX, desiredAlt, pathZ);
+    _targetPos.set(pathX, desiredAlt, pathZ);
 
     const dxdt = Math.cos(phase) * rx * baseSpeed;
     const dzdt = -Math.sin(phase) * rz * baseSpeed;
@@ -940,26 +956,24 @@ function CockpitCamera({ physics, audioRef, mobile = false }: { physics: RockPhy
       Math.cos(t * 0.035) * 0.035 * 4.0 +
       Math.cos(t * 0.08 + 2.1) * 0.08 * 2.5 +
       -Math.sin(t * 0.019) * 0.019 * 3.0;
-    const tangent = new THREE.Vector3(dxdt, dydt, dzdt).normalize();
+    _tangent.set(dxdt, dydt, dzdt).normalize();
 
-    const cross = prevTangentRef.current.clone().cross(tangent);
-    const rawBank = Math.atan2(cross.y, 1) * 0.4;
+    _cross.copy(prevTangentRef.current).cross(_tangent);
+    const rawBank = Math.atan2(_cross.y, 1) * 0.4;
     smoothBank.current += (rawBank - smoothBank.current) * 0.02;
-    prevTangentRef.current.copy(tangent);
+    prevTangentRef.current.copy(_tangent);
 
-    const up = new THREE.Vector3(0, 1, 0);
-    const lookTarget = targetPos.clone().add(tangent.clone().multiplyScalar(10));
-    const lookMatrix = new THREE.Matrix4().lookAt(targetPos, lookTarget, up);
-    const targetQuat = new THREE.Quaternion().setFromRotationMatrix(lookMatrix);
+    _up.set(0, 1, 0);
+    _lookTarget.copy(_targetPos).addScaledVector(_tangent, 10);
+    _lookMatrix.lookAt(_targetPos, _lookTarget, _up);
+    _targetQuat.setFromRotationMatrix(_lookMatrix);
 
     const totalRoll = smoothBank.current + smoothInversion.current;
-    const rollQuat = new THREE.Quaternion().setFromAxisAngle(
-      new THREE.Vector3(0, 0, 1), -totalRoll
-    );
-    targetQuat.multiply(rollQuat);
+    _rollQuat.setFromAxisAngle(_rollAxis, -totalRoll);
+    _targetQuat.multiply(_rollQuat);
 
-    smoothPos.current.lerp(targetPos, 0.02);
-    smoothQuat.current.slerp(targetQuat, 0.025);
+    smoothPos.current.lerp(_targetPos, 0.02);
+    smoothQuat.current.slerp(_targetQuat, 0.025);
 
     camera.position.copy(smoothPos.current);
     camera.quaternion.copy(smoothQuat.current);

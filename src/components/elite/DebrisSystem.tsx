@@ -1,8 +1,8 @@
 import React, { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import { ConvexGeometry } from 'three/addons/geometries/ConvexGeometry.js';
 import type { RockPhysics } from './PhysicsRocks';
+import { buildShard } from './shardGeometry';
 
 const LINE_COLOR = '#00ffaa';
 const MAX_DEBRIS = 120;
@@ -19,30 +19,7 @@ interface Debris {
   alive: boolean;
 }
 
-/* ── Build a solid shard geometry ── */
-function buildShard(seed: number, radius: number): { geo: THREE.BufferGeometry; edges: Float32Array } {
-  const rng = (i: number) => {
-    let x = Math.sin(seed * 7919 + i * 104729 + 0.3) * 104729;
-    return x - Math.floor(x);
-  };
-  const numVerts = 5 + Math.floor(rng(0) * 4);
-  const verts: THREE.Vector3[] = [];
-  for (let i = 0; i < numVerts; i++) {
-    const y = 1 - (i / (numVerts - 1)) * 2;
-    const ry = Math.sqrt(1 - y * y);
-    const theta = (2 * Math.PI * i) / 1.618033988749895 + rng(i + 10) * 1.2;
-    const r = radius * (0.5 + rng(i + 30) * 0.5);
-    verts.push(new THREE.Vector3(
-      Math.cos(theta) * ry * r, y * r * (0.4 + rng(i + 50) * 0.6), Math.sin(theta) * ry * r
-    ));
-  }
-  const geo = new ConvexGeometry(verts);
-  geo.computeVertexNormals();
-  const edgesGeo = new THREE.EdgesGeometry(geo, 1);
-  const arr = new Float32Array(edgesGeo.attributes.position.array);
-  edgesGeo.dispose();
-  return { geo, edges: arr };
-}
+/* buildShard imported from shardGeometry.ts */
 
 /* ── Single debris shard visual ── */
 function DebrisShard({ debris }: { debris: Debris }) {
