@@ -861,11 +861,26 @@ function ShootingStars() {
 /* ── Airplane-style camera: smooth circuits over the field ── */
 function CockpitCamera({ physics, audioRef, mobile = false }: { physics: RockPhysics; audioRef: React.MutableRefObject<AudioAnalysis>; mobile?: boolean }) {
   const { camera } = useThree();
-  const smoothPos = useRef(new THREE.Vector3(0, -2, 0));
+  const startPhase = useMemo(() => Math.random() * 5000, []);
+  const CRUISE_ALT_VAL = mobile ? -7.0 : -5.5;
+  // Compute initial position from the random phase
+  const initPos = useMemo(() => {
+    const t = startPhase;
+    const baseSpeed = 0.004;
+    const phase = t * baseSpeed;
+    const rxVal = mobile ? 50 : 80;
+    const rzVal = mobile ? 35 : 55;
+    const px = Math.sin(phase) * rxVal;
+    const alt = CRUISE_ALT_VAL + Math.sin(t * 0.012) * 2.5 + Math.sin(t * 0.03 + 2.1) * 1.5 + Math.cos(t * 0.008) * 2.0;
+    const pz = Math.cos(phase) * rzVal;
+    return new THREE.Vector3(px, alt, pz);
+  }, [startPhase, mobile, CRUISE_ALT_VAL]);
+  const smoothPos = useRef(initPos.clone());
   const smoothQuat = useRef(new THREE.Quaternion());
   const smoothedAmplitude = useRef(0);
   const smoothedBass = useRef(0);
-  const elapsed = useRef(Math.random() * 5000); // random start phase for unique view
+  const elapsed = useRef(startPhase);
+  const firstFrame = useRef(true);
 
   const CRUISE_ALT = mobile ? -7.0 : -5.5;
 
@@ -940,8 +955,15 @@ function CockpitCamera({ physics, audioRef, mobile = false }: { physics: RockPhy
     _rollQuat.setFromAxisAngle(_rollAxis, -totalRoll);
     _targetQuat.multiply(_rollQuat);
 
-    smoothPos.current.lerp(_targetPos, 0.02);
-    smoothQuat.current.slerp(_targetQuat, 0.025);
+    // First frame: snap instantly to avoid lerp lag from random start
+    if (firstFrame.current) {
+      firstFrame.current = false;
+      smoothPos.current.copy(_targetPos);
+      smoothQuat.current.copy(_targetQuat);
+    } else {
+      smoothPos.current.lerp(_targetPos, 0.02);
+      smoothQuat.current.slerp(_targetQuat, 0.025);
+    }
 
     camera.position.copy(smoothPos.current);
     camera.quaternion.copy(smoothQuat.current);
