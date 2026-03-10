@@ -1480,11 +1480,6 @@ const ChatView = () => {
               }}
             >
               <div className="max-w-2xl ml-auto pointer-events-auto">
-                <div className="mb-1.5 text-center">
-                  <a href="https://lightspeedconsulting.ai" target="_blank" rel="noopener noreferrer" className="text-[11px] text-muted-foreground/70 hover:text-highlight transition-colors font-mono">
-                    KI-Automatisierung für IT- & Geschäftsprozesse? → lightspeedconsulting.ai
-                  </a>
-                </div>
                 <div className="relative flex items-center bg-secondary/90 backdrop-blur-md rounded-xl border border-highlight/30 focus-within:border-highlight/60 transition-electric shadow-lg">
                   <textarea
                     ref={inputRef}
