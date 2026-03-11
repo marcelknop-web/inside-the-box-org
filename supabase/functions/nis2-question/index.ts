@@ -174,6 +174,12 @@ serve(async (req) => {
     const langInstruction = `Sprache: ${langMap[language] || "Deutsch"}`;
     const diffInstruction = `Schwierigkeitsgrad: ${difficulty}/10`;
 
+    // Pick 2 random topics to force variety
+    const seed = Date.now() ^ (difficulty * 9973);
+    const topics = pickTopics(2, seed);
+    const topicInstruction = `Themenbereich für diese Frage (wähle EINEN davon): "${topics[0]}" ODER "${topics[1]}"`;
+    const uniqueInstruction = `Einzigartigkeits-Seed: ${seed} – Nutze diesen Seed als Inspiration für ein komplett neues Szenario. Wiederhole KEINE typischen Standardfragen.`;
+
     const response = await fetch(
       "https://ai.gateway.lovable.dev/v1/chat/completions",
       {
@@ -186,9 +192,10 @@ serve(async (req) => {
           model: "google/gemini-3-flash-preview",
           messages: [
             { role: "system", content: SYSTEM_PROMPT },
-            { role: "user", content: `${langInstruction}\n${diffInstruction}\n\nErzeuge jetzt 1 Frage.` },
+            { role: "user", content: `${langInstruction}\n${diffInstruction}\n${topicInstruction}\n${uniqueInstruction}\n\nErzeuge jetzt 1 Frage.` },
           ],
           max_tokens: 1200,
+          temperature: 1.0,
         }),
       }
     );
