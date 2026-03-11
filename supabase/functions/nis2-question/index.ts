@@ -41,6 +41,43 @@ setInterval(() => {
   }
 }, 300_000);
 
+const TOPIC_POOLS = [
+  "Meldepflichten und Fristen bei Sicherheitsvorfällen",
+  "Haftung der Geschäftsleitung und persönliche Verantwortung",
+  "Lieferkettensicherheit und Drittanbieter-Risiken",
+  "Risikomanagement-Maßnahmen nach Artikel 21",
+  "Verhältnis NIS-2 zu ISO 27001 / TISAX / DORA",
+  "Business Continuity und Notfallplanung",
+  "Schwellenwerte und Anwendungsbereich (wichtige vs. wesentliche Einrichtungen)",
+  "Sanktionen und Bußgelder bei Verstößen",
+  "Technische Maßnahmen: Verschlüsselung, MFA, Netzwerksegmentierung",
+  "OT-Sicherheit und Industrieanlagen",
+  "Grenzüberschreitende Zusammenarbeit und EU-Koordination",
+  "Schulungspflichten und Awareness-Programme",
+  "Zugangskontrollen und Identity Management",
+  "Schwachstellenmanagement und Patch-Prozesse",
+  "Incident Response und forensische Sicherung",
+  "Cloud-Sicherheit und Shared Responsibility",
+  "Audit- und Nachweispflichten gegenüber Behörden",
+  "Sektorspezifische Anforderungen (Energie, Gesundheit, Transport, Finanzen)",
+  "NIS2UmsuCG – nationale Umsetzung in Deutschland",
+  "Zusammenspiel von CISO, DPO und Geschäftsleitung",
+  "Registrierungspflichten bei nationalen Behörden",
+  "Krisenmanagement auf EU-Ebene (EU-CyCLONe)",
+  "DNS-Sicherheit und Domainregistrierung",
+  "Zero-Trust-Architektur im NIS-2-Kontext",
+];
+
+function pickTopics(count: number, seed: number): string[] {
+  const shuffled = [...TOPIC_POOLS];
+  // Fisher-Yates with seed-like behaviour
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.abs((seed * (i + 7) + 13) % (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled.slice(0, count);
+}
+
 const SYSTEM_PROMPT = `Du erzeugst anspruchsvolle Transferwissen-Fragen für ein NIS-2 Quiz im „Wer wird Millionär?"-Stil.
 
 Zielgruppe: ISMS-Verantwortliche, CISOs, Compliance-Manager und Geschäftsleitungen.
@@ -62,39 +99,36 @@ Stattdessen testest du TRANSFERWISSEN und URTEILSVERMÖGEN:
 Jede Frage MUSS ein konkretes Szenario oder eine Entscheidungssituation enthalten.
 Der Spieler muss NACHDENKEN und KOMBINIEREN – nicht erinnern.
 
-BEISPIELE FÜR SCHLECHTE FRAGEN (VERMEIDE DIESE):
-❌ "Was bedeutet NIS-2?" (Definition)
-❌ "Wie viele Stunden hat man für die Erstmeldung?" (Faktenwissen)
-❌ "Welche Behörde ist zuständig?" (Nachschlagbar)
-❌ "Was steht in Artikel 21?" (Auswendiglernen)
-
-BEISPIELE FÜR GUTE FRAGEN (SO SOLLEN SIE SEIN):
-✅ "Ihr IT-Dienstleister meldet einen Ransomware-Vorfall. Sie nutzen dessen Cloud für Kundendaten. Welche Pflicht trifft SIE als Auftraggeber zuerst?"
-✅ "Ein Geschäftsführer argumentiert, die NIS-2-Umsetzung sei Aufgabe der IT-Abteilung. Warum ist diese Haltung riskant?"
-✅ "Ihr Unternehmen fällt knapp unter die Schwellenwerte für 'wichtige Einrichtungen'. Der Hauptkunde ist ein KRITIS-Betreiber. Ändert das Ihre NIS-2-Pflichten?"
-✅ "Nach einem Sicherheitsvorfall stellt sich heraus, dass der Notfallplan seit 2 Jahren nicht getestet wurde. Welche NIS-2-Anforderung wurde konkret verletzt?"
-
-SCHWIERIGKEITSGRADE (1-10):
-- 1-3: Grundlegende Transferfragen – Einfache Szenarien, bei denen man NIS-2-Grundprinzipien anwenden muss. Wer ist betroffen und warum? Was passiert wenn man nichts tut?
-- 4-6: Mittlere Komplexität – Szenarien mit mehreren Faktoren. Lieferketten, Outsourcing, Zusammenspiel Geschäftsleitung/IT, Meldeketten in der Praxis.
-- 7-8: Anspruchsvoll – Grenzfälle, Wechselwirkungen zwischen NIS-2 und ISO 27001/DORA/TISAX, Haftungsfragen, OT vs. IT, grenzüberschreitende Szenarien.
-- 9-10: Strategisch – Mehrere Stakeholder, widersprüchliche Interessen, regulatorische Grauzonen, Entscheidungen unter Zeitdruck und unvollständiger Information.
+SCHWIERIGKEITSGRADE (1-10) – WICHTIG, STRIKT EINHALTEN:
+- 1-2: Einfache Szenarien. Grundverständnis reicht. Wer ist betroffen? Was passiert bei Untätigkeit? Kurze, klare Szenarien.
+- 3-4: Etwas komplexer. Zwei Faktoren spielen zusammen. Meldepflichten in konkreten Situationen. Grundlegende Verantwortungsfragen.
+- 5-6: Mittlere Komplexität. Lieferketten, Outsourcing, Zusammenspiel mehrerer Rollen. Szenarien mit Zeitdruck. Abgrenzungsfragen zwischen Regularien.
+- 7-8: Anspruchsvoll. Grenzfälle mit mehreren Stakeholdern. Wechselwirkungen NIS-2/ISO 27001/DORA/TISAX. OT vs. IT. Haftungsfeinheiten. Grenzüberschreitend.
+- 9: Sehr schwer. Regulatorische Grauzonen. Widersprüchliche Interessen. Entscheidung unter Unsicherheit mit unvollständiger Information. Mehrere plausible Antworten, nur eine wirklich korrekt.
+- 10: Extremschwer. Mehrstufige Szenarien mit 3+ Stakeholdern, Zeitdruck, internationalen Aspekten und widersprüchlichen Rechtslagen. Nur Experten mit tiefer Praxiserfahrung können diese lösen.
 
 FALSCHE ANTWORTEN:
 - Müssen plausibel klingen – wie etwas, das ein gut informierter Laie für richtig halten könnte.
 - Sollen typische Denkfehler oder verbreitete Missverständnisse widerspiegeln.
 - KEINE offensichtlich absurden Optionen.
+- Bei Schwierigkeit 7+: Die Distraktoren müssen so nah an der richtigen Antwort sein, dass echtes Nachdenken nötig ist.
 
 ERKLÄRUNG:
 - Kurz, lehrreich, praxisbezogen.
 - Erkläre WARUM die richtige Antwort richtig ist UND warum die plausibelste falsche Antwort falsch ist.
 - Wenn relevant: Bezug auf NIS-2-Artikel oder NIS2UmsuCG.
 
+VIELFALT – EXTREM WICHTIG:
+- Verwende NIEMALS Standardbeispiele. Erfinde immer neue, kreative Szenarien.
+- Variiere: Branchen (Energie, Gesundheit, Transport, Finanzen, Produktion, Telco, Wasser, Abfall, Raumfahrt, Lebensmittel), Unternehmensgrößen, Rollen (CISO, CEO, IT-Leiter, Einkauf, Rechtsabteilung, Auditor).
+- Variiere die Fragenstruktur: Situationsfrage, Priorisierungsfrage, Fehlerfindung, Konsequenzanalyse, Strategieentscheidung, Eskalationsszenarien.
+
 SELBSTCHECK:
 (1) Erfordert die Frage Nachdenken, nicht nur Erinnern?
 (2) Enthält sie ein konkretes Szenario oder eine Entscheidung?
 (3) Sind die falschen Antworten plausible Denkfehler?
-(4) Passt die Schwierigkeit zum Level?
+(4) Passt die Schwierigkeit exakt zum angegebenen Level?
+(5) Ist die Frage wirklich ANDERS als typische NIS-2-Quizfragen?
 Falls nein → neu generieren.
 
 AUSGABEFORMAT (JSON):
