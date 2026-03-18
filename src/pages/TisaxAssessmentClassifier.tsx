@@ -477,13 +477,6 @@ export default function TisaxAssessmentClassifier({ embedded = false }: { embedd
                 <ArrowLeft className="w-4 h-4" /> {t(I18N.back)}
               </button>
             )}
-            <button
-              onClick={handleDemo}
-              className="flex items-center gap-1.5 text-xs font-mono px-3 py-1.5 rounded-md border border-primary/30 text-primary/70 hover:bg-primary/10 hover:text-primary hover:border-primary/50 transition-electric"
-              title={t(I18N.demoHint)}
-            >
-              <Sparkles className="w-3.5 h-3.5" /> {t(I18N.demo)}
-            </button>
           </div>
 
           {answers[step.id] && (
