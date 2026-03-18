@@ -1135,7 +1135,22 @@ const ChatView = () => {
   const contentAreaRef = useRef<HTMLDivElement>(null);
 
   const { contentMap, bindSetActive } = useServiceContent();
-  bindSetActive((id) => { setActiveService(id); setMessages([]); });
+  const navigateToService = useCallback((id: string | null) => {
+    setActiveService(id);
+    setMessages([]);
+    navigate(id ? `/${id}` : '/', { replace: false });
+  }, [navigate]);
+
+  bindSetActive((id) => navigateToService(id));
+
+  // Sync when route param changes (e.g. browser back/forward)
+  useEffect(() => {
+    const newService = routeServiceId || null;
+    if (newService !== activeService) {
+      setActiveService(newService);
+      setMessages([]);
+    }
+  }, [routeServiceId]);
 
   useEffect(() => { if (window.innerWidth > 1024) inputRef.current?.focus(); }, []);
 
