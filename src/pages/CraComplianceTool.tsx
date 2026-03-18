@@ -620,13 +620,29 @@ function ThreatModel({ threats, onNext }: { threats: Threat[]; onNext: () => voi
                 {exp === t.id ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
               </div>
               {exp === t.id && (
-                <div className="border-t border-border bg-secondary/30 px-4 py-3 text-sm space-y-2">
+                <div className="border-t border-border bg-secondary/30 px-4 py-3 text-sm space-y-3">
                   <div><span className="font-semibold text-muted-foreground">Angreifer: </span><span className="text-foreground">{t.attacker}</span></div>
                   <div><span className="font-semibold text-muted-foreground">Angriffspfad: </span><span className="text-foreground">{t.path}</span></div>
+                  <div className="bg-background/50 border border-border rounded-md px-3 py-2">
+                    <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">📋 Evidenz</div>
+                    <div className="text-foreground">{t.evidence}</div>
+                  </div>
+                  <div className="bg-background/50 border border-border rounded-md px-3 py-2">
+                    <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">🔍 Begründung der Bewertung</div>
+                    <div className="text-foreground">{t.rationale}</div>
+                  </div>
                   <div className="grid grid-cols-2 gap-4 pt-1">
                     <div><div className="text-xs text-muted-foreground mb-1">Likelihood (<span className="font-mono">{t.likelihood}/5</span>)</div><ScoreBar value={t.likelihood} /></div>
                     <div><div className="text-xs text-muted-foreground mb-1">Impact (<span className="font-mono">{t.impact}/5</span>)</div><ScoreBar value={t.impact} /></div>
                   </div>
+                  {t.sources.length > 0 && (
+                    <div className="pt-1">
+                      <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">📎 Quellen & Referenzen</div>
+                      <ul className="text-xs text-muted-foreground space-y-0.5">
+                        {t.sources.map((s, i) => <li key={i} className="flex gap-1.5"><span className="text-primary/60">›</span>{s}</li>)}
+                      </ul>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
