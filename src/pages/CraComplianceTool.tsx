@@ -122,6 +122,7 @@ const THREATS: Threat[] = [
 
 interface CraReq {
   id: string; article: string; name: string; status: 'pass' | 'partial' | 'fail'; gap: string; measure: string;
+  evidence: string; rationale: string; criteria: string[];
 }
 
 const CRA_REQS: CraReq[] = [
