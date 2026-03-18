@@ -431,7 +431,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
   // Sub-Step 6: Anlagen
   const Step6 = () => (
     <div className="space-y-5 animate-fade-in">
-      <SubStepHeader current={5} total={TOTAL} title="Haben Sie Unterlagen, die Sie hochladen möchten?" subtitle="Optional — aber Architekturdiagramme oder Berichte verbessern die Analysequalität." />
+      <SubStepHeader current={5} total={TOTAL} title="Relevante Unterlagen hochladen" subtitle="Optional — aber Architekturdiagramme oder Berichte verbessern die Analysequalität." />
       <InfoBox icon="💡" color="blue">
         Laden Sie relevante Dokumente hoch. Die KI kann daraus <strong>zusätzliche Kontext-Informationen</strong> extrahieren — z.B. aus einem Architekturdiagramm oder einem Pentestbericht.
       </InfoBox>
