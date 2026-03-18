@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, RotateCcw } from 'lucide-react';
+import { ArrowLeft, RotateCcw, FileText } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { PageMeta } from '@/components/PageMeta';
 import Typewriter from '@/components/Typewriter';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { StaggerReveal } from '@/components/StaggerReveal';
+import { generateTisaxProtocol } from '@/utils/tisaxProtocolPdf';
 import {
   Table, TableHeader, TableBody, TableRow, TableHead, TableCell,
 } from '@/components/ui/table';
@@ -123,6 +124,7 @@ const I18N = {
   yourAnswer: { de: 'Ihre Angabe', en: 'Your Answer', fr: 'Votre réponse' },
   relevance: { de: 'Relevanz', en: 'Relevance', fr: 'Pertinence' },
   backToWorkflows: { de: 'Zurück zu KI-Workflows', en: 'Back to AI Workflows', fr: 'Retour aux workflows IA' },
+  downloadProtocol: { de: 'Prüfprotokoll herunterladen', en: 'Download Assessment Protocol', fr: 'Télécharger le protocole' },
 };
 
 const STEP_LABELS: Record<string, Record<string, string>> = {
@@ -312,6 +314,23 @@ export default function TisaxAssessmentClassifier({ embedded = false }: { embedd
 
           {/* Action buttons */}
           <div className="flex justify-center gap-3 flex-wrap">
+            {!loadingReasoning && reasoning && (
+              <Button
+                onClick={() => generateTisaxProtocol({
+                  answers,
+                  verdict,
+                  verdictLabel: t(vs.label),
+                  reasoning,
+                  language: lang,
+                  stepLabels: Object.fromEntries(Object.keys(answers).map(k => [k, t(STEP_LABELS[k] || { de: k, en: k, fr: k })])),
+                  stepQuestions: Object.fromEntries(STEP_DEFS.map(s => [s.id, s.question[lang] || s.question.en])),
+                })}
+                variant="outline"
+                className="border-primary/30 text-primary hover:bg-primary/10 hover:border-primary/50 font-mono"
+              >
+                <FileText className="w-4 h-4 mr-2" /> {t(I18N.downloadProtocol)}
+              </Button>
+            )}
             <Button onClick={restart} variant="outline" className="border-highlight/30 text-highlight hover:bg-highlight/10 hover:border-highlight/50 font-mono">
               <RotateCcw className="w-4 h-4 mr-2" /> {t(I18N.restart)}
             </Button>
