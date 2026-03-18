@@ -619,7 +619,7 @@ function RiskAssessment({ threats, onNext }: { threats: Threat[]; onNext: () => 
                 const risk = riskLevel(th.likelihood, th.impact, t);
                 return (
                   <tr key={th.id} className={idx % 2 === 0 ? 'bg-card' : 'bg-secondary/30'}>
-                    <td className="px-4 py-2.5"><div className="font-medium text-foreground">{th.name}</div><div className="text-xs text-muted-foreground">{th.component}</div></td>
+                    <td className="px-4 py-2.5"><div className="font-medium text-foreground"><span className="font-mono text-xs text-muted-foreground mr-1.5">{threatId(th)}</span>{th.name}</div><div className="text-xs text-muted-foreground">{th.component}</div></td>
                     <td className="px-3 py-2.5 text-center font-semibold text-foreground font-mono">{th.likelihood}</td>
                     <td className="px-3 py-2.5 text-center font-semibold text-foreground font-mono">{th.impact}</td>
                     <td className="px-3 py-2.5 text-center font-bold text-foreground font-mono">{th.likelihood * th.impact}</td>
