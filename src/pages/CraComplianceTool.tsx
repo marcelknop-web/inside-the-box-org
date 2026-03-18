@@ -355,7 +355,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
       </div>
       {d.interfaces.some(i => i.includes('unverschl') || i === 'HTTP' || i === 'FTP/SFTP') && (
         <InfoBox icon="⚠️" color="amber">
-          Sie haben <strong>unsichere Protokolle</strong> ausgewählt. Diese werden im Threat Model besonders analysiert und führen wahrscheinlich zu CRA-Lücken.
+          Es wurden <strong>unsichere Protokolle</strong> ausgewählt. Diese werden im Threat Model besonders analysiert und führen wahrscheinlich zu CRA-Lücken.
         </InfoBox>
       )}
     </div>
