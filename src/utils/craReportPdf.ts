@@ -59,7 +59,7 @@ const I18N = {
   pass: { de: 'Konform', en: 'Compliant', fr: 'Conforme' },
   partial: { de: 'Teilweise konform', en: 'Partially Compliant', fr: 'Partiellement conforme' },
   fail: { de: 'Nicht konform', en: 'Non-Compliant', fr: 'Non conforme' },
-  sources: { de: 'Quellenverweise', en: 'Source References', fr: 'Références' },
+  sources: { de: 'Quellenverweise', en: 'Source References', fr: 'Sources et références' },
   priority: { de: 'Priorität', en: 'Priority', fr: 'Priorité' },
   high: { de: 'Hoch', en: 'High', fr: 'Élevée' },
   medium: { de: 'Mittel', en: 'Medium', fr: 'Moyenne' },
