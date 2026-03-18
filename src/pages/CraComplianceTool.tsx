@@ -656,7 +656,7 @@ function CRAMapping({ reqs, onNext }: { reqs: CraReq[]; onNext: () => void }) {
   }, [reqs]);
 
   return (
-    <div className="space-y-4">
+    <StaggerReveal resetKey={`cm`} stagger={350}>
       <InfoBox icon="📋" title={t('cra.cmInfoTitle')} color="blue"><span dangerouslySetInnerHTML={{ __html: t('cra.cmInfo') }} /></InfoBox>
       <div className="bg-card border border-border rounded-lg p-5 flex flex-col sm:flex-row items-center gap-6">
         <div className="relative w-24 h-24 flex-shrink-0">
@@ -712,7 +712,7 @@ function CRAMapping({ reqs, onNext }: { reqs: CraReq[]; onNext: () => void }) {
       <div className="flex justify-end pt-2">
         <Button onClick={onNext} className="font-semibold">{t('cra.cmNext')}</Button>
       </div>
-    </div>
+    </StaggerReveal>
   );
 }
 
