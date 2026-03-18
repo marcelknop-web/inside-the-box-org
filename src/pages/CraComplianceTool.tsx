@@ -375,7 +375,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
     }
     case 6:
       stepContent = (
-        <div className="space-y-5">
+        <StaggerReveal resetKey={`intake-6`} stagger={300}>
           <SubStepHeader current={5} total={INTAKE_STEPS} title={t('cra.step6Title')} subtitle={t('cra.step6Sub')} />
           <InfoBox icon="💡" color="blue"><span dangerouslySetInnerHTML={{ __html: t('cra.step6Info') }} /></InfoBox>
           <div className="grid grid-cols-1 gap-2">
@@ -412,7 +412,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
             </div>
           )}
           <InfoBox icon="🔒" color="green">{t('cra.filePrivacy')}</InfoBox>
-        </div>
+        </StaggerReveal>
       );
       break;
     case 7:
