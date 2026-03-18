@@ -175,7 +175,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
   switch (sub) {
     case 0:
       stepContent = (
-        <div className="space-y-5">
+        <StaggerReveal resetKey={`intake-0`} stagger={300}>
           <SubStepHeader current={0} total={INTAKE_STEPS} title={t('cra.step0Title')} subtitle={t('cra.step0Sub')} />
           <InfoBox icon="💡" color="blue"><span dangerouslySetInnerHTML={{ __html: t('cra.step0Info') }} /></InfoBox>
           <div>
@@ -192,7 +192,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
               {productTypes.map(pt => <Chip key={pt.id} label={pt.label} icon={pt.icon} desc={pt.desc} selected={d.productTypes.includes(pt.id)} onClick={() => toggleArray('productTypes', pt.id)} />)}
             </div>
           </div>
-        </div>
+        </StaggerReveal>
       );
       break;
     case 1:
