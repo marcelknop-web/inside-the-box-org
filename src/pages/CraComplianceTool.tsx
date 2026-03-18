@@ -769,7 +769,7 @@ function CRAMapping({ reqs, onNext }: { reqs: CraReq[]; onNext: () => void }) {
 
   return (
     <div className="space-y-4">
-      <InfoBox icon="📋" title="CRA Compliance Mapping" color="blue">Befunde wurden automatisch auf die <strong>CRA-Anforderungen</strong> gemappt. Anforderung anklicken für Gap-Details und Maßnahmen.</InfoBox>
+      <InfoBox icon="📋" title="CRA Compliance Mapping" color="blue">Befunde wurden auf <strong>CRA-Anforderungen</strong> gemappt – jede Feststellung mit Evidenz, Begründung und messbaren Akzeptanzkriterien für die empfohlene Maßnahme.</InfoBox>
       <div className="bg-card border border-border rounded-lg p-5 flex flex-col sm:flex-row items-center gap-6">
         <div className="relative w-24 h-24 flex-shrink-0">
           <svg viewBox="0 0 36 36" className="w-full h-full" style={{ transform: 'rotate(-90deg)' }}>
