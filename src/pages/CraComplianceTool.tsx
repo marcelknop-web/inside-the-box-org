@@ -633,7 +633,7 @@ function RiskAssessment({ threats, onNext }: { threats: Threat[]; onNext: () => 
       </div>
       <div className="flex justify-end pt-2">
         <Button onClick={onNext} className="font-semibold">{t('cra.raNext')}</Button>
-      </div>
+    </StaggerReveal>
     </div>
   );
 }
