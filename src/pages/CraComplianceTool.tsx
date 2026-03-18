@@ -260,7 +260,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
   // Sub-Step 0: Produkt-Grunddaten
   const Step0 = () => (
     <div className="space-y-5 animate-fade-in">
-      <SubStepHeader current={0} total={TOTAL} title="Was für ein Produkt bewerten wir?" subtitle="Wählen Sie den Typ und geben Sie dem Produkt einen Namen." />
+      <SubStepHeader current={0} total={TOTAL} title="Was für ein Produkt bewerten wir?" subtitle="Produkt-Typ auswählen und Namen vergeben." />
       <InfoBox icon="💡" color="blue">
         Der <strong>Produkt-Typ</strong> bestimmt, welche Bedrohungsszenarien relevant sind. Ein IoT-Gerät hat andere Risiken als eine Web-App.
       </InfoBox>
