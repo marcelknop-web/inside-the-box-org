@@ -527,7 +527,7 @@ function ThreatModel({ threats, onNext }: { threats: Threat[]; onNext: () => voi
   const counts = Object.fromEntries('STRIDE'.split('').map(c => [c, threats.filter(t => t.stride === c).length]));
   return (
     <div className="space-y-4">
-      <InfoBox icon="🛡️" title="STRIDE Threat Model" color="blue">Das System wurde nach <strong>6 Bedrohungskategorien</strong> analysiert. Klicken Sie auf eine Bedrohung für den vollständigen Angriffspfad.</InfoBox>
+      <InfoBox icon="🛡️" title="STRIDE Threat Model" color="blue">Das System wurde nach <strong>6 Bedrohungskategorien</strong> analysiert. Bedrohung anklicken für den vollständigen Angriffspfad.</InfoBox>
       <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
         {Object.entries(STRIDE_META).map(([k, m]) => (
           <div key={k} className="bg-card border border-border rounded-lg p-3 text-center">
