@@ -265,16 +265,7 @@ export default function TisaxAssessmentClassifier({ embedded = false }: { embedd
     }
   };
 
-  const handleDemo = () => {
-    const scenario = DEMO_SCENARIOS[Math.floor(Math.random() * DEMO_SCENARIOS.length)];
-    const step = steps[currentStep];
-    const stepDef = STEP_DEFS[currentStep];
-    const targetValue = scenario[step.id];
-    const opt = stepDef.options.find(o => o.value === targetValue);
-    if (opt) {
-      selectOption(step.id, { label: opt.label[lang] || opt.label.en, value: opt.value, weight: opt.weight });
-    }
-  };
+
 
   const fetchReasoning = async (ans: Record<string, { value: string; weight: number; label: string }>, v: AssessmentLevel) => {
     setLoadingReasoning(true);
