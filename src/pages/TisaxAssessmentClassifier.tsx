@@ -381,23 +381,21 @@ export default function TisaxAssessmentClassifier({ embedded = false }: { embedd
 
           {/* Action buttons */}
           <div className="flex justify-center gap-3 flex-wrap">
-            {!loadingReasoning && reasoning && (
-              <Button
-                onClick={() => generateTisaxProtocol({
-                  answers,
-                  verdict,
-                  verdictLabel: t(vs.label),
-                  reasoning,
-                  language: lang,
-                  stepLabels: Object.fromEntries(Object.keys(answers).map(k => [k, t(STEP_LABELS[k] || { de: k, en: k, fr: k })])),
-                  stepQuestions: Object.fromEntries(STEP_DEFS.map(s => [s.id, s.question[lang] || s.question.en])),
-                })}
-                variant="outline"
-                className="border-primary/30 text-primary hover:bg-primary/10 hover:border-primary/50 font-mono"
-              >
-                <FileText className="w-4 h-4 mr-2" /> {t(I18N.downloadProtocol)}
-              </Button>
-            )}
+            <Button
+              onClick={() => generateTisaxProtocol({
+                answers,
+                verdict,
+                verdictLabel: t(vs.label),
+                reasoning: reasoning || t({ de: 'Begründung wird geladen…', en: 'Reasoning loading…', fr: 'Justification en cours…' }),
+                language: lang,
+                stepLabels: Object.fromEntries(Object.keys(answers).map(k => [k, t(STEP_LABELS[k] || { de: k, en: k, fr: k })])),
+                stepQuestions: Object.fromEntries(STEP_DEFS.map(s => [s.id, s.question[lang] || s.question.en])),
+              })}
+              variant="outline"
+              className="border-primary/30 text-primary hover:bg-primary/10 hover:border-primary/50 font-mono"
+            >
+              <FileText className="w-4 h-4 mr-2" /> {t(I18N.downloadProtocol)}
+            </Button>
             <Button onClick={restart} variant="outline" className="border-highlight/30 text-highlight hover:bg-highlight/10 hover:border-highlight/50 font-mono">
               <RotateCcw className="w-4 h-4 mr-2" /> {t(I18N.restart)}
             </Button>
