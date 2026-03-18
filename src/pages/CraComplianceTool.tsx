@@ -523,7 +523,18 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
     <div>
       {stepContent}
       <div className="flex items-center justify-between mt-6 pt-4 border-t border-border/50">
-        <button onClick={() => setSub(s => s - 1)} disabled={sub === 0} className={`text-sm font-semibold px-4 py-2 rounded-lg transition-colors ${sub === 0 ? 'text-muted-foreground/30 cursor-not-allowed' : 'text-muted-foreground hover:bg-secondary'}`}>{t('cra.back')}</button>
+        <div className="flex items-center gap-2">
+          <button onClick={() => setSub(s => s - 1)} disabled={sub === 0} className={`text-sm font-semibold px-4 py-2 rounded-lg transition-colors ${sub === 0 ? 'text-muted-foreground/30 cursor-not-allowed' : 'text-muted-foreground hover:bg-secondary'}`}>{t('cra.back')}</button>
+          {sub < 7 && (
+            <button
+              onClick={handleDemo}
+              className="flex items-center gap-1.5 text-xs font-mono px-3 py-1.5 rounded-md border border-primary/30 text-primary/70 hover:bg-primary/10 hover:text-primary hover:border-primary/50 transition-colors"
+              title={t('cra.demoHint') || 'Insert example values'}
+            >
+              <Sparkles className="w-3.5 h-3.5" /> Demo
+            </button>
+          )}
+        </div>
         <div className="flex gap-1">
           {Array.from({ length: TOTAL_WIZARD_PAGES }).map((_, i) => <div key={i} className={`w-1.5 h-1.5 rounded-full transition-all ${i === sub ? 'bg-primary w-3' : i < sub ? 'bg-primary/40' : 'bg-secondary'}`} />)}
         </div>
