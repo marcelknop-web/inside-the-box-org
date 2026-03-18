@@ -1296,7 +1296,7 @@ const ChatView = () => {
           <div className="absolute inset-0 bg-black/60" onClick={() => setSidebarOpen(false)} />
           <div className="relative w-[280px] h-full flex flex-col bg-card animate-in slide-in-from-left duration-200">
             <div className="p-3 flex items-center justify-between bg-primary/10">
-              <button onClick={() => { setActiveService(null); setMessages([]); setSidebarOpen(false); }} className="flex items-center gap-2 text-sm font-rounded font-bold text-primary hover:text-highlight transition-electric cursor-pointer bg-transparent border-none p-0"><GeometricSymbol size="xs" />inside-the-box.org</button>
+              <button onClick={() => { navigateToService(null); setSidebarOpen(false); }} className="flex items-center gap-2 text-sm font-rounded font-bold text-primary hover:text-highlight transition-electric cursor-pointer bg-transparent border-none p-0"><GeometricSymbol size="xs" />inside-the-box.org</button>
               <button onClick={() => setSidebarOpen(false)} className="ml-2 p-2 rounded-lg text-muted-foreground hover:bg-secondary transition-electric">
                 <X size={18} />
               </button>
