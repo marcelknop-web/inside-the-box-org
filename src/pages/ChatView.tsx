@@ -1115,11 +1115,10 @@ const useSidebarGroups = (): SidebarGroup[] => {
 
 const ChatView = () => {
   const { language, setLanguage, t } = useLanguage();
+  const { serviceId: routeServiceId } = useParams<{ serviceId?: string }>();
+  const navigate = useNavigate();
   const sidebarGroups = useSidebarGroups();
-  const [activeService, setActiveService] = useState<string | null>(() => {
-    const params = new URLSearchParams(window.location.search);
-    return params.get('service') || null;
-  });
+  const [activeService, setActiveService] = useState<string | null>(routeServiceId || null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
