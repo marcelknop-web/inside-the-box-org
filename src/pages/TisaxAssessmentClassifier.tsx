@@ -112,6 +112,7 @@ const I18N = {
   title: { de: 'TISAX Einstufungs-Check', en: 'TISAX Assessment Check', fr: 'TISAX Classification Check' },
   step: { de: 'Schritt', en: 'Step', fr: 'Étape' },
   back: { de: 'Zurück', en: 'Back', fr: 'Retour' },
+  next: { de: 'Weiter', en: 'Next', fr: 'Suivant' },
   restart: { de: 'Neu starten', en: 'Restart', fr: 'Recommencer' },
   reasoning: { de: 'Begründung', en: 'Reasoning', fr: 'Justification' },
   loading: { de: 'TISAX-Einstufung wird analysiert…', en: 'Analyzing TISAX classification…', fr: 'Analyse de la classification TISAX…' },
@@ -127,7 +128,21 @@ const I18N = {
   backToWorkflows: { de: 'Zurück zu KI-Workflows', en: 'Back to AI Workflows', fr: 'Retour aux workflows IA' },
   downloadProtocol: { de: 'Prüfprotokoll herunterladen', en: 'Download Assessment Protocol', fr: 'Télécharger le protocole' },
   plausibilityWarning: { de: 'Plausibilitätshinweis', en: 'Plausibility Notice', fr: 'Avis de plausibilité' },
+  demo: { de: 'Demo', en: 'Demo', fr: 'Démo' },
+  demoHint: { de: 'Beispielwerte einfügen', en: 'Insert example values', fr: 'Insérer des valeurs d\'exemple' },
 };
+
+/* ── Demo scenarios (plausible profiles) ── */
+const DEMO_SCENARIOS: Record<string, string>[] = [
+  { role: 'tier1', information: 'cad', prototype: 'indirect', network: 'direct', dataclass: 'confidential', oemrequest: 'yes-al2' },
+  { role: 'oem', information: 'prototype', prototype: 'direct', network: 'direct', dataclass: 'strictly-confidential', oemrequest: 'yes-al3' },
+  { role: 'provider', information: 'personal', prototype: 'no', network: 'indirect', dataclass: 'internal', oemrequest: 'expected' },
+  { role: 'tier2', information: 'financial', prototype: 'no', network: 'indirect', dataclass: 'internal', oemrequest: 'no' },
+  { role: 'tier1', information: 'prototype', prototype: 'direct', network: 'direct', dataclass: 'strictly-confidential', oemrequest: 'yes-al3' },
+  { role: 'provider', information: 'cad', prototype: 'indirect', network: 'direct', dataclass: 'confidential', oemrequest: 'yes-al2' },
+  { role: 'tier2', information: 'personal', prototype: 'no', network: 'no', dataclass: 'internal', oemrequest: 'expected' },
+  { role: 'oem', information: 'cad', prototype: 'indirect', network: 'direct', dataclass: 'confidential', oemrequest: 'yes-nolevel' },
+];
 
 const STEP_LABELS: Record<string, Record<string, string>> = {
   role: { de: 'Rolle in Supply Chain', en: 'Role in Supply Chain', fr: 'Rôle dans la chaîne' },
