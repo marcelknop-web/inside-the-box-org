@@ -507,7 +507,7 @@ export const de = {
     andreas: {
       bio: 'Andreas Funder berät Organisationen in Informationssicherheit, Risikomanagement und Datenschutz. Projekterfahrung aus Senior-Positionen bei PwC, Ernst & Young und CSPi.',
       focusLabel: 'Schwerpunkte',
-      focus: 'ISO/IEC 27001, PCI-DSS, NIST, TISAX, Risikomanagement, Business Continuity, EU-DSGVO, KRITIS',
+      focus: 'ISO/IEC 27001 · PCI-DSS · NIST · TISAX · Risikomanagement · Business Continuity · EU-DSGVO · KRITIS',
       certsLabel: 'Zertifizierungen',
       certs: 'ISO/IEC 27001 Lead Auditor + Implementer · ISO/IEC 27005 Risk Manager · BSI IT-Grundschutz-Praktiker · Datenschutzauditor (DSA-TÜV)',
       eduLabel: 'Ausbildung',

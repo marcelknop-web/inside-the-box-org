@@ -507,7 +507,7 @@ export const en = {
     andreas: {
       bio: 'Andreas Funder advises organisations on information security, risk management, and data privacy. Project experience from senior positions at PwC, Ernst & Young, and CSPi.',
       focusLabel: 'Focus Areas',
-      focus: 'ISO/IEC 27001, PCI-DSS, NIST, TISAX, Risk Management, Business Continuity, EU GDPR, KRITIS',
+      focus: 'ISO/IEC 27001 · PCI-DSS · NIST · TISAX · Risk Management · Business Continuity · EU GDPR · KRITIS',
       certsLabel: 'Certifications',
       certs: 'ISO/IEC 27001 Lead Auditor + Implementer · ISO/IEC 27005 Risk Manager · BSI IT-Grundschutz Practitioner · Data Privacy Auditor (DSA-TÜV)',
       eduLabel: 'Education',
