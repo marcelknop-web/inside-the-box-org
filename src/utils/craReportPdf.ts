@@ -494,9 +494,9 @@ export function generateCraReport(data: CraReportData): void {
     for (const key of measureKeys) {
       const m = intakeData.measures[key];
       const parts: string[] = [];
-      if (m.active) parts.push(lang === 'de' ? 'Aktiv' : lang === 'fr' ? 'Actif' : 'Active');
-      if (m.documented) parts.push(lang === 'de' ? 'Dokumentiert' : lang === 'fr' ? 'Documenté' : 'Documented');
-      if (m.audited) parts.push(lang === 'de' ? 'Auditiert' : lang === 'fr' ? 'Audité' : 'Audited');
+      if (m.active) parts.push(lang === 'de' ? 'Aktiv' : lang === 'fr' ? 'Active' : 'Active');
+      if (m.documented) parts.push(lang === 'de' ? 'Dokumentiert' : lang === 'fr' ? 'Documentée' : 'Documented');
+      if (m.audited) parts.push(lang === 'de' ? 'Auditiert' : lang === 'fr' ? 'Auditée' : 'Audited');
       writeKV(key.toUpperCase(), parts.join(' / ') || '—', 4);
     }
   }
