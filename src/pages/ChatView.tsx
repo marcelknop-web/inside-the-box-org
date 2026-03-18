@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, ReactNode, useCallback, lazy, Suspense } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 
 import { supabase } from '@/integrations/supabase/client';
 import { Send, Plus, MessageCircle, Shield, Target, BookOpen, AlertTriangle, Eye, Flame, Swords, Calendar, FileText, UserCheck, ChevronLeft, Menu, ShieldCheck, Search, Settings, Award, RotateCcw, Network, CreditCard, CheckCircle, FileCheck, Car, BarChart, RefreshCw, GraduationCap, ClipboardList, Zap, Crown, Users, Gamepad2, Monitor, Crosshair, CheckSquare, Mic, Radio, Video, Mail, Server, Bug, AlertCircle, MessageSquare, Building2, Plane, Landmark, Scale, Wifi, XCircle, HelpCircle, Loader2, X, Linkedin, Play, TrendingDown, Rocket, Fingerprint } from 'lucide-react';
@@ -1114,11 +1115,10 @@ const useSidebarGroups = (): SidebarGroup[] => {
 
 const ChatView = () => {
   const { language, setLanguage, t } = useLanguage();
+  const { serviceId: routeServiceId } = useParams<{ serviceId?: string }>();
+  const navigate = useNavigate();
   const sidebarGroups = useSidebarGroups();
-  const [activeService, setActiveService] = useState<string | null>(() => {
-    const params = new URLSearchParams(window.location.search);
-    return params.get('service') || null;
-  });
+  const [activeService, setActiveService] = useState<string | null>(routeServiceId || null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -1135,7 +1135,22 @@ const ChatView = () => {
   const contentAreaRef = useRef<HTMLDivElement>(null);
 
   const { contentMap, bindSetActive } = useServiceContent();
-  bindSetActive((id) => { setActiveService(id); setMessages([]); });
+  const navigateToService = useCallback((id: string | null) => {
+    setActiveService(id);
+    setMessages([]);
+    navigate(id ? `/${id}` : '/', { replace: false });
+  }, [navigate]);
+
+  bindSetActive((id) => navigateToService(id));
+
+  // Sync when route param changes (e.g. browser back/forward)
+  useEffect(() => {
+    const newService = routeServiceId || null;
+    if (newService !== activeService) {
+      setActiveService(newService);
+      setMessages([]);
+    }
+  }, [routeServiceId]);
 
   useEffect(() => { if (window.innerWidth > 1024) inputRef.current?.focus(); }, []);
 
@@ -1180,8 +1195,7 @@ const ChatView = () => {
   };
 
   const newChat = () => { 
-    setActiveService(null); 
-    setMessages([]); 
+    navigateToService(null);
     setInput(''); 
     setChatOpen(false);
     if (window.innerWidth >= 768) inputRef.current?.focus(); 
@@ -1239,10 +1253,8 @@ const ChatView = () => {
   }, []);
 
   const selectService = (id: string) => {
-    setActiveService(id);
-    setMessages([]);
+    navigateToService(id);
     if (isMobile) setSidebarOpen(false);
-    // Only focus input on large desktop screens, not on iPad/tablet
     if (!isMobile && !isTablet) inputRef.current?.focus();
   };
 
@@ -1284,7 +1296,7 @@ const ChatView = () => {
           <div className="absolute inset-0 bg-black/60" onClick={() => setSidebarOpen(false)} />
           <div className="relative w-[280px] h-full flex flex-col bg-card animate-in slide-in-from-left duration-200">
             <div className="p-3 flex items-center justify-between bg-primary/10">
-              <button onClick={() => { setActiveService(null); setMessages([]); setSidebarOpen(false); }} className="flex items-center gap-2 text-sm font-rounded font-bold text-primary hover:text-highlight transition-electric cursor-pointer bg-transparent border-none p-0"><GeometricSymbol size="xs" />inside-the-box.org</button>
+              <button onClick={() => { navigateToService(null); setSidebarOpen(false); }} className="flex items-center gap-2 text-sm font-rounded font-bold text-primary hover:text-highlight transition-electric cursor-pointer bg-transparent border-none p-0"><GeometricSymbol size="xs" />inside-the-box.org</button>
               <button onClick={() => setSidebarOpen(false)} className="ml-2 p-2 rounded-lg text-muted-foreground hover:bg-secondary transition-electric">
                 <X size={18} />
               </button>
@@ -1304,7 +1316,7 @@ const ChatView = () => {
         <div className={`${sidebarOpen ? 'w-64' : 'w-0'} transition-all duration-300 flex-shrink-0 overflow-hidden`}>
           <div className="w-64 h-full flex flex-col bg-card border-r border-border">
             <div className="h-12 px-3 flex items-center justify-between bg-primary/10 border-b border-border flex-shrink-0">
-              <button onClick={() => { setActiveService(null); setMessages([]); }} className="flex items-center gap-2 text-sm font-rounded font-bold text-primary hover:text-highlight transition-electric cursor-pointer bg-transparent border-none p-0"><GeometricSymbol size="xs" />inside-the-box.org</button>
+              <button onClick={() => navigateToService(null)} className="flex items-center gap-2 text-sm font-rounded font-bold text-primary hover:text-highlight transition-electric cursor-pointer bg-transparent border-none p-0"><GeometricSymbol size="xs" />inside-the-box.org</button>
               <button onClick={() => setLanguage(nextLanguage(language))} className="rounded-lg border border-highlight/30 px-2.5 py-2.5 text-xs font-rounded font-bold text-highlight hover:bg-highlight/10 hover:border-highlight/50 transition-electric uppercase tracking-wider">
                 {language.toUpperCase()}
               </button>

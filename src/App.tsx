@@ -20,6 +20,7 @@ const App = () => (
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<ChatView />} />
+              <Route path="/:serviceId" element={<ChatView />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
