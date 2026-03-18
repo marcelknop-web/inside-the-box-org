@@ -39,7 +39,7 @@ const I18N = {
   interfaces: { de: 'Kommunikationsschnittstellen', en: 'Communication Interfaces', fr: 'Interfaces de communication' },
   components: { de: 'Systemkomponenten', en: 'System Components', fr: 'Composants du système' },
   roles: { de: 'Benutzerrollen', en: 'User Roles', fr: 'Rôles utilisateur' },
-  measures: { de: 'Implementierte Maßnahmen', en: 'Implemented Measures', fr: 'Mesures implémentées' },
+  measures: { de: 'Implementierte Maßnahmen', en: 'Implemented Measures', fr: 'Mesures mises en œuvre' },
   knownIssues: { de: 'Vom Hersteller benannte Probleme', en: 'Manufacturer-Reported Issues', fr: 'Problèmes signalés par le fabricant' },
 
   threat: { de: 'Bedrohung', en: 'Threat', fr: 'Menace' },
