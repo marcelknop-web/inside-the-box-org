@@ -5,6 +5,7 @@ import { PageMeta } from '@/components/PageMeta';
 import { Progress } from '@/components/ui/progress';
 import { useLanguage } from '@/i18n/LanguageContext';
 import Typewriter from '@/components/Typewriter';
+import { StaggerReveal } from '@/components/StaggerReveal';
 import {
   getProductTypes, getCraClasses, getDeploymentOpts,
   INTERFACE_OPTS, getSecurityMeasures, getSecurityCategories,
@@ -174,7 +175,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
   switch (sub) {
     case 0:
       stepContent = (
-        <div className="space-y-5">
+        <StaggerReveal resetKey={`intake-0`} stagger={300}>
           <SubStepHeader current={0} total={INTAKE_STEPS} title={t('cra.step0Title')} subtitle={t('cra.step0Sub')} />
           <InfoBox icon="💡" color="blue"><span dangerouslySetInnerHTML={{ __html: t('cra.step0Info') }} /></InfoBox>
           <div>
@@ -191,12 +192,12 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
               {productTypes.map(pt => <Chip key={pt.id} label={pt.label} icon={pt.icon} desc={pt.desc} selected={d.productTypes.includes(pt.id)} onClick={() => toggleArray('productTypes', pt.id)} />)}
             </div>
           </div>
-        </div>
+        </StaggerReveal>
       );
       break;
     case 1:
       stepContent = (
-        <div className="space-y-5">
+        <StaggerReveal resetKey={`intake-1`} stagger={300}>
           <SubStepHeader current={1} total={INTAKE_STEPS} title={t('cra.step1Title')} subtitle={t('cra.step1Sub')} />
           <InfoBox icon="📘" title={t('cra.step1InfoTitle')} color="blue"><span dangerouslySetInnerHTML={{ __html: t('cra.step1Info') }} /></InfoBox>
           <div className="space-y-2">
@@ -214,12 +215,12 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
             ))}
           </div>
           <InfoBox icon="🤔" color="amber"><span dangerouslySetInnerHTML={{ __html: t('cra.step1Hint') }} /></InfoBox>
-        </div>
+        </StaggerReveal>
       );
       break;
     case 2:
       stepContent = (
-        <div className="space-y-5">
+        <StaggerReveal resetKey={`intake-2`} stagger={300}>
           <SubStepHeader current={2} total={INTAKE_STEPS} title={t('cra.step2Title')} subtitle={t('cra.step2Sub')} />
           <InfoBox icon="💡" color="blue"><span dangerouslySetInnerHTML={{ __html: t('cra.step2Info') }} /></InfoBox>
           <div>
@@ -243,12 +244,12 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
               ))}
             </div>
           </div>
-        </div>
+        </StaggerReveal>
       );
       break;
     case 3:
       stepContent = (
-        <div className="space-y-5">
+        <StaggerReveal resetKey={`intake-3`} stagger={300}>
           <SubStepHeader current={3} total={INTAKE_STEPS} title={t('cra.step3Title')} subtitle={t('cra.step3Sub')} />
           <InfoBox icon="💡" color="blue"><span dangerouslySetInnerHTML={{ __html: t('cra.step3Info') }} /></InfoBox>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -261,12 +262,12 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
           {d.interfaces.some(i => i.includes('unverschl') || i === 'HTTP' || i === 'FTP/SFTP') && (
             <InfoBox icon="⚠️" color="amber"><span dangerouslySetInnerHTML={{ __html: t('cra.step3Warn') }} /></InfoBox>
           )}
-        </div>
+        </StaggerReveal>
       );
       break;
     case 4:
       stepContent = (
-        <div className="space-y-5">
+        <StaggerReveal resetKey={`intake-4`} stagger={300}>
           <SubStepHeader current={4} total={INTAKE_STEPS} title={t('cra.step4Title')} subtitle={t('cra.step4Sub')} />
           <InfoBox icon="💡" color="blue"><span dangerouslySetInnerHTML={{ __html: t('cra.step4Info') }} /></InfoBox>
           <div>
@@ -294,7 +295,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
               </div>
             </div>
           )}
-        </div>
+        </StaggerReveal>
       );
       break;
     case 5: {
@@ -328,7 +329,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
       };
 
       stepContent = (
-        <div className="space-y-5">
+        <StaggerReveal resetKey={`intake-5`} stagger={300}>
           <SubStepHeader current={5} total={INTAKE_STEPS} title={t('cra.step5Title')} subtitle={t('cra.step5Sub')} />
           <InfoBox icon="💡" color="blue"><span dangerouslySetInnerHTML={{ __html: t('cra.step5Info') }} /></InfoBox>
           {securityCategories.map(cat => (
@@ -368,13 +369,13 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
             <div className="text-xs text-muted-foreground/60 mb-2">{t('cra.knownIssuesHint')}</div>
             <textarea rows={3} className="w-full border border-border rounded-lg px-3 py-2.5 text-sm bg-background text-foreground focus:ring-2 focus:ring-primary outline-none resize-none" placeholder={t('cra.knownIssuesPh')} value={d.knownIssues} onChange={e => setField('knownIssues', e.target.value)} />
           </div>
-        </div>
+        </StaggerReveal>
       );
       break;
     }
     case 6:
       stepContent = (
-        <div className="space-y-5">
+        <StaggerReveal resetKey={`intake-6`} stagger={300}>
           <SubStepHeader current={5} total={INTAKE_STEPS} title={t('cra.step6Title')} subtitle={t('cra.step6Sub')} />
           <InfoBox icon="💡" color="blue"><span dangerouslySetInnerHTML={{ __html: t('cra.step6Info') }} /></InfoBox>
           <div className="grid grid-cols-1 gap-2">
@@ -411,12 +412,12 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
             </div>
           )}
           <InfoBox icon="🔒" color="green">{t('cra.filePrivacy')}</InfoBox>
-        </div>
+        </StaggerReveal>
       );
       break;
     case 7:
       stepContent = (
-        <div className="space-y-4">
+        <StaggerReveal resetKey={`intake-7`} stagger={250}>
           <SubStepHeader current={5} total={INTAKE_STEPS} title={t('cra.summaryTitle')} subtitle={t('cra.summarySub')} />
           {[
             { label: t('cra.sumProduct'), val: `${d.productName} ${d.version}`.trim() },
@@ -434,7 +435,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
             </div>
           ))}
           {d.knownIssues && <div className="text-sm border-b border-border/50 pb-2"><span className="text-muted-foreground">{t('cra.sumKnownGaps')}: </span><span className="text-foreground">{d.knownIssues}</span></div>}
-        </div>
+        </StaggerReveal>
       );
       break;
   }
@@ -467,7 +468,7 @@ function ThreatModel({ threats, onNext }: { threats: Threat[]; onNext: () => voi
   const counts = useMemo(() => Object.fromEntries('STRIDE'.split('').map(c => [c, threats.filter(th => th.stride === c).length])), [threats]);
 
   return (
-    <div className="space-y-4">
+    <StaggerReveal resetKey={`tm`} stagger={350}>
       <InfoBox icon="🛡️" title={t('cra.tmInfoTitle')} color="blue"><span dangerouslySetInnerHTML={{ __html: t('cra.tmInfo') }} /></InfoBox>
       <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
         {Object.entries(strideMeta).map(([k, m]) => (
@@ -521,7 +522,7 @@ function ThreatModel({ threats, onNext }: { threats: Threat[]; onNext: () => voi
       <div className="flex justify-end pt-2">
         <Button onClick={onNext} className="font-semibold">{t('cra.tmNext')}</Button>
       </div>
-    </div>
+    </StaggerReveal>
   );
 }
 
@@ -545,7 +546,7 @@ function RiskAssessment({ threats, onNext }: { threats: Threat[]; onNext: () => 
   const matrixColor = (s: number) => s >= 20 ? 'bg-red-500' : s >= 13 ? 'bg-orange-400' : s >= 6 ? 'bg-yellow-300' : 'bg-green-300';
 
   return (
-    <div className="space-y-4">
+    <StaggerReveal resetKey={`ra`} stagger={350}>
       <InfoBox icon="⚖️" title={t('cra.raInfoTitle')} color="blue"><span dangerouslySetInnerHTML={{ __html: t('cra.raInfo') }} /></InfoBox>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {([
@@ -633,7 +634,7 @@ function RiskAssessment({ threats, onNext }: { threats: Threat[]; onNext: () => 
       <div className="flex justify-end pt-2">
         <Button onClick={onNext} className="font-semibold">{t('cra.raNext')}</Button>
       </div>
-    </div>
+    </StaggerReveal>
   );
 }
 
@@ -655,7 +656,7 @@ function CRAMapping({ reqs, onNext }: { reqs: CraReq[]; onNext: () => void }) {
   }, [reqs]);
 
   return (
-    <div className="space-y-4">
+    <StaggerReveal resetKey={`cm`} stagger={350}>
       <InfoBox icon="📋" title={t('cra.cmInfoTitle')} color="blue"><span dangerouslySetInnerHTML={{ __html: t('cra.cmInfo') }} /></InfoBox>
       <div className="bg-card border border-border rounded-lg p-5 flex flex-col sm:flex-row items-center gap-6">
         <div className="relative w-24 h-24 flex-shrink-0">
@@ -711,7 +712,7 @@ function CRAMapping({ reqs, onNext }: { reqs: CraReq[]; onNext: () => void }) {
       <div className="flex justify-end pt-2">
         <Button onClick={onNext} className="font-semibold">{t('cra.cmNext')}</Button>
       </div>
-    </div>
+    </StaggerReveal>
   );
 }
 
@@ -746,7 +747,7 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
   }, [t, intakeData, typeName, craName, today, threats.length, critRisks.length, reqs.length, failReqs.length, partialCount]);
 
   return (
-    <div className="space-y-4">
+    <StaggerReveal resetKey={`rp`} stagger={350}>
       <InfoBox icon="✅" title={t('cra.rpDone')} color="green"><span dangerouslySetInnerHTML={{ __html: t('cra.rpDoneInfo') }} /></InfoBox>
       <div className="bg-card border-l-4 border-primary rounded-lg p-5 border border-border">
         <div className="flex flex-col sm:flex-row items-start justify-between mb-3 gap-2">
@@ -809,7 +810,7 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
           <button className="bg-secondary text-muted-foreground text-sm font-semibold px-4 py-2 rounded-lg cursor-not-allowed border border-border" title={t('cra.rpExportBtn')}>PDF</button>
         </div>
       </div>
-    </div>
+    </StaggerReveal>
   );
 }
 
