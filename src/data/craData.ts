@@ -204,7 +204,7 @@ export const THREATS: Threat[] = [
     evidence: 'Netzwerkmitschnitt (Wireshark): MQTT CONNECT-Paket auf Port 1883 enthält Benutzername und Passwort im Klartext. Payload-Daten (Sensorwerte) ebenfalls unverschlüsselt.',
     rationale: 'Likelihood 4: Passives Mitlesen im gleichen Netzwerksegment ohne Authentifizierung möglich. Impact 4: Vollständige Offenlegung aller Sensordaten und Zugangsdaten; ermöglicht Folge-Angriffe.',
     sources: ['CRA Annex I, Part I, Nr. 4: Vertraulichkeit von Daten', 'ETSI EN 303 645, Provision 5.8-1: Kommunikationssicherheit'] },
-  { id: 6, stride: 'D', name: 'DoS auf MQTT-Broker', component: 'MQTT-Broker', attacker: 'Externer Angreifer', path: 'Flood-Angriff → Broker-Überlastung → Produktionsausfall', cra: 'Annex I, Part I, Nr. 7', likelihood: 3, impact: 4,
+  { id: 6, stride: 'D', name: 'DoS auf MQTT-Broker — Verfügbarkeitsverlust', component: 'MQTT-Broker — Connection-Management', attacker: 'Externer Angreifer', path: 'Flood-Angriff → Broker-Überlastung → Produktionsausfall', cra: 'Annex I, Part I, Nr. 7', likelihood: 3, impact: 4,
     evidence: 'Lasttest: MQTT-Broker akzeptiert unbegrenzte Verbindungen ohne Rate-Limiting. Bei 500 gleichzeitigen Verbindungen: CPU 100%, Response-Time > 30s, bestehende Clients getrennt.',
     rationale: 'Likelihood 3: Erfordert Netzwerkzugang zum Broker-Port, aber kein spezielles Tooling. Impact 4: Produktionsausfall – alle verbundenen Geräte verlieren Steuerungskommunikation.',
     sources: ['CRA Annex I, Part I, Nr. 7: Verfügbarkeit und Ausfallsicherheit', 'NIST SP 800-82r3: Guide to OT Security'] },
