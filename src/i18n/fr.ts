@@ -326,6 +326,8 @@ export const fr = {
     agentDoraDesc: 'Obligation de signalement selon DORA Art. 19 – étape par étape',
     agentTisaxDesc: 'Déterminer le niveau d\'évaluation et les objectifs d\'audit VDA ISA',
     agentPciDesc: 'Identifier le bon type SAQ selon PCI DSS v4.0',
+    agentCraTitle: 'CRA Compliance Tool',
+    agentCraDesc: 'Cyber Risk Assessment & conformité CRA pour vos produits – analyse STRIDE, matrice de risques et rapport de lacunes',
     agentNis2QuizDesc: '15 questions sur la directive NIS-2 – avec timer et meilleur score',
     agentCisoDesc: '5 tours de gestion stratégique de budget en tant que CISO',
     agentThreatDropTitle: 'ThreatDrop',
