@@ -456,7 +456,7 @@ export function generateCraReport(data: CraReportData): void {
   // TOC
   // ══════════════════════════════════════
   doc.addPage();
-  drawWatermark(doc, W / 2, H / 2, 55);
+  preparePage();
   pageNum++;
   y = 35;
 
