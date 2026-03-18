@@ -169,84 +169,116 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
     true, true,
   ], [d.productName, d.productTypes.length, d.roles.length]);
 
-  /* ── Demo autofill per step ── */
-  const DEMO_PRODUCTS = [
-    { name: 'SmartSense IoT Gateway', version: '2.4.1', types: ['iot', 'embed'] },
-    { name: 'IndustrialEdge Controller', version: '3.1.0', types: ['embed', 'network'] },
-    { name: 'CloudConnect Platform', version: '1.8.2', types: ['cloud', 'sw'] },
-    { name: 'MobileOps Manager', version: '4.0.0', types: ['mobile', 'cloud'] },
-    { name: 'SecureLink Hub', version: '2.0.3', types: ['iot', 'hw', 'network'] },
-  ];
-  const DEMO_CLASSES = ['default', 'k1', 'k2', 'krit'];
-  const DEMO_DEPLOYMENTS = ['cloud', 'onprem', 'hybrid', 'embedded'];
-  const DEMO_INTERFACE_SETS = [
-    ['HTTPS/REST', 'MQTT (TLS)', 'SSH', 'LAN/Ethernet'],
-    ['HTTPS/REST', 'WebSocket', 'USB', 'Bluetooth'],
-    ['HTTPS/REST', 'MQTT (TLS)', 'OPC-UA', 'Modbus'],
-    ['HTTPS/REST', 'SSH', 'WLAN', 'SNMP'],
-  ];
-  const DEMO_DESCRIPTIONS = [
-    'IoT gateway collecting sensor data via MQTT, forwarding to cloud backend. Web-based admin UI for configuration. OTA firmware updates via HTTPS.',
-    'Edge computing controller for industrial automation. Connects to PLCs via OPC-UA/Modbus, exposes REST API for monitoring. Embedded Linux, secure boot.',
-    'Cloud-native SaaS platform aggregating telemetry from distributed IoT devices. Multi-tenant architecture with RBAC. REST/WebSocket APIs.',
-    'Mobile fleet management app with real-time GPS tracking, push notifications, and integration with on-premises ERP via VPN tunnel.',
-  ];
-  const DEMO_COMPONENT_SETS = [
-    ['Firmware', 'Web-UI', 'API-Server', 'MQTT-Client'],
-    ['Embedded OS', 'OPC-UA Client', 'REST-API', 'Secure Boot'],
-    ['Container Runtime', 'API Gateway', 'Database', 'Message Queue'],
-    ['Mobile App', 'Backend API', 'Push Service', 'VPN Client'],
-  ];
-  const DEMO_MEASURE_SETS: Record<string, MeasureEntry>[] = [
-    { tls: { active: true, documented: true, audited: false }, auth: { active: true, documented: false, audited: false }, patch: { active: true, documented: true, audited: true }, log: { active: true, documented: false, audited: false } },
-    { tls: { active: true, documented: true, audited: true }, auth: { active: true, documented: true, audited: false }, mfa: { active: true, documented: false, audited: false }, sbom: { active: true, documented: true, audited: false }, secboot: { active: true, documented: true, audited: true } },
-    { tls: { active: true, documented: true, audited: true }, rbac: { active: true, documented: true, audited: false }, monitor: { active: true, documented: true, audited: false }, pentest: { active: true, documented: false, audited: false }, ir: { active: true, documented: true, audited: false } },
-  ];
-  const DEMO_KNOWN_ISSUES = [
-    'OTA update currently uses HTTPS but without package signature verification.',
-    'Default admin credentials are documented but not enforced to change on first login.',
-    'MQTT broker accepts connections without rate limiting. No SBOM available yet.',
-    '',
+  /* ── Demo: coherent end-to-end scenarios ── */
+  interface DemoScenario {
+    product: { name: string; version: string; types: string[] };
+    craClass: string;
+    description: string;
+    components: string[];
+    deployment: string;
+    interfaces: string[];
+    roles: string[];
+    measures: Record<string, MeasureEntry>;
+    knownIssues: string;
+  }
+
+  const DEMO_SCENARIOS: DemoScenario[] = [
+    {
+      // IoT Gateway – Klasse I, moderate Maßnahmen
+      product: { name: 'SmartSense IoT Gateway', version: '2.4.1', types: ['iot', 'embed'] },
+      craClass: 'k1',
+      description: 'IoT gateway collecting sensor data via MQTT, forwarding to cloud backend. Web-based admin UI for configuration. OTA firmware updates via HTTPS.',
+      components: ['Firmware', 'Web-UI', 'API-Server', 'MQTT-Client'],
+      deployment: 'hybrid',
+      interfaces: ['HTTPS/REST', 'MQTT (TLS)', 'SSH', 'LAN/Ethernet'],
+      roles: ['Administrator', 'Operator', 'Read-Only User'],
+      measures: { tls: { active: true, documented: true, audited: false }, auth: { active: true, documented: false, audited: false }, patch: { active: true, documented: true, audited: true }, log: { active: true, documented: false, audited: false } },
+      knownIssues: 'OTA update currently uses HTTPS but without package signature verification.',
+    },
+    {
+      // Industrial Edge – Klasse II, umfangreiche Maßnahmen
+      product: { name: 'IndustrialEdge Controller', version: '3.1.0', types: ['embed', 'network'] },
+      craClass: 'k2',
+      description: 'Edge computing controller for industrial automation. Connects to PLCs via OPC-UA/Modbus, exposes REST API for monitoring. Embedded Linux, secure boot.',
+      components: ['Embedded OS', 'OPC-UA Client', 'REST-API', 'Secure Boot'],
+      deployment: 'embedded',
+      interfaces: ['HTTPS/REST', 'OPC-UA', 'Modbus', 'SSH', 'LAN/Ethernet'],
+      roles: ['Administrator', 'Maintenance Engineer', 'Operator'],
+      measures: { tls: { active: true, documented: true, audited: true }, auth: { active: true, documented: true, audited: false }, mfa: { active: true, documented: false, audited: false }, sbom: { active: true, documented: true, audited: false }, secboot: { active: true, documented: true, audited: true } },
+      knownIssues: 'Modbus interface lacks authentication. SBOM does not yet cover all transitive dependencies.',
+    },
+    {
+      // Cloud SaaS – Default-Klasse, gute Maßnahmen
+      product: { name: 'CloudVault SaaS Platform', version: '5.2.0', types: ['sw', 'cloud'] },
+      craClass: 'default',
+      description: 'Multi-tenant SaaS platform for document management and collaboration. REST API, SSO integration, role-based access. Hosted on AWS with CI/CD pipeline.',
+      components: ['Backend API', 'Web Frontend', 'Auth Service', 'Storage Engine'],
+      deployment: 'cloud',
+      interfaces: ['HTTPS/REST', 'WebSocket', 'SMTP'],
+      roles: ['Tenant Admin', 'Editor', 'Viewer'],
+      measures: { tls: { active: true, documented: true, audited: true }, rbac: { active: true, documented: true, audited: false }, monitor: { active: true, documented: true, audited: false }, pentest: { active: true, documented: false, audited: false }, ir: { active: true, documented: true, audited: false } },
+      knownIssues: '',
+    },
+    {
+      // Mobile Fleet App – Klasse I, Lücken bei Maßnahmen
+      product: { name: 'FleetTrack Mobile', version: '1.8.4', types: ['mobile', 'cloud'] },
+      craClass: 'k1',
+      description: 'Mobile fleet management app with real-time GPS tracking, push notifications, and integration with on-premises ERP via VPN tunnel.',
+      components: ['Mobile App', 'Backend API', 'Push Service', 'VPN Client'],
+      deployment: 'hybrid',
+      interfaces: ['HTTPS/REST', 'WebSocket', 'Bluetooth', 'WLAN'],
+      roles: ['Fleet Manager', 'Driver', 'Dispatcher'],
+      measures: { tls: { active: true, documented: true, audited: false }, auth: { active: true, documented: true, audited: false }, encrypt: { active: true, documented: false, audited: false }, log: { active: true, documented: true, audited: false } },
+      knownIssues: 'Default admin credentials are documented but not enforced to change on first login.',
+    },
+    {
+      // Kritische Infrastruktur – Klasse Kritisch, hohe Anforderungen
+      product: { name: 'SecureLink Hub', version: '2.0.3', types: ['iot', 'hw', 'network'] },
+      craClass: 'krit',
+      description: 'Network gateway for critical infrastructure (energy sector). Provides encrypted tunnel between SCADA systems and central monitoring. Hardware security module for key storage.',
+      components: ['Firmware', 'HSM Interface', 'VPN Engine', 'Monitoring Agent'],
+      deployment: 'onprem',
+      interfaces: ['HTTPS/REST', 'SSH', 'WLAN', 'SNMP', 'LAN/Ethernet'],
+      roles: ['Security Officer', 'Network Administrator', 'Auditor', 'Operator'],
+      measures: { tls: { active: true, documented: true, audited: true }, auth: { active: true, documented: true, audited: true }, mfa: { active: true, documented: true, audited: true }, fw: { active: true, documented: true, audited: false }, secboot: { active: true, documented: true, audited: true }, codesign: { active: true, documented: true, audited: false }, sbom: { active: true, documented: true, audited: true }, ir: { active: true, documented: true, audited: false }, monitor: { active: true, documented: true, audited: true } },
+      knownIssues: 'MQTT broker accepts connections without rate limiting. No SBOM available yet.',
+    },
   ];
 
-  const pick = <T,>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
+  const scenarioRef = useRef(Math.floor(Math.random() * DEMO_SCENARIOS.length));
 
   const handleDemo = useCallback(() => {
+    const scenario = DEMO_SCENARIOS[scenarioRef.current];
     switch (sub) {
-      case 0: {
-        const p = pick(DEMO_PRODUCTS);
-        setD(prev => ({ ...prev, productName: p.name, version: p.version, productTypes: p.types }));
+      case 0:
+        setD(prev => ({ ...prev, productName: scenario.product.name, version: scenario.product.version, productTypes: scenario.product.types }));
         break;
-      }
       case 1:
-        setD(prev => ({ ...prev, craClass: pick(DEMO_CLASSES) }));
+        setD(prev => ({ ...prev, craClass: scenario.craClass }));
         break;
-      case 2: {
-        const desc = pick(DEMO_DESCRIPTIONS);
-        const comps = pick(DEMO_COMPONENT_SETS);
-        // filter to only include components that exist in componentOpts
-        const validComps = comps.filter(c => componentOpts.includes(c));
-        setD(prev => ({ ...prev, description: desc, components: validComps.length > 0 ? validComps : comps, deployment: pick(DEMO_DEPLOYMENTS) }));
+      case 2:
+        setD(prev => ({ ...prev, description: scenario.description, components: scenario.components, deployment: scenario.deployment }));
         break;
-      }
       case 3:
-        setD(prev => ({ ...prev, interfaces: pick(DEMO_INTERFACE_SETS) }));
+        setD(prev => ({ ...prev, interfaces: scenario.interfaces }));
         break;
-      case 4: {
-        const available = rolePresets.length > 0 ? rolePresets : ['Administrator', 'Operator', 'Read-Only User'];
-        const count = 2 + Math.floor(Math.random() * 2);
-        const shuffled = [...available].sort(() => Math.random() - 0.5).slice(0, count);
-        setD(prev => ({ ...prev, roles: shuffled }));
+      case 4:
+        setD(prev => ({ ...prev, roles: scenario.roles }));
         break;
-      }
       case 5:
-        setD(prev => ({ ...prev, measures: pick(DEMO_MEASURE_SETS), knownIssues: pick(DEMO_KNOWN_ISSUES) }));
+        setD(prev => ({ ...prev, measures: scenario.measures, knownIssues: scenario.knownIssues }));
         break;
       case 6:
-        // Skip file upload demo — just leave as-is
         break;
     }
-  }, [sub, componentOpts, rolePresets]);
+  }, [sub]);
+
+  // Pick a new random scenario on restart (when sub resets to 0 from a higher value)
+  const prevSubRef = useRef(0);
+  if (sub === 0 && prevSubRef.current > 0) {
+    scenarioRef.current = Math.floor(Math.random() * DEMO_SCENARIOS.length);
+  }
+  prevSubRef.current = sub;
 
   const isSummary = sub === 7;
 
