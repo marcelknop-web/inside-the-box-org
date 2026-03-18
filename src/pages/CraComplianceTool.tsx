@@ -260,7 +260,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
   // Sub-Step 0: Produkt-Grunddaten
   const Step0 = () => (
     <div className="space-y-5 animate-fade-in">
-      <SubStepHeader current={0} total={TOTAL} title="Was für ein Produkt bewerten wir?" subtitle="Wählen Sie den Typ und geben Sie dem Produkt einen Namen." />
+      <SubStepHeader current={0} total={TOTAL} title="Was für ein Produkt bewerten wir?" subtitle="Produkt-Typ auswählen und Namen vergeben." />
       <InfoBox icon="💡" color="blue">
         Der <strong>Produkt-Typ</strong> bestimmt, welche Bedrohungsszenarien relevant sind. Ein IoT-Gerät hat andere Risiken als eine Web-App.
       </InfoBox>
@@ -284,7 +284,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
   // Sub-Step 1: CRA-Klassifizierung
   const Step1 = () => (
     <div className="space-y-5 animate-fade-in">
-      <SubStepHeader current={1} total={TOTAL} title="Wie ist das Produkt nach CRA eingestuft?" subtitle="Nicht sicher? Wählen Sie vorerst 'Default' — wir helfen bei der Einschätzung." />
+      <SubStepHeader current={1} total={TOTAL} title="Wie ist das Produkt nach CRA eingestuft?" subtitle="Im Zweifelsfall zunächst 'Default' wählen — das Tool hilft bei der Einschätzung." />
       <InfoBox icon="📘" title="Was ist die CRA-Klassifizierung?" color="blue">
         Der Cyber Resilience Act (EU) stuft Produkte nach ihrem Risikopotenzial ein. Die Klasse bestimmt, <strong>wie der Konformitätsnachweis</strong> erbracht werden muss — von Selbstbewertung bis zur Pflichtprüfung durch eine akkreditierte Stelle.
       </InfoBox>
@@ -303,7 +303,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
         ))}
       </div>
       <InfoBox icon="🤔" color="amber">
-        <strong>Nicht sicher?</strong> Wenn Ihr Produkt nicht in Klasse I oder II-Kategorien fällt, ist &quot;Default&quot; meistens korrekt. Das Tool gibt Ihnen später eine Einschätzung basierend auf der Systemanalyse.
+        <strong>Nicht sicher?</strong> Fällt das Produkt nicht in Klasse I oder II-Kategorien, ist &quot;Default&quot; meistens korrekt. Das Tool liefert später eine Einschätzung basierend auf der Systemanalyse.
       </InfoBox>
     </div>
   );
@@ -311,17 +311,17 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
   // Sub-Step 2: Systemarchitektur
   const Step2 = () => (
     <div className="space-y-5 animate-fade-in">
-      <SubStepHeader current={2} total={TOTAL} title="Wie ist das System aufgebaut?" subtitle="Beschreiben Sie kurz, was das System macht — oder wählen Sie die Bausteine aus." />
+      <SubStepHeader current={2} total={TOTAL} title="Wie ist das System aufgebaut?" subtitle="Kurze Systembeschreibung eingeben — oder passende Bausteine auswählen." />
       <InfoBox icon="💡" color="blue">
-        Schreiben Sie einfach auf Deutsch, <strong>was das Produkt macht</strong>, wer es nutzt und womit es verbunden ist. Je mehr Details, desto besser das Threat Model.
+        Einfach auf Deutsch beschreiben, <strong>was das Produkt macht</strong>, wer es nutzt und womit es verbunden ist. Je mehr Details, desto besser das Threat Model.
       </InfoBox>
       <div>
         <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Systembeschreibung</label>
         <div className="text-xs text-muted-foreground/60 mb-2">Beispiel: &quot;Unser Gateway erfasst Temperaturdaten von 50 Sensoren, speichert sie lokal und überträgt sie stündlich an eine Cloud-Plattform.&quot;</div>
-        <textarea rows={4} className="w-full border border-border rounded-lg px-3 py-2.5 text-sm bg-background text-foreground focus:ring-2 focus:ring-primary outline-none resize-none" placeholder="Beschreiben Sie in eigenen Worten: Was tut das Produkt? Wer nutzt es? Womit ist es verbunden?" value={d.description} onChange={e => set('description', e.target.value)} />
+        <textarea rows={4} className="w-full border border-border rounded-lg px-3 py-2.5 text-sm bg-background text-foreground focus:ring-2 focus:ring-primary outline-none resize-none" placeholder="In eigenen Worten beschreiben: Was tut das Produkt? Wer nutzt es? Womit ist es verbunden?" value={d.description} onChange={e => set('description', e.target.value)} />
       </div>
       <div>
-        <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Welche technischen Bausteine hat das System? <span className="normal-case font-normal text-muted-foreground/60">(wählen Sie alle zutreffenden)</span></label>
+        <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Welche technischen Bausteine hat das System? <span className="normal-case font-normal text-muted-foreground/60">(alle zutreffenden auswählen)</span></label>
         <div className="flex flex-wrap gap-2">
           {COMPONENT_OPTS.map(c => (
             <button key={c} onClick={() => toggle('components', c)} className={`border rounded-full px-3 py-1.5 text-xs font-medium transition-all ${d.components.includes(c) ? 'border-primary bg-primary/10 text-foreground' : 'border-border bg-card text-muted-foreground hover:border-primary/40'}`}>{d.components.includes(c) ? '✓ ' : ''}{c}</button>
@@ -342,7 +342,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
   // Sub-Step 3: Schnittstellen
   const Step3 = () => (
     <div className="space-y-5 animate-fade-in">
-      <SubStepHeader current={3} total={TOTAL} title="Über welche Schnittstellen kommuniziert das System?" subtitle="Wählen Sie alle Protokolle und Verbindungen aus, die das Produkt nutzt." />
+      <SubStepHeader current={3} total={TOTAL} title="Über welche Schnittstellen kommuniziert das System?" subtitle="Alle genutzten Protokolle und Verbindungen auswählen." />
       <InfoBox icon="💡" color="blue">
         <strong>Schnittstellen = potenzielle Angriffspunkte.</strong> Jede Verbindung nach außen ist relevant — auch interne APIs, USB-Anschlüsse oder Bluetooth. Symbole ⚠️ markieren unsichere Protokolle.
       </InfoBox>
@@ -355,7 +355,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
       </div>
       {d.interfaces.some(i => i.includes('unverschl') || i === 'HTTP' || i === 'FTP/SFTP') && (
         <InfoBox icon="⚠️" color="amber">
-          Sie haben <strong>unsichere Protokolle</strong> ausgewählt. Diese werden im Threat Model besonders analysiert und führen wahrscheinlich zu CRA-Lücken.
+          Es wurden <strong>unsichere Protokolle</strong> ausgewählt. Diese werden im Threat Model besonders analysiert und führen wahrscheinlich zu CRA-Lücken.
         </InfoBox>
       )}
     </div>
@@ -366,7 +366,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
     <div className="space-y-5 animate-fade-in">
       <SubStepHeader current={4} total={TOTAL} title="Wer hat Zugriff auf das System?" subtitle="Nutzerrollen helfen, Berechtigungsrisiken und Angreifer-Profile zu identifizieren." />
       <InfoBox icon="💡" color="blue">
-        Denken Sie an alle Personen <strong>oder Systeme</strong>, die sich einloggen oder auf Funktionen zugreifen können — auch externe Dienstleister oder automatisierte Prozesse.
+        Alle Personen <strong>und Systeme</strong> berücksichtigen, die sich einloggen oder auf Funktionen zugreifen können — auch externe Dienstleister oder automatisierte Prozesse.
       </InfoBox>
       <div>
         <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Häufige Rollen — klicken zum Hinzufügen</label>
@@ -401,9 +401,9 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
     const cats = [...new Set(SECURITY_MEASURES.map(m => m.cat))];
     return (
       <div className="space-y-5 animate-fade-in">
-        <SubStepHeader current={5} total={TOTAL} title="Welche Sicherheitsmaßnahmen sind bereits vorhanden?" subtitle="Seien Sie ehrlich — auch fehlende Maßnahmen sind wichtige Information." />
+        <SubStepHeader current={5} total={TOTAL} title="Welche Sicherheitsmaßnahmen sind bereits vorhanden?" subtitle="Auch fehlende Maßnahmen sind wichtige Information für das Assessment." />
         <InfoBox icon="💡" color="blue">
-          Wählen Sie alle Maßnahmen, die <strong>aktuell wirklich aktiv</strong> sind — nicht was geplant ist. Fehlende Maßnahmen werden als Lücken im Assessment sichtbar.
+          Nur Maßnahmen auswählen, die <strong>aktuell wirklich aktiv</strong> sind — nicht was geplant ist. Fehlende Maßnahmen werden als Lücken im Assessment sichtbar.
         </InfoBox>
         {cats.map(cat => (
           <div key={cat}>
@@ -422,7 +422,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
         <div>
           <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Bekannte Schwachstellen oder offene Punkte</label>
           <div className="text-xs text-muted-foreground/60 mb-2">Optional — aber sehr wertvoll. Beispiel: &quot;Standard-Passwort nach Auslieferung aktiv&quot;, &quot;kein MFA&quot;</div>
-          <textarea rows={3} className="w-full border border-border rounded-lg px-3 py-2.5 text-sm bg-background text-foreground focus:ring-2 focus:ring-primary outline-none resize-none" placeholder="Was wissen Sie bereits? Was wurde im letzten Audit bemängelt?" value={d.knownIssues} onChange={e => set('knownIssues', e.target.value)} />
+          <textarea rows={3} className="w-full border border-border rounded-lg px-3 py-2.5 text-sm bg-background text-foreground focus:ring-2 focus:ring-primary outline-none resize-none" placeholder="Bekannte Schwachstellen, offene Audit-Punkte …" value={d.knownIssues} onChange={e => set('knownIssues', e.target.value)} />
         </div>
       </div>
     );
@@ -431,9 +431,9 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
   // Sub-Step 6: Anlagen
   const Step6 = () => (
     <div className="space-y-5 animate-fade-in">
-      <SubStepHeader current={5} total={TOTAL} title="Haben Sie Unterlagen, die Sie hochladen möchten?" subtitle="Optional — aber Architekturdiagramme oder Berichte verbessern die Analysequalität." />
+      <SubStepHeader current={5} total={TOTAL} title="Relevante Unterlagen hochladen" subtitle="Optional — aber Architekturdiagramme oder Berichte verbessern die Analysequalität." />
       <InfoBox icon="💡" color="blue">
-        Laden Sie relevante Dokumente hoch. Die KI kann daraus <strong>zusätzliche Kontext-Informationen</strong> extrahieren — z.B. aus einem Architekturdiagramm oder einem Pentestbericht.
+        Relevante Dokumente hochladen. Die KI kann daraus <strong>zusätzliche Kontext-Informationen</strong> extrahieren — z.B. aus einem Architekturdiagramm oder einem Pentestbericht.
       </InfoBox>
       <div className="grid grid-cols-1 gap-2">
         {ATTACH_TYPES.map(t => (
@@ -470,7 +470,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
         </div>
       )}
       <InfoBox icon="🔒" color="green">
-        Dateien verlassen Ihren Computer nicht. Sie werden nur lokal für die Analyse verwendet.
+        Dateien verlassen den Computer nicht und werden nur lokal für die Analyse verwendet.
       </InfoBox>
     </div>
   );
@@ -478,7 +478,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
   // Zusammenfassung
   const Summary = () => (
     <div className="space-y-4 animate-fade-in">
-      <SubStepHeader current={5} total={TOTAL} title="Alles bereit — hier ist Ihre Zusammenfassung" subtitle="Überprüfen Sie die Angaben und starten Sie dann die KI-Analyse." />
+      <SubStepHeader current={5} total={TOTAL} title="Alles bereit — Zusammenfassung" subtitle="Angaben überprüfen und dann die KI-Analyse starten." />
       {[
         { label: 'Produkt', val: `${d.productName} ${d.version}`.trim() },
         { label: 'Typ', val: d.productTypes.map(id => PRODUCT_TYPES.find(t => t.id === id)?.label).join(', ') || '—' },
@@ -527,7 +527,7 @@ function ThreatModel({ threats, onNext }: { threats: Threat[]; onNext: () => voi
   const counts = Object.fromEntries('STRIDE'.split('').map(c => [c, threats.filter(t => t.stride === c).length]));
   return (
     <div className="space-y-4">
-      <InfoBox icon="🛡️" title="STRIDE Threat Model" color="blue">Das System wurde nach <strong>6 Bedrohungskategorien</strong> analysiert. Klicken Sie auf eine Bedrohung für den vollständigen Angriffspfad.</InfoBox>
+      <InfoBox icon="🛡️" title="STRIDE Threat Model" color="blue">Das System wurde nach <strong>6 Bedrohungskategorien</strong> analysiert. Bedrohung anklicken für den vollständigen Angriffspfad.</InfoBox>
       <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
         {Object.entries(STRIDE_META).map(([k, m]) => (
           <div key={k} className="bg-card border border-border rounded-lg p-3 text-center">
@@ -686,7 +686,7 @@ function CRAMapping({ reqs, onNext }: { reqs: CraReq[]; onNext: () => void }) {
 
   return (
     <div className="space-y-4">
-      <InfoBox icon="📋" title="CRA Compliance Mapping" color="blue">Befunde wurden automatisch auf die <strong>CRA-Anforderungen</strong> gemappt. Klicken Sie auf eine Anforderung für Gap-Details und Maßnahmen.</InfoBox>
+      <InfoBox icon="📋" title="CRA Compliance Mapping" color="blue">Befunde wurden automatisch auf die <strong>CRA-Anforderungen</strong> gemappt. Anforderung anklicken für Gap-Details und Maßnahmen.</InfoBox>
       <div className="bg-card border border-border rounded-lg p-5 flex flex-col sm:flex-row items-center gap-6">
         <div className="relative w-24 h-24 flex-shrink-0">
           <svg viewBox="0 0 36 36" className="w-full h-full" style={{ transform: 'rotate(-90deg)' }}>
