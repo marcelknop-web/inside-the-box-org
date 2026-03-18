@@ -329,7 +329,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
       };
 
       stepContent = (
-        <div className="space-y-5">
+        <StaggerReveal resetKey={`intake-5`} stagger={300}>
           <SubStepHeader current={5} total={INTAKE_STEPS} title={t('cra.step5Title')} subtitle={t('cra.step5Sub')} />
           <InfoBox icon="💡" color="blue"><span dangerouslySetInnerHTML={{ __html: t('cra.step5Info') }} /></InfoBox>
           {securityCategories.map(cat => (
@@ -369,7 +369,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
             <div className="text-xs text-muted-foreground/60 mb-2">{t('cra.knownIssuesHint')}</div>
             <textarea rows={3} className="w-full border border-border rounded-lg px-3 py-2.5 text-sm bg-background text-foreground focus:ring-2 focus:ring-primary outline-none resize-none" placeholder={t('cra.knownIssuesPh')} value={d.knownIssues} onChange={e => setField('knownIssues', e.target.value)} />
           </div>
-        </div>
+        </StaggerReveal>
       );
       break;
     }
