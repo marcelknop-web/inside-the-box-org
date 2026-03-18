@@ -8,7 +8,7 @@ import {
   getProductTypes, getCraClasses, getDeploymentOpts,
   INTERFACE_OPTS, getSecurityMeasures, getSecurityCategories,
   getAttachTypes, THREATS, CRA_REQS, getStrideMeta,
-  type Threat, type CraReq, type IntakeData, EMPTY_INTAKE,
+  type Threat, type CraReq, type IntakeData, type MeasureEntry, EMPTY_INTAKE,
 } from '@/data/craData';
 
 // ── Helpers ─────────────────────────────────────────────────────
@@ -292,7 +292,36 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
         </div>
       );
       break;
-    case 5:
+    case 5: {
+      const toggleMeasure = (id: string) => {
+        setD(prev => {
+          const existing = prev.measures[id];
+          if (existing) {
+            // Remove if toggling off
+            const { [id]: _, ...rest } = prev.measures;
+            return { ...prev, measures: rest };
+          }
+          return { ...prev, measures: { ...prev.measures, [id]: { active: true, documented: false, audited: false } } };
+        });
+      };
+      const setMeasureProp = (id: string, prop: 'documented' | 'audited', val: boolean) => {
+        setD(prev => {
+          const entry = prev.measures[id];
+          if (!entry) return prev;
+          return { ...prev, measures: { ...prev.measures, [id]: { ...entry, [prop]: val } } };
+        });
+      };
+      const maturityLabel = (entry: MeasureEntry) => {
+        if (entry.active && entry.documented && entry.audited) return t('cra.maturityFull');
+        if (entry.active && entry.documented) return t('cra.maturityPartial');
+        return t('cra.maturityBasic');
+      };
+      const maturityColor = (entry: MeasureEntry) => {
+        if (entry.active && entry.documented && entry.audited) return 'text-green-400';
+        if (entry.active && entry.documented) return 'text-yellow-400';
+        return 'text-orange-400';
+      };
+
       stepContent = (
         <div className="space-y-5">
           <SubStepHeader current={5} total={INTAKE_STEPS} title={t('cra.step5Title')} subtitle={t('cra.step5Sub')} />
@@ -301,13 +330,31 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
             <div key={cat}>
               <div className="text-xs font-semibold text-muted-foreground/60 uppercase tracking-wide mb-2">{cat}</div>
               <div className="space-y-1.5">
-                {securityMeasures.filter(m => m.cat === cat).map(m => (
-                  <label key={m.id} className={`flex items-center gap-3 border rounded-lg px-3 py-2.5 cursor-pointer transition-all ${d.measures.includes(m.id) ? 'border-green-500/30 bg-green-500/10' : 'border-border bg-card hover:border-muted-foreground/30'}`}>
-                    <input type="checkbox" className="w-4 h-4 rounded accent-green-600 flex-shrink-0" checked={d.measures.includes(m.id)} onChange={() => toggleArray('measures', m.id)} />
-                    <span className="text-sm text-foreground">{m.label}</span>
-                    {d.measures.includes(m.id) && <span className="ml-auto text-green-400 text-xs font-semibold">{t('cra.present')}</span>}
-                  </label>
-                ))}
+                {securityMeasures.filter(m => m.cat === cat).map(m => {
+                  const entry = d.measures[m.id];
+                  const isActive = !!entry;
+                  return (
+                    <div key={m.id} className={`border rounded-lg transition-all ${isActive ? 'border-green-500/30 bg-green-500/10' : 'border-border bg-card hover:border-muted-foreground/30'}`}>
+                      <label className="flex items-center gap-3 px-3 py-2.5 cursor-pointer">
+                        <input type="checkbox" className="w-4 h-4 rounded accent-green-600 flex-shrink-0" checked={isActive} onChange={() => toggleMeasure(m.id)} />
+                        <span className="text-sm text-foreground flex-1">{m.label}</span>
+                        {isActive && <span className={`text-xs font-semibold flex-shrink-0 ${maturityColor(entry)}`}>{maturityLabel(entry)}</span>}
+                      </label>
+                      {isActive && (
+                        <div className="flex gap-4 px-10 pb-2.5 -mt-1">
+                          <label className="flex items-center gap-1.5 cursor-pointer group">
+                            <input type="checkbox" className="w-3.5 h-3.5 rounded accent-primary flex-shrink-0" checked={entry.documented} onChange={e => setMeasureProp(m.id, 'documented', e.target.checked)} />
+                            <span className="text-xs text-muted-foreground group-hover:text-foreground transition-colors">{t('cra.documented')}</span>
+                          </label>
+                          <label className="flex items-center gap-1.5 cursor-pointer group">
+                            <input type="checkbox" className="w-3.5 h-3.5 rounded accent-primary flex-shrink-0" checked={entry.audited} onChange={e => setMeasureProp(m.id, 'audited', e.target.checked)} />
+                            <span className="text-xs text-muted-foreground group-hover:text-foreground transition-colors">{t('cra.audited')}</span>
+                          </label>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           ))}
@@ -319,6 +366,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
         </div>
       );
       break;
+    }
     case 6:
       stepContent = (
         <div className="space-y-5">
@@ -372,7 +420,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
             { label: t('cra.sumComponents'), val: d.components.length > 0 ? d.components.join(', ') : '—' },
             { label: t('cra.sumInterfaces'), val: d.interfaces.length > 0 ? d.interfaces.join(', ') : '—' },
             { label: t('cra.sumRoles'), val: d.roles.length > 0 ? d.roles.join(', ') : '—' },
-            { label: t('cra.sumMeasures'), val: d.measures.length > 0 ? `${d.measures.length} ${t('cra.sumMeasuresSelected')}` : t('cra.sumMeasuresNone') },
+            { label: t('cra.sumMeasures'), val: (() => { const cnt = Object.keys(d.measures).length; return cnt > 0 ? `${cnt} ${t('cra.sumMeasuresSelected')}` : t('cra.sumMeasuresNone'); })() },
             { label: t('cra.sumAttach'), val: d.files.length > 0 ? `${d.files.length} ${t('cra.sumFiles')}` : t('cra.sumFilesNone') },
           ].map(({ label, val }) => (
             <div key={label} className="flex gap-3 text-sm border-b border-border/50 pb-2 last:border-0 last:pb-0">
