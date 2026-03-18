@@ -24,6 +24,7 @@ const ThreatDropQuiz = lazy(() => import('./ThreatDropQuiz'));
 const TriggerTriage = lazy(() => import('./TriggerTriage'));
 const CyberFrogger = lazy(() => import('./CyberFrogger'));
 const EliteShipScene = lazy(() => import('./EliteShipScene'));
+const CraComplianceTool = lazy(() => import('./CraComplianceTool'));
 
 
 import { StaggerReveal } from '@/components/StaggerReveal';
