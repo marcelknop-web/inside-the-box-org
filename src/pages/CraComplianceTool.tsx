@@ -303,7 +303,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
         ))}
       </div>
       <InfoBox icon="🤔" color="amber">
-        <strong>Nicht sicher?</strong> Wenn Ihr Produkt nicht in Klasse I oder II-Kategorien fällt, ist &quot;Default&quot; meistens korrekt. Das Tool gibt Ihnen später eine Einschätzung basierend auf der Systemanalyse.
+        <strong>Nicht sicher?</strong> Fällt das Produkt nicht in Klasse I oder II-Kategorien, ist &quot;Default&quot; meistens korrekt. Das Tool liefert später eine Einschätzung basierend auf der Systemanalyse.
       </InfoBox>
     </div>
   );
