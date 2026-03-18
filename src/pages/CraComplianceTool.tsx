@@ -1009,7 +1009,7 @@ const CraComplianceTool = ({ embedded }: { embedded?: boolean }) => {
     <div className={embedded ? '' : 'min-h-screen bg-background'}>
       {!embedded && <PageMeta title="CRA Compliance Tool" description="AI Cyber Risk & CRA Compliance Assessment" />}
 
-      <div className="border-b border-border px-4 py-3 mb-1">
+      <div className="border-b border-border px-4 py-3 mb-1" ref={contentRef}>
         <div className="flex items-center max-w-5xl mx-auto overflow-x-auto">
           {mainSteps.map((s, i) => (
             <div key={i} className="flex items-center flex-1 last:flex-none">
