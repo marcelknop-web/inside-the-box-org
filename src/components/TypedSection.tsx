@@ -24,10 +24,10 @@ const TypedSection = ({
   charDelay = 8,
   intro,
   children,
-  stagger = 350,
+  stagger = 500,
 }: TypedSectionProps) => {
   const isMobile = useIsMobile();
-  const effectiveStagger = isMobile ? Math.max(stagger, 600) : stagger;
+  const effectiveStagger = isMobile ? Math.max(stagger, 700) : stagger;
   const [introVisible, setIntroVisible] = useState(false);
   const [titleDone, setTitleDone] = useState(false);
   const [introDone, setIntroDone] = useState(!intro); // if no intro, skip
