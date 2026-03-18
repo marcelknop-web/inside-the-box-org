@@ -14,7 +14,7 @@ export interface CraReportData {
 /* ────── I18N ────── */
 const I18N = {
   title: { de: 'Cyber Risk Assessment', en: 'Cyber Risk Assessment', fr: 'Évaluation des cyber-risques' },
-  subtitle: { de: 'Prüfbericht nach EU Cyber Resilience Act', en: 'Assessment Report per EU Cyber Resilience Act', fr: 'Rapport d\'évaluation selon le Cyber Resilience Act' },
+  subtitle: { de: 'Prüfbericht nach EU Cyber Resilience Act', en: 'Assessment Report pursuant to EU Cyber Resilience Act', fr: 'Rapport d\'évaluation selon le Cyber Resilience Act de l\'UE' },
   generated: { de: 'Erstellt am', en: 'Generated on', fr: 'Généré le' },
   reportId: { de: 'Bericht-Nr.', en: 'Report No.', fr: 'N° de rapport' },
   page: { de: 'Seite', en: 'Page', fr: 'Page' },
