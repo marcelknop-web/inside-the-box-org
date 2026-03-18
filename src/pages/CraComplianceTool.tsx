@@ -478,7 +478,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
   // Zusammenfassung
   const Summary = () => (
     <div className="space-y-4 animate-fade-in">
-      <SubStepHeader current={5} total={TOTAL} title="Alles bereit — hier ist Ihre Zusammenfassung" subtitle="Überprüfen Sie die Angaben und starten Sie dann die KI-Analyse." />
+      <SubStepHeader current={5} total={TOTAL} title="Alles bereit — Zusammenfassung" subtitle="Angaben überprüfen und dann die KI-Analyse starten." />
       {[
         { label: 'Produkt', val: `${d.productName} ${d.version}`.trim() },
         { label: 'Typ', val: d.productTypes.map(id => PRODUCT_TYPES.find(t => t.id === id)?.label).join(', ') || '—' },
