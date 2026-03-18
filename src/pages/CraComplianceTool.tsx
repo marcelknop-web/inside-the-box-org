@@ -366,7 +366,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
     <div className="space-y-5 animate-fade-in">
       <SubStepHeader current={4} total={TOTAL} title="Wer hat Zugriff auf das System?" subtitle="Nutzerrollen helfen, Berechtigungsrisiken und Angreifer-Profile zu identifizieren." />
       <InfoBox icon="💡" color="blue">
-        Denken Sie an alle Personen <strong>oder Systeme</strong>, die sich einloggen oder auf Funktionen zugreifen können — auch externe Dienstleister oder automatisierte Prozesse.
+        Alle Personen <strong>und Systeme</strong> berücksichtigen, die sich einloggen oder auf Funktionen zugreifen können — auch externe Dienstleister oder automatisierte Prozesse.
       </InfoBox>
       <div>
         <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Häufige Rollen — klicken zum Hinzufügen</label>
