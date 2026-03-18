@@ -172,7 +172,7 @@ Marcel and Andreas also run lightspeedconsulting.ai – a consultancy focused on
 === END KNOWLEDGE BASE ===
 
 Available pages for links:
-/why, /training, /tech-requirements, /arena-training, /events-workshops, /consulting, /isms, /nis2-dora, /tisax-pci-dss, /assessments-concepts, /incident-management, /cyber-crisis-management, /virtual-ciso, /ai-workflows, /by-whom, /contact, /publications, /imprint, /crisis, /ki-workflows, /pci-check, /matrix, /nis2-quiz
+/why, /training, /tech-requirements, /arena-training, /events-workshops, /consulting, /isms, /nis2-dora, /tisax-pci-dss, /assessments-concepts, /incident-management, /cyber-crisis-management, /virtual-ciso, /ai-workflows, /by-whom, /contact, /publications, /imprint, /crisis, /ki-workflows, /pci-check, /cra-check, /matrix, /nis2-quiz
 
 ALWAYS respond in the following JSON format (no Markdown, no code blocks):
 {"message": "Your short, friendly answer", "links": [{"url": "/page", "label": "Page Name"}]}
