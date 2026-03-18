@@ -130,17 +130,6 @@ const I18N = {
   plausibilityWarning: { de: 'Plausibilitätshinweis', en: 'Plausibility Notice', fr: 'Avis de plausibilité' },
 };
 
-/* ── Demo scenarios (plausible profiles) ── */
-const DEMO_SCENARIOS: Record<string, string>[] = [
-  { role: 'tier1', information: 'cad', prototype: 'indirect', network: 'direct', dataclass: 'confidential', oemrequest: 'yes-al2' },
-  { role: 'oem', information: 'prototype', prototype: 'direct', network: 'direct', dataclass: 'strictly-confidential', oemrequest: 'yes-al3' },
-  { role: 'provider', information: 'personal', prototype: 'no', network: 'indirect', dataclass: 'internal', oemrequest: 'expected' },
-  { role: 'tier2', information: 'financial', prototype: 'no', network: 'indirect', dataclass: 'internal', oemrequest: 'no' },
-  { role: 'tier1', information: 'prototype', prototype: 'direct', network: 'direct', dataclass: 'strictly-confidential', oemrequest: 'yes-al3' },
-  { role: 'provider', information: 'cad', prototype: 'indirect', network: 'direct', dataclass: 'confidential', oemrequest: 'yes-al2' },
-  { role: 'tier2', information: 'personal', prototype: 'no', network: 'no', dataclass: 'internal', oemrequest: 'expected' },
-  { role: 'oem', information: 'cad', prototype: 'indirect', network: 'direct', dataclass: 'confidential', oemrequest: 'yes-nolevel' },
-];
 
 const STEP_LABELS: Record<string, Record<string, string>> = {
   role: { de: 'Rolle in Supply Chain', en: 'Role in Supply Chain', fr: 'Rôle dans la chaîne' },
