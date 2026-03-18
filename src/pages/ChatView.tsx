@@ -1312,10 +1312,12 @@ const ChatView = () => {
               </button>
             </div>
             <SidebarItems groups={sidebarGroups} activeId={activeService} onSelect={selectService} />
-            <div className="border-t border-border p-3 flex items-center justify-center">
-              <button onClick={() => setLanguage(nextLanguage(language))} className="rounded-lg border border-highlight/30 px-2.5 py-1.5 text-xs font-rounded font-bold text-highlight hover:bg-highlight/10 hover:border-highlight/50 transition-electric uppercase tracking-wider">
-                {language.toUpperCase()}
-              </button>
+            <div className="border-t border-border p-3 flex items-center justify-center gap-1">
+              {(['en', 'de', 'fr'] as const).map(lng => (
+                <button key={lng} onClick={() => setLanguage(lng)} className={`rounded-lg border px-2.5 py-1.5 text-xs font-rounded font-bold uppercase tracking-wider transition-electric ${language === lng ? 'bg-highlight/20 border-highlight text-highlight' : 'border-highlight/30 text-highlight/60 hover:bg-highlight/10 hover:border-highlight/50 hover:text-highlight'}`}>
+                  {lng.toUpperCase()}
+                </button>
+              ))}
             </div>
           </div>
         </div>
@@ -1327,9 +1329,13 @@ const ChatView = () => {
           <div className="w-64 h-full flex flex-col bg-card border-r border-border">
             <div className="h-12 px-3 flex items-center justify-between bg-primary/10 border-b border-border flex-shrink-0">
               <button onClick={() => navigateToService(null)} className="flex items-center gap-2 text-sm font-rounded font-bold text-primary hover:text-highlight transition-electric cursor-pointer bg-transparent border-none p-0"><GeometricSymbol size="xs" />inside-the-box.org</button>
-              <button onClick={() => setLanguage(nextLanguage(language))} className="rounded-lg border border-highlight/30 px-2.5 py-2.5 text-xs font-rounded font-bold text-highlight hover:bg-highlight/10 hover:border-highlight/50 transition-electric uppercase tracking-wider">
-                {language.toUpperCase()}
-              </button>
+              <div className="flex gap-1">
+                {(['en', 'de', 'fr'] as const).map(lng => (
+                  <button key={lng} onClick={() => setLanguage(lng)} className={`rounded-lg border px-2 py-1.5 text-xs font-rounded font-bold uppercase tracking-wider transition-electric ${language === lng ? 'bg-highlight/20 border-highlight text-highlight' : 'border-highlight/30 text-highlight/60 hover:bg-highlight/10 hover:border-highlight/50 hover:text-highlight'}`}>
+                    {lng.toUpperCase()}
+                  </button>
+                ))}
+              </div>
             </div>
             <SidebarItems groups={sidebarGroups} activeId={activeService} onSelect={selectService} />
           </div>
