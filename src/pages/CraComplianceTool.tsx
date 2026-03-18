@@ -912,6 +912,7 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
               </div>
             </div>
           </div>
+        ))}
       </div>
 
       <div className="grid grid-cols-3 gap-3">
