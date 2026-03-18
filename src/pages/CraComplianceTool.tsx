@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useMemo, memo } from 'react';
+import { useState, useCallback, useRef, useMemo, memo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { RotateCcw, ChevronDown, ChevronUp, Loader2, Sparkles, FileText } from 'lucide-react';
 import { generateCraReport } from '@/utils/craReportPdf';
