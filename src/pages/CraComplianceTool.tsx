@@ -888,12 +888,31 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
           <span className="text-sm font-bold text-destructive">Sofortmaßnahmen — {fail.length} kritische Lücken</span>
         </div>
         {fail.map((r, i) => (
-          <div key={r.id} className={`flex gap-3 px-4 py-3 text-sm ${i % 2 === 0 ? 'bg-card' : 'bg-secondary/30'} ${i < fail.length - 1 ? 'border-b border-border' : ''}`}>
-            <span className="font-bold text-destructive w-5 flex-shrink-0 font-mono">{i + 1}.</span>
-            <div>
-              <div className="font-semibold text-foreground">{r.name}</div>
-              <div className="text-muted-foreground text-xs mt-0.5">{r.measure}</div>
-              <div className="text-muted-foreground/60 text-xs mt-0.5">{r.article}</div>
+          <div key={r.id} className={`px-4 py-3 text-sm ${i % 2 === 0 ? 'bg-card' : 'bg-secondary/30'} ${i < fail.length - 1 ? 'border-b border-border' : ''}`}>
+            <div className="flex gap-3">
+              <span className="font-bold text-destructive w-5 flex-shrink-0 font-mono">{i + 1}.</span>
+              <div className="flex-1 space-y-2">
+                <div>
+                  <div className="font-semibold text-foreground">{r.name}</div>
+                  <div className="text-muted-foreground/60 text-xs">{r.article}</div>
+                </div>
+                <div className="text-xs"><span className="font-semibold text-muted-foreground">Evidenz: </span>{r.evidence}</div>
+                <div className="text-xs"><span className="font-semibold text-muted-foreground">Begründung: </span>{r.rationale}</div>
+                <div className="text-xs"><span className="font-semibold text-primary">Maßnahme: </span>{r.measure}</div>
+                {r.criteria.length > 0 && (
+                  <div className="bg-background/50 border border-primary/20 rounded px-2.5 py-1.5 text-xs">
+                    <div className="font-semibold text-primary mb-1">Akzeptanzkriterien:</div>
+                    <ul className="space-y-0.5">
+                      {r.criteria.map((c, ci) => (
+                        <li key={ci} className="flex gap-1.5 text-foreground"><span className="text-primary/60 font-mono">{ci + 1}.</span>{c}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        ))}
             </div>
           </div>
         ))}
