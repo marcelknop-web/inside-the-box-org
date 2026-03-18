@@ -496,7 +496,7 @@ export const fr = {
     marcel: {
       bio: 'Marcel Knop conseille les organisations en stratégie de cybersécurité, implémentation SMSI, gestion de cyber-crise et conformité réglementaire. Avant son activité indépendante, il a occupé des postes de Senior Manager chez KPMG, Accenture et Ernst & Young.',
       focusLabel: 'Domaines clés',
-      focus: 'SMSI, TISAX, NIS-2, PCI-DSS, Gestion de cyber-crise, TIBER, BCM',
+      focus: 'SMSI · TISAX · NIS-2 · PCI-DSS · Gestion de cyber-crise · TIBER · BCM',
       certsLabel: 'Certifications',
       certs: 'CISSP · CISA · ISO/IEC 27001 + 22301 Lead Auditor · BSI Baseline Protection Practitioner',
       eduLabel: 'Formation',
