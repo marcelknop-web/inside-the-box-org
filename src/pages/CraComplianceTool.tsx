@@ -487,12 +487,12 @@ function ThreatModel({ threats, onNext }: { threats: Threat[]; onNext: () => voi
           return (
             <div key={th.id} className="bg-card border border-border rounded-lg overflow-hidden">
               <div className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-secondary/50" onClick={() => setExp(isOpen ? null : th.id)}>
-                <span className={`px-2 py-0.5 rounded text-xs font-bold ${meta.badge}`}>{th.stride}</span>
+                <span className={`px-2 py-0.5 rounded text-xs font-bold ${meta.badge}`}>{threatId(th)}</span>
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-semibold text-foreground truncate">{th.name}</div>
-                  <div className="text-xs text-muted-foreground">{th.component}</div>
+                  <div className="text-xs text-muted-foreground">{th.component} · {th.cra}</div>
                 </div>
-                <span className={`px-2 py-0.5 rounded text-xs font-bold flex-shrink-0 ${risk.cls}`}>{risk.label} (<span className="font-mono">{th.likelihood * th.impact}</span>)</span>
+                <span className={`px-2 py-0.5 rounded text-xs font-bold flex-shrink-0 ${risk.cls}`}>{risk.label} (<span className="font-mono">{th.likelihood}×{th.impact}={th.likelihood * th.impact}</span>)</span>
                 {isOpen ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
               </div>
               {isOpen && (
