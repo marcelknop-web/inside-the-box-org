@@ -647,7 +647,7 @@ export const fr = {
     statusPass: '✔ Conforme',
     statusPartial: '⚠ Partiel',
     statusFail: '✕ Lacune',
-    criteriaHeader: '✅ Critères d\'acceptation — la mesure est considérée mise en œuvre lorsque :',
+    criteriaHeader: '✅ Definition of Done — la mesure est mise en œuvre lorsque :',
     back: '← Retour',
     next: 'Suivant →',
     toSummary: 'Résumé →',

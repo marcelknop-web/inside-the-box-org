@@ -651,7 +651,7 @@ export const de = {
     statusPartial: '⚠ Teilweise',
     statusFail: '✕ Lücke',
     // Criteria block
-    criteriaHeader: '✅ Akzeptanzkriterien — Maßnahme gilt als umgesetzt, wenn:',
+    criteriaHeader: '✅ Definition of Done — die Maßnahme ist umgesetzt, wenn:',
     // Navigation
     back: '← Zurück',
     next: 'Weiter →',
