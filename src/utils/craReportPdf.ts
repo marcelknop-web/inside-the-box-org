@@ -276,11 +276,16 @@ export function generateCraReport(data: CraReportData): void {
     doc.rect(0, H - 3, W, 3, 'F');
   }
 
+  function preparePage() {
+    drawMillimeterGrid(doc);
+    drawWatermark(doc, W / 2, H / 2, 55);
+  }
+
   function checkPage(need: number = 20) {
     if (y > H - 28 - need) {
       addFooter();
       doc.addPage();
-      drawWatermark(doc, W / 2, H / 2, 55);
+      preparePage();
       y = 28;
     }
   }
@@ -288,7 +293,7 @@ export function generateCraReport(data: CraReportData): void {
   function newSection() {
     addFooter();
     doc.addPage();
-    drawWatermark(doc, W / 2, H / 2, 55);
+    preparePage();
     y = 28;
   }
 
