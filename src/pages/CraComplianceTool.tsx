@@ -318,7 +318,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
       <div>
         <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Systembeschreibung</label>
         <div className="text-xs text-muted-foreground/60 mb-2">Beispiel: &quot;Unser Gateway erfasst Temperaturdaten von 50 Sensoren, speichert sie lokal und überträgt sie stündlich an eine Cloud-Plattform.&quot;</div>
-        <textarea rows={4} className="w-full border border-border rounded-lg px-3 py-2.5 text-sm bg-background text-foreground focus:ring-2 focus:ring-primary outline-none resize-none" placeholder="Beschreiben Sie in eigenen Worten: Was tut das Produkt? Wer nutzt es? Womit ist es verbunden?" value={d.description} onChange={e => set('description', e.target.value)} />
+        <textarea rows={4} className="w-full border border-border rounded-lg px-3 py-2.5 text-sm bg-background text-foreground focus:ring-2 focus:ring-primary outline-none resize-none" placeholder="In eigenen Worten beschreiben: Was tut das Produkt? Wer nutzt es? Womit ist es verbunden?" value={d.description} onChange={e => set('description', e.target.value)} />
       </div>
       <div>
         <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Welche technischen Bausteine hat das System? <span className="normal-case font-normal text-muted-foreground/60">(wählen Sie alle zutreffenden)</span></label>
