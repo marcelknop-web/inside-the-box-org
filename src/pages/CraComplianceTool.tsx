@@ -420,7 +420,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
             { label: t('cra.sumComponents'), val: d.components.length > 0 ? d.components.join(', ') : '—' },
             { label: t('cra.sumInterfaces'), val: d.interfaces.length > 0 ? d.interfaces.join(', ') : '—' },
             { label: t('cra.sumRoles'), val: d.roles.length > 0 ? d.roles.join(', ') : '—' },
-            { label: t('cra.sumMeasures'), val: d.measures.length > 0 ? `${d.measures.length} ${t('cra.sumMeasuresSelected')}` : t('cra.sumMeasuresNone') },
+            { label: t('cra.sumMeasures'), val: (() => { const cnt = Object.keys(d.measures).length; return cnt > 0 ? `${cnt} ${t('cra.sumMeasuresSelected')}` : t('cra.sumMeasuresNone'); })() },
             { label: t('cra.sumAttach'), val: d.files.length > 0 ? `${d.files.length} ${t('cra.sumFiles')}` : t('cra.sumFilesNone') },
           ].map(({ label, val }) => (
             <div key={label} className="flex gap-3 text-sm border-b border-border/50 pb-2 last:border-0 last:pb-0">
