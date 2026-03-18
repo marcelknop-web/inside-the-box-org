@@ -764,6 +764,27 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
         <p className="text-sm text-foreground leading-relaxed" dangerouslySetInnerHTML={{ __html: introHtml }} />
       </div>
 
+      {/* Prio 3: Explicitly name critical risks */}
+      {critRisks.length > 0 && (
+        <div className="bg-card border-2 border-destructive/30 rounded-lg overflow-hidden">
+          <div className="px-4 py-3 bg-destructive/10 border-b border-destructive/20">
+            <span className="text-sm font-bold text-destructive">{t('cra.rpCritRisksTitle')} — {critRisks.length} {t('cra.rpCritRisks')}</span>
+          </div>
+          <div className="px-4 py-3 text-sm space-y-2">
+            {critRisks.map(th => (
+              <div key={th.id} className="flex items-start gap-3">
+                <span className="font-mono text-xs text-destructive font-bold bg-destructive/10 px-1.5 py-0.5 rounded flex-shrink-0">{threatId(th)}</span>
+                <div className="flex-1">
+                  <span className="font-semibold text-foreground">{th.name}</span>
+                  <span className="text-muted-foreground"> — {th.component}</span>
+                  <div className="text-xs text-muted-foreground mt-0.5">Score: <span className="font-mono font-bold text-destructive">{th.likelihood}×{th.impact}={th.likelihood * th.impact}</span></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="bg-card border border-border rounded-lg overflow-hidden">
         <div className="px-4 py-3 bg-destructive/10 border-b border-destructive/20">
           <span className="text-sm font-bold text-destructive">{t('cra.rpImmediate')} — {failReqs.length} {t('cra.rpCritGaps')}</span>
