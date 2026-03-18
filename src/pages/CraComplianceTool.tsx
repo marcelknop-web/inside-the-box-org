@@ -313,7 +313,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
     <div className="space-y-5 animate-fade-in">
       <SubStepHeader current={2} total={TOTAL} title="Wie ist das System aufgebaut?" subtitle="Kurze Systembeschreibung eingeben — oder passende Bausteine auswählen." />
       <InfoBox icon="💡" color="blue">
-        Schreiben Sie einfach auf Deutsch, <strong>was das Produkt macht</strong>, wer es nutzt und womit es verbunden ist. Je mehr Details, desto besser das Threat Model.
+        Einfach auf Deutsch beschreiben, <strong>was das Produkt macht</strong>, wer es nutzt und womit es verbunden ist. Je mehr Details, desto besser das Threat Model.
       </InfoBox>
       <div>
         <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Systembeschreibung</label>
