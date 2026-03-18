@@ -140,6 +140,11 @@ export interface Threat {
   evidence: string; rationale: string; sources: string[];
 }
 
+/** Returns a formatted threat ID like S-001, T-002, etc. */
+export function threatId(th: Threat): string {
+  return `${th.stride}-${String(th.id).padStart(3, '0')}`;
+}
+
 export interface CraReq {
   id: string; article: string; name: string;
   status: 'pass' | 'partial' | 'fail';
