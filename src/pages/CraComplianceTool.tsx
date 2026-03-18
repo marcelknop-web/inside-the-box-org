@@ -284,7 +284,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
   // Sub-Step 1: CRA-Klassifizierung
   const Step1 = () => (
     <div className="space-y-5 animate-fade-in">
-      <SubStepHeader current={1} total={TOTAL} title="Wie ist das Produkt nach CRA eingestuft?" subtitle="Nicht sicher? Wählen Sie vorerst 'Default' — wir helfen bei der Einschätzung." />
+      <SubStepHeader current={1} total={TOTAL} title="Wie ist das Produkt nach CRA eingestuft?" subtitle="Im Zweifelsfall zunächst 'Default' wählen — das Tool hilft bei der Einschätzung." />
       <InfoBox icon="📘" title="Was ist die CRA-Klassifizierung?" color="blue">
         Der Cyber Resilience Act (EU) stuft Produkte nach ihrem Risikopotenzial ein. Die Klasse bestimmt, <strong>wie der Konformitätsnachweis</strong> erbracht werden muss — von Selbstbewertung bis zur Pflichtprüfung durch eine akkreditierte Stelle.
       </InfoBox>
