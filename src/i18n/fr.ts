@@ -496,7 +496,7 @@ export const fr = {
     marcel: {
       bio: 'Marcel Knop conseille les organisations en stratégie de cybersécurité, implémentation SMSI, gestion de cyber-crise et conformité réglementaire. Avant son activité indépendante, il a occupé des postes de Senior Manager chez KPMG, Accenture et Ernst & Young.',
       focusLabel: 'Domaines clés',
-      focus: 'SMSI, TISAX, NIS-2, PCI-DSS, Gestion de cyber-crise, TIBER, BCM',
+      focus: 'SMSI · TISAX · NIS-2 · PCI-DSS · Gestion de cyber-crise · TIBER · BCM',
       certsLabel: 'Certifications',
       certs: 'CISSP · CISA · ISO/IEC 27001 + 22301 Lead Auditor · BSI Baseline Protection Practitioner',
       eduLabel: 'Formation',
@@ -507,7 +507,7 @@ export const fr = {
     andreas: {
       bio: 'Andreas Funder conseille les organisations en sécurité de l\'information, gestion des risques et protection des données. Expérience de projet acquise dans des postes seniors chez PwC, Ernst & Young et CSPi.',
       focusLabel: 'Domaines clés',
-      focus: 'ISO/IEC 27001, PCI-DSS, NIST, TISAX, Gestion des risques, Continuité d\'activité, RGPD UE, KRITIS',
+      focus: 'ISO/IEC 27001 · PCI-DSS · NIST · TISAX · Gestion des risques · Continuité d\'activité · RGPD UE · KRITIS',
       certsLabel: 'Certifications',
       certs: 'ISO/IEC 27001 Lead Auditor + Implementer · ISO/IEC 27005 Risk Manager · BSI IT-Grundschutz Practitioner · Auditeur protection des données (DSA-TÜV)',
       eduLabel: 'Formation',
