@@ -13,96 +13,172 @@ export interface CraReportData {
 
 /* ────── I18N ────── */
 const I18N = {
-  title: { de: 'Cyber Risk Assessment Report', en: 'Cyber Risk Assessment Report', fr: 'Rapport d\'évaluation des cyber-risques' },
-  subtitle: { de: 'CRA-Konformitätsbewertung', en: 'CRA Compliance Assessment', fr: 'Évaluation de conformité CRA' },
+  title: { de: 'Cyber Risk Assessment', en: 'Cyber Risk Assessment', fr: 'Évaluation des cyber-risques' },
+  subtitle: { de: 'Prüfbericht nach EU Cyber Resilience Act', en: 'Assessment Report per EU Cyber Resilience Act', fr: 'Rapport d\'évaluation selon le Cyber Resilience Act' },
   generated: { de: 'Erstellt am', en: 'Generated on', fr: 'Généré le' },
-  reportId: { de: 'Report-Nr.', en: 'Report No.', fr: 'N° de rapport' },
+  reportId: { de: 'Bericht-Nr.', en: 'Report No.', fr: 'N° de rapport' },
   page: { de: 'Seite', en: 'Page', fr: 'Page' },
-  of: { de: 'von', en: 'of', fr: 'de' },
   confidential: { de: 'VERTRAULICH', en: 'CONFIDENTIAL', fr: 'CONFIDENTIEL' },
   toc: { de: 'Inhaltsverzeichnis', en: 'Table of Contents', fr: 'Table des matières' },
-  sec1: { de: '1  Executive Summary', en: '1  Executive Summary', fr: '1  Résumé exécutif' },
-  sec2: { de: '2  Produktinformationen', en: '2  Product Information', fr: '2  Informations produit' },
-  sec3: { de: '3  Bedrohungsanalyse (STRIDE)', en: '3  Threat Analysis (STRIDE)', fr: '3  Analyse des menaces (STRIDE)' },
-  sec4: { de: '4  Kritische Risiken', en: '4  Critical Risks', fr: '4  Risques critiques' },
-  sec5: { de: '5  CRA-Anforderungen', en: '5  CRA Requirements', fr: '5  Exigences CRA' },
-  sec6: { de: '6  Sofortmaßnahmen', en: '6  Immediate Actions', fr: '6  Actions immédiates' },
-  sec7: { de: '7  Methodik & Referenzen', en: '7  Methodology & References', fr: '7  Méthodologie & références' },
-  sec8: { de: '8  Haftungsausschluss', en: '8  Disclaimer', fr: '8  Avertissement' },
+
+  sec1: { de: '1  Ausgangslage und Zielsetzung', en: '1  Context and Objectives', fr: '1  Contexte et objectifs' },
+  sec2: { de: '2  Zusammenfassung für die Geschäftsleitung', en: '2  Management Summary', fr: '2  Synthèse pour la direction' },
+  sec3: { de: '3  Gegenstand der Prüfung', en: '3  Scope of Assessment', fr: '3  Périmètre de l\'évaluation' },
+  sec4: { de: '4  Feststellungen im Einzelnen', en: '4  Detailed Findings', fr: '4  Constatations détaillées' },
+  sec4a: { de: '4.1  Bedrohungslandschaft (STRIDE-Analyse)', en: '4.1  Threat Landscape (STRIDE Analysis)', fr: '4.1  Paysage des menaces (analyse STRIDE)' },
+  sec4b: { de: '4.2  CRA-Konformitätslücken', en: '4.2  CRA Compliance Gaps', fr: '4.2  Lacunes de conformité CRA' },
+  sec5: { de: '5  Handlungsempfehlungen', en: '5  Recommendations', fr: '5  Recommandations' },
+  sec6: { de: '6  Methodik und Prüfungsgrundlagen', en: '6  Methodology and Audit Standards', fr: '6  Méthodologie et normes d\'audit' },
+  sec7: { de: '7  Einschränkungen und Haftungsausschluss', en: '7  Limitations and Disclaimer', fr: '7  Limitations et avertissement' },
+
   product: { de: 'Produkt', en: 'Product', fr: 'Produit' },
   version: { de: 'Version', en: 'Version', fr: 'Version' },
-  type: { de: 'Typ', en: 'Type', fr: 'Type' },
+  type: { de: 'Produkttyp', en: 'Product Type', fr: 'Type de produit' },
   craClass: { de: 'CRA-Klasse', en: 'CRA Class', fr: 'Classe CRA' },
-  deployment: { de: 'Deployment', en: 'Deployment', fr: 'Déploiement' },
-  interfaces: { de: 'Schnittstellen', en: 'Interfaces', fr: 'Interfaces' },
-  components: { de: 'Komponenten', en: 'Components', fr: 'Composants' },
-  roles: { de: 'Rollen', en: 'Roles', fr: 'Rôles' },
-  measures: { de: 'Sicherheitsmaßnahmen', en: 'Security Measures', fr: 'Mesures de sécurité' },
-  knownIssues: { de: 'Bekannte Probleme', en: 'Known Issues', fr: 'Problèmes connus' },
+  deployment: { de: 'Betriebsmodell', en: 'Deployment Model', fr: 'Modèle de déploiement' },
+  interfaces: { de: 'Kommunikationsschnittstellen', en: 'Communication Interfaces', fr: 'Interfaces de communication' },
+  components: { de: 'Systemkomponenten', en: 'System Components', fr: 'Composants du système' },
+  roles: { de: 'Benutzerrollen', en: 'User Roles', fr: 'Rôles utilisateur' },
+  measures: { de: 'Implementierte Maßnahmen', en: 'Implemented Measures', fr: 'Mesures implémentées' },
+  knownIssues: { de: 'Vom Hersteller benannte Probleme', en: 'Manufacturer-Reported Issues', fr: 'Problèmes signalés par le fabricant' },
+
   threat: { de: 'Bedrohung', en: 'Threat', fr: 'Menace' },
-  component: { de: 'Komponente', en: 'Component', fr: 'Composant' },
-  attacker: { de: 'Angreifer', en: 'Attacker', fr: 'Attaquant' },
-  attackPath: { de: 'Angriffsvektor', en: 'Attack Path', fr: 'Vecteur d\'attaque' },
-  evidence: { de: 'Evidenz', en: 'Evidence', fr: 'Preuves' },
-  rationale: { de: 'Begründung', en: 'Rationale', fr: 'Justification' },
-  riskScore: { de: 'Risikoscore', en: 'Risk Score', fr: 'Score de risque' },
-  likelihood: { de: 'Eintrittswahrscheinlichkeit', en: 'Likelihood', fr: 'Probabilité' },
+  finding: { de: 'Feststellung', en: 'Finding', fr: 'Constatation' },
+  component: { de: 'Betroffene Komponente', en: 'Affected Component', fr: 'Composant concerné' },
+  attacker: { de: 'Angreiferprofil', en: 'Attacker Profile', fr: 'Profil de l\'attaquant' },
+  attackPath: { de: 'Angriffsvektor', en: 'Attack Vector', fr: 'Vecteur d\'attaque' },
+  evidence: { de: 'Erhobene Evidenz', en: 'Collected Evidence', fr: 'Preuves collectées' },
+  rationale: { de: 'Bewertungsgrundlage', en: 'Assessment Rationale', fr: 'Base d\'évaluation' },
+  riskScore: { de: 'Risikobewertung', en: 'Risk Rating', fr: 'Évaluation du risque' },
+  likelihood: { de: 'Eintrittswahrsch.', en: 'Likelihood', fr: 'Probabilité' },
   impact: { de: 'Auswirkung', en: 'Impact', fr: 'Impact' },
-  status: { de: 'Status', en: 'Status', fr: 'Statut' },
-  gap: { de: 'Lücke', en: 'Gap', fr: 'Lacune' },
-  measure: { de: 'Maßnahme', en: 'Measure', fr: 'Mesure' },
-  dod: { de: 'Definition of Done', en: 'Definition of Done', fr: 'Critères d\'acceptation' },
-  pass: { de: 'Erfüllt', en: 'Pass', fr: 'Conforme' },
-  partial: { de: 'Teilweise', en: 'Partial', fr: 'Partiel' },
-  fail: { de: 'Nicht erfüllt', en: 'Fail', fr: 'Non conforme' },
-  totalThreats: { de: 'Bedrohungen gesamt', en: 'Total Threats', fr: 'Menaces totales' },
-  criticalRisks: { de: 'Kritische Risiken (≥ 20)', en: 'Critical Risks (≥ 20)', fr: 'Risques critiques (≥ 20)' },
-  craGaps: { de: 'CRA-Lücken (Fail)', en: 'CRA Gaps (Fail)', fr: 'Lacunes CRA (Échec)' },
-  partialGaps: { de: 'Teilerfüllung', en: 'Partial', fr: 'Partiel' },
-  methodology: {
-    de: `Dieses Assessment basiert auf dem STRIDE-Bedrohungsmodell (Spoofing, Tampering, Repudiation, Information Disclosure, Denial of Service, Elevation of Privilege) und den Anforderungen des EU Cyber Resilience Act (CRA).
+  status: { de: 'Bewertung', en: 'Assessment', fr: 'Évaluation' },
+  gap: { de: 'Festgestellte Abweichung', en: 'Identified Deviation', fr: 'Écart constaté' },
+  measureAction: { de: 'Empfohlene Maßnahme', en: 'Recommended Action', fr: 'Action recommandée' },
+  dod: { de: 'Nachweisbare Umsetzungskriterien', en: 'Verifiable Acceptance Criteria', fr: 'Critères de vérification' },
+  pass: { de: 'Konform', en: 'Compliant', fr: 'Conforme' },
+  partial: { de: 'Teilweise konform', en: 'Partially Compliant', fr: 'Partiellement conforme' },
+  fail: { de: 'Nicht konform', en: 'Non-Compliant', fr: 'Non conforme' },
+  sources: { de: 'Quellenverweise', en: 'Source References', fr: 'Références' },
+  priority: { de: 'Priorität', en: 'Priority', fr: 'Priorité' },
+  high: { de: 'Hoch', en: 'High', fr: 'Élevée' },
+  medium: { de: 'Mittel', en: 'Medium', fr: 'Moyenne' },
 
-Risikobewertung: Jede Bedrohung wird mit Eintrittswahrscheinlichkeit (1–5) × Auswirkung (1–5) bewertet. Scores ≥ 20 gelten als kritisch.
-
-Konformitätsprüfung: CRA-Anforderungen aus Annex I (Sicherheitseigenschaften) und Annex II (Schwachstellenbehandlung) sowie Art. 13/14 werden gegen die vorhandenen Maßnahmen geprüft.
-
-Referenzen:
-  • EU Cyber Resilience Act (CRA) — Regulation (EU) 2024/2847
-  • STRIDE Threat Model — Microsoft Security Development Lifecycle
-  • OWASP IoT Top 10 / OWASP API Security Top 10
-  • ETSI EN 303 645 — Cyber Security for Consumer IoT
-  • NIST SP 800-82r3 — Guide to OT Security`,
-    en: `This assessment is based on the STRIDE threat model (Spoofing, Tampering, Repudiation, Information Disclosure, Denial of Service, Elevation of Privilege) and the requirements of the EU Cyber Resilience Act (CRA).
-
-Risk Assessment: Each threat is scored as Likelihood (1–5) × Impact (1–5). Scores ≥ 20 are classified as critical.
-
-Compliance Review: CRA requirements from Annex I (security properties) and Annex II (vulnerability handling) as well as Art. 13/14 are evaluated against implemented measures.
-
-References:
-  • EU Cyber Resilience Act (CRA) — Regulation (EU) 2024/2847
-  • STRIDE Threat Model — Microsoft Security Development Lifecycle
-  • OWASP IoT Top 10 / OWASP API Security Top 10
-  • ETSI EN 303 645 — Cyber Security for Consumer IoT
-  • NIST SP 800-82r3 — Guide to OT Security`,
-    fr: `Cette évaluation est basée sur le modèle de menaces STRIDE (Spoofing, Tampering, Repudiation, Information Disclosure, Denial of Service, Elevation of Privilege) et les exigences du Cyber Resilience Act (CRA) européen.
-
-Évaluation des risques : Chaque menace est notée Probabilité (1–5) × Impact (1–5). Les scores ≥ 20 sont classés comme critiques.
-
-Revue de conformité : Les exigences CRA de l'Annexe I (propriétés de sécurité) et de l'Annexe II (gestion des vulnérabilités) ainsi que les Art. 13/14 sont évaluées par rapport aux mesures implémentées.
-
-Références :
-  • EU Cyber Resilience Act (CRA) — Règlement (UE) 2024/2847
-  • STRIDE Threat Model — Microsoft Security Development Lifecycle
-  • OWASP IoT Top 10 / OWASP API Security Top 10
-  • ETSI EN 303 645 — Cyber Security for Consumer IoT
-  • NIST SP 800-82r3 — Guide to OT Security`,
-  },
-  disclaimer: {
-    de: 'Dieses Dokument wurde automatisch generiert und ersetzt keine offizielle Sicherheitsberatung oder ein akkreditiertes Audit. Die Bewertung basiert auf den zum Zeitpunkt der Erstellung gültigen Anforderungen des EU Cyber Resilience Act. Für verbindliche Auskünfte wenden Sie sich bitte an einen qualifizierten Cybersecurity-Berater.',
-    en: 'This document was automatically generated and does not replace official security consulting or an accredited audit. The assessment is based on the EU Cyber Resilience Act requirements valid at the time of generation. For binding information, please consult a qualified cybersecurity advisor.',
-    fr: 'Ce document a été généré automatiquement et ne remplace pas un conseil de sécurité officiel ou un audit accrédité. L\'évaluation est basée sur les exigences du Cyber Resilience Act européen valides au moment de la génération. Pour des informations contraignantes, veuillez consulter un conseiller en cybersécurité qualifié.',
-  },
+  totalThreats: { de: 'Bedrohungen', en: 'Threats', fr: 'Menaces' },
+  criticalRisks: { de: 'Kritisch (≥ 20)', en: 'Critical (≥ 20)', fr: 'Critiques (≥ 20)' },
+  craGaps: { de: 'Nicht konform', en: 'Non-Compliant', fr: 'Non conformes' },
+  partialGaps: { de: 'Teilw. konform', en: 'Partial', fr: 'Partiels' },
 };
+
+/* ────── Prose blocks ────── */
+function getContextText(p: string, v: string, typeName: string, cls: string, date: string, lang: string): string {
+  if (lang === 'de') return `Der vorliegende Bericht dokumentiert die Ergebnisse einer strukturierten Cyber-Risikobewertung für das Produkt ${p} ${v} (${typeName}, CRA-Klasse: ${cls}). Die Prüfung wurde am ${date} durchgeführt.
+
+Zielsetzung war die systematische Identifikation von Bedrohungen nach dem STRIDE-Modell sowie die Bewertung der Konformität mit den wesentlichen Anforderungen des EU Cyber Resilience Act (Verordnung (EU) 2024/2847). Der Bericht richtet sich an die Geschäftsleitung, das Produktmanagement und die für Informationssicherheit verantwortlichen Stellen.
+
+Die Bewertung umfasst sowohl eine technische Bedrohungsanalyse als auch eine regulatorische Konformitätsprüfung gegen die Anforderungen aus Annex I (Sicherheitseigenschaften), Annex II (Schwachstellenbehandlung) sowie den Artikeln 13 und 14 des CRA.`;
+  if (lang === 'fr') return `Le présent rapport documente les résultats d'une évaluation structurée des cyber-risques pour le produit ${p} ${v} (${typeName}, classe CRA : ${cls}). L'évaluation a été réalisée le ${date}.
+
+L'objectif était l'identification systématique des menaces selon le modèle STRIDE ainsi que l'évaluation de la conformité aux exigences essentielles du Cyber Resilience Act européen (Règlement (UE) 2024/2847). Ce rapport s'adresse à la direction, au management produit et aux responsables de la sécurité de l'information.
+
+L'évaluation couvre à la fois une analyse technique des menaces et une vérification de conformité réglementaire contre les exigences de l'Annexe I, l'Annexe II ainsi que les Articles 13 et 14 du CRA.`;
+  return `This report documents the results of a structured cyber risk assessment for the product ${p} ${v} (${typeName}, CRA class: ${cls}). The assessment was conducted on ${date}.
+
+The objective was the systematic identification of threats using the STRIDE model and the evaluation of compliance with the essential requirements of the EU Cyber Resilience Act (Regulation (EU) 2024/2847). This report is intended for executive management, product management, and information security stakeholders.
+
+The assessment covers both a technical threat analysis and a regulatory compliance review against the requirements of Annex I (security properties), Annex II (vulnerability handling), and Articles 13 and 14 of the CRA.`;
+}
+
+function getMgmtSummary(
+  p: string, threats: number, crit: number, failReqs: number, partialReqs: number, totalReqs: number, lang: string
+): string {
+  if (lang === 'de') return `Die Prüfung hat ${threats} Bedrohungsszenarien identifiziert und bewertet. Davon weisen ${crit} einen kritischen Risikoscore auf (Eintrittswahrscheinlichkeit × Auswirkung ≥ 20) und erfordern unmittelbares Handeln.
+
+Von ${totalReqs} geprüften CRA-Anforderungen sind ${failReqs} als nicht konform eingestuft. Diese Abweichungen betreffen grundlegende Sicherheitseigenschaften, die vor einer Markteinführung zwingend adressiert werden müssen. Weitere ${partialReqs} Anforderungen sind nur teilweise erfüllt und bedürfen der Nachbesserung.
+
+${crit > 0 ? 'Die identifizierten kritischen Risiken betreffen insbesondere Bereiche, in denen Angreifer mit vertretbarem Aufwand erheblichen Schaden anrichten können. Eine verzögerte Behebung erhöht das Risiko regulatorischer Beanstandungen und potenzieller Haftungsansprüche.' : 'Es wurden keine Bedrohungen mit kritischem Risikoscore identifiziert. Die vorhandenen Maßnahmen adressieren die wesentlichen Angriffsvektoren angemessen.'}
+
+${failReqs > 0 ? 'Handlungsbedarf besteht vor allem bei den in Abschnitt 5 aufgeführten Sofortmaßnahmen. Diese sollten priorisiert und mit klaren Verantwortlichkeiten und Zeitplänen versehen werden.' : 'Die CRA-Anforderungen werden weitgehend erfüllt. Die verbleibenden Teilerfüllungen sollten im Rahmen des regulären Entwicklungsprozesses adressiert werden.'}`;
+  if (lang === 'fr') return `L'évaluation a identifié et évalué ${threats} scénarios de menaces. Parmi ceux-ci, ${crit} présentent un score de risque critique (probabilité × impact ≥ 20) et nécessitent une action immédiate.
+
+Sur ${totalReqs} exigences CRA examinées, ${failReqs} sont classées comme non conformes. Ces écarts concernent des propriétés de sécurité fondamentales qui doivent impérativement être corrigées avant la mise sur le marché. ${partialReqs} exigences supplémentaires ne sont que partiellement satisfaites.
+
+${crit > 0 ? 'Les risques critiques identifiés concernent notamment des domaines où un attaquant peut causer des dommages significatifs avec un effort raisonnable.' : 'Aucune menace avec un score de risque critique n\'a été identifiée.'}
+
+${failReqs > 0 ? 'Les actions immédiates détaillées dans la section 5 doivent être priorisées avec des responsabilités et des délais clairs.' : 'Les exigences CRA sont largement satisfaites. Les conformités partielles restantes peuvent être traitées dans le cadre du processus de développement régulier.'}`;
+  return `The assessment identified and evaluated ${threats} threat scenarios. Of these, ${crit} carry a critical risk score (likelihood × impact ≥ 20) and require immediate action.
+
+Of ${totalReqs} CRA requirements reviewed, ${failReqs} are rated as non-compliant. These deviations affect fundamental security properties that must be addressed before market entry. An additional ${partialReqs} requirements are only partially fulfilled and require remediation.
+
+${crit > 0 ? 'The identified critical risks particularly affect areas where attackers can cause significant damage with reasonable effort. Delayed remediation increases the risk of regulatory objections and potential liability claims.' : 'No threats with critical risk scores were identified. The existing measures adequately address the primary attack vectors.'}
+
+${failReqs > 0 ? 'Priority action is required on the immediate measures listed in Section 5. These should be assigned clear ownership and timelines.' : 'CRA requirements are largely met. The remaining partial fulfillments should be addressed through the regular development process.'}`;
+}
+
+function getMethodology(lang: string): string {
+  if (lang === 'de') return `Die Prüfung folgt einem zweistufigen Ansatz:
+
+1. Bedrohungsanalyse nach STRIDE
+Systematische Identifikation von Bedrohungsszenarien in den Kategorien Spoofing, Tampering, Repudiation, Information Disclosure, Denial of Service und Elevation of Privilege. Jede Bedrohung wird anhand einer 5-stufigen Skala für Eintrittswahrscheinlichkeit und Auswirkung bewertet. Der Risikoscore ergibt sich als Produkt beider Werte; Scores ab 20 gelten als kritisch.
+
+2. Konformitätsprüfung gegen CRA-Anforderungen
+Abgleich der implementierten Sicherheitsmaßnahmen mit den Anforderungen aus Annex I (Sicherheitseigenschaften digitaler Produkte), Annex II (Schwachstellenbehandlung) sowie den Meldepflichten nach Art. 14 und der Dokumentationspflicht nach Art. 13 der Verordnung (EU) 2024/2847.
+
+Prüfungsgrundlagen:
+  - EU Cyber Resilience Act (CRA) — Verordnung (EU) 2024/2847
+  - STRIDE Threat Model — Microsoft Security Development Lifecycle
+  - OWASP IoT Top 10 / OWASP API Security Top 10
+  - ETSI EN 303 645 — Cyber Security for Consumer IoT
+  - NIST SP 800-82r3 — Guide to OT Security
+  - ISO/IEC 27001:2022 (als Referenzrahmen)`;
+  if (lang === 'fr') return `L'évaluation suit une approche en deux étapes :
+
+1. Analyse des menaces selon STRIDE
+Identification systématique des scénarios de menaces dans les catégories Spoofing, Tampering, Repudiation, Information Disclosure, Denial of Service et Elevation of Privilege. Chaque menace est évaluée sur une échelle de 1 à 5 pour la probabilité et l'impact. Le score de risque est le produit des deux valeurs ; les scores de 20 et plus sont considérés comme critiques.
+
+2. Vérification de conformité CRA
+Comparaison des mesures de sécurité implémentées avec les exigences de l'Annexe I, l'Annexe II ainsi que les obligations de notification (Art. 14) et de documentation (Art. 13) du Règlement (UE) 2024/2847.
+
+Normes de référence :
+  - EU Cyber Resilience Act (CRA) — Règlement (UE) 2024/2847
+  - STRIDE Threat Model — Microsoft Security Development Lifecycle
+  - OWASP IoT Top 10 / OWASP API Security Top 10
+  - ETSI EN 303 645 — Cyber Security for Consumer IoT
+  - NIST SP 800-82r3 — Guide to OT Security`;
+  return `The assessment follows a two-stage approach:
+
+1. STRIDE Threat Analysis
+Systematic identification of threat scenarios across the categories Spoofing, Tampering, Repudiation, Information Disclosure, Denial of Service, and Elevation of Privilege. Each threat is rated on a 5-point scale for both likelihood and impact. The risk score is calculated as the product of both values; scores of 20 or above are classified as critical.
+
+2. CRA Compliance Review
+Comparison of implemented security measures against the requirements of Annex I (security properties of digital products), Annex II (vulnerability handling), as well as the reporting obligations under Art. 14 and documentation requirements under Art. 13 of Regulation (EU) 2024/2847.
+
+Audit Standards:
+  - EU Cyber Resilience Act (CRA) — Regulation (EU) 2024/2847
+  - STRIDE Threat Model — Microsoft Security Development Lifecycle
+  - OWASP IoT Top 10 / OWASP API Security Top 10
+  - ETSI EN 303 645 — Cyber Security for Consumer IoT
+  - NIST SP 800-82r3 — Guide to OT Security
+  - ISO/IEC 27001:2022 (reference framework)`;
+}
+
+function getDisclaimer(lang: string): string {
+  if (lang === 'de') return `Der vorliegende Bericht wurde werkzeuggestützt erstellt und gibt den Erkenntnisstand zum Zeitpunkt der Prüfung wieder. Er ersetzt weder eine akkreditierte Konformitätsbewertung nach Art. 24 ff. CRA noch eine individuelle rechtliche Beratung.
+
+Die Bewertung basiert auf den vom Anwender bereitgestellten Angaben zum Produkt sowie auf den zum Erstellungszeitpunkt gültigen Anforderungen der Verordnung (EU) 2024/2847. Für die Richtigkeit und Vollständigkeit der Eingabedaten ist der Anwender verantwortlich.
+
+Für verbindliche Auskünfte zur CRA-Konformität wird die Einbindung einer benannten Stelle oder eines akkreditierten Prüfdienstleisters empfohlen.`;
+  if (lang === 'fr') return `Le présent rapport a été produit avec l'aide d'outils automatisés et reflète l'état des connaissances au moment de l'évaluation. Il ne remplace ni une évaluation de conformité accréditée selon les Art. 24 et suivants du CRA, ni un conseil juridique individuel.
+
+L'évaluation est basée sur les informations fournies par l'utilisateur concernant le produit ainsi que sur les exigences du Règlement (UE) 2024/2847 valides au moment de la génération. L'utilisateur est responsable de l'exactitude et de l'exhaustivité des données saisies.
+
+Pour des informations contraignantes sur la conformité CRA, il est recommandé de faire appel à un organisme notifié ou à un prestataire d'audit accrédité.`;
+  return `This report was produced with the assistance of automated tools and reflects the state of knowledge at the time of assessment. It does not replace an accredited conformity assessment pursuant to Art. 24 ff. CRA, nor does it constitute individual legal advice.
+
+The assessment is based on product information provided by the user and the requirements of Regulation (EU) 2024/2847 valid at the time of generation. The user is responsible for the accuracy and completeness of the input data.
+
+For binding information on CRA compliance, engagement of a notified body or accredited audit service provider is recommended.`;
+}
 
 /* ────── Colors ────── */
 const C = {
@@ -133,8 +209,10 @@ export function generateCraReport(data: CraReportData): void {
   const ML = 20, MR = 20, CW = W - ML - MR;
 
   const critRisks = threats.filter(th => th.likelihood * th.impact >= 20);
+  const highRisks = threats.filter(th => { const s = th.likelihood * th.impact; return s >= 13 && s < 20; });
   const failReqs = reqs.filter(r => r.status === 'fail');
   const partialReqs = reqs.filter(r => r.status === 'partial');
+  const passReqs = reqs.filter(r => r.status === 'pass');
 
   const locale = lang === 'de' ? 'de-DE' : lang === 'fr' ? 'fr-FR' : 'en-US';
   const dateStr = new Date().toLocaleDateString(locale, { day: '2-digit', month: 'long', year: 'numeric' });
@@ -142,6 +220,7 @@ export function generateCraReport(data: CraReportData): void {
 
   let y = 0;
   let pageNum = 0;
+  let findingNum = 0;
 
   function addFooter() {
     pageNum++;
@@ -161,6 +240,12 @@ export function generateCraReport(data: CraReportData): void {
     }
   }
 
+  function newSection() {
+    addFooter();
+    doc.addPage();
+    y = 25;
+  }
+
   function writeSectionHeading(text: string) {
     checkPage(30);
     doc.setFont('helvetica', 'bold');
@@ -177,22 +262,31 @@ export function generateCraReport(data: CraReportData): void {
   function writeSubHeading(text: string) {
     checkPage(15);
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(10);
+    doc.setFontSize(11);
     doc.setTextColor(...C.darkNavy);
     doc.text(text, ML, y);
-    y += 7;
+    y += 8;
   }
 
-  function writeBody(text: string, maxW: number = CW) {
+  function writeBody(text: string, indent: number = 0) {
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(9);
     doc.setTextColor(...C.bodyText);
-    const lines = doc.splitTextToSize(text, maxW);
+    const lines = doc.splitTextToSize(text, CW - indent);
     for (const line of lines) {
       checkPage(6);
-      doc.text(line, ML, y);
+      doc.text(line, ML + indent, y);
       y += 4.5;
     }
+  }
+
+  function writeLabel(label: string, indent: number = 0) {
+    checkPage(8);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8);
+    doc.setTextColor(...C.darkNavy);
+    doc.text(label, ML + indent, y);
+    y += 4;
   }
 
   function writeKV(label: string, value: string, indent: number = 0) {
@@ -209,17 +303,28 @@ export function generateCraReport(data: CraReportData): void {
     y += Math.max(valLines.length * 4.5, 5);
   }
 
+  function writeFieldBlock(label: string, value: string, indent: number = 4) {
+    writeLabel(label, indent);
+    writeBody(value, indent + 2);
+    y += 1;
+  }
+
+  // Risk level label
+  function riskLabel(score: number): string {
+    if (score >= 20) return lang === 'de' ? 'Kritisch' : lang === 'fr' ? 'Critique' : 'Critical';
+    if (score >= 13) return lang === 'de' ? 'Hoch' : lang === 'fr' ? 'Élevé' : 'High';
+    if (score >= 6) return lang === 'de' ? 'Mittel' : lang === 'fr' ? 'Moyen' : 'Medium';
+    return lang === 'de' ? 'Gering' : lang === 'fr' ? 'Faible' : 'Low';
+  }
+
   // ══════════════════════════════════════
   // COVER PAGE
   // ══════════════════════════════════════
   doc.setFillColor(...C.darkNavy);
   doc.rect(0, 0, W, 85, 'F');
-
-  // Accent bar
   doc.setFillColor(...C.accent);
   doc.rect(0, 85, W, 3, 'F');
 
-  // Title
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(26);
   doc.setTextColor(...C.white);
@@ -234,7 +339,7 @@ export function generateCraReport(data: CraReportData): void {
   doc.setTextColor(200, 210, 220);
   doc.text(`${intakeData.productName} ${intakeData.version}`, ML, 68);
 
-  // Cover info box
+  // Cover metadata
   y = 105;
   doc.setFillColor(...C.bgLight);
   doc.roundedRect(ML, y, CW, 55, 2, 2, 'F');
@@ -257,39 +362,37 @@ export function generateCraReport(data: CraReportData): void {
     doc.setTextColor(...C.darkNavy);
     doc.text(k, mx, y);
     doc.setFont('helvetica', 'normal');
-    doc.text(v, mx + 50, y);
+    doc.text(v, mx + 55, y);
     y += 8;
   }
 
-  // Summary stats
+  // Summary boxes
   y = 180;
-  const statW = CW / 3;
-  const stats: [string, number, [number, number, number]][] = [
-    [t(I18N.totalThreats), threats.length, C.darkNavy],
-    [t(I18N.criticalRisks), critRisks.length, C.redText],
-    [t(I18N.craGaps), failReqs.length, C.redText],
+  const statW = CW / 4;
+  const stats: [string, number, [number, number, number], [number, number, number]][] = [
+    [t(I18N.totalThreats), threats.length, C.bgLight, C.darkNavy],
+    [t(I18N.criticalRisks), critRisks.length, C.bgRed, C.redText],
+    [t(I18N.craGaps), failReqs.length, C.bgRed, C.redText],
+    [t(I18N.partialGaps), partialReqs.length, C.bgYellow, C.orangeText],
   ];
   for (let i = 0; i < stats.length; i++) {
     const sx = ML + i * statW;
-    const fillC = i === 0 ? C.bgLight : C.bgRed;
-    doc.setFillColor(...fillC);
-    doc.roundedRect(sx + 2, y, statW - 4, 28, 2, 2, 'F');
+    doc.setFillColor(...stats[i][2]);
+    doc.roundedRect(sx + 1.5, y, statW - 3, 28, 2, 2, 'F');
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(22);
-    doc.setTextColor(...stats[i][2]);
-    doc.text(String(stats[i][1]), sx + statW / 2, y + 14, { align: 'center' });
-    doc.setFontSize(7);
+    doc.setFontSize(20);
+    doc.setTextColor(...stats[i][3]);
+    doc.text(String(stats[i][1]), sx + statW / 2, y + 13, { align: 'center' });
+    doc.setFontSize(6.5);
     doc.setTextColor(...C.bodyText);
-    doc.text(stats[i][0], sx + statW / 2, y + 22, { align: 'center' });
+    const lbl = doc.splitTextToSize(stats[i][0], statW - 6);
+    doc.text(lbl, sx + statW / 2, y + 21, { align: 'center' });
   }
 
-  // Confidential
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(8);
   doc.setTextColor(...C.lightGray);
   doc.text(t(I18N.confidential), W - MR, H - 15, { align: 'right' });
-
-  // Bottom bar
   doc.setFillColor(...C.darkNavy);
   doc.rect(0, H - 6, W, 6, 'F');
 
@@ -310,7 +413,7 @@ export function generateCraReport(data: CraReportData): void {
   doc.line(ML, y, ML + 50, y);
   y += 12;
 
-  const tocItems = [I18N.sec1, I18N.sec2, I18N.sec3, I18N.sec4, I18N.sec5, I18N.sec6, I18N.sec7, I18N.sec8];
+  const tocItems = [I18N.sec1, I18N.sec2, I18N.sec3, I18N.sec4, I18N.sec5, I18N.sec6, I18N.sec7];
   for (const item of tocItems) {
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(10.5);
@@ -326,32 +429,29 @@ export function generateCraReport(data: CraReportData): void {
   }
 
   // ══════════════════════════════════════
-  // SECTION 1: Executive Summary
+  // SECTION 1: Ausgangslage und Zielsetzung
   // ══════════════════════════════════════
-  addFooter();
-  doc.addPage();
-  y = 25;
-
+  newSection();
   writeSectionHeading(t(I18N.sec1));
-
-  const summaryText = lang === 'de'
-    ? `Das Cyber Risk Assessment für ${intakeData.productName} ${intakeData.version} (${productTypeName}, CRA-Klasse: ${craClassName}) wurde am ${dateStr} durchgeführt. Es wurden ${threats.length} Bedrohungen nach dem STRIDE-Modell identifiziert, davon ${critRisks.length} mit kritischem Risikoscore (≥ 20). Von ${reqs.length} geprüften CRA-Anforderungen bestehen ${failReqs.length} vollständige Lücken und ${partialReqs.length} teilweise Erfüllungen.`
-    : lang === 'fr'
-    ? `L'évaluation des cyber-risques pour ${intakeData.productName} ${intakeData.version} (${productTypeName}, classe CRA : ${craClassName}) a été réalisée le ${dateStr}. ${threats.length} menaces ont été identifiées selon le modèle STRIDE, dont ${critRisks.length} avec un score de risque critique (≥ 20). Sur ${reqs.length} exigences CRA examinées, ${failReqs.length} lacunes complètes et ${partialReqs.length} conformités partielles ont été constatées.`
-    : `The Cyber Risk Assessment for ${intakeData.productName} ${intakeData.version} (${productTypeName}, CRA class: ${craClassName}) was conducted on ${dateStr}. ${threats.length} threats were identified using the STRIDE model, of which ${critRisks.length} have a critical risk score (≥ 20). Of ${reqs.length} CRA requirements reviewed, ${failReqs.length} full gaps and ${partialReqs.length} partial fulfillments were found.`;
-
-  writeBody(summaryText);
+  writeBody(getContextText(intakeData.productName, intakeData.version, productTypeName, craClassName, dateStr, lang));
   y += 5;
 
-  // Stats boxes
+  // ══════════════════════════════════════
+  // SECTION 2: Management Summary
+  // ══════════════════════════════════════
+  newSection();
+  writeSectionHeading(t(I18N.sec2));
+  writeBody(getMgmtSummary(intakeData.productName, threats.length, critRisks.length, failReqs.length, partialReqs.length, reqs.length, lang));
+  y += 8;
+
+  // Stats boxes in summary
+  const bw = (CW - 12) / 4;
   const allStats: [string, number, [number, number, number], [number, number, number]][] = [
     [t(I18N.totalThreats), threats.length, C.bgLight, C.darkNavy],
     [t(I18N.criticalRisks), critRisks.length, C.bgRed, C.redText],
     [t(I18N.craGaps), failReqs.length, C.bgRed, C.redText],
     [t(I18N.partialGaps), partialReqs.length, C.bgYellow, C.orangeText],
   ];
-
-  const bw = (CW - 12) / 4;
   for (let i = 0; i < allStats.length; i++) {
     const bx = ML + i * (bw + 4);
     doc.setFillColor(...allStats[i][2]);
@@ -368,9 +468,9 @@ export function generateCraReport(data: CraReportData): void {
   y += 30;
 
   // ══════════════════════════════════════
-  // SECTION 2: Product Information
+  // SECTION 3: Gegenstand der Prüfung
   // ══════════════════════════════════════
-  writeSectionHeading(t(I18N.sec2));
+  writeSectionHeading(t(I18N.sec3));
 
   writeKV(t(I18N.product), `${intakeData.productName} ${intakeData.version}`);
   writeKV(t(I18N.type), productTypeName);
@@ -385,240 +485,247 @@ export function generateCraReport(data: CraReportData): void {
     writeKV(t(I18N.knownIssues), intakeData.knownIssues);
   }
 
-  // Measures summary
   const measureKeys = Object.keys(intakeData.measures);
   if (measureKeys.length > 0) {
     y += 3;
     writeSubHeading(t(I18N.measures));
     for (const key of measureKeys) {
       const m = intakeData.measures[key];
-      const statusParts: string[] = [];
-      if (m.active) statusParts.push('Active');
-      if (m.documented) statusParts.push('Documented');
-      if (m.audited) statusParts.push('Audited');
-      writeKV(key.toUpperCase(), statusParts.join(' / ') || '—', 4);
+      const parts: string[] = [];
+      if (m.active) parts.push(lang === 'de' ? 'Aktiv' : lang === 'fr' ? 'Actif' : 'Active');
+      if (m.documented) parts.push(lang === 'de' ? 'Dokumentiert' : lang === 'fr' ? 'Documenté' : 'Documented');
+      if (m.audited) parts.push(lang === 'de' ? 'Auditiert' : lang === 'fr' ? 'Audité' : 'Audited');
+      writeKV(key.toUpperCase(), parts.join(' / ') || '—', 4);
     }
   }
 
-  y += 5;
-
   // ══════════════════════════════════════
-  // SECTION 3: Threat Analysis
+  // SECTION 4: Feststellungen im Einzelnen
   // ══════════════════════════════════════
-  addFooter();
-  doc.addPage();
-  y = 25;
-  writeSectionHeading(t(I18N.sec3));
+  newSection();
+  writeSectionHeading(t(I18N.sec4));
 
-  for (const th of threats) {
-    checkPage(50);
+  // 4.1 Threat Landscape
+  writeSubHeading(t(I18N.sec4a));
+  y += 2;
+
+  // Sorted by risk score descending
+  const sortedThreats = [...threats].sort((a, b) => (b.likelihood * b.impact) - (a.likelihood * a.impact));
+
+  for (const th of sortedThreats) {
+    findingNum++;
+    checkPage(55);
     const tid = threatId(th);
     const score = th.likelihood * th.impact;
     const isCrit = score >= 20;
+    const isHigh = score >= 13;
 
-    // Threat header
-    const threatBg = isCrit ? C.bgRed : C.bgLight;
-    doc.setFillColor(...threatBg);
-    doc.roundedRect(ML, y, CW, 8, 1.5, 1.5, 'F');
+    // Finding header
+    const headerBg = isCrit ? C.bgRed : isHigh ? C.bgYellow : C.bgLight;
+    const headerText = isCrit ? C.redText : isHigh ? C.orangeText : C.darkNavy;
+    doc.setFillColor(...headerBg);
+    doc.roundedRect(ML, y, CW, 10, 1.5, 1.5, 'F');
     if (isCrit) {
       doc.setDrawColor(...C.redText);
       doc.setLineWidth(0.4);
-      doc.roundedRect(ML, y, CW, 8, 1.5, 1.5, 'S');
+      doc.roundedRect(ML, y, CW, 10, 1.5, 1.5, 'S');
     }
+
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(9);
-    const threatTextC = isCrit ? C.redText : C.darkNavy;
-    doc.setTextColor(...threatTextC);
-    doc.text(`${tid}  ${th.name}`, ML + 4, y + 5.5);
+    doc.setTextColor(...headerText);
+    const findingLabel = `${t(I18N.finding)} F-${String(findingNum).padStart(2, '0')}`;
+    doc.text(`${findingLabel}  |  ${tid}  ${th.name}`, ML + 4, y + 6.5);
 
-    const scoreText = `${th.likelihood}×${th.impact}=${score}`;
-    doc.text(scoreText, W - MR - 4, y + 5.5, { align: 'right' });
-    y += 12;
+    const rl = riskLabel(score);
+    const scoreStr = `${rl} (${th.likelihood}×${th.impact}=${score})`;
+    doc.setFontSize(8);
+    doc.text(scoreStr, W - MR - 4, y + 6.5, { align: 'right' });
+    y += 14;
 
-    writeKV(t(I18N.component), th.component, 4);
-    writeKV(t(I18N.attacker), th.attacker, 4);
-    writeKV(t(I18N.attackPath), th.path, 4);
-    writeKV(t(I18N.evidence), th.evidence, 4);
-    writeKV(t(I18N.rationale), th.rationale, 4);
+    writeFieldBlock(t(I18N.component), th.component);
+    writeFieldBlock(t(I18N.attacker), th.attacker);
+    writeFieldBlock(t(I18N.attackPath), th.path);
+    writeFieldBlock(t(I18N.evidence), th.evidence);
+    writeFieldBlock(t(I18N.rationale), th.rationale);
 
     // Sources
     if (th.sources.length > 0) {
+      writeLabel(t(I18N.sources), 4);
       doc.setFont('helvetica', 'italic');
       doc.setFontSize(7.5);
       doc.setTextColor(...C.lightGray);
       for (const src of th.sources) {
         checkPage(5);
-        doc.text(`  • ${src}`, ML + 4, y);
-        y += 4;
+        doc.text(`  - ${src}`, ML + 6, y);
+        y += 3.8;
       }
     }
-    y += 5;
+    y += 3;
 
-    // Rule after each threat
     doc.setDrawColor(...C.ruleStroke);
     doc.setLineWidth(0.15);
-    doc.line(ML, y, W - MR, y);
-    y += 5;
+    doc.line(ML + 10, y, W - MR - 10, y);
+    y += 6;
   }
 
-  // ══════════════════════════════════════
-  // SECTION 4: Critical Risks
-  // ══════════════════════════════════════
-  addFooter();
-  doc.addPage();
-  y = 25;
-  writeSectionHeading(t(I18N.sec4));
+  // 4.2 CRA Compliance Gaps
+  newSection();
+  writeSubHeading(t(I18N.sec4b));
+  y += 2;
 
-  if (critRisks.length === 0) {
-    writeBody(lang === 'de' ? 'Keine kritischen Risiken identifiziert.' : lang === 'fr' ? 'Aucun risque critique identifié.' : 'No critical risks identified.');
-  } else {
-    // Table header
-    const cols = [15, 80, 25, 25, 25];
-    const cx = [ML, ML + cols[0], ML + cols[0] + cols[1], ML + cols[0] + cols[1] + cols[2], ML + cols[0] + cols[1] + cols[2] + cols[3]];
-    doc.setFillColor(...C.darkNavy);
-    doc.rect(ML, y, CW, 7, 'F');
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(7.5);
-    doc.setTextColor(...C.white);
-    doc.text('ID', cx[0] + 2, y + 5);
-    doc.text(t(I18N.threat), cx[1] + 2, y + 5);
-    doc.text(t(I18N.likelihood), cx[2] + 2, y + 5);
-    doc.text(t(I18N.impact), cx[3] + 2, y + 5);
-    doc.text(t(I18N.riskScore), cx[4] + 2, y + 5);
-    y += 9;
+  // Sort: fail first, then partial, then pass
+  const sortedReqs = [...reqs].sort((a, b) => {
+    const order = { fail: 0, partial: 1, pass: 2 };
+    return order[a.status] - order[b.status];
+  });
 
-    for (const th of critRisks) {
-      checkPage(8);
-      doc.setFillColor(...C.bgRed);
-      doc.rect(ML, y - 3, CW, 7, 'F');
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(8);
-      doc.setTextColor(...C.redText);
-      doc.text(threatId(th), cx[0] + 2, y + 1.5);
-      doc.setFont('helvetica', 'normal');
-      doc.setTextColor(...C.darkNavy);
-      const nameLines = doc.splitTextToSize(th.name, cols[1] - 4);
-      doc.text(nameLines[0], cx[1] + 2, y + 1.5);
-      doc.text(String(th.likelihood), cx[2] + 2, y + 1.5);
-      doc.text(String(th.impact), cx[3] + 2, y + 1.5);
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(...C.redText);
-      doc.text(String(th.likelihood * th.impact), cx[4] + 2, y + 1.5);
-      y += 8;
-    }
-  }
-  y += 5;
+  for (const req of sortedReqs) {
+    findingNum++;
+    checkPage(50);
 
-  // ══════════════════════════════════════
-  // SECTION 5: CRA Requirements
-  // ══════════════════════════════════════
-  addFooter();
-  doc.addPage();
-  y = 25;
-  writeSectionHeading(t(I18N.sec5));
-
-  for (const req of reqs) {
-    checkPage(45);
     const statusColor = req.status === 'pass' ? C.greenText : req.status === 'partial' ? C.orangeText : C.redText;
     const statusBg = req.status === 'pass' ? C.bgGreen : req.status === 'partial' ? C.bgYellow : C.bgRed;
     const statusLabel = req.status === 'pass' ? t(I18N.pass) : req.status === 'partial' ? t(I18N.partial) : t(I18N.fail);
 
-    // Req header
+    // Requirement header
     doc.setFillColor(...statusBg);
-    doc.roundedRect(ML, y, CW, 8, 1.5, 1.5, 'F');
-    doc.setDrawColor(...statusColor);
-    doc.setLineWidth(0.3);
-    doc.roundedRect(ML, y, CW, 8, 1.5, 1.5, 'S');
+    doc.roundedRect(ML, y, CW, 10, 1.5, 1.5, 'F');
+    if (req.status === 'fail') {
+      doc.setDrawColor(...C.redText);
+      doc.setLineWidth(0.3);
+      doc.roundedRect(ML, y, CW, 10, 1.5, 1.5, 'S');
+    }
 
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(8.5);
+    doc.setFontSize(9);
     doc.setTextColor(...statusColor);
-    doc.text(`${req.id}  ${req.name}`, ML + 4, y + 5.5);
-    doc.text(statusLabel, W - MR - 4, y + 5.5, { align: 'right' });
-    y += 12;
+    const reqFinding = `${t(I18N.finding)} F-${String(findingNum).padStart(2, '0')}`;
+    doc.text(`${reqFinding}  |  ${req.id}  ${req.name}`, ML + 4, y + 6.5);
+    doc.setFontSize(8);
+    doc.text(statusLabel, W - MR - 4, y + 6.5, { align: 'right' });
+    y += 14;
 
+    // Article reference
+    doc.setFont('helvetica', 'italic');
     doc.setFontSize(7.5);
     doc.setTextColor(...C.lightGray);
     doc.text(req.article, ML + 4, y);
     y += 5;
 
-    writeKV(t(I18N.gap), req.gap, 4);
-    writeKV(t(I18N.evidence), req.evidence, 4);
-    writeKV(t(I18N.rationale), req.rationale, 4);
-    writeKV(t(I18N.measure), req.measure, 4);
+    writeFieldBlock(t(I18N.gap), req.gap);
+    writeFieldBlock(t(I18N.evidence), req.evidence);
+    writeFieldBlock(t(I18N.rationale), req.rationale);
+    writeFieldBlock(t(I18N.measureAction), req.measure);
 
     // Definition of Done
     if (req.criteria.length > 0) {
       checkPage(10);
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(8);
-      doc.setTextColor(...C.accent);
-      doc.text(t(I18N.dod), ML + 4, y);
-      y += 4;
+      writeLabel(t(I18N.dod), 4);
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(7.5);
       doc.setTextColor(...C.bodyText);
       for (const c of req.criteria) {
         checkPage(6);
-        const cLines = doc.splitTextToSize(`☐  ${c}`, CW - 12);
+        const cLines = doc.splitTextToSize(`\u2610  ${c}`, CW - 14);
         doc.text(cLines, ML + 8, y);
         y += cLines.length * 3.8;
       }
     }
 
-    y += 4;
+    y += 3;
     doc.setDrawColor(...C.ruleStroke);
     doc.setLineWidth(0.15);
-    doc.line(ML, y, W - MR, y);
-    y += 5;
+    doc.line(ML + 10, y, W - MR - 10, y);
+    y += 6;
   }
 
   // ══════════════════════════════════════
-  // SECTION 6: Immediate Actions
+  // SECTION 5: Handlungsempfehlungen
   // ══════════════════════════════════════
-  addFooter();
-  doc.addPage();
-  y = 25;
-  writeSectionHeading(t(I18N.sec6));
+  newSection();
+  writeSectionHeading(t(I18N.sec5));
 
-  if (failReqs.length === 0) {
-    writeBody(lang === 'de' ? 'Keine sofortigen Maßnahmen erforderlich.' : lang === 'fr' ? 'Aucune action immédiate requise.' : 'No immediate actions required.');
+  if (failReqs.length === 0 && critRisks.length === 0) {
+    writeBody(lang === 'de'
+      ? 'Auf Basis der durchgeführten Prüfung ergeben sich keine Sofortmaßnahmen. Die bestehenden Maßnahmen adressieren die identifizierten Risiken angemessen.'
+      : lang === 'fr'
+      ? 'Sur la base de l\'évaluation réalisée, aucune action immédiate n\'est nécessaire. Les mesures existantes répondent de manière adéquate aux risques identifiés.'
+      : 'Based on the assessment conducted, no immediate actions are required. The existing measures adequately address the identified risks.');
   } else {
-    for (let i = 0; i < failReqs.length; i++) {
-      checkPage(20);
-      const r = failReqs[i];
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(9);
-      doc.setTextColor(...C.redText);
-      doc.text(`${i + 1}.`, ML, y);
-      doc.setTextColor(...C.darkNavy);
-      doc.text(r.name, ML + 8, y);
-      y += 5;
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(8.5);
-      doc.setTextColor(...C.bodyText);
-      const mLines = doc.splitTextToSize(r.measure, CW - 12);
-      doc.text(mLines, ML + 8, y);
-      y += mLines.length * 4.5 + 4;
+    // Prio 1: Critical risks
+    if (critRisks.length > 0) {
+      checkPage(15);
+      writeSubHeading(`${t(I18N.priority)}: ${t(I18N.high)}`);
+
+      for (const th of critRisks) {
+        checkPage(12);
+        const tid = threatId(th);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(9);
+        doc.setTextColor(...C.redText);
+        doc.text(`${tid}`, ML + 4, y);
+        doc.setTextColor(...C.darkNavy);
+        doc.text(th.name, ML + 18, y);
+        y += 5;
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(8.5);
+        doc.setTextColor(...C.bodyText);
+        const desc = lang === 'de'
+          ? `Risikoscore ${th.likelihood}×${th.impact}=${th.likelihood * th.impact}. ${th.component} — Unmittelbare technische Gegenmaßnahmen erforderlich.`
+          : lang === 'fr'
+          ? `Score de risque ${th.likelihood}×${th.impact}=${th.likelihood * th.impact}. ${th.component} — Contre-mesures techniques immédiates nécessaires.`
+          : `Risk score ${th.likelihood}×${th.impact}=${th.likelihood * th.impact}. ${th.component} — Immediate technical countermeasures required.`;
+        const dLines = doc.splitTextToSize(desc, CW - 22);
+        doc.text(dLines, ML + 18, y);
+        y += dLines.length * 4.5 + 4;
+      }
+      y += 3;
+    }
+
+    // Prio 2: CRA gaps
+    if (failReqs.length > 0) {
+      checkPage(15);
+      const gapPrio = critRisks.length > 0
+        ? `${t(I18N.priority)}: ${t(I18N.medium)}`
+        : `${t(I18N.priority)}: ${t(I18N.high)}`;
+      writeSubHeading(gapPrio);
+
+      for (let i = 0; i < failReqs.length; i++) {
+        checkPage(12);
+        const r = failReqs[i];
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(9);
+        doc.setTextColor(...C.redText);
+        doc.text(`${i + 1}.`, ML + 4, y);
+        doc.setTextColor(...C.darkNavy);
+        doc.text(`${r.name} (${r.id})`, ML + 12, y);
+        y += 5;
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(8.5);
+        doc.setTextColor(...C.bodyText);
+        const mLines = doc.splitTextToSize(r.measure, CW - 16);
+        doc.text(mLines, ML + 12, y);
+        y += mLines.length * 4.5 + 4;
+      }
     }
   }
 
   // ══════════════════════════════════════
-  // SECTION 7: Methodology & References
+  // SECTION 6: Methodik
   // ══════════════════════════════════════
-  writeSectionHeading(t(I18N.sec7));
-  writeBody(t(I18N.methodology));
+  newSection();
+  writeSectionHeading(t(I18N.sec6));
+  writeBody(getMethodology(lang));
   y += 8;
 
   // ══════════════════════════════════════
-  // SECTION 8: Disclaimer
+  // SECTION 7: Disclaimer
   // ══════════════════════════════════════
-  writeSectionHeading(t(I18N.sec8));
-  writeBody(t(I18N.disclaimer));
+  writeSectionHeading(t(I18N.sec7));
+  writeBody(getDisclaimer(lang));
 
-  // Final footer
   addFooter();
 
-  // Save
-  doc.save(`CRA-Report_${intakeData.productName.replace(/\s+/g, '-')}_${new Date().toISOString().slice(0, 10)}.pdf`);
+  doc.save(`CRA-Pruefbericht_${intakeData.productName.replace(/\s+/g, '-')}_${new Date().toISOString().slice(0, 10)}.pdf`);
 }
