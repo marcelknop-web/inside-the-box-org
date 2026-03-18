@@ -1312,10 +1312,12 @@ const ChatView = () => {
               </button>
             </div>
             <SidebarItems groups={sidebarGroups} activeId={activeService} onSelect={selectService} />
-            <div className="border-t border-border p-3 flex items-center justify-center">
-              <button onClick={() => setLanguage(nextLanguage(language))} className="rounded-lg border border-highlight/30 px-2.5 py-1.5 text-xs font-rounded font-bold text-highlight hover:bg-highlight/10 hover:border-highlight/50 transition-electric uppercase tracking-wider">
-                {language.toUpperCase()}
-              </button>
+            <div className="border-t border-border p-3 flex items-center justify-center gap-1">
+              {(['en', 'de', 'fr'] as const).map(lng => (
+                <button key={lng} onClick={() => setLanguage(lng)} className={`rounded-lg border px-2.5 py-1.5 text-xs font-rounded font-bold uppercase tracking-wider transition-electric ${language === lng ? 'bg-highlight/20 border-highlight text-highlight' : 'border-highlight/30 text-highlight/60 hover:bg-highlight/10 hover:border-highlight/50 hover:text-highlight'}`}>
+                  {lng.toUpperCase()}
+                </button>
+              ))}
             </div>
           </div>
         </div>
