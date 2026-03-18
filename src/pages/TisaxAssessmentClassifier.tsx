@@ -494,7 +494,7 @@ export default function TisaxAssessmentClassifier({ embedded = false }: { embedd
               variant="outline"
               className="border-highlight/50 text-highlight hover:bg-highlight/10 hover:border-highlight font-mono"
             >
-              {currentStep < steps.length - 1 ? t(I18N.next) : t(I18N.result || { de: 'Ergebnis', en: 'Result', fr: 'Résultat' })}
+              {currentStep < steps.length - 1 ? t(I18N.next) : t({ de: 'Auswerten', en: 'Evaluate', fr: 'Évaluer' })}
               <ArrowRight className="w-4 h-4 ml-1" />
             </Button>
           )}
