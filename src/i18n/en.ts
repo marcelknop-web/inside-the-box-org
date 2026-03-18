@@ -647,7 +647,7 @@ export const en = {
     statusPass: '✔ Passed',
     statusPartial: '⚠ Partial',
     statusFail: '✕ Gap',
-    criteriaHeader: '✅ Acceptance criteria — measure is considered implemented when:',
+    criteriaHeader: '✅ Definition of Done — the measure is implemented when:',
     back: '← Back',
     next: 'Next →',
     toSummary: 'Summary →',
