@@ -271,7 +271,8 @@ export function generateCraReport(data: CraReportData): void {
   ];
   for (let i = 0; i < stats.length; i++) {
     const sx = ML + i * statW;
-    doc.setFillColor(i === 0 ? ...C.bgLight : ...C.bgRed);
+    const fillC = i === 0 ? C.bgLight : C.bgRed;
+    doc.setFillColor(...fillC);
     doc.roundedRect(sx + 2, y, statW - 4, 28, 2, 2, 'F');
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(22);
