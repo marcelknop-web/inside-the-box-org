@@ -787,7 +787,9 @@ export const de = {
     rpTermCritGaps: 'CRA-Anforderungen, die vollständig unerfüllt sind (Status: Fail). Diese stellen regulatorische Lücken dar, die vor einem Audit geschlossen werden müssen.',
     rpExport: 'Report exportieren',
     rpExportHint: 'In der Produktionsversion: automatisch gebrandeter DOCX/PDF-Report',
+    rpExportHintActive: 'Das vollständige Assessment als professionellen PDF-Report herunterladen',
     rpExportBtn: 'In Produktionsversion verfügbar',
+    rpDoneInfoActive: 'Ihr CRA-Assessment ist abgeschlossen. Laden Sie den vollständigen <strong>PDF-Report</strong> unten herunter.',
     // Product types
     ptIot: 'IoT-Gerät', ptIotDesc: 'Sensor, Gateway, Smart Device',
     ptEmbed: 'Embedded System', ptEmbedDesc: 'Firmware, Controller, SPS',
