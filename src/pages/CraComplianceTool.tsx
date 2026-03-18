@@ -9,7 +9,7 @@ import { StaggerReveal } from '@/components/StaggerReveal';
 import {
   getProductTypes, getCraClasses, getDeploymentOpts,
   INTERFACE_OPTS, getSecurityMeasures, getSecurityCategories,
-  getAttachTypes, THREATS, CRA_REQS, getStrideMeta,
+  getAttachTypes, THREATS, CRA_REQS, getStrideMeta, threatId,
   type Threat, type CraReq, type IntakeData, type MeasureEntry, EMPTY_INTAKE,
 } from '@/data/craData';
 
