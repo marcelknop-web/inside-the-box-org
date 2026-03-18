@@ -871,7 +871,7 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
 
   return (
     <StaggerReveal resetKey={`rp`} stagger={350}>
-      <InfoBox icon="✅" title={t('cra.rpDone')} color="green"><span dangerouslySetInnerHTML={{ __html: t('cra.rpDoneInfo') }} /></InfoBox>
+      <InfoBox icon="✅" title={t('cra.rpDone')} color="green"><span dangerouslySetInnerHTML={{ __html: t('cra.rpDoneInfoActive') || t('cra.rpDone') }} /></InfoBox>
       <div className="bg-card border-l-4 border-primary rounded-lg p-5 border border-border">
         <div className="flex flex-col sm:flex-row items-start justify-between mb-3 gap-2">
           <div>
