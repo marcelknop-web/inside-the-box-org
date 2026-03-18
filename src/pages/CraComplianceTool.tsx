@@ -342,7 +342,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
   // Sub-Step 3: Schnittstellen
   const Step3 = () => (
     <div className="space-y-5 animate-fade-in">
-      <SubStepHeader current={3} total={TOTAL} title="Über welche Schnittstellen kommuniziert das System?" subtitle="Wählen Sie alle Protokolle und Verbindungen aus, die das Produkt nutzt." />
+      <SubStepHeader current={3} total={TOTAL} title="Über welche Schnittstellen kommuniziert das System?" subtitle="Alle genutzten Protokolle und Verbindungen auswählen." />
       <InfoBox icon="💡" color="blue">
         <strong>Schnittstellen = potenzielle Angriffspunkte.</strong> Jede Verbindung nach außen ist relevant — auch interne APIs, USB-Anschlüsse oder Bluetooth. Symbole ⚠️ markieren unsichere Protokolle.
       </InfoBox>
