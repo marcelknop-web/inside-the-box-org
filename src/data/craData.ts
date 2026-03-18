@@ -1,36 +1,70 @@
-// ── CRA Tool Constants & Demo Data ──────────────────────────────
+// ── CRA Tool Constants & Demo Data (i18n-aware) ─────────────────
 
-export const PRODUCT_TYPES = [
-  { id: 'iot', label: 'IoT-Gerät', icon: '📡', desc: 'Sensor, Gateway, Smart Device' },
-  { id: 'embed', label: 'Embedded System', icon: '🔧', desc: 'Firmware, Controller, SPS' },
-  { id: 'sw', label: 'Software-Produkt', icon: '💻', desc: 'Desktop- oder Server-Anwendung' },
-  { id: 'mobile', label: 'Mobile App', icon: '📱', desc: 'iOS oder Android App' },
-  { id: 'cloud', label: 'Cloud-Dienst', icon: '☁️', desc: 'SaaS, PaaS, Web-API' },
-  { id: 'hw', label: 'Hardware-Produkt', icon: '🖥️', desc: 'Ohne eigene Software' },
-  { id: 'network', label: 'Netzwerkgerät', icon: '🌐', desc: 'Router, Switch, Firewall' },
-  { id: 'kombi', label: 'Kombiniertes Produkt', icon: '⚙️', desc: 'Hardware + Software zusammen' },
-] as const;
+// Translation helper type – accepts the t() function from useLanguage
+type T = (key: string) => string;
 
-export const CRA_CLASSES = [
-  { id: 'default', label: 'Default', color: 'border-green-500 bg-green-500/10 text-green-400', desc: 'Die meisten Produkte fallen hierunter. Selbstbewertung erlaubt.', example: 'Einfache Smart-Home-Geräte, Standard-Software ohne besondere Kritikalität' },
-  { id: 'k1', label: 'Klasse I', color: 'border-yellow-500 bg-yellow-500/10 text-yellow-400', desc: 'Erhöhtes Risiko. Zertifizierung durch Dritte oder Einhaltung harmonisierter Normen nötig.', example: 'Browser, Passwort-Manager, VPN-Produkte, Betriebssysteme' },
-  { id: 'k2', label: 'Klasse II', color: 'border-orange-500 bg-orange-500/10 text-orange-400', desc: 'Hohes Risiko. Pflicht zur Drittprüfung durch akkreditierte Stelle.', example: 'Industrielle Router, Sicherheitskameras, SCADA-Systeme, Firewalls' },
-  { id: 'krit', label: 'Kritisch', color: 'border-destructive bg-destructive/10 text-destructive', desc: 'Kritische Infrastruktur. EU-Typprüfung erforderlich.', example: 'Sicherheitsprodukte für kritische Infrastruktur, HSMs' },
-] as const;
+// ── Product Types ───────────────────────────────────────────────
 
-export const DEPLOYMENT_OPTS = [
-  { id: 'cloud', label: 'Cloud', icon: '☁️' },
-  { id: 'onprem', label: 'On-Premises', icon: '🏢' },
-  { id: 'hybrid', label: 'Hybrid', icon: '🔀' },
-  { id: 'embedded', label: 'Embedded/Edge', icon: '🔌' },
-  { id: 'mobile', label: 'Mobil', icon: '📱' },
-] as const;
+const PT_KEYS = ['iot', 'embed', 'sw', 'mobile', 'cloud', 'hw', 'network', 'kombi'] as const;
+const PT_ICONS = ['📡', '🔧', '💻', '📱', '☁️', '🖥️', '🌐', '⚙️'];
+const PT_T_KEYS = ['ptIot', 'ptEmbed', 'ptSw', 'ptMobile', 'ptCloud', 'ptHw', 'ptNetwork', 'ptKombi'];
+const PT_DESC_KEYS = ['ptIotDesc', 'ptEmbedDesc', 'ptSwDesc', 'ptMobileDesc', 'ptCloudDesc', 'ptHwDesc', 'ptNetworkDesc', 'ptKombiDesc'];
 
-export const COMPONENT_OPTS = [
-  'Web-Frontend', 'Mobile App', 'REST-API', 'GraphQL-API', 'Datenbank', 'Cloud-Backend',
-  'Embedded Firmware', 'MQTT-Broker', 'OPC-UA Server', 'Message Queue', 'Authentication-Service',
-  'Admin-Interface', 'Update-Service', 'Logging/Monitoring', 'VPN-Gateway', 'WLAN/LAN-Stack',
-] as const;
+export function getProductTypes(t: T) {
+  return PT_KEYS.map((id, i) => ({
+    id,
+    label: t(`cra.${PT_T_KEYS[i]}`),
+    icon: PT_ICONS[i],
+    desc: t(`cra.${PT_DESC_KEYS[i]}`),
+  }));
+}
+
+// ── CRA Classes ─────────────────────────────────────────────────
+
+const CLS_IDS = ['default', 'k1', 'k2', 'krit'] as const;
+const CLS_COLORS = [
+  'border-green-500 bg-green-500/10 text-green-400',
+  'border-yellow-500 bg-yellow-500/10 text-yellow-400',
+  'border-orange-500 bg-orange-500/10 text-orange-400',
+  'border-destructive bg-destructive/10 text-destructive',
+];
+const CLS_KEYS = ['clsDefault', 'clsK1', 'clsK2', 'clsKrit'];
+
+export function getCraClasses(t: T) {
+  return CLS_IDS.map((id, i) => ({
+    id,
+    label: t(`cra.${CLS_KEYS[i]}`),
+    color: CLS_COLORS[i],
+    desc: t(`cra.${CLS_KEYS[i]}Desc`),
+    example: t(`cra.${CLS_KEYS[i]}Ex`),
+  }));
+}
+
+// ── Deployment Options ──────────────────────────────────────────
+
+const DEP_IDS = ['cloud', 'onprem', 'hybrid', 'embedded', 'mobile'] as const;
+const DEP_ICONS = ['☁️', '🏢', '🔀', '🔌', '📱'];
+const DEP_KEYS = ['depCloud', 'depOnprem', 'depHybrid', 'depEmbedded', 'depMobile'];
+
+export function getDeploymentOpts(t: T) {
+  return DEP_IDS.map((id, i) => ({
+    id,
+    label: t(`cra.${DEP_KEYS[i]}`),
+    icon: DEP_ICONS[i],
+  }));
+}
+
+// ── Component Options (translated array) ────────────────────────
+
+export function getComponentOpts(t: T): string[] {
+  // tArray returns string[] but t returns string; we use the cra.components key
+  // For simplicity, we return a split from individual keys — but i18n stores them as array
+  // We'll access via a workaround: the language files store cra.components as an array
+  // The caller should use tArray('cra.components') instead
+  return []; // not used — caller uses tArray
+}
+
+// ── Interface Options (static labels with icons) ────────────────
 
 export const INTERFACE_OPTS = [
   { label: 'HTTPS/REST', icon: '🔒' }, { label: 'HTTP', icon: '⚠️' }, { label: 'MQTT (TLS)', icon: '🔒' },
@@ -41,38 +75,61 @@ export const INTERFACE_OPTS = [
   { label: 'Proprietäres Protokoll', icon: '❓' },
 ] as const;
 
-export const ROLE_PRESETS = [
-  'Administrator', 'Standard-Nutzer', 'Wartungstechniker', 'Nur-Lesen Nutzer',
-  'API-Client (Maschine)', 'Externer Dienstleister', 'Auditor', 'Entwickler (Dev-Zugang)',
-] as const;
+// ── Security Measures ───────────────────────────────────────────
 
-export const SECURITY_MEASURES = [
-  { id: 'tls', label: 'TLS/HTTPS Verschlüsselung', cat: 'Kommunikation' },
-  { id: 'auth', label: 'Benutzerauthentifizierung', cat: 'Zugang' },
-  { id: 'mfa', label: 'Multi-Faktor-Authentifizierung', cat: 'Zugang' },
-  { id: 'rbac', label: 'Rollenbasierte Zugriffsrechte', cat: 'Zugang' },
-  { id: 'fw', label: 'Firewall', cat: 'Netzwerk' },
-  { id: 'vpn', label: 'VPN', cat: 'Netzwerk' },
-  { id: 'patch', label: 'Patch-Management-Prozess', cat: 'Betrieb' },
-  { id: 'log', label: 'Logging & Audit-Trail', cat: 'Monitoring' },
-  { id: 'monitor', label: 'Monitoring / Alerting', cat: 'Monitoring' },
-  { id: 'pentest', label: 'Regelmäßige Pentests', cat: 'Prüfung' },
-  { id: 'sbom', label: 'SBOM vorhanden', cat: 'Dokumentation' },
-  { id: 'ir', label: 'Incident Response Prozess', cat: 'Betrieb' },
-  { id: 'secboot', label: 'Secure Boot', cat: 'Firmware' },
-  { id: 'codesign', label: 'Code Signing / Firmware Signing', cat: 'Firmware' },
-  { id: 'encrypt', label: 'Datenverschlüsselung at rest', cat: 'Daten' },
-] as const;
+const SM_IDS = ['tls', 'auth', 'mfa', 'rbac', 'fw', 'vpn', 'patch', 'log', 'monitor', 'pentest', 'sbom', 'ir', 'secboot', 'codesign', 'encrypt'] as const;
+const SM_LABEL_KEYS = ['smTls', 'smAuth', 'smMfa', 'smRbac', 'smFw', 'smVpn', 'smPatch', 'smLog', 'smMonitor', 'smPentest', 'smSbom', 'smIr', 'smSecboot', 'smCodesign', 'smEncrypt'];
+const SM_CAT_KEYS = ['catCommunication', 'catAccess', 'catAccess', 'catAccess', 'catNetwork', 'catNetwork', 'catOps', 'catMonitoring', 'catMonitoring', 'catAudit', 'catDocs', 'catOps', 'catFirmware', 'catFirmware', 'catData'];
 
-export const SECURITY_CATEGORIES = [...new Set(SECURITY_MEASURES.map(m => m.cat))] as string[];
+export function getSecurityMeasures(t: T) {
+  return SM_IDS.map((id, i) => ({
+    id,
+    label: t(`cra.${SM_LABEL_KEYS[i]}`),
+    cat: t(`cra.${SM_CAT_KEYS[i]}`),
+  }));
+}
 
-export const ATTACH_TYPES = [
-  { id: 'arch', label: 'Architekturdiagramm', icon: '🗺️', accept: '.pdf,.png,.jpg,.jpeg,.svg,.pptx,.vsdx,.drawio' },
-  { id: 'pentest', label: 'Pentestbericht', icon: '🔍', accept: '.pdf,.docx' },
-  { id: 'policy', label: 'Security Policy', icon: '📋', accept: '.pdf,.docx' },
-  { id: 'sbom', label: 'SBOM', icon: '📦', accept: '.json,.xml,.csv,.txt,.spdx' },
-  { id: 'other', label: 'Sonstiges Dokument', icon: '📎', accept: '*' },
-] as const;
+export function getSecurityCategories(t: T) {
+  return [...new Set(getSecurityMeasures(t).map(m => m.cat))];
+}
+
+// ── Attach Types ────────────────────────────────────────────────
+
+const ATT_IDS = ['arch', 'pentest', 'policy', 'sbom', 'other'] as const;
+const ATT_ICONS = ['🗺️', '🔍', '📋', '📦', '📎'];
+const ATT_ACCEPTS = ['.pdf,.png,.jpg,.jpeg,.svg,.pptx,.vsdx,.drawio', '.pdf,.docx', '.pdf,.docx', '.json,.xml,.csv,.txt,.spdx', '*'];
+const ATT_KEYS = ['attArch', 'attPentest', 'attPolicy', 'attSbom', 'attOther'];
+
+export function getAttachTypes(t: T) {
+  return ATT_IDS.map((id, i) => ({
+    id,
+    label: t(`cra.${ATT_KEYS[i]}`),
+    icon: ATT_ICONS[i],
+    accept: ATT_ACCEPTS[i],
+  }));
+}
+
+// ── STRIDE Meta ─────────────────────────────────────────────────
+
+const STRIDE_LABEL_KEYS = ['strideSpoofing', 'strideTampering', 'strideRepudiation', 'strideInfoDisc', 'strideDos', 'strideEoP'];
+const STRIDE_DOTS = ['bg-purple-500', 'bg-orange-500', 'bg-yellow-500', 'bg-blue-500', 'bg-red-500', 'bg-rose-500'];
+const STRIDE_BADGES = [
+  'bg-purple-500/10 text-purple-400 border border-purple-500/20',
+  'bg-orange-500/10 text-orange-400 border border-orange-500/20',
+  'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20',
+  'bg-blue-500/10 text-blue-400 border border-blue-500/20',
+  'bg-red-500/10 text-red-400 border border-red-500/20',
+  'bg-rose-500/10 text-rose-400 border border-rose-500/20',
+];
+
+export function getStrideMeta(t: T): Record<string, { label: string; dot: string; badge: string }> {
+  const keys = 'STRIDE'.split('');
+  return Object.fromEntries(keys.map((k, i) => [k, {
+    label: t(`cra.${STRIDE_LABEL_KEYS[i]}`),
+    dot: STRIDE_DOTS[i],
+    badge: STRIDE_BADGES[i],
+  }]));
+}
 
 // ── Types ───────────────────────────────────────────────────────
 
@@ -113,7 +170,7 @@ export const EMPTY_INTAKE: IntakeData = {
   measures: [], knownIssues: '', files: [],
 };
 
-// ── Demo Threats ────────────────────────────────────────────────
+// ── Demo Threats (static, language-independent technical data) ──
 
 export const THREATS: Threat[] = [
   { id: 1, stride: 'S', name: 'Spoofing des MQTT-Brokers', component: 'MQTT-Interface', attacker: 'Externer Angreifer', path: 'Angreifer positioniert sich als legitimer MQTT-Broker → Gerät verbindet sich mit False-Server → Datenabfluss', cra: 'Annex I, Part I, Nr. 3', likelihood: 3, impact: 4,
@@ -204,16 +261,3 @@ export const CRA_REQS: CraReq[] = [
     measure: 'Technische Dokumentation nach Annex VII vervollständigen',
     criteria: ['Vollständige Systembeschreibung inkl. aller Schnittstellen und Datenflüsse', 'Dokumentierte Risikoanalyse gemäß CRA Annex VII', 'EU-Konformitätserklärung nach Art. 28 vorbereitet'] },
 ];
-
-// ── STRIDE Meta ─────────────────────────────────────────────────
-
-export const STRIDE_META: Record<string, { label: string; dot: string; badge: string }> = {
-  S: { label: 'Spoofing', dot: 'bg-purple-500', badge: 'bg-purple-500/10 text-purple-400 border border-purple-500/20' },
-  T: { label: 'Tampering', dot: 'bg-orange-500', badge: 'bg-orange-500/10 text-orange-400 border border-orange-500/20' },
-  R: { label: 'Repudiation', dot: 'bg-yellow-500', badge: 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20' },
-  I: { label: 'Info Disclosure', dot: 'bg-blue-500', badge: 'bg-blue-500/10 text-blue-400 border border-blue-500/20' },
-  D: { label: 'Denial of Service', dot: 'bg-red-500', badge: 'bg-red-500/10 text-red-400 border border-red-500/20' },
-  E: { label: 'Elevation of Priv.', dot: 'bg-rose-500', badge: 'bg-rose-500/10 text-rose-400 border border-rose-500/20' },
-};
-
-export const MAIN_STEPS = ['System Intake', 'Threat Modeling', 'Risk Assessment', 'CRA Mapping', 'Report'] as const;

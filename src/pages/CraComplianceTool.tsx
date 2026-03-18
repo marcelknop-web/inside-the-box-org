@@ -3,27 +3,28 @@ import { Button } from '@/components/ui/button';
 import { RotateCcw, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
 import { PageMeta } from '@/components/PageMeta';
 import { Progress } from '@/components/ui/progress';
+import { useLanguage } from '@/i18n/LanguageContext';
 import {
-  PRODUCT_TYPES, CRA_CLASSES, DEPLOYMENT_OPTS, COMPONENT_OPTS,
-  INTERFACE_OPTS, ROLE_PRESETS, SECURITY_MEASURES, SECURITY_CATEGORIES,
-  ATTACH_TYPES, THREATS, CRA_REQS, STRIDE_META, MAIN_STEPS,
+  getProductTypes, getCraClasses, getDeploymentOpts,
+  INTERFACE_OPTS, getSecurityMeasures, getSecurityCategories,
+  getAttachTypes, THREATS, CRA_REQS, getStrideMeta,
   type Threat, type CraReq, type IntakeData, EMPTY_INTAKE,
 } from '@/data/craData';
 
 // ── Helpers ─────────────────────────────────────────────────────
 
-function riskLevel(l: number, i: number) {
+function riskLevel(l: number, i: number, t: (k: string) => string) {
   const s = l * i;
-  if (s >= 20) return { label: 'Kritisch', cls: 'bg-destructive text-destructive-foreground' };
-  if (s >= 13) return { label: 'Hoch', cls: 'bg-orange-500 text-white' };
-  if (s >= 6) return { label: 'Mittel', cls: 'bg-yellow-500 text-black' };
-  return { label: 'Niedrig', cls: 'bg-green-500 text-white' };
+  if (s >= 20) return { label: t('cra.critical'), cls: 'bg-destructive text-destructive-foreground' };
+  if (s >= 13) return { label: t('cra.high'), cls: 'bg-orange-500 text-white' };
+  if (s >= 6) return { label: t('cra.medium'), cls: 'bg-yellow-500 text-black' };
+  return { label: t('cra.low'), cls: 'bg-green-500 text-white' };
 }
 
-const StatusBadge = memo(({ status }: { status: string }) => {
-  if (status === 'pass') return <span className="px-2 py-0.5 rounded text-xs font-bold bg-green-500/10 text-green-400 border border-green-500/20">✔ Erfüllt</span>;
-  if (status === 'partial') return <span className="px-2 py-0.5 rounded text-xs font-bold bg-yellow-500/10 text-yellow-400 border border-yellow-500/20">⚠ Teilweise</span>;
-  return <span className="px-2 py-0.5 rounded text-xs font-bold bg-destructive/10 text-destructive border border-destructive/20">✕ Lücke</span>;
+const StatusBadge = memo(({ status, t }: { status: string; t: (k: string) => string }) => {
+  if (status === 'pass') return <span className="px-2 py-0.5 rounded text-xs font-bold bg-green-500/10 text-green-400 border border-green-500/20">{t('cra.statusPass')}</span>;
+  if (status === 'partial') return <span className="px-2 py-0.5 rounded text-xs font-bold bg-yellow-500/10 text-yellow-400 border border-yellow-500/20">{t('cra.statusPartial')}</span>;
+  return <span className="px-2 py-0.5 rounded text-xs font-bold bg-destructive/10 text-destructive border border-destructive/20">{t('cra.statusFail')}</span>;
 });
 
 const ScoreBar = memo(({ value }: { value: number }) => {
@@ -77,8 +78,6 @@ const Chip = memo(({ label, selected, onClick, icon, desc }: { label: string; se
   </button>
 ));
 
-// ── Evidence Block (reused in ThreatModel, CRAMapping, Report) ──
-
 function EvidenceBlock({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="bg-background/50 border border-border rounded-md px-3 py-2">
@@ -88,11 +87,11 @@ function EvidenceBlock({ label, children }: { label: string; children: React.Rea
   );
 }
 
-function CriteriaBlock({ criteria }: { criteria: string[] }) {
+function CriteriaBlock({ criteria, t }: { criteria: string[]; t: (k: string) => string }) {
   if (!criteria.length) return null;
   return (
     <div className="bg-background/50 border border-primary/20 rounded-md px-3 py-2">
-      <div className="text-xs font-semibold text-primary uppercase tracking-wide mb-1.5">✅ Akzeptanzkriterien — Maßnahme gilt als umgesetzt, wenn:</div>
+      <div className="text-xs font-semibold text-primary uppercase tracking-wide mb-1.5">{t('cra.criteriaHeader')}</div>
       <ul className="space-y-1">
         {criteria.map((c, i) => (
           <li key={i} className="flex gap-2 text-foreground">
@@ -105,16 +104,26 @@ function CriteriaBlock({ criteria }: { criteria: string[] }) {
   );
 }
 
-// ── Intake Wizard (uses key-based step switching for stable focus) ──
+// ── Intake Wizard ───────────────────────────────────────────────
 
 const INTAKE_STEPS = 6;
-const TOTAL_WIZARD_PAGES = 8; // 6 steps + 1 summary + navigation
+const TOTAL_WIZARD_PAGES = 8;
 
 function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
+  const { t, tArray } = useLanguage();
   const [sub, setSub] = useState(0);
   const [d, setD] = useState<IntakeData>(EMPTY_INTAKE);
   const fileRef = useRef<HTMLInputElement>(null);
   const [activeUploadType, setActiveUploadType] = useState<string | null>(null);
+
+  const productTypes = useMemo(() => getProductTypes(t), [t]);
+  const craClasses = useMemo(() => getCraClasses(t), [t]);
+  const deploymentOpts = useMemo(() => getDeploymentOpts(t), [t]);
+  const componentOpts = useMemo(() => tArray('cra.components'), [t]);
+  const rolePresets = useMemo(() => tArray('cra.roles'), [t]);
+  const securityMeasures = useMemo(() => getSecurityMeasures(t), [t]);
+  const securityCategories = useMemo(() => getSecurityCategories(t), [t]);
+  const attachTypes = useMemo(() => getAttachTypes(t), [t]);
 
   const setField = useCallback((field: keyof IntakeData, val: unknown) => {
     setD(prev => ({ ...prev, [field]: val }));
@@ -156,26 +165,25 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
 
   const isSummary = sub === 7;
 
-  // Each step is a STABLE component rendered via switch — no fragment index shifting
   let stepContent: React.ReactNode;
   switch (sub) {
     case 0:
       stepContent = (
         <div className="space-y-5">
-          <SubStepHeader current={0} total={INTAKE_STEPS} title="Was für ein Produkt bewerten wir?" subtitle="Produkt-Typ auswählen und Namen vergeben." />
-          <InfoBox icon="💡" color="blue">Der <strong>Produkt-Typ</strong> bestimmt, welche Bedrohungsszenarien relevant sind. Ein IoT-Gerät hat andere Risiken als eine Web-App.</InfoBox>
+          <SubStepHeader current={0} total={INTAKE_STEPS} title={t('cra.step0Title')} subtitle={t('cra.step0Sub')} />
+          <InfoBox icon="💡" color="blue"><span dangerouslySetInnerHTML={{ __html: t('cra.step0Info') }} /></InfoBox>
           <div>
-            <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Produktname *</label>
-            <input className="w-full border border-border rounded-lg px-3 py-2.5 text-sm bg-background text-foreground focus:ring-2 focus:ring-primary outline-none" placeholder="z.B. SmartGate Pro, SafeControl 3000 …" value={d.productName} onChange={e => setField('productName', e.target.value)} />
+            <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">{t('cra.productName')}</label>
+            <input className="w-full border border-border rounded-lg px-3 py-2.5 text-sm bg-background text-foreground focus:ring-2 focus:ring-primary outline-none" placeholder={t('cra.productNamePh')} value={d.productName} onChange={e => setField('productName', e.target.value)} />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Version</label>
-            <input className="w-full border border-border rounded-lg px-3 py-2.5 text-sm bg-background text-foreground focus:ring-2 focus:ring-primary outline-none" placeholder="z.B. 1.0.0, 2024-Q3, Prototype" value={d.version} onChange={e => setField('version', e.target.value)} />
+            <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">{t('cra.version')}</label>
+            <input className="w-full border border-border rounded-lg px-3 py-2.5 text-sm bg-background text-foreground focus:ring-2 focus:ring-primary outline-none" placeholder={t('cra.versionPh')} value={d.version} onChange={e => setField('version', e.target.value)} />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Produkt-Typ * <span className="normal-case font-normal text-muted-foreground/60">(Mehrfachauswahl möglich)</span></label>
+            <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">{t('cra.productType')} <span className="normal-case font-normal text-muted-foreground/60">{t('cra.productTypeMulti')}</span></label>
             <div className="grid grid-cols-2 gap-2">
-              {PRODUCT_TYPES.map(t => <Chip key={t.id} label={t.label} icon={t.icon} desc={t.desc} selected={d.productTypes.includes(t.id)} onClick={() => toggleArray('productTypes', t.id)} />)}
+              {productTypes.map(pt => <Chip key={pt.id} label={pt.label} icon={pt.icon} desc={pt.desc} selected={d.productTypes.includes(pt.id)} onClick={() => toggleArray('productTypes', pt.id)} />)}
             </div>
           </div>
         </div>
@@ -184,48 +192,48 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
     case 1:
       stepContent = (
         <div className="space-y-5">
-          <SubStepHeader current={1} total={INTAKE_STEPS} title="Wie ist das Produkt nach CRA eingestuft?" subtitle="Im Zweifelsfall zunächst 'Default' wählen — das Tool hilft bei der Einschätzung." />
-          <InfoBox icon="📘" title="Was ist die CRA-Klassifizierung?" color="blue">Der Cyber Resilience Act (EU) stuft Produkte nach ihrem Risikopotenzial ein. Die Klasse bestimmt, <strong>wie der Konformitätsnachweis</strong> erbracht werden muss.</InfoBox>
+          <SubStepHeader current={1} total={INTAKE_STEPS} title={t('cra.step1Title')} subtitle={t('cra.step1Sub')} />
+          <InfoBox icon="📘" title={t('cra.step1InfoTitle')} color="blue"><span dangerouslySetInnerHTML={{ __html: t('cra.step1Info') }} /></InfoBox>
           <div className="space-y-2">
-            {CRA_CLASSES.map(c => (
+            {craClasses.map(c => (
               <button key={c.id} onClick={() => setField('craClass', c.id)} className={`w-full text-left border-2 rounded-xl px-4 py-3 transition-all ${d.craClass === c.id ? c.color + ' shadow' : 'border-border bg-card hover:border-muted-foreground/30'}`}>
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <div className="font-semibold text-sm text-foreground">{c.label}</div>
                     <div className="text-sm text-muted-foreground mt-0.5">{c.desc}</div>
-                    <div className="text-xs text-muted-foreground/60 mt-1">Beispiele: {c.example}</div>
+                    <div className="text-xs text-muted-foreground/60 mt-1">{t('cra.examples')}: {c.example}</div>
                   </div>
                   {d.craClass === c.id && <span className="text-lg mt-0.5 flex-shrink-0 text-primary">✓</span>}
                 </div>
               </button>
             ))}
           </div>
-          <InfoBox icon="🤔" color="amber"><strong>Nicht sicher?</strong> Fällt das Produkt nicht in Klasse I oder II-Kategorien, ist &quot;Default&quot; meistens korrekt.</InfoBox>
+          <InfoBox icon="🤔" color="amber"><span dangerouslySetInnerHTML={{ __html: t('cra.step1Hint') }} /></InfoBox>
         </div>
       );
       break;
     case 2:
       stepContent = (
         <div className="space-y-5">
-          <SubStepHeader current={2} total={INTAKE_STEPS} title="Wie ist das System aufgebaut?" subtitle="Kurze Systembeschreibung eingeben — oder passende Bausteine auswählen." />
-          <InfoBox icon="💡" color="blue">Einfach auf Deutsch beschreiben, <strong>was das Produkt macht</strong>, wer es nutzt und womit es verbunden ist.</InfoBox>
+          <SubStepHeader current={2} total={INTAKE_STEPS} title={t('cra.step2Title')} subtitle={t('cra.step2Sub')} />
+          <InfoBox icon="💡" color="blue"><span dangerouslySetInnerHTML={{ __html: t('cra.step2Info') }} /></InfoBox>
           <div>
-            <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Systembeschreibung</label>
-            <div className="text-xs text-muted-foreground/60 mb-2">Beispiel: &quot;Unser Gateway erfasst Temperaturdaten von 50 Sensoren, speichert sie lokal und überträgt sie stündlich an eine Cloud-Plattform.&quot;</div>
-            <textarea rows={4} className="w-full border border-border rounded-lg px-3 py-2.5 text-sm bg-background text-foreground focus:ring-2 focus:ring-primary outline-none resize-none" placeholder="In eigenen Worten beschreiben: Was tut das Produkt? Wer nutzt es? Womit ist es verbunden?" value={d.description} onChange={e => setField('description', e.target.value)} />
+            <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">{t('cra.sysDesc')}</label>
+            <div className="text-xs text-muted-foreground/60 mb-2">{t('cra.sysDescExample')}</div>
+            <textarea rows={4} className="w-full border border-border rounded-lg px-3 py-2.5 text-sm bg-background text-foreground focus:ring-2 focus:ring-primary outline-none resize-none" placeholder={t('cra.sysDescPh')} value={d.description} onChange={e => setField('description', e.target.value)} />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Technische Bausteine <span className="normal-case font-normal text-muted-foreground/60">(alle zutreffenden auswählen)</span></label>
+            <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">{t('cra.techComponents')} <span className="normal-case font-normal text-muted-foreground/60">{t('cra.techComponentsMulti')}</span></label>
             <div className="flex flex-wrap gap-2">
-              {COMPONENT_OPTS.map(c => (
+              {componentOpts.map(c => (
                 <button key={c} onClick={() => toggleArray('components', c)} className={`border rounded-full px-3 py-1.5 text-xs font-medium transition-all ${d.components.includes(c) ? 'border-primary bg-primary/10 text-foreground' : 'border-border bg-card text-muted-foreground hover:border-primary/40'}`}>{d.components.includes(c) ? '✓ ' : ''}{c}</button>
               ))}
             </div>
           </div>
           <div>
-            <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Wo wird das Produkt betrieben?</label>
+            <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">{t('cra.deployment')}</label>
             <div className="flex flex-wrap gap-2">
-              {DEPLOYMENT_OPTS.map(o => (
+              {deploymentOpts.map(o => (
                 <button key={o.id} onClick={() => setField('deployment', o.id)} className={`border rounded-lg px-4 py-2 text-sm font-medium transition-all flex items-center gap-2 ${d.deployment === o.id ? 'border-primary bg-primary/10 text-foreground' : 'border-border bg-card text-muted-foreground hover:border-primary/40'}`}>{o.icon} {o.label}</button>
               ))}
             </div>
@@ -236,8 +244,8 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
     case 3:
       stepContent = (
         <div className="space-y-5">
-          <SubStepHeader current={3} total={INTAKE_STEPS} title="Über welche Schnittstellen kommuniziert das System?" subtitle="Alle genutzten Protokolle und Verbindungen auswählen." />
-          <InfoBox icon="💡" color="blue"><strong>Schnittstellen = potenzielle Angriffspunkte.</strong> Jede Verbindung nach außen ist relevant. ⚠️ markiert unsichere Protokolle.</InfoBox>
+          <SubStepHeader current={3} total={INTAKE_STEPS} title={t('cra.step3Title')} subtitle={t('cra.step3Sub')} />
+          <InfoBox icon="💡" color="blue"><span dangerouslySetInnerHTML={{ __html: t('cra.step3Info') }} /></InfoBox>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {INTERFACE_OPTS.map(o => (
               <button key={o.label} onClick={() => toggleArray('interfaces', o.label)} className={`border rounded-lg px-3 py-2 text-sm text-left flex items-center gap-2 transition-all ${d.interfaces.includes(o.label) ? 'border-primary bg-primary/10 text-foreground' : 'border-border bg-card text-muted-foreground hover:border-primary/40'}`}>
@@ -246,7 +254,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
             ))}
           </div>
           {d.interfaces.some(i => i.includes('unverschl') || i === 'HTTP' || i === 'FTP/SFTP') && (
-            <InfoBox icon="⚠️" color="amber">Es wurden <strong>unsichere Protokolle</strong> ausgewählt. Diese werden im Threat Model besonders analysiert.</InfoBox>
+            <InfoBox icon="⚠️" color="amber"><span dangerouslySetInnerHTML={{ __html: t('cra.step3Warn') }} /></InfoBox>
           )}
         </div>
       );
@@ -254,23 +262,23 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
     case 4:
       stepContent = (
         <div className="space-y-5">
-          <SubStepHeader current={4} total={INTAKE_STEPS} title="Wer hat Zugriff auf das System?" subtitle="Nutzerrollen helfen, Berechtigungsrisiken und Angreifer-Profile zu identifizieren." />
-          <InfoBox icon="💡" color="blue">Alle Personen <strong>und Systeme</strong> berücksichtigen, die sich einloggen oder auf Funktionen zugreifen können.</InfoBox>
+          <SubStepHeader current={4} total={INTAKE_STEPS} title={t('cra.step4Title')} subtitle={t('cra.step4Sub')} />
+          <InfoBox icon="💡" color="blue"><span dangerouslySetInnerHTML={{ __html: t('cra.step4Info') }} /></InfoBox>
           <div>
-            <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Häufige Rollen — klicken zum Hinzufügen</label>
+            <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">{t('cra.commonRoles')}</label>
             <div className="flex flex-wrap gap-2">
-              {ROLE_PRESETS.map(r => (
+              {rolePresets.map(r => (
                 <button key={r} onClick={() => addRole(r)} className={`border rounded-full px-3 py-1.5 text-xs font-medium transition-all ${d.roles.includes(r) ? 'border-green-500 bg-green-500/10 text-green-400' : 'border-border bg-card text-muted-foreground hover:border-primary/40'}`}>{d.roles.includes(r) ? '✓ ' : ''}{r}</button>
               ))}
             </div>
           </div>
           <div className="flex gap-2">
-            <input className="flex-1 border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground focus:ring-2 focus:ring-primary outline-none" placeholder="Eigene Rolle hinzufügen …" value={d.customRole} onChange={e => setField('customRole', e.target.value)} onKeyDown={e => { if (e.key === 'Enter') addRole(d.customRole); }} />
-            <Button onClick={() => addRole(d.customRole)} className="font-medium">+ Hinzufügen</Button>
+            <input className="flex-1 border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground focus:ring-2 focus:ring-primary outline-none" placeholder={t('cra.customRolePh')} value={d.customRole} onChange={e => setField('customRole', e.target.value)} onKeyDown={e => { if (e.key === 'Enter') addRole(d.customRole); }} />
+            <Button onClick={() => addRole(d.customRole)} className="font-medium">{t('cra.addRole')}</Button>
           </div>
           {d.roles.length > 0 && (
             <div>
-              <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Ausgewählte Rollen</label>
+              <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">{t('cra.selectedRoles')}</label>
               <div className="flex flex-wrap gap-2">
                 {d.roles.map(r => (
                   <span key={r} className="flex items-center gap-1.5 bg-green-500/10 border border-green-500/20 text-green-400 rounded-full px-3 py-1.5 text-xs font-medium">
@@ -287,26 +295,26 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
     case 5:
       stepContent = (
         <div className="space-y-5">
-          <SubStepHeader current={5} total={INTAKE_STEPS} title="Welche Sicherheitsmaßnahmen sind bereits vorhanden?" subtitle="Auch fehlende Maßnahmen sind wichtige Information für das Assessment." />
-          <InfoBox icon="💡" color="blue">Nur Maßnahmen auswählen, die <strong>aktuell wirklich aktiv</strong> sind — nicht was geplant ist.</InfoBox>
-          {SECURITY_CATEGORIES.map(cat => (
+          <SubStepHeader current={5} total={INTAKE_STEPS} title={t('cra.step5Title')} subtitle={t('cra.step5Sub')} />
+          <InfoBox icon="💡" color="blue"><span dangerouslySetInnerHTML={{ __html: t('cra.step5Info') }} /></InfoBox>
+          {securityCategories.map(cat => (
             <div key={cat}>
               <div className="text-xs font-semibold text-muted-foreground/60 uppercase tracking-wide mb-2">{cat}</div>
               <div className="space-y-1.5">
-                {SECURITY_MEASURES.filter(m => m.cat === cat).map(m => (
+                {securityMeasures.filter(m => m.cat === cat).map(m => (
                   <label key={m.id} className={`flex items-center gap-3 border rounded-lg px-3 py-2.5 cursor-pointer transition-all ${d.measures.includes(m.id) ? 'border-green-500/30 bg-green-500/10' : 'border-border bg-card hover:border-muted-foreground/30'}`}>
                     <input type="checkbox" className="w-4 h-4 rounded accent-green-600 flex-shrink-0" checked={d.measures.includes(m.id)} onChange={() => toggleArray('measures', m.id)} />
                     <span className="text-sm text-foreground">{m.label}</span>
-                    {d.measures.includes(m.id) && <span className="ml-auto text-green-400 text-xs font-semibold">vorhanden</span>}
+                    {d.measures.includes(m.id) && <span className="ml-auto text-green-400 text-xs font-semibold">{t('cra.present')}</span>}
                   </label>
                 ))}
               </div>
             </div>
           ))}
           <div>
-            <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Bekannte Schwachstellen oder offene Punkte</label>
-            <div className="text-xs text-muted-foreground/60 mb-2">Optional — z.B. &quot;Standard-Passwort nach Auslieferung aktiv&quot;, &quot;kein MFA&quot;</div>
-            <textarea rows={3} className="w-full border border-border rounded-lg px-3 py-2.5 text-sm bg-background text-foreground focus:ring-2 focus:ring-primary outline-none resize-none" placeholder="Bekannte Schwachstellen, offene Audit-Punkte …" value={d.knownIssues} onChange={e => setField('knownIssues', e.target.value)} />
+            <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">{t('cra.knownIssues')}</label>
+            <div className="text-xs text-muted-foreground/60 mb-2">{t('cra.knownIssuesHint')}</div>
+            <textarea rows={3} className="w-full border border-border rounded-lg px-3 py-2.5 text-sm bg-background text-foreground focus:ring-2 focus:ring-primary outline-none resize-none" placeholder={t('cra.knownIssuesPh')} value={d.knownIssues} onChange={e => setField('knownIssues', e.target.value)} />
           </div>
         </div>
       );
@@ -314,15 +322,15 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
     case 6:
       stepContent = (
         <div className="space-y-5">
-          <SubStepHeader current={5} total={INTAKE_STEPS} title="Relevante Unterlagen hochladen" subtitle="Optional — Architekturdiagramme oder Berichte verbessern die Analysequalität." />
-          <InfoBox icon="💡" color="blue">Relevante Dokumente hochladen. Die KI kann daraus <strong>zusätzliche Kontext-Informationen</strong> extrahieren.</InfoBox>
+          <SubStepHeader current={5} total={INTAKE_STEPS} title={t('cra.step6Title')} subtitle={t('cra.step6Sub')} />
+          <InfoBox icon="💡" color="blue"><span dangerouslySetInnerHTML={{ __html: t('cra.step6Info') }} /></InfoBox>
           <div className="grid grid-cols-1 gap-2">
-            {ATTACH_TYPES.map(t => (
-              <button key={t.id} onClick={() => { setActiveUploadType(t.id); if (fileRef.current) { fileRef.current.accept = t.accept; fileRef.current.click(); } }} className="flex items-center gap-3 border-2 border-dashed border-border rounded-xl px-4 py-3 text-sm text-muted-foreground hover:border-primary/40 hover:bg-primary/5 hover:text-foreground transition-all text-left">
-                <span className="text-xl">{t.icon}</span>
+            {attachTypes.map(at => (
+              <button key={at.id} onClick={() => { setActiveUploadType(at.id); if (fileRef.current) { fileRef.current.accept = at.accept; fileRef.current.click(); } }} className="flex items-center gap-3 border-2 border-dashed border-border rounded-xl px-4 py-3 text-sm text-muted-foreground hover:border-primary/40 hover:bg-primary/5 hover:text-foreground transition-all text-left">
+                <span className="text-xl">{at.icon}</span>
                 <div>
-                  <div className="font-medium">{t.label} hochladen</div>
-                  <div className="text-xs text-muted-foreground/60">{t.accept.replace(/\*/g, 'alle Formate')}</div>
+                  <div className="font-medium">{at.label} {t('cra.upload')}</div>
+                  <div className="text-xs text-muted-foreground/60">{at.accept.replace(/\*/g, t('cra.allFormats'))}</div>
                 </div>
                 <span className="ml-auto text-muted-foreground/40">+</span>
               </button>
@@ -331,10 +339,10 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
           <input ref={fileRef} type="file" multiple onChange={handleFileChange} className="hidden" />
           {d.files.length > 0 && (
             <div>
-              <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Hochgeladene Dateien ({d.files.length})</div>
+              <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">{t('cra.uploadedFiles')} ({d.files.length})</div>
               <div className="space-y-1.5">
                 {d.files.map((f, i) => {
-                  const typeInfo = ATTACH_TYPES.find(t => t.id === f.type) || { icon: '📎', label: 'Dokument' };
+                  const typeInfo = attachTypes.find(at => at.id === f.type) || { icon: '📎', label: 'Document' };
                   return (
                     <div key={i} className="flex items-center gap-3 bg-card border border-border rounded-lg px-3 py-2.5 text-sm">
                       <span className="text-lg flex-shrink-0">{typeInfo.icon}</span>
@@ -349,30 +357,30 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
               </div>
             </div>
           )}
-          <InfoBox icon="🔒" color="green">Dateien verlassen den Computer nicht und werden nur lokal für die Analyse verwendet.</InfoBox>
+          <InfoBox icon="🔒" color="green">{t('cra.filePrivacy')}</InfoBox>
         </div>
       );
       break;
     case 7:
       stepContent = (
         <div className="space-y-4">
-          <SubStepHeader current={5} total={INTAKE_STEPS} title="Alles bereit — Zusammenfassung" subtitle="Angaben überprüfen und dann die KI-Analyse starten." />
+          <SubStepHeader current={5} total={INTAKE_STEPS} title={t('cra.summaryTitle')} subtitle={t('cra.summarySub')} />
           {[
-            { label: 'Produkt', val: `${d.productName} ${d.version}`.trim() },
-            { label: 'Typ', val: d.productTypes.map(id => PRODUCT_TYPES.find(t => t.id === id)?.label).join(', ') || '—' },
-            { label: 'CRA-Klasse', val: CRA_CLASSES.find(c => c.id === d.craClass)?.label || '—' },
-            { label: 'Komponenten', val: d.components.length > 0 ? d.components.join(', ') : '—' },
-            { label: 'Schnittstellen', val: d.interfaces.length > 0 ? d.interfaces.join(', ') : '—' },
-            { label: 'Nutzerrollen', val: d.roles.length > 0 ? d.roles.join(', ') : '—' },
-            { label: 'Maßnahmen', val: d.measures.length > 0 ? `${d.measures.length} ausgewählt` : 'Keine' },
-            { label: 'Anlagen', val: d.files.length > 0 ? `${d.files.length} Datei(en)` : 'Keine' },
+            { label: t('cra.sumProduct'), val: `${d.productName} ${d.version}`.trim() },
+            { label: t('cra.sumType'), val: d.productTypes.map(id => productTypes.find(pt => pt.id === id)?.label).join(', ') || '—' },
+            { label: t('cra.sumClass'), val: craClasses.find(c => c.id === d.craClass)?.label || '—' },
+            { label: t('cra.sumComponents'), val: d.components.length > 0 ? d.components.join(', ') : '—' },
+            { label: t('cra.sumInterfaces'), val: d.interfaces.length > 0 ? d.interfaces.join(', ') : '—' },
+            { label: t('cra.sumRoles'), val: d.roles.length > 0 ? d.roles.join(', ') : '—' },
+            { label: t('cra.sumMeasures'), val: d.measures.length > 0 ? `${d.measures.length} ${t('cra.sumMeasuresSelected')}` : t('cra.sumMeasuresNone') },
+            { label: t('cra.sumAttach'), val: d.files.length > 0 ? `${d.files.length} ${t('cra.sumFiles')}` : t('cra.sumFilesNone') },
           ].map(({ label, val }) => (
             <div key={label} className="flex gap-3 text-sm border-b border-border/50 pb-2 last:border-0 last:pb-0">
               <span className="text-muted-foreground w-28 flex-shrink-0">{label}</span>
               <span className="text-foreground font-medium">{val}</span>
             </div>
           ))}
-          {d.knownIssues && <div className="text-sm border-b border-border/50 pb-2"><span className="text-muted-foreground">Bekannte Lücken: </span><span className="text-foreground">{d.knownIssues}</span></div>}
+          {d.knownIssues && <div className="text-sm border-b border-border/50 pb-2"><span className="text-muted-foreground">{t('cra.sumKnownGaps')}: </span><span className="text-foreground">{d.knownIssues}</span></div>}
         </div>
       );
       break;
@@ -382,14 +390,14 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
     <div>
       {stepContent}
       <div className="flex items-center justify-between mt-6 pt-4 border-t border-border/50">
-        <button onClick={() => setSub(s => s - 1)} disabled={sub === 0} className={`text-sm font-semibold px-4 py-2 rounded-lg transition-colors ${sub === 0 ? 'text-muted-foreground/30 cursor-not-allowed' : 'text-muted-foreground hover:bg-secondary'}`}>← Zurück</button>
+        <button onClick={() => setSub(s => s - 1)} disabled={sub === 0} className={`text-sm font-semibold px-4 py-2 rounded-lg transition-colors ${sub === 0 ? 'text-muted-foreground/30 cursor-not-allowed' : 'text-muted-foreground hover:bg-secondary'}`}>{t('cra.back')}</button>
         <div className="flex gap-1">
           {Array.from({ length: TOTAL_WIZARD_PAGES }).map((_, i) => <div key={i} className={`w-1.5 h-1.5 rounded-full transition-all ${i === sub ? 'bg-primary w-3' : i < sub ? 'bg-primary/40' : 'bg-secondary'}`} />)}
         </div>
         {isSummary
-          ? <Button onClick={() => onFinish(d)} className="font-semibold shadow-md">KI-Analyse starten →</Button>
+          ? <Button onClick={() => onFinish(d)} className="font-semibold shadow-md">{t('cra.startAnalysis')}</Button>
           : <Button onClick={() => setSub(s => s + 1)} disabled={!canNext[sub]} className="font-semibold shadow-sm">
-            {sub === 6 ? 'Zusammenfassung →' : 'Weiter →'}
+            {sub === 6 ? t('cra.toSummary') : t('cra.next')}
           </Button>
         }
       </div>
@@ -400,14 +408,16 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
 // ── Phase 2: Threat Model ─────────────────────────────────────
 
 function ThreatModel({ threats, onNext }: { threats: Threat[]; onNext: () => void }) {
+  const { t } = useLanguage();
   const [exp, setExp] = useState<number | null>(null);
-  const counts = useMemo(() => Object.fromEntries('STRIDE'.split('').map(c => [c, threats.filter(t => t.stride === c).length])), [threats]);
+  const strideMeta = useMemo(() => getStrideMeta(t), [t]);
+  const counts = useMemo(() => Object.fromEntries('STRIDE'.split('').map(c => [c, threats.filter(th => th.stride === c).length])), [threats]);
 
   return (
     <div className="space-y-4">
-      <InfoBox icon="🛡️" title="STRIDE Threat Model" color="blue">Das System wurde nach <strong>6 Bedrohungskategorien</strong> analysiert. Bedrohung anklicken für Evidenz und Angriffspfad.</InfoBox>
+      <InfoBox icon="🛡️" title={t('cra.tmInfoTitle')} color="blue"><span dangerouslySetInnerHTML={{ __html: t('cra.tmInfo') }} /></InfoBox>
       <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
-        {Object.entries(STRIDE_META).map(([k, m]) => (
+        {Object.entries(strideMeta).map(([k, m]) => (
           <div key={k} className="bg-card border border-border rounded-lg p-3 text-center">
             <div className={`w-8 h-8 rounded-full ${m.dot} text-white font-bold text-sm flex items-center justify-center mx-auto mb-1`}>{k}</div>
             <div className="text-xs text-muted-foreground leading-tight">{m.label}</div>
@@ -416,36 +426,36 @@ function ThreatModel({ threats, onNext }: { threats: Threat[]; onNext: () => voi
         ))}
       </div>
       <div className="space-y-1.5">
-        {threats.map(t => {
-          const meta = STRIDE_META[t.stride];
-          const risk = riskLevel(t.likelihood, t.impact);
-          const isOpen = exp === t.id;
+        {threats.map(th => {
+          const meta = strideMeta[th.stride];
+          const risk = riskLevel(th.likelihood, th.impact, t);
+          const isOpen = exp === th.id;
           return (
-            <div key={t.id} className="bg-card border border-border rounded-lg overflow-hidden">
-              <div className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-secondary/50" onClick={() => setExp(isOpen ? null : t.id)}>
-                <span className={`px-2 py-0.5 rounded text-xs font-bold ${meta.badge}`}>{t.stride}</span>
+            <div key={th.id} className="bg-card border border-border rounded-lg overflow-hidden">
+              <div className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-secondary/50" onClick={() => setExp(isOpen ? null : th.id)}>
+                <span className={`px-2 py-0.5 rounded text-xs font-bold ${meta.badge}`}>{th.stride}</span>
                 <div className="flex-1 min-w-0">
-                  <div className="text-sm font-semibold text-foreground truncate">{t.name}</div>
-                  <div className="text-xs text-muted-foreground">{t.component}</div>
+                  <div className="text-sm font-semibold text-foreground truncate">{th.name}</div>
+                  <div className="text-xs text-muted-foreground">{th.component}</div>
                 </div>
-                <span className={`px-2 py-0.5 rounded text-xs font-bold flex-shrink-0 ${risk.cls}`}>{risk.label} (<span className="font-mono">{t.likelihood * t.impact}</span>)</span>
+                <span className={`px-2 py-0.5 rounded text-xs font-bold flex-shrink-0 ${risk.cls}`}>{risk.label} (<span className="font-mono">{th.likelihood * th.impact}</span>)</span>
                 {isOpen ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
               </div>
               {isOpen && (
                 <div className="border-t border-border bg-secondary/30 px-4 py-3 text-sm space-y-3">
-                  <div><span className="font-semibold text-muted-foreground">Angreifer: </span><span className="text-foreground">{t.attacker}</span></div>
-                  <div><span className="font-semibold text-muted-foreground">Angriffspfad: </span><span className="text-foreground">{t.path}</span></div>
-                  <EvidenceBlock label="📋 Evidenz">{t.evidence}</EvidenceBlock>
-                  <EvidenceBlock label="🔍 Begründung der Bewertung">{t.rationale}</EvidenceBlock>
+                  <div><span className="font-semibold text-muted-foreground">{t('cra.tmAttacker')}: </span><span className="text-foreground">{th.attacker}</span></div>
+                  <div><span className="font-semibold text-muted-foreground">{t('cra.tmPath')}: </span><span className="text-foreground">{th.path}</span></div>
+                  <EvidenceBlock label={t('cra.tmEvidence')}>{th.evidence}</EvidenceBlock>
+                  <EvidenceBlock label={t('cra.tmRationale')}>{th.rationale}</EvidenceBlock>
                   <div className="grid grid-cols-2 gap-4 pt-1">
-                    <div><div className="text-xs text-muted-foreground mb-1">Likelihood (<span className="font-mono">{t.likelihood}/5</span>)</div><ScoreBar value={t.likelihood} /></div>
-                    <div><div className="text-xs text-muted-foreground mb-1">Impact (<span className="font-mono">{t.impact}/5</span>)</div><ScoreBar value={t.impact} /></div>
+                    <div><div className="text-xs text-muted-foreground mb-1">Likelihood (<span className="font-mono">{th.likelihood}/5</span>)</div><ScoreBar value={th.likelihood} /></div>
+                    <div><div className="text-xs text-muted-foreground mb-1">Impact (<span className="font-mono">{th.impact}/5</span>)</div><ScoreBar value={th.impact} /></div>
                   </div>
-                  {t.sources.length > 0 && (
+                  {th.sources.length > 0 && (
                     <div className="pt-1">
-                      <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">📎 Quellen & Referenzen</div>
+                      <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">{t('cra.tmSources')}</div>
                       <ul className="text-xs text-muted-foreground space-y-0.5">
-                        {t.sources.map((s, i) => <li key={i} className="flex gap-1.5"><span className="text-primary/60">›</span>{s}</li>)}
+                        {th.sources.map((s, i) => <li key={i} className="flex gap-1.5"><span className="text-primary/60">›</span>{s}</li>)}
                       </ul>
                     </div>
                   )}
@@ -456,7 +466,7 @@ function ThreatModel({ threats, onNext }: { threats: Threat[]; onNext: () => voi
         })}
       </div>
       <div className="flex justify-end pt-2">
-        <Button onClick={onNext} className="font-semibold">Risk Assessment →</Button>
+        <Button onClick={onNext} className="font-semibold">{t('cra.tmNext')}</Button>
       </div>
     </div>
   );
@@ -465,10 +475,17 @@ function ThreatModel({ threats, onNext }: { threats: Threat[]; onNext: () => voi
 // ── Phase 3: Risk Assessment ──────────────────────────────────
 
 function RiskAssessment({ threats, onNext }: { threats: Threat[]; onNext: () => void }) {
+  const { t } = useLanguage();
   const sorted = useMemo(() => [...threats].sort((a, b) => (b.likelihood * b.impact) - (a.likelihood * a.impact)), [threats]);
   const cnt = useMemo(() => {
-    const c = { kritisch: 0, hoch: 0, mittel: 0, niedrig: 0 };
-    sorted.forEach(t => { const l = riskLevel(t.likelihood, t.impact).label.toLowerCase(); if (l in c) (c as any)[l]++; });
+    const c = { critical: 0, high: 0, medium: 0, low: 0 };
+    sorted.forEach(th => {
+      const s = th.likelihood * th.impact;
+      if (s >= 20) c.critical++;
+      else if (s >= 13) c.high++;
+      else if (s >= 6) c.medium++;
+      else c.low++;
+    });
     return c;
   }, [sorted]);
 
@@ -476,9 +493,14 @@ function RiskAssessment({ threats, onNext }: { threats: Threat[]; onNext: () => 
 
   return (
     <div className="space-y-4">
-      <InfoBox icon="⚖️" title="Quantifiziertes Risk Assessment" color="blue">Jede Bedrohung ist bewertet nach <strong>Likelihood × Impact</strong>. Hover über Matrixzellen für Details.</InfoBox>
+      <InfoBox icon="⚖️" title={t('cra.raInfoTitle')} color="blue"><span dangerouslySetInnerHTML={{ __html: t('cra.raInfo') }} /></InfoBox>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        {([['Kritisch', 'bg-destructive', cnt.kritisch], ['Hoch', 'bg-orange-500', cnt.hoch], ['Mittel', 'bg-yellow-500', cnt.mittel], ['Niedrig', 'bg-green-500', cnt.niedrig]] as [string, string, number][]).map(([l, c, n]) => (
+        {([
+          [t('cra.critical'), 'bg-destructive', cnt.critical],
+          [t('cra.high'), 'bg-orange-500', cnt.high],
+          [t('cra.medium'), 'bg-yellow-500', cnt.medium],
+          [t('cra.low'), 'bg-green-500', cnt.low],
+        ] as [string, string, number][]).map(([l, c, n]) => (
           <div key={l} className="bg-card border border-border rounded-lg p-4 text-center">
             <div className={`text-2xl font-bold font-mono ${c} text-white rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-2`}>{n}</div>
             <div className="text-sm font-semibold text-muted-foreground">{l}</div>
@@ -486,7 +508,7 @@ function RiskAssessment({ threats, onNext }: { threats: Threat[]; onNext: () => 
         ))}
       </div>
       <div className="bg-card border border-border rounded-lg p-4">
-        <div className="text-sm font-semibold text-foreground mb-3">Risikomatrix — Zahlen = Bedrohungen in dieser Zelle (hover für Namen)</div>
+        <div className="text-sm font-semibold text-foreground mb-3">{t('cra.raMatrix')}</div>
         <div className="overflow-x-auto">
           <table className="text-xs border-collapse">
             <thead>
@@ -502,7 +524,7 @@ function RiskAssessment({ threats, onNext }: { threats: Threat[]; onNext: () => 
                   <td className="text-right pr-3 text-muted-foreground font-semibold py-0.5 font-mono">{imp}</td>
                   {[1, 2, 3, 4, 5].map(lik => {
                     const score = lik * imp;
-                    const pts = threats.filter(t => t.likelihood === lik && t.impact === imp);
+                    const pts = threats.filter(th => th.likelihood === lik && th.impact === imp);
                     return (
                       <td key={lik} className={`w-12 h-10 ${matrixColor(score)} text-center align-middle border border-background`} title={pts.map(p => p.name).join('\n') || ''}>
                         {pts.length > 0 && <div className="w-6 h-6 bg-background/90 rounded-full text-foreground font-bold text-xs font-mono flex items-center justify-center mx-auto shadow cursor-help">{pts.length}</div>}
@@ -514,34 +536,39 @@ function RiskAssessment({ threats, onNext }: { threats: Threat[]; onNext: () => 
             </tbody>
           </table>
           <div className="flex gap-4 mt-2 text-xs text-muted-foreground flex-wrap">
-            {([['bg-red-500', 'Kritisch (≥20)'], ['bg-orange-400', 'Hoch (13–19)'], ['bg-yellow-300', 'Mittel (6–12)'], ['bg-green-300', 'Niedrig (1–5)']] as [string, string][]).map(([c, l]) => (
+            {([
+              ['bg-red-500', t('cra.raCritGte20')],
+              ['bg-orange-400', t('cra.raHigh1319')],
+              ['bg-yellow-300', t('cra.raMed612')],
+              ['bg-green-300', t('cra.raLow15')],
+            ] as [string, string][]).map(([c, l]) => (
               <span key={l} className="flex items-center gap-1"><span className={`w-3 h-3 rounded ${c} inline-block`} />{l}</span>
             ))}
           </div>
         </div>
       </div>
       <div className="bg-card border border-border rounded-lg overflow-hidden">
-        <div className="px-4 py-3 bg-secondary border-b border-border text-sm font-semibold text-foreground">Alle Risiken — priorisiert</div>
+        <div className="px-4 py-3 bg-secondary border-b border-border text-sm font-semibold text-foreground">{t('cra.raAllRisks')}</div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-secondary text-xs text-muted-foreground">
               <tr>
-                <th className="px-4 py-2 text-left">Bedrohung</th>
+                <th className="px-4 py-2 text-left">{t('cra.raThreat')}</th>
                 <th className="px-3 py-2 text-center w-10">L</th>
                 <th className="px-3 py-2 text-center w-10">I</th>
                 <th className="px-3 py-2 text-center w-14">Score</th>
-                <th className="px-4 py-2 text-center w-24">Priorität</th>
+                <th className="px-4 py-2 text-center w-24">{t('cra.raPriority')}</th>
               </tr>
             </thead>
             <tbody>
-              {sorted.map((t, idx) => {
-                const risk = riskLevel(t.likelihood, t.impact);
+              {sorted.map((th, idx) => {
+                const risk = riskLevel(th.likelihood, th.impact, t);
                 return (
-                  <tr key={t.id} className={idx % 2 === 0 ? 'bg-card' : 'bg-secondary/30'}>
-                    <td className="px-4 py-2.5"><div className="font-medium text-foreground">{t.name}</div><div className="text-xs text-muted-foreground">{t.component}</div></td>
-                    <td className="px-3 py-2.5 text-center font-semibold text-foreground font-mono">{t.likelihood}</td>
-                    <td className="px-3 py-2.5 text-center font-semibold text-foreground font-mono">{t.impact}</td>
-                    <td className="px-3 py-2.5 text-center font-bold text-foreground font-mono">{t.likelihood * t.impact}</td>
+                  <tr key={th.id} className={idx % 2 === 0 ? 'bg-card' : 'bg-secondary/30'}>
+                    <td className="px-4 py-2.5"><div className="font-medium text-foreground">{th.name}</div><div className="text-xs text-muted-foreground">{th.component}</div></td>
+                    <td className="px-3 py-2.5 text-center font-semibold text-foreground font-mono">{th.likelihood}</td>
+                    <td className="px-3 py-2.5 text-center font-semibold text-foreground font-mono">{th.impact}</td>
+                    <td className="px-3 py-2.5 text-center font-bold text-foreground font-mono">{th.likelihood * th.impact}</td>
                     <td className="px-4 py-2.5 text-center"><span className={`px-2 py-0.5 rounded text-xs font-bold ${risk.cls}`}>{risk.label}</span></td>
                   </tr>
                 );
@@ -551,7 +578,7 @@ function RiskAssessment({ threats, onNext }: { threats: Threat[]; onNext: () => 
         </div>
       </div>
       <div className="flex justify-end pt-2">
-        <Button onClick={onNext} className="font-semibold">CRA-Mapping →</Button>
+        <Button onClick={onNext} className="font-semibold">{t('cra.raNext')}</Button>
       </div>
     </div>
   );
@@ -560,6 +587,7 @@ function RiskAssessment({ threats, onNext }: { threats: Threat[]; onNext: () => 
 // ── Phase 4: CRA Mapping ──────────────────────────────────────
 
 function CRAMapping({ reqs, onNext }: { reqs: CraReq[]; onNext: () => void }) {
+  const { t } = useLanguage();
   const [exp, setExp] = useState<string | null>(null);
   const { pass, partial, fail, score, scoreColor, strokeColor } = useMemo(() => {
     const p = reqs.filter(r => r.status === 'pass').length;
@@ -575,7 +603,7 @@ function CRAMapping({ reqs, onNext }: { reqs: CraReq[]; onNext: () => void }) {
 
   return (
     <div className="space-y-4">
-      <InfoBox icon="📋" title="CRA Compliance Mapping" color="blue">Befunde wurden auf <strong>CRA-Anforderungen</strong> gemappt – jede Feststellung mit Evidenz, Begründung und messbaren Akzeptanzkriterien.</InfoBox>
+      <InfoBox icon="📋" title={t('cra.cmInfoTitle')} color="blue"><span dangerouslySetInnerHTML={{ __html: t('cra.cmInfo') }} /></InfoBox>
       <div className="bg-card border border-border rounded-lg p-5 flex flex-col sm:flex-row items-center gap-6">
         <div className="relative w-24 h-24 flex-shrink-0">
           <svg viewBox="0 0 36 36" className="w-full h-full" style={{ transform: 'rotate(-90deg)' }}>
@@ -587,18 +615,18 @@ function CRAMapping({ reqs, onNext }: { reqs: CraReq[]; onNext: () => void }) {
           </div>
         </div>
         <div className="flex-1">
-          <div className="text-base font-bold text-foreground mb-1">CRA Readiness Score</div>
-          <div className="text-sm text-muted-foreground mb-3">{reqs.length} Anforderungen geprüft</div>
+          <div className="text-base font-bold text-foreground mb-1">{t('cra.cmReadiness')}</div>
+          <div className="text-sm text-muted-foreground mb-3">{reqs.length} {t('cra.cmChecked')}</div>
           <div className="flex gap-4 text-sm flex-wrap">
-            <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-green-500 inline-block" />{pass} Erfüllt</span>
-            <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-yellow-500 inline-block" />{partial} Teilweise</span>
-            <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-destructive inline-block" />{fail} Lücken</span>
+            <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-green-500 inline-block" />{pass} {t('cra.cmPassed')}</span>
+            <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-yellow-500 inline-block" />{partial} {t('cra.cmPartial')}</span>
+            <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-destructive inline-block" />{fail} {t('cra.cmGaps')}</span>
           </div>
         </div>
         <div className="text-center sm:text-right flex-shrink-0">
           <div className="text-4xl font-bold text-destructive font-mono">{fail}</div>
-          <div className="text-sm text-muted-foreground">kritische Lücken</div>
-          <div className="text-xs text-muted-foreground/60">vor Audit schließen</div>
+          <div className="text-sm text-muted-foreground">{t('cra.cmCritGaps')}</div>
+          <div className="text-xs text-muted-foreground/60">{t('cra.cmCloseBeforeAudit')}</div>
         </div>
       </div>
       <div className="space-y-1.5">
@@ -611,16 +639,16 @@ function CRAMapping({ reqs, onNext }: { reqs: CraReq[]; onNext: () => void }) {
                   <div className="text-sm font-semibold text-foreground">{r.name}</div>
                   <div className="text-xs text-muted-foreground">{r.article}</div>
                 </div>
-                <StatusBadge status={r.status} />
+                <StatusBadge status={r.status} t={t} />
                 {isOpen ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
               </div>
               {isOpen && (
                 <div className="border-t border-border bg-secondary/30 px-4 py-3 text-sm space-y-3">
-                  <EvidenceBlock label="📋 Evidenz">{r.evidence}</EvidenceBlock>
-                  {r.gap && <div><span className="font-semibold text-destructive">Feststellung (Gap): </span><span className="text-foreground">{r.gap}</span></div>}
-                  <EvidenceBlock label="🔍 Begründung">{r.rationale}</EvidenceBlock>
-                  <div><span className="font-semibold text-primary">Empfohlene Maßnahme: </span><span className="text-foreground">{r.measure}</span></div>
-                  <CriteriaBlock criteria={r.criteria} />
+                  <EvidenceBlock label={t('cra.tmEvidence')}>{r.evidence}</EvidenceBlock>
+                  {r.gap && <div><span className="font-semibold text-destructive">{t('cra.cmGapLabel')}: </span><span className="text-foreground">{r.gap}</span></div>}
+                  <EvidenceBlock label={t('cra.tmRationale')}>{r.rationale}</EvidenceBlock>
+                  <div><span className="font-semibold text-primary">{t('cra.cmMeasure')}: </span><span className="text-foreground">{r.measure}</span></div>
+                  <CriteriaBlock criteria={r.criteria} t={t} />
                 </div>
               )}
             </div>
@@ -628,7 +656,7 @@ function CRAMapping({ reqs, onNext }: { reqs: CraReq[]; onNext: () => void }) {
         })}
       </div>
       <div className="flex justify-end pt-2">
-        <Button onClick={onNext} className="font-semibold">Report generieren →</Button>
+        <Button onClick={onNext} className="font-semibold">{t('cra.cmNext')}</Button>
       </div>
     </div>
   );
@@ -637,20 +665,40 @@ function CRAMapping({ reqs, onNext }: { reqs: CraReq[]; onNext: () => void }) {
 // ── Phase 5: Report ───────────────────────────────────────────
 
 function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; threats: Threat[]; reqs: CraReq[] }) {
-  const critRisks = useMemo(() => threats.filter(t => t.likelihood * t.impact >= 20), [threats]);
+  const { t, language } = useLanguage();
+  const critRisks = useMemo(() => threats.filter(th => th.likelihood * th.impact >= 20), [threats]);
   const failReqs = useMemo(() => reqs.filter(r => r.status === 'fail'), [reqs]);
   const partialCount = useMemo(() => reqs.filter(r => r.status === 'partial').length, [reqs]);
-  const today = useMemo(() => new Date().toLocaleDateString('de-DE', { day: '2-digit', month: 'long', year: 'numeric' }), []);
-  const typeName = intakeData.productTypes?.map(id => PRODUCT_TYPES.find(t => t.id === id)?.label).join(', ') || '';
-  const craName = CRA_CLASSES.find(c => c.id === intakeData.craClass)?.label || intakeData.craClass || '—';
+  const today = useMemo(() => {
+    const locale = language === 'de' ? 'de-DE' : language === 'fr' ? 'fr-FR' : 'en-US';
+    return new Date().toLocaleDateString(locale, { day: '2-digit', month: 'long', year: 'numeric' });
+  }, [language]);
+
+  const productTypes = useMemo(() => getProductTypes(t), [t]);
+  const craClasses = useMemo(() => getCraClasses(t), [t]);
+  const typeName = intakeData.productTypes?.map(id => productTypes.find(pt => pt.id === id)?.label).join(', ') || '';
+  const craName = craClasses.find(c => c.id === intakeData.craClass)?.label || intakeData.craClass || '—';
+
+  const introHtml = useMemo(() => {
+    return t('cra.rpIntro')
+      .replace('{product}', `${intakeData.productName} ${intakeData.version}`)
+      .replace('{type}', typeName)
+      .replace('{cls}', craName)
+      .replace('{date}', today)
+      .replace('{threats}', String(threats.length))
+      .replace('{critRisks}', String(critRisks.length))
+      .replace('{reqs}', String(reqs.length))
+      .replace('{failReqs}', String(failReqs.length))
+      .replace('{partial}', String(partialCount));
+  }, [t, intakeData, typeName, craName, today, threats.length, critRisks.length, reqs.length, failReqs.length, partialCount]);
 
   return (
     <div className="space-y-4">
-      <InfoBox icon="✅" title="Assessment abgeschlossen" color="green">In der Produktionsversion wird hier automatisch ein gebrandeter <strong>DOCX/PDF-Report</strong> generiert.</InfoBox>
+      <InfoBox icon="✅" title={t('cra.rpDone')} color="green"><span dangerouslySetInnerHTML={{ __html: t('cra.rpDoneInfo') }} /></InfoBox>
       <div className="bg-card border-l-4 border-primary rounded-lg p-5 border border-border">
         <div className="flex flex-col sm:flex-row items-start justify-between mb-3 gap-2">
           <div>
-            <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Cyber Risk Assessment Report</div>
+            <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">{t('cra.rpTitle')}</div>
             <div className="text-lg font-bold text-foreground mt-0.5">{intakeData.productName} {intakeData.version}</div>
           </div>
           <div className="sm:text-right text-xs text-muted-foreground">
@@ -659,17 +707,12 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
           </div>
         </div>
         <div className="h-px bg-border mb-3" />
-        <p className="text-sm text-foreground leading-relaxed">
-          Das Cyber Risk Assessment für <strong>{intakeData.productName} {intakeData.version}</strong> ({typeName}, CRA-Klasse: {craName}) wurde am {today} durchgeführt.
-          Es wurden <strong>{threats.length} Bedrohungen</strong> identifiziert, davon{' '}
-          <strong className="text-destructive">{critRisks.length} mit kritischem Risikoscore (≥ 20)</strong>.
-          Von {reqs.length} geprüften CRA-Anforderungen bestehen <strong className="text-destructive">{failReqs.length} vollständige Lücken</strong> und {partialCount} teilweise Erfüllungen.
-        </p>
+        <p className="text-sm text-foreground leading-relaxed" dangerouslySetInnerHTML={{ __html: introHtml }} />
       </div>
 
       <div className="bg-card border border-border rounded-lg overflow-hidden">
         <div className="px-4 py-3 bg-destructive/10 border-b border-destructive/20">
-          <span className="text-sm font-bold text-destructive">Sofortmaßnahmen — {failReqs.length} kritische Lücken</span>
+          <span className="text-sm font-bold text-destructive">{t('cra.rpImmediate')} — {failReqs.length} {t('cra.rpCritGaps')}</span>
         </div>
         {failReqs.map((r, i) => (
           <div key={r.id} className={`px-4 py-3 text-sm ${i % 2 === 0 ? 'bg-card' : 'bg-secondary/30'} ${i < failReqs.length - 1 ? 'border-b border-border' : ''}`}>
@@ -680,10 +723,10 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
                   <div className="font-semibold text-foreground">{r.name}</div>
                   <div className="text-muted-foreground/60 text-xs">{r.article}</div>
                 </div>
-                <div className="text-xs"><span className="font-semibold text-muted-foreground">Evidenz: </span>{r.evidence}</div>
-                <div className="text-xs"><span className="font-semibold text-muted-foreground">Begründung: </span>{r.rationale}</div>
-                <div className="text-xs"><span className="font-semibold text-primary">Maßnahme: </span>{r.measure}</div>
-                <CriteriaBlock criteria={r.criteria} />
+                <div className="text-xs"><span className="font-semibold text-muted-foreground">{t('cra.rpEvidence')}: </span>{r.evidence}</div>
+                <div className="text-xs"><span className="font-semibold text-muted-foreground">{t('cra.rpRationale')}: </span>{r.rationale}</div>
+                <div className="text-xs"><span className="font-semibold text-primary">{t('cra.rpMeasure')}: </span>{r.measure}</div>
+                <CriteriaBlock criteria={r.criteria} t={t} />
               </div>
             </div>
           </div>
@@ -691,7 +734,11 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
       </div>
 
       <div className="grid grid-cols-3 gap-3">
-        {([['Bedrohungen gesamt', threats.length, 'text-foreground'], ['Kritische Risiken', critRisks.length, 'text-destructive'], ['CRA-Lücken', failReqs.length, 'text-destructive']] as [string, number, string][]).map(([l, n, c]) => (
+        {([
+          [t('cra.rpTotalThreats'), threats.length, 'text-foreground'],
+          [t('cra.rpCritRisks'), critRisks.length, 'text-destructive'],
+          [t('cra.rpCraGaps'), failReqs.length, 'text-destructive'],
+        ] as [string, number, string][]).map(([l, n, c]) => (
           <div key={l} className="bg-card border border-border rounded-lg p-4 text-center">
             <div className={`text-3xl font-bold font-mono ${c}`}>{n}</div>
             <div className="text-xs text-muted-foreground mt-1">{l}</div>
@@ -701,12 +748,12 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
 
       <div className="bg-secondary border border-border rounded-lg p-4 flex flex-col sm:flex-row items-center justify-between gap-3">
         <div className="text-sm text-foreground">
-          <div className="font-semibold mb-0.5">Report exportieren</div>
-          <div className="text-xs text-muted-foreground">In der Produktionsversion: automatisch gebrandeter DOCX/PDF-Report</div>
+          <div className="font-semibold mb-0.5">{t('cra.rpExport')}</div>
+          <div className="text-xs text-muted-foreground">{t('cra.rpExportHint')}</div>
         </div>
         <div className="flex gap-2">
-          <button className="bg-primary/20 text-primary/40 text-sm font-semibold px-4 py-2 rounded-lg cursor-not-allowed" title="In Produktionsversion verfügbar">DOCX</button>
-          <button className="bg-secondary text-muted-foreground text-sm font-semibold px-4 py-2 rounded-lg cursor-not-allowed border border-border" title="In Produktionsversion verfügbar">PDF</button>
+          <button className="bg-primary/20 text-primary/40 text-sm font-semibold px-4 py-2 rounded-lg cursor-not-allowed" title={t('cra.rpExportBtn')}>DOCX</button>
+          <button className="bg-secondary text-muted-foreground text-sm font-semibold px-4 py-2 rounded-lg cursor-not-allowed border border-border" title={t('cra.rpExportBtn')}>PDF</button>
         </div>
       </div>
     </div>
@@ -716,9 +763,12 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
 // ── Main ──────────────────────────────────────────────────────
 
 const CraComplianceTool = ({ embedded }: { embedded?: boolean }) => {
+  const { t, tArray } = useLanguage();
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [intakeData, setIntakeData] = useState<IntakeData>(EMPTY_INTAKE);
+
+  const mainSteps = useMemo(() => tArray('cra.mainSteps'), [t]);
 
   const handleIntakeFinish = useCallback((data: IntakeData) => {
     setIntakeData(data);
@@ -731,7 +781,7 @@ const CraComplianceTool = ({ embedded }: { embedded?: boolean }) => {
     setIntakeData(EMPTY_INTAKE);
   }, []);
 
-  const progressPct = ((step + 1) / MAIN_STEPS.length) * 100;
+  const progressPct = ((step + 1) / mainSteps.length) * 100;
 
   return (
     <div className={embedded ? '' : 'min-h-screen bg-background'}>
@@ -739,7 +789,7 @@ const CraComplianceTool = ({ embedded }: { embedded?: boolean }) => {
 
       <div className="border-b border-border px-4 py-3 mb-1">
         <div className="flex items-center max-w-5xl mx-auto overflow-x-auto">
-          {MAIN_STEPS.map((s, i) => (
+          {mainSteps.map((s, i) => (
             <div key={i} className="flex items-center flex-1 last:flex-none">
               <button
                 onClick={() => i < step && setStep(i)}
@@ -752,7 +802,7 @@ const CraComplianceTool = ({ embedded }: { embedded?: boolean }) => {
                 }`}>{i < step ? '✓' : i + 1}</span>
                 <span className="hidden sm:inline">{s}</span>
               </button>
-              {i < MAIN_STEPS.length - 1 && <div className={`flex-1 h-0.5 mx-1 ${i < step ? 'bg-primary' : 'bg-secondary'}`} />}
+              {i < mainSteps.length - 1 && <div className={`flex-1 h-0.5 mx-1 ${i < step ? 'bg-primary' : 'bg-secondary'}`} />}
             </div>
           ))}
         </div>
@@ -764,16 +814,16 @@ const CraComplianceTool = ({ embedded }: { embedded?: boolean }) => {
         {loading ? (
           <div className="bg-card rounded-xl border border-border p-16 text-center">
             <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-5" />
-            <div className="text-foreground font-semibold text-lg mb-2">KI analysiert das System…</div>
-            <div className="text-muted-foreground text-sm">STRIDE-Bedrohungen werden identifiziert · Risiken bewertet · CRA-Mapping wird vorbereitet</div>
+            <div className="text-foreground font-semibold text-lg mb-2">{t('cra.aiAnalyzing')}</div>
+            <div className="text-muted-foreground text-sm">{t('cra.aiAnalyzingDesc')}</div>
           </div>
         ) : (
           <div>
             <div className="flex items-center justify-between mb-4">
-              <div className="text-lg font-bold text-foreground">{MAIN_STEPS[step]}</div>
+              <div className="text-lg font-bold text-foreground">{mainSteps[step]}</div>
               {step > 0 && (
                 <Button variant="ghost" size="sm" onClick={reset} className="text-muted-foreground">
-                  <RotateCcw className="w-4 h-4 mr-1" /> Neu starten
+                  <RotateCcw className="w-4 h-4 mr-1" /> {t('cra.restart')}
                 </Button>
               )}
             </div>
