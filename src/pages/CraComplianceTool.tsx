@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useMemo, memo } from 'react';
+import { useState, useCallback, useRef, useMemo, memo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { RotateCcw, ChevronDown, ChevronUp, Loader2, Sparkles, FileText } from 'lucide-react';
 import { generateCraReport } from '@/utils/craReportPdf';
@@ -975,9 +975,20 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
 
 const CraComplianceTool = ({ embedded }: { embedded?: boolean }) => {
   const { t, tArray } = useLanguage();
-  const [step, setStep] = useState(0);
+  const [step, setStepRaw] = useState(0);
   const [loading, setLoading] = useState(false);
   const [intakeData, setIntakeData] = useState<IntakeData>(EMPTY_INTAKE);
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  const scrollToTop = useCallback(() => {
+    contentRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
+
+  const setStep = useCallback((s: number) => {
+    setStepRaw(s);
+    setTimeout(scrollToTop, 50);
+  }, [scrollToTop]);
 
   const mainSteps = useMemo(() => tArray('cra.mainSteps'), [t]);
 
@@ -985,12 +996,12 @@ const CraComplianceTool = ({ embedded }: { embedded?: boolean }) => {
     setIntakeData(data);
     setLoading(true);
     setTimeout(() => { setLoading(false); setStep(1); }, 2000);
-  }, []);
+  }, [setStep]);
 
   const reset = useCallback(() => {
     setStep(0);
     setIntakeData(EMPTY_INTAKE);
-  }, []);
+  }, [setStep]);
 
   const progressPct = ((step + 1) / mainSteps.length) * 100;
 
@@ -998,7 +1009,7 @@ const CraComplianceTool = ({ embedded }: { embedded?: boolean }) => {
     <div className={embedded ? '' : 'min-h-screen bg-background'}>
       {!embedded && <PageMeta title="CRA Compliance Tool" description="AI Cyber Risk & CRA Compliance Assessment" />}
 
-      <div className="border-b border-border px-4 py-3 mb-1">
+      <div className="border-b border-border px-4 py-3 mb-1" ref={contentRef}>
         <div className="flex items-center max-w-5xl mx-auto overflow-x-auto">
           {mainSteps.map((s, i) => (
             <div key={i} className="flex items-center flex-1 last:flex-none">
