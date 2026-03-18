@@ -417,7 +417,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
       break;
     case 7:
       stepContent = (
-        <div className="space-y-4">
+        <StaggerReveal resetKey={`intake-7`} stagger={250}>
           <SubStepHeader current={5} total={INTAKE_STEPS} title={t('cra.summaryTitle')} subtitle={t('cra.summarySub')} />
           {[
             { label: t('cra.sumProduct'), val: `${d.productName} ${d.version}`.trim() },
@@ -435,7 +435,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
             </div>
           ))}
           {d.knownIssues && <div className="text-sm border-b border-border/50 pb-2"><span className="text-muted-foreground">{t('cra.sumKnownGaps')}: </span><span className="text-foreground">{d.knownIssues}</span></div>}
-        </div>
+        </StaggerReveal>
       );
       break;
   }
