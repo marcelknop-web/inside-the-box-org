@@ -4,6 +4,7 @@ import { RotateCcw, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
 import { PageMeta } from '@/components/PageMeta';
 import { Progress } from '@/components/ui/progress';
 import { useLanguage } from '@/i18n/LanguageContext';
+import Typewriter from '@/components/Typewriter';
 import {
   getProductTypes, getCraClasses, getDeploymentOpts,
   INTERFACE_OPTS, getSecurityMeasures, getSecurityCategories,
@@ -46,7 +47,7 @@ function InfoBox({ icon = '💡', title, children, color = 'blue' }: { icon?: st
   const colors = { blue: 'bg-primary/10 border-primary/20', amber: 'bg-warning/10 border-warning/20', green: 'bg-green-500/10 border-green-500/20' };
   return (
     <div className={`border rounded-lg px-4 py-3 text-sm text-foreground ${colors[color]}`}>
-      {title ? <div className="font-semibold mb-1">{icon} {title}</div> : <span className="font-semibold">{icon} </span>}
+      {title ? <div className="font-semibold mb-1">{icon} <Typewriter text={title} mode="typewriter" delay={400} charDelay={8} cursor={false} /></div> : <span className="font-semibold">{icon} </span>}
       <span>{children}</span>
     </div>
   );
@@ -61,8 +62,12 @@ function SubStepHeader({ current, total, title, subtitle }: { current: number; t
         ))}
         <span className="text-xs text-muted-foreground flex-shrink-0 font-mono">{current + 1}/{total}</span>
       </div>
-      <div className="text-base font-bold text-foreground">{title}</div>
-      {subtitle && <div className="text-sm text-muted-foreground mt-0.5">{subtitle}</div>}
+      <div className="text-base font-bold text-foreground" key={`title-${current}`}>
+        <Typewriter text={title} mode="typewriter" charDelay={8} cursor={false} />
+      </div>
+      {subtitle && <div className="text-sm text-muted-foreground mt-0.5" key={`sub-${current}`}>
+        <Typewriter text={subtitle} mode="typewriter" delay={title.length * 8 + 200} charDelay={6} cursor={false} />
+      </div>}
     </div>
   );
 }
@@ -868,7 +873,7 @@ const CraComplianceTool = ({ embedded }: { embedded?: boolean }) => {
         ) : (
           <div>
             <div className="flex items-center justify-between mb-4">
-              <div className="text-lg font-bold text-foreground">{mainSteps[step]}</div>
+              <div className="text-lg font-bold text-foreground" key={`main-${step}`}><Typewriter text={mainSteps[step]} mode="typewriter" charDelay={10} cursor={false} /></div>
               {step > 0 && (
                 <Button variant="ghost" size="sm" onClick={reset} className="text-muted-foreground">
                   <RotateCcw className="w-4 h-4 mr-1" /> {t('cra.restart')}
