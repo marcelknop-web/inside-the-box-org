@@ -470,7 +470,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
         </div>
       )}
       <InfoBox icon="🔒" color="green">
-        Dateien verlassen Ihren Computer nicht. Sie werden nur lokal für die Analyse verwendet.
+        Dateien verlassen den Computer nicht und werden nur lokal für die Analyse verwendet.
       </InfoBox>
     </div>
   );
