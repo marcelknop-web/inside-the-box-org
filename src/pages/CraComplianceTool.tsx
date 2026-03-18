@@ -1,195 +1,16 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useMemo, memo } from 'react';
 import { Button } from '@/components/ui/button';
 import { RotateCcw, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
 import { PageMeta } from '@/components/PageMeta';
 import { Progress } from '@/components/ui/progress';
+import {
+  PRODUCT_TYPES, CRA_CLASSES, DEPLOYMENT_OPTS, COMPONENT_OPTS,
+  INTERFACE_OPTS, ROLE_PRESETS, SECURITY_MEASURES, SECURITY_CATEGORIES,
+  ATTACH_TYPES, THREATS, CRA_REQS, STRIDE_META, MAIN_STEPS,
+  type Threat, type CraReq, type IntakeData, EMPTY_INTAKE,
+} from '@/data/craData';
 
-// ── Konstanten ──────────────────────────────────────────────────
-
-const PRODUCT_TYPES = [
-  { id: 'iot', label: 'IoT-Gerät', icon: '📡', desc: 'Sensor, Gateway, Smart Device' },
-  { id: 'embed', label: 'Embedded System', icon: '🔧', desc: 'Firmware, Controller, SPS' },
-  { id: 'sw', label: 'Software-Produkt', icon: '💻', desc: 'Desktop- oder Server-Anwendung' },
-  { id: 'mobile', label: 'Mobile App', icon: '📱', desc: 'iOS oder Android App' },
-  { id: 'cloud', label: 'Cloud-Dienst', icon: '☁️', desc: 'SaaS, PaaS, Web-API' },
-  { id: 'hw', label: 'Hardware-Produkt', icon: '🖥️', desc: 'Ohne eigene Software' },
-  { id: 'network', label: 'Netzwerkgerät', icon: '🌐', desc: 'Router, Switch, Firewall' },
-  { id: 'kombi', label: 'Kombiniertes Produkt', icon: '⚙️', desc: 'Hardware + Software zusammen' },
-];
-
-const CRA_CLASSES = [
-  { id: 'default', label: 'Default', color: 'border-green-500 bg-green-500/10 text-green-400', desc: 'Die meisten Produkte fallen hierunter. Selbstbewertung erlaubt.', example: 'Einfache Smart-Home-Geräte, Standard-Software ohne besondere Kritikalität' },
-  { id: 'k1', label: 'Klasse I', color: 'border-yellow-500 bg-yellow-500/10 text-yellow-400', desc: 'Erhöhtes Risiko. Zertifizierung durch Dritte oder Einhaltung harmonisierter Normen nötig.', example: 'Browser, Passwort-Manager, VPN-Produkte, Betriebssysteme' },
-  { id: 'k2', label: 'Klasse II', color: 'border-orange-500 bg-orange-500/10 text-orange-400', desc: 'Hohes Risiko. Pflicht zur Drittprüfung durch akkreditierte Stelle.', example: 'Industrielle Router, Sicherheitskameras, SCADA-Systeme, Firewalls' },
-  { id: 'krit', label: 'Kritisch', color: 'border-destructive bg-destructive/10 text-destructive', desc: 'Kritische Infrastruktur. EU-Typprüfung erforderlich.', example: 'Sicherheitsprodukte für kritische Infrastruktur, HSMs' },
-];
-
-const DEPLOYMENT_OPTS = [
-  { id: 'cloud', label: 'Cloud', icon: '☁️' },
-  { id: 'onprem', label: 'On-Premises', icon: '🏢' },
-  { id: 'hybrid', label: 'Hybrid', icon: '🔀' },
-  { id: 'embedded', label: 'Embedded/Edge', icon: '🔌' },
-  { id: 'mobile', label: 'Mobil', icon: '📱' },
-];
-
-const COMPONENT_OPTS = [
-  'Web-Frontend', 'Mobile App', 'REST-API', 'GraphQL-API', 'Datenbank', 'Cloud-Backend',
-  'Embedded Firmware', 'MQTT-Broker', 'OPC-UA Server', 'Message Queue', 'Authentication-Service',
-  'Admin-Interface', 'Update-Service', 'Logging/Monitoring', 'VPN-Gateway', 'WLAN/LAN-Stack',
-];
-
-const INTERFACE_OPTS = [
-  { label: 'HTTPS/REST', icon: '🔒' }, { label: 'HTTP', icon: '⚠️' }, { label: 'MQTT (TLS)', icon: '🔒' },
-  { label: 'MQTT (unverschl.)', icon: '⚠️' }, { label: 'WebSocket', icon: '🔗' }, { label: 'SSH', icon: '🔑' },
-  { label: 'USB', icon: '🖇️' }, { label: 'Bluetooth', icon: '📶' }, { label: 'WLAN', icon: '📡' },
-  { label: 'LAN/Ethernet', icon: '🔌' }, { label: 'OPC-UA', icon: '🏭' }, { label: 'Modbus', icon: '🏭' },
-  { label: 'SNMP', icon: '📊' }, { label: 'FTP/SFTP', icon: '📁' }, { label: 'SMTP', icon: '📧' },
-  { label: 'Proprietäres Protokoll', icon: '❓' },
-];
-
-const ROLE_PRESETS = [
-  'Administrator', 'Standard-Nutzer', 'Wartungstechniker', 'Nur-Lesen Nutzer',
-  'API-Client (Maschine)', 'Externer Dienstleister', 'Auditor', 'Entwickler (Dev-Zugang)',
-];
-
-const SECURITY_MEASURES = [
-  { id: 'tls', label: 'TLS/HTTPS Verschlüsselung', cat: 'Kommunikation' },
-  { id: 'auth', label: 'Benutzerauthentifizierung', cat: 'Zugang' },
-  { id: 'mfa', label: 'Multi-Faktor-Authentifizierung', cat: 'Zugang' },
-  { id: 'rbac', label: 'Rollenbasierte Zugriffsrechte', cat: 'Zugang' },
-  { id: 'fw', label: 'Firewall', cat: 'Netzwerk' },
-  { id: 'vpn', label: 'VPN', cat: 'Netzwerk' },
-  { id: 'patch', label: 'Patch-Management-Prozess', cat: 'Betrieb' },
-  { id: 'log', label: 'Logging & Audit-Trail', cat: 'Monitoring' },
-  { id: 'monitor', label: 'Monitoring / Alerting', cat: 'Monitoring' },
-  { id: 'pentest', label: 'Regelmäßige Pentests', cat: 'Prüfung' },
-  { id: 'sbom', label: 'SBOM vorhanden', cat: 'Dokumentation' },
-  { id: 'ir', label: 'Incident Response Prozess', cat: 'Betrieb' },
-  { id: 'secboot', label: 'Secure Boot', cat: 'Firmware' },
-  { id: 'codesign', label: 'Code Signing / Firmware Signing', cat: 'Firmware' },
-  { id: 'encrypt', label: 'Datenverschlüsselung at rest', cat: 'Daten' },
-];
-
-const ATTACH_TYPES = [
-  { id: 'arch', label: 'Architekturdiagramm', icon: '🗺️', accept: '.pdf,.png,.jpg,.jpeg,.svg,.pptx,.vsdx,.drawio' },
-  { id: 'pentest', label: 'Pentestbericht', icon: '🔍', accept: '.pdf,.docx' },
-  { id: 'policy', label: 'Security Policy', icon: '📋', accept: '.pdf,.docx' },
-  { id: 'sbom', label: 'SBOM', icon: '📦', accept: '.json,.xml,.csv,.txt,.spdx' },
-  { id: 'other', label: 'Sonstiges Dokument', icon: '📎', accept: '*' },
-];
-
-// ── Demo-Daten ──────────────────────────────────────────────────
-
-interface Threat {
-  id: number; stride: string; name: string; component: string; attacker: string; path: string; cra: string; likelihood: number; impact: number;
-  evidence: string; rationale: string; sources: string[];
-}
-
-const THREATS: Threat[] = [
-  { id: 1, stride: 'S', name: 'Spoofing des MQTT-Brokers', component: 'MQTT-Interface', attacker: 'Externer Angreifer', path: 'Angreifer positioniert sich als legitimer MQTT-Broker → Gerät verbindet sich mit False-Server → Datenabfluss', cra: 'Annex I, Part I, Nr. 3', likelihood: 3, impact: 4,
-    evidence: 'Konfigurationsanalyse: MQTT-Client verbindet sich ohne Server-Zertifikatsvalidierung (TLS-Pinning fehlt). Netzwerkscan bestätigt offenen Port 1883 ohne mTLS.',
-    rationale: 'Likelihood 3: Erfordert Netzwerkzugang, aber kein spezielles Angreifer-Tooling. Impact 4: Vollständiger Datenabfluss aller Sensordaten möglich, kein Integritätsverlust am Gerät selbst.',
-    sources: ['OWASP IoT Top 10 – I3: Insecure Ecosystem Interfaces', 'ETSI EN 303 645, Provision 5.5-1'] },
-  { id: 2, stride: 'T', name: 'Manipulation der Firmware via OTA', component: 'OTA-Update-Client', attacker: 'Supply-Chain-Angreifer / Insider', path: 'Unsigniertes Firmware-Paket → Gerät installiert Malware → Persistente Kompromittierung', cra: 'Annex I, Part I, Nr. 1', likelihood: 2, impact: 5,
-    evidence: 'Code-Review: OTA-Client prüft weder kryptografische Signatur noch Integritäts-Hash des Firmware-Pakets. Download über HTTPS, aber ohne Certificate-Pinning.',
-    rationale: 'Likelihood 2: Supply-Chain-Zugang oder Kompromittierung des Update-Servers erforderlich – nicht trivial. Impact 5: Persistente Kompromittierung mit vollständiger Geräte-Kontrolle, Lateral Movement in OT-Netzwerk möglich.',
-    sources: ['CRA Annex I, Part I, Nr. 1: Produkte ohne bekannte Schwachstellen', 'NIST SP 800-193: Platform Firmware Resiliency'] },
-  { id: 3, stride: 'T', name: 'Parameter-Manipulation REST-API', component: 'REST-API-Server', attacker: 'Authentifizierter Nutzer', path: 'Manipulierte API-Parameter → kein Input-Validation → Konfigurationsänderung außerhalb Berechtigung', cra: 'Annex I, Part I, Nr. 3', likelihood: 4, impact: 3,
-    evidence: 'API-Test: PUT /config akzeptiert beliebige JSON-Schlüssel ohne Schema-Validierung. Kein RBAC auf Endpoint-Ebene – jeder authentifizierte Nutzer kann Konfigurationsparameter ändern.',
-    rationale: 'Likelihood 4: Standard-Tooling (curl, Postman) genügt, keine besonderen Rechte nötig. Impact 3: Konfigurationsänderung kann Betriebsparameter verfälschen, aber kein direkter Datenabfluss.',
-    sources: ['OWASP API Security Top 10 – API1: Broken Object Level Authorization', 'CWE-20: Improper Input Validation'] },
-  { id: 4, stride: 'R', name: 'Fehlende Audit-Logs Admin', component: 'Web-UI Admin', attacker: 'Interner Nutzer', path: 'Admin-Aktionen nicht protokolliert → nicht nachvollziehbar → Compliance-Problem', cra: 'Annex I, Part I, Nr. 8', likelihood: 3, impact: 3,
-    evidence: 'Systemprüfung: Keine Log-Dateien für administrative Aktionen vorhanden. Weder Konfigurationsänderungen noch Benutzerverwaltung werden protokolliert. Kein Syslog-Export konfiguriert.',
-    rationale: 'Likelihood 3: Jeder Admin-Nutzer kann unbemerkt Änderungen vornehmen. Impact 3: Compliance-Verstoß (CRA Art. 10 Abs. 10), forensische Aufklärung nach Vorfällen unmöglich.',
-    sources: ['CRA Annex I, Part I, Nr. 8: Sicherheits-Logging', 'ISO/IEC 27001:2022, A.8.15: Logging'] },
-  { id: 5, stride: 'I', name: 'Klartext-MQTT (Port 1883)', component: 'MQTT-Interface', attacker: 'Netzwerk-Mitleser (MITM)', path: 'Unverschlüsselte MQTT-Verbindung → Passwort-Sniffing → Vollzugriff auf Sensordaten', cra: 'Annex I, Part I, Nr. 4', likelihood: 4, impact: 4,
-    evidence: 'Netzwerkmitschnitt (Wireshark): MQTT CONNECT-Paket auf Port 1883 enthält Benutzername und Passwort im Klartext. Payload-Daten (Sensorwerte) ebenfalls unverschlüsselt.',
-    rationale: 'Likelihood 4: Passives Mitlesen im gleichen Netzwerksegment ohne Authentifizierung möglich. Impact 4: Vollständige Offenlegung aller Sensordaten und Zugangsdaten; ermöglicht Folge-Angriffe.',
-    sources: ['CRA Annex I, Part I, Nr. 4: Vertraulichkeit von Daten', 'ETSI EN 303 645, Provision 5.8-1: Kommunikationssicherheit'] },
-  { id: 6, stride: 'D', name: 'DoS auf MQTT-Broker', component: 'MQTT-Broker', attacker: 'Externer Angreifer', path: 'Flood-Angriff → Broker-Überlastung → Produktionsausfall', cra: 'Annex I, Part I, Nr. 7', likelihood: 3, impact: 4,
-    evidence: 'Lasttest: MQTT-Broker akzeptiert unbegrenzte Verbindungen ohne Rate-Limiting. Bei 500 gleichzeitigen Verbindungen: CPU 100%, Response-Time > 30s, bestehende Clients getrennt.',
-    rationale: 'Likelihood 3: Erfordert Netzwerkzugang zum Broker-Port, aber kein spezielles Tooling. Impact 4: Produktionsausfall – alle verbundenen Geräte verlieren Steuerungskommunikation.',
-    sources: ['CRA Annex I, Part I, Nr. 7: Verfügbarkeit und Ausfallsicherheit', 'NIST SP 800-82r3: Guide to OT Security'] },
-  { id: 7, stride: 'E', name: 'Standard-Admin-Passwort aktiv', component: 'Web-UI Admin', attacker: 'Opportunistischer Angreifer', path: 'Standard-Passwort nicht geändert → Vollzugriff ohne Aufwand', cra: 'Annex I, Part I, Nr. 2', likelihood: 5, impact: 5,
-    evidence: 'Erstinbetriebnahme-Test: Login mit admin/admin erfolgreich. Kein Passwort-Änderungszwang beim ersten Login. Standard-Credentials in öffentlicher Produktdokumentation auffindbar.',
-    rationale: 'Likelihood 5: Öffentlich bekannte Credentials, kein technisches Wissen erforderlich. Impact 5: Vollständiger administrativer Zugriff – Konfiguration, Firmware-Update, Daten-Export, Nutzerverwaltung.',
-    sources: ['CRA Annex I, Part I, Nr. 2: Secure by Default', 'ETSI EN 303 645, Provision 5.1-1: No universal default passwords', 'CWE-1392: Use of Default Credentials'] },
-  { id: 8, stride: 'E', name: 'Session-Hijacking Web-UI', component: 'Web-UI Admin', attacker: 'Netzwerk-Angreifer', path: 'Unsicheres Session-Management → Token-Diebstahl → Admin-Zugriff ohne Authentifizierung', cra: 'Annex I, Part I, Nr. 3', likelihood: 3, impact: 4,
-    evidence: 'Cookie-Analyse: Session-Token ohne Secure- und HttpOnly-Flag gesetzt. Token-Rotation nach Login findet nicht statt. Session-Timeout: 24h (konfiguriert), kein Re-Auth bei sensitiven Aktionen.',
-    rationale: 'Likelihood 3: Erfordert MITM-Position oder XSS-Vektor im selben Netzwerk. Impact 4: Vollständiger Admin-Zugriff mit gestohlener Session, aber zeitlich begrenzt auf Session-Lebensdauer.',
-    sources: ['OWASP Session Management Cheat Sheet', 'CWE-614: Sensitive Cookie in HTTPS Session Without Secure Attribute'] },
-];
-
-interface CraReq {
-  id: string; article: string; name: string; status: 'pass' | 'partial' | 'fail'; gap: string; measure: string;
-  evidence: string; rationale: string; criteria: string[];
-}
-
-const CRA_REQS: CraReq[] = [
-  { id: 'A1-1', article: 'Annex I, Part I, Nr. 1', name: 'Keine bekannten Schwachstellen', status: 'partial', gap: 'OTA-Signaturprüfung fehlt, CVE-Tracking nicht formalisiert',
-    evidence: 'OTA-Client akzeptiert unsignierte Pakete (vgl. Bedrohung T-002). Kein dokumentierter CVE-Monitoring-Prozess. SBOM nicht vorhanden.',
-    rationale: 'Teilweise erfüllt: HTTPS wird für Download genutzt, aber ohne Integritätsprüfung des Pakets ist die Anforderung nicht vollständig adressiert.',
-    measure: 'Signierten Update-Prozess implementieren, SBOM erstellen, CVE-Monitoring einrichten',
-    criteria: ['Firmware-Pakete werden vor Installation kryptografisch verifiziert (z. B. Ed25519, RSA-2048+)', 'CVE-Monitoring-Prozess ist dokumentiert und wird mindestens wöchentlich ausgeführt', 'SBOM in SPDX- oder CycloneDX-Format liegt vor und wird bei jedem Release aktualisiert'] },
-  { id: 'A1-2', article: 'Annex I, Part I, Nr. 2', name: 'Secure by Default', status: 'fail', gap: 'Standard-Passwort aktiv, unsichere Default-Konfigurationen',
-    evidence: 'Login mit admin/admin erfolgreich (vgl. Bedrohung E-007). Port 1883 (unverschlüsseltes MQTT) im Auslieferungszustand geöffnet. Telnet-Service aktiv.',
-    rationale: 'Nicht erfüllt: Mehrere unsichere Defaults in Kombination. CRA verlangt, dass Produkte im Auslieferungszustand keine bekannten Angriffsvektoren exponieren.',
-    measure: 'Passwort-Änderung beim Erststart erzwingen, unsichere Ports deaktivieren',
-    criteria: ['Erstinbetriebnahme erzwingt individuelle Passwort-Vergabe (min. 12 Zeichen, Komplexitätsanforderung)', 'Alle nicht für den Betrieb notwendigen Ports und Dienste sind im Auslieferungszustand deaktiviert', 'Konfiguration folgt einem dokumentierten Hardening-Guide'] },
-  { id: 'A1-3', article: 'Annex I, Part I, Nr. 3', name: 'Schutz vor unbefugtem Zugriff', status: 'fail', gap: 'Kein MFA, schwaches Session-Management, MQTT ohne Auth',
-    evidence: 'Session-Cookies ohne Secure/HttpOnly-Flag (vgl. Bedrohung E-008). MQTT-Broker akzeptiert Verbindungen ohne Authentifizierung. Kein MFA verfügbar.',
-    rationale: 'Nicht erfüllt: Drei unabhängige Schwachstellen betreffen diese Anforderung. Jede einzelne wäre bereits als Lücke zu bewerten.',
-    measure: 'MFA für Admin implementieren, MQTT-Authentifizierung aktivieren, Session-Tokens sichern',
-    criteria: ['MFA für alle administrativen Zugänge implementiert (TOTP oder FIDO2)', 'MQTT-Broker erfordert Authentifizierung mit individuellen Credentials pro Gerät', 'Session-Cookies mit Secure-, HttpOnly- und SameSite-Flag; Token-Rotation nach Login; Timeout ≤ 30 min'] },
-  { id: 'A1-4', article: 'Annex I, Part I, Nr. 4', name: 'Vertraulichkeit der Daten', status: 'fail', gap: 'MQTT-Verbindung unverschlüsselt (Port 1883)',
-    evidence: 'Wireshark-Mitschnitt bestätigt Klartext-Übertragung von Credentials und Sensordaten auf Port 1883 (vgl. Bedrohung I-005).',
-    rationale: 'Nicht erfüllt: Transportverschlüsselung ist eine Grundanforderung. Unverschlüsselte Kommunikation mit Credentials im Klartext ist ein direkter Verstoß.',
-    measure: 'MQTT nur über TLS (Port 8883), Port 1883 deaktivieren',
-    criteria: ['Gesamte Kommunikation über TLS 1.2+ verschlüsselt', 'Port 1883 ist deaktiviert und nicht konfigurierbar', 'TLS-Zertifikatsvalidierung auf Client- und Server-Seite aktiv'] },
-  { id: 'A1-7', article: 'Annex I, Part I, Nr. 7', name: 'Verfügbarkeit & Ausfallsicherheit', status: 'partial', gap: 'Kein Rate-Limiting auf MQTT-Broker',
-    evidence: 'Lasttest: Broker-Ausfall bei 500 gleichzeitigen Verbindungen (vgl. Bedrohung D-006). Kein Watchdog oder Auto-Restart konfiguriert.',
-    rationale: 'Teilweise erfüllt: Grundlegende Verfügbarkeit ist gegeben, aber keine Schutzmaßnahmen gegen gezielte Überlastung implementiert.',
-    measure: 'Rate-Limiting, Connection-Throttling und Watchdog implementieren',
-    criteria: ['Rate-Limiting pro Client-IP konfiguriert (max. Verbindungen/Minute)', 'Connection-Throttling begrenzt gleichzeitige Verbindungen auf definierten Schwellwert', 'Watchdog-Prozess startet Broker-Dienst automatisch bei Ausfall (< 30s Recovery)'] },
-  { id: 'A1-8', article: 'Annex I, Part I, Nr. 8', name: 'Sicherheits-Logging & Monitoring', status: 'fail', gap: 'Admin-Aktionen nicht protokolliert',
-    evidence: 'Systemprüfung: Keine Log-Dateien für administrative Aktionen (vgl. Bedrohung R-004). Kein Syslog-Export. Keine Tamper-Protection für Logs.',
-    rationale: 'Nicht erfüllt: Ohne Logging ist keine Nachvollziehbarkeit von Sicherheitsvorfällen möglich. Forensische Analyse nach einem Vorfall ist ausgeschlossen.',
-    measure: 'Audit-Log für alle Admin-Aktionen, Log-Rotation, sichere Log-Übertragung',
-    criteria: ['Alle administrativen Aktionen werden mit Zeitstempel, Benutzer-ID und Aktion protokolliert', 'Logs sind vor Manipulation geschützt (Append-Only oder signiert)', 'Log-Export an externes System (Syslog/SIEM) ist konfigurierbar und dokumentiert'] },
-  { id: 'A2-1', article: 'Annex I, Part II, Nr. 1', name: 'Schwachstellen-Identifikation', status: 'partial', gap: 'Kein formaler Prozess, keine regelmäßigen Pentests dokumentiert',
-    evidence: 'Interview: Ad-hoc Schwachstellen-Behebung, aber kein dokumentierter Vulnerability-Handling-Prozess. Kein Pentest-Bericht der letzten 12 Monate vorliegend.',
-    rationale: 'Teilweise erfüllt: Schwachstellen werden reaktiv behoben, aber CRA verlangt einen systematischen, dokumentierten Prozess.',
-    measure: 'Vulnerability-Management-Prozess definieren',
-    criteria: ['Dokumentierter Vulnerability-Handling-Prozess gemäß ISO/IEC 30111 oder vergleichbar', 'Regelmäßige Sicherheitstests (Pentest, SAST, DAST) mindestens jährlich, dokumentiert', 'Verantwortliche Kontaktstelle für Schwachstellenmeldungen öffentlich erreichbar'] },
-  { id: 'A2-8', article: 'Annex I, Part II, Nr. 8', name: 'SBOM', status: 'fail', gap: 'Keine SBOM vorhanden',
-    evidence: 'Dokumentenprüfung: Weder SBOM noch Komponentenliste verfügbar. Third-Party-Libraries werden verwendet, aber nicht inventarisiert.',
-    rationale: 'Nicht erfüllt: CRA verpflichtet zur Bereitstellung einer SBOM. Ohne Inventar der verwendeten Komponenten ist kein CVE-Monitoring möglich.',
-    measure: 'SBOM in SPDX oder CycloneDX Format erstellen',
-    criteria: ['SBOM im SPDX- oder CycloneDX-Format maschinenlesbar vorhanden', 'SBOM wird bei jedem Release automatisch generiert (CI/CD-Integration)', 'Alle direkten und transitiven Abhängigkeiten mit Version und Lizenz erfasst'] },
-  { id: 'Art14', article: 'Artikel 14', name: 'Meldepflichten (24h/72h)', status: 'fail', gap: 'Kein Incident-Response-Prozess, keine ENISA-Melderoute',
-    evidence: 'Interview: Kein dokumentierter IR-Prozess. Meldepflichten nach CRA Art. 14 sind dem Entwicklungsteam nicht bekannt. Kein ENISA-Konto registriert.',
-    rationale: 'Nicht erfüllt: CRA Art. 14 verpflichtet zur Meldung aktiv ausgenutzter Schwachstellen innerhalb von 24h (Frühwarnung) und 72h (vollständiger Bericht) an ENISA.',
-    measure: 'IR-Prozess dokumentieren, Meldewege zu ENISA/BSI definieren',
-    criteria: ['Incident-Response-Prozess dokumentiert mit definierten Rollen, Eskalationsstufen und Zeitvorgaben', 'ENISA-Meldeplattform registriert und Meldeprozess getestet (Trockenübung)', 'Frühwarnmeldung innerhalb von 24h und vollständiger Bericht innerhalb von 72h sichergestellt'] },
-  { id: 'Art13', article: 'Artikel 13', name: 'Technische Dokumentation', status: 'partial', gap: 'Unvollständige Architektur-Doku, keine Risikoanalyse vorhanden',
-    evidence: 'Dokumentenprüfung: Architektur-Diagramm vorhanden, aber unvollständig (MQTT-Schnittstelle fehlt). Keine dokumentierte Risikoanalyse. Benutzerhandbuch vorhanden.',
-    rationale: 'Teilweise erfüllt: Grundlegende Dokumentation existiert, aber die Anforderungen nach Annex VII (vollständige technische Doku inkl. Risikoanalyse) sind nicht adressiert.',
-    measure: 'Technische Dokumentation nach Annex VII vervollständigen',
-    criteria: ['Vollständige Systembeschreibung inkl. aller Schnittstellen und Datenflüsse', 'Dokumentierte Risikoanalyse gemäß CRA Annex VII', 'EU-Konformitätserklärung nach Art. 28 vorbereitet'] },
-];
-
-const STRIDE_META: Record<string, { label: string; dot: string; badge: string }> = {
-  S: { label: 'Spoofing', dot: 'bg-purple-500', badge: 'bg-purple-500/10 text-purple-400 border border-purple-500/20' },
-  T: { label: 'Tampering', dot: 'bg-orange-500', badge: 'bg-orange-500/10 text-orange-400 border border-orange-500/20' },
-  R: { label: 'Repudiation', dot: 'bg-yellow-500', badge: 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20' },
-  I: { label: 'Info Disclosure', dot: 'bg-blue-500', badge: 'bg-blue-500/10 text-blue-400 border border-blue-500/20' },
-  D: { label: 'Denial of Service', dot: 'bg-red-500', badge: 'bg-red-500/10 text-red-400 border border-red-500/20' },
-  E: { label: 'Elevation of Priv.', dot: 'bg-rose-500', badge: 'bg-rose-500/10 text-rose-400 border border-rose-500/20' },
-};
-
-const MAIN_STEPS = ['System Intake', 'Threat Modeling', 'Risk Assessment', 'CRA Mapping', 'Report'];
-
-// ── Hilfsfunktionen ─────────────────────────────────────────────
+// ── Helpers ─────────────────────────────────────────────────────
 
 function riskLevel(l: number, i: number) {
   const s = l * i;
@@ -199,13 +20,13 @@ function riskLevel(l: number, i: number) {
   return { label: 'Niedrig', cls: 'bg-green-500 text-white' };
 }
 
-function StatusBadge({ status }: { status: string }) {
+const StatusBadge = memo(({ status }: { status: string }) => {
   if (status === 'pass') return <span className="px-2 py-0.5 rounded text-xs font-bold bg-green-500/10 text-green-400 border border-green-500/20">✔ Erfüllt</span>;
   if (status === 'partial') return <span className="px-2 py-0.5 rounded text-xs font-bold bg-yellow-500/10 text-yellow-400 border border-yellow-500/20">⚠ Teilweise</span>;
   return <span className="px-2 py-0.5 rounded text-xs font-bold bg-destructive/10 text-destructive border border-destructive/20">✕ Lücke</span>;
-}
+});
 
-function ScoreBar({ value }: { value: number }) {
+const ScoreBar = memo(({ value }: { value: number }) => {
   const pct = (value / 5) * 100;
   const color = value >= 4 ? 'bg-destructive' : value >= 3 ? 'bg-orange-500' : 'bg-yellow-500';
   return (
@@ -216,38 +37,17 @@ function ScoreBar({ value }: { value: number }) {
       <span className="text-xs font-bold w-4 text-muted-foreground font-mono">{value}</span>
     </div>
   );
-}
+});
 
-// ── Hilfskomponenten ────────────────────────────────────────────
+// ── Shared UI ───────────────────────────────────────────────────
 
 function InfoBox({ icon = '💡', title, children, color = 'blue' }: { icon?: string; title?: string; children: React.ReactNode; color?: 'blue' | 'amber' | 'green' }) {
-  const colors = {
-    blue: 'bg-primary/10 border-primary/20 text-foreground',
-    amber: 'bg-warning/10 border-warning/20 text-foreground',
-    green: 'bg-green-500/10 border-green-500/20 text-foreground',
-  };
+  const colors = { blue: 'bg-primary/10 border-primary/20', amber: 'bg-warning/10 border-warning/20', green: 'bg-green-500/10 border-green-500/20' };
   return (
-    <div className={`border rounded-lg px-4 py-3 text-sm ${colors[color]}`}>
-      {title && <div className="font-semibold mb-1">{icon} {title}</div>}
-      {!title && <span className="font-semibold">{icon} </span>}
+    <div className={`border rounded-lg px-4 py-3 text-sm text-foreground ${colors[color]}`}>
+      {title ? <div className="font-semibold mb-1">{icon} {title}</div> : <span className="font-semibold">{icon} </span>}
       <span>{children}</span>
     </div>
-  );
-}
-
-function Chip({ label, selected, onClick, icon, desc }: { label: string; selected: boolean; onClick: () => void; icon?: string; desc?: string }) {
-  const sel = selected
-    ? 'border-primary bg-primary/10 text-foreground shadow-sm'
-    : 'border-border bg-card text-muted-foreground hover:border-primary/40 hover:bg-secondary';
-  return (
-    <button onClick={onClick} className={`border rounded-lg px-3 py-2 text-sm flex items-start gap-2 text-left transition-all ${sel}`}>
-      {icon && <span className="mt-0.5 flex-shrink-0">{icon}</span>}
-      <div>
-        <div className="font-medium">{label}</div>
-        {desc && <div className="text-xs opacity-70 mt-0.5">{desc}</div>}
-      </div>
-      {selected && <span className="ml-auto flex-shrink-0 text-xs text-primary">✓</span>}
-    </button>
   );
 }
 
@@ -266,32 +66,49 @@ function SubStepHeader({ current, total, title, subtitle }: { current: number; t
   );
 }
 
-// ── Intake-Daten-Typ ────────────────────────────────────────────
+const Chip = memo(({ label, selected, onClick, icon, desc }: { label: string; selected: boolean; onClick: () => void; icon?: string; desc?: string }) => (
+  <button onClick={onClick} className={`border rounded-lg px-3 py-2 text-sm flex items-start gap-2 text-left transition-all ${selected ? 'border-primary bg-primary/10 text-foreground shadow-sm' : 'border-border bg-card text-muted-foreground hover:border-primary/40 hover:bg-secondary'}`}>
+    {icon && <span className="mt-0.5 flex-shrink-0">{icon}</span>}
+    <div>
+      <div className="font-medium">{label}</div>
+      {desc && <div className="text-xs opacity-70 mt-0.5">{desc}</div>}
+    </div>
+    {selected && <span className="ml-auto flex-shrink-0 text-xs text-primary">✓</span>}
+  </button>
+));
 
-interface IntakeData {
-  productName: string;
-  version: string;
-  productTypes: string[];
-  craClass: string;
-  description: string;
-  components: string[];
-  deployment: string;
-  interfaces: string[];
-  roles: string[];
-  customRole: string;
-  measures: string[];
-  knownIssues: string;
-  files: { name: string; size: number; type: string }[];
+// ── Evidence Block (reused in ThreatModel, CRAMapping, Report) ──
+
+function EvidenceBlock({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="bg-background/50 border border-border rounded-md px-3 py-2">
+      <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">{label}</div>
+      <div className="text-foreground">{children}</div>
+    </div>
+  );
 }
 
-const EMPTY_INTAKE: IntakeData = {
-  productName: '', version: '', productTypes: [], craClass: '',
-  description: '', components: [], deployment: '',
-  interfaces: [], roles: [], customRole: '',
-  measures: [], knownIssues: '', files: [],
-};
+function CriteriaBlock({ criteria }: { criteria: string[] }) {
+  if (!criteria.length) return null;
+  return (
+    <div className="bg-background/50 border border-primary/20 rounded-md px-3 py-2">
+      <div className="text-xs font-semibold text-primary uppercase tracking-wide mb-1.5">✅ Akzeptanzkriterien — Maßnahme gilt als umgesetzt, wenn:</div>
+      <ul className="space-y-1">
+        {criteria.map((c, i) => (
+          <li key={i} className="flex gap-2 text-foreground">
+            <span className="text-primary/60 flex-shrink-0 font-mono text-xs mt-0.5">{i + 1}.</span>
+            <span>{c}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
 
-// ── GUIDED INTAKE WIZARD ───────────────────────────────────────
+// ── Intake Wizard (uses key-based step switching for stable focus) ──
+
+const INTAKE_STEPS = 6;
+const TOTAL_WIZARD_PAGES = 8; // 6 steps + 1 summary + navigation
 
 function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
   const [sub, setSub] = useState(0);
@@ -299,67 +116,79 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [activeUploadType, setActiveUploadType] = useState<string | null>(null);
 
-  const toggle = (field: keyof IntakeData, val: string) =>
-    setD(p => ({ ...p, [field]: (p[field] as string[]).includes(val) ? (p[field] as string[]).filter((x: string) => x !== val) : [...(p[field] as string[]), val] }));
-  const set = (field: keyof IntakeData, val: any) => setD(p => ({ ...p, [field]: val }));
+  const setField = useCallback((field: keyof IntakeData, val: unknown) => {
+    setD(prev => ({ ...prev, [field]: val }));
+  }, []);
 
-  const canNext = [
-    d.productName.trim().length > 0 && d.productTypes.length > 0, // Step 0: Produkt-Grunddaten
-    true, // Step 1: CRA-Klassifizierung (optional)
-    d.description.trim().length > 0 || d.components.length > 0,  // Step 2: Systemarchitektur
-    true, // Step 3: Schnittstellen (optional)
-    d.roles.length > 0, // Step 4: Nutzerrollen
-    true, // Step 5: Sicherheitsmaßnahmen (optional)
-    true, // Step 6: Anlagen (optional)
-  ];
+  const toggleArray = useCallback((field: keyof IntakeData, val: string) => {
+    setD(prev => {
+      const arr = prev[field] as string[];
+      return { ...prev, [field]: arr.includes(val) ? arr.filter(x => x !== val) : [...arr, val] };
+    });
+  }, []);
 
-  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+  const addRole = useCallback((role: string) => {
+    if (!role.trim()) return;
+    setD(prev => prev.roles.includes(role.trim()) ? prev : { ...prev, roles: [...prev.roles, role.trim()], customRole: '' });
+  }, []);
+
+  const removeRole = useCallback((role: string) => {
+    setD(prev => ({ ...prev, roles: prev.roles.filter(x => x !== role) }));
+  }, []);
+
+  const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
     const newFiles = Array.from(e.target.files).map(f => ({ name: f.name, size: f.size, type: activeUploadType || 'other' }));
-    setD(p => ({ ...p, files: [...p.files, ...newFiles] }));
+    setD(prev => ({ ...prev, files: [...prev.files, ...newFiles] }));
     e.target.value = '';
-  }
+  }, [activeUploadType]);
 
-  function removeFile(idx: number) { setD(p => ({ ...p, files: p.files.filter((_, i) => i !== idx) })); }
+  const removeFile = useCallback((idx: number) => {
+    setD(prev => ({ ...prev, files: prev.files.filter((_, i) => i !== idx) }));
+  }, []);
 
-  const TOTAL = 6;
+  const canNext = useMemo(() => [
+    d.productName.trim().length > 0 && d.productTypes.length > 0,
+    true, true, true,
+    d.roles.length > 0,
+    true, true,
+  ], [d.productName, d.productTypes.length, d.roles.length]);
 
-  const cats = [...new Set(SECURITY_MEASURES.map(m => m.cat))];
+  const isSummary = sub === 7;
 
-  const stepContent = (
-    <>
-      {sub === 0 && (
-        <div className="space-y-5 animate-fade-in">
-          <SubStepHeader current={0} total={TOTAL} title="Was für ein Produkt bewerten wir?" subtitle="Produkt-Typ auswählen und Namen vergeben." />
-          <InfoBox icon="💡" color="blue">
-            Der <strong>Produkt-Typ</strong> bestimmt, welche Bedrohungsszenarien relevant sind. Ein IoT-Gerät hat andere Risiken als eine Web-App.
-          </InfoBox>
+  // Each step is a STABLE component rendered via switch — no fragment index shifting
+  let stepContent: React.ReactNode;
+  switch (sub) {
+    case 0:
+      stepContent = (
+        <div className="space-y-5">
+          <SubStepHeader current={0} total={INTAKE_STEPS} title="Was für ein Produkt bewerten wir?" subtitle="Produkt-Typ auswählen und Namen vergeben." />
+          <InfoBox icon="💡" color="blue">Der <strong>Produkt-Typ</strong> bestimmt, welche Bedrohungsszenarien relevant sind. Ein IoT-Gerät hat andere Risiken als eine Web-App.</InfoBox>
           <div>
             <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Produktname *</label>
-            <input className="w-full border border-border rounded-lg px-3 py-2.5 text-sm bg-background text-foreground focus:ring-2 focus:ring-primary outline-none" placeholder="z.B. SmartGate Pro, SafeControl 3000 …" value={d.productName} onChange={e => set('productName', e.target.value)} />
+            <input className="w-full border border-border rounded-lg px-3 py-2.5 text-sm bg-background text-foreground focus:ring-2 focus:ring-primary outline-none" placeholder="z.B. SmartGate Pro, SafeControl 3000 …" value={d.productName} onChange={e => setField('productName', e.target.value)} />
           </div>
           <div>
             <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Version</label>
-            <input className="w-full border border-border rounded-lg px-3 py-2.5 text-sm bg-background text-foreground focus:ring-2 focus:ring-primary outline-none" placeholder="z.B. 1.0.0, 2024-Q3, Prototype" value={d.version} onChange={e => set('version', e.target.value)} />
+            <input className="w-full border border-border rounded-lg px-3 py-2.5 text-sm bg-background text-foreground focus:ring-2 focus:ring-primary outline-none" placeholder="z.B. 1.0.0, 2024-Q3, Prototype" value={d.version} onChange={e => setField('version', e.target.value)} />
           </div>
           <div>
             <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Produkt-Typ * <span className="normal-case font-normal text-muted-foreground/60">(Mehrfachauswahl möglich)</span></label>
             <div className="grid grid-cols-2 gap-2">
-              {PRODUCT_TYPES.map(t => <Chip key={t.id} label={t.label} icon={t.icon} desc={t.desc} selected={d.productTypes.includes(t.id)} onClick={() => toggle('productTypes', t.id)} />)}
+              {PRODUCT_TYPES.map(t => <Chip key={t.id} label={t.label} icon={t.icon} desc={t.desc} selected={d.productTypes.includes(t.id)} onClick={() => toggleArray('productTypes', t.id)} />)}
             </div>
           </div>
         </div>
-      )}
-
-      {sub === 1 && (
-        <div className="space-y-5 animate-fade-in">
-          <SubStepHeader current={1} total={TOTAL} title="Wie ist das Produkt nach CRA eingestuft?" subtitle="Im Zweifelsfall zunächst 'Default' wählen — das Tool hilft bei der Einschätzung." />
-          <InfoBox icon="📘" title="Was ist die CRA-Klassifizierung?" color="blue">
-            Der Cyber Resilience Act (EU) stuft Produkte nach ihrem Risikopotenzial ein. Die Klasse bestimmt, <strong>wie der Konformitätsnachweis</strong> erbracht werden muss — von Selbstbewertung bis zur Pflichtprüfung durch eine akkreditierte Stelle.
-          </InfoBox>
+      );
+      break;
+    case 1:
+      stepContent = (
+        <div className="space-y-5">
+          <SubStepHeader current={1} total={INTAKE_STEPS} title="Wie ist das Produkt nach CRA eingestuft?" subtitle="Im Zweifelsfall zunächst 'Default' wählen — das Tool hilft bei der Einschätzung." />
+          <InfoBox icon="📘" title="Was ist die CRA-Klassifizierung?" color="blue">Der Cyber Resilience Act (EU) stuft Produkte nach ihrem Risikopotenzial ein. Die Klasse bestimmt, <strong>wie der Konformitätsnachweis</strong> erbracht werden muss.</InfoBox>
           <div className="space-y-2">
             {CRA_CLASSES.map(c => (
-              <button key={c.id} onClick={() => set('craClass', c.id)} className={`w-full text-left border-2 rounded-xl px-4 py-3 transition-all ${d.craClass === c.id ? c.color + ' shadow' : 'border-border bg-card hover:border-muted-foreground/30'}`}>
+              <button key={c.id} onClick={() => setField('craClass', c.id)} className={`w-full text-left border-2 rounded-xl px-4 py-3 transition-all ${d.craClass === c.id ? c.color + ' shadow' : 'border-border bg-card hover:border-muted-foreground/30'}`}>
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <div className="font-semibold text-sm text-foreground">{c.label}</div>
@@ -371,28 +200,25 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
               </button>
             ))}
           </div>
-          <InfoBox icon="🤔" color="amber">
-            <strong>Nicht sicher?</strong> Fällt das Produkt nicht in Klasse I oder II-Kategorien, ist &quot;Default&quot; meistens korrekt. Das Tool liefert später eine Einschätzung basierend auf der Systemanalyse.
-          </InfoBox>
+          <InfoBox icon="🤔" color="amber"><strong>Nicht sicher?</strong> Fällt das Produkt nicht in Klasse I oder II-Kategorien, ist &quot;Default&quot; meistens korrekt.</InfoBox>
         </div>
-      )}
-
-      {sub === 2 && (
-        <div className="space-y-5 animate-fade-in">
-          <SubStepHeader current={2} total={TOTAL} title="Wie ist das System aufgebaut?" subtitle="Kurze Systembeschreibung eingeben — oder passende Bausteine auswählen." />
-          <InfoBox icon="💡" color="blue">
-            Einfach auf Deutsch beschreiben, <strong>was das Produkt macht</strong>, wer es nutzt und womit es verbunden ist. Je mehr Details, desto besser das Threat Model.
-          </InfoBox>
+      );
+      break;
+    case 2:
+      stepContent = (
+        <div className="space-y-5">
+          <SubStepHeader current={2} total={INTAKE_STEPS} title="Wie ist das System aufgebaut?" subtitle="Kurze Systembeschreibung eingeben — oder passende Bausteine auswählen." />
+          <InfoBox icon="💡" color="blue">Einfach auf Deutsch beschreiben, <strong>was das Produkt macht</strong>, wer es nutzt und womit es verbunden ist.</InfoBox>
           <div>
             <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Systembeschreibung</label>
             <div className="text-xs text-muted-foreground/60 mb-2">Beispiel: &quot;Unser Gateway erfasst Temperaturdaten von 50 Sensoren, speichert sie lokal und überträgt sie stündlich an eine Cloud-Plattform.&quot;</div>
-            <textarea rows={4} className="w-full border border-border rounded-lg px-3 py-2.5 text-sm bg-background text-foreground focus:ring-2 focus:ring-primary outline-none resize-none" placeholder="In eigenen Worten beschreiben: Was tut das Produkt? Wer nutzt es? Womit ist es verbunden?" value={d.description} onChange={e => set('description', e.target.value)} />
+            <textarea rows={4} className="w-full border border-border rounded-lg px-3 py-2.5 text-sm bg-background text-foreground focus:ring-2 focus:ring-primary outline-none resize-none" placeholder="In eigenen Worten beschreiben: Was tut das Produkt? Wer nutzt es? Womit ist es verbunden?" value={d.description} onChange={e => setField('description', e.target.value)} />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Welche technischen Bausteine hat das System? <span className="normal-case font-normal text-muted-foreground/60">(alle zutreffenden auswählen)</span></label>
+            <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Technische Bausteine <span className="normal-case font-normal text-muted-foreground/60">(alle zutreffenden auswählen)</span></label>
             <div className="flex flex-wrap gap-2">
               {COMPONENT_OPTS.map(c => (
-                <button key={c} onClick={() => toggle('components', c)} className={`border rounded-full px-3 py-1.5 text-xs font-medium transition-all ${d.components.includes(c) ? 'border-primary bg-primary/10 text-foreground' : 'border-border bg-card text-muted-foreground hover:border-primary/40'}`}>{d.components.includes(c) ? '✓ ' : ''}{c}</button>
+                <button key={c} onClick={() => toggleArray('components', c)} className={`border rounded-full px-3 py-1.5 text-xs font-medium transition-all ${d.components.includes(c) ? 'border-primary bg-primary/10 text-foreground' : 'border-border bg-card text-muted-foreground hover:border-primary/40'}`}>{d.components.includes(c) ? '✓ ' : ''}{c}</button>
               ))}
             </div>
           </div>
@@ -400,51 +226,47 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
             <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Wo wird das Produkt betrieben?</label>
             <div className="flex flex-wrap gap-2">
               {DEPLOYMENT_OPTS.map(o => (
-                <button key={o.id} onClick={() => set('deployment', o.id)} className={`border rounded-lg px-4 py-2 text-sm font-medium transition-all flex items-center gap-2 ${d.deployment === o.id ? 'border-primary bg-primary/10 text-foreground' : 'border-border bg-card text-muted-foreground hover:border-primary/40'}`}>{o.icon} {o.label}</button>
+                <button key={o.id} onClick={() => setField('deployment', o.id)} className={`border rounded-lg px-4 py-2 text-sm font-medium transition-all flex items-center gap-2 ${d.deployment === o.id ? 'border-primary bg-primary/10 text-foreground' : 'border-border bg-card text-muted-foreground hover:border-primary/40'}`}>{o.icon} {o.label}</button>
               ))}
             </div>
           </div>
         </div>
-      )}
-
-      {sub === 3 && (
-        <div className="space-y-5 animate-fade-in">
-          <SubStepHeader current={3} total={TOTAL} title="Über welche Schnittstellen kommuniziert das System?" subtitle="Alle genutzten Protokolle und Verbindungen auswählen." />
-          <InfoBox icon="💡" color="blue">
-            <strong>Schnittstellen = potenzielle Angriffspunkte.</strong> Jede Verbindung nach außen ist relevant — auch interne APIs, USB-Anschlüsse oder Bluetooth. Symbole ⚠️ markieren unsichere Protokolle.
-          </InfoBox>
+      );
+      break;
+    case 3:
+      stepContent = (
+        <div className="space-y-5">
+          <SubStepHeader current={3} total={INTAKE_STEPS} title="Über welche Schnittstellen kommuniziert das System?" subtitle="Alle genutzten Protokolle und Verbindungen auswählen." />
+          <InfoBox icon="💡" color="blue"><strong>Schnittstellen = potenzielle Angriffspunkte.</strong> Jede Verbindung nach außen ist relevant. ⚠️ markiert unsichere Protokolle.</InfoBox>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {INTERFACE_OPTS.map(o => (
-              <button key={o.label} onClick={() => toggle('interfaces', o.label)} className={`border rounded-lg px-3 py-2 text-sm text-left flex items-center gap-2 transition-all ${d.interfaces.includes(o.label) ? 'border-primary bg-primary/10 text-foreground' : 'border-border bg-card text-muted-foreground hover:border-primary/40'}`}>
+              <button key={o.label} onClick={() => toggleArray('interfaces', o.label)} className={`border rounded-lg px-3 py-2 text-sm text-left flex items-center gap-2 transition-all ${d.interfaces.includes(o.label) ? 'border-primary bg-primary/10 text-foreground' : 'border-border bg-card text-muted-foreground hover:border-primary/40'}`}>
                 <span>{o.icon}</span><span className="flex-1">{o.label}</span>{d.interfaces.includes(o.label) && <span className="text-xs text-primary">✓</span>}
               </button>
             ))}
           </div>
           {d.interfaces.some(i => i.includes('unverschl') || i === 'HTTP' || i === 'FTP/SFTP') && (
-            <InfoBox icon="⚠️" color="amber">
-              Es wurden <strong>unsichere Protokolle</strong> ausgewählt. Diese werden im Threat Model besonders analysiert und führen wahrscheinlich zu CRA-Lücken.
-            </InfoBox>
+            <InfoBox icon="⚠️" color="amber">Es wurden <strong>unsichere Protokolle</strong> ausgewählt. Diese werden im Threat Model besonders analysiert.</InfoBox>
           )}
         </div>
-      )}
-
-      {sub === 4 && (
-        <div className="space-y-5 animate-fade-in">
-          <SubStepHeader current={4} total={TOTAL} title="Wer hat Zugriff auf das System?" subtitle="Nutzerrollen helfen, Berechtigungsrisiken und Angreifer-Profile zu identifizieren." />
-          <InfoBox icon="💡" color="blue">
-            Alle Personen <strong>und Systeme</strong> berücksichtigen, die sich einloggen oder auf Funktionen zugreifen können — auch externe Dienstleister oder automatisierte Prozesse.
-          </InfoBox>
+      );
+      break;
+    case 4:
+      stepContent = (
+        <div className="space-y-5">
+          <SubStepHeader current={4} total={INTAKE_STEPS} title="Wer hat Zugriff auf das System?" subtitle="Nutzerrollen helfen, Berechtigungsrisiken und Angreifer-Profile zu identifizieren." />
+          <InfoBox icon="💡" color="blue">Alle Personen <strong>und Systeme</strong> berücksichtigen, die sich einloggen oder auf Funktionen zugreifen können.</InfoBox>
           <div>
             <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Häufige Rollen — klicken zum Hinzufügen</label>
             <div className="flex flex-wrap gap-2">
               {ROLE_PRESETS.map(r => (
-                <button key={r} onClick={() => !d.roles.includes(r) && setD(p => ({ ...p, roles: [...p.roles, r] }))} className={`border rounded-full px-3 py-1.5 text-xs font-medium transition-all ${d.roles.includes(r) ? 'border-green-500 bg-green-500/10 text-green-400' : 'border-border bg-card text-muted-foreground hover:border-primary/40'}`}>{d.roles.includes(r) ? '✓ ' : ''}{r}</button>
+                <button key={r} onClick={() => addRole(r)} className={`border rounded-full px-3 py-1.5 text-xs font-medium transition-all ${d.roles.includes(r) ? 'border-green-500 bg-green-500/10 text-green-400' : 'border-border bg-card text-muted-foreground hover:border-primary/40'}`}>{d.roles.includes(r) ? '✓ ' : ''}{r}</button>
               ))}
             </div>
           </div>
           <div className="flex gap-2">
-            <input className="flex-1 border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground focus:ring-2 focus:ring-primary outline-none" placeholder="Eigene Rolle hinzufügen …" value={d.customRole} onChange={e => set('customRole', e.target.value)} onKeyDown={e => { if (e.key === 'Enter' && d.customRole.trim()) { setD(p => ({ ...p, roles: [...p.roles, p.customRole.trim()], customRole: '' })); } }} />
-            <Button onClick={() => { if (d.customRole.trim()) { setD(p => ({ ...p, roles: [...p.roles, p.customRole.trim()], customRole: '' })); } }} className="font-medium">+ Hinzufügen</Button>
+            <input className="flex-1 border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground focus:ring-2 focus:ring-primary outline-none" placeholder="Eigene Rolle hinzufügen …" value={d.customRole} onChange={e => setField('customRole', e.target.value)} onKeyDown={e => { if (e.key === 'Enter') addRole(d.customRole); }} />
+            <Button onClick={() => addRole(d.customRole)} className="font-medium">+ Hinzufügen</Button>
           </div>
           {d.roles.length > 0 && (
             <div>
@@ -453,28 +275,27 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
                 {d.roles.map(r => (
                   <span key={r} className="flex items-center gap-1.5 bg-green-500/10 border border-green-500/20 text-green-400 rounded-full px-3 py-1.5 text-xs font-medium">
                     👤 {r}
-                    <button onClick={() => setD(p => ({ ...p, roles: p.roles.filter(x => x !== r) }))} className="text-green-400 hover:text-destructive font-bold ml-0.5">×</button>
+                    <button onClick={() => removeRole(r)} className="text-green-400 hover:text-destructive font-bold ml-0.5">×</button>
                   </span>
                 ))}
               </div>
             </div>
           )}
         </div>
-      )}
-
-      {sub === 5 && (
-        <div className="space-y-5 animate-fade-in">
-          <SubStepHeader current={5} total={TOTAL} title="Welche Sicherheitsmaßnahmen sind bereits vorhanden?" subtitle="Auch fehlende Maßnahmen sind wichtige Information für das Assessment." />
-          <InfoBox icon="💡" color="blue">
-            Nur Maßnahmen auswählen, die <strong>aktuell wirklich aktiv</strong> sind — nicht was geplant ist. Fehlende Maßnahmen werden als Lücken im Assessment sichtbar.
-          </InfoBox>
-          {cats.map(cat => (
+      );
+      break;
+    case 5:
+      stepContent = (
+        <div className="space-y-5">
+          <SubStepHeader current={5} total={INTAKE_STEPS} title="Welche Sicherheitsmaßnahmen sind bereits vorhanden?" subtitle="Auch fehlende Maßnahmen sind wichtige Information für das Assessment." />
+          <InfoBox icon="💡" color="blue">Nur Maßnahmen auswählen, die <strong>aktuell wirklich aktiv</strong> sind — nicht was geplant ist.</InfoBox>
+          {SECURITY_CATEGORIES.map(cat => (
             <div key={cat}>
               <div className="text-xs font-semibold text-muted-foreground/60 uppercase tracking-wide mb-2">{cat}</div>
               <div className="space-y-1.5">
                 {SECURITY_MEASURES.filter(m => m.cat === cat).map(m => (
                   <label key={m.id} className={`flex items-center gap-3 border rounded-lg px-3 py-2.5 cursor-pointer transition-all ${d.measures.includes(m.id) ? 'border-green-500/30 bg-green-500/10' : 'border-border bg-card hover:border-muted-foreground/30'}`}>
-                    <input type="checkbox" className="w-4 h-4 rounded accent-green-600 flex-shrink-0" checked={d.measures.includes(m.id)} onChange={() => toggle('measures', m.id)} />
+                    <input type="checkbox" className="w-4 h-4 rounded accent-green-600 flex-shrink-0" checked={d.measures.includes(m.id)} onChange={() => toggleArray('measures', m.id)} />
                     <span className="text-sm text-foreground">{m.label}</span>
                     {d.measures.includes(m.id) && <span className="ml-auto text-green-400 text-xs font-semibold">vorhanden</span>}
                   </label>
@@ -484,18 +305,17 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
           ))}
           <div>
             <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Bekannte Schwachstellen oder offene Punkte</label>
-            <div className="text-xs text-muted-foreground/60 mb-2">Optional — aber sehr wertvoll. Beispiel: &quot;Standard-Passwort nach Auslieferung aktiv&quot;, &quot;kein MFA&quot;</div>
-            <textarea rows={3} className="w-full border border-border rounded-lg px-3 py-2.5 text-sm bg-background text-foreground focus:ring-2 focus:ring-primary outline-none resize-none" placeholder="Bekannte Schwachstellen, offene Audit-Punkte …" value={d.knownIssues} onChange={e => set('knownIssues', e.target.value)} />
+            <div className="text-xs text-muted-foreground/60 mb-2">Optional — z.B. &quot;Standard-Passwort nach Auslieferung aktiv&quot;, &quot;kein MFA&quot;</div>
+            <textarea rows={3} className="w-full border border-border rounded-lg px-3 py-2.5 text-sm bg-background text-foreground focus:ring-2 focus:ring-primary outline-none resize-none" placeholder="Bekannte Schwachstellen, offene Audit-Punkte …" value={d.knownIssues} onChange={e => setField('knownIssues', e.target.value)} />
           </div>
         </div>
-      )}
-
-      {sub === 6 && (
-        <div className="space-y-5 animate-fade-in">
-          <SubStepHeader current={5} total={TOTAL} title="Relevante Unterlagen hochladen" subtitle="Optional — aber Architekturdiagramme oder Berichte verbessern die Analysequalität." />
-          <InfoBox icon="💡" color="blue">
-            Relevante Dokumente hochladen. Die KI kann daraus <strong>zusätzliche Kontext-Informationen</strong> extrahieren — z.B. aus einem Architekturdiagramm oder einem Pentestbericht.
-          </InfoBox>
+      );
+      break;
+    case 6:
+      stepContent = (
+        <div className="space-y-5">
+          <SubStepHeader current={5} total={INTAKE_STEPS} title="Relevante Unterlagen hochladen" subtitle="Optional — Architekturdiagramme oder Berichte verbessern die Analysequalität." />
+          <InfoBox icon="💡" color="blue">Relevante Dokumente hochladen. Die KI kann daraus <strong>zusätzliche Kontext-Informationen</strong> extrahieren.</InfoBox>
           <div className="grid grid-cols-1 gap-2">
             {ATTACH_TYPES.map(t => (
               <button key={t.id} onClick={() => { setActiveUploadType(t.id); if (fileRef.current) { fileRef.current.accept = t.accept; fileRef.current.click(); } }} className="flex items-center gap-3 border-2 border-dashed border-border rounded-xl px-4 py-3 text-sm text-muted-foreground hover:border-primary/40 hover:bg-primary/5 hover:text-foreground transition-all text-left">
@@ -515,13 +335,12 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
               <div className="space-y-1.5">
                 {d.files.map((f, i) => {
                   const typeInfo = ATTACH_TYPES.find(t => t.id === f.type) || { icon: '📎', label: 'Dokument' };
-                  const sizeKB = (f.size / 1024).toFixed(0);
                   return (
                     <div key={i} className="flex items-center gap-3 bg-card border border-border rounded-lg px-3 py-2.5 text-sm">
                       <span className="text-lg flex-shrink-0">{typeInfo.icon}</span>
                       <div className="flex-1 min-w-0">
                         <div className="font-medium text-foreground truncate">{f.name}</div>
-                        <div className="text-xs text-muted-foreground">{typeInfo.label} · <span className="font-mono">{sizeKB} KB</span></div>
+                        <div className="text-xs text-muted-foreground">{typeInfo.label} · <span className="font-mono">{(f.size / 1024).toFixed(0)} KB</span></div>
                       </div>
                       <button onClick={() => removeFile(i)} className="text-muted-foreground hover:text-destructive font-bold text-lg leading-none transition-colors">×</button>
                     </div>
@@ -530,15 +349,14 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
               </div>
             </div>
           )}
-          <InfoBox icon="🔒" color="green">
-            Dateien verlassen den Computer nicht und werden nur lokal für die Analyse verwendet.
-          </InfoBox>
+          <InfoBox icon="🔒" color="green">Dateien verlassen den Computer nicht und werden nur lokal für die Analyse verwendet.</InfoBox>
         </div>
-      )}
-
-      {sub === 7 && (
-        <div className="space-y-4 animate-fade-in">
-          <SubStepHeader current={5} total={TOTAL} title="Alles bereit — Zusammenfassung" subtitle="Angaben überprüfen und dann die KI-Analyse starten." />
+      );
+      break;
+    case 7:
+      stepContent = (
+        <div className="space-y-4">
+          <SubStepHeader current={5} total={INTAKE_STEPS} title="Alles bereit — Zusammenfassung" subtitle="Angaben überprüfen und dann die KI-Analyse starten." />
           {[
             { label: 'Produkt', val: `${d.productName} ${d.version}`.trim() },
             { label: 'Typ', val: d.productTypes.map(id => PRODUCT_TYPES.find(t => t.id === id)?.label).join(', ') || '—' },
@@ -546,7 +364,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
             { label: 'Komponenten', val: d.components.length > 0 ? d.components.join(', ') : '—' },
             { label: 'Schnittstellen', val: d.interfaces.length > 0 ? d.interfaces.join(', ') : '—' },
             { label: 'Nutzerrollen', val: d.roles.length > 0 ? d.roles.join(', ') : '—' },
-            { label: 'Maßnahmen', val: d.measures.length > 0 ? `${d.measures.length} Maßnahmen ausgewählt` : 'Keine ausgewählt' },
+            { label: 'Maßnahmen', val: d.measures.length > 0 ? `${d.measures.length} ausgewählt` : 'Keine' },
             { label: 'Anlagen', val: d.files.length > 0 ? `${d.files.length} Datei(en)` : 'Keine' },
           ].map(({ label, val }) => (
             <div key={label} className="flex gap-3 text-sm border-b border-border/50 pb-2 last:border-0 last:pb-0">
@@ -556,12 +374,9 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
           ))}
           {d.knownIssues && <div className="text-sm border-b border-border/50 pb-2"><span className="text-muted-foreground">Bekannte Lücken: </span><span className="text-foreground">{d.knownIssues}</span></div>}
         </div>
-      )}
-    </>
-  );
-
-  const totalSteps = 8;
-  const isSummary = sub === totalSteps - 1;
+      );
+      break;
+  }
 
   return (
     <div>
@@ -569,12 +384,12 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
       <div className="flex items-center justify-between mt-6 pt-4 border-t border-border/50">
         <button onClick={() => setSub(s => s - 1)} disabled={sub === 0} className={`text-sm font-semibold px-4 py-2 rounded-lg transition-colors ${sub === 0 ? 'text-muted-foreground/30 cursor-not-allowed' : 'text-muted-foreground hover:bg-secondary'}`}>← Zurück</button>
         <div className="flex gap-1">
-          {Array.from({ length: totalSteps }).map((_, i) => <div key={i} className={`w-1.5 h-1.5 rounded-full transition-all ${i === sub ? 'bg-primary w-3' : i < sub ? 'bg-primary/40' : 'bg-secondary'}`} />)}
+          {Array.from({ length: TOTAL_WIZARD_PAGES }).map((_, i) => <div key={i} className={`w-1.5 h-1.5 rounded-full transition-all ${i === sub ? 'bg-primary w-3' : i < sub ? 'bg-primary/40' : 'bg-secondary'}`} />)}
         </div>
         {isSummary
           ? <Button onClick={() => onFinish(d)} className="font-semibold shadow-md">KI-Analyse starten →</Button>
           : <Button onClick={() => setSub(s => s + 1)} disabled={!canNext[sub]} className="font-semibold shadow-sm">
-            {sub === totalSteps - 2 ? 'Zusammenfassung →' : 'Weiter →'}
+            {sub === 6 ? 'Zusammenfassung →' : 'Weiter →'}
           </Button>
         }
       </div>
@@ -586,10 +401,11 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
 
 function ThreatModel({ threats, onNext }: { threats: Threat[]; onNext: () => void }) {
   const [exp, setExp] = useState<number | null>(null);
-  const counts = Object.fromEntries('STRIDE'.split('').map(c => [c, threats.filter(t => t.stride === c).length]));
+  const counts = useMemo(() => Object.fromEntries('STRIDE'.split('').map(c => [c, threats.filter(t => t.stride === c).length])), [threats]);
+
   return (
     <div className="space-y-4">
-      <InfoBox icon="🛡️" title="STRIDE Threat Model" color="blue">Das System wurde nach <strong>6 Bedrohungskategorien</strong> analysiert. Bedrohung anklicken für den vollständigen Angriffspfad.</InfoBox>
+      <InfoBox icon="🛡️" title="STRIDE Threat Model" color="blue">Das System wurde nach <strong>6 Bedrohungskategorien</strong> analysiert. Bedrohung anklicken für Evidenz und Angriffspfad.</InfoBox>
       <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
         {Object.entries(STRIDE_META).map(([k, m]) => (
           <div key={k} className="bg-card border border-border rounded-lg p-3 text-center">
@@ -603,29 +419,24 @@ function ThreatModel({ threats, onNext }: { threats: Threat[]; onNext: () => voi
         {threats.map(t => {
           const meta = STRIDE_META[t.stride];
           const risk = riskLevel(t.likelihood, t.impact);
+          const isOpen = exp === t.id;
           return (
             <div key={t.id} className="bg-card border border-border rounded-lg overflow-hidden">
-              <div className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-secondary/50" onClick={() => setExp(exp === t.id ? null : t.id)}>
+              <div className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-secondary/50" onClick={() => setExp(isOpen ? null : t.id)}>
                 <span className={`px-2 py-0.5 rounded text-xs font-bold ${meta.badge}`}>{t.stride}</span>
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-semibold text-foreground truncate">{t.name}</div>
                   <div className="text-xs text-muted-foreground">{t.component}</div>
                 </div>
                 <span className={`px-2 py-0.5 rounded text-xs font-bold flex-shrink-0 ${risk.cls}`}>{risk.label} (<span className="font-mono">{t.likelihood * t.impact}</span>)</span>
-                {exp === t.id ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+                {isOpen ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
               </div>
-              {exp === t.id && (
+              {isOpen && (
                 <div className="border-t border-border bg-secondary/30 px-4 py-3 text-sm space-y-3">
                   <div><span className="font-semibold text-muted-foreground">Angreifer: </span><span className="text-foreground">{t.attacker}</span></div>
                   <div><span className="font-semibold text-muted-foreground">Angriffspfad: </span><span className="text-foreground">{t.path}</span></div>
-                  <div className="bg-background/50 border border-border rounded-md px-3 py-2">
-                    <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">📋 Evidenz</div>
-                    <div className="text-foreground">{t.evidence}</div>
-                  </div>
-                  <div className="bg-background/50 border border-border rounded-md px-3 py-2">
-                    <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">🔍 Begründung der Bewertung</div>
-                    <div className="text-foreground">{t.rationale}</div>
-                  </div>
+                  <EvidenceBlock label="📋 Evidenz">{t.evidence}</EvidenceBlock>
+                  <EvidenceBlock label="🔍 Begründung der Bewertung">{t.rationale}</EvidenceBlock>
                   <div className="grid grid-cols-2 gap-4 pt-1">
                     <div><div className="text-xs text-muted-foreground mb-1">Likelihood (<span className="font-mono">{t.likelihood}/5</span>)</div><ScoreBar value={t.likelihood} /></div>
                     <div><div className="text-xs text-muted-foreground mb-1">Impact (<span className="font-mono">{t.impact}/5</span>)</div><ScoreBar value={t.impact} /></div>
@@ -654,12 +465,12 @@ function ThreatModel({ threats, onNext }: { threats: Threat[]; onNext: () => voi
 // ── Phase 3: Risk Assessment ──────────────────────────────────
 
 function RiskAssessment({ threats, onNext }: { threats: Threat[]; onNext: () => void }) {
-  const sorted = [...threats].sort((a, b) => (b.likelihood * b.impact) - (a.likelihood * a.impact));
-  const cnt = { kritisch: 0, hoch: 0, mittel: 0, niedrig: 0 };
-  sorted.forEach(t => {
-    const l = riskLevel(t.likelihood, t.impact).label.toLowerCase();
-    if (l in cnt) (cnt as any)[l]++;
-  });
+  const sorted = useMemo(() => [...threats].sort((a, b) => (b.likelihood * b.impact) - (a.likelihood * a.impact)), [threats]);
+  const cnt = useMemo(() => {
+    const c = { kritisch: 0, hoch: 0, mittel: 0, niedrig: 0 };
+    sorted.forEach(t => { const l = riskLevel(t.likelihood, t.impact).label.toLowerCase(); if (l in c) (c as any)[l]++; });
+    return c;
+  }, [sorted]);
 
   const matrixColor = (s: number) => s >= 20 ? 'bg-red-500' : s >= 13 ? 'bg-orange-400' : s >= 6 ? 'bg-yellow-300' : 'bg-green-300';
 
@@ -694,9 +505,7 @@ function RiskAssessment({ threats, onNext }: { threats: Threat[]; onNext: () => 
                     const pts = threats.filter(t => t.likelihood === lik && t.impact === imp);
                     return (
                       <td key={lik} className={`w-12 h-10 ${matrixColor(score)} text-center align-middle border border-background`} title={pts.map(p => p.name).join('\n') || ''}>
-                        {pts.length > 0 && (
-                          <div className="w-6 h-6 bg-background/90 rounded-full text-foreground font-bold text-xs font-mono flex items-center justify-center mx-auto shadow cursor-help">{pts.length}</div>
-                        )}
+                        {pts.length > 0 && <div className="w-6 h-6 bg-background/90 rounded-full text-foreground font-bold text-xs font-mono flex items-center justify-center mx-auto shadow cursor-help">{pts.length}</div>}
                       </td>
                     );
                   })}
@@ -729,10 +538,7 @@ function RiskAssessment({ threats, onNext }: { threats: Threat[]; onNext: () => 
                 const risk = riskLevel(t.likelihood, t.impact);
                 return (
                   <tr key={t.id} className={idx % 2 === 0 ? 'bg-card' : 'bg-secondary/30'}>
-                    <td className="px-4 py-2.5">
-                      <div className="font-medium text-foreground">{t.name}</div>
-                      <div className="text-xs text-muted-foreground">{t.component}</div>
-                    </td>
+                    <td className="px-4 py-2.5"><div className="font-medium text-foreground">{t.name}</div><div className="text-xs text-muted-foreground">{t.component}</div></td>
                     <td className="px-3 py-2.5 text-center font-semibold text-foreground font-mono">{t.likelihood}</td>
                     <td className="px-3 py-2.5 text-center font-semibold text-foreground font-mono">{t.impact}</td>
                     <td className="px-3 py-2.5 text-center font-bold text-foreground font-mono">{t.likelihood * t.impact}</td>
@@ -755,22 +561,26 @@ function RiskAssessment({ threats, onNext }: { threats: Threat[]; onNext: () => 
 
 function CRAMapping({ reqs, onNext }: { reqs: CraReq[]; onNext: () => void }) {
   const [exp, setExp] = useState<string | null>(null);
-  const pass = reqs.filter(r => r.status === 'pass').length;
-  const partial = reqs.filter(r => r.status === 'partial').length;
-  const fail = reqs.filter(r => r.status === 'fail').length;
-  const score = Math.round((pass * 100 + partial * 50) / reqs.length);
-  const scoreColor = score >= 70 ? 'text-green-500' : score >= 40 ? 'text-yellow-500' : 'text-destructive';
-  const strokeColor = score >= 70 ? '#22c55e' : score >= 40 ? '#eab308' : '#dc2626';
+  const { pass, partial, fail, score, scoreColor, strokeColor } = useMemo(() => {
+    const p = reqs.filter(r => r.status === 'pass').length;
+    const pa = reqs.filter(r => r.status === 'partial').length;
+    const f = reqs.filter(r => r.status === 'fail').length;
+    const s = Math.round((p * 100 + pa * 50) / reqs.length);
+    return {
+      pass: p, partial: pa, fail: f, score: s,
+      scoreColor: s >= 70 ? 'text-green-500' : s >= 40 ? 'text-yellow-500' : 'text-destructive',
+      strokeColor: s >= 70 ? '#22c55e' : s >= 40 ? '#eab308' : '#dc2626',
+    };
+  }, [reqs]);
 
   return (
     <div className="space-y-4">
-      <InfoBox icon="📋" title="CRA Compliance Mapping" color="blue">Befunde wurden auf <strong>CRA-Anforderungen</strong> gemappt – jede Feststellung mit Evidenz, Begründung und messbaren Akzeptanzkriterien für die empfohlene Maßnahme.</InfoBox>
+      <InfoBox icon="📋" title="CRA Compliance Mapping" color="blue">Befunde wurden auf <strong>CRA-Anforderungen</strong> gemappt – jede Feststellung mit Evidenz, Begründung und messbaren Akzeptanzkriterien.</InfoBox>
       <div className="bg-card border border-border rounded-lg p-5 flex flex-col sm:flex-row items-center gap-6">
         <div className="relative w-24 h-24 flex-shrink-0">
           <svg viewBox="0 0 36 36" className="w-full h-full" style={{ transform: 'rotate(-90deg)' }}>
             <circle cx="18" cy="18" r="15.9" fill="none" className="stroke-secondary" strokeWidth="3" />
-            <circle cx="18" cy="18" r="15.9" fill="none" stroke={strokeColor} strokeWidth="3"
-              strokeDasharray={`${score} ${100 - score}`} strokeLinecap="round" />
+            <circle cx="18" cy="18" r="15.9" fill="none" stroke={strokeColor} strokeWidth="3" strokeDasharray={`${score} ${100 - score}`} strokeLinecap="round" />
           </svg>
           <div className="absolute inset-0 flex items-center justify-center">
             <span className={`text-xl font-bold font-mono ${scoreColor}`}>{score}%</span>
@@ -792,50 +602,30 @@ function CRAMapping({ reqs, onNext }: { reqs: CraReq[]; onNext: () => void }) {
         </div>
       </div>
       <div className="space-y-1.5">
-        {reqs.map(r => (
-          <div key={r.id} className="bg-card border border-border rounded-lg overflow-hidden">
-            <div className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-secondary/50" onClick={() => setExp(exp === r.id ? null : r.id)}>
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-semibold text-foreground">{r.name}</div>
-                <div className="text-xs text-muted-foreground">{r.article}</div>
+        {reqs.map(r => {
+          const isOpen = exp === r.id;
+          return (
+            <div key={r.id} className="bg-card border border-border rounded-lg overflow-hidden">
+              <div className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-secondary/50" onClick={() => setExp(isOpen ? null : r.id)}>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-semibold text-foreground">{r.name}</div>
+                  <div className="text-xs text-muted-foreground">{r.article}</div>
+                </div>
+                <StatusBadge status={r.status} />
+                {isOpen ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
               </div>
-              <StatusBadge status={r.status} />
-              {exp === r.id ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+              {isOpen && (
+                <div className="border-t border-border bg-secondary/30 px-4 py-3 text-sm space-y-3">
+                  <EvidenceBlock label="📋 Evidenz">{r.evidence}</EvidenceBlock>
+                  {r.gap && <div><span className="font-semibold text-destructive">Feststellung (Gap): </span><span className="text-foreground">{r.gap}</span></div>}
+                  <EvidenceBlock label="🔍 Begründung">{r.rationale}</EvidenceBlock>
+                  <div><span className="font-semibold text-primary">Empfohlene Maßnahme: </span><span className="text-foreground">{r.measure}</span></div>
+                  <CriteriaBlock criteria={r.criteria} />
+                </div>
+              )}
             </div>
-            {exp === r.id && (
-              <div className="border-t border-border bg-secondary/30 px-4 py-3 text-sm space-y-3">
-                <div className="bg-background/50 border border-border rounded-md px-3 py-2">
-                  <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">📋 Evidenz</div>
-                  <div className="text-foreground">{r.evidence}</div>
-                </div>
-                {r.gap && (
-                  <div><span className="font-semibold text-destructive">Feststellung (Gap): </span><span className="text-foreground">{r.gap}</span></div>
-                )}
-                <div className="bg-background/50 border border-border rounded-md px-3 py-2">
-                  <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">🔍 Begründung</div>
-                  <div className="text-foreground">{r.rationale}</div>
-                </div>
-                <div>
-                  <span className="font-semibold text-primary">Empfohlene Maßnahme: </span>
-                  <span className="text-foreground">{r.measure}</span>
-                </div>
-                {r.criteria.length > 0 && (
-                  <div className="bg-background/50 border border-primary/20 rounded-md px-3 py-2">
-                    <div className="text-xs font-semibold text-primary uppercase tracking-wide mb-1.5">✅ Akzeptanzkriterien — Maßnahme gilt als umgesetzt, wenn:</div>
-                    <ul className="space-y-1">
-                      {r.criteria.map((c, i) => (
-                        <li key={i} className="flex gap-2 text-foreground">
-                          <span className="text-primary/60 flex-shrink-0 font-mono text-xs mt-0.5">{i + 1}.</span>
-                          <span>{c}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        ))}
+          );
+        })}
       </div>
       <div className="flex justify-end pt-2">
         <Button onClick={onNext} className="font-semibold">Report generieren →</Button>
@@ -847,10 +637,10 @@ function CRAMapping({ reqs, onNext }: { reqs: CraReq[]; onNext: () => void }) {
 // ── Phase 5: Report ───────────────────────────────────────────
 
 function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; threats: Threat[]; reqs: CraReq[] }) {
-  const critRisks = threats.filter(t => t.likelihood * t.impact >= 20);
-  const fail = reqs.filter(r => r.status === 'fail');
-  const partial = reqs.filter(r => r.status === 'partial');
-  const today = new Date().toLocaleDateString('de-DE', { day: '2-digit', month: 'long', year: 'numeric' });
+  const critRisks = useMemo(() => threats.filter(t => t.likelihood * t.impact >= 20), [threats]);
+  const failReqs = useMemo(() => reqs.filter(r => r.status === 'fail'), [reqs]);
+  const partialCount = useMemo(() => reqs.filter(r => r.status === 'partial').length, [reqs]);
+  const today = useMemo(() => new Date().toLocaleDateString('de-DE', { day: '2-digit', month: 'long', year: 'numeric' }), []);
   const typeName = intakeData.productTypes?.map(id => PRODUCT_TYPES.find(t => t.id === id)?.label).join(', ') || '';
   const craName = CRA_CLASSES.find(c => c.id === intakeData.craClass)?.label || intakeData.craClass || '—';
 
@@ -873,17 +663,16 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
           Das Cyber Risk Assessment für <strong>{intakeData.productName} {intakeData.version}</strong> ({typeName}, CRA-Klasse: {craName}) wurde am {today} durchgeführt.
           Es wurden <strong>{threats.length} Bedrohungen</strong> identifiziert, davon{' '}
           <strong className="text-destructive">{critRisks.length} mit kritischem Risikoscore (≥ 20)</strong>.
-          Von {reqs.length} geprüften CRA-Anforderungen bestehen <strong className="text-destructive">{fail.length} vollständige Lücken</strong> und{' '}
-          {partial.length} teilweise Erfüllungen.
+          Von {reqs.length} geprüften CRA-Anforderungen bestehen <strong className="text-destructive">{failReqs.length} vollständige Lücken</strong> und {partialCount} teilweise Erfüllungen.
         </p>
       </div>
 
       <div className="bg-card border border-border rounded-lg overflow-hidden">
         <div className="px-4 py-3 bg-destructive/10 border-b border-destructive/20">
-          <span className="text-sm font-bold text-destructive">Sofortmaßnahmen — {fail.length} kritische Lücken</span>
+          <span className="text-sm font-bold text-destructive">Sofortmaßnahmen — {failReqs.length} kritische Lücken</span>
         </div>
-        {fail.map((r, i) => (
-          <div key={r.id} className={`px-4 py-3 text-sm ${i % 2 === 0 ? 'bg-card' : 'bg-secondary/30'} ${i < fail.length - 1 ? 'border-b border-border' : ''}`}>
+        {failReqs.map((r, i) => (
+          <div key={r.id} className={`px-4 py-3 text-sm ${i % 2 === 0 ? 'bg-card' : 'bg-secondary/30'} ${i < failReqs.length - 1 ? 'border-b border-border' : ''}`}>
             <div className="flex gap-3">
               <span className="font-bold text-destructive w-5 flex-shrink-0 font-mono">{i + 1}.</span>
               <div className="flex-1 space-y-2">
@@ -894,16 +683,7 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
                 <div className="text-xs"><span className="font-semibold text-muted-foreground">Evidenz: </span>{r.evidence}</div>
                 <div className="text-xs"><span className="font-semibold text-muted-foreground">Begründung: </span>{r.rationale}</div>
                 <div className="text-xs"><span className="font-semibold text-primary">Maßnahme: </span>{r.measure}</div>
-                {r.criteria.length > 0 && (
-                  <div className="bg-background/50 border border-primary/20 rounded px-2.5 py-1.5 text-xs">
-                    <div className="font-semibold text-primary mb-1">Akzeptanzkriterien:</div>
-                    <ul className="space-y-0.5">
-                      {r.criteria.map((c, ci) => (
-                        <li key={ci} className="flex gap-1.5 text-foreground"><span className="text-primary/60 font-mono">{ci + 1}.</span>{c}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
+                <CriteriaBlock criteria={r.criteria} />
               </div>
             </div>
           </div>
@@ -911,7 +691,7 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
       </div>
 
       <div className="grid grid-cols-3 gap-3">
-        {([['Bedrohungen gesamt', threats.length, 'text-foreground'], ['Kritische Risiken', critRisks.length, 'text-destructive'], ['CRA-Lücken', fail.length, 'text-destructive']] as [string, number, string][]).map(([l, n, c]) => (
+        {([['Bedrohungen gesamt', threats.length, 'text-foreground'], ['Kritische Risiken', critRisks.length, 'text-destructive'], ['CRA-Lücken', failReqs.length, 'text-destructive']] as [string, number, string][]).map(([l, n, c]) => (
           <div key={l} className="bg-card border border-border rounded-lg p-4 text-center">
             <div className={`text-3xl font-bold font-mono ${c}`}>{n}</div>
             <div className="text-xs text-muted-foreground mt-1">{l}</div>
@@ -957,7 +737,6 @@ const CraComplianceTool = ({ embedded }: { embedded?: boolean }) => {
     <div className={embedded ? '' : 'min-h-screen bg-background'}>
       {!embedded && <PageMeta title="CRA Compliance Tool" description="AI Cyber Risk & CRA Compliance Assessment" />}
 
-      {/* Stepper */}
       <div className="border-b border-border px-4 py-3 mb-1">
         <div className="flex items-center max-w-5xl mx-auto overflow-x-auto">
           {MAIN_STEPS.map((s, i) => (
@@ -979,10 +758,8 @@ const CraComplianceTool = ({ embedded }: { embedded?: boolean }) => {
         </div>
       </div>
 
-      {/* Progress Bar */}
       <Progress value={progressPct} className="h-1 rounded-none" />
 
-      {/* Content */}
       <div className="max-w-5xl mx-auto px-4 py-6">
         {loading ? (
           <div className="bg-card rounded-xl border border-border p-16 text-center">
