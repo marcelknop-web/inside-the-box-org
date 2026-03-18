@@ -128,8 +128,6 @@ const I18N = {
   backToWorkflows: { de: 'Zurück zu KI-Workflows', en: 'Back to AI Workflows', fr: 'Retour aux workflows IA' },
   downloadProtocol: { de: 'Prüfprotokoll herunterladen', en: 'Download Assessment Protocol', fr: 'Télécharger le protocole' },
   plausibilityWarning: { de: 'Plausibilitätshinweis', en: 'Plausibility Notice', fr: 'Avis de plausibilité' },
-  demo: { de: 'Demo', en: 'Demo', fr: 'Démo' },
-  demoHint: { de: 'Beispielwerte einfügen', en: 'Insert example values', fr: 'Insérer des valeurs d\'exemple' },
 };
 
 /* ── Demo scenarios (plausible profiles) ── */
