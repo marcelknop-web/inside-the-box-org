@@ -468,7 +468,7 @@ function ThreatModel({ threats, onNext }: { threats: Threat[]; onNext: () => voi
   const counts = useMemo(() => Object.fromEntries('STRIDE'.split('').map(c => [c, threats.filter(th => th.stride === c).length])), [threats]);
 
   return (
-    <div className="space-y-4">
+    <StaggerReveal resetKey={`tm`} stagger={350}>
       <InfoBox icon="🛡️" title={t('cra.tmInfoTitle')} color="blue"><span dangerouslySetInnerHTML={{ __html: t('cra.tmInfo') }} /></InfoBox>
       <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
         {Object.entries(strideMeta).map(([k, m]) => (
@@ -522,7 +522,7 @@ function ThreatModel({ threats, onNext }: { threats: Threat[]; onNext: () => voi
       <div className="flex justify-end pt-2">
         <Button onClick={onNext} className="font-semibold">{t('cra.tmNext')}</Button>
       </div>
-    </div>
+    </StaggerReveal>
   );
 }
 
