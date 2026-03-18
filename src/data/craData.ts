@@ -147,6 +147,12 @@ export interface CraReq {
   evidence: string; rationale: string; criteria: string[];
 }
 
+export interface MeasureEntry {
+  active: boolean;
+  documented: boolean;
+  audited: boolean;
+}
+
 export interface IntakeData {
   productName: string;
   version: string;
@@ -158,7 +164,7 @@ export interface IntakeData {
   interfaces: string[];
   roles: string[];
   customRole: string;
-  measures: string[];
+  measures: Record<string, MeasureEntry>;
   knownIssues: string;
   files: { name: string; size: number; type: string }[];
 }
@@ -167,7 +173,7 @@ export const EMPTY_INTAKE: IntakeData = {
   productName: '', version: '', productTypes: [], craClass: '',
   description: '', components: [], deployment: '',
   interfaces: [], roles: [], customRole: '',
-  measures: [], knownIssues: '', files: [],
+  measures: {}, knownIssues: '', files: [],
 };
 
 // ── Demo Threats (static, language-independent technical data) ──
