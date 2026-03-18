@@ -808,9 +808,35 @@ function CRAMapping({ reqs, onNext }: { reqs: CraReq[]; onNext: () => void }) {
               {exp === r.id ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
             </div>
             {exp === r.id && (
-              <div className="border-t border-border bg-secondary/30 px-4 py-3 text-sm space-y-2">
-                {r.gap && <div><span className="font-semibold text-destructive">Gap: </span><span className="text-foreground">{r.gap}</span></div>}
-                <div><span className="font-semibold text-green-500">Maßnahme: </span><span className="text-foreground">{r.measure}</span></div>
+              <div className="border-t border-border bg-secondary/30 px-4 py-3 text-sm space-y-3">
+                <div className="bg-background/50 border border-border rounded-md px-3 py-2">
+                  <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">📋 Evidenz</div>
+                  <div className="text-foreground">{r.evidence}</div>
+                </div>
+                {r.gap && (
+                  <div><span className="font-semibold text-destructive">Feststellung (Gap): </span><span className="text-foreground">{r.gap}</span></div>
+                )}
+                <div className="bg-background/50 border border-border rounded-md px-3 py-2">
+                  <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">🔍 Begründung</div>
+                  <div className="text-foreground">{r.rationale}</div>
+                </div>
+                <div>
+                  <span className="font-semibold text-primary">Empfohlene Maßnahme: </span>
+                  <span className="text-foreground">{r.measure}</span>
+                </div>
+                {r.criteria.length > 0 && (
+                  <div className="bg-background/50 border border-primary/20 rounded-md px-3 py-2">
+                    <div className="text-xs font-semibold text-primary uppercase tracking-wide mb-1.5">✅ Akzeptanzkriterien — Maßnahme gilt als umgesetzt, wenn:</div>
+                    <ul className="space-y-1">
+                      {r.criteria.map((c, i) => (
+                        <li key={i} className="flex gap-2 text-foreground">
+                          <span className="text-primary/60 flex-shrink-0 font-mono text-xs mt-0.5">{i + 1}.</span>
+                          <span>{c}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
             )}
           </div>
