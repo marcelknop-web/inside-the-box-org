@@ -321,7 +321,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
         <textarea rows={4} className="w-full border border-border rounded-lg px-3 py-2.5 text-sm bg-background text-foreground focus:ring-2 focus:ring-primary outline-none resize-none" placeholder="In eigenen Worten beschreiben: Was tut das Produkt? Wer nutzt es? Womit ist es verbunden?" value={d.description} onChange={e => set('description', e.target.value)} />
       </div>
       <div>
-        <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Welche technischen Bausteine hat das System? <span className="normal-case font-normal text-muted-foreground/60">(wählen Sie alle zutreffenden)</span></label>
+        <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Welche technischen Bausteine hat das System? <span className="normal-case font-normal text-muted-foreground/60">(alle zutreffenden auswählen)</span></label>
         <div className="flex flex-wrap gap-2">
           {COMPONENT_OPTS.map(c => (
             <button key={c} onClick={() => toggle('components', c)} className={`border rounded-full px-3 py-1.5 text-xs font-medium transition-all ${d.components.includes(c) ? 'border-primary bg-primary/10 text-foreground' : 'border-border bg-card text-muted-foreground hover:border-primary/40'}`}>{d.components.includes(c) ? '✓ ' : ''}{c}</button>
