@@ -51,7 +51,7 @@ export const StaggerReveal = ({ children, className = '', stagger = 350, startDe
     if (!started || visibleCount >= items.length) return;
     const timer = setTimeout(() => {
       setVisibleCount(prev => prev + 1);
-    }, visibleCount === 0 ? 80 : stagger);
+    }, visibleCount === 0 ? 200 : stagger);
     return () => clearTimeout(timer);
   }, [started, visibleCount, items.length, stagger]);
 
