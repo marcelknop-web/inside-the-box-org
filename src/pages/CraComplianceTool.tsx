@@ -8,7 +8,7 @@ import {
   getProductTypes, getCraClasses, getDeploymentOpts,
   INTERFACE_OPTS, getSecurityMeasures, getSecurityCategories,
   getAttachTypes, THREATS, CRA_REQS, getStrideMeta,
-  type Threat, type CraReq, type IntakeData, EMPTY_INTAKE,
+  type Threat, type CraReq, type IntakeData, type MeasureEntry, EMPTY_INTAKE,
 } from '@/data/craData';
 
 // ── Helpers ─────────────────────────────────────────────────────
