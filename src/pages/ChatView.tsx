@@ -1282,6 +1282,8 @@ const ChatView = () => {
     ? <Suspense fallback={lazyFallback}><CyberFrogger embedded /></Suspense>
     : activeService === 'elite-ship'
     ? <Suspense fallback={lazyFallback}><EliteShipScene embedded /></Suspense>
+    : activeService === 'cra-check'
+    ? <Suspense fallback={lazyFallback}><CraComplianceTool embedded /></Suspense>
     : activeService === 'system-check'
     ? <InlineSystemCheck t={t} />
     : activeService && contentMap[activeService] ? contentMap[activeService]() : null;
