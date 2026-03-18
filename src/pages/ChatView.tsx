@@ -1195,8 +1195,7 @@ const ChatView = () => {
   };
 
   const newChat = () => { 
-    setActiveService(null); 
-    setMessages([]); 
+    navigateToService(null);
     setInput(''); 
     setChatOpen(false);
     if (window.innerWidth >= 768) inputRef.current?.focus(); 
