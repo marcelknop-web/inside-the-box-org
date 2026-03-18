@@ -200,7 +200,7 @@ export const THREATS: Threat[] = [
     evidence: 'Systemprüfung: Keine Log-Dateien für administrative Aktionen vorhanden. Weder Konfigurationsänderungen noch Benutzerverwaltung werden protokolliert. Kein Syslog-Export konfiguriert.',
     rationale: 'Likelihood 3: Jeder Admin-Nutzer kann unbemerkt Änderungen vornehmen. Impact 3: Compliance-Verstoß (CRA Art. 10 Abs. 10), forensische Aufklärung nach Vorfällen unmöglich.',
     sources: ['CRA Annex I, Part I, Nr. 8: Sicherheits-Logging', 'ISO/IEC 27001:2022, A.8.15: Logging'] },
-  { id: 5, stride: 'I', name: 'Klartext-MQTT (Port 1883)', component: 'MQTT-Interface', attacker: 'Netzwerk-Mitleser (MITM)', path: 'Unverschlüsselte MQTT-Verbindung → Passwort-Sniffing → Vollzugriff auf Sensordaten', cra: 'Annex I, Part I, Nr. 4', likelihood: 4, impact: 4,
+  { id: 5, stride: 'I', name: 'Klartext-MQTT (Port 1883) — Vertraulichkeitsverlust', component: 'MQTT-Interface — Transportschicht', attacker: 'Netzwerk-Mitleser (MITM)', path: 'Unverschlüsselte MQTT-Verbindung → Passwort-Sniffing → Vollzugriff auf Sensordaten', cra: 'Annex I, Part I, Nr. 4', likelihood: 4, impact: 4,
     evidence: 'Netzwerkmitschnitt (Wireshark): MQTT CONNECT-Paket auf Port 1883 enthält Benutzername und Passwort im Klartext. Payload-Daten (Sensorwerte) ebenfalls unverschlüsselt.',
     rationale: 'Likelihood 4: Passives Mitlesen im gleichen Netzwerksegment ohne Authentifizierung möglich. Impact 4: Vollständige Offenlegung aller Sensordaten und Zugangsdaten; ermöglicht Folge-Angriffe.',
     sources: ['CRA Annex I, Part I, Nr. 4: Vertraulichkeit von Daten', 'ETSI EN 303 645, Provision 5.8-1: Kommunikationssicherheit'] },
