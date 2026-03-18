@@ -4,6 +4,7 @@ import { RotateCcw, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
 import { PageMeta } from '@/components/PageMeta';
 import { Progress } from '@/components/ui/progress';
 import { useLanguage } from '@/i18n/LanguageContext';
+import Typewriter from '@/components/Typewriter';
 import {
   getProductTypes, getCraClasses, getDeploymentOpts,
   INTERFACE_OPTS, getSecurityMeasures, getSecurityCategories,
