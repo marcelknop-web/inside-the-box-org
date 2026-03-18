@@ -417,7 +417,8 @@ export function generateCraReport(data: CraReportData): void {
     const isCrit = score >= 20;
 
     // Threat header
-    doc.setFillColor(isCrit ? ...C.bgRed : ...C.bgLight);
+    const threatBg = isCrit ? C.bgRed : C.bgLight;
+    doc.setFillColor(...threatBg);
     doc.roundedRect(ML, y, CW, 8, 1.5, 1.5, 'F');
     if (isCrit) {
       doc.setDrawColor(...C.redText);
