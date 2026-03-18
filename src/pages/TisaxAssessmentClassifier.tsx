@@ -124,6 +124,7 @@ const I18N = {
   yourAnswer: { de: 'Ihre Angabe', en: 'Your Answer', fr: 'Votre réponse' },
   relevance: { de: 'Relevanz', en: 'Relevance', fr: 'Pertinence' },
   backToWorkflows: { de: 'Zurück zu KI-Workflows', en: 'Back to AI Workflows', fr: 'Retour aux workflows IA' },
+  downloadProtocol: { de: 'Prüfprotokoll herunterladen', en: 'Download Assessment Protocol', fr: 'Télécharger le protocole' },
 };
 
 const STEP_LABELS: Record<string, Record<string, string>> = {
