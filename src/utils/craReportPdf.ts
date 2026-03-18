@@ -427,7 +427,8 @@ export function generateCraReport(data: CraReportData): void {
     }
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(9);
-    doc.setTextColor(isCrit ? ...C.redText : ...C.darkNavy);
+    const threatTextC = isCrit ? C.redText : C.darkNavy;
+    doc.setTextColor(...threatTextC);
     doc.text(`${tid}  ${th.name}`, ML + 4, y + 5.5);
 
     const scoreText = `${th.likelihood}×${th.impact}=${score}`;
