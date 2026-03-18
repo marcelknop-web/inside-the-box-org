@@ -7,6 +7,7 @@ import { PageMeta } from '@/components/PageMeta';
 import Typewriter from '@/components/Typewriter';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { StaggerReveal } from '@/components/StaggerReveal';
+import { generateTisaxProtocol } from '@/utils/tisaxProtocolPdf';
 import {
   Table, TableHeader, TableBody, TableRow, TableHead, TableCell,
 } from '@/components/ui/table';
