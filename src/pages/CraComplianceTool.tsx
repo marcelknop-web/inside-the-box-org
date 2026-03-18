@@ -821,6 +821,15 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
         ))}
       </div>
 
+      {/* Prio 5: Terminology clarification */}
+      <div className="bg-card border border-border rounded-lg p-4 text-sm">
+        <div className="font-semibold text-foreground mb-2">📖 {t('cra.rpTermTitle')}</div>
+        <div className="space-y-1.5 text-muted-foreground">
+          <div><span className="font-semibold text-destructive">Critical Risks</span> — {t('cra.rpTermCritRisks')}</div>
+          <div><span className="font-semibold text-destructive">Critical Gaps</span> — {t('cra.rpTermCritGaps')}</div>
+        </div>
+      </div>
+
       <div className="bg-secondary border border-border rounded-lg p-4 flex flex-col sm:flex-row items-center justify-between gap-3">
         <div className="text-sm text-foreground">
           <div className="font-semibold mb-0.5">{t('cra.rpExport')}</div>
