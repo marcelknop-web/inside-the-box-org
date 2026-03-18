@@ -462,7 +462,7 @@ export default function TisaxAssessmentClassifier({ embedded = false }: { embedd
             return (
               <button
                 key={opt.value}
-                onClick={() => handleAnswer(step.id, opt)}
+                onClick={() => selectOption(step.id, opt)}
                 className={`w-full text-left px-5 py-4 rounded-lg border-2 font-mono text-sm md:text-base transition-electric
                   ${isSelected ? 'border-highlight bg-highlight/15 text-highlight' : 'border-primary/40 bg-transparent text-foreground/80 hover:border-highlight hover:bg-highlight/5 hover:text-highlight'}`}
               >
@@ -472,11 +472,33 @@ export default function TisaxAssessmentClassifier({ embedded = false }: { embedd
           })}
         </StaggerReveal>
 
-        {currentStep > 0 && (
-          <button onClick={goBack} className="flex items-center gap-2 text-muted-foreground text-sm font-mono hover:text-primary transition-electric">
-            <ArrowLeft className="w-4 h-4" /> {t(I18N.back)}
-          </button>
-        )}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            {currentStep > 0 && (
+              <button onClick={goBack} className="flex items-center gap-2 text-muted-foreground text-sm font-mono hover:text-primary transition-electric">
+                <ArrowLeft className="w-4 h-4" /> {t(I18N.back)}
+              </button>
+            )}
+            <button
+              onClick={handleDemo}
+              className="flex items-center gap-1.5 text-xs font-mono px-3 py-1.5 rounded-md border border-primary/30 text-primary/70 hover:bg-primary/10 hover:text-primary hover:border-primary/50 transition-electric"
+              title={t(I18N.demoHint)}
+            >
+              <Sparkles className="w-3.5 h-3.5" /> {t(I18N.demo)}
+            </button>
+          </div>
+
+          {answers[step.id] && (
+            <Button
+              onClick={advanceStep}
+              variant="outline"
+              className="border-highlight/50 text-highlight hover:bg-highlight/10 hover:border-highlight font-mono"
+            >
+              {currentStep < steps.length - 1 ? t(I18N.next) : t(I18N.result || { de: 'Ergebnis', en: 'Result', fr: 'Résultat' })}
+              <ArrowRight className="w-4 h-4 ml-1" />
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   );
