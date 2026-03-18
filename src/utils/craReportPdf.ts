@@ -646,7 +646,7 @@ export function generateCraReport(data: CraReportData): void {
     writeBody(lang === 'de'
       ? 'Auf Basis der durchgeführten Prüfung ergeben sich keine Sofortmaßnahmen. Die bestehenden Maßnahmen adressieren die identifizierten Risiken angemessen.'
       : lang === 'fr'
-      ? 'Sur la base de l\'évaluation réalisée, aucune action immédiate n\'est nécessaire.'
+      ? 'Sur la base de l\'évaluation réalisée, aucune action immédiate n\'est nécessaire. Les mesures existantes répondent de manière adéquate aux risques identifiés.'
       : 'Based on the assessment conducted, no immediate actions are required. The existing measures adequately address the identified risks.');
   } else {
     if (critRisks.length > 0) {
