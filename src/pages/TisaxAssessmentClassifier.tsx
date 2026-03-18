@@ -262,15 +262,30 @@ export default function TisaxAssessmentClassifier({ embedded = false }: { embedd
 
   const progress = (currentStep / steps.length) * 100;
 
-  const handleAnswer = (stepId: string, option: { label: string; value: string; weight: number }) => {
-    const newAnswers = { ...answers, [stepId]: { value: option.value, weight: option.weight, label: option.label } };
-    setAnswers(newAnswers);
+  const selectOption = (stepId: string, option: { label: string; value: string; weight: number }) => {
+    setAnswers(prev => ({ ...prev, [stepId]: { value: option.value, weight: option.weight, label: option.label } }));
+  };
+
+  const advanceStep = () => {
+    const step = steps[currentStep];
+    if (!answers[step.id]) return; // nothing selected
     if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
-      const result = classify(newAnswers);
+      const result = classify(answers);
       setVerdict(result);
-      fetchReasoning(newAnswers, result);
+      fetchReasoning(answers, result);
+    }
+  };
+
+  const handleDemo = () => {
+    const scenario = DEMO_SCENARIOS[Math.floor(Math.random() * DEMO_SCENARIOS.length)];
+    const step = steps[currentStep];
+    const stepDef = STEP_DEFS[currentStep];
+    const targetValue = scenario[step.id];
+    const opt = stepDef.options.find(o => o.value === targetValue);
+    if (opt) {
+      selectOption(step.id, { label: opt.label[lang] || opt.label.en, value: opt.value, weight: opt.weight });
     }
   };
 
