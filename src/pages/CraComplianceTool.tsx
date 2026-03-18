@@ -5,6 +5,7 @@ import { PageMeta } from '@/components/PageMeta';
 import { Progress } from '@/components/ui/progress';
 import { useLanguage } from '@/i18n/LanguageContext';
 import Typewriter from '@/components/Typewriter';
+import { StaggerReveal } from '@/components/StaggerReveal';
 import {
   getProductTypes, getCraClasses, getDeploymentOpts,
   INTERFACE_OPTS, getSecurityMeasures, getSecurityCategories,
