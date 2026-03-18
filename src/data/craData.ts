@@ -184,7 +184,7 @@ export const EMPTY_INTAKE: IntakeData = {
 // ── Demo Threats (static, language-independent technical data) ──
 
 export const THREATS: Threat[] = [
-  { id: 1, stride: 'S', name: 'Spoofing des MQTT-Brokers', component: 'MQTT-Interface', attacker: 'Externer Angreifer', path: 'Angreifer positioniert sich als legitimer MQTT-Broker → Gerät verbindet sich mit False-Server → Datenabfluss', cra: 'Annex I, Part I, Nr. 3', likelihood: 3, impact: 4,
+  { id: 1, stride: 'S', name: 'Spoofing des MQTT-Brokers (Identitätsvortäuschung)', component: 'MQTT-Interface — Broker-Authentifizierung', attacker: 'Externer Angreifer', path: 'Angreifer positioniert sich als legitimer MQTT-Broker → Gerät verbindet sich mit False-Server → Datenabfluss', cra: 'Annex I, Part I, Nr. 3', likelihood: 3, impact: 4,
     evidence: 'Konfigurationsanalyse: MQTT-Client verbindet sich ohne Server-Zertifikatsvalidierung (TLS-Pinning fehlt). Netzwerkscan bestätigt offenen Port 1883 ohne mTLS.',
     rationale: 'Likelihood 3: Erfordert Netzwerkzugang, aber kein spezielles Angreifer-Tooling. Impact 4: Vollständiger Datenabfluss aller Sensordaten möglich, kein Integritätsverlust am Gerät selbst.',
     sources: ['OWASP IoT Top 10 – I3: Insecure Ecosystem Interfaces', 'ETSI EN 303 645, Provision 5.5-1'] },
