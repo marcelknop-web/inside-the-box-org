@@ -401,7 +401,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
     const cats = [...new Set(SECURITY_MEASURES.map(m => m.cat))];
     return (
       <div className="space-y-5 animate-fade-in">
-        <SubStepHeader current={5} total={TOTAL} title="Welche Sicherheitsmaßnahmen sind bereits vorhanden?" subtitle="Seien Sie ehrlich — auch fehlende Maßnahmen sind wichtige Information." />
+        <SubStepHeader current={5} total={TOTAL} title="Welche Sicherheitsmaßnahmen sind bereits vorhanden?" subtitle="Auch fehlende Maßnahmen sind wichtige Information für das Assessment." />
         <InfoBox icon="💡" color="blue">
           Wählen Sie alle Maßnahmen, die <strong>aktuell wirklich aktiv</strong> sind — nicht was geplant ist. Fehlende Maßnahmen werden als Lücken im Assessment sichtbar.
         </InfoBox>
