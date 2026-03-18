@@ -956,11 +956,15 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
       <div className="bg-secondary border border-border rounded-lg p-4 flex flex-col sm:flex-row items-center justify-between gap-3">
         <div className="text-sm text-foreground">
           <div className="font-semibold mb-0.5">{t('cra.rpExport')}</div>
-          <div className="text-xs text-muted-foreground">{t('cra.rpExportHint')}</div>
+          <div className="text-xs text-muted-foreground">{t('cra.rpExportHintActive')}</div>
         </div>
         <div className="flex gap-2">
-          <button className="bg-primary/20 text-primary/40 text-sm font-semibold px-4 py-2 rounded-lg cursor-not-allowed" title={t('cra.rpExportBtn')}>DOCX</button>
-          <button className="bg-secondary text-muted-foreground text-sm font-semibold px-4 py-2 rounded-lg cursor-not-allowed border border-border" title={t('cra.rpExportBtn')}>PDF</button>
+          <button
+            onClick={() => generateCraReport({ intakeData, threats, reqs, language: language as 'de' | 'en' | 'fr', productTypeName: typeName, craClassName: craName })}
+            className="bg-primary text-primary-foreground text-sm font-semibold px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors flex items-center gap-2"
+          >
+            <FileText className="w-4 h-4" /> PDF
+          </button>
         </div>
       </div>
     </StaggerReveal>
