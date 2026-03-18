@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ArrowRight, RotateCcw, FileText, Sparkles } from 'lucide-react';
+import { ArrowLeft, ArrowRight, RotateCcw, FileText } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { PageMeta } from '@/components/PageMeta';
 import Typewriter from '@/components/Typewriter';
@@ -128,21 +128,8 @@ const I18N = {
   backToWorkflows: { de: 'Zurück zu KI-Workflows', en: 'Back to AI Workflows', fr: 'Retour aux workflows IA' },
   downloadProtocol: { de: 'Prüfprotokoll herunterladen', en: 'Download Assessment Protocol', fr: 'Télécharger le protocole' },
   plausibilityWarning: { de: 'Plausibilitätshinweis', en: 'Plausibility Notice', fr: 'Avis de plausibilité' },
-  demo: { de: 'Demo', en: 'Demo', fr: 'Démo' },
-  demoHint: { de: 'Beispielwerte einfügen', en: 'Insert example values', fr: 'Insérer des valeurs d\'exemple' },
 };
 
-/* ── Demo scenarios (plausible profiles) ── */
-const DEMO_SCENARIOS: Record<string, string>[] = [
-  { role: 'tier1', information: 'cad', prototype: 'indirect', network: 'direct', dataclass: 'confidential', oemrequest: 'yes-al2' },
-  { role: 'oem', information: 'prototype', prototype: 'direct', network: 'direct', dataclass: 'strictly-confidential', oemrequest: 'yes-al3' },
-  { role: 'provider', information: 'personal', prototype: 'no', network: 'indirect', dataclass: 'internal', oemrequest: 'expected' },
-  { role: 'tier2', information: 'financial', prototype: 'no', network: 'indirect', dataclass: 'internal', oemrequest: 'no' },
-  { role: 'tier1', information: 'prototype', prototype: 'direct', network: 'direct', dataclass: 'strictly-confidential', oemrequest: 'yes-al3' },
-  { role: 'provider', information: 'cad', prototype: 'indirect', network: 'direct', dataclass: 'confidential', oemrequest: 'yes-al2' },
-  { role: 'tier2', information: 'personal', prototype: 'no', network: 'no', dataclass: 'internal', oemrequest: 'expected' },
-  { role: 'oem', information: 'cad', prototype: 'indirect', network: 'direct', dataclass: 'confidential', oemrequest: 'yes-nolevel' },
-];
 
 const STEP_LABELS: Record<string, Record<string, string>> = {
   role: { de: 'Rolle in Supply Chain', en: 'Role in Supply Chain', fr: 'Rôle dans la chaîne' },
@@ -278,16 +265,7 @@ export default function TisaxAssessmentClassifier({ embedded = false }: { embedd
     }
   };
 
-  const handleDemo = () => {
-    const scenario = DEMO_SCENARIOS[Math.floor(Math.random() * DEMO_SCENARIOS.length)];
-    const step = steps[currentStep];
-    const stepDef = STEP_DEFS[currentStep];
-    const targetValue = scenario[step.id];
-    const opt = stepDef.options.find(o => o.value === targetValue);
-    if (opt) {
-      selectOption(step.id, { label: opt.label[lang] || opt.label.en, value: opt.value, weight: opt.weight });
-    }
-  };
+
 
   const fetchReasoning = async (ans: Record<string, { value: string; weight: number; label: string }>, v: AssessmentLevel) => {
     setLoadingReasoning(true);
@@ -479,13 +457,6 @@ export default function TisaxAssessmentClassifier({ embedded = false }: { embedd
                 <ArrowLeft className="w-4 h-4" /> {t(I18N.back)}
               </button>
             )}
-            <button
-              onClick={handleDemo}
-              className="flex items-center gap-1.5 text-xs font-mono px-3 py-1.5 rounded-md border border-primary/30 text-primary/70 hover:bg-primary/10 hover:text-primary hover:border-primary/50 transition-electric"
-              title={t(I18N.demoHint)}
-            >
-              <Sparkles className="w-3.5 h-3.5" /> {t(I18N.demo)}
-            </button>
           </div>
 
           {answers[step.id] && (
