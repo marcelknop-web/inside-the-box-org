@@ -14,7 +14,7 @@ export interface CraReportData {
 /* ────── I18N ────── */
 const I18N = {
   title: { de: 'Cyber Risk Assessment', en: 'Cyber Risk Assessment', fr: 'Évaluation des cyber-risques' },
-  subtitle: { de: 'Prüfbericht nach EU Cyber Resilience Act', en: 'Assessment Report per EU Cyber Resilience Act', fr: 'Rapport d\'évaluation selon le Cyber Resilience Act' },
+  subtitle: { de: 'Prüfbericht nach EU Cyber Resilience Act', en: 'Assessment Report pursuant to EU Cyber Resilience Act', fr: 'Rapport d\'évaluation selon le Cyber Resilience Act de l\'UE' },
   generated: { de: 'Erstellt am', en: 'Generated on', fr: 'Généré le' },
   reportId: { de: 'Bericht-Nr.', en: 'Report No.', fr: 'N° de rapport' },
   page: { de: 'Seite', en: 'Page', fr: 'Page' },
@@ -29,7 +29,7 @@ const I18N = {
   sec4b: { de: '4.2  CRA-Konformitätslücken', en: '4.2  CRA Compliance Gaps', fr: '4.2  Lacunes de conformité CRA' },
   sec5: { de: '5  Handlungsempfehlungen', en: '5  Recommendations', fr: '5  Recommandations' },
   sec6: { de: '6  Methodik und Prüfungsgrundlagen', en: '6  Methodology and Audit Standards', fr: '6  Méthodologie et normes d\'audit' },
-  sec7: { de: '7  Einschränkungen und Haftungsausschluss', en: '7  Limitations and Disclaimer', fr: '7  Limitations et avertissement' },
+  sec7: { de: '7  Einschränkungen und Haftungsausschluss', en: '7  Limitations and Disclaimer', fr: '7  Limites et clause de non-responsabilité' },
 
   product: { de: 'Produkt', en: 'Product', fr: 'Produit' },
   version: { de: 'Version', en: 'Version', fr: 'Version' },
@@ -39,7 +39,7 @@ const I18N = {
   interfaces: { de: 'Kommunikationsschnittstellen', en: 'Communication Interfaces', fr: 'Interfaces de communication' },
   components: { de: 'Systemkomponenten', en: 'System Components', fr: 'Composants du système' },
   roles: { de: 'Benutzerrollen', en: 'User Roles', fr: 'Rôles utilisateur' },
-  measures: { de: 'Implementierte Maßnahmen', en: 'Implemented Measures', fr: 'Mesures implémentées' },
+  measures: { de: 'Implementierte Maßnahmen', en: 'Implemented Measures', fr: 'Mesures mises en œuvre' },
   knownIssues: { de: 'Vom Hersteller benannte Probleme', en: 'Manufacturer-Reported Issues', fr: 'Problèmes signalés par le fabricant' },
 
   threat: { de: 'Bedrohung', en: 'Threat', fr: 'Menace' },
@@ -47,19 +47,19 @@ const I18N = {
   component: { de: 'Betroffene Komponente', en: 'Affected Component', fr: 'Composant concerné' },
   attacker: { de: 'Angreiferprofil', en: 'Attacker Profile', fr: 'Profil de l\'attaquant' },
   attackPath: { de: 'Angriffsvektor', en: 'Attack Vector', fr: 'Vecteur d\'attaque' },
-  evidence: { de: 'Erhobene Evidenz', en: 'Collected Evidence', fr: 'Preuves collectées' },
-  rationale: { de: 'Bewertungsgrundlage', en: 'Assessment Rationale', fr: 'Base d\'évaluation' },
+  evidence: { de: 'Erhobene Evidenz', en: 'Collected Evidence', fr: 'Éléments de preuve recueillis' },
+  rationale: { de: 'Bewertungsgrundlage', en: 'Assessment Rationale', fr: 'Fondement de l\'évaluation' },
   riskScore: { de: 'Risikobewertung', en: 'Risk Rating', fr: 'Évaluation du risque' },
   likelihood: { de: 'Eintrittswahrsch.', en: 'Likelihood', fr: 'Probabilité' },
   impact: { de: 'Auswirkung', en: 'Impact', fr: 'Impact' },
   status: { de: 'Bewertung', en: 'Assessment', fr: 'Évaluation' },
-  gap: { de: 'Festgestellte Abweichung', en: 'Identified Deviation', fr: 'Écart constaté' },
-  measureAction: { de: 'Empfohlene Maßnahme', en: 'Recommended Action', fr: 'Action recommandée' },
-  dod: { de: 'Nachweisbare Umsetzungskriterien', en: 'Verifiable Acceptance Criteria', fr: 'Critères de vérification' },
+  gap: { de: 'Festgestellte Abweichung', en: 'Identified Deviation', fr: 'Écart identifié' },
+  measureAction: { de: 'Empfohlene Maßnahme', en: 'Recommended Action', fr: 'Mesure recommandée' },
+  dod: { de: 'Nachweisbare Umsetzungskriterien', en: 'Verifiable Acceptance Criteria', fr: 'Critères d\'acceptation vérifiables' },
   pass: { de: 'Konform', en: 'Compliant', fr: 'Conforme' },
   partial: { de: 'Teilweise konform', en: 'Partially Compliant', fr: 'Partiellement conforme' },
   fail: { de: 'Nicht konform', en: 'Non-Compliant', fr: 'Non conforme' },
-  sources: { de: 'Quellenverweise', en: 'Source References', fr: 'Références' },
+  sources: { de: 'Quellenverweise', en: 'Source References', fr: 'Sources et références' },
   priority: { de: 'Priorität', en: 'Priority', fr: 'Priorité' },
   high: { de: 'Hoch', en: 'High', fr: 'Élevée' },
   medium: { de: 'Mittel', en: 'Medium', fr: 'Moyenne' },
@@ -87,13 +87,13 @@ function getMgmtSummary(
 
 function getMethodology(lang: string): string {
   if (lang === 'de') return `Die Prüfung folgt einem zweistufigen Ansatz:\n\n1. Bedrohungsanalyse nach STRIDE\nSystematische Identifikation von Bedrohungsszenarien in den Kategorien Spoofing, Tampering, Repudiation, Information Disclosure, Denial of Service und Elevation of Privilege. Jede Bedrohung wird anhand einer 5-stufigen Skala für Eintrittswahrscheinlichkeit und Auswirkung bewertet. Der Risikoscore ergibt sich als Produkt beider Werte; Scores ab 20 gelten als kritisch.\n\n2. Konformitätsprüfung gegen CRA-Anforderungen\nAbgleich der implementierten Sicherheitsmaßnahmen mit den Anforderungen aus Annex I (Sicherheitseigenschaften digitaler Produkte), Annex II (Schwachstellenbehandlung) sowie den Meldepflichten nach Art. 14 und der Dokumentationspflicht nach Art. 13 der Verordnung (EU) 2024/2847.\n\nPrüfungsgrundlagen:\n  - EU Cyber Resilience Act (CRA) — Verordnung (EU) 2024/2847\n  - STRIDE Threat Model — Microsoft Security Development Lifecycle\n  - OWASP IoT Top 10 / OWASP API Security Top 10\n  - ETSI EN 303 645 — Cyber Security for Consumer IoT\n  - NIST SP 800-82r3 — Guide to OT Security\n  - ISO/IEC 27001:2022 (als Referenzrahmen)`;
-  if (lang === 'fr') return `L'évaluation suit une approche en deux étapes :\n\n1. Analyse des menaces selon STRIDE\nIdentification systématique des scénarios de menaces. Chaque menace est évaluée sur une échelle de 1 à 5 pour la probabilité et l'impact. Le score de risque est le produit des deux valeurs ; les scores de 20 et plus sont considérés comme critiques.\n\n2. Vérification de conformité CRA\nComparaison des mesures de sécurité implémentées avec les exigences de l'Annexe I, l'Annexe II ainsi que les obligations de notification (Art. 14) et de documentation (Art. 13) du Règlement (UE) 2024/2847.\n\nNormes de référence :\n  - EU Cyber Resilience Act (CRA) — Règlement (UE) 2024/2847\n  - STRIDE Threat Model — Microsoft SDL\n  - OWASP IoT Top 10 / OWASP API Security Top 10\n  - ETSI EN 303 645\n  - NIST SP 800-82r3`;
+  if (lang === 'fr') return `L'évaluation suit une approche en deux étapes :\n\n1. Analyse des menaces selon STRIDE\nIdentification systématique des scénarios de menaces dans les catégories Spoofing, Tampering, Repudiation, Information Disclosure, Denial of Service et Elevation of Privilege. Chaque menace est évaluée sur une échelle de 1 à 5 pour la probabilité et l'impact. Le score de risque est le produit des deux valeurs ; les scores de 20 et plus sont considérés comme critiques.\n\n2. Vérification de conformité CRA\nComparaison des mesures de sécurité mises en œuvre avec les exigences de l'Annexe I (propriétés de sécurité des produits numériques), l'Annexe II (traitement des vulnérabilités) ainsi que les obligations de notification (Art. 14) et de documentation (Art. 13) du Règlement (UE) 2024/2847.\n\nNormes de référence :\n  - EU Cyber Resilience Act (CRA) — Règlement (UE) 2024/2847\n  - STRIDE Threat Model — Microsoft Security Development Lifecycle\n  - OWASP IoT Top 10 / OWASP API Security Top 10\n  - ETSI EN 303 645 — Cyber Security for Consumer IoT\n  - NIST SP 800-82r3 — Guide to OT Security\n  - ISO/IEC 27001:2022 (cadre de référence)`;
   return `The assessment follows a two-stage approach:\n\n1. STRIDE Threat Analysis\nSystematic identification of threat scenarios across the categories Spoofing, Tampering, Repudiation, Information Disclosure, Denial of Service, and Elevation of Privilege. Each threat is rated on a 5-point scale for both likelihood and impact. The risk score is calculated as the product of both values; scores of 20 or above are classified as critical.\n\n2. CRA Compliance Review\nComparison of implemented security measures against the requirements of Annex I (security properties of digital products), Annex II (vulnerability handling), as well as the reporting obligations under Art. 14 and documentation requirements under Art. 13 of Regulation (EU) 2024/2847.\n\nAudit Standards:\n  - EU Cyber Resilience Act (CRA) — Regulation (EU) 2024/2847\n  - STRIDE Threat Model — Microsoft Security Development Lifecycle\n  - OWASP IoT Top 10 / OWASP API Security Top 10\n  - ETSI EN 303 645 — Cyber Security for Consumer IoT\n  - NIST SP 800-82r3 — Guide to OT Security\n  - ISO/IEC 27001:2022 (reference framework)`;
 }
 
 function getDisclaimer(lang: string): string {
   if (lang === 'de') return `Der vorliegende Bericht wurde werkzeuggestützt erstellt und gibt den Erkenntnisstand zum Zeitpunkt der Prüfung wieder. Er ersetzt weder eine akkreditierte Konformitätsbewertung nach Art. 24 ff. CRA noch eine individuelle rechtliche Beratung.\n\nDie Bewertung basiert auf den vom Anwender bereitgestellten Angaben zum Produkt sowie auf den zum Erstellungszeitpunkt gültigen Anforderungen der Verordnung (EU) 2024/2847. Für die Richtigkeit und Vollständigkeit der Eingabedaten ist der Anwender verantwortlich.\n\nFür verbindliche Auskünfte zur CRA-Konformität wird die Einbindung einer benannten Stelle oder eines akkreditierten Prüfdienstleisters empfohlen.`;
-  if (lang === 'fr') return `Le présent rapport a été produit avec l'aide d'outils automatisés et reflète l'état des connaissances au moment de l'évaluation. Il ne remplace ni une évaluation de conformité accréditée selon les Art. 24 et suivants du CRA, ni un conseil juridique individuel.\n\nL'évaluation est basée sur les informations fournies par l'utilisateur. L'utilisateur est responsable de l'exactitude et de l'exhaustivité des données saisies.\n\nPour des informations contraignantes sur la conformité CRA, il est recommandé de faire appel à un organisme notifié ou à un prestataire d'audit accrédité.`;
+  if (lang === 'fr') return `Le présent rapport a été produit avec l'aide d'outils automatisés et reflète l'état des connaissances au moment de l'évaluation. Il ne remplace ni une évaluation de conformité accréditée selon les Art. 24 et suivants du CRA, ni un conseil juridique individuel.\n\nL'évaluation est basée sur les informations fournies par l'utilisateur concernant le produit ainsi que sur les exigences du Règlement (UE) 2024/2847 en vigueur au moment de la génération. L'utilisateur est responsable de l'exactitude et de l'exhaustivité des données saisies.\n\nPour des informations contraignantes sur la conformité CRA, il est recommandé de faire appel à un organisme notifié ou à un prestataire d'audit accrédité.`;
   return `This report was produced with the assistance of automated tools and reflects the state of knowledge at the time of assessment. It does not replace an accredited conformity assessment pursuant to Art. 24 ff. CRA, nor does it constitute individual legal advice.\n\nThe assessment is based on product information provided by the user and the requirements of Regulation (EU) 2024/2847 valid at the time of generation. The user is responsible for the accuracy and completeness of the input data.\n\nFor binding information on CRA compliance, engagement of a notified body or accredited audit service provider is recommended.`;
 }
 
@@ -494,9 +494,9 @@ export function generateCraReport(data: CraReportData): void {
     for (const key of measureKeys) {
       const m = intakeData.measures[key];
       const parts: string[] = [];
-      if (m.active) parts.push(lang === 'de' ? 'Aktiv' : lang === 'fr' ? 'Actif' : 'Active');
-      if (m.documented) parts.push(lang === 'de' ? 'Dokumentiert' : lang === 'fr' ? 'Documenté' : 'Documented');
-      if (m.audited) parts.push(lang === 'de' ? 'Auditiert' : lang === 'fr' ? 'Audité' : 'Audited');
+      if (m.active) parts.push(lang === 'de' ? 'Aktiv' : lang === 'fr' ? 'Active' : 'Active');
+      if (m.documented) parts.push(lang === 'de' ? 'Dokumentiert' : lang === 'fr' ? 'Documentée' : 'Documented');
+      if (m.audited) parts.push(lang === 'de' ? 'Auditiert' : lang === 'fr' ? 'Auditée' : 'Audited');
       writeKV(key.toUpperCase(), parts.join(' / ') || '—', 4);
     }
   }
@@ -646,7 +646,7 @@ export function generateCraReport(data: CraReportData): void {
     writeBody(lang === 'de'
       ? 'Auf Basis der durchgeführten Prüfung ergeben sich keine Sofortmaßnahmen. Die bestehenden Maßnahmen adressieren die identifizierten Risiken angemessen.'
       : lang === 'fr'
-      ? 'Sur la base de l\'évaluation réalisée, aucune action immédiate n\'est nécessaire.'
+      ? 'Sur la base de l\'évaluation réalisée, aucune action immédiate n\'est nécessaire. Les mesures existantes répondent de manière adéquate aux risques identifiés.'
       : 'Based on the assessment conducted, no immediate actions are required. The existing measures adequately address the identified risks.');
   } else {
     if (critRisks.length > 0) {
