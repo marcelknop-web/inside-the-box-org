@@ -169,6 +169,85 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
     true, true,
   ], [d.productName, d.productTypes.length, d.roles.length]);
 
+  /* ── Demo autofill per step ── */
+  const DEMO_PRODUCTS = [
+    { name: 'SmartSense IoT Gateway', version: '2.4.1', types: ['iot', 'embed'] },
+    { name: 'IndustrialEdge Controller', version: '3.1.0', types: ['embed', 'network'] },
+    { name: 'CloudConnect Platform', version: '1.8.2', types: ['cloud', 'sw'] },
+    { name: 'MobileOps Manager', version: '4.0.0', types: ['mobile', 'cloud'] },
+    { name: 'SecureLink Hub', version: '2.0.3', types: ['iot', 'hw', 'network'] },
+  ];
+  const DEMO_CLASSES = ['default', 'k1', 'k2', 'krit'];
+  const DEMO_DEPLOYMENTS = ['cloud', 'onprem', 'hybrid', 'embedded'];
+  const DEMO_INTERFACE_SETS = [
+    ['HTTPS/REST', 'MQTT (TLS)', 'SSH', 'LAN/Ethernet'],
+    ['HTTPS/REST', 'WebSocket', 'USB', 'Bluetooth'],
+    ['HTTPS/REST', 'MQTT (TLS)', 'OPC-UA', 'Modbus'],
+    ['HTTPS/REST', 'SSH', 'WLAN', 'SNMP'],
+  ];
+  const DEMO_DESCRIPTIONS = [
+    'IoT gateway collecting sensor data via MQTT, forwarding to cloud backend. Web-based admin UI for configuration. OTA firmware updates via HTTPS.',
+    'Edge computing controller for industrial automation. Connects to PLCs via OPC-UA/Modbus, exposes REST API for monitoring. Embedded Linux, secure boot.',
+    'Cloud-native SaaS platform aggregating telemetry from distributed IoT devices. Multi-tenant architecture with RBAC. REST/WebSocket APIs.',
+    'Mobile fleet management app with real-time GPS tracking, push notifications, and integration with on-premises ERP via VPN tunnel.',
+  ];
+  const DEMO_COMPONENT_SETS = [
+    ['Firmware', 'Web-UI', 'API-Server', 'MQTT-Client'],
+    ['Embedded OS', 'OPC-UA Client', 'REST-API', 'Secure Boot'],
+    ['Container Runtime', 'API Gateway', 'Database', 'Message Queue'],
+    ['Mobile App', 'Backend API', 'Push Service', 'VPN Client'],
+  ];
+  const DEMO_MEASURE_SETS: Record<string, MeasureEntry>[] = [
+    { tls: { active: true, documented: true, audited: false }, auth: { active: true, documented: false, audited: false }, patch: { active: true, documented: true, audited: true }, log: { active: true, documented: false, audited: false } },
+    { tls: { active: true, documented: true, audited: true }, auth: { active: true, documented: true, audited: false }, mfa: { active: true, documented: false, audited: false }, sbom: { active: true, documented: true, audited: false }, secboot: { active: true, documented: true, audited: true } },
+    { tls: { active: true, documented: true, audited: true }, rbac: { active: true, documented: true, audited: false }, monitor: { active: true, documented: true, audited: false }, pentest: { active: true, documented: false, audited: false }, ir: { active: true, documented: true, audited: false } },
+  ];
+  const DEMO_KNOWN_ISSUES = [
+    'OTA update currently uses HTTPS but without package signature verification.',
+    'Default admin credentials are documented but not enforced to change on first login.',
+    'MQTT broker accepts connections without rate limiting. No SBOM available yet.',
+    '',
+  ];
+
+  const pick = <T,>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
+
+  const handleDemo = useCallback(() => {
+    switch (sub) {
+      case 0: {
+        const p = pick(DEMO_PRODUCTS);
+        setD(prev => ({ ...prev, productName: p.name, version: p.version, productTypes: p.types }));
+        break;
+      }
+      case 1:
+        setD(prev => ({ ...prev, craClass: pick(DEMO_CLASSES) }));
+        break;
+      case 2: {
+        const desc = pick(DEMO_DESCRIPTIONS);
+        const comps = pick(DEMO_COMPONENT_SETS);
+        // filter to only include components that exist in componentOpts
+        const validComps = comps.filter(c => componentOpts.includes(c));
+        setD(prev => ({ ...prev, description: desc, components: validComps.length > 0 ? validComps : comps, deployment: pick(DEMO_DEPLOYMENTS) }));
+        break;
+      }
+      case 3:
+        setD(prev => ({ ...prev, interfaces: pick(DEMO_INTERFACE_SETS) }));
+        break;
+      case 4: {
+        const available = rolePresets.length > 0 ? rolePresets : ['Administrator', 'Operator', 'Read-Only User'];
+        const count = 2 + Math.floor(Math.random() * 2);
+        const shuffled = [...available].sort(() => Math.random() - 0.5).slice(0, count);
+        setD(prev => ({ ...prev, roles: shuffled }));
+        break;
+      }
+      case 5:
+        setD(prev => ({ ...prev, measures: pick(DEMO_MEASURE_SETS), knownIssues: pick(DEMO_KNOWN_ISSUES) }));
+        break;
+      case 6:
+        // Skip file upload demo — just leave as-is
+        break;
+    }
+  }, [sub, componentOpts, rolePresets]);
+
   const isSummary = sub === 7;
 
   let stepContent: React.ReactNode;
