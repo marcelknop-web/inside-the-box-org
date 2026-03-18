@@ -324,249 +324,244 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
 
   const TOTAL = 6;
 
-  // Sub-Step 0: Produkt-Grunddaten
-  const Step0 = () => (
-    <div className="space-y-5 animate-fade-in">
-      <SubStepHeader current={0} total={TOTAL} title="Was für ein Produkt bewerten wir?" subtitle="Produkt-Typ auswählen und Namen vergeben." />
-      <InfoBox icon="💡" color="blue">
-        Der <strong>Produkt-Typ</strong> bestimmt, welche Bedrohungsszenarien relevant sind. Ein IoT-Gerät hat andere Risiken als eine Web-App.
-      </InfoBox>
-      <div>
-        <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Produktname *</label>
-        <input className="w-full border border-border rounded-lg px-3 py-2.5 text-sm bg-background text-foreground focus:ring-2 focus:ring-primary outline-none" placeholder="z.B. SmartGate Pro, SafeControl 3000 …" value={d.productName} onChange={e => set('productName', e.target.value)} />
-      </div>
-      <div>
-        <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Version</label>
-        <input className="w-full border border-border rounded-lg px-3 py-2.5 text-sm bg-background text-foreground focus:ring-2 focus:ring-primary outline-none" placeholder="z.B. 1.0.0, 2024-Q3, Prototype" value={d.version} onChange={e => set('version', e.target.value)} />
-      </div>
-      <div>
-        <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Produkt-Typ * <span className="normal-case font-normal text-muted-foreground/60">(Mehrfachauswahl möglich)</span></label>
-        <div className="grid grid-cols-2 gap-2">
-          {PRODUCT_TYPES.map(t => <Chip key={t.id} label={t.label} icon={t.icon} desc={t.desc} selected={d.productTypes.includes(t.id)} onClick={() => toggle('productTypes', t.id)} />)}
-        </div>
-      </div>
-    </div>
-  );
+  const cats = [...new Set(SECURITY_MEASURES.map(m => m.cat))];
 
-  // Sub-Step 1: CRA-Klassifizierung
-  const Step1 = () => (
-    <div className="space-y-5 animate-fade-in">
-      <SubStepHeader current={1} total={TOTAL} title="Wie ist das Produkt nach CRA eingestuft?" subtitle="Im Zweifelsfall zunächst 'Default' wählen — das Tool hilft bei der Einschätzung." />
-      <InfoBox icon="📘" title="Was ist die CRA-Klassifizierung?" color="blue">
-        Der Cyber Resilience Act (EU) stuft Produkte nach ihrem Risikopotenzial ein. Die Klasse bestimmt, <strong>wie der Konformitätsnachweis</strong> erbracht werden muss — von Selbstbewertung bis zur Pflichtprüfung durch eine akkreditierte Stelle.
-      </InfoBox>
-      <div className="space-y-2">
-        {CRA_CLASSES.map(c => (
-          <button key={c.id} onClick={() => set('craClass', c.id)} className={`w-full text-left border-2 rounded-xl px-4 py-3 transition-all ${d.craClass === c.id ? c.color + ' shadow' : 'border-border bg-card hover:border-muted-foreground/30'}`}>
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <div className="font-semibold text-sm text-foreground">{c.label}</div>
-                <div className="text-sm text-muted-foreground mt-0.5">{c.desc}</div>
-                <div className="text-xs text-muted-foreground/60 mt-1">Beispiele: {c.example}</div>
-              </div>
-              {d.craClass === c.id && <span className="text-lg mt-0.5 flex-shrink-0 text-primary">✓</span>}
+  const stepContent = (
+    <>
+      {sub === 0 && (
+        <div className="space-y-5 animate-fade-in">
+          <SubStepHeader current={0} total={TOTAL} title="Was für ein Produkt bewerten wir?" subtitle="Produkt-Typ auswählen und Namen vergeben." />
+          <InfoBox icon="💡" color="blue">
+            Der <strong>Produkt-Typ</strong> bestimmt, welche Bedrohungsszenarien relevant sind. Ein IoT-Gerät hat andere Risiken als eine Web-App.
+          </InfoBox>
+          <div>
+            <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Produktname *</label>
+            <input className="w-full border border-border rounded-lg px-3 py-2.5 text-sm bg-background text-foreground focus:ring-2 focus:ring-primary outline-none" placeholder="z.B. SmartGate Pro, SafeControl 3000 …" value={d.productName} onChange={e => set('productName', e.target.value)} />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Version</label>
+            <input className="w-full border border-border rounded-lg px-3 py-2.5 text-sm bg-background text-foreground focus:ring-2 focus:ring-primary outline-none" placeholder="z.B. 1.0.0, 2024-Q3, Prototype" value={d.version} onChange={e => set('version', e.target.value)} />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Produkt-Typ * <span className="normal-case font-normal text-muted-foreground/60">(Mehrfachauswahl möglich)</span></label>
+            <div className="grid grid-cols-2 gap-2">
+              {PRODUCT_TYPES.map(t => <Chip key={t.id} label={t.label} icon={t.icon} desc={t.desc} selected={d.productTypes.includes(t.id)} onClick={() => toggle('productTypes', t.id)} />)}
             </div>
-          </button>
-        ))}
-      </div>
-      <InfoBox icon="🤔" color="amber">
-        <strong>Nicht sicher?</strong> Fällt das Produkt nicht in Klasse I oder II-Kategorien, ist &quot;Default&quot; meistens korrekt. Das Tool liefert später eine Einschätzung basierend auf der Systemanalyse.
-      </InfoBox>
-    </div>
-  );
-
-  // Sub-Step 2: Systemarchitektur
-  const Step2 = () => (
-    <div className="space-y-5 animate-fade-in">
-      <SubStepHeader current={2} total={TOTAL} title="Wie ist das System aufgebaut?" subtitle="Kurze Systembeschreibung eingeben — oder passende Bausteine auswählen." />
-      <InfoBox icon="💡" color="blue">
-        Einfach auf Deutsch beschreiben, <strong>was das Produkt macht</strong>, wer es nutzt und womit es verbunden ist. Je mehr Details, desto besser das Threat Model.
-      </InfoBox>
-      <div>
-        <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Systembeschreibung</label>
-        <div className="text-xs text-muted-foreground/60 mb-2">Beispiel: &quot;Unser Gateway erfasst Temperaturdaten von 50 Sensoren, speichert sie lokal und überträgt sie stündlich an eine Cloud-Plattform.&quot;</div>
-        <textarea rows={4} className="w-full border border-border rounded-lg px-3 py-2.5 text-sm bg-background text-foreground focus:ring-2 focus:ring-primary outline-none resize-none" placeholder="In eigenen Worten beschreiben: Was tut das Produkt? Wer nutzt es? Womit ist es verbunden?" value={d.description} onChange={e => set('description', e.target.value)} />
-      </div>
-      <div>
-        <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Welche technischen Bausteine hat das System? <span className="normal-case font-normal text-muted-foreground/60">(alle zutreffenden auswählen)</span></label>
-        <div className="flex flex-wrap gap-2">
-          {COMPONENT_OPTS.map(c => (
-            <button key={c} onClick={() => toggle('components', c)} className={`border rounded-full px-3 py-1.5 text-xs font-medium transition-all ${d.components.includes(c) ? 'border-primary bg-primary/10 text-foreground' : 'border-border bg-card text-muted-foreground hover:border-primary/40'}`}>{d.components.includes(c) ? '✓ ' : ''}{c}</button>
-          ))}
-        </div>
-      </div>
-      <div>
-        <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Wo wird das Produkt betrieben?</label>
-        <div className="flex flex-wrap gap-2">
-          {DEPLOYMENT_OPTS.map(o => (
-            <button key={o.id} onClick={() => set('deployment', o.id)} className={`border rounded-lg px-4 py-2 text-sm font-medium transition-all flex items-center gap-2 ${d.deployment === o.id ? 'border-primary bg-primary/10 text-foreground' : 'border-border bg-card text-muted-foreground hover:border-primary/40'}`}>{o.icon} {o.label}</button>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-
-  // Sub-Step 3: Schnittstellen
-  const Step3 = () => (
-    <div className="space-y-5 animate-fade-in">
-      <SubStepHeader current={3} total={TOTAL} title="Über welche Schnittstellen kommuniziert das System?" subtitle="Alle genutzten Protokolle und Verbindungen auswählen." />
-      <InfoBox icon="💡" color="blue">
-        <strong>Schnittstellen = potenzielle Angriffspunkte.</strong> Jede Verbindung nach außen ist relevant — auch interne APIs, USB-Anschlüsse oder Bluetooth. Symbole ⚠️ markieren unsichere Protokolle.
-      </InfoBox>
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-        {INTERFACE_OPTS.map(o => (
-          <button key={o.label} onClick={() => toggle('interfaces', o.label)} className={`border rounded-lg px-3 py-2 text-sm text-left flex items-center gap-2 transition-all ${d.interfaces.includes(o.label) ? 'border-primary bg-primary/10 text-foreground' : 'border-border bg-card text-muted-foreground hover:border-primary/40'}`}>
-            <span>{o.icon}</span><span className="flex-1">{o.label}</span>{d.interfaces.includes(o.label) && <span className="text-xs text-primary">✓</span>}
-          </button>
-        ))}
-      </div>
-      {d.interfaces.some(i => i.includes('unverschl') || i === 'HTTP' || i === 'FTP/SFTP') && (
-        <InfoBox icon="⚠️" color="amber">
-          Es wurden <strong>unsichere Protokolle</strong> ausgewählt. Diese werden im Threat Model besonders analysiert und führen wahrscheinlich zu CRA-Lücken.
-        </InfoBox>
-      )}
-    </div>
-  );
-
-  // Sub-Step 4: Nutzerrollen
-  const Step4 = () => (
-    <div className="space-y-5 animate-fade-in">
-      <SubStepHeader current={4} total={TOTAL} title="Wer hat Zugriff auf das System?" subtitle="Nutzerrollen helfen, Berechtigungsrisiken und Angreifer-Profile zu identifizieren." />
-      <InfoBox icon="💡" color="blue">
-        Alle Personen <strong>und Systeme</strong> berücksichtigen, die sich einloggen oder auf Funktionen zugreifen können — auch externe Dienstleister oder automatisierte Prozesse.
-      </InfoBox>
-      <div>
-        <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Häufige Rollen — klicken zum Hinzufügen</label>
-        <div className="flex flex-wrap gap-2">
-          {ROLE_PRESETS.map(r => (
-            <button key={r} onClick={() => !d.roles.includes(r) && setD(p => ({ ...p, roles: [...p.roles, r] }))} className={`border rounded-full px-3 py-1.5 text-xs font-medium transition-all ${d.roles.includes(r) ? 'border-green-500 bg-green-500/10 text-green-400' : 'border-border bg-card text-muted-foreground hover:border-primary/40'}`}>{d.roles.includes(r) ? '✓ ' : ''}{r}</button>
-          ))}
-        </div>
-      </div>
-      <div className="flex gap-2">
-        <input className="flex-1 border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground focus:ring-2 focus:ring-primary outline-none" placeholder="Eigene Rolle hinzufügen …" value={d.customRole} onChange={e => set('customRole', e.target.value)} onKeyDown={e => { if (e.key === 'Enter' && d.customRole.trim()) { setD(p => ({ ...p, roles: [...p.roles, p.customRole.trim()], customRole: '' })); } }} />
-        <Button onClick={() => { if (d.customRole.trim()) { setD(p => ({ ...p, roles: [...p.roles, p.customRole.trim()], customRole: '' })); } }} className="font-medium">+ Hinzufügen</Button>
-      </div>
-      {d.roles.length > 0 && (
-        <div>
-          <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Ausgewählte Rollen</label>
-          <div className="flex flex-wrap gap-2">
-            {d.roles.map(r => (
-              <span key={r} className="flex items-center gap-1.5 bg-green-500/10 border border-green-500/20 text-green-400 rounded-full px-3 py-1.5 text-xs font-medium">
-                👤 {r}
-                <button onClick={() => setD(p => ({ ...p, roles: p.roles.filter(x => x !== r) }))} className="text-green-400 hover:text-destructive font-bold ml-0.5">×</button>
-              </span>
-            ))}
           </div>
         </div>
       )}
-    </div>
-  );
 
-  // Sub-Step 5: Sicherheitsmaßnahmen & Schwachstellen
-  const Step5 = () => {
-    const cats = [...new Set(SECURITY_MEASURES.map(m => m.cat))];
-    return (
-      <div className="space-y-5 animate-fade-in">
-        <SubStepHeader current={5} total={TOTAL} title="Welche Sicherheitsmaßnahmen sind bereits vorhanden?" subtitle="Auch fehlende Maßnahmen sind wichtige Information für das Assessment." />
-        <InfoBox icon="💡" color="blue">
-          Nur Maßnahmen auswählen, die <strong>aktuell wirklich aktiv</strong> sind — nicht was geplant ist. Fehlende Maßnahmen werden als Lücken im Assessment sichtbar.
-        </InfoBox>
-        {cats.map(cat => (
-          <div key={cat}>
-            <div className="text-xs font-semibold text-muted-foreground/60 uppercase tracking-wide mb-2">{cat}</div>
-            <div className="space-y-1.5">
-              {SECURITY_MEASURES.filter(m => m.cat === cat).map(m => (
-                <label key={m.id} className={`flex items-center gap-3 border rounded-lg px-3 py-2.5 cursor-pointer transition-all ${d.measures.includes(m.id) ? 'border-green-500/30 bg-green-500/10' : 'border-border bg-card hover:border-muted-foreground/30'}`}>
-                  <input type="checkbox" className="w-4 h-4 rounded accent-green-600 flex-shrink-0" checked={d.measures.includes(m.id)} onChange={() => toggle('measures', m.id)} />
-                  <span className="text-sm text-foreground">{m.label}</span>
-                  {d.measures.includes(m.id) && <span className="ml-auto text-green-400 text-xs font-semibold">vorhanden</span>}
-                </label>
+      {sub === 1 && (
+        <div className="space-y-5 animate-fade-in">
+          <SubStepHeader current={1} total={TOTAL} title="Wie ist das Produkt nach CRA eingestuft?" subtitle="Im Zweifelsfall zunächst 'Default' wählen — das Tool hilft bei der Einschätzung." />
+          <InfoBox icon="📘" title="Was ist die CRA-Klassifizierung?" color="blue">
+            Der Cyber Resilience Act (EU) stuft Produkte nach ihrem Risikopotenzial ein. Die Klasse bestimmt, <strong>wie der Konformitätsnachweis</strong> erbracht werden muss — von Selbstbewertung bis zur Pflichtprüfung durch eine akkreditierte Stelle.
+          </InfoBox>
+          <div className="space-y-2">
+            {CRA_CLASSES.map(c => (
+              <button key={c.id} onClick={() => set('craClass', c.id)} className={`w-full text-left border-2 rounded-xl px-4 py-3 transition-all ${d.craClass === c.id ? c.color + ' shadow' : 'border-border bg-card hover:border-muted-foreground/30'}`}>
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <div className="font-semibold text-sm text-foreground">{c.label}</div>
+                    <div className="text-sm text-muted-foreground mt-0.5">{c.desc}</div>
+                    <div className="text-xs text-muted-foreground/60 mt-1">Beispiele: {c.example}</div>
+                  </div>
+                  {d.craClass === c.id && <span className="text-lg mt-0.5 flex-shrink-0 text-primary">✓</span>}
+                </div>
+              </button>
+            ))}
+          </div>
+          <InfoBox icon="🤔" color="amber">
+            <strong>Nicht sicher?</strong> Fällt das Produkt nicht in Klasse I oder II-Kategorien, ist &quot;Default&quot; meistens korrekt. Das Tool liefert später eine Einschätzung basierend auf der Systemanalyse.
+          </InfoBox>
+        </div>
+      )}
+
+      {sub === 2 && (
+        <div className="space-y-5 animate-fade-in">
+          <SubStepHeader current={2} total={TOTAL} title="Wie ist das System aufgebaut?" subtitle="Kurze Systembeschreibung eingeben — oder passende Bausteine auswählen." />
+          <InfoBox icon="💡" color="blue">
+            Einfach auf Deutsch beschreiben, <strong>was das Produkt macht</strong>, wer es nutzt und womit es verbunden ist. Je mehr Details, desto besser das Threat Model.
+          </InfoBox>
+          <div>
+            <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Systembeschreibung</label>
+            <div className="text-xs text-muted-foreground/60 mb-2">Beispiel: &quot;Unser Gateway erfasst Temperaturdaten von 50 Sensoren, speichert sie lokal und überträgt sie stündlich an eine Cloud-Plattform.&quot;</div>
+            <textarea rows={4} className="w-full border border-border rounded-lg px-3 py-2.5 text-sm bg-background text-foreground focus:ring-2 focus:ring-primary outline-none resize-none" placeholder="In eigenen Worten beschreiben: Was tut das Produkt? Wer nutzt es? Womit ist es verbunden?" value={d.description} onChange={e => set('description', e.target.value)} />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Welche technischen Bausteine hat das System? <span className="normal-case font-normal text-muted-foreground/60">(alle zutreffenden auswählen)</span></label>
+            <div className="flex flex-wrap gap-2">
+              {COMPONENT_OPTS.map(c => (
+                <button key={c} onClick={() => toggle('components', c)} className={`border rounded-full px-3 py-1.5 text-xs font-medium transition-all ${d.components.includes(c) ? 'border-primary bg-primary/10 text-foreground' : 'border-border bg-card text-muted-foreground hover:border-primary/40'}`}>{d.components.includes(c) ? '✓ ' : ''}{c}</button>
               ))}
             </div>
           </div>
-        ))}
-        <div>
-          <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Bekannte Schwachstellen oder offene Punkte</label>
-          <div className="text-xs text-muted-foreground/60 mb-2">Optional — aber sehr wertvoll. Beispiel: &quot;Standard-Passwort nach Auslieferung aktiv&quot;, &quot;kein MFA&quot;</div>
-          <textarea rows={3} className="w-full border border-border rounded-lg px-3 py-2.5 text-sm bg-background text-foreground focus:ring-2 focus:ring-primary outline-none resize-none" placeholder="Bekannte Schwachstellen, offene Audit-Punkte …" value={d.knownIssues} onChange={e => set('knownIssues', e.target.value)} />
-        </div>
-      </div>
-    );
-  };
-
-  // Sub-Step 6: Anlagen
-  const Step6 = () => (
-    <div className="space-y-5 animate-fade-in">
-      <SubStepHeader current={5} total={TOTAL} title="Relevante Unterlagen hochladen" subtitle="Optional — aber Architekturdiagramme oder Berichte verbessern die Analysequalität." />
-      <InfoBox icon="💡" color="blue">
-        Relevante Dokumente hochladen. Die KI kann daraus <strong>zusätzliche Kontext-Informationen</strong> extrahieren — z.B. aus einem Architekturdiagramm oder einem Pentestbericht.
-      </InfoBox>
-      <div className="grid grid-cols-1 gap-2">
-        {ATTACH_TYPES.map(t => (
-          <button key={t.id} onClick={() => { setActiveUploadType(t.id); if (fileRef.current) { fileRef.current.accept = t.accept; fileRef.current.click(); } }} className="flex items-center gap-3 border-2 border-dashed border-border rounded-xl px-4 py-3 text-sm text-muted-foreground hover:border-primary/40 hover:bg-primary/5 hover:text-foreground transition-all text-left">
-            <span className="text-xl">{t.icon}</span>
-            <div>
-              <div className="font-medium">{t.label} hochladen</div>
-              <div className="text-xs text-muted-foreground/60">{t.accept.replace(/\*/g, 'alle Formate')}</div>
+          <div>
+            <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Wo wird das Produkt betrieben?</label>
+            <div className="flex flex-wrap gap-2">
+              {DEPLOYMENT_OPTS.map(o => (
+                <button key={o.id} onClick={() => set('deployment', o.id)} className={`border rounded-lg px-4 py-2 text-sm font-medium transition-all flex items-center gap-2 ${d.deployment === o.id ? 'border-primary bg-primary/10 text-foreground' : 'border-border bg-card text-muted-foreground hover:border-primary/40'}`}>{o.icon} {o.label}</button>
+              ))}
             </div>
-            <span className="ml-auto text-muted-foreground/40">+</span>
-          </button>
-        ))}
-      </div>
-      <input ref={fileRef} type="file" multiple onChange={handleFileChange} className="hidden" />
-      {d.files.length > 0 && (
-        <div>
-          <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Hochgeladene Dateien ({d.files.length})</div>
-          <div className="space-y-1.5">
-            {d.files.map((f, i) => {
-              const typeInfo = ATTACH_TYPES.find(t => t.id === f.type) || { icon: '📎', label: 'Dokument' };
-              const sizeKB = (f.size / 1024).toFixed(0);
-              return (
-                <div key={i} className="flex items-center gap-3 bg-card border border-border rounded-lg px-3 py-2.5 text-sm">
-                  <span className="text-lg flex-shrink-0">{typeInfo.icon}</span>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-medium text-foreground truncate">{f.name}</div>
-                    <div className="text-xs text-muted-foreground">{typeInfo.label} · <span className="font-mono">{sizeKB} KB</span></div>
-                  </div>
-                  <button onClick={() => removeFile(i)} className="text-muted-foreground hover:text-destructive font-bold text-lg leading-none transition-colors">×</button>
-                </div>
-              );
-            })}
           </div>
         </div>
       )}
-      <InfoBox icon="🔒" color="green">
-        Dateien verlassen den Computer nicht und werden nur lokal für die Analyse verwendet.
-      </InfoBox>
-    </div>
-  );
 
-  // Zusammenfassung
-  const Summary = () => (
-    <div className="space-y-4 animate-fade-in">
-      <SubStepHeader current={5} total={TOTAL} title="Alles bereit — Zusammenfassung" subtitle="Angaben überprüfen und dann die KI-Analyse starten." />
-      {[
-        { label: 'Produkt', val: `${d.productName} ${d.version}`.trim() },
-        { label: 'Typ', val: d.productTypes.map(id => PRODUCT_TYPES.find(t => t.id === id)?.label).join(', ') || '—' },
-        { label: 'CRA-Klasse', val: CRA_CLASSES.find(c => c.id === d.craClass)?.label || '—' },
-        { label: 'Komponenten', val: d.components.length > 0 ? d.components.join(', ') : '—' },
-        { label: 'Schnittstellen', val: d.interfaces.length > 0 ? d.interfaces.join(', ') : '—' },
-        { label: 'Nutzerrollen', val: d.roles.length > 0 ? d.roles.join(', ') : '—' },
-        { label: 'Maßnahmen', val: d.measures.length > 0 ? `${d.measures.length} Maßnahmen ausgewählt` : 'Keine ausgewählt' },
-        { label: 'Anlagen', val: d.files.length > 0 ? `${d.files.length} Datei(en)` : 'Keine' },
-      ].map(({ label, val }) => (
-        <div key={label} className="flex gap-3 text-sm border-b border-border/50 pb-2 last:border-0 last:pb-0">
-          <span className="text-muted-foreground w-28 flex-shrink-0">{label}</span>
-          <span className="text-foreground font-medium">{val}</span>
+      {sub === 3 && (
+        <div className="space-y-5 animate-fade-in">
+          <SubStepHeader current={3} total={TOTAL} title="Über welche Schnittstellen kommuniziert das System?" subtitle="Alle genutzten Protokolle und Verbindungen auswählen." />
+          <InfoBox icon="💡" color="blue">
+            <strong>Schnittstellen = potenzielle Angriffspunkte.</strong> Jede Verbindung nach außen ist relevant — auch interne APIs, USB-Anschlüsse oder Bluetooth. Symbole ⚠️ markieren unsichere Protokolle.
+          </InfoBox>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            {INTERFACE_OPTS.map(o => (
+              <button key={o.label} onClick={() => toggle('interfaces', o.label)} className={`border rounded-lg px-3 py-2 text-sm text-left flex items-center gap-2 transition-all ${d.interfaces.includes(o.label) ? 'border-primary bg-primary/10 text-foreground' : 'border-border bg-card text-muted-foreground hover:border-primary/40'}`}>
+                <span>{o.icon}</span><span className="flex-1">{o.label}</span>{d.interfaces.includes(o.label) && <span className="text-xs text-primary">✓</span>}
+              </button>
+            ))}
+          </div>
+          {d.interfaces.some(i => i.includes('unverschl') || i === 'HTTP' || i === 'FTP/SFTP') && (
+            <InfoBox icon="⚠️" color="amber">
+              Es wurden <strong>unsichere Protokolle</strong> ausgewählt. Diese werden im Threat Model besonders analysiert und führen wahrscheinlich zu CRA-Lücken.
+            </InfoBox>
+          )}
         </div>
-      ))}
-      {d.knownIssues && <div className="text-sm border-b border-border/50 pb-2"><span className="text-muted-foreground">Bekannte Lücken: </span><span className="text-foreground">{d.knownIssues}</span></div>}
-    </div>
+      )}
+
+      {sub === 4 && (
+        <div className="space-y-5 animate-fade-in">
+          <SubStepHeader current={4} total={TOTAL} title="Wer hat Zugriff auf das System?" subtitle="Nutzerrollen helfen, Berechtigungsrisiken und Angreifer-Profile zu identifizieren." />
+          <InfoBox icon="💡" color="blue">
+            Alle Personen <strong>und Systeme</strong> berücksichtigen, die sich einloggen oder auf Funktionen zugreifen können — auch externe Dienstleister oder automatisierte Prozesse.
+          </InfoBox>
+          <div>
+            <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Häufige Rollen — klicken zum Hinzufügen</label>
+            <div className="flex flex-wrap gap-2">
+              {ROLE_PRESETS.map(r => (
+                <button key={r} onClick={() => !d.roles.includes(r) && setD(p => ({ ...p, roles: [...p.roles, r] }))} className={`border rounded-full px-3 py-1.5 text-xs font-medium transition-all ${d.roles.includes(r) ? 'border-green-500 bg-green-500/10 text-green-400' : 'border-border bg-card text-muted-foreground hover:border-primary/40'}`}>{d.roles.includes(r) ? '✓ ' : ''}{r}</button>
+              ))}
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <input className="flex-1 border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground focus:ring-2 focus:ring-primary outline-none" placeholder="Eigene Rolle hinzufügen …" value={d.customRole} onChange={e => set('customRole', e.target.value)} onKeyDown={e => { if (e.key === 'Enter' && d.customRole.trim()) { setD(p => ({ ...p, roles: [...p.roles, p.customRole.trim()], customRole: '' })); } }} />
+            <Button onClick={() => { if (d.customRole.trim()) { setD(p => ({ ...p, roles: [...p.roles, p.customRole.trim()], customRole: '' })); } }} className="font-medium">+ Hinzufügen</Button>
+          </div>
+          {d.roles.length > 0 && (
+            <div>
+              <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Ausgewählte Rollen</label>
+              <div className="flex flex-wrap gap-2">
+                {d.roles.map(r => (
+                  <span key={r} className="flex items-center gap-1.5 bg-green-500/10 border border-green-500/20 text-green-400 rounded-full px-3 py-1.5 text-xs font-medium">
+                    👤 {r}
+                    <button onClick={() => setD(p => ({ ...p, roles: p.roles.filter(x => x !== r) }))} className="text-green-400 hover:text-destructive font-bold ml-0.5">×</button>
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {sub === 5 && (
+        <div className="space-y-5 animate-fade-in">
+          <SubStepHeader current={5} total={TOTAL} title="Welche Sicherheitsmaßnahmen sind bereits vorhanden?" subtitle="Auch fehlende Maßnahmen sind wichtige Information für das Assessment." />
+          <InfoBox icon="💡" color="blue">
+            Nur Maßnahmen auswählen, die <strong>aktuell wirklich aktiv</strong> sind — nicht was geplant ist. Fehlende Maßnahmen werden als Lücken im Assessment sichtbar.
+          </InfoBox>
+          {cats.map(cat => (
+            <div key={cat}>
+              <div className="text-xs font-semibold text-muted-foreground/60 uppercase tracking-wide mb-2">{cat}</div>
+              <div className="space-y-1.5">
+                {SECURITY_MEASURES.filter(m => m.cat === cat).map(m => (
+                  <label key={m.id} className={`flex items-center gap-3 border rounded-lg px-3 py-2.5 cursor-pointer transition-all ${d.measures.includes(m.id) ? 'border-green-500/30 bg-green-500/10' : 'border-border bg-card hover:border-muted-foreground/30'}`}>
+                    <input type="checkbox" className="w-4 h-4 rounded accent-green-600 flex-shrink-0" checked={d.measures.includes(m.id)} onChange={() => toggle('measures', m.id)} />
+                    <span className="text-sm text-foreground">{m.label}</span>
+                    {d.measures.includes(m.id) && <span className="ml-auto text-green-400 text-xs font-semibold">vorhanden</span>}
+                  </label>
+                ))}
+              </div>
+            </div>
+          ))}
+          <div>
+            <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Bekannte Schwachstellen oder offene Punkte</label>
+            <div className="text-xs text-muted-foreground/60 mb-2">Optional — aber sehr wertvoll. Beispiel: &quot;Standard-Passwort nach Auslieferung aktiv&quot;, &quot;kein MFA&quot;</div>
+            <textarea rows={3} className="w-full border border-border rounded-lg px-3 py-2.5 text-sm bg-background text-foreground focus:ring-2 focus:ring-primary outline-none resize-none" placeholder="Bekannte Schwachstellen, offene Audit-Punkte …" value={d.knownIssues} onChange={e => set('knownIssues', e.target.value)} />
+          </div>
+        </div>
+      )}
+
+      {sub === 6 && (
+        <div className="space-y-5 animate-fade-in">
+          <SubStepHeader current={5} total={TOTAL} title="Relevante Unterlagen hochladen" subtitle="Optional — aber Architekturdiagramme oder Berichte verbessern die Analysequalität." />
+          <InfoBox icon="💡" color="blue">
+            Relevante Dokumente hochladen. Die KI kann daraus <strong>zusätzliche Kontext-Informationen</strong> extrahieren — z.B. aus einem Architekturdiagramm oder einem Pentestbericht.
+          </InfoBox>
+          <div className="grid grid-cols-1 gap-2">
+            {ATTACH_TYPES.map(t => (
+              <button key={t.id} onClick={() => { setActiveUploadType(t.id); if (fileRef.current) { fileRef.current.accept = t.accept; fileRef.current.click(); } }} className="flex items-center gap-3 border-2 border-dashed border-border rounded-xl px-4 py-3 text-sm text-muted-foreground hover:border-primary/40 hover:bg-primary/5 hover:text-foreground transition-all text-left">
+                <span className="text-xl">{t.icon}</span>
+                <div>
+                  <div className="font-medium">{t.label} hochladen</div>
+                  <div className="text-xs text-muted-foreground/60">{t.accept.replace(/\*/g, 'alle Formate')}</div>
+                </div>
+                <span className="ml-auto text-muted-foreground/40">+</span>
+              </button>
+            ))}
+          </div>
+          <input ref={fileRef} type="file" multiple onChange={handleFileChange} className="hidden" />
+          {d.files.length > 0 && (
+            <div>
+              <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Hochgeladene Dateien ({d.files.length})</div>
+              <div className="space-y-1.5">
+                {d.files.map((f, i) => {
+                  const typeInfo = ATTACH_TYPES.find(t => t.id === f.type) || { icon: '📎', label: 'Dokument' };
+                  const sizeKB = (f.size / 1024).toFixed(0);
+                  return (
+                    <div key={i} className="flex items-center gap-3 bg-card border border-border rounded-lg px-3 py-2.5 text-sm">
+                      <span className="text-lg flex-shrink-0">{typeInfo.icon}</span>
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium text-foreground truncate">{f.name}</div>
+                        <div className="text-xs text-muted-foreground">{typeInfo.label} · <span className="font-mono">{sizeKB} KB</span></div>
+                      </div>
+                      <button onClick={() => removeFile(i)} className="text-muted-foreground hover:text-destructive font-bold text-lg leading-none transition-colors">×</button>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+          <InfoBox icon="🔒" color="green">
+            Dateien verlassen den Computer nicht und werden nur lokal für die Analyse verwendet.
+          </InfoBox>
+        </div>
+      )}
+
+      {sub === 7 && (
+        <div className="space-y-4 animate-fade-in">
+          <SubStepHeader current={5} total={TOTAL} title="Alles bereit — Zusammenfassung" subtitle="Angaben überprüfen und dann die KI-Analyse starten." />
+          {[
+            { label: 'Produkt', val: `${d.productName} ${d.version}`.trim() },
+            { label: 'Typ', val: d.productTypes.map(id => PRODUCT_TYPES.find(t => t.id === id)?.label).join(', ') || '—' },
+            { label: 'CRA-Klasse', val: CRA_CLASSES.find(c => c.id === d.craClass)?.label || '—' },
+            { label: 'Komponenten', val: d.components.length > 0 ? d.components.join(', ') : '—' },
+            { label: 'Schnittstellen', val: d.interfaces.length > 0 ? d.interfaces.join(', ') : '—' },
+            { label: 'Nutzerrollen', val: d.roles.length > 0 ? d.roles.join(', ') : '—' },
+            { label: 'Maßnahmen', val: d.measures.length > 0 ? `${d.measures.length} Maßnahmen ausgewählt` : 'Keine ausgewählt' },
+            { label: 'Anlagen', val: d.files.length > 0 ? `${d.files.length} Datei(en)` : 'Keine' },
+          ].map(({ label, val }) => (
+            <div key={label} className="flex gap-3 text-sm border-b border-border/50 pb-2 last:border-0 last:pb-0">
+              <span className="text-muted-foreground w-28 flex-shrink-0">{label}</span>
+              <span className="text-foreground font-medium">{val}</span>
+            </div>
+          ))}
+          {d.knownIssues && <div className="text-sm border-b border-border/50 pb-2"><span className="text-muted-foreground">Bekannte Lücken: </span><span className="text-foreground">{d.knownIssues}</span></div>}
+        </div>
+      )}
+    </>
   );
 
-  const steps = [<Step0 />, <Step1 />, <Step2 />, <Step3 />, <Step4 />, <Step5 />, <Step6 />, <Summary />];
-  const isSummary = sub === steps.length - 1;
+  const totalSteps = 8;
+  const isSummary = sub === totalSteps - 1;
 
   return (
     <div>
