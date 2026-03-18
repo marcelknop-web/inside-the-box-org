@@ -1254,10 +1254,8 @@ const ChatView = () => {
   }, []);
 
   const selectService = (id: string) => {
-    setActiveService(id);
-    setMessages([]);
+    navigateToService(id);
     if (isMobile) setSidebarOpen(false);
-    // Only focus input on large desktop screens, not on iPad/tablet
     if (!isMobile && !isTablet) inputRef.current?.focus();
   };
 
