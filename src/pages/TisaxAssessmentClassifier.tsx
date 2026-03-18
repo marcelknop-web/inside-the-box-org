@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, RotateCcw, FileText } from 'lucide-react';
+import { ArrowLeft, ArrowRight, RotateCcw, FileText, Sparkles } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { PageMeta } from '@/components/PageMeta';
 import Typewriter from '@/components/Typewriter';
@@ -112,6 +112,7 @@ const I18N = {
   title: { de: 'TISAX Einstufungs-Check', en: 'TISAX Assessment Check', fr: 'TISAX Classification Check' },
   step: { de: 'Schritt', en: 'Step', fr: 'Étape' },
   back: { de: 'Zurück', en: 'Back', fr: 'Retour' },
+  next: { de: 'Weiter', en: 'Next', fr: 'Suivant' },
   restart: { de: 'Neu starten', en: 'Restart', fr: 'Recommencer' },
   reasoning: { de: 'Begründung', en: 'Reasoning', fr: 'Justification' },
   loading: { de: 'TISAX-Einstufung wird analysiert…', en: 'Analyzing TISAX classification…', fr: 'Analyse de la classification TISAX…' },
@@ -127,7 +128,21 @@ const I18N = {
   backToWorkflows: { de: 'Zurück zu KI-Workflows', en: 'Back to AI Workflows', fr: 'Retour aux workflows IA' },
   downloadProtocol: { de: 'Prüfprotokoll herunterladen', en: 'Download Assessment Protocol', fr: 'Télécharger le protocole' },
   plausibilityWarning: { de: 'Plausibilitätshinweis', en: 'Plausibility Notice', fr: 'Avis de plausibilité' },
+  demo: { de: 'Demo', en: 'Demo', fr: 'Démo' },
+  demoHint: { de: 'Beispielwerte einfügen', en: 'Insert example values', fr: 'Insérer des valeurs d\'exemple' },
 };
+
+/* ── Demo scenarios (plausible profiles) ── */
+const DEMO_SCENARIOS: Record<string, string>[] = [
+  { role: 'tier1', information: 'cad', prototype: 'indirect', network: 'direct', dataclass: 'confidential', oemrequest: 'yes-al2' },
+  { role: 'oem', information: 'prototype', prototype: 'direct', network: 'direct', dataclass: 'strictly-confidential', oemrequest: 'yes-al3' },
+  { role: 'provider', information: 'personal', prototype: 'no', network: 'indirect', dataclass: 'internal', oemrequest: 'expected' },
+  { role: 'tier2', information: 'financial', prototype: 'no', network: 'indirect', dataclass: 'internal', oemrequest: 'no' },
+  { role: 'tier1', information: 'prototype', prototype: 'direct', network: 'direct', dataclass: 'strictly-confidential', oemrequest: 'yes-al3' },
+  { role: 'provider', information: 'cad', prototype: 'indirect', network: 'direct', dataclass: 'confidential', oemrequest: 'yes-al2' },
+  { role: 'tier2', information: 'personal', prototype: 'no', network: 'no', dataclass: 'internal', oemrequest: 'expected' },
+  { role: 'oem', information: 'cad', prototype: 'indirect', network: 'direct', dataclass: 'confidential', oemrequest: 'yes-nolevel' },
+];
 
 const STEP_LABELS: Record<string, Record<string, string>> = {
   role: { de: 'Rolle in Supply Chain', en: 'Role in Supply Chain', fr: 'Rôle dans la chaîne' },
@@ -247,15 +262,30 @@ export default function TisaxAssessmentClassifier({ embedded = false }: { embedd
 
   const progress = (currentStep / steps.length) * 100;
 
-  const handleAnswer = (stepId: string, option: { label: string; value: string; weight: number }) => {
-    const newAnswers = { ...answers, [stepId]: { value: option.value, weight: option.weight, label: option.label } };
-    setAnswers(newAnswers);
+  const selectOption = (stepId: string, option: { label: string; value: string; weight: number }) => {
+    setAnswers(prev => ({ ...prev, [stepId]: { value: option.value, weight: option.weight, label: option.label } }));
+  };
+
+  const advanceStep = () => {
+    const step = steps[currentStep];
+    if (!answers[step.id]) return; // nothing selected
     if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
-      const result = classify(newAnswers);
+      const result = classify(answers);
       setVerdict(result);
-      fetchReasoning(newAnswers, result);
+      fetchReasoning(answers, result);
+    }
+  };
+
+  const handleDemo = () => {
+    const scenario = DEMO_SCENARIOS[Math.floor(Math.random() * DEMO_SCENARIOS.length)];
+    const step = steps[currentStep];
+    const stepDef = STEP_DEFS[currentStep];
+    const targetValue = scenario[step.id];
+    const opt = stepDef.options.find(o => o.value === targetValue);
+    if (opt) {
+      selectOption(step.id, { label: opt.label[lang] || opt.label.en, value: opt.value, weight: opt.weight });
     }
   };
 
@@ -432,7 +462,7 @@ export default function TisaxAssessmentClassifier({ embedded = false }: { embedd
             return (
               <button
                 key={opt.value}
-                onClick={() => handleAnswer(step.id, opt)}
+                onClick={() => selectOption(step.id, opt)}
                 className={`w-full text-left px-5 py-4 rounded-lg border-2 font-mono text-sm md:text-base transition-electric
                   ${isSelected ? 'border-highlight bg-highlight/15 text-highlight' : 'border-primary/40 bg-transparent text-foreground/80 hover:border-highlight hover:bg-highlight/5 hover:text-highlight'}`}
               >
@@ -442,11 +472,33 @@ export default function TisaxAssessmentClassifier({ embedded = false }: { embedd
           })}
         </StaggerReveal>
 
-        {currentStep > 0 && (
-          <button onClick={goBack} className="flex items-center gap-2 text-muted-foreground text-sm font-mono hover:text-primary transition-electric">
-            <ArrowLeft className="w-4 h-4" /> {t(I18N.back)}
-          </button>
-        )}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            {currentStep > 0 && (
+              <button onClick={goBack} className="flex items-center gap-2 text-muted-foreground text-sm font-mono hover:text-primary transition-electric">
+                <ArrowLeft className="w-4 h-4" /> {t(I18N.back)}
+              </button>
+            )}
+            <button
+              onClick={handleDemo}
+              className="flex items-center gap-1.5 text-xs font-mono px-3 py-1.5 rounded-md border border-primary/30 text-primary/70 hover:bg-primary/10 hover:text-primary hover:border-primary/50 transition-electric"
+              title={t(I18N.demoHint)}
+            >
+              <Sparkles className="w-3.5 h-3.5" /> {t(I18N.demo)}
+            </button>
+          </div>
+
+          {answers[step.id] && (
+            <Button
+              onClick={advanceStep}
+              variant="outline"
+              className="border-highlight/50 text-highlight hover:bg-highlight/10 hover:border-highlight font-mono"
+            >
+              {currentStep < steps.length - 1 ? t(I18N.next) : t({ de: 'Auswerten', en: 'Evaluate', fr: 'Évaluer' })}
+              <ArrowRight className="w-4 h-4 ml-1" />
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   );
