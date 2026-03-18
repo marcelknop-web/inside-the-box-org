@@ -116,57 +116,112 @@ const C = {
   white: [255, 255, 255] as [number, number, number],
 };
 
-/* ────── Watermark: Geometric Symbol ────── */
+/* ────── Watermark: Geometric Symbol (precise replica of GeometricSymbol.tsx) ────── */
 function drawWatermark(doc: jsPDF, cx: number, cy: number, size: number) {
-  // The inside-the-box.org geometric symbol: nested rotated squares + cross bars
-  const s = size; // half-size
-  doc.setDrawColor(200, 210, 225);
-  doc.setLineWidth(0.15);
+  // size = half-dimension of the bounding box (equivalent to w-48 h-48 → S=24 CSS units)
+  // All proportions derived from the CSS component's 48-unit coordinate system
+  const S = size;
+  const SQRT2_HALF = Math.SQRT2 / 2;
+
   doc.saveGraphicsState();
-  doc.setGState(new (doc as any).GState({ opacity: 0.06 }));
+  doc.setGState(new (doc as any).GState({ opacity: 0.055 }));
 
-  // Cross bars (vertical and horizontal rectangles)
-  const barW = s * 0.125;
-  // Vertical bar
-  doc.rect(cx - barW, cy - s, barW * 2, s * 2);
-  // Horizontal bar
-  doc.rect(cx - s, cy - barW, s * 2, barW * 2);
+  const gold: [number, number, number] = [245, 184, 0]; // --primary #f5b800
 
-  // 4 offset diamonds (top, bottom, left, right)
-  const dSize = s * 0.67;
-  const offset = s * 0.08;
-  const drawDiamond = (ox: number, oy: number) => {
+  // Helper: draw a diamond (45° rotated square) given center and half-diagonal
+  const diamond = (x: number, y: number, hd: number, style: 'S' | 'F' = 'S') => {
     doc.lines(
-      [[dSize, dSize], [dSize, -dSize], [-dSize, -dSize], [-dSize, dSize]],
-      ox, oy - dSize, [1, 1], 'S', true
+      [[hd, hd], [hd, -hd], [-hd, -hd], [-hd, hd]],
+      x, y - hd, [1, 1], style, true
     );
   };
-  drawDiamond(cx, cy - offset); // top
-  drawDiamond(cx, cy + offset); // bottom
-  drawDiamond(cx - offset, cy); // left
-  drawDiamond(cx + offset, cy); // right
 
-  // Inner diamond (large)
-  const d1 = s * 0.5;
-  doc.lines(
-    [[d1, d1], [d1, -d1], [-d1, -d1], [-d1, d1]],
-    cx, cy - d1, [1, 1], 'S', true
-  );
+  // ── Layer 1: Cross bars (border-primary/60 → lighter stroke) ──
+  // Vertical bar: w-6 on w-48 container = 6/48 = 1/8 of full width
+  const barHalfW = S * (6 / 48);
+  doc.setDrawColor(...gold);
+  doc.setLineWidth(0.3);
+  // Vertical bar (left + right edges)
+  doc.line(cx - barHalfW, cy - S, cx - barHalfW, cy + S);
+  doc.line(cx + barHalfW, cy - S, cx + barHalfW, cy + S);
+  // Horizontal bar (top + bottom edges)
+  doc.line(cx - S, cy - barHalfW, cx + S, cy - barHalfW);
+  doc.line(cx - S, cy + barHalfW, cx + S, cy + barHalfW);
 
-  // Inner diamond (medium)
-  const d2 = s * 0.35;
-  doc.lines(
-    [[d2, d2], [d2, -d2], [-d2, -d2], [-d2, d2]],
-    cx, cy - d2, [1, 1], 'S', true
-  );
+  // ── Layer 2: 4 offset diamonds (w-16 h-16 rotated 45°, border-primary/80) ──
+  // Side = 16/48 of container = S×16/24. Half-diagonal = side × √2/2
+  const dSide = S * (16 / 24);
+  const dHalfDiag = dSide * SQRT2_HALF;
+  // Offset: top-2 on 48-unit = 2/48. Center of 16-high div = 2 + 8 = 10 from edge.
+  // Distance from center = 24 - 10 = 14. In S: 14/24
+  const dOffset = S * (14 / 24);
 
-  // Innermost filled diamond
-  const d3 = s * 0.2;
-  doc.setFillColor(200, 210, 225);
-  doc.lines(
-    [[d3, d3], [d3, -d3], [-d3, -d3], [-d3, d3]],
-    cx, cy - d3, [1, 1], 'F', true
-  );
+  doc.setLineWidth(0.35);
+  diamond(cx, cy - dOffset, dHalfDiag); // top
+  diamond(cx, cy + dOffset, dHalfDiag); // bottom
+  diamond(cx - dOffset, cy, dHalfDiag); // left
+  diamond(cx + dOffset, cy, dHalfDiag); // right
+
+  // ── Layer 3: Inner diamond large (inset-1/4, border-primary → full opacity) ──
+  // inset 25% → side = 50% of container = 24 units. Half-diag = 24×√2/2
+  const d1Side = S * (24 / 24);
+  const d1HD = d1Side * SQRT2_HALF;
+  doc.setLineWidth(0.4);
+  diamond(cx, cy, d1HD);
+
+  // ── Layer 4: Inner diamond medium (inset-1/3, border-primary/60) ──
+  // inset 33.3% → side = 33.3% of container = 16 units. Half-diag = 16×√2/2
+  const d2Side = S * (16 / 24);
+  const d2HD = d2Side * SQRT2_HALF;
+  doc.setLineWidth(0.3);
+  diamond(cx, cy, d2HD);
+
+  // ── Layer 5: Innermost filled diamond (inset-2/5, bg-primary/10) ──
+  // inset 40% → side = 20% of container = 9.6 units. Half-diag = 9.6×√2/2
+  const d3Side = S * (9.6 / 24);
+  const d3HD = d3Side * SQRT2_HALF;
+  doc.setFillColor(...gold);
+  diamond(cx, cy, d3HD, 'F');
+
+  doc.restoreGraphicsState();
+}
+
+/* ────── Millimeter paper grid background ────── */
+function drawMillimeterGrid(doc: jsPDF) {
+  const W = 210, H = 297;
+
+  doc.saveGraphicsState();
+
+  // Fine grid: 2.5mm spacing (like the 2.5px CSS grid)
+  doc.setGState(new (doc as any).GState({ opacity: 0.025 }));
+  doc.setDrawColor(100, 130, 170);
+  doc.setLineWidth(0.08);
+  for (let x = 0; x <= W; x += 2.5) {
+    doc.line(x, 0, x, H);
+  }
+  for (let y = 0; y <= H; y += 2.5) {
+    doc.line(0, y, W, y);
+  }
+
+  // Medium grid: 5mm spacing (like the 5px CSS grid)
+  doc.setGState(new (doc as any).GState({ opacity: 0.04 }));
+  doc.setLineWidth(0.12);
+  for (let x = 0; x <= W; x += 5) {
+    doc.line(x, 0, x, H);
+  }
+  for (let y = 0; y <= H; y += 5) {
+    doc.line(0, y, W, y);
+  }
+
+  // Major grid: 50mm spacing (like the 50px CSS thick lines)
+  doc.setGState(new (doc as any).GState({ opacity: 0.055 }));
+  doc.setLineWidth(0.25);
+  for (let x = 0; x <= W; x += 50) {
+    doc.line(x, 0, x, H);
+  }
+  for (let y = 0; y <= H; y += 50) {
+    doc.line(0, y, W, y);
+  }
 
   doc.restoreGraphicsState();
 }
@@ -221,11 +276,16 @@ export function generateCraReport(data: CraReportData): void {
     doc.rect(0, H - 3, W, 3, 'F');
   }
 
+  function preparePage() {
+    drawMillimeterGrid(doc);
+    drawWatermark(doc, W / 2, H / 2, 55);
+  }
+
   function checkPage(need: number = 20) {
     if (y > H - 28 - need) {
       addFooter();
       doc.addPage();
-      drawWatermark(doc, W / 2, H / 2, 55);
+      preparePage();
       y = 28;
     }
   }
@@ -233,7 +293,7 @@ export function generateCraReport(data: CraReportData): void {
   function newSection() {
     addFooter();
     doc.addPage();
-    drawWatermark(doc, W / 2, H / 2, 55);
+    preparePage();
     y = 28;
   }
 
@@ -331,6 +391,23 @@ export function generateCraReport(data: CraReportData): void {
   doc.setFillColor(...C.navy);
   doc.rect(0, 0, W, H, 'F');
 
+  // Millimeter grid on dark cover (lighter, adapted for dark bg)
+  doc.saveGraphicsState();
+  doc.setDrawColor(40, 55, 80);
+  doc.setGState(new (doc as any).GState({ opacity: 0.35 }));
+  doc.setLineWidth(0.08);
+  for (let x = 0; x <= W; x += 2.5) doc.line(x, 0, x, H);
+  for (let gy = 0; gy <= H; gy += 2.5) doc.line(0, gy, W, gy);
+  doc.setGState(new (doc as any).GState({ opacity: 0.5 }));
+  doc.setLineWidth(0.12);
+  for (let x = 0; x <= W; x += 5) doc.line(x, 0, x, H);
+  for (let gy = 0; gy <= H; gy += 5) doc.line(0, gy, W, gy);
+  doc.setGState(new (doc as any).GState({ opacity: 0.6 }));
+  doc.setLineWidth(0.25);
+  for (let x = 0; x <= W; x += 50) doc.line(x, 0, x, H);
+  for (let gy = 0; gy <= H; gy += 50) doc.line(0, gy, W, gy);
+  doc.restoreGraphicsState();
+
   // Draw large watermark centered
   drawWatermark(doc, W / 2, 105, 70);
 
@@ -396,7 +473,7 @@ export function generateCraReport(data: CraReportData): void {
   // TOC
   // ══════════════════════════════════════
   doc.addPage();
-  drawWatermark(doc, W / 2, H / 2, 55);
+  preparePage();
   pageNum++;
   y = 35;
 
