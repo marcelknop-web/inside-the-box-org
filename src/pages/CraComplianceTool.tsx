@@ -249,7 +249,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
       break;
     case 3:
       stepContent = (
-        <div className="space-y-5">
+        <StaggerReveal resetKey={`intake-3`} stagger={300}>
           <SubStepHeader current={3} total={INTAKE_STEPS} title={t('cra.step3Title')} subtitle={t('cra.step3Sub')} />
           <InfoBox icon="💡" color="blue"><span dangerouslySetInnerHTML={{ __html: t('cra.step3Info') }} /></InfoBox>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -262,7 +262,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
           {d.interfaces.some(i => i.includes('unverschl') || i === 'HTTP' || i === 'FTP/SFTP') && (
             <InfoBox icon="⚠️" color="amber"><span dangerouslySetInnerHTML={{ __html: t('cra.step3Warn') }} /></InfoBox>
           )}
-        </div>
+        </StaggerReveal>
       );
       break;
     case 4:
