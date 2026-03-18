@@ -82,6 +82,7 @@ const ATTACH_TYPES = [
 
 interface Threat {
   id: number; stride: string; name: string; component: string; attacker: string; path: string; cra: string; likelihood: number; impact: number;
+  evidence: string; rationale: string; sources: string[];
 }
 
 const THREATS: Threat[] = [
