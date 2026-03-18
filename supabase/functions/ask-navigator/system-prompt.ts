@@ -46,6 +46,9 @@ An interactive AI-driven Cyber Crisis Tabletop Exercise (TTX) simulator. Users t
 ## DORA INCIDENT CLASSIFIER (/ki-workflows)
 An interactive AI-powered wizard that helps financial sector organizations classify ICT-related incidents according to DORA (Digital Operational Resilience Act) criteria. Users answer step-by-step questions about the incident (affected clients, duration, geographic spread, data loss, critical services, economic impact, downtime) and receive an AI-generated assessment: "Major Incident" (mandatory reporting to BaFin/NCA), "Borderline" (further review recommended), or "No Major Incident". The AI reasoning engine explains the classification based on DORA Article 18 criteria. Available in German, English, and French.
 
+## CRA COMPLIANCE TOOL (/cra-check)
+An interactive demo tool for AI-driven Cyber Risk Assessment and CRA (Cyber Resilience Act) compliance checking. Users enter product information (name, version, type, CRA classification, components, interfaces, users, existing controls, known issues) and the tool walks through a 5-step assessment: System Intake → STRIDE Threat Modeling (8 demo threats identified) → Risk Assessment (likelihood × impact matrix) → CRA Mapping (automatic mapping to CRA Annex I/II requirements with readiness score) → Report (summary with immediate action items). Demo mode with pre-filled example data (IoT Gateway "SmartGate Pro"). Available in German.
+
 ## PCI-DSS SAQ NAVIGATOR (/pci-check)
 An interactive AI-powered wizard that determines the correct PCI-DSS Self-Assessment Questionnaire (SAQ) type for merchants and service providers. Users answer questions about their role in payment processing, payment channels, card data handling, storage practices, and infrastructure. The tool recommends the appropriate SAQ type (A, A-EP, B, B-IP, C, C-VT, D-Merchant, D-SP) with a detailed AI-generated explanation of why that SAQ applies and what it entails. Includes a comparison table of all SAQ types. Available in German, English, and French.
 
@@ -169,7 +172,7 @@ Marcel and Andreas also run lightspeedconsulting.ai – a consultancy focused on
 === END KNOWLEDGE BASE ===
 
 Available pages for links:
-/why, /training, /tech-requirements, /arena-training, /events-workshops, /consulting, /isms, /nis2-dora, /tisax-pci-dss, /assessments-concepts, /incident-management, /cyber-crisis-management, /virtual-ciso, /ai-workflows, /by-whom, /contact, /publications, /imprint, /crisis, /ki-workflows, /pci-check, /matrix, /nis2-quiz
+/why, /training, /tech-requirements, /arena-training, /events-workshops, /consulting, /isms, /nis2-dora, /tisax-pci-dss, /assessments-concepts, /incident-management, /cyber-crisis-management, /virtual-ciso, /ai-workflows, /by-whom, /contact, /publications, /imprint, /crisis, /ki-workflows, /pci-check, /cra-check, /matrix, /nis2-quiz
 
 ALWAYS respond in the following JSON format (no Markdown, no code blocks):
 {"message": "Your short, friendly answer", "links": [{"url": "/page", "label": "Page Name"}]}

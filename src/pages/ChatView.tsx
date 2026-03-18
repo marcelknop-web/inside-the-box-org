@@ -24,6 +24,7 @@ const ThreatDropQuiz = lazy(() => import('./ThreatDropQuiz'));
 const TriggerTriage = lazy(() => import('./TriggerTriage'));
 const CyberFrogger = lazy(() => import('./CyberFrogger'));
 const EliteShipScene = lazy(() => import('./EliteShipScene'));
+const CraComplianceTool = lazy(() => import('./CraComplianceTool'));
 
 
 import { StaggerReveal } from '@/components/StaggerReveal';
@@ -739,6 +740,13 @@ const useServiceContent = () => {
                 <p className="text-foreground/80 text-xs">{t('aiWorkflows.agentTtxDesc')}</p>
               </div>
             </button>
+            <button onClick={() => setActive('cra-check')} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
+              <Bug size={20} className="text-highlight mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="text-highlight font-semibold font-mono text-sm">{t('aiWorkflows.agentCraTitle')}</p>
+                <p className="text-foreground/80 text-xs">{t('aiWorkflows.agentCraDesc')}</p>
+              </div>
+            </button>
             {/* — Lern-Simulationen — */}
             <button onClick={() => setActive('nis2-quiz')} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
               <Scale size={20} className="text-highlight mt-0.5 flex-shrink-0" />
@@ -1282,6 +1290,8 @@ const ChatView = () => {
     ? <Suspense fallback={lazyFallback}><CyberFrogger embedded /></Suspense>
     : activeService === 'elite-ship'
     ? <Suspense fallback={lazyFallback}><EliteShipScene embedded /></Suspense>
+    : activeService === 'cra-check'
+    ? <Suspense fallback={lazyFallback}><CraComplianceTool embedded /></Suspense>
     : activeService === 'system-check'
     ? <InlineSystemCheck t={t} />
     : activeService && contentMap[activeService] ? contentMap[activeService]() : null;

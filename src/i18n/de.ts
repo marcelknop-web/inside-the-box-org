@@ -326,6 +326,8 @@ export const de = {
     agentDoraDesc: 'Meldepflicht nach DORA Art. 19 – Schritt für Schritt',
     agentTisaxDesc: 'Assessment-Level und Prüfziele nach VDA ISA ermitteln',
     agentPciDesc: 'Richtigen SAQ-Typ nach PCI DSS v4.0 bestimmen',
+    agentCraTitle: 'CRA Compliance Tool',
+    agentCraDesc: 'Cyber Risk Assessment & CRA-Readiness für Ihre Produkte – STRIDE-Analyse, Risikomatrix und Gap-Report',
     agentNis2QuizDesc: '15 Fragen zur NIS-2-Richtlinie – mit Timer und Highscore',
     agentCisoDesc: '5 Runden strategische Budgetsteuerung als CISO',
     agentThreatDropTitle: 'ThreatDrop',
