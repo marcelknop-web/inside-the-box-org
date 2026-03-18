@@ -140,6 +140,11 @@ export interface Threat {
   evidence: string; rationale: string; sources: string[];
 }
 
+/** Returns a formatted threat ID like S-001, T-002, etc. */
+export function threatId(th: Threat): string {
+  return `${th.stride}-${String(th.id).padStart(3, '0')}`;
+}
+
 export interface CraReq {
   id: string; article: string; name: string;
   status: 'pass' | 'partial' | 'fail';
@@ -179,7 +184,7 @@ export const EMPTY_INTAKE: IntakeData = {
 // ── Demo Threats (static, language-independent technical data) ──
 
 export const THREATS: Threat[] = [
-  { id: 1, stride: 'S', name: 'Spoofing des MQTT-Brokers', component: 'MQTT-Interface', attacker: 'Externer Angreifer', path: 'Angreifer positioniert sich als legitimer MQTT-Broker → Gerät verbindet sich mit False-Server → Datenabfluss', cra: 'Annex I, Part I, Nr. 3', likelihood: 3, impact: 4,
+  { id: 1, stride: 'S', name: 'Spoofing des MQTT-Brokers (Identitätsvortäuschung)', component: 'MQTT-Interface — Broker-Authentifizierung', attacker: 'Externer Angreifer', path: 'Angreifer positioniert sich als legitimer MQTT-Broker → Gerät verbindet sich mit False-Server → Datenabfluss', cra: 'Annex I, Part I, Nr. 3', likelihood: 3, impact: 4,
     evidence: 'Konfigurationsanalyse: MQTT-Client verbindet sich ohne Server-Zertifikatsvalidierung (TLS-Pinning fehlt). Netzwerkscan bestätigt offenen Port 1883 ohne mTLS.',
     rationale: 'Likelihood 3: Erfordert Netzwerkzugang, aber kein spezielles Angreifer-Tooling. Impact 4: Vollständiger Datenabfluss aller Sensordaten möglich, kein Integritätsverlust am Gerät selbst.',
     sources: ['OWASP IoT Top 10 – I3: Insecure Ecosystem Interfaces', 'ETSI EN 303 645, Provision 5.5-1'] },
@@ -195,11 +200,11 @@ export const THREATS: Threat[] = [
     evidence: 'Systemprüfung: Keine Log-Dateien für administrative Aktionen vorhanden. Weder Konfigurationsänderungen noch Benutzerverwaltung werden protokolliert. Kein Syslog-Export konfiguriert.',
     rationale: 'Likelihood 3: Jeder Admin-Nutzer kann unbemerkt Änderungen vornehmen. Impact 3: Compliance-Verstoß (CRA Art. 10 Abs. 10), forensische Aufklärung nach Vorfällen unmöglich.',
     sources: ['CRA Annex I, Part I, Nr. 8: Sicherheits-Logging', 'ISO/IEC 27001:2022, A.8.15: Logging'] },
-  { id: 5, stride: 'I', name: 'Klartext-MQTT (Port 1883)', component: 'MQTT-Interface', attacker: 'Netzwerk-Mitleser (MITM)', path: 'Unverschlüsselte MQTT-Verbindung → Passwort-Sniffing → Vollzugriff auf Sensordaten', cra: 'Annex I, Part I, Nr. 4', likelihood: 4, impact: 4,
+  { id: 5, stride: 'I', name: 'Klartext-MQTT (Port 1883) — Vertraulichkeitsverlust', component: 'MQTT-Interface — Transportschicht', attacker: 'Netzwerk-Mitleser (MITM)', path: 'Unverschlüsselte MQTT-Verbindung → Passwort-Sniffing → Vollzugriff auf Sensordaten', cra: 'Annex I, Part I, Nr. 4', likelihood: 4, impact: 4,
     evidence: 'Netzwerkmitschnitt (Wireshark): MQTT CONNECT-Paket auf Port 1883 enthält Benutzername und Passwort im Klartext. Payload-Daten (Sensorwerte) ebenfalls unverschlüsselt.',
     rationale: 'Likelihood 4: Passives Mitlesen im gleichen Netzwerksegment ohne Authentifizierung möglich. Impact 4: Vollständige Offenlegung aller Sensordaten und Zugangsdaten; ermöglicht Folge-Angriffe.',
     sources: ['CRA Annex I, Part I, Nr. 4: Vertraulichkeit von Daten', 'ETSI EN 303 645, Provision 5.8-1: Kommunikationssicherheit'] },
-  { id: 6, stride: 'D', name: 'DoS auf MQTT-Broker', component: 'MQTT-Broker', attacker: 'Externer Angreifer', path: 'Flood-Angriff → Broker-Überlastung → Produktionsausfall', cra: 'Annex I, Part I, Nr. 7', likelihood: 3, impact: 4,
+  { id: 6, stride: 'D', name: 'DoS auf MQTT-Broker — Verfügbarkeitsverlust', component: 'MQTT-Broker — Connection-Management', attacker: 'Externer Angreifer', path: 'Flood-Angriff → Broker-Überlastung → Produktionsausfall', cra: 'Annex I, Part I, Nr. 7', likelihood: 3, impact: 4,
     evidence: 'Lasttest: MQTT-Broker akzeptiert unbegrenzte Verbindungen ohne Rate-Limiting. Bei 500 gleichzeitigen Verbindungen: CPU 100%, Response-Time > 30s, bestehende Clients getrennt.',
     rationale: 'Likelihood 3: Erfordert Netzwerkzugang zum Broker-Port, aber kein spezielles Tooling. Impact 4: Produktionsausfall – alle verbundenen Geräte verlieren Steuerungskommunikation.',
     sources: ['CRA Annex I, Part I, Nr. 7: Verfügbarkeit und Ausfallsicherheit', 'NIST SP 800-82r3: Guide to OT Security'] },

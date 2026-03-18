@@ -9,7 +9,7 @@ import { StaggerReveal } from '@/components/StaggerReveal';
 import {
   getProductTypes, getCraClasses, getDeploymentOpts,
   INTERFACE_OPTS, getSecurityMeasures, getSecurityCategories,
-  getAttachTypes, THREATS, CRA_REQS, getStrideMeta,
+  getAttachTypes, THREATS, CRA_REQS, getStrideMeta, threatId,
   type Threat, type CraReq, type IntakeData, type MeasureEntry, EMPTY_INTAKE,
 } from '@/data/craData';
 
@@ -487,12 +487,12 @@ function ThreatModel({ threats, onNext }: { threats: Threat[]; onNext: () => voi
           return (
             <div key={th.id} className="bg-card border border-border rounded-lg overflow-hidden">
               <div className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-secondary/50" onClick={() => setExp(isOpen ? null : th.id)}>
-                <span className={`px-2 py-0.5 rounded text-xs font-bold ${meta.badge}`}>{th.stride}</span>
+                <span className={`px-2 py-0.5 rounded text-xs font-bold ${meta.badge}`}>{threatId(th)}</span>
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-semibold text-foreground truncate">{th.name}</div>
-                  <div className="text-xs text-muted-foreground">{th.component}</div>
+                  <div className="text-xs text-muted-foreground">{th.component} · {th.cra}</div>
                 </div>
-                <span className={`px-2 py-0.5 rounded text-xs font-bold flex-shrink-0 ${risk.cls}`}>{risk.label} (<span className="font-mono">{th.likelihood * th.impact}</span>)</span>
+                <span className={`px-2 py-0.5 rounded text-xs font-bold flex-shrink-0 ${risk.cls}`}>{risk.label} (<span className="font-mono">{th.likelihood}×{th.impact}={th.likelihood * th.impact}</span>)</span>
                 {isOpen ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
               </div>
               {isOpen && (
@@ -619,7 +619,7 @@ function RiskAssessment({ threats, onNext }: { threats: Threat[]; onNext: () => 
                 const risk = riskLevel(th.likelihood, th.impact, t);
                 return (
                   <tr key={th.id} className={idx % 2 === 0 ? 'bg-card' : 'bg-secondary/30'}>
-                    <td className="px-4 py-2.5"><div className="font-medium text-foreground">{th.name}</div><div className="text-xs text-muted-foreground">{th.component}</div></td>
+                    <td className="px-4 py-2.5"><div className="font-medium text-foreground"><span className="font-mono text-xs text-muted-foreground mr-1.5">{threatId(th)}</span>{th.name}</div><div className="text-xs text-muted-foreground">{th.component}</div></td>
                     <td className="px-3 py-2.5 text-center font-semibold text-foreground font-mono">{th.likelihood}</td>
                     <td className="px-3 py-2.5 text-center font-semibold text-foreground font-mono">{th.impact}</td>
                     <td className="px-3 py-2.5 text-center font-bold text-foreground font-mono">{th.likelihood * th.impact}</td>
@@ -764,6 +764,27 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
         <p className="text-sm text-foreground leading-relaxed" dangerouslySetInnerHTML={{ __html: introHtml }} />
       </div>
 
+      {/* Prio 3: Explicitly name critical risks */}
+      {critRisks.length > 0 && (
+        <div className="bg-card border-2 border-destructive/30 rounded-lg overflow-hidden">
+          <div className="px-4 py-3 bg-destructive/10 border-b border-destructive/20">
+            <span className="text-sm font-bold text-destructive">{t('cra.rpCritRisksTitle')} — {critRisks.length} {t('cra.rpCritRisks')}</span>
+          </div>
+          <div className="px-4 py-3 text-sm space-y-2">
+            {critRisks.map(th => (
+              <div key={th.id} className="flex items-start gap-3">
+                <span className="font-mono text-xs text-destructive font-bold bg-destructive/10 px-1.5 py-0.5 rounded flex-shrink-0">{threatId(th)}</span>
+                <div className="flex-1">
+                  <span className="font-semibold text-foreground">{th.name}</span>
+                  <span className="text-muted-foreground"> — {th.component}</span>
+                  <div className="text-xs text-muted-foreground mt-0.5">Score: <span className="font-mono font-bold text-destructive">{th.likelihood}×{th.impact}={th.likelihood * th.impact}</span></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="bg-card border border-border rounded-lg overflow-hidden">
         <div className="px-4 py-3 bg-destructive/10 border-b border-destructive/20">
           <span className="text-sm font-bold text-destructive">{t('cra.rpImmediate')} — {failReqs.length} {t('cra.rpCritGaps')}</span>
@@ -798,6 +819,15 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
             <div className="text-xs text-muted-foreground mt-1">{l}</div>
           </div>
         ))}
+      </div>
+
+      {/* Prio 5: Terminology clarification */}
+      <div className="bg-card border border-border rounded-lg p-4 text-sm">
+        <div className="font-semibold text-foreground mb-2">📖 {t('cra.rpTermTitle')}</div>
+        <div className="space-y-1.5 text-muted-foreground">
+          <div><span className="font-semibold text-destructive">Critical Risks</span> — {t('cra.rpTermCritRisks')}</div>
+          <div><span className="font-semibold text-destructive">Critical Gaps</span> — {t('cra.rpTermCritGaps')}</div>
+        </div>
       </div>
 
       <div className="bg-secondary border border-border rounded-lg p-4 flex flex-col sm:flex-row items-center justify-between gap-3">
