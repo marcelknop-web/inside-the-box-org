@@ -546,7 +546,7 @@ function RiskAssessment({ threats, onNext }: { threats: Threat[]; onNext: () => 
   const matrixColor = (s: number) => s >= 20 ? 'bg-red-500' : s >= 13 ? 'bg-orange-400' : s >= 6 ? 'bg-yellow-300' : 'bg-green-300';
 
   return (
-    <div className="space-y-4">
+    <StaggerReveal resetKey={`ra`} stagger={350}>
       <InfoBox icon="⚖️" title={t('cra.raInfoTitle')} color="blue"><span dangerouslySetInnerHTML={{ __html: t('cra.raInfo') }} /></InfoBox>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {([
