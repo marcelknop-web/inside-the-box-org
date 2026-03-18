@@ -296,6 +296,7 @@ export default function TisaxAssessmentClassifier({ embedded = false }: { embedd
   // Result screen
   if (verdict) {
     const vs = VERDICT_STYLES[verdict];
+    const warnings = getPlausibilityWarnings(answers, lang);
     return (
       <div className={wrapperClass}>
         <PageMeta title="TISAX Assessment Check" description="TISAX Assessment Level Classifier" />
@@ -307,6 +308,18 @@ export default function TisaxAssessmentClassifier({ embedded = false }: { embedd
             <div className="text-4xl mb-2">{vs.emoji}</div>
             <h2 className={`text-xl md:text-2xl font-mono font-bold ${vs.color}`}>{t(vs.label)}</h2>
           </div>
+
+          {/* Plausibility warnings */}
+          {warnings.length > 0 && (
+            <div className="bg-[hsl(45,80%,55%,0.1)] border-2 border-[hsl(45,80%,55%,0.4)] rounded-lg p-4">
+              <div className="font-mono text-sm font-bold text-[hsl(45,80%,55%)] uppercase tracking-wider mb-2">⚠️ {t(I18N.plausibilityWarning)}</div>
+              <ul className="space-y-1.5 text-sm text-foreground/80">
+                {warnings.map((w, i) => (
+                  <li key={i} className="flex gap-2"><span className="text-[hsl(45,80%,55%)] flex-shrink-0">›</span>{w}</li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           {/* Summary table */}
           <div className="bg-highlight/5 border border-highlight/20 rounded-lg overflow-hidden">
