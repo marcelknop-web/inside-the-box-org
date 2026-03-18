@@ -873,7 +873,7 @@ const CraComplianceTool = ({ embedded }: { embedded?: boolean }) => {
         ) : (
           <div>
             <div className="flex items-center justify-between mb-4">
-              <div className="text-lg font-bold text-foreground">{mainSteps[step]}</div>
+              <div className="text-lg font-bold text-foreground" key={`main-${step}`}><Typewriter text={mainSteps[step]} mode="typewriter" charDelay={10} cursor={false} /></div>
               {step > 0 && (
                 <Button variant="ghost" size="sm" onClick={reset} className="text-muted-foreground">
                   <RotateCcw className="w-4 h-4 mr-1" /> {t('cra.restart')}
