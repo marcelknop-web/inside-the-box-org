@@ -565,16 +565,16 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
 
   return (
     <div>
-      {steps[sub]}
+      {stepContent}
       <div className="flex items-center justify-between mt-6 pt-4 border-t border-border/50">
         <button onClick={() => setSub(s => s - 1)} disabled={sub === 0} className={`text-sm font-semibold px-4 py-2 rounded-lg transition-colors ${sub === 0 ? 'text-muted-foreground/30 cursor-not-allowed' : 'text-muted-foreground hover:bg-secondary'}`}>← Zurück</button>
         <div className="flex gap-1">
-          {steps.map((_, i) => <div key={i} className={`w-1.5 h-1.5 rounded-full transition-all ${i === sub ? 'bg-primary w-3' : i < sub ? 'bg-primary/40' : 'bg-secondary'}`} />)}
+          {Array.from({ length: totalSteps }).map((_, i) => <div key={i} className={`w-1.5 h-1.5 rounded-full transition-all ${i === sub ? 'bg-primary w-3' : i < sub ? 'bg-primary/40' : 'bg-secondary'}`} />)}
         </div>
         {isSummary
           ? <Button onClick={() => onFinish(d)} className="font-semibold shadow-md">KI-Analyse starten →</Button>
           : <Button onClick={() => setSub(s => s + 1)} disabled={!canNext[sub]} className="font-semibold shadow-sm">
-            {sub === steps.length - 2 ? 'Zusammenfassung →' : 'Weiter →'}
+            {sub === totalSteps - 2 ? 'Zusammenfassung →' : 'Weiter →'}
           </Button>
         }
       </div>
