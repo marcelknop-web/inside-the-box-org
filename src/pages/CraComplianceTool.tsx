@@ -62,8 +62,12 @@ function SubStepHeader({ current, total, title, subtitle }: { current: number; t
         ))}
         <span className="text-xs text-muted-foreground flex-shrink-0 font-mono">{current + 1}/{total}</span>
       </div>
-      <div className="text-base font-bold text-foreground">{title}</div>
-      {subtitle && <div className="text-sm text-muted-foreground mt-0.5">{subtitle}</div>}
+      <div className="text-base font-bold text-foreground" key={`title-${current}`}>
+        <Typewriter text={title} mode="typewriter" charDelay={8} cursor={false} />
+      </div>
+      {subtitle && <div className="text-sm text-muted-foreground mt-0.5" key={`sub-${current}`}>
+        <Typewriter text={subtitle} mode="typewriter" delay={title.length * 8 + 200} charDelay={6} cursor={false} />
+      </div>}
     </div>
   );
 }
