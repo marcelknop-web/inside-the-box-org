@@ -433,7 +433,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
     <div className="space-y-5 animate-fade-in">
       <SubStepHeader current={5} total={TOTAL} title="Relevante Unterlagen hochladen" subtitle="Optional — aber Architekturdiagramme oder Berichte verbessern die Analysequalität." />
       <InfoBox icon="💡" color="blue">
-        Laden Sie relevante Dokumente hoch. Die KI kann daraus <strong>zusätzliche Kontext-Informationen</strong> extrahieren — z.B. aus einem Architekturdiagramm oder einem Pentestbericht.
+        Relevante Dokumente hochladen. Die KI kann daraus <strong>zusätzliche Kontext-Informationen</strong> extrahieren — z.B. aus einem Architekturdiagramm oder einem Pentestbericht.
       </InfoBox>
       <div className="grid grid-cols-1 gap-2">
         {ATTACH_TYPES.map(t => (
