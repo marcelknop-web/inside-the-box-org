@@ -99,7 +99,8 @@ const STEP_DEFS: StepDef[] = [
       fr: 'Avez-vous déjà reçu une exigence TISAX concrète d\'un OEM ?',
     },
     options: [
-      { label: { de: 'Ja, mit Angabe eines Assessment Levels (AL1 / AL2 / AL3)', en: 'Yes, with specified Assessment Level (AL1 / AL2 / AL3)', fr: 'Oui, avec un niveau d\'évaluation spécifié (AL1 / AL2 / AL3)' }, value: 'yes-level', weight: 3 },
+      { label: { de: 'Ja, OEM fordert AL3 (Prototypenschutz / höchste Vertraulichkeit)', en: 'Yes, OEM requires AL3 (prototype protection / highest confidentiality)', fr: 'Oui, OEM exige AL3 (protection prototypes / confidentialité maximale)' }, value: 'yes-al3', weight: 3 },
+      { label: { de: 'Ja, OEM fordert AL2 (Standard-Informationssicherheits-Audit)', en: 'Yes, OEM requires AL2 (standard information security audit)', fr: 'Oui, OEM exige AL2 (audit standard de sécurité de l\'information)' }, value: 'yes-al2', weight: 2 },
       { label: { de: 'Ja, ohne Angabe eines Levels', en: 'Yes, without specified level', fr: 'Oui, sans niveau spécifié' }, value: 'yes-nolevel', weight: 2 },
       { label: { de: 'Nein, aber wir erwarten eine Anforderung', en: 'No, but we expect a requirement', fr: 'Non, mais nous attendons une exigence' }, value: 'expected', weight: 1 },
       { label: { de: 'Nein', en: 'No', fr: 'Non' }, value: 'no', weight: 0 },
@@ -125,6 +126,7 @@ const I18N = {
   relevance: { de: 'Relevanz', en: 'Relevance', fr: 'Pertinence' },
   backToWorkflows: { de: 'Zurück zu KI-Workflows', en: 'Back to AI Workflows', fr: 'Retour aux workflows IA' },
   downloadProtocol: { de: 'Prüfprotokoll herunterladen', en: 'Download Assessment Protocol', fr: 'Télécharger le protocole' },
+  plausibilityWarning: { de: 'Plausibilitätshinweis', en: 'Plausibility Notice', fr: 'Avis de plausibilité' },
 };
 
 const STEP_LABELS: Record<string, Record<string, string>> = {
@@ -136,25 +138,77 @@ const STEP_LABELS: Record<string, Record<string, string>> = {
   oemrequest: { de: 'OEM-Anforderung', en: 'OEM Requirement', fr: 'Exigence OEM' },
 };
 
+/** Detect contradictory answer combinations */
+function getPlausibilityWarnings(answers: Record<string, { value: string; weight: number }>, lang: 'de' | 'en' | 'fr'): string[] {
+  const warnings: string[] = [];
+  const t = (obj: Record<string, string>) => obj[lang] || obj.en;
+
+  // "Other / no automotive" but high-sensitivity data or prototypes
+  if (answers.role?.value === 'other') {
+    if (answers.prototype?.value === 'direct') {
+      warnings.push(t({
+        de: 'Rolle „Sonstige" steht im Widerspruch zu direktem Prototypen-Kontakt. Bitte prüfen.',
+        en: 'Role "Other" contradicts direct prototype involvement. Please review.',
+        fr: 'Rôle « Autre » en contradiction avec l\'implication directe dans les prototypes. Veuillez vérifier.',
+      }));
+    }
+    if (answers.dataclass?.value === 'strictly-confidential') {
+      warnings.push(t({
+        de: 'Rolle „Sonstige" steht im Widerspruch zu streng vertraulichen Daten. Bitte prüfen.',
+        en: 'Role "Other" contradicts strictly confidential data. Please review.',
+        fr: 'Rôle « Autre » en contradiction avec des données strictement confidentielles. Veuillez vérifier.',
+      }));
+    }
+  }
+
+  // No sensitive data but OEM requests specific level
+  if (answers.information?.value === 'none' && answers.dataclass?.value === 'public') {
+    if (answers.oemrequest?.value === 'yes-al3' || answers.oemrequest?.value === 'yes-al2') {
+      warnings.push(t({
+        de: 'OEM-Anforderung vorhanden, aber keine sensiblen Daten angegeben. Bitte Datenkategorien prüfen.',
+        en: 'OEM requirement present but no sensitive data indicated. Please review data categories.',
+        fr: 'Exigence OEM présente mais aucune donnée sensible indiquée. Veuillez vérifier les catégories.',
+      }));
+    }
+  }
+
+  return warnings;
+}
+
 function classify(answers: Record<string, { value: string; weight: number }>): AssessmentLevel {
-  // AL3 triggers
-  if (answers.prototype?.value === 'direct') return 'AL3';
-  if (answers.dataclass?.value === 'strictly-confidential') return 'AL3';
-  if (answers.information?.value === 'prototype') return 'AL3';
-  if (answers.oemrequest?.value === 'yes-level') return 'AL3'; // explicit OEM request typically means AL2/AL3
+  const role = answers.role?.value;
+  const info = answers.information?.value;
+  const proto = answers.prototype?.value;
+  const net = answers.network?.value;
+  const data = answers.dataclass?.value;
+  const oem = answers.oemrequest?.value;
 
-  // AL2 triggers
-  if (answers.prototype?.value === 'indirect') return 'AL2';
-  if (answers.dataclass?.value === 'confidential') return 'AL2';
-  if (answers.information?.value === 'cad') return 'AL2';
-  if (answers.network?.value === 'direct') return 'AL2';
-  if (answers.role?.value === 'oem' || answers.role?.value === 'tier1') return 'AL2';
-  if (answers.oemrequest?.value === 'yes-nolevel') return 'AL2';
+  const hasAutomotiveContext = role !== 'other' && role !== undefined;
 
-  // AL1 triggers
+  // ── AL3: Only with automotive context OR explicit OEM AL3 request ──
+  if (oem === 'yes-al3') return 'AL3';
+  if (proto === 'direct' && hasAutomotiveContext) return 'AL3';
+  if (data === 'strictly-confidential' && hasAutomotiveContext) return 'AL3';
+  if (info === 'prototype' && hasAutomotiveContext) return 'AL3';
+
+  // ── AL2: Explicit OEM AL2, or significant indicators with context ──
+  if (oem === 'yes-al2') return 'AL2';
+  if (proto === 'indirect') return 'AL2';
+  if (data === 'confidential') return 'AL2';
+  if (info === 'cad' && hasAutomotiveContext) return 'AL2';
+  if (net === 'direct' && hasAutomotiveContext) return 'AL2';
+  if (oem === 'yes-nolevel') return 'AL2';
+
+  // Fix #2: Role alone (OEM/Tier-1) triggers AL2 only with at least one supporting indicator
+  if (role === 'oem' || role === 'tier1') {
+    const hasSupporting = info !== 'none' || data !== 'public' || net !== 'no' || proto !== 'no';
+    if (hasSupporting) return 'AL2';
+  }
+
+  // ── AL1: Weight-based with raised threshold (Fix #3) ──
   const totalWeight = Object.values(answers).reduce((s, a) => s + a.weight, 0);
-  if (totalWeight >= 4) return 'AL1';
-  if (answers.oemrequest?.value === 'expected') return 'AL1';
+  if (totalWeight >= 5) return 'AL1';
+  if (oem === 'expected' && totalWeight >= 3) return 'AL1';
 
   return 'none';
 }
@@ -242,6 +296,7 @@ export default function TisaxAssessmentClassifier({ embedded = false }: { embedd
   // Result screen
   if (verdict) {
     const vs = VERDICT_STYLES[verdict];
+    const warnings = getPlausibilityWarnings(answers, lang);
     return (
       <div className={wrapperClass}>
         <PageMeta title="TISAX Assessment Check" description="TISAX Assessment Level Classifier" />
@@ -253,6 +308,18 @@ export default function TisaxAssessmentClassifier({ embedded = false }: { embedd
             <div className="text-4xl mb-2">{vs.emoji}</div>
             <h2 className={`text-xl md:text-2xl font-mono font-bold ${vs.color}`}>{t(vs.label)}</h2>
           </div>
+
+          {/* Plausibility warnings */}
+          {warnings.length > 0 && (
+            <div className="bg-[hsl(45,80%,55%,0.1)] border-2 border-[hsl(45,80%,55%,0.4)] rounded-lg p-4">
+              <div className="font-mono text-sm font-bold text-[hsl(45,80%,55%)] uppercase tracking-wider mb-2">⚠️ {t(I18N.plausibilityWarning)}</div>
+              <ul className="space-y-1.5 text-sm text-foreground/80">
+                {warnings.map((w, i) => (
+                  <li key={i} className="flex gap-2"><span className="text-[hsl(45,80%,55%)] flex-shrink-0">›</span>{w}</li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           {/* Summary table */}
           <div className="bg-highlight/5 border border-highlight/20 rounded-lg overflow-hidden">
