@@ -747,7 +747,7 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
   }, [t, intakeData, typeName, craName, today, threats.length, critRisks.length, reqs.length, failReqs.length, partialCount]);
 
   return (
-    <div className="space-y-4">
+    <StaggerReveal resetKey={`rp`} stagger={350}>
       <InfoBox icon="✅" title={t('cra.rpDone')} color="green"><span dangerouslySetInnerHTML={{ __html: t('cra.rpDoneInfo') }} /></InfoBox>
       <div className="bg-card border-l-4 border-primary rounded-lg p-5 border border-border">
         <div className="flex flex-col sm:flex-row items-start justify-between mb-3 gap-2">
@@ -810,7 +810,7 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
           <button className="bg-secondary text-muted-foreground text-sm font-semibold px-4 py-2 rounded-lg cursor-not-allowed border border-border" title={t('cra.rpExportBtn')}>PDF</button>
         </div>
       </div>
-    </div>
+    </StaggerReveal>
   );
 }
 
