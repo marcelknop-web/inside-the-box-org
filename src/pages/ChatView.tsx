@@ -1316,7 +1316,7 @@ const ChatView = () => {
         <div className={`${sidebarOpen ? 'w-64' : 'w-0'} transition-all duration-300 flex-shrink-0 overflow-hidden`}>
           <div className="w-64 h-full flex flex-col bg-card border-r border-border">
             <div className="h-12 px-3 flex items-center justify-between bg-primary/10 border-b border-border flex-shrink-0">
-              <button onClick={() => { setActiveService(null); setMessages([]); }} className="flex items-center gap-2 text-sm font-rounded font-bold text-primary hover:text-highlight transition-electric cursor-pointer bg-transparent border-none p-0"><GeometricSymbol size="xs" />inside-the-box.org</button>
+              <button onClick={() => navigateToService(null)} className="flex items-center gap-2 text-sm font-rounded font-bold text-primary hover:text-highlight transition-electric cursor-pointer bg-transparent border-none p-0"><GeometricSymbol size="xs" />inside-the-box.org</button>
               <button onClick={() => setLanguage(nextLanguage(language))} className="rounded-lg border border-highlight/30 px-2.5 py-2.5 text-xs font-rounded font-bold text-highlight hover:bg-highlight/10 hover:border-highlight/50 transition-electric uppercase tracking-wider">
                 {language.toUpperCase()}
               </button>
