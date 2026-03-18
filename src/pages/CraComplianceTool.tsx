@@ -238,12 +238,13 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
   const set = (field: keyof IntakeData, val: any) => setD(p => ({ ...p, [field]: val }));
 
   const canNext = [
-    d.productName.trim().length > 0 && d.productTypes.length > 0,
-    d.description.trim().length > 0 || d.components.length > 0,
-    true,
-    d.roles.length > 0,
-    true,
-    true,
+    d.productName.trim().length > 0 && d.productTypes.length > 0, // Step 0: Produkt-Grunddaten
+    true, // Step 1: CRA-Klassifizierung (optional)
+    d.description.trim().length > 0 || d.components.length > 0,  // Step 2: Systemarchitektur
+    true, // Step 3: Schnittstellen (optional)
+    d.roles.length > 0, // Step 4: Nutzerrollen
+    true, // Step 5: Sicherheitsmaßnahmen (optional)
+    true, // Step 6: Anlagen (optional)
   ];
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
