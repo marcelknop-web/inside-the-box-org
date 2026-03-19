@@ -664,6 +664,8 @@ export function generateCraReport(data: CraReportData): void {
      ══════════════════════════════════════ */
   newSection();
   writeSectionHeading(t(I18N.sec2));
+  writeBody(t(I18N.introSec2));
+  y += 2;
 
   const passReqs = reqs.filter(r => r.status === 'pass');
   const summaryData = getMgmtSummaryData(intakeData.productName, threats.length, critRisks.length, failReqs.length, partialReqs.length, reqs.length, passReqs.length, lang);
