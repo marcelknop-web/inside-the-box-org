@@ -941,6 +941,7 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
 
   const handleDraftPdf = useCallback(() => {
     generateCraReport({ intakeData, threats: localThreats, reqs: localReqs, language: language as 'de' | 'en' | 'fr', productTypeName: typeName, craClassName: craName, isDraft: true });
+    setDraftDownloaded(true);
   }, [intakeData, localThreats, localReqs, language, typeName, craName]);
 
   const handleFinalPdf = useCallback(() => {
