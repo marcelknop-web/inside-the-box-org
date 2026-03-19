@@ -931,6 +931,17 @@ export function generateCraReport(data: CraReportData): void {
       writeFieldBlock(t(I18N.relatedReqs), relatedReqIds.join('; '));
     }
 
+    // Evidence quality + reproducibility
+    const stars = '★'.repeat(th.evidenceQuality) + '☆'.repeat(5 - th.evidenceQuality);
+    const reproMap: Record<string, Record<string, string>> = {
+      easy: { de: 'Einfach', en: 'Easy', fr: 'Facile' },
+      medium: { de: 'Mittel', en: 'Medium', fr: 'Moyen' },
+      hard: { de: 'Komplex', en: 'Complex', fr: 'Complexe' },
+      impossible: { de: 'Nicht reproduzierbar', en: 'Not reproducible', fr: 'Non reproductible' },
+    };
+    const reproLabel = reproMap[th.reproducibility]?.[lang] || th.reproducibility;
+    writeLabel(`${t(I18N.evidenceQuality)}: ${stars}  |  ${t(I18N.reproducibility)}: ${reproLabel}`, 5);
+
     // Risk score breakdown
     writeLabel(t(I18N.riskScore), 5);
     doc.setFont('helvetica', 'normal');
