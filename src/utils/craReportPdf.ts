@@ -403,14 +403,13 @@ export function generateCraReport(data: CraReportData): void {
 
   function preparePage() {
     addRunningHeader();
-    drawWatermark(doc, W / 2, H / 2, 52);
     if (isDraft) {
       doc.saveGraphicsState();
-      doc.setGState(new (doc as any).GState({ opacity: 0.08 }));
+      doc.setGState(new (doc as any).GState({ opacity: 0.04 }));
       doc.setFont('helvetica', 'bold');
-      doc.setFontSize(72);
-      doc.setTextColor(200, 50, 50);
-      doc.text('DRAFT', W / 2, H / 2 + 10, { align: 'center', angle: 45 });
+      doc.setFontSize(64);
+      doc.setTextColor(160, 160, 160);
+      doc.text('ENTWURF', W / 2, H / 2 + 10, { align: 'center', angle: 45 });
       doc.restoreGraphicsState();
     }
   }
@@ -548,7 +547,7 @@ export function generateCraReport(data: CraReportData): void {
      ══════════════════════════════════════ */
   doc.setFillColor(...C.navy);
   doc.rect(0, 0, W, H, 'F');
-  drawWatermark(doc, W / 2, 120, 65);
+  
 
   doc.setFillColor(...C.gold);
   doc.rect(ML, 50, 35, 1.5, 'F');
