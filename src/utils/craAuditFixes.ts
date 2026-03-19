@@ -410,9 +410,9 @@ export function applyAuditFixes(
     }
   }
 
-  // ═══ Second pass: ensure all status downgrades also get effort+priority ═══
-  // (needed when A3-1/A3-2 downgraded a req that then needs B9/B10 treatment)
-  if (failedIds.has('B9') || failedIds.has('B10')) {
+  // ═══ Second pass: ALWAYS ensure all non-pass reqs have effort+priority ═══
+  // (needed after any status downgrade from A3-1/A3-2/B1-B6)
+  {
     fixedReqs.forEach(r => {
       if (r.status !== 'pass') {
         const linkedThreats = fixedThreats.filter(th => th.cra === r.article);
