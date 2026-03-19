@@ -231,10 +231,10 @@ export const THREATS: Threat[] = [
     sources: ['CRA Annex I, Part I, Nr. 4: Vertraulichkeit von Daten', 'ETSI EN 303 645, Provision 5.8-1: Kommunikationssicherheit'],
     evidenceQuality: 5, reproducibility: 'easy' },
   { id: 11, stride: 'I', name: 'OPC-UA Security Mode None — Datenabfluss', component: 'OPC-UA Client', attacker: 'Netzwerk-Mitleser', path: 'OPC-UA Security Mode auf "None" konfiguriert → Alle Prozessdaten unverschlüsselt → Industriegeheimnisse exponiert', cra: 'Annex I, Part I, Nr. 4', likelihood: 4, impact: 5,
-    evidence: 'Konfigurationsanalyse: OPC-UA Client-Konfiguration zeigt SecurityMode=None und SecurityPolicy=None. Verbindung zum OPC-UA Server erfolgt ohne Verschlüsselung oder Signatur.',
+    evidence: 'Konfigurationsanalyse: OPC-UA Client-Config (cat /etc/opcua/client.conf): SecurityMode=None, SecurityPolicy=None. Netzwerkmitschnitt (Wireshark, Display Filter: opcua): OPC-UA ReadResponse-Pakete enthalten Prozessdaten (Temperatur, Druck, Setpoints) im Klartext. OPC-UA-Scanner (opcua-client-gui 0.8): Browse-Request ohne Auth erfolgreich, alle Nodes sichtbar. Pcap-Datei dokumentiert.',
     rationale: 'Likelihood 4: Erfordert Netzwerkzugang zum OT-Segment, dort trivial mitzulesen — in OT-Umgebungen ist Layer-2-Zugang Standard. Impact 5: Prozessdaten, Produktionsparameter und Steuerungsbefehle offengelegt — in Industriekontext Betriebsgeheimnisse und potenzielle Safety-Auswirkungen.',
     sources: ['OPC Foundation Security Best Practices', 'IEC 62541-2: OPC Unified Architecture — Security Model'],
-    evidenceQuality: 3, reproducibility: 'medium' },
+    evidenceQuality: 4, reproducibility: 'easy' },
 
   // D — Denial of Service (2)
   { id: 6, stride: 'D', name: 'DoS auf MQTT-Broker — Verfügbarkeitsverlust', component: 'MQTT-Broker — Connection-Management', attacker: 'Externer Angreifer', path: 'Flood-Angriff → Broker-Überlastung → Produktionsausfall', cra: 'Annex I, Part I, Nr. 7', likelihood: 3, impact: 4,
