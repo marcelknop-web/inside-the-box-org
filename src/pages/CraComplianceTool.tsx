@@ -1249,17 +1249,25 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
       <div className="bg-secondary border border-border rounded-lg p-4">
         <div className="text-sm text-foreground mb-3">
           <div className="font-semibold mb-0.5">{t('cra.rpExport')}</div>
-          <div className="text-xs text-muted-foreground">{t('cra.rpExportHintActive')}</div>
+          <div className="text-xs text-muted-foreground">
+            {qaIteration > 0
+              ? (language === 'de' ? `Durchlauf ${qaIteration} — ${fixesApplied ? 'Korrekturen angewendet, erneuter Check oder Final möglich' : qaResult ? 'Ergebnisse vorliegend' : 'Prüfung läuft'}` :
+                 language === 'fr' ? `Passage ${qaIteration} — ${fixesApplied ? 'Corrections appliquées, nouveau contrôle ou Final possible' : qaResult ? 'Résultats disponibles' : 'Vérification en cours'}` :
+                 `Run ${qaIteration} — ${fixesApplied ? 'Fixes applied, re-check or Final available' : qaResult ? 'Results available' : 'Check running'}`)
+              : t('cra.rpExportHintActive')}
+          </div>
         </div>
         <div className="flex gap-2 flex-wrap items-center">
-          {/* Step indicator */}
           {(() => {
-            // Determine current step: 1=Draft, 2=QA, 3=Fixes, 4=Final
-            const currentStep = !draftDownloaded ? 1 : !qaResult ? 2 : (qaResult.failed > 0 && !fixesApplied) ? 3 : 4;
             const activeClass = 'bg-primary text-primary-foreground hover:bg-primary/90 ring-2 ring-primary/30';
             const doneClass = 'bg-card border border-primary/40 text-primary hover:bg-accent';
             const disabledClass = 'bg-muted text-muted-foreground cursor-not-allowed';
             const defaultClass = 'bg-card border border-border text-foreground hover:bg-accent';
+
+            // After fixes, QA becomes the active next step again
+            const qaIsNext = !draftDownloaded ? false : (!qaResult || fixesApplied);
+            const fixesIsNext = qaResult && qaResult.failed > 0 && !fixesApplied && !fixesRunning;
+            const finalIsNext = (fixesApplied && (!qaResult || qaResult.failed === 0)) || qaVerdict === 'passed' || qaVerdict === 'conditional';
 
             return (
               <>
@@ -1267,39 +1275,45 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
                 <button
                   onClick={handleDraftPdf}
                   className={`text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2 transition-all ${
-                    currentStep === 1 ? activeClass : draftDownloaded ? doneClass : defaultClass
+                    !draftDownloaded ? activeClass : doneClass
                   }`}
                 >
-                  {draftDownloaded && <CheckCircle2 className="w-4 h-4" />}
-                  {!draftDownloaded && <FileText className="w-4 h-4" />}
+                  {draftDownloaded ? <CheckCircle2 className="w-4 h-4" /> : <FileText className="w-4 h-4" />}
                   <span className="font-mono text-xs opacity-60 mr-0.5">1</span>
                   PDF Draft
                 </button>
 
                 <span className="text-muted-foreground text-xs hidden sm:inline">{'>'}</span>
 
-                {/* 2. Quality Check */}
+                {/* 2. Quality Check — always re-runnable after draft */}
                 <button
                   onClick={handleQaCheck}
                   disabled={qaRunning || !draftDownloaded}
                   className={`text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2 transition-all disabled:opacity-50 ${
-                    currentStep === 2 ? activeClass : qaResult ? doneClass : !draftDownloaded ? disabledClass : defaultClass
+                    qaRunning ? activeClass : qaIsNext ? activeClass : qaResult && !fixesApplied ? doneClass : !draftDownloaded ? disabledClass : defaultClass
                   }`}
                 >
-                  {qaRunning ? <Loader2 className="w-4 h-4 animate-spin" /> : qaResult ? <CheckCircle2 className="w-4 h-4" /> : <ShieldCheck className="w-4 h-4" />}
+                  {qaRunning ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShieldCheck className="w-4 h-4" />}
                   <span className="font-mono text-xs opacity-60 mr-0.5">2</span>
-                  {language === 'de' ? 'Qualitätscheck' : language === 'fr' ? 'Contrôle qualité' : 'Quality Check'}
+                  {qaRunning
+                    ? (language === 'de' ? 'Prüfe…' : language === 'fr' ? 'Vérification…' : 'Checking…')
+                    : (language === 'de'
+                      ? (fixesApplied ? 'Erneut prüfen' : 'Qualitätscheck')
+                      : language === 'fr'
+                      ? (fixesApplied ? 'Re-vérifier' : 'Contrôle qualité')
+                      : (fixesApplied ? 'Re-check' : 'Quality Check'))}
+                  {qaIteration > 0 && <span className="text-[10px] font-mono opacity-60">#{qaIteration}</span>}
                 </button>
 
                 <span className="text-muted-foreground text-xs hidden sm:inline">{'>'}</span>
 
-                {/* 3. Apply Fixes */}
+                {/* 3. Apply Fixes — available when there are failed checks */}
                 <div className="flex flex-col items-center gap-1">
                   <button
                     onClick={handleApplyFixes}
                     disabled={!qaResult || qaResult.failed === 0 || fixesApplied || fixesRunning}
                     className={`text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2 transition-all disabled:opacity-50 ${
-                      fixesRunning ? activeClass : currentStep === 3 ? activeClass : fixesApplied ? doneClass : (!qaResult || qaResult.failed === 0) ? disabledClass : defaultClass
+                      fixesRunning ? activeClass : fixesIsNext ? activeClass : fixesApplied ? doneClass : (!qaResult || qaResult.failed === 0) ? disabledClass : defaultClass
                     }`}
                   >
                     {fixesRunning ? <Loader2 className="w-4 h-4 animate-spin" /> : fixesApplied ? <CheckCircle2 className="w-4 h-4" /> : <Wrench className="w-4 h-4" />}
@@ -1320,7 +1334,7 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
                   onClick={handleFinalPdf}
                   disabled={!canFinal || finalPdfRunning}
                   className={`text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2 transition-all ${
-                    finalPdfRunning ? activeClass : currentStep === 4 && canFinal ? activeClass : !canFinal ? disabledClass : defaultClass
+                    finalPdfRunning ? activeClass : finalIsNext && canFinal ? activeClass : !canFinal ? disabledClass : defaultClass
                   }`}
                   title={!canFinal ? (language === 'de' ? 'Vorherige Schritte zuerst abschließen' : 'Complete previous steps first') : ''}
                 >
