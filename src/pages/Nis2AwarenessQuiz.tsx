@@ -291,7 +291,7 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
   const timerCritical = timeLeft <= 5;
 
   const wrapperClass = embedded ? 'space-y-3' : 'min-h-screen p-4 max-w-4xl mx-auto bg-transparent';
-  const diamondClip = 'polygon(3% 50%, 6% 0%, 94% 0%, 97% 50%, 94% 100%, 6% 100%)';
+  const diamondClip = 'polygon(4% 50%, 7% 0%, 93% 0%, 96% 50%, 93% 100%, 7% 100%)';
 
   // ── Entry screen ──
   if (!started) {
