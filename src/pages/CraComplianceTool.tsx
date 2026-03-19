@@ -181,6 +181,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
     roles: string[];
     measures: Record<string, MeasureEntry>;
     knownIssues: string;
+    files: { name: string; size: number; type: string }[];
   }
 
   const DEMO_SCENARIOS: DemoScenario[] = [
@@ -195,6 +196,11 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
       roles: ['Administrator', 'Operator', 'Read-Only User'],
       measures: { tls: { active: true, documented: true, audited: false }, auth: { active: true, documented: false, audited: false }, patch: { active: true, documented: true, audited: true }, log: { active: true, documented: false, audited: false } },
       knownIssues: 'OTA update currently uses HTTPS but without package signature verification.',
+      files: [
+        { name: 'SmartSense_Architecture_v2.4.pdf', size: 1_245_000, type: 'arch' },
+        { name: 'SmartSense_SecurityPolicy_2025.pdf', size: 430_000, type: 'policy' },
+        { name: 'smartsense-sbom-2.4.1.spdx.json', size: 87_000, type: 'sbom' },
+      ],
     },
     {
       // Industrial Edge – Klasse II, umfangreiche Maßnahmen
@@ -207,6 +213,13 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
       roles: ['Administrator', 'Maintenance Engineer', 'Operator'],
       measures: { tls: { active: true, documented: true, audited: true }, auth: { active: true, documented: true, audited: false }, mfa: { active: true, documented: false, audited: false }, sbom: { active: true, documented: true, audited: false }, secboot: { active: true, documented: true, audited: true } },
       knownIssues: 'Modbus interface lacks authentication. SBOM does not yet cover all transitive dependencies.',
+      files: [
+        { name: 'IndustrialEdge_SystemArchitecture_v3.1.pdf', size: 2_850_000, type: 'arch' },
+        { name: 'IE_Pentest_Report_Q4-2025.pdf', size: 1_120_000, type: 'pentest' },
+        { name: 'IE_SecurityPolicy_OT.pdf', size: 560_000, type: 'policy' },
+        { name: 'industrialedge-sbom-3.1.0.cdx.json', size: 142_000, type: 'sbom' },
+        { name: 'IE_ThreatModel_STRIDE.drawio', size: 310_000, type: 'arch' },
+      ],
     },
     {
       // Cloud SaaS – Default-Klasse, gute Maßnahmen
@@ -219,6 +232,12 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
       roles: ['Tenant Admin', 'Editor', 'Viewer'],
       measures: { tls: { active: true, documented: true, audited: true }, rbac: { active: true, documented: true, audited: false }, monitor: { active: true, documented: true, audited: false }, pentest: { active: true, documented: false, audited: false }, ir: { active: true, documented: true, audited: false } },
       knownIssues: '',
+      files: [
+        { name: 'CloudVault_Architecture_Overview.pdf', size: 1_780_000, type: 'arch' },
+        { name: 'CloudVault_Pentest_2025-H2.pdf', size: 920_000, type: 'pentest' },
+        { name: 'CloudVault_ISMS_Policy_v4.pdf', size: 670_000, type: 'policy' },
+        { name: 'cloudvault-sbom-5.2.0.spdx.json', size: 205_000, type: 'sbom' },
+      ],
     },
     {
       // Mobile Fleet App – Klasse I, Lücken bei Maßnahmen
@@ -231,6 +250,10 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
       roles: ['Fleet Manager', 'Driver', 'Dispatcher'],
       measures: { tls: { active: true, documented: true, audited: false }, auth: { active: true, documented: true, audited: false }, encrypt: { active: true, documented: false, audited: false }, log: { active: true, documented: true, audited: false } },
       knownIssues: 'Default admin credentials are documented but not enforced to change on first login.',
+      files: [
+        { name: 'FleetTrack_AppArchitecture.pdf', size: 890_000, type: 'arch' },
+        { name: 'FleetTrack_DataProtection_Policy.pdf', size: 340_000, type: 'policy' },
+      ],
     },
     {
       // Kritische Infrastruktur – Klasse Kritisch, hohe Anforderungen
@@ -243,6 +266,13 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
       roles: ['Security Officer', 'Network Administrator', 'Auditor', 'Operator'],
       measures: { tls: { active: true, documented: true, audited: true }, auth: { active: true, documented: true, audited: true }, mfa: { active: true, documented: true, audited: true }, fw: { active: true, documented: true, audited: false }, secboot: { active: true, documented: true, audited: true }, codesign: { active: true, documented: true, audited: false }, sbom: { active: true, documented: true, audited: true }, ir: { active: true, documented: true, audited: false }, monitor: { active: true, documented: true, audited: true } },
       knownIssues: 'MQTT broker accepts connections without rate limiting. No SBOM available yet.',
+      files: [
+        { name: 'SecureLink_Architecture_CritInfra.pdf', size: 3_200_000, type: 'arch' },
+        { name: 'SecureLink_Pentest_BSI-Certified_2025.pdf', size: 1_540_000, type: 'pentest' },
+        { name: 'SecureLink_ISMS_BSI-Grundschutz.pdf', size: 890_000, type: 'policy' },
+        { name: 'securelink-sbom-2.0.3.cdx.xml', size: 178_000, type: 'sbom' },
+        { name: 'SecureLink_HSM_Certification_CC-EAL4.pdf', size: 2_100_000, type: 'other' },
+      ],
     },
   ];
 
@@ -270,6 +300,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
         setD(prev => ({ ...prev, measures: scenario.measures, knownIssues: scenario.knownIssues }));
         break;
       case 6:
+        setD(prev => ({ ...prev, files: scenario.files }));
         break;
     }
   }, [sub]);
