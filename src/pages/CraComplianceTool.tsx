@@ -1027,7 +1027,7 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
 
       <div className="grid grid-cols-3 gap-3">
         {([
-          [t('cra.rpTotalThreats'), threats.length, 'text-foreground'],
+          [t('cra.rpTotalThreats'), localThreats.length, 'text-foreground'],
           [t('cra.rpCritRisks'), critRisks.length, 'text-destructive'],
           [t('cra.rpCraGaps'), failReqs.length, 'text-destructive'],
         ] as [string, number, string][]).map(([l, n, c]) => (
