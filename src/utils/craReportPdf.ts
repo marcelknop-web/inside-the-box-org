@@ -1584,13 +1584,15 @@ export function generateCraReport(data: CraReportData): void {
     const statusTag = req.status === 'pass' ? 'COMPLIANT' : req.status === 'partial' ? 'PARTIAL' : 'NON-COMPLIANT';
     writeLabel(`${req.id}  —  ${statusTag}`, 0);
 
+    const truncReqEvid = req.evidence.length > 140 ? req.evidence.slice(0, 140).trimEnd() + '... (s. Abschnitt 4 / see Section 4)' : req.evidence;
+    const truncReqRat = req.rationale.length > 140 ? req.rationale.slice(0, 140).trimEnd() + '... (s. Abschnitt 4 / see Section 4)' : req.rationale;
     const fields: [string, string][] = [
       ['article', req.article],
       ['name', req.name],
       ['status', statusTag],
       ['gap', req.gap],
-      ['evidence', req.evidence],
-      ['rationale', req.rationale],
+      ['evidence_summary', truncReqEvid],
+      ['rationale_summary', truncReqRat],
       ['recommended_measure', req.measure],
       ['acceptance_criteria', req.criteria.join(' | ')],
     ];
