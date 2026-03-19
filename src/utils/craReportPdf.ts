@@ -629,14 +629,43 @@ export function generateCraReport(data: CraReportData): void {
   writeBody(getContextText(intakeData.productName, intakeData.version, productTypeName, craClassName, dateStr, lang));
 
   /* ══════════════════════════════════════
-     SECTION 2: Management Summary
+     SECTION 2: Management Summary (McKinsey-style)
      ══════════════════════════════════════ */
   newSection();
   writeSectionHeading(t(I18N.sec2));
-  writeBody(getMgmtSummary(intakeData.productName, threats.length, critRisks.length, failReqs.length, partialReqs.length, reqs.length, lang));
-  y += 6;
 
-  // Stats boxes
+  const passReqs = reqs.filter(r => r.status === 'pass');
+  const summaryData = getMgmtSummaryData(intakeData.productName, threats.length, critRisks.length, failReqs.length, partialReqs.length, reqs.length, passReqs.length, lang);
+
+  // ── Governing assertion (bold verdict) ──
+  checkPage(20);
+  const verdictBoxY = y;
+  const verdictPad = 5;
+  doc.setFillColor(...(critRisks.length > 0 ? C.bgRed : failReqs.length > 0 ? C.bgYellow : C.bgGreen));
+  doc.roundedRect(ML, verdictBoxY, CW, 16, 2, 2, 'F');
+  const verdictAccent: [number, number, number] = critRisks.length > 0 ? C.redText : failReqs.length > 0 ? C.orangeText : C.greenText;
+  doc.setFillColor(...verdictAccent);
+  doc.rect(ML, verdictBoxY, 1.5, 16, 'F');
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(10.5);
+  doc.setTextColor(...verdictAccent);
+  const verdictLines = doc.splitTextToSize(summaryData.verdict, CW - verdictPad * 2 - 2);
+  doc.text(verdictLines, ML + verdictPad + 2, verdictBoxY + (verdictLines.length === 1 ? 10 : 7));
+  y = verdictBoxY + 16 + 5;
+
+  // ── Situation line (compact data strip) ──
+  checkPage(10);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(7.5);
+  doc.setTextColor(...C.labelText);
+  doc.text(summaryData.situationLine, ML, y);
+  y += 3;
+  doc.setDrawColor(...C.ruleStroke);
+  doc.setLineWidth(0.3);
+  doc.line(ML, y, ML + CW, y);
+  y += 7;
+
+  // ── Key Metrics (stat boxes) ──
   checkPage(30);
   const bw = (CW - 9) / 4;
   const bh = 22;
@@ -664,7 +693,63 @@ export function generateCraReport(data: CraReportData): void {
   }
   y += bh + 8;
 
-  // STRIDE Distribution summary
+  // ── Key Findings (structured, assertion-led) ──
+  const findingsLabel = lang === 'de' ? 'WESENTLICHE FESTSTELLUNGEN' : lang === 'fr' ? 'CONSTATS PRINCIPAUX' : 'KEY FINDINGS';
+  writeLabel(findingsLabel);
+  y += 1;
+
+  for (let fi = 0; fi < summaryData.findings.length; fi++) {
+    const f = summaryData.findings[fi];
+    checkPage(18);
+
+    // Finding number + title (bold assertion)
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9);
+    doc.setTextColor(...C.darkNavy);
+    const fNum = `${fi + 1}.`;
+    doc.text(fNum, ML, y);
+    const fNumW = doc.getTextWidth(fNum + ' ');
+    const titleLines = doc.splitTextToSize(f.title, CW - fNumW);
+    doc.text(titleLines, ML + fNumW, y);
+    y += titleLines.length * BODY_LEADING + 1;
+
+    // Detail (normal, indented)
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8.5);
+    doc.setTextColor(...C.bodyText);
+    const detailLines = doc.splitTextToSize(f.detail, CW - fNumW - 2);
+    for (const dl of detailLines) {
+      checkPage(5);
+      doc.text(dl, ML + fNumW, y);
+      y += 3.8;
+    }
+    y += 3;
+  }
+
+  // ── Implication + Required Action ──
+  y += 2;
+  const implLabel = lang === 'de' ? 'REGULATORISCHE IMPLIKATION' : lang === 'fr' ? 'IMPLICATION RÉGLEMENTAIRE' : 'REGULATORY IMPLICATION';
+  writeLabel(implLabel);
+  writeBody(summaryData.implication, 0);
+
+  const actionLabel = lang === 'de' ? 'HANDLUNGSERFORDERNIS' : lang === 'fr' ? 'ACTION REQUISE' : 'REQUIRED ACTION';
+  writeLabel(actionLabel);
+
+  // Action box with accent
+  checkPage(16);
+  doc.setFillColor(...C.bgLight);
+  const actionLines = doc.splitTextToSize(summaryData.action, CW - 12);
+  const actionBoxH = actionLines.length * 4.2 + 6;
+  doc.roundedRect(ML, y - 2, CW, actionBoxH, 1.5, 1.5, 'F');
+  doc.setFillColor(...C.gold);
+  doc.rect(ML, y - 2, 1.5, actionBoxH, 'F');
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8.5);
+  doc.setTextColor(...C.bodyText);
+  doc.text(actionLines, ML + 6, y + 2);
+  y += actionBoxH + 5;
+
+  // ── STRIDE Distribution ──
   checkPage(30);
   writeSubHeading(t(I18N.strideDistTitle));
   const strideCounts: Record<string, number> = {};
