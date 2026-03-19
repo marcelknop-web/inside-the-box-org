@@ -886,11 +886,15 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
   const [fixesRunning, setFixesRunning] = useState(false);
   const [fixProgress, setFixProgress] = useState(0);
   const [fixLog, setFixLog] = useState<string[]>([]);
+  const [allFixLogs, setAllFixLogs] = useState<string[]>([]);
   const [draftDownloaded, setDraftDownloaded] = useState(false);
   // Iterative QA tracking
   const [qaIteration, setQaIteration] = useState(0);
   interface QaHistoryEntry { iteration: number; passed: number; total: number; failed: number; verdict: string; fixes: string[] }
   const [qaHistory, setQaHistory] = useState<QaHistoryEntry[]>([]);
+  // Pre-fix QA checks for the Final PDF (captures what was found before corrections)
+  const [preFixQaChecks, setPreFixQaChecks] = useState<QaCheck[] | null>(null);
+  type QaCheck = NonNullable<QaResult>['checks'][number];
   const critRisks = useMemo(() => localThreats.filter(th => th.likelihood * th.impact >= 20), [localThreats]);
   const failReqs = useMemo(() => localReqs.filter(r => r.status === 'fail'), [localReqs]);
   const partialCount = useMemo(() => localReqs.filter(r => r.status === 'partial').length, [localReqs]);
@@ -947,6 +951,9 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
     setFixProgress(10);
     const failedChecks = qaResult.checks.filter(c => !c.passed);
     
+    // Preserve the pre-fix QA checks (first time or accumulate)
+    setPreFixQaChecks(prev => prev || qaResult.checks);
+    
     const t1 = setTimeout(() => setFixProgress(30), 300);
     const t2 = setTimeout(() => setFixProgress(55), 700);
     const t3 = setTimeout(() => {
@@ -955,6 +962,7 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
       setLocalThreats(result.threats);
       setLocalReqs(result.reqs);
       setFixLog(result.fixes);
+      setAllFixLogs(prev => [...prev, ...result.fixes]);
       setFixProgress(90);
       
       // Update history: attach fix log to current iteration
@@ -990,13 +998,16 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
     requestAnimationFrame(() => {
       setTimeout(() => {
         try {
-          generateCraReport({ intakeData, threats: localThreats, reqs: localReqs, language: language as 'de' | 'en' | 'fr', productTypeName: typeName, craClassName: craName, isDraft: false, qaChecks: qaResult?.checks, fixLog, qaIterations: qaIteration });
+          // Use pre-fix QA checks (original findings) + accumulated fix log for the Final PDF
+          const checksForPdf = preFixQaChecks || qaResult?.checks;
+          const fixLogForPdf = allFixLogs.length > 0 ? allFixLogs : fixLog;
+          generateCraReport({ intakeData, threats: localThreats, reqs: localReqs, language: language as 'de' | 'en' | 'fr', productTypeName: typeName, craClassName: craName, isDraft: false, qaChecks: checksForPdf, fixLog: fixLogForPdf, qaIterations: qaIteration });
         } finally {
           setFinalPdfRunning(false);
         }
       }, 100);
     });
-  }, [intakeData, localThreats, localReqs, language, typeName, craName, qaResult, fixLog, qaIteration]);
+  }, [intakeData, localThreats, localReqs, language, typeName, craName, qaResult, fixLog, allFixLogs, preFixQaChecks, qaIteration]);
 
   const qaVerdict = qaResult?.verdict;
   const canFinal = fixesApplied || qaVerdict === 'passed' || qaVerdict === 'conditional';
