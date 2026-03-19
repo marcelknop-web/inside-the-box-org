@@ -9,6 +9,7 @@ export interface CraReportData {
   language: 'de' | 'en' | 'fr';
   productTypeName: string;
   craClassName: string;
+  isDraft?: boolean;
 }
 
 /* ════════════════════════════════════════════════════════════
