@@ -313,13 +313,34 @@ export function generateCraReport(data: CraReportData): void {
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(BODY_SIZE);
     doc.setTextColor(...C.darkNavy);
-    doc.text(label + ':', ML + indent, y);
-    const labelW = doc.getTextWidth(label + ': ');
+    const labelStr = label + ':';
+    doc.text(labelStr, ML + indent, y);
+    const labelW = doc.getTextWidth(labelStr + ' ');
+    const maxLabelW = 45; // cap label width to prevent squeeze
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(...C.bodyText);
-    const valLines = doc.splitTextToSize(value, CW - labelW - indent - 5);
-    doc.text(valLines, ML + indent + labelW, y);
-    y += Math.max(valLines.length * BODY_LEADING, 5.5);
+    if (labelW > maxLabelW) {
+      // Label too long — put value on next line
+      y += BODY_LEADING;
+      const valLines = doc.splitTextToSize(value, CW - indent - 4);
+      for (const line of valLines) {
+        checkPage(6);
+        doc.text(line, ML + indent + 4, y);
+        y += BODY_LEADING;
+      }
+      y += 1;
+    } else {
+      const availW = CW - labelW - indent - 2;
+      const valLines = doc.splitTextToSize(value, availW);
+      doc.text(valLines[0], ML + indent + labelW, y);
+      y += BODY_LEADING;
+      for (let i = 1; i < valLines.length; i++) {
+        checkPage(6);
+        doc.text(valLines[i], ML + indent + labelW, y);
+        y += BODY_LEADING;
+      }
+      y += 1;
+    }
   }
 
   function writeFieldBlock(label: string, value: string, indent: number = 4) {
