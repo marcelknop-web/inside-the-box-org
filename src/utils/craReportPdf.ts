@@ -920,6 +920,7 @@ export function generateCraReport(data: CraReportData): void {
 
   // 4.1 Threat Landscape
   writeSubHeading(t(I18N.sec4a));
+  writeBody(t(I18N.introSec4a));
   y += 2;
 
   const sortedThreats = [...threats].sort((a, b) => (b.likelihood * b.impact) - (a.likelihood * a.impact));
