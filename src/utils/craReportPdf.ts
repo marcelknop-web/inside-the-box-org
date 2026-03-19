@@ -46,6 +46,7 @@ const I18N = {
   sec5: { de: '5  Handlungsempfehlungen und Remediation-Roadmap', en: '5  Recommendations and Remediation Roadmap', fr: '5  Recommandations et feuille de route de remédiation' },
   sec5a: { de: '5.1  Priorisierte Maßnahmen (P0-P3)', en: '5.1  Prioritised Measures (P0-P3)', fr: '5.1  Mesures priorisées (P0-P3)' },
   sec5b: { de: '5.2  Remediation-Roadmap', en: '5.2  Remediation Roadmap', fr: '5.2  Feuille de route de remédiation' },
+  sec5c: { de: '5.3  Wirtschaftliche Betrachtung', en: '5.3  Economic Impact Assessment', fr: '5.3  Analyse économique' },
   sec6: { de: '6  Methodik und Prüfungsgrundlagen', en: '6  Methodology and Audit Standards', fr: '6  Méthodologie et normes d\'audit' },
   sec6a: { de: '6.1  Risikobewertungsmatrix', en: '6.1  Risk Rating Matrix', fr: '6.1  Matrice d\'évaluation des risques' },
   sec6b: { de: '6.2  OT-Kontextualisierung der Bewertungsskala', en: '6.2  OT Contextualisation of Rating Scales', fr: '6.2  Contextualisation OT des échelles d\'évaluation' },
@@ -369,6 +370,32 @@ export function generateCraReport(data: CraReportData): void {
   const dateStr = new Date().toLocaleDateString(locale, { day: '2-digit', month: 'long', year: 'numeric' });
   const reportId = `CRA-${Date.now().toString(36).toUpperCase().slice(-6)}`;
 
+  // ── Text sanitizer: replace non-WinAnsiEncoding chars for jsPDF compatibility ──
+  function sanitize(text: string): string {
+    return text
+      .replace(/\u2605/g, '*')      // ★ → *
+      .replace(/\u2606/g, '.')      // ☆ → .
+      .replace(/\u2610/g, '[ ]')    // ☐ → [ ]
+      .replace(/\u2192/g, '->')     // → → ->
+      .replace(/\u23F1/g, '')       // ⏱ → remove
+      .replace(/\u2794/g, '->')     // ➔ → ->
+      .replace(/\u27A4/g, '>')      // ➤ → >
+      .replace(/\u2013/g, '-')      // – (en dash) → -
+      .replace(/[\u2018\u2019]/g, "'")  // curly single quotes
+      .replace(/[\u201C\u201D]/g, '"')  // curly double quotes
+      ;
+  }
+
+  // Wrap doc.text and doc.splitTextToSize for automatic sanitization
+  const _origText = doc.text.bind(doc);
+  (doc as any).text = (text: any, x: number, yPos: number, options?: any) => {
+    if (typeof text === 'string') return _origText(sanitize(text), x, yPos, options);
+    if (Array.isArray(text)) return _origText(text.map((t: string) => sanitize(t)), x, yPos, options);
+    return _origText(text, x, yPos, options);
+  };
+  const _origSplit = doc.splitTextToSize.bind(doc);
+  (doc as any).splitTextToSize = (text: string, maxWidth: number) => _origSplit(sanitize(text), maxWidth);
+
   let y = 0;
   let pageNum = 0;
   let findingNum = 0;
@@ -642,7 +669,7 @@ export function generateCraReport(data: CraReportData): void {
   doc.text(t(I18N.toc), ML, y);
   y += 12;
 
-  const tocItems = [I18N.sec1, I18N.sec2, I18N.sec3, I18N.sec4, I18N.sec4c, I18N.sec5, I18N.sec6, I18N.sec7, I18N.secA, I18N.secB, I18N.secC, I18N.secD];
+  const tocItems = [I18N.sec1, I18N.sec2, I18N.sec3, I18N.sec4, I18N.sec4c, I18N.sec5, I18N.sec5c, I18N.sec6, I18N.sec7, I18N.secA, I18N.secB, I18N.secC, I18N.secD];
   for (const item of tocItems) {
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(SUBSECTION_SIZE);
@@ -1309,6 +1336,95 @@ export function generateCraReport(data: CraReportData): void {
     doc.text(`> ${ph.gate}`, ML + 10, y); y += 6;
   }
 
+  // 5.3 Economic Impact Assessment
+  y += 6;
+  const sec53Title = lang === 'de' ? '5.3  Wirtschaftliche Betrachtung'
+    : lang === 'fr' ? '5.3  Analyse economique'
+    : '5.3  Economic Impact Assessment';
+  writeSubHeading(sec53Title);
+
+  const ecoIntro = lang === 'de'
+    ? 'Die folgende Einschaetzung stellt den geschaetzten Remediation-Aufwand dem Schadenspotenzial bei Nicht-Umsetzung gegenueber. Die Werte basieren auf den CRA-Sanktionsrahmen (Art. 64) sowie branchenueblichen Ausfallkosten.'
+    : lang === 'fr'
+    ? 'L\'estimation suivante compare l\'effort de remediation au potentiel de dommages en cas de non-mise en oeuvre, sur la base du cadre de sanctions CRA (Art. 64).'
+    : 'The following assessment compares estimated remediation effort against damage potential of non-implementation. Values are based on CRA penalty frameworks (Art. 64) and industry-standard outage costs.';
+  writeBody(ecoIntro);
+  y += 3;
+
+  // Calculate total effort
+  const allPrioItems = [...new Set([...p0Items, ...p1Items, ...p2Items, ...p3Items].map(i => i.id))];
+  const totalEffortHours = [...p0Items, ...p1Items, ...p2Items, ...p3Items].reduce((sum, item) => {
+    const match = item.effort.match(/(\d+)-(\d+)/);
+    return sum + (match ? (parseInt(match[1]) + parseInt(match[2])) / 2 : 16);
+  }, 0);
+  const estCostK = Math.round(totalEffortHours * 150 / 1000);
+
+  const penaltyData: [string, string, [number, number, number]][] = lang === 'de' ? [
+    ['Bussgeld bei Nicht-Konformitaet (Art. 64 CRA)', 'Bis zu 15 Mio. EUR oder 2,5% des weltweiten Jahresumsatzes', C.redText],
+    ['Bussgeld bei Meldepflichtverletzung (Art. 64)', 'Bis zu 10 Mio. EUR oder 2% des weltweiten Jahresumsatzes', C.redText],
+    ['Rueckrufkosten (Art. 49 CRA)', 'Abhaengig von Produktkategorie und Verbreitungsgrad', C.orangeText],
+    ['Produktionsausfall (OT-Kontext)', 'Branchendurchschnitt: 50.000 -- 250.000 EUR/Stunde', C.orangeText],
+    [`Geschaetzter Remediation-Aufwand`, `${Math.round(totalEffortHours)} Personenstunden (ca. ${Math.round(totalEffortHours / 40)} Personenwochen, ${estCostK}k EUR bei 150 EUR/h)`, C.greenText],
+  ] : lang === 'fr' ? [
+    ['Amende pour non-conformite (Art. 64 CRA)', 'Jusqu\'a 15 M EUR ou 2,5% du CA mondial', C.redText],
+    ['Amende pour violation obligation de signalement', 'Jusqu\'a 10 M EUR ou 2% du CA mondial', C.redText],
+    ['Couts de rappel (Art. 49 CRA)', 'Selon categorie et diffusion du produit', C.orangeText],
+    ['Arret de production (contexte OT)', 'Moyenne: 50 000 -- 250 000 EUR/heure', C.orangeText],
+    [`Effort de remediation estime`, `${Math.round(totalEffortHours)} heures-personne (env. ${Math.round(totalEffortHours / 40)} semaines-personne, ${estCostK}k EUR a 150 EUR/h)`, C.greenText],
+  ] : [
+    ['Non-compliance penalty (Art. 64 CRA)', 'Up to EUR 15M or 2.5% of global annual turnover', C.redText],
+    ['Reporting violation penalty (Art. 64)', 'Up to EUR 10M or 2% of global annual turnover', C.redText],
+    ['Product recall costs (Art. 49 CRA)', 'Dependent on product category and distribution', C.orangeText],
+    ['Production downtime (OT context)', 'Industry average: EUR 50,000 -- 250,000/hour', C.orangeText],
+    [`Estimated remediation effort`, `${Math.round(totalEffortHours)} person-hours (approx. ${Math.round(totalEffortHours / 40)} person-weeks, EUR ${estCostK}k at EUR 150/h)`, C.greenText],
+  ];
+
+  checkPage(45);
+  const ecoColLabel = ML + 5;
+  const ecoColValue = ML + 85;
+
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(7); doc.setTextColor(...C.accent);
+  doc.text(lang === 'de' ? 'RISIKOKATEGORIE' : lang === 'fr' ? 'CATEGORIE DE RISQUE' : 'RISK CATEGORY', ecoColLabel, y);
+  doc.text(lang === 'de' ? 'SCHADENSPOTENZIAL / AUFWAND' : lang === 'fr' ? 'POTENTIEL DE DOMMAGES' : 'DAMAGE POTENTIAL / EFFORT', ecoColValue, y);
+  y += 2;
+  doc.setDrawColor(...C.ruleStroke); doc.setLineWidth(0.15); doc.line(ecoColLabel, y, W - MR - 5, y); y += 4;
+
+  for (const [label, value, color] of penaltyData) {
+    checkPage(12);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(BODY_SIZE - 0.5); doc.setTextColor(...C.bodyText);
+    const labelLines = doc.splitTextToSize(label, 75);
+    const valueLines = doc.splitTextToSize(value, CW - 90);
+    const maxLines = Math.max(labelLines.length, valueLines.length);
+    for (let li = 0; li < maxLines; li++) {
+      if (labelLines[li]) doc.text(labelLines[li], ecoColLabel, y);
+      if (valueLines[li]) {
+        doc.setFont('helvetica', 'bold'); doc.setTextColor(...color);
+        doc.text(valueLines[li], ecoColValue, y);
+        doc.setFont('helvetica', 'normal'); doc.setTextColor(...C.bodyText);
+      }
+      y += BODY_LEADING + 0.3;
+    }
+    y += 1;
+  }
+
+  y += 4;
+  const roiText = lang === 'de'
+    ? `Kosten-Nutzen-Verhaeltnis: Der geschaetzte Gesamtaufwand von ${Math.round(totalEffortHours)} Personenstunden (ca. ${estCostK}k EUR) steht einem maximalen Bussgeldrisiko von 15 Mio. EUR und branchenspezifischen Ausfallkosten gegenueber. Die Investition in die Remediation amortisiert sich bereits bei Vermeidung eines einzigen regulatorischen Verfahrens oder Produktionsausfalls.`
+    : lang === 'fr'
+    ? `Rapport cout-benefice : L'effort total estime de ${Math.round(totalEffortHours)} heures-personne (env. ${estCostK}k EUR) fait face a un risque d'amende maximal de 15 M EUR. L'investissement dans la remediation est rentabilise des l'evitement d'une seule procedure reglementaire.`
+    : `Cost-benefit ratio: The estimated total effort of ${Math.round(totalEffortHours)} person-hours (approx. EUR ${estCostK}k) stands against maximum penalty exposure of EUR 15M and industry-specific downtime costs averaging EUR 50-250k/hour. The remediation investment pays for itself by avoiding even a single regulatory proceeding or production incident.`;
+
+  checkPage(20);
+  const roiLines = doc.splitTextToSize(roiText, CW - 12);
+  const roiBoxH = roiLines.length * 4.2 + 6;
+  doc.setFillColor(...C.bgLight);
+  doc.roundedRect(ML, y - 2, CW, roiBoxH, 1.5, 1.5, 'F');
+  doc.setFillColor(...C.gold);
+  doc.rect(ML, y - 2, 1.5, roiBoxH, 'F');
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5); doc.setTextColor(...C.bodyText);
+  doc.text(roiLines, ML + 6, y + 2);
+  y += roiBoxH + 5;
+
   /* ══════════════════════════════════════
      SECTION 6: Methodology
      ══════════════════════════════════════ */
@@ -1349,6 +1465,15 @@ export function generateCraReport(data: CraReportData): void {
   newSection();
   writeSectionHeading(t(I18N.secA));
   writeBody(t(I18N.appendixIntro));
+  y += 2;
+  const xrefNote = lang === 'de'
+    ? 'Hinweis: Fuer die ausfuehrliche Darstellung von Evidenz und Bewertungslogik wird auf die Detailfeststellungen in Abschnitt 4 verwiesen. Dieser Anhang konzentriert sich auf die maschinenlesbaren Strukturdaten und Querverlinkungen.'
+    : lang === 'fr'
+    ? 'Note : Pour la presentation detaillee des preuves et de la logique d\'evaluation, veuillez consulter les constatations detaillees de la section 4. Cette annexe se concentre sur les donnees structurees et les references croisees.'
+    : 'Note: For detailed evidence and assessment rationale, refer to the detailed findings in Section 4. This appendix focuses on machine-readable structured data and cross-references.';
+  doc.setFont('helvetica', 'italic'); doc.setFontSize(7.5); doc.setTextColor(...C.labelText);
+  const xrefLines = doc.splitTextToSize(xrefNote, CW - 5);
+  for (const xl of xrefLines) { checkPage(4); doc.text(xl, ML + 3, y); y += 3.5; }
   y += 4;
 
   // A.1 — Complete Intake Record
@@ -1404,6 +1529,8 @@ export function generateCraReport(data: CraReportData): void {
 
     writeLabel(`${tid}  —  ${riskLabel(score)} (${score}/25)`, 0);
 
+    const truncEvidence = th.evidence.length > 140 ? th.evidence.slice(0, 140).trimEnd() + '... (s. Abschnitt 4 / see Section 4)' : th.evidence;
+    const truncRationale = th.rationale.length > 140 ? th.rationale.slice(0, 140).trimEnd() + '... (s. Abschnitt 4 / see Section 4)' : th.rationale;
     const fields: [string, string][] = [
       ['stride_category', `${th.stride} (${STRIDE_NAMES[th.stride]?.[lang] || th.stride})`],
       ['name', th.name],
@@ -1414,8 +1541,8 @@ export function generateCraReport(data: CraReportData): void {
       ['likelihood', `${th.likelihood}/5`],
       ['impact', `${th.impact}/5`],
       ['risk_score', `${score}/25 > ${riskLabel(score)}`],
-      ['evidence', th.evidence],
-      ['rationale', th.rationale],
+      ['evidence_summary', truncEvidence],
+      ['rationale_summary', truncRationale],
       ['sources', th.sources.join(' | ')],
     ];
 
@@ -1458,13 +1585,15 @@ export function generateCraReport(data: CraReportData): void {
     const statusTag = req.status === 'pass' ? 'COMPLIANT' : req.status === 'partial' ? 'PARTIAL' : 'NON-COMPLIANT';
     writeLabel(`${req.id}  —  ${statusTag}`, 0);
 
+    const truncReqEvid = req.evidence.length > 140 ? req.evidence.slice(0, 140).trimEnd() + '... (s. Abschnitt 4 / see Section 4)' : req.evidence;
+    const truncReqRat = req.rationale.length > 140 ? req.rationale.slice(0, 140).trimEnd() + '... (s. Abschnitt 4 / see Section 4)' : req.rationale;
     const fields: [string, string][] = [
       ['article', req.article],
       ['name', req.name],
       ['status', statusTag],
       ['gap', req.gap],
-      ['evidence', req.evidence],
-      ['rationale', req.rationale],
+      ['evidence_summary', truncReqEvid],
+      ['rationale_summary', truncReqRat],
       ['recommended_measure', req.measure],
       ['acceptance_criteria', req.criteria.join(' | ')],
     ];
