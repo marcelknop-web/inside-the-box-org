@@ -806,6 +806,7 @@ export function generateCraReport(data: CraReportData): void {
 
   // 3.1 Product Profile
   writeSubHeading(t(I18N.sec3a));
+  writeBody(t(I18N.introSec3a));
   writeKV(t(I18N.product), `${intakeData.productName} ${intakeData.version}`);
   writeKV(t(I18N.type), productTypeName);
   if (intakeData.productTypes.length > 0) {
