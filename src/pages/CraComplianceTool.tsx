@@ -903,31 +903,48 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
       .replace('{type}', typeName)
       .replace('{cls}', craName)
       .replace('{date}', today)
-      .replace('{threats}', String(threats.length))
+      .replace('{threats}', String(localThreats.length))
       .replace('{critRisks}', String(critRisks.length))
-      .replace('{reqs}', String(reqs.length))
+      .replace('{reqs}', String(localReqs.length))
       .replace('{failReqs}', String(failReqs.length))
       .replace('{partial}', String(partialCount));
-  }, [t, intakeData, typeName, craName, today, threats.length, critRisks.length, reqs.length, failReqs.length, partialCount]);
+  }, [t, intakeData, typeName, craName, today, localThreats.length, critRisks.length, localReqs.length, failReqs.length, partialCount]);
 
   const handleQaCheck = useCallback(() => {
     setQaRunning(true);
     setQaExpanded(false);
+    setFixesApplied(false);
+    setFixLog([]);
     setTimeout(() => {
-      const result = runQualityCheck(threats, reqs, language as 'de' | 'en' | 'fr');
+      const result = runQualityCheck(localThreats, localReqs, language as 'de' | 'en' | 'fr');
       setQaResult(result);
       setQaRunning(false);
       setQaExpanded(true);
     }, 1500);
-  }, [threats, reqs, language]);
+  }, [localThreats, localReqs, language]);
+
+  const handleApplyFixes = useCallback(() => {
+    if (!qaResult) return;
+    const failedChecks = qaResult.checks.filter(c => !c.passed);
+    const result = applyAuditFixes(localThreats, localReqs, failedChecks, language as 'de' | 'en' | 'fr');
+    setLocalThreats(result.threats);
+    setLocalReqs(result.reqs);
+    setFixLog(result.fixes);
+    setFixesApplied(true);
+    // Re-run QA with fixed data
+    setTimeout(() => {
+      const newQa = runQualityCheck(result.threats, result.reqs, language as 'de' | 'en' | 'fr');
+      setQaResult(newQa);
+    }, 500);
+  }, [qaResult, localThreats, localReqs, language]);
 
   const handleDraftPdf = useCallback(() => {
-    generateCraReport({ intakeData, threats, reqs, language: language as 'de' | 'en' | 'fr', productTypeName: typeName, craClassName: craName, isDraft: true });
-  }, [intakeData, threats, reqs, language, typeName, craName]);
+    generateCraReport({ intakeData, threats: localThreats, reqs: localReqs, language: language as 'de' | 'en' | 'fr', productTypeName: typeName, craClassName: craName, isDraft: true });
+  }, [intakeData, localThreats, localReqs, language, typeName, craName]);
 
   const handleFinalPdf = useCallback(() => {
-    generateCraReport({ intakeData, threats, reqs, language: language as 'de' | 'en' | 'fr', productTypeName: typeName, craClassName: craName, isDraft: false });
-  }, [intakeData, threats, reqs, language, typeName, craName]);
+    generateCraReport({ intakeData, threats: localThreats, reqs: localReqs, language: language as 'de' | 'en' | 'fr', productTypeName: typeName, craClassName: craName, isDraft: false });
+  }, [intakeData, localThreats, localReqs, language, typeName, craName]);
 
   const qaVerdict = qaResult?.verdict;
   const canFinal = qaVerdict === 'passed' || qaVerdict === 'conditional';
