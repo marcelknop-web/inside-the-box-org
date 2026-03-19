@@ -922,7 +922,7 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
       setQaRunning(false);
       setQaExpanded(true);
     }, 1500);
-  }, [localThreats, localReqs, language]);
+  }, [localThreats, localReqs, language, intakeData]);
 
   const handleApplyFixes = useCallback(() => {
     if (!qaResult) return;
