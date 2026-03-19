@@ -1240,15 +1240,17 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
                 {/* 4. Final Report */}
                 <button
                   onClick={handleFinalPdf}
-                  disabled={!canFinal}
+                  disabled={!canFinal || finalPdfRunning}
                   className={`text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2 transition-all ${
-                    currentStep === 4 && canFinal ? activeClass : !canFinal ? disabledClass : defaultClass
+                    finalPdfRunning ? activeClass : currentStep === 4 && canFinal ? activeClass : !canFinal ? disabledClass : defaultClass
                   }`}
                   title={!canFinal ? (language === 'de' ? 'Vorherige Schritte zuerst abschließen' : 'Complete previous steps first') : ''}
                 >
-                  <FileText className="w-4 h-4" />
+                  {finalPdfRunning ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
                   <span className="font-mono text-xs opacity-60 mr-0.5">4</span>
-                  PDF Final
+                  {finalPdfRunning
+                    ? (language === 'de' ? 'Wird erstellt…' : language === 'fr' ? 'Génération…' : 'Generating…')
+                    : 'PDF Final'}
                 </button>
               </>
             );
