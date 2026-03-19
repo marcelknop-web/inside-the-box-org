@@ -1464,6 +1464,15 @@ export function generateCraReport(data: CraReportData): void {
   newSection();
   writeSectionHeading(t(I18N.secA));
   writeBody(t(I18N.appendixIntro));
+  y += 2;
+  const xrefNote = lang === 'de'
+    ? 'Hinweis: Fuer die ausfuehrliche Darstellung von Evidenz und Bewertungslogik wird auf die Detailfeststellungen in Abschnitt 4 verwiesen. Dieser Anhang konzentriert sich auf die maschinenlesbaren Strukturdaten und Querverlinkungen.'
+    : lang === 'fr'
+    ? 'Note : Pour la presentation detaillee des preuves et de la logique d\'evaluation, veuillez consulter les constatations detaillees de la section 4. Cette annexe se concentre sur les donnees structurees et les references croisees.'
+    : 'Note: For detailed evidence and assessment rationale, refer to the detailed findings in Section 4. This appendix focuses on machine-readable structured data and cross-references.';
+  doc.setFont('helvetica', 'italic'); doc.setFontSize(7.5); doc.setTextColor(...C.labelText);
+  const xrefLines = doc.splitTextToSize(xrefNote, CW - 5);
+  for (const xl of xrefLines) { checkPage(4); doc.text(xl, ML + 3, y); y += 3.5; }
   y += 4;
 
   // A.1 — Complete Intake Record
