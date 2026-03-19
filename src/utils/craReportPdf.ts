@@ -186,46 +186,6 @@ function drawWatermark(doc: jsPDF, cx: number, cy: number, size: number) {
   doc.restoreGraphicsState();
 }
 
-/* ────── Millimeter paper grid background ────── */
-function drawMillimeterGrid(doc: jsPDF) {
-  const W = 210, H = 297;
-
-  doc.saveGraphicsState();
-
-  // Fine grid: 2.5mm spacing (like the 2.5px CSS grid)
-  doc.setGState(new (doc as any).GState({ opacity: 0.012 }));
-  doc.setDrawColor(140, 160, 190);
-  doc.setLineWidth(0.06);
-  for (let x = 0; x <= W; x += 2.5) {
-    doc.line(x, 0, x, H);
-  }
-  for (let y = 0; y <= H; y += 2.5) {
-    doc.line(0, y, W, y);
-  }
-
-  // Medium grid: 5mm spacing
-  doc.setGState(new (doc as any).GState({ opacity: 0.02 }));
-  doc.setLineWidth(0.1);
-  for (let x = 0; x <= W; x += 5) {
-    doc.line(x, 0, x, H);
-  }
-  for (let y = 0; y <= H; y += 5) {
-    doc.line(0, y, W, y);
-  }
-
-  // Major grid: 50mm spacing
-  doc.setGState(new (doc as any).GState({ opacity: 0.03 }));
-  doc.setLineWidth(0.18);
-  for (let x = 0; x <= W; x += 50) {
-    doc.line(x, 0, x, H);
-  }
-  for (let y = 0; y <= H; y += 50) {
-    doc.line(0, y, W, y);
-  }
-
-  doc.restoreGraphicsState();
-}
-
 /* ────── Generator ────── */
 
 export function generateCraReport(data: CraReportData): void {
