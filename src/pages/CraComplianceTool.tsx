@@ -1099,6 +1099,28 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
         </div>
       </div>
 
+      {/* ═══ QA ITERATION HISTORY ═══ */}
+      {qaHistory.length > 1 && (
+        <div className="bg-card border border-border rounded-lg p-4">
+          <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
+            {language === 'de' ? 'Prüfverlauf' : language === 'fr' ? 'Historique des contrôles' : 'Check History'}
+          </div>
+          <div className="flex gap-2 flex-wrap">
+            {qaHistory.map((h, i) => (
+              <div key={i} className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-mono border ${
+                i === qaHistory.length - 1 ? 'border-primary/40 bg-primary/5' : 'border-border bg-secondary/50'
+              }`}>
+                <span className="font-bold text-foreground">#{h.iteration}</span>
+                <span className={h.verdict === 'passed' ? 'text-green-500' : h.verdict === 'conditional' ? 'text-yellow-500' : 'text-destructive'}>
+                  {h.passed}/{h.total}
+                </span>
+                {h.fixes.length > 0 && <span className="text-primary">+{h.fixes.length} fixes</span>}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* ═══ QA CHECK RESULT ═══ */}
       {qaResult && qaExpanded && (
         <div className={`bg-card border-2 rounded-lg overflow-hidden ${qaVerdict === 'passed' ? 'border-green-500/40' : qaVerdict === 'conditional' ? 'border-yellow-500/40' : 'border-destructive/40'}`}>
@@ -1108,6 +1130,11 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
               <span className={`text-sm font-bold ${qaVerdict === 'passed' ? 'text-green-500' : qaVerdict === 'conditional' ? 'text-yellow-500' : 'text-destructive'}`}>
                 {qaResult.verdictLabel}
               </span>
+              {qaIteration > 0 && (
+                <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-bold border border-primary/20">
+                  {language === 'de' ? `Durchlauf ${qaIteration}` : language === 'fr' ? `Passage ${qaIteration}` : `Run ${qaIteration}`}
+                </span>
+              )}
             </div>
             <span className="text-xs font-mono text-muted-foreground">{qaResult.passed}/{qaResult.total}</span>
           </div>
@@ -1157,6 +1184,38 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
                 <ul className="space-y-0.5 text-xs text-foreground">
                   {qaResult.corrections.map((c, i) => <li key={i} className="flex gap-1.5"><span className="text-destructive font-mono">{i + 1}.</span>{c}</li>)}
                 </ul>
+              </div>
+            )}
+
+            {/* Next action hint */}
+            {qaResult.failed > 0 && !fixesApplied && (
+              <div className="border-t border-border pt-3 flex items-center gap-2 text-xs text-primary">
+                <Wrench className="w-3.5 h-3.5" />
+                <span className="font-medium">
+                  {language === 'de' ? `${qaResult.failed} Befunde können automatisch korrigiert werden — klicke "Empfehlungen umsetzen"` :
+                   language === 'fr' ? `${qaResult.failed} constatations peuvent être corrigées — cliquez "Appliquer"` :
+                   `${qaResult.failed} findings can be auto-corrected — click "Apply Fixes"`}
+                </span>
+              </div>
+            )}
+            {fixesApplied && qaResult.failed > 0 && (
+              <div className="border-t border-border pt-3 flex items-center gap-2 text-xs text-primary">
+                <ShieldCheck className="w-3.5 h-3.5" />
+                <span className="font-medium">
+                  {language === 'de' ? 'Korrekturen angewendet — starte einen weiteren Qualitätscheck oder lade das PDF Final herunter' :
+                   language === 'fr' ? 'Corrections appliquées — lancez un nouveau contrôle ou téléchargez le PDF Final' :
+                   'Corrections applied — run another Quality Check or download the PDF Final'}
+                </span>
+              </div>
+            )}
+            {qaResult.failed === 0 && (
+              <div className="border-t border-border pt-3 flex items-center gap-2 text-xs text-green-500">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span className="font-medium">
+                  {language === 'de' ? 'Alle Prüfpunkte bestanden — PDF Final kann erstellt werden' :
+                   language === 'fr' ? 'Tous les contrôles réussis — le PDF Final peut être généré' :
+                   'All checks passed — PDF Final can be generated'}
+                </span>
               </div>
             )}
           </div>
