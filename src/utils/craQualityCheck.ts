@@ -59,11 +59,16 @@ export function runQualityCheck(
     passed: threats.length > 0, severity: 'critical',
   });
 
+  // A1-2: Critical risk threshold — at least 1 critical threat expected when unencrypted/OT protocols exist
+  const expectsCritical = threats.some(th =>
+    th.component.toLowerCase().includes('modbus') || th.component.toLowerCase().includes('opc-ua') ||
+    th.name.toLowerCase().includes('klartext') || th.name.toLowerCase().includes('unverschl')
+  );
   checks.push({
     id: 'A1-2', category: 'consistency',
     label: t('Kritische Risiken (>=20) korrekt gezaehlt', 'Critical risks (>=20) correctly counted', 'Risques critiques (>=20) correctement comptes'),
-    detail: `${critRisks.length} ${t('kritische Threats', 'critical threats', 'menaces critiques')}`,
-    passed: true, severity: 'critical',
+    detail: `${critRisks.length} ${t('kritische Threats', 'critical threats', 'menaces critiques')}${expectsCritical && critRisks.length === 0 ? ' — ' + t('erwartet > 0 bei OT/unverschl. Protokollen', 'expected > 0 with OT/unencrypted protocols', 'attendu > 0 avec protocoles OT/non chiffres') : ''}`,
+    passed: !(expectsCritical && critRisks.length === 0), severity: 'critical',
   });
 
   checks.push({
