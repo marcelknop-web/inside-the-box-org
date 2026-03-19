@@ -884,6 +884,7 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
   const [qaExpanded, setQaExpanded] = useState(false);
   const [fixesApplied, setFixesApplied] = useState(false);
   const [fixLog, setFixLog] = useState<string[]>([]);
+  const [draftDownloaded, setDraftDownloaded] = useState(false);
   const critRisks = useMemo(() => localThreats.filter(th => th.likelihood * th.impact >= 20), [localThreats]);
   const failReqs = useMemo(() => localReqs.filter(r => r.status === 'fail'), [localReqs]);
   const partialCount = useMemo(() => localReqs.filter(r => r.status === 'partial').length, [localReqs]);
@@ -940,6 +941,7 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
 
   const handleDraftPdf = useCallback(() => {
     generateCraReport({ intakeData, threats: localThreats, reqs: localReqs, language: language as 'de' | 'en' | 'fr', productTypeName: typeName, craClassName: craName, isDraft: true });
+    setDraftDownloaded(true);
   }, [intakeData, localThreats, localReqs, language, typeName, craName]);
 
   const handleFinalPdf = useCallback(() => {
@@ -1135,50 +1137,84 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
       )}
 
       {/* ═══ EXPORT BAR ═══ */}
-      <div className="bg-secondary border border-border rounded-lg p-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-        <div className="text-sm text-foreground">
+      <div className="bg-secondary border border-border rounded-lg p-4">
+        <div className="text-sm text-foreground mb-3">
           <div className="font-semibold mb-0.5">{t('cra.rpExport')}</div>
           <div className="text-xs text-muted-foreground">{t('cra.rpExportHintActive')}</div>
         </div>
-        <div className="flex gap-2 flex-wrap">
-          {/* Quality Check Button */}
-          <button
-            onClick={handleQaCheck}
-            disabled={qaRunning}
-            className="bg-card border border-border text-foreground text-sm font-semibold px-4 py-2 rounded-lg hover:bg-accent transition-colors flex items-center gap-2 disabled:opacity-50"
-          >
-            {qaRunning ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShieldCheck className="w-4 h-4" />}
-            {language === 'de' ? 'Qualitätscheck' : language === 'fr' ? 'Contrôle qualité' : 'Quality Check'}
-          </button>
+        <div className="flex gap-2 flex-wrap items-center">
+          {/* Step indicator */}
+          {(() => {
+            // Determine current step: 1=Draft, 2=QA, 3=Fixes, 4=Final
+            const currentStep = !draftDownloaded ? 1 : !qaResult ? 2 : (qaResult.failed > 0 && !fixesApplied) ? 3 : 4;
+            const activeClass = 'bg-primary text-primary-foreground hover:bg-primary/90 ring-2 ring-primary/30';
+            const doneClass = 'bg-card border border-primary/40 text-primary hover:bg-accent';
+            const disabledClass = 'bg-muted text-muted-foreground cursor-not-allowed';
+            const defaultClass = 'bg-card border border-border text-foreground hover:bg-accent';
 
-          {/* Draft PDF — always available */}
-          <button
-            onClick={handleDraftPdf}
-            className="bg-card border border-border text-foreground text-sm font-semibold px-4 py-2 rounded-lg hover:bg-accent transition-colors flex items-center gap-2"
-          >
-            <FileText className="w-4 h-4" /> PDF Draft
-          </button>
+            return (
+              <>
+                {/* 1. Draft Report */}
+                <button
+                  onClick={handleDraftPdf}
+                  className={`text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2 transition-all ${
+                    currentStep === 1 ? activeClass : draftDownloaded ? doneClass : defaultClass
+                  }`}
+                >
+                  {draftDownloaded && <CheckCircle2 className="w-4 h-4" />}
+                  {!draftDownloaded && <FileText className="w-4 h-4" />}
+                  <span className="font-mono text-xs opacity-60 mr-0.5">1</span>
+                  PDF Draft
+                </button>
 
-          {/* Apply Fixes — only after QA with failures, before final */}
-          {qaResult && qaResult.failed > 0 && !fixesApplied && (
-            <button
-              onClick={handleApplyFixes}
-              className="bg-accent border border-primary/30 text-foreground text-sm font-semibold px-4 py-2 rounded-lg hover:bg-primary/20 transition-colors flex items-center gap-2"
-            >
-              <Wrench className="w-4 h-4 text-primary" />
-              {language === 'de' ? 'Empfehlungen umsetzen' : language === 'fr' ? 'Appliquer les recommandations' : 'Apply Recommendations'}
-            </button>
-          )}
+                <span className="text-muted-foreground text-xs hidden sm:inline">{'>'}</span>
 
-          {/* Final PDF — only after QA */}
-          <button
-            onClick={handleFinalPdf}
-            disabled={!canFinal}
-            className={`text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2 transition-colors ${canFinal ? 'bg-primary text-primary-foreground hover:bg-primary/90' : 'bg-muted text-muted-foreground cursor-not-allowed'}`}
-            title={!canFinal ? (language === 'de' ? 'Qualitätscheck zuerst durchführen' : 'Run quality check first') : ''}
-          >
-            <FileText className="w-4 h-4" /> PDF Final
-          </button>
+                {/* 2. Quality Check */}
+                <button
+                  onClick={handleQaCheck}
+                  disabled={qaRunning || !draftDownloaded}
+                  className={`text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2 transition-all disabled:opacity-50 ${
+                    currentStep === 2 ? activeClass : qaResult ? doneClass : !draftDownloaded ? disabledClass : defaultClass
+                  }`}
+                >
+                  {qaRunning ? <Loader2 className="w-4 h-4 animate-spin" /> : qaResult ? <CheckCircle2 className="w-4 h-4" /> : <ShieldCheck className="w-4 h-4" />}
+                  <span className="font-mono text-xs opacity-60 mr-0.5">2</span>
+                  {language === 'de' ? 'Qualitätscheck' : language === 'fr' ? 'Contrôle qualité' : 'Quality Check'}
+                </button>
+
+                <span className="text-muted-foreground text-xs hidden sm:inline">{'>'}</span>
+
+                {/* 3. Apply Fixes */}
+                <button
+                  onClick={handleApplyFixes}
+                  disabled={!qaResult || qaResult.failed === 0 || fixesApplied}
+                  className={`text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2 transition-all disabled:opacity-50 ${
+                    currentStep === 3 ? activeClass : fixesApplied ? doneClass : (!qaResult || qaResult.failed === 0) ? disabledClass : defaultClass
+                  }`}
+                >
+                  {fixesApplied ? <CheckCircle2 className="w-4 h-4" /> : <Wrench className="w-4 h-4" />}
+                  <span className="font-mono text-xs opacity-60 mr-0.5">3</span>
+                  {language === 'de' ? 'Empfehlungen umsetzen' : language === 'fr' ? 'Appliquer' : 'Apply Fixes'}
+                </button>
+
+                <span className="text-muted-foreground text-xs hidden sm:inline">{'>'}</span>
+
+                {/* 4. Final Report */}
+                <button
+                  onClick={handleFinalPdf}
+                  disabled={!canFinal}
+                  className={`text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2 transition-all ${
+                    currentStep === 4 && canFinal ? activeClass : !canFinal ? disabledClass : defaultClass
+                  }`}
+                  title={!canFinal ? (language === 'de' ? 'Vorherige Schritte zuerst abschließen' : 'Complete previous steps first') : ''}
+                >
+                  <FileText className="w-4 h-4" />
+                  <span className="font-mono text-xs opacity-60 mr-0.5">4</span>
+                  PDF Final
+                </button>
+              </>
+            );
+          })()}
         </div>
       </div>
     </StaggerReveal>
