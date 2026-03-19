@@ -893,6 +893,7 @@ export function generateCraReport(data: CraReportData): void {
   // 3.5 Submitted Documentation
   y += 3;
   writeSubHeading(t(I18N.sec3e));
+  writeBody(t(I18N.introSec3e));
   if (intakeData.files.length > 0) {
     for (const f of intakeData.files) {
       checkPage(6);
