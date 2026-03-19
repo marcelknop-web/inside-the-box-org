@@ -1788,7 +1788,7 @@ export function generateCraReport(data: CraReportData): void {
             : lang === 'fr' ? 'Transmissions non chiffrees (MQTT/HTTP): Exigence A1-4 pas evaluee "conforme"'
             : 'Unencrypted transmissions (MQTT/HTTP): Requirement A1-4 not rated "compliant"',
           passed: !unencryptedButCompliant,
-          detail: unencryptedButCompliant ? `A1-4 ${lang === 'de' ? 'ist "konform" trotz unverschlüsselter Interfaces' : 'rated "compliant" despite unencrypted interfaces'}` : undefined,
+          detail: unencryptedButCompliant ? `A1-4 ${lang === 'de' ? 'ist "konform" trotz unverschluesselter Interfaces' : 'rated "compliant" despite unencrypted interfaces'}` : undefined,
         },
         {
           label: lang === 'de' ? 'Interfaces ohne Authentifizierung (Modbus) → Anforderung A1-3 nicht als "konform" bewertet'
