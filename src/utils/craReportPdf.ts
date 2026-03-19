@@ -647,13 +647,26 @@ export function generateCraReport(data: CraReportData): void {
     doc.setFillColor(...statusColor);
     doc.roundedRect(ML, y, 2.5, 11, 1, 1, 'F');
 
+    // Right-aligned status (render first to measure)
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(9);
-    doc.setTextColor(...statusColor);
-    const reqFinding = `${t(I18N.finding)} F-${String(findingNum).padStart(2, '0')}`;
-    doc.text(`${reqFinding}  |  ${req.id}  ${req.name}`, ML + 5, y + 7);
     doc.setFontSize(8);
+    doc.setTextColor(...statusColor);
+    const statusW = doc.getTextWidth(statusLabel);
     doc.text(statusLabel, W - MR - 4, y + 7, { align: 'right' });
+
+    // Left label — truncate to avoid overlap
+    doc.setFontSize(9);
+    const reqFinding = `${t(I18N.finding)} F-${String(findingNum).padStart(2, '0')}`;
+    const reqLeftText = `${reqFinding}  |  ${req.id}  ${req.name}`;
+    const maxReqLeftW = CW - statusW - 14;
+    let truncReq = reqLeftText;
+    if (doc.getTextWidth(truncReq) > maxReqLeftW) {
+      while (truncReq.length > 10 && doc.getTextWidth(truncReq + '…') > maxReqLeftW) {
+        truncReq = truncReq.slice(0, -1);
+      }
+      truncReq = truncReq.trimEnd() + '…';
+    }
+    doc.text(truncReq, ML + 5, y + 7);
     y += 15;
 
     // Article reference
