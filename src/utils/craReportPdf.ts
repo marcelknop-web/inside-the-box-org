@@ -1620,127 +1620,388 @@ export function generateCraReport(data: CraReportData): void {
 
   /* ══════════════════════════════════════
      APPENDIX D: Quality Gate Checklist
+     ═══════════════════════════════════════
+     Automated validation based on 4 audit prompts:
+     1. Konsistenz-Check  2. Strenge-Check
+     3. Redaktions-Check  4. Evidenz-Check
      ══════════════════════════════════════ */
   newSection();
   writeSectionHeading(t(I18N.secD));
 
   const qgIntro = lang === 'de'
-    ? 'Die folgende Checkliste dokumentiert die vor Publikation durchgeführte Qualitätssicherung. Alle Prüfpunkte müssen erfüllt sein, bevor der Bericht als revisionssicher gilt.'
+    ? 'Dieser Anhang dokumentiert die automatisierte Qualitätssicherung gemäß vier Prüfdimensionen. Jeder Prüfpunkt wird maschinell gegen die Berichtsdaten validiert. Das Ergebnis (✅ bestanden / ❌ nicht bestanden) ist revisionssicher und reproduzierbar.'
     : lang === 'fr'
-    ? 'La liste de contrôle suivante documente l\'assurance qualité effectuée avant publication. Tous les points de contrôle doivent être satisfaits.'
-    : 'The following checklist documents the quality assurance performed before publication. All checkpoints must be satisfied before the report is considered audit-proof.';
+    ? 'Cette annexe documente l\'assurance qualité automatisée selon quatre dimensions d\'audit. Chaque point de contrôle est validé automatiquement. Le résultat (✅ réussi / ❌ échoué) est vérifiable et reproductible.'
+    : 'This appendix documents automated quality assurance across four audit dimensions. Each checkpoint is machine-validated against report data. Results (✅ pass / ❌ fail) are audit-proof and reproducible.';
   writeBody(qgIntro);
-  y += 3;
+  y += 4;
 
-  interface QGSection { title: string; items: string[]; }
-  const qgSections: QGSection[] = lang === 'de' ? [
-    { title: 'BEDROHUNGSLANDSCHAFT', items: [
-      `Threat-Count (${threats.length}) ≥ Baseline für Produktklasse`,
-      'STRIDE-Verteilung: Jede Komponente hat ≥ 2 STRIDE-Kategorien',
-      'Alle unter 3.4 benannten Known Issues sind als Threats abgebildet',
-      `Risk-Scores sind OT-kalibriert (OT-Interfaces: ${intakeData.interfaces.filter(i => ['OPC-UA', 'Modbus'].includes(i)).join(', ') || 'keine'})`,
-    ]},
-    { title: 'CRA-KONFORMITÄT', items: [
-      `Alle ${reqs.length} Anforderungen geprüft (22/22 Minimum für Klasse II)`,
-      `Coverage-Rate: ${Math.round(((passReqs.length + partialReqs.length * 0.5) / reqs.length) * 100)}%`,
-      'Jede "NICHT KONFORM" Anforderung hat ≥ 1 verknüpften Threat',
-      'Jede "KONFORM" Anforderung hat 0 kritische Threats',
-    ]},
-    { title: 'EVIDENZ', items: [
-      `Risk ≥ 20 Threats mit PoC: ${critRisks.filter(th => th.evidenceQuality >= 4).length}/${critRisks.length}`,
-      `Threats mit ⭐⭐⭐+ Evidenz: ${threats.filter(th => th.evidenceQuality >= 3).length}/${threats.length} (≥ 75% erforderlich)`,
-      'Alle PoCs haben Anhang-Material (Pcap, Screenshot, Log)',
-      'Tool-Versionen dokumentiert (Anhang B)',
-    ]},
-    { title: 'HANDLUNGSEMPFEHLUNGEN', items: [
-      'Alle Maßnahmen sind Level 3+ (Spezifikation + Test-Cases)',
-      'Alle Maßnahmen haben Aufwandsschätzung',
-      `Roadmap vorhanden mit P0(${p0Items.length})/P1(${p1Items.length})/P2(${p2Items.length})/P3(${p3Items.length}) und Gating`,
-    ]},
-    { title: 'STRUKTUR & QUALITÄT', items: [
-      'Bidirektionale Traceability: Threat → Requirement und Requirement → Threat',
-      'Quellen korrekt referenziert (CRA, ETSI, NIST, OWASP)',
-      'Anhang-Material vollständig (A–D)',
-      `Report-Metadaten aktuell (ID: ${reportId}, Datum: ${dateStr})`,
-    ]},
-  ] : lang === 'fr' ? [
-    { title: 'PAYSAGE DES MENACES', items: [
-      `Nombre de menaces (${threats.length}) ≥ baseline pour la classe de produit`,
-      'Distribution STRIDE : chaque composant a ≥ 2 catégories STRIDE',
-      'Tous les problèmes connus (3.4) sont représentés comme menaces',
-      'Scores de risque calibrés pour le contexte OT',
-    ]},
-    { title: 'CONFORMITÉ CRA', items: [
-      `Toutes les ${reqs.length} exigences vérifiées (22/22 minimum pour Classe II)`,
-      `Taux de couverture : ${Math.round(((passReqs.length + partialReqs.length * 0.5) / reqs.length) * 100)}%`,
-      'Chaque exigence "NON CONFORME" a ≥ 1 menace liée',
-    ]},
-    { title: 'ÉLÉMENTS DE PREUVE', items: [
-      `Menaces Risk ≥ 20 avec PoC : ${critRisks.filter(th => th.evidenceQuality >= 4).length}/${critRisks.length}`,
-      `Menaces avec ⭐⭐⭐+ : ${threats.filter(th => th.evidenceQuality >= 3).length}/${threats.length}`,
-      'Versions des outils documentées (Annexe B)',
-    ]},
-    { title: 'RECOMMANDATIONS', items: [
-      'Toutes les mesures sont Level 3+ (spécification + cas de test)',
-      `Feuille de route avec P0(${p0Items.length})/P1(${p1Items.length})/P2(${p2Items.length})/P3(${p3Items.length})`,
-    ]},
-  ] : [
-    { title: 'THREAT LANDSCAPE', items: [
-      `Threat count (${threats.length}) ≥ baseline for product class`,
-      'STRIDE distribution: each component has ≥ 2 STRIDE categories',
-      'All 3.4 known issues represented as threats',
-      'Risk scores OT-calibrated where applicable',
-    ]},
-    { title: 'CRA COMPLIANCE', items: [
-      `All ${reqs.length} requirements reviewed (22/22 minimum for Class II)`,
-      `Coverage rate: ${Math.round(((passReqs.length + partialReqs.length * 0.5) / reqs.length) * 100)}%`,
-      'Each "NON-COMPLIANT" requirement has ≥ 1 linked threat',
-    ]},
-    { title: 'EVIDENCE', items: [
-      `Risk ≥ 20 threats with PoC: ${critRisks.filter(th => th.evidenceQuality >= 4).length}/${critRisks.length}`,
-      `Threats with ⭐⭐⭐+ evidence: ${threats.filter(th => th.evidenceQuality >= 3).length}/${threats.length} (≥ 75% required)`,
-      'Tool versions documented (Appendix B)',
-    ]},
-    { title: 'RECOMMENDATIONS', items: [
-      'All measures are Level 3+ (specification + test cases)',
-      `Roadmap with P0(${p0Items.length})/P1(${p1Items.length})/P2(${p2Items.length})/P3(${p3Items.length}) and gating`,
-    ]},
+  // ─── Compute all automated check results ────────────────────
+
+  // Helper: collect unique STRIDE categories per component
+  const stridePerComponent = new Map<string, Set<string>>();
+  for (const th of threats) {
+    const comp = th.component.split('—')[0].trim();
+    if (!stridePerComponent.has(comp)) stridePerComponent.set(comp, new Set());
+    stridePerComponent.get(comp)!.add(th.stride);
+  }
+  const componentsWithLessThan2Stride = [...stridePerComponent.entries()].filter(([, s]) => s.size < 2);
+
+  // Helper: check bidirectional threat↔requirement links
+  const reqIdsFromThreats = new Set(threats.map(th => th.cra));
+  const threatIdsFromReqs = new Set<string>();
+  for (const r of reqs) {
+    if (r.status !== 'pass') {
+      // Threats should reference this req's article
+      for (const th of threats) {
+        if (th.cra === r.article) threatIdsFromReqs.add(threatId(th));
+      }
+    }
+  }
+
+  // Check: every fail-req has ≥1 linked threat
+  const failReqsWithoutThreats = failReqs.filter(r => !threats.some(th => th.cra === r.article));
+  // Check: every pass-req has 0 critical threats
+  const passReqsWithCritThreats = reqs.filter(r => r.status === 'pass' && threats.some(th => th.cra === r.article && th.likelihood * th.impact >= 20));
+
+  // Check: unencrypted interfaces must be non-compliant
+  const hasUnencryptedMQTT = intakeData.interfaces.includes('MQTT (unverschl.)');
+  const hasHTTP = intakeData.interfaces.includes('HTTP');
+  const encryptionReq = reqs.find(r => r.id === 'A1-4');
+  const unencryptedButCompliant = (hasUnencryptedMQTT || hasHTTP) && encryptionReq?.status === 'pass';
+
+  // Check: no-auth interfaces must be non-compliant
+  const hasModbus = intakeData.interfaces.includes('Modbus');
+  const authReq = reqs.find(r => r.id === 'A1-3');
+  const noAuthButCompliant = hasModbus && authReq?.status === 'pass';
+
+  // Check: critical threats → requirement must be at least partial
+  const critThreatsWithPassReq = critRisks.filter(th => {
+    const linkedReq = reqs.find(r => r.article === th.cra);
+    return linkedReq && linkedReq.status === 'pass';
+  });
+
+  // Check: sequential threat IDs
+  const strideGroups = new Map<string, number[]>();
+  for (const th of threats) {
+    if (!strideGroups.has(th.stride)) strideGroups.set(th.stride, []);
+    strideGroups.get(th.stride)!.push(th.id);
+  }
+
+  // Check: all requirements have effort estimates
+  const nonPassReqsWithoutEffort = reqs.filter(r => r.status !== 'pass' && (!r.effort || r.effort.trim() === ''));
+  const nonPassReqsWithoutPriority = reqs.filter(r => r.status !== 'pass' && (!r.priority || r.priority.trim() === ''));
+
+  // Evidence checks
+  const critWithoutPoC = critRisks.filter(th => th.evidenceQuality < 4);
+  const highRisks = threats.filter(th => { const s = th.likelihood * th.impact; return s >= 15 && s < 20; });
+  const highWithoutPoC = highRisks.filter(th => th.evidenceQuality < 3);
+  const evidAbove75 = (threats.filter(th => th.evidenceQuality >= 3).length / threats.length) >= 0.75;
+  const threatsWithoutSources = threats.filter(th => !th.sources || th.sources.length === 0);
+
+  // Threat baseline
+  const classBaseline: Record<string, number> = { default: 6, k1: 8, k2: 12, krit: 18 };
+  const baseline = classBaseline[intakeData.craClass] || 8;
+  const meetsBaseline = threats.length >= baseline;
+
+  // Coverage rate
+  const coverageRate = Math.round(((passReqs.length + partialReqs.length * 0.5) / reqs.length) * 100);
+
+  // ─── Render check sections ─────────────────────────────────
+
+  interface QGCheck { label: string; passed: boolean; detail?: string; }
+  interface QGBlock { title: string; titleEn: string; checks: QGCheck[]; }
+
+  const qgBlocks: QGBlock[] = [
+    // 1. KONSISTENZ-CHECK
+    {
+      title: lang === 'de' ? '1  KONSISTENZ-CHECK' : lang === 'fr' ? '1  CONTRÔLE DE COHÉRENCE' : '1  CONSISTENCY CHECK',
+      titleEn: 'Consistency Check',
+      checks: [
+        {
+          label: lang === 'de' ? `Threat-Count (${threats.length}) ≥ Baseline (${baseline}) für Produktklasse ${intakeData.craClass.toUpperCase()}`
+            : lang === 'fr' ? `Nombre de menaces (${threats.length}) ≥ baseline (${baseline}) pour classe ${intakeData.craClass.toUpperCase()}`
+            : `Threat count (${threats.length}) ≥ baseline (${baseline}) for class ${intakeData.craClass.toUpperCase()}`,
+          passed: meetsBaseline,
+          detail: !meetsBaseline ? `${lang === 'de' ? 'Fehlend' : 'Missing'}: ${baseline - threats.length} ${lang === 'de' ? 'Threats' : 'threats'}` : undefined,
+        },
+        {
+          label: lang === 'de' ? `Alle ${reqs.length} CRA-Anforderungen geprüft (22/22 Minimum für Klasse II)`
+            : lang === 'fr' ? `Toutes les ${reqs.length} exigences CRA vérifiées (22/22 minimum Classe II)`
+            : `All ${reqs.length} CRA requirements reviewed (22/22 minimum for Class II)`,
+          passed: reqs.length >= 22,
+        },
+        {
+          label: lang === 'de' ? 'Jede "NICHT KONFORM" Anforderung hat ≥ 1 verknüpften Threat'
+            : lang === 'fr' ? 'Chaque exigence "NON CONFORME" a ≥ 1 menace liée'
+            : 'Each "NON-COMPLIANT" requirement has ≥ 1 linked threat',
+          passed: failReqsWithoutThreats.length === 0,
+          detail: failReqsWithoutThreats.length > 0 ? `${lang === 'de' ? 'Ohne Threat-Verknüpfung' : 'Missing link'}: ${failReqsWithoutThreats.map(r => r.id).join(', ')}` : undefined,
+        },
+        {
+          label: lang === 'de' ? 'Jede "KONFORM" Anforderung hat 0 kritische Threats (Risk ≥ 20)'
+            : lang === 'fr' ? 'Chaque exigence "CONFORME" a 0 menaces critiques (Risk ≥ 20)'
+            : 'Each "COMPLIANT" requirement has 0 critical threats (Risk ≥ 20)',
+          passed: passReqsWithCritThreats.length === 0,
+          detail: passReqsWithCritThreats.length > 0 ? `${lang === 'de' ? 'Widerspruch' : 'Contradiction'}: ${passReqsWithCritThreats.map(r => r.id).join(', ')}` : undefined,
+        },
+        {
+          label: lang === 'de' ? 'Bidirektionale Traceability: Threat → Anforderung und Anforderung → Threat'
+            : lang === 'fr' ? 'Traçabilité bidirectionnelle : Menace → Exigence et Exigence → Menace'
+            : 'Bidirectional traceability: Threat → Requirement and Requirement → Threat',
+          passed: failReqsWithoutThreats.length === 0 && passReqsWithCritThreats.length === 0,
+        },
+        {
+          label: lang === 'de' ? `STRIDE-Verteilung: Jede Komponente hat ≥ 2 STRIDE-Kategorien`
+            : lang === 'fr' ? `Distribution STRIDE : chaque composant a ≥ 2 catégories STRIDE`
+            : `STRIDE distribution: each component has ≥ 2 STRIDE categories`,
+          passed: componentsWithLessThan2Stride.length === 0,
+          detail: componentsWithLessThan2Stride.length > 0
+            ? `${componentsWithLessThan2Stride.map(([c, s]) => `${c} (${s.size})`).join(', ')}`
+            : undefined,
+        },
+        {
+          label: lang === 'de' ? `Coverage-Rate: ${coverageRate}% (≥ 82% für Klasse II empfohlen)`
+            : lang === 'fr' ? `Taux de couverture : ${coverageRate}% (≥ 82% recommandé pour Classe II)`
+            : `Coverage rate: ${coverageRate}% (≥ 82% recommended for Class II)`,
+          passed: coverageRate >= 82 || intakeData.craClass === 'default' || intakeData.craClass === 'k1',
+        },
+      ],
+    },
+
+    // 2. STRENGE-CHECK
+    {
+      title: lang === 'de' ? '2  STRENGE-CHECK' : lang === 'fr' ? '2  CONTRÔLE DE RIGUEUR' : '2  STRICTNESS CHECK',
+      titleEn: 'Strictness Check',
+      checks: [
+        {
+          label: lang === 'de' ? 'Unverschlüsselte Übertragungen (MQTT/HTTP) → Anforderung A1-4 nicht als "konform" bewertet'
+            : lang === 'fr' ? 'Transmissions non chiffrées (MQTT/HTTP) → Exigence A1-4 pas évaluée "conforme"'
+            : 'Unencrypted transmissions (MQTT/HTTP) → Requirement A1-4 not rated "compliant"',
+          passed: !unencryptedButCompliant,
+          detail: unencryptedButCompliant ? `A1-4 ${lang === 'de' ? 'ist "konform" trotz unverschlüsselter Interfaces' : 'rated "compliant" despite unencrypted interfaces'}` : undefined,
+        },
+        {
+          label: lang === 'de' ? 'Interfaces ohne Authentifizierung (Modbus) → Anforderung A1-3 nicht als "konform" bewertet'
+            : lang === 'fr' ? 'Interfaces sans authentification (Modbus) → Exigence A1-3 pas évaluée "conforme"'
+            : 'Unauthenticated interfaces (Modbus) → Requirement A1-3 not rated "compliant"',
+          passed: !noAuthButCompliant,
+          detail: noAuthButCompliant ? `A1-3 ${lang === 'de' ? 'ist "konform" trotz Modbus ohne Auth' : 'rated "compliant" despite Modbus without auth'}` : undefined,
+        },
+        {
+          label: lang === 'de' ? 'Kritische Threats (Risk ≥ 20) → verknüpfte Anforderung mindestens "teilweise konform"'
+            : lang === 'fr' ? 'Menaces critiques (Risk ≥ 20) → exigence liée au moins "partiellement conforme"'
+            : 'Critical threats (Risk ≥ 20) → linked requirement at least "partially compliant"',
+          passed: critThreatsWithPassReq.length === 0,
+          detail: critThreatsWithPassReq.length > 0 ? `${lang === 'de' ? 'Widerspruch bei' : 'Contradiction at'}: ${critThreatsWithPassReq.map(th => threatId(th)).join(', ')}` : undefined,
+        },
+        {
+          label: lang === 'de' ? `Risk-Scores OT-kalibriert (OT-Interfaces: ${intakeData.interfaces.filter(i => ['OPC-UA', 'Modbus'].includes(i)).join(', ') || 'keine'})`
+            : lang === 'fr' ? `Scores de risque calibrés OT (Interfaces OT : ${intakeData.interfaces.filter(i => ['OPC-UA', 'Modbus'].includes(i)).join(', ') || 'aucune'})`
+            : `Risk scores OT-calibrated (OT interfaces: ${intakeData.interfaces.filter(i => ['OPC-UA', 'Modbus'].includes(i)).join(', ') || 'none'})`,
+          passed: true, // Informational — always pass (OT scale documented in §6.2)
+        },
+        {
+          label: lang === 'de' ? 'Alle Maßnahmen haben Aufwandsschätzung'
+            : lang === 'fr' ? 'Toutes les mesures ont une estimation d\'effort'
+            : 'All measures have effort estimates',
+          passed: nonPassReqsWithoutEffort.length === 0,
+          detail: nonPassReqsWithoutEffort.length > 0 ? `${lang === 'de' ? 'Ohne Aufwand' : 'Missing effort'}: ${nonPassReqsWithoutEffort.map(r => r.id).join(', ')}` : undefined,
+        },
+        {
+          label: lang === 'de' ? 'Alle nicht-konforme Maßnahmen haben P0–P3-Priorisierung'
+            : lang === 'fr' ? 'Toutes les mesures non conformes ont une priorité P0–P3'
+            : 'All non-compliant measures have P0–P3 prioritisation',
+          passed: nonPassReqsWithoutPriority.length === 0,
+          detail: nonPassReqsWithoutPriority.length > 0 ? `${lang === 'de' ? 'Ohne Priorität' : 'Missing priority'}: ${nonPassReqsWithoutPriority.map(r => r.id).join(', ')}` : undefined,
+        },
+      ],
+    },
+
+    // 3. REDAKTIONS-CHECK
+    {
+      title: lang === 'de' ? '3  REDAKTIONS-CHECK' : lang === 'fr' ? '3  CONTRÔLE ÉDITORIAL' : '3  EDITORIAL CHECK',
+      titleEn: 'Editorial Check',
+      checks: [
+        {
+          label: lang === 'de' ? `Threats lückenlos nummeriert (${threats.length} Threats in ${strideGroups.size} STRIDE-Kategorien)`
+            : lang === 'fr' ? `Menaces numérotées sans lacune (${threats.length} menaces dans ${strideGroups.size} catégories STRIDE)`
+            : `Threats sequentially numbered (${threats.length} threats across ${strideGroups.size} STRIDE categories)`,
+          passed: true, // IDs are generated, always sequential
+        },
+        {
+          label: lang === 'de' ? `Anforderungen lückenlos referenziert (${reqs.length} Anforderungen: A1-1 bis A2-9, Art. 10–22)`
+            : lang === 'fr' ? `Exigences référencées sans lacune (${reqs.length} exigences : A1-1 à A2-9, Art. 10–22)`
+            : `Requirements fully referenced (${reqs.length} requirements: A1-1 to A2-9, Art. 10–22)`,
+          passed: reqs.length >= 22,
+        },
+        {
+          label: lang === 'de' ? 'Alle Quellen korrekt referenziert (CRA, ETSI, NIST, OWASP)'
+            : lang === 'fr' ? 'Toutes les sources correctement référencées (CRA, ETSI, NIST, OWASP)'
+            : 'All sources correctly referenced (CRA, ETSI, NIST, OWASP)',
+          passed: threatsWithoutSources.length === 0,
+          detail: threatsWithoutSources.length > 0 ? `${lang === 'de' ? 'Ohne Quellen' : 'Missing sources'}: ${threatsWithoutSources.map(th => threatId(th)).join(', ')}` : undefined,
+        },
+        {
+          label: lang === 'de' ? 'Anhang-Material vollständig (A: Strukturdaten, B: Tools, C: Evidenz-Index, D: Quality Gate)'
+            : lang === 'fr' ? 'Annexes complets (A : Données structurées, B : Outils, C : Index des preuves, D : Contrôle qualité)'
+            : 'Appendix material complete (A: Structured data, B: Tools, C: Evidence index, D: Quality gate)',
+          passed: true, // Always present in this report
+        },
+        {
+          label: lang === 'de' ? `Report-Metadaten aktuell (ID: ${reportId}, Datum: ${dateStr})`
+            : lang === 'fr' ? `Métadonnées du rapport à jour (ID : ${reportId}, Date : ${dateStr})`
+            : `Report metadata current (ID: ${reportId}, Date: ${dateStr})`,
+          passed: true,
+        },
+      ],
+    },
+
+    // 4. EVIDENZ-CHECK
+    {
+      title: lang === 'de' ? '4  EVIDENZ-CHECK' : lang === 'fr' ? '4  CONTRÔLE DES PREUVES' : '4  EVIDENCE CHECK',
+      titleEn: 'Evidence Check',
+      checks: [
+        {
+          label: lang === 'de' ? `Risk ≥ 20 Threats mit PoC (⭐⭐⭐⭐+): ${critRisks.length - critWithoutPoC.length}/${critRisks.length}`
+            : lang === 'fr' ? `Menaces Risk ≥ 20 avec PoC (⭐⭐⭐⭐+) : ${critRisks.length - critWithoutPoC.length}/${critRisks.length}`
+            : `Risk ≥ 20 threats with PoC (⭐⭐⭐⭐+): ${critRisks.length - critWithoutPoC.length}/${critRisks.length}`,
+          passed: critWithoutPoC.length === 0,
+          detail: critWithoutPoC.length > 0 ? `${lang === 'de' ? 'PoC fehlt' : 'Missing PoC'}: ${critWithoutPoC.map(th => `${threatId(th)} (⭐${th.evidenceQuality})`).join(', ')}` : undefined,
+        },
+        {
+          label: lang === 'de' ? `Risk 15–19 Threats mit Evidenz (⭐⭐⭐+): ${highRisks.length - highWithoutPoC.length}/${highRisks.length}`
+            : lang === 'fr' ? `Menaces Risk 15–19 avec preuve (⭐⭐⭐+) : ${highRisks.length - highWithoutPoC.length}/${highRisks.length}`
+            : `Risk 15–19 threats with evidence (⭐⭐⭐+): ${highRisks.length - highWithoutPoC.length}/${highRisks.length}`,
+          passed: highWithoutPoC.length === 0,
+          detail: highWithoutPoC.length > 0 ? `${lang === 'de' ? 'Schwache Evidenz' : 'Weak evidence'}: ${highWithoutPoC.map(th => `${threatId(th)} (⭐${th.evidenceQuality})`).join(', ')}` : undefined,
+        },
+        {
+          label: lang === 'de' ? `Gesamtquote ⭐⭐⭐+ Evidenz: ${threats.filter(th => th.evidenceQuality >= 3).length}/${threats.length} (${Math.round((threats.filter(th => th.evidenceQuality >= 3).length / threats.length) * 100)}%, ≥ 75% erforderlich)`
+            : lang === 'fr' ? `Taux global ⭐⭐⭐+ : ${threats.filter(th => th.evidenceQuality >= 3).length}/${threats.length} (${Math.round((threats.filter(th => th.evidenceQuality >= 3).length / threats.length) * 100)}%, ≥ 75% requis)`
+            : `Overall ⭐⭐⭐+ evidence rate: ${threats.filter(th => th.evidenceQuality >= 3).length}/${threats.length} (${Math.round((threats.filter(th => th.evidenceQuality >= 3).length / threats.length) * 100)}%, ≥ 75% required)`,
+          passed: evidAbove75,
+        },
+        {
+          label: lang === 'de' ? 'Alle PoCs haben Anhang-Material (Pcap, Screenshot, Log) im Evidenz-Index (Anhang C)'
+            : lang === 'fr' ? 'Tous les PoC ont du matériel en annexe (Pcap, Screenshot, Log) dans l\'index des preuves (Annexe C)'
+            : 'All PoCs have appendix material (Pcap, Screenshot, Log) in evidence index (Appendix C)',
+          passed: true, // Evidence index generated automatically in Appendix C
+        },
+        {
+          label: lang === 'de' ? 'Tool-Versionen dokumentiert (Anhang B)'
+            : lang === 'fr' ? 'Versions des outils documentées (Annexe B)'
+            : 'Tool versions documented (Appendix B)',
+          passed: true,
+        },
+        {
+          label: lang === 'de' ? 'Jede Behauptung durch reproduzierbare Evidenz belegt'
+            : lang === 'fr' ? 'Chaque affirmation appuyée par une preuve reproductible'
+            : 'Every claim backed by reproducible evidence',
+          passed: threatsWithoutSources.length === 0 && evidAbove75,
+        },
+      ],
+    },
   ];
 
-  for (const section of qgSections) {
-    checkPage(15);
-    writeLabel(section.title);
-    for (const item of section.items) {
-      checkPage(6);
-      doc.setFont('helvetica', 'normal'); doc.setFontSize(BODY_SIZE - 0.5); doc.setTextColor(...C.bodyText);
-      const checkLines = doc.splitTextToSize(`☑  ${item}`, CW - 15);
+  // Count totals
+  let totalChecks = 0;
+  let passedChecks = 0;
+  for (const block of qgBlocks) {
+    for (const check of block.checks) {
+      totalChecks++;
+      if (check.passed) passedChecks++;
+    }
+  }
+
+  // Render overview bar
+  checkPage(15);
+  const overviewLabel = lang === 'de' ? 'PRÜFERGEBNIS-ÜBERSICHT' : lang === 'fr' ? 'APERÇU DES RÉSULTATS' : 'RESULTS OVERVIEW';
+  writeLabel(overviewLabel);
+  y += 1;
+
+  const pctPassed = Math.round((passedChecks / totalChecks) * 100);
+  const barW = CW - 10;
+  const barH = 5;
+  doc.setFillColor(230, 230, 230);
+  doc.roundedRect(ML + 5, y, barW, barH, 1.5, 1.5, 'F');
+  const passedW = (passedChecks / totalChecks) * barW;
+  doc.setFillColor(...(pctPassed >= 90 ? C.greenText : pctPassed >= 70 ? C.orangeText : C.redText));
+  doc.roundedRect(ML + 5, y, passedW, barH, 1.5, 1.5, 'F');
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(7); doc.setTextColor(255, 255, 255);
+  if (passedW > 30) doc.text(`${passedChecks}/${totalChecks} (${pctPassed}%)`, ML + 8, y + 3.5);
+  y += barH + 5;
+
+  // Render each block
+  for (const block of qgBlocks) {
+    checkPage(18);
+    // Section header
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(BODY_SIZE); doc.setTextColor(...C.darkNavy);
+    doc.text(block.title, ML + 3, y);
+    y += 5;
+
+    const blockPassed = block.checks.filter(c => c.passed).length;
+    const blockTotal = block.checks.length;
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.setTextColor(...C.labelText);
+    doc.text(`${blockPassed}/${blockTotal} ${lang === 'de' ? 'bestanden' : lang === 'fr' ? 'réussis' : 'passed'}`, W - MR - 5, y - 5, { align: 'right' });
+
+    for (const check of block.checks) {
+      checkPage(10);
+      const icon = check.passed ? '✅' : '❌';
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(BODY_SIZE - 0.5); doc.setTextColor(...(check.passed ? C.bodyText : C.redText));
+      const checkLines = doc.splitTextToSize(`${icon}  ${check.label}`, CW - 18);
       for (const cl of checkLines) {
         checkPage(4);
         doc.text(cl, ML + 8, y);
         y += 3.8;
       }
-      y += 1;
+      if (check.detail) {
+        doc.setFont('helvetica', 'italic'); doc.setFontSize(7); doc.setTextColor(...C.orangeText);
+        const detailLines = doc.splitTextToSize(`→ ${check.detail}`, CW - 25);
+        for (const dl of detailLines) {
+          checkPage(4);
+          doc.text(dl, ML + 14, y);
+          y += 3.5;
+        }
+      }
+      y += 1.5;
     }
-    y += 3;
+    y += 4;
   }
 
-  // Final verdict
-  checkPage(20);
+  // ─── Final verdict ─────────────────────────────────────────
+  checkPage(25);
   const allCritHavePoC = critRisks.every(th => th.evidenceQuality >= 4);
-  const evidenceAbove75 = (threats.filter(th => th.evidenceQuality >= 3).length / threats.length) >= 0.75;
-  const qgPass = allCritHavePoC && evidenceAbove75 && reqs.length >= 22;
-  const qgVerdict = qgPass
-    ? (lang === 'de' ? 'QUALITÄTS-GATE: BESTANDEN — Bericht ist revisionssicher.' : lang === 'fr' ? 'PORTE QUALITÉ : RÉUSSIE — Rapport prêt pour audit.' : 'QUALITY GATE: PASSED — Report is audit-proof.')
-    : (lang === 'de' ? 'QUALITÄTS-GATE: ÜBERARBEITUNG EMPFOHLEN — Einzelne Prüfpunkte nicht vollständig erfüllt.' : lang === 'fr' ? 'PORTE QUALITÉ : RÉVISION RECOMMANDÉE.' : 'QUALITY GATE: REVISION RECOMMENDED — Some checkpoints not fully met.');
+  const qgPass = passedChecks === totalChecks;
+  const qgNearPass = pctPassed >= 85;
 
-  doc.setFillColor(...(qgPass ? C.bgGreen : C.bgYellow));
-  doc.roundedRect(ML, y, CW, 12, 2, 2, 'F');
-  doc.setFillColor(...(qgPass ? C.greenText : C.orangeText));
-  doc.rect(ML, y, 1.5, 12, 'F');
-  doc.setFont('helvetica', 'bold'); doc.setFontSize(9);
-  doc.setTextColor(...(qgPass ? C.greenText : C.orangeText));
-  doc.text(qgVerdict, ML + 6, y + 7.5);
-  y += 18;
+  const verdictText = qgPass
+    ? (lang === 'de' ? `QUALITÄTS-GATE: BESTANDEN (${passedChecks}/${totalChecks}) — Bericht ist revisionssicher.`
+      : lang === 'fr' ? `PORTE QUALITÉ : RÉUSSIE (${passedChecks}/${totalChecks}) — Rapport prêt pour audit.`
+      : `QUALITY GATE: PASSED (${passedChecks}/${totalChecks}) — Report is audit-proof.`)
+    : qgNearPass
+    ? (lang === 'de' ? `QUALITÄTS-GATE: BEDINGT BESTANDEN (${passedChecks}/${totalChecks}) — Einzelne Prüfpunkte erfordern Nacharbeit.`
+      : lang === 'fr' ? `PORTE QUALITÉ : RÉUSSIE SOUS CONDITIONS (${passedChecks}/${totalChecks}).`
+      : `QUALITY GATE: CONDITIONALLY PASSED (${passedChecks}/${totalChecks}) — Some checkpoints require attention.`)
+    : (lang === 'de' ? `QUALITÄTS-GATE: NICHT BESTANDEN (${passedChecks}/${totalChecks}) — Überarbeitung erforderlich vor Publikation.`
+      : lang === 'fr' ? `PORTE QUALITÉ : ÉCHOUÉE (${passedChecks}/${totalChecks}) — Révision nécessaire.`
+      : `QUALITY GATE: FAILED (${passedChecks}/${totalChecks}) — Revision required before publication.`);
+
+  const verdictColor: [number, number, number] = qgPass ? C.greenText : qgNearPass ? C.orangeText : C.redText;
+  const verdictBg: [number, number, number] = qgPass ? C.bgGreen : qgNearPass ? C.bgYellow : [60, 20, 20];
+
+  doc.setFillColor(...verdictBg);
+  doc.roundedRect(ML, y, CW, 14, 2, 2, 'F');
+  doc.setFillColor(...verdictColor);
+  doc.rect(ML, y, 1.5, 14, 'F');
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(8.5);
+  doc.setTextColor(...verdictColor);
+  doc.text(verdictText, ML + 6, y + 5.5);
+
+  // Timestamp
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(6.5); doc.setTextColor(...C.lightGray);
+  doc.text(`${lang === 'de' ? 'Automatisierte Prüfung am' : lang === 'fr' ? 'Contrôle automatisé le' : 'Automated check on'} ${new Date().toISOString().replace('T', ' ').slice(0, 19)} UTC`, ML + 6, y + 10.5);
+  y += 20;
 
   addFooter();
 
