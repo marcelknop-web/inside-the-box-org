@@ -883,6 +883,8 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
   const [qaRunning, setQaRunning] = useState(false);
   const [qaExpanded, setQaExpanded] = useState(false);
   const [fixesApplied, setFixesApplied] = useState(false);
+  const [fixesRunning, setFixesRunning] = useState(false);
+  const [fixProgress, setFixProgress] = useState(0);
   const [fixLog, setFixLog] = useState<string[]>([]);
   const [draftDownloaded, setDraftDownloaded] = useState(false);
   const critRisks = useMemo(() => localThreats.filter(th => th.likelihood * th.impact >= 20), [localThreats]);
@@ -926,17 +928,34 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
 
   const handleApplyFixes = useCallback(() => {
     if (!qaResult) return;
+    setFixesRunning(true);
+    setFixProgress(10);
     const failedChecks = qaResult.checks.filter(c => !c.passed);
-    const result = applyAuditFixes(localThreats, localReqs, failedChecks, language as 'de' | 'en' | 'fr', intakeData);
-    setLocalThreats(result.threats);
-    setLocalReqs(result.reqs);
-    setFixLog(result.fixes);
-    setFixesApplied(true);
-    // Re-run QA with fixed data
-    setTimeout(() => {
-      const newQa = runQualityCheck(result.threats, result.reqs, language as 'de' | 'en' | 'fr', intakeData);
-      setQaResult(newQa);
-    }, 500);
+    
+    // Simulate phased progress for UX feedback
+    const t1 = setTimeout(() => setFixProgress(30), 300);
+    const t2 = setTimeout(() => setFixProgress(55), 700);
+    const t3 = setTimeout(() => {
+      setFixProgress(75);
+      const result = applyAuditFixes(localThreats, localReqs, failedChecks, language as 'de' | 'en' | 'fr', intakeData);
+      setLocalThreats(result.threats);
+      setLocalReqs(result.reqs);
+      setFixLog(result.fixes);
+      setFixProgress(90);
+      
+      setTimeout(() => {
+        const newQa = runQualityCheck(result.threats, result.reqs, language as 'de' | 'en' | 'fr', intakeData);
+        setQaResult(newQa);
+        setFixProgress(100);
+        setTimeout(() => {
+          setFixesApplied(true);
+          setFixesRunning(false);
+          setFixProgress(0);
+        }, 400);
+      }, 500);
+    }, 1200);
+    
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
   }, [qaResult, localThreats, localReqs, language, intakeData]);
 
   const handleDraftPdf = useCallback(() => {
@@ -944,12 +963,24 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
     setDraftDownloaded(true);
   }, [intakeData, localThreats, localReqs, language, typeName, craName]);
 
+  const [finalPdfRunning, setFinalPdfRunning] = useState(false);
+
   const handleFinalPdf = useCallback(() => {
-    generateCraReport({ intakeData, threats: localThreats, reqs: localReqs, language: language as 'de' | 'en' | 'fr', productTypeName: typeName, craClassName: craName, isDraft: false });
+    setFinalPdfRunning(true);
+    // Use requestAnimationFrame to let UI update before heavy PDF work
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        try {
+          generateCraReport({ intakeData, threats: localThreats, reqs: localReqs, language: language as 'de' | 'en' | 'fr', productTypeName: typeName, craClassName: craName, isDraft: false });
+        } finally {
+          setFinalPdfRunning(false);
+        }
+      }, 100);
+    });
   }, [intakeData, localThreats, localReqs, language, typeName, craName]);
 
   const qaVerdict = qaResult?.verdict;
-  const canFinal = qaVerdict === 'passed' || qaVerdict === 'conditional';
+  const canFinal = fixesApplied || qaVerdict === 'passed' || qaVerdict === 'conditional';
 
   const CATEGORY_LABELS: Record<string, string> = {
     consistency: language === 'de' ? 'A. Konsistenzprüfung' : language === 'fr' ? 'A. Contrôle de cohérence' : 'A. Consistency Check',
@@ -1185,32 +1216,41 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
                 <span className="text-muted-foreground text-xs hidden sm:inline">{'>'}</span>
 
                 {/* 3. Apply Fixes */}
-                <button
-                  onClick={handleApplyFixes}
-                  disabled={!qaResult || qaResult.failed === 0 || fixesApplied}
-                  className={`text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2 transition-all disabled:opacity-50 ${
-                    currentStep === 3 ? activeClass : fixesApplied ? doneClass : (!qaResult || qaResult.failed === 0) ? disabledClass : defaultClass
-                  }`}
-                >
-                  {fixesApplied ? <CheckCircle2 className="w-4 h-4" /> : <Wrench className="w-4 h-4" />}
-                  <span className="font-mono text-xs opacity-60 mr-0.5">3</span>
-                  {language === 'de' ? 'Empfehlungen umsetzen' : language === 'fr' ? 'Appliquer' : 'Apply Fixes'}
-                </button>
+                <div className="flex flex-col items-center gap-1">
+                  <button
+                    onClick={handleApplyFixes}
+                    disabled={!qaResult || qaResult.failed === 0 || fixesApplied || fixesRunning}
+                    className={`text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2 transition-all disabled:opacity-50 ${
+                      fixesRunning ? activeClass : currentStep === 3 ? activeClass : fixesApplied ? doneClass : (!qaResult || qaResult.failed === 0) ? disabledClass : defaultClass
+                    }`}
+                  >
+                    {fixesRunning ? <Loader2 className="w-4 h-4 animate-spin" /> : fixesApplied ? <CheckCircle2 className="w-4 h-4" /> : <Wrench className="w-4 h-4" />}
+                    <span className="font-mono text-xs opacity-60 mr-0.5">3</span>
+                    {fixesRunning
+                      ? (language === 'de' ? 'Wird umgesetzt…' : language === 'fr' ? 'Application…' : 'Applying…')
+                      : (language === 'de' ? 'Empfehlungen umsetzen' : language === 'fr' ? 'Appliquer' : 'Apply Fixes')}
+                  </button>
+                  {fixesRunning && (
+                    <Progress value={fixProgress} className="w-full h-1.5 mt-1" />
+                  )}
+                </div>
 
                 <span className="text-muted-foreground text-xs hidden sm:inline">{'>'}</span>
 
                 {/* 4. Final Report */}
                 <button
                   onClick={handleFinalPdf}
-                  disabled={!canFinal}
+                  disabled={!canFinal || finalPdfRunning}
                   className={`text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2 transition-all ${
-                    currentStep === 4 && canFinal ? activeClass : !canFinal ? disabledClass : defaultClass
+                    finalPdfRunning ? activeClass : currentStep === 4 && canFinal ? activeClass : !canFinal ? disabledClass : defaultClass
                   }`}
                   title={!canFinal ? (language === 'de' ? 'Vorherige Schritte zuerst abschließen' : 'Complete previous steps first') : ''}
                 >
-                  <FileText className="w-4 h-4" />
+                  {finalPdfRunning ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
                   <span className="font-mono text-xs opacity-60 mr-0.5">4</span>
-                  PDF Final
+                  {finalPdfRunning
+                    ? (language === 'de' ? 'Wird erstellt…' : language === 'fr' ? 'Génération…' : 'Generating…')
+                    : 'PDF Final'}
                 </button>
               </>
             );
