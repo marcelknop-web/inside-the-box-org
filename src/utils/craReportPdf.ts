@@ -9,6 +9,7 @@ export interface CraReportData {
   language: 'de' | 'en' | 'fr';
   productTypeName: string;
   craClassName: string;
+  isDraft?: boolean;
 }
 
 /* ════════════════════════════════════════════════════════════
@@ -328,7 +329,7 @@ const STRIDE_NAMES: Record<string, Record<string, string>> = {
    MAIN GENERATOR
    ════════════════════════════════════════════════════════════ */
 export function generateCraReport(data: CraReportData): void {
-  const { intakeData, threats, reqs, language, productTypeName, craClassName } = data;
+  const { intakeData, threats, reqs, language, productTypeName, craClassName, isDraft = false } = data;
   const lang = language;
   const t = (o: Record<string, string>) => o[lang] || o.en;
 
@@ -403,6 +404,15 @@ export function generateCraReport(data: CraReportData): void {
   function preparePage() {
     addRunningHeader();
     drawWatermark(doc, W / 2, H / 2, 52);
+    if (isDraft) {
+      doc.saveGraphicsState();
+      doc.setGState(new (doc as any).GState({ opacity: 0.08 }));
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(72);
+      doc.setTextColor(200, 50, 50);
+      doc.text('DRAFT', W / 2, H / 2 + 10, { align: 'center', angle: 45 });
+      doc.restoreGraphicsState();
+    }
   }
 
   function checkPage(need: number = 16) {
@@ -2005,5 +2015,6 @@ export function generateCraReport(data: CraReportData): void {
 
   addFooter();
 
-  doc.save(`CRA-Pruefbericht_${intakeData.productName.replace(/\s+/g, '-')}_${new Date().toISOString().slice(0, 10)}.pdf`);
+  const suffix = isDraft ? '_DRAFT' : '_FINAL';
+  doc.save(`CRA-Pruefbericht_${intakeData.productName.replace(/\s+/g, '-')}${suffix}_${new Date().toISOString().slice(0, 10)}.pdf`);
 }

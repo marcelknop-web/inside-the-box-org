@@ -1,7 +1,9 @@
 import { useState, useCallback, useRef, useMemo, memo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { RotateCcw, ChevronDown, ChevronUp, Loader2, Sparkles, FileText } from 'lucide-react';
+import { RotateCcw, ChevronDown, ChevronUp, Loader2, Sparkles, FileText, ShieldCheck, CheckCircle2, XCircle, AlertTriangle } from 'lucide-react';
 import { generateCraReport } from '@/utils/craReportPdf';
+import { CraAuditCharts } from '@/components/CraAuditCharts';
+import { runQualityCheck, type QaResult } from '@/utils/craQualityCheck';
 import { PageMeta } from '@/components/PageMeta';
 import { Progress } from '@/components/ui/progress';
 import { useLanguage } from '@/i18n/LanguageContext';
@@ -874,6 +876,9 @@ function CRAMapping({ reqs, onNext }: { reqs: CraReq[]; onNext: () => void }) {
 
 function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; threats: Threat[]; reqs: CraReq[] }) {
   const { t, language } = useLanguage();
+  const [qaResult, setQaResult] = useState<QaResult | null>(null);
+  const [qaRunning, setQaRunning] = useState(false);
+  const [qaExpanded, setQaExpanded] = useState(false);
   const critRisks = useMemo(() => threats.filter(th => th.likelihood * th.impact >= 20), [threats]);
   const failReqs = useMemo(() => reqs.filter(r => r.status === 'fail'), [reqs]);
   const partialCount = useMemo(() => reqs.filter(r => r.status === 'partial').length, [reqs]);
@@ -900,6 +905,36 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
       .replace('{partial}', String(partialCount));
   }, [t, intakeData, typeName, craName, today, threats.length, critRisks.length, reqs.length, failReqs.length, partialCount]);
 
+  const handleQaCheck = useCallback(() => {
+    setQaRunning(true);
+    setQaExpanded(false);
+    setTimeout(() => {
+      const result = runQualityCheck(threats, reqs, language as 'de' | 'en' | 'fr');
+      setQaResult(result);
+      setQaRunning(false);
+      setQaExpanded(true);
+    }, 1500);
+  }, [threats, reqs, language]);
+
+  const handleDraftPdf = useCallback(() => {
+    generateCraReport({ intakeData, threats, reqs, language: language as 'de' | 'en' | 'fr', productTypeName: typeName, craClassName: craName, isDraft: true });
+  }, [intakeData, threats, reqs, language, typeName, craName]);
+
+  const handleFinalPdf = useCallback(() => {
+    generateCraReport({ intakeData, threats, reqs, language: language as 'de' | 'en' | 'fr', productTypeName: typeName, craClassName: craName, isDraft: false });
+  }, [intakeData, threats, reqs, language, typeName, craName]);
+
+  const qaVerdict = qaResult?.verdict;
+  const canFinal = qaVerdict === 'passed' || qaVerdict === 'conditional';
+
+  const CATEGORY_LABELS: Record<string, string> = {
+    consistency: language === 'de' ? 'A. Konsistenzprüfung' : language === 'fr' ? 'A. Contrôle de cohérence' : 'A. Consistency Check',
+    technical: language === 'de' ? 'B. Fachliche Korrektheit' : language === 'fr' ? 'B. Exactitude technique' : 'B. Technical Correctness',
+    evidence: language === 'de' ? 'C. Evidenzprüfung' : language === 'fr' ? 'C. Contrôle des preuves' : 'C. Evidence Check',
+    editorial: language === 'de' ? 'D. Redaktionelle Prüfung' : language === 'fr' ? 'D. Contrôle rédactionnel' : 'D. Editorial Check',
+    ot: language === 'de' ? 'E. OT-spezifische Prüfung' : language === 'fr' ? 'E. Contrôle spécifique OT' : 'E. OT-Specific Check',
+  };
+
   return (
     <StaggerReveal resetKey={`rp`} stagger={350}>
       <InfoBox icon="✅" title={t('cra.rpDone')} color="green"><span dangerouslySetInnerHTML={{ __html: t('cra.rpDoneInfoActive') || t('cra.rpDone') }} /></InfoBox>
@@ -916,6 +951,12 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
         </div>
         <div className="h-px bg-border mb-3" />
         <p className="text-sm text-foreground leading-relaxed" dangerouslySetInnerHTML={{ __html: introHtml }} />
+      </div>
+
+      {/* ═══ AUDIT CHARTS ═══ */}
+      <div className="bg-card border border-border rounded-lg p-4">
+        <div className="text-sm font-bold text-foreground mb-3">📊 {language === 'de' ? 'Auswertungsübersicht' : language === 'fr' ? 'Aperçu de l\'évaluation' : 'Assessment Overview'}</div>
+        <CraAuditCharts threats={threats} reqs={reqs} />
       </div>
 
       {/* Prio 3: Explicitly name critical risks */}
@@ -975,7 +1016,7 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
         ))}
       </div>
 
-      {/* Prio 5: Terminology clarification */}
+      {/* Terminology */}
       <div className="bg-card border border-border rounded-lg p-4 text-sm">
         <div className="font-semibold text-foreground mb-2">📖 {t('cra.rpTermTitle')}</div>
         <div className="space-y-1.5 text-muted-foreground">
@@ -984,17 +1025,103 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
         </div>
       </div>
 
+      {/* ═══ QA CHECK RESULT ═══ */}
+      {qaResult && qaExpanded && (
+        <div className={`bg-card border-2 rounded-lg overflow-hidden ${qaVerdict === 'passed' ? 'border-green-500/40' : qaVerdict === 'conditional' ? 'border-yellow-500/40' : 'border-destructive/40'}`}>
+          <div className={`px-4 py-3 border-b flex items-center justify-between ${qaVerdict === 'passed' ? 'bg-green-500/10 border-green-500/20' : qaVerdict === 'conditional' ? 'bg-yellow-500/10 border-yellow-500/20' : 'bg-destructive/10 border-destructive/20'}`}>
+            <div className="flex items-center gap-2">
+              {qaVerdict === 'passed' ? <CheckCircle2 className="w-5 h-5 text-green-500" /> : qaVerdict === 'conditional' ? <AlertTriangle className="w-5 h-5 text-yellow-500" /> : <XCircle className="w-5 h-5 text-destructive" />}
+              <span className={`text-sm font-bold ${qaVerdict === 'passed' ? 'text-green-500' : qaVerdict === 'conditional' ? 'text-yellow-500' : 'text-destructive'}`}>
+                {qaResult.verdictLabel}
+              </span>
+            </div>
+            <span className="text-xs font-mono text-muted-foreground">{qaResult.passed}/{qaResult.total}</span>
+          </div>
+          <div className="px-4 py-3 space-y-4 text-sm">
+            {/* Progress bar */}
+            <div className="bg-secondary rounded-full h-2.5 overflow-hidden">
+              <div className={`h-full rounded-full transition-all ${qaVerdict === 'passed' ? 'bg-green-500' : qaVerdict === 'conditional' ? 'bg-yellow-500' : 'bg-destructive'}`} style={{ width: `${Math.round((qaResult.passed / qaResult.total) * 100)}%` }} />
+            </div>
+
+            {/* Grouped checks */}
+            {(['consistency', 'technical', 'evidence', 'editorial', 'ot'] as const).map(cat => {
+              const catChecks = qaResult.checks.filter(c => c.category === cat);
+              if (catChecks.length === 0) return null;
+              const catPassed = catChecks.filter(c => c.passed).length;
+              return (
+                <div key={cat}>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="font-semibold text-foreground text-xs">{CATEGORY_LABELS[cat]}</span>
+                    <span className="text-xs font-mono text-muted-foreground">{catPassed}/{catChecks.length}</span>
+                  </div>
+                  <div className="space-y-1">
+                    {catChecks.map(check => (
+                      <div key={check.id} className="flex items-start gap-2 text-xs">
+                        <span className="flex-shrink-0 mt-0.5">{check.passed ? '✅' : '❌'}</span>
+                        <div className="flex-1">
+                          <span className={check.passed ? 'text-foreground' : 'text-destructive font-medium'}>{check.label}</span>
+                          <span className="text-muted-foreground ml-1.5">— {check.detail}</span>
+                        </div>
+                        {!check.passed && (
+                          <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold flex-shrink-0 ${check.severity === 'critical' ? 'bg-destructive/10 text-destructive' : check.severity === 'major' ? 'bg-orange-500/10 text-orange-400' : 'bg-yellow-500/10 text-yellow-500'}`}>
+                            {check.severity.toUpperCase()}
+                          </span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+
+            {/* Corrections needed */}
+            {qaResult.corrections.length > 0 && (
+              <div className="border-t border-border pt-3">
+                <div className="font-semibold text-destructive text-xs mb-1">
+                  {language === 'de' ? 'Korrekturanweisungen (zwingend):' : language === 'fr' ? 'Corrections obligatoires :' : 'Required corrections:'}
+                </div>
+                <ul className="space-y-0.5 text-xs text-foreground">
+                  {qaResult.corrections.map((c, i) => <li key={i} className="flex gap-1.5"><span className="text-destructive font-mono">{i + 1}.</span>{c}</li>)}
+                </ul>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ═══ EXPORT BAR ═══ */}
       <div className="bg-secondary border border-border rounded-lg p-4 flex flex-col sm:flex-row items-center justify-between gap-3">
         <div className="text-sm text-foreground">
           <div className="font-semibold mb-0.5">{t('cra.rpExport')}</div>
           <div className="text-xs text-muted-foreground">{t('cra.rpExportHintActive')}</div>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
+          {/* Quality Check Button */}
           <button
-            onClick={() => generateCraReport({ intakeData, threats, reqs, language: language as 'de' | 'en' | 'fr', productTypeName: typeName, craClassName: craName })}
-            className="bg-primary text-primary-foreground text-sm font-semibold px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors flex items-center gap-2"
+            onClick={handleQaCheck}
+            disabled={qaRunning}
+            className="bg-card border border-border text-foreground text-sm font-semibold px-4 py-2 rounded-lg hover:bg-accent transition-colors flex items-center gap-2 disabled:opacity-50"
           >
-            <FileText className="w-4 h-4" /> PDF
+            {qaRunning ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShieldCheck className="w-4 h-4" />}
+            {language === 'de' ? 'Qualitätscheck' : language === 'fr' ? 'Contrôle qualité' : 'Quality Check'}
+          </button>
+
+          {/* Draft PDF — always available */}
+          <button
+            onClick={handleDraftPdf}
+            className="bg-card border border-border text-foreground text-sm font-semibold px-4 py-2 rounded-lg hover:bg-accent transition-colors flex items-center gap-2"
+          >
+            <FileText className="w-4 h-4" /> PDF Draft
+          </button>
+
+          {/* Final PDF — only after QA */}
+          <button
+            onClick={handleFinalPdf}
+            disabled={!canFinal}
+            className={`text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2 transition-colors ${canFinal ? 'bg-primary text-primary-foreground hover:bg-primary/90' : 'bg-muted text-muted-foreground cursor-not-allowed'}`}
+            title={!canFinal ? (language === 'de' ? 'Qualitätscheck zuerst durchführen' : 'Run quality check first') : ''}
+          >
+            <FileText className="w-4 h-4" /> PDF Final
           </button>
         </div>
       </div>
