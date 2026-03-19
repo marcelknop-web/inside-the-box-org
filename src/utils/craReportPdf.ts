@@ -547,7 +547,7 @@ export function generateCraReport(data: CraReportData): void {
      ══════════════════════════════════════ */
   doc.setFillColor(...C.navy);
   doc.rect(0, 0, W, H, 'F');
-  drawWatermark(doc, W / 2, 120, 65);
+  
 
   doc.setFillColor(...C.gold);
   doc.rect(ML, 50, 35, 1.5, 'F');
