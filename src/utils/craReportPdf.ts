@@ -1335,6 +1335,95 @@ export function generateCraReport(data: CraReportData): void {
     doc.text(`> ${ph.gate}`, ML + 10, y); y += 6;
   }
 
+  // 5.3 Economic Impact Assessment
+  y += 6;
+  const sec53Title = lang === 'de' ? '5.3  Wirtschaftliche Betrachtung'
+    : lang === 'fr' ? '5.3  Analyse economique'
+    : '5.3  Economic Impact Assessment';
+  writeSubHeading(sec53Title);
+
+  const ecoIntro = lang === 'de'
+    ? 'Die folgende Einschaetzung stellt den geschaetzten Remediation-Aufwand dem Schadenspotenzial bei Nicht-Umsetzung gegenueber. Die Werte basieren auf den CRA-Sanktionsrahmen (Art. 64) sowie branchenueblichen Ausfallkosten.'
+    : lang === 'fr'
+    ? 'L\'estimation suivante compare l\'effort de remediation au potentiel de dommages en cas de non-mise en oeuvre, sur la base du cadre de sanctions CRA (Art. 64).'
+    : 'The following assessment compares estimated remediation effort against damage potential of non-implementation. Values are based on CRA penalty frameworks (Art. 64) and industry-standard outage costs.';
+  writeBody(ecoIntro);
+  y += 3;
+
+  // Calculate total effort
+  const allPrioItems = [...new Set([...p0Items, ...p1Items, ...p2Items, ...p3Items].map(i => i.id))];
+  const totalEffortHours = [...p0Items, ...p1Items, ...p2Items, ...p3Items].reduce((sum, item) => {
+    const match = item.effort.match(/(\d+)-(\d+)/);
+    return sum + (match ? (parseInt(match[1]) + parseInt(match[2])) / 2 : 16);
+  }, 0);
+  const estCostK = Math.round(totalEffortHours * 150 / 1000);
+
+  const penaltyData: [string, string, [number, number, number]][] = lang === 'de' ? [
+    ['Bussgeld bei Nicht-Konformitaet (Art. 64 CRA)', 'Bis zu 15 Mio. EUR oder 2,5% des weltweiten Jahresumsatzes', C.redText],
+    ['Bussgeld bei Meldepflichtverletzung (Art. 64)', 'Bis zu 10 Mio. EUR oder 2% des weltweiten Jahresumsatzes', C.redText],
+    ['Rueckrufkosten (Art. 49 CRA)', 'Abhaengig von Produktkategorie und Verbreitungsgrad', C.orangeText],
+    ['Produktionsausfall (OT-Kontext)', 'Branchendurchschnitt: 50.000 -- 250.000 EUR/Stunde', C.orangeText],
+    [`Geschaetzter Remediation-Aufwand`, `${Math.round(totalEffortHours)} Personenstunden (ca. ${Math.round(totalEffortHours / 40)} Personenwochen, ${estCostK}k EUR bei 150 EUR/h)`, C.greenText],
+  ] : lang === 'fr' ? [
+    ['Amende pour non-conformite (Art. 64 CRA)', 'Jusqu\'a 15 M EUR ou 2,5% du CA mondial', C.redText],
+    ['Amende pour violation obligation de signalement', 'Jusqu\'a 10 M EUR ou 2% du CA mondial', C.redText],
+    ['Couts de rappel (Art. 49 CRA)', 'Selon categorie et diffusion du produit', C.orangeText],
+    ['Arret de production (contexte OT)', 'Moyenne: 50 000 -- 250 000 EUR/heure', C.orangeText],
+    [`Effort de remediation estime`, `${Math.round(totalEffortHours)} heures-personne (env. ${Math.round(totalEffortHours / 40)} semaines-personne, ${estCostK}k EUR a 150 EUR/h)`, C.greenText],
+  ] : [
+    ['Non-compliance penalty (Art. 64 CRA)', 'Up to EUR 15M or 2.5% of global annual turnover', C.redText],
+    ['Reporting violation penalty (Art. 64)', 'Up to EUR 10M or 2% of global annual turnover', C.redText],
+    ['Product recall costs (Art. 49 CRA)', 'Dependent on product category and distribution', C.orangeText],
+    ['Production downtime (OT context)', 'Industry average: EUR 50,000 -- 250,000/hour', C.orangeText],
+    [`Estimated remediation effort`, `${Math.round(totalEffortHours)} person-hours (approx. ${Math.round(totalEffortHours / 40)} person-weeks, EUR ${estCostK}k at EUR 150/h)`, C.greenText],
+  ];
+
+  checkPage(45);
+  const ecoColLabel = ML + 5;
+  const ecoColValue = ML + 85;
+
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(7); doc.setTextColor(...C.accent);
+  doc.text(lang === 'de' ? 'RISIKOKATEGORIE' : lang === 'fr' ? 'CATEGORIE DE RISQUE' : 'RISK CATEGORY', ecoColLabel, y);
+  doc.text(lang === 'de' ? 'SCHADENSPOTENZIAL / AUFWAND' : lang === 'fr' ? 'POTENTIEL DE DOMMAGES' : 'DAMAGE POTENTIAL / EFFORT', ecoColValue, y);
+  y += 2;
+  doc.setDrawColor(...C.ruleStroke); doc.setLineWidth(0.15); doc.line(ecoColLabel, y, W - MR - 5, y); y += 4;
+
+  for (const [label, value, color] of penaltyData) {
+    checkPage(12);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(BODY_SIZE - 0.5); doc.setTextColor(...C.bodyText);
+    const labelLines = doc.splitTextToSize(label, 75);
+    const valueLines = doc.splitTextToSize(value, CW - 90);
+    const maxLines = Math.max(labelLines.length, valueLines.length);
+    for (let li = 0; li < maxLines; li++) {
+      if (labelLines[li]) doc.text(labelLines[li], ecoColLabel, y);
+      if (valueLines[li]) {
+        doc.setFont('helvetica', 'bold'); doc.setTextColor(...color);
+        doc.text(valueLines[li], ecoColValue, y);
+        doc.setFont('helvetica', 'normal'); doc.setTextColor(...C.bodyText);
+      }
+      y += BODY_LEADING + 0.3;
+    }
+    y += 1;
+  }
+
+  y += 4;
+  const roiText = lang === 'de'
+    ? `Kosten-Nutzen-Verhaeltnis: Der geschaetzte Gesamtaufwand von ${Math.round(totalEffortHours)} Personenstunden (ca. ${estCostK}k EUR) steht einem maximalen Bussgeldrisiko von 15 Mio. EUR und branchenspezifischen Ausfallkosten gegenueber. Die Investition in die Remediation amortisiert sich bereits bei Vermeidung eines einzigen regulatorischen Verfahrens oder Produktionsausfalls.`
+    : lang === 'fr'
+    ? `Rapport cout-benefice : L'effort total estime de ${Math.round(totalEffortHours)} heures-personne (env. ${estCostK}k EUR) fait face a un risque d'amende maximal de 15 M EUR. L'investissement dans la remediation est rentabilise des l'evitement d'une seule procedure reglementaire.`
+    : `Cost-benefit ratio: The estimated total effort of ${Math.round(totalEffortHours)} person-hours (approx. EUR ${estCostK}k) stands against maximum penalty exposure of EUR 15M and industry-specific downtime costs averaging EUR 50-250k/hour. The remediation investment pays for itself by avoiding even a single regulatory proceeding or production incident.`;
+
+  checkPage(20);
+  const roiLines = doc.splitTextToSize(roiText, CW - 12);
+  const roiBoxH = roiLines.length * 4.2 + 6;
+  doc.setFillColor(...C.bgLight);
+  doc.roundedRect(ML, y - 2, CW, roiBoxH, 1.5, 1.5, 'F');
+  doc.setFillColor(...C.gold);
+  doc.rect(ML, y - 2, 1.5, roiBoxH, 'F');
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5); doc.setTextColor(...C.bodyText);
+  doc.text(roiLines, ML + 6, y + 2);
+  y += roiBoxH + 5;
+
   /* ══════════════════════════════════════
      SECTION 6: Methodology
      ══════════════════════════════════════ */
