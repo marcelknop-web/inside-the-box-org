@@ -181,6 +181,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
     roles: string[];
     measures: Record<string, MeasureEntry>;
     knownIssues: string;
+    files: { name: string; size: number; type: string }[];
   }
 
   const DEMO_SCENARIOS: DemoScenario[] = [
