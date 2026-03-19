@@ -842,6 +842,7 @@ export function generateCraReport(data: CraReportData): void {
   // 3.3 Security Measures
   y += 3;
   writeSubHeading(t(I18N.sec3c));
+  writeBody(t(I18N.introSec3c));
   const measureKeys = Object.keys(intakeData.measures);
   if (measureKeys.length > 0) {
     // Table header
