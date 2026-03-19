@@ -927,7 +927,7 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
   const handleApplyFixes = useCallback(() => {
     if (!qaResult) return;
     const failedChecks = qaResult.checks.filter(c => !c.passed);
-    const result = applyAuditFixes(localThreats, localReqs, failedChecks, language as 'de' | 'en' | 'fr');
+    const result = applyAuditFixes(localThreats, localReqs, failedChecks, language as 'de' | 'en' | 'fr', intakeData);
     setLocalThreats(result.threats);
     setLocalReqs(result.reqs);
     setFixLog(result.fixes);
@@ -937,7 +937,7 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
       const newQa = runQualityCheck(result.threats, result.reqs, language as 'de' | 'en' | 'fr', intakeData);
       setQaResult(newQa);
     }, 500);
-  }, [qaResult, localThreats, localReqs, language]);
+  }, [qaResult, localThreats, localReqs, language, intakeData]);
 
   const handleDraftPdf = useCallback(() => {
     generateCraReport({ intakeData, threats: localThreats, reqs: localReqs, language: language as 'de' | 'en' | 'fr', productTypeName: typeName, craClassName: craName, isDraft: true });
