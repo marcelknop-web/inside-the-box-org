@@ -884,6 +884,7 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
   const [qaExpanded, setQaExpanded] = useState(false);
   const [fixesApplied, setFixesApplied] = useState(false);
   const [fixLog, setFixLog] = useState<string[]>([]);
+  const [draftDownloaded, setDraftDownloaded] = useState(false);
   const critRisks = useMemo(() => localThreats.filter(th => th.likelihood * th.impact >= 20), [localThreats]);
   const failReqs = useMemo(() => localReqs.filter(r => r.status === 'fail'), [localReqs]);
   const partialCount = useMemo(() => localReqs.filter(r => r.status === 'partial').length, [localReqs]);
