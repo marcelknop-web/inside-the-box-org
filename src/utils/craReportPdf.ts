@@ -1,6 +1,7 @@
 import jsPDF from 'jspdf';
 import type { IntakeData, Threat, CraReq } from '@/data/craData';
 import { threatId } from '@/data/craData';
+import type { QaCheck } from '@/utils/craQualityCheck';
 
 export interface CraReportData {
   intakeData: IntakeData;
@@ -10,6 +11,12 @@ export interface CraReportData {
   productTypeName: string;
   craClassName: string;
   isDraft?: boolean;
+  /** QA checks from the iterative quality check workflow */
+  qaChecks?: QaCheck[];
+  /** Fix log entries from automated remediation */
+  fixLog?: string[];
+  /** Number of QA iterations performed */
+  qaIterations?: number;
 }
 
 /* ════════════════════════════════════════════════════════════
