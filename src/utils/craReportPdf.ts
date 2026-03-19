@@ -1226,6 +1226,7 @@ export function generateCraReport(data: CraReportData): void {
   ];
 
   writeSubHeading(t(I18N.sec5a));
+  writeBody(t(I18N.introSec5a));
   y += 2;
 
   const hasItems = allPrios.some(p => p.items.length > 0);
