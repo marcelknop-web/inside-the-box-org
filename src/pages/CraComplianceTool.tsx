@@ -213,6 +213,13 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
       roles: ['Administrator', 'Maintenance Engineer', 'Operator'],
       measures: { tls: { active: true, documented: true, audited: true }, auth: { active: true, documented: true, audited: false }, mfa: { active: true, documented: false, audited: false }, sbom: { active: true, documented: true, audited: false }, secboot: { active: true, documented: true, audited: true } },
       knownIssues: 'Modbus interface lacks authentication. SBOM does not yet cover all transitive dependencies.',
+      files: [
+        { name: 'IndustrialEdge_SystemArchitecture_v3.1.pdf', size: 2_850_000, type: 'arch' },
+        { name: 'IE_Pentest_Report_Q4-2025.pdf', size: 1_120_000, type: 'pentest' },
+        { name: 'IE_SecurityPolicy_OT.pdf', size: 560_000, type: 'policy' },
+        { name: 'industrialedge-sbom-3.1.0.cdx.json', size: 142_000, type: 'sbom' },
+        { name: 'IE_ThreatModel_STRIDE.drawio', size: 310_000, type: 'arch' },
+      ],
     },
     {
       // Cloud SaaS – Default-Klasse, gute Maßnahmen
