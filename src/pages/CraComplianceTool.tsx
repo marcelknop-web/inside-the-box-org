@@ -886,11 +886,15 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
   const [fixesRunning, setFixesRunning] = useState(false);
   const [fixProgress, setFixProgress] = useState(0);
   const [fixLog, setFixLog] = useState<string[]>([]);
+  const [allFixLogs, setAllFixLogs] = useState<string[]>([]);
   const [draftDownloaded, setDraftDownloaded] = useState(false);
   // Iterative QA tracking
   const [qaIteration, setQaIteration] = useState(0);
   interface QaHistoryEntry { iteration: number; passed: number; total: number; failed: number; verdict: string; fixes: string[] }
   const [qaHistory, setQaHistory] = useState<QaHistoryEntry[]>([]);
+  // Pre-fix QA checks for the Final PDF (captures what was found before corrections)
+  const [preFixQaChecks, setPreFixQaChecks] = useState<QaCheck[] | null>(null);
+  type QaCheck = NonNullable<QaResult>['checks'][number];
   const critRisks = useMemo(() => localThreats.filter(th => th.likelihood * th.impact >= 20), [localThreats]);
   const failReqs = useMemo(() => localReqs.filter(r => r.status === 'fail'), [localReqs]);
   const partialCount = useMemo(() => localReqs.filter(r => r.status === 'partial').length, [localReqs]);
