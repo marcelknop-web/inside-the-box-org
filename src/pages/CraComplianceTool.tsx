@@ -887,6 +887,10 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
   const [fixProgress, setFixProgress] = useState(0);
   const [fixLog, setFixLog] = useState<string[]>([]);
   const [draftDownloaded, setDraftDownloaded] = useState(false);
+  // Iterative QA tracking
+  const [qaIteration, setQaIteration] = useState(0);
+  interface QaHistoryEntry { iteration: number; passed: number; total: number; failed: number; verdict: string; fixes: string[] }
+  const [qaHistory, setQaHistory] = useState<QaHistoryEntry[]>([]);
   const critRisks = useMemo(() => localThreats.filter(th => th.likelihood * th.impact >= 20), [localThreats]);
   const failReqs = useMemo(() => localReqs.filter(r => r.status === 'fail'), [localReqs]);
   const partialCount = useMemo(() => localReqs.filter(r => r.status === 'partial').length, [localReqs]);
@@ -918,13 +922,24 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
     setQaExpanded(false);
     setFixesApplied(false);
     setFixLog([]);
+    const nextIteration = qaIteration + 1;
+    setQaIteration(nextIteration);
     setTimeout(() => {
       const result = runQualityCheck(localThreats, localReqs, language as 'de' | 'en' | 'fr', intakeData);
       setQaResult(result);
       setQaRunning(false);
       setQaExpanded(true);
+      // Save to history
+      setQaHistory(prev => [...prev, {
+        iteration: nextIteration,
+        passed: result.passed,
+        total: result.total,
+        failed: result.failed,
+        verdict: result.verdict,
+        fixes: [],
+      }]);
     }, 1500);
-  }, [localThreats, localReqs, language, intakeData]);
+  }, [localThreats, localReqs, language, intakeData, qaIteration]);
 
   const handleApplyFixes = useCallback(() => {
     if (!qaResult) return;
@@ -932,7 +947,6 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
     setFixProgress(10);
     const failedChecks = qaResult.checks.filter(c => !c.passed);
     
-    // Simulate phased progress for UX feedback
     const t1 = setTimeout(() => setFixProgress(30), 300);
     const t2 = setTimeout(() => setFixProgress(55), 700);
     const t3 = setTimeout(() => {
@@ -942,6 +956,11 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
       setLocalReqs(result.reqs);
       setFixLog(result.fixes);
       setFixProgress(90);
+      
+      // Update history: attach fix log to current iteration
+      setQaHistory(prev => prev.map((h, i) =>
+        i === prev.length - 1 ? { ...h, fixes: result.fixes } : h
+      ));
       
       setTimeout(() => {
         const newQa = runQualityCheck(result.threats, result.reqs, language as 'de' | 'en' | 'fr', intakeData);
@@ -1080,6 +1099,28 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
         </div>
       </div>
 
+      {/* ═══ QA ITERATION HISTORY ═══ */}
+      {qaHistory.length > 1 && (
+        <div className="bg-card border border-border rounded-lg p-4">
+          <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
+            {language === 'de' ? 'Prüfverlauf' : language === 'fr' ? 'Historique des contrôles' : 'Check History'}
+          </div>
+          <div className="flex gap-2 flex-wrap">
+            {qaHistory.map((h, i) => (
+              <div key={i} className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-mono border ${
+                i === qaHistory.length - 1 ? 'border-primary/40 bg-primary/5' : 'border-border bg-secondary/50'
+              }`}>
+                <span className="font-bold text-foreground">#{h.iteration}</span>
+                <span className={h.verdict === 'passed' ? 'text-green-500' : h.verdict === 'conditional' ? 'text-yellow-500' : 'text-destructive'}>
+                  {h.passed}/{h.total}
+                </span>
+                {h.fixes.length > 0 && <span className="text-primary">+{h.fixes.length} fixes</span>}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* ═══ QA CHECK RESULT ═══ */}
       {qaResult && qaExpanded && (
         <div className={`bg-card border-2 rounded-lg overflow-hidden ${qaVerdict === 'passed' ? 'border-green-500/40' : qaVerdict === 'conditional' ? 'border-yellow-500/40' : 'border-destructive/40'}`}>
@@ -1089,6 +1130,11 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
               <span className={`text-sm font-bold ${qaVerdict === 'passed' ? 'text-green-500' : qaVerdict === 'conditional' ? 'text-yellow-500' : 'text-destructive'}`}>
                 {qaResult.verdictLabel}
               </span>
+              {qaIteration > 0 && (
+                <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-bold border border-primary/20">
+                  {language === 'de' ? `Durchlauf ${qaIteration}` : language === 'fr' ? `Passage ${qaIteration}` : `Run ${qaIteration}`}
+                </span>
+              )}
             </div>
             <span className="text-xs font-mono text-muted-foreground">{qaResult.passed}/{qaResult.total}</span>
           </div>
@@ -1140,6 +1186,38 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
                 </ul>
               </div>
             )}
+
+            {/* Next action hint */}
+            {qaResult.failed > 0 && !fixesApplied && (
+              <div className="border-t border-border pt-3 flex items-center gap-2 text-xs text-primary">
+                <Wrench className="w-3.5 h-3.5" />
+                <span className="font-medium">
+                  {language === 'de' ? `${qaResult.failed} Befunde können automatisch korrigiert werden — klicke "Empfehlungen umsetzen"` :
+                   language === 'fr' ? `${qaResult.failed} constatations peuvent être corrigées — cliquez "Appliquer"` :
+                   `${qaResult.failed} findings can be auto-corrected — click "Apply Fixes"`}
+                </span>
+              </div>
+            )}
+            {fixesApplied && qaResult.failed > 0 && (
+              <div className="border-t border-border pt-3 flex items-center gap-2 text-xs text-primary">
+                <ShieldCheck className="w-3.5 h-3.5" />
+                <span className="font-medium">
+                  {language === 'de' ? 'Korrekturen angewendet — starte einen weiteren Qualitätscheck oder lade das PDF Final herunter' :
+                   language === 'fr' ? 'Corrections appliquées — lancez un nouveau contrôle ou téléchargez le PDF Final' :
+                   'Corrections applied — run another Quality Check or download the PDF Final'}
+                </span>
+              </div>
+            )}
+            {qaResult.failed === 0 && (
+              <div className="border-t border-border pt-3 flex items-center gap-2 text-xs text-green-500">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span className="font-medium">
+                  {language === 'de' ? 'Alle Prüfpunkte bestanden — PDF Final kann erstellt werden' :
+                   language === 'fr' ? 'Tous les contrôles réussis — le PDF Final peut être généré' :
+                   'All checks passed — PDF Final can be generated'}
+                </span>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -1171,17 +1249,25 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
       <div className="bg-secondary border border-border rounded-lg p-4">
         <div className="text-sm text-foreground mb-3">
           <div className="font-semibold mb-0.5">{t('cra.rpExport')}</div>
-          <div className="text-xs text-muted-foreground">{t('cra.rpExportHintActive')}</div>
+          <div className="text-xs text-muted-foreground">
+            {qaIteration > 0
+              ? (language === 'de' ? `Durchlauf ${qaIteration} — ${fixesApplied ? 'Korrekturen angewendet, erneuter Check oder Final möglich' : qaResult ? 'Ergebnisse vorliegend' : 'Prüfung läuft'}` :
+                 language === 'fr' ? `Passage ${qaIteration} — ${fixesApplied ? 'Corrections appliquées, nouveau contrôle ou Final possible' : qaResult ? 'Résultats disponibles' : 'Vérification en cours'}` :
+                 `Run ${qaIteration} — ${fixesApplied ? 'Fixes applied, re-check or Final available' : qaResult ? 'Results available' : 'Check running'}`)
+              : t('cra.rpExportHintActive')}
+          </div>
         </div>
         <div className="flex gap-2 flex-wrap items-center">
-          {/* Step indicator */}
           {(() => {
-            // Determine current step: 1=Draft, 2=QA, 3=Fixes, 4=Final
-            const currentStep = !draftDownloaded ? 1 : !qaResult ? 2 : (qaResult.failed > 0 && !fixesApplied) ? 3 : 4;
             const activeClass = 'bg-primary text-primary-foreground hover:bg-primary/90 ring-2 ring-primary/30';
             const doneClass = 'bg-card border border-primary/40 text-primary hover:bg-accent';
             const disabledClass = 'bg-muted text-muted-foreground cursor-not-allowed';
             const defaultClass = 'bg-card border border-border text-foreground hover:bg-accent';
+
+            // After fixes, QA becomes the active next step again
+            const qaIsNext = !draftDownloaded ? false : (!qaResult || fixesApplied);
+            const fixesIsNext = qaResult && qaResult.failed > 0 && !fixesApplied && !fixesRunning;
+            const finalIsNext = (fixesApplied && (!qaResult || qaResult.failed === 0)) || qaVerdict === 'passed' || qaVerdict === 'conditional';
 
             return (
               <>
@@ -1189,39 +1275,45 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
                 <button
                   onClick={handleDraftPdf}
                   className={`text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2 transition-all ${
-                    currentStep === 1 ? activeClass : draftDownloaded ? doneClass : defaultClass
+                    !draftDownloaded ? activeClass : doneClass
                   }`}
                 >
-                  {draftDownloaded && <CheckCircle2 className="w-4 h-4" />}
-                  {!draftDownloaded && <FileText className="w-4 h-4" />}
+                  {draftDownloaded ? <CheckCircle2 className="w-4 h-4" /> : <FileText className="w-4 h-4" />}
                   <span className="font-mono text-xs opacity-60 mr-0.5">1</span>
                   PDF Draft
                 </button>
 
                 <span className="text-muted-foreground text-xs hidden sm:inline">{'>'}</span>
 
-                {/* 2. Quality Check */}
+                {/* 2. Quality Check — always re-runnable after draft */}
                 <button
                   onClick={handleQaCheck}
                   disabled={qaRunning || !draftDownloaded}
                   className={`text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2 transition-all disabled:opacity-50 ${
-                    currentStep === 2 ? activeClass : qaResult ? doneClass : !draftDownloaded ? disabledClass : defaultClass
+                    qaRunning ? activeClass : qaIsNext ? activeClass : qaResult && !fixesApplied ? doneClass : !draftDownloaded ? disabledClass : defaultClass
                   }`}
                 >
-                  {qaRunning ? <Loader2 className="w-4 h-4 animate-spin" /> : qaResult ? <CheckCircle2 className="w-4 h-4" /> : <ShieldCheck className="w-4 h-4" />}
+                  {qaRunning ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShieldCheck className="w-4 h-4" />}
                   <span className="font-mono text-xs opacity-60 mr-0.5">2</span>
-                  {language === 'de' ? 'Qualitätscheck' : language === 'fr' ? 'Contrôle qualité' : 'Quality Check'}
+                  {qaRunning
+                    ? (language === 'de' ? 'Prüfe…' : language === 'fr' ? 'Vérification…' : 'Checking…')
+                    : (language === 'de'
+                      ? (fixesApplied ? 'Erneut prüfen' : 'Qualitätscheck')
+                      : language === 'fr'
+                      ? (fixesApplied ? 'Re-vérifier' : 'Contrôle qualité')
+                      : (fixesApplied ? 'Re-check' : 'Quality Check'))}
+                  {qaIteration > 0 && <span className="text-[10px] font-mono opacity-60">#{qaIteration}</span>}
                 </button>
 
                 <span className="text-muted-foreground text-xs hidden sm:inline">{'>'}</span>
 
-                {/* 3. Apply Fixes */}
+                {/* 3. Apply Fixes — available when there are failed checks */}
                 <div className="flex flex-col items-center gap-1">
                   <button
                     onClick={handleApplyFixes}
                     disabled={!qaResult || qaResult.failed === 0 || fixesApplied || fixesRunning}
                     className={`text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2 transition-all disabled:opacity-50 ${
-                      fixesRunning ? activeClass : currentStep === 3 ? activeClass : fixesApplied ? doneClass : (!qaResult || qaResult.failed === 0) ? disabledClass : defaultClass
+                      fixesRunning ? activeClass : fixesIsNext ? activeClass : fixesApplied ? doneClass : (!qaResult || qaResult.failed === 0) ? disabledClass : defaultClass
                     }`}
                   >
                     {fixesRunning ? <Loader2 className="w-4 h-4 animate-spin" /> : fixesApplied ? <CheckCircle2 className="w-4 h-4" /> : <Wrench className="w-4 h-4" />}
@@ -1242,7 +1334,7 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
                   onClick={handleFinalPdf}
                   disabled={!canFinal || finalPdfRunning}
                   className={`text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2 transition-all ${
-                    finalPdfRunning ? activeClass : currentStep === 4 && canFinal ? activeClass : !canFinal ? disabledClass : defaultClass
+                    finalPdfRunning ? activeClass : finalIsNext && canFinal ? activeClass : !canFinal ? disabledClass : defaultClass
                   }`}
                   title={!canFinal ? (language === 'de' ? 'Vorherige Schritte zuerst abschließen' : 'Complete previous steps first') : ''}
                 >
