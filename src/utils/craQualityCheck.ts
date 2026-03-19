@@ -284,6 +284,28 @@ export function runQualityCheck(
     passed: nonPassReqsWithoutPriority.length === 0, severity: 'critical',
   });
 
+  // B.11 Gap completeness: every non-pass req must explain the deficiency
+  const nonPassReqsWithoutGap = reqs.filter(r => r.status !== 'pass' && (!r.gap || r.gap.trim() === ''));
+  checks.push({
+    id: 'B11', category: 'technical',
+    label: t('Alle nicht-konformen Anforderungen mit Gap-Beschreibung', 'All non-compliant requirements have gap description', 'Toutes les exigences non conformes avec description de gap'),
+    detail: nonPassReqsWithoutGap.length > 0
+      ? `${t('Ohne Gap', 'Missing gap', 'Gap manquant')}: ${nonPassReqsWithoutGap.map(r => r.id).join(', ')}`
+      : t('Alle dokumentiert', 'All documented', 'Toutes documentees'),
+    passed: nonPassReqsWithoutGap.length === 0, severity: 'major',
+  });
+
+  // B.12 Measure completeness: every non-pass req must have remediation measure
+  const nonPassReqsWithoutMeasure = reqs.filter(r => r.status !== 'pass' && (!r.measure || r.measure.trim() === ''));
+  checks.push({
+    id: 'B12', category: 'technical',
+    label: t('Alle nicht-konformen Anforderungen mit Massnahme', 'All non-compliant requirements have remediation measure', 'Toutes les exigences non conformes avec mesure corrective'),
+    detail: nonPassReqsWithoutMeasure.length > 0
+      ? `${t('Ohne Massnahme', 'Missing measure', 'Mesure manquante')}: ${nonPassReqsWithoutMeasure.map(r => r.id).join(', ')}`
+      : t('Alle dokumentiert', 'All documented', 'Toutes documentees'),
+    passed: nonPassReqsWithoutMeasure.length === 0, severity: 'major',
+  });
+
   // ═══ C. EVIDENZPRÜFUNG ═══
 
   const threatsWithWeakEvidence = critRisks.filter(th => th.evidenceQuality < 4);
