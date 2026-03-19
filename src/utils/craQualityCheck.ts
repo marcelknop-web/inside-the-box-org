@@ -59,11 +59,16 @@ export function runQualityCheck(
     passed: threats.length > 0, severity: 'critical',
   });
 
+  // A1-2: Critical risk threshold — at least 1 critical threat expected when unencrypted/OT protocols exist
+  const expectsCritical = threats.some(th =>
+    th.component.toLowerCase().includes('modbus') || th.component.toLowerCase().includes('opc-ua') ||
+    th.name.toLowerCase().includes('klartext') || th.name.toLowerCase().includes('unverschl')
+  );
   checks.push({
     id: 'A1-2', category: 'consistency',
     label: t('Kritische Risiken (>=20) korrekt gezaehlt', 'Critical risks (>=20) correctly counted', 'Risques critiques (>=20) correctement comptes'),
-    detail: `${critRisks.length} ${t('kritische Threats', 'critical threats', 'menaces critiques')}`,
-    passed: true, severity: 'critical',
+    detail: `${critRisks.length} ${t('kritische Threats', 'critical threats', 'menaces critiques')}${expectsCritical && critRisks.length === 0 ? ' — ' + t('erwartet > 0 bei OT/unverschl. Protokollen', 'expected > 0 with OT/unencrypted protocols', 'attendu > 0 avec protocoles OT/non chiffres') : ''}`,
+    passed: !(expectsCritical && critRisks.length === 0), severity: 'critical',
   });
 
   checks.push({
@@ -94,18 +99,31 @@ export function runQualityCheck(
   });
 
   // A.3 Logische Konsistenz: kein "konform" bei verletzenden Threats (>= 13)
-  const failReqsWithCritThreats = reqs.filter(r => {
+  const passReqsWithViolatingThreats = reqs.filter(r => {
     if (r.status !== 'pass') return false;
-    const violatingThreats = threats.filter(th => th.cra === r.article && th.likelihood * th.impact >= 13);
-    return violatingThreats.length > 0;
+    return threats.some(th => th.cra === r.article && th.likelihood * th.impact >= 13);
   });
   checks.push({
     id: 'A3-1', category: 'consistency',
     label: t('Kein "konform" bei verletzenden Threats (Score >= 13)', 'No "compliant" with violating threats (score >= 13)', 'Pas de "conforme" avec des menaces violantes (score >= 13)'),
-    detail: failReqsWithCritThreats.length > 0
-      ? `${failReqsWithCritThreats.map(r => r.id).join(', ')} ${t('als konform, aber Threats verletzen diese', 'marked compliant but threats violate them', 'marquees conformes mais des menaces les violent')}`
+    detail: passReqsWithViolatingThreats.length > 0
+      ? `${passReqsWithViolatingThreats.map(r => r.id).join(', ')} ${t('als konform, aber Threats verletzen diese', 'marked compliant but threats violate them', 'marquees conformes mais des menaces les violent')}`
       : t('Konsistent', 'Consistent', 'Coherent'),
-    passed: failReqsWithCritThreats.length === 0, severity: 'critical',
+    passed: passReqsWithViolatingThreats.length === 0, severity: 'critical',
+  });
+
+  // A.3b "partial" bei kritischen Threats (>= 20) muss "fail" sein
+  const partialReqsWithCriticalThreats = reqs.filter(r => {
+    if (r.status !== 'partial') return false;
+    return threats.some(th => th.cra === r.article && th.likelihood * th.impact >= 20);
+  });
+  checks.push({
+    id: 'A3-1b', category: 'consistency',
+    label: t('Kein "teilweise konform" bei kritischen Threats (Score >= 20)', 'No "partial" with critical threats (score >= 20)', 'Pas de "partiel" avec menaces critiques (score >= 20)'),
+    detail: partialReqsWithCriticalThreats.length > 0
+      ? `${partialReqsWithCriticalThreats.map(r => r.id).join(', ')} ${t('als teilweise, aber kritische Threats erfordern "nicht konform"', 'marked partial but critical threats require "non-compliant"', 'marquees partielles mais menaces critiques exigent "non conforme"')}`
+      : t('Konsistent', 'Consistent', 'Coherent'),
+    passed: partialReqsWithCriticalThreats.length === 0, severity: 'critical',
   });
 
   // A.3b Logische Konsistenz: kein "konform" bei kritischen Threats (>= 20) — strictere Pruefung
@@ -266,6 +284,28 @@ export function runQualityCheck(
     passed: nonPassReqsWithoutPriority.length === 0, severity: 'critical',
   });
 
+  // B.11 Gap completeness: every non-pass req must explain the deficiency
+  const nonPassReqsWithoutGap = reqs.filter(r => r.status !== 'pass' && (!r.gap || r.gap.trim() === ''));
+  checks.push({
+    id: 'B11', category: 'technical',
+    label: t('Alle nicht-konformen Anforderungen mit Gap-Beschreibung', 'All non-compliant requirements have gap description', 'Toutes les exigences non conformes avec description de gap'),
+    detail: nonPassReqsWithoutGap.length > 0
+      ? `${t('Ohne Gap', 'Missing gap', 'Gap manquant')}: ${nonPassReqsWithoutGap.map(r => r.id).join(', ')}`
+      : t('Alle dokumentiert', 'All documented', 'Toutes documentees'),
+    passed: nonPassReqsWithoutGap.length === 0, severity: 'major',
+  });
+
+  // B.12 Measure completeness: every non-pass req must have remediation measure
+  const nonPassReqsWithoutMeasure = reqs.filter(r => r.status !== 'pass' && (!r.measure || r.measure.trim() === ''));
+  checks.push({
+    id: 'B12', category: 'technical',
+    label: t('Alle nicht-konformen Anforderungen mit Massnahme', 'All non-compliant requirements have remediation measure', 'Toutes les exigences non conformes avec mesure corrective'),
+    detail: nonPassReqsWithoutMeasure.length > 0
+      ? `${t('Ohne Massnahme', 'Missing measure', 'Mesure manquante')}: ${nonPassReqsWithoutMeasure.map(r => r.id).join(', ')}`
+      : t('Alle dokumentiert', 'All documented', 'Toutes documentees'),
+    passed: nonPassReqsWithoutMeasure.length === 0, severity: 'major',
+  });
+
   // ═══ C. EVIDENZPRÜFUNG ═══
 
   const threatsWithWeakEvidence = critRisks.filter(th => th.evidenceQuality < 4);
@@ -307,14 +347,34 @@ export function runQualityCheck(
     passed: evidAbove75, severity: 'major',
   });
 
+  // C.4 Requirement evidence: non-pass reqs should have evidence documenting the finding
+  const nonPassReqsWithoutEvidence = reqs.filter(r => r.status !== 'pass' && (!r.evidence || r.evidence.trim() === ''));
+  checks.push({
+    id: 'C4', category: 'evidence',
+    label: t('Nicht-konforme Anforderungen haben Evidenz', 'Non-compliant requirements have evidence', 'Exigences non conformes avec preuve'),
+    detail: nonPassReqsWithoutEvidence.length > 0
+      ? `${t('Ohne Evidenz', 'Missing evidence', 'Preuve manquante')}: ${nonPassReqsWithoutEvidence.map(r => r.id).join(', ')}`
+      : t('Alle mit Evidenz', 'All with evidence', 'Toutes avec preuve'),
+    passed: nonPassReqsWithoutEvidence.length === 0, severity: 'major',
+  });
+
   // ═══ D. REDAKTIONELLE PRÜFUNG ═══
 
-  // D.1 Sequential numbering
+  // D.1 Sequential numbering — actually verify within each STRIDE group
+  const numbGaps: string[] = [];
+  for (const cat of 'STRIDE'.split('')) {
+    const ids = threats.filter(th => th.stride === cat).map(th => th.id).sort((a, b) => a - b);
+    for (let i = 1; i < ids.length; i++) {
+      if (ids[i] !== ids[i - 1] + 1) {
+        numbGaps.push(`${cat}: ${t('Luecke nach', 'gap after', 'lacune apres')} ${cat}-${String(ids[i - 1]).padStart(3, '0')}`);
+      }
+    }
+  }
   checks.push({
     id: 'D1', category: 'editorial',
     label: t('Threats lueckenlos nummeriert', 'Threats sequentially numbered', 'Menaces numerotees sequentiellement'),
-    detail: t('STRIDE-Gruppen geprueft', 'STRIDE groups checked', 'Groupes STRIDE verifies'),
-    passed: true, severity: 'minor',
+    detail: numbGaps.length > 0 ? numbGaps.join('; ') : t('Alle Gruppen lueckenlos', 'All groups sequential', 'Tous les groupes sequentiels'),
+    passed: numbGaps.length === 0, severity: 'minor',
   });
 
   // D.2 All 22 requirements present

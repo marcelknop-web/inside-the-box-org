@@ -107,7 +107,6 @@ export function applyAuditFixes(
             const maxScore = Math.max(...violating.map(th => th.likelihood * th.impact));
             const topThreat = violating.find(th => th.likelihood * th.impact === maxScore)!;
             r.status = maxScore >= 20 ? 'fail' : 'partial';
-            // Use existing threat data for gap description
             if (!r.gap || r.gap.trim() === '') {
               r.gap = topThreat.name;
             }
@@ -115,6 +114,24 @@ export function applyAuditFixes(
               `${r.id}: Status korrigiert -> ${r.status === 'fail' ? 'nicht konform' : 'teilweise konform'} (${threatId(topThreat)}, Score ${maxScore})`,
               `${r.id}: Status corrected -> ${r.status === 'fail' ? 'non-compliant' : 'partially compliant'} (${threatId(topThreat)}, score ${maxScore})`,
               `${r.id}: Statut corrige -> ${r.status === 'fail' ? 'non conforme' : 'partiellement conforme'} (${threatId(topThreat)}, score ${maxScore})`
+            ));
+          }
+        });
+        break;
+      }
+
+      case 'A3-1b': {
+        // Downgrade "partial" to "fail" when critical threats (>= 20) exist
+        fixedReqs.forEach(r => {
+          if (r.status !== 'partial') return;
+          const critical = fixedThreats.filter(th => th.cra === r.article && th.likelihood * th.impact >= 20);
+          if (critical.length > 0) {
+            const topThreat = critical[0];
+            r.status = 'fail';
+            fixes.push(t(
+              `${r.id}: "teilweise" -> "nicht konform" (kritischer Threat ${threatId(topThreat)}, Score >= 20)`,
+              `${r.id}: "partial" -> "non-compliant" (critical threat ${threatId(topThreat)}, score >= 20)`,
+              `${r.id}: "partiel" -> "non conforme" (menace critique ${threatId(topThreat)}, score >= 20)`
             ));
           }
         });
@@ -315,32 +332,35 @@ export function applyAuditFixes(
       // ═══ D: REDAKTION ═══
 
       case 'D4': {
-        // Fix detectable typos in threat and req texts (legitimate text correction)
-        const typoPatterns: [RegExp, string][] = [
-          [/Netzwerkcan/gi, 'Netzwerkscan'],
-          [/\bAush\b/g, 'Auth'],
-          [/\bSBM\b/g, 'SBOM'],
-          [/\bFur\b/g, 'fuer'],
-          [/\bUber\b/g, 'ueber'],
+        // Fix detectable typos — use string replace (no global regex + test pitfall)
+        const typoMap: [string, string][] = [
+          ['Netzwerkcan', 'Netzwerkscan'],
+          ['Aush', 'Auth'],
+          ['SBM', 'SBOM'],
+          ['Fur', 'fuer'],
+          ['Uber', 'ueber'],
         ];
         let typoCount = 0;
-        fixedThreats.forEach(th => {
-          for (const [pat, replacement] of typoPatterns) {
-            if (pat.test(th.evidence)) { th.evidence = th.evidence.replace(pat, replacement); typoCount++; }
-            if (pat.test(th.rationale)) { th.rationale = th.rationale.replace(pat, replacement); typoCount++; }
-            if (pat.test(th.name)) { th.name = th.name.replace(pat, replacement); typoCount++; }
-            // Reset regex lastIndex for global patterns
-            pat.lastIndex = 0;
+        const fixField = (text: string): string => {
+          let result = text;
+          for (const [wrong, right] of typoMap) {
+            const re = new RegExp(`\\b${wrong}\\b`, 'gi');
+            const before = result;
+            result = result.replace(re, right);
+            if (result !== before) typoCount++;
           }
+          return result;
+        };
+        fixedThreats.forEach(th => {
+          th.evidence = fixField(th.evidence);
+          th.rationale = fixField(th.rationale);
+          th.name = fixField(th.name);
         });
         fixedReqs.forEach(r => {
-          for (const [pat, replacement] of typoPatterns) {
-            if (pat.test(r.evidence)) { r.evidence = r.evidence.replace(pat, replacement); typoCount++; }
-            if (pat.test(r.rationale)) { r.rationale = r.rationale.replace(pat, replacement); typoCount++; }
-            if (pat.test(r.gap)) { r.gap = r.gap.replace(pat, replacement); typoCount++; }
-            if (pat.test(r.measure)) { r.measure = r.measure.replace(pat, replacement); typoCount++; }
-            pat.lastIndex = 0;
-          }
+          r.evidence = fixField(r.evidence);
+          r.rationale = fixField(r.rationale);
+          r.gap = fixField(r.gap);
+          r.measure = fixField(r.measure);
         });
         if (typoCount > 0) {
           fixes.push(t(
@@ -413,6 +433,7 @@ export function applyAuditFixes(
   // ═══ Second pass: ALWAYS ensure all non-pass reqs have effort+priority ═══
   // (needed after any status downgrade from A3-1/A3-2/B1-B6)
   {
+    const secondPassFixes: string[] = [];
     fixedReqs.forEach(r => {
       if (r.status !== 'pass') {
         const linkedThreats = fixedThreats.filter(th => th.cra === r.article);
@@ -423,14 +444,23 @@ export function applyAuditFixes(
           else if (maxScore >= 13) r.effort = '16-24h';
           else if (r.status === 'fail') r.effort = '8-16h';
           else r.effort = '4-8h';
+          secondPassFixes.push(`${r.id}:effort=${r.effort}`);
         }
         if (!r.priority || r.priority.trim() === '') {
           r.priority = r.status === 'fail' && maxScore >= 20 ? 'P0'
             : r.status === 'fail' ? 'P1'
             : maxScore >= 13 ? 'P2' : 'P3';
+          secondPassFixes.push(`${r.id}:prio=${r.priority}`);
         }
       }
     });
+    if (secondPassFixes.length > 0) {
+      fixes.push(t(
+        `Second-Pass: ${secondPassFixes.length} fehlende Effort/Priority-Felder ergaenzt (${secondPassFixes.slice(0, 5).join(', ')}${secondPassFixes.length > 5 ? ' ...' : ''})`,
+        `Second pass: ${secondPassFixes.length} missing effort/priority fields added (${secondPassFixes.slice(0, 5).join(', ')}${secondPassFixes.length > 5 ? ' ...' : ''})`,
+        `Second pass : ${secondPassFixes.length} champs effort/priorite manquants ajoutes (${secondPassFixes.slice(0, 5).join(', ')}${secondPassFixes.length > 5 ? ' ...' : ''})`
+      ));
+    }
   }
 
   if (fixes.length === 0) {
