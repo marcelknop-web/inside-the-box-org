@@ -2061,6 +2061,139 @@ export function generateCraReport(data: CraReportData): void {
   doc.text(`${lang === 'de' ? 'Automatisierte Prüfung am' : lang === 'fr' ? 'Contrôle automatisé le' : 'Automated check on'} ${new Date().toISOString().replace('T', ' ').slice(0, 19)} UTC`, ML + 6, y + 10.5);
   y += 20;
 
+  /* ══════════════════════════════════════
+     APPENDIX D.2: Iterative QA Findings & Remediation Log
+     ══════════════════════════════════════ */
+  if (qaChecks && qaChecks.length > 0) {
+    newSection();
+    const qaTitle = lang === 'de' ? 'D.2  Iterative Qualitaetspruefung — Findings und Korrekturen'
+      : lang === 'fr' ? 'D.2  Controle qualite iteratif — Constatations et corrections'
+      : 'D.2  Iterative Quality Check — Findings and Corrections';
+    writeSectionHeading(qaTitle);
+
+    const qaIterLabel = qaIterations && qaIterations > 0
+      ? (lang === 'de' ? `${qaIterations} Pruefungsdurchlauf(e) durchgefuehrt.`
+        : lang === 'fr' ? `${qaIterations} cycle(s) de controle effectue(s).`
+        : `${qaIterations} check iteration(s) performed.`)
+      : '';
+    const qaIntroText = lang === 'de'
+      ? `Die folgenden Pruefpunkte wurden durch die automatisierte Qualitaetssicherung identifiziert und — soweit moeglich — automatisch korrigiert. ${qaIterLabel}`
+      : lang === 'fr'
+      ? `Les points de controle suivants ont ete identifies par l'assurance qualite automatisee et corriges automatiquement dans la mesure du possible. ${qaIterLabel}`
+      : `The following checkpoints were identified by the automated quality assurance and — where possible — automatically corrected. ${qaIterLabel}`;
+    writeBody(qaIntroText);
+    y += 4;
+
+    // Group by category
+    const catOrder: Array<QaCheck['category']> = ['consistency', 'technical', 'evidence', 'editorial', 'ot'];
+    const catLabels: Record<QaCheck['category'], Record<string, string>> = {
+      consistency: { de: 'KONSISTENZ', en: 'CONSISTENCY', fr: 'COHERENCE' },
+      technical: { de: 'FACHLICHE KORREKTHEIT', en: 'TECHNICAL CORRECTNESS', fr: 'EXACTITUDE TECHNIQUE' },
+      evidence: { de: 'EVIDENZ', en: 'EVIDENCE', fr: 'PREUVES' },
+      editorial: { de: 'REDAKTION', en: 'EDITORIAL', fr: 'REDACTION' },
+      ot: { de: 'OT-KONTEXT', en: 'OT CONTEXT', fr: 'CONTEXTE OT' },
+    };
+
+    for (const cat of catOrder) {
+      const catChecks = qaChecks.filter(c => c.category === cat);
+      if (catChecks.length === 0) continue;
+
+      checkPage(18);
+      const catLabel = catLabels[cat][lang] || catLabels[cat].en;
+      const catPassed = catChecks.filter(c => c.passed).length;
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(BODY_SIZE); doc.setTextColor(...C.darkNavy);
+      doc.text(catLabel, ML + 3, y);
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.setTextColor(...C.labelText);
+      doc.text(`${catPassed}/${catChecks.length}`, W - MR - 5, y, { align: 'right' });
+      y += 5;
+
+      for (const check of catChecks) {
+        checkPage(14);
+        // Marker
+        doc.setFillColor(...(check.passed ? C.greenText : C.redText));
+        doc.circle(ML + 6, y - 1.2, 1.3, 'F');
+
+        // Label
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(BODY_SIZE - 0.5);
+        doc.setTextColor(...(check.passed ? C.bodyText : C.redText));
+        const checkMaxW = CW - 14;
+        const checkLines = doc.splitTextToSize(`[${check.id}] ${check.label}`, checkMaxW);
+        for (const cl of checkLines) {
+          checkPage(4);
+          doc.text(cl, ML + 10, y);
+          y += 3.8;
+        }
+        // Detail
+        if (check.detail && !check.passed) {
+          doc.setFont('helvetica', 'italic'); doc.setFontSize(7); doc.setTextColor(...C.orangeText);
+          const detailLines = doc.splitTextToSize(check.detail, CW - 20);
+          for (const dl of detailLines) {
+            checkPage(4);
+            doc.text(dl, ML + 14, y);
+            y += 3.5;
+          }
+        }
+        // Severity badge for failed
+        if (!check.passed) {
+          const sevLabel = check.severity === 'critical' ? (lang === 'de' ? 'KRITISCH' : 'CRITICAL')
+            : check.severity === 'major' ? (lang === 'de' ? 'WESENTLICH' : 'MAJOR') : (lang === 'de' ? 'GERING' : 'MINOR');
+          const sevColor: [number, number, number] = check.severity === 'critical' ? C.redText : check.severity === 'major' ? C.orangeText : C.labelText;
+          doc.setFont('helvetica', 'bold'); doc.setFontSize(6); doc.setTextColor(...sevColor);
+          doc.text(`[${sevLabel}]`, ML + 14, y);
+          y += 3.5;
+        }
+        y += 1.5;
+      }
+      y += 3;
+    }
+
+    // ─── Fix Log ─────────────────────────────────────────
+    if (fixLog && fixLog.length > 0) {
+      checkPage(20);
+      const fixTitle = lang === 'de' ? 'AUTOMATISCHE KORREKTUREN (Remediation-Log)'
+        : lang === 'fr' ? 'CORRECTIONS AUTOMATIQUES (Journal de remediation)'
+        : 'AUTOMATED CORRECTIONS (Remediation Log)';
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(BODY_SIZE); doc.setTextColor(...C.darkNavy);
+      doc.text(fixTitle, ML + 3, y);
+      y += 5;
+
+      const fixIntro = lang === 'de'
+        ? 'Die folgenden Korrekturen wurden automatisch auf Basis der identifizierten Maengel durchgefuehrt:'
+        : lang === 'fr'
+        ? 'Les corrections suivantes ont ete appliquees automatiquement sur la base des anomalies identifiees :'
+        : 'The following corrections were automatically applied based on identified findings:';
+      writeBody(fixIntro);
+      y += 3;
+
+      for (let i = 0; i < fixLog.length; i++) {
+        checkPage(8);
+        doc.setFont('courier', 'normal'); doc.setFontSize(MONO_SIZE); doc.setTextColor(...C.monoGray);
+        const fixLines = doc.splitTextToSize(`${i + 1}. ${fixLog[i]}`, CW - 14);
+        for (const fl of fixLines) {
+          checkPage(4);
+          doc.text(fl, ML + 8, y);
+          y += 3.5;
+        }
+      }
+      y += 5;
+
+      // Summary box
+      checkPage(14);
+      const fixSummary = lang === 'de'
+        ? `${fixLog.length} Korrektur(en) umgesetzt. Die korrigierten Daten sind in diesem Bericht enthalten.`
+        : lang === 'fr'
+        ? `${fixLog.length} correction(s) appliquee(s). Les donnees corrigees sont incluses dans ce rapport.`
+        : `${fixLog.length} correction(s) applied. Corrected data is reflected in this report.`;
+      doc.setFillColor(...C.bgGreen);
+      doc.roundedRect(ML, y, CW, 10, 2, 2, 'F');
+      doc.setFillColor(...C.greenText);
+      doc.rect(ML, y, 1.5, 10, 'F');
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5); doc.setTextColor(...C.greenText);
+      doc.text(fixSummary, ML + 6, y + 5);
+      y += 15;
+    }
+  }
+
   addFooter();
 
   const suffix = isDraft ? '_DRAFT' : '_FINAL';
