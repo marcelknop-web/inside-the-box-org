@@ -1528,6 +1528,8 @@ export function generateCraReport(data: CraReportData): void {
 
     writeLabel(`${tid}  —  ${riskLabel(score)} (${score}/25)`, 0);
 
+    const truncEvidence = th.evidence.length > 140 ? th.evidence.slice(0, 140).trimEnd() + '... (s. Abschnitt 4 / see Section 4)' : th.evidence;
+    const truncRationale = th.rationale.length > 140 ? th.rationale.slice(0, 140).trimEnd() + '... (s. Abschnitt 4 / see Section 4)' : th.rationale;
     const fields: [string, string][] = [
       ['stride_category', `${th.stride} (${STRIDE_NAMES[th.stride]?.[lang] || th.stride})`],
       ['name', th.name],
@@ -1538,8 +1540,8 @@ export function generateCraReport(data: CraReportData): void {
       ['likelihood', `${th.likelihood}/5`],
       ['impact', `${th.impact}/5`],
       ['risk_score', `${score}/25 > ${riskLabel(score)}`],
-      ['evidence', th.evidence],
-      ['rationale', th.rationale],
+      ['evidence_summary', truncEvidence],
+      ['rationale_summary', truncRationale],
       ['sources', th.sources.join(' | ')],
     ];
 
