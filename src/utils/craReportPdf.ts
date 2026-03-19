@@ -1955,18 +1955,28 @@ export function generateCraReport(data: CraReportData): void {
     doc.text(`${blockPassed}/${blockTotal} ${lang === 'de' ? 'bestanden' : lang === 'fr' ? 'réussis' : 'passed'}`, W - MR - 5, y - 5, { align: 'right' });
 
     for (const check of block.checks) {
-      checkPage(10);
-      const icon = check.passed ? '✅' : '❌';
+      checkPage(12);
+      // Draw pass/fail marker as a small filled circle instead of emoji
+      const markerX = ML + 6;
+      if (check.passed) {
+        doc.setFillColor(...C.greenText);
+      } else {
+        doc.setFillColor(...C.redText);
+      }
+      doc.circle(markerX, y - 1.2, 1.3, 'F');
+
       doc.setFont('helvetica', 'normal'); doc.setFontSize(BODY_SIZE - 0.5); doc.setTextColor(...(check.passed ? C.bodyText : C.redText));
-      const checkLines = doc.splitTextToSize(`${icon}  ${check.label}`, CW - 18);
+      const checkMaxW = CW - 14;
+      const checkLines = doc.splitTextToSize(check.label, checkMaxW);
       for (const cl of checkLines) {
         checkPage(4);
-        doc.text(cl, ML + 8, y);
+        doc.text(cl, ML + 10, y);
         y += 3.8;
       }
       if (check.detail) {
         doc.setFont('helvetica', 'italic'); doc.setFontSize(7); doc.setTextColor(...C.orangeText);
-        const detailLines = doc.splitTextToSize(`→ ${check.detail}`, CW - 25);
+        const detailMaxW = CW - 20;
+        const detailLines = doc.splitTextToSize(check.detail, detailMaxW);
         for (const dl of detailLines) {
           checkPage(4);
           doc.text(dl, ML + 14, y);
