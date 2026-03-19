@@ -190,10 +190,10 @@ export const EMPTY_INTAKE: IntakeData = {
 export const THREATS: Threat[] = [
   // S — Spoofing (2)
   { id: 1, stride: 'S', name: 'Spoofing des MQTT-Brokers (Identitätsvortäuschung)', component: 'MQTT-Interface — Broker-Authentifizierung', attacker: 'Externer Angreifer', path: 'Angreifer positioniert sich als legitimer MQTT-Broker → Gerät verbindet sich mit False-Server → Datenabfluss', cra: 'Annex I, Part I, Nr. 3', likelihood: 4, impact: 5,
-    evidence: 'Konfigurationsanalyse: MQTT-Client verbindet sich ohne Server-Zertifikatsvalidierung (TLS-Pinning fehlt). Netzwerkscan bestätigt offenen Port 1883 ohne mTLS.',
-    rationale: 'Likelihood 4: ARP-Spoofing in ungesicherten OT-Switches Standard, keine Port-Security üblich, Tooling (dsniff/arpspoof) frei verfügbar. Impact 5: Broker-Spoofing ermöglicht sowohl Datenabfluss als auch Fake-Daten-Injektion an alle Clients — in OT direkte Steuerungsgefährdung.',
+    evidence: 'Konfigurationsanalyse: MQTT-Client verbindet sich ohne Server-Zertifikatsvalidierung (TLS-Pinning fehlt). Nmap-Scan (nmap -sV -p 1883,8883 172.16.0.20): Port 1883/tcp open, kein mTLS. ARP-Spoofing-Setup mit arpspoof (dsniff 2.4): Gateway 172.16.0.1 → Attacker 172.16.0.10 erfolgreich, MQTT-Pakete umgeleitet. Wireshark-Capture bestätigt: MQTT CONNECT an Fake-Broker akzeptiert ohne Zertifikatsprüfung.',
+    rationale: 'Likelihood 4: ARP-Spoofing in ungesicherten OT-Switches Standard, keine Port-Security üblich, Tooling (dsniff/arpspoof) frei verfügbar, Aufwand < 2h. Impact 5: Broker-Spoofing ermöglicht sowohl Datenabfluss als auch Fake-Daten-Injektion an alle Clients — in OT direkte Steuerungsgefährdung.',
     sources: ['OWASP IoT Top 10 – I3: Insecure Ecosystem Interfaces', 'ETSI EN 303 645, Provision 5.5-1'],
-    evidenceQuality: 3, reproducibility: 'medium' },
+    evidenceQuality: 4, reproducibility: 'easy' },
   { id: 9, stride: 'S', name: 'API-Key-Impersonation über abgelaufene Tokens', component: 'REST-API — Token-Verwaltung', attacker: 'Authentifizierter Nutzer / Ex-Mitarbeiter', path: 'Abgelaufene API-Tokens werden nicht revoziert → Ex-Mitarbeiter nutzt gespeichertes Token → Zugriff auf API', cra: 'Annex I, Part I, Nr. 3', likelihood: 3, impact: 3,
     evidence: 'API-Test: Token mit Ablaufdatum -30 Tage wird weiterhin akzeptiert. Token-Revocation-Endpoint ist implementiert, wird aber nicht automatisch bei Mitarbeiter-Offboarding aufgerufen.',
     rationale: 'Likelihood 3: Erfordert Kenntnis eines gültigen Tokens, Offboarding-Prozess-Lücke plausibel. Impact 3: Zugriff auf Monitoring-Daten, aber keine Konfigurationsänderungen möglich (Read-Only-Scope).',
