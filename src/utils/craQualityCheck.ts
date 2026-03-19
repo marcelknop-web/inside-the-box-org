@@ -360,12 +360,21 @@ export function runQualityCheck(
 
   // ═══ D. REDAKTIONELLE PRÜFUNG ═══
 
-  // D.1 Sequential numbering
+  // D.1 Sequential numbering — actually verify within each STRIDE group
+  const numbGaps: string[] = [];
+  for (const cat of 'STRIDE'.split('')) {
+    const ids = threats.filter(th => th.stride === cat).map(th => th.id).sort((a, b) => a - b);
+    for (let i = 1; i < ids.length; i++) {
+      if (ids[i] !== ids[i - 1] + 1) {
+        numbGaps.push(`${cat}: ${t('Luecke nach', 'gap after', 'lacune apres')} ${cat}-${String(ids[i - 1]).padStart(3, '0')}`);
+      }
+    }
+  }
   checks.push({
     id: 'D1', category: 'editorial',
     label: t('Threats lueckenlos nummeriert', 'Threats sequentially numbered', 'Menaces numerotees sequentiellement'),
-    detail: t('STRIDE-Gruppen geprueft', 'STRIDE groups checked', 'Groupes STRIDE verifies'),
-    passed: true, severity: 'minor',
+    detail: numbGaps.length > 0 ? numbGaps.join('; ') : t('Alle Gruppen lueckenlos', 'All groups sequential', 'Tous les groupes sequentiels'),
+    passed: numbGaps.length === 0, severity: 'minor',
   });
 
   // D.2 All 22 requirements present
