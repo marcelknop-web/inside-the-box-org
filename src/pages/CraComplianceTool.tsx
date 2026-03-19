@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef, useMemo, memo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { RotateCcw, ChevronDown, ChevronUp, Loader2, Sparkles, FileText, ShieldCheck, CheckCircle2, XCircle, AlertTriangle } from 'lucide-react';
+import { RotateCcw, ChevronDown, ChevronUp, Loader2, Sparkles, FileText, ShieldCheck, CheckCircle2, XCircle, AlertTriangle, Wrench } from 'lucide-react';
+import { applyAuditFixes } from '@/utils/craAuditFixes';
 import { generateCraReport } from '@/utils/craReportPdf';
 import { CraAuditCharts } from '@/components/CraAuditCharts';
 import { runQualityCheck, type QaResult } from '@/utils/craQualityCheck';
