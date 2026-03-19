@@ -1791,9 +1791,9 @@ export function generateCraReport(data: CraReportData): void {
           detail: unencryptedButCompliant ? `A1-4 ${lang === 'de' ? 'ist "konform" trotz unverschluesselter Interfaces' : 'rated "compliant" despite unencrypted interfaces'}` : undefined,
         },
         {
-          label: lang === 'de' ? 'Interfaces ohne Authentifizierung (Modbus) → Anforderung A1-3 nicht als "konform" bewertet'
-            : lang === 'fr' ? 'Interfaces sans authentification (Modbus) → Exigence A1-3 pas évaluée "conforme"'
-            : 'Unauthenticated interfaces (Modbus) → Requirement A1-3 not rated "compliant"',
+          label: lang === 'de' ? 'Interfaces ohne Authentifizierung (Modbus): Anforderung A1-3 nicht als "konform" bewertet'
+            : lang === 'fr' ? 'Interfaces sans authentification (Modbus): Exigence A1-3 pas evaluee "conforme"'
+            : 'Unauthenticated interfaces (Modbus): Requirement A1-3 not rated "compliant"',
           passed: !noAuthButCompliant,
           detail: noAuthButCompliant ? `A1-3 ${lang === 'de' ? 'ist "konform" trotz Modbus ohne Auth' : 'rated "compliant" despite Modbus without auth'}` : undefined,
         },
