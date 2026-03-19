@@ -369,6 +369,32 @@ export function generateCraReport(data: CraReportData): void {
   const dateStr = new Date().toLocaleDateString(locale, { day: '2-digit', month: 'long', year: 'numeric' });
   const reportId = `CRA-${Date.now().toString(36).toUpperCase().slice(-6)}`;
 
+  // ── Text sanitizer: replace non-WinAnsiEncoding chars for jsPDF compatibility ──
+  function sanitize(text: string): string {
+    return text
+      .replace(/\u2605/g, '*')      // ★ → *
+      .replace(/\u2606/g, '.')      // ☆ → .
+      .replace(/\u2610/g, '[ ]')    // ☐ → [ ]
+      .replace(/\u2192/g, '->')     // → → ->
+      .replace(/\u23F1/g, '')       // ⏱ → remove
+      .replace(/\u2794/g, '->')     // ➔ → ->
+      .replace(/\u27A4/g, '>')      // ➤ → >
+      .replace(/\u2013/g, '-')      // – (en dash) → -
+      .replace(/[\u2018\u2019]/g, "'")  // curly single quotes
+      .replace(/[\u201C\u201D]/g, '"')  // curly double quotes
+      ;
+  }
+
+  // Wrap doc.text and doc.splitTextToSize for automatic sanitization
+  const _origText = doc.text.bind(doc);
+  (doc as any).text = (text: any, x: number, yPos: number, options?: any) => {
+    if (typeof text === 'string') return _origText(sanitize(text), x, yPos, options);
+    if (Array.isArray(text)) return _origText(text.map((t: string) => sanitize(t)), x, yPos, options);
+    return _origText(text, x, yPos, options);
+  };
+  const _origSplit = doc.splitTextToSize.bind(doc);
+  (doc as any).splitTextToSize = (text: string, maxWidth: number) => _origSplit(sanitize(text), maxWidth);
+
   let y = 0;
   let pageNum = 0;
   let findingNum = 0;
