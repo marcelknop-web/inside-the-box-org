@@ -1784,9 +1784,9 @@ export function generateCraReport(data: CraReportData): void {
       titleEn: 'Strictness Check',
       checks: [
         {
-          label: lang === 'de' ? 'Unverschlüsselte Übertragungen (MQTT/HTTP) → Anforderung A1-4 nicht als "konform" bewertet'
-            : lang === 'fr' ? 'Transmissions non chiffrées (MQTT/HTTP) → Exigence A1-4 pas évaluée "conforme"'
-            : 'Unencrypted transmissions (MQTT/HTTP) → Requirement A1-4 not rated "compliant"',
+          label: lang === 'de' ? 'Unverschluesselte Uebertragungen (MQTT/HTTP): Anforderung A1-4 nicht als "konform" bewertet'
+            : lang === 'fr' ? 'Transmissions non chiffrees (MQTT/HTTP): Exigence A1-4 pas evaluee "conforme"'
+            : 'Unencrypted transmissions (MQTT/HTTP): Requirement A1-4 not rated "compliant"',
           passed: !unencryptedButCompliant,
           detail: unencryptedButCompliant ? `A1-4 ${lang === 'de' ? 'ist "konform" trotz unverschlüsselter Interfaces' : 'rated "compliant" despite unencrypted interfaces'}` : undefined,
         },
