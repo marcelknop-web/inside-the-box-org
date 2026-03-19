@@ -1638,10 +1638,10 @@ export function generateCraReport(data: CraReportData): void {
   writeSectionHeading(t(I18N.secD));
 
   const qgIntro = lang === 'de'
-    ? 'Dieser Anhang dokumentiert die automatisierte Qualitätssicherung gemäß vier Prüfdimensionen. Jeder Prüfpunkt wird maschinell gegen die Berichtsdaten validiert. Das Ergebnis (✅ bestanden / ❌ nicht bestanden) ist revisionssicher und reproduzierbar.'
+    ? 'Dieser Anhang dokumentiert die automatisierte Qualitaetssicherung gemaess vier Pruefdimensionen. Jeder Pruefpunkt wird maschinell gegen die Berichtsdaten validiert. Das Ergebnis (PASS / FAIL) ist revisionssicher und reproduzierbar.'
     : lang === 'fr'
-    ? 'Cette annexe documente l\'assurance qualité automatisée selon quatre dimensions d\'audit. Chaque point de contrôle est validé automatiquement. Le résultat (✅ réussi / ❌ échoué) est vérifiable et reproductible.'
-    : 'This appendix documents automated quality assurance across four audit dimensions. Each checkpoint is machine-validated against report data. Results (✅ pass / ❌ fail) are audit-proof and reproducible.';
+    ? 'Cette annexe documente l\'assurance qualite automatisee selon quatre dimensions d\'audit. Chaque point de controle est valide automatiquement. Le resultat (PASS / FAIL) est verifiable et reproductible.'
+    : 'This appendix documents automated quality assurance across four audit dimensions. Each checkpoint is machine-validated against report data. Results (PASS / FAIL) are audit-proof and reproducible.';
   writeBody(qgIntro);
   y += 4;
 
