@@ -1204,17 +1204,24 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
                 <span className="text-muted-foreground text-xs hidden sm:inline">{'>'}</span>
 
                 {/* 3. Apply Fixes */}
-                <button
-                  onClick={handleApplyFixes}
-                  disabled={!qaResult || qaResult.failed === 0 || fixesApplied}
-                  className={`text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2 transition-all disabled:opacity-50 ${
-                    currentStep === 3 ? activeClass : fixesApplied ? doneClass : (!qaResult || qaResult.failed === 0) ? disabledClass : defaultClass
-                  }`}
-                >
-                  {fixesApplied ? <CheckCircle2 className="w-4 h-4" /> : <Wrench className="w-4 h-4" />}
-                  <span className="font-mono text-xs opacity-60 mr-0.5">3</span>
-                  {language === 'de' ? 'Empfehlungen umsetzen' : language === 'fr' ? 'Appliquer' : 'Apply Fixes'}
-                </button>
+                <div className="flex flex-col items-center gap-1">
+                  <button
+                    onClick={handleApplyFixes}
+                    disabled={!qaResult || qaResult.failed === 0 || fixesApplied || fixesRunning}
+                    className={`text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2 transition-all disabled:opacity-50 ${
+                      fixesRunning ? activeClass : currentStep === 3 ? activeClass : fixesApplied ? doneClass : (!qaResult || qaResult.failed === 0) ? disabledClass : defaultClass
+                    }`}
+                  >
+                    {fixesRunning ? <Loader2 className="w-4 h-4 animate-spin" /> : fixesApplied ? <CheckCircle2 className="w-4 h-4" /> : <Wrench className="w-4 h-4" />}
+                    <span className="font-mono text-xs opacity-60 mr-0.5">3</span>
+                    {fixesRunning
+                      ? (language === 'de' ? 'Wird umgesetzt…' : language === 'fr' ? 'Application…' : 'Applying…')
+                      : (language === 'de' ? 'Empfehlungen umsetzen' : language === 'fr' ? 'Appliquer' : 'Apply Fixes')}
+                  </button>
+                  {fixesRunning && (
+                    <Progress value={fixProgress} className="w-full h-1.5 mt-1" />
+                  )}
+                </div>
 
                 <span className="text-muted-foreground text-xs hidden sm:inline">{'>'}</span>
 
