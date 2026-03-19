@@ -300,6 +300,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
         setD(prev => ({ ...prev, measures: scenario.measures, knownIssues: scenario.knownIssues }));
         break;
       case 6:
+        setD(prev => ({ ...prev, files: scenario.files }));
         break;
     }
   }, [sub]);
