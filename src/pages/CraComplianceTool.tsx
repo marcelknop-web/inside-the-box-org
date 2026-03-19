@@ -934,7 +934,7 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
     setFixesApplied(true);
     // Re-run QA with fixed data
     setTimeout(() => {
-      const newQa = runQualityCheck(result.threats, result.reqs, language as 'de' | 'en' | 'fr');
+      const newQa = runQualityCheck(result.threats, result.reqs, language as 'de' | 'en' | 'fr', intakeData);
       setQaResult(newQa);
     }, 500);
   }, [qaResult, localThreats, localReqs, language]);
