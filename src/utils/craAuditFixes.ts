@@ -433,6 +433,7 @@ export function applyAuditFixes(
   // ═══ Second pass: ALWAYS ensure all non-pass reqs have effort+priority ═══
   // (needed after any status downgrade from A3-1/A3-2/B1-B6)
   {
+    const secondPassFixes: string[] = [];
     fixedReqs.forEach(r => {
       if (r.status !== 'pass') {
         const linkedThreats = fixedThreats.filter(th => th.cra === r.article);
@@ -443,14 +444,23 @@ export function applyAuditFixes(
           else if (maxScore >= 13) r.effort = '16-24h';
           else if (r.status === 'fail') r.effort = '8-16h';
           else r.effort = '4-8h';
+          secondPassFixes.push(`${r.id}:effort=${r.effort}`);
         }
         if (!r.priority || r.priority.trim() === '') {
           r.priority = r.status === 'fail' && maxScore >= 20 ? 'P0'
             : r.status === 'fail' ? 'P1'
             : maxScore >= 13 ? 'P2' : 'P3';
+          secondPassFixes.push(`${r.id}:prio=${r.priority}`);
         }
       }
     });
+    if (secondPassFixes.length > 0) {
+      fixes.push(t(
+        `Second-Pass: ${secondPassFixes.length} fehlende Effort/Priority-Felder ergaenzt (${secondPassFixes.slice(0, 5).join(', ')}${secondPassFixes.length > 5 ? ' ...' : ''})`,
+        `Second pass: ${secondPassFixes.length} missing effort/priority fields added (${secondPassFixes.slice(0, 5).join(', ')}${secondPassFixes.length > 5 ? ' ...' : ''})`,
+        `Second pass : ${secondPassFixes.length} champs effort/priorite manquants ajoutes (${secondPassFixes.slice(0, 5).join(', ')}${secondPassFixes.length > 5 ? ' ...' : ''})`
+      ));
+    }
   }
 
   if (fixes.length === 0) {
