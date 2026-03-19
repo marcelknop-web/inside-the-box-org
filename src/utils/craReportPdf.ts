@@ -98,6 +98,21 @@ const I18N = {
   relatedReqs: { de: 'Verknüpfte Anforderungen', en: 'Related Requirements', fr: 'Exigences liées' },
   relatedThreats: { de: 'Verknüpfte Bedrohungen', en: 'Related Threats', fr: 'Menaces liées' },
 
+  // Section intro texts
+  introSec2: { de: 'Dieser Abschnitt fasst die wesentlichen Ergebnisse der Bewertung in kompakter Form zusammen. Er richtet sich an Entscheidungstraeger und gibt eine datengestuetzte Einschaetzung der Marktreife.', en: 'This section summarises the key assessment results in a compact format. It is intended for decision-makers and provides a data-driven assessment of market readiness.', fr: 'Cette section resume les principaux resultats de l\'evaluation de maniere compacte. Elle s\'adresse aux decideurs et fournit une evaluation basee sur les donnees de la maturite du produit.' },
+  introSec3: { de: 'Der folgende Abschnitt beschreibt den Pruefgegenstand und die vom Hersteller bereitgestellten Informationen. Diese Angaben bilden die Grundlage fuer die anschliessende Bedrohungs- und Konformitaetsanalyse.', en: 'This section describes the assessment subject and the information provided by the manufacturer. These details form the basis for the subsequent threat and compliance analysis.', fr: 'Cette section decrit l\'objet de l\'evaluation et les informations fournies par le fabricant. Ces donnees constituent la base de l\'analyse des menaces et de la conformite.' },
+  introSec3a: { de: 'Der Produktsteckbrief dokumentiert die wesentlichen Merkmale und die regulatorische Einordnung des bewerteten Produkts.', en: 'The product profile documents the key characteristics and regulatory classification of the assessed product.', fr: 'Le profil produit documente les caracteristiques cles et la classification reglementaire du produit evalue.' },
+  introSec3b: { de: 'Die Systemarchitektur und ihre Komponenten bestimmen die Angriffsflaeche. Diese Uebersicht dient als Grundlage fuer die STRIDE-Analyse.', en: 'The system architecture and its components determine the attack surface. This overview serves as the basis for the STRIDE analysis.', fr: 'L\'architecture du systeme et ses composants determinent la surface d\'attaque. Cette vue d\'ensemble sert de base a l\'analyse STRIDE.' },
+  introSec3c: { de: 'Die folgenden Sicherheitsmassnahmen wurden vom Hersteller als implementiert angegeben. Ihr Reifegrad wird anhand von drei Kriterien bewertet: aktiv, dokumentiert und auditiert.', en: 'The following security measures were reported as implemented by the manufacturer. Their maturity is assessed against three criteria: active, documented, and audited.', fr: 'Les mesures de securite suivantes ont ete declarees implementees par le fabricant. Leur maturite est evaluee selon trois criteres : active, documentee et auditee.' },
+  introSec3d: { de: 'Dieser Abschnitt dokumentiert Risiken und Schwachstellen, die der Hersteller selbst identifiziert und benannt hat.', en: 'This section documents risks and vulnerabilities that the manufacturer has identified and reported.', fr: 'Cette section documente les risques et vulnerabilites identifies et signales par le fabricant.' },
+  introSec3e: { de: 'Die eingereichte Dokumentation wird zur Verifizierung der Herstellerangaben und zur Bewertung der Evidenzlage herangezogen.', en: 'The submitted documentation is used to verify manufacturer claims and to assess the evidence base.', fr: 'La documentation soumise est utilisee pour verifier les declarations du fabricant et evaluer la base de preuves.' },
+  introSec4: { de: 'In diesem Abschnitt werden die identifizierten Bedrohungen und Konformitaetsluecken im Detail dargestellt. Jede Feststellung enthaelt die zugrundeliegende Evidenz, die Bewertungslogik und die regulatorische Referenz.', en: 'This section presents the identified threats and compliance gaps in detail. Each finding includes the underlying evidence, assessment rationale, and regulatory reference.', fr: 'Cette section presente en detail les menaces identifiees et les lacunes de conformite. Chaque constatation comprend les preuves, la logique d\'evaluation et la reference reglementaire.' },
+  introSec4a: { de: 'Die Bedrohungsanalyse folgt dem STRIDE-Modell und bewertet jedes Szenario anhand von Eintrittswahrscheinlichkeit und Auswirkung. Kritische Risiken (Score >= 20) erfordern Sofortmassnahmen.', en: 'The threat analysis follows the STRIDE model and rates each scenario by likelihood and impact. Critical risks (score >= 20) require immediate action.', fr: 'L\'analyse des menaces suit le modele STRIDE et evalue chaque scenario selon la probabilite et l\'impact. Les risques critiques (score >= 20) necessitent une action immediate.' },
+  introSec4b: { de: 'Die folgende Uebersicht zeigt die Bewertung jeder CRA-Anforderung. Abweichungen werden mit konkreten Massnahmen und nachweisbaren Umsetzungskriterien versehen.', en: 'The following overview shows the assessment of each CRA requirement. Deviations are accompanied by concrete measures and verifiable acceptance criteria.', fr: 'L\'apercu suivant montre l\'evaluation de chaque exigence CRA. Les ecarts sont accompagnes de mesures concretes et de criteres d\'acceptation verifiables.' },
+  introSec4c: { de: 'Die normative Abdeckung zeigt, welcher Anteil der CRA-Anforderungen bereits erfuellt ist. Ein Wert unter 80 % signalisiert erheblichen Nachbesserungsbedarf.', en: 'Normative coverage indicates what proportion of CRA requirements are already met. A value below 80% signals significant remediation needs.', fr: 'La couverture normative indique la proportion d\'exigences CRA deja satisfaites. Une valeur inferieure a 80 % signale un besoin de remediation important.' },
+  introSec5: { de: 'Die Handlungsempfehlungen sind nach regulatorischer Dringlichkeit und technischer Kritikalitaet priorisiert. Die Roadmap gibt einen realistischen Zeitrahmen fuer die Umsetzung vor.', en: 'Recommendations are prioritised by regulatory urgency and technical criticality. The roadmap provides a realistic timeframe for implementation.', fr: 'Les recommandations sont hierarchisees par urgence reglementaire et criticite technique. La feuille de route fournit un calendrier realiste de mise en oeuvre.' },
+  introSec5a: { de: 'Jede Massnahme ist einer Prioritaetsstufe (P0 bis P3) zugeordnet. P0-Massnahmen sind Release-Blocker und muessen vor Markteinführung abgeschlossen sein.', en: 'Each measure is assigned a priority level (P0 to P3). P0 measures are release blockers and must be completed before market launch.', fr: 'Chaque mesure est attribuee a un niveau de priorite (P0 a P3). Les mesures P0 sont bloquantes et doivent etre terminees avant la mise sur le marche.' },
+
   totalThreats: { de: 'Bedrohungen', en: 'Threats', fr: 'Menaces' },
   criticalRisks: { de: 'Kritisch (>= 20)', en: 'Critical (>= 20)', fr: 'Critiques (>= 20)' },
   craGaps: { de: 'Nicht konform', en: 'Non-Compliant', fr: 'Non conformes' },
@@ -649,6 +664,8 @@ export function generateCraReport(data: CraReportData): void {
      ══════════════════════════════════════ */
   newSection();
   writeSectionHeading(t(I18N.sec2));
+  writeBody(t(I18N.introSec2));
+  y += 2;
 
   const passReqs = reqs.filter(r => r.status === 'pass');
   const summaryData = getMgmtSummaryData(intakeData.productName, threats.length, critRisks.length, failReqs.length, partialReqs.length, reqs.length, passReqs.length, lang);
@@ -784,9 +801,12 @@ export function generateCraReport(data: CraReportData): void {
      ══════════════════════════════════════ */
   newSection();
   writeSectionHeading(t(I18N.sec3));
+  writeBody(t(I18N.introSec3));
+  y += 2;
 
   // 3.1 Product Profile
   writeSubHeading(t(I18N.sec3a));
+  writeBody(t(I18N.introSec3a));
   writeKV(t(I18N.product), `${intakeData.productName} ${intakeData.version}`);
   writeKV(t(I18N.type), productTypeName);
   if (intakeData.productTypes.length > 0) {
@@ -805,6 +825,7 @@ export function generateCraReport(data: CraReportData): void {
   // 3.2 Components & Architecture
   y += 3;
   writeSubHeading(t(I18N.sec3b));
+  writeBody(t(I18N.introSec3b));
   if (intakeData.components.length > 0) {
     for (const comp of intakeData.components) {
       checkPage(6);
@@ -821,6 +842,7 @@ export function generateCraReport(data: CraReportData): void {
   // 3.3 Security Measures
   y += 3;
   writeSubHeading(t(I18N.sec3c));
+  writeBody(t(I18N.introSec3c));
   const measureKeys = Object.keys(intakeData.measures);
   if (measureKeys.length > 0) {
     // Table header
@@ -865,11 +887,13 @@ export function generateCraReport(data: CraReportData): void {
   // 3.4 Known Issues
   y += 3;
   writeSubHeading(t(I18N.sec3d));
+  writeBody(t(I18N.introSec3d));
   writeBody(intakeData.knownIssues || t(I18N.noKnownIssues));
 
   // 3.5 Submitted Documentation
   y += 3;
   writeSubHeading(t(I18N.sec3e));
+  writeBody(t(I18N.introSec3e));
   if (intakeData.files.length > 0) {
     for (const f of intakeData.files) {
       checkPage(6);
@@ -891,9 +915,12 @@ export function generateCraReport(data: CraReportData): void {
      ══════════════════════════════════════ */
   newSection();
   writeSectionHeading(t(I18N.sec4));
+  writeBody(t(I18N.introSec4));
+  y += 2;
 
   // 4.1 Threat Landscape
   writeSubHeading(t(I18N.sec4a));
+  writeBody(t(I18N.introSec4a));
   y += 2;
 
   const sortedThreats = [...threats].sort((a, b) => (b.likelihood * b.impact) - (a.likelihood * a.impact));
@@ -986,6 +1013,7 @@ export function generateCraReport(data: CraReportData): void {
   // 4.2 CRA Compliance Gaps
   newSection();
   writeSubHeading(t(I18N.sec4b));
+  writeBody(t(I18N.introSec4b));
   y += 2;
 
   const sortedReqs = [...reqs].sort((a, b) => {
@@ -1074,6 +1102,7 @@ export function generateCraReport(data: CraReportData): void {
   // ── 4.3 Normative Coverage ──
   newSection();
   writeSubHeading(t(I18N.sec4c));
+  writeBody(t(I18N.introSec4c));
   y += 2;
 
   const annex1p1 = reqs.filter(r => r.article.startsWith('Annex I, Part I'));
@@ -1150,6 +1179,8 @@ export function generateCraReport(data: CraReportData): void {
      ══════════════════════════════════════ */
   newSection();
   writeSectionHeading(t(I18N.sec5));
+  writeBody(t(I18N.introSec5));
+  y += 2;
 
   // ── P0-P3 Prioritisation ──
   interface PrioItem { id: string; name: string; measure: string; effort: string; }
@@ -1195,6 +1226,7 @@ export function generateCraReport(data: CraReportData): void {
   ];
 
   writeSubHeading(t(I18N.sec5a));
+  writeBody(t(I18N.introSec5a));
   y += 2;
 
   const hasItems = allPrios.some(p => p.items.length > 0);
