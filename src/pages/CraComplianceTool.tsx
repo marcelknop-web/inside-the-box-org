@@ -1007,7 +1007,7 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
         }
       }, 100);
     });
-  }, [intakeData, localThreats, localReqs, language, typeName, craName, qaResult, fixLog, qaIteration]);
+  }, [intakeData, localThreats, localReqs, language, typeName, craName, qaResult, fixLog, allFixLogs, preFixQaChecks, qaIteration]);
 
   const qaVerdict = qaResult?.verdict;
   const canFinal = fixesApplied || qaVerdict === 'passed' || qaVerdict === 'conditional';
