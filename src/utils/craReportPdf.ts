@@ -801,6 +801,8 @@ export function generateCraReport(data: CraReportData): void {
      ══════════════════════════════════════ */
   newSection();
   writeSectionHeading(t(I18N.sec3));
+  writeBody(t(I18N.introSec3));
+  y += 2;
 
   // 3.1 Product Profile
   writeSubHeading(t(I18N.sec3a));
