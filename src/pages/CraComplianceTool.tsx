@@ -917,12 +917,12 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
     setFixesApplied(false);
     setFixLog([]);
     setTimeout(() => {
-      const result = runQualityCheck(localThreats, localReqs, language as 'de' | 'en' | 'fr');
+      const result = runQualityCheck(localThreats, localReqs, language as 'de' | 'en' | 'fr', intakeData);
       setQaResult(result);
       setQaRunning(false);
       setQaExpanded(true);
     }, 1500);
-  }, [localThreats, localReqs, language]);
+  }, [localThreats, localReqs, language, intakeData]);
 
   const handleApplyFixes = useCallback(() => {
     if (!qaResult) return;
@@ -934,7 +934,7 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
     setFixesApplied(true);
     // Re-run QA with fixed data
     setTimeout(() => {
-      const newQa = runQualityCheck(result.threats, result.reqs, language as 'de' | 'en' | 'fr');
+      const newQa = runQualityCheck(result.threats, result.reqs, language as 'de' | 'en' | 'fr', intakeData);
       setQaResult(newQa);
     }, 500);
   }, [qaResult, localThreats, localReqs, language]);
