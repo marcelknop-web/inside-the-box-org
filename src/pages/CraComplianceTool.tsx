@@ -266,6 +266,13 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
       roles: ['Security Officer', 'Network Administrator', 'Auditor', 'Operator'],
       measures: { tls: { active: true, documented: true, audited: true }, auth: { active: true, documented: true, audited: true }, mfa: { active: true, documented: true, audited: true }, fw: { active: true, documented: true, audited: false }, secboot: { active: true, documented: true, audited: true }, codesign: { active: true, documented: true, audited: false }, sbom: { active: true, documented: true, audited: true }, ir: { active: true, documented: true, audited: false }, monitor: { active: true, documented: true, audited: true } },
       knownIssues: 'MQTT broker accepts connections without rate limiting. No SBOM available yet.',
+      files: [
+        { name: 'SecureLink_Architecture_CritInfra.pdf', size: 3_200_000, type: 'arch' },
+        { name: 'SecureLink_Pentest_BSI-Certified_2025.pdf', size: 1_540_000, type: 'pentest' },
+        { name: 'SecureLink_ISMS_BSI-Grundschutz.pdf', size: 890_000, type: 'policy' },
+        { name: 'securelink-sbom-2.0.3.cdx.xml', size: 178_000, type: 'sbom' },
+        { name: 'SecureLink_HSM_Certification_CC-EAL4.pdf', size: 2_100_000, type: 'other' },
+      ],
     },
   ];
 
