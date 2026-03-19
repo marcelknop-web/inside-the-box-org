@@ -573,16 +573,28 @@ export function generateCraReport(data: CraReportData): void {
     doc.setFillColor(...accentBarColor);
     doc.roundedRect(ML, y, 2.5, 11, 1, 1, 'F');
 
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(9);
-    doc.setTextColor(...headerText);
-    const findingLabel = `${t(I18N.finding)} F-${String(findingNum).padStart(2, '0')}`;
-    doc.text(`${findingLabel}  |  ${tid}  ${th.name}`, ML + 5, y + 7);
-
+    // Right-aligned score (render first to measure width)
     const rl = riskLabel(score);
     const scoreStr = `${rl} (${th.likelihood} × ${th.impact} = ${score})`;
+    doc.setFont('helvetica', 'bold');
     doc.setFontSize(8);
+    doc.setTextColor(...headerText);
+    const scoreW = doc.getTextWidth(scoreStr);
     doc.text(scoreStr, W - MR - 4, y + 7, { align: 'right' });
+
+    // Left label — truncate if it would overlap the score
+    doc.setFontSize(9);
+    const findingLabel = `${t(I18N.finding)} F-${String(findingNum).padStart(2, '0')}`;
+    const leftText = `${findingLabel}  |  ${tid}  ${th.name}`;
+    const maxLeftW = CW - scoreW - 14; // 14 = left padding + gap + right padding
+    let truncLeft = leftText;
+    if (doc.getTextWidth(truncLeft) > maxLeftW) {
+      while (truncLeft.length > 10 && doc.getTextWidth(truncLeft + '…') > maxLeftW) {
+        truncLeft = truncLeft.slice(0, -1);
+      }
+      truncLeft = truncLeft.trimEnd() + '…';
+    }
+    doc.text(truncLeft, ML + 5, y + 7);
     y += 15;
 
     writeFieldBlock(t(I18N.component), th.component);
