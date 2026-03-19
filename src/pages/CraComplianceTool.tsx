@@ -968,7 +968,7 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
   }, [intakeData, localThreats, localReqs, language, typeName, craName]);
 
   const qaVerdict = qaResult?.verdict;
-  const canFinal = qaVerdict === 'passed' || qaVerdict === 'conditional';
+  const canFinal = fixesApplied || qaVerdict === 'passed' || qaVerdict === 'conditional';
 
   const CATEGORY_LABELS: Record<string, string> = {
     consistency: language === 'de' ? 'A. Konsistenzprüfung' : language === 'fr' ? 'A. Contrôle de cohérence' : 'A. Consistency Check',
