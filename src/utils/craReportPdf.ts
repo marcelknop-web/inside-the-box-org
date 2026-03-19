@@ -825,6 +825,7 @@ export function generateCraReport(data: CraReportData): void {
   // 3.2 Components & Architecture
   y += 3;
   writeSubHeading(t(I18N.sec3b));
+  writeBody(t(I18N.introSec3b));
   if (intakeData.components.length > 0) {
     for (const comp of intakeData.components) {
       checkPage(6);
