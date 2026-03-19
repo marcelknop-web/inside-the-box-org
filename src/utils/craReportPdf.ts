@@ -915,6 +915,8 @@ export function generateCraReport(data: CraReportData): void {
      ══════════════════════════════════════ */
   newSection();
   writeSectionHeading(t(I18N.sec4));
+  writeBody(t(I18N.introSec4));
+  y += 2;
 
   // 4.1 Threat Landscape
   writeSubHeading(t(I18N.sec4a));
