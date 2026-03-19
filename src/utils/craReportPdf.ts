@@ -1179,6 +1179,8 @@ export function generateCraReport(data: CraReportData): void {
      ══════════════════════════════════════ */
   newSection();
   writeSectionHeading(t(I18N.sec5));
+  writeBody(t(I18N.introSec5));
+  y += 2;
 
   // ── P0-P3 Prioritisation ──
   interface PrioItem { id: string; name: string; measure: string; effort: string; }
