@@ -291,7 +291,7 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
   const timerCritical = timeLeft <= 5;
 
   const wrapperClass = embedded ? 'space-y-3' : 'min-h-screen p-4 max-w-4xl mx-auto bg-transparent';
-  const diamondClip = 'polygon(3% 50%, 6% 0%, 94% 0%, 97% 50%, 94% 100%, 6% 100%)';
+  const diamondClip = 'polygon(4% 50%, 7% 0%, 93% 0%, 96% 50%, 93% 100%, 7% 100%)';
 
   // ── Entry screen ──
   if (!started) {
@@ -554,10 +554,10 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
 
                 if (isHidden) {
                   return (
-                    <div key={i} className="relative px-5 py-3 text-sm opacity-15" style={{ clipPath: diamondClip }}>
+                    <div key={i} className="relative px-8 py-3 text-sm opacity-15" style={{ clipPath: diamondClip }}>
                       <div className="absolute inset-0 bg-muted/20" style={{ clipPath: diamondClip }} />
                       <span className="relative font-mono font-bold mr-2 text-muted-foreground">{OPTION_LETTERS[i]}:</span>
-                      <span className="relative line-through text-muted-foreground">{opt}</span>
+                      <span className="relative line-through text-muted-foreground break-words">{opt}</span>
                     </div>
                   );
                 }
@@ -597,8 +597,8 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
                     style={{ clipPath: diamondClip }}>
                     <div className={`absolute inset-0 bg-gradient-to-r ${outerGradient}`} style={{ clipPath: diamondClip }} />
                     <div className={`absolute inset-[1px] bg-gradient-to-b ${innerBg}`} style={{ clipPath: diamondClip }} />
-                    <div className={`relative px-5 py-3 text-sm ${textClass}`}>
-                      <span className="font-mono font-bold mr-2 text-primary/80">{OPTION_LETTERS[i]}:</span>
+                    <div className={`relative px-8 py-3 text-sm ${textClass} break-words`}>
+                      <span className="font-mono font-bold mr-2 text-primary/80 flex-shrink-0">{OPTION_LETTERS[i]}:</span>
                       {opt}
                     </div>
                     {!confirmed && <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" style={{ clipPath: diamondClip }} />}
