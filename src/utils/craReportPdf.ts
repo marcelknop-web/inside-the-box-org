@@ -329,7 +329,7 @@ const STRIDE_NAMES: Record<string, Record<string, string>> = {
    MAIN GENERATOR
    ════════════════════════════════════════════════════════════ */
 export function generateCraReport(data: CraReportData): void {
-  const { intakeData, threats, reqs, language, productTypeName, craClassName } = data;
+  const { intakeData, threats, reqs, language, productTypeName, craClassName, isDraft = false } = data;
   const lang = language;
   const t = (o: Record<string, string>) => o[lang] || o.en;
 
