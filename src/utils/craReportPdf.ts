@@ -26,23 +26,33 @@ const I18N = {
   sec1: { de: '1  Ausgangslage und Zielsetzung', en: '1  Context and Objectives', fr: '1  Contexte et objectifs' },
   sec2: { de: '2  Zusammenfassung für die Geschäftsleitung', en: '2  Management Summary', fr: '2  Synthèse pour la direction' },
   sec3: { de: '3  Gegenstand der Prüfung', en: '3  Scope of Assessment', fr: '3  Périmètre de l\'évaluation' },
+  sec3a: { de: '3.1  Produktsteckbrief', en: '3.1  Product Profile', fr: '3.1  Profil du produit' },
+  sec3b: { de: '3.2  Systemkomponenten und Architektur', en: '3.2  System Components and Architecture', fr: '3.2  Composants et architecture du système' },
+  sec3c: { de: '3.3  Implementierte Sicherheitsmaßnahmen', en: '3.3  Implemented Security Measures', fr: '3.3  Mesures de sécurité mises en œuvre' },
+  sec3d: { de: '3.4  Vom Hersteller benannte Risiken', en: '3.4  Manufacturer-Reported Risks', fr: '3.4  Risques signalés par le fabricant' },
+  sec3e: { de: '3.5  Eingereichte Dokumentation', en: '3.5  Submitted Documentation', fr: '3.5  Documentation soumise' },
   sec4: { de: '4  Feststellungen im Einzelnen', en: '4  Detailed Findings', fr: '4  Constatations détaillées' },
   sec4a: { de: '4.1  Bedrohungslandschaft (STRIDE-Analyse)', en: '4.1  Threat Landscape (STRIDE Analysis)', fr: '4.1  Paysage des menaces (analyse STRIDE)' },
   sec4b: { de: '4.2  CRA-Konformitätslücken', en: '4.2  CRA Compliance Gaps', fr: '4.2  Lacunes de conformité CRA' },
   sec5: { de: '5  Handlungsempfehlungen', en: '5  Recommendations', fr: '5  Recommandations' },
   sec6: { de: '6  Methodik und Prüfungsgrundlagen', en: '6  Methodology and Audit Standards', fr: '6  Méthodologie et normes d\'audit' },
+  sec6a: { de: '6.1  Risikobewertungsmatrix', en: '6.1  Risk Rating Matrix', fr: '6.1  Matrice d\'évaluation des risques' },
   sec7: { de: '7  Einschränkungen und Haftungsausschluss', en: '7  Limitations and Disclaimer', fr: '7  Limites et clause de non-responsabilité' },
+  secA: { de: 'A  Strukturierte Prüfdaten (maschinenlesbar)', en: 'A  Structured Audit Data (machine-readable)', fr: 'A  Données d\'audit structurées (lisibles par machine)' },
 
   product: { de: 'Produkt', en: 'Product', fr: 'Produit' },
   version: { de: 'Version', en: 'Version', fr: 'Version' },
   type: { de: 'Produkttyp', en: 'Product Type', fr: 'Type de produit' },
+  productTypes: { de: 'Produktkategorien', en: 'Product Categories', fr: 'Catégories de produit' },
   craClass: { de: 'CRA-Klasse', en: 'CRA Class', fr: 'Classe CRA' },
   deployment: { de: 'Betriebsmodell', en: 'Deployment Model', fr: 'Modèle de déploiement' },
   interfaces: { de: 'Kommunikationsschnittstellen', en: 'Communication Interfaces', fr: 'Interfaces de communication' },
   components: { de: 'Systemkomponenten', en: 'System Components', fr: 'Composants du système' },
   roles: { de: 'Benutzerrollen', en: 'User Roles', fr: 'Rôles utilisateur' },
+  description: { de: 'Produktbeschreibung', en: 'Product Description', fr: 'Description du produit' },
   measures: { de: 'Implementierte Maßnahmen', en: 'Implemented Measures', fr: 'Mesures mises en œuvre' },
   knownIssues: { de: 'Vom Hersteller benannte Probleme', en: 'Manufacturer-Reported Issues', fr: 'Problèmes signalés par le fabricant' },
+  attachedFiles: { de: 'Eingereichte Dokumente', en: 'Submitted Documents', fr: 'Documents soumis' },
 
   threat: { de: 'Bedrohung', en: 'Threat', fr: 'Menace' },
   finding: { de: 'Feststellung', en: 'Finding', fr: 'Constatation' },
@@ -65,20 +75,35 @@ const I18N = {
   priority: { de: 'Priorität', en: 'Priority', fr: 'Priorité' },
   high: { de: 'Hoch', en: 'High', fr: 'Élevée' },
   medium: { de: 'Mittel', en: 'Medium', fr: 'Moyenne' },
+  craRef: { de: 'CRA-Referenz', en: 'CRA Reference', fr: 'Référence CRA' },
+  relatedReqs: { de: 'Verknüpfte Anforderungen', en: 'Related Requirements', fr: 'Exigences liées' },
+  relatedThreats: { de: 'Verknüpfte Bedrohungen', en: 'Related Threats', fr: 'Menaces liées' },
 
   totalThreats: { de: 'Bedrohungen', en: 'Threats', fr: 'Menaces' },
   criticalRisks: { de: 'Kritisch (≥ 20)', en: 'Critical (≥ 20)', fr: 'Critiques (≥ 20)' },
   craGaps: { de: 'Nicht konform', en: 'Non-Compliant', fr: 'Non conformes' },
   partialGaps: { de: 'Teilw. konform', en: 'Partial', fr: 'Partiels' },
+
+  strideDistTitle: { de: 'STRIDE-Verteilung', en: 'STRIDE Distribution', fr: 'Répartition STRIDE' },
+  measureMaturity: { de: 'Reifegrad', en: 'Maturity', fr: 'Maturité' },
+  active: { de: 'Aktiv', en: 'Active', fr: 'Active' },
+  documented: { de: 'Dokumentiert', en: 'Documented', fr: 'Documentée' },
+  audited: { de: 'Auditiert', en: 'Audited', fr: 'Auditée' },
+  yes: { de: 'Ja', en: 'Yes', fr: 'Oui' },
+  no: { de: 'Nein', en: 'No', fr: 'Non' },
+  noFilesSubmitted: { de: 'Keine Dokumente eingereicht.', en: 'No documents submitted.', fr: 'Aucun document soumis.' },
+  noKnownIssues: { de: 'Vom Hersteller wurden keine bekannten Probleme angegeben.', en: 'No known issues reported by the manufacturer.', fr: 'Aucun problème connu signalé par le fabricant.' },
+
+  appendixIntro: { de: 'Dieser Anhang enthält die vollständigen Prüfdaten in strukturierter Form. Die Daten sind so aufbereitet, dass die Nachvollziehbarkeit und Richtigkeit der getroffenen Bewertungsentscheidungen durch Dritte — einschließlich automatisierter Systeme — überprüft werden kann.\n\nJede Feststellung enthält die zugrundeliegende Evidenz, die Bewertungslogik (Rationale) und die regulatorische Referenz, die zur Einstufung geführt hat. Die Verknüpfungen zwischen Bedrohungen und CRA-Anforderungen sind explizit ausgewiesen.', en: 'This appendix contains the complete audit data in structured form. The data is prepared so that the traceability and correctness of the assessment decisions can be verified by third parties — including automated systems.\n\nEach finding includes the underlying evidence, the assessment logic (rationale), and the regulatory reference that led to the classification. The cross-references between threats and CRA requirements are explicitly documented.', fr: 'Cette annexe contient les données d\'audit complètes sous forme structurée. Les données sont préparées de manière à permettre la vérification de la traçabilité et de l\'exactitude des décisions d\'évaluation par des tiers — y compris des systèmes automatisés.\n\nChaque constatation comprend les preuves sous-jacentes, la logique d\'évaluation (rationale) et la référence réglementaire ayant conduit à la classification. Les références croisées entre menaces et exigences CRA sont explicitement documentées.' },
 };
 
 /* ════════════════════════════════════════════════════════════
    Prose blocks
    ════════════════════════════════════════════════════════════ */
 function getContextText(p: string, v: string, typeName: string, cls: string, date: string, lang: string): string {
-  if (lang === 'de') return `Der vorliegende Bericht dokumentiert die Ergebnisse einer strukturierten Cyber-Risikobewertung für das Produkt ${p} ${v} (${typeName}, CRA-Klasse: ${cls}). Die Prüfung wurde am ${date} durchgeführt.\n\nZielsetzung war die systematische Identifikation von Bedrohungen nach dem STRIDE-Modell sowie die Bewertung der Konformität mit den wesentlichen Anforderungen des EU Cyber Resilience Act (Verordnung (EU) 2024/2847). Der Bericht richtet sich an die Geschäftsleitung, das Produktmanagement und die für Informationssicherheit verantwortlichen Stellen.\n\nDie Bewertung umfasst sowohl eine technische Bedrohungsanalyse als auch eine regulatorische Konformitätsprüfung gegen die Anforderungen aus Annex I (Sicherheitseigenschaften), Annex II (Schwachstellenbehandlung) sowie den Artikeln 13 und 14 des CRA.`;
-  if (lang === 'fr') return `Le présent rapport documente les résultats d'une évaluation structurée des cyber-risques pour le produit ${p} ${v} (${typeName}, classe CRA : ${cls}). L'évaluation a été réalisée le ${date}.\n\nL'objectif était l'identification systématique des menaces selon le modèle STRIDE ainsi que l'évaluation de la conformité aux exigences essentielles du Cyber Resilience Act européen (Règlement (UE) 2024/2847). Ce rapport s'adresse à la direction, au management produit et aux responsables de la sécurité de l'information.\n\nL'évaluation couvre à la fois une analyse technique des menaces et une vérification de conformité réglementaire contre les exigences de l'Annexe I, l'Annexe II ainsi que les Articles 13 et 14 du CRA.`;
-  return `This report documents the results of a structured cyber risk assessment for the product ${p} ${v} (${typeName}, CRA class: ${cls}). The assessment was conducted on ${date}.\n\nThe objective was the systematic identification of threats using the STRIDE model and the evaluation of compliance with the essential requirements of the EU Cyber Resilience Act (Regulation (EU) 2024/2847). This report is intended for executive management, product management, and information security stakeholders.\n\nThe assessment covers both a technical threat analysis and a regulatory compliance review against the requirements of Annex I (security properties), Annex II (vulnerability handling), and Articles 13 and 14 of the CRA.`;
+  if (lang === 'de') return `Der vorliegende Bericht dokumentiert die Ergebnisse einer strukturierten Cyber-Risikobewertung für das Produkt ${p} ${v} (${typeName}, CRA-Klasse: ${cls}). Die Prüfung wurde am ${date} durchgeführt.\n\nZielsetzung war die systematische Identifikation von Bedrohungen nach dem STRIDE-Modell sowie die Bewertung der Konformität mit den wesentlichen Anforderungen des EU Cyber Resilience Act (Verordnung (EU) 2024/2847). Der Bericht richtet sich an die Geschäftsleitung, das Produktmanagement und die für Informationssicherheit verantwortlichen Stellen.\n\nDie Bewertung umfasst sowohl eine technische Bedrohungsanalyse als auch eine regulatorische Konformitätsprüfung gegen die Anforderungen aus Annex I (Sicherheitseigenschaften), Annex II (Schwachstellenbehandlung) sowie den Artikeln 13 und 14 des CRA.\n\nDer Bericht ist so strukturiert, dass die getroffenen Bewertungsentscheidungen durch Dritte — einschließlich automatisierter Prüfverfahren — vollständig nachvollzogen und verifiziert werden können. Alle Feststellungen enthalten die zugrundeliegende Evidenz, die Bewertungslogik sowie die normativen Referenzen.`;
+  if (lang === 'fr') return `Le présent rapport documente les résultats d'une évaluation structurée des cyber-risques pour le produit ${p} ${v} (${typeName}, classe CRA : ${cls}). L'évaluation a été réalisée le ${date}.\n\nL'objectif était l'identification systématique des menaces selon le modèle STRIDE ainsi que l'évaluation de la conformité aux exigences essentielles du Cyber Resilience Act européen (Règlement (UE) 2024/2847). Ce rapport s'adresse à la direction, au management produit et aux responsables de la sécurité de l'information.\n\nL'évaluation couvre à la fois une analyse technique des menaces et une vérification de conformité réglementaire contre les exigences de l'Annexe I, l'Annexe II ainsi que les Articles 13 et 14 du CRA.\n\nLe rapport est structuré de manière à permettre la traçabilité et la vérification complète des décisions d'évaluation par des tiers — y compris des systèmes automatisés. Chaque constatation inclut les preuves, la logique d'évaluation et les références normatives.`;
+  return `This report documents the results of a structured cyber risk assessment for the product ${p} ${v} (${typeName}, CRA class: ${cls}). The assessment was conducted on ${date}.\n\nThe objective was the systematic identification of threats using the STRIDE model and the evaluation of compliance with the essential requirements of the EU Cyber Resilience Act (Regulation (EU) 2024/2847). This report is intended for executive management, product management, and information security stakeholders.\n\nThe assessment covers both a technical threat analysis and a regulatory compliance review against the requirements of Annex I (security properties), Annex II (vulnerability handling), and Articles 13 and 14 of the CRA.\n\nThe report is structured to enable full traceability and verification of assessment decisions by third parties — including automated verification systems. Each finding includes the underlying evidence, the assessment rationale, and the normative references.`;
 }
 
 function getMgmtSummary(
@@ -102,26 +127,27 @@ function getDisclaimer(lang: string): string {
 }
 
 /* ════════════════════════════════════════════════════════════
-   Color palette — restrained, professional
+   Color palette
    ════════════════════════════════════════════════════════════ */
 const C = {
   navy: [8, 11, 16] as [number, number, number],
   darkNavy: [15, 23, 42] as [number, number, number],
-  accent: [0, 148, 168] as [number, number, number],        // muted teal — less neon
-  gold: [195, 155, 30] as [number, number, number],          // warmer, darker gold — more premium
-  bodyText: [45, 50, 60] as [number, number, number],        // darker for sharper reading
-  labelText: [80, 90, 105] as [number, number, number],      // secondary text
+  accent: [0, 148, 168] as [number, number, number],
+  gold: [195, 155, 30] as [number, number, number],
+  bodyText: [45, 50, 60] as [number, number, number],
+  labelText: [80, 90, 105] as [number, number, number],
   lightGray: [140, 150, 165] as [number, number, number],
   ruleStroke: [195, 200, 210] as [number, number, number],
   bgLight: [246, 247, 249] as [number, number, number],
   bgRed: [252, 232, 232] as [number, number, number],
   bgYellow: [253, 248, 220] as [number, number, number],
   bgGreen: [228, 248, 235] as [number, number, number],
+  white: [255, 255, 255] as [number, number, number],
+  coverMeta: [165, 175, 190] as [number, number, number],
   redText: [170, 30, 30] as [number, number, number],
   orangeText: [175, 65, 15] as [number, number, number],
   greenText: [25, 110, 55] as [number, number, number],
-  white: [255, 255, 255] as [number, number, number],
-  coverMeta: [165, 175, 190] as [number, number, number],
+  monoGray: [65, 75, 90] as [number, number, number],
 };
 
 /* ════════════════════════════════════════════════════════════
@@ -130,16 +156,12 @@ const C = {
 function drawWatermark(doc: jsPDF, cx: number, cy: number, size: number) {
   const S = size;
   const SQRT2_HALF = Math.SQRT2 / 2;
-
   doc.saveGraphicsState();
   doc.setGState(new (doc as any).GState({ opacity: 0.04 }));
-
   const wc: [number, number, number] = [195, 155, 30];
-
   const diamond = (x: number, y: number, hd: number, style: 'S' | 'F' = 'S') => {
     doc.lines([[hd, hd], [hd, -hd], [-hd, -hd], [-hd, hd]], x, y - hd, [1, 1], style, true);
   };
-
   const barHalfW = S * (6 / 48);
   doc.setDrawColor(...wc);
   doc.setLineWidth(0.25);
@@ -147,63 +169,41 @@ function drawWatermark(doc: jsPDF, cx: number, cy: number, size: number) {
   doc.line(cx + barHalfW, cy - S, cx + barHalfW, cy + S);
   doc.line(cx - S, cy - barHalfW, cx + S, cy - barHalfW);
   doc.line(cx - S, cy + barHalfW, cx + S, cy + barHalfW);
-
   const dSide = S * (16 / 24);
   const dHalfDiag = dSide * SQRT2_HALF;
   const dOffset = S * (14 / 24);
-
   doc.setLineWidth(0.3);
   diamond(cx, cy - dOffset, dHalfDiag);
   diamond(cx, cy + dOffset, dHalfDiag);
   diamond(cx - dOffset, cy, dHalfDiag);
   diamond(cx + dOffset, cy, dHalfDiag);
-
   const d1HD = S * SQRT2_HALF;
   doc.setLineWidth(0.35);
   diamond(cx, cy, d1HD);
-
   const d2HD = S * (16 / 24) * SQRT2_HALF;
   doc.setLineWidth(0.25);
   diamond(cx, cy, d2HD);
-
   const d3HD = S * (9.6 / 24) * SQRT2_HALF;
   doc.setFillColor(...wc);
   diamond(cx, cy, d3HD, 'F');
-
   doc.restoreGraphicsState();
 }
 
 /* ════════════════════════════════════════════════════════════
-   STRICT TYPOGRAPHIC SYSTEM
-   ════════════════════════════════════════════════════════════
-
-   All dimensions in mm. jsPDF uses Helvetica family.
-
-   Hierarchy:
-     Cover title       — 26pt bold
-     Cover subtitle    — 11pt normal
-     Section heading   — 12pt bold, UPPERCASE
-     Subsection        — 10pt bold
-     Body              — 9pt normal, 4.2mm leading
-     Label (field)     — 7.5pt bold, uppercase, teal
-     Footer / meta     — 6.5pt normal
-     Source refs        — 7pt italic
-
-   Spacing:
-     Section top gap   — 12mm after rule
-     Para gap          — 2.5mm between paragraphs
-     Field block gap   — 1.5mm after value
-     Finding separator — 6mm vertical gap
-
-   Layout:
-     Page: A4 210×297
-     Margins: L 25mm, R 22mm (asymmetric for binding)
-     Content width: 163mm
-     Top margin: 30mm (content start below running header)
-     Bottom safe: H-22mm (footer at H-16)
-     Running header: report title left, date right at y=16
+   STRIDE labels
    ════════════════════════════════════════════════════════════ */
+const STRIDE_NAMES: Record<string, Record<string, string>> = {
+  S: { de: 'Spoofing', en: 'Spoofing', fr: 'Spoofing' },
+  T: { de: 'Tampering', en: 'Tampering', fr: 'Tampering' },
+  R: { de: 'Repudiation', en: 'Repudiation', fr: 'Répudiation' },
+  I: { de: 'Information Disclosure', en: 'Information Disclosure', fr: 'Divulgation d\'information' },
+  D: { de: 'Denial of Service', en: 'Denial of Service', fr: 'Déni de service' },
+  E: { de: 'Elevation of Privilege', en: 'Elevation of Privilege', fr: 'Élévation de privilège' },
+};
 
+/* ════════════════════════════════════════════════════════════
+   MAIN GENERATOR
+   ════════════════════════════════════════════════════════════ */
 export function generateCraReport(data: CraReportData): void {
   const { intakeData, threats, reqs, language, productTypeName, craClassName } = data;
   const lang = language;
@@ -211,9 +211,9 @@ export function generateCraReport(data: CraReportData): void {
 
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
   const W = 210, H = 297;
-  const ML = 25, MR = 22, CW = W - ML - MR; // 163mm content width
-  const TOP = 30;       // content start
-  const BOTTOM = H - 24; // safe bottom before footer
+  const ML = 25, MR = 22, CW = W - ML - MR;
+  const TOP = 30;
+  const BOTTOM = H - 24;
 
   const critRisks = threats.filter(th => th.likelihood * th.impact >= 20);
   const failReqs = reqs.filter(r => r.status === 'fail');
@@ -227,7 +227,6 @@ export function generateCraReport(data: CraReportData): void {
   let pageNum = 0;
   let findingNum = 0;
 
-  // ── Typography constants ──
   const BODY_SIZE = 9;
   const BODY_LEADING = 4.2;
   const LABEL_SIZE = 7.5;
@@ -235,49 +234,45 @@ export function generateCraReport(data: CraReportData): void {
   const SUBSECTION_SIZE = 10;
   const PARA_GAP = 2.5;
   const FIELD_GAP = 1.5;
+  const MONO_SIZE = 7;
 
-  // ── Truncation helper ──
+  // ── Cross-reference map: CRA article → threat IDs ──
+  const articleToThreats: Record<string, string[]> = {};
+  for (const th of threats) {
+    if (!articleToThreats[th.cra]) articleToThreats[th.cra] = [];
+    articleToThreats[th.cra].push(threatId(th));
+  }
+
   function truncateToWidth(text: string, maxW: number, fontSize: number): string {
     doc.setFontSize(fontSize);
     if (doc.getTextWidth(text) <= maxW) return text;
-    let t = text;
-    while (t.length > 5 && doc.getTextWidth(t + '…') > maxW) {
-      t = t.slice(0, -1);
-    }
-    return t.trimEnd() + '…';
+    let tr = text;
+    while (tr.length > 5 && doc.getTextWidth(tr + '…') > maxW) tr = tr.slice(0, -1);
+    return tr.trimEnd() + '…';
   }
 
-  // ── Running header (every content page) ──
   function addRunningHeader() {
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(6.5);
     doc.setTextColor(...C.lightGray);
     doc.text('Cyber Risk Assessment — ' + intakeData.productName, ML, 14);
     doc.text(dateStr, W - MR, 14, { align: 'right' });
-
-    // thin rule below header
     doc.setDrawColor(...C.ruleStroke);
     doc.setLineWidth(0.15);
     doc.line(ML, 17, W - MR, 17);
   }
 
-  // ── Footer ──
   function addFooter() {
     pageNum++;
-
-    // Thin rule
     doc.setDrawColor(...C.ruleStroke);
     doc.setLineWidth(0.15);
     doc.line(ML, H - 18, W - MR, H - 18);
-
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(6.5);
     doc.setTextColor(...C.lightGray);
     doc.text(reportId, ML, H - 13);
     doc.text(`${t(I18N.page)} ${pageNum}`, W / 2, H - 13, { align: 'center' });
     doc.text(t(I18N.confidential), W - MR, H - 13, { align: 'right' });
-
-    // Gold bottom bar (thinner, more refined)
     doc.setFillColor(...C.gold);
     doc.rect(0, H - 2.5, W, 2.5, 'F');
   }
@@ -303,16 +298,12 @@ export function generateCraReport(data: CraReportData): void {
     y = TOP;
   }
 
-  // ── Section heading: gold rule + UPPERCASE title ──
   function writeSectionHeading(text: string) {
     checkPage(25);
-
-    // Gold accent rule
     doc.setDrawColor(...C.gold);
     doc.setLineWidth(0.8);
     doc.line(ML, y, ML + 30, y);
     y += 6;
-
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(SECTION_SIZE);
     doc.setTextColor(...C.darkNavy);
@@ -329,12 +320,10 @@ export function generateCraReport(data: CraReportData): void {
     y += 7;
   }
 
-  // ── Body text with paragraph breaks ──
   function writeBody(text: string, indent: number = 0) {
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(BODY_SIZE);
     doc.setTextColor(...C.bodyText);
-
     const paragraphs = text.split('\n');
     for (const para of paragraphs) {
       if (para.trim() === '') { y += PARA_GAP; continue; }
@@ -348,7 +337,18 @@ export function generateCraReport(data: CraReportData): void {
     }
   }
 
-  // ── Field label (uppercase, teal) ──
+  function writeMono(text: string, indent: number = 0) {
+    doc.setFont('courier', 'normal');
+    doc.setFontSize(MONO_SIZE);
+    doc.setTextColor(...C.monoGray);
+    const lines = doc.splitTextToSize(text, CW - indent);
+    for (const line of lines) {
+      checkPage(4);
+      doc.text(line, ML + indent, y);
+      y += 3.6;
+    }
+  }
+
   function writeLabel(label: string, indent: number = 0) {
     checkPage(7);
     doc.setFont('helvetica', 'bold');
@@ -358,7 +358,6 @@ export function generateCraReport(data: CraReportData): void {
     y += 3.8;
   }
 
-  // ── Key-value pair (label: value on one or two lines) ──
   function writeKV(label: string, value: string, indent: number = 0) {
     checkPage(7);
     doc.setFont('helvetica', 'bold');
@@ -368,10 +367,8 @@ export function generateCraReport(data: CraReportData): void {
     doc.text(labelStr, ML + indent, y);
     const labelW = doc.getTextWidth(labelStr + ' ');
     const maxLabelW = 48;
-
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(...C.bodyText);
-
     if (labelW > maxLabelW) {
       y += BODY_LEADING;
       const valLines = doc.splitTextToSize(value, CW - indent - 5);
@@ -392,7 +389,6 @@ export function generateCraReport(data: CraReportData): void {
     y += FIELD_GAP;
   }
 
-  // ── Field block (label + indented value) ──
   function writeFieldBlock(label: string, value: string, indent: number = 5) {
     writeLabel(label, indent);
     doc.setFont('helvetica', 'normal');
@@ -419,33 +415,26 @@ export function generateCraReport(data: CraReportData): void {
      ══════════════════════════════════════ */
   doc.setFillColor(...C.navy);
   doc.rect(0, 0, W, H, 'F');
-
-  // Watermark — large, centered vertically on cover
   drawWatermark(doc, W / 2, 120, 65);
 
-  // Gold accent bar
   doc.setFillColor(...C.gold);
   doc.rect(ML, 50, 35, 1.5, 'F');
 
-  // Title
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(26);
   doc.setTextColor(...C.white);
   doc.text(t(I18N.title), ML, 66);
 
-  // Subtitle
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(11);
   doc.setTextColor(...C.accent);
   doc.text(t(I18N.subtitle), ML, 76);
 
-  // Product name
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(13);
   doc.setTextColor(...C.coverMeta);
   doc.text(`${intakeData.productName} ${intakeData.version}`, ML, 90);
 
-  // Bottom metadata block
   const metaY = H - 85;
   doc.setDrawColor(...C.gold);
   doc.setLineWidth(0.3);
@@ -469,18 +458,14 @@ export function generateCraReport(data: CraReportData): void {
     my += 6.5;
   }
 
-  // Confidential + branding
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(7);
   doc.setTextColor(...C.gold);
   doc.text(t(I18N.confidential), W - MR, H - 16, { align: 'right' });
-
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(7);
   doc.setTextColor(110, 120, 140);
   doc.text('inside-the-box.org', ML, H - 16);
-
-  // Gold bottom bar
   doc.setFillColor(...C.gold);
   doc.rect(0, H - 2.5, W, 2.5, 'F');
 
@@ -492,7 +477,6 @@ export function generateCraReport(data: CraReportData): void {
   pageNum++;
   y = TOP + 5;
 
-  // Gold rule
   doc.setDrawColor(...C.gold);
   doc.setLineWidth(0.8);
   doc.line(ML, y, ML + 30, y);
@@ -504,14 +488,12 @@ export function generateCraReport(data: CraReportData): void {
   doc.text(t(I18N.toc), ML, y);
   y += 12;
 
-  const tocItems = [I18N.sec1, I18N.sec2, I18N.sec3, I18N.sec4, I18N.sec5, I18N.sec6, I18N.sec7];
+  const tocItems = [I18N.sec1, I18N.sec2, I18N.sec3, I18N.sec4, I18N.sec5, I18N.sec6, I18N.sec7, I18N.secA];
   for (const item of tocItems) {
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(SUBSECTION_SIZE);
     doc.setTextColor(...C.bodyText);
     doc.text(t(item), ML + 4, y);
-
-    // Dotted leader
     doc.setDrawColor(...C.ruleStroke);
     doc.setLineDashPattern([0.4, 1.2], 0);
     doc.setLineWidth(0.12);
@@ -538,7 +520,7 @@ export function generateCraReport(data: CraReportData): void {
   writeBody(getMgmtSummary(intakeData.productName, threats.length, critRisks.length, failReqs.length, partialReqs.length, reqs.length, lang));
   y += 6;
 
-  // Stats boxes — refined, thinner
+  // Stats boxes
   checkPage(30);
   const bw = (CW - 9) / 4;
   const bh = 22;
@@ -552,16 +534,12 @@ export function generateCraReport(data: CraReportData): void {
     const bx = ML + i * (bw + 3);
     doc.setFillColor(...allStats[i][2]);
     doc.roundedRect(bx, y, bw, bh, 1.5, 1.5, 'F');
-
-    // Top accent line on each box
     doc.setFillColor(...allStats[i][3]);
     doc.rect(bx + 2, y, bw - 4, 0.6, 'F');
-
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(18);
     doc.setTextColor(...allStats[i][3]);
     doc.text(String(allStats[i][1]), bx + bw / 2, y + 11, { align: 'center' });
-
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(6);
     doc.setTextColor(...C.labelText);
@@ -570,36 +548,125 @@ export function generateCraReport(data: CraReportData): void {
   }
   y += bh + 8;
 
-  /* ══════════════════════════════════════
-     SECTION 3: Scope
-     ══════════════════════════════════════ */
-  writeSectionHeading(t(I18N.sec3));
-
-  writeKV(t(I18N.product), `${intakeData.productName} ${intakeData.version}`);
-  writeKV(t(I18N.type), productTypeName);
-  writeKV(t(I18N.craClass), craClassName);
-  writeKV(t(I18N.deployment), intakeData.deployment || '—');
-  writeKV(t(I18N.interfaces), intakeData.interfaces.join(', ') || '—');
-  writeKV(t(I18N.components), intakeData.components.join(', ') || '—');
-  writeKV(t(I18N.roles), intakeData.roles.join(', ') || '—');
-
-  if (intakeData.knownIssues) {
-    y += 2;
-    writeKV(t(I18N.knownIssues), intakeData.knownIssues);
+  // STRIDE Distribution summary
+  checkPage(30);
+  writeSubHeading(t(I18N.strideDistTitle));
+  const strideCounts: Record<string, number> = {};
+  for (const th of threats) {
+    strideCounts[th.stride] = (strideCounts[th.stride] || 0) + 1;
+  }
+  for (const cat of 'STRIDE'.split('')) {
+    const count = strideCounts[cat] || 0;
+    if (count === 0) continue;
+    const catName = STRIDE_NAMES[cat]?.[lang] || cat;
+    writeKV(`${cat} — ${catName}`, `${count} ${count === 1 ? (lang === 'de' ? 'Bedrohung' : lang === 'fr' ? 'menace' : 'threat') : (lang === 'de' ? 'Bedrohungen' : lang === 'fr' ? 'menaces' : 'threats')}`, 5);
   }
 
+  /* ══════════════════════════════════════
+     SECTION 3: Scope (comprehensive)
+     ══════════════════════════════════════ */
+  newSection();
+  writeSectionHeading(t(I18N.sec3));
+
+  // 3.1 Product Profile
+  writeSubHeading(t(I18N.sec3a));
+  writeKV(t(I18N.product), `${intakeData.productName} ${intakeData.version}`);
+  writeKV(t(I18N.type), productTypeName);
+  if (intakeData.productTypes.length > 0) {
+    writeKV(t(I18N.productTypes), intakeData.productTypes.join(', '));
+  }
+  writeKV(t(I18N.craClass), craClassName);
+  writeKV(t(I18N.deployment), intakeData.deployment || '—');
+  writeKV(t(I18N.interfaces), intakeData.interfaces.length > 0 ? intakeData.interfaces.join(', ') : '—');
+  writeKV(t(I18N.roles), intakeData.roles.length > 0 ? intakeData.roles.join(', ') + (intakeData.customRole ? `, ${intakeData.customRole}` : '') : '—');
+
+  if (intakeData.description) {
+    y += 2;
+    writeFieldBlock(t(I18N.description), intakeData.description, 0);
+  }
+
+  // 3.2 Components & Architecture
+  y += 3;
+  writeSubHeading(t(I18N.sec3b));
+  if (intakeData.components.length > 0) {
+    for (const comp of intakeData.components) {
+      checkPage(6);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(BODY_SIZE);
+      doc.setTextColor(...C.bodyText);
+      doc.text(`•  ${comp}`, ML + 5, y);
+      y += BODY_LEADING + 0.5;
+    }
+  } else {
+    writeBody('—');
+  }
+
+  // 3.3 Security Measures
+  y += 3;
+  writeSubHeading(t(I18N.sec3c));
   const measureKeys = Object.keys(intakeData.measures);
   if (measureKeys.length > 0) {
+    // Table header
+    checkPage(12);
+    const colMeasure = ML + 5;
+    const colActive = ML + 80;
+    const colDoc = ML + 100;
+    const colAudit = ML + 125;
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7);
+    doc.setTextColor(...C.accent);
+    doc.text(lang === 'de' ? 'MASSNAHME' : lang === 'fr' ? 'MESURE' : 'MEASURE', colMeasure, y);
+    doc.text(t(I18N.active).toUpperCase(), colActive, y);
+    doc.text(t(I18N.documented).toUpperCase(), colDoc, y);
+    doc.text(t(I18N.audited).toUpperCase(), colAudit, y);
+    y += 2;
+    doc.setDrawColor(...C.ruleStroke);
+    doc.setLineWidth(0.15);
+    doc.line(colMeasure, y, W - MR - 5, y);
     y += 3;
-    writeSubHeading(t(I18N.measures));
+
     for (const key of measureKeys) {
+      checkPage(5);
       const m = intakeData.measures[key];
-      const parts: string[] = [];
-      if (m.active) parts.push(lang === 'de' ? 'Aktiv' : lang === 'fr' ? 'Active' : 'Active');
-      if (m.documented) parts.push(lang === 'de' ? 'Dokumentiert' : lang === 'fr' ? 'Documentée' : 'Documented');
-      if (m.audited) parts.push(lang === 'de' ? 'Auditiert' : lang === 'fr' ? 'Auditée' : 'Audited');
-      writeKV(key.toUpperCase(), parts.join(' / ') || '—', 5);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(BODY_SIZE - 0.5);
+      doc.setTextColor(...C.bodyText);
+      doc.text(key.toUpperCase(), colMeasure, y);
+      doc.setTextColor(...(m.active ? C.greenText : C.redText));
+      doc.text(m.active ? t(I18N.yes) : t(I18N.no), colActive, y);
+      doc.setTextColor(...(m.documented ? C.greenText : C.redText));
+      doc.text(m.documented ? t(I18N.yes) : t(I18N.no), colDoc, y);
+      doc.setTextColor(...(m.audited ? C.greenText : C.redText));
+      doc.text(m.audited ? t(I18N.yes) : t(I18N.no), colAudit, y);
+      y += BODY_LEADING + 0.3;
     }
+  } else {
+    writeBody('—');
+  }
+
+  // 3.4 Known Issues
+  y += 3;
+  writeSubHeading(t(I18N.sec3d));
+  writeBody(intakeData.knownIssues || t(I18N.noKnownIssues));
+
+  // 3.5 Submitted Documentation
+  y += 3;
+  writeSubHeading(t(I18N.sec3e));
+  if (intakeData.files.length > 0) {
+    for (const f of intakeData.files) {
+      checkPage(6);
+      const sizeStr = f.size >= 1024 * 1024
+        ? `${(f.size / (1024 * 1024)).toFixed(1)} MB`
+        : `${(f.size / 1024).toFixed(0)} KB`;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(BODY_SIZE);
+      doc.setTextColor(...C.bodyText);
+      doc.text(`•  ${f.name}  (${f.type || '—'}, ${sizeStr})`, ML + 5, y);
+      y += BODY_LEADING + 0.5;
+    }
+  } else {
+    writeBody(t(I18N.noFilesSubmitted));
   }
 
   /* ══════════════════════════════════════
@@ -622,19 +689,15 @@ export function generateCraReport(data: CraReportData): void {
     const isCrit = score >= 20;
     const isHigh = score >= 13;
 
-    // Finding header bar
     const headerBg = isCrit ? C.bgRed : isHigh ? C.bgYellow : C.bgLight;
     const headerText = isCrit ? C.redText : isHigh ? C.orangeText : C.darkNavy;
 
     doc.setFillColor(...headerBg);
     doc.roundedRect(ML, y, CW, 10, 1, 1, 'F');
-
-    // Left accent bar
     const accentBarColor = isCrit ? C.redText : isHigh ? C.orangeText : C.accent;
     doc.setFillColor(...accentBarColor);
     doc.rect(ML, y + 0.5, 2, 9, 'F');
 
-    // Right: score
     const rl = riskLabel(score);
     const scoreStr = `${rl}  ${th.likelihood} × ${th.impact} = ${score}`;
     doc.setFont('helvetica', 'bold');
@@ -643,7 +706,6 @@ export function generateCraReport(data: CraReportData): void {
     const scoreW = doc.getTextWidth(scoreStr);
     doc.text(scoreStr, W - MR - 4, y + 6.5, { align: 'right' });
 
-    // Left: finding label + ID + name (truncated)
     doc.setFontSize(8.5);
     const findingLabel = `${t(I18N.finding)} F-${String(findingNum).padStart(2, '0')}`;
     const leftText = `${findingLabel}  ·  ${tid}  ${th.name}`;
@@ -657,6 +719,22 @@ export function generateCraReport(data: CraReportData): void {
     writeFieldBlock(t(I18N.attackPath), th.path);
     writeFieldBlock(t(I18N.evidence), th.evidence);
     writeFieldBlock(t(I18N.rationale), th.rationale);
+    writeFieldBlock(t(I18N.craRef), th.cra);
+
+    // Cross-reference: which CRA requirements does this threat relate to?
+    const relatedReqIds = reqs.filter(r => r.article === th.cra).map(r => `${r.id} (${r.name})`);
+    if (relatedReqIds.length > 0) {
+      writeFieldBlock(t(I18N.relatedReqs), relatedReqIds.join('; '));
+    }
+
+    // Risk score breakdown
+    writeLabel(t(I18N.riskScore), 5);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(BODY_SIZE);
+    doc.setTextColor(...C.bodyText);
+    const scoreDetail = `${t(I18N.likelihood)}: ${th.likelihood}/5  ×  ${t(I18N.impact)}: ${th.impact}/5  =  ${score}/25  →  ${rl}`;
+    doc.text(scoreDetail, ML + 8, y);
+    y += BODY_LEADING + FIELD_GAP;
 
     if (th.sources.length > 0) {
       writeLabel(t(I18N.sources), 5);
@@ -671,7 +749,6 @@ export function generateCraReport(data: CraReportData): void {
     }
     y += 3;
 
-    // Finding separator
     doc.setDrawColor(...C.ruleStroke);
     doc.setLineWidth(0.1);
     doc.line(ML + 15, y, W - MR - 15, y);
@@ -698,19 +775,15 @@ export function generateCraReport(data: CraReportData): void {
 
     doc.setFillColor(...statusBg);
     doc.roundedRect(ML, y, CW, 10, 1, 1, 'F');
-
-    // Left accent
     doc.setFillColor(...statusColor);
     doc.rect(ML, y + 0.5, 2, 9, 'F');
 
-    // Right: status
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(7.5);
     doc.setTextColor(...statusColor);
     const statusW = doc.getTextWidth(statusLabel);
     doc.text(statusLabel, W - MR - 4, y + 6.5, { align: 'right' });
 
-    // Left: finding label
     doc.setFontSize(8.5);
     const reqFinding = `${t(I18N.finding)} F-${String(findingNum).padStart(2, '0')}`;
     const reqLeftText = `${reqFinding}  ·  ${req.id}  ${req.name}`;
@@ -730,6 +803,12 @@ export function generateCraReport(data: CraReportData): void {
     writeFieldBlock(t(I18N.evidence), req.evidence);
     writeFieldBlock(t(I18N.rationale), req.rationale);
     writeFieldBlock(t(I18N.measureAction), req.measure);
+
+    // Cross-reference: which threats are linked to this requirement?
+    const linkedThreats = articleToThreats[req.article];
+    if (linkedThreats && linkedThreats.length > 0) {
+      writeFieldBlock(t(I18N.relatedThreats), linkedThreats.join(', '));
+    }
 
     if (req.criteria.length > 0) {
       checkPage(9);
@@ -848,12 +927,208 @@ export function generateCraReport(data: CraReportData): void {
   writeSectionHeading(t(I18N.sec6));
   writeBody(getMethodology(lang));
 
+  // 6.1 Risk Rating Matrix
+  y += 4;
+  writeSubHeading(t(I18N.sec6a));
+  const matrixExplanation = lang === 'de'
+    ? 'Die Risikobewertung erfolgt auf Basis einer 5×5-Matrix. Jede Bedrohung wird auf zwei Achsen bewertet:\n\nEintrittswahrscheinlichkeit (1–5):\n  1 = Sehr unwahrscheinlich (erfordert staatliche Ressourcen)\n  2 = Unwahrscheinlich (erfordert erheblichen Aufwand/Insider)\n  3 = Möglich (Netzwerkzugang + Standard-Tooling)\n  4 = Wahrscheinlich (geringer Aufwand, öffentlich bekannte Methoden)\n  5 = Sehr wahrscheinlich (trivial, keine besonderen Kenntnisse)\n\nAuswirkung (1–5):\n  1 = Minimal (keine Datenverluste, lokale Störung)\n  2 = Gering (begrenzter Datenverlust, einzelne Funktion betroffen)\n  3 = Mittel (Konfigurationsänderung, Compliance-Verstoß)\n  4 = Hoch (Datenabfluss, Produktionsausfall, Admin-Zugriff)\n  5 = Kritisch (persistente Kompromittierung, Lateral Movement, physischer Schaden)\n\nRisikoscore = Eintrittswahrscheinlichkeit × Auswirkung\n  Gering: 1–5  |  Mittel: 6–12  |  Hoch: 13–19  |  Kritisch: 20–25'
+    : lang === 'fr'
+    ? 'L\'évaluation des risques est basée sur une matrice 5×5. Chaque menace est évaluée sur deux axes :\n\nProbabilité (1–5) :\n  1 = Très improbable (ressources étatiques nécessaires)\n  2 = Improbable (effort considérable / initié)\n  3 = Possible (accès réseau + outils standards)\n  4 = Probable (faible effort, méthodes publiques)\n  5 = Très probable (trivial, aucune connaissance spéciale)\n\nImpact (1–5) :\n  1 = Minimal (pas de perte de données, perturbation locale)\n  2 = Faible (perte de données limitée, fonction unique affectée)\n  3 = Moyen (changement de configuration, violation de conformité)\n  4 = Élevé (fuite de données, arrêt de production, accès admin)\n  5 = Critique (compromission persistante, mouvement latéral, dommages physiques)\n\nScore de risque = Probabilité × Impact\n  Faible : 1–5  |  Moyen : 6–12  |  Élevé : 13–19  |  Critique : 20–25'
+    : 'Risk assessment is based on a 5×5 matrix. Each threat is evaluated on two axes:\n\nLikelihood (1–5):\n  1 = Very unlikely (requires state-level resources)\n  2 = Unlikely (requires significant effort / insider access)\n  3 = Possible (network access + standard tooling)\n  4 = Likely (low effort, publicly known methods)\n  5 = Very likely (trivial, no special knowledge required)\n\nImpact (1–5):\n  1 = Minimal (no data loss, local disruption only)\n  2 = Low (limited data loss, single function affected)\n  3 = Medium (configuration change, compliance violation)\n  4 = High (data exfiltration, production outage, admin access)\n  5 = Critical (persistent compromise, lateral movement, physical damage)\n\nRisk Score = Likelihood × Impact\n  Low: 1–5  |  Medium: 6–12  |  High: 13–19  |  Critical: 20–25';
+  writeBody(matrixExplanation);
+
   /* ══════════════════════════════════════
      SECTION 7: Disclaimer
      ══════════════════════════════════════ */
   y += 4;
   writeSectionHeading(t(I18N.sec7));
   writeBody(getDisclaimer(lang));
+
+  /* ══════════════════════════════════════
+     APPENDIX A: Structured Audit Data
+     ══════════════════════════════════════ */
+  newSection();
+  writeSectionHeading(t(I18N.secA));
+  writeBody(t(I18N.appendixIntro));
+  y += 4;
+
+  // A.1 — Complete Intake Record
+  writeSubHeading('A.1  Intake Record');
+  y += 2;
+  const intakeRecord: Record<string, string> = {
+    'product_name': intakeData.productName,
+    'version': intakeData.version,
+    'product_types': JSON.stringify(intakeData.productTypes),
+    'product_type_label': productTypeName,
+    'cra_class': intakeData.craClass,
+    'cra_class_label': craClassName,
+    'description': intakeData.description || '—',
+    'deployment': intakeData.deployment || '—',
+    'components': JSON.stringify(intakeData.components),
+    'interfaces': JSON.stringify(intakeData.interfaces),
+    'roles': JSON.stringify(intakeData.roles),
+    'custom_role': intakeData.customRole || '—',
+    'known_issues': intakeData.knownIssues || '—',
+    'files_submitted': String(intakeData.files.length),
+  };
+  for (const [k, v] of Object.entries(intakeRecord)) {
+    checkPage(8);
+    doc.setFont('courier', 'bold');
+    doc.setFontSize(MONO_SIZE);
+    doc.setTextColor(...C.accent);
+    doc.text(k, ML + 3, y);
+    y += 3.2;
+    writeMono(v, 5);
+    y += 1;
+  }
+
+  // Measures detail
+  if (measureKeys.length > 0) {
+    y += 3;
+    writeLabel('MEASURES MATURITY', 3);
+    for (const key of measureKeys) {
+      checkPage(6);
+      const m = intakeData.measures[key];
+      writeMono(`${key}: active=${m.active} documented=${m.documented} audited=${m.audited}`, 5);
+    }
+  }
+
+  // A.2 — Complete Threat Records
+  y += 6;
+  writeSubHeading('A.2  Threat Records');
+  y += 2;
+
+  for (const th of sortedThreats) {
+    checkPage(40);
+    const tid = threatId(th);
+    const score = th.likelihood * th.impact;
+
+    writeLabel(`${tid}  —  ${riskLabel(score)} (${score}/25)`, 0);
+
+    const fields: [string, string][] = [
+      ['stride_category', `${th.stride} (${STRIDE_NAMES[th.stride]?.[lang] || th.stride})`],
+      ['name', th.name],
+      ['component', th.component],
+      ['attacker_profile', th.attacker],
+      ['attack_path', th.path],
+      ['cra_reference', th.cra],
+      ['likelihood', `${th.likelihood}/5`],
+      ['impact', `${th.impact}/5`],
+      ['risk_score', `${score}/25 → ${riskLabel(score)}`],
+      ['evidence', th.evidence],
+      ['rationale', th.rationale],
+      ['sources', th.sources.join(' | ')],
+    ];
+
+    for (const [fk, fv] of fields) {
+      checkPage(6);
+      doc.setFont('courier', 'bold');
+      doc.setFontSize(MONO_SIZE);
+      doc.setTextColor(...C.accent);
+      doc.text(fk, ML + 5, y);
+      y += 3.2;
+      writeMono(fv, 8);
+    }
+
+    // Related requirements cross-ref
+    const relReqs = reqs.filter(r => r.article === th.cra);
+    if (relReqs.length > 0) {
+      doc.setFont('courier', 'bold');
+      doc.setFontSize(MONO_SIZE);
+      doc.setTextColor(...C.accent);
+      doc.text('related_requirements', ML + 5, y);
+      y += 3.2;
+      writeMono(relReqs.map(r => `${r.id} [${r.status}]`).join(', '), 8);
+    }
+
+    y += 4;
+    doc.setDrawColor(...C.ruleStroke);
+    doc.setLineWidth(0.08);
+    doc.line(ML + 10, y, W - MR - 10, y);
+    y += 5;
+  }
+
+  // A.3 — Complete Requirement Records
+  y += 4;
+  writeSubHeading('A.3  CRA Requirement Records');
+  y += 2;
+
+  for (const req of sortedReqs) {
+    checkPage(40);
+
+    const statusTag = req.status === 'pass' ? 'COMPLIANT' : req.status === 'partial' ? 'PARTIAL' : 'NON-COMPLIANT';
+    writeLabel(`${req.id}  —  ${statusTag}`, 0);
+
+    const fields: [string, string][] = [
+      ['article', req.article],
+      ['name', req.name],
+      ['status', statusTag],
+      ['gap', req.gap],
+      ['evidence', req.evidence],
+      ['rationale', req.rationale],
+      ['recommended_measure', req.measure],
+      ['acceptance_criteria', req.criteria.join(' | ')],
+    ];
+
+    for (const [fk, fv] of fields) {
+      checkPage(6);
+      doc.setFont('courier', 'bold');
+      doc.setFontSize(MONO_SIZE);
+      doc.setTextColor(...C.accent);
+      doc.text(fk, ML + 5, y);
+      y += 3.2;
+      writeMono(fv, 8);
+    }
+
+    // Related threats cross-ref
+    const linkedTh = articleToThreats[req.article];
+    if (linkedTh && linkedTh.length > 0) {
+      doc.setFont('courier', 'bold');
+      doc.setFontSize(MONO_SIZE);
+      doc.setTextColor(...C.accent);
+      doc.text('related_threats', ML + 5, y);
+      y += 3.2;
+      writeMono(linkedTh.join(', '), 8);
+    }
+
+    y += 4;
+    doc.setDrawColor(...C.ruleStroke);
+    doc.setLineWidth(0.08);
+    doc.line(ML + 10, y, W - MR - 10, y);
+    y += 5;
+  }
+
+  // A.4 — Report Metadata
+  y += 4;
+  writeSubHeading('A.4  Report Metadata');
+  y += 2;
+  const metaData: [string, string][] = [
+    ['report_id', reportId],
+    ['generation_date', dateStr],
+    ['generation_timestamp', new Date().toISOString()],
+    ['language', lang],
+    ['total_threats', String(threats.length)],
+    ['critical_risks', String(critRisks.length)],
+    ['high_risks', String(threats.filter(th => th.likelihood * th.impact >= 13 && th.likelihood * th.impact < 20).length)],
+    ['total_requirements', String(reqs.length)],
+    ['non_compliant', String(failReqs.length)],
+    ['partially_compliant', String(partialReqs.length)],
+    ['compliant', String(reqs.filter(r => r.status === 'pass').length)],
+    ['methodology', 'STRIDE Threat Model + CRA Annex I/II Compliance Review'],
+    ['regulation', 'EU Cyber Resilience Act — Regulation (EU) 2024/2847'],
+    ['tool', 'inside-the-box.org CRA Assessment Tool'],
+  ];
+
+  for (const [mk, mv] of metaData) {
+    checkPage(6);
+    doc.setFont('courier', 'bold');
+    doc.setFontSize(MONO_SIZE);
+    doc.setTextColor(...C.accent);
+    doc.text(mk, ML + 3, y);
+    y += 3.2;
+    writeMono(mv, 5);
+    y += 1;
+  }
 
   addFooter();
 
