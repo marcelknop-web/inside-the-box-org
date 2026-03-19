@@ -883,6 +883,8 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
   const [qaRunning, setQaRunning] = useState(false);
   const [qaExpanded, setQaExpanded] = useState(false);
   const [fixesApplied, setFixesApplied] = useState(false);
+  const [fixesRunning, setFixesRunning] = useState(false);
+  const [fixProgress, setFixProgress] = useState(0);
   const [fixLog, setFixLog] = useState<string[]>([]);
   const [draftDownloaded, setDraftDownloaded] = useState(false);
   const critRisks = useMemo(() => localThreats.filter(th => th.likelihood * th.impact >= 20), [localThreats]);
