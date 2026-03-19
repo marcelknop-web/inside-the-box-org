@@ -917,7 +917,7 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
     setFixesApplied(false);
     setFixLog([]);
     setTimeout(() => {
-      const result = runQualityCheck(localThreats, localReqs, language as 'de' | 'en' | 'fr');
+      const result = runQualityCheck(localThreats, localReqs, language as 'de' | 'en' | 'fr', intakeData);
       setQaResult(result);
       setQaRunning(false);
       setQaExpanded(true);
