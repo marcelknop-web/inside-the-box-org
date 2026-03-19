@@ -1755,9 +1755,9 @@ export function generateCraReport(data: CraReportData): void {
           detail: passReqsWithCritThreats.length > 0 ? `${lang === 'de' ? 'Widerspruch' : 'Contradiction'}: ${passReqsWithCritThreats.map(r => r.id).join(', ')}` : undefined,
         },
         {
-          label: lang === 'de' ? 'Bidirektionale Traceability: Threat → Anforderung und Anforderung → Threat'
-            : lang === 'fr' ? 'Traçabilité bidirectionnelle : Menace → Exigence et Exigence → Menace'
-            : 'Bidirectional traceability: Threat → Requirement and Requirement → Threat',
+          label: lang === 'de' ? 'Bidirektionale Traceability: Threat > Anforderung und Anforderung > Threat'
+            : lang === 'fr' ? 'Tracabilite bidirectionnelle : Menace > Exigence et Exigence > Menace'
+            : 'Bidirectional traceability: Threat > Requirement and Requirement > Threat',
           passed: failReqsWithoutThreats.length === 0 && passReqsWithCritThreats.length === 0,
         },
         {
