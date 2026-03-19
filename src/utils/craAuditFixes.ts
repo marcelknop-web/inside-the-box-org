@@ -332,32 +332,35 @@ export function applyAuditFixes(
       // ═══ D: REDAKTION ═══
 
       case 'D4': {
-        // Fix detectable typos in threat and req texts (legitimate text correction)
-        const typoPatterns: [RegExp, string][] = [
-          [/Netzwerkcan/gi, 'Netzwerkscan'],
-          [/\bAush\b/g, 'Auth'],
-          [/\bSBM\b/g, 'SBOM'],
-          [/\bFur\b/g, 'fuer'],
-          [/\bUber\b/g, 'ueber'],
+        // Fix detectable typos — use string replace (no global regex + test pitfall)
+        const typoMap: [string, string][] = [
+          ['Netzwerkcan', 'Netzwerkscan'],
+          ['Aush', 'Auth'],
+          ['SBM', 'SBOM'],
+          ['Fur', 'fuer'],
+          ['Uber', 'ueber'],
         ];
         let typoCount = 0;
-        fixedThreats.forEach(th => {
-          for (const [pat, replacement] of typoPatterns) {
-            if (pat.test(th.evidence)) { th.evidence = th.evidence.replace(pat, replacement); typoCount++; }
-            if (pat.test(th.rationale)) { th.rationale = th.rationale.replace(pat, replacement); typoCount++; }
-            if (pat.test(th.name)) { th.name = th.name.replace(pat, replacement); typoCount++; }
-            // Reset regex lastIndex for global patterns
-            pat.lastIndex = 0;
+        const fixField = (text: string): string => {
+          let result = text;
+          for (const [wrong, right] of typoMap) {
+            const re = new RegExp(`\\b${wrong}\\b`, 'gi');
+            const before = result;
+            result = result.replace(re, right);
+            if (result !== before) typoCount++;
           }
+          return result;
+        };
+        fixedThreats.forEach(th => {
+          th.evidence = fixField(th.evidence);
+          th.rationale = fixField(th.rationale);
+          th.name = fixField(th.name);
         });
         fixedReqs.forEach(r => {
-          for (const [pat, replacement] of typoPatterns) {
-            if (pat.test(r.evidence)) { r.evidence = r.evidence.replace(pat, replacement); typoCount++; }
-            if (pat.test(r.rationale)) { r.rationale = r.rationale.replace(pat, replacement); typoCount++; }
-            if (pat.test(r.gap)) { r.gap = r.gap.replace(pat, replacement); typoCount++; }
-            if (pat.test(r.measure)) { r.measure = r.measure.replace(pat, replacement); typoCount++; }
-            pat.lastIndex = 0;
-          }
+          r.evidence = fixField(r.evidence);
+          r.rationale = fixField(r.rationale);
+          r.gap = fixField(r.gap);
+          r.measure = fixField(r.measure);
         });
         if (typoCount > 0) {
           fixes.push(t(
