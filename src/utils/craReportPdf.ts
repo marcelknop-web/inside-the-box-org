@@ -277,7 +277,6 @@ export function generateCraReport(data: CraReportData): void {
   }
 
   function preparePage() {
-    drawMillimeterGrid(doc);
     drawWatermark(doc, W / 2, H / 2, 55);
   }
 
