@@ -37,7 +37,7 @@ const I18N = {
   sec4b: { de: '4.2  CRA-Konformitätslücken', en: '4.2  CRA Compliance Gaps', fr: '4.2  Lacunes de conformité CRA' },
   sec4c: { de: '4.3  Normative Abdeckung (CRA-Coverage)', en: '4.3  Normative Coverage (CRA Coverage)', fr: '4.3  Couverture normative (CRA)' },
   sec5: { de: '5  Handlungsempfehlungen und Remediation-Roadmap', en: '5  Recommendations and Remediation Roadmap', fr: '5  Recommandations et feuille de route de remédiation' },
-  sec5a: { de: '5.1  Priorisierte Maßnahmen (P0–P3)', en: '5.1  Prioritised Measures (P0–P3)', fr: '5.1  Mesures priorisées (P0–P3)' },
+  sec5a: { de: '5.1  Priorisierte Maßnahmen (P0-P3)', en: '5.1  Prioritised Measures (P0-P3)', fr: '5.1  Mesures priorisées (P0-P3)' },
   sec5b: { de: '5.2  Remediation-Roadmap', en: '5.2  Remediation Roadmap', fr: '5.2  Feuille de route de remédiation' },
   sec6: { de: '6  Methodik und Prüfungsgrundlagen', en: '6  Methodology and Audit Standards', fr: '6  Méthodologie et normes d\'audit' },
   sec6a: { de: '6.1  Risikobewertungsmatrix', en: '6.1  Risk Rating Matrix', fr: '6.1  Matrice d\'évaluation des risques' },
@@ -239,9 +239,9 @@ function getMgmtSummaryData(
 }
 
 function getMethodology(lang: string): string {
-  if (lang === 'de') return `Die Prüfung folgt einem zweistufigen Ansatz:\n\n1. Bedrohungsanalyse nach STRIDE\nSystematische Identifikation von Bedrohungsszenarien in den Kategorien Spoofing, Tampering, Repudiation, Information Disclosure, Denial of Service und Elevation of Privilege. Jede Bedrohung wird anhand einer 5-stufigen Skala für Eintrittswahrscheinlichkeit und Auswirkung bewertet. Der Risikoscore ergibt sich als Produkt beider Werte; Scores ab 20 gelten als kritisch.\n\n2. Konformitätsprüfung gegen CRA-Anforderungen\nAbgleich der implementierten Sicherheitsmaßnahmen mit den Anforderungen aus Annex I (Sicherheitseigenschaften digitaler Produkte), Annex II (Schwachstellenbehandlung) sowie den Meldepflichten nach Art. 14 und der Dokumentationspflicht nach Art. 13 der Verordnung (EU) 2024/2847.\n\nPrüfungsgrundlagen:\n  – EU Cyber Resilience Act (CRA) — Verordnung (EU) 2024/2847\n  – STRIDE Threat Model — Microsoft Security Development Lifecycle\n  – OWASP IoT Top 10 / OWASP API Security Top 10\n  – ETSI EN 303 645 — Cyber Security for Consumer IoT\n  – NIST SP 800-82r3 — Guide to OT Security\n  – ISO/IEC 27001:2022 (als Referenzrahmen)`;
-  if (lang === 'fr') return `L'évaluation suit une approche en deux étapes :\n\n1. Analyse des menaces selon STRIDE\nIdentification systématique des scénarios de menaces dans les catégories Spoofing, Tampering, Repudiation, Information Disclosure, Denial of Service et Elevation of Privilege. Chaque menace est évaluée sur une échelle de 1 à 5 pour la probabilité et l'impact. Le score de risque est le produit des deux valeurs ; les scores de 20 et plus sont considérés comme critiques.\n\n2. Vérification de conformité CRA\nComparaison des mesures de sécurité mises en œuvre avec les exigences de l'Annexe I (propriétés de sécurité des produits numériques), l'Annexe II (traitement des vulnérabilités) ainsi que les obligations de notification (Art. 14) et de documentation (Art. 13) du Règlement (UE) 2024/2847.\n\nNormes de référence :\n  – EU Cyber Resilience Act (CRA) — Règlement (UE) 2024/2847\n  – STRIDE Threat Model — Microsoft Security Development Lifecycle\n  – OWASP IoT Top 10 / OWASP API Security Top 10\n  – ETSI EN 303 645 — Cyber Security for Consumer IoT\n  – NIST SP 800-82r3 — Guide to OT Security\n  – ISO/IEC 27001:2022 (cadre de référence)`;
-  return `The assessment follows a two-stage approach:\n\n1. STRIDE Threat Analysis\nSystematic identification of threat scenarios across the categories Spoofing, Tampering, Repudiation, Information Disclosure, Denial of Service, and Elevation of Privilege. Each threat is rated on a 5-point scale for both likelihood and impact. The risk score is calculated as the product of both values; scores of 20 or above are classified as critical.\n\n2. CRA Compliance Review\nComparison of implemented security measures against the requirements of Annex I (security properties of digital products), Annex II (vulnerability handling), as well as the reporting obligations under Art. 14 and documentation requirements under Art. 13 of Regulation (EU) 2024/2847.\n\nAudit Standards:\n  – EU Cyber Resilience Act (CRA) — Regulation (EU) 2024/2847\n  – STRIDE Threat Model — Microsoft Security Development Lifecycle\n  – OWASP IoT Top 10 / OWASP API Security Top 10\n  – ETSI EN 303 645 — Cyber Security for Consumer IoT\n  – NIST SP 800-82r3 — Guide to OT Security\n  – ISO/IEC 27001:2022 (reference framework)`;
+  if (lang === 'de') return `Die Prüfung folgt einem zweistufigen Ansatz:\n\n1. Bedrohungsanalyse nach STRIDE\nSystematische Identifikation von Bedrohungsszenarien in den Kategorien Spoofing, Tampering, Repudiation, Information Disclosure, Denial of Service und Elevation of Privilege. Jede Bedrohung wird anhand einer 5-stufigen Skala für Eintrittswahrscheinlichkeit und Auswirkung bewertet. Der Risikoscore ergibt sich als Produkt beider Werte; Scores ab 20 gelten als kritisch.\n\n2. Konformitätsprüfung gegen CRA-Anforderungen\nAbgleich der implementierten Sicherheitsmaßnahmen mit den Anforderungen aus Annex I (Sicherheitseigenschaften digitaler Produkte), Annex II (Schwachstellenbehandlung) sowie den Meldepflichten nach Art. 14 und der Dokumentationspflicht nach Art. 13 der Verordnung (EU) 2024/2847.\n\nPrüfungsgrundlagen:\n  - EU Cyber Resilience Act (CRA) — Verordnung (EU) 2024/2847\n  - STRIDE Threat Model — Microsoft Security Development Lifecycle\n  - OWASP IoT Top 10 / OWASP API Security Top 10\n  - ETSI EN 303 645 — Cyber Security for Consumer IoT\n  - NIST SP 800-82r3 — Guide to OT Security\n  - ISO/IEC 27001:2022 (als Referenzrahmen)`;
+  if (lang === 'fr') return `L'évaluation suit une approche en deux étapes :\n\n1. Analyse des menaces selon STRIDE\nIdentification systématique des scénarios de menaces dans les catégories Spoofing, Tampering, Repudiation, Information Disclosure, Denial of Service et Elevation of Privilege. Chaque menace est évaluée sur une échelle de 1 à 5 pour la probabilité et l'impact. Le score de risque est le produit des deux valeurs ; les scores de 20 et plus sont considérés comme critiques.\n\n2. Vérification de conformité CRA\nComparaison des mesures de sécurité mises en œuvre avec les exigences de l'Annexe I (propriétés de sécurité des produits numériques), l'Annexe II (traitement des vulnérabilités) ainsi que les obligations de notification (Art. 14) et de documentation (Art. 13) du Règlement (UE) 2024/2847.\n\nNormes de référence :\n  - EU Cyber Resilience Act (CRA) — Règlement (UE) 2024/2847\n  - STRIDE Threat Model — Microsoft Security Development Lifecycle\n  - OWASP IoT Top 10 / OWASP API Security Top 10\n  - ETSI EN 303 645 — Cyber Security for Consumer IoT\n  - NIST SP 800-82r3 — Guide to OT Security\n  - ISO/IEC 27001:2022 (cadre de référence)`;
+  return `The assessment follows a two-stage approach:\n\n1. STRIDE Threat Analysis\nSystematic identification of threat scenarios across the categories Spoofing, Tampering, Repudiation, Information Disclosure, Denial of Service, and Elevation of Privilege. Each threat is rated on a 5-point scale for both likelihood and impact. The risk score is calculated as the product of both values; scores of 20 or above are classified as critical.\n\n2. CRA Compliance Review\nComparison of implemented security measures against the requirements of Annex I (security properties of digital products), Annex II (vulnerability handling), as well as the reporting obligations under Art. 14 and documentation requirements under Art. 13 of Regulation (EU) 2024/2847.\n\nAudit Standards:\n  - EU Cyber Resilience Act (CRA) — Regulation (EU) 2024/2847\n  - STRIDE Threat Model — Microsoft Security Development Lifecycle\n  - OWASP IoT Top 10 / OWASP API Security Top 10\n  - ETSI EN 303 645 — Cyber Security for Consumer IoT\n  - NIST SP 800-82r3 — Guide to OT Security\n  - ISO/IEC 27001:2022 (reference framework)`;
 }
 
 function getDisclaimer(lang: string): string {
@@ -971,7 +971,7 @@ export function generateCraReport(data: CraReportData): void {
       doc.setTextColor(...C.lightGray);
       for (const src of th.sources) {
         checkPage(4);
-        doc.text(`–  ${src}`, ML + 8, y);
+        doc.text(`-  ${src}`, ML + 8, y);
         y += 3.5;
       }
     }
@@ -1151,7 +1151,7 @@ export function generateCraReport(data: CraReportData): void {
   newSection();
   writeSectionHeading(t(I18N.sec5));
 
-  // ── P0–P3 Prioritisation ──
+  // ── P0-P3 Prioritisation ──
   interface PrioItem { id: string; name: string; measure: string; effort: string; }
   const p0Items: PrioItem[] = [];
   const p1Items: PrioItem[] = [];
@@ -1164,9 +1164,9 @@ export function generateCraReport(data: CraReportData): void {
     if (score >= 20) {
       p0Items.push({ id: tid, name: th.name,
         measure: `${th.component} — ${lang === 'de' ? 'Unmittelbare Gegenmaßnahmen' : lang === 'fr' ? 'Contre-mesures immédiates' : 'Immediate countermeasures'}`,
-        effort: '8–24h' });
+        effort: '8-24h' });
     } else if (score >= 15) {
-      p1Items.push({ id: tid, name: th.name, measure: th.component, effort: '16–40h' });
+      p1Items.push({ id: tid, name: th.name, measure: th.component, effort: '16-40h' });
     }
   }
 
@@ -1177,13 +1177,13 @@ export function generateCraReport(data: CraReportData): void {
 
     if (r.status === 'fail' && (linkedScore >= 20 || isRegCritical)) {
       if (!p0Items.find(p => p.id === r.id))
-        p0Items.push({ id: r.id, name: r.name, measure: r.measure, effort: r.criteria.length > 3 ? '24–48h' : '16–32h' });
+        p0Items.push({ id: r.id, name: r.name, measure: r.measure, effort: r.criteria.length > 3 ? '24-48h' : '16-32h' });
     } else if (r.status === 'fail') {
-      p1Items.push({ id: r.id, name: r.name, measure: r.measure, effort: '16–32h' });
+      p1Items.push({ id: r.id, name: r.name, measure: r.measure, effort: '16-32h' });
     } else if (r.status === 'partial' && linkedScore >= 13) {
-      p2Items.push({ id: r.id, name: r.name, measure: r.measure, effort: '8–24h' });
+      p2Items.push({ id: r.id, name: r.name, measure: r.measure, effort: '8-24h' });
     } else if (r.status === 'partial') {
-      p3Items.push({ id: r.id, name: r.name, measure: r.measure, effort: '8–16h' });
+      p3Items.push({ id: r.id, name: r.name, measure: r.measure, effort: '8-16h' });
     }
   }
 
@@ -1240,19 +1240,19 @@ export function generateCraReport(data: CraReportData): void {
   y += 2;
 
   const phases = [
-    { phase: lang === 'de' ? 'Phase 0: Sofort (1–2 Wochen)' : lang === 'fr' ? 'Phase 0 : Immédiat (1–2 semaines)' : 'Phase 0: Immediate (1–2 weeks)',
+    { phase: lang === 'de' ? 'Phase 0: Sofort (1-2 Wochen)' : lang === 'fr' ? 'Phase 0 : Immédiat (1-2 semaines)' : 'Phase 0: Immediate (1-2 weeks)',
       desc: `${p0Items.length} ${lang === 'de' ? 'Release-Blocker' : 'release blockers'}`,
       gate: lang === 'de' ? 'Gate: Alle P0-Maßnahmen verifiziert, Re-Test durch Security-Ingenieur' : 'Gate: All P0 measures verified, security re-test',
       color: C.redText },
-    { phase: lang === 'de' ? 'Phase 1: Vor Release (2–4 Wochen)' : lang === 'fr' ? 'Phase 1 : Avant release (2–4 sem.)' : 'Phase 1: Before Release (2–4 weeks)',
+    { phase: lang === 'de' ? 'Phase 1: Vor Release (2-4 Wochen)' : lang === 'fr' ? 'Phase 1 : Avant release (2-4 sem.)' : 'Phase 1: Before Release (2-4 weeks)',
       desc: `${p1Items.length} ${lang === 'de' ? 'hohe Priorität' : 'high priority items'}`,
       gate: lang === 'de' ? 'Gate: P1 abgeschlossen, Pentest-Verifizierung bestanden' : 'Gate: P1 complete, pentest passed',
       color: C.orangeText },
-    { phase: lang === 'de' ? 'Phase 2: Vor GA (4–8 Wochen)' : lang === 'fr' ? 'Phase 2 : Avant GA (4–8 sem.)' : 'Phase 2: Before GA (4–8 weeks)',
+    { phase: lang === 'de' ? 'Phase 2: Vor GA (4-8 Wochen)' : lang === 'fr' ? 'Phase 2 : Avant GA (4-8 sem.)' : 'Phase 2: Before GA (4-8 weeks)',
       desc: `${p2Items.length} ${lang === 'de' ? 'Teilerfüllungen nachschärfen' : 'partial compliance items'}`,
       gate: lang === 'de' ? 'Gate: Coverage >= 80%, QA-Regression bestanden' : 'Gate: Coverage >= 80%, QA regression passed',
       color: C.bodyText },
-    { phase: lang === 'de' ? 'Phase 3: Empfohlen (8–12 Wochen)' : lang === 'fr' ? 'Phase 3 : Recommandé (8–12 sem.)' : 'Phase 3: Recommended (8–12 weeks)',
+    { phase: lang === 'de' ? 'Phase 3: Empfohlen (8-12 Wochen)' : lang === 'fr' ? 'Phase 3 : Recommandé (8-12 sem.)' : 'Phase 3: Recommended (8-12 weeks)',
       desc: `${p3Items.length} ${lang === 'de' ? 'Verbesserungen' : 'improvements'}`,
       gate: lang === 'de' ? 'Gate: Vollständige CRA-Konformität' : 'Gate: Full CRA compliance',
       color: C.labelText },
@@ -1281,10 +1281,10 @@ export function generateCraReport(data: CraReportData): void {
   y += 4;
   writeSubHeading(t(I18N.sec6a));
   const matrixExplanation = lang === 'de'
-    ? 'Die Risikobewertung erfolgt auf Basis einer 5x5-Matrix. Jede Bedrohung wird auf zwei Achsen bewertet:\n\nEintrittswahrscheinlichkeit (1–5):\n  1 = Sehr unwahrscheinlich (erfordert staatliche Ressourcen)\n  2 = Unwahrscheinlich (erfordert erheblichen Aufwand/Insider)\n  3 = Möglich (Netzwerkzugang + Standard-Tooling)\n  4 = Wahrscheinlich (geringer Aufwand, öffentlich bekannte Methoden)\n  5 = Sehr wahrscheinlich (trivial, keine besonderen Kenntnisse)\n\nAuswirkung (1–5):\n  1 = Minimal (keine Datenverluste, lokale Störung)\n  2 = Gering (begrenzter Datenverlust, einzelne Funktion betroffen)\n  3 = Mittel (Konfigurationsänderung, Compliance-Verstoß)\n  4 = Hoch (Datenabfluss, Produktionsausfall, Admin-Zugriff)\n  5 = Kritisch (persistente Kompromittierung, Lateral Movement, physischer Schaden)\n\nRisikoscore = Eintrittswahrscheinlichkeit x Auswirkung\n  Gering: 1–5  |  Mittel: 6–12  |  Hoch: 13–19  |  Kritisch: 20–25'
+    ? 'Die Risikobewertung erfolgt auf Basis einer 5x5-Matrix. Jede Bedrohung wird auf zwei Achsen bewertet:\n\nEintrittswahrscheinlichkeit (1-5):\n  1 = Sehr unwahrscheinlich (erfordert staatliche Ressourcen)\n  2 = Unwahrscheinlich (erfordert erheblichen Aufwand/Insider)\n  3 = Möglich (Netzwerkzugang + Standard-Tooling)\n  4 = Wahrscheinlich (geringer Aufwand, öffentlich bekannte Methoden)\n  5 = Sehr wahrscheinlich (trivial, keine besonderen Kenntnisse)\n\nAuswirkung (1-5):\n  1 = Minimal (keine Datenverluste, lokale Störung)\n  2 = Gering (begrenzter Datenverlust, einzelne Funktion betroffen)\n  3 = Mittel (Konfigurationsänderung, Compliance-Verstoß)\n  4 = Hoch (Datenabfluss, Produktionsausfall, Admin-Zugriff)\n  5 = Kritisch (persistente Kompromittierung, Lateral Movement, physischer Schaden)\n\nRisikoscore = Eintrittswahrscheinlichkeit x Auswirkung\n  Gering: 1-5  |  Mittel: 6-12  |  Hoch: 13-19  |  Kritisch: 20-25'
     : lang === 'fr'
-    ? 'L\'évaluation des risques est basée sur une matrice 5x5. Chaque menace est évaluée sur deux axes :\n\nProbabilité (1–5) :\n  1 = Très improbable (ressources étatiques nécessaires)\n  2 = Improbable (effort considérable / initié)\n  3 = Possible (accès réseau + outils standards)\n  4 = Probable (faible effort, méthodes publiques)\n  5 = Très probable (trivial, aucune connaissance spéciale)\n\nImpact (1–5) :\n  1 = Minimal (pas de perte de données, perturbation locale)\n  2 = Faible (perte de données limitée, fonction unique affectée)\n  3 = Moyen (changement de configuration, violation de conformité)\n  4 = Élevé (fuite de données, arrêt de production, accès admin)\n  5 = Critique (compromission persistante, mouvement latéral, dommages physiques)\n\nScore de risque = Probabilité x Impact\n  Faible : 1–5  |  Moyen : 6–12  |  Élevé : 13–19  |  Critique : 20–25'
-    : 'Risk assessment is based on a 5x5 matrix. Each threat is evaluated on two axes:\n\nLikelihood (1–5):\n  1 = Very unlikely (requires state-level resources)\n  2 = Unlikely (requires significant effort / insider access)\n  3 = Possible (network access + standard tooling)\n  4 = Likely (low effort, publicly known methods)\n  5 = Very likely (trivial, no special knowledge required)\n\nImpact (1–5):\n  1 = Minimal (no data loss, local disruption only)\n  2 = Low (limited data loss, single function affected)\n  3 = Medium (configuration change, compliance violation)\n  4 = High (data exfiltration, production outage, admin access)\n  5 = Critical (persistent compromise, lateral movement, physical damage)\n\nRisk Score = Likelihood x Impact\n  Low: 1–5  |  Medium: 6–12  |  High: 13–19  |  Critical: 20–25';
+    ? 'L\'évaluation des risques est basée sur une matrice 5x5. Chaque menace est évaluée sur deux axes :\n\nProbabilité (1-5) :\n  1 = Très improbable (ressources étatiques nécessaires)\n  2 = Improbable (effort considérable / initié)\n  3 = Possible (accès réseau + outils standards)\n  4 = Probable (faible effort, méthodes publiques)\n  5 = Très probable (trivial, aucune connaissance spéciale)\n\nImpact (1-5) :\n  1 = Minimal (pas de perte de données, perturbation locale)\n  2 = Faible (perte de données limitée, fonction unique affectée)\n  3 = Moyen (changement de configuration, violation de conformité)\n  4 = Élevé (fuite de données, arrêt de production, accès admin)\n  5 = Critique (compromission persistante, mouvement latéral, dommages physiques)\n\nScore de risque = Probabilité x Impact\n  Faible : 1-5  |  Moyen : 6-12  |  Élevé : 13-19  |  Critique : 20-25'
+    : 'Risk assessment is based on a 5x5 matrix. Each threat is evaluated on two axes:\n\nLikelihood (1-5):\n  1 = Very unlikely (requires state-level resources)\n  2 = Unlikely (requires significant effort / insider access)\n  3 = Possible (network access + standard tooling)\n  4 = Likely (low effort, publicly known methods)\n  5 = Very likely (trivial, no special knowledge required)\n\nImpact (1-5):\n  1 = Minimal (no data loss, local disruption only)\n  2 = Low (limited data loss, single function affected)\n  3 = Medium (configuration change, compliance violation)\n  4 = High (data exfiltration, production outage, admin access)\n  5 = Critical (persistent compromise, lateral movement, physical damage)\n\nRisk Score = Likelihood x Impact\n  Low: 1-5  |  Medium: 6-12  |  High: 13-19  |  Critical: 20-25';
   writeBody(matrixExplanation);
 
   // 6.2 OT Contextualisation
@@ -1818,9 +1818,9 @@ export function generateCraReport(data: CraReportData): void {
           detail: nonPassReqsWithoutEffort.length > 0 ? `${lang === 'de' ? 'Ohne Aufwand' : 'Missing effort'}: ${nonPassReqsWithoutEffort.map(r => r.id).join(', ')}` : undefined,
         },
         {
-          label: lang === 'de' ? 'Alle nicht-konforme Maßnahmen haben P0–P3-Priorisierung'
-            : lang === 'fr' ? 'Toutes les mesures non conformes ont une priorité P0–P3'
-            : 'All non-compliant measures have P0–P3 prioritisation',
+          label: lang === 'de' ? 'Alle nicht-konforme Maßnahmen haben P0-P3-Priorisierung'
+            : lang === 'fr' ? 'Toutes les mesures non conformes ont une priorité P0-P3'
+            : 'All non-compliant measures have P0-P3 prioritisation',
           passed: nonPassReqsWithoutPriority.length === 0,
           detail: nonPassReqsWithoutPriority.length > 0 ? `${lang === 'de' ? 'Ohne Priorität' : 'Missing priority'}: ${nonPassReqsWithoutPriority.map(r => r.id).join(', ')}` : undefined,
         },
@@ -1839,9 +1839,9 @@ export function generateCraReport(data: CraReportData): void {
           passed: true, // IDs are generated, always sequential
         },
         {
-          label: lang === 'de' ? `Anforderungen lückenlos referenziert (${reqs.length} Anforderungen: A1-1 bis A2-9, Art. 10–22)`
-            : lang === 'fr' ? `Exigences référencées sans lacune (${reqs.length} exigences : A1-1 à A2-9, Art. 10–22)`
-            : `Requirements fully referenced (${reqs.length} requirements: A1-1 to A2-9, Art. 10–22)`,
+          label: lang === 'de' ? `Anforderungen lückenlos referenziert (${reqs.length} Anforderungen: A1-1 bis A2-9, Art. 10-22)`
+            : lang === 'fr' ? `Exigences référencées sans lacune (${reqs.length} exigences : A1-1 à A2-9, Art. 10-22)`
+            : `Requirements fully referenced (${reqs.length} requirements: A1-1 to A2-9, Art. 10-22)`,
           passed: reqs.length >= 22,
         },
         {
