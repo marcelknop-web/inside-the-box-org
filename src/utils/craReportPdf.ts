@@ -2006,5 +2006,6 @@ export function generateCraReport(data: CraReportData): void {
 
   addFooter();
 
-  doc.save(`CRA-Pruefbericht_${intakeData.productName.replace(/\s+/g, '-')}_${new Date().toISOString().slice(0, 10)}.pdf`);
+  const suffix = isDraft ? '_DRAFT' : '_FINAL';
+  doc.save(`CRA-Pruefbericht_${intakeData.productName.replace(/\s+/g, '-')}${suffix}_${new Date().toISOString().slice(0, 10)}.pdf`);
 }
