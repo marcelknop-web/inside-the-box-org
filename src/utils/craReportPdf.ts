@@ -1872,23 +1872,23 @@ export function generateCraReport(data: CraReportData): void {
       titleEn: 'Evidence Check',
       checks: [
         {
-          label: lang === 'de' ? `Risk ≥ 20 Threats mit PoC (⭐⭐⭐⭐+): ${critRisks.length - critWithoutPoC.length}/${critRisks.length}`
-            : lang === 'fr' ? `Menaces Risk ≥ 20 avec PoC (⭐⭐⭐⭐+) : ${critRisks.length - critWithoutPoC.length}/${critRisks.length}`
-            : `Risk ≥ 20 threats with PoC (⭐⭐⭐⭐+): ${critRisks.length - critWithoutPoC.length}/${critRisks.length}`,
+          label: lang === 'de' ? `Risk >= 20 Threats mit PoC (4/5+): ${critRisks.length - critWithoutPoC.length}/${critRisks.length}`
+            : lang === 'fr' ? `Menaces Risk >= 20 avec PoC (4/5+) : ${critRisks.length - critWithoutPoC.length}/${critRisks.length}`
+            : `Risk >= 20 threats with PoC (4/5+): ${critRisks.length - critWithoutPoC.length}/${critRisks.length}`,
           passed: critWithoutPoC.length === 0,
-          detail: critWithoutPoC.length > 0 ? `${lang === 'de' ? 'PoC fehlt' : 'Missing PoC'}: ${critWithoutPoC.map(th => `${threatId(th)} (⭐${th.evidenceQuality})`).join(', ')}` : undefined,
+          detail: critWithoutPoC.length > 0 ? `${lang === 'de' ? 'PoC fehlt' : 'Missing PoC'}: ${critWithoutPoC.map(th => `${threatId(th)} (${th.evidenceQuality}/5)`).join(', ')}` : undefined,
         },
         {
-          label: lang === 'de' ? `Risk 15–19 Threats mit Evidenz (⭐⭐⭐+): ${highRisks.length - highWithoutPoC.length}/${highRisks.length}`
-            : lang === 'fr' ? `Menaces Risk 15–19 avec preuve (⭐⭐⭐+) : ${highRisks.length - highWithoutPoC.length}/${highRisks.length}`
-            : `Risk 15–19 threats with evidence (⭐⭐⭐+): ${highRisks.length - highWithoutPoC.length}/${highRisks.length}`,
+          label: lang === 'de' ? `Risk 15-19 Threats mit Evidenz (3/5+): ${highRisks.length - highWithoutPoC.length}/${highRisks.length}`
+            : lang === 'fr' ? `Menaces Risk 15-19 avec preuve (3/5+) : ${highRisks.length - highWithoutPoC.length}/${highRisks.length}`
+            : `Risk 15-19 threats with evidence (3/5+): ${highRisks.length - highWithoutPoC.length}/${highRisks.length}`,
           passed: highWithoutPoC.length === 0,
-          detail: highWithoutPoC.length > 0 ? `${lang === 'de' ? 'Schwache Evidenz' : 'Weak evidence'}: ${highWithoutPoC.map(th => `${threatId(th)} (⭐${th.evidenceQuality})`).join(', ')}` : undefined,
+          detail: highWithoutPoC.length > 0 ? `${lang === 'de' ? 'Schwache Evidenz' : 'Weak evidence'}: ${highWithoutPoC.map(th => `${threatId(th)} (${th.evidenceQuality}/5)`).join(', ')}` : undefined,
         },
         {
-          label: lang === 'de' ? `Gesamtquote ⭐⭐⭐+ Evidenz: ${threats.filter(th => th.evidenceQuality >= 3).length}/${threats.length} (${Math.round((threats.filter(th => th.evidenceQuality >= 3).length / threats.length) * 100)}%, ≥ 75% erforderlich)`
-            : lang === 'fr' ? `Taux global ⭐⭐⭐+ : ${threats.filter(th => th.evidenceQuality >= 3).length}/${threats.length} (${Math.round((threats.filter(th => th.evidenceQuality >= 3).length / threats.length) * 100)}%, ≥ 75% requis)`
-            : `Overall ⭐⭐⭐+ evidence rate: ${threats.filter(th => th.evidenceQuality >= 3).length}/${threats.length} (${Math.round((threats.filter(th => th.evidenceQuality >= 3).length / threats.length) * 100)}%, ≥ 75% required)`,
+          label: lang === 'de' ? `Gesamtquote 3/5+ Evidenz: ${threats.filter(th => th.evidenceQuality >= 3).length}/${threats.length} (${Math.round((threats.filter(th => th.evidenceQuality >= 3).length / threats.length) * 100)}%, >= 75% erforderlich)`
+            : lang === 'fr' ? `Taux global 3/5+ : ${threats.filter(th => th.evidenceQuality >= 3).length}/${threats.length} (${Math.round((threats.filter(th => th.evidenceQuality >= 3).length / threats.length) * 100)}%, >= 75% requis)`
+            : `Overall 3/5+ evidence rate: ${threats.filter(th => th.evidenceQuality >= 3).length}/${threats.length} (${Math.round((threats.filter(th => th.evidenceQuality >= 3).length / threats.length) * 100)}%, >= 75% required)`,
           passed: evidAbove75,
         },
         {
