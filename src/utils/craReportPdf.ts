@@ -633,11 +633,11 @@ export function generateCraReport(data: CraReportData): void {
       doc.setFontSize(BODY_SIZE - 0.5);
       doc.setTextColor(...C.bodyText);
       doc.text(key.toUpperCase(), colMeasure, y);
-      doc.setTextColor(m.active ? ...C.greenText : ...C.redText);
+      doc.setTextColor(...(m.active ? C.greenText : C.redText));
       doc.text(m.active ? t(I18N.yes) : t(I18N.no), colActive, y);
-      doc.setTextColor(m.documented ? ...C.greenText : ...C.redText);
+      doc.setTextColor(...(m.documented ? C.greenText : C.redText));
       doc.text(m.documented ? t(I18N.yes) : t(I18N.no), colDoc, y);
-      doc.setTextColor(m.audited ? ...C.greenText : ...C.redText);
+      doc.setTextColor(...(m.audited ? C.greenText : C.redText));
       doc.text(m.audited ? t(I18N.yes) : t(I18N.no), colAudit, y);
       y += BODY_LEADING + 0.3;
     }
