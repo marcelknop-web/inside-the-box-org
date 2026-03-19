@@ -978,7 +978,7 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
       {/* ═══ AUDIT CHARTS ═══ */}
       <div className="bg-card border border-border rounded-lg p-4">
         <div className="text-sm font-bold text-foreground mb-3">📊 {language === 'de' ? 'Auswertungsübersicht' : language === 'fr' ? 'Aperçu de l\'évaluation' : 'Assessment Overview'}</div>
-        <CraAuditCharts threats={threats} reqs={reqs} />
+        <CraAuditCharts threats={localThreats} reqs={localReqs} />
       </div>
 
       {/* Prio 3: Explicitly name critical risks */}
