@@ -37,7 +37,7 @@ const I18N = {
   sec4b: { de: '4.2  CRA-Konformitätslücken', en: '4.2  CRA Compliance Gaps', fr: '4.2  Lacunes de conformité CRA' },
   sec4c: { de: '4.3  Normative Abdeckung (CRA-Coverage)', en: '4.3  Normative Coverage (CRA Coverage)', fr: '4.3  Couverture normative (CRA)' },
   sec5: { de: '5  Handlungsempfehlungen und Remediation-Roadmap', en: '5  Recommendations and Remediation Roadmap', fr: '5  Recommandations et feuille de route de remédiation' },
-  sec5a: { de: '5.1  Priorisierte Maßnahmen (P0–P3)', en: '5.1  Prioritised Measures (P0–P3)', fr: '5.1  Mesures priorisées (P0–P3)' },
+  sec5a: { de: '5.1  Priorisierte Maßnahmen (P0-P3)', en: '5.1  Prioritised Measures (P0-P3)', fr: '5.1  Mesures priorisées (P0-P3)' },
   sec5b: { de: '5.2  Remediation-Roadmap', en: '5.2  Remediation Roadmap', fr: '5.2  Feuille de route de remédiation' },
   sec6: { de: '6  Methodik und Prüfungsgrundlagen', en: '6  Methodology and Audit Standards', fr: '6  Méthodologie et normes d\'audit' },
   sec6a: { de: '6.1  Risikobewertungsmatrix', en: '6.1  Risk Rating Matrix', fr: '6.1  Matrice d\'évaluation des risques' },
@@ -99,7 +99,7 @@ const I18N = {
   relatedThreats: { de: 'Verknüpfte Bedrohungen', en: 'Related Threats', fr: 'Menaces liées' },
 
   totalThreats: { de: 'Bedrohungen', en: 'Threats', fr: 'Menaces' },
-  criticalRisks: { de: 'Kritisch (≥ 20)', en: 'Critical (≥ 20)', fr: 'Critiques (≥ 20)' },
+  criticalRisks: { de: 'Kritisch (>= 20)', en: 'Critical (>= 20)', fr: 'Critiques (>= 20)' },
   craGaps: { de: 'Nicht konform', en: 'Non-Compliant', fr: 'Non conformes' },
   partialGaps: { de: 'Teilw. konform', en: 'Partial', fr: 'Partiels' },
 
@@ -142,7 +142,7 @@ function getMgmtSummaryData(
         : isPartial
           ? `${p} erreicht ${complianceRate} % CRA-Konformität. Gezielte Nacharbeit erforderlich.`
           : `${p} erreicht ${complianceRate} % CRA-Konformität. Ohne Nachbesserung nicht marktfähig.`,
-      situationLine: `${threats} Bedrohungsszenarien identifiziert | ${crit} kritisch (Score ≥ 20) | ${failReqs} von ${totalReqs} Anforderungen nicht konform | ${partialReqs} teilweise konform`,
+      situationLine: `${threats} Bedrohungsszenarien identifiziert | ${crit} kritisch (Score >= 20) | ${failReqs} von ${totalReqs} Anforderungen nicht konform | ${partialReqs} teilweise konform`,
       findings: [
         ...(crit > 0 ? [{
           title: `${crit} kritische Risiken erfordern Sofortmaßnahmen`,
@@ -176,7 +176,7 @@ function getMgmtSummaryData(
         : isPartial
           ? `${p} atteint ${complianceRate} % de conformité CRA. Des corrections ciblées sont nécessaires.`
           : `${p} atteint ${complianceRate} % de conformité CRA. Non commercialisable en l'état.`,
-      situationLine: `${threats} scénarios de menaces identifiés | ${crit} critiques (score ≥ 20) | ${failReqs} sur ${totalReqs} exigences non conformes | ${partialReqs} partiellement conformes`,
+      situationLine: `${threats} scénarios de menaces identifiés | ${crit} critiques (score >= 20) | ${failReqs} sur ${totalReqs} exigences non conformes | ${partialReqs} partiellement conformes`,
       findings: [
         ...(crit > 0 ? [{
           title: `${crit} risques critiques nécessitent une action immédiate`,
@@ -210,7 +210,7 @@ function getMgmtSummaryData(
       : isPartial
         ? `${p} achieves ${complianceRate}% CRA compliance. Targeted remediation required.`
         : `${p} achieves ${complianceRate}% CRA compliance. Not market-ready without remediation.`,
-    situationLine: `${threats} threat scenarios identified | ${crit} critical (score ≥ 20) | ${failReqs} of ${totalReqs} requirements non-compliant | ${partialReqs} partially compliant`,
+    situationLine: `${threats} threat scenarios identified | ${crit} critical (score >= 20) | ${failReqs} of ${totalReqs} requirements non-compliant | ${partialReqs} partially compliant`,
     findings: [
       ...(crit > 0 ? [{
         title: `${crit} critical risks require immediate action`,
@@ -239,9 +239,9 @@ function getMgmtSummaryData(
 }
 
 function getMethodology(lang: string): string {
-  if (lang === 'de') return `Die Prüfung folgt einem zweistufigen Ansatz:\n\n1. Bedrohungsanalyse nach STRIDE\nSystematische Identifikation von Bedrohungsszenarien in den Kategorien Spoofing, Tampering, Repudiation, Information Disclosure, Denial of Service und Elevation of Privilege. Jede Bedrohung wird anhand einer 5-stufigen Skala für Eintrittswahrscheinlichkeit und Auswirkung bewertet. Der Risikoscore ergibt sich als Produkt beider Werte; Scores ab 20 gelten als kritisch.\n\n2. Konformitätsprüfung gegen CRA-Anforderungen\nAbgleich der implementierten Sicherheitsmaßnahmen mit den Anforderungen aus Annex I (Sicherheitseigenschaften digitaler Produkte), Annex II (Schwachstellenbehandlung) sowie den Meldepflichten nach Art. 14 und der Dokumentationspflicht nach Art. 13 der Verordnung (EU) 2024/2847.\n\nPrüfungsgrundlagen:\n  – EU Cyber Resilience Act (CRA) — Verordnung (EU) 2024/2847\n  – STRIDE Threat Model — Microsoft Security Development Lifecycle\n  – OWASP IoT Top 10 / OWASP API Security Top 10\n  – ETSI EN 303 645 — Cyber Security for Consumer IoT\n  – NIST SP 800-82r3 — Guide to OT Security\n  – ISO/IEC 27001:2022 (als Referenzrahmen)`;
-  if (lang === 'fr') return `L'évaluation suit une approche en deux étapes :\n\n1. Analyse des menaces selon STRIDE\nIdentification systématique des scénarios de menaces dans les catégories Spoofing, Tampering, Repudiation, Information Disclosure, Denial of Service et Elevation of Privilege. Chaque menace est évaluée sur une échelle de 1 à 5 pour la probabilité et l'impact. Le score de risque est le produit des deux valeurs ; les scores de 20 et plus sont considérés comme critiques.\n\n2. Vérification de conformité CRA\nComparaison des mesures de sécurité mises en œuvre avec les exigences de l'Annexe I (propriétés de sécurité des produits numériques), l'Annexe II (traitement des vulnérabilités) ainsi que les obligations de notification (Art. 14) et de documentation (Art. 13) du Règlement (UE) 2024/2847.\n\nNormes de référence :\n  – EU Cyber Resilience Act (CRA) — Règlement (UE) 2024/2847\n  – STRIDE Threat Model — Microsoft Security Development Lifecycle\n  – OWASP IoT Top 10 / OWASP API Security Top 10\n  – ETSI EN 303 645 — Cyber Security for Consumer IoT\n  – NIST SP 800-82r3 — Guide to OT Security\n  – ISO/IEC 27001:2022 (cadre de référence)`;
-  return `The assessment follows a two-stage approach:\n\n1. STRIDE Threat Analysis\nSystematic identification of threat scenarios across the categories Spoofing, Tampering, Repudiation, Information Disclosure, Denial of Service, and Elevation of Privilege. Each threat is rated on a 5-point scale for both likelihood and impact. The risk score is calculated as the product of both values; scores of 20 or above are classified as critical.\n\n2. CRA Compliance Review\nComparison of implemented security measures against the requirements of Annex I (security properties of digital products), Annex II (vulnerability handling), as well as the reporting obligations under Art. 14 and documentation requirements under Art. 13 of Regulation (EU) 2024/2847.\n\nAudit Standards:\n  – EU Cyber Resilience Act (CRA) — Regulation (EU) 2024/2847\n  – STRIDE Threat Model — Microsoft Security Development Lifecycle\n  – OWASP IoT Top 10 / OWASP API Security Top 10\n  – ETSI EN 303 645 — Cyber Security for Consumer IoT\n  – NIST SP 800-82r3 — Guide to OT Security\n  – ISO/IEC 27001:2022 (reference framework)`;
+  if (lang === 'de') return `Die Prüfung folgt einem zweistufigen Ansatz:\n\n1. Bedrohungsanalyse nach STRIDE\nSystematische Identifikation von Bedrohungsszenarien in den Kategorien Spoofing, Tampering, Repudiation, Information Disclosure, Denial of Service und Elevation of Privilege. Jede Bedrohung wird anhand einer 5-stufigen Skala für Eintrittswahrscheinlichkeit und Auswirkung bewertet. Der Risikoscore ergibt sich als Produkt beider Werte; Scores ab 20 gelten als kritisch.\n\n2. Konformitätsprüfung gegen CRA-Anforderungen\nAbgleich der implementierten Sicherheitsmaßnahmen mit den Anforderungen aus Annex I (Sicherheitseigenschaften digitaler Produkte), Annex II (Schwachstellenbehandlung) sowie den Meldepflichten nach Art. 14 und der Dokumentationspflicht nach Art. 13 der Verordnung (EU) 2024/2847.\n\nPrüfungsgrundlagen:\n  - EU Cyber Resilience Act (CRA) — Verordnung (EU) 2024/2847\n  - STRIDE Threat Model — Microsoft Security Development Lifecycle\n  - OWASP IoT Top 10 / OWASP API Security Top 10\n  - ETSI EN 303 645 — Cyber Security for Consumer IoT\n  - NIST SP 800-82r3 — Guide to OT Security\n  - ISO/IEC 27001:2022 (als Referenzrahmen)`;
+  if (lang === 'fr') return `L'évaluation suit une approche en deux étapes :\n\n1. Analyse des menaces selon STRIDE\nIdentification systématique des scénarios de menaces dans les catégories Spoofing, Tampering, Repudiation, Information Disclosure, Denial of Service et Elevation of Privilege. Chaque menace est évaluée sur une échelle de 1 à 5 pour la probabilité et l'impact. Le score de risque est le produit des deux valeurs ; les scores de 20 et plus sont considérés comme critiques.\n\n2. Vérification de conformité CRA\nComparaison des mesures de sécurité mises en œuvre avec les exigences de l'Annexe I (propriétés de sécurité des produits numériques), l'Annexe II (traitement des vulnérabilités) ainsi que les obligations de notification (Art. 14) et de documentation (Art. 13) du Règlement (UE) 2024/2847.\n\nNormes de référence :\n  - EU Cyber Resilience Act (CRA) — Règlement (UE) 2024/2847\n  - STRIDE Threat Model — Microsoft Security Development Lifecycle\n  - OWASP IoT Top 10 / OWASP API Security Top 10\n  - ETSI EN 303 645 — Cyber Security for Consumer IoT\n  - NIST SP 800-82r3 — Guide to OT Security\n  - ISO/IEC 27001:2022 (cadre de référence)`;
+  return `The assessment follows a two-stage approach:\n\n1. STRIDE Threat Analysis\nSystematic identification of threat scenarios across the categories Spoofing, Tampering, Repudiation, Information Disclosure, Denial of Service, and Elevation of Privilege. Each threat is rated on a 5-point scale for both likelihood and impact. The risk score is calculated as the product of both values; scores of 20 or above are classified as critical.\n\n2. CRA Compliance Review\nComparison of implemented security measures against the requirements of Annex I (security properties of digital products), Annex II (vulnerability handling), as well as the reporting obligations under Art. 14 and documentation requirements under Art. 13 of Regulation (EU) 2024/2847.\n\nAudit Standards:\n  - EU Cyber Resilience Act (CRA) — Regulation (EU) 2024/2847\n  - STRIDE Threat Model — Microsoft Security Development Lifecycle\n  - OWASP IoT Top 10 / OWASP API Security Top 10\n  - ETSI EN 303 645 — Cyber Security for Consumer IoT\n  - NIST SP 800-82r3 — Guide to OT Security\n  - ISO/IEC 27001:2022 (reference framework)`;
 }
 
 function getDisclaimer(lang: string): string {
@@ -360,7 +360,7 @@ export function generateCraReport(data: CraReportData): void {
   const FIELD_GAP = 1.5;
   const MONO_SIZE = 7;
 
-  // ── Cross-reference map: CRA article → threat IDs ──
+  // ── Cross-reference map: CRA article > threat IDs ──
   const articleToThreats: Record<string, string[]> = {};
   for (const th of threats) {
     if (!articleToThreats[th.cra]) articleToThreats[th.cra] = [];
@@ -916,7 +916,7 @@ export function generateCraReport(data: CraReportData): void {
     doc.rect(ML, y + 0.5, 2, 9, 'F');
 
     const rl = riskLabel(score);
-    const scoreStr = `${rl}  ${th.likelihood} × ${th.impact} = ${score}`;
+    const scoreStr = `${rl}  ${th.likelihood} x ${th.impact} = ${score}`;
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(7.5);
     doc.setTextColor(...headerText);
@@ -960,7 +960,7 @@ export function generateCraReport(data: CraReportData): void {
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(BODY_SIZE);
     doc.setTextColor(...C.bodyText);
-    const scoreDetail = `${t(I18N.likelihood)}: ${th.likelihood}/5  ×  ${t(I18N.impact)}: ${th.impact}/5  =  ${score}/25  →  ${rl}`;
+    const scoreDetail = `${t(I18N.likelihood)}: ${th.likelihood}/5  x  ${t(I18N.impact)}: ${th.impact}/5  =  ${score}/25  >  ${rl}`;
     doc.text(scoreDetail, ML + 8, y);
     y += BODY_LEADING + FIELD_GAP;
 
@@ -971,7 +971,7 @@ export function generateCraReport(data: CraReportData): void {
       doc.setTextColor(...C.lightGray);
       for (const src of th.sources) {
         checkPage(4);
-        doc.text(`–  ${src}`, ML + 8, y);
+        doc.text(`-  ${src}`, ML + 8, y);
         y += 3.5;
       }
     }
@@ -1151,7 +1151,7 @@ export function generateCraReport(data: CraReportData): void {
   newSection();
   writeSectionHeading(t(I18N.sec5));
 
-  // ── P0–P3 Prioritisation ──
+  // ── P0-P3 Prioritisation ──
   interface PrioItem { id: string; name: string; measure: string; effort: string; }
   const p0Items: PrioItem[] = [];
   const p1Items: PrioItem[] = [];
@@ -1164,9 +1164,9 @@ export function generateCraReport(data: CraReportData): void {
     if (score >= 20) {
       p0Items.push({ id: tid, name: th.name,
         measure: `${th.component} — ${lang === 'de' ? 'Unmittelbare Gegenmaßnahmen' : lang === 'fr' ? 'Contre-mesures immédiates' : 'Immediate countermeasures'}`,
-        effort: '8–24h' });
+        effort: '8-24h' });
     } else if (score >= 15) {
-      p1Items.push({ id: tid, name: th.name, measure: th.component, effort: '16–40h' });
+      p1Items.push({ id: tid, name: th.name, measure: th.component, effort: '16-40h' });
     }
   }
 
@@ -1177,13 +1177,13 @@ export function generateCraReport(data: CraReportData): void {
 
     if (r.status === 'fail' && (linkedScore >= 20 || isRegCritical)) {
       if (!p0Items.find(p => p.id === r.id))
-        p0Items.push({ id: r.id, name: r.name, measure: r.measure, effort: r.criteria.length > 3 ? '24–48h' : '16–32h' });
+        p0Items.push({ id: r.id, name: r.name, measure: r.measure, effort: r.criteria.length > 3 ? '24-48h' : '16-32h' });
     } else if (r.status === 'fail') {
-      p1Items.push({ id: r.id, name: r.name, measure: r.measure, effort: '16–32h' });
+      p1Items.push({ id: r.id, name: r.name, measure: r.measure, effort: '16-32h' });
     } else if (r.status === 'partial' && linkedScore >= 13) {
-      p2Items.push({ id: r.id, name: r.name, measure: r.measure, effort: '8–24h' });
+      p2Items.push({ id: r.id, name: r.name, measure: r.measure, effort: '8-24h' });
     } else if (r.status === 'partial') {
-      p3Items.push({ id: r.id, name: r.name, measure: r.measure, effort: '8–16h' });
+      p3Items.push({ id: r.id, name: r.name, measure: r.measure, effort: '8-16h' });
     }
   }
 
@@ -1240,19 +1240,19 @@ export function generateCraReport(data: CraReportData): void {
   y += 2;
 
   const phases = [
-    { phase: lang === 'de' ? 'Phase 0: Sofort (1–2 Wochen)' : lang === 'fr' ? 'Phase 0 : Immédiat (1–2 semaines)' : 'Phase 0: Immediate (1–2 weeks)',
+    { phase: lang === 'de' ? 'Phase 0: Sofort (1-2 Wochen)' : lang === 'fr' ? 'Phase 0 : Immédiat (1-2 semaines)' : 'Phase 0: Immediate (1-2 weeks)',
       desc: `${p0Items.length} ${lang === 'de' ? 'Release-Blocker' : 'release blockers'}`,
       gate: lang === 'de' ? 'Gate: Alle P0-Maßnahmen verifiziert, Re-Test durch Security-Ingenieur' : 'Gate: All P0 measures verified, security re-test',
       color: C.redText },
-    { phase: lang === 'de' ? 'Phase 1: Vor Release (2–4 Wochen)' : lang === 'fr' ? 'Phase 1 : Avant release (2–4 sem.)' : 'Phase 1: Before Release (2–4 weeks)',
+    { phase: lang === 'de' ? 'Phase 1: Vor Release (2-4 Wochen)' : lang === 'fr' ? 'Phase 1 : Avant release (2-4 sem.)' : 'Phase 1: Before Release (2-4 weeks)',
       desc: `${p1Items.length} ${lang === 'de' ? 'hohe Priorität' : 'high priority items'}`,
       gate: lang === 'de' ? 'Gate: P1 abgeschlossen, Pentest-Verifizierung bestanden' : 'Gate: P1 complete, pentest passed',
       color: C.orangeText },
-    { phase: lang === 'de' ? 'Phase 2: Vor GA (4–8 Wochen)' : lang === 'fr' ? 'Phase 2 : Avant GA (4–8 sem.)' : 'Phase 2: Before GA (4–8 weeks)',
+    { phase: lang === 'de' ? 'Phase 2: Vor GA (4-8 Wochen)' : lang === 'fr' ? 'Phase 2 : Avant GA (4-8 sem.)' : 'Phase 2: Before GA (4-8 weeks)',
       desc: `${p2Items.length} ${lang === 'de' ? 'Teilerfüllungen nachschärfen' : 'partial compliance items'}`,
-      gate: lang === 'de' ? 'Gate: Coverage ≥ 80%, QA-Regression bestanden' : 'Gate: Coverage ≥ 80%, QA regression passed',
+      gate: lang === 'de' ? 'Gate: Coverage >= 80%, QA-Regression bestanden' : 'Gate: Coverage >= 80%, QA regression passed',
       color: C.bodyText },
-    { phase: lang === 'de' ? 'Phase 3: Empfohlen (8–12 Wochen)' : lang === 'fr' ? 'Phase 3 : Recommandé (8–12 sem.)' : 'Phase 3: Recommended (8–12 weeks)',
+    { phase: lang === 'de' ? 'Phase 3: Empfohlen (8-12 Wochen)' : lang === 'fr' ? 'Phase 3 : Recommandé (8-12 sem.)' : 'Phase 3: Recommended (8-12 weeks)',
       desc: `${p3Items.length} ${lang === 'de' ? 'Verbesserungen' : 'improvements'}`,
       gate: lang === 'de' ? 'Gate: Vollständige CRA-Konformität' : 'Gate: Full CRA compliance',
       color: C.labelText },
@@ -1267,7 +1267,7 @@ export function generateCraReport(data: CraReportData): void {
     for (const pl of phLines) { checkPage(5); doc.text(pl, ML + 10, y); y += BODY_LEADING; }
     y += 1;
     doc.setFont('helvetica', 'italic'); doc.setFontSize(7.5); doc.setTextColor(...C.accent);
-    doc.text(`→ ${ph.gate}`, ML + 10, y); y += 6;
+    doc.text(`> ${ph.gate}`, ML + 10, y); y += 6;
   }
 
   /* ══════════════════════════════════════
@@ -1281,10 +1281,10 @@ export function generateCraReport(data: CraReportData): void {
   y += 4;
   writeSubHeading(t(I18N.sec6a));
   const matrixExplanation = lang === 'de'
-    ? 'Die Risikobewertung erfolgt auf Basis einer 5×5-Matrix. Jede Bedrohung wird auf zwei Achsen bewertet:\n\nEintrittswahrscheinlichkeit (1–5):\n  1 = Sehr unwahrscheinlich (erfordert staatliche Ressourcen)\n  2 = Unwahrscheinlich (erfordert erheblichen Aufwand/Insider)\n  3 = Möglich (Netzwerkzugang + Standard-Tooling)\n  4 = Wahrscheinlich (geringer Aufwand, öffentlich bekannte Methoden)\n  5 = Sehr wahrscheinlich (trivial, keine besonderen Kenntnisse)\n\nAuswirkung (1–5):\n  1 = Minimal (keine Datenverluste, lokale Störung)\n  2 = Gering (begrenzter Datenverlust, einzelne Funktion betroffen)\n  3 = Mittel (Konfigurationsänderung, Compliance-Verstoß)\n  4 = Hoch (Datenabfluss, Produktionsausfall, Admin-Zugriff)\n  5 = Kritisch (persistente Kompromittierung, Lateral Movement, physischer Schaden)\n\nRisikoscore = Eintrittswahrscheinlichkeit × Auswirkung\n  Gering: 1–5  |  Mittel: 6–12  |  Hoch: 13–19  |  Kritisch: 20–25'
+    ? 'Die Risikobewertung erfolgt auf Basis einer 5x5-Matrix. Jede Bedrohung wird auf zwei Achsen bewertet:\n\nEintrittswahrscheinlichkeit (1-5):\n  1 = Sehr unwahrscheinlich (erfordert staatliche Ressourcen)\n  2 = Unwahrscheinlich (erfordert erheblichen Aufwand/Insider)\n  3 = Möglich (Netzwerkzugang + Standard-Tooling)\n  4 = Wahrscheinlich (geringer Aufwand, öffentlich bekannte Methoden)\n  5 = Sehr wahrscheinlich (trivial, keine besonderen Kenntnisse)\n\nAuswirkung (1-5):\n  1 = Minimal (keine Datenverluste, lokale Störung)\n  2 = Gering (begrenzter Datenverlust, einzelne Funktion betroffen)\n  3 = Mittel (Konfigurationsänderung, Compliance-Verstoß)\n  4 = Hoch (Datenabfluss, Produktionsausfall, Admin-Zugriff)\n  5 = Kritisch (persistente Kompromittierung, Lateral Movement, physischer Schaden)\n\nRisikoscore = Eintrittswahrscheinlichkeit x Auswirkung\n  Gering: 1-5  |  Mittel: 6-12  |  Hoch: 13-19  |  Kritisch: 20-25'
     : lang === 'fr'
-    ? 'L\'évaluation des risques est basée sur une matrice 5×5. Chaque menace est évaluée sur deux axes :\n\nProbabilité (1–5) :\n  1 = Très improbable (ressources étatiques nécessaires)\n  2 = Improbable (effort considérable / initié)\n  3 = Possible (accès réseau + outils standards)\n  4 = Probable (faible effort, méthodes publiques)\n  5 = Très probable (trivial, aucune connaissance spéciale)\n\nImpact (1–5) :\n  1 = Minimal (pas de perte de données, perturbation locale)\n  2 = Faible (perte de données limitée, fonction unique affectée)\n  3 = Moyen (changement de configuration, violation de conformité)\n  4 = Élevé (fuite de données, arrêt de production, accès admin)\n  5 = Critique (compromission persistante, mouvement latéral, dommages physiques)\n\nScore de risque = Probabilité × Impact\n  Faible : 1–5  |  Moyen : 6–12  |  Élevé : 13–19  |  Critique : 20–25'
-    : 'Risk assessment is based on a 5×5 matrix. Each threat is evaluated on two axes:\n\nLikelihood (1–5):\n  1 = Very unlikely (requires state-level resources)\n  2 = Unlikely (requires significant effort / insider access)\n  3 = Possible (network access + standard tooling)\n  4 = Likely (low effort, publicly known methods)\n  5 = Very likely (trivial, no special knowledge required)\n\nImpact (1–5):\n  1 = Minimal (no data loss, local disruption only)\n  2 = Low (limited data loss, single function affected)\n  3 = Medium (configuration change, compliance violation)\n  4 = High (data exfiltration, production outage, admin access)\n  5 = Critical (persistent compromise, lateral movement, physical damage)\n\nRisk Score = Likelihood × Impact\n  Low: 1–5  |  Medium: 6–12  |  High: 13–19  |  Critical: 20–25';
+    ? 'L\'évaluation des risques est basée sur une matrice 5x5. Chaque menace est évaluée sur deux axes :\n\nProbabilité (1-5) :\n  1 = Très improbable (ressources étatiques nécessaires)\n  2 = Improbable (effort considérable / initié)\n  3 = Possible (accès réseau + outils standards)\n  4 = Probable (faible effort, méthodes publiques)\n  5 = Très probable (trivial, aucune connaissance spéciale)\n\nImpact (1-5) :\n  1 = Minimal (pas de perte de données, perturbation locale)\n  2 = Faible (perte de données limitée, fonction unique affectée)\n  3 = Moyen (changement de configuration, violation de conformité)\n  4 = Élevé (fuite de données, arrêt de production, accès admin)\n  5 = Critique (compromission persistante, mouvement latéral, dommages physiques)\n\nScore de risque = Probabilité x Impact\n  Faible : 1-5  |  Moyen : 6-12  |  Élevé : 13-19  |  Critique : 20-25'
+    : 'Risk assessment is based on a 5x5 matrix. Each threat is evaluated on two axes:\n\nLikelihood (1-5):\n  1 = Very unlikely (requires state-level resources)\n  2 = Unlikely (requires significant effort / insider access)\n  3 = Possible (network access + standard tooling)\n  4 = Likely (low effort, publicly known methods)\n  5 = Very likely (trivial, no special knowledge required)\n\nImpact (1-5):\n  1 = Minimal (no data loss, local disruption only)\n  2 = Low (limited data loss, single function affected)\n  3 = Medium (configuration change, compliance violation)\n  4 = High (data exfiltration, production outage, admin access)\n  5 = Critical (persistent compromise, lateral movement, physical damage)\n\nRisk Score = Likelihood x Impact\n  Low: 1-5  |  Medium: 6-12  |  High: 13-19  |  Critical: 20-25';
   writeBody(matrixExplanation);
 
   // 6.2 OT Contextualisation
@@ -1374,7 +1374,7 @@ export function generateCraReport(data: CraReportData): void {
       ['cra_reference', th.cra],
       ['likelihood', `${th.likelihood}/5`],
       ['impact', `${th.impact}/5`],
-      ['risk_score', `${score}/25 → ${riskLabel(score)}`],
+      ['risk_score', `${score}/25 > ${riskLabel(score)}`],
       ['evidence', th.evidence],
       ['rationale', th.rationale],
       ['sources', th.sources.join(' | ')],
@@ -1638,10 +1638,10 @@ export function generateCraReport(data: CraReportData): void {
   writeSectionHeading(t(I18N.secD));
 
   const qgIntro = lang === 'de'
-    ? 'Dieser Anhang dokumentiert die automatisierte Qualitätssicherung gemäß vier Prüfdimensionen. Jeder Prüfpunkt wird maschinell gegen die Berichtsdaten validiert. Das Ergebnis (✅ bestanden / ❌ nicht bestanden) ist revisionssicher und reproduzierbar.'
+    ? 'Dieser Anhang dokumentiert die automatisierte Qualitaetssicherung gemaess vier Pruefdimensionen. Jeder Pruefpunkt wird maschinell gegen die Berichtsdaten validiert. Das Ergebnis (PASS / FAIL) ist revisionssicher und reproduzierbar.'
     : lang === 'fr'
-    ? 'Cette annexe documente l\'assurance qualité automatisée selon quatre dimensions d\'audit. Chaque point de contrôle est validé automatiquement. Le résultat (✅ réussi / ❌ échoué) est vérifiable et reproductible.'
-    : 'This appendix documents automated quality assurance across four audit dimensions. Each checkpoint is machine-validated against report data. Results (✅ pass / ❌ fail) are audit-proof and reproducible.';
+    ? 'Cette annexe documente l\'assurance qualite automatisee selon quatre dimensions d\'audit. Chaque point de controle est valide automatiquement. Le resultat (PASS / FAIL) est verifiable et reproductible.'
+    : 'This appendix documents automated quality assurance across four audit dimensions. Each checkpoint is machine-validated against report data. Results (PASS / FAIL) are audit-proof and reproducible.';
   writeBody(qgIntro);
   y += 4;
 
@@ -1668,7 +1668,7 @@ export function generateCraReport(data: CraReportData): void {
     }
   }
 
-  // Check: every fail-req has ≥1 linked threat
+  // Check: every fail-req has >=1 linked threat
   const failReqsWithoutThreats = failReqs.filter(r => !threats.some(th => th.cra === r.article));
   // Check: every pass-req has 0 critical threats
   const passReqsWithCritThreats = reqs.filter(r => r.status === 'pass' && threats.some(th => th.cra === r.article && th.likelihood * th.impact >= 20));
@@ -1684,7 +1684,7 @@ export function generateCraReport(data: CraReportData): void {
   const authReq = reqs.find(r => r.id === 'A1-3');
   const noAuthButCompliant = hasModbus && authReq?.status === 'pass';
 
-  // Check: critical threats → requirement must be at least partial
+  // Check: critical threats > requirement must be at least partial
   const critThreatsWithPassReq = critRisks.filter(th => {
     const linkedReq = reqs.find(r => r.article === th.cra);
     return linkedReq && linkedReq.status === 'pass';
@@ -1728,9 +1728,9 @@ export function generateCraReport(data: CraReportData): void {
       titleEn: 'Consistency Check',
       checks: [
         {
-          label: lang === 'de' ? `Threat-Count (${threats.length}) ≥ Baseline (${baseline}) für Produktklasse ${intakeData.craClass.toUpperCase()}`
-            : lang === 'fr' ? `Nombre de menaces (${threats.length}) ≥ baseline (${baseline}) pour classe ${intakeData.craClass.toUpperCase()}`
-            : `Threat count (${threats.length}) ≥ baseline (${baseline}) for class ${intakeData.craClass.toUpperCase()}`,
+          label: lang === 'de' ? `Threat-Count (${threats.length}) >= Baseline (${baseline}) für Produktklasse ${intakeData.craClass.toUpperCase()}`
+            : lang === 'fr' ? `Nombre de menaces (${threats.length}) >= baseline (${baseline}) pour classe ${intakeData.craClass.toUpperCase()}`
+            : `Threat count (${threats.length}) >= baseline (${baseline}) for class ${intakeData.craClass.toUpperCase()}`,
           passed: meetsBaseline,
           detail: !meetsBaseline ? `${lang === 'de' ? 'Fehlend' : 'Missing'}: ${baseline - threats.length} ${lang === 'de' ? 'Threats' : 'threats'}` : undefined,
         },
@@ -1741,38 +1741,38 @@ export function generateCraReport(data: CraReportData): void {
           passed: reqs.length >= 22,
         },
         {
-          label: lang === 'de' ? 'Jede "NICHT KONFORM" Anforderung hat ≥ 1 verknüpften Threat'
-            : lang === 'fr' ? 'Chaque exigence "NON CONFORME" a ≥ 1 menace liée'
-            : 'Each "NON-COMPLIANT" requirement has ≥ 1 linked threat',
+          label: lang === 'de' ? 'Jede "NICHT KONFORM" Anforderung hat >= 1 verknüpften Threat'
+            : lang === 'fr' ? 'Chaque exigence "NON CONFORME" a >= 1 menace liée'
+            : 'Each "NON-COMPLIANT" requirement has >= 1 linked threat',
           passed: failReqsWithoutThreats.length === 0,
           detail: failReqsWithoutThreats.length > 0 ? `${lang === 'de' ? 'Ohne Threat-Verknüpfung' : 'Missing link'}: ${failReqsWithoutThreats.map(r => r.id).join(', ')}` : undefined,
         },
         {
-          label: lang === 'de' ? 'Jede "KONFORM" Anforderung hat 0 kritische Threats (Risk ≥ 20)'
-            : lang === 'fr' ? 'Chaque exigence "CONFORME" a 0 menaces critiques (Risk ≥ 20)'
-            : 'Each "COMPLIANT" requirement has 0 critical threats (Risk ≥ 20)',
+          label: lang === 'de' ? 'Jede "KONFORM" Anforderung hat 0 kritische Threats (Risk >= 20)'
+            : lang === 'fr' ? 'Chaque exigence "CONFORME" a 0 menaces critiques (Risk >= 20)'
+            : 'Each "COMPLIANT" requirement has 0 critical threats (Risk >= 20)',
           passed: passReqsWithCritThreats.length === 0,
           detail: passReqsWithCritThreats.length > 0 ? `${lang === 'de' ? 'Widerspruch' : 'Contradiction'}: ${passReqsWithCritThreats.map(r => r.id).join(', ')}` : undefined,
         },
         {
-          label: lang === 'de' ? 'Bidirektionale Traceability: Threat → Anforderung und Anforderung → Threat'
-            : lang === 'fr' ? 'Traçabilité bidirectionnelle : Menace → Exigence et Exigence → Menace'
-            : 'Bidirectional traceability: Threat → Requirement and Requirement → Threat',
+          label: lang === 'de' ? 'Bidirektionale Traceability: Threat > Anforderung und Anforderung > Threat'
+            : lang === 'fr' ? 'Tracabilite bidirectionnelle : Menace > Exigence et Exigence > Menace'
+            : 'Bidirectional traceability: Threat > Requirement and Requirement > Threat',
           passed: failReqsWithoutThreats.length === 0 && passReqsWithCritThreats.length === 0,
         },
         {
-          label: lang === 'de' ? `STRIDE-Verteilung: Jede Komponente hat ≥ 2 STRIDE-Kategorien`
-            : lang === 'fr' ? `Distribution STRIDE : chaque composant a ≥ 2 catégories STRIDE`
-            : `STRIDE distribution: each component has ≥ 2 STRIDE categories`,
+          label: lang === 'de' ? `STRIDE-Verteilung: Jede Komponente hat >= 2 STRIDE-Kategorien`
+            : lang === 'fr' ? `Distribution STRIDE : chaque composant a >= 2 catégories STRIDE`
+            : `STRIDE distribution: each component has >= 2 STRIDE categories`,
           passed: componentsWithLessThan2Stride.length === 0,
           detail: componentsWithLessThan2Stride.length > 0
             ? `${componentsWithLessThan2Stride.map(([c, s]) => `${c} (${s.size})`).join(', ')}`
             : undefined,
         },
         {
-          label: lang === 'de' ? `Coverage-Rate: ${coverageRate}% (≥ 82% für Klasse II empfohlen)`
-            : lang === 'fr' ? `Taux de couverture : ${coverageRate}% (≥ 82% recommandé pour Classe II)`
-            : `Coverage rate: ${coverageRate}% (≥ 82% recommended for Class II)`,
+          label: lang === 'de' ? `Coverage-Rate: ${coverageRate}% (>= 82% für Klasse II empfohlen)`
+            : lang === 'fr' ? `Taux de couverture : ${coverageRate}% (>= 82% recommandé pour Classe II)`
+            : `Coverage rate: ${coverageRate}% (>= 82% recommended for Class II)`,
           passed: coverageRate >= 82 || intakeData.craClass === 'default' || intakeData.craClass === 'k1',
         },
       ],
@@ -1784,23 +1784,23 @@ export function generateCraReport(data: CraReportData): void {
       titleEn: 'Strictness Check',
       checks: [
         {
-          label: lang === 'de' ? 'Unverschlüsselte Übertragungen (MQTT/HTTP) → Anforderung A1-4 nicht als "konform" bewertet'
-            : lang === 'fr' ? 'Transmissions non chiffrées (MQTT/HTTP) → Exigence A1-4 pas évaluée "conforme"'
-            : 'Unencrypted transmissions (MQTT/HTTP) → Requirement A1-4 not rated "compliant"',
+          label: lang === 'de' ? 'Unverschluesselte Uebertragungen (MQTT/HTTP): Anforderung A1-4 nicht als "konform" bewertet'
+            : lang === 'fr' ? 'Transmissions non chiffrees (MQTT/HTTP): Exigence A1-4 pas evaluee "conforme"'
+            : 'Unencrypted transmissions (MQTT/HTTP): Requirement A1-4 not rated "compliant"',
           passed: !unencryptedButCompliant,
-          detail: unencryptedButCompliant ? `A1-4 ${lang === 'de' ? 'ist "konform" trotz unverschlüsselter Interfaces' : 'rated "compliant" despite unencrypted interfaces'}` : undefined,
+          detail: unencryptedButCompliant ? `A1-4 ${lang === 'de' ? 'ist "konform" trotz unverschluesselter Interfaces' : 'rated "compliant" despite unencrypted interfaces'}` : undefined,
         },
         {
-          label: lang === 'de' ? 'Interfaces ohne Authentifizierung (Modbus) → Anforderung A1-3 nicht als "konform" bewertet'
-            : lang === 'fr' ? 'Interfaces sans authentification (Modbus) → Exigence A1-3 pas évaluée "conforme"'
-            : 'Unauthenticated interfaces (Modbus) → Requirement A1-3 not rated "compliant"',
+          label: lang === 'de' ? 'Interfaces ohne Authentifizierung (Modbus): Anforderung A1-3 nicht als "konform" bewertet'
+            : lang === 'fr' ? 'Interfaces sans authentification (Modbus): Exigence A1-3 pas evaluee "conforme"'
+            : 'Unauthenticated interfaces (Modbus): Requirement A1-3 not rated "compliant"',
           passed: !noAuthButCompliant,
           detail: noAuthButCompliant ? `A1-3 ${lang === 'de' ? 'ist "konform" trotz Modbus ohne Auth' : 'rated "compliant" despite Modbus without auth'}` : undefined,
         },
         {
-          label: lang === 'de' ? 'Kritische Threats (Risk ≥ 20) → verknüpfte Anforderung mindestens "teilweise konform"'
-            : lang === 'fr' ? 'Menaces critiques (Risk ≥ 20) → exigence liée au moins "partiellement conforme"'
-            : 'Critical threats (Risk ≥ 20) → linked requirement at least "partially compliant"',
+          label: lang === 'de' ? 'Kritische Threats (Risk >= 20): verknuepfte Anforderung mindestens "teilweise konform"'
+            : lang === 'fr' ? 'Menaces critiques (Risk >= 20): exigence liee au moins "partiellement conforme"'
+            : 'Critical threats (Risk >= 20): linked requirement at least "partially compliant"',
           passed: critThreatsWithPassReq.length === 0,
           detail: critThreatsWithPassReq.length > 0 ? `${lang === 'de' ? 'Widerspruch bei' : 'Contradiction at'}: ${critThreatsWithPassReq.map(th => threatId(th)).join(', ')}` : undefined,
         },
@@ -1818,9 +1818,9 @@ export function generateCraReport(data: CraReportData): void {
           detail: nonPassReqsWithoutEffort.length > 0 ? `${lang === 'de' ? 'Ohne Aufwand' : 'Missing effort'}: ${nonPassReqsWithoutEffort.map(r => r.id).join(', ')}` : undefined,
         },
         {
-          label: lang === 'de' ? 'Alle nicht-konforme Maßnahmen haben P0–P3-Priorisierung'
-            : lang === 'fr' ? 'Toutes les mesures non conformes ont une priorité P0–P3'
-            : 'All non-compliant measures have P0–P3 prioritisation',
+          label: lang === 'de' ? 'Alle nicht-konforme Maßnahmen haben P0-P3-Priorisierung'
+            : lang === 'fr' ? 'Toutes les mesures non conformes ont une priorité P0-P3'
+            : 'All non-compliant measures have P0-P3 prioritisation',
           passed: nonPassReqsWithoutPriority.length === 0,
           detail: nonPassReqsWithoutPriority.length > 0 ? `${lang === 'de' ? 'Ohne Priorität' : 'Missing priority'}: ${nonPassReqsWithoutPriority.map(r => r.id).join(', ')}` : undefined,
         },
@@ -1839,9 +1839,9 @@ export function generateCraReport(data: CraReportData): void {
           passed: true, // IDs are generated, always sequential
         },
         {
-          label: lang === 'de' ? `Anforderungen lückenlos referenziert (${reqs.length} Anforderungen: A1-1 bis A2-9, Art. 10–22)`
-            : lang === 'fr' ? `Exigences référencées sans lacune (${reqs.length} exigences : A1-1 à A2-9, Art. 10–22)`
-            : `Requirements fully referenced (${reqs.length} requirements: A1-1 to A2-9, Art. 10–22)`,
+          label: lang === 'de' ? `Anforderungen lückenlos referenziert (${reqs.length} Anforderungen: A1-1 bis A2-9, Art. 10-22)`
+            : lang === 'fr' ? `Exigences référencées sans lacune (${reqs.length} exigences : A1-1 à A2-9, Art. 10-22)`
+            : `Requirements fully referenced (${reqs.length} requirements: A1-1 to A2-9, Art. 10-22)`,
           passed: reqs.length >= 22,
         },
         {
@@ -1872,23 +1872,23 @@ export function generateCraReport(data: CraReportData): void {
       titleEn: 'Evidence Check',
       checks: [
         {
-          label: lang === 'de' ? `Risk ≥ 20 Threats mit PoC (⭐⭐⭐⭐+): ${critRisks.length - critWithoutPoC.length}/${critRisks.length}`
-            : lang === 'fr' ? `Menaces Risk ≥ 20 avec PoC (⭐⭐⭐⭐+) : ${critRisks.length - critWithoutPoC.length}/${critRisks.length}`
-            : `Risk ≥ 20 threats with PoC (⭐⭐⭐⭐+): ${critRisks.length - critWithoutPoC.length}/${critRisks.length}`,
+          label: lang === 'de' ? `Risk >= 20 Threats mit PoC (4/5+): ${critRisks.length - critWithoutPoC.length}/${critRisks.length}`
+            : lang === 'fr' ? `Menaces Risk >= 20 avec PoC (4/5+) : ${critRisks.length - critWithoutPoC.length}/${critRisks.length}`
+            : `Risk >= 20 threats with PoC (4/5+): ${critRisks.length - critWithoutPoC.length}/${critRisks.length}`,
           passed: critWithoutPoC.length === 0,
-          detail: critWithoutPoC.length > 0 ? `${lang === 'de' ? 'PoC fehlt' : 'Missing PoC'}: ${critWithoutPoC.map(th => `${threatId(th)} (⭐${th.evidenceQuality})`).join(', ')}` : undefined,
+          detail: critWithoutPoC.length > 0 ? `${lang === 'de' ? 'PoC fehlt' : 'Missing PoC'}: ${critWithoutPoC.map(th => `${threatId(th)} (${th.evidenceQuality}/5)`).join(', ')}` : undefined,
         },
         {
-          label: lang === 'de' ? `Risk 15–19 Threats mit Evidenz (⭐⭐⭐+): ${highRisks.length - highWithoutPoC.length}/${highRisks.length}`
-            : lang === 'fr' ? `Menaces Risk 15–19 avec preuve (⭐⭐⭐+) : ${highRisks.length - highWithoutPoC.length}/${highRisks.length}`
-            : `Risk 15–19 threats with evidence (⭐⭐⭐+): ${highRisks.length - highWithoutPoC.length}/${highRisks.length}`,
+          label: lang === 'de' ? `Risk 15-19 Threats mit Evidenz (3/5+): ${highRisks.length - highWithoutPoC.length}/${highRisks.length}`
+            : lang === 'fr' ? `Menaces Risk 15-19 avec preuve (3/5+) : ${highRisks.length - highWithoutPoC.length}/${highRisks.length}`
+            : `Risk 15-19 threats with evidence (3/5+): ${highRisks.length - highWithoutPoC.length}/${highRisks.length}`,
           passed: highWithoutPoC.length === 0,
-          detail: highWithoutPoC.length > 0 ? `${lang === 'de' ? 'Schwache Evidenz' : 'Weak evidence'}: ${highWithoutPoC.map(th => `${threatId(th)} (⭐${th.evidenceQuality})`).join(', ')}` : undefined,
+          detail: highWithoutPoC.length > 0 ? `${lang === 'de' ? 'Schwache Evidenz' : 'Weak evidence'}: ${highWithoutPoC.map(th => `${threatId(th)} (${th.evidenceQuality}/5)`).join(', ')}` : undefined,
         },
         {
-          label: lang === 'de' ? `Gesamtquote ⭐⭐⭐+ Evidenz: ${threats.filter(th => th.evidenceQuality >= 3).length}/${threats.length} (${Math.round((threats.filter(th => th.evidenceQuality >= 3).length / threats.length) * 100)}%, ≥ 75% erforderlich)`
-            : lang === 'fr' ? `Taux global ⭐⭐⭐+ : ${threats.filter(th => th.evidenceQuality >= 3).length}/${threats.length} (${Math.round((threats.filter(th => th.evidenceQuality >= 3).length / threats.length) * 100)}%, ≥ 75% requis)`
-            : `Overall ⭐⭐⭐+ evidence rate: ${threats.filter(th => th.evidenceQuality >= 3).length}/${threats.length} (${Math.round((threats.filter(th => th.evidenceQuality >= 3).length / threats.length) * 100)}%, ≥ 75% required)`,
+          label: lang === 'de' ? `Gesamtquote 3/5+ Evidenz: ${threats.filter(th => th.evidenceQuality >= 3).length}/${threats.length} (${Math.round((threats.filter(th => th.evidenceQuality >= 3).length / threats.length) * 100)}%, >= 75% erforderlich)`
+            : lang === 'fr' ? `Taux global 3/5+ : ${threats.filter(th => th.evidenceQuality >= 3).length}/${threats.length} (${Math.round((threats.filter(th => th.evidenceQuality >= 3).length / threats.length) * 100)}%, >= 75% requis)`
+            : `Overall 3/5+ evidence rate: ${threats.filter(th => th.evidenceQuality >= 3).length}/${threats.length} (${Math.round((threats.filter(th => th.evidenceQuality >= 3).length / threats.length) * 100)}%, >= 75% required)`,
           passed: evidAbove75,
         },
         {
@@ -1955,18 +1955,28 @@ export function generateCraReport(data: CraReportData): void {
     doc.text(`${blockPassed}/${blockTotal} ${lang === 'de' ? 'bestanden' : lang === 'fr' ? 'réussis' : 'passed'}`, W - MR - 5, y - 5, { align: 'right' });
 
     for (const check of block.checks) {
-      checkPage(10);
-      const icon = check.passed ? '✅' : '❌';
+      checkPage(12);
+      // Draw pass/fail marker as a small filled circle instead of emoji
+      const markerX = ML + 6;
+      if (check.passed) {
+        doc.setFillColor(...C.greenText);
+      } else {
+        doc.setFillColor(...C.redText);
+      }
+      doc.circle(markerX, y - 1.2, 1.3, 'F');
+
       doc.setFont('helvetica', 'normal'); doc.setFontSize(BODY_SIZE - 0.5); doc.setTextColor(...(check.passed ? C.bodyText : C.redText));
-      const checkLines = doc.splitTextToSize(`${icon}  ${check.label}`, CW - 18);
+      const checkMaxW = CW - 14;
+      const checkLines = doc.splitTextToSize(check.label, checkMaxW);
       for (const cl of checkLines) {
         checkPage(4);
-        doc.text(cl, ML + 8, y);
+        doc.text(cl, ML + 10, y);
         y += 3.8;
       }
       if (check.detail) {
         doc.setFont('helvetica', 'italic'); doc.setFontSize(7); doc.setTextColor(...C.orangeText);
-        const detailLines = doc.splitTextToSize(`→ ${check.detail}`, CW - 25);
+        const detailMaxW = CW - 20;
+        const detailLines = doc.splitTextToSize(check.detail, detailMaxW);
         for (const dl of detailLines) {
           checkPage(4);
           doc.text(dl, ML + 14, y);
