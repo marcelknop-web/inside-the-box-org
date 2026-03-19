@@ -404,6 +404,15 @@ export function generateCraReport(data: CraReportData): void {
   function preparePage() {
     addRunningHeader();
     drawWatermark(doc, W / 2, H / 2, 52);
+    if (isDraft) {
+      doc.saveGraphicsState();
+      doc.setGState(new (doc as any).GState({ opacity: 0.08 }));
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(72);
+      doc.setTextColor(200, 50, 50);
+      doc.text('DRAFT', W / 2, H / 2 + 10, { align: 'center', angle: 45 });
+      doc.restoreGraphicsState();
+    }
   }
 
   function checkPage(need: number = 16) {
