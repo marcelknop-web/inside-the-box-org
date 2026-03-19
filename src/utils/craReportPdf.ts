@@ -1019,6 +1019,15 @@ export function generateCraReport(data: CraReportData): void {
     writeFieldBlock(t(I18N.rationale), req.rationale);
     writeFieldBlock(t(I18N.measureAction), req.measure);
 
+    // Effort + Priority
+    if (req.effort) {
+      writeFieldBlock(t(I18N.effort), req.effort);
+    }
+    if (req.priority) {
+      const pLabel = req.priority === 'P0' ? t(I18N.p0) : req.priority === 'P1' ? t(I18N.p1) : req.priority === 'P2' ? t(I18N.p2) : t(I18N.p3);
+      writeFieldBlock(t(I18N.priority), pLabel);
+    }
+
     // Cross-reference: which threats are linked to this requirement?
     const linkedThreats = articleToThreats[req.article];
     if (linkedThreats && linkedThreats.length > 0) {
