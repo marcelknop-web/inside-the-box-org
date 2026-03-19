@@ -250,6 +250,10 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
       roles: ['Fleet Manager', 'Driver', 'Dispatcher'],
       measures: { tls: { active: true, documented: true, audited: false }, auth: { active: true, documented: true, audited: false }, encrypt: { active: true, documented: false, audited: false }, log: { active: true, documented: true, audited: false } },
       knownIssues: 'Default admin credentials are documented but not enforced to change on first login.',
+      files: [
+        { name: 'FleetTrack_AppArchitecture.pdf', size: 890_000, type: 'arch' },
+        { name: 'FleetTrack_DataProtection_Policy.pdf', size: 340_000, type: 'policy' },
+      ],
     },
     {
       // Kritische Infrastruktur – Klasse Kritisch, hohe Anforderungen
