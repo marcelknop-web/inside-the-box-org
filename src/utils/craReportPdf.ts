@@ -276,8 +276,8 @@ function drawWatermark(doc: jsPDF, cx: number, cy: number, size: number) {
   const S = size;
   const SQRT2_HALF = Math.SQRT2 / 2;
   doc.saveGraphicsState();
-  doc.setGState(new (doc as any).GState({ opacity: 0.04 }));
-  const wc: [number, number, number] = [195, 155, 30];
+  doc.setGState(new (doc as any).GState({ opacity: 0.018 }));
+  const wc: [number, number, number] = [180, 180, 180];
   const diamond = (x: number, y: number, hd: number, style: 'S' | 'F' = 'S') => {
     doc.lines([[hd, hd], [hd, -hd], [-hd, -hd], [-hd, hd]], x, y - hd, [1, 1], style, true);
   };
