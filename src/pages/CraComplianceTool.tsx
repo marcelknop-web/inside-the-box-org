@@ -1,7 +1,9 @@
 import { useState, useCallback, useRef, useMemo, memo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { RotateCcw, ChevronDown, ChevronUp, Loader2, Sparkles, FileText } from 'lucide-react';
+import { RotateCcw, ChevronDown, ChevronUp, Loader2, Sparkles, FileText, ShieldCheck, CheckCircle2, XCircle, AlertTriangle } from 'lucide-react';
 import { generateCraReport } from '@/utils/craReportPdf';
+import { CraAuditCharts } from '@/components/CraAuditCharts';
+import { runQualityCheck, type QaResult } from '@/utils/craQualityCheck';
 import { PageMeta } from '@/components/PageMeta';
 import { Progress } from '@/components/ui/progress';
 import { useLanguage } from '@/i18n/LanguageContext';
