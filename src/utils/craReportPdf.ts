@@ -726,8 +726,17 @@ export function generateCraReport(data: CraReportData): void {
         doc.setFontSize(9);
         doc.setTextColor(...C.redText);
         doc.text(`${tid}`, ML + 4, y);
+        // Truncate name if too long for available space
         doc.setTextColor(...C.darkNavy);
-        doc.text(th.name, ML + 18, y);
+        const nameMaxW = CW - 22;
+        let recName = th.name;
+        if (doc.getTextWidth(recName) > nameMaxW) {
+          while (recName.length > 5 && doc.getTextWidth(recName + '…') > nameMaxW) {
+            recName = recName.slice(0, -1);
+          }
+          recName = recName.trimEnd() + '…';
+        }
+        doc.text(recName, ML + 18, y);
         y += 5.5;
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(BODY_SIZE);
@@ -738,8 +747,12 @@ export function generateCraReport(data: CraReportData): void {
           ? `Score de risque ${th.likelihood} × ${th.impact} = ${th.likelihood * th.impact}. ${th.component} — Contre-mesures techniques immédiates nécessaires.`
           : `Risk score ${th.likelihood} × ${th.impact} = ${th.likelihood * th.impact}. ${th.component} — Immediate technical countermeasures required.`;
         const dLines = doc.splitTextToSize(desc, CW - 22);
-        doc.text(dLines, ML + 18, y);
-        y += dLines.length * BODY_LEADING + 5;
+        for (const dl of dLines) {
+          checkPage(6);
+          doc.text(dl, ML + 18, y);
+          y += BODY_LEADING;
+        }
+        y += 4;
       }
       y += 3;
     }
