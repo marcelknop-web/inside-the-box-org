@@ -202,10 +202,10 @@ export const THREATS: Threat[] = [
 
   // T — Tampering (3)
   { id: 2, stride: 'T', name: 'Manipulation der Firmware via OTA', component: 'OTA-Update-Client', attacker: 'Supply-Chain-Angreifer / Insider', path: 'Unsigniertes Firmware-Paket → Gerät installiert Malware → Persistente Kompromittierung', cra: 'Annex I, Part I, Nr. 1', likelihood: 2, impact: 5,
-    evidence: 'Code-Review: OTA-Client prüft weder kryptografische Signatur noch Integritäts-Hash des Firmware-Pakets. Download über HTTPS, aber ohne Certificate-Pinning.',
-    rationale: 'Likelihood 2: Supply-Chain-Zugang oder Kompromittierung des Update-Servers erforderlich – nicht trivial, erfordert erhebliche Ressourcen. Impact 5: Persistente Kompromittierung mit vollständiger Geräte-Kontrolle, Lateral Movement in OT-Netzwerk möglich.',
+    evidence: 'Code-Review (grep -r "verify_signature\\|check_hash" src/ota/): Keine Treffer — OTA-Client prüft weder kryptografische Signatur noch Integritäts-Hash. HTTPS-Download ohne Certificate-Pinning (openssl s_client -connect update.vendor.io:443 | grep -i pin: keine HPKP-Header). Praktischer PoC: Modifiziertes Firmware-Image (1 Byte geändert) via MITM-Proxy (mitmproxy 10.1) eingeschleust → Gerät installiert manipuliertes Image ohne Fehlermeldung. SHA-256 des Original-Images vs. modifiziertem Image dokumentiert.',
+    rationale: 'Likelihood 2: Supply-Chain-Zugang oder Kompromittierung des Update-Servers erforderlich – nicht trivial, erfordert erhebliche Ressourcen. Jedoch: Kein Integritätscheck senkt die Hürde erheblich bei MITM-Zugang. Impact 5: Persistente Kompromittierung mit vollständiger Geräte-Kontrolle, Lateral Movement in OT-Netzwerk möglich.',
     sources: ['CRA Annex I, Part I, Nr. 1: Produkte ohne bekannte Schwachstellen', 'NIST SP 800-193: Platform Firmware Resiliency'],
-    evidenceQuality: 3, reproducibility: 'hard' },
+    evidenceQuality: 4, reproducibility: 'medium' },
   { id: 3, stride: 'T', name: 'Parameter-Manipulation REST-API', component: 'REST-API-Server', attacker: 'Authentifizierter Nutzer', path: 'Manipulierte API-Parameter → kein Input-Validation → Konfigurationsänderung außerhalb Berechtigung', cra: 'Annex I, Part I, Nr. 3', likelihood: 4, impact: 3,
     evidence: 'API-Test: PUT /config akzeptiert beliebige JSON-Schlüssel ohne Schema-Validierung. Kein RBAC auf Endpoint-Ebene – jeder authentifizierte Nutzer kann Konfigurationsparameter ändern.',
     rationale: 'Likelihood 4: Standard-Tooling (curl, Postman) genügt, keine besonderen Rechte nötig, Aufwand < 4h. Impact 3: Konfigurationsänderung kann Betriebsparameter verfälschen, aber kein direkter Datenabfluss oder RCE.',
