@@ -848,90 +848,203 @@ export function generateCraReport(data: CraReportData): void {
     y += 6;
   }
 
+  // ── 4.3 Normative Coverage ──
+  newSection();
+  writeSubHeading(t(I18N.sec4c));
+  y += 2;
+
+  const annex1p1 = reqs.filter(r => r.article.startsWith('Annex I, Part I'));
+  const annex1p2 = reqs.filter(r => r.article.startsWith('Annex I, Part II'));
+  const articlesGroup = reqs.filter(r => r.article.startsWith('Artikel') || r.article.startsWith('Article'));
+
+  function coverageStats(group: typeof reqs) {
+    const pass = group.filter(r => r.status === 'pass').length;
+    const partial = group.filter(r => r.status === 'partial').length;
+    const fail = group.filter(r => r.status === 'fail').length;
+    return { total: group.length, pass, partial, fail, rate: group.length > 0 ? Math.round(((pass + partial * 0.5) / group.length) * 100) : 0 };
+  }
+
+  const covGroups = [
+    { label: t(I18N.coverageAnnex1p1), stats: coverageStats(annex1p1) },
+    { label: t(I18N.coverageAnnex1p2), stats: coverageStats(annex1p2) },
+    { label: t(I18N.coverageArticles), stats: coverageStats(articlesGroup) },
+  ];
+  const overallStats = coverageStats(reqs);
+
+  checkPage(50);
+  const colLabel = ML + 5;
+  const colTotal = ML + 95;
+  const colPass = ML + 110;
+  const colPartialC = ML + 122;
+  const colFailC = ML + 135;
+  const colRate = ML + 147;
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(7);
+  doc.setTextColor(...C.accent);
+  const tblH = lang === 'de' ? ['BEREICH', 'GEPRÜFT', 'KONFORM', 'TEILW.', 'FAIL', 'RATE']
+    : lang === 'fr' ? ['DOMAINE', 'EXAMINÉ', 'CONFORME', 'PARTIEL', 'FAIL', 'TAUX']
+    : ['AREA', 'REVIEWED', 'PASS', 'PARTIAL', 'FAIL', 'RATE'];
+  [colLabel, colTotal, colPass, colPartialC, colFailC, colRate].forEach((x, i) => doc.text(tblH[i], x, y));
+  y += 2;
+  doc.setDrawColor(...C.ruleStroke); doc.setLineWidth(0.15);
+  doc.line(colLabel, y, W - MR - 5, y); y += 4;
+
+  for (const g of covGroups) {
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(BODY_SIZE - 0.5); doc.setTextColor(...C.bodyText);
+    doc.text(truncateToWidth(g.label, 85, BODY_SIZE - 0.5), colLabel, y);
+    doc.text(String(g.stats.total), colTotal, y);
+    doc.setTextColor(...C.greenText); doc.text(String(g.stats.pass), colPass, y);
+    doc.setTextColor(...C.orangeText); doc.text(String(g.stats.partial), colPartialC, y);
+    doc.setTextColor(...C.redText); doc.text(String(g.stats.fail), colFailC, y);
+    const rc = g.stats.rate >= 75 ? C.greenText : g.stats.rate >= 50 ? C.orangeText : C.redText;
+    doc.setTextColor(...rc); doc.setFont('helvetica', 'bold'); doc.text(`${g.stats.rate}%`, colRate, y);
+    y += BODY_LEADING + 1;
+  }
+
+  doc.setDrawColor(...C.ruleStroke); doc.setLineWidth(0.1);
+  doc.line(colLabel, y - 1, W - MR - 5, y - 1); y += 2;
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(BODY_SIZE); doc.setTextColor(...C.darkNavy);
+  doc.text(lang === 'de' ? 'GESAMT' : 'TOTAL', colLabel, y);
+  doc.text(String(overallStats.total), colTotal, y);
+  doc.setTextColor(...C.greenText); doc.text(String(overallStats.pass), colPass, y);
+  doc.setTextColor(...C.orangeText); doc.text(String(overallStats.partial), colPartialC, y);
+  doc.setTextColor(...C.redText); doc.text(String(overallStats.fail), colFailC, y);
+  const orc = overallStats.rate >= 75 ? C.greenText : overallStats.rate >= 50 ? C.orangeText : C.redText;
+  doc.setTextColor(...orc); doc.text(`${overallStats.rate}%`, colRate, y);
+  y += 8;
+
+  writeBody(overallStats.rate >= 80
+    ? (lang === 'de' ? `Die normative Abdeckung von ${overallStats.rate}% ist für die gewählte Produktklasse als ausreichend einzustufen.`
+      : lang === 'fr' ? `La couverture normative de ${overallStats.rate}% est jugée suffisante.`
+      : `The normative coverage of ${overallStats.rate}% is considered sufficient for the selected product class.`)
+    : (lang === 'de' ? `Die normative Abdeckung von ${overallStats.rate}% liegt unter dem empfohlenen Schwellwert von 80%. Die Remediation-Roadmap (Abschnitt 5.2) adressiert die identifizierten Lücken.`
+      : lang === 'fr' ? `La couverture normative de ${overallStats.rate}% est inférieure au seuil recommandé de 80%.`
+      : `The normative coverage of ${overallStats.rate}% is below the recommended 80% threshold. The remediation roadmap (Section 5.2) addresses identified gaps.`));
+
   /* ══════════════════════════════════════
-     SECTION 5: Recommendations
+     SECTION 5: Recommendations & Roadmap
      ══════════════════════════════════════ */
   newSection();
   writeSectionHeading(t(I18N.sec5));
 
-  if (failReqs.length === 0 && critRisks.length === 0) {
-    writeBody(lang === 'de'
-      ? 'Auf Basis der durchgeführten Prüfung ergeben sich keine Sofortmaßnahmen. Die bestehenden Maßnahmen adressieren die identifizierten Risiken angemessen.'
-      : lang === 'fr'
-      ? 'Sur la base de l\'évaluation réalisée, aucune action immédiate n\'est nécessaire. Les mesures existantes répondent de manière adéquate aux risques identifiés.'
-      : 'Based on the assessment conducted, no immediate actions are required. The existing measures adequately address the identified risks.');
+  // ── P0–P3 Prioritisation ──
+  interface PrioItem { id: string; name: string; measure: string; effort: string; }
+  const p0Items: PrioItem[] = [];
+  const p1Items: PrioItem[] = [];
+  const p2Items: PrioItem[] = [];
+  const p3Items: PrioItem[] = [];
+
+  for (const th of sortedThreats) {
+    const score = th.likelihood * th.impact;
+    const tid = threatId(th);
+    if (score >= 20) {
+      p0Items.push({ id: tid, name: th.name,
+        measure: `${th.component} — ${lang === 'de' ? 'Unmittelbare Gegenmaßnahmen' : lang === 'fr' ? 'Contre-mesures immédiates' : 'Immediate countermeasures'}`,
+        effort: '8–24h' });
+    } else if (score >= 15) {
+      p1Items.push({ id: tid, name: th.name, measure: th.component, effort: '16–40h' });
+    }
+  }
+
+  for (const r of reqs) {
+    if (r.status === 'pass') continue;
+    const linkedScore = threats.filter(th => th.cra === r.article).reduce((mx, th) => Math.max(mx, th.likelihood * th.impact), 0);
+    const isRegCritical = r.article.includes('14');
+
+    if (r.status === 'fail' && (linkedScore >= 20 || isRegCritical)) {
+      if (!p0Items.find(p => p.id === r.id))
+        p0Items.push({ id: r.id, name: r.name, measure: r.measure, effort: r.criteria.length > 3 ? '24–48h' : '16–32h' });
+    } else if (r.status === 'fail') {
+      p1Items.push({ id: r.id, name: r.name, measure: r.measure, effort: '16–32h' });
+    } else if (r.status === 'partial' && linkedScore >= 13) {
+      p2Items.push({ id: r.id, name: r.name, measure: r.measure, effort: '8–24h' });
+    } else if (r.status === 'partial') {
+      p3Items.push({ id: r.id, name: r.name, measure: r.measure, effort: '8–16h' });
+    }
+  }
+
+  const allPrios = [
+    { label: t(I18N.p0), items: p0Items, color: C.redText, bg: C.bgRed },
+    { label: t(I18N.p1), items: p1Items, color: C.orangeText, bg: C.bgYellow },
+    { label: t(I18N.p2), items: p2Items, color: C.bodyText, bg: C.bgLight },
+    { label: t(I18N.p3), items: p3Items, color: C.labelText, bg: C.bgLight },
+  ];
+
+  writeSubHeading(t(I18N.sec5a));
+  y += 2;
+
+  const hasItems = allPrios.some(p => p.items.length > 0);
+  if (!hasItems) {
+    writeBody(lang === 'de' ? 'Keine Sofortmaßnahmen erforderlich.' : 'No immediate actions required.');
   } else {
-    if (critRisks.length > 0) {
-      checkPage(14);
-      writeSubHeading(`${t(I18N.priority)}: ${t(I18N.high)}`);
+    for (const prio of allPrios) {
+      if (prio.items.length === 0) continue;
+      checkPage(20);
 
-      for (const th of critRisks) {
-        checkPage(12);
-        const tid = threatId(th);
-        doc.setFont('helvetica', 'bold');
-        doc.setFontSize(BODY_SIZE);
-        doc.setTextColor(...C.redText);
-        doc.text(tid, ML + 5, y);
+      doc.setFillColor(...prio.bg);
+      doc.roundedRect(ML, y, CW, 8, 1, 1, 'F');
+      doc.setFillColor(...prio.color);
+      doc.rect(ML, y + 0.5, 2, 7, 'F');
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(...prio.color);
+      doc.text(prio.label, ML + 6, y + 5.5);
+      y += 12;
 
+      for (const item of prio.items) {
+        checkPage(20);
+        doc.setFont('helvetica', 'bold'); doc.setFontSize(BODY_SIZE);
+        doc.setTextColor(...prio.color); doc.text(item.id, ML + 5, y);
         doc.setTextColor(...C.darkNavy);
-        const nameMaxW = CW - 24;
-        const recName = truncateToWidth(th.name, nameMaxW, BODY_SIZE);
-        doc.text(recName, ML + 20, y);
+        doc.text(truncateToWidth(item.name, CW - 55, BODY_SIZE), ML + 22, y);
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(7);
+        doc.setTextColor(...C.labelText);
+        doc.text(`⏱ ${item.effort}`, W - MR - 4, y, { align: 'right' });
         y += 5;
 
-        doc.setFont('helvetica', 'normal');
-        doc.setFontSize(BODY_SIZE);
-        doc.setTextColor(...C.bodyText);
-        const desc = lang === 'de'
-          ? `Risikoscore ${th.likelihood} × ${th.impact} = ${th.likelihood * th.impact}. ${th.component} — Unmittelbare technische Gegenmaßnahmen erforderlich.`
-          : lang === 'fr'
-          ? `Score de risque ${th.likelihood} × ${th.impact} = ${th.likelihood * th.impact}. ${th.component} — Contre-mesures techniques immédiates nécessaires.`
-          : `Risk score ${th.likelihood} × ${th.impact} = ${th.likelihood * th.impact}. ${th.component} — Immediate technical countermeasures required.`;
-        const dLines = doc.splitTextToSize(desc, CW - 24);
-        for (const dl of dLines) {
-          checkPage(5);
-          doc.text(dl, ML + 20, y);
-          y += BODY_LEADING;
-        }
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(BODY_SIZE - 0.5); doc.setTextColor(...C.bodyText);
+        const mLines = doc.splitTextToSize(item.measure, CW - 28);
+        for (const ml of mLines) { checkPage(5); doc.text(ml, ML + 22, y); y += BODY_LEADING; }
         y += 3;
       }
-      y += 2;
+      y += 3;
     }
+  }
 
-    if (failReqs.length > 0) {
-      checkPage(14);
-      const gapPrio = critRisks.length > 0
-        ? `${t(I18N.priority)}: ${t(I18N.medium)}`
-        : `${t(I18N.priority)}: ${t(I18N.high)}`;
-      writeSubHeading(gapPrio);
+  // 5.2 Remediation Roadmap
+  y += 4;
+  writeSubHeading(t(I18N.sec5b));
+  writeBody(t(I18N.roadmapIntro));
+  y += 2;
 
-      for (let i = 0; i < failReqs.length; i++) {
-        checkPage(12);
-        const r = failReqs[i];
-        doc.setFont('helvetica', 'bold');
-        doc.setFontSize(BODY_SIZE);
-        doc.setTextColor(...C.redText);
-        doc.text(`${i + 1}.`, ML + 5, y);
+  const phases = [
+    { phase: lang === 'de' ? 'Phase 0: Sofort (1–2 Wochen)' : lang === 'fr' ? 'Phase 0 : Immédiat (1–2 semaines)' : 'Phase 0: Immediate (1–2 weeks)',
+      desc: `${p0Items.length} ${lang === 'de' ? 'Release-Blocker' : 'release blockers'}`,
+      gate: lang === 'de' ? 'Gate: Alle P0-Maßnahmen verifiziert, Re-Test durch Security-Ingenieur' : 'Gate: All P0 measures verified, security re-test',
+      color: C.redText },
+    { phase: lang === 'de' ? 'Phase 1: Vor Release (2–4 Wochen)' : lang === 'fr' ? 'Phase 1 : Avant release (2–4 sem.)' : 'Phase 1: Before Release (2–4 weeks)',
+      desc: `${p1Items.length} ${lang === 'de' ? 'hohe Priorität' : 'high priority items'}`,
+      gate: lang === 'de' ? 'Gate: P1 abgeschlossen, Pentest-Verifizierung bestanden' : 'Gate: P1 complete, pentest passed',
+      color: C.orangeText },
+    { phase: lang === 'de' ? 'Phase 2: Vor GA (4–8 Wochen)' : lang === 'fr' ? 'Phase 2 : Avant GA (4–8 sem.)' : 'Phase 2: Before GA (4–8 weeks)',
+      desc: `${p2Items.length} ${lang === 'de' ? 'Teilerfüllungen nachschärfen' : 'partial compliance items'}`,
+      gate: lang === 'de' ? 'Gate: Coverage ≥ 80%, QA-Regression bestanden' : 'Gate: Coverage ≥ 80%, QA regression passed',
+      color: C.bodyText },
+    { phase: lang === 'de' ? 'Phase 3: Empfohlen (8–12 Wochen)' : lang === 'fr' ? 'Phase 3 : Recommandé (8–12 sem.)' : 'Phase 3: Recommended (8–12 weeks)',
+      desc: `${p3Items.length} ${lang === 'de' ? 'Verbesserungen' : 'improvements'}`,
+      gate: lang === 'de' ? 'Gate: Vollständige CRA-Konformität' : 'Gate: Full CRA compliance',
+      color: C.labelText },
+  ];
 
-        doc.setTextColor(...C.darkNavy);
-        const gapText = `${r.name} (${r.id})`;
-        const gapMaxW = CW - 18;
-        const truncGap = truncateToWidth(gapText, gapMaxW, BODY_SIZE);
-        doc.text(truncGap, ML + 14, y);
-        y += 5;
-
-        doc.setFont('helvetica', 'normal');
-        doc.setFontSize(BODY_SIZE);
-        doc.setTextColor(...C.bodyText);
-        const mLines = doc.splitTextToSize(r.measure, CW - 18);
-        for (const ml of mLines) {
-          checkPage(5);
-          doc.text(ml, ML + 14, y);
-          y += BODY_LEADING;
-        }
-        y += 3;
-      }
-    }
+  for (const ph of phases) {
+    checkPage(25);
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(BODY_SIZE); doc.setTextColor(...ph.color);
+    doc.text(ph.phase, ML + 5, y); y += 5;
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(BODY_SIZE - 0.5); doc.setTextColor(...C.bodyText);
+    const phLines = doc.splitTextToSize(ph.desc, CW - 15);
+    for (const pl of phLines) { checkPage(5); doc.text(pl, ML + 10, y); y += BODY_LEADING; }
+    y += 1;
+    doc.setFont('helvetica', 'italic'); doc.setFontSize(7.5); doc.setTextColor(...C.accent);
+    doc.text(`→ ${ph.gate}`, ML + 10, y); y += 6;
   }
 
   /* ══════════════════════════════════════
