@@ -196,6 +196,11 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
       roles: ['Administrator', 'Operator', 'Read-Only User'],
       measures: { tls: { active: true, documented: true, audited: false }, auth: { active: true, documented: false, audited: false }, patch: { active: true, documented: true, audited: true }, log: { active: true, documented: false, audited: false } },
       knownIssues: 'OTA update currently uses HTTPS but without package signature verification.',
+      files: [
+        { name: 'SmartSense_Architecture_v2.4.pdf', size: 1_245_000, type: 'arch' },
+        { name: 'SmartSense_SecurityPolicy_2025.pdf', size: 430_000, type: 'policy' },
+        { name: 'smartsense-sbom-2.4.1.spdx.json', size: 87_000, type: 'sbom' },
+      ],
     },
     {
       // Industrial Edge – Klasse II, umfangreiche Maßnahmen
