@@ -193,9 +193,9 @@ function drawMillimeterGrid(doc: jsPDF) {
   doc.saveGraphicsState();
 
   // Fine grid: 2.5mm spacing (like the 2.5px CSS grid)
-  doc.setGState(new (doc as any).GState({ opacity: 0.025 }));
-  doc.setDrawColor(100, 130, 170);
-  doc.setLineWidth(0.08);
+  doc.setGState(new (doc as any).GState({ opacity: 0.012 }));
+  doc.setDrawColor(140, 160, 190);
+  doc.setLineWidth(0.06);
   for (let x = 0; x <= W; x += 2.5) {
     doc.line(x, 0, x, H);
   }
@@ -203,9 +203,9 @@ function drawMillimeterGrid(doc: jsPDF) {
     doc.line(0, y, W, y);
   }
 
-  // Medium grid: 5mm spacing (like the 5px CSS grid)
-  doc.setGState(new (doc as any).GState({ opacity: 0.04 }));
-  doc.setLineWidth(0.12);
+  // Medium grid: 5mm spacing
+  doc.setGState(new (doc as any).GState({ opacity: 0.02 }));
+  doc.setLineWidth(0.1);
   for (let x = 0; x <= W; x += 5) {
     doc.line(x, 0, x, H);
   }
@@ -213,9 +213,9 @@ function drawMillimeterGrid(doc: jsPDF) {
     doc.line(0, y, W, y);
   }
 
-  // Major grid: 50mm spacing (like the 50px CSS thick lines)
-  doc.setGState(new (doc as any).GState({ opacity: 0.055 }));
-  doc.setLineWidth(0.25);
+  // Major grid: 50mm spacing
+  doc.setGState(new (doc as any).GState({ opacity: 0.03 }));
+  doc.setLineWidth(0.18);
   for (let x = 0; x <= W; x += 50) {
     doc.line(x, 0, x, H);
   }
