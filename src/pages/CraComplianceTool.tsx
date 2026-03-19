@@ -877,10 +877,14 @@ function CRAMapping({ reqs, onNext }: { reqs: CraReq[]; onNext: () => void }) {
 
 function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; threats: Threat[]; reqs: CraReq[] }) {
   const { t, language } = useLanguage();
+  const [localThreats, setLocalThreats] = useState<Threat[]>(() => threats.map(th => ({ ...th, sources: [...th.sources] })));
+  const [localReqs, setLocalReqs] = useState<CraReq[]>(() => reqs.map(r => ({ ...r, criteria: [...r.criteria] })));
   const [qaResult, setQaResult] = useState<QaResult | null>(null);
   const [qaRunning, setQaRunning] = useState(false);
   const [qaExpanded, setQaExpanded] = useState(false);
-  const critRisks = useMemo(() => threats.filter(th => th.likelihood * th.impact >= 20), [threats]);
+  const [fixesApplied, setFixesApplied] = useState(false);
+  const [fixLog, setFixLog] = useState<string[]>([]);
+  const critRisks = useMemo(() => localThreats.filter(th => th.likelihood * th.impact >= 20), [localThreats]);
   const failReqs = useMemo(() => reqs.filter(r => r.status === 'fail'), [reqs]);
   const partialCount = useMemo(() => reqs.filter(r => r.status === 'partial').length, [reqs]);
   const today = useMemo(() => {
