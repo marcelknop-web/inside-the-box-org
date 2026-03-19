@@ -951,6 +951,9 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
     setFixProgress(10);
     const failedChecks = qaResult.checks.filter(c => !c.passed);
     
+    // Preserve the pre-fix QA checks (first time or accumulate)
+    setPreFixQaChecks(prev => prev || qaResult.checks);
+    
     const t1 = setTimeout(() => setFixProgress(30), 300);
     const t2 = setTimeout(() => setFixProgress(55), 700);
     const t3 = setTimeout(() => {
@@ -959,6 +962,7 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
       setLocalThreats(result.threats);
       setLocalReqs(result.reqs);
       setFixLog(result.fixes);
+      setAllFixLogs(prev => [...prev, ...result.fixes]);
       setFixProgress(90);
       
       // Update history: attach fix log to current iteration
