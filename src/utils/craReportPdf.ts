@@ -1102,6 +1102,7 @@ export function generateCraReport(data: CraReportData): void {
   // ── 4.3 Normative Coverage ──
   newSection();
   writeSubHeading(t(I18N.sec4c));
+  writeBody(t(I18N.introSec4c));
   y += 2;
 
   const annex1p1 = reqs.filter(r => r.article.startsWith('Annex I, Part I'));
