@@ -963,8 +963,20 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
     setDraftDownloaded(true);
   }, [intakeData, localThreats, localReqs, language, typeName, craName]);
 
+  const [finalPdfRunning, setFinalPdfRunning] = useState(false);
+
   const handleFinalPdf = useCallback(() => {
-    generateCraReport({ intakeData, threats: localThreats, reqs: localReqs, language: language as 'de' | 'en' | 'fr', productTypeName: typeName, craClassName: craName, isDraft: false });
+    setFinalPdfRunning(true);
+    // Use requestAnimationFrame to let UI update before heavy PDF work
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        try {
+          generateCraReport({ intakeData, threats: localThreats, reqs: localReqs, language: language as 'de' | 'en' | 'fr', productTypeName: typeName, craClassName: craName, isDraft: false });
+        } finally {
+          setFinalPdfRunning(false);
+        }
+      }, 100);
+    });
   }, [intakeData, localThreats, localReqs, language, typeName, craName]);
 
   const qaVerdict = qaResult?.verdict;
