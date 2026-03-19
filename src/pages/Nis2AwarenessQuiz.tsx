@@ -597,8 +597,8 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
                     style={{ clipPath: diamondClip }}>
                     <div className={`absolute inset-0 bg-gradient-to-r ${outerGradient}`} style={{ clipPath: diamondClip }} />
                     <div className={`absolute inset-[1px] bg-gradient-to-b ${innerBg}`} style={{ clipPath: diamondClip }} />
-                    <div className={`relative px-5 py-3 text-sm ${textClass}`}>
-                      <span className="font-mono font-bold mr-2 text-primary/80">{OPTION_LETTERS[i]}:</span>
+                    <div className={`relative px-8 py-3 text-sm ${textClass} break-words`}>
+                      <span className="font-mono font-bold mr-2 text-primary/80 flex-shrink-0">{OPTION_LETTERS[i]}:</span>
                       {opt}
                     </div>
                     {!confirmed && <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" style={{ clipPath: diamondClip }} />}
