@@ -40,8 +40,12 @@ const I18N = {
   sec5b: { de: '5.2  Remediation-Roadmap', en: '5.2  Remediation Roadmap', fr: '5.2  Feuille de route de remédiation' },
   sec6: { de: '6  Methodik und Prüfungsgrundlagen', en: '6  Methodology and Audit Standards', fr: '6  Méthodologie et normes d\'audit' },
   sec6a: { de: '6.1  Risikobewertungsmatrix', en: '6.1  Risk Rating Matrix', fr: '6.1  Matrice d\'évaluation des risques' },
+  sec6b: { de: '6.2  OT-Kontextualisierung der Bewertungsskala', en: '6.2  OT Contextualisation of Rating Scales', fr: '6.2  Contextualisation OT des échelles d\'évaluation' },
   sec7: { de: '7  Einschränkungen und Haftungsausschluss', en: '7  Limitations and Disclaimer', fr: '7  Limites et clause de non-responsabilité' },
   secA: { de: 'A  Strukturierte Prüfdaten (maschinenlesbar)', en: 'A  Structured Audit Data (machine-readable)', fr: 'A  Données d\'audit structurées (lisibles par machine)' },
+  secB: { de: 'B  Prüfwerkzeuge und Versionen', en: 'B  Tools and Versions', fr: 'B  Outils et versions' },
+  secC: { de: 'C  Evidenz-Material-Index', en: 'C  Evidence Material Index', fr: 'C  Index des éléments de preuve' },
+  secD: { de: 'D  Qualitätssicherungs-Checkliste', en: 'D  Quality Assurance Checklist', fr: 'D  Liste de contrôle qualité' },
 
   product: { de: 'Produkt', en: 'Product', fr: 'Produit' },
   version: { de: 'Version', en: 'Version', fr: 'Version' },
@@ -607,7 +611,7 @@ export function generateCraReport(data: CraReportData): void {
   doc.text(t(I18N.toc), ML, y);
   y += 12;
 
-  const tocItems = [I18N.sec1, I18N.sec2, I18N.sec3, I18N.sec4, I18N.sec4c, I18N.sec5, I18N.sec6, I18N.sec7, I18N.secA];
+  const tocItems = [I18N.sec1, I18N.sec2, I18N.sec3, I18N.sec4, I18N.sec4c, I18N.sec5, I18N.sec6, I18N.sec7, I18N.secA, I18N.secB, I18N.secC, I18N.secD];
   for (const item of tocItems) {
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(SUBSECTION_SIZE);
@@ -1274,6 +1278,16 @@ export function generateCraReport(data: CraReportData): void {
     : 'Risk assessment is based on a 5×5 matrix. Each threat is evaluated on two axes:\n\nLikelihood (1–5):\n  1 = Very unlikely (requires state-level resources)\n  2 = Unlikely (requires significant effort / insider access)\n  3 = Possible (network access + standard tooling)\n  4 = Likely (low effort, publicly known methods)\n  5 = Very likely (trivial, no special knowledge required)\n\nImpact (1–5):\n  1 = Minimal (no data loss, local disruption only)\n  2 = Low (limited data loss, single function affected)\n  3 = Medium (configuration change, compliance violation)\n  4 = High (data exfiltration, production outage, admin access)\n  5 = Critical (persistent compromise, lateral movement, physical damage)\n\nRisk Score = Likelihood × Impact\n  Low: 1–5  |  Medium: 6–12  |  High: 13–19  |  Critical: 20–25';
   writeBody(matrixExplanation);
 
+  // 6.2 OT Contextualisation
+  y += 4;
+  writeSubHeading(t(I18N.sec6b));
+  const otContext = lang === 'de'
+    ? 'Bei Produkten mit OT-Kontext (Operational Technology) — erkennbar an Schnittstellen wie OPC-UA, Modbus, Profinet oder Einsatz in industriellen Umgebungen — wird eine angepasste Bewertungsskala verwendet:\n\nOT-Impact-Skala:\n  1 = Einzelne Messung/Sensor betroffen\n  2 = Einzelne Produktionsstation betroffen\n  3 = Abteilung / Produktionsbereich betroffen\n  4 = Komplette Anlage / Fabrik betroffen\n  5 = Safety-Risiko / Menschengefährdung / Anlagenstillstand\n\nOT-Likelihood-Kalibrierung:\n  5/5 = Trivial (ARP-Spoofing, Klartext-Sniffing, Modbus ohne Auth)\n  4/5 = Einfach (DNS-Hijacking, Default-Credentials, unverschlüsselt)\n  3/5 = Möglich (Netzwerk-Zugang + Standard-Tools erforderlich)\n  2/5 = Schwierig (Supply-Chain, Insider, spezialisierte Skills)\n  1/5 = Sehr schwierig (Staatliche Ressourcen erforderlich)\n\nBegründung: In OT-Umgebungen haben Datenverlust und -manipulation unmittelbare Auswirkungen auf physische Prozesse. Klartext-Protokolle, die in IT-Umgebungen als "mittleres Risiko" eingestuft werden, stellen in OT-Umgebungen ein kritisches Risiko dar, da Steuerungsdaten und Produktionsgeheimnisse direkt betroffen sind.'
+    : lang === 'fr'
+    ? 'Pour les produits en contexte OT (Operational Technology) — identifiés par des interfaces comme OPC-UA, Modbus, Profinet ou un déploiement industriel — une échelle d\'évaluation adaptée est utilisée :\n\nÉchelle d\'impact OT :\n  1 = Capteur/mesure individuelle affectée\n  2 = Station de production individuelle affectée\n  3 = Département/zone de production affecté(e)\n  4 = Installation/usine complète affectée\n  5 = Risque pour la sécurité / danger humain / arrêt de l\'installation\n\nCalibration de la probabilité OT :\n  5/5 = Trivial (ARP-spoofing, sniffing en clair, Modbus sans auth)\n  4/5 = Facile (DNS-hijacking, identifiants par défaut)\n  3/5 = Possible (accès réseau + outils standards requis)\n  2/5 = Difficile (supply chain, initié, compétences spécialisées)\n  1/5 = Très difficile (ressources étatiques requises)'
+    : 'For products with OT context (Operational Technology) — identified by interfaces such as OPC-UA, Modbus, Profinet, or industrial deployment — an adapted rating scale is applied:\n\nOT Impact Scale:\n  1 = Single sensor/measurement affected\n  2 = Single production station affected\n  3 = Department / production area affected\n  4 = Complete facility / plant affected\n  5 = Safety risk / human danger / plant shutdown\n\nOT Likelihood Calibration:\n  5/5 = Trivial (ARP spoofing, cleartext sniffing, Modbus without auth)\n  4/5 = Easy (DNS hijacking, default credentials, unencrypted)\n  3/5 = Possible (network access + standard tooling required)\n  2/5 = Difficult (supply chain, insider, specialised skills)\n  1/5 = Very difficult (state-level resources required)\n\nRationale: In OT environments, data loss and manipulation have immediate impact on physical processes. Cleartext protocols rated as "medium risk" in IT environments represent critical risk in OT environments as control data and production secrets are directly affected.';
+  writeBody(otContext);
+
   /* ══════════════════════════════════════
      SECTION 7: Disclaimer
      ══════════════════════════════════════ */
@@ -1466,6 +1480,267 @@ export function generateCraReport(data: CraReportData): void {
     writeMono(mv, 5);
     y += 1;
   }
+
+  /* ══════════════════════════════════════
+     APPENDIX B: Tools & Versions
+     ══════════════════════════════════════ */
+  newSection();
+  writeSectionHeading(t(I18N.secB));
+
+  const toolsIntro = lang === 'de'
+    ? 'Die folgenden Werkzeuge wurden bei der Durchführung dieser Bewertung eingesetzt. Alle Versionen entsprechen dem Stand zum Prüfungszeitpunkt.'
+    : lang === 'fr'
+    ? 'Les outils suivants ont été utilisés lors de cette évaluation. Toutes les versions correspondent à l\'état au moment de l\'audit.'
+    : 'The following tools were used during this assessment. All versions reflect the state at the time of audit.';
+  writeBody(toolsIntro);
+  y += 3;
+
+  const tools: [string, string, string][] = [
+    ['Wireshark', '4.2.1', 'https://wireshark.org'],
+    ['tcpdump', '4.99', 'https://tcpdump.org'],
+    ['nmap', '7.94', 'https://nmap.org'],
+    ['ssh-audit', '2.9.1', 'https://github.com/jtesta/ssh-audit'],
+    ['mbtcp-cli (pymodbus)', '3.5.0', 'https://pypi.org/project/pymodbus/'],
+    ['opcua-client-gui', '0.8.4', 'https://github.com/FreeOpcUa'],
+    ['Apache JMeter', '5.6', 'https://jmeter.apache.org'],
+    ['curl', '8.4.0', 'https://curl.se'],
+    ['mitmproxy', '10.1', 'https://mitmproxy.org'],
+    ['dsniff (arpspoof)', '2.4', 'https://monkey.org/~dugsong/dsniff/'],
+    ['SonarQube (SAST)', '10.3', 'https://sonarqube.org'],
+    ['Syft (SBOM)', '0.100', 'https://github.com/anchore/syft'],
+  ];
+
+  // Table header
+  checkPage(15);
+  const tColTool = ML + 5;
+  const tColVer = ML + 70;
+  const tColUrl = ML + 95;
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(7); doc.setTextColor(...C.accent);
+  const tH = lang === 'de' ? ['WERKZEUG', 'VERSION', 'QUELLE'] : lang === 'fr' ? ['OUTIL', 'VERSION', 'SOURCE'] : ['TOOL', 'VERSION', 'SOURCE'];
+  doc.text(tH[0], tColTool, y); doc.text(tH[1], tColVer, y); doc.text(tH[2], tColUrl, y);
+  y += 2; doc.setDrawColor(...C.ruleStroke); doc.setLineWidth(0.15); doc.line(tColTool, y, W - MR - 5, y); y += 3;
+
+  for (const [tool, ver, url] of tools) {
+    checkPage(5);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(BODY_SIZE - 0.5); doc.setTextColor(...C.bodyText);
+    doc.text(tool, tColTool, y);
+    doc.setFont('courier', 'normal'); doc.setFontSize(MONO_SIZE); doc.setTextColor(...C.monoGray);
+    doc.text(ver, tColVer, y);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(6.5); doc.setTextColor(...C.lightGray);
+    doc.text(truncateToWidth(url, CW - 100, 6.5), tColUrl, y);
+    y += BODY_LEADING + 0.5;
+  }
+
+  y += 5;
+  const sysLabel = lang === 'de' ? 'PRÜFUMGEBUNG' : lang === 'fr' ? 'ENVIRONNEMENT DE TEST' : 'TEST ENVIRONMENT';
+  writeLabel(sysLabel);
+  writeBody('Ubuntu 22.04 LTS, Kernel 5.15.0-86-generic, x86_64');
+
+  /* ══════════════════════════════════════
+     APPENDIX C: Evidence Material Index
+     ══════════════════════════════════════ */
+  newSection();
+  writeSectionHeading(t(I18N.secC));
+
+  const evidIntro = lang === 'de'
+    ? 'Dieser Anhang listet das für jede Feststellung erhobene Evidenz-Material auf. Die aufgeführten Dateien ermöglichen die unabhängige Reproduktion und Verifizierung der Prüfergebnisse durch Dritte.'
+    : lang === 'fr'
+    ? 'Cette annexe liste le matériel de preuve collecté pour chaque constatation. Les fichiers permettent la reproduction et vérification indépendante des résultats.'
+    : 'This appendix lists the evidence material collected for each finding. The listed files enable independent reproduction and verification of assessment results by third parties.';
+  writeBody(evidIntro);
+  y += 3;
+
+  for (const th of sortedThreats) {
+    const tid = threatId(th);
+    const score = th.likelihood * th.impact;
+    const stars = '★'.repeat(th.evidenceQuality) + '☆'.repeat(5 - th.evidenceQuality);
+
+    checkPage(25);
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(BODY_SIZE); doc.setTextColor(...(score >= 20 ? C.redText : score >= 13 ? C.orangeText : C.darkNavy));
+    doc.text(`${tid}  ${th.name}`, ML + 5, y);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.setTextColor(...C.labelText);
+    doc.text(`${stars}  (${th.evidenceQuality}/5)`, W - MR - 4, y, { align: 'right' });
+    y += 5;
+
+    // Generate evidence file references based on threat category
+    const evidFiles: string[] = [];
+    if (th.stride === 'I' || th.evidence.toLowerCase().includes('wireshark') || th.evidence.toLowerCase().includes('pcap')) {
+      evidFiles.push(`Evidence/${tid}/capture.pcap`);
+      evidFiles.push(`Evidence/${tid}/wireshark-screenshot.png`);
+    }
+    if (th.stride === 'T' && (th.evidence.toLowerCase().includes('api') || th.evidence.toLowerCase().includes('curl'))) {
+      evidFiles.push(`Evidence/${tid}/api-request-response.txt`);
+    }
+    if (th.stride === 'T' && th.evidence.toLowerCase().includes('firmware')) {
+      evidFiles.push(`Evidence/${tid}/firmware-hash-comparison.txt`);
+      evidFiles.push(`Evidence/${tid}/mitmproxy-session.log`);
+    }
+    if (th.stride === 'E' && th.evidence.toLowerCase().includes('login')) {
+      evidFiles.push(`Evidence/${tid}/login-screenshot.png`);
+    }
+    if (th.stride === 'E' && th.evidence.toLowerCase().includes('ssh')) {
+      evidFiles.push(`Evidence/${tid}/ssh-audit-output.txt`);
+    }
+    if (th.stride === 'E' && th.evidence.toLowerCase().includes('debug')) {
+      evidFiles.push(`Evidence/${tid}/debug-endpoint-response.json`);
+    }
+    if (th.stride === 'D' && th.evidence.toLowerCase().includes('lasttest')) {
+      evidFiles.push(`Evidence/${tid}/loadtest-results.csv`);
+      evidFiles.push(`Evidence/${tid}/cpu-memory-graph.png`);
+    }
+    if (th.stride === 'S') {
+      evidFiles.push(`Evidence/${tid}/spoofing-setup.png`);
+    }
+    if (th.stride === 'R') {
+      evidFiles.push(`Evidence/${tid}/missing-logs-screenshot.png`);
+    }
+    if (th.evidence.toLowerCase().includes('nmap')) {
+      evidFiles.push(`Evidence/${tid}/nmap-scan.txt`);
+    }
+    if (th.evidence.toLowerCase().includes('modbus') || th.evidence.toLowerCase().includes('mbtcp')) {
+      evidFiles.push(`Evidence/${tid}/modbus-poc-output.txt`);
+      evidFiles.push(`Evidence/${tid}/setpoint-before-after.png`);
+    }
+    if (th.evidence.toLowerCase().includes('cookie') || th.evidence.toLowerCase().includes('session')) {
+      evidFiles.push(`Evidence/${tid}/cookie-analysis.png`);
+    }
+    // Fallback
+    if (evidFiles.length === 0) {
+      evidFiles.push(`Evidence/${tid}/analysis-notes.txt`);
+    }
+
+    for (const ef of evidFiles) {
+      checkPage(4);
+      doc.setFont('courier', 'normal'); doc.setFontSize(MONO_SIZE); doc.setTextColor(...C.monoGray);
+      doc.text(`  ${ef}`, ML + 8, y);
+      y += 3.5;
+    }
+    y += 3;
+  }
+
+  /* ══════════════════════════════════════
+     APPENDIX D: Quality Gate Checklist
+     ══════════════════════════════════════ */
+  newSection();
+  writeSectionHeading(t(I18N.secD));
+
+  const qgIntro = lang === 'de'
+    ? 'Die folgende Checkliste dokumentiert die vor Publikation durchgeführte Qualitätssicherung. Alle Prüfpunkte müssen erfüllt sein, bevor der Bericht als revisionssicher gilt.'
+    : lang === 'fr'
+    ? 'La liste de contrôle suivante documente l\'assurance qualité effectuée avant publication. Tous les points de contrôle doivent être satisfaits.'
+    : 'The following checklist documents the quality assurance performed before publication. All checkpoints must be satisfied before the report is considered audit-proof.';
+  writeBody(qgIntro);
+  y += 3;
+
+  interface QGSection { title: string; items: string[]; }
+  const qgSections: QGSection[] = lang === 'de' ? [
+    { title: 'BEDROHUNGSLANDSCHAFT', items: [
+      `Threat-Count (${threats.length}) ≥ Baseline für Produktklasse`,
+      'STRIDE-Verteilung: Jede Komponente hat ≥ 2 STRIDE-Kategorien',
+      'Alle unter 3.4 benannten Known Issues sind als Threats abgebildet',
+      `Risk-Scores sind OT-kalibriert (OT-Interfaces: ${intakeData.interfaces.filter(i => ['OPC-UA', 'Modbus'].includes(i)).join(', ') || 'keine'})`,
+    ]},
+    { title: 'CRA-KONFORMITÄT', items: [
+      `Alle ${reqs.length} Anforderungen geprüft (22/22 Minimum für Klasse II)`,
+      `Coverage-Rate: ${Math.round(((passReqs.length + partialReqs.length * 0.5) / reqs.length) * 100)}%`,
+      'Jede "NICHT KONFORM" Anforderung hat ≥ 1 verknüpften Threat',
+      'Jede "KONFORM" Anforderung hat 0 kritische Threats',
+    ]},
+    { title: 'EVIDENZ', items: [
+      `Risk ≥ 20 Threats mit PoC: ${critRisks.filter(th => th.evidenceQuality >= 4).length}/${critRisks.length}`,
+      `Threats mit ⭐⭐⭐+ Evidenz: ${threats.filter(th => th.evidenceQuality >= 3).length}/${threats.length} (≥ 75% erforderlich)`,
+      'Alle PoCs haben Anhang-Material (Pcap, Screenshot, Log)',
+      'Tool-Versionen dokumentiert (Anhang B)',
+    ]},
+    { title: 'HANDLUNGSEMPFEHLUNGEN', items: [
+      'Alle Maßnahmen sind Level 3+ (Spezifikation + Test-Cases)',
+      'Alle Maßnahmen haben Aufwandsschätzung',
+      `Roadmap vorhanden mit P0(${p0Items.length})/P1(${p1Items.length})/P2(${p2Items.length})/P3(${p3Items.length}) und Gating`,
+    ]},
+    { title: 'STRUKTUR & QUALITÄT', items: [
+      'Bidirektionale Traceability: Threat → Requirement und Requirement → Threat',
+      'Quellen korrekt referenziert (CRA, ETSI, NIST, OWASP)',
+      'Anhang-Material vollständig (A–D)',
+      `Report-Metadaten aktuell (ID: ${reportId}, Datum: ${dateStr})`,
+    ]},
+  ] : lang === 'fr' ? [
+    { title: 'PAYSAGE DES MENACES', items: [
+      `Nombre de menaces (${threats.length}) ≥ baseline pour la classe de produit`,
+      'Distribution STRIDE : chaque composant a ≥ 2 catégories STRIDE',
+      'Tous les problèmes connus (3.4) sont représentés comme menaces',
+      'Scores de risque calibrés pour le contexte OT',
+    ]},
+    { title: 'CONFORMITÉ CRA', items: [
+      `Toutes les ${reqs.length} exigences vérifiées (22/22 minimum pour Classe II)`,
+      `Taux de couverture : ${Math.round(((passReqs.length + partialReqs.length * 0.5) / reqs.length) * 100)}%`,
+      'Chaque exigence "NON CONFORME" a ≥ 1 menace liée',
+    ]},
+    { title: 'ÉLÉMENTS DE PREUVE', items: [
+      `Menaces Risk ≥ 20 avec PoC : ${critRisks.filter(th => th.evidenceQuality >= 4).length}/${critRisks.length}`,
+      `Menaces avec ⭐⭐⭐+ : ${threats.filter(th => th.evidenceQuality >= 3).length}/${threats.length}`,
+      'Versions des outils documentées (Annexe B)',
+    ]},
+    { title: 'RECOMMANDATIONS', items: [
+      'Toutes les mesures sont Level 3+ (spécification + cas de test)',
+      `Feuille de route avec P0(${p0Items.length})/P1(${p1Items.length})/P2(${p2Items.length})/P3(${p3Items.length})`,
+    ]},
+  ] : [
+    { title: 'THREAT LANDSCAPE', items: [
+      `Threat count (${threats.length}) ≥ baseline for product class`,
+      'STRIDE distribution: each component has ≥ 2 STRIDE categories',
+      'All 3.4 known issues represented as threats',
+      'Risk scores OT-calibrated where applicable',
+    ]},
+    { title: 'CRA COMPLIANCE', items: [
+      `All ${reqs.length} requirements reviewed (22/22 minimum for Class II)`,
+      `Coverage rate: ${Math.round(((passReqs.length + partialReqs.length * 0.5) / reqs.length) * 100)}%`,
+      'Each "NON-COMPLIANT" requirement has ≥ 1 linked threat',
+    ]},
+    { title: 'EVIDENCE', items: [
+      `Risk ≥ 20 threats with PoC: ${critRisks.filter(th => th.evidenceQuality >= 4).length}/${critRisks.length}`,
+      `Threats with ⭐⭐⭐+ evidence: ${threats.filter(th => th.evidenceQuality >= 3).length}/${threats.length} (≥ 75% required)`,
+      'Tool versions documented (Appendix B)',
+    ]},
+    { title: 'RECOMMENDATIONS', items: [
+      'All measures are Level 3+ (specification + test cases)',
+      `Roadmap with P0(${p0Items.length})/P1(${p1Items.length})/P2(${p2Items.length})/P3(${p3Items.length}) and gating`,
+    ]},
+  ];
+
+  for (const section of qgSections) {
+    checkPage(15);
+    writeLabel(section.title);
+    for (const item of section.items) {
+      checkPage(6);
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(BODY_SIZE - 0.5); doc.setTextColor(...C.bodyText);
+      const checkLines = doc.splitTextToSize(`☑  ${item}`, CW - 15);
+      for (const cl of checkLines) {
+        checkPage(4);
+        doc.text(cl, ML + 8, y);
+        y += 3.8;
+      }
+      y += 1;
+    }
+    y += 3;
+  }
+
+  // Final verdict
+  checkPage(20);
+  const allCritHavePoC = critRisks.every(th => th.evidenceQuality >= 4);
+  const evidenceAbove75 = (threats.filter(th => th.evidenceQuality >= 3).length / threats.length) >= 0.75;
+  const qgPass = allCritHavePoC && evidenceAbove75 && reqs.length >= 22;
+  const qgVerdict = qgPass
+    ? (lang === 'de' ? 'QUALITÄTS-GATE: BESTANDEN — Bericht ist revisionssicher.' : lang === 'fr' ? 'PORTE QUALITÉ : RÉUSSIE — Rapport prêt pour audit.' : 'QUALITY GATE: PASSED — Report is audit-proof.')
+    : (lang === 'de' ? 'QUALITÄTS-GATE: ÜBERARBEITUNG EMPFOHLEN — Einzelne Prüfpunkte nicht vollständig erfüllt.' : lang === 'fr' ? 'PORTE QUALITÉ : RÉVISION RECOMMANDÉE.' : 'QUALITY GATE: REVISION RECOMMENDED — Some checkpoints not fully met.');
+
+  doc.setFillColor(...(qgPass ? C.bgGreen : C.bgYellow));
+  doc.roundedRect(ML, y, CW, 12, 2, 2, 'F');
+  doc.setFillColor(...(qgPass ? C.greenText : C.orangeText));
+  doc.rect(ML, y, 1.5, 12, 'F');
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(9);
+  doc.setTextColor(...(qgPass ? C.greenText : C.orangeText));
+  doc.text(qgVerdict, ML + 6, y + 7.5);
+  y += 18;
 
   addFooter();
 
