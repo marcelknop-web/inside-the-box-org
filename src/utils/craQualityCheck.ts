@@ -347,6 +347,17 @@ export function runQualityCheck(
     passed: evidAbove75, severity: 'major',
   });
 
+  // C.4 Requirement evidence: non-pass reqs should have evidence documenting the finding
+  const nonPassReqsWithoutEvidence = reqs.filter(r => r.status !== 'pass' && (!r.evidence || r.evidence.trim() === ''));
+  checks.push({
+    id: 'C4', category: 'evidence',
+    label: t('Nicht-konforme Anforderungen haben Evidenz', 'Non-compliant requirements have evidence', 'Exigences non conformes avec preuve'),
+    detail: nonPassReqsWithoutEvidence.length > 0
+      ? `${t('Ohne Evidenz', 'Missing evidence', 'Preuve manquante')}: ${nonPassReqsWithoutEvidence.map(r => r.id).join(', ')}`
+      : t('Alle mit Evidenz', 'All with evidence', 'Toutes avec preuve'),
+    passed: nonPassReqsWithoutEvidence.length === 0, severity: 'major',
+  });
+
   // ═══ D. REDAKTIONELLE PRÜFUNG ═══
 
   // D.1 Sequential numbering
