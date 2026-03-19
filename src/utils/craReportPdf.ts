@@ -391,19 +391,19 @@ export function generateCraReport(data: CraReportData): void {
   doc.setFillColor(...C.navy);
   doc.rect(0, 0, W, H, 'F');
 
-  // Millimeter grid on dark cover (lighter, adapted for dark bg)
+  // Millimeter grid on dark cover (subtle, adapted for dark bg)
   doc.saveGraphicsState();
-  doc.setDrawColor(40, 55, 80);
-  doc.setGState(new (doc as any).GState({ opacity: 0.35 }));
-  doc.setLineWidth(0.08);
+  doc.setDrawColor(35, 48, 70);
+  doc.setGState(new (doc as any).GState({ opacity: 0.18 }));
+  doc.setLineWidth(0.06);
   for (let x = 0; x <= W; x += 2.5) doc.line(x, 0, x, H);
   for (let gy = 0; gy <= H; gy += 2.5) doc.line(0, gy, W, gy);
-  doc.setGState(new (doc as any).GState({ opacity: 0.5 }));
-  doc.setLineWidth(0.12);
+  doc.setGState(new (doc as any).GState({ opacity: 0.25 }));
+  doc.setLineWidth(0.1);
   for (let x = 0; x <= W; x += 5) doc.line(x, 0, x, H);
   for (let gy = 0; gy <= H; gy += 5) doc.line(0, gy, W, gy);
-  doc.setGState(new (doc as any).GState({ opacity: 0.6 }));
-  doc.setLineWidth(0.25);
+  doc.setGState(new (doc as any).GState({ opacity: 0.3 }));
+  doc.setLineWidth(0.18);
   for (let x = 0; x <= W; x += 50) doc.line(x, 0, x, H);
   for (let gy = 0; gy <= H; gy += 50) doc.line(0, gy, W, gy);
   doc.restoreGraphicsState();
