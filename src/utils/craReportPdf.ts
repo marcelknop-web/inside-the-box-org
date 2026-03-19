@@ -313,13 +313,34 @@ export function generateCraReport(data: CraReportData): void {
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(BODY_SIZE);
     doc.setTextColor(...C.darkNavy);
-    doc.text(label + ':', ML + indent, y);
-    const labelW = doc.getTextWidth(label + ': ');
+    const labelStr = label + ':';
+    doc.text(labelStr, ML + indent, y);
+    const labelW = doc.getTextWidth(labelStr + ' ');
+    const maxLabelW = 45; // cap label width to prevent squeeze
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(...C.bodyText);
-    const valLines = doc.splitTextToSize(value, CW - labelW - indent - 5);
-    doc.text(valLines, ML + indent + labelW, y);
-    y += Math.max(valLines.length * BODY_LEADING, 5.5);
+    if (labelW > maxLabelW) {
+      // Label too long — put value on next line
+      y += BODY_LEADING;
+      const valLines = doc.splitTextToSize(value, CW - indent - 4);
+      for (const line of valLines) {
+        checkPage(6);
+        doc.text(line, ML + indent + 4, y);
+        y += BODY_LEADING;
+      }
+      y += 1;
+    } else {
+      const availW = CW - labelW - indent - 2;
+      const valLines = doc.splitTextToSize(value, availW);
+      doc.text(valLines[0], ML + indent + labelW, y);
+      y += BODY_LEADING;
+      for (let i = 1; i < valLines.length; i++) {
+        checkPage(6);
+        doc.text(valLines[i], ML + indent + labelW, y);
+        y += BODY_LEADING;
+      }
+      y += 1;
+    }
   }
 
   function writeFieldBlock(label: string, value: string, indent: number = 4) {
@@ -552,16 +573,28 @@ export function generateCraReport(data: CraReportData): void {
     doc.setFillColor(...accentBarColor);
     doc.roundedRect(ML, y, 2.5, 11, 1, 1, 'F');
 
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(9);
-    doc.setTextColor(...headerText);
-    const findingLabel = `${t(I18N.finding)} F-${String(findingNum).padStart(2, '0')}`;
-    doc.text(`${findingLabel}  |  ${tid}  ${th.name}`, ML + 5, y + 7);
-
+    // Right-aligned score (render first to measure width)
     const rl = riskLabel(score);
     const scoreStr = `${rl} (${th.likelihood} × ${th.impact} = ${score})`;
+    doc.setFont('helvetica', 'bold');
     doc.setFontSize(8);
+    doc.setTextColor(...headerText);
+    const scoreW = doc.getTextWidth(scoreStr);
     doc.text(scoreStr, W - MR - 4, y + 7, { align: 'right' });
+
+    // Left label — truncate if it would overlap the score
+    doc.setFontSize(9);
+    const findingLabel = `${t(I18N.finding)} F-${String(findingNum).padStart(2, '0')}`;
+    const leftText = `${findingLabel}  |  ${tid}  ${th.name}`;
+    const maxLeftW = CW - scoreW - 14; // 14 = left padding + gap + right padding
+    let truncLeft = leftText;
+    if (doc.getTextWidth(truncLeft) > maxLeftW) {
+      while (truncLeft.length > 10 && doc.getTextWidth(truncLeft + '…') > maxLeftW) {
+        truncLeft = truncLeft.slice(0, -1);
+      }
+      truncLeft = truncLeft.trimEnd() + '…';
+    }
+    doc.text(truncLeft, ML + 5, y + 7);
     y += 15;
 
     writeFieldBlock(t(I18N.component), th.component);
@@ -614,13 +647,26 @@ export function generateCraReport(data: CraReportData): void {
     doc.setFillColor(...statusColor);
     doc.roundedRect(ML, y, 2.5, 11, 1, 1, 'F');
 
+    // Right-aligned status (render first to measure)
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(9);
-    doc.setTextColor(...statusColor);
-    const reqFinding = `${t(I18N.finding)} F-${String(findingNum).padStart(2, '0')}`;
-    doc.text(`${reqFinding}  |  ${req.id}  ${req.name}`, ML + 5, y + 7);
     doc.setFontSize(8);
+    doc.setTextColor(...statusColor);
+    const statusW = doc.getTextWidth(statusLabel);
     doc.text(statusLabel, W - MR - 4, y + 7, { align: 'right' });
+
+    // Left label — truncate to avoid overlap
+    doc.setFontSize(9);
+    const reqFinding = `${t(I18N.finding)} F-${String(findingNum).padStart(2, '0')}`;
+    const reqLeftText = `${reqFinding}  |  ${req.id}  ${req.name}`;
+    const maxReqLeftW = CW - statusW - 14;
+    let truncReq = reqLeftText;
+    if (doc.getTextWidth(truncReq) > maxReqLeftW) {
+      while (truncReq.length > 10 && doc.getTextWidth(truncReq + '…') > maxReqLeftW) {
+        truncReq = truncReq.slice(0, -1);
+      }
+      truncReq = truncReq.trimEnd() + '…';
+    }
+    doc.text(truncReq, ML + 5, y + 7);
     y += 15;
 
     // Article reference
@@ -680,8 +726,17 @@ export function generateCraReport(data: CraReportData): void {
         doc.setFontSize(9);
         doc.setTextColor(...C.redText);
         doc.text(`${tid}`, ML + 4, y);
+        // Truncate name if too long for available space
         doc.setTextColor(...C.darkNavy);
-        doc.text(th.name, ML + 18, y);
+        const nameMaxW = CW - 22;
+        let recName = th.name;
+        if (doc.getTextWidth(recName) > nameMaxW) {
+          while (recName.length > 5 && doc.getTextWidth(recName + '…') > nameMaxW) {
+            recName = recName.slice(0, -1);
+          }
+          recName = recName.trimEnd() + '…';
+        }
+        doc.text(recName, ML + 18, y);
         y += 5.5;
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(BODY_SIZE);
@@ -692,8 +747,12 @@ export function generateCraReport(data: CraReportData): void {
           ? `Score de risque ${th.likelihood} × ${th.impact} = ${th.likelihood * th.impact}. ${th.component} — Contre-mesures techniques immédiates nécessaires.`
           : `Risk score ${th.likelihood} × ${th.impact} = ${th.likelihood * th.impact}. ${th.component} — Immediate technical countermeasures required.`;
         const dLines = doc.splitTextToSize(desc, CW - 22);
-        doc.text(dLines, ML + 18, y);
-        y += dLines.length * BODY_LEADING + 5;
+        for (const dl of dLines) {
+          checkPage(6);
+          doc.text(dl, ML + 18, y);
+          y += BODY_LEADING;
+        }
+        y += 4;
       }
       y += 3;
     }
@@ -713,14 +772,28 @@ export function generateCraReport(data: CraReportData): void {
         doc.setTextColor(...C.redText);
         doc.text(`${i + 1}.`, ML + 4, y);
         doc.setTextColor(...C.darkNavy);
-        doc.text(`${r.name} (${r.id})`, ML + 12, y);
+        // Truncate name+id if needed
+        const gapText = `${r.name} (${r.id})`;
+        const gapMaxW = CW - 16;
+        let truncGap = gapText;
+        if (doc.getTextWidth(truncGap) > gapMaxW) {
+          while (truncGap.length > 5 && doc.getTextWidth(truncGap + '…') > gapMaxW) {
+            truncGap = truncGap.slice(0, -1);
+          }
+          truncGap = truncGap.trimEnd() + '…';
+        }
+        doc.text(truncGap, ML + 12, y);
         y += 5.5;
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(BODY_SIZE);
         doc.setTextColor(...C.bodyText);
         const mLines = doc.splitTextToSize(r.measure, CW - 16);
-        doc.text(mLines, ML + 12, y);
-        y += mLines.length * BODY_LEADING + 5;
+        for (const ml of mLines) {
+          checkPage(6);
+          doc.text(ml, ML + 12, y);
+          y += BODY_LEADING;
+        }
+        y += 4;
       }
     }
   }
