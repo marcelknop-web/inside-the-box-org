@@ -120,12 +120,114 @@ function getContextText(p: string, v: string, typeName: string, cls: string, dat
   return `This report documents the results of a structured cyber risk assessment for the product ${p} ${v} (${typeName}, CRA class: ${cls}). The assessment was conducted on ${date}.\n\nThe objective was the systematic identification of threats using the STRIDE model and the evaluation of compliance with the essential requirements of the EU Cyber Resilience Act (Regulation (EU) 2024/2847). This report is intended for executive management, product management, and information security stakeholders.\n\nThe assessment covers both a technical threat analysis and a regulatory compliance review against the requirements of Annex I (security properties), Annex II (vulnerability handling), and Articles 13 and 14 of the CRA.\n\nThe report is structured to enable full traceability and verification of assessment decisions by third parties — including automated verification systems. Each finding includes the underlying evidence, the assessment rationale, and the normative references.`;
 }
 
-function getMgmtSummary(
-  p: string, threats: number, crit: number, failReqs: number, partialReqs: number, totalReqs: number, lang: string
-): string {
-  if (lang === 'de') return `Die Prüfung hat ${threats} Bedrohungsszenarien identifiziert und bewertet. Davon weisen ${crit} einen kritischen Risikoscore auf (Eintrittswahrscheinlichkeit × Auswirkung ≥ 20) und erfordern unmittelbares Handeln.\n\nVon ${totalReqs} geprüften CRA-Anforderungen sind ${failReqs} als nicht konform eingestuft. Diese Abweichungen betreffen grundlegende Sicherheitseigenschaften, die vor einer Markteinführung zwingend adressiert werden müssen. Weitere ${partialReqs} Anforderungen sind nur teilweise erfüllt und bedürfen der Nachbesserung.\n\n${crit > 0 ? 'Die identifizierten kritischen Risiken betreffen insbesondere Bereiche, in denen Angreifer mit vertretbarem Aufwand erheblichen Schaden anrichten können. Eine verzögerte Behebung erhöht das Risiko regulatorischer Beanstandungen und potenzieller Haftungsansprüche.' : 'Es wurden keine Bedrohungen mit kritischem Risikoscore identifiziert. Die vorhandenen Maßnahmen adressieren die wesentlichen Angriffsvektoren angemessen.'}\n\n${failReqs > 0 ? 'Handlungsbedarf besteht vor allem bei den in Abschnitt 5 aufgeführten Sofortmaßnahmen. Diese sollten priorisiert und mit klaren Verantwortlichkeiten und Zeitplänen versehen werden.' : 'Die CRA-Anforderungen werden weitgehend erfüllt. Die verbleibenden Teilerfüllungen sollten im Rahmen des regulären Entwicklungsprozesses adressiert werden.'}`;
-  if (lang === 'fr') return `L'évaluation a identifié et évalué ${threats} scénarios de menaces. Parmi ceux-ci, ${crit} présentent un score de risque critique (probabilité × impact ≥ 20) et nécessitent une action immédiate.\n\nSur ${totalReqs} exigences CRA examinées, ${failReqs} sont classées comme non conformes. Ces écarts concernent des propriétés de sécurité fondamentales qui doivent impérativement être corrigées avant la mise sur le marché. ${partialReqs} exigences supplémentaires ne sont que partiellement satisfaites.\n\n${crit > 0 ? 'Les risques critiques identifiés concernent notamment des domaines où un attaquant peut causer des dommages significatifs avec un effort raisonnable.' : 'Aucune menace avec un score de risque critique n\'a été identifiée.'}\n\n${failReqs > 0 ? 'Les actions immédiates détaillées dans la section 5 doivent être priorisées avec des responsabilités et des délais clairs.' : 'Les exigences CRA sont largement satisfaites. Les conformités partielles restantes peuvent être traitées dans le cadre du processus de développement régulier.'}`;
-  return `The assessment identified and evaluated ${threats} threat scenarios. Of these, ${crit} carry a critical risk score (likelihood × impact ≥ 20) and require immediate action.\n\nOf ${totalReqs} CRA requirements reviewed, ${failReqs} are rated as non-compliant. These deviations affect fundamental security properties that must be addressed before market entry. An additional ${partialReqs} requirements are only partially fulfilled and require remediation.\n\n${crit > 0 ? 'The identified critical risks particularly affect areas where attackers can cause significant damage with reasonable effort. Delayed remediation increases the risk of regulatory objections and potential liability claims.' : 'No threats with critical risk scores were identified. The existing measures adequately address the primary attack vectors.'}\n\n${failReqs > 0 ? 'Priority action is required on the immediate measures listed in Section 5. These should be assigned clear ownership and timelines.' : 'CRA requirements are largely met. The remaining partial fulfillments should be addressed through the regular development process.'}`;
+function getMgmtSummaryData(
+  p: string, threats: number, crit: number, failReqs: number, partialReqs: number, totalReqs: number, passReqs: number, lang: string
+): { verdict: string; situationLine: string; findings: { title: string; detail: string }[]; implication: string; action: string } {
+  const complianceRate = totalReqs > 0 ? Math.round(((passReqs + partialReqs * 0.5) / totalReqs) * 100) : 0;
+  const isReady = crit === 0 && failReqs === 0;
+  const isPartial = !isReady && complianceRate >= 60;
+
+  if (lang === 'de') {
+    return {
+      verdict: isReady
+        ? `${p} erfüllt die wesentlichen CRA-Anforderungen. Marktreife gegeben.`
+        : isPartial
+          ? `${p} erreicht ${complianceRate} % CRA-Konformität. Gezielte Nacharbeit erforderlich.`
+          : `${p} erreicht ${complianceRate} % CRA-Konformität. Ohne Nachbesserung nicht marktfähig.`,
+      situationLine: `${threats} Bedrohungsszenarien identifiziert | ${crit} kritisch (Score ≥ 20) | ${failReqs} von ${totalReqs} Anforderungen nicht konform | ${partialReqs} teilweise konform`,
+      findings: [
+        ...(crit > 0 ? [{
+          title: `${crit} kritische Risiken erfordern Sofortmaßnahmen`,
+          detail: `Angreifer können mit vertretbarem Aufwand erheblichen Schaden anrichten. Betroffen sind Bereiche, in denen grundlegende Schutzmechanismen fehlen oder unzureichend implementiert sind. Jede Woche Verzögerung erhöht das Risiko regulatorischer Beanstandungen.`,
+        }] : []),
+        ...(failReqs > 0 ? [{
+          title: `${failReqs} CRA-Anforderungen nicht erfüllt — Release-Blocker`,
+          detail: `Die Abweichungen betreffen grundlegende Sicherheitseigenschaften (Annex I) und Schwachstellenmanagement (Annex II). Ohne Behebung ist eine Konformitätserklärung nach Art. 22 CRA nicht abgebbar.`,
+        }] : []),
+        ...(partialReqs > 0 ? [{
+          title: `${partialReqs} Anforderungen nur teilweise erfüllt — Nachbesserungsbedarf`,
+          detail: `Ansätze vorhanden, aber Implementierung unvollständig oder nicht auditiert. Diese Lücken sind kurzfristig schließbar und sollten vor GA priorisiert werden.`,
+        }] : []),
+        ...(passReqs > 0 ? [{
+          title: `${passReqs} Anforderungen vollständig erfüllt`,
+          detail: `Die implementierten Maßnahmen adressieren die jeweiligen Angriffsvektoren angemessen. Keine Handlungserfordernis.`,
+        }] : []),
+      ],
+      implication: isReady
+        ? 'Keine regulatorischen Risiken identifiziert. Empfehlung: reguläre Aufrechterhaltung des Sicherheitsniveaus und jährliche Neubewertung.'
+        : `Bei Markteinführung im aktuellen Zustand drohen: Beanstandungen durch Marktüberwachungsbehörden, Rückrufpflichten nach Art. 49 CRA, sowie Haftungsrisiken nach der revidierten Produkthaftungsrichtlinie. Geschätzter Remediation-Aufwand: siehe Abschnitt 5.`,
+      action: isReady
+        ? 'Empfehlung: Konformitätserklärung vorbereiten und Monitoring-Prozess etablieren.'
+        : `Empfehlung: Sofortmaßnahmen (P0) aus Abschnitt 5.1 mit Verantwortlichkeiten und Fristen versehen. Wöchentliches Tracking bis zur Schließung aller kritischen Gaps.`,
+    };
+  }
+  if (lang === 'fr') {
+    return {
+      verdict: isReady
+        ? `${p} satisfait les exigences essentielles du CRA. Prêt pour la mise sur le marché.`
+        : isPartial
+          ? `${p} atteint ${complianceRate} % de conformité CRA. Des corrections ciblées sont nécessaires.`
+          : `${p} atteint ${complianceRate} % de conformité CRA. Non commercialisable en l'état.`,
+      situationLine: `${threats} scénarios de menaces identifiés | ${crit} critiques (score ≥ 20) | ${failReqs} sur ${totalReqs} exigences non conformes | ${partialReqs} partiellement conformes`,
+      findings: [
+        ...(crit > 0 ? [{
+          title: `${crit} risques critiques nécessitent une action immédiate`,
+          detail: `Un attaquant peut causer des dommages significatifs avec un effort raisonnable. Les domaines concernés manquent de mécanismes de protection fondamentaux. Chaque semaine de retard augmente le risque réglementaire.`,
+        }] : []),
+        ...(failReqs > 0 ? [{
+          title: `${failReqs} exigences CRA non satisfaites — bloquantes pour la mise sur le marché`,
+          detail: `Les écarts concernent les propriétés de sécurité fondamentales (Annexe I) et la gestion des vulnérabilités (Annexe II). Sans correction, aucune déclaration de conformité selon l'Art. 22 CRA n'est possible.`,
+        }] : []),
+        ...(partialReqs > 0 ? [{
+          title: `${partialReqs} exigences partiellement satisfaites — améliorations requises`,
+          detail: `Des approches existent mais l'implémentation est incomplète ou non auditée. Ces lacunes peuvent être comblées à court terme.`,
+        }] : []),
+        ...(passReqs > 0 ? [{
+          title: `${passReqs} exigences entièrement satisfaites`,
+          detail: `Les mesures implémentées traitent adéquatement les vecteurs d'attaque concernés. Aucune action requise.`,
+        }] : []),
+      ],
+      implication: isReady
+        ? 'Aucun risque réglementaire identifié. Recommandation : maintenir le niveau de sécurité et réévaluer annuellement.'
+        : `En cas de mise sur le marché en l'état : sanctions des autorités de surveillance, obligation de rappel (Art. 49 CRA), risques de responsabilité. Effort de remédiation estimé : voir section 5.`,
+      action: isReady
+        ? 'Recommandation : préparer la déclaration de conformité et établir un processus de suivi.'
+        : `Recommandation : attribuer responsabilités et délais aux mesures immédiates (P0) de la section 5.1. Suivi hebdomadaire jusqu'à la clôture de tous les gaps critiques.`,
+    };
+  }
+  // EN
+  return {
+    verdict: isReady
+      ? `${p} meets essential CRA requirements. Market readiness confirmed.`
+      : isPartial
+        ? `${p} achieves ${complianceRate}% CRA compliance. Targeted remediation required.`
+        : `${p} achieves ${complianceRate}% CRA compliance. Not market-ready without remediation.`,
+    situationLine: `${threats} threat scenarios identified | ${crit} critical (score ≥ 20) | ${failReqs} of ${totalReqs} requirements non-compliant | ${partialReqs} partially compliant`,
+    findings: [
+      ...(crit > 0 ? [{
+        title: `${crit} critical risks require immediate action`,
+        detail: `Attackers can cause significant damage with reasonable effort. Affected areas lack fundamental protection mechanisms. Each week of delay increases regulatory exposure.`,
+      }] : []),
+      ...(failReqs > 0 ? [{
+        title: `${failReqs} CRA requirements non-compliant — release blockers`,
+        detail: `Deviations affect fundamental security properties (Annex I) and vulnerability management (Annex II). Without remediation, a conformity declaration per Art. 22 CRA cannot be issued.`,
+      }] : []),
+      ...(partialReqs > 0 ? [{
+        title: `${partialReqs} requirements partially met — improvement needed`,
+        detail: `Approaches exist but implementation is incomplete or unaudited. These gaps are closable short-term and should be prioritised before GA.`,
+      }] : []),
+      ...(passReqs > 0 ? [{
+        title: `${passReqs} requirements fully met`,
+        detail: `Implemented measures adequately address the relevant attack vectors. No action required.`,
+      }] : []),
+    ],
+    implication: isReady
+      ? 'No regulatory risks identified. Recommendation: maintain security posture and re-assess annually.'
+      : `Market launch in current state risks: regulatory objections from market surveillance authorities, recall obligations under Art. 49 CRA, and liability exposure under the revised Product Liability Directive. Estimated remediation effort: see Section 5.`,
+    action: isReady
+      ? 'Recommendation: prepare conformity declaration and establish monitoring process.'
+      : `Recommendation: assign ownership and deadlines to immediate measures (P0) from Section 5.1. Weekly tracking until all critical gaps are closed.`,
+  };
 }
 
 function getMethodology(lang: string): string {
