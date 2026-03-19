@@ -928,17 +928,34 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
 
   const handleApplyFixes = useCallback(() => {
     if (!qaResult) return;
+    setFixesRunning(true);
+    setFixProgress(10);
     const failedChecks = qaResult.checks.filter(c => !c.passed);
-    const result = applyAuditFixes(localThreats, localReqs, failedChecks, language as 'de' | 'en' | 'fr', intakeData);
-    setLocalThreats(result.threats);
-    setLocalReqs(result.reqs);
-    setFixLog(result.fixes);
-    setFixesApplied(true);
-    // Re-run QA with fixed data
-    setTimeout(() => {
-      const newQa = runQualityCheck(result.threats, result.reqs, language as 'de' | 'en' | 'fr', intakeData);
-      setQaResult(newQa);
-    }, 500);
+    
+    // Simulate phased progress for UX feedback
+    const t1 = setTimeout(() => setFixProgress(30), 300);
+    const t2 = setTimeout(() => setFixProgress(55), 700);
+    const t3 = setTimeout(() => {
+      setFixProgress(75);
+      const result = applyAuditFixes(localThreats, localReqs, failedChecks, language as 'de' | 'en' | 'fr', intakeData);
+      setLocalThreats(result.threats);
+      setLocalReqs(result.reqs);
+      setFixLog(result.fixes);
+      setFixProgress(90);
+      
+      setTimeout(() => {
+        const newQa = runQualityCheck(result.threats, result.reqs, language as 'de' | 'en' | 'fr', intakeData);
+        setQaResult(newQa);
+        setFixProgress(100);
+        setTimeout(() => {
+          setFixesApplied(true);
+          setFixesRunning(false);
+          setFixProgress(0);
+        }, 400);
+      }, 500);
+    }, 1200);
+    
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
   }, [qaResult, localThreats, localReqs, language, intakeData]);
 
   const handleDraftPdf = useCallback(() => {
