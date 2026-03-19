@@ -1111,6 +1111,29 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
         </div>
       )}
 
+      {/* ═══ FIX LOG ═══ */}
+      {fixesApplied && fixLog.length > 0 && (
+        <div className="bg-card border-2 border-primary/30 rounded-lg overflow-hidden">
+          <div className="px-4 py-3 border-b border-primary/20 bg-primary/5 flex items-center gap-2">
+            <Wrench className="w-4 h-4 text-primary" />
+            <span className="text-sm font-bold text-primary">
+              {language === 'de' ? 'Automatisch umgesetzte Korrekturen' : language === 'fr' ? 'Corrections appliquées automatiquement' : 'Automatically applied corrections'}
+            </span>
+            <span className="text-xs font-mono text-muted-foreground ml-auto">{fixLog.length} fixes</span>
+          </div>
+          <div className="px-4 py-3">
+            <ul className="space-y-1 text-xs text-foreground">
+              {fixLog.map((f, i) => (
+                <li key={i} className="flex gap-2 items-start">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-primary flex-shrink-0 mt-0.5" />
+                  <span>{f}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
+
       {/* ═══ EXPORT BAR ═══ */}
       <div className="bg-secondary border border-border rounded-lg p-4 flex flex-col sm:flex-row items-center justify-between gap-3">
         <div className="text-sm text-foreground">
@@ -1135,6 +1158,17 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
           >
             <FileText className="w-4 h-4" /> PDF Draft
           </button>
+
+          {/* Apply Fixes — only after QA with failures, before final */}
+          {qaResult && qaResult.failed > 0 && !fixesApplied && (
+            <button
+              onClick={handleApplyFixes}
+              className="bg-accent border border-primary/30 text-foreground text-sm font-semibold px-4 py-2 rounded-lg hover:bg-primary/20 transition-colors flex items-center gap-2"
+            >
+              <Wrench className="w-4 h-4 text-primary" />
+              {language === 'de' ? 'Empfehlungen umsetzen' : language === 'fr' ? 'Appliquer les recommandations' : 'Apply Recommendations'}
+            </button>
+          )}
 
           {/* Final PDF — only after QA */}
           <button
