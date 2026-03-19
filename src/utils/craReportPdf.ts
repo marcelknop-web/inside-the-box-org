@@ -99,7 +99,7 @@ const I18N = {
   relatedThreats: { de: 'Verknüpfte Bedrohungen', en: 'Related Threats', fr: 'Menaces liées' },
 
   totalThreats: { de: 'Bedrohungen', en: 'Threats', fr: 'Menaces' },
-  criticalRisks: { de: 'Kritisch (≥ 20)', en: 'Critical (≥ 20)', fr: 'Critiques (≥ 20)' },
+  criticalRisks: { de: 'Kritisch (>= 20)', en: 'Critical (>= 20)', fr: 'Critiques (>= 20)' },
   craGaps: { de: 'Nicht konform', en: 'Non-Compliant', fr: 'Non conformes' },
   partialGaps: { de: 'Teilw. konform', en: 'Partial', fr: 'Partiels' },
 
@@ -142,7 +142,7 @@ function getMgmtSummaryData(
         : isPartial
           ? `${p} erreicht ${complianceRate} % CRA-Konformität. Gezielte Nacharbeit erforderlich.`
           : `${p} erreicht ${complianceRate} % CRA-Konformität. Ohne Nachbesserung nicht marktfähig.`,
-      situationLine: `${threats} Bedrohungsszenarien identifiziert | ${crit} kritisch (Score ≥ 20) | ${failReqs} von ${totalReqs} Anforderungen nicht konform | ${partialReqs} teilweise konform`,
+      situationLine: `${threats} Bedrohungsszenarien identifiziert | ${crit} kritisch (Score >= 20) | ${failReqs} von ${totalReqs} Anforderungen nicht konform | ${partialReqs} teilweise konform`,
       findings: [
         ...(crit > 0 ? [{
           title: `${crit} kritische Risiken erfordern Sofortmaßnahmen`,
@@ -176,7 +176,7 @@ function getMgmtSummaryData(
         : isPartial
           ? `${p} atteint ${complianceRate} % de conformité CRA. Des corrections ciblées sont nécessaires.`
           : `${p} atteint ${complianceRate} % de conformité CRA. Non commercialisable en l'état.`,
-      situationLine: `${threats} scénarios de menaces identifiés | ${crit} critiques (score ≥ 20) | ${failReqs} sur ${totalReqs} exigences non conformes | ${partialReqs} partiellement conformes`,
+      situationLine: `${threats} scénarios de menaces identifiés | ${crit} critiques (score >= 20) | ${failReqs} sur ${totalReqs} exigences non conformes | ${partialReqs} partiellement conformes`,
       findings: [
         ...(crit > 0 ? [{
           title: `${crit} risques critiques nécessitent une action immédiate`,
@@ -210,7 +210,7 @@ function getMgmtSummaryData(
       : isPartial
         ? `${p} achieves ${complianceRate}% CRA compliance. Targeted remediation required.`
         : `${p} achieves ${complianceRate}% CRA compliance. Not market-ready without remediation.`,
-    situationLine: `${threats} threat scenarios identified | ${crit} critical (score ≥ 20) | ${failReqs} of ${totalReqs} requirements non-compliant | ${partialReqs} partially compliant`,
+    situationLine: `${threats} threat scenarios identified | ${crit} critical (score >= 20) | ${failReqs} of ${totalReqs} requirements non-compliant | ${partialReqs} partially compliant`,
     findings: [
       ...(crit > 0 ? [{
         title: `${crit} critical risks require immediate action`,
@@ -360,7 +360,7 @@ export function generateCraReport(data: CraReportData): void {
   const FIELD_GAP = 1.5;
   const MONO_SIZE = 7;
 
-  // ── Cross-reference map: CRA article → threat IDs ──
+  // ── Cross-reference map: CRA article > threat IDs ──
   const articleToThreats: Record<string, string[]> = {};
   for (const th of threats) {
     if (!articleToThreats[th.cra]) articleToThreats[th.cra] = [];
@@ -916,7 +916,7 @@ export function generateCraReport(data: CraReportData): void {
     doc.rect(ML, y + 0.5, 2, 9, 'F');
 
     const rl = riskLabel(score);
-    const scoreStr = `${rl}  ${th.likelihood} × ${th.impact} = ${score}`;
+    const scoreStr = `${rl}  ${th.likelihood} x ${th.impact} = ${score}`;
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(7.5);
     doc.setTextColor(...headerText);
@@ -960,7 +960,7 @@ export function generateCraReport(data: CraReportData): void {
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(BODY_SIZE);
     doc.setTextColor(...C.bodyText);
-    const scoreDetail = `${t(I18N.likelihood)}: ${th.likelihood}/5  ×  ${t(I18N.impact)}: ${th.impact}/5  =  ${score}/25  →  ${rl}`;
+    const scoreDetail = `${t(I18N.likelihood)}: ${th.likelihood}/5  x  ${t(I18N.impact)}: ${th.impact}/5  =  ${score}/25  >  ${rl}`;
     doc.text(scoreDetail, ML + 8, y);
     y += BODY_LEADING + FIELD_GAP;
 
@@ -1250,7 +1250,7 @@ export function generateCraReport(data: CraReportData): void {
       color: C.orangeText },
     { phase: lang === 'de' ? 'Phase 2: Vor GA (4–8 Wochen)' : lang === 'fr' ? 'Phase 2 : Avant GA (4–8 sem.)' : 'Phase 2: Before GA (4–8 weeks)',
       desc: `${p2Items.length} ${lang === 'de' ? 'Teilerfüllungen nachschärfen' : 'partial compliance items'}`,
-      gate: lang === 'de' ? 'Gate: Coverage ≥ 80%, QA-Regression bestanden' : 'Gate: Coverage ≥ 80%, QA regression passed',
+      gate: lang === 'de' ? 'Gate: Coverage >= 80%, QA-Regression bestanden' : 'Gate: Coverage >= 80%, QA regression passed',
       color: C.bodyText },
     { phase: lang === 'de' ? 'Phase 3: Empfohlen (8–12 Wochen)' : lang === 'fr' ? 'Phase 3 : Recommandé (8–12 sem.)' : 'Phase 3: Recommended (8–12 weeks)',
       desc: `${p3Items.length} ${lang === 'de' ? 'Verbesserungen' : 'improvements'}`,
@@ -1267,7 +1267,7 @@ export function generateCraReport(data: CraReportData): void {
     for (const pl of phLines) { checkPage(5); doc.text(pl, ML + 10, y); y += BODY_LEADING; }
     y += 1;
     doc.setFont('helvetica', 'italic'); doc.setFontSize(7.5); doc.setTextColor(...C.accent);
-    doc.text(`→ ${ph.gate}`, ML + 10, y); y += 6;
+    doc.text(`> ${ph.gate}`, ML + 10, y); y += 6;
   }
 
   /* ══════════════════════════════════════
@@ -1281,10 +1281,10 @@ export function generateCraReport(data: CraReportData): void {
   y += 4;
   writeSubHeading(t(I18N.sec6a));
   const matrixExplanation = lang === 'de'
-    ? 'Die Risikobewertung erfolgt auf Basis einer 5×5-Matrix. Jede Bedrohung wird auf zwei Achsen bewertet:\n\nEintrittswahrscheinlichkeit (1–5):\n  1 = Sehr unwahrscheinlich (erfordert staatliche Ressourcen)\n  2 = Unwahrscheinlich (erfordert erheblichen Aufwand/Insider)\n  3 = Möglich (Netzwerkzugang + Standard-Tooling)\n  4 = Wahrscheinlich (geringer Aufwand, öffentlich bekannte Methoden)\n  5 = Sehr wahrscheinlich (trivial, keine besonderen Kenntnisse)\n\nAuswirkung (1–5):\n  1 = Minimal (keine Datenverluste, lokale Störung)\n  2 = Gering (begrenzter Datenverlust, einzelne Funktion betroffen)\n  3 = Mittel (Konfigurationsänderung, Compliance-Verstoß)\n  4 = Hoch (Datenabfluss, Produktionsausfall, Admin-Zugriff)\n  5 = Kritisch (persistente Kompromittierung, Lateral Movement, physischer Schaden)\n\nRisikoscore = Eintrittswahrscheinlichkeit × Auswirkung\n  Gering: 1–5  |  Mittel: 6–12  |  Hoch: 13–19  |  Kritisch: 20–25'
+    ? 'Die Risikobewertung erfolgt auf Basis einer 5x5-Matrix. Jede Bedrohung wird auf zwei Achsen bewertet:\n\nEintrittswahrscheinlichkeit (1–5):\n  1 = Sehr unwahrscheinlich (erfordert staatliche Ressourcen)\n  2 = Unwahrscheinlich (erfordert erheblichen Aufwand/Insider)\n  3 = Möglich (Netzwerkzugang + Standard-Tooling)\n  4 = Wahrscheinlich (geringer Aufwand, öffentlich bekannte Methoden)\n  5 = Sehr wahrscheinlich (trivial, keine besonderen Kenntnisse)\n\nAuswirkung (1–5):\n  1 = Minimal (keine Datenverluste, lokale Störung)\n  2 = Gering (begrenzter Datenverlust, einzelne Funktion betroffen)\n  3 = Mittel (Konfigurationsänderung, Compliance-Verstoß)\n  4 = Hoch (Datenabfluss, Produktionsausfall, Admin-Zugriff)\n  5 = Kritisch (persistente Kompromittierung, Lateral Movement, physischer Schaden)\n\nRisikoscore = Eintrittswahrscheinlichkeit x Auswirkung\n  Gering: 1–5  |  Mittel: 6–12  |  Hoch: 13–19  |  Kritisch: 20–25'
     : lang === 'fr'
-    ? 'L\'évaluation des risques est basée sur une matrice 5×5. Chaque menace est évaluée sur deux axes :\n\nProbabilité (1–5) :\n  1 = Très improbable (ressources étatiques nécessaires)\n  2 = Improbable (effort considérable / initié)\n  3 = Possible (accès réseau + outils standards)\n  4 = Probable (faible effort, méthodes publiques)\n  5 = Très probable (trivial, aucune connaissance spéciale)\n\nImpact (1–5) :\n  1 = Minimal (pas de perte de données, perturbation locale)\n  2 = Faible (perte de données limitée, fonction unique affectée)\n  3 = Moyen (changement de configuration, violation de conformité)\n  4 = Élevé (fuite de données, arrêt de production, accès admin)\n  5 = Critique (compromission persistante, mouvement latéral, dommages physiques)\n\nScore de risque = Probabilité × Impact\n  Faible : 1–5  |  Moyen : 6–12  |  Élevé : 13–19  |  Critique : 20–25'
-    : 'Risk assessment is based on a 5×5 matrix. Each threat is evaluated on two axes:\n\nLikelihood (1–5):\n  1 = Very unlikely (requires state-level resources)\n  2 = Unlikely (requires significant effort / insider access)\n  3 = Possible (network access + standard tooling)\n  4 = Likely (low effort, publicly known methods)\n  5 = Very likely (trivial, no special knowledge required)\n\nImpact (1–5):\n  1 = Minimal (no data loss, local disruption only)\n  2 = Low (limited data loss, single function affected)\n  3 = Medium (configuration change, compliance violation)\n  4 = High (data exfiltration, production outage, admin access)\n  5 = Critical (persistent compromise, lateral movement, physical damage)\n\nRisk Score = Likelihood × Impact\n  Low: 1–5  |  Medium: 6–12  |  High: 13–19  |  Critical: 20–25';
+    ? 'L\'évaluation des risques est basée sur une matrice 5x5. Chaque menace est évaluée sur deux axes :\n\nProbabilité (1–5) :\n  1 = Très improbable (ressources étatiques nécessaires)\n  2 = Improbable (effort considérable / initié)\n  3 = Possible (accès réseau + outils standards)\n  4 = Probable (faible effort, méthodes publiques)\n  5 = Très probable (trivial, aucune connaissance spéciale)\n\nImpact (1–5) :\n  1 = Minimal (pas de perte de données, perturbation locale)\n  2 = Faible (perte de données limitée, fonction unique affectée)\n  3 = Moyen (changement de configuration, violation de conformité)\n  4 = Élevé (fuite de données, arrêt de production, accès admin)\n  5 = Critique (compromission persistante, mouvement latéral, dommages physiques)\n\nScore de risque = Probabilité x Impact\n  Faible : 1–5  |  Moyen : 6–12  |  Élevé : 13–19  |  Critique : 20–25'
+    : 'Risk assessment is based on a 5x5 matrix. Each threat is evaluated on two axes:\n\nLikelihood (1–5):\n  1 = Very unlikely (requires state-level resources)\n  2 = Unlikely (requires significant effort / insider access)\n  3 = Possible (network access + standard tooling)\n  4 = Likely (low effort, publicly known methods)\n  5 = Very likely (trivial, no special knowledge required)\n\nImpact (1–5):\n  1 = Minimal (no data loss, local disruption only)\n  2 = Low (limited data loss, single function affected)\n  3 = Medium (configuration change, compliance violation)\n  4 = High (data exfiltration, production outage, admin access)\n  5 = Critical (persistent compromise, lateral movement, physical damage)\n\nRisk Score = Likelihood x Impact\n  Low: 1–5  |  Medium: 6–12  |  High: 13–19  |  Critical: 20–25';
   writeBody(matrixExplanation);
 
   // 6.2 OT Contextualisation
@@ -1374,7 +1374,7 @@ export function generateCraReport(data: CraReportData): void {
       ['cra_reference', th.cra],
       ['likelihood', `${th.likelihood}/5`],
       ['impact', `${th.impact}/5`],
-      ['risk_score', `${score}/25 → ${riskLabel(score)}`],
+      ['risk_score', `${score}/25 > ${riskLabel(score)}`],
       ['evidence', th.evidence],
       ['rationale', th.rationale],
       ['sources', th.sources.join(' | ')],
@@ -1668,7 +1668,7 @@ export function generateCraReport(data: CraReportData): void {
     }
   }
 
-  // Check: every fail-req has ≥1 linked threat
+  // Check: every fail-req has >=1 linked threat
   const failReqsWithoutThreats = failReqs.filter(r => !threats.some(th => th.cra === r.article));
   // Check: every pass-req has 0 critical threats
   const passReqsWithCritThreats = reqs.filter(r => r.status === 'pass' && threats.some(th => th.cra === r.article && th.likelihood * th.impact >= 20));
@@ -1684,7 +1684,7 @@ export function generateCraReport(data: CraReportData): void {
   const authReq = reqs.find(r => r.id === 'A1-3');
   const noAuthButCompliant = hasModbus && authReq?.status === 'pass';
 
-  // Check: critical threats → requirement must be at least partial
+  // Check: critical threats > requirement must be at least partial
   const critThreatsWithPassReq = critRisks.filter(th => {
     const linkedReq = reqs.find(r => r.article === th.cra);
     return linkedReq && linkedReq.status === 'pass';
@@ -1728,9 +1728,9 @@ export function generateCraReport(data: CraReportData): void {
       titleEn: 'Consistency Check',
       checks: [
         {
-          label: lang === 'de' ? `Threat-Count (${threats.length}) ≥ Baseline (${baseline}) für Produktklasse ${intakeData.craClass.toUpperCase()}`
-            : lang === 'fr' ? `Nombre de menaces (${threats.length}) ≥ baseline (${baseline}) pour classe ${intakeData.craClass.toUpperCase()}`
-            : `Threat count (${threats.length}) ≥ baseline (${baseline}) for class ${intakeData.craClass.toUpperCase()}`,
+          label: lang === 'de' ? `Threat-Count (${threats.length}) >= Baseline (${baseline}) für Produktklasse ${intakeData.craClass.toUpperCase()}`
+            : lang === 'fr' ? `Nombre de menaces (${threats.length}) >= baseline (${baseline}) pour classe ${intakeData.craClass.toUpperCase()}`
+            : `Threat count (${threats.length}) >= baseline (${baseline}) for class ${intakeData.craClass.toUpperCase()}`,
           passed: meetsBaseline,
           detail: !meetsBaseline ? `${lang === 'de' ? 'Fehlend' : 'Missing'}: ${baseline - threats.length} ${lang === 'de' ? 'Threats' : 'threats'}` : undefined,
         },
@@ -1741,16 +1741,16 @@ export function generateCraReport(data: CraReportData): void {
           passed: reqs.length >= 22,
         },
         {
-          label: lang === 'de' ? 'Jede "NICHT KONFORM" Anforderung hat ≥ 1 verknüpften Threat'
-            : lang === 'fr' ? 'Chaque exigence "NON CONFORME" a ≥ 1 menace liée'
-            : 'Each "NON-COMPLIANT" requirement has ≥ 1 linked threat',
+          label: lang === 'de' ? 'Jede "NICHT KONFORM" Anforderung hat >= 1 verknüpften Threat'
+            : lang === 'fr' ? 'Chaque exigence "NON CONFORME" a >= 1 menace liée'
+            : 'Each "NON-COMPLIANT" requirement has >= 1 linked threat',
           passed: failReqsWithoutThreats.length === 0,
           detail: failReqsWithoutThreats.length > 0 ? `${lang === 'de' ? 'Ohne Threat-Verknüpfung' : 'Missing link'}: ${failReqsWithoutThreats.map(r => r.id).join(', ')}` : undefined,
         },
         {
-          label: lang === 'de' ? 'Jede "KONFORM" Anforderung hat 0 kritische Threats (Risk ≥ 20)'
-            : lang === 'fr' ? 'Chaque exigence "CONFORME" a 0 menaces critiques (Risk ≥ 20)'
-            : 'Each "COMPLIANT" requirement has 0 critical threats (Risk ≥ 20)',
+          label: lang === 'de' ? 'Jede "KONFORM" Anforderung hat 0 kritische Threats (Risk >= 20)'
+            : lang === 'fr' ? 'Chaque exigence "CONFORME" a 0 menaces critiques (Risk >= 20)'
+            : 'Each "COMPLIANT" requirement has 0 critical threats (Risk >= 20)',
           passed: passReqsWithCritThreats.length === 0,
           detail: passReqsWithCritThreats.length > 0 ? `${lang === 'de' ? 'Widerspruch' : 'Contradiction'}: ${passReqsWithCritThreats.map(r => r.id).join(', ')}` : undefined,
         },
@@ -1761,18 +1761,18 @@ export function generateCraReport(data: CraReportData): void {
           passed: failReqsWithoutThreats.length === 0 && passReqsWithCritThreats.length === 0,
         },
         {
-          label: lang === 'de' ? `STRIDE-Verteilung: Jede Komponente hat ≥ 2 STRIDE-Kategorien`
-            : lang === 'fr' ? `Distribution STRIDE : chaque composant a ≥ 2 catégories STRIDE`
-            : `STRIDE distribution: each component has ≥ 2 STRIDE categories`,
+          label: lang === 'de' ? `STRIDE-Verteilung: Jede Komponente hat >= 2 STRIDE-Kategorien`
+            : lang === 'fr' ? `Distribution STRIDE : chaque composant a >= 2 catégories STRIDE`
+            : `STRIDE distribution: each component has >= 2 STRIDE categories`,
           passed: componentsWithLessThan2Stride.length === 0,
           detail: componentsWithLessThan2Stride.length > 0
             ? `${componentsWithLessThan2Stride.map(([c, s]) => `${c} (${s.size})`).join(', ')}`
             : undefined,
         },
         {
-          label: lang === 'de' ? `Coverage-Rate: ${coverageRate}% (≥ 82% für Klasse II empfohlen)`
-            : lang === 'fr' ? `Taux de couverture : ${coverageRate}% (≥ 82% recommandé pour Classe II)`
-            : `Coverage rate: ${coverageRate}% (≥ 82% recommended for Class II)`,
+          label: lang === 'de' ? `Coverage-Rate: ${coverageRate}% (>= 82% für Klasse II empfohlen)`
+            : lang === 'fr' ? `Taux de couverture : ${coverageRate}% (>= 82% recommandé pour Classe II)`
+            : `Coverage rate: ${coverageRate}% (>= 82% recommended for Class II)`,
           passed: coverageRate >= 82 || intakeData.craClass === 'default' || intakeData.craClass === 'k1',
         },
       ],
