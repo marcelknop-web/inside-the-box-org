@@ -887,6 +887,7 @@ export function generateCraReport(data: CraReportData): void {
   // 3.4 Known Issues
   y += 3;
   writeSubHeading(t(I18N.sec3d));
+  writeBody(t(I18N.introSec3d));
   writeBody(intakeData.knownIssues || t(I18N.noKnownIssues));
 
   // 3.5 Submitted Documentation
