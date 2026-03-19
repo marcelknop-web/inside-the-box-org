@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef, useMemo, memo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { RotateCcw, ChevronDown, ChevronUp, Loader2, Sparkles, FileText, ShieldCheck, CheckCircle2, XCircle, AlertTriangle } from 'lucide-react';
+import { RotateCcw, ChevronDown, ChevronUp, Loader2, Sparkles, FileText, ShieldCheck, CheckCircle2, XCircle, AlertTriangle, Wrench } from 'lucide-react';
+import { applyAuditFixes } from '@/utils/craAuditFixes';
 import { generateCraReport } from '@/utils/craReportPdf';
 import { CraAuditCharts } from '@/components/CraAuditCharts';
 import { runQualityCheck, type QaResult } from '@/utils/craQualityCheck';
@@ -876,12 +877,16 @@ function CRAMapping({ reqs, onNext }: { reqs: CraReq[]; onNext: () => void }) {
 
 function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; threats: Threat[]; reqs: CraReq[] }) {
   const { t, language } = useLanguage();
+  const [localThreats, setLocalThreats] = useState<Threat[]>(() => threats.map(th => ({ ...th, sources: [...th.sources] })));
+  const [localReqs, setLocalReqs] = useState<CraReq[]>(() => reqs.map(r => ({ ...r, criteria: [...r.criteria] })));
   const [qaResult, setQaResult] = useState<QaResult | null>(null);
   const [qaRunning, setQaRunning] = useState(false);
   const [qaExpanded, setQaExpanded] = useState(false);
-  const critRisks = useMemo(() => threats.filter(th => th.likelihood * th.impact >= 20), [threats]);
-  const failReqs = useMemo(() => reqs.filter(r => r.status === 'fail'), [reqs]);
-  const partialCount = useMemo(() => reqs.filter(r => r.status === 'partial').length, [reqs]);
+  const [fixesApplied, setFixesApplied] = useState(false);
+  const [fixLog, setFixLog] = useState<string[]>([]);
+  const critRisks = useMemo(() => localThreats.filter(th => th.likelihood * th.impact >= 20), [localThreats]);
+  const failReqs = useMemo(() => localReqs.filter(r => r.status === 'fail'), [localReqs]);
+  const partialCount = useMemo(() => localReqs.filter(r => r.status === 'partial').length, [localReqs]);
   const today = useMemo(() => {
     const locale = language === 'de' ? 'de-DE' : language === 'fr' ? 'fr-FR' : 'en-US';
     return new Date().toLocaleDateString(locale, { day: '2-digit', month: 'long', year: 'numeric' });
@@ -898,31 +903,48 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
       .replace('{type}', typeName)
       .replace('{cls}', craName)
       .replace('{date}', today)
-      .replace('{threats}', String(threats.length))
+      .replace('{threats}', String(localThreats.length))
       .replace('{critRisks}', String(critRisks.length))
-      .replace('{reqs}', String(reqs.length))
+      .replace('{reqs}', String(localReqs.length))
       .replace('{failReqs}', String(failReqs.length))
       .replace('{partial}', String(partialCount));
-  }, [t, intakeData, typeName, craName, today, threats.length, critRisks.length, reqs.length, failReqs.length, partialCount]);
+  }, [t, intakeData, typeName, craName, today, localThreats.length, critRisks.length, localReqs.length, failReqs.length, partialCount]);
 
   const handleQaCheck = useCallback(() => {
     setQaRunning(true);
     setQaExpanded(false);
+    setFixesApplied(false);
+    setFixLog([]);
     setTimeout(() => {
-      const result = runQualityCheck(threats, reqs, language as 'de' | 'en' | 'fr');
+      const result = runQualityCheck(localThreats, localReqs, language as 'de' | 'en' | 'fr');
       setQaResult(result);
       setQaRunning(false);
       setQaExpanded(true);
     }, 1500);
-  }, [threats, reqs, language]);
+  }, [localThreats, localReqs, language]);
+
+  const handleApplyFixes = useCallback(() => {
+    if (!qaResult) return;
+    const failedChecks = qaResult.checks.filter(c => !c.passed);
+    const result = applyAuditFixes(localThreats, localReqs, failedChecks, language as 'de' | 'en' | 'fr');
+    setLocalThreats(result.threats);
+    setLocalReqs(result.reqs);
+    setFixLog(result.fixes);
+    setFixesApplied(true);
+    // Re-run QA with fixed data
+    setTimeout(() => {
+      const newQa = runQualityCheck(result.threats, result.reqs, language as 'de' | 'en' | 'fr');
+      setQaResult(newQa);
+    }, 500);
+  }, [qaResult, localThreats, localReqs, language]);
 
   const handleDraftPdf = useCallback(() => {
-    generateCraReport({ intakeData, threats, reqs, language: language as 'de' | 'en' | 'fr', productTypeName: typeName, craClassName: craName, isDraft: true });
-  }, [intakeData, threats, reqs, language, typeName, craName]);
+    generateCraReport({ intakeData, threats: localThreats, reqs: localReqs, language: language as 'de' | 'en' | 'fr', productTypeName: typeName, craClassName: craName, isDraft: true });
+  }, [intakeData, localThreats, localReqs, language, typeName, craName]);
 
   const handleFinalPdf = useCallback(() => {
-    generateCraReport({ intakeData, threats, reqs, language: language as 'de' | 'en' | 'fr', productTypeName: typeName, craClassName: craName, isDraft: false });
-  }, [intakeData, threats, reqs, language, typeName, craName]);
+    generateCraReport({ intakeData, threats: localThreats, reqs: localReqs, language: language as 'de' | 'en' | 'fr', productTypeName: typeName, craClassName: craName, isDraft: false });
+  }, [intakeData, localThreats, localReqs, language, typeName, craName]);
 
   const qaVerdict = qaResult?.verdict;
   const canFinal = qaVerdict === 'passed' || qaVerdict === 'conditional';
@@ -956,7 +978,7 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
       {/* ═══ AUDIT CHARTS ═══ */}
       <div className="bg-card border border-border rounded-lg p-4">
         <div className="text-sm font-bold text-foreground mb-3">📊 {language === 'de' ? 'Auswertungsübersicht' : language === 'fr' ? 'Aperçu de l\'évaluation' : 'Assessment Overview'}</div>
-        <CraAuditCharts threats={threats} reqs={reqs} />
+        <CraAuditCharts threats={localThreats} reqs={localReqs} />
       </div>
 
       {/* Prio 3: Explicitly name critical risks */}
@@ -1005,7 +1027,7 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
 
       <div className="grid grid-cols-3 gap-3">
         {([
-          [t('cra.rpTotalThreats'), threats.length, 'text-foreground'],
+          [t('cra.rpTotalThreats'), localThreats.length, 'text-foreground'],
           [t('cra.rpCritRisks'), critRisks.length, 'text-destructive'],
           [t('cra.rpCraGaps'), failReqs.length, 'text-destructive'],
         ] as [string, number, string][]).map(([l, n, c]) => (
@@ -1089,6 +1111,29 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
         </div>
       )}
 
+      {/* ═══ FIX LOG ═══ */}
+      {fixesApplied && fixLog.length > 0 && (
+        <div className="bg-card border-2 border-primary/30 rounded-lg overflow-hidden">
+          <div className="px-4 py-3 border-b border-primary/20 bg-primary/5 flex items-center gap-2">
+            <Wrench className="w-4 h-4 text-primary" />
+            <span className="text-sm font-bold text-primary">
+              {language === 'de' ? 'Automatisch umgesetzte Korrekturen' : language === 'fr' ? 'Corrections appliquées automatiquement' : 'Automatically applied corrections'}
+            </span>
+            <span className="text-xs font-mono text-muted-foreground ml-auto">{fixLog.length} fixes</span>
+          </div>
+          <div className="px-4 py-3">
+            <ul className="space-y-1 text-xs text-foreground">
+              {fixLog.map((f, i) => (
+                <li key={i} className="flex gap-2 items-start">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-primary flex-shrink-0 mt-0.5" />
+                  <span>{f}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
+
       {/* ═══ EXPORT BAR ═══ */}
       <div className="bg-secondary border border-border rounded-lg p-4 flex flex-col sm:flex-row items-center justify-between gap-3">
         <div className="text-sm text-foreground">
@@ -1113,6 +1158,17 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
           >
             <FileText className="w-4 h-4" /> PDF Draft
           </button>
+
+          {/* Apply Fixes — only after QA with failures, before final */}
+          {qaResult && qaResult.failed > 0 && !fixesApplied && (
+            <button
+              onClick={handleApplyFixes}
+              className="bg-accent border border-primary/30 text-foreground text-sm font-semibold px-4 py-2 rounded-lg hover:bg-primary/20 transition-colors flex items-center gap-2"
+            >
+              <Wrench className="w-4 h-4 text-primary" />
+              {language === 'de' ? 'Empfehlungen umsetzen' : language === 'fr' ? 'Appliquer les recommandations' : 'Apply Recommendations'}
+            </button>
+          )}
 
           {/* Final PDF — only after QA */}
           <button
