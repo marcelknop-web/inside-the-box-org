@@ -554,10 +554,10 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
 
                 if (isHidden) {
                   return (
-                    <div key={i} className="relative px-5 py-3 text-sm opacity-15" style={{ clipPath: diamondClip }}>
+                    <div key={i} className="relative px-8 py-3 text-sm opacity-15" style={{ clipPath: diamondClip }}>
                       <div className="absolute inset-0 bg-muted/20" style={{ clipPath: diamondClip }} />
                       <span className="relative font-mono font-bold mr-2 text-muted-foreground">{OPTION_LETTERS[i]}:</span>
-                      <span className="relative line-through text-muted-foreground">{opt}</span>
+                      <span className="relative line-through text-muted-foreground break-words">{opt}</span>
                     </div>
                   );
                 }
