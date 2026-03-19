@@ -107,7 +107,6 @@ export function applyAuditFixes(
             const maxScore = Math.max(...violating.map(th => th.likelihood * th.impact));
             const topThreat = violating.find(th => th.likelihood * th.impact === maxScore)!;
             r.status = maxScore >= 20 ? 'fail' : 'partial';
-            // Use existing threat data for gap description
             if (!r.gap || r.gap.trim() === '') {
               r.gap = topThreat.name;
             }
@@ -115,6 +114,24 @@ export function applyAuditFixes(
               `${r.id}: Status korrigiert -> ${r.status === 'fail' ? 'nicht konform' : 'teilweise konform'} (${threatId(topThreat)}, Score ${maxScore})`,
               `${r.id}: Status corrected -> ${r.status === 'fail' ? 'non-compliant' : 'partially compliant'} (${threatId(topThreat)}, score ${maxScore})`,
               `${r.id}: Statut corrige -> ${r.status === 'fail' ? 'non conforme' : 'partiellement conforme'} (${threatId(topThreat)}, score ${maxScore})`
+            ));
+          }
+        });
+        break;
+      }
+
+      case 'A3-1b': {
+        // Downgrade "partial" to "fail" when critical threats (>= 20) exist
+        fixedReqs.forEach(r => {
+          if (r.status !== 'partial') return;
+          const critical = fixedThreats.filter(th => th.cra === r.article && th.likelihood * th.impact >= 20);
+          if (critical.length > 0) {
+            const topThreat = critical[0];
+            r.status = 'fail';
+            fixes.push(t(
+              `${r.id}: "teilweise" -> "nicht konform" (kritischer Threat ${threatId(topThreat)}, Score >= 20)`,
+              `${r.id}: "partial" -> "non-compliant" (critical threat ${threatId(topThreat)}, score >= 20)`,
+              `${r.id}: "partiel" -> "non conforme" (menace critique ${threatId(topThreat)}, score >= 20)`
             ));
           }
         });
