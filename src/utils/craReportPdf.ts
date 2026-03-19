@@ -1013,6 +1013,7 @@ export function generateCraReport(data: CraReportData): void {
   // 4.2 CRA Compliance Gaps
   newSection();
   writeSubHeading(t(I18N.sec4b));
+  writeBody(t(I18N.introSec4b));
   y += 2;
 
   const sortedReqs = [...reqs].sort((a, b) => {
