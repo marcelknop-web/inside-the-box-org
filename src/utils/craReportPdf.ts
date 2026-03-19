@@ -772,14 +772,28 @@ export function generateCraReport(data: CraReportData): void {
         doc.setTextColor(...C.redText);
         doc.text(`${i + 1}.`, ML + 4, y);
         doc.setTextColor(...C.darkNavy);
-        doc.text(`${r.name} (${r.id})`, ML + 12, y);
+        // Truncate name+id if needed
+        const gapText = `${r.name} (${r.id})`;
+        const gapMaxW = CW - 16;
+        let truncGap = gapText;
+        if (doc.getTextWidth(truncGap) > gapMaxW) {
+          while (truncGap.length > 5 && doc.getTextWidth(truncGap + '…') > gapMaxW) {
+            truncGap = truncGap.slice(0, -1);
+          }
+          truncGap = truncGap.trimEnd() + '…';
+        }
+        doc.text(truncGap, ML + 12, y);
         y += 5.5;
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(BODY_SIZE);
         doc.setTextColor(...C.bodyText);
         const mLines = doc.splitTextToSize(r.measure, CW - 16);
-        doc.text(mLines, ML + 12, y);
-        y += mLines.length * BODY_LEADING + 5;
+        for (const ml of mLines) {
+          checkPage(6);
+          doc.text(ml, ML + 12, y);
+          y += BODY_LEADING;
+        }
+        y += 4;
       }
     }
   }
