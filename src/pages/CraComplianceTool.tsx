@@ -232,6 +232,12 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
       roles: ['Tenant Admin', 'Editor', 'Viewer'],
       measures: { tls: { active: true, documented: true, audited: true }, rbac: { active: true, documented: true, audited: false }, monitor: { active: true, documented: true, audited: false }, pentest: { active: true, documented: false, audited: false }, ir: { active: true, documented: true, audited: false } },
       knownIssues: '',
+      files: [
+        { name: 'CloudVault_Architecture_Overview.pdf', size: 1_780_000, type: 'arch' },
+        { name: 'CloudVault_Pentest_2025-H2.pdf', size: 920_000, type: 'pentest' },
+        { name: 'CloudVault_ISMS_Policy_v4.pdf', size: 670_000, type: 'policy' },
+        { name: 'cloudvault-sbom-5.2.0.spdx.json', size: 205_000, type: 'sbom' },
+      ],
     },
     {
       // Mobile Fleet App – Klasse I, Lücken bei Maßnahmen
