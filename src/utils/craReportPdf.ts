@@ -1798,9 +1798,9 @@ export function generateCraReport(data: CraReportData): void {
           detail: noAuthButCompliant ? `A1-3 ${lang === 'de' ? 'ist "konform" trotz Modbus ohne Auth' : 'rated "compliant" despite Modbus without auth'}` : undefined,
         },
         {
-          label: lang === 'de' ? 'Kritische Threats (Risk ≥ 20) → verknüpfte Anforderung mindestens "teilweise konform"'
-            : lang === 'fr' ? 'Menaces critiques (Risk ≥ 20) → exigence liée au moins "partiellement conforme"'
-            : 'Critical threats (Risk ≥ 20) → linked requirement at least "partially compliant"',
+          label: lang === 'de' ? 'Kritische Threats (Risk >= 20): verknuepfte Anforderung mindestens "teilweise konform"'
+            : lang === 'fr' ? 'Menaces critiques (Risk >= 20): exigence liee au moins "partiellement conforme"'
+            : 'Critical threats (Risk >= 20): linked requirement at least "partially compliant"',
           passed: critThreatsWithPassReq.length === 0,
           detail: critThreatsWithPassReq.length > 0 ? `${lang === 'de' ? 'Widerspruch bei' : 'Contradiction at'}: ${critThreatsWithPassReq.map(th => threatId(th)).join(', ')}` : undefined,
         },
