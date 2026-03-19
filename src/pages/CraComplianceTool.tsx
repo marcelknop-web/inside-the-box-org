@@ -922,13 +922,24 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
     setQaExpanded(false);
     setFixesApplied(false);
     setFixLog([]);
+    const nextIteration = qaIteration + 1;
+    setQaIteration(nextIteration);
     setTimeout(() => {
       const result = runQualityCheck(localThreats, localReqs, language as 'de' | 'en' | 'fr', intakeData);
       setQaResult(result);
       setQaRunning(false);
       setQaExpanded(true);
+      // Save to history
+      setQaHistory(prev => [...prev, {
+        iteration: nextIteration,
+        passed: result.passed,
+        total: result.total,
+        failed: result.failed,
+        verdict: result.verdict,
+        fixes: [],
+      }]);
     }, 1500);
-  }, [localThreats, localReqs, language, intakeData]);
+  }, [localThreats, localReqs, language, intakeData, qaIteration]);
 
   const handleApplyFixes = useCallback(() => {
     if (!qaResult) return;
