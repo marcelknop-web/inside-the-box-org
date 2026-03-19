@@ -99,18 +99,31 @@ export function runQualityCheck(
   });
 
   // A.3 Logische Konsistenz: kein "konform" bei verletzenden Threats (>= 13)
-  const failReqsWithCritThreats = reqs.filter(r => {
+  const passReqsWithViolatingThreats = reqs.filter(r => {
     if (r.status !== 'pass') return false;
-    const violatingThreats = threats.filter(th => th.cra === r.article && th.likelihood * th.impact >= 13);
-    return violatingThreats.length > 0;
+    return threats.some(th => th.cra === r.article && th.likelihood * th.impact >= 13);
   });
   checks.push({
     id: 'A3-1', category: 'consistency',
     label: t('Kein "konform" bei verletzenden Threats (Score >= 13)', 'No "compliant" with violating threats (score >= 13)', 'Pas de "conforme" avec des menaces violantes (score >= 13)'),
-    detail: failReqsWithCritThreats.length > 0
-      ? `${failReqsWithCritThreats.map(r => r.id).join(', ')} ${t('als konform, aber Threats verletzen diese', 'marked compliant but threats violate them', 'marquees conformes mais des menaces les violent')}`
+    detail: passReqsWithViolatingThreats.length > 0
+      ? `${passReqsWithViolatingThreats.map(r => r.id).join(', ')} ${t('als konform, aber Threats verletzen diese', 'marked compliant but threats violate them', 'marquees conformes mais des menaces les violent')}`
       : t('Konsistent', 'Consistent', 'Coherent'),
-    passed: failReqsWithCritThreats.length === 0, severity: 'critical',
+    passed: passReqsWithViolatingThreats.length === 0, severity: 'critical',
+  });
+
+  // A.3b "partial" bei kritischen Threats (>= 20) muss "fail" sein
+  const partialReqsWithCriticalThreats = reqs.filter(r => {
+    if (r.status !== 'partial') return false;
+    return threats.some(th => th.cra === r.article && th.likelihood * th.impact >= 20);
+  });
+  checks.push({
+    id: 'A3-1b', category: 'consistency',
+    label: t('Kein "teilweise konform" bei kritischen Threats (Score >= 20)', 'No "partial" with critical threats (score >= 20)', 'Pas de "partiel" avec menaces critiques (score >= 20)'),
+    detail: partialReqsWithCriticalThreats.length > 0
+      ? `${partialReqsWithCriticalThreats.map(r => r.id).join(', ')} ${t('als teilweise, aber kritische Threats erfordern "nicht konform"', 'marked partial but critical threats require "non-compliant"', 'marquees partielles mais menaces critiques exigent "non conforme"')}`
+      : t('Konsistent', 'Consistent', 'Coherent'),
+    passed: partialReqsWithCriticalThreats.length === 0, severity: 'critical',
   });
 
   // A.3b Logische Konsistenz: kein "konform" bei kritischen Threats (>= 20) — strictere Pruefung
