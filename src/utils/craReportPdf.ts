@@ -107,6 +107,9 @@ const I18N = {
   no: { de: 'Nein', en: 'No', fr: 'Non' },
   noFilesSubmitted: { de: 'Keine Dokumente eingereicht.', en: 'No documents submitted.', fr: 'Aucun document soumis.' },
   noKnownIssues: { de: 'Vom Hersteller wurden keine bekannten Probleme angegeben.', en: 'No known issues reported by the manufacturer.', fr: 'Aucun problème connu signalé par le fabricant.' },
+  evidenceQuality: { de: 'Evidenz-Qualität', en: 'Evidence Quality', fr: 'Qualité de la preuve' },
+  reproducibility: { de: 'Reproduzierbarkeit', en: 'Reproducibility', fr: 'Reproductibilité' },
+  evidenceSummaryTitle: { de: 'Evidenz-Qualitätsübersicht', en: 'Evidence Quality Summary', fr: 'Synthèse de la qualité des preuves' },
 
   appendixIntro: { de: 'Dieser Anhang enthält die vollständigen Prüfdaten in strukturierter Form. Die Daten sind so aufbereitet, dass die Nachvollziehbarkeit und Richtigkeit der getroffenen Bewertungsentscheidungen durch Dritte — einschließlich automatisierter Systeme — überprüft werden kann.\n\nJede Feststellung enthält die zugrundeliegende Evidenz, die Bewertungslogik (Rationale) und die regulatorische Referenz, die zur Einstufung geführt hat. Die Verknüpfungen zwischen Bedrohungen und CRA-Anforderungen sind explizit ausgewiesen.', en: 'This appendix contains the complete audit data in structured form. The data is prepared so that the traceability and correctness of the assessment decisions can be verified by third parties — including automated systems.\n\nEach finding includes the underlying evidence, the assessment logic (rationale), and the regulatory reference that led to the classification. The cross-references between threats and CRA requirements are explicitly documented.', fr: 'Cette annexe contient les données d\'audit complètes sous forme structurée. Les données sont préparées de manière à permettre la vérification de la traçabilité et de l\'exactitude des décisions d\'évaluation par des tiers — y compris des systèmes automatisés.\n\nChaque constatation comprend les preuves sous-jacentes, la logique d\'évaluation (rationale) et la référence réglementaire ayant conduit à la classification. Les références croisées entre menaces et exigences CRA sont explicitement documentées.' },
 };
@@ -928,6 +931,17 @@ export function generateCraReport(data: CraReportData): void {
       writeFieldBlock(t(I18N.relatedReqs), relatedReqIds.join('; '));
     }
 
+    // Evidence quality + reproducibility
+    const stars = '★'.repeat(th.evidenceQuality) + '☆'.repeat(5 - th.evidenceQuality);
+    const reproMap: Record<string, Record<string, string>> = {
+      easy: { de: 'Einfach', en: 'Easy', fr: 'Facile' },
+      medium: { de: 'Mittel', en: 'Medium', fr: 'Moyen' },
+      hard: { de: 'Komplex', en: 'Complex', fr: 'Complexe' },
+      impossible: { de: 'Nicht reproduzierbar', en: 'Not reproducible', fr: 'Non reproductible' },
+    };
+    const reproLabel = reproMap[th.reproducibility]?.[lang] || th.reproducibility;
+    writeLabel(`${t(I18N.evidenceQuality)}: ${stars}  |  ${t(I18N.reproducibility)}: ${reproLabel}`, 5);
+
     // Risk score breakdown
     writeLabel(t(I18N.riskScore), 5);
     doc.setFont('helvetica', 'normal');
@@ -1004,6 +1018,15 @@ export function generateCraReport(data: CraReportData): void {
     writeFieldBlock(t(I18N.evidence), req.evidence);
     writeFieldBlock(t(I18N.rationale), req.rationale);
     writeFieldBlock(t(I18N.measureAction), req.measure);
+
+    // Effort + Priority
+    if (req.effort) {
+      writeFieldBlock(t(I18N.effort), req.effort);
+    }
+    if (req.priority) {
+      const pLabel = req.priority === 'P0' ? t(I18N.p0) : req.priority === 'P1' ? t(I18N.p1) : req.priority === 'P2' ? t(I18N.p2) : t(I18N.p3);
+      writeFieldBlock(t(I18N.priority), pLabel);
+    }
 
     // Cross-reference: which threats are linked to this requirement?
     const linkedThreats = articleToThreats[req.article];
