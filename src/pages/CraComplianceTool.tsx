@@ -885,8 +885,8 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
   const [fixesApplied, setFixesApplied] = useState(false);
   const [fixLog, setFixLog] = useState<string[]>([]);
   const critRisks = useMemo(() => localThreats.filter(th => th.likelihood * th.impact >= 20), [localThreats]);
-  const failReqs = useMemo(() => reqs.filter(r => r.status === 'fail'), [reqs]);
-  const partialCount = useMemo(() => reqs.filter(r => r.status === 'partial').length, [reqs]);
+  const failReqs = useMemo(() => localReqs.filter(r => r.status === 'fail'), [localReqs]);
+  const partialCount = useMemo(() => localReqs.filter(r => r.status === 'partial').length, [localReqs]);
   const today = useMemo(() => {
     const locale = language === 'de' ? 'de-DE' : language === 'fr' ? 'fr-FR' : 'en-US';
     return new Date().toLocaleDateString(locale, { day: '2-digit', month: 'long', year: 'numeric' });
