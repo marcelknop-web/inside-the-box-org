@@ -134,6 +134,10 @@ export interface Threat {
   attacker: string; path: string; cra: string;
   likelihood: number; impact: number;
   evidence: string; rationale: string; sources: string[];
+  /** Evidence quality rating 1–5 stars (1=untested, 5=practical PoC) */
+  evidenceQuality: number;
+  /** Reproducibility: 'easy' | 'medium' | 'hard' | 'impossible' */
+  reproducibility: string;
 }
 
 /** Returns a formatted threat ID like S-001, T-002, etc. */
@@ -146,6 +150,10 @@ export interface CraReq {
   status: 'pass' | 'partial' | 'fail';
   gap: string; measure: string;
   evidence: string; rationale: string; criteria: string[];
+  /** Effort estimate string, e.g. '16–24h' */
+  effort: string;
+  /** Priority P0/P1/P2/P3 */
+  priority: string;
 }
 
 export interface MeasureEntry {
