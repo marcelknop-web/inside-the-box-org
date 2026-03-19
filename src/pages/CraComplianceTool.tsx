@@ -990,13 +990,13 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
     requestAnimationFrame(() => {
       setTimeout(() => {
         try {
-          generateCraReport({ intakeData, threats: localThreats, reqs: localReqs, language: language as 'de' | 'en' | 'fr', productTypeName: typeName, craClassName: craName, isDraft: false });
+          generateCraReport({ intakeData, threats: localThreats, reqs: localReqs, language: language as 'de' | 'en' | 'fr', productTypeName: typeName, craClassName: craName, isDraft: false, qaChecks: qaResult?.checks, fixLog, qaIterations: qaIteration });
         } finally {
           setFinalPdfRunning(false);
         }
       }, 100);
     });
-  }, [intakeData, localThreats, localReqs, language, typeName, craName]);
+  }, [intakeData, localThreats, localReqs, language, typeName, craName, qaResult, fixLog, qaIteration]);
 
   const qaVerdict = qaResult?.verdict;
   const canFinal = fixesApplied || qaVerdict === 'passed' || qaVerdict === 'conditional';
