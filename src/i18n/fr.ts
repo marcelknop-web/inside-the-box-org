@@ -794,9 +794,41 @@ export const fr = {
     strideSpoofing: 'Usurpation', strideTampering: 'Altération', strideRepudiation: 'Répudiation', strideInfoDisc: 'Divulgation', strideDos: 'Déni de service', strideEoP: 'Élévation de priv.',
   },
   dora: {
-    critical: 'Critique', high: 'Eleve', medium: 'Moyen', low: 'Faible',
+    critical: 'Critique', high: 'Élevé', medium: 'Moyen', low: 'Faible',
+    // Entity types
+    etBank: 'Établissement de crédit', etBankDesc: 'Banques, caisses d\'épargne et coopératives de crédit',
+    etInsurance: 'Assurance', etInsuranceDesc: 'Entreprises d\'assurance et de réassurance',
+    etPayment: 'Prestataire de paiement', etPaymentDesc: 'Établissements de paiement, établissements de monnaie électronique',
+    etCrypto: 'Prestataire crypto-actifs', etCryptoDesc: 'Prestataires de services sur crypto-actifs',
+    etFund: 'Société de gestion', etFundDesc: 'Sociétés de gestion et fonds d\'investissement',
+    etIctProvider: 'Prestataire TIC tiers', etIctProviderDesc: 'Prestataires TIC tiers critiques pour le secteur financier',
+    // Criticality levels
+    critStandard: 'Standard', critStandardDesc: 'Périmètre régulier — pas d\'exigences étendues',
+    critSignificant: 'Significatif', critSignificantDesc: 'Exigences étendues, y compris obligation TLPT selon Art. 26',
+    critCritical: 'Critique', critCriticalDesc: 'Exigences maximales — institution d\'importance systémique',
+    // Infrastructure
+    infraCoreBanking: 'Système bancaire central', infraTrading: 'Système de trading', infraPayment: 'Traitement des paiements',
+    infraCloud: 'Infrastructure cloud', infraDataCenter: 'Centre de données', infraNetwork: 'Réseau',
+    infraEndpoints: 'Terminaux', infraMobile: 'Applications mobiles',
+    // Attachment types
+    attIctRiskPolicy: 'Politique de gestion des risques TIC', attBcp: 'Plan de continuité d\'activité',
+    attIncidentPlan: 'Plan de réponse aux incidents', attThirdPartyRegister: 'Registre des tiers',
+    attTestReport: 'Rapport de test (pentest/TLPT)', attOther: 'Autre document',
+    // Risk management measures
+    rmIctRisk: 'Cadre de gestion des risques TIC', rmAssetMgmt: 'Gestion des actifs TIC',
+    rmConfigMgmt: 'Gestion de la configuration', rmEncryption: 'Chiffrement',
+    rmNetworkSec: 'Sécurité réseau', rmAccessControl: 'Contrôle d\'accès',
+    rmPatchMgmt: 'Gestion des correctifs', rmLogging: 'Journalisation et surveillance',
+    rmIncidentMgmt: 'Gestion des incidents TIC', rmBcm: 'Gestion de la continuité d\'activité',
+    rmBackup: 'Sauvegarde des données', rmDrp: 'Plan de reprise d\'activité',
+    rmChangeMgmt: 'Gestion des changements', rmTesting: 'Tests de résilience',
+    rmAwareness: 'Sensibilisation et formation',
+    // Measure categories
+    catGovernance: 'Gouvernance', catProtection: 'Protection', catDetection: 'Détection',
+    catResponse: 'Réponse', catRecovery: 'Reprise', catOps: 'Exploitation',
+    // Status
     statusPass: 'Conforme', statusPartial: 'Partiel', statusFail: 'Non conforme',
-    next: 'Suivant', back: 'Retour', startAnalysis: 'Demarrer l\'analyse', toSummary: 'Vers le resume',
+    next: 'Suivant', back: 'Retour', startAnalysis: 'Démarrer l\'analyse', toSummary: 'Vers le résumé',
     step0Title: 'Identifier l\'entite financiere', step0Sub: 'Saisir les donnees de base', step0Info: 'DORA (UE) 2022/2554 s\'applique aux entites financieres et a leurs prestataires TIC tiers. Saisissez les donnees de base.',
     entityName: 'Nom de l\'entite', entityNamePh: 'p.ex. Deutsche Musterbank AG',
     entityTypeSel: 'Type d\'entite financiere',
