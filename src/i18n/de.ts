@@ -911,7 +911,8 @@ export const de = {
     // Criteria
     criteriaHeader: 'Prüfkriterien',
     // Maturity
-    maturityBasic: 'Basis', maturityPartial: 'Teilweise', maturityFull: 'Vollständig',
+    maturityBasic: 'Basis', maturityPartial: 'Teilweise', maturityFull: 'Vollständig', maturityCertified: 'Zertifiziert',
+    certified: 'Zertifiziert',
     // Compliance Mapping
     cmReadiness: 'DORA-Readiness',
     cmPassed: 'Konform', cmPartial: 'Teilweise', cmGaps: 'Nicht konform',
