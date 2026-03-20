@@ -847,8 +847,8 @@ export function generateDoraReport(data: DoraReportData): void {
   newPage();
   heading(l('secB', lang));
   introText(lang === 'de'
-    ? 'Die folgenden Werkzeuge und Methoden wurden bei der Durchführung der Prüfung eingesetzt.'
-    : 'The following tools and methods were used during the assessment.');
+    ? 'Womit wurde geprueft? Hier sind die eingesetzten Werkzeuge und Methoden aufgelistet — fuer die Nachvollziehbarkeit durch Dritte.'
+    : 'What tools were used? The instruments and methods employed are listed here for third-party traceability.');
   const tools = [
     { cat: lang === 'de' ? 'Netzwerkanalyse' : 'Network Analysis', tools: 'Wireshark 4.x, Nmap 7.x, tcpdump' },
     { cat: lang === 'de' ? 'API-/Applikationstests' : 'API/Application Testing', tools: 'Postman, Burp Suite Professional, OWASP ZAP' },
