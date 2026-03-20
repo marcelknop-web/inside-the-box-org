@@ -1103,7 +1103,7 @@ const DoraComplianceTool = ({ embedded }: { embedded?: boolean }) => {
     <div className={embedded ? '' : 'min-h-screen bg-background'}>
       {!embedded && <PageMeta title="DORA Compliance Tool" description="DORA Konformitaetspruefung nach (EU) 2022/2554" />}
 
-      <div className="px-4 pt-6 pb-2 max-w-5xl mx-auto" ref={contentRef}>
+      <div className="px-4 md:px-8 lg:px-12 pt-6 pb-2 max-w-5xl" ref={contentRef}>
         <h1 className="text-2xl md:text-3xl font-bold text-foreground tracking-tight">
           DORA Compliance Audit
         </h1>
