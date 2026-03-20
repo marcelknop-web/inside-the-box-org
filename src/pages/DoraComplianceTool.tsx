@@ -321,21 +321,23 @@ function IntakeWizard({ onFinish }: { onFinish: (d: DoraIntakeData) => void }) {
         setD(prev => {
           const existing = prev.measures[id];
           if (existing) { const { [id]: _, ...rest } = prev.measures; return { ...prev, measures: rest }; }
-          return { ...prev, measures: { ...prev.measures, [id]: { active: true, documented: false, audited: false } } };
+          return { ...prev, measures: { ...prev.measures, [id]: { active: true, documented: false, audited: false, certified: false } } };
         });
       };
-      const setMeasureProp = (id: string, prop: 'documented' | 'audited', val: boolean) => {
+      const setMeasureProp = (id: string, prop: 'documented' | 'audited' | 'certified', val: boolean) => {
         setD(prev => {
           const entry = prev.measures[id]; if (!entry) return prev;
           return { ...prev, measures: { ...prev.measures, [id]: { ...entry, [prop]: val } } };
         });
       };
       const maturityLabel = (entry: MeasureEntry) => {
+        if (entry.active && entry.documented && entry.audited && entry.certified) return t('dora.maturityCertified');
         if (entry.active && entry.documented && entry.audited) return t('dora.maturityFull');
         if (entry.active && entry.documented) return t('dora.maturityPartial');
         return t('dora.maturityBasic');
       };
       const maturityColor = (entry: MeasureEntry) => {
+        if (entry.active && entry.documented && entry.audited && entry.certified) return 'text-primary';
         if (entry.active && entry.documented && entry.audited) return 'text-green-400';
         if (entry.active && entry.documented) return 'text-yellow-400';
         return 'text-orange-400';
@@ -368,6 +370,10 @@ function IntakeWizard({ onFinish }: { onFinish: (d: DoraIntakeData) => void }) {
                           <label className="flex items-center gap-1.5 cursor-pointer group">
                             <input type="checkbox" className="w-3.5 h-3.5 rounded accent-primary flex-shrink-0" checked={entry.audited} onChange={e => setMeasureProp(m.id, 'audited', e.target.checked)} />
                             <span className="text-xs text-muted-foreground group-hover:text-foreground transition-colors">{t('dora.audited')}</span>
+                          </label>
+                          <label className="flex items-center gap-1.5 cursor-pointer group">
+                            <input type="checkbox" className="w-3.5 h-3.5 rounded accent-primary flex-shrink-0" checked={entry.certified} onChange={e => setMeasureProp(m.id, 'certified', e.target.checked)} />
+                            <span className="text-xs text-muted-foreground group-hover:text-foreground transition-colors">{t('dora.certified')}</span>
                           </label>
                         </div>
                       )}

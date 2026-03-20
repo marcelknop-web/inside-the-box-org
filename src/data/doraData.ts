@@ -135,6 +135,7 @@ export interface MeasureEntry {
   active: boolean;
   documented: boolean;
   audited: boolean;
+  certified: boolean;
 }
 
 export interface DoraIntakeData {
@@ -455,7 +456,7 @@ export const DEMO_SCENARIOS: DemoScenario[] = [
     infrastructure: ['core_banking', 'payment_proc', 'cloud', 'network', 'endpoints', 'mobile'],
     thirdPartyProviders: ['Core Banking Provider', 'Cloud Service Provider (IaaS/PaaS/SaaS)', 'Payment Processor', 'Network/Telecom Provider', 'Security Service Provider (SOC/SIEM)'],
     roles: ['Vorstand IT', 'CISO', 'IT-Leiter', 'Datenschutzbeauftragter', 'Compliance-Beauftragter'],
-    measures: { ict_risk_framework: { active: true, documented: true, audited: false }, access_control: { active: true, documented: true, audited: false }, patch_mgmt: { active: true, documented: true, audited: true }, logging: { active: true, documented: false, audited: false }, bcm: { active: true, documented: true, audited: false }, backup: { active: true, documented: true, audited: true } },
+    measures: { ict_risk_framework: { active: true, documented: true, audited: false, certified: false }, access_control: { active: true, documented: true, audited: false, certified: false }, patch_mgmt: { active: true, documented: true, audited: true, certified: false }, logging: { active: true, documented: false, audited: false, certified: false }, bcm: { active: true, documented: true, audited: false, certified: false }, backup: { active: true, documented: true, audited: true, certified: false } },
     knownIssues: 'DR-Test wurde in den letzten 24 Monaten nicht vollständig durchgeführt. Informationsregister für IKT-Drittanbieter ist unvollständig.',
     files: [
       { name: 'RVB_IKT-Risiko-Framework_v2.1.pdf', size: 1_890_000, type: 'ict_risk_policy' },
@@ -473,7 +474,7 @@ export const DEMO_SCENARIOS: DemoScenario[] = [
     infrastructure: ['cloud', 'data_center', 'network', 'endpoints', 'mobile'],
     thirdPartyProviders: ['Cloud Service Provider (IaaS/PaaS/SaaS)', 'Software Vendor (ERP/CRM)', 'Network/Telecom Provider', 'Data Center Operator', 'IT Outsourcing Provider'],
     roles: ['CTO', 'CISO', 'Head of IT Operations', 'DPO', 'Compliance Officer'],
-    measures: { ict_risk_framework: { active: true, documented: true, audited: true }, ict_asset_mgmt: { active: true, documented: true, audited: false }, encryption: { active: true, documented: true, audited: false }, network_sec: { active: true, documented: true, audited: true }, incident_mgmt: { active: true, documented: true, audited: false }, awareness: { active: true, documented: false, audited: false } },
+    measures: { ict_risk_framework: { active: true, documented: true, audited: true, certified: false }, ict_asset_mgmt: { active: true, documented: true, audited: false, certified: false }, encryption: { active: true, documented: true, audited: false, certified: false }, network_sec: { active: true, documented: true, audited: true, certified: false }, incident_mgmt: { active: true, documented: true, audited: false, certified: false }, awareness: { active: true, documented: false, audited: false, certified: false } },
     knownIssues: 'Cloud-Exit-Strategie noch nicht vollständig ausgearbeitet.',
     files: [
       { name: 'SL_ISMS_Policy_v4.pdf', size: 2_340_000, type: 'ict_risk_policy' },
@@ -490,7 +491,7 @@ export const DEMO_SCENARIOS: DemoScenario[] = [
     infrastructure: ['payment_proc', 'cloud', 'network', 'endpoints'],
     thirdPartyProviders: ['Cloud Service Provider (IaaS/PaaS/SaaS)', 'Network/Telecom Provider', 'Security Service Provider (SOC/SIEM)', 'Market Data Provider'],
     roles: ['CEO', 'CTO', 'CISO', 'Head of Compliance', 'DPO', 'Head of Engineering'],
-    measures: { ict_risk_framework: { active: true, documented: true, audited: true }, encryption: { active: true, documented: true, audited: true }, access_control: { active: true, documented: true, audited: true }, patch_mgmt: { active: true, documented: true, audited: true }, logging: { active: true, documented: true, audited: true }, incident_mgmt: { active: true, documented: true, audited: false }, testing: { active: true, documented: true, audited: false } },
+    measures: { ict_risk_framework: { active: true, documented: true, audited: true, certified: false }, encryption: { active: true, documented: true, audited: true, certified: false }, access_control: { active: true, documented: true, audited: true, certified: false }, patch_mgmt: { active: true, documented: true, audited: true, certified: false }, logging: { active: true, documented: true, audited: true, certified: false }, incident_mgmt: { active: true, documented: true, audited: false, certified: false }, testing: { active: true, documented: true, audited: false, certified: false } },
     knownIssues: 'TLPT nach TIBER-EU noch nicht durchgeführt. Informationsregister wird aktuell aufgebaut.',
     files: [
       { name: 'PS_Security-Framework_v5.pdf', size: 3_450_000, type: 'ict_risk_policy' },
@@ -508,7 +509,7 @@ export const DEMO_SCENARIOS: DemoScenario[] = [
     infrastructure: ['trading', 'cloud', 'network', 'endpoints'],
     thirdPartyProviders: ['Market Data Provider', 'Cloud Service Provider (IaaS/PaaS/SaaS)', 'Software Vendor (ERP/CRM)', 'Network/Telecom Provider'],
     roles: ['Geschäftsführer', 'IT-Leiter', 'Compliance', 'Portfolio-Manager'],
-    measures: { access_control: { active: true, documented: true, audited: false }, encryption: { active: true, documented: false, audited: false }, backup: { active: true, documented: true, audited: false }, awareness: { active: true, documented: true, audited: false } },
+    measures: { access_control: { active: true, documented: true, audited: false, certified: false }, encryption: { active: true, documented: false, audited: false, certified: false }, backup: { active: true, documented: true, audited: false, certified: false }, awareness: { active: true, documented: true, audited: false, certified: false } },
     knownIssues: 'Kein formalisiertes IKT-Risiko-Framework vorhanden. Abhängigkeit von Bloomberg als Single Source für Marktdaten.',
     files: [
       { name: 'AC_IT-Policy_2024.pdf', size: 560_000, type: 'ict_risk_policy' },
@@ -523,7 +524,7 @@ export const DEMO_SCENARIOS: DemoScenario[] = [
     infrastructure: ['cloud', 'data_center', 'network', 'endpoints'],
     thirdPartyProviders: ['Data Center Operator', 'Network/Telecom Provider', 'Security Service Provider (SOC/SIEM)'],
     roles: ['CEO', 'CTO', 'CISO', 'Head of Operations', 'Compliance Manager', 'Service Delivery Manager'],
-    measures: { ict_risk_framework: { active: true, documented: true, audited: true }, ict_config_mgmt: { active: true, documented: true, audited: true }, encryption: { active: true, documented: true, audited: true }, network_sec: { active: true, documented: true, audited: true }, logging: { active: true, documented: true, audited: true }, incident_mgmt: { active: true, documented: true, audited: true }, bcm: { active: true, documented: true, audited: true }, drp: { active: true, documented: true, audited: false }, change_mgmt: { active: true, documented: true, audited: true }, testing: { active: true, documented: true, audited: false } },
+    measures: { ict_risk_framework: { active: true, documented: true, audited: true, certified: true }, ict_config_mgmt: { active: true, documented: true, audited: true, certified: true }, encryption: { active: true, documented: true, audited: true, certified: true }, network_sec: { active: true, documented: true, audited: true, certified: true }, logging: { active: true, documented: true, audited: true, certified: true }, incident_mgmt: { active: true, documented: true, audited: true, certified: true }, bcm: { active: true, documented: true, audited: true, certified: true }, drp: { active: true, documented: true, audited: false, certified: false }, change_mgmt: { active: true, documented: true, audited: true, certified: true }, testing: { active: true, documented: true, audited: false, certified: false } },
     knownIssues: 'DR-Switching-Test zwischen Frankfurt und München steht noch aus. Informationsregister muss um Sub-Outsourcing-Ketten ergänzt werden.',
     files: [
       { name: 'CS_ISMS_ISO27001_Certificate.pdf', size: 4_200_000, type: 'ict_risk_policy' },
