@@ -172,17 +172,17 @@ export const RISK_CATEGORIES: Record<string, { label: Record<string, string>; do
 
 export const DORA_RISKS: DoraRisk[] = [
   // C — Confidentiality (2)
-  { id: 1, category: 'C', name: 'Unverschlüsselte interne Kommunikation zwischen Kernbanksystemen', component: 'Core-Banking-Netzwerk', attacker: 'Interner Angreifer / Netzwerk-Mitleser', path: 'Laterale Kommunikation zwischen Applikationsservern ohne TLS → Transaktionsdaten im Klartext → Datenabfluss', doraRef: 'Art. 9 Abs. 2', likelihood: 4, impact: 5,
+  { id: 1, category: 'C', name: 'Unverschlüsselte interne Kommunikation zwischen Kernbanksystemen', component: 'Core-Banking-Netzwerk', attacker: 'Interner Angreifer / Netzwerk-Mitleser', path: 'Laterale Kommunikation zwischen Applikationsservern ohne TLS → Transaktionsdaten im Klartext → Datenabfluss', doraRef: 'Art. 8', likelihood: 4, impact: 5,
     evidence: 'Netzwerkmitschnitt (Wireshark): TCP-Verbindungen zwischen App-Server 10.0.1.10 und DB-Server 10.0.1.20 auf Port 1521 ohne TLS-Verschlüsselung. Transaktionsdaten (IBAN, Betrag, Verwendungszweck) im Klartext sichtbar. Pcap-Datei dokumentiert.',
     rationale: 'Likelihood 4: Zugang zum internen Netzwerk für Mitarbeiter und Dienstleister Standard. TLS-Konfiguration auf internen Verbindungen häufig vernachlässigt. Impact 5: Kundentransaktionsdaten sind regulatorisch geschützt (DSGVO Art. 32, DORA Art. 9). Offenlegung führt zu Meldepflicht und Reputationsschaden.',
     sources: ['DORA Art. 9 Abs. 2: Schutz von Informationsaktiva', 'EBA-Leitlinie zu IKT-Sicherheitsrisiken (EBA/GL/2019/04)'], evidenceQuality: 5, reproducibility: 'easy' },
-  { id: 2, category: 'C', name: 'Unzureichender Zugriffsschutz auf Kundendaten-API', component: 'Online-Banking API', attacker: 'Authentifizierter Nutzer', path: 'IDOR-Schwachstelle in REST-API → Zugriff auf fremde Kontodaten durch Manipulation der Account-ID', doraRef: 'Art. 9 Abs. 4 lit. c', likelihood: 4, impact: 4,
+  { id: 2, category: 'C', name: 'Unzureichender Zugriffsschutz auf Kundendaten-API', component: 'Online-Banking API', attacker: 'Authentifizierter Nutzer', path: 'IDOR-Schwachstelle in REST-API → Zugriff auf fremde Kontodaten durch Manipulation der Account-ID', doraRef: 'Art. 9 Abs. 4', likelihood: 4, impact: 4,
     evidence: 'API-Test: GET /api/v1/accounts/{id}/transactions — Änderung der Account-ID von eigener (ACC-123) auf fremde (ACC-456) liefert Transaktionsdaten eines anderen Kunden. Kein serverseitiger Ownership-Check.',
     rationale: 'Likelihood 4: Standard-Tooling (Browser DevTools, Postman) genügt. Impact 4: Offenlegung fremder Kontodaten, DSGVO-Verstoß, Kundenvertrauen beschädigt.',
     sources: ['OWASP API Security Top 10 — API1: Broken Object Level Authorization', 'DORA Art. 9 Abs. 4: Zugangskontrollmechanismen'], evidenceQuality: 4, reproducibility: 'easy' },
 
   // I — Integrity (2)
-  { id: 3, category: 'I', name: 'Fehlende Integritätsprüfung bei Batch-Zahlungsdateien', component: 'Zahlungsverkehr-System', attacker: 'Insider / Supply-Chain-Angreifer', path: 'Batch-Dateien (SEPA XML) ohne Signaturprüfung verarbeitet → Manipulation von Zahlungsaufträgen möglich', doraRef: 'Art. 9 Abs. 4 lit. d', likelihood: 3, impact: 5,
+  { id: 3, category: 'I', name: 'Fehlende Integritätsprüfung bei Batch-Zahlungsdateien', component: 'Zahlungsverkehr-System', attacker: 'Insider / Supply-Chain-Angreifer', path: 'Batch-Dateien (SEPA XML) ohne Signaturprüfung verarbeitet → Manipulation von Zahlungsaufträgen möglich', doraRef: 'Art. 9 Abs. 4', likelihood: 3, impact: 5,
     evidence: 'Prozessanalyse: SEPA-XML-Batch-Dateien werden über SFTP empfangen und ohne kryptografische Signaturprüfung direkt in das Zahlungsverkehr-System eingelesen. Modifizierte Testdatei (geänderter IBAN und Betrag) wurde erfolgreich verarbeitet.',
     rationale: 'Likelihood 3: Erfordert Zugang zum SFTP-Server oder Kompromittierung der Upload-Kette. Impact 5: Direkte finanzielle Verluste durch manipulierte Zahlungsaufträge. Regulatorische Konsequenzen (PSD2, DORA).',
     sources: ['DORA Art. 9 Abs. 4 lit. d: Datenintegrität', 'PSD2 Art. 95: Sicherheitsanforderungen'], evidenceQuality: 4, reproducibility: 'medium' },
@@ -192,21 +192,21 @@ export const DORA_RISKS: DoraRisk[] = [
     sources: ['DORA Art. 12: Backup-Strategien und Wiederherstellungsmethoden', 'ISO 27001:2022 A.8.15: Logging'], evidenceQuality: 4, reproducibility: 'easy' },
 
   // A — Availability (3)
-  { id: 5, category: 'A', name: 'Single Point of Failure im Core-Banking-System', component: 'Core-Banking-Datenbankserver', attacker: 'Systemausfall / Ransomware', path: 'Keine Datenbankreplikation → Serverausfall → Komplettausfall des Online-Banking für alle Kunden', doraRef: 'Art. 11 Abs. 1', likelihood: 3, impact: 5,
+  { id: 5, category: 'A', name: 'Single Point of Failure im Core-Banking-System', component: 'Core-Banking-Datenbankserver', attacker: 'Systemausfall / Ransomware', path: 'Keine Datenbankreplikation → Serverausfall → Komplettausfall des Online-Banking für alle Kunden', doraRef: 'Art. 11 Abs. 1-3', likelihood: 3, impact: 5,
     evidence: 'Architektur-Review: Core-Banking-Datenbank läuft auf einem einzelnen Oracle-Server ohne Active-Passive-Failover. Letzter vollständiger Backup-Test: 14 Monate alt. Recovery Time Objective (RTO) dokumentiert mit 4h, tatsächlich getestet: 18h.',
     rationale: 'Likelihood 3: Serverausfälle (Hardware, Ransomware) sind realistische Szenarien. Ohne Replikation ist Totalausfall die Folge. Impact 5: Kompletter Ausfall aller Bankgeschäfte — Kundenvertrauen, regulatorische Meldepflicht, finanzielle Verluste.',
     sources: ['DORA Art. 11: Backup-Strategien und Wiederherstellung', 'EBA-Leitlinie IKT-Risiken'], evidenceQuality: 4, reproducibility: 'medium' },
-  { id: 6, category: 'A', name: 'Kein DDoS-Schutz für Online-Banking-Portal', component: 'Online-Banking Web-Frontend', attacker: 'Externer Angreifer', path: 'Volumetrischer DDoS-Angriff → Portal nicht erreichbar → Kunden können keine Transaktionen durchführen', doraRef: 'Art. 9 Abs. 2', likelihood: 4, impact: 4,
+  { id: 6, category: 'A', name: 'Kein DDoS-Schutz für Online-Banking-Portal', component: 'Online-Banking Web-Frontend', attacker: 'Externer Angreifer', path: 'Volumetrischer DDoS-Angriff → Portal nicht erreichbar → Kunden können keine Transaktionen durchführen', doraRef: 'Art. 8', likelihood: 4, impact: 4,
     evidence: 'Infrastruktur-Review: Kein dedizierter DDoS-Mitigation-Service (kein Cloudflare, AWS Shield o.ä.). Web-Application-Firewall vorhanden, aber ohne Rate-Limiting. Lasttest: 5000 gleichzeitige Requests führen zu Response-Timeout.',
     rationale: 'Likelihood 4: DDoS-as-a-Service ist billig und weit verbreitet. Finanzsektor ist priorisiertes Ziel. Impact 4: Service-Ausfall für Endkunden, aber kein Datenverlust.',
     sources: ['DORA Art. 9 Abs. 2: Schutz der IKT-Systeme', 'NIST SP 800-189: DDoS Mitigation'], evidenceQuality: 3, reproducibility: 'medium' },
-  { id: 7, category: 'A', name: 'Ungetesteter Disaster-Recovery-Plan', component: 'IT-Infrastruktur gesamt', attacker: 'Naturkatastrophe / Systemausfall', path: 'DR-Plan existiert nur auf Papier → Im Ernstfall Chaos → Verlängerter Ausfallzeitraum', doraRef: 'Art. 11 Abs. 6', likelihood: 3, impact: 4,
+  { id: 7, category: 'A', name: 'Ungetesteter Disaster-Recovery-Plan', component: 'IT-Infrastruktur gesamt', attacker: 'Naturkatastrophe / Systemausfall', path: 'DR-Plan existiert nur auf Papier → Im Ernstfall Chaos → Verlängerter Ausfallzeitraum', doraRef: 'Art. 11 Abs. 4-6', likelihood: 3, impact: 4,
     evidence: 'Dokumentenprüfung: DR-Plan (Version 2.3, letzte Aktualisierung 2024-03) existiert. Letzter vollständiger DR-Test: nie durchgeführt. Letzte Teilübung (Backup-Restore einzelner Systeme): 18 Monate alt. Kein dokumentiertes Ergebnis.',
     rationale: 'Likelihood 3: DR-Szenarien (Datacenter-Ausfall, Ransomware) sind statistisch wahrscheinlich. Impact 4: Ohne getesteten DR-Plan kann sich die Wiederherstellungszeit von Stunden auf Tage verlängern.',
     sources: ['DORA Art. 11 Abs. 6: Regelmäßige Überprüfung von IKT-Kontinuitätsplänen', 'ISO 22301:2019'], evidenceQuality: 3, reproducibility: 'hard' },
 
   // G — Governance (2)
-  { id: 8, category: 'G', name: 'Fehlende IKT-Risikomanagement-Verantwortung auf Leitungsebene', component: 'Organisationsstruktur / Management', attacker: 'Regulatorisches Risiko', path: 'Keine dedizierte Verantwortung für IKT-Risiken auf Vorstandsebene → Strategische Lücken → Compliance-Verstoß', doraRef: 'Art. 5 Abs. 2', likelihood: 5, impact: 3,
+  { id: 8, category: 'G', name: 'Fehlende IKT-Risikomanagement-Verantwortung auf Leitungsebene', component: 'Organisationsstruktur / Management', attacker: 'Regulatorisches Risiko', path: 'Keine dedizierte Verantwortung für IKT-Risiken auf Vorstandsebene → Strategische Lücken → Compliance-Verstoß', doraRef: 'Art. 5', likelihood: 5, impact: 3,
     evidence: 'Organisationsanalyse: IKT-Risikomanagement ist dem IT-Leiter zugeordnet, nicht dem Vorstand. Kein dokumentiertes Mandat für IKT-Risiko-Verantwortung auf Leitungsebene. Board-Reporting zu IKT-Risiken: unregelmäßig, kein festes Format.',
     rationale: 'Likelihood 5: DORA Art. 5 Abs. 2 verlangt explizit Verantwortung der Leitungsorgane. Bei Prüfung durch BaFin sofort beanstandet. Impact 3: Governance-Lücke, aber kein direkter technischer Schaden.',
     sources: ['DORA Art. 5 Abs. 2: Verantwortung der Leitungsorgane', 'BaFin-Merkblatt MaRisk AT 4.3.1'], evidenceQuality: 5, reproducibility: 'easy' },
@@ -224,7 +224,7 @@ export const DORA_RISKS: DoraRisk[] = [
     evidence: 'Registerprüfung: 47 von geschätzten 62 IKT-Drittanbietern erfasst. Fehlende Einträge betreffen u.a. Subunternehmer des Cloud-Providers, Marktdatenanbieter und den Print-Dienstleister für vertrauliche Dokumente. Keine Klassifikation nach Kritikalität.',
     rationale: 'Likelihood 5: DORA Art. 28 Abs. 3 verlangt explizit ein vollständiges Register. Bei Prüfung sofort als Mangel erkannt. Impact 3: Governance-Verstoß, aber kein direkter technischer Schaden.',
     sources: ['DORA Art. 28 Abs. 3: Informationsregister für IKT-Drittanbieter', 'RTS zu Informationsregister (ESA)'], evidenceQuality: 5, reproducibility: 'easy' },
-  { id: 12, category: 'T', name: 'Fehlende Sicherheitsaudits bei kritischem Zahlungsdienstleister', component: 'Payment Processor (extern)', attacker: 'Supply-Chain-Risiko', path: 'Kein Recht auf Prüfung vereinbart → Sicherheitsniveau des Anbieters unbekannt → Blind Trust', doraRef: 'Art. 30 Abs. 2 lit. f', likelihood: 4, impact: 4,
+  { id: 12, category: 'T', name: 'Fehlende Sicherheitsaudits bei kritischem Zahlungsdienstleister', component: 'Payment Processor (extern)', attacker: 'Supply-Chain-Risiko', path: 'Kein Recht auf Prüfung vereinbart → Sicherheitsniveau des Anbieters unbekannt → Blind Trust', doraRef: 'Art. 30', likelihood: 4, impact: 4,
     evidence: 'Vertragsanalyse: Kein vertraglich vereinbartes Prüfungsrecht gegenüber Payment-Processor. Letztes SOC-2-Zertifikat des Anbieters: 18 Monate alt. Keine Informationen über Sub-Outsourcing.',
     rationale: 'Likelihood 4: DORA fordert Prüfungsrechte explizit. BaFin prüft Vertragsklauseln. Impact 4: Bei Sicherheitsvorfall beim Provider ist das Institut mitbetroffen ohne Einblick in Ursachen.',
     sources: ['DORA Art. 30 Abs. 2 lit. f: Prüfungsrechte', 'EBA-Leitlinie Outsourcing-Vereinbarungen'], evidenceQuality: 3, reproducibility: 'hard' },
@@ -423,6 +423,12 @@ export const DORA_REQS: DoraReq[] = [
     gap: '',
     evidence: 'Nicht anwendbar für signifikante/kritische Institute. Vollständiger Art. 5-14 Rahmen implementiert.',
     rationale: 'Erfüllt: Vollständiger Rahmen nach Art. 5-14 implementiert. Art. 15 (vereinfacht) ist nicht anwendbar.',
+    measure: '', criteria: [], effort: '', priority: '' },
+
+  { id: 'D16-1', article: 'Art. 16', name: 'Proportionalitätsgrundsatz', status: 'pass',
+    gap: '',
+    evidence: 'Prüfung: IKT-Risikomanagement-Rahmenwerk berücksichtigt Größe, Geschäftsmodell und Risikoprofil des Unternehmens. Maßnahmen sind proportional zur Kritikalität der IKT-Systeme.',
+    rationale: 'Erfüllt: Das Rahmenwerk ist auf die spezifischen Gegebenheiten des Unternehmens zugeschnitten.',
     measure: '', criteria: [], effort: '', priority: '' },
 ];
 

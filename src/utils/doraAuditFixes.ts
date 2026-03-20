@@ -6,6 +6,13 @@ import type { DoraRisk, DoraReq, DoraIntakeData } from '@/data/doraData';
 import { riskId } from '@/data/doraData';
 import type { QaCheck } from '@/utils/doraQualityCheck';
 
+function refsMatch(riskRef: string, reqArticle: string): boolean {
+  if (riskRef === reqArticle) return true;
+  const baseRisk = riskRef.split(' Abs.')[0].split(' lit.')[0];
+  const baseReq = reqArticle.split(' Abs.')[0].split(' lit.')[0];
+  return baseRisk === baseReq;
+}
+
 export interface FixResult {
   risks: DoraRisk[];
   reqs: DoraReq[];
@@ -31,7 +38,7 @@ export function applyDoraAuditFixes(
         // Link non-pass reqs without risk references
         fixedReqs.forEach(r => {
           if (r.status !== 'pass') {
-            const linkedRisks = fixedRisks.filter(ri => ri.doraRef === r.article);
+            const linkedRisks = fixedRisks.filter(ri => refsMatch(ri.doraRef, r.article));
             if (linkedRisks.length === 0) {
               const nameMatch = fixedRisks.filter(ri =>
                 r.name.toLowerCase().split(' ').some(w => w.length > 4 && ri.name.toLowerCase().includes(w))
@@ -62,7 +69,7 @@ export function applyDoraAuditFixes(
       case 'A3-1': {
         fixedReqs.forEach(r => {
           if (r.status !== 'pass') return;
-          const violating = fixedRisks.filter(ri => ri.doraRef === r.article && ri.likelihood * ri.impact >= 13);
+          const violating = fixedRisks.filter(ri => refsMatch(ri.doraRef, r.article) && ri.likelihood * ri.impact >= 13);
           if (violating.length > 0) {
             const maxScore = Math.max(...violating.map(ri => ri.likelihood * ri.impact));
             const topRisk = violating.find(ri => ri.likelihood * ri.impact === maxScore)!;
@@ -81,7 +88,7 @@ export function applyDoraAuditFixes(
       case 'A3-1b': {
         fixedReqs.forEach(r => {
           if (r.status !== 'partial') return;
-          const critical = fixedRisks.filter(ri => ri.doraRef === r.article && ri.likelihood * ri.impact >= 20);
+          const critical = fixedRisks.filter(ri => refsMatch(ri.doraRef, r.article) && ri.likelihood * ri.impact >= 20);
           if (critical.length > 0) {
             r.status = 'fail';
             fixes.push(t(
@@ -142,7 +149,7 @@ export function applyDoraAuditFixes(
       case 'B4': {
         fixedReqs.forEach(r => {
           if (r.status !== 'pass' && (!r.effort || r.effort.trim() === '')) {
-            const linked = fixedRisks.filter(ri => ri.doraRef === r.article);
+            const linked = fixedRisks.filter(ri => refsMatch(ri.doraRef, r.article));
             const maxScore = linked.length > 0 ? Math.max(...linked.map(ri => ri.likelihood * ri.impact)) : 0;
             r.effort = maxScore >= 20 ? '40-60h' : maxScore >= 13 ? '20-40h' : r.status === 'fail' ? '16-30h' : '8-16h';
             fixes.push(t(
@@ -158,7 +165,7 @@ export function applyDoraAuditFixes(
       case 'B5': {
         fixedReqs.forEach(r => {
           if (r.status !== 'pass' && (!r.priority || r.priority.trim() === '')) {
-            const linked = fixedRisks.filter(ri => ri.doraRef === r.article);
+            const linked = fixedRisks.filter(ri => refsMatch(ri.doraRef, r.article));
             const maxScore = linked.length > 0 ? Math.max(...linked.map(ri => ri.likelihood * ri.impact)) : 0;
             r.priority = r.status === 'fail' && maxScore >= 20 ? 'P0' : r.status === 'fail' ? 'P1' : maxScore >= 13 ? 'P2' : 'P3';
             fixes.push(t(

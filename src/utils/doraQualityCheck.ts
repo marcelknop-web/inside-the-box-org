@@ -8,6 +8,15 @@
 import type { DoraRisk, DoraReq, DoraIntakeData } from '@/data/doraData';
 import { riskId } from '@/data/doraData';
 
+/** Check if a risk's doraRef matches a requirement's article (supports partial matching) */
+function refsMatch(riskRef: string, reqArticle: string): boolean {
+  if (riskRef === reqArticle) return true;
+  // Extract base article (e.g. "Art. 9" from "Art. 9 Abs. 1-2")
+  const baseRisk = riskRef.split(' Abs.')[0].split(' lit.')[0];
+  const baseReq = reqArticle.split(' Abs.')[0].split(' lit.')[0];
+  return baseRisk === baseReq;
+}
+
 export interface QaCheck {
   id: string;
   category: 'consistency' | 'technical' | 'evidence' | 'editorial' | 'regulatory';
@@ -62,7 +71,7 @@ export function runDoraQualityCheck(
   });
 
   // A2: Bidirectional traceability: non-pass reqs should have linked risks
-  const nonPassReqsWithoutRisks = reqs.filter(r => r.status !== 'pass' && !risks.some(ri => ri.doraRef === r.article));
+  const nonPassReqsWithoutRisks = reqs.filter(r => r.status !== 'pass' && !risks.some(ri => refsMatch(ri.doraRef, r.article)));
   checks.push({
     id: 'A2-1', category: 'consistency',
     label: t('Bidirektionale Traceability: Nicht-konforme Anforderungen mit Risiko-Verknuepfung', 'Bidirectional traceability: Non-compliant requirements linked to risks', 'Tracabilite bidirectionnelle'),
@@ -75,7 +84,7 @@ export function runDoraQualityCheck(
   // A3: No "pass" with violating risks (score >= 13)
   const passReqsWithViolatingRisks = reqs.filter(r => {
     if (r.status !== 'pass') return false;
-    return risks.some(ri => ri.doraRef === r.article && ri.likelihood * ri.impact >= 13);
+    return risks.some(ri => refsMatch(ri.doraRef, r.article) && ri.likelihood * ri.impact >= 13);
   });
   checks.push({
     id: 'A3-1', category: 'consistency',
@@ -89,7 +98,7 @@ export function runDoraQualityCheck(
   // A3-1b: No "partial" with critical risks (>= 20)
   const partialReqsWithCriticalRisks = reqs.filter(r => {
     if (r.status !== 'partial') return false;
-    return risks.some(ri => ri.doraRef === r.article && ri.likelihood * ri.impact >= 20);
+    return risks.some(ri => refsMatch(ri.doraRef, r.article) && ri.likelihood * ri.impact >= 20);
   });
   checks.push({
     id: 'A3-1b', category: 'consistency',
