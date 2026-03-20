@@ -795,6 +795,38 @@ export const en = {
   },
   dora: {
     critical: 'Critical', high: 'High', medium: 'Medium', low: 'Low',
+    // Entity types
+    etBank: 'Credit institution', etBankDesc: 'Banks, savings institutions and credit cooperatives',
+    etInsurance: 'Insurance', etInsuranceDesc: 'Insurance and reinsurance companies',
+    etPayment: 'Payment provider', etPaymentDesc: 'Payment institutions, e-money institutions',
+    etCrypto: 'Crypto-asset provider', etCryptoDesc: 'Crypto-asset service providers',
+    etFund: 'Fund management', etFundDesc: 'Management companies and investment funds',
+    etIctProvider: 'ICT third-party provider', etIctProviderDesc: 'Critical ICT third-party providers for the financial sector',
+    // Criticality levels
+    critStandard: 'Standard', critStandardDesc: 'Regular scope — no extended requirements',
+    critSignificant: 'Significant', critSignificantDesc: 'Extended requirements, incl. TLPT obligation under Art. 26',
+    critCritical: 'Critical', critCriticalDesc: 'Highest requirements — systemically important institution',
+    // Infrastructure
+    infraCoreBanking: 'Core banking system', infraTrading: 'Trading system', infraPayment: 'Payment processing',
+    infraCloud: 'Cloud infrastructure', infraDataCenter: 'Data centre', infraNetwork: 'Network',
+    infraEndpoints: 'Endpoints', infraMobile: 'Mobile applications',
+    // Attachment types
+    attIctRiskPolicy: 'ICT risk management policy', attBcp: 'Business continuity plan',
+    attIncidentPlan: 'Incident response plan', attThirdPartyRegister: 'Third-party register',
+    attTestReport: 'Test report (pentest/TLPT)', attOther: 'Other document',
+    // Risk management measures
+    rmIctRisk: 'ICT risk management framework', rmAssetMgmt: 'ICT asset management',
+    rmConfigMgmt: 'Configuration management', rmEncryption: 'Encryption',
+    rmNetworkSec: 'Network security', rmAccessControl: 'Access control',
+    rmPatchMgmt: 'Patch management', rmLogging: 'Logging and monitoring',
+    rmIncidentMgmt: 'ICT incident management', rmBcm: 'Business continuity management',
+    rmBackup: 'Data backup', rmDrp: 'Disaster recovery plan',
+    rmChangeMgmt: 'Change management', rmTesting: 'Resilience testing',
+    rmAwareness: 'Awareness and training',
+    // Measure categories
+    catGovernance: 'Governance', catProtection: 'Protection', catDetection: 'Detection',
+    catResponse: 'Response', catRecovery: 'Recovery', catOps: 'Operations',
+    // Status
     statusPass: 'Compliant', statusPartial: 'Partial', statusFail: 'Non-compliant',
     next: 'Next', back: 'Back', startAnalysis: 'Start analysis', toSummary: 'To summary',
     step0Title: 'Identify financial entity', step0Sub: 'Enter entity master data', step0Info: 'DORA (EU) 2022/2554 applies to financial entities and their ICT third-party providers. Enter the basic data.',
