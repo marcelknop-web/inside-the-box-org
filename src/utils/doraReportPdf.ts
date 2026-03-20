@@ -1125,13 +1125,15 @@ export function generateDoraReport(data: DoraReportData): void {
     // Working paper header
     heading(`${apId}: ${r.name}`, 2);
 
-    // Metadata block
-    checkSpace(20);
-    doc.setFillColor(...C.bg); doc.roundedRect(LEFT, y - 2, WIDTH, 22, 1, 1, 'F');
-    doc.setDrawColor(...C.rule); doc.setLineWidth(0.12); doc.roundedRect(LEFT, y - 2, WIDTH, 22, 1, 1, 'S');
+    // Metadata block — use two rows with safe text wrapping
+    const metaBoxH = 24;
+    checkSpace(metaBoxH + 4);
+    const metaBoxY = y - 2;
+    doc.setFillColor(...C.bg); doc.roundedRect(LEFT, metaBoxY, WIDTH, metaBoxH, 1, 1, 'F');
+    doc.setDrawColor(...C.rule); doc.setLineWidth(0.12); doc.roundedRect(LEFT, metaBoxY, WIDTH, metaBoxH, 1, 1, 'S');
     
     doc.setFont(HEAD_FONT, 'normal'); doc.setFontSize(7); doc.setTextColor(...C.mid);
-    const col1 = LEFT + 4; const col2 = LEFT + WIDTH / 3; const col3 = LEFT + (WIDTH * 2 / 3);
+    const col1 = LEFT + 4; const colW = (WIDTH - 8) / 3; const col2 = col1 + colW; const col3 = col2 + colW;
     
     doc.text((lang === 'de' ? 'ARBEITSPAPIER-NR.' : 'WORKING PAPER NO.'), col1, y + 2);
     doc.text((lang === 'de' ? 'DORA-ARTIKEL' : 'DORA ARTICLE'), col2, y + 2);
@@ -1139,27 +1141,34 @@ export function generateDoraReport(data: DoraReportData): void {
     
     doc.setFont(HEAD_FONT, 'bold'); doc.setFontSize(9); doc.setTextColor(...C.navy);
     doc.text(apId, col1, y + 7);
-    doc.text(r.article, col2, y + 7);
+    // Wrap article text within column width
+    const artLines = doc.splitTextToSize(r.article, colW - 4);
+    doc.text(artLines[0], col2, y + 7);
     
     // Status badge inline
     const badgeColor: [number, number, number] = r.status === 'pass' ? [34, 120, 70] : r.status === 'partial' ? [180, 130, 20] : [180, 45, 45];
     doc.setFillColor(...badgeColor);
-    doc.roundedRect(col3, y + 3.5, doc.getTextWidth(statusMarker) + 5, 5, 0.6, 0.6, 'F');
+    const badgeTextW = doc.getTextWidth(statusMarker) + 5;
+    doc.roundedRect(col3, y + 3.5, badgeTextW, 5, 0.6, 0.6, 'F');
     doc.setFont(HEAD_FONT, 'bold'); doc.setFontSize(6.5); doc.setTextColor(...C.white);
     doc.text(statusMarker, col3 + 2.5, y + 7);
 
     // Second row: cross-references
     doc.setFont(HEAD_FONT, 'normal'); doc.setFontSize(7); doc.setTextColor(...C.mid);
-    doc.text((lang === 'de' ? 'BERICHT-REF.' : 'REPORT REF.'), col1, y + 12);
-    doc.text((lang === 'de' ? 'RISIKO-VERKNÜPFUNG' : 'LINKED RISKS'), col2, y + 12);
-    doc.text((lang === 'de' ? 'EVIDENZ-REF.' : 'EVIDENCE REF.'), col3, y + 12);
+    doc.text((lang === 'de' ? 'BERICHT-REF.' : 'REPORT REF.'), col1, y + 13);
+    doc.text((lang === 'de' ? 'RISIKO-VERKNUEPFUNG' : 'LINKED RISKS'), col2, y + 13);
+    doc.text((lang === 'de' ? 'EVIDENZ-REF.' : 'EVIDENCE REF.'), col3, y + 13);
 
-    doc.setFont(HEAD_FONT, 'normal'); doc.setFontSize(8); doc.setTextColor(...C.dark);
-    doc.text(`${lang === 'de' ? 'Abschnitt' : 'Section'} 4.2, ${r.id}`, col1, y + 17);
-    doc.text(linkedRisks.length > 0 ? linkedRisks.map(riskId).join(', ') : (lang === 'de' ? 'Keine' : 'None'), col2, y + 17);
-    doc.text(linkedEvidence.length > 0 ? linkedEvidence.join(', ') + ` (${lang === 'de' ? 'Anhang C' : 'App. C'})` : '-', col3, y + 17);
+    doc.setFont(HEAD_FONT, 'normal'); doc.setFontSize(7.5); doc.setTextColor(...C.dark);
+    doc.text(`${lang === 'de' ? 'Abschn.' : 'Sec.'} 4.2, ${r.id}`, col1, y + 18);
+    const riskRefText = linkedRisks.length > 0 ? linkedRisks.map(riskId).join(', ') : (lang === 'de' ? 'Keine' : 'None');
+    const riskRefLines = doc.splitTextToSize(riskRefText, colW - 4);
+    doc.text(riskRefLines[0], col2, y + 18);
+    const evRefText = linkedEvidence.length > 0 ? linkedEvidence.join(', ') : '-';
+    const evRefLines = doc.splitTextToSize(evRefText, colW - 4);
+    doc.text(evRefLines[0], col3, y + 18);
 
-    y += 24;
+    y += metaBoxH + 2;
 
     // Prüfungsgegenstand (Scope of examination)
     doc.setFont(HEAD_FONT, 'bold'); doc.setFontSize(7.5); doc.setTextColor(...C.mid);
