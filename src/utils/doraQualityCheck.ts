@@ -449,8 +449,8 @@ export function runDoraQualityCheck(
   // GR6: Quality gates enforced (this check itself is the enforcement)
   checks.push({
     id: 'GR6', category: 'golden-rule',
-    label: t('Regel 6: Quality-Gates verbindlich durchgefuehrt', 'Rule 6: Quality gates enforced', 'Regle 6: Quality gates appliques'),
-    detail: t('Quality-Gate wird durchgefuehrt', 'Quality gate is being executed', 'Quality gate en cours'),
+    label: t('Regel 6: Quality-Gates verbindlich durchgeführt', 'Rule 6: Quality gates enforced', 'Regle 6: Quality gates appliques'),
+    detail: t('Quality-Gate wird durchgeführt', 'Quality gate is being executed', 'Quality gate en cours'),
     passed: true, severity: 'major',
   });
 
@@ -484,8 +484,8 @@ export function runDoraQualityCheck(
   // GR10: AI-assisted quality assurance used
   checks.push({
     id: 'GR10', category: 'golden-rule',
-    label: t('Regel 10: KI-gestuetzte Qualitaetssicherung durchgefuehrt', 'Rule 10: AI-assisted quality assurance performed', 'Regle 10: Assurance qualite par IA'),
-    detail: t('Automatisierter Quality-Check durchgefuehrt', 'Automated quality check executed', 'Verification automatisee executee'),
+    label: t('Regel 10: KI-gestützte Qualitätssicherung durchgeführt', 'Rule 10: AI-assisted quality assurance performed', 'Regle 10: Assurance qualite par IA'),
+    detail: t('Automatisierter Quality-Check durchgeführt', 'Automated quality check executed', 'Verification automatisee executee'),
     passed: true, severity: 'minor',
   });
 

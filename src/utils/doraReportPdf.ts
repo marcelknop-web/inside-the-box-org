@@ -1101,7 +1101,7 @@ export function generateDoraReport(data: DoraReportData): void {
   newPage();
   heading(l('secE', lang));
   introText(lang === 'de'
-    ? 'Das Herzstueck der Prüfungsdokumentation: Für jede einzelne DORA-Anforderung gibt es ein eigenes Arbeitspapier — egal ob eine Abweichung vorliegt oder nicht. So kann jeder Prüfungsschritt lueckenlos nachvollzogen werden, sei es durch einen menschlichen Reviewer oder ein automatisiertes System. Alle Querverweise zwischen Arbeitspapieren und Hauptbericht sind bidirektional angelegt.'
+    ? 'Das Herzstück der Prüfungsdokumentation: Für jede einzelne DORA-Anforderung gibt es ein eigenes Arbeitspapier — egal ob eine Abweichung vorliegt oder nicht. So kann jeder Prüfungsschritt lückenlos nachvollzogen werden, sei es durch einen menschlichen Reviewer oder ein automatisiertes System. Alle Querverweise zwischen Arbeitspapieren und Hauptbericht sind bidirektional angelegt.'
     : 'The backbone of the audit documentation: every DORA requirement has its own working paper — whether a deviation was found or not. This ensures full traceability of every assessment step, whether reviewed by a person or an automated system. All cross-references between working papers and the main report are bidirectional.');
 
   reqs.forEach((r, idx) => {
