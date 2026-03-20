@@ -822,6 +822,37 @@ export const de = {
   dora: {
     // Risk levels
     critical: 'Kritisch', high: 'Hoch', medium: 'Mittel', low: 'Niedrig',
+    // Entity types
+    etBank: 'Kreditinstitut', etBankDesc: 'Banken, Sparkassen und Kreditgenossenschaften',
+    etInsurance: 'Versicherung', etInsuranceDesc: 'Versicherungs- und Rückversicherungsunternehmen',
+    etPayment: 'Zahlungsdienstleister', etPaymentDesc: 'Zahlungsinstitute, E-Geld-Institute',
+    etCrypto: 'Kryptowerte-Dienstleister', etCryptoDesc: 'Anbieter von Kryptowerte-Dienstleistungen',
+    etFund: 'Fondsgesellschaft', etFundDesc: 'Verwaltungsgesellschaften und Investmentfonds',
+    etIctProvider: 'IKT-Drittanbieter', etIctProviderDesc: 'Kritische IKT-Drittdienstleister für den Finanzsektor',
+    // Criticality levels
+    critStandard: 'Standard', critStandardDesc: 'Regulärer Prüfungsumfang – keine erweiterten Anforderungen',
+    critSignificant: 'Signifikant', critSignificantDesc: 'Erweiterte Anforderungen, u.a. TLPT-Pflicht nach Art. 26',
+    critCritical: 'Kritisch', critCriticalDesc: 'Höchste Anforderungen – systemrelevantes Institut',
+    // Infrastructure
+    infraCoreBanking: 'Kernbanksystem', infraTrading: 'Handelssystem', infraPayment: 'Zahlungsverkehr',
+    infraCloud: 'Cloud-Infrastruktur', infraDataCenter: 'Rechenzentrum', infraNetwork: 'Netzwerk',
+    infraEndpoints: 'Endgeräte', infraMobile: 'Mobile Anwendungen',
+    // Attachment types
+    attIctRiskPolicy: 'IKT-Risikomanagement-Richtlinie', attBcp: 'Business-Continuity-Plan',
+    attIncidentPlan: 'Incident-Response-Plan', attThirdPartyRegister: 'Drittanbieter-Register',
+    attTestReport: 'Testbericht (Pentest/TLPT)', attOther: 'Sonstiges Dokument',
+    // Risk management measures
+    rmIctRisk: 'IKT-Risikomanagement-Framework', rmAssetMgmt: 'IKT-Asset-Management',
+    rmConfigMgmt: 'Konfigurationsmanagement', rmEncryption: 'Verschlüsselung',
+    rmNetworkSec: 'Netzwerksicherheit', rmAccessControl: 'Zugriffskontrolle',
+    rmPatchMgmt: 'Patch-Management', rmLogging: 'Logging und Monitoring',
+    rmIncidentMgmt: 'IKT-Incident-Management', rmBcm: 'Business Continuity Management',
+    rmBackup: 'Datensicherung', rmDrp: 'Disaster Recovery Plan',
+    rmChangeMgmt: 'Change Management', rmTesting: 'Resilienz-Tests',
+    rmAwareness: 'Awareness und Schulung',
+    // Measure categories
+    catGovernance: 'Governance', catProtection: 'Schutz', catDetection: 'Erkennung',
+    catResponse: 'Reaktion', catRecovery: 'Wiederherstellung', catOps: 'Betrieb',
     // Status
     statusPass: 'Konform', statusPartial: 'Teilweise', statusFail: 'Nicht konform',
     // Wizard navigation
