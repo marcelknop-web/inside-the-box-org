@@ -880,14 +880,14 @@ export const de = {
     step3Title: 'IKT-Infrastruktur',
     step3Sub: 'Welche technischen Komponenten sind im Einsatz?',
     step3Info: 'Diese Angaben fließen in die Risikoanalyse ein. Wählen Sie alle zutreffenden Komponenten.',
-    // Step 4 - Measures
-    step4Title: 'Bestehende Maßnahmen',
-    step4Sub: 'Was ist bereits umgesetzt?',
-    step4Info: 'Welche Sicherheitsmaßnahmen zum IKT-Risikomanagement sind bereits implementiert? Dies beeinflusst die Konformitätsbewertung.',
-    // Step 5 - Roles & Issues
-    step5Title: 'Rollen und bekannte Schwachstellen',
-    step5Sub: 'Wer ist verantwortlich – und wo gibt es Lücken?',
-    step5Info: 'Art. 5 DORA verlangt klare Leitungsverantwortung für das IKT-Risikomanagement. Benennen Sie die relevanten Rollen und ggf. bekannte Schwachstellen.',
+    // Step 4 - Roles & Issues
+    step4Title: 'Rollen und bekannte Schwachstellen',
+    step4Sub: 'Wer ist verantwortlich – und wo gibt es Lücken?',
+    step4Info: 'Art. 5 DORA verlangt klare Leitungsverantwortung für das IKT-Risikomanagement. Benennen Sie die relevanten Rollen und ggf. bekannte Schwachstellen.',
+    // Step 5 - Measures
+    step5Title: 'Bestehende Maßnahmen',
+    step5Sub: 'Was ist bereits umgesetzt?',
+    step5Info: 'Welche Sicherheitsmaßnahmen zum IKT-Risikomanagement sind bereits implementiert? Dies beeinflusst die Konformitätsbewertung.',
     commonRoles: 'Häufige Rollen',
     addRole: 'Rolle hinzufügen',
     customRolePh: 'Weitere Rolle eingeben',
