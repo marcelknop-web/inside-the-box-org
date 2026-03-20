@@ -172,7 +172,7 @@ export const RISK_CATEGORIES: Record<string, { label: Record<string, string>; do
 
 export const DORA_RISKS: DoraRisk[] = [
   // C — Confidentiality (2)
-  { id: 1, category: 'C', name: 'Unverschlüsselte interne Kommunikation zwischen Kernbanksystemen', component: 'Core-Banking-Netzwerk', attacker: 'Interner Angreifer / Netzwerk-Mitleser', path: 'Laterale Kommunikation zwischen Applikationsservern ohne TLS → Transaktionsdaten im Klartext → Datenabfluss', doraRef: 'Art. 9 Abs. 2', likelihood: 4, impact: 5,
+  { id: 1, category: 'C', name: 'Unverschlüsselte interne Kommunikation zwischen Kernbanksystemen', component: 'Core-Banking-Netzwerk', attacker: 'Interner Angreifer / Netzwerk-Mitleser', path: 'Laterale Kommunikation zwischen Applikationsservern ohne TLS → Transaktionsdaten im Klartext → Datenabfluss', doraRef: 'Art. 8', likelihood: 4, impact: 5,
     evidence: 'Netzwerkmitschnitt (Wireshark): TCP-Verbindungen zwischen App-Server 10.0.1.10 und DB-Server 10.0.1.20 auf Port 1521 ohne TLS-Verschlüsselung. Transaktionsdaten (IBAN, Betrag, Verwendungszweck) im Klartext sichtbar. Pcap-Datei dokumentiert.',
     rationale: 'Likelihood 4: Zugang zum internen Netzwerk für Mitarbeiter und Dienstleister Standard. TLS-Konfiguration auf internen Verbindungen häufig vernachlässigt. Impact 5: Kundentransaktionsdaten sind regulatorisch geschützt (DSGVO Art. 32, DORA Art. 9). Offenlegung führt zu Meldepflicht und Reputationsschaden.',
     sources: ['DORA Art. 9 Abs. 2: Schutz von Informationsaktiva', 'EBA-Leitlinie zu IKT-Sicherheitsrisiken (EBA/GL/2019/04)'], evidenceQuality: 5, reproducibility: 'easy' },
