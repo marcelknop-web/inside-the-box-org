@@ -1103,7 +1103,16 @@ const DoraComplianceTool = ({ embedded }: { embedded?: boolean }) => {
     <div className={embedded ? '' : 'min-h-screen bg-background'}>
       {!embedded && <PageMeta title="DORA Compliance Tool" description="DORA Konformitaetspruefung nach (EU) 2022/2554" />}
 
-      <div className="border-b border-border px-4 py-3 mb-1" ref={contentRef}>
+      <div className="px-4 pt-6 pb-2 max-w-5xl mx-auto" ref={contentRef}>
+        <h1 className="text-2xl md:text-3xl font-bold text-foreground tracking-tight">
+          DORA Compliance Audit
+        </h1>
+        <p className="text-muted-foreground text-sm mt-1">
+          {language === 'de' ? 'Konformitätsprüfung nach (EU) 2022/2554 – Digital Operational Resilience Act' : 'Conformity assessment per (EU) 2022/2554 – Digital Operational Resilience Act'}
+        </p>
+      </div>
+
+      <div className="border-b border-border px-4 py-3 mb-1">
         <div className="flex items-center max-w-5xl mx-auto overflow-x-auto">
           {mainSteps.map((s, i) => (
             <div key={i} className="flex items-center flex-1 last:flex-none">
