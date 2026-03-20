@@ -40,7 +40,7 @@ interface ChatMessage { role: 'user' | 'assistant'; content: string; links?: Nav
 // ── Chat-styled content blocks ──────────────────────────────────────────────
 
 const Block = ({ children, className = '' }: { children: ReactNode; className?: string }) => (
-  <div className={`rounded-2xl px-5 py-4 text-base font-sans leading-relaxed tracking-wide text-foreground ${className}`}>
+  <div className={`rounded-lg px-5 py-5 text-base font-sans leading-relaxed tracking-wide text-foreground ${className}`}>
     {children}
   </div>
 );
@@ -54,22 +54,22 @@ const SubTitle = ({ children, variant: _v }: { children: ReactNode; variant?: 'p
 );
 
 const CardBlock = ({ icon: Icon, title, desc, variant = 'primary', link, linkLabel, bullets, result }: { icon: LucideIcon; title: string; desc: string; variant?: 'primary' | 'highlight'; link?: string; linkLabel?: string; bullets?: string[]; result?: string }) => (
-  <div className={`rounded-xl p-4 ${variant === 'highlight' ? 'bg-highlight/5 border border-highlight/20' : 'bg-primary/5 border border-primary/20'}`}>
-    <div className="flex items-start gap-3">
-      <Icon size={22} className={`mt-0.5 flex-shrink-0 ${variant === 'highlight' ? 'text-highlight' : 'text-primary'}`} />
+  <div className={`rounded-lg p-5 ${variant === 'highlight' ? 'bg-highlight/[0.03] border border-highlight/15' : 'bg-primary/[0.03] border border-primary/15'} shadow-[0_1px_3px_hsl(216_50%_3%/0.3)]`}>
+    <div className="flex items-start gap-3.5">
+      <Icon size={20} className={`mt-0.5 flex-shrink-0 opacity-70 ${variant === 'highlight' ? 'text-highlight' : 'text-primary'}`} />
       <div>
         <SubTitle variant={variant}>{title}</SubTitle>
-        <p className="text-foreground text-base font-sans leading-relaxed tracking-wide whitespace-pre-line">{desc}</p>
+        <p className="text-foreground/85 text-[15px] font-sans leading-relaxed tracking-wide whitespace-pre-line">{desc}</p>
         {bullets && bullets.length > 0 && (
-          <ul className="text-foreground text-base font-sans leading-relaxed tracking-wide space-y-1.5 mt-2">
+          <ul className="text-foreground/85 text-[15px] font-sans leading-relaxed tracking-wide space-y-1.5 mt-2.5">
             {bullets.map((b, i) => (
-              <li key={i} className="flex items-start gap-2"><span className="flex-shrink-0">•</span><span>{b}</span></li>
+              <li key={i} className="flex items-start gap-2"><span className="flex-shrink-0 text-muted-foreground">•</span><span>{b}</span></li>
             ))}
           </ul>
         )}
-        {result && <p className="mt-2 text-sm font-semibold text-primary font-mono">{result}</p>}
+        {result && <p className="mt-2.5 text-sm font-semibold text-primary font-mono">{result}</p>}
         {link && linkLabel && (
-          <a href={link} target="_blank" rel="noopener noreferrer" className={`inline-block mt-2 transition-electric text-sm font-sans underline ${variant === 'highlight' ? 'text-highlight hover:text-primary' : 'text-primary hover:text-highlight'}`}>
+          <a href={link} target="_blank" rel="noopener noreferrer" className={`inline-block mt-2.5 transition-electric text-sm font-sans underline underline-offset-2 ${variant === 'highlight' ? 'text-highlight hover:text-primary' : 'text-primary hover:text-highlight'}`}>
             → {linkLabel}
           </a>
         )}
@@ -79,26 +79,26 @@ const CardBlock = ({ icon: Icon, title, desc, variant = 'primary', link, linkLab
 );
 
 const StatBlock = ({ value, label }: { value: string; label: string }) => (
-  <div className="bg-highlight/5 border border-highlight/20 rounded-xl p-2 sm:p-3 text-center min-w-0">
-    <div className="text-lg sm:text-xl font-bold text-highlight font-mono">{value}</div>
-    <div className="text-xs sm:text-sm font-sans text-foreground leading-tight">{label}</div>
+  <div className="bg-secondary/50 border border-border/60 rounded-lg p-3 text-center min-w-0 shadow-[0_1px_2px_hsl(216_50%_3%/0.25)]">
+    <div className="text-lg sm:text-xl font-bold text-highlight font-mono tracking-tight">{value}</div>
+    <div className="text-xs sm:text-sm font-sans text-muted-foreground leading-tight mt-0.5">{label}</div>
   </div>
 );
 
 const GridItem = ({ icon: Icon, title, subtitle, desc, variant = 'primary', href, className }: { icon: LucideIcon; title: string; subtitle?: string; desc: string; variant?: 'primary' | 'highlight'; href?: string; className?: string }) => {
   const colorClass = variant === 'highlight' ? 'text-highlight' : 'text-primary';
-  const bgClass = variant === 'highlight' ? 'bg-highlight/5' : 'bg-primary/5';
+  const borderClass = variant === 'highlight' ? 'border-highlight/12' : 'border-primary/12';
   return (
-    <div className={`${bgClass} rounded-lg p-3 flex items-start gap-2.5 overflow-hidden ${className || ''}`}>
-      <Icon size={18} className={`mt-1 flex-shrink-0 ${colorClass}`} />
-      <div className="space-y-1 min-w-0">
+    <div className={`bg-secondary/30 border ${borderClass} rounded-lg p-3.5 flex items-start gap-3 overflow-hidden shadow-[0_1px_2px_hsl(216_50%_3%/0.2)] ${className || ''}`}>
+      <Icon size={17} className={`mt-0.5 flex-shrink-0 opacity-65 ${colorClass}`} />
+      <div className="space-y-0.5 min-w-0">
         {href ? (
-          <a href={href} target="_blank" rel="noopener noreferrer" className={`font-semibold text-base font-sans underline hover:opacity-80 ${colorClass}`}>{title}</a>
+          <a href={href} target="_blank" rel="noopener noreferrer" className={`font-semibold text-[15px] font-sans underline underline-offset-2 hover:opacity-80 ${colorClass}`}>{title}</a>
         ) : (
-          <p className={`font-semibold text-base font-sans ${colorClass}`}>{title}</p>
+          <p className={`font-semibold text-[15px] font-sans ${colorClass}`}>{title}</p>
         )}
         {subtitle && <p className={`${colorClass}/70 text-xs font-semibold font-sans uppercase tracking-wide`}>{subtitle}</p>}
-        <p className="text-foreground/80 text-base font-sans leading-relaxed whitespace-pre-line break-words">{desc}</p>
+        <p className="text-foreground/75 text-sm font-sans leading-relaxed whitespace-pre-line break-words">{desc}</p>
       </div>
     </div>
   );
