@@ -40,90 +40,91 @@ const TabButton = memo(({ active, label, onClick }: { active: boolean; label: st
   </button>
 ));
 
-/* ═══ Gantt Chart ═══ */
-const PHASE_META: Record<string, { weeks: [number, number]; color: string }> = {
-  P0: { weeks: [0, 4], color: '#dc2626' },
-  P1: { weeks: [4, 16], color: '#f97316' },
-  P2: { weeks: [16, 28], color: '#eab308' },
-  P3: { weeks: [28, 52], color: '#22c55e' },
+/* ═══ Simplified Gantt Chart — Focus on readability ═══ */
+const PHASE_META: Record<string, { weeks: [number, number]; color: string; label: { de: string; en: string } }> = {
+  P0: { weeks: [0, 4], color: '#dc2626', label: { de: 'Sofort (0-4 Wo.)', en: 'Immediate (0-4 wk)' } },
+  P1: { weeks: [4, 16], color: '#f97316', label: { de: 'Kurzfristig (1-3 Mo.)', en: 'Short-term (1-3 mo)' } },
+  P2: { weeks: [16, 28], color: '#eab308', label: { de: 'Mittelfristig (3-6 Mo.)', en: 'Medium-term (3-6 mo)' } },
+  P3: { weeks: [28, 52], color: '#22c55e', label: { de: 'Langfristig (6-12 Mo.)', en: 'Long-term (6-12 mo)' } },
 };
 const GANTT_TOTAL_WEEKS = 52;
 
 function GanttChart({ reqs, de }: { reqs: DoraReq[]; de: boolean }) {
-  const [hoveredId, setHoveredId] = useState<string | null>(null);
-
-  const ganttItems = useMemo(() => {
+  const ganttPhases = useMemo(() => {
     const gaps = reqs.filter(r => r.status !== 'pass' && r.priority);
-    return gaps.sort((a, b) => (a.priority || 'P2').localeCompare(b.priority || 'P2')).map(r => {
-      const phase = PHASE_META[r.priority || 'P2'] || PHASE_META.P2;
-      const m = r.effort?.match(/(\d+)\s*-\s*(\d+)/);
-      const avgHours = m ? (parseInt(m[1]) + parseInt(m[2])) / 2 : 30;
-      const durationWeeks = Math.max(1, Math.round(avgHours / 40));
-      const startWeek = phase.weeks[0];
-      const endWeek = Math.min(startWeek + durationWeeks, phase.weeks[1]);
-      return { ...r, startWeek, endWeek, phaseColor: phase.color, durationWeeks };
+    const grouped: Record<string, DoraReq[]> = {};
+    gaps.forEach(r => {
+      const p = r.priority || 'P2';
+      if (!grouped[p]) grouped[p] = [];
+      grouped[p].push(r);
     });
+    return grouped;
   }, [reqs]);
 
-  const monthMarkers = useMemo(() => {
-    const markers = [];
-    for (let m = 0; m <= 12; m++) markers.push({ week: m * 4.33, label: `M${m}` });
-    return markers;
-  }, []);
-
-  if (ganttItems.length === 0) {
+  const hasItems = Object.values(ganttPhases).some(items => items.length > 0);
+  if (!hasItems) {
     return <div className="text-center text-muted-foreground text-sm py-8">{de ? 'Keine offenen Massnahmen' : 'No open measures'}</div>;
   }
 
   return (
-    <div className="space-y-0">
-      {/* Timeline header */}
-      <div className="flex items-end border-b border-border pb-1 mb-1">
-        <div className="w-[180px] flex-shrink-0" />
-        <div className="flex-1 relative h-5">
-          {monthMarkers.map(m => (
-            <div key={m.label} className="absolute top-0 text-[9px] font-mono text-muted-foreground" style={{ left: `${(m.week / GANTT_TOTAL_WEEKS) * 100}%`, transform: 'translateX(-50%)' }}>
-              {m.label}
-            </div>
+    <div className="space-y-5">
+      {/* Timeline header — simplified quarterly markers */}
+      <div className="flex items-end border-b border-border pb-2">
+        <div className="w-[220px] flex-shrink-0 text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+          {de ? 'Massnahme' : 'Measure'}
+        </div>
+        <div className="flex-1 flex justify-between px-1">
+          {['Q1', 'Q2', 'Q3', 'Q4'].map(q => (
+            <span key={q} className="text-[10px] font-mono text-muted-foreground/60">{q}</span>
           ))}
         </div>
       </div>
 
-      {/* Phase lanes */}
+      {/* Phase groups */}
       {['P0', 'P1', 'P2', 'P3'].map(prio => {
-        const items = ganttItems.filter(g => g.priority === prio);
-        if (items.length === 0) return null;
+        const items = ganttPhases[prio];
+        if (!items || items.length === 0) return null;
         const phase = PHASE_META[prio];
-        const phaseLabel = prio === 'P0' ? (de ? 'Sofort' : 'Now') : prio === 'P1' ? (de ? '3 Mon.' : '3 mo.') : prio === 'P2' ? (de ? '6 Mon.' : '6 mo.') : (de ? '12 Mon.' : '12 mo.');
         return (
-          <div key={prio} className="mb-2">
-            <div className="flex items-center gap-2 mb-1 py-1">
-              <span className="px-2 py-0.5 rounded text-[10px] font-bold text-white" style={{ backgroundColor: phase.color }}>{prio}</span>
-              <span className="text-[10px] text-muted-foreground font-medium">{phaseLabel}</span>
+          <div key={prio} className="space-y-1">
+            {/* Phase header */}
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-2 h-6 rounded-sm" style={{ backgroundColor: phase.color }} />
+              <span className="text-sm font-bold" style={{ color: phase.color }}>{prio}</span>
+              <span className="text-xs text-muted-foreground">{de ? phase.label.de : phase.label.en}</span>
+              <span className="text-[10px] text-muted-foreground/60 ml-auto font-mono">{items.length} {de ? 'Massnahmen' : 'measures'}</span>
             </div>
+            
+            {/* Items */}
             {items.map(item => {
-              const isHovered = hoveredId === item.id;
+              const m = item.effort?.match(/(\d+)\s*-\s*(\d+)/);
+              const avgHours = m ? (parseInt(m[1]) + parseInt(m[2])) / 2 : 30;
+              const durationWeeks = Math.max(2, Math.round(avgHours / 40));
+              const startWeek = phase.weeks[0];
+              const endWeek = Math.min(startWeek + durationWeeks, phase.weeks[1]);
+              
               return (
-                <div key={item.id} className="flex items-center group" onMouseEnter={() => setHoveredId(item.id)} onMouseLeave={() => setHoveredId(null)}>
-                  <div className="w-[180px] flex-shrink-0 pr-3 py-1">
-                    <div className="flex items-center gap-1.5">
-                      <span className="font-mono text-[10px] text-muted-foreground">{item.article}</span>
-                      <span className={`text-xs truncate transition-colors ${isHovered ? 'text-foreground' : 'text-muted-foreground'}`}>
-                        {item.name.length > 22 ? item.name.slice(0, 20) + '...' : item.name}
-                      </span>
-                    </div>
+                <div key={item.id} className="flex items-center group hover:bg-accent/30 rounded-lg px-1 py-1.5 transition-colors">
+                  <div className="w-[220px] flex-shrink-0 pr-4">
+                    <div className="text-xs font-semibold text-foreground leading-tight">{item.id}</div>
+                    <div className="text-[11px] text-muted-foreground truncate">{item.name}</div>
                   </div>
-                  <div className="flex-1 relative h-7">
+                  <div className="flex-1 relative h-8">
+                    {/* Quarter gridlines */}
+                    {[0, 13, 26, 39, 52].map(w => (
+                      <div key={w} className="absolute top-0 bottom-0 border-l border-border/30" style={{ left: `${(w / GANTT_TOTAL_WEEKS) * 100}%` }} />
+                    ))}
+                    {/* Phase background */}
                     <div className="absolute top-1 bottom-1 rounded opacity-[0.06]" style={{ left: `${(phase.weeks[0] / GANTT_TOTAL_WEEKS) * 100}%`, width: `${((phase.weeks[1] - phase.weeks[0]) / GANTT_TOTAL_WEEKS) * 100}%`, backgroundColor: phase.color }} />
+                    {/* Bar */}
                     <div
-                      className={`absolute top-1.5 h-4 rounded-md transition-all duration-200 ${isHovered ? 'ring-2 ring-white/20 shadow-lg' : ''}`}
-                      style={{ left: `${(item.startWeek / GANTT_TOTAL_WEEKS) * 100}%`, width: `${Math.max(2, ((item.endWeek - item.startWeek) / GANTT_TOTAL_WEEKS) * 100)}%`, backgroundColor: item.phaseColor, opacity: isHovered ? 1 : 0.8 }}
-                    />
-                    {isHovered && item.effort && (
-                      <div className="absolute top-[-14px] text-[9px] font-mono text-foreground bg-card px-1.5 py-0.5 rounded border border-border shadow-sm whitespace-nowrap z-10" style={{ left: `${(item.startWeek / GANTT_TOTAL_WEEKS) * 100}%` }}>
-                        {item.effort}
-                      </div>
-                    )}
+                      className="absolute top-1.5 h-5 rounded-md flex items-center px-2 transition-all duration-200 group-hover:shadow-md"
+                      style={{ left: `${(startWeek / GANTT_TOTAL_WEEKS) * 100}%`, width: `${Math.max(4, ((endWeek - startWeek) / GANTT_TOTAL_WEEKS) * 100)}%`, backgroundColor: phase.color, opacity: 0.85 }}
+                    >
+                      {item.effort && (
+                        <span className="text-[9px] font-mono text-white font-bold whitespace-nowrap overflow-hidden">{item.effort}</span>
+                      )}
+                    </div>
                   </div>
                 </div>
               );
@@ -133,11 +134,11 @@ function GanttChart({ reqs, de }: { reqs: DoraReq[]; de: boolean }) {
       })}
 
       {/* Legend */}
-      <div className="flex items-center gap-4 mt-3 pt-3 border-t border-border">
+      <div className="flex flex-wrap items-center gap-4 pt-3 border-t border-border">
         {Object.entries(PHASE_META).map(([prio, meta]) => (
-          <div key={prio} className="flex items-center gap-1.5">
-            <div className="w-3 h-2 rounded-sm" style={{ backgroundColor: meta.color }} />
-            <span className="text-[10px] text-muted-foreground">{prio}: {de ? `W${meta.weeks[0]}-${meta.weeks[1]}` : `W${meta.weeks[0]}-${meta.weeks[1]}`}</span>
+          <div key={prio} className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: meta.color }} />
+            <span className="text-xs text-muted-foreground">{prio}: {de ? meta.label.de : meta.label.en}</span>
           </div>
         ))}
       </div>
@@ -404,7 +405,7 @@ export function DoraAuditCharts({ risks, reqs }: { risks: DoraRisk[]; reqs: Dora
           </div>
 
           {/* ═══ GANTT CHART ═══ */}
-          <ChartCard title={de ? 'Umsetzungs-Roadmap (Gantt)' : 'Remediation Roadmap (Gantt)'}>
+          <ChartCard title={de ? 'Umsetzungs-Roadmap' : 'Remediation Roadmap'}>
             <GanttChart reqs={reqs} de={de} />
           </ChartCard>
 
