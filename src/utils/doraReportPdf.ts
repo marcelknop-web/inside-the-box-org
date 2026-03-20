@@ -427,14 +427,16 @@ export function generateDoraReport(data: DoraReportData): void {
 
   const summary = getMgmtSummary(intakeData.entityName, risks.length, critCount, failCount, partCount, reqs.length, passCount, lang);
 
-  // Verdict box
-  checkSpace(18);
-  doc.setFillColor(...C.navy);
-  doc.roundedRect(LEFT, y, WIDTH, 14, 1.5, 1.5, 'F');
-  doc.setFontSize(9.5); doc.setFont(HEAD_FONT, 'bold'); doc.setTextColor(...C.white);
+  // Verdict box — dynamic height
+  doc.setFontSize(9.5); doc.setFont(HEAD_FONT, 'bold');
   const verdictLines = doc.splitTextToSize(summary.verdict, WIDTH - 12);
-  doc.text(verdictLines, LEFT + 6, y + 9);
-  y += 18;
+  const verdictBoxH = Math.max(14, verdictLines.length * 4.5 + 8);
+  checkSpace(verdictBoxH + 4);
+  doc.setFillColor(...C.navy);
+  doc.roundedRect(LEFT, y, WIDTH, verdictBoxH, 1.5, 1.5, 'F');
+  doc.setTextColor(...C.white);
+  doc.text(verdictLines, LEFT + 6, y + 6);
+  y += verdictBoxH + 4;
   doc.setTextColor(...C.dark);
 
   // KPI row — 4 clean metric cards
