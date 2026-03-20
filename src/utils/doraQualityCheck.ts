@@ -84,7 +84,7 @@ export function runDoraQualityCheck(
   // A3: No "pass" with violating risks (score >= 13)
   const passReqsWithViolatingRisks = reqs.filter(r => {
     if (r.status !== 'pass') return false;
-    return risks.some(ri => ri.doraRef === r.article && ri.likelihood * ri.impact >= 13);
+    return risks.some(ri => refsMatch(ri.doraRef, r.article) && ri.likelihood * ri.impact >= 13);
   });
   checks.push({
     id: 'A3-1', category: 'consistency',
