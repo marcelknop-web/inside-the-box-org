@@ -792,10 +792,7 @@ function ReportView({ intakeData, risks, reqs }: { intakeData: DoraIntakeData; r
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
   }, [qaResult, localRisks, localReqs, language, intakeData]);
 
-  const handleDraftPdf = useCallback(() => {
-    generateDoraReport({ intakeData, risks: localRisks, reqs: localReqs, language: language as 'de' | 'en' | 'fr', entityTypeName: typeName, criticalityName: critName, isDraft: true });
-    setDraftDownloaded(true);
-  }, [intakeData, localRisks, localReqs, language, typeName, critName]);
+  // Draft step removed — no longer needed
 
   const handleFinalPdf = useCallback(() => {
     setFinalPdfRunning(true);
