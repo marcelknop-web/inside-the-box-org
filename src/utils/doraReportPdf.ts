@@ -931,8 +931,8 @@ export function generateDoraReport(data: DoraReportData): void {
   if (data.fixLog && data.fixLog.length > 0) {
     heading(`D.2 ${lang === 'de' ? 'Automatisierte Korrekturen (Remediation Log)' : 'Automated Corrections (Remediation Log)'}`, 2);
     introText(lang === 'de'
-      ? 'Die folgenden Korrekturen wurden automatisch angewendet und sind vollständig nachvollziehbar. Der Pre-Fix-Status ist in D.1 dokumentiert.'
-      : 'The following corrections were applied automatically. Pre-fix status is documented in D.1.');
+      ? 'Welche Korrekturen wurden automatisch vorgenommen? Hier ist der vollstaendige Aenderungsnachweis. Den Zustand vor der Korrektur zeigt Abschnitt D.1.'
+      : 'Which corrections were applied automatically? Here is the full change log. The pre-fix state is shown in Section D.1.');
     data.fixLog.forEach((fix, i) => {
       checkSpace(8);
       doc.setFontSize(8); doc.setFont(BODY_FONT, 'normal');
