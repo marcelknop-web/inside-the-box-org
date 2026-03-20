@@ -142,7 +142,7 @@ function GanttChart({ reqs, de }: { reqs: DoraReq[]; de: boolean }) {
 
         {/* Rows */}
         <div className="divide-y divide-border/30">
-          {itemPositions.map(({ item, startWeek, endWeek, phase }, idx) => {
+          {itemPositions.map(({ item, startWeek, endWeek, phase, avgHours }, idx) => {
             const barLeft = (startWeek / GANTT_TOTAL_WEEKS) * 100;
             const barWidth = Math.max(5, ((endWeek - startWeek) / GANTT_TOTAL_WEEKS) * 100);
             const isEven = idx % 2 === 0;
@@ -150,7 +150,7 @@ function GanttChart({ reqs, de }: { reqs: DoraReq[]; de: boolean }) {
             return (
               <div
                 key={item.id}
-                className={`flex items-center px-3 py-2 group transition-colors duration-150 hover:bg-accent/40 ${isEven ? 'bg-transparent' : 'bg-muted/20'}`}
+                className={`flex items-center px-3 py-2 group relative transition-colors duration-150 hover:bg-accent/40 ${isEven ? 'bg-transparent' : 'bg-muted/20'}`}
               >
                 <div className="w-[180px] flex-shrink-0 pr-3 flex items-center gap-2">
                   <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: phase.color }} />
@@ -165,18 +165,29 @@ function GanttChart({ reqs, de }: { reqs: DoraReq[]; de: boolean }) {
                     <div key={pct} className="absolute top-0 bottom-0 border-l border-border/20" style={{ left: `${pct}%` }} />
                   ))}
                   <div
-                    className="absolute top-1 h-7 rounded-md flex items-center px-2 transition-all duration-200 group-hover:shadow-lg group-hover:brightness-110"
+                    className="absolute top-1 h-7 rounded-md flex items-center px-2 transition-all duration-200 group-hover:shadow-lg group-hover:brightness-110 cursor-default peer"
                     style={{
                       left: `${barLeft}%`,
                       width: `${barWidth}%`,
                       background: `linear-gradient(90deg, ${phase.color}, ${phase.color}bb)`,
                       boxShadow: `0 1px 4px ${phase.color}25`,
                     }}
-                    title={`${item.name}\n${item.effort || ''}\nArt. ${item.article}`}
                   >
                     <span className="text-[9px] font-bold text-white whitespace-nowrap overflow-hidden text-ellipsis">
                       {item.effort || item.id}
                     </span>
+                  </div>
+                  {/* Hover detail card */}
+                  <div className="absolute z-30 left-1/2 -translate-x-1/2 bottom-full mb-2 w-64 bg-card border border-border rounded-xl p-3 shadow-xl opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity duration-200">
+                    <div className="text-xs font-bold text-foreground mb-1">{item.id}: {item.name}</div>
+                    <div className="text-[10px] text-muted-foreground space-y-1">
+                      <div className="flex justify-between"><span>{de ? 'Artikel' : 'Article'}:</span><span className="font-mono font-bold">Art. {item.article}</span></div>
+                      <div className="flex justify-between"><span>{de ? 'Prioritaet' : 'Priority'}:</span><span className="font-bold" style={{ color: phase.color }}>{item.priority}</span></div>
+                      <div className="flex justify-between"><span>{de ? 'Aufwand' : 'Effort'}:</span><span className="font-mono">{item.effort || '—'}</span></div>
+                      <div className="flex justify-between"><span>{de ? 'Zeitraum' : 'Timeline'}:</span><span className="font-mono">{de ? `Woche ${startWeek}–${endWeek}` : `Week ${startWeek}–${endWeek}`}</span></div>
+                      <div className="flex justify-between"><span>Status:</span><span className={`font-bold ${item.status === 'fail' ? 'text-destructive' : 'text-yellow-500'}`}>{item.status === 'fail' ? (de ? 'Nicht erfuellt' : 'Failed') : (de ? 'Teilweise' : 'Partial')}</span></div>
+                      {item.gap && <div className="pt-1 border-t border-border mt-1 text-muted-foreground/80 line-clamp-2">{item.gap}</div>}
+                    </div>
                   </div>
                 </div>
               </div>
