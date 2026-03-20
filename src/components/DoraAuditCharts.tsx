@@ -407,7 +407,7 @@ export function DoraAuditCharts({ risks, reqs }: { risks: DoraRisk[]; reqs: Dora
               </ResponsiveContainer>
             </ChartCard>
           </div>
-          <ChartCard title={de ? 'Hoechste Risiko-Scores' : 'Top Risk Scores'}>
+          <ChartCard title={de ? 'Hoechste Risiko-Scores' : 'Top Risk Scores'} subtitle={de ? 'Die acht Risiken mit dem hoechsten Score (max. 25). Kritische Risiken erfordern sofortige Massnahmen.' : 'Top eight risks by score (max 25). Critical risks require immediate action.'}>
             <ResponsiveContainer width="100%" height={280}>
               <BarChart data={topRisks} layout="vertical" margin={{ left: 15, right: 15 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" /><XAxis type="number" domain={[0, 25]} tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }} />
