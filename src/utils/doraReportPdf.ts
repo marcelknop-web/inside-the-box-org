@@ -50,6 +50,7 @@ const I18N: Record<string, Record<string, string>> = {
   secB: { de: 'B  Prüfwerkzeuge und Versionen', en: 'B  Tools and Versions', fr: 'B  Outils et versions' },
   secC: { de: 'C  Evidenz-Material-Index', en: 'C  Evidence Material Index', fr: 'C  Index des elements de preuve' },
   secD: { de: 'D  Qualitätssicherung', en: 'D  Quality Assurance', fr: 'D  Assurance qualite' },
+  secE: { de: 'E  Arbeitspapiere (Working Papers)', en: 'E  Working Papers', fr: 'E  Papiers de travail' },
 
   entity: { de: 'Finanzunternehmen', en: 'Financial Entity', fr: 'Entite financiere' },
   entityType: { de: 'Unternehmensart', en: 'Entity Type', fr: 'Type d\'entite' },
