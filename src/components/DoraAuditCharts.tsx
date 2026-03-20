@@ -440,7 +440,7 @@ export function DoraAuditCharts({ risks, reqs }: { risks: DoraRisk[]; reqs: Dora
                 : (de ? 'Kritische Luecken — sofortiger Handlungsbedarf' : 'Critical gaps — immediate action required')}
             </div>
           </div>
-          <ChartCard title={de ? 'Anforderungs-Status' : 'Requirement Status'}>
+          <ChartCard title={de ? 'Anforderungs-Status' : 'Requirement Status'} subtitle={de ? 'Alle geprueften DORA-Anforderungen mit aktuellem Bewertungsstatus.' : 'All assessed DORA requirements with their current evaluation status.'}>
             <div className="space-y-1.5 max-h-[400px] overflow-y-auto">
               {reqs.map(r => (
                 <div key={r.id} className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-accent/50 transition-colors text-sm">
