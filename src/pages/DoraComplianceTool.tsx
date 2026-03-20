@@ -981,6 +981,12 @@ function ReportView({ intakeData, risks, reqs }: { intakeData: DoraIntakeData; r
         </div>
       )}
 
+      {/* ═══ AUDIT DASHBOARD ═══ */}
+      <div className="bg-card border border-border rounded-xl p-5">
+        <div className="text-sm font-bold text-foreground mb-3">📊 {language === 'de' ? 'Auswertungs-Dashboard' : 'Assessment Dashboard'}</div>
+        <DoraAuditCharts risks={localRisks} reqs={localReqs} />
+      </div>
+
       {/* Export Bar */}
       <div className="bg-secondary border border-border rounded-lg p-4">
         <div className="text-sm text-foreground mb-3">
