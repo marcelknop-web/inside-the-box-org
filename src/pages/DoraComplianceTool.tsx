@@ -321,7 +321,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: DoraIntakeData) => void }) {
         setD(prev => {
           const existing = prev.measures[id];
           if (existing) { const { [id]: _, ...rest } = prev.measures; return { ...prev, measures: rest }; }
-          return { ...prev, measures: { ...prev.measures, [id]: { active: true, documented: false, audited: false } } };
+          return { ...prev, measures: { ...prev.measures, [id]: { active: true, documented: false, audited: false, certified: false } } };
         });
       };
       const setMeasureProp = (id: string, prop: 'documented' | 'audited', val: boolean) => {
