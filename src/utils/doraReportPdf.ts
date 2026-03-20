@@ -983,43 +983,91 @@ export function generateDoraReport(data: DoraReportData): void {
   newPage();
   heading(l('secD', lang));
   introText(lang === 'de'
-    ? 'Vertrauen ist gut, Kontrolle ist besser: Der automatisierte Qualitaetscheck prueft den Bericht auf interne Konsistenz, fachliche Plausibilitaet und Vollstaendigkeit. Hier sind die Ergebnisse im Detail.'
-    : 'Trust but verify: the automated quality check tests the report for internal consistency, technical plausibility, and completeness. Results are documented here in full.');
+    ? 'Vertrauen ist gut, Kontrolle ist besser: Der automatisierte Qualitaetscheck prueft den Bericht auf interne Konsistenz, fachliche Plausibilitaet und Vollstaendigkeit. Die Pruefung umfasst die 10 goldenen Regeln fuer Pruefungsberichte sowie DORA-spezifische Validierungen.'
+    : 'Trust but verify: the automated quality check tests the report for internal consistency, technical plausibility, and completeness. The check covers the 10 golden rules for audit reports plus DORA-specific validations.');
 
   if (data.qaChecks && data.qaChecks.length > 0) {
+    // D.1 Quality Gate Result
     heading(`D.1 ${lang === 'de' ? 'Quality-Gate-Ergebnis' : 'Quality Gate Result'}`, 2);
     if (data.qaIterations) {
-      bodyText(`${lang === 'de' ? 'Durchläufe' : 'Iterations'}: ${data.qaIterations}`, 0);
+      bodyText(`${lang === 'de' ? 'Durchlaeufe' : 'Iterations'}: ${data.qaIterations}`, 0);
     }
     const passedQa = data.qaChecks.filter(c => c.passed).length;
     const qaVerdict = passedQa === data.qaChecks.length ? 'PASSED' : `FAILED (${passedQa}/${data.qaChecks.length})`;
     bodyText(`${lang === 'de' ? 'Ergebnis' : 'Result'}: ${qaVerdict}`, 0);
     separator();
-    data.qaChecks.forEach(c => {
-      checkSpace(10);
-      // Pass/fail badge
-      const badgeCol: [number, number, number] = c.passed ? [34, 120, 70] : [180, 45, 45];
-      doc.setFillColor(...badgeCol);
-      doc.roundedRect(LEFT, y - 3, 14, 5, 0.6, 0.6, 'F');
-      doc.setFont(HEAD_FONT, 'bold'); doc.setFontSize(6); doc.setTextColor(...C.white);
-      doc.text(c.passed ? 'PASS' : 'FAIL', LEFT + 2.5, y);
-      doc.setFont(BODY_FONT, 'normal'); doc.setFontSize(8.5); doc.setTextColor(...C.dark);
-      const detail = `${c.id}: ${c.label}`;
-      const detailLines = doc.splitTextToSize(detail, WIDTH - 20);
-      doc.text(detailLines, LEFT + 18, y);
-      y += detailLines.length * 3.5 + 2;
-      if (!c.passed && c.detail) {
-        doc.setFontSize(7.5); doc.setTextColor(...C.mid);
-        const dl = doc.splitTextToSize(c.detail, WIDTH - 24);
-        doc.text(dl, LEFT + 20, y);
-        y += dl.length * 3 + 2;
-        doc.setTextColor(...C.dark);
-      }
+
+    // Group checks by category
+    const categories = ['consistency', 'technical', 'evidence', 'editorial', 'regulatory', 'golden-rule'];
+    const catLabels: Record<string, Record<string, string>> = {
+      consistency: { de: 'Konsistenzpruefung', en: 'Consistency Checks' },
+      technical: { de: 'Fachliche Korrektheit', en: 'Technical Correctness' },
+      evidence: { de: 'Evidenzpruefung', en: 'Evidence Checks' },
+      editorial: { de: 'Redaktionelle Pruefung', en: 'Editorial Checks' },
+      regulatory: { de: 'Regulatorische Pruefung', en: 'Regulatory Checks' },
+      'golden-rule': { de: '10 Goldene Regeln', en: '10 Golden Rules' },
+    };
+
+    categories.forEach(cat => {
+      const catChecks = data.qaChecks!.filter(c => c.category === cat);
+      if (catChecks.length === 0) return;
+
+      checkSpace(15);
+      doc.setFont(HEAD_FONT, 'bold'); doc.setFontSize(8.5); doc.setTextColor(...C.navy);
+      doc.text(catLabels[cat]?.[lang] || cat, LEFT, y);
+      y += 5;
+
+      catChecks.forEach(c => {
+        checkSpace(10);
+        const badgeCol: [number, number, number] = c.passed ? [34, 120, 70] : [180, 45, 45];
+        doc.setFillColor(...badgeCol);
+        doc.roundedRect(LEFT, y - 3, 14, 5, 0.6, 0.6, 'F');
+        doc.setFont(HEAD_FONT, 'bold'); doc.setFontSize(6); doc.setTextColor(...C.white);
+        doc.text(c.passed ? 'PASS' : 'FAIL', LEFT + 2.5, y);
+        doc.setFont(BODY_FONT, 'normal'); doc.setFontSize(8.5); doc.setTextColor(...C.dark);
+        const detail = `${c.id}: ${c.label}`;
+        const detailLines = doc.splitTextToSize(detail, WIDTH - 20);
+        doc.text(detailLines, LEFT + 18, y);
+        y += detailLines.length * 3.5 + 2;
+        if (!c.passed && c.detail) {
+          doc.setFontSize(7.5); doc.setTextColor(...C.mid);
+          const dl = doc.splitTextToSize(c.detail, WIDTH - 24);
+          doc.text(dl, LEFT + 20, y);
+          y += dl.length * 3 + 2;
+          doc.setTextColor(...C.dark);
+        }
+      });
+      y += 3;
     });
+
+    // D.2 Abweichungstabelle (Deviation Table)
+    const failedChecks = data.qaChecks.filter(c => !c.passed);
+    if (failedChecks.length > 0) {
+      heading(`D.2 ${lang === 'de' ? 'Abweichungstabelle' : 'Deviation Table'}`, 2);
+      introText(lang === 'de'
+        ? 'Alle identifizierten Abweichungen auf einen Blick — mit Fundstelle, Mangelbeschreibung, empfohlener Korrektur und Prioritaet.'
+        : 'All identified deviations at a glance — with location, description, recommended correction, and priority.');
+
+      checkSpace(8);
+      doc.setFont(DATA_FONT, 'bold'); doc.setFontSize(6); doc.setTextColor(...C.mid);
+      doc.text('Pruefpunkt    | Festgestellter Mangel                           | Prio', LEFT, y);
+      y += 2; doc.setDrawColor(...C.navy); doc.setLineWidth(0.2); doc.line(LEFT, y, RIGHT, y); y += 3;
+      doc.setFont(DATA_FONT, 'normal'); doc.setTextColor(...C.dark);
+
+      failedChecks.forEach(c => {
+        checkSpace(8);
+        const prioBadge = c.severity === 'critical' ? 'P0' : c.severity === 'major' ? 'P1' : 'P2';
+        const shortDetail = c.detail.length > 50 ? c.detail.substring(0, 47) + '...' : c.detail;
+        doc.setFontSize(6);
+        doc.text(`${c.id.padEnd(13)} | ${shortDetail.padEnd(48)} | ${prioBadge}`, LEFT, y);
+        y += 4;
+      });
+      y += 3;
+    }
   }
 
   if (data.fixLog && data.fixLog.length > 0) {
-    heading(`D.2 ${lang === 'de' ? 'Automatisierte Korrekturen (Remediation Log)' : 'Automated Corrections (Remediation Log)'}`, 2);
+    heading(`D.3 ${lang === 'de' ? 'Automatisierte Korrekturen (Remediation Log)' : 'Automated Corrections (Remediation Log)'}`, 2);
     introText(lang === 'de'
       ? 'Welche Korrekturen wurden automatisch vorgenommen? Hier ist der vollstaendige Aenderungsnachweis. Den Zustand vor der Korrektur zeigt Abschnitt D.1.'
       : 'Which corrections were applied automatically? Here is the full change log. The pre-fix state is shown in Section D.1.');
