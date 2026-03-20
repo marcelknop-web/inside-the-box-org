@@ -651,8 +651,8 @@ export function generateDoraReport(data: DoraReportData): void {
   newPage();
   heading(l('sec4b', lang), 2);
   introText(lang === 'de'
-    ? 'Die folgende Übersicht zeigt die Bewertung jeder DORA-Anforderung. Abweichungen werden mit konkreten Maßnahmen, Aufwandsschätzungen und nachweisbaren Umsetzungskriterien versehen.'
-    : 'The following overview shows the assessment of each DORA requirement. Deviations include concrete measures, effort estimates, and verifiable acceptance criteria.');
+    ? 'Anforderung fuer Anforderung: Hier wird jede DORA-Vorgabe einzeln bewertet — mit einer klaren Aussage, ob sie erfuellt ist, und falls nicht, was genau fehlt und was zu tun ist.'
+    : 'Requirement by requirement: each DORA provision is assessed individually — with a clear verdict on whether it is met, and if not, exactly what is missing and what needs to happen.');
 
   reqs.forEach(r => {
     checkSpace(42);
