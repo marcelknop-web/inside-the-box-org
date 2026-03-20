@@ -741,7 +741,7 @@ function ReportView({ intakeData, risks, reqs }: { intakeData: DoraIntakeData; r
   const [fixProgress, setFixProgress] = useState(0);
   const [fixLog, setFixLog] = useState<string[]>([]);
   const [allFixLogs, setAllFixLogs] = useState<string[]>([]);
-  const [draftDownloaded, setDraftDownloaded] = useState(false);
+  const [draftDownloaded] = useState(true); // No draft step — QA is always available
   const [qaIteration, setQaIteration] = useState(0);
   interface QaHistoryEntry { iteration: number; passed: number; total: number; failed: number; verdict: string; fixes: string[] }
   const [qaHistory, setQaHistory] = useState<QaHistoryEntry[]>([]);
