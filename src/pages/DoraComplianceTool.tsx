@@ -177,6 +177,10 @@ function IntakeWizard({ onFinish }: { onFinish: (d: DoraIntakeData) => void }) {
   const scenarioRef = useRef(Math.floor(Math.random() * DEMO_SCENARIOS.length));
 
   const handleDemo = useCallback(() => {
+    // On sub 0, cycle to next scenario on each click
+    if (sub === 0) {
+      scenarioRef.current = (scenarioRef.current + 1) % DEMO_SCENARIOS.length;
+    }
     const scenario = DEMO_SCENARIOS[scenarioRef.current];
     switch (sub) {
       case 0: setD(prev => ({ ...prev, entityName: scenario.entity.name, entityType: scenario.entity.types })); break;
