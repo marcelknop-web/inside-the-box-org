@@ -71,7 +71,7 @@ export function runDoraQualityCheck(
   });
 
   // A2: Bidirectional traceability: non-pass reqs should have linked risks
-  const nonPassReqsWithoutRisks = reqs.filter(r => r.status !== 'pass' && !risks.some(ri => ri.doraRef === r.article));
+  const nonPassReqsWithoutRisks = reqs.filter(r => r.status !== 'pass' && !risks.some(ri => refsMatch(ri.doraRef, r.article)));
   checks.push({
     id: 'A2-1', category: 'consistency',
     label: t('Bidirektionale Traceability: Nicht-konforme Anforderungen mit Risiko-Verknuepfung', 'Bidirectional traceability: Non-compliant requirements linked to risks', 'Tracabilite bidirectionnelle'),
