@@ -801,8 +801,8 @@ export function generateDoraReport(data: DoraReportData): void {
   y += 5;
   heading(l('sec7', lang));
   bodyParagraph(lang === 'de'
-    ? 'Dieser Bericht basiert auf den zum Prüfungszeitpunkt vorliegenden Informationen und den vom Unternehmen bereitgestellten Angaben. Er ersetzt keine offizielle Prüfung durch die zuständige Aufsichtsbehörde (BaFin, EZB, nationale Behörden).\n\nDie Bewertungen reflektieren den Stand der Technik und die regulatorischen Anforderungen zum Zeitpunkt der Erstellung. Änderungen der regulatorischen Rahmenbedingungen — insbesondere durch neue RTS/ITS der ESAs — können eine Neubewertung erforderlich machen.\n\nEine Haftung für die Vollständigkeit und Richtigkeit der Angaben wird nicht übernommen. Der Bericht ist vertraulich und ausschließlich für den internen Gebrauch des Empfängers bestimmt.'
-    : 'This report is based on information available at the time of assessment. It does not replace an official audit by the competent supervisory authority. No liability is assumed for completeness or accuracy.');
+    ? 'Dieser Bericht basiert auf den Informationen, die zum Pruefungszeitpunkt vorlagen, und auf den Angaben, die das Unternehmen bereitgestellt hat. Er ersetzt keine offizielle Pruefung durch BaFin, EZB oder eine andere zustaendige Aufsichtsbehoerde.\n\nAlle Bewertungen spiegeln den Stand der Technik und die regulatorischen Anforderungen zum Zeitpunkt der Erstellung wider. Aendern sich die Rahmenbedingungen — etwa durch neue technische Regulierungsstandards der ESAs — kann eine Neubewertung erforderlich werden.\n\nFuer die Vollstaendigkeit und Richtigkeit der bereitgestellten Unterlagen wird keine Haftung uebernommen. Der Bericht ist vertraulich und ausschliesslich fuer den internen Gebrauch des Empfaengers bestimmt.'
+    : 'This report is based on information available at the time of assessment. It does not replace an official audit by the competent supervisory authority. No liability is assumed for completeness or accuracy. The report is confidential and intended for internal use by the recipient only.');
 
   // ═══════════════════════════════════════════════════════════
   // APPENDIX A: Structured Data
