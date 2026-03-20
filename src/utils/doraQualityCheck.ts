@@ -74,10 +74,10 @@ export function runDoraQualityCheck(
   const nonPassReqsWithoutRisks = reqs.filter(r => r.status !== 'pass' && !risks.some(ri => refsMatch(ri.doraRef, r.article)));
   checks.push({
     id: 'A2-1', category: 'consistency',
-    label: t('Bidirektionale Traceability: Nicht-konforme Anforderungen mit Risiko-Verknuepfung', 'Bidirectional traceability: Non-compliant requirements linked to risks', 'Tracabilite bidirectionnelle'),
+    label: t('Bidirektionale Traceability: Nicht-konforme Anforderungen mit Risiko-Verknüpfung', 'Bidirectional traceability: Non-compliant requirements linked to risks', 'Tracabilite bidirectionnelle'),
     detail: nonPassReqsWithoutRisks.length > 0
-      ? `${t('Ohne Risiko-Verknuepfung', 'Missing risk links', 'Liens manquants')}: ${nonPassReqsWithoutRisks.map(r => r.id).join(', ')}`
-      : t('Alle verknuepft', 'All linked', 'Toutes liees'),
+      ? `${t('Ohne Risiko-Verknüpfung', 'Missing risk links', 'Liens manquants')}: ${nonPassReqsWithoutRisks.map(r => r.id).join(', ')}`
+      : t('Alle verknüpft', 'All linked', 'Toutes liees'),
     passed: nonPassReqsWithoutRisks.length === 0, severity: 'critical',
   });
 
@@ -131,14 +131,14 @@ export function runDoraQualityCheck(
   // B1: D8-1 Schutzmaßnahmen — if unencrypted internal comms exist, must be fail
   const d81 = reqs.find(r => r.id === 'D8-1');
   const hasUnencryptedRisk = risks.some(ri =>
-    ri.name.toLowerCase().includes('unverschluessel') || ri.name.toLowerCase().includes('klartext') ||
+    ri.name.toLowerCase().includes('unverschlüssel') || ri.name.toLowerCase().includes('klartext') ||
     ri.name.toLowerCase().includes('unverschlüsselt') || ri.name.toLowerCase().includes('ohne tls')
   );
   checks.push({
     id: 'B1', category: 'technical',
     label: t('D8-1 Schutzmaßnahmen korrekt bewertet', 'D8-1 Protection measures correctly rated', 'D8-1 correctement evalue'),
     detail: hasUnencryptedRisk && d81?.status !== 'fail'
-      ? t(`Unverschluesselte Kommunikation vorhanden, aber D8-1 als "${d81?.status}" — muss "nicht konform" sein`,
+      ? t(`Unverschlüsselte Kommunikation vorhanden, aber D8-1 als "${d81?.status}" — muss "nicht konform" sein`,
           `Unencrypted comms present but D8-1 "${d81?.status}" — must be fail`,
           `Communication non chiffree mais D8-1 "${d81?.status}"`)
       : t('Korrekt', 'Correct', 'Correct'),
@@ -176,7 +176,7 @@ export function runDoraQualityCheck(
   const nonPassWithoutEffort = reqs.filter(r => r.status !== 'pass' && (!r.effort || r.effort.trim() === ''));
   checks.push({
     id: 'B4', category: 'technical',
-    label: t('Alle nicht-konformen Anforderungen haben Aufwandsschaetzung', 'All non-compliant requirements have effort estimates', 'Toutes les exigences non conformes avec effort'),
+    label: t('Alle nicht-konformen Anforderungen haben Aufwandsschätzung', 'All non-compliant requirements have effort estimates', 'Toutes les exigences non conformes avec effort'),
     detail: nonPassWithoutEffort.length > 0
       ? `${t('Ohne Aufwand', 'Missing effort', 'Effort manquant')}: ${nonPassWithoutEffort.map(r => r.id).join(', ')}`
       : t('Alle mit Aufwand', 'All have effort', 'Toutes avec effort'),
@@ -186,9 +186,9 @@ export function runDoraQualityCheck(
   const nonPassWithoutPriority = reqs.filter(r => r.status !== 'pass' && (!r.priority || r.priority.trim() === ''));
   checks.push({
     id: 'B5', category: 'technical',
-    label: t('Alle nicht-konformen Anforderungen haben Prioritaet', 'All non-compliant requirements have priority', 'Toutes avec priorite'),
+    label: t('Alle nicht-konformen Anforderungen haben Priorität', 'All non-compliant requirements have priority', 'Toutes avec priorite'),
     detail: nonPassWithoutPriority.length > 0
-      ? `${t('Ohne Prioritaet', 'Missing priority', 'Priorite manquante')}: ${nonPassWithoutPriority.map(r => r.id).join(', ')}`
+      ? `${t('Ohne Priorität', 'Missing priority', 'Priorite manquante')}: ${nonPassWithoutPriority.map(r => r.id).join(', ')}`
       : t('Alle priorisiert', 'All prioritised', 'Toutes priorisees'),
     passed: nonPassWithoutPriority.length === 0, severity: 'critical',
   });
@@ -208,9 +208,9 @@ export function runDoraQualityCheck(
   const nonPassWithoutMeasure = reqs.filter(r => r.status !== 'pass' && (!r.measure || r.measure.trim() === ''));
   checks.push({
     id: 'B7', category: 'technical',
-    label: t('Alle nicht-konformen Anforderungen mit Massnahme', 'All non-compliant requirements have measure', 'Toutes avec mesure'),
+    label: t('Alle nicht-konformen Anforderungen mit Maßnahme', 'All non-compliant requirements have measure', 'Toutes avec mesure'),
     detail: nonPassWithoutMeasure.length > 0
-      ? `${t('Ohne Massnahme', 'Missing measure', 'Mesure manquante')}: ${nonPassWithoutMeasure.map(r => r.id).join(', ')}`
+      ? `${t('Ohne Maßnahme', 'Missing measure', 'Mesure manquante')}: ${nonPassWithoutMeasure.map(r => r.id).join(', ')}`
       : t('Alle dokumentiert', 'All documented', 'Toutes documentees'),
     passed: nonPassWithoutMeasure.length === 0, severity: 'major',
   });
@@ -273,7 +273,7 @@ export function runDoraQualityCheck(
   // D3: Typo detection
   const typoMap: [string, string][] = [
     ['Netzwerkcan', 'Netzwerkscan'], ['Aush', 'Auth'], ['SBM', 'SBOM'],
-    ['Fur', 'fuer'], ['Uber', 'ueber'],
+    ['Fur', 'für'], ['Uber', 'über'],
   ];
   let typoCount = 0;
   const checkTypos = (text: string) => {
@@ -298,8 +298,8 @@ export function runDoraQualityCheck(
   const d51 = reqs.find(r => r.article.includes('Art. 5'));
   checks.push({
     id: 'E1', category: 'regulatory',
-    label: t('Art. 5 Leitungsverantwortung geprueft', 'Art. 5 Management responsibility assessed', 'Art. 5 Responsabilite evaluee'),
-    detail: d51 ? t('Geprueft', 'Assessed', 'Evalue') : t('Art. 5 fehlt im Bericht', 'Art. 5 missing', 'Art. 5 manquant'),
+    label: t('Art. 5 Leitungsverantwortung geprüft', 'Art. 5 Management responsibility assessed', 'Art. 5 Responsabilite evaluee'),
+    detail: d51 ? t('Geprüft', 'Assessed', 'Evalue') : t('Art. 5 fehlt im Bericht', 'Art. 5 missing', 'Art. 5 manquant'),
     passed: !!d51, severity: 'critical',
   });
 
@@ -308,7 +308,7 @@ export function runDoraQualityCheck(
   checks.push({
     id: 'E2', category: 'regulatory',
     label: t('Art. 19 Meldepflichten bewertet', 'Art. 19 Incident reporting assessed', 'Art. 19 Obligations evaluees'),
-    detail: art19 ? t('Geprueft', 'Assessed', 'Evalue') : t('Art. 19 fehlt', 'Art. 19 missing', 'Art. 19 manquant'),
+    detail: art19 ? t('Geprüft', 'Assessed', 'Evalue') : t('Art. 19 fehlt', 'Art. 19 missing', 'Art. 19 manquant'),
     passed: !!art19, severity: 'critical',
   });
 
@@ -317,7 +317,7 @@ export function runDoraQualityCheck(
   checks.push({
     id: 'E3', category: 'regulatory',
     label: t('Art. 28 Drittanbieter-Risikomanagement bewertet', 'Art. 28 Third-party risk assessed', 'Art. 28 Risques tiers evaluees'),
-    detail: art28 ? t('Geprueft', 'Assessed', 'Evalue') : t('Art. 28 fehlt', 'Art. 28 missing', 'Art. 28 manquant'),
+    detail: art28 ? t('Geprüft', 'Assessed', 'Evalue') : t('Art. 28 fehlt', 'Art. 28 missing', 'Art. 28 manquant'),
     passed: !!art28, severity: 'critical',
   });
 
@@ -328,8 +328,8 @@ export function runDoraQualityCheck(
     id: 'E4', category: 'regulatory',
     label: t('Art. 26 TLPT-Anforderung bewertet', 'Art. 26 TLPT requirement assessed', 'Art. 26 Exigence TLPT evaluee'),
     detail: needsTlpt && !d261
-      ? t('Signifikantes/kritisches Institut — TLPT-Pruefung fehlt', 'Significant/critical entity — TLPT check missing', 'Entite significative — verification TLPT manquante')
-      : t('Geprueft', 'Assessed', 'Evalue'),
+      ? t('Signifikantes/kritisches Institut — TLPT-Prüfung fehlt', 'Significant/critical entity — TLPT check missing', 'Entite significative — verification TLPT manquante')
+      : t('Geprüft', 'Assessed', 'Evalue'),
     passed: !(needsTlpt && !d261), severity: 'critical',
   });
 

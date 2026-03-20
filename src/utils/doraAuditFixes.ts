@@ -47,18 +47,18 @@ export function applyDoraAuditFixes(
                 nameMatch.forEach(ri => {
                   ri.doraRef = r.article;
                   fixes.push(t(
-                    `${riskId(ri)}: Verknuepfung zu ${r.id} hergestellt`,
+                    `${riskId(ri)}: Verknüpfung zu ${r.id} hergestellt`,
                     `${riskId(ri)}: Linked to ${r.id}`,
                     `${riskId(ri)}: Lie a ${r.id}`
                   ));
                 });
               } else {
                 r.rationale += (r.rationale ? ' — ' : '') + t(
-                  'Hinweis: Keine Risiken verknuepft, manuelle Pruefung erforderlich',
+                  'Hinweis: Keine Risiken verknüpft, manuelle Prüfung erforderlich',
                   'Note: No linked risks, manual review required',
                   'Note : aucun risque lie, revision manuelle requise'
                 );
-                fixes.push(t(`${r.id}: Fehlende Risiko-Verknuepfung dokumentiert`, `${r.id}: Missing risk link documented`, `${r.id}: Lien manquant documente`));
+                fixes.push(t(`${r.id}: Fehlende Risiko-Verknüpfung dokumentiert`, `${r.id}: Missing risk link documented`, `${r.id}: Lien manquant documente`));
               }
             }
           }
@@ -105,7 +105,7 @@ export function applyDoraAuditFixes(
         const d81 = fixedReqs.find(r => r.id === 'D8-1');
         if (d81 && d81.status !== 'fail') {
           const unencRisk = fixedRisks.find(ri =>
-            ri.name.toLowerCase().includes('unverschluessel') || ri.name.toLowerCase().includes('klartext') ||
+            ri.name.toLowerCase().includes('unverschlüssel') || ri.name.toLowerCase().includes('klartext') ||
             ri.name.toLowerCase().includes('unverschlüsselt') || ri.name.toLowerCase().includes('ohne tls')
           );
           d81.status = 'fail';
@@ -153,7 +153,7 @@ export function applyDoraAuditFixes(
             const maxScore = linked.length > 0 ? Math.max(...linked.map(ri => ri.likelihood * ri.impact)) : 0;
             r.effort = maxScore >= 20 ? '40-60h' : maxScore >= 13 ? '20-40h' : r.status === 'fail' ? '16-30h' : '8-16h';
             fixes.push(t(
-              `${r.id}: Aufwandsschaetzung abgeleitet (${r.effort})`,
+              `${r.id}: Aufwandsschätzung abgeleitet (${r.effort})`,
               `${r.id}: Effort derived (${r.effort})`,
               `${r.id}: Effort derive (${r.effort})`
             ));
@@ -169,7 +169,7 @@ export function applyDoraAuditFixes(
             const maxScore = linked.length > 0 ? Math.max(...linked.map(ri => ri.likelihood * ri.impact)) : 0;
             r.priority = r.status === 'fail' && maxScore >= 20 ? 'P0' : r.status === 'fail' ? 'P1' : maxScore >= 13 ? 'P2' : 'P3';
             fixes.push(t(
-              `${r.id}: Prioritaet -> ${r.priority}`,
+              `${r.id}: Priorität -> ${r.priority}`,
               `${r.id}: Priority -> ${r.priority}`,
               `${r.id}: Priorite -> ${r.priority}`
             ));
@@ -185,7 +185,7 @@ export function applyDoraAuditFixes(
         const weak = fixedRisks.filter(r => r.likelihood * r.impact >= threshold && r.evidenceQuality < minQuality);
         if (weak.length > 0) {
           fixes.push(t(
-            `Hinweis: ${weak.length} Risiko(en) mit unzureichender Evidenz — manuelle Nachpruefung: ${weak.map(riskId).join(', ')}`,
+            `Hinweis: ${weak.length} Risiko(en) mit unzureichender Evidenz — manuelle Nachprüfung: ${weak.map(riskId).join(', ')}`,
             `Note: ${weak.length} risk(s) with insufficient evidence — manual review: ${weak.map(riskId).join(', ')}`,
             `Note : ${weak.length} risque(s) avec preuve insuffisante : ${weak.map(riskId).join(', ')}`
           ));
@@ -197,7 +197,7 @@ export function applyDoraAuditFixes(
         const noSrc = fixedRisks.filter(r => !r.sources || r.sources.length === 0);
         if (noSrc.length > 0) {
           fixes.push(t(
-            `Hinweis: ${noSrc.length} Risiko(en) ohne Quellen — manuelle Ergaenzung: ${noSrc.map(riskId).join(', ')}`,
+            `Hinweis: ${noSrc.length} Risiko(en) ohne Quellen — manuelle Ergänzung: ${noSrc.map(riskId).join(', ')}`,
             `Note: ${noSrc.length} risk(s) without sources: ${noSrc.map(riskId).join(', ')}`,
             `Note : ${noSrc.length} risque(s) sans sources : ${noSrc.map(riskId).join(', ')}`
           ));
@@ -208,7 +208,7 @@ export function applyDoraAuditFixes(
       case 'D3': {
         const typoMap: [string, string][] = [
           ['Netzwerkcan', 'Netzwerkscan'], ['Aush', 'Auth'], ['SBM', 'SBOM'],
-          ['Fur', 'fuer'], ['Uber', 'ueber'],
+          ['Fur', 'für'], ['Uber', 'über'],
         ];
         let typoCount = 0;
         const fixField = (text: string): string => {
@@ -230,7 +230,7 @@ export function applyDoraAuditFixes(
       default: {
         if (!check.passed) {
           fixes.push(t(
-            `${check.id}: Automatische Korrektur nicht moeglich — manuelle Pruefung erforderlich`,
+            `${check.id}: Automatische Korrektur nicht möglich — manuelle Prüfung erforderlich`,
             `${check.id}: Auto-correction not possible — manual review required`,
             `${check.id}: Correction auto impossible — revision manuelle requise`
           ));
