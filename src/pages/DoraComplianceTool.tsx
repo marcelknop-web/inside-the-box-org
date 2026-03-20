@@ -371,6 +371,10 @@ function IntakeWizard({ onFinish }: { onFinish: (d: DoraIntakeData) => void }) {
                             <input type="checkbox" className="w-3.5 h-3.5 rounded accent-primary flex-shrink-0" checked={entry.audited} onChange={e => setMeasureProp(m.id, 'audited', e.target.checked)} />
                             <span className="text-xs text-muted-foreground group-hover:text-foreground transition-colors">{t('dora.audited')}</span>
                           </label>
+                          <label className="flex items-center gap-1.5 cursor-pointer group">
+                            <input type="checkbox" className="w-3.5 h-3.5 rounded accent-primary flex-shrink-0" checked={entry.certified} onChange={e => setMeasureProp(m.id, 'certified', e.target.checked)} />
+                            <span className="text-xs text-muted-foreground group-hover:text-foreground transition-colors">{t('dora.certified')}</span>
+                          </label>
                         </div>
                       )}
                     </div>
