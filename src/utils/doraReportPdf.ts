@@ -600,6 +600,20 @@ export function generateDoraReport(data: DoraReportData): void {
     if (ri.sources.length > 0) {
       bodyText(`${l('sources', lang)}: ${ri.sources.join('; ')}`, 0);
     }
+    // Cross-reference to related working papers
+    const linkedReqs = reqs.filter(r => {
+      const baseRisk = ri.doraRef.split(' Abs.')[0].split(' lit.')[0];
+      const baseReq = r.article.split(' Abs.')[0].split(' lit.')[0];
+      return baseRisk === baseReq;
+    });
+    if (linkedReqs.length > 0) {
+      const wpRefs = linkedReqs.map(r => `AP-${r.id}`).join(', ');
+      doc.setFont(HEAD_FONT, 'normal'); doc.setFontSize(7.5); doc.setTextColor(...C.mid);
+      checkSpace(5);
+      doc.text(`${lang === 'de' ? 'Arbeitspapiere' : 'Working Papers'}: ${wpRefs} (${lang === 'de' ? 'Anhang E' : 'Appendix E'})`, LEFT, y);
+      y += 4;
+      doc.setTextColor(...C.dark); doc.setFont(BODY_FONT, 'normal'); doc.setFontSize(9.5);
+    }
     separator();
   });
 
