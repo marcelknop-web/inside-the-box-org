@@ -265,12 +265,16 @@ export function DoraAuditCharts({ risks, reqs }: { risks: DoraRisk[]; reqs: Dora
   }, [risks, language]);
 
   const topRisks = useMemo(() =>
-    [...risks].sort((a, b) => (b.likelihood * b.impact) - (a.likelihood * a.impact)).slice(0, 8).map(r => ({
-      name: `${r.category}-${String(r.id).padStart(3, '0')}`,
-      score: r.likelihood * r.impact,
-      color: r.likelihood * r.impact >= 20 ? RISK_COLORS.critical : r.likelihood * r.impact >= 13 ? RISK_COLORS.high : RISK_COLORS.medium,
-      label: r.name.length > 35 ? r.name.slice(0, 32) + '...' : r.name,
-    }))
+    [...risks].sort((a, b) => (b.likelihood * b.impact) - (a.likelihood * a.impact)).slice(0, 8).map(r => {
+      const s = r.likelihood * r.impact;
+      const shortName = r.name.length > 28 ? r.name.slice(0, 25) + '…' : r.name;
+      return {
+        name: `${r.category}-${String(r.id).padStart(3, '0')}  ${shortName}`,
+        score: s,
+        color: s >= 20 ? RISK_COLORS.critical : s >= 13 ? RISK_COLORS.high : RISK_COLORS.medium,
+        label: r.name,
+      };
+    })
   , [risks]);
 
   const evidenceData = useMemo(() => {
