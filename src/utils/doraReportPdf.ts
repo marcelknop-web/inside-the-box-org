@@ -557,8 +557,8 @@ export function generateDoraReport(data: DoraReportData): void {
   // 3.4 Known Issues
   heading(l('sec3d', lang), 2);
   introText(lang === 'de'
-    ? 'Dieser Abschnitt dokumentiert Schwachstellen und offene Punkte, die vom Unternehmen selbst identifiziert und benannt wurden.'
-    : 'This section documents weaknesses and open items identified by the entity itself.');
+    ? 'Hat das Unternehmen selbst bereits Schwachstellen erkannt? Eigenidentifizierte Probleme fliessen in die Gesamtbewertung ein und zeigen, wie reflektiert die Organisation mit ihrem Risikoprofil umgeht.'
+    : 'Has the entity already identified weaknesses on its own? Self-reported issues feed into the overall assessment and indicate how reflectively the organisation manages its risk profile.');
   if (intakeData.knownIssues) {
     bodyParagraph(intakeData.knownIssues);
   } else {
