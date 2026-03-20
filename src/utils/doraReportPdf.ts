@@ -522,8 +522,8 @@ export function generateDoraReport(data: DoraReportData): void {
   // 3.3 Implemented Measures
   heading(l('sec3c', lang), 2);
   introText(lang === 'de'
-    ? 'Die folgenden Sicherheitsmaßnahmen wurden als implementiert angegeben. Ihr Reifegrad wird anhand von vier Kriterien bewertet: aktiv, dokumentiert, auditiert und zertifiziert.'
-    : 'The following security measures were reported as implemented. Maturity is assessed against four criteria: active, documented, audited, and certified.');
+    ? 'Welche Sicherheitsmassnahmen sind bereits vorhanden, und wie ausgereift sind sie? Die Tabelle zeigt den Reifegrad anhand von vier Stufen: aktiv im Einsatz, schriftlich dokumentiert, durch ein Audit geprueft und extern zertifiziert.'
+    : 'Which security measures are already in place, and how mature are they? The table below shows maturity across four levels: actively deployed, documented, audited, and externally certified.');
   const measureEntries = Object.entries(intakeData.measures);
   if (measureEntries.length > 0) {
     checkSpace(10);
