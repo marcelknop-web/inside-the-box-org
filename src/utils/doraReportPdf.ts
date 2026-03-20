@@ -427,14 +427,16 @@ export function generateDoraReport(data: DoraReportData): void {
 
   const summary = getMgmtSummary(intakeData.entityName, risks.length, critCount, failCount, partCount, reqs.length, passCount, lang);
 
-  // Verdict box
-  checkSpace(18);
-  doc.setFillColor(...C.navy);
-  doc.roundedRect(LEFT, y, WIDTH, 14, 1.5, 1.5, 'F');
-  doc.setFontSize(9.5); doc.setFont(HEAD_FONT, 'bold'); doc.setTextColor(...C.white);
+  // Verdict box — dynamic height
+  doc.setFontSize(9.5); doc.setFont(HEAD_FONT, 'bold');
   const verdictLines = doc.splitTextToSize(summary.verdict, WIDTH - 12);
-  doc.text(verdictLines, LEFT + 6, y + 9);
-  y += 18;
+  const verdictBoxH = Math.max(14, verdictLines.length * 4.5 + 8);
+  checkSpace(verdictBoxH + 4);
+  doc.setFillColor(...C.navy);
+  doc.roundedRect(LEFT, y, WIDTH, verdictBoxH, 1.5, 1.5, 'F');
+  doc.setTextColor(...C.white);
+  doc.text(verdictLines, LEFT + 6, y + 6);
+  y += verdictBoxH + 4;
   doc.setTextColor(...C.dark);
 
   // KPI row — 4 clean metric cards
@@ -609,18 +611,24 @@ export function generateDoraReport(data: DoraReportData): void {
     const eId = `E-${String(globalIdx + 1).padStart(3, '0')}`;
     heading(`${l('finding', lang)} ${riskId(ri)}: ${ri.name}`, 3);
 
-    // Category + severity tag + evidence reference
+    // Category + severity tag + evidence reference (wrapped safely)
     doc.setFontSize(7); doc.setFont(HEAD_FONT, 'normal'); doc.setTextColor(...C.mid);
-    doc.text(`${cat}  |  ${sev}  |  ${ri.doraRef}  |  ${eId} (${lang === 'de' ? 'Anhang C' : 'App. C'})  |  ${lang === 'de' ? 'Evidenz' : 'Evidence'}: ${ri.evidenceQuality}/5`, LEFT, y); y += 5;
+    const metaLine = `${cat}  |  ${sev}  |  ${ri.doraRef}  |  ${eId} (${lang === 'de' ? 'Anhang C' : 'App. C'})  |  ${lang === 'de' ? 'Evidenz' : 'Evidence'}: ${ri.evidenceQuality}/5`;
+    const metaLines = doc.splitTextToSize(metaLine, WIDTH);
+    doc.text(metaLines, LEFT, y); y += metaLines.length * 3.2 + 2;
     doc.setTextColor(...C.dark);
 
     // Risk score bar
-    checkSpace(8);
-    doc.setFillColor(...C.bg); doc.roundedRect(LEFT, y - 1, WIDTH, 7, 0.8, 0.8, 'F');
-    doc.setFont(HEAD_FONT, 'bold'); doc.setFontSize(8); doc.setTextColor(...C.navy);
-    doc.text(`${l('riskScore', lang)}: ${ri.likelihood} x ${ri.impact} = ${score} (${sev})`, LEFT + 4, y + 3.5);
+    const scoreText = `${l('riskScore', lang)}: ${ri.likelihood} x ${ri.impact} = ${score} (${sev})`;
+    doc.setFont(HEAD_FONT, 'bold'); doc.setFontSize(8);
+    const scoreLines = doc.splitTextToSize(scoreText, WIDTH - 8);
+    const scoreBarH = Math.max(7, scoreLines.length * 4 + 3);
+    checkSpace(scoreBarH + 3);
+    doc.setFillColor(...C.bg); doc.roundedRect(LEFT, y - 1, WIDTH, scoreBarH, 0.8, 0.8, 'F');
+    doc.setTextColor(...C.navy);
+    doc.text(scoreLines, LEFT + 4, y + 3);
     doc.setTextColor(...C.dark);
-    y += 10;
+    y += scoreBarH + 3;
 
     // Structured fields
     fieldInline(l('component', lang), ri.component);
@@ -738,14 +746,7 @@ export function generateDoraReport(data: DoraReportData): void {
 
       // ── Structured effort estimate ──
       if (r.effort) {
-        checkSpace(45);
-        doc.setFillColor(...C.bg); doc.roundedRect(LEFT + 4, y - 2, WIDTH - 8, 40, 1, 1, 'F');
-        doc.setDrawColor(...C.rule); doc.setLineWidth(0.12); doc.roundedRect(LEFT + 4, y - 2, WIDTH - 8, 40, 1, 1, 'S');
-
         const effortIndent = 8;
-        doc.setFont(HEAD_FONT, 'bold'); doc.setFontSize(7.5); doc.setTextColor(...C.navy);
-        doc.text(lang === 'de' ? 'AUFWANDSSCHAETZUNG' : 'EFFORT ESTIMATE', LEFT + effortIndent, y + 2);
-        y += 6;
 
         // Parse effort range
         const efM = r.effort.match(/(\d+)\s*-\s*(\d+)/);
@@ -761,15 +762,6 @@ export function generateDoraReport(data: DoraReportData): void {
         const hasToolCost = r.measure?.toLowerCase().includes('tool') || r.measure?.toLowerCase().includes('software') || r.measure?.toLowerCase().includes('lizenz');
         const hasDeps = r.criteria && r.criteria.some(c => c.toLowerCase().includes('abhaengig') || c.toLowerCase().includes('voraussetz'));
 
-        doc.setFont(BODY_FONT, 'normal'); doc.setFontSize(8); doc.setTextColor(...C.dark);
-        doc.text(`${lang === 'de' ? 'Geschaetzter Aufwand' : 'Estimated effort'}: ${r.effort}`, LEFT + effortIndent, y);
-        y += 4;
-
-        doc.setFont(HEAD_FONT, 'normal'); doc.setFontSize(7); doc.setTextColor(...C.mid);
-        doc.text(lang === 'de' ? 'ANNAHMEN:' : 'ASSUMPTIONS:', LEFT + effortIndent, y);
-        y += 3.5;
-        doc.setFont(BODY_FONT, 'normal'); doc.setFontSize(7.5); doc.setTextColor(...C.dark);
-
         const assumptions = lang === 'de' ? [
           `Verfuegbare interne Ressourcen: 1 FTE (${r.priority === 'P0' ? 'dediziert' : 'anteilig'}), IKT-Sicherheitsexperte`,
           `Externe Unterstuetzung erforderlich: ${needsExternal ? 'Ja, fuer spezialisierte Taetigkeiten' : 'Nein, interne Umsetzung moeglich'}`,
@@ -781,16 +773,6 @@ export function generateDoraReport(data: DoraReportData): void {
           `Licence/tool costs: ${hasToolCost ? 'Yes, estimated in five-figure range' : 'No, existing infrastructure usable'}`,
           `Dependencies: ${hasDeps ? 'Yes, see acceptance criteria' : 'No known dependencies'}`,
         ];
-        assumptions.forEach(a => {
-          doc.text(`  > ${a}`, LEFT + effortIndent, y);
-          y += 3.5;
-        });
-
-        // Uncertainties
-        doc.setFont(HEAD_FONT, 'normal'); doc.setFontSize(7); doc.setTextColor(...C.mid);
-        doc.text(lang === 'de' ? 'UNSICHERHEITEN:' : 'UNCERTAINTIES:', LEFT + effortIndent, y);
-        y += 3.5;
-        doc.setFont(BODY_FONT, 'normal'); doc.setFontSize(7.5); doc.setTextColor(...C.dark);
 
         const uncertainties = lang === 'de' ? [
           maxScore >= 20 ? 'Komplexitaet der Bestandssysteme kann Aufwand um 30-50% erhoehen' : 'Tatsaechlicher Scope haengt von IT-Architektur-Detailanalyse ab',
@@ -799,19 +781,52 @@ export function generateDoraReport(data: DoraReportData): void {
           maxScore >= 20 ? 'Complexity of legacy systems may increase effort by 30-50%' : 'Actual scope depends on detailed IT architecture analysis',
           needsExternal ? 'Availability of external specialists may delay timeline' : 'Internal resource availability may fluctuate',
         ];
+
+        const validation = lang === 'de'
+          ? `Schaetzung basiert auf Erfahrungswerten aus vergleichbaren DORA-Implementierungsprojekten im Finanzsektor (${minH}-${maxH}h fuer ${r.priority}-Massnahmen).`
+          : `Estimate based on empirical data from comparable DORA implementation projects in financial services (${minH}-${maxH}h for ${r.priority} measures).`;
+
+        // Pre-calculate box height
+        const effortContentLines = 1 + 1 + 1 + assumptions.length + 1 + uncertainties.length + 1;
+        doc.setFont(BODY_FONT, 'normal'); doc.setFontSize(7.5);
+        const valPreLines = doc.splitTextToSize(`  ${validation}`, WIDTH - effortIndent - 12);
+        const effortBoxH = 6 + 4 + (assumptions.length * 3.5) + 4 + (uncertainties.length * 3.5) + 4 + (valPreLines.length * 3.5) + 6;
+
+        checkSpace(effortBoxH + 4);
+        const effortBoxY = y - 2;
+        doc.setFillColor(...C.bg); doc.roundedRect(LEFT + 4, effortBoxY, WIDTH - 8, effortBoxH, 1, 1, 'F');
+        doc.setDrawColor(...C.rule); doc.setLineWidth(0.12); doc.roundedRect(LEFT + 4, effortBoxY, WIDTH - 8, effortBoxH, 1, 1, 'S');
+
+        doc.setFont(HEAD_FONT, 'bold'); doc.setFontSize(7.5); doc.setTextColor(...C.navy);
+        doc.text(lang === 'de' ? 'AUFWANDSSCHAETZUNG' : 'EFFORT ESTIMATE', LEFT + effortIndent, y + 2);
+        y += 6;
+
+        doc.setFont(BODY_FONT, 'normal'); doc.setFontSize(8); doc.setTextColor(...C.dark);
+        doc.text(`${lang === 'de' ? 'Geschaetzter Aufwand' : 'Estimated effort'}: ${r.effort}`, LEFT + effortIndent, y);
+        y += 4;
+
+        doc.setFont(HEAD_FONT, 'normal'); doc.setFontSize(7); doc.setTextColor(...C.mid);
+        doc.text(lang === 'de' ? 'ANNAHMEN:' : 'ASSUMPTIONS:', LEFT + effortIndent, y);
+        y += 3.5;
+        doc.setFont(BODY_FONT, 'normal'); doc.setFontSize(7.5); doc.setTextColor(...C.dark);
+        assumptions.forEach(a => {
+          doc.text(`  > ${a}`, LEFT + effortIndent, y);
+          y += 3.5;
+        });
+
+        doc.setFont(HEAD_FONT, 'normal'); doc.setFontSize(7); doc.setTextColor(...C.mid);
+        doc.text(lang === 'de' ? 'UNSICHERHEITEN:' : 'UNCERTAINTIES:', LEFT + effortIndent, y);
+        y += 3.5;
+        doc.setFont(BODY_FONT, 'normal'); doc.setFontSize(7.5); doc.setTextColor(...C.dark);
         uncertainties.forEach(u => {
           doc.text(`  > ${u}`, LEFT + effortIndent, y);
           y += 3.5;
         });
 
-        // Validation basis
         doc.setFont(HEAD_FONT, 'normal'); doc.setFontSize(7); doc.setTextColor(...C.mid);
         doc.text(lang === 'de' ? 'VALIDIERUNG:' : 'VALIDATION:', LEFT + effortIndent, y);
         y += 3.5;
         doc.setFont(BODY_FONT, 'normal'); doc.setFontSize(7.5); doc.setTextColor(...C.dark);
-        const validation = lang === 'de'
-          ? `Schaetzung basiert auf Erfahrungswerten aus vergleichbaren DORA-Implementierungsprojekten im Finanzsektor (${minH}-${maxH}h fuer ${r.priority}-Massnahmen).`
-          : `Estimate based on empirical data from comparable DORA implementation projects in financial services (${minH}-${maxH}h for ${r.priority} measures).`;
         const valLines = doc.splitTextToSize(`  ${validation}`, WIDTH - effortIndent - 12);
         doc.text(valLines, LEFT + effortIndent, y);
         y += valLines.length * 3.5 + 4;
@@ -1112,13 +1127,15 @@ export function generateDoraReport(data: DoraReportData): void {
     // Working paper header
     heading(`${apId}: ${r.name}`, 2);
 
-    // Metadata block
-    checkSpace(20);
-    doc.setFillColor(...C.bg); doc.roundedRect(LEFT, y - 2, WIDTH, 22, 1, 1, 'F');
-    doc.setDrawColor(...C.rule); doc.setLineWidth(0.12); doc.roundedRect(LEFT, y - 2, WIDTH, 22, 1, 1, 'S');
+    // Metadata block — use two rows with safe text wrapping
+    const metaBoxH = 24;
+    checkSpace(metaBoxH + 4);
+    const metaBoxY = y - 2;
+    doc.setFillColor(...C.bg); doc.roundedRect(LEFT, metaBoxY, WIDTH, metaBoxH, 1, 1, 'F');
+    doc.setDrawColor(...C.rule); doc.setLineWidth(0.12); doc.roundedRect(LEFT, metaBoxY, WIDTH, metaBoxH, 1, 1, 'S');
     
     doc.setFont(HEAD_FONT, 'normal'); doc.setFontSize(7); doc.setTextColor(...C.mid);
-    const col1 = LEFT + 4; const col2 = LEFT + WIDTH / 3; const col3 = LEFT + (WIDTH * 2 / 3);
+    const col1 = LEFT + 4; const colW = (WIDTH - 8) / 3; const col2 = col1 + colW; const col3 = col2 + colW;
     
     doc.text((lang === 'de' ? 'ARBEITSPAPIER-NR.' : 'WORKING PAPER NO.'), col1, y + 2);
     doc.text((lang === 'de' ? 'DORA-ARTIKEL' : 'DORA ARTICLE'), col2, y + 2);
@@ -1126,27 +1143,34 @@ export function generateDoraReport(data: DoraReportData): void {
     
     doc.setFont(HEAD_FONT, 'bold'); doc.setFontSize(9); doc.setTextColor(...C.navy);
     doc.text(apId, col1, y + 7);
-    doc.text(r.article, col2, y + 7);
+    // Wrap article text within column width
+    const artLines = doc.splitTextToSize(r.article, colW - 4);
+    doc.text(artLines[0], col2, y + 7);
     
     // Status badge inline
     const badgeColor: [number, number, number] = r.status === 'pass' ? [34, 120, 70] : r.status === 'partial' ? [180, 130, 20] : [180, 45, 45];
     doc.setFillColor(...badgeColor);
-    doc.roundedRect(col3, y + 3.5, doc.getTextWidth(statusMarker) + 5, 5, 0.6, 0.6, 'F');
+    const badgeTextW = doc.getTextWidth(statusMarker) + 5;
+    doc.roundedRect(col3, y + 3.5, badgeTextW, 5, 0.6, 0.6, 'F');
     doc.setFont(HEAD_FONT, 'bold'); doc.setFontSize(6.5); doc.setTextColor(...C.white);
     doc.text(statusMarker, col3 + 2.5, y + 7);
 
     // Second row: cross-references
     doc.setFont(HEAD_FONT, 'normal'); doc.setFontSize(7); doc.setTextColor(...C.mid);
-    doc.text((lang === 'de' ? 'BERICHT-REF.' : 'REPORT REF.'), col1, y + 12);
-    doc.text((lang === 'de' ? 'RISIKO-VERKNÜPFUNG' : 'LINKED RISKS'), col2, y + 12);
-    doc.text((lang === 'de' ? 'EVIDENZ-REF.' : 'EVIDENCE REF.'), col3, y + 12);
+    doc.text((lang === 'de' ? 'BERICHT-REF.' : 'REPORT REF.'), col1, y + 13);
+    doc.text((lang === 'de' ? 'RISIKO-VERKNUEPFUNG' : 'LINKED RISKS'), col2, y + 13);
+    doc.text((lang === 'de' ? 'EVIDENZ-REF.' : 'EVIDENCE REF.'), col3, y + 13);
 
-    doc.setFont(HEAD_FONT, 'normal'); doc.setFontSize(8); doc.setTextColor(...C.dark);
-    doc.text(`${lang === 'de' ? 'Abschnitt' : 'Section'} 4.2, ${r.id}`, col1, y + 17);
-    doc.text(linkedRisks.length > 0 ? linkedRisks.map(riskId).join(', ') : (lang === 'de' ? 'Keine' : 'None'), col2, y + 17);
-    doc.text(linkedEvidence.length > 0 ? linkedEvidence.join(', ') + ` (${lang === 'de' ? 'Anhang C' : 'App. C'})` : '-', col3, y + 17);
+    doc.setFont(HEAD_FONT, 'normal'); doc.setFontSize(7.5); doc.setTextColor(...C.dark);
+    doc.text(`${lang === 'de' ? 'Abschn.' : 'Sec.'} 4.2, ${r.id}`, col1, y + 18);
+    const riskRefText = linkedRisks.length > 0 ? linkedRisks.map(riskId).join(', ') : (lang === 'de' ? 'Keine' : 'None');
+    const riskRefLines = doc.splitTextToSize(riskRefText, colW - 4);
+    doc.text(riskRefLines[0], col2, y + 18);
+    const evRefText = linkedEvidence.length > 0 ? linkedEvidence.join(', ') : '-';
+    const evRefLines = doc.splitTextToSize(evRefText, colW - 4);
+    doc.text(evRefLines[0], col3, y + 18);
 
-    y += 24;
+    y += metaBoxH + 2;
 
     // Prüfungsgegenstand (Scope of examination)
     doc.setFont(HEAD_FONT, 'bold'); doc.setFontSize(7.5); doc.setTextColor(...C.mid);
