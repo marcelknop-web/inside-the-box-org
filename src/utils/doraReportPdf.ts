@@ -507,8 +507,8 @@ export function generateDoraReport(data: DoraReportData): void {
   // 3.2 Infrastructure & Third Parties
   heading(l('sec3b', lang), 2);
   introText(lang === 'de'
-    ? 'Die IKT-Infrastruktur und die eingebundenen Drittanbieter bestimmen die Angriffsfläche und den regulatorischen Prüfungsumfang nach Kapitel V DORA.'
-    : 'ICT infrastructure and third-party providers determine the attack surface and regulatory scope under Chapter V DORA.');
+    ? 'Welche IT-Systeme betreibt das Unternehmen, und wer liefert kritische Dienstleistungen von aussen zu? Die Antworten auf diese Fragen bestimmen die Angriffsflaeche und den Pruefungsumfang nach Kapitel V DORA.'
+    : 'Which IT systems does the entity operate, and who provides critical services from outside? The answers define the attack surface and the assessment scope under DORA Chapter V.');
   if (intakeData.infrastructure.length > 0) {
     field(lang === 'de' ? 'IKT-Infrastruktur' : 'ICT Infrastructure', intakeData.infrastructure.join(', '));
   }
