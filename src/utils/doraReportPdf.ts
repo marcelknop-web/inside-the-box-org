@@ -568,8 +568,8 @@ export function generateDoraReport(data: DoraReportData): void {
   // 3.5 Documentation
   heading(l('sec3e', lang), 2);
   introText(lang === 'de'
-    ? 'Die eingereichte Dokumentation wird zur Verifizierung der Angaben und zur Bewertung der Evidenzlage herangezogen.'
-    : 'Submitted documentation is used to verify claims and assess the evidence base.');
+    ? 'Welche Nachweise hat das Unternehmen vorgelegt? Die eingereichten Dokumente stuetzen die Pruefung und bestimmen, wie belastbar die Evidenzlage ist.'
+    : 'What evidence did the entity submit? The documents below support the assessment and determine how robust the evidence base is.');
   if (intakeData.files.length > 0) {
     intakeData.files.forEach(f => {
       checkSpace(6);
