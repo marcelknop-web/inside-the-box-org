@@ -744,14 +744,7 @@ export function generateDoraReport(data: DoraReportData): void {
 
       // ── Structured effort estimate ──
       if (r.effort) {
-        checkSpace(45);
-        doc.setFillColor(...C.bg); doc.roundedRect(LEFT + 4, y - 2, WIDTH - 8, 40, 1, 1, 'F');
-        doc.setDrawColor(...C.rule); doc.setLineWidth(0.12); doc.roundedRect(LEFT + 4, y - 2, WIDTH - 8, 40, 1, 1, 'S');
-
         const effortIndent = 8;
-        doc.setFont(HEAD_FONT, 'bold'); doc.setFontSize(7.5); doc.setTextColor(...C.navy);
-        doc.text(lang === 'de' ? 'AUFWANDSSCHAETZUNG' : 'EFFORT ESTIMATE', LEFT + effortIndent, y + 2);
-        y += 6;
 
         // Parse effort range
         const efM = r.effort.match(/(\d+)\s*-\s*(\d+)/);
@@ -767,15 +760,6 @@ export function generateDoraReport(data: DoraReportData): void {
         const hasToolCost = r.measure?.toLowerCase().includes('tool') || r.measure?.toLowerCase().includes('software') || r.measure?.toLowerCase().includes('lizenz');
         const hasDeps = r.criteria && r.criteria.some(c => c.toLowerCase().includes('abhaengig') || c.toLowerCase().includes('voraussetz'));
 
-        doc.setFont(BODY_FONT, 'normal'); doc.setFontSize(8); doc.setTextColor(...C.dark);
-        doc.text(`${lang === 'de' ? 'Geschaetzter Aufwand' : 'Estimated effort'}: ${r.effort}`, LEFT + effortIndent, y);
-        y += 4;
-
-        doc.setFont(HEAD_FONT, 'normal'); doc.setFontSize(7); doc.setTextColor(...C.mid);
-        doc.text(lang === 'de' ? 'ANNAHMEN:' : 'ASSUMPTIONS:', LEFT + effortIndent, y);
-        y += 3.5;
-        doc.setFont(BODY_FONT, 'normal'); doc.setFontSize(7.5); doc.setTextColor(...C.dark);
-
         const assumptions = lang === 'de' ? [
           `Verfuegbare interne Ressourcen: 1 FTE (${r.priority === 'P0' ? 'dediziert' : 'anteilig'}), IKT-Sicherheitsexperte`,
           `Externe Unterstuetzung erforderlich: ${needsExternal ? 'Ja, fuer spezialisierte Taetigkeiten' : 'Nein, interne Umsetzung moeglich'}`,
@@ -787,16 +771,6 @@ export function generateDoraReport(data: DoraReportData): void {
           `Licence/tool costs: ${hasToolCost ? 'Yes, estimated in five-figure range' : 'No, existing infrastructure usable'}`,
           `Dependencies: ${hasDeps ? 'Yes, see acceptance criteria' : 'No known dependencies'}`,
         ];
-        assumptions.forEach(a => {
-          doc.text(`  > ${a}`, LEFT + effortIndent, y);
-          y += 3.5;
-        });
-
-        // Uncertainties
-        doc.setFont(HEAD_FONT, 'normal'); doc.setFontSize(7); doc.setTextColor(...C.mid);
-        doc.text(lang === 'de' ? 'UNSICHERHEITEN:' : 'UNCERTAINTIES:', LEFT + effortIndent, y);
-        y += 3.5;
-        doc.setFont(BODY_FONT, 'normal'); doc.setFontSize(7.5); doc.setTextColor(...C.dark);
 
         const uncertainties = lang === 'de' ? [
           maxScore >= 20 ? 'Komplexitaet der Bestandssysteme kann Aufwand um 30-50% erhoehen' : 'Tatsaechlicher Scope haengt von IT-Architektur-Detailanalyse ab',
@@ -805,19 +779,52 @@ export function generateDoraReport(data: DoraReportData): void {
           maxScore >= 20 ? 'Complexity of legacy systems may increase effort by 30-50%' : 'Actual scope depends on detailed IT architecture analysis',
           needsExternal ? 'Availability of external specialists may delay timeline' : 'Internal resource availability may fluctuate',
         ];
+
+        const validation = lang === 'de'
+          ? `Schaetzung basiert auf Erfahrungswerten aus vergleichbaren DORA-Implementierungsprojekten im Finanzsektor (${minH}-${maxH}h fuer ${r.priority}-Massnahmen).`
+          : `Estimate based on empirical data from comparable DORA implementation projects in financial services (${minH}-${maxH}h for ${r.priority} measures).`;
+
+        // Pre-calculate box height
+        const effortContentLines = 1 + 1 + 1 + assumptions.length + 1 + uncertainties.length + 1;
+        doc.setFont(BODY_FONT, 'normal'); doc.setFontSize(7.5);
+        const valPreLines = doc.splitTextToSize(`  ${validation}`, WIDTH - effortIndent - 12);
+        const effortBoxH = 6 + 4 + (assumptions.length * 3.5) + 4 + (uncertainties.length * 3.5) + 4 + (valPreLines.length * 3.5) + 6;
+
+        checkSpace(effortBoxH + 4);
+        const effortBoxY = y - 2;
+        doc.setFillColor(...C.bg); doc.roundedRect(LEFT + 4, effortBoxY, WIDTH - 8, effortBoxH, 1, 1, 'F');
+        doc.setDrawColor(...C.rule); doc.setLineWidth(0.12); doc.roundedRect(LEFT + 4, effortBoxY, WIDTH - 8, effortBoxH, 1, 1, 'S');
+
+        doc.setFont(HEAD_FONT, 'bold'); doc.setFontSize(7.5); doc.setTextColor(...C.navy);
+        doc.text(lang === 'de' ? 'AUFWANDSSCHAETZUNG' : 'EFFORT ESTIMATE', LEFT + effortIndent, y + 2);
+        y += 6;
+
+        doc.setFont(BODY_FONT, 'normal'); doc.setFontSize(8); doc.setTextColor(...C.dark);
+        doc.text(`${lang === 'de' ? 'Geschaetzter Aufwand' : 'Estimated effort'}: ${r.effort}`, LEFT + effortIndent, y);
+        y += 4;
+
+        doc.setFont(HEAD_FONT, 'normal'); doc.setFontSize(7); doc.setTextColor(...C.mid);
+        doc.text(lang === 'de' ? 'ANNAHMEN:' : 'ASSUMPTIONS:', LEFT + effortIndent, y);
+        y += 3.5;
+        doc.setFont(BODY_FONT, 'normal'); doc.setFontSize(7.5); doc.setTextColor(...C.dark);
+        assumptions.forEach(a => {
+          doc.text(`  > ${a}`, LEFT + effortIndent, y);
+          y += 3.5;
+        });
+
+        doc.setFont(HEAD_FONT, 'normal'); doc.setFontSize(7); doc.setTextColor(...C.mid);
+        doc.text(lang === 'de' ? 'UNSICHERHEITEN:' : 'UNCERTAINTIES:', LEFT + effortIndent, y);
+        y += 3.5;
+        doc.setFont(BODY_FONT, 'normal'); doc.setFontSize(7.5); doc.setTextColor(...C.dark);
         uncertainties.forEach(u => {
           doc.text(`  > ${u}`, LEFT + effortIndent, y);
           y += 3.5;
         });
 
-        // Validation basis
         doc.setFont(HEAD_FONT, 'normal'); doc.setFontSize(7); doc.setTextColor(...C.mid);
         doc.text(lang === 'de' ? 'VALIDIERUNG:' : 'VALIDATION:', LEFT + effortIndent, y);
         y += 3.5;
         doc.setFont(BODY_FONT, 'normal'); doc.setFontSize(7.5); doc.setTextColor(...C.dark);
-        const validation = lang === 'de'
-          ? `Schaetzung basiert auf Erfahrungswerten aus vergleichbaren DORA-Implementierungsprojekten im Finanzsektor (${minH}-${maxH}h fuer ${r.priority}-Massnahmen).`
-          : `Estimate based on empirical data from comparable DORA implementation projects in financial services (${minH}-${maxH}h for ${r.priority} measures).`;
         const valLines = doc.splitTextToSize(`  ${validation}`, WIDTH - effortIndent - 12);
         doc.text(valLines, LEFT + effortIndent, y);
         y += valLines.length * 3.5 + 4;
