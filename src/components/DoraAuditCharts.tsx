@@ -386,7 +386,7 @@ export function DoraAuditCharts({ risks, reqs }: { risks: DoraRisk[]; reqs: Dora
             <KpiCard value={risks.filter(r => r.evidenceQuality >= 4).length} label={de ? 'Hohe Evidenz' : 'High Evidence'} color="text-green-500" sub={`/ ${risks.length}`} />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <ChartCard title={de ? 'CIAGTR-Risikoprofil' : 'CIAGTR Risk Profile'}>
+            <ChartCard title={de ? 'CIAGTR-Risikoprofil' : 'CIAGTR Risk Profile'} subtitle={de ? 'Radardarstellung der sechs Risikokategorien — je weiter aussen, desto hoeher das Risiko.' : 'Radar view of six risk categories — further out means higher risk.'}>
               <ResponsiveContainer width="100%" height={240}>
                 <RadarChart data={catRadar}>
                   <PolarGrid stroke="hsl(var(--border))" />
