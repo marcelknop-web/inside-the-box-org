@@ -1299,21 +1299,16 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
                 {/* 2. Quality Check — always re-runnable after draft */}
                 <button
                   onClick={handleQaCheck}
-                  disabled={qaRunning || !draftDownloaded}
+                  disabled={qaRunning || !draftDownloaded || fixesApplied}
                   className={`text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2 transition-all disabled:opacity-50 ${
-                    qaRunning ? activeClass : qaIsNext ? activeClass : qaResult && !fixesApplied ? doneClass : !draftDownloaded ? disabledClass : defaultClass
+                    qaRunning ? activeClass : qaIsNext ? activeClass : qaResult ? doneClass : !draftDownloaded ? disabledClass : defaultClass
                   }`}
                 >
                   {qaRunning ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShieldCheck className="w-4 h-4" />}
                   <span className="font-mono text-xs opacity-60 mr-0.5">2</span>
                   {qaRunning
                     ? (language === 'de' ? 'Prüfe…' : language === 'fr' ? 'Vérification…' : 'Checking…')
-                    : (language === 'de'
-                      ? (fixesApplied ? 'Erneut prüfen' : 'Qualitätscheck')
-                      : language === 'fr'
-                      ? (fixesApplied ? 'Re-vérifier' : 'Contrôle qualité')
-                      : (fixesApplied ? 'Re-check' : 'Quality Check'))}
-                  {qaIteration > 0 && <span className="text-[10px] font-mono opacity-60">#{qaIteration}</span>}
+                    : (language === 'de' ? 'Qualitätscheck' : language === 'fr' ? 'Contrôle qualité' : 'Quality Check')}
                 </button>
 
                 <span className="text-muted-foreground text-xs hidden sm:inline">{'>'}</span>
