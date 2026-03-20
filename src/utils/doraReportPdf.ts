@@ -810,8 +810,8 @@ export function generateDoraReport(data: DoraReportData): void {
   newPage();
   heading(l('secA', lang));
   introText(lang === 'de'
-    ? 'Dieser Anhang enthält die vollständigen Prüfdaten in strukturierter Form. Die Daten sind so aufbereitet, dass die Nachvollziehbarkeit der Bewertungsentscheidungen durch Dritte — einschließlich automatisierter Systeme — überprüft werden kann.'
-    : 'This appendix contains complete audit data in structured form for third-party verification.');
+    ? 'Fuer die maschinelle Verarbeitung und den automatisierten Abgleich: Hier stehen alle Pruefungsergebnisse in kompakter, tabellarischer Form.'
+    : 'For automated processing and cross-referencing: all assessment results in compact, tabular form.');
 
   heading(`A.1 ${lang === 'de' ? 'IKT-Risiken' : 'ICT Risks'}`, 2);
   checkSpace(8);
