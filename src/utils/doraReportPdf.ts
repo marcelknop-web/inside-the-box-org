@@ -363,7 +363,7 @@ export function generateDoraReport(data: DoraReportData): void {
   newPage();
   heading(l('toc', lang));
   y += 2;
-  const tocEntries = [l('sec1', lang), l('sec2', lang), l('sec3', lang), `    ${l('sec3a', lang)}`, `    ${l('sec3b', lang)}`, `    ${l('sec3c', lang)}`, `    ${l('sec3d', lang)}`, `    ${l('sec3e', lang)}`, l('sec4', lang), `    ${l('sec4a', lang)}`, `    ${l('sec4b', lang)}`, l('sec5', lang), `    ${l('sec5a', lang)}`, `    ${l('sec5b', lang)}`, `    ${l('sec5c', lang)}`, l('sec6', lang), l('sec7', lang), '', l('secA', lang), l('secB', lang), l('secC', lang), l('secD', lang)];
+  const tocEntries = [l('sec1', lang), l('sec2', lang), l('sec3', lang), `    ${l('sec3a', lang)}`, `    ${l('sec3b', lang)}`, `    ${l('sec3c', lang)}`, `    ${l('sec3d', lang)}`, `    ${l('sec3e', lang)}`, l('sec4', lang), `    ${l('sec4a', lang)}`, `    ${l('sec4b', lang)}`, l('sec5', lang), `    ${l('sec5a', lang)}`, `    ${l('sec5b', lang)}`, `    ${l('sec5c', lang)}`, l('sec6', lang), l('sec7', lang), '', l('secA', lang), l('secB', lang), l('secC', lang), l('secD', lang), l('secE', lang)];
   tocEntries.forEach(entry => {
     if (entry === '') { y += 4; return; }
     const isSub = entry.startsWith('    ');
