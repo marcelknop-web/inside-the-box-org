@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { RotateCcw, ChevronDown, ChevronUp, Loader2, Sparkles, FileText, ShieldCheck, CheckCircle2, XCircle, AlertTriangle, Wrench } from 'lucide-react';
 import { applyDoraAuditFixes } from '@/utils/doraAuditFixes';
 import { generateDoraReport } from '@/utils/doraReportPdf';
+import { DoraAuditCharts } from '@/components/DoraAuditCharts';
 import { runDoraQualityCheck, type QaResult } from '@/utils/doraQualityCheck';
 import { PageMeta } from '@/components/PageMeta';
 import { Progress } from '@/components/ui/progress';
