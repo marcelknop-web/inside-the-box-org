@@ -132,7 +132,7 @@ function getMgmtSummary(name: string, risks: number, crit: number, failReqs: num
         ? 'Keine regulatorischen Risiken identifiziert. Empfehlung: regelmäßige Überprüfung und jährliche Neubewertung.'
         : `Bei Feststellung der Mängel durch die zuständige Aufsichtsbehörde (BaFin, EZB) drohen: Verwaltungsmaßnahmen nach Art. 50 DORA, Bußgelder gemäß nationalem Umsetzungsrecht sowie im Extremfall die Einschränkung der Geschäftstätigkeit. Der geschätzte Remediation-Aufwand ist in Abschnitt 5 dargestellt.`,
       action: ready
-        ? 'Empfehlung: Monitoring-Prozess etablieren und nächste regulaere DORA-Prüfung planen.'
+        ? 'Empfehlung: Monitoring-Prozess etablieren und nächste reguläre DORA-Prüfung planen.'
         : 'Empfehlung: Sofortmaßnahmen (P0) aus Abschnitt 5.1 mit Verantwortlichkeiten und Fristen versehen. Woechentliches Tracking bis zur Schließung aller kritischen Gaps.',
     };
   }
@@ -506,7 +506,7 @@ export function generateDoraReport(data: DoraReportData): void {
   // 4.1 Risk Landscape
   heading(l('sec4a', lang), 2);
   introText(lang === 'de'
-    ? 'Die Risikoanalyse bewertet jedes Szenario anhand von Eintrittswahrscheinlichkeit (1-5) und Auswirkung (1-5). Kritische Risiken (Score >= 20) erfordern Sofortmaßnahmen. Die Bewertung berücksichtigt den spezifischen Geschaeftskontext und die regulatorischen Anforderungen des Finanzunternehmens.'
+    ? 'Die Risikoanalyse bewertet jedes Szenario anhand von Eintrittswahrscheinlichkeit (1-5) und Auswirkung (1-5). Kritische Risiken (Score >= 20) erfordern Sofortmaßnahmen. Die Bewertung berücksichtigt den spezifischen Geschäftskontext und die regulatorischen Anforderungen des Finanzunternehmens.'
     : 'The risk analysis rates each scenario by likelihood (1-5) and impact (1-5). Critical risks (score >= 20) require immediate action.');
 
   risks.forEach(ri => {
@@ -666,7 +666,7 @@ export function generateDoraReport(data: DoraReportData): void {
     [lang === 'de' ? 'Score >= 20' : 'Score >= 20', lang === 'de' ? 'KRITISCH — Sofortmaßnahme vor nächster Aufsichtsprüfung' : 'CRITICAL — Immediate action before next review'],
     [lang === 'de' ? 'Score 13-19' : 'Score 13-19', lang === 'de' ? 'HOCH — Korrektur innerhalb 3 Monaten' : 'HIGH — Fix within 3 months'],
     [lang === 'de' ? 'Score 6-12' : 'Score 6-12', lang === 'de' ? 'MITTEL — Planung und Umsetzung innerhalb 6 Monaten' : 'MEDIUM — Plan and implement within 6 months'],
-    [lang === 'de' ? 'Score 1-5' : 'Score 1-5', lang === 'de' ? 'NIEDRIG — Beobachtung und regulaere Prüfung' : 'LOW — Monitor and regular review'],
+    [lang === 'de' ? 'Score 1-5' : 'Score 1-5', lang === 'de' ? 'NIEDRIG — Beobachtung und reguläre Prüfung' : 'LOW — Monitor and regular review'],
   ];
   matrixData.forEach(([score, action]) => {
     checkSpace(8);
