@@ -775,8 +775,8 @@ export function generateDoraReport(data: DoraReportData): void {
   newPage();
   heading(l('sec6', lang));
   bodyParagraph(lang === 'de'
-    ? 'Die Prüfung basiert auf Verordnung (EU) 2022/2554 (DORA) und den zugehörigen technischen Regulierungsstandards (RTS/ITS). Die Bewertungsmethodik orientiert sich an den Leitlinien der Europäischen Aufsichtsbehörden (ESAs) sowie an der ISO 27001-Methodik für IKT-Risikobewertungen.\n\nDie Risikobewertung nutzt eine 5x5-Risikomatrix (Eintrittswahrscheinlichkeit x Auswirkung). Der resultierende Score (1-25) bestimmt die Priorität der Maßnahmen. Kritische Risiken (Score >= 20) erfordern Sofortmaßnahmen, da ein Ausnutzen durch Angreifer mit vertretbarem Aufwand möglich ist und erhebliche Schäden drohen.'
-    : 'The assessment is based on Regulation (EU) 2022/2554 (DORA) and associated Regulatory Technical Standards (RTS/ITS). Risk assessment uses a 5x5 risk matrix (likelihood x impact).');
+    ? 'Transparenz ueber die Methodik ist entscheidend — nur so lassen sich die Ergebnisse dieses Berichts nachvollziehen und mit anderen Bewertungen vergleichen.\n\nDie Pruefung stuetzt sich auf Verordnung (EU) 2022/2554 (DORA) und die zugehoerigen technischen Regulierungsstandards (RTS/ITS). Methodisch orientiert sie sich an den Leitlinien der Europaeischen Aufsichtsbehoerden (ESAs) sowie an der ISO 27001-Methodik fuer IKT-Risikobewertungen.\n\nDas zentrale Instrument ist eine 5x5-Risikomatrix: Jedes Szenario wird nach Eintrittswahrscheinlichkeit (1-5) und Auswirkung (1-5) bewertet. Der resultierende Score (1-25) bestimmt die Prioritaet. Ab einem Score von 20 sprechen wir von einem kritischen Risiko — das heisst: Ein Angreifer kann mit vertretbarem Aufwand erheblichen Schaden anrichten.'
+    : 'Transparency about the methodology is essential — it is the only way to trace the results and compare them with other assessments.\n\nThe assessment is based on Regulation (EU) 2022/2554 (DORA) and associated Regulatory Technical Standards (RTS/ITS). Risk assessment uses a 5x5 risk matrix (likelihood x impact). Scores of 20 or above are classified as critical.');
 
   // 6.1 Risk Matrix
   heading(l('sec6a', lang), 2);
