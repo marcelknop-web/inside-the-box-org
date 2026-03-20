@@ -24,9 +24,11 @@ const KpiCard = memo(({ value, label, color, sub }: { value: string | number; la
   </div>
 ));
 
-const ChartCard = memo(({ title, children, className = '' }: { title: string; children: React.ReactNode; className?: string }) => (
+const ChartCard = memo(({ title, subtitle, children, className = '' }: { title: string; subtitle?: string; children: React.ReactNode; className?: string }) => (
   <div className={`bg-card border border-border rounded-xl p-5 ${className}`}>
-    <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-4">{title}</h4>
+    <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1">{title}</h4>
+    {subtitle && <p className="text-[11px] text-muted-foreground/70 mb-4 leading-relaxed">{subtitle}</p>}
+    {!subtitle && <div className="mb-3" />}
     {children}
   </div>
 ));
