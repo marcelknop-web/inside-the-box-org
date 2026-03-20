@@ -104,11 +104,40 @@ function l(key: string, lang: string): string {
 /* ════════════════════════════════════════════════════════════
    Prose blocks
    ════════════════════════════════════════════════════════════ */
-function getContextText(name: string, typeName: string, critName: string, date: string, lang: string): string {
-  if (lang === 'de') return `Der vorliegende Bericht dokumentiert die Ergebnisse einer strukturierten Konformitätsbewertung für das Finanzunternehmen ${name} (${typeName}, Kritikalität: ${critName}) gemäß Verordnung (EU) 2022/2554 (Digital Operational Resilience Act, DORA). Die Prüfung wurde am ${date} durchgeführt.\n\nZielsetzung war die systematische Bewertung der digitalen operationalen Resilienz in fünf Kernbereichen: IKT-Risikomanagement (Kapitel II DORA), Behandlung IKT-bezogener Vorfälle (Kapitel III), Testen der digitalen operationalen Resilienz (Kapitel IV), Management des IKT-Drittparteienrisikos (Kapitel V) sowie Governance und organisatorische Anforderungen (Art. 5-6).\n\nDer Bericht richtet sich an die Geschäftsleitung, die für IKT-Risikomanagement verantwortlichen Stellen, die Compliance-Abteilung sowie die zuständige Aufsichtsbehörde. Er ist so strukturiert, dass die getroffenen Bewertungsentscheidungen durch Dritte — einschließlich automatisierter Prüfverfahren — vollständig nachvollzogen und verifiziert werden können.`;
-  if (lang === 'fr') return `Le present rapport documente les resultats d'une evaluation structuree de la conformite pour l'entite financiere ${name} (${typeName}, criticite : ${critName}) conformement au reglement (UE) 2022/2554 (Digital Operational Resilience Act, DORA). L'evaluation a ete realisee le ${date}.`;
-  return `This report documents the results of a structured compliance assessment for the financial entity ${name} (${typeName}, criticality: ${critName}) pursuant to Regulation (EU) 2022/2554 (Digital Operational Resilience Act, DORA). The assessment was conducted on ${date}.\n\nThe objective was to systematically evaluate digital operational resilience across five core areas: ICT risk management (Chapter II DORA), ICT-related incident management (Chapter III), digital operational resilience testing (Chapter IV), ICT third-party risk management (Chapter V), and governance requirements (Art. 5-6).\n\nThis report is intended for executive management, ICT risk management stakeholders, compliance departments, and the competent supervisory authority.`;
+function getContextText(name: string, typeName: string, critName: string, date: string, lang: string, intake?: DoraIntakeData): string {
+  // Build IT landscape paragraph from intake data
+  let itLandscapeDe = '';
+  let itLandscapeEn = '';
+
+  if (intake) {
+    const infraList = intake.infrastructure.length > 0 ? intake.infrastructure.join(', ') : null;
+    const tpList = intake.thirdPartyProviders.length > 0 ? intake.thirdPartyProviders.join(', ') : null;
+    const measureCount = Object.entries(intake.measures).filter(([, m]) => m.active).length;
+    const certCount = Object.entries(intake.measures).filter(([, m]) => m.certified).length;
+    const auditCount = Object.entries(intake.measures).filter(([, m]) => m.audited).length;
+
+    if (infraList || tpList) {
+      itLandscapeDe = `\n\nDie IKT-Landschaft von ${name} umfasst ${infraList ? `die folgenden Kernkomponenten: ${infraList}` : 'nicht naeher spezifizierte Systeme'}.`;
+      if (tpList) itLandscapeDe += ` Im Bereich der IKT-Drittanbieter stuetzt sich das Unternehmen auf: ${tpList}.`;
+      itLandscapeDe += ` Von den ${Object.keys(intake.measures).length} bewerteten Sicherheitsmassnahmen sind ${measureCount} aktiv implementiert`;
+      if (auditCount > 0) itLandscapeDe += `, ${auditCount} davon auditiert`;
+      if (certCount > 0) itLandscapeDe += ` und ${certCount} zertifiziert`;
+      itLandscapeDe += '. Diese IT-Infrastruktur bildet den Pruefungsrahmen fuer die nachfolgende Analyse.';
+
+      itLandscapeEn = `\n\nThe ICT landscape of ${name} encompasses ${infraList ? `the following core components: ${infraList}` : 'systems not further specified'}.`;
+      if (tpList) itLandscapeEn += ` In terms of ICT third-party providers, the entity relies on: ${tpList}.`;
+      itLandscapeEn += ` Of the ${Object.keys(intake.measures).length} assessed security measures, ${measureCount} are actively implemented`;
+      if (auditCount > 0) itLandscapeEn += `, ${auditCount} audited`;
+      if (certCount > 0) itLandscapeEn += ` and ${certCount} certified`;
+      itLandscapeEn += '. This IT infrastructure defines the scope for the following analysis.';
+    }
+  }
+
+  if (lang === 'de') return `Am ${date} wurde fuer ${name} (${typeName}, Kritikalitaet: ${critName}) eine Konformitaetsbewertung nach der Verordnung (EU) 2022/2554 — dem Digital Operational Resilience Act (DORA) — durchgefuehrt. Die Ergebnisse sind in diesem Bericht zusammengefasst.\n\nDORA verlangt von Finanzunternehmen, dass sie ihre digitale Widerstandsfaehigkeit systematisch aufbauen und nachweisen koennen. Dieser Bericht prueft fuenf Kernbereiche, die das Gesetz vorgibt: Wie gut steuert ${name} seine IKT-Risiken (Kapitel II)? Wie werden IKT-Vorfaelle erkannt, gemeldet und behandelt (Kapitel III)? Wird die digitale Resilienz regelmaessig getestet (Kapitel IV)? Sind die Risiken durch externe IT-Dienstleister unter Kontrolle (Kapitel V)? Und: Nimmt die Geschaeftsleitung ihre Verantwortung fuer IKT-Sicherheit wahr (Art. 5-6)?${itLandscapeDe}\n\nDer Bericht richtet sich an Vorstand und Geschaeftsfuehrung, die IKT-Risikoverantwortlichen, die Compliance-Abteilung sowie — im Pruefungsfall — an die zustaendige Aufsichtsbehoerde. Alle Bewertungen sind so dokumentiert, dass sie von Dritten nachvollzogen werden koennen, einschliesslich automatisierter Pruefverfahren.`;
+  if (lang === 'fr') return `Le ${date}, une evaluation de conformite a ete realisee pour ${name} (${typeName}, criticite : ${critName}) conformement au reglement (UE) 2022/2554 (Digital Operational Resilience Act, DORA).${itLandscapeEn}`;
+  return `On ${date}, a compliance assessment was conducted for ${name} (${typeName}, criticality: ${critName}) pursuant to Regulation (EU) 2022/2554 — the Digital Operational Resilience Act (DORA).\n\nDORA requires financial entities to systematically build and demonstrate digital operational resilience. This report examines five core areas mandated by the regulation: How effectively does ${name} manage its ICT risks (Chapter II)? How are ICT incidents detected, reported, and handled (Chapter III)? Is digital resilience tested on a regular basis (Chapter IV)? Are risks from external IT service providers under control (Chapter V)? And: Does senior management take ownership of ICT security (Art. 5-6)?${itLandscapeEn}\n\nThis report is intended for the board and executive management, ICT risk officers, the compliance function, and — in the event of a supervisory review — the competent authority. All assessments are documented to allow verification by third parties, including automated review systems.`;
 }
+
 
 function getMgmtSummary(name: string, risks: number, crit: number, failReqs: number, partialReqs: number, totalReqs: number, passReqs: number, lang: string) {
   const rate = totalReqs > 0 ? Math.round(((passReqs + partialReqs * 0.5) / totalReqs) * 100) : 0;
