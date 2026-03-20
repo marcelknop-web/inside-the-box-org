@@ -4,6 +4,7 @@ import { RotateCcw, ChevronDown, ChevronUp, Loader2, Sparkles, FileText, ShieldC
 import { applyDoraAuditFixes } from '@/utils/doraAuditFixes';
 import { generateDoraReport } from '@/utils/doraReportPdf';
 import { DoraAuditCharts } from '@/components/DoraAuditCharts';
+import { DoraFindingsView } from '@/components/DoraFindingsView';
 import { runDoraQualityCheck, type QaResult } from '@/utils/doraQualityCheck';
 import { PageMeta } from '@/components/PageMeta';
 import { Progress } from '@/components/ui/progress';
