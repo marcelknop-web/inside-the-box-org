@@ -617,12 +617,16 @@ export function generateDoraReport(data: DoraReportData): void {
     doc.setTextColor(...C.dark);
 
     // Risk score bar
-    checkSpace(8);
-    doc.setFillColor(...C.bg); doc.roundedRect(LEFT, y - 1, WIDTH, 7, 0.8, 0.8, 'F');
-    doc.setFont(HEAD_FONT, 'bold'); doc.setFontSize(8); doc.setTextColor(...C.navy);
-    doc.text(`${l('riskScore', lang)}: ${ri.likelihood} x ${ri.impact} = ${score} (${sev})`, LEFT + 4, y + 3.5);
+    const scoreText = `${l('riskScore', lang)}: ${ri.likelihood} x ${ri.impact} = ${score} (${sev})`;
+    doc.setFont(HEAD_FONT, 'bold'); doc.setFontSize(8);
+    const scoreLines = doc.splitTextToSize(scoreText, WIDTH - 8);
+    const scoreBarH = Math.max(7, scoreLines.length * 4 + 3);
+    checkSpace(scoreBarH + 3);
+    doc.setFillColor(...C.bg); doc.roundedRect(LEFT, y - 1, WIDTH, scoreBarH, 0.8, 0.8, 'F');
+    doc.setTextColor(...C.navy);
+    doc.text(scoreLines, LEFT + 4, y + 3);
     doc.setTextColor(...C.dark);
-    y += 10;
+    y += scoreBarH + 3;
 
     // Structured fields
     fieldInline(l('component', lang), ri.component);
