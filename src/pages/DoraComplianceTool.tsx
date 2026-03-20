@@ -503,7 +503,7 @@ function RiskLandscape({ risks, onNext }: { risks: DoraRisk[]; onNext: () => voi
   return (
     <StaggerReveal resetKey="rl" stagger={350}>
       <InfoBox icon="🛡️" title={t('dora.rlInfoTitle')} color="blue">{t('dora.rlInfo')}</InfoBox>
-      <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
         {Object.entries(RISK_CATEGORIES).map(([k, m]) => (
           <div key={k} className="bg-card border border-border rounded-lg p-3 text-center">
             <div className={`w-8 h-8 rounded-full ${m.dot} text-white font-bold text-sm flex items-center justify-center mx-auto mb-1`}>{k}</div>
