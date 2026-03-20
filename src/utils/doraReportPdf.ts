@@ -147,41 +147,42 @@ function getMgmtSummary(name: string, risks: number, crit: number, failReqs: num
   if (lang === 'de') {
     return {
       verdict: ready
-        ? `${name} erfüllt die wesentlichen DORA-Anforderungen. Regulatorische Konformität gegeben.`
+        ? `${name} erfuellt die wesentlichen DORA-Anforderungen. Aus heutiger Sicht besteht regulatorische Konformitaet.`
         : partial
-          ? `${name} erreicht ${rate} % DORA-Konformität. Gezielte Nacharbeit erforderlich.`
-          : `${name} erreicht ${rate} % DORA-Konformität. Ohne Nachbesserung besteht erhebliches regulatorisches Risiko.`,
-      situation: `${risks} IKT-Risikoszenarien identifiziert | ${crit} kritisch (Score >= 20) | ${failReqs} von ${totalReqs} Anforderungen nicht konform | ${partialReqs} teilweise konform`,
+          ? `${name} erreicht eine DORA-Konformitaet von ${rate} Prozent. In einigen Bereichen besteht gezielter Nachbesserungsbedarf.`
+          : `${name} erreicht derzeit ${rate} Prozent DORA-Konformitaet. Ohne zuegige Nachbesserung besteht ein erhebliches regulatorisches Risiko.`,
+      situation: `${risks} IKT-Risikoszenarien identifiziert, davon ${crit} als kritisch eingestuft (Score 20 oder hoeher). Von ${totalReqs} geprueften Anforderungen sind ${failReqs} nicht erfuellt und ${partialReqs} nur teilweise erfuellt.`,
       findings: [
-        ...(crit > 0 ? [{ t: `${crit} kritische Risiken erfordern Sofortmaßnahmen`, d: 'Angreifer können mit vertretbarem Aufwand erheblichen Schaden anrichten. Betroffen sind Bereiche, in denen grundlegende Schutzmechanismen fehlen oder unzureichend implementiert sind. Jede Woche Verzögerung erhöht das Risiko regulatorischer Beanstandungen.' }] : []),
-        ...(failReqs > 0 ? [{ t: `${failReqs} DORA-Anforderungen nicht erfüllt`, d: `Die Abweichungen betreffen zentrale Bereiche des IKT-Risikomanagements, der Incident-Meldepflichten und des Drittanbieter-Risikomanagements. Ohne Behebung drohen aufsichtsrechtliche Maßnahmen gemäß Art. 50-51 DORA.` }] : []),
-        ...(partialReqs > 0 ? [{ t: `${partialReqs} Anforderungen nur teilweise erfüllt`, d: 'Ansätze vorhanden, aber Implementierung unvollständig oder nicht auditiert. Diese Lücken sind mittelfristig schließbar und sollten priorisiert werden.' }] : []),
-        ...(passReqs > 0 ? [{ t: `${passReqs} Anforderungen vollständig erfüllt`, d: 'Die implementierten Maßnahmen adressieren die jeweiligen regulatorischen Vorgaben angemessen. Keine Handlungserfordernis.' }] : []),
+        ...(crit > 0 ? [{ t: `${crit} kritische Risiken erfordern sofortiges Handeln`, d: 'In diesen Bereichen fehlen grundlegende Schutzmechanismen oder sind unzureichend umgesetzt. Ein Angreifer koennte mit vertretbarem Aufwand erheblichen Schaden anrichten. Jede Woche Verzoegerung erhoeht die Wahrscheinlichkeit regulatorischer Beanstandungen.' }] : []),
+        ...(failReqs > 0 ? [{ t: `${failReqs} DORA-Anforderungen sind nicht erfuellt`, d: `Die Abweichungen betreffen zentrale Bereiche: IKT-Risikomanagement, Meldepflichten bei Vorfaellen und die Steuerung von Drittanbieter-Risiken. Bleiben diese Luecken bestehen, drohen aufsichtsrechtliche Massnahmen nach Art. 50 und 51 DORA.` }] : []),
+        ...(partialReqs > 0 ? [{ t: `${partialReqs} Anforderungen sind nur teilweise erfuellt`, d: 'Die Ansaetze sind vorhanden, aber die Umsetzung ist nicht abgeschlossen oder wurde bislang nicht unabhaengig geprueft. Diese Luecken lassen sich mit ueberschaubarem Aufwand schliessen und sollten priorisiert werden.' }] : []),
+        ...(passReqs > 0 ? [{ t: `${passReqs} Anforderungen sind vollstaendig erfuellt`, d: 'Die implementierten Massnahmen decken die regulatorischen Vorgaben angemessen ab. Hier besteht kein unmittelbarer Handlungsbedarf.' }] : []),
       ],
       implication: ready
-        ? 'Keine regulatorischen Risiken identifiziert. Empfehlung: regelmäßige Überprüfung und jährliche Neubewertung.'
-        : `Bei Feststellung der Mängel durch die zuständige Aufsichtsbehörde (BaFin, EZB) drohen: Verwaltungsmaßnahmen nach Art. 50 DORA, Bußgelder gemäß nationalem Umsetzungsrecht sowie im Extremfall die Einschränkung der Geschäftstätigkeit. Der geschätzte Remediation-Aufwand ist in Abschnitt 5 dargestellt.`,
+        ? 'Zum Pruefungszeitpunkt wurden keine regulatorischen Risiken identifiziert. Es wird empfohlen, einen regelmaessigen Ueberpruefungsprozess zu etablieren und die DORA-Bewertung jaehrlich zu wiederholen.'
+        : `Werden die festgestellten Maengel bei einer Pruefung durch BaFin oder EZB beanstandet, drohen Verwaltungsmassnahmen nach Art. 50 DORA, Bussgelder gemaess nationalem Umsetzungsrecht und — im Extremfall — Einschraenkungen der Geschaeftstaetigkeit. Eine detaillierte Aufwandsschaetzung findet sich in Abschnitt 5.`,
       action: ready
-        ? 'Empfehlung: Monitoring-Prozess etablieren und nächste reguläre DORA-Prüfung planen.'
-        : 'Empfehlung: Sofortmaßnahmen (P0) aus Abschnitt 5.1 mit Verantwortlichkeiten und Fristen versehen. Wöchentliches Tracking bis zur Schließung aller kritischen Gaps.',
+        ? 'Naechster Schritt: Monitoring-Prozess aufsetzen und den Termin fuer die naechste regulaere DORA-Pruefung festlegen.'
+        : 'Naechster Schritt: Die Sofortmassnahmen (P0) aus Abschnitt 5.1 mit klaren Verantwortlichkeiten und verbindlichen Fristen versehen. Woechentliches Tracking, bis alle kritischen Gaps geschlossen sind.',
     };
   }
   return {
     verdict: ready
-      ? `${name} meets all essential DORA requirements. Regulatory compliance confirmed.`
+      ? `${name} meets all essential DORA requirements. Regulatory compliance is confirmed as of the assessment date.`
       : partial
-        ? `${name} achieves ${rate}% DORA compliance. Targeted remediation required.`
-        : `${name} achieves ${rate}% DORA compliance. Without remediation, significant regulatory risk exists.`,
-    situation: `${risks} ICT risk scenarios identified | ${crit} critical (score >= 20) | ${failReqs} of ${totalReqs} requirements non-compliant | ${partialReqs} partially compliant`,
+        ? `${name} achieves ${rate}% DORA compliance. Targeted remediation is needed in specific areas.`
+        : `${name} currently achieves ${rate}% DORA compliance. Without timely remediation, significant regulatory risk remains.`,
+    situation: `${risks} ICT risk scenarios identified, of which ${crit} are rated critical (score 20 or above). Of ${totalReqs} assessed requirements, ${failReqs} are non-compliant and ${partialReqs} are only partially compliant.`,
     findings: [
-      ...(crit > 0 ? [{ t: `${crit} critical risks require immediate action`, d: 'Attackers can cause significant damage with reasonable effort. Affected areas lack fundamental protective mechanisms.' }] : []),
-      ...(failReqs > 0 ? [{ t: `${failReqs} DORA requirements not met`, d: 'Deviations affect core areas of ICT risk management, incident reporting obligations, and third-party risk management.' }] : []),
-      ...(partialReqs > 0 ? [{ t: `${partialReqs} requirements only partially met`, d: 'Approaches exist but implementation is incomplete or unaudited.' }] : []),
-      ...(passReqs > 0 ? [{ t: `${passReqs} requirements fully met`, d: 'Implemented measures adequately address the respective regulatory requirements.' }] : []),
+      ...(crit > 0 ? [{ t: `${crit} critical risks require immediate action`, d: 'Fundamental protective mechanisms are missing or insufficiently implemented. Attackers could cause significant damage with reasonable effort.' }] : []),
+      ...(failReqs > 0 ? [{ t: `${failReqs} DORA requirements are not met`, d: 'Deviations affect core areas: ICT risk management, incident reporting obligations, and third-party risk management.' }] : []),
+      ...(partialReqs > 0 ? [{ t: `${partialReqs} requirements are only partially met`, d: 'Approaches exist but implementation is incomplete or has not been independently verified.' }] : []),
+      ...(passReqs > 0 ? [{ t: `${passReqs} requirements are fully met`, d: 'Implemented measures adequately address the respective regulatory requirements. No immediate action needed.' }] : []),
     ],
-    implication: ready ? 'No regulatory risks identified.' : 'Supervisory action under Art. 50 DORA, including fines, may result if deficiencies are identified by the competent authority.',
-    action: ready ? 'Recommendation: Establish monitoring and plan next regular DORA review.' : 'Recommendation: Assign P0 measures from Section 5.1 with owners and deadlines. Weekly tracking until all critical gaps are closed.',
+    implication: ready ? 'No regulatory risks identified at the time of assessment.' : 'Supervisory action under Art. 50 DORA, including fines and operational restrictions, may result if deficiencies are identified by the competent authority.',
+    action: ready ? 'Next step: Establish a monitoring process and schedule the next regular DORA review.' : 'Next step: Assign P0 measures from Section 5.1 with clear owners and binding deadlines. Weekly tracking until all critical gaps are closed.',
   };
+
 }
 
 /* ════════════════════════════════════════════════════════════
