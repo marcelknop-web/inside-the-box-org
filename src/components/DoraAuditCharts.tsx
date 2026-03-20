@@ -468,7 +468,7 @@ export function DoraAuditCharts({ risks, reqs }: { risks: DoraRisk[]; reqs: Dora
           </div>
 
           {/* ═══ GANTT CHART ═══ */}
-          <ChartCard title={de ? 'Umsetzungs-Roadmap' : 'Remediation Roadmap'}>
+          <ChartCard title={de ? 'Umsetzungs-Roadmap' : 'Remediation Roadmap'} subtitle={de ? 'Zeitlicher Ablauf aller offenen Massnahmen als Wasserfall-Darstellung. Fahren Sie mit der Maus ueber einen Balken fuer Details.' : 'Timeline of all open measures as a waterfall view. Hover over a bar for details.'}>
             <GanttChart reqs={reqs} de={de} />
           </ChartCard>
 
