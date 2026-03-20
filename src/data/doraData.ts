@@ -192,7 +192,7 @@ export const DORA_RISKS: DoraRisk[] = [
     sources: ['DORA Art. 12: Backup-Strategien und Wiederherstellungsmethoden', 'ISO 27001:2022 A.8.15: Logging'], evidenceQuality: 4, reproducibility: 'easy' },
 
   // A — Availability (3)
-  { id: 5, category: 'A', name: 'Single Point of Failure im Core-Banking-System', component: 'Core-Banking-Datenbankserver', attacker: 'Systemausfall / Ransomware', path: 'Keine Datenbankreplikation → Serverausfall → Komplettausfall des Online-Banking für alle Kunden', doraRef: 'Art. 11 Abs. 1', likelihood: 3, impact: 5,
+  { id: 5, category: 'A', name: 'Single Point of Failure im Core-Banking-System', component: 'Core-Banking-Datenbankserver', attacker: 'Systemausfall / Ransomware', path: 'Keine Datenbankreplikation → Serverausfall → Komplettausfall des Online-Banking für alle Kunden', doraRef: 'Art. 11 Abs. 1-3', likelihood: 3, impact: 5,
     evidence: 'Architektur-Review: Core-Banking-Datenbank läuft auf einem einzelnen Oracle-Server ohne Active-Passive-Failover. Letzter vollständiger Backup-Test: 14 Monate alt. Recovery Time Objective (RTO) dokumentiert mit 4h, tatsächlich getestet: 18h.',
     rationale: 'Likelihood 3: Serverausfälle (Hardware, Ransomware) sind realistische Szenarien. Ohne Replikation ist Totalausfall die Folge. Impact 5: Kompletter Ausfall aller Bankgeschäfte — Kundenvertrauen, regulatorische Meldepflicht, finanzielle Verluste.',
     sources: ['DORA Art. 11: Backup-Strategien und Wiederherstellung', 'EBA-Leitlinie IKT-Risiken'], evidenceQuality: 4, reproducibility: 'medium' },
