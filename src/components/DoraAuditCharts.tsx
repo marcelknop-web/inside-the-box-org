@@ -5,7 +5,7 @@ import { useMemo, useState, memo } from 'react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
-  AreaChart, Area, Legend,
+  Legend,
 } from 'recharts';
 import type { DoraRisk, DoraReq } from '@/data/doraData';
 import { RISK_CATEGORIES } from '@/data/doraData';
@@ -13,8 +13,6 @@ import { useLanguage } from '@/i18n/LanguageContext';
 
 const RISK_COLORS = { critical: '#dc2626', high: '#f97316', medium: '#eab308', low: '#22c55e' };
 const STATUS_COLORS = { pass: '#22c55e', partial: '#eab308', fail: '#dc2626' };
-
-const CAT_COLORS: Record<string, string> = { C: '#3b82f6', I: '#f97316', A: '#ef4444', G: '#a855f7', T: '#eab308', R: '#22c55e' };
 
 type TabId = 'overview' | 'risks' | 'compliance' | 'gaps';
 
@@ -41,6 +39,111 @@ const TabButton = memo(({ active, label, onClick }: { active: boolean; label: st
     {label}
   </button>
 ));
+
+/* ═══ Gantt Chart ═══ */
+const PHASE_META: Record<string, { weeks: [number, number]; color: string }> = {
+  P0: { weeks: [0, 4], color: '#dc2626' },
+  P1: { weeks: [4, 16], color: '#f97316' },
+  P2: { weeks: [16, 28], color: '#eab308' },
+  P3: { weeks: [28, 52], color: '#22c55e' },
+};
+const GANTT_TOTAL_WEEKS = 52;
+
+function GanttChart({ reqs, de }: { reqs: DoraReq[]; de: boolean }) {
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
+
+  const ganttItems = useMemo(() => {
+    const gaps = reqs.filter(r => r.status !== 'pass' && r.priority);
+    return gaps.sort((a, b) => (a.priority || 'P2').localeCompare(b.priority || 'P2')).map(r => {
+      const phase = PHASE_META[r.priority || 'P2'] || PHASE_META.P2;
+      const m = r.effort?.match(/(\d+)\s*-\s*(\d+)/);
+      const avgHours = m ? (parseInt(m[1]) + parseInt(m[2])) / 2 : 30;
+      const durationWeeks = Math.max(1, Math.round(avgHours / 40));
+      const startWeek = phase.weeks[0];
+      const endWeek = Math.min(startWeek + durationWeeks, phase.weeks[1]);
+      return { ...r, startWeek, endWeek, phaseColor: phase.color, durationWeeks };
+    });
+  }, [reqs]);
+
+  const monthMarkers = useMemo(() => {
+    const markers = [];
+    for (let m = 0; m <= 12; m++) markers.push({ week: m * 4.33, label: `M${m}` });
+    return markers;
+  }, []);
+
+  if (ganttItems.length === 0) {
+    return <div className="text-center text-muted-foreground text-sm py-8">{de ? 'Keine offenen Massnahmen' : 'No open measures'}</div>;
+  }
+
+  return (
+    <div className="space-y-0">
+      {/* Timeline header */}
+      <div className="flex items-end border-b border-border pb-1 mb-1">
+        <div className="w-[180px] flex-shrink-0" />
+        <div className="flex-1 relative h-5">
+          {monthMarkers.map(m => (
+            <div key={m.label} className="absolute top-0 text-[9px] font-mono text-muted-foreground" style={{ left: `${(m.week / GANTT_TOTAL_WEEKS) * 100}%`, transform: 'translateX(-50%)' }}>
+              {m.label}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Phase lanes */}
+      {['P0', 'P1', 'P2', 'P3'].map(prio => {
+        const items = ganttItems.filter(g => g.priority === prio);
+        if (items.length === 0) return null;
+        const phase = PHASE_META[prio];
+        const phaseLabel = prio === 'P0' ? (de ? 'Sofort' : 'Now') : prio === 'P1' ? (de ? '3 Mon.' : '3 mo.') : prio === 'P2' ? (de ? '6 Mon.' : '6 mo.') : (de ? '12 Mon.' : '12 mo.');
+        return (
+          <div key={prio} className="mb-2">
+            <div className="flex items-center gap-2 mb-1 py-1">
+              <span className="px-2 py-0.5 rounded text-[10px] font-bold text-white" style={{ backgroundColor: phase.color }}>{prio}</span>
+              <span className="text-[10px] text-muted-foreground font-medium">{phaseLabel}</span>
+            </div>
+            {items.map(item => {
+              const isHovered = hoveredId === item.id;
+              return (
+                <div key={item.id} className="flex items-center group" onMouseEnter={() => setHoveredId(item.id)} onMouseLeave={() => setHoveredId(null)}>
+                  <div className="w-[180px] flex-shrink-0 pr-3 py-1">
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-mono text-[10px] text-muted-foreground">{item.article}</span>
+                      <span className={`text-xs truncate transition-colors ${isHovered ? 'text-foreground' : 'text-muted-foreground'}`}>
+                        {item.name.length > 22 ? item.name.slice(0, 20) + '...' : item.name}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex-1 relative h-7">
+                    <div className="absolute top-1 bottom-1 rounded opacity-[0.06]" style={{ left: `${(phase.weeks[0] / GANTT_TOTAL_WEEKS) * 100}%`, width: `${((phase.weeks[1] - phase.weeks[0]) / GANTT_TOTAL_WEEKS) * 100}%`, backgroundColor: phase.color }} />
+                    <div
+                      className={`absolute top-1.5 h-4 rounded-md transition-all duration-200 ${isHovered ? 'ring-2 ring-white/20 shadow-lg' : ''}`}
+                      style={{ left: `${(item.startWeek / GANTT_TOTAL_WEEKS) * 100}%`, width: `${Math.max(2, ((item.endWeek - item.startWeek) / GANTT_TOTAL_WEEKS) * 100)}%`, backgroundColor: item.phaseColor, opacity: isHovered ? 1 : 0.8 }}
+                    />
+                    {isHovered && item.effort && (
+                      <div className="absolute top-[-14px] text-[9px] font-mono text-foreground bg-card px-1.5 py-0.5 rounded border border-border shadow-sm whitespace-nowrap z-10" style={{ left: `${(item.startWeek / GANTT_TOTAL_WEEKS) * 100}%` }}>
+                        {item.effort}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        );
+      })}
+
+      {/* Legend */}
+      <div className="flex items-center gap-4 mt-3 pt-3 border-t border-border">
+        {Object.entries(PHASE_META).map(([prio, meta]) => (
+          <div key={prio} className="flex items-center gap-1.5">
+            <div className="w-3 h-2 rounded-sm" style={{ backgroundColor: meta.color }} />
+            <span className="text-[10px] text-muted-foreground">{prio}: {de ? `W${meta.weeks[0]}-${meta.weeks[1]}` : `W${meta.weeks[0]}-${meta.weeks[1]}`}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export function DoraAuditCharts({ risks, reqs }: { risks: DoraRisk[]; reqs: DoraReq[] }) {
   const { language } = useLanguage();
@@ -84,14 +187,11 @@ export function DoraAuditCharts({ risks, reqs }: { risks: DoraRisk[]; reqs: Dora
     return (riskScores.reduce((a, b) => a + b, 0) / riskScores.length).toFixed(1);
   }, [riskScores]);
 
-  // Category Radar
   const catRadar = useMemo(() => {
-    const cats = 'CIAGTR'.split('');
-    return cats.map(c => {
+    return 'CIAGTR'.split('').map(c => {
       const catRisks = risks.filter(r => r.category === c);
-      const catLabel = RISK_CATEGORIES[c]?.label[language] || c;
       return {
-        category: catLabel,
+        category: RISK_CATEGORIES[c]?.label[language] || c,
         short: c,
         count: catRisks.length,
         avgScore: catRisks.length ? +(catRisks.reduce((a, r) => a + r.likelihood * r.impact, 0) / catRisks.length).toFixed(1) : 0,
@@ -100,7 +200,6 @@ export function DoraAuditCharts({ risks, reqs }: { risks: DoraRisk[]; reqs: Dora
     });
   }, [risks, language]);
 
-  // Top risks bar
   const topRisks = useMemo(() =>
     [...risks].sort((a, b) => (b.likelihood * b.impact) - (a.likelihood * a.impact)).slice(0, 8).map(r => ({
       name: `${r.category}-${String(r.id).padStart(3, '0')}`,
@@ -110,18 +209,12 @@ export function DoraAuditCharts({ risks, reqs }: { risks: DoraRisk[]; reqs: Dora
     }))
   , [risks]);
 
-  // Evidence quality
   const evidenceData = useMemo(() => {
     const buckets = [0, 0, 0, 0, 0];
     risks.forEach(r => { buckets[r.evidenceQuality - 1]++; });
-    return buckets.map((count, i) => ({
-      name: `${i + 1}/5`,
-      count,
-      color: i >= 3 ? '#22c55e' : i >= 2 ? '#eab308' : '#dc2626',
-    }));
+    return buckets.map((count, i) => ({ name: `${i + 1}/5`, count, color: i >= 3 ? '#22c55e' : i >= 2 ? '#eab308' : '#dc2626' }));
   }, [risks]);
 
-  // DORA Chapter compliance heatmap
   const chapterData = useMemo(() => {
     const chapters: Record<string, { pass: number; partial: number; fail: number; total: number }> = {};
     reqs.forEach(r => {
@@ -144,20 +237,17 @@ export function DoraAuditCharts({ risks, reqs }: { risks: DoraRisk[]; reqs: Dora
     }));
   }, [reqs, de]);
 
-  // Gap priority
   const gapPriority = useMemo(() => {
     const gaps = reqs.filter(r => r.status !== 'pass');
     const prios: Record<string, number> = {};
     gaps.forEach(r => { const p = r.priority || 'P2'; prios[p] = (prios[p] || 0) + 1; });
     return ['P0', 'P1', 'P2', 'P3'].filter(p => prios[p]).map(p => ({
-      name: p,
-      value: prios[p] || 0,
+      name: p, value: prios[p] || 0,
       color: p === 'P0' ? '#dc2626' : p === 'P1' ? '#f97316' : p === 'P2' ? '#eab308' : '#22c55e',
       label: p === 'P0' ? (de ? 'Sofort' : 'Immediate') : p === 'P1' ? (de ? 'Kurzfristig' : 'Short-term') : p === 'P2' ? (de ? 'Mittelfristig' : 'Medium-term') : (de ? 'Langfristig' : 'Long-term'),
     }));
   }, [reqs, de]);
 
-  // Effort estimation
   const totalEffort = useMemo(() => {
     let minH = 0, maxH = 0;
     reqs.filter(r => r.effort).forEach(r => {
@@ -169,19 +259,16 @@ export function DoraAuditCharts({ risks, reqs }: { risks: DoraRisk[]; reqs: Dora
 
   const critCount = riskDist[0].value;
   const failCount = complianceData[2].value;
-
   const tabs: { id: TabId; label: string }[] = [
     { id: 'overview', label: de ? 'Uebersicht' : 'Overview' },
     { id: 'risks', label: de ? 'Risikoanalyse' : 'Risk Analysis' },
     { id: 'compliance', label: de ? 'Compliance' : 'Compliance' },
     { id: 'gaps', label: de ? 'Massnahmenplan' : 'Action Plan' },
   ];
-
   const tooltipStyle = { background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px', fontSize: '11px', boxShadow: '0 4px 12px rgba(0,0,0,.15)' };
 
   return (
     <div className="space-y-4">
-      {/* Tab Nav */}
       <div className="flex gap-1 bg-secondary/50 rounded-xl p-1">
         {tabs.map(tab => <TabButton key={tab.id} active={activeTab === tab.id} label={tab.label} onClick={() => setActiveTab(tab.id)} />)}
       </div>
@@ -191,52 +278,24 @@ export function DoraAuditCharts({ risks, reqs }: { risks: DoraRisk[]; reqs: Dora
         <div className="space-y-4 animate-in fade-in-0 duration-300">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <KpiCard value={risks.length} label={de ? 'IKT-Risiken' : 'ICT Risks'} color="text-foreground" sub={de ? 'identifiziert' : 'identified'} />
-            <KpiCard value={critCount} label={de ? 'Kritisch' : 'Critical'} color="text-destructive" sub={`Score >= 20`} />
+            <KpiCard value={critCount} label={de ? 'Kritisch' : 'Critical'} color="text-destructive" sub="Score >= 20" />
             <KpiCard value={`${complianceRate}%`} label={de ? 'DORA-Compliance' : 'DORA Compliance'} color={complianceRate >= 70 ? 'text-green-500' : complianceRate >= 40 ? 'text-yellow-500' : 'text-destructive'} />
             <KpiCard value={failCount} label={de ? 'Offene Luecken' : 'Open Gaps'} color="text-destructive" sub={`${totalEffort.min}-${totalEffort.max}h`} />
           </div>
-
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <ChartCard title={de ? 'Risikoverteilung' : 'Risk Distribution'}>
               <ResponsiveContainer width="100%" height={200}>
-                <PieChart>
-                  <Pie data={riskDist} dataKey="value" cx="50%" cy="50%" innerRadius={50} outerRadius={75} paddingAngle={3} strokeWidth={0}>
-                    {riskDist.map((e, i) => <Cell key={i} fill={e.color} />)}
-                  </Pie>
-                  <Tooltip contentStyle={tooltipStyle} />
-                </PieChart>
+                <PieChart><Pie data={riskDist} dataKey="value" cx="50%" cy="50%" innerRadius={50} outerRadius={75} paddingAngle={3} strokeWidth={0}>{riskDist.map((e, i) => <Cell key={i} fill={e.color} />)}</Pie><Tooltip contentStyle={tooltipStyle} /></PieChart>
               </ResponsiveContainer>
-              <div className="flex justify-center gap-3 text-[11px] mt-1">
-                {riskDist.map(d => (
-                  <span key={d.name} className="flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full" style={{ backgroundColor: d.color }} />
-                    {d.name}: <span className="font-bold font-mono">{d.value}</span>
-                  </span>
-                ))}
-              </div>
+              <div className="flex justify-center gap-3 text-[11px] mt-1">{riskDist.map(d => (<span key={d.name} className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full" style={{ backgroundColor: d.color }} />{d.name}: <span className="font-bold font-mono">{d.value}</span></span>))}</div>
             </ChartCard>
-
             <ChartCard title={de ? 'DORA-Konformitaet' : 'DORA Compliance'}>
               <ResponsiveContainer width="100%" height={200}>
-                <PieChart>
-                  <Pie data={complianceData} dataKey="value" cx="50%" cy="50%" innerRadius={50} outerRadius={75} paddingAngle={3} strokeWidth={0}>
-                    {complianceData.map((e, i) => <Cell key={i} fill={e.color} />)}
-                  </Pie>
-                  <Tooltip contentStyle={tooltipStyle} />
-                </PieChart>
+                <PieChart><Pie data={complianceData} dataKey="value" cx="50%" cy="50%" innerRadius={50} outerRadius={75} paddingAngle={3} strokeWidth={0}>{complianceData.map((e, i) => <Cell key={i} fill={e.color} />)}</Pie><Tooltip contentStyle={tooltipStyle} /></PieChart>
               </ResponsiveContainer>
-              <div className="flex justify-center gap-3 text-[11px] mt-1">
-                {complianceData.map(d => (
-                  <span key={d.name} className="flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full" style={{ backgroundColor: d.color }} />
-                    {d.name}: <span className="font-bold font-mono">{d.value}</span>
-                  </span>
-                ))}
-              </div>
+              <div className="flex justify-center gap-3 text-[11px] mt-1">{complianceData.map(d => (<span key={d.name} className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full" style={{ backgroundColor: d.color }} />{d.name}: <span className="font-bold font-mono">{d.value}</span></span>))}</div>
             </ChartCard>
           </div>
-
-          {/* Compliance by DORA Chapter */}
           <ChartCard title={de ? 'Konformitaet nach DORA-Kapitel' : 'Compliance by DORA Chapter'}>
             <ResponsiveContainer width="100%" height={200}>
               <BarChart data={chapterData} layout="vertical" margin={{ left: 20, right: 10 }}>
@@ -262,9 +321,7 @@ export function DoraAuditCharts({ risks, reqs }: { risks: DoraRisk[]; reqs: Dora
             <KpiCard value={Math.max(...riskScores)} label={de ? 'Hoechster Score' : 'Max Score'} color="text-destructive" sub="/25" />
             <KpiCard value={risks.filter(r => r.evidenceQuality >= 4).length} label={de ? 'Hohe Evidenz' : 'High Evidence'} color="text-green-500" sub={`/ ${risks.length}`} />
           </div>
-
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Category Radar */}
             <ChartCard title={de ? 'CIAGTR-Risikoprofil' : 'CIAGTR Risk Profile'}>
               <ResponsiveContainer width="100%" height={240}>
                 <RadarChart data={catRadar}>
@@ -273,39 +330,26 @@ export function DoraAuditCharts({ risks, reqs }: { risks: DoraRisk[]; reqs: Dora
                   <PolarRadiusAxis angle={30} domain={[0, 'auto']} tick={false} axisLine={false} />
                   <Radar name={de ? 'Anzahl' : 'Count'} dataKey="count" stroke="hsl(var(--primary))" fill="hsl(var(--primary))" fillOpacity={0.2} strokeWidth={2} />
                   <Radar name={de ? 'Ø Score' : 'Avg Score'} dataKey="avgScore" stroke="#f97316" fill="#f97316" fillOpacity={0.1} strokeWidth={2} />
-                  <Tooltip contentStyle={tooltipStyle} />
-                  <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: '11px' }} />
+                  <Tooltip contentStyle={tooltipStyle} /><Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: '11px' }} />
                 </RadarChart>
               </ResponsiveContainer>
             </ChartCard>
-
-            {/* Evidence Quality */}
             <ChartCard title={de ? 'Evidenzqualitaet' : 'Evidence Quality'}>
               <ResponsiveContainer width="100%" height={240}>
                 <BarChart data={evidenceData} margin={{ left: -15, right: 10 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                  <XAxis dataKey="name" tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }} />
-                  <YAxis tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }} allowDecimals={false} />
-                  <Tooltip contentStyle={tooltipStyle} />
-                  <Bar dataKey="count" radius={[4, 4, 0, 0]}>
-                    {evidenceData.map((e, i) => <Cell key={i} fill={e.color} />)}
-                  </Bar>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" /><XAxis dataKey="name" tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }} /><YAxis tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }} allowDecimals={false} /><Tooltip contentStyle={tooltipStyle} />
+                  <Bar dataKey="count" radius={[4, 4, 0, 0]}>{evidenceData.map((e, i) => <Cell key={i} fill={e.color} />)}</Bar>
                 </BarChart>
               </ResponsiveContainer>
             </ChartCard>
           </div>
-
-          {/* Top Risks */}
           <ChartCard title={de ? 'Hoechste Risiko-Scores' : 'Top Risk Scores'}>
             <ResponsiveContainer width="100%" height={280}>
               <BarChart data={topRisks} layout="vertical" margin={{ left: 15, right: 15 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis type="number" domain={[0, 25]} tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }} />
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" /><XAxis type="number" domain={[0, 25]} tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }} />
                 <YAxis type="category" dataKey="name" tick={{ fill: 'hsl(var(--foreground))', fontSize: 11, fontFamily: 'monospace' }} width={55} />
                 <Tooltip contentStyle={tooltipStyle} formatter={(value: number, _name: string, props: any) => [value, props.payload.label]} />
-                <Bar dataKey="score" radius={[0, 6, 6, 0]}>
-                  {topRisks.map((e, i) => <Cell key={i} fill={e.color} />)}
-                </Bar>
+                <Bar dataKey="score" radius={[0, 6, 6, 0]}>{topRisks.map((e, i) => <Cell key={i} fill={e.color} />)}</Bar>
               </BarChart>
             </ResponsiveContainer>
           </ChartCard>
@@ -315,35 +359,23 @@ export function DoraAuditCharts({ risks, reqs }: { risks: DoraRisk[]; reqs: Dora
       {/* ═══ COMPLIANCE ═══ */}
       {activeTab === 'compliance' && (
         <div className="space-y-4 animate-in fade-in-0 duration-300">
-          {/* Compliance Scorecard */}
           <div className="bg-card border border-border rounded-xl p-6 text-center">
             <div className="text-xs text-muted-foreground uppercase tracking-wider font-semibold mb-2">{de ? 'Gesamt-Compliance-Score' : 'Overall Compliance Score'}</div>
             <div className="relative inline-flex items-center justify-center">
               <svg width="140" height="140" viewBox="0 0 140 140">
                 <circle cx="70" cy="70" r="58" fill="none" stroke="hsl(var(--secondary))" strokeWidth="10" />
-                <circle
-                  cx="70" cy="70" r="58" fill="none"
-                  stroke={complianceRate >= 70 ? '#22c55e' : complianceRate >= 40 ? '#eab308' : '#dc2626'}
-                  strokeWidth="10" strokeLinecap="round"
-                  strokeDasharray={`${(complianceRate / 100) * 364.4} 364.4`}
-                  transform="rotate(-90 70 70)"
-                  className="transition-all duration-700"
-                />
+                <circle cx="70" cy="70" r="58" fill="none" stroke={complianceRate >= 70 ? '#22c55e' : complianceRate >= 40 ? '#eab308' : '#dc2626'} strokeWidth="10" strokeLinecap="round" strokeDasharray={`${(complianceRate / 100) * 364.4} 364.4`} transform="rotate(-90 70 70)" className="transition-all duration-700" />
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
                 <span className={`text-3xl font-bold font-mono ${complianceRate >= 70 ? 'text-green-500' : complianceRate >= 40 ? 'text-yellow-500' : 'text-destructive'}`}>{complianceRate}%</span>
               </div>
             </div>
             <div className="text-sm text-muted-foreground mt-3">
-              {complianceRate >= 70
-                ? (de ? 'Gutes Konformitaetsniveau — Optimierungen empfohlen' : 'Good compliance level — optimisations recommended')
-                : complianceRate >= 40
-                  ? (de ? 'Teilweise konform — signifikante Luecken vorhanden' : 'Partially compliant — significant gaps exist')
-                  : (de ? 'Kritische Luecken — sofortiger Handlungsbedarf' : 'Critical gaps — immediate action required')}
+              {complianceRate >= 70 ? (de ? 'Gutes Konformitaetsniveau — Optimierungen empfohlen' : 'Good compliance level — optimisations recommended')
+                : complianceRate >= 40 ? (de ? 'Teilweise konform — signifikante Luecken vorhanden' : 'Partially compliant — significant gaps exist')
+                : (de ? 'Kritische Luecken — sofortiger Handlungsbedarf' : 'Critical gaps — immediate action required')}
             </div>
           </div>
-
-          {/* Requirement Status Table */}
           <ChartCard title={de ? 'Anforderungs-Status' : 'Requirement Status'}>
             <div className="space-y-1.5 max-h-[400px] overflow-y-auto">
               {reqs.map(r => (
@@ -371,35 +403,23 @@ export function DoraAuditCharts({ risks, reqs }: { risks: DoraRisk[]; reqs: Dora
             <KpiCard value={reqs.filter(r => r.status === 'fail').length} label={de ? 'Nicht erfuellt' : 'Failed'} color="text-destructive" />
           </div>
 
+          {/* ═══ GANTT CHART ═══ */}
+          <ChartCard title={de ? 'Umsetzungs-Roadmap (Gantt)' : 'Remediation Roadmap (Gantt)'}>
+            <GanttChart reqs={reqs} de={de} />
+          </ChartCard>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Priority Distribution */}
             <ChartCard title={de ? 'Prioritaetsverteilung' : 'Priority Distribution'}>
               <ResponsiveContainer width="100%" height={200}>
-                <PieChart>
-                  <Pie data={gapPriority} dataKey="value" cx="50%" cy="50%" innerRadius={45} outerRadius={70} paddingAngle={4} strokeWidth={0}>
-                    {gapPriority.map((e, i) => <Cell key={i} fill={e.color} />)}
-                  </Pie>
-                  <Tooltip contentStyle={tooltipStyle} />
-                </PieChart>
+                <PieChart><Pie data={gapPriority} dataKey="value" cx="50%" cy="50%" innerRadius={45} outerRadius={70} paddingAngle={4} strokeWidth={0}>{gapPriority.map((e, i) => <Cell key={i} fill={e.color} />)}</Pie><Tooltip contentStyle={tooltipStyle} /></PieChart>
               </ResponsiveContainer>
-              <div className="flex justify-center gap-3 text-[11px] mt-1">
-                {gapPriority.map(d => (
-                  <span key={d.name} className="flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full" style={{ backgroundColor: d.color }} />
-                    {d.name} ({d.label}): <span className="font-bold font-mono">{d.value}</span>
-                  </span>
-                ))}
-              </div>
+              <div className="flex justify-center gap-3 text-[11px] mt-1">{gapPriority.map(d => (<span key={d.name} className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full" style={{ backgroundColor: d.color }} />{d.name} ({d.label}): <span className="font-bold font-mono">{d.value}</span></span>))}</div>
             </ChartCard>
-
-            {/* Gap Detail List */}
             <ChartCard title={de ? 'Luecken nach Prioritaet' : 'Gaps by Priority'}>
               <div className="space-y-2 max-h-[260px] overflow-y-auto">
                 {reqs.filter(r => r.status !== 'pass').sort((a, b) => (a.priority || 'P2').localeCompare(b.priority || 'P2')).map(r => (
                   <div key={r.id} className="flex items-start gap-2 px-3 py-2 rounded-lg bg-secondary/30 text-xs">
-                    <span className={`px-1.5 py-0.5 rounded font-bold font-mono flex-shrink-0 ${r.priority === 'P0' ? 'bg-destructive/10 text-destructive' : r.priority === 'P1' ? 'bg-orange-500/10 text-orange-400' : 'bg-yellow-500/10 text-yellow-500'}`}>
-                      {r.priority || 'P2'}
-                    </span>
+                    <span className={`px-1.5 py-0.5 rounded font-bold font-mono flex-shrink-0 ${r.priority === 'P0' ? 'bg-destructive/10 text-destructive' : r.priority === 'P1' ? 'bg-orange-500/10 text-orange-400' : 'bg-yellow-500/10 text-yellow-500'}`}>{r.priority || 'P2'}</span>
                     <div className="flex-1 min-w-0">
                       <div className="font-semibold text-foreground">{r.article}: {r.name}</div>
                       {r.gap && <div className="text-muted-foreground mt-0.5 line-clamp-2">{r.gap}</div>}

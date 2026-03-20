@@ -605,11 +605,13 @@ export function generateDoraReport(data: DoraReportData): void {
     const cat = RISK_CATEGORIES[ri.category]?.label[lang] || ri.category;
 
     // Finding header with severity indicator
+    const globalIdx = risks.indexOf(ri);
+    const eId = `E-${String(globalIdx + 1).padStart(3, '0')}`;
     heading(`${l('finding', lang)} ${riskId(ri)}: ${ri.name}`, 3);
 
-    // Category + severity tag
+    // Category + severity tag + evidence reference
     doc.setFontSize(7); doc.setFont(HEAD_FONT, 'normal'); doc.setTextColor(...C.mid);
-    doc.text(`${cat}  |  ${sev}  |  ${ri.doraRef}`, LEFT, y); y += 5;
+    doc.text(`${cat}  |  ${sev}  |  ${ri.doraRef}  |  ${eId} (${lang === 'de' ? 'Anhang C' : 'App. C'})  |  ${lang === 'de' ? 'Evidenz' : 'Evidence'}: ${ri.evidenceQuality}/5`, LEFT, y); y += 5;
     doc.setTextColor(...C.dark);
 
     // Risk score bar
@@ -724,15 +726,24 @@ export function generateDoraReport(data: DoraReportData): void {
     bodyText(prioDescs[prio]?.[lang] || prioDescs[prio]?.['en'] || '', 0);
     y += 2;
     prioReqs.forEach(r => {
-      checkSpace(16);
+      checkSpace(20);
       doc.setFont(HEAD_FONT, 'bold'); doc.setFontSize(8.5); doc.setTextColor(...C.navy);
       doc.text(`${r.id}  ${r.name}`, LEFT + 4, y);
       doc.setFont(BODY_FONT, 'normal'); doc.setTextColor(...C.dark); y += 5;
       if (r.measure) bodyText(r.measure, 4);
       if (r.effort) {
+        const assumption = lang === 'de'
+          ? `${l('effort', lang)}: ${r.effort} (Annahme: 1 FTE, interne Umsetzung, vorhandene Tooling-Basis)`
+          : `${l('effort', lang)}: ${r.effort} (Assumption: 1 FTE, internal implementation, existing tooling)`;
         doc.setFontSize(7.5); doc.setTextColor(...C.mid); doc.setFont(HEAD_FONT, 'normal');
-        doc.text(`${l('effort', lang)}: ${r.effort}`, LEFT + 4, y);
+        doc.text(assumption, LEFT + 4, y);
         doc.setTextColor(...C.dark); y += 4;
+      }
+      if (r.criteria && r.criteria.length > 0) {
+        doc.setFont(HEAD_FONT, 'normal'); doc.setFontSize(7); doc.setTextColor(...C.mid);
+        doc.text(lang === 'de' ? 'SMARTE UMSETZUNGSKRITERIEN:' : 'SMART ACCEPTANCE CRITERIA:', LEFT + 4, y);
+        doc.setFont(BODY_FONT, 'normal'); doc.setTextColor(...C.dark); y += 3.5;
+        r.criteria.forEach((c, ci) => bulletItem(`${ci + 1}. ${c}`, 8));
       }
       y += 2;
     });
