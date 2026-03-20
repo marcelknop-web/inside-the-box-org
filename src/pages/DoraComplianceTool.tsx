@@ -182,8 +182,8 @@ function IntakeWizard({ onFinish }: { onFinish: (d: DoraIntakeData) => void }) {
       case 1: setD(prev => ({ ...prev, criticality: scenario.criticality })); break;
       case 2: setD(prev => ({ ...prev, description: scenario.description, thirdPartyProviders: scenario.thirdPartyProviders })); break;
       case 3: setD(prev => ({ ...prev, infrastructure: scenario.infrastructure })); break;
-      case 4: setD(prev => ({ ...prev, roles: scenario.roles })); break;
-      case 5: setD(prev => ({ ...prev, measures: scenario.measures, knownIssues: scenario.knownIssues })); break;
+      case 4: setD(prev => ({ ...prev, roles: scenario.roles, knownIssues: scenario.knownIssues })); break;
+      case 5: setD(prev => ({ ...prev, measures: scenario.measures })); break;
       case 6: setD(prev => ({ ...prev, files: scenario.files })); break;
     }
   }, [sub]);
