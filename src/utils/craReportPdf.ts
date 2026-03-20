@@ -107,19 +107,19 @@ const I18N = {
   relatedThreats: { de: 'Verknüpfte Bedrohungen', en: 'Related Threats', fr: 'Menaces liées' },
 
   // Section intro texts
-  introSec2: { de: 'Dieser Abschnitt fasst die wesentlichen Ergebnisse der Bewertung in kompakter Form zusammen. Er richtet sich an Entscheidungstraeger und gibt eine datengestuetzte Einschaetzung der Marktreife.', en: 'This section summarises the key assessment results in a compact format. It is intended for decision-makers and provides a data-driven assessment of market readiness.', fr: 'Cette section resume les principaux resultats de l\'evaluation de maniere compacte. Elle s\'adresse aux decideurs et fournit une evaluation basee sur les donnees de la maturite du produit.' },
-  introSec3: { de: 'Der folgende Abschnitt beschreibt den Pruefgegenstand und die vom Hersteller bereitgestellten Informationen. Diese Angaben bilden die Grundlage fuer die anschliessende Bedrohungs- und Konformitaetsanalyse.', en: 'This section describes the assessment subject and the information provided by the manufacturer. These details form the basis for the subsequent threat and compliance analysis.', fr: 'Cette section decrit l\'objet de l\'evaluation et les informations fournies par le fabricant. Ces donnees constituent la base de l\'analyse des menaces et de la conformite.' },
+  introSec2: { de: 'Dieser Abschnitt fasst die wesentlichen Ergebnisse der Bewertung in kompakter Form zusammen. Er richtet sich an Entscheidungsträger und gibt eine datengestützte Einschätzung der Marktreife.', en: 'This section summarises the key assessment results in a compact format. It is intended for decision-makers and provides a data-driven assessment of market readiness.', fr: 'Cette section resume les principaux resultats de l\'evaluation de maniere compacte. Elle s\'adresse aux decideurs et fournit une evaluation basee sur les donnees de la maturite du produit.' },
+  introSec3: { de: 'Der folgende Abschnitt beschreibt den Prüfgegenstand und die vom Hersteller bereitgestellten Informationen. Diese Angaben bilden die Grundlage für die anschließende Bedrohungs- und Konformitätsanalyse.', en: 'This section describes the assessment subject and the information provided by the manufacturer. These details form the basis for the subsequent threat and compliance analysis.', fr: 'Cette section decrit l\'objet de l\'evaluation et les informations fournies par le fabricant. Ces donnees constituent la base de l\'analyse des menaces et de la conformite.' },
   introSec3a: { de: 'Der Produktsteckbrief dokumentiert die wesentlichen Merkmale und die regulatorische Einordnung des bewerteten Produkts.', en: 'The product profile documents the key characteristics and regulatory classification of the assessed product.', fr: 'Le profil produit documente les caracteristiques cles et la classification reglementaire du produit evalue.' },
-  introSec3b: { de: 'Die Systemarchitektur und ihre Komponenten bestimmen die Angriffsflaeche. Diese Uebersicht dient als Grundlage fuer die STRIDE-Analyse.', en: 'The system architecture and its components determine the attack surface. This overview serves as the basis for the STRIDE analysis.', fr: 'L\'architecture du systeme et ses composants determinent la surface d\'attaque. Cette vue d\'ensemble sert de base a l\'analyse STRIDE.' },
-  introSec3c: { de: 'Die folgenden Sicherheitsmassnahmen wurden vom Hersteller als implementiert angegeben. Ihr Reifegrad wird anhand von drei Kriterien bewertet: aktiv, dokumentiert und auditiert.', en: 'The following security measures were reported as implemented by the manufacturer. Their maturity is assessed against three criteria: active, documented, and audited.', fr: 'Les mesures de securite suivantes ont ete declarees implementees par le fabricant. Leur maturite est evaluee selon trois criteres : active, documentee et auditee.' },
+  introSec3b: { de: 'Die Systemarchitektur und ihre Komponenten bestimmen die Angriffsfläche. Diese Übersicht dient als Grundlage für die STRIDE-Analyse.', en: 'The system architecture and its components determine the attack surface. This overview serves as the basis for the STRIDE analysis.', fr: 'L\'architecture du systeme et ses composants determinent la surface d\'attaque. Cette vue d\'ensemble sert de base a l\'analyse STRIDE.' },
+  introSec3c: { de: 'Die folgenden Sicherheitsmaßnahmen wurden vom Hersteller als implementiert angegeben. Ihr Reifegrad wird anhand von drei Kriterien bewertet: aktiv, dokumentiert und auditiert.', en: 'The following security measures were reported as implemented by the manufacturer. Their maturity is assessed against three criteria: active, documented, and audited.', fr: 'Les mesures de securite suivantes ont ete declarees implementees par le fabricant. Leur maturite est evaluee selon trois criteres : active, documentee et auditee.' },
   introSec3d: { de: 'Dieser Abschnitt dokumentiert Risiken und Schwachstellen, die der Hersteller selbst identifiziert und benannt hat.', en: 'This section documents risks and vulnerabilities that the manufacturer has identified and reported.', fr: 'Cette section documente les risques et vulnerabilites identifies et signales par le fabricant.' },
   introSec3e: { de: 'Die eingereichte Dokumentation wird zur Verifizierung der Herstellerangaben und zur Bewertung der Evidenzlage herangezogen.', en: 'The submitted documentation is used to verify manufacturer claims and to assess the evidence base.', fr: 'La documentation soumise est utilisee pour verifier les declarations du fabricant et evaluer la base de preuves.' },
-  introSec4: { de: 'In diesem Abschnitt werden die identifizierten Bedrohungen und Konformitaetsluecken im Detail dargestellt. Jede Feststellung enthaelt die zugrundeliegende Evidenz, die Bewertungslogik und die regulatorische Referenz.', en: 'This section presents the identified threats and compliance gaps in detail. Each finding includes the underlying evidence, assessment rationale, and regulatory reference.', fr: 'Cette section presente en detail les menaces identifiees et les lacunes de conformite. Chaque constatation comprend les preuves, la logique d\'evaluation et la reference reglementaire.' },
-  introSec4a: { de: 'Die Bedrohungsanalyse folgt dem STRIDE-Modell und bewertet jedes Szenario anhand von Eintrittswahrscheinlichkeit und Auswirkung. Kritische Risiken (Score >= 20) erfordern Sofortmassnahmen.', en: 'The threat analysis follows the STRIDE model and rates each scenario by likelihood and impact. Critical risks (score >= 20) require immediate action.', fr: 'L\'analyse des menaces suit le modele STRIDE et evalue chaque scenario selon la probabilite et l\'impact. Les risques critiques (score >= 20) necessitent une action immediate.' },
-  introSec4b: { de: 'Die folgende Uebersicht zeigt die Bewertung jeder CRA-Anforderung. Abweichungen werden mit konkreten Massnahmen und nachweisbaren Umsetzungskriterien versehen.', en: 'The following overview shows the assessment of each CRA requirement. Deviations are accompanied by concrete measures and verifiable acceptance criteria.', fr: 'L\'apercu suivant montre l\'evaluation de chaque exigence CRA. Les ecarts sont accompagnes de mesures concretes et de criteres d\'acceptation verifiables.' },
-  introSec4c: { de: 'Die normative Abdeckung zeigt, welcher Anteil der CRA-Anforderungen bereits erfuellt ist. Ein Wert unter 80 % signalisiert erheblichen Nachbesserungsbedarf.', en: 'Normative coverage indicates what proportion of CRA requirements are already met. A value below 80% signals significant remediation needs.', fr: 'La couverture normative indique la proportion d\'exigences CRA deja satisfaites. Une valeur inferieure a 80 % signale un besoin de remediation important.' },
-  introSec5: { de: 'Die Handlungsempfehlungen sind nach regulatorischer Dringlichkeit und technischer Kritikalitaet priorisiert. Die Roadmap gibt einen realistischen Zeitrahmen fuer die Umsetzung vor.', en: 'Recommendations are prioritised by regulatory urgency and technical criticality. The roadmap provides a realistic timeframe for implementation.', fr: 'Les recommandations sont hierarchisees par urgence reglementaire et criticite technique. La feuille de route fournit un calendrier realiste de mise en oeuvre.' },
-  introSec5a: { de: 'Jede Massnahme ist einer Prioritaetsstufe (P0 bis P3) zugeordnet. P0-Massnahmen sind Release-Blocker und muessen vor Markteinführung abgeschlossen sein.', en: 'Each measure is assigned a priority level (P0 to P3). P0 measures are release blockers and must be completed before market launch.', fr: 'Chaque mesure est attribuee a un niveau de priorite (P0 a P3). Les mesures P0 sont bloquantes et doivent etre terminees avant la mise sur le marche.' },
+  introSec4: { de: 'In diesem Abschnitt werden die identifizierten Bedrohungen und Konformitätslücken im Detail dargestellt. Jede Feststellung enthält die zugrundeliegende Evidenz, die Bewertungslogik und die regulatorische Referenz.', en: 'This section presents the identified threats and compliance gaps in detail. Each finding includes the underlying evidence, assessment rationale, and regulatory reference.', fr: 'Cette section presente en detail les menaces identifiees et les lacunes de conformite. Chaque constatation comprend les preuves, la logique d\'evaluation et la reference reglementaire.' },
+  introSec4a: { de: 'Die Bedrohungsanalyse folgt dem STRIDE-Modell und bewertet jedes Szenario anhand von Eintrittswahrscheinlichkeit und Auswirkung. Kritische Risiken (Score >= 20) erfordern Sofortmaßnahmen.', en: 'The threat analysis follows the STRIDE model and rates each scenario by likelihood and impact. Critical risks (score >= 20) require immediate action.', fr: 'L\'analyse des menaces suit le modele STRIDE et evalue chaque scenario selon la probabilite et l\'impact. Les risques critiques (score >= 20) necessitent une action immediate.' },
+  introSec4b: { de: 'Die folgende Übersicht zeigt die Bewertung jeder CRA-Anforderung. Abweichungen werden mit konkreten Maßnahmen und nachweisbaren Umsetzungskriterien versehen.', en: 'The following overview shows the assessment of each CRA requirement. Deviations are accompanied by concrete measures and verifiable acceptance criteria.', fr: 'L\'apercu suivant montre l\'evaluation de chaque exigence CRA. Les ecarts sont accompagnes de mesures concretes et de criteres d\'acceptation verifiables.' },
+  introSec4c: { de: 'Die normative Abdeckung zeigt, welcher Anteil der CRA-Anforderungen bereits erfüllt ist. Ein Wert unter 80 % signalisiert erheblichen Nachbesserungsbedarf.', en: 'Normative coverage indicates what proportion of CRA requirements are already met. A value below 80% signals significant remediation needs.', fr: 'La couverture normative indique la proportion d\'exigences CRA deja satisfaites. Une valeur inferieure a 80 % signale un besoin de remediation important.' },
+  introSec5: { de: 'Die Handlungsempfehlungen sind nach regulatorischer Dringlichkeit und technischer Kritikalität priorisiert. Die Roadmap gibt einen realistischen Zeitrahmen für die Umsetzung vor.', en: 'Recommendations are prioritised by regulatory urgency and technical criticality. The roadmap provides a realistic timeframe for implementation.', fr: 'Les recommandations sont hierarchisees par urgence reglementaire et criticite technique. La feuille de route fournit un calendrier realiste de mise en oeuvre.' },
+  introSec5a: { de: 'Jede Maßnahme ist einer Prioritaetsstufe (P0 bis P3) zugeordnet. P0-Maßnahmen sind Release-Blocker und muessen vor Markteinführung abgeschlossen sein.', en: 'Each measure is assigned a priority level (P0 to P3). P0 measures are release blockers and must be completed before market launch.', fr: 'Chaque mesure est attribuee a un niveau de priorite (P0 a P3). Les mesures P0 sont bloquantes et doivent etre terminees avant la mise sur le marche.' },
 
   totalThreats: { de: 'Bedrohungen', en: 'Threats', fr: 'Menaces' },
   criticalRisks: { de: 'Kritisch (>= 20)', en: 'Critical (>= 20)', fr: 'Critiques (>= 20)' },
@@ -1344,7 +1344,7 @@ export function generateCraReport(data: CraReportData): void {
   writeSubHeading(sec53Title);
 
   const ecoIntro = lang === 'de'
-    ? 'Die folgende Einschaetzung stellt den geschaetzten Remediation-Aufwand dem Schadenspotenzial bei Nicht-Umsetzung gegenueber. Die Werte basieren auf den CRA-Sanktionsrahmen (Art. 64) sowie branchenueblichen Ausfallkosten.'
+    ? 'Die folgende Einschätzung stellt den geschätzten Remediation-Aufwand dem Schadenspotenzial bei Nicht-Umsetzung gegenüber. Die Werte basieren auf den CRA-Sanktionsrahmen (Art. 64) sowie branchenueblichen Ausfallkosten.'
     : lang === 'fr'
     ? 'L\'estimation suivante compare l\'effort de remediation au potentiel de dommages en cas de non-mise en oeuvre, sur la base du cadre de sanctions CRA (Art. 64).'
     : 'The following assessment compares estimated remediation effort against damage potential of non-implementation. Values are based on CRA penalty frameworks (Art. 64) and industry-standard outage costs.';
@@ -1360,11 +1360,11 @@ export function generateCraReport(data: CraReportData): void {
   const estCostK = Math.round(totalEffortHours * 150 / 1000);
 
   const penaltyData: [string, string, [number, number, number]][] = lang === 'de' ? [
-    ['Bussgeld bei Nicht-Konformitaet (Art. 64 CRA)', 'Bis zu 15 Mio. EUR oder 2,5% des weltweiten Jahresumsatzes', C.redText],
-    ['Bussgeld bei Meldepflichtverletzung (Art. 64)', 'Bis zu 10 Mio. EUR oder 2% des weltweiten Jahresumsatzes', C.redText],
+    ['Bußgeld bei Nicht-Konformität (Art. 64 CRA)', 'Bis zu 15 Mio. EUR oder 2,5% des weltweiten Jahresumsatzes', C.redText],
+    ['Bußgeld bei Meldepflichtverletzung (Art. 64)', 'Bis zu 10 Mio. EUR oder 2% des weltweiten Jahresumsatzes', C.redText],
     ['Rueckrufkosten (Art. 49 CRA)', 'Abhaengig von Produktkategorie und Verbreitungsgrad', C.orangeText],
     ['Produktionsausfall (OT-Kontext)', 'Branchendurchschnitt: 50.000 -- 250.000 EUR/Stunde', C.orangeText],
-    [`Geschaetzter Remediation-Aufwand`, `${Math.round(totalEffortHours)} Personenstunden (ca. ${Math.round(totalEffortHours / 40)} Personenwochen, ${estCostK}k EUR bei 150 EUR/h)`, C.greenText],
+    [`Geschätzter Remediation-Aufwand`, `${Math.round(totalEffortHours)} Personenstunden (ca. ${Math.round(totalEffortHours / 40)} Personenwochen, ${estCostK}k EUR bei 150 EUR/h)`, C.greenText],
   ] : lang === 'fr' ? [
     ['Amende pour non-conformite (Art. 64 CRA)', 'Jusqu\'a 15 M EUR ou 2,5% du CA mondial', C.redText],
     ['Amende pour violation obligation de signalement', 'Jusqu\'a 10 M EUR ou 2% du CA mondial', C.redText],
@@ -1409,7 +1409,7 @@ export function generateCraReport(data: CraReportData): void {
 
   y += 4;
   const roiText = lang === 'de'
-    ? `Kosten-Nutzen-Verhaeltnis: Der geschaetzte Gesamtaufwand von ${Math.round(totalEffortHours)} Personenstunden (ca. ${estCostK}k EUR) steht einem maximalen Bussgeldrisiko von 15 Mio. EUR und branchenspezifischen Ausfallkosten gegenueber. Die Investition in die Remediation amortisiert sich bereits bei Vermeidung eines einzigen regulatorischen Verfahrens oder Produktionsausfalls.`
+    ? `Kosten-Nutzen-Verhaeltnis: Der geschätzte Gesamtaufwand von ${Math.round(totalEffortHours)} Personenstunden (ca. ${estCostK}k EUR) steht einem maximalen Bußgeldrisiko von 15 Mio. EUR und branchenspezifischen Ausfallkosten gegenüber. Die Investition in die Remediation amortisiert sich bereits bei Vermeidung eines einzigen regulatorischen Verfahrens oder Produktionsausfalls.`
     : lang === 'fr'
     ? `Rapport cout-benefice : L'effort total estime de ${Math.round(totalEffortHours)} heures-personne (env. ${estCostK}k EUR) fait face a un risque d'amende maximal de 15 M EUR. L'investissement dans la remediation est rentabilise des l'evitement d'une seule procedure reglementaire.`
     : `Cost-benefit ratio: The estimated total effort of ${Math.round(totalEffortHours)} person-hours (approx. EUR ${estCostK}k) stands against maximum penalty exposure of EUR 15M and industry-specific downtime costs averaging EUR 50-250k/hour. The remediation investment pays for itself by avoiding even a single regulatory proceeding or production incident.`;
@@ -1467,7 +1467,7 @@ export function generateCraReport(data: CraReportData): void {
   writeBody(t(I18N.appendixIntro));
   y += 2;
   const xrefNote = lang === 'de'
-    ? 'Hinweis: Fuer die ausfuehrliche Darstellung von Evidenz und Bewertungslogik wird auf die Detailfeststellungen in Abschnitt 4 verwiesen. Dieser Anhang konzentriert sich auf die maschinenlesbaren Strukturdaten und Querverlinkungen.'
+    ? 'Hinweis: Für die ausführliche Darstellung von Evidenz und Bewertungslogik wird auf die Detailfeststellungen in Abschnitt 4 verwiesen. Dieser Anhang konzentriert sich auf die maschinenlesbaren Strukturdaten und Querverlinkungen.'
     : lang === 'fr'
     ? 'Note : Pour la presentation detaillee des preuves et de la logique d\'evaluation, veuillez consulter les constatations detaillees de la section 4. Cette annexe se concentre sur les donnees structurees et les references croisees.'
     : 'Note: For detailed evidence and assessment rationale, refer to the detailed findings in Section 4. This appendix focuses on machine-readable structured data and cross-references.';
@@ -1806,7 +1806,7 @@ export function generateCraReport(data: CraReportData): void {
   writeSectionHeading(t(I18N.secD));
 
   const qgIntro = lang === 'de'
-    ? 'Dieser Anhang dokumentiert die automatisierte Qualitaetssicherung gemaess vier Pruefdimensionen. Jeder Pruefpunkt wird maschinell gegen die Berichtsdaten validiert. Das Ergebnis (PASS / FAIL) ist revisionssicher und reproduzierbar.'
+    ? 'Dieser Anhang dokumentiert die automatisierte Qualitätssicherung gemäß vier Prüfdimensionen. Jeder Prüfpunkt wird maschinell gegen die Berichtsdaten validiert. Das Ergebnis (PASS / FAIL) ist revisionssicher und reproduzierbar.'
     : lang === 'fr'
     ? 'Cette annexe documente l\'assurance qualite automatisee selon quatre dimensions d\'audit. Chaque point de controle est valide automatiquement. Le resultat (PASS / FAIL) est verifiable et reproductible.'
     : 'This appendix documents automated quality assurance across four audit dimensions. Each checkpoint is machine-validated against report data. Results (PASS / FAIL) are audit-proof and reproducible.';
@@ -1952,7 +1952,7 @@ export function generateCraReport(data: CraReportData): void {
       titleEn: 'Strictness Check',
       checks: [
         {
-          label: lang === 'de' ? 'Unverschluesselte Uebertragungen (MQTT/HTTP): Anforderung A1-4 nicht als "konform" bewertet'
+          label: lang === 'de' ? 'Unverschluesselte Übertragungen (MQTT/HTTP): Anforderung A1-4 nicht als "konform" bewertet'
             : lang === 'fr' ? 'Transmissions non chiffrees (MQTT/HTTP): Exigence A1-4 pas evaluee "conforme"'
             : 'Unencrypted transmissions (MQTT/HTTP): Requirement A1-4 not rated "compliant"',
           passed: !unencryptedButCompliant,
@@ -2195,18 +2195,18 @@ export function generateCraReport(data: CraReportData): void {
      ══════════════════════════════════════ */
   if (qaChecks && qaChecks.length > 0) {
     newSection();
-    const qaTitle = lang === 'de' ? 'D.2  Iterative Qualitaetspruefung — Findings und Korrekturen'
+    const qaTitle = lang === 'de' ? 'D.2  Iterative Qualitaetsprüfung — Findings und Korrekturen'
       : lang === 'fr' ? 'D.2  Controle qualite iteratif — Constatations et corrections'
       : 'D.2  Iterative Quality Check — Findings and Corrections';
     writeSectionHeading(qaTitle);
 
     const qaIterLabel = qaIterations && qaIterations > 0
-      ? (lang === 'de' ? `${qaIterations} Pruefungsdurchlauf(e) durchgefuehrt.`
+      ? (lang === 'de' ? `${qaIterations} Prüfungsdurchlauf(e) durchgeführt.`
         : lang === 'fr' ? `${qaIterations} cycle(s) de controle effectue(s).`
         : `${qaIterations} check iteration(s) performed.`)
       : '';
     const qaIntroText = lang === 'de'
-      ? `Die folgenden Pruefpunkte wurden durch die automatisierte Qualitaetssicherung identifiziert und — soweit moeglich — automatisch korrigiert. ${qaIterLabel}`
+      ? `Die folgenden Prüfpunkte wurden durch die automatisierte Qualitätssicherung identifiziert und — soweit möglich — automatisch korrigiert. ${qaIterLabel}`
       : lang === 'fr'
       ? `Les points de controle suivants ont ete identifies par l'assurance qualite automatisee et corriges automatiquement dans la mesure du possible. ${qaIterLabel}`
       : `The following checkpoints were identified by the automated quality assurance and — where possible — automatically corrected. ${qaIterLabel}`;
@@ -2287,7 +2287,7 @@ export function generateCraReport(data: CraReportData): void {
       y += 5;
 
       const fixIntro = lang === 'de'
-        ? 'Die folgenden Korrekturen wurden automatisch auf Basis der identifizierten Maengel durchgefuehrt:'
+        ? 'Die folgenden Korrekturen wurden automatisch auf Basis der identifizierten Mängel durchgeführt:'
         : lang === 'fr'
         ? 'Les corrections suivantes ont ete appliquees automatiquement sur la base des anomalies identifiees :'
         : 'The following corrections were automatically applied based on identified findings:';
@@ -2326,5 +2326,5 @@ export function generateCraReport(data: CraReportData): void {
   addFooter();
 
   const suffix = isDraft ? '_DRAFT' : '_FINAL';
-  doc.save(`CRA-Pruefbericht_${intakeData.productName.replace(/\s+/g, '-')}${suffix}_${new Date().toISOString().slice(0, 10)}.pdf`);
+  doc.save(`CRA-Prüfbericht_${intakeData.productName.replace(/\s+/g, '-')}${suffix}_${new Date().toISOString().slice(0, 10)}.pdf`);
 }

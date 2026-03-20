@@ -372,8 +372,8 @@ export function runQualityCheck(
   }
   checks.push({
     id: 'D1', category: 'editorial',
-    label: t('Threats lueckenlos nummeriert', 'Threats sequentially numbered', 'Menaces numerotees sequentiellement'),
-    detail: numbGaps.length > 0 ? numbGaps.join('; ') : t('Alle Gruppen lueckenlos', 'All groups sequential', 'Tous les groupes sequentiels'),
+    label: t('Threats lückenlos nummeriert', 'Threats sequentially numbered', 'Menaces numerotees sequentiellement'),
+    detail: numbGaps.length > 0 ? numbGaps.join('; ') : t('Alle Gruppen lückenlos', 'All groups sequential', 'Tous les groupes sequentiels'),
     passed: numbGaps.length === 0, severity: 'minor',
   });
 
