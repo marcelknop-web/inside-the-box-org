@@ -641,6 +641,9 @@ export function generateDoraReport(data: DoraReportData): void {
     doc.text(statusMarker, LEFT + 3, y);
     doc.setFont(HEAD_FONT, 'normal'); doc.setFontSize(7.5); doc.setTextColor(...C.mid);
     doc.text(r.article, LEFT + badgeW + 4, y);
+    // Working paper cross-reference
+    const apRef = `AP-${r.id}`;
+    doc.text(`|  ${apRef} (${lang === 'de' ? 'Anhang E' : 'App. E'})`, LEFT + badgeW + 4 + doc.getTextWidth(r.article) + 4, y);
     y += 6;
     doc.setTextColor(...C.dark);
 
