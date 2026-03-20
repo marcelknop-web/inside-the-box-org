@@ -398,7 +398,7 @@ export function DoraAuditCharts({ risks, reqs }: { risks: DoraRisk[]; reqs: Dora
                 </RadarChart>
               </ResponsiveContainer>
             </ChartCard>
-            <ChartCard title={de ? 'Evidenzqualitaet' : 'Evidence Quality'}>
+            <ChartCard title={de ? 'Evidenzqualitaet' : 'Evidence Quality'} subtitle={de ? 'Verteilung der Evidenzbewertungen (1–5). Hohe Werte bedeuten belastbare Nachweise.' : 'Distribution of evidence quality ratings (1–5). Higher values indicate robust evidence.'}>
               <ResponsiveContainer width="100%" height={240}>
                 <BarChart data={evidenceData} margin={{ left: -15, right: 10 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" /><XAxis dataKey="name" tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }} /><YAxis tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }} allowDecimals={false} /><Tooltip contentStyle={tooltipStyle} />
