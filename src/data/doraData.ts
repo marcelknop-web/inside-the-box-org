@@ -206,7 +206,7 @@ export const DORA_RISKS: DoraRisk[] = [
     sources: ['DORA Art. 11 Abs. 6: Regelmäßige Überprüfung von IKT-Kontinuitätsplänen', 'ISO 22301:2019'], evidenceQuality: 3, reproducibility: 'hard' },
 
   // G — Governance (2)
-  { id: 8, category: 'G', name: 'Fehlende IKT-Risikomanagement-Verantwortung auf Leitungsebene', component: 'Organisationsstruktur / Management', attacker: 'Regulatorisches Risiko', path: 'Keine dedizierte Verantwortung für IKT-Risiken auf Vorstandsebene → Strategische Lücken → Compliance-Verstoß', doraRef: 'Art. 5 Abs. 2', likelihood: 5, impact: 3,
+  { id: 8, category: 'G', name: 'Fehlende IKT-Risikomanagement-Verantwortung auf Leitungsebene', component: 'Organisationsstruktur / Management', attacker: 'Regulatorisches Risiko', path: 'Keine dedizierte Verantwortung für IKT-Risiken auf Vorstandsebene → Strategische Lücken → Compliance-Verstoß', doraRef: 'Art. 5', likelihood: 5, impact: 3,
     evidence: 'Organisationsanalyse: IKT-Risikomanagement ist dem IT-Leiter zugeordnet, nicht dem Vorstand. Kein dokumentiertes Mandat für IKT-Risiko-Verantwortung auf Leitungsebene. Board-Reporting zu IKT-Risiken: unregelmäßig, kein festes Format.',
     rationale: 'Likelihood 5: DORA Art. 5 Abs. 2 verlangt explizit Verantwortung der Leitungsorgane. Bei Prüfung durch BaFin sofort beanstandet. Impact 3: Governance-Lücke, aber kein direkter technischer Schaden.',
     sources: ['DORA Art. 5 Abs. 2: Verantwortung der Leitungsorgane', 'BaFin-Merkblatt MaRisk AT 4.3.1'], evidenceQuality: 5, reproducibility: 'easy' },
