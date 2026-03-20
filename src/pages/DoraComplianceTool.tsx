@@ -999,7 +999,7 @@ function ReportView({ intakeData, risks, reqs }: { intakeData: DoraIntakeData; r
 
             const qaIsNext = !draftDownloaded ? false : (!qaResult || fixesApplied);
             const fixesIsNext = qaResult && qaResult.failed > 0 && !fixesApplied && !fixesRunning;
-            const finalIsNext = (fixesApplied && (!qaResult || qaResult.failed === 0)) || qaVerdict === 'passed' || qaVerdict === 'conditional';
+            const finalIsNext = fixesApplied || qaVerdict === 'passed' || qaVerdict === 'conditional';
 
             return (
               <>
