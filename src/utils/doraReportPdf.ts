@@ -488,8 +488,8 @@ export function generateDoraReport(data: DoraReportData): void {
   newPage();
   heading(l('sec3', lang));
   introText(lang === 'de'
-    ? 'Der folgende Abschnitt beschreibt das geprüfte Finanzunternehmen und die bereitgestellten Informationen. Diese Angaben bilden die Grundlage für die Risiko- und Konformitätsanalyse.'
-    : 'This section describes the assessed financial entity and the information provided.');
+    ? 'Bevor es um Risiken und Luecken geht, dokumentiert dieser Abschnitt, was genau geprueft wurde: das Unternehmen, seine IT-Systeme, die eingesetzten Sicherheitsmassnahmen und die eingereichten Unterlagen.'
+    : 'Before diving into risks and gaps, this section documents exactly what was assessed: the entity, its IT systems, implemented security measures, and submitted documentation.');
 
   // 3.1 Entity Profile
   heading(l('sec3a', lang), 2);
