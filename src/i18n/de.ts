@@ -819,4 +819,63 @@ export const de = {
     // STRIDE meta
     strideSpoofing: 'Spoofing', strideTampering: 'Tampering', strideRepudiation: 'Repudiation', strideInfoDisc: 'Info Disclosure', strideDos: 'Denial of Service', strideEoP: 'Elevation of Priv.',
   },
+  dora: {
+    // Risk levels
+    critical: 'Kritisch', high: 'Hoch', medium: 'Mittel', low: 'Niedrig',
+    // Status
+    statusPass: 'Konform', statusPartial: 'Teilweise', statusFail: 'Nicht konform',
+    // Wizard navigation
+    next: 'Weiter', back: 'Zurück', startAnalysis: 'Analyse starten', toSummary: 'Zur Zusammenfassung',
+    // Step 0 - Entity
+    step0Title: 'Finanzunternehmen identifizieren', step0Sub: 'Grunddaten des Unternehmens erfassen', step0Info: 'DORA (EU) 2022/2554 gilt fuer Finanzunternehmen und deren IKT-Drittanbieter. Geben Sie die Basisdaten ein.',
+    entityName: 'Name des Unternehmens', entityNamePh: 'z.B. Deutsche Musterbank AG',
+    entityTypeSel: 'Art des Finanzunternehmens',
+    // Step 1 - Criticality
+    step1Title: 'Kritikalitaet und Klassifizierung', step1Sub: 'Einstufung nach Systemrelevanz', step1Info: 'Die Kritikalitaet bestimmt den Pruefungsumfang – signifikante und kritische Institute unterliegen erweiterten Anforderungen (z.B. TLPT nach Art. 26).', step1InfoTitle: 'Warum ist die Einstufung wichtig?',
+    // Step 2 - Description & Third-party
+    step2Title: 'IKT-Landschaft und Drittanbieter', step2Sub: 'Beschreibung der IKT-Infrastruktur und externen Abhaengigkeiten', step2Info: 'DORA Art. 28 verlangt ein Register aller IKT-Drittanbieter mit vertraglicher Risikobewertung.',
+    description: 'Beschreibung der IKT-Landschaft', descriptionPh: 'Kernbanksystem, Cloud-Infrastruktur, Zahlungsverkehr...',
+    thirdParty: 'IKT-Drittanbieter',
+    // Step 3 - Infrastructure
+    step3Title: 'IKT-Infrastruktur', step3Sub: 'Technische Komponenten und Systeme', step3Info: 'Welche technischen Komponenten sind im Einsatz? Diese Information fliesst in die Risikoanalyse ein.',
+    // Step 4 - Measures
+    step4Title: 'Bestehende Massnahmen', step4Sub: 'Bereits umgesetzte Sicherheitsmassnahmen', step4Info: 'Welche IKT-Risikomanagement-Massnahmen sind bereits implementiert?',
+    // Step 5 - Roles & Issues
+    step5Title: 'Rollen und bekannte Schwachstellen', step5Sub: 'Zustaendigkeiten und erkannte Luecken', step5Info: 'Art. 5 DORA verlangt klare Leitungsverantwortung fuer das IKT-Risikomanagement.',
+    commonRoles: 'Haeufige Rollen', addRole: 'Rolle hinzufuegen', customRolePh: 'Weitere Rolle eingeben', selectedRoles: 'Ausgewaehlte Rollen',
+    knownIssues: 'Bekannte Schwachstellen', knownIssuesPh: 'z.B. Kein TLPT durchgefuehrt, Meldeprozesse nicht dokumentiert...',
+    // Step 6 - Attachments
+    step6Title: 'Dokumentation und Nachweise', step6Sub: 'Vorhandene Unterlagen hochladen', step6Info: 'Relevante Dokumente koennen die Evidenzqualitaet im Pruefbericht erhoehen.',
+    filePrivacy: 'Dateien werden nicht gespeichert oder uebertragen.', uploadedFiles: 'Hochgeladene Dateien',
+    // Summary
+    summaryTitle: 'Zusammenfassung', summarySub: 'Pruefung der Eingaben vor Analyse',
+    sumEntity: 'Unternehmen', sumType: 'Unternehmensart', sumCriticality: 'Kritikalitaet',
+    sumInfra: 'Infrastruktur', sumProviders: 'IKT-Drittanbieter', sumRoles: 'Rollen',
+    sumMeasures: 'Massnahmen', sumMeasuresNone: 'Keine ausgewaehlt', sumMeasuresSelected: 'ausgewaehlt',
+    sumFiles: 'Dokumente', sumFilesNone: 'Keine hochgeladen', sumAttach: 'Anhang',
+    sumKnownGaps: 'Bekannte Schwachstellen',
+    // Criteria
+    criteriaHeader: 'Pruefkriterien',
+    // Maturity
+    maturityBasic: 'Basis', maturityPartial: 'Teilweise', maturityFull: 'Vollstaendig',
+    // Compliance Mapping
+    cmReadiness: 'DORA-Readiness', cmPassed: 'Konform', cmPartial: 'Teilweise', cmGaps: 'Nicht konform',
+    cmChecked: 'Geprueft', cmGapLabel: 'Gap', cmMeasure: 'Massnahme',
+    cmInfo: 'Die Konformitaetsbewertung zeigt den aktuellen Stand gegen alle DORA-Anforderungen.',
+    cmInfoTitle: 'DORA-Konformitaetsbewertung', cmNext: 'Zum Bericht',
+    documented: 'Dokumentiert', audited: 'Auditiert',
+    // Risk Analysis
+    raAllRisks: 'Alle Risiken', raMatrix: 'Risikomatrix', raInfo: 'Die Risikomatrix zeigt Eintrittswahrscheinlichkeit gegen Auswirkung fuer alle identifizierten IKT-Risiken.',
+    raInfoTitle: 'IKT-Risikomatrix', raNext: 'Zur DORA-Zuordnung', raPriority: 'Prioritaet', raThreat: 'Bedrohung',
+    // Risk Landscape
+    rlInfo: 'Die IKT-Risikolandschaft zeigt alle identifizierten Risiken nach Kategorie und Schweregrad.',
+    rlInfoTitle: 'IKT-Risikolandschaft',
+    // Threat Model
+    tmAttacker: 'Angreifer', tmPath: 'Angriffspfad', tmEvidence: 'Evidenz', tmRationale: 'Begruendung', tmSources: 'Quellen', tmNext: 'Zur Risikomatrix',
+    // Report
+    rpTitle: 'DORA-Pruefbericht', rpExport: 'Bericht exportieren', rpExportHint: 'PDF-Export des vollstaendigen DORA-Pruefberichts',
+    rpDone: 'Analyse abgeschlossen', rpDoneInfo: 'Der DORA-Pruefbericht wurde erstellt und kann exportiert werden.',
+    // Navigation title for ChatView
+    agentTitle: 'DORA Compliance Tool', agentDesc: 'DORA-Konformitaetspruefung fuer Finanzunternehmen – IKT-Risiken, Incident Reporting, Third-Party-Management',
+  },
 };
