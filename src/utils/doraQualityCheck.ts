@@ -8,6 +8,15 @@
 import type { DoraRisk, DoraReq, DoraIntakeData } from '@/data/doraData';
 import { riskId } from '@/data/doraData';
 
+/** Check if a risk's doraRef matches a requirement's article (supports partial matching) */
+function refsMatch(riskRef: string, reqArticle: string): boolean {
+  if (riskRef === reqArticle) return true;
+  // Extract base article (e.g. "Art. 9" from "Art. 9 Abs. 1-2")
+  const baseRisk = riskRef.split(' Abs.')[0].split(' lit.')[0];
+  const baseReq = reqArticle.split(' Abs.')[0].split(' lit.')[0];
+  return baseRisk === baseReq;
+}
+
 export interface QaCheck {
   id: string;
   category: 'consistency' | 'technical' | 'evidence' | 'editorial' | 'regulatory';
