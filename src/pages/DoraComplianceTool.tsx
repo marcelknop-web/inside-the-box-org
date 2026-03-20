@@ -983,11 +983,31 @@ function ReportView({ intakeData, risks, reqs }: { intakeData: DoraIntakeData; r
         </div>
       )}
 
-      {/* ═══ AUDIT DASHBOARD ═══ */}
-      <div className="bg-card border border-border rounded-xl p-5">
-        <div className="text-sm font-bold text-foreground mb-3">📊 {language === 'de' ? 'Auswertungs-Dashboard' : 'Assessment Dashboard'}</div>
-        <DoraAuditCharts risks={localRisks} reqs={localReqs} />
-      </div>
+      {/* ═══ FINDINGS & FIXES DASHBOARD ═══ */}
+      {qaResult && (
+        <div className="bg-card border border-border rounded-xl p-5">
+          <DoraFindingsView
+            risks={localRisks}
+            reqs={localReqs}
+            qaResult={qaResult}
+            preFixChecks={preFixQaChecks}
+            fixLog={fixLog}
+            fixesApplied={fixesApplied}
+          />
+        </div>
+      )}
+
+      {/* ═══ FULL DASHBOARD (after fixes) ═══ */}
+      {fixesApplied && (
+        <details className="bg-card border border-border rounded-xl overflow-hidden">
+          <summary className="px-5 py-3 cursor-pointer text-sm font-bold text-muted-foreground hover:text-foreground transition-colors">
+            📊 {language === 'de' ? 'Vollständiges Auswertungs-Dashboard anzeigen' : 'Show full assessment dashboard'}
+          </summary>
+          <div className="px-5 pb-5">
+            <DoraAuditCharts risks={localRisks} reqs={localReqs} />
+          </div>
+        </details>
+      )}
 
       {/* Export Bar */}
       <div className="bg-secondary border border-border rounded-lg p-4">
