@@ -24,9 +24,11 @@ const KpiCard = memo(({ value, label, color, sub }: { value: string | number; la
   </div>
 ));
 
-const ChartCard = memo(({ title, children, className = '' }: { title: string; children: React.ReactNode; className?: string }) => (
+const ChartCard = memo(({ title, subtitle, children, className = '' }: { title: string; subtitle?: string; children: React.ReactNode; className?: string }) => (
   <div className={`bg-card border border-border rounded-xl p-5 ${className}`}>
-    <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-4">{title}</h4>
+    <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1">{title}</h4>
+    {subtitle && <p className="text-[11px] text-muted-foreground/70 mb-4 leading-relaxed">{subtitle}</p>}
+    {!subtitle && <div className="mb-3" />}
     {children}
   </div>
 ));
@@ -140,7 +142,7 @@ function GanttChart({ reqs, de }: { reqs: DoraReq[]; de: boolean }) {
 
         {/* Rows */}
         <div className="divide-y divide-border/30">
-          {itemPositions.map(({ item, startWeek, endWeek, phase }, idx) => {
+          {itemPositions.map(({ item, startWeek, endWeek, phase, avgHours }, idx) => {
             const barLeft = (startWeek / GANTT_TOTAL_WEEKS) * 100;
             const barWidth = Math.max(5, ((endWeek - startWeek) / GANTT_TOTAL_WEEKS) * 100);
             const isEven = idx % 2 === 0;
@@ -148,7 +150,7 @@ function GanttChart({ reqs, de }: { reqs: DoraReq[]; de: boolean }) {
             return (
               <div
                 key={item.id}
-                className={`flex items-center px-3 py-2 group transition-colors duration-150 hover:bg-accent/40 ${isEven ? 'bg-transparent' : 'bg-muted/20'}`}
+                className={`flex items-center px-3 py-2 group relative transition-colors duration-150 hover:bg-accent/40 ${isEven ? 'bg-transparent' : 'bg-muted/20'}`}
               >
                 <div className="w-[180px] flex-shrink-0 pr-3 flex items-center gap-2">
                   <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: phase.color }} />
@@ -163,18 +165,29 @@ function GanttChart({ reqs, de }: { reqs: DoraReq[]; de: boolean }) {
                     <div key={pct} className="absolute top-0 bottom-0 border-l border-border/20" style={{ left: `${pct}%` }} />
                   ))}
                   <div
-                    className="absolute top-1 h-7 rounded-md flex items-center px-2 transition-all duration-200 group-hover:shadow-lg group-hover:brightness-110"
+                    className="absolute top-1 h-7 rounded-md flex items-center px-2 transition-all duration-200 group-hover:shadow-lg group-hover:brightness-110 cursor-default peer"
                     style={{
                       left: `${barLeft}%`,
                       width: `${barWidth}%`,
                       background: `linear-gradient(90deg, ${phase.color}, ${phase.color}bb)`,
                       boxShadow: `0 1px 4px ${phase.color}25`,
                     }}
-                    title={`${item.name}\n${item.effort || ''}\nArt. ${item.article}`}
                   >
                     <span className="text-[9px] font-bold text-white whitespace-nowrap overflow-hidden text-ellipsis">
                       {item.effort || item.id}
                     </span>
+                  </div>
+                  {/* Hover detail card */}
+                  <div className="absolute z-30 left-1/2 -translate-x-1/2 bottom-full mb-2 w-64 bg-card border border-border rounded-xl p-3 shadow-xl opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity duration-200">
+                    <div className="text-xs font-bold text-foreground mb-1">{item.id}: {item.name}</div>
+                    <div className="text-[10px] text-muted-foreground space-y-1">
+                      <div className="flex justify-between"><span>{de ? 'Artikel' : 'Article'}:</span><span className="font-mono font-bold">Art. {item.article}</span></div>
+                      <div className="flex justify-between"><span>{de ? 'Prioritaet' : 'Priority'}:</span><span className="font-bold" style={{ color: phase.color }}>{item.priority}</span></div>
+                      <div className="flex justify-between"><span>{de ? 'Aufwand' : 'Effort'}:</span><span className="font-mono">{item.effort || '—'}</span></div>
+                      <div className="flex justify-between"><span>{de ? 'Zeitraum' : 'Timeline'}:</span><span className="font-mono">{de ? `Woche ${startWeek}–${endWeek}` : `Week ${startWeek}–${endWeek}`}</span></div>
+                      <div className="flex justify-between"><span>Status:</span><span className={`font-bold ${item.status === 'fail' ? 'text-destructive' : 'text-yellow-500'}`}>{item.status === 'fail' ? (de ? 'Nicht erfuellt' : 'Failed') : (de ? 'Teilweise' : 'Partial')}</span></div>
+                      {item.gap && <div className="pt-1 border-t border-border mt-1 text-muted-foreground/80 line-clamp-2">{item.gap}</div>}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -373,7 +386,7 @@ export function DoraAuditCharts({ risks, reqs }: { risks: DoraRisk[]; reqs: Dora
             <KpiCard value={risks.filter(r => r.evidenceQuality >= 4).length} label={de ? 'Hohe Evidenz' : 'High Evidence'} color="text-green-500" sub={`/ ${risks.length}`} />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <ChartCard title={de ? 'CIAGTR-Risikoprofil' : 'CIAGTR Risk Profile'}>
+            <ChartCard title={de ? 'CIAGTR-Risikoprofil' : 'CIAGTR Risk Profile'} subtitle={de ? 'Radardarstellung der sechs Risikokategorien — je weiter aussen, desto hoeher das Risiko.' : 'Radar view of six risk categories — further out means higher risk.'}>
               <ResponsiveContainer width="100%" height={240}>
                 <RadarChart data={catRadar}>
                   <PolarGrid stroke="hsl(var(--border))" />
@@ -385,7 +398,7 @@ export function DoraAuditCharts({ risks, reqs }: { risks: DoraRisk[]; reqs: Dora
                 </RadarChart>
               </ResponsiveContainer>
             </ChartCard>
-            <ChartCard title={de ? 'Evidenzqualitaet' : 'Evidence Quality'}>
+            <ChartCard title={de ? 'Evidenzqualitaet' : 'Evidence Quality'} subtitle={de ? 'Verteilung der Evidenzbewertungen (1–5). Hohe Werte bedeuten belastbare Nachweise.' : 'Distribution of evidence quality ratings (1–5). Higher values indicate robust evidence.'}>
               <ResponsiveContainer width="100%" height={240}>
                 <BarChart data={evidenceData} margin={{ left: -15, right: 10 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" /><XAxis dataKey="name" tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }} /><YAxis tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }} allowDecimals={false} /><Tooltip contentStyle={tooltipStyle} />
@@ -394,7 +407,7 @@ export function DoraAuditCharts({ risks, reqs }: { risks: DoraRisk[]; reqs: Dora
               </ResponsiveContainer>
             </ChartCard>
           </div>
-          <ChartCard title={de ? 'Hoechste Risiko-Scores' : 'Top Risk Scores'}>
+          <ChartCard title={de ? 'Hoechste Risiko-Scores' : 'Top Risk Scores'} subtitle={de ? 'Die acht Risiken mit dem hoechsten Score (max. 25). Kritische Risiken erfordern sofortige Massnahmen.' : 'Top eight risks by score (max 25). Critical risks require immediate action.'}>
             <ResponsiveContainer width="100%" height={280}>
               <BarChart data={topRisks} layout="vertical" margin={{ left: 15, right: 15 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" /><XAxis type="number" domain={[0, 25]} tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }} />
@@ -427,7 +440,7 @@ export function DoraAuditCharts({ risks, reqs }: { risks: DoraRisk[]; reqs: Dora
                 : (de ? 'Kritische Luecken — sofortiger Handlungsbedarf' : 'Critical gaps — immediate action required')}
             </div>
           </div>
-          <ChartCard title={de ? 'Anforderungs-Status' : 'Requirement Status'}>
+          <ChartCard title={de ? 'Anforderungs-Status' : 'Requirement Status'} subtitle={de ? 'Alle geprueften DORA-Anforderungen mit aktuellem Bewertungsstatus.' : 'All assessed DORA requirements with their current evaluation status.'}>
             <div className="space-y-1.5 max-h-[400px] overflow-y-auto">
               {reqs.map(r => (
                 <div key={r.id} className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-accent/50 transition-colors text-sm">
@@ -455,18 +468,18 @@ export function DoraAuditCharts({ risks, reqs }: { risks: DoraRisk[]; reqs: Dora
           </div>
 
           {/* ═══ GANTT CHART ═══ */}
-          <ChartCard title={de ? 'Umsetzungs-Roadmap' : 'Remediation Roadmap'}>
+          <ChartCard title={de ? 'Umsetzungs-Roadmap' : 'Remediation Roadmap'} subtitle={de ? 'Zeitlicher Ablauf aller offenen Massnahmen als Wasserfall-Darstellung. Fahren Sie mit der Maus ueber einen Balken fuer Details.' : 'Timeline of all open measures as a waterfall view. Hover over a bar for details.'}>
             <GanttChart reqs={reqs} de={de} />
           </ChartCard>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <ChartCard title={de ? 'Prioritaetsverteilung' : 'Priority Distribution'}>
+            <ChartCard title={de ? 'Prioritaetsverteilung' : 'Priority Distribution'} subtitle={de ? 'Anteil der offenen Massnahmen nach Dringlichkeitsstufe (P0 = sofort, P3 = langfristig).' : 'Share of open measures by urgency level (P0 = immediate, P3 = long-term).'}>
               <ResponsiveContainer width="100%" height={200}>
                 <PieChart><Pie data={gapPriority} dataKey="value" cx="50%" cy="50%" innerRadius={45} outerRadius={70} paddingAngle={4} strokeWidth={0}>{gapPriority.map((e, i) => <Cell key={i} fill={e.color} />)}</Pie><Tooltip contentStyle={tooltipStyle} /></PieChart>
               </ResponsiveContainer>
               <div className="flex justify-center gap-3 text-[11px] mt-1">{gapPriority.map(d => (<span key={d.name} className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full" style={{ backgroundColor: d.color }} />{d.name} ({d.label}): <span className="font-bold font-mono">{d.value}</span></span>))}</div>
             </ChartCard>
-            <ChartCard title={de ? 'Luecken nach Prioritaet' : 'Gaps by Priority'}>
+            <ChartCard title={de ? 'Luecken nach Prioritaet' : 'Gaps by Priority'} subtitle={de ? 'Detailliste aller nicht erfuellten Anforderungen mit Lueckenbeschreibung und Aufwandsschaetzung.' : 'Detail list of all non-compliant requirements with gap description and effort estimate.'}>
               <div className="space-y-2 max-h-[260px] overflow-y-auto">
                 {reqs.filter(r => r.status !== 'pass').sort((a, b) => (a.priority || 'P2').localeCompare(b.priority || 'P2')).map(r => (
                   <div key={r.id} className="flex items-start gap-2 px-3 py-2 rounded-lg bg-secondary/30 text-xs">

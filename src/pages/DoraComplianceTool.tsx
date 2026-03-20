@@ -741,7 +741,7 @@ function ReportView({ intakeData, risks, reqs }: { intakeData: DoraIntakeData; r
   const [fixProgress, setFixProgress] = useState(0);
   const [fixLog, setFixLog] = useState<string[]>([]);
   const [allFixLogs, setAllFixLogs] = useState<string[]>([]);
-  const [draftDownloaded, setDraftDownloaded] = useState(false);
+  const [draftDownloaded] = useState(true); // No draft step — QA is always available
   const [qaIteration, setQaIteration] = useState(0);
   interface QaHistoryEntry { iteration: number; passed: number; total: number; failed: number; verdict: string; fixes: string[] }
   const [qaHistory, setQaHistory] = useState<QaHistoryEntry[]>([]);
@@ -792,10 +792,7 @@ function ReportView({ intakeData, risks, reqs }: { intakeData: DoraIntakeData; r
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
   }, [qaResult, localRisks, localReqs, language, intakeData]);
 
-  const handleDraftPdf = useCallback(() => {
-    generateDoraReport({ intakeData, risks: localRisks, reqs: localReqs, language: language as 'de' | 'en' | 'fr', entityTypeName: typeName, criticalityName: critName, isDraft: true });
-    setDraftDownloaded(true);
-  }, [intakeData, localRisks, localReqs, language, typeName, critName]);
+  // Draft step removed — no longer needed
 
   const handleFinalPdf = useCallback(() => {
     setFinalPdfRunning(true);
@@ -1004,28 +1001,23 @@ function ReportView({ intakeData, risks, reqs }: { intakeData: DoraIntakeData; r
             const disabledClass = 'bg-muted text-muted-foreground cursor-not-allowed';
             const defaultClass = 'bg-card border border-border text-foreground hover:bg-accent';
 
-            const qaIsNext = !draftDownloaded ? false : (!qaResult || fixesApplied);
+            const qaIsNext = !qaResult || fixesApplied;
             const fixesIsNext = qaResult && qaResult.failed > 0 && !fixesApplied && !fixesRunning;
             const finalIsNext = fixesApplied || qaVerdict === 'passed' || qaVerdict === 'conditional';
 
             return (
               <>
-                <button onClick={handleDraftPdf} className={`text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2 transition-all ${!draftDownloaded ? activeClass : doneClass}`}>
-                  {draftDownloaded ? <CheckCircle2 className="w-4 h-4" /> : <FileText className="w-4 h-4" />}
-                  <span className="font-mono text-xs opacity-60 mr-0.5">1</span> PDF Draft
-                </button>
-                <span className="text-muted-foreground text-xs hidden sm:inline">{'>'}</span>
-                <button onClick={handleQaCheck} disabled={qaRunning || !draftDownloaded} className={`text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2 transition-all disabled:opacity-50 ${qaRunning ? activeClass : qaIsNext ? activeClass : qaResult && !fixesApplied ? doneClass : !draftDownloaded ? disabledClass : defaultClass}`}>
+                <button onClick={handleQaCheck} disabled={qaRunning} className={`text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2 transition-all disabled:opacity-50 ${qaRunning ? activeClass : qaIsNext ? activeClass : qaResult && !fixesApplied ? doneClass : defaultClass}`}>
                   {qaRunning ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShieldCheck className="w-4 h-4" />}
-                  <span className="font-mono text-xs opacity-60 mr-0.5">2</span>
-                  {qaRunning ? (language === 'de' ? 'Pruefe...' : 'Checking...') : (fixesApplied ? (language === 'de' ? 'Erneut pruefen' : 'Re-check') : (language === 'de' ? 'Qualitaetscheck' : 'Quality Check'))}
+                  <span className="font-mono text-xs opacity-60 mr-0.5">1</span>
+                  {qaRunning ? (language === 'de' ? 'Pruefe...' : 'Checking...') : (fixesApplied ? (language === 'de' ? 'Erneut pruefen' : 'Re-check') : (language === 'de' ? 'Pruefung starten' : 'Start Audit'))}
                   {qaIteration > 0 && <span className="text-[10px] font-mono opacity-60">#{qaIteration}</span>}
                 </button>
                 <span className="text-muted-foreground text-xs hidden sm:inline">{'>'}</span>
                 <div className="flex flex-col items-center gap-1">
                   <button onClick={handleApplyFixes} disabled={!qaResult || qaResult.failed === 0 || fixesApplied || fixesRunning} className={`text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2 transition-all disabled:opacity-50 ${fixesRunning ? activeClass : fixesIsNext ? activeClass : fixesApplied ? doneClass : (!qaResult || qaResult.failed === 0) ? disabledClass : defaultClass}`}>
                     {fixesRunning ? <Loader2 className="w-4 h-4 animate-spin" /> : fixesApplied ? <CheckCircle2 className="w-4 h-4" /> : <Wrench className="w-4 h-4" />}
-                    <span className="font-mono text-xs opacity-60 mr-0.5">3</span>
+                    <span className="font-mono text-xs opacity-60 mr-0.5">2</span>
                     {fixesRunning ? (language === 'de' ? 'Wird umgesetzt...' : 'Applying...') : (language === 'de' ? 'Empfehlungen umsetzen' : 'Apply Fixes')}
                   </button>
                   {fixesRunning && <Progress value={fixProgress} className="w-full h-1.5 mt-1" />}
@@ -1033,7 +1025,7 @@ function ReportView({ intakeData, risks, reqs }: { intakeData: DoraIntakeData; r
                 <span className="text-muted-foreground text-xs hidden sm:inline">{'>'}</span>
                 <button onClick={handleFinalPdf} disabled={!canFinal || finalPdfRunning} className={`text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2 transition-all ${finalPdfRunning ? activeClass : finalIsNext && canFinal ? activeClass : !canFinal ? disabledClass : defaultClass}`}>
                   {finalPdfRunning ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
-                  <span className="font-mono text-xs opacity-60 mr-0.5">4</span>
+                  <span className="font-mono text-xs opacity-60 mr-0.5">3</span>
                   {finalPdfRunning ? (language === 'de' ? 'Wird erstellt...' : 'Generating...') : 'PDF Final'}
                 </button>
               </>
