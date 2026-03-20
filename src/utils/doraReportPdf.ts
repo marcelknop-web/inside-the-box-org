@@ -422,8 +422,8 @@ export function generateDoraReport(data: DoraReportData): void {
 
   heading(l('sec2', lang));
   introText(lang === 'de'
-    ? 'Dieser Abschnitt fasst die wesentlichen Ergebnisse der DORA-Konformitätsprüfung zusammen. Er richtet sich an die Geschäftsleitung und gibt eine datengestützte Einschätzung der regulatorischen Reife.'
-    : 'This section summarises the key findings of the DORA compliance assessment for decision-makers.');
+    ? 'Was muss die Geschaeftsleitung wissen? Dieser Abschnitt bringt die wichtigsten Ergebnisse auf den Punkt — mit konkreten Zahlen und einer klaren Einschaetzung, wo das Unternehmen steht.'
+    : 'What does the board need to know? This section distills the key findings into concrete numbers and a clear picture of where the entity stands.');
 
   const summary = getMgmtSummary(intakeData.entityName, risks.length, critCount, failCount, partCount, reqs.length, passCount, lang);
 
