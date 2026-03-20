@@ -408,7 +408,7 @@ export function generateDoraReport(data: DoraReportData): void {
   // ═══════════════════════════════════════════════════════════
   newPage();
   heading(l('sec1', lang));
-  bodyParagraph(getContextText(intakeData.entityName, entityTypeName, criticalityName, today, lang));
+  bodyParagraph(getContextText(intakeData.entityName, entityTypeName, criticalityName, today, lang, intakeData));
 
   // ═══════════════════════════════════════════════════════════
   // SECTION 2: Management Summary
