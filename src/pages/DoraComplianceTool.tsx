@@ -1113,7 +1113,7 @@ const DoraComplianceTool = ({ embedded }: { embedded?: boolean }) => {
       </div>
 
       <div className="border-b border-border px-4 py-3 mb-1">
-        <div className="flex items-center max-w-5xl mx-auto overflow-x-auto">
+        <div className="flex items-center max-w-5xl overflow-x-auto">
           {mainSteps.map((s, i) => (
             <div key={i} className="flex items-center flex-1 last:flex-none">
               <button onClick={() => i < step && setStep(i)} className={`flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-lg transition-colors whitespace-nowrap ${i === step ? 'bg-primary text-primary-foreground' : i < step ? 'text-primary hover:bg-primary/10 cursor-pointer' : 'text-muted-foreground cursor-not-allowed'}`}>
