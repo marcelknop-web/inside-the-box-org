@@ -1128,7 +1128,7 @@ const DoraComplianceTool = ({ embedded }: { embedded?: boolean }) => {
 
       <Progress value={progressPct} className="h-1 rounded-none" />
 
-      <div className="max-w-5xl mx-auto px-4 py-6">
+      <div className="max-w-5xl px-4 md:px-8 lg:px-12 py-6">
         {loading ? (
           <div className="bg-card rounded-xl border border-border p-16 text-center">
             <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-5" />
