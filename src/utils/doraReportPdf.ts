@@ -589,8 +589,8 @@ export function generateDoraReport(data: DoraReportData): void {
   newPage();
   heading(l('sec4', lang));
   introText(lang === 'de'
-    ? 'In diesem Abschnitt werden die identifizierten IKT-Risiken und Konformitätslücken im Detail dargestellt. Jede Feststellung enthält die zugrundeliegende Evidenz, die Bewertungslogik und die regulatorische Referenz. Die vollständige Dokumentation jeder Prüfungshandlung ist in den Arbeitspapieren (Anhang E) hinterlegt und dort durch Dritte — einschließlich automatisierter Systeme — nachvollziehbar.'
-    : 'This section presents identified ICT risks and compliance gaps in detail. Each finding includes evidence, assessment rationale, and regulatory reference. Full audit documentation for each control is maintained in the Working Papers (Appendix E) and is fully traceable by third parties, including automated systems.');
+    ? 'Hier wird es konkret: Jedes identifizierte IKT-Risiko und jede Konformitaetsluecke wird einzeln dargestellt — mit der zugrundeliegenden Evidenz, der Bewertungslogik und der regulatorischen Einordnung. Wer eine Bewertung nachvollziehen oder hinterfragen moechte, findet die vollstaendige Dokumentation in den Arbeitspapieren (Anhang E).'
+    : 'This is where it gets concrete: each identified ICT risk and compliance gap is presented individually — with the underlying evidence, the assessment rationale, and the regulatory reference. Anyone looking to trace or challenge an assessment will find the complete documentation in the Working Papers (Appendix E).');
 
   // 4.1 Risk Landscape
   heading(l('sec4a', lang), 2);
