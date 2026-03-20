@@ -331,11 +331,13 @@ function IntakeWizard({ onFinish }: { onFinish: (d: DoraIntakeData) => void }) {
         });
       };
       const maturityLabel = (entry: MeasureEntry) => {
+        if (entry.active && entry.documented && entry.audited && entry.certified) return t('dora.maturityCertified');
         if (entry.active && entry.documented && entry.audited) return t('dora.maturityFull');
         if (entry.active && entry.documented) return t('dora.maturityPartial');
         return t('dora.maturityBasic');
       };
       const maturityColor = (entry: MeasureEntry) => {
+        if (entry.active && entry.documented && entry.audited && entry.certified) return 'text-primary';
         if (entry.active && entry.documented && entry.audited) return 'text-green-400';
         if (entry.active && entry.documented) return 'text-yellow-400';
         return 'text-orange-400';
