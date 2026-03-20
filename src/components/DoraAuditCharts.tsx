@@ -479,7 +479,7 @@ export function DoraAuditCharts({ risks, reqs }: { risks: DoraRisk[]; reqs: Dora
               </ResponsiveContainer>
               <div className="flex justify-center gap-3 text-[11px] mt-1">{gapPriority.map(d => (<span key={d.name} className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full" style={{ backgroundColor: d.color }} />{d.name} ({d.label}): <span className="font-bold font-mono">{d.value}</span></span>))}</div>
             </ChartCard>
-            <ChartCard title={de ? 'Luecken nach Prioritaet' : 'Gaps by Priority'}>
+            <ChartCard title={de ? 'Luecken nach Prioritaet' : 'Gaps by Priority'} subtitle={de ? 'Detailliste aller nicht erfuellten Anforderungen mit Lueckenbeschreibung und Aufwandsschaetzung.' : 'Detail list of all non-compliant requirements with gap description and effort estimate.'}>
               <div className="space-y-2 max-h-[260px] overflow-y-auto">
                 {reqs.filter(r => r.status !== 'pass').sort((a, b) => (a.priority || 'P2').localeCompare(b.priority || 'P2')).map(r => (
                   <div key={r.id} className="flex items-start gap-2 px-3 py-2 rounded-lg bg-secondary/30 text-xs">
