@@ -17,7 +17,8 @@ export interface DoraReportData {
 }
 
 /* ════════════════════════════════════════════════════════════
-   I18N — all strings use ASCII-safe characters for jsPDF
+   I18N — German strings use proper umlauts (ä, ö, ü, ß)
+   jsPDF built-in fonts support Windows-1252 encoding
    ════════════════════════════════════════════════════════════ */
 const I18N: Record<string, Record<string, string>> = {
   title: { de: 'DORA Konformitätsbewertung', en: 'DORA Compliance Assessment', fr: 'Evaluation de conformite DORA' },
