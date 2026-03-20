@@ -17,8 +17,7 @@ export interface DoraReportData {
 }
 
 /* ════════════════════════════════════════════════════════════
-   I18N — German strings use proper umlauts (ä, ö, ü, ß)
-   jsPDF built-in fonts support Windows-1252 encoding
+   I18N
    ════════════════════════════════════════════════════════════ */
 const I18N: Record<string, Record<string, string>> = {
   title: { de: 'DORA Konformitätsbewertung', en: 'DORA Compliance Assessment', fr: 'Evaluation de conformite DORA' },
@@ -39,7 +38,7 @@ const I18N: Record<string, Record<string, string>> = {
   sec3e: { de: '3.5  Eingereichte Dokumentation', en: '3.5  Submitted Documentation', fr: '3.5  Documentation soumise' },
   sec4: { de: '4  Feststellungen im Einzelnen', en: '4  Detailed Findings', fr: '4  Constatations detaillees' },
   sec4a: { de: '4.1  IKT-Risikolandschaft', en: '4.1  ICT Risk Landscape', fr: '4.1  Paysage des risques TIC' },
-  sec4b: { de: '4.2  DORA-Konformitätsluecken', en: '4.2  DORA Compliance Gaps', fr: '4.2  Lacunes de conformite DORA' },
+  sec4b: { de: '4.2  DORA-Konformitätslücken', en: '4.2  DORA Compliance Gaps', fr: '4.2  Lacunes de conformite DORA' },
   sec5: { de: '5  Handlungsempfehlungen und Roadmap', en: '5  Recommendations and Roadmap', fr: '5  Recommandations et feuille de route' },
   sec5a: { de: '5.1  Priorisierte Maßnahmen (P0-P3)', en: '5.1  Prioritised Measures (P0-P3)', fr: '5.1  Mesures priorisees (P0-P3)' },
   sec5b: { de: '5.2  Remediation-Roadmap', en: '5.2  Remediation Roadmap', fr: '5.2  Feuille de route de remediation' },
@@ -57,11 +56,11 @@ const I18N: Record<string, Record<string, string>> = {
   criticality: { de: 'Kritikalität', en: 'Criticality', fr: 'Criticite' },
   risk: { de: 'IKT-Risiko', en: 'ICT Risk', fr: 'Risque TIC' },
   finding: { de: 'Feststellung', en: 'Finding', fr: 'Constatation' },
-  component: { de: 'Betroffene Komponente', en: 'Affected Component', fr: 'Composant concerne' },
+  component: { de: 'Komponente', en: 'Component', fr: 'Composant' },
   attacker: { de: 'Angreiferprofil', en: 'Attacker Profile', fr: 'Profil attaquant' },
   attackPath: { de: 'Angriffsvektor', en: 'Attack Vector', fr: 'Vecteur d\'attaque' },
-  evidence: { de: 'Erhobene Evidenz', en: 'Collected Evidence', fr: 'Elements de preuve' },
-  rationale: { de: 'Bewertungsgrundlage', en: 'Assessment Rationale', fr: 'Fondement de l\'evaluation' },
+  evidence: { de: 'Evidenz', en: 'Evidence', fr: 'Elements de preuve' },
+  rationale: { de: 'Bewertungsgrundlage', en: 'Rationale', fr: 'Fondement' },
   riskScore: { de: 'Risikobewertung', en: 'Risk Rating', fr: 'Evaluation du risque' },
   likelihood: { de: 'Eintrittswahrsch.', en: 'Likelihood', fr: 'Probabilite' },
   impact: { de: 'Auswirkung', en: 'Impact', fr: 'Impact' },
@@ -77,12 +76,12 @@ const I18N: Record<string, Record<string, string>> = {
   doraRef: { de: 'DORA-Referenz', en: 'DORA Reference', fr: 'Reference DORA' },
   draftWatermark: { de: 'ENTWURF', en: 'DRAFT', fr: 'BROUILLON' },
 
-  measures: { de: 'Implementierte Maßnahmen', en: 'Implemented Measures', fr: 'Mesures mises en oeuvre' },
+  measures: { de: 'Maßnahme', en: 'Measure', fr: 'Mesure' },
   measureMaturity: { de: 'Reifegrad', en: 'Maturity', fr: 'Maturite' },
   active: { de: 'Aktiv', en: 'Active', fr: 'Active' },
-  documented: { de: 'Dokumentiert', en: 'Documented', fr: 'Documentee' },
-  audited: { de: 'Auditiert', en: 'Audited', fr: 'Auditee' },
-  certified: { de: 'Zertifiziert', en: 'Certified', fr: 'Certifie' },
+  documented: { de: 'Dok.', en: 'Doc.', fr: 'Doc.' },
+  audited: { de: 'Audit', en: 'Audit', fr: 'Audit' },
+  certified: { de: 'Zert.', en: 'Cert.', fr: 'Cert.' },
   yes: { de: 'Ja', en: 'Yes', fr: 'Oui' },
   no: { de: 'Nein', en: 'No', fr: 'Non' },
   noFilesSubmitted: { de: 'Keine Dokumente eingereicht.', en: 'No documents submitted.', fr: 'Aucun document soumis.' },
@@ -91,7 +90,7 @@ const I18N: Record<string, Record<string, string>> = {
   reproducibility: { de: 'Reproduzierbarkeit', en: 'Reproducibility', fr: 'Reproductibilite' },
 
   totalRisks: { de: 'IKT-Risiken', en: 'ICT Risks', fr: 'Risques TIC' },
-  criticalRisks: { de: 'Kritisch (>= 20)', en: 'Critical (>= 20)', fr: 'Critiques (>= 20)' },
+  criticalRisks: { de: 'Kritisch', en: 'Critical', fr: 'Critiques' },
   nonCompliant: { de: 'Nicht konform', en: 'Non-Compliant', fr: 'Non conformes' },
   partialGaps: { de: 'Teilw. konform', en: 'Partial', fr: 'Partiels' },
   complianceRate: { de: 'Konformitätsrate', en: 'Compliance Rate', fr: 'Taux de conformite' },
@@ -102,7 +101,7 @@ function l(key: string, lang: string): string {
 }
 
 /* ════════════════════════════════════════════════════════════
-   Prose blocks — detailed explanatory text per section
+   Prose blocks
    ════════════════════════════════════════════════════════════ */
 function getContextText(name: string, typeName: string, critName: string, date: string, lang: string): string {
   if (lang === 'de') return `Der vorliegende Bericht dokumentiert die Ergebnisse einer strukturierten Konformitätsbewertung für das Finanzunternehmen ${name} (${typeName}, Kritikalität: ${critName}) gemäß Verordnung (EU) 2022/2554 (Digital Operational Resilience Act, DORA). Die Prüfung wurde am ${date} durchgeführt.\n\nZielsetzung war die systematische Bewertung der digitalen operationalen Resilienz in fünf Kernbereichen: IKT-Risikomanagement (Kapitel II DORA), Behandlung IKT-bezogener Vorfälle (Kapitel III), Testen der digitalen operationalen Resilienz (Kapitel IV), Management des IKT-Drittparteienrisikos (Kapitel V) sowie Governance und organisatorische Anforderungen (Art. 5-6).\n\nDer Bericht richtet sich an die Geschäftsleitung, die für IKT-Risikomanagement verantwortlichen Stellen, die Compliance-Abteilung sowie die zuständige Aufsichtsbehörde. Er ist so strukturiert, dass die getroffenen Bewertungsentscheidungen durch Dritte — einschließlich automatisierter Prüfverfahren — vollständig nachvollzogen und verifiziert werden können.`;
@@ -134,10 +133,9 @@ function getMgmtSummary(name: string, risks: number, crit: number, failReqs: num
         : `Bei Feststellung der Mängel durch die zuständige Aufsichtsbehörde (BaFin, EZB) drohen: Verwaltungsmaßnahmen nach Art. 50 DORA, Bußgelder gemäß nationalem Umsetzungsrecht sowie im Extremfall die Einschränkung der Geschäftstätigkeit. Der geschätzte Remediation-Aufwand ist in Abschnitt 5 dargestellt.`,
       action: ready
         ? 'Empfehlung: Monitoring-Prozess etablieren und nächste reguläre DORA-Prüfung planen.'
-        : 'Empfehlung: Sofortmaßnahmen (P0) aus Abschnitt 5.1 mit Verantwortlichkeiten und Fristen versehen. Woechentliches Tracking bis zur Schließung aller kritischen Gaps.',
+        : 'Empfehlung: Sofortmaßnahmen (P0) aus Abschnitt 5.1 mit Verantwortlichkeiten und Fristen versehen. Wöchentliches Tracking bis zur Schließung aller kritischen Gaps.',
     };
   }
-  // EN fallback
   return {
     verdict: ready
       ? `${name} meets all essential DORA requirements. Regulatory compliance confirmed.`
@@ -157,44 +155,65 @@ function getMgmtSummary(name: string, risks: number, crit: number, failReqs: num
 }
 
 /* ════════════════════════════════════════════════════════════
+   Color palette — Deep navy + warm grays (banking SV aesthetic)
+   ════════════════════════════════════════════════════════════ */
+const C = {
+  navy:    [15, 30, 55] as [number, number, number],    // headings, rules
+  dark:    [30, 35, 42] as [number, number, number],    // body text
+  mid:     [100, 105, 115] as [number, number, number], // secondary text
+  light:   [155, 160, 168] as [number, number, number], // tertiary
+  rule:    [200, 205, 210] as [number, number, number], // hairlines
+  bg:      [247, 248, 250] as [number, number, number], // subtle fills
+  white:   [255, 255, 255] as [number, number, number],
+};
+
+/* ════════════════════════════════════════════════════════════
    PDF Generation
    ════════════════════════════════════════════════════════════ */
 export function generateDoraReport(data: DoraReportData): void {
   const { intakeData, risks, reqs, language: lang, entityTypeName, criticalityName, isDraft } = data;
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
 
-  // Asymmetric margins for binding
-  const LEFT = 28; const RIGHT = 185; const WIDTH = RIGHT - LEFT;
-  const TOP = 32; const BOTTOM = 272;
+  // Layout grid — generous margins, Silicon Valley whitespace
+  const LEFT = 25; const RIGHT = 185; const WIDTH = RIGHT - LEFT;
+  const TOP = 30; const BOTTOM = 274;
   let y = TOP;
   let pageNum = 0;
   const reportId = 'DORA-' + Math.random().toString(36).substring(2, 8).toUpperCase();
   const today = new Date().toLocaleDateString(lang === 'de' ? 'de-DE' : lang === 'fr' ? 'fr-FR' : 'en-US', { day: '2-digit', month: 'long', year: 'numeric' });
+
+  // ── Fonts ──────────────────────────────────────────────────
+  // helvetica = headings, labels, UI elements (clean, modern)
+  // times = body prose (formal, banking-grade readability)
+  // courier = data tables only (monospace alignment)
+
+  const BODY_FONT = 'times';
+  const HEAD_FONT = 'helvetica';
+  const DATA_FONT = 'courier';
 
   // ── Page management ─────────────────────────────────────────
   function newPage() {
     if (pageNum > 0) doc.addPage();
     pageNum++;
     y = TOP;
-    // Top rule
-    doc.setDrawColor(60, 60, 60);
-    doc.setLineWidth(0.3);
-    doc.line(LEFT, TOP - 6, RIGHT, TOP - 6);
+    // Top hairline
+    doc.setDrawColor(...C.navy); doc.setLineWidth(0.4);
+    doc.line(LEFT, TOP - 8, RIGHT, TOP - 8);
     // Footer
-    doc.setFontSize(7); doc.setTextColor(140, 140, 140); doc.setFont('helvetica', 'normal');
+    doc.setFontSize(6.5); doc.setTextColor(...C.light); doc.setFont(HEAD_FONT, 'normal');
     doc.text(l('confidential', lang), LEFT, BOTTOM + 8);
     doc.text(`${l('page', lang)} ${pageNum}`, RIGHT, BOTTOM + 8, { align: 'right' });
     doc.text(reportId, (LEFT + RIGHT) / 2, BOTTOM + 8, { align: 'center' });
-    // Bottom rule
-    doc.setDrawColor(180, 180, 180);
-    doc.setLineWidth(0.2);
+    // Bottom hairline
+    doc.setDrawColor(...C.rule); doc.setLineWidth(0.15);
     doc.line(LEFT, BOTTOM + 4, RIGHT, BOTTOM + 4);
-    doc.setTextColor(0, 0, 0);
+    doc.setTextColor(...C.dark);
     // Draft watermark
     if (isDraft) {
-      doc.setFontSize(54); doc.setTextColor(230, 230, 230);
+      doc.setFontSize(52); doc.setTextColor(230, 230, 230);
+      doc.setFont(HEAD_FONT, 'bold');
       doc.text(l('draftWatermark', lang), 105, 160, { align: 'center', angle: 45 });
-      doc.setTextColor(0, 0, 0);
+      doc.setTextColor(...C.dark);
     }
   }
 
@@ -204,111 +223,138 @@ export function generateDoraReport(data: DoraReportData): void {
 
   // ── Typography primitives ──────────────────────────────────
   function heading(text: string, level: 1 | 2 | 3 = 1) {
-    const sizes = { 1: 13, 2: 10.5, 3: 9 };
-    checkSpace(level === 1 ? 22 : 14);
+    const sizes = { 1: 12.5, 2: 10, 3: 9 };
+    checkSpace(level === 1 ? 20 : 14);
     if (level === 1) {
-      y += 5;
-      doc.setDrawColor(40, 40, 40); doc.setLineWidth(0.5);
-      doc.line(LEFT, y - 2, LEFT + 30, y - 2);
-      y += 4;
+      y += 6;
+      doc.setDrawColor(...C.navy); doc.setLineWidth(0.6);
+      doc.line(LEFT, y - 3, LEFT + 22, y - 3);
+      y += 3;
+    } else if (level === 2) {
+      y += 3;
     }
     doc.setFontSize(sizes[level]);
-    doc.setFont('helvetica', 'bold');
+    doc.setFont(HEAD_FONT, 'bold');
+    doc.setTextColor(...C.navy);
     const lines = doc.splitTextToSize(text, WIDTH);
     doc.text(lines, LEFT, y);
-    y += lines.length * (level === 1 ? 6 : 5) + 2;
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(9);
+    y += lines.length * (level === 1 ? 5.5 : 4.5) + (level === 1 ? 3 : 2);
+    doc.setFont(BODY_FONT, 'normal');
+    doc.setTextColor(...C.dark);
+    doc.setFontSize(9.5);
   }
 
   function introText(text: string) {
-    doc.setFontSize(8.5); doc.setTextColor(90, 90, 90);
-    doc.setFont('helvetica', 'italic');
+    doc.setFontSize(8.5); doc.setTextColor(...C.mid);
+    doc.setFont(BODY_FONT, 'italic');
     const lines = doc.splitTextToSize(text, WIDTH);
-    checkSpace(lines.length * 3.5 + 4);
+    checkSpace(lines.length * 3.8 + 4);
     doc.text(lines, LEFT, y);
-    y += lines.length * 3.5 + 4;
-    doc.setTextColor(0, 0, 0); doc.setFont('helvetica', 'normal'); doc.setFontSize(9);
+    y += lines.length * 3.8 + 5;
+    doc.setTextColor(...C.dark); doc.setFont(BODY_FONT, 'normal'); doc.setFontSize(9.5);
   }
 
   function bodyText(text: string, indent = 0) {
-    doc.setFontSize(9); doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9.5); doc.setFont(BODY_FONT, 'normal');
+    doc.setTextColor(...C.dark);
     const lines = doc.splitTextToSize(text, WIDTH - indent);
-    checkSpace(lines.length * 4 + 2);
+    checkSpace(lines.length * 4.2 + 2);
     doc.text(lines, LEFT + indent, y);
-    y += lines.length * 4 + 2;
+    y += lines.length * 4.2 + 2;
   }
 
   function bodyParagraph(text: string) {
-    doc.setFontSize(9); doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9.5); doc.setFont(BODY_FONT, 'normal');
+    doc.setTextColor(...C.dark);
     const lines = doc.splitTextToSize(text, WIDTH);
-    checkSpace(lines.length * 4 + 4);
+    checkSpace(lines.length * 4.2 + 4);
     doc.text(lines, LEFT, y);
-    y += lines.length * 4 + 5;
+    y += lines.length * 4.2 + 5;
   }
 
-  function labelValue(label: string, value: string, labelWidth = 50) {
+  // Two-line label-value: label above, value below — no column overflow
+  function field(label: string, value: string) {
+    checkSpace(12);
+    doc.setFont(HEAD_FONT, 'normal'); doc.setFontSize(7);
+    doc.setTextColor(...C.mid);
+    doc.text(label.toUpperCase(), LEFT, y);
+    y += 3.5;
+    doc.setFont(BODY_FONT, 'normal'); doc.setFontSize(9.5);
+    doc.setTextColor(...C.dark);
+    const lines = doc.splitTextToSize(value, WIDTH);
+    doc.text(lines, LEFT, y);
+    y += lines.length * 4.2 + 3;
+  }
+
+  // Inline label-value for compact data (with safe wrapping)
+  function fieldInline(label: string, value: string, indent = 0) {
     checkSpace(10);
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(8);
-    doc.text(label + ':', LEFT, y);
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(9);
-    const valLines = doc.splitTextToSize(value, WIDTH - labelWidth);
-    doc.text(valLines, LEFT + labelWidth, y);
+    const labelW = Math.min(doc.getTextWidth(label + ':  ') + 2, 48);
+    doc.setFont(HEAD_FONT, 'bold'); doc.setFontSize(8);
+    doc.setTextColor(...C.mid);
+    doc.text(label, LEFT + indent, y);
+    doc.setFont(BODY_FONT, 'normal'); doc.setFontSize(9);
+    doc.setTextColor(...C.dark);
+    const valLines = doc.splitTextToSize(value, WIDTH - indent - labelW - 2);
+    doc.text(valLines, LEFT + indent + labelW, y);
     y += Math.max(valLines.length * 4, 5) + 1.5;
   }
 
   function separator() {
-    checkSpace(6);
-    doc.setDrawColor(210, 210, 210); doc.setLineWidth(0.15);
+    checkSpace(7);
+    doc.setDrawColor(...C.rule); doc.setLineWidth(0.12);
     doc.line(LEFT, y, RIGHT, y);
-    y += 5;
+    y += 6;
   }
 
   function bulletItem(text: string, indent = 6) {
-    doc.setFontSize(9); doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9.5); doc.setFont(BODY_FONT, 'normal');
     const lines = doc.splitTextToSize(text, WIDTH - indent - 4);
-    checkSpace(lines.length * 4 + 2);
+    checkSpace(lines.length * 4.2 + 2);
+    doc.setTextColor(...C.mid);
     doc.text('>', LEFT + indent, y);
+    doc.setTextColor(...C.dark);
     doc.text(lines, LEFT + indent + 4, y);
-    y += lines.length * 4 + 2;
+    y += lines.length * 4.2 + 2;
   }
 
   // ═══════════════════════════════════════════════════════════
   // COVER PAGE
   // ═══════════════════════════════════════════════════════════
   newPage();
-  y = 55;
+  y = 60;
 
-  // Top decoration
-  doc.setDrawColor(40, 40, 40); doc.setLineWidth(1.5);
-  doc.line(LEFT, 42, LEFT + 50, 42);
+  // Accent bar
+  doc.setDrawColor(...C.navy); doc.setLineWidth(2);
+  doc.line(LEFT, 44, LEFT + 40, 44);
 
-  doc.setFontSize(22); doc.setFont('helvetica', 'bold');
+  doc.setFontSize(20); doc.setFont(HEAD_FONT, 'bold'); doc.setTextColor(...C.navy);
   doc.text(l('title', lang), LEFT, y);
-  y += 9;
-  doc.setFontSize(11); doc.setFont('helvetica', 'normal'); doc.setTextColor(80, 80, 80);
+  y += 8;
+  doc.setFontSize(10); doc.setFont(BODY_FONT, 'normal'); doc.setTextColor(...C.mid);
   doc.text(l('subtitle', lang), LEFT, y);
-  y += 20;
+  y += 22;
 
   // Entity name
-  doc.setTextColor(0, 0, 0); doc.setFontSize(14); doc.setFont('helvetica', 'bold');
+  doc.setTextColor(...C.dark); doc.setFontSize(14); doc.setFont(HEAD_FONT, 'bold');
   doc.text(intakeData.entityName, LEFT, y);
-  doc.setFont('helvetica', 'normal');
-  y += 12;
+  doc.setFont(BODY_FONT, 'normal');
+  y += 14;
 
+  // Metadata grid
   doc.setFontSize(9);
-  labelValue(l('entityType', lang), entityTypeName);
-  labelValue(l('criticality', lang), criticalityName);
-  y += 4;
-  labelValue(l('generated', lang), today);
-  labelValue(l('reportId', lang), reportId);
+  field(l('entityType', lang), entityTypeName);
+  field(l('criticality', lang), criticalityName);
+  field(l('generated', lang), today);
+  field(l('reportId', lang), reportId);
 
   // Classification box
-  y += 10;
-  doc.setFillColor(245, 245, 245); doc.roundedRect(LEFT, y, WIDTH, 14, 1.5, 1.5, 'F');
-  doc.setFontSize(8); doc.setFont('helvetica', 'bold'); doc.setTextColor(100, 100, 100);
-  doc.text(l('confidential', lang) + ' — ' + (lang === 'de' ? 'Nur für den internen Gebrauch des Empfängers bestimmt' : 'For internal use of the recipient only'), LEFT + 5, y + 9);
-  doc.setTextColor(0, 0, 0);
+  y += 6;
+  doc.setFillColor(...C.bg); doc.roundedRect(LEFT, y, WIDTH, 12, 1, 1, 'F');
+  doc.setDrawColor(...C.rule); doc.setLineWidth(0.15); doc.roundedRect(LEFT, y, WIDTH, 12, 1, 1, 'S');
+  doc.setFontSize(7); doc.setFont(HEAD_FONT, 'bold'); doc.setTextColor(...C.mid);
+  doc.text(l('confidential', lang) + '  —  ' + (lang === 'de' ? 'Nur für den internen Gebrauch des Empfängers bestimmt' : 'For internal use of the recipient only'), LEFT + 5, y + 7.5);
+  doc.setTextColor(...C.dark);
 
   // ═══════════════════════════════════════════════════════════
   // TABLE OF CONTENTS
@@ -318,12 +364,14 @@ export function generateDoraReport(data: DoraReportData): void {
   y += 2;
   const tocEntries = [l('sec1', lang), l('sec2', lang), l('sec3', lang), `    ${l('sec3a', lang)}`, `    ${l('sec3b', lang)}`, `    ${l('sec3c', lang)}`, `    ${l('sec3d', lang)}`, `    ${l('sec3e', lang)}`, l('sec4', lang), `    ${l('sec4a', lang)}`, `    ${l('sec4b', lang)}`, l('sec5', lang), `    ${l('sec5a', lang)}`, `    ${l('sec5b', lang)}`, `    ${l('sec5c', lang)}`, l('sec6', lang), l('sec7', lang), '', l('secA', lang), l('secB', lang), l('secC', lang), l('secD', lang)];
   tocEntries.forEach(entry => {
-    if (entry === '') { y += 3; return; }
-    doc.setFontSize(9); doc.setFont('helvetica', entry.startsWith('    ') ? 'normal' : 'bold');
+    if (entry === '') { y += 4; return; }
+    const isSub = entry.startsWith('    ');
+    doc.setFontSize(9); doc.setFont(HEAD_FONT, isSub ? 'normal' : 'bold');
+    doc.setTextColor(isSub ? C.dark[0] : C.navy[0], isSub ? C.dark[1] : C.navy[1], isSub ? C.dark[2] : C.navy[2]);
     doc.text(entry, LEFT, y);
-    y += 5;
+    y += 5.5;
   });
-  doc.setFont('helvetica', 'normal');
+  doc.setFont(BODY_FONT, 'normal'); doc.setTextColor(...C.dark);
 
   // ═══════════════════════════════════════════════════════════
   // SECTION 1: Context
@@ -343,47 +391,55 @@ export function generateDoraReport(data: DoraReportData): void {
 
   heading(l('sec2', lang));
   introText(lang === 'de'
-    ? 'Dieser Abschnitt fasst die wesentlichen Ergebnisse der DORA-Konformitätspruefung zusammen. Er richtet sich an die Geschäftsleitung und gibt eine datengestützte Einschätzung der regulatorischen Reife.'
+    ? 'Dieser Abschnitt fasst die wesentlichen Ergebnisse der DORA-Konformitätsprüfung zusammen. Er richtet sich an die Geschäftsleitung und gibt eine datengestützte Einschätzung der regulatorischen Reife.'
     : 'This section summarises the key findings of the DORA compliance assessment for decision-makers.');
 
   const summary = getMgmtSummary(intakeData.entityName, risks.length, critCount, failCount, partCount, reqs.length, passCount, lang);
 
   // Verdict box
-  checkSpace(16);
-  doc.setFillColor(245, 245, 245); doc.roundedRect(LEFT, y, WIDTH, 12, 1.5, 1.5, 'F');
-  doc.setFontSize(9); doc.setFont('helvetica', 'bold');
-  const verdictLines = doc.splitTextToSize(summary.verdict, WIDTH - 10);
-  doc.text(verdictLines, LEFT + 5, y + 8);
-  y += 16;
-
-  // KPI row
   checkSpace(18);
-  doc.setFillColor(250, 250, 250); doc.roundedRect(LEFT, y, WIDTH, 14, 1.5, 1.5, 'F');
-  doc.setDrawColor(220, 220, 220); doc.setLineWidth(0.2);
-  doc.roundedRect(LEFT, y, WIDTH, 14, 1.5, 1.5, 'S');
-  doc.setFontSize(8); doc.setFont('courier', 'bold');
-  const kpiX = [LEFT + 5, LEFT + 40, LEFT + 80, LEFT + 120];
-  doc.text(`${risks.length} ${l('totalRisks', lang)}`, kpiX[0], y + 6);
-  doc.text(`${critCount} ${l('criticalRisks', lang)}`, kpiX[1], y + 6);
-  doc.text(`${failCount} ${l('nonCompliant', lang)}`, kpiX[2], y + 6);
-  doc.text(`${complianceRate}% ${l('complianceRate', lang)}`, kpiX[0], y + 12);
-  doc.text(`${passCount}/${reqs.length} ${l('pass', lang)}`, kpiX[1], y + 12);
-  doc.text(`${partCount} ${l('partialGaps', lang)}`, kpiX[2], y + 12);
-  doc.setFont('helvetica', 'normal');
-  y += 20;
+  doc.setFillColor(...C.navy);
+  doc.roundedRect(LEFT, y, WIDTH, 14, 1.5, 1.5, 'F');
+  doc.setFontSize(9.5); doc.setFont(HEAD_FONT, 'bold'); doc.setTextColor(...C.white);
+  const verdictLines = doc.splitTextToSize(summary.verdict, WIDTH - 12);
+  doc.text(verdictLines, LEFT + 6, y + 9);
+  y += 18;
+  doc.setTextColor(...C.dark);
 
-  // Situation line
+  // KPI row — 4 clean metric cards
+  checkSpace(22);
+  const kpiW = (WIDTH - 9) / 4;
+  const kpis = [
+    [String(risks.length), l('totalRisks', lang)],
+    [String(critCount), lang === 'de' ? 'Kritisch (>= 20)' : 'Critical (>= 20)'],
+    [String(failCount), l('nonCompliant', lang)],
+    [`${complianceRate}%`, l('complianceRate', lang)],
+  ];
+  kpis.forEach(([val, label], i) => {
+    const x = LEFT + i * (kpiW + 3);
+    doc.setFillColor(...C.bg); doc.roundedRect(x, y, kpiW, 18, 1, 1, 'F');
+    doc.setDrawColor(...C.rule); doc.setLineWidth(0.12); doc.roundedRect(x, y, kpiW, 18, 1, 1, 'S');
+    doc.setFont(HEAD_FONT, 'bold'); doc.setFontSize(14); doc.setTextColor(...C.navy);
+    doc.text(val, x + kpiW / 2, y + 9, { align: 'center' });
+    doc.setFont(HEAD_FONT, 'normal'); doc.setFontSize(6.5); doc.setTextColor(...C.mid);
+    doc.text(label, x + kpiW / 2, y + 14.5, { align: 'center' });
+  });
+  y += 24;
+  doc.setTextColor(...C.dark);
+
+  // Situation
   bodyText(summary.situation);
-  y += 2;
+  y += 3;
 
   // Findings
   summary.findings.forEach(f => {
     checkSpace(18);
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(9);
+    doc.setFont(HEAD_FONT, 'bold'); doc.setFontSize(9); doc.setTextColor(...C.navy);
     doc.text(f.t, LEFT, y); y += 5;
-    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(...C.dark);
+    doc.setFont(BODY_FONT, 'normal');
     bodyText(f.d, 4);
-    y += 1;
+    y += 2;
   });
 
   // Implication
@@ -401,7 +457,7 @@ export function generateDoraReport(data: DoraReportData): void {
   newPage();
   heading(l('sec3', lang));
   introText(lang === 'de'
-    ? 'Der folgende Abschnitt beschreibt das geprüftes Finanzunternehmen und die bereitgestellten Informationen. Diese Angaben bilden die Grundlage für die Risiko- und Konformitätsanalyse.'
+    ? 'Der folgende Abschnitt beschreibt das geprüfte Finanzunternehmen und die bereitgestellten Informationen. Diese Angaben bilden die Grundlage für die Risiko- und Konformitätsanalyse.'
     : 'This section describes the assessed financial entity and the information provided.');
 
   // 3.1 Entity Profile
@@ -409,9 +465,9 @@ export function generateDoraReport(data: DoraReportData): void {
   introText(lang === 'de'
     ? 'Das Unternehmensprofil dokumentiert die regulatorische Einordnung und die wesentlichen Merkmale des bewerteten Finanzunternehmens.'
     : 'The entity profile documents the regulatory classification and key characteristics.');
-  labelValue(l('entity', lang), intakeData.entityName);
-  labelValue(l('entityType', lang), entityTypeName);
-  labelValue(l('criticality', lang), criticalityName);
+  field(l('entity', lang), intakeData.entityName);
+  field(l('entityType', lang), entityTypeName);
+  field(l('criticality', lang), criticalityName);
   if (intakeData.description) {
     y += 2;
     bodyParagraph(intakeData.description);
@@ -423,13 +479,13 @@ export function generateDoraReport(data: DoraReportData): void {
     ? 'Die IKT-Infrastruktur und die eingebundenen Drittanbieter bestimmen die Angriffsfläche und den regulatorischen Prüfungsumfang nach Kapitel V DORA.'
     : 'ICT infrastructure and third-party providers determine the attack surface and regulatory scope under Chapter V DORA.');
   if (intakeData.infrastructure.length > 0) {
-    labelValue(lang === 'de' ? 'IKT-Infrastruktur' : 'ICT Infrastructure', intakeData.infrastructure.join(', '));
+    field(lang === 'de' ? 'IKT-Infrastruktur' : 'ICT Infrastructure', intakeData.infrastructure.join(', '));
   }
   if (intakeData.thirdPartyProviders.length > 0) {
-    labelValue(lang === 'de' ? 'IKT-Drittanbieter' : 'ICT Third Parties', intakeData.thirdPartyProviders.join(', '));
+    field(lang === 'de' ? 'IKT-Drittanbieter' : 'ICT Third Parties', intakeData.thirdPartyProviders.join(', '));
   }
   if (intakeData.roles.length > 0) {
-    labelValue(lang === 'de' ? 'Verantwortliche Rollen' : 'Responsible Roles', intakeData.roles.join(', '));
+    field(lang === 'de' ? 'Verantwortliche Rollen' : 'Responsible Roles', intakeData.roles.join(', '));
   }
 
   // 3.3 Implemented Measures
@@ -439,29 +495,30 @@ export function generateDoraReport(data: DoraReportData): void {
     : 'The following security measures were reported as implemented. Maturity is assessed against four criteria: active, documented, audited, and certified.');
   const measureEntries = Object.entries(intakeData.measures);
   if (measureEntries.length > 0) {
-    // Header row
-    checkSpace(8);
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5);
-    doc.text(l('measures', lang), LEFT, y);
-    doc.text(l('active', lang), LEFT + 95, y);
-    doc.text(l('documented', lang), LEFT + 110, y);
-    doc.text(l('audited', lang), LEFT + 130, y);
-    doc.text(l('certified', lang), LEFT + 145, y);
+    checkSpace(10);
+    // Table header
+    const colX = { name: LEFT, active: LEFT + 90, doc: LEFT + 108, audit: LEFT + 124, cert: LEFT + 140 };
+    doc.setFont(HEAD_FONT, 'bold'); doc.setFontSize(7); doc.setTextColor(...C.mid);
+    doc.text(l('measures', lang).toUpperCase(), colX.name, y);
+    doc.text(l('active', lang).toUpperCase(), colX.active, y);
+    doc.text(l('documented', lang).toUpperCase(), colX.doc, y);
+    doc.text(l('audited', lang).toUpperCase(), colX.audit, y);
+    doc.text(l('certified', lang).toUpperCase(), colX.cert, y);
     y += 2;
-    doc.setDrawColor(180, 180, 180); doc.line(LEFT, y, RIGHT, y); y += 3;
-    doc.setFont('helvetica', 'normal');
+    doc.setDrawColor(...C.navy); doc.setLineWidth(0.3); doc.line(LEFT, y, RIGHT, y); y += 4;
 
     measureEntries.forEach(([id, entry]) => {
       checkSpace(6);
-      doc.setFontSize(8);
-      doc.text(id.replace(/_/g, ' '), LEFT, y);
-      doc.text(entry.active ? l('yes', lang) : l('no', lang), LEFT + 95, y);
-      doc.text(entry.documented ? l('yes', lang) : l('no', lang), LEFT + 110, y);
-      doc.text(entry.audited ? l('yes', lang) : l('no', lang), LEFT + 130, y);
-      doc.text(entry.certified ? l('yes', lang) : l('no', lang), LEFT + 145, y);
-      y += 4.5;
+      doc.setFont(BODY_FONT, 'normal'); doc.setFontSize(8.5); doc.setTextColor(...C.dark);
+      doc.text(id.replace(/_/g, ' '), colX.name, y);
+      doc.setFont(HEAD_FONT, 'normal'); doc.setFontSize(8);
+      doc.text(entry.active ? l('yes', lang) : l('no', lang), colX.active, y);
+      doc.text(entry.documented ? l('yes', lang) : l('no', lang), colX.doc, y);
+      doc.text(entry.audited ? l('yes', lang) : l('no', lang), colX.audit, y);
+      doc.text(entry.certified ? l('yes', lang) : l('no', lang), colX.cert, y);
+      y += 5;
     });
-    y += 2;
+    y += 3;
   } else {
     bodyText(lang === 'de' ? 'Keine Maßnahmen angegeben.' : 'No measures specified.');
   }
@@ -485,15 +542,15 @@ export function generateDoraReport(data: DoraReportData): void {
   if (intakeData.files.length > 0) {
     intakeData.files.forEach(f => {
       checkSpace(6);
-      doc.setFontSize(8); doc.setFont('courier', 'normal');
+      doc.setFontSize(8); doc.setFont(DATA_FONT, 'normal'); doc.setTextColor(...C.dark);
       doc.text(`${f.name}  (${(f.size / 1024).toFixed(0)} KB)`, LEFT + 4, y);
-      y += 4.5;
+      y += 5;
     });
-    doc.setFont('helvetica', 'normal');
+    doc.setFont(BODY_FONT, 'normal');
   } else {
     bodyText(l('noFilesSubmitted', lang));
   }
-  y += 2;
+  y += 3;
 
   // ═══════════════════════════════════════════════════════════
   // SECTION 4: Detailed Findings
@@ -501,34 +558,42 @@ export function generateDoraReport(data: DoraReportData): void {
   newPage();
   heading(l('sec4', lang));
   introText(lang === 'de'
-    ? 'In diesem Abschnitt werden die identifizierten IKT-Risiken und Konformitätsluecken im Detail dargestellt. Jede Feststellung enthaelt die zugrundeliegende Evidenz, die Bewertungslogik und die regulatorische Referenz.'
+    ? 'In diesem Abschnitt werden die identifizierten IKT-Risiken und Konformitätslücken im Detail dargestellt. Jede Feststellung enthält die zugrundeliegende Evidenz, die Bewertungslogik und die regulatorische Referenz.'
     : 'This section presents identified ICT risks and compliance gaps in detail. Each finding includes evidence, assessment rationale, and regulatory reference.');
 
   // 4.1 Risk Landscape
   heading(l('sec4a', lang), 2);
   introText(lang === 'de'
-    ? 'Die Risikoanalyse bewertet jedes Szenario anhand von Eintrittswahrscheinlichkeit (1-5) und Auswirkung (1-5). Kritische Risiken (Score >= 20) erfordern Sofortmaßnahmen. Die Bewertung berücksichtigt den spezifischen Geschäftskontext und die regulatorischen Anforderungen des Finanzunternehmens.'
+    ? 'Die Risikoanalyse bewertet jedes Szenario anhand von Eintrittswahrscheinlichkeit (1-5) und Auswirkung (1-5). Kritische Risiken (Score >= 20) erfordern Sofortmaßnahmen.'
     : 'The risk analysis rates each scenario by likelihood (1-5) and impact (1-5). Critical risks (score >= 20) require immediate action.');
 
   risks.forEach(ri => {
-    checkSpace(50);
+    checkSpace(55);
     const score = ri.likelihood * ri.impact;
     const sev = score >= 20 ? (lang === 'de' ? 'KRITISCH' : 'CRITICAL') : score >= 13 ? (lang === 'de' ? 'HOCH' : 'HIGH') : score >= 6 ? (lang === 'de' ? 'MITTEL' : 'MEDIUM') : (lang === 'de' ? 'NIEDRIG' : 'LOW');
     const cat = RISK_CATEGORIES[ri.category]?.label[lang] || ri.category;
 
+    // Finding header with severity indicator
     heading(`${l('finding', lang)} ${riskId(ri)}: ${ri.name}`, 3);
-    
-    // Risk category tag
-    doc.setFontSize(7.5); doc.setFont('helvetica', 'italic'); doc.setTextColor(100, 100, 100);
-    doc.text(`[${cat}]`, LEFT, y); y += 4;
-    doc.setTextColor(0, 0, 0); doc.setFont('helvetica', 'normal');
 
-    labelValue(l('component', lang), ri.component);
-    labelValue(l('attacker', lang), ri.attacker);
-    labelValue(l('attackPath', lang), ri.path);
-    labelValue(l('doraRef', lang), ri.doraRef);
-    labelValue(l('riskScore', lang), `${ri.likelihood} x ${ri.impact} = ${score} (${sev})`);
-    y += 1;
+    // Category + severity tag
+    doc.setFontSize(7); doc.setFont(HEAD_FONT, 'normal'); doc.setTextColor(...C.mid);
+    doc.text(`${cat}  |  ${sev}  |  ${ri.doraRef}`, LEFT, y); y += 5;
+    doc.setTextColor(...C.dark);
+
+    // Risk score bar
+    checkSpace(8);
+    doc.setFillColor(...C.bg); doc.roundedRect(LEFT, y - 1, WIDTH, 7, 0.8, 0.8, 'F');
+    doc.setFont(HEAD_FONT, 'bold'); doc.setFontSize(8); doc.setTextColor(...C.navy);
+    doc.text(`${l('riskScore', lang)}: ${ri.likelihood} x ${ri.impact} = ${score} (${sev})`, LEFT + 4, y + 3.5);
+    doc.setTextColor(...C.dark);
+    y += 10;
+
+    // Structured fields
+    fieldInline(l('component', lang), ri.component);
+    fieldInline(l('attacker', lang), ri.attacker);
+    fieldInline(l('attackPath', lang), ri.path);
+    y += 2;
     bodyText(`${l('evidence', lang)}: ${ri.evidence}`, 0);
     bodyText(`${l('rationale', lang)}: ${ri.rationale}`, 0);
     if (ri.sources.length > 0) {
@@ -541,37 +606,40 @@ export function generateDoraReport(data: DoraReportData): void {
   newPage();
   heading(l('sec4b', lang), 2);
   introText(lang === 'de'
-    ? 'Die folgende Übersicht zeigt die Bewertung jeder DORA-Anforderung. Abweichungen werden mit konkreten Maßnahmen, Aufwandsschätzungen und nachweisbaren Umsetzungskriterien versehen. Konforme Anforderungen bestätigen, dass die jeweilige regulatorische Vorgabe erfüllt ist.'
+    ? 'Die folgende Übersicht zeigt die Bewertung jeder DORA-Anforderung. Abweichungen werden mit konkreten Maßnahmen, Aufwandsschätzungen und nachweisbaren Umsetzungskriterien versehen.'
     : 'The following overview shows the assessment of each DORA requirement. Deviations include concrete measures, effort estimates, and verifiable acceptance criteria.');
 
   reqs.forEach(r => {
-    checkSpace(40);
+    checkSpace(42);
     const statusLabel = r.status === 'pass' ? l('pass', lang) : r.status === 'partial' ? l('partial', lang) : l('fail', lang);
-    const statusMarker = r.status === 'pass' ? '[PASS]' : r.status === 'partial' ? '[PARTIAL]' : '[FAIL]';
+    const statusMarker = r.status === 'pass' ? 'PASS' : r.status === 'partial' ? 'PARTIAL' : 'FAIL';
 
     heading(`${r.id}: ${r.name}`, 3);
-    
-    // Status + Article on same line
-    doc.setFontSize(8); doc.setFont('courier', 'bold');
-    doc.text(`${statusMarker}  ${r.article}`, LEFT, y);
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(9);
-    y += 5;
+
+    // Status badge
+    checkSpace(8);
+    const badgeColor: [number, number, number] = r.status === 'pass' ? [34, 120, 70] : r.status === 'partial' ? [180, 130, 20] : [180, 45, 45];
+    doc.setFillColor(...badgeColor);
+    const badgeW = doc.getTextWidth(statusMarker) * 1.6 + 6;
+    doc.roundedRect(LEFT, y - 3, badgeW, 5.5, 0.8, 0.8, 'F');
+    doc.setFont(HEAD_FONT, 'bold'); doc.setFontSize(6.5); doc.setTextColor(...C.white);
+    doc.text(statusMarker, LEFT + 3, y);
+    doc.setFont(HEAD_FONT, 'normal'); doc.setFontSize(7.5); doc.setTextColor(...C.mid);
+    doc.text(r.article, LEFT + badgeW + 4, y);
+    y += 6;
+    doc.setTextColor(...C.dark);
 
     bodyText(`${l('evidence', lang)}: ${r.evidence}`, 0);
     bodyText(`${l('rationale', lang)}: ${r.rationale}`, 0);
 
-    if (r.gap) {
-      bodyText(`${l('gap', lang)}: ${r.gap}`, 0);
-    }
-    if (r.measure) {
-      bodyText(`${l('measureAction', lang)}: ${r.measure}`, 0);
-    }
-    if (r.effort) labelValue(l('effort', lang), r.effort);
-    if (r.priority) labelValue(l('priority', lang), r.priority);
+    if (r.gap) bodyText(`${l('gap', lang)}: ${r.gap}`, 0);
+    if (r.measure) bodyText(`${l('measureAction', lang)}: ${r.measure}`, 0);
+    if (r.effort) fieldInline(l('effort', lang), r.effort);
+    if (r.priority) fieldInline(l('priority', lang), r.priority);
     if (r.criteria && r.criteria.length > 0) {
-      doc.setFont('helvetica', 'bold'); doc.setFontSize(8);
-      doc.text(lang === 'de' ? 'Umsetzungskriterien:' : 'Acceptance Criteria:', LEFT, y);
-      doc.setFont('helvetica', 'normal'); y += 4;
+      doc.setFont(HEAD_FONT, 'bold'); doc.setFontSize(8); doc.setTextColor(...C.mid);
+      doc.text(lang === 'de' ? 'UMSETZUNGSKRITERIEN' : 'ACCEPTANCE CRITERIA', LEFT, y);
+      doc.setFont(BODY_FONT, 'normal'); doc.setTextColor(...C.dark); y += 4;
       r.criteria.forEach((c, i) => bulletItem(`${i + 1}. ${c}`, 4));
     }
     separator();
@@ -608,17 +676,17 @@ export function generateDoraReport(data: DoraReportData): void {
     bodyText(prioDescs[prio]?.[lang] || prioDescs[prio]?.['en'] || '', 0);
     y += 2;
     prioReqs.forEach(r => {
-      checkSpace(15);
-      doc.setFont('helvetica', 'bold'); doc.setFontSize(8.5);
-      doc.text(`${r.id} ${r.name}`, LEFT + 4, y);
-      doc.setFont('helvetica', 'normal'); y += 4;
+      checkSpace(16);
+      doc.setFont(HEAD_FONT, 'bold'); doc.setFontSize(8.5); doc.setTextColor(...C.navy);
+      doc.text(`${r.id}  ${r.name}`, LEFT + 4, y);
+      doc.setFont(BODY_FONT, 'normal'); doc.setTextColor(...C.dark); y += 5;
       if (r.measure) bodyText(r.measure, 4);
       if (r.effort) {
-        doc.setFontSize(8); doc.setTextColor(100, 100, 100);
+        doc.setFontSize(7.5); doc.setTextColor(...C.mid); doc.setFont(HEAD_FONT, 'normal');
         doc.text(`${l('effort', lang)}: ${r.effort}`, LEFT + 4, y);
-        doc.setTextColor(0, 0, 0); y += 4;
+        doc.setTextColor(...C.dark); y += 4;
       }
-      y += 1;
+      y += 2;
     });
   }
 
@@ -627,6 +695,7 @@ export function generateDoraReport(data: DoraReportData): void {
   introText(lang === 'de'
     ? 'Die Remediation-Roadmap ordnet die identifizierten Maßnahmen in vier Phasen. Die Zeitangaben sind Richtwerte und müssen an die organisatorischen Kapazitäten angepasst werden.'
     : 'The remediation roadmap organizes measures into four phases. Timelines are indicative.');
+
   const phases = [
     { label: lang === 'de' ? 'Phase 0 (0-4 Wochen)' : 'Phase 0 (0-4 weeks)', desc: lang === 'de' ? 'Kritische Lücken schließen, Sofortmaßnahmen umsetzen' : 'Close critical gaps, implement immediate measures' },
     { label: lang === 'de' ? 'Phase 1 (1-3 Monate)' : 'Phase 1 (1-3 months)', desc: lang === 'de' ? 'Kernprozesse etablieren, Dokumentation vervollständigen' : 'Establish core processes, complete documentation' },
@@ -634,12 +703,12 @@ export function generateDoraReport(data: DoraReportData): void {
     { label: lang === 'de' ? 'Phase 3 (6-12 Monate)' : 'Phase 3 (6-12 months)', desc: lang === 'de' ? 'Monitoring etablieren, kontinuierliche Verbesserung' : 'Establish monitoring, continuous improvement' },
   ];
   phases.forEach(p => {
-    checkSpace(10);
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(9);
-    doc.text(p.label, LEFT, y); y += 4;
-    doc.setFont('helvetica', 'normal');
+    checkSpace(12);
+    doc.setFont(HEAD_FONT, 'bold'); doc.setFontSize(9); doc.setTextColor(...C.navy);
+    doc.text(p.label, LEFT, y); y += 5;
+    doc.setFont(BODY_FONT, 'normal'); doc.setTextColor(...C.dark);
     bodyText(p.desc, 4);
-    y += 1;
+    y += 2;
   });
 
   // 5.3 Economic Impact
@@ -664,18 +733,18 @@ export function generateDoraReport(data: DoraReportData): void {
   // 6.1 Risk Matrix
   heading(l('sec6a', lang), 2);
   const matrixData = [
-    [lang === 'de' ? 'Score >= 20' : 'Score >= 20', lang === 'de' ? 'KRITISCH — Sofortmaßnahme vor nächster Aufsichtsprüfung' : 'CRITICAL — Immediate action before next review'],
-    [lang === 'de' ? 'Score 13-19' : 'Score 13-19', lang === 'de' ? 'HOCH — Korrektur innerhalb 3 Monaten' : 'HIGH — Fix within 3 months'],
-    [lang === 'de' ? 'Score 6-12' : 'Score 6-12', lang === 'de' ? 'MITTEL — Planung und Umsetzung innerhalb 6 Monaten' : 'MEDIUM — Plan and implement within 6 months'],
-    [lang === 'de' ? 'Score 1-5' : 'Score 1-5', lang === 'de' ? 'NIEDRIG — Beobachtung und reguläre Prüfung' : 'LOW — Monitor and regular review'],
+    ['Score >= 20', lang === 'de' ? 'KRITISCH — Sofortmaßnahme vor nächster Aufsichtsprüfung' : 'CRITICAL — Immediate action before next review'],
+    ['Score 13-19', lang === 'de' ? 'HOCH — Korrektur innerhalb 3 Monaten' : 'HIGH — Fix within 3 months'],
+    ['Score 6-12', lang === 'de' ? 'MITTEL — Planung und Umsetzung innerhalb 6 Monaten' : 'MEDIUM — Plan and implement within 6 months'],
+    ['Score 1-5', lang === 'de' ? 'NIEDRIG — Beobachtung und reguläre Prüfung' : 'LOW — Monitor and regular review'],
   ];
   matrixData.forEach(([score, action]) => {
     checkSpace(8);
-    doc.setFont('courier', 'bold'); doc.setFontSize(8);
+    doc.setFont(HEAD_FONT, 'bold'); doc.setFontSize(8); doc.setTextColor(...C.navy);
     doc.text(score, LEFT + 4, y);
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5);
-    doc.text(action, LEFT + 30, y);
-    y += 5;
+    doc.setFont(BODY_FONT, 'normal'); doc.setFontSize(9); doc.setTextColor(...C.dark);
+    doc.text(action, LEFT + 32, y);
+    y += 6;
   });
 
   // ═══════════════════════════════════════════════════════════
@@ -693,16 +762,15 @@ export function generateDoraReport(data: DoraReportData): void {
   newPage();
   heading(l('secA', lang));
   introText(lang === 'de'
-    ? 'Dieser Anhang enthaelt die vollständigen Prüfdaten in strukturierter Form. Die Daten sind so aufbereitet, dass die Nachvollziehbarkeit der Bewertungsentscheidungen durch Dritte — einschließlich automatisierter Systeme — überprüft werden kann.'
+    ? 'Dieser Anhang enthält die vollständigen Prüfdaten in strukturierter Form. Die Daten sind so aufbereitet, dass die Nachvollziehbarkeit der Bewertungsentscheidungen durch Dritte — einschließlich automatisierter Systeme — überprüft werden kann.'
     : 'This appendix contains complete audit data in structured form for third-party verification.');
 
   heading(`A.1 ${lang === 'de' ? 'IKT-Risiken' : 'ICT Risks'}`, 2);
-  // Table header
   checkSpace(8);
-  doc.setFont('courier', 'bold'); doc.setFontSize(7);
+  doc.setFont(DATA_FONT, 'bold'); doc.setFontSize(6.5); doc.setTextColor(...C.mid);
   doc.text('ID         | Risiko                          | L  I  S  | Referenz', LEFT, y);
-  y += 2; doc.setDrawColor(180, 180, 180); doc.line(LEFT, y, RIGHT, y); y += 3;
-  doc.setFont('courier', 'normal');
+  y += 2; doc.setDrawColor(...C.navy); doc.setLineWidth(0.2); doc.line(LEFT, y, RIGHT, y); y += 3;
+  doc.setFont(DATA_FONT, 'normal'); doc.setTextColor(...C.dark);
   risks.forEach(ri => {
     checkSpace(6);
     const score = ri.likelihood * ri.impact;
@@ -713,10 +781,10 @@ export function generateDoraReport(data: DoraReportData): void {
 
   heading(`A.2 ${lang === 'de' ? 'DORA-Anforderungen' : 'DORA Requirements'}`, 2);
   checkSpace(8);
-  doc.setFont('courier', 'bold'); doc.setFontSize(7);
+  doc.setFont(DATA_FONT, 'bold'); doc.setFontSize(6.5); doc.setTextColor(...C.mid);
   doc.text('ID      | Anforderung                     | Status  | Prio | Aufwand', LEFT, y);
-  y += 2; doc.setDrawColor(180, 180, 180); doc.line(LEFT, y, RIGHT, y); y += 3;
-  doc.setFont('courier', 'normal');
+  y += 2; doc.setDrawColor(...C.navy); doc.setLineWidth(0.2); doc.line(LEFT, y, RIGHT, y); y += 3;
+  doc.setFont(DATA_FONT, 'normal'); doc.setTextColor(...C.dark);
   reqs.forEach(r => {
     checkSpace(6);
     const s = r.status === 'pass' ? 'PASS   ' : r.status === 'partial' ? 'PARTIAL' : 'FAIL   ';
@@ -735,7 +803,7 @@ export function generateDoraReport(data: DoraReportData): void {
     : 'The following tools and methods were used during the assessment.');
   const tools = [
     { cat: lang === 'de' ? 'Netzwerkanalyse' : 'Network Analysis', tools: 'Wireshark 4.x, Nmap 7.x, tcpdump' },
-    { cat: lang === 'de' ? 'API- und Applikationstests' : 'API/Application Testing', tools: 'Postman, Burp Suite Professional, OWASP ZAP' },
+    { cat: lang === 'de' ? 'API-/Applikationstests' : 'API/Application Testing', tools: 'Postman, Burp Suite Professional, OWASP ZAP' },
     { cat: lang === 'de' ? 'Schwachstellen-Scanning' : 'Vulnerability Scanning', tools: 'Qualys, Tenable.io, Nessus' },
     { cat: lang === 'de' ? 'Dokumentenanalyse' : 'Document Review', tools: lang === 'de' ? 'Manuelle Prüfung gegen DORA-Anforderungskatalog' : 'Manual review against DORA requirements' },
     { cat: lang === 'de' ? 'Konfigurationsanalyse' : 'Configuration Audit', tools: 'CIS-Benchmark-Skripte, Cloud Security Posture Management' },
@@ -744,11 +812,11 @@ export function generateDoraReport(data: DoraReportData): void {
   ];
   tools.forEach(t => {
     checkSpace(8);
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(8);
+    doc.setFont(HEAD_FONT, 'bold'); doc.setFontSize(8); doc.setTextColor(...C.navy);
     doc.text(t.cat, LEFT + 4, y);
-    doc.setFont('helvetica', 'normal');
-    doc.text(t.tools, LEFT + 55, y);
-    y += 5;
+    doc.setFont(BODY_FONT, 'normal'); doc.setFontSize(8.5); doc.setTextColor(...C.dark);
+    doc.text(t.tools, LEFT + 52, y);
+    y += 5.5;
   });
 
   // ═══════════════════════════════════════════════════════════
@@ -761,10 +829,10 @@ export function generateDoraReport(data: DoraReportData): void {
     : 'Index of all referenced evidence elements with quality rating and reproducibility.');
 
   checkSpace(8);
-  doc.setFont('courier', 'bold'); doc.setFontSize(7);
+  doc.setFont(DATA_FONT, 'bold'); doc.setFontSize(6.5); doc.setTextColor(...C.mid);
   doc.text('E-ID    | Risiko     | Qualität | Reproduzierbarkeit', LEFT, y);
-  y += 2; doc.setDrawColor(180, 180, 180); doc.line(LEFT, y, RIGHT, y); y += 3;
-  doc.setFont('courier', 'normal');
+  y += 2; doc.setDrawColor(...C.navy); doc.setLineWidth(0.2); doc.line(LEFT, y, RIGHT, y); y += 3;
+  doc.setFont(DATA_FONT, 'normal'); doc.setTextColor(...C.dark);
   risks.forEach((ri, i) => {
     checkSpace(6);
     doc.text(`E-${String(i + 1).padStart(3, '0')}   | ${riskId(ri).padEnd(10)} | ${ri.evidenceQuality}/5       | ${ri.reproducibility}`, LEFT, y);
@@ -777,7 +845,7 @@ export function generateDoraReport(data: DoraReportData): void {
   newPage();
   heading(l('secD', lang));
   introText(lang === 'de'
-    ? 'Der automatisierte Qualitätscheck prueft die interne Konsistenz, fachliche Plausibilität und Vollständigkeit des Berichts. Die Ergebnisse werden hier vollständig dokumentiert, um die Nachvollziehbarkeit der Qualitätssicherung zu gewährleisten.'
+    ? 'Der automatisierte Qualitätscheck prüft die interne Konsistenz, fachliche Plausibilität und Vollständigkeit des Berichts. Die Ergebnisse werden hier vollständig dokumentiert, um die Nachvollziehbarkeit der Qualitätssicherung zu gewährleisten.'
     : 'The automated quality check verifies internal consistency, technical plausibility, and completeness.');
 
   if (data.qaChecks && data.qaChecks.length > 0) {
@@ -791,19 +859,23 @@ export function generateDoraReport(data: DoraReportData): void {
     separator();
     data.qaChecks.forEach(c => {
       checkSpace(10);
-      doc.setFont('courier', 'bold'); doc.setFontSize(8);
-      doc.text(c.passed ? '[PASS]' : '[FAIL]', LEFT, y);
-      doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5);
+      // Pass/fail badge
+      const badgeCol: [number, number, number] = c.passed ? [34, 120, 70] : [180, 45, 45];
+      doc.setFillColor(...badgeCol);
+      doc.roundedRect(LEFT, y - 3, 14, 5, 0.6, 0.6, 'F');
+      doc.setFont(HEAD_FONT, 'bold'); doc.setFontSize(6); doc.setTextColor(...C.white);
+      doc.text(c.passed ? 'PASS' : 'FAIL', LEFT + 2.5, y);
+      doc.setFont(BODY_FONT, 'normal'); doc.setFontSize(8.5); doc.setTextColor(...C.dark);
       const detail = `${c.id}: ${c.label}`;
       const detailLines = doc.splitTextToSize(detail, WIDTH - 20);
-      doc.text(detailLines, LEFT + 16, y);
-      y += detailLines.length * 3.5 + 1;
+      doc.text(detailLines, LEFT + 18, y);
+      y += detailLines.length * 3.5 + 2;
       if (!c.passed && c.detail) {
-        doc.setFontSize(7.5); doc.setTextColor(120, 120, 120);
+        doc.setFontSize(7.5); doc.setTextColor(...C.mid);
         const dl = doc.splitTextToSize(c.detail, WIDTH - 24);
         doc.text(dl, LEFT + 20, y);
         y += dl.length * 3 + 2;
-        doc.setTextColor(0, 0, 0);
+        doc.setTextColor(...C.dark);
       }
     });
   }
@@ -815,7 +887,7 @@ export function generateDoraReport(data: DoraReportData): void {
       : 'The following corrections were applied automatically. Pre-fix status is documented in D.1.');
     data.fixLog.forEach((fix, i) => {
       checkSpace(8);
-      doc.setFontSize(8); doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8); doc.setFont(BODY_FONT, 'normal');
       const fixLines = doc.splitTextToSize(`${i + 1}. ${fix}`, WIDTH - 8);
       doc.text(fixLines, LEFT + 4, y);
       y += fixLines.length * 3.5 + 2;
