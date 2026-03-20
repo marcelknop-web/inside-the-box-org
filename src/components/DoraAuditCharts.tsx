@@ -49,151 +49,148 @@ const PHASE_META: Record<string, { weeks: [number, number]; color: string; label
 };
 const GANTT_TOTAL_WEEKS = 52;
 
-function GanttChart({ reqs, de }: { reqs: DoraReq[]; de: boolean }) {
-  const ganttPhases = useMemo(() => {
-    const gaps = reqs.filter(r => r.status !== 'pass' && r.priority);
-    const grouped: Record<string, DoraReq[]> = {};
-    gaps.forEach(r => {
-      const p = r.priority || 'P2';
-      if (!grouped[p]) grouped[p] = [];
-      grouped[p].push(r);
-    });
-    return grouped;
-  }, [reqs]);
+type SortMode = 'priority' | 'article';
 
-  const hasItems = Object.values(ganttPhases).some(items => items.length > 0);
-  if (!hasItems) {
+function GanttChart({ reqs, de }: { reqs: DoraReq[]; de: boolean }) {
+  const [sortMode, setSortMode] = useState<SortMode>('priority');
+
+  const allGaps = useMemo(() => {
+    const gaps = reqs.filter(r => r.status !== 'pass' && r.priority);
+    if (sortMode === 'article') {
+      return [...gaps].sort((a, b) => a.article.localeCompare(b.article, undefined, { numeric: true }));
+    }
+    const prioOrder: Record<string, number> = { P0: 0, P1: 1, P2: 2, P3: 3 };
+    return [...gaps].sort((a, b) => (prioOrder[a.priority] ?? 2) - (prioOrder[b.priority] ?? 2));
+  }, [reqs, sortMode]);
+
+  if (allGaps.length === 0) {
     return <div className="text-center text-muted-foreground text-sm py-8">{de ? 'Keine offenen Massnahmen' : 'No open measures'}</div>;
   }
 
-  const totalItems = Object.values(ganttPhases).reduce((s, arr) => s + arr.length, 0);
-  const totalHours = reqs.filter(r => r.status !== 'pass' && r.effort).reduce((s, r) => {
+  const totalHours = allGaps.reduce((s, r) => {
     const m = r.effort?.match(/(\d+)\s*-\s*(\d+)/);
     return s + (m ? (parseInt(m[1]) + parseInt(m[2])) / 2 : 0);
   }, 0);
 
+  // Build cascading waterfall — each item starts where previous one in its phase ended
+  const phaseEnd: Record<string, number> = {};
+  const itemPositions = allGaps.map(item => {
+    const phase = PHASE_META[item.priority] || PHASE_META.P2;
+    const m = item.effort?.match(/(\d+)\s*-\s*(\d+)/);
+    const avgHours = m ? (parseInt(m[1]) + parseInt(m[2])) / 2 : 30;
+    const durationWeeks = Math.max(2, Math.round(avgHours / 35));
+    const phaseStart = phase.weeks[0];
+    const currentStart = Math.max(phaseStart, phaseEnd[item.priority] ?? phaseStart);
+    const endWeek = Math.min(currentStart + durationWeeks, phase.weeks[1]);
+    phaseEnd[item.priority] = endWeek;
+    return { item, startWeek: currentStart, endWeek, phase, avgHours };
+  });
+
   return (
-    <div className="space-y-6">
-      {/* Summary row */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+    <div className="space-y-5">
+      {/* Header with sort toggle */}
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <div className="flex items-center gap-3">
+          <h4 className="text-sm font-bold text-foreground">{de ? 'Umsetzungs-Roadmap' : 'Remediation Roadmap'}</h4>
+          <span className="text-xs text-muted-foreground font-mono">{allGaps.length} {de ? 'Massnahmen' : 'measures'} · ~{Math.round(totalHours)} {de ? 'Std.' : 'hrs'}</span>
+        </div>
+        <div className="flex bg-muted rounded-lg p-0.5">
+          <button
+            onClick={() => setSortMode('priority')}
+            className={`px-3 py-1 text-[11px] font-semibold rounded-md transition-all active:scale-[0.97] ${sortMode === 'priority' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
+          >
+            {de ? 'Nach Priorität' : 'By Priority'}
+          </button>
+          <button
+            onClick={() => setSortMode('article')}
+            className={`px-3 py-1 text-[11px] font-semibold rounded-md transition-all active:scale-[0.97] ${sortMode === 'article' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
+          >
+            {de ? 'Nach Artikel' : 'By Article'}
+          </button>
+        </div>
+      </div>
+
+      {/* Priority summary pills */}
+      <div className="flex gap-2 flex-wrap">
         {['P0', 'P1', 'P2', 'P3'].map(prio => {
-          const items = ganttPhases[prio] || [];
+          const count = allGaps.filter(g => g.priority === prio).length;
+          if (count === 0) return null;
           const phase = PHASE_META[prio];
           return (
-            <div key={prio} className="rounded-xl border-2 p-3 transition-all hover:scale-[1.02]" style={{ borderColor: phase.color, backgroundColor: `${phase.color}08` }}>
-              <div className="flex items-center gap-2 mb-1">
-                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: phase.color }} />
-                <span className="text-sm font-bold" style={{ color: phase.color }}>{prio}</span>
-              </div>
-              <div className="text-2xl font-bold font-mono text-foreground">{items.length}</div>
-              <div className="text-[10px] text-muted-foreground mt-0.5">{de ? phase.label.de : phase.label.en}</div>
+            <div key={prio} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold text-white" style={{ backgroundColor: phase.color }}>
+              {prio} <span className="font-mono opacity-80">×{count}</span>
             </div>
           );
         })}
       </div>
 
-      {/* Timeline */}
-      <div className="bg-accent/20 rounded-2xl p-5 border border-border">
+      {/* Waterfall chart */}
+      <div className="rounded-2xl border border-border overflow-hidden">
         {/* Timeline header */}
-        <div className="flex items-end mb-4 pb-2 border-b-2 border-border">
-          <div className="w-[200px] flex-shrink-0 text-xs font-bold text-muted-foreground uppercase tracking-wider">
+        <div className="flex items-center bg-muted/50 border-b border-border px-3 py-2.5">
+          <div className="w-[180px] flex-shrink-0 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
             {de ? 'Massnahme' : 'Measure'}
           </div>
           <div className="flex-1 grid grid-cols-4">
-            {['Q1 · Jan–Mär', 'Q2 · Apr–Jun', 'Q3 · Jul–Sep', 'Q4 · Okt–Dez'].map((q, i) => (
-              <div key={q} className="text-center">
-                <span className="text-[11px] font-bold text-foreground/70">{q.split(' · ')[0]}</span>
-                <span className="text-[9px] text-muted-foreground/50 ml-1 hidden sm:inline">{q.split(' · ')[1]}</span>
-              </div>
+            {['Q1', 'Q2', 'Q3', 'Q4'].map(q => (
+              <div key={q} className="text-center text-[11px] font-bold text-muted-foreground">{q}</div>
             ))}
           </div>
         </div>
 
-        {/* Phase groups */}
-        {['P0', 'P1', 'P2', 'P3'].map(prio => {
-          const items = ganttPhases[prio];
-          if (!items || items.length === 0) return null;
-          const phase = PHASE_META[prio];
-          return (
-            <div key={prio} className="mb-5 last:mb-0">
-              {/* Phase divider */}
-              <div className="flex items-center gap-3 mb-3">
-                <div className="h-8 w-8 rounded-lg flex items-center justify-center text-white text-xs font-black" style={{ backgroundColor: phase.color }}>
-                  {prio}
-                </div>
-                <div>
-                  <div className="text-sm font-bold text-foreground">{de ? phase.label.de : phase.label.en}</div>
-                  <div className="text-[10px] text-muted-foreground">{items.length} {de ? 'Massnahmen' : 'measures'}</div>
-                </div>
-                <div className="flex-1 h-px bg-border ml-2" />
-              </div>
+        {/* Rows */}
+        <div className="divide-y divide-border/30">
+          {itemPositions.map(({ item, startWeek, endWeek, phase }, idx) => {
+            const barLeft = (startWeek / GANTT_TOTAL_WEEKS) * 100;
+            const barWidth = Math.max(5, ((endWeek - startWeek) / GANTT_TOTAL_WEEKS) * 100);
+            const isEven = idx % 2 === 0;
 
-              {/* Items */}
-              <div className="space-y-1.5 ml-2">
-                {items.map(item => {
-                  const m = item.effort?.match(/(\d+)\s*-\s*(\d+)/);
-                  const avgHours = m ? (parseInt(m[1]) + parseInt(m[2])) / 2 : 30;
-                  const durationWeeks = Math.max(3, Math.round(avgHours / 35));
-                  const startWeek = phase.weeks[0];
-                  const endWeek = Math.min(startWeek + durationWeeks, phase.weeks[1]);
-                  const barLeft = (startWeek / GANTT_TOTAL_WEEKS) * 100;
-                  const barWidth = Math.max(6, ((endWeek - startWeek) / GANTT_TOTAL_WEEKS) * 100);
+            return (
+              <div
+                key={item.id}
+                className={`flex items-center px-3 py-2 group transition-colors duration-150 hover:bg-accent/40 ${isEven ? 'bg-transparent' : 'bg-muted/20'}`}
+              >
+                <div className="w-[180px] flex-shrink-0 pr-3 flex items-center gap-2">
+                  <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: phase.color }} />
+                  <div className="min-w-0">
+                    <div className="text-[11px] font-bold text-foreground leading-tight truncate">{item.id}</div>
+                    <div className="text-[10px] text-muted-foreground truncate">{item.name}</div>
+                  </div>
+                </div>
 
-                  return (
-                    <div key={item.id} className="flex items-center group hover:bg-card/60 rounded-xl px-2 py-2 transition-all duration-200">
-                      <div className="w-[200px] flex-shrink-0 pr-3">
-                        <div className="text-[11px] font-bold text-foreground leading-tight">{item.id}</div>
-                        <div className="text-[10px] text-muted-foreground truncate max-w-[180px]">{item.name}</div>
-                      </div>
-                      <div className="flex-1 relative h-10">
-                        {/* Quarter gridlines */}
-                        {[0, 25, 50, 75, 100].map(pct => (
-                          <div key={pct} className="absolute top-0 bottom-0 border-l border-border/40" style={{ left: `${pct}%` }} />
-                        ))}
-                        {/* Phase zone background */}
-                        <div
-                          className="absolute top-0 bottom-0 rounded-lg"
-                          style={{
-                            left: `${(phase.weeks[0] / GANTT_TOTAL_WEEKS) * 100}%`,
-                            width: `${((phase.weeks[1] - phase.weeks[0]) / GANTT_TOTAL_WEEKS) * 100}%`,
-                            backgroundColor: phase.color,
-                            opacity: 0.06,
-                          }}
-                        />
-                        {/* Bar */}
-                        <div
-                          className="absolute top-1 h-8 rounded-lg flex items-center justify-between px-2.5 transition-all duration-300 group-hover:shadow-lg group-hover:scale-y-110 cursor-default"
-                          style={{
-                            left: `${barLeft}%`,
-                            width: `${barWidth}%`,
-                            background: `linear-gradient(135deg, ${phase.color}, ${phase.color}cc)`,
-                            boxShadow: `0 2px 8px ${phase.color}30`,
-                          }}
-                          title={`${item.name}\n${item.effort || ''}`}
-                        >
-                          <span className="text-[10px] font-bold text-white whitespace-nowrap overflow-hidden text-ellipsis">
-                            {item.id}
-                          </span>
-                          {item.effort && barWidth > 10 && (
-                            <span className="text-[9px] font-mono text-white/80 whitespace-nowrap ml-1">
-                              {item.effort}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
+                <div className="flex-1 relative h-9">
+                  {[0, 25, 50, 75, 100].map(pct => (
+                    <div key={pct} className="absolute top-0 bottom-0 border-l border-border/20" style={{ left: `${pct}%` }} />
+                  ))}
+                  <div
+                    className="absolute top-1 h-7 rounded-md flex items-center px-2 transition-all duration-200 group-hover:shadow-lg group-hover:brightness-110"
+                    style={{
+                      left: `${barLeft}%`,
+                      width: `${barWidth}%`,
+                      background: `linear-gradient(90deg, ${phase.color}, ${phase.color}bb)`,
+                      boxShadow: `0 1px 4px ${phase.color}25`,
+                    }}
+                    title={`${item.name}\n${item.effort || ''}\nArt. ${item.article}`}
+                  >
+                    <span className="text-[9px] font-bold text-white whitespace-nowrap overflow-hidden text-ellipsis">
+                      {item.effort || item.id}
+                    </span>
+                  </div>
+                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
 
-      {/* Footer summary */}
-      <div className="flex items-center justify-between text-xs text-muted-foreground border-t border-border pt-3">
-        <span>{de ? `${totalItems} Massnahmen gesamt` : `${totalItems} total measures`}</span>
-        <span className="font-mono font-bold text-foreground">{de ? `~${Math.round(totalHours)} Std. geschätzt` : `~${Math.round(totalHours)} hrs estimated`}</span>
+      {/* Legend */}
+      <div className="flex flex-wrap items-center gap-4 text-[11px] text-muted-foreground">
+        {Object.entries(PHASE_META).map(([prio, meta]) => (
+          <div key={prio} className="flex items-center gap-1.5">
+            <div className="w-3 h-3 rounded" style={{ backgroundColor: meta.color }} />
+            <span>{prio}: {de ? meta.label.de : meta.label.en}</span>
+          </div>
+        ))}
       </div>
     </div>
   );
