@@ -762,11 +762,11 @@ export function generateDoraReport(data: DoraReportData): void {
   // 5.3 Economic Impact
   heading(l('sec5c', lang), 2);
   introText(lang === 'de'
-    ? 'Neben der regulatorischen Bewertung ist eine wirtschaftliche Einordnung der identifizierten Risiken erforderlich, um die Dringlichkeit für die Geschäftsleitung greifbar zu machen.'
-    : 'Beyond regulatory assessment, an economic framing of identified risks is required to convey urgency to management.');
+    ? 'Regulatorische Konformitaet ist das eine — aber was kostet es, wenn nichts passiert? Dieser Abschnitt ordnet die Risiken wirtschaftlich ein.'
+    : 'Regulatory compliance is one thing — but what does inaction cost? This section puts the risks in economic terms.');
   const ecoText = lang === 'de'
-    ? `Die DORA-Verordnung sieht bei Verstößen Sanktionen gemäß nationalem Umsetzungsrecht vor. Für signifikante und kritische Finanzunternehmen können BaFin-Maßnahmen bis hin zur Einschränkung der Geschäftstätigkeit drohen.\n\nDie identifizierten ${failCount} nicht-konformen Anforderungen erhöhen das regulatorische Risiko erheblich. Insbesondere fehlende oder ungetestete Business-Continuity-Pläne können bei einem Ausfall direkte Kosten verursachen, die — abhängig von der Geschäftskritikalität — im sechsstelligen bis siebenstelligen Bereich liegen können.\n\nDer geschätzte Gesamtaufwand für die Remediation liegt — unter Berücksichtigung der identifizierten Maßnahmen aus Abschnitt 5.1 — bei etwa 6-18 Personenmonaten, abhängig von der Ausgangslage und den verfügbaren internen Ressourcen.`
-    : `DORA provides for sanctions pursuant to national implementation law. The ${failCount} non-compliant requirements significantly increase regulatory risk. Estimated total remediation effort is 6-18 person-months.`;
+    ? `Bei Verstoessen gegen die DORA-Verordnung drohen Sanktionen nach nationalem Umsetzungsrecht. Fuer signifikante und kritische Finanzunternehmen koennen BaFin-Massnahmen bis hin zur Einschraenkung der Geschaeftstaetigkeit die Folge sein.\n\nKonkret: Die ${failCount} nicht-konformen Anforderungen erhoehen das regulatorische Risiko erheblich. Besonders gravierend sind fehlende oder ungetestete Notfallplaene. Im Ernstfall — etwa bei einem Ransomware-Vorfall oder einem Rechenzentrums-Ausfall — koennen die direkten Kosten je nach Geschaeftskritikalitaet im sechs- bis siebenstelligen Bereich liegen.\n\nDer geschaetzte Gesamtaufwand fuer die Behebung aller identifizierten Maengel liegt bei etwa 6 bis 18 Personenmonaten. Das klingt nach viel, ist aber ein Bruchteil dessen, was ein ernsthafter Vorfall oder eine aufsichtsrechtliche Eskalation kosten wuerde.`
+    : `DORA provides for sanctions pursuant to national implementation law. The ${failCount} non-compliant requirements significantly increase regulatory risk. Estimated total remediation effort is 6-18 person-months — a fraction of the cost of a serious incident or supervisory escalation.`;
   bodyParagraph(ecoText);
 
   // ═══════════════════════════════════════════════════════════
