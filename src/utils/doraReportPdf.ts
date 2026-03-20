@@ -913,6 +913,162 @@ export function generateDoraReport(data: DoraReportData): void {
   }
 
   // ═══════════════════════════════════════════════════════════
+  // APPENDIX E: Working Papers (Arbeitspapiere)
+  // ═══════════════════════════════════════════════════════════
+  newPage();
+  heading(l('secE', lang));
+  introText(lang === 'de'
+    ? 'Jede DORA-Anforderung wird durch ein eigenständiges Arbeitspapier dokumentiert — unabhängig davon, ob eine Abweichung festgestellt wurde. Die Arbeitspapiere bilden die vollständige Prüfungsdokumentation und ermöglichen die lückenlose Nachvollziehbarkeit jeder Bewertungsentscheidung durch Dritte, einschließlich automatisierter Review-Systeme. Querverweise zu den Feststellungen in Abschnitt 4 und den Risiken in Abschnitt 4.1 sind bidirektional angelegt: Jeder Verweis in einem Arbeitspapier hat ein Gegenstück im Hauptbericht, und umgekehrt.'
+    : 'Each DORA requirement is documented through a dedicated working paper — regardless of whether a deviation was identified. Working papers form the complete audit trail and enable full traceability of every assessment decision by third parties, including automated review systems. Cross-references to findings in Section 4 and risks in Section 4.1 are bidirectional.');
+
+  reqs.forEach((r, idx) => {
+    const apId = `AP-${r.id}`;
+    const statusLabel = r.status === 'pass' ? l('pass', lang) : r.status === 'partial' ? l('partial', lang) : l('fail', lang);
+    const statusMarker = r.status === 'pass' ? 'PASS' : r.status === 'partial' ? 'PARTIAL' : 'FAIL';
+
+    // Find linked risks
+    const linkedRisks = risks.filter(ri => {
+      const baseRisk = ri.doraRef.split(' Abs.')[0].split(' lit.')[0];
+      const baseReq = r.article.split(' Abs.')[0].split(' lit.')[0];
+      return baseRisk === baseReq;
+    });
+
+    // Find linked evidence IDs
+    const linkedEvidence = linkedRisks.map((ri, i) => {
+      const globalIdx = risks.indexOf(ri);
+      return `E-${String(globalIdx + 1).padStart(3, '0')}`;
+    });
+
+    checkSpace(65);
+
+    // Working paper header
+    heading(`${apId}: ${r.name}`, 2);
+
+    // Metadata block
+    checkSpace(20);
+    doc.setFillColor(...C.bg); doc.roundedRect(LEFT, y - 2, WIDTH, 22, 1, 1, 'F');
+    doc.setDrawColor(...C.rule); doc.setLineWidth(0.12); doc.roundedRect(LEFT, y - 2, WIDTH, 22, 1, 1, 'S');
+    
+    doc.setFont(HEAD_FONT, 'normal'); doc.setFontSize(7); doc.setTextColor(...C.mid);
+    const col1 = LEFT + 4; const col2 = LEFT + WIDTH / 3; const col3 = LEFT + (WIDTH * 2 / 3);
+    
+    doc.text((lang === 'de' ? 'ARBEITSPAPIER-NR.' : 'WORKING PAPER NO.'), col1, y + 2);
+    doc.text((lang === 'de' ? 'DORA-ARTIKEL' : 'DORA ARTICLE'), col2, y + 2);
+    doc.text((lang === 'de' ? 'BEWERTUNG' : 'ASSESSMENT'), col3, y + 2);
+    
+    doc.setFont(HEAD_FONT, 'bold'); doc.setFontSize(9); doc.setTextColor(...C.navy);
+    doc.text(apId, col1, y + 7);
+    doc.text(r.article, col2, y + 7);
+    
+    // Status badge inline
+    const badgeColor: [number, number, number] = r.status === 'pass' ? [34, 120, 70] : r.status === 'partial' ? [180, 130, 20] : [180, 45, 45];
+    doc.setFillColor(...badgeColor);
+    doc.roundedRect(col3, y + 3.5, doc.getTextWidth(statusMarker) + 5, 5, 0.6, 0.6, 'F');
+    doc.setFont(HEAD_FONT, 'bold'); doc.setFontSize(6.5); doc.setTextColor(...C.white);
+    doc.text(statusMarker, col3 + 2.5, y + 7);
+
+    // Second row: cross-references
+    doc.setFont(HEAD_FONT, 'normal'); doc.setFontSize(7); doc.setTextColor(...C.mid);
+    doc.text((lang === 'de' ? 'BERICHT-REF.' : 'REPORT REF.'), col1, y + 12);
+    doc.text((lang === 'de' ? 'RISIKO-VERKNÜPFUNG' : 'LINKED RISKS'), col2, y + 12);
+    doc.text((lang === 'de' ? 'EVIDENZ-REF.' : 'EVIDENCE REF.'), col3, y + 12);
+
+    doc.setFont(HEAD_FONT, 'normal'); doc.setFontSize(8); doc.setTextColor(...C.dark);
+    doc.text(`${lang === 'de' ? 'Abschnitt' : 'Section'} 4.2, ${r.id}`, col1, y + 17);
+    doc.text(linkedRisks.length > 0 ? linkedRisks.map(riskId).join(', ') : (lang === 'de' ? 'Keine' : 'None'), col2, y + 17);
+    doc.text(linkedEvidence.length > 0 ? linkedEvidence.join(', ') + ` (${lang === 'de' ? 'Anhang C' : 'App. C'})` : '-', col3, y + 17);
+
+    y += 24;
+
+    // Prüfungsgegenstand (Scope of examination)
+    doc.setFont(HEAD_FONT, 'bold'); doc.setFontSize(7.5); doc.setTextColor(...C.mid);
+    doc.text((lang === 'de' ? 'PRÜFUNGSGEGENSTAND' : 'SCOPE OF EXAMINATION').toUpperCase(), LEFT, y);
+    y += 4;
+    bodyText(r.name + (r.article ? ` (${r.article})` : ''), 0);
+
+    // Erhobene Evidenz (Collected evidence)
+    doc.setFont(HEAD_FONT, 'bold'); doc.setFontSize(7.5); doc.setTextColor(...C.mid);
+    doc.text((lang === 'de' ? 'ERHOBENE EVIDENZ' : 'COLLECTED EVIDENCE').toUpperCase(), LEFT, y);
+    y += 4;
+    bodyText(r.evidence, 0);
+
+    // Bewertungsgrundlage (Assessment rationale)
+    doc.setFont(HEAD_FONT, 'bold'); doc.setFontSize(7.5); doc.setTextColor(...C.mid);
+    doc.text((lang === 'de' ? 'BEWERTUNGSGRUNDLAGE' : 'ASSESSMENT RATIONALE').toUpperCase(), LEFT, y);
+    y += 4;
+    bodyText(r.rationale, 0);
+
+    // Festgestellte Abweichung (only if gap exists)
+    if (r.gap) {
+      doc.setFont(HEAD_FONT, 'bold'); doc.setFontSize(7.5); doc.setTextColor(...C.mid);
+      doc.text((lang === 'de' ? 'FESTGESTELLTE ABWEICHUNG' : 'IDENTIFIED DEVIATION').toUpperCase(), LEFT, y);
+      y += 4;
+      bodyText(r.gap, 0);
+    }
+
+    // Empfohlene Maßnahme (if measure exists)
+    if (r.measure) {
+      doc.setFont(HEAD_FONT, 'bold'); doc.setFontSize(7.5); doc.setTextColor(...C.mid);
+      doc.text((lang === 'de' ? 'EMPFOHLENE MASSNAHME' : 'RECOMMENDED ACTION').toUpperCase(), LEFT, y);
+      y += 4;
+      bodyText(r.measure, 0);
+    }
+
+    // Aufwand + Priorität (if applicable)
+    if (r.effort || r.priority) {
+      doc.setFont(HEAD_FONT, 'bold'); doc.setFontSize(7.5); doc.setTextColor(...C.mid);
+      doc.text((lang === 'de' ? 'AUFWAND / PRIORITÄT' : 'EFFORT / PRIORITY').toUpperCase(), LEFT, y);
+      y += 4;
+      const parts = [];
+      if (r.priority) parts.push(`${l('priority', lang)}: ${r.priority}`);
+      if (r.effort) parts.push(`${l('effort', lang)}: ${r.effort}`);
+      bodyText(parts.join('  |  '), 0);
+    }
+
+    // Umsetzungskriterien (if criteria exist)
+    if (r.criteria && r.criteria.length > 0) {
+      doc.setFont(HEAD_FONT, 'bold'); doc.setFontSize(7.5); doc.setTextColor(...C.mid);
+      doc.text((lang === 'de' ? 'UMSETZUNGSKRITERIEN' : 'ACCEPTANCE CRITERIA').toUpperCase(), LEFT, y);
+      y += 4;
+      r.criteria.forEach((c, i) => bulletItem(`${i + 1}. ${c}`, 4));
+    }
+
+    // Verknüpfte Risiken detail (if any)
+    if (linkedRisks.length > 0) {
+      doc.setFont(HEAD_FONT, 'bold'); doc.setFontSize(7.5); doc.setTextColor(...C.mid);
+      doc.text((lang === 'de' ? 'VERKNÜPFTE IKT-RISIKEN' : 'LINKED ICT RISKS').toUpperCase(), LEFT, y);
+      y += 4;
+      linkedRisks.forEach(ri => {
+        const score = ri.likelihood * ri.impact;
+        const sev = score >= 20 ? 'KRITISCH' : score >= 13 ? 'HOCH' : score >= 6 ? 'MITTEL' : 'NIEDRIG';
+        checkSpace(6);
+        doc.setFont(HEAD_FONT, 'normal'); doc.setFontSize(8); doc.setTextColor(...C.dark);
+        doc.text(`${riskId(ri)}: ${ri.name} (Score: ${score}, ${lang === 'de' ? sev : sev})  >  ${lang === 'de' ? 'Abschnitt' : 'Section'} 4.1`, LEFT + 4, y);
+        y += 4.5;
+      });
+      y += 1;
+    }
+
+    // No finding note for PASS controls
+    if (r.status === 'pass' && (!r.gap || r.gap.trim() === '') && linkedRisks.length === 0) {
+      checkSpace(8);
+      doc.setFillColor(...C.bg); doc.roundedRect(LEFT, y - 1, WIDTH, 7, 0.8, 0.8, 'F');
+      doc.setFont(HEAD_FONT, 'normal'); doc.setFontSize(8); doc.setTextColor(34, 120, 70);
+      doc.text(lang === 'de' ? 'Keine Abweichung festgestellt. Die Anforderung ist vollständig erfüllt.' : 'No deviation identified. The requirement is fully met.', LEFT + 4, y + 3.5);
+      doc.setTextColor(...C.dark);
+      y += 10;
+    }
+
+    // Page separator between working papers
+    if (idx < reqs.length - 1) {
+      checkSpace(10);
+      doc.setDrawColor(...C.navy); doc.setLineWidth(0.3);
+      doc.line(LEFT, y, RIGHT, y);
+      y += 8;
+    }
+  });
+
+  // ═══════════════════════════════════════════════════════════
   // SAVE
   // ═══════════════════════════════════════════════════════════
   const suffix = isDraft ? 'DRAFT' : 'FINAL';
