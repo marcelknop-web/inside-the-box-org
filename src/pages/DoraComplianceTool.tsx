@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { RotateCcw, ChevronDown, ChevronUp, Loader2, Sparkles, FileText, ShieldCheck, CheckCircle2, XCircle, AlertTriangle, Wrench } from 'lucide-react';
 import { applyDoraAuditFixes } from '@/utils/doraAuditFixes';
 import { generateDoraReport } from '@/utils/doraReportPdf';
+import { DoraAuditCharts } from '@/components/DoraAuditCharts';
 import { runDoraQualityCheck, type QaResult } from '@/utils/doraQualityCheck';
 import { PageMeta } from '@/components/PageMeta';
 import { Progress } from '@/components/ui/progress';
@@ -979,6 +980,12 @@ function ReportView({ intakeData, risks, reqs }: { intakeData: DoraIntakeData; r
           </div>
         </div>
       )}
+
+      {/* ═══ AUDIT DASHBOARD ═══ */}
+      <div className="bg-card border border-border rounded-xl p-5">
+        <div className="text-sm font-bold text-foreground mb-3">📊 {language === 'de' ? 'Auswertungs-Dashboard' : 'Assessment Dashboard'}</div>
+        <DoraAuditCharts risks={localRisks} reqs={localReqs} />
+      </div>
 
       {/* Export Bar */}
       <div className="bg-secondary border border-border rounded-lg p-4">
