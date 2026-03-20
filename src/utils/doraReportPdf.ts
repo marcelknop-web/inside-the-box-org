@@ -611,9 +611,11 @@ export function generateDoraReport(data: DoraReportData): void {
     const eId = `E-${String(globalIdx + 1).padStart(3, '0')}`;
     heading(`${l('finding', lang)} ${riskId(ri)}: ${ri.name}`, 3);
 
-    // Category + severity tag + evidence reference
+    // Category + severity tag + evidence reference (wrapped safely)
     doc.setFontSize(7); doc.setFont(HEAD_FONT, 'normal'); doc.setTextColor(...C.mid);
-    doc.text(`${cat}  |  ${sev}  |  ${ri.doraRef}  |  ${eId} (${lang === 'de' ? 'Anhang C' : 'App. C'})  |  ${lang === 'de' ? 'Evidenz' : 'Evidence'}: ${ri.evidenceQuality}/5`, LEFT, y); y += 5;
+    const metaLine = `${cat}  |  ${sev}  |  ${ri.doraRef}  |  ${eId} (${lang === 'de' ? 'Anhang C' : 'App. C'})  |  ${lang === 'de' ? 'Evidenz' : 'Evidence'}: ${ri.evidenceQuality}/5`;
+    const metaLines = doc.splitTextToSize(metaLine, WIDTH);
+    doc.text(metaLines, LEFT, y); y += metaLines.length * 3.2 + 2;
     doc.setTextColor(...C.dark);
 
     // Risk score bar
