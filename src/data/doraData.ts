@@ -182,7 +182,7 @@ export const DORA_RISKS: DoraRisk[] = [
     sources: ['OWASP API Security Top 10 — API1: Broken Object Level Authorization', 'DORA Art. 9 Abs. 4: Zugangskontrollmechanismen'], evidenceQuality: 4, reproducibility: 'easy' },
 
   // I — Integrity (2)
-  { id: 3, category: 'I', name: 'Fehlende Integritätsprüfung bei Batch-Zahlungsdateien', component: 'Zahlungsverkehr-System', attacker: 'Insider / Supply-Chain-Angreifer', path: 'Batch-Dateien (SEPA XML) ohne Signaturprüfung verarbeitet → Manipulation von Zahlungsaufträgen möglich', doraRef: 'Art. 9 Abs. 4 lit. d', likelihood: 3, impact: 5,
+  { id: 3, category: 'I', name: 'Fehlende Integritätsprüfung bei Batch-Zahlungsdateien', component: 'Zahlungsverkehr-System', attacker: 'Insider / Supply-Chain-Angreifer', path: 'Batch-Dateien (SEPA XML) ohne Signaturprüfung verarbeitet → Manipulation von Zahlungsaufträgen möglich', doraRef: 'Art. 9 Abs. 4', likelihood: 3, impact: 5,
     evidence: 'Prozessanalyse: SEPA-XML-Batch-Dateien werden über SFTP empfangen und ohne kryptografische Signaturprüfung direkt in das Zahlungsverkehr-System eingelesen. Modifizierte Testdatei (geänderter IBAN und Betrag) wurde erfolgreich verarbeitet.',
     rationale: 'Likelihood 3: Erfordert Zugang zum SFTP-Server oder Kompromittierung der Upload-Kette. Impact 5: Direkte finanzielle Verluste durch manipulierte Zahlungsaufträge. Regulatorische Konsequenzen (PSD2, DORA).',
     sources: ['DORA Art. 9 Abs. 4 lit. d: Datenintegrität', 'PSD2 Art. 95: Sicherheitsanforderungen'], evidenceQuality: 4, reproducibility: 'medium' },
