@@ -473,7 +473,7 @@ export function DoraAuditCharts({ risks, reqs }: { risks: DoraRisk[]; reqs: Dora
           </ChartCard>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <ChartCard title={de ? 'Prioritaetsverteilung' : 'Priority Distribution'}>
+            <ChartCard title={de ? 'Prioritaetsverteilung' : 'Priority Distribution'} subtitle={de ? 'Anteil der offenen Massnahmen nach Dringlichkeitsstufe (P0 = sofort, P3 = langfristig).' : 'Share of open measures by urgency level (P0 = immediate, P3 = long-term).'}>
               <ResponsiveContainer width="100%" height={200}>
                 <PieChart><Pie data={gapPriority} dataKey="value" cx="50%" cy="50%" innerRadius={45} outerRadius={70} paddingAngle={4} strokeWidth={0}>{gapPriority.map((e, i) => <Cell key={i} fill={e.color} />)}</Pie><Tooltip contentStyle={tooltipStyle} /></PieChart>
               </ResponsiveContainer>
