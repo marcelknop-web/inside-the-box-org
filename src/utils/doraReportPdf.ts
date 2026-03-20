@@ -948,8 +948,8 @@ export function generateDoraReport(data: DoraReportData): void {
   newPage();
   heading(l('secE', lang));
   introText(lang === 'de'
-    ? 'Jede DORA-Anforderung wird durch ein eigenständiges Arbeitspapier dokumentiert — unabhängig davon, ob eine Abweichung festgestellt wurde. Die Arbeitspapiere bilden die vollständige Prüfungsdokumentation und ermöglichen die lückenlose Nachvollziehbarkeit jeder Bewertungsentscheidung durch Dritte, einschließlich automatisierter Review-Systeme. Querverweise zu den Feststellungen in Abschnitt 4 und den Risiken in Abschnitt 4.1 sind bidirektional angelegt: Jeder Verweis in einem Arbeitspapier hat ein Gegenstück im Hauptbericht, und umgekehrt.'
-    : 'Each DORA requirement is documented through a dedicated working paper — regardless of whether a deviation was identified. Working papers form the complete audit trail and enable full traceability of every assessment decision by third parties, including automated review systems. Cross-references to findings in Section 4 and risks in Section 4.1 are bidirectional.');
+    ? 'Das Herzstueck der Pruefungsdokumentation: Fuer jede einzelne DORA-Anforderung gibt es ein eigenes Arbeitspapier — egal ob eine Abweichung vorliegt oder nicht. So kann jeder Pruefungsschritt lueckenlos nachvollzogen werden, sei es durch einen menschlichen Reviewer oder ein automatisiertes System. Alle Querverweise zwischen Arbeitspapieren und Hauptbericht sind bidirektional angelegt.'
+    : 'The backbone of the audit documentation: every DORA requirement has its own working paper — whether a deviation was found or not. This ensures full traceability of every assessment step, whether reviewed by a person or an automated system. All cross-references between working papers and the main report are bidirectional.');
 
   reqs.forEach((r, idx) => {
     const apId = `AP-${r.id}`;
