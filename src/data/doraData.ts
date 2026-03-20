@@ -424,6 +424,12 @@ export const DORA_REQS: DoraReq[] = [
     evidence: 'Nicht anwendbar für signifikante/kritische Institute. Vollständiger Art. 5-14 Rahmen implementiert.',
     rationale: 'Erfüllt: Vollständiger Rahmen nach Art. 5-14 implementiert. Art. 15 (vereinfacht) ist nicht anwendbar.',
     measure: '', criteria: [], effort: '', priority: '' },
+
+  { id: 'D16-1', article: 'Art. 16', name: 'Proportionalitätsgrundsatz', status: 'pass',
+    gap: '',
+    evidence: 'Prüfung: IKT-Risikomanagement-Rahmenwerk berücksichtigt Größe, Geschäftsmodell und Risikoprofil des Unternehmens. Maßnahmen sind proportional zur Kritikalität der IKT-Systeme.',
+    rationale: 'Erfüllt: Das Rahmenwerk ist auf die spezifischen Gegebenheiten des Unternehmens zugeschnitten.',
+    measure: '', criteria: [], effort: '', priority: '' },
 ];
 
 // ── Demo Scenarios ──────────────────────────────────────────────
