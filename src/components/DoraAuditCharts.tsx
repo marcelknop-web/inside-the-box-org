@@ -265,12 +265,16 @@ export function DoraAuditCharts({ risks, reqs }: { risks: DoraRisk[]; reqs: Dora
   }, [risks, language]);
 
   const topRisks = useMemo(() =>
-    [...risks].sort((a, b) => (b.likelihood * b.impact) - (a.likelihood * a.impact)).slice(0, 8).map(r => ({
-      name: `${r.category}-${String(r.id).padStart(3, '0')}`,
-      score: r.likelihood * r.impact,
-      color: r.likelihood * r.impact >= 20 ? RISK_COLORS.critical : r.likelihood * r.impact >= 13 ? RISK_COLORS.high : RISK_COLORS.medium,
-      label: r.name.length > 35 ? r.name.slice(0, 32) + '...' : r.name,
-    }))
+    [...risks].sort((a, b) => (b.likelihood * b.impact) - (a.likelihood * a.impact)).slice(0, 8).map(r => {
+      const s = r.likelihood * r.impact;
+      const shortName = r.name.length > 28 ? r.name.slice(0, 25) + '…' : r.name;
+      return {
+        name: `${r.category}-${String(r.id).padStart(3, '0')}  ${shortName}`,
+        score: s,
+        color: s >= 20 ? RISK_COLORS.critical : s >= 13 ? RISK_COLORS.high : RISK_COLORS.medium,
+        label: r.name,
+      };
+    })
   , [risks]);
 
   const evidenceData = useMemo(() => {
@@ -411,7 +415,7 @@ export function DoraAuditCharts({ risks, reqs }: { risks: DoraRisk[]; reqs: Dora
             <ResponsiveContainer width="100%" height={280}>
               <BarChart data={topRisks} layout="vertical" margin={{ left: 15, right: 15 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" /><XAxis type="number" domain={[0, 25]} tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }} />
-                <YAxis type="category" dataKey="name" tick={{ fill: 'hsl(var(--foreground))', fontSize: 11, fontFamily: 'monospace' }} width={55} />
+                <YAxis type="category" dataKey="name" tick={{ fill: 'hsl(var(--foreground))', fontSize: 10 }} width={200} />
                 <Tooltip contentStyle={tooltipStyle} formatter={(value: number, _name: string, props: any) => [value, props.payload.label]} />
                 <Bar dataKey="score" radius={[0, 6, 6, 0]}>{topRisks.map((e, i) => <Cell key={i} fill={e.color} />)}</Bar>
               </BarChart>
