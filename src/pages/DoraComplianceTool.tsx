@@ -529,12 +529,12 @@ function RiskLandscape({ risks, onNext }: { risks: DoraRisk[]; onNext: () => voi
                 {isOpen ? <ChevronUp className="w-4 h-4 text-muted-foreground flex-shrink-0" /> : <ChevronDown className="w-4 h-4 text-muted-foreground flex-shrink-0" />}
               </div>
               {isOpen && (
-                <div className="border-t border-border bg-secondary/30 px-4 py-3 text-sm space-y-3">
-                  <div><span className="font-semibold text-muted-foreground">{t('dora.tmAttacker')}: </span><span className="text-foreground">{ri.attacker}</span></div>
-                  <div><span className="font-semibold text-muted-foreground">{t('dora.tmPath')}: </span><span className="text-foreground">{ri.path}</span></div>
+                <div className="border-t border-border bg-secondary/30 px-3 sm:px-4 py-3 text-sm space-y-3">
+                  <div className="break-words"><span className="font-semibold text-muted-foreground">{t('dora.tmAttacker')}: </span><span className="text-foreground">{ri.attacker}</span></div>
+                  <div className="break-words"><span className="font-semibold text-muted-foreground">{t('dora.tmPath')}: </span><span className="text-foreground">{ri.path}</span></div>
                   <EvidenceBlock label={t('dora.tmEvidence')}>{ri.evidence}</EvidenceBlock>
                   <EvidenceBlock label={t('dora.tmRationale')}>{ri.rationale}</EvidenceBlock>
-                  <div className="grid grid-cols-2 gap-4 pt-1">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                     <div><div className="text-xs text-muted-foreground mb-1">Likelihood (<span className="font-mono">{ri.likelihood}/5</span>)</div><ScoreBar value={ri.likelihood} /></div>
                     <div><div className="text-xs text-muted-foreground mb-1">Impact (<span className="font-mono">{ri.impact}/5</span>)</div><ScoreBar value={ri.impact} /></div>
                   </div>
