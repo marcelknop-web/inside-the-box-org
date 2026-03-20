@@ -605,11 +605,13 @@ export function generateDoraReport(data: DoraReportData): void {
     const cat = RISK_CATEGORIES[ri.category]?.label[lang] || ri.category;
 
     // Finding header with severity indicator
+    const globalIdx = risks.indexOf(ri);
+    const eId = `E-${String(globalIdx + 1).padStart(3, '0')}`;
     heading(`${l('finding', lang)} ${riskId(ri)}: ${ri.name}`, 3);
 
-    // Category + severity tag
+    // Category + severity tag + evidence reference
     doc.setFontSize(7); doc.setFont(HEAD_FONT, 'normal'); doc.setTextColor(...C.mid);
-    doc.text(`${cat}  |  ${sev}  |  ${ri.doraRef}`, LEFT, y); y += 5;
+    doc.text(`${cat}  |  ${sev}  |  ${ri.doraRef}  |  ${eId} (${lang === 'de' ? 'Anhang C' : 'App. C'})  |  ${lang === 'de' ? 'Evidenz' : 'Evidence'}: ${ri.evidenceQuality}/5`, LEFT, y); y += 5;
     doc.setTextColor(...C.dark);
 
     // Risk score bar
