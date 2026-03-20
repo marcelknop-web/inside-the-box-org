@@ -741,8 +741,8 @@ export function generateDoraReport(data: DoraReportData): void {
   // 5.2 Roadmap
   heading(l('sec5b', lang), 2);
   introText(lang === 'de'
-    ? 'Die Remediation-Roadmap ordnet die identifizierten Maßnahmen in vier Phasen. Die Zeitangaben sind Richtwerte und müssen an die organisatorischen Kapazitäten angepasst werden.'
-    : 'The remediation roadmap organizes measures into four phases. Timelines are indicative.');
+    ? 'Alle Massnahmen auf einen Blick, eingeordnet in vier Phasen. Die Zeitangaben sind Richtwerte — die tatsaechliche Umsetzungsgeschwindigkeit haengt von den verfuegbaren Ressourcen und der organisatorischen Reife ab.'
+    : 'All measures at a glance, mapped to four phases. Timelines are indicative — actual pace depends on available resources and organisational maturity.');
 
   const phases = [
     { label: lang === 'de' ? 'Phase 0 (0-4 Wochen)' : 'Phase 0 (0-4 weeks)', desc: lang === 'de' ? 'Kritische Lücken schließen, Sofortmaßnahmen umsetzen' : 'Close critical gaps, implement immediate measures' },
