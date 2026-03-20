@@ -873,8 +873,8 @@ export function generateDoraReport(data: DoraReportData): void {
   y += 5;
   heading(l('secC', lang));
   introText(lang === 'de'
-    ? 'Index aller referenzierten Evidenzelemente mit Qualitätsbewertung und Reproduzierbarkeitsgrad.'
-    : 'Index of all referenced evidence elements with quality rating and reproducibility.');
+    ? 'Jede Bewertung steht und faellt mit der Qualitaet der Nachweise. Dieser Index listet alle Evidenzelemente mit einer Einschaetzung, wie belastbar und reproduzierbar sie sind.'
+    : 'Every assessment is only as good as its evidence. This index lists all evidence elements with a rating of how robust and reproducible they are.');
 
   checkSpace(8);
   doc.setFont(DATA_FONT, 'bold'); doc.setFontSize(6.5); doc.setTextColor(...C.mid);
