@@ -893,8 +893,8 @@ export function generateDoraReport(data: DoraReportData): void {
   newPage();
   heading(l('secD', lang));
   introText(lang === 'de'
-    ? 'Der automatisierte Qualitätscheck prüft die interne Konsistenz, fachliche Plausibilität und Vollständigkeit des Berichts. Die Ergebnisse werden hier vollständig dokumentiert, um die Nachvollziehbarkeit der Qualitätssicherung zu gewährleisten.'
-    : 'The automated quality check verifies internal consistency, technical plausibility, and completeness.');
+    ? 'Vertrauen ist gut, Kontrolle ist besser: Der automatisierte Qualitaetscheck prueft den Bericht auf interne Konsistenz, fachliche Plausibilitaet und Vollstaendigkeit. Hier sind die Ergebnisse im Detail.'
+    : 'Trust but verify: the automated quality check tests the report for internal consistency, technical plausibility, and completeness. Results are documented here in full.');
 
   if (data.qaChecks && data.qaChecks.length > 0) {
     heading(`D.1 ${lang === 'de' ? 'Quality-Gate-Ergebnis' : 'Quality Gate Result'}`, 2);
