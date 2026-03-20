@@ -503,7 +503,7 @@ function RiskLandscape({ risks, onNext }: { risks: DoraRisk[]; onNext: () => voi
   return (
     <StaggerReveal resetKey="rl" stagger={350}>
       <InfoBox icon="🛡️" title={t('dora.rlInfoTitle')} color="blue">{t('dora.rlInfo')}</InfoBox>
-      <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
         {Object.entries(RISK_CATEGORIES).map(([k, m]) => (
           <div key={k} className="bg-card border border-border rounded-lg p-3 text-center">
             <div className={`w-8 h-8 rounded-full ${m.dot} text-white font-bold text-sm flex items-center justify-center mx-auto mb-1`}>{k}</div>
@@ -519,22 +519,22 @@ function RiskLandscape({ risks, onNext }: { risks: DoraRisk[]; onNext: () => voi
           const isOpen = exp === ri.id;
           return (
             <div key={ri.id} className="bg-card border border-border rounded-lg overflow-hidden">
-              <div className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-secondary/50" onClick={() => setExp(isOpen ? null : ri.id)}>
+              <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 sm:gap-3 px-3 sm:px-4 py-3 cursor-pointer hover:bg-secondary/50" onClick={() => setExp(isOpen ? null : ri.id)}>
                 <span className={`px-2 py-0.5 rounded text-xs font-bold ${meta?.badge || ''}`}>{riskId(ri)}</span>
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm font-semibold text-foreground truncate">{ri.name}</div>
-                  <div className="text-xs text-muted-foreground">{ri.component} · {ri.doraRef}</div>
+                <div className="flex-1 min-w-0 order-last sm:order-none w-full sm:w-auto">
+                  <div className="text-sm font-semibold text-foreground">{ri.name}</div>
+                  <div className="text-xs text-muted-foreground truncate">{ri.component} · {ri.doraRef}</div>
                 </div>
-                <span className={`px-2 py-0.5 rounded text-xs font-bold flex-shrink-0 ${risk.cls}`}>{risk.label} (<span className="font-mono">{ri.likelihood}x{ri.impact}={ri.likelihood * ri.impact}</span>)</span>
-                {isOpen ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+                <span className={`px-2 py-0.5 rounded text-xs font-bold flex-shrink-0 ${risk.cls}`}>{risk.label} <span className="font-mono hidden sm:inline">({ri.likelihood}×{ri.impact}={ri.likelihood * ri.impact})</span></span>
+                {isOpen ? <ChevronUp className="w-4 h-4 text-muted-foreground flex-shrink-0" /> : <ChevronDown className="w-4 h-4 text-muted-foreground flex-shrink-0" />}
               </div>
               {isOpen && (
-                <div className="border-t border-border bg-secondary/30 px-4 py-3 text-sm space-y-3">
-                  <div><span className="font-semibold text-muted-foreground">{t('dora.tmAttacker')}: </span><span className="text-foreground">{ri.attacker}</span></div>
-                  <div><span className="font-semibold text-muted-foreground">{t('dora.tmPath')}: </span><span className="text-foreground">{ri.path}</span></div>
+                <div className="border-t border-border bg-secondary/30 px-3 sm:px-4 py-3 text-sm space-y-3">
+                  <div className="break-words"><span className="font-semibold text-muted-foreground">{t('dora.tmAttacker')}: </span><span className="text-foreground">{ri.attacker}</span></div>
+                  <div className="break-words"><span className="font-semibold text-muted-foreground">{t('dora.tmPath')}: </span><span className="text-foreground">{ri.path}</span></div>
                   <EvidenceBlock label={t('dora.tmEvidence')}>{ri.evidence}</EvidenceBlock>
                   <EvidenceBlock label={t('dora.tmRationale')}>{ri.rationale}</EvidenceBlock>
-                  <div className="grid grid-cols-2 gap-4 pt-1">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                     <div><div className="text-xs text-muted-foreground mb-1">Likelihood (<span className="font-mono">{ri.likelihood}/5</span>)</div><ScoreBar value={ri.likelihood} /></div>
                     <div><div className="text-xs text-muted-foreground mb-1">Impact (<span className="font-mono">{ri.impact}/5</span>)</div><ScoreBar value={ri.impact} /></div>
                   </div>
