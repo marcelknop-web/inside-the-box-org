@@ -117,12 +117,12 @@ function getContextText(name: string, typeName: string, critName: string, date: 
     const auditCount = Object.entries(intake.measures).filter(([, m]) => m.audited).length;
 
     if (infraList || tpList) {
-      itLandscapeDe = `\n\nDie IKT-Landschaft von ${name} umfasst ${infraList ? `die folgenden Kernkomponenten: ${infraList}` : 'nicht naeher spezifizierte Systeme'}.`;
-      if (tpList) itLandscapeDe += ` Im Bereich der IKT-Drittanbieter stuetzt sich das Unternehmen auf: ${tpList}.`;
-      itLandscapeDe += ` Von den ${Object.keys(intake.measures).length} bewerteten Sicherheitsmassnahmen sind ${measureCount} aktiv implementiert`;
+      itLandscapeDe = `\n\nDie IKT-Landschaft von ${name} umfasst ${infraList ? `die folgenden Kernkomponenten: ${infraList}` : 'nicht näher spezifizierte Systeme'}.`;
+      if (tpList) itLandscapeDe += ` Im Bereich der IKT-Drittanbieter stützt sich das Unternehmen auf: ${tpList}.`;
+      itLandscapeDe += ` Von den ${Object.keys(intake.measures).length} bewerteten Sicherheitsmaßnahmen sind ${measureCount} aktiv implementiert`;
       if (auditCount > 0) itLandscapeDe += `, ${auditCount} davon auditiert`;
       if (certCount > 0) itLandscapeDe += ` und ${certCount} zertifiziert`;
-      itLandscapeDe += '. Diese IT-Infrastruktur bildet den Pruefungsrahmen fuer die nachfolgende Analyse.';
+      itLandscapeDe += '. Diese IT-Infrastruktur bildet den Prüfungsrahmen für die nachfolgende Analyse.';
 
       itLandscapeEn = `\n\nThe ICT landscape of ${name} encompasses ${infraList ? `the following core components: ${infraList}` : 'systems not further specified'}.`;
       if (tpList) itLandscapeEn += ` In terms of ICT third-party providers, the entity relies on: ${tpList}.`;
@@ -133,7 +133,7 @@ function getContextText(name: string, typeName: string, critName: string, date: 
     }
   }
 
-  if (lang === 'de') return `Am ${date} wurde fuer ${name} (${typeName}, Kritikalitaet: ${critName}) eine Konformitaetsbewertung nach der Verordnung (EU) 2022/2554 — dem Digital Operational Resilience Act (DORA) — durchgefuehrt. Die Ergebnisse sind in diesem Bericht zusammengefasst.\n\nDORA verlangt von Finanzunternehmen, dass sie ihre digitale Widerstandsfaehigkeit systematisch aufbauen und nachweisen koennen. Dieser Bericht prueft fuenf Kernbereiche, die das Gesetz vorgibt: Wie gut steuert ${name} seine IKT-Risiken (Kapitel II)? Wie werden IKT-Vorfaelle erkannt, gemeldet und behandelt (Kapitel III)? Wird die digitale Resilienz regelmaessig getestet (Kapitel IV)? Sind die Risiken durch externe IT-Dienstleister unter Kontrolle (Kapitel V)? Und: Nimmt die Geschaeftsleitung ihre Verantwortung fuer IKT-Sicherheit wahr (Art. 5-6)?${itLandscapeDe}\n\nDer Bericht richtet sich an Vorstand und Geschaeftsfuehrung, die IKT-Risikoverantwortlichen, die Compliance-Abteilung sowie — im Pruefungsfall — an die zustaendige Aufsichtsbehoerde. Alle Bewertungen sind so dokumentiert, dass sie von Dritten nachvollzogen werden koennen, einschliesslich automatisierter Pruefverfahren.`;
+  if (lang === 'de') return `Am ${date} wurde für ${name} (${typeName}, Kritikalität: ${critName}) eine Konformitätsbewertung nach der Verordnung (EU) 2022/2554 — dem Digital Operational Resilience Act (DORA) — durchgeführt. Die Ergebnisse sind in diesem Bericht zusammengefasst.\n\nDORA verlangt von Finanzunternehmen, dass sie ihre digitale Widerstandsfähigkeit systematisch aufbauen und nachweisen können. Dieser Bericht prüft fünf Kernbereiche, die das Gesetz vorgibt: Wie gut steuert ${name} seine IKT-Risiken (Kapitel II)? Wie werden IKT-Vorfälle erkannt, gemeldet und behandelt (Kapitel III)? Wird die digitale Resilienz regelmäßig getestet (Kapitel IV)? Sind die Risiken durch externe IT-Dienstleister unter Kontrolle (Kapitel V)? Und: Nimmt die Geschäftsleitung ihre Verantwortung für IKT-Sicherheit wahr (Art. 5-6)?${itLandscapeDe}\n\nDer Bericht richtet sich an Vorstand und Geschäftsführung, die IKT-Risikoverantwortlichen, die Compliance-Abteilung sowie — im Prüfungsfall — an die zuständige Aufsichtsbehörde. Alle Bewertungen sind so dokumentiert, dass sie von Dritten nachvollzogen werden können, einschließlich automatisierter Prüfverfahren.`;
   if (lang === 'fr') return `Le ${date}, une evaluation de conformite a ete realisee pour ${name} (${typeName}, criticite : ${critName}) conformement au reglement (UE) 2022/2554 (Digital Operational Resilience Act, DORA).${itLandscapeEn}`;
   return `On ${date}, a compliance assessment was conducted for ${name} (${typeName}, criticality: ${critName}) pursuant to Regulation (EU) 2022/2554 — the Digital Operational Resilience Act (DORA).\n\nDORA requires financial entities to systematically build and demonstrate digital operational resilience. This report examines five core areas mandated by the regulation: How effectively does ${name} manage its ICT risks (Chapter II)? How are ICT incidents detected, reported, and handled (Chapter III)? Is digital resilience tested on a regular basis (Chapter IV)? Are risks from external IT service providers under control (Chapter V)? And: Does senior management take ownership of ICT security (Art. 5-6)?${itLandscapeEn}\n\nThis report is intended for the board and executive management, ICT risk officers, the compliance function, and — in the event of a supervisory review — the competent authority. All assessments are documented to allow verification by third parties, including automated review systems.`;
 }
@@ -147,23 +147,23 @@ function getMgmtSummary(name: string, risks: number, crit: number, failReqs: num
   if (lang === 'de') {
     return {
       verdict: ready
-        ? `${name} erfuellt die wesentlichen DORA-Anforderungen. Aus heutiger Sicht besteht regulatorische Konformitaet.`
+        ? `${name} erfüllt die wesentlichen DORA-Anforderungen. Aus heutiger Sicht besteht regulatorische Konformität.`
         : partial
-          ? `${name} erreicht eine DORA-Konformitaet von ${rate} Prozent. In einigen Bereichen besteht gezielter Nachbesserungsbedarf.`
-          : `${name} erreicht derzeit ${rate} Prozent DORA-Konformitaet. Ohne zuegige Nachbesserung besteht ein erhebliches regulatorisches Risiko.`,
-      situation: `${risks} IKT-Risikoszenarien identifiziert, davon ${crit} als kritisch eingestuft (Score 20 oder hoeher). Von ${totalReqs} geprueften Anforderungen sind ${failReqs} nicht erfuellt und ${partialReqs} nur teilweise erfuellt.`,
+          ? `${name} erreicht eine DORA-Konformität von ${rate} Prozent. In einigen Bereichen besteht gezielter Nachbesserungsbedarf.`
+          : `${name} erreicht derzeit ${rate} Prozent DORA-Konformität. Ohne zügige Nachbesserung besteht ein erhebliches regulatorisches Risiko.`,
+      situation: `${risks} IKT-Risikoszenarien identifiziert, davon ${crit} als kritisch eingestuft (Score 20 oder höher). Von ${totalReqs} geprüften Anforderungen sind ${failReqs} nicht erfüllt und ${partialReqs} nur teilweise erfüllt.`,
       findings: [
-        ...(crit > 0 ? [{ t: `${crit} kritische Risiken erfordern sofortiges Handeln`, d: 'In diesen Bereichen fehlen grundlegende Schutzmechanismen oder sind unzureichend umgesetzt. Ein Angreifer koennte mit vertretbarem Aufwand erheblichen Schaden anrichten. Jede Woche Verzoegerung erhoeht die Wahrscheinlichkeit regulatorischer Beanstandungen.' }] : []),
-        ...(failReqs > 0 ? [{ t: `${failReqs} DORA-Anforderungen sind nicht erfuellt`, d: `Die Abweichungen betreffen zentrale Bereiche: IKT-Risikomanagement, Meldepflichten bei Vorfaellen und die Steuerung von Drittanbieter-Risiken. Bleiben diese Luecken bestehen, drohen aufsichtsrechtliche Massnahmen nach Art. 50 und 51 DORA.` }] : []),
-        ...(partialReqs > 0 ? [{ t: `${partialReqs} Anforderungen sind nur teilweise erfuellt`, d: 'Die Ansaetze sind vorhanden, aber die Umsetzung ist nicht abgeschlossen oder wurde bislang nicht unabhaengig geprueft. Diese Luecken lassen sich mit ueberschaubarem Aufwand schliessen und sollten priorisiert werden.' }] : []),
-        ...(passReqs > 0 ? [{ t: `${passReqs} Anforderungen sind vollstaendig erfuellt`, d: 'Die implementierten Massnahmen decken die regulatorischen Vorgaben angemessen ab. Hier besteht kein unmittelbarer Handlungsbedarf.' }] : []),
+        ...(crit > 0 ? [{ t: `${crit} kritische Risiken erfordern sofortiges Handeln`, d: 'In diesen Bereichen fehlen grundlegende Schutzmechanismen oder sind unzureichend umgesetzt. Ein Angreifer könnte mit vertretbarem Aufwand erheblichen Schaden anrichten. Jede Woche Verzögerung erhöht die Wahrscheinlichkeit regulatorischer Beanstandungen.' }] : []),
+        ...(failReqs > 0 ? [{ t: `${failReqs} DORA-Anforderungen sind nicht erfüllt`, d: `Die Abweichungen betreffen zentrale Bereiche: IKT-Risikomanagement, Meldepflichten bei Vorfällen und die Steuerung von Drittanbieter-Risiken. Bleiben diese Lücken bestehen, drohen aufsichtsrechtliche Maßnahmen nach Art. 50 und 51 DORA.` }] : []),
+        ...(partialReqs > 0 ? [{ t: `${partialReqs} Anforderungen sind nur teilweise erfüllt`, d: 'Die Ansätze sind vorhanden, aber die Umsetzung ist nicht abgeschlossen oder wurde bislang nicht unabhängig geprüft. Diese Lücken lassen sich mit überschaubarem Aufwand schließen und sollten priorisiert werden.' }] : []),
+        ...(passReqs > 0 ? [{ t: `${passReqs} Anforderungen sind vollständig erfüllt`, d: 'Die implementierten Maßnahmen decken die regulatorischen Vorgaben angemessen ab. Hier besteht kein unmittelbarer Handlungsbedarf.' }] : []),
       ],
       implication: ready
-        ? 'Zum Pruefungszeitpunkt wurden keine regulatorischen Risiken identifiziert. Es wird empfohlen, einen regelmaessigen Ueberpruefungsprozess zu etablieren und die DORA-Bewertung jaehrlich zu wiederholen.'
-        : `Werden die festgestellten Maengel bei einer Pruefung durch BaFin oder EZB beanstandet, drohen Verwaltungsmassnahmen nach Art. 50 DORA, Bussgelder gemaess nationalem Umsetzungsrecht und — im Extremfall — Einschraenkungen der Geschaeftstaetigkeit. Eine detaillierte Aufwandsschaetzung findet sich in Abschnitt 5.`,
+        ? 'Zum Prüfungszeitpunkt wurden keine regulatorischen Risiken identifiziert. Es wird empfohlen, einen regelmäßigen Überprüfungsprozess zu etablieren und die DORA-Bewertung jährlich zu wiederholen.'
+        : `Werden die festgestellten Mängel bei einer Prüfung durch BaFin oder EZB beanstandet, drohen Verwaltungsmaßnahmen nach Art. 50 DORA, Bußgelder gemäß nationalem Umsetzungsrecht und — im Extremfall — Einschränkungen der Geschäftstätigkeit. Eine detaillierte Aufwandsschätzung findet sich in Abschnitt 5.`,
       action: ready
-        ? 'Naechster Schritt: Monitoring-Prozess aufsetzen und den Termin fuer die naechste regulaere DORA-Pruefung festlegen.'
-        : 'Naechster Schritt: Die Sofortmassnahmen (P0) aus Abschnitt 5.1 mit klaren Verantwortlichkeiten und verbindlichen Fristen versehen. Woechentliches Tracking, bis alle kritischen Gaps geschlossen sind.',
+        ? 'Nächster Schritt: Monitoring-Prozess aufsetzen und den Termin für die nächste reguläre DORA-Prüfung festlegen.'
+        : 'Nächster Schritt: Die Sofortmaßnahmen (P0) aus Abschnitt 5.1 mit klaren Verantwortlichkeiten und verbindlichen Fristen versehen. Wöchentliches Tracking, bis alle kritischen Gaps geschlossen sind.',
     };
   }
   return {
@@ -422,7 +422,7 @@ export function generateDoraReport(data: DoraReportData): void {
 
   heading(l('sec2', lang));
   introText(lang === 'de'
-    ? 'Was muss die Geschaeftsleitung wissen? Dieser Abschnitt bringt die wichtigsten Ergebnisse auf den Punkt — mit konkreten Zahlen und einer klaren Einschaetzung, wo das Unternehmen steht.'
+    ? 'Was muss die Geschäftsleitung wissen? Dieser Abschnitt bringt die wichtigsten Ergebnisse auf den Punkt — mit konkreten Zahlen und einer klaren Einschätzung, wo das Unternehmen steht.'
     : 'What does the board need to know? This section distills the key findings into concrete numbers and a clear picture of where the entity stands.');
 
   const summary = getMgmtSummary(intakeData.entityName, risks.length, critCount, failCount, partCount, reqs.length, passCount, lang);
@@ -490,7 +490,7 @@ export function generateDoraReport(data: DoraReportData): void {
   newPage();
   heading(l('sec3', lang));
   introText(lang === 'de'
-    ? 'Bevor es um Risiken und Luecken geht, dokumentiert dieser Abschnitt, was genau geprueft wurde: das Unternehmen, seine IT-Systeme, die eingesetzten Sicherheitsmassnahmen und die eingereichten Unterlagen.'
+    ? 'Bevor es um Risiken und Lücken geht, dokumentiert dieser Abschnitt, was genau geprüft wurde: das Unternehmen, seine IT-Systeme, die eingesetzten Sicherheitsmaßnahmen und die eingereichten Unterlagen.'
     : 'Before diving into risks and gaps, this section documents exactly what was assessed: the entity, its IT systems, implemented security measures, and submitted documentation.');
 
   // 3.1 Entity Profile
@@ -509,7 +509,7 @@ export function generateDoraReport(data: DoraReportData): void {
   // 3.2 Infrastructure & Third Parties
   heading(l('sec3b', lang), 2);
   introText(lang === 'de'
-    ? 'Welche IT-Systeme betreibt das Unternehmen, und wer liefert kritische Dienstleistungen von aussen zu? Die Antworten auf diese Fragen bestimmen die Angriffsflaeche und den Pruefungsumfang nach Kapitel V DORA.'
+    ? 'Welche IT-Systeme betreibt das Unternehmen, und wer liefert kritische Dienstleistungen von aussen zu? Die Antworten auf diese Fragen bestimmen die Angriffsfläche und den Prüfungsumfang nach Kapitel V DORA.'
     : 'Which IT systems does the entity operate, and who provides critical services from outside? The answers define the attack surface and the assessment scope under DORA Chapter V.');
   if (intakeData.infrastructure.length > 0) {
     field(lang === 'de' ? 'IKT-Infrastruktur' : 'ICT Infrastructure', intakeData.infrastructure.join(', '));
@@ -524,7 +524,7 @@ export function generateDoraReport(data: DoraReportData): void {
   // 3.3 Implemented Measures
   heading(l('sec3c', lang), 2);
   introText(lang === 'de'
-    ? 'Welche Sicherheitsmassnahmen sind bereits vorhanden, und wie ausgereift sind sie? Die Tabelle zeigt den Reifegrad anhand von vier Stufen: aktiv im Einsatz, schriftlich dokumentiert, durch ein Audit geprueft und extern zertifiziert.'
+    ? 'Welche Sicherheitsmaßnahmen sind bereits vorhanden, und wie ausgereift sind sie? Die Tabelle zeigt den Reifegrad anhand von vier Stufen: aktiv im Einsatz, schriftlich dokumentiert, durch ein Audit geprüft und extern zertifiziert.'
     : 'Which security measures are already in place, and how mature are they? The table below shows maturity across four levels: actively deployed, documented, audited, and externally certified.');
   const measureEntries = Object.entries(intakeData.measures);
   if (measureEntries.length > 0) {
@@ -570,7 +570,7 @@ export function generateDoraReport(data: DoraReportData): void {
   // 3.5 Documentation
   heading(l('sec3e', lang), 2);
   introText(lang === 'de'
-    ? 'Welche Nachweise hat das Unternehmen vorgelegt? Die eingereichten Dokumente stuetzen die Pruefung und bestimmen, wie belastbar die Evidenzlage ist.'
+    ? 'Welche Nachweise hat das Unternehmen vorgelegt? Die eingereichten Dokumente stuetzen die Prüfung und bestimmen, wie belastbar die Evidenzlage ist.'
     : 'What evidence did the entity submit? The documents below support the assessment and determine how robust the evidence base is.');
   if (intakeData.files.length > 0) {
     intakeData.files.forEach(f => {
@@ -591,13 +591,13 @@ export function generateDoraReport(data: DoraReportData): void {
   newPage();
   heading(l('sec4', lang));
   introText(lang === 'de'
-    ? 'Hier wird es konkret: Jedes identifizierte IKT-Risiko und jede Konformitaetsluecke wird einzeln dargestellt — mit der zugrundeliegenden Evidenz, der Bewertungslogik und der regulatorischen Einordnung. Wer eine Bewertung nachvollziehen oder hinterfragen moechte, findet die vollstaendige Dokumentation in den Arbeitspapieren (Anhang E).'
+    ? 'Hier wird es konkret: Jedes identifizierte IKT-Risiko und jede Konformitätsluecke wird einzeln dargestellt — mit der zugrundeliegenden Evidenz, der Bewertungslogik und der regulatorischen Einordnung. Wer eine Bewertung nachvollziehen oder hinterfragen moechte, findet die vollständige Dokumentation in den Arbeitspapieren (Anhang E).'
     : 'This is where it gets concrete: each identified ICT risk and compliance gap is presented individually — with the underlying evidence, the assessment rationale, and the regulatory reference. Anyone looking to trace or challenge an assessment will find the complete documentation in the Working Papers (Appendix E).');
 
   // 4.1 Risk Landscape
   heading(l('sec4a', lang), 2);
   introText(lang === 'de'
-    ? 'Jedes Risikoszenario wird nach zwei Dimensionen bewertet: Wie wahrscheinlich ist es, dass es eintritt (Skala 1-5)? Und wie schwer waere der Schaden (Skala 1-5)? Szenarien mit einem Score ab 20 sind kritisch und verlangen sofortiges Handeln.'
+    ? 'Jedes Risikoszenario wird nach zwei Dimensionen bewertet: Wie wahrscheinlich ist es, dass es eintritt (Skala 1-5)? Und wie schwer wäre der Schaden (Skala 1-5)? Szenarien mit einem Score ab 20 sind kritisch und verlangen sofortiges Handeln.'
     : 'Each risk scenario is rated along two dimensions: how likely is it to occur (scale 1-5), and how severe would the damage be (scale 1-5)? Scenarios scoring 20 or above are critical and demand immediate action.');
 
   risks.forEach(ri => {
@@ -661,7 +661,7 @@ export function generateDoraReport(data: DoraReportData): void {
   newPage();
   heading(l('sec4b', lang), 2);
   introText(lang === 'de'
-    ? 'Anforderung fuer Anforderung: Hier wird jede DORA-Vorgabe einzeln bewertet — mit einer klaren Aussage, ob sie erfuellt ist, und falls nicht, was genau fehlt und was zu tun ist.'
+    ? 'Anforderung für Anforderung: Hier wird jede DORA-Vorgabe einzeln bewertet — mit einer klaren Aussage, ob sie erfüllt ist, und falls nicht, was genau fehlt und was zu tun ist.'
     : 'Requirement by requirement: each DORA provision is assessed individually — with a clear verdict on whether it is met, and if not, exactly what is missing and what needs to happen.');
 
   reqs.forEach(r => {
@@ -721,10 +721,10 @@ export function generateDoraReport(data: DoraReportData): void {
     P3: { de: 'P3 — Empfohlen', en: 'P3 — Recommended', fr: 'P3 — Recommande' },
   };
   const prioDescs: Record<string, Record<string, string>> = {
-    P0: { de: 'Hier duldet nichts Aufschub. Diese Massnahmen muessen vor der naechsten aufsichtsrechtlichen Pruefung abgeschlossen sein — andernfalls steigt das Sanktionsrisiko erheblich.', en: 'These measures must be completed before the next supervisory review. Any delay significantly increases the risk of sanctions.' },
-    P1: { de: 'Diese Massnahmen sollten innerhalb von drei Monaten stehen, um die DORA-Konformitaet in den Kernbereichen sicherzustellen.', en: 'These measures should be completed within three months to secure DORA compliance in core areas.' },
-    P2: { de: 'Mittelfristige Massnahmen, die die digitale Widerstandsfaehigkeit vertiefen und das Unternehmen auf erweiterte Pruefungsanforderungen vorbereiten.', en: 'Medium-term measures that deepen digital resilience and prepare the entity for expanded assessment requirements.' },
-    P3: { de: 'Nicht regulatorisch zwingend, aber fachlich sinnvoll. Diese Massnahmen zahlen auf eine kontinuierliche Verbesserung der IKT-Sicherheit ein.', en: 'Not strictly mandatory, but professionally sound. These measures contribute to continuous improvement of ICT security.' },
+    P0: { de: 'Hier duldet nichts Aufschub. Diese Maßnahmen muessen vor der nächsten aufsichtsrechtlichen Prüfung abgeschlossen sein — andernfalls steigt das Sanktionsrisiko erheblich.', en: 'These measures must be completed before the next supervisory review. Any delay significantly increases the risk of sanctions.' },
+    P1: { de: 'Diese Maßnahmen sollten innerhalb von drei Monaten stehen, um die DORA-Konformität in den Kernbereichen sicherzustellen.', en: 'These measures should be completed within three months to secure DORA compliance in core areas.' },
+    P2: { de: 'Mittelfristige Maßnahmen, die die digitale Widerstandsfähigkeit vertiefen und das Unternehmen auf erweiterte Prüfungsanforderungen vorbereiten.', en: 'Medium-term measures that deepen digital resilience and prepare the entity for expanded assessment requirements.' },
+    P3: { de: 'Nicht regulatorisch zwingend, aber fachlich sinnvoll. Diese Maßnahmen zahlen auf eine kontinuierliche Verbesserung der IKT-Sicherheit ein.', en: 'Not strictly mandatory, but professionally sound. These measures contribute to continuous improvement of ICT security.' },
   };
 
   for (const prio of ['P0', 'P1', 'P2', 'P3']) {
@@ -763,10 +763,10 @@ export function generateDoraReport(data: DoraReportData): void {
         const hasDeps = r.criteria && r.criteria.some(c => c.toLowerCase().includes('abhaengig') || c.toLowerCase().includes('voraussetz'));
 
         const assumptions = lang === 'de' ? [
-          `Verfuegbare interne Ressourcen: 1 FTE (${r.priority === 'P0' ? 'dediziert' : 'anteilig'}), IKT-Sicherheitsexperte`,
-          `Externe Unterstuetzung erforderlich: ${needsExternal ? 'Ja, fuer spezialisierte Taetigkeiten' : 'Nein, interne Umsetzung moeglich'}`,
-          `Lizenz-/Tool-Kosten: ${hasToolCost ? 'Ja, geschaetzt im fuenfstelligen Bereich' : 'Nein, vorhandene Infrastruktur nutzbar'}`,
-          `Abhaengigkeiten: ${hasDeps ? 'Ja, siehe Umsetzungskriterien' : 'Keine bekannten Abhaengigkeiten'}`,
+          `Verfügbare interne Ressourcen: 1 FTE (${r.priority === 'P0' ? 'dediziert' : 'anteilig'}), IKT-Sicherheitsexperte`,
+          `Externe Unterstuetzung erforderlich: ${needsExternal ? 'Ja, für spezialisierte Tätigkeiten' : 'Nein, interne Umsetzung möglich'}`,
+          `Lizenz-/Tool-Kosten: ${hasToolCost ? 'Ja, geschätzt im fünfstelligen Bereich' : 'Nein, vorhandene Infrastruktur nutzbar'}`,
+          `Abhängigkeiten: ${hasDeps ? 'Ja, siehe Umsetzungskriterien' : 'Keine bekannten Abhängigkeiten'}`,
         ] : [
           `Available internal resources: 1 FTE (${r.priority === 'P0' ? 'dedicated' : 'partial'}), ICT security expert`,
           `External support required: ${needsExternal ? 'Yes, for specialised tasks' : 'No, internal implementation feasible'}`,
@@ -776,14 +776,14 @@ export function generateDoraReport(data: DoraReportData): void {
 
         const uncertainties = lang === 'de' ? [
           maxScore >= 20 ? 'Komplexitaet der Bestandssysteme kann Aufwand um 30-50% erhoehen' : 'Tatsaechlicher Scope haengt von IT-Architektur-Detailanalyse ab',
-          needsExternal ? 'Verfuegbarkeit externer Spezialisten kann Zeitplan verzoegern' : 'Interne Ressourcenverfuegbarkeit kann schwanken',
+          needsExternal ? 'Verfügbarkeit externer Spezialisten kann Zeitplan verzoegern' : 'Interne Ressourcenverfügbarkeit kann schwanken',
         ] : [
           maxScore >= 20 ? 'Complexity of legacy systems may increase effort by 30-50%' : 'Actual scope depends on detailed IT architecture analysis',
           needsExternal ? 'Availability of external specialists may delay timeline' : 'Internal resource availability may fluctuate',
         ];
 
         const validation = lang === 'de'
-          ? `Schaetzung basiert auf Erfahrungswerten aus vergleichbaren DORA-Implementierungsprojekten im Finanzsektor (${minH}-${maxH}h fuer ${r.priority}-Massnahmen).`
+          ? `Schätzung basiert auf Erfahrungswerten aus vergleichbaren DORA-Implementierungsprojekten im Finanzsektor (${minH}-${maxH}h für ${r.priority}-Maßnahmen).`
           : `Estimate based on empirical data from comparable DORA implementation projects in financial services (${minH}-${maxH}h for ${r.priority} measures).`;
 
         // Pre-calculate box height
@@ -802,7 +802,7 @@ export function generateDoraReport(data: DoraReportData): void {
         y += 6;
 
         doc.setFont(BODY_FONT, 'normal'); doc.setFontSize(8); doc.setTextColor(...C.dark);
-        doc.text(`${lang === 'de' ? 'Geschaetzter Aufwand' : 'Estimated effort'}: ${r.effort}`, LEFT + effortIndent, y);
+        doc.text(`${lang === 'de' ? 'Geschätzter Aufwand' : 'Estimated effort'}: ${r.effort}`, LEFT + effortIndent, y);
         y += 4;
 
         doc.setFont(HEAD_FONT, 'normal'); doc.setFontSize(7); doc.setTextColor(...C.mid);
@@ -846,7 +846,7 @@ export function generateDoraReport(data: DoraReportData): void {
   // 5.2 Roadmap
   heading(l('sec5b', lang), 2);
   introText(lang === 'de'
-    ? 'Alle Massnahmen auf einen Blick, eingeordnet in vier Phasen. Die Zeitangaben sind Richtwerte — die tatsaechliche Umsetzungsgeschwindigkeit haengt von den verfuegbaren Ressourcen und der organisatorischen Reife ab.'
+    ? 'Alle Maßnahmen auf einen Blick, eingeordnet in vier Phasen. Die Zeitangaben sind Richtwerte — die tatsaechliche Umsetzungsgeschwindigkeit haengt von den verfügbaren Ressourcen und der organisatorischen Reife ab.'
     : 'All measures at a glance, mapped to four phases. Timelines are indicative — actual pace depends on available resources and organisational maturity.');
 
   const phases = [
@@ -867,10 +867,10 @@ export function generateDoraReport(data: DoraReportData): void {
   // 5.3 Economic Impact
   heading(l('sec5c', lang), 2);
   introText(lang === 'de'
-    ? 'Regulatorische Konformitaet ist das eine — aber was kostet es, wenn nichts passiert? Dieser Abschnitt ordnet die Risiken wirtschaftlich ein.'
+    ? 'Regulatorische Konformität ist das eine — aber was kostet es, wenn nichts passiert? Dieser Abschnitt ordnet die Risiken wirtschaftlich ein.'
     : 'Regulatory compliance is one thing — but what does inaction cost? This section puts the risks in economic terms.');
   const ecoText = lang === 'de'
-    ? `Bei Verstoessen gegen die DORA-Verordnung drohen Sanktionen nach nationalem Umsetzungsrecht. Fuer signifikante und kritische Finanzunternehmen koennen BaFin-Massnahmen bis hin zur Einschraenkung der Geschaeftstaetigkeit die Folge sein.\n\nKonkret: Die ${failCount} nicht-konformen Anforderungen erhoehen das regulatorische Risiko erheblich. Besonders gravierend sind fehlende oder ungetestete Notfallplaene. Im Ernstfall — etwa bei einem Ransomware-Vorfall oder einem Rechenzentrums-Ausfall — koennen die direkten Kosten je nach Geschaeftskritikalitaet im sechs- bis siebenstelligen Bereich liegen.\n\nDer geschaetzte Gesamtaufwand fuer die Behebung aller identifizierten Maengel liegt bei etwa 6 bis 18 Personenmonaten. Das klingt nach viel, ist aber ein Bruchteil dessen, was ein ernsthafter Vorfall oder eine aufsichtsrechtliche Eskalation kosten wuerde.`
+    ? `Bei Verstoessen gegen die DORA-Verordnung drohen Sanktionen nach nationalem Umsetzungsrecht. Für signifikante und kritische Finanzunternehmen können BaFin-Maßnahmen bis hin zur Einschränkung der Geschäftstätigkeit die Folge sein.\n\nKonkret: Die ${failCount} nicht-konformen Anforderungen erhoehen das regulatorische Risiko erheblich. Besonders gravierend sind fehlende oder ungetestete Notfallplaene. Im Ernstfall — etwa bei einem Ransomware-Vorfall oder einem Rechenzentrums-Ausfall — können die direkten Kosten je nach Geschaeftskritikalitaet im sechs- bis siebenstelligen Bereich liegen.\n\nDer geschätzte Gesamtaufwand für die Behebung aller identifizierten Mängel liegt bei etwa 6 bis 18 Personenmonaten. Das klingt nach viel, ist aber ein Bruchteil dessen, was ein ernsthafter Vorfall oder eine aufsichtsrechtliche Eskalation kosten wuerde.`
     : `DORA provides for sanctions pursuant to national implementation law. The ${failCount} non-compliant requirements significantly increase regulatory risk. Estimated total remediation effort is 6-18 person-months — a fraction of the cost of a serious incident or supervisory escalation.`;
   bodyParagraph(ecoText);
 
@@ -880,7 +880,7 @@ export function generateDoraReport(data: DoraReportData): void {
   newPage();
   heading(l('sec6', lang));
   bodyParagraph(lang === 'de'
-    ? 'Transparenz ueber die Methodik ist entscheidend — nur so lassen sich die Ergebnisse dieses Berichts nachvollziehen und mit anderen Bewertungen vergleichen.\n\nDie Pruefung stuetzt sich auf Verordnung (EU) 2022/2554 (DORA) und die zugehoerigen technischen Regulierungsstandards (RTS/ITS). Methodisch orientiert sie sich an den Leitlinien der Europaeischen Aufsichtsbehoerden (ESAs) sowie an der ISO 27001-Methodik fuer IKT-Risikobewertungen.\n\nDas zentrale Instrument ist eine 5x5-Risikomatrix: Jedes Szenario wird nach Eintrittswahrscheinlichkeit (1-5) und Auswirkung (1-5) bewertet. Der resultierende Score (1-25) bestimmt die Prioritaet. Ab einem Score von 20 sprechen wir von einem kritischen Risiko — das heisst: Ein Angreifer kann mit vertretbarem Aufwand erheblichen Schaden anrichten.'
+    ? 'Transparenz über die Methodik ist entscheidend — nur so lassen sich die Ergebnisse dieses Berichts nachvollziehen und mit anderen Bewertungen vergleichen.\n\nDie Prüfung stützt sich auf Verordnung (EU) 2022/2554 (DORA) und die zugehoerigen technischen Regulierungsstandards (RTS/ITS). Methodisch orientiert sie sich an den Leitlinien der Europaeischen Aufsichtsbehörden (ESAs) sowie an der ISO 27001-Methodik für IKT-Risikobewertungen.\n\nDas zentrale Instrument ist eine 5x5-Risikomatrix: Jedes Szenario wird nach Eintrittswahrscheinlichkeit (1-5) und Auswirkung (1-5) bewertet. Der resultierende Score (1-25) bestimmt die Prioritaet. Ab einem Score von 20 sprechen wir von einem kritischen Risiko — das heisst: Ein Angreifer kann mit vertretbarem Aufwand erheblichen Schaden anrichten.'
     : 'Transparency about the methodology is essential — it is the only way to trace the results and compare them with other assessments.\n\nThe assessment is based on Regulation (EU) 2022/2554 (DORA) and associated Regulatory Technical Standards (RTS/ITS). Risk assessment uses a 5x5 risk matrix (likelihood x impact). Scores of 20 or above are classified as critical.');
 
   // 6.1 Risk Matrix
@@ -906,7 +906,7 @@ export function generateDoraReport(data: DoraReportData): void {
   y += 5;
   heading(l('sec7', lang));
   bodyParagraph(lang === 'de'
-    ? 'Dieser Bericht basiert auf den Informationen, die zum Pruefungszeitpunkt vorlagen, und auf den Angaben, die das Unternehmen bereitgestellt hat. Er ersetzt keine offizielle Pruefung durch BaFin, EZB oder eine andere zustaendige Aufsichtsbehoerde.\n\nAlle Bewertungen spiegeln den Stand der Technik und die regulatorischen Anforderungen zum Zeitpunkt der Erstellung wider. Aendern sich die Rahmenbedingungen — etwa durch neue technische Regulierungsstandards der ESAs — kann eine Neubewertung erforderlich werden.\n\nFuer die Vollstaendigkeit und Richtigkeit der bereitgestellten Unterlagen wird keine Haftung uebernommen. Der Bericht ist vertraulich und ausschliesslich fuer den internen Gebrauch des Empfaengers bestimmt.'
+    ? 'Dieser Bericht basiert auf den Informationen, die zum Prüfungszeitpunkt vorlagen, und auf den Angaben, die das Unternehmen bereitgestellt hat. Er ersetzt keine offizielle Prüfung durch BaFin, EZB oder eine andere zuständige Aufsichtsbehörde.\n\nAlle Bewertungen spiegeln den Stand der Technik und die regulatorischen Anforderungen zum Zeitpunkt der Erstellung wider. Ändern sich die Rahmenbedingungen — etwa durch neue technische Regulierungsstandards der ESAs — kann eine Neubewertung erforderlich werden.\n\nFür die Vollständigkeit und Richtigkeit der bereitgestellten Unterlagen wird keine Haftung übernommen. Der Bericht ist vertraulich und ausschließlich für den internen Gebrauch des Empfängers bestimmt.'
     : 'This report is based on information available at the time of assessment. It does not replace an official audit by the competent supervisory authority. No liability is assumed for completeness or accuracy. The report is confidential and intended for internal use by the recipient only.');
 
   // ═══════════════════════════════════════════════════════════
@@ -915,7 +915,7 @@ export function generateDoraReport(data: DoraReportData): void {
   newPage();
   heading(l('secA', lang));
   introText(lang === 'de'
-    ? 'Fuer die maschinelle Verarbeitung und den automatisierten Abgleich: Hier stehen alle Pruefungsergebnisse in kompakter, tabellarischer Form.'
+    ? 'Für die maschinelle Verarbeitung und den automatisierten Abgleich: Hier stehen alle Prüfungsergebnisse in kompakter, tabellarischer Form.'
     : 'For automated processing and cross-referencing: all assessment results in compact, tabular form.');
 
   heading(`A.1 ${lang === 'de' ? 'IKT-Risiken' : 'ICT Risks'}`, 2);
@@ -952,7 +952,7 @@ export function generateDoraReport(data: DoraReportData): void {
   newPage();
   heading(l('secB', lang));
   introText(lang === 'de'
-    ? 'Womit wurde geprueft? Hier sind die eingesetzten Werkzeuge und Methoden aufgelistet — fuer die Nachvollziehbarkeit durch Dritte.'
+    ? 'Womit wurde geprüft? Hier sind die eingesetzten Werkzeuge und Methoden aufgelistet — für die Nachvollziehbarkeit durch Dritte.'
     : 'What tools were used? The instruments and methods employed are listed here for third-party traceability.');
   const tools = [
     { cat: lang === 'de' ? 'Netzwerkanalyse' : 'Network Analysis', tools: 'Wireshark 4.x, Nmap 7.x, tcpdump' },
@@ -978,7 +978,7 @@ export function generateDoraReport(data: DoraReportData): void {
   y += 5;
   heading(l('secC', lang));
   introText(lang === 'de'
-    ? 'Jede Bewertung steht und faellt mit der Qualitaet der Nachweise. Dieser Index listet alle Evidenzelemente mit einer Einschaetzung, wie belastbar und reproduzierbar sie sind.'
+    ? 'Jede Bewertung steht und faellt mit der Qualitaet der Nachweise. Dieser Index listet alle Evidenzelemente mit einer Einschätzung, wie belastbar und reproduzierbar sie sind.'
     : 'Every assessment is only as good as its evidence. This index lists all evidence elements with a rating of how robust and reproducible they are.');
 
   checkSpace(8);
@@ -998,7 +998,7 @@ export function generateDoraReport(data: DoraReportData): void {
   newPage();
   heading(l('secD', lang));
   introText(lang === 'de'
-    ? 'Vertrauen ist gut, Kontrolle ist besser: Der automatisierte Qualitaetscheck prueft den Bericht auf interne Konsistenz, fachliche Plausibilitaet und Vollstaendigkeit. Die Pruefung umfasst die 10 goldenen Regeln fuer Pruefungsberichte sowie DORA-spezifische Validierungen.'
+    ? 'Vertrauen ist gut, Kontrolle ist besser: Der automatisierte Qualitaetscheck prüft den Bericht auf interne Konsistenz, fachliche Plausibilitaet und Vollständigkeit. Die Prüfung umfasst die 10 goldenen Regeln für Prüfungsberichte sowie DORA-spezifische Validierungen.'
     : 'Trust but verify: the automated quality check tests the report for internal consistency, technical plausibility, and completeness. The check covers the 10 golden rules for audit reports plus DORA-specific validations.');
 
   if (data.qaChecks && data.qaChecks.length > 0) {
@@ -1015,11 +1015,11 @@ export function generateDoraReport(data: DoraReportData): void {
     // Group checks by category
     const categories = ['consistency', 'technical', 'evidence', 'editorial', 'regulatory', 'golden-rule'];
     const catLabels: Record<string, Record<string, string>> = {
-      consistency: { de: 'Konsistenzpruefung', en: 'Consistency Checks' },
+      consistency: { de: 'Konsistenzprüfung', en: 'Consistency Checks' },
       technical: { de: 'Fachliche Korrektheit', en: 'Technical Correctness' },
-      evidence: { de: 'Evidenzpruefung', en: 'Evidence Checks' },
-      editorial: { de: 'Redaktionelle Pruefung', en: 'Editorial Checks' },
-      regulatory: { de: 'Regulatorische Pruefung', en: 'Regulatory Checks' },
+      evidence: { de: 'Evidenzprüfung', en: 'Evidence Checks' },
+      editorial: { de: 'Redaktionelle Prüfung', en: 'Editorial Checks' },
+      regulatory: { de: 'Regulatorische Prüfung', en: 'Regulatory Checks' },
       'golden-rule': { de: '10 Goldene Regeln', en: '10 Golden Rules' },
     };
 
@@ -1065,7 +1065,7 @@ export function generateDoraReport(data: DoraReportData): void {
 
       checkSpace(8);
       doc.setFont(DATA_FONT, 'bold'); doc.setFontSize(6); doc.setTextColor(...C.mid);
-      doc.text('Pruefpunkt    | Festgestellter Mangel                           | Prio', LEFT, y);
+      doc.text('Prüfpunkt    | Festgestellter Mangel                           | Prio', LEFT, y);
       y += 2; doc.setDrawColor(...C.navy); doc.setLineWidth(0.2); doc.line(LEFT, y, RIGHT, y); y += 3;
       doc.setFont(DATA_FONT, 'normal'); doc.setTextColor(...C.dark);
 
@@ -1084,7 +1084,7 @@ export function generateDoraReport(data: DoraReportData): void {
   if (data.fixLog && data.fixLog.length > 0) {
     heading(`D.3 ${lang === 'de' ? 'Automatisierte Korrekturen (Remediation Log)' : 'Automated Corrections (Remediation Log)'}`, 2);
     introText(lang === 'de'
-      ? 'Welche Korrekturen wurden automatisch vorgenommen? Hier ist der vollstaendige Aenderungsnachweis. Den Zustand vor der Korrektur zeigt Abschnitt D.1.'
+      ? 'Welche Korrekturen wurden automatisch vorgenommen? Hier ist der vollständige Änderungsnachweis. Den Zustand vor der Korrektur zeigt Abschnitt D.1.'
       : 'Which corrections were applied automatically? Here is the full change log. The pre-fix state is shown in Section D.1.');
     data.fixLog.forEach((fix, i) => {
       checkSpace(8);
@@ -1101,7 +1101,7 @@ export function generateDoraReport(data: DoraReportData): void {
   newPage();
   heading(l('secE', lang));
   introText(lang === 'de'
-    ? 'Das Herzstueck der Pruefungsdokumentation: Fuer jede einzelne DORA-Anforderung gibt es ein eigenes Arbeitspapier — egal ob eine Abweichung vorliegt oder nicht. So kann jeder Pruefungsschritt lueckenlos nachvollzogen werden, sei es durch einen menschlichen Reviewer oder ein automatisiertes System. Alle Querverweise zwischen Arbeitspapieren und Hauptbericht sind bidirektional angelegt.'
+    ? 'Das Herzstueck der Prüfungsdokumentation: Für jede einzelne DORA-Anforderung gibt es ein eigenes Arbeitspapier — egal ob eine Abweichung vorliegt oder nicht. So kann jeder Prüfungsschritt lueckenlos nachvollzogen werden, sei es durch einen menschlichen Reviewer oder ein automatisiertes System. Alle Querverweise zwischen Arbeitspapieren und Hauptbericht sind bidirektional angelegt.'
     : 'The backbone of the audit documentation: every DORA requirement has its own working paper — whether a deviation was found or not. This ensures full traceability of every assessment step, whether reviewed by a person or an automated system. All cross-references between working papers and the main report are bidirectional.');
 
   reqs.forEach((r, idx) => {
