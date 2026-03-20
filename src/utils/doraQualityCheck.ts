@@ -98,7 +98,7 @@ export function runDoraQualityCheck(
   // A3-1b: No "partial" with critical risks (>= 20)
   const partialReqsWithCriticalRisks = reqs.filter(r => {
     if (r.status !== 'partial') return false;
-    return risks.some(ri => ri.doraRef === r.article && ri.likelihood * ri.impact >= 20);
+    return risks.some(ri => refsMatch(ri.doraRef, r.article) && ri.likelihood * ri.impact >= 20);
   });
   checks.push({
     id: 'A3-1b', category: 'consistency',
