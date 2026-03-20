@@ -182,8 +182,8 @@ function IntakeWizard({ onFinish }: { onFinish: (d: DoraIntakeData) => void }) {
       case 1: setD(prev => ({ ...prev, criticality: scenario.criticality })); break;
       case 2: setD(prev => ({ ...prev, description: scenario.description, thirdPartyProviders: scenario.thirdPartyProviders })); break;
       case 3: setD(prev => ({ ...prev, infrastructure: scenario.infrastructure })); break;
-      case 4: setD(prev => ({ ...prev, roles: scenario.roles })); break;
-      case 5: setD(prev => ({ ...prev, measures: scenario.measures, knownIssues: scenario.knownIssues })); break;
+      case 4: setD(prev => ({ ...prev, roles: scenario.roles, knownIssues: scenario.knownIssues })); break;
+      case 5: setD(prev => ({ ...prev, measures: scenario.measures })); break;
       case 6: setD(prev => ({ ...prev, files: scenario.files })); break;
     }
   }, [sub]);
@@ -309,6 +309,10 @@ function IntakeWizard({ onFinish }: { onFinish: (d: DoraIntakeData) => void }) {
               </div>
             </div>
           )}
+          <div>
+            <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">{t('dora.knownIssues')}</label>
+            <textarea rows={3} className="w-full border border-border rounded-lg px-3 py-2.5 text-sm bg-background text-foreground focus:ring-2 focus:ring-primary outline-none resize-none" placeholder={t('dora.knownIssuesPh')} value={d.knownIssues} onChange={e => setField('knownIssues', e.target.value)} />
+          </div>
         </StaggerReveal>
       );
       break;
@@ -373,10 +377,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: DoraIntakeData) => void }) {
               </div>
             </div>
           ))}
-          <div>
-            <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">{t('dora.knownIssues')}</label>
-            <textarea rows={3} className="w-full border border-border rounded-lg px-3 py-2.5 text-sm bg-background text-foreground focus:ring-2 focus:ring-primary outline-none resize-none" placeholder={t('dora.knownIssuesPh')} value={d.knownIssues} onChange={e => setField('knownIssues', e.target.value)} />
-          </div>
+
         </StaggerReveal>
       );
       break;
