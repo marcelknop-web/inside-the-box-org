@@ -595,8 +595,8 @@ export function generateDoraReport(data: DoraReportData): void {
   // 4.1 Risk Landscape
   heading(l('sec4a', lang), 2);
   introText(lang === 'de'
-    ? 'Die Risikoanalyse bewertet jedes Szenario anhand von Eintrittswahrscheinlichkeit (1-5) und Auswirkung (1-5). Kritische Risiken (Score >= 20) erfordern Sofortmaßnahmen.'
-    : 'The risk analysis rates each scenario by likelihood (1-5) and impact (1-5). Critical risks (score >= 20) require immediate action.');
+    ? 'Jedes Risikoszenario wird nach zwei Dimensionen bewertet: Wie wahrscheinlich ist es, dass es eintritt (Skala 1-5)? Und wie schwer waere der Schaden (Skala 1-5)? Szenarien mit einem Score ab 20 sind kritisch und verlangen sofortiges Handeln.'
+    : 'Each risk scenario is rated along two dimensions: how likely is it to occur (scale 1-5), and how severe would the damage be (scale 1-5)? Scenarios scoring 20 or above are critical and demand immediate action.');
 
   risks.forEach(ri => {
     checkSpace(55);
