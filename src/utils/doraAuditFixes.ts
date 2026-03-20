@@ -6,6 +6,13 @@ import type { DoraRisk, DoraReq, DoraIntakeData } from '@/data/doraData';
 import { riskId } from '@/data/doraData';
 import type { QaCheck } from '@/utils/doraQualityCheck';
 
+function refsMatch(riskRef: string, reqArticle: string): boolean {
+  if (riskRef === reqArticle) return true;
+  const baseRisk = riskRef.split(' Abs.')[0].split(' lit.')[0];
+  const baseReq = reqArticle.split(' Abs.')[0].split(' lit.')[0];
+  return baseRisk === baseReq;
+}
+
 export interface FixResult {
   risks: DoraRisk[];
   reqs: DoraReq[];
