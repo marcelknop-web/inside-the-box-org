@@ -494,8 +494,8 @@ export function generateDoraReport(data: DoraReportData): void {
   // 3.1 Entity Profile
   heading(l('sec3a', lang), 2);
   introText(lang === 'de'
-    ? 'Das Unternehmensprofil dokumentiert die regulatorische Einordnung und die wesentlichen Merkmale des bewerteten Finanzunternehmens.'
-    : 'The entity profile documents the regulatory classification and key characteristics.');
+    ? 'Wer ist das Unternehmen, und wie wird es regulatorisch eingestuft? Diese Eckdaten bestimmen, welche DORA-Anforderungen in welcher Schaerfe gelten.'
+    : 'Who is the entity, and how is it classified? These fundamentals determine which DORA requirements apply and at what level of rigour.');
   field(l('entity', lang), intakeData.entityName);
   field(l('entityType', lang), entityTypeName);
   field(l('criticality', lang), criticalityName);
