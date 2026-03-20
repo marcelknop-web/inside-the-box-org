@@ -711,10 +711,10 @@ export function generateDoraReport(data: DoraReportData): void {
     P3: { de: 'P3 — Empfohlen', en: 'P3 — Recommended', fr: 'P3 — Recommande' },
   };
   const prioDescs: Record<string, Record<string, string>> = {
-    P0: { de: 'Diese Maßnahmen sind zwingend vor der nächsten aufsichtsrechtlichen Prüfung umzusetzen. Eine Verzögerung erhöht das Risiko regulatorischer Sanktionen erheblich.', en: 'These measures must be implemented before the next supervisory review.' },
-    P1: { de: 'Diese Maßnahmen sollten innerhalb von drei Monaten abgeschlossen werden, um die DORA-Konformität in den Kernbereichen herzustellen.', en: 'These measures should be completed within three months.' },
-    P2: { de: 'Mittelfristige Maßnahmen zur Vertiefung der operationalen Resilienz und zur Vorbereitung auf erweiterte Prüfungsanforderungen.', en: 'Medium-term measures to deepen operational resilience.' },
-    P3: { de: 'Empfohlene Maßnahmen zur kontinuierlichen Verbesserung. Nicht regulatorisch zwingend, aber fachlich sinnvoll.', en: 'Recommended measures for continuous improvement.' },
+    P0: { de: 'Hier duldet nichts Aufschub. Diese Massnahmen muessen vor der naechsten aufsichtsrechtlichen Pruefung abgeschlossen sein — andernfalls steigt das Sanktionsrisiko erheblich.', en: 'These measures must be completed before the next supervisory review. Any delay significantly increases the risk of sanctions.' },
+    P1: { de: 'Diese Massnahmen sollten innerhalb von drei Monaten stehen, um die DORA-Konformitaet in den Kernbereichen sicherzustellen.', en: 'These measures should be completed within three months to secure DORA compliance in core areas.' },
+    P2: { de: 'Mittelfristige Massnahmen, die die digitale Widerstandsfaehigkeit vertiefen und das Unternehmen auf erweiterte Pruefungsanforderungen vorbereiten.', en: 'Medium-term measures that deepen digital resilience and prepare the entity for expanded assessment requirements.' },
+    P3: { de: 'Nicht regulatorisch zwingend, aber fachlich sinnvoll. Diese Massnahmen zahlen auf eine kontinuierliche Verbesserung der IKT-Sicherheit ein.', en: 'Not strictly mandatory, but professionally sound. These measures contribute to continuous improvement of ICT security.' },
   };
 
   for (const prio of ['P0', 'P1', 'P2', 'P3']) {
