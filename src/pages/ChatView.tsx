@@ -1299,6 +1299,8 @@ const ChatView = () => {
     ? <Suspense fallback={lazyFallback}><EliteShipScene embedded /></Suspense>
     : activeService === 'cra-check'
     ? <Suspense fallback={lazyFallback}><CraComplianceTool embedded /></Suspense>
+    : activeService === 'dora-compliance'
+    ? <Suspense fallback={lazyFallback}><DoraComplianceTool embedded /></Suspense>
     : activeService === 'system-check'
     ? <InlineSystemCheck t={t} />
     : activeService && contentMap[activeService] ? contentMap[activeService]() : null;
