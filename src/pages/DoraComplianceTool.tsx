@@ -1103,7 +1103,7 @@ const DoraComplianceTool = ({ embedded }: { embedded?: boolean }) => {
     <div className={embedded ? '' : 'min-h-screen bg-background'}>
       {!embedded && <PageMeta title="DORA Compliance Tool" description="DORA Konformitaetspruefung nach (EU) 2022/2554" />}
 
-      <div className="px-4 pt-6 pb-2 max-w-5xl mx-auto" ref={contentRef}>
+      <div className="px-4 md:px-8 lg:px-12 pt-6 pb-2 max-w-5xl" ref={contentRef}>
         <h1 className="text-2xl md:text-3xl font-bold text-foreground tracking-tight">
           DORA Compliance Audit
         </h1>
@@ -1113,7 +1113,7 @@ const DoraComplianceTool = ({ embedded }: { embedded?: boolean }) => {
       </div>
 
       <div className="border-b border-border px-4 py-3 mb-1">
-        <div className="flex items-center max-w-5xl mx-auto overflow-x-auto">
+        <div className="flex items-center max-w-5xl overflow-x-auto">
           {mainSteps.map((s, i) => (
             <div key={i} className="flex items-center flex-1 last:flex-none">
               <button onClick={() => i < step && setStep(i)} className={`flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-lg transition-colors whitespace-nowrap ${i === step ? 'bg-primary text-primary-foreground' : i < step ? 'text-primary hover:bg-primary/10 cursor-pointer' : 'text-muted-foreground cursor-not-allowed'}`}>
@@ -1128,7 +1128,7 @@ const DoraComplianceTool = ({ embedded }: { embedded?: boolean }) => {
 
       <Progress value={progressPct} className="h-1 rounded-none" />
 
-      <div className="max-w-5xl mx-auto px-4 py-6">
+      <div className="max-w-5xl px-4 md:px-8 lg:px-12 py-6">
         {loading ? (
           <div className="bg-card rounded-xl border border-border p-16 text-center">
             <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-5" />
