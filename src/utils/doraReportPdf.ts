@@ -699,8 +699,8 @@ export function generateDoraReport(data: DoraReportData): void {
   newPage();
   heading(l('sec5', lang));
   introText(lang === 'de'
-    ? 'Die Handlungsempfehlungen sind nach regulatorischer Dringlichkeit und geschäftlichem Risiko priorisiert. Die Roadmap gibt einen realistischen Zeitrahmen für die Umsetzung vor und berücksichtigt Abhängigkeiten zwischen den Maßnahmen.'
-    : 'Recommendations are prioritised by regulatory urgency and business risk. The roadmap provides a realistic implementation timeframe.');
+    ? 'Was ist jetzt zu tun — und in welcher Reihenfolge? Die folgenden Empfehlungen sind nach regulatorischer Dringlichkeit und Geschaeftsrisiko sortiert. Die Roadmap gibt einen realistischen Zeitrahmen vor.'
+    : 'What needs to happen now — and in what order? The following recommendations are sorted by regulatory urgency and business risk. The roadmap provides a realistic timeframe.');
 
   // 5.1 Prioritised Measures
   heading(l('sec5a', lang), 2);
