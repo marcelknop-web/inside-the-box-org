@@ -519,14 +519,17 @@ function RiskLandscape({ risks, onNext }: { risks: DoraRisk[]; onNext: () => voi
           const isOpen = exp === ri.id;
           return (
             <div key={ri.id} className="bg-card border border-border rounded-lg overflow-hidden">
-              <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 sm:gap-3 px-3 sm:px-4 py-3 cursor-pointer hover:bg-secondary/50" onClick={() => setExp(isOpen ? null : ri.id)}>
-                <span className={`px-2 py-0.5 rounded text-xs font-bold ${meta?.badge || ''}`}>{riskId(ri)}</span>
-                <div className="flex-1 min-w-0 order-last sm:order-none w-full sm:w-auto">
-                  <div className="text-sm font-semibold text-foreground">{ri.name}</div>
-                  <div className="text-xs text-muted-foreground truncate">{ri.component} · {ri.doraRef}</div>
+              <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3 px-3 sm:px-4 py-3 cursor-pointer hover:bg-secondary/50" onClick={() => setExp(isOpen ? null : ri.id)}>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className={`px-2 py-0.5 rounded text-xs font-bold flex-shrink-0 ${meta?.badge || ''}`}>{riskId(ri)}</span>
+                  <span className={`px-2 py-0.5 rounded text-xs font-bold flex-shrink-0 ${risk.cls}`}>{risk.label} <span className="font-mono">({ri.likelihood}×{ri.impact}={ri.likelihood * ri.impact})</span></span>
+                  {isOpen ? <ChevronUp className="w-4 h-4 text-muted-foreground flex-shrink-0 ml-auto sm:hidden" /> : <ChevronDown className="w-4 h-4 text-muted-foreground flex-shrink-0 ml-auto sm:hidden" />}
                 </div>
-                <span className={`px-2 py-0.5 rounded text-xs font-bold flex-shrink-0 ${risk.cls}`}>{risk.label} <span className="font-mono hidden sm:inline">({ri.likelihood}×{ri.impact}={ri.likelihood * ri.impact})</span></span>
-                {isOpen ? <ChevronUp className="w-4 h-4 text-muted-foreground flex-shrink-0" /> : <ChevronDown className="w-4 h-4 text-muted-foreground flex-shrink-0" />}
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-semibold text-foreground break-words">{ri.name}</div>
+                  <div className="text-xs text-muted-foreground break-words">{ri.component} · {ri.doraRef}</div>
+                </div>
+                {isOpen ? <ChevronUp className="w-4 h-4 text-muted-foreground flex-shrink-0 hidden sm:block" /> : <ChevronDown className="w-4 h-4 text-muted-foreground flex-shrink-0 hidden sm:block" />}
               </div>
               {isOpen && (
                 <div className="border-t border-border bg-secondary/30 px-3 sm:px-4 py-3 text-sm space-y-3">
