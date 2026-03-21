@@ -741,84 +741,33 @@ function DORAMapping({ reqs, onNext }: { reqs: DoraReq[]; onNext: () => void }) 
 
 function ReportView({ intakeData, risks, reqs }: { intakeData: DoraIntakeData; risks: DoraRisk[]; reqs: DoraReq[] }) {
   const { t, language } = useLanguage();
-  const [localRisks, setLocalRisks] = useState<DoraRisk[]>(() => risks.map(r => ({ ...r, sources: [...r.sources] })));
-  const [localReqs, setLocalReqs] = useState<DoraReq[]>(() => reqs.map(r => ({ ...r, criteria: [...r.criteria] })));
-  const [qaResult, setQaResult] = useState<QaResult | null>(null);
-  const [qaRunning, setQaRunning] = useState(false);
-  const [qaExpanded, setQaExpanded] = useState(false);
-  const [fixesApplied, setFixesApplied] = useState(false);
-  const [fixesRunning, setFixesRunning] = useState(false);
-  const [fixProgress, setFixProgress] = useState(0);
-  const [fixLog, setFixLog] = useState<string[]>([]);
-  const [allFixLogs, setAllFixLogs] = useState<string[]>([]);
-  const [draftDownloaded] = useState(true); // No draft step — QA is always available
-  const [qaIteration, setQaIteration] = useState(0);
-  interface QaHistoryEntry { iteration: number; passed: number; total: number; failed: number; verdict: string; fixes: string[] }
-  const [qaHistory, setQaHistory] = useState<QaHistoryEntry[]>([]);
-  const [preFixQaChecks, setPreFixQaChecks] = useState<QaCheck[] | null>(null);
-  type QaCheck = NonNullable<QaResult>['checks'][number];
-  const critRisks = useMemo(() => localRisks.filter(r => r.likelihood * r.impact >= 20), [localRisks]);
-  const failReqs = useMemo(() => localReqs.filter(r => r.status === 'fail'), [localReqs]);
+  const [localRisks] = useState<DoraRisk[]>(() => risks.map(r => ({ ...r, sources: [...r.sources] })));
+  const [localReqs] = useState<DoraReq[]>(() => reqs.map(r => ({ ...r, criteria: [...r.criteria] })));
   const [finalPdfRunning, setFinalPdfRunning] = useState(false);
 
   const entityTypes = useMemo(() => getEntityTypes(t), [t]);
   const critLevels = useMemo(() => getCriticalityLevels(t), [t]);
   const typeName = intakeData.entityType?.map(id => entityTypes.find(et => et.id === id)?.label).join(', ') || '';
   const critName = critLevels.find(c => c.id === intakeData.criticality)?.label || intakeData.criticality || '—';
+  const critRisks = useMemo(() => localRisks.filter(r => r.likelihood * r.impact >= 20), [localRisks]);
+  const failReqs = useMemo(() => localReqs.filter(r => r.status === 'fail'), [localReqs]);
   const today = useMemo(() => {
     const locale = language === 'de' ? 'de-DE' : language === 'fr' ? 'fr-FR' : 'en-US';
     return new Date().toLocaleDateString(locale, { day: '2-digit', month: 'long', year: 'numeric' });
   }, [language]);
-
-  const handleQaCheck = useCallback(() => {
-    setQaRunning(true); setQaExpanded(false); setFixesApplied(false); setFixLog([]);
-    const nextIter = qaIteration + 1; setQaIteration(nextIter);
-    setTimeout(() => {
-      const result = runDoraQualityCheck(localRisks, localReqs, language as 'de' | 'en' | 'fr', intakeData);
-      setQaResult(result); setQaRunning(false); setQaExpanded(true);
-      setQaHistory(prev => [...prev, { iteration: nextIter, passed: result.passed, total: result.total, failed: result.failed, verdict: result.verdict, fixes: [] }]);
-    }, 1500);
-  }, [localRisks, localReqs, language, intakeData, qaIteration]);
-
-  const handleApplyFixes = useCallback(() => {
-    if (!qaResult) return;
-    setFixesRunning(true); setFixProgress(10);
-    const failed = qaResult.checks.filter(c => !c.passed);
-    setPreFixQaChecks(prev => prev || qaResult.checks);
-    const t1 = setTimeout(() => setFixProgress(30), 300);
-    const t2 = setTimeout(() => setFixProgress(55), 700);
-    const t3 = setTimeout(() => {
-      setFixProgress(75);
-      const result = applyDoraAuditFixes(localRisks, localReqs, failed, language as 'de' | 'en' | 'fr', intakeData);
-      setLocalRisks(result.risks); setLocalReqs(result.reqs); setFixLog(result.fixes);
-      setAllFixLogs(prev => [...prev, ...result.fixes]); setFixProgress(90);
-      setQaHistory(prev => prev.map((h, i) => i === prev.length - 1 ? { ...h, fixes: result.fixes } : h));
-      setTimeout(() => {
-        const newQa = runDoraQualityCheck(result.risks, result.reqs, language as 'de' | 'en' | 'fr', intakeData);
-        setQaResult(newQa); setFixProgress(100);
-        setTimeout(() => { setFixesApplied(true); setFixesRunning(false); setFixProgress(0); }, 400);
-      }, 500);
-    }, 1200);
-    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
-  }, [qaResult, localRisks, localReqs, language, intakeData]);
-
-  // Draft step removed — no longer needed
 
   const handleFinalPdf = useCallback(() => {
     setFinalPdfRunning(true);
     requestAnimationFrame(() => {
       setTimeout(async () => {
         try {
-          const checksForPdf = preFixQaChecks || qaResult?.checks;
-          const fixLogForPdf = allFixLogs.length > 0 ? allFixLogs : fixLog;
-          await generateDoraReport({ intakeData, risks: localRisks, reqs: localReqs, language: language as 'de' | 'en' | 'fr', entityTypeName: typeName, criticalityName: critName, isDraft: false, qaChecks: checksForPdf, fixLog: fixLogForPdf, qaIterations: qaIteration });
+          // Run QA silently for Appendix D in PDF
+          const qaResult = runDoraQualityCheck(localRisks, localReqs, language as 'de' | 'en' | 'fr', intakeData);
+          await generateDoraReport({ intakeData, risks: localRisks, reqs: localReqs, language: language as 'de' | 'en' | 'fr', entityTypeName: typeName, criticalityName: critName, isDraft: false, qaChecks: qaResult.checks, fixLog: [], qaIterations: 1 });
         } finally { setFinalPdfRunning(false); }
       }, 100);
     });
-  }, [intakeData, localRisks, localReqs, language, typeName, critName, qaResult, fixLog, allFixLogs, preFixQaChecks, qaIteration]);
-
-  const qaVerdict = qaResult?.verdict;
-  const canFinal = fixesApplied || qaVerdict === 'passed' || qaVerdict === 'conditional';
+  }, [intakeData, localRisks, localReqs, language, typeName, critName]);
 
   const CATEGORY_LABELS: Record<string, string> = {
     consistency: language === 'de' ? 'A. Konsistenzprüfung' : 'A. Consistency Check',
