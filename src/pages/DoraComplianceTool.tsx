@@ -807,11 +807,11 @@ function ReportView({ intakeData, risks, reqs }: { intakeData: DoraIntakeData; r
   const handleFinalPdf = useCallback(() => {
     setFinalPdfRunning(true);
     requestAnimationFrame(() => {
-      setTimeout(() => {
+      setTimeout(async () => {
         try {
           const checksForPdf = preFixQaChecks || qaResult?.checks;
           const fixLogForPdf = allFixLogs.length > 0 ? allFixLogs : fixLog;
-          generateDoraReport({ intakeData, risks: localRisks, reqs: localReqs, language: language as 'de' | 'en' | 'fr', entityTypeName: typeName, criticalityName: critName, isDraft: false, qaChecks: checksForPdf, fixLog: fixLogForPdf, qaIterations: qaIteration });
+          await generateDoraReport({ intakeData, risks: localRisks, reqs: localReqs, language: language as 'de' | 'en' | 'fr', entityTypeName: typeName, criticalityName: critName, isDraft: false, qaChecks: checksForPdf, fixLog: fixLogForPdf, qaIterations: qaIteration });
         } finally { setFinalPdfRunning(false); }
       }, 100);
     });
