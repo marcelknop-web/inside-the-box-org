@@ -581,16 +581,16 @@ function RiskMatrix({ risks, onNext }: { risks: DoraRisk[]; onNext: () => void }
   return (
     <StaggerReveal resetKey="rm" stagger={350}>
       <InfoBox icon="⚖️" title={t('dora.raInfoTitle')} color="blue">{t('dora.raInfo')}</InfoBox>
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
         {([
           [t('dora.critical'), 'bg-destructive', cnt.critical],
           [t('dora.high'), 'bg-orange-500', cnt.high],
           [t('dora.medium'), 'bg-yellow-500', cnt.medium],
           [t('dora.low'), 'bg-green-500', cnt.low],
         ] as [string, string, number][]).map(([l, c, n]) => (
-          <div key={l} className="bg-card border border-border rounded-lg p-4 text-center">
-            <div className={`text-2xl font-bold font-mono ${c} text-white rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-2`}>{n}</div>
-            <div className="text-sm font-semibold text-muted-foreground">{l}</div>
+          <div key={l} className="bg-card border border-border rounded-lg p-3 sm:p-4 text-center">
+            <div className={`text-xl sm:text-2xl font-bold font-mono ${c} text-white rounded-full w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center mx-auto mb-1 sm:mb-2`}>{n}</div>
+            <div className="text-xs sm:text-sm font-semibold text-muted-foreground break-words">{l}</div>
           </div>
         ))}
       </div>
