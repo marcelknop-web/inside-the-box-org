@@ -166,7 +166,10 @@ export function runNis2QualityCheck(
 
   const risksWithoutQuantRationale = risks.filter(r => {
     const rat = r.rationale.toLowerCase();
-    return !/\d+/.test(rat) && !rat.includes('benchmark') && !rat.includes('statistisch') && !rat.includes('skala');
+    const hasQuantitative = /\d{2,}/.test(rat) || /%/.test(rat) || /\d+\s*[x×]\s*\d+/.test(rat) ||
+      rat.includes('benchmark') || rat.includes('statistisch') || rat.includes('skala') ||
+      rat.includes('wahrscheinlichkeit') || rat.includes('probability') || rat.includes('likelihood');
+    return !hasQuantitative;
   });
   checks.push({
     id: 'B8', category: 'technical',
