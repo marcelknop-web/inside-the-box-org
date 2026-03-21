@@ -266,6 +266,9 @@ export async function generateDoraReport(data: DoraReportData): Promise<void> {
   const failCount = failReqsList.length;
   const critCount = critRisks.length;
   const complianceRate = Math.round((passCount * 100 + partCount * 50) / reqs.length);
+  const complianceMethodNote = lang === 'de'
+    ? `Die Konformitätsrate von ${complianceRate}% ergibt sich aus einer gewichteten Berechnung: Vollständig erfüllte Anforderungen (PASS) fließen mit 100% ein, teilweise erfüllte Anforderungen (PARTIAL) mit 50%, und nicht erfüllte Anforderungen (FAIL) mit 0%. Bezugsgröße sind alle ${reqs.length} geprüften Anforderungen.`
+    : `The compliance rate of ${complianceRate}% is based on a weighted calculation: Fully compliant requirements (PASS) contribute 100%, partially compliant (PARTIAL) 50%, and non-compliant (FAIL) 0%. The denominator is all ${reqs.length} assessed requirements.`;
 
   pdf.heading(l('sec2', lang));
   pdf.introText(lang === 'de'
@@ -286,6 +289,8 @@ export async function generateDoraReport(data: DoraReportData): Promise<void> {
     [String(failCount), l('nonCompliant', lang)],
     [`${complianceRate}%`, l('complianceRate', lang)],
   ]);
+
+  pdf.introText(complianceMethodNote);
 
   pdf.bodyText(summary.situation);
   pdf.y += 3;

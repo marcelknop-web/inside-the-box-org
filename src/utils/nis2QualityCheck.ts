@@ -62,13 +62,21 @@ export function runNis2QualityCheck(
     passed: sumStatus === reqs.length, severity: 'critical',
   });
 
-  const nonPassReqsWithoutRisks = reqs.filter(r => r.status !== 'pass' && !risks.some(ri => refsMatch(ri.nis2Ref, r.article)));
+  // Regulatory-only requirements (no technical threat scenario) are exempt from risk-linkage
+  const REGULATORY_ONLY_REQS = new Set(['N25-1', 'N32-1', 'N24-1', 'N21-15']);
+  const nonPassReqsWithoutRisks = reqs.filter(r =>
+    r.status !== 'pass' && !REGULATORY_ONLY_REQS.has(r.id) && !risks.some(ri => refsMatch(ri.nis2Ref, r.article))
+  );
+  const exemptNonPass = reqs.filter(r => r.status !== 'pass' && REGULATORY_ONLY_REQS.has(r.id));
+  const exemptNote = exemptNonPass.length > 0
+    ? ` (${exemptNonPass.map(r => r.id).join(', ')} ${t('als rein regulatorisch ausgenommen', 'exempt as purely regulatory', 'exemptées car purement réglementaires')})`
+    : '';
   checks.push({
     id: 'A2-1', category: 'consistency',
     label: t('Bidirektionale Traceability', 'Bidirectional traceability', 'Traçabilité bidirectionnelle'),
     detail: nonPassReqsWithoutRisks.length > 0
-      ? `${t('Ohne Risiko-Verknüpfung', 'Missing risk links', 'Liens manquants')}: ${nonPassReqsWithoutRisks.map(r => r.id).join(', ')}`
-      : t('Alle verknüpft', 'All linked', 'Toutes liées'),
+      ? `${t('Ohne Risiko-Verknüpfung', 'Missing risk links', 'Liens manquants')}: ${nonPassReqsWithoutRisks.map(r => r.id).join(', ')}${exemptNote}`
+      : t('Alle verknüpft', 'All linked', 'Toutes liées') + exemptNote,
     passed: nonPassReqsWithoutRisks.length === 0, severity: 'critical',
   });
 
