@@ -498,8 +498,8 @@ export async function generateDoraReport(data: DoraReportData): Promise<void> {
   pdf.y += 5;
   pdf.heading(l('sec7', lang));
   pdf.bodyParagraph(lang === 'de'
-    ? 'Dieser Bericht basiert auf den Informationen zum Prüfungszeitpunkt. Er ersetzt keine offizielle Prüfung durch BaFin, EZB oder eine andere zuständige Aufsichtsbehörde. Für Vollständigkeit und Richtigkeit wird keine Haftung übernommen. Der Bericht ist vertraulich.'
-    : 'This report is based on information available at the time of assessment. It does not replace an official audit. No liability is assumed. The report is confidential.');
+    ? 'Dieser Bericht basiert auf den zum Zeitpunkt der Prüfung vorliegenden Informationen und Dokumenten. Er ersetzt keine offizielle Prüfung durch die BaFin, die EZB oder eine andere zuständige Aufsichtsbehörde. Für die Vollständigkeit und Richtigkeit der zugrunde liegenden Angaben wird keine Haftung übernommen. Der Bericht ist vertraulich und ausschließlich für den internen Gebrauch des Empfängers bestimmt.'
+    : 'This report is based on information and documents available at the time of the assessment. It does not replace an official audit by BaFin, ECB, or any other competent supervisory authority. No liability is assumed for the completeness or accuracy of the underlying information. The report is confidential and intended solely for the internal use of the recipient.');
 
   // ═══ APPENDIX A: Structured Data ═══
   pdf.newPage();
