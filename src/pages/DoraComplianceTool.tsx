@@ -707,13 +707,15 @@ function DORAMapping({ reqs, onNext }: { reqs: DoraReq[]; onNext: () => void }) 
           const isOpen = exp === r.id;
           return (
             <div key={r.id} className="bg-card border border-border rounded-lg overflow-hidden">
-              <div className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-secondary/50" onClick={() => setExp(isOpen ? null : r.id)}>
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 px-3 sm:px-4 py-3 cursor-pointer hover:bg-secondary/50" onClick={() => setExp(isOpen ? null : r.id)}>
                 <div className="flex-1 min-w-0">
-                  <div className="text-sm font-semibold text-foreground">{r.name}</div>
-                  <div className="text-xs text-muted-foreground">{r.article}</div>
+                  <div className="text-sm font-semibold text-foreground break-words">{r.name}</div>
+                  <div className="text-xs text-muted-foreground break-words">{r.article}</div>
                 </div>
-                <StatusBadge status={r.status} t={t} />
-                {isOpen ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+                <div className="flex items-center gap-2">
+                  <StatusBadge status={r.status} t={t} />
+                  {isOpen ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+                </div>
               </div>
               {isOpen && (
                 <div className="border-t border-border bg-secondary/30 px-4 py-3 text-sm space-y-3">
