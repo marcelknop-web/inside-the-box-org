@@ -1,13 +1,12 @@
 import { useState, useCallback, useRef, useMemo, memo } from 'react';
 import { Button } from '@/components/ui/button';
-import { RotateCcw, ChevronDown, ChevronUp, Loader2, Sparkles, FileText, ShieldCheck, CheckCircle2, XCircle, AlertTriangle, Wrench } from 'lucide-react';
-import { applyNis2AuditFixes } from '@/utils/nis2AuditFixes';
+import { RotateCcw, ChevronDown, ChevronUp, Loader2, Sparkles, FileText } from 'lucide-react';
 import { generateNis2Report } from '@/utils/nis2ReportPdf';
 import { Nis2AuditCharts } from '@/components/Nis2AuditCharts';
-import { Nis2FindingsView } from '@/components/Nis2FindingsView';
-import { runNis2QualityCheck, type QaResult } from '@/utils/nis2QualityCheck';
+import { runNis2QualityCheck } from '@/utils/nis2QualityCheck';
 import { PageMeta } from '@/components/PageMeta';
 import { Progress } from '@/components/ui/progress';
+import { useLanguage } from '@/i18n/LanguageContext';
 import { useLanguage } from '@/i18n/LanguageContext';
 import Typewriter from '@/components/Typewriter';
 import { StaggerReveal } from '@/components/StaggerReveal';
