@@ -832,6 +832,7 @@ const Nis2ComplianceTool = ({ embedded }: { embedded?: boolean }) => {
   const [step, setStepRaw] = useState(0);
   const [loading, setLoading] = useState(false);
   const [intakeData, setIntakeData] = useState<Nis2IntakeData>(EMPTY_INTAKE);
+  const sectorRisks = useMemo(() => getNis2Risks(intakeData.entityType), [intakeData.entityType]);
   const contentRef = useRef<HTMLDivElement>(null);
 
   const scrollToTop = useCallback(() => {
