@@ -768,12 +768,12 @@ export function generateCraReport(data: CraReportData): void {
   y += bh + 4;
 
   // ── Compliance rate methodology note ──
-  const complianceRate = totalReqs > 0 ? Math.round(((passCount + partialReqs.length * 0.5) / totalReqs) * 100) : 0;
+  const crComplianceRate = reqs.length > 0 ? Math.round(((passReqs.length + partialReqs.length * 0.5) / reqs.length) * 100) : 0;
   const complianceMethodNote = lang === 'de'
-    ? `Methodik Konformitätsrate: Die Rate von ${complianceRate}% ergibt sich aus einer gewichteten Berechnung — vollständig erfüllte Anforderungen (PASS) fließen mit 100% ein, teilweise erfüllte (PARTIAL) mit 50%, nicht erfüllte (FAIL) mit 0%. Bezugsgröße sind alle ${totalReqs} geprüften Anforderungen.`
+    ? `Methodik Konformitätsrate: Die Rate von ${crComplianceRate}% ergibt sich aus einer gewichteten Berechnung — vollständig erfüllte Anforderungen (PASS) fließen mit 100% ein, teilweise erfüllte (PARTIAL) mit 50%, nicht erfüllte (FAIL) mit 0%. Bezugsgröße sind alle ${reqs.length} geprüften Anforderungen.`
     : lang === 'fr'
-    ? `Méthodologie du taux de conformité : Le taux de ${complianceRate}% résulte d'un calcul pondéré — les exigences entièrement satisfaites (PASS) comptent pour 100%, partiellement satisfaites (PARTIAL) pour 50%, non satisfaites (FAIL) pour 0%. La base de calcul est l'ensemble des ${totalReqs} exigences évaluées.`
-    : `Compliance rate methodology: The ${complianceRate}% rate is based on a weighted calculation — fully compliant requirements (PASS) contribute 100%, partially compliant (PARTIAL) 50%, non-compliant (FAIL) 0%. The denominator is all ${totalReqs} assessed requirements.`;
+    ? `Méthodologie du taux de conformité : Le taux de ${crComplianceRate}% résulte d'un calcul pondéré — les exigences entièrement satisfaites (PASS) comptent pour 100%, partiellement satisfaites (PARTIAL) pour 50%, non satisfaites (FAIL) pour 0%. La base de calcul est l'ensemble des ${reqs.length} exigences évaluées.`
+    : `Compliance rate methodology: The ${crComplianceRate}% rate is based on a weighted calculation — fully compliant requirements (PASS) contribute 100%, partially compliant (PARTIAL) 50%, non-compliant (FAIL) 0%. The denominator is all ${reqs.length} assessed requirements.`;
   doc.setFont('helvetica', 'italic');
   doc.setFontSize(7);
   doc.setTextColor(...C.labelText);
