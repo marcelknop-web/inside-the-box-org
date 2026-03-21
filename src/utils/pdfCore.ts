@@ -379,11 +379,12 @@ export class PdfDoc {
     const lines = this.doc.splitTextToSize(text, LAYOUT.WIDTH - 16);
     const boxH = Math.max(16, lines.length * 4.5 + 10);
     this.checkSpace(boxH + 4);
+    const boxY = this.y;
     this.doc.setFillColor(...C.navy);
-    this.doc.roundedRect(LAYOUT.LEFT, this.y, LAYOUT.WIDTH, boxH, 2, 2, 'F');
+    this.doc.roundedRect(LAYOUT.LEFT, boxY, LAYOUT.WIDTH, boxH, 2, 2, 'F');
     this.doc.setTextColor(...C.white);
-    this.doc.text(lines, LAYOUT.LEFT + 8, this.y + 7);
-    this.y += boxH + 5;
+    this.doc.text(lines, LAYOUT.LEFT + 8, boxY + 7);
+    this.y = boxY + boxH + 5;
     this.doc.setTextColor(...C.dark);
   }
 
