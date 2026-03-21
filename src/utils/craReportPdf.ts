@@ -152,8 +152,15 @@ function getContextText(p: string, v: string, typeName: string, cls: string, dat
 }
 
 function getMgmtSummaryData(
-  p: string, threats: number, crit: number, failReqs: number, partialReqs: number, totalReqs: number, passReqs: number, lang: string
+  p: string, allThreats: Threat[], critRisksList: Threat[], failReqsList: CraReq[], partialReqsList: CraReq[], totalReqs: number, passReqs: number, lang: string
 ): { verdict: string; situationLine: string; findings: { title: string; detail: string }[]; implication: string; action: string } {
+  const threats = allThreats.length;
+  const crit = critRisksList.length;
+  const failReqs = failReqsList.length;
+  const partialReqs = partialReqsList.length;
+  const topCritNames = critRisksList.slice(0, 3).map(r => r.name);
+  const topFailNames = failReqsList.slice(0, 3).map(r => r.name);
+  const topPartialNames = partialReqsList.slice(0, 3).map(r => r.name);
   const complianceRate = totalReqs > 0 ? Math.round(((passReqs + partialReqs * 0.5) / totalReqs) * 100) : 0;
   const isReady = crit === 0 && failReqs === 0;
   const isPartial = !isReady && complianceRate >= 60;
