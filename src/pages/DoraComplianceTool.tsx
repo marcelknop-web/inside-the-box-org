@@ -220,7 +220,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: DoraIntakeData) => void }) {
           </div>
           <div>
             <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">{t('dora.entityTypeSel')}</label>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {entityTypes.map(et => <Chip key={et.id} label={et.label} icon={et.icon} desc={et.desc} selected={d.entityType.includes(et.id)} onClick={() => toggleArray('entityType', et.id)} />)}
             </div>
           </div>
