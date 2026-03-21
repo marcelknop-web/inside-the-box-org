@@ -2389,6 +2389,39 @@ export function generateCraReport(data: CraReportData): void {
     }
   }
 
+  /* ══════════════════════════════════════
+     APPENDIX E: Working Papers
+     ══════════════════════════════════════ */
+  newSection();
+  const secETitle = lang === 'de' ? 'E  Arbeitspapiere (Working Papers)' : lang === 'fr' ? 'E  Papiers de travail' : 'E  Working Papers';
+  writeSectionHeading(secETitle);
+  const secEIntro = lang === 'de'
+    ? 'Für jede CRA-Anforderung wurde ein eigenständiges Arbeitspapier erstellt, das den Prüfungsgegenstand, die erhobene Evidenz und die Bewertungsgrundlage dokumentiert.'
+    : lang === 'fr'
+    ? 'Un papier de travail a ete prepare pour chaque exigence CRA, documentant le perimetre, les preuves et la logique d\'evaluation.'
+    : 'A dedicated working paper has been prepared for each CRA requirement, documenting the scope, collected evidence, and assessment rationale.';
+  writeBody(secEIntro);
+  y += 2;
+
+  for (let ri = 0; ri < reqs.length; ri++) {
+    const r = reqs[ri];
+    const apId = `AP-${r.id}`;
+    checkPage(50);
+    writeSubHeading(`${apId}: ${r.name}`);
+    writeKV(lang === 'de' ? 'CRA-Artikel' : 'CRA Article', r.article);
+    writeKV(lang === 'de' ? 'Bewertung' : 'Assessment', r.status === 'pass' ? t(I18N.pass) : r.status === 'partial' ? t(I18N.partial) : t(I18N.fail));
+    writeFieldBlock(lang === 'de' ? 'Erhobene Evidenz' : 'Collected Evidence', r.evidence);
+    writeFieldBlock(lang === 'de' ? 'Bewertungsgrundlage' : 'Assessment Rationale', r.rationale);
+    if (r.gap) writeFieldBlock(lang === 'de' ? 'Festgestellte Abweichung' : 'Identified Deviation', r.gap);
+    if (r.measure) writeFieldBlock(lang === 'de' ? 'Empfohlene Maßnahme' : 'Recommended Action', r.measure);
+    if (r.effort) writeKV(t(I18N.effort), r.effort);
+    if (r.priority) writeKV(t(I18N.priority), r.priority);
+    if (ri < reqs.length - 1) {
+      doc.setDrawColor(...C.ruleStroke); doc.setLineWidth(0.15);
+      doc.line(ML + 10, y, W - MR - 10, y); y += 6;
+    }
+  }
+
   addFooter();
 
   const suffix = isDraft ? '_DRAFT' : '_FINAL';
