@@ -254,10 +254,15 @@ export async function generateNis2Report(data: Nis2ReportData): Promise<void> {
 
   pdf.heading(l('sec2', lang));
   pdf.introText(lang === 'de'
-    ? 'Was muss die Geschäftsleitung wissen? Dieser Abschnitt fasst die wichtigsten Ergebnisse der Konformitätsbewertung zusammen.'
-    : 'What does the board need to know? This section distills the key findings of the compliance assessment.');
+    ? 'Was muss die Geschäftsleitung wissen? Dieser Abschnitt fasst die wichtigsten Ergebnisse zusammen — einschließlich regulatorischem Kontext, Aufwandsschätzung und Handlungsdringlichkeit.'
+    : 'What does the board need to know? This section summarises the key findings — including regulatory context, effort estimates, and urgency.');
 
   const summary = getMgmtSummary(intakeData.entityName, risks.length, critCount, failCount, partCount, reqs.length, passCount, lang);
+
+  // Regulatory context
+  pdf.heading(lang === 'de' ? 'Regulatorischer Kontext' : 'Regulatory Context', 3);
+  pdf.bodyParagraph(summary.context);
+
   pdf.verdictBox(summary.verdict);
 
   pdf.kpiRow([
@@ -281,6 +286,14 @@ export async function generateNis2Report(data: Nis2ReportData): Promise<void> {
     pdf.bodyText(f.d, 4);
     pdf.y += 2;
   });
+
+  // Effort & Timeline
+  pdf.heading(lang === 'de' ? 'Geschätzter Aufwand und Zeitrahmen' : 'Estimated Effort and Timeline', 3);
+  pdf.bodyParagraph(summary.effortEstimate);
+
+  // Importance / Urgency
+  pdf.heading(lang === 'de' ? 'Dringlichkeit und Bedeutung' : 'Urgency and Importance', 3);
+  pdf.bodyParagraph(summary.importance);
 
   pdf.heading(lang === 'de' ? 'Regulatorische Implikation' : 'Regulatory Implication', 3);
   pdf.bodyParagraph(summary.implication);
