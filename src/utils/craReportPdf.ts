@@ -936,7 +936,16 @@ export function generateCraReport(data: CraReportData): void {
   y += 3;
   writeSubHeading(t(I18N.sec3d));
   writeBody(t(I18N.introSec3d));
-  writeBody(intakeData.knownIssues || t(I18N.noKnownIssues));
+  if (intakeData.knownIssues && intakeData.knownIssues.trim()) {
+    const issues = intakeData.knownIssues.trim();
+    const humanIssues = issues.length > 40 && /[.!?]$/.test(issues) ? issues
+      : lang === 'de' ? `Der Hersteller hat die folgenden bekannten Schwachstellen im Vorfeld der Prüfung benannt: ${issues}${issues.endsWith('.') ? '' : '.'}`
+      : lang === 'fr' ? `Le fabricant a signalé les problèmes connus suivants avant l'évaluation : ${issues}${issues.endsWith('.') ? '' : '.'}`
+      : `The manufacturer reported the following known issues prior to the assessment: ${issues}${issues.endsWith('.') ? '' : '.'}`;
+    writeBody(humanIssues);
+  } else {
+    writeBody(t(I18N.noKnownIssues));
+  }
 
   // 3.5 Submitted Documentation
   y += 3;
