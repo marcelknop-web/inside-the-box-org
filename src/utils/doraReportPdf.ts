@@ -122,7 +122,11 @@ function getContextText(name: string, typeName: string, critName: string, date: 
   return `On ${date}, a compliance assessment was conducted for ${name} (${typeName}, criticality: ${critName}) pursuant to Regulation (EU) 2022/2554 — the Digital Operational Resilience Act (DORA).${itLandscapeEn}\n\nThis report is intended for the board and executive management, ICT risk officers, the compliance function, and — in the event of a supervisory review — the competent authority.`;
 }
 
-function getMgmtSummary(name: string, risks: number, crit: number, failReqs: number, partialReqs: number, totalReqs: number, passReqs: number, lang: string) {
+function getMgmtSummary(name: string, risks: DoraRisk[], critRisks: DoraRisk[], failReqsList: DoraReq[], partialReqsList: DoraReq[], totalReqs: number, passReqs: number, lang: string) {
+  const riskCount = risks.length;
+  const crit = critRisks.length;
+  const failReqs = failReqsList.length;
+  const partialReqs = partialReqsList.length;
   const rate = totalReqs > 0 ? Math.round(((passReqs + partialReqs * 0.5) / totalReqs) * 100) : 0;
   const ready = crit === 0 && failReqs === 0;
   const partial = !ready && rate >= 60;

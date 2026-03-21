@@ -122,7 +122,11 @@ function getContextText(name: string, typeName: string, critName: string, date: 
   return `On ${date}, a compliance assessment was conducted for ${name} (sector: ${typeName}, classification: ${critName}) pursuant to Directive (EU) 2022/2555 — the NIS-2 Directive. The assessment covers the requirements of Articles 20 (governance responsibilities), 21 (risk management measures), and 23 (reporting obligations).${landscapeEn}\n\nThis report is intended for the board and executive management, information security officers, the compliance function, and — in the event of a supervisory review — the competent national authority.`;
 }
 
-function getMgmtSummary(name: string, risks: number, crit: number, failReqs: number, partialReqs: number, totalReqs: number, passReqs: number, lang: string) {
+function getMgmtSummary(name: string, risks: Nis2Risk[], critRisks: Nis2Risk[], failReqsList: Nis2Req[], partialReqsList: Nis2Req[], totalReqs: number, passReqs: number, lang: string) {
+  const riskCount = risks.length;
+  const crit = critRisks.length;
+  const failReqs = failReqsList.length;
+  const partialReqs = partialReqsList.length;
   const rate = totalReqs > 0 ? Math.round(((passReqs + partialReqs * 0.5) / totalReqs) * 100) : 0;
   const ready = crit === 0 && failReqs === 0;
   const partial = !ready && rate >= 60;
