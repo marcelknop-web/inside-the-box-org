@@ -379,11 +379,12 @@ export class PdfDoc {
     const lines = this.doc.splitTextToSize(text, LAYOUT.WIDTH - 16);
     const boxH = Math.max(16, lines.length * 4.5 + 10);
     this.checkSpace(boxH + 4);
+    const boxY = this.y;
     this.doc.setFillColor(...C.navy);
-    this.doc.roundedRect(LAYOUT.LEFT, this.y, LAYOUT.WIDTH, boxH, 2, 2, 'F');
+    this.doc.roundedRect(LAYOUT.LEFT, boxY, LAYOUT.WIDTH, boxH, 2, 2, 'F');
     this.doc.setTextColor(...C.white);
-    this.doc.text(lines, LAYOUT.LEFT + 8, this.y + 7);
-    this.y += boxH + 5;
+    this.doc.text(lines, LAYOUT.LEFT + 8, boxY + 7);
+    this.y = boxY + boxH + 5;
     this.doc.setTextColor(...C.dark);
   }
 
@@ -452,12 +453,13 @@ export class PdfDoc {
     const lines = this.doc.splitTextToSize(text, LAYOUT.WIDTH - 10);
     const barH = Math.max(8, lines.length * 4 + 4);
     this.checkSpace(barH + 3);
+    const boxY = this.y - 1.5;
     this.doc.setFillColor(...C.bg);
-    this.doc.roundedRect(LAYOUT.LEFT, this.y - 1.5, LAYOUT.WIDTH, barH, 1, 1, 'F');
+    this.doc.roundedRect(LAYOUT.LEFT, boxY, LAYOUT.WIDTH, barH, 1, 1, 'F');
     this.doc.setTextColor(...C.navy);
     this.doc.text(lines, LAYOUT.LEFT + 5, this.y + 2.5);
     this.doc.setTextColor(...C.dark);
-    this.y += barH + 3;
+    this.y = Math.max(this.y + barH + 3, boxY + barH + 3);
   }
 
   /** Section label (small uppercase) */
@@ -715,6 +717,10 @@ export class PdfDoc {
     const vLines = this.doc.splitTextToSize(opts.validation, innerWidth - 4);
     this.doc.text(vLines, innerLeft + 2, this.y);
     this.y += vLines.length * 3.2 + 4;
+
+    // Ensure cursor is past the box bottom to prevent overlap with next element
+    const boxBottom = boxY + boxH;
+    this.y = Math.max(this.y, boxBottom + 4);
   }
 
   /** QA checks by category */
