@@ -53,9 +53,9 @@ const ScoreBar = memo(({ value }: { value: number }) => {
 function InfoBox({ icon = '💡', title, children, color = 'blue' }: { icon?: string; title?: string; children: React.ReactNode; color?: 'blue' | 'amber' | 'green' }) {
   const colors = { blue: 'bg-primary/10 border-primary/20', amber: 'bg-warning/10 border-warning/20', green: 'bg-green-500/10 border-green-500/20' };
   return (
-    <div className={`border rounded-lg px-4 py-3 text-sm text-foreground ${colors[color]}`}>
+    <div className={`border rounded-lg px-3 sm:px-4 py-3 text-sm text-foreground ${colors[color]} break-words overflow-hidden`}>
       {title ? <div className="font-semibold mb-1">{icon} <Typewriter text={title} mode="typewriter" delay={400} charDelay={8} cursor={false} /></div> : <span className="font-semibold">{icon} </span>}
-      <span>{children}</span>
+      <span className="break-words">{children}</span>
     </div>
   );
 }
@@ -80,11 +80,11 @@ function SubStepHeader({ current, total, title, subtitle }: { current: number; t
 }
 
 const Chip = memo(({ label, selected, onClick, icon, desc }: { label: string; selected: boolean; onClick: () => void; icon?: string; desc?: string }) => (
-  <button onClick={onClick} className={`border rounded-lg px-3 py-2 text-sm flex items-start gap-2 text-left transition-all ${selected ? 'border-primary bg-primary/10 text-foreground shadow-sm' : 'border-border bg-card text-muted-foreground hover:border-primary/40 hover:bg-secondary'}`}>
+  <button onClick={onClick} className={`border rounded-lg px-3 py-2 text-sm flex items-start gap-2 text-left transition-all min-w-0 overflow-hidden ${selected ? 'border-primary bg-primary/10 text-foreground shadow-sm' : 'border-border bg-card text-muted-foreground hover:border-primary/40 hover:bg-secondary'}`}>
     {icon && <span className="mt-0.5 flex-shrink-0">{icon}</span>}
-    <div>
-      <div className="font-medium">{label}</div>
-      {desc && <div className="text-xs opacity-70 mt-0.5">{desc}</div>}
+    <div className="min-w-0 flex-1">
+      <div className="font-medium break-words">{label}</div>
+      {desc && <div className="text-xs opacity-70 mt-0.5 break-words">{desc}</div>}
     </div>
     {selected && <span className="ml-auto flex-shrink-0 text-xs text-primary">✓</span>}
   </button>
@@ -220,7 +220,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: DoraIntakeData) => void }) {
           </div>
           <div>
             <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">{t('dora.entityTypeSel')}</label>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {entityTypes.map(et => <Chip key={et.id} label={et.label} icon={et.icon} desc={et.desc} selected={d.entityType.includes(et.id)} onClick={() => toggleArray('entityType', et.id)} />)}
             </div>
           </div>
@@ -275,10 +275,10 @@ function IntakeWizard({ onFinish }: { onFinish: (d: DoraIntakeData) => void }) {
         <StaggerReveal resetKey="d-intake-3" stagger={300}>
           <SubStepHeader current={3} total={INTAKE_STEPS} title={t('dora.step3Title')} subtitle={t('dora.step3Sub')} />
           <InfoBox icon="💡" color="blue">{t('dora.step3Info')}</InfoBox>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
             {infraOpts.map(o => (
-              <button key={o.id} onClick={() => toggleArray('infrastructure', o.id)} className={`border rounded-lg px-3 py-2 text-sm text-left flex items-center gap-2 transition-all ${d.infrastructure.includes(o.id) ? 'border-primary bg-primary/10 text-foreground' : 'border-border bg-card text-muted-foreground hover:border-primary/40'}`}>
-                <span>{o.icon}</span><span className="flex-1">{o.label}</span>{d.infrastructure.includes(o.id) && <span className="text-xs text-primary">✓</span>}
+              <button key={o.id} onClick={() => toggleArray('infrastructure', o.id)} className={`border rounded-lg px-3 py-2 text-sm text-left flex items-center gap-2 transition-all min-w-0 ${d.infrastructure.includes(o.id) ? 'border-primary bg-primary/10 text-foreground' : 'border-border bg-card text-muted-foreground hover:border-primary/40'}`}>
+                <span className="flex-shrink-0">{o.icon}</span><span className="flex-1 min-w-0 break-words">{o.label}</span>{d.infrastructure.includes(o.id) && <span className="text-xs text-primary flex-shrink-0">✓</span>}
               </button>
             ))}
           </div>
@@ -368,7 +368,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: DoraIntakeData) => void }) {
                         {isActive && <span className={`text-xs font-semibold flex-shrink-0 ${maturityColor(entry)}`}>{maturityLabel(entry)}</span>}
                       </label>
                       {isActive && (
-                        <div className="flex gap-4 px-10 pb-2.5 -mt-1">
+                        <div className="flex flex-wrap gap-x-4 gap-y-1 px-3 sm:px-10 pb-2.5 -mt-1">
                           <label className="flex items-center gap-1.5 cursor-pointer group">
                             <input type="checkbox" className="w-3.5 h-3.5 rounded accent-primary flex-shrink-0" checked={entry.documented} onChange={e => setMeasureProp(m.id, 'documented', e.target.checked)} />
                             <span className="text-xs text-muted-foreground group-hover:text-foreground transition-colors">{t('dora.documented')}</span>
@@ -450,9 +450,9 @@ function IntakeWizard({ onFinish }: { onFinish: (d: DoraIntakeData) => void }) {
             { label: t('dora.sumMeasures'), val: (() => { const cnt = Object.keys(d.measures).length; return cnt > 0 ? `${cnt} ${t('dora.sumMeasuresSelected')}` : t('dora.sumMeasuresNone'); })() },
             { label: t('dora.sumAttach'), val: d.files.length > 0 ? `${d.files.length} ${t('dora.sumFiles')}` : t('dora.sumFilesNone') },
           ].map(({ label, val }) => (
-            <div key={label} className="flex gap-3 text-sm border-b border-border/50 pb-2 last:border-0 last:pb-0">
-              <span className="text-muted-foreground w-28 flex-shrink-0">{label}</span>
-              <span className="text-foreground font-medium">{val}</span>
+            <div key={label} className="flex flex-col sm:flex-row gap-1 sm:gap-3 text-sm border-b border-border/50 pb-2 last:border-0 last:pb-0">
+              <span className="text-muted-foreground sm:w-28 flex-shrink-0 text-xs sm:text-sm">{label}</span>
+              <span className="text-foreground font-medium break-words min-w-0">{val}</span>
             </div>
           ))}
           {d.knownIssues && <div className="text-sm border-b border-border/50 pb-2"><span className="text-muted-foreground">{t('dora.sumKnownGaps')}: </span><span className="text-foreground">{d.knownIssues}</span></div>}
@@ -503,12 +503,12 @@ function RiskLandscape({ risks, onNext }: { risks: DoraRisk[]; onNext: () => voi
   return (
     <StaggerReveal resetKey="rl" stagger={350}>
       <InfoBox icon="🛡️" title={t('dora.rlInfoTitle')} color="blue">{t('dora.rlInfo')}</InfoBox>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
+      <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-6 gap-2">
         {Object.entries(RISK_CATEGORIES).map(([k, m]) => (
-          <div key={k} className="bg-card border border-border rounded-lg p-3 text-center">
-            <div className={`w-8 h-8 rounded-full ${m.dot} text-white font-bold text-sm flex items-center justify-center mx-auto mb-1`}>{k}</div>
-            <div className="text-xs text-muted-foreground leading-tight">{m.label[lang] || m.label.en}</div>
-            <div className="text-xl font-bold text-foreground font-mono">{catCounts[k] || 0}</div>
+          <div key={k} className="bg-card border border-border rounded-lg p-2 sm:p-3 text-center">
+            <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full ${m.dot} text-white font-bold text-xs sm:text-sm flex items-center justify-center mx-auto mb-1`}>{k}</div>
+            <div className="text-[10px] sm:text-xs text-muted-foreground leading-tight break-words">{m.label[lang] || m.label.en}</div>
+            <div className="text-lg sm:text-xl font-bold text-foreground font-mono">{catCounts[k] || 0}</div>
           </div>
         ))}
       </div>
@@ -519,19 +519,22 @@ function RiskLandscape({ risks, onNext }: { risks: DoraRisk[]; onNext: () => voi
           const isOpen = exp === ri.id;
           return (
             <div key={ri.id} className="bg-card border border-border rounded-lg overflow-hidden">
-              <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 sm:gap-3 px-3 sm:px-4 py-3 cursor-pointer hover:bg-secondary/50" onClick={() => setExp(isOpen ? null : ri.id)}>
-                <span className={`px-2 py-0.5 rounded text-xs font-bold ${meta?.badge || ''}`}>{riskId(ri)}</span>
-                <div className="flex-1 min-w-0 order-last sm:order-none w-full sm:w-auto">
-                  <div className="text-sm font-semibold text-foreground">{ri.name}</div>
-                  <div className="text-xs text-muted-foreground truncate">{ri.component} · {ri.doraRef}</div>
+              <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3 px-3 sm:px-4 py-3 cursor-pointer hover:bg-secondary/50" onClick={() => setExp(isOpen ? null : ri.id)}>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className={`px-2 py-0.5 rounded text-xs font-bold flex-shrink-0 ${meta?.badge || ''}`}>{riskId(ri)}</span>
+                  <span className={`px-2 py-0.5 rounded text-xs font-bold flex-shrink-0 ${risk.cls}`}>{risk.label} <span className="font-mono">({ri.likelihood}×{ri.impact}={ri.likelihood * ri.impact})</span></span>
+                  {isOpen ? <ChevronUp className="w-4 h-4 text-muted-foreground flex-shrink-0 ml-auto sm:hidden" /> : <ChevronDown className="w-4 h-4 text-muted-foreground flex-shrink-0 ml-auto sm:hidden" />}
                 </div>
-                <span className={`px-2 py-0.5 rounded text-xs font-bold flex-shrink-0 ${risk.cls}`}>{risk.label} <span className="font-mono hidden sm:inline">({ri.likelihood}×{ri.impact}={ri.likelihood * ri.impact})</span></span>
-                {isOpen ? <ChevronUp className="w-4 h-4 text-muted-foreground flex-shrink-0" /> : <ChevronDown className="w-4 h-4 text-muted-foreground flex-shrink-0" />}
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-semibold text-foreground break-words">{ri.name}</div>
+                  <div className="text-xs text-muted-foreground break-words">{ri.component} · {ri.doraRef}</div>
+                </div>
+                {isOpen ? <ChevronUp className="w-4 h-4 text-muted-foreground flex-shrink-0 hidden sm:block" /> : <ChevronDown className="w-4 h-4 text-muted-foreground flex-shrink-0 hidden sm:block" />}
               </div>
               {isOpen && (
                 <div className="border-t border-border bg-secondary/30 px-3 sm:px-4 py-3 text-sm space-y-3">
-                  <div className="break-words"><span className="font-semibold text-muted-foreground">{t('dora.tmAttacker')}: </span><span className="text-foreground">{ri.attacker}</span></div>
-                  <div className="break-words"><span className="font-semibold text-muted-foreground">{t('dora.tmPath')}: </span><span className="text-foreground">{ri.path}</span></div>
+                  <div className="break-words"><span className="font-semibold text-muted-foreground">{t('dora.tmAttacker')}: </span><span className="text-foreground break-words">{ri.attacker}</span></div>
+                  <div className="break-words"><span className="font-semibold text-muted-foreground">{t('dora.tmPath')}: </span><span className="text-foreground break-words">{ri.path}</span></div>
                   <EvidenceBlock label={t('dora.tmEvidence')}>{ri.evidence}</EvidenceBlock>
                   <EvidenceBlock label={t('dora.tmRationale')}>{ri.rationale}</EvidenceBlock>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
@@ -578,16 +581,16 @@ function RiskMatrix({ risks, onNext }: { risks: DoraRisk[]; onNext: () => void }
   return (
     <StaggerReveal resetKey="rm" stagger={350}>
       <InfoBox icon="⚖️" title={t('dora.raInfoTitle')} color="blue">{t('dora.raInfo')}</InfoBox>
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
         {([
           [t('dora.critical'), 'bg-destructive', cnt.critical],
           [t('dora.high'), 'bg-orange-500', cnt.high],
           [t('dora.medium'), 'bg-yellow-500', cnt.medium],
           [t('dora.low'), 'bg-green-500', cnt.low],
         ] as [string, string, number][]).map(([l, c, n]) => (
-          <div key={l} className="bg-card border border-border rounded-lg p-4 text-center">
-            <div className={`text-2xl font-bold font-mono ${c} text-white rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-2`}>{n}</div>
-            <div className="text-sm font-semibold text-muted-foreground">{l}</div>
+          <div key={l} className="bg-card border border-border rounded-lg p-3 sm:p-4 text-center">
+            <div className={`text-xl sm:text-2xl font-bold font-mono ${c} text-white rounded-full w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center mx-auto mb-1 sm:mb-2`}>{n}</div>
+            <div className="text-xs sm:text-sm font-semibold text-muted-foreground break-words">{l}</div>
           </div>
         ))}
       </div>
@@ -678,7 +681,7 @@ function DORAMapping({ reqs, onNext }: { reqs: DoraReq[]; onNext: () => void }) 
   return (
     <StaggerReveal resetKey="dm" stagger={350}>
       <InfoBox icon="📋" title={t('dora.cmInfoTitle')} color="blue">{t('dora.cmInfo')}</InfoBox>
-      <div className="bg-card border border-border rounded-lg p-5 flex flex-col sm:flex-row items-center gap-6">
+      <div className="bg-card border border-border rounded-lg p-4 sm:p-5 flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
         <div className="relative w-24 h-24 flex-shrink-0">
           <svg viewBox="0 0 36 36" className="w-full h-full" style={{ transform: 'rotate(-90deg)' }}>
             <circle cx="18" cy="18" r="15.9" fill="none" className="stroke-secondary" strokeWidth="3" />
@@ -704,13 +707,15 @@ function DORAMapping({ reqs, onNext }: { reqs: DoraReq[]; onNext: () => void }) 
           const isOpen = exp === r.id;
           return (
             <div key={r.id} className="bg-card border border-border rounded-lg overflow-hidden">
-              <div className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-secondary/50" onClick={() => setExp(isOpen ? null : r.id)}>
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 px-3 sm:px-4 py-3 cursor-pointer hover:bg-secondary/50" onClick={() => setExp(isOpen ? null : r.id)}>
                 <div className="flex-1 min-w-0">
-                  <div className="text-sm font-semibold text-foreground">{r.name}</div>
-                  <div className="text-xs text-muted-foreground">{r.article}</div>
+                  <div className="text-sm font-semibold text-foreground break-words">{r.name}</div>
+                  <div className="text-xs text-muted-foreground break-words">{r.article}</div>
                 </div>
-                <StatusBadge status={r.status} t={t} />
-                {isOpen ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+                <div className="flex items-center gap-2">
+                  <StatusBadge status={r.status} t={t} />
+                  {isOpen ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+                </div>
               </div>
               {isOpen && (
                 <div className="border-t border-border bg-secondary/30 px-4 py-3 text-sm space-y-3">
@@ -827,35 +832,35 @@ function ReportView({ intakeData, risks, reqs }: { intakeData: DoraIntakeData; r
     <StaggerReveal resetKey="rp" stagger={350}>
       <InfoBox icon="✅" title={t('dora.rpDone')} color="green">{t('dora.rpDoneInfo')}</InfoBox>
 
-      <div className="bg-card border-l-4 border-primary rounded-lg p-5 border border-border">
+      <div className="bg-card border-l-4 border-primary rounded-lg p-4 sm:p-5 border border-border overflow-hidden">
         <div className="flex flex-col sm:flex-row items-start justify-between mb-3 gap-2">
-          <div>
+          <div className="min-w-0">
             <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">{t('dora.rpTitle')}</div>
-            <div className="text-lg font-bold text-foreground mt-0.5">{intakeData.entityName}</div>
+            <div className="text-base sm:text-lg font-bold text-foreground mt-0.5 break-words">{intakeData.entityName}</div>
           </div>
-          <div className="sm:text-right text-xs text-muted-foreground">
+          <div className="sm:text-right text-xs text-muted-foreground flex-shrink-0">
             <div>{today}</div>
             <div className="mt-0.5">{critName}</div>
           </div>
         </div>
         <div className="h-px bg-border mb-3" />
-        <p className="text-sm text-foreground leading-relaxed">
+        <p className="text-sm text-foreground leading-relaxed break-words">
           {language === 'de'
-            ? `Die DORA-Konformitaetspruefung fuer ${intakeData.entityName} (${typeName}, Kritikalitaet: ${critName}) wurde am ${today} durchgefuehrt. Es wurden ${localRisks.length} IKT-Risiken identifiziert, davon ${critRisks.length} mit kritischem Score (>= 20). Von ${localReqs.length} DORA-Anforderungen bestehen ${failReqs.length} Luecken.`
+            ? `Die DORA-Konformitätsprüfung für ${intakeData.entityName} (${typeName}, Kritikalität: ${critName}) wurde am ${today} durchgeführt. Es wurden ${localRisks.length} IKT-Risiken identifiziert, davon ${critRisks.length} mit kritischem Score (>= 20). Von ${localReqs.length} DORA-Anforderungen bestehen ${failReqs.length} Lücken.`
             : `The DORA compliance assessment for ${intakeData.entityName} (${typeName}, criticality: ${critName}) was conducted on ${today}. ${localRisks.length} ICT risks were identified, ${critRisks.length} with critical score (>= 20). Of ${localReqs.length} DORA requirements, ${failReqs.length} gaps remain.`}
         </p>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-3 gap-2 sm:gap-3">
         {([
           [language === 'de' ? 'IKT-Risiken' : 'ICT Risks', localRisks.length, 'text-foreground'],
-          [language === 'de' ? 'Kritisch (>= 20)' : 'Critical (>= 20)', critRisks.length, 'text-destructive'],
-          [language === 'de' ? 'DORA-Luecken' : 'DORA Gaps', failReqs.length, 'text-destructive'],
+          [language === 'de' ? 'Kritisch (≥ 20)' : 'Critical (≥ 20)', critRisks.length, 'text-destructive'],
+          [language === 'de' ? 'DORA-Lücken' : 'DORA Gaps', failReqs.length, 'text-destructive'],
         ] as [string, number, string][]).map(([l, n, c]) => (
-          <div key={l} className="bg-card border border-border rounded-lg p-4 text-center">
-            <div className={`text-3xl font-bold font-mono ${c}`}>{n}</div>
-            <div className="text-xs text-muted-foreground mt-1">{l}</div>
+          <div key={l} className="bg-card border border-border rounded-lg p-3 sm:p-4 text-center">
+            <div className={`text-2xl sm:text-3xl font-bold font-mono ${c}`}>{n}</div>
+            <div className="text-[10px] sm:text-xs text-muted-foreground mt-1 break-words">{l}</div>
           </div>
         ))}
       </div>
@@ -1010,16 +1015,16 @@ function ReportView({ intakeData, risks, reqs }: { intakeData: DoraIntakeData; r
       )}
 
       {/* Export Bar */}
-      <div className="bg-secondary border border-border rounded-lg p-4">
+      <div className="bg-secondary border border-border rounded-lg p-3 sm:p-4 overflow-hidden">
         <div className="text-sm text-foreground mb-3">
           <div className="font-semibold mb-0.5">{t('dora.rpExport')}</div>
-          <div className="text-xs text-muted-foreground">
+          <div className="text-xs text-muted-foreground break-words">
             {qaIteration > 0
               ? `${language === 'de' ? 'Durchlauf' : 'Run'} ${qaIteration} — ${fixesApplied ? (language === 'de' ? 'Korrekturen angewendet' : 'Fixes applied') : qaResult ? (language === 'de' ? 'Ergebnisse vorliegend' : 'Results available') : ''}`
               : t('dora.rpExportHint')}
           </div>
         </div>
-        <div className="flex gap-2 flex-wrap items-center">
+        <div className="flex flex-col sm:flex-row gap-2 sm:flex-wrap sm:items-center">
           {(() => {
             const activeClass = 'bg-primary text-primary-foreground hover:bg-primary/90 ring-2 ring-primary/30';
             const doneClass = 'bg-card border border-primary/40 text-primary hover:bg-accent';
@@ -1032,15 +1037,15 @@ function ReportView({ intakeData, risks, reqs }: { intakeData: DoraIntakeData; r
 
             return (
               <>
-                <button onClick={handleQaCheck} disabled={qaRunning} className={`text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2 transition-all disabled:opacity-50 ${qaRunning ? activeClass : qaIsNext ? activeClass : qaResult && !fixesApplied ? doneClass : defaultClass}`}>
+                <button onClick={handleQaCheck} disabled={qaRunning} className={`text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2 transition-all disabled:opacity-50 w-full sm:w-auto justify-center sm:justify-start ${qaRunning ? activeClass : qaIsNext ? activeClass : qaResult && !fixesApplied ? doneClass : defaultClass}`}>
                   {qaRunning ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShieldCheck className="w-4 h-4" />}
                   <span className="font-mono text-xs opacity-60 mr-0.5">1</span>
-                  {qaRunning ? (language === 'de' ? 'Pruefe...' : 'Checking...') : (fixesApplied ? (language === 'de' ? 'Erneut pruefen' : 'Re-check') : (language === 'de' ? 'Pruefung starten' : 'Start Audit'))}
+                  {qaRunning ? (language === 'de' ? 'Prüfe...' : 'Checking...') : (fixesApplied ? (language === 'de' ? 'Erneut prüfen' : 'Re-check') : (language === 'de' ? 'Prüfung starten' : 'Start Audit'))}
                   {qaIteration > 0 && <span className="text-[10px] font-mono opacity-60">#{qaIteration}</span>}
                 </button>
                 <span className="text-muted-foreground text-xs hidden sm:inline">{'>'}</span>
-                <div className="flex flex-col items-center gap-1">
-                  <button onClick={handleApplyFixes} disabled={!qaResult || qaResult.failed === 0 || fixesApplied || fixesRunning} className={`text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2 transition-all disabled:opacity-50 ${fixesRunning ? activeClass : fixesIsNext ? activeClass : fixesApplied ? doneClass : (!qaResult || qaResult.failed === 0) ? disabledClass : defaultClass}`}>
+                <div className="flex flex-col items-stretch sm:items-center gap-1 w-full sm:w-auto">
+                  <button onClick={handleApplyFixes} disabled={!qaResult || qaResult.failed === 0 || fixesApplied || fixesRunning} className={`text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2 transition-all disabled:opacity-50 w-full sm:w-auto justify-center sm:justify-start ${fixesRunning ? activeClass : fixesIsNext ? activeClass : fixesApplied ? doneClass : (!qaResult || qaResult.failed === 0) ? disabledClass : defaultClass}`}>
                     {fixesRunning ? <Loader2 className="w-4 h-4 animate-spin" /> : fixesApplied ? <CheckCircle2 className="w-4 h-4" /> : <Wrench className="w-4 h-4" />}
                     <span className="font-mono text-xs opacity-60 mr-0.5">2</span>
                     {fixesRunning ? (language === 'de' ? 'Wird umgesetzt...' : 'Applying...') : (language === 'de' ? 'Empfehlungen umsetzen' : 'Apply Fixes')}
@@ -1048,7 +1053,7 @@ function ReportView({ intakeData, risks, reqs }: { intakeData: DoraIntakeData; r
                   {fixesRunning && <Progress value={fixProgress} className="w-full h-1.5 mt-1" />}
                 </div>
                 <span className="text-muted-foreground text-xs hidden sm:inline">{'>'}</span>
-                <button onClick={handleFinalPdf} disabled={!canFinal || finalPdfRunning} className={`text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2 transition-all ${finalPdfRunning ? activeClass : finalIsNext && canFinal ? activeClass : !canFinal ? disabledClass : defaultClass}`}>
+                <button onClick={handleFinalPdf} disabled={!canFinal || finalPdfRunning} className={`text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2 transition-all w-full sm:w-auto justify-center sm:justify-start ${finalPdfRunning ? activeClass : finalIsNext && canFinal ? activeClass : !canFinal ? disabledClass : defaultClass}`}>
                   {finalPdfRunning ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
                   <span className="font-mono text-xs opacity-60 mr-0.5">3</span>
                   {finalPdfRunning ? (language === 'de' ? 'Wird erstellt...' : 'Generating...') : 'PDF Final'}
