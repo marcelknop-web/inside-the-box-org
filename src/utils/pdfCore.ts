@@ -574,8 +574,33 @@ export class PdfDoc {
     uncertaintiesLabel: string;
     validationLabel: string;
   }): void {
-    const lineCount = 3 + opts.assumptions.length + opts.uncertainties.length + 2;
-    const boxH = Math.max(30, lineCount * 4 + 10);
+    const innerWidth = LAYOUT.WIDTH - 10;
+
+    // Pre-calculate actual content height
+    this.doc.setFont(this.headFont, 'bold');
+    this.doc.setFontSize(8.5);
+    const rangeLinesCount = this.doc.splitTextToSize(opts.rangeText, innerWidth - 4).length;
+    let contentH = 6 + rangeLinesCount * 3.8 + 2; // header + range
+    // Assumptions
+    contentH += 4; // label
+    this.doc.setFont(this.bodyFont, 'normal');
+    this.doc.setFontSize(7.5);
+    opts.assumptions.forEach(a => {
+      const lines = this.doc.splitTextToSize(`· ${a}`, innerWidth - 4);
+      contentH += lines.length * 3.2 + 0.5;
+    });
+    // Uncertainties
+    contentH += 5; // gap + label
+    opts.uncertainties.forEach(u => {
+      const lines = this.doc.splitTextToSize(`· ${u}`, innerWidth - 4);
+      contentH += lines.length * 3.2 + 0.5;
+    });
+    // Validation
+    contentH += 5; // gap + label
+    const vLinesCalc = this.doc.splitTextToSize(opts.validation, innerWidth - 4);
+    contentH += vLinesCalc.length * 3.2 + 4;
+
+    const boxH = Math.max(30, contentH + 4);
     this.checkSpace(boxH + 4);
 
     const boxY = this.y - 1;
@@ -586,7 +611,6 @@ export class PdfDoc {
     this.doc.roundedRect(LAYOUT.LEFT, boxY, LAYOUT.WIDTH, boxH, 1, 1, 'S');
 
     const innerLeft = LAYOUT.LEFT + 5;
-    const innerWidth = LAYOUT.WIDTH - 10;
 
     // Header
     this.doc.setFont(this.headFont, 'bold');
@@ -599,8 +623,9 @@ export class PdfDoc {
     this.doc.setFont(this.headFont, 'bold');
     this.doc.setFontSize(8.5);
     this.doc.setTextColor(...C.dark);
-    this.doc.text(opts.rangeText, innerLeft, this.y);
-    this.y += 5;
+    const rangeLines = this.doc.splitTextToSize(opts.rangeText, innerWidth - 4);
+    this.doc.text(rangeLines, innerLeft, this.y);
+    this.y += rangeLines.length * 3.8 + 2;
 
     // Assumptions
     this.doc.setFont(this.headFont, 'bold');
