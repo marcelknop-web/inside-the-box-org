@@ -290,6 +290,8 @@ export async function generateDoraReport(data: DoraReportData): Promise<void> {
     [`${complianceRate}%`, l('complianceRate', lang)],
   ]);
 
+  pdf.introText(complianceMethodNote);
+
   pdf.bodyText(summary.situation);
   pdf.y += 3;
 
