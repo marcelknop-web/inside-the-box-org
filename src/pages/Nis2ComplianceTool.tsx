@@ -907,10 +907,10 @@ const Nis2ComplianceTool = ({ embedded }: { embedded?: boolean }) => {
               )}
             </div>
             {step === 0 && <IntakeWizard onFinish={handleIntakeFinish} />}
-            {step === 1 && <RiskLandscape risks={NIS2_RISKS} onNext={() => setStep(2)} />}
-            {step === 2 && <RiskMatrix risks={NIS2_RISKS} onNext={() => setStep(3)} />}
+            {step === 1 && <RiskLandscape risks={sectorRisks} onNext={() => setStep(2)} />}
+            {step === 2 && <RiskMatrix risks={sectorRisks} onNext={() => setStep(3)} />}
             {step === 3 && <NIS2Mapping reqs={NIS2_REQS} onNext={() => setStep(4)} />}
-            {step === 4 && <ReportView intakeData={intakeData} risks={NIS2_RISKS} reqs={NIS2_REQS} />}
+            {step === 4 && <ReportView intakeData={intakeData} risks={sectorRisks} reqs={NIS2_REQS} />}
           </div>
         )}
       </div>
