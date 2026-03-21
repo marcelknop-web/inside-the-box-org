@@ -1015,16 +1015,16 @@ function ReportView({ intakeData, risks, reqs }: { intakeData: DoraIntakeData; r
       )}
 
       {/* Export Bar */}
-      <div className="bg-secondary border border-border rounded-lg p-4">
+      <div className="bg-secondary border border-border rounded-lg p-3 sm:p-4 overflow-hidden">
         <div className="text-sm text-foreground mb-3">
           <div className="font-semibold mb-0.5">{t('dora.rpExport')}</div>
-          <div className="text-xs text-muted-foreground">
+          <div className="text-xs text-muted-foreground break-words">
             {qaIteration > 0
               ? `${language === 'de' ? 'Durchlauf' : 'Run'} ${qaIteration} — ${fixesApplied ? (language === 'de' ? 'Korrekturen angewendet' : 'Fixes applied') : qaResult ? (language === 'de' ? 'Ergebnisse vorliegend' : 'Results available') : ''}`
               : t('dora.rpExportHint')}
           </div>
         </div>
-        <div className="flex gap-2 flex-wrap items-center">
+        <div className="flex flex-col sm:flex-row gap-2 sm:flex-wrap sm:items-center">
           {(() => {
             const activeClass = 'bg-primary text-primary-foreground hover:bg-primary/90 ring-2 ring-primary/30';
             const doneClass = 'bg-card border border-primary/40 text-primary hover:bg-accent';
@@ -1037,15 +1037,15 @@ function ReportView({ intakeData, risks, reqs }: { intakeData: DoraIntakeData; r
 
             return (
               <>
-                <button onClick={handleQaCheck} disabled={qaRunning} className={`text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2 transition-all disabled:opacity-50 ${qaRunning ? activeClass : qaIsNext ? activeClass : qaResult && !fixesApplied ? doneClass : defaultClass}`}>
+                <button onClick={handleQaCheck} disabled={qaRunning} className={`text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2 transition-all disabled:opacity-50 w-full sm:w-auto justify-center sm:justify-start ${qaRunning ? activeClass : qaIsNext ? activeClass : qaResult && !fixesApplied ? doneClass : defaultClass}`}>
                   {qaRunning ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShieldCheck className="w-4 h-4" />}
                   <span className="font-mono text-xs opacity-60 mr-0.5">1</span>
-                  {qaRunning ? (language === 'de' ? 'Pruefe...' : 'Checking...') : (fixesApplied ? (language === 'de' ? 'Erneut pruefen' : 'Re-check') : (language === 'de' ? 'Pruefung starten' : 'Start Audit'))}
+                  {qaRunning ? (language === 'de' ? 'Prüfe...' : 'Checking...') : (fixesApplied ? (language === 'de' ? 'Erneut prüfen' : 'Re-check') : (language === 'de' ? 'Prüfung starten' : 'Start Audit'))}
                   {qaIteration > 0 && <span className="text-[10px] font-mono opacity-60">#{qaIteration}</span>}
                 </button>
                 <span className="text-muted-foreground text-xs hidden sm:inline">{'>'}</span>
-                <div className="flex flex-col items-center gap-1">
-                  <button onClick={handleApplyFixes} disabled={!qaResult || qaResult.failed === 0 || fixesApplied || fixesRunning} className={`text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2 transition-all disabled:opacity-50 ${fixesRunning ? activeClass : fixesIsNext ? activeClass : fixesApplied ? doneClass : (!qaResult || qaResult.failed === 0) ? disabledClass : defaultClass}`}>
+                <div className="flex flex-col items-stretch sm:items-center gap-1 w-full sm:w-auto">
+                  <button onClick={handleApplyFixes} disabled={!qaResult || qaResult.failed === 0 || fixesApplied || fixesRunning} className={`text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2 transition-all disabled:opacity-50 w-full sm:w-auto justify-center sm:justify-start ${fixesRunning ? activeClass : fixesIsNext ? activeClass : fixesApplied ? doneClass : (!qaResult || qaResult.failed === 0) ? disabledClass : defaultClass}`}>
                     {fixesRunning ? <Loader2 className="w-4 h-4 animate-spin" /> : fixesApplied ? <CheckCircle2 className="w-4 h-4" /> : <Wrench className="w-4 h-4" />}
                     <span className="font-mono text-xs opacity-60 mr-0.5">2</span>
                     {fixesRunning ? (language === 'de' ? 'Wird umgesetzt...' : 'Applying...') : (language === 'de' ? 'Empfehlungen umsetzen' : 'Apply Fixes')}
@@ -1053,7 +1053,7 @@ function ReportView({ intakeData, risks, reqs }: { intakeData: DoraIntakeData; r
                   {fixesRunning && <Progress value={fixProgress} className="w-full h-1.5 mt-1" />}
                 </div>
                 <span className="text-muted-foreground text-xs hidden sm:inline">{'>'}</span>
-                <button onClick={handleFinalPdf} disabled={!canFinal || finalPdfRunning} className={`text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2 transition-all ${finalPdfRunning ? activeClass : finalIsNext && canFinal ? activeClass : !canFinal ? disabledClass : defaultClass}`}>
+                <button onClick={handleFinalPdf} disabled={!canFinal || finalPdfRunning} className={`text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2 transition-all w-full sm:w-auto justify-center sm:justify-start ${finalPdfRunning ? activeClass : finalIsNext && canFinal ? activeClass : !canFinal ? disabledClass : defaultClass}`}>
                   {finalPdfRunning ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
                   <span className="font-mono text-xs opacity-60 mr-0.5">3</span>
                   {finalPdfRunning ? (language === 'de' ? 'Wird erstellt...' : 'Generating...') : 'PDF Final'}
