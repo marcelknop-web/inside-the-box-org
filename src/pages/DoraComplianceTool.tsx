@@ -533,8 +533,8 @@ function RiskLandscape({ risks, onNext }: { risks: DoraRisk[]; onNext: () => voi
               </div>
               {isOpen && (
                 <div className="border-t border-border bg-secondary/30 px-3 sm:px-4 py-3 text-sm space-y-3">
-                  <div className="break-words"><span className="font-semibold text-muted-foreground">{t('dora.tmAttacker')}: </span><span className="text-foreground">{ri.attacker}</span></div>
-                  <div className="break-words"><span className="font-semibold text-muted-foreground">{t('dora.tmPath')}: </span><span className="text-foreground">{ri.path}</span></div>
+                  <div className="break-words"><span className="font-semibold text-muted-foreground">{t('dora.tmAttacker')}: </span><span className="text-foreground break-words">{ri.attacker}</span></div>
+                  <div className="break-words"><span className="font-semibold text-muted-foreground">{t('dora.tmPath')}: </span><span className="text-foreground break-words">{ri.path}</span></div>
                   <EvidenceBlock label={t('dora.tmEvidence')}>{ri.evidence}</EvidenceBlock>
                   <EvidenceBlock label={t('dora.tmRationale')}>{ri.rationale}</EvidenceBlock>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
