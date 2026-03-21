@@ -450,9 +450,9 @@ function IntakeWizard({ onFinish }: { onFinish: (d: DoraIntakeData) => void }) {
             { label: t('dora.sumMeasures'), val: (() => { const cnt = Object.keys(d.measures).length; return cnt > 0 ? `${cnt} ${t('dora.sumMeasuresSelected')}` : t('dora.sumMeasuresNone'); })() },
             { label: t('dora.sumAttach'), val: d.files.length > 0 ? `${d.files.length} ${t('dora.sumFiles')}` : t('dora.sumFilesNone') },
           ].map(({ label, val }) => (
-            <div key={label} className="flex gap-3 text-sm border-b border-border/50 pb-2 last:border-0 last:pb-0">
-              <span className="text-muted-foreground w-28 flex-shrink-0">{label}</span>
-              <span className="text-foreground font-medium">{val}</span>
+            <div key={label} className="flex flex-col sm:flex-row gap-1 sm:gap-3 text-sm border-b border-border/50 pb-2 last:border-0 last:pb-0">
+              <span className="text-muted-foreground sm:w-28 flex-shrink-0 text-xs sm:text-sm">{label}</span>
+              <span className="text-foreground font-medium break-words min-w-0">{val}</span>
             </div>
           ))}
           {d.knownIssues && <div className="text-sm border-b border-border/50 pb-2"><span className="text-muted-foreground">{t('dora.sumKnownGaps')}: </span><span className="text-foreground">{d.knownIssues}</span></div>}
