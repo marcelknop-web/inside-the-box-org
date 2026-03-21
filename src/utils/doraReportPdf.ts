@@ -478,8 +478,8 @@ export async function generateDoraReport(data: DoraReportData): Promise<void> {
   pdf.newPage();
   pdf.heading(l('sec6', lang));
   pdf.bodyParagraph(lang === 'de'
-    ? 'Die Prüfung stützt sich auf Verordnung (EU) 2022/2554 (DORA) und die zugehörigen technischen Regulierungsstandards. Methodisch: 5×5-Risikomatrix (Eintrittswahrscheinlichkeit × Auswirkung). Ab Score 20 = kritisch.'
-    : 'The assessment is based on Regulation (EU) 2022/2554 (DORA). Risk assessment uses a 5×5 matrix (likelihood × impact). Scores 20+ are critical.');
+    ? 'Die Prüfung basiert auf der Verordnung (EU) 2022/2554 (DORA) und den zugehörigen technischen Regulierungsstandards (RTS/ITS). Die Risikobewertung folgt einer standardisierten 5×5-Matrix, in der Eintrittswahrscheinlichkeit und Auswirkung jeweils auf einer Skala von 1 bis 5 bewertet werden. Das Produkt beider Werte ergibt den Risikoscore, der die Priorisierung der Maßnahmen bestimmt.'
+    : 'The assessment is based on Regulation (EU) 2022/2554 (DORA) and the associated Regulatory Technical Standards (RTS/ITS). Risk assessment follows a standardised 5×5 matrix where likelihood and impact are each rated on a scale of 1 to 5. The product of both values yields the risk score that determines measure prioritisation.');
 
   pdf.heading(l('sec6a', lang), 2);
   [['Score ≥ 20', lang === 'de' ? 'KRITISCH — Sofortmaßnahme' : 'CRITICAL — Immediate'],
