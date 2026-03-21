@@ -260,33 +260,19 @@ export function runNis2QualityCheck(
   });
 
   // ═══ F. GOLDENE REGELN ═══
+  // GR6: All non-pass reqs fully documented (gap + measure + effort + priority)
+  const incompleteNonPassReqs = reqs.filter(r => r.status !== 'pass' && (
+    !r.gap || r.gap.trim() === '' || !r.measure || r.measure.trim() === '' ||
+    !r.effort || r.effort.trim() === '' || !r.priority || r.priority.trim() === ''
+  ));
   checks.push({
-    id: 'GR1', category: 'golden-rule',
-    label: t('Regel 1: Dokument auf Formatfehler geprüft', 'Rule 1: Format errors checked', 'Règle 1: Erreurs de format'),
-    detail: typoCount === 0 && !hasDuplicateIds ? t('Bestanden', 'Passed', 'Réussi') : t('Formatfehler', 'Format errors', 'Erreurs'),
-    passed: typoCount === 0 && !hasDuplicateIds, severity: 'major',
+    id: 'GR6', category: 'golden-rule',
+    label: t('Regel 6: Nicht-konforme Anforderungen vollständig dokumentiert', 'Rule 6: Non-compliant requirements fully documented', 'Règle 6: Exigences non conformes documentées'),
+    detail: incompleteNonPassReqs.length === 0
+      ? t('Alle mit Gap, Maßnahme, Aufwand und Priorität', 'All have gap, measure, effort and priority', 'Toutes complètes')
+      : `${incompleteNonPassReqs.length} ${t('unvollständig', 'incomplete', 'incomplètes')}`,
+    passed: incompleteNonPassReqs.length === 0, severity: 'critical',
   });
-
-  checks.push({
-    id: 'GR2', category: 'golden-rule',
-    label: t('Regel 2: Risikobewertungen quantitativ', 'Rule 2: Quantitative risk scores', 'Règle 2: Scores quantitatifs'),
-    detail: risksWithoutQuantRationale.length === 0
-      ? t('Alle belegt', 'All backed', 'Tous étayés')
-      : `${risksWithoutQuantRationale.length} ${t('ohne Grundlage', 'without basis', 'sans base')}`,
-    passed: risksWithoutQuantRationale.length === 0, severity: 'major',
-  });
-
-  const risksWithoutReq = risks.filter(ri => !reqs.some(r => refsMatch(ri.nis2Ref, r.article)));
-  checks.push({
-    id: 'GR4', category: 'golden-rule',
-    label: t('Regel 4: Bidirektionale Traceability', 'Rule 4: Bidirectional traceability', 'Règle 4: Traçabilité bidirectionnelle'),
-    detail: nonPassReqsWithoutRisks.length === 0 && risksWithoutReq.length === 0
-      ? t('Vollständig', 'Complete', 'Complète')
-      : `${nonPassReqsWithoutRisks.length + risksWithoutReq.length} ${t('fehlende Verknüpfungen', 'missing links', 'liens manquants')}`,
-    passed: nonPassReqsWithoutRisks.length === 0 && risksWithoutReq.length === 0, severity: 'critical',
-  });
-
-  checks.push({ id: 'GR6', category: 'golden-rule', label: t('Regel 6: Quality-Gates durchgeführt', 'Rule 6: Quality gates enforced', 'Règle 6: Quality gates'), detail: t('Durchgeführt', 'Executed', 'Exécuté'), passed: true, severity: 'major' });
 
   checks.push({
     id: 'GR7', category: 'golden-rule',
@@ -294,10 +280,6 @@ export function runNis2QualityCheck(
     detail: nonPassWithoutEffort.length === 0 ? t('Alle vorhanden', 'All present', 'Toutes présentes') : `${nonPassWithoutEffort.length} ${t('ohne Aufwand', 'without effort', 'sans effort')}`,
     passed: nonPassWithoutEffort.length === 0, severity: 'critical',
   });
-
-  checks.push({ id: 'GR8', category: 'golden-rule', label: t('Regel 8: Wirtschaftliche Betrachtung', 'Rule 8: Economic assessment', 'Règle 8: Analyse économique'), detail: t('Im Bericht enthalten', 'Included in report', 'Incluse'), passed: true, severity: 'major' });
-  checks.push({ id: 'GR9', category: 'golden-rule', label: t('Regel 9: Zielgruppenadäquate Aufbereitung', 'Rule 9: Audience-appropriate structure', 'Règle 9: Structure par audience'), detail: t('Dreistufig', 'Three-tier', 'Trois niveaux'), passed: true, severity: 'minor' });
-  checks.push({ id: 'GR10', category: 'golden-rule', label: t('Regel 10: KI-gestützte QS', 'Rule 10: AI-assisted QA', 'Règle 10: QA par IA'), detail: t('Durchgeführt', 'Executed', 'Exécuté'), passed: true, severity: 'minor' });
 
   // ═══ VERDICT ═══
   const passed = checks.filter(c => c.passed).length;
