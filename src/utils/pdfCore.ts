@@ -7,6 +7,50 @@
 import jsPDF from 'jspdf';
 
 /* ════════════════════════════════════════════════════════════
+   Prose Helpers — turn raw user input into readable sentences
+   ════════════════════════════════════════════════════════════ */
+
+/** Turn a list of items into a readable sentence.
+ *  e.g. ['Firewall', 'SIEM', 'WAF'] → "Die Infrastruktur umfasst Firewall, SIEM und WAF."
+ */
+export function humanizeList(items: string[], lang: string, context: 'infra' | 'providers' | 'roles' | 'generic' = 'generic'): string {
+  if (!items || items.length === 0) return '';
+  const joined = items.length <= 2
+    ? items.join(lang === 'de' ? ' und ' : lang === 'fr' ? ' et ' : ' and ')
+    : items.slice(0, -1).join(', ') + (lang === 'de' ? ' und ' : lang === 'fr' ? ' et ' : ' and ') + items[items.length - 1];
+
+  if (lang === 'de') {
+    switch (context) {
+      case 'infra': return `Die IKT-Infrastruktur des Unternehmens umfasst die folgenden Komponenten: ${joined}.`;
+      case 'providers': return `Im Rahmen der Leistungserbringung werden die folgenden Drittanbieter eingesetzt: ${joined}.`;
+      case 'roles': return `An der Prüfung waren die folgenden Rollen beteiligt: ${joined}.`;
+      default: return joined;
+    }
+  }
+  switch (context) {
+    case 'infra': return `The entity's ICT infrastructure encompasses the following components: ${joined}.`;
+    case 'providers': return `The following third-party providers are engaged in service delivery: ${joined}.`;
+    case 'roles': return `The following roles participated in the assessment: ${joined}.`;
+    default: return joined;
+  }
+}
+
+/** Turn raw user-entered text (which may be staccato or bullet-like) into a readable paragraph. */
+export function humanizeText(raw: string, lang: string, context: 'issues' | 'description' = 'description'): string {
+  if (!raw || !raw.trim()) return '';
+  const trimmed = raw.trim();
+  // If it already looks like a proper sentence (ends with period, multiple words), return as-is
+  if (trimmed.length > 40 && /[.!?]$/.test(trimmed)) return trimmed;
+  // Wrap in context sentence
+  if (lang === 'de') {
+    if (context === 'issues') return `Die folgenden Schwachstellen wurden vom Unternehmen im Vorfeld der Prüfung benannt: ${trimmed}${trimmed.endsWith('.') ? '' : '.'}`;
+    return `Zum geprüften Unternehmen wurde die folgende Beschreibung angegeben: ${trimmed}${trimmed.endsWith('.') ? '' : '.'}`;
+  }
+  if (context === 'issues') return `The following weaknesses were reported by the entity prior to the assessment: ${trimmed}${trimmed.endsWith('.') ? '' : '.'}`;
+  return `The following description was provided for the assessed entity: ${trimmed}${trimmed.endsWith('.') ? '' : '.'}`;
+}
+
+/* ════════════════════════════════════════════════════════════
    Font System
    ════════════════════════════════════════════════════════════ */
 
