@@ -289,6 +289,8 @@ export async function generateNis2Report(data: Nis2ReportData): Promise<void> {
     [`${complianceRate}%`, l('complianceRate', lang)],
   ]);
 
+  pdf.introText(complianceMethodNote);
+
   pdf.bodyText(summary.situation);
   pdf.y += 3;
 
