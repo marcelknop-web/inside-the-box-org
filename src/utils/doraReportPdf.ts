@@ -257,10 +257,14 @@ export async function generateDoraReport(data: DoraReportData): Promise<void> {
   pdf.bodyParagraph(getContextText(intakeData.entityName, entityTypeName, criticalityName, today, lang, intakeData));
 
   // ═══ SECTION 2: Management Summary ═══
-  const passCount = reqs.filter(r => r.status === 'pass').length;
-  const partCount = reqs.filter(r => r.status === 'partial').length;
-  const failCount = reqs.filter(r => r.status === 'fail').length;
-  const critCount = risks.filter(r => r.likelihood * r.impact >= 20).length;
+  const passReqsList = reqs.filter(r => r.status === 'pass');
+  const partReqsList = reqs.filter(r => r.status === 'partial');
+  const failReqsList = reqs.filter(r => r.status === 'fail');
+  const critRisks = risks.filter(r => r.likelihood * r.impact >= 20);
+  const passCount = passReqsList.length;
+  const partCount = partReqsList.length;
+  const failCount = failReqsList.length;
+  const critCount = critRisks.length;
   const complianceRate = Math.round((passCount * 100 + partCount * 50) / reqs.length);
 
   pdf.heading(l('sec2', lang));
@@ -268,7 +272,7 @@ export async function generateDoraReport(data: DoraReportData): Promise<void> {
     ? 'Was muss die Geschäftsleitung wissen? Dieser Abschnitt fasst die wichtigsten Ergebnisse zusammen — einschließlich regulatorischem Kontext, Aufwandsschätzung und Handlungsdringlichkeit.'
     : 'What does the board need to know? This section summarises the key findings — including regulatory context, effort estimates, and urgency.');
 
-  const summary = getMgmtSummary(intakeData.entityName, risks.length, critCount, failCount, partCount, reqs.length, passCount, lang);
+  const summary = getMgmtSummary(intakeData.entityName, risks, critRisks, failReqsList, partReqsList, reqs.length, passCount, lang);
 
   // Regulatory context
   pdf.heading(lang === 'de' ? 'Regulatorischer Kontext' : 'Regulatory Context', 3);
