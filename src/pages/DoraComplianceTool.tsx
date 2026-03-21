@@ -503,12 +503,12 @@ function RiskLandscape({ risks, onNext }: { risks: DoraRisk[]; onNext: () => voi
   return (
     <StaggerReveal resetKey="rl" stagger={350}>
       <InfoBox icon="🛡️" title={t('dora.rlInfoTitle')} color="blue">{t('dora.rlInfo')}</InfoBox>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
+      <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-6 gap-2">
         {Object.entries(RISK_CATEGORIES).map(([k, m]) => (
-          <div key={k} className="bg-card border border-border rounded-lg p-3 text-center">
-            <div className={`w-8 h-8 rounded-full ${m.dot} text-white font-bold text-sm flex items-center justify-center mx-auto mb-1`}>{k}</div>
-            <div className="text-xs text-muted-foreground leading-tight">{m.label[lang] || m.label.en}</div>
-            <div className="text-xl font-bold text-foreground font-mono">{catCounts[k] || 0}</div>
+          <div key={k} className="bg-card border border-border rounded-lg p-2 sm:p-3 text-center">
+            <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full ${m.dot} text-white font-bold text-xs sm:text-sm flex items-center justify-center mx-auto mb-1`}>{k}</div>
+            <div className="text-[10px] sm:text-xs text-muted-foreground leading-tight break-words">{m.label[lang] || m.label.en}</div>
+            <div className="text-lg sm:text-xl font-bold text-foreground font-mono">{catCounts[k] || 0}</div>
           </div>
         ))}
       </div>
