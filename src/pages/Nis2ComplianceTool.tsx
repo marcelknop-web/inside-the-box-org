@@ -12,7 +12,7 @@ import { StaggerReveal } from '@/components/StaggerReveal';
 import {
   getEntityTypes, getCriticalityLevels, getInfraOpts,
   SUPPLY_CHAIN_OPTS, getRiskMeasures, getRiskCategories,
-  getAttachTypes, NIS2_RISKS, NIS2_REQS, RISK_CATEGORIES, riskId,
+  getAttachTypes, getNis2Risks, NIS2_REQS, RISK_CATEGORIES, riskId,
   type Nis2Risk, type Nis2Req, type Nis2IntakeData, type MeasureEntry, EMPTY_INTAKE,
   DEMO_SCENARIOS, type DemoScenario,
 } from '@/data/nis2ComplianceData';
