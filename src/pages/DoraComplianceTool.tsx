@@ -275,10 +275,10 @@ function IntakeWizard({ onFinish }: { onFinish: (d: DoraIntakeData) => void }) {
         <StaggerReveal resetKey="d-intake-3" stagger={300}>
           <SubStepHeader current={3} total={INTAKE_STEPS} title={t('dora.step3Title')} subtitle={t('dora.step3Sub')} />
           <InfoBox icon="💡" color="blue">{t('dora.step3Info')}</InfoBox>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
             {infraOpts.map(o => (
-              <button key={o.id} onClick={() => toggleArray('infrastructure', o.id)} className={`border rounded-lg px-3 py-2 text-sm text-left flex items-center gap-2 transition-all ${d.infrastructure.includes(o.id) ? 'border-primary bg-primary/10 text-foreground' : 'border-border bg-card text-muted-foreground hover:border-primary/40'}`}>
-                <span>{o.icon}</span><span className="flex-1">{o.label}</span>{d.infrastructure.includes(o.id) && <span className="text-xs text-primary">✓</span>}
+              <button key={o.id} onClick={() => toggleArray('infrastructure', o.id)} className={`border rounded-lg px-3 py-2 text-sm text-left flex items-center gap-2 transition-all min-w-0 ${d.infrastructure.includes(o.id) ? 'border-primary bg-primary/10 text-foreground' : 'border-border bg-card text-muted-foreground hover:border-primary/40'}`}>
+                <span className="flex-shrink-0">{o.icon}</span><span className="flex-1 min-w-0 break-words">{o.label}</span>{d.infrastructure.includes(o.id) && <span className="text-xs text-primary flex-shrink-0">✓</span>}
               </button>
             ))}
           </div>
