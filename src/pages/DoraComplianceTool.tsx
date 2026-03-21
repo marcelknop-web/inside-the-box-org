@@ -832,21 +832,21 @@ function ReportView({ intakeData, risks, reqs }: { intakeData: DoraIntakeData; r
     <StaggerReveal resetKey="rp" stagger={350}>
       <InfoBox icon="✅" title={t('dora.rpDone')} color="green">{t('dora.rpDoneInfo')}</InfoBox>
 
-      <div className="bg-card border-l-4 border-primary rounded-lg p-5 border border-border">
+      <div className="bg-card border-l-4 border-primary rounded-lg p-4 sm:p-5 border border-border overflow-hidden">
         <div className="flex flex-col sm:flex-row items-start justify-between mb-3 gap-2">
-          <div>
+          <div className="min-w-0">
             <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">{t('dora.rpTitle')}</div>
-            <div className="text-lg font-bold text-foreground mt-0.5">{intakeData.entityName}</div>
+            <div className="text-base sm:text-lg font-bold text-foreground mt-0.5 break-words">{intakeData.entityName}</div>
           </div>
-          <div className="sm:text-right text-xs text-muted-foreground">
+          <div className="sm:text-right text-xs text-muted-foreground flex-shrink-0">
             <div>{today}</div>
             <div className="mt-0.5">{critName}</div>
           </div>
         </div>
         <div className="h-px bg-border mb-3" />
-        <p className="text-sm text-foreground leading-relaxed">
+        <p className="text-sm text-foreground leading-relaxed break-words">
           {language === 'de'
-            ? `Die DORA-Konformitaetspruefung fuer ${intakeData.entityName} (${typeName}, Kritikalitaet: ${critName}) wurde am ${today} durchgefuehrt. Es wurden ${localRisks.length} IKT-Risiken identifiziert, davon ${critRisks.length} mit kritischem Score (>= 20). Von ${localReqs.length} DORA-Anforderungen bestehen ${failReqs.length} Luecken.`
+            ? `Die DORA-Konformitätsprüfung für ${intakeData.entityName} (${typeName}, Kritikalität: ${critName}) wurde am ${today} durchgeführt. Es wurden ${localRisks.length} IKT-Risiken identifiziert, davon ${critRisks.length} mit kritischem Score (>= 20). Von ${localReqs.length} DORA-Anforderungen bestehen ${failReqs.length} Lücken.`
             : `The DORA compliance assessment for ${intakeData.entityName} (${typeName}, criticality: ${critName}) was conducted on ${today}. ${localRisks.length} ICT risks were identified, ${critRisks.length} with critical score (>= 20). Of ${localReqs.length} DORA requirements, ${failReqs.length} gaps remain.`}
         </p>
       </div>
