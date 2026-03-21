@@ -681,7 +681,7 @@ function DORAMapping({ reqs, onNext }: { reqs: DoraReq[]; onNext: () => void }) 
   return (
     <StaggerReveal resetKey="dm" stagger={350}>
       <InfoBox icon="📋" title={t('dora.cmInfoTitle')} color="blue">{t('dora.cmInfo')}</InfoBox>
-      <div className="bg-card border border-border rounded-lg p-5 flex flex-col sm:flex-row items-center gap-6">
+      <div className="bg-card border border-border rounded-lg p-4 sm:p-5 flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
         <div className="relative w-24 h-24 flex-shrink-0">
           <svg viewBox="0 0 36 36" className="w-full h-full" style={{ transform: 'rotate(-90deg)' }}>
             <circle cx="18" cy="18" r="15.9" fill="none" className="stroke-secondary" strokeWidth="3" />
