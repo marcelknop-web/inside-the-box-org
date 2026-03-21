@@ -152,8 +152,15 @@ function getContextText(p: string, v: string, typeName: string, cls: string, dat
 }
 
 function getMgmtSummaryData(
-  p: string, threats: number, crit: number, failReqs: number, partialReqs: number, totalReqs: number, passReqs: number, lang: string
+  p: string, allThreats: Threat[], critRisksList: Threat[], failReqsList: CraReq[], partialReqsList: CraReq[], totalReqs: number, passReqs: number, lang: string
 ): { verdict: string; situationLine: string; findings: { title: string; detail: string }[]; implication: string; action: string } {
+  const threats = allThreats.length;
+  const crit = critRisksList.length;
+  const failReqs = failReqsList.length;
+  const partialReqs = partialReqsList.length;
+  const topCritNames = critRisksList.slice(0, 3).map(r => r.name);
+  const topFailNames = failReqsList.slice(0, 3).map(r => r.name);
+  const topPartialNames = partialReqsList.slice(0, 3).map(r => r.name);
   const complianceRate = totalReqs > 0 ? Math.round(((passReqs + partialReqs * 0.5) / totalReqs) * 100) : 0;
   const isReady = crit === 0 && failReqs === 0;
   const isPartial = !isReady && complianceRate >= 60;
@@ -169,15 +176,15 @@ function getMgmtSummaryData(
       findings: [
         ...(crit > 0 ? [{
           title: `${crit} kritische Risiken erfordern Sofortmaßnahmen`,
-          detail: `Angreifer können mit vertretbarem Aufwand erheblichen Schaden anrichten. Betroffen sind Bereiche, in denen grundlegende Schutzmechanismen fehlen oder unzureichend implementiert sind. Jede Woche Verzögerung erhöht das Risiko regulatorischer Beanstandungen.`,
+          detail: `Angreifer können mit vertretbarem Aufwand erheblichen Schaden anrichten. Betroffen sind Bereiche, in denen grundlegende Schutzmechanismen fehlen oder unzureichend implementiert sind. Konkret handelt es sich um: ${topCritNames.join(', ')}${crit > 3 ? ` und ${crit - 3} weitere` : ''}. Jede Woche Verzögerung erhöht das Risiko regulatorischer Beanstandungen.`,
         }] : []),
         ...(failReqs > 0 ? [{
           title: `${failReqs} CRA-Anforderungen nicht erfüllt — Release-Blocker`,
-          detail: `Die Abweichungen betreffen grundlegende Sicherheitseigenschaften (Annex I) und Schwachstellenmanagement (Annex II). Ohne Behebung ist eine Konformitätserklärung nach Art. 22 CRA nicht abgebbar.`,
+          detail: `Die Abweichungen betreffen grundlegende Sicherheitseigenschaften (Annex I) und Schwachstellenmanagement (Annex II). Im Einzelnen: ${topFailNames.join(', ')}${failReqs > 3 ? ` und ${failReqs - 3} weitere` : ''}. Ohne Behebung ist eine Konformitätserklärung nach Art. 22 CRA nicht abgebbar.`,
         }] : []),
         ...(partialReqs > 0 ? [{
           title: `${partialReqs} Anforderungen nur teilweise erfüllt — Nachbesserungsbedarf`,
-          detail: `Ansätze vorhanden, aber Implementierung unvollständig oder nicht auditiert. Diese Lücken sind kurzfristig schließbar und sollten vor GA priorisiert werden.`,
+          detail: `Ansätze vorhanden, aber Implementierung unvollständig oder nicht auditiert. Betroffen sind unter anderem: ${topPartialNames.join(', ')}${partialReqs > 3 ? ` und ${partialReqs - 3} weitere` : ''}. Diese Lücken sind kurzfristig schließbar und sollten vor GA priorisiert werden.`,
         }] : []),
         ...(passReqs > 0 ? [{
           title: `${passReqs} Anforderungen vollständig erfüllt`,
@@ -203,15 +210,15 @@ function getMgmtSummaryData(
       findings: [
         ...(crit > 0 ? [{
           title: `${crit} risques critiques nécessitent une action immédiate`,
-          detail: `Un attaquant peut causer des dommages significatifs avec un effort raisonnable. Les domaines concernés manquent de mécanismes de protection fondamentaux. Chaque semaine de retard augmente le risque réglementaire.`,
+          detail: `Un attaquant peut causer des dommages significatifs avec un effort raisonnable. Concrètement : ${topCritNames.join(', ')}${crit > 3 ? ` et ${crit - 3} autres` : ''}. Chaque semaine de retard augmente le risque réglementaire.`,
         }] : []),
         ...(failReqs > 0 ? [{
           title: `${failReqs} exigences CRA non satisfaites — bloquantes pour la mise sur le marché`,
-          detail: `Les écarts concernent les propriétés de sécurité fondamentales (Annexe I) et la gestion des vulnérabilités (Annexe II). Sans correction, aucune déclaration de conformité selon l'Art. 22 CRA n'est possible.`,
+          detail: `Les écarts concernent les propriétés de sécurité fondamentales (Annexe I) et la gestion des vulnérabilités (Annexe II). En détail : ${topFailNames.join(', ')}${failReqs > 3 ? ` et ${failReqs - 3} autres` : ''}. Sans correction, aucune déclaration de conformité selon l'Art. 22 CRA n'est possible.`,
         }] : []),
         ...(partialReqs > 0 ? [{
           title: `${partialReqs} exigences partiellement satisfaites — améliorations requises`,
-          detail: `Des approches existent mais l'implémentation est incomplète ou non auditée. Ces lacunes peuvent être comblées à court terme.`,
+          detail: `Des approches existent mais l'implémentation est incomplète ou non auditée. Cela concerne notamment : ${topPartialNames.join(', ')}${partialReqs > 3 ? ` et ${partialReqs - 3} autres` : ''}. Ces lacunes peuvent être comblées à court terme.`,
         }] : []),
         ...(passReqs > 0 ? [{
           title: `${passReqs} exigences entièrement satisfaites`,
@@ -237,15 +244,15 @@ function getMgmtSummaryData(
     findings: [
       ...(crit > 0 ? [{
         title: `${crit} critical risks require immediate action`,
-        detail: `Attackers can cause significant damage with reasonable effort. Affected areas lack fundamental protection mechanisms. Each week of delay increases regulatory exposure.`,
+        detail: `Attackers can cause significant damage with reasonable effort. Affected areas lack fundamental protection mechanisms. Specifically: ${topCritNames.join(', ')}${crit > 3 ? ` and ${crit - 3} more` : ''}. Each week of delay increases regulatory exposure.`,
       }] : []),
       ...(failReqs > 0 ? [{
         title: `${failReqs} CRA requirements non-compliant — release blockers`,
-        detail: `Deviations affect fundamental security properties (Annex I) and vulnerability management (Annex II). Without remediation, a conformity declaration per Art. 22 CRA cannot be issued.`,
+        detail: `Deviations affect fundamental security properties (Annex I) and vulnerability management (Annex II). Specifically: ${topFailNames.join(', ')}${failReqs > 3 ? ` and ${failReqs - 3} more` : ''}. Without remediation, a conformity declaration per Art. 22 CRA cannot be issued.`,
       }] : []),
       ...(partialReqs > 0 ? [{
         title: `${partialReqs} requirements partially met — improvement needed`,
-        detail: `Approaches exist but implementation is incomplete or unaudited. These gaps are closable short-term and should be prioritised before GA.`,
+        detail: `Approaches exist but implementation is incomplete or unaudited. This includes: ${topPartialNames.join(', ')}${partialReqs > 3 ? ` and ${partialReqs - 3} more` : ''}. These gaps are closable short-term and should be prioritised before GA.`,
       }] : []),
       ...(passReqs > 0 ? [{
         title: `${passReqs} requirements fully met`,
@@ -702,7 +709,7 @@ export function generateCraReport(data: CraReportData): void {
   y += 2;
 
   const passReqs = reqs.filter(r => r.status === 'pass');
-  const summaryData = getMgmtSummaryData(intakeData.productName, threats.length, critRisks.length, failReqs.length, partialReqs.length, reqs.length, passReqs.length, lang);
+  const summaryData = getMgmtSummaryData(intakeData.productName, threats, critRisks, failReqs, partialReqs, reqs.length, passReqs.length, lang);
 
   // ── Governing assertion (bold verdict) ──
   checkPage(20);
@@ -853,7 +860,13 @@ export function generateCraReport(data: CraReportData): void {
 
   if (intakeData.description) {
     y += 2;
-    writeFieldBlock(t(I18N.description), intakeData.description, 0);
+    // Humanize description
+    const desc = intakeData.description.trim();
+    const humanDesc = desc.length > 40 && /[.!?]$/.test(desc) ? desc
+      : lang === 'de' ? `Zum geprüften Produkt wurde die folgende Beschreibung angegeben: ${desc}${desc.endsWith('.') ? '' : '.'}`
+      : lang === 'fr' ? `La description suivante a été fournie pour le produit évalué : ${desc}${desc.endsWith('.') ? '' : '.'}`
+      : `The following description was provided for the assessed product: ${desc}${desc.endsWith('.') ? '' : '.'}`;
+    writeBody(humanDesc);
   }
 
   // 3.2 Components & Architecture
@@ -861,14 +874,15 @@ export function generateCraReport(data: CraReportData): void {
   writeSubHeading(t(I18N.sec3b));
   writeBody(t(I18N.introSec3b));
   if (intakeData.components.length > 0) {
-    for (const comp of intakeData.components) {
-      checkPage(6);
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(BODY_SIZE);
-      doc.setTextColor(...C.bodyText);
-      doc.text(`•  ${comp}`, ML + 5, y);
-      y += BODY_LEADING + 0.5;
-    }
+    const compList = intakeData.components.length <= 2
+      ? intakeData.components.join(lang === 'de' ? ' und ' : ' and ')
+      : intakeData.components.slice(0, -1).join(', ') + (lang === 'de' ? ' und ' : ' and ') + intakeData.components[intakeData.components.length - 1];
+    const compSentence = lang === 'de'
+      ? `Das Produkt setzt sich aus den folgenden Systemkomponenten zusammen: ${compList}.`
+      : lang === 'fr'
+      ? `Le produit se compose des composants système suivants : ${compList}.`
+      : `The product comprises the following system components: ${compList}.`;
+    writeBody(compSentence);
   } else {
     writeBody('—');
   }
@@ -922,7 +936,16 @@ export function generateCraReport(data: CraReportData): void {
   y += 3;
   writeSubHeading(t(I18N.sec3d));
   writeBody(t(I18N.introSec3d));
-  writeBody(intakeData.knownIssues || t(I18N.noKnownIssues));
+  if (intakeData.knownIssues && intakeData.knownIssues.trim()) {
+    const issues = intakeData.knownIssues.trim();
+    const humanIssues = issues.length > 40 && /[.!?]$/.test(issues) ? issues
+      : lang === 'de' ? `Der Hersteller hat die folgenden bekannten Schwachstellen im Vorfeld der Prüfung benannt: ${issues}${issues.endsWith('.') ? '' : '.'}`
+      : lang === 'fr' ? `Le fabricant a signalé les problèmes connus suivants avant l'évaluation : ${issues}${issues.endsWith('.') ? '' : '.'}`
+      : `The manufacturer reported the following known issues prior to the assessment: ${issues}${issues.endsWith('.') ? '' : '.'}`;
+    writeBody(humanIssues);
+  } else {
+    writeBody(t(I18N.noKnownIssues));
+  }
 
   // 3.5 Submitted Documentation
   y += 3;
@@ -1458,6 +1481,49 @@ export function generateCraReport(data: CraReportData): void {
   y += 4;
   writeSectionHeading(t(I18N.sec7));
   writeBody(getDisclaimer(lang));
+
+  /* ══════════════════════════════════════
+     SECTION 8: Verification Guidance
+     ══════════════════════════════════════ */
+  newSection();
+  const sec8Title = lang === 'de' ? '8  Hinweise zur Verifizierung' : lang === 'fr' ? '8  Guide de verification' : '8  Verification Guidance';
+  writeSectionHeading(sec8Title);
+  const sec8Intro = lang === 'de'
+    ? 'Dieser Abschnitt gibt dem Leser konkrete Hinweise, wie die Aussagen und Bewertungen in diesem Bericht unabhängig überprüft werden können.'
+    : lang === 'fr'
+    ? 'Cette section fournit au lecteur des indications concretes pour verifier de maniere independante les affirmations et evaluations de ce rapport.'
+    : 'This section provides the reader with concrete guidance on how to independently verify the statements and assessments in this report.';
+  writeBody(sec8Intro);
+  y += 2;
+
+  const verSteps = lang === 'de' ? [
+    { title: '1. Evidenz-Referenzen nachvollziehen', text: 'Jede Feststellung in Abschnitt 4 verweist auf Evidenz, die in Anhang C aufgeschlüsselt ist. Prüfen Sie, ob die dort genannten Werkzeuge und Befehle auf Ihrem Produkt reproduzierbare Ergebnisse liefern.' },
+    { title: '2. Risikobewertungen plausibilisieren', text: 'Die Risikoscores in Abschnitt 4.1 basieren auf einer 5x5-Matrix (Abschnitt 6.1). Vergleichen Sie die zugewiesenen Likelihood- und Impact-Werte mit Ihrer eigenen Einschätzung. Ziehen Sie dabei OWASP, NIST und ENISA-Quellen heran.' },
+    { title: '3. Konformitätsbewertungen gegen CRA-Text prüfen', text: 'Für jede Anforderung in Abschnitt 4.2 ist der CRA-Artikel angegeben. Lesen Sie den Originaltext der Verordnung (EU) 2024/2847 und vergleichen Sie, ob die dokumentierte Abweichung tatsächlich den regulatorischen Vorgaben widerspricht.' },
+    { title: '4. Aufwandsschätzungen validieren', text: 'Die in Abschnitt 5 genannten Aufwandsschätzungen basieren auf Erfahrungswerten. Vergleichen Sie diese mit Angeboten externer Dienstleister oder eigenen Projekterfahrungen.' },
+    { title: '5. Zweitmeinung einholen', text: 'Für eine unabhängige Validierung empfiehlt sich die Beauftragung eines externen Prüfers oder einer benannten Stelle nach Art. 24 CRA, insbesondere bei kritischen Risiken (Score >= 20).' },
+  ] : lang === 'fr' ? [
+    { title: '1. Tracer les references de preuves', text: 'Chaque constatation de la section 4 fait reference a des preuves detaillees en annexe C. Verifiez si les outils et commandes mentionnes produisent des resultats reproductibles sur votre produit.' },
+    { title: '2. Valider les scores de risque', text: 'Les scores de risque de la section 4.1 sont bases sur une matrice 5x5 (section 6.1). Comparez les valeurs attribuees avec votre propre evaluation en utilisant les sources OWASP, NIST et ENISA.' },
+    { title: '3. Verifier les evaluations de conformite', text: 'Pour chaque exigence de la section 4.2, l\'article CRA correspondant est indique. Lisez le texte original du reglement (UE) 2024/2847 et verifiez si les ecarts documentes contredisent effectivement les dispositions reglementaires.' },
+    { title: '4. Valider les estimations d\'effort', text: 'Les estimations d\'effort de la section 5 sont basees sur des donnees empiriques. Comparez-les avec des devis de prestataires externes ou votre propre experience projet.' },
+    { title: '5. Obtenir un second avis', text: 'Pour une validation independante, envisagez de mandater un organisme notifie selon l\'Art. 24 CRA, en particulier pour les risques critiques (score >= 20).' },
+  ] : [
+    { title: '1. Trace evidence references', text: 'Each finding in Section 4 references evidence detailed in Appendix C. Verify whether the listed tools and commands produce reproducible results on your product.' },
+    { title: '2. Validate risk scores', text: 'Risk scores in Section 4.1 are based on a 5x5 matrix (Section 6.1). Compare the assigned likelihood and impact values with your own assessment, drawing on OWASP, NIST, and ENISA sources.' },
+    { title: '3. Cross-check compliance assessments', text: 'For each requirement in Section 4.2, the corresponding CRA article is specified. Read the original text of Regulation (EU) 2024/2847 and verify whether the documented deviations indeed contradict the regulatory provisions.' },
+    { title: '4. Validate effort estimates', text: 'Effort estimates in Section 5 are based on empirical data. Compare them with external service provider quotes or your own project experience.' },
+    { title: '5. Obtain a second opinion', text: 'For independent validation, consider engaging a notified body per Art. 24 CRA. This is particularly advisable for critical risks (score >= 20) and non-compliant requirements.' },
+  ];
+
+  for (const step of verSteps) {
+    checkPage(18);
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(9); doc.setTextColor(...C.darkNavy);
+    doc.text(step.title, ML, y); y += 5;
+    doc.setTextColor(...C.bodyText);
+    writeBody(step.text, 4);
+    y += 3;
+  }
 
   /* ══════════════════════════════════════
      APPENDIX A: Structured Audit Data
@@ -2320,6 +2386,39 @@ export function generateCraReport(data: CraReportData): void {
       doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5); doc.setTextColor(...C.greenText);
       doc.text(fixSummary, ML + 6, y + 5);
       y += 15;
+    }
+  }
+
+  /* ══════════════════════════════════════
+     APPENDIX E: Working Papers
+     ══════════════════════════════════════ */
+  newSection();
+  const secETitle = lang === 'de' ? 'E  Arbeitspapiere (Working Papers)' : lang === 'fr' ? 'E  Papiers de travail' : 'E  Working Papers';
+  writeSectionHeading(secETitle);
+  const secEIntro = lang === 'de'
+    ? 'Für jede CRA-Anforderung wurde ein eigenständiges Arbeitspapier erstellt, das den Prüfungsgegenstand, die erhobene Evidenz und die Bewertungsgrundlage dokumentiert.'
+    : lang === 'fr'
+    ? 'Un papier de travail a ete prepare pour chaque exigence CRA, documentant le perimetre, les preuves et la logique d\'evaluation.'
+    : 'A dedicated working paper has been prepared for each CRA requirement, documenting the scope, collected evidence, and assessment rationale.';
+  writeBody(secEIntro);
+  y += 2;
+
+  for (let ri = 0; ri < reqs.length; ri++) {
+    const r = reqs[ri];
+    const apId = `AP-${r.id}`;
+    checkPage(50);
+    writeSubHeading(`${apId}: ${r.name}`);
+    writeKV(lang === 'de' ? 'CRA-Artikel' : 'CRA Article', r.article);
+    writeKV(lang === 'de' ? 'Bewertung' : 'Assessment', r.status === 'pass' ? t(I18N.pass) : r.status === 'partial' ? t(I18N.partial) : t(I18N.fail));
+    writeFieldBlock(lang === 'de' ? 'Erhobene Evidenz' : 'Collected Evidence', r.evidence);
+    writeFieldBlock(lang === 'de' ? 'Bewertungsgrundlage' : 'Assessment Rationale', r.rationale);
+    if (r.gap) writeFieldBlock(lang === 'de' ? 'Festgestellte Abweichung' : 'Identified Deviation', r.gap);
+    if (r.measure) writeFieldBlock(lang === 'de' ? 'Empfohlene Maßnahme' : 'Recommended Action', r.measure);
+    if (r.effort) writeKV(t(I18N.effort), r.effort);
+    if (r.priority) writeKV(t(I18N.priority), r.priority);
+    if (ri < reqs.length - 1) {
+      doc.setDrawColor(...C.ruleStroke); doc.setLineWidth(0.15);
+      doc.line(ML + 10, y, W - MR - 10, y); y += 6;
     }
   }
 
