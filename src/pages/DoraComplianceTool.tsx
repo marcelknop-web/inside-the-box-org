@@ -852,15 +852,15 @@ function ReportView({ intakeData, risks, reqs }: { intakeData: DoraIntakeData; r
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-3 gap-2 sm:gap-3">
         {([
           [language === 'de' ? 'IKT-Risiken' : 'ICT Risks', localRisks.length, 'text-foreground'],
-          [language === 'de' ? 'Kritisch (>= 20)' : 'Critical (>= 20)', critRisks.length, 'text-destructive'],
-          [language === 'de' ? 'DORA-Luecken' : 'DORA Gaps', failReqs.length, 'text-destructive'],
+          [language === 'de' ? 'Kritisch (≥ 20)' : 'Critical (≥ 20)', critRisks.length, 'text-destructive'],
+          [language === 'de' ? 'DORA-Lücken' : 'DORA Gaps', failReqs.length, 'text-destructive'],
         ] as [string, number, string][]).map(([l, n, c]) => (
-          <div key={l} className="bg-card border border-border rounded-lg p-4 text-center">
-            <div className={`text-3xl font-bold font-mono ${c}`}>{n}</div>
-            <div className="text-xs text-muted-foreground mt-1">{l}</div>
+          <div key={l} className="bg-card border border-border rounded-lg p-3 sm:p-4 text-center">
+            <div className={`text-2xl sm:text-3xl font-bold font-mono ${c}`}>{n}</div>
+            <div className="text-[10px] sm:text-xs text-muted-foreground mt-1 break-words">{l}</div>
           </div>
         ))}
       </div>
