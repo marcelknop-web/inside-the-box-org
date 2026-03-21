@@ -738,12 +738,6 @@ function ReportView({ intakeData, risks, reqs }: { intakeData: Nis2IntakeData; r
     });
   }, [intakeData, localRisks, localReqs, language, typeName, critName]);
 
-  const CATEGORY_LABELS: Record<string, string> = {
-    consistency: language === 'de' ? 'A. Konsistenzprüfung' : 'A. Consistency Check',
-    technical: language === 'de' ? 'B. Fachliche Korrektheit' : 'B. Technical Correctness',
-    evidence: language === 'de' ? 'C. Evidenzprüfung' : 'C. Evidence Check',
-    editorial: language === 'de' ? 'D. Redaktionelle Prüfung' : 'D. Editorial Check',
-    regulatory: language === 'de' ? 'E. Regulatorische Prüfung' : 'E. Regulatory Check',
   };
 
   return (
