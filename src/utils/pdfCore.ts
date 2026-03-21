@@ -715,6 +715,10 @@ export class PdfDoc {
     const vLines = this.doc.splitTextToSize(opts.validation, innerWidth - 4);
     this.doc.text(vLines, innerLeft + 2, this.y);
     this.y += vLines.length * 3.2 + 4;
+
+    // Ensure cursor is past the box bottom to prevent overlap with next element
+    const boxBottom = boxY + boxH;
+    this.y = Math.max(this.y, boxBottom + 4);
   }
 
   /** QA checks by category */
