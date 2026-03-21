@@ -453,12 +453,13 @@ export class PdfDoc {
     const lines = this.doc.splitTextToSize(text, LAYOUT.WIDTH - 10);
     const barH = Math.max(8, lines.length * 4 + 4);
     this.checkSpace(barH + 3);
+    const boxY = this.y - 1.5;
     this.doc.setFillColor(...C.bg);
-    this.doc.roundedRect(LAYOUT.LEFT, this.y - 1.5, LAYOUT.WIDTH, barH, 1, 1, 'F');
+    this.doc.roundedRect(LAYOUT.LEFT, boxY, LAYOUT.WIDTH, barH, 1, 1, 'F');
     this.doc.setTextColor(...C.navy);
     this.doc.text(lines, LAYOUT.LEFT + 5, this.y + 2.5);
     this.doc.setTextColor(...C.dark);
-    this.y += barH + 3;
+    this.y = Math.max(this.y + barH + 3, boxY + barH + 3);
   }
 
   /** Section label (small uppercase) */
