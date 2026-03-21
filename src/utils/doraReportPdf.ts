@@ -471,8 +471,8 @@ export async function generateDoraReport(data: DoraReportData): Promise<void> {
   // 5.3 Economic Impact
   pdf.heading(l('sec5c', lang), 2);
   pdf.bodyParagraph(lang === 'de'
-    ? `Bei Verstößen gegen DORA drohen Sanktionen. Die ${failCount} nicht-konformen Anforderungen erhöhen das regulatorische Risiko erheblich. Geschätzter Gesamtaufwand: 6-18 Personenmonate.`
-    : `DORA provides for sanctions. The ${failCount} non-compliant requirements significantly increase risk. Estimated total: 6-18 person-months.`);
+    ? `Bei Verstößen gegen DORA drohen erhebliche Sanktionen durch die zuständige Aufsichtsbehörde. Die derzeit ${failCount} nicht-konformen Anforderungen erhöhen das regulatorische Risiko erheblich. Der geschätzte Gesamtaufwand für die Herstellung der Konformität beträgt 6-18 Personenmonate, abhängig von der Verfügbarkeit interner Ressourcen und dem Bedarf an externer Unterstützung. Diesen Investitionen steht das Schadenspotenzial eines IKT-Sicherheitsvorfalls gegenüber, das neben Bußgeldern auch Betriebsausfälle, Reputationsschäden und aufsichtliche Maßnahmen umfassen kann.`
+    : `DORA provides for significant supervisory measures and sanctions in case of non-compliance. The current ${failCount} non-compliant requirements significantly increase regulatory risk. Estimated total remediation effort is 6-18 person-months, depending on internal resource availability and external support needs. These investments should be weighed against the damage potential of an ICT security incident, which may include fines, business disruption, reputational damage, and supervisory measures.`);
 
   // ═══ SECTION 6: Methodology ═══
   pdf.newPage();
