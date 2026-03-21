@@ -448,16 +448,21 @@ export function runDoraQualityCheck(
     passed: risksWithoutRepro.length === 0, severity: 'minor',
   });
 
-  // GR6: Quality gates enforced (this check itself is the enforcement)
+  // GR6: All non-pass reqs must have gap + measure + effort + priority (completeness)
+  const incompleteNonPassReqs = reqs.filter(r => r.status !== 'pass' && (
+    !r.gap || r.gap.trim() === '' || !r.measure || r.measure.trim() === '' ||
+    !r.effort || r.effort.trim() === '' || !r.priority || r.priority.trim() === ''
+  ));
   checks.push({
     id: 'GR6', category: 'golden-rule',
-    label: t('Regel 6: Quality-Gates verbindlich durchgeführt', 'Rule 6: Quality gates enforced', 'Regle 6: Quality gates appliques'),
-    detail: t('Quality-Gate wird durchgeführt', 'Quality gate is being executed', 'Quality gate en cours'),
-    passed: true, severity: 'major',
+    label: t('Regel 6: Nicht-konforme Anforderungen vollstaendig dokumentiert', 'Rule 6: Non-compliant requirements fully documented', 'Regle 6: Exigences non conformes documentees'),
+    detail: incompleteNonPassReqs.length === 0
+      ? t('Alle mit Gap, Maßnahme, Aufwand und Priorität', 'All have gap, measure, effort and priority', 'Toutes completes')
+      : `${incompleteNonPassReqs.length} ${t('unvollständig', 'incomplete', 'incompletes')}`,
+    passed: incompleteNonPassReqs.length === 0, severity: 'critical',
   });
 
-  // GR7: Effort estimates with assumptions
-  const nonPassReqsWithEffort = reqs.filter(r => r.status !== 'pass' && r.effort && r.effort.trim() !== '');
+  // GR7: Effort estimates present for all non-pass reqs
   checks.push({
     id: 'GR7', category: 'golden-rule',
     label: t('Regel 7: Aufwandsschaetzungen mit Annahmen versehen', 'Rule 7: Effort estimates include assumptions', 'Regle 7: Estimations avec hypotheses'),
@@ -465,30 +470,6 @@ export function runDoraQualityCheck(
       ? t('Alle nicht-konformen Anforderungen mit Aufwand', 'All non-compliant reqs with effort', 'Toutes avec effort')
       : `${nonPassWithoutEffort.length} ${t('ohne Aufwand', 'without effort', 'sans effort')}`,
     passed: nonPassWithoutEffort.length === 0, severity: 'critical',
-  });
-
-  // GR8: Economic impact quantified or uncertainty stated
-  checks.push({
-    id: 'GR8', category: 'golden-rule',
-    label: t('Regel 8: Wirtschaftliche Betrachtung im Bericht', 'Rule 8: Economic impact assessment included', 'Regle 8: Analyse economique incluse'),
-    detail: t('Abschnitt 5.3 enthaelt wirtschaftliche Betrachtung', 'Section 5.3 contains economic assessment', 'Section 5.3 contient l\'analyse'),
-    passed: true, severity: 'major',
-  });
-
-  // GR9: Target-audience separation (Summary / Report / Appendix)
-  checks.push({
-    id: 'GR9', category: 'golden-rule',
-    label: t('Regel 9: Zielgruppenadaequate Aufbereitung (Summary/Report/Appendix)', 'Rule 9: Audience-appropriate structure (Summary/Report/Appendix)', 'Regle 9: Structure par audience'),
-    detail: t('Dreistufige Struktur implementiert', 'Three-tier structure implemented', 'Structure a trois niveaux'),
-    passed: true, severity: 'minor',
-  });
-
-  // GR10: AI-assisted quality assurance used
-  checks.push({
-    id: 'GR10', category: 'golden-rule',
-    label: t('Regel 10: KI-gestützte Qualitätssicherung durchgeführt', 'Rule 10: AI-assisted quality assurance performed', 'Regle 10: Assurance qualite par IA'),
-    detail: t('Automatisierter Quality-Check durchgeführt', 'Automated quality check executed', 'Verification automatisee executee'),
-    passed: true, severity: 'minor',
   });
 
   // ═══ VERDICT ═══
