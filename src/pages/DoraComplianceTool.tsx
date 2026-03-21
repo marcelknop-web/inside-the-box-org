@@ -80,11 +80,11 @@ function SubStepHeader({ current, total, title, subtitle }: { current: number; t
 }
 
 const Chip = memo(({ label, selected, onClick, icon, desc }: { label: string; selected: boolean; onClick: () => void; icon?: string; desc?: string }) => (
-  <button onClick={onClick} className={`border rounded-lg px-3 py-2 text-sm flex items-start gap-2 text-left transition-all ${selected ? 'border-primary bg-primary/10 text-foreground shadow-sm' : 'border-border bg-card text-muted-foreground hover:border-primary/40 hover:bg-secondary'}`}>
+  <button onClick={onClick} className={`border rounded-lg px-3 py-2 text-sm flex items-start gap-2 text-left transition-all min-w-0 overflow-hidden ${selected ? 'border-primary bg-primary/10 text-foreground shadow-sm' : 'border-border bg-card text-muted-foreground hover:border-primary/40 hover:bg-secondary'}`}>
     {icon && <span className="mt-0.5 flex-shrink-0">{icon}</span>}
-    <div>
-      <div className="font-medium">{label}</div>
-      {desc && <div className="text-xs opacity-70 mt-0.5">{desc}</div>}
+    <div className="min-w-0 flex-1">
+      <div className="font-medium break-words">{label}</div>
+      {desc && <div className="text-xs opacity-70 mt-0.5 break-words">{desc}</div>}
     </div>
     {selected && <span className="ml-auto flex-shrink-0 text-xs text-primary">✓</span>}
   </button>
