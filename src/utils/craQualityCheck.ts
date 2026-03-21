@@ -88,13 +88,21 @@ export function runQualityCheck(
   });
 
   // A.2b Bidirektionale Traceability: Jede fail/partial-Anforderung hat >= 1 verknuepften Threat
-  const nonPassReqsWithoutThreats = reqs.filter(r => r.status !== 'pass' && !threats.some(th => th.cra === r.article));
+  // Regulatory-only requirements (no technical threat scenario) are exempt
+  const CRA_REGULATORY_ONLY = new Set<string>();  // Add CRA req IDs here if purely regulatory/procedural
+  const nonPassReqsWithoutThreats = reqs.filter(r =>
+    r.status !== 'pass' && !CRA_REGULATORY_ONLY.has(r.id) && !threats.some(th => th.cra === r.article)
+  );
+  const exemptNonPass = reqs.filter(r => r.status !== 'pass' && CRA_REGULATORY_ONLY.has(r.id));
+  const exemptNote = exemptNonPass.length > 0
+    ? ` (${exemptNonPass.map(r => r.id).join(', ')} ${t('als rein regulatorisch ausgenommen', 'exempt as purely regulatory', 'exemptees car purement reglementaires')})`
+    : '';
   checks.push({
     id: 'A2-2', category: 'consistency',
     label: t('Bidirektionale Traceability: Jede nicht-konforme Anforderung hat verknuepfte Threats', 'Bidirectional traceability: Every non-compliant requirement has linked threats', 'Tracabilite bidirectionnelle : chaque exigence non conforme a des menaces liees'),
     detail: nonPassReqsWithoutThreats.length > 0
-      ? `${t('Ohne Threat-Verknuepfung', 'Missing threat links', 'Liens de menaces manquants')}: ${nonPassReqsWithoutThreats.map(r => r.id).join(', ')}`
-      : t('Alle verknuepft', 'All linked', 'Toutes liees'),
+      ? `${t('Ohne Threat-Verknuepfung', 'Missing threat links', 'Liens de menaces manquants')}: ${nonPassReqsWithoutThreats.map(r => r.id).join(', ')}${exemptNote}`
+      : t('Alle verknuepft', 'All linked', 'Toutes liees') + exemptNote,
     passed: nonPassReqsWithoutThreats.length === 0, severity: 'critical',
   });
 
