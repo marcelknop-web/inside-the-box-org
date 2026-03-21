@@ -69,13 +69,21 @@ export function runDoraQualityCheck(
   });
 
   // A2: Bidirectional traceability: non-pass reqs should have linked risks
-  const nonPassReqsWithoutRisks = reqs.filter(r => r.status !== 'pass' && !risks.some(ri => refsMatch(ri.doraRef, r.article)));
+  // Regulatory-only requirements (no technical threat scenario) are exempt from risk-linkage
+  const REGULATORY_ONLY_REQS = new Set<string>();  // Add DORA req IDs here if purely regulatory
+  const nonPassReqsWithoutRisks = reqs.filter(r =>
+    r.status !== 'pass' && !REGULATORY_ONLY_REQS.has(r.id) && !risks.some(ri => refsMatch(ri.doraRef, r.article))
+  );
+  const exemptNonPass = reqs.filter(r => r.status !== 'pass' && REGULATORY_ONLY_REQS.has(r.id));
+  const exemptNote = exemptNonPass.length > 0
+    ? ` (${exemptNonPass.map(r => r.id).join(', ')} ${t('als rein regulatorisch ausgenommen', 'exempt as purely regulatory', 'exemptees car purement reglementaires')})`
+    : '';
   checks.push({
     id: 'A2-1', category: 'consistency',
     label: t('Bidirektionale Traceability: Nicht-konforme Anforderungen mit Risiko-Verknuepfung', 'Bidirectional traceability: Non-compliant requirements linked to risks', 'Tracabilite bidirectionnelle'),
     detail: nonPassReqsWithoutRisks.length > 0
-      ? `${t('Ohne Risiko-Verknuepfung', 'Missing risk links', 'Liens manquants')}: ${nonPassReqsWithoutRisks.map(r => r.id).join(', ')}`
-      : t('Alle verknuepft', 'All linked', 'Toutes liees'),
+      ? `${t('Ohne Risiko-Verknuepfung', 'Missing risk links', 'Liens manquants')}: ${nonPassReqsWithoutRisks.map(r => r.id).join(', ')}${exemptNote}`
+      : t('Alle verknuepft', 'All linked', 'Toutes liees') + exemptNote,
     passed: nonPassReqsWithoutRisks.length === 0, severity: 'critical',
   });
 
