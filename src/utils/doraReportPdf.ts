@@ -125,8 +125,16 @@ function getMgmtSummary(name: string, risks: number, crit: number, failReqs: num
   const rate = totalReqs > 0 ? Math.round(((passReqs + partialReqs * 0.5) / totalReqs) * 100) : 0;
   const ready = crit === 0 && failReqs === 0;
   const partial = !ready && rate >= 60;
+
+  const totalEffortMin = failReqs * 20 + partialReqs * 10;
+  const totalEffortMax = failReqs * 60 + partialReqs * 30;
+  const effortPM = totalEffortMax > 0 ? `${Math.ceil(totalEffortMin / 160)}-${Math.ceil(totalEffortMax / 160)}` : '0';
+  const p0Count = failReqs;
+  const timelineWeeks = crit > 0 ? (lang === 'de' ? '4-6 Wochen' : '4-6 weeks') : (lang === 'de' ? '3-6 Monate' : '3-6 months');
+
   if (lang === 'de') {
     return {
+      context: `DORA (Verordnung (EU) 2022/2554) verpflichtet alle Finanzunternehmen in der EU, ihre digitale operationale Resilienz nachzuweisen. Die Verordnung regelt das IKT-Risikomanagement, die Meldung von IKT-Vorfällen, die Prüfung der digitalen Resilienz und das Management von IKT-Drittanbieterrisiken. DORA gilt unmittelbar — ohne nationale Umsetzung — und wird von BaFin bzw. EZB überwacht.`,
       verdict: ready
         ? `${name} erfüllt die wesentlichen DORA-Anforderungen. Die geprüften IKT-Risikomanagementmaßnahmen entsprechen den regulatorischen Vorgaben.`
         : partial
@@ -134,20 +142,29 @@ function getMgmtSummary(name: string, risks: number, crit: number, failReqs: num
           : `${name} erreicht derzeit ${rate} Prozent DORA-Konformität. Ohne zügige Umsetzung der empfohlenen Maßnahmen besteht ein erhebliches regulatorisches und operatives Risiko.`,
       situation: `Im Rahmen der Bewertung wurden ${risks} IKT-Risikoszenarien identifiziert, von denen ${crit} als kritisch eingestuft wurden. Von den ${totalReqs} geprüften Anforderungen sind ${failReqs} nicht erfüllt und ${partialReqs} nur teilweise erfüllt.`,
       findings: [
-        ...(crit > 0 ? [{ t: `${crit} kritische Risiken erfordern sofortiges Handeln`, d: 'In diesen Bereichen fehlen grundlegende Schutzmechanismen, die von DORA zwingend gefordert werden.' }] : []),
-        ...(failReqs > 0 ? [{ t: `${failReqs} DORA-Anforderungen sind nicht erfüllt`, d: 'Die Abweichungen betreffen zentrale Bereiche wie IKT-Risikomanagement, Meldepflichten und die Steuerung von Drittanbietern.' }] : []),
-        ...(partialReqs > 0 ? [{ t: `${partialReqs} Anforderungen sind nur teilweise erfüllt`, d: 'Grundlegende Ansätze sind vorhanden, aber die vollständige Umsetzung steht noch aus.' }] : []),
+        ...(crit > 0 ? [{ t: `${crit} kritische Risiken erfordern sofortiges Handeln`, d: 'In diesen Bereichen fehlen grundlegende Schutzmechanismen, die von DORA zwingend gefordert werden. Kritische Risiken (Score ≥ 20) bedeuten, dass sowohl die Eintrittswahrscheinlichkeit als auch die potenzielle Auswirkung als hoch bewertet werden.' }] : []),
+        ...(failReqs > 0 ? [{ t: `${failReqs} DORA-Anforderungen sind nicht erfüllt`, d: 'Die Abweichungen betreffen zentrale Bereiche wie IKT-Risikomanagement, Meldepflichten und die Steuerung von Drittanbietern. Jede nicht erfüllte Anforderung stellt bei einer aufsichtlichen Prüfung einen beanstandbaren Mangel dar.' }] : []),
+        ...(partialReqs > 0 ? [{ t: `${partialReqs} Anforderungen sind nur teilweise erfüllt`, d: 'Grundlegende Ansätze sind vorhanden, aber die vollständige Umsetzung steht noch aus. In der Regel fehlen entweder die Dokumentation, regelmäßige Tests oder die organisatorische Verankerung.' }] : []),
         ...(passReqs > 0 ? [{ t: `${passReqs} Anforderungen sind vollständig erfüllt`, d: 'Diese Bereiche bedürfen keines unmittelbaren Handlungsbedarfs, sollten aber im Rahmen des kontinuierlichen Verbesserungsprozesses überwacht werden.' }] : []),
       ],
+      effortEstimate: ready
+        ? 'Kein unmittelbarer Handlungsbedarf. Laufende Kosten für Monitoring und Überprüfung: ca. 2-4 Personentage pro Quartal.'
+        : `Der geschätzte Gesamtaufwand für die Herstellung der DORA-Konformität beträgt ${totalEffortMin}-${totalEffortMax} Stunden (ca. ${effortPM} Personenmonate). Die ${p0Count} als P0 priorisierten Maßnahmen sollten innerhalb von ${timelineWeeks} umgesetzt werden. Für die vollständige Umsetzung aller Empfehlungen ist ein Zeitraum von 6-12 Monaten realistisch. Je nach Verfügbarkeit interner Ressourcen kann externer Beratungsbedarf entstehen.`,
+      importance: ready
+        ? 'Die Konformität ist aktuell gegeben. Regelmäßige Re-Assessments werden empfohlen, da die regulatorischen Anforderungen weiterentwickelt werden.'
+        : crit > 0
+          ? `Die Dringlichkeit ist hoch. ${crit} kritische Risikoszenarien und ${failReqs} nicht-konforme Anforderungen setzen ${name} einem erheblichen operativen und regulatorischen Risiko aus. Bei einer Prüfung durch BaFin oder EZB ist mit sofortigen Beanstandungen zu rechnen. Darüber hinaus erhöhen die identifizierten Schwachstellen die Wahrscheinlichkeit eines erfolgreichen Cyberangriffs, der zu Betriebsunterbrechungen, Datenverlust und Reputationsschäden führen kann.`
+          : `Die Umsetzung der Empfehlungen hat hohe Priorität. Zwar wurden keine unmittelbar kritischen Risiken identifiziert, aber die bestehenden Abweichungen stellen bei einer aufsichtlichen Prüfung beanstandbare Mängel dar. Eine proaktive Umsetzung stärkt nicht nur die Compliance-Position, sondern verbessert auch die tatsächliche Widerstandsfähigkeit gegen Cyberangriffe.`,
       implication: ready
         ? 'Auf Basis der vorliegenden Bewertung wurden keine regulatorischen Risiken identifiziert.'
-        : `Werden die identifizierten Mängel bei einer Prüfung durch die zuständige Aufsichtsbehörde beanstandet, drohen Verwaltungsmaßnahmen nach Art. 50 DORA.`,
+        : `Werden die identifizierten Mängel bei einer Prüfung durch die zuständige Aufsichtsbehörde beanstandet, drohen Verwaltungsmaßnahmen nach Art. 50 DORA — einschließlich Anordnungen zur Einstellung bestimmter Geschäftstätigkeiten und öffentlicher Bekanntmachungen.`,
       action: ready
         ? 'Als nächsten Schritt empfehlen wir die Einrichtung eines kontinuierlichen Überwachungsprozesses.'
-        : 'Als nächsten Schritt empfehlen wir, die P0-Maßnahmen mit konkreten Verantwortlichkeiten und verbindlichen Fristen zu versehen.',
+        : 'Als nächsten Schritt empfehlen wir, die P0-Maßnahmen mit konkreten Verantwortlichkeiten und verbindlichen Fristen zu versehen und ein Projektteam für die Umsetzung zu benennen.',
     };
   }
   return {
+    context: `DORA (Regulation (EU) 2022/2554) requires all EU financial entities to demonstrate their digital operational resilience. The regulation covers ICT risk management, ICT incident reporting, digital resilience testing, and ICT third-party risk management. DORA applies directly — without national transposition — and is supervised by competent authorities such as BaFin and the ECB.`,
     verdict: ready
       ? `${name} meets all essential DORA requirements. The assessed ICT risk management measures comply with regulatory expectations.`
       : partial
@@ -155,13 +172,21 @@ function getMgmtSummary(name: string, risks: number, crit: number, failReqs: num
         : `${name} currently achieves ${rate}% DORA compliance. Without timely remediation, significant regulatory and operational risks remain.`,
     situation: `The assessment identified ${risks} ICT risk scenarios, of which ${crit} are rated as critical. Of the ${totalReqs} assessed requirements, ${failReqs} are non-compliant and ${partialReqs} are partially compliant.`,
     findings: [
-      ...(crit > 0 ? [{ t: `${crit} critical risks require immediate action`, d: 'Fundamental protective mechanisms mandated by DORA are missing in these areas.' }] : []),
-      ...(failReqs > 0 ? [{ t: `${failReqs} DORA requirements are not met`, d: 'Deviations affect core areas such as ICT risk management, incident reporting, and third-party oversight.' }] : []),
-      ...(partialReqs > 0 ? [{ t: `${partialReqs} requirements are only partially met`, d: 'Basic approaches exist but full implementation is pending.' }] : []),
+      ...(crit > 0 ? [{ t: `${crit} critical risks require immediate action`, d: 'Fundamental protective mechanisms mandated by DORA are missing in these areas. Critical risks (score ≥ 20) indicate both high likelihood and high potential impact.' }] : []),
+      ...(failReqs > 0 ? [{ t: `${failReqs} DORA requirements are not met`, d: 'Deviations affect core areas such as ICT risk management, incident reporting, and third-party oversight. Each non-compliant requirement constitutes a deficiency subject to supervisory challenge.' }] : []),
+      ...(partialReqs > 0 ? [{ t: `${partialReqs} requirements are only partially met`, d: 'Basic approaches exist but full implementation is pending. Typically, documentation, regular testing, or organisational embedding is missing.' }] : []),
       ...(passReqs > 0 ? [{ t: `${passReqs} requirements fully met`, d: 'No immediate action needed; continuous monitoring recommended.' }] : []),
     ],
-    implication: ready ? 'No regulatory risks identified based on the current assessment.' : 'Supervisory action under Art. 50 DORA may result if deficiencies are identified during a regulatory examination.',
-    action: ready ? 'Next step: Establish a continuous monitoring process.' : 'Next step: Assign P0 measures with owners and binding deadlines.',
+    effortEstimate: ready
+      ? 'No immediate action required. Ongoing monitoring costs: approx. 2-4 person-days per quarter.'
+      : `Estimated total remediation effort is ${totalEffortMin}-${totalEffortMax} hours (approx. ${effortPM} person-months). The ${p0Count} P0-prioritised measures should be completed within ${timelineWeeks}. Full implementation of all recommendations is realistic within 6-12 months. External advisory support may be needed depending on internal resource availability.`,
+    importance: ready
+      ? 'Compliance is currently achieved. Regular re-assessments are recommended as regulatory requirements continue to evolve.'
+      : crit > 0
+        ? `Urgency is high. ${crit} critical risk scenarios and ${failReqs} non-compliant requirements expose ${name} to significant operational and regulatory risk. Supervisory examination by BaFin or ECB would likely result in immediate findings. Moreover, the identified weaknesses increase the probability of a successful cyberattack leading to business disruption, data loss, and reputational damage.`
+        : `Implementation of recommendations is a high priority. While no immediately critical risks were identified, the existing deviations constitute challengeable deficiencies in a supervisory examination. Proactive implementation strengthens not only the compliance posture but also actual resilience against cyber threats.`,
+    implication: ready ? 'No regulatory risks identified based on the current assessment.' : 'Supervisory action under Art. 50 DORA may result if deficiencies are identified during a regulatory examination — including orders to cease certain business activities and public disclosures.',
+    action: ready ? 'Next step: Establish a continuous monitoring process.' : 'Next step: Assign P0 measures with owners and binding deadlines, and designate a project team for implementation.',
   };
 
 }
