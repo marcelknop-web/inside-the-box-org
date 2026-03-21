@@ -738,7 +738,6 @@ function ReportView({ intakeData, risks, reqs }: { intakeData: Nis2IntakeData; r
     });
   }, [intakeData, localRisks, localReqs, language, typeName, critName]);
 
-  };
 
   return (
     <StaggerReveal resetKey="rp" stagger={350}>
@@ -758,8 +757,8 @@ function ReportView({ intakeData, risks, reqs }: { intakeData: Nis2IntakeData; r
         <div className="h-px bg-border mb-3" />
         <p className="text-sm text-foreground leading-relaxed break-words">
           {language === 'de'
-            ? `Die NIS-2-Konformitätsprüfung für ${intakeData.entityName} (${typeName}, Kritikalität: ${critName}) wurde am ${today} durchgeführt. Es wurden ${localRisks.length} Risiken identifiziert, davon ${critRisks.length} mit kritischem Score (≥ 20). Von ${localReqs.length} NIS-2-Anforderungen bestehen ${failReqs.length} Lücken.`
-            : `The NIS-2 compliance assessment for ${intakeData.entityName} (${typeName}, criticality: ${critName}) was conducted on ${today}. ${localRisks.length} risks were identified, ${critRisks.length} with critical score (≥ 20). Of ${localReqs.length} NIS-2 requirements, ${failReqs.length} gaps remain.`}
+            ? `Die NIS-2-Konformitätsprüfung für ${intakeData.entityName} (${typeName}, Einstufung: ${critName}) wurde am ${today} durchgeführt. Es wurden ${localRisks.length} Risiken identifiziert, davon ${critRisks.length} mit kritischem Score (≥ 20). Von ${localReqs.length} NIS-2-Anforderungen bestehen ${failReqs.length} Lücken.`
+            : `The NIS-2 compliance assessment for ${intakeData.entityName} (${typeName}, classification: ${critName}) was conducted on ${today}. ${localRisks.length} risks were identified, ${critRisks.length} with critical score (≥ 20). Of ${localReqs.length} NIS-2 requirements, ${failReqs.length} gaps remain.`}
         </p>
       </div>
 
@@ -798,182 +797,26 @@ function ReportView({ intakeData, risks, reqs }: { intakeData: Nis2IntakeData; r
         </div>
       )}
 
-      {/* QA History */}
-      {qaHistory.length > 1 && (
-        <div className="bg-card border border-border rounded-lg p-4">
-          <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">{language === 'de' ? 'Prüfverlauf' : 'Check History'}</div>
-          <div className="flex gap-2 flex-wrap">
-            {qaHistory.map((h, i) => (
-              <div key={i} className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-mono border ${i === qaHistory.length - 1 ? 'border-primary/40 bg-primary/5' : 'border-border bg-secondary/50'}`}>
-                <span className="font-bold text-foreground">#{h.iteration}</span>
-                <span className={h.verdict === 'passed' ? 'text-green-500' : h.verdict === 'conditional' ? 'text-yellow-500' : 'text-destructive'}>{h.passed}/{h.total}</span>
-                {h.fixes.length > 0 && <span className="text-primary">+{h.fixes.length} fixes</span>}
-              </div>
-            ))}
-          </div>
+      {/* Dashboard */}
+      <details className="bg-card border border-border rounded-xl overflow-hidden" open>
+        <summary className="px-5 py-3 cursor-pointer text-sm font-bold text-muted-foreground hover:text-foreground transition-colors">
+          📊 {language === 'de' ? 'Auswertungs-Dashboard' : 'Assessment Dashboard'}
+        </summary>
+        <div className="px-5 pb-5">
+          <Nis2AuditCharts risks={localRisks} reqs={localReqs} />
         </div>
-      )}
-
-      {/* QA Result */}
-      {qaResult && qaExpanded && (
-        <div className={`bg-card border-2 rounded-lg overflow-hidden ${qaVerdict === 'passed' ? 'border-green-500/40' : qaVerdict === 'conditional' ? 'border-yellow-500/40' : 'border-destructive/40'}`}>
-          <div className={`px-4 py-3 border-b flex items-center justify-between ${qaVerdict === 'passed' ? 'bg-green-500/10 border-green-500/20' : qaVerdict === 'conditional' ? 'bg-yellow-500/10 border-yellow-500/20' : 'bg-destructive/10 border-destructive/20'}`}>
-            <div className="flex items-center gap-2">
-              {qaVerdict === 'passed' ? <CheckCircle2 className="w-5 h-5 text-green-500" /> : qaVerdict === 'conditional' ? <AlertTriangle className="w-5 h-5 text-yellow-500" /> : <XCircle className="w-5 h-5 text-destructive" />}
-              <span className={`text-sm font-bold ${qaVerdict === 'passed' ? 'text-green-500' : qaVerdict === 'conditional' ? 'text-yellow-500' : 'text-destructive'}`}>{qaResult.verdictLabel}</span>
-              {qaIteration > 0 && <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-bold border border-primary/20">#{qaIteration}</span>}
-            </div>
-            <span className="text-xs font-mono text-muted-foreground">{qaResult.passed}/{qaResult.total}</span>
-          </div>
-          <div className="px-4 py-3 space-y-4 text-sm">
-            <div className="bg-secondary rounded-full h-2.5 overflow-hidden">
-              <div className={`h-full rounded-full transition-all ${qaVerdict === 'passed' ? 'bg-green-500' : qaVerdict === 'conditional' ? 'bg-yellow-500' : 'bg-destructive'}`} style={{ width: `${Math.round((qaResult.passed / qaResult.total) * 100)}%` }} />
-            </div>
-            {(['consistency', 'technical', 'evidence', 'editorial', 'regulatory'] as const).map(cat => {
-              const catChecks = qaResult.checks.filter(c => c.category === cat);
-              if (catChecks.length === 0) return null;
-              const catPassed = catChecks.filter(c => c.passed).length;
-              return (
-                <div key={cat}>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="font-semibold text-foreground text-xs">{CATEGORY_LABELS[cat]}</span>
-                    <span className="text-xs font-mono text-muted-foreground">{catPassed}/{catChecks.length}</span>
-                  </div>
-                  <div className="space-y-1">
-                    {catChecks.map(check => (
-                      <div key={check.id} className="flex items-start gap-2 text-xs">
-                        <span className="flex-shrink-0 mt-0.5">{check.passed ? '✅' : '❌'}</span>
-                        <div className="flex-1">
-                          <span className={check.passed ? 'text-foreground' : 'text-destructive font-medium'}>{check.label}</span>
-                          <span className="text-muted-foreground ml-1.5">— {check.detail}</span>
-                        </div>
-                        {!check.passed && (
-                          <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold flex-shrink-0 ${check.severity === 'critical' ? 'bg-destructive/10 text-destructive' : check.severity === 'major' ? 'bg-orange-500/10 text-orange-400' : 'bg-yellow-500/10 text-yellow-500'}`}>
-                            {check.severity.toUpperCase()}
-                          </span>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              );
-            })}
-            {qaResult.corrections.length > 0 && (
-              <div className="border-t border-border pt-3">
-                <div className="font-semibold text-destructive text-xs mb-1">{language === 'de' ? 'Korrekturanweisungen (zwingend):' : 'Required corrections:'}</div>
-                <ul className="space-y-0.5 text-xs text-foreground">
-                  {qaResult.corrections.map((c, i) => <li key={i} className="flex gap-1.5"><span className="text-destructive font-mono">{i + 1}.</span>{c}</li>)}
-                </ul>
-              </div>
-            )}
-            {qaResult.failed > 0 && !fixesApplied && (
-              <div className="border-t border-border pt-3 flex items-center gap-2 text-xs text-primary">
-                <Wrench className="w-3.5 h-3.5" />
-                <span className="font-medium">{language === 'de' ? `${qaResult.failed} Befunde können automatisch korrigiert werden` : `${qaResult.failed} findings can be auto-corrected`}</span>
-              </div>
-            )}
-            {fixesApplied && (
-              <div className="border-t border-border pt-3 flex items-center gap-2 text-xs text-primary">
-                <ShieldCheck className="w-3.5 h-3.5" />
-                <span className="font-medium">{language === 'de' ? 'Korrekturen angewendet — erneuter Check oder PDF Final möglich' : 'Corrections applied — re-check or Final available'}</span>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Fix Log */}
-      {fixesApplied && fixLog.length > 0 && (
-        <div className="bg-card border-2 border-primary/30 rounded-lg overflow-hidden">
-          <div className="px-4 py-3 border-b border-primary/20 bg-primary/5 flex items-center gap-2">
-            <Wrench className="w-4 h-4 text-primary" />
-            <span className="text-sm font-bold text-primary">{language === 'de' ? 'Automatisch umgesetzte Korrekturen' : 'Automatically applied corrections'}</span>
-            <span className="text-xs font-mono text-muted-foreground ml-auto">{fixLog.length} fixes</span>
-          </div>
-          <div className="px-4 py-3">
-            <ul className="space-y-1 text-xs text-foreground">
-              {fixLog.map((f, i) => (
-                <li key={i} className="flex gap-2 items-start"><CheckCircle2 className="w-3.5 h-3.5 text-primary flex-shrink-0 mt-0.5" /><span>{f}</span></li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      )}
-
-      {/* Findings & Fixes Dashboard */}
-      {qaResult && (
-        <div className="bg-card border border-border rounded-xl p-5">
-          <Nis2FindingsView
-            risks={localRisks}
-            reqs={localReqs}
-            qaResult={qaResult}
-            preFixChecks={preFixQaChecks}
-            fixLog={fixLog}
-            fixesApplied={fixesApplied}
-          />
-        </div>
-      )}
-
-      {/* Full Dashboard after fixes */}
-      {fixesApplied && (
-        <details className="bg-card border border-border rounded-xl overflow-hidden">
-          <summary className="px-5 py-3 cursor-pointer text-sm font-bold text-muted-foreground hover:text-foreground transition-colors">
-            📊 {language === 'de' ? 'Vollständiges Auswertungs-Dashboard anzeigen' : 'Show full assessment dashboard'}
-          </summary>
-          <div className="px-5 pb-5">
-            <Nis2AuditCharts risks={localRisks} reqs={localReqs} />
-          </div>
-        </details>
-      )}
+      </details>
 
       {/* Export Bar */}
       <div className="bg-secondary border border-border rounded-lg p-3 sm:p-4 overflow-hidden">
         <div className="text-sm text-foreground mb-3">
           <div className="font-semibold mb-0.5">{t('nis2c.rpExport')}</div>
-          <div className="text-xs text-muted-foreground break-words">
-            {qaIteration > 0
-              ? `${language === 'de' ? 'Durchlauf' : 'Run'} ${qaIteration} — ${fixesApplied ? (language === 'de' ? 'Korrekturen angewendet' : 'Fixes applied') : qaResult ? (language === 'de' ? 'Ergebnisse vorliegend' : 'Results available') : ''}`
-              : t('nis2c.rpExportHint')}
-          </div>
+          <div className="text-xs text-muted-foreground break-words">{t('nis2c.rpExportHint')}</div>
         </div>
-        <div className="flex flex-col sm:flex-row gap-2 sm:flex-wrap sm:items-center">
-          {(() => {
-            const activeClass = 'bg-primary text-primary-foreground hover:bg-primary/90 ring-2 ring-primary/30';
-            const doneClass = 'bg-card border border-primary/40 text-primary hover:bg-accent';
-            const disabledClass = 'bg-muted text-muted-foreground cursor-not-allowed';
-            const defaultClass = 'bg-card border border-border text-foreground hover:bg-accent';
-
-            const qaIsNext = !qaResult || fixesApplied;
-            const fixesIsNext = qaResult && qaResult.failed > 0 && !fixesApplied && !fixesRunning;
-            const finalIsNext = fixesApplied || qaVerdict === 'passed' || qaVerdict === 'conditional';
-
-            return (
-              <>
-                <button onClick={handleQaCheck} disabled={qaRunning} className={`text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2 transition-all disabled:opacity-50 w-full sm:w-auto justify-center sm:justify-start ${qaRunning ? activeClass : qaIsNext ? activeClass : qaResult && !fixesApplied ? doneClass : defaultClass}`}>
-                  {qaRunning ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShieldCheck className="w-4 h-4" />}
-                  <span className="font-mono text-xs opacity-60 mr-0.5">1</span>
-                  {qaRunning ? (language === 'de' ? 'Prüfe...' : 'Checking...') : (fixesApplied ? (language === 'de' ? 'Erneut prüfen' : 'Re-check') : (language === 'de' ? 'Prüfung starten' : 'Start Audit'))}
-                  {qaIteration > 0 && <span className="text-[10px] font-mono opacity-60">#{qaIteration}</span>}
-                </button>
-                <span className="text-muted-foreground text-xs hidden sm:inline">{'>'}</span>
-                <div className="flex flex-col items-stretch sm:items-center gap-1 w-full sm:w-auto">
-                  <button onClick={handleApplyFixes} disabled={!qaResult || qaResult.failed === 0 || fixesApplied || fixesRunning} className={`text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2 transition-all disabled:opacity-50 w-full sm:w-auto justify-center sm:justify-start ${fixesRunning ? activeClass : fixesIsNext ? activeClass : fixesApplied ? doneClass : (!qaResult || qaResult.failed === 0) ? disabledClass : defaultClass}`}>
-                    {fixesRunning ? <Loader2 className="w-4 h-4 animate-spin" /> : fixesApplied ? <CheckCircle2 className="w-4 h-4" /> : <Wrench className="w-4 h-4" />}
-                    <span className="font-mono text-xs opacity-60 mr-0.5">2</span>
-                    {fixesRunning ? (language === 'de' ? 'Wird umgesetzt...' : 'Applying...') : (language === 'de' ? 'Empfehlungen umsetzen' : 'Apply Fixes')}
-                  </button>
-                  {fixesRunning && <Progress value={fixProgress} className="w-full h-1.5 mt-1" />}
-                </div>
-                <span className="text-muted-foreground text-xs hidden sm:inline">{'>'}</span>
-                <button onClick={handleFinalPdf} disabled={!canFinal || finalPdfRunning} className={`text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2 transition-all w-full sm:w-auto justify-center sm:justify-start ${finalPdfRunning ? activeClass : finalIsNext && canFinal ? activeClass : !canFinal ? disabledClass : defaultClass}`}>
-                  {finalPdfRunning ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
-                  <span className="font-mono text-xs opacity-60 mr-0.5">3</span>
-                  {finalPdfRunning ? (language === 'de' ? 'Wird erstellt...' : 'Generating...') : 'PDF Final'}
-                </button>
-              </>
-            );
-          })()}
-        </div>
+        <button onClick={handleFinalPdf} disabled={finalPdfRunning} className="text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2 transition-all bg-primary text-primary-foreground hover:bg-primary/90 ring-2 ring-primary/30 disabled:opacity-50 w-full sm:w-auto justify-center sm:justify-start">
+          {finalPdfRunning ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
+          {finalPdfRunning ? (language === 'de' ? 'Wird erstellt...' : 'Generating...') : (language === 'de' ? 'PDF-Bericht exportieren' : 'Export PDF Report')}
+        </button>
       </div>
     </StaggerReveal>
   );
