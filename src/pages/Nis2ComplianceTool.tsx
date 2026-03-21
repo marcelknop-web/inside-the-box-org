@@ -12,7 +12,7 @@ import { StaggerReveal } from '@/components/StaggerReveal';
 import {
   getEntityTypes, getCriticalityLevels, getInfraOpts,
   SUPPLY_CHAIN_OPTS, getRiskMeasures, getRiskCategories,
-  getAttachTypes, NIS2_RISKS, NIS2_REQS, RISK_CATEGORIES, riskId,
+  getAttachTypes, getNis2Risks, NIS2_REQS, RISK_CATEGORIES, riskId,
   type Nis2Risk, type Nis2Req, type Nis2IntakeData, type MeasureEntry, EMPTY_INTAKE,
   DEMO_SCENARIOS, type DemoScenario,
 } from '@/data/nis2ComplianceData';
@@ -832,6 +832,7 @@ const Nis2ComplianceTool = ({ embedded }: { embedded?: boolean }) => {
   const [step, setStepRaw] = useState(0);
   const [loading, setLoading] = useState(false);
   const [intakeData, setIntakeData] = useState<Nis2IntakeData>(EMPTY_INTAKE);
+  const sectorRisks = useMemo(() => getNis2Risks(intakeData.entityType), [intakeData.entityType]);
   const contentRef = useRef<HTMLDivElement>(null);
 
   const scrollToTop = useCallback(() => {
@@ -906,10 +907,10 @@ const Nis2ComplianceTool = ({ embedded }: { embedded?: boolean }) => {
               )}
             </div>
             {step === 0 && <IntakeWizard onFinish={handleIntakeFinish} />}
-            {step === 1 && <RiskLandscape risks={NIS2_RISKS} onNext={() => setStep(2)} />}
-            {step === 2 && <RiskMatrix risks={NIS2_RISKS} onNext={() => setStep(3)} />}
+            {step === 1 && <RiskLandscape risks={sectorRisks} onNext={() => setStep(2)} />}
+            {step === 2 && <RiskMatrix risks={sectorRisks} onNext={() => setStep(3)} />}
             {step === 3 && <NIS2Mapping reqs={NIS2_REQS} onNext={() => setStep(4)} />}
-            {step === 4 && <ReportView intakeData={intakeData} risks={NIS2_RISKS} reqs={NIS2_REQS} />}
+            {step === 4 && <ReportView intakeData={intakeData} risks={sectorRisks} reqs={NIS2_REQS} />}
           </div>
         )}
       </div>

@@ -168,21 +168,62 @@ export const RISK_CATEGORIES: Record<string, { label: Record<string, string>; do
 };
 
 // ── Demo Risks (14 risks across all 6 categories) ──────────────
+// Sector-specific variants for Risk #1 (Confidentiality).
+// Remaining risks (2-14) are generic and apply across all sectors.
 
-export const NIS2_RISKS: Nis2Risk[] = [
-  // C — Confidentiality (2)
-  { id: 1, category: 'C', name: 'Unverschlüsselte Übertragung von Patientendaten zwischen Standorten', component: 'Standortverbindung / WAN', attacker: 'Man-in-the-Middle / Netzwerk-Mitleser', path: 'Site-to-Site-Verbindung ohne End-to-End-Verschlüsselung → Gesundheitsdaten im Klartext → Datenabfluss', nis2Ref: 'Art. 21 Abs. 2 lit. h',
+const RISK1_BY_SECTOR: Record<string, Nis2Risk> = {
+  health: {
+    id: 1, category: 'C', name: 'Unverschlüsselte Übertragung von Patientendaten zwischen Standorten', component: 'Standortverbindung / WAN', attacker: 'Man-in-the-Middle / Netzwerk-Mitleser', path: 'Site-to-Site-Verbindung ohne End-to-End-Verschlüsselung → Gesundheitsdaten im Klartext → Datenabfluss', nis2Ref: 'Art. 21 Abs. 2 lit. h',
     likelihood: 4, impact: 5,
     evidence: 'Netzwerkanalyse: WAN-Verbindung zwischen Standort A und B nutzt MPLS ohne zusätzliche Verschlüsselung. Pcap-Analyse zeigt HL7-FHIR-Nachrichten mit Patientendaten im Klartext. Dokumentiert in Prüfbericht NW-2025-001.',
     rationale: 'Likelihood 4: MPLS-Netze sind nicht inhärent verschlüsselt, Provider-seitige Kompromittierung ist realistisch. Impact 5: Gesundheitsdaten unterliegen höchstem Schutzbedarf (DSGVO Art. 9, NIS-2 Art. 21). Offenlegung führt zu Meldepflicht und erheblichem Reputationsschaden.',
-    sources: ['NIS-2 Art. 21 Abs. 2 lit. h: Einsatz von Kryptografie', 'BSI-Grundschutz NET.1.1'], evidenceQuality: 5, reproducibility: 'easy' },
+    sources: ['NIS-2 Art. 21 Abs. 2 lit. h: Einsatz von Kryptografie', 'BSI-Grundschutz NET.1.1'], evidenceQuality: 5, reproducibility: 'easy',
+  },
+  transport: {
+    id: 1, category: 'C', name: 'Unverschlüsselte Übertragung von Steuerungsdaten zwischen Betriebsstandorten', component: 'Standortverbindung / WAN', attacker: 'Man-in-the-Middle / Netzwerk-Mitleser', path: 'Site-to-Site-Verbindung ohne End-to-End-Verschlüsselung → Verkehrssteuerungsdaten im Klartext → Manipulation möglich', nis2Ref: 'Art. 21 Abs. 2 lit. h',
+    likelihood: 4, impact: 5,
+    evidence: 'Netzwerkanalyse: WAN-Verbindung zwischen Leitstelle und Außenstellen nutzt MPLS ohne zusätzliche Verschlüsselung. Pcap-Analyse zeigt Steuerungsbefehle für Wechselverkehrszeichen und Tunnelbelüftung im Klartext. Dokumentiert in Prüfbericht NW-2025-001.',
+    rationale: 'Likelihood 4: MPLS-Netze sind nicht inhärent verschlüsselt, Provider-seitige Kompromittierung ist realistisch. Impact 5: Manipulation von Verkehrssteuerungsdaten kann unmittelbar die öffentliche Sicherheit gefährden.',
+    sources: ['NIS-2 Art. 21 Abs. 2 lit. h: Einsatz von Kryptografie', 'BSI-Grundschutz NET.1.1'], evidenceQuality: 5, reproducibility: 'easy',
+  },
+  energy: {
+    id: 1, category: 'C', name: 'Unverschlüsselte Übertragung von Netzsteuerungsdaten zwischen Standorten', component: 'Standortverbindung / WAN', attacker: 'Man-in-the-Middle / Netzwerk-Mitleser', path: 'Site-to-Site-Verbindung ohne End-to-End-Verschlüsselung → SCADA-Steuerdaten im Klartext → Manipulation der Energieversorgung möglich', nis2Ref: 'Art. 21 Abs. 2 lit. h',
+    likelihood: 4, impact: 5,
+    evidence: 'Netzwerkanalyse: WAN-Verbindung zwischen Leitstelle und Umspannwerken nutzt MPLS ohne zusätzliche Verschlüsselung. Pcap-Analyse zeigt IEC 60870-5-104 Telegramme mit Schaltbefehlen im Klartext. Dokumentiert in Prüfbericht NW-2025-001.',
+    rationale: 'Likelihood 4: MPLS-Netze sind nicht inhärent verschlüsselt, Provider-seitige Kompromittierung ist realistisch. Impact 5: Manipulation von Netzsteuerungsbefehlen kann zu Versorgungsausfällen führen, die tausende Haushalte betreffen.',
+    sources: ['NIS-2 Art. 21 Abs. 2 lit. h: Einsatz von Kryptografie', 'BSI-Grundschutz NET.1.1'], evidenceQuality: 5, reproducibility: 'easy',
+  },
+  digital_infra: {
+    id: 1, category: 'C', name: 'Unverschlüsselte Übertragung von Kundendaten zwischen Rechenzentren', component: 'Standortverbindung / WAN', attacker: 'Man-in-the-Middle / Netzwerk-Mitleser', path: 'Site-to-Site-Verbindung ohne End-to-End-Verschlüsselung → Kundendaten im Klartext → Datenabfluss', nis2Ref: 'Art. 21 Abs. 2 lit. h',
+    likelihood: 4, impact: 5,
+    evidence: 'Netzwerkanalyse: WAN-Verbindung zwischen Rechenzentren nutzt MPLS ohne zusätzliche Verschlüsselung. Pcap-Analyse zeigt Replikationsdaten mit Kundeninformationen im Klartext. Dokumentiert in Prüfbericht NW-2025-001.',
+    rationale: 'Likelihood 4: MPLS-Netze sind nicht inhärent verschlüsselt, Provider-seitige Kompromittierung ist realistisch. Impact 5: Datenabfluss betrifft potenziell alle gehosteten Kunden und löst umfangreiche Meldepflichten aus.',
+    sources: ['NIS-2 Art. 21 Abs. 2 lit. h: Einsatz von Kryptografie', 'BSI-Grundschutz NET.1.1'], evidenceQuality: 5, reproducibility: 'easy',
+  },
+  public_admin: {
+    id: 1, category: 'C', name: 'Unverschlüsselte Übertragung von Bürgerdaten zwischen Behördenstandorten', component: 'Standortverbindung / WAN', attacker: 'Man-in-the-Middle / Netzwerk-Mitleser', path: 'Site-to-Site-Verbindung ohne End-to-End-Verschlüsselung → Verwaltungsdaten im Klartext → Datenabfluss', nis2Ref: 'Art. 21 Abs. 2 lit. h',
+    likelihood: 4, impact: 5,
+    evidence: 'Netzwerkanalyse: WAN-Verbindung zwischen Behördenstandorten nutzt MPLS ohne zusätzliche Verschlüsselung. Pcap-Analyse zeigt Meldedaten und Sozialdaten im Klartext. Dokumentiert in Prüfbericht NW-2025-001.',
+    rationale: 'Likelihood 4: MPLS-Netze sind nicht inhärent verschlüsselt, Provider-seitige Kompromittierung ist realistisch. Impact 5: Bürgerdaten unterliegen besonderem Schutzbedarf. Offenlegung führt zu Meldepflicht und Vertrauensverlust.',
+    sources: ['NIS-2 Art. 21 Abs. 2 lit. h: Einsatz von Kryptografie', 'BSI-Grundschutz NET.1.1'], evidenceQuality: 5, reproducibility: 'easy',
+  },
+  manufacturing: {
+    id: 1, category: 'C', name: 'Unverschlüsselte Übertragung von Produktionsdaten zwischen Werksstandorten', component: 'Standortverbindung / WAN', attacker: 'Man-in-the-Middle / Netzwerk-Mitleser', path: 'Site-to-Site-Verbindung ohne End-to-End-Verschlüsselung → Produktionsdaten und Betriebsgeheimnisse im Klartext → Industriespionage', nis2Ref: 'Art. 21 Abs. 2 lit. h',
+    likelihood: 4, impact: 5,
+    evidence: 'Netzwerkanalyse: WAN-Verbindung zwischen Produktionsstandorten nutzt MPLS ohne zusätzliche Verschlüsselung. Pcap-Analyse zeigt OPC-UA-Telemetrie und Rezepturdaten im Klartext. Dokumentiert in Prüfbericht NW-2025-001.',
+    rationale: 'Likelihood 4: MPLS-Netze sind nicht inhärent verschlüsselt, Provider-seitige Kompromittierung ist realistisch. Impact 5: Industriespionage und Manipulation von Produktionsprozessen können existenzbedrohend sein.',
+    sources: ['NIS-2 Art. 21 Abs. 2 lit. h: Einsatz von Kryptografie', 'BSI-Grundschutz NET.1.1'], evidenceQuality: 5, reproducibility: 'easy',
+  },
+};
+
+const DEFAULT_RISK1 = RISK1_BY_SECTOR.energy;
+
+const GENERIC_RISKS: Nis2Risk[] = [
   { id: 2, category: 'C', name: 'Unzureichende Zugriffskontrolle auf kritische OT-Systeme', component: 'SCADA / Prozessleitsystem', attacker: 'Insider / kompromittierter Account', path: 'Shared Admin-Accounts auf SCADA-HMI → keine individuelle Nachvollziehbarkeit → unbefugter Zugriff auf Steuerungsfunktionen', nis2Ref: 'Art. 21 Abs. 2 lit. i',
     likelihood: 4, impact: 4,
     evidence: 'Konfigurationsaudit: 3 von 5 SCADA-HMI-Stationen nutzen einen gemeinsamen Admin-Account (admin/admin). Keine individuelle Authentifizierung. Kein Audit-Log auf Benutzerebene. Active Directory nicht an OT angebunden.',
     rationale: 'Likelihood 4: Shared Accounts sind in OT-Umgebungen häufig, Missbrauch schwer nachweisbar. Impact 4: Unbefugte Steuerungsänderungen können Produktionsprozesse stören.',
     sources: ['NIS-2 Art. 21 Abs. 2 lit. i: Zugangs- und Zugriffskontrollen', 'IEC 62443-3-3 SR 1.1'], evidenceQuality: 4, reproducibility: 'easy' },
-
-  // I — Integrity (2)
   { id: 3, category: 'I', name: 'Fehlende Integritätsprüfung bei Software-Updates für OT-Systeme', component: 'Firmware-Update-Prozess', attacker: 'Supply-Chain-Angreifer', path: 'OT-Firmware-Updates ohne Signaturprüfung → manipulierte Firmware → Kompromittierung der Steuerungslogik', nis2Ref: 'Art. 21 Abs. 2 lit. e',
     likelihood: 3, impact: 5,
     evidence: 'Prozessanalyse: Firmware-Updates für SPS-Steuerungen werden manuell per USB-Stick aufgespielt. Keine kryptografische Signaturprüfung. Keine SBOM-Validierung. Letzter Lieferanten-Audit: nie durchgeführt.',
@@ -193,8 +234,6 @@ export const NIS2_RISKS: Nis2Risk[] = [
     evidence: 'Konfigurationsanalyse: Kein File-Integrity-Monitoring (FIM) auf Domain-Controllern und kritischen Servern. GPO-Änderungen werden nicht automatisch alarmiert. Letzte manuelle Konfigurationsprüfung: 8 Monate.',
     rationale: 'Likelihood 3: APT-Gruppen nutzen Konfigurationsänderungen als Persistenz-Mechanismus. Impact 4: Unbemerkte Backdoors ermöglichen langfristigen Zugriff.',
     sources: ['NIS-2 Art. 21 Abs. 2 lit. a: Risikoanalyse und Sicherheitskonzepte', 'MITRE ATT&CK T1036'], evidenceQuality: 3, reproducibility: 'medium' },
-
-  // A — Availability (3)
   { id: 5, category: 'A', name: 'Kein getesteter Business-Continuity-Plan für kritische Dienste', component: 'Gesamtorganisation / BCM', attacker: 'Ransomware / Naturkatastrophe', path: 'BCP nur auf Papier → im Ernstfall keine koordinierte Reaktion → verlängerter Ausfall kritischer Dienste', nis2Ref: 'Art. 21 Abs. 2 lit. c',
     likelihood: 4, impact: 5,
     evidence: 'Dokumentenprüfung: BCP (Version 1.2, Stand 2023-09) existiert. Letzter vollständiger BCP-Test: nie durchgeführt. Backup-Restore-Tests nur für Einzelsysteme. Kein Krisenhandbuch für die Geschäftsleitung.',
@@ -210,8 +249,6 @@ export const NIS2_RISKS: Nis2Risk[] = [
     evidence: 'Infrastruktur-Review: Kein DDoS-Mitigation-Dienst. WAF vorhanden, aber ohne Rate-Limiting. Lasttest: 3000 gleichzeitige Requests führen zu Service-Degradation.',
     rationale: 'Likelihood 4: DDoS-as-a-Service ist billig. Kritische Infrastrukturen sind priorisierte Ziele. Impact 4: Dienstausfall für Öffentlichkeit, aber kein Datenverlust.',
     sources: ['NIS-2 Art. 21 Abs. 2 lit. b: Bewältigung von Sicherheitsvorfällen', 'NIST SP 800-189'], evidenceQuality: 3, reproducibility: 'medium' },
-
-  // G — Governance (2)
   { id: 8, category: 'G', name: 'Fehlende Verantwortung der Geschäftsleitung für Cybersicherheit', component: 'Management / Governance', attacker: 'Regulatorisches Risiko', path: 'Keine dokumentierte GL-Verantwortung → strategische Lücken → Sanktionsrisiko nach Art. 20', nis2Ref: 'Art. 20',
     likelihood: 5, impact: 4,
     evidence: 'Organisationsanalyse: Cybersicherheit ist dem IT-Leiter zugeordnet, nicht der Geschäftsleitung. Kein dokumentiertes Mandat. Kein regelmäßiges Reporting an GL. GL hat keine NIS-2-Schulung absolviert.',
@@ -222,8 +259,6 @@ export const NIS2_RISKS: Nis2Risk[] = [
     evidence: 'Schulungsnachweis-Prüfung: Kein GL-Mitglied hat in den letzten 24 Monaten eine Cybersicherheits-Schulung absolviert. Allgemeine Mitarbeiter-Awareness: 58% Teilnahmequote. Phishing-Simulation: 25% Klickrate.',
     rationale: 'Likelihood 5: Art. 20 Abs. 2 NIS-2 verpflichtet GL-Mitglieder explizit zur Teilnahme an Schulungen. Impact 3: Primär regulatorisches Risiko, aber auch operatives Risiko durch uninformierte Entscheidungen.',
     sources: ['NIS-2 Art. 20 Abs. 2: Schulungspflicht für Leitungsorgane', 'BSI-Grundschutz ORP.3'], evidenceQuality: 5, reproducibility: 'easy' },
-
-  // S — Supply Chain (3)
   { id: 10, category: 'S', name: 'Keine Sicherheitsbewertung kritischer Lieferanten', component: 'Lieferantenmanagement', attacker: 'Supply-Chain-Angreifer', path: 'Lieferanten-Sicherheitsniveau unbekannt → Kompromittierung über Lieferkette → Zugang zu internen Systemen', nis2Ref: 'Art. 21 Abs. 2 lit. d',
     likelihood: 4, impact: 4,
     evidence: 'Vertragsanalyse: 12 von 18 kritischen Lieferanten ohne Sicherheitsbewertung. Kein standardisierter Fragebogen. Keine SLA-Klauseln zu Cybersicherheit. Kein Recht auf Sicherheitsaudits vertraglich vereinbart.',
@@ -239,8 +274,6 @@ export const NIS2_RISKS: Nis2Risk[] = [
     evidence: 'Vertragsanalyse: Kein Exit-Plan für primären Cloud-Provider. Keine Datenportabilitäts-Tests. Geschätzte Migrationszeit: 4-8 Monate. Keine Multi-Cloud-Strategie.',
     rationale: 'Likelihood 3: Provider-Ausfälle selten, aber realistisch (OVH-Brand 2021). Impact 5: Kompletter Dienst-Ausfall über Wochen bis Monate.',
     sources: ['NIS-2 Art. 21 Abs. 2 lit. d: Lieferkettensicherheit', 'ENISA Cloud Security Guide'], evidenceQuality: 3, reproducibility: 'hard' },
-
-  // R — Resilience (2)
   { id: 13, category: 'R', name: 'Kein strukturiertes Schwachstellenmanagement', component: 'IT-Infrastruktur gesamt', attacker: 'Externer Angreifer / Exploit-Kit', path: 'Ungepatchte Schwachstellen → automatisierte Exploitation → Systemkompromittierung', nis2Ref: 'Art. 21 Abs. 2 lit. e',
     likelihood: 4, impact: 4,
     evidence: 'Vulnerability-Scan: 127 CVEs mit CVSS >= 7.0 auf exponierten Systemen. Davon 23 mit CVSS >= 9.0. Älteste ungepatchte CVE: 14 Monate alt. Kein regelmäßiger Scan-Zyklus. Kein Patch-Priorisierungsprozess.',
@@ -252,6 +285,16 @@ export const NIS2_RISKS: Nis2Risk[] = [
     rationale: 'Likelihood 4: NIS-2-Meldepflichten gelten ab Umsetzung. Jeder erhebliche Sicherheitsvorfall erfordert Meldung. Impact 4: Fristversäumnis führt zu Bußgeld und aufsichtlichen Konsequenzen.',
     sources: ['NIS-2 Art. 23: Meldepflichten bei erheblichen Sicherheitsvorfällen', 'NIS2UmsuCG § 32'], evidenceQuality: 4, reproducibility: 'easy' },
 ];
+
+/** Returns sector-appropriate NIS-2 risks based on entity type(s). */
+export function getNis2Risks(entityTypes?: string[]): Nis2Risk[] {
+  const sector = entityTypes?.[0] ?? 'energy';
+  const risk1 = RISK1_BY_SECTOR[sector] ?? DEFAULT_RISK1;
+  return [risk1, ...GENERIC_RISKS];
+}
+
+/** @deprecated Use getNis2Risks(entityTypes) for sector-correct data. */
+export const NIS2_RISKS: Nis2Risk[] = getNis2Risks(['energy']);
 
 // ── Demo NIS-2 Requirements (22 requirements) ────────────────────
 
