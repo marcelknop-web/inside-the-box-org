@@ -210,15 +210,15 @@ function getMgmtSummaryData(
       findings: [
         ...(crit > 0 ? [{
           title: `${crit} risques critiques nécessitent une action immédiate`,
-          detail: `Un attaquant peut causer des dommages significatifs avec un effort raisonnable. Les domaines concernés manquent de mécanismes de protection fondamentaux. Chaque semaine de retard augmente le risque réglementaire.`,
+          detail: `Un attaquant peut causer des dommages significatifs avec un effort raisonnable. Concrètement : ${topCritNames.join(', ')}${crit > 3 ? ` et ${crit - 3} autres` : ''}. Chaque semaine de retard augmente le risque réglementaire.`,
         }] : []),
         ...(failReqs > 0 ? [{
           title: `${failReqs} exigences CRA non satisfaites — bloquantes pour la mise sur le marché`,
-          detail: `Les écarts concernent les propriétés de sécurité fondamentales (Annexe I) et la gestion des vulnérabilités (Annexe II). Sans correction, aucune déclaration de conformité selon l'Art. 22 CRA n'est possible.`,
+          detail: `Les écarts concernent les propriétés de sécurité fondamentales (Annexe I) et la gestion des vulnérabilités (Annexe II). En détail : ${topFailNames.join(', ')}${failReqs > 3 ? ` et ${failReqs - 3} autres` : ''}. Sans correction, aucune déclaration de conformité selon l'Art. 22 CRA n'est possible.`,
         }] : []),
         ...(partialReqs > 0 ? [{
           title: `${partialReqs} exigences partiellement satisfaites — améliorations requises`,
-          detail: `Des approches existent mais l'implémentation est incomplète ou non auditée. Ces lacunes peuvent être comblées à court terme.`,
+          detail: `Des approches existent mais l'implémentation est incomplète ou non auditée. Cela concerne notamment : ${topPartialNames.join(', ')}${partialReqs > 3 ? ` et ${partialReqs - 3} autres` : ''}. Ces lacunes peuvent être comblées à court terme.`,
         }] : []),
         ...(passReqs > 0 ? [{
           title: `${passReqs} exigences entièrement satisfaites`,
