@@ -244,15 +244,15 @@ function getMgmtSummaryData(
     findings: [
       ...(crit > 0 ? [{
         title: `${crit} critical risks require immediate action`,
-        detail: `Attackers can cause significant damage with reasonable effort. Affected areas lack fundamental protection mechanisms. Each week of delay increases regulatory exposure.`,
+        detail: `Attackers can cause significant damage with reasonable effort. Affected areas lack fundamental protection mechanisms. Specifically: ${topCritNames.join(', ')}${crit > 3 ? ` and ${crit - 3} more` : ''}. Each week of delay increases regulatory exposure.`,
       }] : []),
       ...(failReqs > 0 ? [{
         title: `${failReqs} CRA requirements non-compliant — release blockers`,
-        detail: `Deviations affect fundamental security properties (Annex I) and vulnerability management (Annex II). Without remediation, a conformity declaration per Art. 22 CRA cannot be issued.`,
+        detail: `Deviations affect fundamental security properties (Annex I) and vulnerability management (Annex II). Specifically: ${topFailNames.join(', ')}${failReqs > 3 ? ` and ${failReqs - 3} more` : ''}. Without remediation, a conformity declaration per Art. 22 CRA cannot be issued.`,
       }] : []),
       ...(partialReqs > 0 ? [{
         title: `${partialReqs} requirements partially met — improvement needed`,
-        detail: `Approaches exist but implementation is incomplete or unaudited. These gaps are closable short-term and should be prioritised before GA.`,
+        detail: `Approaches exist but implementation is incomplete or unaudited. This includes: ${topPartialNames.join(', ')}${partialReqs > 3 ? ` and ${partialReqs - 3} more` : ''}. These gaps are closable short-term and should be prioritised before GA.`,
       }] : []),
       ...(passReqs > 0 ? [{
         title: `${passReqs} requirements fully met`,
