@@ -448,11 +448,16 @@ export async function generateDoraReport(data: DoraReportData): Promise<void> {
 
   // 5.2 Roadmap
   pdf.heading(l('sec5b', lang), 2);
-  const phases = [
-    { label: lang === 'de' ? 'Phase 0 (0-4 Wochen)' : 'Phase 0 (0-4 weeks)', desc: lang === 'de' ? 'Kritische Lücken schließen' : 'Close critical gaps' },
-    { label: lang === 'de' ? 'Phase 1 (1-3 Monate)' : 'Phase 1 (1-3 months)', desc: lang === 'de' ? 'Kernprozesse etablieren' : 'Establish core processes' },
-    { label: lang === 'de' ? 'Phase 2 (3-6 Monate)' : 'Phase 2 (3-6 months)', desc: lang === 'de' ? 'Resilienz-Tests durchführen' : 'Conduct resilience tests' },
-    { label: lang === 'de' ? 'Phase 3 (6-12 Monate)' : 'Phase 3 (6-12 months)', desc: lang === 'de' ? 'Monitoring etablieren' : 'Establish monitoring' },
+  const phases = lang === 'de' ? [
+    { label: 'Phase 0 (0-4 Wochen)', desc: 'Kritische Lücken schließen: Die als P0 eingestuften Maßnahmen adressieren die dringendsten Defizite, insbesondere fehlende Sicherheitsmechanismen und regulatorische Meldepflichten.' },
+    { label: 'Phase 1 (1-3 Monate)', desc: 'Kernprozesse etablieren: IKT-Risikomanagement-Framework aufbauen, Drittanbieter-Bewertungen initiieren und Incident-Response-Prozesse systematisieren.' },
+    { label: 'Phase 2 (3-6 Monate)', desc: 'Resilienz-Tests durchführen: TLPT-Vorbereitung, Business-Continuity-Tests und Überprüfung der IKT-Drittanbieter-Verträge.' },
+    { label: 'Phase 3 (6-12 Monate)', desc: 'Kontinuierliches Monitoring etablieren: Regelmäßige Überprüfungszyklen einrichten, KPIs definieren und Zertifizierungen anstreben.' },
+  ] : [
+    { label: 'Phase 0 (0-4 weeks)', desc: 'Close critical gaps: P0 measures address the most urgent deficits, particularly missing security mechanisms and regulatory reporting obligations.' },
+    { label: 'Phase 1 (1-3 months)', desc: 'Establish core processes: Build ICT risk management framework, initiate third-party assessments, and systematise incident response processes.' },
+    { label: 'Phase 2 (3-6 months)', desc: 'Conduct resilience tests: Prepare for TLPT, perform business continuity tests, and review ICT third-party contracts.' },
+    { label: 'Phase 3 (6-12 months)', desc: 'Establish continuous monitoring: Set up regular review cycles, define KPIs, and pursue certifications.' },
   ];
   phases.forEach(p => {
     pdf.checkSpace(12);
