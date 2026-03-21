@@ -180,11 +180,11 @@ function getMgmtSummary(name: string, risks: Nis2Risk[], critRisks: Nis2Risk[], 
       : partial
         ? `${name} achieves ${rate}% NIS-2 compliance. Targeted remediation is needed in several areas to reduce regulatory exposure.`
         : `${name} currently achieves ${rate}% NIS-2 compliance. Without timely remediation, significant regulatory and operational risks remain.`,
-    situation: `The assessment identified ${risks} risk scenarios, of which ${crit} are rated as critical. Of the ${totalReqs} assessed requirements, ${failReqs} are non-compliant and ${partialReqs} are partially compliant.`,
+    situation: `The assessment identified ${riskCount} risk scenarios, of which ${crit} are rated as critical. Of the ${totalReqs} assessed requirements, ${failReqs} are non-compliant and ${partialReqs} are partially compliant.`,
     findings: [
-      ...(crit > 0 ? [{ t: `${crit} critical risks require immediate action`, d: 'Fundamental protective mechanisms mandated by NIS-2 are missing in these areas. Critical risks (score ≥ 20) indicate both high likelihood and high potential impact.' }] : []),
-      ...(failReqs > 0 ? [{ t: `${failReqs} NIS-2 requirements are not met`, d: 'Deviations affect core areas such as governance, risk management, supply chain security, or reporting obligations. Each non-compliant requirement constitutes a challengeable deficiency in a supervisory examination.' }] : []),
-      ...(partialReqs > 0 ? [{ t: `${partialReqs} requirements are only partially met`, d: 'Basic approaches exist but full implementation is pending. Typically, documentation, regular testing, or organisational embedding is missing.' }] : []),
+      ...(crit > 0 ? [{ t: `${crit} critical risks require immediate action`, d: `Fundamental protective mechanisms mandated by NIS-2 are missing in these areas. Critical risks (score ≥ 20) indicate both high likelihood and high potential impact. Specifically affected: ${topCritNames.join(', ')}${crit > 3 ? ` and ${crit - 3} more` : ''}.` }] : []),
+      ...(failReqs > 0 ? [{ t: `${failReqs} NIS-2 requirements are not met`, d: `Deviations affect core areas of the regulatory framework. Each non-compliant requirement constitutes a challengeable deficiency in a supervisory examination. Specifically: ${topFailNames.join(', ')}${failReqs > 3 ? ` and ${failReqs - 3} more` : ''}.` }] : []),
+      ...(partialReqs > 0 ? [{ t: `${partialReqs} requirements are only partially met`, d: `Basic approaches exist but full implementation is pending. Typically, documentation, regular testing, or organisational embedding is missing. This includes: ${topPartialNames.join(', ')}${partialReqs > 3 ? ` and ${partialReqs - 3} more` : ''}.` }] : []),
       ...(passReqs > 0 ? [{ t: `${passReqs} requirements fully met`, d: 'No immediate action needed; continuous monitoring recommended.' }] : []),
     ],
     effortEstimate: ready
