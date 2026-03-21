@@ -176,15 +176,15 @@ function getMgmtSummaryData(
       findings: [
         ...(crit > 0 ? [{
           title: `${crit} kritische Risiken erfordern Sofortmaßnahmen`,
-          detail: `Angreifer können mit vertretbarem Aufwand erheblichen Schaden anrichten. Betroffen sind Bereiche, in denen grundlegende Schutzmechanismen fehlen oder unzureichend implementiert sind. Jede Woche Verzögerung erhöht das Risiko regulatorischer Beanstandungen.`,
+          detail: `Angreifer können mit vertretbarem Aufwand erheblichen Schaden anrichten. Betroffen sind Bereiche, in denen grundlegende Schutzmechanismen fehlen oder unzureichend implementiert sind. Konkret handelt es sich um: ${topCritNames.join(', ')}${crit > 3 ? ` und ${crit - 3} weitere` : ''}. Jede Woche Verzögerung erhöht das Risiko regulatorischer Beanstandungen.`,
         }] : []),
         ...(failReqs > 0 ? [{
           title: `${failReqs} CRA-Anforderungen nicht erfüllt — Release-Blocker`,
-          detail: `Die Abweichungen betreffen grundlegende Sicherheitseigenschaften (Annex I) und Schwachstellenmanagement (Annex II). Ohne Behebung ist eine Konformitätserklärung nach Art. 22 CRA nicht abgebbar.`,
+          detail: `Die Abweichungen betreffen grundlegende Sicherheitseigenschaften (Annex I) und Schwachstellenmanagement (Annex II). Im Einzelnen: ${topFailNames.join(', ')}${failReqs > 3 ? ` und ${failReqs - 3} weitere` : ''}. Ohne Behebung ist eine Konformitätserklärung nach Art. 22 CRA nicht abgebbar.`,
         }] : []),
         ...(partialReqs > 0 ? [{
           title: `${partialReqs} Anforderungen nur teilweise erfüllt — Nachbesserungsbedarf`,
-          detail: `Ansätze vorhanden, aber Implementierung unvollständig oder nicht auditiert. Diese Lücken sind kurzfristig schließbar und sollten vor GA priorisiert werden.`,
+          detail: `Ansätze vorhanden, aber Implementierung unvollständig oder nicht auditiert. Betroffen sind unter anderem: ${topPartialNames.join(', ')}${partialReqs > 3 ? ` und ${partialReqs - 3} weitere` : ''}. Diese Lücken sind kurzfristig schließbar und sollten vor GA priorisiert werden.`,
         }] : []),
         ...(passReqs > 0 ? [{
           title: `${passReqs} Anforderungen vollständig erfüllt`,
