@@ -2,7 +2,7 @@
 import type { DoraIntakeData, DoraRisk, DoraReq } from '@/data/doraData';
 import { riskId, RISK_CATEGORIES } from '@/data/doraData';
 import type { QaCheck } from '@/utils/doraQualityCheck';
-import { createPdfDoc, C, LAYOUT } from '@/utils/pdfCore';
+import { createPdfDoc, C, LAYOUT, humanizeList, humanizeText } from '@/utils/pdfCore';
 
 export interface DoraReportData {
   intakeData: DoraIntakeData;
@@ -122,7 +122,11 @@ function getContextText(name: string, typeName: string, critName: string, date: 
   return `On ${date}, a compliance assessment was conducted for ${name} (${typeName}, criticality: ${critName}) pursuant to Regulation (EU) 2022/2554 — the Digital Operational Resilience Act (DORA).${itLandscapeEn}\n\nThis report is intended for the board and executive management, ICT risk officers, the compliance function, and — in the event of a supervisory review — the competent authority.`;
 }
 
-function getMgmtSummary(name: string, risks: number, crit: number, failReqs: number, partialReqs: number, totalReqs: number, passReqs: number, lang: string) {
+function getMgmtSummary(name: string, risks: DoraRisk[], critRisks: DoraRisk[], failReqsList: DoraReq[], partialReqsList: DoraReq[], totalReqs: number, passReqs: number, lang: string) {
+  const riskCount = risks.length;
+  const crit = critRisks.length;
+  const failReqs = failReqsList.length;
+  const partialReqs = partialReqsList.length;
   const rate = totalReqs > 0 ? Math.round(((passReqs + partialReqs * 0.5) / totalReqs) * 100) : 0;
   const ready = crit === 0 && failReqs === 0;
   const partial = !ready && rate >= 60;
@@ -133,6 +137,11 @@ function getMgmtSummary(name: string, risks: number, crit: number, failReqs: num
   const p0Count = failReqs;
   const timelineWeeks = crit > 0 ? (lang === 'de' ? '4-6 Wochen' : '4-6 weeks') : (lang === 'de' ? '3-6 Monate' : '3-6 months');
 
+  // Build concrete finding descriptions with actual names
+  const topCritNames = critRisks.slice(0, 3).map(r => r.name);
+  const topFailNames = failReqsList.slice(0, 3).map(r => r.name);
+  const topPartialNames = partialReqsList.slice(0, 3).map(r => r.name);
+
   if (lang === 'de') {
     return {
       context: `DORA (Verordnung (EU) 2022/2554) verpflichtet alle Finanzunternehmen in der EU, ihre digitale operationale Resilienz nachzuweisen. Die Verordnung regelt das IKT-Risikomanagement, die Meldung von IKT-Vorfällen, die Prüfung der digitalen Resilienz und das Management von IKT-Drittanbieterrisiken. DORA gilt unmittelbar — ohne nationale Umsetzung — und wird von BaFin bzw. EZB überwacht.`,
@@ -141,11 +150,11 @@ function getMgmtSummary(name: string, risks: number, crit: number, failReqs: num
         : partial
           ? `${name} erreicht eine DORA-Konformität von ${rate} Prozent. In einigen Bereichen bestehen Abweichungen, die zeitnah adressiert werden sollten, um regulatorische Risiken zu minimieren.`
           : `${name} erreicht derzeit ${rate} Prozent DORA-Konformität. Ohne zügige Umsetzung der empfohlenen Maßnahmen besteht ein erhebliches regulatorisches und operatives Risiko.`,
-      situation: `Im Rahmen der Bewertung wurden ${risks} IKT-Risikoszenarien identifiziert, von denen ${crit} als kritisch eingestuft wurden. Von den ${totalReqs} geprüften Anforderungen sind ${failReqs} nicht erfüllt und ${partialReqs} nur teilweise erfüllt.`,
+      situation: `Im Rahmen der Bewertung wurden ${riskCount} IKT-Risikoszenarien identifiziert, von denen ${crit} als kritisch eingestuft wurden. Von den ${totalReqs} geprüften Anforderungen sind ${failReqs} nicht erfüllt und ${partialReqs} nur teilweise erfüllt.`,
       findings: [
-        ...(crit > 0 ? [{ t: `${crit} kritische Risiken erfordern sofortiges Handeln`, d: 'In diesen Bereichen fehlen grundlegende Schutzmechanismen, die von DORA zwingend gefordert werden. Kritische Risiken (Score ≥ 20) bedeuten, dass sowohl die Eintrittswahrscheinlichkeit als auch die potenzielle Auswirkung als hoch bewertet werden.' }] : []),
-        ...(failReqs > 0 ? [{ t: `${failReqs} DORA-Anforderungen sind nicht erfüllt`, d: 'Die Abweichungen betreffen zentrale Bereiche wie IKT-Risikomanagement, Meldepflichten und die Steuerung von Drittanbietern. Jede nicht erfüllte Anforderung stellt bei einer aufsichtlichen Prüfung einen beanstandbaren Mangel dar.' }] : []),
-        ...(partialReqs > 0 ? [{ t: `${partialReqs} Anforderungen sind nur teilweise erfüllt`, d: 'Grundlegende Ansätze sind vorhanden, aber die vollständige Umsetzung steht noch aus. In der Regel fehlen entweder die Dokumentation, regelmäßige Tests oder die organisatorische Verankerung.' }] : []),
+        ...(crit > 0 ? [{ t: `${crit} kritische Risiken erfordern sofortiges Handeln`, d: `In diesen Bereichen fehlen grundlegende Schutzmechanismen, die von DORA zwingend gefordert werden. Kritische Risiken (Score ≥ 20) bedeuten, dass sowohl die Eintrittswahrscheinlichkeit als auch die potenzielle Auswirkung als hoch bewertet werden. Konkret betroffen sind: ${topCritNames.join(', ')}${crit > 3 ? ` und ${crit - 3} weitere` : ''}.` }] : []),
+        ...(failReqs > 0 ? [{ t: `${failReqs} DORA-Anforderungen sind nicht erfüllt`, d: `Die Abweichungen betreffen zentrale Bereiche des regulatorischen Rahmens. Jede nicht erfüllte Anforderung stellt bei einer aufsichtlichen Prüfung einen beanstandbaren Mangel dar. Im Einzelnen handelt es sich um: ${topFailNames.join(', ')}${failReqs > 3 ? ` und ${failReqs - 3} weitere` : ''}.` }] : []),
+        ...(partialReqs > 0 ? [{ t: `${partialReqs} Anforderungen sind nur teilweise erfüllt`, d: `Grundlegende Ansätze sind vorhanden, aber die vollständige Umsetzung steht noch aus. In der Regel fehlen entweder die Dokumentation, regelmäßige Tests oder die organisatorische Verankerung. Betroffen sind unter anderem: ${topPartialNames.join(', ')}${partialReqs > 3 ? ` und ${partialReqs - 3} weitere` : ''}.` }] : []),
         ...(passReqs > 0 ? [{ t: `${passReqs} Anforderungen sind vollständig erfüllt`, d: 'Diese Bereiche bedürfen keines unmittelbaren Handlungsbedarfs, sollten aber im Rahmen des kontinuierlichen Verbesserungsprozesses überwacht werden.' }] : []),
       ],
       effortEstimate: ready
@@ -171,11 +180,11 @@ function getMgmtSummary(name: string, risks: number, crit: number, failReqs: num
       : partial
         ? `${name} achieves ${rate}% DORA compliance. Targeted remediation is needed in several areas to reduce regulatory exposure.`
         : `${name} currently achieves ${rate}% DORA compliance. Without timely remediation, significant regulatory and operational risks remain.`,
-    situation: `The assessment identified ${risks} ICT risk scenarios, of which ${crit} are rated as critical. Of the ${totalReqs} assessed requirements, ${failReqs} are non-compliant and ${partialReqs} are partially compliant.`,
+    situation: `The assessment identified ${riskCount} ICT risk scenarios, of which ${crit} are rated as critical. Of the ${totalReqs} assessed requirements, ${failReqs} are non-compliant and ${partialReqs} are partially compliant.`,
     findings: [
-      ...(crit > 0 ? [{ t: `${crit} critical risks require immediate action`, d: 'Fundamental protective mechanisms mandated by DORA are missing in these areas. Critical risks (score ≥ 20) indicate both high likelihood and high potential impact.' }] : []),
-      ...(failReqs > 0 ? [{ t: `${failReqs} DORA requirements are not met`, d: 'Deviations affect core areas such as ICT risk management, incident reporting, and third-party oversight. Each non-compliant requirement constitutes a deficiency subject to supervisory challenge.' }] : []),
-      ...(partialReqs > 0 ? [{ t: `${partialReqs} requirements are only partially met`, d: 'Basic approaches exist but full implementation is pending. Typically, documentation, regular testing, or organisational embedding is missing.' }] : []),
+      ...(crit > 0 ? [{ t: `${crit} critical risks require immediate action`, d: `Fundamental protective mechanisms mandated by DORA are missing in these areas. Critical risks (score ≥ 20) indicate both high likelihood and high potential impact. Specifically affected: ${topCritNames.join(', ')}${crit > 3 ? ` and ${crit - 3} more` : ''}.` }] : []),
+      ...(failReqs > 0 ? [{ t: `${failReqs} DORA requirements are not met`, d: `Deviations affect core areas of the regulatory framework. Each non-compliant requirement constitutes a deficiency subject to supervisory challenge. Specifically: ${topFailNames.join(', ')}${failReqs > 3 ? ` and ${failReqs - 3} more` : ''}.` }] : []),
+      ...(partialReqs > 0 ? [{ t: `${partialReqs} requirements are only partially met`, d: `Basic approaches exist but full implementation is pending. Typically, documentation, regular testing, or organisational embedding is missing. This includes: ${topPartialNames.join(', ')}${partialReqs > 3 ? ` and ${partialReqs - 3} more` : ''}.` }] : []),
       ...(passReqs > 0 ? [{ t: `${passReqs} requirements fully met`, d: 'No immediate action needed; continuous monitoring recommended.' }] : []),
     ],
     effortEstimate: ready
@@ -248,10 +257,14 @@ export async function generateDoraReport(data: DoraReportData): Promise<void> {
   pdf.bodyParagraph(getContextText(intakeData.entityName, entityTypeName, criticalityName, today, lang, intakeData));
 
   // ═══ SECTION 2: Management Summary ═══
-  const passCount = reqs.filter(r => r.status === 'pass').length;
-  const partCount = reqs.filter(r => r.status === 'partial').length;
-  const failCount = reqs.filter(r => r.status === 'fail').length;
-  const critCount = risks.filter(r => r.likelihood * r.impact >= 20).length;
+  const passReqsList = reqs.filter(r => r.status === 'pass');
+  const partReqsList = reqs.filter(r => r.status === 'partial');
+  const failReqsList = reqs.filter(r => r.status === 'fail');
+  const critRisks = risks.filter(r => r.likelihood * r.impact >= 20);
+  const passCount = passReqsList.length;
+  const partCount = partReqsList.length;
+  const failCount = failReqsList.length;
+  const critCount = critRisks.length;
   const complianceRate = Math.round((passCount * 100 + partCount * 50) / reqs.length);
 
   pdf.heading(l('sec2', lang));
@@ -259,7 +272,7 @@ export async function generateDoraReport(data: DoraReportData): Promise<void> {
     ? 'Was muss die Geschäftsleitung wissen? Dieser Abschnitt fasst die wichtigsten Ergebnisse zusammen — einschließlich regulatorischem Kontext, Aufwandsschätzung und Handlungsdringlichkeit.'
     : 'What does the board need to know? This section summarises the key findings — including regulatory context, effort estimates, and urgency.');
 
-  const summary = getMgmtSummary(intakeData.entityName, risks.length, critCount, failCount, partCount, reqs.length, passCount, lang);
+  const summary = getMgmtSummary(intakeData.entityName, risks, critRisks, failReqsList, partReqsList, reqs.length, passCount, lang);
 
   // Regulatory context
   pdf.heading(lang === 'de' ? 'Regulatorischer Kontext' : 'Regulatory Context', 3);
@@ -313,12 +326,12 @@ export async function generateDoraReport(data: DoraReportData): Promise<void> {
   pdf.field(l('entity', lang), intakeData.entityName);
   pdf.field(l('entityType', lang), entityTypeName);
   pdf.field(l('criticality', lang), criticalityName);
-  if (intakeData.description) pdf.bodyParagraph(intakeData.description);
+  if (intakeData.description) pdf.bodyParagraph(humanizeText(intakeData.description, lang, 'description'));
 
   pdf.heading(l('sec3b', lang), 2);
-  if (intakeData.infrastructure.length > 0) pdf.field(lang === 'de' ? 'IKT-Infrastruktur' : 'ICT Infrastructure', intakeData.infrastructure.join(', '));
-  if (intakeData.thirdPartyProviders.length > 0) pdf.field(lang === 'de' ? 'IKT-Drittanbieter' : 'ICT Third Parties', intakeData.thirdPartyProviders.join(', '));
-  if (intakeData.roles.length > 0) pdf.field(lang === 'de' ? 'Verantwortliche Rollen' : 'Responsible Roles', intakeData.roles.join(', '));
+  if (intakeData.infrastructure.length > 0) pdf.bodyParagraph(humanizeList(intakeData.infrastructure, lang, 'infra'));
+  if (intakeData.thirdPartyProviders.length > 0) pdf.bodyParagraph(humanizeList(intakeData.thirdPartyProviders, lang, 'providers'));
+  if (intakeData.roles.length > 0) pdf.bodyParagraph(humanizeList(intakeData.roles, lang, 'roles'));
 
   pdf.heading(l('sec3c', lang), 2);
   pdf.introText(lang === 'de'
@@ -333,8 +346,8 @@ export async function generateDoraReport(data: DoraReportData): Promise<void> {
   }
 
   pdf.heading(l('sec3d', lang), 2);
-  if (intakeData.knownIssues) pdf.bodyParagraph(intakeData.knownIssues);
-  else pdf.bodyText(lang === 'de' ? 'Keine bekannten Schwachstellen angegeben.' : 'No known weaknesses reported.');
+  if (intakeData.knownIssues) pdf.bodyParagraph(humanizeText(intakeData.knownIssues, lang, 'issues'));
+  else pdf.bodyText(lang === 'de' ? 'Es wurden keine bekannten Schwachstellen im Vorfeld der Prüfung benannt.' : 'No known weaknesses were reported prior to the assessment.');
 
   pdf.heading(l('sec3e', lang), 2);
   if (intakeData.files.length > 0) {

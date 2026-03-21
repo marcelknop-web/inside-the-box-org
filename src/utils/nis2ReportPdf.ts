@@ -3,7 +3,7 @@
 import type { Nis2IntakeData, Nis2Risk, Nis2Req } from '@/data/nis2ComplianceData';
 import { riskId, RISK_CATEGORIES } from '@/data/nis2ComplianceData';
 import type { QaCheck } from '@/utils/nis2QualityCheck';
-import { createPdfDoc, C, LAYOUT } from '@/utils/pdfCore';
+import { createPdfDoc, C, LAYOUT, humanizeList, humanizeText } from '@/utils/pdfCore';
 
 export interface Nis2ReportData {
   intakeData: Nis2IntakeData;
@@ -122,7 +122,11 @@ function getContextText(name: string, typeName: string, critName: string, date: 
   return `On ${date}, a compliance assessment was conducted for ${name} (sector: ${typeName}, classification: ${critName}) pursuant to Directive (EU) 2022/2555 — the NIS-2 Directive. The assessment covers the requirements of Articles 20 (governance responsibilities), 21 (risk management measures), and 23 (reporting obligations).${landscapeEn}\n\nThis report is intended for the board and executive management, information security officers, the compliance function, and — in the event of a supervisory review — the competent national authority.`;
 }
 
-function getMgmtSummary(name: string, risks: number, crit: number, failReqs: number, partialReqs: number, totalReqs: number, passReqs: number, lang: string) {
+function getMgmtSummary(name: string, risks: Nis2Risk[], critRisks: Nis2Risk[], failReqsList: Nis2Req[], partialReqsList: Nis2Req[], totalReqs: number, passReqs: number, lang: string) {
+  const riskCount = risks.length;
+  const crit = critRisks.length;
+  const failReqs = failReqsList.length;
+  const partialReqs = partialReqsList.length;
   const rate = totalReqs > 0 ? Math.round(((passReqs + partialReqs * 0.5) / totalReqs) * 100) : 0;
   const ready = crit === 0 && failReqs === 0;
   const partial = !ready && rate >= 60;
@@ -133,6 +137,11 @@ function getMgmtSummary(name: string, risks: number, crit: number, failReqs: num
   const p0Count = failReqs;
   const timelineWeeks = crit > 0 ? (lang === 'de' ? '4-6 Wochen' : '4-6 weeks') : (lang === 'de' ? '3-6 Monate' : '3-6 months');
 
+  // Build concrete finding descriptions with actual names
+  const topCritNames = critRisks.slice(0, 3).map(r => r.name);
+  const topFailNames = failReqsList.slice(0, 3).map(r => r.name);
+  const topPartialNames = partialReqsList.slice(0, 3).map(r => r.name);
+
   if (lang === 'de') {
     return {
       context: `Die NIS-2-Richtlinie (Richtlinie (EU) 2022/2555) verpflichtet Betreiber wesentlicher und wichtiger Einrichtungen in der EU zu umfassenden Cybersicherheitsmaßnahmen. Sie regelt die Verantwortung der Geschäftsleitung (Art. 20), technische und organisatorische Risikomanagementmaßnahmen (Art. 21) sowie Meldepflichten bei erheblichen Sicherheitsvorfällen (Art. 23). In Deutschland wird NIS-2 durch das NIS-2-Umsetzungs- und Cybersicherheitsstärkungsgesetz (NIS2UmsuCG) in nationales Recht überführt. Die Einhaltung wird vom BSI überwacht.`,
@@ -141,11 +150,11 @@ function getMgmtSummary(name: string, risks: number, crit: number, failReqs: num
         : partial
           ? `${name} erreicht eine NIS-2-Konformität von ${rate} Prozent. In einigen Bereichen bestehen Abweichungen, die zeitnah adressiert werden sollten, um regulatorische Risiken zu minimieren.`
           : `${name} erreicht derzeit ${rate} Prozent NIS-2-Konformität. Ohne zügige Umsetzung der empfohlenen Maßnahmen besteht ein erhebliches regulatorisches und operatives Risiko.`,
-      situation: `Im Rahmen der Bewertung wurden ${risks} Risikoszenarien identifiziert, von denen ${crit} als kritisch eingestuft wurden. Von den ${totalReqs} geprüften Anforderungen sind ${failReqs} nicht erfüllt und ${partialReqs} nur teilweise erfüllt.`,
+      situation: `Im Rahmen der Bewertung wurden ${riskCount} Risikoszenarien identifiziert, von denen ${crit} als kritisch eingestuft wurden. Von den ${totalReqs} geprüften Anforderungen sind ${failReqs} nicht erfüllt und ${partialReqs} nur teilweise erfüllt.`,
       findings: [
-        ...(crit > 0 ? [{ t: `${crit} kritische Risiken erfordern sofortiges Handeln`, d: 'In diesen Bereichen fehlen grundlegende Schutzmechanismen, die von der NIS-2-Richtlinie zwingend gefordert werden. Kritische Risiken (Score ≥ 20) bedeuten, dass sowohl Eintrittswahrscheinlichkeit als auch potenzielle Auswirkung als hoch bewertet werden.' }] : []),
-        ...(failReqs > 0 ? [{ t: `${failReqs} NIS-2-Anforderungen sind nicht erfüllt`, d: 'Die Abweichungen betreffen zentrale Bereiche wie Governance, Risikomanagement, Lieferkettensicherheit oder Meldepflichten. Jede nicht erfüllte Anforderung stellt bei einer Prüfung durch das BSI einen beanstandbaren Mangel dar.' }] : []),
-        ...(partialReqs > 0 ? [{ t: `${partialReqs} Anforderungen sind nur teilweise erfüllt`, d: 'Grundlegende Ansätze sind vorhanden, aber die vollständige Umsetzung steht noch aus. In der Regel fehlen entweder die Dokumentation, regelmäßige Tests oder die organisatorische Verankerung der Maßnahmen.' }] : []),
+        ...(crit > 0 ? [{ t: `${crit} kritische Risiken erfordern sofortiges Handeln`, d: `In diesen Bereichen fehlen grundlegende Schutzmechanismen, die von der NIS-2-Richtlinie zwingend gefordert werden. Kritische Risiken (Score ≥ 20) bedeuten, dass sowohl Eintrittswahrscheinlichkeit als auch potenzielle Auswirkung als hoch bewertet werden. Konkret betroffen sind: ${topCritNames.join(', ')}${crit > 3 ? ` und ${crit - 3} weitere` : ''}.` }] : []),
+        ...(failReqs > 0 ? [{ t: `${failReqs} NIS-2-Anforderungen sind nicht erfüllt`, d: `Die Abweichungen betreffen zentrale Bereiche des regulatorischen Rahmens. Jede nicht erfüllte Anforderung stellt bei einer Prüfung durch das BSI einen beanstandbaren Mangel dar. Im Einzelnen handelt es sich um: ${topFailNames.join(', ')}${failReqs > 3 ? ` und ${failReqs - 3} weitere` : ''}.` }] : []),
+        ...(partialReqs > 0 ? [{ t: `${partialReqs} Anforderungen sind nur teilweise erfüllt`, d: `Grundlegende Ansätze sind vorhanden, aber die vollständige Umsetzung steht noch aus. In der Regel fehlen entweder die Dokumentation, regelmäßige Tests oder die organisatorische Verankerung der Maßnahmen. Betroffen sind unter anderem: ${topPartialNames.join(', ')}${partialReqs > 3 ? ` und ${partialReqs - 3} weitere` : ''}.` }] : []),
         ...(passReqs > 0 ? [{ t: `${passReqs} Anforderungen sind vollständig erfüllt`, d: 'Diese Bereiche bedürfen keines unmittelbaren Handlungsbedarfs, sollten aber im Rahmen des kontinuierlichen Verbesserungsprozesses überwacht werden.' }] : []),
       ],
       effortEstimate: ready
@@ -171,11 +180,11 @@ function getMgmtSummary(name: string, risks: number, crit: number, failReqs: num
       : partial
         ? `${name} achieves ${rate}% NIS-2 compliance. Targeted remediation is needed in several areas to reduce regulatory exposure.`
         : `${name} currently achieves ${rate}% NIS-2 compliance. Without timely remediation, significant regulatory and operational risks remain.`,
-    situation: `The assessment identified ${risks} risk scenarios, of which ${crit} are rated as critical. Of the ${totalReqs} assessed requirements, ${failReqs} are non-compliant and ${partialReqs} are partially compliant.`,
+    situation: `The assessment identified ${riskCount} risk scenarios, of which ${crit} are rated as critical. Of the ${totalReqs} assessed requirements, ${failReqs} are non-compliant and ${partialReqs} are partially compliant.`,
     findings: [
-      ...(crit > 0 ? [{ t: `${crit} critical risks require immediate action`, d: 'Fundamental protective mechanisms mandated by NIS-2 are missing in these areas. Critical risks (score ≥ 20) indicate both high likelihood and high potential impact.' }] : []),
-      ...(failReqs > 0 ? [{ t: `${failReqs} NIS-2 requirements are not met`, d: 'Deviations affect core areas such as governance, risk management, supply chain security, or reporting obligations. Each non-compliant requirement constitutes a challengeable deficiency in a supervisory examination.' }] : []),
-      ...(partialReqs > 0 ? [{ t: `${partialReqs} requirements are only partially met`, d: 'Basic approaches exist but full implementation is pending. Typically, documentation, regular testing, or organisational embedding is missing.' }] : []),
+      ...(crit > 0 ? [{ t: `${crit} critical risks require immediate action`, d: `Fundamental protective mechanisms mandated by NIS-2 are missing in these areas. Critical risks (score ≥ 20) indicate both high likelihood and high potential impact. Specifically affected: ${topCritNames.join(', ')}${crit > 3 ? ` and ${crit - 3} more` : ''}.` }] : []),
+      ...(failReqs > 0 ? [{ t: `${failReqs} NIS-2 requirements are not met`, d: `Deviations affect core areas of the regulatory framework. Each non-compliant requirement constitutes a challengeable deficiency in a supervisory examination. Specifically: ${topFailNames.join(', ')}${failReqs > 3 ? ` and ${failReqs - 3} more` : ''}.` }] : []),
+      ...(partialReqs > 0 ? [{ t: `${partialReqs} requirements are only partially met`, d: `Basic approaches exist but full implementation is pending. Typically, documentation, regular testing, or organisational embedding is missing. This includes: ${topPartialNames.join(', ')}${partialReqs > 3 ? ` and ${partialReqs - 3} more` : ''}.` }] : []),
       ...(passReqs > 0 ? [{ t: `${passReqs} requirements fully met`, d: 'No immediate action needed; continuous monitoring recommended.' }] : []),
     ],
     effortEstimate: ready
@@ -247,10 +256,14 @@ export async function generateNis2Report(data: Nis2ReportData): Promise<void> {
   pdf.bodyParagraph(getContextText(intakeData.entityName, entityTypeName, criticalityName, today, lang, intakeData));
 
   // ═══ SECTION 2: Management Summary ═══
-  const passCount = reqs.filter(r => r.status === 'pass').length;
-  const partCount = reqs.filter(r => r.status === 'partial').length;
-  const failCount = reqs.filter(r => r.status === 'fail').length;
-  const critCount = risks.filter(r => r.likelihood * r.impact >= 20).length;
+  const passReqsList = reqs.filter(r => r.status === 'pass');
+  const partReqsList = reqs.filter(r => r.status === 'partial');
+  const failReqsList = reqs.filter(r => r.status === 'fail');
+  const critRisks = risks.filter(r => r.likelihood * r.impact >= 20);
+  const passCount = passReqsList.length;
+  const partCount = partReqsList.length;
+  const failCount = failReqsList.length;
+  const critCount = critRisks.length;
   const complianceRate = Math.round((passCount * 100 + partCount * 50) / reqs.length);
 
   pdf.heading(l('sec2', lang));
@@ -258,7 +271,7 @@ export async function generateNis2Report(data: Nis2ReportData): Promise<void> {
     ? 'Was muss die Geschäftsleitung wissen? Dieser Abschnitt fasst die wichtigsten Ergebnisse zusammen — einschließlich regulatorischem Kontext, Aufwandsschätzung und Handlungsdringlichkeit.'
     : 'What does the board need to know? This section summarises the key findings — including regulatory context, effort estimates, and urgency.');
 
-  const summary = getMgmtSummary(intakeData.entityName, risks.length, critCount, failCount, partCount, reqs.length, passCount, lang);
+  const summary = getMgmtSummary(intakeData.entityName, risks, critRisks, failReqsList, partReqsList, reqs.length, passCount, lang);
 
   // Regulatory context
   pdf.heading(lang === 'de' ? 'Regulatorischer Kontext' : 'Regulatory Context', 3);
@@ -312,12 +325,12 @@ export async function generateNis2Report(data: Nis2ReportData): Promise<void> {
   pdf.field(l('entity', lang), intakeData.entityName);
   pdf.field(l('entityType', lang), entityTypeName);
   pdf.field(l('criticality', lang), criticalityName);
-  if (intakeData.description) pdf.bodyParagraph(intakeData.description);
+  if (intakeData.description) pdf.bodyParagraph(humanizeText(intakeData.description, lang, 'description'));
 
   pdf.heading(l('sec3b', lang), 2);
-  if (intakeData.infrastructure.length > 0) pdf.field(lang === 'de' ? 'Infrastruktur' : 'Infrastructure', intakeData.infrastructure.join(', '));
-  if (intakeData.supplyChainProviders.length > 0) pdf.field(lang === 'de' ? 'Lieferanten / Dienstleister' : 'Suppliers / Service Providers', intakeData.supplyChainProviders.join(', '));
-  if (intakeData.roles.length > 0) pdf.field(lang === 'de' ? 'Verantwortliche Rollen' : 'Responsible Roles', intakeData.roles.join(', '));
+  if (intakeData.infrastructure.length > 0) pdf.bodyParagraph(humanizeList(intakeData.infrastructure, lang, 'infra'));
+  if (intakeData.supplyChainProviders.length > 0) pdf.bodyParagraph(humanizeList(intakeData.supplyChainProviders, lang, 'providers'));
+  if (intakeData.roles.length > 0) pdf.bodyParagraph(humanizeList(intakeData.roles, lang, 'roles'));
 
   pdf.heading(l('sec3c', lang), 2);
   pdf.introText(lang === 'de'
@@ -332,8 +345,8 @@ export async function generateNis2Report(data: Nis2ReportData): Promise<void> {
   }
 
   pdf.heading(l('sec3d', lang), 2);
-  if (intakeData.knownIssues) pdf.bodyParagraph(intakeData.knownIssues);
-  else pdf.bodyText(lang === 'de' ? 'Es wurden keine bekannten Schwachstellen angegeben.' : 'No known weaknesses were reported.');
+  if (intakeData.knownIssues) pdf.bodyParagraph(humanizeText(intakeData.knownIssues, lang, 'issues'));
+  else pdf.bodyText(lang === 'de' ? 'Es wurden keine bekannten Schwachstellen im Vorfeld der Prüfung benannt.' : 'No known weaknesses were reported prior to the assessment.');
 
   pdf.heading(l('sec3e', lang), 2);
   if (intakeData.files.length > 0) {
