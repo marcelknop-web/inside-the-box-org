@@ -1483,6 +1483,49 @@ export function generateCraReport(data: CraReportData): void {
   writeBody(getDisclaimer(lang));
 
   /* ══════════════════════════════════════
+     SECTION 8: Verification Guidance
+     ══════════════════════════════════════ */
+  newSection();
+  const sec8Title = lang === 'de' ? '8  Hinweise zur Verifizierung' : lang === 'fr' ? '8  Guide de verification' : '8  Verification Guidance';
+  writeSectionHeading(sec8Title);
+  const sec8Intro = lang === 'de'
+    ? 'Dieser Abschnitt gibt dem Leser konkrete Hinweise, wie die Aussagen und Bewertungen in diesem Bericht unabhängig überprüft werden können.'
+    : lang === 'fr'
+    ? 'Cette section fournit au lecteur des indications concretes pour verifier de maniere independante les affirmations et evaluations de ce rapport.'
+    : 'This section provides the reader with concrete guidance on how to independently verify the statements and assessments in this report.';
+  writeBody(sec8Intro);
+  y += 2;
+
+  const verSteps = lang === 'de' ? [
+    { title: '1. Evidenz-Referenzen nachvollziehen', text: 'Jede Feststellung in Abschnitt 4 verweist auf Evidenz, die in Anhang C aufgeschlüsselt ist. Prüfen Sie, ob die dort genannten Werkzeuge und Befehle auf Ihrem Produkt reproduzierbare Ergebnisse liefern.' },
+    { title: '2. Risikobewertungen plausibilisieren', text: 'Die Risikoscores in Abschnitt 4.1 basieren auf einer 5x5-Matrix (Abschnitt 6.1). Vergleichen Sie die zugewiesenen Likelihood- und Impact-Werte mit Ihrer eigenen Einschätzung. Ziehen Sie dabei OWASP, NIST und ENISA-Quellen heran.' },
+    { title: '3. Konformitätsbewertungen gegen CRA-Text prüfen', text: 'Für jede Anforderung in Abschnitt 4.2 ist der CRA-Artikel angegeben. Lesen Sie den Originaltext der Verordnung (EU) 2024/2847 und vergleichen Sie, ob die dokumentierte Abweichung tatsächlich den regulatorischen Vorgaben widerspricht.' },
+    { title: '4. Aufwandsschätzungen validieren', text: 'Die in Abschnitt 5 genannten Aufwandsschätzungen basieren auf Erfahrungswerten. Vergleichen Sie diese mit Angeboten externer Dienstleister oder eigenen Projekterfahrungen.' },
+    { title: '5. Zweitmeinung einholen', text: 'Für eine unabhängige Validierung empfiehlt sich die Beauftragung eines externen Prüfers oder einer benannten Stelle nach Art. 24 CRA, insbesondere bei kritischen Risiken (Score >= 20).' },
+  ] : lang === 'fr' ? [
+    { title: '1. Tracer les references de preuves', text: 'Chaque constatation de la section 4 fait reference a des preuves detaillees en annexe C. Verifiez si les outils et commandes mentionnes produisent des resultats reproductibles sur votre produit.' },
+    { title: '2. Valider les scores de risque', text: 'Les scores de risque de la section 4.1 sont bases sur une matrice 5x5 (section 6.1). Comparez les valeurs attribuees avec votre propre evaluation en utilisant les sources OWASP, NIST et ENISA.' },
+    { title: '3. Verifier les evaluations de conformite', text: 'Pour chaque exigence de la section 4.2, l\'article CRA correspondant est indique. Lisez le texte original du reglement (UE) 2024/2847 et verifiez si les ecarts documentes contredisent effectivement les dispositions reglementaires.' },
+    { title: '4. Valider les estimations d\'effort', text: 'Les estimations d\'effort de la section 5 sont basees sur des donnees empiriques. Comparez-les avec des devis de prestataires externes ou votre propre experience projet.' },
+    { title: '5. Obtenir un second avis', text: 'Pour une validation independante, envisagez de mandater un organisme notifie selon l\'Art. 24 CRA, en particulier pour les risques critiques (score >= 20).' },
+  ] : [
+    { title: '1. Trace evidence references', text: 'Each finding in Section 4 references evidence detailed in Appendix C. Verify whether the listed tools and commands produce reproducible results on your product.' },
+    { title: '2. Validate risk scores', text: 'Risk scores in Section 4.1 are based on a 5x5 matrix (Section 6.1). Compare the assigned likelihood and impact values with your own assessment, drawing on OWASP, NIST, and ENISA sources.' },
+    { title: '3. Cross-check compliance assessments', text: 'For each requirement in Section 4.2, the corresponding CRA article is specified. Read the original text of Regulation (EU) 2024/2847 and verify whether the documented deviations indeed contradict the regulatory provisions.' },
+    { title: '4. Validate effort estimates', text: 'Effort estimates in Section 5 are based on empirical data. Compare them with external service provider quotes or your own project experience.' },
+    { title: '5. Obtain a second opinion', text: 'For independent validation, consider engaging a notified body per Art. 24 CRA. This is particularly advisable for critical risks (score >= 20) and non-compliant requirements.' },
+  ];
+
+  for (const step of verSteps) {
+    checkPage(18);
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(9); doc.setTextColor(...C.darkNavy);
+    doc.text(step.title, ML, y); y += 5;
+    doc.setTextColor(...C.bodyText);
+    writeBody(step.text, 4);
+    y += 3;
+  }
+
+  /* ══════════════════════════════════════
      APPENDIX A: Structured Audit Data
      ══════════════════════════════════════ */
   newSection();
