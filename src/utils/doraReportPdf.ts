@@ -482,10 +482,10 @@ export async function generateDoraReport(data: DoraReportData): Promise<void> {
     : 'The assessment is based on Regulation (EU) 2022/2554 (DORA) and the associated Regulatory Technical Standards (RTS/ITS). Risk assessment follows a standardised 5×5 matrix where likelihood and impact are each rated on a scale of 1 to 5. The product of both values yields the risk score that determines measure prioritisation.');
 
   pdf.heading(l('sec6a', lang), 2);
-  [['Score ≥ 20', lang === 'de' ? 'KRITISCH — Sofortmaßnahme' : 'CRITICAL — Immediate'],
-   ['Score 13-19', lang === 'de' ? 'HOCH — Innerhalb 3 Monate' : 'HIGH — Within 3 months'],
-   ['Score 6-12', lang === 'de' ? 'MITTEL — Innerhalb 6 Monate' : 'MEDIUM — Within 6 months'],
-   ['Score 1-5', lang === 'de' ? 'NIEDRIG — Beobachtung' : 'LOW — Monitor']].forEach(([score, action]) => {
+  [['Score ≥ 20', lang === 'de' ? 'KRITISCH — Sofortige Umsetzung erforderlich' : 'CRITICAL — Immediate action required'],
+   ['Score 13-19', lang === 'de' ? 'HOCH — Umsetzung innerhalb von 3 Monaten' : 'HIGH — Action within 3 months'],
+   ['Score 6-12', lang === 'de' ? 'MITTEL — Umsetzung innerhalb von 6 Monaten' : 'MEDIUM — Action within 6 months'],
+   ['Score 1-5', lang === 'de' ? 'NIEDRIG — Beobachtung und kontinuierliches Monitoring' : 'LOW — Monitor and continuous observation']].forEach(([score, action]) => {
     pdf.checkSpace(8);
     pdf.doc.setFont(pdf.headFontName, 'bold'); pdf.doc.setFontSize(8); pdf.doc.setTextColor(...C.navy);
     pdf.doc.text(score, LAYOUT.LEFT + 4, pdf.y);
