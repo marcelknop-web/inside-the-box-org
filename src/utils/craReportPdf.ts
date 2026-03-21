@@ -709,7 +709,7 @@ export function generateCraReport(data: CraReportData): void {
   y += 2;
 
   const passReqs = reqs.filter(r => r.status === 'pass');
-  const summaryData = getMgmtSummaryData(intakeData.productName, threats.length, critRisks.length, failReqs.length, partialReqs.length, reqs.length, passReqs.length, lang);
+  const summaryData = getMgmtSummaryData(intakeData.productName, threats, critRisks, failReqs, partialReqs, reqs.length, passReqs.length, lang);
 
   // ── Governing assertion (bold verdict) ──
   checkPage(20);
