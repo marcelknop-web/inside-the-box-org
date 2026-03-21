@@ -5,6 +5,8 @@ import { generateDoraReport } from '@/utils/doraReportPdf';
 import { DoraAuditCharts } from '@/components/DoraAuditCharts';
 import { runDoraQualityCheck } from '@/utils/doraQualityCheck';
 import { PageMeta } from '@/components/PageMeta';
+import { Progress } from '@/components/ui/progress';
+import { useLanguage } from '@/i18n/LanguageContext';
 import Typewriter from '@/components/Typewriter';
 import { StaggerReveal } from '@/components/StaggerReveal';
 import {
