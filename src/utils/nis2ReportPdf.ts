@@ -3,7 +3,7 @@
 import type { Nis2IntakeData, Nis2Risk, Nis2Req } from '@/data/nis2ComplianceData';
 import { riskId, RISK_CATEGORIES } from '@/data/nis2ComplianceData';
 import type { QaCheck } from '@/utils/nis2QualityCheck';
-import { createPdfDoc, C, LAYOUT } from '@/utils/pdfCore';
+import { createPdfDoc, C, LAYOUT, humanizeList, humanizeText } from '@/utils/pdfCore';
 
 export interface Nis2ReportData {
   intakeData: Nis2IntakeData;

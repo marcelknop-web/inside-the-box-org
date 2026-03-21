@@ -2,7 +2,7 @@
 import type { DoraIntakeData, DoraRisk, DoraReq } from '@/data/doraData';
 import { riskId, RISK_CATEGORIES } from '@/data/doraData';
 import type { QaCheck } from '@/utils/doraQualityCheck';
-import { createPdfDoc, C, LAYOUT } from '@/utils/pdfCore';
+import { createPdfDoc, C, LAYOUT, humanizeList, humanizeText } from '@/utils/pdfCore';
 
 export interface DoraReportData {
   intakeData: DoraIntakeData;
