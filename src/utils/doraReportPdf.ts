@@ -626,11 +626,94 @@ export async function generateDoraReport(data: DoraReportData): Promise<void> {
   });
 
   // ═══ APPENDIX C: Evidence Index ═══
-  pdf.y += 5;
+  pdf.newPage();
   pdf.heading(l('secC', lang));
-  pdf.dataTableHeader('E-ID    | Risiko     | Qualität | Reproduzierbarkeit');
+  pdf.introText(lang === 'de'
+    ? 'Dieser Anhang listet das für jede Feststellung erhobene Evidenz-Material auf. Die aufgeführten Dateien ermöglichen die unabhängige Reproduktion und Verifizierung der Prüfergebnisse durch Dritte.'
+    : 'This appendix lists the evidence material collected for each finding. The listed files enable independent reproduction and verification of assessment results by third parties.');
+
   risks.forEach((ri, i) => {
-    pdf.dataTableRow(`E-${String(i + 1).padStart(3, '0')}   | ${riskId(ri).padEnd(10)} | ${ri.evidenceQuality}/5       | ${ri.reproducibility}`);
+    const eid = `E-${String(i + 1).padStart(3, '0')}`;
+    const score = ri.likelihood * ri.impact;
+    const stars = '\u2605'.repeat(ri.evidenceQuality) + '\u2606'.repeat(5 - ri.evidenceQuality);
+
+    pdf.checkSpace(25);
+    pdf.doc.setFont(pdf.headFontName, 'bold'); pdf.doc.setFontSize(8); pdf.doc.setTextColor(...(score >= 20 ? C.fail : score >= 13 ? C.warn : C.navy));
+    pdf.doc.text(`${eid}  ${riskId(ri)}: ${ri.name}`, LAYOUT.LEFT + 4, pdf.y);
+    pdf.doc.setFont(pdf.bodyFontName, 'normal'); pdf.doc.setFontSize(7); pdf.doc.setTextColor(...C.muted);
+    pdf.doc.text(`${stars}  (${ri.evidenceQuality}/5)  |  ${lang === 'de' ? 'Reproduzierbarkeit' : 'Reproducibility'}: ${ri.reproducibility}`, LAYOUT.RIGHT - 2, pdf.y, { align: 'right' });
+    pdf.y += 5;
+
+    // Evidence description
+    pdf.doc.setFont(pdf.bodyFontName, 'normal'); pdf.doc.setFontSize(7.5); pdf.doc.setTextColor(...C.dark);
+    const evidLines = pdf.doc.splitTextToSize(ri.evidence, LAYOUT.WIDTH - 16);
+    for (const el of evidLines) { pdf.checkSpace(4); pdf.doc.text(el, LAYOUT.LEFT + 8, pdf.y); pdf.y += 3.5; }
+    pdf.y += 1;
+
+    // Derive evidence file references from category and evidence text
+    const evidFiles: string[] = [];
+    const evLower = ri.evidence.toLowerCase();
+    if (ri.category === 'C' || evLower.includes('wireshark') || evLower.includes('pcap') || evLower.includes('mitschnitt')) {
+      evidFiles.push(`Evidence/${riskId(ri)}/capture.pcap`);
+      evidFiles.push(`Evidence/${riskId(ri)}/wireshark-screenshot.png`);
+    }
+    if (ri.category === 'C' && (evLower.includes('api') || evLower.includes('idor') || evLower.includes('postman'))) {
+      evidFiles.push(`Evidence/${riskId(ri)}/api-request-response.txt`);
+    }
+    if (ri.category === 'I' && (evLower.includes('batch') || evLower.includes('sepa') || evLower.includes('xml'))) {
+      evidFiles.push(`Evidence/${riskId(ri)}/modified-test-file.xml`);
+      evidFiles.push(`Evidence/${riskId(ri)}/processing-log.txt`);
+    }
+    if (ri.category === 'I' && (evLower.includes('log') || evLower.includes('audit') || evLower.includes('rsyslog'))) {
+      evidFiles.push(`Evidence/${riskId(ri)}/log-config-screenshot.png`);
+    }
+    if (ri.category === 'A' && (evLower.includes('failover') || evLower.includes('backup') || evLower.includes('recovery'))) {
+      evidFiles.push(`Evidence/${riskId(ri)}/architecture-diagram.png`);
+      evidFiles.push(`Evidence/${riskId(ri)}/backup-test-report.pdf`);
+    }
+    if (ri.category === 'A' && (evLower.includes('lasttest') || evLower.includes('load') || evLower.includes('ddos'))) {
+      evidFiles.push(`Evidence/${riskId(ri)}/loadtest-results.csv`);
+      evidFiles.push(`Evidence/${riskId(ri)}/cpu-memory-graph.png`);
+    }
+    if (ri.category === 'G' && (evLower.includes('policy') || evLower.includes('richtlinie') || evLower.includes('dokument'))) {
+      evidFiles.push(`Evidence/${riskId(ri)}/policy-review-notes.txt`);
+    }
+    if (ri.category === 'T' && (evLower.includes('vertrag') || evLower.includes('contract') || evLower.includes('sla'))) {
+      evidFiles.push(`Evidence/${riskId(ri)}/contract-analysis.pdf`);
+    }
+    if (ri.category === 'T' && (evLower.includes('vpn') || evLower.includes('fernwartung') || evLower.includes('remote'))) {
+      evidFiles.push(`Evidence/${riskId(ri)}/remote-access-config.txt`);
+    }
+    if (ri.category === 'R' && (evLower.includes('test') || evLower.includes('drill') || evLower.includes('übung'))) {
+      evidFiles.push(`Evidence/${riskId(ri)}/drill-report.pdf`);
+    }
+    if (evLower.includes('nmap') || evLower.includes('scan')) {
+      evidFiles.push(`Evidence/${riskId(ri)}/nmap-scan.txt`);
+    }
+    if (evLower.includes('konfiguration') || evLower.includes('config')) {
+      evidFiles.push(`Evidence/${riskId(ri)}/config-export.txt`);
+    }
+    if (evidFiles.length === 0) {
+      evidFiles.push(`Evidence/${riskId(ri)}/analysis-notes.txt`);
+    }
+
+    // Source references
+    if (ri.sources && ri.sources.length > 0) {
+      evidFiles.push(`--- ${lang === 'de' ? 'Quellen' : 'Sources'} ---`);
+      ri.sources.forEach(s => evidFiles.push(`  ${s}`));
+    }
+
+    for (const ef of evidFiles) {
+      pdf.checkSpace(4);
+      if (ef.startsWith('---') || ef.startsWith('  ')) {
+        pdf.doc.setFont(pdf.bodyFontName, 'italic'); pdf.doc.setFontSize(7); pdf.doc.setTextColor(...C.muted);
+      } else {
+        pdf.doc.setFont('courier', 'normal'); pdf.doc.setFontSize(7); pdf.doc.setTextColor(...C.muted);
+      }
+      pdf.doc.text(`  ${ef}`, LAYOUT.LEFT + 8, pdf.y);
+      pdf.y += 3.5;
+    }
+    pdf.y += 4;
   });
 
   // ═══ APPENDIX D: Quality Assurance ═══

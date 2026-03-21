@@ -625,11 +625,97 @@ export async function generateNis2Report(data: Nis2ReportData): Promise<void> {
   });
 
   // ═══ APPENDIX C: Evidence Index ═══
-  pdf.y += 5;
+  pdf.newPage();
   pdf.heading(l('secC', lang));
-  pdf.dataTableHeader('E-ID    | Risiko     | Qualität | Reproduzierbarkeit');
+  pdf.introText(lang === 'de'
+    ? 'Dieser Anhang listet das für jede Feststellung erhobene Evidenz-Material auf. Die aufgeführten Dateien ermöglichen die unabhängige Reproduktion und Verifizierung der Prüfergebnisse durch Dritte.'
+    : 'This appendix lists the evidence material collected for each finding. The listed files enable independent reproduction and verification of assessment results by third parties.');
+
   risks.forEach((ri, i) => {
-    pdf.dataTableRow(`E-${String(i + 1).padStart(3, '0')}   | ${riskId(ri).padEnd(10)} | ${ri.evidenceQuality}/5       | ${ri.reproducibility}`);
+    const eid = `E-${String(i + 1).padStart(3, '0')}`;
+    const score = ri.likelihood * ri.impact;
+    const stars = '\u2605'.repeat(ri.evidenceQuality) + '\u2606'.repeat(5 - ri.evidenceQuality);
+
+    pdf.checkSpace(25);
+    pdf.doc.setFont(pdf.headFontName, 'bold'); pdf.doc.setFontSize(8); pdf.doc.setTextColor(...(score >= 20 ? C.fail : score >= 13 ? C.warn : C.navy));
+    pdf.doc.text(`${eid}  ${riskId(ri)}: ${ri.name}`, LAYOUT.LEFT + 4, pdf.y);
+    pdf.doc.setFont(pdf.bodyFontName, 'normal'); pdf.doc.setFontSize(7); pdf.doc.setTextColor(...C.muted);
+    pdf.doc.text(`${stars}  (${ri.evidenceQuality}/5)  |  ${lang === 'de' ? 'Reproduzierbarkeit' : 'Reproducibility'}: ${ri.reproducibility}`, LAYOUT.RIGHT - 2, pdf.y, { align: 'right' });
+    pdf.y += 5;
+
+    // Evidence description
+    pdf.doc.setFont(pdf.bodyFontName, 'normal'); pdf.doc.setFontSize(7.5); pdf.doc.setTextColor(...C.dark);
+    const evidLines = pdf.doc.splitTextToSize(ri.evidence, LAYOUT.WIDTH - 16);
+    for (const el of evidLines) { pdf.checkSpace(4); pdf.doc.text(el, LAYOUT.LEFT + 8, pdf.y); pdf.y += 3.5; }
+    pdf.y += 1;
+
+    // Derive evidence file references from category and evidence text
+    const evidFiles: string[] = [];
+    const evLower = ri.evidence.toLowerCase();
+    const cat = ri.category;
+    if (cat === 'C' || evLower.includes('wireshark') || evLower.includes('pcap') || evLower.includes('mitschnitt')) {
+      evidFiles.push(`Evidence/${riskId(ri)}/capture.pcap`);
+      evidFiles.push(`Evidence/${riskId(ri)}/wireshark-screenshot.png`);
+    }
+    if (evLower.includes('api') || evLower.includes('curl') || evLower.includes('postman')) {
+      evidFiles.push(`Evidence/${riskId(ri)}/api-request-response.txt`);
+    }
+    if (cat === 'I' && (evLower.includes('firmware') || evLower.includes('update') || evLower.includes('patch'))) {
+      evidFiles.push(`Evidence/${riskId(ri)}/firmware-hash-comparison.txt`);
+    }
+    if (cat === 'I' && (evLower.includes('log') || evLower.includes('audit') || evLower.includes('siem'))) {
+      evidFiles.push(`Evidence/${riskId(ri)}/log-config-screenshot.png`);
+    }
+    if (cat === 'A' && (evLower.includes('failover') || evLower.includes('backup') || evLower.includes('recovery') || evLower.includes('redundanz'))) {
+      evidFiles.push(`Evidence/${riskId(ri)}/architecture-diagram.png`);
+      evidFiles.push(`Evidence/${riskId(ri)}/recovery-test-report.pdf`);
+    }
+    if (cat === 'A' && (evLower.includes('lasttest') || evLower.includes('load') || evLower.includes('ddos'))) {
+      evidFiles.push(`Evidence/${riskId(ri)}/loadtest-results.csv`);
+      evidFiles.push(`Evidence/${riskId(ri)}/cpu-memory-graph.png`);
+    }
+    if (cat === 'G' && (evLower.includes('policy') || evLower.includes('richtlinie') || evLower.includes('dokument') || evLower.includes('risikomanagement'))) {
+      evidFiles.push(`Evidence/${riskId(ri)}/policy-review-notes.txt`);
+    }
+    if (cat === 'T' && (evLower.includes('vertrag') || evLower.includes('contract') || evLower.includes('sla') || evLower.includes('lieferant'))) {
+      evidFiles.push(`Evidence/${riskId(ri)}/contract-analysis.pdf`);
+    }
+    if (cat === 'T' && (evLower.includes('vpn') || evLower.includes('fernwartung') || evLower.includes('remote'))) {
+      evidFiles.push(`Evidence/${riskId(ri)}/remote-access-config.txt`);
+    }
+    if (cat === 'R' && (evLower.includes('test') || evLower.includes('drill') || evLower.includes('übung') || evLower.includes('notfall'))) {
+      evidFiles.push(`Evidence/${riskId(ri)}/drill-report.pdf`);
+    }
+    if (evLower.includes('nmap') || evLower.includes('scan') || evLower.includes('port')) {
+      evidFiles.push(`Evidence/${riskId(ri)}/nmap-scan.txt`);
+    }
+    if (evLower.includes('konfiguration') || evLower.includes('config')) {
+      evidFiles.push(`Evidence/${riskId(ri)}/config-export.txt`);
+    }
+    if (evLower.includes('modbus') || evLower.includes('scada') || evLower.includes('ot') || evLower.includes('steuerung')) {
+      evidFiles.push(`Evidence/${riskId(ri)}/ot-protocol-capture.pcap`);
+    }
+    if (evidFiles.length === 0) {
+      evidFiles.push(`Evidence/${riskId(ri)}/analysis-notes.txt`);
+    }
+
+    // Source references
+    if (ri.sources && ri.sources.length > 0) {
+      evidFiles.push(`--- ${lang === 'de' ? 'Quellen' : 'Sources'} ---`);
+      ri.sources.forEach(s => evidFiles.push(`  ${s}`));
+    }
+
+    for (const ef of evidFiles) {
+      pdf.checkSpace(4);
+      if (ef.startsWith('---') || ef.startsWith('  ')) {
+        pdf.doc.setFont(pdf.bodyFontName, 'italic'); pdf.doc.setFontSize(7); pdf.doc.setTextColor(...C.muted);
+      } else {
+        pdf.doc.setFont('courier', 'normal'); pdf.doc.setFontSize(7); pdf.doc.setTextColor(...C.muted);
+      }
+      pdf.doc.text(`  ${ef}`, LAYOUT.LEFT + 8, pdf.y);
+      pdf.y += 3.5;
+    }
+    pdf.y += 4;
   });
 
   // ═══ APPENDIX D: Quality Assurance ═══
