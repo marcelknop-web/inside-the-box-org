@@ -238,8 +238,10 @@ export function runDoraQualityCheck(
   // B8: Plausibility — risk scores must have rationale with quantitative basis
   const risksWithoutQuantRationale = risks.filter(r => {
     const rat = r.rationale.toLowerCase();
-    // Check for quantitative markers: numbers, percentages, benchmarks
-    const hasQuantitative = /\d+/.test(rat) || rat.includes('benchmark') || rat.includes('statistisch') || rat.includes('skala');
+    // Require meaningful quantitative markers: percentages, explicit scores, benchmark references, probability statements
+    const hasQuantitative = /\d{2,}/.test(rat) || /%/.test(rat) || /\d+\s*[x×]\s*\d+/.test(rat) ||
+      rat.includes('benchmark') || rat.includes('statistisch') || rat.includes('skala') ||
+      rat.includes('wahrscheinlichkeit') || rat.includes('probability') || rat.includes('likelihood');
     return !hasQuantitative;
   });
   checks.push({
