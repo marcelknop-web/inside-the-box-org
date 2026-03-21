@@ -137,6 +137,11 @@ function getMgmtSummary(name: string, risks: Nis2Risk[], critRisks: Nis2Risk[], 
   const p0Count = failReqs;
   const timelineWeeks = crit > 0 ? (lang === 'de' ? '4-6 Wochen' : '4-6 weeks') : (lang === 'de' ? '3-6 Monate' : '3-6 months');
 
+  // Build concrete finding descriptions with actual names
+  const topCritNames = critRisks.slice(0, 3).map(r => r.name);
+  const topFailNames = failReqsList.slice(0, 3).map(r => r.name);
+  const topPartialNames = partialReqsList.slice(0, 3).map(r => r.name);
+
   if (lang === 'de') {
     return {
       context: `Die NIS-2-Richtlinie (Richtlinie (EU) 2022/2555) verpflichtet Betreiber wesentlicher und wichtiger Einrichtungen in der EU zu umfassenden Cybersicherheitsmaßnahmen. Sie regelt die Verantwortung der Geschäftsleitung (Art. 20), technische und organisatorische Risikomanagementmaßnahmen (Art. 21) sowie Meldepflichten bei erheblichen Sicherheitsvorfällen (Art. 23). In Deutschland wird NIS-2 durch das NIS-2-Umsetzungs- und Cybersicherheitsstärkungsgesetz (NIS2UmsuCG) in nationales Recht überführt. Die Einhaltung wird vom BSI überwacht.`,

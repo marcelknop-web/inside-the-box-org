@@ -137,6 +137,11 @@ function getMgmtSummary(name: string, risks: DoraRisk[], critRisks: DoraRisk[], 
   const p0Count = failReqs;
   const timelineWeeks = crit > 0 ? (lang === 'de' ? '4-6 Wochen' : '4-6 weeks') : (lang === 'de' ? '3-6 Monate' : '3-6 months');
 
+  // Build concrete finding descriptions with actual names
+  const topCritNames = critRisks.slice(0, 3).map(r => r.name);
+  const topFailNames = failReqsList.slice(0, 3).map(r => r.name);
+  const topPartialNames = partialReqsList.slice(0, 3).map(r => r.name);
+
   if (lang === 'de') {
     return {
       context: `DORA (Verordnung (EU) 2022/2554) verpflichtet alle Finanzunternehmen in der EU, ihre digitale operationale Resilienz nachzuweisen. Die Verordnung regelt das IKT-Risikomanagement, die Meldung von IKT-Vorfällen, die Prüfung der digitalen Resilienz und das Management von IKT-Drittanbieterrisiken. DORA gilt unmittelbar — ohne nationale Umsetzung — und wird von BaFin bzw. EZB überwacht.`,
