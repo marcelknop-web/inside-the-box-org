@@ -1,13 +1,11 @@
 import { useState, useCallback, useRef, useMemo, memo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { RotateCcw, ChevronDown, ChevronUp, Loader2, Sparkles, FileText, ShieldCheck, CheckCircle2, XCircle, AlertTriangle, Wrench } from 'lucide-react';
-import { applyDoraAuditFixes } from '@/utils/doraAuditFixes';
+import { RotateCcw, ChevronDown, ChevronUp, Loader2, Sparkles, FileText } from 'lucide-react';
 import { generateDoraReport } from '@/utils/doraReportPdf';
 import { DoraAuditCharts } from '@/components/DoraAuditCharts';
-import { DoraFindingsView } from '@/components/DoraFindingsView';
-import { runDoraQualityCheck, type QaResult } from '@/utils/doraQualityCheck';
+import { runDoraQualityCheck } from '@/utils/doraQualityCheck';
 import { PageMeta } from '@/components/PageMeta';
-import { Progress } from '@/components/ui/progress';
+import { useLanguage } from '@/i18n/LanguageContext';
 import { useLanguage } from '@/i18n/LanguageContext';
 import Typewriter from '@/components/Typewriter';
 import { StaggerReveal } from '@/components/StaggerReveal';
