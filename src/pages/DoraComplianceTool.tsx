@@ -53,9 +53,9 @@ const ScoreBar = memo(({ value }: { value: number }) => {
 function InfoBox({ icon = '💡', title, children, color = 'blue' }: { icon?: string; title?: string; children: React.ReactNode; color?: 'blue' | 'amber' | 'green' }) {
   const colors = { blue: 'bg-primary/10 border-primary/20', amber: 'bg-warning/10 border-warning/20', green: 'bg-green-500/10 border-green-500/20' };
   return (
-    <div className={`border rounded-lg px-4 py-3 text-sm text-foreground ${colors[color]}`}>
+    <div className={`border rounded-lg px-3 sm:px-4 py-3 text-sm text-foreground ${colors[color]} break-words overflow-hidden`}>
       {title ? <div className="font-semibold mb-1">{icon} <Typewriter text={title} mode="typewriter" delay={400} charDelay={8} cursor={false} /></div> : <span className="font-semibold">{icon} </span>}
-      <span>{children}</span>
+      <span className="break-words">{children}</span>
     </div>
   );
 }
