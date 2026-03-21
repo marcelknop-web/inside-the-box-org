@@ -325,12 +325,12 @@ export async function generateNis2Report(data: Nis2ReportData): Promise<void> {
   pdf.field(l('entity', lang), intakeData.entityName);
   pdf.field(l('entityType', lang), entityTypeName);
   pdf.field(l('criticality', lang), criticalityName);
-  if (intakeData.description) pdf.bodyParagraph(intakeData.description);
+  if (intakeData.description) pdf.bodyParagraph(humanizeText(intakeData.description, lang, 'description'));
 
   pdf.heading(l('sec3b', lang), 2);
-  if (intakeData.infrastructure.length > 0) pdf.field(lang === 'de' ? 'Infrastruktur' : 'Infrastructure', intakeData.infrastructure.join(', '));
-  if (intakeData.supplyChainProviders.length > 0) pdf.field(lang === 'de' ? 'Lieferanten / Dienstleister' : 'Suppliers / Service Providers', intakeData.supplyChainProviders.join(', '));
-  if (intakeData.roles.length > 0) pdf.field(lang === 'de' ? 'Verantwortliche Rollen' : 'Responsible Roles', intakeData.roles.join(', '));
+  if (intakeData.infrastructure.length > 0) pdf.bodyParagraph(humanizeList(intakeData.infrastructure, lang, 'infra'));
+  if (intakeData.supplyChainProviders.length > 0) pdf.bodyParagraph(humanizeList(intakeData.supplyChainProviders, lang, 'providers'));
+  if (intakeData.roles.length > 0) pdf.bodyParagraph(humanizeList(intakeData.roles, lang, 'roles'));
 
   pdf.heading(l('sec3c', lang), 2);
   pdf.introText(lang === 'de'
@@ -345,8 +345,8 @@ export async function generateNis2Report(data: Nis2ReportData): Promise<void> {
   }
 
   pdf.heading(l('sec3d', lang), 2);
-  if (intakeData.knownIssues) pdf.bodyParagraph(intakeData.knownIssues);
-  else pdf.bodyText(lang === 'de' ? 'Es wurden keine bekannten Schwachstellen angegeben.' : 'No known weaknesses were reported.');
+  if (intakeData.knownIssues) pdf.bodyParagraph(humanizeText(intakeData.knownIssues, lang, 'issues'));
+  else pdf.bodyText(lang === 'de' ? 'Es wurden keine bekannten Schwachstellen im Vorfeld der Prüfung benannt.' : 'No known weaknesses were reported prior to the assessment.');
 
   pdf.heading(l('sec3e', lang), 2);
   if (intakeData.files.length > 0) {

@@ -326,12 +326,12 @@ export async function generateDoraReport(data: DoraReportData): Promise<void> {
   pdf.field(l('entity', lang), intakeData.entityName);
   pdf.field(l('entityType', lang), entityTypeName);
   pdf.field(l('criticality', lang), criticalityName);
-  if (intakeData.description) pdf.bodyParagraph(intakeData.description);
+  if (intakeData.description) pdf.bodyParagraph(humanizeText(intakeData.description, lang, 'description'));
 
   pdf.heading(l('sec3b', lang), 2);
-  if (intakeData.infrastructure.length > 0) pdf.field(lang === 'de' ? 'IKT-Infrastruktur' : 'ICT Infrastructure', intakeData.infrastructure.join(', '));
-  if (intakeData.thirdPartyProviders.length > 0) pdf.field(lang === 'de' ? 'IKT-Drittanbieter' : 'ICT Third Parties', intakeData.thirdPartyProviders.join(', '));
-  if (intakeData.roles.length > 0) pdf.field(lang === 'de' ? 'Verantwortliche Rollen' : 'Responsible Roles', intakeData.roles.join(', '));
+  if (intakeData.infrastructure.length > 0) pdf.bodyParagraph(humanizeList(intakeData.infrastructure, lang, 'infra'));
+  if (intakeData.thirdPartyProviders.length > 0) pdf.bodyParagraph(humanizeList(intakeData.thirdPartyProviders, lang, 'providers'));
+  if (intakeData.roles.length > 0) pdf.bodyParagraph(humanizeList(intakeData.roles, lang, 'roles'));
 
   pdf.heading(l('sec3c', lang), 2);
   pdf.introText(lang === 'de'
@@ -346,8 +346,8 @@ export async function generateDoraReport(data: DoraReportData): Promise<void> {
   }
 
   pdf.heading(l('sec3d', lang), 2);
-  if (intakeData.knownIssues) pdf.bodyParagraph(intakeData.knownIssues);
-  else pdf.bodyText(lang === 'de' ? 'Keine bekannten Schwachstellen angegeben.' : 'No known weaknesses reported.');
+  if (intakeData.knownIssues) pdf.bodyParagraph(humanizeText(intakeData.knownIssues, lang, 'issues'));
+  else pdf.bodyText(lang === 'de' ? 'Es wurden keine bekannten Schwachstellen im Vorfeld der Prüfung benannt.' : 'No known weaknesses were reported prior to the assessment.');
 
   pdf.heading(l('sec3e', lang), 2);
   if (intakeData.files.length > 0) {
