@@ -860,7 +860,13 @@ export function generateCraReport(data: CraReportData): void {
 
   if (intakeData.description) {
     y += 2;
-    writeFieldBlock(t(I18N.description), intakeData.description, 0);
+    // Humanize description
+    const desc = intakeData.description.trim();
+    const humanDesc = desc.length > 40 && /[.!?]$/.test(desc) ? desc
+      : lang === 'de' ? `Zum geprüften Produkt wurde die folgende Beschreibung angegeben: ${desc}${desc.endsWith('.') ? '' : '.'}`
+      : lang === 'fr' ? `La description suivante a été fournie pour le produit évalué : ${desc}${desc.endsWith('.') ? '' : '.'}`
+      : `The following description was provided for the assessed product: ${desc}${desc.endsWith('.') ? '' : '.'}`;
+    writeBody(humanDesc);
   }
 
   // 3.2 Components & Architecture
@@ -868,14 +874,15 @@ export function generateCraReport(data: CraReportData): void {
   writeSubHeading(t(I18N.sec3b));
   writeBody(t(I18N.introSec3b));
   if (intakeData.components.length > 0) {
-    for (const comp of intakeData.components) {
-      checkPage(6);
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(BODY_SIZE);
-      doc.setTextColor(...C.bodyText);
-      doc.text(`•  ${comp}`, ML + 5, y);
-      y += BODY_LEADING + 0.5;
-    }
+    const compList = intakeData.components.length <= 2
+      ? intakeData.components.join(lang === 'de' ? ' und ' : ' and ')
+      : intakeData.components.slice(0, -1).join(', ') + (lang === 'de' ? ' und ' : ' and ') + intakeData.components[intakeData.components.length - 1];
+    const compSentence = lang === 'de'
+      ? `Das Produkt setzt sich aus den folgenden Systemkomponenten zusammen: ${compList}.`
+      : lang === 'fr'
+      ? `Le produit se compose des composants système suivants : ${compList}.`
+      : `The product comprises the following system components: ${compList}.`;
+    writeBody(compSentence);
   } else {
     writeBody('—');
   }
