@@ -1018,6 +1018,9 @@ export class PdfDoc {
 
     // Reset text color for subsequent pages
     this.doc.setTextColor(...C.dark);
+
+    // Mark cover as page 1 so next newPage() correctly adds a new page
+    this.pageNum = 1;
   }
 
   /** Table of Contents */
