@@ -1254,14 +1254,36 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
       : `Root cause: ${th.rationale}`;
     writeFieldBlock(lang === 'de' ? 'URSACHE (ROOT CAUSE)' : 'ROOT CAUSE', rootCauseText);
 
-    // 11. RECOMMENDATION
+    // 11. RECOMMENDATION (technical, specific, actionable)
     const relatedReqObj = reqs.find(r => r.article === th.cra);
-    const recText = relatedReqObj && relatedReqObj.measure
-      ? relatedReqObj.measure
-      : lang === 'de'
-        ? `Gegenmaßnahmen für ${th.component} implementieren und durch unabhängige Tests verifizieren.`
-        : `Implement countermeasures for ${th.component} and verify through independent testing.`;
-    writeFieldBlock(lang === 'de' ? 'EMPFEHLUNG' : 'RECOMMENDATION', recText);
+    const recBase = relatedReqObj && relatedReqObj.measure ? relatedReqObj.measure : '';
+    const techRec = lang === 'de'
+      ? [
+          recBase || `Gegenmaßnahmen für ${th.component} implementieren.`,
+          th.stride === 'S' || th.stride === 'E' ? `Zugriffskontrolle auf ${th.component} durch IP-Allowlisting und Multi-Faktor-Authentifizierung einschränken.` : '',
+          th.stride === 'I' ? `TLS 1.3 für alle Kommunikationskanäle von ${th.component} erzwingen.` : '',
+          th.stride === 'T' ? `Integritätsprüfungen (HMAC/Signaturen) für ${th.component} implementieren.` : '',
+          th.stride === 'D' ? `Rate-Limiting und Redundanz für ${th.component} konfigurieren.` : '',
+          `Durch unabhängige Penetrationstests verifizieren.`,
+        ].filter(Boolean).join(' ')
+      : lang === 'fr'
+        ? [
+            recBase || `Implémenter des contre-mesures pour ${th.component}.`,
+            th.stride === 'S' || th.stride === 'E' ? `Restreindre l'accès à ${th.component} via liste blanche IP et authentification multi-facteurs.` : '',
+            th.stride === 'I' ? `Imposer TLS 1.3 pour tous les canaux de communication de ${th.component}.` : '',
+            th.stride === 'T' ? `Implémenter des vérifications d'intégrité (HMAC/signatures) pour ${th.component}.` : '',
+            th.stride === 'D' ? `Configurer le rate-limiting et la redondance pour ${th.component}.` : '',
+            `Vérifier par des tests de pénétration indépendants.`,
+          ].filter(Boolean).join(' ')
+        : [
+            recBase || `Implement countermeasures for ${th.component}.`,
+            th.stride === 'S' || th.stride === 'E' ? `Restrict access to ${th.component} via IP allowlisting and multi-factor authentication.` : '',
+            th.stride === 'I' ? `Enforce TLS 1.3 for all communication channels of ${th.component}.` : '',
+            th.stride === 'T' ? `Implement integrity checks (HMAC/signatures) for ${th.component}.` : '',
+            th.stride === 'D' ? `Configure rate-limiting and redundancy for ${th.component}.` : '',
+            `Verify through independent penetration testing.`,
+          ].filter(Boolean).join(' ');
+    writeFieldBlock(lang === 'de' ? 'EMPFEHLUNG' : lang === 'fr' ? 'RECOMMANDATION' : 'RECOMMENDATION', techRec);
 
     // 12. REFERENCE
     const refParts = [th.cra];
