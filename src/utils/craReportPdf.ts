@@ -1447,7 +1447,7 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     if (linkedThreats.length > 0) {
       writeFieldBlock(t(I18N.affectedComponentLabel), linkedThreats.map(th => th.component).filter((v, i, a) => a.indexOf(v) === i).join(', '));
     }
-    writeFieldBlock(t(I18N.evidenceLabel), req.evidence);
+    writeFieldBlock(t(I18N.evidenceLabel), humanizeEvidence(req.evidence, lang));
 
     // 5. THREAT CATEGORY (STRIDE)
     const strideCategories = [...new Set(linkedThreats.map(th => th.stride))];
