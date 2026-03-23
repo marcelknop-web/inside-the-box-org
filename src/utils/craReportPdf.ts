@@ -733,12 +733,19 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
   doc.setFont(HEAD_FONT, 'normal');
   doc.setFontSize(11);
   doc.setTextColor(...C.accent);
-  doc.text(t(I18N.subtitle), ML, 76);
+  doc.text(t(I18N.subtitle), ML, 78);
 
+  // "KI-gestützte Analyse" badge
+  const aiLabel = lang === 'de' ? 'KI-gestützte Analyse' : lang === 'fr' ? 'Analyse assistée par IA' : 'AI-powered Analysis';
   doc.setFont(HEAD_FONT, 'normal');
-  doc.setFontSize(13);
+  doc.setFontSize(8.5);
+  doc.setTextColor(180, 190, 210);
+  doc.text(aiLabel, ML, 90);
+
+  doc.setFont(HEAD_FONT, 'bold');
+  doc.setFontSize(16);
   doc.setTextColor(...C.coverMeta);
-  doc.text(`${intakeData.productName} ${intakeData.version}`, ML, 90);
+  doc.text(`${intakeData.productName} ${intakeData.version}`, ML, 112);
 
   const metaY = H - 85;
   doc.setDrawColor(...C.gold);
@@ -763,14 +770,15 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     my += 6.5;
   }
 
+  doc.setFont(HEAD_FONT, 'normal');
+  doc.setFontSize(7);
+  doc.setTextColor(110, 120, 140);
+  doc.text('lightspeedconsulting.ai', ML, H - 16);
+
   doc.setFont(HEAD_FONT, 'bold');
   doc.setFontSize(7);
   doc.setTextColor(...C.gold);
   doc.text(t(I18N.confidential), W - MR, H - 16, { align: 'right' });
-  doc.setFont(HEAD_FONT, 'normal');
-  doc.setFontSize(7);
-  doc.setTextColor(110, 120, 140);
-  doc.text('inside-the-box.org', ML, H - 16);
   doc.setFillColor(...C.gold);
   doc.rect(0, H - 2.5, W, 2.5, 'F');
 

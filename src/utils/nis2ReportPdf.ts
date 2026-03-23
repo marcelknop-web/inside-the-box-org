@@ -280,7 +280,7 @@ export async function generateNis2Report(data: Nis2ReportData): Promise<void> {
       [l('generated', lang), today],
       [l('reportId', lang), pdf.reportId],
     ],
-    confidentialNote: l('confidential', lang) + '  —  ' + (lang === 'de' ? 'Nur für den internen Gebrauch des Empfängers bestimmt' : 'For internal use of the recipient only'),
+    confidentialNote: l('confidential', lang) + '  —  ' + (lang === 'de' ? 'Nur für den internen Gebrauch des Empfängers bestimmt' : lang === 'fr' ? 'Réservé à l\'usage interne du destinataire' : 'For internal use of the recipient only'),
   });
 
   // ═══ TABLE OF CONTENTS ═══
