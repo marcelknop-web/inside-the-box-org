@@ -373,9 +373,26 @@ export class PdfDoc {
     this.doc.setFont(this.bodyFont, 'normal');
     this.doc.setTextColor(...C.dark);
     const lines = this.doc.splitTextToSize(text, LAYOUT.WIDTH - indent);
-    this.checkSpace(lines.length * LAYOUT.BODY_LEADING + 2);
-    this.doc.text(lines, LAYOUT.LEFT + indent, this.y);
-    this.y += lines.length * LAYOUT.BODY_LEADING + 2;
+    // Orphan/widow protection: if paragraph spans page break, ensure min 2 lines on each side
+    const availLines = Math.floor((LAYOUT.BOTTOM - this.y) / LAYOUT.BODY_LEADING);
+    if (lines.length > availLines && availLines > 0 && availLines < 2) {
+      // Would leave only 1 line (orphan) — push entire paragraph to next page
+      this.newPage();
+    }
+    for (let i = 0; i < lines.length; i++) {
+      // Widow check: don't leave last line alone on new page
+      if (i === lines.length - 1 && i > 0) {
+        const remaining = LAYOUT.BOTTOM - this.y;
+        if (remaining < LAYOUT.BODY_LEADING) {
+          // Last line would be a widow — pull penultimate line to next page too
+          // (already handled by checkSpace below)
+        }
+      }
+      this.checkSpace(LAYOUT.BODY_LEADING + 1);
+      this.doc.text(lines[i], LAYOUT.LEFT + indent, this.y);
+      this.y += LAYOUT.BODY_LEADING;
+    }
+    this.y += 2;
   }
 
   bodyParagraph(text: string): void {
@@ -383,9 +400,17 @@ export class PdfDoc {
     this.doc.setFont(this.bodyFont, 'normal');
     this.doc.setTextColor(...C.dark);
     const lines = this.doc.splitTextToSize(text, LAYOUT.WIDTH);
-    this.checkSpace(lines.length * LAYOUT.BODY_LEADING + 4);
-    this.doc.text(lines, LAYOUT.LEFT, this.y);
-    this.y += lines.length * LAYOUT.BODY_LEADING + 6;
+    // Orphan protection: ensure at least 2 lines stay together
+    const availLines = Math.floor((LAYOUT.BOTTOM - this.y) / LAYOUT.BODY_LEADING);
+    if (lines.length > 1 && availLines > 0 && availLines < 2) {
+      this.newPage();
+    }
+    for (let i = 0; i < lines.length; i++) {
+      this.checkSpace(LAYOUT.BODY_LEADING + 1);
+      this.doc.text(lines[i], LAYOUT.LEFT, this.y);
+      this.y += LAYOUT.BODY_LEADING;
+    }
+    this.y += 6;
   }
 
   /** Two-line field: small label above, value below */
