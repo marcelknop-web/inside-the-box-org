@@ -763,6 +763,73 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
   newSection();
   writeSectionHeading(t(I18N.sec1));
   writeBody(getContextText(intakeData.productName, intakeData.version, productTypeName, craClassName, dateStr, lang));
+  y += 4;
+
+  // ── Formal Audit Scope Block ──
+  const scopeTitle = lang === 'de' ? 'PRÜFUNGSUMFANG UND ABGRENZUNG' : lang === 'fr' ? 'PÉRIMÈTRE ET DÉLIMITATION' : 'AUDIT SCOPE AND BOUNDARIES';
+  writeLabel(scopeTitle);
+  y += 1;
+
+  const scopeFields = lang === 'de' ? [
+    ['Prüfgegenstand', `${intakeData.productName} ${intakeData.version} (${productTypeName}, CRA-Klasse: ${craClassName})`],
+    ['Organisationseinheit', intakeData.productName],
+    ['Geprüfte Systeme / Komponenten', intakeData.components.length > 0 ? intakeData.components.join(', ') : 'Alle im Intake benannten Systemkomponenten'],
+    ['Geprüfte Schnittstellen', intakeData.interfaces.length > 0 ? intakeData.interfaces.join(', ') : 'Keine explizit benannt'],
+    ['Prüfungszeitraum', dateStr],
+    ['Prüfungskriterien', 'EU Cyber Resilience Act (VO (EU) 2024/2847), Annex I (Sicherheitseigenschaften), Annex II (Schwachstellenbehandlung), Art. 10-18 (Herstellerpflichten), ETSI EN 303 645, OWASP IoT Top 10'],
+    ['Prüfungsziele', '(1) Systematische Identifikation von Bedrohungen nach STRIDE, (2) Bewertung der CRA-Konformität, (3) Ableitung einer priorisierten Remediation-Roadmap, (4) Feststellung der Marktreife'],
+    ['Ausschlüsse', 'Keine physische Vor-Ort-Prüfung. Keine akkreditierte Konformitätsbewertung nach Art. 24 ff. CRA. Keine Prüfung von Lieferketten-Subkomponenten, sofern nicht vom Hersteller angegeben.'],
+  ] : lang === 'fr' ? [
+    ['Objet de l\'évaluation', `${intakeData.productName} ${intakeData.version} (${productTypeName}, classe CRA : ${craClassName})`],
+    ['Unité organisationnelle', intakeData.productName],
+    ['Systèmes / composants évalués', intakeData.components.length > 0 ? intakeData.components.join(', ') : 'Tous les composants nommés dans l\'intake'],
+    ['Interfaces évaluées', intakeData.interfaces.length > 0 ? intakeData.interfaces.join(', ') : 'Aucune explicitement nommée'],
+    ['Période d\'évaluation', dateStr],
+    ['Critères d\'évaluation', 'EU CRA (Règlement (UE) 2024/2847), Annexe I, Annexe II, Art. 10-18, ETSI EN 303 645, OWASP IoT Top 10'],
+    ['Objectifs', '(1) Identification systématique des menaces STRIDE, (2) Évaluation de la conformité CRA, (3) Feuille de route de remédiation priorisée, (4) Détermination de la maturité marché'],
+    ['Exclusions', 'Pas d\'audit physique sur site. Pas d\'évaluation de conformité accréditée. Pas d\'examen des sous-composants de la chaîne d\'approvisionnement.'],
+  ] : [
+    ['Assessment Subject', `${intakeData.productName} ${intakeData.version} (${productTypeName}, CRA class: ${craClassName})`],
+    ['Organisational Unit', intakeData.productName],
+    ['Assessed Systems / Components', intakeData.components.length > 0 ? intakeData.components.join(', ') : 'All components named in intake'],
+    ['Assessed Interfaces', intakeData.interfaces.length > 0 ? intakeData.interfaces.join(', ') : 'None explicitly named'],
+    ['Assessment Period', dateStr],
+    ['Assessment Criteria', 'EU Cyber Resilience Act (Regulation (EU) 2024/2847), Annex I (Security Properties), Annex II (Vulnerability Handling), Art. 10-18 (Manufacturer Obligations), ETSI EN 303 645, OWASP IoT Top 10'],
+    ['Objectives', '(1) Systematic threat identification via STRIDE, (2) CRA compliance assessment, (3) Prioritised remediation roadmap, (4) Market readiness determination'],
+    ['Exclusions', 'No physical on-site audit. No accredited conformity assessment per Art. 24 ff. CRA. No examination of supply chain sub-components unless reported by manufacturer.'],
+  ];
+
+  checkPage(60);
+  doc.setFillColor(...C.bgLight);
+  const scopeBoxStartY = y;
+  // Estimate box height
+  let scopeH = 6;
+  for (const [k, v] of scopeFields) { scopeH += 12 + Math.ceil(v.length / 80) * 4; }
+  scopeH = Math.min(scopeH, 140);
+  doc.roundedRect(ML, y, CW, scopeH, 2, 2, 'F');
+  doc.setFillColor(...C.accent);
+  doc.rect(ML, y, 2, scopeH, 'F');
+  y += 4;
+
+  for (const [key, value] of scopeFields) {
+    checkPage(14);
+    doc.setFont(HEAD_FONT, 'bold');
+    doc.setFontSize(7.5);
+    doc.setTextColor(...C.accent);
+    doc.text(key.toUpperCase(), ML + 6, y);
+    y += 3.5;
+    doc.setFont(HEAD_FONT, 'normal');
+    doc.setFontSize(BODY_SIZE);
+    doc.setTextColor(...C.bodyText);
+    const valLines = doc.splitTextToSize(value, CW - 14);
+    for (const vl of valLines) {
+      checkPage(5);
+      doc.text(vl, ML + 6, y);
+      y += BODY_LEADING;
+    }
+    y += 2;
+  }
+  y += 4;
 
   /* ══════════════════════════════════════
      SECTION 2: Management Summary (McKinsey-style)
