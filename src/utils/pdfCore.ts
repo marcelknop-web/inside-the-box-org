@@ -413,36 +413,64 @@ export class PdfDoc {
     this.y += 6;
   }
 
-  /** Two-line field: small label above, value below */
+  /** Two-line field: small label above, value below — styled with background panel */
   field(label: string, value: string): void {
-    this.checkSpace(13);
-    this.doc.setFont(this.headFont, 'normal');
+    this.doc.setFont(this.bodyFont, 'normal');
+    this.doc.setFontSize(LAYOUT.BODY_SIZE);
+    const valLines = this.doc.splitTextToSize(value, LAYOUT.WIDTH - 8);
+    const totalH = 5 + valLines.length * LAYOUT.BODY_LEADING + 4;
+    this.checkSpace(totalH + 2);
+
+    // Background panel
+    const panelY = this.y - 2;
+    this.doc.setFillColor(248, 249, 251);
+    this.doc.roundedRect(LAYOUT.LEFT, panelY, LAYOUT.WIDTH, totalH, 1, 1, 'F');
+    // Left accent bar
+    this.doc.setFillColor(...C.accent);
+    this.doc.rect(LAYOUT.LEFT, panelY, 1.2, totalH, 'F');
+
+    // Label
+    this.doc.setFont(this.headFont, 'bold');
     this.doc.setFontSize(LAYOUT.LABEL_SIZE);
-    this.doc.setTextColor(...C.mid);
-    this.doc.text(label.toUpperCase(), LAYOUT.LEFT, this.y);
-    this.y += 3.8;
+    this.doc.setTextColor(...C.accent);
+    this.doc.text(label.toUpperCase(), LAYOUT.LEFT + 5, this.y + 1);
+    this.y += 5;
+
+    // Value
     this.doc.setFont(this.bodyFont, 'normal');
     this.doc.setFontSize(LAYOUT.BODY_SIZE);
     this.doc.setTextColor(...C.dark);
-    const lines = this.doc.splitTextToSize(value, LAYOUT.WIDTH);
-    this.doc.text(lines, LAYOUT.LEFT, this.y);
-    this.y += lines.length * LAYOUT.BODY_LEADING + 3.5;
+    for (const line of valLines) {
+      this.doc.text(line, LAYOUT.LEFT + 5, this.y);
+      this.y += LAYOUT.BODY_LEADING;
+    }
+    this.y += 3;
   }
 
-  /** Inline label: value on same line */
+  /** Inline label: value on same line — with subtle background */
   fieldInline(label: string, value: string, indent = 0): void {
-    this.checkSpace(10);
     const labelW = Math.min(this.doc.getTextWidth(label + ':  ') + 2, 48);
+    this.doc.setFont(this.bodyFont, 'normal');
+    this.doc.setFontSize(8.5);
+    const valLines = this.doc.splitTextToSize(value, LAYOUT.WIDTH - indent - labelW - 8);
+    const lineH = Math.max(valLines.length * 3.8, 4.5);
+    const totalH = lineH + 4;
+    this.checkSpace(totalH + 1);
+
+    // Subtle alternating background
+    const panelY = this.y - 2.5;
+    this.doc.setFillColor(250, 251, 252);
+    this.doc.roundedRect(LAYOUT.LEFT + indent, panelY, LAYOUT.WIDTH - indent, totalH, 0.8, 0.8, 'F');
+
     this.doc.setFont(this.headFont, 'bold');
     this.doc.setFontSize(7.5);
     this.doc.setTextColor(...C.mid);
-    this.doc.text(label, LAYOUT.LEFT + indent, this.y);
+    this.doc.text(label, LAYOUT.LEFT + indent + 3, this.y);
     this.doc.setFont(this.bodyFont, 'normal');
     this.doc.setFontSize(8.5);
     this.doc.setTextColor(...C.dark);
-    const valLines = this.doc.splitTextToSize(value, LAYOUT.WIDTH - indent - labelW - 2);
-    this.doc.text(valLines, LAYOUT.LEFT + indent + labelW, this.y);
-    this.y += Math.max(valLines.length * 3.8, 4.5) + 1.5;
+    this.doc.text(valLines, LAYOUT.LEFT + indent + labelW + 3, this.y);
+    this.y += lineH + 2.5;
   }
 
   separator(): void {
