@@ -587,12 +587,19 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     doc.restoreGraphicsState();
   }
 
+  function resetBodyFont() {
+    doc.setFont(HEAD_FONT, 'normal');
+    doc.setFontSize(BODY_SIZE);
+    doc.setTextColor(...C.bodyText);
+  }
+
   function checkPage(need: number = 16) {
     if (y > BOTTOM - need) {
       addFooter();
       doc.addPage();
       preparePage();
       y = TOP;
+      resetBodyFont();
     }
   }
 
