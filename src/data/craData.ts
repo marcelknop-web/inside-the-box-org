@@ -383,10 +383,12 @@ export const CRA_REQS: CraReq[] = [
 
   // ═══ ARTIKEL — Prozessuale Anforderungen (5) ═══
 
-  { id: 'Art10', article: 'Artikel 10', name: 'Cybersecurity über den Lebenszyklus', status: 'pass', gap: '',
-    evidence: 'Cybersecurity ist in den SDLC integriert: Threat Modeling in Design-Phase, SAST in Development, Pentest vor Release, Monitoring in Operations. Security-Champion im Entwicklungsteam benannt. Jährliches Security-Training für alle Entwickler.',
-    rationale: 'Erfüllt: Cybersecurity wird über den gesamten Produktlebenszyklus berücksichtigt. Prozesse sind dokumentiert und werden praktiziert. Verbesserungspotenzial bei der Formalisierung des Secure-SDLC-Frameworks.',
-    measure: '', criteria: [], effort: '', priority: '' },
+  { id: 'Art10', article: 'Artikel 10', name: 'Cybersecurity über den Lebenszyklus', status: 'partial', gap: 'Secure-SDLC-Framework nicht formalisiert, keine durchgängige Governance',
+    evidence: 'Cybersecurity ist in den SDLC integriert: Threat Modeling in Design-Phase, SAST in Development, Pentest vor Release, Monitoring in Operations. Security-Champion im Entwicklungsteam benannt. Jährliches Security-Training für alle Entwickler. Jedoch: Kein formalisiertes Secure-SDLC-Framework (z.B. BSIMM, SAMM). Governance-Strukturen (Security Board, Risk Acceptance Process) fehlen.',
+    rationale: 'Teilweise erfüllt: Praktische Security-Aktivitäten sind vorhanden und werden gelebt. CRA Art. 10 verlangt jedoch eine dokumentierte Governance-Struktur für Cybersecurity über den gesamten Produktlebenszyklus — nicht nur technische Maßnahmen, sondern auch organisatorische Prozesse, Verantwortlichkeiten und Eskalationswege. Diese organisatorische Ebene ist nicht formalisiert.',
+    measure: '1. Secure-SDLC-Framework formalisieren (BSIMM oder OWASP SAMM als Basis). 2. Security Governance Board einrichten (quartalsweise Reviews). 3. Risk Acceptance Process dokumentieren (Kriterien, Genehmigungsstufen, Dokumentationspflicht).',
+    criteria: ['Formalisiertes Secure-SDLC-Framework dokumentiert und aktiv genutzt', 'Security Governance Board mit regelmäßigen Reviews etabliert', 'Risk Acceptance Process mit definierten Genehmigungsstufen dokumentiert'],
+    effort: '16–24h (Framework-Doku 8h, Governance-Setup 4–8h, Risk-Acceptance-Prozess 4–8h)', priority: 'P2' },
 
   { id: 'Art11', article: 'Artikel 11', name: 'Cybersecurity Testing & Zertifizierung', status: 'partial', gap: 'Testing-Framework nicht formalisiert, keine externe Zertifizierung',
     evidence: 'Unit-Tests für Security-Funktionen vorhanden. SAST-Tool in CI/CD. Aber: Kein formalisiertes Security-Testing-Framework. Keine externe Zertifizierung oder akkreditierte Prüfung durchgeführt. Testabdeckung für Security-Funktionen bei ~65%.',
@@ -409,8 +411,31 @@ export const CRA_REQS: CraReq[] = [
     criteria: ['Incident-Response-Prozess dokumentiert mit definierten Rollen, Eskalationsstufen und Zeitvorgaben', 'ENISA-Meldeplattform registriert und Meldeprozess getestet (Trockenübung)', 'Frühwarnmeldung innerhalb von 24h und vollständiger Bericht innerhalb von 72h sichergestellt', 'On-Call-Rotation für Security-Incidents definiert'],
     effort: '16–24h (IR-Prozess 8h, ENISA-Registrierung 2h, Tabletop 4–8h, On-Call-Setup 2–4h)', priority: 'P0' },
 
-  { id: 'Art22', article: 'Artikel 22', name: 'Marktüberwachung & Konformitätserklärung', status: 'pass', gap: '',
-    evidence: 'CE-Kennzeichnung am Produkt angebracht. EU-Konformitätserklärung in Entwurfsfassung vorhanden. Produktregistrierung bei nationaler Marktüberwachungsbehörde vorbereitet. Kontaktdaten des Herstellers auf Produkt und Verpackung.',
-    rationale: 'Erfüllt: Grundlegende Marktüberwachungspflichten werden adressiert. CE-Kennzeichnung und Herstellerangaben sind vorhanden. Konformitätserklärung muss nach Abschluss der CRA-Bewertung finalisiert werden.',
-    measure: '', criteria: [], effort: '', priority: '' },
+  { id: 'Art15', article: 'Artikel 15', name: 'Konformitätsbewertungsverfahren', status: 'partial', gap: 'Kein definierter Konformitätspfad, Self-Assessment vs. Notified Body nicht geklärt',
+    evidence: 'Produktklassifizierung als "Default Class" angegeben. Keine dokumentierte Begründung, warum das Produkt nicht als "kritisches Produkt" (Klasse I oder II) einzustufen ist. Kein Konformitätsbewertungsverfahren definiert (Self-Assessment nach Modul A oder Drittprüfung nach Modul B/C).',
+    rationale: 'Teilweise erfüllt: CRA Art. 15 verlangt die Durchführung eines angemessenen Konformitätsbewertungsverfahrens. Die Wahl des Verfahrens hängt von der Produktklassifizierung ab. Ohne dokumentierte Klassifizierungsbegründung und ohne definierten Konformitätspfad ist diese Anforderung nicht vollständig adressiert.',
+    measure: '1. Produktklassifizierung dokumentieren und begründen (Default vs. Klasse I/II anhand CRA Annex III/IV). 2. Konformitätsbewertungsverfahren festlegen (Modul A für Default, Modul B+C für Klasse II). 3. Bei Klasse II: Benannte Stelle identifizieren und beauftragen.',
+    criteria: ['Produktklassifizierung schriftlich begründet (Abgleich mit CRA Annex III und IV)', 'Konformitätsbewertungsverfahren definiert und dokumentiert', 'Bei Klasse II: Benannte Stelle identifiziert'],
+    effort: '8–16h (Klassifizierung 4h, Verfahrens-Definition 2–4h, Recherche Benannte Stellen 2–8h)', priority: 'P2' },
+
+  { id: 'Art16', article: 'Artikel 16', name: 'EU-Konformitätserklärung', status: 'partial', gap: 'Entwurfsfassung vorhanden, aber nicht finalisiert und nicht vollständig',
+    evidence: 'EU-Konformitätserklärung in Entwurfsfassung vorhanden. Inhalt deckt nicht alle Pflichtangaben nach CRA Annex V ab (fehlend: Verweis auf angewandte harmonisierte Normen, Angabe des Konformitätsbewertungsverfahrens, Unterschrift des Bevollmächtigten).',
+    rationale: 'Teilweise erfüllt: Ansatz vorhanden, aber die Erklärung ist weder inhaltlich vollständig noch formal unterzeichnet. CRA Art. 16 verlangt eine vollständige EU-Konformitätserklärung gemäß Annex V vor dem Inverkehrbringen.',
+    measure: '1. Konformitätserklärung gemäß CRA Annex V vervollständigen. 2. Verweis auf angewandte Normen (ETSI EN 303 645, ISO 27001) ergänzen. 3. Konformitätsbewertungsverfahren referenzieren. 4. Unterzeichnung durch Bevollmächtigten vorbereiten.',
+    criteria: ['EU-Konformitätserklärung enthält alle Pflichtangaben nach CRA Annex V', 'Verweis auf angewandte harmonisierte Normen dokumentiert', 'Konformitätsbewertungsverfahren referenziert', 'Unterzeichnung durch benannten Bevollmächtigten'],
+    effort: '4–8h (Dokumenten-Vervollständigung 2–4h, Norm-Recherche 1–2h, Genehmigungsprozess 1–2h)', priority: 'P2' },
+
+  { id: 'Art17', article: 'Artikel 17', name: 'Post-Market-Überwachung', status: 'fail', gap: 'Kein Post-Market-Surveillance-Prozess implementiert',
+    evidence: 'Interview: Kein dokumentierter Post-Market-Surveillance-Prozess. Keine systematische Erfassung von Felddaten zu Sicherheitsvorfällen. Kein Prozess zur Bewertung neuer Bedrohungen nach Markteinführung. Customer-Feedback wird ad hoc bearbeitet.',
+    rationale: 'Nicht erfüllt: CRA verlangt eine aktive Überwachung des Produkts nach dem Inverkehrbringen. Der Hersteller muss neue Schwachstellen identifizieren, Sicherheitsupdates bereitstellen und bei Bedarf Korrekturmaßnahmen ergreifen. Ohne systematischen Prozess ist diese Pflicht nicht erfüllbar.',
+    measure: '1. Post-Market-Surveillance-Plan dokumentieren (Datenquellen: CVE-Feeds, Customer-Reports, Telemetrie). 2. Regelmäßige Threat-Intelligence-Auswertung (monatlich). 3. Eskalationskriterien für Korrekturmaßnahmen definieren. 4. Jährliches Security-Re-Assessment des Produkts.',
+    criteria: ['Post-Market-Surveillance-Plan dokumentiert und implementiert', 'Threat-Intelligence-Feeds aktiv überwacht (CVE, NVD, Vendor-Advisories)', 'Eskalationskriterien für Sicherheitsvorfälle definiert', 'Jährliches Security-Re-Assessment geplant'],
+    effort: '12–20h (Prozess-Doku 4–8h, TI-Feed-Integration 4–8h, Re-Assessment-Planung 4h)', priority: 'P1' },
+
+  { id: 'Art22', article: 'Artikel 22', name: 'Marktüberwachung & CE-Kennzeichnung', status: 'partial', gap: 'CE-Kennzeichnung vorhanden, aber Konformitätserklärung nicht finalisiert',
+    evidence: 'CE-Kennzeichnung am Produkt angebracht. EU-Konformitätserklärung nur in Entwurfsfassung vorhanden (vgl. Art16). Produktregistrierung bei nationaler Marktüberwachungsbehörde vorbereitet, aber nicht abgeschlossen. Kontaktdaten des Herstellers auf Produkt und Verpackung.',
+    rationale: 'Teilweise erfüllt: CE-Kennzeichnung und Herstellerangaben sind vorhanden. Jedoch: Die CE-Kennzeichnung darf erst nach Abschluss eines Konformitätsbewertungsverfahrens angebracht werden (Art. 22 i.V.m. Art. 15). Ohne finalisierte Konformitätserklärung und abgeschlossenes Bewertungsverfahren ist die aktuelle CE-Kennzeichnung formal nicht korrekt.',
+    measure: '1. Konformitätsbewertungsverfahren abschließen (vgl. Art15). 2. EU-Konformitätserklärung finalisieren (vgl. Art16). 3. CE-Kennzeichnung erst nach Abschluss formal validieren. 4. Registrierung bei Marktüberwachungsbehörde abschließen.',
+    criteria: ['Konformitätsbewertungsverfahren nachweislich abgeschlossen', 'EU-Konformitätserklärung finalisiert und unterzeichnet', 'CE-Kennzeichnung formal korrekt angebracht (nach Abschluss des Verfahrens)', 'Registrierung bei zuständiger Marktüberwachungsbehörde abgeschlossen'],
+    effort: '4–8h (abhängig von Abschluss Art15/Art16)', priority: 'P2' },
 ];
