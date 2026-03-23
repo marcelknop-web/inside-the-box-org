@@ -426,65 +426,69 @@ export async function generateNis2Report(data: Nis2ReportData): Promise<void> {
   risks.forEach((ri, idx) => {
     pdf.checkSpace(55);
     const score = ri.likelihood * ri.impact;
-    const sev = score >= 20 ? (lang === 'de' ? 'KRITISCH' : 'CRITICAL') : score >= 13 ? (lang === 'de' ? 'HOCH' : 'HIGH') : score >= 6 ? (lang === 'de' ? 'MITTEL' : 'MEDIUM') : (lang === 'de' ? 'NIEDRIG' : 'LOW');
+    const sev = score >= 20 ? l('criticalSev', lang) : score >= 13 ? l('highSev', lang) : score >= 6 ? l('mediumSev', lang) : l('lowSev', lang);
     const cat = RISK_CATEGORIES[ri.category]?.label[lang] || ri.category;
     const eId = `E-${String(idx + 1).padStart(3, '0')}`;
     const linked = linkReqs(ri, reqs);
 
     // 1. FINDING ID + 2. TITLE
     pdf.heading(`${l('finding', lang)} ${riskId(ri)}: ${ri.name}`, 3);
-    pdf.metaLine(`${cat}  |  ${sev}  |  ${ri.nis2Ref}  |  ${eId}  |  ${lang === 'de' ? 'Evidenz' : 'Evidence'}: ${ri.evidenceQuality}/5`);
+    pdf.metaLine(`${cat}  |  ${sev}  |  ${ri.nis2Ref}  |  ${eId}  |  ${l('evidence', lang)}: ${ri.evidenceQuality}/5`);
 
     // 3. OBSERVATION
     const obsText = lang === 'de'
       ? `Die Komponente ${ri.component} weist eine Schwachstelle auf: ${ri.name}. Die erhobene Evidenz zeigt: ${ri.evidence}`
-      : `The component ${ri.component} exhibits a vulnerability: ${ri.name}. Evidence shows: ${ri.evidence}`;
-    pdf.bodyText(`${lang === 'de' ? 'Beobachtung' : 'Observation'}: ${obsText}`, 0);
+      : lang === 'fr'
+        ? `Le composant ${ri.component} présente une vulnérabilité : ${ri.name}. Les preuves recueillies montrent : ${ri.evidence}`
+        : `The component ${ri.component} exhibits a vulnerability: ${ri.name}. Evidence shows: ${ri.evidence}`;
+    pdf.bodyText(`${l('observationLabel', lang)}: ${obsText}`, 0);
 
     // 4. TECHNICAL DETAILS
-    pdf.sectionLabel(lang === 'de' ? 'TECHNISCHE DETAILS' : 'TECHNICAL DETAILS');
+    pdf.sectionLabel(l('techDetails', lang));
     pdf.fieldInline(l('component', lang), ri.component);
     pdf.fieldInline(l('attacker', lang), ri.attacker);
     pdf.fieldInline(l('attackPath', lang), ri.path);
-    pdf.fieldInline(lang === 'de' ? 'Evidenz-Referenz' : 'Evidence Reference', `${eId} (${ri.evidenceQuality}/5)`);
+    pdf.fieldInline(l('evidenceRefLabel', lang), `${eId} (${ri.evidenceQuality}/5)`);
 
     // 5. THREAT CATEGORY (CIAGTR)
-    pdf.fieldInline(lang === 'de' ? 'Risikokategorie (CIAGTR)' : 'Risk Category (CIAGTR)', `${ri.category} — ${cat}`);
+    pdf.fieldInline(l('riskCategoryLabel', lang), `${ri.category} — ${cat}`);
 
     // 6. RISK DESCRIPTION
     const riskDesc = lang === 'de'
       ? `Ein Angreifer (${ri.attacker}) kann über den Vektor „${ri.path}" ${score >= 20 ? 'das System direkt kompromittieren, was zu Betriebsunterbrechung und regulatorischer Nicht-Konformität führt' : score >= 13 ? 'betroffene Subsysteme kompromittieren, was zu Datenexfiltration oder Funktionsverlust führt' : 'einzelne Komponenten lokal ausnutzen, was zu begrenztem Schaden führt'}. ${ri.rationale}`
-      : `An attacker (${ri.attacker}) can exploit "${ri.path}" to ${score >= 20 ? 'directly compromise the system, leading to operational disruption and regulatory non-compliance' : score >= 13 ? 'compromise affected subsystems, leading to data exfiltration or loss of function' : 'locally exploit individual components, leading to limited damage'}. ${ri.rationale}`;
-    pdf.bodyText(`${lang === 'de' ? 'Risikobeschreibung' : 'Risk Description'}: ${riskDesc}`, 0);
+      : lang === 'fr'
+        ? `Un attaquant (${ri.attacker}) peut exploiter le vecteur « ${ri.path} » pour ${score >= 20 ? 'compromettre directement le système, entraînant une interruption opérationnelle et une non-conformité réglementaire' : score >= 13 ? 'compromettre les sous-systèmes concernés, entraînant une exfiltration de données ou une perte de fonctionnalité' : 'exploiter localement des composants individuels, entraînant des dommages limités'}. ${ri.rationale}`
+        : `An attacker (${ri.attacker}) can exploit "${ri.path}" to ${score >= 20 ? 'directly compromise the system, leading to operational disruption and regulatory non-compliance' : score >= 13 ? 'compromise affected subsystems, leading to data exfiltration or loss of function' : 'locally exploit individual components, leading to limited damage'}. ${ri.rationale}`;
+    pdf.bodyText(`${l('riskDescLabel', lang)}: ${riskDesc}`, 0);
 
     // 7. IMPACT (CIA triad)
-    pdf.sectionLabel('IMPACT');
-    const ciaC = ri.category === 'C' ? (score >= 13 ? 'High' : 'Medium') : 'Low';
-    const ciaI = ri.category === 'I' ? (score >= 13 ? 'High' : 'Medium') : 'Low';
-    const ciaA = ri.category === 'A' ? (score >= 13 ? 'High' : 'Medium') : 'Low';
-    pdf.fieldInline('  Confidentiality', ciaC);
-    pdf.fieldInline('  Integrity', ciaI);
-    pdf.fieldInline('  Availability', ciaA);
+    pdf.sectionLabel(l('impactLabel', lang));
+    const ciaC = ri.category === 'C' ? (score >= 13 ? l('highLevel', lang) : l('mediumLevel', lang)) : l('lowLevel', lang);
+    const ciaI = ri.category === 'I' ? (score >= 13 ? l('highLevel', lang) : l('mediumLevel', lang)) : l('lowLevel', lang);
+    const ciaA = ri.category === 'A' ? (score >= 13 ? l('highLevel', lang) : l('mediumLevel', lang)) : l('lowLevel', lang);
+    pdf.fieldInline(`  ${l('confidentiality', lang)}`, ciaC);
+    pdf.fieldInline(`  ${l('integrityLabel', lang)}`, ciaI);
+    pdf.fieldInline(`  ${l('availabilityLabel', lang)}`, ciaA);
 
     // 8. LIKELIHOOD
-    const lLabel = ri.likelihood >= 4 ? 'High' : ri.likelihood >= 3 ? 'Medium' : 'Low';
-    pdf.fieldInline('LIKELIHOOD', `${lLabel} (${ri.likelihood}/5)`);
+    const lLbl = ri.likelihood >= 4 ? l('highLevel', lang) : ri.likelihood >= 3 ? l('mediumLevel', lang) : l('lowLevel', lang);
+    pdf.fieldInline(l('likelihoodLabel', lang), `${lLbl} (${ri.likelihood}/5)`);
 
     // 9. RISK LEVEL
-    pdf.scoreBar(`RISK LEVEL: ${sev}  (${ri.likelihood} × ${ri.impact} = ${score}/25)`);
+    pdf.scoreBar(`${l('riskLevelLabel', lang)}: ${sev}  (${ri.likelihood} × ${ri.impact} = ${score}/25)`);
 
     // 10. ROOT CAUSE
-    pdf.bodyText(`${lang === 'de' ? 'Ursache (Root Cause)' : 'Root Cause'}: ${ri.rationale}`, 0);
+    pdf.bodyText(`${l('rootCauseLabel', lang)}: ${ri.rationale}`, 0);
 
     // 11. RECOMMENDATION
-    const linkedMeasure = linked.length > 0 && linked[0].measure ? linked[0].measure : (lang === 'de' ? `Gegenmaßnahmen für ${ri.component} implementieren und durch unabhängige Tests verifizieren.` : `Implement countermeasures for ${ri.component} and verify through independent testing.`);
-    pdf.bodyText(`${lang === 'de' ? 'Empfehlung' : 'Recommendation'}: ${linkedMeasure}`, 0);
+    const linkedMeasure = linked.length > 0 && linked[0].measure ? linked[0].measure : (lang === 'de' ? `Gegenmaßnahmen für ${ri.component} implementieren und durch unabhängige Tests verifizieren.` : lang === 'fr' ? `Implémenter des contre-mesures pour ${ri.component} et vérifier par des tests indépendants.` : `Implement countermeasures for ${ri.component} and verify through independent testing.`);
+    pdf.bodyText(`${l('recommendationLabel', lang)}: ${linkedMeasure}`, 0);
 
     // 12. REFERENCE
     const refParts = [ri.nis2Ref];
     if (ri.sources.length > 0) refParts.push(ri.sources.join('; '));
-    if (linked.length > 0) refParts.push(`${lang === 'de' ? 'Arbeitspapiere' : 'Working Papers'}: ${linked.map(r => `AP-${r.id}`).join(', ')}`);
-    pdf.bodyText(`${lang === 'de' ? 'Referenz' : 'Reference'}: ${refParts.join(' | ')}`, 0);
+    if (linked.length > 0) refParts.push(`${l('workingPapers', lang)}: ${linked.map(r => `AP-${r.id}`).join(', ')}`);
+    pdf.bodyText(`${l('referenceLabel', lang)}: ${refParts.join(' | ')}`, 0);
 
     pdf.separator();
   });
