@@ -337,6 +337,54 @@ export async function generateDoraReport(data: DoraReportData): Promise<void> {
 
   pdf.introText(complianceMethodNote);
 
+  // ── Visual Dashboard for Management ──
+  const highRisks = risks.filter(r => r.likelihood * r.impact >= 13 && r.likelihood * r.impact < 20);
+  const medRisks = risks.filter(r => r.likelihood * r.impact >= 6 && r.likelihood * r.impact < 13);
+  const lowRisks = risks.filter(r => r.likelihood * r.impact < 6);
+
+  pdf.complianceBar(passCount, partCount, failCount, {
+    pass: lang === 'de' ? 'Konform' : 'Compliant',
+    partial: lang === 'de' ? 'Teilweise' : 'Partial',
+    fail: lang === 'de' ? 'Nicht konform' : 'Non-compliant',
+    title: lang === 'de' ? 'Konformitätsverteilung' : 'Compliance Distribution',
+  });
+
+  pdf.riskDistribution(
+    { critical: critCount, high: highRisks.length, medium: medRisks.length, low: lowRisks.length },
+    {
+      critical: lang === 'de' ? 'Kritisch' : 'Critical',
+      high: lang === 'de' ? 'Hoch' : 'High',
+      medium: lang === 'de' ? 'Mittel' : 'Medium',
+      low: lang === 'de' ? 'Gering' : 'Low',
+      title: lang === 'de' ? 'Risikoverteilung nach Schweregrad' : 'Risk Distribution by Severity',
+    }
+  );
+
+  pdf.riskHeatmap(
+    risks.map(r => ({ likelihood: r.likelihood, impact: r.impact })),
+    {
+      title: lang === 'de' ? 'Risikomatrix (5×5)' : 'Risk Matrix (5×5)',
+      likelihood: lang === 'de' ? 'Wahrscheinlichkeit' : 'Likelihood',
+      impact: lang === 'de' ? 'Auswirkung' : 'Impact',
+    }
+  );
+
+  // Cross-reference mapping table (Threat ↔ CIAGTR ↔ Evidence)
+  const mappingRows = risks.slice(0, 15).map((ri, idx) => ({
+    id: riskId(ri),
+    name: ri.name,
+    category: RISK_CATEGORIES[ri.category]?.label[lang] || ri.category,
+    ref: ri.doraRef,
+    evidenceId: `E-${String(idx + 1).padStart(3, '0')}`,
+    score: `${ri.likelihood}×${ri.impact}=${ri.likelihood * ri.impact}`,
+  }));
+  pdf.mappingTable(mappingRows, {
+    title: lang === 'de' ? 'Mapping: DORA ↔ CIAGTR ↔ Evidenz' : 'Mapping: DORA ↔ CIAGTR ↔ Evidence',
+    colId: 'ID', colName: lang === 'de' ? 'Befund' : 'Finding',
+    colCat: 'CIAGTR', colRef: 'DORA Ref.',
+    colEvidence: lang === 'de' ? 'Evidenz' : 'Evidence', colScore: 'Score',
+  });
+
   pdf.bodyText(summary.situation);
   pdf.y += 3;
 
