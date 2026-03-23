@@ -285,12 +285,14 @@ export async function generateNis2Report(data: Nis2ReportData): Promise<void> {
 
   // ═══ TABLE OF CONTENTS ═══
   const tocEntries = [
-    l('sec1', lang), l('sec2', lang), l('sec3', lang),
-    `    ${l('sec3a', lang)}`, `    ${l('sec3b', lang)}`, `    ${l('sec3c', lang)}`,
-    `    ${l('sec3d', lang)}`, `    ${l('sec3e', lang)}`,
+    l('sec2', lang),
+    l('sec9', lang),
     l('sec4', lang), `    ${l('sec4a', lang)}`, `    ${l('sec4b', lang)}`,
     l('sec5', lang), `    ${l('sec5a', lang)}`, `    ${l('sec5b', lang)}`, `    ${l('sec5c', lang)}`,
-    l('sec6', lang), l('sec7', lang), l('sec8', lang), l('sec9', lang), null,
+    l('sec3', lang),
+    `    ${l('sec3a', lang)}`, `    ${l('sec3b', lang)}`, `    ${l('sec3c', lang)}`,
+    `    ${l('sec3d', lang)}`, `    ${l('sec3e', lang)}`,
+    l('sec1', lang), l('sec6', lang), l('sec7', lang), l('sec8', lang), null,
     l('secA', lang), l('secB', lang), l('secC', lang), l('secD', lang), l('secE', lang),
   ];
   pdf.tableOfContents(l('toc', lang), tocEntries);
