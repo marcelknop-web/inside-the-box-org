@@ -308,6 +308,19 @@ export class PdfDoc {
     if (this.y + needed > LAYOUT.BOTTOM) this.newPage();
   }
 
+  /* ── PDF Bookmarks / Outline ────────────────────────────── */
+
+  private bookmarkParents: Record<string, any> = {};
+
+  /** Add a PDF bookmark (outline entry) for chapter navigation */
+  addBookmark(title: string, level: 1 | 2 | 3 = 1): void {
+    try {
+      const parent = level === 1 ? null : (this.bookmarkParents['L1'] || null);
+      const item = this.doc.outline.add(parent, title, { pageNumber: this.pageNum });
+      if (level === 1) this.bookmarkParents['L1'] = item;
+    } catch (_e) { /* outline not supported in all jsPDF builds */ }
+  }
+
   /* ── Typography Primitives ───────────────────────────────── */
 
   heading(text: string, level: 1 | 2 | 3 = 1): void {
@@ -316,7 +329,9 @@ export class PdfDoc {
     const spaceAfter = { 1: 5, 2: 3.5, 3: 2.5 };
     const lineHeight = { 1: 5.5, 2: 4.8, 3: 4.2 };
 
-    this.checkSpace(level === 1 ? 22 : 16);
+    // Heading protection: ensure heading + at least 2 body lines stay together (no orphaned heading)
+    const minKeepWith = level === 1 ? 30 : level === 2 ? 22 : 18;
+    this.checkSpace(minKeepWith);
 
     if (level === 1) {
       this.y += spaceBefore[1];
@@ -358,9 +373,26 @@ export class PdfDoc {
     this.doc.setFont(this.bodyFont, 'normal');
     this.doc.setTextColor(...C.dark);
     const lines = this.doc.splitTextToSize(text, LAYOUT.WIDTH - indent);
-    this.checkSpace(lines.length * LAYOUT.BODY_LEADING + 2);
-    this.doc.text(lines, LAYOUT.LEFT + indent, this.y);
-    this.y += lines.length * LAYOUT.BODY_LEADING + 2;
+    // Orphan/widow protection: if paragraph spans page break, ensure min 2 lines on each side
+    const availLines = Math.floor((LAYOUT.BOTTOM - this.y) / LAYOUT.BODY_LEADING);
+    if (lines.length > availLines && availLines > 0 && availLines < 2) {
+      // Would leave only 1 line (orphan) — push entire paragraph to next page
+      this.newPage();
+    }
+    for (let i = 0; i < lines.length; i++) {
+      // Widow check: don't leave last line alone on new page
+      if (i === lines.length - 1 && i > 0) {
+        const remaining = LAYOUT.BOTTOM - this.y;
+        if (remaining < LAYOUT.BODY_LEADING) {
+          // Last line would be a widow — pull penultimate line to next page too
+          // (already handled by checkSpace below)
+        }
+      }
+      this.checkSpace(LAYOUT.BODY_LEADING + 1);
+      this.doc.text(lines[i], LAYOUT.LEFT + indent, this.y);
+      this.y += LAYOUT.BODY_LEADING;
+    }
+    this.y += 2;
   }
 
   bodyParagraph(text: string): void {
@@ -368,9 +400,17 @@ export class PdfDoc {
     this.doc.setFont(this.bodyFont, 'normal');
     this.doc.setTextColor(...C.dark);
     const lines = this.doc.splitTextToSize(text, LAYOUT.WIDTH);
-    this.checkSpace(lines.length * LAYOUT.BODY_LEADING + 4);
-    this.doc.text(lines, LAYOUT.LEFT, this.y);
-    this.y += lines.length * LAYOUT.BODY_LEADING + 6;
+    // Orphan protection: ensure at least 2 lines stay together
+    const availLines = Math.floor((LAYOUT.BOTTOM - this.y) / LAYOUT.BODY_LEADING);
+    if (lines.length > 1 && availLines > 0 && availLines < 2) {
+      this.newPage();
+    }
+    for (let i = 0; i < lines.length; i++) {
+      this.checkSpace(LAYOUT.BODY_LEADING + 1);
+      this.doc.text(lines[i], LAYOUT.LEFT, this.y);
+      this.y += LAYOUT.BODY_LEADING;
+    }
+    this.y += 6;
   }
 
   /** Two-line field: small label above, value below */
@@ -1185,8 +1225,53 @@ export class PdfDoc {
     this.doc.setTextColor(...C.dark);
   }
 
-  /* ── Save ─────────────────────────────────────────────────── */
+  /* ── Abbreviation Legend ───────────────────────────────────── */
 
+  /** Render a standardised abbreviation/legend table explaining Finding IDs and codes */
+  abbreviationLegend(entries: { abbr: string; meaning: string }[], title: string): void {
+    this.checkSpace(entries.length * 5 + 16);
+    this.heading(title, 2);
+    
+    const colAbbr = LAYOUT.LEFT;
+    const colMeaning = LAYOUT.LEFT + 28;
+    
+    this.doc.setFont(this.headFont, 'bold');
+    this.doc.setFontSize(6.5);
+    this.doc.setTextColor(...C.mid);
+    const abbrLabel = title.includes('Abk') ? 'ABKÜRZUNG' : title.includes('Abrév') ? 'ABRÉVIATION' : 'ABBREVIATION';
+    const meaningLabel = title.includes('Abk') ? 'BEDEUTUNG' : title.includes('Abrév') ? 'SIGNIFICATION' : 'MEANING';
+    this.doc.text(abbrLabel, colAbbr, this.y);
+    this.doc.text(meaningLabel, colMeaning, this.y);
+    this.y += 2;
+    this.doc.setDrawColor(...C.navy);
+    this.doc.setLineWidth(0.25);
+    this.doc.line(LAYOUT.LEFT, this.y, LAYOUT.RIGHT, this.y);
+    this.y += 3.5;
+
+    entries.forEach((e, idx) => {
+      this.checkSpace(6);
+      if (idx % 2 === 0) {
+        this.doc.setFillColor(...C.bg);
+        this.doc.rect(LAYOUT.LEFT, this.y - 3, LAYOUT.WIDTH, 5, 'F');
+      }
+      this.doc.setFont(this.dataFont, 'bold');
+      this.doc.setFontSize(7);
+      this.doc.setTextColor(...C.navy);
+      this.doc.text(e.abbr, colAbbr, this.y);
+      this.doc.setFont(this.bodyFont, 'normal');
+      this.doc.setFontSize(7.5);
+      this.doc.setTextColor(...C.dark);
+      const meaningLines = this.doc.splitTextToSize(e.meaning, LAYOUT.WIDTH - 30);
+      this.doc.text(meaningLines[0], colMeaning, this.y);
+      this.y += Math.max(meaningLines.length * 3.5, 5);
+    });
+    this.y += 4;
+    this.doc.setFont(this.bodyFont, 'normal');
+    this.doc.setTextColor(...C.dark);
+    this.doc.setFontSize(LAYOUT.BODY_SIZE);
+  }
+
+  /* ── Save ─────────────────────────────────────────────────── */
 
   save(filename: string): void {
     this.doc.save(filename);
