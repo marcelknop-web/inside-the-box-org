@@ -454,7 +454,9 @@ export async function generateDoraReport(data: DoraReportData): Promise<void> {
     ? 'Jede DORA-Vorgabe wird einzeln bewertet — mit klarer Aussage ob sie erfüllt ist.'
     : 'Each DORA provision is assessed individually — with a clear verdict.');
 
+  let reqFindingNum = risks.length;
   reqs.forEach(r => {
+    reqFindingNum++;
     pdf.checkSpace(55);
     pdf.heading(`${r.id}: ${r.name}`, 3);
     pdf.checkSpace(8);
@@ -463,18 +465,93 @@ export async function generateDoraReport(data: DoraReportData): Promise<void> {
     pdf.doc.text(r.article, afterBadge, pdf.y);
     pdf.y += 6; pdf.doc.setTextColor(...C.dark);
 
+    // Find linked risks for this requirement (reverse of linkReqs)
+    const linkedRisks = risks.filter(ri => {
+      const baseRisk = ri.doraRef.split(' Abs.')[0].split(' lit.')[0];
+      const baseReq = r.article.split(' Abs.')[0].split(' lit.')[0];
+      return baseRisk === baseReq || ri.name.toLowerCase().includes(r.name.toLowerCase().split(' ')[0]);
+    });
+
+    // 1. FINDING ID
+    pdf.sectionLabel('FINDING ID');
+    pdf.bodyText(`F-${String(reqFindingNum).padStart(2, '0')}`, 4);
+
+    // 2. TITLE
+    pdf.sectionLabel(lang === 'de' ? 'TITEL' : 'TITLE');
+    pdf.bodyText(`${r.name} (${r.article})`, 4);
+
     // 3. OBSERVATION
     const obsReq = r.status === 'pass'
       ? (lang === 'de' ? `Die Anforderung ${r.article} ist vollständig umgesetzt. ${r.evidence}` : `Requirement ${r.article} is fully implemented. ${r.evidence}`)
       : (lang === 'de' ? `Die Anforderung ${r.article} ist ${r.status === 'fail' ? 'nicht' : 'nicht vollständig'} umgesetzt. ${r.gap || ''}. Evidenz: ${r.evidence}` : `Requirement ${r.article} is ${r.status === 'fail' ? 'not' : 'not fully'} implemented. ${r.gap || ''}. Evidence: ${r.evidence}`);
-    pdf.bodyText(`${lang === 'de' ? 'Beobachtung' : 'Observation'}: ${obsReq}`, 0);
+    pdf.sectionLabel(lang === 'de' ? 'BEOBACHTUNG' : 'OBSERVATION');
+    pdf.bodyText(obsReq, 4);
 
-    // 6. RISK DESCRIPTION
-    if (r.status !== 'pass') {
-      const riskDescReq = lang === 'de'
-        ? `${r.gap || 'Fehlende Kontrolle'}. ${r.status === 'fail' ? 'Ohne Behebung Sanktionen nach DORA Art. 50 ff. möglich. Haftung der Geschäftsleitung nach Art. 5 Abs. 2.' : 'Residualrisiko bis zur vollständigen Umsetzung.'}`
-        : `${r.gap || 'Missing control'}. ${r.status === 'fail' ? 'Without remediation, sanctions under DORA Art. 50 ff. possible. Management liability under Art. 5(2).' : 'Residual risk until full implementation.'}`;
-      pdf.bodyText(`${lang === 'de' ? 'Risikobeschreibung' : 'Risk Description'}: ${riskDescReq}`, 0);
+    // 4. TECHNICAL DETAILS
+    pdf.sectionLabel(lang === 'de' ? 'TECHNISCHE DETAILS' : 'TECHNICAL DETAILS');
+    pdf.fieldInline(lang === 'de' ? '  Anforderung' : '  Requirement', `${r.id}: ${r.article}`);
+    if (linkedRisks.length > 0) {
+      pdf.fieldInline(lang === 'de' ? '  Betroffene Komponenten' : '  Affected Components', linkedRisks.map(ri => ri.component).filter((v, i, a) => a.indexOf(v) === i).join(', '));
+    }
+    pdf.fieldInline(lang === 'de' ? '  Evidenz' : '  Evidence', r.evidence);
+
+    // 5. THREAT CATEGORY (CIAGTR)
+    const riskCategories = [...new Set(linkedRisks.map(ri => ri.category))];
+    const ciagtrLine = riskCategories.length > 0
+      ? riskCategories.map(c => `${c} — ${RISK_CATEGORIES[c]?.label[lang] || c}`).join(', ')
+      : (lang === 'de' ? 'Keine direkte Risikoverknüpfung — regulatorische Anforderung' : 'No direct risk link — regulatory requirement');
+    pdf.sectionLabel(lang === 'de' ? 'RISIKOKATEGORIE (CIAGTR)' : 'RISK CATEGORY (CIAGTR)');
+    pdf.bodyText(ciagtrLine, 4);
+
+    // 6. RISK DESCRIPTION (attacker → technical impact → business impact)
+    let riskDescReq: string;
+    if (r.status === 'fail') {
+      const attackerInfo = linkedRisks.length > 0 ? linkedRisks[0].attacker : (lang === 'de' ? 'ein Angreifer' : 'an attacker');
+      const vectorInfo = linkedRisks.length > 0 ? linkedRisks[0].path : (lang === 'de' ? 'fehlende Kontrolle' : 'missing control');
+      riskDescReq = lang === 'de'
+        ? `${r.gap || 'Fehlende Kontrolle'}. ${attackerInfo} kann über „${vectorInfo}" Zugriff erlangen, was zu ${linkedRisks.length > 0 && linkedRisks[0].impact >= 4 ? 'Betriebsunterbrechung, Datenverlust und regulatorischen Sanktionen' : 'unautorisiertem Zugriff oder Integritätsverlust'} führt. Ohne Behebung Sanktionen nach DORA Art. 50 ff. möglich. Haftung der Geschäftsleitung nach Art. 5 Abs. 2.`
+        : `${r.gap || 'Missing control'}. ${attackerInfo} can gain access via "${vectorInfo}", leading to ${linkedRisks.length > 0 && linkedRisks[0].impact >= 4 ? 'operational disruption, data loss, and regulatory sanctions' : 'unauthorized access or integrity compromise'}. Without remediation, sanctions under DORA Art. 50 ff. possible. Management liability under Art. 5(2).`;
+    } else if (r.status === 'partial') {
+      riskDescReq = lang === 'de'
+        ? `${r.gap || 'Kontrolle nicht vollständig verifiziert'}. ${linkedRisks.length > 0 ? `Verknüpfte Risiken (${linkedRisks.map(ri => riskId(ri)).join(', ')}) können die verbleibende Lücke ausnutzen` : 'Angreifer können die ungeschützte Angriffsfläche ausnutzen'}, bis die Maßnahme vollständig implementiert ist. Residualrisiko bis zur vollständigen Umsetzung.`
+        : `${r.gap || 'Control not fully verified'}. ${linkedRisks.length > 0 ? `Linked risks (${linkedRisks.map(ri => riskId(ri)).join(', ')}) can exploit the remaining gap` : 'Attackers can exploit the unprotected attack surface'} until the measure is fully implemented. Residual risk until full implementation.`;
+    } else {
+      riskDescReq = lang === 'de'
+        ? `Anforderung vollständig umgesetzt und verifiziert. Keine ausnutzbare Angriffsfläche identifiziert.`
+        : `Requirement fully implemented and verified. No exploitable attack surface identified.`;
+    }
+    pdf.sectionLabel(lang === 'de' ? 'RISIKOBESCHREIBUNG' : 'RISK DESCRIPTION');
+    pdf.bodyText(riskDescReq, 4);
+    if (linkedRisks.length > 0) {
+      const threatContext = linkedRisks.map(ri => `${riskId(ri)}: ${ri.name} (Score ${ri.likelihood * ri.impact})`).join('; ');
+      pdf.fieldInline(lang === 'de' ? 'Verknüpfte Risiken' : 'Linked Risks', threatContext);
+    }
+
+    // 7. IMPACT (CIA triad)
+    pdf.sectionLabel('IMPACT');
+    if (linkedRisks.length > 0) {
+      const hasC = linkedRisks.some(ri => ri.category === 'C');
+      const hasI = linkedRisks.some(ri => ri.category === 'I');
+      const hasA = linkedRisks.some(ri => ri.category === 'A');
+      const maxScore = Math.max(...linkedRisks.map(ri => ri.likelihood * ri.impact));
+      const level = maxScore >= 13 ? 'High' : maxScore >= 6 ? 'Medium' : 'Low';
+      pdf.fieldInline('  Confidentiality', hasC ? level : 'None');
+      pdf.fieldInline('  Integrity', hasI ? level : 'None');
+      pdf.fieldInline('  Availability', hasA ? level : 'None');
+    } else {
+      const impactLevel = r.status === 'fail' ? 'Medium' : r.status === 'partial' ? 'Low' : 'None';
+      pdf.fieldInline('  Confidentiality', impactLevel);
+      pdf.fieldInline('  Integrity', impactLevel);
+      pdf.fieldInline('  Availability', impactLevel);
+    }
+
+    // 8. LIKELIHOOD
+    if (linkedRisks.length > 0) {
+      const maxLikelihood = Math.max(...linkedRisks.map(ri => ri.likelihood));
+      const lLabel = maxLikelihood >= 4 ? 'High' : maxLikelihood >= 3 ? 'Medium' : 'Low';
+      pdf.fieldInline('LIKELIHOOD', `${lLabel} (${maxLikelihood}/5)`);
+    } else {
+      pdf.fieldInline('LIKELIHOOD', r.status === 'fail' ? 'High' : r.status === 'partial' ? 'Medium' : 'Low');
     }
 
     // 9. RISK LEVEL
@@ -482,17 +559,27 @@ export async function generateDoraReport(data: DoraReportData): Promise<void> {
     pdf.fieldInline('RISK LEVEL', reqRating);
 
     // 10. ROOT CAUSE
-    if (r.status !== 'pass' && r.gap) {
-      pdf.bodyText(`${lang === 'de' ? 'Ursache' : 'Root Cause'}: ${r.gap}`, 0);
-    }
+    const rootCause = r.status !== 'pass'
+      ? (lang === 'de'
+        ? `${r.gap || 'Fehlende oder unvollständige Implementierung der geforderten Kontrolle.'}`
+        : `${r.gap || 'Missing or incomplete implementation of the required control.'}`)
+      : (lang === 'de' ? 'Kein Mangel festgestellt.' : 'No deficiency identified.');
+    pdf.sectionLabel(lang === 'de' ? 'URSACHE (ROOT CAUSE)' : 'ROOT CAUSE');
+    pdf.bodyText(rootCause, 4);
 
     // 11. RECOMMENDATION
-    if (r.measure) pdf.bodyText(`${l('measureAction', lang)}: ${r.measure}`, 0);
+    if (r.measure) {
+      pdf.sectionLabel(lang === 'de' ? 'EMPFEHLUNG' : 'RECOMMENDATION');
+      pdf.bodyText(r.measure, 4);
+    }
     if (r.effort) pdf.fieldInline(l('effort', lang), r.effort);
     if (r.priority) pdf.fieldInline(l('priority', lang), r.priority);
 
     // 12. REFERENCE
-    pdf.fieldInline(lang === 'de' ? 'Referenz' : 'Reference', r.article);
+    const refParts = [r.article];
+    if (linkedRisks.length > 0) refParts.push(`${lang === 'de' ? 'Arbeitspapiere' : 'Working Papers'}: ${linkedRisks.map(ri => `AP-${riskId(ri)}`).join(', ')}`);
+    pdf.sectionLabel(lang === 'de' ? 'REFERENZ' : 'REFERENCE');
+    pdf.bodyText(refParts.join(' | '), 4);
 
     if (r.criteria && r.criteria.length > 0) {
       pdf.sectionLabel(lang === 'de' ? 'UMSETZUNGSKRITERIEN' : 'ACCEPTANCE CRITERIA');
