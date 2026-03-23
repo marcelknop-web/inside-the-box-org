@@ -522,9 +522,13 @@ export async function generateDoraReport(data: DoraReportData): Promise<void> {
           ].filter(Boolean).join(' ');
     pdf.bodyText(`${l('recommendationLabel', lang)}: ${techRec}`, 0);
 
-    // 12. REFERENCE
+    // 12. REFERENCE (extended: DORA + ISO 27001 + CIS)
     const refParts = [ri.doraRef];
     if (ri.sources.length > 0) refParts.push(ri.sources.join('; '));
+    if (ri.category === 'C') refParts.push('ISO 27001 A.10 (Cryptography)', 'CIS Control 3');
+    if (ri.category === 'A') refParts.push('ISO 27001 A.17 (Business Continuity)', 'CIS Control 11');
+    if (ri.category === 'I') refParts.push('ISO 27001 A.12 (Operations Security)', 'CIS Control 14');
+    if (score >= 13) refParts.push('OWASP Top 10');
     if (linked.length > 0) refParts.push(`${l('workingPapers', lang)}: ${linked.map(r => `AP-${r.id}`).join(', ')}`);
     pdf.bodyText(`${l('referenceLabel', lang)}: ${refParts.join(' | ')}`, 0);
 
