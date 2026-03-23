@@ -1160,11 +1160,40 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     doc.text(truncLeft, ML + 5, y + 6.5);
     y += 14;
 
-    writeFieldBlock(t(I18N.component), th.component);
-    writeFieldBlock(t(I18N.attacker), th.attacker);
-    writeFieldBlock(t(I18N.attackPath), th.path);
-    writeFieldBlock(t(I18N.evidence), th.evidence);
-    writeFieldBlock(t(I18N.rationale), th.rationale);
+    // ── 5-Element Audit Finding Structure ──
+    // Condition (Ist-Zustand)
+    const conditionText = lang === 'de'
+      ? `${th.component}: ${th.name}. ${th.evidence}`
+      : `${th.component}: ${th.name}. ${th.evidence}`;
+    writeFieldBlock(t(I18N.condition), conditionText);
+
+    // Criteria (Soll-Anforderung)
+    const criteriaText = lang === 'de'
+      ? `${th.cra} — ${th.name.includes('verschlüss') || th.name.includes('encrypt') ? 'Annex I, Part I, Nr. 3(d): Vertraulichkeit und Integrität' : th.name.includes('Zugang') || th.name.includes('access') ? 'Annex I, Part I, Nr. 3(c): Zugangskontrolle' : th.cra}. STRIDE-Kategorie: ${STRIDE_NAMES[th.stride]?.[lang] || th.stride}.`
+      : `${th.cra} — STRIDE category: ${STRIDE_NAMES[th.stride]?.[lang] || th.stride}.`;
+    writeFieldBlock(t(I18N.auditCriteria), criteriaText);
+
+    // Cause (Ursache)
+    const causeText = th.rationale;
+    writeFieldBlock(t(I18N.cause), causeText);
+
+    // Effect (Auswirkung / Risiko)
+    const effectText = lang === 'de'
+      ? `Angreiferprofil: ${th.attacker}. Angriffsvektor: ${th.path}. Bei Ausnutzung drohen ${score >= 20 ? 'kritische Auswirkungen auf den Geschäftsbetrieb und regulatorische Konsequenzen' : score >= 13 ? 'erhebliche Auswirkungen auf betroffene Systeme und Daten' : 'begrenzte Auswirkungen auf einzelne Funktionen'}.`
+      : lang === 'fr'
+      ? `Profil attaquant : ${th.attacker}. Vecteur : ${th.path}. Impact : ${score >= 20 ? 'critique' : score >= 13 ? 'élevé' : 'modéré'}.`
+      : `Attacker profile: ${th.attacker}. Attack vector: ${th.path}. Exploitation would result in ${score >= 20 ? 'critical impact on business operations and regulatory consequences' : score >= 13 ? 'significant impact on affected systems and data' : 'limited impact on individual functions'}.`;
+    writeFieldBlock(t(I18N.effect), effectText);
+
+    // Recommendation
+    const relatedReqObj = reqs.find(r => r.article === th.cra);
+    const recText = relatedReqObj && relatedReqObj.measure
+      ? relatedReqObj.measure
+      : lang === 'de'
+        ? `Gegenmaßnahmen für ${th.component} implementieren und durch unabhängige Tests verifizieren.`
+        : `Implement countermeasures for ${th.component} and verify through independent testing.`;
+    writeFieldBlock(t(I18N.recommendation), recText);
+
     writeFieldBlock(t(I18N.craRef), th.cra);
 
     // Cross-reference: which CRA requirements does this threat relate to?
