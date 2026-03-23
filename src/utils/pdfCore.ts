@@ -245,6 +245,16 @@ export class PdfDoc {
       d.text(this.opts.draftWatermark, 105, 160, { align: 'center', angle: 45 });
       d.setTextColor(...C.dark);
     }
+
+    // Brand watermark — always present, very subtle
+    d.saveGraphicsState();
+    d.setGState(new (d as any).GState({ opacity: 0.035 }));
+    d.setFont(this.headFont, 'normal');
+    d.setFontSize(22);
+    d.setTextColor(120, 120, 120);
+    d.text('lightspeedconsulting.ai', 105, 200, { align: 'center', angle: 45 });
+    d.restoreGraphicsState();
+    d.setTextColor(...C.dark);
   }
 
   checkSpace(needed: number): void {
