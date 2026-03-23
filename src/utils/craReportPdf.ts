@@ -1173,6 +1173,14 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     doc.text(truncLeft, ML + 5, y + 6.5);
     y += 14;
 
+    // Reproducibility map (needed for observation text)
+    const reproMap: Record<string, Record<string, string>> = {
+      easy: { de: 'Einfach', en: 'Easy', fr: 'Facile' },
+      medium: { de: 'Mittel', en: 'Medium', fr: 'Moyen' },
+      hard: { de: 'Komplex', en: 'Complex', fr: 'Complexe' },
+      impossible: { de: 'Nicht reproduzierbar', en: 'Not reproducible', fr: 'Non reproductible' },
+    };
+
     // ── 12-Element Audit Finding Structure ──
 
     // 1. FINDING ID
