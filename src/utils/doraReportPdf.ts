@@ -437,12 +437,12 @@ export async function generateDoraReport(data: DoraReportData): Promise<void> {
     pdf.heading(`${l('finding', lang)} ${riskId(ri)}: ${ri.name}`, 3);
     pdf.metaLine(`${cat}  |  ${sev}  |  ${ri.doraRef}  |  ${eId}  |  ${l('evidence', lang)}: ${ri.evidenceQuality}/5`);
 
-    // 3. OBSERVATION
+    // 3. OBSERVATION (concrete, fact-based)
     const obsText = lang === 'de'
-      ? `Die Komponente ${ri.component} weist eine Schwachstelle auf: ${ri.name}. Die erhobene Evidenz zeigt: ${ri.evidence}`
+      ? `Die Komponente ${ri.component} ist so konfiguriert, dass ${ri.name}. Konkret wurde festgestellt: ${ri.evidence}.`
       : lang === 'fr'
-        ? `Le composant ${ri.component} présente une vulnérabilité : ${ri.name}. Les preuves recueillies montrent : ${ri.evidence}`
-        : `The component ${ri.component} exhibits a vulnerability: ${ri.name}. Evidence shows: ${ri.evidence}`;
+        ? `Le composant ${ri.component} est configuré de telle manière que ${ri.name}. Concrètement, il a été constaté : ${ri.evidence}.`
+        : `The component ${ri.component} is configured in a way that ${ri.name}. Specifically identified: ${ri.evidence}.`;
     pdf.bodyText(`${l('observationLabel', lang)}: ${obsText}`, 0);
 
     // 4. TECHNICAL DETAILS
