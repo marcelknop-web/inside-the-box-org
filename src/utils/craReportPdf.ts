@@ -1181,10 +1181,12 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     // 2. TITLE
     writeFieldBlock(lang === 'de' ? 'TITEL' : 'TITLE', th.name);
 
-    // 3. OBSERVATION
+    // 3. OBSERVATION (concrete, fact-based — no vague "Evidence shows that…")
     const obsText = lang === 'de'
-      ? `Die Komponente ${th.component} weist eine Schwachstelle auf: ${th.name}. Die erhobene Evidenz zeigt: ${th.evidence}`
-      : `The component ${th.component} exhibits a vulnerability: ${th.name}. Evidence shows: ${th.evidence}`;
+      ? `Die Komponente ${th.component} ist so konfiguriert, dass ${th.name}. Konkret wurde festgestellt: ${th.evidence}. Reproduzierbarkeit: ${reproMap[th.reproducibility]?.de || th.reproducibility}.`
+      : lang === 'fr'
+        ? `Le composant ${th.component} est configuré de telle manière que ${th.name}. Concrètement, il a été constaté : ${th.evidence}. Reproductibilité : ${reproMap[th.reproducibility]?.fr || th.reproducibility}.`
+        : `The component ${th.component} is configured in a way that ${th.name}. Specifically identified: ${th.evidence}. Reproducibility: ${reproMap[th.reproducibility]?.en || th.reproducibility}.`;
     writeFieldBlock(t(I18N.observation), obsText);
 
     // 4. TECHNICAL DETAILS
