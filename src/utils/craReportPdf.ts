@@ -1285,12 +1285,19 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
           ].filter(Boolean).join(' ');
     writeFieldBlock(lang === 'de' ? 'EMPFEHLUNG' : lang === 'fr' ? 'RECOMMANDATION' : 'RECOMMENDATION', techRec);
 
-    // 12. REFERENCE
+    // 12. REFERENCE (extended: CRA + ISO 27001 + CIS + OWASP)
     const refParts = [th.cra];
     if (th.sources.length > 0) refParts.push(...th.sources);
+    // Add cross-framework references based on STRIDE category
+    if (th.stride === 'S' || th.stride === 'E') refParts.push('ISO 27001 A.9 (Access Control)', 'CIS Control 6');
+    if (th.stride === 'I') refParts.push('ISO 27001 A.10 (Cryptography)', 'CIS Control 3');
+    if (th.stride === 'T') refParts.push('ISO 27001 A.12 (Operations Security)', 'CIS Control 14');
+    if (th.stride === 'D') refParts.push('ISO 27001 A.17 (Business Continuity)', 'CIS Control 11');
+    if (th.stride === 'R') refParts.push('ISO 27001 A.12.4 (Logging)', 'CIS Control 8');
+    if (score >= 13) refParts.push('OWASP Top 10');
     const relatedReqIds = reqs.filter(r => r.article === th.cra).map(r => `${r.id} (${r.name})`);
-    if (relatedReqIds.length > 0) refParts.push(lang === 'de' ? `Verknüpfte Anforderungen: ${relatedReqIds.join('; ')}` : `Related requirements: ${relatedReqIds.join('; ')}`);
-    writeFieldBlock(lang === 'de' ? 'REFERENZ' : 'REFERENCE', refParts.join(' | '));
+    if (relatedReqIds.length > 0) refParts.push(lang === 'de' ? `Verknüpfte Anforderungen: ${relatedReqIds.join('; ')}` : lang === 'fr' ? `Exigences liées : ${relatedReqIds.join('; ')}` : `Related requirements: ${relatedReqIds.join('; ')}`);
+    writeFieldBlock(lang === 'de' ? 'REFERENZ' : lang === 'fr' ? 'RÉFÉRENCE' : 'REFERENCE', refParts.join(' | '));
 
     // Reproducibility
     const reproMap: Record<string, Record<string, string>> = {
