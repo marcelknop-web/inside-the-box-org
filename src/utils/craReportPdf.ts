@@ -1316,12 +1316,39 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     // 4. Mapping
     writeFieldBlock(t(I18N.mapping), `${req.article} — ${req.name}`);
 
-    // 5. Risk Scenario
-    const reqScenario = req.status === 'fail'
-      ? (lang === 'de' ? `Nicht-Konformität mit ${req.article}. Ohne Behebung ist eine Konformitätserklärung nach Art. 22 CRA nicht abgebbar.` : `Non-compliance with ${req.article}. Without remediation, conformity declaration per Art. 22 CRA cannot be issued.`)
-      : req.status === 'partial'
-      ? (lang === 'de' ? `Teilweise Umsetzung von ${req.article}. Die Kontrolle ist vorhanden, aber nicht vollständig durchgesetzt oder verifiziert.` : `Partial implementation of ${req.article}. Control exists but is not fully enforced or verified.`)
-      : (lang === 'de' ? `Anforderung vollständig umgesetzt. Kein Restrisiko identifiziert.` : `Requirement fully implemented. No residual risk identified.`);
+    // 5. Risk Scenario — precise technical impact, no vague language
+    const reqScenario = (() => {
+      const gap = req.gap || '';
+      const linkedThreats = threats.filter(th => {
+        const reqArtNum = req.article.replace(/[^0-9]/g, '').slice(0, 2);
+        return th.cra.includes(reqArtNum) || th.name.toLowerCase().includes(req.name.toLowerCase().split(' ')[0]);
+      });
+      const threatContext = linkedThreats.length > 0
+        ? linkedThreats.map(th => `${threatId(th)}: ${th.name} (Score ${th.likelihood * th.impact})`).join('; ')
+        : '';
+
+      if (req.status === 'fail') {
+        const base = lang === 'de'
+          ? `Nicht-Konformität mit ${req.article} festgestellt. ${gap ? `Konkret: ${gap}.` : ''} Ohne Behebung ist eine Konformitätserklärung nach Art. 22 CRA nicht abgebbar.`
+          : `Non-compliance with ${req.article} identified. ${gap ? `Specifically: ${gap}.` : ''} Without remediation, conformity declaration per Art. 22 CRA cannot be issued.`;
+        const attack = lang === 'de'
+          ? (threatContext ? ` Verknüpfte Bedrohungsszenarien: ${threatContext}.` : ' Direktes Angriffsrisiko besteht aufgrund fehlender Kontrolle.')
+          : (threatContext ? ` Linked threat scenarios: ${threatContext}.` : ' Direct attack risk exists due to missing control.');
+        return base + attack;
+      } else if (req.status === 'partial') {
+        const base = lang === 'de'
+          ? `${req.article}: Kontrolle implementiert, jedoch ${gap ? gap : 'nicht vollständig verifiziert'}. Angreifer können die verbleibende Lücke ausnutzen.`
+          : `${req.article}: Control implemented, but ${gap ? gap : 'not fully verified'}. Attackers can exploit the remaining gap.`;
+        const impact = lang === 'de'
+          ? (threatContext ? ` Betroffene Szenarien: ${threatContext}.` : ' Residualrisiko besteht bis zur vollständigen Umsetzung.')
+          : (threatContext ? ` Affected scenarios: ${threatContext}.` : ' Residual risk remains until full implementation.');
+        return base + impact;
+      } else {
+        return lang === 'de'
+          ? `Anforderung ${req.article} vollständig umgesetzt und verifiziert. Kein Restrisiko identifiziert.`
+          : `Requirement ${req.article} fully implemented and verified. No residual risk identified.`;
+      }
+    })();
     writeFieldBlock(t(I18N.riskScenario), reqScenario);
 
     // 6. Risk Rating (strict classification)
