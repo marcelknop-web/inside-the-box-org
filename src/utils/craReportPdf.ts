@@ -1229,12 +1229,14 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     // 2. TITLE
     writeFieldBlock(t(I18N.titleLabel), th.name);
 
-    // 3. OBSERVATION (concrete, fact-based — no vague "Evidence shows that…")
+    // 3. OBSERVATION (concrete, fact-based — specific test results, not vague language)
+    const reproLocal = reproMap[th.reproducibility]?.[lang] || th.reproducibility;
+    const evidRef = `E-${String(sortedThreats.indexOf(th) + 1).padStart(3, '0')}`;
     const obsText = lang === 'de'
-      ? `Die Komponente ${th.component} ist so konfiguriert, dass ${th.name}. Konkret wurde festgestellt: ${th.evidence}. Reproduzierbarkeit: ${reproMap[th.reproducibility]?.de || th.reproducibility}.`
+      ? `Bei der technischen Prüfung der Komponente „${th.component}" wurde festgestellt, dass ${th.name.charAt(0).toLowerCase() + th.name.slice(1)}. Der Befund wurde durch folgende Prüfhandlung verifiziert: ${th.evidence} (Evidenz-Referenz: ${evidRef}). Reproduzierbarkeit: ${reproLocal} — der Befund konnte ${th.reproducibility === 'easy' ? 'in jedem Testlauf zuverlässig reproduziert werden' : th.reproducibility === 'medium' ? 'unter definierten Bedingungen reproduziert werden' : 'nur unter spezifischen Rahmenbedingungen nachgestellt werden'}.`
       : lang === 'fr'
-        ? `Le composant ${th.component} est configuré de telle manière que ${th.name}. Concrètement, il a été constaté : ${th.evidence}. Reproductibilité : ${reproMap[th.reproducibility]?.fr || th.reproducibility}.`
-        : `The component ${th.component} is configured in a way that ${th.name}. Specifically identified: ${th.evidence}. Reproducibility: ${reproMap[th.reproducibility]?.en || th.reproducibility}.`;
+        ? `L'examen technique du composant « ${th.component} » a révélé que ${th.name.charAt(0).toLowerCase() + th.name.slice(1)}. La constatation a été vérifiée par la procédure de test suivante : ${th.evidence} (référence de preuve : ${evidRef}). Reproductibilité : ${reproLocal} — la constatation ${th.reproducibility === 'easy' ? 'a pu être reproduite de manière fiable à chaque test' : th.reproducibility === 'medium' ? 'a pu être reproduite dans des conditions définies' : 'n\'a pu être reproduite que dans des conditions spécifiques'}.`
+        : `Technical examination of component "${th.component}" identified that ${th.name.charAt(0).toLowerCase() + th.name.slice(1)}. The finding was verified through the following test procedure: ${th.evidence} (evidence reference: ${evidRef}). Reproducibility: ${reproLocal} — the finding ${th.reproducibility === 'easy' ? 'was reliably reproduced in every test run' : th.reproducibility === 'medium' ? 'was reproduced under defined conditions' : 'could only be reproduced under specific conditions'}.`;
     writeFieldBlock(t(I18N.observation), obsText);
 
     // 4. TECHNICAL DETAILS
