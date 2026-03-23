@@ -203,6 +203,46 @@ const I18N = {
   reproducibility: { de: 'Reproduzierbarkeit', en: 'Reproducibility', fr: 'Reproductibilité' },
   evidenceSummaryTitle: { de: 'Evidenz-Qualitätsübersicht', en: 'Evidence Quality Summary', fr: 'Synthèse de la qualité des preuves' },
 
+  // 12-Element Finding Labels (for consistent localization)
+  findingIdLabel: { de: 'FESTSTELLUNGS-ID', en: 'FINDING ID', fr: 'ID DE CONSTATATION' },
+  titleLabel: { de: 'TITEL', en: 'TITLE', fr: 'TITRE' },
+  techDetailsLabel: { de: 'TECHNISCHE DETAILS', en: 'TECHNICAL DETAILS', fr: 'DÉTAILS TECHNIQUES' },
+  componentLabel: { de: '  Komponente', en: '  Component', fr: '  Composant' },
+  attackVectorLabel: { de: '  Angriffsvektor', en: '  Attack Vector', fr: '  Vecteur d\'attaque' },
+  configLabel: { de: '  Konfiguration', en: '  Configuration', fr: '  Configuration' },
+  evidenceRefLabel: { de: '  Evidenz-Referenz', en: '  Evidence Reference', fr: '  Référence de preuve' },
+  strideCatLabel: { de: 'BEDROHUNGSKATEGORIE (STRIDE)', en: 'THREAT CATEGORY (STRIDE)', fr: 'CATÉGORIE DE MENACE (STRIDE)' },
+  riskDescLabel: { de: 'RISIKOBESCHREIBUNG', en: 'RISK DESCRIPTION', fr: 'DESCRIPTION DU RISQUE' },
+  impactLabel: { de: 'AUSWIRKUNG (CIA)', en: 'IMPACT (CIA)', fr: 'IMPACT (CIA)' },
+  confidentialityLabel: { de: '  Vertraulichkeit', en: '  Confidentiality', fr: '  Confidentialité' },
+  integrityLabel: { de: '  Integrität', en: '  Integrity', fr: '  Intégrité' },
+  availabilityLabel: { de: '  Verfügbarkeit', en: '  Availability', fr: '  Disponibilité' },
+  likelihoodLabel: { de: 'EINTRITTSWAHRSCHEINLICHKEIT', en: 'LIKELIHOOD', fr: 'PROBABILITÉ' },
+  riskLevelLabel: { de: 'RISIKOSTUFE', en: 'RISK LEVEL', fr: 'NIVEAU DE RISQUE' },
+  rootCauseLabel: { de: 'URSACHE (ROOT CAUSE)', en: 'ROOT CAUSE', fr: 'CAUSE RACINE' },
+  recommendationLabel: { de: 'EMPFEHLUNG', en: 'RECOMMENDATION', fr: 'RECOMMANDATION' },
+  referenceLabel: { de: 'REFERENZ', en: 'REFERENCE', fr: 'RÉFÉRENCE' },
+  linkedThreatsLabel: { de: 'Verknüpfte Bedrohungen', en: 'Linked Threats', fr: 'Menaces liées' },
+  linkedReqsLabel: { de: 'Verknüpfte Anforderungen', en: 'Related Requirements', fr: 'Exigences liées' },
+  requirementLabel: { de: '  Anforderung', en: '  Requirement', fr: '  Exigence' },
+  affectedComponentLabel: { de: '  Betroffene Komponente', en: '  Affected Component', fr: '  Composant concerné' },
+  evidenceLabel: { de: '  Evidenz', en: '  Evidence', fr: '  Preuve' },
+  noThreatLink: { de: 'Keine direkte Bedrohungsverknüpfung — regulatorische Anforderung', en: 'No direct threat link — regulatory requirement', fr: 'Aucun lien direct avec une menace — exigence réglementaire' },
+  noActionRequired: { de: 'Keine Maßnahme erforderlich.', en: 'No action required.', fr: 'Aucune mesure requise.' },
+  noDeviation: { de: 'Keine Abweichung festgestellt.', en: 'No deviation identified.', fr: 'Aucun écart identifié.' },
+  noDeficiency: { de: 'Kein Mangel festgestellt.', en: 'No deficiency identified.', fr: 'Aucun défaut constaté.' },
+  missingControl: { de: 'Fehlende oder unvollständige Implementierung der geforderten Kontrolle.', en: 'Missing or incomplete implementation of the required control.', fr: 'Implémentation manquante ou incomplète du contrôle requis.' },
+  // Severity levels (localized)
+  criticalSev: { de: 'KRITISCH', en: 'CRITICAL', fr: 'CRITIQUE' },
+  highSev: { de: 'HOCH', en: 'HIGH', fr: 'ÉLEVÉ' },
+  mediumSev: { de: 'MITTEL', en: 'MEDIUM', fr: 'MOYEN' },
+  lowSev: { de: 'NIEDRIG', en: 'LOW', fr: 'FAIBLE' },
+  highLevel: { de: 'Hoch', en: 'High', fr: 'Élevé' },
+  mediumLevel: { de: 'Mittel', en: 'Medium', fr: 'Moyen' },
+  lowLevel: { de: 'Niedrig', en: 'Low', fr: 'Faible' },
+  noneLevel: { de: 'Keine', en: 'None', fr: 'Aucun' },
+  totalLabel: { de: 'GESAMT', en: 'TOTAL', fr: 'TOTAL' },
+
   appendixIntro: { de: 'Dieser Anhang enthält die vollständigen Prüfdaten in strukturierter Form. Die Daten sind so aufbereitet, dass die Nachvollziehbarkeit und Richtigkeit der getroffenen Bewertungsentscheidungen durch Dritte — einschließlich automatisierter Systeme — überprüft werden kann.\n\nJede Feststellung enthält die zugrundeliegende Evidenz, die Bewertungslogik (Rationale) und die regulatorische Referenz, die zur Einstufung geführt hat. Die Verknüpfungen zwischen Bedrohungen und CRA-Anforderungen sind explizit ausgewiesen.', en: 'This appendix contains the complete audit data in structured form. The data is prepared so that the traceability and correctness of the assessment decisions can be verified by third parties — including automated systems.\n\nEach finding includes the underlying evidence, the assessment logic (rationale), and the regulatory reference that led to the classification. The cross-references between threats and CRA requirements are explicitly documented.', fr: 'Cette annexe contient les données d\'audit complètes sous forme structurée. Les données sont préparées de manière à permettre la vérification de la traçabilité et de l\'exactitude des décisions d\'évaluation par des tiers — y compris des systèmes automatisés.\n\nChaque constatation comprend les preuves sous-jacentes, la logique d\'évaluation (rationale) et la référence réglementaire ayant conduit à la classification. Les références croisées entre menaces et exigences CRA sont explicitement documentées.' },
 };
 
@@ -1184,10 +1224,10 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     // ── 12-Element Audit Finding Structure ──
 
     // 1. FINDING ID
-    writeFieldBlock('FINDING ID', `F-${String(findingNum).padStart(2, '0')}`);
+    writeFieldBlock(t(I18N.findingIdLabel), `F-${String(findingNum).padStart(2, '0')}`);
 
     // 2. TITLE
-    writeFieldBlock(lang === 'de' ? 'TITEL' : 'TITLE', th.name);
+    writeFieldBlock(t(I18N.titleLabel), th.name);
 
     // 3. OBSERVATION (concrete, fact-based — no vague "Evidence shows that…")
     const obsText = lang === 'de'
@@ -1198,31 +1238,33 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     writeFieldBlock(t(I18N.observation), obsText);
 
     // 4. TECHNICAL DETAILS
-    writeLabel(lang === 'de' ? 'TECHNISCHE DETAILS' : 'TECHNICAL DETAILS', 5);
-    writeFieldBlock(lang === 'de' ? '  Komponente' : '  Component', th.component);
-    writeFieldBlock(lang === 'de' ? '  Angriffsvektor' : '  Attack Vector', th.path);
-    writeFieldBlock(lang === 'de' ? '  Konfiguration' : '  Configuration', th.rationale);
+    writeLabel(t(I18N.techDetailsLabel), 5);
+    writeFieldBlock(t(I18N.componentLabel), th.component);
+    writeFieldBlock(t(I18N.attackVectorLabel), th.path);
+    writeFieldBlock(t(I18N.configLabel), th.rationale);
     const stars = '★'.repeat(th.evidenceQuality) + '☆'.repeat(5 - th.evidenceQuality);
-    writeFieldBlock(lang === 'de' ? '  Evidenz-Referenz' : '  Evidence Reference', `${stars} (${th.evidenceQuality}/5) | E-${String(sortedThreats.indexOf(th) + 1).padStart(3, '0')}`);
+    writeFieldBlock(t(I18N.evidenceRefLabel), `${stars} (${th.evidenceQuality}/5) | E-${String(sortedThreats.indexOf(th) + 1).padStart(3, '0')}`);
 
     // 5. THREAT CATEGORY (STRIDE)
     const strideFullName = STRIDE_NAMES[th.stride]?.[lang] || th.stride;
-    writeFieldBlock(lang === 'de' ? 'BEDROHUNGSKATEGORIE (STRIDE)' : 'THREAT CATEGORY (STRIDE)', `${th.stride} — ${strideFullName}`);
+    writeFieldBlock(t(I18N.strideCatLabel), `${th.stride} — ${strideFullName}`);
 
     // 6. RISK DESCRIPTION (attacker → technical impact → business impact)
     const riskDescText = lang === 'de'
       ? `Ein Angreifer (${th.attacker}) kann über den Vektor „${th.path}" ${score >= 20 ? 'das System direkt kompromittieren, was zu Produktionsausfall und regulatorischer Nicht-Konformität führt' : score >= 13 ? 'betroffene Subsysteme kompromittieren, was zu Datenexfiltration oder Funktionsverlust führt' : 'einzelne Komponenten lokal ausnutzen, was zu begrenztem Schaden führt'}. Geschäftsauswirkung: ${score >= 20 ? 'Konformitätserklärung nach Art. 22 CRA nicht abgebbar, Produktrückruf nach Art. 49 CRA möglich, Haftung nach Art. 64 CRA.' : score >= 13 ? 'Eingeschränkte Marktfähigkeit, regulatorische Beanstandungen wahrscheinlich.' : 'Geringe regulatorische Auswirkung, Härtungsempfehlung.'}`
-      : `An attacker (${th.attacker}) can exploit the vector "${th.path}" to ${score >= 20 ? 'directly compromise the system, leading to production outage and regulatory non-compliance' : score >= 13 ? 'compromise affected subsystems, leading to data exfiltration or loss of function' : 'locally exploit individual components, leading to limited damage'}. Business impact: ${score >= 20 ? 'Conformity declaration per Art. 22 CRA cannot be issued, product recall under Art. 49 CRA possible, liability under Art. 64 CRA.' : score >= 13 ? 'Limited marketability, regulatory objections likely.' : 'Low regulatory impact, hardening recommended.'}`;
-    writeFieldBlock(lang === 'de' ? 'RISIKOBESCHREIBUNG' : 'RISK DESCRIPTION', riskDescText);
+      : lang === 'fr'
+        ? `Un attaquant (${th.attacker}) peut exploiter le vecteur « ${th.path} » pour ${score >= 20 ? 'compromettre directement le système, entraînant un arrêt de production et une non-conformité réglementaire' : score >= 13 ? 'compromettre les sous-systèmes concernés, entraînant une exfiltration de données ou une perte de fonctionnalité' : 'exploiter localement des composants individuels, entraînant des dommages limités'}. Impact métier : ${score >= 20 ? 'Déclaration de conformité selon Art. 22 CRA impossible, rappel produit selon Art. 49 CRA possible, responsabilité selon Art. 64 CRA.' : score >= 13 ? 'Commercialisation limitée, objections réglementaires probables.' : 'Faible impact réglementaire, durcissement recommandé.'}`
+        : `An attacker (${th.attacker}) can exploit the vector "${th.path}" to ${score >= 20 ? 'directly compromise the system, leading to production outage and regulatory non-compliance' : score >= 13 ? 'compromise affected subsystems, leading to data exfiltration or loss of function' : 'locally exploit individual components, leading to limited damage'}. Business impact: ${score >= 20 ? 'Conformity declaration per Art. 22 CRA cannot be issued, product recall under Art. 49 CRA possible, liability under Art. 64 CRA.' : score >= 13 ? 'Limited marketability, regulatory objections likely.' : 'Low regulatory impact, hardening recommended.'}`;
+    writeFieldBlock(t(I18N.riskDescLabel), riskDescText);
 
     // 7. IMPACT (CIA triad)
-    writeLabel('IMPACT', 5);
-    const ciaC = (th.stride === 'I' || th.stride === 'S') ? (score >= 13 ? 'High' : 'Medium') : (th.stride === 'E' ? 'High' : 'Low');
-    const ciaI = (th.stride === 'T' || th.stride === 'R') ? (score >= 13 ? 'High' : 'Medium') : 'Low';
-    const ciaA = th.stride === 'D' ? (score >= 13 ? 'High' : 'Medium') : 'Low';
-    writeFieldBlock('  Confidentiality', ciaC);
-    writeFieldBlock('  Integrity', ciaI);
-    writeFieldBlock('  Availability', ciaA);
+    writeLabel(t(I18N.impactLabel), 5);
+    const ciaC = (th.stride === 'I' || th.stride === 'S') ? (score >= 13 ? t(I18N.highLevel) : t(I18N.mediumLevel)) : (th.stride === 'E' ? t(I18N.highLevel) : t(I18N.lowLevel));
+    const ciaI = (th.stride === 'T' || th.stride === 'R') ? (score >= 13 ? t(I18N.highLevel) : t(I18N.mediumLevel)) : t(I18N.lowLevel);
+    const ciaA = th.stride === 'D' ? (score >= 13 ? t(I18N.highLevel) : t(I18N.mediumLevel)) : t(I18N.lowLevel);
+    writeFieldBlock(t(I18N.confidentialityLabel), ciaC);
+    writeFieldBlock(t(I18N.integrityLabel), ciaI);
+    writeFieldBlock(t(I18N.availabilityLabel), ciaA);
 
     // — ATTACK SCENARIO (1-sentence, concrete)
     const atkScenario = lang === 'de'
@@ -1233,23 +1275,19 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     writeFieldBlock(t(I18N.attackScenario), atkScenario);
 
     // 8. LIKELIHOOD (with justification)
-    const likelihoodLabel = th.likelihood >= 4 ? 'High' : th.likelihood >= 3 ? 'Medium' : 'Low';
+    const likelihoodLbl = th.likelihood >= 4 ? t(I18N.highLevel) : th.likelihood >= 3 ? t(I18N.mediumLevel) : t(I18N.lowLevel);
     const likelihoodJustification = lang === 'de'
       ? th.likelihood >= 4 ? `, da ${th.component} ohne Authentifizierung erreichbar ist` : th.likelihood >= 3 ? `, da der Angriffsvektor bekannt und ausnutzbar ist` : `, da die Ausnutzung spezialisiertes Wissen erfordert`
       : lang === 'fr'
         ? th.likelihood >= 4 ? `, car ${th.component} est accessible sans authentification` : th.likelihood >= 3 ? `, car le vecteur d'attaque est connu et exploitable` : `, car l'exploitation nécessite des connaissances spécialisées`
         : th.likelihood >= 4 ? `, as ${th.component} is accessible without authentication` : th.likelihood >= 3 ? `, as the attack vector is known and exploitable` : `, as exploitation requires specialised knowledge`;
-    writeFieldBlock('LIKELIHOOD', `${likelihoodLabel} (${th.likelihood}/5)${likelihoodJustification}`);
+    writeFieldBlock(t(I18N.likelihoodLabel), `${likelihoodLbl} (${th.likelihood}/5)${likelihoodJustification}`);
 
     // 9. RISK LEVEL (auto-derived scoring logic)
-    // CRITICAL: score>=20 OR missing/broken auth OR unencrypted sensitive comms OR default creds
-    // HIGH: score>=13 OR partial control with immediate exploitability
-    // MEDIUM: score>=6 OR weak config without immediate exploit
-    // LOW: score<6
-    const ratingLabel = score >= 20 ? 'CRITICAL' : score >= 13 ? 'HIGH' : score >= 6 ? 'MEDIUM' : 'LOW';
+    const ratingLabel = score >= 20 ? t(I18N.criticalSev) : score >= 13 ? t(I18N.highSev) : score >= 6 ? t(I18N.mediumSev) : t(I18N.lowSev);
     const ratingColor: [number, number, number] = score >= 20 ? C.redText : score >= 13 ? C.orangeText : score >= 6 ? C.orangeText : C.greenText;
     checkPage(8);
-    writeLabel('RISK LEVEL', 5);
+    writeLabel(t(I18N.riskLevelLabel), 5);
     doc.setFont(HEAD_FONT, 'bold');
     doc.setFontSize(BODY_SIZE + 1);
     doc.setTextColor(...ratingColor);
@@ -1259,8 +1297,10 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     // 10. ROOT CAUSE
     const rootCauseText = lang === 'de'
       ? `Ursache: ${th.rationale}`
-      : `Root cause: ${th.rationale}`;
-    writeFieldBlock(lang === 'de' ? 'URSACHE (ROOT CAUSE)' : 'ROOT CAUSE', rootCauseText);
+      : lang === 'fr'
+        ? `Cause : ${th.rationale}`
+        : `Root cause: ${th.rationale}`;
+    writeFieldBlock(t(I18N.rootCauseLabel), rootCauseText);
 
     // 11. RECOMMENDATION (technical, specific, actionable)
     const relatedReqObj = reqs.find(r => r.article === th.cra);
@@ -1291,7 +1331,7 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
             th.stride === 'D' ? `Configure rate-limiting and redundancy for ${th.component}.` : '',
             `Verify through independent penetration testing.`,
           ].filter(Boolean).join(' ');
-    writeFieldBlock(lang === 'de' ? 'EMPFEHLUNG' : lang === 'fr' ? 'RECOMMANDATION' : 'RECOMMENDATION', techRec);
+    writeFieldBlock(t(I18N.recommendationLabel), techRec);
 
     // 12. REFERENCE (extended: CRA + ISO 27001 + CIS + OWASP)
     const refParts = [th.cra];
@@ -1304,8 +1344,8 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     if (th.stride === 'R') refParts.push('ISO 27001 A.12.4 (Logging)', 'CIS Control 8');
     if (score >= 13) refParts.push('OWASP Top 10');
     const relatedReqIds = reqs.filter(r => r.article === th.cra).map(r => `${r.id} (${r.name})`);
-    if (relatedReqIds.length > 0) refParts.push(lang === 'de' ? `Verknüpfte Anforderungen: ${relatedReqIds.join('; ')}` : lang === 'fr' ? `Exigences liées : ${relatedReqIds.join('; ')}` : `Related requirements: ${relatedReqIds.join('; ')}`);
-    writeFieldBlock(lang === 'de' ? 'REFERENZ' : lang === 'fr' ? 'RÉFÉRENCE' : 'REFERENCE', refParts.join(' | '));
+    if (relatedReqIds.length > 0) refParts.push(`${t(I18N.linkedReqsLabel)}: ${relatedReqIds.join('; ')}`);
+    writeFieldBlock(t(I18N.referenceLabel), refParts.join(' | '));
 
     // Reproducibility (reproMap already declared above)
     const reproLabel = reproMap[th.reproducibility]?.[lang] || th.reproducibility;
@@ -1366,16 +1406,20 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     // ── 12-Element Audit Finding Structure for Requirements ──
 
     // 1. FINDING ID
-    writeFieldBlock('FINDING ID', `F-${String(findingNum).padStart(2, '0')}`);
+    writeFieldBlock(t(I18N.findingIdLabel), `F-${String(findingNum).padStart(2, '0')}`);
 
     // 2. TITLE
-    writeFieldBlock(lang === 'de' ? 'TITEL' : 'TITLE', `${req.name} (${req.article})`);
+    writeFieldBlock(t(I18N.titleLabel), `${req.name} (${req.article})`);
 
     // 3. OBSERVATION
-    const obsGap = req.gap || (lang === 'de' ? 'Keine Abweichung festgestellt.' : 'No deviation identified.');
+    const obsGap = req.gap || t(I18N.noDeviation);
     const obsReqText = req.status === 'pass'
-      ? (lang === 'de' ? `Die Anforderung ${req.article} ist vollständig umgesetzt. ${req.evidence}` : `Requirement ${req.article} is fully implemented. ${req.evidence}`)
-      : (lang === 'de' ? `Die Anforderung ${req.article} ist ${req.status === 'fail' ? 'nicht' : 'nicht vollständig'} umgesetzt. ${obsGap}. Evidenz: ${req.evidence}` : `Requirement ${req.article} is ${req.status === 'fail' ? 'not' : 'not fully'} implemented. ${obsGap}. Evidence: ${req.evidence}`);
+      ? (lang === 'de' ? `Die Anforderung ${req.article} ist vollständig umgesetzt. ${req.evidence}`
+        : lang === 'fr' ? `L'exigence ${req.article} est entièrement mise en œuvre. ${req.evidence}`
+        : `Requirement ${req.article} is fully implemented. ${req.evidence}`)
+      : (lang === 'de' ? `Die Anforderung ${req.article} ist ${req.status === 'fail' ? 'nicht' : 'nicht vollständig'} umgesetzt. ${obsGap}. Evidenz: ${req.evidence}`
+        : lang === 'fr' ? `L'exigence ${req.article} ${req.status === 'fail' ? 'n\'est pas' : 'n\'est pas entièrement'} mise en œuvre. ${obsGap}. Preuve : ${req.evidence}`
+        : `Requirement ${req.article} is ${req.status === 'fail' ? 'not' : 'not fully'} implemented. ${obsGap}. Evidence: ${req.evidence}`);
     writeFieldBlock(t(I18N.observation), obsReqText);
 
     // 4. TECHNICAL DETAILS
@@ -1383,27 +1427,22 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
       const reqArtNum = req.article.replace(/[^0-9]/g, '').slice(0, 2);
       return th.cra.includes(reqArtNum) || th.name.toLowerCase().includes(req.name.toLowerCase().split(' ')[0]);
     });
-    writeLabel(lang === 'de' ? 'TECHNISCHE DETAILS' : 'TECHNICAL DETAILS', 5);
-    writeFieldBlock(lang === 'de' ? '  Anforderung' : '  Requirement', `${req.id}: ${req.article}`);
+    writeLabel(t(I18N.techDetailsLabel), 5);
+    writeFieldBlock(t(I18N.requirementLabel), `${req.id}: ${req.article}`);
     if (linkedThreats.length > 0) {
-      writeFieldBlock(lang === 'de' ? '  Betroffene Komponente' : '  Affected Component', linkedThreats.map(th => th.component).filter((v, i, a) => a.indexOf(v) === i).join(', '));
+      writeFieldBlock(t(I18N.affectedComponentLabel), linkedThreats.map(th => th.component).filter((v, i, a) => a.indexOf(v) === i).join(', '));
     }
-    writeFieldBlock(lang === 'de' ? '  Evidenz' : '  Evidence', req.evidence);
+    writeFieldBlock(t(I18N.evidenceLabel), req.evidence);
 
     // 5. THREAT CATEGORY (STRIDE)
     const strideCategories = [...new Set(linkedThreats.map(th => th.stride))];
-    const STRIDE_FULL: Record<string, { de: string; en: string }> = {
-      S: { de: 'Spoofing (Identitätsvortäuschung)', en: 'Spoofing (Identity Forgery)' },
-      T: { de: 'Tampering (Datenmanipulation)', en: 'Tampering (Data Manipulation)' },
-      R: { de: 'Repudiation (Abstreitbarkeit)', en: 'Repudiation (Non-Accountability)' },
-      I: { de: 'Information Disclosure (Informationsabfluss)', en: 'Information Disclosure (Data Leakage)' },
-      D: { de: 'Denial of Service (Verfügbarkeitsangriff)', en: 'Denial of Service (Availability Attack)' },
-      E: { de: 'Elevation of Privilege (Rechteausweitung)', en: 'Elevation of Privilege (Unauthorized Access)' },
-    };
     const strideLine = strideCategories.length > 0
-      ? strideCategories.map(s => `${s} — ${STRIDE_FULL[s]?.[lang === 'de' ? 'de' : 'en'] || s}`).join(', ')
-      : (lang === 'de' ? 'Keine direkte Bedrohungsverknüpfung — regulatorische Anforderung' : 'No direct threat link — regulatory requirement');
-    writeFieldBlock(lang === 'de' ? 'BEDROHUNGSKATEGORIE (STRIDE)' : 'THREAT CATEGORY (STRIDE)', strideLine);
+      ? strideCategories.map(s => {
+          const name = STRIDE_NAMES[s]?.[lang] || s;
+          return `${s} — ${name}`;
+        }).join(', ')
+      : t(I18N.noThreatLink);
+    writeFieldBlock(t(I18N.strideCatLabel), strideLine);
 
     // 6. RISK DESCRIPTION (attacker → technical impact → business impact)
     const gap = req.gap || '';
@@ -1413,57 +1452,63 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
 
     let riskDescReq: string;
     if (req.status === 'fail') {
-      const attackerInfo = linkedThreats.length > 0 ? linkedThreats[0].attacker : (lang === 'de' ? 'ein Angreifer' : 'an attacker');
-      const vectorInfo = linkedThreats.length > 0 ? linkedThreats[0].path.split('→')[0].trim() : (lang === 'de' ? 'fehlende Kontrolle' : 'missing control');
+      const attackerInfo = linkedThreats.length > 0 ? linkedThreats[0].attacker : (lang === 'de' ? 'ein Angreifer' : lang === 'fr' ? 'un attaquant' : 'an attacker');
+      const vectorInfo = linkedThreats.length > 0 ? linkedThreats[0].path.split('→')[0].trim() : (lang === 'de' ? 'fehlende Kontrolle' : lang === 'fr' ? 'contrôle manquant' : 'missing control');
       riskDescReq = lang === 'de'
         ? `${gap ? `${gap}. ` : ''}${attackerInfo} kann über „${vectorInfo}" direkten Zugriff erlangen, was zu ${linkedThreats.length > 0 && linkedThreats[0].impact >= 4 ? 'Betriebsunterbrechung, Datenverlust und regulatorischen Sanktionen' : 'unautorisiertem Zugriff oder Integritätsverlust'} führt. Konformitätserklärung nach Art. 22 CRA nicht abgebbar. Haftung nach Art. 64 CRA.`
-        : `${gap ? `${gap}. ` : ''}${attackerInfo} can gain direct access via "${vectorInfo}", leading to ${linkedThreats.length > 0 && linkedThreats[0].impact >= 4 ? 'operational disruption, data loss, and regulatory sanctions' : 'unauthorized access or integrity compromise'}. Conformity declaration per Art. 22 CRA cannot be issued. Liability under Art. 64 CRA.`;
+        : lang === 'fr'
+          ? `${gap ? `${gap}. ` : ''}${attackerInfo} peut obtenir un accès direct via « ${vectorInfo} », entraînant ${linkedThreats.length > 0 && linkedThreats[0].impact >= 4 ? 'une interruption opérationnelle, une perte de données et des sanctions réglementaires' : 'un accès non autorisé ou une compromission de l\'intégrité'}. Déclaration de conformité selon Art. 22 CRA impossible. Responsabilité selon Art. 64 CRA.`
+          : `${gap ? `${gap}. ` : ''}${attackerInfo} can gain direct access via "${vectorInfo}", leading to ${linkedThreats.length > 0 && linkedThreats[0].impact >= 4 ? 'operational disruption, data loss, and regulatory sanctions' : 'unauthorized access or integrity compromise'}. Conformity declaration per Art. 22 CRA cannot be issued. Liability under Art. 64 CRA.`;
     } else if (req.status === 'partial') {
       riskDescReq = lang === 'de'
         ? `${gap || 'Kontrolle nicht vollständig verifiziert'}. ${linkedThreats.length > 0 ? `Verknüpfte Bedrohungen (${linkedThreats.map(th => threatId(th)).join(', ')}) können die verbleibende Lücke ausnutzen` : 'Angreifer können die ungeschützte Angriffsfläche ausnutzen'}, bis die Maßnahme vollständig implementiert ist. ${linkedThreats.length > 0 && linkedThreats[0].impact >= 4 ? 'Betriebsunterbrechung oder regulatorische Sanktionen möglich.' : 'Eingeschränkte Funktionsfähigkeit oder Compliance-Abweichung.'}`
-        : `${gap || 'Control not fully verified'}. ${linkedThreats.length > 0 ? `Linked threats (${linkedThreats.map(th => threatId(th)).join(', ')}) can exploit the remaining gap` : 'Attackers can exploit the unprotected attack surface'} until the measure is fully implemented. ${linkedThreats.length > 0 && linkedThreats[0].impact >= 4 ? 'Operational disruption or regulatory sanctions possible.' : 'Limited functionality or compliance deviation.'}`;
+        : lang === 'fr'
+          ? `${gap || 'Contrôle non entièrement vérifié'}. ${linkedThreats.length > 0 ? `Les menaces liées (${linkedThreats.map(th => threatId(th)).join(', ')}) peuvent exploiter la lacune restante` : 'Les attaquants peuvent exploiter la surface d\'attaque non protégée'} jusqu'à la mise en œuvre complète. ${linkedThreats.length > 0 && linkedThreats[0].impact >= 4 ? 'Interruption opérationnelle ou sanctions réglementaires possibles.' : 'Fonctionnalité limitée ou écart de conformité.'}`
+          : `${gap || 'Control not fully verified'}. ${linkedThreats.length > 0 ? `Linked threats (${linkedThreats.map(th => threatId(th)).join(', ')}) can exploit the remaining gap` : 'Attackers can exploit the unprotected attack surface'} until the measure is fully implemented. ${linkedThreats.length > 0 && linkedThreats[0].impact >= 4 ? 'Operational disruption or regulatory sanctions possible.' : 'Limited functionality or compliance deviation.'}`;
     } else {
       riskDescReq = lang === 'de'
         ? `Anforderung vollständig umgesetzt und verifiziert. Keine ausnutzbare Angriffsfläche identifiziert.`
-        : `Requirement fully implemented and verified. No exploitable attack surface identified.`;
+        : lang === 'fr'
+          ? `Exigence entièrement mise en œuvre et vérifiée. Aucune surface d'attaque exploitable identifiée.`
+          : `Requirement fully implemented and verified. No exploitable attack surface identified.`;
     }
-    writeFieldBlock(lang === 'de' ? 'RISIKOBESCHREIBUNG' : 'RISK DESCRIPTION', riskDescReq);
+    writeFieldBlock(t(I18N.riskDescLabel), riskDescReq);
     if (threatContext) {
-      writeFieldBlock(lang === 'de' ? 'Verknüpfte Bedrohungen' : 'Linked Threats', threatContext);
+      writeFieldBlock(t(I18N.linkedThreatsLabel), threatContext);
     }
 
     // 7. IMPACT (CIA triad — derived from linked threats)
-    writeLabel('IMPACT', 5);
+    writeLabel(t(I18N.impactLabel), 5);
     if (linkedThreats.length > 0) {
       const hasC = linkedThreats.some(th => th.stride === 'I' || th.stride === 'S' || th.stride === 'E');
       const hasI = linkedThreats.some(th => th.stride === 'T' || th.stride === 'R');
       const hasA = linkedThreats.some(th => th.stride === 'D');
       const maxScore = Math.max(...linkedThreats.map(th => th.likelihood * th.impact));
-      const level = maxScore >= 13 ? 'High' : maxScore >= 6 ? 'Medium' : 'Low';
-      writeFieldBlock('  Confidentiality', hasC ? level : 'None');
-      writeFieldBlock('  Integrity', hasI ? level : 'None');
-      writeFieldBlock('  Availability', hasA ? level : 'None');
+      const level = maxScore >= 13 ? t(I18N.highLevel) : maxScore >= 6 ? t(I18N.mediumLevel) : t(I18N.lowLevel);
+      writeFieldBlock(t(I18N.confidentialityLabel), hasC ? level : t(I18N.noneLevel));
+      writeFieldBlock(t(I18N.integrityLabel), hasI ? level : t(I18N.noneLevel));
+      writeFieldBlock(t(I18N.availabilityLabel), hasA ? level : t(I18N.noneLevel));
     } else {
-      const impactLevel = req.status === 'fail' ? 'Medium' : req.status === 'partial' ? 'Low' : 'None';
-      writeFieldBlock('  Confidentiality', impactLevel);
-      writeFieldBlock('  Integrity', impactLevel);
-      writeFieldBlock('  Availability', impactLevel);
+      const impactLevel = req.status === 'fail' ? t(I18N.mediumLevel) : req.status === 'partial' ? t(I18N.lowLevel) : t(I18N.noneLevel);
+      writeFieldBlock(t(I18N.confidentialityLabel), impactLevel);
+      writeFieldBlock(t(I18N.integrityLabel), impactLevel);
+      writeFieldBlock(t(I18N.availabilityLabel), impactLevel);
     }
 
     // 8. LIKELIHOOD
     if (linkedThreats.length > 0) {
       const maxLikelihood = Math.max(...linkedThreats.map(th => th.likelihood));
-      const lLabel = maxLikelihood >= 4 ? 'High' : maxLikelihood >= 3 ? 'Medium' : 'Low';
-      writeFieldBlock('LIKELIHOOD', `${lLabel} (${maxLikelihood}/5)`);
+      const lLabel = maxLikelihood >= 4 ? t(I18N.highLevel) : maxLikelihood >= 3 ? t(I18N.mediumLevel) : t(I18N.lowLevel);
+      writeFieldBlock(t(I18N.likelihoodLabel), `${lLabel} (${maxLikelihood}/5)`);
     } else {
-      writeFieldBlock('LIKELIHOOD', req.status === 'fail' ? 'High' : req.status === 'partial' ? 'Medium' : 'Low');
+      writeFieldBlock(t(I18N.likelihoodLabel), req.status === 'fail' ? t(I18N.highLevel) : req.status === 'partial' ? t(I18N.mediumLevel) : t(I18N.lowLevel));
     }
 
     // 9. RISK LEVEL
-    const reqRating = req.status === 'fail' ? 'HIGH' : req.status === 'partial' ? 'MEDIUM' : 'LOW';
+    const reqRating = req.status === 'fail' ? t(I18N.highSev) : req.status === 'partial' ? t(I18N.mediumSev) : t(I18N.lowSev);
     const reqRatingColor = req.status === 'fail' ? C.redText : req.status === 'partial' ? C.orangeText : C.greenText;
     checkPage(8);
-    writeLabel('RISK LEVEL', 5);
+    writeLabel(t(I18N.riskLevelLabel), 5);
     doc.setFont(HEAD_FONT, 'bold');
     doc.setFontSize(BODY_SIZE + 1);
     doc.setTextColor(...reqRatingColor);
@@ -1473,13 +1518,15 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     // 10. ROOT CAUSE
     const rootCause = req.status !== 'pass'
       ? (lang === 'de'
-        ? `Ursache: ${gap || 'Fehlende oder unvollständige Implementierung der geforderten Kontrolle.'}`
-        : `Root cause: ${gap || 'Missing or incomplete implementation of the required control.'}`)
-      : (lang === 'de' ? 'Kein Mangel festgestellt.' : 'No deficiency identified.');
-    writeFieldBlock(lang === 'de' ? 'URSACHE (ROOT CAUSE)' : 'ROOT CAUSE', rootCause);
+        ? `Ursache: ${gap || t(I18N.missingControl)}`
+        : lang === 'fr'
+          ? `Cause : ${gap || t(I18N.missingControl)}`
+          : `Root cause: ${gap || t(I18N.missingControl)}`)
+      : t(I18N.noDeficiency);
+    writeFieldBlock(t(I18N.rootCauseLabel), rootCause);
 
     // 11. RECOMMENDATION
-    writeFieldBlock(lang === 'de' ? 'EMPFEHLUNG' : 'RECOMMENDATION', req.measure || (lang === 'de' ? 'Keine Maßnahme erforderlich.' : 'No action required.'));
+    writeFieldBlock(t(I18N.recommendationLabel), req.measure || t(I18N.noActionRequired));
 
     // Effort + Priority
     if (req.effort) {
@@ -1493,8 +1540,8 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     // 12. REFERENCE
     const refReqParts = [req.article];
     const reqLinkedThreats = articleToThreats[req.article];
-    if (reqLinkedThreats && reqLinkedThreats.length > 0) refReqParts.push(`${lang === 'de' ? 'Verknüpfte Bedrohungen' : 'Linked Threats'}: ${reqLinkedThreats.join(', ')}`);
-    writeFieldBlock(lang === 'de' ? 'REFERENZ' : 'REFERENCE', refReqParts.join(' | '));
+    if (reqLinkedThreats && reqLinkedThreats.length > 0) refReqParts.push(`${t(I18N.linkedThreatsLabel)}: ${reqLinkedThreats.join(', ')}`);
+    writeFieldBlock(t(I18N.referenceLabel), refReqParts.join(' | '));
 
     if (req.criteria.length > 0) {
       checkPage(9);
