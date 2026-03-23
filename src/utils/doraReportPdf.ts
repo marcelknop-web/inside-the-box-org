@@ -593,6 +593,116 @@ export async function generateDoraReport(data: DoraReportData): Promise<void> {
     pdf.y += 3;
   });
 
+  // ═══ SECTION 9: Compliance Statement ═══
+  pdf.newPage();
+  pdf.heading(l('sec9', lang));
+  pdf.introText(lang === 'de'
+    ? 'Dieser Abschnitt enthält die abschließende Konformitätsbewertung auf Basis der in diesem Bericht dokumentierten Prüfungsergebnisse. Er dient als Entscheidungsgrundlage für die Geschäftsleitung und als Nachweis gegenüber Aufsichtsbehörden.'
+    : 'This section contains the final compliance assessment based on the audit results documented in this report. It serves as a basis for management decisions and as evidence for supervisory authorities.');
+
+  const isCompliant = critCount === 0 && failCount === 0;
+  const isConditional = !isCompliant && complianceRate >= 60;
+
+  // Criticality classification table
+  pdf.heading(lang === 'de' ? '9.1  Einstufung und Aufsichtsrahmen' : '9.1  Classification and Supervisory Framework', 2);
+  pdf.bodyParagraph(lang === 'de'
+    ? `Das Finanzunternehmen ${intakeData.entityName} ist als "${criticalityName}" eingestuft. Die Einstufung bestimmt den Umfang der aufsichtlichen Anforderungen und die Intensität der Prüfung durch die zuständige Behörde (BaFin, EZB).`
+    : `The financial entity ${intakeData.entityName} is classified as "${criticalityName}". The classification determines the scope of supervisory requirements and the intensity of examination by the competent authority.`);
+
+  const classRows = lang === 'de' ? [
+    ['Standard', 'Vollständige DORA-Compliance erforderlich. Reguläre aufsichtliche Prüfungen.'],
+    ['Signifikant', 'Erhöhte Anforderungen an IKT-Risikomanagement. Erweiterte Meldepflichten und häufigere Prüfungen.'],
+    ['Kritisch / Systemrelevant', 'Höchste Anforderungsstufe. Erweiterte TLPT-Pflichten, direkte Aufsicht, verschärfte Drittanbieterkontrollen.'],
+  ] : [
+    ['Standard', 'Full DORA compliance required. Regular supervisory examinations.'],
+    ['Significant', 'Enhanced ICT risk management requirements. Extended reporting obligations and more frequent examinations.'],
+    ['Critical / Systemic', 'Highest requirement level. Extended TLPT obligations, direct supervision, enhanced third-party controls.'],
+  ];
+
+  classRows.forEach(([cls, desc]) => {
+    const isCurrent = criticalityName.toLowerCase().includes(cls.toLowerCase().split(' ')[0]);
+    pdf.checkSpace(14);
+    if (isCurrent) {
+      pdf.doc.setFillColor(...C.bg);
+      pdf.doc.roundedRect(LAYOUT.LEFT, pdf.y - 2, LAYOUT.WIDTH, 12, 1, 1, 'F');
+      pdf.doc.setDrawColor(...C.navy);
+      pdf.doc.setLineWidth(0.3);
+      pdf.doc.line(LAYOUT.LEFT, pdf.y - 2, LAYOUT.LEFT, pdf.y + 10);
+    }
+    pdf.doc.setFont(pdf.headFontName, isCurrent ? 'bold' : 'normal');
+    pdf.doc.setFontSize(8.5);
+    pdf.doc.setTextColor(...(isCurrent ? C.navy : C.dark));
+    pdf.doc.text(cls, LAYOUT.LEFT + 4, pdf.y + 2);
+    pdf.doc.setFont(pdf.bodyFontName, 'normal');
+    pdf.doc.setFontSize(7.5);
+    pdf.doc.setTextColor(...C.mid);
+    const descLines = pdf.doc.splitTextToSize(desc, LAYOUT.WIDTH - 60);
+    pdf.doc.text(descLines, LAYOUT.LEFT + 55, pdf.y + 2);
+    pdf.y += Math.max(12, descLines.length * 3.5 + 6);
+  });
+
+  // 9.2 Compliance Verdict
+  pdf.heading(lang === 'de' ? '9.2  Konformitätserklärung' : '9.2  Compliance Verdict', 2);
+
+  const verdictStatement = lang === 'de'
+    ? isCompliant
+      ? `Auf Grundlage der in diesem Bericht dokumentierten Prüfungsergebnisse erfüllt ${intakeData.entityName} die wesentlichen Anforderungen der Verordnung (EU) 2022/2554 (DORA). Es wurden keine kritischen IKT-Risiken und keine nicht-konformen Anforderungen identifiziert. Das Unternehmen ist aus Sicht dieser Bewertung aufsichtskonform.`
+      : isConditional
+        ? `${intakeData.entityName} erfüllt die DORA-Anforderungen derzeit mit Einschränkungen (gewichtete Konformitätsrate: ${complianceRate}%). Es bestehen ${critCount} kritische Risiken und ${failCount} nicht-konforme Anforderungen. Die Konformität kann unter folgenden Bedingungen hergestellt werden: (1) Alle P0-Maßnahmen sind abgeschlossen und verifiziert, (2) die verbleibenden Lücken werden gemäß der Remediation-Roadmap (Abschnitt 5.2) innerhalb der definierten Fristen geschlossen.`
+        : `${intakeData.entityName} erfüllt die wesentlichen DORA-Anforderungen derzeit nicht (gewichtete Konformitätsrate: ${complianceRate}%). Es bestehen ${critCount} kritische Risiken und ${failCount} nicht-konforme Anforderungen. Bei einer aufsichtlichen Prüfung durch BaFin oder EZB ist mit Beanstandungen und möglichen Verwaltungsmaßnahmen nach Art. 50 DORA zu rechnen. Die Umsetzung der Remediation-Roadmap (Abschnitt 5.2) ist zwingend erforderlich.`
+    : isCompliant
+      ? `Based on the assessment results documented in this report, ${intakeData.entityName} meets the essential requirements of Regulation (EU) 2022/2554 (DORA). No critical ICT risks and no non-compliant requirements were identified. The entity is considered supervisory-compliant from this assessment's perspective.`
+      : isConditional
+        ? `${intakeData.entityName} partially meets DORA requirements (weighted compliance rate: ${complianceRate}%). ${critCount} critical risks and ${failCount} non-compliant requirements were identified. Compliance can be achieved under conditions: (1) all P0 measures completed and verified, (2) remaining gaps closed per the remediation roadmap (Section 5.2).`
+        : `${intakeData.entityName} does not currently meet essential DORA requirements (weighted compliance rate: ${complianceRate}%). ${critCount} critical risks and ${failCount} non-compliant requirements were identified. Supervisory examination by BaFin or ECB would likely result in findings and potential administrative measures under Art. 50 DORA. Implementation of the remediation roadmap (Section 5.2) is mandatory.`;
+
+  // Verdict box
+  const stmtBg = isCompliant ? C.pass : isConditional ? C.partial : C.fail;
+  pdf.checkSpace(30);
+  pdf.doc.setFontSize(9);
+  pdf.doc.setFont(pdf.bodyFontName, 'normal');
+  const stmtLines = pdf.doc.splitTextToSize(verdictStatement, LAYOUT.WIDTH - 14);
+  const stmtBoxH = stmtLines.length * 4 + 8;
+  pdf.doc.setFillColor(...C.bg);
+  pdf.doc.roundedRect(LAYOUT.LEFT, pdf.y, LAYOUT.WIDTH, stmtBoxH, 2, 2, 'F');
+  pdf.doc.setFillColor(...stmtBg);
+  pdf.doc.rect(LAYOUT.LEFT, pdf.y, 2, stmtBoxH, 'F');
+  pdf.doc.setTextColor(...C.dark);
+  pdf.doc.text(stmtLines, LAYOUT.LEFT + 8, pdf.y + 5);
+  pdf.y += stmtBoxH + 6;
+
+  // Verdict label banner
+  const verdictLbl = isCompliant
+    ? (lang === 'de' ? 'KONFORM — Aufsichtskonformität gegeben' : 'COMPLIANT — Supervisory compliance achieved')
+    : isConditional
+      ? (lang === 'de' ? 'BEDINGT KONFORM — Nacharbeit erforderlich' : 'CONDITIONALLY COMPLIANT — Remediation required')
+      : (lang === 'de' ? 'NICHT KONFORM — Sofortige Maßnahmen erforderlich' : 'NON-COMPLIANT — Immediate action required');
+
+  pdf.checkSpace(14);
+  pdf.doc.setFillColor(...stmtBg);
+  pdf.doc.roundedRect(LAYOUT.LEFT, pdf.y, LAYOUT.WIDTH, 10, 1.5, 1.5, 'F');
+  pdf.doc.setFont(pdf.headFontName, 'bold');
+  pdf.doc.setFontSize(9);
+  pdf.doc.setTextColor(...C.white);
+  pdf.doc.text(verdictLbl, LAYOUT.LEFT + LAYOUT.WIDTH / 2, pdf.y + 6.5, { align: 'center' });
+  pdf.y += 16;
+  pdf.doc.setTextColor(...C.dark);
+
+  // Signature block
+  pdf.sectionLabel(lang === 'de' ? 'VERANTWORTLICHE FREIGABE' : 'RESPONSIBLE APPROVAL');
+  pdf.y += 2;
+  const sigFields = lang === 'de'
+    ? ['Name: ____________________________', 'Funktion: ____________________________', 'Datum: ____________________________', 'Unterschrift: ____________________________']
+    : ['Name: ____________________________', 'Role: ____________________________', 'Date: ____________________________', 'Signature: ____________________________'];
+  sigFields.forEach(sf => {
+    pdf.checkSpace(6);
+    pdf.doc.setFont(pdf.bodyFontName, 'normal');
+    pdf.doc.setFontSize(LAYOUT.BODY_SIZE);
+    pdf.doc.setTextColor(...C.dark);
+    pdf.doc.text(sf, LAYOUT.LEFT + 4, pdf.y);
+    pdf.y += 7;
+  });
+
   // ═══ APPENDIX A: Structured Data ═══
   pdf.newPage();
   pdf.heading(l('secA', lang));
