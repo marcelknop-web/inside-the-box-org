@@ -638,7 +638,8 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
   }
 
   function writeSubHeading(text: string) {
-    checkPage(14);
+    // Keep heading with at least 2 following body lines
+    checkPage(20);
     doc.setFont(HEAD_FONT, 'bold');
     doc.setFontSize(SUBSECTION_SIZE);
     doc.setTextColor(...C.darkNavy);
@@ -654,6 +655,11 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     for (const para of paragraphs) {
       if (para.trim() === '') { y += PARA_GAP; continue; }
       const lines = doc.splitTextToSize(para, CW - indent);
+      // Orphan protection: if only 1 line fits on current page, push whole paragraph
+      const availLines = Math.floor((BOTTOM - y) / BODY_LEADING);
+      if (lines.length > 1 && availLines > 0 && availLines < 2) {
+        checkPage(lines.length * BODY_LEADING + PARA_GAP);
+      }
       for (const line of lines) {
         checkPage(5);
         doc.text(line, ML + indent, y);
