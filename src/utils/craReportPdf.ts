@@ -534,6 +534,14 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
       doc.text('ENTWURF', W / 2, H / 2 + 10, { align: 'center', angle: 45 });
       doc.restoreGraphicsState();
     }
+    // Brand watermark — always present, very subtle
+    doc.saveGraphicsState();
+    doc.setGState(new (doc as any).GState({ opacity: 0.035 }));
+    doc.setFont(HEAD_FONT, 'normal');
+    doc.setFontSize(22);
+    doc.setTextColor(120, 120, 120);
+    doc.text('lightspeedconsulting.ai', W / 2, H / 2 + 30, { align: 'center', angle: 45 });
+    doc.restoreGraphicsState();
   }
 
   function checkPage(need: number = 16) {
