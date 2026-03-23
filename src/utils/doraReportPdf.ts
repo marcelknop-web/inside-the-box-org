@@ -1001,7 +1001,7 @@ export async function generateDoraReport(data: DoraReportData): Promise<void> {
 
     // Evidence description
     pdf.doc.setFont(pdf.bodyFontName, 'normal'); pdf.doc.setFontSize(7.5); pdf.doc.setTextColor(...C.dark);
-    const evidLines = pdf.doc.splitTextToSize(ri.evidence, LAYOUT.WIDTH - 16);
+    const evidLines = pdf.doc.splitTextToSize(humanizeEvidence(ri.evidence, lang), LAYOUT.WIDTH - 16);
     for (const el of evidLines) { pdf.checkSpace(4); pdf.doc.text(el, LAYOUT.LEFT + 8, pdf.y); pdf.y += 3.5; }
     pdf.y += 1;
 
