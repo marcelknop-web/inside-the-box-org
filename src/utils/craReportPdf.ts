@@ -608,6 +608,7 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     doc.addPage();
     preparePage();
     y = TOP;
+    resetBodyFont();
   }
 
   function writeSectionHeading(text: string) {
