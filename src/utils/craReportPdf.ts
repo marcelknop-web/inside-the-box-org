@@ -1216,9 +1216,22 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     writeFieldBlock('  Integrity', ciaI);
     writeFieldBlock('  Availability', ciaA);
 
-    // 8. LIKELIHOOD
+    // — ATTACK SCENARIO (1-sentence, concrete)
+    const atkScenario = lang === 'de'
+      ? `Ein externer Angreifer (${th.attacker}) kann über ${th.path} direkt auf ${th.component} zugreifen und ${score >= 20 ? 'die vollständige Kontrolle über das System erlangen' : score >= 13 ? 'Daten exfiltrieren oder Konfigurationen manipulieren' : 'begrenzte Funktionsstörungen verursachen'}.`
+      : lang === 'fr'
+        ? `Un attaquant externe (${th.attacker}) peut accéder directement à ${th.component} via ${th.path} et ${score >= 20 ? 'prendre le contrôle total du système' : score >= 13 ? 'exfiltrer des données ou manipuler des configurations' : 'causer des perturbations limitées'}.`
+        : `An external attacker (${th.attacker}) can directly access ${th.component} via ${th.path} and ${score >= 20 ? 'gain full control of the system' : score >= 13 ? 'exfiltrate data or manipulate configurations' : 'cause limited disruption'}.`;
+    writeFieldBlock(t(I18N.attackScenario), atkScenario);
+
+    // 8. LIKELIHOOD (with justification)
     const likelihoodLabel = th.likelihood >= 4 ? 'High' : th.likelihood >= 3 ? 'Medium' : 'Low';
-    writeFieldBlock('LIKELIHOOD', `${likelihoodLabel} (${th.likelihood}/5)`);
+    const likelihoodJustification = lang === 'de'
+      ? th.likelihood >= 4 ? `, da ${th.component} ohne Authentifizierung erreichbar ist` : th.likelihood >= 3 ? `, da der Angriffsvektor bekannt und ausnutzbar ist` : `, da die Ausnutzung spezialisiertes Wissen erfordert`
+      : lang === 'fr'
+        ? th.likelihood >= 4 ? `, car ${th.component} est accessible sans authentification` : th.likelihood >= 3 ? `, car le vecteur d'attaque est connu et exploitable` : `, car l'exploitation nécessite des connaissances spécialisées`
+        : th.likelihood >= 4 ? `, as ${th.component} is accessible without authentication` : th.likelihood >= 3 ? `, as the attack vector is known and exploitable` : `, as exploitation requires specialised knowledge`;
+    writeFieldBlock('LIKELIHOOD', `${likelihoodLabel} (${th.likelihood}/5)${likelihoodJustification}`);
 
     // 9. RISK LEVEL
     const ratingLabel = score >= 20 ? 'CRITICAL' : score >= 13 ? 'HIGH' : score >= 6 ? 'MEDIUM' : 'LOW';
