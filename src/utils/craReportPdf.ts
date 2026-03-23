@@ -1344,8 +1344,8 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     if (th.stride === 'R') refParts.push('ISO 27001 A.12.4 (Logging)', 'CIS Control 8');
     if (score >= 13) refParts.push('OWASP Top 10');
     const relatedReqIds = reqs.filter(r => r.article === th.cra).map(r => `${r.id} (${r.name})`);
-    if (relatedReqIds.length > 0) refParts.push(lang === 'de' ? `Verknüpfte Anforderungen: ${relatedReqIds.join('; ')}` : lang === 'fr' ? `Exigences liées : ${relatedReqIds.join('; ')}` : `Related requirements: ${relatedReqIds.join('; ')}`);
-    writeFieldBlock(lang === 'de' ? 'REFERENZ' : lang === 'fr' ? 'RÉFÉRENCE' : 'REFERENCE', refParts.join(' | '));
+    if (relatedReqIds.length > 0) refParts.push(`${t(I18N.linkedReqsLabel)}: ${relatedReqIds.join('; ')}`);
+    writeFieldBlock(t(I18N.referenceLabel), refParts.join(' | '));
 
     // Reproducibility (reproMap already declared above)
     const reproLabel = reproMap[th.reproducibility]?.[lang] || th.reproducibility;
