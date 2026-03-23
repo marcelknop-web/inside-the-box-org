@@ -682,12 +682,17 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
   }
 
   function writeLabel(label: string, indent: number = 0) {
-    checkPage(7);
+    checkPage(9);
     doc.setFont(HEAD_FONT, 'bold');
     doc.setFontSize(LABEL_SIZE);
     doc.setTextColor(...C.accent);
     doc.text(label.toUpperCase(), ML + indent, y);
-    y += 3.8;
+    // Subtle accent underline
+    doc.setDrawColor(...C.accent);
+    doc.setLineWidth(0.15);
+    const labelW = Math.min(doc.getTextWidth(label.toUpperCase()), CW - indent);
+    doc.line(ML + indent, y + 1.2, ML + indent + labelW + 2, y + 1.2);
+    y += 4.5;
   }
 
   function writeKV(label: string, value: string, indent: number = 0) {
@@ -722,17 +727,39 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
   }
 
   function writeFieldBlock(label: string, value: string, indent: number = 5) {
-    writeLabel(label, indent);
+    // Pre-calculate content height for background panel
+    doc.setFont(HEAD_FONT, 'normal');
+    doc.setFontSize(BODY_SIZE);
+    const textLines = doc.splitTextToSize(value, CW - indent - 10);
+    const labelH = 5;
+    const textH = textLines.length * BODY_LEADING;
+    const totalH = labelH + textH + 4;
+    checkPage(totalH + 2);
+
+    // Subtle background panel
+    const panelY = y - 2;
+    doc.setFillColor(248, 249, 251);
+    doc.roundedRect(ML + indent, panelY, CW - indent, totalH, 1, 1, 'F');
+    // Left accent bar
+    doc.setFillColor(...C.accent);
+    doc.rect(ML + indent, panelY, 1.2, totalH, 'F');
+
+    // Label inside panel
+    doc.setFont(HEAD_FONT, 'bold');
+    doc.setFontSize(LABEL_SIZE - 0.5);
+    doc.setTextColor(...C.accent);
+    doc.text(label.toUpperCase(), ML + indent + 4.5, y + 1);
+    y += labelH;
+
+    // Value text inside panel
     doc.setFont(HEAD_FONT, 'normal');
     doc.setFontSize(BODY_SIZE);
     doc.setTextColor(...C.bodyText);
-    const lines = doc.splitTextToSize(value, CW - indent - 3);
-    for (const line of lines) {
-      checkPage(5);
-      doc.text(line, ML + indent + 3, y);
+    for (const line of textLines) {
+      doc.text(line, ML + indent + 4.5, y);
       y += BODY_LEADING;
     }
-    y += FIELD_GAP;
+    y += 3;
   }
 
   function riskLabel(score: number): string {
