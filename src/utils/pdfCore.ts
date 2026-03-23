@@ -810,50 +810,78 @@ export class PdfDoc {
     fields: [string, string][];
     confidentialNote: string;
   }): void {
-    this.newPage();
-    this.y = 55;
+    const W = 210;
+    const H = 297;
+    const ML = LAYOUT.LEFT;
+    const MR = 25;
 
-    // Heavy accent bar
-    this.doc.setDrawColor(...C.navy);
-    this.doc.setLineWidth(2.5);
-    this.doc.line(LAYOUT.LEFT, 42, LAYOUT.LEFT + 35, 42);
+    // Full-page dark navy background
+    this.doc.setFillColor(...C.navy);
+    this.doc.rect(0, 0, W, H, 'F');
+
+    // Gold accent bar
+    this.doc.setFillColor(245, 184, 0);
+    this.doc.rect(ML, 50, 35, 1.5, 'F');
 
     // Title
-    this.doc.setFontSize(22);
     this.doc.setFont(this.headFont, 'bold');
-    this.doc.setTextColor(...C.navy);
-    this.doc.text(opts.title, LAYOUT.LEFT, this.y);
-    this.y += 9;
+    this.doc.setFontSize(26);
+    this.doc.setTextColor(...C.white);
+    this.doc.text(opts.title, ML, 66);
 
-    // Subtitle
-    this.doc.setFontSize(9.5);
-    this.doc.setFont(this.bodyFont, 'italic');
-    this.doc.setTextColor(...C.mid);
-    this.doc.text(opts.subtitle, LAYOUT.LEFT, this.y);
-    this.y += 24;
-
-    // Entity name
-    this.doc.setTextColor(...C.dark);
-    this.doc.setFontSize(16);
-    this.doc.setFont(this.headFont, 'bold');
-    this.doc.text(opts.entityName, LAYOUT.LEFT, this.y);
-    this.y += 16;
-
-    // Metadata fields
-    this.doc.setFontSize(LAYOUT.BODY_SIZE);
-    opts.fields.forEach(([label, value]) => this.field(label, value));
-
-    // Confidential box
-    this.y += 8;
-    this.doc.setFillColor(...C.bg);
-    this.doc.roundedRect(LAYOUT.LEFT, this.y, LAYOUT.WIDTH, 13, 1.2, 1.2, 'F');
-    this.doc.setDrawColor(...C.rule);
-    this.doc.setLineWidth(0.1);
-    this.doc.roundedRect(LAYOUT.LEFT, this.y, LAYOUT.WIDTH, 13, 1.2, 1.2, 'S');
-    this.doc.setFontSize(6.5);
+    // Subtitle (regulation reference)
     this.doc.setFont(this.headFont, 'normal');
-    this.doc.setTextColor(...C.mid);
-    this.doc.text(opts.confidentialNote, LAYOUT.LEFT + 5, this.y + 8);
+    this.doc.setFontSize(11);
+    this.doc.setTextColor(245, 184, 0);
+    this.doc.text(opts.subtitle, ML, 78);
+
+    // "KI-gestützte Analyse" badge
+    const aiLabel = this.opts.lang === 'de' ? 'KI-gestützte Analyse' : this.opts.lang === 'fr' ? 'Analyse assistée par IA' : 'AI-powered Analysis';
+    this.doc.setFont(this.headFont, 'normal');
+    this.doc.setFontSize(8.5);
+    this.doc.setTextColor(180, 190, 210);
+    this.doc.text(aiLabel, ML, 90);
+
+    // Entity name — prominent
+    this.doc.setFont(this.headFont, 'bold');
+    this.doc.setFontSize(16);
+    this.doc.setTextColor(220, 225, 235);
+    this.doc.text(opts.entityName, ML, 112);
+
+    // Metadata section — bottom area
+    const metaY = H - 90;
+    this.doc.setDrawColor(245, 184, 0);
+    this.doc.setLineWidth(0.3);
+    this.doc.line(ML, metaY, W - MR, metaY);
+
+    let my = metaY + 7;
+    this.doc.setFontSize(8.5);
+    for (const [label, value] of opts.fields) {
+      this.doc.setFont(this.headFont, 'bold');
+      this.doc.setTextColor(245, 184, 0);
+      this.doc.text(label, ML, my);
+      this.doc.setFont(this.headFont, 'normal');
+      this.doc.setTextColor(180, 190, 210);
+      this.doc.text(value, ML + 48, my);
+      my += 6.5;
+    }
+
+    // Footer: branding + confidential
+    this.doc.setFont(this.headFont, 'normal');
+    this.doc.setFontSize(7);
+    this.doc.setTextColor(110, 120, 140);
+    this.doc.text('lightspeedconsulting.ai', ML, H - 16);
+
+    this.doc.setFont(this.headFont, 'bold');
+    this.doc.setFontSize(7);
+    this.doc.setTextColor(245, 184, 0);
+    this.doc.text(opts.confidentialNote.split('—')[0].trim(), W - MR, H - 16, { align: 'right' });
+
+    // Gold bottom bar
+    this.doc.setFillColor(245, 184, 0);
+    this.doc.rect(0, H - 2.5, W, 2.5, 'F');
+
+    // Reset text color for subsequent pages
     this.doc.setTextColor(...C.dark);
   }
 
