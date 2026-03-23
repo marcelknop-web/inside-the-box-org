@@ -497,19 +497,23 @@ export class PdfDoc {
 
   /* ── Structural Elements ─────────────────────────────────── */
 
-  /** Navy verdict box with white text */
+  /** Navy verdict box with white text — premium styling */
   verdictBox(text: string): void {
     this.doc.setFontSize(9.5);
     this.doc.setFont(this.headFont, 'bold');
-    const lines = this.doc.splitTextToSize(text, LAYOUT.WIDTH - 16);
-    const boxH = Math.max(16, lines.length * 4.5 + 10);
+    const lines = this.doc.splitTextToSize(text, LAYOUT.WIDTH - 20);
+    const boxH = Math.max(18, lines.length * 4.8 + 12);
     this.checkSpace(boxH + 4);
     const boxY = this.y;
+    // Gradient-like effect: dark base + subtle border
     this.doc.setFillColor(...C.navy);
-    this.doc.roundedRect(LAYOUT.LEFT, boxY, LAYOUT.WIDTH, boxH, 2, 2, 'F');
+    this.doc.roundedRect(LAYOUT.LEFT, boxY, LAYOUT.WIDTH, boxH, 2.5, 2.5, 'F');
+    // Decorative top accent line
+    this.doc.setFillColor(245, 184, 0);
+    this.doc.rect(LAYOUT.LEFT + 10, boxY, LAYOUT.WIDTH - 20, 0.6, 'F');
     this.doc.setTextColor(...C.white);
-    this.doc.text(lines, LAYOUT.LEFT + 8, boxY + 7);
-    this.y = boxY + boxH + 5;
+    this.doc.text(lines, LAYOUT.LEFT + 10, boxY + 9);
+    this.y = boxY + boxH + 6;
     this.doc.setTextColor(...C.dark);
   }
 
