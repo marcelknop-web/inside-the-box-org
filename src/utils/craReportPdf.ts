@@ -410,12 +410,17 @@ const STRIDE_NAMES: Record<string, Record<string, string>> = {
 /* ════════════════════════════════════════════════════════════
    MAIN GENERATOR
    ════════════════════════════════════════════════════════════ */
-export function generateCraReport(data: CraReportData): void {
+export async function generateCraReport(data: CraReportData): Promise<void> {
   const { intakeData, threats, reqs, language, productTypeName, craClassName, isDraft = false, qaChecks, fixLog, qaIterations } = data;
   const lang = language;
   const t = (o: Record<string, string>) => o[lang] || o.en;
 
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  const fonts = await loadAndRegisterFonts(doc);
+  const BODY_FONT = fonts.body;
+  const HEAD_FONT = fonts.head;
+  const DATA_FONT = fonts.data;
+
   const W = 210, H = 297;
   const ML = 25, MR = 22, CW = W - ML - MR;
   const TOP = 30;
