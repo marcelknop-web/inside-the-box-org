@@ -35,6 +35,49 @@ export function humanizeList(items: string[], lang: string, context: 'infra' | '
   }
 }
 
+/**
+ * Turn staccato evidence fragments into flowing, readable prose.
+ * e.g. "Sicherheits-Datenblatt für Produkt publiziert. Release Notes enthalten Security-relevante Änderungen."
+ * → "Im Rahmen der Prüfung wurde festgestellt, dass ein Sicherheits-Datenblatt für das Produkt publiziert wurde und die Release Notes Security-relevante Änderungen enthalten."
+ */
+export function humanizeEvidence(raw: string, lang: string): string {
+  if (!raw || !raw.trim()) return '';
+  const trimmed = raw.trim();
+
+  // If it already reads like a proper flowing sentence (long, with connectors), return as-is
+  if (trimmed.length > 80 && /[.!?]$/.test(trimmed) && (trimmed.includes(' und ') || trimmed.includes(' and ') || trimmed.includes(' et '))) return trimmed;
+
+  // Split by period-separated fragments
+  const fragments = trimmed.split(/\.\s*/).filter(f => f.trim().length > 3);
+  if (fragments.length <= 1) {
+    // Single fragment — wrap in a proper sentence
+    const frag = trimmed.replace(/\.$/, '');
+    if (lang === 'de') return `Im Rahmen der Prüfung wurde festgestellt, dass ${frag.charAt(0).toLowerCase() + frag.slice(1)}.`;
+    if (lang === 'fr') return `L'examen a permis de constater que ${frag.charAt(0).toLowerCase() + frag.slice(1)}.`;
+    return `The assessment identified that ${frag.charAt(0).toLowerCase() + frag.slice(1)}.`;
+  }
+
+  // Multiple fragments — join into flowing prose with connectors
+  const cleaned = fragments.map(f => f.trim().replace(/\.$/, ''));
+  if (lang === 'de') {
+    const joined = cleaned.length === 2
+      ? `${cleaned[0].charAt(0).toLowerCase() + cleaned[0].slice(1)} und ${cleaned[1].charAt(0).toLowerCase() + cleaned[1].slice(1)}`
+      : cleaned.slice(0, -1).map((c, i) => (i === 0 ? c.charAt(0).toLowerCase() + c.slice(1) : c.charAt(0).toLowerCase() + c.slice(1))).join(', ') + ' und ' + cleaned[cleaned.length - 1].charAt(0).toLowerCase() + cleaned[cleaned.length - 1].slice(1);
+    return `Im Rahmen der Prüfung wurde festgestellt, dass ${joined}.`;
+  }
+  if (lang === 'fr') {
+    const joined = cleaned.length === 2
+      ? `${cleaned[0].charAt(0).toLowerCase() + cleaned[0].slice(1)} et ${cleaned[1].charAt(0).toLowerCase() + cleaned[1].slice(1)}`
+      : cleaned.slice(0, -1).map(c => c.charAt(0).toLowerCase() + c.slice(1)).join(', ') + ' et ' + cleaned[cleaned.length - 1].charAt(0).toLowerCase() + cleaned[cleaned.length - 1].slice(1);
+    return `L'examen a permis de constater que ${joined}.`;
+  }
+  // English
+  const joined = cleaned.length === 2
+    ? `${cleaned[0].charAt(0).toLowerCase() + cleaned[0].slice(1)} and ${cleaned[1].charAt(0).toLowerCase() + cleaned[1].slice(1)}`
+    : cleaned.slice(0, -1).map(c => c.charAt(0).toLowerCase() + c.slice(1)).join(', ') + ', and ' + cleaned[cleaned.length - 1].charAt(0).toLowerCase() + cleaned[cleaned.length - 1].slice(1);
+  return `The assessment identified that ${joined}.`;
+}
+
 /** Turn raw user-entered text (which may be staccato or bullet-like) into a readable paragraph. */
 export function humanizeText(raw: string, lang: string, context: 'issues' | 'description' = 'description'): string {
   if (!raw || !raw.trim()) return '';

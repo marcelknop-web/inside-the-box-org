@@ -2,7 +2,7 @@ import jsPDF from 'jspdf';
 import type { IntakeData, Threat, CraReq } from '@/data/craData';
 import { threatId } from '@/data/craData';
 import type { QaCheck } from '@/utils/craQualityCheck';
-import { FONTS } from '@/utils/pdfCore';
+import { FONTS, humanizeEvidence } from '@/utils/pdfCore';
 
 /* ════════════════════════════════════════════════════════════
    Font System — shared with pdfCore for consistency
@@ -587,12 +587,19 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     doc.restoreGraphicsState();
   }
 
+  function resetBodyFont() {
+    doc.setFont(HEAD_FONT, 'normal');
+    doc.setFontSize(BODY_SIZE);
+    doc.setTextColor(...C.bodyText);
+  }
+
   function checkPage(need: number = 16) {
     if (y > BOTTOM - need) {
       addFooter();
       doc.addPage();
       preparePage();
       y = TOP;
+      resetBodyFont();
     }
   }
 
@@ -601,6 +608,7 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     doc.addPage();
     preparePage();
     y = TOP;
+    resetBodyFont();
   }
 
   function writeSectionHeading(text: string) {
@@ -1200,10 +1208,10 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     const headerText = isCrit ? C.redText : isHigh ? C.orangeText : C.darkNavy;
 
     doc.setFillColor(...headerBg);
-    doc.roundedRect(ML, y, CW, 10, 1, 1, 'F');
+    doc.roundedRect(ML, y, CW, 10, 1.2, 1.2, 'F');
     const accentBarColor = isCrit ? C.redText : isHigh ? C.orangeText : C.accent;
     doc.setFillColor(...accentBarColor);
-    doc.rect(ML, y + 0.5, 2, 9, 'F');
+    doc.rect(ML, y + 1.2, 2.5, 10 - 2.4, 'F');
 
     const rl = riskLabel(score);
     const scoreStr = `${rl}  ${th.likelihood} x ${th.impact} = ${score}`;
@@ -1240,11 +1248,12 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     // 3. OBSERVATION (concrete, fact-based — specific test results, not vague language)
     const reproLocal = reproMap[th.reproducibility]?.[lang] || th.reproducibility;
     const evidRef = `E-${String(sortedThreats.indexOf(th) + 1).padStart(3, '0')}`;
+    const humanEvid = humanizeEvidence(th.evidence, lang);
     const obsText = lang === 'de'
-      ? `Bei der technischen Prüfung der Komponente „${th.component}" wurde festgestellt, dass ${th.name.charAt(0).toLowerCase() + th.name.slice(1)}. Der Befund wurde durch folgende Prüfhandlung verifiziert: ${th.evidence} (Evidenz-Referenz: ${evidRef}). Reproduzierbarkeit: ${reproLocal} — der Befund konnte ${th.reproducibility === 'easy' ? 'in jedem Testlauf zuverlässig reproduziert werden' : th.reproducibility === 'medium' ? 'unter definierten Bedingungen reproduziert werden' : 'nur unter spezifischen Rahmenbedingungen nachgestellt werden'}.`
+      ? `Bei der technischen Prüfung der Komponente „${th.component}" wurde festgestellt, dass ${th.name.charAt(0).toLowerCase() + th.name.slice(1)}. ${humanEvid} (Evidenz-Referenz: ${evidRef}). Reproduzierbarkeit: ${reproLocal} — der Befund konnte ${th.reproducibility === 'easy' ? 'in jedem Testlauf zuverlässig reproduziert werden' : th.reproducibility === 'medium' ? 'unter definierten Bedingungen reproduziert werden' : 'nur unter spezifischen Rahmenbedingungen nachgestellt werden'}.`
       : lang === 'fr'
-        ? `L'examen technique du composant « ${th.component} » a révélé que ${th.name.charAt(0).toLowerCase() + th.name.slice(1)}. La constatation a été vérifiée par la procédure de test suivante : ${th.evidence} (référence de preuve : ${evidRef}). Reproductibilité : ${reproLocal} — la constatation ${th.reproducibility === 'easy' ? 'a pu être reproduite de manière fiable à chaque test' : th.reproducibility === 'medium' ? 'a pu être reproduite dans des conditions définies' : 'n\'a pu être reproduite que dans des conditions spécifiques'}.`
-        : `Technical examination of component "${th.component}" identified that ${th.name.charAt(0).toLowerCase() + th.name.slice(1)}. The finding was verified through the following test procedure: ${th.evidence} (evidence reference: ${evidRef}). Reproducibility: ${reproLocal} — the finding ${th.reproducibility === 'easy' ? 'was reliably reproduced in every test run' : th.reproducibility === 'medium' ? 'was reproduced under defined conditions' : 'could only be reproduced under specific conditions'}.`;
+        ? `L'examen technique du composant « ${th.component} » a révélé que ${th.name.charAt(0).toLowerCase() + th.name.slice(1)}. ${humanEvid} (référence de preuve : ${evidRef}). Reproductibilité : ${reproLocal} — la constatation ${th.reproducibility === 'easy' ? 'a pu être reproduite de manière fiable à chaque test' : th.reproducibility === 'medium' ? 'a pu être reproduite dans des conditions définies' : 'n\'a pu être reproduite que dans des conditions spécifiques'}.`
+        : `Technical examination of component "${th.component}" identified that ${th.name.charAt(0).toLowerCase() + th.name.slice(1)}. ${humanEvid} (evidence reference: ${evidRef}). Reproducibility: ${reproLocal} — the finding ${th.reproducibility === 'easy' ? 'was reliably reproduced in every test run' : th.reproducibility === 'medium' ? 'was reproduced under defined conditions' : 'could only be reproduced under specific conditions'}.`;
     writeFieldBlock(t(I18N.observation), obsText);
 
     // 4. TECHNICAL DETAILS
@@ -1366,9 +1375,9 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
 
     y += 3;
     doc.setDrawColor(...C.ruleStroke);
-    doc.setLineWidth(0.1);
-    doc.line(ML + 15, y, W - MR - 15, y);
-    y += 6;
+    doc.setLineWidth(0.2);
+    doc.line(ML + 10, y, W - MR - 10, y);
+    y += 8;
   }
 
   // 4.2 CRA Compliance Gaps
@@ -1391,9 +1400,9 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     const statusLabel = req.status === 'pass' ? t(I18N.pass) : req.status === 'partial' ? t(I18N.partial) : t(I18N.fail);
 
     doc.setFillColor(...statusBg);
-    doc.roundedRect(ML, y, CW, 10, 1, 1, 'F');
+    doc.roundedRect(ML, y, CW, 10, 1.2, 1.2, 'F');
     doc.setFillColor(...statusColor);
-    doc.rect(ML, y + 0.5, 2, 9, 'F');
+    doc.rect(ML, y + 1.2, 2.5, 10 - 2.4, 'F');
 
     doc.setFont(HEAD_FONT, 'bold');
     doc.setFontSize(7.5);
@@ -1426,13 +1435,14 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
 
     // 3. OBSERVATION (concrete, with verifiable test results)
     const obsGap = req.gap || t(I18N.noDeviation);
+    const humanReqEvid = humanizeEvidence(req.evidence, lang);
     const obsReqText = req.status === 'pass'
-      ? (lang === 'de' ? `Die Prüfung der Anforderung ${req.article} ergab vollständige Umsetzung. Verifiziert durch: ${req.evidence}.`
-        : lang === 'fr' ? `L'examen de l'exigence ${req.article} a confirmé une mise en œuvre complète. Vérifié par : ${req.evidence}.`
-        : `Examination of requirement ${req.article} confirmed full implementation. Verified through: ${req.evidence}.`)
-      : (lang === 'de' ? `Die Prüfung der Anforderung ${req.article} ergab, dass die geforderte Kontrolle ${req.status === 'fail' ? 'nicht implementiert ist' : 'nicht vollständig implementiert ist'}. Festgestellte Abweichung: ${obsGap}. Prüfnachweis: ${req.evidence}.`
-        : lang === 'fr' ? `L'examen de l'exigence ${req.article} a révélé que le contrôle requis ${req.status === 'fail' ? 'n\'est pas implémenté' : 'n\'est pas entièrement implémenté'}. Écart constaté : ${obsGap}. Preuve : ${req.evidence}.`
-        : `Examination of requirement ${req.article} revealed that the required control ${req.status === 'fail' ? 'is not implemented' : 'is not fully implemented'}. Identified deviation: ${obsGap}. Evidence: ${req.evidence}.`);
+      ? (lang === 'de' ? `Die Prüfung der Anforderung ${req.article} ergab vollständige Umsetzung. ${humanReqEvid}`
+        : lang === 'fr' ? `L'examen de l'exigence ${req.article} a confirmé une mise en œuvre complète. ${humanReqEvid}`
+        : `Examination of requirement ${req.article} confirmed full implementation. ${humanReqEvid}`)
+      : (lang === 'de' ? `Die Prüfung der Anforderung ${req.article} ergab, dass die geforderte Kontrolle ${req.status === 'fail' ? 'nicht implementiert ist' : 'nicht vollständig implementiert ist'}. Festgestellte Abweichung: ${obsGap}. ${humanReqEvid}`
+        : lang === 'fr' ? `L'examen de l'exigence ${req.article} a révélé que le contrôle requis ${req.status === 'fail' ? 'n\'est pas implémenté' : 'n\'est pas entièrement implémenté'}. Écart constaté : ${obsGap}. ${humanReqEvid}`
+        : `Examination of requirement ${req.article} revealed that the required control ${req.status === 'fail' ? 'is not implemented' : 'is not fully implemented'}. Identified deviation: ${obsGap}. ${humanReqEvid}`);
     writeFieldBlock(t(I18N.observation), obsReqText);
 
     // 4. TECHNICAL DETAILS
@@ -1445,7 +1455,7 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     if (linkedThreats.length > 0) {
       writeFieldBlock(t(I18N.affectedComponentLabel), linkedThreats.map(th => th.component).filter((v, i, a) => a.indexOf(v) === i).join(', '));
     }
-    writeFieldBlock(t(I18N.evidenceLabel), req.evidence);
+    writeFieldBlock(t(I18N.evidenceLabel), humanizeEvidence(req.evidence, lang));
 
     // 5. THREAT CATEGORY (STRIDE)
     const strideCategories = [...new Set(linkedThreats.map(th => th.stride))];
@@ -1588,9 +1598,9 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
 
     y += 3;
     doc.setDrawColor(...C.ruleStroke);
-    doc.setLineWidth(0.1);
-    doc.line(ML + 15, y, W - MR - 15, y);
-    y += 6;
+    doc.setLineWidth(0.2);
+    doc.line(ML + 10, y, W - MR - 10, y);
+    y += 8;
   }
 
   // ── 4.3 Normative Coverage ──

@@ -3,7 +3,7 @@
 import type { Nis2IntakeData, Nis2Risk, Nis2Req } from '@/data/nis2ComplianceData';
 import { riskId, RISK_CATEGORIES } from '@/data/nis2ComplianceData';
 import type { QaCheck } from '@/utils/nis2QualityCheck';
-import { createPdfDoc, C, LAYOUT, humanizeList, humanizeText } from '@/utils/pdfCore';
+import { createPdfDoc, C, LAYOUT, humanizeList, humanizeText, humanizeEvidence } from '@/utils/pdfCore';
 
 export interface Nis2ReportData {
   intakeData: Nis2IntakeData;
@@ -437,11 +437,12 @@ export async function generateNis2Report(data: Nis2ReportData): Promise<void> {
     pdf.metaLine(`${cat}  |  ${sev}  |  ${ri.nis2Ref}  |  ${eId}  |  ${l('evidence', lang)}: ${ri.evidenceQuality}/5`);
 
     // 3. OBSERVATION (concrete, fact-based)
+    const humanEvid = humanizeEvidence(ri.evidence, lang);
     const obsText = lang === 'de'
-      ? `Die Komponente ${ri.component} ist so konfiguriert, dass ${ri.name}. Konkret wurde festgestellt: ${ri.evidence}.`
+      ? `Die Komponente ${ri.component} ist so konfiguriert, dass ${ri.name}. ${humanEvid}`
       : lang === 'fr'
-        ? `Le composant ${ri.component} est configuré de telle manière que ${ri.name}. Concrètement, il a été constaté : ${ri.evidence}.`
-        : `The component ${ri.component} is configured in a way that ${ri.name}. Specifically identified: ${ri.evidence}.`;
+        ? `Le composant ${ri.component} est configuré de telle manière que ${ri.name}. ${humanEvid}`
+        : `The component ${ri.component} is configured in a way that ${ri.name}. ${humanEvid}`;
     pdf.bodyText(`${l('observationLabel', lang)}: ${obsText}`, 0);
 
     // 4. TECHNICAL DETAILS
@@ -568,9 +569,10 @@ export async function generateNis2Report(data: Nis2ReportData): Promise<void> {
     pdf.bodyText(`${r.name} (${r.article})`, 4);
 
     // 3. OBSERVATION
+    const humanReqEvid = humanizeEvidence(r.evidence, lang);
     const obsReq = r.status === 'pass'
-      ? (lang === 'de' ? `Die Anforderung ${r.article} ist vollständig umgesetzt. ${r.evidence}` : lang === 'fr' ? `L'exigence ${r.article} est entièrement mise en œuvre. ${r.evidence}` : `Requirement ${r.article} is fully implemented. ${r.evidence}`)
-      : (lang === 'de' ? `Die Anforderung ${r.article} ist ${r.status === 'fail' ? 'nicht' : 'nicht vollständig'} umgesetzt. ${r.gap || ''}. Evidenz: ${r.evidence}` : lang === 'fr' ? `L'exigence ${r.article} ${r.status === 'fail' ? 'n\'est pas' : 'n\'est pas entièrement'} mise en œuvre. ${r.gap || ''}. Preuve : ${r.evidence}` : `Requirement ${r.article} is ${r.status === 'fail' ? 'not' : 'not fully'} implemented. ${r.gap || ''}. Evidence: ${r.evidence}`);
+      ? (lang === 'de' ? `Die Anforderung ${r.article} ist vollständig umgesetzt. ${humanReqEvid}` : lang === 'fr' ? `L'exigence ${r.article} est entièrement mise en œuvre. ${humanReqEvid}` : `Requirement ${r.article} is fully implemented. ${humanReqEvid}`)
+      : (lang === 'de' ? `Die Anforderung ${r.article} ist ${r.status === 'fail' ? 'nicht' : 'nicht vollständig'} umgesetzt. ${r.gap || ''}. ${humanReqEvid}` : lang === 'fr' ? `L'exigence ${r.article} ${r.status === 'fail' ? 'n\'est pas' : 'n\'est pas entièrement'} mise en œuvre. ${r.gap || ''}. ${humanReqEvid}` : `Requirement ${r.article} is ${r.status === 'fail' ? 'not' : 'not fully'} implemented. ${r.gap || ''}. ${humanReqEvid}`);
     pdf.sectionLabel(l('observationLabel', lang));
     pdf.bodyText(obsReq, 4);
 
@@ -580,7 +582,7 @@ export async function generateNis2Report(data: Nis2ReportData): Promise<void> {
     if (linkedRisks.length > 0) {
       pdf.fieldInline(`  ${l('affectedComponents', lang)}`, linkedRisks.map(ri => ri.component).filter((v, i, a) => a.indexOf(v) === i).join(', '));
     }
-    pdf.fieldInline(`  ${l('evidence', lang)}`, r.evidence);
+    pdf.fieldInline(`  ${l('evidence', lang)}`, humanizeEvidence(r.evidence, lang));
 
     // 5. THREAT CATEGORY (CIAGTR)
     const riskCategories = [...new Set(linkedRisks.map(ri => ri.category))];
@@ -995,7 +997,7 @@ export async function generateNis2Report(data: Nis2ReportData): Promise<void> {
 
     // Evidence description
     pdf.doc.setFont(pdf.bodyFontName, 'normal'); pdf.doc.setFontSize(7.5); pdf.doc.setTextColor(...C.dark);
-    const evidLines = pdf.doc.splitTextToSize(ri.evidence, LAYOUT.WIDTH - 16);
+    const evidLines = pdf.doc.splitTextToSize(humanizeEvidence(ri.evidence, lang), LAYOUT.WIDTH - 16);
     for (const el of evidLines) { pdf.checkSpace(4); pdf.doc.text(el, LAYOUT.LEFT + 8, pdf.y); pdf.y += 3.5; }
     pdf.y += 1;
 
@@ -1130,7 +1132,7 @@ export async function generateNis2Report(data: Nis2ReportData): Promise<void> {
     pdf.sectionLabel(lang === 'de' ? 'PRÜFUNGSGEGENSTAND' : 'SCOPE OF EXAMINATION');
     pdf.bodyText(r.name + (r.article ? ` (${r.article})` : ''), 0);
     pdf.sectionLabel(lang === 'de' ? 'ERHOBENE EVIDENZ' : 'COLLECTED EVIDENCE');
-    pdf.bodyText(r.evidence, 0);
+    pdf.bodyText(humanizeEvidence(r.evidence, lang), 0);
     pdf.sectionLabel(lang === 'de' ? 'BEWERTUNGSGRUNDLAGE' : 'ASSESSMENT RATIONALE');
     pdf.bodyText(r.rationale, 0);
 
