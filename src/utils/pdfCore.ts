@@ -1225,8 +1225,53 @@ export class PdfDoc {
     this.doc.setTextColor(...C.dark);
   }
 
-  /* ── Save ─────────────────────────────────────────────────── */
+  /* ── Abbreviation Legend ───────────────────────────────────── */
 
+  /** Render a standardised abbreviation/legend table explaining Finding IDs and codes */
+  abbreviationLegend(entries: { abbr: string; meaning: string }[], title: string): void {
+    this.checkSpace(entries.length * 5 + 16);
+    this.heading(title, 2);
+    
+    const colAbbr = LAYOUT.LEFT;
+    const colMeaning = LAYOUT.LEFT + 28;
+    
+    this.doc.setFont(this.headFont, 'bold');
+    this.doc.setFontSize(6.5);
+    this.doc.setTextColor(...C.mid);
+    const abbrLabel = title.includes('Abk') ? 'ABKÜRZUNG' : title.includes('Abrév') ? 'ABRÉVIATION' : 'ABBREVIATION';
+    const meaningLabel = title.includes('Abk') ? 'BEDEUTUNG' : title.includes('Abrév') ? 'SIGNIFICATION' : 'MEANING';
+    this.doc.text(abbrLabel, colAbbr, this.y);
+    this.doc.text(meaningLabel, colMeaning, this.y);
+    this.y += 2;
+    this.doc.setDrawColor(...C.navy);
+    this.doc.setLineWidth(0.25);
+    this.doc.line(LAYOUT.LEFT, this.y, LAYOUT.RIGHT, this.y);
+    this.y += 3.5;
+
+    entries.forEach((e, idx) => {
+      this.checkSpace(6);
+      if (idx % 2 === 0) {
+        this.doc.setFillColor(...C.bg);
+        this.doc.rect(LAYOUT.LEFT, this.y - 3, LAYOUT.WIDTH, 5, 'F');
+      }
+      this.doc.setFont(this.dataFont, 'bold');
+      this.doc.setFontSize(7);
+      this.doc.setTextColor(...C.navy);
+      this.doc.text(e.abbr, colAbbr, this.y);
+      this.doc.setFont(this.bodyFont, 'normal');
+      this.doc.setFontSize(7.5);
+      this.doc.setTextColor(...C.dark);
+      const meaningLines = this.doc.splitTextToSize(e.meaning, LAYOUT.WIDTH - 30);
+      this.doc.text(meaningLines[0], colMeaning, this.y);
+      this.y += Math.max(meaningLines.length * 3.5, 5);
+    });
+    this.y += 4;
+    this.doc.setFont(this.bodyFont, 'normal');
+    this.doc.setTextColor(...C.dark);
+    this.doc.setFontSize(LAYOUT.BODY_SIZE);
+  }
+
+  /* ── Save ─────────────────────────────────────────────────── */
 
   save(filename: string): void {
     this.doc.save(filename);
