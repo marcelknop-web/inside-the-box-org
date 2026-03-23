@@ -489,7 +489,7 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
   }
 
   function addRunningHeader() {
-    doc.setFont('helvetica', 'normal');
+    doc.setFont(HEAD_FONT, 'normal');
     doc.setFontSize(6.5);
     doc.setTextColor(...C.lightGray);
     doc.text('Cyber Risk Assessment — ' + intakeData.productName, ML, 14);
@@ -504,7 +504,7 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     doc.setDrawColor(...C.ruleStroke);
     doc.setLineWidth(0.15);
     doc.line(ML, H - 18, W - MR, H - 18);
-    doc.setFont('helvetica', 'normal');
+    doc.setFont(HEAD_FONT, 'normal');
     doc.setFontSize(6.5);
     doc.setTextColor(...C.lightGray);
     doc.text(reportId, ML, H - 13);
@@ -519,7 +519,7 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     if (isDraft) {
       doc.saveGraphicsState();
       doc.setGState(new (doc as any).GState({ opacity: 0.04 }));
-      doc.setFont('helvetica', 'bold');
+      doc.setFont(HEAD_FONT, 'bold');
       doc.setFontSize(64);
       doc.setTextColor(160, 160, 160);
       doc.text('ENTWURF', W / 2, H / 2 + 10, { align: 'center', angle: 45 });
@@ -549,7 +549,7 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     doc.setLineWidth(0.8);
     doc.line(ML, y, ML + 30, y);
     y += 6;
-    doc.setFont('helvetica', 'bold');
+    doc.setFont(HEAD_FONT, 'bold');
     doc.setFontSize(SECTION_SIZE);
     doc.setTextColor(...C.darkNavy);
     doc.text(text, ML, y);
@@ -558,7 +558,7 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
 
   function writeSubHeading(text: string) {
     checkPage(14);
-    doc.setFont('helvetica', 'bold');
+    doc.setFont(HEAD_FONT, 'bold');
     doc.setFontSize(SUBSECTION_SIZE);
     doc.setTextColor(...C.darkNavy);
     doc.text(text, ML, y);
@@ -566,7 +566,7 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
   }
 
   function writeBody(text: string, indent: number = 0) {
-    doc.setFont('helvetica', 'normal');
+    doc.setFont(HEAD_FONT, 'normal');
     doc.setFontSize(BODY_SIZE);
     doc.setTextColor(...C.bodyText);
     const paragraphs = text.split('\n');
@@ -583,7 +583,7 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
   }
 
   function writeMono(text: string, indent: number = 0) {
-    doc.setFont('courier', 'normal');
+    doc.setFont(DATA_FONT, 'normal');
     doc.setFontSize(MONO_SIZE);
     doc.setTextColor(...C.monoGray);
     const lines = doc.splitTextToSize(text, CW - indent);
@@ -596,7 +596,7 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
 
   function writeLabel(label: string, indent: number = 0) {
     checkPage(7);
-    doc.setFont('helvetica', 'bold');
+    doc.setFont(HEAD_FONT, 'bold');
     doc.setFontSize(LABEL_SIZE);
     doc.setTextColor(...C.accent);
     doc.text(label.toUpperCase(), ML + indent, y);
@@ -605,14 +605,14 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
 
   function writeKV(label: string, value: string, indent: number = 0) {
     checkPage(7);
-    doc.setFont('helvetica', 'bold');
+    doc.setFont(HEAD_FONT, 'bold');
     doc.setFontSize(BODY_SIZE);
     doc.setTextColor(...C.darkNavy);
     const labelStr = label + ':';
     doc.text(labelStr, ML + indent, y);
     const labelW = doc.getTextWidth(labelStr + ' ');
     const maxLabelW = 48;
-    doc.setFont('helvetica', 'normal');
+    doc.setFont(HEAD_FONT, 'normal');
     doc.setTextColor(...C.bodyText);
     if (labelW > maxLabelW) {
       y += BODY_LEADING;
@@ -636,7 +636,7 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
 
   function writeFieldBlock(label: string, value: string, indent: number = 5) {
     writeLabel(label, indent);
-    doc.setFont('helvetica', 'normal');
+    doc.setFont(HEAD_FONT, 'normal');
     doc.setFontSize(BODY_SIZE);
     doc.setTextColor(...C.bodyText);
     const lines = doc.splitTextToSize(value, CW - indent - 3);
@@ -665,17 +665,17 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
   doc.setFillColor(...C.gold);
   doc.rect(ML, 50, 35, 1.5, 'F');
 
-  doc.setFont('helvetica', 'bold');
+  doc.setFont(HEAD_FONT, 'bold');
   doc.setFontSize(26);
   doc.setTextColor(...C.white);
   doc.text(t(I18N.title), ML, 66);
 
-  doc.setFont('helvetica', 'normal');
+  doc.setFont(HEAD_FONT, 'normal');
   doc.setFontSize(11);
   doc.setTextColor(...C.accent);
   doc.text(t(I18N.subtitle), ML, 76);
 
-  doc.setFont('helvetica', 'normal');
+  doc.setFont(HEAD_FONT, 'normal');
   doc.setFontSize(13);
   doc.setTextColor(...C.coverMeta);
   doc.text(`${intakeData.productName} ${intakeData.version}`, ML, 90);
@@ -694,20 +694,20 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
   ];
   let my = metaY + 7;
   for (const [k, v] of metaLines) {
-    doc.setFont('helvetica', 'bold');
+    doc.setFont(HEAD_FONT, 'bold');
     doc.setTextColor(...C.gold);
     doc.text(k, ML, my);
-    doc.setFont('helvetica', 'normal');
+    doc.setFont(HEAD_FONT, 'normal');
     doc.setTextColor(...C.coverMeta);
     doc.text(v, ML + 48, my);
     my += 6.5;
   }
 
-  doc.setFont('helvetica', 'bold');
+  doc.setFont(HEAD_FONT, 'bold');
   doc.setFontSize(7);
   doc.setTextColor(...C.gold);
   doc.text(t(I18N.confidential), W - MR, H - 16, { align: 'right' });
-  doc.setFont('helvetica', 'normal');
+  doc.setFont(HEAD_FONT, 'normal');
   doc.setFontSize(7);
   doc.setTextColor(110, 120, 140);
   doc.text('inside-the-box.org', ML, H - 16);
@@ -727,7 +727,7 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
   doc.line(ML, y, ML + 30, y);
   y += 6;
 
-  doc.setFont('helvetica', 'bold');
+  doc.setFont(HEAD_FONT, 'bold');
   doc.setFontSize(14);
   doc.setTextColor(...C.darkNavy);
   doc.text(t(I18N.toc), ML, y);
@@ -735,7 +735,7 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
 
   const tocItems = [I18N.sec1, I18N.sec2, I18N.sec3, I18N.sec4, I18N.sec4c, I18N.sec5, I18N.sec5c, I18N.sec6, I18N.sec7, I18N.sec8, I18N.sec9, I18N.secA, I18N.secB, I18N.secC, I18N.secD, I18N.secE];
   for (const item of tocItems) {
-    doc.setFont('helvetica', 'normal');
+    doc.setFont(HEAD_FONT, 'normal');
     doc.setFontSize(SUBSECTION_SIZE);
     doc.setTextColor(...C.bodyText);
     doc.text(t(item), ML + 4, y);
@@ -777,7 +777,7 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
   const verdictAccent: [number, number, number] = critRisks.length > 0 ? C.redText : failReqs.length > 0 ? C.orangeText : C.greenText;
   doc.setFillColor(...verdictAccent);
   doc.rect(ML, verdictBoxY, 1.5, 16, 'F');
-  doc.setFont('helvetica', 'bold');
+  doc.setFont(HEAD_FONT, 'bold');
   doc.setFontSize(10.5);
   doc.setTextColor(...verdictAccent);
   const verdictLines = doc.splitTextToSize(summaryData.verdict, CW - verdictPad * 2 - 2);
@@ -786,7 +786,7 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
 
   // ── Situation line (compact data strip) ──
   checkPage(10);
-  doc.setFont('helvetica', 'normal');
+  doc.setFont(HEAD_FONT, 'normal');
   doc.setFontSize(7.5);
   doc.setTextColor(...C.labelText);
   doc.text(summaryData.situationLine, ML, y);
@@ -812,11 +812,11 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     doc.roundedRect(bx, y, bw, bh, 1.5, 1.5, 'F');
     doc.setFillColor(...allStats[i][3]);
     doc.rect(bx + 2, y, bw - 4, 0.6, 'F');
-    doc.setFont('helvetica', 'bold');
+    doc.setFont(HEAD_FONT, 'bold');
     doc.setFontSize(18);
     doc.setTextColor(...allStats[i][3]);
     doc.text(String(allStats[i][1]), bx + bw / 2, y + 11, { align: 'center' });
-    doc.setFont('helvetica', 'normal');
+    doc.setFont(HEAD_FONT, 'normal');
     doc.setFontSize(6);
     doc.setTextColor(...C.labelText);
     const lbl = doc.splitTextToSize(allStats[i][0], bw - 6);
@@ -831,7 +831,7 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     : lang === 'fr'
     ? `Méthodologie du taux de conformité : Le taux de ${crComplianceRate}% résulte d'un calcul pondéré — les exigences entièrement satisfaites (PASS) comptent pour 100%, partiellement satisfaites (PARTIAL) pour 50%, non satisfaites (FAIL) pour 0%. La base de calcul est l'ensemble des ${reqs.length} exigences évaluées.`
     : `Compliance rate methodology: The ${crComplianceRate}% rate is based on a weighted calculation — fully compliant requirements (PASS) contribute 100%, partially compliant (PARTIAL) 50%, non-compliant (FAIL) 0%. The denominator is all ${reqs.length} assessed requirements.`;
-  doc.setFont('helvetica', 'italic');
+  doc.setFont(HEAD_FONT, 'italic');
   doc.setFontSize(7);
   doc.setTextColor(...C.labelText);
   const methodLines = doc.splitTextToSize(complianceMethodNote, CW);
@@ -848,7 +848,7 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     checkPage(18);
 
     // Finding number + title (bold assertion)
-    doc.setFont('helvetica', 'bold');
+    doc.setFont(HEAD_FONT, 'bold');
     doc.setFontSize(9);
     doc.setTextColor(...C.darkNavy);
     const fNum = `${fi + 1}.`;
@@ -859,7 +859,7 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     y += titleLines.length * BODY_LEADING + 1;
 
     // Detail (normal, indented)
-    doc.setFont('helvetica', 'normal');
+    doc.setFont(HEAD_FONT, 'normal');
     doc.setFontSize(8.5);
     doc.setTextColor(...C.bodyText);
     const detailLines = doc.splitTextToSize(f.detail, CW - fNumW - 2);
@@ -888,7 +888,7 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
   doc.roundedRect(ML, y - 2, CW, actionBoxH, 1.5, 1.5, 'F');
   doc.setFillColor(...C.gold);
   doc.rect(ML, y - 2, 1.5, actionBoxH, 'F');
-  doc.setFont('helvetica', 'normal');
+  doc.setFont(HEAD_FONT, 'normal');
   doc.setFontSize(8.5);
   doc.setTextColor(...C.bodyText);
   doc.text(actionLines, ML + 6, y + 2);
@@ -971,7 +971,7 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     const colDoc = ML + 100;
     const colAudit = ML + 125;
 
-    doc.setFont('helvetica', 'bold');
+    doc.setFont(HEAD_FONT, 'bold');
     doc.setFontSize(7);
     doc.setTextColor(...C.accent);
     doc.text(lang === 'de' ? 'MASSNAHME' : lang === 'fr' ? 'MESURE' : 'MEASURE', colMeasure, y);
@@ -987,7 +987,7 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     for (const key of measureKeys) {
       checkPage(5);
       const m = intakeData.measures[key];
-      doc.setFont('helvetica', 'normal');
+      doc.setFont(HEAD_FONT, 'normal');
       doc.setFontSize(BODY_SIZE - 0.5);
       doc.setTextColor(...C.bodyText);
       doc.text(key.toUpperCase(), colMeasure, y);
@@ -1028,7 +1028,7 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
       const sizeStr = f.size >= 1024 * 1024
         ? `${(f.size / (1024 * 1024)).toFixed(1)} MB`
         : `${(f.size / 1024).toFixed(0)} KB`;
-      doc.setFont('helvetica', 'normal');
+      doc.setFont(HEAD_FONT, 'normal');
       doc.setFontSize(BODY_SIZE);
       doc.setTextColor(...C.bodyText);
       doc.text(`•  ${f.name}  (${f.type || '—'}, ${sizeStr})`, ML + 5, y);
@@ -1072,7 +1072,7 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
 
     const rl = riskLabel(score);
     const scoreStr = `${rl}  ${th.likelihood} x ${th.impact} = ${score}`;
-    doc.setFont('helvetica', 'bold');
+    doc.setFont(HEAD_FONT, 'bold');
     doc.setFontSize(7.5);
     doc.setTextColor(...headerText);
     const scoreW = doc.getTextWidth(scoreStr);
@@ -1112,7 +1112,7 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
 
     // Risk score breakdown
     writeLabel(t(I18N.riskScore), 5);
-    doc.setFont('helvetica', 'normal');
+    doc.setFont(HEAD_FONT, 'normal');
     doc.setFontSize(BODY_SIZE);
     doc.setTextColor(...C.bodyText);
     const scoreDetail = `${t(I18N.likelihood)}: ${th.likelihood}/5  x  ${t(I18N.impact)}: ${th.impact}/5  =  ${score}/25  >  ${rl}`;
@@ -1121,7 +1121,7 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
 
     if (th.sources.length > 0) {
       writeLabel(t(I18N.sources), 5);
-      doc.setFont('helvetica', 'italic');
+      doc.setFont(HEAD_FONT, 'italic');
       doc.setFontSize(7);
       doc.setTextColor(...C.lightGray);
       for (const src of th.sources) {
@@ -1162,7 +1162,7 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     doc.setFillColor(...statusColor);
     doc.rect(ML, y + 0.5, 2, 9, 'F');
 
-    doc.setFont('helvetica', 'bold');
+    doc.setFont(HEAD_FONT, 'bold');
     doc.setFontSize(7.5);
     doc.setTextColor(...statusColor);
     const statusW = doc.getTextWidth(statusLabel);
@@ -1177,7 +1177,7 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     y += 14;
 
     // Article reference
-    doc.setFont('helvetica', 'italic');
+    doc.setFont(HEAD_FONT, 'italic');
     doc.setFontSize(7);
     doc.setTextColor(...C.lightGray);
     doc.text(req.article, ML + 5, y);
@@ -1206,7 +1206,7 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     if (req.criteria.length > 0) {
       checkPage(9);
       writeLabel(t(I18N.dod), 5);
-      doc.setFont('helvetica', 'normal');
+      doc.setFont(HEAD_FONT, 'normal');
       doc.setFontSize(7.5);
       doc.setTextColor(...C.bodyText);
       for (const c of req.criteria) {
@@ -1259,7 +1259,7 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
   const colFailC = ML + 135;
   const colRate = ML + 147;
 
-  doc.setFont('helvetica', 'bold');
+  doc.setFont(HEAD_FONT, 'bold');
   doc.setFontSize(7);
   doc.setTextColor(...C.accent);
   const tblH = lang === 'de' ? ['BEREICH', 'GEPRÜFT', 'KONFORM', 'TEILW.', 'FAIL', 'RATE']
@@ -1271,20 +1271,20 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
   doc.line(colLabel, y, W - MR - 5, y); y += 4;
 
   for (const g of covGroups) {
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(BODY_SIZE - 0.5); doc.setTextColor(...C.bodyText);
+    doc.setFont(HEAD_FONT, 'normal'); doc.setFontSize(BODY_SIZE - 0.5); doc.setTextColor(...C.bodyText);
     doc.text(truncateToWidth(g.label, 85, BODY_SIZE - 0.5), colLabel, y);
     doc.text(String(g.stats.total), colTotal, y);
     doc.setTextColor(...C.greenText); doc.text(String(g.stats.pass), colPass, y);
     doc.setTextColor(...C.orangeText); doc.text(String(g.stats.partial), colPartialC, y);
     doc.setTextColor(...C.redText); doc.text(String(g.stats.fail), colFailC, y);
     const rc = g.stats.rate >= 75 ? C.greenText : g.stats.rate >= 50 ? C.orangeText : C.redText;
-    doc.setTextColor(...rc); doc.setFont('helvetica', 'bold'); doc.text(`${g.stats.rate}%`, colRate, y);
+    doc.setTextColor(...rc); doc.setFont(HEAD_FONT, 'bold'); doc.text(`${g.stats.rate}%`, colRate, y);
     y += BODY_LEADING + 1;
   }
 
   doc.setDrawColor(...C.ruleStroke); doc.setLineWidth(0.1);
   doc.line(colLabel, y - 1, W - MR - 5, y - 1); y += 2;
-  doc.setFont('helvetica', 'bold'); doc.setFontSize(BODY_SIZE); doc.setTextColor(...C.darkNavy);
+  doc.setFont(HEAD_FONT, 'bold'); doc.setFontSize(BODY_SIZE); doc.setTextColor(...C.darkNavy);
   doc.text(lang === 'de' ? 'GESAMT' : 'TOTAL', colLabel, y);
   doc.text(String(overallStats.total), colTotal, y);
   doc.setTextColor(...C.greenText); doc.text(String(overallStats.pass), colPass, y);
@@ -1369,22 +1369,22 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
       doc.roundedRect(ML, y, CW, 8, 1, 1, 'F');
       doc.setFillColor(...prio.color);
       doc.rect(ML, y + 0.5, 2, 7, 'F');
-      doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(...prio.color);
+      doc.setFont(HEAD_FONT, 'bold'); doc.setFontSize(8); doc.setTextColor(...prio.color);
       doc.text(prio.label, ML + 6, y + 5.5);
       y += 12;
 
       for (const item of prio.items) {
         checkPage(20);
-        doc.setFont('helvetica', 'bold'); doc.setFontSize(BODY_SIZE);
+        doc.setFont(HEAD_FONT, 'bold'); doc.setFontSize(BODY_SIZE);
         doc.setTextColor(...prio.color); doc.text(item.id, ML + 5, y);
         doc.setTextColor(...C.darkNavy);
         doc.text(truncateToWidth(item.name, CW - 55, BODY_SIZE), ML + 22, y);
-        doc.setFont('helvetica', 'normal'); doc.setFontSize(7);
+        doc.setFont(HEAD_FONT, 'normal'); doc.setFontSize(7);
         doc.setTextColor(...C.labelText);
         doc.text(`⏱ ${item.effort}`, W - MR - 4, y, { align: 'right' });
         y += 5;
 
-        doc.setFont('helvetica', 'normal'); doc.setFontSize(BODY_SIZE - 0.5); doc.setTextColor(...C.bodyText);
+        doc.setFont(HEAD_FONT, 'normal'); doc.setFontSize(BODY_SIZE - 0.5); doc.setTextColor(...C.bodyText);
         const mLines = doc.splitTextToSize(item.measure, CW - 28);
         for (const ml of mLines) { checkPage(5); doc.text(ml, ML + 22, y); y += BODY_LEADING; }
         y += 3;
@@ -1420,13 +1420,13 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
 
   for (const ph of phases) {
     checkPage(25);
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(BODY_SIZE); doc.setTextColor(...ph.color);
+    doc.setFont(HEAD_FONT, 'bold'); doc.setFontSize(BODY_SIZE); doc.setTextColor(...ph.color);
     doc.text(ph.phase, ML + 5, y); y += 5;
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(BODY_SIZE - 0.5); doc.setTextColor(...C.bodyText);
+    doc.setFont(HEAD_FONT, 'normal'); doc.setFontSize(BODY_SIZE - 0.5); doc.setTextColor(...C.bodyText);
     const phLines = doc.splitTextToSize(ph.desc, CW - 15);
     for (const pl of phLines) { checkPage(5); doc.text(pl, ML + 10, y); y += BODY_LEADING; }
     y += 1;
-    doc.setFont('helvetica', 'italic'); doc.setFontSize(7.5); doc.setTextColor(...C.accent);
+    doc.setFont(HEAD_FONT, 'italic'); doc.setFontSize(7.5); doc.setTextColor(...C.accent);
     doc.text(`> ${ph.gate}`, ML + 10, y); y += 6;
   }
 
@@ -1477,7 +1477,7 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
   const ecoColLabel = ML + 5;
   const ecoColValue = ML + 85;
 
-  doc.setFont('helvetica', 'bold'); doc.setFontSize(7); doc.setTextColor(...C.accent);
+  doc.setFont(HEAD_FONT, 'bold'); doc.setFontSize(7); doc.setTextColor(...C.accent);
   doc.text(lang === 'de' ? 'RISIKOKATEGORIE' : lang === 'fr' ? 'CATEGORIE DE RISQUE' : 'RISK CATEGORY', ecoColLabel, y);
   doc.text(lang === 'de' ? 'SCHADENSPOTENZIAL / AUFWAND' : lang === 'fr' ? 'POTENTIEL DE DOMMAGES' : 'DAMAGE POTENTIAL / EFFORT', ecoColValue, y);
   y += 2;
@@ -1485,16 +1485,16 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
 
   for (const [label, value, color] of penaltyData) {
     checkPage(12);
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(BODY_SIZE - 0.5); doc.setTextColor(...C.bodyText);
+    doc.setFont(HEAD_FONT, 'normal'); doc.setFontSize(BODY_SIZE - 0.5); doc.setTextColor(...C.bodyText);
     const labelLines = doc.splitTextToSize(label, 75);
     const valueLines = doc.splitTextToSize(value, CW - 90);
     const maxLines = Math.max(labelLines.length, valueLines.length);
     for (let li = 0; li < maxLines; li++) {
       if (labelLines[li]) doc.text(labelLines[li], ecoColLabel, y);
       if (valueLines[li]) {
-        doc.setFont('helvetica', 'bold'); doc.setTextColor(...color);
+        doc.setFont(HEAD_FONT, 'bold'); doc.setTextColor(...color);
         doc.text(valueLines[li], ecoColValue, y);
-        doc.setFont('helvetica', 'normal'); doc.setTextColor(...C.bodyText);
+        doc.setFont(HEAD_FONT, 'normal'); doc.setTextColor(...C.bodyText);
       }
       y += BODY_LEADING + 0.3;
     }
@@ -1515,7 +1515,7 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
   doc.roundedRect(ML, y - 2, CW, roiBoxH, 1.5, 1.5, 'F');
   doc.setFillColor(...C.gold);
   doc.rect(ML, y - 2, 1.5, roiBoxH, 'F');
-  doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5); doc.setTextColor(...C.bodyText);
+  doc.setFont(HEAD_FONT, 'normal'); doc.setFontSize(8.5); doc.setTextColor(...C.bodyText);
   doc.text(roiLines, ML + 6, y + 2);
   y += roiBoxH + 5;
 
@@ -1589,7 +1589,7 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
 
   for (const step of verSteps) {
     checkPage(18);
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(9); doc.setTextColor(...C.darkNavy);
+    doc.setFont(HEAD_FONT, 'bold'); doc.setFontSize(9); doc.setTextColor(...C.darkNavy);
     doc.text(step.title, ML, y); y += 5;
     doc.setTextColor(...C.bodyText);
     writeBody(step.text, 4);
@@ -1643,7 +1643,7 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
   const clColClass = ML + 5;
   const clColProc = ML + 40;
   const clColDesc = ML + 90;
-  doc.setFont('helvetica', 'bold'); doc.setFontSize(7); doc.setTextColor(...C.accent);
+  doc.setFont(HEAD_FONT, 'bold'); doc.setFontSize(7); doc.setTextColor(...C.accent);
   doc.text(lang === 'de' ? 'KLASSE' : 'CLASS', clColClass, y);
   doc.text(lang === 'de' ? 'VERFAHREN' : 'PROCEDURE', clColProc, y);
   doc.text(lang === 'de' ? 'ERLÄUTERUNG' : 'DESCRIPTION', clColDesc, y);
@@ -1660,12 +1660,12 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
       doc.setFillColor(...C.bgLight); doc.roundedRect(ML + 3, y - 2.5, CW - 3, 12, 1, 1, 'F');
       doc.setFillColor(...C.gold); doc.rect(ML + 3, y - 2.5, 1.2, 12, 'F');
     }
-    doc.setFont('helvetica', isCurrentClass ? 'bold' : 'normal'); doc.setFontSize(BODY_SIZE - 0.5);
+    doc.setFont(HEAD_FONT, isCurrentClass ? 'bold' : 'normal'); doc.setFontSize(BODY_SIZE - 0.5);
     doc.setTextColor(...(isCurrentClass ? C.darkNavy : C.bodyText));
     doc.text(cls, clColClass, y);
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5);
+    doc.setFont(HEAD_FONT, 'normal'); doc.setFontSize(7.5);
     doc.text(proc, clColProc, y);
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.setTextColor(...C.labelText);
+    doc.setFont(HEAD_FONT, 'normal'); doc.setFontSize(7); doc.setTextColor(...C.labelText);
     const descLines = doc.splitTextToSize(desc, CW - 95);
     doc.text(descLines[0] || '', clColDesc, y);
     y += descLines.length > 1 ? 5 : 0;
@@ -1709,7 +1709,7 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
   doc.roundedRect(ML, y, CW, stmtBoxH, 2, 2, 'F');
   doc.setFillColor(...stmtAccent);
   doc.rect(ML, y, 2, stmtBoxH, 'F');
-  doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5); doc.setTextColor(...C.bodyText);
+  doc.setFont(HEAD_FONT, 'normal'); doc.setFontSize(8.5); doc.setTextColor(...C.bodyText);
   doc.text(stmtLines, ML + 8, y + 5);
   y += stmtBoxH + 6;
 
@@ -1723,7 +1723,7 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
   checkPage(14);
   doc.setFillColor(...stmtAccent);
   doc.roundedRect(ML, y, CW, 10, 1.5, 1.5, 'F');
-  doc.setFont('helvetica', 'bold'); doc.setFontSize(9); doc.setTextColor(255, 255, 255);
+  doc.setFont(HEAD_FONT, 'bold'); doc.setFontSize(9); doc.setTextColor(255, 255, 255);
   doc.text(verdictLbl, ML + CW / 2, y + 6.5, { align: 'center' });
   y += 16;
 
@@ -1738,7 +1738,7 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     : ['Name: ____________________________', 'Role: ____________________________', 'Date: ____________________________', 'Signature: ____________________________'];
   for (const sf of sigFields) {
     checkPage(6);
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(BODY_SIZE); doc.setTextColor(...C.bodyText);
+    doc.setFont(HEAD_FONT, 'normal'); doc.setFontSize(BODY_SIZE); doc.setTextColor(...C.bodyText);
     doc.text(sf, ML + 5, y);
     y += 7;
   }
@@ -1755,7 +1755,7 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     : lang === 'fr'
     ? 'Note : Pour la presentation detaillee des preuves et de la logique d\'evaluation, veuillez consulter les constatations detaillees de la section 4. Cette annexe se concentre sur les donnees structurees et les references croisees.'
     : 'Note: For detailed evidence and assessment rationale, refer to the detailed findings in Section 4. This appendix focuses on machine-readable structured data and cross-references.';
-  doc.setFont('helvetica', 'italic'); doc.setFontSize(7.5); doc.setTextColor(...C.labelText);
+  doc.setFont(HEAD_FONT, 'italic'); doc.setFontSize(7.5); doc.setTextColor(...C.labelText);
   const xrefLines = doc.splitTextToSize(xrefNote, CW - 5);
   for (const xl of xrefLines) { checkPage(4); doc.text(xl, ML + 3, y); y += 3.5; }
   y += 4;
@@ -1781,7 +1781,7 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
   };
   for (const [k, v] of Object.entries(intakeRecord)) {
     checkPage(8);
-    doc.setFont('courier', 'bold');
+    doc.setFont(DATA_FONT, 'bold');
     doc.setFontSize(MONO_SIZE);
     doc.setTextColor(...C.accent);
     doc.text(k, ML + 3, y);
@@ -1832,7 +1832,7 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
 
     for (const [fk, fv] of fields) {
       checkPage(6);
-      doc.setFont('courier', 'bold');
+      doc.setFont(DATA_FONT, 'bold');
       doc.setFontSize(MONO_SIZE);
       doc.setTextColor(...C.accent);
       doc.text(fk, ML + 5, y);
@@ -1843,7 +1843,7 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     // Related requirements cross-ref
     const relReqs = reqs.filter(r => r.article === th.cra);
     if (relReqs.length > 0) {
-      doc.setFont('courier', 'bold');
+      doc.setFont(DATA_FONT, 'bold');
       doc.setFontSize(MONO_SIZE);
       doc.setTextColor(...C.accent);
       doc.text('related_requirements', ML + 5, y);
@@ -1884,7 +1884,7 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
 
     for (const [fk, fv] of fields) {
       checkPage(6);
-      doc.setFont('courier', 'bold');
+      doc.setFont(DATA_FONT, 'bold');
       doc.setFontSize(MONO_SIZE);
       doc.setTextColor(...C.accent);
       doc.text(fk, ML + 5, y);
@@ -1895,7 +1895,7 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     // Related threats cross-ref
     const linkedTh = articleToThreats[req.article];
     if (linkedTh && linkedTh.length > 0) {
-      doc.setFont('courier', 'bold');
+      doc.setFont(DATA_FONT, 'bold');
       doc.setFontSize(MONO_SIZE);
       doc.setTextColor(...C.accent);
       doc.text('related_threats', ML + 5, y);
@@ -1933,7 +1933,7 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
 
   for (const [mk, mv] of metaData) {
     checkPage(6);
-    doc.setFont('courier', 'bold');
+    doc.setFont(DATA_FONT, 'bold');
     doc.setFontSize(MONO_SIZE);
     doc.setTextColor(...C.accent);
     doc.text(mk, ML + 3, y);
@@ -1976,18 +1976,18 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
   const tColTool = ML + 5;
   const tColVer = ML + 70;
   const tColUrl = ML + 95;
-  doc.setFont('helvetica', 'bold'); doc.setFontSize(7); doc.setTextColor(...C.accent);
+  doc.setFont(HEAD_FONT, 'bold'); doc.setFontSize(7); doc.setTextColor(...C.accent);
   const tH = lang === 'de' ? ['WERKZEUG', 'VERSION', 'QUELLE'] : lang === 'fr' ? ['OUTIL', 'VERSION', 'SOURCE'] : ['TOOL', 'VERSION', 'SOURCE'];
   doc.text(tH[0], tColTool, y); doc.text(tH[1], tColVer, y); doc.text(tH[2], tColUrl, y);
   y += 2; doc.setDrawColor(...C.ruleStroke); doc.setLineWidth(0.15); doc.line(tColTool, y, W - MR - 5, y); y += 3;
 
   for (const [tool, ver, url] of tools) {
     checkPage(5);
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(BODY_SIZE - 0.5); doc.setTextColor(...C.bodyText);
+    doc.setFont(HEAD_FONT, 'normal'); doc.setFontSize(BODY_SIZE - 0.5); doc.setTextColor(...C.bodyText);
     doc.text(tool, tColTool, y);
-    doc.setFont('courier', 'normal'); doc.setFontSize(MONO_SIZE); doc.setTextColor(...C.monoGray);
+    doc.setFont(DATA_FONT, 'normal'); doc.setFontSize(MONO_SIZE); doc.setTextColor(...C.monoGray);
     doc.text(ver, tColVer, y);
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(6.5); doc.setTextColor(...C.lightGray);
+    doc.setFont(HEAD_FONT, 'normal'); doc.setFontSize(6.5); doc.setTextColor(...C.lightGray);
     doc.text(truncateToWidth(url, CW - 100, 6.5), tColUrl, y);
     y += BODY_LEADING + 0.5;
   }
@@ -2017,9 +2017,9 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     const stars = '★'.repeat(th.evidenceQuality) + '☆'.repeat(5 - th.evidenceQuality);
 
     checkPage(25);
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(BODY_SIZE); doc.setTextColor(...(score >= 20 ? C.redText : score >= 13 ? C.orangeText : C.darkNavy));
+    doc.setFont(HEAD_FONT, 'bold'); doc.setFontSize(BODY_SIZE); doc.setTextColor(...(score >= 20 ? C.redText : score >= 13 ? C.orangeText : C.darkNavy));
     doc.text(`${tid}  ${th.name}`, ML + 5, y);
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.setTextColor(...C.labelText);
+    doc.setFont(HEAD_FONT, 'normal'); doc.setFontSize(7); doc.setTextColor(...C.labelText);
     doc.text(`${stars}  (${th.evidenceQuality}/5)`, W - MR - 4, y, { align: 'right' });
     y += 5;
 
@@ -2072,7 +2072,7 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
 
     for (const ef of evidFiles) {
       checkPage(4);
-      doc.setFont('courier', 'normal'); doc.setFontSize(MONO_SIZE); doc.setTextColor(...C.monoGray);
+      doc.setFont(DATA_FONT, 'normal'); doc.setFontSize(MONO_SIZE); doc.setTextColor(...C.monoGray);
       doc.text(`  ${ef}`, ML + 8, y);
       y += 3.5;
     }
@@ -2389,7 +2389,7 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
   const passedW = (passedChecks / totalChecks) * barW;
   doc.setFillColor(...(pctPassed >= 90 ? C.greenText : pctPassed >= 70 ? C.orangeText : C.redText));
   doc.roundedRect(ML + 5, y, passedW, barH, 1.5, 1.5, 'F');
-  doc.setFont('helvetica', 'bold'); doc.setFontSize(7); doc.setTextColor(255, 255, 255);
+  doc.setFont(HEAD_FONT, 'bold'); doc.setFontSize(7); doc.setTextColor(255, 255, 255);
   if (passedW > 30) doc.text(`${passedChecks}/${totalChecks} (${pctPassed}%)`, ML + 8, y + 3.5);
   y += barH + 5;
 
@@ -2397,13 +2397,13 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
   for (const block of qgBlocks) {
     checkPage(18);
     // Section header
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(BODY_SIZE); doc.setTextColor(...C.darkNavy);
+    doc.setFont(HEAD_FONT, 'bold'); doc.setFontSize(BODY_SIZE); doc.setTextColor(...C.darkNavy);
     doc.text(block.title, ML + 3, y);
     y += 5;
 
     const blockPassed = block.checks.filter(c => c.passed).length;
     const blockTotal = block.checks.length;
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.setTextColor(...C.labelText);
+    doc.setFont(HEAD_FONT, 'normal'); doc.setFontSize(7); doc.setTextColor(...C.labelText);
     doc.text(`${blockPassed}/${blockTotal} ${lang === 'de' ? 'bestanden' : lang === 'fr' ? 'réussis' : 'passed'}`, W - MR - 5, y - 5, { align: 'right' });
 
     for (const check of block.checks) {
@@ -2417,7 +2417,7 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
       }
       doc.circle(markerX, y - 1.2, 1.3, 'F');
 
-      doc.setFont('helvetica', 'normal'); doc.setFontSize(BODY_SIZE - 0.5); doc.setTextColor(...(check.passed ? C.bodyText : C.redText));
+      doc.setFont(HEAD_FONT, 'normal'); doc.setFontSize(BODY_SIZE - 0.5); doc.setTextColor(...(check.passed ? C.bodyText : C.redText));
       const checkMaxW = CW - 14;
       const checkLines = doc.splitTextToSize(check.label, checkMaxW);
       for (const cl of checkLines) {
@@ -2426,7 +2426,7 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
         y += 3.8;
       }
       if (check.detail) {
-        doc.setFont('helvetica', 'italic'); doc.setFontSize(7); doc.setTextColor(...C.orangeText);
+        doc.setFont(HEAD_FONT, 'italic'); doc.setFontSize(7); doc.setTextColor(...C.orangeText);
         const detailMaxW = CW - 20;
         const detailLines = doc.splitTextToSize(check.detail, detailMaxW);
         for (const dl of detailLines) {
@@ -2465,12 +2465,12 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
   doc.roundedRect(ML, y, CW, 14, 2, 2, 'F');
   doc.setFillColor(...verdictColor);
   doc.rect(ML, y, 1.5, 14, 'F');
-  doc.setFont('helvetica', 'bold'); doc.setFontSize(8.5);
+  doc.setFont(HEAD_FONT, 'bold'); doc.setFontSize(8.5);
   doc.setTextColor(...verdictColor);
   doc.text(verdictText, ML + 6, y + 5.5);
 
   // Timestamp
-  doc.setFont('helvetica', 'normal'); doc.setFontSize(6.5); doc.setTextColor(...C.lightGray);
+  doc.setFont(HEAD_FONT, 'normal'); doc.setFontSize(6.5); doc.setTextColor(...C.lightGray);
   doc.text(`${lang === 'de' ? 'Automatisierte Prüfung am' : lang === 'fr' ? 'Contrôle automatisé le' : 'Automated check on'} ${new Date().toISOString().replace('T', ' ').slice(0, 19)} UTC`, ML + 6, y + 10.5);
   y += 20;
 
@@ -2514,9 +2514,9 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
       checkPage(18);
       const catLabel = catLabels[cat][lang] || catLabels[cat].en;
       const catPassed = catChecks.filter(c => c.passed).length;
-      doc.setFont('helvetica', 'bold'); doc.setFontSize(BODY_SIZE); doc.setTextColor(...C.darkNavy);
+      doc.setFont(HEAD_FONT, 'bold'); doc.setFontSize(BODY_SIZE); doc.setTextColor(...C.darkNavy);
       doc.text(catLabel, ML + 3, y);
-      doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.setTextColor(...C.labelText);
+      doc.setFont(HEAD_FONT, 'normal'); doc.setFontSize(7); doc.setTextColor(...C.labelText);
       doc.text(`${catPassed}/${catChecks.length}`, W - MR - 5, y, { align: 'right' });
       y += 5;
 
@@ -2527,7 +2527,7 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
         doc.circle(ML + 6, y - 1.2, 1.3, 'F');
 
         // Label
-        doc.setFont('helvetica', 'normal'); doc.setFontSize(BODY_SIZE - 0.5);
+        doc.setFont(HEAD_FONT, 'normal'); doc.setFontSize(BODY_SIZE - 0.5);
         doc.setTextColor(...(check.passed ? C.bodyText : C.redText));
         const checkMaxW = CW - 14;
         const checkLines = doc.splitTextToSize(`[${check.id}] ${check.label}`, checkMaxW);
@@ -2538,7 +2538,7 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
         }
         // Detail
         if (check.detail && !check.passed) {
-          doc.setFont('helvetica', 'italic'); doc.setFontSize(7); doc.setTextColor(...C.orangeText);
+          doc.setFont(HEAD_FONT, 'italic'); doc.setFontSize(7); doc.setTextColor(...C.orangeText);
           const detailLines = doc.splitTextToSize(check.detail, CW - 20);
           for (const dl of detailLines) {
             checkPage(4);
@@ -2551,7 +2551,7 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
           const sevLabel = check.severity === 'critical' ? (lang === 'de' ? 'KRITISCH' : 'CRITICAL')
             : check.severity === 'major' ? (lang === 'de' ? 'WESENTLICH' : 'MAJOR') : (lang === 'de' ? 'GERING' : 'MINOR');
           const sevColor: [number, number, number] = check.severity === 'critical' ? C.redText : check.severity === 'major' ? C.orangeText : C.labelText;
-          doc.setFont('helvetica', 'bold'); doc.setFontSize(6); doc.setTextColor(...sevColor);
+          doc.setFont(HEAD_FONT, 'bold'); doc.setFontSize(6); doc.setTextColor(...sevColor);
           doc.text(`[${sevLabel}]`, ML + 14, y);
           y += 3.5;
         }
@@ -2566,7 +2566,7 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
       const fixTitle = lang === 'de' ? 'AUTOMATISCHE KORREKTUREN (Remediation-Log)'
         : lang === 'fr' ? 'CORRECTIONS AUTOMATIQUES (Journal de remediation)'
         : 'AUTOMATED CORRECTIONS (Remediation Log)';
-      doc.setFont('helvetica', 'bold'); doc.setFontSize(BODY_SIZE); doc.setTextColor(...C.darkNavy);
+      doc.setFont(HEAD_FONT, 'bold'); doc.setFontSize(BODY_SIZE); doc.setTextColor(...C.darkNavy);
       doc.text(fixTitle, ML + 3, y);
       y += 5;
 
@@ -2580,7 +2580,7 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
 
       for (let i = 0; i < fixLog.length; i++) {
         checkPage(8);
-        doc.setFont('courier', 'normal'); doc.setFontSize(MONO_SIZE); doc.setTextColor(...C.monoGray);
+        doc.setFont(DATA_FONT, 'normal'); doc.setFontSize(MONO_SIZE); doc.setTextColor(...C.monoGray);
         const fixLines = doc.splitTextToSize(`${i + 1}. ${fixLog[i]}`, CW - 14);
         for (const fl of fixLines) {
           checkPage(4);
@@ -2601,7 +2601,7 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
       doc.roundedRect(ML, y, CW, 10, 2, 2, 'F');
       doc.setFillColor(...C.greenText);
       doc.rect(ML, y, 1.5, 10, 'F');
-      doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5); doc.setTextColor(...C.greenText);
+      doc.setFont(HEAD_FONT, 'bold'); doc.setFontSize(7.5); doc.setTextColor(...C.greenText);
       doc.text(fixSummary, ML + 6, y + 5);
       y += 15;
     }
