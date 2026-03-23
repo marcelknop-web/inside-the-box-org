@@ -517,32 +517,39 @@ export class PdfDoc {
     this.doc.setTextColor(...C.dark);
   }
 
-  /** KPI row — 4 metric cards */
+  /** KPI row — 4 metric cards with premium styling */
   kpiRow(kpis: [string, string][]): void {
-    this.checkSpace(24);
+    this.checkSpace(26);
     const count = kpis.length;
     const gap = 3;
     const kpiW = (LAYOUT.WIDTH - (count - 1) * gap) / count;
+    const cardH = 22;
 
     kpis.forEach(([val, label], i) => {
       const x = LAYOUT.LEFT + i * (kpiW + gap);
-      this.doc.setFillColor(...C.bg);
-      this.doc.roundedRect(x, this.y, kpiW, 20, 1.2, 1.2, 'F');
+      // Card background with subtle shadow effect
+      this.doc.setFillColor(245, 246, 248);
+      this.doc.roundedRect(x + 0.3, this.y + 0.3, kpiW, cardH, 1.5, 1.5, 'F');
+      this.doc.setFillColor(255, 255, 255);
+      this.doc.roundedRect(x, this.y, kpiW, cardH, 1.5, 1.5, 'F');
       this.doc.setDrawColor(...C.rule);
-      this.doc.setLineWidth(0.1);
-      this.doc.roundedRect(x, this.y, kpiW, 20, 1.2, 1.2, 'S');
+      this.doc.setLineWidth(0.15);
+      this.doc.roundedRect(x, this.y, kpiW, cardH, 1.5, 1.5, 'S');
+      // Top accent line
+      this.doc.setFillColor(...C.accent);
+      this.doc.rect(x + 4, this.y, kpiW - 8, 0.5, 'F');
 
       this.doc.setFont(this.headFont, 'bold');
-      this.doc.setFontSize(15);
+      this.doc.setFontSize(16);
       this.doc.setTextColor(...C.navy);
-      this.doc.text(val, x + kpiW / 2, this.y + 10, { align: 'center' });
+      this.doc.text(val, x + kpiW / 2, this.y + 11, { align: 'center' });
 
       this.doc.setFont(this.headFont, 'normal');
       this.doc.setFontSize(6);
       this.doc.setTextColor(...C.mid);
-      this.doc.text(label, x + kpiW / 2, this.y + 16, { align: 'center' });
+      this.doc.text(label, x + kpiW / 2, this.y + 17.5, { align: 'center' });
     });
-    this.y += 26;
+    this.y += cardH + 6;
     this.doc.setTextColor(...C.dark);
   }
 
