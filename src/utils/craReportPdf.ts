@@ -2744,8 +2744,8 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
 
   // Evidence checks
   const critWithoutPoC = critRisks.filter(th => th.evidenceQuality < 4);
-  const highRisks = threats.filter(th => { const s = th.likelihood * th.impact; return s >= 15 && s < 20; });
-  const highWithoutPoC = highRisks.filter(th => th.evidenceQuality < 3);
+  const highRisksEvid = threats.filter(th => { const s = th.likelihood * th.impact; return s >= 15 && s < 20; });
+  const highWithoutPoC = highRisksEvid.filter(th => th.evidenceQuality < 3);
   const evidAbove75 = (threats.filter(th => th.evidenceQuality >= 3).length / threats.length) >= 0.75;
   const threatsWithoutSources = threats.filter(th => !th.sources || th.sources.length === 0);
 
