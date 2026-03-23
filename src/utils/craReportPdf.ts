@@ -1220,7 +1220,7 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
 
     // 9. RISK LEVEL
     const ratingLabel = score >= 20 ? 'CRITICAL' : score >= 13 ? 'HIGH' : score >= 6 ? 'MEDIUM' : 'LOW';
-    const ratingColor = score >= 20 ? C.redText : score >= 13 ? C.orangeText : score >= 6 ? C.yellowText : C.greenText;
+    const ratingColor: [number, number, number] = score >= 20 ? C.redText : score >= 13 ? C.orangeText : score >= 6 ? C.orangeText : C.greenText;
     checkPage(8);
     writeLabel('RISK LEVEL', 5);
     doc.setFont(HEAD_FONT, 'bold');
