@@ -587,14 +587,20 @@ export class PdfDoc {
     this.y = Math.max(this.y + barH + 3, boxY + barH + 3);
   }
 
-  /** Section label (small uppercase) */
+  /** Section label (small uppercase) with accent underline */
   sectionLabel(text: string): void {
-    this.checkSpace(8);
+    this.checkSpace(10);
     this.doc.setFont(this.headFont, 'bold');
     this.doc.setFontSize(7);
-    this.doc.setTextColor(...C.mid);
-    this.doc.text(text.toUpperCase(), LAYOUT.LEFT, this.y);
-    this.y += 4;
+    this.doc.setTextColor(...C.accent);
+    const labelText = text.toUpperCase();
+    this.doc.text(labelText, LAYOUT.LEFT, this.y);
+    // Subtle accent underline
+    this.doc.setDrawColor(...C.accent);
+    this.doc.setLineWidth(0.15);
+    const labelW = Math.min(this.doc.getTextWidth(labelText), LAYOUT.WIDTH);
+    this.doc.line(LAYOUT.LEFT, this.y + 1.2, LAYOUT.LEFT + labelW + 2, this.y + 1.2);
+    this.y += 5;
     this.doc.setFont(this.bodyFont, 'normal');
     this.doc.setTextColor(...C.dark);
     this.doc.setFontSize(LAYOUT.BODY_SIZE);
