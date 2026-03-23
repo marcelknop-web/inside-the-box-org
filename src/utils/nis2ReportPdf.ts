@@ -101,6 +101,7 @@ const I18N: Record<string, Record<string, string>> = {
   rootCauseLabel: { de: 'URSACHE', en: 'ROOT CAUSE', fr: 'CAUSE RACINE' },
   recommendationLabel: { de: 'EMPFEHLUNG', en: 'RECOMMENDATION', fr: 'RECOMMANDATION' },
   referenceLabel: { de: 'REFERENZ', en: 'REFERENCE', fr: 'RÉFÉRENCE' },
+  attackScenarioLabel: { de: 'ANGRIFFSSZENARIO', en: 'ATTACK SCENARIO', fr: 'SCÉNARIO D\'ATTAQUE' },
   acceptanceCriteria: { de: 'UMSETZUNGSKRITERIEN', en: 'ACCEPTANCE CRITERIA', fr: 'CRITÈRES D\'ACCEPTATION' },
   smartCriteria: { de: 'SMARTE UMSETZUNGSKRITERIEN', en: 'SMART ACCEPTANCE CRITERIA', fr: 'CRITÈRES D\'ACCEPTATION SMART' },
   linkedRisksLabel: { de: 'Verknüpfte Risiken', en: 'Linked Risks', fr: 'Risques liés' },
@@ -435,12 +436,12 @@ export async function generateNis2Report(data: Nis2ReportData): Promise<void> {
     pdf.heading(`${l('finding', lang)} ${riskId(ri)}: ${ri.name}`, 3);
     pdf.metaLine(`${cat}  |  ${sev}  |  ${ri.nis2Ref}  |  ${eId}  |  ${l('evidence', lang)}: ${ri.evidenceQuality}/5`);
 
-    // 3. OBSERVATION
+    // 3. OBSERVATION (concrete, fact-based)
     const obsText = lang === 'de'
-      ? `Die Komponente ${ri.component} weist eine Schwachstelle auf: ${ri.name}. Die erhobene Evidenz zeigt: ${ri.evidence}`
+      ? `Die Komponente ${ri.component} ist so konfiguriert, dass ${ri.name}. Konkret wurde festgestellt: ${ri.evidence}.`
       : lang === 'fr'
-        ? `Le composant ${ri.component} présente une vulnérabilité : ${ri.name}. Les preuves recueillies montrent : ${ri.evidence}`
-        : `The component ${ri.component} exhibits a vulnerability: ${ri.name}. Evidence shows: ${ri.evidence}`;
+        ? `Le composant ${ri.component} est configuré de telle manière que ${ri.name}. Concrètement, il a été constaté : ${ri.evidence}.`
+        : `The component ${ri.component} is configured in a way that ${ri.name}. Specifically identified: ${ri.evidence}.`;
     pdf.bodyText(`${l('observationLabel', lang)}: ${obsText}`, 0);
 
     // 4. TECHNICAL DETAILS
@@ -470,9 +471,22 @@ export async function generateNis2Report(data: Nis2ReportData): Promise<void> {
     pdf.fieldInline(`  ${l('integrityLabel', lang)}`, ciaI);
     pdf.fieldInline(`  ${l('availabilityLabel', lang)}`, ciaA);
 
-    // 8. LIKELIHOOD
+    // — ATTACK SCENARIO (1-sentence, concrete)
+    const atkScenario = lang === 'de'
+      ? `Ein externer Angreifer (${ri.attacker}) kann über ${ri.path} direkt auf ${ri.component} zugreifen und ${score >= 20 ? 'die vollständige Kontrolle über das System erlangen' : score >= 13 ? 'Daten exfiltrieren oder Konfigurationen manipulieren' : 'begrenzte Funktionsstörungen verursachen'}.`
+      : lang === 'fr'
+        ? `Un attaquant externe (${ri.attacker}) peut accéder directement à ${ri.component} via ${ri.path} et ${score >= 20 ? 'prendre le contrôle total du système' : score >= 13 ? 'exfiltrer des données ou manipuler des configurations' : 'causer des perturbations limitées'}.`
+        : `An external attacker (${ri.attacker}) can directly access ${ri.component} via ${ri.path} and ${score >= 20 ? 'gain full control of the system' : score >= 13 ? 'exfiltrate data or manipulate configurations' : 'cause limited disruption'}.`;
+    pdf.bodyText(`${l('attackScenarioLabel', lang)}: ${atkScenario}`, 0);
+
+    // 8. LIKELIHOOD (with justification)
     const lLbl = ri.likelihood >= 4 ? l('highLevel', lang) : ri.likelihood >= 3 ? l('mediumLevel', lang) : l('lowLevel', lang);
-    pdf.fieldInline(l('likelihoodLabel', lang), `${lLbl} (${ri.likelihood}/5)`);
+    const lJustification = lang === 'de'
+      ? ri.likelihood >= 4 ? `, da ${ri.component} ohne Authentifizierung erreichbar ist` : ri.likelihood >= 3 ? `, da der Angriffsvektor bekannt und ausnutzbar ist` : `, da die Ausnutzung spezialisiertes Wissen erfordert`
+      : lang === 'fr'
+        ? ri.likelihood >= 4 ? `, car ${ri.component} est accessible sans authentification` : ri.likelihood >= 3 ? `, car le vecteur d'attaque est connu et exploitable` : `, car l'exploitation nécessite des connaissances spécialisées`
+        : ri.likelihood >= 4 ? `, as ${ri.component} is accessible without authentication` : ri.likelihood >= 3 ? `, as the attack vector is known and exploitable` : `, as exploitation requires specialised knowledge`;
+    pdf.fieldInline(l('likelihoodLabel', lang), `${lLbl} (${ri.likelihood}/5)${lJustification}`);
 
     // 9. RISK LEVEL
     pdf.scoreBar(`${l('riskLevelLabel', lang)}: ${sev}  (${ri.likelihood} × ${ri.impact} = ${score}/25)`);
@@ -480,13 +494,40 @@ export async function generateNis2Report(data: Nis2ReportData): Promise<void> {
     // 10. ROOT CAUSE
     pdf.bodyText(`${l('rootCauseLabel', lang)}: ${ri.rationale}`, 0);
 
-    // 11. RECOMMENDATION
-    const linkedMeasure = linked.length > 0 && linked[0].measure ? linked[0].measure : (lang === 'de' ? `Gegenmaßnahmen für ${ri.component} implementieren und durch unabhängige Tests verifizieren.` : lang === 'fr' ? `Implémenter des contre-mesures pour ${ri.component} et vérifier par des tests indépendants.` : `Implement countermeasures for ${ri.component} and verify through independent testing.`);
-    pdf.bodyText(`${l('recommendationLabel', lang)}: ${linkedMeasure}`, 0);
+    // 11. RECOMMENDATION (technical, specific, actionable)
+    const recBase = linked.length > 0 && linked[0].measure ? linked[0].measure : '';
+    const techRec = lang === 'de'
+      ? [
+          recBase || `Gegenmaßnahmen für ${ri.component} implementieren.`,
+          ri.category === 'C' ? `TLS 1.3 für alle Kommunikationskanäle erzwingen. Verschlüsselung at-rest aktivieren.` : '',
+          ri.category === 'A' ? `Redundanz und Failover für ${ri.component} konfigurieren. Rate-Limiting implementieren.` : '',
+          ri.category === 'I' ? `Integritätsprüfungen und Zugriffskontrolle für ${ri.component} implementieren.` : '',
+          `Durch unabhängige Tests verifizieren.`,
+        ].filter(Boolean).join(' ')
+      : lang === 'fr'
+        ? [
+            recBase || `Implémenter des contre-mesures pour ${ri.component}.`,
+            ri.category === 'C' ? `Imposer TLS 1.3 pour tous les canaux de communication. Activer le chiffrement au repos.` : '',
+            ri.category === 'A' ? `Configurer la redondance et le basculement pour ${ri.component}. Implémenter le rate-limiting.` : '',
+            ri.category === 'I' ? `Implémenter des contrôles d'intégrité et d'accès pour ${ri.component}.` : '',
+            `Vérifier par des tests indépendants.`,
+          ].filter(Boolean).join(' ')
+        : [
+            recBase || `Implement countermeasures for ${ri.component}.`,
+            ri.category === 'C' ? `Enforce TLS 1.3 for all communication channels. Enable encryption at rest.` : '',
+            ri.category === 'A' ? `Configure redundancy and failover for ${ri.component}. Implement rate-limiting.` : '',
+            ri.category === 'I' ? `Implement integrity checks and access controls for ${ri.component}.` : '',
+            `Verify through independent testing.`,
+          ].filter(Boolean).join(' ');
+    pdf.bodyText(`${l('recommendationLabel', lang)}: ${techRec}`, 0);
 
-    // 12. REFERENCE
+    // 12. REFERENCE (extended: NIS-2 + ISO 27001 + CIS)
     const refParts = [ri.nis2Ref];
     if (ri.sources.length > 0) refParts.push(ri.sources.join('; '));
+    if (ri.category === 'C') refParts.push('ISO 27001 A.10 (Cryptography)', 'CIS Control 3');
+    if (ri.category === 'A') refParts.push('ISO 27001 A.17 (Business Continuity)', 'CIS Control 11');
+    if (ri.category === 'I') refParts.push('ISO 27001 A.12 (Operations Security)', 'CIS Control 14');
+    if (score >= 13) refParts.push('OWASP Top 10');
     if (linked.length > 0) refParts.push(`${l('workingPapers', lang)}: ${linked.map(r => `AP-${r.id}`).join(', ')}`);
     pdf.bodyText(`${l('referenceLabel', lang)}: ${refParts.join(' | ')}`, 0);
 

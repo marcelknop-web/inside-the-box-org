@@ -1173,6 +1173,14 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     doc.text(truncLeft, ML + 5, y + 6.5);
     y += 14;
 
+    // Reproducibility map (needed for observation text)
+    const reproMap: Record<string, Record<string, string>> = {
+      easy: { de: 'Einfach', en: 'Easy', fr: 'Facile' },
+      medium: { de: 'Mittel', en: 'Medium', fr: 'Moyen' },
+      hard: { de: 'Komplex', en: 'Complex', fr: 'Complexe' },
+      impossible: { de: 'Nicht reproduzierbar', en: 'Not reproducible', fr: 'Non reproductible' },
+    };
+
     // ── 12-Element Audit Finding Structure ──
 
     // 1. FINDING ID
@@ -1181,10 +1189,12 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     // 2. TITLE
     writeFieldBlock(lang === 'de' ? 'TITEL' : 'TITLE', th.name);
 
-    // 3. OBSERVATION
+    // 3. OBSERVATION (concrete, fact-based — no vague "Evidence shows that…")
     const obsText = lang === 'de'
-      ? `Die Komponente ${th.component} weist eine Schwachstelle auf: ${th.name}. Die erhobene Evidenz zeigt: ${th.evidence}`
-      : `The component ${th.component} exhibits a vulnerability: ${th.name}. Evidence shows: ${th.evidence}`;
+      ? `Die Komponente ${th.component} ist so konfiguriert, dass ${th.name}. Konkret wurde festgestellt: ${th.evidence}. Reproduzierbarkeit: ${reproMap[th.reproducibility]?.de || th.reproducibility}.`
+      : lang === 'fr'
+        ? `Le composant ${th.component} est configuré de telle manière que ${th.name}. Concrètement, il a été constaté : ${th.evidence}. Reproductibilité : ${reproMap[th.reproducibility]?.fr || th.reproducibility}.`
+        : `The component ${th.component} is configured in a way that ${th.name}. Specifically identified: ${th.evidence}. Reproducibility: ${reproMap[th.reproducibility]?.en || th.reproducibility}.`;
     writeFieldBlock(t(I18N.observation), obsText);
 
     // 4. TECHNICAL DETAILS
@@ -1214,11 +1224,28 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     writeFieldBlock('  Integrity', ciaI);
     writeFieldBlock('  Availability', ciaA);
 
-    // 8. LIKELIHOOD
-    const likelihoodLabel = th.likelihood >= 4 ? 'High' : th.likelihood >= 3 ? 'Medium' : 'Low';
-    writeFieldBlock('LIKELIHOOD', `${likelihoodLabel} (${th.likelihood}/5)`);
+    // — ATTACK SCENARIO (1-sentence, concrete)
+    const atkScenario = lang === 'de'
+      ? `Ein externer Angreifer (${th.attacker}) kann über ${th.path} direkt auf ${th.component} zugreifen und ${score >= 20 ? 'die vollständige Kontrolle über das System erlangen' : score >= 13 ? 'Daten exfiltrieren oder Konfigurationen manipulieren' : 'begrenzte Funktionsstörungen verursachen'}.`
+      : lang === 'fr'
+        ? `Un attaquant externe (${th.attacker}) peut accéder directement à ${th.component} via ${th.path} et ${score >= 20 ? 'prendre le contrôle total du système' : score >= 13 ? 'exfiltrer des données ou manipuler des configurations' : 'causer des perturbations limitées'}.`
+        : `An external attacker (${th.attacker}) can directly access ${th.component} via ${th.path} and ${score >= 20 ? 'gain full control of the system' : score >= 13 ? 'exfiltrate data or manipulate configurations' : 'cause limited disruption'}.`;
+    writeFieldBlock(t(I18N.attackScenario), atkScenario);
 
-    // 9. RISK LEVEL
+    // 8. LIKELIHOOD (with justification)
+    const likelihoodLabel = th.likelihood >= 4 ? 'High' : th.likelihood >= 3 ? 'Medium' : 'Low';
+    const likelihoodJustification = lang === 'de'
+      ? th.likelihood >= 4 ? `, da ${th.component} ohne Authentifizierung erreichbar ist` : th.likelihood >= 3 ? `, da der Angriffsvektor bekannt und ausnutzbar ist` : `, da die Ausnutzung spezialisiertes Wissen erfordert`
+      : lang === 'fr'
+        ? th.likelihood >= 4 ? `, car ${th.component} est accessible sans authentification` : th.likelihood >= 3 ? `, car le vecteur d'attaque est connu et exploitable` : `, car l'exploitation nécessite des connaissances spécialisées`
+        : th.likelihood >= 4 ? `, as ${th.component} is accessible without authentication` : th.likelihood >= 3 ? `, as the attack vector is known and exploitable` : `, as exploitation requires specialised knowledge`;
+    writeFieldBlock('LIKELIHOOD', `${likelihoodLabel} (${th.likelihood}/5)${likelihoodJustification}`);
+
+    // 9. RISK LEVEL (auto-derived scoring logic)
+    // CRITICAL: score>=20 OR missing/broken auth OR unencrypted sensitive comms OR default creds
+    // HIGH: score>=13 OR partial control with immediate exploitability
+    // MEDIUM: score>=6 OR weak config without immediate exploit
+    // LOW: score<6
     const ratingLabel = score >= 20 ? 'CRITICAL' : score >= 13 ? 'HIGH' : score >= 6 ? 'MEDIUM' : 'LOW';
     const ratingColor: [number, number, number] = score >= 20 ? C.redText : score >= 13 ? C.orangeText : score >= 6 ? C.orangeText : C.greenText;
     checkPage(8);
@@ -1235,29 +1262,52 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
       : `Root cause: ${th.rationale}`;
     writeFieldBlock(lang === 'de' ? 'URSACHE (ROOT CAUSE)' : 'ROOT CAUSE', rootCauseText);
 
-    // 11. RECOMMENDATION
+    // 11. RECOMMENDATION (technical, specific, actionable)
     const relatedReqObj = reqs.find(r => r.article === th.cra);
-    const recText = relatedReqObj && relatedReqObj.measure
-      ? relatedReqObj.measure
-      : lang === 'de'
-        ? `Gegenmaßnahmen für ${th.component} implementieren und durch unabhängige Tests verifizieren.`
-        : `Implement countermeasures for ${th.component} and verify through independent testing.`;
-    writeFieldBlock(lang === 'de' ? 'EMPFEHLUNG' : 'RECOMMENDATION', recText);
+    const recBase = relatedReqObj && relatedReqObj.measure ? relatedReqObj.measure : '';
+    const techRec = lang === 'de'
+      ? [
+          recBase || `Gegenmaßnahmen für ${th.component} implementieren.`,
+          th.stride === 'S' || th.stride === 'E' ? `Zugriffskontrolle auf ${th.component} durch IP-Allowlisting und Multi-Faktor-Authentifizierung einschränken.` : '',
+          th.stride === 'I' ? `TLS 1.3 für alle Kommunikationskanäle von ${th.component} erzwingen.` : '',
+          th.stride === 'T' ? `Integritätsprüfungen (HMAC/Signaturen) für ${th.component} implementieren.` : '',
+          th.stride === 'D' ? `Rate-Limiting und Redundanz für ${th.component} konfigurieren.` : '',
+          `Durch unabhängige Penetrationstests verifizieren.`,
+        ].filter(Boolean).join(' ')
+      : lang === 'fr'
+        ? [
+            recBase || `Implémenter des contre-mesures pour ${th.component}.`,
+            th.stride === 'S' || th.stride === 'E' ? `Restreindre l'accès à ${th.component} via liste blanche IP et authentification multi-facteurs.` : '',
+            th.stride === 'I' ? `Imposer TLS 1.3 pour tous les canaux de communication de ${th.component}.` : '',
+            th.stride === 'T' ? `Implémenter des vérifications d'intégrité (HMAC/signatures) pour ${th.component}.` : '',
+            th.stride === 'D' ? `Configurer le rate-limiting et la redondance pour ${th.component}.` : '',
+            `Vérifier par des tests de pénétration indépendants.`,
+          ].filter(Boolean).join(' ')
+        : [
+            recBase || `Implement countermeasures for ${th.component}.`,
+            th.stride === 'S' || th.stride === 'E' ? `Restrict access to ${th.component} via IP allowlisting and multi-factor authentication.` : '',
+            th.stride === 'I' ? `Enforce TLS 1.3 for all communication channels of ${th.component}.` : '',
+            th.stride === 'T' ? `Implement integrity checks (HMAC/signatures) for ${th.component}.` : '',
+            th.stride === 'D' ? `Configure rate-limiting and redundancy for ${th.component}.` : '',
+            `Verify through independent penetration testing.`,
+          ].filter(Boolean).join(' ');
+    writeFieldBlock(lang === 'de' ? 'EMPFEHLUNG' : lang === 'fr' ? 'RECOMMANDATION' : 'RECOMMENDATION', techRec);
 
-    // 12. REFERENCE
+    // 12. REFERENCE (extended: CRA + ISO 27001 + CIS + OWASP)
     const refParts = [th.cra];
     if (th.sources.length > 0) refParts.push(...th.sources);
+    // Add cross-framework references based on STRIDE category
+    if (th.stride === 'S' || th.stride === 'E') refParts.push('ISO 27001 A.9 (Access Control)', 'CIS Control 6');
+    if (th.stride === 'I') refParts.push('ISO 27001 A.10 (Cryptography)', 'CIS Control 3');
+    if (th.stride === 'T') refParts.push('ISO 27001 A.12 (Operations Security)', 'CIS Control 14');
+    if (th.stride === 'D') refParts.push('ISO 27001 A.17 (Business Continuity)', 'CIS Control 11');
+    if (th.stride === 'R') refParts.push('ISO 27001 A.12.4 (Logging)', 'CIS Control 8');
+    if (score >= 13) refParts.push('OWASP Top 10');
     const relatedReqIds = reqs.filter(r => r.article === th.cra).map(r => `${r.id} (${r.name})`);
-    if (relatedReqIds.length > 0) refParts.push(lang === 'de' ? `Verknüpfte Anforderungen: ${relatedReqIds.join('; ')}` : `Related requirements: ${relatedReqIds.join('; ')}`);
-    writeFieldBlock(lang === 'de' ? 'REFERENZ' : 'REFERENCE', refParts.join(' | '));
+    if (relatedReqIds.length > 0) refParts.push(lang === 'de' ? `Verknüpfte Anforderungen: ${relatedReqIds.join('; ')}` : lang === 'fr' ? `Exigences liées : ${relatedReqIds.join('; ')}` : `Related requirements: ${relatedReqIds.join('; ')}`);
+    writeFieldBlock(lang === 'de' ? 'REFERENZ' : lang === 'fr' ? 'RÉFÉRENCE' : 'REFERENCE', refParts.join(' | '));
 
-    // Reproducibility
-    const reproMap: Record<string, Record<string, string>> = {
-      easy: { de: 'Einfach', en: 'Easy', fr: 'Facile' },
-      medium: { de: 'Mittel', en: 'Medium', fr: 'Moyen' },
-      hard: { de: 'Komplex', en: 'Complex', fr: 'Complexe' },
-      impossible: { de: 'Nicht reproduzierbar', en: 'Not reproducible', fr: 'Non reproductible' },
-    };
+    // Reproducibility (reproMap already declared above)
     const reproLabel = reproMap[th.reproducibility]?.[lang] || th.reproducibility;
     writeLabel(`${t(I18N.reproducibility)}: ${reproLabel}`, 5);
 
