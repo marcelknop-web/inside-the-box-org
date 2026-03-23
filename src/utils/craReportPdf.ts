@@ -1427,13 +1427,14 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
 
     // 3. OBSERVATION (concrete, with verifiable test results)
     const obsGap = req.gap || t(I18N.noDeviation);
+    const humanReqEvid = humanizeEvidence(req.evidence, lang);
     const obsReqText = req.status === 'pass'
-      ? (lang === 'de' ? `Die Prüfung der Anforderung ${req.article} ergab vollständige Umsetzung. Verifiziert durch: ${req.evidence}.`
-        : lang === 'fr' ? `L'examen de l'exigence ${req.article} a confirmé une mise en œuvre complète. Vérifié par : ${req.evidence}.`
-        : `Examination of requirement ${req.article} confirmed full implementation. Verified through: ${req.evidence}.`)
-      : (lang === 'de' ? `Die Prüfung der Anforderung ${req.article} ergab, dass die geforderte Kontrolle ${req.status === 'fail' ? 'nicht implementiert ist' : 'nicht vollständig implementiert ist'}. Festgestellte Abweichung: ${obsGap}. Prüfnachweis: ${req.evidence}.`
-        : lang === 'fr' ? `L'examen de l'exigence ${req.article} a révélé que le contrôle requis ${req.status === 'fail' ? 'n\'est pas implémenté' : 'n\'est pas entièrement implémenté'}. Écart constaté : ${obsGap}. Preuve : ${req.evidence}.`
-        : `Examination of requirement ${req.article} revealed that the required control ${req.status === 'fail' ? 'is not implemented' : 'is not fully implemented'}. Identified deviation: ${obsGap}. Evidence: ${req.evidence}.`);
+      ? (lang === 'de' ? `Die Prüfung der Anforderung ${req.article} ergab vollständige Umsetzung. ${humanReqEvid}`
+        : lang === 'fr' ? `L'examen de l'exigence ${req.article} a confirmé une mise en œuvre complète. ${humanReqEvid}`
+        : `Examination of requirement ${req.article} confirmed full implementation. ${humanReqEvid}`)
+      : (lang === 'de' ? `Die Prüfung der Anforderung ${req.article} ergab, dass die geforderte Kontrolle ${req.status === 'fail' ? 'nicht implementiert ist' : 'nicht vollständig implementiert ist'}. Festgestellte Abweichung: ${obsGap}. ${humanReqEvid}`
+        : lang === 'fr' ? `L'examen de l'exigence ${req.article} a révélé que le contrôle requis ${req.status === 'fail' ? 'n\'est pas implémenté' : 'n\'est pas entièrement implémenté'}. Écart constaté : ${obsGap}. ${humanReqEvid}`
+        : `Examination of requirement ${req.article} revealed that the required control ${req.status === 'fail' ? 'is not implemented' : 'is not fully implemented'}. Identified deviation: ${obsGap}. ${humanReqEvid}`);
     writeFieldBlock(t(I18N.observation), obsReqText);
 
     // 4. TECHNICAL DETAILS
