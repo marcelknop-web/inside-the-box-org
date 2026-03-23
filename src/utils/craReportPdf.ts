@@ -1598,9 +1598,9 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
 
     y += 3;
     doc.setDrawColor(...C.ruleStroke);
-    doc.setLineWidth(0.1);
-    doc.line(ML + 15, y, W - MR - 15, y);
-    y += 6;
+    doc.setLineWidth(0.2);
+    doc.line(ML + 10, y, W - MR - 10, y);
+    y += 8;
   }
 
   // ── 4.3 Normative Coverage ──
