@@ -101,6 +101,7 @@ const I18N: Record<string, Record<string, string>> = {
   rootCauseLabel: { de: 'URSACHE', en: 'ROOT CAUSE', fr: 'CAUSE RACINE' },
   recommendationLabel: { de: 'EMPFEHLUNG', en: 'RECOMMENDATION', fr: 'RECOMMANDATION' },
   referenceLabel: { de: 'REFERENZ', en: 'REFERENCE', fr: 'RÉFÉRENCE' },
+  attackScenarioLabel: { de: 'ANGRIFFSSZENARIO', en: 'ATTACK SCENARIO', fr: 'SCÉNARIO D\'ATTAQUE' },
   acceptanceCriteria: { de: 'UMSETZUNGSKRITERIEN', en: 'ACCEPTANCE CRITERIA', fr: 'CRITÈRES D\'ACCEPTATION' },
   smartCriteria: { de: 'SMARTE UMSETZUNGSKRITERIEN', en: 'SMART ACCEPTANCE CRITERIA', fr: 'CRITÈRES D\'ACCEPTATION SMART' },
   linkedRisksLabel: { de: 'Verknüpfte Risiken', en: 'Linked Risks', fr: 'Risques liés' },
