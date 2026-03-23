@@ -55,6 +55,9 @@ const I18N = {
   secB: { de: 'B  Prüfwerkzeuge und Versionen', en: 'B  Tools and Versions', fr: 'B  Outils et versions' },
   secC: { de: 'C  Evidenz-Material-Index', en: 'C  Evidence Material Index', fr: 'C  Index des éléments de preuve' },
   secD: { de: 'D  Qualitätssicherungs-Checkliste', en: 'D  Quality Assurance Checklist', fr: 'D  Liste de contrôle qualité' },
+  secE: { de: 'E  Arbeitspapiere (Working Papers)', en: 'E  Working Papers', fr: 'E  Papiers de travail' },
+  sec8: { de: '8  Hinweise zur Verifizierung', en: '8  Verification Guidance', fr: '8  Guide de vérification' },
+  sec9: { de: '9  Konformitätserklärung und Klassifizierung', en: '9  Compliance Statement and Classification', fr: '9  Déclaration de conformité et classification' },
 
   product: { de: 'Produkt', en: 'Product', fr: 'Produit' },
   version: { de: 'Version', en: 'Version', fr: 'Version' },
