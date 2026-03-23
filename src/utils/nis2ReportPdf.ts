@@ -354,6 +354,7 @@ export async function generateNis2Report(data: Nis2ReportData): Promise<void> {
     ? `Die Konformitätsrate von ${complianceRate}% ergibt sich aus einer gewichteten Berechnung: Vollständig erfüllte Anforderungen (PASS) fließen mit 100% ein, teilweise erfüllte Anforderungen (PARTIAL) mit 50%, und nicht erfüllte Anforderungen (FAIL) mit 0%. Bezugsgröße sind alle ${reqs.length} geprüften Anforderungen.`
     : `The compliance rate of ${complianceRate}% is based on a weighted calculation: Fully compliant requirements (PASS) contribute 100%, partially compliant (PARTIAL) 50%, and non-compliant (FAIL) 0%. The denominator is all ${reqs.length} assessed requirements.`;
 
+  pdf.addBookmark(l('sec2', lang));
   pdf.heading(l('sec2', lang));
   pdf.introText(lang === 'de'
     ? 'Was muss die Geschäftsleitung wissen? Dieser Abschnitt fasst die wichtigsten Ergebnisse zusammen — einschließlich regulatorischem Kontext, Aufwandsschätzung und Handlungsdringlichkeit.'
@@ -454,6 +455,7 @@ export async function generateNis2Report(data: Nis2ReportData): Promise<void> {
 
   // ═══ SECTION 3: Scope ═══
   pdf.newPage();
+  pdf.addBookmark(l('sec3', lang));
   pdf.heading(l('sec3', lang));
   pdf.introText(lang === 'de'
     ? 'Bevor die identifizierten Risiken und Konformitätslücken im Detail dargestellt werden, dokumentiert dieser Abschnitt den Prüfungsgegenstand und die zugrunde liegenden Informationen.'
@@ -501,6 +503,7 @@ export async function generateNis2Report(data: Nis2ReportData): Promise<void> {
 
   // ═══ SECTION 4: Detailed Findings ═══
   pdf.newPage();
+  pdf.addBookmark(l('sec4', lang));
   pdf.heading(l('sec4', lang));
   pdf.introText(lang === 'de'
     ? 'Jedes identifizierte Risiko und jede Konformitätslücke wird in diesem Abschnitt einzeln dargestellt und bewertet.'
@@ -771,6 +774,7 @@ export async function generateNis2Report(data: Nis2ReportData): Promise<void> {
 
   // ═══ SECTION 5: Recommendations ═══
   pdf.newPage();
+  pdf.addBookmark(l('sec5', lang));
   pdf.heading(l('sec5', lang));
   pdf.introText(lang === 'de'
     ? 'Welche Maßnahmen sind jetzt erforderlich, und in welcher Reihenfolge sollten sie umgesetzt werden?'
@@ -865,6 +869,7 @@ export async function generateNis2Report(data: Nis2ReportData): Promise<void> {
 
   // ═══ SECTION 6: Methodology ═══
   pdf.newPage();
+  pdf.addBookmark(l('sec6', lang));
   pdf.heading(l('sec6', lang));
   pdf.bodyParagraph(lang === 'de'
     ? 'Die Prüfung basiert auf der Richtlinie (EU) 2022/2555 (NIS-2-Richtlinie), den zugehörigen Durchführungsrechtsakten sowie dem nationalen Umsetzungsgesetz (NIS2UmsuCG). Die Risikobewertung folgt einer standardisierten 5×5-Matrix, in der Eintrittswahrscheinlichkeit und Auswirkung jeweils auf einer Skala von 1 bis 5 bewertet werden. Das Produkt beider Werte ergibt den Risikoscore, der die Priorisierung der Maßnahmen bestimmt.'
@@ -885,6 +890,7 @@ export async function generateNis2Report(data: Nis2ReportData): Promise<void> {
 
   // ═══ SECTION 7: Disclaimer ═══
   pdf.y += 5;
+  pdf.addBookmark(l('sec7', lang));
   pdf.heading(l('sec7', lang));
   pdf.bodyParagraph(lang === 'de'
     ? 'Dieser Bericht basiert auf den zum Zeitpunkt der Prüfung vorliegenden Informationen und Dokumenten. Er ersetzt keine offizielle Prüfung durch das BSI oder eine andere zuständige nationale Aufsichtsbehörde. Für die Vollständigkeit und Richtigkeit der zugrunde liegenden Angaben wird keine Haftung übernommen. Der Bericht ist vertraulich und ausschließlich für den internen Gebrauch des Empfängers bestimmt.'
@@ -892,6 +898,7 @@ export async function generateNis2Report(data: Nis2ReportData): Promise<void> {
 
   // ═══ SECTION 8: Verification Guidance ═══
   pdf.newPage();
+  pdf.addBookmark(l('sec8', lang));
   pdf.heading(l('sec8', lang));
   pdf.introText(lang === 'de'
     ? 'Dieser Abschnitt gibt dem Leser konkrete Hinweise, wie die Aussagen und Bewertungen in diesem Bericht unabhängig überprüft werden können.'
@@ -926,6 +933,7 @@ export async function generateNis2Report(data: Nis2ReportData): Promise<void> {
 
   // ═══ SECTION 9: Compliance Statement ═══
   pdf.newPage();
+  pdf.addBookmark(l('sec9', lang));
   pdf.heading(l('sec9', lang));
   pdf.introText(lang === 'de'
     ? 'Dieser Abschnitt enthält die abschließende Konformitätsbewertung auf Basis der in diesem Bericht dokumentierten Prüfungsergebnisse. Er dient als Entscheidungsgrundlage für die Geschäftsleitung und als Nachweis gegenüber der zuständigen nationalen Aufsichtsbehörde.'
@@ -1033,6 +1041,7 @@ export async function generateNis2Report(data: Nis2ReportData): Promise<void> {
 
   // ═══ APPENDIX A: Structured Data ═══
   pdf.newPage();
+  pdf.addBookmark(l('secA', lang));
   pdf.heading(l('secA', lang));
   pdf.heading(`A.1 ${lang === 'de' ? 'Risiken' : 'Risks'}`, 2);
   pdf.dataTableHeader('ID         | Risiko                          | L  I  S  | Referenz');
@@ -1050,6 +1059,7 @@ export async function generateNis2Report(data: Nis2ReportData): Promise<void> {
 
   // ═══ APPENDIX B: Tools ═══
   pdf.newPage();
+  pdf.addBookmark(l('secB', lang));
   pdf.heading(l('secB', lang));
   [{ cat: lang === 'de' ? 'Netzwerkanalyse' : 'Network Analysis', tools: 'Wireshark 4.x, Nmap 7.x' },
    { cat: lang === 'de' ? 'Schwachstellen-Scanning' : 'Vulnerability Scanning', tools: 'Qualys, Tenable.io, OpenVAS' },
@@ -1066,6 +1076,7 @@ export async function generateNis2Report(data: Nis2ReportData): Promise<void> {
 
   // ═══ APPENDIX C: Evidence Index ═══
   pdf.newPage();
+  pdf.addBookmark(l('secC', lang));
   pdf.heading(l('secC', lang));
   pdf.introText(lang === 'de'
     ? 'Dieser Anhang listet das für jede Feststellung erhobene Evidenz-Material auf. Die aufgeführten Dateien ermöglichen die unabhängige Reproduktion und Verifizierung der Prüfergebnisse durch Dritte.'
@@ -1160,6 +1171,7 @@ export async function generateNis2Report(data: Nis2ReportData): Promise<void> {
 
   // ═══ APPENDIX D: Quality Assurance ═══
   pdf.newPage();
+  pdf.addBookmark(l('secD', lang));
   pdf.heading(l('secD', lang));
   if (data.qaChecks && data.qaChecks.length > 0) {
     const catLabelsMap: Record<string, string> = {
@@ -1185,6 +1197,7 @@ export async function generateNis2Report(data: Nis2ReportData): Promise<void> {
 
   // ═══ APPENDIX E: Working Papers ═══
   pdf.newPage();
+  pdf.addBookmark(l('secE', lang));
   pdf.heading(l('secE', lang));
   pdf.introText(lang === 'de'
     ? 'Für jede NIS-2-Anforderung wurde ein eigenständiges Arbeitspapier erstellt, das den Prüfungsgegenstand, die erhobene Evidenz, die Bewertungsgrundlage sowie gegebenenfalls festgestellte Abweichungen und empfohlene Maßnahmen dokumentiert.'
