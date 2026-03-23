@@ -1162,32 +1162,41 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     doc.text(truncLeft, ML + 5, y + 6.5);
     y += 14;
 
-    // ── 5-Element Audit Finding Structure ──
-    // Condition (Ist-Zustand)
-    const conditionText = lang === 'de'
-      ? `${th.component}: ${th.name}. ${th.evidence}`
-      : `${th.component}: ${th.name}. ${th.evidence}`;
-    writeFieldBlock(t(I18N.condition), conditionText);
+    // ── 7-Element Audit Finding Structure ──
+    // 1. Observation (exact condition detected — no vague terms)
+    writeFieldBlock(t(I18N.observation), `${th.component}: ${th.name}.`);
 
-    // Criteria (Soll-Anforderung)
-    const criteriaText = lang === 'de'
-      ? `${th.cra} — ${th.name.includes('verschlüss') || th.name.includes('encrypt') ? 'Annex I, Part I, Nr. 3(d): Vertraulichkeit und Integrität' : th.name.includes('Zugang') || th.name.includes('access') ? 'Annex I, Part I, Nr. 3(c): Zugangskontrolle' : th.cra}. STRIDE-Kategorie: ${STRIDE_NAMES[th.stride]?.[lang] || th.stride}.`
-      : `${th.cra} — STRIDE category: ${STRIDE_NAMES[th.stride]?.[lang] || th.stride}.`;
-    writeFieldBlock(t(I18N.auditCriteria), criteriaText);
+    // 2. Evidence (concrete data / signal)
+    writeFieldBlock(t(I18N.findingEvidence), th.evidence);
 
-    // Cause (Ursache)
-    const causeText = th.rationale;
-    writeFieldBlock(t(I18N.cause), causeText);
+    // 3. Interpretation (direct technical meaning)
+    writeFieldBlock(t(I18N.interpretation), th.rationale);
 
-    // Effect (Auswirkung / Risiko)
-    const effectText = lang === 'de'
-      ? `Angreiferprofil: ${th.attacker}. Angriffsvektor: ${th.path}. Bei Ausnutzung drohen ${score >= 20 ? 'kritische Auswirkungen auf den Geschäftsbetrieb und regulatorische Konsequenzen' : score >= 13 ? 'erhebliche Auswirkungen auf betroffene Systeme und Daten' : 'begrenzte Auswirkungen auf einzelne Funktionen'}.`
+    // 4. Mapping (exact control reference)
+    const mappingText = `${th.cra} | STRIDE: ${th.stride} (${STRIDE_NAMES[th.stride]?.[lang] || th.stride})`;
+    writeFieldBlock(t(I18N.mapping), mappingText);
+
+    // 5. Risk Scenario (concrete exploitation scenario)
+    const scenarioText = lang === 'de'
+      ? `Angreiferprofil: ${th.attacker}. Angriffsvektor: ${th.path}. ${score >= 20 ? 'Direkte Kompromittierung des Systems mit Auswirkung auf Produktion und regulatorische Konformität.' : score >= 13 ? 'Kompromittierung betroffener Subsysteme mit potenzieller Datenexfiltration oder Funktionsverlust.' : 'Lokale Ausnutzung mit begrenztem Schadensradius auf Einzelkomponenten.'}`
       : lang === 'fr'
-      ? `Profil attaquant : ${th.attacker}. Vecteur : ${th.path}. Impact : ${score >= 20 ? 'critique' : score >= 13 ? 'élevé' : 'modéré'}.`
-      : `Attacker profile: ${th.attacker}. Attack vector: ${th.path}. Exploitation would result in ${score >= 20 ? 'critical impact on business operations and regulatory consequences' : score >= 13 ? 'significant impact on affected systems and data' : 'limited impact on individual functions'}.`;
-    writeFieldBlock(t(I18N.effect), effectText);
+      ? `Profil attaquant : ${th.attacker}. Vecteur : ${th.path}. ${score >= 20 ? 'Compromission directe du système.' : score >= 13 ? 'Compromission de sous-systèmes.' : 'Exploitation locale à rayon de dommage limité.'}`
+      : `Attacker profile: ${th.attacker}. Attack vector: ${th.path}. ${score >= 20 ? 'Direct system compromise with impact on production and regulatory compliance.' : score >= 13 ? 'Compromise of affected subsystems with potential data exfiltration or loss of function.' : 'Local exploitation with limited blast radius on individual components.'}`;
+    writeFieldBlock(t(I18N.riskScenario), scenarioText);
 
-    // Recommendation
+    // 6. Risk Rating (strict: HIGH / MEDIUM / LOW based on defined rules)
+    const ratingLabel = score >= 20 ? 'HIGH' : score >= 13 ? 'MEDIUM' : 'LOW';
+    const ratingColor = score >= 20 ? C.redText : score >= 13 ? C.orangeText : C.greenText;
+    checkPage(8);
+    writeLabel(t(I18N.riskRating), 5);
+    doc.setFont(HEAD_FONT, 'bold');
+    doc.setFontSize(BODY_SIZE + 1);
+    doc.setTextColor(...ratingColor);
+    const ratingDetailStr = `${ratingLabel}  (${t(I18N.likelihood)}: ${th.likelihood}/5  ×  ${t(I18N.impact)}: ${th.impact}/5  =  ${score}/25)`;
+    doc.text(ratingDetailStr, ML + 8, y);
+    y += BODY_LEADING + FIELD_GAP;
+
+    // 7. Recommendation (specific, actionable)
     const relatedReqObj = reqs.find(r => r.article === th.cra);
     const recText = relatedReqObj && relatedReqObj.measure
       ? relatedReqObj.measure
@@ -1195,8 +1204,6 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
         ? `Gegenmaßnahmen für ${th.component} implementieren und durch unabhängige Tests verifizieren.`
         : `Implement countermeasures for ${th.component} and verify through independent testing.`;
     writeFieldBlock(t(I18N.recommendation), recText);
-
-    writeFieldBlock(t(I18N.craRef), th.cra);
 
     // Cross-reference: which CRA requirements does this threat relate to?
     const relatedReqIds = reqs.filter(r => r.article === th.cra).map(r => `${r.id} (${r.name})`);
