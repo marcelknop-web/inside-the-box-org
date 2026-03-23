@@ -1416,15 +1416,15 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     // 2. TITLE
     writeFieldBlock(t(I18N.titleLabel), `${req.name} (${req.article})`);
 
-    // 3. OBSERVATION
+    // 3. OBSERVATION (concrete, with verifiable test results)
     const obsGap = req.gap || t(I18N.noDeviation);
     const obsReqText = req.status === 'pass'
-      ? (lang === 'de' ? `Die Anforderung ${req.article} ist vollständig umgesetzt. ${req.evidence}`
-        : lang === 'fr' ? `L'exigence ${req.article} est entièrement mise en œuvre. ${req.evidence}`
-        : `Requirement ${req.article} is fully implemented. ${req.evidence}`)
-      : (lang === 'de' ? `Die Anforderung ${req.article} ist ${req.status === 'fail' ? 'nicht' : 'nicht vollständig'} umgesetzt. ${obsGap}. Evidenz: ${req.evidence}`
-        : lang === 'fr' ? `L'exigence ${req.article} ${req.status === 'fail' ? 'n\'est pas' : 'n\'est pas entièrement'} mise en œuvre. ${obsGap}. Preuve : ${req.evidence}`
-        : `Requirement ${req.article} is ${req.status === 'fail' ? 'not' : 'not fully'} implemented. ${obsGap}. Evidence: ${req.evidence}`);
+      ? (lang === 'de' ? `Die Prüfung der Anforderung ${req.article} ergab vollständige Umsetzung. Verifiziert durch: ${req.evidence}.`
+        : lang === 'fr' ? `L'examen de l'exigence ${req.article} a confirmé une mise en œuvre complète. Vérifié par : ${req.evidence}.`
+        : `Examination of requirement ${req.article} confirmed full implementation. Verified through: ${req.evidence}.`)
+      : (lang === 'de' ? `Die Prüfung der Anforderung ${req.article} ergab, dass die geforderte Kontrolle ${req.status === 'fail' ? 'nicht implementiert ist' : 'nicht vollständig implementiert ist'}. Festgestellte Abweichung: ${obsGap}. Prüfnachweis: ${req.evidence}.`
+        : lang === 'fr' ? `L'examen de l'exigence ${req.article} a révélé que le contrôle requis ${req.status === 'fail' ? 'n\'est pas implémenté' : 'n\'est pas entièrement implémenté'}. Écart constaté : ${obsGap}. Preuve : ${req.evidence}.`
+        : `Examination of requirement ${req.article} revealed that the required control ${req.status === 'fail' ? 'is not implemented' : 'is not fully implemented'}. Identified deviation: ${obsGap}. Evidence: ${req.evidence}.`);
     writeFieldBlock(t(I18N.observation), obsReqText);
 
     // 4. TECHNICAL DETAILS
@@ -1449,7 +1449,7 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
       : t(I18N.noThreatLink);
     writeFieldBlock(t(I18N.strideCatLabel), strideLine);
 
-    // 6. RISK DESCRIPTION (attacker → technical impact → business impact)
+    // 6. RISK DESCRIPTION (concrete attack scenario → technical impact → business impact)
     const gap = req.gap || '';
     const threatContext = linkedThreats.length > 0
       ? linkedThreats.map(th => `${threatId(th)}: ${th.name} (Score ${th.likelihood * th.impact})`).join('; ')
@@ -1459,23 +1459,25 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     if (req.status === 'fail') {
       const attackerInfo = linkedThreats.length > 0 ? linkedThreats[0].attacker : (lang === 'de' ? 'ein Angreifer' : lang === 'fr' ? 'un attaquant' : 'an attacker');
       const vectorInfo = linkedThreats.length > 0 ? linkedThreats[0].path.split('→')[0].trim() : (lang === 'de' ? 'fehlende Kontrolle' : lang === 'fr' ? 'contrôle manquant' : 'missing control');
+      const targetComp = linkedThreats.length > 0 ? linkedThreats[0].component : req.name;
       riskDescReq = lang === 'de'
-        ? `${gap ? `${gap}. ` : ''}${attackerInfo} kann über „${vectorInfo}" direkten Zugriff erlangen, was zu ${linkedThreats.length > 0 && linkedThreats[0].impact >= 4 ? 'Betriebsunterbrechung, Datenverlust und regulatorischen Sanktionen' : 'unautorisiertem Zugriff oder Integritätsverlust'} führt. Konformitätserklärung nach Art. 22 CRA nicht abgebbar. Haftung nach Art. 64 CRA.`
+        ? `${gap ? `${gap}. ` : ''}${attackerInfo} kann den Endpunkt über „${vectorInfo}" enumerieren und ohne funktionierende Kontrolle direkt auf ${targetComp} zugreifen. Dies ermöglicht ${linkedThreats.length > 0 && linkedThreats[0].impact >= 4 ? 'die Manipulation von Systemkonfigurationen, Exfiltration von Betriebsdaten und vollständige Kompromittierung des Systems' : 'unautorisierte Aktionen auf dem betroffenen System'}. Regulatorische Konsequenz: Konformitätserklärung nach Art. 22 CRA nicht abgebbar, Haftung nach Art. 64 CRA.`
         : lang === 'fr'
-          ? `${gap ? `${gap}. ` : ''}${attackerInfo} peut obtenir un accès direct via « ${vectorInfo} », entraînant ${linkedThreats.length > 0 && linkedThreats[0].impact >= 4 ? 'une interruption opérationnelle, une perte de données et des sanctions réglementaires' : 'un accès non autorisé ou une compromission de l\'intégrité'}. Déclaration de conformité selon Art. 22 CRA impossible. Responsabilité selon Art. 64 CRA.`
-          : `${gap ? `${gap}. ` : ''}${attackerInfo} can gain direct access via "${vectorInfo}", leading to ${linkedThreats.length > 0 && linkedThreats[0].impact >= 4 ? 'operational disruption, data loss, and regulatory sanctions' : 'unauthorized access or integrity compromise'}. Conformity declaration per Art. 22 CRA cannot be issued. Liability under Art. 64 CRA.`;
+          ? `${gap ? `${gap}. ` : ''}${attackerInfo} peut énumérer le point d'accès via « ${vectorInfo} » et accéder directement à ${targetComp} sans contrôle fonctionnel. Cela permet ${linkedThreats.length > 0 && linkedThreats[0].impact >= 4 ? 'la manipulation des configurations système, l\'exfiltration de données opérationnelles et la compromission complète du système' : 'des actions non autorisées sur le système concerné'}. Conséquence réglementaire : déclaration de conformité selon Art. 22 CRA impossible, responsabilité selon Art. 64 CRA.`
+          : `${gap ? `${gap}. ` : ''}${attackerInfo} can enumerate the endpoint via "${vectorInfo}" and directly access ${targetComp} without a functioning control. This enables ${linkedThreats.length > 0 && linkedThreats[0].impact >= 4 ? 'manipulation of system configurations, exfiltration of operational data, and full system compromise' : 'unauthorized actions on the affected system'}. Regulatory consequence: conformity declaration per Art. 22 CRA cannot be issued, liability under Art. 64 CRA.`;
     } else if (req.status === 'partial') {
+      const affectedComps = linkedThreats.length > 0 ? linkedThreats.map(th => th.component).filter((v, i, a) => a.indexOf(v) === i).join(', ') : req.name;
       riskDescReq = lang === 'de'
-        ? `${gap || 'Kontrolle nicht vollständig verifiziert'}. ${linkedThreats.length > 0 ? `Verknüpfte Bedrohungen (${linkedThreats.map(th => threatId(th)).join(', ')}) können die verbleibende Lücke ausnutzen` : 'Angreifer können die ungeschützte Angriffsfläche ausnutzen'}, bis die Maßnahme vollständig implementiert ist. ${linkedThreats.length > 0 && linkedThreats[0].impact >= 4 ? 'Betriebsunterbrechung oder regulatorische Sanktionen möglich.' : 'Eingeschränkte Funktionsfähigkeit oder Compliance-Abweichung.'}`
+        ? `${gap || 'Kontrolle nicht vollständig implementiert'}. Die verbleibende Lücke in ${affectedComps} ${linkedThreats.length > 0 ? `kann durch die verknüpften Bedrohungen (${linkedThreats.map(th => threatId(th)).join(', ')}) ausgenutzt werden` : 'stellt eine ausnutzbare Angriffsfläche dar'}, bis die vollständige Implementierung abgeschlossen ist. ${linkedThreats.length > 0 && linkedThreats[0].impact >= 4 ? 'Bei Ausnutzung: Betriebsunterbrechung und regulatorische Sanktionen.' : 'Bei Ausnutzung: eingeschränkte Funktionsfähigkeit oder Compliance-Abweichung.'}`
         : lang === 'fr'
-          ? `${gap || 'Contrôle non entièrement vérifié'}. ${linkedThreats.length > 0 ? `Les menaces liées (${linkedThreats.map(th => threatId(th)).join(', ')}) peuvent exploiter la lacune restante` : 'Les attaquants peuvent exploiter la surface d\'attaque non protégée'} jusqu'à la mise en œuvre complète. ${linkedThreats.length > 0 && linkedThreats[0].impact >= 4 ? 'Interruption opérationnelle ou sanctions réglementaires possibles.' : 'Fonctionnalité limitée ou écart de conformité.'}`
-          : `${gap || 'Control not fully verified'}. ${linkedThreats.length > 0 ? `Linked threats (${linkedThreats.map(th => threatId(th)).join(', ')}) can exploit the remaining gap` : 'Attackers can exploit the unprotected attack surface'} until the measure is fully implemented. ${linkedThreats.length > 0 && linkedThreats[0].impact >= 4 ? 'Operational disruption or regulatory sanctions possible.' : 'Limited functionality or compliance deviation.'}`;
+          ? `${gap || 'Contrôle non entièrement implémenté'}. La lacune restante dans ${affectedComps} ${linkedThreats.length > 0 ? `peut être exploitée par les menaces liées (${linkedThreats.map(th => threatId(th)).join(', ')})` : 'constitue une surface d\'attaque exploitable'} jusqu'à la mise en œuvre complète. ${linkedThreats.length > 0 && linkedThreats[0].impact >= 4 ? 'En cas d\'exploitation : interruption opérationnelle et sanctions réglementaires.' : 'En cas d\'exploitation : fonctionnalité limitée ou écart de conformité.'}`
+          : `${gap || 'Control not fully implemented'}. The remaining gap in ${affectedComps} ${linkedThreats.length > 0 ? `can be exploited by linked threats (${linkedThreats.map(th => threatId(th)).join(', ')})` : 'presents an exploitable attack surface'} until full implementation is completed. ${linkedThreats.length > 0 && linkedThreats[0].impact >= 4 ? 'If exploited: operational disruption and regulatory sanctions.' : 'If exploited: limited functionality or compliance deviation.'}`;
     } else {
       riskDescReq = lang === 'de'
-        ? `Anforderung vollständig umgesetzt und verifiziert. Keine ausnutzbare Angriffsfläche identifiziert.`
+        ? `Anforderung vollständig umgesetzt und durch Prüfhandlungen verifiziert. Keine ausnutzbare Angriffsfläche identifiziert.`
         : lang === 'fr'
-          ? `Exigence entièrement mise en œuvre et vérifiée. Aucune surface d'attaque exploitable identifiée.`
-          : `Requirement fully implemented and verified. No exploitable attack surface identified.`;
+          ? `Exigence entièrement mise en œuvre et vérifiée par des procédures de test. Aucune surface d'attaque exploitable identifiée.`
+          : `Requirement fully implemented and verified through test procedures. No exploitable attack surface identified.`;
     }
     writeFieldBlock(t(I18N.riskDescLabel), riskDescReq);
     if (threatContext) {
@@ -1500,13 +1502,24 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
       writeFieldBlock(t(I18N.availabilityLabel), impactLevel);
     }
 
-    // 8. LIKELIHOOD
+    // 8. LIKELIHOOD (with justification)
     if (linkedThreats.length > 0) {
       const maxLikelihood = Math.max(...linkedThreats.map(th => th.likelihood));
       const lLabel = maxLikelihood >= 4 ? t(I18N.highLevel) : maxLikelihood >= 3 ? t(I18N.mediumLevel) : t(I18N.lowLevel);
-      writeFieldBlock(t(I18N.likelihoodLabel), `${lLabel} (${maxLikelihood}/5)`);
+      const lJust = lang === 'de'
+        ? maxLikelihood >= 4 ? `, da verknüpfte Komponenten ohne Authentifizierung erreichbar sind` : maxLikelihood >= 3 ? `, da bekannte Angriffsvektoren existieren` : `, da Ausnutzung spezialisiertes Wissen erfordert`
+        : lang === 'fr'
+          ? maxLikelihood >= 4 ? `, car les composants liés sont accessibles sans authentification` : maxLikelihood >= 3 ? `, car des vecteurs d'attaque connus existent` : `, car l'exploitation nécessite des connaissances spécialisées`
+          : maxLikelihood >= 4 ? `, as linked components are accessible without authentication` : maxLikelihood >= 3 ? `, as known attack vectors exist` : `, as exploitation requires specialised knowledge`;
+      writeFieldBlock(t(I18N.likelihoodLabel), `${lLabel} (${maxLikelihood}/5)${lJust}`);
     } else {
-      writeFieldBlock(t(I18N.likelihoodLabel), req.status === 'fail' ? t(I18N.highLevel) : req.status === 'partial' ? t(I18N.mediumLevel) : t(I18N.lowLevel));
+      const fallbackLabel = req.status === 'fail' ? t(I18N.highLevel) : req.status === 'partial' ? t(I18N.mediumLevel) : t(I18N.lowLevel);
+      const fallbackJust = lang === 'de'
+        ? req.status === 'fail' ? `, da die geforderte Kontrolle nicht implementiert ist` : req.status === 'partial' ? `, da die Kontrolle nur teilweise wirksam ist` : ''
+        : lang === 'fr'
+          ? req.status === 'fail' ? `, car le contrôle requis n'est pas implémenté` : req.status === 'partial' ? `, car le contrôle n'est que partiellement efficace` : ''
+          : req.status === 'fail' ? `, as the required control is not implemented` : req.status === 'partial' ? `, as the control is only partially effective` : '';
+      writeFieldBlock(t(I18N.likelihoodLabel), `${fallbackLabel}${fallbackJust}`);
     }
 
     // 9. RISK LEVEL
@@ -1520,17 +1533,17 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     doc.text(reqRating, ML + 8, y);
     y += BODY_LEADING + FIELD_GAP;
 
-    // 10. ROOT CAUSE
+    // 10. ROOT CAUSE (precise technical root cause)
     const rootCause = req.status !== 'pass'
       ? (lang === 'de'
-        ? `Ursache: ${gap || t(I18N.missingControl)}`
+        ? `Ursache: ${gap || t(I18N.missingControl)}${linkedThreats.length > 0 ? ` Betroffen: ${linkedThreats.map(th => th.component).filter((v, i, a) => a.indexOf(v) === i).join(', ')}.` : '.'}`
         : lang === 'fr'
-          ? `Cause : ${gap || t(I18N.missingControl)}`
-          : `Root cause: ${gap || t(I18N.missingControl)}`)
+          ? `Cause : ${gap || t(I18N.missingControl)}${linkedThreats.length > 0 ? ` Concerné : ${linkedThreats.map(th => th.component).filter((v, i, a) => a.indexOf(v) === i).join(', ')}.` : '.'}`
+          : `Root cause: ${gap || t(I18N.missingControl)}${linkedThreats.length > 0 ? ` Affected: ${linkedThreats.map(th => th.component).filter((v, i, a) => a.indexOf(v) === i).join(', ')}.` : '.'}`)
       : t(I18N.noDeficiency);
     writeFieldBlock(t(I18N.rootCauseLabel), rootCause);
 
-    // 11. RECOMMENDATION
+    // 11. RECOMMENDATION (technology-specific, actionable)
     writeFieldBlock(t(I18N.recommendationLabel), req.measure || t(I18N.noActionRequired));
 
     // Effort + Priority
