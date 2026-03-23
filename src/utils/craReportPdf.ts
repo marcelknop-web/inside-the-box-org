@@ -80,7 +80,7 @@ const I18N = {
   confidential: { de: 'VERTRAULICH', en: 'CONFIDENTIAL', fr: 'CONFIDENTIEL' },
   toc: { de: 'Inhaltsverzeichnis', en: 'Table of Contents', fr: 'Table des matières' },
 
-  sec1: { de: '1  Ausgangslage und Zielsetzung', en: '1  Context and Objectives', fr: '1  Contexte et objectifs' },
+  sec1: { de: '1  Ausgangslage, Zielsetzung und Prüfungsumfang', en: '1  Context, Objectives and Scope', fr: '1  Contexte, objectifs et périmètre' },
   sec2: { de: '2  Zusammenfassung für die Geschäftsleitung', en: '2  Management Summary', fr: '2  Synthèse pour la direction' },
   sec3: { de: '3  Gegenstand der Prüfung', en: '3  Scope of Assessment', fr: '3  Périmètre de l\'évaluation' },
   sec3a: { de: '3.1  Produktsteckbrief', en: '3.1  Product Profile', fr: '3.1  Profil du produit' },
@@ -157,6 +157,13 @@ const I18N = {
   roadmapIntro: { de: 'Die folgende Roadmap priorisiert die identifizierten Maßnahmen nach Kritikalität und regulatorischer Dringlichkeit. Die Aufwandsschätzungen basieren auf einem Team von 3 Entwicklern, 1 QA-Ingenieur und 1 Security-Ingenieur.', en: 'The following roadmap prioritises identified measures by criticality and regulatory urgency. Effort estimates are based on a team of 3 developers, 1 QA engineer and 1 security engineer.', fr: 'La feuille de route suivante hiérarchise les mesures identifiées par criticité et urgence réglementaire. Les estimations d\'effort sont basées sur une équipe de 3 développeurs, 1 ingénieur QA et 1 ingénieur sécurité.' },
   relatedReqs: { de: 'Verknüpfte Anforderungen', en: 'Related Requirements', fr: 'Exigences liées' },
   relatedThreats: { de: 'Verknüpfte Bedrohungen', en: 'Related Threats', fr: 'Menaces liées' },
+
+  // 5-Element Audit Finding Structure
+  condition: { de: 'Ist-Zustand (Condition)', en: 'Condition (Current State)', fr: 'État actuel (Condition)' },
+  auditCriteria: { de: 'Soll-Anforderung (Criteria)', en: 'Criteria (Required State)', fr: 'Critère (État requis)' },
+  cause: { de: 'Ursache (Cause)', en: 'Cause (Root Cause)', fr: 'Cause (Cause racine)' },
+  effect: { de: 'Auswirkung / Risiko (Effect)', en: 'Effect / Risk', fr: 'Effet / Risque' },
+  recommendation: { de: 'Empfehlung (Recommendation)', en: 'Recommendation', fr: 'Recommandation' },
 
   // Section intro texts
   introSec2: { de: 'Dieser Abschnitt fasst die wesentlichen Ergebnisse der Bewertung in kompakter Form zusammen. Er richtet sich an Entscheidungsträger und gibt eine datengestützte Einschätzung der Marktreife.', en: 'This section summarises the key assessment results in a compact format. It is intended for decision-makers and provides a data-driven assessment of market readiness.', fr: 'Cette section resume les principaux resultats de l\'evaluation de maniere compacte. Elle s\'adresse aux decideurs et fournit une evaluation basee sur les donnees de la maturite du produit.' },
@@ -321,9 +328,9 @@ function getMgmtSummaryData(
 }
 
 function getMethodology(lang: string): string {
-  if (lang === 'de') return `Die Prüfung folgt einem zweistufigen Ansatz:\n\n1. Bedrohungsanalyse nach STRIDE\nSystematische Identifikation von Bedrohungsszenarien in den Kategorien Spoofing, Tampering, Repudiation, Information Disclosure, Denial of Service und Elevation of Privilege. Jede Bedrohung wird anhand einer 5-stufigen Skala für Eintrittswahrscheinlichkeit und Auswirkung bewertet. Der Risikoscore ergibt sich als Produkt beider Werte; Scores ab 20 gelten als kritisch.\n\n2. Konformitätsprüfung gegen CRA-Anforderungen\nAbgleich der implementierten Sicherheitsmaßnahmen mit den Anforderungen aus Annex I (Sicherheitseigenschaften digitaler Produkte), Annex II (Schwachstellenbehandlung) sowie den Meldepflichten nach Art. 14 und der Dokumentationspflicht nach Art. 13 der Verordnung (EU) 2024/2847.\n\nPrüfungsgrundlagen:\n  - EU Cyber Resilience Act (CRA) — Verordnung (EU) 2024/2847\n  - STRIDE Threat Model — Microsoft Security Development Lifecycle\n  - OWASP IoT Top 10 / OWASP API Security Top 10\n  - ETSI EN 303 645 — Cyber Security for Consumer IoT\n  - NIST SP 800-82r3 — Guide to OT Security\n  - ISO/IEC 27001:2022 (als Referenzrahmen)`;
-  if (lang === 'fr') return `L'évaluation suit une approche en deux étapes :\n\n1. Analyse des menaces selon STRIDE\nIdentification systématique des scénarios de menaces dans les catégories Spoofing, Tampering, Repudiation, Information Disclosure, Denial of Service et Elevation of Privilege. Chaque menace est évaluée sur une échelle de 1 à 5 pour la probabilité et l'impact. Le score de risque est le produit des deux valeurs ; les scores de 20 et plus sont considérés comme critiques.\n\n2. Vérification de conformité CRA\nComparaison des mesures de sécurité mises en œuvre avec les exigences de l'Annexe I (propriétés de sécurité des produits numériques), l'Annexe II (traitement des vulnérabilités) ainsi que les obligations de notification (Art. 14) et de documentation (Art. 13) du Règlement (UE) 2024/2847.\n\nNormes de référence :\n  - EU Cyber Resilience Act (CRA) — Règlement (UE) 2024/2847\n  - STRIDE Threat Model — Microsoft Security Development Lifecycle\n  - OWASP IoT Top 10 / OWASP API Security Top 10\n  - ETSI EN 303 645 — Cyber Security for Consumer IoT\n  - NIST SP 800-82r3 — Guide to OT Security\n  - ISO/IEC 27001:2022 (cadre de référence)`;
-  return `The assessment follows a two-stage approach:\n\n1. STRIDE Threat Analysis\nSystematic identification of threat scenarios across the categories Spoofing, Tampering, Repudiation, Information Disclosure, Denial of Service, and Elevation of Privilege. Each threat is rated on a 5-point scale for both likelihood and impact. The risk score is calculated as the product of both values; scores of 20 or above are classified as critical.\n\n2. CRA Compliance Review\nComparison of implemented security measures against the requirements of Annex I (security properties of digital products), Annex II (vulnerability handling), as well as the reporting obligations under Art. 14 and documentation requirements under Art. 13 of Regulation (EU) 2024/2847.\n\nAudit Standards:\n  - EU Cyber Resilience Act (CRA) — Regulation (EU) 2024/2847\n  - STRIDE Threat Model — Microsoft Security Development Lifecycle\n  - OWASP IoT Top 10 / OWASP API Security Top 10\n  - ETSI EN 303 645 — Cyber Security for Consumer IoT\n  - NIST SP 800-82r3 — Guide to OT Security\n  - ISO/IEC 27001:2022 (reference framework)`;
+  if (lang === 'de') return `Die Prüfung folgt einem strukturierten, mehrstufigen Audit-Ansatz, der Reproduzierbarkeit und Verifizierbarkeit sicherstellt.\n\n1. Dokumentenreview\nAuswertung aller vom Hersteller eingereichten Unterlagen (Produktdokumentation, Sicherheitsarchitektur, Testberichte, SBOM, Richtlinien). Abgleich der dokumentierten Maßnahmen mit den Anforderungen des CRA.\n\n2. Technische Prüfungen\nDurchführung automatisierter und manueller Tests auf Basis der in Anhang B dokumentierten Werkzeuge. Schwerpunkte: Netzwerkverkehrsanalyse (Wireshark, tcpdump), Port- und Service-Scanning (nmap), Protokoll-Interaktion (Modbus, OPC-UA), Authentifizierungsmechanismen, API-Sicherheit.\n\n3. Bedrohungsanalyse nach STRIDE\nSystematische Identifikation von Bedrohungsszenarien in den Kategorien Spoofing, Tampering, Repudiation, Information Disclosure, Denial of Service und Elevation of Privilege. Jede Bedrohung wird anhand einer 5-stufigen Skala für Eintrittswahrscheinlichkeit und Auswirkung bewertet. Der Risikoscore ergibt sich als Produkt beider Werte; Scores ab 20 gelten als kritisch.\n\n4. Konformitätsprüfung gegen CRA-Anforderungen\nAbgleich der implementierten Sicherheitsmaßnahmen mit den Anforderungen aus Annex I (Sicherheitseigenschaften digitaler Produkte), Annex II (Schwachstellenbehandlung), sowie den Artikeln 10-18 (Herstellerpflichten: Secure Development, Vulnerability Handling, Incident Reporting, Post-Market Surveillance).\n\n5. Stichprobenlogik\nBei Produkten mit mehr als 10 Systemkomponenten oder Schnittstellen wird eine risikobasierte Stichprobe gezogen. Komponenten mit OT-Interfaces oder Internet-Exposition werden priorisiert. Die Stichprobengröße beträgt mindestens 80% der kritischen Angriffsfläche.\n\n6. Ergebnisvalidierung\nJede Feststellung folgt dem 5-Elemente-Modell (Condition, Criteria, Cause, Effect, Recommendation) gemäß IIA Global Internal Audit Standards. Alle Bewertungsentscheidungen werden durch Evidenz belegt und in Anhang C dokumentiert.\n\nPrüfungsgrundlagen:\n  - EU Cyber Resilience Act (CRA) — Verordnung (EU) 2024/2847\n  - STRIDE Threat Model — Microsoft Security Development Lifecycle\n  - OWASP IoT Top 10 / OWASP API Security Top 10\n  - ETSI EN 303 645 — Cyber Security for Consumer IoT\n  - NIST SP 800-82r3 — Guide to OT Security\n  - ISO/IEC 27001:2022 (als Referenzrahmen)\n  - IIA Global Internal Audit Standards (Finding-Struktur)`;
+  if (lang === 'fr') return `L'évaluation suit une approche d'audit structurée en plusieurs étapes, garantissant reproductibilité et vérifiabilité.\n\n1. Revue documentaire\nAnalyse de toute la documentation soumise par le fabricant. Comparaison des mesures documentées avec les exigences du CRA.\n\n2. Tests techniques\nRéalisation de tests automatisés et manuels avec les outils documentés en Annexe B. Domaines clés : analyse du trafic réseau, scanning de ports, interaction protocolaire (Modbus, OPC-UA), mécanismes d'authentification, sécurité API.\n\n3. Analyse des menaces selon STRIDE\nIdentification systématique des scénarios de menaces. Chaque menace est évaluée sur une échelle de 1 à 5 pour la probabilité et l'impact. Le score de risque est le produit des deux valeurs ; les scores de 20 et plus sont considérés comme critiques.\n\n4. Vérification de conformité CRA\nComparaison des mesures de sécurité avec les exigences de l'Annexe I, l'Annexe II, et les Articles 10-18 (obligations du fabricant).\n\n5. Logique d'échantillonnage\nPour les produits avec plus de 10 composants, un échantillon basé sur le risque est sélectionné, couvrant au minimum 80% de la surface d'attaque critique.\n\n6. Validation des résultats\nChaque constatation suit le modèle à 5 éléments (Condition, Critère, Cause, Effet, Recommandation) selon les normes IIA.\n\nNormes de référence :\n  - EU CRA — Règlement (UE) 2024/2847\n  - STRIDE Threat Model — Microsoft SDL\n  - OWASP IoT Top 10 / OWASP API Security Top 10\n  - ETSI EN 303 645\n  - NIST SP 800-82r3\n  - ISO/IEC 27001:2022\n  - IIA Global Internal Audit Standards`;
+  return `The assessment follows a structured, multi-stage audit approach ensuring reproducibility and verifiability.\n\n1. Document Review\nAnalysis of all manufacturer-submitted documentation (product documentation, security architecture, test reports, SBOM, policies). Comparison of documented measures against CRA requirements.\n\n2. Technical Testing\nExecution of automated and manual tests using the tools documented in Appendix B. Focus areas: network traffic analysis (Wireshark, tcpdump), port and service scanning (nmap), protocol interaction (Modbus, OPC-UA), authentication mechanisms, API security.\n\n3. STRIDE Threat Analysis\nSystematic identification of threat scenarios across the categories Spoofing, Tampering, Repudiation, Information Disclosure, Denial of Service, and Elevation of Privilege. Each threat is rated on a 5-point scale for both likelihood and impact. The risk score is calculated as the product of both values; scores of 20 or above are classified as critical.\n\n4. CRA Compliance Review\nComparison of implemented security measures against the requirements of Annex I (security properties), Annex II (vulnerability handling), and Articles 10-18 (manufacturer obligations: secure development, vulnerability handling, incident reporting, post-market surveillance).\n\n5. Sampling Logic\nFor products with more than 10 system components or interfaces, a risk-based sample is drawn. Components with OT interfaces or internet exposure are prioritised. Sample size covers at least 80% of the critical attack surface.\n\n6. Results Validation\nEach finding follows the 5-element model (Condition, Criteria, Cause, Effect, Recommendation) per IIA Global Internal Audit Standards. All assessment decisions are evidenced and documented in Appendix C.\n\nAudit Standards:\n  - EU Cyber Resilience Act (CRA) — Regulation (EU) 2024/2847\n  - STRIDE Threat Model — Microsoft Security Development Lifecycle\n  - OWASP IoT Top 10 / OWASP API Security Top 10\n  - ETSI EN 303 645 — Cyber Security for Consumer IoT\n  - NIST SP 800-82r3 — Guide to OT Security\n  - ISO/IEC 27001:2022 (reference framework)\n  - IIA Global Internal Audit Standards (finding structure)`;
 }
 
 function getDisclaimer(lang: string): string {
@@ -756,6 +763,73 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
   newSection();
   writeSectionHeading(t(I18N.sec1));
   writeBody(getContextText(intakeData.productName, intakeData.version, productTypeName, craClassName, dateStr, lang));
+  y += 4;
+
+  // ── Formal Audit Scope Block ──
+  const scopeTitle = lang === 'de' ? 'PRÜFUNGSUMFANG UND ABGRENZUNG' : lang === 'fr' ? 'PÉRIMÈTRE ET DÉLIMITATION' : 'AUDIT SCOPE AND BOUNDARIES';
+  writeLabel(scopeTitle);
+  y += 1;
+
+  const scopeFields = lang === 'de' ? [
+    ['Prüfgegenstand', `${intakeData.productName} ${intakeData.version} (${productTypeName}, CRA-Klasse: ${craClassName})`],
+    ['Organisationseinheit', intakeData.productName],
+    ['Geprüfte Systeme / Komponenten', intakeData.components.length > 0 ? intakeData.components.join(', ') : 'Alle im Intake benannten Systemkomponenten'],
+    ['Geprüfte Schnittstellen', intakeData.interfaces.length > 0 ? intakeData.interfaces.join(', ') : 'Keine explizit benannt'],
+    ['Prüfungszeitraum', dateStr],
+    ['Prüfungskriterien', 'EU Cyber Resilience Act (VO (EU) 2024/2847), Annex I (Sicherheitseigenschaften), Annex II (Schwachstellenbehandlung), Art. 10-18 (Herstellerpflichten), ETSI EN 303 645, OWASP IoT Top 10'],
+    ['Prüfungsziele', '(1) Systematische Identifikation von Bedrohungen nach STRIDE, (2) Bewertung der CRA-Konformität, (3) Ableitung einer priorisierten Remediation-Roadmap, (4) Feststellung der Marktreife'],
+    ['Ausschlüsse', 'Keine physische Vor-Ort-Prüfung. Keine akkreditierte Konformitätsbewertung nach Art. 24 ff. CRA. Keine Prüfung von Lieferketten-Subkomponenten, sofern nicht vom Hersteller angegeben.'],
+  ] : lang === 'fr' ? [
+    ['Objet de l\'évaluation', `${intakeData.productName} ${intakeData.version} (${productTypeName}, classe CRA : ${craClassName})`],
+    ['Unité organisationnelle', intakeData.productName],
+    ['Systèmes / composants évalués', intakeData.components.length > 0 ? intakeData.components.join(', ') : 'Tous les composants nommés dans l\'intake'],
+    ['Interfaces évaluées', intakeData.interfaces.length > 0 ? intakeData.interfaces.join(', ') : 'Aucune explicitement nommée'],
+    ['Période d\'évaluation', dateStr],
+    ['Critères d\'évaluation', 'EU CRA (Règlement (UE) 2024/2847), Annexe I, Annexe II, Art. 10-18, ETSI EN 303 645, OWASP IoT Top 10'],
+    ['Objectifs', '(1) Identification systématique des menaces STRIDE, (2) Évaluation de la conformité CRA, (3) Feuille de route de remédiation priorisée, (4) Détermination de la maturité marché'],
+    ['Exclusions', 'Pas d\'audit physique sur site. Pas d\'évaluation de conformité accréditée. Pas d\'examen des sous-composants de la chaîne d\'approvisionnement.'],
+  ] : [
+    ['Assessment Subject', `${intakeData.productName} ${intakeData.version} (${productTypeName}, CRA class: ${craClassName})`],
+    ['Organisational Unit', intakeData.productName],
+    ['Assessed Systems / Components', intakeData.components.length > 0 ? intakeData.components.join(', ') : 'All components named in intake'],
+    ['Assessed Interfaces', intakeData.interfaces.length > 0 ? intakeData.interfaces.join(', ') : 'None explicitly named'],
+    ['Assessment Period', dateStr],
+    ['Assessment Criteria', 'EU Cyber Resilience Act (Regulation (EU) 2024/2847), Annex I (Security Properties), Annex II (Vulnerability Handling), Art. 10-18 (Manufacturer Obligations), ETSI EN 303 645, OWASP IoT Top 10'],
+    ['Objectives', '(1) Systematic threat identification via STRIDE, (2) CRA compliance assessment, (3) Prioritised remediation roadmap, (4) Market readiness determination'],
+    ['Exclusions', 'No physical on-site audit. No accredited conformity assessment per Art. 24 ff. CRA. No examination of supply chain sub-components unless reported by manufacturer.'],
+  ];
+
+  checkPage(60);
+  doc.setFillColor(...C.bgLight);
+  const scopeBoxStartY = y;
+  // Estimate box height
+  let scopeH = 6;
+  for (const [k, v] of scopeFields) { scopeH += 12 + Math.ceil(v.length / 80) * 4; }
+  scopeH = Math.min(scopeH, 140);
+  doc.roundedRect(ML, y, CW, scopeH, 2, 2, 'F');
+  doc.setFillColor(...C.accent);
+  doc.rect(ML, y, 2, scopeH, 'F');
+  y += 4;
+
+  for (const [key, value] of scopeFields) {
+    checkPage(14);
+    doc.setFont(HEAD_FONT, 'bold');
+    doc.setFontSize(7.5);
+    doc.setTextColor(...C.accent);
+    doc.text(key.toUpperCase(), ML + 6, y);
+    y += 3.5;
+    doc.setFont(HEAD_FONT, 'normal');
+    doc.setFontSize(BODY_SIZE);
+    doc.setTextColor(...C.bodyText);
+    const valLines = doc.splitTextToSize(value, CW - 14);
+    for (const vl of valLines) {
+      checkPage(5);
+      doc.text(vl, ML + 6, y);
+      y += BODY_LEADING;
+    }
+    y += 2;
+  }
+  y += 4;
 
   /* ══════════════════════════════════════
      SECTION 2: Management Summary (McKinsey-style)
@@ -1086,11 +1160,40 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     doc.text(truncLeft, ML + 5, y + 6.5);
     y += 14;
 
-    writeFieldBlock(t(I18N.component), th.component);
-    writeFieldBlock(t(I18N.attacker), th.attacker);
-    writeFieldBlock(t(I18N.attackPath), th.path);
-    writeFieldBlock(t(I18N.evidence), th.evidence);
-    writeFieldBlock(t(I18N.rationale), th.rationale);
+    // ── 5-Element Audit Finding Structure ──
+    // Condition (Ist-Zustand)
+    const conditionText = lang === 'de'
+      ? `${th.component}: ${th.name}. ${th.evidence}`
+      : `${th.component}: ${th.name}. ${th.evidence}`;
+    writeFieldBlock(t(I18N.condition), conditionText);
+
+    // Criteria (Soll-Anforderung)
+    const criteriaText = lang === 'de'
+      ? `${th.cra} — ${th.name.includes('verschlüss') || th.name.includes('encrypt') ? 'Annex I, Part I, Nr. 3(d): Vertraulichkeit und Integrität' : th.name.includes('Zugang') || th.name.includes('access') ? 'Annex I, Part I, Nr. 3(c): Zugangskontrolle' : th.cra}. STRIDE-Kategorie: ${STRIDE_NAMES[th.stride]?.[lang] || th.stride}.`
+      : `${th.cra} — STRIDE category: ${STRIDE_NAMES[th.stride]?.[lang] || th.stride}.`;
+    writeFieldBlock(t(I18N.auditCriteria), criteriaText);
+
+    // Cause (Ursache)
+    const causeText = th.rationale;
+    writeFieldBlock(t(I18N.cause), causeText);
+
+    // Effect (Auswirkung / Risiko)
+    const effectText = lang === 'de'
+      ? `Angreiferprofil: ${th.attacker}. Angriffsvektor: ${th.path}. Bei Ausnutzung drohen ${score >= 20 ? 'kritische Auswirkungen auf den Geschäftsbetrieb und regulatorische Konsequenzen' : score >= 13 ? 'erhebliche Auswirkungen auf betroffene Systeme und Daten' : 'begrenzte Auswirkungen auf einzelne Funktionen'}.`
+      : lang === 'fr'
+      ? `Profil attaquant : ${th.attacker}. Vecteur : ${th.path}. Impact : ${score >= 20 ? 'critique' : score >= 13 ? 'élevé' : 'modéré'}.`
+      : `Attacker profile: ${th.attacker}. Attack vector: ${th.path}. Exploitation would result in ${score >= 20 ? 'critical impact on business operations and regulatory consequences' : score >= 13 ? 'significant impact on affected systems and data' : 'limited impact on individual functions'}.`;
+    writeFieldBlock(t(I18N.effect), effectText);
+
+    // Recommendation
+    const relatedReqObj = reqs.find(r => r.article === th.cra);
+    const recText = relatedReqObj && relatedReqObj.measure
+      ? relatedReqObj.measure
+      : lang === 'de'
+        ? `Gegenmaßnahmen für ${th.component} implementieren und durch unabhängige Tests verifizieren.`
+        : `Implement countermeasures for ${th.component} and verify through independent testing.`;
+    writeFieldBlock(t(I18N.recommendation), recText);
+
     writeFieldBlock(t(I18N.craRef), th.cra);
 
     // Cross-reference: which CRA requirements does this threat relate to?
@@ -1183,10 +1286,35 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     doc.text(req.article, ML + 5, y);
     y += 4.5;
 
-    writeFieldBlock(t(I18N.gap), req.gap);
+    // ── 5-Element Audit Finding Structure for Requirements ──
+    // Condition
+    const reqCondition = lang === 'de'
+      ? `Anforderung ${req.id} (${req.article}): ${req.gap || 'Keine Abweichung festgestellt.'}`
+      : lang === 'fr'
+      ? `Exigence ${req.id} (${req.article}) : ${req.gap || 'Aucun écart constaté.'}`
+      : `Requirement ${req.id} (${req.article}): ${req.gap || 'No deviation identified.'}`;
+    writeFieldBlock(t(I18N.condition), reqCondition);
+
+    // Criteria
+    writeFieldBlock(t(I18N.auditCriteria), `${req.article} — ${req.name}`);
+
+    // Cause (derived from evidence and rationale)
+    const reqCause = req.rationale || (lang === 'de' ? 'Keine spezifische Ursache dokumentiert.' : 'No specific root cause documented.');
+    writeFieldBlock(t(I18N.cause), reqCause);
+
+    // Effect
+    const reqEffect = req.status === 'fail'
+      ? (lang === 'de' ? `Nicht-Konformität mit ${req.article}. Ohne Behebung ist eine Konformitätserklärung nach Art. 22 CRA nicht abgebbar. ${req.gap}` : `Non-compliance with ${req.article}. Without remediation, conformity declaration per Art. 22 CRA cannot be issued. ${req.gap}`)
+      : req.status === 'partial'
+      ? (lang === 'de' ? `Teilweise Konformität mit ${req.article}. Die Implementierung ist vorhanden, aber unvollständig oder nicht verifiziert.` : `Partial compliance with ${req.article}. Implementation exists but is incomplete or unverified.`)
+      : (lang === 'de' ? `Anforderung vollständig erfüllt. Keine Handlungserfordernis.` : `Requirement fully met. No action required.`);
+    writeFieldBlock(t(I18N.effect), reqEffect);
+
+    // Recommendation
+    writeFieldBlock(t(I18N.recommendation), req.measure || (lang === 'de' ? 'Keine Maßnahme erforderlich.' : 'No action required.'));
+
+    // Evidence (supporting the finding)
     writeFieldBlock(t(I18N.evidence), req.evidence);
-    writeFieldBlock(t(I18N.rationale), req.rationale);
-    writeFieldBlock(t(I18N.measureAction), req.measure);
 
     // Effort + Priority
     if (req.effort) {
