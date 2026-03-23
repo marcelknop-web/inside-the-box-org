@@ -1408,9 +1408,9 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     }
 
     // Cross-reference: which threats are linked to this requirement?
-    const linkedThreats = articleToThreats[req.article];
-    if (linkedThreats && linkedThreats.length > 0) {
-      writeFieldBlock(t(I18N.relatedThreats), linkedThreats.join(', '));
+    const reqLinkedThreats = articleToThreats[req.article];
+    if (reqLinkedThreats && reqLinkedThreats.length > 0) {
+      writeFieldBlock(t(I18N.relatedThreats), reqLinkedThreats.join(', '));
     }
 
     if (req.criteria.length > 0) {
