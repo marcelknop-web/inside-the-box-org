@@ -308,6 +308,19 @@ export class PdfDoc {
     if (this.y + needed > LAYOUT.BOTTOM) this.newPage();
   }
 
+  /* ── PDF Bookmarks / Outline ────────────────────────────── */
+
+  private bookmarkParents: Record<string, any> = {};
+
+  /** Add a PDF bookmark (outline entry) for chapter navigation */
+  addBookmark(title: string, level: 1 | 2 | 3 = 1): void {
+    try {
+      const parent = level === 1 ? null : (this.bookmarkParents['L1'] || null);
+      const item = this.doc.outline.add(parent, title, { pageNumber: this.pageNum });
+      if (level === 1) this.bookmarkParents['L1'] = item;
+    } catch (_e) { /* outline not supported in all jsPDF builds */ }
+  }
+
   /* ── Typography Primitives ───────────────────────────────── */
 
   heading(text: string, level: 1 | 2 | 3 = 1): void {
