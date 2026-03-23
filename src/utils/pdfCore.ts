@@ -329,7 +329,9 @@ export class PdfDoc {
     const spaceAfter = { 1: 5, 2: 3.5, 3: 2.5 };
     const lineHeight = { 1: 5.5, 2: 4.8, 3: 4.2 };
 
-    this.checkSpace(level === 1 ? 22 : 16);
+    // Heading protection: ensure heading + at least 2 body lines stay together (no orphaned heading)
+    const minKeepWith = level === 1 ? 30 : level === 2 ? 22 : 18;
+    this.checkSpace(minKeepWith);
 
     if (level === 1) {
       this.y += spaceBefore[1];
