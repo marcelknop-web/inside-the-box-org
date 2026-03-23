@@ -582,20 +582,23 @@ export class PdfDoc {
     this.doc.setTextColor(...C.dark);
   }
 
-  /** Score bar with background */
+  /** Score bar with refined background panel */
   scoreBar(text: string): void {
     this.doc.setFont(this.headFont, 'bold');
     this.doc.setFontSize(8);
-    const lines = this.doc.splitTextToSize(text, LAYOUT.WIDTH - 10);
-    const barH = Math.max(8, lines.length * 4 + 4);
-    this.checkSpace(barH + 3);
+    const lines = this.doc.splitTextToSize(text, LAYOUT.WIDTH - 14);
+    const barH = Math.max(10, lines.length * 4 + 6);
+    this.checkSpace(barH + 4);
     const boxY = this.y - 1.5;
-    this.doc.setFillColor(...C.bg);
-    this.doc.roundedRect(LAYOUT.LEFT, boxY, LAYOUT.WIDTH, barH, 1, 1, 'F');
+    this.doc.setFillColor(248, 249, 251);
+    this.doc.roundedRect(LAYOUT.LEFT, boxY, LAYOUT.WIDTH, barH, 1.2, 1.2, 'F');
+    // Left accent bar
+    this.doc.setFillColor(...C.navy);
+    this.doc.rect(LAYOUT.LEFT, boxY, 1.5, barH, 'F');
     this.doc.setTextColor(...C.navy);
-    this.doc.text(lines, LAYOUT.LEFT + 5, this.y + 2.5);
+    this.doc.text(lines, LAYOUT.LEFT + 7, this.y + 3);
     this.doc.setTextColor(...C.dark);
-    this.y = Math.max(this.y + barH + 3, boxY + barH + 3);
+    this.y = Math.max(this.y + barH + 4, boxY + barH + 4);
   }
 
   /** Section label (small uppercase) with accent underline */
