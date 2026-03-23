@@ -583,7 +583,7 @@ export async function generateDoraReport(data: DoraReportData): Promise<void> {
     if (linkedRisks.length > 0) {
       pdf.fieldInline(`  ${l('affectedComponents', lang)}`, linkedRisks.map(ri => ri.component).filter((v, i, a) => a.indexOf(v) === i).join(', '));
     }
-    pdf.fieldInline(`  ${l('evidence', lang)}`, r.evidence);
+    pdf.fieldInline(`  ${l('evidence', lang)}`, humanizeEvidence(r.evidence, lang));
 
     // 5. THREAT CATEGORY (CIAGTR)
     const riskCategories = [...new Set(linkedRisks.map(ri => ri.category))];
