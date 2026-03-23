@@ -80,7 +80,7 @@ const I18N = {
   confidential: { de: 'VERTRAULICH', en: 'CONFIDENTIAL', fr: 'CONFIDENTIEL' },
   toc: { de: 'Inhaltsverzeichnis', en: 'Table of Contents', fr: 'Table des matières' },
 
-  sec1: { de: '1  Ausgangslage und Zielsetzung', en: '1  Context and Objectives', fr: '1  Contexte et objectifs' },
+  sec1: { de: '1  Ausgangslage, Zielsetzung und Prüfungsumfang', en: '1  Context, Objectives and Scope', fr: '1  Contexte, objectifs et périmètre' },
   sec2: { de: '2  Zusammenfassung für die Geschäftsleitung', en: '2  Management Summary', fr: '2  Synthèse pour la direction' },
   sec3: { de: '3  Gegenstand der Prüfung', en: '3  Scope of Assessment', fr: '3  Périmètre de l\'évaluation' },
   sec3a: { de: '3.1  Produktsteckbrief', en: '3.1  Product Profile', fr: '3.1  Profil du produit' },
