@@ -472,9 +472,22 @@ export async function generateDoraReport(data: DoraReportData): Promise<void> {
     pdf.fieldInline(`  ${l('integrityLabel', lang)}`, ciaI);
     pdf.fieldInline(`  ${l('availabilityLabel', lang)}`, ciaA);
 
-    // 8. LIKELIHOOD
+    // — ATTACK SCENARIO (1-sentence, concrete)
+    const atkScenario = lang === 'de'
+      ? `Ein externer Angreifer (${ri.attacker}) kann über ${ri.path} direkt auf ${ri.component} zugreifen und ${score >= 20 ? 'die vollständige Kontrolle über das System erlangen' : score >= 13 ? 'Daten exfiltrieren oder Konfigurationen manipulieren' : 'begrenzte Funktionsstörungen verursachen'}.`
+      : lang === 'fr'
+        ? `Un attaquant externe (${ri.attacker}) peut accéder directement à ${ri.component} via ${ri.path} et ${score >= 20 ? 'prendre le contrôle total du système' : score >= 13 ? 'exfiltrer des données ou manipuler des configurations' : 'causer des perturbations limitées'}.`
+        : `An external attacker (${ri.attacker}) can directly access ${ri.component} via ${ri.path} and ${score >= 20 ? 'gain full control of the system' : score >= 13 ? 'exfiltrate data or manipulate configurations' : 'cause limited disruption'}.`;
+    pdf.bodyText(`${l('attackScenarioLabel', lang)}: ${atkScenario}`, 0);
+
+    // 8. LIKELIHOOD (with justification)
     const lLabel = ri.likelihood >= 4 ? l('highLevel', lang) : ri.likelihood >= 3 ? l('mediumLevel', lang) : l('lowLevel', lang);
-    pdf.fieldInline(l('likelihoodLabel', lang), `${lLabel} (${ri.likelihood}/5)`);
+    const lJustification = lang === 'de'
+      ? ri.likelihood >= 4 ? `, da ${ri.component} ohne Authentifizierung erreichbar ist` : ri.likelihood >= 3 ? `, da der Angriffsvektor bekannt und ausnutzbar ist` : `, da die Ausnutzung spezialisiertes Wissen erfordert`
+      : lang === 'fr'
+        ? ri.likelihood >= 4 ? `, car ${ri.component} est accessible sans authentification` : ri.likelihood >= 3 ? `, car le vecteur d'attaque est connu et exploitable` : `, car l'exploitation nécessite des connaissances spécialisées`
+        : ri.likelihood >= 4 ? `, as ${ri.component} is accessible without authentication` : ri.likelihood >= 3 ? `, as the attack vector is known and exploitable` : `, as exploitation requires specialised knowledge`;
+    pdf.fieldInline(l('likelihoodLabel', lang), `${lLabel} (${ri.likelihood}/5)${lJustification}`);
 
     // 9. RISK LEVEL
     pdf.scoreBar(`${l('riskLevelLabel', lang)}: ${sev}  (${ri.likelihood} × ${ri.impact} = ${score}/25)`);
