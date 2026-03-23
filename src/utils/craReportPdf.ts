@@ -1286,10 +1286,35 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     doc.text(req.article, ML + 5, y);
     y += 4.5;
 
-    writeFieldBlock(t(I18N.gap), req.gap);
+    // ── 5-Element Audit Finding Structure for Requirements ──
+    // Condition
+    const reqCondition = lang === 'de'
+      ? `Anforderung ${req.id} (${req.article}): ${req.gap || 'Keine Abweichung festgestellt.'}`
+      : lang === 'fr'
+      ? `Exigence ${req.id} (${req.article}) : ${req.gap || 'Aucun écart constaté.'}`
+      : `Requirement ${req.id} (${req.article}): ${req.gap || 'No deviation identified.'}`;
+    writeFieldBlock(t(I18N.condition), reqCondition);
+
+    // Criteria
+    writeFieldBlock(t(I18N.auditCriteria), `${req.article} — ${req.name}`);
+
+    // Cause (derived from evidence and rationale)
+    const reqCause = req.rationale || (lang === 'de' ? 'Keine spezifische Ursache dokumentiert.' : 'No specific root cause documented.');
+    writeFieldBlock(t(I18N.cause), reqCause);
+
+    // Effect
+    const reqEffect = req.status === 'fail'
+      ? (lang === 'de' ? `Nicht-Konformität mit ${req.article}. Ohne Behebung ist eine Konformitätserklärung nach Art. 22 CRA nicht abgebbar. ${req.gap}` : `Non-compliance with ${req.article}. Without remediation, conformity declaration per Art. 22 CRA cannot be issued. ${req.gap}`)
+      : req.status === 'partial'
+      ? (lang === 'de' ? `Teilweise Konformität mit ${req.article}. Die Implementierung ist vorhanden, aber unvollständig oder nicht verifiziert.` : `Partial compliance with ${req.article}. Implementation exists but is incomplete or unverified.`)
+      : (lang === 'de' ? `Anforderung vollständig erfüllt. Keine Handlungserfordernis.` : `Requirement fully met. No action required.`);
+    writeFieldBlock(t(I18N.effect), reqEffect);
+
+    // Recommendation
+    writeFieldBlock(t(I18N.recommendation), req.measure || (lang === 'de' ? 'Keine Maßnahme erforderlich.' : 'No action required.'));
+
+    // Evidence (supporting the finding)
     writeFieldBlock(t(I18N.evidence), req.evidence);
-    writeFieldBlock(t(I18N.rationale), req.rationale);
-    writeFieldBlock(t(I18N.measureAction), req.measure);
 
     // Effort + Priority
     if (req.effort) {
