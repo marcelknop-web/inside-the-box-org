@@ -385,12 +385,12 @@ export function runQualityCheck(
     passed: numbGaps.length === 0, severity: 'minor',
   });
 
-  // D.2 All 22 requirements present
+  // D.2 All 26 requirements present (8 Annex I Part I + 9 Annex I Part II + 9 Articles)
   checks.push({
     id: 'D2', category: 'editorial',
-    label: t('Alle 22 CRA-Anforderungen geprueft', 'All 22 CRA requirements assessed', 'Les 22 exigences CRA evaluees'),
-    detail: `${reqs.length}/22`,
-    passed: reqs.length >= 22, severity: 'critical',
+    label: t('Alle 26 CRA-Anforderungen geprueft', 'All 26 CRA requirements assessed', 'Les 26 exigences CRA evaluees'),
+    detail: `${reqs.length}/26`,
+    passed: reqs.length >= 26, severity: 'critical',
   });
 
   // D.3 STRIDE coverage
