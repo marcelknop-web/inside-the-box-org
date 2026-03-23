@@ -828,7 +828,7 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
   doc.text(t(I18N.toc), ML, y);
   y += 12;
 
-  const tocItems = [I18N.sec1, I18N.sec2, I18N.sec3, I18N.sec4, I18N.sec4c, I18N.sec5, I18N.sec5c, I18N.sec6, I18N.sec7, I18N.sec8, I18N.sec9, I18N.secA, I18N.secB, I18N.secC, I18N.secD, I18N.secE];
+  const tocItems = [I18N.sec2, I18N.sec9, I18N.sec4, I18N.sec4c, I18N.sec5, I18N.sec5c, I18N.sec3, I18N.sec1, I18N.sec6, I18N.sec7, I18N.sec8, I18N.secA, I18N.secB, I18N.secC, I18N.secD, I18N.secE];
   for (const item of tocItems) {
     doc.setFont(HEAD_FONT, 'normal');
     doc.setFontSize(SUBSECTION_SIZE);
