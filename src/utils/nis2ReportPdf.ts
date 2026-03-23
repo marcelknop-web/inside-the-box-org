@@ -569,9 +569,10 @@ export async function generateNis2Report(data: Nis2ReportData): Promise<void> {
     pdf.bodyText(`${r.name} (${r.article})`, 4);
 
     // 3. OBSERVATION
+    const humanReqEvid = humanizeEvidence(r.evidence, lang);
     const obsReq = r.status === 'pass'
-      ? (lang === 'de' ? `Die Anforderung ${r.article} ist vollständig umgesetzt. ${r.evidence}` : lang === 'fr' ? `L'exigence ${r.article} est entièrement mise en œuvre. ${r.evidence}` : `Requirement ${r.article} is fully implemented. ${r.evidence}`)
-      : (lang === 'de' ? `Die Anforderung ${r.article} ist ${r.status === 'fail' ? 'nicht' : 'nicht vollständig'} umgesetzt. ${r.gap || ''}. Evidenz: ${r.evidence}` : lang === 'fr' ? `L'exigence ${r.article} ${r.status === 'fail' ? 'n\'est pas' : 'n\'est pas entièrement'} mise en œuvre. ${r.gap || ''}. Preuve : ${r.evidence}` : `Requirement ${r.article} is ${r.status === 'fail' ? 'not' : 'not fully'} implemented. ${r.gap || ''}. Evidence: ${r.evidence}`);
+      ? (lang === 'de' ? `Die Anforderung ${r.article} ist vollständig umgesetzt. ${humanReqEvid}` : lang === 'fr' ? `L'exigence ${r.article} est entièrement mise en œuvre. ${humanReqEvid}` : `Requirement ${r.article} is fully implemented. ${humanReqEvid}`)
+      : (lang === 'de' ? `Die Anforderung ${r.article} ist ${r.status === 'fail' ? 'nicht' : 'nicht vollständig'} umgesetzt. ${r.gap || ''}. ${humanReqEvid}` : lang === 'fr' ? `L'exigence ${r.article} ${r.status === 'fail' ? 'n\'est pas' : 'n\'est pas entièrement'} mise en œuvre. ${r.gap || ''}. ${humanReqEvid}` : `Requirement ${r.article} is ${r.status === 'fail' ? 'not' : 'not fully'} implemented. ${r.gap || ''}. ${humanReqEvid}`);
     pdf.sectionLabel(l('observationLabel', lang));
     pdf.bodyText(obsReq, 4);
 
