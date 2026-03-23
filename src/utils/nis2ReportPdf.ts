@@ -437,11 +437,12 @@ export async function generateNis2Report(data: Nis2ReportData): Promise<void> {
     pdf.metaLine(`${cat}  |  ${sev}  |  ${ri.nis2Ref}  |  ${eId}  |  ${l('evidence', lang)}: ${ri.evidenceQuality}/5`);
 
     // 3. OBSERVATION (concrete, fact-based)
+    const humanEvid = humanizeEvidence(ri.evidence, lang);
     const obsText = lang === 'de'
-      ? `Die Komponente ${ri.component} ist so konfiguriert, dass ${ri.name}. Konkret wurde festgestellt: ${ri.evidence}.`
+      ? `Die Komponente ${ri.component} ist so konfiguriert, dass ${ri.name}. ${humanEvid}`
       : lang === 'fr'
-        ? `Le composant ${ri.component} est configuré de telle manière que ${ri.name}. Concrètement, il a été constaté : ${ri.evidence}.`
-        : `The component ${ri.component} is configured in a way that ${ri.name}. Specifically identified: ${ri.evidence}.`;
+        ? `Le composant ${ri.component} est configuré de telle manière que ${ri.name}. ${humanEvid}`
+        : `The component ${ri.component} is configured in a way that ${ri.name}. ${humanEvid}`;
     pdf.bodyText(`${l('observationLabel', lang)}: ${obsText}`, 0);
 
     // 4. TECHNICAL DETAILS
