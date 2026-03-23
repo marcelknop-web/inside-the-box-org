@@ -985,28 +985,22 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
   }, [qaResult, localThreats, localReqs, language, intakeData]);
 
-  const handleDraftPdf = useCallback(() => {
-    generateCraReport({ intakeData, threats: localThreats, reqs: localReqs, language: language as 'de' | 'en' | 'fr', productTypeName: typeName, craClassName: craName, isDraft: true });
+  const handleDraftPdf = useCallback(async () => {
+    await generateCraReport({ intakeData, threats: localThreats, reqs: localReqs, language: language as 'de' | 'en' | 'fr', productTypeName: typeName, craClassName: craName, isDraft: true });
     setDraftDownloaded(true);
   }, [intakeData, localThreats, localReqs, language, typeName, craName]);
 
   const [finalPdfRunning, setFinalPdfRunning] = useState(false);
 
-  const handleFinalPdf = useCallback(() => {
+  const handleFinalPdf = useCallback(async () => {
     setFinalPdfRunning(true);
-    // Use requestAnimationFrame to let UI update before heavy PDF work
-    requestAnimationFrame(() => {
-      setTimeout(() => {
-        try {
-          // Use pre-fix QA checks (original findings) + accumulated fix log for the Final PDF
-          const checksForPdf = preFixQaChecks || qaResult?.checks;
-          const fixLogForPdf = allFixLogs.length > 0 ? allFixLogs : fixLog;
-          generateCraReport({ intakeData, threats: localThreats, reqs: localReqs, language: language as 'de' | 'en' | 'fr', productTypeName: typeName, craClassName: craName, isDraft: false, qaChecks: checksForPdf, fixLog: fixLogForPdf, qaIterations: qaIteration });
-        } finally {
-          setFinalPdfRunning(false);
-        }
-      }, 100);
-    });
+    try {
+      const checksForPdf = preFixQaChecks || qaResult?.checks;
+      const fixLogForPdf = allFixLogs.length > 0 ? allFixLogs : fixLog;
+      await generateCraReport({ intakeData, threats: localThreats, reqs: localReqs, language: language as 'de' | 'en' | 'fr', productTypeName: typeName, craClassName: craName, isDraft: false, qaChecks: checksForPdf, fixLog: fixLogForPdf, qaIterations: qaIteration });
+    } finally {
+      setFinalPdfRunning(false);
+    }
   }, [intakeData, localThreats, localReqs, language, typeName, craName, qaResult, fixLog, allFixLogs, preFixQaChecks, qaIteration]);
 
   const qaVerdict = qaResult?.verdict;

@@ -48,6 +48,7 @@ const I18N: Record<string, Record<string, string>> = {
   sec6a: { de: '6.1  Risikobewertungsmatrix', en: '6.1  Risk Rating Matrix', fr: '6.1  Matrice d\'évaluation des risques' },
   sec7: { de: '7  Einschränkungen und Haftungsausschluss', en: '7  Limitations and Disclaimer', fr: '7  Limites et clause de non-responsabilité' },
   sec8: { de: '8  Hinweise zur Verifizierung', en: '8  Verification Guidance', fr: '8  Guide de vérification' },
+  sec9: { de: '9  Konformitätserklärung', en: '9  Compliance Statement', fr: '9  Déclaration de conformité' },
   secA: { de: 'A  Strukturierte Prüfdaten (maschinenlesbar)', en: 'A  Structured Audit Data (machine-readable)', fr: 'A  Données d\'audit structurées' },
   secB: { de: 'B  Prüfwerkzeuge und Versionen', en: 'B  Tools and Versions', fr: 'B  Outils et versions' },
   secC: { de: 'C  Evidenz-Material-Index', en: 'C  Evidence Material Index', fr: 'C  Index des éléments de preuve' },
@@ -245,7 +246,7 @@ export async function generateNis2Report(data: Nis2ReportData): Promise<void> {
     `    ${l('sec3d', lang)}`, `    ${l('sec3e', lang)}`,
     l('sec4', lang), `    ${l('sec4a', lang)}`, `    ${l('sec4b', lang)}`,
     l('sec5', lang), `    ${l('sec5a', lang)}`, `    ${l('sec5b', lang)}`, `    ${l('sec5c', lang)}`,
-    l('sec6', lang), l('sec7', lang), l('sec8', lang), null,
+    l('sec6', lang), l('sec7', lang), l('sec8', lang), l('sec9', lang), null,
     l('secA', lang), l('secB', lang), l('secC', lang), l('secD', lang), l('secE', lang),
   ];
   pdf.tableOfContents(l('toc', lang), tocEntries);
@@ -589,6 +590,113 @@ export async function generateNis2Report(data: Nis2ReportData): Promise<void> {
     pdf.doc.setTextColor(...C.dark);
     pdf.bodyText(step.text, 4);
     pdf.y += 3;
+  });
+
+  // ═══ SECTION 9: Compliance Statement ═══
+  pdf.newPage();
+  pdf.heading(l('sec9', lang));
+  pdf.introText(lang === 'de'
+    ? 'Dieser Abschnitt enthält die abschließende Konformitätsbewertung auf Basis der in diesem Bericht dokumentierten Prüfungsergebnisse. Er dient als Entscheidungsgrundlage für die Geschäftsleitung und als Nachweis gegenüber der zuständigen nationalen Aufsichtsbehörde.'
+    : 'This section contains the final compliance assessment based on the audit results documented in this report. It serves as a basis for management decisions and as evidence for the competent national authority.');
+
+  const isCompliant = critCount === 0 && failCount === 0;
+  const isConditional = !isCompliant && complianceRate >= 60;
+
+  // Entity classification
+  pdf.heading(lang === 'de' ? '9.1  Einstufung und Sanktionsrahmen' : '9.1  Classification and Sanctions Framework', 2);
+  pdf.bodyParagraph(lang === 'de'
+    ? `Die Einrichtung ${intakeData.entityName} ist im Sektor "${entityTypeName}" als "${criticalityName}" eingestuft. Die Einstufung bestimmt den anwendbaren Sanktionsrahmen und die Intensität der aufsichtlichen Prüfung durch das BSI.`
+    : `The entity ${intakeData.entityName} in sector "${entityTypeName}" is classified as "${criticalityName}". The classification determines the applicable sanctions framework and the intensity of supervisory examination.`);
+
+  const classRows = lang === 'de' ? [
+    ['Wesentliche Einrichtung', 'Bußgelder bis 10 Mio. EUR oder 2% des weltweiten Jahresumsatzes. Erweiterte Aufsichtsbefugnisse des BSI. Persönliche Haftung der Geschäftsleitung nach Art. 20 NIS-2.'],
+    ['Wichtige Einrichtung', 'Bußgelder bis 7 Mio. EUR oder 1,4% des weltweiten Jahresumsatzes. Regelmäßige Nachweispflichten.'],
+  ] : [
+    ['Essential Entity', 'Fines up to EUR 10M or 2% of global turnover. Extended supervisory powers. Personal liability of management bodies under Art. 20 NIS-2.'],
+    ['Important Entity', 'Fines up to EUR 7M or 1.4% of global turnover. Regular compliance obligations.'],
+  ];
+
+  classRows.forEach(([cls, desc]) => {
+    const isCurrent = criticalityName.toLowerCase().includes(cls.toLowerCase().split(' ')[0]);
+    pdf.checkSpace(16);
+    if (isCurrent) {
+      pdf.doc.setFillColor(...C.bg);
+      pdf.doc.roundedRect(LAYOUT.LEFT, pdf.y - 2, LAYOUT.WIDTH, 14, 1, 1, 'F');
+      pdf.doc.setDrawColor(...C.navy);
+      pdf.doc.setLineWidth(0.3);
+      pdf.doc.line(LAYOUT.LEFT, pdf.y - 2, LAYOUT.LEFT, pdf.y + 12);
+    }
+    pdf.doc.setFont(pdf.headFontName, isCurrent ? 'bold' : 'normal');
+    pdf.doc.setFontSize(8.5);
+    pdf.doc.setTextColor(...(isCurrent ? C.navy : C.dark));
+    pdf.doc.text(cls, LAYOUT.LEFT + 4, pdf.y + 2);
+    pdf.doc.setFont(pdf.bodyFontName, 'normal');
+    pdf.doc.setFontSize(7.5);
+    pdf.doc.setTextColor(...C.mid);
+    const descLines = pdf.doc.splitTextToSize(desc, LAYOUT.WIDTH - 60);
+    pdf.doc.text(descLines, LAYOUT.LEFT + 55, pdf.y + 2);
+    pdf.y += Math.max(14, descLines.length * 3.5 + 6);
+  });
+
+  // 9.2 Compliance Verdict
+  pdf.heading(lang === 'de' ? '9.2  Konformitätserklärung' : '9.2  Compliance Verdict', 2);
+
+  const verdictStatement = lang === 'de'
+    ? isCompliant
+      ? `Auf Grundlage der in diesem Bericht dokumentierten Prüfungsergebnisse erfüllt ${intakeData.entityName} die wesentlichen Anforderungen der Richtlinie (EU) 2022/2555 (NIS-2-Richtlinie). Es wurden keine kritischen Risiken und keine nicht-konformen Anforderungen identifiziert. Die Einrichtung ist aus Sicht dieser Bewertung konform.`
+      : isConditional
+        ? `${intakeData.entityName} erfüllt die NIS-2-Anforderungen derzeit mit Einschränkungen (gewichtete Konformitätsrate: ${complianceRate}%). Es bestehen ${critCount} kritische Risiken und ${failCount} nicht-konforme Anforderungen. Die Konformität kann unter folgenden Bedingungen hergestellt werden: (1) Alle P0-Maßnahmen sind abgeschlossen und verifiziert, (2) die verbleibenden Lücken werden gemäß der Remediation-Roadmap (Abschnitt 5.2) innerhalb der definierten Fristen geschlossen.`
+        : `${intakeData.entityName} erfüllt die wesentlichen NIS-2-Anforderungen derzeit nicht (gewichtete Konformitätsrate: ${complianceRate}%). Es bestehen ${critCount} kritische Risiken und ${failCount} nicht-konforme Anforderungen. Bei einer Prüfung durch das BSI ist mit Beanstandungen zu rechnen. Sanktionen nach Art. 34 NIS-2 — einschließlich Bußgeldern von bis zu 10 Millionen Euro oder 2% des weltweiten Jahresumsatzes — sind möglich. Die Umsetzung der Remediation-Roadmap (Abschnitt 5.2) ist zwingend erforderlich.`
+    : isCompliant
+      ? `Based on the assessment results documented in this report, ${intakeData.entityName} meets the essential requirements of Directive (EU) 2022/2555 (NIS-2 Directive). No critical risks and no non-compliant requirements were identified. The entity is considered compliant from this assessment's perspective.`
+      : isConditional
+        ? `${intakeData.entityName} partially meets NIS-2 requirements (weighted compliance rate: ${complianceRate}%). ${critCount} critical risks and ${failCount} non-compliant requirements were identified. Compliance can be achieved under conditions: (1) all P0 measures completed and verified, (2) remaining gaps closed per the remediation roadmap (Section 5.2).`
+        : `${intakeData.entityName} does not currently meet essential NIS-2 requirements (weighted compliance rate: ${complianceRate}%). ${critCount} critical risks and ${failCount} non-compliant requirements were identified. Supervisory examination would likely result in findings. Sanctions under Art. 34 NIS-2 — including fines of up to EUR 10 million or 2% of global turnover — are possible. Implementation of the remediation roadmap (Section 5.2) is mandatory.`;
+
+  const stmtBg = isCompliant ? C.pass : isConditional ? C.partial : C.fail;
+  pdf.checkSpace(30);
+  pdf.doc.setFontSize(9);
+  pdf.doc.setFont(pdf.bodyFontName, 'normal');
+  const stmtLines = pdf.doc.splitTextToSize(verdictStatement, LAYOUT.WIDTH - 14);
+  const stmtBoxH = stmtLines.length * 4 + 8;
+  pdf.doc.setFillColor(...C.bg);
+  pdf.doc.roundedRect(LAYOUT.LEFT, pdf.y, LAYOUT.WIDTH, stmtBoxH, 2, 2, 'F');
+  pdf.doc.setFillColor(...stmtBg);
+  pdf.doc.rect(LAYOUT.LEFT, pdf.y, 2, stmtBoxH, 'F');
+  pdf.doc.setTextColor(...C.dark);
+  pdf.doc.text(stmtLines, LAYOUT.LEFT + 8, pdf.y + 5);
+  pdf.y += stmtBoxH + 6;
+
+  // Verdict label banner
+  const verdictLbl = isCompliant
+    ? (lang === 'de' ? 'KONFORM — Anforderungen erfüllt' : 'COMPLIANT — Requirements met')
+    : isConditional
+      ? (lang === 'de' ? 'BEDINGT KONFORM — Nacharbeit erforderlich' : 'CONDITIONALLY COMPLIANT — Remediation required')
+      : (lang === 'de' ? 'NICHT KONFORM — Sofortige Maßnahmen erforderlich' : 'NON-COMPLIANT — Immediate action required');
+
+  pdf.checkSpace(14);
+  pdf.doc.setFillColor(...stmtBg);
+  pdf.doc.roundedRect(LAYOUT.LEFT, pdf.y, LAYOUT.WIDTH, 10, 1.5, 1.5, 'F');
+  pdf.doc.setFont(pdf.headFontName, 'bold');
+  pdf.doc.setFontSize(9);
+  pdf.doc.setTextColor(...C.white);
+  pdf.doc.text(verdictLbl, LAYOUT.LEFT + LAYOUT.WIDTH / 2, pdf.y + 6.5, { align: 'center' });
+  pdf.y += 16;
+  pdf.doc.setTextColor(...C.dark);
+
+  // Signature block
+  pdf.sectionLabel(lang === 'de' ? 'VERANTWORTLICHE FREIGABE' : 'RESPONSIBLE APPROVAL');
+  pdf.y += 2;
+  const sigFields = lang === 'de'
+    ? ['Name: ____________________________', 'Funktion: ____________________________', 'Datum: ____________________________', 'Unterschrift: ____________________________']
+    : ['Name: ____________________________', 'Role: ____________________________', 'Date: ____________________________', 'Signature: ____________________________'];
+  sigFields.forEach(sf => {
+    pdf.checkSpace(6);
+    pdf.doc.setFont(pdf.bodyFontName, 'normal');
+    pdf.doc.setFontSize(LAYOUT.BODY_SIZE);
+    pdf.doc.setTextColor(...C.dark);
+    pdf.doc.text(sf, LAYOUT.LEFT + 4, pdf.y);
+    pdf.y += 7;
   });
 
   // ═══ APPENDIX A: Structured Data ═══
