@@ -1133,7 +1133,7 @@ export async function generateDoraReport(data: DoraReportData): Promise<void> {
     pdf.sectionLabel(lang === 'de' ? 'PRÜFUNGSGEGENSTAND' : 'SCOPE OF EXAMINATION');
     pdf.bodyText(r.name + (r.article ? ` (${r.article})` : ''), 0);
     pdf.sectionLabel(lang === 'de' ? 'ERHOBENE EVIDENZ' : 'COLLECTED EVIDENCE');
-    pdf.bodyText(r.evidence, 0);
+    pdf.bodyText(humanizeEvidence(r.evidence, lang), 0);
     pdf.sectionLabel(lang === 'de' ? 'BEWERTUNGSGRUNDLAGE' : 'ASSESSMENT RATIONALE');
     pdf.bodyText(r.rationale, 0);
 
