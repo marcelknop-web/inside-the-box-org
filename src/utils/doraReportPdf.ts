@@ -28,26 +28,26 @@ const I18N: Record<string, Record<string, string>> = {
   page: { de: 'Seite', en: 'Page', fr: 'Page' },
   confidential: { de: 'VERTRAULICH', en: 'CONFIDENTIAL', fr: 'CONFIDENTIEL' },
   toc: { de: 'Inhaltsverzeichnis', en: 'Table of Contents', fr: 'Table des matieres' },
-  sec1: { de: '1  Ausgangslage und Zielsetzung', en: '1  Context and Objectives', fr: '1  Contexte et objectifs' },
-  sec2: { de: '2  Zusammenfassung für die Geschäftsleitung', en: '2  Management Summary', fr: '2  Synthese pour la direction' },
-  sec3: { de: '3  Gegenstand der Prüfung', en: '3  Scope of Assessment', fr: '3  Perimetre de l\'evaluation' },
-  sec3a: { de: '3.1  Unternehmensprofil', en: '3.1  Entity Profile', fr: '3.1  Profil de l\'entite' },
-  sec3b: { de: '3.2  IKT-Infrastruktur und Drittanbieter', en: '3.2  ICT Infrastructure and Third Parties', fr: '3.2  Infrastructure TIC et tiers' },
-  sec3c: { de: '3.3  Implementierte Sicherheitsmaßnahmen', en: '3.3  Implemented Security Measures', fr: '3.3  Mesures de securite mises en oeuvre' },
-  sec3d: { de: '3.4  Bekannte Schwachstellen', en: '3.4  Known Weaknesses', fr: '3.4  Faiblesses connues' },
-  sec3e: { de: '3.5  Eingereichte Dokumentation', en: '3.5  Submitted Documentation', fr: '3.5  Documentation soumise' },
-  sec4: { de: '4  Feststellungen im Einzelnen', en: '4  Detailed Findings', fr: '4  Constatations detaillees' },
-  sec4a: { de: '4.1  IKT-Risikolandschaft', en: '4.1  ICT Risk Landscape', fr: '4.1  Paysage des risques TIC' },
-  sec4b: { de: '4.2  DORA-Konformitätslücken', en: '4.2  DORA Compliance Gaps', fr: '4.2  Lacunes de conformite DORA' },
-  sec5: { de: '5  Handlungsempfehlungen und Roadmap', en: '5  Recommendations and Roadmap', fr: '5  Recommandations et feuille de route' },
-  sec5a: { de: '5.1  Priorisierte Maßnahmen (P0-P3)', en: '5.1  Prioritised Measures (P0-P3)', fr: '5.1  Mesures priorisees (P0-P3)' },
-  sec5b: { de: '5.2  Remediation-Roadmap', en: '5.2  Remediation Roadmap', fr: '5.2  Feuille de route de remediation' },
-  sec5c: { de: '5.3  Wirtschaftliche Betrachtung', en: '5.3  Economic Impact Assessment', fr: '5.3  Analyse economique' },
-  sec6: { de: '6  Methodik und Prüfungsgrundlagen', en: '6  Methodology and Audit Standards', fr: '6  Methodologie et normes d\'audit' },
-  sec6a: { de: '6.1  Risikobewertungsmatrix', en: '6.1  Risk Rating Matrix', fr: '6.1  Matrice d\'evaluation des risques' },
-  sec7: { de: '7  Einschränkungen und Haftungsausschluss', en: '7  Limitations and Disclaimer', fr: '7  Limites et clause de non-responsabilite' },
-  sec8: { de: '8  Hinweise zur Verifizierung', en: '8  Verification Guidance', fr: '8  Guide de verification' },
-  sec9: { de: '9  Konformitätserklärung', en: '9  Compliance Statement', fr: '9  Declaration de conformite' },
+  sec1: { de: '6  Ausgangslage und Zielsetzung', en: '6  Context and Objectives', fr: '6  Contexte et objectifs' },
+  sec2: { de: '1  Zusammenfassung für die Geschäftsleitung', en: '1  Management Summary', fr: '1  Synthese pour la direction' },
+  sec3: { de: '5  Gegenstand der Prüfung', en: '5  Scope of Assessment', fr: '5  Perimetre de l\'evaluation' },
+  sec3a: { de: '5.1  Unternehmensprofil', en: '5.1  Entity Profile', fr: '5.1  Profil de l\'entite' },
+  sec3b: { de: '5.2  IKT-Infrastruktur und Drittanbieter', en: '5.2  ICT Infrastructure and Third Parties', fr: '5.2  Infrastructure TIC et tiers' },
+  sec3c: { de: '5.3  Implementierte Sicherheitsmaßnahmen', en: '5.3  Implemented Security Measures', fr: '5.3  Mesures de securite mises en oeuvre' },
+  sec3d: { de: '5.4  Bekannte Schwachstellen', en: '5.4  Known Weaknesses', fr: '5.4  Faiblesses connues' },
+  sec3e: { de: '5.5  Eingereichte Dokumentation', en: '5.5  Submitted Documentation', fr: '5.5  Documentation soumise' },
+  sec4: { de: '3  Feststellungen im Einzelnen', en: '3  Detailed Findings', fr: '3  Constatations detaillees' },
+  sec4a: { de: '3.1  IKT-Risikolandschaft', en: '3.1  ICT Risk Landscape', fr: '3.1  Paysage des risques TIC' },
+  sec4b: { de: '3.2  DORA-Konformitätslücken', en: '3.2  DORA Compliance Gaps', fr: '3.2  Lacunes de conformite DORA' },
+  sec5: { de: '4  Handlungsempfehlungen und Roadmap', en: '4  Recommendations and Roadmap', fr: '4  Recommandations et feuille de route' },
+  sec5a: { de: '4.1  Priorisierte Maßnahmen (P0-P3)', en: '4.1  Prioritised Measures (P0-P3)', fr: '4.1  Mesures priorisees (P0-P3)' },
+  sec5b: { de: '4.2  Remediation-Roadmap', en: '4.2  Remediation Roadmap', fr: '4.2  Feuille de route de remediation' },
+  sec5c: { de: '4.3  Wirtschaftliche Betrachtung', en: '4.3  Economic Impact Assessment', fr: '4.3  Analyse economique' },
+  sec6: { de: '7  Methodik und Prüfungsgrundlagen', en: '7  Methodology and Audit Standards', fr: '7  Methodologie et normes d\'audit' },
+  sec6a: { de: '7.1  Risikobewertungsmatrix', en: '7.1  Risk Rating Matrix', fr: '7.1  Matrice d\'evaluation des risques' },
+  sec7: { de: '8  Einschränkungen und Haftungsausschluss', en: '8  Limitations and Disclaimer', fr: '8  Limites et clause de non-responsabilite' },
+  sec8: { de: '9  Hinweise zur Verifizierung', en: '9  Verification Guidance', fr: '9  Guide de verification' },
+  sec9: { de: '2  Konformitätserklärung', en: '2  Compliance Statement', fr: '2  Declaration de conformite' },
   secA: { de: 'A  Strukturierte Prüfdaten (maschinenlesbar)', en: 'A  Structured Audit Data (machine-readable)', fr: 'A  Donnees d\'audit structurees' },
   secB: { de: 'B  Prüfwerkzeuge und Versionen', en: 'B  Tools and Versions', fr: 'B  Outils et versions' },
   secC: { de: 'C  Evidenz-Material-Index', en: 'C  Evidence Material Index', fr: 'C  Index des elements de preuve' },
@@ -286,12 +286,14 @@ export async function generateDoraReport(data: DoraReportData): Promise<void> {
 
   // ═══ TABLE OF CONTENTS ═══
   const tocEntries = [
-    l('sec1', lang), l('sec2', lang), l('sec3', lang),
-    `    ${l('sec3a', lang)}`, `    ${l('sec3b', lang)}`, `    ${l('sec3c', lang)}`,
-    `    ${l('sec3d', lang)}`, `    ${l('sec3e', lang)}`,
+    l('sec2', lang),
+    l('sec9', lang),
     l('sec4', lang), `    ${l('sec4a', lang)}`, `    ${l('sec4b', lang)}`,
     l('sec5', lang), `    ${l('sec5a', lang)}`, `    ${l('sec5b', lang)}`, `    ${l('sec5c', lang)}`,
-    l('sec6', lang), l('sec7', lang), l('sec8', lang), l('sec9', lang), null,
+    l('sec3', lang),
+    `    ${l('sec3a', lang)}`, `    ${l('sec3b', lang)}`, `    ${l('sec3c', lang)}`,
+    `    ${l('sec3d', lang)}`, `    ${l('sec3e', lang)}`,
+    l('sec1', lang), l('sec6', lang), l('sec7', lang), l('sec8', lang), null,
     l('secA', lang), l('secB', lang), l('secC', lang), l('secD', lang), l('secE', lang),
   ];
   pdf.tableOfContents(l('toc', lang), tocEntries);
@@ -335,13 +337,7 @@ export async function generateDoraReport(data: DoraReportData): Promise<void> {
   pdf.newPage();
   pdf.abbreviationLegend(abbrEntries, lang === 'de' ? 'Abkürzungsverzeichnis und Legende' : 'Abbreviations and Legend');
 
-  // ═══ SECTION 1: Context ═══
-  pdf.newPage();
-  pdf.addBookmark(l('sec1', lang));
-  pdf.heading(l('sec1', lang));
-  pdf.bodyParagraph(getContextText(intakeData.entityName, entityTypeName, criticalityName, today, lang, intakeData));
-
-  // ═══ SECTION 2: Management Summary ═══
+  // ═══ SECTION 1: Management Summary ═══
   const passReqsList = reqs.filter(r => r.status === 'pass');
   const partReqsList = reqs.filter(r => r.status === 'partial');
   const failReqsList = reqs.filter(r => r.status === 'fail');
@@ -454,55 +450,118 @@ export async function generateDoraReport(data: DoraReportData): Promise<void> {
   pdf.heading(lang === 'de' ? 'Empfohlenes Vorgehen' : 'Recommended Action', 3);
   pdf.bodyParagraph(summary.action);
 
-  // ═══ SECTION 3: Scope ═══
+  // ═══ SECTION 2: Compliance Statement ═══
   pdf.newPage();
-  pdf.addBookmark(l('sec3', lang));
-  pdf.heading(l('sec3', lang));
+  pdf.addBookmark(l('sec9', lang));
+  pdf.heading(l('sec9', lang));
   pdf.introText(lang === 'de'
-    ? 'Bevor es um Risiken und Lücken geht, dokumentiert dieser Abschnitt, was genau geprüft wurde.'
-    : 'Before diving into risks and gaps, this section documents exactly what was assessed.');
+    ? 'Dieser Abschnitt enthält die abschließende Konformitätsbewertung auf Basis der in diesem Bericht dokumentierten Prüfungsergebnisse. Er dient als Entscheidungsgrundlage für die Geschäftsleitung und als Nachweis gegenüber Aufsichtsbehörden.'
+    : 'This section contains the final compliance assessment based on the audit results documented in this report. It serves as a basis for management decisions and as evidence for supervisory authorities.');
 
-  pdf.heading(l('sec3a', lang), 2);
-  pdf.field(l('entity', lang), intakeData.entityName);
-  pdf.field(l('entityType', lang), entityTypeName);
-  pdf.field(l('criticality', lang), criticalityName);
-  if (intakeData.description) pdf.bodyParagraph(humanizeText(intakeData.description, lang, 'description'));
+  const isCompliant = critCount === 0 && failCount === 0;
+  const isConditional = !isCompliant && complianceRate >= 60;
 
-  pdf.heading(l('sec3b', lang), 2);
-  if (intakeData.infrastructure.length > 0) pdf.bodyParagraph(humanizeList(intakeData.infrastructure, lang, 'infra'));
-  if (intakeData.thirdPartyProviders.length > 0) pdf.bodyParagraph(humanizeList(intakeData.thirdPartyProviders, lang, 'providers'));
-  if (intakeData.roles.length > 0) pdf.bodyParagraph(humanizeList(intakeData.roles, lang, 'roles'));
+  // Criticality classification table
+  pdf.heading(lang === 'de' ? '2.1  Einstufung und Aufsichtsrahmen' : '2.1  Classification and Supervisory Framework', 2);
+  pdf.bodyParagraph(lang === 'de'
+    ? `Das Finanzunternehmen ${intakeData.entityName} ist als "${criticalityName}" eingestuft. Die Einstufung bestimmt den Umfang der aufsichtlichen Anforderungen und die Intensität der Prüfung durch die zuständige Behörde (BaFin, EZB).`
+    : `The financial entity ${intakeData.entityName} is classified as "${criticalityName}". The classification determines the scope of supervisory requirements and the intensity of examination by the competent authority.`);
 
-  pdf.heading(l('sec3c', lang), 2);
-  pdf.introText(lang === 'de'
-    ? 'Welche Sicherheitsmaßnahmen sind bereits vorhanden und wie ausgereift sind sie?'
-    : 'Which security measures are already in place, and how mature are they?');
-  const measureEntries = Object.entries(intakeData.measures);
-  if (measureEntries.length > 0) {
-    pdf.measuresTable(measureEntries, {
-      measure: l('measures', lang), active: l('active', lang), doc: l('documented', lang),
-      audit: l('audited', lang), cert: l('certified', lang), yes: l('yes', lang), no: l('no', lang),
-    });
-  }
+  const classRows = lang === 'de' ? [
+    ['Standard', 'Vollständige DORA-Compliance erforderlich. Reguläre aufsichtliche Prüfungen.'],
+    ['Signifikant', 'Erhöhte Anforderungen an IKT-Risikomanagement. Erweiterte Meldepflichten und häufigere Prüfungen.'],
+    ['Kritisch / Systemrelevant', 'Höchste Anforderungsstufe. Erweiterte TLPT-Pflichten, direkte Aufsicht, verschärfte Drittanbieterkontrollen.'],
+  ] : [
+    ['Standard', 'Full DORA compliance required. Regular supervisory examinations.'],
+    ['Significant', 'Enhanced ICT risk management requirements. Extended reporting obligations and more frequent examinations.'],
+    ['Critical / Systemic', 'Highest requirement level. Extended TLPT obligations, direct supervision, enhanced third-party controls.'],
+  ];
 
-  pdf.heading(l('sec3d', lang), 2);
-  if (intakeData.knownIssues) pdf.bodyParagraph(humanizeText(intakeData.knownIssues, lang, 'issues'));
-  else pdf.bodyText(lang === 'de' ? 'Es wurden keine bekannten Schwachstellen im Vorfeld der Prüfung benannt.' : 'No known weaknesses were reported prior to the assessment.');
-
-  pdf.heading(l('sec3e', lang), 2);
-  if (intakeData.files.length > 0) {
-    intakeData.files.forEach(f => {
-      pdf.checkSpace(5);
-      pdf.doc.setFontSize(7.5); pdf.doc.setFont(pdf.dataFontName, 'normal'); pdf.doc.setTextColor(...C.dark);
-      pdf.doc.text(`${f.name}  (${(f.size / 1024).toFixed(0)} KB)`, LAYOUT.LEFT + 4, pdf.y);
-      pdf.y += 4.5;
-    });
+  classRows.forEach(([cls, desc]) => {
+    const isCurrent = criticalityName.toLowerCase().includes(cls.toLowerCase().split(' ')[0]);
+    pdf.checkSpace(14);
+    if (isCurrent) {
+      pdf.doc.setFillColor(...C.bg);
+      pdf.doc.roundedRect(LAYOUT.LEFT, pdf.y - 2, LAYOUT.WIDTH, 12, 1, 1, 'F');
+      pdf.doc.setDrawColor(...C.navy);
+      pdf.doc.setLineWidth(0.3);
+      pdf.doc.line(LAYOUT.LEFT, pdf.y - 2, LAYOUT.LEFT, pdf.y + 10);
+    }
+    pdf.doc.setFont(pdf.headFontName, isCurrent ? 'bold' : 'normal');
+    pdf.doc.setFontSize(8.5);
+    pdf.doc.setTextColor(...(isCurrent ? C.navy : C.dark));
+    pdf.doc.text(cls, LAYOUT.LEFT + 4, pdf.y + 2);
     pdf.doc.setFont(pdf.bodyFontName, 'normal');
-  } else {
-    pdf.bodyText(l('noFilesSubmitted', lang));
-  }
+    pdf.doc.setFontSize(7.5);
+    pdf.doc.setTextColor(...C.mid);
+    const descLines = pdf.doc.splitTextToSize(desc, LAYOUT.WIDTH - 60);
+    pdf.doc.text(descLines, LAYOUT.LEFT + 55, pdf.y + 2);
+    pdf.y += Math.max(12, descLines.length * 3.5 + 6);
+  });
 
-  // ═══ SECTION 4: Detailed Findings ═══
+  // 9.2 Compliance Verdict
+  pdf.heading(lang === 'de' ? '2.2  Konformitätserklärung' : '2.2  Compliance Verdict', 2);
+
+  const verdictStatement = lang === 'de'
+    ? isCompliant
+      ? `Auf Grundlage der in diesem Bericht dokumentierten Prüfungsergebnisse erfüllt ${intakeData.entityName} die wesentlichen Anforderungen der Verordnung (EU) 2022/2554 (DORA). Es wurden keine kritischen IKT-Risiken und keine nicht-konformen Anforderungen identifiziert. Das Unternehmen ist aus Sicht dieser Bewertung aufsichtskonform.`
+      : isConditional
+        ? `${intakeData.entityName} erfüllt die DORA-Anforderungen derzeit mit Einschränkungen (gewichtete Konformitätsrate: ${complianceRate}%). Es bestehen ${critCount} kritische Risiken und ${failCount} nicht-konforme Anforderungen. Die Konformität kann unter folgenden Bedingungen hergestellt werden: (1) Alle P0-Maßnahmen sind abgeschlossen und verifiziert, (2) die verbleibenden Lücken werden gemäß der Remediation-Roadmap (Abschnitt 4.2) innerhalb der definierten Fristen geschlossen.`
+        : `${intakeData.entityName} erfüllt die wesentlichen DORA-Anforderungen derzeit nicht (gewichtete Konformitätsrate: ${complianceRate}%). Es bestehen ${critCount} kritische Risiken und ${failCount} nicht-konforme Anforderungen. Bei einer aufsichtlichen Prüfung durch BaFin oder EZB ist mit Beanstandungen und möglichen Verwaltungsmaßnahmen nach Art. 50 DORA zu rechnen. Die Umsetzung der Remediation-Roadmap (Abschnitt 4.2) ist zwingend erforderlich.`
+    : isCompliant
+      ? `Based on the assessment results documented in this report, ${intakeData.entityName} meets the essential requirements of Regulation (EU) 2022/2554 (DORA). No critical ICT risks and no non-compliant requirements were identified. The entity is considered supervisory-compliant from this assessment's perspective.`
+      : isConditional
+        ? `${intakeData.entityName} partially meets DORA requirements (weighted compliance rate: ${complianceRate}%). ${critCount} critical risks and ${failCount} non-compliant requirements were identified. Compliance can be achieved under conditions: (1) all P0 measures completed and verified, (2) remaining gaps closed per the remediation roadmap (Section 4.2).`
+        : `${intakeData.entityName} does not currently meet essential DORA requirements (weighted compliance rate: ${complianceRate}%). ${critCount} critical risks and ${failCount} non-compliant requirements were identified. Supervisory examination by BaFin or ECB would likely result in findings and potential administrative measures under Art. 50 DORA. Implementation of the remediation roadmap (Section 4.2) is mandatory.`;
+
+  // Verdict box
+  const stmtBg = isCompliant ? C.pass : isConditional ? C.partial : C.fail;
+  pdf.checkSpace(30);
+  pdf.doc.setFontSize(9);
+  pdf.doc.setFont(pdf.bodyFontName, 'normal');
+  const stmtLines = pdf.doc.splitTextToSize(verdictStatement, LAYOUT.WIDTH - 14);
+  const stmtBoxH = stmtLines.length * 4 + 8;
+  pdf.doc.setFillColor(...C.bg);
+  pdf.doc.roundedRect(LAYOUT.LEFT, pdf.y, LAYOUT.WIDTH, stmtBoxH, 2, 2, 'F');
+  pdf.doc.setFillColor(...stmtBg);
+  pdf.doc.rect(LAYOUT.LEFT, pdf.y, 2, stmtBoxH, 'F');
+  pdf.doc.setTextColor(...C.dark);
+  pdf.doc.text(stmtLines, LAYOUT.LEFT + 8, pdf.y + 5);
+  pdf.y += stmtBoxH + 6;
+
+  // Verdict label banner
+  const verdictLbl = isCompliant
+    ? (lang === 'de' ? 'KONFORM — Aufsichtskonformität gegeben' : 'COMPLIANT — Supervisory compliance achieved')
+    : isConditional
+      ? (lang === 'de' ? 'BEDINGT KONFORM — Nacharbeit erforderlich' : 'CONDITIONALLY COMPLIANT — Remediation required')
+      : (lang === 'de' ? 'NICHT KONFORM — Sofortige Maßnahmen erforderlich' : 'NON-COMPLIANT — Immediate action required');
+
+  pdf.checkSpace(14);
+  pdf.doc.setFillColor(...stmtBg);
+  pdf.doc.roundedRect(LAYOUT.LEFT, pdf.y, LAYOUT.WIDTH, 10, 1.5, 1.5, 'F');
+  pdf.doc.setFont(pdf.headFontName, 'bold');
+  pdf.doc.setFontSize(9);
+  pdf.doc.setTextColor(...C.white);
+  pdf.doc.text(verdictLbl, LAYOUT.LEFT + LAYOUT.WIDTH / 2, pdf.y + 6.5, { align: 'center' });
+  pdf.y += 16;
+  pdf.doc.setTextColor(...C.dark);
+
+  // Signature block
+  pdf.sectionLabel(lang === 'de' ? 'VERANTWORTLICHE FREIGABE' : 'RESPONSIBLE APPROVAL');
+  pdf.y += 2;
+  const sigFields = lang === 'de'
+    ? ['Name: ____________________________', 'Funktion: ____________________________', 'Datum: ____________________________', 'Unterschrift: ____________________________']
+    : ['Name: ____________________________', 'Role: ____________________________', 'Date: ____________________________', 'Signature: ____________________________'];
+  sigFields.forEach(sf => {
+    pdf.checkSpace(6);
+    pdf.doc.setFont(pdf.bodyFontName, 'normal');
+    pdf.doc.setFontSize(LAYOUT.BODY_SIZE);
+    pdf.doc.setTextColor(...C.dark);
+    pdf.doc.text(sf, LAYOUT.LEFT + 4, pdf.y);
+    pdf.y += 7;
+  });
+
+  // ═══ SECTION 3: Detailed Findings ═══
   pdf.newPage();
   pdf.addBookmark(l('sec4', lang));
   pdf.heading(l('sec4', lang));
@@ -773,7 +832,7 @@ export async function generateDoraReport(data: DoraReportData): Promise<void> {
     pdf.separator();
   });
 
-  // ═══ SECTION 5: Recommendations ═══
+  // ═══ SECTION 4: Recommendations ═══
   pdf.newPage();
   pdf.addBookmark(l('sec5', lang));
   pdf.heading(l('sec5', lang));
@@ -868,7 +927,61 @@ export async function generateDoraReport(data: DoraReportData): Promise<void> {
     ? `Bei Verstößen gegen DORA drohen erhebliche Sanktionen durch die zuständige Aufsichtsbehörde. Die derzeit ${failCount} nicht-konformen Anforderungen erhöhen das regulatorische Risiko erheblich. Der geschätzte Gesamtaufwand für die Herstellung der Konformität beträgt 6-18 Personenmonate, abhängig von der Verfügbarkeit interner Ressourcen und dem Bedarf an externer Unterstützung. Diesen Investitionen steht das Schadenspotenzial eines IKT-Sicherheitsvorfalls gegenüber, das neben Bußgeldern auch Betriebsausfälle, Reputationsschäden und aufsichtliche Maßnahmen umfassen kann.`
     : `DORA provides for significant supervisory measures and sanctions in case of non-compliance. The current ${failCount} non-compliant requirements significantly increase regulatory risk. Estimated total remediation effort is 6-18 person-months, depending on internal resource availability and external support needs. These investments should be weighed against the damage potential of an ICT security incident, which may include fines, business disruption, reputational damage, and supervisory measures.`);
 
-  // ═══ SECTION 6: Methodology ═══
+  // ═══ SECTION 5: Scope ═══
+  pdf.newPage();
+  pdf.addBookmark(l('sec3', lang));
+  pdf.heading(l('sec3', lang));
+  pdf.introText(lang === 'de'
+    ? 'Bevor es um Risiken und Lücken geht, dokumentiert dieser Abschnitt, was genau geprüft wurde.'
+    : 'Before diving into risks and gaps, this section documents exactly what was assessed.');
+
+  pdf.heading(l('sec3a', lang), 2);
+  pdf.field(l('entity', lang), intakeData.entityName);
+  pdf.field(l('entityType', lang), entityTypeName);
+  pdf.field(l('criticality', lang), criticalityName);
+  if (intakeData.description) pdf.bodyParagraph(humanizeText(intakeData.description, lang, 'description'));
+
+  pdf.heading(l('sec3b', lang), 2);
+  if (intakeData.infrastructure.length > 0) pdf.bodyParagraph(humanizeList(intakeData.infrastructure, lang, 'infra'));
+  if (intakeData.thirdPartyProviders.length > 0) pdf.bodyParagraph(humanizeList(intakeData.thirdPartyProviders, lang, 'providers'));
+  if (intakeData.roles.length > 0) pdf.bodyParagraph(humanizeList(intakeData.roles, lang, 'roles'));
+
+  pdf.heading(l('sec3c', lang), 2);
+  pdf.introText(lang === 'de'
+    ? 'Welche Sicherheitsmaßnahmen sind bereits vorhanden und wie ausgereift sind sie?'
+    : 'Which security measures are already in place, and how mature are they?');
+  const measureEntries = Object.entries(intakeData.measures);
+  if (measureEntries.length > 0) {
+    pdf.measuresTable(measureEntries, {
+      measure: l('measures', lang), active: l('active', lang), doc: l('documented', lang),
+      audit: l('audited', lang), cert: l('certified', lang), yes: l('yes', lang), no: l('no', lang),
+    });
+  }
+
+  pdf.heading(l('sec3d', lang), 2);
+  if (intakeData.knownIssues) pdf.bodyParagraph(humanizeText(intakeData.knownIssues, lang, 'issues'));
+  else pdf.bodyText(lang === 'de' ? 'Es wurden keine bekannten Schwachstellen im Vorfeld der Prüfung benannt.' : 'No known weaknesses were reported prior to the assessment.');
+
+  pdf.heading(l('sec3e', lang), 2);
+  if (intakeData.files.length > 0) {
+    intakeData.files.forEach(f => {
+      pdf.checkSpace(5);
+      pdf.doc.setFontSize(7.5); pdf.doc.setFont(pdf.dataFontName, 'normal'); pdf.doc.setTextColor(...C.dark);
+      pdf.doc.text(`${f.name}  (${(f.size / 1024).toFixed(0)} KB)`, LAYOUT.LEFT + 4, pdf.y);
+      pdf.y += 4.5;
+    });
+    pdf.doc.setFont(pdf.bodyFontName, 'normal');
+  } else {
+    pdf.bodyText(l('noFilesSubmitted', lang));
+  }
+
+  // ═══ SECTION 6: Context ═══
+  pdf.newPage();
+  pdf.addBookmark(l('sec1', lang));
+  pdf.heading(l('sec1', lang));
+  pdf.bodyParagraph(getContextText(intakeData.entityName, entityTypeName, criticalityName, today, lang, intakeData));
+
+  // ═══ SECTION 7: Methodology ═══
   pdf.newPage();
   pdf.addBookmark(l('sec6', lang));
   pdf.heading(l('sec6', lang));
@@ -889,7 +1002,7 @@ export async function generateDoraReport(data: DoraReportData): Promise<void> {
     pdf.y += 6;
   });
 
-  // ═══ SECTION 7: Disclaimer ═══
+  // ═══ SECTION 8: Disclaimer ═══
   pdf.y += 5;
   pdf.addBookmark(l('sec7', lang));
   pdf.heading(l('sec7', lang));
@@ -897,7 +1010,7 @@ export async function generateDoraReport(data: DoraReportData): Promise<void> {
     ? 'Dieser Bericht basiert auf den zum Zeitpunkt der Prüfung vorliegenden Informationen und Dokumenten. Er ersetzt keine offizielle Prüfung durch die BaFin, die EZB oder eine andere zuständige Aufsichtsbehörde. Für die Vollständigkeit und Richtigkeit der zugrunde liegenden Angaben wird keine Haftung übernommen. Der Bericht ist vertraulich und ausschließlich für den internen Gebrauch des Empfängers bestimmt.'
     : 'This report is based on information and documents available at the time of the assessment. It does not replace an official audit by BaFin, ECB, or any other competent supervisory authority. No liability is assumed for the completeness or accuracy of the underlying information. The report is confidential and intended solely for the internal use of the recipient.');
 
-  // ═══ SECTION 8: Verification Guidance ═══
+  // ═══ SECTION 9: Verification Guidance ═══
   pdf.newPage();
   pdf.addBookmark(l('sec8', lang));
   pdf.heading(l('sec8', lang));
@@ -906,20 +1019,20 @@ export async function generateDoraReport(data: DoraReportData): Promise<void> {
     : 'This section provides the reader with concrete guidance on how to independently verify the statements and assessments in this report.');
 
   const verificationSteps = lang === 'de' ? [
-    { title: '1. Evidenz-Referenzen nachvollziehen', text: 'Jede Feststellung in Abschnitt 4 verweist auf eine Evidenz-ID (E-ID), die in Anhang C aufgeschlüsselt ist. Prüfen Sie, ob die dort genannten Werkzeuge und Befehle auf Ihrer Infrastruktur reproduzierbare Ergebnisse liefern. Stimmen die beschriebenen Befunde mit dem überein, was Sie selbst beobachten können?' },
-    { title: '2. Risikobewertungen plausibilisieren', text: 'Die Risikoscores in Abschnitt 4.1 basieren auf einer 5×5-Matrix (Abschnitt 6.1). Vergleichen Sie die zugewiesenen Likelihood- und Impact-Werte mit Ihrer eigenen Einschätzung. Ziehen Sie dabei branchenübliche Quellen heran, z. B. ENISA Threat Landscape, BSI-Lagebericht oder MITRE ATT&CK.' },
-    { title: '3. Konformitätsbewertungen gegen Originaltext prüfen', text: 'Für jede Anforderung in Abschnitt 4.2 ist der zugehörige DORA-Artikel angegeben. Lesen Sie den Originaltext der Verordnung (EU) 2022/2554 und vergleichen Sie, ob die im Bericht dokumentierte Abweichung tatsächlich den regulatorischen Vorgaben widerspricht.' },
+    { title: '1. Evidenz-Referenzen nachvollziehen', text: 'Jede Feststellung in Abschnitt 3 verweist auf eine Evidenz-ID (E-ID), die in Anhang C aufgeschlüsselt ist. Prüfen Sie, ob die dort genannten Werkzeuge und Befehle auf Ihrer Infrastruktur reproduzierbare Ergebnisse liefern. Stimmen die beschriebenen Befunde mit dem überein, was Sie selbst beobachten können?' },
+    { title: '2. Risikobewertungen plausibilisieren', text: 'Die Risikoscores in Abschnitt 3.1 basieren auf einer 5×5-Matrix (Abschnitt 7.1). Vergleichen Sie die zugewiesenen Likelihood- und Impact-Werte mit Ihrer eigenen Einschätzung. Ziehen Sie dabei branchenübliche Quellen heran, z. B. ENISA Threat Landscape, BSI-Lagebericht oder MITRE ATT&CK.' },
+    { title: '3. Konformitätsbewertungen gegen Originaltext prüfen', text: 'Für jede Anforderung in Abschnitt 3.2 ist der zugehörige DORA-Artikel angegeben. Lesen Sie den Originaltext der Verordnung (EU) 2022/2554 und vergleichen Sie, ob die im Bericht dokumentierte Abweichung tatsächlich den regulatorischen Vorgaben widerspricht.' },
     { title: '4. Arbeitspapiere in Anhang E reviewen', text: 'Jedes Working Paper dokumentiert Scope, Evidenz, Rationale und ggf. Abweichungen für eine einzelne Anforderung. Prüfen Sie stichprobenartig, ob die Bewertungsgrundlage schlüssig ist und die Schlussfolgerung logisch aus der Evidenz folgt.' },
     { title: '5. Quality-Gate-Ergebnisse in Anhang D prüfen', text: 'Anhang D dokumentiert die automatisierten Qualitätsprüfungen und deren Ergebnisse. Überprüfen Sie, ob die dort als „bestanden" markierten Checks mit Ihrem eigenen Verständnis der Datenlage übereinstimmen.' },
-    { title: '6. Aufwandsschätzungen validieren', text: 'Die in Abschnitt 5 genannten Aufwandsschätzungen basieren auf Erfahrungswerten. Vergleichen Sie diese mit Angeboten externer Dienstleister oder eigenen Projekterfahrungen. Die dokumentierten Annahmen und Unsicherheiten geben Aufschluss über die Belastbarkeit der Schätzungen.' },
+    { title: '6. Aufwandsschätzungen validieren', text: 'Die in Abschnitt 4 genannten Aufwandsschätzungen basieren auf Erfahrungswerten. Vergleichen Sie diese mit Angeboten externer Dienstleister oder eigenen Projekterfahrungen. Die dokumentierten Annahmen und Unsicherheiten geben Aufschluss über die Belastbarkeit der Schätzungen.' },
     { title: '7. Zweitmeinung einholen', text: 'Für eine unabhängige Validierung empfiehlt sich die Beauftragung eines externen Prüfers, der die wesentlichen Feststellungen stichprobenartig nachvollzieht. Dies ist insbesondere bei kritischen Risiken (Score ≥ 20) und nicht-konformen Anforderungen ratsam.' },
   ] : [
-    { title: '1. Trace evidence references', text: 'Each finding in Section 4 references an evidence ID (E-ID) detailed in Appendix C. Verify whether the listed tools and commands produce reproducible results on your infrastructure. Do the described findings match what you can observe independently?' },
-    { title: '2. Validate risk scores', text: 'Risk scores in Section 4.1 are based on a 5×5 matrix (Section 6.1). Compare the assigned likelihood and impact values with your own assessment, drawing on industry sources such as ENISA Threat Landscape, BSI situation reports, or MITRE ATT&CK.' },
-    { title: '3. Cross-check compliance assessments', text: 'For each requirement in Section 4.2, the corresponding DORA article is specified. Read the original text of Regulation (EU) 2022/2554 and verify whether the documented deviation indeed contradicts the regulatory provisions.' },
+    { title: '1. Trace evidence references', text: 'Each finding in Section 3 references an evidence ID (E-ID) detailed in Appendix C. Verify whether the listed tools and commands produce reproducible results on your infrastructure. Do the described findings match what you can observe independently?' },
+    { title: '2. Validate risk scores', text: 'Risk scores in Section 3.1 are based on a 5×5 matrix (Section 7.1). Compare the assigned likelihood and impact values with your own assessment, drawing on industry sources such as ENISA Threat Landscape, BSI situation reports, or MITRE ATT&CK.' },
+    { title: '3. Cross-check compliance assessments', text: 'For each requirement in Section 3.2, the corresponding DORA article is specified. Read the original text of Regulation (EU) 2022/2554 and verify whether the documented deviation indeed contradicts the regulatory provisions.' },
     { title: '4. Review working papers in Appendix E', text: 'Each working paper documents scope, evidence, rationale, and any deviations for a single requirement. Spot-check whether the assessment basis is sound and the conclusion logically follows from the evidence.' },
     { title: '5. Verify quality gate results in Appendix D', text: 'Appendix D documents the automated quality checks and their results. Verify whether the checks marked as "passed" align with your own understanding of the data.' },
-    { title: '6. Validate effort estimates', text: 'Effort estimates in Section 5 are based on empirical data. Compare them with external service provider quotes or your own project experience. The documented assumptions and uncertainties indicate the robustness of the estimates.' },
+    { title: '6. Validate effort estimates', text: 'Effort estimates in Section 4 are based on empirical data. Compare them with external service provider quotes or your own project experience. The documented assumptions and uncertainties indicate the robustness of the estimates.' },
     { title: '7. Obtain a second opinion', text: 'For independent validation, consider commissioning an external auditor to spot-check the key findings. This is particularly advisable for critical risks (score ≥ 20) and non-compliant requirements.' },
   ];
 
@@ -930,117 +1043,6 @@ export async function generateDoraReport(data: DoraReportData): Promise<void> {
     pdf.doc.setTextColor(...C.dark);
     pdf.bodyText(step.text, 4);
     pdf.y += 3;
-  });
-
-  // ═══ SECTION 9: Compliance Statement ═══
-  pdf.newPage();
-  pdf.addBookmark(l('sec9', lang));
-  pdf.heading(l('sec9', lang));
-  pdf.introText(lang === 'de'
-    ? 'Dieser Abschnitt enthält die abschließende Konformitätsbewertung auf Basis der in diesem Bericht dokumentierten Prüfungsergebnisse. Er dient als Entscheidungsgrundlage für die Geschäftsleitung und als Nachweis gegenüber Aufsichtsbehörden.'
-    : 'This section contains the final compliance assessment based on the audit results documented in this report. It serves as a basis for management decisions and as evidence for supervisory authorities.');
-
-  const isCompliant = critCount === 0 && failCount === 0;
-  const isConditional = !isCompliant && complianceRate >= 60;
-
-  // Criticality classification table
-  pdf.heading(lang === 'de' ? '9.1  Einstufung und Aufsichtsrahmen' : '9.1  Classification and Supervisory Framework', 2);
-  pdf.bodyParagraph(lang === 'de'
-    ? `Das Finanzunternehmen ${intakeData.entityName} ist als "${criticalityName}" eingestuft. Die Einstufung bestimmt den Umfang der aufsichtlichen Anforderungen und die Intensität der Prüfung durch die zuständige Behörde (BaFin, EZB).`
-    : `The financial entity ${intakeData.entityName} is classified as "${criticalityName}". The classification determines the scope of supervisory requirements and the intensity of examination by the competent authority.`);
-
-  const classRows = lang === 'de' ? [
-    ['Standard', 'Vollständige DORA-Compliance erforderlich. Reguläre aufsichtliche Prüfungen.'],
-    ['Signifikant', 'Erhöhte Anforderungen an IKT-Risikomanagement. Erweiterte Meldepflichten und häufigere Prüfungen.'],
-    ['Kritisch / Systemrelevant', 'Höchste Anforderungsstufe. Erweiterte TLPT-Pflichten, direkte Aufsicht, verschärfte Drittanbieterkontrollen.'],
-  ] : [
-    ['Standard', 'Full DORA compliance required. Regular supervisory examinations.'],
-    ['Significant', 'Enhanced ICT risk management requirements. Extended reporting obligations and more frequent examinations.'],
-    ['Critical / Systemic', 'Highest requirement level. Extended TLPT obligations, direct supervision, enhanced third-party controls.'],
-  ];
-
-  classRows.forEach(([cls, desc]) => {
-    const isCurrent = criticalityName.toLowerCase().includes(cls.toLowerCase().split(' ')[0]);
-    pdf.checkSpace(14);
-    if (isCurrent) {
-      pdf.doc.setFillColor(...C.bg);
-      pdf.doc.roundedRect(LAYOUT.LEFT, pdf.y - 2, LAYOUT.WIDTH, 12, 1, 1, 'F');
-      pdf.doc.setDrawColor(...C.navy);
-      pdf.doc.setLineWidth(0.3);
-      pdf.doc.line(LAYOUT.LEFT, pdf.y - 2, LAYOUT.LEFT, pdf.y + 10);
-    }
-    pdf.doc.setFont(pdf.headFontName, isCurrent ? 'bold' : 'normal');
-    pdf.doc.setFontSize(8.5);
-    pdf.doc.setTextColor(...(isCurrent ? C.navy : C.dark));
-    pdf.doc.text(cls, LAYOUT.LEFT + 4, pdf.y + 2);
-    pdf.doc.setFont(pdf.bodyFontName, 'normal');
-    pdf.doc.setFontSize(7.5);
-    pdf.doc.setTextColor(...C.mid);
-    const descLines = pdf.doc.splitTextToSize(desc, LAYOUT.WIDTH - 60);
-    pdf.doc.text(descLines, LAYOUT.LEFT + 55, pdf.y + 2);
-    pdf.y += Math.max(12, descLines.length * 3.5 + 6);
-  });
-
-  // 9.2 Compliance Verdict
-  pdf.heading(lang === 'de' ? '9.2  Konformitätserklärung' : '9.2  Compliance Verdict', 2);
-
-  const verdictStatement = lang === 'de'
-    ? isCompliant
-      ? `Auf Grundlage der in diesem Bericht dokumentierten Prüfungsergebnisse erfüllt ${intakeData.entityName} die wesentlichen Anforderungen der Verordnung (EU) 2022/2554 (DORA). Es wurden keine kritischen IKT-Risiken und keine nicht-konformen Anforderungen identifiziert. Das Unternehmen ist aus Sicht dieser Bewertung aufsichtskonform.`
-      : isConditional
-        ? `${intakeData.entityName} erfüllt die DORA-Anforderungen derzeit mit Einschränkungen (gewichtete Konformitätsrate: ${complianceRate}%). Es bestehen ${critCount} kritische Risiken und ${failCount} nicht-konforme Anforderungen. Die Konformität kann unter folgenden Bedingungen hergestellt werden: (1) Alle P0-Maßnahmen sind abgeschlossen und verifiziert, (2) die verbleibenden Lücken werden gemäß der Remediation-Roadmap (Abschnitt 5.2) innerhalb der definierten Fristen geschlossen.`
-        : `${intakeData.entityName} erfüllt die wesentlichen DORA-Anforderungen derzeit nicht (gewichtete Konformitätsrate: ${complianceRate}%). Es bestehen ${critCount} kritische Risiken und ${failCount} nicht-konforme Anforderungen. Bei einer aufsichtlichen Prüfung durch BaFin oder EZB ist mit Beanstandungen und möglichen Verwaltungsmaßnahmen nach Art. 50 DORA zu rechnen. Die Umsetzung der Remediation-Roadmap (Abschnitt 5.2) ist zwingend erforderlich.`
-    : isCompliant
-      ? `Based on the assessment results documented in this report, ${intakeData.entityName} meets the essential requirements of Regulation (EU) 2022/2554 (DORA). No critical ICT risks and no non-compliant requirements were identified. The entity is considered supervisory-compliant from this assessment's perspective.`
-      : isConditional
-        ? `${intakeData.entityName} partially meets DORA requirements (weighted compliance rate: ${complianceRate}%). ${critCount} critical risks and ${failCount} non-compliant requirements were identified. Compliance can be achieved under conditions: (1) all P0 measures completed and verified, (2) remaining gaps closed per the remediation roadmap (Section 5.2).`
-        : `${intakeData.entityName} does not currently meet essential DORA requirements (weighted compliance rate: ${complianceRate}%). ${critCount} critical risks and ${failCount} non-compliant requirements were identified. Supervisory examination by BaFin or ECB would likely result in findings and potential administrative measures under Art. 50 DORA. Implementation of the remediation roadmap (Section 5.2) is mandatory.`;
-
-  // Verdict box
-  const stmtBg = isCompliant ? C.pass : isConditional ? C.partial : C.fail;
-  pdf.checkSpace(30);
-  pdf.doc.setFontSize(9);
-  pdf.doc.setFont(pdf.bodyFontName, 'normal');
-  const stmtLines = pdf.doc.splitTextToSize(verdictStatement, LAYOUT.WIDTH - 14);
-  const stmtBoxH = stmtLines.length * 4 + 8;
-  pdf.doc.setFillColor(...C.bg);
-  pdf.doc.roundedRect(LAYOUT.LEFT, pdf.y, LAYOUT.WIDTH, stmtBoxH, 2, 2, 'F');
-  pdf.doc.setFillColor(...stmtBg);
-  pdf.doc.rect(LAYOUT.LEFT, pdf.y, 2, stmtBoxH, 'F');
-  pdf.doc.setTextColor(...C.dark);
-  pdf.doc.text(stmtLines, LAYOUT.LEFT + 8, pdf.y + 5);
-  pdf.y += stmtBoxH + 6;
-
-  // Verdict label banner
-  const verdictLbl = isCompliant
-    ? (lang === 'de' ? 'KONFORM — Aufsichtskonformität gegeben' : 'COMPLIANT — Supervisory compliance achieved')
-    : isConditional
-      ? (lang === 'de' ? 'BEDINGT KONFORM — Nacharbeit erforderlich' : 'CONDITIONALLY COMPLIANT — Remediation required')
-      : (lang === 'de' ? 'NICHT KONFORM — Sofortige Maßnahmen erforderlich' : 'NON-COMPLIANT — Immediate action required');
-
-  pdf.checkSpace(14);
-  pdf.doc.setFillColor(...stmtBg);
-  pdf.doc.roundedRect(LAYOUT.LEFT, pdf.y, LAYOUT.WIDTH, 10, 1.5, 1.5, 'F');
-  pdf.doc.setFont(pdf.headFontName, 'bold');
-  pdf.doc.setFontSize(9);
-  pdf.doc.setTextColor(...C.white);
-  pdf.doc.text(verdictLbl, LAYOUT.LEFT + LAYOUT.WIDTH / 2, pdf.y + 6.5, { align: 'center' });
-  pdf.y += 16;
-  pdf.doc.setTextColor(...C.dark);
-
-  // Signature block
-  pdf.sectionLabel(lang === 'de' ? 'VERANTWORTLICHE FREIGABE' : 'RESPONSIBLE APPROVAL');
-  pdf.y += 2;
-  const sigFields = lang === 'de'
-    ? ['Name: ____________________________', 'Funktion: ____________________________', 'Datum: ____________________________', 'Unterschrift: ____________________________']
-    : ['Name: ____________________________', 'Role: ____________________________', 'Date: ____________________________', 'Signature: ____________________________'];
-  sigFields.forEach(sf => {
-    pdf.checkSpace(6);
-    pdf.doc.setFont(pdf.bodyFontName, 'normal');
-    pdf.doc.setFontSize(LAYOUT.BODY_SIZE);
-    pdf.doc.setTextColor(...C.dark);
-    pdf.doc.text(sf, LAYOUT.LEFT + 4, pdf.y);
-    pdf.y += 7;
   });
 
   // ═══ APPENDIX A: Structured Data ═══
@@ -1227,7 +1229,7 @@ export async function generateDoraReport(data: DoraReportData): Promise<void> {
       },
       {
         labels: [lang === 'de' ? 'BERICHT-REF.' : 'REPORT REF.', lang === 'de' ? 'RISIKO-VERKNÜPFUNG' : 'LINKED RISKS', lang === 'de' ? 'EVIDENZ-REF.' : 'EVIDENCE REF.'],
-        values: [`${lang === 'de' ? 'Abschn.' : 'Sec.'} 4.2, ${r.id}`, linkedRisks.length > 0 ? linkedRisks.map(riskId).join(', ') : '-', linkedEvidence.length > 0 ? linkedEvidence.join(', ') : '-'],
+        values: [`${lang === 'de' ? 'Abschn.' : 'Sec.'} 3.2, ${r.id}`, linkedRisks.length > 0 ? linkedRisks.map(riskId).join(', ') : '-', linkedEvidence.length > 0 ? linkedEvidence.join(', ') : '-'],
       },
     ]);
 

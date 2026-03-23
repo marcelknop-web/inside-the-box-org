@@ -80,33 +80,33 @@ const I18N = {
   confidential: { de: 'VERTRAULICH', en: 'CONFIDENTIAL', fr: 'CONFIDENTIEL' },
   toc: { de: 'Inhaltsverzeichnis', en: 'Table of Contents', fr: 'Table des matières' },
 
-  sec1: { de: '1  Ausgangslage, Zielsetzung und Prüfungsumfang', en: '1  Context, Objectives and Scope', fr: '1  Contexte, objectifs et périmètre' },
-  sec2: { de: '2  Zusammenfassung für die Geschäftsleitung', en: '2  Management Summary', fr: '2  Synthèse pour la direction' },
-  sec3: { de: '3  Gegenstand der Prüfung', en: '3  Scope of Assessment', fr: '3  Périmètre de l\'évaluation' },
-  sec3a: { de: '3.1  Produktsteckbrief', en: '3.1  Product Profile', fr: '3.1  Profil du produit' },
-  sec3b: { de: '3.2  Systemkomponenten und Architektur', en: '3.2  System Components and Architecture', fr: '3.2  Composants et architecture du système' },
-  sec3c: { de: '3.3  Implementierte Sicherheitsmaßnahmen', en: '3.3  Implemented Security Measures', fr: '3.3  Mesures de sécurité mises en œuvre' },
-  sec3d: { de: '3.4  Vom Hersteller benannte Risiken', en: '3.4  Manufacturer-Reported Risks', fr: '3.4  Risques signalés par le fabricant' },
-  sec3e: { de: '3.5  Eingereichte Dokumentation', en: '3.5  Submitted Documentation', fr: '3.5  Documentation soumise' },
-  sec4: { de: '4  Feststellungen im Einzelnen', en: '4  Detailed Findings', fr: '4  Constatations détaillées' },
-  sec4a: { de: '4.1  Bedrohungslandschaft (STRIDE-Analyse)', en: '4.1  Threat Landscape (STRIDE Analysis)', fr: '4.1  Paysage des menaces (analyse STRIDE)' },
-  sec4b: { de: '4.2  CRA-Konformitätslücken', en: '4.2  CRA Compliance Gaps', fr: '4.2  Lacunes de conformité CRA' },
-  sec4c: { de: '4.3  Normative Abdeckung (CRA-Coverage)', en: '4.3  Normative Coverage (CRA Coverage)', fr: '4.3  Couverture normative (CRA)' },
-  sec5: { de: '5  Handlungsempfehlungen und Remediation-Roadmap', en: '5  Recommendations and Remediation Roadmap', fr: '5  Recommandations et feuille de route de remédiation' },
-  sec5a: { de: '5.1  Priorisierte Maßnahmen (P0-P3)', en: '5.1  Prioritised Measures (P0-P3)', fr: '5.1  Mesures priorisées (P0-P3)' },
-  sec5b: { de: '5.2  Remediation-Roadmap', en: '5.2  Remediation Roadmap', fr: '5.2  Feuille de route de remédiation' },
-  sec5c: { de: '5.3  Wirtschaftliche Betrachtung', en: '5.3  Economic Impact Assessment', fr: '5.3  Analyse économique' },
-  sec6: { de: '6  Methodik und Prüfungsgrundlagen', en: '6  Methodology and Audit Standards', fr: '6  Méthodologie et normes d\'audit' },
-  sec6a: { de: '6.1  Risikobewertungsmatrix', en: '6.1  Risk Rating Matrix', fr: '6.1  Matrice d\'évaluation des risques' },
-  sec6b: { de: '6.2  OT-Kontextualisierung der Bewertungsskala', en: '6.2  OT Contextualisation of Rating Scales', fr: '6.2  Contextualisation OT des échelles d\'évaluation' },
-  sec7: { de: '7  Einschränkungen und Haftungsausschluss', en: '7  Limitations and Disclaimer', fr: '7  Limites et clause de non-responsabilité' },
+  sec1: { de: '6  Ausgangslage, Zielsetzung und Prüfungsumfang', en: '6  Context, Objectives and Scope', fr: '6  Contexte, objectifs et périmètre' },
+  sec2: { de: '1  Zusammenfassung für die Geschäftsleitung', en: '1  Management Summary', fr: '1  Synthèse pour la direction' },
+  sec3: { de: '5  Gegenstand der Prüfung', en: '5  Scope of Assessment', fr: '5  Périmètre de l\'évaluation' },
+  sec3a: { de: '5.1  Produktsteckbrief', en: '5.1  Product Profile', fr: '5.1  Profil du produit' },
+  sec3b: { de: '5.2  Systemkomponenten und Architektur', en: '5.2  System Components and Architecture', fr: '5.2  Composants et architecture du système' },
+  sec3c: { de: '5.3  Implementierte Sicherheitsmaßnahmen', en: '5.3  Implemented Security Measures', fr: '5.3  Mesures de sécurité mises en œuvre' },
+  sec3d: { de: '5.4  Vom Hersteller benannte Risiken', en: '5.4  Manufacturer-Reported Risks', fr: '5.4  Risques signalés par le fabricant' },
+  sec3e: { de: '5.5  Eingereichte Dokumentation', en: '5.5  Submitted Documentation', fr: '5.5  Documentation soumise' },
+  sec4: { de: '3  Feststellungen im Einzelnen', en: '3  Detailed Findings', fr: '3  Constatations détaillées' },
+  sec4a: { de: '3.1  Bedrohungslandschaft (STRIDE-Analyse)', en: '3.1  Threat Landscape (STRIDE Analysis)', fr: '3.1  Paysage des menaces (analyse STRIDE)' },
+  sec4b: { de: '3.2  CRA-Konformitätslücken', en: '3.2  CRA Compliance Gaps', fr: '3.2  Lacunes de conformité CRA' },
+  sec4c: { de: '3.3  Normative Abdeckung (CRA-Coverage)', en: '3.3  Normative Coverage (CRA Coverage)', fr: '3.3  Couverture normative (CRA)' },
+  sec5: { de: '4  Handlungsempfehlungen und Remediation-Roadmap', en: '4  Recommendations and Remediation Roadmap', fr: '4  Recommandations et feuille de route de remédiation' },
+  sec5a: { de: '4.1  Priorisierte Maßnahmen (P0-P3)', en: '4.1  Prioritised Measures (P0-P3)', fr: '4.1  Mesures priorisées (P0-P3)' },
+  sec5b: { de: '4.2  Remediation-Roadmap', en: '4.2  Remediation Roadmap', fr: '4.2  Feuille de route de remédiation' },
+  sec5c: { de: '4.3  Wirtschaftliche Betrachtung', en: '4.3  Economic Impact Assessment', fr: '4.3  Analyse économique' },
+  sec6: { de: '7  Methodik und Prüfungsgrundlagen', en: '7  Methodology and Audit Standards', fr: '7  Méthodologie et normes d\'audit' },
+  sec6a: { de: '7.1  Risikobewertungsmatrix', en: '7.1  Risk Rating Matrix', fr: '7.1  Matrice d\'évaluation des risques' },
+  sec6b: { de: '7.2  OT-Kontextualisierung der Bewertungsskala', en: '7.2  OT Contextualisation of Rating Scales', fr: '7.2  Contextualisation OT des échelles d\'évaluation' },
+  sec7: { de: '8  Einschränkungen und Haftungsausschluss', en: '8  Limitations and Disclaimer', fr: '8  Limites et clause de non-responsabilité' },
   secA: { de: 'A  Strukturierte Prüfdaten (maschinenlesbar)', en: 'A  Structured Audit Data (machine-readable)', fr: 'A  Données d\'audit structurées (lisibles par machine)' },
   secB: { de: 'B  Prüfwerkzeuge und Versionen', en: 'B  Tools and Versions', fr: 'B  Outils et versions' },
   secC: { de: 'C  Evidenz-Material-Index', en: 'C  Evidence Material Index', fr: 'C  Index des éléments de preuve' },
   secD: { de: 'D  Qualitätssicherungs-Checkliste', en: 'D  Quality Assurance Checklist', fr: 'D  Liste de contrôle qualité' },
   secE: { de: 'E  Arbeitspapiere (Working Papers)', en: 'E  Working Papers', fr: 'E  Papiers de travail' },
-  sec8: { de: '8  Hinweise zur Verifizierung', en: '8  Verification Guidance', fr: '8  Guide de vérification' },
-  sec9: { de: '9  Konformitätserklärung und Klassifizierung', en: '9  Compliance Statement and Classification', fr: '9  Déclaration de conformité et classification' },
+  sec8: { de: '9  Hinweise zur Verifizierung', en: '9  Verification Guidance', fr: '9  Guide de vérification' },
+  sec9: { de: '2  Konformitätserklärung und Klassifizierung', en: '2  Compliance Statement and Classification', fr: '2  Déclaration de conformité et classification' },
 
   product: { de: 'Produkt', en: 'Product', fr: 'Produit' },
   version: { de: 'Version', en: 'Version', fr: 'Version' },
@@ -297,10 +297,10 @@ function getMgmtSummaryData(
       ],
       implication: isReady
         ? 'Keine regulatorischen Risiken identifiziert. Empfehlung: reguläre Aufrechterhaltung des Sicherheitsniveaus und jährliche Neubewertung.'
-        : `Bei Markteinführung im aktuellen Zustand drohen: Beanstandungen durch Marktüberwachungsbehörden, Rückrufpflichten nach Art. 49 CRA, sowie Haftungsrisiken nach der revidierten Produkthaftungsrichtlinie. Geschätzter Remediation-Aufwand: siehe Abschnitt 5.`,
+        : `Bei Markteinführung im aktuellen Zustand drohen: Beanstandungen durch Marktüberwachungsbehörden, Rückrufpflichten nach Art. 49 CRA, sowie Haftungsrisiken nach der revidierten Produkthaftungsrichtlinie. Geschätzter Remediation-Aufwand: siehe Abschnitt 4.`,
       action: isReady
         ? 'Empfehlung: Konformitätserklärung vorbereiten und Monitoring-Prozess etablieren.'
-        : `Empfehlung: Sofortmaßnahmen (P0) aus Abschnitt 5.1 mit Verantwortlichkeiten und Fristen versehen. Wöchentliches Tracking bis zur Schließung aller kritischen Gaps.`,
+        : `Empfehlung: Sofortmaßnahmen (P0) aus Abschnitt 4.1 mit Verantwortlichkeiten und Fristen versehen. Wöchentliches Tracking bis zur Schließung aller kritischen Gaps.`,
     };
   }
   if (lang === 'fr') {
@@ -331,10 +331,10 @@ function getMgmtSummaryData(
       ],
       implication: isReady
         ? 'Aucun risque réglementaire identifié. Recommandation : maintenir le niveau de sécurité et réévaluer annuellement.'
-        : `En cas de mise sur le marché en l'état : sanctions des autorités de surveillance, obligation de rappel (Art. 49 CRA), risques de responsabilité. Effort de remédiation estimé : voir section 5.`,
+        : `En cas de mise sur le marché en l'état : sanctions des autorités de surveillance, obligation de rappel (Art. 49 CRA), risques de responsabilité. Effort de remédiation estimé : voir section 4.`,
       action: isReady
         ? 'Recommandation : préparer la déclaration de conformité et établir un processus de suivi.'
-        : `Recommandation : attribuer responsabilités et délais aux mesures immédiates (P0) de la section 5.1. Suivi hebdomadaire jusqu'à la clôture de tous les gaps critiques.`,
+        : `Recommandation : attribuer responsabilités et délais aux mesures immédiates (P0) de la section 4.1. Suivi hebdomadaire jusqu'à la clôture de tous les gaps critiques.`,
     };
   }
   // EN
@@ -365,10 +365,10 @@ function getMgmtSummaryData(
     ],
     implication: isReady
       ? 'No regulatory risks identified. Recommendation: maintain security posture and re-assess annually.'
-      : `Market launch in current state risks: regulatory objections from market surveillance authorities, recall obligations under Art. 49 CRA, and liability exposure under the revised Product Liability Directive. Estimated remediation effort: see Section 5.`,
+      : `Market launch in current state risks: regulatory objections from market surveillance authorities, recall obligations under Art. 49 CRA, and liability exposure under the revised Product Liability Directive. Estimated remediation effort: see Section 4.`,
     action: isReady
       ? 'Recommendation: prepare conformity declaration and establish monitoring process.'
-      : `Recommendation: assign ownership and deadlines to immediate measures (P0) from Section 5.1. Weekly tracking until all critical gaps are closed.`,
+      : `Recommendation: assign ownership and deadlines to immediate measures (P0) from Section 4.1. Weekly tracking until all critical gaps are closed.`,
   };
 }
 
@@ -828,7 +828,7 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
   doc.text(t(I18N.toc), ML, y);
   y += 12;
 
-  const tocItems = [I18N.sec1, I18N.sec2, I18N.sec3, I18N.sec4, I18N.sec4c, I18N.sec5, I18N.sec5c, I18N.sec6, I18N.sec7, I18N.sec8, I18N.sec9, I18N.secA, I18N.secB, I18N.secC, I18N.secD, I18N.secE];
+  const tocItems = [I18N.sec2, I18N.sec9, I18N.sec4, I18N.sec4c, I18N.sec5, I18N.sec5c, I18N.sec3, I18N.sec1, I18N.sec6, I18N.sec7, I18N.sec8, I18N.secA, I18N.secB, I18N.secC, I18N.secD, I18N.secE];
   for (const item of tocItems) {
     doc.setFont(HEAD_FONT, 'normal');
     doc.setFontSize(SUBSECTION_SIZE);
@@ -955,81 +955,7 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
   addFooter();
 
   /* ══════════════════════════════════════
-     SECTION 1: Context
-     ══════════════════════════════════════ */
-  newSection();
-  writeSectionHeading(t(I18N.sec1));
-  writeBody(getContextText(intakeData.productName, intakeData.version, productTypeName, craClassName, dateStr, lang));
-  y += 4;
-
-  // ── Formal Audit Scope Block ──
-  const scopeTitle = lang === 'de' ? 'PRÜFUNGSUMFANG UND ABGRENZUNG' : lang === 'fr' ? 'PÉRIMÈTRE ET DÉLIMITATION' : 'AUDIT SCOPE AND BOUNDARIES';
-  writeLabel(scopeTitle);
-  y += 1;
-
-  const scopeFields = lang === 'de' ? [
-    ['Prüfgegenstand', `${intakeData.productName} ${intakeData.version} (${productTypeName}, CRA-Klasse: ${craClassName})`],
-    ['Organisationseinheit', intakeData.productName],
-    ['Geprüfte Systeme / Komponenten', intakeData.components.length > 0 ? intakeData.components.join(', ') : 'Alle im Intake benannten Systemkomponenten'],
-    ['Geprüfte Schnittstellen', intakeData.interfaces.length > 0 ? intakeData.interfaces.join(', ') : 'Keine explizit benannt'],
-    ['Prüfungszeitraum', dateStr],
-    ['Prüfungskriterien', 'EU Cyber Resilience Act (VO (EU) 2024/2847), Annex I (Sicherheitseigenschaften), Annex II (Schwachstellenbehandlung), Art. 10-18 (Herstellerpflichten), ETSI EN 303 645, OWASP IoT Top 10'],
-    ['Prüfungsziele', '(1) Systematische Identifikation von Bedrohungen nach STRIDE, (2) Bewertung der CRA-Konformität, (3) Ableitung einer priorisierten Remediation-Roadmap, (4) Feststellung der Marktreife'],
-    ['Ausschlüsse', 'Keine physische Vor-Ort-Prüfung. Keine akkreditierte Konformitätsbewertung nach Art. 24 ff. CRA. Keine Prüfung von Lieferketten-Subkomponenten, sofern nicht vom Hersteller angegeben.'],
-  ] : lang === 'fr' ? [
-    ['Objet de l\'évaluation', `${intakeData.productName} ${intakeData.version} (${productTypeName}, classe CRA : ${craClassName})`],
-    ['Unité organisationnelle', intakeData.productName],
-    ['Systèmes / composants évalués', intakeData.components.length > 0 ? intakeData.components.join(', ') : 'Tous les composants nommés dans l\'intake'],
-    ['Interfaces évaluées', intakeData.interfaces.length > 0 ? intakeData.interfaces.join(', ') : 'Aucune explicitement nommée'],
-    ['Période d\'évaluation', dateStr],
-    ['Critères d\'évaluation', 'EU CRA (Règlement (UE) 2024/2847), Annexe I, Annexe II, Art. 10-18, ETSI EN 303 645, OWASP IoT Top 10'],
-    ['Objectifs', '(1) Identification systématique des menaces STRIDE, (2) Évaluation de la conformité CRA, (3) Feuille de route de remédiation priorisée, (4) Détermination de la maturité marché'],
-    ['Exclusions', 'Pas d\'audit physique sur site. Pas d\'évaluation de conformité accréditée. Pas d\'examen des sous-composants de la chaîne d\'approvisionnement.'],
-  ] : [
-    ['Assessment Subject', `${intakeData.productName} ${intakeData.version} (${productTypeName}, CRA class: ${craClassName})`],
-    ['Organisational Unit', intakeData.productName],
-    ['Assessed Systems / Components', intakeData.components.length > 0 ? intakeData.components.join(', ') : 'All components named in intake'],
-    ['Assessed Interfaces', intakeData.interfaces.length > 0 ? intakeData.interfaces.join(', ') : 'None explicitly named'],
-    ['Assessment Period', dateStr],
-    ['Assessment Criteria', 'EU Cyber Resilience Act (Regulation (EU) 2024/2847), Annex I (Security Properties), Annex II (Vulnerability Handling), Art. 10-18 (Manufacturer Obligations), ETSI EN 303 645, OWASP IoT Top 10'],
-    ['Objectives', '(1) Systematic threat identification via STRIDE, (2) CRA compliance assessment, (3) Prioritised remediation roadmap, (4) Market readiness determination'],
-    ['Exclusions', 'No physical on-site audit. No accredited conformity assessment per Art. 24 ff. CRA. No examination of supply chain sub-components unless reported by manufacturer.'],
-  ];
-
-  checkPage(60);
-  doc.setFillColor(...C.bgLight);
-  const scopeBoxStartY = y;
-  // Estimate box height
-  let scopeH = 6;
-  for (const [k, v] of scopeFields) { scopeH += 12 + Math.ceil(v.length / 80) * 4; }
-  scopeH = Math.min(scopeH, 140);
-  doc.roundedRect(ML, y, CW, scopeH, 2, 2, 'F');
-  doc.setFillColor(...C.accent);
-  doc.rect(ML, y, 2, scopeH, 'F');
-  y += 4;
-
-  for (const [key, value] of scopeFields) {
-    checkPage(14);
-    doc.setFont(HEAD_FONT, 'bold');
-    doc.setFontSize(7.5);
-    doc.setTextColor(...C.accent);
-    doc.text(key.toUpperCase(), ML + 6, y);
-    y += 3.5;
-    doc.setFont(HEAD_FONT, 'normal');
-    doc.setFontSize(BODY_SIZE);
-    doc.setTextColor(...C.bodyText);
-    const valLines = doc.splitTextToSize(value, CW - 14);
-    for (const vl of valLines) {
-      checkPage(5);
-      doc.text(vl, ML + 6, y);
-      y += BODY_LEADING;
-    }
-    y += 2;
-  }
-  y += 4;
-
-  /* ══════════════════════════════════════
-     SECTION 2: Management Summary (McKinsey-style)
+     SECTION 1: Management Summary (McKinsey-style)
      ══════════════════════════════════════ */
   newSection();
   writeSectionHeading(t(I18N.sec2));
@@ -1393,137 +1319,154 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
   }
 
   /* ══════════════════════════════════════
-     SECTION 3: Scope (comprehensive)
+     SECTION 2: Compliance Statement & Classification
      ══════════════════════════════════════ */
   newSection();
-  writeSectionHeading(t(I18N.sec3));
-  writeBody(t(I18N.introSec3));
+  writeSectionHeading(t(I18N.sec9));
+
+  const sec9Intro = lang === 'de'
+    ? 'Dieser Abschnitt enthält die abschließende Konformitätsbewertung und die Produktklassifizierung gemäß CRA. Er dient als Entscheidungsgrundlage für die Markteinführung und die Auswahl des Konformitätsbewertungsverfahrens.'
+    : lang === 'fr'
+    ? 'Cette section contient l\'évaluation finale de conformité et la classification du produit selon le CRA. Elle sert de base de décision pour la mise sur le marché et le choix de la procédure d\'évaluation de conformité.'
+    : 'This section contains the final compliance assessment and product classification pursuant to the CRA. It serves as the basis for market launch decisions and the selection of the conformity assessment procedure.';
+  writeBody(sec9Intro);
+  y += 3;
+
+  // ── 9.1 Product Classification ──
+  const sec91Title = lang === 'de' ? '2.1  Produktklassifizierung' : lang === 'fr' ? '2.1  Classification du produit' : '2.1  Product Classification';
+  writeSubHeading(sec91Title);
+
+  const classExplanation = lang === 'de'
+    ? `Das Produkt ${intakeData.productName} ist als CRA-Klasse "${craClassName}" eingestuft. Die Klassifizierung bestimmt das anwendbare Konformitätsbewertungsverfahren:`
+    : lang === 'fr'
+    ? `Le produit ${intakeData.productName} est classé CRA "${craClassName}". La classification détermine la procédure d'évaluation de conformité applicable :`
+    : `The product ${intakeData.productName} is classified as CRA class "${craClassName}". The classification determines the applicable conformity assessment procedure:`;
+  writeBody(classExplanation);
   y += 2;
 
-  // 3.1 Product Profile
-  writeSubHeading(t(I18N.sec3a));
-  writeBody(t(I18N.introSec3a));
-  writeKV(t(I18N.product), `${intakeData.productName} ${intakeData.version}`);
-  writeKV(t(I18N.type), productTypeName);
-  if (intakeData.productTypes.length > 0) {
-    writeKV(t(I18N.productTypes), intakeData.productTypes.join(', '));
-  }
-  writeKV(t(I18N.craClass), craClassName);
-  writeKV(t(I18N.deployment), intakeData.deployment || '—');
-  writeKV(t(I18N.interfaces), intakeData.interfaces.length > 0 ? intakeData.interfaces.join(', ') : '—');
-  writeKV(t(I18N.roles), intakeData.roles.length > 0 ? intakeData.roles.join(', ') + (intakeData.customRole ? `, ${intakeData.customRole}` : '') : '—');
+  const classTable: [string, string, string][] = lang === 'de' ? [
+    ['Default', 'Selbstbewertung (Art. 32)', 'Interne Konformitätsprüfung durch den Hersteller, keine Beteiligung einer benannten Stelle erforderlich.'],
+    ['Klasse I', 'Harmonisierte Norm oder Selbstbewertung', 'Selbstbewertung möglich bei Anwendung harmonisierter Normen (Art. 32); andernfalls Beteiligung einer benannten Stelle (Art. 33).'],
+    ['Klasse II', 'Drittprüfung (Art. 33)', 'Verpflichtende Beteiligung einer benannten Stelle (Notified Body). EU-Typprüfung oder vollständige Qualitätssicherung.'],
+    ['Kritisch', 'EU-Typprüfung (Art. 33)', 'Europäisches Cybersicherheitszertifikat auf Stufe "substantiell" oder höher erforderlich.'],
+  ] : lang === 'fr' ? [
+    ['Default', 'Auto-évaluation (Art. 32)', 'Évaluation interne par le fabricant, aucun organisme notifié requis.'],
+    ['Classe I', 'Norme harmonisée ou auto-évaluation', 'Auto-évaluation possible avec normes harmonisées (Art. 32) ; sinon organisme notifié (Art. 33).'],
+    ['Classe II', 'Examen par tiers (Art. 33)', 'Participation obligatoire d\'un organisme notifié. Examen de type UE ou assurance qualité complète.'],
+    ['Critique', 'Examen de type UE (Art. 33)', 'Certificat européen de cybersécurité au niveau "substantiel" ou supérieur requis.'],
+  ] : [
+    ['Default', 'Self-assessment (Art. 32)', 'Internal conformity assessment by manufacturer, no notified body involvement required.'],
+    ['Class I', 'Harmonised standard or self-assessment', 'Self-assessment possible when harmonised standards are applied (Art. 32); otherwise notified body involvement (Art. 33).'],
+    ['Class II', 'Third-party audit (Art. 33)', 'Mandatory notified body involvement. EU type examination or full quality assurance.'],
+    ['Critical', 'EU type examination (Art. 33)', 'European cybersecurity certificate at level "substantial" or higher required.'],
+  ];
 
-  if (intakeData.description) {
-    y += 2;
-    // Humanize description
-    const desc = intakeData.description.trim();
-    const humanDesc = desc.length > 40 && /[.!?]$/.test(desc) ? desc
-      : lang === 'de' ? `Zum geprüften Produkt wurde die folgende Beschreibung angegeben: ${desc}${desc.endsWith('.') ? '' : '.'}`
-      : lang === 'fr' ? `La description suivante a été fournie pour le produit évalué : ${desc}${desc.endsWith('.') ? '' : '.'}`
-      : `The following description was provided for the assessed product: ${desc}${desc.endsWith('.') ? '' : '.'}`;
-    writeBody(humanDesc);
-  }
+  checkPage(40);
+  const clColClass = ML + 5;
+  const clColProc = ML + 40;
+  const clColDesc = ML + 90;
+  doc.setFont(HEAD_FONT, 'bold'); doc.setFontSize(7); doc.setTextColor(...C.accent);
+  doc.text(lang === 'de' ? 'KLASSE' : 'CLASS', clColClass, y);
+  doc.text(lang === 'de' ? 'VERFAHREN' : 'PROCEDURE', clColProc, y);
+  doc.text(lang === 'de' ? 'ERLÄUTERUNG' : 'DESCRIPTION', clColDesc, y);
+  y += 2; doc.setDrawColor(...C.ruleStroke); doc.setLineWidth(0.15); doc.line(clColClass, y, W - MR - 5, y); y += 3;
 
-  // 3.2 Components & Architecture
-  y += 3;
-  writeSubHeading(t(I18N.sec3b));
-  writeBody(t(I18N.introSec3b));
-  if (intakeData.components.length > 0) {
-    const compList = intakeData.components.length <= 2
-      ? intakeData.components.join(lang === 'de' ? ' und ' : ' and ')
-      : intakeData.components.slice(0, -1).join(', ') + (lang === 'de' ? ' und ' : ' and ') + intakeData.components[intakeData.components.length - 1];
-    const compSentence = lang === 'de'
-      ? `Das Produkt setzt sich aus den folgenden Systemkomponenten zusammen: ${compList}.`
-      : lang === 'fr'
-      ? `Le produit se compose des composants système suivants : ${compList}.`
-      : `The product comprises the following system components: ${compList}.`;
-    writeBody(compSentence);
-  } else {
-    writeBody('—');
-  }
-
-  // 3.3 Security Measures
-  y += 3;
-  writeSubHeading(t(I18N.sec3c));
-  writeBody(t(I18N.introSec3c));
-  const measureKeys = Object.keys(intakeData.measures);
-  if (measureKeys.length > 0) {
-    // Table header
-    checkPage(12);
-    const colMeasure = ML + 5;
-    const colActive = ML + 80;
-    const colDoc = ML + 100;
-    const colAudit = ML + 125;
-
-    doc.setFont(HEAD_FONT, 'bold');
-    doc.setFontSize(7);
-    doc.setTextColor(...C.accent);
-    doc.text(lang === 'de' ? 'MASSNAHME' : lang === 'fr' ? 'MESURE' : 'MEASURE', colMeasure, y);
-    doc.text(t(I18N.active).toUpperCase(), colActive, y);
-    doc.text(t(I18N.documented).toUpperCase(), colDoc, y);
-    doc.text(t(I18N.audited).toUpperCase(), colAudit, y);
-    y += 2;
-    doc.setDrawColor(...C.ruleStroke);
-    doc.setLineWidth(0.15);
-    doc.line(colMeasure, y, W - MR - 5, y);
-    y += 3;
-
-    for (const key of measureKeys) {
-      checkPage(5);
-      const m = intakeData.measures[key];
-      doc.setFont(HEAD_FONT, 'normal');
-      doc.setFontSize(BODY_SIZE - 0.5);
-      doc.setTextColor(...C.bodyText);
-      doc.text(key.toUpperCase(), colMeasure, y);
-      doc.setTextColor(...(m.active ? C.greenText : C.redText));
-      doc.text(m.active ? t(I18N.yes) : t(I18N.no), colActive, y);
-      doc.setTextColor(...(m.documented ? C.greenText : C.redText));
-      doc.text(m.documented ? t(I18N.yes) : t(I18N.no), colDoc, y);
-      doc.setTextColor(...(m.audited ? C.greenText : C.redText));
-      doc.text(m.audited ? t(I18N.yes) : t(I18N.no), colAudit, y);
-      y += BODY_LEADING + 0.3;
+  for (const [cls, proc, desc] of classTable) {
+    checkPage(14);
+    const isCurrentClass = cls.toLowerCase().includes(intakeData.craClass.toLowerCase()) ||
+      (intakeData.craClass === 'default' && cls === 'Default') ||
+      (intakeData.craClass === 'k1' && cls.includes('I') && !cls.includes('II')) ||
+      (intakeData.craClass === 'k2' && cls.includes('II')) ||
+      (intakeData.craClass === 'krit' && cls.toLowerCase().includes('krit'));
+    if (isCurrentClass) {
+      doc.setFillColor(...C.bgLight); doc.roundedRect(ML + 3, y - 2.5, CW - 3, 12, 1, 1, 'F');
+      doc.setFillColor(...C.gold); doc.rect(ML + 3, y - 2.5, 1.2, 12, 'F');
     }
-  } else {
-    writeBody('—');
+    doc.setFont(HEAD_FONT, isCurrentClass ? 'bold' : 'normal'); doc.setFontSize(BODY_SIZE - 0.5);
+    doc.setTextColor(...(isCurrentClass ? C.darkNavy : C.bodyText));
+    doc.text(cls, clColClass, y);
+    doc.setFont(HEAD_FONT, 'normal'); doc.setFontSize(7.5);
+    doc.text(proc, clColProc, y);
+    doc.setFont(HEAD_FONT, 'normal'); doc.setFontSize(7); doc.setTextColor(...C.labelText);
+    const descLines = doc.splitTextToSize(desc, CW - 95);
+    doc.text(descLines[0] || '', clColDesc, y);
+    y += descLines.length > 1 ? 5 : 0;
+    if (descLines.length > 1) { for (let di = 1; di < descLines.length; di++) { doc.text(descLines[di], clColDesc, y); y += 3.5; } }
+    y += 5;
   }
 
-  // 3.4 Known Issues
-  y += 3;
-  writeSubHeading(t(I18N.sec3d));
-  writeBody(t(I18N.introSec3d));
-  if (intakeData.knownIssues && intakeData.knownIssues.trim()) {
-    const issues = intakeData.knownIssues.trim();
-    const humanIssues = issues.length > 40 && /[.!?]$/.test(issues) ? issues
-      : lang === 'de' ? `Der Hersteller hat die folgenden bekannten Schwachstellen im Vorfeld der Prüfung benannt: ${issues}${issues.endsWith('.') ? '' : '.'}`
-      : lang === 'fr' ? `Le fabricant a signalé les problèmes connus suivants avant l'évaluation : ${issues}${issues.endsWith('.') ? '' : '.'}`
-      : `The manufacturer reported the following known issues prior to the assessment: ${issues}${issues.endsWith('.') ? '' : '.'}`;
-    writeBody(humanIssues);
-  } else {
-    writeBody(t(I18N.noKnownIssues));
-  }
+  // ── 9.2 Compliance Verdict ──
+  y += 4;
+  const sec92Title = lang === 'de' ? '2.2  Konformitätserklärung' : lang === 'fr' ? '2.2  Déclaration de conformité' : '2.2  Compliance Verdict';
+  writeSubHeading(sec92Title);
 
-  // 3.5 Submitted Documentation
-  y += 3;
-  writeSubHeading(t(I18N.sec3e));
-  writeBody(t(I18N.introSec3e));
-  if (intakeData.files.length > 0) {
-    for (const f of intakeData.files) {
-      checkPage(6);
-      const sizeStr = f.size >= 1024 * 1024
-        ? `${(f.size / (1024 * 1024)).toFixed(1)} MB`
-        : `${(f.size / 1024).toFixed(0)} KB`;
-      doc.setFont(HEAD_FONT, 'normal');
-      doc.setFontSize(BODY_SIZE);
-      doc.setTextColor(...C.bodyText);
-      doc.text(`•  ${f.name}  (${f.type || '—'}, ${sizeStr})`, ML + 5, y);
-      y += BODY_LEADING + 0.5;
-    }
-  } else {
-    writeBody(t(I18N.noFilesSubmitted));
+  const isCompliant = critRisks.length === 0 && failReqs.length === 0;
+  const isConditional = !isCompliant && crComplianceRate >= 60;
+
+  const verdictStatement = lang === 'de'
+    ? isCompliant
+      ? `Auf Grundlage der in diesem Bericht dokumentierten Prüfungsergebnisse erfüllt das Produkt ${intakeData.productName} ${intakeData.version} die wesentlichen Anforderungen des EU Cyber Resilience Act (Verordnung (EU) 2024/2847). Es wurden keine kritischen Risiken und keine nicht-konformen Anforderungen identifiziert. Das Produkt ist aus Sicht dieser Bewertung marktfähig.`
+      : isConditional
+        ? `Das Produkt ${intakeData.productName} ${intakeData.version} erfüllt die Anforderungen des CRA derzeit mit Einschränkungen (gewichtete Konformitätsrate: ${crComplianceRate}%). Es bestehen ${critRisks.length} kritische Risiken und ${failReqs.length} nicht-konforme Anforderungen. Eine Markteinführung ist unter folgenden Bedingungen vertretbar: (1) Alle P0-Maßnahmen sind abgeschlossen und verifiziert, (2) die verbleibenden Lücken werden gemäß der Remediation-Roadmap (Abschnitt 4.2) innerhalb der definierten Fristen geschlossen.`
+        : `Das Produkt ${intakeData.productName} ${intakeData.version} erfüllt die wesentlichen Anforderungen des CRA derzeit nicht (gewichtete Konformitätsrate: ${crComplianceRate}%). Es bestehen ${critRisks.length} kritische Risiken und ${failReqs.length} nicht-konforme Anforderungen. Eine Markteinführung im aktuellen Zustand birgt erhebliche regulatorische Risiken, einschließlich Bußgeldern nach Art. 64 CRA und möglicher Rückrufpflichten nach Art. 49 CRA. Die Umsetzung der Remediation-Roadmap (Abschnitt 4.2) ist vor Markteinführung zwingend erforderlich.`
+    : lang === 'fr'
+    ? isCompliant
+      ? `Sur la base des résultats documentés dans ce rapport, le produit ${intakeData.productName} ${intakeData.version} satisfait aux exigences essentielles du CRA. Aucun risque critique ni exigence non conforme n'a été identifié. Le produit est considéré comme prêt pour la mise sur le marché.`
+      : isConditional
+        ? `Le produit ${intakeData.productName} ${intakeData.version} satisfait partiellement aux exigences du CRA (taux de conformité pondéré : ${crComplianceRate}%). ${critRisks.length} risques critiques et ${failReqs.length} exigences non conformes ont été identifiés. La mise sur le marché est acceptable sous conditions.`
+        : `Le produit ${intakeData.productName} ${intakeData.version} ne satisfait pas aux exigences essentielles du CRA (taux de conformité pondéré : ${crComplianceRate}%). La mise en oeuvre de la feuille de route de remédiation est impérative avant la mise sur le marché.`
+    : isCompliant
+      ? `Based on the assessment results documented in this report, the product ${intakeData.productName} ${intakeData.version} meets the essential requirements of the EU Cyber Resilience Act (Regulation (EU) 2024/2847). No critical risks and no non-compliant requirements were identified. The product is considered market-ready from this assessment's perspective.`
+      : isConditional
+        ? `The product ${intakeData.productName} ${intakeData.version} partially meets CRA requirements (weighted compliance rate: ${crComplianceRate}%). ${critRisks.length} critical risks and ${failReqs.length} non-compliant requirements were identified. Market launch is acceptable under conditions: (1) all P0 measures completed and verified, (2) remaining gaps closed per the remediation roadmap (Section 4.2).`
+        : `The product ${intakeData.productName} ${intakeData.version} does not currently meet the essential CRA requirements (weighted compliance rate: ${crComplianceRate}%). ${critRisks.length} critical risks and ${failReqs.length} non-compliant requirements were identified. Market launch in the current state poses significant regulatory risks including penalties under Art. 64 CRA and potential recall obligations under Art. 49 CRA. Implementation of the remediation roadmap (Section 4.2) is mandatory before market launch.`;
+
+  // Verdict box
+  checkPage(30);
+  const stmtLines = doc.splitTextToSize(verdictStatement, CW - 14);
+  const stmtBoxH = stmtLines.length * 4.2 + 8;
+  const stmtBg: [number, number, number] = isCompliant ? C.bgGreen : isConditional ? C.bgYellow : C.bgRed;
+  const stmtAccent: [number, number, number] = isCompliant ? C.greenText : isConditional ? C.orangeText : C.redText;
+  doc.setFillColor(...stmtBg);
+  doc.roundedRect(ML, y, CW, stmtBoxH, 2, 2, 'F');
+  doc.setFillColor(...stmtAccent);
+  doc.rect(ML, y, 2, stmtBoxH, 'F');
+  doc.setFont(HEAD_FONT, 'normal'); doc.setFontSize(8.5); doc.setTextColor(...C.bodyText);
+  doc.text(stmtLines, ML + 8, y + 5);
+  y += stmtBoxH + 6;
+
+  // Verdict label
+  const verdictLbl = isCompliant
+    ? (lang === 'de' ? 'KONFORM — Marktreife gegeben' : lang === 'fr' ? 'CONFORME — Prêt pour le marché' : 'COMPLIANT — Market-ready')
+    : isConditional
+      ? (lang === 'de' ? 'BEDINGT KONFORM — Nacharbeit erforderlich' : lang === 'fr' ? 'CONFORMITÉ CONDITIONNELLE — Corrections nécessaires' : 'CONDITIONALLY COMPLIANT — Remediation required')
+      : (lang === 'de' ? 'NICHT KONFORM — Markteinführung nicht empfohlen' : lang === 'fr' ? 'NON CONFORME — Mise sur le marché non recommandée' : 'NON-COMPLIANT — Market launch not recommended');
+
+  checkPage(14);
+  doc.setFillColor(...stmtAccent);
+  doc.roundedRect(ML, y, CW, 10, 1.5, 1.5, 'F');
+  doc.setFont(HEAD_FONT, 'bold'); doc.setFontSize(9); doc.setTextColor(255, 255, 255);
+  doc.text(verdictLbl, ML + CW / 2, y + 6.5, { align: 'center' });
+  y += 16;
+
+  // Signature block
+  const sigTitle = lang === 'de' ? 'Verantwortliche Freigabe' : lang === 'fr' ? 'Approbation responsable' : 'Responsible Approval';
+  writeLabel(sigTitle);
+  y += 2;
+  const sigFields = lang === 'de'
+    ? ['Name: ____________________________', 'Funktion: ____________________________', 'Datum: ____________________________', 'Unterschrift: ____________________________']
+    : lang === 'fr'
+    ? ['Nom : ____________________________', 'Fonction : ____________________________', 'Date : ____________________________', 'Signature : ____________________________']
+    : ['Name: ____________________________', 'Role: ____________________________', 'Date: ____________________________', 'Signature: ____________________________'];
+  for (const sf of sigFields) {
+    checkPage(6);
+    doc.setFont(HEAD_FONT, 'normal'); doc.setFontSize(BODY_SIZE); doc.setTextColor(...C.bodyText);
+    doc.text(sf, ML + 5, y);
+    y += 7;
   }
 
   /* ══════════════════════════════════════
-     SECTION 4: Detailed Findings
+     SECTION 3: Detailed Findings
      ══════════════════════════════════════ */
   newSection();
   writeSectionHeading(t(I18N.sec4));
@@ -2015,12 +1958,12 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     ? (lang === 'de' ? `Die normative Abdeckung von ${overallStats.rate}% ist für die gewählte Produktklasse als ausreichend einzustufen.`
       : lang === 'fr' ? `La couverture normative de ${overallStats.rate}% est jugée suffisante.`
       : `The normative coverage of ${overallStats.rate}% is considered sufficient for the selected product class.`)
-    : (lang === 'de' ? `Die normative Abdeckung von ${overallStats.rate}% liegt unter dem empfohlenen Schwellwert von 80%. Die Remediation-Roadmap (Abschnitt 5.2) adressiert die identifizierten Lücken.`
+    : (lang === 'de' ? `Die normative Abdeckung von ${overallStats.rate}% liegt unter dem empfohlenen Schwellwert von 80%. Die Remediation-Roadmap (Abschnitt 4.2) adressiert die identifizierten Lücken.`
       : lang === 'fr' ? `La couverture normative de ${overallStats.rate}% est inférieure au seuil recommandé de 80%.`
-      : `The normative coverage of ${overallStats.rate}% is below the recommended 80% threshold. The remediation roadmap (Section 5.2) addresses identified gaps.`));
+      : `The normative coverage of ${overallStats.rate}% is below the recommended 80% threshold. The remediation roadmap (Section 4.2) addresses identified gaps.`));
 
   /* ══════════════════════════════════════
-     SECTION 5: Recommendations & Roadmap
+     SECTION 4: Recommendations & Roadmap
      ══════════════════════════════════════ */
   newSection();
   writeSectionHeading(t(I18N.sec5));
@@ -2237,7 +2180,211 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
   y += roiBoxH + 5;
 
   /* ══════════════════════════════════════
-     SECTION 6: Methodology
+     SECTION 5: Scope (comprehensive)
+     ══════════════════════════════════════ */
+  newSection();
+  writeSectionHeading(t(I18N.sec3));
+  writeBody(t(I18N.introSec3));
+  y += 2;
+
+  // 3.1 Product Profile
+  writeSubHeading(t(I18N.sec3a));
+  writeBody(t(I18N.introSec3a));
+  writeKV(t(I18N.product), `${intakeData.productName} ${intakeData.version}`);
+  writeKV(t(I18N.type), productTypeName);
+  if (intakeData.productTypes.length > 0) {
+    writeKV(t(I18N.productTypes), intakeData.productTypes.join(', '));
+  }
+  writeKV(t(I18N.craClass), craClassName);
+  writeKV(t(I18N.deployment), intakeData.deployment || '—');
+  writeKV(t(I18N.interfaces), intakeData.interfaces.length > 0 ? intakeData.interfaces.join(', ') : '—');
+  writeKV(t(I18N.roles), intakeData.roles.length > 0 ? intakeData.roles.join(', ') + (intakeData.customRole ? `, ${intakeData.customRole}` : '') : '—');
+
+  if (intakeData.description) {
+    y += 2;
+    // Humanize description
+    const desc = intakeData.description.trim();
+    const humanDesc = desc.length > 40 && /[.!?]$/.test(desc) ? desc
+      : lang === 'de' ? `Zum geprüften Produkt wurde die folgende Beschreibung angegeben: ${desc}${desc.endsWith('.') ? '' : '.'}`
+      : lang === 'fr' ? `La description suivante a été fournie pour le produit évalué : ${desc}${desc.endsWith('.') ? '' : '.'}`
+      : `The following description was provided for the assessed product: ${desc}${desc.endsWith('.') ? '' : '.'}`;
+    writeBody(humanDesc);
+  }
+
+  // 3.2 Components & Architecture
+  y += 3;
+  writeSubHeading(t(I18N.sec3b));
+  writeBody(t(I18N.introSec3b));
+  if (intakeData.components.length > 0) {
+    const compList = intakeData.components.length <= 2
+      ? intakeData.components.join(lang === 'de' ? ' und ' : ' and ')
+      : intakeData.components.slice(0, -1).join(', ') + (lang === 'de' ? ' und ' : ' and ') + intakeData.components[intakeData.components.length - 1];
+    const compSentence = lang === 'de'
+      ? `Das Produkt setzt sich aus den folgenden Systemkomponenten zusammen: ${compList}.`
+      : lang === 'fr'
+      ? `Le produit se compose des composants système suivants : ${compList}.`
+      : `The product comprises the following system components: ${compList}.`;
+    writeBody(compSentence);
+  } else {
+    writeBody('—');
+  }
+
+  // 3.3 Security Measures
+  y += 3;
+  writeSubHeading(t(I18N.sec3c));
+  writeBody(t(I18N.introSec3c));
+  const measureKeys = Object.keys(intakeData.measures);
+  if (measureKeys.length > 0) {
+    // Table header
+    checkPage(12);
+    const colMeasure = ML + 5;
+    const colActive = ML + 80;
+    const colDoc = ML + 100;
+    const colAudit = ML + 125;
+
+    doc.setFont(HEAD_FONT, 'bold');
+    doc.setFontSize(7);
+    doc.setTextColor(...C.accent);
+    doc.text(lang === 'de' ? 'MASSNAHME' : lang === 'fr' ? 'MESURE' : 'MEASURE', colMeasure, y);
+    doc.text(t(I18N.active).toUpperCase(), colActive, y);
+    doc.text(t(I18N.documented).toUpperCase(), colDoc, y);
+    doc.text(t(I18N.audited).toUpperCase(), colAudit, y);
+    y += 2;
+    doc.setDrawColor(...C.ruleStroke);
+    doc.setLineWidth(0.15);
+    doc.line(colMeasure, y, W - MR - 5, y);
+    y += 3;
+
+    for (const key of measureKeys) {
+      checkPage(5);
+      const m = intakeData.measures[key];
+      doc.setFont(HEAD_FONT, 'normal');
+      doc.setFontSize(BODY_SIZE - 0.5);
+      doc.setTextColor(...C.bodyText);
+      doc.text(key.toUpperCase(), colMeasure, y);
+      doc.setTextColor(...(m.active ? C.greenText : C.redText));
+      doc.text(m.active ? t(I18N.yes) : t(I18N.no), colActive, y);
+      doc.setTextColor(...(m.documented ? C.greenText : C.redText));
+      doc.text(m.documented ? t(I18N.yes) : t(I18N.no), colDoc, y);
+      doc.setTextColor(...(m.audited ? C.greenText : C.redText));
+      doc.text(m.audited ? t(I18N.yes) : t(I18N.no), colAudit, y);
+      y += BODY_LEADING + 0.3;
+    }
+  } else {
+    writeBody('—');
+  }
+
+  // 3.4 Known Issues
+  y += 3;
+  writeSubHeading(t(I18N.sec3d));
+  writeBody(t(I18N.introSec3d));
+  if (intakeData.knownIssues && intakeData.knownIssues.trim()) {
+    const issues = intakeData.knownIssues.trim();
+    const humanIssues = issues.length > 40 && /[.!?]$/.test(issues) ? issues
+      : lang === 'de' ? `Der Hersteller hat die folgenden bekannten Schwachstellen im Vorfeld der Prüfung benannt: ${issues}${issues.endsWith('.') ? '' : '.'}`
+      : lang === 'fr' ? `Le fabricant a signalé les problèmes connus suivants avant l'évaluation : ${issues}${issues.endsWith('.') ? '' : '.'}`
+      : `The manufacturer reported the following known issues prior to the assessment: ${issues}${issues.endsWith('.') ? '' : '.'}`;
+    writeBody(humanIssues);
+  } else {
+    writeBody(t(I18N.noKnownIssues));
+  }
+
+  // 3.5 Submitted Documentation
+  y += 3;
+  writeSubHeading(t(I18N.sec3e));
+  writeBody(t(I18N.introSec3e));
+  if (intakeData.files.length > 0) {
+    for (const f of intakeData.files) {
+      checkPage(6);
+      const sizeStr = f.size >= 1024 * 1024
+        ? `${(f.size / (1024 * 1024)).toFixed(1)} MB`
+        : `${(f.size / 1024).toFixed(0)} KB`;
+      doc.setFont(HEAD_FONT, 'normal');
+      doc.setFontSize(BODY_SIZE);
+      doc.setTextColor(...C.bodyText);
+      doc.text(`•  ${f.name}  (${f.type || '—'}, ${sizeStr})`, ML + 5, y);
+      y += BODY_LEADING + 0.5;
+    }
+  } else {
+    writeBody(t(I18N.noFilesSubmitted));
+  }
+
+  /* ══════════════════════════════════════
+     SECTION 6: Context
+     ══════════════════════════════════════ */
+  newSection();
+  writeSectionHeading(t(I18N.sec1));
+  writeBody(getContextText(intakeData.productName, intakeData.version, productTypeName, craClassName, dateStr, lang));
+  y += 4;
+
+  // ── Formal Audit Scope Block ──
+  const scopeTitle = lang === 'de' ? 'PRÜFUNGSUMFANG UND ABGRENZUNG' : lang === 'fr' ? 'PÉRIMÈTRE ET DÉLIMITATION' : 'AUDIT SCOPE AND BOUNDARIES';
+  writeLabel(scopeTitle);
+  y += 1;
+
+  const scopeFields = lang === 'de' ? [
+    ['Prüfgegenstand', `${intakeData.productName} ${intakeData.version} (${productTypeName}, CRA-Klasse: ${craClassName})`],
+    ['Organisationseinheit', intakeData.productName],
+    ['Geprüfte Systeme / Komponenten', intakeData.components.length > 0 ? intakeData.components.join(', ') : 'Alle im Intake benannten Systemkomponenten'],
+    ['Geprüfte Schnittstellen', intakeData.interfaces.length > 0 ? intakeData.interfaces.join(', ') : 'Keine explizit benannt'],
+    ['Prüfungszeitraum', dateStr],
+    ['Prüfungskriterien', 'EU Cyber Resilience Act (VO (EU) 2024/2847), Annex I (Sicherheitseigenschaften), Annex II (Schwachstellenbehandlung), Art. 10-18 (Herstellerpflichten), ETSI EN 303 645, OWASP IoT Top 10'],
+    ['Prüfungsziele', '(1) Systematische Identifikation von Bedrohungen nach STRIDE, (2) Bewertung der CRA-Konformität, (3) Ableitung einer priorisierten Remediation-Roadmap, (4) Feststellung der Marktreife'],
+    ['Ausschlüsse', 'Keine physische Vor-Ort-Prüfung. Keine akkreditierte Konformitätsbewertung nach Art. 24 ff. CRA. Keine Prüfung von Lieferketten-Subkomponenten, sofern nicht vom Hersteller angegeben.'],
+  ] : lang === 'fr' ? [
+    ['Objet de l\'évaluation', `${intakeData.productName} ${intakeData.version} (${productTypeName}, classe CRA : ${craClassName})`],
+    ['Unité organisationnelle', intakeData.productName],
+    ['Systèmes / composants évalués', intakeData.components.length > 0 ? intakeData.components.join(', ') : 'Tous les composants nommés dans l\'intake'],
+    ['Interfaces évaluées', intakeData.interfaces.length > 0 ? intakeData.interfaces.join(', ') : 'Aucune explicitement nommée'],
+    ['Période d\'évaluation', dateStr],
+    ['Critères d\'évaluation', 'EU CRA (Règlement (UE) 2024/2847), Annexe I, Annexe II, Art. 10-18, ETSI EN 303 645, OWASP IoT Top 10'],
+    ['Objectifs', '(1) Identification systématique des menaces STRIDE, (2) Évaluation de la conformité CRA, (3) Feuille de route de remédiation priorisée, (4) Détermination de la maturité marché'],
+    ['Exclusions', 'Pas d\'audit physique sur site. Pas d\'évaluation de conformité accréditée. Pas d\'examen des sous-composants de la chaîne d\'approvisionnement.'],
+  ] : [
+    ['Assessment Subject', `${intakeData.productName} ${intakeData.version} (${productTypeName}, CRA class: ${craClassName})`],
+    ['Organisational Unit', intakeData.productName],
+    ['Assessed Systems / Components', intakeData.components.length > 0 ? intakeData.components.join(', ') : 'All components named in intake'],
+    ['Assessed Interfaces', intakeData.interfaces.length > 0 ? intakeData.interfaces.join(', ') : 'None explicitly named'],
+    ['Assessment Period', dateStr],
+    ['Assessment Criteria', 'EU Cyber Resilience Act (Regulation (EU) 2024/2847), Annex I (Security Properties), Annex II (Vulnerability Handling), Art. 10-18 (Manufacturer Obligations), ETSI EN 303 645, OWASP IoT Top 10'],
+    ['Objectives', '(1) Systematic threat identification via STRIDE, (2) CRA compliance assessment, (3) Prioritised remediation roadmap, (4) Market readiness determination'],
+    ['Exclusions', 'No physical on-site audit. No accredited conformity assessment per Art. 24 ff. CRA. No examination of supply chain sub-components unless reported by manufacturer.'],
+  ];
+
+  checkPage(60);
+  doc.setFillColor(...C.bgLight);
+  const scopeBoxStartY = y;
+  // Estimate box height
+  let scopeH = 6;
+  for (const [k, v] of scopeFields) { scopeH += 12 + Math.ceil(v.length / 80) * 4; }
+  scopeH = Math.min(scopeH, 140);
+  doc.roundedRect(ML, y, CW, scopeH, 2, 2, 'F');
+  doc.setFillColor(...C.accent);
+  doc.rect(ML, y, 2, scopeH, 'F');
+  y += 4;
+
+  for (const [key, value] of scopeFields) {
+    checkPage(14);
+    doc.setFont(HEAD_FONT, 'bold');
+    doc.setFontSize(7.5);
+    doc.setTextColor(...C.accent);
+    doc.text(key.toUpperCase(), ML + 6, y);
+    y += 3.5;
+    doc.setFont(HEAD_FONT, 'normal');
+    doc.setFontSize(BODY_SIZE);
+    doc.setTextColor(...C.bodyText);
+    const valLines = doc.splitTextToSize(value, CW - 14);
+    for (const vl of valLines) {
+      checkPage(5);
+      doc.text(vl, ML + 6, y);
+      y += BODY_LEADING;
+    }
+    y += 2;
+  }
+  y += 4;
+
+  /* ══════════════════════════════════════
+     SECTION 7: Methodology
      ══════════════════════════════════════ */
   newSection();
   writeSectionHeading(t(I18N.sec6));
@@ -2264,14 +2411,14 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
   writeBody(otContext);
 
   /* ══════════════════════════════════════
-     SECTION 7: Disclaimer
+     SECTION 8: Disclaimer
      ══════════════════════════════════════ */
   y += 4;
   writeSectionHeading(t(I18N.sec7));
   writeBody(getDisclaimer(lang));
 
   /* ══════════════════════════════════════
-     SECTION 8: Verification Guidance
+     SECTION 9: Verification Guidance
      ══════════════════════════════════════ */
   newSection();
   const sec8Title = lang === 'de' ? '8  Hinweise zur Verifizierung' : lang === 'fr' ? '8  Guide de verification' : '8  Verification Guidance';
@@ -2285,22 +2432,22 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
   y += 2;
 
   const verSteps = lang === 'de' ? [
-    { title: '1. Evidenz-Referenzen nachvollziehen', text: 'Jede Feststellung in Abschnitt 4 verweist auf Evidenz, die in Anhang C aufgeschlüsselt ist. Prüfen Sie, ob die dort genannten Werkzeuge und Befehle auf Ihrem Produkt reproduzierbare Ergebnisse liefern.' },
-    { title: '2. Risikobewertungen plausibilisieren', text: 'Die Risikoscores in Abschnitt 4.1 basieren auf einer 5x5-Matrix (Abschnitt 6.1). Vergleichen Sie die zugewiesenen Likelihood- und Impact-Werte mit Ihrer eigenen Einschätzung. Ziehen Sie dabei OWASP, NIST und ENISA-Quellen heran.' },
-    { title: '3. Konformitätsbewertungen gegen CRA-Text prüfen', text: 'Für jede Anforderung in Abschnitt 4.2 ist der CRA-Artikel angegeben. Lesen Sie den Originaltext der Verordnung (EU) 2024/2847 und vergleichen Sie, ob die dokumentierte Abweichung tatsächlich den regulatorischen Vorgaben widerspricht.' },
-    { title: '4. Aufwandsschätzungen validieren', text: 'Die in Abschnitt 5 genannten Aufwandsschätzungen basieren auf Erfahrungswerten. Vergleichen Sie diese mit Angeboten externer Dienstleister oder eigenen Projekterfahrungen.' },
+    { title: '1. Evidenz-Referenzen nachvollziehen', text: 'Jede Feststellung in Abschnitt 3 verweist auf Evidenz, die in Anhang C aufgeschlüsselt ist. Prüfen Sie, ob die dort genannten Werkzeuge und Befehle auf Ihrem Produkt reproduzierbare Ergebnisse liefern.' },
+    { title: '2. Risikobewertungen plausibilisieren', text: 'Die Risikoscores in Abschnitt 3.1 basieren auf einer 5x5-Matrix (Abschnitt 7.1). Vergleichen Sie die zugewiesenen Likelihood- und Impact-Werte mit Ihrer eigenen Einschätzung. Ziehen Sie dabei OWASP, NIST und ENISA-Quellen heran.' },
+    { title: '3. Konformitätsbewertungen gegen CRA-Text prüfen', text: 'Für jede Anforderung in Abschnitt 3.2 ist der CRA-Artikel angegeben. Lesen Sie den Originaltext der Verordnung (EU) 2024/2847 und vergleichen Sie, ob die dokumentierte Abweichung tatsächlich den regulatorischen Vorgaben widerspricht.' },
+    { title: '4. Aufwandsschätzungen validieren', text: 'Die in Abschnitt 4 genannten Aufwandsschätzungen basieren auf Erfahrungswerten. Vergleichen Sie diese mit Angeboten externer Dienstleister oder eigenen Projekterfahrungen.' },
     { title: '5. Zweitmeinung einholen', text: 'Für eine unabhängige Validierung empfiehlt sich die Beauftragung eines externen Prüfers oder einer benannten Stelle nach Art. 24 CRA, insbesondere bei kritischen Risiken (Score >= 20).' },
   ] : lang === 'fr' ? [
     { title: '1. Tracer les references de preuves', text: 'Chaque constatation de la section 4 fait reference a des preuves detaillees en annexe C. Verifiez si les outils et commandes mentionnes produisent des resultats reproductibles sur votre produit.' },
-    { title: '2. Valider les scores de risque', text: 'Les scores de risque de la section 4.1 sont bases sur une matrice 5x5 (section 6.1). Comparez les valeurs attribuees avec votre propre evaluation en utilisant les sources OWASP, NIST et ENISA.' },
+    { title: '2. Valider les scores de risque', text: 'Les scores de risque de la section 4.1 sont bases sur une matrice 5x5 (section 8.1). Comparez les valeurs attribuees avec votre propre evaluation en utilisant les sources OWASP, NIST et ENISA.' },
     { title: '3. Verifier les evaluations de conformite', text: 'Pour chaque exigence de la section 4.2, l\'article CRA correspondant est indique. Lisez le texte original du reglement (UE) 2024/2847 et verifiez si les ecarts documentes contredisent effectivement les dispositions reglementaires.' },
-    { title: '4. Valider les estimations d\'effort', text: 'Les estimations d\'effort de la section 5 sont basees sur des donnees empiriques. Comparez-les avec des devis de prestataires externes ou votre propre experience projet.' },
+    { title: '4. Valider les estimations d\'effort', text: 'Les estimations d\'effort de la section 4 sont basees sur des donnees empiriques. Comparez-les avec des devis de prestataires externes ou votre propre experience projet.' },
     { title: '5. Obtenir un second avis', text: 'Pour une validation independante, envisagez de mandater un organisme notifie selon l\'Art. 24 CRA, en particulier pour les risques critiques (score >= 20).' },
   ] : [
-    { title: '1. Trace evidence references', text: 'Each finding in Section 4 references evidence detailed in Appendix C. Verify whether the listed tools and commands produce reproducible results on your product.' },
-    { title: '2. Validate risk scores', text: 'Risk scores in Section 4.1 are based on a 5x5 matrix (Section 6.1). Compare the assigned likelihood and impact values with your own assessment, drawing on OWASP, NIST, and ENISA sources.' },
-    { title: '3. Cross-check compliance assessments', text: 'For each requirement in Section 4.2, the corresponding CRA article is specified. Read the original text of Regulation (EU) 2024/2847 and verify whether the documented deviations indeed contradict the regulatory provisions.' },
-    { title: '4. Validate effort estimates', text: 'Effort estimates in Section 5 are based on empirical data. Compare them with external service provider quotes or your own project experience.' },
+    { title: '1. Trace evidence references', text: 'Each finding in Section 3 references evidence detailed in Appendix C. Verify whether the listed tools and commands produce reproducible results on your product.' },
+    { title: '2. Validate risk scores', text: 'Risk scores in Section 3.1 are based on a 5x5 matrix (Section 7.1). Compare the assigned likelihood and impact values with your own assessment, drawing on OWASP, NIST, and ENISA sources.' },
+    { title: '3. Cross-check compliance assessments', text: 'For each requirement in Section 3.2, the corresponding CRA article is specified. Read the original text of Regulation (EU) 2024/2847 and verify whether the documented deviations indeed contradict the regulatory provisions.' },
+    { title: '4. Validate effort estimates', text: 'Effort estimates in Section 4 are based on empirical data. Compare them with external service provider quotes or your own project experience.' },
     { title: '5. Obtain a second opinion', text: 'For independent validation, consider engaging a notified body per Art. 24 CRA. This is particularly advisable for critical risks (score >= 20) and non-compliant requirements.' },
   ];
 
@@ -2311,153 +2458,6 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     doc.setTextColor(...C.bodyText);
     writeBody(step.text, 4);
     y += 3;
-  }
-
-  /* ══════════════════════════════════════
-     SECTION 9: Compliance Statement & Classification
-     ══════════════════════════════════════ */
-  newSection();
-  writeSectionHeading(t(I18N.sec9));
-
-  const sec9Intro = lang === 'de'
-    ? 'Dieser Abschnitt enthält die abschließende Konformitätsbewertung und die Produktklassifizierung gemäß CRA. Er dient als Entscheidungsgrundlage für die Markteinführung und die Auswahl des Konformitätsbewertungsverfahrens.'
-    : lang === 'fr'
-    ? 'Cette section contient l\'évaluation finale de conformité et la classification du produit selon le CRA. Elle sert de base de décision pour la mise sur le marché et le choix de la procédure d\'évaluation de conformité.'
-    : 'This section contains the final compliance assessment and product classification pursuant to the CRA. It serves as the basis for market launch decisions and the selection of the conformity assessment procedure.';
-  writeBody(sec9Intro);
-  y += 3;
-
-  // ── 9.1 Product Classification ──
-  const sec91Title = lang === 'de' ? '9.1  Produktklassifizierung' : lang === 'fr' ? '9.1  Classification du produit' : '9.1  Product Classification';
-  writeSubHeading(sec91Title);
-
-  const classExplanation = lang === 'de'
-    ? `Das Produkt ${intakeData.productName} ist als CRA-Klasse "${craClassName}" eingestuft. Die Klassifizierung bestimmt das anwendbare Konformitätsbewertungsverfahren:`
-    : lang === 'fr'
-    ? `Le produit ${intakeData.productName} est classé CRA "${craClassName}". La classification détermine la procédure d'évaluation de conformité applicable :`
-    : `The product ${intakeData.productName} is classified as CRA class "${craClassName}". The classification determines the applicable conformity assessment procedure:`;
-  writeBody(classExplanation);
-  y += 2;
-
-  const classTable: [string, string, string][] = lang === 'de' ? [
-    ['Default', 'Selbstbewertung (Art. 32)', 'Interne Konformitätsprüfung durch den Hersteller, keine Beteiligung einer benannten Stelle erforderlich.'],
-    ['Klasse I', 'Harmonisierte Norm oder Selbstbewertung', 'Selbstbewertung möglich bei Anwendung harmonisierter Normen (Art. 32); andernfalls Beteiligung einer benannten Stelle (Art. 33).'],
-    ['Klasse II', 'Drittprüfung (Art. 33)', 'Verpflichtende Beteiligung einer benannten Stelle (Notified Body). EU-Typprüfung oder vollständige Qualitätssicherung.'],
-    ['Kritisch', 'EU-Typprüfung (Art. 33)', 'Europäisches Cybersicherheitszertifikat auf Stufe "substantiell" oder höher erforderlich.'],
-  ] : lang === 'fr' ? [
-    ['Default', 'Auto-évaluation (Art. 32)', 'Évaluation interne par le fabricant, aucun organisme notifié requis.'],
-    ['Classe I', 'Norme harmonisée ou auto-évaluation', 'Auto-évaluation possible avec normes harmonisées (Art. 32) ; sinon organisme notifié (Art. 33).'],
-    ['Classe II', 'Examen par tiers (Art. 33)', 'Participation obligatoire d\'un organisme notifié. Examen de type UE ou assurance qualité complète.'],
-    ['Critique', 'Examen de type UE (Art. 33)', 'Certificat européen de cybersécurité au niveau "substantiel" ou supérieur requis.'],
-  ] : [
-    ['Default', 'Self-assessment (Art. 32)', 'Internal conformity assessment by manufacturer, no notified body involvement required.'],
-    ['Class I', 'Harmonised standard or self-assessment', 'Self-assessment possible when harmonised standards are applied (Art. 32); otherwise notified body involvement (Art. 33).'],
-    ['Class II', 'Third-party audit (Art. 33)', 'Mandatory notified body involvement. EU type examination or full quality assurance.'],
-    ['Critical', 'EU type examination (Art. 33)', 'European cybersecurity certificate at level "substantial" or higher required.'],
-  ];
-
-  checkPage(40);
-  const clColClass = ML + 5;
-  const clColProc = ML + 40;
-  const clColDesc = ML + 90;
-  doc.setFont(HEAD_FONT, 'bold'); doc.setFontSize(7); doc.setTextColor(...C.accent);
-  doc.text(lang === 'de' ? 'KLASSE' : 'CLASS', clColClass, y);
-  doc.text(lang === 'de' ? 'VERFAHREN' : 'PROCEDURE', clColProc, y);
-  doc.text(lang === 'de' ? 'ERLÄUTERUNG' : 'DESCRIPTION', clColDesc, y);
-  y += 2; doc.setDrawColor(...C.ruleStroke); doc.setLineWidth(0.15); doc.line(clColClass, y, W - MR - 5, y); y += 3;
-
-  for (const [cls, proc, desc] of classTable) {
-    checkPage(14);
-    const isCurrentClass = cls.toLowerCase().includes(intakeData.craClass.toLowerCase()) ||
-      (intakeData.craClass === 'default' && cls === 'Default') ||
-      (intakeData.craClass === 'k1' && cls.includes('I') && !cls.includes('II')) ||
-      (intakeData.craClass === 'k2' && cls.includes('II')) ||
-      (intakeData.craClass === 'krit' && cls.toLowerCase().includes('krit'));
-    if (isCurrentClass) {
-      doc.setFillColor(...C.bgLight); doc.roundedRect(ML + 3, y - 2.5, CW - 3, 12, 1, 1, 'F');
-      doc.setFillColor(...C.gold); doc.rect(ML + 3, y - 2.5, 1.2, 12, 'F');
-    }
-    doc.setFont(HEAD_FONT, isCurrentClass ? 'bold' : 'normal'); doc.setFontSize(BODY_SIZE - 0.5);
-    doc.setTextColor(...(isCurrentClass ? C.darkNavy : C.bodyText));
-    doc.text(cls, clColClass, y);
-    doc.setFont(HEAD_FONT, 'normal'); doc.setFontSize(7.5);
-    doc.text(proc, clColProc, y);
-    doc.setFont(HEAD_FONT, 'normal'); doc.setFontSize(7); doc.setTextColor(...C.labelText);
-    const descLines = doc.splitTextToSize(desc, CW - 95);
-    doc.text(descLines[0] || '', clColDesc, y);
-    y += descLines.length > 1 ? 5 : 0;
-    if (descLines.length > 1) { for (let di = 1; di < descLines.length; di++) { doc.text(descLines[di], clColDesc, y); y += 3.5; } }
-    y += 5;
-  }
-
-  // ── 9.2 Compliance Verdict ──
-  y += 4;
-  const sec92Title = lang === 'de' ? '9.2  Konformitätserklärung' : lang === 'fr' ? '9.2  Déclaration de conformité' : '9.2  Compliance Verdict';
-  writeSubHeading(sec92Title);
-
-  const isCompliant = critRisks.length === 0 && failReqs.length === 0;
-  const isConditional = !isCompliant && crComplianceRate >= 60;
-
-  const verdictStatement = lang === 'de'
-    ? isCompliant
-      ? `Auf Grundlage der in diesem Bericht dokumentierten Prüfungsergebnisse erfüllt das Produkt ${intakeData.productName} ${intakeData.version} die wesentlichen Anforderungen des EU Cyber Resilience Act (Verordnung (EU) 2024/2847). Es wurden keine kritischen Risiken und keine nicht-konformen Anforderungen identifiziert. Das Produkt ist aus Sicht dieser Bewertung marktfähig.`
-      : isConditional
-        ? `Das Produkt ${intakeData.productName} ${intakeData.version} erfüllt die Anforderungen des CRA derzeit mit Einschränkungen (gewichtete Konformitätsrate: ${crComplianceRate}%). Es bestehen ${critRisks.length} kritische Risiken und ${failReqs.length} nicht-konforme Anforderungen. Eine Markteinführung ist unter folgenden Bedingungen vertretbar: (1) Alle P0-Maßnahmen sind abgeschlossen und verifiziert, (2) die verbleibenden Lücken werden gemäß der Remediation-Roadmap (Abschnitt 5.2) innerhalb der definierten Fristen geschlossen.`
-        : `Das Produkt ${intakeData.productName} ${intakeData.version} erfüllt die wesentlichen Anforderungen des CRA derzeit nicht (gewichtete Konformitätsrate: ${crComplianceRate}%). Es bestehen ${critRisks.length} kritische Risiken und ${failReqs.length} nicht-konforme Anforderungen. Eine Markteinführung im aktuellen Zustand birgt erhebliche regulatorische Risiken, einschließlich Bußgeldern nach Art. 64 CRA und möglicher Rückrufpflichten nach Art. 49 CRA. Die Umsetzung der Remediation-Roadmap (Abschnitt 5.2) ist vor Markteinführung zwingend erforderlich.`
-    : lang === 'fr'
-    ? isCompliant
-      ? `Sur la base des résultats documentés dans ce rapport, le produit ${intakeData.productName} ${intakeData.version} satisfait aux exigences essentielles du CRA. Aucun risque critique ni exigence non conforme n'a été identifié. Le produit est considéré comme prêt pour la mise sur le marché.`
-      : isConditional
-        ? `Le produit ${intakeData.productName} ${intakeData.version} satisfait partiellement aux exigences du CRA (taux de conformité pondéré : ${crComplianceRate}%). ${critRisks.length} risques critiques et ${failReqs.length} exigences non conformes ont été identifiés. La mise sur le marché est acceptable sous conditions.`
-        : `Le produit ${intakeData.productName} ${intakeData.version} ne satisfait pas aux exigences essentielles du CRA (taux de conformité pondéré : ${crComplianceRate}%). La mise en oeuvre de la feuille de route de remédiation est impérative avant la mise sur le marché.`
-    : isCompliant
-      ? `Based on the assessment results documented in this report, the product ${intakeData.productName} ${intakeData.version} meets the essential requirements of the EU Cyber Resilience Act (Regulation (EU) 2024/2847). No critical risks and no non-compliant requirements were identified. The product is considered market-ready from this assessment's perspective.`
-      : isConditional
-        ? `The product ${intakeData.productName} ${intakeData.version} partially meets CRA requirements (weighted compliance rate: ${crComplianceRate}%). ${critRisks.length} critical risks and ${failReqs.length} non-compliant requirements were identified. Market launch is acceptable under conditions: (1) all P0 measures completed and verified, (2) remaining gaps closed per the remediation roadmap (Section 5.2).`
-        : `The product ${intakeData.productName} ${intakeData.version} does not currently meet the essential CRA requirements (weighted compliance rate: ${crComplianceRate}%). ${critRisks.length} critical risks and ${failReqs.length} non-compliant requirements were identified. Market launch in the current state poses significant regulatory risks including penalties under Art. 64 CRA and potential recall obligations under Art. 49 CRA. Implementation of the remediation roadmap (Section 5.2) is mandatory before market launch.`;
-
-  // Verdict box
-  checkPage(30);
-  const stmtLines = doc.splitTextToSize(verdictStatement, CW - 14);
-  const stmtBoxH = stmtLines.length * 4.2 + 8;
-  const stmtBg: [number, number, number] = isCompliant ? C.bgGreen : isConditional ? C.bgYellow : C.bgRed;
-  const stmtAccent: [number, number, number] = isCompliant ? C.greenText : isConditional ? C.orangeText : C.redText;
-  doc.setFillColor(...stmtBg);
-  doc.roundedRect(ML, y, CW, stmtBoxH, 2, 2, 'F');
-  doc.setFillColor(...stmtAccent);
-  doc.rect(ML, y, 2, stmtBoxH, 'F');
-  doc.setFont(HEAD_FONT, 'normal'); doc.setFontSize(8.5); doc.setTextColor(...C.bodyText);
-  doc.text(stmtLines, ML + 8, y + 5);
-  y += stmtBoxH + 6;
-
-  // Verdict label
-  const verdictLbl = isCompliant
-    ? (lang === 'de' ? 'KONFORM — Marktreife gegeben' : lang === 'fr' ? 'CONFORME — Prêt pour le marché' : 'COMPLIANT — Market-ready')
-    : isConditional
-      ? (lang === 'de' ? 'BEDINGT KONFORM — Nacharbeit erforderlich' : lang === 'fr' ? 'CONFORMITÉ CONDITIONNELLE — Corrections nécessaires' : 'CONDITIONALLY COMPLIANT — Remediation required')
-      : (lang === 'de' ? 'NICHT KONFORM — Markteinführung nicht empfohlen' : lang === 'fr' ? 'NON CONFORME — Mise sur le marché non recommandée' : 'NON-COMPLIANT — Market launch not recommended');
-
-  checkPage(14);
-  doc.setFillColor(...stmtAccent);
-  doc.roundedRect(ML, y, CW, 10, 1.5, 1.5, 'F');
-  doc.setFont(HEAD_FONT, 'bold'); doc.setFontSize(9); doc.setTextColor(255, 255, 255);
-  doc.text(verdictLbl, ML + CW / 2, y + 6.5, { align: 'center' });
-  y += 16;
-
-  // Signature block
-  const sigTitle = lang === 'de' ? 'Verantwortliche Freigabe' : lang === 'fr' ? 'Approbation responsable' : 'Responsible Approval';
-  writeLabel(sigTitle);
-  y += 2;
-  const sigFields = lang === 'de'
-    ? ['Name: ____________________________', 'Funktion: ____________________________', 'Datum: ____________________________', 'Unterschrift: ____________________________']
-    : lang === 'fr'
-    ? ['Nom : ____________________________', 'Fonction : ____________________________', 'Date : ____________________________', 'Signature : ____________________________']
-    : ['Name: ____________________________', 'Role: ____________________________', 'Date: ____________________________', 'Signature: ____________________________'];
-  for (const sf of sigFields) {
-    checkPage(6);
-    doc.setFont(HEAD_FONT, 'normal'); doc.setFontSize(BODY_SIZE); doc.setTextColor(...C.bodyText);
-    doc.text(sf, ML + 5, y);
-    y += 7;
   }
 
   /* ══════════════════════════════════════
