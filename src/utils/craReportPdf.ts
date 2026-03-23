@@ -297,10 +297,10 @@ function getMgmtSummaryData(
       ],
       implication: isReady
         ? 'Keine regulatorischen Risiken identifiziert. Empfehlung: reguläre Aufrechterhaltung des Sicherheitsniveaus und jährliche Neubewertung.'
-        : `Bei Markteinführung im aktuellen Zustand drohen: Beanstandungen durch Marktüberwachungsbehörden, Rückrufpflichten nach Art. 49 CRA, sowie Haftungsrisiken nach der revidierten Produkthaftungsrichtlinie. Geschätzter Remediation-Aufwand: siehe Abschnitt 5.`,
+        : `Bei Markteinführung im aktuellen Zustand drohen: Beanstandungen durch Marktüberwachungsbehörden, Rückrufpflichten nach Art. 49 CRA, sowie Haftungsrisiken nach der revidierten Produkthaftungsrichtlinie. Geschätzter Remediation-Aufwand: siehe Abschnitt 4.`,
       action: isReady
         ? 'Empfehlung: Konformitätserklärung vorbereiten und Monitoring-Prozess etablieren.'
-        : `Empfehlung: Sofortmaßnahmen (P0) aus Abschnitt 5.1 mit Verantwortlichkeiten und Fristen versehen. Wöchentliches Tracking bis zur Schließung aller kritischen Gaps.`,
+        : `Empfehlung: Sofortmaßnahmen (P0) aus Abschnitt 4.1 mit Verantwortlichkeiten und Fristen versehen. Wöchentliches Tracking bis zur Schließung aller kritischen Gaps.`,
     };
   }
   if (lang === 'fr') {
@@ -331,10 +331,10 @@ function getMgmtSummaryData(
       ],
       implication: isReady
         ? 'Aucun risque réglementaire identifié. Recommandation : maintenir le niveau de sécurité et réévaluer annuellement.'
-        : `En cas de mise sur le marché en l'état : sanctions des autorités de surveillance, obligation de rappel (Art. 49 CRA), risques de responsabilité. Effort de remédiation estimé : voir section 5.`,
+        : `En cas de mise sur le marché en l'état : sanctions des autorités de surveillance, obligation de rappel (Art. 49 CRA), risques de responsabilité. Effort de remédiation estimé : voir section 4.`,
       action: isReady
         ? 'Recommandation : préparer la déclaration de conformité et établir un processus de suivi.'
-        : `Recommandation : attribuer responsabilités et délais aux mesures immédiates (P0) de la section 5.1. Suivi hebdomadaire jusqu'à la clôture de tous les gaps critiques.`,
+        : `Recommandation : attribuer responsabilités et délais aux mesures immédiates (P0) de la section 4.1. Suivi hebdomadaire jusqu'à la clôture de tous les gaps critiques.`,
     };
   }
   // EN
@@ -365,10 +365,10 @@ function getMgmtSummaryData(
     ],
     implication: isReady
       ? 'No regulatory risks identified. Recommendation: maintain security posture and re-assess annually.'
-      : `Market launch in current state risks: regulatory objections from market surveillance authorities, recall obligations under Art. 49 CRA, and liability exposure under the revised Product Liability Directive. Estimated remediation effort: see Section 5.`,
+      : `Market launch in current state risks: regulatory objections from market surveillance authorities, recall obligations under Art. 49 CRA, and liability exposure under the revised Product Liability Directive. Estimated remediation effort: see Section 4.`,
     action: isReady
       ? 'Recommendation: prepare conformity declaration and establish monitoring process.'
-      : `Recommendation: assign ownership and deadlines to immediate measures (P0) from Section 5.1. Weekly tracking until all critical gaps are closed.`,
+      : `Recommendation: assign ownership and deadlines to immediate measures (P0) from Section 4.1. Weekly tracking until all critical gaps are closed.`,
   };
 }
 
@@ -1407,8 +1407,8 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     ? isCompliant
       ? `Auf Grundlage der in diesem Bericht dokumentierten Prüfungsergebnisse erfüllt das Produkt ${intakeData.productName} ${intakeData.version} die wesentlichen Anforderungen des EU Cyber Resilience Act (Verordnung (EU) 2024/2847). Es wurden keine kritischen Risiken und keine nicht-konformen Anforderungen identifiziert. Das Produkt ist aus Sicht dieser Bewertung marktfähig.`
       : isConditional
-        ? `Das Produkt ${intakeData.productName} ${intakeData.version} erfüllt die Anforderungen des CRA derzeit mit Einschränkungen (gewichtete Konformitätsrate: ${crComplianceRate}%). Es bestehen ${critRisks.length} kritische Risiken und ${failReqs.length} nicht-konforme Anforderungen. Eine Markteinführung ist unter folgenden Bedingungen vertretbar: (1) Alle P0-Maßnahmen sind abgeschlossen und verifiziert, (2) die verbleibenden Lücken werden gemäß der Remediation-Roadmap (Abschnitt 5.2) innerhalb der definierten Fristen geschlossen.`
-        : `Das Produkt ${intakeData.productName} ${intakeData.version} erfüllt die wesentlichen Anforderungen des CRA derzeit nicht (gewichtete Konformitätsrate: ${crComplianceRate}%). Es bestehen ${critRisks.length} kritische Risiken und ${failReqs.length} nicht-konforme Anforderungen. Eine Markteinführung im aktuellen Zustand birgt erhebliche regulatorische Risiken, einschließlich Bußgeldern nach Art. 64 CRA und möglicher Rückrufpflichten nach Art. 49 CRA. Die Umsetzung der Remediation-Roadmap (Abschnitt 5.2) ist vor Markteinführung zwingend erforderlich.`
+        ? `Das Produkt ${intakeData.productName} ${intakeData.version} erfüllt die Anforderungen des CRA derzeit mit Einschränkungen (gewichtete Konformitätsrate: ${crComplianceRate}%). Es bestehen ${critRisks.length} kritische Risiken und ${failReqs.length} nicht-konforme Anforderungen. Eine Markteinführung ist unter folgenden Bedingungen vertretbar: (1) Alle P0-Maßnahmen sind abgeschlossen und verifiziert, (2) die verbleibenden Lücken werden gemäß der Remediation-Roadmap (Abschnitt 4.2) innerhalb der definierten Fristen geschlossen.`
+        : `Das Produkt ${intakeData.productName} ${intakeData.version} erfüllt die wesentlichen Anforderungen des CRA derzeit nicht (gewichtete Konformitätsrate: ${crComplianceRate}%). Es bestehen ${critRisks.length} kritische Risiken und ${failReqs.length} nicht-konforme Anforderungen. Eine Markteinführung im aktuellen Zustand birgt erhebliche regulatorische Risiken, einschließlich Bußgeldern nach Art. 64 CRA und möglicher Rückrufpflichten nach Art. 49 CRA. Die Umsetzung der Remediation-Roadmap (Abschnitt 4.2) ist vor Markteinführung zwingend erforderlich.`
     : lang === 'fr'
     ? isCompliant
       ? `Sur la base des résultats documentés dans ce rapport, le produit ${intakeData.productName} ${intakeData.version} satisfait aux exigences essentielles du CRA. Aucun risque critique ni exigence non conforme n'a été identifié. Le produit est considéré comme prêt pour la mise sur le marché.`
@@ -1418,8 +1418,8 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     : isCompliant
       ? `Based on the assessment results documented in this report, the product ${intakeData.productName} ${intakeData.version} meets the essential requirements of the EU Cyber Resilience Act (Regulation (EU) 2024/2847). No critical risks and no non-compliant requirements were identified. The product is considered market-ready from this assessment's perspective.`
       : isConditional
-        ? `The product ${intakeData.productName} ${intakeData.version} partially meets CRA requirements (weighted compliance rate: ${crComplianceRate}%). ${critRisks.length} critical risks and ${failReqs.length} non-compliant requirements were identified. Market launch is acceptable under conditions: (1) all P0 measures completed and verified, (2) remaining gaps closed per the remediation roadmap (Section 5.2).`
-        : `The product ${intakeData.productName} ${intakeData.version} does not currently meet the essential CRA requirements (weighted compliance rate: ${crComplianceRate}%). ${critRisks.length} critical risks and ${failReqs.length} non-compliant requirements were identified. Market launch in the current state poses significant regulatory risks including penalties under Art. 64 CRA and potential recall obligations under Art. 49 CRA. Implementation of the remediation roadmap (Section 5.2) is mandatory before market launch.`;
+        ? `The product ${intakeData.productName} ${intakeData.version} partially meets CRA requirements (weighted compliance rate: ${crComplianceRate}%). ${critRisks.length} critical risks and ${failReqs.length} non-compliant requirements were identified. Market launch is acceptable under conditions: (1) all P0 measures completed and verified, (2) remaining gaps closed per the remediation roadmap (Section 4.2).`
+        : `The product ${intakeData.productName} ${intakeData.version} does not currently meet the essential CRA requirements (weighted compliance rate: ${crComplianceRate}%). ${critRisks.length} critical risks and ${failReqs.length} non-compliant requirements were identified. Market launch in the current state poses significant regulatory risks including penalties under Art. 64 CRA and potential recall obligations under Art. 49 CRA. Implementation of the remediation roadmap (Section 4.2) is mandatory before market launch.`;
 
   // Verdict box
   checkPage(30);
@@ -1958,9 +1958,9 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     ? (lang === 'de' ? `Die normative Abdeckung von ${overallStats.rate}% ist für die gewählte Produktklasse als ausreichend einzustufen.`
       : lang === 'fr' ? `La couverture normative de ${overallStats.rate}% est jugée suffisante.`
       : `The normative coverage of ${overallStats.rate}% is considered sufficient for the selected product class.`)
-    : (lang === 'de' ? `Die normative Abdeckung von ${overallStats.rate}% liegt unter dem empfohlenen Schwellwert von 80%. Die Remediation-Roadmap (Abschnitt 5.2) adressiert die identifizierten Lücken.`
+    : (lang === 'de' ? `Die normative Abdeckung von ${overallStats.rate}% liegt unter dem empfohlenen Schwellwert von 80%. Die Remediation-Roadmap (Abschnitt 4.2) adressiert die identifizierten Lücken.`
       : lang === 'fr' ? `La couverture normative de ${overallStats.rate}% est inférieure au seuil recommandé de 80%.`
-      : `The normative coverage of ${overallStats.rate}% is below the recommended 80% threshold. The remediation roadmap (Section 5.2) addresses identified gaps.`));
+      : `The normative coverage of ${overallStats.rate}% is below the recommended 80% threshold. The remediation roadmap (Section 4.2) addresses identified gaps.`));
 
   /* ══════════════════════════════════════
      SECTION 4: Recommendations & Roadmap
@@ -2432,22 +2432,22 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
   y += 2;
 
   const verSteps = lang === 'de' ? [
-    { title: '1. Evidenz-Referenzen nachvollziehen', text: 'Jede Feststellung in Abschnitt 5 verweist auf Evidenz, die in Anhang C aufgeschlüsselt ist. Prüfen Sie, ob die dort genannten Werkzeuge und Befehle auf Ihrem Produkt reproduzierbare Ergebnisse liefern.' },
-    { title: '2. Risikobewertungen plausibilisieren', text: 'Die Risikoscores in Abschnitt 5.1 basieren auf einer 5x5-Matrix (Abschnitt 8.1). Vergleichen Sie die zugewiesenen Likelihood- und Impact-Werte mit Ihrer eigenen Einschätzung. Ziehen Sie dabei OWASP, NIST und ENISA-Quellen heran.' },
-    { title: '3. Konformitätsbewertungen gegen CRA-Text prüfen', text: 'Für jede Anforderung in Abschnitt 5.2 ist der CRA-Artikel angegeben. Lesen Sie den Originaltext der Verordnung (EU) 2024/2847 und vergleichen Sie, ob die dokumentierte Abweichung tatsächlich den regulatorischen Vorgaben widerspricht.' },
-    { title: '4. Aufwandsschätzungen validieren', text: 'Die in Abschnitt 5 genannten Aufwandsschätzungen basieren auf Erfahrungswerten. Vergleichen Sie diese mit Angeboten externer Dienstleister oder eigenen Projekterfahrungen.' },
+    { title: '1. Evidenz-Referenzen nachvollziehen', text: 'Jede Feststellung in Abschnitt 3 verweist auf Evidenz, die in Anhang C aufgeschlüsselt ist. Prüfen Sie, ob die dort genannten Werkzeuge und Befehle auf Ihrem Produkt reproduzierbare Ergebnisse liefern.' },
+    { title: '2. Risikobewertungen plausibilisieren', text: 'Die Risikoscores in Abschnitt 3.1 basieren auf einer 5x5-Matrix (Abschnitt 7.1). Vergleichen Sie die zugewiesenen Likelihood- und Impact-Werte mit Ihrer eigenen Einschätzung. Ziehen Sie dabei OWASP, NIST und ENISA-Quellen heran.' },
+    { title: '3. Konformitätsbewertungen gegen CRA-Text prüfen', text: 'Für jede Anforderung in Abschnitt 3.2 ist der CRA-Artikel angegeben. Lesen Sie den Originaltext der Verordnung (EU) 2024/2847 und vergleichen Sie, ob die dokumentierte Abweichung tatsächlich den regulatorischen Vorgaben widerspricht.' },
+    { title: '4. Aufwandsschätzungen validieren', text: 'Die in Abschnitt 4 genannten Aufwandsschätzungen basieren auf Erfahrungswerten. Vergleichen Sie diese mit Angeboten externer Dienstleister oder eigenen Projekterfahrungen.' },
     { title: '5. Zweitmeinung einholen', text: 'Für eine unabhängige Validierung empfiehlt sich die Beauftragung eines externen Prüfers oder einer benannten Stelle nach Art. 24 CRA, insbesondere bei kritischen Risiken (Score >= 20).' },
   ] : lang === 'fr' ? [
-    { title: '1. Tracer les references de preuves', text: 'Chaque constatation de la section 5 fait reference a des preuves detaillees en annexe C. Verifiez si les outils et commandes mentionnes produisent des resultats reproductibles sur votre produit.' },
-    { title: '2. Valider les scores de risque', text: 'Les scores de risque de la section 5.1 sont bases sur une matrice 5x5 (section 8.1). Comparez les valeurs attribuees avec votre propre evaluation en utilisant les sources OWASP, NIST et ENISA.' },
-    { title: '3. Verifier les evaluations de conformite', text: 'Pour chaque exigence de la section 5.2, l\'article CRA correspondant est indique. Lisez le texte original du reglement (UE) 2024/2847 et verifiez si les ecarts documentes contredisent effectivement les dispositions reglementaires.' },
-    { title: '4. Valider les estimations d\'effort', text: 'Les estimations d\'effort de la section 5 sont basees sur des donnees empiriques. Comparez-les avec des devis de prestataires externes ou votre propre experience projet.' },
+    { title: '1. Tracer les references de preuves', text: 'Chaque constatation de la section 4 fait reference a des preuves detaillees en annexe C. Verifiez si les outils et commandes mentionnes produisent des resultats reproductibles sur votre produit.' },
+    { title: '2. Valider les scores de risque', text: 'Les scores de risque de la section 4.1 sont bases sur une matrice 5x5 (section 8.1). Comparez les valeurs attribuees avec votre propre evaluation en utilisant les sources OWASP, NIST et ENISA.' },
+    { title: '3. Verifier les evaluations de conformite', text: 'Pour chaque exigence de la section 4.2, l\'article CRA correspondant est indique. Lisez le texte original du reglement (UE) 2024/2847 et verifiez si les ecarts documentes contredisent effectivement les dispositions reglementaires.' },
+    { title: '4. Valider les estimations d\'effort', text: 'Les estimations d\'effort de la section 4 sont basees sur des donnees empiriques. Comparez-les avec des devis de prestataires externes ou votre propre experience projet.' },
     { title: '5. Obtenir un second avis', text: 'Pour une validation independante, envisagez de mandater un organisme notifie selon l\'Art. 24 CRA, en particulier pour les risques critiques (score >= 20).' },
   ] : [
-    { title: '1. Trace evidence references', text: 'Each finding in Section 5 references evidence detailed in Appendix C. Verify whether the listed tools and commands produce reproducible results on your product.' },
-    { title: '2. Validate risk scores', text: 'Risk scores in Section 5.1 are based on a 5x5 matrix (Section 8.1). Compare the assigned likelihood and impact values with your own assessment, drawing on OWASP, NIST, and ENISA sources.' },
-    { title: '3. Cross-check compliance assessments', text: 'For each requirement in Section 5.2, the corresponding CRA article is specified. Read the original text of Regulation (EU) 2024/2847 and verify whether the documented deviations indeed contradict the regulatory provisions.' },
-    { title: '4. Validate effort estimates', text: 'Effort estimates in Section 5 are based on empirical data. Compare them with external service provider quotes or your own project experience.' },
+    { title: '1. Trace evidence references', text: 'Each finding in Section 3 references evidence detailed in Appendix C. Verify whether the listed tools and commands produce reproducible results on your product.' },
+    { title: '2. Validate risk scores', text: 'Risk scores in Section 3.1 are based on a 5x5 matrix (Section 7.1). Compare the assigned likelihood and impact values with your own assessment, drawing on OWASP, NIST, and ENISA sources.' },
+    { title: '3. Cross-check compliance assessments', text: 'For each requirement in Section 3.2, the corresponding CRA article is specified. Read the original text of Regulation (EU) 2024/2847 and verify whether the documented deviations indeed contradict the regulatory provisions.' },
+    { title: '4. Validate effort estimates', text: 'Effort estimates in Section 4 are based on empirical data. Compare them with external service provider quotes or your own project experience.' },
     { title: '5. Obtain a second opinion', text: 'For independent validation, consider engaging a notified body per Art. 24 CRA. This is particularly advisable for critical risks (score >= 20) and non-compliant requirements.' },
   ];
 
@@ -2468,10 +2468,10 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
   writeBody(t(I18N.appendixIntro));
   y += 2;
   const xrefNote = lang === 'de'
-    ? 'Hinweis: Für die ausführliche Darstellung von Evidenz und Bewertungslogik wird auf die Detailfeststellungen in Abschnitt 5 verwiesen. Dieser Anhang konzentriert sich auf die maschinenlesbaren Strukturdaten und Querverlinkungen.'
+    ? 'Hinweis: Für die ausführliche Darstellung von Evidenz und Bewertungslogik wird auf die Detailfeststellungen in Abschnitt 4 verwiesen. Dieser Anhang konzentriert sich auf die maschinenlesbaren Strukturdaten und Querverlinkungen.'
     : lang === 'fr'
-    ? 'Note : Pour la presentation detaillee des preuves et de la logique d\'evaluation, veuillez consulter les constatations detaillees de la section 5. Cette annexe se concentre sur les donnees structurees et les references croisees.'
-    : 'Note: For detailed evidence and assessment rationale, refer to the detailed findings in Section 5. This appendix focuses on machine-readable structured data and cross-references.';
+    ? 'Note : Pour la presentation detaillee des preuves et de la logique d\'evaluation, veuillez consulter les constatations detaillees de la section 4. Cette annexe se concentre sur les donnees structurees et les references croisees.'
+    : 'Note: For detailed evidence and assessment rationale, refer to the detailed findings in Section 4. This appendix focuses on machine-readable structured data and cross-references.';
   doc.setFont(HEAD_FONT, 'italic'); doc.setFontSize(7.5); doc.setTextColor(...C.labelText);
   const xrefLines = doc.splitTextToSize(xrefNote, CW - 5);
   for (const xl of xrefLines) { checkPage(4); doc.text(xl, ML + 3, y); y += 3.5; }
@@ -2530,8 +2530,8 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
 
     writeLabel(`${tid}  —  ${riskLabel(score)} (${score}/25)`, 0);
 
-    const truncEvidence = th.evidence.length > 140 ? th.evidence.slice(0, 140).trimEnd() + '... (s. Abschnitt 5 / see Section 5)' : th.evidence;
-    const truncRationale = th.rationale.length > 140 ? th.rationale.slice(0, 140).trimEnd() + '... (s. Abschnitt 5 / see Section 5)' : th.rationale;
+    const truncEvidence = th.evidence.length > 140 ? th.evidence.slice(0, 140).trimEnd() + '... (s. Abschnitt 4 / see Section 4)' : th.evidence;
+    const truncRationale = th.rationale.length > 140 ? th.rationale.slice(0, 140).trimEnd() + '... (s. Abschnitt 4 / see Section 4)' : th.rationale;
     const fields: [string, string][] = [
       ['stride_category', `${th.stride} (${STRIDE_NAMES[th.stride]?.[lang] || th.stride})`],
       ['name', th.name],
@@ -2586,8 +2586,8 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     const statusTag = req.status === 'pass' ? 'COMPLIANT' : req.status === 'partial' ? 'PARTIAL' : 'NON-COMPLIANT';
     writeLabel(`${req.id}  —  ${statusTag}`, 0);
 
-    const truncReqEvid = req.evidence.length > 140 ? req.evidence.slice(0, 140).trimEnd() + '... (s. Abschnitt 5 / see Section 5)' : req.evidence;
-    const truncReqRat = req.rationale.length > 140 ? req.rationale.slice(0, 140).trimEnd() + '... (s. Abschnitt 5 / see Section 5)' : req.rationale;
+    const truncReqEvid = req.evidence.length > 140 ? req.evidence.slice(0, 140).trimEnd() + '... (s. Abschnitt 4 / see Section 4)' : req.evidence;
+    const truncReqRat = req.rationale.length > 140 ? req.rationale.slice(0, 140).trimEnd() + '... (s. Abschnitt 4 / see Section 4)' : req.rationale;
     const fields: [string, string][] = [
       ['article', req.article],
       ['name', req.name],
