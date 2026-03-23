@@ -296,8 +296,48 @@ export async function generateDoraReport(data: DoraReportData): Promise<void> {
   ];
   pdf.tableOfContents(l('toc', lang), tocEntries);
 
+  // ── Abbreviation Legend ──
+  const abbrEntries = lang === 'de' ? [
+    { abbr: 'C-xxx', meaning: 'Vertraulichkeit (Confidentiality) — Risiko-ID im CIAGTR-Modell' },
+    { abbr: 'I-xxx', meaning: 'Integrität (Integrity) — Risiko-ID im CIAGTR-Modell' },
+    { abbr: 'A-xxx', meaning: 'Verfügbarkeit (Availability) — Risiko-ID im CIAGTR-Modell' },
+    { abbr: 'G-xxx', meaning: 'Governance — Risiko-ID im CIAGTR-Modell' },
+    { abbr: 'T-xxx', meaning: 'Drittanbieter (Third-party) — Risiko-ID im CIAGTR-Modell' },
+    { abbr: 'R-xxx', meaning: 'Resilienz (Resilience) — Risiko-ID im CIAGTR-Modell' },
+    { abbr: 'E-xxx', meaning: 'Evidenz-Referenz, eindeutige Kennung für den Nachweis' },
+    { abbr: 'P0', meaning: 'Priorität 0 — Release-Blocker, sofortige Umsetzung erforderlich' },
+    { abbr: 'P1', meaning: 'Priorität 1 — vor nächstem Release umzusetzen' },
+    { abbr: 'P2', meaning: 'Priorität 2 — vor General Availability umzusetzen' },
+    { abbr: 'P3', meaning: 'Priorität 3 — empfohlene Verbesserung, kein Blocker' },
+    { abbr: 'CIAGTR', meaning: 'Risikokategoriemodell: Confidentiality, Integrity, Availability, Governance, Third-party, Resilience' },
+    { abbr: 'PASS', meaning: 'Anforderung vollständig erfüllt (konform)' },
+    { abbr: 'PARTIAL', meaning: 'Anforderung teilweise erfüllt, Nachbesserung erforderlich' },
+    { abbr: 'FAIL', meaning: 'Anforderung nicht erfüllt (nicht konform)' },
+    { abbr: 'Art.', meaning: 'Artikel der Verordnung (EU) 2022/2554 (DORA)' },
+  ] : [
+    { abbr: 'C-xxx', meaning: 'Confidentiality — Risk ID in CIAGTR model' },
+    { abbr: 'I-xxx', meaning: 'Integrity — Risk ID in CIAGTR model' },
+    { abbr: 'A-xxx', meaning: 'Availability — Risk ID in CIAGTR model' },
+    { abbr: 'G-xxx', meaning: 'Governance — Risk ID in CIAGTR model' },
+    { abbr: 'T-xxx', meaning: 'Third-party — Risk ID in CIAGTR model' },
+    { abbr: 'R-xxx', meaning: 'Resilience — Risk ID in CIAGTR model' },
+    { abbr: 'E-xxx', meaning: 'Evidence reference, unique identifier for the proof' },
+    { abbr: 'P0', meaning: 'Priority 0 — Release blocker, immediate action required' },
+    { abbr: 'P1', meaning: 'Priority 1 — to be resolved before next release' },
+    { abbr: 'P2', meaning: 'Priority 2 — to be resolved before general availability' },
+    { abbr: 'P3', meaning: 'Priority 3 — recommended improvement, non-blocking' },
+    { abbr: 'CIAGTR', meaning: 'Risk category model: Confidentiality, Integrity, Availability, Governance, Third-party, Resilience' },
+    { abbr: 'PASS', meaning: 'Requirement fully met (compliant)' },
+    { abbr: 'PARTIAL', meaning: 'Requirement partially met, remediation needed' },
+    { abbr: 'FAIL', meaning: 'Requirement not met (non-compliant)' },
+    { abbr: 'Art.', meaning: 'Article of Regulation (EU) 2022/2554 (DORA)' },
+  ];
+  pdf.newPage();
+  pdf.abbreviationLegend(abbrEntries, lang === 'de' ? 'Abkürzungsverzeichnis und Legende' : 'Abbreviations and Legend');
+
   // ═══ SECTION 1: Context ═══
   pdf.newPage();
+  pdf.addBookmark(l('sec1', lang));
   pdf.heading(l('sec1', lang));
   pdf.bodyParagraph(getContextText(intakeData.entityName, entityTypeName, criticalityName, today, lang, intakeData));
 
