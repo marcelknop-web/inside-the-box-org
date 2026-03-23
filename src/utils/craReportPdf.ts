@@ -158,11 +158,13 @@ const I18N = {
   relatedReqs: { de: 'Verknüpfte Anforderungen', en: 'Related Requirements', fr: 'Exigences liées' },
   relatedThreats: { de: 'Verknüpfte Bedrohungen', en: 'Related Threats', fr: 'Menaces liées' },
 
-  // 5-Element Audit Finding Structure
-  condition: { de: 'Ist-Zustand (Condition)', en: 'Condition (Current State)', fr: 'État actuel (Condition)' },
-  auditCriteria: { de: 'Soll-Anforderung (Criteria)', en: 'Criteria (Required State)', fr: 'Critère (État requis)' },
-  cause: { de: 'Ursache (Cause)', en: 'Cause (Root Cause)', fr: 'Cause (Cause racine)' },
-  effect: { de: 'Auswirkung / Risiko (Effect)', en: 'Effect / Risk', fr: 'Effet / Risque' },
+  // 7-Element Audit Finding Structure (Observation → Evidence → Interpretation → Mapping → Risk Scenario → Risk Rating → Recommendation)
+  observation: { de: 'Beobachtung (Observation)', en: 'Observation', fr: 'Observation' },
+  findingEvidence: { de: 'Evidenz (Evidence)', en: 'Evidence', fr: 'Preuve' },
+  interpretation: { de: 'Technische Interpretation', en: 'Interpretation', fr: 'Interprétation' },
+  mapping: { de: 'Normative Zuordnung (Mapping)', en: 'Control Mapping', fr: 'Mapping normatif' },
+  riskScenario: { de: 'Risikoszenario', en: 'Risk Scenario', fr: 'Scénario de risque' },
+  riskRating: { de: 'Risikoeinstufung', en: 'Risk Rating', fr: 'Classification du risque' },
   recommendation: { de: 'Empfehlung (Recommendation)', en: 'Recommendation', fr: 'Recommandation' },
 
   // Section intro texts
