@@ -494,9 +494,32 @@ export async function generateNis2Report(data: Nis2ReportData): Promise<void> {
     // 10. ROOT CAUSE
     pdf.bodyText(`${l('rootCauseLabel', lang)}: ${ri.rationale}`, 0);
 
-    // 11. RECOMMENDATION
-    const linkedMeasure = linked.length > 0 && linked[0].measure ? linked[0].measure : (lang === 'de' ? `Gegenmaßnahmen für ${ri.component} implementieren und durch unabhängige Tests verifizieren.` : lang === 'fr' ? `Implémenter des contre-mesures pour ${ri.component} et vérifier par des tests indépendants.` : `Implement countermeasures for ${ri.component} and verify through independent testing.`);
-    pdf.bodyText(`${l('recommendationLabel', lang)}: ${linkedMeasure}`, 0);
+    // 11. RECOMMENDATION (technical, specific, actionable)
+    const recBase = linked.length > 0 && linked[0].measure ? linked[0].measure : '';
+    const techRec = lang === 'de'
+      ? [
+          recBase || `Gegenmaßnahmen für ${ri.component} implementieren.`,
+          ri.category === 'C' ? `TLS 1.3 für alle Kommunikationskanäle erzwingen. Verschlüsselung at-rest aktivieren.` : '',
+          ri.category === 'A' ? `Redundanz und Failover für ${ri.component} konfigurieren. Rate-Limiting implementieren.` : '',
+          ri.category === 'I' ? `Integritätsprüfungen und Zugriffskontrolle für ${ri.component} implementieren.` : '',
+          `Durch unabhängige Tests verifizieren.`,
+        ].filter(Boolean).join(' ')
+      : lang === 'fr'
+        ? [
+            recBase || `Implémenter des contre-mesures pour ${ri.component}.`,
+            ri.category === 'C' ? `Imposer TLS 1.3 pour tous les canaux de communication. Activer le chiffrement au repos.` : '',
+            ri.category === 'A' ? `Configurer la redondance et le basculement pour ${ri.component}. Implémenter le rate-limiting.` : '',
+            ri.category === 'I' ? `Implémenter des contrôles d'intégrité et d'accès pour ${ri.component}.` : '',
+            `Vérifier par des tests indépendants.`,
+          ].filter(Boolean).join(' ')
+        : [
+            recBase || `Implement countermeasures for ${ri.component}.`,
+            ri.category === 'C' ? `Enforce TLS 1.3 for all communication channels. Enable encryption at rest.` : '',
+            ri.category === 'A' ? `Configure redundancy and failover for ${ri.component}. Implement rate-limiting.` : '',
+            ri.category === 'I' ? `Implement integrity checks and access controls for ${ri.component}.` : '',
+            `Verify through independent testing.`,
+          ].filter(Boolean).join(' ');
+    pdf.bodyText(`${l('recommendationLabel', lang)}: ${techRec}`, 0);
 
     // 12. REFERENCE
     const refParts = [ri.nis2Ref];
