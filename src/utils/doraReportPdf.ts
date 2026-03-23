@@ -455,7 +455,7 @@ export async function generateDoraReport(data: DoraReportData): Promise<void> {
     : 'Each DORA provision is assessed individually — with a clear verdict.');
 
   reqs.forEach(r => {
-    pdf.checkSpace(42);
+    pdf.checkSpace(55);
     pdf.heading(`${r.id}: ${r.name}`, 3);
     pdf.checkSpace(8);
     const afterBadge = pdf.statusBadge(r.status);
@@ -463,12 +463,37 @@ export async function generateDoraReport(data: DoraReportData): Promise<void> {
     pdf.doc.text(r.article, afterBadge, pdf.y);
     pdf.y += 6; pdf.doc.setTextColor(...C.dark);
 
-    pdf.bodyText(`${l('evidence', lang)}: ${r.evidence}`, 0);
-    pdf.bodyText(`${l('rationale', lang)}: ${r.rationale}`, 0);
-    if (r.gap) pdf.bodyText(`${l('gap', lang)}: ${r.gap}`, 0);
+    // 3. OBSERVATION
+    const obsReq = r.status === 'pass'
+      ? (lang === 'de' ? `Die Anforderung ${r.article} ist vollständig umgesetzt. ${r.evidence}` : `Requirement ${r.article} is fully implemented. ${r.evidence}`)
+      : (lang === 'de' ? `Die Anforderung ${r.article} ist ${r.status === 'fail' ? 'nicht' : 'nicht vollständig'} umgesetzt. ${r.gap || ''}. Evidenz: ${r.evidence}` : `Requirement ${r.article} is ${r.status === 'fail' ? 'not' : 'not fully'} implemented. ${r.gap || ''}. Evidence: ${r.evidence}`);
+    pdf.bodyText(`${lang === 'de' ? 'Beobachtung' : 'Observation'}: ${obsReq}`, 0);
+
+    // 6. RISK DESCRIPTION
+    if (r.status !== 'pass') {
+      const riskDescReq = lang === 'de'
+        ? `${r.gap || 'Fehlende Kontrolle'}. ${r.status === 'fail' ? 'Ohne Behebung Sanktionen nach DORA Art. 50 ff. möglich. Haftung der Geschäftsleitung nach Art. 5 Abs. 2.' : 'Residualrisiko bis zur vollständigen Umsetzung.'}`
+        : `${r.gap || 'Missing control'}. ${r.status === 'fail' ? 'Without remediation, sanctions under DORA Art. 50 ff. possible. Management liability under Art. 5(2).' : 'Residual risk until full implementation.'}`;
+      pdf.bodyText(`${lang === 'de' ? 'Risikobeschreibung' : 'Risk Description'}: ${riskDescReq}`, 0);
+    }
+
+    // 9. RISK LEVEL
+    const reqRating = r.status === 'fail' ? 'HIGH' : r.status === 'partial' ? 'MEDIUM' : 'LOW';
+    pdf.fieldInline('RISK LEVEL', reqRating);
+
+    // 10. ROOT CAUSE
+    if (r.status !== 'pass' && r.gap) {
+      pdf.bodyText(`${lang === 'de' ? 'Ursache' : 'Root Cause'}: ${r.gap}`, 0);
+    }
+
+    // 11. RECOMMENDATION
     if (r.measure) pdf.bodyText(`${l('measureAction', lang)}: ${r.measure}`, 0);
     if (r.effort) pdf.fieldInline(l('effort', lang), r.effort);
     if (r.priority) pdf.fieldInline(l('priority', lang), r.priority);
+
+    // 12. REFERENCE
+    pdf.fieldInline(lang === 'de' ? 'Referenz' : 'Reference', r.article);
+
     if (r.criteria && r.criteria.length > 0) {
       pdf.sectionLabel(lang === 'de' ? 'UMSETZUNGSKRITERIEN' : 'ACCEPTANCE CRITERIA');
       r.criteria.forEach((c, i) => pdf.bulletItem(`${i + 1}. ${c}`, 4));
