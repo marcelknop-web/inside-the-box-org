@@ -2,7 +2,7 @@ import jsPDF from 'jspdf';
 import type { IntakeData, Threat, CraReq } from '@/data/craData';
 import { threatId } from '@/data/craData';
 import type { QaCheck } from '@/utils/craQualityCheck';
-import { FONTS } from '@/utils/pdfCore';
+import { FONTS, humanizeEvidence } from '@/utils/pdfCore';
 
 /* ════════════════════════════════════════════════════════════
    Font System — shared with pdfCore for consistency
