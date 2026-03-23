@@ -484,15 +484,19 @@ export class PdfDoc {
   bulletItem(text: string, indent = 6): void {
     this.doc.setFontSize(LAYOUT.BODY_SIZE);
     this.doc.setFont(this.bodyFont, 'normal');
-    const lines = this.doc.splitTextToSize(text, LAYOUT.WIDTH - indent - 5);
-    this.checkSpace(lines.length * LAYOUT.BODY_LEADING + 2);
-    this.doc.setTextColor(...C.mid);
-    this.doc.setFontSize(6);
-    this.doc.text('▸', LAYOUT.LEFT + indent, this.y);
+    const lines = this.doc.splitTextToSize(text, LAYOUT.WIDTH - indent - 7);
+    const itemH = lines.length * LAYOUT.BODY_LEADING + 3;
+    this.checkSpace(itemH);
+    // Subtle background for each bullet
+    this.doc.setFillColor(252, 252, 253);
+    this.doc.roundedRect(LAYOUT.LEFT + indent - 1, this.y - 2.5, LAYOUT.WIDTH - indent + 1, itemH, 0.6, 0.6, 'F');
+    this.doc.setTextColor(...C.accent);
+    this.doc.setFontSize(5.5);
+    this.doc.text('▸', LAYOUT.LEFT + indent + 1, this.y);
     this.doc.setFontSize(LAYOUT.BODY_SIZE);
     this.doc.setTextColor(...C.dark);
     this.doc.text(lines, LAYOUT.LEFT + indent + 5, this.y);
-    this.y += lines.length * LAYOUT.BODY_LEADING + 2;
+    this.y += lines.length * LAYOUT.BODY_LEADING + 2.5;
   }
 
   /* ── Structural Elements ─────────────────────────────────── */
