@@ -1268,21 +1268,21 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     writeFieldBlock(t(I18N.integrityLabel), ciaI);
     writeFieldBlock(t(I18N.availabilityLabel), ciaA);
 
-    // — ATTACK SCENARIO (1-sentence, concrete)
+    // — ATTACK SCENARIO (1-sentence, concrete attack flow)
     const atkScenario = lang === 'de'
-      ? `Ein externer Angreifer (${th.attacker}) kann über ${th.path} direkt auf ${th.component} zugreifen und ${score >= 20 ? 'die vollständige Kontrolle über das System erlangen' : score >= 13 ? 'Daten exfiltrieren oder Konfigurationen manipulieren' : 'begrenzte Funktionsstörungen verursachen'}.`
+      ? `Ein Angreifer kann ${th.component} über den Angriffsvektor „${th.path}" enumerieren und ${score >= 20 ? `ohne Authentifizierung direkt auf administrative Funktionen zugreifen, was zur vollständigen Kompromittierung von ${th.component} führt` : score >= 13 ? `Schwachstellen in ${th.component} ausnutzen, um Konfigurationen zu manipulieren oder Daten zu exfiltrieren` : `begrenzte Funktionsstörungen in ${th.component} verursachen`}.`
       : lang === 'fr'
-        ? `Un attaquant externe (${th.attacker}) peut accéder directement à ${th.component} via ${th.path} et ${score >= 20 ? 'prendre le contrôle total du système' : score >= 13 ? 'exfiltrer des données ou manipuler des configurations' : 'causer des perturbations limitées'}.`
-        : `An external attacker (${th.attacker}) can directly access ${th.component} via ${th.path} and ${score >= 20 ? 'gain full control of the system' : score >= 13 ? 'exfiltrate data or manipulate configurations' : 'cause limited disruption'}.`;
+        ? `Un attaquant peut énumérer ${th.component} via le vecteur d'attaque « ${th.path} » et ${score >= 20 ? `accéder directement aux fonctions administratives sans authentification, entraînant la compromission complète de ${th.component}` : score >= 13 ? `exploiter les vulnérabilités de ${th.component} pour manipuler des configurations ou exfiltrer des données` : `causer des perturbations limitées dans ${th.component}`}.`
+        : `An attacker can enumerate ${th.component} via the attack vector "${th.path}" and ${score >= 20 ? `directly access administrative functionality without authentication, resulting in full compromise of ${th.component}` : score >= 13 ? `exploit vulnerabilities in ${th.component} to manipulate configurations or exfiltrate data` : `cause limited disruption to ${th.component}`}.`;
     writeFieldBlock(t(I18N.attackScenario), atkScenario);
 
-    // 8. LIKELIHOOD (with justification)
+    // 8. LIKELIHOOD (with concrete justification)
     const likelihoodLbl = th.likelihood >= 4 ? t(I18N.highLevel) : th.likelihood >= 3 ? t(I18N.mediumLevel) : t(I18N.lowLevel);
     const likelihoodJustification = lang === 'de'
-      ? th.likelihood >= 4 ? `, da ${th.component} ohne Authentifizierung erreichbar ist` : th.likelihood >= 3 ? `, da der Angriffsvektor bekannt und ausnutzbar ist` : `, da die Ausnutzung spezialisiertes Wissen erfordert`
+      ? th.likelihood >= 4 ? `, da ${th.component} ohne Authentifizierung über ${th.path.split('→')[0].trim()} erreichbar ist` : th.likelihood >= 3 ? `, da der Angriffsvektor (${th.path.split('→')[0].trim()}) dokumentiert und mit Standard-Tools ausnutzbar ist` : `, da die Ausnutzung spezialisiertes Wissen und physischen oder privilegierten Zugang zu ${th.component} erfordert`
       : lang === 'fr'
-        ? th.likelihood >= 4 ? `, car ${th.component} est accessible sans authentification` : th.likelihood >= 3 ? `, car le vecteur d'attaque est connu et exploitable` : `, car l'exploitation nécessite des connaissances spécialisées`
-        : th.likelihood >= 4 ? `, as ${th.component} is accessible without authentication` : th.likelihood >= 3 ? `, as the attack vector is known and exploitable` : `, as exploitation requires specialised knowledge`;
+        ? th.likelihood >= 4 ? `, car ${th.component} est accessible sans authentification via ${th.path.split('→')[0].trim()}` : th.likelihood >= 3 ? `, car le vecteur d'attaque (${th.path.split('→')[0].trim()}) est documenté et exploitable avec des outils standards` : `, car l'exploitation nécessite des connaissances spécialisées et un accès physique ou privilégié à ${th.component}`
+        : th.likelihood >= 4 ? `, as ${th.component} is accessible without authentication via ${th.path.split('→')[0].trim()}` : th.likelihood >= 3 ? `, as the attack vector (${th.path.split('→')[0].trim()}) is documented and exploitable with standard tools` : `, as exploitation requires specialised knowledge and physical or privileged access to ${th.component}`;
     writeFieldBlock(t(I18N.likelihoodLabel), `${likelihoodLbl} (${th.likelihood}/5)${likelihoodJustification}`);
 
     // 9. RISK LEVEL (auto-derived scoring logic)
@@ -1296,42 +1296,45 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     doc.text(`${ratingLabel}  (${th.likelihood} × ${th.impact} = ${score}/25)`, ML + 8, y);
     y += BODY_LEADING + FIELD_GAP;
 
-    // 10. ROOT CAUSE
+    // 10. ROOT CAUSE (precise, no vague language)
     const rootCauseText = lang === 'de'
-      ? `Ursache: ${th.rationale}`
+      ? `Ursache: ${th.rationale}. ${th.stride === 'S' || th.stride === 'E' ? `Authentifizierungs- und Autorisierungsmechanismen für ${th.component} fehlen oder sind unzureichend konfiguriert.` : th.stride === 'I' ? `Verschlüsselungskonfiguration für ${th.component} fehlt oder ist nicht dem Stand der Technik entsprechend.` : th.stride === 'T' ? `Integritätsschutz für ${th.component} ist nicht implementiert.` : th.stride === 'D' ? `Verfügbarkeitsschutz (Redundanz, Rate-Limiting) für ${th.component} fehlt.` : `Logging- und Monitoring-Konfiguration für ${th.component} ist unvollständig.`}`
       : lang === 'fr'
-        ? `Cause : ${th.rationale}`
-        : `Root cause: ${th.rationale}`;
+        ? `Cause : ${th.rationale}. ${th.stride === 'S' || th.stride === 'E' ? `Les mécanismes d'authentification et d'autorisation pour ${th.component} sont absents ou mal configurés.` : th.stride === 'I' ? `La configuration de chiffrement pour ${th.component} est absente ou n'est pas conforme à l'état de l'art.` : th.stride === 'T' ? `La protection de l'intégrité pour ${th.component} n'est pas implémentée.` : th.stride === 'D' ? `La protection de la disponibilité (redondance, limitation de débit) pour ${th.component} est absente.` : `La configuration de journalisation et de surveillance pour ${th.component} est incomplète.`}`
+        : `Root cause: ${th.rationale}. ${th.stride === 'S' || th.stride === 'E' ? `Authentication and authorisation mechanisms for ${th.component} are missing or misconfigured.` : th.stride === 'I' ? `Encryption configuration for ${th.component} is missing or not state-of-the-art.` : th.stride === 'T' ? `Integrity protection for ${th.component} is not implemented.` : th.stride === 'D' ? `Availability protection (redundancy, rate-limiting) for ${th.component} is missing.` : `Logging and monitoring configuration for ${th.component} is incomplete.`}`;
     writeFieldBlock(t(I18N.rootCauseLabel), rootCauseText);
 
-    // 11. RECOMMENDATION (technical, specific, actionable)
+    // 11. RECOMMENDATION (technology-specific, configurable, actionable)
     const relatedReqObj = reqs.find(r => r.article === th.cra);
     const recBase = relatedReqObj && relatedReqObj.measure ? relatedReqObj.measure : '';
     const techRec = lang === 'de'
       ? [
           recBase || `Gegenmaßnahmen für ${th.component} implementieren.`,
-          th.stride === 'S' || th.stride === 'E' ? `Zugriffskontrolle auf ${th.component} durch IP-Allowlisting und Multi-Faktor-Authentifizierung einschränken.` : '',
-          th.stride === 'I' ? `TLS 1.3 für alle Kommunikationskanäle von ${th.component} erzwingen.` : '',
-          th.stride === 'T' ? `Integritätsprüfungen (HMAC/Signaturen) für ${th.component} implementieren.` : '',
-          th.stride === 'D' ? `Rate-Limiting und Redundanz für ${th.component} konfigurieren.` : '',
-          `Durch unabhängige Penetrationstests verifizieren.`,
+          th.stride === 'S' || th.stride === 'E' ? `Zugriff auf ${th.component} durch IP-Allowlisting einschränken (z. B. Nginx: allow/deny-Direktiven). Multi-Faktor-Authentifizierung für alle administrativen Schnittstellen erzwingen. Direkte externe Erreichbarkeit administrativer Funktionen deaktivieren.` : '',
+          th.stride === 'I' ? `TLS 1.3 mit Forward Secrecy für alle Kommunikationskanäle von ${th.component} erzwingen. Klartext-Fallback deaktivieren. Zertifikats-Pinning für kritische Verbindungen konfigurieren.` : '',
+          th.stride === 'T' ? `HMAC-basierte Integritätsprüfung für alle Datentransfers über ${th.component} implementieren. Code-Signing für Firmware-Updates konfigurieren.` : '',
+          th.stride === 'D' ? `Rate-Limiting (z. B. max. 100 req/s pro Client) und Redundanz (Active/Passive-Failover) für ${th.component} konfigurieren.` : '',
+          th.stride === 'R' ? `Zentrales SIEM-Logging für ${th.component} aktivieren. Aufbewahrungsdauer auf min. 90 Tage konfigurieren. Alerting für sicherheitsrelevante Events einrichten.` : '',
+          `Wirksamkeit durch unabhängige Penetrationstests verifizieren.`,
         ].filter(Boolean).join(' ')
       : lang === 'fr'
         ? [
             recBase || `Implémenter des contre-mesures pour ${th.component}.`,
-            th.stride === 'S' || th.stride === 'E' ? `Restreindre l'accès à ${th.component} via liste blanche IP et authentification multi-facteurs.` : '',
-            th.stride === 'I' ? `Imposer TLS 1.3 pour tous les canaux de communication de ${th.component}.` : '',
-            th.stride === 'T' ? `Implémenter des vérifications d'intégrité (HMAC/signatures) pour ${th.component}.` : '',
-            th.stride === 'D' ? `Configurer le rate-limiting et la redondance pour ${th.component}.` : '',
-            `Vérifier par des tests de pénétration indépendants.`,
+            th.stride === 'S' || th.stride === 'E' ? `Restreindre l'accès à ${th.component} via liste blanche IP (ex. : directives allow/deny Nginx). Imposer l'authentification multi-facteurs pour toutes les interfaces administratives. Désactiver l'exposition externe directe des fonctions administratives.` : '',
+            th.stride === 'I' ? `Imposer TLS 1.3 avec Forward Secrecy pour tous les canaux de communication de ${th.component}. Désactiver le fallback en clair. Configurer le certificate pinning pour les connexions critiques.` : '',
+            th.stride === 'T' ? `Implémenter la vérification d'intégrité HMAC pour tous les transferts de données via ${th.component}. Configurer la signature de code pour les mises à jour firmware.` : '',
+            th.stride === 'D' ? `Configurer le rate-limiting (ex. : max. 100 req/s par client) et la redondance (basculement actif/passif) pour ${th.component}.` : '',
+            th.stride === 'R' ? `Activer la journalisation SIEM centralisée pour ${th.component}. Configurer la rétention à min. 90 jours. Mettre en place l'alerte pour les événements de sécurité.` : '',
+            `Vérifier l'efficacité par des tests de pénétration indépendants.`,
           ].filter(Boolean).join(' ')
         : [
             recBase || `Implement countermeasures for ${th.component}.`,
-            th.stride === 'S' || th.stride === 'E' ? `Restrict access to ${th.component} via IP allowlisting and multi-factor authentication.` : '',
-            th.stride === 'I' ? `Enforce TLS 1.3 for all communication channels of ${th.component}.` : '',
-            th.stride === 'T' ? `Implement integrity checks (HMAC/signatures) for ${th.component}.` : '',
-            th.stride === 'D' ? `Configure rate-limiting and redundancy for ${th.component}.` : '',
-            `Verify through independent penetration testing.`,
+            th.stride === 'S' || th.stride === 'E' ? `Restrict access to ${th.component} via IP allowlisting (e.g. Nginx allow/deny directives). Enforce multi-factor authentication for all administrative interfaces. Disable direct external exposure of administrative functionality.` : '',
+            th.stride === 'I' ? `Enforce TLS 1.3 with forward secrecy for all communication channels of ${th.component}. Disable plaintext fallback. Configure certificate pinning for critical connections.` : '',
+            th.stride === 'T' ? `Implement HMAC-based integrity verification for all data transfers via ${th.component}. Configure code-signing for firmware updates.` : '',
+            th.stride === 'D' ? `Configure rate-limiting (e.g. max 100 req/s per client) and redundancy (active/passive failover) for ${th.component}.` : '',
+            th.stride === 'R' ? `Enable centralised SIEM logging for ${th.component}. Configure retention to min. 90 days. Set up alerting for security-relevant events.` : '',
+            `Verify effectiveness through independent penetration testing.`,
           ].filter(Boolean).join(' ');
     writeFieldBlock(t(I18N.recommendationLabel), techRec);
 
