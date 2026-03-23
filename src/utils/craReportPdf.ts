@@ -1392,9 +1392,9 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     const statusLabel = req.status === 'pass' ? t(I18N.pass) : req.status === 'partial' ? t(I18N.partial) : t(I18N.fail);
 
     doc.setFillColor(...statusBg);
-    doc.roundedRect(ML, y, CW, 10, 1, 1, 'F');
+    doc.roundedRect(ML, y, CW, 10, 1.2, 1.2, 'F');
     doc.setFillColor(...statusColor);
-    doc.rect(ML, y + 0.5, 2, 9, 'F');
+    doc.rect(ML, y + 1.2, 2.5, 10 - 2.4, 'F');
 
     doc.setFont(HEAD_FONT, 'bold');
     doc.setFontSize(7.5);
