@@ -1307,13 +1307,7 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     if (relatedReqIds.length > 0) refParts.push(lang === 'de' ? `Verknüpfte Anforderungen: ${relatedReqIds.join('; ')}` : lang === 'fr' ? `Exigences liées : ${relatedReqIds.join('; ')}` : `Related requirements: ${relatedReqIds.join('; ')}`);
     writeFieldBlock(lang === 'de' ? 'REFERENZ' : lang === 'fr' ? 'RÉFÉRENCE' : 'REFERENCE', refParts.join(' | '));
 
-    // Reproducibility
-    const reproMap: Record<string, Record<string, string>> = {
-      easy: { de: 'Einfach', en: 'Easy', fr: 'Facile' },
-      medium: { de: 'Mittel', en: 'Medium', fr: 'Moyen' },
-      hard: { de: 'Komplex', en: 'Complex', fr: 'Complexe' },
-      impossible: { de: 'Nicht reproduzierbar', en: 'Not reproducible', fr: 'Non reproductible' },
-    };
+    // Reproducibility (reproMap already declared above)
     const reproLabel = reproMap[th.reproducibility]?.[lang] || th.reproducibility;
     writeLabel(`${t(I18N.reproducibility)}: ${reproLabel}`, 5);
 
