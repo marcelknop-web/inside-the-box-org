@@ -254,6 +254,10 @@ export class PdfDoc {
     d.setTextColor(120, 120, 120);
     d.text('lightspeedconsulting.ai', 105, 200, { align: 'center', angle: 45 });
     d.restoreGraphicsState();
+
+    // Reset to body defaults so text after page break renders correctly
+    d.setFont(this.bodyFont, 'normal');
+    d.setFontSize(LAYOUT.BODY_SIZE);
     d.setTextColor(...C.dark);
   }
 
