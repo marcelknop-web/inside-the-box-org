@@ -1543,6 +1543,153 @@ export function generateCraReport(data: CraReportData): void {
   }
 
   /* ══════════════════════════════════════
+     SECTION 9: Compliance Statement & Classification
+     ══════════════════════════════════════ */
+  newSection();
+  writeSectionHeading(t(I18N.sec9));
+
+  const sec9Intro = lang === 'de'
+    ? 'Dieser Abschnitt enthält die abschließende Konformitätsbewertung und die Produktklassifizierung gemäß CRA. Er dient als Entscheidungsgrundlage für die Markteinführung und die Auswahl des Konformitätsbewertungsverfahrens.'
+    : lang === 'fr'
+    ? 'Cette section contient l\'évaluation finale de conformité et la classification du produit selon le CRA. Elle sert de base de décision pour la mise sur le marché et le choix de la procédure d\'évaluation de conformité.'
+    : 'This section contains the final compliance assessment and product classification pursuant to the CRA. It serves as the basis for market launch decisions and the selection of the conformity assessment procedure.';
+  writeBody(sec9Intro);
+  y += 3;
+
+  // ── 9.1 Product Classification ──
+  const sec91Title = lang === 'de' ? '9.1  Produktklassifizierung' : lang === 'fr' ? '9.1  Classification du produit' : '9.1  Product Classification';
+  writeSubHeading(sec91Title);
+
+  const classExplanation = lang === 'de'
+    ? `Das Produkt ${intakeData.productName} ist als CRA-Klasse "${craClassName}" eingestuft. Die Klassifizierung bestimmt das anwendbare Konformitätsbewertungsverfahren:`
+    : lang === 'fr'
+    ? `Le produit ${intakeData.productName} est classé CRA "${craClassName}". La classification détermine la procédure d'évaluation de conformité applicable :`
+    : `The product ${intakeData.productName} is classified as CRA class "${craClassName}". The classification determines the applicable conformity assessment procedure:`;
+  writeBody(classExplanation);
+  y += 2;
+
+  const classTable: [string, string, string][] = lang === 'de' ? [
+    ['Default', 'Selbstbewertung (Art. 32)', 'Interne Konformitätsprüfung durch den Hersteller, keine Beteiligung einer benannten Stelle erforderlich.'],
+    ['Klasse I', 'Harmonisierte Norm oder Selbstbewertung', 'Selbstbewertung möglich bei Anwendung harmonisierter Normen (Art. 32); andernfalls Beteiligung einer benannten Stelle (Art. 33).'],
+    ['Klasse II', 'Drittprüfung (Art. 33)', 'Verpflichtende Beteiligung einer benannten Stelle (Notified Body). EU-Typprüfung oder vollständige Qualitätssicherung.'],
+    ['Kritisch', 'EU-Typprüfung (Art. 33)', 'Europäisches Cybersicherheitszertifikat auf Stufe "substantiell" oder höher erforderlich.'],
+  ] : lang === 'fr' ? [
+    ['Default', 'Auto-évaluation (Art. 32)', 'Évaluation interne par le fabricant, aucun organisme notifié requis.'],
+    ['Classe I', 'Norme harmonisée ou auto-évaluation', 'Auto-évaluation possible avec normes harmonisées (Art. 32) ; sinon organisme notifié (Art. 33).'],
+    ['Classe II', 'Examen par tiers (Art. 33)', 'Participation obligatoire d\'un organisme notifié. Examen de type UE ou assurance qualité complète.'],
+    ['Critique', 'Examen de type UE (Art. 33)', 'Certificat européen de cybersécurité au niveau "substantiel" ou supérieur requis.'],
+  ] : [
+    ['Default', 'Self-assessment (Art. 32)', 'Internal conformity assessment by manufacturer, no notified body involvement required.'],
+    ['Class I', 'Harmonised standard or self-assessment', 'Self-assessment possible when harmonised standards are applied (Art. 32); otherwise notified body involvement (Art. 33).'],
+    ['Class II', 'Third-party audit (Art. 33)', 'Mandatory notified body involvement. EU type examination or full quality assurance.'],
+    ['Critical', 'EU type examination (Art. 33)', 'European cybersecurity certificate at level "substantial" or higher required.'],
+  ];
+
+  checkPage(40);
+  const clColClass = ML + 5;
+  const clColProc = ML + 40;
+  const clColDesc = ML + 90;
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(7); doc.setTextColor(...C.accent);
+  doc.text(lang === 'de' ? 'KLASSE' : 'CLASS', clColClass, y);
+  doc.text(lang === 'de' ? 'VERFAHREN' : 'PROCEDURE', clColProc, y);
+  doc.text(lang === 'de' ? 'ERLÄUTERUNG' : 'DESCRIPTION', clColDesc, y);
+  y += 2; doc.setDrawColor(...C.ruleStroke); doc.setLineWidth(0.15); doc.line(clColClass, y, W - MR - 5, y); y += 3;
+
+  for (const [cls, proc, desc] of classTable) {
+    checkPage(14);
+    const isCurrentClass = cls.toLowerCase().includes(intakeData.craClass.toLowerCase()) ||
+      (intakeData.craClass === 'default' && cls === 'Default') ||
+      (intakeData.craClass === 'k1' && cls.includes('I') && !cls.includes('II')) ||
+      (intakeData.craClass === 'k2' && cls.includes('II')) ||
+      (intakeData.craClass === 'krit' && cls.toLowerCase().includes('krit'));
+    if (isCurrentClass) {
+      doc.setFillColor(...C.bgLight); doc.roundedRect(ML + 3, y - 2.5, CW - 3, 12, 1, 1, 'F');
+      doc.setFillColor(...C.gold); doc.rect(ML + 3, y - 2.5, 1.2, 12, 'F');
+    }
+    doc.setFont('helvetica', isCurrentClass ? 'bold' : 'normal'); doc.setFontSize(BODY_SIZE - 0.5);
+    doc.setTextColor(...(isCurrentClass ? C.darkNavy : C.bodyText));
+    doc.text(cls, clColClass, y);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5);
+    doc.text(proc, clColProc, y);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.setTextColor(...C.labelText);
+    const descLines = doc.splitTextToSize(desc, CW - 95);
+    doc.text(descLines[0] || '', clColDesc, y);
+    y += descLines.length > 1 ? 5 : 0;
+    if (descLines.length > 1) { for (let di = 1; di < descLines.length; di++) { doc.text(descLines[di], clColDesc, y); y += 3.5; } }
+    y += 5;
+  }
+
+  // ── 9.2 Compliance Verdict ──
+  y += 4;
+  const sec92Title = lang === 'de' ? '9.2  Konformitätserklärung' : lang === 'fr' ? '9.2  Déclaration de conformité' : '9.2  Compliance Verdict';
+  writeSubHeading(sec92Title);
+
+  const isCompliant = critRisks.length === 0 && failReqs.length === 0;
+  const isConditional = !isCompliant && crComplianceRate >= 60;
+
+  const verdictStatement = lang === 'de'
+    ? isCompliant
+      ? `Auf Grundlage der in diesem Bericht dokumentierten Prüfungsergebnisse erfüllt das Produkt ${intakeData.productName} ${intakeData.version} die wesentlichen Anforderungen des EU Cyber Resilience Act (Verordnung (EU) 2024/2847). Es wurden keine kritischen Risiken und keine nicht-konformen Anforderungen identifiziert. Das Produkt ist aus Sicht dieser Bewertung marktfähig.`
+      : isConditional
+        ? `Das Produkt ${intakeData.productName} ${intakeData.version} erfüllt die Anforderungen des CRA derzeit mit Einschränkungen (gewichtete Konformitätsrate: ${crComplianceRate}%). Es bestehen ${critRisks.length} kritische Risiken und ${failReqs.length} nicht-konforme Anforderungen. Eine Markteinführung ist unter folgenden Bedingungen vertretbar: (1) Alle P0-Maßnahmen sind abgeschlossen und verifiziert, (2) die verbleibenden Lücken werden gemäß der Remediation-Roadmap (Abschnitt 5.2) innerhalb der definierten Fristen geschlossen.`
+        : `Das Produkt ${intakeData.productName} ${intakeData.version} erfüllt die wesentlichen Anforderungen des CRA derzeit nicht (gewichtete Konformitätsrate: ${crComplianceRate}%). Es bestehen ${critRisks.length} kritische Risiken und ${failReqs.length} nicht-konforme Anforderungen. Eine Markteinführung im aktuellen Zustand birgt erhebliche regulatorische Risiken, einschließlich Bußgeldern nach Art. 64 CRA und möglicher Rückrufpflichten nach Art. 49 CRA. Die Umsetzung der Remediation-Roadmap (Abschnitt 5.2) ist vor Markteinführung zwingend erforderlich.`
+    : lang === 'fr'
+    ? isCompliant
+      ? `Sur la base des résultats documentés dans ce rapport, le produit ${intakeData.productName} ${intakeData.version} satisfait aux exigences essentielles du CRA. Aucun risque critique ni exigence non conforme n'a été identifié. Le produit est considéré comme prêt pour la mise sur le marché.`
+      : isConditional
+        ? `Le produit ${intakeData.productName} ${intakeData.version} satisfait partiellement aux exigences du CRA (taux de conformité pondéré : ${crComplianceRate}%). ${critRisks.length} risques critiques et ${failReqs.length} exigences non conformes ont été identifiés. La mise sur le marché est acceptable sous conditions.`
+        : `Le produit ${intakeData.productName} ${intakeData.version} ne satisfait pas aux exigences essentielles du CRA (taux de conformité pondéré : ${crComplianceRate}%). La mise en oeuvre de la feuille de route de remédiation est impérative avant la mise sur le marché.`
+    : isCompliant
+      ? `Based on the assessment results documented in this report, the product ${intakeData.productName} ${intakeData.version} meets the essential requirements of the EU Cyber Resilience Act (Regulation (EU) 2024/2847). No critical risks and no non-compliant requirements were identified. The product is considered market-ready from this assessment's perspective.`
+      : isConditional
+        ? `The product ${intakeData.productName} ${intakeData.version} partially meets CRA requirements (weighted compliance rate: ${crComplianceRate}%). ${critRisks.length} critical risks and ${failReqs.length} non-compliant requirements were identified. Market launch is acceptable under conditions: (1) all P0 measures completed and verified, (2) remaining gaps closed per the remediation roadmap (Section 5.2).`
+        : `The product ${intakeData.productName} ${intakeData.version} does not currently meet the essential CRA requirements (weighted compliance rate: ${crComplianceRate}%). ${critRisks.length} critical risks and ${failReqs.length} non-compliant requirements were identified. Market launch in the current state poses significant regulatory risks including penalties under Art. 64 CRA and potential recall obligations under Art. 49 CRA. Implementation of the remediation roadmap (Section 5.2) is mandatory before market launch.`;
+
+  // Verdict box
+  checkPage(30);
+  const stmtLines = doc.splitTextToSize(verdictStatement, CW - 14);
+  const stmtBoxH = stmtLines.length * 4.2 + 8;
+  const stmtBg: [number, number, number] = isCompliant ? C.bgGreen : isConditional ? C.bgYellow : C.bgRed;
+  const stmtAccent: [number, number, number] = isCompliant ? C.greenText : isConditional ? C.orangeText : C.redText;
+  doc.setFillColor(...stmtBg);
+  doc.roundedRect(ML, y, CW, stmtBoxH, 2, 2, 'F');
+  doc.setFillColor(...stmtAccent);
+  doc.rect(ML, y, 2, stmtBoxH, 'F');
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5); doc.setTextColor(...C.bodyText);
+  doc.text(stmtLines, ML + 8, y + 5);
+  y += stmtBoxH + 6;
+
+  // Verdict label
+  const verdictLbl = isCompliant
+    ? (lang === 'de' ? 'KONFORM — Marktreife gegeben' : lang === 'fr' ? 'CONFORME — Prêt pour le marché' : 'COMPLIANT — Market-ready')
+    : isConditional
+      ? (lang === 'de' ? 'BEDINGT KONFORM — Nacharbeit erforderlich' : lang === 'fr' ? 'CONFORMITÉ CONDITIONNELLE — Corrections nécessaires' : 'CONDITIONALLY COMPLIANT — Remediation required')
+      : (lang === 'de' ? 'NICHT KONFORM — Markteinführung nicht empfohlen' : lang === 'fr' ? 'NON CONFORME — Mise sur le marché non recommandée' : 'NON-COMPLIANT — Market launch not recommended');
+
+  checkPage(14);
+  doc.setFillColor(...stmtAccent);
+  doc.roundedRect(ML, y, CW, 10, 1.5, 1.5, 'F');
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(9); doc.setTextColor(255, 255, 255);
+  doc.text(verdictLbl, ML + CW / 2, y + 6.5, { align: 'center' });
+  y += 16;
+
+  // Signature block
+  const sigTitle = lang === 'de' ? 'Verantwortliche Freigabe' : lang === 'fr' ? 'Approbation responsable' : 'Responsible Approval';
+  writeLabel(sigTitle);
+  y += 2;
+  const sigFields = lang === 'de'
+    ? ['Name: ____________________________', 'Funktion: ____________________________', 'Datum: ____________________________', 'Unterschrift: ____________________________']
+    : lang === 'fr'
+    ? ['Nom : ____________________________', 'Fonction : ____________________________', 'Date : ____________________________', 'Signature : ____________________________']
+    : ['Name: ____________________________', 'Role: ____________________________', 'Date: ____________________________', 'Signature: ____________________________'];
+  for (const sf of sigFields) {
+    checkPage(6);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(BODY_SIZE); doc.setTextColor(...C.bodyText);
+    doc.text(sf, ML + 5, y);
+    y += 7;
+  }
+
+  /* ══════════════════════════════════════
      APPENDIX A: Structured Audit Data
      ══════════════════════════════════════ */
   newSection();
