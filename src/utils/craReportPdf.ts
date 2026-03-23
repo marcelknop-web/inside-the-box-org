@@ -1200,10 +1200,10 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     const headerText = isCrit ? C.redText : isHigh ? C.orangeText : C.darkNavy;
 
     doc.setFillColor(...headerBg);
-    doc.roundedRect(ML, y, CW, 10, 1, 1, 'F');
+    doc.roundedRect(ML, y, CW, 10, 1.2, 1.2, 'F');
     const accentBarColor = isCrit ? C.redText : isHigh ? C.orangeText : C.accent;
     doc.setFillColor(...accentBarColor);
-    doc.rect(ML, y + 0.5, 2, 9, 'F');
+    doc.rect(ML, y + 1.2, 2.5, 10 - 2.4, 'F');
 
     const rl = riskLabel(score);
     const scoreStr = `${rl}  ${th.likelihood} x ${th.impact} = ${score}`;
