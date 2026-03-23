@@ -1233,7 +1233,11 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
         : th.likelihood >= 4 ? `, as ${th.component} is accessible without authentication` : th.likelihood >= 3 ? `, as the attack vector is known and exploitable` : `, as exploitation requires specialised knowledge`;
     writeFieldBlock('LIKELIHOOD', `${likelihoodLabel} (${th.likelihood}/5)${likelihoodJustification}`);
 
-    // 9. RISK LEVEL
+    // 9. RISK LEVEL (auto-derived scoring logic)
+    // CRITICAL: score>=20 OR missing/broken auth OR unencrypted sensitive comms OR default creds
+    // HIGH: score>=13 OR partial control with immediate exploitability
+    // MEDIUM: score>=6 OR weak config without immediate exploit
+    // LOW: score<6
     const ratingLabel = score >= 20 ? 'CRITICAL' : score >= 13 ? 'HIGH' : score >= 6 ? 'MEDIUM' : 'LOW';
     const ratingColor: [number, number, number] = score >= 20 ? C.redText : score >= 13 ? C.orangeText : score >= 6 ? C.orangeText : C.greenText;
     checkPage(8);
