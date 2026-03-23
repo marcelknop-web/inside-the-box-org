@@ -2,6 +2,55 @@ import jsPDF from 'jspdf';
 import type { IntakeData, Threat, CraReq } from '@/data/craData';
 import { threatId } from '@/data/craData';
 import type { QaCheck } from '@/utils/craQualityCheck';
+import { FONTS } from '@/utils/pdfCore';
+
+/* ════════════════════════════════════════════════════════════
+   Font System — shared with pdfCore for consistency
+   ════════════════════════════════════════════════════════════ */
+const FONT_FILES = [
+  { file: 'IBMPlexSerif-Regular.ttf', family: 'IBMPlexSerif', style: 'normal' },
+  { file: 'IBMPlexSerif-Bold.ttf', family: 'IBMPlexSerif', style: 'bold' },
+  { file: 'IBMPlexSerif-Italic.ttf', family: 'IBMPlexSerif', style: 'italic' },
+  { file: 'InstrumentSans-Regular.ttf', family: 'InstrumentSans', style: 'normal' },
+  { file: 'InstrumentSans-Bold.ttf', family: 'InstrumentSans', style: 'bold' },
+  { file: 'IBMPlexMono-Regular.ttf', family: 'IBMPlexMono', style: 'normal' },
+  { file: 'IBMPlexMono-Bold.ttf', family: 'IBMPlexMono', style: 'bold' },
+];
+let fontsLoaded = false;
+let fontCache: Record<string, string> = {};
+
+function arrayBufferToBase64(buffer: ArrayBuffer): string {
+  const bytes = new Uint8Array(buffer);
+  let binary = '';
+  for (let i = 0; i < bytes.byteLength; i++) binary += String.fromCharCode(bytes[i]);
+  return btoa(binary);
+}
+
+async function loadAndRegisterFonts(doc: jsPDF): Promise<{ body: string; head: string; data: string }> {
+  try {
+    if (!fontsLoaded) {
+      const results = await Promise.all(
+        FONT_FILES.map(async (f) => {
+          const resp = await fetch(`/fonts/${f.file}`);
+          if (!resp.ok) throw new Error(`Font load failed: ${f.file}`);
+          const buf = await resp.arrayBuffer();
+          return { ...f, base64: arrayBufferToBase64(buf) };
+        })
+      );
+      results.forEach(r => { fontCache[`${r.family}-${r.style}`] = r.base64; });
+      fontsLoaded = true;
+    }
+    FONT_FILES.forEach(f => {
+      const key = `${f.family}-${f.style}`;
+      const b64 = fontCache[key];
+      if (b64) { doc.addFileToVFS(f.file, b64); doc.addFont(f.file, f.family, f.style); }
+    });
+    return { body: FONTS.body, head: FONTS.head, data: FONTS.data };
+  } catch (e) {
+    console.warn('Custom fonts failed to load, using fallbacks:', e);
+    return { body: 'times', head: 'helvetica', data: 'courier' };
+  }
+}
 
 export interface CraReportData {
   intakeData: IntakeData;
