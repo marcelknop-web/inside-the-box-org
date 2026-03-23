@@ -85,6 +85,49 @@ const I18N: Record<string, Record<string, string>> = {
   no: { de: 'Nein', en: 'No', fr: 'Non' },
   noFilesSubmitted: { de: 'Keine Dokumente eingereicht.', en: 'No documents submitted.', fr: 'Aucun document soumis.' },
   draftWatermark: { de: 'ENTWURF', en: 'DRAFT', fr: 'BROUILLON' },
+  // Finding structure labels (12-element audit template)
+  findingIdLabel: { de: 'FESTSTELLUNGS-ID', en: 'FINDING ID', fr: 'ID DE CONSTATATION' },
+  titleLabel: { de: 'TITEL', en: 'TITLE', fr: 'TITRE' },
+  observationLabel: { de: 'BEOBACHTUNG', en: 'OBSERVATION', fr: 'OBSERVATION' },
+  techDetails: { de: 'TECHNISCHE DETAILS', en: 'TECHNICAL DETAILS', fr: 'DÉTAILS TECHNIQUES' },
+  riskCategoryLabel: { de: 'RISIKOKATEGORIE (CIAGTR)', en: 'RISK CATEGORY (CIAGTR)', fr: 'CATÉGORIE DE RISQUE (CIAGTR)' },
+  riskDescLabel: { de: 'RISIKOBESCHREIBUNG', en: 'RISK DESCRIPTION', fr: 'DESCRIPTION DU RISQUE' },
+  impactLabel: { de: 'AUSWIRKUNG (CIA)', en: 'IMPACT (CIA)', fr: 'IMPACT (CIA)' },
+  confidentiality: { de: 'Vertraulichkeit', en: 'Confidentiality', fr: 'Confidentialité' },
+  integrityLabel: { de: 'Integrität', en: 'Integrity', fr: 'Intégrité' },
+  availabilityLabel: { de: 'Verfügbarkeit', en: 'Availability', fr: 'Disponibilité' },
+  likelihoodLabel: { de: 'EINTRITTSWAHRSCHEINLICHKEIT', en: 'LIKELIHOOD', fr: 'PROBABILITÉ' },
+  riskLevelLabel: { de: 'RISIKOSTUFE', en: 'RISK LEVEL', fr: 'NIVEAU DE RISQUE' },
+  rootCauseLabel: { de: 'URSACHE', en: 'ROOT CAUSE', fr: 'CAUSE RACINE' },
+  recommendationLabel: { de: 'EMPFEHLUNG', en: 'RECOMMENDATION', fr: 'RECOMMANDATION' },
+  referenceLabel: { de: 'REFERENZ', en: 'REFERENCE', fr: 'RÉFÉRENCE' },
+  acceptanceCriteria: { de: 'UMSETZUNGSKRITERIEN', en: 'ACCEPTANCE CRITERIA', fr: 'CRITÈRES D\'ACCEPTATION' },
+  smartCriteria: { de: 'SMARTE UMSETZUNGSKRITERIEN', en: 'SMART ACCEPTANCE CRITERIA', fr: 'CRITÈRES D\'ACCEPTATION SMART' },
+  linkedRisksLabel: { de: 'Verknüpfte Risiken', en: 'Linked Risks', fr: 'Risques liés' },
+  workingPapers: { de: 'Arbeitspapiere', en: 'Working Papers', fr: 'Papiers de travail' },
+  noRiskLink: { de: 'Keine direkte Risikoverknüpfung — regulatorische Anforderung', en: 'No direct risk link — regulatory requirement', fr: 'Aucun lien de risque direct — exigence réglementaire' },
+  requirementLabel: { de: 'Anforderung', en: 'Requirement', fr: 'Exigence' },
+  affectedComponents: { de: 'Betroffene Komponenten', en: 'Affected Components', fr: 'Composants concernés' },
+  evidenceRefLabel: { de: 'Evidenz-Referenz', en: 'Evidence Reference', fr: 'Référence de preuve' },
+  internalUse: { de: 'Nur für den internen Gebrauch des Empfängers bestimmt', en: 'For internal use of the recipient only', fr: 'Réservé à l\'usage interne du destinataire' },
+  approvalBlock: { de: 'VERANTWORTLICHE FREIGABE', en: 'RESPONSIBLE APPROVAL', fr: 'APPROBATION RESPONSABLE' },
+  effortEstimateLabel: { de: 'AUFWANDSSCHÄTZUNG', en: 'EFFORT ESTIMATE', fr: 'ESTIMATION DE L\'EFFORT' },
+  assumptionsLabel: { de: 'ANNAHMEN', en: 'ASSUMPTIONS', fr: 'HYPOTHÈSES' },
+  uncertaintiesLabel: { de: 'UNSICHERHEITEN', en: 'UNCERTAINTIES', fr: 'INCERTITUDES' },
+  validationLabel: { de: 'VALIDIERUNG', en: 'VALIDATION', fr: 'VALIDATION' },
+  highLevel: { de: 'Hoch', en: 'High', fr: 'Élevé' },
+  mediumLevel: { de: 'Mittel', en: 'Medium', fr: 'Moyen' },
+  lowLevel: { de: 'Niedrig', en: 'Low', fr: 'Faible' },
+  noneLevel: { de: 'Keine', en: 'None', fr: 'Aucun' },
+  criticalSev: { de: 'KRITISCH', en: 'CRITICAL', fr: 'CRITIQUE' },
+  highSev: { de: 'HOCH', en: 'HIGH', fr: 'ÉLEVÉ' },
+  mediumSev: { de: 'MITTEL', en: 'MEDIUM', fr: 'MOYEN' },
+  lowSev: { de: 'NIEDRIG', en: 'LOW', fr: 'FAIBLE' },
+  regContext: { de: 'Regulatorischer Kontext', en: 'Regulatory Context', fr: 'Contexte réglementaire' },
+  effortTimeline: { de: 'Geschätzter Aufwand und Zeitrahmen', en: 'Estimated Effort and Timeline', fr: 'Effort estimé et calendrier' },
+  urgencyImportance: { de: 'Dringlichkeit und Bedeutung', en: 'Urgency and Importance', fr: 'Urgence et importance' },
+  regImplication: { de: 'Regulatorische Implikation', en: 'Regulatory Implication', fr: 'Implication réglementaire' },
+  recAction: { de: 'Empfohlenes Vorgehen', en: 'Recommended Action', fr: 'Action recommandée' },
 };
 
 function l(key: string, lang: string): string {
@@ -383,65 +426,69 @@ export async function generateNis2Report(data: Nis2ReportData): Promise<void> {
   risks.forEach((ri, idx) => {
     pdf.checkSpace(55);
     const score = ri.likelihood * ri.impact;
-    const sev = score >= 20 ? (lang === 'de' ? 'KRITISCH' : 'CRITICAL') : score >= 13 ? (lang === 'de' ? 'HOCH' : 'HIGH') : score >= 6 ? (lang === 'de' ? 'MITTEL' : 'MEDIUM') : (lang === 'de' ? 'NIEDRIG' : 'LOW');
+    const sev = score >= 20 ? l('criticalSev', lang) : score >= 13 ? l('highSev', lang) : score >= 6 ? l('mediumSev', lang) : l('lowSev', lang);
     const cat = RISK_CATEGORIES[ri.category]?.label[lang] || ri.category;
     const eId = `E-${String(idx + 1).padStart(3, '0')}`;
     const linked = linkReqs(ri, reqs);
 
     // 1. FINDING ID + 2. TITLE
     pdf.heading(`${l('finding', lang)} ${riskId(ri)}: ${ri.name}`, 3);
-    pdf.metaLine(`${cat}  |  ${sev}  |  ${ri.nis2Ref}  |  ${eId}  |  ${lang === 'de' ? 'Evidenz' : 'Evidence'}: ${ri.evidenceQuality}/5`);
+    pdf.metaLine(`${cat}  |  ${sev}  |  ${ri.nis2Ref}  |  ${eId}  |  ${l('evidence', lang)}: ${ri.evidenceQuality}/5`);
 
     // 3. OBSERVATION
     const obsText = lang === 'de'
       ? `Die Komponente ${ri.component} weist eine Schwachstelle auf: ${ri.name}. Die erhobene Evidenz zeigt: ${ri.evidence}`
-      : `The component ${ri.component} exhibits a vulnerability: ${ri.name}. Evidence shows: ${ri.evidence}`;
-    pdf.bodyText(`${lang === 'de' ? 'Beobachtung' : 'Observation'}: ${obsText}`, 0);
+      : lang === 'fr'
+        ? `Le composant ${ri.component} présente une vulnérabilité : ${ri.name}. Les preuves recueillies montrent : ${ri.evidence}`
+        : `The component ${ri.component} exhibits a vulnerability: ${ri.name}. Evidence shows: ${ri.evidence}`;
+    pdf.bodyText(`${l('observationLabel', lang)}: ${obsText}`, 0);
 
     // 4. TECHNICAL DETAILS
-    pdf.sectionLabel(lang === 'de' ? 'TECHNISCHE DETAILS' : 'TECHNICAL DETAILS');
+    pdf.sectionLabel(l('techDetails', lang));
     pdf.fieldInline(l('component', lang), ri.component);
     pdf.fieldInline(l('attacker', lang), ri.attacker);
     pdf.fieldInline(l('attackPath', lang), ri.path);
-    pdf.fieldInline(lang === 'de' ? 'Evidenz-Referenz' : 'Evidence Reference', `${eId} (${ri.evidenceQuality}/5)`);
+    pdf.fieldInline(l('evidenceRefLabel', lang), `${eId} (${ri.evidenceQuality}/5)`);
 
     // 5. THREAT CATEGORY (CIAGTR)
-    pdf.fieldInline(lang === 'de' ? 'Risikokategorie (CIAGTR)' : 'Risk Category (CIAGTR)', `${ri.category} — ${cat}`);
+    pdf.fieldInline(l('riskCategoryLabel', lang), `${ri.category} — ${cat}`);
 
     // 6. RISK DESCRIPTION
     const riskDesc = lang === 'de'
       ? `Ein Angreifer (${ri.attacker}) kann über den Vektor „${ri.path}" ${score >= 20 ? 'das System direkt kompromittieren, was zu Betriebsunterbrechung und regulatorischer Nicht-Konformität führt' : score >= 13 ? 'betroffene Subsysteme kompromittieren, was zu Datenexfiltration oder Funktionsverlust führt' : 'einzelne Komponenten lokal ausnutzen, was zu begrenztem Schaden führt'}. ${ri.rationale}`
-      : `An attacker (${ri.attacker}) can exploit "${ri.path}" to ${score >= 20 ? 'directly compromise the system, leading to operational disruption and regulatory non-compliance' : score >= 13 ? 'compromise affected subsystems, leading to data exfiltration or loss of function' : 'locally exploit individual components, leading to limited damage'}. ${ri.rationale}`;
-    pdf.bodyText(`${lang === 'de' ? 'Risikobeschreibung' : 'Risk Description'}: ${riskDesc}`, 0);
+      : lang === 'fr'
+        ? `Un attaquant (${ri.attacker}) peut exploiter le vecteur « ${ri.path} » pour ${score >= 20 ? 'compromettre directement le système, entraînant une interruption opérationnelle et une non-conformité réglementaire' : score >= 13 ? 'compromettre les sous-systèmes concernés, entraînant une exfiltration de données ou une perte de fonctionnalité' : 'exploiter localement des composants individuels, entraînant des dommages limités'}. ${ri.rationale}`
+        : `An attacker (${ri.attacker}) can exploit "${ri.path}" to ${score >= 20 ? 'directly compromise the system, leading to operational disruption and regulatory non-compliance' : score >= 13 ? 'compromise affected subsystems, leading to data exfiltration or loss of function' : 'locally exploit individual components, leading to limited damage'}. ${ri.rationale}`;
+    pdf.bodyText(`${l('riskDescLabel', lang)}: ${riskDesc}`, 0);
 
     // 7. IMPACT (CIA triad)
-    pdf.sectionLabel('IMPACT');
-    const ciaC = ri.category === 'C' ? (score >= 13 ? 'High' : 'Medium') : 'Low';
-    const ciaI = ri.category === 'I' ? (score >= 13 ? 'High' : 'Medium') : 'Low';
-    const ciaA = ri.category === 'A' ? (score >= 13 ? 'High' : 'Medium') : 'Low';
-    pdf.fieldInline('  Confidentiality', ciaC);
-    pdf.fieldInline('  Integrity', ciaI);
-    pdf.fieldInline('  Availability', ciaA);
+    pdf.sectionLabel(l('impactLabel', lang));
+    const ciaC = ri.category === 'C' ? (score >= 13 ? l('highLevel', lang) : l('mediumLevel', lang)) : l('lowLevel', lang);
+    const ciaI = ri.category === 'I' ? (score >= 13 ? l('highLevel', lang) : l('mediumLevel', lang)) : l('lowLevel', lang);
+    const ciaA = ri.category === 'A' ? (score >= 13 ? l('highLevel', lang) : l('mediumLevel', lang)) : l('lowLevel', lang);
+    pdf.fieldInline(`  ${l('confidentiality', lang)}`, ciaC);
+    pdf.fieldInline(`  ${l('integrityLabel', lang)}`, ciaI);
+    pdf.fieldInline(`  ${l('availabilityLabel', lang)}`, ciaA);
 
     // 8. LIKELIHOOD
-    const lLabel = ri.likelihood >= 4 ? 'High' : ri.likelihood >= 3 ? 'Medium' : 'Low';
-    pdf.fieldInline('LIKELIHOOD', `${lLabel} (${ri.likelihood}/5)`);
+    const lLbl = ri.likelihood >= 4 ? l('highLevel', lang) : ri.likelihood >= 3 ? l('mediumLevel', lang) : l('lowLevel', lang);
+    pdf.fieldInline(l('likelihoodLabel', lang), `${lLbl} (${ri.likelihood}/5)`);
 
     // 9. RISK LEVEL
-    pdf.scoreBar(`RISK LEVEL: ${sev}  (${ri.likelihood} × ${ri.impact} = ${score}/25)`);
+    pdf.scoreBar(`${l('riskLevelLabel', lang)}: ${sev}  (${ri.likelihood} × ${ri.impact} = ${score}/25)`);
 
     // 10. ROOT CAUSE
-    pdf.bodyText(`${lang === 'de' ? 'Ursache (Root Cause)' : 'Root Cause'}: ${ri.rationale}`, 0);
+    pdf.bodyText(`${l('rootCauseLabel', lang)}: ${ri.rationale}`, 0);
 
     // 11. RECOMMENDATION
-    const linkedMeasure = linked.length > 0 && linked[0].measure ? linked[0].measure : (lang === 'de' ? `Gegenmaßnahmen für ${ri.component} implementieren und durch unabhängige Tests verifizieren.` : `Implement countermeasures for ${ri.component} and verify through independent testing.`);
-    pdf.bodyText(`${lang === 'de' ? 'Empfehlung' : 'Recommendation'}: ${linkedMeasure}`, 0);
+    const linkedMeasure = linked.length > 0 && linked[0].measure ? linked[0].measure : (lang === 'de' ? `Gegenmaßnahmen für ${ri.component} implementieren und durch unabhängige Tests verifizieren.` : lang === 'fr' ? `Implémenter des contre-mesures pour ${ri.component} et vérifier par des tests indépendants.` : `Implement countermeasures for ${ri.component} and verify through independent testing.`);
+    pdf.bodyText(`${l('recommendationLabel', lang)}: ${linkedMeasure}`, 0);
 
     // 12. REFERENCE
     const refParts = [ri.nis2Ref];
     if (ri.sources.length > 0) refParts.push(ri.sources.join('; '));
-    if (linked.length > 0) refParts.push(`${lang === 'de' ? 'Arbeitspapiere' : 'Working Papers'}: ${linked.map(r => `AP-${r.id}`).join(', ')}`);
-    pdf.bodyText(`${lang === 'de' ? 'Referenz' : 'Reference'}: ${refParts.join(' | ')}`, 0);
+    if (linked.length > 0) refParts.push(`${l('workingPapers', lang)}: ${linked.map(r => `AP-${r.id}`).join(', ')}`);
+    pdf.bodyText(`${l('referenceLabel', lang)}: ${refParts.join(' | ')}`, 0);
 
     pdf.separator();
   });
@@ -472,103 +519,107 @@ export async function generateNis2Report(data: Nis2ReportData): Promise<void> {
     });
 
     // 1. FINDING ID
-    pdf.sectionLabel('FINDING ID');
+    pdf.sectionLabel(l('findingIdLabel', lang));
     pdf.bodyText(`F-${String(reqFindingNum).padStart(2, '0')}`, 4);
 
     // 2. TITLE
-    pdf.sectionLabel(lang === 'de' ? 'TITEL' : 'TITLE');
+    pdf.sectionLabel(l('titleLabel', lang));
     pdf.bodyText(`${r.name} (${r.article})`, 4);
 
     // 3. OBSERVATION
     const obsReq = r.status === 'pass'
-      ? (lang === 'de' ? `Die Anforderung ${r.article} ist vollständig umgesetzt. ${r.evidence}` : `Requirement ${r.article} is fully implemented. ${r.evidence}`)
-      : (lang === 'de' ? `Die Anforderung ${r.article} ist ${r.status === 'fail' ? 'nicht' : 'nicht vollständig'} umgesetzt. ${r.gap || ''}. Evidenz: ${r.evidence}` : `Requirement ${r.article} is ${r.status === 'fail' ? 'not' : 'not fully'} implemented. ${r.gap || ''}. Evidence: ${r.evidence}`);
-    pdf.sectionLabel(lang === 'de' ? 'BEOBACHTUNG' : 'OBSERVATION');
+      ? (lang === 'de' ? `Die Anforderung ${r.article} ist vollständig umgesetzt. ${r.evidence}` : lang === 'fr' ? `L'exigence ${r.article} est entièrement mise en œuvre. ${r.evidence}` : `Requirement ${r.article} is fully implemented. ${r.evidence}`)
+      : (lang === 'de' ? `Die Anforderung ${r.article} ist ${r.status === 'fail' ? 'nicht' : 'nicht vollständig'} umgesetzt. ${r.gap || ''}. Evidenz: ${r.evidence}` : lang === 'fr' ? `L'exigence ${r.article} ${r.status === 'fail' ? 'n\'est pas' : 'n\'est pas entièrement'} mise en œuvre. ${r.gap || ''}. Preuve : ${r.evidence}` : `Requirement ${r.article} is ${r.status === 'fail' ? 'not' : 'not fully'} implemented. ${r.gap || ''}. Evidence: ${r.evidence}`);
+    pdf.sectionLabel(l('observationLabel', lang));
     pdf.bodyText(obsReq, 4);
 
     // 4. TECHNICAL DETAILS
-    pdf.sectionLabel(lang === 'de' ? 'TECHNISCHE DETAILS' : 'TECHNICAL DETAILS');
-    pdf.fieldInline(lang === 'de' ? '  Anforderung' : '  Requirement', `${r.id}: ${r.article}`);
+    pdf.sectionLabel(l('techDetails', lang));
+    pdf.fieldInline(`  ${l('requirementLabel', lang)}`, `${r.id}: ${r.article}`);
     if (linkedRisks.length > 0) {
-      pdf.fieldInline(lang === 'de' ? '  Betroffene Komponenten' : '  Affected Components', linkedRisks.map(ri => ri.component).filter((v, i, a) => a.indexOf(v) === i).join(', '));
+      pdf.fieldInline(`  ${l('affectedComponents', lang)}`, linkedRisks.map(ri => ri.component).filter((v, i, a) => a.indexOf(v) === i).join(', '));
     }
-    pdf.fieldInline(lang === 'de' ? '  Evidenz' : '  Evidence', r.evidence);
+    pdf.fieldInline(`  ${l('evidence', lang)}`, r.evidence);
 
     // 5. THREAT CATEGORY (CIAGTR)
     const riskCategories = [...new Set(linkedRisks.map(ri => ri.category))];
     const ciagtrLine = riskCategories.length > 0
       ? riskCategories.map(c => `${c} — ${RISK_CATEGORIES[c]?.label[lang] || c}`).join(', ')
-      : (lang === 'de' ? 'Keine direkte Risikoverknüpfung — regulatorische Anforderung' : 'No direct risk link — regulatory requirement');
-    pdf.sectionLabel(lang === 'de' ? 'RISIKOKATEGORIE (CIAGTR)' : 'RISK CATEGORY (CIAGTR)');
+      : l('noRiskLink', lang);
+    pdf.sectionLabel(l('riskCategoryLabel', lang));
     pdf.bodyText(ciagtrLine, 4);
 
-    // 6. RISK DESCRIPTION (attacker → technical impact → business impact)
+    // 6. RISK DESCRIPTION
     let riskDescReq: string;
     if (r.status === 'fail') {
-      const attackerInfo = linkedRisks.length > 0 ? linkedRisks[0].attacker : (lang === 'de' ? 'ein Angreifer' : 'an attacker');
-      const vectorInfo = linkedRisks.length > 0 ? linkedRisks[0].path : (lang === 'de' ? 'fehlende Kontrolle' : 'missing control');
+      const attackerInfo = linkedRisks.length > 0 ? linkedRisks[0].attacker : (lang === 'de' ? 'ein Angreifer' : lang === 'fr' ? 'un attaquant' : 'an attacker');
+      const vectorInfo = linkedRisks.length > 0 ? linkedRisks[0].path : (lang === 'de' ? 'fehlende Kontrolle' : lang === 'fr' ? 'contrôle manquant' : 'missing control');
       riskDescReq = lang === 'de'
         ? `${r.gap || 'Fehlende Kontrolle'}. ${attackerInfo} kann über „${vectorInfo}" Zugriff erlangen, was zu ${linkedRisks.length > 0 && linkedRisks[0].impact >= 4 ? 'Betriebsunterbrechung, Datenverlust und regulatorischen Sanktionen' : 'unautorisiertem Zugriff oder Integritätsverlust'} führt. Ohne Behebung Sanktionen nach NIS-2 Art. 34 möglich. Bußgelder bis zu 10 Mio. EUR oder 2% des weltweiten Jahresumsatzes.`
-        : `${r.gap || 'Missing control'}. ${attackerInfo} can gain access via "${vectorInfo}", leading to ${linkedRisks.length > 0 && linkedRisks[0].impact >= 4 ? 'operational disruption, data loss, and regulatory sanctions' : 'unauthorized access or integrity compromise'}. Without remediation, sanctions under NIS-2 Art. 34 possible. Fines up to EUR 10M or 2% of global annual turnover.`;
+        : lang === 'fr'
+          ? `${r.gap || 'Contrôle manquant'}. ${attackerInfo} peut obtenir l'accès via « ${vectorInfo} », entraînant ${linkedRisks.length > 0 && linkedRisks[0].impact >= 4 ? 'une interruption opérationnelle, une perte de données et des sanctions réglementaires' : 'un accès non autorisé ou une compromission de l\'intégrité'}. Sans correction, des sanctions selon NIS-2 Art. 34 sont possibles. Amendes jusqu'à 10 M EUR ou 2% du chiffre d'affaires mondial.`
+          : `${r.gap || 'Missing control'}. ${attackerInfo} can gain access via "${vectorInfo}", leading to ${linkedRisks.length > 0 && linkedRisks[0].impact >= 4 ? 'operational disruption, data loss, and regulatory sanctions' : 'unauthorized access or integrity compromise'}. Without remediation, sanctions under NIS-2 Art. 34 possible. Fines up to EUR 10M or 2% of global annual turnover.`;
     } else if (r.status === 'partial') {
       riskDescReq = lang === 'de'
         ? `${r.gap || 'Kontrolle nicht vollständig verifiziert'}. ${linkedRisks.length > 0 ? `Verknüpfte Risiken (${linkedRisks.map(ri => riskId(ri)).join(', ')}) können die verbleibende Lücke ausnutzen` : 'Angreifer können die ungeschützte Angriffsfläche ausnutzen'}, bis die Maßnahme vollständig implementiert ist. Residualrisiko bis zur vollständigen Umsetzung.`
-        : `${r.gap || 'Control not fully verified'}. ${linkedRisks.length > 0 ? `Linked risks (${linkedRisks.map(ri => riskId(ri)).join(', ')}) can exploit the remaining gap` : 'Attackers can exploit the unprotected attack surface'} until the measure is fully implemented. Residual risk until full implementation.`;
+        : lang === 'fr'
+          ? `${r.gap || 'Contrôle non entièrement vérifié'}. ${linkedRisks.length > 0 ? `Les risques liés (${linkedRisks.map(ri => riskId(ri)).join(', ')}) peuvent exploiter la lacune restante` : 'Les attaquants peuvent exploiter la surface d\'attaque non protégée'} jusqu'à la mise en œuvre complète. Risque résiduel.`
+          : `${r.gap || 'Control not fully verified'}. ${linkedRisks.length > 0 ? `Linked risks (${linkedRisks.map(ri => riskId(ri)).join(', ')}) can exploit the remaining gap` : 'Attackers can exploit the unprotected attack surface'} until the measure is fully implemented. Residual risk until full implementation.`;
     } else {
       riskDescReq = lang === 'de'
         ? `Anforderung vollständig umgesetzt und verifiziert. Keine ausnutzbare Angriffsfläche identifiziert.`
-        : `Requirement fully implemented and verified. No exploitable attack surface identified.`;
+        : lang === 'fr'
+          ? `Exigence entièrement mise en œuvre et vérifiée. Aucune surface d'attaque exploitable identifiée.`
+          : `Requirement fully implemented and verified. No exploitable attack surface identified.`;
     }
-    pdf.sectionLabel(lang === 'de' ? 'RISIKOBESCHREIBUNG' : 'RISK DESCRIPTION');
+    pdf.sectionLabel(l('riskDescLabel', lang));
     pdf.bodyText(riskDescReq, 4);
     if (linkedRisks.length > 0) {
       const threatContext = linkedRisks.map(ri => `${riskId(ri)}: ${ri.name} (Score ${ri.likelihood * ri.impact})`).join('; ');
-      pdf.fieldInline(lang === 'de' ? 'Verknüpfte Risiken' : 'Linked Risks', threatContext);
+      pdf.fieldInline(l('linkedRisksLabel', lang), threatContext);
     }
 
     // 7. IMPACT (CIA triad)
-    pdf.sectionLabel('IMPACT');
+    pdf.sectionLabel(l('impactLabel', lang));
     if (linkedRisks.length > 0) {
       const hasC = linkedRisks.some(ri => ri.category === 'C');
       const hasI = linkedRisks.some(ri => ri.category === 'I');
       const hasA = linkedRisks.some(ri => ri.category === 'A');
       const maxScore = Math.max(...linkedRisks.map(ri => ri.likelihood * ri.impact));
-      const level = maxScore >= 13 ? 'High' : maxScore >= 6 ? 'Medium' : 'Low';
-      pdf.fieldInline('  Confidentiality', hasC ? level : 'None');
-      pdf.fieldInline('  Integrity', hasI ? level : 'None');
-      pdf.fieldInline('  Availability', hasA ? level : 'None');
+      const level = maxScore >= 13 ? l('highLevel', lang) : maxScore >= 6 ? l('mediumLevel', lang) : l('lowLevel', lang);
+      pdf.fieldInline(`  ${l('confidentiality', lang)}`, hasC ? level : l('noneLevel', lang));
+      pdf.fieldInline(`  ${l('integrityLabel', lang)}`, hasI ? level : l('noneLevel', lang));
+      pdf.fieldInline(`  ${l('availabilityLabel', lang)}`, hasA ? level : l('noneLevel', lang));
     } else {
-      const impactLevel = r.status === 'fail' ? 'Medium' : r.status === 'partial' ? 'Low' : 'None';
-      pdf.fieldInline('  Confidentiality', impactLevel);
-      pdf.fieldInline('  Integrity', impactLevel);
-      pdf.fieldInline('  Availability', impactLevel);
+      const impactLevel = r.status === 'fail' ? l('mediumLevel', lang) : r.status === 'partial' ? l('lowLevel', lang) : l('noneLevel', lang);
+      pdf.fieldInline(`  ${l('confidentiality', lang)}`, impactLevel);
+      pdf.fieldInline(`  ${l('integrityLabel', lang)}`, impactLevel);
+      pdf.fieldInline(`  ${l('availabilityLabel', lang)}`, impactLevel);
     }
 
     // 8. LIKELIHOOD
     if (linkedRisks.length > 0) {
       const maxLikelihood = Math.max(...linkedRisks.map(ri => ri.likelihood));
-      const lLabel = maxLikelihood >= 4 ? 'High' : maxLikelihood >= 3 ? 'Medium' : 'Low';
-      pdf.fieldInline('LIKELIHOOD', `${lLabel} (${maxLikelihood}/5)`);
+      const lLbl = maxLikelihood >= 4 ? l('highLevel', lang) : maxLikelihood >= 3 ? l('mediumLevel', lang) : l('lowLevel', lang);
+      pdf.fieldInline(l('likelihoodLabel', lang), `${lLbl} (${maxLikelihood}/5)`);
     } else {
-      pdf.fieldInline('LIKELIHOOD', r.status === 'fail' ? 'High' : r.status === 'partial' ? 'Medium' : 'Low');
+      pdf.fieldInline(l('likelihoodLabel', lang), r.status === 'fail' ? l('highLevel', lang) : r.status === 'partial' ? l('mediumLevel', lang) : l('lowLevel', lang));
     }
 
     // 9. RISK LEVEL
-    const reqRating = r.status === 'fail' ? 'HIGH' : r.status === 'partial' ? 'MEDIUM' : 'LOW';
-    pdf.fieldInline('RISK LEVEL', reqRating);
+    const reqRating = r.status === 'fail' ? l('highSev', lang) : r.status === 'partial' ? l('mediumSev', lang) : l('lowSev', lang);
+    pdf.fieldInline(l('riskLevelLabel', lang), reqRating);
 
     // 10. ROOT CAUSE
     const rootCause = r.status !== 'pass'
-      ? (lang === 'de'
-        ? `${r.gap || 'Fehlende oder unvollständige Implementierung der geforderten Kontrolle.'}`
-        : `${r.gap || 'Missing or incomplete implementation of the required control.'}`)
-      : (lang === 'de' ? 'Kein Mangel festgestellt.' : 'No deficiency identified.');
-    pdf.sectionLabel(lang === 'de' ? 'URSACHE (ROOT CAUSE)' : 'ROOT CAUSE');
+      ? (lang === 'de' ? `${r.gap || 'Fehlende oder unvollständige Implementierung der geforderten Kontrolle.'}` : lang === 'fr' ? `${r.gap || 'Implémentation manquante ou incomplète du contrôle requis.'}` : `${r.gap || 'Missing or incomplete implementation of the required control.'}`)
+      : (lang === 'de' ? 'Kein Mangel festgestellt.' : lang === 'fr' ? 'Aucun défaut constaté.' : 'No deficiency identified.');
+    pdf.sectionLabel(l('rootCauseLabel', lang));
     pdf.bodyText(rootCause, 4);
 
     // 11. RECOMMENDATION
     if (r.measure) {
-      pdf.sectionLabel(lang === 'de' ? 'EMPFEHLUNG' : 'RECOMMENDATION');
+      pdf.sectionLabel(l('recommendationLabel', lang));
       pdf.bodyText(r.measure, 4);
     }
     if (r.effort) pdf.fieldInline(l('effort', lang), r.effort);
@@ -576,12 +627,12 @@ export async function generateNis2Report(data: Nis2ReportData): Promise<void> {
 
     // 12. REFERENCE
     const refParts = [r.article];
-    if (linkedRisks.length > 0) refParts.push(`${lang === 'de' ? 'Arbeitspapiere' : 'Working Papers'}: ${linkedRisks.map(ri => `AP-${riskId(ri)}`).join(', ')}`);
-    pdf.sectionLabel(lang === 'de' ? 'REFERENZ' : 'REFERENCE');
+    if (linkedRisks.length > 0) refParts.push(`${l('workingPapers', lang)}: ${linkedRisks.map(ri => `AP-${riskId(ri)}`).join(', ')}`);
+    pdf.sectionLabel(l('referenceLabel', lang));
     pdf.bodyText(refParts.join(' | '), 4);
 
     if (r.criteria && r.criteria.length > 0) {
-      pdf.sectionLabel(lang === 'de' ? 'UMSETZUNGSKRITERIEN' : 'ACCEPTANCE CRITERIA');
+      pdf.sectionLabel(l('acceptanceCriteria', lang));
       r.criteria.forEach((c, i) => pdf.bulletItem(`${i + 1}. ${c}`, 4));
     }
     pdf.separator();
