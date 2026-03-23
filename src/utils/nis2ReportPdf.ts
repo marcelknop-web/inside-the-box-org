@@ -1228,7 +1228,7 @@ export async function generateNis2Report(data: Nis2ReportData): Promise<void> {
       },
       {
         labels: [lang === 'de' ? 'BERICHT-REF.' : 'REPORT REF.', lang === 'de' ? 'RISIKO-VERKNÜPFUNG' : 'LINKED RISKS', lang === 'de' ? 'EVIDENZ-REF.' : 'EVIDENCE REF.'],
-        values: [`${lang === 'de' ? 'Abschn.' : 'Sec.'} 4.2, ${r.id}`, linkedRisks.length > 0 ? linkedRisks.map(riskId).join(', ') : '-', linkedEvidence.length > 0 ? linkedEvidence.join(', ') : '-'],
+        values: [`${lang === 'de' ? 'Abschn.' : 'Sec.'} 3.2, ${r.id}`, linkedRisks.length > 0 ? linkedRisks.map(riskId).join(', ') : '-', linkedEvidence.length > 0 ? linkedEvidence.join(', ') : '-'],
       },
     ]);
 
