@@ -846,6 +846,115 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
   addFooter();
 
   /* ══════════════════════════════════════
+     ABBREVIATION LEGEND
+     ══════════════════════════════════════ */
+  newSection();
+  const abbrTitle = lang === 'de' ? 'Abkürzungsverzeichnis und Legende' : lang === 'fr' ? 'Abréviations et légende' : 'Abbreviations and Legend';
+  writeSubHeading(abbrTitle);
+  addBookmark(abbrTitle);
+  y += 2;
+
+  const abbrEntries = lang === 'de' ? [
+    ['S-xxx', 'Spoofing — Bedrohungs-ID im STRIDE-Modell (Identitätsvortäuschung)'],
+    ['T-xxx', 'Tampering — Bedrohungs-ID im STRIDE-Modell (Datenmanipulation)'],
+    ['R-xxx', 'Repudiation — Bedrohungs-ID im STRIDE-Modell (Abstreitbarkeit)'],
+    ['I-xxx', 'Information Disclosure — Bedrohungs-ID im STRIDE-Modell (Informationspreisgabe)'],
+    ['D-xxx', 'Denial of Service — Bedrohungs-ID im STRIDE-Modell (Dienstverweigerung)'],
+    ['E-xxx', 'Elevation of Privilege — Bedrohungs-ID im STRIDE-Modell (Rechteausweitung)'],
+    ['A1-x', 'Annex I, Part I — CRA-Anforderung (Sicherheitseigenschaften)'],
+    ['A2-x', 'Annex I, Part II — CRA-Anforderung (Schwachstellenmanagement)'],
+    ['Art10-18', 'Artikel 10 bis 18 — CRA-Anforderung (Herstellerpflichten)'],
+    ['E-001 ff.', 'Evidenz-Referenz, eindeutige Kennung für den zugehörigen Nachweis'],
+    ['P0', 'Priorität 0 — Release-Blocker, sofortige Umsetzung erforderlich'],
+    ['P1', 'Priorität 1 — vor nächstem Release umzusetzen'],
+    ['P2', 'Priorität 2 — vor General Availability umzusetzen'],
+    ['P3', 'Priorität 3 — empfohlene Verbesserung, kein Blocker'],
+    ['STRIDE', 'Bedrohungsmodell: Spoofing, Tampering, Repudiation, Information Disclosure, DoS, Elevation of Privilege'],
+    ['PASS', 'Anforderung vollständig erfüllt (konform)'],
+    ['PARTIAL', 'Anforderung teilweise erfüllt, Nachbesserung erforderlich'],
+    ['FAIL', 'Anforderung nicht erfüllt (nicht konform)'],
+    ['CIA', 'Schutzziele: Vertraulichkeit (Confidentiality), Integrität (Integrity), Verfügbarkeit (Availability)'],
+  ] : lang === 'fr' ? [
+    ['S-xxx', 'Spoofing — ID de menace dans le modèle STRIDE (usurpation d\'identité)'],
+    ['T-xxx', 'Tampering — ID de menace dans le modèle STRIDE (altération de données)'],
+    ['R-xxx', 'Repudiation — ID de menace dans le modèle STRIDE (répudiation)'],
+    ['I-xxx', 'Information Disclosure — ID de menace dans le modèle STRIDE (divulgation)'],
+    ['D-xxx', 'Denial of Service — ID de menace dans le modèle STRIDE (déni de service)'],
+    ['E-xxx', 'Elevation of Privilege — ID de menace dans le modèle STRIDE (élévation de privilèges)'],
+    ['A1-x', 'Annexe I, Partie I — Exigence CRA (propriétés de sécurité)'],
+    ['A2-x', 'Annexe I, Partie II — Exigence CRA (gestion des vulnérabilités)'],
+    ['Art10-18', 'Articles 10 à 18 — Exigence CRA (obligations du fabricant)'],
+    ['E-001 ff.', 'Référence de preuve, identifiant unique pour la preuve associée'],
+    ['P0', 'Priorité 0 — Bloquant release, action immédiate requise'],
+    ['P1', 'Priorité 1 — à résoudre avant la prochaine release'],
+    ['P2', 'Priorité 2 — à résoudre avant la disponibilité générale'],
+    ['P3', 'Priorité 3 — amélioration recommandée, non bloquante'],
+    ['STRIDE', 'Modèle de menaces : Spoofing, Tampering, Repudiation, Information Disclosure, DoS, Elevation of Privilege'],
+    ['PASS', 'Exigence entièrement satisfaite (conforme)'],
+    ['PARTIAL', 'Exigence partiellement satisfaite, remédiation nécessaire'],
+    ['FAIL', 'Exigence non satisfaite (non conforme)'],
+    ['CIA', 'Objectifs de protection : Confidentialité, Intégrité, Disponibilité'],
+  ] : [
+    ['S-xxx', 'Spoofing — Threat ID in the STRIDE model (identity spoofing)'],
+    ['T-xxx', 'Tampering — Threat ID in the STRIDE model (data manipulation)'],
+    ['R-xxx', 'Repudiation — Threat ID in the STRIDE model (non-repudiation failure)'],
+    ['I-xxx', 'Information Disclosure — Threat ID in the STRIDE model (data leakage)'],
+    ['D-xxx', 'Denial of Service — Threat ID in the STRIDE model (service disruption)'],
+    ['E-xxx', 'Elevation of Privilege — Threat ID in the STRIDE model (privilege escalation)'],
+    ['A1-x', 'Annex I, Part I — CRA requirement (security properties)'],
+    ['A2-x', 'Annex I, Part II — CRA requirement (vulnerability management)'],
+    ['Art10-18', 'Articles 10 to 18 — CRA requirement (manufacturer obligations)'],
+    ['E-001 ff.', 'Evidence reference, unique identifier for associated proof'],
+    ['P0', 'Priority 0 — Release blocker, immediate action required'],
+    ['P1', 'Priority 1 — to be resolved before next release'],
+    ['P2', 'Priority 2 — to be resolved before general availability'],
+    ['P3', 'Priority 3 — recommended improvement, non-blocking'],
+    ['STRIDE', 'Threat model: Spoofing, Tampering, Repudiation, Information Disclosure, DoS, Elevation of Privilege'],
+    ['PASS', 'Requirement fully met (compliant)'],
+    ['PARTIAL', 'Requirement partially met, remediation needed'],
+    ['FAIL', 'Requirement not met (non-compliant)'],
+    ['CIA', 'Protection objectives: Confidentiality, Integrity, Availability'],
+  ];
+
+  // Render abbreviation table
+  const abbrColLeft = ML;
+  const abbrColRight = ML + 28;
+  const abbrHeaderLeft = lang === 'de' ? 'ABKÜRZUNG' : lang === 'fr' ? 'ABRÉVIATION' : 'ABBREVIATION';
+  const abbrHeaderRight = lang === 'de' ? 'BEDEUTUNG' : lang === 'fr' ? 'SIGNIFICATION' : 'MEANING';
+  
+  doc.setFont(HEAD_FONT, 'bold');
+  doc.setFontSize(6.5);
+  doc.setTextColor(...C.lightGray);
+  doc.text(abbrHeaderLeft, abbrColLeft, y);
+  doc.text(abbrHeaderRight, abbrColRight, y);
+  y += 2;
+  doc.setDrawColor(...C.darkNavy);
+  doc.setLineWidth(0.25);
+  doc.line(ML, y, W - MR, y);
+  y += 3.5;
+
+  for (let i = 0; i < abbrEntries.length; i++) {
+    checkPage(6);
+    if (i % 2 === 0) {
+      doc.setFillColor(...C.bgLight);
+      doc.rect(ML, y - 3, CW, 5, 'F');
+    }
+    doc.setFont(DATA_FONT, 'bold');
+    doc.setFontSize(7);
+    doc.setTextColor(...C.darkNavy);
+    doc.text(abbrEntries[i][0], abbrColLeft, y);
+    doc.setFont(HEAD_FONT, 'normal');
+    doc.setFontSize(7.5);
+    doc.setTextColor(...C.bodyText);
+    const meaningLines = doc.splitTextToSize(abbrEntries[i][1], CW - 30);
+    doc.text(meaningLines[0], abbrColRight, y);
+    y += Math.max(meaningLines.length * 3.5, 5);
+  }
+  y += 4;
+
+  addFooter();
+
+  /* ══════════════════════════════════════
      SECTION 1: Context
      ══════════════════════════════════════ */
   newSection();
