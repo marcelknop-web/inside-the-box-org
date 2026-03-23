@@ -981,6 +981,219 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
   for (const ml of methodLines) { checkPage(4); doc.text(ml, ML, y); y += 3; }
   y += 4;
 
+  // ═══ VISUAL DASHBOARD FOR MANAGEMENT ═══
+  const passReqsCount = reqs.filter(r => r.status === 'pass').length;
+  const highRisks = threats.filter(th => th.likelihood * th.impact >= 13 && th.likelihood * th.impact < 20);
+  const medRisks = threats.filter(th => th.likelihood * th.impact >= 6 && th.likelihood * th.impact < 13);
+  const lowRisks = threats.filter(th => th.likelihood * th.impact < 6);
+
+  // ── Compliance Distribution Bar ──
+  {
+    checkPage(28);
+    const barTitle = lang === 'de' ? 'KONFORMITÄTSVERTEILUNG' : lang === 'fr' ? 'DISTRIBUTION DE CONFORMITÉ' : 'COMPLIANCE DISTRIBUTION';
+    doc.setFont(HEAD_FONT, 'bold');
+    doc.setFontSize(8);
+    doc.setTextColor(...C.darkNavy);
+    doc.text(barTitle, ML, y);
+    y += 5;
+
+    const barW = CW;
+    const barH = 8;
+    const total = reqs.length || 1;
+    doc.setFillColor(230, 232, 235);
+    doc.roundedRect(ML, y, barW, barH, 1.5, 1.5, 'F');
+
+    const passW = (passReqsCount / total) * barW;
+    const partW = (partialReqs.length / total) * barW;
+    const failW = (failReqs.length / total) * barW;
+
+    if (passW > 0) { doc.setFillColor(...C.greenText); doc.roundedRect(ML, y, Math.max(passW, 3), barH, 1.5, 1.5, 'F'); if (passW > 3) doc.rect(ML + 1.5, y, passW - 1.5, barH, 'F'); }
+    if (partW > 0) { doc.setFillColor(...C.orangeText); doc.rect(ML + passW, y, partW, barH, 'F'); }
+    if (failW > 0) { doc.setFillColor(...C.redText); doc.rect(ML + passW + partW, y, failW, barH, 'F'); }
+
+    doc.setFont(HEAD_FONT, 'bold');
+    doc.setFontSize(6.5);
+    doc.setTextColor(255, 255, 255);
+    if (passW > 18) doc.text(`${Math.round(passReqsCount / total * 100)}%`, ML + passW / 2, y + 5.5, { align: 'center' });
+    if (partW > 18) doc.text(`${Math.round(partialReqs.length / total * 100)}%`, ML + passW + partW / 2, y + 5.5, { align: 'center' });
+    if (failW > 18) doc.text(`${Math.round(failReqs.length / total * 100)}%`, ML + passW + partW + failW / 2, y + 5.5, { align: 'center' });
+    y += barH + 3;
+
+    // Legend
+    const passLabel = lang === 'de' ? 'Konform' : lang === 'fr' ? 'Conforme' : 'Compliant';
+    const partLabel = lang === 'de' ? 'Teilweise' : lang === 'fr' ? 'Partiel' : 'Partial';
+    const failLabel = lang === 'de' ? 'Nicht konform' : lang === 'fr' ? 'Non conforme' : 'Non-compliant';
+    const legendItems: [string, [number, number, number]][] = [
+      [`${passLabel} (${passReqsCount})`, C.greenText],
+      [`${partLabel} (${partialReqs.length})`, C.orangeText],
+      [`${failLabel} (${failReqs.length})`, C.redText],
+    ];
+    let lx = ML;
+    doc.setFontSize(6.5);
+    for (const [lbl, col] of legendItems) {
+      doc.setFillColor(...col);
+      doc.rect(lx, y - 2.5, 3, 3, 'F');
+      doc.setFont(HEAD_FONT, 'normal');
+      doc.setTextColor(...C.bodyText);
+      doc.text(lbl, lx + 4.5, y);
+      lx += doc.getTextWidth(lbl) + 12;
+    }
+    y += 6;
+  }
+
+  // ── Risk Distribution Bars ──
+  {
+    checkPage(42);
+    const riskTitle = lang === 'de' ? 'RISIKOVERTEILUNG NACH SCHWEREGRAD' : lang === 'fr' ? 'DISTRIBUTION DES RISQUES PAR GRAVITÉ' : 'RISK DISTRIBUTION BY SEVERITY';
+    doc.setFont(HEAD_FONT, 'bold');
+    doc.setFontSize(8);
+    doc.setTextColor(...C.darkNavy);
+    doc.text(riskTitle, ML, y);
+    y += 6;
+
+    const riskRows: [string, number, [number, number, number]][] = [
+      [lang === 'de' ? 'Kritisch' : lang === 'fr' ? 'Critique' : 'Critical', critRisks.length, C.redText],
+      [lang === 'de' ? 'Hoch' : lang === 'fr' ? 'Élevé' : 'High', highRisks.length, C.orangeText],
+      [lang === 'de' ? 'Mittel' : lang === 'fr' ? 'Moyen' : 'Medium', medRisks.length, [200, 170, 40]],
+      [lang === 'de' ? 'Gering' : lang === 'fr' ? 'Faible' : 'Low', lowRisks.length, C.greenText],
+    ];
+    const maxCount = Math.max(...riskRows.map(r => r[1]), 1);
+    const barStart = ML + 32;
+    const barMaxW = CW - 42;
+
+    for (const [label, count, color] of riskRows) {
+      doc.setFont(HEAD_FONT, 'normal');
+      doc.setFontSize(7.5);
+      doc.setTextColor(...C.bodyText);
+      doc.text(label, ML, y);
+      const bw = (count / maxCount) * barMaxW;
+      if (bw > 0) {
+        doc.setFillColor(...color);
+        doc.roundedRect(barStart, y - 3.5, Math.max(bw, 3), 5, 1, 1, 'F');
+      }
+      doc.setFont(HEAD_FONT, 'bold');
+      doc.setFontSize(7.5);
+      doc.setTextColor(...color);
+      doc.text(String(count), barStart + bw + 3, y);
+      y += 7;
+    }
+    y += 2;
+  }
+
+  // ── 5×5 Risk Heatmap ──
+  {
+    checkPage(70);
+    const hmTitle = lang === 'de' ? 'RISIKOMATRIX (5x5)' : lang === 'fr' ? 'MATRICE DE RISQUE (5x5)' : 'RISK MATRIX (5x5)';
+    doc.setFont(HEAD_FONT, 'bold');
+    doc.setFontSize(8);
+    doc.setTextColor(...C.darkNavy);
+    doc.text(hmTitle, ML, y);
+    y += 6;
+
+    const cellSize = 14;
+    const gridLeft = ML + 22;
+    const gridTop = y + 4;
+
+    const grid: number[][] = Array.from({ length: 5 }, () => Array(5).fill(0));
+    for (const th of threats) {
+      const li = Math.min(Math.max(th.likelihood - 1, 0), 4);
+      const ii = Math.min(Math.max(th.impact - 1, 0), 4);
+      grid[li][ii]++;
+    }
+
+    for (let li = 0; li < 5; li++) {
+      for (let ii = 0; ii < 5; ii++) {
+        const x = gridLeft + ii * cellSize;
+        const yy = gridTop + (4 - li) * cellSize;
+        const score = (li + 1) * (ii + 1);
+        const cellColor: [number, number, number] = score >= 20 ? [180, 45, 45] : score >= 13 ? [220, 120, 30] : score >= 6 ? [240, 200, 60] : [200, 225, 200];
+        doc.setFillColor(...cellColor);
+        doc.rect(x, yy, cellSize, cellSize, 'F');
+        doc.setDrawColor(255, 255, 255);
+        doc.setLineWidth(0.5);
+        doc.rect(x, yy, cellSize, cellSize, 'S');
+
+        if (grid[li][ii] > 0) {
+          doc.setFont(HEAD_FONT, 'bold');
+          doc.setFontSize(9);
+          doc.setTextColor(255, 255, 255);
+          doc.text(String(grid[li][ii]), x + cellSize / 2, yy + cellSize / 2 + 2.5, { align: 'center' });
+        }
+      }
+    }
+
+    doc.setFont(HEAD_FONT, 'normal');
+    doc.setFontSize(6.5);
+    doc.setTextColor(...C.labelText);
+    for (let i = 0; i < 5; i++) {
+      doc.text(String(i + 1), gridLeft + i * cellSize + cellSize / 2, gridTop + 5 * cellSize + 4, { align: 'center' });
+      doc.text(String(5 - i), gridLeft - 5, gridTop + i * cellSize + cellSize / 2 + 2, { align: 'center' });
+    }
+    doc.setFont(HEAD_FONT, 'bold');
+    doc.setFontSize(7);
+    doc.setTextColor(...C.darkNavy);
+    const impactLabel = lang === 'de' ? 'Auswirkung' : lang === 'fr' ? 'Impact' : 'Impact';
+    const likelihoodLabel = lang === 'de' ? 'Wahrscheinlichkeit' : lang === 'fr' ? 'Probabilité' : 'Likelihood';
+    doc.text(impactLabel, gridLeft + 2.5 * cellSize, gridTop + 5 * cellSize + 9, { align: 'center' });
+    doc.text(likelihoodLabel, gridLeft - 14, gridTop + 2.5 * cellSize + 2, { angle: 90 });
+
+    y = gridTop + 5 * cellSize + 14;
+  }
+
+  // ── Mapping Table: CRA ↔ STRIDE ↔ Evidence ──
+  {
+    newSection();
+    const mapTitle = lang === 'de' ? 'MAPPING: CRA - STRIDE - EVIDENZ' : lang === 'fr' ? 'MAPPING : CRA - STRIDE - PREUVE' : 'MAPPING: CRA - STRIDE - EVIDENCE';
+    doc.setFont(HEAD_FONT, 'bold');
+    doc.setFontSize(8);
+    doc.setTextColor(...C.darkNavy);
+    doc.text(mapTitle, ML, y);
+    y += 5;
+
+    const colX = [ML, ML + 16, ML + 58, ML + 82, ML + 108, ML + 138];
+    const colHdr = [
+      'ID',
+      lang === 'de' ? 'Befund' : lang === 'fr' ? 'Constat' : 'Finding',
+      'STRIDE',
+      'CRA Ref.',
+      lang === 'de' ? 'Evidenz' : lang === 'fr' ? 'Preuve' : 'Evidence',
+      'Score',
+    ];
+    doc.setFont(HEAD_FONT, 'bold');
+    doc.setFontSize(6);
+    doc.setTextColor(...C.labelText);
+    colHdr.forEach((h, i) => doc.text(h.toUpperCase(), colX[i], y));
+    y += 2;
+    doc.setDrawColor(...C.darkNavy);
+    doc.setLineWidth(0.3);
+    doc.line(ML, y, W - MR, y);
+    y += 3;
+
+    const sortedForMap = [...threats].sort((a, b) => (b.likelihood * b.impact) - (a.likelihood * a.impact));
+    for (let idx = 0; idx < Math.min(sortedForMap.length, 20); idx++) {
+      const th = sortedForMap[idx];
+      checkPage(6);
+      if (idx % 2 === 0) {
+        doc.setFillColor(245, 246, 248);
+        doc.rect(ML, y - 3, CW, 5, 'F');
+      }
+      doc.setFont(DATA_FONT, 'normal');
+      doc.setFontSize(6.5);
+      doc.setTextColor(...C.bodyText);
+      doc.text(threatId(th), colX[0], y);
+      const truncName = doc.splitTextToSize(th.name, 38)[0] || '';
+      doc.text(truncName, colX[1], y);
+      const strideName = STRIDE_NAMES[th.stride]?.[lang] || th.stride;
+      doc.text(`${th.stride} (${strideName.substring(0, 12)})`, colX[2], y);
+      doc.text(th.cra, colX[3], y);
+      doc.text(`E-${String(idx + 1).padStart(3, '0')}`, colX[4], y);
+      const score = th.likelihood * th.impact;
+      doc.text(`${th.likelihood}x${th.impact}=${score}`, colX[5], y);
+      y += 5;
+    }
+    y += 4;
+  }
+
   // ── Key Findings (structured, assertion-led) ──
   const findingsLabel = lang === 'de' ? 'WESENTLICHE FESTSTELLUNGEN' : lang === 'fr' ? 'CONSTATS PRINCIPAUX' : 'KEY FINDINGS';
   writeLabel(findingsLabel);
@@ -2531,8 +2744,8 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
 
   // Evidence checks
   const critWithoutPoC = critRisks.filter(th => th.evidenceQuality < 4);
-  const highRisks = threats.filter(th => { const s = th.likelihood * th.impact; return s >= 15 && s < 20; });
-  const highWithoutPoC = highRisks.filter(th => th.evidenceQuality < 3);
+  const highRisksEvid = threats.filter(th => { const s = th.likelihood * th.impact; return s >= 15 && s < 20; });
+  const highWithoutPoC = highRisksEvid.filter(th => th.evidenceQuality < 3);
   const evidAbove75 = (threats.filter(th => th.evidenceQuality >= 3).length / threats.length) >= 0.75;
   const threatsWithoutSources = threats.filter(th => !th.sources || th.sources.length === 0);
 

@@ -946,7 +946,247 @@ export class PdfDoc {
     this.doc.setTextColor(...C.dark);
   }
 
+  /* ── Visual Charts for Management Dashboards ──────────────── */
+
+  /** Horizontal stacked bar — compliance status distribution (pass/partial/fail) */
+  complianceBar(pass: number, partial: number, fail: number, labels: { pass: string; partial: string; fail: string; title: string }): void {
+    const total = pass + partial + fail;
+    if (total === 0) return;
+    this.checkSpace(28);
+
+    // Title
+    this.doc.setFont(this.headFont, 'bold');
+    this.doc.setFontSize(8);
+    this.doc.setTextColor(...C.navy);
+    this.doc.text(labels.title.toUpperCase(), LAYOUT.LEFT, this.y);
+    this.y += 5;
+
+    const barW = LAYOUT.WIDTH;
+    const barH = 8;
+    const barY = this.y;
+
+    // Background
+    this.doc.setFillColor(230, 232, 235);
+    this.doc.roundedRect(LAYOUT.LEFT, barY, barW, barH, 1.5, 1.5, 'F');
+
+    // Pass segment
+    const passW = (pass / total) * barW;
+    if (passW > 0) {
+      this.doc.setFillColor(...C.pass);
+      this.doc.roundedRect(LAYOUT.LEFT, barY, Math.max(passW, 3), barH, 1.5, 1.5, 'F');
+      if (passW > 3) this.doc.rect(LAYOUT.LEFT + 1.5, barY, passW - 1.5, barH, 'F');
+    }
+
+    // Partial segment
+    const partW = (partial / total) * barW;
+    if (partW > 0) {
+      this.doc.setFillColor(...C.partial);
+      this.doc.rect(LAYOUT.LEFT + passW, barY, partW, barH, 'F');
+    }
+
+    // Fail segment
+    const failW = (fail / total) * barW;
+    if (failW > 0) {
+      this.doc.setFillColor(...C.fail);
+      this.doc.rect(LAYOUT.LEFT + passW + partW, barY, failW, barH, 'F');
+      if (passW + partW + failW >= barW - 1.5) {
+        this.doc.roundedRect(LAYOUT.LEFT + barW - failW, barY, failW, barH, 1.5, 1.5, 'F');
+      }
+    }
+
+    // Percentage labels on bar
+    this.doc.setFont(this.headFont, 'bold');
+    this.doc.setFontSize(6.5);
+    this.doc.setTextColor(...C.white);
+    if (passW > 18) this.doc.text(`${Math.round(pass / total * 100)}%`, LAYOUT.LEFT + passW / 2, barY + 5.5, { align: 'center' });
+    if (partW > 18) this.doc.text(`${Math.round(partial / total * 100)}%`, LAYOUT.LEFT + passW + partW / 2, barY + 5.5, { align: 'center' });
+    if (failW > 18) this.doc.text(`${Math.round(fail / total * 100)}%`, LAYOUT.LEFT + passW + partW + failW / 2, barY + 5.5, { align: 'center' });
+
+    this.y = barY + barH + 3;
+
+    // Legend
+    const legendItems: [string, [number, number, number]][] = [
+      [`${labels.pass} (${pass})`, C.pass],
+      [`${labels.partial} (${partial})`, C.partial],
+      [`${labels.fail} (${fail})`, C.fail],
+    ];
+    let lx = LAYOUT.LEFT;
+    this.doc.setFontSize(6.5);
+    for (const [lbl, col] of legendItems) {
+      this.doc.setFillColor(...col);
+      this.doc.rect(lx, this.y - 2.5, 3, 3, 'F');
+      this.doc.setFont(this.headFont, 'normal');
+      this.doc.setTextColor(...C.dark);
+      this.doc.text(lbl, lx + 4.5, this.y);
+      lx += this.doc.getTextWidth(lbl) + 12;
+    }
+    this.y += 6;
+  }
+
+  /** Risk severity distribution — horizontal bars */
+  riskDistribution(counts: { critical: number; high: number; medium: number; low: number }, labels: { critical: string; high: string; medium: string; low: string; title: string }): void {
+    const max = Math.max(counts.critical, counts.high, counts.medium, counts.low, 1);
+    this.checkSpace(42);
+
+    this.doc.setFont(this.headFont, 'bold');
+    this.doc.setFontSize(8);
+    this.doc.setTextColor(...C.navy);
+    this.doc.text(labels.title.toUpperCase(), LAYOUT.LEFT, this.y);
+    this.y += 6;
+
+    const rows: [string, number, [number, number, number]][] = [
+      [labels.critical, counts.critical, [180, 45, 45]],
+      [labels.high, counts.high, [220, 120, 30]],
+      [labels.medium, counts.medium, [200, 170, 40]],
+      [labels.low, counts.low, [34, 120, 70]],
+    ];
+
+    const labelCol = LAYOUT.LEFT;
+    const barStart = LAYOUT.LEFT + 32;
+    const barMaxW = LAYOUT.WIDTH - 42;
+
+    for (const [label, count, color] of rows) {
+      this.doc.setFont(this.headFont, 'normal');
+      this.doc.setFontSize(7.5);
+      this.doc.setTextColor(...C.dark);
+      this.doc.text(label, labelCol, this.y);
+
+      const bw = max > 0 ? (count / max) * barMaxW : 0;
+      if (bw > 0) {
+        this.doc.setFillColor(...color);
+        this.doc.roundedRect(barStart, this.y - 3.5, Math.max(bw, 3), 5, 1, 1, 'F');
+      }
+
+      this.doc.setFont(this.headFont, 'bold');
+      this.doc.setFontSize(7.5);
+      this.doc.setTextColor(...color);
+      this.doc.text(String(count), barStart + bw + 3, this.y);
+      this.y += 7;
+    }
+    this.y += 2;
+  }
+
+  /** 5×5 Risk Heatmap (likelihood × impact) */
+  riskHeatmap(risks: { likelihood: number; impact: number }[], labels: { title: string; likelihood: string; impact: string }): void {
+    this.checkSpace(70);
+
+    this.doc.setFont(this.headFont, 'bold');
+    this.doc.setFontSize(8);
+    this.doc.setTextColor(...C.navy);
+    this.doc.text(labels.title.toUpperCase(), LAYOUT.LEFT, this.y);
+    this.y += 6;
+
+    const cellSize = 14;
+    const gridLeft = LAYOUT.LEFT + 22;
+    const gridTop = this.y + 4;
+
+    // Count risks per cell
+    const grid: number[][] = Array.from({ length: 5 }, () => Array(5).fill(0));
+    for (const r of risks) {
+      const li = Math.min(Math.max(r.likelihood - 1, 0), 4);
+      const ii = Math.min(Math.max(r.impact - 1, 0), 4);
+      grid[li][ii]++;
+    }
+
+    // Draw cells (likelihood on Y ascending, impact on X ascending)
+    for (let li = 0; li < 5; li++) {
+      for (let ii = 0; ii < 5; ii++) {
+        const x = gridLeft + ii * cellSize;
+        const yy = gridTop + (4 - li) * cellSize;
+        const score = (li + 1) * (ii + 1);
+        const cellColor: [number, number, number] = score >= 20 ? [180, 45, 45] : score >= 13 ? [220, 120, 30] : score >= 6 ? [240, 200, 60] : [200, 225, 200];
+        this.doc.setFillColor(...cellColor);
+        this.doc.rect(x, yy, cellSize, cellSize, 'F');
+        this.doc.setDrawColor(...C.white);
+        this.doc.setLineWidth(0.5);
+        this.doc.rect(x, yy, cellSize, cellSize, 'S');
+
+        const count = grid[li][ii];
+        if (count > 0) {
+          this.doc.setFont(this.headFont, 'bold');
+          this.doc.setFontSize(9);
+          this.doc.setTextColor(...C.white);
+          this.doc.text(String(count), x + cellSize / 2, yy + cellSize / 2 + 2.5, { align: 'center' });
+        }
+      }
+    }
+
+    // Axis labels
+    this.doc.setFont(this.headFont, 'normal');
+    this.doc.setFontSize(6.5);
+    this.doc.setTextColor(...C.mid);
+    for (let i = 0; i < 5; i++) {
+      this.doc.text(String(i + 1), gridLeft + i * cellSize + cellSize / 2, gridTop + 5 * cellSize + 4, { align: 'center' });
+      this.doc.text(String(5 - i), gridLeft - 5, gridTop + i * cellSize + cellSize / 2 + 2, { align: 'center' });
+    }
+
+    // Axis titles
+    this.doc.setFont(this.headFont, 'bold');
+    this.doc.setFontSize(7);
+    this.doc.setTextColor(...C.navy);
+    this.doc.text(labels.impact, gridLeft + 2.5 * cellSize, gridTop + 5 * cellSize + 9, { align: 'center' });
+    // Likelihood label (rotated)
+    this.doc.text(labels.likelihood, gridLeft - 14, gridTop + 2.5 * cellSize + 2, { angle: 90 });
+
+    this.y = gridTop + 5 * cellSize + 14;
+  }
+
+  /** Cross-reference mapping table */
+  mappingTable(rows: { id: string; name: string; category: string; ref: string; evidenceId: string; score?: string }[], labels: { title: string; colId: string; colName: string; colCat: string; colRef: string; colEvidence: string; colScore?: string }): void {
+    this.checkSpace(20);
+
+    this.doc.setFont(this.headFont, 'bold');
+    this.doc.setFontSize(8);
+    this.doc.setTextColor(...C.navy);
+    this.doc.text(labels.title.toUpperCase(), LAYOUT.LEFT, this.y);
+    this.y += 5;
+
+    // Column positions
+    const hasScore = !!labels.colScore;
+    const cols = hasScore
+      ? [LAYOUT.LEFT, LAYOUT.LEFT + 16, LAYOUT.LEFT + 58, LAYOUT.LEFT + 82, LAYOUT.LEFT + 108, LAYOUT.LEFT + 138]
+      : [LAYOUT.LEFT, LAYOUT.LEFT + 16, LAYOUT.LEFT + 68, LAYOUT.LEFT + 95, LAYOUT.LEFT + 130];
+    const colLabels = hasScore
+      ? [labels.colId, labels.colName, labels.colCat, labels.colRef, labels.colEvidence, labels.colScore]
+      : [labels.colId, labels.colName, labels.colCat, labels.colRef, labels.colEvidence];
+
+    // Header
+    this.doc.setFont(this.headFont, 'bold');
+    this.doc.setFontSize(6);
+    this.doc.setTextColor(...C.mid);
+    colLabels.forEach((lbl, i) => this.doc.text(lbl.toUpperCase(), cols[i], this.y));
+    this.y += 2;
+    this.doc.setDrawColor(...C.navy);
+    this.doc.setLineWidth(0.3);
+    this.doc.line(LAYOUT.LEFT, this.y, LAYOUT.RIGHT, this.y);
+    this.y += 3;
+
+    // Rows
+    const maxNameW = hasScore ? 38 : 48;
+    rows.forEach((row, idx) => {
+      this.checkSpace(6);
+      if (idx % 2 === 0) {
+        this.doc.setFillColor(245, 246, 248);
+        this.doc.rect(LAYOUT.LEFT, this.y - 3, LAYOUT.WIDTH, 5, 'F');
+      }
+      this.doc.setFont(this.dataFont, 'normal');
+      this.doc.setFontSize(6.5);
+      this.doc.setTextColor(...C.dark);
+      this.doc.text(row.id, cols[0], this.y);
+      const truncName = this.doc.splitTextToSize(row.name, maxNameW)[0] || '';
+      this.doc.text(truncName, cols[1], this.y);
+      this.doc.text(row.category, cols[2], this.y);
+      this.doc.text(row.ref, cols[3], this.y);
+      this.doc.text(row.evidenceId, cols[hasScore ? 4 : 4], this.y);
+      if (hasScore && row.score) this.doc.text(row.score, cols[5], this.y);
+      this.y += 5;
+    });
+    this.y += 4;
+    this.doc.setTextColor(...C.dark);
+  }
+
   /* ── Save ─────────────────────────────────────────────────── */
+
 
   save(filename: string): void {
     this.doc.save(filename);
