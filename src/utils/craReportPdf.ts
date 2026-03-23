@@ -1331,7 +1331,7 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
             th.stride === 'D' ? `Configure rate-limiting and redundancy for ${th.component}.` : '',
             `Verify through independent penetration testing.`,
           ].filter(Boolean).join(' ');
-    writeFieldBlock(lang === 'de' ? 'EMPFEHLUNG' : lang === 'fr' ? 'RECOMMANDATION' : 'RECOMMENDATION', techRec);
+    writeFieldBlock(t(I18N.recommendationLabel), techRec);
 
     // 12. REFERENCE (extended: CRA + ISO 27001 + CIS + OWASP)
     const refParts = [th.cra];
