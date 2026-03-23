@@ -1319,40 +1319,70 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     // 4. Mapping
     writeFieldBlock(t(I18N.mapping), `${req.article} — ${req.name}`);
 
-    // 5. Risk Scenario — precise technical impact, no vague language
-    const reqScenario = (() => {
-      const gap = req.gap || '';
-      const linkedThreats = threats.filter(th => {
-        const reqArtNum = req.article.replace(/[^0-9]/g, '').slice(0, 2);
-        return th.cra.includes(reqArtNum) || th.name.toLowerCase().includes(req.name.toLowerCase().split(' ')[0]);
-      });
-      const threatContext = linkedThreats.length > 0
-        ? linkedThreats.map(th => `${threatId(th)}: ${th.name} (Score ${th.likelihood * th.impact})`).join('; ')
-        : '';
+    // 5. STRIDE Threat Category Link
+    const linkedThreats = threats.filter(th => {
+      const reqArtNum = req.article.replace(/[^0-9]/g, '').slice(0, 2);
+      return th.cra.includes(reqArtNum) || th.name.toLowerCase().includes(req.name.toLowerCase().split(' ')[0]);
+    });
+    const strideCategories = [...new Set(linkedThreats.map(th => th.stride))];
+    const STRIDE_FULL: Record<string, { de: string; en: string }> = {
+      S: { de: 'Spoofing (Identitätsvortäuschung)', en: 'Spoofing (Identity Forgery)' },
+      T: { de: 'Tampering (Datenmanipulation)', en: 'Tampering (Data Manipulation)' },
+      R: { de: 'Repudiation (Abstreitbarkeit)', en: 'Repudiation (Non-Accountability)' },
+      I: { de: 'Information Disclosure (Informationsabfluss)', en: 'Information Disclosure (Data Leakage)' },
+      D: { de: 'Denial of Service (Verfügbarkeitsangriff)', en: 'Denial of Service (Availability Attack)' },
+      E: { de: 'Elevation of Privilege (Rechteausweitung)', en: 'Elevation of Privilege (Unauthorized Access)' },
+    };
+    const strideLine = strideCategories.length > 0
+      ? strideCategories.map(s => STRIDE_FULL[s]?.[lang === 'de' ? 'de' : 'en'] || s).join(', ')
+      : (lang === 'de' ? 'Kein direktes Bedrohungsszenario verknüpft — regulatorische Compliance-Anforderung' : 'No direct threat scenario linked — regulatory compliance requirement');
+    writeFieldBlock(t(I18N.threatCategory), strideLine);
 
+    // 5b. Risk Scenario — concrete attack scenario + business impact, no vague language
+    const gap = req.gap || '';
+    const threatContext = linkedThreats.length > 0
+      ? linkedThreats.map(th => `${threatId(th)}: ${th.name} (Score ${th.likelihood * th.impact})`).join('; ')
+      : '';
+
+    const reqScenario = (() => {
       if (req.status === 'fail') {
-        const base = lang === 'de'
-          ? `Nicht-Konformität mit ${req.article} festgestellt. ${gap ? `Konkret: ${gap}.` : ''} Ohne Behebung ist eine Konformitätserklärung nach Art. 22 CRA nicht abgebbar.`
-          : `Non-compliance with ${req.article} identified. ${gap ? `Specifically: ${gap}.` : ''} Without remediation, conformity declaration per Art. 22 CRA cannot be issued.`;
-        const attack = lang === 'de'
-          ? (threatContext ? ` Verknüpfte Bedrohungsszenarien: ${threatContext}.` : ' Direktes Angriffsrisiko besteht aufgrund fehlender Kontrolle.')
-          : (threatContext ? ` Linked threat scenarios: ${threatContext}.` : ' Direct attack risk exists due to missing control.');
-        return base + attack;
+        const attackDesc = linkedThreats.length > 0
+          ? (lang === 'de'
+            ? `Konkret: ${gap}. Ein Angreifer (${linkedThreats[0].attacker}) kann über den Vektor „${linkedThreats[0].path.split('→')[0].trim()}" direkten Zugriff erlangen.`
+            : `Specifically: ${gap}. An attacker (${linkedThreats[0].attacker}) can gain direct access via the vector "${linkedThreats[0].path.split('→')[0].trim()}".`)
+          : (lang === 'de'
+            ? `${gap ? `Konkret: ${gap}.` : ''} Fehlende Kontrolle ermöglicht direkten Angriff ohne Authentifizierung oder Integritätsprüfung.`
+            : `${gap ? `Specifically: ${gap}.` : ''} Missing control enables direct attack without authentication or integrity verification.`);
+        const bizImpact = lang === 'de'
+          ? `Ohne Behebung ist eine Konformitätserklärung nach Art. 22 CRA nicht abgebbar. Potenzielle Folgen: Marktzugangsverweigerung, Produktrückruf, Haftung nach Art. 64 CRA.`
+          : `Without remediation, conformity declaration per Art. 22 CRA cannot be issued. Potential consequences: market access denial, product recall, liability under Art. 64 CRA.`;
+        return { attack: attackDesc, impact: bizImpact };
       } else if (req.status === 'partial') {
-        const base = lang === 'de'
-          ? `${req.article}: Kontrolle implementiert, jedoch ${gap ? gap : 'nicht vollständig verifiziert'}. Angreifer können die verbleibende Lücke ausnutzen.`
-          : `${req.article}: Control implemented, but ${gap ? gap : 'not fully verified'}. Attackers can exploit the remaining gap.`;
-        const impact = lang === 'de'
-          ? (threatContext ? ` Betroffene Szenarien: ${threatContext}.` : ' Residualrisiko besteht bis zur vollständigen Umsetzung.')
-          : (threatContext ? ` Affected scenarios: ${threatContext}.` : ' Residual risk remains until full implementation.');
-        return base + impact;
+        const attackDesc = linkedThreats.length > 0
+          ? (lang === 'de'
+            ? `${gap}: Vorhandene Kontrolle deckt den Angriffsvektor nicht vollständig ab. ${linkedThreats[0].attacker} kann die verbleibende Lücke ausnutzen (${linkedThreats.map(th => threatId(th)).join(', ')}).`
+            : `${gap}: Existing control does not fully cover the attack vector. ${linkedThreats[0].attacker} can exploit the remaining gap (${linkedThreats.map(th => threatId(th)).join(', ')}).`)
+          : (lang === 'de'
+            ? `${gap || 'Kontrolle nicht vollständig verifiziert'}. Angreifer können die ungeschützte Angriffsfläche ausnutzen, bis die Maßnahme vollständig implementiert ist.`
+            : `${gap || 'Control not fully verified'}. Attackers can exploit the unprotected attack surface until the measure is fully implemented.`);
+        const bizImpact = lang === 'de'
+          ? `Residualrisiko bis zur vollständigen Umsetzung. Bei Ausnutzung: ${linkedThreats.length > 0 && linkedThreats[0].impact >= 4 ? 'Betriebsunterbrechung, Datenverlust oder regulatorische Sanktionen möglich' : 'eingeschränkte Funktionsfähigkeit oder Compliance-Abweichung'}.`
+          : `Residual risk until full implementation. If exploited: ${linkedThreats.length > 0 && linkedThreats[0].impact >= 4 ? 'operational disruption, data loss, or regulatory sanctions possible' : 'limited functionality or compliance deviation'}.`;
+        return { attack: attackDesc, impact: bizImpact };
       } else {
-        return lang === 'de'
-          ? `Anforderung ${req.article} vollständig umgesetzt und verifiziert. Kein Restrisiko identifiziert.`
-          : `Requirement ${req.article} fully implemented and verified. No residual risk identified.`;
+        return {
+          attack: lang === 'de'
+            ? `Anforderung ${req.article} vollständig umgesetzt und verifiziert. Keine ausnutzbare Angriffsfläche identifiziert.`
+            : `Requirement ${req.article} fully implemented and verified. No exploitable attack surface identified.`,
+          impact: lang === 'de' ? 'Kein Restrisiko identifiziert.' : 'No residual risk identified.',
+        };
       }
     })();
-    writeFieldBlock(t(I18N.riskScenario), reqScenario);
+    writeFieldBlock(t(I18N.attackScenario), reqScenario.attack);
+    if (threatContext) {
+      writeFieldBlock(lang === 'de' ? 'Verknüpfte Bedrohungen' : 'Linked Threats', threatContext);
+    }
+    writeFieldBlock(t(I18N.businessImpact), reqScenario.impact);
 
     // 6. Risk Rating (strict classification)
     const reqRating = req.status === 'fail' ? 'HIGH' : req.status === 'partial' ? 'MEDIUM' : 'LOW';
