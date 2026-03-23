@@ -611,8 +611,21 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     resetBodyFont();
   }
 
+  // ── Bookmark tracking ──
+  let lastBookmarkParent: any = null;
+
+  function addBookmark(title: string, isChild = false) {
+    try {
+      const parent = isChild ? lastBookmarkParent : null;
+      const item = doc.outline.add(parent, title, { pageNumber: pageNum + 1 });
+      if (!isChild) lastBookmarkParent = item;
+    } catch (_e) { /* outline not supported */ }
+  }
+
   function writeSectionHeading(text: string) {
-    checkPage(25);
+    // Heading protection: keep heading + at least 2 body lines together
+    checkPage(30);
+    addBookmark(text);
     doc.setDrawColor(...C.gold);
     doc.setLineWidth(0.8);
     doc.line(ML, y, ML + 30, y);
