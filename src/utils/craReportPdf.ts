@@ -158,6 +158,13 @@ const I18N = {
   relatedReqs: { de: 'Verknüpfte Anforderungen', en: 'Related Requirements', fr: 'Exigences liées' },
   relatedThreats: { de: 'Verknüpfte Bedrohungen', en: 'Related Threats', fr: 'Menaces liées' },
 
+  // 5-Element Audit Finding Structure
+  condition: { de: 'Ist-Zustand (Condition)', en: 'Condition (Current State)', fr: 'État actuel (Condition)' },
+  auditCriteria: { de: 'Soll-Anforderung (Criteria)', en: 'Criteria (Required State)', fr: 'Critère (État requis)' },
+  cause: { de: 'Ursache (Cause)', en: 'Cause (Root Cause)', fr: 'Cause (Cause racine)' },
+  effect: { de: 'Auswirkung / Risiko (Effect)', en: 'Effect / Risk', fr: 'Effet / Risque' },
+  recommendation: { de: 'Empfehlung (Recommendation)', en: 'Recommendation', fr: 'Recommandation' },
+
   // Section intro texts
   introSec2: { de: 'Dieser Abschnitt fasst die wesentlichen Ergebnisse der Bewertung in kompakter Form zusammen. Er richtet sich an Entscheidungsträger und gibt eine datengestützte Einschätzung der Marktreife.', en: 'This section summarises the key assessment results in a compact format. It is intended for decision-makers and provides a data-driven assessment of market readiness.', fr: 'Cette section resume les principaux resultats de l\'evaluation de maniere compacte. Elle s\'adresse aux decideurs et fournit une evaluation basee sur les donnees de la maturite du produit.' },
   introSec3: { de: 'Der folgende Abschnitt beschreibt den Prüfgegenstand und die vom Hersteller bereitgestellten Informationen. Diese Angaben bilden die Grundlage für die anschließende Bedrohungs- und Konformitätsanalyse.', en: 'This section describes the assessment subject and the information provided by the manufacturer. These details form the basis for the subsequent threat and compliance analysis.', fr: 'Cette section decrit l\'objet de l\'evaluation et les informations fournies par le fabricant. Ces donnees constituent la base de l\'analyse des menaces et de la conformite.' },
