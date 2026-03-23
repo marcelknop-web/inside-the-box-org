@@ -1295,35 +1295,40 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     doc.text(req.article, ML + 5, y);
     y += 4.5;
 
-    // ── 5-Element Audit Finding Structure for Requirements ──
-    // Condition
-    const reqCondition = lang === 'de'
-      ? `Anforderung ${req.id} (${req.article}): ${req.gap || 'Keine Abweichung festgestellt.'}`
-      : lang === 'fr'
-      ? `Exigence ${req.id} (${req.article}) : ${req.gap || 'Aucun écart constaté.'}`
-      : `Requirement ${req.id} (${req.article}): ${req.gap || 'No deviation identified.'}`;
-    writeFieldBlock(t(I18N.condition), reqCondition);
+    // ── 7-Element Audit Finding Structure for Requirements ──
+    // 1. Observation
+    writeFieldBlock(t(I18N.observation), req.gap || (lang === 'de' ? 'Keine Abweichung festgestellt.' : 'No deviation identified.'));
 
-    // Criteria
-    writeFieldBlock(t(I18N.auditCriteria), `${req.article} — ${req.name}`);
+    // 2. Evidence
+    writeFieldBlock(t(I18N.findingEvidence), req.evidence);
 
-    // Cause (derived from evidence and rationale)
-    const reqCause = req.rationale || (lang === 'de' ? 'Keine spezifische Ursache dokumentiert.' : 'No specific root cause documented.');
-    writeFieldBlock(t(I18N.cause), reqCause);
+    // 3. Interpretation
+    writeFieldBlock(t(I18N.interpretation), req.rationale || (lang === 'de' ? 'Keine spezifische Interpretation dokumentiert.' : 'No specific interpretation documented.'));
 
-    // Effect
-    const reqEffect = req.status === 'fail'
-      ? (lang === 'de' ? `Nicht-Konformität mit ${req.article}. Ohne Behebung ist eine Konformitätserklärung nach Art. 22 CRA nicht abgebbar. ${req.gap}` : `Non-compliance with ${req.article}. Without remediation, conformity declaration per Art. 22 CRA cannot be issued. ${req.gap}`)
+    // 4. Mapping
+    writeFieldBlock(t(I18N.mapping), `${req.article} — ${req.name}`);
+
+    // 5. Risk Scenario
+    const reqScenario = req.status === 'fail'
+      ? (lang === 'de' ? `Nicht-Konformität mit ${req.article}. Ohne Behebung ist eine Konformitätserklärung nach Art. 22 CRA nicht abgebbar.` : `Non-compliance with ${req.article}. Without remediation, conformity declaration per Art. 22 CRA cannot be issued.`)
       : req.status === 'partial'
-      ? (lang === 'de' ? `Teilweise Konformität mit ${req.article}. Die Implementierung ist vorhanden, aber unvollständig oder nicht verifiziert.` : `Partial compliance with ${req.article}. Implementation exists but is incomplete or unverified.`)
-      : (lang === 'de' ? `Anforderung vollständig erfüllt. Keine Handlungserfordernis.` : `Requirement fully met. No action required.`);
-    writeFieldBlock(t(I18N.effect), reqEffect);
+      ? (lang === 'de' ? `Teilweise Umsetzung von ${req.article}. Die Kontrolle ist vorhanden, aber nicht vollständig durchgesetzt oder verifiziert.` : `Partial implementation of ${req.article}. Control exists but is not fully enforced or verified.`)
+      : (lang === 'de' ? `Anforderung vollständig umgesetzt. Kein Restrisiko identifiziert.` : `Requirement fully implemented. No residual risk identified.`);
+    writeFieldBlock(t(I18N.riskScenario), reqScenario);
 
-    // Recommendation
+    // 6. Risk Rating (strict classification)
+    const reqRating = req.status === 'fail' ? 'HIGH' : req.status === 'partial' ? 'MEDIUM' : 'LOW';
+    const reqRatingColor = req.status === 'fail' ? C.redText : req.status === 'partial' ? C.orangeText : C.greenText;
+    checkPage(8);
+    writeLabel(t(I18N.riskRating), 5);
+    doc.setFont(HEAD_FONT, 'bold');
+    doc.setFontSize(BODY_SIZE + 1);
+    doc.setTextColor(...reqRatingColor);
+    doc.text(reqRating, ML + 8, y);
+    y += BODY_LEADING + FIELD_GAP;
+
+    // 7. Recommendation
     writeFieldBlock(t(I18N.recommendation), req.measure || (lang === 'de' ? 'Keine Maßnahme erforderlich.' : 'No action required.'));
-
-    // Evidence (supporting the finding)
-    writeFieldBlock(t(I18N.evidence), req.evidence);
 
     // Effort + Priority
     if (req.effort) {
