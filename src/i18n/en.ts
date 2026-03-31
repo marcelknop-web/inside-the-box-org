@@ -507,7 +507,7 @@ export const en = {
       lang: 'German · English',
     },
     andreas: {
-      bio: 'I support organisations in information security, risk management, and data privacy.\n\nMy focus is on building and advancing ISMS as well as the structured implementation of regulatory requirements within existing organisations.\n\nI work in regulated environments and bridge normative requirements with practical solutions in day-to-day operations.\n\nPreviously, I held senior positions at PwC, EY, and CSPi.',
+      bio: 'I support organisations in information security, risk management, and data privacy. My focus is on building and advancing ISMS as well as the structured implementation of regulatory requirements. I work in regulated environments and bridge normative requirements with practical solutions in day-to-day operations. Previously, I held senior positions at PwC, EY, and CSPi.',
       focusLabel: 'Focus Areas',
       focus: 'ISO/IEC 27001 · PCI-DSS · NIST · TISAX · Risk Management · Business Continuity · GDPR · KRITIS',
       certsLabel: 'Certifications',

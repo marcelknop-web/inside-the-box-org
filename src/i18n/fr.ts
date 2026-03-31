@@ -507,7 +507,7 @@ export const fr = {
       lang: 'Allemand · Anglais',
     },
     andreas: {
-      bio: 'J\'accompagne les organisations en sécurité de l\'information, gestion des risques et protection des données.\n\nMon activité est centrée sur la mise en place et le développement de SMSI ainsi que sur la mise en œuvre structurée des exigences réglementaires au sein d\'organisations existantes.\n\nJe travaille dans des environnements réglementés et relie les exigences normatives à des solutions praticables dans les opérations quotidiennes.\n\nJ\'ai auparavant occupé des postes seniors chez PwC, EY et CSPi.',
+      bio: 'J\'accompagne les organisations en sécurité de l\'information, gestion des risques et protection des données. Mon activité est centrée sur la mise en place et le développement de SMSI ainsi que sur la mise en œuvre structurée des exigences réglementaires. Je travaille dans des environnements réglementés et relie les exigences normatives à des solutions praticables dans les opérations quotidiennes. J\'ai auparavant occupé des postes seniors chez PwC, EY et CSPi.',
       focusLabel: 'Domaines clés',
       focus: 'ISO/IEC 27001 · PCI-DSS · NIST · TISAX · Gestion des risques · Continuité d\'activité · RGPD · KRITIS',
       certsLabel: 'Certifications',
