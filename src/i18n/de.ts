@@ -496,15 +496,15 @@ export const de = {
   },
   profiles: {
     marcel: {
-      bio: 'Marcel Knop berät Organisationen in Cybersecurity-Strategie, ISMS-Implementierung, Cyber-Krisenmanagement und regulatorischer Compliance. Vor seiner selbständigen Tätigkeit war er als Senior Manager bei KPMG, Accenture und Ernst & Young tätig.',
+      bio: 'Ich unterstütze Organisationen bei der Umsetzung von Cybersecurity- und Compliance-Anforderungen mit Fokus auf ISMS, regulatorische Themen und Cyber-Krisenmanagement.\n\nDabei geht es weniger um Konzepte als um die strukturierte Umsetzung in bestehenden Organisationen und IT-/OT-Umgebungen.\n\nMeine Arbeit umfasst u.\u00a0a. den Aufbau und die Weiterentwicklung von ISMS, die Vorbereitung und Begleitung von Audits sowie die Etablierung von Sicherheits- und Krisenprozessen.\n\nZuvor war ich in leitenden Funktionen bei KPMG, Accenture und EY tätig.',
       focusLabel: 'Schwerpunkte',
-      focus: 'ISMS · TISAX · NIS-2 · PCI-DSS · Cyber-Krisenmanagement · TIBER · BCM',
+      focus: 'ISMS · TISAX · NIS2 · PCI-DSS · Cyber-Krisenmanagement · TIBER · BCM',
       certsLabel: 'Zertifizierungen',
-      certs: 'CISSP · CISA · ISO/IEC 27001 + 22301 Lead Auditor · BSI IT-Grundschutz-Praktiker',
+      certs: 'CISSP · CISA · ISO/IEC 27001 & 22301 Lead Auditor · BSI IT-Grundschutz-Praktiker',
       eduLabel: 'Ausbildung',
       edu: 'Dipl.-Ing. Maschinenbau',
       langLabel: 'Sprachen',
-      lang: 'Deutsch (Muttersprache) · Englisch (verhandlungssicher)',
+      lang: 'Deutsch · Englisch',
     },
     andreas: {
       bio: 'Andreas Funder berät Organisationen in Informationssicherheit, Risikomanagement und Datenschutz. Projekterfahrung aus Senior-Positionen bei PwC, Ernst & Young und CSPi.',
