@@ -496,7 +496,7 @@ export const fr = {
   },
   profiles: {
     marcel: {
-      bio: 'J\'accompagne les organisations dans la mise en œuvre des exigences en matière de cybersécurité et de conformité, avec un accent sur les SMSI, les sujets réglementaires et la gestion de cyber-crise.\n\nIl s\'agit moins de concepts que de mise en œuvre structurée au sein d\'organisations existantes et d\'environnements IT/OT.\n\nMon travail comprend notamment la mise en place et le développement de SMSI, la préparation et l\'accompagnement d\'audits ainsi que l\'établissement de processus de sécurité et de gestion de crise.\n\nJ\'ai auparavant occupé des postes de direction chez KPMG, Accenture et EY.',
+      bio: 'J\'accompagne les organisations dans la mise en œuvre des exigences en matière de cybersécurité et de conformité, avec un accent sur les SMSI, les sujets réglementaires et la gestion de cyber-crise. Mon travail comprend notamment la mise en place et le développement de SMSI, la préparation et l\'accompagnement d\'audits ainsi que l\'établissement de processus de sécurité et de gestion de crise. J\'ai auparavant occupé des postes de direction chez KPMG, Accenture et EY.',
       focusLabel: 'Domaines clés',
       focus: 'SMSI · TISAX · NIS2 · PCI-DSS · Gestion de cyber-crise · TIBER · BCM',
       certsLabel: 'Certifications',
@@ -507,7 +507,7 @@ export const fr = {
       lang: 'Allemand · Anglais',
     },
     andreas: {
-      bio: 'J\'accompagne les organisations en sécurité de l\'information, gestion des risques et protection des données.\n\nMon activité est centrée sur la mise en place et le développement de SMSI ainsi que sur la mise en œuvre structurée des exigences réglementaires au sein d\'organisations existantes.\n\nJe travaille dans des environnements réglementés et relie les exigences normatives à des solutions praticables dans les opérations quotidiennes.\n\nJ\'ai auparavant occupé des postes seniors chez PwC, EY et CSPi.',
+      bio: 'J\'accompagne les organisations en sécurité de l\'information, gestion des risques et protection des données. Mon activité est centrée sur la mise en place et le développement de SMSI ainsi que sur la mise en œuvre structurée des exigences réglementaires. Je travaille dans des environnements réglementés et relie les exigences normatives à des solutions praticables dans les opérations quotidiennes. J\'ai auparavant occupé des postes seniors chez PwC, EY et CSPi.',
       focusLabel: 'Domaines clés',
       focus: 'ISO/IEC 27001 · PCI-DSS · NIST · TISAX · Gestion des risques · Continuité d\'activité · RGPD · KRITIS',
       certsLabel: 'Certifications',

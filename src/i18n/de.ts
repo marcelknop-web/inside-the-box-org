@@ -496,7 +496,7 @@ export const de = {
   },
   profiles: {
     marcel: {
-      bio: 'Ich unterstütze Organisationen bei der Umsetzung von Cybersecurity- und Compliance-Anforderungen mit Fokus auf ISMS, regulatorische Themen und Cyber-Krisenmanagement.\n\nDabei geht es weniger um Konzepte als um die strukturierte Umsetzung in bestehenden Organisationen und IT-/OT-Umgebungen.\n\nMeine Arbeit umfasst u.\u00a0a. den Aufbau und die Weiterentwicklung von ISMS, die Vorbereitung und Begleitung von Audits sowie die Etablierung von Sicherheits- und Krisenprozessen.\n\nZuvor war ich in leitenden Funktionen bei KPMG, Accenture und EY tätig.',
+      bio: 'Ich unterstütze Organisationen bei der Umsetzung von Cybersecurity- und Compliance-Anforderungen mit Fokus auf ISMS, regulatorische Themen und Cyber-Krisenmanagement. Meine Arbeit umfasst u.\u00a0a. den Aufbau und die Weiterentwicklung von ISMS, die Vorbereitung und Begleitung von Audits sowie die Etablierung von Sicherheits- und Krisenprozessen. Zuvor war ich in leitenden Funktionen bei KPMG, Accenture und EY tätig.',
       focusLabel: 'Schwerpunkte',
       focus: 'ISMS · TISAX · NIS2 · PCI-DSS · Cyber-Krisenmanagement · TIBER · BCM',
       certsLabel: 'Zertifizierungen',
@@ -507,7 +507,7 @@ export const de = {
       lang: 'Deutsch · Englisch',
     },
     andreas: {
-      bio: 'Ich unterstütze Organisationen in Informationssicherheit, Risikomanagement und Datenschutz.\n\nMein Schwerpunkt liegt auf dem Aufbau und der Weiterentwicklung von ISMS sowie der strukturierten Umsetzung regulatorischer Anforderungen in bestehenden Organisationen.\n\nIch arbeite in regulierten Umgebungen und verbinde normative Anforderungen mit praktikablen Lösungen im operativen Betrieb.\n\nZuvor war ich in Senior-Positionen bei PwC, EY und CSPi tätig.',
+      bio: 'Ich unterstütze Organisationen in Informationssicherheit, Risikomanagement und Datenschutz. Mein Schwerpunkt liegt auf dem Aufbau und der Weiterentwicklung von ISMS sowie der strukturierten Umsetzung regulatorischer Anforderungen. Ich arbeite in regulierten Umgebungen und verbinde normative Anforderungen mit praktikablen Lösungen im operativen Betrieb. Zuvor war ich in Senior-Positionen bei PwC, EY und CSPi tätig.',
       focusLabel: 'Schwerpunkte',
       focus: 'ISO/IEC 27001 · PCI-DSS · NIST · TISAX · Risikomanagement · Business Continuity · DSGVO · KRITIS',
       certsLabel: 'Zertifizierungen',

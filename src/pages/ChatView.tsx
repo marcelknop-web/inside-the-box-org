@@ -945,10 +945,10 @@ const useServiceContent = () => {
                     )}
                   </div>
                 </div>
-                {t(`profiles.${key}.bio`).split('\n').filter(Boolean).map((para, i) => (
-                  <p key={i} className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mb-2">{para}</p>
-                ))}
-                <div className="space-y-1.5 text-sm font-sans">
+                <div className="bg-background/40 border border-border/30 rounded-lg p-4 mb-4">
+                  <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{t(`profiles.${key}.bio`)}</p>
+                </div>
+                <div className="bg-background/40 border border-border/30 rounded-lg p-4 space-y-1.5 text-sm font-sans">
                   <p><span className="text-primary font-semibold">{t(`profiles.${key}.focusLabel`)}:</span> <span className="text-foreground/80">{t(`profiles.${key}.focus`)}</span></p>
                   <p><span className="text-primary font-semibold">{t(`profiles.${key}.certsLabel`)}:</span> <span className="text-foreground/80">{t(`profiles.${key}.certs`)}</span></p>
                   <p><span className="text-primary font-semibold">{t(`profiles.${key}.eduLabel`)}:</span> <span className="text-foreground/80">{t(`profiles.${key}.edu`)}</span></p>
