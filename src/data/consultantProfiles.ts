@@ -46,22 +46,19 @@ export const consultantProfiles = [
   },
   {
     name: 'Andreas Funder',
-    role: 'Senior Consultant',
+    role: 'Senior Cybersecurity Consultant',
     imageUrl: '/lovable-uploads/11e7ca2e-054c-44e6-8555-9f230229ef12.png',
     linkedinUrl: 'https://www.linkedin.com/in/andreasfunder/',
     sections: [
       {
-        title: 'Education & Qualifications',
+        title: 'Schwerpunkte',
         items: [
-          'B.Sc. Business Administration',
-          'ISO/IEC 27001 Lead Auditor + Implementer',
-          'ISO/IEC 27005 Risk Manager',
-          'BSI IT-Grundschutz Practitioner',
-          'Data Privacy Auditor (DSA-TÜV)',
+          'ISO/IEC 27001 · PCI-DSS · NIST · TISAX',
+          'Risikomanagement · Business Continuity · DSGVO · KRITIS',
         ],
       },
       {
-        title: 'Professional Experience',
+        title: 'Erfahrung',
         items: [
           'PwC: Manager, Cybersecurity and Privacy',
           'Ernst & Young: Senior Consultant',
@@ -69,21 +66,25 @@ export const consultantProfiles = [
         ],
       },
       {
-        title: 'Consulting Services',
+        title: 'Zertifizierungen',
         items: [
-          'Information Security, ISMS Strategy',
-          'ISO/IEC 27001, PCI-DSS, NIST, TISAX',
-          'Risk Management, Business Continuity',
-          'EU GDPR, Critical Infrastructure (KRITIS)',
+          'ISO/IEC 27001 Lead Auditor & Implementer',
+          'ISO/IEC 27005 Risk Manager',
+          'BSI IT-Grundschutz-Praktiker',
+          'Datenschutzauditor (DSA-TÜV)',
         ],
       },
       {
-        title: 'Languages',
+        title: 'Sprachen',
         items: [
-          'German (mother tongue)',
-          'English (business fluent)',
-          'French (professional working)',
+          'Deutsch (Muttersprache)',
+          'Englisch (verhandlungssicher)',
+          'Französisch (beruflich)',
         ],
+      },
+    ] as [{ title: string; items: string[] }, { title: string; items: string[] }, { title: string; items: string[] }, { title: string; items: string[] }],
+  },
+];
       },
     ] as [{ title: string; items: string[] }, { title: string; items: string[] }, { title: string; items: string[] }, { title: string; items: string[] }],
   },
