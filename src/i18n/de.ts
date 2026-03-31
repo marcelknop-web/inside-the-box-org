@@ -507,7 +507,7 @@ export const de = {
       lang: 'Deutsch · Englisch',
     },
     andreas: {
-      bio: 'Ich unterstütze Organisationen in Informationssicherheit, Risikomanagement und Datenschutz.\n\nMein Schwerpunkt liegt auf dem Aufbau und der Weiterentwicklung von ISMS sowie der strukturierten Umsetzung regulatorischer Anforderungen in bestehenden Organisationen.\n\nIch arbeite in regulierten Umgebungen und verbinde normative Anforderungen mit praktikablen Lösungen im operativen Betrieb.\n\nZuvor war ich in Senior-Positionen bei PwC, EY und CSPi tätig.',
+      bio: 'Ich unterstütze Organisationen in Informationssicherheit, Risikomanagement und Datenschutz. Mein Schwerpunkt liegt auf dem Aufbau und der Weiterentwicklung von ISMS sowie der strukturierten Umsetzung regulatorischer Anforderungen. Ich arbeite in regulierten Umgebungen und verbinde normative Anforderungen mit praktikablen Lösungen im operativen Betrieb. Zuvor war ich in Senior-Positionen bei PwC, EY und CSPi tätig.',
       focusLabel: 'Schwerpunkte',
       focus: 'ISO/IEC 27001 · PCI-DSS · NIST · TISAX · Risikomanagement · Business Continuity · DSGVO · KRITIS',
       certsLabel: 'Zertifizierungen',
