@@ -85,7 +85,3 @@ export const consultantProfiles = [
     ] as [{ title: string; items: string[] }, { title: string; items: string[] }, { title: string; items: string[] }, { title: string; items: string[] }],
   },
 ];
-      },
-    ] as [{ title: string; items: string[] }, { title: string; items: string[] }, { title: string; items: string[] }, { title: string; items: string[] }],
-  },
-];
