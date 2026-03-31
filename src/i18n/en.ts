@@ -496,15 +496,15 @@ export const en = {
   },
   profiles: {
     marcel: {
-      bio: 'Marcel Knop advises organisations on cybersecurity strategy, ISMS implementation, cyber crisis management, and regulatory compliance. Prior to his independent consulting practice, he held Senior Manager positions at KPMG, Accenture, and Ernst & Young.',
+      bio: 'I support organisations in implementing cybersecurity and compliance requirements, with a focus on ISMS, regulatory topics, and cyber crisis management.\n\nMy work is less about concepts and more about structured implementation within existing organisations and IT/OT environments.\n\nThis includes building and advancing ISMS, preparing and supporting audits, and establishing security and crisis processes.\n\nPreviously, I held senior positions at KPMG, Accenture, and EY.',
       focusLabel: 'Focus Areas',
-      focus: 'ISMS · TISAX · NIS-2 · PCI-DSS · Cyber Crisis Management · TIBER · BCM',
+      focus: 'ISMS · TISAX · NIS2 · PCI-DSS · Cyber Crisis Management · TIBER · BCM',
       certsLabel: 'Certifications',
-      certs: 'CISSP · CISA · ISO/IEC 27001 + 22301 Lead Auditor · BSI Baseline Protection Practitioner',
+      certs: 'CISSP · CISA · ISO/IEC 27001 & 22301 Lead Auditor · BSI Baseline Protection Practitioner',
       eduLabel: 'Education',
       edu: 'Dipl.-Ing. Mechanical Engineering',
       langLabel: 'Languages',
-      lang: 'German (native) · English (business fluent)',
+      lang: 'German · English',
     },
     andreas: {
       bio: 'Andreas Funder advises organisations on information security, risk management, and data privacy. Project experience from senior positions at PwC, Ernst & Young, and CSPi.',

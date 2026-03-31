@@ -496,15 +496,15 @@ export const fr = {
   },
   profiles: {
     marcel: {
-      bio: 'Marcel Knop conseille les organisations en stratégie de cybersécurité, implémentation SMSI, gestion de cyber-crise et conformité réglementaire. Avant son activité indépendante, il a occupé des postes de Senior Manager chez KPMG, Accenture et Ernst & Young.',
+      bio: 'J\'accompagne les organisations dans la mise en œuvre des exigences en matière de cybersécurité et de conformité, avec un accent sur les SMSI, les sujets réglementaires et la gestion de cyber-crise.\n\nIl s\'agit moins de concepts que de mise en œuvre structurée au sein d\'organisations existantes et d\'environnements IT/OT.\n\nMon travail comprend notamment la mise en place et le développement de SMSI, la préparation et l\'accompagnement d\'audits ainsi que l\'établissement de processus de sécurité et de gestion de crise.\n\nJ\'ai auparavant occupé des postes de direction chez KPMG, Accenture et EY.',
       focusLabel: 'Domaines clés',
-      focus: 'SMSI · TISAX · NIS-2 · PCI-DSS · Gestion de cyber-crise · TIBER · BCM',
+      focus: 'SMSI · TISAX · NIS2 · PCI-DSS · Gestion de cyber-crise · TIBER · BCM',
       certsLabel: 'Certifications',
-      certs: 'CISSP · CISA · ISO/IEC 27001 + 22301 Lead Auditor · BSI Baseline Protection Practitioner',
+      certs: 'CISSP · CISA · ISO/IEC 27001 & 22301 Lead Auditor · BSI Baseline Protection Practitioner',
       eduLabel: 'Formation',
       edu: 'Dipl.-Ing. Génie mécanique',
       langLabel: 'Langues',
-      lang: 'Allemand (langue maternelle) · Anglais (courant professionnel)',
+      lang: 'Allemand · Anglais',
     },
     andreas: {
       bio: 'Andreas Funder conseille les organisations en sécurité de l\'information, gestion des risques et protection des données. Expérience de projet acquise dans des postes seniors chez PwC, Ernst & Young et CSPi.',

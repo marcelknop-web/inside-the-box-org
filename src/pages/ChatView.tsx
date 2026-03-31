@@ -945,7 +945,9 @@ const useServiceContent = () => {
                     )}
                   </div>
                 </div>
-                <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mb-4">{t(`profiles.${key}.bio`)}</p>
+                {t(`profiles.${key}.bio`).split('\n').filter(Boolean).map((para, i) => (
+                  <p key={i} className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mb-2">{para}</p>
+                ))}
                 <div className="space-y-1.5 text-sm font-sans">
                   <p><span className="text-primary font-semibold">{t(`profiles.${key}.focusLabel`)}:</span> <span className="text-foreground/80">{t(`profiles.${key}.focus`)}</span></p>
                   <p><span className="text-primary font-semibold">{t(`profiles.${key}.certsLabel`)}:</span> <span className="text-foreground/80">{t(`profiles.${key}.certs`)}</span></p>
