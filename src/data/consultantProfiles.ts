@@ -1,41 +1,45 @@
 export const consultantProfiles = [
   {
     name: 'Marcel Knop',
-    role: 'Senior Consultant',
+    role: 'Senior Cybersecurity Consultant',
     imageUrl: '/lovable-uploads/0b083536-ec9e-4eda-b874-e926cc196404.png',
     linkedinUrl: 'https://www.linkedin.com/in/inside-the-box',
+    bio: 'Ich unterstütze Organisationen bei der Umsetzung von Cybersecurity- und Compliance-Anforderungen mit Fokus auf ISMS, regulatorische Themen und Cyber-Krisenmanagement.\n\nDabei geht es weniger um Konzepte als um die strukturierte Umsetzung in bestehenden Organisationen und IT-/OT-Umgebungen.\n\nMeine Arbeit umfasst u.\u00a0a. den Aufbau und die Weiterentwicklung von ISMS, die Vorbereitung und Begleitung von Audits sowie die Etablierung von Sicherheits- und Krisenprozessen.\n\nZuvor war ich in leitenden Funktionen bei KPMG, Accenture und EY tätig.',
+    meta: [
+      { label: 'Schwerpunkte', value: 'ISMS · TISAX · NIS2 · PCI-DSS · Cyber-Krisenmanagement · TIBER · BCM' },
+      { label: 'Zertifizierungen', value: 'CISSP · CISA · ISO/IEC 27001 & 22301 Lead Auditor · BSI IT-Grundschutz-Praktiker' },
+      { label: 'Ausbildung', value: 'Dipl.-Ing. Maschinenbau' },
+      { label: 'Sprachen', value: 'Deutsch · Englisch' },
+    ],
     sections: [
       {
-        title: 'Education & Qualifications',
+        title: 'Schwerpunkte',
         items: [
-          'Dipl.-Ing. Mechanical Engineering',
-          'CISSP, CISA',
-          'ISO/IEC 27001 + 22301 Lead Auditor',
-          'BSI Baseline Protection Practitioner',
+          'ISMS · TISAX · NIS2 · PCI-DSS',
+          'Cyber-Krisenmanagement · TIBER · BCM',
         ],
       },
       {
-        title: 'Professional Experience',
+        title: 'Erfahrung',
         items: [
-          'KPMG: Consultant to Senior Manager',
+          'KPMG: Consultant bis Senior Manager',
           'Accenture: Senior Manager',
           'Ernst & Young: Senior Manager',
         ],
       },
       {
-        title: 'Consulting Services',
+        title: 'Zertifizierungen',
         items: [
-          'Cybersecurity consulting and audits',
-          'ISMS, TISAX, NIS-2, PCI-DSS implementation',
-          'Cyber crisis management and exercises',
-          'TIBER, BCM',
+          'CISSP · CISA',
+          'ISO/IEC 27001 & 22301 Lead Auditor',
+          'BSI IT-Grundschutz-Praktiker',
         ],
       },
       {
-        title: 'Languages',
+        title: 'Sprachen',
         items: [
-          'German (mother tongue)',
-          'English (business fluent)',
+          'Deutsch (Muttersprache)',
+          'Englisch (verhandlungssicher)',
         ],
       },
     ] as [{ title: string; items: string[] }, { title: string; items: string[] }, { title: string; items: string[] }, { title: string; items: string[] }],
