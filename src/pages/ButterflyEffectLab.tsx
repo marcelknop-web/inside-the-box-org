@@ -630,23 +630,4 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
   );
 };
 
-/* ── Param Slider ────────────────────────────────────────────── */
-
-const ParamSlider = ({ label, value, min, max, step, onChange }: {
-  label: string; value: number; min: number; max: number; step: number;
-  onChange: (v: number) => void;
-}) => (
-  <div className="space-y-1.5">
-    <div className="flex justify-between text-sm">
-      <span className="text-muted-foreground font-mono">{label}</span>
-      <span className="text-primary font-mono font-bold">{value}</span>
-    </div>
-    <Slider value={[value]} min={min} max={max} step={step} onValueChange={([v]) => onChange(v)} />
-    <div className="flex justify-between text-[10px] text-muted-foreground/50 font-mono">
-      <span>{min}</span>
-      <span>{max}</span>
-    </div>
-  </div>
-);
-
 export default ButterflyEffectLab;
