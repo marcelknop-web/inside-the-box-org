@@ -464,6 +464,11 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
         (Math.sin(s.a.θ2) - Math.sin(s.b.θ2)) ** 2 + (Math.cos(s.a.θ2) - Math.cos(s.b.θ2)) ** 2
       );
       setLiveAngleDiff(angleDiff);
+      // Push combined deviation to EKG buffer
+      const combined = dist + speedDiff / 5 + angleDiff;
+      ekgDataRef.current.push(combined);
+      if (ekgDataRef.current.length > 200) ekgDataRef.current.shift();
+      drawEkg();
     }
 
     rafRef.current = requestAnimationFrame(animate);
