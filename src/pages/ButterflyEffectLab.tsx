@@ -288,7 +288,7 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
   const animate = useCallback(() => {
     if (!runRef.current) return;
     const s = stateRef.current;
-    const params: LorenzParams = { sigma, rho, beta };
+    const params: LorenzParams = { sigma: sigmaRef.current, rho: rhoRef.current, beta: betaRef.current };
 
     for (let i = 0; i < STEPS_PER_FRAME; i++) {
       s.a = rk4Step(s.a, params, DT);
