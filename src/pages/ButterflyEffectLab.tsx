@@ -587,5 +587,36 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
     </div>
   );
 };
+/* ── Live Gauge Bar ───────────────────────────────────────────── */
+
+const LiveGauge = ({ label, value, max, color, warningColor, dangerColor, hint }: {
+  label: string; value: number; max: number;
+  color: string; warningColor: string; dangerColor: string;
+  hint: boolean;
+}) => {
+  const pct = Math.min(value / max, 1) * 100;
+  const barColor = pct > 75 ? dangerColor : pct > 40 ? warningColor : color;
+
+  return (
+    <div className="space-y-1.5">
+      <div className="flex justify-between items-baseline">
+        <span className="text-[10px] text-muted-foreground font-mono uppercase tracking-wider">{label}</span>
+        <span className="text-xs font-mono font-bold" style={{ color: barColor }}>
+          {hint ? value.toFixed(3) : '–'}
+        </span>
+      </div>
+      <div className="h-2.5 rounded-full bg-background/80 border border-border/30 overflow-hidden">
+        <div
+          className="h-full rounded-full transition-all duration-150"
+          style={{
+            width: hint ? `${pct}%` : '0%',
+            backgroundColor: barColor,
+            boxShadow: pct > 50 ? `0 0 8px ${barColor}` : 'none',
+          }}
+        />
+      </div>
+    </div>
+  );
+};
 
 export default ButterflyEffectLab;
