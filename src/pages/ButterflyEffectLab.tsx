@@ -243,6 +243,8 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
   const [running, setRunning] = useState(false);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const ekgRef = useRef<HTMLCanvasElement>(null);
+  const ekgDataRef = useRef<number[]>([]);
 
   const toRad = (d: number) => (d * Math.PI) / 180;
 
@@ -293,6 +295,8 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
     setLiveDistance(0);
     setLiveSpeedDiff(0);
     setLiveAngleDiff(0);
+    ekgDataRef.current = [];
+    drawEkg();
     drawFrame();
   }, [makeInitialState, offsetDeg]);
 
@@ -411,6 +415,61 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
     ctx.fillText(`${t.trajectory} B (Δ = ${pctStr} %)`, 12, 36);
   }, [offsetDeg, t]);
 
+  /* ── EKG drawing ──────────────────────────────────────────── */
+
+  const drawEkg = useCallback(() => {
+    const canvas = ekgRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    ctx.scale(dpr, dpr);
+    const w = rect.width;
+    const h = rect.height;
+
+    ctx.clearRect(0, 0, w, h);
+
+    // Grid lines
+    ctx.strokeStyle = 'hsla(0, 0%, 50%, 0.08)';
+    ctx.lineWidth = 0.5;
+    for (let y = 0; y < h; y += 20) {
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+    }
+
+    const data = ekgDataRef.current;
+    if (data.length < 2) return;
+
+    // Auto-scale: find max in buffer
+    const maxVal = Math.max(...data, 0.1);
+    const padding = 4;
+
+    ctx.beginPath();
+    ctx.strokeStyle = 'hsl(0, 85%, 60%)';
+    ctx.lineWidth = 1.5;
+    ctx.shadowColor = 'hsl(0, 85%, 60%)';
+    ctx.shadowBlur = 4;
+
+    const xStep = w / 200;
+    for (let i = 0; i < data.length; i++) {
+      const x = w - (data.length - 1 - i) * xStep;
+      const y = h - padding - (data[i] / maxVal) * (h - padding * 2);
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    // Current value dot
+    const lastX = w;
+    const lastY = h - padding - (data[data.length - 1] / maxVal) * (h - padding * 2);
+    ctx.fillStyle = 'hsl(0, 85%, 60%)';
+    ctx.beginPath(); ctx.arc(lastX - 1, lastY, 3, 0, Math.PI * 2); ctx.fill();
+  }, []);
+
   /* ── Animation loop ──────────────────────────────────────── */
 
   const animate = useCallback(() => {
@@ -460,6 +519,11 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
         (Math.sin(s.a.θ2) - Math.sin(s.b.θ2)) ** 2 + (Math.cos(s.a.θ2) - Math.cos(s.b.θ2)) ** 2
       );
       setLiveAngleDiff(angleDiff);
+      // Push combined deviation to EKG buffer
+      const combined = dist + speedDiff / 5 + angleDiff;
+      ekgDataRef.current.push(combined);
+      if (ekgDataRef.current.length > 200) ekgDataRef.current.shift();
+      drawEkg();
     }
 
     rafRef.current = requestAnimationFrame(animate);
@@ -534,7 +598,7 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
           </CardContent>
         </Card>
 
-        {/* Right sidebar: Live gauges */}
+        {/* Right sidebar: Gauges + EKG */}
         <div className="flex flex-col gap-3 min-h-0 justify-center">
           <LiveGauge
             label={language === 'de' ? 'Abstand' : language === 'fr' ? 'Distance' : 'Distance'}
@@ -563,17 +627,25 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
             dangerColor="hsl(0, 85%, 60%)"
             hint={running || liveAngleDiff > 0}
           />
-          {/* Live ticker */}
-          <div className="pt-2 border-t border-border/20 overflow-hidden">
-            <p className="text-[9px] text-muted-foreground font-mono uppercase tracking-wider mb-1">Start Δ: {(() => { const p = offsetDeg / 360 * 100; return p < 0.0001 ? p.toFixed(7) : p < 0.01 ? p.toFixed(5) : p.toFixed(4); })()} %</p>
-            {(running || liveDistance > 0) && (
-              <div className="font-mono text-[10px] leading-relaxed text-foreground/60 space-y-0.5 animate-pulse" style={{ animationDuration: '3s' }}>
-                <p>Δ pos: <span className="text-foreground/90 font-bold">{liveDistance.toFixed(5)}</span></p>
-                <p>Δ vel: <span className="text-foreground/90 font-bold">{liveSpeedDiff.toFixed(5)}</span></p>
-                <p>Δ ang: <span className="text-foreground/90 font-bold">{liveAngleDiff.toFixed(5)}</span></p>
-                <p>amp: <span className="text-foreground/90 font-bold">×{(() => { const start = toRad(offsetDeg); return start > 0 ? Math.round(liveDistance / start).toLocaleString() : '–'; })()}</span></p>
-              </div>
-            )}
+
+          {/* EKG-style scrolling deviation monitor */}
+          <div className="pt-2 border-t border-border/20">
+            <div className="flex justify-between items-baseline mb-1">
+              <span className="text-[9px] text-muted-foreground font-mono uppercase tracking-wider">
+                {language === 'de' ? 'Gesamtabweichung' : language === 'fr' ? 'Déviation totale' : 'Total deviation'}
+              </span>
+              <span className="text-[10px] font-mono font-bold text-primary">
+                {(liveDistance + liveSpeedDiff / 5 + liveAngleDiff).toFixed(3)}
+              </span>
+            </div>
+            <canvas
+              ref={ekgRef}
+              className="w-full rounded bg-background/80 border border-border/20"
+              style={{ height: 80 }}
+            />
+            <p className="text-[8px] text-muted-foreground/40 font-mono mt-0.5">
+              Start Δ: {(() => { const p = offsetDeg / 360 * 100; return p < 0.0001 ? p.toFixed(7) : p < 0.01 ? p.toFixed(5) : p.toFixed(4); })()} %
+            </p>
           </div>
         </div>
       </div>
