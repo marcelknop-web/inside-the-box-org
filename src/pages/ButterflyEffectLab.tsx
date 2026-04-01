@@ -437,6 +437,8 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
       const posB = pendulumPositions(s.b, scale, cx, cy);
       s.trailA.push([posA.x2, posA.y2]);
       s.trailB.push([posB.x2, posB.y2]);
+      s.permTrailA.push([posA.x2, posA.y2]);
+      s.permTrailB.push([posB.x2, posB.y2]);
       if (s.trailA.length > MAX_TRAIL) s.trailA.shift();
       if (s.trailB.length > MAX_TRAIL) s.trailB.shift();
       s.step++;
