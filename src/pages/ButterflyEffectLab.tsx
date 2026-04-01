@@ -523,9 +523,7 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
             className="w-40"
           />
           <span className="text-xs text-primary font-mono font-bold whitespace-nowrap">
-            {(offsetDeg / 360 * 100) < 0.01
-              ? (offsetDeg / 360 * 100).toExponential(1) + ' %'
-              : (offsetDeg / 360 * 100).toFixed(4) + ' %'}
+            {(() => { const p = offsetDeg / 360 * 100; return p < 0.0001 ? p.toFixed(7) : p < 0.01 ? p.toFixed(5) : p.toFixed(4); })()} %
           </span>
         </div>
       </div>
