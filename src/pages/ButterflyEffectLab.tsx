@@ -522,7 +522,7 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
       // Push combined deviation to EKG buffer
       const combined = dist + speedDiff / 5 + angleDiff;
       ekgDataRef.current.push(combined);
-      if (ekgDataRef.current.length > 200) ekgDataRef.current.shift();
+      if (ekgDataRef.current.length > 500) ekgDataRef.current.shift();
       drawEkg();
     }
 
