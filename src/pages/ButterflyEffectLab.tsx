@@ -338,13 +338,31 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
 
     const s = stateRef.current;
 
-    // Draw trails (tip of 2nd pendulum)
+    // Draw permanent trails (faint background)
+    const drawPermTrail = (trail: [number, number][], color: string) => {
+      if (trail.length < 2) return;
+      ctx.beginPath();
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 0.6;
+      ctx.globalAlpha = 0.15;
+      ctx.moveTo(trail[0][0], trail[0][1]);
+      for (let i = 1; i < trail.length; i++) {
+        ctx.lineTo(trail[i][0], trail[i][1]);
+      }
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+    };
+
+    drawPermTrail(s.permTrailA, 'hsl(180, 80%, 55%)');
+    drawPermTrail(s.permTrailB, 'hsl(30, 90%, 55%)');
+
+    // Draw recent trails (brighter)
     const drawTrail = (trail: [number, number][], color: string) => {
       if (trail.length < 2) return;
       ctx.beginPath();
       ctx.strokeStyle = color;
       ctx.lineWidth = 1.2;
-      ctx.globalAlpha = 0.5;
+      ctx.globalAlpha = 0.6;
       ctx.moveTo(trail[0][0], trail[0][1]);
       for (let i = 1; i < trail.length; i++) {
         ctx.lineTo(trail[i][0], trail[i][1]);
