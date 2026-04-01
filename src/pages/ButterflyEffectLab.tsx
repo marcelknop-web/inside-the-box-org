@@ -243,6 +243,8 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
   const [running, setRunning] = useState(false);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const ekgRef = useRef<HTMLCanvasElement>(null);
+  const ekgDataRef = useRef<number[]>([]);
 
   const toRad = (d: number) => (d * Math.PI) / 180;
 
