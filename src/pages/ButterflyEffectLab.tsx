@@ -415,6 +415,61 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
     ctx.fillText(`${t.trajectory} B (Δ = ${pctStr} %)`, 12, 36);
   }, [offsetDeg, t]);
 
+  /* ── EKG drawing ──────────────────────────────────────────── */
+
+  const drawEkg = useCallback(() => {
+    const canvas = ekgRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    ctx.scale(dpr, dpr);
+    const w = rect.width;
+    const h = rect.height;
+
+    ctx.clearRect(0, 0, w, h);
+
+    // Grid lines
+    ctx.strokeStyle = 'hsla(0, 0%, 50%, 0.08)';
+    ctx.lineWidth = 0.5;
+    for (let y = 0; y < h; y += 20) {
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+    }
+
+    const data = ekgDataRef.current;
+    if (data.length < 2) return;
+
+    // Auto-scale: find max in buffer
+    const maxVal = Math.max(...data, 0.1);
+    const padding = 4;
+
+    ctx.beginPath();
+    ctx.strokeStyle = 'hsl(0, 85%, 60%)';
+    ctx.lineWidth = 1.5;
+    ctx.shadowColor = 'hsl(0, 85%, 60%)';
+    ctx.shadowBlur = 4;
+
+    const xStep = w / 200;
+    for (let i = 0; i < data.length; i++) {
+      const x = w - (data.length - 1 - i) * xStep;
+      const y = h - padding - (data[i] / maxVal) * (h - padding * 2);
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    // Current value dot
+    const lastX = w;
+    const lastY = h - padding - (data[data.length - 1] / maxVal) * (h - padding * 2);
+    ctx.fillStyle = 'hsl(0, 85%, 60%)';
+    ctx.beginPath(); ctx.arc(lastX - 1, lastY, 3, 0, Math.PI * 2); ctx.fill();
+  }, []);
+
   /* ── Animation loop ──────────────────────────────────────── */
 
   const animate = useCallback(() => {
