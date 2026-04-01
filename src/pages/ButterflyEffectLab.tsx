@@ -239,7 +239,7 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
 
   const angle1 = 120;
   const angle2 = 120;
-  const [offsetDeg, setOffsetDeg] = useState(7.2); // 2% of 360°
+  const [offsetDeg, setOffsetDeg] = useState(3.6); // 1% of 360°
   const [running, setRunning] = useState(false);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -585,7 +585,7 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
           <Slider
             value={[Math.log10(Math.max(offsetDeg, 0.00001))]}
             min={-5}
-            max={1}
+            max={Math.log10(3.6)}
             step={0.05}
             onValueChange={([v]) => setOffsetDeg(+(10 ** v).toPrecision(3))}
             className="w-40"
