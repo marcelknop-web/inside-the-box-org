@@ -289,6 +289,8 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
     s.b = makeInitialState(offsetDeg);
     s.trailA = [];
     s.trailB = [];
+    s.permTrailA = [];
+    s.permTrailB = [];
     s.divData = [];
     s.step = 0;
     setDivData([]);
