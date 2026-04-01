@@ -183,9 +183,10 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
     drawTrails();
   }, [offset]);
 
+  // Only reset on offset change (not on σ/ρ/β — those apply live)
   useEffect(() => {
     resetSim();
-  }, [sigma, rho, beta, offset]);
+  }, [offset]);
 
   /* ── Canvas drawing ──────────────────────────────────────── */
 
