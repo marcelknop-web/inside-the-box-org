@@ -297,6 +297,8 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
     s.step = 0;
     setDivData([]);
     setLiveDistance(0);
+    setLiveSpeedDiff(0);
+    setLiveAngleDiff(0);
     drawFrame();
   }, [makeInitialState, offsetDeg]);
 
