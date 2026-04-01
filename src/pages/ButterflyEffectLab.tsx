@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { Slider } from '@/components/ui/slider';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Play, Pause, RotateCcw, Info, Lightbulb, MessageSquare, Scale } from 'lucide-react';
+import { Play, Pause, RotateCcw } from 'lucide-react';
 import { useLanguage } from '@/i18n/LanguageContext';
 import {
   ChartContainer,
@@ -462,15 +462,15 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
   const offsetStart = toRad(offsetDeg);
 
   return (
-    <div className={`${embedded ? '' : 'min-h-screen bg-background'} space-y-6`}>
+    <div className={`${embedded ? '' : 'h-screen bg-background'} flex flex-col p-4 md:p-6 overflow-hidden`}>
       {/* Header */}
-      <div className="space-y-2">
-        <h1 className="text-2xl md:text-3xl font-bold font-mono text-primary">{t.title}</h1>
-        <p className="text-foreground/70 text-sm md:text-base leading-relaxed max-w-2xl">{t.subtitle}</p>
+      <div className="space-y-1 mb-3 flex-shrink-0">
+        <h1 className="text-xl md:text-2xl font-bold font-mono text-primary">{t.title}</h1>
+        <p className="text-foreground/70 text-xs md:text-sm leading-relaxed max-w-2xl">{t.subtitle}</p>
       </div>
 
       {/* Controls */}
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3 mb-3 flex-shrink-0">
         <Button
           variant={running ? 'secondary' : 'default'}
           size="sm"
@@ -496,25 +496,19 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
         </div>
       </div>
 
-      {/* Pendulum + Live data side by side */}
-      <div className="grid grid-cols-1 md:grid-cols-[1fr_280px] gap-4">
+      {/* Pendulum + Live data side by side – fills remaining space */}
+      <div className="grid grid-cols-1 md:grid-cols-[1fr_240px] gap-3 flex-1 min-h-0">
         {/* Pendulum Canvas */}
-        <Card className="border-border/40 bg-card/60 backdrop-blur">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base font-mono text-primary">{t.phase}</CardTitle>
-          </CardHeader>
-          <CardContent>
+        <Card className="border-border/40 bg-card/60 backdrop-blur flex flex-col min-h-0">
+          <CardContent className="flex-1 p-3 min-h-0">
             <canvas
               ref={canvasRef}
-              className="w-full rounded-lg bg-background/80 border border-border/20"
-              style={{ height: 380 }}
+              className="w-full h-full rounded-lg bg-background/80 border border-border/20"
             />
           </CardContent>
         </Card>
 
-        {/* Right sidebar: Live Comparison + Divergence Chart */}
-        <div className="space-y-4">
-          {/* Live Comparison */}
+        <div className="space-y-3 flex flex-col min-h-0">
           <Card className={`border ${liveDistance > 1.5 ? 'border-red-500/30 bg-red-500/5' : liveDistance > 0.5 ? 'border-amber-500/30 bg-amber-500/5' : 'border-border/40 bg-card/60'} backdrop-blur transition-colors duration-500`}>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-mono text-primary">{t.liveLabel}</CardTitle>
@@ -571,76 +565,6 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
         </div>
       </div>
 
-      {/* Explanatory Panels */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card className="border-primary/20 bg-primary/5">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base font-mono text-primary flex items-center gap-2">
-              <Info size={16} />{t.explainTitle}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3 text-sm text-foreground/80 leading-relaxed">
-            <p>{t.explain1}</p>
-            <p>{t.explain2}</p>
-            <p className="text-muted-foreground text-xs italic">{t.explain3}</p>
-          </CardContent>
-        </Card>
-        <Card className="border-accent/20 bg-accent/5">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base font-mono text-primary flex items-center gap-2">
-              <Info size={16} />{t.climateTitle}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3 text-sm text-foreground/80 leading-relaxed">
-            <p>{t.climate1}</p>
-            <p>{t.climate2}</p>
-            <p className="text-muted-foreground text-xs italic">{t.climate3}</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Try This */}
-      <Card className="border-highlight/20 bg-highlight/5">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base font-mono text-highlight flex items-center gap-2">
-            <Lightbulb size={16} />{t.tryThis}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ol className="space-y-2 text-sm text-foreground/80 leading-relaxed list-decimal list-inside">
-            <li>{t.try1}</li>
-            <li>{t.try2}</li>
-            <li>{t.try3}</li>
-          </ol>
-        </CardContent>
-      </Card>
-
-      {/* Critics & Counter-arguments */}
-      <Card className="border-border/40 bg-card/60 backdrop-blur">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base font-mono text-primary flex items-center gap-2">
-            <Scale size={16} />{t.criticTitle}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-5">
-          {[
-            { q: t.critic1q, a: t.critic1a },
-            { q: t.critic2q, a: t.critic2a },
-            { q: t.critic3q, a: t.critic3a },
-            { q: t.critic4q, a: t.critic4a },
-            { q: t.critic5q, a: t.critic5a },
-          ].map((item, i) => (
-            <div key={i} className="space-y-2">
-              <div className="flex items-start gap-2">
-                <MessageSquare size={14} className="text-amber-500 mt-0.5 flex-shrink-0" />
-                <p className="text-sm font-semibold text-foreground/90 italic">{item.q}</p>
-              </div>
-              <p className="text-sm text-foreground/75 leading-relaxed ml-[22px]">{item.a}</p>
-            </div>
-          ))}
-          <p className="text-xs text-muted-foreground italic border-t border-border/20 pt-3 mt-3">{t.criticNote}</p>
-        </CardContent>
-      </Card>
     </div>
   );
 };
