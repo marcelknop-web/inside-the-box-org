@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Slider } from '@/components/ui/slider';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+
 import { Button } from '@/components/ui/button';
 import { Play, Pause, RotateCcw } from 'lucide-react';
 import { useLanguage } from '@/i18n/LanguageContext';
@@ -560,56 +560,51 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
 
 
   return (
-    <div className={`${embedded ? '' : 'h-screen bg-background'} flex flex-col p-4 md:p-6 overflow-hidden`}>
-      {/* Header */}
-      <div className="space-y-1 mb-3 flex-shrink-0">
-        <h1 className="text-xl md:text-2xl font-bold font-mono text-primary">{t.title}</h1>
-        <p className="text-foreground/70 text-xs md:text-sm leading-relaxed max-w-2xl">{t.subtitle}</p>
-      </div>
-
-      {/* Controls */}
-      <div className="flex flex-wrap items-center gap-3 mb-3 flex-shrink-0">
-        <Button
-          variant={running ? 'secondary' : 'default'}
-          size="sm"
-          onClick={() => setRunning(!running)}
-          className="font-mono"
-        >
-          {running ? <><Pause size={14} className="mr-1.5" />{t.pause}</> : <><Play size={14} className="mr-1.5" />{t.play}</>}
-        </Button>
-        <Button variant="outline" size="sm" onClick={resetSim} className="font-mono">
-          <RotateCcw size={14} className="mr-1.5" />{t.reset}
-        </Button>
-        <div className="flex items-center gap-2 ml-2">
-          <span className="text-xs text-muted-foreground font-mono whitespace-nowrap">Δθ</span>
+    <div className={`${embedded ? '' : 'h-screen bg-background'} flex flex-col p-3 md:p-4 overflow-hidden`}>
+      {/* Header + Controls in one row on desktop */}
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mb-2 flex-shrink-0">
+        <h1 className="text-lg font-bold font-mono text-primary">{t.title}</h1>
+        <div className="flex items-center gap-2">
+          <Button
+            variant={running ? 'secondary' : 'default'}
+            size="sm"
+            onClick={() => setRunning(!running)}
+            className="font-mono h-7 text-xs px-2.5"
+          >
+            {running ? <><Pause size={12} className="mr-1" />{t.pause}</> : <><Play size={12} className="mr-1" />{t.play}</>}
+          </Button>
+          <Button variant="outline" size="sm" onClick={resetSim} className="font-mono h-7 text-xs px-2.5">
+            <RotateCcw size={12} className="mr-1" />{t.reset}
+          </Button>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-[10px] text-muted-foreground font-mono whitespace-nowrap">Δθ</span>
           <Slider
             value={[Math.log10(Math.max(offsetDeg, 0.00001))]}
             min={-5}
             max={Math.log10(3.6)}
             step={0.05}
             onValueChange={([v]) => setOffsetDeg(+(10 ** v).toPrecision(3))}
-            className="w-40"
+            className="w-32"
           />
-          <span className="text-xs text-primary font-mono font-bold whitespace-nowrap">
+          <span className="text-[10px] text-primary font-mono font-bold whitespace-nowrap">
             {(() => { const p = offsetDeg / 360 * 100; return p < 0.0001 ? p.toFixed(7) : p < 0.01 ? p.toFixed(5) : p.toFixed(4); })()} %
           </span>
         </div>
       </div>
 
       {/* Pendulum + Live data side by side – fills remaining space */}
-      <div className="grid grid-cols-1 md:grid-cols-[1fr_240px] gap-3 flex-1 min-h-0">
+      <div className="grid grid-cols-1 md:grid-cols-[1fr_200px] gap-2 flex-1 min-h-0">
         {/* Pendulum Canvas */}
-        <Card className="border-border/40 bg-card/60 backdrop-blur flex flex-col min-h-0">
-          <CardContent className="flex-1 p-3 min-h-0">
-            <canvas
-              ref={canvasRef}
-              className="w-full h-full rounded-lg bg-background/80 border border-border/20"
-            />
-          </CardContent>
-        </Card>
+        <div className="min-h-0 flex-1">
+          <canvas
+            ref={canvasRef}
+            className="w-full h-full rounded-lg bg-background/80 border border-border/20"
+          />
+        </div>
 
         {/* Right sidebar: Gauges + EKG */}
-        <div className="flex flex-col gap-3 min-h-0 justify-center">
+        <div className="flex flex-col gap-2 min-h-0 justify-center">
           <LiveGauge
             label={language === 'de' ? 'Abstand' : language === 'fr' ? 'Distance' : 'Distance'}
             value={liveDistance}
@@ -639,21 +634,21 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
           />
 
           {/* EKG-style scrolling deviation monitor */}
-          <div className="pt-2 border-t border-border/20">
-            <div className="flex justify-between items-baseline mb-1">
-              <span className="text-[9px] text-muted-foreground font-mono uppercase tracking-wider">
+          <div className="pt-1.5 border-t border-border/20">
+            <div className="flex justify-between items-baseline mb-0.5">
+              <span className="text-[8px] text-muted-foreground font-mono uppercase tracking-wider">
                 {language === 'de' ? 'Gesamtabweichung' : language === 'fr' ? 'Déviation totale' : 'Total deviation'}
               </span>
-              <span className="text-[10px] font-mono font-bold text-primary">
+              <span className="text-[9px] font-mono font-bold text-primary">
                 {(liveDistance + liveSpeedDiff / 5 + liveAngleDiff).toFixed(3)}
               </span>
             </div>
             <canvas
               ref={ekgRef}
               className="w-full rounded bg-background/80 border border-border/20"
-              style={{ height: 80 }}
+              style={{ height: 60 }}
             />
-            <p className="text-[8px] text-muted-foreground/40 font-mono mt-0.5">
+            <p className="text-[7px] text-muted-foreground/40 font-mono mt-0.5">
               Start Δ: {(() => { const p = offsetDeg / 360 * 100; return p < 0.0001 ? p.toFixed(7) : p < 0.01 ? p.toFixed(5) : p.toFixed(4); })()} %
             </p>
           </div>
