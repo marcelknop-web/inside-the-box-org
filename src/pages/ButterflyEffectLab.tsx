@@ -243,14 +243,10 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
   const { language } = useLanguage();
   const t = texts[language] || texts.de;
 
-  const [angle1, setAngle1] = useState(120);
-  const [angle2, setAngle2] = useState(120);
-  const [offsetDeg, setOffsetDeg] = useState(0.1);
-  const [speedMult, setSpeedMult] = useState(1);
+  const angle1 = 120;
+  const angle2 = 120;
+  const offsetDeg = 0.1;
   const [running, setRunning] = useState(false);
-
-  const speedRef = useRef(speedMult);
-  speedRef.current = speedMult;
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
