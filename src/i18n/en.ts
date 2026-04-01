@@ -336,6 +336,8 @@ export const en = {
     agentTriggerTriageDesc: 'Classify incidents to the correct priority at lightning speed',
     agentFroggerTitle: 'Cyber Frogger',
     agentFroggerDesc: 'Arcade format meets cybersecurity awareness',
+    butterflyTitle: 'Butterfly Effect Lab',
+    butterflyDesc: 'Experience interactively how tiny parameter changes can tip nonlinear systems like the climate',
     eliteTitle: 'Had Enough of Security?',
     eliteDesc: 'Switch off, fly, let go — a meditative 3D scene to unwind',
     agentYtTitle: 'Video Injects',
