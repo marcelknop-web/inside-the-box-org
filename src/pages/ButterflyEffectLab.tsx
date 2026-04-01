@@ -370,6 +370,10 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
     drawTrails();
     if (stateRef.current.step % 40 === 0) {
       setDivData([...s.divData]);
+      const dist = Math.sqrt(
+        (s.a[0] - s.b[0]) ** 2 + (s.a[1] - s.b[1]) ** 2 + (s.a[2] - s.b[2]) ** 2
+      );
+      setLiveDistance(dist);
     }
 
     rafRef.current = requestAnimationFrame(animate);
