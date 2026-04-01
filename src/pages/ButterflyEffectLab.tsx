@@ -545,60 +545,42 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
           </CardContent>
         </Card>
 
-        <div className="space-y-3 flex flex-col min-h-0">
-          <Card className={`border ${liveDistance > 1.5 ? 'border-red-500/30 bg-red-500/5' : liveDistance > 0.5 ? 'border-amber-500/30 bg-amber-500/5' : 'border-border/40 bg-card/60'} backdrop-blur transition-colors duration-500`}>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-mono text-primary">{t.liveLabel}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {(running || liveDistance > 0) ? (
-                <div className="space-y-3">
-                  <div>
-                    <p className="text-[10px] text-muted-foreground font-mono uppercase tracking-wider">{t.liveStart}</p>
-                    <p className="text-base font-bold font-mono text-primary">{(() => { const p = offsetDeg / 360 * 100; return p < 0.0001 ? p.toFixed(7) : p < 0.01 ? p.toFixed(5) : p.toFixed(4); })()} %</p>
-                  </div>
-                  <div>
-                    <p className="text-[10px] text-muted-foreground font-mono uppercase tracking-wider">{t.liveCurrent}</p>
-                    <p className="text-base font-bold font-mono" style={{ color: liveDistance > 1.5 ? 'hsl(0, 85%, 60%)' : liveDistance > 0.5 ? 'hsl(35, 90%, 55%)' : 'hsl(180, 80%, 55%)' }}>
-                      {liveDistance.toFixed(3)}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-[10px] text-muted-foreground font-mono uppercase tracking-wider">{t.liveFactor}</p>
-                    <p className="text-base font-bold font-mono" style={{ color: liveDistance > 1.5 ? 'hsl(0, 85%, 60%)' : liveDistance > 0.5 ? 'hsl(35, 90%, 55%)' : 'hsl(180, 80%, 55%)' }}>
-                      {offsetStart > 0 ? `×${Math.round(liveDistance / offsetStart).toLocaleString()}` : '–'}
-                    </p>
-                  </div>
-                </div>
-              ) : (
-                <p className="text-xs text-muted-foreground/50 font-mono py-2">{t.liveHint}</p>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Divergence Chart */}
-          <Card className="border-border/40 bg-card/60 backdrop-blur">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-mono text-primary">{t.divergence}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {divData.length > 2 ? (
-                <ChartContainer config={chartConfig} className="h-[160px] w-full">
-                  <LineChart data={divData} margin={{ top: 5, right: 5, bottom: 5, left: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsla(0,0%,50%,0.15)" />
-                    <XAxis dataKey="t" tick={{ fontSize: 9 }} />
-                    <YAxis tick={{ fontSize: 9 }} />
-                    <ChartTooltip content={<ChartTooltipContent />} />
-                    <Line type="monotone" dataKey="d" stroke="hsl(0, 85%, 60%)" strokeWidth={2} dot={false} />
-                  </LineChart>
-                </ChartContainer>
-              ) : (
-                <div className="h-[160px] flex items-center justify-center text-muted-foreground/50 text-xs font-mono">
-                  {t.play} ▸
-                </div>
-              )}
-            </CardContent>
-          </Card>
+        {/* Right sidebar: Live gauges */}
+        <div className="flex flex-col gap-3 min-h-0 justify-center">
+          <LiveGauge
+            label={language === 'de' ? 'Abstand' : language === 'fr' ? 'Distance' : 'Distance'}
+            value={liveDistance}
+            max={4}
+            color="hsl(180, 80%, 55%)"
+            warningColor="hsl(35, 90%, 55%)"
+            dangerColor="hsl(0, 85%, 60%)"
+            hint={running || liveDistance > 0}
+          />
+          <LiveGauge
+            label={language === 'de' ? 'Geschwindigkeit Δ' : language === 'fr' ? 'Vitesse Δ' : 'Speed Δ'}
+            value={liveSpeedDiff}
+            max={20}
+            color="hsl(260, 70%, 60%)"
+            warningColor="hsl(280, 70%, 55%)"
+            dangerColor="hsl(320, 80%, 55%)"
+            hint={running || liveSpeedDiff > 0}
+          />
+          <LiveGauge
+            label={language === 'de' ? 'Winkel Δ' : language === 'fr' ? 'Angle Δ' : 'Angle Δ'}
+            value={liveAngleDiff}
+            max={2.83}
+            color="hsl(45, 90%, 55%)"
+            warningColor="hsl(30, 90%, 55%)"
+            dangerColor="hsl(0, 85%, 60%)"
+            hint={running || liveAngleDiff > 0}
+          />
+          {/* Delta info */}
+          <div className="text-center pt-1 border-t border-border/20">
+            <p className="text-[9px] text-muted-foreground font-mono uppercase tracking-wider">Start Δ</p>
+            <p className="text-sm font-bold font-mono text-primary">
+              {(() => { const p = offsetDeg / 360 * 100; return p < 0.0001 ? p.toFixed(7) : p < 0.01 ? p.toFixed(5) : p.toFixed(4); })()} %
+            </p>
+          </div>
         </div>
       </div>
 
