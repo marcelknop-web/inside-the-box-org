@@ -232,6 +232,7 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
     s.divData = [];
     s.step = 0;
     setDivData([]);
+    setLiveDistance(0);
     drawTrails();
   }, [offset]);
 
