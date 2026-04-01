@@ -262,13 +262,16 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
   const stateRef = useRef<{
     a: PendulumState; b: PendulumState;
     trailA: [number, number][]; trailB: [number, number][];
+    permTrailA: [number, number][]; permTrailB: [number, number][];
     divData: { t: number; d: number }[];
     step: number;
   }>({
     a: makeInitialState(0),
-    b: makeInitialState(0.1),
+    b: makeInitialState(0.001),
     trailA: [],
     trailB: [],
+    permTrailA: [],
+    permTrailB: [],
     divData: [],
     step: 0,
   });
