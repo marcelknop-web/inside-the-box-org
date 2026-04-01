@@ -295,6 +295,8 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
     setLiveDistance(0);
     setLiveSpeedDiff(0);
     setLiveAngleDiff(0);
+    ekgDataRef.current = [];
+    drawEkg();
     drawFrame();
   }, [makeInitialState, offsetDeg]);
 
