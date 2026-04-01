@@ -4,7 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
-import { LanguageProvider } from "./i18n/LanguageContext";
+import { LanguageProvider } from "@/i18n/LanguageContext";
 import ChatView from "./pages/ChatView";
 import NotFound from "./pages/NotFound";
 import { lazy, Suspense } from "react";
