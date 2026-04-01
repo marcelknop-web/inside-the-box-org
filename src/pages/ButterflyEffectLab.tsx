@@ -487,74 +487,80 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
         </span>
       </div>
 
-      {/* Pendulum Canvas */}
-      <Card className="border-border/40 bg-card/60 backdrop-blur">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base font-mono text-primary">{t.phase}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <canvas
-            ref={canvasRef}
-            className="w-full rounded-lg bg-background/80 border border-border/20"
-            style={{ height: 380 }}
-          />
-        </CardContent>
-      </Card>
+      {/* Pendulum + Live data side by side */}
+      <div className="grid grid-cols-1 md:grid-cols-[1fr_280px] gap-4">
+        {/* Pendulum Canvas */}
+        <Card className="border-border/40 bg-card/60 backdrop-blur">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base font-mono text-primary">{t.phase}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <canvas
+              ref={canvasRef}
+              className="w-full rounded-lg bg-background/80 border border-border/20"
+              style={{ height: 380 }}
+            />
+          </CardContent>
+        </Card>
 
-      {/* Live Comparison */}
-      <Card className={`border ${liveDistance > 1.5 ? 'border-red-500/30 bg-red-500/5' : liveDistance > 0.5 ? 'border-amber-500/30 bg-amber-500/5' : 'border-border/40 bg-card/60'} backdrop-blur transition-colors duration-500`}>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base font-mono text-primary">{t.liveLabel}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {(running || liveDistance > 0) ? (
-            <div className="grid grid-cols-3 gap-4 text-center">
-              <div>
-                <p className="text-[10px] text-muted-foreground font-mono uppercase tracking-wider">{t.liveStart}</p>
-                <p className="text-lg font-bold font-mono text-primary mt-1">{offsetDeg}°</p>
-              </div>
-              <div>
-                <p className="text-[10px] text-muted-foreground font-mono uppercase tracking-wider">{t.liveCurrent}</p>
-                <p className="text-lg font-bold font-mono mt-1" style={{ color: liveDistance > 1.5 ? 'hsl(0, 85%, 60%)' : liveDistance > 0.5 ? 'hsl(35, 90%, 55%)' : 'hsl(180, 80%, 55%)' }}>
-                  {liveDistance.toFixed(3)}
-                </p>
-              </div>
-              <div>
-                <p className="text-[10px] text-muted-foreground font-mono uppercase tracking-wider">{t.liveFactor}</p>
-                <p className="text-lg font-bold font-mono mt-1" style={{ color: liveDistance > 1.5 ? 'hsl(0, 85%, 60%)' : liveDistance > 0.5 ? 'hsl(35, 90%, 55%)' : 'hsl(180, 80%, 55%)' }}>
-                  {offsetStart > 0 ? `×${Math.round(liveDistance / offsetStart).toLocaleString()}` : '–'}
-                </p>
-              </div>
-            </div>
-          ) : (
-            <p className="text-center text-sm text-muted-foreground/50 font-mono py-2">{t.liveHint}</p>
-          )}
-        </CardContent>
-      </Card>
+        {/* Right sidebar: Live Comparison + Divergence Chart */}
+        <div className="space-y-4">
+          {/* Live Comparison */}
+          <Card className={`border ${liveDistance > 1.5 ? 'border-red-500/30 bg-red-500/5' : liveDistance > 0.5 ? 'border-amber-500/30 bg-amber-500/5' : 'border-border/40 bg-card/60'} backdrop-blur transition-colors duration-500`}>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-mono text-primary">{t.liveLabel}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {(running || liveDistance > 0) ? (
+                <div className="space-y-3">
+                  <div>
+                    <p className="text-[10px] text-muted-foreground font-mono uppercase tracking-wider">{t.liveStart}</p>
+                    <p className="text-base font-bold font-mono text-primary">{offsetDeg}°</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-muted-foreground font-mono uppercase tracking-wider">{t.liveCurrent}</p>
+                    <p className="text-base font-bold font-mono" style={{ color: liveDistance > 1.5 ? 'hsl(0, 85%, 60%)' : liveDistance > 0.5 ? 'hsl(35, 90%, 55%)' : 'hsl(180, 80%, 55%)' }}>
+                      {liveDistance.toFixed(3)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-muted-foreground font-mono uppercase tracking-wider">{t.liveFactor}</p>
+                    <p className="text-base font-bold font-mono" style={{ color: liveDistance > 1.5 ? 'hsl(0, 85%, 60%)' : liveDistance > 0.5 ? 'hsl(35, 90%, 55%)' : 'hsl(180, 80%, 55%)' }}>
+                      {offsetStart > 0 ? `×${Math.round(liveDistance / offsetStart).toLocaleString()}` : '–'}
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-xs text-muted-foreground/50 font-mono py-2">{t.liveHint}</p>
+              )}
+            </CardContent>
+          </Card>
 
-      {/* Divergence Chart */}
-      <Card className="border-border/40 bg-card/60 backdrop-blur">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base font-mono text-primary">{t.divergence}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {divData.length > 2 ? (
-            <ChartContainer config={chartConfig} className="h-[200px] w-full">
-              <LineChart data={divData} margin={{ top: 5, right: 10, bottom: 5, left: 10 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsla(0,0%,50%,0.15)" />
-                <XAxis dataKey="t" tick={{ fontSize: 10 }} label={{ value: t.time, position: 'insideBottomRight', offset: -5, fontSize: 11 }} />
-                <YAxis tick={{ fontSize: 10 }} label={{ value: t.distance, angle: -90, position: 'insideLeft', fontSize: 11 }} />
-                <ChartTooltip content={<ChartTooltipContent />} />
-                <Line type="monotone" dataKey="d" stroke="hsl(0, 85%, 60%)" strokeWidth={2} dot={false} />
-              </LineChart>
-            </ChartContainer>
-          ) : (
-            <div className="h-[200px] flex items-center justify-center text-muted-foreground/50 text-sm font-mono">
-              {t.play} ▸
-            </div>
-          )}
-        </CardContent>
-      </Card>
+          {/* Divergence Chart */}
+          <Card className="border-border/40 bg-card/60 backdrop-blur">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-mono text-primary">{t.divergence}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {divData.length > 2 ? (
+                <ChartContainer config={chartConfig} className="h-[160px] w-full">
+                  <LineChart data={divData} margin={{ top: 5, right: 5, bottom: 5, left: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsla(0,0%,50%,0.15)" />
+                    <XAxis dataKey="t" tick={{ fontSize: 9 }} />
+                    <YAxis tick={{ fontSize: 9 }} />
+                    <ChartTooltip content={<ChartTooltipContent />} />
+                    <Line type="monotone" dataKey="d" stroke="hsl(0, 85%, 60%)" strokeWidth={2} dot={false} />
+                  </LineChart>
+                </ChartContainer>
+              ) : (
+                <div className="h-[160px] flex items-center justify-center text-muted-foreground/50 text-xs font-mono">
+                  {t.play} ▸
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
 
       {/* Explanatory Panels */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
