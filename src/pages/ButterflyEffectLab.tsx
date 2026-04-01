@@ -323,9 +323,13 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
       ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
     }
 
+    // Scale so full pendulum (2 arm lengths) fits with padding
+    const padding = 30;
+    const maxReach = 2; // L1 + L2
+    const scale = Math.min((w - padding * 2) / (maxReach * 2), (h - padding * 2) / (maxReach * 2)) * 0.85;
+    // Center pivot so the full swing range is centered vertically
     const cx = w / 2;
-    const cy = h * 0.35;
-    const scale = Math.min(w, h) * 0.2;
+    const cy = h / 2 - scale * 0.3;
 
     const s = stateRef.current;
 
