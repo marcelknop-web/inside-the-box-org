@@ -585,7 +585,7 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
           <Slider
             value={[Math.log10(Math.max(offsetDeg, 0.00001))]}
             min={-5}
-            max={1}
+            max={Math.log10(3.6)}
             step={0.05}
             onValueChange={([v]) => setOffsetDeg(+(10 ** v).toPrecision(3))}
             className="w-40"
