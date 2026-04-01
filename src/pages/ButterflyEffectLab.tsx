@@ -560,41 +560,42 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
 
 
   return (
-    <div className={`${embedded ? '' : 'h-screen bg-background'} flex flex-col p-3 md:p-4 overflow-hidden`}>
-      {/* Header + Controls in one row on desktop */}
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mb-2 flex-shrink-0">
-        <h1 className="text-lg font-bold font-mono text-primary">{t.title}</h1>
-        <div className="flex items-center gap-2">
+    <div className={`${embedded ? '' : 'bg-background'} flex flex-col p-2 md:p-3 overflow-hidden`} style={{ height: embedded ? undefined : '100dvh' }}>
+      {/* Header + Controls in one compact row */}
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-1.5 flex-shrink-0">
+        <h1 className="text-sm md:text-base font-bold font-mono text-primary">{t.title}</h1>
+        <div className="flex items-center gap-1.5">
           <Button
             variant={running ? 'secondary' : 'default'}
             size="sm"
             onClick={() => setRunning(!running)}
-            className="font-mono h-7 text-xs px-2.5"
+            className="font-mono h-6 text-[10px] px-2"
           >
-            {running ? <><Pause size={12} className="mr-1" />{t.pause}</> : <><Play size={12} className="mr-1" />{t.play}</>}
+            {running ? <><Pause size={10} className="mr-0.5" />{t.pause}</> : <><Play size={10} className="mr-0.5" />{t.play}</>}
           </Button>
-          <Button variant="outline" size="sm" onClick={resetSim} className="font-mono h-7 text-xs px-2.5">
-            <RotateCcw size={12} className="mr-1" />{t.reset}
+          <Button variant="outline" size="sm" onClick={resetSim} className="font-mono h-6 text-[10px] px-2">
+            <RotateCcw size={10} className="mr-0.5" />{t.reset}
           </Button>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="text-[10px] text-muted-foreground font-mono whitespace-nowrap">Δθ</span>
+        <div className="flex items-center gap-1.5">
+          <span className="text-[9px] text-muted-foreground font-mono whitespace-nowrap">Δθ</span>
           <Slider
             value={[Math.log10(Math.max(offsetDeg, 0.00001))]}
             min={-5}
             max={Math.log10(3.6)}
             step={0.05}
             onValueChange={([v]) => setOffsetDeg(+(10 ** v).toPrecision(3))}
-            className="w-32"
+            className="w-24 md:w-32"
           />
-          <span className="text-[10px] text-primary font-mono font-bold whitespace-nowrap">
+          <span className="text-[9px] text-primary font-mono font-bold whitespace-nowrap">
             {(() => { const p = offsetDeg / 360 * 100; return p < 0.0001 ? p.toFixed(7) : p < 0.01 ? p.toFixed(5) : p.toFixed(4); })()} %
           </span>
         </div>
       </div>
 
-      {/* Pendulum + Live data side by side – fills remaining space */}
-      <div className="grid grid-cols-1 md:grid-cols-[1fr_200px] gap-2 flex-1 min-h-0">
+      {/* Main content – fills remaining space */}
+      {/* Desktop: side by side | Mobile: pendulum on top, gauges below */}
+      <div className="flex-1 min-h-0 flex flex-col md:grid md:grid-cols-[1fr_180px] gap-1.5">
         {/* Pendulum Canvas */}
         <div className="min-h-0 flex-1">
           <canvas
@@ -603,58 +604,65 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
           />
         </div>
 
-        {/* Right sidebar: Gauges + EKG */}
-        <div className="flex flex-col gap-2 min-h-0 justify-center">
-          <LiveGauge
-            label={language === 'de' ? 'Abstand' : language === 'fr' ? 'Distance' : 'Distance'}
-            value={liveDistance}
-            max={4}
-            color="hsl(180, 80%, 55%)"
-            warningColor="hsl(35, 90%, 55%)"
-            dangerColor="hsl(0, 85%, 60%)"
-            hint={running || liveDistance > 0}
-          />
-          <LiveGauge
-            label={language === 'de' ? 'Geschwindigkeit Δ' : language === 'fr' ? 'Vitesse Δ' : 'Speed Δ'}
-            value={liveSpeedDiff}
-            max={20}
-            color="hsl(260, 70%, 60%)"
-            warningColor="hsl(280, 70%, 55%)"
-            dangerColor="hsl(320, 80%, 55%)"
-            hint={running || liveSpeedDiff > 0}
-          />
-          <LiveGauge
-            label={language === 'de' ? 'Winkel Δ' : language === 'fr' ? 'Angle Δ' : 'Angle Δ'}
-            value={liveAngleDiff}
-            max={2.83}
-            color="hsl(45, 90%, 55%)"
-            warningColor="hsl(30, 90%, 55%)"
-            dangerColor="hsl(0, 85%, 60%)"
-            hint={running || liveAngleDiff > 0}
-          />
+        {/* Sidebar: Gauges + EKG */}
+        <div className="flex flex-row md:flex-col gap-1.5 md:gap-2 flex-shrink-0 md:justify-center"
+             style={{ maxHeight: 'calc(100%)' }}>
+          {/* On mobile: 3 gauges + EKG in a row; on desktop: stacked */}
+          <div className="flex-1 md:flex-none">
+            <LiveGauge
+              label={language === 'de' ? 'Abstand' : language === 'fr' ? 'Distance' : 'Distance'}
+              value={liveDistance}
+              max={4}
+              color="hsl(180, 80%, 55%)"
+              warningColor="hsl(35, 90%, 55%)"
+              dangerColor="hsl(0, 85%, 60%)"
+              hint={running || liveDistance > 0}
+            />
+          </div>
+          <div className="flex-1 md:flex-none">
+            <LiveGauge
+              label={language === 'de' ? 'Tempo Δ' : language === 'fr' ? 'Vitesse Δ' : 'Speed Δ'}
+              value={liveSpeedDiff}
+              max={20}
+              color="hsl(260, 70%, 60%)"
+              warningColor="hsl(280, 70%, 55%)"
+              dangerColor="hsl(320, 80%, 55%)"
+              hint={running || liveSpeedDiff > 0}
+            />
+          </div>
+          <div className="flex-1 md:flex-none">
+            <LiveGauge
+              label={language === 'de' ? 'Winkel Δ' : language === 'fr' ? 'Angle Δ' : 'Angle Δ'}
+              value={liveAngleDiff}
+              max={2.83}
+              color="hsl(45, 90%, 55%)"
+              warningColor="hsl(30, 90%, 55%)"
+              dangerColor="hsl(0, 85%, 60%)"
+              hint={running || liveAngleDiff > 0}
+            />
+          </div>
 
-          {/* EKG-style scrolling deviation monitor */}
-          <div className="pt-1.5 border-t border-border/20">
+          {/* EKG monitor */}
+          <div className="flex-1 md:flex-none pt-1 border-t border-border/20 md:pt-1.5">
             <div className="flex justify-between items-baseline mb-0.5">
-              <span className="text-[8px] text-muted-foreground font-mono uppercase tracking-wider">
-                {language === 'de' ? 'Gesamtabweichung' : language === 'fr' ? 'Déviation totale' : 'Total deviation'}
+              <span className="text-[7px] md:text-[8px] text-muted-foreground font-mono uppercase tracking-wider">
+                {language === 'de' ? 'Abweichung' : language === 'fr' ? 'Déviation' : 'Deviation'}
               </span>
-              <span className="text-[9px] font-mono font-bold text-primary">
+              <span className="text-[8px] md:text-[9px] font-mono font-bold text-primary">
                 {(liveDistance + liveSpeedDiff / 5 + liveAngleDiff).toFixed(3)}
               </span>
             </div>
             <canvas
               ref={ekgRef}
               className="w-full rounded bg-background/80 border border-border/20"
-              style={{ height: 60 }}
+              style={{ height: 50 }}
             />
-            <p className="text-[7px] text-muted-foreground/40 font-mono mt-0.5">
-              Start Δ: {(() => { const p = offsetDeg / 360 * 100; return p < 0.0001 ? p.toFixed(7) : p < 0.01 ? p.toFixed(5) : p.toFixed(4); })()} %
+            <p className="text-[6px] md:text-[7px] text-muted-foreground/40 font-mono mt-0.5">
+              Δ: {(() => { const p = offsetDeg / 360 * 100; return p < 0.0001 ? p.toFixed(7) : p < 0.01 ? p.toFixed(5) : p.toFixed(4); })()} %
             </p>
           </div>
         </div>
       </div>
-
     </div>
   );
 };
