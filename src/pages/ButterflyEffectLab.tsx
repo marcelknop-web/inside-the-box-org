@@ -278,6 +278,8 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
 
   const [divData, setDivData] = useState<{ t: number; d: number }[]>([]);
   const [liveDistance, setLiveDistance] = useState(0);
+  const [liveSpeedDiff, setLiveSpeedDiff] = useState(0);
+  const [liveAngleDiff, setLiveAngleDiff] = useState(0);
   const rafRef = useRef<number>(0);
   const runRef = useRef(false);
 
