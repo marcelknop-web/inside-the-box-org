@@ -191,10 +191,16 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
   /* ── Canvas drawing ──────────────────────────────────────── */
 
   const projectXZ = (v: Vec3, w: number, h: number): [number, number] => {
-    const scale = Math.min(w, h) / 60;
+    // Center the Lorenz attractor: X range ~[-22,22], Z range ~[0,50]
+    const padding = 30;
+    const usableW = w - padding * 2;
+    const usableH = h - padding * 2;
+    const scaleX = usableW / 50;  // X spans ~50 units
+    const scaleZ = usableH / 55;  // Z spans ~55 units
+    const scale = Math.min(scaleX, scaleZ);
     return [
       w / 2 + v[0] * scale,
-      h - 40 - (v[2] - 20) * scale,
+      h - padding - v[2] * scale,
     ];
   };
 
