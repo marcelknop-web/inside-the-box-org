@@ -470,7 +470,7 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
       </div>
 
       {/* Controls */}
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3 mb-3 flex-shrink-0">
         <Button
           variant={running ? 'secondary' : 'default'}
           size="sm"
