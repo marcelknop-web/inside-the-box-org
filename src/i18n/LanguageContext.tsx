@@ -58,6 +58,12 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
 
 export const useLanguage = () => {
   const context = useContext(LanguageContext);
-  if (!context) throw new Error('useLanguage must be used within LanguageProvider');
+  if (!context) {
+    // During HMR, context can temporarily be unavailable — force reload
+    if (import.meta.hot) {
+      window.location.reload();
+    }
+    throw new Error('useLanguage must be used within LanguageProvider');
+  }
   return context;
 };
