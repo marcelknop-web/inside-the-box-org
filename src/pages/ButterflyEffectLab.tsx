@@ -337,41 +337,37 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
 
     const s = stateRef.current;
 
+    // Helper: project stored angles [θ1, θ2] to pixel position of tip
+    const tipPixel = (angles: [number, number]): [number, number] => {
+      const x1 = cx + L1 * Math.sin(angles[0]) * scale;
+      const y1 = cy + L1 * Math.cos(angles[0]) * scale;
+      const x2 = x1 + L2 * Math.sin(angles[1]) * scale;
+      const y2 = y1 + L2 * Math.cos(angles[1]) * scale;
+      return [x2, y2];
+    };
+
     // Draw permanent trails (faint background)
-    const drawPermTrail = (trail: [number, number][], color: string) => {
+    const drawAnglesTrail = (trail: [number, number][], color: string, alpha: number, width: number) => {
       if (trail.length < 2) return;
       ctx.beginPath();
       ctx.strokeStyle = color;
-      ctx.lineWidth = 0.6;
-      ctx.globalAlpha = 0.15;
-      ctx.moveTo(trail[0][0], trail[0][1]);
+      ctx.lineWidth = width;
+      ctx.globalAlpha = alpha;
+      const [sx, sy] = tipPixel(trail[0]);
+      ctx.moveTo(sx, sy);
       for (let i = 1; i < trail.length; i++) {
-        ctx.lineTo(trail[i][0], trail[i][1]);
+        const [px, py] = tipPixel(trail[i]);
+        ctx.lineTo(px, py);
       }
       ctx.stroke();
       ctx.globalAlpha = 1;
     };
 
-    drawPermTrail(s.permTrailA, 'hsl(180, 80%, 55%)');
-    drawPermTrail(s.permTrailB, 'hsl(30, 90%, 55%)');
+    drawAnglesTrail(s.permTrailA, 'hsl(180, 80%, 55%)', 0.15, 0.6);
+    drawAnglesTrail(s.permTrailB, 'hsl(30, 90%, 55%)', 0.15, 0.6);
 
-    // Draw recent trails (brighter)
-    const drawTrail = (trail: [number, number][], color: string) => {
-      if (trail.length < 2) return;
-      ctx.beginPath();
-      ctx.strokeStyle = color;
-      ctx.lineWidth = 1.2;
-      ctx.globalAlpha = 0.6;
-      ctx.moveTo(trail[0][0], trail[0][1]);
-      for (let i = 1; i < trail.length; i++) {
-        ctx.lineTo(trail[i][0], trail[i][1]);
-      }
-      ctx.stroke();
-      ctx.globalAlpha = 1;
-    };
-
-    drawTrail(s.trailA, 'hsl(180, 80%, 55%)');
-    drawTrail(s.trailB, 'hsl(30, 90%, 55%)');
+    drawAnglesTrail(s.trailA, 'hsl(180, 80%, 55%)', 0.6, 1.2);
+    drawAnglesTrail(s.trailB, 'hsl(30, 90%, 55%)', 0.6, 1.2);
 
     // Draw pendulums
     const drawPendulum = (st: PendulumState, color: string, label: string) => {
