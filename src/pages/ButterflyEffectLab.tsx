@@ -550,7 +550,7 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
                 <div className="space-y-3">
                   <div>
                     <p className="text-[10px] text-muted-foreground font-mono uppercase tracking-wider">{t.liveStart}</p>
-                    <p className="text-base font-bold font-mono text-primary">{(offsetDeg / 360 * 100) < 0.01 ? (offsetDeg / 360 * 100).toExponential(1) : (offsetDeg / 360 * 100).toFixed(4)} %</p>
+                    <p className="text-base font-bold font-mono text-primary">{(() => { const p = offsetDeg / 360 * 100; return p < 0.0001 ? p.toFixed(7) : p < 0.01 ? p.toFixed(5) : p.toFixed(4); })()} %</p>
                   </div>
                   <div>
                     <p className="text-[10px] text-muted-foreground font-mono uppercase tracking-wider">{t.liveCurrent}</p>
