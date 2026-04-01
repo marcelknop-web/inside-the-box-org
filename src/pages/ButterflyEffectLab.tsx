@@ -478,6 +478,37 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
         </CardContent>
       </Card>
 
+      {/* Live Comparison – makes the amplification tangible */}
+      <Card className={`border ${liveDistance > 10 ? 'border-red-500/30 bg-red-500/5' : liveDistance > 1 ? 'border-amber-500/30 bg-amber-500/5' : 'border-border/40 bg-card/60'} backdrop-blur transition-colors duration-500`}>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base font-mono text-primary">{t.liveLabel}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {(running || liveDistance > 0) ? (
+            <div className="grid grid-cols-3 gap-4 text-center">
+              <div>
+                <p className="text-[10px] text-muted-foreground font-mono uppercase tracking-wider">{t.liveStart}</p>
+                <p className="text-lg font-bold font-mono text-primary mt-1">{formatOffset(offset)}</p>
+              </div>
+              <div>
+                <p className="text-[10px] text-muted-foreground font-mono uppercase tracking-wider">{t.liveCurrent}</p>
+                <p className="text-lg font-bold font-mono mt-1" style={{ color: liveDistance > 10 ? 'hsl(0 85% 60%)' : liveDistance > 1 ? 'hsl(35 90% 55%)' : 'hsl(180 80% 55%)' }}>
+                  {liveDistance.toFixed(2)}
+                </p>
+              </div>
+              <div>
+                <p className="text-[10px] text-muted-foreground font-mono uppercase tracking-wider">{t.liveFactor}</p>
+                <p className="text-lg font-bold font-mono mt-1" style={{ color: liveDistance > 10 ? 'hsl(0 85% 60%)' : liveDistance > 1 ? 'hsl(35 90% 55%)' : 'hsl(180 80% 55%)' }}>
+                  {offset > 0 ? `×${Math.round(liveDistance / offset).toLocaleString()}` : '–'}
+                </p>
+              </div>
+            </div>
+          ) : (
+            <p className="text-center text-sm text-muted-foreground/50 font-mono py-2">{t.liveHint}</p>
+          )}
+        </CardContent>
+      </Card>
+
       {/* Divergence Chart */}
       <Card className="border-border/40 bg-card/60 backdrop-blur">
         <CardHeader className="pb-2">
@@ -529,6 +560,47 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Try This */}
+      <Card className="border-highlight/20 bg-highlight/5">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base font-mono text-highlight flex items-center gap-2">
+            <Lightbulb size={16} />{t.tryThis}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ol className="space-y-2 text-sm text-foreground/80 leading-relaxed list-decimal list-inside">
+            <li>{t.try1}</li>
+            <li>{t.try2}</li>
+            <li>{t.try3}</li>
+          </ol>
+        </CardContent>
+      </Card>
+
+      {/* Critics & Counter-arguments */}
+      <Card className="border-border/40 bg-card/60 backdrop-blur">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base font-mono text-primary flex items-center gap-2">
+            <Scale size={16} />{t.criticTitle}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-5">
+          {[
+            { q: t.critic1q, a: t.critic1a },
+            { q: t.critic2q, a: t.critic2a },
+            { q: t.critic3q, a: t.critic3a },
+          ].map((item, i) => (
+            <div key={i} className="space-y-2">
+              <div className="flex items-start gap-2">
+                <MessageSquare size={14} className="text-amber-500 mt-0.5 flex-shrink-0" />
+                <p className="text-sm font-semibold text-foreground/90 italic">{item.q}</p>
+              </div>
+              <p className="text-sm text-foreground/75 leading-relaxed ml-[22px]">{item.a}</p>
+            </div>
+          ))}
+          <p className="text-xs text-muted-foreground italic border-t border-border/20 pt-3 mt-3">{t.criticNote}</p>
+        </CardContent>
+      </Card>
     </div>
   );
 };
