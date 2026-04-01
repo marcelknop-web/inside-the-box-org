@@ -508,9 +508,7 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
           </CardContent>
         </Card>
 
-        {/* Right sidebar: Live Comparison + Divergence Chart */}
-        <div className="space-y-4">
-          {/* Live Comparison */}
+        <div className="space-y-3 flex flex-col min-h-0">
           <Card className={`border ${liveDistance > 1.5 ? 'border-red-500/30 bg-red-500/5' : liveDistance > 0.5 ? 'border-amber-500/30 bg-amber-500/5' : 'border-border/40 bg-card/60'} backdrop-blur transition-colors duration-500`}>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-mono text-primary">{t.liveLabel}</CardTitle>
