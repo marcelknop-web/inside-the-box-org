@@ -262,13 +262,16 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
   const stateRef = useRef<{
     a: PendulumState; b: PendulumState;
     trailA: [number, number][]; trailB: [number, number][];
+    permTrailA: [number, number][]; permTrailB: [number, number][];
     divData: { t: number; d: number }[];
     step: number;
   }>({
     a: makeInitialState(0),
-    b: makeInitialState(0.1),
+    b: makeInitialState(0.001),
     trailA: [],
     trailB: [],
+    permTrailA: [],
+    permTrailB: [],
     divData: [],
     step: 0,
   });
@@ -286,6 +289,8 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
     s.b = makeInitialState(offsetDeg);
     s.trailA = [];
     s.trailB = [];
+    s.permTrailA = [];
+    s.permTrailB = [];
     s.divData = [];
     s.step = 0;
     setDivData([]);
@@ -333,13 +338,31 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
 
     const s = stateRef.current;
 
-    // Draw trails (tip of 2nd pendulum)
+    // Draw permanent trails (faint background)
+    const drawPermTrail = (trail: [number, number][], color: string) => {
+      if (trail.length < 2) return;
+      ctx.beginPath();
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 0.6;
+      ctx.globalAlpha = 0.15;
+      ctx.moveTo(trail[0][0], trail[0][1]);
+      for (let i = 1; i < trail.length; i++) {
+        ctx.lineTo(trail[i][0], trail[i][1]);
+      }
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+    };
+
+    drawPermTrail(s.permTrailA, 'hsl(180, 80%, 55%)');
+    drawPermTrail(s.permTrailB, 'hsl(30, 90%, 55%)');
+
+    // Draw recent trails (brighter)
     const drawTrail = (trail: [number, number][], color: string) => {
       if (trail.length < 2) return;
       ctx.beginPath();
       ctx.strokeStyle = color;
       ctx.lineWidth = 1.2;
-      ctx.globalAlpha = 0.5;
+      ctx.globalAlpha = 0.6;
       ctx.moveTo(trail[0][0], trail[0][1]);
       for (let i = 1; i < trail.length; i++) {
         ctx.lineTo(trail[i][0], trail[i][1]);
@@ -391,7 +414,7 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
     ctx.fillStyle = 'hsl(180, 80%, 55%)';
     ctx.fillText(`${t.trajectory} A`, 12, 20);
     ctx.fillStyle = 'hsl(30, 90%, 55%)';
-    ctx.fillText(`${t.trajectory} B (Δθ = ${offsetDeg}°)`, 12, 36);
+    ctx.fillText(`${t.trajectory} B (Δ = ${(offsetDeg / 360 * 100) < 0.01 ? (offsetDeg / 360 * 100).toExponential(1) : (offsetDeg / 360 * 100).toFixed(4)} %)`, 12, 36);
   }, [offsetDeg, t]);
 
   /* ── Animation loop ──────────────────────────────────────── */
@@ -414,6 +437,8 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
       const posB = pendulumPositions(s.b, scale, cx, cy);
       s.trailA.push([posA.x2, posA.y2]);
       s.trailB.push([posB.x2, posB.y2]);
+      s.permTrailA.push([posA.x2, posA.y2]);
+      s.permTrailB.push([posB.x2, posB.y2]);
       if (s.trailA.length > MAX_TRAIL) s.trailA.shift();
       if (s.trailB.length > MAX_TRAIL) s.trailB.shift();
       s.step++;
@@ -496,7 +521,11 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
             onValueChange={([v]) => setOffsetDeg(+(10 ** v).toPrecision(3))}
             className="w-40"
           />
-          <span className="text-xs text-primary font-mono font-bold whitespace-nowrap">{offsetDeg < 0.01 ? offsetDeg.toExponential(1) : offsetDeg + '°'}</span>
+          <span className="text-xs text-primary font-mono font-bold whitespace-nowrap">
+            {(offsetDeg / 360 * 100) < 0.01
+              ? (offsetDeg / 360 * 100).toExponential(1) + ' %'
+              : (offsetDeg / 360 * 100).toFixed(4) + ' %'}
+          </span>
         </div>
       </div>
 
@@ -522,7 +551,7 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
                 <div className="space-y-3">
                   <div>
                     <p className="text-[10px] text-muted-foreground font-mono uppercase tracking-wider">{t.liveStart}</p>
-                    <p className="text-base font-bold font-mono text-primary">{offsetDeg}°</p>
+                    <p className="text-base font-bold font-mono text-primary">{(offsetDeg / 360 * 100) < 0.01 ? (offsetDeg / 360 * 100).toExponential(1) : (offsetDeg / 360 * 100).toFixed(4)} %</p>
                   </div>
                   <div>
                     <p className="text-[10px] text-muted-foreground font-mono uppercase tracking-wider">{t.liveCurrent}</p>
