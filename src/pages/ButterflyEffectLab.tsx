@@ -439,9 +439,9 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
       s.step++;
 
       if (s.step % 30 === 0) {
-        const dist = Math.sqrt(
-          (posA.x2 - posB.x2) ** 2 + (posA.y2 - posB.y2) ** 2
-        ) / scale;
+        const pA = pendulumPositions(s.a, 1, 0, 0);
+        const pB = pendulumPositions(s.b, 1, 0, 0);
+        const dist = Math.sqrt((pA.x2 - pB.x2) ** 2 + (pA.y2 - pB.y2) ** 2);
         s.divData.push({ t: +(s.step * DT).toFixed(2), d: +dist.toFixed(4) });
         if (s.divData.length > 200) s.divData.shift();
       }
