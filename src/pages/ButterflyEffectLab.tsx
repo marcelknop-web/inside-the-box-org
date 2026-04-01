@@ -414,7 +414,8 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
     ctx.fillStyle = 'hsl(180, 80%, 55%)';
     ctx.fillText(`${t.trajectory} A`, 12, 20);
     ctx.fillStyle = 'hsl(30, 90%, 55%)';
-    ctx.fillText(`${t.trajectory} B (Δ = ${(offsetDeg / 360 * 100) < 0.01 ? (offsetDeg / 360 * 100).toExponential(1) : (offsetDeg / 360 * 100).toFixed(4)} %)`, 12, 36);
+    const pct = offsetDeg / 360 * 100; const pctStr = pct < 0.0001 ? pct.toFixed(7) : pct < 0.01 ? pct.toFixed(5) : pct.toFixed(4);
+    ctx.fillText(`${t.trajectory} B (Δ = ${pctStr} %)`, 12, 36);
   }, [offsetDeg, t]);
 
   /* ── Animation loop ──────────────────────────────────────── */
@@ -522,9 +523,7 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
             className="w-40"
           />
           <span className="text-xs text-primary font-mono font-bold whitespace-nowrap">
-            {(offsetDeg / 360 * 100) < 0.01
-              ? (offsetDeg / 360 * 100).toExponential(1) + ' %'
-              : (offsetDeg / 360 * 100).toFixed(4) + ' %'}
+            {(() => { const p = offsetDeg / 360 * 100; return p < 0.0001 ? p.toFixed(7) : p < 0.01 ? p.toFixed(5) : p.toFixed(4); })()} %
           </span>
         </div>
       </div>
@@ -551,7 +550,7 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
                 <div className="space-y-3">
                   <div>
                     <p className="text-[10px] text-muted-foreground font-mono uppercase tracking-wider">{t.liveStart}</p>
-                    <p className="text-base font-bold font-mono text-primary">{(offsetDeg / 360 * 100) < 0.01 ? (offsetDeg / 360 * 100).toExponential(1) : (offsetDeg / 360 * 100).toFixed(4)} %</p>
+                    <p className="text-base font-bold font-mono text-primary">{(() => { const p = offsetDeg / 360 * 100; return p < 0.0001 ? p.toFixed(7) : p < 0.01 ? p.toFixed(5) : p.toFixed(4); })()} %</p>
                   </div>
                   <div>
                     <p className="text-[10px] text-muted-foreground font-mono uppercase tracking-wider">{t.liveCurrent}</p>
