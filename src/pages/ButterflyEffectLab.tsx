@@ -401,7 +401,7 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
     const cy = canvas ? canvas.getBoundingClientRect().height * 0.2 : 80;
     const scale = canvas ? Math.min(canvas.getBoundingClientRect().width, canvas.getBoundingClientRect().height) * 0.22 : 80;
 
-    const stepsThisFrame = Math.round(STEPS_PER_FRAME * speedRef.current);
+    const stepsThisFrame = STEPS_PER_FRAME;
 
     for (let i = 0; i < stepsThisFrame; i++) {
       s.a = rk4Step(s.a, DT);
