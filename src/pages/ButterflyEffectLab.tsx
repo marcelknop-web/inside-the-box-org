@@ -245,7 +245,7 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
 
   const angle1 = 120;
   const angle2 = 120;
-  const offsetDeg = 0.1;
+  const [offsetDeg, setOffsetDeg] = useState(0.1);
   const [running, setRunning] = useState(false);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
