@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { Slider } from '@/components/ui/slider';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Play, Pause, RotateCcw, Info } from 'lucide-react';
+import { Play, Pause, RotateCcw, Info, Lightbulb, MessageSquare, Scale } from 'lucide-react';
 import { useLanguage } from '@/i18n/LanguageContext';
 import {
   ChartContainer,
@@ -61,14 +61,31 @@ const texts = {
     play: 'Starten',
     pause: 'Pause',
     reset: 'Zurücksetzen',
+    liveLabel: 'Live-Vergleich',
+    liveStart: 'Startunterschied',
+    liveCurrent: 'Aktueller Abstand',
+    liveFactor: 'Verstärkung',
+    liveHint: 'Simulation starten, um den Live-Vergleich zu sehen',
     explainTitle: 'Was passiert hier?',
-    explain1: 'Zwei Simulationen starten fast identisch – der Unterschied ist so klein, dass er anfangs unsichtbar ist. Trotzdem laufen die Kurven irgendwann völlig auseinander. Das ist der „Schmetterlingseffekt": Winzige Ursachen können riesige Wirkungen haben.',
-    explain2: 'Dieses Verhalten ist kein Fehler, sondern eine Eigenschaft bestimmter Systeme. Wetter, Klima, Börsenkurse – sie alle reagieren so empfindlich auf kleinste Änderungen, dass langfristige Vorhersagen grundsätzlich unsicher bleiben.',
+    explain1: 'Zwei Simulationen starten fast identisch – der Unterschied ist so klein, dass er anfangs unsichtbar ist. Trotzdem laufen die Kurven irgendwann völlig auseinander.',
+    explain2: 'Das ist der „Schmetterlingseffekt": Winzige Ursachen können riesige Wirkungen haben. Wetter, Klima, Börsenkurse – sie alle reagieren so empfindlich auf kleinste Änderungen, dass langfristige Vorhersagen grundsätzlich unsicher bleiben.',
     explain3: 'Edward Lorenz entdeckte das 1963 zufällig, als er ein Wettermodell am Computer rechnete und Nachkommastellen rundete. Das Ergebnis war völlig anders. So entstand die Chaostheorie.',
+    tryThis: 'Zum Ausprobieren',
+    try1: 'Den Startunterschied auf 0.000001 setzen (ein Millionstel!) und starten. Die Kurven laufen trotzdem irgendwann auseinander.',
+    try2: 'Dann den Startunterschied auf 0.01 setzen – die Kurven trennen sich viel schneller.',
+    try3: 'ρ langsam von 28 auf 15 reduzieren, während die Simulation läuft. Unter ~24 wird das System plötzlich stabil und vorhersagbar.',
     climateTitle: 'Was hat das mit Klima zu tun?',
-    climate1: 'Das Klima hängt von hunderten Faktoren ab, die sich gegenseitig beeinflussen: Wind bewegt Wärme, Wärme verändert Wolken, Wolken reflektieren Sonnenlicht. Alles hängt mit allem zusammen.',
+    climate1: 'Das Klima hängt von hunderten Faktoren ab, die sich gegenseitig beeinflussen: Wind bewegt Wärme, Wärme verändert Wolken, Wolken reflektieren Sonnenlicht.',
     climate2: 'Schon ein kleiner Unterschied – zum Beispiel 0,1 °C mehr Anfangstemperatur oder etwas mehr CO₂ – kann langfristig einen komplett anderen Klimaverlauf erzeugen.',
     climate3: 'Deshalb berechnen Klimaforscher nicht eine einzige Vorhersage, sondern hunderte Varianten gleichzeitig. So wird sichtbar, welche Entwicklungen wahrscheinlich sind – und wo die Unsicherheit liegt.',
+    criticTitle: 'Was Kritiker sagen – und was die Forschung antwortet',
+    critic1q: '„Wenn das Klima chaotisch ist, kann man gar nichts vorhersagen."',
+    critic1a: 'Chaotisch heißt nicht zufällig. Kurzfristige Wettervorhersagen sind nach ~10 Tagen unzuverlässig, aber langfristige Klimatrends (Durchschnittswerte über Jahrzehnte) lassen sich trotzdem berechnen – so wie man nicht vorhersagen kann, welche Seite eine Münze zeigt, aber sehr wohl, dass bei 1.000 Würfen etwa 500-mal Kopf kommt.',
+    critic2q: '„Klimamodelle sind zu vereinfacht, um die Realität abzubilden."',
+    critic2a: 'Moderne Klimamodelle umfassen Millionen von Variablen und wurden erfolgreich gegen historische Daten geprüft. Die Lorenz-Gleichungen hier sind bewusst vereinfacht – sie zeigen aber das Grundprinzip, das auch in komplexen Modellen wirkt.',
+    critic3q: '„CO₂ ist nur ein kleiner Faktor – der menschliche Einfluss wird überschätzt."',
+    critic3a: 'Genau das zeigt dieses Lab: In chaotischen Systemen können kleine Faktoren enorme Auswirkungen haben. CO₂ macht zwar nur 0,04 % der Atmosphäre aus, aber seine Wirkung auf die Wärmerückhaltung ist physikalisch messbar und seit über 150 Jahren bekannt (Tyndall 1859, Arrhenius 1896).',
+    criticNote: 'Dieser Simulator zeigt keine Klimaprognose, sondern ein mathematisches Prinzip. Die Schlüsse daraus zieht jeder selbst.',
   },
   en: {
     title: 'Butterfly Effect Lab',
@@ -86,14 +103,31 @@ const texts = {
     play: 'Start',
     pause: 'Pause',
     reset: 'Reset',
+    liveLabel: 'Live comparison',
+    liveStart: 'Starting difference',
+    liveCurrent: 'Current distance',
+    liveFactor: 'Amplification',
+    liveHint: 'Start the simulation to see the live comparison',
     explainTitle: 'What is happening?',
-    explain1: 'Two simulations start almost identically – the difference is so small it\'s invisible at first. Yet at some point, the curves diverge completely. This is the "butterfly effect": tiny causes can have enormous consequences.',
-    explain2: 'This behaviour is not a bug – it\'s a fundamental property of certain systems. Weather, climate, stock markets – they all react so sensitively to the smallest changes that long-term predictions remain inherently uncertain.',
+    explain1: 'Two simulations start almost identically – the difference is so small it\'s invisible at first. Yet at some point, the curves diverge completely.',
+    explain2: 'This is the "butterfly effect": tiny causes can have enormous consequences. Weather, climate, stock markets – they all react so sensitively to the smallest changes that long-term predictions remain inherently uncertain.',
     explain3: 'Edward Lorenz discovered this by accident in 1963 when he rounded decimal places in a weather model. The result was completely different. That\'s how chaos theory was born.',
+    tryThis: 'Try this',
+    try1: 'Set the starting difference to 0.000001 (one millionth!) and start. The curves still diverge eventually.',
+    try2: 'Then set the starting difference to 0.01 – the curves separate much faster.',
+    try3: 'Slowly reduce ρ from 28 to 15 while the simulation runs. Below ~24, the system suddenly becomes stable and predictable.',
     climateTitle: 'What does this have to do with climate?',
-    climate1: 'Climate depends on hundreds of factors that influence each other: wind moves heat, heat changes clouds, clouds reflect sunlight. Everything is connected to everything.',
+    climate1: 'Climate depends on hundreds of factors that influence each other: wind moves heat, heat changes clouds, clouds reflect sunlight.',
     climate2: 'Even a small difference – say 0.1 °C more initial temperature or slightly more CO₂ – can produce a completely different climate trajectory over decades.',
     climate3: 'That\'s why climate scientists don\'t calculate a single prediction but hundreds of variations at once. This reveals which developments are likely – and where the uncertainty lies.',
+    criticTitle: 'What critics say – and how research responds',
+    critic1q: '"If the climate is chaotic, you can\'t predict anything at all."',
+    critic1a: 'Chaotic doesn\'t mean random. Short-term weather forecasts become unreliable after ~10 days, but long-term climate trends (averages over decades) can still be calculated – just like you can\'t predict which side a coin will show, but you can be sure that 1,000 flips will yield roughly 500 heads.',
+    critic2q: '"Climate models are too simplified to represent reality."',
+    critic2a: 'Modern climate models encompass millions of variables and have been successfully validated against historical data. The Lorenz equations here are intentionally simplified – but they demonstrate the fundamental principle that also operates in complex models.',
+    critic3q: '"CO₂ is just a small factor – human influence is overestimated."',
+    critic3a: 'That\'s exactly what this lab shows: in chaotic systems, small factors can have enormous effects. CO₂ makes up only 0.04% of the atmosphere, but its effect on heat retention is physically measurable and has been known for over 150 years (Tyndall 1859, Arrhenius 1896).',
+    criticNote: 'This simulator doesn\'t show a climate forecast – it shows a mathematical principle. Everyone draws their own conclusions.',
   },
   fr: {
     title: 'Laboratoire Effet Papillon',
@@ -111,14 +145,31 @@ const texts = {
     play: 'Démarrer',
     pause: 'Pause',
     reset: 'Réinitialiser',
+    liveLabel: 'Comparaison en direct',
+    liveStart: 'Différence de départ',
+    liveCurrent: 'Distance actuelle',
+    liveFactor: 'Amplification',
+    liveHint: 'Démarrer la simulation pour voir la comparaison',
     explainTitle: 'Que se passe-t-il ?',
-    explain1: 'Deux simulations démarrent de manière quasi identique – la différence est si infime qu\'elle est d\'abord invisible. Pourtant, à un moment donné, les courbes divergent totalement. C\'est « l\'effet papillon » : de minuscules causes peuvent avoir d\'énormes conséquences.',
-    explain2: 'Ce comportement n\'est pas un bug – c\'est une propriété fondamentale de certains systèmes. Météo, climat, marchés financiers – tous réagissent si sensiblement aux moindres changements que les prédictions à long terme restent fondamentalement incertaines.',
+    explain1: 'Deux simulations démarrent de manière quasi identique – la différence est si infime qu\'elle est d\'abord invisible. Pourtant, à un moment donné, les courbes divergent totalement.',
+    explain2: 'C\'est « l\'effet papillon » : de minuscules causes peuvent avoir d\'énormes conséquences. Météo, climat, marchés financiers – tous réagissent si sensiblement aux moindres changements que les prédictions à long terme restent fondamentalement incertaines.',
     explain3: 'Edward Lorenz a découvert cela par hasard en 1963 en arrondissant des décimales dans un modèle météo. Le résultat était totalement différent. C\'est ainsi qu\'est née la théorie du chaos.',
+    tryThis: 'À essayer',
+    try1: 'Régler la différence de départ sur 0,000001 (un millionième !) et démarrer. Les courbes finissent quand même par diverger.',
+    try2: 'Puis régler la différence sur 0,01 – les courbes se séparent beaucoup plus vite.',
+    try3: 'Réduire lentement ρ de 28 à 15 pendant que la simulation tourne. En dessous de ~24, le système devient soudain stable et prévisible.',
     climateTitle: 'Quel rapport avec le climat ?',
-    climate1: 'Le climat dépend de centaines de facteurs qui s\'influencent mutuellement : le vent déplace la chaleur, la chaleur modifie les nuages, les nuages réfléchissent la lumière du soleil. Tout est lié à tout.',
-    climate2: 'Même une petite différence – par exemple 0,1 °C de température initiale en plus ou un peu plus de CO₂ – peut produire une trajectoire climatique complètement différente sur des décennies.',
+    climate1: 'Le climat dépend de centaines de facteurs qui s\'influencent mutuellement : le vent déplace la chaleur, la chaleur modifie les nuages, les nuages réfléchissent la lumière.',
+    climate2: 'Même une petite différence – 0,1 °C de plus ou un peu plus de CO₂ – peut produire une trajectoire climatique complètement différente sur des décennies.',
     climate3: 'C\'est pourquoi les climatologues ne calculent pas une seule prédiction mais des centaines de variantes en parallèle. Cela révèle quelles évolutions sont probables – et où se situe l\'incertitude.',
+    criticTitle: 'Ce que disent les critiques – et ce que répond la recherche',
+    critic1q: '« Si le climat est chaotique, on ne peut rien prédire du tout. »',
+    critic1a: 'Chaotique ne signifie pas aléatoire. Les prévisions météo deviennent peu fiables après ~10 jours, mais les tendances climatiques à long terme (moyennes sur des décennies) restent calculables – tout comme on ne peut pas prédire quelle face montrera une pièce, mais on sait que sur 1 000 lancers, il y aura environ 500 fois face.',
+    critic2q: '« Les modèles climatiques sont trop simplifiés pour représenter la réalité. »',
+    critic2a: 'Les modèles climatiques modernes intègrent des millions de variables et ont été validés avec succès par rapport aux données historiques. Les équations de Lorenz ici sont volontairement simplifiées – mais elles démontrent le principe fondamental qui opère aussi dans les modèles complexes.',
+    critic3q: '« Le CO₂ n\'est qu\'un petit facteur – l\'influence humaine est surestimée. »',
+    critic3a: 'C\'est exactement ce que montre ce lab : dans les systèmes chaotiques, de petits facteurs peuvent avoir des effets énormes. Le CO₂ ne représente que 0,04 % de l\'atmosphère, mais son effet sur la rétention de chaleur est physiquement mesurable et connu depuis plus de 150 ans (Tyndall 1859, Arrhenius 1896).',
+    criticNote: 'Ce simulateur ne montre pas une prévision climatique – il montre un principe mathématique. Chacun en tire ses propres conclusions.',
   },
 };
 
@@ -166,6 +217,7 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
   });
 
   const [divData, setDivData] = useState<{ t: number; d: number }[]>([]);
+  const [liveDistance, setLiveDistance] = useState(0);
   const rafRef = useRef<number>(0);
   const runRef = useRef(false);
 
@@ -180,6 +232,7 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
     s.divData = [];
     s.step = 0;
     setDivData([]);
+    setLiveDistance(0);
     drawTrails();
   }, [offset]);
 
@@ -317,6 +370,10 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
     drawTrails();
     if (stateRef.current.step % 40 === 0) {
       setDivData([...s.divData]);
+      const dist = Math.sqrt(
+        (s.a[0] - s.b[0]) ** 2 + (s.a[1] - s.b[1]) ** 2 + (s.a[2] - s.b[2]) ** 2
+      );
+      setLiveDistance(dist);
     }
 
     rafRef.current = requestAnimationFrame(animate);
@@ -421,6 +478,37 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
         </CardContent>
       </Card>
 
+      {/* Live Comparison – makes the amplification tangible */}
+      <Card className={`border ${liveDistance > 10 ? 'border-red-500/30 bg-red-500/5' : liveDistance > 1 ? 'border-amber-500/30 bg-amber-500/5' : 'border-border/40 bg-card/60'} backdrop-blur transition-colors duration-500`}>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base font-mono text-primary">{t.liveLabel}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {(running || liveDistance > 0) ? (
+            <div className="grid grid-cols-3 gap-4 text-center">
+              <div>
+                <p className="text-[10px] text-muted-foreground font-mono uppercase tracking-wider">{t.liveStart}</p>
+                <p className="text-lg font-bold font-mono text-primary mt-1">{formatOffset(offset)}</p>
+              </div>
+              <div>
+                <p className="text-[10px] text-muted-foreground font-mono uppercase tracking-wider">{t.liveCurrent}</p>
+                <p className="text-lg font-bold font-mono mt-1" style={{ color: liveDistance > 10 ? 'hsl(0 85% 60%)' : liveDistance > 1 ? 'hsl(35 90% 55%)' : 'hsl(180 80% 55%)' }}>
+                  {liveDistance.toFixed(2)}
+                </p>
+              </div>
+              <div>
+                <p className="text-[10px] text-muted-foreground font-mono uppercase tracking-wider">{t.liveFactor}</p>
+                <p className="text-lg font-bold font-mono mt-1" style={{ color: liveDistance > 10 ? 'hsl(0 85% 60%)' : liveDistance > 1 ? 'hsl(35 90% 55%)' : 'hsl(180 80% 55%)' }}>
+                  {offset > 0 ? `×${Math.round(liveDistance / offset).toLocaleString()}` : '–'}
+                </p>
+              </div>
+            </div>
+          ) : (
+            <p className="text-center text-sm text-muted-foreground/50 font-mono py-2">{t.liveHint}</p>
+          )}
+        </CardContent>
+      </Card>
+
       {/* Divergence Chart */}
       <Card className="border-border/40 bg-card/60 backdrop-blur">
         <CardHeader className="pb-2">
@@ -472,6 +560,47 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Try This */}
+      <Card className="border-highlight/20 bg-highlight/5">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base font-mono text-highlight flex items-center gap-2">
+            <Lightbulb size={16} />{t.tryThis}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ol className="space-y-2 text-sm text-foreground/80 leading-relaxed list-decimal list-inside">
+            <li>{t.try1}</li>
+            <li>{t.try2}</li>
+            <li>{t.try3}</li>
+          </ol>
+        </CardContent>
+      </Card>
+
+      {/* Critics & Counter-arguments */}
+      <Card className="border-border/40 bg-card/60 backdrop-blur">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base font-mono text-primary flex items-center gap-2">
+            <Scale size={16} />{t.criticTitle}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-5">
+          {[
+            { q: t.critic1q, a: t.critic1a },
+            { q: t.critic2q, a: t.critic2a },
+            { q: t.critic3q, a: t.critic3a },
+          ].map((item, i) => (
+            <div key={i} className="space-y-2">
+              <div className="flex items-start gap-2">
+                <MessageSquare size={14} className="text-amber-500 mt-0.5 flex-shrink-0" />
+                <p className="text-sm font-semibold text-foreground/90 italic">{item.q}</p>
+              </div>
+              <p className="text-sm text-foreground/75 leading-relaxed ml-[22px]">{item.a}</p>
+            </div>
+          ))}
+          <p className="text-xs text-muted-foreground italic border-t border-border/20 pt-3 mt-3">{t.criticNote}</p>
+        </CardContent>
+      </Card>
     </div>
   );
 };
