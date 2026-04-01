@@ -496,18 +496,14 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
         </div>
       </div>
 
-      {/* Pendulum + Live data side by side */}
-      <div className="grid grid-cols-1 md:grid-cols-[1fr_280px] gap-4">
+      {/* Pendulum + Live data side by side – fills remaining space */}
+      <div className="grid grid-cols-1 md:grid-cols-[1fr_240px] gap-3 flex-1 min-h-0">
         {/* Pendulum Canvas */}
-        <Card className="border-border/40 bg-card/60 backdrop-blur">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base font-mono text-primary">{t.phase}</CardTitle>
-          </CardHeader>
-          <CardContent>
+        <Card className="border-border/40 bg-card/60 backdrop-blur flex flex-col min-h-0">
+          <CardContent className="flex-1 p-3 min-h-0">
             <canvas
               ref={canvasRef}
-              className="w-full rounded-lg bg-background/80 border border-border/20"
-              style={{ height: 380 }}
+              className="w-full h-full rounded-lg bg-background/80 border border-border/20"
             />
           </CardContent>
         </Card>
