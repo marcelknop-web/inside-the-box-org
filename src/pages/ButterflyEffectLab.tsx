@@ -470,7 +470,7 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
       </div>
 
       {/* Controls */}
-      <div className="flex gap-3">
+      <div className="flex flex-wrap items-center gap-3">
         <Button
           variant={running ? 'secondary' : 'default'}
           size="sm"
@@ -482,9 +482,18 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
         <Button variant="outline" size="sm" onClick={resetSim} className="font-mono">
           <RotateCcw size={14} className="mr-1.5" />{t.reset}
         </Button>
-        <span className="text-xs text-muted-foreground font-mono self-center ml-2">
-          Δθ = {offsetDeg}°
-        </span>
+        <div className="flex items-center gap-2 ml-2">
+          <span className="text-xs text-muted-foreground font-mono whitespace-nowrap">Δθ</span>
+          <Slider
+            value={[Math.log10(offsetDeg + 0.001)]}
+            min={-2}
+            max={Math.log10(10)}
+            step={0.05}
+            onValueChange={([v]) => setOffsetDeg(+(10 ** v).toFixed(3))}
+            className="w-32"
+          />
+          <span className="text-xs text-primary font-mono font-bold whitespace-nowrap">{offsetDeg}°</span>
+        </div>
       </div>
 
       {/* Pendulum + Live data side by side */}
