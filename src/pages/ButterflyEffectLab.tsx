@@ -521,7 +521,11 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
             onValueChange={([v]) => setOffsetDeg(+(10 ** v).toPrecision(3))}
             className="w-40"
           />
-          <span className="text-xs text-primary font-mono font-bold whitespace-nowrap">{offsetDeg < 0.01 ? offsetDeg.toExponential(1) : offsetDeg + '°'}</span>
+          <span className="text-xs text-primary font-mono font-bold whitespace-nowrap">
+            {(offsetDeg / 360 * 100) < 0.01
+              ? (offsetDeg / 360 * 100).toExponential(1) + ' %'
+              : (offsetDeg / 360 * 100).toFixed(4) + ' %'}
+          </span>
         </div>
       </div>
 
