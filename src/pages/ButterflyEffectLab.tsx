@@ -245,7 +245,7 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
 
   const angle1 = 120;
   const angle2 = 120;
-  const [offsetDeg, setOffsetDeg] = useState(10);
+  const [offsetDeg, setOffsetDeg] = useState(0.001);
   const [running, setRunning] = useState(false);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -485,14 +485,14 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
         <div className="flex items-center gap-2 ml-2">
           <span className="text-xs text-muted-foreground font-mono whitespace-nowrap">Δθ</span>
           <Slider
-            value={[Math.log10(offsetDeg + 0.001)]}
-            min={-2}
-            max={Math.log10(10)}
+            value={[Math.log10(Math.max(offsetDeg, 0.00001))]}
+            min={-5}
+            max={1}
             step={0.05}
-            onValueChange={([v]) => setOffsetDeg(+(10 ** v).toFixed(3))}
-            className="w-32"
+            onValueChange={([v]) => setOffsetDeg(+(10 ** v).toPrecision(3))}
+            className="w-40"
           />
-          <span className="text-xs text-primary font-mono font-bold whitespace-nowrap">{offsetDeg}°</span>
+          <span className="text-xs text-primary font-mono font-bold whitespace-nowrap">{offsetDeg < 0.01 ? offsetDeg.toExponential(1) : offsetDeg + '°'}</span>
         </div>
       </div>
 
