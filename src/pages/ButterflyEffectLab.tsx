@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
-import { Slider } from '@/components/ui/slider';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Play, Pause, RotateCcw, Info, Lightbulb, MessageSquare, Scale } from 'lucide-react';
@@ -243,14 +242,10 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
   const { language } = useLanguage();
   const t = texts[language] || texts.de;
 
-  const [angle1, setAngle1] = useState(120);
-  const [angle2, setAngle2] = useState(120);
-  const [offsetDeg, setOffsetDeg] = useState(0.1);
-  const [speedMult, setSpeedMult] = useState(1);
+  const angle1 = 120;
+  const angle2 = 120;
+  const offsetDeg = 0.1;
   const [running, setRunning] = useState(false);
-
-  const speedRef = useRef(speedMult);
-  speedRef.current = speedMult;
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -297,9 +292,8 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
     drawFrame();
   }, [makeInitialState, offsetDeg]);
 
-  useEffect(() => {
-    resetSim();
-  }, [angle1, angle2, offsetDeg]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { resetSim(); }, []);
 
   /* ── Canvas drawing ──────────────────────────────────────── */
 
@@ -406,7 +400,7 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
     const cy = canvas ? canvas.getBoundingClientRect().height * 0.2 : 80;
     const scale = canvas ? Math.min(canvas.getBoundingClientRect().width, canvas.getBoundingClientRect().height) * 0.22 : 80;
 
-    const stepsThisFrame = Math.round(STEPS_PER_FRAME * speedRef.current);
+    const stepsThisFrame = STEPS_PER_FRAME;
 
     for (let i = 0; i < stepsThisFrame; i++) {
       s.a = rk4Step(s.a, DT);
@@ -476,48 +470,22 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
       </div>
 
       {/* Controls */}
-      <Card className="border-border/40 bg-card/60 backdrop-blur">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base font-mono text-primary">{t.params}</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
-            <ParamSlider label={t.angle1} value={angle1} min={10} max={170} step={1} onChange={setAngle1} />
-            <ParamSlider label={t.angle2} value={angle2} min={10} max={170} step={1} onChange={setAngle2} />
-            <div className="space-y-1.5">
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground font-mono">{t.offset}</span>
-                <span className="text-primary font-mono font-bold">{offsetDeg}°</span>
-              </div>
-              <Slider
-                value={[Math.log10(offsetDeg + 0.001)]}
-                min={-2}
-                max={Math.log10(10)}
-                step={0.05}
-                onValueChange={([v]) => setOffsetDeg(+(10 ** v).toFixed(3))}
-              />
-              <div className="flex justify-between text-[10px] text-muted-foreground/50 font-mono">
-                <span>0.01°</span>
-                <span>10°</span>
-              </div>
-            </div>
-            <ParamSlider label={t.speed} value={speedMult} min={0.25} max={3} step={0.25} onChange={setSpeedMult} />
-          </div>
-          <div className="flex gap-3 pt-2">
-            <Button
-              variant={running ? 'secondary' : 'default'}
-              size="sm"
-              onClick={() => setRunning(!running)}
-              className="font-mono"
-            >
-              {running ? <><Pause size={14} className="mr-1.5" />{t.pause}</> : <><Play size={14} className="mr-1.5" />{t.play}</>}
-            </Button>
-            <Button variant="outline" size="sm" onClick={resetSim} className="font-mono">
-              <RotateCcw size={14} className="mr-1.5" />{t.reset}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="flex gap-3">
+        <Button
+          variant={running ? 'secondary' : 'default'}
+          size="sm"
+          onClick={() => setRunning(!running)}
+          className="font-mono"
+        >
+          {running ? <><Pause size={14} className="mr-1.5" />{t.pause}</> : <><Play size={14} className="mr-1.5" />{t.play}</>}
+        </Button>
+        <Button variant="outline" size="sm" onClick={resetSim} className="font-mono">
+          <RotateCcw size={14} className="mr-1.5" />{t.reset}
+        </Button>
+        <span className="text-xs text-muted-foreground font-mono self-center ml-2">
+          Δθ = {offsetDeg}°
+        </span>
+      </div>
 
       {/* Pendulum Canvas */}
       <Card className="border-border/40 bg-card/60 backdrop-blur">
@@ -661,24 +629,5 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
     </div>
   );
 };
-
-/* ── Param Slider ────────────────────────────────────────────── */
-
-const ParamSlider = ({ label, value, min, max, step, onChange }: {
-  label: string; value: number; min: number; max: number; step: number;
-  onChange: (v: number) => void;
-}) => (
-  <div className="space-y-1.5">
-    <div className="flex justify-between text-sm">
-      <span className="text-muted-foreground font-mono">{label}</span>
-      <span className="text-primary font-mono font-bold">{value}</span>
-    </div>
-    <Slider value={[value]} min={min} max={max} step={step} onValueChange={([v]) => onChange(v)} />
-    <div className="flex justify-between text-[10px] text-muted-foreground/50 font-mono">
-      <span>{min}</span>
-      <span>{max}</span>
-    </div>
-  </div>
-);
 
 export default ButterflyEffectLab;
