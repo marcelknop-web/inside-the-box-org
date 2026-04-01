@@ -62,6 +62,13 @@ export const useLanguage = () => {
     // During HMR, context can temporarily be unavailable — force reload
     if (import.meta.hot) {
       window.location.reload();
+      // Return a safe fallback while reload is pending
+      return {
+        language: 'en' as Language,
+        setLanguage: () => {},
+        t: (key: string) => key,
+        tArray: () => [] as string[],
+      } as LanguageContextType;
     }
     throw new Error('useLanguage must be used within LanguageProvider');
   }
