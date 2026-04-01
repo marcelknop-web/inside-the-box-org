@@ -1,15 +1,9 @@
-import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { Slider } from '@/components/ui/slider';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Play, Pause, RotateCcw } from 'lucide-react';
 import { useLanguage } from '@/i18n/LanguageContext';
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from '@/components/ui/chart';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid } from 'recharts';
 
 /* ── Double Pendulum Physics ─────────────────────────────────── */
 
@@ -278,6 +272,8 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
 
   const [divData, setDivData] = useState<{ t: number; d: number }[]>([]);
   const [liveDistance, setLiveDistance] = useState(0);
+  const [liveSpeedDiff, setLiveSpeedDiff] = useState(0);
+  const [liveAngleDiff, setLiveAngleDiff] = useState(0);
   const rafRef = useRef<number>(0);
   const runRef = useRef(false);
 
@@ -295,6 +291,8 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
     s.step = 0;
     setDivData([]);
     setLiveDistance(0);
+    setLiveSpeedDiff(0);
+    setLiveAngleDiff(0);
     drawFrame();
   }, [makeInitialState, offsetDeg]);
 
@@ -453,6 +451,15 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
       const posB = pendulumPositions(s.b, 1, 0, 0);
       const dist = Math.sqrt((posA.x2 - posB.x2) ** 2 + (posA.y2 - posB.y2) ** 2);
       setLiveDistance(dist);
+      // Speed difference (angular velocities)
+      const speedDiff = Math.sqrt((s.a.ω1 - s.b.ω1) ** 2 + (s.a.ω2 - s.b.ω2) ** 2);
+      setLiveSpeedDiff(speedDiff);
+      // Angle difference
+      const angleDiff = Math.sqrt(
+        (Math.sin(s.a.θ1) - Math.sin(s.b.θ1)) ** 2 + (Math.cos(s.a.θ1) - Math.cos(s.b.θ1)) ** 2 +
+        (Math.sin(s.a.θ2) - Math.sin(s.b.θ2)) ** 2 + (Math.cos(s.a.θ2) - Math.cos(s.b.θ2)) ** 2
+      );
+      setLiveAngleDiff(angleDiff);
     }
 
     rafRef.current = requestAnimationFrame(animate);
@@ -477,11 +484,6 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
     return () => window.removeEventListener('resize', handleResize);
   }, [drawFrame]);
 
-  const chartConfig = useMemo(() => ({
-    d: { label: t.distance, color: 'hsl(0, 85%, 60%)' },
-  }), [t]);
-
-  const offsetStart = toRad(offsetDeg);
 
   return (
     <div className={`${embedded ? '' : 'h-screen bg-background'} flex flex-col p-4 md:p-6 overflow-hidden`}>
@@ -532,63 +534,76 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
           </CardContent>
         </Card>
 
-        <div className="space-y-3 flex flex-col min-h-0">
-          <Card className={`border ${liveDistance > 1.5 ? 'border-red-500/30 bg-red-500/5' : liveDistance > 0.5 ? 'border-amber-500/30 bg-amber-500/5' : 'border-border/40 bg-card/60'} backdrop-blur transition-colors duration-500`}>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-mono text-primary">{t.liveLabel}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {(running || liveDistance > 0) ? (
-                <div className="space-y-3">
-                  <div>
-                    <p className="text-[10px] text-muted-foreground font-mono uppercase tracking-wider">{t.liveStart}</p>
-                    <p className="text-base font-bold font-mono text-primary">{(() => { const p = offsetDeg / 360 * 100; return p < 0.0001 ? p.toFixed(7) : p < 0.01 ? p.toFixed(5) : p.toFixed(4); })()} %</p>
-                  </div>
-                  <div>
-                    <p className="text-[10px] text-muted-foreground font-mono uppercase tracking-wider">{t.liveCurrent}</p>
-                    <p className="text-base font-bold font-mono" style={{ color: liveDistance > 1.5 ? 'hsl(0, 85%, 60%)' : liveDistance > 0.5 ? 'hsl(35, 90%, 55%)' : 'hsl(180, 80%, 55%)' }}>
-                      {liveDistance.toFixed(3)}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-[10px] text-muted-foreground font-mono uppercase tracking-wider">{t.liveFactor}</p>
-                    <p className="text-base font-bold font-mono" style={{ color: liveDistance > 1.5 ? 'hsl(0, 85%, 60%)' : liveDistance > 0.5 ? 'hsl(35, 90%, 55%)' : 'hsl(180, 80%, 55%)' }}>
-                      {offsetStart > 0 ? `×${Math.round(liveDistance / offsetStart).toLocaleString()}` : '–'}
-                    </p>
-                  </div>
-                </div>
-              ) : (
-                <p className="text-xs text-muted-foreground/50 font-mono py-2">{t.liveHint}</p>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Divergence Chart */}
-          <Card className="border-border/40 bg-card/60 backdrop-blur">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-mono text-primary">{t.divergence}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {divData.length > 2 ? (
-                <ChartContainer config={chartConfig} className="h-[160px] w-full">
-                  <LineChart data={divData} margin={{ top: 5, right: 5, bottom: 5, left: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsla(0,0%,50%,0.15)" />
-                    <XAxis dataKey="t" tick={{ fontSize: 9 }} />
-                    <YAxis tick={{ fontSize: 9 }} />
-                    <ChartTooltip content={<ChartTooltipContent />} />
-                    <Line type="monotone" dataKey="d" stroke="hsl(0, 85%, 60%)" strokeWidth={2} dot={false} />
-                  </LineChart>
-                </ChartContainer>
-              ) : (
-                <div className="h-[160px] flex items-center justify-center text-muted-foreground/50 text-xs font-mono">
-                  {t.play} ▸
-                </div>
-              )}
-            </CardContent>
-          </Card>
+        {/* Right sidebar: Live gauges */}
+        <div className="flex flex-col gap-3 min-h-0 justify-center">
+          <LiveGauge
+            label={language === 'de' ? 'Abstand' : language === 'fr' ? 'Distance' : 'Distance'}
+            value={liveDistance}
+            max={4}
+            color="hsl(180, 80%, 55%)"
+            warningColor="hsl(35, 90%, 55%)"
+            dangerColor="hsl(0, 85%, 60%)"
+            hint={running || liveDistance > 0}
+          />
+          <LiveGauge
+            label={language === 'de' ? 'Geschwindigkeit Δ' : language === 'fr' ? 'Vitesse Δ' : 'Speed Δ'}
+            value={liveSpeedDiff}
+            max={20}
+            color="hsl(260, 70%, 60%)"
+            warningColor="hsl(280, 70%, 55%)"
+            dangerColor="hsl(320, 80%, 55%)"
+            hint={running || liveSpeedDiff > 0}
+          />
+          <LiveGauge
+            label={language === 'de' ? 'Winkel Δ' : language === 'fr' ? 'Angle Δ' : 'Angle Δ'}
+            value={liveAngleDiff}
+            max={2.83}
+            color="hsl(45, 90%, 55%)"
+            warningColor="hsl(30, 90%, 55%)"
+            dangerColor="hsl(0, 85%, 60%)"
+            hint={running || liveAngleDiff > 0}
+          />
+          {/* Delta info */}
+          <div className="text-center pt-1 border-t border-border/20">
+            <p className="text-[9px] text-muted-foreground font-mono uppercase tracking-wider">Start Δ</p>
+            <p className="text-sm font-bold font-mono text-primary">
+              {(() => { const p = offsetDeg / 360 * 100; return p < 0.0001 ? p.toFixed(7) : p < 0.01 ? p.toFixed(5) : p.toFixed(4); })()} %
+            </p>
+          </div>
         </div>
       </div>
 
+    </div>
+  );
+};
+/* ── Live Gauge Bar ───────────────────────────────────────────── */
+
+const LiveGauge = ({ label, value, max, color, warningColor, dangerColor, hint }: {
+  label: string; value: number; max: number;
+  color: string; warningColor: string; dangerColor: string;
+  hint: boolean;
+}) => {
+  const pct = Math.min(value / max, 1) * 100;
+  const barColor = pct > 75 ? dangerColor : pct > 40 ? warningColor : color;
+
+  return (
+    <div className="space-y-1.5">
+      <div className="flex justify-between items-baseline">
+        <span className="text-[10px] text-muted-foreground font-mono uppercase tracking-wider">{label}</span>
+        <span className="text-xs font-mono font-bold" style={{ color: barColor }}>
+          {hint ? value.toFixed(3) : '–'}
+        </span>
+      </div>
+      <div className="h-2.5 rounded-full bg-background/80 border border-border/30 overflow-hidden">
+        <div
+          className="h-full rounded-full transition-all duration-150"
+          style={{
+            width: hint ? `${pct}%` : '0%',
+            backgroundColor: barColor,
+            boxShadow: pct > 50 ? `0 0 8px ${barColor}` : 'none',
+          }}
+        />
+      </div>
     </div>
   );
 };
