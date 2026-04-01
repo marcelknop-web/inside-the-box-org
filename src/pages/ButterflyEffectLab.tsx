@@ -142,6 +142,14 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
   const [offset, setOffset] = useState(0.0001);
   const [running, setRunning] = useState(false);
 
+  // Store params in refs so the animation loop always reads live values
+  const sigmaRef = useRef(sigma);
+  const rhoRef = useRef(rho);
+  const betaRef = useRef(beta);
+  sigmaRef.current = sigma;
+  rhoRef.current = rho;
+  betaRef.current = beta;
+
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const stateRef = useRef<{
     a: Vec3; b: Vec3;
