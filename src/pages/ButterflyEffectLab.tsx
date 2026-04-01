@@ -324,8 +324,8 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
     }
 
     const cx = w / 2;
-    const cy = h * 0.2;
-    const scale = Math.min(w, h) * 0.22;
+    const cy = h * 0.35;
+    const scale = Math.min(w, h) * 0.2;
 
     const s = stateRef.current;
 
