@@ -484,11 +484,6 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
     return () => window.removeEventListener('resize', handleResize);
   }, [drawFrame]);
 
-  const chartConfig = useMemo(() => ({
-    d: { label: t.distance, color: 'hsl(0, 85%, 60%)' },
-  }), [t]);
-
-  const offsetStart = toRad(offsetDeg);
 
   return (
     <div className={`${embedded ? '' : 'h-screen bg-background'} flex flex-col p-4 md:p-6 overflow-hidden`}>
