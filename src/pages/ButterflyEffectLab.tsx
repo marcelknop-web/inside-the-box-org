@@ -534,7 +534,7 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
           </CardContent>
         </Card>
 
-        {/* Right sidebar: Live gauges */}
+        {/* Right sidebar: Gauges + EKG */}
         <div className="flex flex-col gap-3 min-h-0 justify-center">
           <LiveGauge
             label={language === 'de' ? 'Abstand' : language === 'fr' ? 'Distance' : 'Distance'}
@@ -563,17 +563,25 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
             dangerColor="hsl(0, 85%, 60%)"
             hint={running || liveAngleDiff > 0}
           />
-          {/* Live ticker */}
-          <div className="pt-2 border-t border-border/20 overflow-hidden">
-            <p className="text-[9px] text-muted-foreground font-mono uppercase tracking-wider mb-1">Start Δ: {(() => { const p = offsetDeg / 360 * 100; return p < 0.0001 ? p.toFixed(7) : p < 0.01 ? p.toFixed(5) : p.toFixed(4); })()} %</p>
-            {(running || liveDistance > 0) && (
-              <div className="font-mono text-[10px] leading-relaxed text-foreground/60 space-y-0.5 animate-pulse" style={{ animationDuration: '3s' }}>
-                <p>Δ pos: <span className="text-foreground/90 font-bold">{liveDistance.toFixed(5)}</span></p>
-                <p>Δ vel: <span className="text-foreground/90 font-bold">{liveSpeedDiff.toFixed(5)}</span></p>
-                <p>Δ ang: <span className="text-foreground/90 font-bold">{liveAngleDiff.toFixed(5)}</span></p>
-                <p>amp: <span className="text-foreground/90 font-bold">×{(() => { const start = toRad(offsetDeg); return start > 0 ? Math.round(liveDistance / start).toLocaleString() : '–'; })()}</span></p>
-              </div>
-            )}
+
+          {/* EKG-style scrolling deviation monitor */}
+          <div className="pt-2 border-t border-border/20">
+            <div className="flex justify-between items-baseline mb-1">
+              <span className="text-[9px] text-muted-foreground font-mono uppercase tracking-wider">
+                {language === 'de' ? 'Gesamtabweichung' : language === 'fr' ? 'Déviation totale' : 'Total deviation'}
+              </span>
+              <span className="text-[10px] font-mono font-bold text-primary">
+                {(liveDistance + liveSpeedDiff / 5 + liveAngleDiff).toFixed(3)}
+              </span>
+            </div>
+            <canvas
+              ref={ekgRef}
+              className="w-full rounded bg-background/80 border border-border/20"
+              style={{ height: 80 }}
+            />
+            <p className="text-[8px] text-muted-foreground/40 font-mono mt-0.5">
+              Start Δ: {(() => { const p = offsetDeg / 360 * 100; return p < 0.0001 ? p.toFixed(7) : p < 0.01 ? p.toFixed(5) : p.toFixed(4); })()} %
+            </p>
           </div>
         </div>
       </div>
