@@ -4,12 +4,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Play, Pause, RotateCcw } from 'lucide-react';
 import { useLanguage } from '@/i18n/LanguageContext';
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from '@/components/ui/chart';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid } from 'recharts';
 
 /* ── Double Pendulum Physics ─────────────────────────────────── */
 
