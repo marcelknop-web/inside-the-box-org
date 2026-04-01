@@ -462,11 +462,11 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
   const offsetStart = toRad(offsetDeg);
 
   return (
-    <div className={`${embedded ? '' : 'min-h-screen bg-background'} space-y-6`}>
+    <div className={`${embedded ? '' : 'h-screen bg-background'} flex flex-col p-4 md:p-6 overflow-hidden`}>
       {/* Header */}
-      <div className="space-y-2">
-        <h1 className="text-2xl md:text-3xl font-bold font-mono text-primary">{t.title}</h1>
-        <p className="text-foreground/70 text-sm md:text-base leading-relaxed max-w-2xl">{t.subtitle}</p>
+      <div className="space-y-1 mb-3 flex-shrink-0">
+        <h1 className="text-xl md:text-2xl font-bold font-mono text-primary">{t.title}</h1>
+        <p className="text-foreground/70 text-xs md:text-sm leading-relaxed max-w-2xl">{t.subtitle}</p>
       </div>
 
       {/* Controls */}
