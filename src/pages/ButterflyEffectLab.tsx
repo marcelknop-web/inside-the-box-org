@@ -414,7 +414,7 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
     ctx.fillStyle = 'hsl(180, 80%, 55%)';
     ctx.fillText(`${t.trajectory} A`, 12, 20);
     ctx.fillStyle = 'hsl(30, 90%, 55%)';
-    ctx.fillText(`${t.trajectory} B (Δθ = ${offsetDeg}°)`, 12, 36);
+    ctx.fillText(`${t.trajectory} B (Δ = ${(offsetDeg / 360 * 100) < 0.01 ? (offsetDeg / 360 * 100).toExponential(1) : (offsetDeg / 360 * 100).toFixed(4)} %)`, 12, 36);
   }, [offsetDeg, t]);
 
   /* ── Animation loop ──────────────────────────────────────── */
