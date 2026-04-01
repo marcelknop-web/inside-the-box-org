@@ -416,7 +416,7 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
           <canvas
             ref={canvasRef}
             className="w-full rounded-lg bg-background/80 border border-border/20"
-            style={{ height: 360 }}
+            style={{ height: 'clamp(280px, 50vw, 420px)', aspectRatio: '16/9' }}
           />
         </CardContent>
       </Card>
