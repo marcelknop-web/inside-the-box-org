@@ -595,6 +595,7 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
             { q: t.critic1q, a: t.critic1a },
             { q: t.critic2q, a: t.critic2a },
             { q: t.critic3q, a: t.critic3a },
+            { q: t.critic4q, a: t.critic4a },
           ].map((item, i) => (
             <div key={i} className="space-y-2">
               <div className="flex items-start gap-2">
