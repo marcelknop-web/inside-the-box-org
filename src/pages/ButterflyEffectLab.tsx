@@ -314,7 +314,7 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
     }
 
     rafRef.current = requestAnimationFrame(animate);
-  }, [sigma, rho, beta, drawTrails]);
+  }, [drawTrails]);
 
   useEffect(() => {
     if (running) {
