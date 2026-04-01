@@ -457,6 +457,15 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
       const posB = pendulumPositions(s.b, 1, 0, 0);
       const dist = Math.sqrt((posA.x2 - posB.x2) ** 2 + (posA.y2 - posB.y2) ** 2);
       setLiveDistance(dist);
+      // Speed difference (angular velocities)
+      const speedDiff = Math.sqrt((s.a.ω1 - s.b.ω1) ** 2 + (s.a.ω2 - s.b.ω2) ** 2);
+      setLiveSpeedDiff(speedDiff);
+      // Angle difference
+      const angleDiff = Math.sqrt(
+        (Math.sin(s.a.θ1) - Math.sin(s.b.θ1)) ** 2 + (Math.cos(s.a.θ1) - Math.cos(s.b.θ1)) ** 2 +
+        (Math.sin(s.a.θ2) - Math.sin(s.b.θ2)) ** 2 + (Math.cos(s.a.θ2) - Math.cos(s.b.θ2)) ** 2
+      );
+      setLiveAngleDiff(angleDiff);
     }
 
     rafRef.current = requestAnimationFrame(animate);
