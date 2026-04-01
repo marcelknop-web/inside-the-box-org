@@ -142,6 +142,14 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
   const [offset, setOffset] = useState(0.0001);
   const [running, setRunning] = useState(false);
 
+  // Store params in refs so the animation loop always reads live values
+  const sigmaRef = useRef(sigma);
+  const rhoRef = useRef(rho);
+  const betaRef = useRef(beta);
+  sigmaRef.current = sigma;
+  rhoRef.current = rho;
+  betaRef.current = beta;
+
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const stateRef = useRef<{
     a: Vec3; b: Vec3;
@@ -175,9 +183,10 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
     drawTrails();
   }, [offset]);
 
+  // Only reset on offset change (not on σ/ρ/β — those apply live)
   useEffect(() => {
     resetSim();
-  }, [sigma, rho, beta, offset]);
+  }, [offset]);
 
   /* ── Canvas drawing ──────────────────────────────────────── */
 
@@ -279,7 +288,7 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
   const animate = useCallback(() => {
     if (!runRef.current) return;
     const s = stateRef.current;
-    const params: LorenzParams = { sigma, rho, beta };
+    const params: LorenzParams = { sigma: sigmaRef.current, rho: rhoRef.current, beta: betaRef.current };
 
     for (let i = 0; i < STEPS_PER_FRAME; i++) {
       s.a = rk4Step(s.a, params, DT);
@@ -305,7 +314,7 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
     }
 
     rafRef.current = requestAnimationFrame(animate);
-  }, [sigma, rho, beta, drawTrails]);
+  }, [drawTrails]);
 
   useEffect(() => {
     if (running) {
