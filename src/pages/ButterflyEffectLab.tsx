@@ -563,12 +563,17 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
             dangerColor="hsl(0, 85%, 60%)"
             hint={running || liveAngleDiff > 0}
           />
-          {/* Delta info */}
-          <div className="text-center pt-1 border-t border-border/20">
-            <p className="text-[9px] text-muted-foreground font-mono uppercase tracking-wider">Start Δ</p>
-            <p className="text-sm font-bold font-mono text-primary">
-              {(() => { const p = offsetDeg / 360 * 100; return p < 0.0001 ? p.toFixed(7) : p < 0.01 ? p.toFixed(5) : p.toFixed(4); })()} %
-            </p>
+          {/* Live ticker */}
+          <div className="pt-2 border-t border-border/20 overflow-hidden">
+            <p className="text-[9px] text-muted-foreground font-mono uppercase tracking-wider mb-1">Start Δ: {(() => { const p = offsetDeg / 360 * 100; return p < 0.0001 ? p.toFixed(7) : p < 0.01 ? p.toFixed(5) : p.toFixed(4); })()} %</p>
+            {(running || liveDistance > 0) && (
+              <div className="font-mono text-[10px] leading-relaxed text-foreground/60 space-y-0.5 animate-pulse" style={{ animationDuration: '3s' }}>
+                <p>Δ pos: <span className="text-foreground/90 font-bold">{liveDistance.toFixed(5)}</span></p>
+                <p>Δ vel: <span className="text-foreground/90 font-bold">{liveSpeedDiff.toFixed(5)}</span></p>
+                <p>Δ ang: <span className="text-foreground/90 font-bold">{liveAngleDiff.toFixed(5)}</span></p>
+                <p>amp: <span className="text-foreground/90 font-bold">×{(() => { const start = toRad(offsetDeg); return start > 0 ? Math.round(liveDistance / start).toLocaleString() : '–'; })()}</span></p>
+              </div>
+            )}
           </div>
         </div>
       </div>
