@@ -418,10 +418,6 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
   const animate = useCallback(() => {
     if (!runRef.current) return;
     const s = stateRef.current;
-    const canvas = canvasRef.current;
-    const cx = canvas ? canvas.getBoundingClientRect().width / 2 : 300;
-    const cy = canvas ? canvas.getBoundingClientRect().height * 0.2 : 80;
-    const scale = canvas ? Math.min(canvas.getBoundingClientRect().width, canvas.getBoundingClientRect().height) * 0.22 : 80;
 
     const stepsThisFrame = STEPS_PER_FRAME;
 
@@ -429,12 +425,15 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
       s.a = rk4Step(s.a, DT);
       s.b = rk4Step(s.b, DT);
 
-      const posA = pendulumPositions(s.a, scale, cx, cy);
-      const posB = pendulumPositions(s.b, scale, cx, cy);
-      s.trailA.push([posA.x2, posA.y2]);
-      s.trailB.push([posB.x2, posB.y2]);
-      s.permTrailA.push([posA.x2, posA.y2]);
-      s.permTrailB.push([posB.x2, posB.y2]);
+      // Store angles (not pixels) so trails can be re-projected at any scale
+      s.trailA.push([s.a.θ2, s.a.θ1] as [number, number]);
+      s.trailB.push([s.b.θ2, s.b.θ1] as [number, number]);
+      // permTrail stores [θ1, θ2] for tip projection
+      s.permTrailA.push([s.a.θ1, s.a.θ2]);
+      s.permTrailB.push([s.b.θ1, s.b.θ2]);
+      // recent trail also stores [θ1, θ2]
+      s.trailA[s.trailA.length - 1] = [s.a.θ1, s.a.θ2];
+      s.trailB[s.trailB.length - 1] = [s.b.θ1, s.b.θ2];
       if (s.trailA.length > MAX_TRAIL) s.trailA.shift();
       if (s.trailB.length > MAX_TRAIL) s.trailB.shift();
       s.step++;
