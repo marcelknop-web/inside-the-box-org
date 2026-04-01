@@ -293,8 +293,7 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
     drawFrame();
   }, [makeInitialState, offsetDeg]);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => { resetSim(); }, []);
+  useEffect(() => { resetSim(); }, [offsetDeg]);
 
   /* ── Canvas drawing ──────────────────────────────────────── */
 
