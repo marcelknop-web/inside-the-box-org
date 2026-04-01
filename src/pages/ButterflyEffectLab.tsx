@@ -425,15 +425,13 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
       s.a = rk4Step(s.a, DT);
       s.b = rk4Step(s.b, DT);
 
-      // Store angles (not pixels) so trails can be re-projected at any scale
-      s.trailA.push([s.a.θ2, s.a.θ1] as [number, number]);
-      s.trailB.push([s.b.θ2, s.b.θ1] as [number, number]);
-      // permTrail stores [θ1, θ2] for tip projection
-      s.permTrailA.push([s.a.θ1, s.a.θ2]);
-      s.permTrailB.push([s.b.θ1, s.b.θ2]);
-      // recent trail also stores [θ1, θ2]
-      s.trailA[s.trailA.length - 1] = [s.a.θ1, s.a.θ2];
-      s.trailB[s.trailB.length - 1] = [s.b.θ1, s.b.θ2];
+      // Store [θ1, θ2] so trails are resolution-independent
+      const anglesA: [number, number] = [s.a.θ1, s.a.θ2];
+      const anglesB: [number, number] = [s.b.θ1, s.b.θ2];
+      s.trailA.push(anglesA);
+      s.trailB.push(anglesB);
+      s.permTrailA.push(anglesA);
+      s.permTrailB.push(anglesB);
       if (s.trailA.length > MAX_TRAIL) s.trailA.shift();
       if (s.trailB.length > MAX_TRAIL) s.trailB.shift();
       s.step++;
