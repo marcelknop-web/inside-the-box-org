@@ -26,7 +26,7 @@ const CyberFrogger = lazy(() => import('./CyberFrogger'));
 const EliteShipScene = lazy(() => import('./EliteShipScene'));
 const CraComplianceTool = lazy(() => import('./CraComplianceTool'));
 const DoraComplianceTool = lazy(() => import('./DoraComplianceTool'));
-const ButterflyEffectLab = lazy(() => import('./ButterflyEffectLab'));
+const ClimateTippingSimulator = lazy(() => import('./ClimateTippingSimulator'));
 
 import { StaggerReveal } from '@/components/StaggerReveal';
 import GlitchText from '@/components/GlitchText';
@@ -787,11 +787,11 @@ const useServiceContent = () => {
               </div>
             </button>
             {/* — Simulation — */}
-            <button onClick={() => setActive('butterfly-lab')} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
+            <button onClick={() => setActive('climate-tipping')} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
               <TrendingDown size={20} className="text-highlight mt-0.5 flex-shrink-0" />
               <div>
-                <p className="text-highlight font-semibold font-mono text-sm">{t('aiWorkflows.butterflyTitle')}</p>
-                <p className="text-foreground/80 text-xs">{t('aiWorkflows.butterflyDesc')}</p>
+                <p className="text-highlight font-semibold font-mono text-sm">{t('aiWorkflows.climateTippingTitle')}</p>
+                <p className="text-foreground/80 text-xs">{t('aiWorkflows.climateTippingDesc')}</p>
               </div>
             </button>
             {/* — Entspannung — */}
@@ -1298,8 +1298,8 @@ const ChatView = () => {
     ? <Suspense fallback={lazyFallback}><CraComplianceTool embedded /></Suspense>
     : activeService === 'dora-compliance'
     ? <Suspense fallback={lazyFallback}><DoraComplianceTool embedded /></Suspense>
-    : activeService === 'butterfly-lab'
-    ? <Suspense fallback={lazyFallback}><ButterflyEffectLab embedded /></Suspense>
+    : activeService === 'climate-tipping'
+    ? <Suspense fallback={lazyFallback}><ClimateTippingSimulator embedded /></Suspense>
     : activeService === 'system-check'
     ? <InlineSystemCheck t={t} />
     : activeService && contentMap[activeService] ? contentMap[activeService]() : null;
