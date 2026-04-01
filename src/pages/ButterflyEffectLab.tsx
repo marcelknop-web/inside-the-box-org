@@ -453,9 +453,20 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
     ctx.shadowColor = 'hsl(0, 85%, 60%)';
     ctx.shadowBlur = 4;
 
-    const xStep = w / 200;
-    for (let i = 0; i < data.length; i++) {
-      const x = w - (data.length - 1 - i) * xStep;
+    // Logarithmic x-spacing: recent data spread out, old data compressed
+    const n = data.length;
+    const getX = (i: number) => {
+      // Distance from right edge (0 = newest, n-1 = oldest)
+      const age = n - 1 - i;
+      if (age === 0) return w;
+      // Log compression: map age to x position
+      const logMax = Math.log(n);
+      const logAge = Math.log(age + 1);
+      return w - (logAge / logMax) * (w - 4);
+    };
+
+    for (let i = 0; i < n; i++) {
+      const x = getX(i);
       const y = h - padding - (data[i] / maxVal) * (h - padding * 2);
       if (i === 0) ctx.moveTo(x, y);
       else ctx.lineTo(x, y);
@@ -464,10 +475,9 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
     ctx.shadowBlur = 0;
 
     // Current value dot
-    const lastX = w;
-    const lastY = h - padding - (data[data.length - 1] / maxVal) * (h - padding * 2);
+    const lastY = h - padding - (data[n - 1] / maxVal) * (h - padding * 2);
     ctx.fillStyle = 'hsl(0, 85%, 60%)';
-    ctx.beginPath(); ctx.arc(lastX - 1, lastY, 3, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(w - 1, lastY, 3, 0, Math.PI * 2); ctx.fill();
   }, []);
 
   /* ── Animation loop ──────────────────────────────────────── */
