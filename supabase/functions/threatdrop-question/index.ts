@@ -98,8 +98,32 @@ serve(async (req) => {
 
   try {
     const body = await req.json();
-    const language = body?.language || "de";
-    const usedIds = body?.usedIds || [];
+    const language = body?.language;
+    if (language && !["de", "en", "fr"].includes(language)) {
+      return new Response(
+        JSON.stringify({ error: "Invalid language" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    const rawIds = body?.usedIds;
+    if (rawIds != null && (!Array.isArray(rawIds) || rawIds.length > 50)) {
+      return new Response(
+        JSON.stringify({ error: "Invalid usedIds" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    const usedIds: string[] = [];
+    if (Array.isArray(rawIds)) {
+      for (const id of rawIds) {
+        if (typeof id !== "string" || id.length > 20 || !/^[A-Z0-9-]+$/.test(id)) {
+          return new Response(
+            JSON.stringify({ error: "Invalid ID in usedIds" }),
+            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+        usedIds.push(id);
+      }
+    }
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
