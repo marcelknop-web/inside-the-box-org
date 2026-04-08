@@ -134,15 +134,15 @@ export async function generateIec62443Report(data: Iec62443ReportData): Promise<
   const isCompliant = critRisks.length === 0 && failReqs.length === 0;
   const verdictText = lang === 'de'
     ? isCompliant
-      ? `Das Schiff/System ${intakeData.facilityName} erfüllt die Anforderungen nach IACS UR E27. Keine kritischen Abweichungen festgestellt.`
-      : `Das Schiff/System ${intakeData.facilityName} erreicht ${complianceRate}% Konformität mit IACS UR E27. ${critRisks.length} kritische Risiken und ${failReqs.length} nicht konforme Anforderungen erfordern Sofortmaßnahmen.`
+      ? `Im Rahmen der durchgeführten Prüfung konnte festgestellt werden, dass das Schiff bzw. System ${intakeData.facilityName} die Anforderungen gemäß IACS UR E27 vollständig erfüllt. Kritische Abweichungen wurden nicht identifiziert.`
+      : `Die Prüfung des Schiffs bzw. Systems ${intakeData.facilityName} ergibt eine Konformitätsrate von ${complianceRate} % gegenüber den Anforderungen der IACS UR E27. Insgesamt wurden ${critRisks.length} kritische Risiken sowie ${failReqs.length} nicht konforme Anforderungen festgestellt, die unverzügliche Gegenmaßnahmen erfordern.`
     : lang === 'fr'
     ? isCompliant
-      ? `Le navire/système ${intakeData.facilityName} satisfait les exigences IACS UR E27.`
-      : `Le navire/système ${intakeData.facilityName} atteint ${complianceRate}% de conformité IACS UR E27. ${critRisks.length} risques critiques et ${failReqs.length} exigences non conformes nécessitent une action immédiate.`
+      ? `L'évaluation a permis de constater que le navire/système ${intakeData.facilityName} satisfait pleinement aux exigences de l'IACS UR E27. Aucun écart critique n'a été identifié.`
+      : `L'évaluation du navire/système ${intakeData.facilityName} aboutit à un taux de conformité de ${complianceRate} % par rapport aux exigences de l'IACS UR E27. Au total, ${critRisks.length} risques critiques et ${failReqs.length} exigences non conformes ont été identifiés, nécessitant des mesures correctives immédiates.`
     : isCompliant
-    ? `Vessel/System ${intakeData.facilityName} meets IACS UR E27 requirements.`
-    : `Vessel/System ${intakeData.facilityName} achieves ${complianceRate}% compliance with IACS UR E27. ${critRisks.length} critical risks and ${failReqs.length} non-compliant requirements demand immediate action.`;
+    ? `The assessment has determined that vessel/system ${intakeData.facilityName} fully meets the requirements set out in IACS UR E27. No critical deviations were identified.`
+    : `The assessment of vessel/system ${intakeData.facilityName} yields a compliance rate of ${complianceRate}% against the requirements of IACS UR E27. A total of ${critRisks.length} critical risks and ${failReqs.length} non-compliant requirements were identified, necessitating immediate remediation.`;
 
   pdf.verdictBox(verdictText);
 
@@ -180,11 +180,11 @@ export async function generateIec62443Report(data: Iec62443ReportData): Promise<
 
   const actionText = lang === 'de'
     ? isCompliant
-      ? 'Empfehlung: Konformitätsnachweis dokumentieren und jährliche Neubewertung planen.'
-      : `Empfehlung: Sofortmaßnahmen (P0) aus Abschnitt 4 mit Verantwortlichkeiten und Fristen versehen. Wöchentliches Tracking bis zur Schließung aller kritischen Gaps.`
+      ? 'Es wird empfohlen, den Konformitätsnachweis zu dokumentieren und eine jährliche Neubewertung im Rahmen des kontinuierlichen Verbesserungsprozesses einzuplanen.'
+      : `Es wird dringend empfohlen, die in Abschnitt 4 aufgeführten Sofortmaßnahmen (P0) mit klaren Verantwortlichkeiten und verbindlichen Fristen zu versehen. Bis zur vollständigen Schließung aller kritischen Abweichungen sollte ein wöchentliches Tracking-Verfahren etabliert werden.`
     : isCompliant
-    ? 'Recommendation: Document compliance evidence and schedule annual reassessment.'
-    : `Recommendation: Assign owners and deadlines to P0 measures from Section 4. Weekly tracking until all critical gaps are closed.`;
+    ? 'It is recommended to document the compliance evidence and schedule an annual reassessment as part of the continuous improvement process.'
+    : `It is strongly recommended that the immediate actions (P0) listed in Section 4 be assigned clear ownership and binding deadlines. A weekly tracking process should be established until all critical gaps have been fully remediated.`;
   pdf.bodyParagraph(actionText);
 
   /* 2. COMPLIANCE STATEMENT */
@@ -194,21 +194,21 @@ export async function generateIec62443Report(data: Iec62443ReportData): Promise<
 
   const complianceVerdict = lang === 'de'
     ? isCompliant
-      ? `Das Schiff/System ${intakeData.facilityName} ist konform mit den Anforderungen der IACS UR E27.`
+      ? `Auf Grundlage der durchgeführten Prüfung wird festgestellt, dass das Schiff bzw. System ${intakeData.facilityName} die Anforderungen der IACS UR E27 vollständig erfüllt.`
       : complianceRate >= 60
-      ? `Das Schiff/System ${intakeData.facilityName} ist bedingt konform mit IACS UR E27. Die Konformitätsrate beträgt ${complianceRate}%.`
-      : `Das Schiff/System ${intakeData.facilityName} ist nicht konform mit IACS UR E27. Die Konformitätsrate beträgt ${complianceRate}%. Eine umfassende Überarbeitung der CBS-Sicherheitsarchitektur ist erforderlich.`
+      ? `Das Schiff bzw. System ${intakeData.facilityName} erfüllt die Anforderungen der IACS UR E27 bedingt. Die gewichtete Konformitätsrate beträgt ${complianceRate} %. Einzelne Abweichungen sind innerhalb der im Maßnahmenplan definierten Fristen zu beheben.`
+      : `Das Schiff bzw. System ${intakeData.facilityName} erfüllt die Anforderungen der IACS UR E27 nicht. Die gewichtete Konformitätsrate von ${complianceRate} % liegt unterhalb des Schwellenwerts für eine bedingte Konformität. Eine umfassende Überarbeitung der CBS-Sicherheitsarchitektur ist vor dem nächsten Klasseerneuerungsbesuch zwingend erforderlich.`
     : isCompliant
-    ? `Vessel/System ${intakeData.facilityName} is compliant with IACS UR E27.`
+    ? `Based on the assessment conducted, it is determined that vessel/system ${intakeData.facilityName} fully meets the requirements of IACS UR E27.`
     : complianceRate >= 60
-    ? `Vessel/System ${intakeData.facilityName} is conditionally compliant with IACS UR E27. Compliance rate: ${complianceRate}%.`
-    : `Vessel/System ${intakeData.facilityName} is non-compliant with IACS UR E27. Compliance rate: ${complianceRate}%. Comprehensive CBS security architecture overhaul required.`;
+    ? `Vessel/system ${intakeData.facilityName} conditionally meets the requirements of IACS UR E27. The weighted compliance rate is ${complianceRate}%. Individual deviations must be resolved within the timeframes defined in the remediation plan.`
+    : `Vessel/system ${intakeData.facilityName} does not meet the requirements of IACS UR E27. The weighted compliance rate of ${complianceRate}% falls below the threshold for conditional compliance. A comprehensive overhaul of the CBS security architecture is required prior to the next class renewal survey.`;
 
   pdf.verdictBox(complianceVerdict);
 
   const methodNote = lang === 'de'
-    ? `Methodik: PASS = 100%, PARTIAL = 50%, FAIL = 0%. Die gewichtete Konformitätsrate von ${complianceRate}% ergibt sich aus ${passReqs.length} konformen, ${partialReqs.length} teilweise konformen und ${failReqs.length} nicht konformen Anforderungen von insgesamt ${reqs.length}.`
-    : `Methodology: PASS = 100%, PARTIAL = 50%, FAIL = 0%. The weighted compliance rate of ${complianceRate}% results from ${passReqs.length} compliant, ${partialReqs.length} partially compliant, and ${failReqs.length} non-compliant requirements out of ${reqs.length} total.`;
+    ? `Die Bewertungsmethodik gewichtet konforme Anforderungen mit 100 %, teilweise konforme mit 50 % und nicht konforme mit 0 %. Aus der Verteilung von ${passReqs.length} konformen, ${partialReqs.length} teilweise konformen und ${failReqs.length} nicht konformen Anforderungen bei insgesamt ${reqs.length} geprüften Anforderungen ergibt sich die gewichtete Konformitätsrate von ${complianceRate} %.`
+    : `The assessment methodology weights compliant requirements at 100%, partially compliant at 50%, and non-compliant at 0%. From the distribution of ${passReqs.length} compliant, ${partialReqs.length} partially compliant, and ${failReqs.length} non-compliant requirements out of ${reqs.length} assessed requirements, a weighted compliance rate of ${complianceRate}% is derived.`;
   pdf.bodyText(methodNote);
 
   /* 3. DETAILED FINDINGS */
@@ -219,8 +219,8 @@ export async function generateIec62443Report(data: Iec62443ReportData): Promise<
   pdf.addBookmark(t(I18N.sec3a, lang), 2);
 
   const introThreats = lang === 'de'
-    ? `Die Bedrohungsanalyse basiert auf den Anforderungskategorien der IACS UR E27 und bewertet jedes Szenario anhand von Eintrittswahrscheinlichkeit und Auswirkung auf die Schiffssicherheit. Kritische Risiken (Score >= 20) erfordern Sofortmaßnahmen.`
-    : `The threat analysis is based on the IACS UR E27 requirement categories and rates each scenario by likelihood and impact on vessel safety. Critical risks (score >= 20) require immediate action.`;
+    ? `Die nachfolgende Bedrohungsanalyse orientiert sich an den Anforderungskategorien der IACS UR E27. Jedes identifizierte Szenario wurde systematisch nach Eintrittswahrscheinlichkeit und potenzieller Auswirkung auf die Schiffssicherheit bewertet. Bedrohungen mit einem Risiko-Score von 20 oder höher werden als kritisch eingestuft und erfordern unverzügliche Gegenmaßnahmen.`
+    : `The following threat analysis is structured according to the requirement categories of IACS UR E27. Each identified scenario has been systematically assessed by likelihood and potential impact on vessel safety. Threats with a risk score of 20 or above are classified as critical and require immediate countermeasures.`;
   pdf.introText(introThreats);
 
   const sortedThreats = [...threats].sort((a, b) => (b.likelihood * b.impact) - (a.likelihood * a.impact));
@@ -264,8 +264,8 @@ export async function generateIec62443Report(data: Iec62443ReportData): Promise<
   pdf.addBookmark(t(I18N.sec3b, lang), 2);
 
   const introReqs = lang === 'de'
-    ? `Die folgende Übersicht zeigt die Bewertung jeder IACS UR E27 Anforderung. Abweichungen werden mit konkreten Maßnahmen und nachweisbaren Umsetzungskriterien versehen.`
-    : `The following overview shows the assessment of each IACS UR E27 requirement. Deviations are accompanied by concrete measures and verifiable acceptance criteria.`;
+    ? `Die nachfolgende Übersicht dokumentiert die Einzelbewertung jeder geprüften IACS-UR-E27-Anforderung. Für festgestellte Abweichungen werden konkrete Maßnahmen sowie nachweisbare Umsetzungskriterien (Definition of Done) angegeben, um eine strukturierte Nachverfolgung zu ermöglichen.`
+    : `The following overview documents the individual assessment of each audited IACS UR E27 requirement. For identified deviations, concrete measures and verifiable acceptance criteria (Definition of Done) are provided to enable structured follow-up.`;
   pdf.introText(introReqs);
 
   const frGroups = Object.keys(FR_CATEGORIES);
@@ -306,8 +306,8 @@ export async function generateIec62443Report(data: Iec62443ReportData): Promise<
   pdf.addBookmark(t(I18N.sec4, lang));
 
   const introRoadmap = lang === 'de'
-    ? 'Die Handlungsempfehlungen sind nach Dringlichkeit und Risikokritikalität priorisiert. P0-Maßnahmen sind Sofortmaßnahmen und müssen vor dem nächsten Klasseerneuerungsbesuch abgeschlossen sein.'
-    : 'Recommendations are prioritised by urgency and risk criticality. P0 measures are immediate actions and must be completed before the next class renewal survey.';
+    ? 'Die nachfolgenden Handlungsempfehlungen sind nach Dringlichkeit und Risikokritikalität priorisiert. Maßnahmen der Prioritätsstufe P0 sind als Sofortmaßnahmen einzustufen und müssen zwingend vor dem nächsten Klasseerneuerungsbesuch abgeschlossen werden. Die übrigen Maßnahmen sind gemäß der angegebenen Zeitrahmen umzusetzen.'
+    : 'The following recommendations are prioritised by urgency and risk criticality. Measures classified as P0 are to be treated as immediate actions and must be completed prior to the next class renewal survey. Remaining measures are to be implemented within the specified timeframes.';
   pdf.introText(introRoadmap);
 
   const prios = ['P0', 'P1', 'P2', 'P3'];
@@ -385,8 +385,8 @@ export async function generateIec62443Report(data: Iec62443ReportData): Promise<
   pdf.heading(t(I18N.sec6, lang));
   pdf.addBookmark(t(I18N.sec6, lang));
   const contextText = lang === 'de'
-    ? `Der vorliegende Bericht dokumentiert die Ergebnisse einer strukturierten Sicherheitsbewertung des Schiffs/Systems ${intakeData.facilityName} nach IACS UR E27. Die Prüfung wurde am ${dateStr} durchgeführt.\n\nZielsetzung war die systematische Identifikation von Bedrohungen für Computer Based Systems (CBS) an Bord sowie die Bewertung der Konformität mit den 41 Anforderungen aus IACS UR E27 (Table 1 + Table 2).\n\nDer Bericht richtet sich an Reeder, Schiffsführung, ETO/IT-Officer und Klassifikationsgesellschaften.`
-    : `This report documents the results of a structured security assessment of vessel/system ${intakeData.facilityName} pursuant to IACS UR E27. The assessment was conducted on ${dateStr}.\n\nThe objective was the systematic identification of threats to Computer Based Systems (CBS) on board and the evaluation of compliance with the 41 requirements from IACS UR E27 (Table 1 + Table 2).\n\nThe report is intended for ship owners, vessel management, ETO/IT officers, and classification societies.`;
+    ? `Der vorliegende Bericht dokumentiert die Ergebnisse einer strukturierten Sicherheitsbewertung des Schiffs bzw. Systems ${intakeData.facilityName} gemäß den Anforderungen der IACS UR E27 (Cyber Resilience of On-Board Systems and Equipment). Die Prüfung wurde am ${dateStr} durchgeführt.\n\nZielsetzung der Bewertung war die systematische Identifikation und Bewertung von Bedrohungen für die an Bord installierten rechnergestützten Systeme (Computer Based Systems, CBS) sowie die Feststellung des Konformitätsgrads gegenüber den 41 Anforderungen der IACS UR E27 (Tabelle 1 und Tabelle 2).\n\nDer Bericht richtet sich an Reeder, Schiffsführung, den Electro-Technical Officer (ETO) bzw. IT-Verantwortlichen an Bord sowie an die zuständige Klassifikationsgesellschaft.`
+    : `This report documents the results of a structured security assessment of vessel/system ${intakeData.facilityName} pursuant to the requirements of IACS UR E27 (Cyber Resilience of On-Board Systems and Equipment). The assessment was conducted on ${dateStr}.\n\nThe objective was the systematic identification and assessment of threats to Computer Based Systems (CBS) installed on board, as well as the determination of the degree of compliance with the 41 requirements set out in IACS UR E27 (Table 1 and Table 2).\n\nThis report is intended for ship owners, vessel management, the Electro-Technical Officer (ETO) or IT responsible on board, and the relevant classification society.`;
   pdf.bodyParagraph(contextText);
 
   /* 7. METHODOLOGY */
@@ -394,8 +394,8 @@ export async function generateIec62443Report(data: Iec62443ReportData): Promise<
   pdf.heading(t(I18N.sec7, lang));
   pdf.addBookmark(t(I18N.sec7, lang));
   const methodText = lang === 'de'
-    ? `Die Bewertung folgt einem 6-stufigen Audit-Prozess:\n\n1. Scope-Definition: Identifikation der zu prüfenden CBS an Bord gemäß IACS UR E26.\n2. Bedrohungsanalyse: Systematische Identifikation von Bedrohungsszenarien für maritime CBS.\n3. Risikobewertung: Bewertung jedes Szenarios anhand einer 5×5-Matrix.\n4. E27-Mapping: Abgleich mit den 41 Anforderungen aus IACS UR E27 Table 1 und Table 2.\n5. Maßnahmenableitung: Priorisierte Handlungsempfehlungen (P0-P3).\n6. Qualitätssicherung: Automatisierte Validierung der Berichtskonsistenz.`
-    : `The assessment follows a 6-step audit process:\n\n1. Scope Definition: Identification of CBS on board per IACS UR E26.\n2. Threat Analysis: Systematic identification of threat scenarios for maritime CBS.\n3. Risk Assessment: Rating using a 5×5 matrix.\n4. E27 Mapping: Alignment with 41 requirements from IACS UR E27 Table 1 and Table 2.\n5. Remediation Planning: Prioritised recommendations (P0-P3).\n6. Quality Assurance: Automated validation of report consistency.`;
+    ? `Die Bewertung folgt einem strukturierten, sechsstufigen Audit-Prozess:\n\n1. Scope-Definition: Identifikation der zu prüfenden rechnergestützten Bordsysteme (CBS) gemäß IACS UR E26. Der Prüfungsumfang wird gemeinsam mit dem Auftraggeber festgelegt.\n\n2. Bedrohungsanalyse: Systematische Identifikation und Dokumentation von Bedrohungsszenarien, die für die an Bord installierten CBS relevant sind.\n\n3. Risikobewertung: Bewertung jedes Bedrohungsszenarios anhand einer 5×5-Matrix nach Eintrittswahrscheinlichkeit und Auswirkungsschwere.\n\n4. E27-Mapping: Abgleich der identifizierten Bedrohungen mit den 41 Anforderungen der IACS UR E27 (Tabelle 1 und Tabelle 2) zur Feststellung des Konformitätsgrads.\n\n5. Maßnahmenableitung: Ableitung priorisierter Handlungsempfehlungen (P0 bis P3) mit konkreten Umsetzungskriterien und Aufwandsschätzungen.\n\n6. Qualitätssicherung: Automatisierte Validierung der Berichtskonsistenz, Evidenzqualität und fachlichen Korrektheit mittels regelbasierter Prüflogik.`
+    : `The assessment follows a structured, six-step audit process:\n\n1. Scope Definition: Identification of Computer Based Systems (CBS) on board to be assessed per IACS UR E26. The scope is jointly defined with the commissioning party.\n\n2. Threat Analysis: Systematic identification and documentation of threat scenarios relevant to the CBS installed on board.\n\n3. Risk Assessment: Evaluation of each threat scenario using a 5×5 matrix by likelihood and impact severity.\n\n4. E27 Mapping: Alignment of identified threats with the 41 requirements of IACS UR E27 (Table 1 and Table 2) to determine the degree of compliance.\n\n5. Remediation Planning: Derivation of prioritised recommendations (P0 through P3) with concrete acceptance criteria and effort estimates.\n\n6. Quality Assurance: Automated validation of report consistency, evidence quality, and technical correctness using rule-based verification logic.`;
   pdf.bodyParagraph(methodText);
 
   /* 8. DISCLAIMER */
@@ -403,8 +403,8 @@ export async function generateIec62443Report(data: Iec62443ReportData): Promise<
   pdf.heading(t(I18N.sec8, lang));
   pdf.addBookmark(t(I18N.sec8, lang));
   const disclaimer = lang === 'de'
-    ? `Dieser Bericht wurde auf Grundlage der zum Prüfzeitpunkt (${dateStr}) verfügbaren Informationen erstellt.\n\nDer Bericht stellt keine Klasse-Zertifizierung nach IACS UR E27 dar. Eine formale Zertifizierung erfordert die Beauftragung einer anerkannten Klassifikationsgesellschaft.\n\nDie Aufwandsschätzungen dienen als Orientierung und können je nach Schiffstyp, CBS-Ausstattung und Hersteller-Support variieren.`
-    : `This report was prepared based on information available at the time of assessment (${dateStr}).\n\nThis report does not constitute class certification under IACS UR E27. Formal certification requires engagement of a recognized classification society.\n\nEffort estimates serve as guidance and may vary depending on vessel type, CBS equipment, and vendor support.`;
+    ? `Der vorliegende Bericht wurde auf Grundlage der zum Prüfzeitpunkt (${dateStr}) verfügbaren Informationen und Dokumentationen erstellt. Eine Gewährleistung für Vollständigkeit und Richtigkeit der vom Auftraggeber bereitgestellten Daten kann nicht übernommen werden.\n\nDer Bericht stellt keine formale Klasse-Zertifizierung nach IACS UR E27 dar und ersetzt nicht die Prüfung durch eine anerkannte Klassifikationsgesellschaft. Für eine offizielle Zertifizierung ist die Beauftragung einer solchen zwingend erforderlich.\n\nDie im Bericht enthaltenen Aufwandsschätzungen dienen als Orientierungswerte und können je nach Schiffstyp, CBS-Ausstattung, Hersteller-Support und betrieblichen Rahmenbedingungen variieren.`
+    : `This report was prepared based on the information and documentation available at the time of the assessment (${dateStr}). No guarantee can be given for the completeness and accuracy of the data provided by the commissioning party.\n\nThis report does not constitute formal class certification under IACS UR E27 and does not replace assessment by a recognised classification society. Official certification requires the engagement of such a body.\n\nThe effort estimates contained in this report serve as indicative values and may vary depending on vessel type, CBS equipment, vendor support, and operational conditions.`;
   pdf.bodyParagraph(disclaimer);
 
   /* APPENDIX A */
