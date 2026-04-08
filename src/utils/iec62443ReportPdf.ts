@@ -194,15 +194,15 @@ export async function generateIec62443Report(data: Iec62443ReportData): Promise<
 
   const complianceVerdict = lang === 'de'
     ? isCompliant
-      ? `Das Schiff/System ${intakeData.facilityName} ist konform mit den Anforderungen der IACS UR E27.`
+      ? `Auf Grundlage der durchgeführten Prüfung wird festgestellt, dass das Schiff bzw. System ${intakeData.facilityName} die Anforderungen der IACS UR E27 vollständig erfüllt.`
       : complianceRate >= 60
-      ? `Das Schiff/System ${intakeData.facilityName} ist bedingt konform mit IACS UR E27. Die Konformitätsrate beträgt ${complianceRate}%.`
-      : `Das Schiff/System ${intakeData.facilityName} ist nicht konform mit IACS UR E27. Die Konformitätsrate beträgt ${complianceRate}%. Eine umfassende Überarbeitung der CBS-Sicherheitsarchitektur ist erforderlich.`
+      ? `Das Schiff bzw. System ${intakeData.facilityName} erfüllt die Anforderungen der IACS UR E27 bedingt. Die gewichtete Konformitätsrate beträgt ${complianceRate} %. Einzelne Abweichungen sind innerhalb der im Maßnahmenplan definierten Fristen zu beheben.`
+      : `Das Schiff bzw. System ${intakeData.facilityName} erfüllt die Anforderungen der IACS UR E27 nicht. Die gewichtete Konformitätsrate von ${complianceRate} % liegt unterhalb des Schwellenwerts für eine bedingte Konformität. Eine umfassende Überarbeitung der CBS-Sicherheitsarchitektur ist vor dem nächsten Klasseerneuerungsbesuch zwingend erforderlich.`
     : isCompliant
-    ? `Vessel/System ${intakeData.facilityName} is compliant with IACS UR E27.`
+    ? `Based on the assessment conducted, it is determined that vessel/system ${intakeData.facilityName} fully meets the requirements of IACS UR E27.`
     : complianceRate >= 60
-    ? `Vessel/System ${intakeData.facilityName} is conditionally compliant with IACS UR E27. Compliance rate: ${complianceRate}%.`
-    : `Vessel/System ${intakeData.facilityName} is non-compliant with IACS UR E27. Compliance rate: ${complianceRate}%. Comprehensive CBS security architecture overhaul required.`;
+    ? `Vessel/system ${intakeData.facilityName} conditionally meets the requirements of IACS UR E27. The weighted compliance rate is ${complianceRate}%. Individual deviations must be resolved within the timeframes defined in the remediation plan.`
+    : `Vessel/system ${intakeData.facilityName} does not meet the requirements of IACS UR E27. The weighted compliance rate of ${complianceRate}% falls below the threshold for conditional compliance. A comprehensive overhaul of the CBS security architecture is required prior to the next class renewal survey.`;
 
   pdf.verdictBox(complianceVerdict);
 
