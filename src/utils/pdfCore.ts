@@ -44,38 +44,40 @@ export function humanizeEvidence(raw: string, lang: string): string {
   if (!raw || !raw.trim()) return '';
   const trimmed = raw.trim();
 
-  // If it already reads like a proper flowing sentence (long, with connectors), return as-is
+  // If it already reads like a proper flowing sentence, return as-is
   if (trimmed.length > 80 && /[.!?]$/.test(trimmed) && (trimmed.includes(' und ') || trimmed.includes(' and ') || trimmed.includes(' et '))) return trimmed;
 
   // Split by period-separated fragments
   const fragments = trimmed.split(/\.\s*/).filter(f => f.trim().length > 3);
   if (fragments.length <= 1) {
-    // Single fragment — wrap in a proper sentence
     const frag = trimmed.replace(/\.$/, '');
-    if (lang === 'de') return `Im Rahmen der Prüfung wurde festgestellt, dass ${frag.charAt(0).toLowerCase() + frag.slice(1)}.`;
-    if (lang === 'fr') return `L'examen a permis de constater que ${frag.charAt(0).toLowerCase() + frag.slice(1)}.`;
-    return `The assessment identified that ${frag.charAt(0).toLowerCase() + frag.slice(1)}.`;
+    if (lang === 'de') return `Im Rahmen der Prüfung wurde Folgendes festgestellt: ${frag}.`;
+    if (lang === 'fr') return `L'examen a permis de constater ce qui suit\u00a0: ${frag}.`;
+    return `The assessment identified the following: ${frag}.`;
   }
 
-  // Multiple fragments — join into flowing prose with connectors
+  // Multiple fragments — join with proper connectors, keeping capitalisation intact
   const cleaned = fragments.map(f => f.trim().replace(/\.$/, ''));
   if (lang === 'de') {
-    const joined = cleaned.length === 2
-      ? `${cleaned[0].charAt(0).toLowerCase() + cleaned[0].slice(1)} und ${cleaned[1].charAt(0).toLowerCase() + cleaned[1].slice(1)}`
-      : cleaned.slice(0, -1).map((c, i) => (i === 0 ? c.charAt(0).toLowerCase() + c.slice(1) : c.charAt(0).toLowerCase() + c.slice(1))).join(', ') + ' und ' + cleaned[cleaned.length - 1].charAt(0).toLowerCase() + cleaned[cleaned.length - 1].slice(1);
-    return `Im Rahmen der Prüfung wurde festgestellt, dass ${joined}.`;
+    const last = cleaned.pop()!;
+    const joined = cleaned.length > 0
+      ? cleaned.join('. ') + '. Darüber hinaus ' + last.charAt(0).toLowerCase() + last.slice(1)
+      : last;
+    return `Im Rahmen der Prüfung wurde Folgendes festgestellt: ${joined}.`;
   }
   if (lang === 'fr') {
-    const joined = cleaned.length === 2
-      ? `${cleaned[0].charAt(0).toLowerCase() + cleaned[0].slice(1)} et ${cleaned[1].charAt(0).toLowerCase() + cleaned[1].slice(1)}`
-      : cleaned.slice(0, -1).map(c => c.charAt(0).toLowerCase() + c.slice(1)).join(', ') + ' et ' + cleaned[cleaned.length - 1].charAt(0).toLowerCase() + cleaned[cleaned.length - 1].slice(1);
-    return `L'examen a permis de constater que ${joined}.`;
+    const last = cleaned.pop()!;
+    const joined = cleaned.length > 0
+      ? cleaned.join('. ') + '. De plus, ' + last.charAt(0).toLowerCase() + last.slice(1)
+      : last;
+    return `L'examen a permis de constater ce qui suit\u00a0: ${joined}.`;
   }
   // English
-  const joined = cleaned.length === 2
-    ? `${cleaned[0].charAt(0).toLowerCase() + cleaned[0].slice(1)} and ${cleaned[1].charAt(0).toLowerCase() + cleaned[1].slice(1)}`
-    : cleaned.slice(0, -1).map(c => c.charAt(0).toLowerCase() + c.slice(1)).join(', ') + ', and ' + cleaned[cleaned.length - 1].charAt(0).toLowerCase() + cleaned[cleaned.length - 1].slice(1);
-  return `The assessment identified that ${joined}.`;
+  const last = cleaned.pop()!;
+  const joined = cleaned.length > 0
+    ? cleaned.join('. ') + '. Additionally, ' + last.charAt(0).toLowerCase() + last.slice(1)
+    : last;
+  return `The assessment identified the following: ${joined}.`;
 }
 
 /** Turn raw user-entered text (which may be staccato or bullet-like) into a readable paragraph. */
