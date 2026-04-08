@@ -787,93 +787,100 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IecIntakeData; 
   };
 
   return (
-    <StaggerReveal resetKey="rp" stagger={350}>
+    <StaggerReveal resetKey="rp" stagger={300}>
       <InfoBox icon="✅" title="Analyse abgeschlossen" color="green">Die IACS UR E27-Prüfung wurde durchgeführt. Starten Sie die Qualitätsprüfung, um den Bericht zu validieren.</InfoBox>
-      <div className="bg-card border-l-4 border-primary rounded-lg p-5 border border-border">
-        <div className="flex flex-col sm:flex-row items-start justify-between mb-3 gap-2">
-          <div>
-            <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">IACS UR E27 Prüfbericht</div>
-            <div className="text-lg font-bold text-foreground mt-0.5">{intakeData.facilityName}</div>
-          </div>
-          <div className="sm:text-right text-xs text-muted-foreground">
-            <div>{today}</div>
-            <div className="mt-0.5">{slName}</div>
-          </div>
-        </div>
-        <div className="h-px bg-border mb-3" />
-        <p className="text-sm text-foreground leading-relaxed">
-          Für das Schiff/System <strong>{intakeData.facilityName}</strong> wurden <strong>{localThreats.length} Bedrohungen</strong> identifiziert, davon <strong className="text-destructive">{critRisks.length} kritisch</strong>. Von {localReqs.length} geprüften Anforderungen sind <strong className="text-destructive">{failReqs.length} nicht konform</strong>.
-        </p>
-      </div>
 
-      {/* Charts */}
-      <div className="bg-card border border-border rounded-lg p-4">
-        <div className="text-sm font-bold text-foreground mb-3">📊 Auswertungsübersicht</div>
-        <Iec62443AuditCharts threats={localThreats} reqs={localReqs} />
-      </div>
-
-      {/* Critical risks */}
-      {critRisks.length > 0 && (
-        <div className="bg-card border-2 border-destructive/30 rounded-lg overflow-hidden">
-          <div className="px-4 py-3 bg-destructive/10 border-b border-destructive/20">
-            <span className="text-sm font-bold text-destructive">Kritische Risiken — {critRisks.length}</span>
-          </div>
-          <div className="px-4 py-3 text-sm space-y-2">
-            {critRisks.map(th => (
-              <div key={th.id} className="flex items-start gap-3">
-                <span className="font-mono text-xs text-destructive font-bold bg-destructive/10 px-1.5 py-0.5 rounded flex-shrink-0">{threatId(th)}</span>
-                <div className="flex-1">
-                  <span className="font-semibold text-foreground">{th.name}</span>
-                  <span className="text-muted-foreground"> — {th.component}</span>
-                  <div className="text-xs text-muted-foreground mt-0.5">Score: <span className="font-mono font-bold text-destructive">{th.likelihood}×{th.impact}={th.likelihood * th.impact}</span></div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Fail reqs */}
-      <div className="bg-card border border-border rounded-lg overflow-hidden">
-        <div className="px-4 py-3 bg-destructive/10 border-b border-destructive/20">
-          <span className="text-sm font-bold text-destructive">Nicht konforme Anforderungen — {failReqs.length}</span>
-        </div>
-        {failReqs.map((r, i) => (
-          <div key={r.id} className={`px-4 py-3 text-sm ${i % 2 === 0 ? 'bg-card' : 'bg-secondary/30'} ${i < failReqs.length - 1 ? 'border-b border-border' : ''}`}>
-            <div className="flex gap-3">
-              <span className="font-bold text-destructive w-5 flex-shrink-0 font-mono">{i + 1}.</span>
-              <div className="flex-1 space-y-2">
-                <div><div className="font-semibold text-foreground">{r.name}</div><div className="text-muted-foreground/60 text-xs">{r.article}</div></div>
-                <div className="text-xs"><span className="font-semibold text-muted-foreground">Evidenz: </span>{r.evidence}</div>
-                <div className="text-xs"><span className="font-semibold text-primary">Maßnahme: </span>{r.measure}</div>
-                <CriteriaBlock criteria={r.criteria} />
-              </div>
+      {/* Report Header */}
+      <div className="bg-card border border-border rounded-xl overflow-hidden">
+        <div className="border-l-4 border-primary p-6">
+          <div className="flex flex-col sm:flex-row items-start justify-between gap-3">
+            <div>
+              <div className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest mb-1">IACS UR E27 Prüfbericht</div>
+              <div className="text-xl font-bold text-foreground">{intakeData.facilityName}</div>
+            </div>
+            <div className="sm:text-right text-xs text-muted-foreground space-y-0.5">
+              <div className="font-mono">{today}</div>
+              <div className="font-medium">{slName}</div>
             </div>
           </div>
-        ))}
+          <div className="h-px bg-border my-4" />
+          <p className="text-sm text-foreground leading-relaxed">
+            Für das Schiff/System <strong>{intakeData.facilityName}</strong> wurden <strong>{localThreats.length} Bedrohungen</strong> identifiziert, davon <strong className="text-destructive">{critRisks.length} kritisch</strong>. Von {localReqs.length} geprüften Anforderungen sind <strong className="text-destructive">{failReqs.length} nicht konform</strong>.
+          </p>
+        </div>
       </div>
 
       {/* KPIs */}
       <div className="grid grid-cols-3 gap-3">
-        {([['Threats gesamt', localThreats.length, 'text-foreground'], ['Kritische Risiken', critRisks.length, 'text-destructive'], ['Nicht konform', failReqs.length, 'text-destructive']] as [string, number, string][]).map(([l, n, c]) => (
-          <div key={l} className="bg-card border border-border rounded-lg p-4 text-center">
-            <div className={`text-3xl font-bold font-mono ${c}`}>{n}</div>
-            <div className="text-xs text-muted-foreground mt-1">{l}</div>
-          </div>
-        ))}
+        <KpiCard label="Bedrohungen" value={localThreats.length} />
+        <KpiCard label="Kritische Risiken" value={critRisks.length} accent="danger" />
+        <KpiCard label="Nicht konform" value={failReqs.length} accent="danger" />
       </div>
+
+      {/* Charts */}
+      <SectionCard title="Auswertungsübersicht" icon="📊">
+        <Iec62443AuditCharts threats={localThreats} reqs={localReqs} />
+      </SectionCard>
+
+      {/* Critical risks */}
+      {critRisks.length > 0 && (
+        <SectionCard title={`Kritische Risiken (${critRisks.length})`} icon="🔴" className="border-destructive/30">
+          <div className="space-y-3">
+            {critRisks.map(th => (
+              <div key={th.id} className="flex items-start gap-3 bg-destructive/5 border border-destructive/15 rounded-lg p-3">
+                <span className="font-mono text-xs text-destructive font-bold bg-destructive/10 px-2 py-1 rounded-md flex-shrink-0">{threatId(th)}</span>
+                <div className="flex-1 min-w-0">
+                  <div className="font-semibold text-foreground text-sm">{th.name}</div>
+                  <div className="text-xs text-muted-foreground mt-0.5">{th.component}</div>
+                  <div className="text-xs text-muted-foreground mt-1">
+                    Score: <span className="font-mono font-bold text-destructive">{th.likelihood} × {th.impact} = {th.likelihood * th.impact}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </SectionCard>
+      )}
+
+      {/* Fail reqs */}
+      {failReqs.length > 0 && (
+        <SectionCard title={`Nicht konforme Anforderungen (${failReqs.length})`} icon="⚠️" className="border-destructive/20">
+          <div className="space-y-3">
+            {failReqs.map((r, i) => (
+              <div key={r.id} className="border border-border rounded-lg p-4 space-y-2">
+                <div className="flex items-start gap-3">
+                  <span className="font-bold text-destructive font-mono text-sm bg-destructive/10 w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0">{i + 1}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-semibold text-foreground text-sm">{r.name}</div>
+                    <div className="text-xs text-muted-foreground mt-0.5">{r.article}</div>
+                  </div>
+                </div>
+                <div className="ml-10 space-y-2 text-sm">
+                  <div className="text-xs"><span className="font-semibold text-muted-foreground">Evidenz: </span><span className="text-foreground">{r.evidence}</span></div>
+                  {r.measure && (
+                    <div className="bg-primary/5 border border-primary/15 rounded-lg px-3 py-2 text-xs">
+                      <span className="font-semibold text-primary">Maßnahme: </span><span className="text-foreground">{r.measure}</span>
+                    </div>
+                  )}
+                  <CriteriaBlock criteria={r.criteria} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </SectionCard>
+      )}
 
       {/* QA Result */}
       {qaResult && qaExpanded && (
-        <div className={`bg-card border-2 rounded-lg overflow-hidden ${qaVerdict === 'passed' ? 'border-green-500/40' : qaVerdict === 'conditional' ? 'border-yellow-500/40' : 'border-destructive/40'}`}>
-          <div className={`px-4 py-3 border-b flex items-center justify-between ${qaVerdict === 'passed' ? 'bg-green-500/10 border-green-500/20' : qaVerdict === 'conditional' ? 'bg-yellow-500/10 border-yellow-500/20' : 'bg-destructive/10 border-destructive/20'}`}>
+        <div className={`bg-card border-2 rounded-xl overflow-hidden ${qaVerdict === 'passed' ? 'border-green-500/40' : qaVerdict === 'conditional' ? 'border-yellow-500/40' : 'border-destructive/40'}`}>
+          <div className={`px-5 py-3.5 border-b flex items-center justify-between ${qaVerdict === 'passed' ? 'bg-green-500/10 border-green-500/20' : qaVerdict === 'conditional' ? 'bg-yellow-500/10 border-yellow-500/20' : 'bg-destructive/10 border-destructive/20'}`}>
             <div className="flex items-center gap-2">
               {qaVerdict === 'passed' ? <CheckCircle2 className="w-5 h-5 text-green-500" /> : qaVerdict === 'conditional' ? <AlertTriangle className="w-5 h-5 text-yellow-500" /> : <XCircle className="w-5 h-5 text-destructive" />}
               <span className={`text-sm font-bold ${qaVerdict === 'passed' ? 'text-green-500' : qaVerdict === 'conditional' ? 'text-yellow-500' : 'text-destructive'}`}>{qaResult.verdictLabel}</span>
             </div>
             <span className="text-xs font-mono text-muted-foreground">{qaResult.passed}/{qaResult.total}</span>
           </div>
-          <div className="px-4 py-3 space-y-4 text-sm">
+          <div className="px-5 py-4 space-y-4 text-sm">
             <div className="bg-secondary rounded-full h-2.5 overflow-hidden">
               <div className={`h-full rounded-full transition-all ${qaVerdict === 'passed' ? 'bg-green-500' : qaVerdict === 'conditional' ? 'bg-yellow-500' : 'bg-destructive'}`} style={{ width: `${Math.round((qaResult.passed / qaResult.total) * 100)}%` }} />
             </div>
@@ -881,8 +888,8 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IecIntakeData; 
               const catChecks = qaResult.checks.filter(c => c.category === cat);
               if (catChecks.length === 0) return null;
               return (
-                <div key={cat}>
-                  <div className="flex items-center justify-between mb-1.5">
+                <div key={cat} className="bg-secondary/30 rounded-lg p-3">
+                  <div className="flex items-center justify-between mb-2">
                     <span className="font-semibold text-foreground text-xs">{CATEGORY_LABELS[cat]}</span>
                     <span className="text-xs font-mono text-muted-foreground">{catChecks.filter(c => c.passed).length}/{catChecks.length}</span>
                   </div>
@@ -907,7 +914,7 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IecIntakeData; 
                   <span className="font-semibold text-primary text-xs">Automatisch umgesetzte Korrekturen</span>
                   <span className="text-xs font-mono text-muted-foreground ml-auto">{allFixLogs.length} fixes</span>
                 </div>
-                <ul className="space-y-0.5 text-xs text-foreground">
+                <ul className="space-y-1 text-xs text-foreground">
                   {allFixLogs.map((f, i) => (
                     <li key={i} className="flex gap-1.5 items-start">
                       <CheckCircle2 className="w-3 h-3 text-primary flex-shrink-0 mt-0.5" />
@@ -922,38 +929,40 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IecIntakeData; 
       )}
 
       {/* Export Bar */}
-      <div className="bg-secondary border border-border rounded-lg p-4">
-        <div className="text-sm text-foreground mb-3">
-          <div className="font-semibold mb-0.5">Bericht exportieren</div>
-          <div className="text-xs text-muted-foreground">
-            {qaResult ? 'Qualitätsprüfung abgeschlossen — PDF-Export bereit' : 'Starten Sie die Qualitätsprüfung, um den Bericht zu validieren'}
+      <div className="bg-card border border-border rounded-xl p-5">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <div className="text-sm font-bold text-foreground">Bericht exportieren</div>
+            <div className="text-xs text-muted-foreground mt-0.5">
+              {qaResult ? 'Qualitätsprüfung abgeschlossen — PDF-Export bereit' : 'Starten Sie die Qualitätsprüfung, um den Bericht zu validieren'}
+            </div>
           </div>
-        </div>
-        <div className="flex gap-3 flex-wrap items-center">
-          <Button onClick={handleQaAndFix} disabled={qaRunning} variant={qaResult ? 'outline' : 'default'} className="font-semibold">
-            {qaRunning ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <ShieldCheck className="w-4 h-4 mr-2" />}
-            {qaRunning ? 'Prüfung läuft…' : 'Dokument prüfen'}
-          </Button>
-          {qaResult && (
-            <Button
-              onClick={() => {
-                generateIec62443Report({
-                  intakeData,
-                  threats: localThreats,
-                  reqs: localReqs,
-                  language: language as 'de' | 'en' | 'fr',
-                  isDraft: qaVerdict !== 'passed',
-                  qaChecks: qaResult.checks,
-                  fixLog: allFixLogs,
-                  qaIterations: 1,
-                });
-              }}
-              className="font-semibold"
-            >
-              <FileText className="w-4 h-4 mr-2" />
-              PDF Final
+          <div className="flex gap-3 flex-wrap items-center">
+            <Button onClick={handleQaAndFix} disabled={qaRunning} variant={qaResult ? 'outline' : 'default'} className="font-semibold">
+              {qaRunning ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <ShieldCheck className="w-4 h-4 mr-2" />}
+              {qaRunning ? 'Prüfung läuft…' : 'Dokument prüfen'}
             </Button>
-          )}
+            {qaResult && (
+              <Button
+                onClick={() => {
+                  generateIec62443Report({
+                    intakeData,
+                    threats: localThreats,
+                    reqs: localReqs,
+                    language: language as 'de' | 'en' | 'fr',
+                    isDraft: qaVerdict !== 'passed',
+                    qaChecks: qaResult.checks,
+                    fixLog: allFixLogs,
+                    qaIterations: 1,
+                  });
+                }}
+                className="font-semibold"
+              >
+                <FileText className="w-4 h-4 mr-2" />
+                PDF Final
+              </Button>
+            )}
+          </div>
         </div>
       </div>
     </StaggerReveal>
