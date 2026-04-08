@@ -180,11 +180,11 @@ export async function generateIec62443Report(data: Iec62443ReportData): Promise<
 
   const actionText = lang === 'de'
     ? isCompliant
-      ? 'Empfehlung: Konformitätsnachweis dokumentieren und jährliche Neubewertung planen.'
-      : `Empfehlung: Sofortmaßnahmen (P0) aus Abschnitt 4 mit Verantwortlichkeiten und Fristen versehen. Wöchentliches Tracking bis zur Schließung aller kritischen Gaps.`
+      ? 'Es wird empfohlen, den Konformitätsnachweis zu dokumentieren und eine jährliche Neubewertung im Rahmen des kontinuierlichen Verbesserungsprozesses einzuplanen.'
+      : `Es wird dringend empfohlen, die in Abschnitt 4 aufgeführten Sofortmaßnahmen (P0) mit klaren Verantwortlichkeiten und verbindlichen Fristen zu versehen. Bis zur vollständigen Schließung aller kritischen Abweichungen sollte ein wöchentliches Tracking-Verfahren etabliert werden.`
     : isCompliant
-    ? 'Recommendation: Document compliance evidence and schedule annual reassessment.'
-    : `Recommendation: Assign owners and deadlines to P0 measures from Section 4. Weekly tracking until all critical gaps are closed.`;
+    ? 'It is recommended to document the compliance evidence and schedule an annual reassessment as part of the continuous improvement process.'
+    : `It is strongly recommended that the immediate actions (P0) listed in Section 4 be assigned clear ownership and binding deadlines. A weekly tracking process should be established until all critical gaps have been fully remediated.`;
   pdf.bodyParagraph(actionText);
 
   /* 2. COMPLIANCE STATEMENT */
