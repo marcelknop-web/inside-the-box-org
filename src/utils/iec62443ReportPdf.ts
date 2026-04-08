@@ -207,8 +207,8 @@ export async function generateIec62443Report(data: Iec62443ReportData): Promise<
   pdf.verdictBox(complianceVerdict);
 
   const methodNote = lang === 'de'
-    ? `Methodik: PASS = 100%, PARTIAL = 50%, FAIL = 0%. Die gewichtete Konformitätsrate von ${complianceRate}% ergibt sich aus ${passReqs.length} konformen, ${partialReqs.length} teilweise konformen und ${failReqs.length} nicht konformen Anforderungen von insgesamt ${reqs.length}.`
-    : `Methodology: PASS = 100%, PARTIAL = 50%, FAIL = 0%. The weighted compliance rate of ${complianceRate}% results from ${passReqs.length} compliant, ${partialReqs.length} partially compliant, and ${failReqs.length} non-compliant requirements out of ${reqs.length} total.`;
+    ? `Die Bewertungsmethodik gewichtet konforme Anforderungen mit 100 %, teilweise konforme mit 50 % und nicht konforme mit 0 %. Aus der Verteilung von ${passReqs.length} konformen, ${partialReqs.length} teilweise konformen und ${failReqs.length} nicht konformen Anforderungen bei insgesamt ${reqs.length} geprüften Anforderungen ergibt sich die gewichtete Konformitätsrate von ${complianceRate} %.`
+    : `The assessment methodology weights compliant requirements at 100%, partially compliant at 50%, and non-compliant at 0%. From the distribution of ${passReqs.length} compliant, ${partialReqs.length} partially compliant, and ${failReqs.length} non-compliant requirements out of ${reqs.length} assessed requirements, a weighted compliance rate of ${complianceRate}% is derived.`;
   pdf.bodyText(methodNote);
 
   /* 3. DETAILED FINDINGS */
