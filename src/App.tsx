@@ -10,6 +10,7 @@ import NotFound from "./pages/NotFound";
 import { lazy, Suspense } from "react";
 
 const Nis2ComplianceTool = lazy(() => import("./pages/Nis2ComplianceTool"));
+const Iec62443ComplianceTool = lazy(() => import("./pages/Iec62443ComplianceTool"));
 
 const queryClient = new QueryClient();
 
