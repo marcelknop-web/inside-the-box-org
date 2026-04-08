@@ -578,12 +578,10 @@ function RiskAssessment({ threats, onNext }: { threats: IecThreat[]; onNext: () 
     <StaggerReveal resetKey="ra" stagger={350}>
       <InfoBox icon="⚖️" title="Risikomatrix (5×5)" color="blue">Die Risikobewertung ordnet jede Bedrohung nach Eintrittswahrscheinlichkeit und Auswirkung auf Schiffssicherheit ein.</InfoBox>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        {([['Kritisch', 'bg-destructive', cnt.critical], ['Hoch', 'bg-orange-500', cnt.high], ['Mittel', 'bg-yellow-500', cnt.medium], ['Niedrig', 'bg-green-500', cnt.low]] as [string, string, number][]).map(([l, c, n]) => (
-          <div key={l} className="bg-card border border-border rounded-lg p-4 text-center">
-            <div className={`text-2xl font-bold font-mono ${c} text-white rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-2`}>{n}</div>
-            <div className="text-sm font-semibold text-muted-foreground">{l}</div>
-          </div>
-        ))}
+        <KpiCard label="Kritisch" value={cnt.critical} accent="danger" />
+        <KpiCard label="Hoch" value={cnt.high} accent="warning" />
+        <KpiCard label="Mittel" value={cnt.medium} />
+        <KpiCard label="Niedrig" value={cnt.low} accent="success" />
       </div>
       <SectionCard title="Risikomatrix (Likelihood × Impact)" icon="📊">
         <div className="overflow-x-auto">
