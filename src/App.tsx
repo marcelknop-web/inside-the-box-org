@@ -25,6 +25,7 @@ const App = () => (
             <Routes>
               <Route path="/" element={<ChatView />} />
               <Route path="/nis2-compliance" element={<Suspense fallback={null}><Nis2ComplianceTool /></Suspense>} />
+              <Route path="/iec62443" element={<Suspense fallback={null}><Iec62443ComplianceTool /></Suspense>} />
               <Route path="/:serviceId" element={<ChatView />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
