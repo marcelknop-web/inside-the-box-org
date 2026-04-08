@@ -585,25 +585,24 @@ function RiskAssessment({ threats, onNext }: { threats: IecThreat[]; onNext: () 
           </div>
         ))}
       </div>
-      <div className="bg-card border border-border rounded-lg p-4">
-        <div className="text-sm font-semibold text-foreground mb-3">Risikomatrix</div>
+      <SectionCard title="Risikomatrix (Likelihood × Impact)" icon="📊">
         <div className="overflow-x-auto">
-          <table className="text-xs border-collapse">
+          <table className="text-xs border-collapse mx-auto">
             <thead><tr>
-              <th className="w-20 text-right pr-3 text-muted-foreground font-normal pb-1">Impact ↑</th>
-              {[1,2,3,4,5].map(i => <th key={i} className="w-12 text-center text-muted-foreground font-semibold pb-1 font-mono">{i}</th>)}
-              <th className="pl-2 text-muted-foreground font-normal">← Likelihood</th>
+              <th className="w-20 text-right pr-3 text-muted-foreground font-normal pb-2">Impact ↑</th>
+              {[1,2,3,4,5].map(i => <th key={i} className="w-14 text-center text-muted-foreground font-semibold pb-2 font-mono">{i}</th>)}
+              <th className="pl-3 text-muted-foreground font-normal pb-2">Likelihood →</th>
             </tr></thead>
             <tbody>
               {[5,4,3,2,1].map(imp => (
                 <tr key={imp}>
-                  <td className="text-right pr-3 text-muted-foreground font-semibold py-0.5 font-mono">{imp}</td>
+                  <td className="text-right pr-3 text-muted-foreground font-semibold py-1 font-mono">{imp}</td>
                   {[1,2,3,4,5].map(lik => {
                     const score = lik * imp;
                     const pts = threats.filter(th => th.likelihood === lik && th.impact === imp);
                     return (
-                      <td key={lik} className={`w-12 h-10 ${matrixColor(score)} text-center align-middle border border-background`} title={pts.map(p => p.name).join('\n')}>
-                        {pts.length > 0 && <div className="w-6 h-6 bg-background/90 rounded-full text-foreground font-bold text-xs font-mono flex items-center justify-center mx-auto shadow cursor-help">{pts.length}</div>}
+                      <td key={lik} className={`w-14 h-11 ${matrixColor(score)} text-center align-middle border-2 border-background rounded-md`} title={pts.map(p => p.name).join('\n')}>
+                        {pts.length > 0 && <div className="w-7 h-7 bg-background/90 rounded-full text-foreground font-bold text-xs font-mono flex items-center justify-center mx-auto shadow-sm cursor-help">{pts.length}</div>}
                       </td>
                     );
                   })}
@@ -612,32 +611,41 @@ function RiskAssessment({ threats, onNext }: { threats: IecThreat[]; onNext: () 
             </tbody>
           </table>
         </div>
-      </div>
-      <div className="bg-card border border-border rounded-lg overflow-hidden">
-        <div className="px-4 py-3 bg-secondary border-b border-border text-sm font-semibold text-foreground">Alle Risiken</div>
-        <div className="overflow-x-auto">
+      </SectionCard>
+
+      <SectionCard title={`Alle Risiken (${sorted.length})`} icon="📋">
+        <div className="overflow-x-auto -mx-5">
           <table className="w-full text-sm">
-            <thead className="bg-secondary text-xs text-muted-foreground"><tr>
-              <th className="px-4 py-2 text-left">Bedrohung</th>
-              <th className="px-3 py-2 text-center w-10">L</th><th className="px-3 py-2 text-center w-10">I</th><th className="px-3 py-2 text-center w-14">Score</th><th className="px-4 py-2 text-center w-24">Priorität</th>
+            <thead className="bg-secondary/60 text-xs text-muted-foreground"><tr>
+              <th className="px-5 py-2.5 text-left font-semibold">Bedrohung</th>
+              <th className="px-3 py-2.5 text-center w-12 font-semibold">L</th>
+              <th className="px-3 py-2.5 text-center w-12 font-semibold">I</th>
+              <th className="px-3 py-2.5 text-center w-16 font-semibold">Score</th>
+              <th className="px-5 py-2.5 text-center w-28 font-semibold">Priorität</th>
             </tr></thead>
             <tbody>
               {sorted.map((th, idx) => {
                 const risk = riskLevel(th.likelihood, th.impact);
                 return (
-                  <tr key={th.id} className={idx % 2 === 0 ? 'bg-card' : 'bg-secondary/30'}>
-                    <td className="px-4 py-2.5"><div className="font-medium text-foreground"><span className="font-mono text-xs text-muted-foreground mr-1.5">{threatId(th)}</span>{th.name}</div><div className="text-xs text-muted-foreground">{th.component}</div></td>
-                    <td className="px-3 py-2.5 text-center font-semibold text-foreground font-mono">{th.likelihood}</td>
-                    <td className="px-3 py-2.5 text-center font-semibold text-foreground font-mono">{th.impact}</td>
-                    <td className="px-3 py-2.5 text-center font-bold text-foreground font-mono">{th.likelihood * th.impact}</td>
-                    <td className="px-4 py-2.5 text-center"><span className={`px-2 py-0.5 rounded text-xs font-bold ${risk.cls}`}>{risk.label}</span></td>
+                  <tr key={th.id} className={`border-b border-border/50 last:border-0 ${idx % 2 === 0 ? '' : 'bg-secondary/20'}`}>
+                    <td className="px-5 py-3">
+                      <div className="font-medium text-foreground">
+                        <span className="font-mono text-xs text-muted-foreground mr-2">{threatId(th)}</span>{th.name}
+                      </div>
+                      <div className="text-xs text-muted-foreground mt-0.5">{th.component}</div>
+                    </td>
+                    <td className="px-3 py-3 text-center font-semibold text-foreground font-mono">{th.likelihood}</td>
+                    <td className="px-3 py-3 text-center font-semibold text-foreground font-mono">{th.impact}</td>
+                    <td className="px-3 py-3 text-center font-bold text-foreground font-mono">{th.likelihood * th.impact}</td>
+                    <td className="px-5 py-3 text-center"><span className={`px-2.5 py-1 rounded-md text-xs font-bold ${risk.cls}`}>{risk.label}</span></td>
                   </tr>
                 );
               })}
             </tbody>
           </table>
         </div>
-      </div>
+      </SectionCard>
+
       <div className="flex justify-end pt-2">
         <Button onClick={onNext} className="font-semibold">Zur E27-Zuordnung</Button>
       </div>
