@@ -1,5 +1,5 @@
 /**
- * IEC 62443 Audit Charts — Visual representation of key audit findings
+ * IACS UR E27 Audit Charts — Visual representation of key audit findings
  */
 import { useMemo } from 'react';
 import {
@@ -16,7 +16,7 @@ const STATUS_COLORS = { pass: '#22c55e', partial: '#eab308', fail: '#dc2626' };
 export function Iec62443AuditCharts({ threats, reqs }: { threats: IecThreat[]; reqs: IecReq[] }) {
   const { language } = useLanguage();
 
-  // FR Radar
+  // Category Radar
   const frData = useMemo(() => {
     const counts: Record<string, number> = {};
     Object.keys(FR_CATEGORIES).forEach(k => counts[k] = 0);
@@ -34,9 +34,9 @@ export function Iec62443AuditCharts({ threats, reqs }: { threats: IecThreat[]; r
     const pa = reqs.filter(r => r.status === 'partial').length;
     const f = reqs.filter(r => r.status === 'fail').length;
     return [
-      { name: language === 'de' ? 'Konform' : 'Pass', value: p, color: STATUS_COLORS.pass },
-      { name: language === 'de' ? 'Teilweise' : 'Partial', value: pa, color: STATUS_COLORS.partial },
-      { name: language === 'de' ? 'Nicht konform' : 'Fail', value: f, color: STATUS_COLORS.fail },
+      { name: language === 'de' ? 'Konform' : language === 'fr' ? 'Conforme' : 'Pass', value: p, color: STATUS_COLORS.pass },
+      { name: language === 'de' ? 'Teilweise' : language === 'fr' ? 'Partiel' : 'Partial', value: pa, color: STATUS_COLORS.partial },
+      { name: language === 'de' ? 'Nicht konform' : language === 'fr' ? 'Non conforme' : 'Fail', value: f, color: STATUS_COLORS.fail },
     ];
   }, [reqs, language]);
 
@@ -66,9 +66,9 @@ export function Iec62443AuditCharts({ threats, reqs }: { threats: IecThreat[]; r
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* FR Radar */}
+        {/* Category Radar */}
         <div className="bg-card border border-border rounded-lg p-4">
-          <h4 className="text-sm font-bold text-foreground mb-3">{language === 'de' ? 'Foundational Requirements Verteilung' : 'Foundational Requirements Distribution'}</h4>
+          <h4 className="text-sm font-bold text-foreground mb-3">{language === 'de' ? 'E27 Anforderungskategorien' : language === 'fr' ? 'Catégories E27' : 'E27 Requirement Categories'}</h4>
           <ResponsiveContainer width="100%" height={220}>
             <RadarChart data={frData}>
               <PolarGrid stroke="hsl(var(--border))" />
@@ -81,7 +81,7 @@ export function Iec62443AuditCharts({ threats, reqs }: { threats: IecThreat[]; r
 
         {/* Compliance Donut */}
         <div className="bg-card border border-border rounded-lg p-4">
-          <h4 className="text-sm font-bold text-foreground mb-3">IEC 62443 Compliance</h4>
+          <h4 className="text-sm font-bold text-foreground mb-3">IACS UR E27 Compliance</h4>
           <ResponsiveContainer width="100%" height={220}>
             <PieChart>
               <Pie data={complianceData} dataKey="value" cx="50%" cy="50%" innerRadius={55} outerRadius={80} paddingAngle={3} strokeWidth={0}>
@@ -117,7 +117,7 @@ export function Iec62443AuditCharts({ threats, reqs }: { threats: IecThreat[]; r
 
         {/* Evidence Quality */}
         <div className="bg-card border border-border rounded-lg p-4">
-          <h4 className="text-sm font-bold text-foreground mb-3">{language === 'de' ? 'Evidenzqualität' : 'Evidence Quality'}</h4>
+          <h4 className="text-sm font-bold text-foreground mb-3">{language === 'de' ? 'Evidenzqualität' : language === 'fr' ? 'Qualité des preuves' : 'Evidence Quality'}</h4>
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={evidenceData} margin={{ left: -10, right: 10 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />

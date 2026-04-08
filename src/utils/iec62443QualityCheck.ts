@@ -1,6 +1,6 @@
 /**
- * IEC 62443 Report Quality Check — Automated Audit Validation
- * Based on IEC 62443 Foundational Requirements (FR1-FR7)
+ * IACS UR E27 Report Quality Check — Automated Audit Validation
+ * Based on IACS UR E27 requirement categories
  */
 import type { IecThreat, IecReq, IecIntakeData } from '@/data/iec62443Data';
 import { threatId } from '@/data/iec62443Data';
@@ -43,8 +43,8 @@ export function runQualityCheck(
 
   checks.push({
     id: 'A1-1', category: 'consistency',
-    label: t('Threat-Anzahl konsistent', 'Threat count consistent', 'Nombre de menaces coherent'),
-    detail: `${threats.length} ${t('Threats identifiziert', 'threats identified', 'menaces identifiees')}`,
+    label: t('Threat-Anzahl konsistent', 'Threat count consistent', 'Nombre de menaces cohérent'),
+    detail: `${threats.length} ${t('Threats identifiziert', 'threats identified', 'menaces identifiées')}`,
     passed: threats.length > 0, severity: 'critical',
   });
 
@@ -55,12 +55,12 @@ export function runQualityCheck(
     passed: passReqs + partialReqs + failReqs === reqs.length, severity: 'critical',
   });
 
-  // A2: Traceability — threats linked to SR
+  // A2: Traceability — threats linked to E27 requirement
   const threatsWithoutRef = threats.filter(th => !th.iecRef || th.iecRef.trim() === '');
   checks.push({
     id: 'A2-1', category: 'consistency',
-    label: t('Jeder Threat mit IEC 62443 SR verknuepft', 'Every threat linked to IEC 62443 SR', 'Chaque menace liee a un SR IEC 62443'),
-    detail: threatsWithoutRef.length > 0 ? `${threatsWithoutRef.length} ${t('ohne Verknuepfung', 'unlinked', 'non liees')}` : t('Alle verknuepft', 'All linked', 'Toutes liees'),
+    label: t('Jeder Threat mit E27-Anforderung verknüpft', 'Every threat linked to E27 requirement', 'Chaque menace liée à une exigence E27'),
+    detail: threatsWithoutRef.length > 0 ? `${threatsWithoutRef.length} ${t('ohne Verknüpfung', 'unlinked', 'non liées')}` : t('Alle verknüpft', 'All linked', 'Toutes liées'),
     passed: threatsWithoutRef.length === 0, severity: 'major',
   });
 
@@ -70,10 +70,10 @@ export function runQualityCheck(
   );
   checks.push({
     id: 'A2-2', category: 'consistency',
-    label: t('Bidirektionale Traceability', 'Bidirectional traceability', 'Tracabilite bidirectionnelle'),
+    label: t('Bidirektionale Traceability', 'Bidirectional traceability', 'Traçabilité bidirectionnelle'),
     detail: nonPassReqsWithoutThreats.length > 0
-      ? `${t('Ohne Threat-Verknuepfung', 'Missing threat links', 'Liens manquants')}: ${nonPassReqsWithoutThreats.map(r => r.id).join(', ')}`
-      : t('Alle verknuepft', 'All linked', 'Toutes liees'),
+      ? `${t('Ohne Threat-Verknüpfung', 'Missing threat links', 'Liens manquants')}: ${nonPassReqsWithoutThreats.map(r => r.id).join(', ')}`
+      : t('Alle verknüpft', 'All linked', 'Toutes liées'),
     passed: nonPassReqsWithoutThreats.length === 0, severity: 'critical',
   });
 
@@ -87,7 +87,7 @@ export function runQualityCheck(
     label: t('Kein "konform" bei verletzenden Threats (Score >= 13)', 'No "compliant" with violating threats', 'Pas de "conforme" avec menaces violantes'),
     detail: passReqsWithViolating.length > 0
       ? passReqsWithViolating.map(r => r.id).join(', ')
-      : t('Konsistent', 'Consistent', 'Coherent'),
+      : t('Konsistent', 'Consistent', 'Cohérent'),
     passed: passReqsWithViolating.length === 0, severity: 'critical',
   });
 
@@ -101,42 +101,42 @@ export function runQualityCheck(
     label: t('Kein "teilweise" bei kritischen Threats (>= 20)', 'No "partial" with critical threats', 'Pas de "partiel" avec menaces critiques'),
     detail: partialWithCritical.length > 0
       ? partialWithCritical.map(r => r.id).join(', ')
-      : t('Konsistent', 'Consistent', 'Coherent'),
+      : t('Konsistent', 'Consistent', 'Cohérent'),
     passed: partialWithCritical.length === 0, severity: 'critical',
   });
 
   // ═══ B. FACHLICHE KORREKTHEIT ═══
 
-  // B1: FR1 (Auth) check
-  const fr1Reqs = reqs.filter(r => r.id.startsWith('FR1'));
+  // B1: IAC (Auth) check
+  const iacReqs = reqs.filter(r => r.id.startsWith('IAC'));
   const hasNoAuth = threats.some(th => th.name.toLowerCase().includes('shared account') || th.name.toLowerCase().includes('standard-passwort') || th.name.toLowerCase().includes('default') || th.name.toLowerCase().includes('fehlende authentifizierung'));
-  const fr1Pass = fr1Reqs.some(r => r.status === 'pass');
+  const iacPass = iacReqs.some(r => r.status === 'pass');
   checks.push({
     id: 'B1', category: 'technical',
-    label: t('FR1 Authentifizierung korrekt bewertet', 'FR1 Authentication correctly rated', 'FR1 Authentification correctement evaluee'),
-    detail: hasNoAuth && fr1Pass
-      ? t('Auth-Schwaechen vorhanden, aber FR1-Req als konform', 'Auth weaknesses but FR1 req compliant', 'Faiblesses auth mais FR1 conforme')
+    label: t('IAC Authentifizierung korrekt bewertet', 'IAC Authentication correctly rated', 'IAC Authentification correctement évaluée'),
+    detail: hasNoAuth && iacPass
+      ? t('Auth-Schwächen vorhanden, aber IAC-Req als konform', 'Auth weaknesses but IAC req compliant', 'Faiblesses auth mais IAC conforme')
       : t('Korrekt', 'Correct', 'Correct'),
-    passed: !(hasNoAuth && fr1Pass), severity: 'critical',
+    passed: !(hasNoAuth && iacPass), severity: 'critical',
   });
 
-  // B2: FR5 (Segmentation)
-  const fr5_1 = reqs.find(r => r.id === 'FR5-1');
+  // B2: UTN (Segmentation)
+  const utn2 = reqs.find(r => r.id === 'UTN-2');
   const hasNoSegmentation = threats.some(th => th.name.toLowerCase().includes('segmentierung') || th.name.toLowerCase().includes('flaches netzwerk'));
   checks.push({
     id: 'B2', category: 'technical',
-    label: t('FR5 Netzwerksegmentierung korrekt bewertet', 'FR5 Network segmentation correctly rated', 'FR5 Segmentation correctement evaluee'),
-    detail: hasNoSegmentation && fr5_1?.status === 'pass'
-      ? t('Segmentierung fehlt, aber FR5-1 konform', 'Segmentation missing but FR5-1 compliant', 'Segmentation manquante mais FR5-1 conforme')
+    label: t('UTN Netzwerksegmentierung korrekt bewertet', 'UTN Network segmentation correctly rated', 'UTN Segmentation correctement évaluée'),
+    detail: hasNoSegmentation && utn2?.status === 'pass'
+      ? t('Segmentierung fehlt, aber UTN-2 konform', 'Segmentation missing but UTN-2 compliant', 'Segmentation manquante mais UTN-2 conforme')
       : t('Korrekt', 'Correct', 'Correct'),
-    passed: !(hasNoSegmentation && fr5_1?.status === 'pass'), severity: 'critical',
+    passed: !(hasNoSegmentation && utn2?.status === 'pass'), severity: 'critical',
   });
 
   // B9/B10: effort + priority for non-pass reqs
   const noEffort = reqs.filter(r => r.status !== 'pass' && (!r.effort || r.effort.trim() === ''));
   checks.push({
     id: 'B9', category: 'technical',
-    label: t('Aufwandsschaetzung fuer alle nicht-konformen Massnahmen', 'Effort estimates for all non-compliant', 'Estimation effort pour non-conformes'),
+    label: t('Aufwandsschätzung für alle nicht-konformen Maßnahmen', 'Effort estimates for all non-compliant', 'Estimation effort pour non-conformes'),
     detail: noEffort.length > 0 ? `${t('Ohne Aufwand', 'Missing effort', 'Effort manquant')}: ${noEffort.map(r => r.id).join(', ')}` : t('Alle mit Aufwand', 'All have effort', 'Toutes avec effort'),
     passed: noEffort.length === 0, severity: 'critical',
   });
@@ -144,8 +144,8 @@ export function runQualityCheck(
   const noPrio = reqs.filter(r => r.status !== 'pass' && (!r.priority || r.priority.trim() === ''));
   checks.push({
     id: 'B10', category: 'technical',
-    label: t('Priorisierung (P0-P3) fuer alle nicht-konformen Massnahmen', 'Priority (P0-P3) for all non-compliant', 'Priorite (P0-P3) pour non-conformes'),
-    detail: noPrio.length > 0 ? `${t('Ohne Prioritaet', 'Missing priority', 'Priorite manquante')}: ${noPrio.map(r => r.id).join(', ')}` : t('Alle priorisiert', 'All prioritised', 'Toutes priorisees'),
+    label: t('Priorisierung (P0-P3) für alle nicht-konformen Maßnahmen', 'Priority (P0-P3) for all non-compliant', 'Priorité (P0-P3) pour non-conformes'),
+    detail: noPrio.length > 0 ? `${t('Ohne Priorität', 'Missing priority', 'Priorité manquante')}: ${noPrio.map(r => r.id).join(', ')}` : t('Alle priorisiert', 'All prioritised', 'Toutes priorisées'),
     passed: noPrio.length === 0, severity: 'critical',
   });
 
@@ -163,8 +163,8 @@ export function runQualityCheck(
   const noSources = threats.filter(th => !th.sources || th.sources.length === 0);
   checks.push({
     id: 'C2', category: 'evidence',
-    label: t('Alle Threats mit Quellenreferenzen', 'All threats with source references', 'Toutes les menaces avec references'),
-    detail: noSources.length > 0 ? `${noSources.map(threatId).join(', ')}` : t('Alle referenziert', 'All referenced', 'Toutes referencees'),
+    label: t('Alle Threats mit Quellenreferenzen', 'All threats with source references', 'Toutes les menaces avec références'),
+    detail: noSources.length > 0 ? `${noSources.map(threatId).join(', ')}` : t('Alle referenziert', 'All referenced', 'Toutes référencées'),
     passed: noSources.length === 0, severity: 'major',
   });
 
@@ -172,23 +172,23 @@ export function runQualityCheck(
   const frCats = new Set(threats.map(th => th.fr));
   checks.push({
     id: 'D3', category: 'editorial',
-    label: t('Alle FR-Kategorien abgedeckt (FR1-FR7)', 'All FR categories covered (FR1-FR7)', 'Toutes categories FR couvertes'),
+    label: t('Alle E27-Kategorien abgedeckt', 'All E27 categories covered', 'Toutes catégories E27 couvertes'),
     detail: `${frCats.size}/7 (${[...frCats].sort().join(', ')})`,
-    passed: frCats.size >= 6, severity: 'major',
+    passed: frCats.size >= 5, severity: 'major',
   });
 
-  // ═══ E. OT-SPEZIFISCHE PRÜFUNG ═══
-  const otThreatsLowImpact = threats.filter(th =>
-    (th.component.toLowerCase().includes('modbus') || th.component.toLowerCase().includes('sps') || th.component.toLowerCase().includes('plc')) &&
+  // ═══ E. MARITIME-SPEZIFISCHE PRÜFUNG ═══
+  const nmea = threats.filter(th =>
+    (th.component.toLowerCase().includes('nmea') || th.component.toLowerCase().includes('ecdis') || th.component.toLowerCase().includes('navigation')) &&
     th.impact < 4
   );
   checks.push({
     id: 'E1', category: 'ot',
-    label: t('OT-Impact korrekt kalibriert (SPS/Modbus >= 4)', 'OT impact correctly calibrated', 'Impact OT correctement calibre'),
-    detail: otThreatsLowImpact.length > 0
-      ? `${otThreatsLowImpact.map(threatId).join(', ')} ${t('mit zu niedrigem Impact', 'with too low impact', 'avec impact trop bas')}`
+    label: t('Maritime-Impact korrekt kalibriert (Navigation/ECDIS >= 4)', 'Maritime impact correctly calibrated', 'Impact maritime correctement calibré'),
+    detail: nmea.length > 0
+      ? `${nmea.map(threatId).join(', ')} ${t('mit zu niedrigem Impact', 'with too low impact', 'avec impact trop bas')}`
       : t('Korrekt', 'Correct', 'Correct'),
-    passed: otThreatsLowImpact.length === 0, severity: 'critical',
+    passed: nmea.length === 0, severity: 'critical',
   });
 
   // ─── Result ───
@@ -199,10 +199,10 @@ export function runQualityCheck(
 
   const verdict: QaResult['verdict'] = criticalErrors === 0 && pct >= 90 ? 'passed' : criticalErrors === 0 && pct >= 75 ? 'conditional' : 'failed';
   const verdictLabel = verdict === 'passed'
-    ? t('BESTANDEN — Bericht revisionssicher', 'PASSED — Report audit-proof', 'REUSSI — Rapport pret pour audit')
+    ? t('BESTANDEN — Bericht revisionssicher', 'PASSED — Report audit-proof', 'RÉUSSI — Rapport prêt pour audit')
     : verdict === 'conditional'
-    ? t('BEDINGT BESTANDEN — Einzelne Punkte nacharbeiten', 'CONDITIONALLY PASSED — Minor corrections needed', 'REUSSI SOUS CONDITIONS')
-    : t('NICHT BESTANDEN — Ueberarbeitung erforderlich', 'FAILED — Revision required', 'ECHOUE — Revision necessaire');
+    ? t('BEDINGT BESTANDEN — Einzelne Punkte nacharbeiten', 'CONDITIONALLY PASSED — Minor corrections needed', 'RÉUSSI SOUS CONDITIONS')
+    : t('NICHT BESTANDEN — Überarbeitung erforderlich', 'FAILED — Revision required', 'ÉCHOUÉ — Révision nécessaire');
 
   const corrections = checks.filter(c => !c.passed && c.severity === 'critical').map(c => c.label + ': ' + c.detail);
   const optional = checks.filter(c => !c.passed && c.severity !== 'critical').map(c => c.label + ': ' + c.detail);
