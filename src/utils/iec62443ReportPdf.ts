@@ -306,8 +306,8 @@ export async function generateIec62443Report(data: Iec62443ReportData): Promise<
   pdf.addBookmark(t(I18N.sec4, lang));
 
   const introRoadmap = lang === 'de'
-    ? 'Die Handlungsempfehlungen sind nach Dringlichkeit und Risikokritikalität priorisiert. P0-Maßnahmen sind Sofortmaßnahmen und müssen vor dem nächsten Klasseerneuerungsbesuch abgeschlossen sein.'
-    : 'Recommendations are prioritised by urgency and risk criticality. P0 measures are immediate actions and must be completed before the next class renewal survey.';
+    ? 'Die nachfolgenden Handlungsempfehlungen sind nach Dringlichkeit und Risikokritikalität priorisiert. Maßnahmen der Prioritätsstufe P0 sind als Sofortmaßnahmen einzustufen und müssen zwingend vor dem nächsten Klasseerneuerungsbesuch abgeschlossen werden. Die übrigen Maßnahmen sind gemäß der angegebenen Zeitrahmen umzusetzen.'
+    : 'The following recommendations are prioritised by urgency and risk criticality. Measures classified as P0 are to be treated as immediate actions and must be completed prior to the next class renewal survey. Remaining measures are to be implemented within the specified timeframes.';
   pdf.introText(introRoadmap);
 
   const prios = ['P0', 'P1', 'P2', 'P3'];
