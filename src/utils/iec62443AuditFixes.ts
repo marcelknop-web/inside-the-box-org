@@ -1,5 +1,5 @@
 /**
- * IEC 62443 Audit Fixes — Rule-based corrections derived from existing data.
+ * IACS UR E27 Audit Fixes — Rule-based corrections derived from existing data.
  * No content is invented.
  */
 import type { IecThreat, IecReq, IecIntakeData } from '@/data/iec62443Data';
@@ -29,12 +29,12 @@ export function applyAuditFixes(
       case 'A2-1': {
         fixedThreats.forEach(th => {
           if (!th.iecRef || th.iecRef.trim() === '') {
-            const frToSr: Record<string, string> = {
-              FR1: 'SR 1.1', FR2: 'SR 2.1', FR3: 'SR 3.4', FR4: 'SR 4.1',
-              FR5: 'SR 5.1', FR6: 'SR 6.1', FR7: 'SR 7.1',
+            const catToRef: Record<string, string> = {
+              IAC: 'E27-01 (SR 1.1)', UC: 'E27-08 (SR 2.1)', SI: 'E27-17 (SR 3.1)', DC: 'E27-22 (SR 4.1)',
+              AL: 'E27-13 (SR 2.8)', RA: 'E27-25 (SR 7.1)', UTN: 'E27-36 (SR 1.13)',
             };
-            th.iecRef = frToSr[th.fr] || 'SR 1.1';
-            fixes.push(t(`${threatId(th)}: SR-Verknuepfung abgeleitet -> ${th.iecRef}`, `${threatId(th)}: SR link derived -> ${th.iecRef}`, `${threatId(th)}: Lien SR derive -> ${th.iecRef}`));
+            th.iecRef = catToRef[th.fr] || 'E27-01 (SR 1.1)';
+            fixes.push(t(`${threatId(th)}: E27-Verknüpfung abgeleitet -> ${th.iecRef}`, `${threatId(th)}: E27 link derived -> ${th.iecRef}`, `${threatId(th)}: Lien E27 dérivé -> ${th.iecRef}`));
           }
         });
         break;
@@ -51,11 +51,11 @@ export function applyAuditFixes(
               if (nameMatch.length > 0) {
                 nameMatch.forEach(th => {
                   th.iecRef = r.article;
-                  fixes.push(t(`${threatId(th)}: Verknuepfung zu ${r.id} (Namensabgleich)`, `${threatId(th)}: Linked to ${r.id}`, `${threatId(th)}: Lie a ${r.id}`));
+                  fixes.push(t(`${threatId(th)}: Verknüpfung zu ${r.id} (Namensabgleich)`, `${threatId(th)}: Linked to ${r.id}`, `${threatId(th)}: Lié à ${r.id}`));
                 });
               } else {
-                r.rationale += (r.rationale ? ' — ' : '') + t('Hinweis: Keine Threats verknuepft, manuelle Pruefung erforderlich', 'Note: No linked threats, manual review required', 'Note : aucune menace liee');
-                fixes.push(t(`${r.id}: Fehlende Threat-Verknuepfung dokumentiert`, `${r.id}: Missing threat link documented`, `${r.id}: Lien manquant documente`));
+                r.rationale += (r.rationale ? ' — ' : '') + t('Hinweis: Keine Threats verknüpft, manuelle Prüfung erforderlich', 'Note: No linked threats, manual review required', 'Note : aucune menace liée');
+                fixes.push(t(`${r.id}: Fehlende Threat-Verknüpfung dokumentiert`, `${r.id}: Missing threat link documented`, `${r.id}: Lien manquant documenté`));
               }
             }
           }
@@ -92,7 +92,7 @@ export function applyAuditFixes(
 
       case 'B1': {
         fixedReqs.forEach(r => {
-          if (r.id.startsWith('FR1') && r.status === 'pass') {
+          if (r.id.startsWith('IAC') && r.status === 'pass') {
             const authThreat = fixedThreats.find(th =>
               th.name.toLowerCase().includes('shared') || th.name.toLowerCase().includes('default') || th.name.toLowerCase().includes('fehlende authentifizierung')
             );
@@ -107,12 +107,12 @@ export function applyAuditFixes(
       }
 
       case 'B2': {
-        const fr51 = fixedReqs.find(r => r.id === 'FR5-1');
-        if (fr51 && fr51.status === 'pass') {
+        const utn2 = fixedReqs.find(r => r.id === 'UTN-2');
+        if (utn2 && utn2.status === 'pass') {
           const segThreat = fixedThreats.find(th => th.name.toLowerCase().includes('segmentierung'));
-          fr51.status = 'fail';
-          if (segThreat) fr51.gap = segThreat.name;
-          fixes.push(t('FR5-1: -> nicht konform', 'FR5-1: -> fail', 'FR5-1: -> non conforme'));
+          utn2.status = 'fail';
+          if (segThreat) utn2.gap = segThreat.name;
+          fixes.push(t('UTN-2: -> nicht konform', 'UTN-2: -> fail', 'UTN-2: -> non conforme'));
         }
         break;
       }
@@ -123,7 +123,7 @@ export function applyAuditFixes(
             const linked = fixedThreats.filter(th => th.iecRef === r.article);
             const maxScore = linked.length > 0 ? Math.max(...linked.map(th => th.likelihood * th.impact)) : 0;
             r.effort = maxScore >= 20 ? '24-40h' : maxScore >= 13 ? '16-24h' : r.status === 'fail' ? '8-16h' : '4-8h';
-            fixes.push(t(`${r.id}: Aufwand abgeleitet (${r.effort})`, `${r.id}: Effort derived (${r.effort})`, `${r.id}: Effort derive (${r.effort})`));
+            fixes.push(t(`${r.id}: Aufwand abgeleitet (${r.effort})`, `${r.id}: Effort derived (${r.effort})`, `${r.id}: Effort dérivé (${r.effort})`));
           }
         });
         break;
@@ -135,7 +135,7 @@ export function applyAuditFixes(
             const linked = fixedThreats.filter(th => th.iecRef === r.article);
             const maxScore = linked.length > 0 ? Math.max(...linked.map(th => th.likelihood * th.impact)) : 0;
             r.priority = r.status === 'fail' && maxScore >= 20 ? 'P0' : r.status === 'fail' ? 'P1' : maxScore >= 13 ? 'P2' : 'P3';
-            fixes.push(t(`${r.id}: Prioritaet -> ${r.priority}`, `${r.id}: Priority -> ${r.priority}`, `${r.id}: Priorite -> ${r.priority}`));
+            fixes.push(t(`${r.id}: Priorität -> ${r.priority}`, `${r.id}: Priority -> ${r.priority}`, `${r.id}: Priorité -> ${r.priority}`));
           }
         });
         break;
@@ -152,17 +152,17 @@ export function applyAuditFixes(
       case 'C2': {
         const noSrc = fixedThreats.filter(th => !th.sources || th.sources.length === 0);
         if (noSrc.length > 0) {
-          fixes.push(t(`Hinweis: ${noSrc.length} Threat(s) ohne Quellen`, `Note: ${noSrc.length} threat(s) without sources`, `Note : ${noSrc.length} menace(s) sans references`));
+          fixes.push(t(`Hinweis: ${noSrc.length} Threat(s) ohne Quellen`, `Note: ${noSrc.length} threat(s) without sources`, `Note : ${noSrc.length} menace(s) sans références`));
         }
         break;
       }
 
       case 'E1': {
         fixedThreats.forEach(th => {
-          if ((th.component.toLowerCase().includes('modbus') || th.component.toLowerCase().includes('sps') || th.component.toLowerCase().includes('plc')) && th.impact < 4) {
+          if ((th.component.toLowerCase().includes('nmea') || th.component.toLowerCase().includes('ecdis') || th.component.toLowerCase().includes('navigation')) && th.impact < 4) {
             const old = th.impact;
             th.impact = 5;
-            fixes.push(t(`${threatId(th)}: OT-Impact ${old} -> 5 (Safety)`, `${threatId(th)}: OT impact ${old} -> 5 (safety)`, `${threatId(th)}: Impact OT ${old} -> 5`));
+            fixes.push(t(`${threatId(th)}: Maritime-Impact ${old} -> 5 (SOLAS-relevant)`, `${threatId(th)}: Maritime impact ${old} -> 5 (SOLAS-relevant)`, `${threatId(th)}: Impact maritime ${old} -> 5`));
           }
         });
         break;

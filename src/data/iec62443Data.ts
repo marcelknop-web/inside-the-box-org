@@ -1,13 +1,14 @@
-// ── IEC 62443 Compliance Tool Constants & Demo Data (i18n-aware) ─────────
-// Based on IEC 62443 — Industrial Automation and Control Systems Security
+// ── IACS UR E27 Compliance Tool — Data Model ─────────────────
+// Based on IACS Unified Requirement E27: Cyber Resilience of On-Board Systems and Equipment
+// References IEC 62443-3-3 System Requirements
 
 type T = (key: string) => string;
 
-// ── System Types ───────────────────────────────────────────────
-const ST_KEYS = ['dcs', 'scada', 'plc', 'rtu', 'his', 'safety', 'edge', 'cloud'] as const;
-const ST_ICONS = ['🏭', '📡', '🔧', '📟', '🖥️', '⚠️', '🔌', '☁️'];
-const ST_T_KEYS = ['stDcs', 'stScada', 'stPlc', 'stRtu', 'stHis', 'stSafety', 'stEdge', 'stCloud'];
-const ST_DESC_KEYS = ['stDcsDesc', 'stScadaDesc', 'stPlcDesc', 'stRtuDesc', 'stHisDesc', 'stSafetyDesc', 'stEdgeDesc', 'stCloudDesc'];
+// ── Ship System Types (CBS in scope of E26) ─────────────────
+const ST_KEYS = ['propulsion', 'steering', 'navigation', 'power', 'cargo', 'comms', 'safety', 'ecdis'] as const;
+const ST_ICONS = ['⚙️', '🔄', '🧭', '⚡', '📦', '📡', '🛟', '🗺️'];
+const ST_T_KEYS = ['stPropulsion', 'stSteering', 'stNavigation', 'stPower', 'stCargo', 'stComms', 'stSafety', 'stEcdis'];
+const ST_DESC_KEYS = ['stPropulsionDesc', 'stSteeringDesc', 'stNavigationDesc', 'stPowerDesc', 'stCargoDesc', 'stCommsDesc', 'stSafetyDesc', 'stEcdisDesc'];
 
 export function getSystemTypes(t: T) {
   return ST_KEYS.map((id, i) => ({
@@ -18,7 +19,7 @@ export function getSystemTypes(t: T) {
   }));
 }
 
-// ── Security Levels (SL 1-4) ────────────────────────────────────
+// ── Security Levels (SL 1-4 from IEC 62443, referenced by E27) ──
 const SL_IDS = ['sl1', 'sl2', 'sl3', 'sl4'] as const;
 const SL_COLORS = [
   'border-green-500 bg-green-500/10 text-green-400',
@@ -37,10 +38,10 @@ export function getSecurityLevels(t: T) {
   }));
 }
 
-// ── Zone/Conduit Options ────────────────────────────────────────
-const ZC_IDS = ['enterprise', 'dmz', 'control', 'field', 'safety', 'remote'] as const;
-const ZC_ICONS = ['🏢', '🛡️', '⚙️', '🔌', '⚠️', '🌐'];
-const ZC_KEYS = ['zcEnterprise', 'zcDmz', 'zcControl', 'zcField', 'zcSafety', 'zcRemote'];
+// ── Ship Network Zones ──────────────────────────────────────
+const ZC_IDS = ['bridge', 'engineroom', 'crew', 'cargo_ot', 'safety_zone', 'shore'] as const;
+const ZC_ICONS = ['🚢', '⚙️', '👥', '📦', '🛟', '🌐'];
+const ZC_KEYS = ['zcBridge', 'zcEngineRoom', 'zcCrew', 'zcCargoOt', 'zcSafetyZone', 'zcShore'];
 
 export function getZoneConduits(t: T) {
   return ZC_IDS.map((id, i) => ({
@@ -50,19 +51,19 @@ export function getZoneConduits(t: T) {
   }));
 }
 
-// ── Protocol/Interface Options ──────────────────────────────────
+// ── Maritime Protocol/Interface Options ─────────────────────
 export const PROTOCOL_OPTS = [
-  { label: 'OPC-UA', icon: '🏭' }, { label: 'Modbus TCP', icon: '🏭' },
-  { label: 'PROFINET', icon: '🔌' }, { label: 'EtherNet/IP', icon: '🔌' },
-  { label: 'DNP3', icon: '📟' }, { label: 'IEC 61850 (MMS/GOOSE)', icon: '⚡' },
-  { label: 'BACnet', icon: '🏢' }, { label: 'MQTT', icon: '📡' },
+  { label: 'NMEA 0183', icon: '🧭' }, { label: 'NMEA 2000', icon: '🧭' },
+  { label: 'IEC 61162-450', icon: '📡' }, { label: 'Modbus TCP', icon: '⚙️' },
+  { label: 'CANbus (J1939)', icon: '⚙️' }, { label: 'PROFINET', icon: '🔌' },
+  { label: 'EtherNet/IP', icon: '🔌' }, { label: 'OPC-UA', icon: '🏭' },
   { label: 'HTTPS/REST', icon: '🔒' }, { label: 'SSH', icon: '🔑' },
-  { label: 'RDP', icon: '🖥️' }, { label: 'VPN (IPsec/WireGuard)', icon: '🛡️' },
-  { label: 'Serial (RS-232/485)', icon: '🔗' }, { label: 'Wireless (WiFi/Bluetooth)', icon: '📶' },
-  { label: 'USB', icon: '🖇️' }, { label: 'Proprietäres Protokoll', icon: '❓' },
+  { label: 'VSAT/Fleet Broadband', icon: '📡' }, { label: 'VPN (IPsec)', icon: '🛡️' },
+  { label: 'Serial (RS-422/485)', icon: '🔗' }, { label: 'Wireless (WiFi)', icon: '📶' },
+  { label: 'Bluetooth', icon: '📶' }, { label: 'USB', icon: '🖇️' },
 ] as const;
 
-// ── Security Measures (mapped to FRs) ──────────────────────────
+// ── Security Measures (mapped to E27 Table 1 categories) ────
 const SM_IDS = ['iac', 'uc', 'si', 'dc', 'rdf', 'tre', 'ra', 'patch', 'backup', 'segmentation', 'monitoring', 'physical', 'training', 'vendor', 'incident'] as const;
 const SM_LABEL_KEYS = ['smIac', 'smUc', 'smSi', 'smDc', 'smRdf', 'smTre', 'smRa', 'smPatch', 'smBackup', 'smSegmentation', 'smMonitoring', 'smPhysical', 'smTraining', 'smVendor', 'smIncident'];
 const SM_CAT_KEYS = ['catAccess', 'catAccess', 'catIntegrity', 'catConfidentiality', 'catResilience', 'catResponse', 'catGovernance', 'catOps', 'catResilience', 'catNetwork', 'catDetection', 'catPhysical', 'catGovernance', 'catSupplyChain', 'catResponse'];
@@ -79,7 +80,7 @@ export function getSecurityCategories(t: T) {
   return [...new Set(getSecurityMeasures(t).map(m => m.cat))];
 }
 
-// ── Attach Types ────────────────────────────────────────────────
+// ── Attach Types ────────────────────────────────────────────
 const ATT_IDS = ['arch', 'riskAssess', 'policy', 'zoneMap', 'pentest', 'other'] as const;
 const ATT_ICONS = ['🗺️', '📊', '📋', '🗂️', '🔍', '📎'];
 const ATT_ACCEPTS = ['.pdf,.png,.jpg,.svg,.pptx,.vsdx,.drawio', '.pdf,.xlsx,.docx', '.pdf,.docx', '.pdf,.png,.jpg,.svg,.vsdx', '.pdf,.docx', '*'];
@@ -94,28 +95,27 @@ export function getAttachTypes(t: T) {
   }));
 }
 
-// ── Foundational Requirements Meta ─────────────────────────────
-// FR 1-7 from IEC 62443-3-3
+// ── E27 Requirement Categories (based on E27 Table 1 + Table 2 grouping) ──
 export const FR_CATEGORIES: Record<string, { label: Record<string, string>; dot: string; badge: string }> = {
-  FR1: { label: { de: 'Identifikation & Authentifizierung', en: 'Identification & Authentication', fr: 'Identification & authentification' }, dot: 'bg-blue-500', badge: 'bg-blue-500/10 text-blue-400 border border-blue-500/20' },
-  FR2: { label: { de: 'Zugriffskontrolle', en: 'Use Control', fr: 'Contrôle d\'utilisation' }, dot: 'bg-purple-500', badge: 'bg-purple-500/10 text-purple-400 border border-purple-500/20' },
-  FR3: { label: { de: 'Systemintegrität', en: 'System Integrity', fr: 'Intégrité système' }, dot: 'bg-orange-500', badge: 'bg-orange-500/10 text-orange-400 border border-orange-500/20' },
-  FR4: { label: { de: 'Datenvertraulichkeit', en: 'Data Confidentiality', fr: 'Confidentialité des données' }, dot: 'bg-green-500', badge: 'bg-green-500/10 text-green-400 border border-green-500/20' },
-  FR5: { label: { de: 'Eingeschränkter Datenfluss', en: 'Restricted Data Flow', fr: 'Flux de données restreint' }, dot: 'bg-red-500', badge: 'bg-red-500/10 text-red-400 border border-red-500/20' },
-  FR6: { label: { de: 'Zeitnahe Reaktion', en: 'Timely Response to Events', fr: 'Réaction rapide aux événements' }, dot: 'bg-yellow-500', badge: 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20' },
-  FR7: { label: { de: 'Ressourcenverfügbarkeit', en: 'Resource Availability', fr: 'Disponibilité des ressources' }, dot: 'bg-rose-500', badge: 'bg-rose-500/10 text-rose-400 border border-rose-500/20' },
+  IAC: { label: { de: 'Identifikation & Authentifizierung', en: 'Identification & Authentication', fr: 'Identification & authentification' }, dot: 'bg-blue-500', badge: 'bg-blue-500/10 text-blue-400 border border-blue-500/20' },
+  UC: { label: { de: 'Zugriffskontrolle', en: 'Use Control', fr: 'Contrôle d\'utilisation' }, dot: 'bg-purple-500', badge: 'bg-purple-500/10 text-purple-400 border border-purple-500/20' },
+  SI: { label: { de: 'Systemintegrität', en: 'System Integrity', fr: 'Intégrité système' }, dot: 'bg-orange-500', badge: 'bg-orange-500/10 text-orange-400 border border-orange-500/20' },
+  DC: { label: { de: 'Datenvertraulichkeit', en: 'Data Confidentiality', fr: 'Confidentialité des données' }, dot: 'bg-green-500', badge: 'bg-green-500/10 text-green-400 border border-green-500/20' },
+  AL: { label: { de: 'Audit & Logging', en: 'Audit & Logging', fr: 'Audit & journalisation' }, dot: 'bg-yellow-500', badge: 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20' },
+  RA: { label: { de: 'Ressourcenverfügbarkeit', en: 'Resource Availability', fr: 'Disponibilité des ressources' }, dot: 'bg-red-500', badge: 'bg-red-500/10 text-red-400 border border-red-500/20' },
+  UTN: { label: { de: 'Untrusted-Network-Schutz', en: 'Untrusted Network Protection', fr: 'Protection réseau non fiable' }, dot: 'bg-rose-500', badge: 'bg-rose-500/10 text-rose-400 border border-rose-500/20' },
 };
 
-// ── Types ───────────────────────────────────────────────────────
+// ── Types ───────────────────────────────────────────────────
 
 export interface IecThreat {
   id: number;
-  fr: string; // FR1-FR7
+  fr: string; // IAC, UC, SI, DC, AL, RA, UTN
   name: string;
   component: string;
   attacker: string;
   path: string;
-  iecRef: string; // IEC 62443 reference (e.g. "SR 1.1")
+  iecRef: string; // E27 Table ref (e.g. "E27-SI01" mapped to SR)
   likelihood: number;
   impact: number;
   evidence: string;
@@ -131,7 +131,7 @@ export function threatId(th: IecThreat): string {
 
 export interface IecReq {
   id: string;
-  article: string; // e.g. "SR 1.1"
+  article: string; // E27 SI-No reference e.g. "E27-01 (SR 1.1)"
   name: string;
   status: 'pass' | 'partial' | 'fail';
   gap: string;
@@ -170,246 +170,256 @@ export const EMPTY_INTAKE: IecIntakeData = {
   measures: {}, knownIssues: '', files: [],
 };
 
-// ── Demo Threats (14 threats across FR1-FR7) ────────────────────
+// ── Demo Threats (14 threats — maritime context) ────────────
 
 export const IEC_THREATS: IecThreat[] = [
-  // FR1 — Identification & Authentication (3)
-  { id: 1, fr: 'FR1', name: 'Shared Accounts auf SCADA-HMI-Stationen', component: 'SCADA HMI — Benutzerverwaltung', attacker: 'Interner Nutzer', path: 'Gemeinsamer Admin-Account (admin/admin) → keine individuelle Zuordnung → Missbrauch nicht nachvollziehbar', iecRef: 'SR 1.1',
+  // IAC — Identification & Authentication (3)
+  { id: 1, fr: 'IAC', name: 'Shared Accounts auf Brücken-Workstations', component: 'ECDIS/RADAR Workstation — Benutzerverwaltung', attacker: 'Crew-Mitglied', path: 'Gemeinsamer Admin-Account (admin/admin) → keine individuelle Zuordnung → Missbrauch nicht nachvollziehbar', iecRef: 'E27-01 (SR 1.1)',
     likelihood: 4, impact: 4,
-    evidence: 'Konfigurationsaudit: 3 von 5 SCADA-HMI-Stationen nutzen gemeinsamen Admin-Account (admin/admin). Keine individuelle Authentifizierung. Kein Audit-Log auf Benutzerebene. Active Directory nicht an OT angebunden.',
-    rationale: 'Likelihood 4: Shared Accounts in OT-Umgebungen verbreitet, Missbrauch schwer nachweisbar. Impact 4: Unbefugte Steuerungsänderungen können Produktionsprozesse stören.',
-    sources: ['IEC 62443-3-3 SR 1.1: Human user identification and authentication', 'NIST SP 800-82r3 Section 5.3'], evidenceQuality: 5, reproducibility: 'easy' },
-  { id: 2, fr: 'FR1', name: 'Fehlende Authentifizierung auf Modbus-TCP-Interface', component: 'Modbus TCP — SPS-Kommunikation', attacker: 'Netzwerk-Angreifer', path: 'Modbus TCP hat keine native Authentifizierung → Angreifer im OT-Netz kann direkt auf SPS zugreifen', iecRef: 'SR 1.1',
-    likelihood: 5, impact: 5,
-    evidence: 'Netzwerkscan: Modbus TCP Port 502 offen auf 12 SPS-Steuerungen. Write-Holding-Register ohne Authentifizierung möglich. Praktischer PoC: Setpoint über mbtcp-cli von 25°C auf 85°C geändert.',
-    rationale: 'Likelihood 5: Standard-Tools (mbtcp-cli, pymodbus) frei verfügbar, kein Auth, Aufwand < 30 min. Impact 5: Direkte Manipulation von Steuerungsparametern mit Safety-Auswirkungen.',
-    sources: ['IEC 62443-3-3 SR 1.1', 'ICS-CERT Advisory ICSA-18-107-03', 'CWE-306'], evidenceQuality: 5, reproducibility: 'easy' },
-  { id: 9, fr: 'FR1', name: 'Standard-Passwörter auf Engineering-Workstations', component: 'Engineering-Workstation — Windows-Login', attacker: 'Insider / Wartungspersonal', path: 'Default-Credentials der Projektierungs-Software nicht geändert → Vollzugriff auf SPS-Programme', iecRef: 'SR 1.5',
+    evidence: 'Konfigurationsaudit: 3 von 4 Brücken-Workstations nutzen gemeinsamen Admin-Account. Keine individuelle Authentifizierung. Kein Audit-Log auf Benutzerebene.',
+    rationale: 'Likelihood 4: Shared Accounts auf Schiffen verbreitet, Missbrauch schwer nachweisbar. Impact 4: Unbefugte Navigationsänderungen können Schiffssicherheit gefährden.',
+    sources: ['IACS UR E27 Table 1 SI-01: Human user identification and authentication', 'IEC 62443-3-3 SR 1.1'], evidenceQuality: 5, reproducibility: 'easy' },
+  { id: 2, fr: 'IAC', name: 'Fehlende Authentifizierung auf NMEA-Netzwerk', component: 'NMEA 0183/2000 — Sensorbus', attacker: 'Netzwerk-Angreifer (lokal)', path: 'NMEA hat keine native Authentifizierung → Angreifer im Bordnetz kann Navigationsdaten manipulieren', iecRef: 'E27-01 (SR 1.1)',
     likelihood: 4, impact: 5,
-    evidence: 'Stichprobe: 4 von 6 Engineering-Workstations mit Hersteller-Default-Passwort. Projektierungs-Software (Step 7, TIA Portal) ohne zusätzlichen Login-Schutz.',
-    rationale: 'Likelihood 4: Default-Credentials in OT häufig, Herstellerdokumentation öffentlich. Impact 5: Vollzugriff auf SPS-Programme ermöglicht beliebige Steuerungsmanipulation.',
-    sources: ['IEC 62443-3-3 SR 1.5: Authenticator management', 'NIST SP 800-82r3'], evidenceQuality: 4, reproducibility: 'easy' },
+    evidence: 'Netzwerkanalyse: NMEA-Datenstrom unverschlüsselt. GPS-Spoofing über gefälschte NMEA-Sätze praktisch durchgeführt (PoC). Keinerlei Integritätsprüfung der Sensordaten.',
+    rationale: 'Likelihood 4: NMEA ohne Auth, physischer Zugang zum Netzwerk auf dem Schiff gegeben. Impact 5: Manipulierte Navigationsdaten können zu Grundberührung oder Kollision führen.',
+    sources: ['IACS UR E27 Table 1 SI-01', 'NIST SP 800-82r3', 'GPS-Spoofing Research (Humphreys, UT Austin)'], evidenceQuality: 5, reproducibility: 'easy' },
+  { id: 9, fr: 'IAC', name: 'Standard-Passwörter auf Maschinensteuerung', component: 'Engine Control System — Login', attacker: 'Wartungspersonal / Insider', path: 'Default-Credentials des Herstellers nicht geändert → Vollzugriff auf Maschinensteuerung', iecRef: 'E27-04 (SR 1.5)',
+    likelihood: 4, impact: 5,
+    evidence: 'Stichprobe: 3 von 4 Steuerungssysteme mit Hersteller-Default-Passwort. Service-Manual mit Credentials öffentlich verfügbar.',
+    rationale: 'Likelihood 4: Default-Credentials in maritimen Systemen häufig, Hersteller-Dokumentation öffentlich. Impact 5: Vollzugriff auf Antriebssteuerung mit Safety-Relevanz.',
+    sources: ['IACS UR E27 Table 1 SI-04: Authenticator management', 'IEC 62443-3-3 SR 1.5'], evidenceQuality: 4, reproducibility: 'easy' },
 
-  // FR2 — Use Control (2)
-  { id: 3, fr: 'FR2', name: 'Fehlende rollenbasierte Zugriffssteuerung (RBAC)', component: 'SCADA-Server — Autorisierung', attacker: 'Authentifizierter Nutzer', path: 'Alle Benutzer haben identische Rechte → Operator kann Konfiguration ändern → unbeabsichtigte Steuerungsänderung', iecRef: 'SR 2.1',
+  // UC — Use Control (2)
+  { id: 3, fr: 'UC', name: 'Fehlende rollenbasierte Zugriffssteuerung (RBAC)', component: 'Integrated Bridge System — Autorisierung', attacker: 'Authentifizierter Benutzer', path: 'Alle Benutzer haben identische Rechte → Matrose kann Navigationseinstellungen ändern', iecRef: 'E27-08 (SR 2.1)',
     likelihood: 4, impact: 3,
-    evidence: 'Konfigurationsanalyse: SCADA-System hat nur eine Berechtigungsstufe. Operator-, Ingenieur- und Admin-Rollen sind nicht differenziert. Jeder angemeldete Benutzer kann Parameter ändern.',
-    rationale: 'Likelihood 4: Fehlende RBAC in OT-Systemen verbreitet, jeder Benutzer kann Änderungen vornehmen. Impact 3: Fehlkonfiguration durch Operator möglich, aber keine direkte Kompromittierung.',
-    sources: ['IEC 62443-3-3 SR 2.1: Authorization enforcement', 'ISA-99.02.01'], evidenceQuality: 4, reproducibility: 'easy' },
-  { id: 10, fr: 'FR2', name: 'USB-Ports an Feldbussteuerungen nicht deaktiviert', component: 'SPS — USB-Schnittstelle', attacker: 'Physischer Angreifer / Insider', path: 'Offene USB-Ports → USB-Stick mit Malware → SPS-Kompromittierung', iecRef: 'SR 2.4',
-    likelihood: 3, impact: 5,
-    evidence: 'Vor-Ort-Prüfung: USB-Ports an 8 SPS-Steuerungen physisch zugänglich. Keine USB-Port-Sperre (Software oder Hardware). USB-Autorun nicht deaktiviert auf Engineering-Workstations.',
-    rationale: 'Likelihood 3: Erfordert physischen Zugang, in Industrieumgebung durch Wartungspersonal plausibel. Impact 5: SPS-Kompromittierung mit direkter Safety-Relevanz.',
-    sources: ['IEC 62443-3-3 SR 2.4: Mobile code', 'NIST SP 800-82r3 Section 5.6'], evidenceQuality: 4, reproducibility: 'medium' },
+    evidence: 'Konfigurationsanalyse: Bridge-System hat nur eine Berechtigungsstufe. Offizier, Matrose und Service-Techniker haben identische Rechte.',
+    rationale: 'Likelihood 4: Fehlende RBAC auf Bordssystemen verbreitet. Impact 3: Fehlkonfiguration durch unqualifiziertes Personal möglich.',
+    sources: ['IACS UR E27 Table 1 SI-08: Authorization enforcement', 'IEC 62443-3-3 SR 2.1'], evidenceQuality: 4, reproducibility: 'easy' },
+  { id: 10, fr: 'UC', name: 'USB-Ports an Bordsystemen nicht deaktiviert', component: 'Bridge/Engine Room — USB-Schnittstellen', attacker: 'Crew / Hafenpersonal', path: 'Offene USB-Ports → USB-Stick mit Malware → CBS-Kompromittierung', iecRef: 'E27-10 (SR 2.3)',
+    likelihood: 4, impact: 5,
+    evidence: 'Vor-Ort-Prüfung: USB-Ports an ECDIS, Radar und Engine-Workstations physisch zugänglich. Keine USB-Port-Sperre. Crew lädt regelmäßig Kartenupdates via USB.',
+    rationale: 'Likelihood 4: USB-Nutzung im maritimen Betrieb üblich (Kartenupdates, Logs). Impact 5: Malware-Einschleusung in Safety-kritische Systeme.',
+    sources: ['IACS UR E27 Table 1 SI-10: Portable and mobile devices', 'IEC 62443-3-3 SR 2.3', 'BIMCO Cyber Security Guidelines'], evidenceQuality: 4, reproducibility: 'medium' },
 
-  // FR3 — System Integrity (2)
-  { id: 4, fr: 'FR3', name: 'Fehlende Firmware-Signaturprüfung bei SPS-Updates', component: 'SPS — Firmware-Update-Prozess', attacker: 'Supply-Chain-Angreifer', path: 'Firmware-Updates ohne kryptographische Signatur → manipulierte Firmware kann installiert werden', iecRef: 'SR 3.4',
+  // SI — System Integrity (2)
+  { id: 4, fr: 'SI', name: 'Fehlende Firmware-Signaturprüfung bei CBS-Updates', component: 'CBS — Firmware-Update-Prozess', attacker: 'Supply-Chain-Angreifer', path: 'Firmware-Updates ohne kryptographische Signatur → manipulierte Firmware kann installiert werden', iecRef: 'E27-19 (SR 3.3)',
     likelihood: 2, impact: 5,
-    evidence: 'Firmware-Update-Analyse: SPS-Firmware wird über Engineering-Workstation aufgespielt. Keine Signaturprüfung im Upload-Prozess. Modifiziertes Firmware-Image wurde ohne Fehlermeldung akzeptiert.',
-    rationale: 'Likelihood 2: Supply-Chain-Angriff oder Kompromittierung der Engineering-Workstation erforderlich. Impact 5: Persistente SPS-Kompromittierung mit direkter Prozesssteuerungsgefährdung.',
-    sources: ['IEC 62443-3-3 SR 3.4: Software and information integrity', 'NIST SP 800-193'], evidenceQuality: 4, reproducibility: 'medium' },
-  { id: 11, fr: 'FR3', name: 'Keine Integritätsprüfung der SPS-Konfiguration', component: 'SPS — Konfigurationsmanagement', attacker: 'Privilegierter Insider', path: 'SPS-Konfigurationsänderungen nicht versioniert oder geprüft → unbemerkte Manipulation der Steuerungslogik', iecRef: 'SR 3.4',
-    likelihood: 3, impact: 5,
-    evidence: 'Prozessanalyse: Kein Versionskontrollsystem für SPS-Programme. Änderungen werden ohne Vergleichsprüfung (Baseline Comparison) übernommen. Keine automatische Benachrichtigung bei Konfigurationsänderungen.',
-    rationale: 'Likelihood 3: Jeder Ingenieur mit Zugang zur Engineering-Workstation kann SPS-Programme ändern. Impact 5: Steuerungslogik-Manipulation mit Safety-Auswirkungen.',
-    sources: ['IEC 62443-3-3 SR 3.4', 'IEC 62443-2-4 SP.03.02'], evidenceQuality: 4, reproducibility: 'easy' },
-
-  // FR4 — Data Confidentiality (1)
-  { id: 5, fr: 'FR4', name: 'OPC-UA Security Mode None — Prozessdaten im Klartext', component: 'OPC-UA Server — Transportschicht', attacker: 'Netzwerk-Mitleser', path: 'OPC-UA ohne Verschlüsselung → Prozessdaten, Rezepturen und Steuerungsbefehle im Klartext', iecRef: 'SR 4.1',
+    evidence: 'Firmware-Update-Analyse: Updates werden via USB aufgespielt. Keine Signaturprüfung. Modifiziertes Image wurde ohne Fehlermeldung akzeptiert.',
+    rationale: 'Likelihood 2: Erfordert Zugang zur Update-Kette. Impact 5: Persistente Kompromittierung eines Safety-relevanten CBS.',
+    sources: ['IACS UR E27 Table 1 SI-19: Security functionality verification', 'IEC 62443-3-3 SR 3.3'], evidenceQuality: 4, reproducibility: 'medium' },
+  { id: 11, fr: 'SI', name: 'Kein Malware-Schutz auf ECDIS-Workstation', component: 'ECDIS — Software-Integrität', attacker: 'Externer Angreifer / Malware', path: 'Kein Antivirus/Whitelisting → Malware über USB/Netzwerk → ECDIS-Ausfall → Verlust der elektronischen Seekarte', iecRef: 'E27-18 (SR 3.2)',
     likelihood: 4, impact: 5,
-    evidence: 'Konfigurationsanalyse: OPC-UA Server SecurityMode=None, SecurityPolicy=None. Wireshark-Mitschnitt: OPC-UA ReadResponse enthält Prozessdaten im Klartext. Alle Nodes ohne Auth sichtbar.',
-    rationale: 'Likelihood 4: Netzwerkzugang im OT-Segment, Layer-2-Zugang Standard. Impact 5: Prozessdaten, Produktionsparameter und Steuerungsbefehle offengelegt.',
-    sources: ['IEC 62443-3-3 SR 4.1: Information confidentiality', 'OPC Foundation Security Best Practices'], evidenceQuality: 5, reproducibility: 'easy' },
+    evidence: 'Konfigurationscheck: ECDIS Windows-basiert, kein Antivirus, kein Application Whitelisting. Letztes OS-Update: 18 Monate alt. USB-Ports offen.',
+    rationale: 'Likelihood 4: USB-basierte Infektionsvektoren realistisch, Internetzugang über VSAT. Impact 5: ECDIS-Ausfall bei Papierseekarten-Mangel Safety-relevant (SOLAS).',
+    sources: ['IACS UR E27 Table 1 SI-18: Malicious code protection', 'IEC 62443-3-3 SR 3.2', 'IMO MSC.1/Circ.1526'], evidenceQuality: 5, reproducibility: 'easy' },
 
-  // FR5 — Restricted Data Flow (2)
-  { id: 6, fr: 'FR5', name: 'Fehlende Netzwerksegmentierung zwischen IT und OT', component: 'Netzwerk — Zonenübergang IT/OT', attacker: 'Externer Angreifer / Ransomware', path: 'Flaches Netzwerk ohne Segmentierung → Ransomware aus IT propagiert in OT → Produktionsausfall', iecRef: 'SR 5.1',
-    likelihood: 4, impact: 5,
-    evidence: 'Netzwerkanalyse: IT- und OT-Netzwerk im gleichen VLAN (10.0.0.0/16). Keine Firewall zwischen Enterprise- und Control-Zone. Ping von Office-PC (10.0.1.50) zu SPS (10.0.5.20) erfolgreich.',
-    rationale: 'Likelihood 4: Ransomware-Ausbreitung über flache Netzwerke häufig dokumentiert (Norsk Hydro, Colonial Pipeline). Impact 5: Produktionsausfall durch OT-Kompromittierung.',
-    sources: ['IEC 62443-3-3 SR 5.1: Network segmentation', 'NIST SP 800-82r3 Section 5.4', 'IEC 62443-3-2: Security risk assessment'], evidenceQuality: 5, reproducibility: 'easy' },
-  { id: 12, fr: 'FR5', name: 'Keine DMZ zwischen Enterprise- und Control-Zone', component: 'Netzwerk — DMZ-Architektur', attacker: 'Externer Angreifer', path: 'Direkter Zugriff von Enterprise-Zone auf SCADA-Server → keine Pufferzone → Angriff propagiert ungehindert', iecRef: 'SR 5.2',
+  // DC — Data Confidentiality (1)
+  { id: 5, fr: 'DC', name: 'Unverschlüsselte Kommunikation zum Shore-Netzwerk', component: 'VSAT-Link — Schiff-Land-Kommunikation', attacker: 'Netzwerk-Mitleser', path: 'Datenverkehr Schiff↔Shore ohne TLS → Betriebsdaten, Crew-Daten, Frachtdaten im Klartext', iecRef: 'E27-22 (SR 4.1)',
     likelihood: 3, impact: 4,
-    evidence: 'Architektur-Review: Keine dedizierte DMZ implementiert. SCADA-Historian direkt aus Enterprise-Netz erreichbar. Kein Proxy oder Data Diode für Datenübertragung.',
-    rationale: 'Likelihood 3: DMZ-Fehlen verbreitet in Legacy-OT. Impact 4: Direkte Angriffspfade von IT nach OT ohne Pufferzone.',
-    sources: ['IEC 62443-3-3 SR 5.2: Zone boundary protection', 'Purdue Enterprise Reference Architecture'], evidenceQuality: 4, reproducibility: 'medium' },
+    evidence: 'Netzwerkmitschnitt: HTTP-Verbindungen zum Fleet-Management-System ohne TLS. Crew-Login-Daten im Klartext. Frachtmanifest-Daten exponiert.',
+    rationale: 'Likelihood 3: VSAT-Interception technisch anspruchsvoll, aber für Nationalstaaten trivial. Impact 4: Betriebsdaten und Crew-PII exponiert.',
+    sources: ['IACS UR E27 Table 1 SI-22: Information confidentiality', 'IEC 62443-3-3 SR 4.1'], evidenceQuality: 4, reproducibility: 'medium' },
 
-  // FR6 — Timely Response to Events (2)
-  { id: 7, fr: 'FR6', name: 'Kein OT-spezifisches Security-Monitoring', component: 'OT-Netzwerk — Monitoring', attacker: 'APT / Interner Angreifer', path: 'Keine Anomalie-Erkennung im OT → Angriffe bleiben unerkannt → Lateral Movement ungehindert', iecRef: 'SR 6.1',
+  // AL — Audit & Logging (2)
+  { id: 7, fr: 'AL', name: 'Kein zentrales Security-Monitoring an Bord', component: 'Bordnetzwerk — Monitoring', attacker: 'APT / Insider', path: 'Keine Anomalie-Erkennung → Angriffe bleiben unerkannt → freie Bewegung im Netzwerk', iecRef: 'E27-24 (SR 6.1)',
     likelihood: 4, impact: 4,
-    evidence: 'Infrastruktur-Review: Kein IDS/IPS im OT-Netzwerk. Kein OT-spezifisches SIEM. Netzwerk-Switches ohne Port-Mirroring konfiguriert. Einzige Überwachung: IT-SIEM erfasst nur Enterprise-Zone.',
-    rationale: 'Likelihood 4: Ohne Monitoring werden Angriffe im OT-Netzwerk nicht erkannt. Durchschnittliche Verweildauer: 280 Tage. Impact 4: Unerkannte Kompromittierung ermöglicht Eskalation und Datenexfiltration.',
-    sources: ['IEC 62443-3-3 SR 6.1: Audit log accessibility', 'SANS ICS Security Survey 2025'], evidenceQuality: 4, reproducibility: 'medium' },
-  { id: 13, fr: 'FR6', name: 'Fehlender Incident-Response-Plan für OT', component: 'Organisation — OT Incident Response', attacker: 'Beliebiger Angreifer', path: 'Kein OT-spezifischer IR-Plan → im Ernstfall Chaos → verlängerte Ausfallzeiten', iecRef: 'SR 6.2',
-    likelihood: 5, impact: 3,
-    evidence: 'Dokumentenprüfung: IT-Incident-Response-Plan vorhanden, aber ohne OT-Szenarien. Keine definierten Eskalationswege für OT-Vorfälle. Kein OT-spezifisches Playbook. Letzte Übung (TTX): nie für OT durchgeführt.',
-    rationale: 'Likelihood 5: Bei Prüfung sofort als Mangel erkannt. OT-IR-Pläne fehlen in > 60% der Unternehmen. Impact 3: Governance-Verstoß, verlängerte Recovery-Zeit, aber kein direkter technischer Schaden.',
-    sources: ['IEC 62443-2-1 Requirement 4.3.4.5: Incident response planning', 'NIST SP 800-82r3 Section 6.8'], evidenceQuality: 5, reproducibility: 'easy' },
+    evidence: 'Infrastruktur-Review: Kein IDS im Bordnetzwerk. Keine zentrale Log-Aggregation. Einzelne Systeme loggen lokal, aber Logs werden nicht ausgewertet.',
+    rationale: 'Likelihood 4: Ohne Monitoring werden Angriffe nicht erkannt. Impact 4: Unerkannte Kompromittierung ermöglicht Eskalation auf Safety-Systeme.',
+    sources: ['IACS UR E27 Table 1 SI-24: Audit log accessibility', 'IEC 62443-3-3 SR 6.1'], evidenceQuality: 4, reproducibility: 'medium' },
+  { id: 13, fr: 'AL', name: 'Audit-Logs ohne Zeitstempel-Synchronisation', component: 'CBS — NTP/Zeitsynchronisation', attacker: 'Beliebiger Angreifer', path: 'Keine NTP-Synchronisation → Log-Korrelation unmöglich → Forensik erschwert', iecRef: 'E27-16 (SR 2.11)',
+    likelihood: 5, impact: 2,
+    evidence: 'Stichprobe: Uhrzeiten der CBS weichen bis zu 47 Minuten voneinander ab. Kein NTP-Server an Bord. Logs nicht korrelierbar.',
+    rationale: 'Likelihood 5: Sofort bei Prüfung erkannt. Impact 2: Keine direkte Safety-Auswirkung, aber forensische Aufklärung massiv behindert.',
+    sources: ['IACS UR E27 Table 1 SI-16: Timestamps', 'IEC 62443-3-3 SR 2.11'], evidenceQuality: 5, reproducibility: 'easy' },
 
-  // FR7 — Resource Availability (2)
-  { id: 8, fr: 'FR7', name: 'Kein redundantes Leitsystem (Single Point of Failure)', component: 'SCADA-Server — Hochverfügbarkeit', attacker: 'Hardware-Ausfall / Ransomware', path: 'Kein Failover → Serverausfall → kompletter Produktionsausfall', iecRef: 'SR 7.1',
+  // RA — Resource Availability (2)
+  { id: 8, fr: 'RA', name: 'Kein Redundanzkonzept für Navigations-CBS', component: 'ECDIS/Radar — Hochverfügbarkeit', attacker: 'Hardware-Ausfall / Ransomware', path: 'Kein Failover → CBS-Ausfall → Verlust der Navigation → SOLAS-Verstoß', iecRef: 'E27-25 (SR 7.1)',
     likelihood: 3, impact: 5,
-    evidence: 'Architektur-Review: SCADA-Server auf einzelner Hardware ohne Failover-Cluster. Letzter Backup-Test: 14 Monate alt. Geschätztes RTO: 4h dokumentiert, tatsächlich getestet: nie.',
-    rationale: 'Likelihood 3: Hardwareausfall statistisch wahrscheinlich, Ransomware realistisch. Impact 5: Kompletter Produktionsausfall ohne Failover.',
-    sources: ['IEC 62443-3-3 SR 7.1: Denial of service protection', 'IEC 62443-2-1 Section 4.3.4.3'], evidenceQuality: 4, reproducibility: 'hard' },
-  { id: 14, fr: 'FR7', name: 'Kein Disaster-Recovery-Plan für OT', component: 'OT-Infrastruktur — DR-Planung', attacker: 'Naturkatastrophe / Cyberangriff', path: 'Kein DR-Plan für OT → im Ernstfall keine geordnete Wiederherstellung → wochenlanger Ausfall', iecRef: 'SR 7.2',
+    evidence: 'Architektur-Review: ECDIS auf einzelner Hardware ohne Backup. Kein automatischer Failover auf Radar-Standalone. Backup-ECDIS vorhanden, aber nicht konfiguriert.',
+    rationale: 'Likelihood 3: Hardwareausfall realistisch, Ransomware-Szenarien dokumentiert. Impact 5: Navigationsverlust ist SOLAS-relevant.',
+    sources: ['IACS UR E27 Table 1 SI-25: DoS protection', 'IEC 62443-3-3 SR 7.1', 'SOLAS V/19.2'], evidenceQuality: 4, reproducibility: 'hard' },
+  { id: 14, fr: 'RA', name: 'Kein Disaster-Recovery-Plan für CBS', component: 'Bordnetzwerk — DR-Planung', attacker: 'Cyberangriff / Ausfall', path: 'Kein DR-Plan → im Ernstfall keine geordnete Wiederherstellung → verlängerter Systemausfall auf See', iecRef: 'E27-28 (SR 7.4)',
     likelihood: 3, impact: 4,
-    evidence: 'Dokumentenprüfung: IT-DR-Plan existiert, OT ist nicht abgedeckt. Keine dokumentierten Recovery-Prozeduren für SPS-Programme, SCADA-Konfigurationen oder Historiker-Datenbanken. Backup-Strategie für OT: nicht formalisiert.',
-    rationale: 'Likelihood 3: DR-Szenarien realistisch. Impact 4: Ohne OT-DR-Plan kann Wiederherstellung Wochen dauern (SPS-Neuprojektierung).',
-    sources: ['IEC 62443-2-1 Section 4.3.4.3: Business continuity plan', 'ISO 22301:2019'], evidenceQuality: 3, reproducibility: 'hard' },
+    evidence: 'Dokumentenprüfung: Kein Recovery-Plan für CBS. Keine dokumentierten Backup-Prozeduren. Letzter Systembackup: unbekannt.',
+    rationale: 'Likelihood 3: DR-Szenarien auf See realistisch. Impact 4: Ohne Recovery-Plan kann Wiederherstellung Tage dauern (nächster Hafen).',
+    sources: ['IACS UR E27 Table 1 SI-28: System recovery and reconstitution', 'IEC 62443-3-3 SR 7.4'], evidenceQuality: 3, reproducibility: 'hard' },
+
+  // UTN — Untrusted Network (2)
+  { id: 6, fr: 'UTN', name: 'Fehlende Netzwerksegmentierung zwischen IT und OT', component: 'Bordnetzwerk — Zonenübergang IT/OT', attacker: 'Externer Angreifer / Ransomware', path: 'Flaches Netzwerk → Ransomware aus Crew-IT propagiert in OT → Navigations-/Maschinenausfall', iecRef: 'E27-36 (SR 1.13)',
+    likelihood: 4, impact: 5,
+    evidence: 'Netzwerkanalyse: Crew-WiFi, administrative IT und OT-Systeme im gleichen Netzwerksegment. Keine Firewall zwischen Zonen. Ping von Crew-Laptop zu ECDIS erfolgreich.',
+    rationale: 'Likelihood 4: Ransomware über Crew-Internetzugang häufig dokumentiert (NotPetya, Maersk 2017). Impact 5: Navigationssystem- und Maschinenausfall.',
+    sources: ['IACS UR E27 Table 2 SI-36: Access via untrusted networks', 'IEC 62443-3-3 SR 1.13', 'Maersk NotPetya Case Study'], evidenceQuality: 5, reproducibility: 'easy' },
+  { id: 12, fr: 'UTN', name: 'Kein Remote-Access-Management für Fernwartung', component: 'VSAT — Remote Access', attacker: 'Externer Angreifer', path: 'Fernwartung ohne MFA oder Genehmigung → Hersteller-Zugriff unkontrolliert → CBS-Kompromittierung', iecRef: 'E27-37 (SR 1.13 RE1)',
+    likelihood: 3, impact: 5,
+    evidence: 'Konfigurationscheck: Remote-Desktop-Zugang via VSAT ohne MFA. Hersteller-VPN permanent aktiv. Keine On-Board-Freigabe erforderlich.',
+    rationale: 'Likelihood 3: Permanenter Remote-Zugang ist dokumentierter Angriffsvektor. Impact 5: Unkontrollierter Vollzugriff auf Safety-CBS.',
+    sources: ['IACS UR E27 Table 2 SI-37: Explicit access request approval', 'IEC 62443-3-3 SR 1.13 RE1'], evidenceQuality: 4, reproducibility: 'medium' },
 ];
 
-// ── Demo IEC 62443 Requirements (22 requirements mapped to SRs) ──
+// ── IACS UR E27 Requirements (Table 1: 31 + Table 2: 10 = 41, consolidated to 22 key items) ──
 
 export const IEC_REQS: IecReq[] = [
-  // FR1 — Identification & Authentication
-  { id: 'FR1-1', article: 'SR 1.1', name: 'Identifikation und Authentifizierung (Human Users)', status: 'fail',
-    gap: 'Shared Accounts auf HMI, Modbus ohne Auth, Default-Passwörter',
-    evidence: 'Shared Admin-Accounts auf 3/5 HMI-Stationen. Modbus TCP ohne Auth (12 SPS). Default-Passwörter auf 4/6 Engineering-Workstations.',
-    rationale: 'Nicht erfüllt: Drei unabhängige Schwachstellen verletzen SR 1.1. Individuelle Identifikation ist Grundvoraussetzung für Accountability.',
-    measure: '1. Individuelle Benutzerkonten auf allen HMI-Stationen (AD/LDAP-Anbindung). 2. Modbus TCP durch authentifiziertes Protokoll ersetzen (OPC-UA mit Security). 3. Passwort-Änderungszwang bei Erstinbetriebnahme.',
-    criteria: ['Alle Benutzer authentifizieren sich individuell (keine Shared Accounts)', 'Modbus-Kommunikation durch authentifiziertes Protokoll ersetzt oder durch Netzwerksegmentierung geschützt', 'Default-Credentials bei Erstinbetriebnahme zwingend geändert'],
+  // IAC — Identification & Authentication
+  { id: 'IAC-1', article: 'E27-01 (SR 1.1)', name: 'Human User Identification & Authentication', status: 'fail',
+    gap: 'Shared Accounts auf Brücke, NMEA ohne Auth, Default-Passwörter',
+    evidence: 'Shared Admin-Accounts auf 3/4 Brücken-Workstations. NMEA-Netzwerk ohne Authentifizierung. Default-Passwörter auf Maschinensteuerung.',
+    rationale: 'Nicht erfüllt: Drei unabhängige Schwachstellen verletzen E27-01. Individuelle Identifikation ist Grundvoraussetzung für Accountability.',
+    measure: '1. Individuelle Benutzerkonten auf allen Brücken-CBS. 2. NMEA-Netzwerk durch Firewall/Gateway schützen. 3. Passwort-Änderungszwang bei Inbetriebnahme.',
+    criteria: ['Alle Benutzer authentifizieren sich individuell', 'NMEA-Datenstrom durch Gateway mit Integritätsprüfung geschützt', 'Default-Credentials bei Inbetriebnahme zwingend geändert'],
     effort: '40-60h', priority: 'P0' },
-  { id: 'FR1-2', article: 'SR 1.2', name: 'Software-Prozess-Identifikation', status: 'partial',
-    gap: 'Keine Authentifizierung zwischen SPS und SCADA',
-    evidence: 'Kommunikation SPS ↔ SCADA ohne gegenseitige Authentifizierung. Kein Zertifikatsmanagement für OT-Komponenten.',
-    rationale: 'Teilweise erfüllt: OPC-UA-Server hat Zertifikat, aber Security Mode = None. Modbus nativ ohne Auth.',
-    measure: 'OPC-UA Security Mode auf SignAndEncrypt umstellen. Zertifikatsmanagement für alle OT-Komponenten einführen.',
-    criteria: ['OPC-UA SecurityMode=SignAndEncrypt', 'Zertifikatsbasierte Authentifizierung zwischen SCADA und SPS'],
-    effort: '24-32h', priority: 'P1' },
-  { id: 'FR1-3', article: 'SR 1.5', name: 'Authenticator-Management', status: 'fail',
-    gap: 'Default-Passwörter, keine Passwort-Policy für OT',
-    evidence: '4/6 Engineering-Workstations mit Default-Passwort. Keine Passwort-Policy für OT-Systeme definiert. Keine Passwort-Rotation.',
-    rationale: 'Nicht erfüllt: Default-Credentials in Kombination mit fehlender Policy verletzen SR 1.5 vollständig.',
-    measure: '1. OT-Passwort-Policy definieren (min. 12 Zeichen, Rotation 90 Tage). 2. Default-Credentials bei Inbetriebnahme erzwingen. 3. Passwort-Safe für OT-Credentials einführen.',
-    criteria: ['OT-Passwort-Policy dokumentiert und durchgesetzt', 'Default-Credentials eliminiert', 'Passwort-Safe für OT-Credentials'],
+  { id: 'IAC-2', article: 'E27-02 (SR 1.3)', name: 'Account Management', status: 'partial',
+    gap: 'Keine zentrale Benutzerverwaltung, Accounts werden nicht deaktiviert',
+    evidence: 'Kein zentrales Account-Management. Crew-Wechsel führt nicht zur Account-Deaktivierung. Service-Accounts ohne Ablaufdatum.',
+    rationale: 'Teilweise erfüllt: Accounts existieren, aber Lifecycle (Anlegen/Deaktivieren) nicht verwaltet.',
+    measure: 'Zentrales Account-Management einführen. Account-Deaktivierung bei Crew-Wechsel. Service-Accounts mit Ablaufdatum.',
+    criteria: ['Account-Lifecycle-Prozess dokumentiert', 'Crew-Wechsel triggert Account-Review'],
+    effort: '16-24h', priority: 'P1' },
+  { id: 'IAC-3', article: 'E27-04 (SR 1.5)', name: 'Authenticator Management', status: 'fail',
+    gap: 'Default-Passwörter, keine Passwort-Policy',
+    evidence: '3/4 Steuerungssysteme mit Default-Passwort. Keine Passwort-Policy für CBS definiert.',
+    rationale: 'Nicht erfüllt: Default-Credentials in Kombination mit fehlender Policy.',
+    measure: '1. CBS-Passwort-Policy definieren. 2. Default-Credentials bei Inbetriebnahme eliminieren. 3. Passwort-Safe für CBS-Credentials.',
+    criteria: ['CBS-Passwort-Policy dokumentiert und durchgesetzt', 'Default-Credentials eliminiert'],
     effort: '16-24h', priority: 'P0' },
 
-  // FR2 — Use Control
-  { id: 'FR2-1', article: 'SR 2.1', name: 'Autorisierungs-Durchsetzung', status: 'fail',
-    gap: 'Keine RBAC auf SCADA, einheitliche Berechtigungsstufe',
-    evidence: 'SCADA-System ohne Rollendifferenzierung. Jeder angemeldete Benutzer hat volle Konfigurationsrechte.',
-    rationale: 'Nicht erfüllt: Fehlende RBAC verletzt das Least-Privilege-Prinzip. Operator-Fehler und absichtlicher Missbrauch nicht verhinderbar.',
-    measure: '1. RBAC im SCADA-System konfigurieren (Operator, Ingenieur, Admin). 2. Least-Privilege-Prinzip durchsetzen. 3. Berechtigungsmatrix dokumentieren.',
-    criteria: ['Mindestens 3 Rollen mit differenzierten Berechtigungen konfiguriert', 'Berechtigungsmatrix dokumentiert und genehmigt', 'Regelmäßige Berechtigungsreviews (halbjährlich)'],
+  // UC — Use Control
+  { id: 'UC-1', article: 'E27-08 (SR 2.1)', name: 'Authorization Enforcement', status: 'fail',
+    gap: 'Keine RBAC auf Bridge-System, einheitliche Berechtigungsstufe',
+    evidence: 'Bridge-System ohne Rollendifferenzierung. Jeder angemeldete Benutzer hat volle Konfigurationsrechte.',
+    rationale: 'Nicht erfüllt: Fehlende RBAC verletzt das Least-Privilege-Prinzip.',
+    measure: '1. RBAC konfigurieren (Kapitän, Offizier, Service). 2. Berechtigungsmatrix dokumentieren.',
+    criteria: ['Mindestens 3 Rollen mit differenzierten Berechtigungen', 'Berechtigungsmatrix dokumentiert'],
     effort: '24-32h', priority: 'P1' },
-  { id: 'FR2-2', article: 'SR 2.4', name: 'Mobile Code / Wechselmedien', status: 'partial',
+  { id: 'UC-2', article: 'E27-10 (SR 2.3)', name: 'Portable & Mobile Devices', status: 'partial',
     gap: 'USB-Ports nicht deaktiviert, kein Wechselmedien-Konzept',
-    evidence: 'USB-Ports physisch zugänglich. Keine USB-Port-Sperre. Kein dokumentiertes Wechselmedien-Konzept.',
-    rationale: 'Teilweise erfüllt: Organisatorische Regelung vorhanden (Verbot privater USB), aber technisch nicht durchgesetzt.',
-    measure: '1. USB-Ports per GPO/BIOS deaktivieren (Ausnahme: dedizierte Wartungsstationen). 2. Wechselmedien-Policy dokumentieren. 3. USB-Kiosk für Malware-Scan.',
-    criteria: ['USB-Ports an SPS und HMI technisch deaktiviert', 'Dokumentierte Wechselmedien-Policy', 'USB-Kiosk-Station für Wartungsmedien'],
+    evidence: 'USB-Ports an ECDIS und Engine-Workstations physisch zugänglich. Keine USB-Port-Sperre.',
+    rationale: 'Teilweise erfüllt: Organisatorische Regelung vorhanden, technisch nicht durchgesetzt.',
+    measure: '1. USB-Ports per BIOS/Software deaktivieren. 2. Dedizierte Kiosk-Station für Kartenupdates. 3. Wechselmedien-Policy.',
+    criteria: ['USB-Ports technisch deaktiviert (Ausnahme: dedizierte Stationen)', 'Wechselmedien-Policy dokumentiert'],
     effort: '12-20h', priority: 'P1' },
+  { id: 'UC-3', article: 'E27-12 (SR 2.5)', name: 'Session Lock', status: 'partial',
+    gap: 'Keine automatische Session-Sperre auf Brücken-CBS',
+    evidence: 'ECDIS und Radar-Workstations haben keine automatische Bildschirmsperre. Sessions bleiben permanent aktiv.',
+    rationale: 'Teilweise erfüllt: Manuelle Sperre möglich, aber kein Timeout konfiguriert.',
+    measure: 'Automatische Session-Sperre nach 15 Minuten Inaktivität auf allen CBS konfigurieren.',
+    criteria: ['Session-Lock nach max. 15 Minuten auf allen CBS aktiv'],
+    effort: '4-8h', priority: 'P2' },
 
-  // FR3 — System Integrity
-  { id: 'FR3-1', article: 'SR 3.2', name: 'Malware-Schutz', status: 'partial',
-    gap: 'Kein Antivirus auf Engineering-Workstations',
-    evidence: 'Antivirus auf 2/6 Engineering-Workstations installiert. Signaturen 3 Monate alt. Kein Whitelisting-Konzept.',
-    rationale: 'Teilweise erfüllt: Punktuell vorhanden, aber nicht flächendeckend und nicht aktuell.',
-    measure: '1. Application Whitelisting auf allen Engineering-Workstations. 2. Signatur-Updates via WSUS/offline-Repository. 3. Regelmäßige Scans planen.',
-    criteria: ['Application Whitelisting auf allen Engineering-Workstations aktiv', 'Signatur-Updates maximal 7 Tage alt', 'Quarantäne-Prozess dokumentiert'],
-    effort: '16-24h', priority: 'P1' },
-  { id: 'FR3-2', article: 'SR 3.4', name: 'Software- und Informationsintegrität', status: 'fail',
-    gap: 'Keine Firmware-Signaturprüfung, keine SPS-Konfigurationskontrolle',
-    evidence: 'SPS-Firmware ohne Signaturprüfung. Keine Versionskontrolle für SPS-Programme. Keine Baseline-Comparison.',
-    rationale: 'Nicht erfüllt: Firmware-Manipulation und unbemerkte Konfigurationsänderungen möglich. Fundamentale Integritätsverletzung.',
-    measure: '1. Firmware-Signaturprüfung implementieren (Hersteller-Support). 2. SPS-Versionskontrolle einführen (z.B. versiondog, MDT AutoSave). 3. Automatische Baseline-Comparison und Alerting.',
-    criteria: ['Firmware-Updates werden vor Installation kryptographisch verifiziert', 'SPS-Programme in Versionskontrollsystem verwaltet', 'Automatische Benachrichtigung bei Konfigurationsabweichung'],
-    effort: '32-48h', priority: 'P0' },
-
-  // FR4 — Data Confidentiality
-  { id: 'FR4-1', article: 'SR 4.1', name: 'Informationsvertraulichkeit', status: 'fail',
-    gap: 'OPC-UA ohne Verschlüsselung, Prozessdaten im Klartext',
-    evidence: 'OPC-UA SecurityMode=None. Prozessdaten im Klartext auf dem Netzwerk. Rezepturen und Steuerungsbefehle exponiert.',
-    rationale: 'Nicht erfüllt: Vollständige Offenlegung aller Prozessdaten. In Industrieumgebung Betriebsgeheimnisse betroffen.',
-    measure: '1. OPC-UA SecurityMode=SignAndEncrypt, SecurityPolicy=Basic256Sha256. 2. TLS 1.2+ für alle OT-Kommunikation. 3. Data-at-Rest-Verschlüsselung für Historian.',
-    criteria: ['OPC-UA SecurityMode=SignAndEncrypt mit Basic256Sha256', 'Keine unverschlüsselte Industrieprotokoll-Kommunikation', 'Historian-Datenbank verschlüsselt'],
+  // SI — System Integrity
+  { id: 'SI-1', article: 'E27-18 (SR 3.2)', name: 'Malicious Code Protection', status: 'fail',
+    gap: 'Kein Malware-Schutz auf ECDIS und Engine-Workstations',
+    evidence: 'ECDIS Windows-basiert, kein Antivirus, kein Whitelisting. OS-Update 18 Monate alt.',
+    rationale: 'Nicht erfüllt: Kein Schutz gegen Malware auf Safety-kritischen CBS.',
+    measure: '1. Application Whitelisting auf allen CBS. 2. Offline-Signatur-Updates. 3. Regelmäßige Scans.',
+    criteria: ['Application Whitelisting auf allen CBS aktiv', 'Signatur-Updates max. 30 Tage alt'],
+    effort: '16-24h', priority: 'P0' },
+  { id: 'SI-2', article: 'E27-17 (SR 3.1)', name: 'Communication Integrity', status: 'fail',
+    gap: 'NMEA-Kommunikation ohne Integritätsschutz',
+    evidence: 'NMEA-Datenstrom unverschlüsselt und ohne Integritätsprüfung. GPS-Spoofing-PoC erfolgreich.',
+    rationale: 'Nicht erfüllt: Manipulierte Navigationsdaten werden ohne Prüfung akzeptiert.',
+    measure: '1. NMEA-Gateway mit Integritätsprüfung. 2. Multi-Source-Vergleich (GPS/GLONASS/Galileo). 3. AIS-Kreuzprüfung.',
+    criteria: ['NMEA-Gateway mit Plausibilitätsprüfung installiert', 'Multi-GNSS-Validierung aktiv'],
     effort: '24-40h', priority: 'P0' },
-  { id: 'FR4-2', article: 'SR 4.3', name: 'Kryptographisches Management', status: 'partial',
-    gap: 'Kein Zertifikatsmanagement, selbstsignierte Zertifikate',
-    evidence: 'Selbstsignierte Zertifikate auf OPC-UA-Servern. Kein PKI für OT. Zertifikats-Ablauf nicht überwacht.',
-    rationale: 'Teilweise erfüllt: Zertifikate vorhanden, aber nicht zentral verwaltet. Ablaufrisiko.',
-    measure: 'OT-PKI aufbauen oder an Enterprise-PKI anbinden. Zertifikats-Lifecycle-Management einführen.',
-    criteria: ['Zertifikats-Lifecycle-Management implementiert', 'PKI für OT-Komponenten etabliert'],
-    effort: '24-32h', priority: 'P2' },
-
-  // FR5 — Restricted Data Flow
-  { id: 'FR5-1', article: 'SR 5.1', name: 'Netzwerksegmentierung', status: 'fail',
-    gap: 'IT und OT im gleichen VLAN, keine Firewall',
-    evidence: 'IT und OT im gleichen VLAN (10.0.0.0/16). Keine Firewall zwischen Zonen. Ping von Office zu SPS erfolgreich.',
-    rationale: 'Nicht erfüllt: Fundamentaler Verstoß gegen das Zone-Conduit-Modell. Ransomware-Propagation ungehindert möglich.',
-    measure: '1. Netzwerksegmentierung nach Purdue/IEC 62443 Zone-Conduit-Modell. 2. Next-Gen-Firewall zwischen IT und OT mit OT-Protokoll-Inspektion. 3. DMZ für Datenaustausch.',
-    criteria: ['Dedizierte VLANs für Enterprise, DMZ, Control und Field Zone', 'Firewall mit OT-Protokoll-Inspektion an Zonenübergängen', 'DMZ für alle IT↔OT-Datenflüsse'],
-    effort: '60-100h', priority: 'P0' },
-  { id: 'FR5-2', article: 'SR 5.2', name: 'Zonengrenzschutz', status: 'fail',
-    gap: 'Keine DMZ, direkter Zugriff auf SCADA aus Enterprise',
-    evidence: 'Keine DMZ. SCADA-Historian direkt aus Enterprise-Netz erreichbar. Kein Proxy oder Data Diode.',
-    rationale: 'Nicht erfüllt: Ohne DMZ ist die Purdue-Architektur durchbrochen. Angriffspfad IT→OT ohne Pufferzone.',
-    measure: '1. DMZ-Zone einrichten (Level 3.5). 2. Data Diode oder Proxy für Historian-Daten. 3. Nur explizit erlaubte Datenflüsse definieren.',
-    criteria: ['DMZ zwischen Enterprise und Control Zone implementiert', 'Historian-Daten über Proxy/Data Diode bereitgestellt', 'Whitelist-basierte Firewall-Regeln'],
-    effort: '40-60h', priority: 'P0' },
-
-  // FR6 — Timely Response
-  { id: 'FR6-1', article: 'SR 6.1', name: 'Audit-Log-Zugriff', status: 'fail',
-    gap: 'Kein OT-spezifisches Monitoring, kein IDS im OT-Netz',
-    evidence: 'Kein IDS/IPS im OT-Netzwerk. Kein OT-SIEM. Keine Anomalie-Erkennung. IT-SIEM erfasst nur Enterprise-Zone.',
-    rationale: 'Nicht erfüllt: Ohne OT-Monitoring werden Angriffe nicht erkannt. Durchschnittliche Verweildauer ohne Detection: 280 Tage.',
-    measure: '1. OT-IDS/Anomalie-Erkennung installieren (z.B. Nozomi Networks, Claroty, Dragos). 2. Log-Forwarding von OT-Geräten an SIEM. 3. 24/7-Monitoring oder Managed-SOC.',
-    criteria: ['OT-IDS in Control-Zone installiert und operativ', 'Log-Forwarding von SCADA, SPS-Gateways und Engineering-WS an SIEM', '24/7-Monitoring für OT-Alarme'],
-    effort: '60-80h', priority: 'P0' },
-  { id: 'FR6-2', article: 'SR 6.2', name: 'Kontinuierliches Monitoring', status: 'fail',
-    gap: 'Kein OT-IR-Plan, keine Playbooks, keine Übungen',
-    evidence: 'IT-IR-Plan ohne OT-Szenarien. Keine OT-Playbooks. Keine TTX für OT-Vorfälle durchgeführt.',
-    rationale: 'Nicht erfüllt: Ohne OT-IR-Plan ist die Reaktionsfähigkeit bei OT-Vorfällen nicht sichergestellt.',
-    measure: '1. OT-spezifischen IR-Plan erstellen (inkl. Playbooks für SCADA-Kompromittierung, Ransomware-in-OT, Safety-System-Ausfall). 2. Halbjährliche TTX-Übungen. 3. Eskalationswege definieren.',
-    criteria: ['OT-IR-Plan dokumentiert mit mindestens 3 Playbooks', 'Halbjährliche TTX-Übungen mit OT-Personal', 'Eskalationswege IT↔OT definiert und getestet'],
-    effort: '24-40h', priority: 'P1' },
-
-  // FR7 — Resource Availability
-  { id: 'FR7-1', article: 'SR 7.1', name: 'DoS-Schutz', status: 'fail',
-    gap: 'Kein Failover für SCADA-Server, Single Point of Failure',
-    evidence: 'SCADA-Server ohne Failover-Cluster. Letzter Backup-Test: 14 Monate alt. RTO nie getestet.',
-    rationale: 'Nicht erfüllt: Single Point of Failure bei kritischem Leitsystem. Kein getestetes Recovery.',
-    measure: '1. SCADA-Server-Cluster (Active-Passive oder Active-Active). 2. Tägliche automatisierte Backups mit wöchentlichem Restore-Test. 3. Dokumentiertes RTO/RPO.',
-    criteria: ['SCADA-Server in Failover-Cluster konfiguriert', 'Automatisierte Backups mit regelmäßigem Restore-Test', 'RTO/RPO dokumentiert und getestet'],
-    effort: '40-60h', priority: 'P0' },
-  { id: 'FR7-2', article: 'SR 7.2', name: 'Ressourcenmanagement', status: 'partial',
-    gap: 'Kein DR-Plan für OT, nur IT-DR-Plan vorhanden',
-    evidence: 'IT-DR-Plan vorhanden. OT nicht abgedeckt. Keine Recovery-Prozeduren für SPS, SCADA, Historian.',
-    rationale: 'Teilweise erfüllt: IT-DR vorhanden, OT-Erweiterung fehlt.',
-    measure: '1. OT-DR-Plan erstellen (SPS-Backup, SCADA-Konfiguration, Historian-Recovery). 2. Jährlicher DR-Test inkl. OT-Komponenten. 3. Offline-Backup für kritische SPS-Programme.',
-    criteria: ['OT-DR-Plan dokumentiert', 'Jährlicher DR-Test mit OT-Komponenten', 'Offline-Backup für kritische SPS-Programme'],
-    effort: '24-40h', priority: 'P1' },
-
-  // Cross-cutting
-  { id: 'CC-1', article: 'IEC 62443-2-1 4.2.3', name: 'Sicherheitsrichtlinien und -verfahren', status: 'partial',
-    gap: 'IT-Policies vorhanden, nicht auf OT angepasst',
-    evidence: 'IT-Sicherheitsrichtlinien nach ISO 27001 vorhanden. Keine OT-spezifischen Ergänzungen. Keine Referenz auf IEC 62443.',
-    rationale: 'Teilweise erfüllt: IT-Policies solide, OT-Spezifika fehlen.',
-    measure: 'OT-spezifische Policies ergänzen (Patch-Management, Wechselmedien, Remote Access, Change Management für SPS).',
-    criteria: ['OT-spezifische Sicherheitsrichtlinien dokumentiert', 'Referenz auf IEC 62443 und branchenspezifische Standards', 'Jährliche Policy-Reviews'],
+  { id: 'SI-3', article: 'E27-20 (SR 3.5)', name: 'Input Validation', status: 'partial',
+    gap: 'Keine Validierung externer Inputs über Untrusted Networks',
+    evidence: 'Fleet-Management-Daten werden ohne Validierung verarbeitet. Keine Input-Sanitization.',
+    rationale: 'Teilweise erfüllt: Interne Datenverarbeitung validiert, externe Inputs nicht.',
+    measure: 'Input-Validierung für alle Daten aus Untrusted Networks implementieren.',
+    criteria: ['Input-Validierung für alle externen Datenquellen implementiert'],
     effort: '16-24h', priority: 'P2' },
-  { id: 'CC-2', article: 'IEC 62443-2-1 4.3.2.6', name: 'Schulung und Bewusstsein', status: 'partial',
-    gap: 'Kein OT-spezifisches Security-Training',
-    evidence: 'IT-Security-Training für alle Mitarbeiter. Kein OT-spezifisches Training für Ingenieure und Operatoren. Keine ICS-Security-Awareness-Kampagne.',
-    rationale: 'Teilweise erfüllt: IT-Awareness vorhanden, OT-Spezifika fehlen.',
-    measure: '1. ICS-Security-Training für Ingenieure und Operatoren. 2. OT-Phishing-Simulation. 3. Jährliche ICS-Security-Awareness-Kampagne.',
-    criteria: ['ICS-Security-Training für OT-Personal (jährlich)', 'OT-spezifische Phishing-Simulation', 'Awareness-Kampagne für Safety/Security-Konvergenz'],
-    effort: '8-16h', priority: 'P2' },
-  { id: 'CC-3', article: 'IEC 62443-2-4 SP.02.02', name: 'Patch-Management für OT', status: 'partial',
-    gap: 'Kein formalisierter Patch-Prozess für OT-Systeme',
-    evidence: 'IT-Patch-Management etabliert. OT-Patches ad-hoc, abhängig von Wartungsfenstern. Keine formale Patch-Bewertung für OT.',
-    rationale: 'Teilweise erfüllt: Patches werden installiert, aber ohne formalisierten Prozess und Risikobewertung.',
-    measure: '1. OT-Patch-Management-Prozess formalisieren (Bewertung, Test, Rollout, Rollback). 2. Patch-Kalender mit Wartungsfenstern abstimmen. 3. Virtuelle Patching-Strategie für Legacy-Systeme.',
-    criteria: ['Formalisierter OT-Patch-Prozess dokumentiert', 'Patch-Bewertung vor Rollout (Kompatibilitätstest)', 'Virtual-Patching-Strategie für nicht-patchbare Legacy-Systeme'],
-    effort: '16-24h', priority: 'P2' },
-  { id: 'CC-4', article: 'IEC 62443-2-4 SP.03.08', name: 'Lieferanten- und Integratoren-Management', status: 'pass',
+  { id: 'SI-4', article: 'E27-21 (SR 3.6)', name: 'Deterministic Output', status: 'pass',
     gap: '',
-    evidence: 'Lieferantenbewertung dokumentiert. Vertragsklauseln für Security-Anforderungen definiert. Regelmäßige Security-Reviews mit Hauptlieferanten.',
-    rationale: 'Erfüllt: Strukturierter Lieferantenmanagement-Prozess mit Security-Anforderungen.',
+    evidence: 'Engine Control System geht bei CBS-Ausfall in definierten Safe-State (Dead Ship Condition Procedure). ECDIS hat papierbasierte Rückfallebene.',
+    rationale: 'Erfüllt: Fail-Safe-Verhalten dokumentiert und getestet.',
     measure: '', criteria: [], effort: '', priority: '' },
+
+  // DC — Data Confidentiality
+  { id: 'DC-1', article: 'E27-22 (SR 4.1)', name: 'Information Confidentiality', status: 'fail',
+    gap: 'Unverschlüsselte Kommunikation zum Shore-Netzwerk',
+    evidence: 'HTTP-Verbindungen zum Fleet-Management ohne TLS. Crew-Login-Daten im Klartext.',
+    rationale: 'Nicht erfüllt: Betriebsdaten und PII unverschlüsselt über VSAT übertragen.',
+    measure: '1. TLS 1.2+ für alle Shore-Verbindungen. 2. VPN für Fleet-Management. 3. Verschlüsselung at Rest auf CBS.',
+    criteria: ['Alle Shore-Verbindungen über TLS 1.2+', 'Fleet-Management über VPN-Tunnel'],
+    effort: '24-40h', priority: 'P0' },
+  { id: 'DC-2', article: 'E27-23 (SR 4.3)', name: 'Use of Cryptography', status: 'partial',
+    gap: 'Veraltete Krypto-Algorithmen, kein Zertifikatsmanagement',
+    evidence: 'TLS 1.0 auf einigen Systemen. Selbstsignierte Zertifikate. Kein Zertifikats-Lifecycle.',
+    rationale: 'Teilweise erfüllt: Kryptographie eingesetzt, aber veraltet und nicht zentral verwaltet.',
+    measure: 'TLS 1.2+ erzwingen. Zertifikatsmanagement aufbauen.',
+    criteria: ['TLS 1.0/1.1 deaktiviert', 'Zertifikats-Lifecycle-Management'],
+    effort: '16-24h', priority: 'P2' },
+
+  // AL — Audit & Logging
+  { id: 'AL-1', article: 'E27-13 (SR 2.8)', name: 'Auditable Events', status: 'fail',
+    gap: 'Keine ausreichende Event-Protokollierung auf CBS',
+    evidence: 'Kein IDS/IPS. Keine zentrale Log-Aggregation. Einzelsystem-Logs unausgewertet.',
+    rationale: 'Nicht erfüllt: Security-Events werden nicht systematisch erfasst.',
+    measure: '1. Zentrale Log-Aggregation (Syslog-Server). 2. IDS im Bordnetzwerk. 3. Event-Monitoring-Policy.',
+    criteria: ['Zentrale Log-Aggregation für alle CBS', 'IDS in kritischen Netzwerksegmenten'],
+    effort: '40-60h', priority: 'P0' },
+  { id: 'AL-2', article: 'E27-16 (SR 2.11)', name: 'Timestamps', status: 'fail',
+    gap: 'Keine NTP-Synchronisation, Uhrzeiten weichen ab',
+    evidence: 'Uhrzeiten der CBS weichen bis zu 47 Minuten ab. Kein NTP-Server an Bord.',
+    rationale: 'Nicht erfüllt: Log-Korrelation ohne Zeitsynchronisation unmöglich.',
+    measure: 'NTP-Server an Bord installieren. Alle CBS synchronisieren.',
+    criteria: ['NTP-Server an Bord aktiv', 'Alle CBS-Uhrzeiten synchronisiert (max. ±1s Abweichung)'],
+    effort: '8-16h', priority: 'P1' },
+
+  // RA — Resource Availability
+  { id: 'RA-1', article: 'E27-25 (SR 7.1)', name: 'Denial of Service Protection', status: 'fail',
+    gap: 'Kein Failover für Navigations-CBS, Single Point of Failure',
+    evidence: 'ECDIS auf einzelner Hardware ohne Backup. Backup-ECDIS vorhanden aber nicht konfiguriert.',
+    rationale: 'Nicht erfüllt: Single Point of Failure bei SOLAS-relevantem System.',
+    measure: '1. ECDIS Hot-Standby konfigurieren. 2. Automatischer Failover. 3. Regelmäßige Failover-Tests.',
+    criteria: ['ECDIS-Failover konfiguriert und getestet', 'Failover-Test halbjährlich'],
+    effort: '24-40h', priority: 'P0' },
+  { id: 'RA-2', article: 'E27-27 (SR 7.3)', name: 'System Backup', status: 'fail',
+    gap: 'Keine dokumentierte Backup-Strategie für CBS',
+    evidence: 'Kein Recovery-Plan. Keine dokumentierten Backup-Prozeduren. Letzter Backup: unbekannt.',
+    rationale: 'Nicht erfüllt: Keine Backup-Strategie für Safety-relevante CBS.',
+    measure: '1. Backup-Policy für alle CBS. 2. Regelmäßige automatisierte Backups. 3. Restore-Tests halbjährlich.',
+    criteria: ['CBS-Backup-Policy dokumentiert', 'Automatisierte Backups aktiv', 'Halbjährliche Restore-Tests'],
+    effort: '16-24h', priority: 'P1' },
+  { id: 'RA-3', article: 'E27-28 (SR 7.4)', name: 'System Recovery & Reconstitution', status: 'partial',
+    gap: 'Kein CBS-Recovery-Plan für Szenarien auf See',
+    evidence: 'Generischer IT-Recovery-Plan vorhanden. Keine CBS-spezifischen Recovery-Prozeduren für Szenarien auf See.',
+    rationale: 'Teilweise erfüllt: Generischer Plan existiert, maritim-spezifische Erweiterung fehlt.',
+    measure: 'CBS-spezifischen Recovery-Plan mit maritimen Szenarien erstellen.',
+    criteria: ['CBS-Recovery-Plan mit See-Szenarien dokumentiert', 'Jährlicher Recovery-Test'],
+    effort: '16-24h', priority: 'P1' },
+  { id: 'RA-4', article: 'E27-29 (SR 7.5)', name: 'Emergency Power', status: 'pass',
+    gap: '',
+    evidence: 'Notstromversorgung für alle Essential CBS vorhanden und getestet. USV-Systeme auf Brücke und Maschinenraum.',
+    rationale: 'Erfüllt: Notstromkonzept dokumentiert und regelmäßig getestet.',
+    measure: '', criteria: [], effort: '', priority: '' },
+
+  // UTN — Untrusted Network Protection (Table 2)
+  { id: 'UTN-1', article: 'E27-32 (SR 1.1 RE2)', name: 'Multifactor Authentication (Untrusted)', status: 'fail',
+    gap: 'Kein MFA für Remote-Zugriff über VSAT',
+    evidence: 'Remote-Desktop via VSAT ohne MFA. Passwort-only-Authentifizierung.',
+    rationale: 'Nicht erfüllt: E27 Table 2 verlangt MFA bei Zugriff über Untrusted Networks.',
+    measure: '1. MFA für alle Remote-Zugänge. 2. Hardware-Token oder App-basiert.',
+    criteria: ['MFA für alle Zugriffe über Untrusted Networks aktiv'],
+    effort: '16-24h', priority: 'P0' },
+  { id: 'UTN-2', article: 'E27-36 (SR 1.13)', name: 'Access via Untrusted Networks', status: 'fail',
+    gap: 'Keine Überwachung und Kontrolle des Shore-Zugangs',
+    evidence: 'Crew-WiFi, Admin-IT und OT im gleichen Segment. Keine Firewall. Shore-Zugang unkontrolliert.',
+    rationale: 'Nicht erfüllt: Fundamentaler Verstoß gegen Netzwerksegmentierung.',
+    measure: '1. Netzwerksegmentierung (Crew/Admin/OT). 2. Next-Gen-Firewall. 3. DMZ für Shore-Kommunikation.',
+    criteria: ['Dedizierte Netzwerksegmente für Crew, Admin und OT', 'Firewall an Zonenübergängen', 'Shore-Zugang nur über DMZ'],
+    effort: '60-100h', priority: 'P0' },
+  { id: 'UTN-3', article: 'E27-37 (SR 1.13 RE1)', name: 'Explicit Access Request Approval', status: 'fail',
+    gap: 'Remote-Zugriff ohne On-Board-Freigabe',
+    evidence: 'Hersteller-VPN permanent aktiv. Keine Freigabe durch Bordpersonal erforderlich.',
+    rationale: 'Nicht erfüllt: E27 verlangt explizite On-Board-Genehmigung für Remote-Zugriffe.',
+    measure: '1. VPN-Zugang nur nach expliziter Freigabe durch Bordoffizier. 2. Session-Logging. 3. Zeitbegrenzung.',
+    criteria: ['Remote-Zugriff nur nach On-Board-Freigabe', 'Session-Logging aktiv', 'Zeitlich begrenzte Zugänge'],
+    effort: '16-24h', priority: 'P0' },
 ];
 
-// ── Demo Scenarios ──────────────────────────────────────────────
+// ── Demo Scenarios (Maritime) ───────────────────────────────
 
 export interface DemoScenario {
   facility: { name: string; types: string[] };
@@ -425,47 +435,46 @@ export interface DemoScenario {
 
 export const DEMO_SCENARIOS: DemoScenario[] = [
   {
-    facility: { name: 'Chemiewerk Ludwigshafen — Leittechnik', types: ['dcs', 'plc', 'his'] },
+    facility: { name: 'MV Northern Spirit — Containerschiff', types: ['propulsion', 'navigation', 'power', 'ecdis'] },
+    securityLevel: 'sl2',
+    description: 'Containerschiff mit integriertem Brückensystem (IBS), ECDIS, Radar/ARPA, AIS, Engine Control System, Power Management System. VSAT-Verbindung zum Shore-Office. 4 Brücken-Workstations, 2 Engine-Room-Terminals.',
+    zones: ['bridge', 'engineroom', 'crew', 'shore'],
+    protocols: ['NMEA 0183', 'NMEA 2000', 'Modbus TCP', 'HTTPS/REST', 'VSAT/Fleet Broadband', 'Serial (RS-422/485)', 'USB'],
+    roles: ['Kapitän', 'Chief Engineer', 'IT-Officer', 'Wachoffizier', 'Elektroingenieur'],
+    measures: { iac: { active: true, documented: false, audited: false }, backup: { active: true, documented: false, audited: false }, patch: { active: true, documented: false, audited: false } },
+    knownIssues: 'Flaches Netzwerk IT/OT, Shared Accounts auf Brücke, USB-Ports offen, kein Monitoring, NMEA ungeschützt.',
+    files: [
+      { name: 'NorthernSpirit_Netzwerkarchitektur_v2.1.pdf', size: 2_200_000, type: 'arch' },
+      { name: 'CBS_Inventory_2024.xlsx', size: 890_000, type: 'riskAssess' },
+      { name: 'Network_Topology_Diagram.vsdx', size: 650_000, type: 'zoneMap' },
+    ],
+  },
+  {
+    facility: { name: 'MV Baltic Trader — RoRo-Fähre', types: ['propulsion', 'steering', 'navigation', 'safety', 'comms'] },
     securityLevel: 'sl3',
-    description: 'Verteiltes Leitsystem (DCS) mit 120 SPS-Steuerungen für chemische Prozessanlagen. OPC-UA-Kommunikation zwischen SCADA und SPS. Historian-Datenbank für Prozessdatenaufzeichnung. 5 Engineering-Workstations.',
-    zones: ['enterprise', 'dmz', 'control', 'field'],
-    protocols: ['OPC-UA', 'Modbus TCP', 'PROFINET', 'HTTPS/REST', 'SSH', 'RDP'],
-    roles: ['OT-Security-Beauftragter', 'Leittechnik-Ingenieur', 'Operator', 'Wartungstechniker'],
-    measures: { iac: { active: true, documented: false, audited: false }, segmentation: { active: true, documented: true, audited: false }, backup: { active: true, documented: true, audited: false }, patch: { active: true, documented: false, audited: false } },
-    knownIssues: 'Flaches Netzwerk IT/OT, Shared Accounts auf HMI, Modbus ohne Auth, kein OT-Monitoring.',
+    description: 'RoRo-Fähre mit Passagierbetrieb. DP-System, integriertes Brückensystem, Fire Detection System, GMDSS, Public Address System. Hochfrequenter Hafenbetrieb mit regelmäßigen Shore-Connections.',
+    zones: ['bridge', 'engineroom', 'crew', 'cargo_ot', 'safety_zone', 'shore'],
+    protocols: ['NMEA 0183', 'NMEA 2000', 'IEC 61162-450', 'Modbus TCP', 'PROFINET', 'HTTPS/REST', 'VPN (IPsec)', 'Wireless (WiFi)'],
+    roles: ['Kapitän', 'Safety Officer', 'Chief Engineer', 'IT-Officer', 'DPO (Dynamic Positioning Operator)'],
+    measures: { iac: { active: true, documented: true, audited: false }, segmentation: { active: true, documented: false, audited: false }, monitoring: { active: true, documented: false, audited: false }, incident: { active: true, documented: true, audited: false } },
+    knownIssues: 'Passagier-WiFi nicht segmentiert, Remote-Wartung ohne MFA, Fire-Detection-System Legacy.',
     files: [
-      { name: 'Chemiewerk_Netzwerkarchitektur_v3.2.pdf', size: 2_850_000, type: 'arch' },
-      { name: 'Chemiewerk_Risikoanalyse_2024.pdf', size: 1_420_000, type: 'riskAssess' },
-      { name: 'Zone_Conduit_Diagramm.vsdx', size: 890_000, type: 'zoneMap' },
+      { name: 'BalticTrader_CyberRiskAssessment_2024.pdf', size: 3_100_000, type: 'riskAssess' },
+      { name: 'Network_Segmentation_Plan.pdf', size: 1_800_000, type: 'zoneMap' },
     ],
   },
   {
-    facility: { name: 'Stadtwerke Rheinberg — Wasserversorgung', types: ['scada', 'rtu', 'plc'] },
+    facility: { name: 'MV Deep Explorer — Offshore-Versorgungsschiff', types: ['propulsion', 'steering', 'navigation', 'cargo', 'comms'] },
     securityLevel: 'sl2',
-    description: 'SCADA-System für Wasserversorgung mit 35 RTUs an Brunnenstandorten und Pumpwerken. Kommunikation über LTE/VPN. Zentrales Leitsystem mit Historian.',
-    zones: ['enterprise', 'control', 'field', 'remote'],
-    protocols: ['DNP3', 'Modbus TCP', 'HTTPS/REST', 'VPN (IPsec/WireGuard)', 'MQTT'],
-    roles: ['Betriebsleiter', 'Leitstandoperator', 'Servicetechniker'],
-    measures: { iac: { active: true, documented: true, audited: false }, backup: { active: true, documented: false, audited: false }, vendor: { active: true, documented: true, audited: true } },
-    knownIssues: 'RTUs mit Default-Passwörtern, kein OT-IDS, DR-Plan nur für IT.',
+    description: 'Offshore-Supply-Vessel (OSV) mit DP-2-System für Offshore-Plattform-Versorgung. Engine Management System, Ballast Control, Crane Control. Häufige Fernwartung durch Hersteller.',
+    zones: ['bridge', 'engineroom', 'cargo_ot', 'shore'],
+    protocols: ['NMEA 2000', 'CANbus (J1939)', 'Modbus TCP', 'OPC-UA', 'VSAT/Fleet Broadband', 'VPN (IPsec)'],
+    roles: ['Kapitän', 'DPO (Dynamic Positioning Operator)', 'Chief Engineer', 'ETO (Electro-Technical Officer)'],
+    measures: { iac: { active: true, documented: false, audited: false }, vendor: { active: true, documented: true, audited: true }, backup: { active: true, documented: true, audited: false } },
+    knownIssues: 'DP-System Fernwartung permanent aktiv, kein MFA, Default-Passwords auf Crane Control.',
     files: [
-      { name: 'Stadtwerke_SCADA_Architektur.pdf', size: 1_650_000, type: 'arch' },
-      { name: 'Stadtwerke_ISM_Policy_v2.pdf', size: 540_000, type: 'policy' },
-    ],
-  },
-  {
-    facility: { name: 'AutoParts AG — Fertigung', types: ['plc', 'edge', 'his'] },
-    securityLevel: 'sl2',
-    description: 'Automobilfertigung mit 80 SPS-Steuerungen, Edge-Computing für Qualitätskontrolle (KI-basiert). MES-Integration über OPC-UA. 3 Produktionslinien.',
-    zones: ['enterprise', 'dmz', 'control', 'field'],
-    protocols: ['OPC-UA', 'PROFINET', 'EtherNet/IP', 'MQTT', 'HTTPS/REST'],
-    roles: ['Produktionsleiter', 'Automatisierungsingenieur', 'IT-Security-Manager', 'Instandhaltung'],
-    measures: { segmentation: { active: true, documented: true, audited: true }, monitoring: { active: true, documented: false, audited: false }, patch: { active: true, documented: true, audited: false }, training: { active: true, documented: false, audited: false } },
-    knownIssues: 'Legacy-SPS ohne Patch-Möglichkeit, OPC-UA Security Mode None auf Edge-Nodes.',
-    files: [
-      { name: 'AutoParts_OT_Architektur_v4.pdf', size: 3_200_000, type: 'arch' },
-      { name: 'AutoParts_Pentest_OT_2025.pdf', size: 1_120_000, type: 'pentest' },
-      { name: 'AutoParts_ZoneConduit_Map.pdf', size: 780_000, type: 'zoneMap' },
+      { name: 'DeepExplorer_DP_SystemDoc.pdf', size: 4_500_000, type: 'arch' },
+      { name: 'Vendor_Access_Policy.pdf', size: 520_000, type: 'policy' },
     ],
   },
 ];
