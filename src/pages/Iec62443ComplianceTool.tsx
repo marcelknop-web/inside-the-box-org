@@ -867,7 +867,7 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IecIntakeData; 
         <div className="text-sm text-foreground mb-3">
           <div className="font-semibold mb-0.5">Bericht exportieren</div>
           <div className="text-xs text-muted-foreground">
-            {qaResult ? 'Qualitätsprüfung abgeschlossen — PDF wird in einer nächsten Iteration ergänzt' : 'Starten Sie die Qualitätsprüfung, um den Bericht zu validieren'}
+            {qaResult ? 'Qualitätsprüfung abgeschlossen — PDF-Export bereit' : 'Starten Sie die Qualitätsprüfung, um den Bericht zu validieren'}
           </div>
         </div>
         <div className="flex gap-3 flex-wrap items-center">
@@ -875,6 +875,26 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IecIntakeData; 
             {qaRunning ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <ShieldCheck className="w-4 h-4 mr-2" />}
             {qaRunning ? 'Prüfung läuft…' : 'Dokument prüfen'}
           </Button>
+          {qaResult && (
+            <Button
+              onClick={() => {
+                generateIec62443Report({
+                  intakeData,
+                  threats: localThreats,
+                  reqs: localReqs,
+                  language: language as 'de' | 'en' | 'fr',
+                  isDraft: qaVerdict !== 'passed',
+                  qaChecks: qaResult.checks,
+                  fixLog: allFixLogs,
+                  qaIterations: 1,
+                });
+              }}
+              className="font-semibold"
+            >
+              <FileText className="w-4 h-4 mr-2" />
+              PDF Final
+            </Button>
+          )}
         </div>
       </div>
     </StaggerReveal>
