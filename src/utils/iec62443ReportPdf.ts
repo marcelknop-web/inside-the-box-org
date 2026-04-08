@@ -219,8 +219,8 @@ export async function generateIec62443Report(data: Iec62443ReportData): Promise<
   pdf.addBookmark(t(I18N.sec3a, lang), 2);
 
   const introThreats = lang === 'de'
-    ? `Die Bedrohungsanalyse basiert auf den Anforderungskategorien der IACS UR E27 und bewertet jedes Szenario anhand von Eintrittswahrscheinlichkeit und Auswirkung auf die Schiffssicherheit. Kritische Risiken (Score >= 20) erfordern Sofortmaßnahmen.`
-    : `The threat analysis is based on the IACS UR E27 requirement categories and rates each scenario by likelihood and impact on vessel safety. Critical risks (score >= 20) require immediate action.`;
+    ? `Die nachfolgende Bedrohungsanalyse orientiert sich an den Anforderungskategorien der IACS UR E27. Jedes identifizierte Szenario wurde systematisch nach Eintrittswahrscheinlichkeit und potenzieller Auswirkung auf die Schiffssicherheit bewertet. Bedrohungen mit einem Risiko-Score von 20 oder höher werden als kritisch eingestuft und erfordern unverzügliche Gegenmaßnahmen.`
+    : `The following threat analysis is structured according to the requirement categories of IACS UR E27. Each identified scenario has been systematically assessed by likelihood and potential impact on vessel safety. Threats with a risk score of 20 or above are classified as critical and require immediate countermeasures.`;
   pdf.introText(introThreats);
 
   const sortedThreats = [...threats].sort((a, b) => (b.likelihood * b.impact) - (a.likelihood * a.impact));
