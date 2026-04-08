@@ -134,15 +134,15 @@ export async function generateIec62443Report(data: Iec62443ReportData): Promise<
   const isCompliant = critRisks.length === 0 && failReqs.length === 0;
   const verdictText = lang === 'de'
     ? isCompliant
-      ? `Das Schiff/System ${intakeData.facilityName} erfüllt die Anforderungen nach IACS UR E27. Keine kritischen Abweichungen festgestellt.`
-      : `Das Schiff/System ${intakeData.facilityName} erreicht ${complianceRate}% Konformität mit IACS UR E27. ${critRisks.length} kritische Risiken und ${failReqs.length} nicht konforme Anforderungen erfordern Sofortmaßnahmen.`
+      ? `Im Rahmen der durchgeführten Prüfung konnte festgestellt werden, dass das Schiff bzw. System ${intakeData.facilityName} die Anforderungen gemäß IACS UR E27 vollständig erfüllt. Kritische Abweichungen wurden nicht identifiziert.`
+      : `Die Prüfung des Schiffs bzw. Systems ${intakeData.facilityName} ergibt eine Konformitätsrate von ${complianceRate} % gegenüber den Anforderungen der IACS UR E27. Insgesamt wurden ${critRisks.length} kritische Risiken sowie ${failReqs.length} nicht konforme Anforderungen festgestellt, die unverzügliche Gegenmaßnahmen erfordern.`
     : lang === 'fr'
     ? isCompliant
-      ? `Le navire/système ${intakeData.facilityName} satisfait les exigences IACS UR E27.`
-      : `Le navire/système ${intakeData.facilityName} atteint ${complianceRate}% de conformité IACS UR E27. ${critRisks.length} risques critiques et ${failReqs.length} exigences non conformes nécessitent une action immédiate.`
+      ? `L'évaluation a permis de constater que le navire/système ${intakeData.facilityName} satisfait pleinement aux exigences de l'IACS UR E27. Aucun écart critique n'a été identifié.`
+      : `L'évaluation du navire/système ${intakeData.facilityName} aboutit à un taux de conformité de ${complianceRate} % par rapport aux exigences de l'IACS UR E27. Au total, ${critRisks.length} risques critiques et ${failReqs.length} exigences non conformes ont été identifiés, nécessitant des mesures correctives immédiates.`
     : isCompliant
-    ? `Vessel/System ${intakeData.facilityName} meets IACS UR E27 requirements.`
-    : `Vessel/System ${intakeData.facilityName} achieves ${complianceRate}% compliance with IACS UR E27. ${critRisks.length} critical risks and ${failReqs.length} non-compliant requirements demand immediate action.`;
+    ? `The assessment has determined that vessel/system ${intakeData.facilityName} fully meets the requirements set out in IACS UR E27. No critical deviations were identified.`
+    : `The assessment of vessel/system ${intakeData.facilityName} yields a compliance rate of ${complianceRate}% against the requirements of IACS UR E27. A total of ${critRisks.length} critical risks and ${failReqs.length} non-compliant requirements were identified, necessitating immediate remediation.`;
 
   pdf.verdictBox(verdictText);
 
