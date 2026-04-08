@@ -464,6 +464,32 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
 
 // ── Phase 2: Threat Model ─────────────────────────────────────
 
+function SectionCard({ title, icon, children, className = '' }: { title: string; icon?: string; children: React.ReactNode; className?: string }) {
+  return (
+    <div className={`bg-card border border-border rounded-xl overflow-hidden ${className}`}>
+      {title && (
+        <div className="px-5 py-3.5 border-b border-border bg-secondary/40">
+          <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+            {icon && <span>{icon}</span>}
+            {title}
+          </h3>
+        </div>
+      )}
+      <div className="p-5">{children}</div>
+    </div>
+  );
+}
+
+function KpiCard({ label, value, accent }: { label: string; value: number | string; accent?: string }) {
+  const colorCls = accent === 'danger' ? 'text-destructive' : accent === 'warning' ? 'text-orange-500' : accent === 'success' ? 'text-green-500' : 'text-foreground';
+  return (
+    <div className="bg-card border border-border rounded-xl p-4 text-center">
+      <div className={`text-2xl font-bold font-mono ${colorCls} mb-1`}>{value}</div>
+      <div className="text-xs font-medium text-muted-foreground leading-tight">{label}</div>
+    </div>
+  );
+}
+
 function ThreatModel({ threats, onNext }: { threats: IecThreat[]; onNext: () => void }) {
   const { language } = useLanguage();
   const [exp, setExp] = useState<number | null>(null);
@@ -475,55 +501,60 @@ function ThreatModel({ threats, onNext }: { threats: IecThreat[]; onNext: () => 
   }, [threats]);
 
   return (
-    <StaggerReveal resetKey="tm" stagger={350}>
+    <StaggerReveal resetKey="tm" stagger={300}>
       <InfoBox icon="🔍" title="Maritime Bedrohungslandschaft" color="blue">Die Bedrohungsanalyse basiert auf den Anforderungskategorien der IACS UR E27 und identifiziert Schwachstellen in den Computer Based Systems (CBS) an Bord.</InfoBox>
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {Object.entries(FR_CATEGORIES).map(([key, meta]) => (
-          <div key={key} className="bg-card border border-border rounded-lg p-3 text-center">
-            <div className={`w-3 h-3 rounded-full ${meta.dot} mx-auto mb-1.5`} />
-            <div className="text-xs font-semibold text-muted-foreground">{meta.label[language]}</div>
-            <div className="text-xl font-bold font-mono text-foreground mt-0.5">{frCounts[key] || 0}</div>
+          <div key={key} className="bg-card border border-border rounded-xl p-3.5 text-center hover:border-primary/30 transition-colors">
+            <div className={`w-2.5 h-2.5 rounded-full ${meta.dot} mx-auto mb-2`} />
+            <div className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide leading-tight">{meta.label[language]}</div>
+            <div className="text-2xl font-bold font-mono text-foreground mt-1">{frCounts[key] || 0}</div>
           </div>
         ))}
       </div>
-      <div className="space-y-1.5">
-        {threats.map(th => {
-          const isOpen = exp === th.id;
-          const risk = riskLevel(th.likelihood, th.impact);
-          const meta = FR_CATEGORIES[th.fr];
-          return (
-            <div key={th.id} className="bg-card border border-border rounded-lg overflow-hidden">
-              <div className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-secondary/50" onClick={() => setExp(isOpen ? null : th.id)}>
-                <span className={`px-2 py-0.5 rounded text-xs font-bold ${meta?.badge || ''}`}>{th.fr}</span>
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm font-semibold text-foreground truncate">{th.name}</div>
-                  <div className="text-xs text-muted-foreground">{th.component}</div>
+
+      <SectionCard title={`Identifizierte Bedrohungen (${threats.length})`} icon="🛡️">
+        <div className="space-y-2">
+          {threats.map(th => {
+            const isOpen = exp === th.id;
+            const risk = riskLevel(th.likelihood, th.impact);
+            const meta = FR_CATEGORIES[th.fr];
+            return (
+              <div key={th.id} className={`border rounded-lg overflow-hidden transition-colors ${isOpen ? 'border-primary/30 bg-primary/[0.02]' : 'border-border hover:border-muted-foreground/30'}`}>
+                <div className="flex items-center gap-3 px-4 py-3 cursor-pointer" onClick={() => setExp(isOpen ? null : th.id)}>
+                  <span className={`px-2 py-0.5 rounded text-xs font-bold flex-shrink-0 ${meta?.badge || ''}`}>{th.fr}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-semibold text-foreground truncate">{th.name}</div>
+                    <div className="text-xs text-muted-foreground mt-0.5">{th.component}</div>
+                  </div>
+                  <span className={`px-2.5 py-1 rounded-md text-xs font-bold ${risk.cls}`}>{th.likelihood * th.impact}</span>
+                  {isOpen ? <ChevronUp className="w-4 h-4 text-muted-foreground flex-shrink-0" /> : <ChevronDown className="w-4 h-4 text-muted-foreground flex-shrink-0" />}
                 </div>
-                <span className={`px-2 py-0.5 rounded text-xs font-bold ${risk.cls}`}>{th.likelihood * th.impact}</span>
-                {isOpen ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+                {isOpen && (
+                  <div className="border-t border-border bg-secondary/20 px-4 py-4 text-sm space-y-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                      <div className="bg-background/60 rounded-lg px-3 py-2"><span className="font-semibold text-muted-foreground block mb-0.5">Angreifer</span><span className="text-foreground">{th.attacker}</span></div>
+                      <div className="bg-background/60 rounded-lg px-3 py-2"><span className="font-semibold text-muted-foreground block mb-0.5">Referenz</span><span className="text-foreground font-mono">{th.iecRef}</span></div>
+                    </div>
+                    <div className="bg-background/60 rounded-lg px-3 py-2 text-xs"><span className="font-semibold text-muted-foreground block mb-0.5">Angriffspfad</span><span className="text-foreground">{th.path}</span></div>
+                    <EvidenceBlock label="Evidenz">{th.evidence}</EvidenceBlock>
+                    <EvidenceBlock label="Begründung">{th.rationale}</EvidenceBlock>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div><div className="text-xs font-semibold text-muted-foreground mb-1.5">Likelihood</div><ScoreBar value={th.likelihood} /></div>
+                      <div><div className="text-xs font-semibold text-muted-foreground mb-1.5">Impact</div><ScoreBar value={th.impact} /></div>
+                    </div>
+                    {th.sources.length > 0 && (
+                      <div className="text-xs text-muted-foreground pt-1 border-t border-border/50"><span className="font-semibold">Quellen: </span>{th.sources.join(' · ')}</div>
+                    )}
+                  </div>
+                )}
               </div>
-              {isOpen && (
-                <div className="border-t border-border bg-secondary/30 px-4 py-3 text-sm space-y-3">
-                  <div className="grid grid-cols-2 gap-3 text-xs">
-                    <div><span className="font-semibold text-muted-foreground">Angreifer:</span> <span className="text-foreground">{th.attacker}</span></div>
-                    <div><span className="font-semibold text-muted-foreground">Ref:</span> <span className="text-foreground font-mono">{th.iecRef}</span></div>
-                  </div>
-                  <div className="text-xs"><span className="font-semibold text-muted-foreground">Angriffspfad:</span> <span className="text-foreground">{th.path}</span></div>
-                  <EvidenceBlock label="Evidenz">{th.evidence}</EvidenceBlock>
-                  <EvidenceBlock label="Begründung">{th.rationale}</EvidenceBlock>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div><div className="text-xs text-muted-foreground mb-1">Likelihood</div><ScoreBar value={th.likelihood} /></div>
-                    <div><div className="text-xs text-muted-foreground mb-1">Impact</div><ScoreBar value={th.impact} /></div>
-                  </div>
-                  {th.sources.length > 0 && (
-                    <div className="text-xs text-muted-foreground"><span className="font-semibold">Quellen: </span>{th.sources.join(' | ')}</div>
-                  )}
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      </SectionCard>
+
       <div className="flex justify-end pt-2">
         <Button onClick={onNext} className="font-semibold">Zur Risikomatrix</Button>
       </div>
@@ -547,32 +578,29 @@ function RiskAssessment({ threats, onNext }: { threats: IecThreat[]; onNext: () 
     <StaggerReveal resetKey="ra" stagger={350}>
       <InfoBox icon="⚖️" title="Risikomatrix (5×5)" color="blue">Die Risikobewertung ordnet jede Bedrohung nach Eintrittswahrscheinlichkeit und Auswirkung auf Schiffssicherheit ein.</InfoBox>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        {([['Kritisch', 'bg-destructive', cnt.critical], ['Hoch', 'bg-orange-500', cnt.high], ['Mittel', 'bg-yellow-500', cnt.medium], ['Niedrig', 'bg-green-500', cnt.low]] as [string, string, number][]).map(([l, c, n]) => (
-          <div key={l} className="bg-card border border-border rounded-lg p-4 text-center">
-            <div className={`text-2xl font-bold font-mono ${c} text-white rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-2`}>{n}</div>
-            <div className="text-sm font-semibold text-muted-foreground">{l}</div>
-          </div>
-        ))}
+        <KpiCard label="Kritisch" value={cnt.critical} accent="danger" />
+        <KpiCard label="Hoch" value={cnt.high} accent="warning" />
+        <KpiCard label="Mittel" value={cnt.medium} />
+        <KpiCard label="Niedrig" value={cnt.low} accent="success" />
       </div>
-      <div className="bg-card border border-border rounded-lg p-4">
-        <div className="text-sm font-semibold text-foreground mb-3">Risikomatrix</div>
+      <SectionCard title="Risikomatrix (Likelihood × Impact)" icon="📊">
         <div className="overflow-x-auto">
-          <table className="text-xs border-collapse">
+          <table className="text-xs border-collapse mx-auto">
             <thead><tr>
-              <th className="w-20 text-right pr-3 text-muted-foreground font-normal pb-1">Impact ↑</th>
-              {[1,2,3,4,5].map(i => <th key={i} className="w-12 text-center text-muted-foreground font-semibold pb-1 font-mono">{i}</th>)}
-              <th className="pl-2 text-muted-foreground font-normal">← Likelihood</th>
+              <th className="w-20 text-right pr-3 text-muted-foreground font-normal pb-2">Impact ↑</th>
+              {[1,2,3,4,5].map(i => <th key={i} className="w-14 text-center text-muted-foreground font-semibold pb-2 font-mono">{i}</th>)}
+              <th className="pl-3 text-muted-foreground font-normal pb-2">Likelihood →</th>
             </tr></thead>
             <tbody>
               {[5,4,3,2,1].map(imp => (
                 <tr key={imp}>
-                  <td className="text-right pr-3 text-muted-foreground font-semibold py-0.5 font-mono">{imp}</td>
+                  <td className="text-right pr-3 text-muted-foreground font-semibold py-1 font-mono">{imp}</td>
                   {[1,2,3,4,5].map(lik => {
                     const score = lik * imp;
                     const pts = threats.filter(th => th.likelihood === lik && th.impact === imp);
                     return (
-                      <td key={lik} className={`w-12 h-10 ${matrixColor(score)} text-center align-middle border border-background`} title={pts.map(p => p.name).join('\n')}>
-                        {pts.length > 0 && <div className="w-6 h-6 bg-background/90 rounded-full text-foreground font-bold text-xs font-mono flex items-center justify-center mx-auto shadow cursor-help">{pts.length}</div>}
+                      <td key={lik} className={`w-14 h-11 ${matrixColor(score)} text-center align-middle border-2 border-background rounded-md`} title={pts.map(p => p.name).join('\n')}>
+                        {pts.length > 0 && <div className="w-7 h-7 bg-background/90 rounded-full text-foreground font-bold text-xs font-mono flex items-center justify-center mx-auto shadow-sm cursor-help">{pts.length}</div>}
                       </td>
                     );
                   })}
@@ -581,32 +609,41 @@ function RiskAssessment({ threats, onNext }: { threats: IecThreat[]; onNext: () 
             </tbody>
           </table>
         </div>
-      </div>
-      <div className="bg-card border border-border rounded-lg overflow-hidden">
-        <div className="px-4 py-3 bg-secondary border-b border-border text-sm font-semibold text-foreground">Alle Risiken</div>
-        <div className="overflow-x-auto">
+      </SectionCard>
+
+      <SectionCard title={`Alle Risiken (${sorted.length})`} icon="📋">
+        <div className="overflow-x-auto -mx-5">
           <table className="w-full text-sm">
-            <thead className="bg-secondary text-xs text-muted-foreground"><tr>
-              <th className="px-4 py-2 text-left">Bedrohung</th>
-              <th className="px-3 py-2 text-center w-10">L</th><th className="px-3 py-2 text-center w-10">I</th><th className="px-3 py-2 text-center w-14">Score</th><th className="px-4 py-2 text-center w-24">Priorität</th>
+            <thead className="bg-secondary/60 text-xs text-muted-foreground"><tr>
+              <th className="px-5 py-2.5 text-left font-semibold">Bedrohung</th>
+              <th className="px-3 py-2.5 text-center w-12 font-semibold">L</th>
+              <th className="px-3 py-2.5 text-center w-12 font-semibold">I</th>
+              <th className="px-3 py-2.5 text-center w-16 font-semibold">Score</th>
+              <th className="px-5 py-2.5 text-center w-28 font-semibold">Priorität</th>
             </tr></thead>
             <tbody>
               {sorted.map((th, idx) => {
                 const risk = riskLevel(th.likelihood, th.impact);
                 return (
-                  <tr key={th.id} className={idx % 2 === 0 ? 'bg-card' : 'bg-secondary/30'}>
-                    <td className="px-4 py-2.5"><div className="font-medium text-foreground"><span className="font-mono text-xs text-muted-foreground mr-1.5">{threatId(th)}</span>{th.name}</div><div className="text-xs text-muted-foreground">{th.component}</div></td>
-                    <td className="px-3 py-2.5 text-center font-semibold text-foreground font-mono">{th.likelihood}</td>
-                    <td className="px-3 py-2.5 text-center font-semibold text-foreground font-mono">{th.impact}</td>
-                    <td className="px-3 py-2.5 text-center font-bold text-foreground font-mono">{th.likelihood * th.impact}</td>
-                    <td className="px-4 py-2.5 text-center"><span className={`px-2 py-0.5 rounded text-xs font-bold ${risk.cls}`}>{risk.label}</span></td>
+                  <tr key={th.id} className={`border-b border-border/50 last:border-0 ${idx % 2 === 0 ? '' : 'bg-secondary/20'}`}>
+                    <td className="px-5 py-3">
+                      <div className="font-medium text-foreground">
+                        <span className="font-mono text-xs text-muted-foreground mr-2">{threatId(th)}</span>{th.name}
+                      </div>
+                      <div className="text-xs text-muted-foreground mt-0.5">{th.component}</div>
+                    </td>
+                    <td className="px-3 py-3 text-center font-semibold text-foreground font-mono">{th.likelihood}</td>
+                    <td className="px-3 py-3 text-center font-semibold text-foreground font-mono">{th.impact}</td>
+                    <td className="px-3 py-3 text-center font-bold text-foreground font-mono">{th.likelihood * th.impact}</td>
+                    <td className="px-5 py-3 text-center"><span className={`px-2.5 py-1 rounded-md text-xs font-bold ${risk.cls}`}>{risk.label}</span></td>
                   </tr>
                 );
               })}
             </tbody>
           </table>
         </div>
-      </div>
+      </SectionCard>
+
       <div className="flex justify-end pt-2">
         <Button onClick={onNext} className="font-semibold">Zur E27-Zuordnung</Button>
       </div>
@@ -627,54 +664,74 @@ function IecMapping({ reqs, onNext }: { reqs: IecReq[]; onNext: () => void }) {
   }, [reqs]);
 
   return (
-    <StaggerReveal resetKey="cm" stagger={350}>
+    <StaggerReveal resetKey="cm" stagger={300}>
       <InfoBox icon="📋" title="IACS UR E27 Konformitätsbewertung" color="blue">Bewertung des Schiffs gegen die Anforderungen aus IACS UR E27 (Table 1 + Table 2).</InfoBox>
-      <div className="bg-card border border-border rounded-lg p-5 flex flex-col sm:flex-row items-center gap-6">
-        <div className="relative w-24 h-24 flex-shrink-0">
+
+      {/* Score Overview */}
+      <div className="bg-card border border-border rounded-xl p-6 flex flex-col sm:flex-row items-center gap-6">
+        <div className="relative w-28 h-28 flex-shrink-0">
           <svg viewBox="0 0 36 36" className="w-full h-full" style={{ transform: 'rotate(-90deg)' }}>
-            <circle cx="18" cy="18" r="15.9" fill="none" className="stroke-secondary" strokeWidth="3" />
-            <circle cx="18" cy="18" r="15.9" fill="none" stroke={strokeColor} strokeWidth="3" strokeDasharray={`${score} ${100 - score}`} strokeLinecap="round" />
+            <circle cx="18" cy="18" r="15.9" fill="none" className="stroke-secondary" strokeWidth="2.5" />
+            <circle cx="18" cy="18" r="15.9" fill="none" stroke={strokeColor} strokeWidth="2.5" strokeDasharray={`${score} ${100 - score}`} strokeLinecap="round" />
           </svg>
-          <div className="absolute inset-0 flex items-center justify-center">
-            <span className={`text-xl font-bold font-mono ${scoreColor}`}>{score}%</span>
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <span className={`text-2xl font-bold font-mono ${scoreColor}`}>{score}%</span>
+            <span className="text-[10px] text-muted-foreground font-medium">Readiness</span>
           </div>
         </div>
-        <div className="flex-1">
-          <div className="text-base font-bold text-foreground mb-1">IACS UR E27 Readiness</div>
-          <div className="text-sm text-muted-foreground mb-3">{reqs.length} Anforderungen geprüft</div>
-          <div className="flex gap-4 text-sm flex-wrap">
-            <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-green-500 inline-block" />{pass} Konform</span>
-            <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-yellow-500 inline-block" />{partial} Teilweise</span>
-            <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-destructive inline-block" />{fail} Nicht konform</span>
+        <div className="flex-1 text-center sm:text-left">
+          <div className="text-lg font-bold text-foreground mb-1">IACS UR E27 Compliance Score</div>
+          <div className="text-sm text-muted-foreground mb-4">{reqs.length} Anforderungen geprüft</div>
+          <div className="flex gap-5 text-sm flex-wrap justify-center sm:justify-start">
+            {([['Konform', pass, 'bg-green-500'], ['Teilweise', partial, 'bg-yellow-500'], ['Nicht konform', fail, 'bg-destructive']] as [string, number, string][]).map(([label, count, bg]) => (
+              <span key={label} className="flex items-center gap-2">
+                <span className={`w-3 h-3 rounded-full ${bg} inline-block`} />
+                <span className="text-muted-foreground">{label}:</span>
+                <span className="font-bold font-mono text-foreground">{count}</span>
+              </span>
+            ))}
           </div>
         </div>
       </div>
-      <div className="space-y-1.5">
-        {reqs.map(r => {
-          const isOpen = exp === r.id;
-          return (
-            <div key={r.id} className="bg-card border border-border rounded-lg overflow-hidden">
-              <div className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-secondary/50" onClick={() => setExp(isOpen ? null : r.id)}>
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm font-semibold text-foreground">{r.name}</div>
-                  <div className="text-xs text-muted-foreground">{r.article}</div>
+
+      {/* Requirements List */}
+      <SectionCard title={`Anforderungen (${reqs.length})`} icon="📝">
+        <div className="space-y-2">
+          {reqs.map(r => {
+            const isOpen = exp === r.id;
+            return (
+              <div key={r.id} className={`border rounded-lg overflow-hidden transition-colors ${isOpen ? 'border-primary/30 bg-primary/[0.02]' : 'border-border hover:border-muted-foreground/30'}`}>
+                <div className="flex items-center gap-3 px-4 py-3 cursor-pointer" onClick={() => setExp(isOpen ? null : r.id)}>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-semibold text-foreground">{r.name}</div>
+                    <div className="text-xs text-muted-foreground mt-0.5">{r.article}</div>
+                  </div>
+                  <StatusBadge status={r.status} />
+                  {isOpen ? <ChevronUp className="w-4 h-4 text-muted-foreground flex-shrink-0" /> : <ChevronDown className="w-4 h-4 text-muted-foreground flex-shrink-0" />}
                 </div>
-                <StatusBadge status={r.status} />
-                {isOpen ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+                {isOpen && (
+                  <div className="border-t border-border bg-secondary/20 px-4 py-4 text-sm space-y-3">
+                    <EvidenceBlock label="Evidenz">{r.evidence}</EvidenceBlock>
+                    {r.gap && (
+                      <div className="bg-destructive/5 border border-destructive/20 rounded-lg px-3 py-2 text-sm">
+                        <span className="font-semibold text-destructive">Gap: </span><span className="text-foreground">{r.gap}</span>
+                      </div>
+                    )}
+                    <EvidenceBlock label="Begründung">{r.rationale}</EvidenceBlock>
+                    {r.measure && (
+                      <div className="bg-primary/5 border border-primary/20 rounded-lg px-3 py-2 text-sm">
+                        <span className="font-semibold text-primary">Maßnahme: </span><span className="text-foreground">{r.measure}</span>
+                      </div>
+                    )}
+                    <CriteriaBlock criteria={r.criteria} />
+                  </div>
+                )}
               </div>
-              {isOpen && (
-                <div className="border-t border-border bg-secondary/30 px-4 py-3 text-sm space-y-3">
-                  <EvidenceBlock label="Evidenz">{r.evidence}</EvidenceBlock>
-                  {r.gap && <div><span className="font-semibold text-destructive">Gap: </span><span className="text-foreground">{r.gap}</span></div>}
-                  <EvidenceBlock label="Begründung">{r.rationale}</EvidenceBlock>
-                  {r.measure && <div><span className="font-semibold text-primary">Maßnahme: </span><span className="text-foreground">{r.measure}</span></div>}
-                  <CriteriaBlock criteria={r.criteria} />
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      </SectionCard>
+
       <div className="flex justify-end pt-2">
         <Button onClick={onNext} className="font-semibold">Zum Bericht</Button>
       </div>
@@ -728,93 +785,100 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IecIntakeData; 
   };
 
   return (
-    <StaggerReveal resetKey="rp" stagger={350}>
+    <StaggerReveal resetKey="rp" stagger={300}>
       <InfoBox icon="✅" title="Analyse abgeschlossen" color="green">Die IACS UR E27-Prüfung wurde durchgeführt. Starten Sie die Qualitätsprüfung, um den Bericht zu validieren.</InfoBox>
-      <div className="bg-card border-l-4 border-primary rounded-lg p-5 border border-border">
-        <div className="flex flex-col sm:flex-row items-start justify-between mb-3 gap-2">
-          <div>
-            <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">IACS UR E27 Prüfbericht</div>
-            <div className="text-lg font-bold text-foreground mt-0.5">{intakeData.facilityName}</div>
-          </div>
-          <div className="sm:text-right text-xs text-muted-foreground">
-            <div>{today}</div>
-            <div className="mt-0.5">{slName}</div>
-          </div>
-        </div>
-        <div className="h-px bg-border mb-3" />
-        <p className="text-sm text-foreground leading-relaxed">
-          Für das Schiff/System <strong>{intakeData.facilityName}</strong> wurden <strong>{localThreats.length} Bedrohungen</strong> identifiziert, davon <strong className="text-destructive">{critRisks.length} kritisch</strong>. Von {localReqs.length} geprüften Anforderungen sind <strong className="text-destructive">{failReqs.length} nicht konform</strong>.
-        </p>
-      </div>
 
-      {/* Charts */}
-      <div className="bg-card border border-border rounded-lg p-4">
-        <div className="text-sm font-bold text-foreground mb-3">📊 Auswertungsübersicht</div>
-        <Iec62443AuditCharts threats={localThreats} reqs={localReqs} />
-      </div>
-
-      {/* Critical risks */}
-      {critRisks.length > 0 && (
-        <div className="bg-card border-2 border-destructive/30 rounded-lg overflow-hidden">
-          <div className="px-4 py-3 bg-destructive/10 border-b border-destructive/20">
-            <span className="text-sm font-bold text-destructive">Kritische Risiken — {critRisks.length}</span>
-          </div>
-          <div className="px-4 py-3 text-sm space-y-2">
-            {critRisks.map(th => (
-              <div key={th.id} className="flex items-start gap-3">
-                <span className="font-mono text-xs text-destructive font-bold bg-destructive/10 px-1.5 py-0.5 rounded flex-shrink-0">{threatId(th)}</span>
-                <div className="flex-1">
-                  <span className="font-semibold text-foreground">{th.name}</span>
-                  <span className="text-muted-foreground"> — {th.component}</span>
-                  <div className="text-xs text-muted-foreground mt-0.5">Score: <span className="font-mono font-bold text-destructive">{th.likelihood}×{th.impact}={th.likelihood * th.impact}</span></div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Fail reqs */}
-      <div className="bg-card border border-border rounded-lg overflow-hidden">
-        <div className="px-4 py-3 bg-destructive/10 border-b border-destructive/20">
-          <span className="text-sm font-bold text-destructive">Nicht konforme Anforderungen — {failReqs.length}</span>
-        </div>
-        {failReqs.map((r, i) => (
-          <div key={r.id} className={`px-4 py-3 text-sm ${i % 2 === 0 ? 'bg-card' : 'bg-secondary/30'} ${i < failReqs.length - 1 ? 'border-b border-border' : ''}`}>
-            <div className="flex gap-3">
-              <span className="font-bold text-destructive w-5 flex-shrink-0 font-mono">{i + 1}.</span>
-              <div className="flex-1 space-y-2">
-                <div><div className="font-semibold text-foreground">{r.name}</div><div className="text-muted-foreground/60 text-xs">{r.article}</div></div>
-                <div className="text-xs"><span className="font-semibold text-muted-foreground">Evidenz: </span>{r.evidence}</div>
-                <div className="text-xs"><span className="font-semibold text-primary">Maßnahme: </span>{r.measure}</div>
-                <CriteriaBlock criteria={r.criteria} />
-              </div>
+      {/* Report Header */}
+      <div className="bg-card border border-border rounded-xl overflow-hidden">
+        <div className="border-l-4 border-primary p-6">
+          <div className="flex flex-col sm:flex-row items-start justify-between gap-3">
+            <div>
+              <div className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest mb-1">IACS UR E27 Prüfbericht</div>
+              <div className="text-xl font-bold text-foreground">{intakeData.facilityName}</div>
+            </div>
+            <div className="sm:text-right text-xs text-muted-foreground space-y-0.5">
+              <div className="font-mono">{today}</div>
+              <div className="font-medium">{slName}</div>
             </div>
           </div>
-        ))}
+          <div className="h-px bg-border my-4" />
+          <p className="text-sm text-foreground leading-relaxed">
+            Für das Schiff/System <strong>{intakeData.facilityName}</strong> wurden <strong>{localThreats.length} Bedrohungen</strong> identifiziert, davon <strong className="text-destructive">{critRisks.length} kritisch</strong>. Von {localReqs.length} geprüften Anforderungen sind <strong className="text-destructive">{failReqs.length} nicht konform</strong>.
+          </p>
+        </div>
       </div>
 
       {/* KPIs */}
       <div className="grid grid-cols-3 gap-3">
-        {([['Threats gesamt', localThreats.length, 'text-foreground'], ['Kritische Risiken', critRisks.length, 'text-destructive'], ['Nicht konform', failReqs.length, 'text-destructive']] as [string, number, string][]).map(([l, n, c]) => (
-          <div key={l} className="bg-card border border-border rounded-lg p-4 text-center">
-            <div className={`text-3xl font-bold font-mono ${c}`}>{n}</div>
-            <div className="text-xs text-muted-foreground mt-1">{l}</div>
-          </div>
-        ))}
+        <KpiCard label="Bedrohungen" value={localThreats.length} />
+        <KpiCard label="Kritische Risiken" value={critRisks.length} accent="danger" />
+        <KpiCard label="Nicht konform" value={failReqs.length} accent="danger" />
       </div>
+
+      {/* Charts */}
+      <SectionCard title="Auswertungsübersicht" icon="📊">
+        <Iec62443AuditCharts threats={localThreats} reqs={localReqs} />
+      </SectionCard>
+
+      {/* Critical risks */}
+      {critRisks.length > 0 && (
+        <SectionCard title={`Kritische Risiken (${critRisks.length})`} icon="🔴" className="border-destructive/30">
+          <div className="space-y-3">
+            {critRisks.map(th => (
+              <div key={th.id} className="flex items-start gap-3 bg-destructive/5 border border-destructive/15 rounded-lg p-3">
+                <span className="font-mono text-xs text-destructive font-bold bg-destructive/10 px-2 py-1 rounded-md flex-shrink-0">{threatId(th)}</span>
+                <div className="flex-1 min-w-0">
+                  <div className="font-semibold text-foreground text-sm">{th.name}</div>
+                  <div className="text-xs text-muted-foreground mt-0.5">{th.component}</div>
+                  <div className="text-xs text-muted-foreground mt-1">
+                    Score: <span className="font-mono font-bold text-destructive">{th.likelihood} × {th.impact} = {th.likelihood * th.impact}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </SectionCard>
+      )}
+
+      {/* Fail reqs */}
+      {failReqs.length > 0 && (
+        <SectionCard title={`Nicht konforme Anforderungen (${failReqs.length})`} icon="⚠️" className="border-destructive/20">
+          <div className="space-y-3">
+            {failReqs.map((r, i) => (
+              <div key={r.id} className="border border-border rounded-lg p-4 space-y-2">
+                <div className="flex items-start gap-3">
+                  <span className="font-bold text-destructive font-mono text-sm bg-destructive/10 w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0">{i + 1}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-semibold text-foreground text-sm">{r.name}</div>
+                    <div className="text-xs text-muted-foreground mt-0.5">{r.article}</div>
+                  </div>
+                </div>
+                <div className="ml-10 space-y-2 text-sm">
+                  <div className="text-xs"><span className="font-semibold text-muted-foreground">Evidenz: </span><span className="text-foreground">{r.evidence}</span></div>
+                  {r.measure && (
+                    <div className="bg-primary/5 border border-primary/15 rounded-lg px-3 py-2 text-xs">
+                      <span className="font-semibold text-primary">Maßnahme: </span><span className="text-foreground">{r.measure}</span>
+                    </div>
+                  )}
+                  <CriteriaBlock criteria={r.criteria} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </SectionCard>
+      )}
 
       {/* QA Result */}
       {qaResult && qaExpanded && (
-        <div className={`bg-card border-2 rounded-lg overflow-hidden ${qaVerdict === 'passed' ? 'border-green-500/40' : qaVerdict === 'conditional' ? 'border-yellow-500/40' : 'border-destructive/40'}`}>
-          <div className={`px-4 py-3 border-b flex items-center justify-between ${qaVerdict === 'passed' ? 'bg-green-500/10 border-green-500/20' : qaVerdict === 'conditional' ? 'bg-yellow-500/10 border-yellow-500/20' : 'bg-destructive/10 border-destructive/20'}`}>
+        <div className={`bg-card border-2 rounded-xl overflow-hidden ${qaVerdict === 'passed' ? 'border-green-500/40' : qaVerdict === 'conditional' ? 'border-yellow-500/40' : 'border-destructive/40'}`}>
+          <div className={`px-5 py-3.5 border-b flex items-center justify-between ${qaVerdict === 'passed' ? 'bg-green-500/10 border-green-500/20' : qaVerdict === 'conditional' ? 'bg-yellow-500/10 border-yellow-500/20' : 'bg-destructive/10 border-destructive/20'}`}>
             <div className="flex items-center gap-2">
               {qaVerdict === 'passed' ? <CheckCircle2 className="w-5 h-5 text-green-500" /> : qaVerdict === 'conditional' ? <AlertTriangle className="w-5 h-5 text-yellow-500" /> : <XCircle className="w-5 h-5 text-destructive" />}
               <span className={`text-sm font-bold ${qaVerdict === 'passed' ? 'text-green-500' : qaVerdict === 'conditional' ? 'text-yellow-500' : 'text-destructive'}`}>{qaResult.verdictLabel}</span>
             </div>
             <span className="text-xs font-mono text-muted-foreground">{qaResult.passed}/{qaResult.total}</span>
           </div>
-          <div className="px-4 py-3 space-y-4 text-sm">
+          <div className="px-5 py-4 space-y-4 text-sm">
             <div className="bg-secondary rounded-full h-2.5 overflow-hidden">
               <div className={`h-full rounded-full transition-all ${qaVerdict === 'passed' ? 'bg-green-500' : qaVerdict === 'conditional' ? 'bg-yellow-500' : 'bg-destructive'}`} style={{ width: `${Math.round((qaResult.passed / qaResult.total) * 100)}%` }} />
             </div>
@@ -822,8 +886,8 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IecIntakeData; 
               const catChecks = qaResult.checks.filter(c => c.category === cat);
               if (catChecks.length === 0) return null;
               return (
-                <div key={cat}>
-                  <div className="flex items-center justify-between mb-1.5">
+                <div key={cat} className="bg-secondary/30 rounded-lg p-3">
+                  <div className="flex items-center justify-between mb-2">
                     <span className="font-semibold text-foreground text-xs">{CATEGORY_LABELS[cat]}</span>
                     <span className="text-xs font-mono text-muted-foreground">{catChecks.filter(c => c.passed).length}/{catChecks.length}</span>
                   </div>
@@ -848,7 +912,7 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IecIntakeData; 
                   <span className="font-semibold text-primary text-xs">Automatisch umgesetzte Korrekturen</span>
                   <span className="text-xs font-mono text-muted-foreground ml-auto">{allFixLogs.length} fixes</span>
                 </div>
-                <ul className="space-y-0.5 text-xs text-foreground">
+                <ul className="space-y-1 text-xs text-foreground">
                   {allFixLogs.map((f, i) => (
                     <li key={i} className="flex gap-1.5 items-start">
                       <CheckCircle2 className="w-3 h-3 text-primary flex-shrink-0 mt-0.5" />
@@ -863,38 +927,40 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IecIntakeData; 
       )}
 
       {/* Export Bar */}
-      <div className="bg-secondary border border-border rounded-lg p-4">
-        <div className="text-sm text-foreground mb-3">
-          <div className="font-semibold mb-0.5">Bericht exportieren</div>
-          <div className="text-xs text-muted-foreground">
-            {qaResult ? 'Qualitätsprüfung abgeschlossen — PDF-Export bereit' : 'Starten Sie die Qualitätsprüfung, um den Bericht zu validieren'}
+      <div className="bg-card border border-border rounded-xl p-5">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <div className="text-sm font-bold text-foreground">Bericht exportieren</div>
+            <div className="text-xs text-muted-foreground mt-0.5">
+              {qaResult ? 'Qualitätsprüfung abgeschlossen — PDF-Export bereit' : 'Starten Sie die Qualitätsprüfung, um den Bericht zu validieren'}
+            </div>
           </div>
-        </div>
-        <div className="flex gap-3 flex-wrap items-center">
-          <Button onClick={handleQaAndFix} disabled={qaRunning} variant={qaResult ? 'outline' : 'default'} className="font-semibold">
-            {qaRunning ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <ShieldCheck className="w-4 h-4 mr-2" />}
-            {qaRunning ? 'Prüfung läuft…' : 'Dokument prüfen'}
-          </Button>
-          {qaResult && (
-            <Button
-              onClick={() => {
-                generateIec62443Report({
-                  intakeData,
-                  threats: localThreats,
-                  reqs: localReqs,
-                  language: language as 'de' | 'en' | 'fr',
-                  isDraft: qaVerdict !== 'passed',
-                  qaChecks: qaResult.checks,
-                  fixLog: allFixLogs,
-                  qaIterations: 1,
-                });
-              }}
-              className="font-semibold"
-            >
-              <FileText className="w-4 h-4 mr-2" />
-              PDF Final
+          <div className="flex gap-3 flex-wrap items-center">
+            <Button onClick={handleQaAndFix} disabled={qaRunning} variant={qaResult ? 'outline' : 'default'} className="font-semibold">
+              {qaRunning ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <ShieldCheck className="w-4 h-4 mr-2" />}
+              {qaRunning ? 'Prüfung läuft…' : 'Dokument prüfen'}
             </Button>
-          )}
+            {qaResult && (
+              <Button
+                onClick={() => {
+                  generateIec62443Report({
+                    intakeData,
+                    threats: localThreats,
+                    reqs: localReqs,
+                    language: language as 'de' | 'en' | 'fr',
+                    isDraft: qaVerdict !== 'passed',
+                    qaChecks: qaResult.checks,
+                    fixLog: allFixLogs,
+                    qaIterations: 1,
+                  });
+                }}
+                className="font-semibold"
+              >
+                <FileText className="w-4 h-4 mr-2" />
+                PDF Final
+              </Button>
+            )}
+          </div>
         </div>
       </div>
     </StaggerReveal>
