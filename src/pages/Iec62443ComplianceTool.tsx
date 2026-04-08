@@ -666,54 +666,74 @@ function IecMapping({ reqs, onNext }: { reqs: IecReq[]; onNext: () => void }) {
   }, [reqs]);
 
   return (
-    <StaggerReveal resetKey="cm" stagger={350}>
+    <StaggerReveal resetKey="cm" stagger={300}>
       <InfoBox icon="📋" title="IACS UR E27 Konformitätsbewertung" color="blue">Bewertung des Schiffs gegen die Anforderungen aus IACS UR E27 (Table 1 + Table 2).</InfoBox>
-      <div className="bg-card border border-border rounded-lg p-5 flex flex-col sm:flex-row items-center gap-6">
-        <div className="relative w-24 h-24 flex-shrink-0">
+
+      {/* Score Overview */}
+      <div className="bg-card border border-border rounded-xl p-6 flex flex-col sm:flex-row items-center gap-6">
+        <div className="relative w-28 h-28 flex-shrink-0">
           <svg viewBox="0 0 36 36" className="w-full h-full" style={{ transform: 'rotate(-90deg)' }}>
-            <circle cx="18" cy="18" r="15.9" fill="none" className="stroke-secondary" strokeWidth="3" />
-            <circle cx="18" cy="18" r="15.9" fill="none" stroke={strokeColor} strokeWidth="3" strokeDasharray={`${score} ${100 - score}`} strokeLinecap="round" />
+            <circle cx="18" cy="18" r="15.9" fill="none" className="stroke-secondary" strokeWidth="2.5" />
+            <circle cx="18" cy="18" r="15.9" fill="none" stroke={strokeColor} strokeWidth="2.5" strokeDasharray={`${score} ${100 - score}`} strokeLinecap="round" />
           </svg>
-          <div className="absolute inset-0 flex items-center justify-center">
-            <span className={`text-xl font-bold font-mono ${scoreColor}`}>{score}%</span>
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <span className={`text-2xl font-bold font-mono ${scoreColor}`}>{score}%</span>
+            <span className="text-[10px] text-muted-foreground font-medium">Readiness</span>
           </div>
         </div>
-        <div className="flex-1">
-          <div className="text-base font-bold text-foreground mb-1">IACS UR E27 Readiness</div>
-          <div className="text-sm text-muted-foreground mb-3">{reqs.length} Anforderungen geprüft</div>
-          <div className="flex gap-4 text-sm flex-wrap">
-            <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-green-500 inline-block" />{pass} Konform</span>
-            <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-yellow-500 inline-block" />{partial} Teilweise</span>
-            <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-destructive inline-block" />{fail} Nicht konform</span>
+        <div className="flex-1 text-center sm:text-left">
+          <div className="text-lg font-bold text-foreground mb-1">IACS UR E27 Compliance Score</div>
+          <div className="text-sm text-muted-foreground mb-4">{reqs.length} Anforderungen geprüft</div>
+          <div className="flex gap-5 text-sm flex-wrap justify-center sm:justify-start">
+            {([['Konform', pass, 'bg-green-500'], ['Teilweise', partial, 'bg-yellow-500'], ['Nicht konform', fail, 'bg-destructive']] as [string, number, string][]).map(([label, count, bg]) => (
+              <span key={label} className="flex items-center gap-2">
+                <span className={`w-3 h-3 rounded-full ${bg} inline-block`} />
+                <span className="text-muted-foreground">{label}:</span>
+                <span className="font-bold font-mono text-foreground">{count}</span>
+              </span>
+            ))}
           </div>
         </div>
       </div>
-      <div className="space-y-1.5">
-        {reqs.map(r => {
-          const isOpen = exp === r.id;
-          return (
-            <div key={r.id} className="bg-card border border-border rounded-lg overflow-hidden">
-              <div className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-secondary/50" onClick={() => setExp(isOpen ? null : r.id)}>
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm font-semibold text-foreground">{r.name}</div>
-                  <div className="text-xs text-muted-foreground">{r.article}</div>
+
+      {/* Requirements List */}
+      <SectionCard title={`Anforderungen (${reqs.length})`} icon="📝">
+        <div className="space-y-2">
+          {reqs.map(r => {
+            const isOpen = exp === r.id;
+            return (
+              <div key={r.id} className={`border rounded-lg overflow-hidden transition-colors ${isOpen ? 'border-primary/30 bg-primary/[0.02]' : 'border-border hover:border-muted-foreground/30'}`}>
+                <div className="flex items-center gap-3 px-4 py-3 cursor-pointer" onClick={() => setExp(isOpen ? null : r.id)}>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-semibold text-foreground">{r.name}</div>
+                    <div className="text-xs text-muted-foreground mt-0.5">{r.article}</div>
+                  </div>
+                  <StatusBadge status={r.status} />
+                  {isOpen ? <ChevronUp className="w-4 h-4 text-muted-foreground flex-shrink-0" /> : <ChevronDown className="w-4 h-4 text-muted-foreground flex-shrink-0" />}
                 </div>
-                <StatusBadge status={r.status} />
-                {isOpen ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+                {isOpen && (
+                  <div className="border-t border-border bg-secondary/20 px-4 py-4 text-sm space-y-3">
+                    <EvidenceBlock label="Evidenz">{r.evidence}</EvidenceBlock>
+                    {r.gap && (
+                      <div className="bg-destructive/5 border border-destructive/20 rounded-lg px-3 py-2 text-sm">
+                        <span className="font-semibold text-destructive">Gap: </span><span className="text-foreground">{r.gap}</span>
+                      </div>
+                    )}
+                    <EvidenceBlock label="Begründung">{r.rationale}</EvidenceBlock>
+                    {r.measure && (
+                      <div className="bg-primary/5 border border-primary/20 rounded-lg px-3 py-2 text-sm">
+                        <span className="font-semibold text-primary">Maßnahme: </span><span className="text-foreground">{r.measure}</span>
+                      </div>
+                    )}
+                    <CriteriaBlock criteria={r.criteria} />
+                  </div>
+                )}
               </div>
-              {isOpen && (
-                <div className="border-t border-border bg-secondary/30 px-4 py-3 text-sm space-y-3">
-                  <EvidenceBlock label="Evidenz">{r.evidence}</EvidenceBlock>
-                  {r.gap && <div><span className="font-semibold text-destructive">Gap: </span><span className="text-foreground">{r.gap}</span></div>}
-                  <EvidenceBlock label="Begründung">{r.rationale}</EvidenceBlock>
-                  {r.measure && <div><span className="font-semibold text-primary">Maßnahme: </span><span className="text-foreground">{r.measure}</span></div>}
-                  <CriteriaBlock criteria={r.criteria} />
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      </SectionCard>
+
       <div className="flex justify-end pt-2">
         <Button onClick={onNext} className="font-semibold">Zum Bericht</Button>
       </div>
