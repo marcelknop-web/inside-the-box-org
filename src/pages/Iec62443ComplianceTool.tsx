@@ -2,6 +2,7 @@ import { useState, useCallback, useRef, useMemo, memo } from 'react';
 import { Button } from '@/components/ui/button';
 import { RotateCcw, ChevronDown, ChevronUp, Loader2, FileText, ShieldCheck, CheckCircle2, XCircle, AlertTriangle, Wrench } from 'lucide-react';
 import { applyAuditFixes } from '@/utils/iec62443AuditFixes';
+import { generateIec62443Report } from '@/utils/iec62443ReportPdf';
 import { Iec62443AuditCharts } from '@/components/Iec62443AuditCharts';
 import { runQualityCheck, type QaResult, type QaCheck } from '@/utils/iec62443QualityCheck';
 import { PageMeta } from '@/components/PageMeta';
