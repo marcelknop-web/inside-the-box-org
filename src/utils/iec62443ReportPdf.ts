@@ -132,6 +132,16 @@ export async function generateIec62443Report(data: Iec62443ReportData): Promise<
   pdf.addBookmark(t(I18N.sec1, lang));
 
   const isCompliant = critRisks.length === 0 && failReqs.length === 0;
+
+  // Contextual lead-in paragraph
+  const contextLead = lang === 'de'
+    ? `Der vorliegende Bericht dokumentiert die Ergebnisse der Cyber-Resilience-Prüfung des Schiffs bzw. Systems ${intakeData.facilityName} gemäß IACS UR E27. Die Bewertung wurde anhand der Anforderungen aus Table 1 und Table 2 der IACS UR E27 durchgeführt, wobei insgesamt ${threats.length} Bedrohungsszenarien analysiert und ${reqs.length} Anforderungen geprüft wurden.`
+    : lang === 'fr'
+    ? `Le présent rapport documente les résultats de l'évaluation de la cyber-résilience du navire/système ${intakeData.facilityName} conformément à l'IACS UR E27. L'évaluation a été réalisée sur la base des exigences des Tables 1 et 2 de l'IACS UR E27, portant sur ${threats.length} scénarios de menaces et ${reqs.length} exigences.`
+    : `This report documents the results of the cyber resilience assessment of vessel/system ${intakeData.facilityName} in accordance with IACS UR E27. The assessment was conducted against the requirements of Table 1 and Table 2 of IACS UR E27, covering ${threats.length} threat scenarios and ${reqs.length} requirements.`;
+  pdf.introText(contextLead);
+
+  // Verdict
   const verdictText = lang === 'de'
     ? isCompliant
       ? `Im Rahmen der durchgeführten Prüfung konnte festgestellt werden, dass das Schiff bzw. System ${intakeData.facilityName} die Anforderungen gemäß IACS UR E27 vollständig erfüllt. Kritische Abweichungen wurden nicht identifiziert.`
@@ -146,31 +156,46 @@ export async function generateIec62443Report(data: Iec62443ReportData): Promise<
 
   pdf.verdictBox(verdictText);
 
+  // Key Performance Indicators
+  pdf.heading(lang === 'de' ? 'Kennzahlen im Überblick' : lang === 'fr' ? 'Indicateurs clés' : 'Key Metrics', 2);
   pdf.kpiRow([
-    [String(threats.length), lang === 'de' ? 'Bedrohungen' : 'Threats'],
-    [String(critRisks.length), lang === 'de' ? 'Kritisch (>=20)' : 'Critical (>=20)'],
-    [String(failReqs.length), lang === 'de' ? 'Nicht konform' : 'Non-Compliant'],
-    [`${complianceRate}%`, lang === 'de' ? 'Konformitätsrate' : 'Compliance Rate'],
+    [String(threats.length), lang === 'de' ? 'Bedrohungen' : lang === 'fr' ? 'Menaces' : 'Threats'],
+    [String(critRisks.length), lang === 'de' ? 'Kritisch (≥ 20)' : lang === 'fr' ? 'Critique (≥ 20)' : 'Critical (≥ 20)'],
+    [String(failReqs.length), lang === 'de' ? 'Nicht konform' : lang === 'fr' ? 'Non conforme' : 'Non-Compliant'],
+    [`${complianceRate} %`, lang === 'de' ? 'Konformitätsrate' : lang === 'fr' ? 'Taux de conformité' : 'Compliance Rate'],
   ]);
 
+  // Compliance Distribution
+  pdf.heading(lang === 'de' ? 'Konformitätsverteilung' : lang === 'fr' ? 'Répartition de la conformité' : 'Compliance Distribution', 2);
   pdf.complianceBar(passReqs.length, partialReqs.length, failReqs.length, {
     pass: t(I18N.pass, lang), partial: t(I18N.partial, lang), fail: t(I18N.fail, lang),
-    title: lang === 'de' ? 'IACS UR E27 Konformitätsverteilung' : 'IACS UR E27 Compliance Distribution',
+    title: lang === 'de' ? 'IACS UR E27 Konformitätsverteilung' : lang === 'fr' ? 'Répartition de la conformité IACS UR E27' : 'IACS UR E27 Compliance Distribution',
   });
 
+  // Risk Distribution
+  pdf.heading(lang === 'de' ? 'Risikoverteilung nach Schweregrad' : lang === 'fr' ? 'Répartition par sévérité' : 'Risk Severity Distribution', 2);
   pdf.riskDistribution(
     { critical: critRisks.length, high: highRisks.length, medium: medRisks.length, low: lowRisks.length },
-    { critical: lang === 'de' ? 'Kritisch' : 'Critical', high: lang === 'de' ? 'Hoch' : 'High', medium: lang === 'de' ? 'Mittel' : 'Medium', low: lang === 'de' ? 'Niedrig' : 'Low', title: lang === 'de' ? 'Risikoverteilung' : 'Risk Severity Distribution' },
+    { critical: lang === 'de' ? 'Kritisch' : lang === 'fr' ? 'Critique' : 'Critical', high: lang === 'de' ? 'Hoch' : lang === 'fr' ? 'Élevé' : 'High', medium: lang === 'de' ? 'Mittel' : lang === 'fr' ? 'Moyen' : 'Medium', low: lang === 'de' ? 'Niedrig' : lang === 'fr' ? 'Faible' : 'Low', title: lang === 'de' ? 'Risikoverteilung' : lang === 'fr' ? 'Répartition des risques' : 'Risk Severity Distribution' },
   );
 
+  // Risk Heatmap
+  pdf.heading(lang === 'de' ? 'Risikomatrix (5 × 5)' : lang === 'fr' ? 'Matrice de risque (5 × 5)' : 'Risk Matrix (5 × 5)', 2);
   pdf.riskHeatmap(threats, {
-    title: lang === 'de' ? '5×5 Risikomatrix' : '5×5 Risk Matrix',
+    title: lang === 'de' ? '5×5 Risikomatrix' : lang === 'fr' ? 'Matrice de risque 5×5' : '5×5 Risk Matrix',
     likelihood: t(I18N.likelihood, lang),
     impact: t(I18N.impact, lang),
   });
 
+  // Top Findings
   if (critRisks.length > 0) {
-    pdf.heading(lang === 'de' ? 'Top-Findings' : 'Top Findings', 2);
+    pdf.heading(lang === 'de' ? 'Kritische Befunde (Top-Findings)' : lang === 'fr' ? 'Constatations critiques' : 'Critical Findings (Top Findings)', 2);
+    const topFindingsIntro = lang === 'de'
+      ? `Die folgenden Bedrohungen weisen den höchsten Risiko-Score auf und erfordern vorrangige Behandlung:`
+      : lang === 'fr'
+      ? `Les menaces suivantes présentent le score de risque le plus élevé et nécessitent un traitement prioritaire :`
+      : `The following threats carry the highest risk scores and require priority remediation:`;
+    pdf.introText(topFindingsIntro);
     critRisks.slice(0, 5).forEach(th => {
       const tid = threatId(th);
       const score = th.likelihood * th.impact;
@@ -178,10 +203,16 @@ export async function generateIec62443Report(data: Iec62443ReportData): Promise<
     });
   }
 
+  // Recommended Actions
+  pdf.heading(lang === 'de' ? 'Handlungsempfehlung' : lang === 'fr' ? 'Recommandation' : 'Recommended Action', 2);
   const actionText = lang === 'de'
     ? isCompliant
       ? 'Es wird empfohlen, den Konformitätsnachweis zu dokumentieren und eine jährliche Neubewertung im Rahmen des kontinuierlichen Verbesserungsprozesses einzuplanen.'
       : `Es wird dringend empfohlen, die in Abschnitt 4 aufgeführten Sofortmaßnahmen (P0) mit klaren Verantwortlichkeiten und verbindlichen Fristen zu versehen. Bis zur vollständigen Schließung aller kritischen Abweichungen sollte ein wöchentliches Tracking-Verfahren etabliert werden.`
+    : lang === 'fr'
+    ? isCompliant
+      ? 'Il est recommandé de documenter la preuve de conformité et de planifier une réévaluation annuelle dans le cadre du processus d\'amélioration continue.'
+      : `Il est fortement recommandé d'attribuer aux actions immédiates (P0) listées en section 4 des responsabilités claires et des échéances contraignantes. Un suivi hebdomadaire devrait être mis en place jusqu'à la résolution complète de tous les écarts critiques.`
     : isCompliant
     ? 'It is recommended to document the compliance evidence and schedule an annual reassessment as part of the continuous improvement process.'
     : `It is strongly recommended that the immediate actions (P0) listed in Section 4 be assigned clear ownership and binding deadlines. A weekly tracking process should be established until all critical gaps have been fully remediated.`;
