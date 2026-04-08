@@ -130,7 +130,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
   const securityMeasures = useMemo(() => getSecurityMeasures(t), [t]);
   const securityCategories = useMemo(() => getSecurityCategories(t), [t]);
   const attachTypes = useMemo(() => getAttachTypes(t), [t]);
-  const rolePresets = ['OT-Security-Beauftragter', 'Leittechnik-Ingenieur', 'Operator', 'Wartungstechniker', 'IT-Security-Manager', 'Betriebsleiter', 'CISO', 'Anlagenfahrer'];
+  const rolePresets = ['Kapitän', 'Chief Engineer', 'IT/ETO Officer', 'Wachoffizier', 'Safety Officer', 'DPO', 'Reeder/Fleet Manager', 'Klasseprüfer'];
 
   const setField = useCallback((field: keyof IecIntakeData, val: unknown) => {
     setD(prev => ({ ...prev, [field]: val }));
@@ -198,14 +198,14 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
     case 0:
       stepContent = (
         <StaggerReveal resetKey="intake-0" stagger={300}>
-          <SubStepHeader current={0} total={INTAKE_STEPS} title="Anlage identifizieren" subtitle="Welche IACS-Anlage wird geprüft?" />
-          <InfoBox icon="💡" color="blue">IEC 62443 definiert Sicherheitsanforderungen für industrielle Automatisierungs- und Steuerungssysteme (IACS). Identifizieren Sie die zu prüfende Anlage.</InfoBox>
+          <SubStepHeader current={0} total={INTAKE_STEPS} title="Schiff / System identifizieren" subtitle="Welches CBS wird geprüft?" />
+          <InfoBox icon="🚢" color="blue">IACS UR E27 definiert Anforderungen an die Cyber-Resilienz von Bordsystemen und -ausrüstung (Computer Based Systems — CBS). Identifizieren Sie das zu prüfende Schiff/System.</InfoBox>
           <div>
-            <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Anlagenname</label>
-            <input className="w-full border border-border rounded-lg px-3 py-2.5 text-sm bg-background text-foreground focus:ring-2 focus:ring-primary outline-none" placeholder="z.B. Chemiewerk Ludwigshafen — Leittechnik" value={d.facilityName} onChange={e => setField('facilityName', e.target.value)} />
+            <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Schiffsname / CBS-Bezeichnung</label>
+            <input className="w-full border border-border rounded-lg px-3 py-2.5 text-sm bg-background text-foreground focus:ring-2 focus:ring-primary outline-none" placeholder="z.B. MV Northern Spirit — Integrated Bridge System" value={d.facilityName} onChange={e => setField('facilityName', e.target.value)} />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Systemtypen <span className="normal-case font-normal text-muted-foreground/60">(Mehrfachauswahl)</span></label>
+            <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Systemtypen (CBS) <span className="normal-case font-normal text-muted-foreground/60">(Mehrfachauswahl)</span></label>
             <div className="grid grid-cols-2 gap-2">
               {systemTypes.map(st => <Chip key={st.id} label={st.label} icon={st.icon} desc={st.desc} selected={d.systemTypes.includes(st.id)} onClick={() => toggleArray('systemTypes', st.id)} />)}
             </div>
@@ -217,7 +217,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
       stepContent = (
         <StaggerReveal resetKey="intake-1" stagger={300}>
           <SubStepHeader current={1} total={INTAKE_STEPS} title="Ziel-Security-Level (SL-T)" subtitle="Welches Schutzniveau ist erforderlich?" />
-          <InfoBox icon="📘" title="Security Levels nach IEC 62443" color="blue">Die Security Levels definieren den erforderlichen Schutzgrad gegen unterschiedliche Bedrohungsszenarien — von opportunistischen Angreifern (SL 1) bis hin zu staatlich unterstützten Akteuren (SL 4).</InfoBox>
+          <InfoBox icon="📘" title="Security Levels nach E27/IEC 62443" color="blue">Die Security Levels definieren den erforderlichen Schutzgrad gegen unterschiedliche Bedrohungsszenarien — von opportunistischen Angreifern (SL 1) bis hin zu staatlich unterstützten Akteuren (SL 4).</InfoBox>
           <div className="space-y-2">
             {securityLevels.map(sl => (
               <button key={sl.id} onClick={() => setField('securityLevel', sl.id)} className={`w-full text-left border-2 rounded-xl px-4 py-3 transition-all ${d.securityLevel === sl.id ? sl.color + ' shadow' : 'border-border bg-card hover:border-muted-foreground/30'}`}>
@@ -237,11 +237,11 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
     case 2:
       stepContent = (
         <StaggerReveal resetKey="intake-2" stagger={300}>
-          <SubStepHeader current={2} total={INTAKE_STEPS} title="Zonen und Conduits" subtitle="Welche Netzwerkzonen sind vorhanden?" />
-          <InfoBox icon="💡" color="blue">Das Zone-Conduit-Modell nach IEC 62443-3-2 segmentiert das Netzwerk in Sicherheitszonen mit definierten Übergängen (Conduits).</InfoBox>
+          <SubStepHeader current={2} total={INTAKE_STEPS} title="Bordnetzwerk-Zonen" subtitle="Welche Netzwerkzonen sind an Bord vorhanden?" />
+          <InfoBox icon="💡" color="blue">IACS UR E26 definiert Sicherheitszonen an Bord. Die Segmentierung zwischen Brücke, Maschinenraum, Crew-IT und Shore-Anbindung ist entscheidend für die Cyber-Resilienz.</InfoBox>
           <div>
             <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Systembeschreibung</label>
-            <textarea rows={4} className="w-full border border-border rounded-lg px-3 py-2.5 text-sm bg-background text-foreground focus:ring-2 focus:ring-primary outline-none resize-none" placeholder="z.B. DCS mit 120 SPS, OPC-UA, Historian..." value={d.description} onChange={e => setField('description', e.target.value)} />
+            <textarea rows={4} className="w-full border border-border rounded-lg px-3 py-2.5 text-sm bg-background text-foreground focus:ring-2 focus:ring-primary outline-none resize-none" placeholder="z.B. Integriertes Brückensystem mit ECDIS, Radar/ARPA, AIS, Engine Control System..." value={d.description} onChange={e => setField('description', e.target.value)} />
           </div>
           <div>
             <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Vorhandene Zonen</label>
@@ -257,8 +257,8 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
     case 3:
       stepContent = (
         <StaggerReveal resetKey="intake-3" stagger={300}>
-          <SubStepHeader current={3} total={INTAKE_STEPS} title="Protokolle und Schnittstellen" subtitle="Welche Kommunikationsprotokolle werden eingesetzt?" />
-          <InfoBox icon="💡" color="blue">Die Protokollauswahl beeinflusst die Bedrohungslandschaft erheblich. Unverschlüsselte Industrieprotokolle (Modbus, OPC-UA ohne Security) sind besonders kritisch.</InfoBox>
+          <SubStepHeader current={3} total={INTAKE_STEPS} title="Protokolle und Schnittstellen" subtitle="Welche Kommunikationsprotokolle werden an Bord eingesetzt?" />
+          <InfoBox icon="💡" color="blue">Die Protokollauswahl beeinflusst die Bedrohungslandschaft erheblich. Maritime Protokolle wie NMEA bieten keine native Authentifizierung oder Verschlüsselung.</InfoBox>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {PROTOCOL_OPTS.map(o => (
               <button key={o.label} onClick={() => toggleArray('protocols', o.label)} className={`border rounded-lg px-3 py-2 text-sm text-left flex items-center gap-2 transition-all ${d.protocols.includes(o.label) ? 'border-primary bg-primary/10 text-foreground' : 'border-border bg-card text-muted-foreground hover:border-primary/40'}`}>
@@ -266,8 +266,8 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
               </button>
             ))}
           </div>
-          {d.protocols.some(p => p === 'Modbus TCP' || p.includes('Serial')) && (
-            <InfoBox icon="⚠️" color="amber">Modbus TCP und serielle Protokolle bieten keine native Authentifizierung oder Verschlüsselung. Kompensierende Maßnahmen (Netzwerksegmentierung, Application-Layer-Firewalls) sind erforderlich.</InfoBox>
+          {d.protocols.some(p => p.includes('NMEA') || p.includes('Serial')) && (
+            <InfoBox icon="⚠️" color="amber">NMEA und serielle Protokolle bieten keine native Authentifizierung oder Verschlüsselung. Kompensierende Maßnahmen (Netzwerksegmentierung, Gateways) sind nach UR E27 erforderlich.</InfoBox>
           )}
         </StaggerReveal>
       );
@@ -275,8 +275,8 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
     case 4:
       stepContent = (
         <StaggerReveal resetKey="intake-4" stagger={300}>
-          <SubStepHeader current={4} total={INTAKE_STEPS} title="Rollen und Verantwortlichkeiten" subtitle="Wer ist für die OT-Security verantwortlich?" />
-          <InfoBox icon="💡" color="blue">IEC 62443-2-1 verlangt klar definierte Rollen und Verantwortlichkeiten für das IACS-Sicherheitsmanagement.</InfoBox>
+          <SubStepHeader current={4} total={INTAKE_STEPS} title="Rollen und Verantwortlichkeiten" subtitle="Wer ist für die Cyber-Resilienz an Bord verantwortlich?" />
+          <InfoBox icon="💡" color="blue">IACS UR E26 verlangt klar definierte Rollen für das Cyber-Risikomanagement an Bord und an Land.</InfoBox>
           <div>
             <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Häufige Rollen</label>
             <div className="flex flex-wrap gap-2">
@@ -333,8 +333,8 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
 
       stepContent = (
         <StaggerReveal resetKey="intake-5" stagger={300}>
-          <SubStepHeader current={5} total={INTAKE_STEPS} title="Bestehende Sicherheitsmaßnahmen" subtitle="Was ist bereits implementiert?" />
-          <InfoBox icon="💡" color="blue">Die Reifegradbewertung zeigt den Implementierungsstand bestehender Maßnahmen.</InfoBox>
+          <SubStepHeader current={5} total={INTAKE_STEPS} title="Bestehende Sicherheitsmaßnahmen" subtitle="Was ist bereits an Bord implementiert?" />
+          <InfoBox icon="💡" color="blue">Die Reifegradbewertung zeigt den Implementierungsstand bestehender Maßnahmen an Bord.</InfoBox>
           {securityCategories.map(cat => (
             <div key={cat}>
               <div className="text-xs font-semibold text-muted-foreground/60 uppercase tracking-wide mb-2">{cat}</div>
@@ -369,7 +369,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
           ))}
           <div>
             <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Bekannte Schwachstellen</label>
-            <textarea rows={3} className="w-full border border-border rounded-lg px-3 py-2.5 text-sm bg-background text-foreground focus:ring-2 focus:ring-primary outline-none resize-none" placeholder="z.B. Flaches Netzwerk, Shared Accounts, Modbus ohne Auth..." value={d.knownIssues} onChange={e => setField('knownIssues', e.target.value)} />
+            <textarea rows={3} className="w-full border border-border rounded-lg px-3 py-2.5 text-sm bg-background text-foreground focus:ring-2 focus:ring-primary outline-none resize-none" placeholder="z.B. Flaches Netzwerk, Shared Accounts, NMEA ungeschützt, USB offen..." value={d.knownIssues} onChange={e => setField('knownIssues', e.target.value)} />
           </div>
         </StaggerReveal>
       );
@@ -379,7 +379,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
       stepContent = (
         <StaggerReveal resetKey="intake-6" stagger={300}>
           <SubStepHeader current={5} total={INTAKE_STEPS} title="Dokumentation" subtitle="Vorhandene Unterlagen hochladen (optional)" />
-          <InfoBox icon="💡" color="blue">Zone-Conduit-Diagramme, Risikoanalysen und Pentestberichte erhöhen die Evidenzqualität.</InfoBox>
+          <InfoBox icon="💡" color="blue">Netzwerktopologie-Diagramme, CBS-Inventare und Risikoanalysen erhöhen die Evidenzqualität.</InfoBox>
           <div className="grid grid-cols-1 gap-2">
             {attachTypes.map(at => (
               <button key={at.id} onClick={() => { setActiveUploadType(at.id); if (fileRef.current) { fileRef.current.accept = at.accept; fileRef.current.click(); } }} className="flex items-center gap-3 border-2 border-dashed border-border rounded-xl px-4 py-3 text-sm text-muted-foreground hover:border-primary/40 hover:bg-primary/5 hover:text-foreground transition-all text-left">
@@ -422,8 +422,8 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
         <StaggerReveal resetKey="intake-7" stagger={250}>
           <SubStepHeader current={5} total={INTAKE_STEPS} title="Zusammenfassung" subtitle="Prüfen Sie Ihre Angaben vor dem Start." />
           {[
-            { label: 'Anlage', val: d.facilityName || '—' },
-            { label: 'Systemtypen', val: d.systemTypes.map(id => systemTypes.find(st => st.id === id)?.label).join(', ') || '—' },
+            { label: 'Schiff/System', val: d.facilityName || '—' },
+            { label: 'CBS-Typen', val: d.systemTypes.map(id => systemTypes.find(st => st.id === id)?.label).join(', ') || '—' },
             { label: 'Security Level', val: securityLevels.find(sl => sl.id === d.securityLevel)?.label || '—' },
             { label: 'Zonen', val: d.zones.map(id => zoneConduits.find(zc => zc.id === id)?.label).join(', ') || '—' },
             { label: 'Protokolle', val: d.protocols.join(', ') || '—' },
@@ -476,7 +476,7 @@ function ThreatModel({ threats, onNext }: { threats: IecThreat[]; onNext: () => 
 
   return (
     <StaggerReveal resetKey="tm" stagger={350}>
-      <InfoBox icon="🔍" title="IACS-Bedrohungslandschaft" color="blue">Die Bedrohungsanalyse basiert auf den 7 Foundational Requirements (FR1-FR7) der IEC 62443-3-3 und identifiziert Schwachstellen in Ihrer OT-Umgebung.</InfoBox>
+      <InfoBox icon="🔍" title="Maritime Bedrohungslandschaft" color="blue">Die Bedrohungsanalyse basiert auf den Anforderungskategorien der IACS UR E27 und identifiziert Schwachstellen in den Computer Based Systems (CBS) an Bord.</InfoBox>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
         {Object.entries(FR_CATEGORIES).map(([key, meta]) => (
           <div key={key} className="bg-card border border-border rounded-lg p-3 text-center">
@@ -545,7 +545,7 @@ function RiskAssessment({ threats, onNext }: { threats: IecThreat[]; onNext: () 
 
   return (
     <StaggerReveal resetKey="ra" stagger={350}>
-      <InfoBox icon="⚖️" title="Risikomatrix (5×5)" color="blue">Die Risikobewertung nach IEC 62443-3-2 ordnet jede Bedrohung nach Eintrittswahrscheinlichkeit (Likelihood) und Auswirkung (Impact) ein.</InfoBox>
+      <InfoBox icon="⚖️" title="Risikomatrix (5×5)" color="blue">Die Risikobewertung ordnet jede Bedrohung nach Eintrittswahrscheinlichkeit und Auswirkung auf Schiffssicherheit ein.</InfoBox>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {([['Kritisch', 'bg-destructive', cnt.critical], ['Hoch', 'bg-orange-500', cnt.high], ['Mittel', 'bg-yellow-500', cnt.medium], ['Niedrig', 'bg-green-500', cnt.low]] as [string, string, number][]).map(([l, c, n]) => (
           <div key={l} className="bg-card border border-border rounded-lg p-4 text-center">
@@ -608,13 +608,13 @@ function RiskAssessment({ threats, onNext }: { threats: IecThreat[]; onNext: () 
         </div>
       </div>
       <div className="flex justify-end pt-2">
-        <Button onClick={onNext} className="font-semibold">Zur IEC 62443-Zuordnung</Button>
+        <Button onClick={onNext} className="font-semibold">Zur E27-Zuordnung</Button>
       </div>
     </StaggerReveal>
   );
 }
 
-// ── Phase 4: IEC 62443 Mapping ────────────────────────────────
+// ── Phase 4: E27 Mapping ──────────────────────────────────────
 
 function IecMapping({ reqs, onNext }: { reqs: IecReq[]; onNext: () => void }) {
   const [exp, setExp] = useState<string | null>(null);
@@ -628,7 +628,7 @@ function IecMapping({ reqs, onNext }: { reqs: IecReq[]; onNext: () => void }) {
 
   return (
     <StaggerReveal resetKey="cm" stagger={350}>
-      <InfoBox icon="📋" title="IEC 62443 Konformitätsbewertung" color="blue">Bewertung der Anlage gegen die System Requirements (SRs) aus IEC 62443-3-3.</InfoBox>
+      <InfoBox icon="📋" title="IACS UR E27 Konformitätsbewertung" color="blue">Bewertung des Schiffs gegen die Anforderungen aus IACS UR E27 (Table 1 + Table 2).</InfoBox>
       <div className="bg-card border border-border rounded-lg p-5 flex flex-col sm:flex-row items-center gap-6">
         <div className="relative w-24 h-24 flex-shrink-0">
           <svg viewBox="0 0 36 36" className="w-full h-full" style={{ transform: 'rotate(-90deg)' }}>
@@ -640,7 +640,7 @@ function IecMapping({ reqs, onNext }: { reqs: IecReq[]; onNext: () => void }) {
           </div>
         </div>
         <div className="flex-1">
-          <div className="text-base font-bold text-foreground mb-1">IEC 62443 Readiness</div>
+          <div className="text-base font-bold text-foreground mb-1">IACS UR E27 Readiness</div>
           <div className="text-sm text-muted-foreground mb-3">{reqs.length} Anforderungen geprüft</div>
           <div className="flex gap-4 text-sm flex-wrap">
             <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-green-500 inline-block" />{pass} Konform</span>
@@ -691,7 +691,7 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IecIntakeData; 
   const [qaResult, setQaResult] = useState<QaResult | null>(null);
   const [qaRunning, setQaRunning] = useState(false);
   const [qaExpanded, setQaExpanded] = useState(false);
-  const [preFixQaChecks, setPreFixQaChecks] = useState<QaCheck[] | null>(null);
+  const [, setPreFixQaChecks] = useState<QaCheck[] | null>(null);
   const [allFixLogs, setAllFixLogs] = useState<string[]>([]);
 
   const critRisks = useMemo(() => localThreats.filter(th => th.likelihood * th.impact >= 20), [localThreats]);
@@ -724,16 +724,16 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IecIntakeData; 
 
   const CATEGORY_LABELS: Record<string, string> = {
     consistency: 'A. Konsistenzprüfung', technical: 'B. Fachliche Korrektheit',
-    evidence: 'C. Evidenzprüfung', editorial: 'D. Redaktionelle Prüfung', ot: 'E. OT-spezifische Prüfung',
+    evidence: 'C. Evidenzprüfung', editorial: 'D. Redaktionelle Prüfung', ot: 'E. Maritime Prüfung',
   };
 
   return (
     <StaggerReveal resetKey="rp" stagger={350}>
-      <InfoBox icon="✅" title="Analyse abgeschlossen" color="green">Die IEC 62443-Prüfung wurde durchgeführt. Starten Sie die Qualitätsprüfung, um den Bericht zu validieren.</InfoBox>
+      <InfoBox icon="✅" title="Analyse abgeschlossen" color="green">Die IACS UR E27-Prüfung wurde durchgeführt. Starten Sie die Qualitätsprüfung, um den Bericht zu validieren.</InfoBox>
       <div className="bg-card border-l-4 border-primary rounded-lg p-5 border border-border">
         <div className="flex flex-col sm:flex-row items-start justify-between mb-3 gap-2">
           <div>
-            <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">IEC 62443 Prüfbericht</div>
+            <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">IACS UR E27 Prüfbericht</div>
             <div className="text-lg font-bold text-foreground mt-0.5">{intakeData.facilityName}</div>
           </div>
           <div className="sm:text-right text-xs text-muted-foreground">
@@ -743,7 +743,7 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IecIntakeData; 
         </div>
         <div className="h-px bg-border mb-3" />
         <p className="text-sm text-foreground leading-relaxed">
-          Für die Anlage <strong>{intakeData.facilityName}</strong> wurden <strong>{localThreats.length} Bedrohungen</strong> identifiziert, davon <strong className="text-destructive">{critRisks.length} kritisch</strong>. Von {localReqs.length} geprüften Anforderungen sind <strong className="text-destructive">{failReqs.length} nicht konform</strong>.
+          Für das Schiff/System <strong>{intakeData.facilityName}</strong> wurden <strong>{localThreats.length} Bedrohungen</strong> identifiziert, davon <strong className="text-destructive">{critRisks.length} kritisch</strong>. Von {localReqs.length} geprüften Anforderungen sind <strong className="text-destructive">{failReqs.length} nicht konform</strong>.
         </p>
       </div>
 
@@ -903,7 +903,7 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IecIntakeData; 
 
 // ── Main ──────────────────────────────────────────────────────
 
-const MAIN_STEPS = ['Datenerhebung', 'Bedrohungslandschaft', 'Risikomatrix', 'IEC 62443-Zuordnung', 'Bericht & Export'];
+const MAIN_STEPS = ['Datenerhebung', 'Bedrohungslandschaft', 'Risikomatrix', 'E27-Zuordnung', 'Bericht & Export'];
 
 const Iec62443ComplianceTool = ({ embedded }: { embedded?: boolean }) => {
   const [step, setStepRaw] = useState(0);
@@ -930,7 +930,7 @@ const Iec62443ComplianceTool = ({ embedded }: { embedded?: boolean }) => {
 
   return (
     <div className={embedded ? '' : 'min-h-screen bg-background'}>
-      {!embedded && <PageMeta title="IEC 62443 IACS Security Assessment" description="IEC 62443 Compliance Assessment für industrielle Automatisierungssysteme" />}
+      {!embedded && <PageMeta title="IACS UR E27 Cyber Resilience Assessment" description="IACS UR E27 Compliance Assessment für maritime Bordsysteme" />}
       <div className="border-b border-border px-4 py-3 mb-1" ref={contentRef}>
         <div className="flex items-center max-w-5xl mx-auto overflow-x-auto">
           {MAIN_STEPS.map((s, i) => (
@@ -949,8 +949,8 @@ const Iec62443ComplianceTool = ({ embedded }: { embedded?: boolean }) => {
         {loading ? (
           <div className="bg-card rounded-xl border border-border p-16 text-center">
             <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-5" />
-            <div className="text-foreground font-semibold text-lg mb-2">IACS-Risikoanalyse wird durchgeführt…</div>
-            <div className="text-muted-foreground text-sm">Bedrohungen werden identifiziert und gegen IEC 62443 bewertet.</div>
+            <div className="text-foreground font-semibold text-lg mb-2">Maritime Cyber-Risikoanalyse wird durchgeführt…</div>
+            <div className="text-muted-foreground text-sm">CBS-Bedrohungen werden identifiziert und gegen IACS UR E27 bewertet.</div>
           </div>
         ) : (
           <div>
