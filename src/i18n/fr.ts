@@ -17,7 +17,7 @@ export const fr = {
     cyberTrainingRange: 'Cyber Training Range',
     crisisExercises: 'Thèmes de formation',
     workshops: 'Ateliers',
-    tryIt: '« Essayer ? »',
+    tryIt: 'Lancer l\'exercice de crise cyber',
     krisenmanagement: 'Gestion de crise',
     tabletopExercises: 'Tabletop Exercises (TTX)',
     nis2Dora: 'NIS-2 / DORA / PART-IS',
