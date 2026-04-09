@@ -538,9 +538,9 @@ export const de = {
     chatPlaceholder: 'INPUT',
   },
   crisisSim: {
-    sidebarLabel: 'Mal probieren?',
+    sidebarLabel: 'Cyberkrisen-Übung',
     ttxLabel: 'Cybersecurity Training · TTX',
-    title: 'Mal probieren?',
+    title: 'Cyberkrisen-Übung',
     roleSubtitle: '/ Krisenstabsleitung',
     scenarioIntro: 'Online-Händler · 250.000 Kundenkonten\nMontagmorgen, 08:45 — Helpdesk eskaliert, Social Media reagiert.\nErste Hinweise auf kompromittierte Systeme.',
     startDesc: 'Rolle: <strong>Leiter Krisenstab</strong> · Laufender Cyberangriff\nPhishing nach DMZ-Kompromittierung · 250.000 betroffene Kunden\nDauer: <strong>5 Minuten</strong> · Auswertung nach TTX-Matrix',
