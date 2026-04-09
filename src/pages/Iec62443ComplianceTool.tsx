@@ -22,16 +22,16 @@ import {
 
 function riskLevel(l: number, i: number) {
   const s = l * i;
-  if (s >= 20) return { label: 'Kritisch', cls: 'bg-destructive text-destructive-foreground' };
-  if (s >= 13) return { label: 'Hoch', cls: 'bg-orange-500 text-white' };
-  if (s >= 6) return { label: 'Mittel', cls: 'bg-yellow-500 text-black' };
-  return { label: 'Niedrig', cls: 'bg-green-500 text-white' };
+  if (s >= 20) return { label: 'Critical', cls: 'bg-destructive text-destructive-foreground' };
+  if (s >= 13) return { label: 'High', cls: 'bg-orange-500 text-white' };
+  if (s >= 6) return { label: 'Medium', cls: 'bg-yellow-500 text-black' };
+  return { label: 'Low', cls: 'bg-green-500 text-white' };
 }
 
 const StatusBadge = memo(({ status }: { status: string }) => {
-  if (status === 'pass') return <span className="px-2 py-0.5 rounded text-xs font-bold bg-green-500/10 text-green-400 border border-green-500/20">Konform</span>;
-  if (status === 'partial') return <span className="px-2 py-0.5 rounded text-xs font-bold bg-yellow-500/10 text-yellow-400 border border-yellow-500/20">Teilweise</span>;
-  return <span className="px-2 py-0.5 rounded text-xs font-bold bg-destructive/10 text-destructive border border-destructive/20">Nicht konform</span>;
+  if (status === 'pass') return <span className="px-2 py-0.5 rounded text-xs font-bold bg-green-500/10 text-green-400 border border-green-500/20">Compliant</span>;
+  if (status === 'partial') return <span className="px-2 py-0.5 rounded text-xs font-bold bg-yellow-500/10 text-yellow-400 border border-yellow-500/20">Partial</span>;
+  return <span className="px-2 py-0.5 rounded text-xs font-bold bg-destructive/10 text-destructive border border-destructive/20">Non-Compliant</span>;
 });
 
 const ScoreBar = memo(({ value }: { value: number }) => {
@@ -100,7 +100,7 @@ function CriteriaBlock({ criteria }: { criteria: string[] }) {
   if (!criteria.length) return null;
   return (
     <div className="bg-background/50 border border-primary/20 rounded-md px-3 py-2">
-      <div className="text-xs font-semibold text-primary uppercase tracking-wide mb-1.5">Prüfkriterien</div>
+      <div className="text-xs font-semibold text-primary uppercase tracking-wide mb-1.5">Acceptance Criteria</div>
       <ul className="space-y-1">
         {criteria.map((c, i) => (
           <li key={i} className="flex gap-2 text-foreground">
@@ -118,7 +118,7 @@ function CriteriaBlock({ criteria }: { criteria: string[] }) {
 const INTAKE_STEPS = 6;
 
 function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
   const [sub, setSub] = useState(0);
   const [d, setD] = useState<IecIntakeData>(EMPTY_INTAKE);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -130,7 +130,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
   const securityMeasures = useMemo(() => getSecurityMeasures(t), [t]);
   const securityCategories = useMemo(() => getSecurityCategories(t), [t]);
   const attachTypes = useMemo(() => getAttachTypes(t), [t]);
-  const rolePresets = ['Kapitän', 'Chief Engineer', 'IT/ETO Officer', 'Wachoffizier', 'Safety Officer', 'DPO', 'Reeder/Fleet Manager', 'Klasseprüfer'];
+  const rolePresets = ['Captain', 'Chief Engineer', 'IT/ETO Officer', 'Watch Officer', 'Safety Officer', 'DPO', 'Owner/Fleet Manager', 'Class Surveyor'];
 
   const setField = useCallback((field: keyof IecIntakeData, val: unknown) => {
     setD(prev => ({ ...prev, [field]: val }));
@@ -198,14 +198,14 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
     case 0:
       stepContent = (
         <StaggerReveal resetKey="intake-0" stagger={300}>
-          <SubStepHeader current={0} total={INTAKE_STEPS} title="Schiff / System identifizieren" subtitle="Welches CBS wird geprüft?" />
-          <InfoBox icon="🚢" color="blue">IACS UR E27 definiert Anforderungen an die Cyber-Resilienz von Bordsystemen und -ausrüstung (Computer Based Systems — CBS). Identifizieren Sie das zu prüfende Schiff/System.</InfoBox>
+          <SubStepHeader current={0} total={INTAKE_STEPS} title="Identify Vessel / System" subtitle="Which CBS is being assessed?" />
+          <InfoBox icon="🚢" color="blue">IACS UR E27 defines requirements for the cyber resilience of on-board systems and equipment (Computer Based Systems — CBS). Identify the vessel or system under assessment.</InfoBox>
           <div>
-            <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Schiffsname / CBS-Bezeichnung</label>
-            <input className="w-full border border-border rounded-lg px-3 py-2.5 text-sm bg-background text-foreground focus:ring-2 focus:ring-primary outline-none" placeholder="z.B. MV Northern Spirit — Integrated Bridge System" value={d.facilityName} onChange={e => setField('facilityName', e.target.value)} />
+            <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Vessel Name / CBS Designation</label>
+            <input className="w-full border border-border rounded-lg px-3 py-2.5 text-sm bg-background text-foreground focus:ring-2 focus:ring-primary outline-none" placeholder="e.g. MV Northern Spirit — Integrated Bridge System" value={d.facilityName} onChange={e => setField('facilityName', e.target.value)} />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Systemtypen (CBS) <span className="normal-case font-normal text-muted-foreground/60">(Mehrfachauswahl)</span></label>
+            <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">System Types (CBS) <span className="normal-case font-normal text-muted-foreground/60">(multi-select)</span></label>
             <div className="grid grid-cols-2 gap-2">
               {systemTypes.map(st => <Chip key={st.id} label={st.label} icon={st.icon} desc={st.desc} selected={d.systemTypes.includes(st.id)} onClick={() => toggleArray('systemTypes', st.id)} />)}
             </div>
@@ -216,8 +216,8 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
     case 1:
       stepContent = (
         <StaggerReveal resetKey="intake-1" stagger={300}>
-          <SubStepHeader current={1} total={INTAKE_STEPS} title="Ziel-Security-Level (SL-T)" subtitle="Welches Schutzniveau ist erforderlich?" />
-          <InfoBox icon="📘" title="Security Levels nach E27/IEC 62443" color="blue">Die Security Levels definieren den erforderlichen Schutzgrad gegen unterschiedliche Bedrohungsszenarien — von opportunistischen Angreifern (SL 1) bis hin zu staatlich unterstützten Akteuren (SL 4).</InfoBox>
+          <SubStepHeader current={1} total={INTAKE_STEPS} title="Target Security Level (SL-T)" subtitle="What protection level is required?" />
+          <InfoBox icon="📘" title="Security Levels per E27/IEC 62443" color="blue">Security Levels define the required protection grade against different threat scenarios — from opportunistic attackers (SL 1) to state-sponsored actors (SL 4).</InfoBox>
           <div className="space-y-2">
             {securityLevels.map(sl => (
               <button key={sl.id} onClick={() => setField('securityLevel', sl.id)} className={`w-full text-left border-2 rounded-xl px-4 py-3 transition-all ${d.securityLevel === sl.id ? sl.color + ' shadow' : 'border-border bg-card hover:border-muted-foreground/30'}`}>
@@ -237,14 +237,14 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
     case 2:
       stepContent = (
         <StaggerReveal resetKey="intake-2" stagger={300}>
-          <SubStepHeader current={2} total={INTAKE_STEPS} title="Bordnetzwerk-Zonen" subtitle="Welche Netzwerkzonen sind an Bord vorhanden?" />
-          <InfoBox icon="💡" color="blue">IACS UR E26 definiert Sicherheitszonen an Bord. Die Segmentierung zwischen Brücke, Maschinenraum, Crew-IT und Shore-Anbindung ist entscheidend für die Cyber-Resilienz.</InfoBox>
+          <SubStepHeader current={2} total={INTAKE_STEPS} title="On-Board Network Zones" subtitle="Which network zones are present on board?" />
+          <InfoBox icon="💡" color="blue">IACS UR E26 defines security zones on board. Segmentation between bridge, engine room, crew IT, and shore connections is essential for cyber resilience.</InfoBox>
           <div>
-            <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Systembeschreibung</label>
-            <textarea rows={4} className="w-full border border-border rounded-lg px-3 py-2.5 text-sm bg-background text-foreground focus:ring-2 focus:ring-primary outline-none resize-none" placeholder="z.B. Integriertes Brückensystem mit ECDIS, Radar/ARPA, AIS, Engine Control System..." value={d.description} onChange={e => setField('description', e.target.value)} />
+            <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">System Description</label>
+            <textarea rows={4} className="w-full border border-border rounded-lg px-3 py-2.5 text-sm bg-background text-foreground focus:ring-2 focus:ring-primary outline-none resize-none" placeholder="e.g. Integrated bridge system with ECDIS, Radar/ARPA, AIS, Engine Control System..." value={d.description} onChange={e => setField('description', e.target.value)} />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Vorhandene Zonen</label>
+            <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Available Zones</label>
             <div className="flex flex-wrap gap-2">
               {zoneConduits.map(zc => (
                 <button key={zc.id} onClick={() => toggleArray('zones', zc.id)} className={`border rounded-lg px-4 py-2 text-sm font-medium transition-all flex items-center gap-2 ${d.zones.includes(zc.id) ? 'border-primary bg-primary/10 text-foreground' : 'border-border bg-card text-muted-foreground hover:border-primary/40'}`}>{zc.icon} {zc.label}</button>
@@ -257,8 +257,8 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
     case 3:
       stepContent = (
         <StaggerReveal resetKey="intake-3" stagger={300}>
-          <SubStepHeader current={3} total={INTAKE_STEPS} title="Protokolle und Schnittstellen" subtitle="Welche Kommunikationsprotokolle werden an Bord eingesetzt?" />
-          <InfoBox icon="💡" color="blue">Die Protokollauswahl beeinflusst die Bedrohungslandschaft erheblich. Maritime Protokolle wie NMEA bieten keine native Authentifizierung oder Verschlüsselung.</InfoBox>
+          <SubStepHeader current={3} total={INTAKE_STEPS} title="Protocols and Interfaces" subtitle="Which communication protocols are used on board?" />
+          <InfoBox icon="💡" color="blue">The protocol selection significantly influences the threat landscape. Maritime protocols such as NMEA offer no native authentication or encryption.</InfoBox>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {PROTOCOL_OPTS.map(o => (
               <button key={o.label} onClick={() => toggleArray('protocols', o.label)} className={`border rounded-lg px-3 py-2 text-sm text-left flex items-center gap-2 transition-all ${d.protocols.includes(o.label) ? 'border-primary bg-primary/10 text-foreground' : 'border-border bg-card text-muted-foreground hover:border-primary/40'}`}>
@@ -267,7 +267,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
             ))}
           </div>
           {d.protocols.some(p => p.includes('NMEA') || p.includes('Serial')) && (
-            <InfoBox icon="⚠️" color="amber">NMEA und serielle Protokolle bieten keine native Authentifizierung oder Verschlüsselung. Kompensierende Maßnahmen (Netzwerksegmentierung, Gateways) sind nach UR E27 erforderlich.</InfoBox>
+            <InfoBox icon="⚠️" color="amber">NMEA and serial protocols offer no native authentication or encryption. Compensating measures (network segmentation, gateways) are required per UR E27.</InfoBox>
           )}
         </StaggerReveal>
       );
@@ -275,10 +275,10 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
     case 4:
       stepContent = (
         <StaggerReveal resetKey="intake-4" stagger={300}>
-          <SubStepHeader current={4} total={INTAKE_STEPS} title="Rollen und Verantwortlichkeiten" subtitle="Wer ist für die Cyber-Resilienz an Bord verantwortlich?" />
-          <InfoBox icon="💡" color="blue">IACS UR E26 verlangt klar definierte Rollen für das Cyber-Risikomanagement an Bord und an Land.</InfoBox>
+          <SubStepHeader current={4} total={INTAKE_STEPS} title="Roles and Responsibilities" subtitle="Who is responsible for cyber resilience on board?" />
+          <InfoBox icon="💡" color="blue">IACS UR E26 requires clearly defined roles for cyber risk management on board and ashore.</InfoBox>
           <div>
-            <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Häufige Rollen</label>
+            <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Common Roles</label>
             <div className="flex flex-wrap gap-2">
               {rolePresets.map(r => (
                 <button key={r} onClick={() => addRole(r)} className={`border rounded-full px-3 py-1.5 text-xs font-medium transition-all ${d.roles.includes(r) ? 'border-green-500 bg-green-500/10 text-green-400' : 'border-border bg-card text-muted-foreground hover:border-primary/40'}`}>{d.roles.includes(r) ? '✓ ' : ''}{r}</button>
@@ -286,12 +286,12 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
             </div>
           </div>
           <div className="flex gap-2">
-            <input className="flex-1 border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground focus:ring-2 focus:ring-primary outline-none" placeholder="Weitere Rolle eingeben" value={d.customRole} onChange={e => setField('customRole', e.target.value)} onKeyDown={e => { if (e.key === 'Enter') addRole(d.customRole); }} />
-            <Button onClick={() => addRole(d.customRole)} className="font-medium">Hinzufügen</Button>
+            <input className="flex-1 border border-border rounded-lg px-3 py-2 text-sm bg-background text-foreground focus:ring-2 focus:ring-primary outline-none" placeholder="Add another role" value={d.customRole} onChange={e => setField('customRole', e.target.value)} onKeyDown={e => { if (e.key === 'Enter') addRole(d.customRole); }} />
+            <Button onClick={() => addRole(d.customRole)} className="font-medium">Add</Button>
           </div>
           {d.roles.length > 0 && (
             <div>
-              <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Ausgewählte Rollen</label>
+              <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Selected Roles</label>
               <div className="flex flex-wrap gap-2">
                 {d.roles.map(r => (
                   <span key={r} className="flex items-center gap-1.5 bg-green-500/10 border border-green-500/20 text-green-400 rounded-full px-3 py-1.5 text-xs font-medium">
@@ -321,9 +321,9 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
         });
       };
       const maturityLabel = (entry: MeasureEntry) => {
-        if (entry.active && entry.documented && entry.audited) return 'Vollständig';
-        if (entry.active && entry.documented) return 'Teilweise';
-        return 'Basis';
+        if (entry.active && entry.documented && entry.audited) return 'Complete';
+        if (entry.active && entry.documented) return 'Partial';
+        return 'Basic';
       };
       const maturityColor = (entry: MeasureEntry) => {
         if (entry.active && entry.documented && entry.audited) return 'text-green-400';
@@ -333,8 +333,8 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
 
       stepContent = (
         <StaggerReveal resetKey="intake-5" stagger={300}>
-          <SubStepHeader current={5} total={INTAKE_STEPS} title="Bestehende Sicherheitsmaßnahmen" subtitle="Was ist bereits an Bord implementiert?" />
-          <InfoBox icon="💡" color="blue">Die Reifegradbewertung zeigt den Implementierungsstand bestehender Maßnahmen an Bord.</InfoBox>
+          <SubStepHeader current={5} total={INTAKE_STEPS} title="Existing Security Measures" subtitle="What is already implemented on board?" />
+          <InfoBox icon="💡" color="blue">The maturity assessment shows the implementation status of existing security measures on board.</InfoBox>
           {securityCategories.map(cat => (
             <div key={cat}>
               <div className="text-xs font-semibold text-muted-foreground/60 uppercase tracking-wide mb-2">{cat}</div>
@@ -353,11 +353,11 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
                         <div className="flex gap-4 px-10 pb-2.5 -mt-1">
                           <label className="flex items-center gap-1.5 cursor-pointer group">
                             <input type="checkbox" className="w-3.5 h-3.5 rounded accent-primary flex-shrink-0" checked={entry.documented} onChange={e => setMeasureProp(m.id, 'documented', e.target.checked)} />
-                            <span className="text-xs text-muted-foreground group-hover:text-foreground transition-colors">Dokumentiert</span>
+                            <span className="text-xs text-muted-foreground group-hover:text-foreground transition-colors">Documented</span>
                           </label>
                           <label className="flex items-center gap-1.5 cursor-pointer group">
                             <input type="checkbox" className="w-3.5 h-3.5 rounded accent-primary flex-shrink-0" checked={entry.audited} onChange={e => setMeasureProp(m.id, 'audited', e.target.checked)} />
-                            <span className="text-xs text-muted-foreground group-hover:text-foreground transition-colors">Auditiert</span>
+                            <span className="text-xs text-muted-foreground group-hover:text-foreground transition-colors">Audited</span>
                           </label>
                         </div>
                       )}
@@ -368,8 +368,8 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
             </div>
           ))}
           <div>
-            <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Bekannte Schwachstellen</label>
-            <textarea rows={3} className="w-full border border-border rounded-lg px-3 py-2.5 text-sm bg-background text-foreground focus:ring-2 focus:ring-primary outline-none resize-none" placeholder="z.B. Flaches Netzwerk, Shared Accounts, NMEA ungeschützt, USB offen..." value={d.knownIssues} onChange={e => setField('knownIssues', e.target.value)} />
+            <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">Known Vulnerabilities</label>
+            <textarea rows={3} className="w-full border border-border rounded-lg px-3 py-2.5 text-sm bg-background text-foreground focus:ring-2 focus:ring-primary outline-none resize-none" placeholder="e.g. Flat network, shared accounts, NMEA unprotected, USB ports open..." value={d.knownIssues} onChange={e => setField('knownIssues', e.target.value)} />
           </div>
         </StaggerReveal>
       );
@@ -378,15 +378,15 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
     case 6:
       stepContent = (
         <StaggerReveal resetKey="intake-6" stagger={300}>
-          <SubStepHeader current={5} total={INTAKE_STEPS} title="Dokumentation" subtitle="Vorhandene Unterlagen hochladen (optional)" />
-          <InfoBox icon="💡" color="blue">Netzwerktopologie-Diagramme, CBS-Inventare und Risikoanalysen erhöhen die Evidenzqualität.</InfoBox>
+          <SubStepHeader current={5} total={INTAKE_STEPS} title="Documentation" subtitle="Upload existing documents (optional)" />
+          <InfoBox icon="💡" color="blue">Network topology diagrams, CBS inventories, and risk assessments increase evidence quality.</InfoBox>
           <div className="grid grid-cols-1 gap-2">
             {attachTypes.map(at => (
               <button key={at.id} onClick={() => { setActiveUploadType(at.id); if (fileRef.current) { fileRef.current.accept = at.accept; fileRef.current.click(); } }} className="flex items-center gap-3 border-2 border-dashed border-border rounded-xl px-4 py-3 text-sm text-muted-foreground hover:border-primary/40 hover:bg-primary/5 hover:text-foreground transition-all text-left">
                 <span className="text-xl">{at.icon}</span>
                 <div>
                   <div className="font-medium">{at.label} Upload</div>
-                  <div className="text-xs text-muted-foreground/60">{at.accept.replace(/\*/g, 'Alle Formate')}</div>
+                  <div className="text-xs text-muted-foreground/60">{at.accept.replace(/\*/g, 'All formats')}</div>
                 </div>
                 <span className="ml-auto text-muted-foreground/40">+</span>
               </button>
@@ -395,10 +395,10 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
           <input ref={fileRef} type="file" multiple onChange={handleFileChange} className="hidden" />
           {d.files.length > 0 && (
             <div>
-              <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Hochgeladene Dateien ({d.files.length})</div>
+              <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Uploaded Files ({d.files.length})</div>
               <div className="space-y-1.5">
                 {d.files.map((f, i) => {
-                  const typeInfo = attachTypes.find(at => at.id === f.type) || { icon: '📎', label: 'Dokument' };
+                  const typeInfo = attachTypes.find(at => at.id === f.type) || { icon: '📎', label: 'Document' };
                   return (
                     <div key={i} className="flex items-center gap-3 bg-card border border-border rounded-lg px-3 py-2.5 text-sm">
                       <span className="text-lg flex-shrink-0">{typeInfo.icon}</span>
@@ -413,30 +413,30 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
               </div>
             </div>
           )}
-          <InfoBox icon="🔒" color="green">Dateien werden nicht gespeichert oder übertragen.</InfoBox>
+          <InfoBox icon="🔒" color="green">Files are not stored or transmitted.</InfoBox>
         </StaggerReveal>
       );
       break;
     case 7:
       stepContent = (
         <StaggerReveal resetKey="intake-7" stagger={250}>
-          <SubStepHeader current={5} total={INTAKE_STEPS} title="Zusammenfassung" subtitle="Prüfen Sie Ihre Angaben vor dem Start." />
+          <SubStepHeader current={5} total={INTAKE_STEPS} title="Summary" subtitle="Review your inputs before starting the assessment." />
           {[
-            { label: 'Schiff/System', val: d.facilityName || '—' },
-            { label: 'CBS-Typen', val: d.systemTypes.map(id => systemTypes.find(st => st.id === id)?.label).join(', ') || '—' },
+            { label: 'Vessel/System', val: d.facilityName || '—' },
+            { label: 'CBS Types', val: d.systemTypes.map(id => systemTypes.find(st => st.id === id)?.label).join(', ') || '—' },
             { label: 'Security Level', val: securityLevels.find(sl => sl.id === d.securityLevel)?.label || '—' },
-            { label: 'Zonen', val: d.zones.map(id => zoneConduits.find(zc => zc.id === id)?.label).join(', ') || '—' },
-            { label: 'Protokolle', val: d.protocols.join(', ') || '—' },
-            { label: 'Rollen', val: d.roles.join(', ') || '—' },
-            { label: 'Maßnahmen', val: Object.keys(d.measures).length > 0 ? `${Object.keys(d.measures).length} ausgewählt` : 'Keine' },
-            { label: 'Dokumente', val: d.files.length > 0 ? `${d.files.length} Dateien` : 'Keine' },
+            { label: 'Zones', val: d.zones.map(id => zoneConduits.find(zc => zc.id === id)?.label).join(', ') || '—' },
+            { label: 'Protocols', val: d.protocols.join(', ') || '—' },
+            { label: 'Roles', val: d.roles.join(', ') || '—' },
+            { label: 'Measures', val: Object.keys(d.measures).length > 0 ? `${Object.keys(d.measures).length} selected` : 'None' },
+            { label: 'Documents', val: d.files.length > 0 ? `${d.files.length} files` : 'None' },
           ].map(({ label, val }) => (
             <div key={label} className="flex gap-3 text-sm border-b border-border/50 pb-2 last:border-0 last:pb-0">
               <span className="text-muted-foreground w-28 flex-shrink-0">{label}</span>
               <span className="text-foreground font-medium">{val}</span>
             </div>
           ))}
-          {d.knownIssues && <div className="text-sm border-b border-border/50 pb-2"><span className="text-muted-foreground">Schwachstellen: </span><span className="text-foreground">{d.knownIssues}</span></div>}
+          {d.knownIssues && <div className="text-sm border-b border-border/50 pb-2"><span className="text-muted-foreground">Known Issues: </span><span className="text-foreground">{d.knownIssues}</span></div>}
         </StaggerReveal>
       );
       break;
@@ -447,15 +447,15 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
       {stepContent}
       <div className="flex items-center justify-between mt-6 pt-4 border-t border-border/50">
         <div className="flex items-center gap-2">
-          {sub > 0 && <Button variant="outline" onClick={() => setSub(sub - 1)}>Zurück</Button>}
+          {sub > 0 && <Button variant="outline" onClick={() => setSub(sub - 1)}>Back</Button>}
           {sub <= 6 && <Button variant="ghost" size="sm" onClick={handleDemo} className="text-xs text-muted-foreground">Demo</Button>}
         </div>
         {sub < 7 ? (
           <Button onClick={() => setSub(sub + 1)} disabled={!canNext[sub]} className="font-semibold">
-            {sub === 6 ? 'Zur Zusammenfassung' : 'Weiter'}
+            {sub === 6 ? 'Review Summary' : 'Next'}
           </Button>
         ) : (
-          <Button onClick={() => onFinish(d)} className="font-semibold">Analyse starten</Button>
+          <Button onClick={() => onFinish(d)} className="font-semibold">Start Assessment</Button>
         )}
       </div>
     </div>
@@ -491,7 +491,6 @@ function KpiCard({ label, value, accent }: { label: string; value: number | stri
 }
 
 function ThreatModel({ threats, onNext }: { threats: IecThreat[]; onNext: () => void }) {
-  const { language } = useLanguage();
   const [exp, setExp] = useState<number | null>(null);
   const frCounts = useMemo(() => {
     const c: Record<string, number> = {};
@@ -502,19 +501,19 @@ function ThreatModel({ threats, onNext }: { threats: IecThreat[]; onNext: () => 
 
   return (
     <StaggerReveal resetKey="tm" stagger={300}>
-      <InfoBox icon="🔍" title="Maritime Bedrohungslandschaft" color="blue">Die Bedrohungsanalyse basiert auf den Anforderungskategorien der IACS UR E27 und identifiziert Schwachstellen in den Computer Based Systems (CBS) an Bord.</InfoBox>
+      <InfoBox icon="🔍" title="Maritime Threat Landscape" color="blue">The threat analysis is based on the requirement categories of IACS UR E27 and identifies vulnerabilities in the Computer Based Systems (CBS) on board.</InfoBox>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {Object.entries(FR_CATEGORIES).map(([key, meta]) => (
           <div key={key} className="bg-card border border-border rounded-xl p-3.5 text-center hover:border-primary/30 transition-colors">
             <div className={`w-2.5 h-2.5 rounded-full ${meta.dot} mx-auto mb-2`} />
-            <div className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide leading-tight">{meta.label[language]}</div>
+            <div className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide leading-tight">{meta.label.en}</div>
             <div className="text-2xl font-bold font-mono text-foreground mt-1">{frCounts[key] || 0}</div>
           </div>
         ))}
       </div>
 
-      <SectionCard title={`Identifizierte Bedrohungen (${threats.length})`} icon="🛡️">
+      <SectionCard title={`Identified Threats (${threats.length})`} icon="🛡️">
         <div className="space-y-2">
           {threats.map(th => {
             const isOpen = exp === th.id;
@@ -534,18 +533,18 @@ function ThreatModel({ threats, onNext }: { threats: IecThreat[]; onNext: () => 
                 {isOpen && (
                   <div className="border-t border-border bg-secondary/20 px-4 py-4 text-sm space-y-3">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                      <div className="bg-background/60 rounded-lg px-3 py-2"><span className="font-semibold text-muted-foreground block mb-0.5">Angreifer</span><span className="text-foreground">{th.attacker}</span></div>
-                      <div className="bg-background/60 rounded-lg px-3 py-2"><span className="font-semibold text-muted-foreground block mb-0.5">Referenz</span><span className="text-foreground font-mono">{th.iecRef}</span></div>
+                      <div className="bg-background/60 rounded-lg px-3 py-2"><span className="font-semibold text-muted-foreground block mb-0.5">Attacker</span><span className="text-foreground">{th.attacker}</span></div>
+                      <div className="bg-background/60 rounded-lg px-3 py-2"><span className="font-semibold text-muted-foreground block mb-0.5">Reference</span><span className="text-foreground font-mono">{th.iecRef}</span></div>
                     </div>
-                    <div className="bg-background/60 rounded-lg px-3 py-2 text-xs"><span className="font-semibold text-muted-foreground block mb-0.5">Angriffspfad</span><span className="text-foreground">{th.path}</span></div>
-                    <EvidenceBlock label="Evidenz">{th.evidence}</EvidenceBlock>
-                    <EvidenceBlock label="Begründung">{th.rationale}</EvidenceBlock>
+                    <div className="bg-background/60 rounded-lg px-3 py-2 text-xs"><span className="font-semibold text-muted-foreground block mb-0.5">Attack Path</span><span className="text-foreground">{th.path}</span></div>
+                    <EvidenceBlock label="Evidence">{th.evidence}</EvidenceBlock>
+                    <EvidenceBlock label="Rationale">{th.rationale}</EvidenceBlock>
                     <div className="grid grid-cols-2 gap-4">
                       <div><div className="text-xs font-semibold text-muted-foreground mb-1.5">Likelihood</div><ScoreBar value={th.likelihood} /></div>
                       <div><div className="text-xs font-semibold text-muted-foreground mb-1.5">Impact</div><ScoreBar value={th.impact} /></div>
                     </div>
                     {th.sources.length > 0 && (
-                      <div className="text-xs text-muted-foreground pt-1 border-t border-border/50"><span className="font-semibold">Quellen: </span>{th.sources.join(' · ')}</div>
+                      <div className="text-xs text-muted-foreground pt-1 border-t border-border/50"><span className="font-semibold">Sources: </span>{th.sources.join(' · ')}</div>
                     )}
                   </div>
                 )}
@@ -556,7 +555,7 @@ function ThreatModel({ threats, onNext }: { threats: IecThreat[]; onNext: () => 
       </SectionCard>
 
       <div className="flex justify-end pt-2">
-        <Button onClick={onNext} className="font-semibold">Zur Risikomatrix</Button>
+        <Button onClick={onNext} className="font-semibold">Risk Matrix</Button>
       </div>
     </StaggerReveal>
   );
@@ -576,14 +575,14 @@ function RiskAssessment({ threats, onNext }: { threats: IecThreat[]; onNext: () 
 
   return (
     <StaggerReveal resetKey="ra" stagger={350}>
-      <InfoBox icon="⚖️" title="Risikomatrix (5×5)" color="blue">Die Risikobewertung ordnet jede Bedrohung nach Eintrittswahrscheinlichkeit und Auswirkung auf Schiffssicherheit ein.</InfoBox>
+      <InfoBox icon="⚖️" title="Risk Matrix (5×5)" color="blue">The risk assessment maps each threat by likelihood and impact on vessel safety.</InfoBox>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <KpiCard label="Kritisch" value={cnt.critical} accent="danger" />
-        <KpiCard label="Hoch" value={cnt.high} accent="warning" />
-        <KpiCard label="Mittel" value={cnt.medium} />
-        <KpiCard label="Niedrig" value={cnt.low} accent="success" />
+        <KpiCard label="Critical" value={cnt.critical} accent="danger" />
+        <KpiCard label="High" value={cnt.high} accent="warning" />
+        <KpiCard label="Medium" value={cnt.medium} />
+        <KpiCard label="Low" value={cnt.low} accent="success" />
       </div>
-      <SectionCard title="Risikomatrix (Likelihood × Impact)" icon="📊">
+      <SectionCard title="Risk Matrix (Likelihood × Impact)" icon="📊">
         <div className="overflow-x-auto">
           <table className="text-xs border-collapse mx-auto">
             <thead><tr>
@@ -611,15 +610,15 @@ function RiskAssessment({ threats, onNext }: { threats: IecThreat[]; onNext: () 
         </div>
       </SectionCard>
 
-      <SectionCard title={`Alle Risiken (${sorted.length})`} icon="📋">
+      <SectionCard title={`All Risks (${sorted.length})`} icon="📋">
         <div className="overflow-x-auto -mx-5">
           <table className="w-full text-sm">
             <thead className="bg-secondary/60 text-xs text-muted-foreground"><tr>
-              <th className="px-5 py-2.5 text-left font-semibold">Bedrohung</th>
+              <th className="px-5 py-2.5 text-left font-semibold">Threat</th>
               <th className="px-3 py-2.5 text-center w-12 font-semibold">L</th>
               <th className="px-3 py-2.5 text-center w-12 font-semibold">I</th>
               <th className="px-3 py-2.5 text-center w-16 font-semibold">Score</th>
-              <th className="px-5 py-2.5 text-center w-28 font-semibold">Priorität</th>
+              <th className="px-5 py-2.5 text-center w-28 font-semibold">Priority</th>
             </tr></thead>
             <tbody>
               {sorted.map((th, idx) => {
@@ -645,7 +644,7 @@ function RiskAssessment({ threats, onNext }: { threats: IecThreat[]; onNext: () 
       </SectionCard>
 
       <div className="flex justify-end pt-2">
-        <Button onClick={onNext} className="font-semibold">Zur E27-Zuordnung</Button>
+        <Button onClick={onNext} className="font-semibold">E27 Mapping</Button>
       </div>
     </StaggerReveal>
   );
@@ -665,7 +664,7 @@ function IecMapping({ reqs, onNext }: { reqs: IecReq[]; onNext: () => void }) {
 
   return (
     <StaggerReveal resetKey="cm" stagger={300}>
-      <InfoBox icon="📋" title="IACS UR E27 Konformitätsbewertung" color="blue">Bewertung des Schiffs gegen die Anforderungen aus IACS UR E27 (Table 1 + Table 2).</InfoBox>
+      <InfoBox icon="📋" title="IACS UR E27 Compliance Assessment" color="blue">Assessment of the vessel against the requirements of IACS UR E27 (Table 1 + Table 2).</InfoBox>
 
       {/* Score Overview */}
       <div className="bg-card border border-border rounded-xl p-6 flex flex-col sm:flex-row items-center gap-6">
@@ -681,9 +680,9 @@ function IecMapping({ reqs, onNext }: { reqs: IecReq[]; onNext: () => void }) {
         </div>
         <div className="flex-1 text-center sm:text-left">
           <div className="text-lg font-bold text-foreground mb-1">IACS UR E27 Compliance Score</div>
-          <div className="text-sm text-muted-foreground mb-4">{reqs.length} Anforderungen geprüft</div>
+          <div className="text-sm text-muted-foreground mb-4">{reqs.length} requirements assessed</div>
           <div className="flex gap-5 text-sm flex-wrap justify-center sm:justify-start">
-            {([['Konform', pass, 'bg-green-500'], ['Teilweise', partial, 'bg-yellow-500'], ['Nicht konform', fail, 'bg-destructive']] as [string, number, string][]).map(([label, count, bg]) => (
+            {([['Compliant', pass, 'bg-green-500'], ['Partial', partial, 'bg-yellow-500'], ['Non-Compliant', fail, 'bg-destructive']] as [string, number, string][]).map(([label, count, bg]) => (
               <span key={label} className="flex items-center gap-2">
                 <span className={`w-3 h-3 rounded-full ${bg} inline-block`} />
                 <span className="text-muted-foreground">{label}:</span>
@@ -695,7 +694,7 @@ function IecMapping({ reqs, onNext }: { reqs: IecReq[]; onNext: () => void }) {
       </div>
 
       {/* Requirements List */}
-      <SectionCard title={`Anforderungen (${reqs.length})`} icon="📝">
+      <SectionCard title={`Requirements (${reqs.length})`} icon="📝">
         <div className="space-y-2">
           {reqs.map(r => {
             const isOpen = exp === r.id;
@@ -711,16 +710,16 @@ function IecMapping({ reqs, onNext }: { reqs: IecReq[]; onNext: () => void }) {
                 </div>
                 {isOpen && (
                   <div className="border-t border-border bg-secondary/20 px-4 py-4 text-sm space-y-3">
-                    <EvidenceBlock label="Evidenz">{r.evidence}</EvidenceBlock>
+                    <EvidenceBlock label="Evidence">{r.evidence}</EvidenceBlock>
                     {r.gap && (
                       <div className="bg-destructive/5 border border-destructive/20 rounded-lg px-3 py-2 text-sm">
                         <span className="font-semibold text-destructive">Gap: </span><span className="text-foreground">{r.gap}</span>
                       </div>
                     )}
-                    <EvidenceBlock label="Begründung">{r.rationale}</EvidenceBlock>
+                    <EvidenceBlock label="Rationale">{r.rationale}</EvidenceBlock>
                     {r.measure && (
                       <div className="bg-primary/5 border border-primary/20 rounded-lg px-3 py-2 text-sm">
-                        <span className="font-semibold text-primary">Maßnahme: </span><span className="text-foreground">{r.measure}</span>
+                        <span className="font-semibold text-primary">Measure: </span><span className="text-foreground">{r.measure}</span>
                       </div>
                     )}
                     <CriteriaBlock criteria={r.criteria} />
@@ -733,7 +732,7 @@ function IecMapping({ reqs, onNext }: { reqs: IecReq[]; onNext: () => void }) {
       </SectionCard>
 
       <div className="flex justify-end pt-2">
-        <Button onClick={onNext} className="font-semibold">Zum Bericht</Button>
+        <Button onClick={onNext} className="font-semibold">Report</Button>
       </div>
     </StaggerReveal>
   );
@@ -742,7 +741,6 @@ function IecMapping({ reqs, onNext }: { reqs: IecReq[]; onNext: () => void }) {
 // ── Phase 5: Report ───────────────────────────────────────────
 
 function ReportView({ intakeData, threats, reqs }: { intakeData: IecIntakeData; threats: IecThreat[]; reqs: IecReq[] }) {
-  const { language } = useLanguage();
   const [localThreats, setLocalThreats] = useState<IecThreat[]>(() => threats.map(th => ({ ...th, sources: [...th.sources] })));
   const [localReqs, setLocalReqs] = useState<IecReq[]>(() => reqs.map(r => ({ ...r, criteria: [...r.criteria] })));
   const [qaResult, setQaResult] = useState<QaResult | null>(null);
@@ -753,7 +751,7 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IecIntakeData; 
 
   const critRisks = useMemo(() => localThreats.filter(th => th.likelihood * th.impact >= 20), [localThreats]);
   const failReqs = useMemo(() => localReqs.filter(r => r.status === 'fail'), [localReqs]);
-  const today = useMemo(() => new Date().toLocaleDateString('de-DE', { day: '2-digit', month: 'long', year: 'numeric' }), []);
+  const today = useMemo(() => new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' }), []);
 
   const securityLevels = useMemo(() => getSecurityLevels((k: string) => k), []);
   const slName = securityLevels.find(sl => sl.id === intakeData.securityLevel)?.label || intakeData.securityLevel || '—';
@@ -762,38 +760,38 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IecIntakeData; 
     setQaRunning(true);
     setQaExpanded(false);
     setTimeout(() => {
-      const initialQa = runQualityCheck(localThreats, localReqs, language as 'de' | 'en' | 'fr', intakeData);
+      const initialQa = runQualityCheck(localThreats, localReqs, 'en', intakeData);
       setPreFixQaChecks(initialQa.checks);
       let finalThreats = localThreats;
       let finalReqs = localReqs;
       let fixLogs: string[] = [];
       if (initialQa.failed > 0) {
-        const result = applyAuditFixes(localThreats, localReqs, initialQa.checks.filter(c => !c.passed), language as 'de' | 'en' | 'fr', intakeData);
+        const result = applyAuditFixes(localThreats, localReqs, initialQa.checks.filter(c => !c.passed), 'en', intakeData);
         finalThreats = result.threats; finalReqs = result.reqs; fixLogs = result.fixes;
         setLocalThreats(finalThreats); setLocalReqs(finalReqs); setAllFixLogs(fixLogs);
       }
-      const postFixQa = runQualityCheck(finalThreats, finalReqs, language as 'de' | 'en' | 'fr', intakeData);
+      const postFixQa = runQualityCheck(finalThreats, finalReqs, 'en', intakeData);
       setQaResult(postFixQa); setQaRunning(false); setQaExpanded(true);
     }, 1500);
-  }, [localThreats, localReqs, language, intakeData]);
+  }, [localThreats, localReqs, intakeData]);
 
   const qaVerdict = qaResult?.verdict;
 
   const CATEGORY_LABELS: Record<string, string> = {
-    consistency: 'A. Konsistenzprüfung', technical: 'B. Fachliche Korrektheit',
-    evidence: 'C. Evidenzprüfung', editorial: 'D. Redaktionelle Prüfung', ot: 'E. Maritime Prüfung',
+    consistency: 'A. Consistency Check', technical: 'B. Technical Correctness',
+    evidence: 'C. Evidence Check', editorial: 'D. Editorial Check', ot: 'E. Maritime Check',
   };
 
   return (
     <StaggerReveal resetKey="rp" stagger={300}>
-      <InfoBox icon="✅" title="Analyse abgeschlossen" color="green">Die IACS UR E27-Prüfung wurde durchgeführt. Starten Sie die Qualitätsprüfung, um den Bericht zu validieren.</InfoBox>
+      <InfoBox icon="✅" title="Assessment Complete" color="green">The IACS UR E27 assessment has been performed. Run the quality check to validate the report.</InfoBox>
 
       {/* Report Header */}
       <div className="bg-card border border-border rounded-xl overflow-hidden">
         <div className="border-l-4 border-primary p-6">
           <div className="flex flex-col sm:flex-row items-start justify-between gap-3">
             <div>
-              <div className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest mb-1">IACS UR E27 Prüfbericht</div>
+              <div className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest mb-1">IACS UR E27 Assessment Report</div>
               <div className="text-xl font-bold text-foreground">{intakeData.facilityName}</div>
             </div>
             <div className="sm:text-right text-xs text-muted-foreground space-y-0.5">
@@ -803,26 +801,26 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IecIntakeData; 
           </div>
           <div className="h-px bg-border my-4" />
           <p className="text-sm text-foreground leading-relaxed">
-            Für das Schiff/System <strong>{intakeData.facilityName}</strong> wurden <strong>{localThreats.length} Bedrohungen</strong> identifiziert, davon <strong className="text-destructive">{critRisks.length} kritisch</strong>. Von {localReqs.length} geprüften Anforderungen sind <strong className="text-destructive">{failReqs.length} nicht konform</strong>.
+            For vessel/system <strong>{intakeData.facilityName}</strong>, <strong>{localThreats.length} threats</strong> were identified, of which <strong className="text-destructive">{critRisks.length} are critical</strong>. Out of {localReqs.length} assessed requirements, <strong className="text-destructive">{failReqs.length} are non-compliant</strong>.
           </p>
         </div>
       </div>
 
       {/* KPIs */}
       <div className="grid grid-cols-3 gap-3">
-        <KpiCard label="Bedrohungen" value={localThreats.length} />
-        <KpiCard label="Kritische Risiken" value={critRisks.length} accent="danger" />
-        <KpiCard label="Nicht konform" value={failReqs.length} accent="danger" />
+        <KpiCard label="Threats" value={localThreats.length} />
+        <KpiCard label="Critical Risks" value={critRisks.length} accent="danger" />
+        <KpiCard label="Non-Compliant" value={failReqs.length} accent="danger" />
       </div>
 
       {/* Charts */}
-      <SectionCard title="Auswertungsübersicht" icon="📊">
+      <SectionCard title="Assessment Overview" icon="📊">
         <Iec62443AuditCharts threats={localThreats} reqs={localReqs} />
       </SectionCard>
 
       {/* Critical risks */}
       {critRisks.length > 0 && (
-        <SectionCard title={`Kritische Risiken (${critRisks.length})`} icon="🔴" className="border-destructive/30">
+        <SectionCard title={`Critical Risks (${critRisks.length})`} icon="🔴" className="border-destructive/30">
           <div className="space-y-3">
             {critRisks.map(th => (
               <div key={th.id} className="flex items-start gap-3 bg-destructive/5 border border-destructive/15 rounded-lg p-3">
@@ -842,7 +840,7 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IecIntakeData; 
 
       {/* Fail reqs */}
       {failReqs.length > 0 && (
-        <SectionCard title={`Nicht konforme Anforderungen (${failReqs.length})`} icon="⚠️" className="border-destructive/20">
+        <SectionCard title={`Non-Compliant Requirements (${failReqs.length})`} icon="⚠️" className="border-destructive/20">
           <div className="space-y-3">
             {failReqs.map((r, i) => (
               <div key={r.id} className="border border-border rounded-lg p-4 space-y-2">
@@ -854,10 +852,10 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IecIntakeData; 
                   </div>
                 </div>
                 <div className="ml-10 space-y-2 text-sm">
-                  <div className="text-xs"><span className="font-semibold text-muted-foreground">Evidenz: </span><span className="text-foreground">{r.evidence}</span></div>
+                  <div className="text-xs"><span className="font-semibold text-muted-foreground">Evidence: </span><span className="text-foreground">{r.evidence}</span></div>
                   {r.measure && (
                     <div className="bg-primary/5 border border-primary/15 rounded-lg px-3 py-2 text-xs">
-                      <span className="font-semibold text-primary">Maßnahme: </span><span className="text-foreground">{r.measure}</span>
+                      <span className="font-semibold text-primary">Measure: </span><span className="text-foreground">{r.measure}</span>
                     </div>
                   )}
                   <CriteriaBlock criteria={r.criteria} />
@@ -909,7 +907,7 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IecIntakeData; 
               <div className="border-t border-border pt-3">
                 <div className="flex items-center gap-2 mb-2">
                   <Wrench className="w-3.5 h-3.5 text-primary" />
-                  <span className="font-semibold text-primary text-xs">Automatisch umgesetzte Korrekturen</span>
+                  <span className="font-semibold text-primary text-xs">Automated Corrections Applied</span>
                   <span className="text-xs font-mono text-muted-foreground ml-auto">{allFixLogs.length} fixes</span>
                 </div>
                 <ul className="space-y-1 text-xs text-foreground">
@@ -930,15 +928,15 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IecIntakeData; 
       <div className="bg-card border border-border rounded-xl p-5">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <div className="text-sm font-bold text-foreground">Bericht exportieren</div>
+            <div className="text-sm font-bold text-foreground">Export Report</div>
             <div className="text-xs text-muted-foreground mt-0.5">
-              {qaResult ? 'Qualitätsprüfung abgeschlossen — PDF-Export bereit' : 'Starten Sie die Qualitätsprüfung, um den Bericht zu validieren'}
+              {qaResult ? 'Quality check complete — PDF export ready' : 'Run the quality check to validate the report'}
             </div>
           </div>
           <div className="flex gap-3 flex-wrap items-center">
             <Button onClick={handleQaAndFix} disabled={qaRunning} variant={qaResult ? 'outline' : 'default'} className="font-semibold">
               {qaRunning ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <ShieldCheck className="w-4 h-4 mr-2" />}
-              {qaRunning ? 'Prüfung läuft…' : 'Dokument prüfen'}
+              {qaRunning ? 'Checking…' : 'Validate Report'}
             </Button>
             {qaResult && (
               <Button
@@ -947,7 +945,7 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IecIntakeData; 
                     intakeData,
                     threats: localThreats,
                     reqs: localReqs,
-                    language: language as 'de' | 'en' | 'fr',
+                    language: 'en',
                     isDraft: qaVerdict !== 'passed',
                     qaChecks: qaResult.checks,
                     fixLog: allFixLogs,
@@ -969,7 +967,7 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IecIntakeData; 
 
 // ── Main ──────────────────────────────────────────────────────
 
-const MAIN_STEPS = ['Datenerhebung', 'Bedrohungslandschaft', 'Risikomatrix', 'E27-Zuordnung', 'Bericht & Export'];
+const MAIN_STEPS = ['Data Collection', 'Threat Landscape', 'Risk Matrix', 'E27 Mapping', 'Report & Export'];
 
 const Iec62443ComplianceTool = ({ embedded }: { embedded?: boolean }) => {
   const [step, setStepRaw] = useState(0);
@@ -996,7 +994,7 @@ const Iec62443ComplianceTool = ({ embedded }: { embedded?: boolean }) => {
 
   return (
     <div className={embedded ? '' : 'min-h-screen bg-background'}>
-      {!embedded && <PageMeta title="IACS UR E27 Cyber Resilience Assessment" description="IACS UR E27 Compliance Assessment für maritime Bordsysteme" />}
+      {!embedded && <PageMeta title="IACS UR E27 Cyber Resilience Assessment" description="IACS UR E27 Compliance Assessment for maritime on-board systems" />}
       <div className="border-b border-border px-4 py-3 mb-1" ref={contentRef}>
         <div className="flex items-center max-w-5xl mx-auto overflow-x-auto">
           {MAIN_STEPS.map((s, i) => (
@@ -1015,8 +1013,8 @@ const Iec62443ComplianceTool = ({ embedded }: { embedded?: boolean }) => {
         {loading ? (
           <div className="bg-card rounded-xl border border-border p-16 text-center">
             <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-5" />
-            <div className="text-foreground font-semibold text-lg mb-2">Maritime Cyber-Risikoanalyse wird durchgeführt…</div>
-            <div className="text-muted-foreground text-sm">CBS-Bedrohungen werden identifiziert und gegen IACS UR E27 bewertet.</div>
+            <div className="text-foreground font-semibold text-lg mb-2">Performing Maritime Cyber Risk Analysis…</div>
+            <div className="text-muted-foreground text-sm">CBS threats are being identified and assessed against IACS UR E27.</div>
           </div>
         ) : (
           <div>
@@ -1024,7 +1022,7 @@ const Iec62443ComplianceTool = ({ embedded }: { embedded?: boolean }) => {
               <div className="text-lg font-bold text-foreground" key={`main-${step}`}><Typewriter text={MAIN_STEPS[step]} mode="typewriter" charDelay={10} cursor={false} /></div>
               {step > 0 && (
                 <Button variant="ghost" size="sm" onClick={reset} className="text-muted-foreground">
-                  <RotateCcw className="w-4 h-4 mr-1" /> Neustart
+                  <RotateCcw className="w-4 h-4 mr-1" /> Restart
                 </Button>
               )}
             </div>
