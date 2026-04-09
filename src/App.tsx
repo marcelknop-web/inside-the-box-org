@@ -11,6 +11,7 @@ import { lazy, Suspense } from "react";
 
 const Nis2ComplianceTool = lazy(() => import("./pages/Nis2ComplianceTool"));
 const Iec62443ComplianceTool = lazy(() => import("./pages/Iec62443ComplianceTool"));
+const EliteShipScene = lazy(() => import("./pages/EliteShipScene"));
 
 const queryClient = new QueryClient();
 
@@ -27,6 +28,7 @@ const App = () => (
               <Route path="/nis2-compliance" element={<Suspense fallback={null}><Nis2ComplianceTool /></Suspense>} />
               <Route path="/iacs-e27" element={<Suspense fallback={null}><Iec62443ComplianceTool /></Suspense>} />
               <Route path="/iec62443" element={<Suspense fallback={null}><Iec62443ComplianceTool /></Suspense>} />
+              <Route path="/berlin-drift" element={<Suspense fallback={null}><EliteShipScene /></Suspense>} />
               <Route path="/:serviceId" element={<ChatView />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
