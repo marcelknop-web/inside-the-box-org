@@ -33,6 +33,7 @@ import GlitchText from '@/components/GlitchText';
 import Typewriter from '@/components/Typewriter';
 import TypedSection from '@/components/TypedSection';
 import { LinkButton } from '@/components/LinkButton';
+import TtxRegistrationForm from '@/components/TtxRegistrationForm';
 
 interface NavLink { url: string; label: string; }
 interface AiResponse { message: string; links: NavLink[]; }
