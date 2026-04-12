@@ -93,7 +93,7 @@ const TtxAdmin = () => {
           <tbody>
             {registrations.map((r) => (
               <tr key={r.id} className="border-t border-border hover:bg-muted/50">
-                <td className="p-3">{r.event_date}</td>
+                <td className="p-3 whitespace-nowrap">{DATE_LABELS[r.event_date] || r.event_date}</td>
                 <td className="p-3 font-medium">
                   {r.first_name} {r.last_name}
                 </td>
