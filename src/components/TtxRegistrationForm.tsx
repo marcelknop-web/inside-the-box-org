@@ -5,9 +5,9 @@ import { toast } from 'sonner';
 import { CalendarCheck, Loader2 } from 'lucide-react';
 
 const EVENT_DATES = [
-  { value: '2026-05-07', labelKey: 'date1' },
-  { value: '2026-09-17', labelKey: 'date2' },
-  { value: '2026-12-03', labelKey: 'date3' },
+  { value: '2026-05-07', labelKey: 'date1', locationKey: 'location' },
+  { value: '2026-09-17', labelKey: 'date2', locationKey: 'location' },
+  { value: '2026-12-03', labelKey: 'date3', locationKey: 'locationBerlin' },
 ] as const;
 
 const TtxRegistrationForm = () => {
@@ -74,7 +74,7 @@ const TtxRegistrationForm = () => {
               <CalendarCheck className="w-4 h-4 shrink-0" />
               <div className="text-left">
                 <div>{t(`ttx.${d.labelKey}` as any)}</div>
-                <div className="text-xs text-muted-foreground">{t('ttx.location')}</div>
+                <div className="text-xs text-muted-foreground">{t(`ttx.${d.locationKey}` as any)}</div>
               </div>
             </button>
           ))}
