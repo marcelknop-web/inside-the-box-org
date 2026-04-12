@@ -1,6 +1,12 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
+const DATE_LABELS: Record<string, string> = {
+  "2026-05-07": "7. Mai 2026 – Online",
+  "2026-09-17": "17. Sept. 2026 – Online",
+  "2026-12-03": "3. Dez. 2026 – Berlin",
+};
+
 interface Registration {
   id: string;
   event_date: string;
