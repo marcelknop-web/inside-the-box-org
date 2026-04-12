@@ -14,7 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      ttx_registrations: {
+        Row: {
+          company: string | null
+          created_at: string
+          email: string
+          event_date: string
+          first_name: string
+          id: string
+          last_name: string
+          notes: string | null
+          phone: string | null
+          price_cents: number
+        }
+        Insert: {
+          company?: string | null
+          created_at?: string
+          email: string
+          event_date: string
+          first_name: string
+          id?: string
+          last_name: string
+          notes?: string | null
+          phone?: string | null
+          price_cents?: number
+        }
+        Update: {
+          company?: string | null
+          created_at?: string
+          email?: string
+          event_date?: string
+          first_name?: string
+          id?: string
+          last_name?: string
+          notes?: string | null
+          phone?: string | null
+          price_cents?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

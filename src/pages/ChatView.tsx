@@ -33,6 +33,7 @@ import GlitchText from '@/components/GlitchText';
 import Typewriter from '@/components/Typewriter';
 import TypedSection from '@/components/TypedSection';
 import { LinkButton } from '@/components/LinkButton';
+import TtxRegistrationForm from '@/components/TtxRegistrationForm';
 
 interface NavLink { url: string; label: string; }
 interface AiResponse { message: string; links: NavLink[]; }
@@ -746,14 +747,39 @@ const useServiceContent = () => {
           </ul>
         </Block>
 
+        <Block className="bg-primary/5 border border-primary/20 rounded-xl">
+          <SubTitle>{t('ttx.datesTitle')}</SubTitle>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
+            <div className="bg-card/40 rounded-lg p-3 border border-primary/10">
+              <p className="font-semibold text-sm text-primary font-sans">{t('ttx.date1')}</p>
+              <p className="text-xs text-muted-foreground mt-1">{t('ttx.location')}</p>
+            </div>
+            <div className="bg-card/40 rounded-lg p-3 border border-primary/10">
+              <p className="font-semibold text-sm text-primary font-sans">{t('ttx.date2')}</p>
+              <p className="text-xs text-muted-foreground mt-1">{t('ttx.location')}</p>
+            </div>
+          </div>
+          <div className="mt-3 bg-highlight/10 rounded-lg p-3 border border-highlight/20">
+            <p className="text-sm font-semibold text-highlight font-sans">{t('ttx.priceLabel')}</p>
+            <p className="text-foreground text-sm font-sans mt-1">{t('ttx.priceValue')}</p>
+          </div>
+        </Block>
+
         <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
-          <p className="text-highlight font-mono font-bold text-sm">{t('events.ctaTitle')}</p>
-          <p className="text-foreground/80 text-sm font-sans mt-1">{t('events.ctaDesc')}</p>
+          <SubTitle variant="highlight">{t('ttx.registerTitle')}</SubTitle>
+          <div className="mt-3">
+            <TtxRegistrationForm />
+          </div>
+        </Block>
+
+        <Block className="bg-card/40 rounded-xl">
+          <p className="text-highlight font-mono font-bold text-sm">{t('ttx.ctaTitle')}</p>
+          <p className="text-foreground/80 text-sm font-sans mt-1">{t('ttx.ctaDesc')}</p>
           <button
             onClick={() => setActive('contact')}
             className="mt-3 inline-flex items-center gap-2 text-highlight font-mono font-bold text-sm hover:text-primary transition-electric cursor-pointer bg-transparent border-none p-0"
           >
-            {t('events.ctaButton')}
+            {t('ttx.ctaButton')}
           </button>
         </Block>
       </TypedSection>
