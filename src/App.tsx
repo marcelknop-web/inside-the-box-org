@@ -30,6 +30,7 @@ const App = () => (
               <Route path="/iacs-e27" element={<Suspense fallback={null}><Iec62443ComplianceTool /></Suspense>} />
               <Route path="/iec62443" element={<Suspense fallback={null}><Iec62443ComplianceTool /></Suspense>} />
               <Route path="/berlin-drift" element={<Suspense fallback={null}><EliteShipScene /></Suspense>} />
+              <Route path="/ttx-admin" element={<Suspense fallback={null}><TtxAdmin /></Suspense>} />
               <Route path="/:serviceId" element={<ChatView />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
