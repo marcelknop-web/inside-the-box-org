@@ -74,7 +74,7 @@ const TtxRegistrationForm = () => {
               <CalendarCheck className="w-4 h-4 shrink-0" />
               <div className="text-left">
                 <div>{t(`ttx.${d.labelKey}` as any)}</div>
-                <div className="text-xs text-muted-foreground">{t('ttx.location')}</div>
+                <div className="text-xs text-muted-foreground">{t(`ttx.${d.locationKey}` as any)}</div>
               </div>
             </button>
           ))}
