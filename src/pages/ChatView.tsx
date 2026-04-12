@@ -750,7 +750,7 @@ const useServiceContent = () => {
           <p className="text-highlight font-mono font-bold text-sm">{t('events.ctaTitle')}</p>
           <p className="text-foreground/80 text-sm font-sans mt-1">{t('events.ctaDesc')}</p>
           <button
-            onClick={() => handleServiceChange('contact')}
+            onClick={() => setActive('contact')}
             className="mt-3 inline-flex items-center gap-2 text-highlight font-mono font-bold text-sm hover:text-primary transition-electric cursor-pointer bg-transparent border-none p-0"
           >
             {t('events.ctaButton')}
