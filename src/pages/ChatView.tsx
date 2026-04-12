@@ -1167,6 +1167,7 @@ const useSidebarGroups = (): SidebarGroup[] => {
       title: t('nav.groupRegulation'),
       items: [
         { id: 'nis2-dora', icon: Network, label: t('nav.nis2Dora') },
+        { id: 'dora-nis2-ttx', icon: ClipboardList, label: t('nav.ttxTraining') },
         { id: 'isms', icon: ShieldCheck, label: t('nav.ismsBsi') },
         { id: 'tisax-pci-dss', icon: CreditCard, label: t('nav.tisaxPci') },
       ],
@@ -1183,7 +1184,6 @@ const useSidebarGroups = (): SidebarGroup[] => {
       items: [
         { id: 'publications', icon: FileText, label: t('nav.publications') },
         { id: 'events-workshops', icon: Calendar, label: t('nav.eventsWorkshops') },
-        { id: 'dora-nis2-ttx', icon: ClipboardList, label: t('nav.ttxTraining') },
         { id: 'ai-workflows', icon: Zap, label: t('nav.aiWorkflows') },
       ],
     },
