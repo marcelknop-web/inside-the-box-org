@@ -5,8 +5,9 @@ import { toast } from 'sonner';
 import { CalendarCheck, Loader2 } from 'lucide-react';
 
 const EVENT_DATES = [
-  { value: '2026-09-18', labelKey: 'date1' },
-  { value: '2026-11-19', labelKey: 'date2' },
+  { value: '2026-05-07', labelKey: 'date1' },
+  { value: '2026-09-17', labelKey: 'date2' },
+  { value: '2026-12-03', labelKey: 'date3' },
 ] as const;
 
 const TtxRegistrationForm = () => {
