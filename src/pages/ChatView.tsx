@@ -1109,6 +1109,7 @@ const useSidebarGroups = (): SidebarGroup[] => {
       items: [
         { id: 'publications', icon: FileText, label: t('nav.publications') },
         { id: 'events-workshops', icon: Calendar, label: t('nav.eventsWorkshops') },
+        { id: 'dora-nis2-ttx', icon: ClipboardList, label: t('nav.ttxTraining') },
         { id: 'ai-workflows', icon: Zap, label: t('nav.aiWorkflows') },
       ],
     },
