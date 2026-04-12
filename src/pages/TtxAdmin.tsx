@@ -1,6 +1,12 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
+const DATE_LABELS: Record<string, string> = {
+  "2026-05-07": "7. Mai 2026 – Online",
+  "2026-09-17": "17. Sept. 2026 – Online",
+  "2026-12-03": "3. Dez. 2026 – Berlin",
+};
+
 interface Registration {
   id: string;
   event_date: string;
@@ -87,7 +93,7 @@ const TtxAdmin = () => {
           <tbody>
             {registrations.map((r) => (
               <tr key={r.id} className="border-t border-border hover:bg-muted/50">
-                <td className="p-3">{r.event_date}</td>
+                <td className="p-3 whitespace-nowrap">{DATE_LABELS[r.event_date] || r.event_date}</td>
                 <td className="p-3 font-medium">
                   {r.first_name} {r.last_name}
                 </td>
