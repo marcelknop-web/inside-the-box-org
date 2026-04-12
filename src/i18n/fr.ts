@@ -34,6 +34,7 @@ export const fr = {
     publications: 'Publications',
     events: 'Événements',
     eventsWorkshops: 'Events & Trainings',
+    ttxTraining: 'DORA & NIS2 TTX',
   },
   start: {
     cyberTrainingRange: 'Cyber Training Range',
