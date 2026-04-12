@@ -684,6 +684,80 @@ const useServiceContent = () => {
         </Block>
       </TypedSection>
     ),
+    'dora-nis2-ttx': () => (
+      <TypedSection title={t('ttx.title')} mode="typewriter" intro={<p>{t('ttx.intro')}</p>}>
+        <Block className="bg-card/40 rounded-xl">
+          <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{t('ttx.introDetail')}</p>
+          <p className="text-highlight text-sm font-mono mt-2">{t('ttx.focusNote')}</p>
+        </Block>
+
+        <Block className="bg-primary/5 border border-primary/20 rounded-xl">
+          <SubTitle>{t('ttx.targetTitle')}</SubTitle>
+          <ul className="list-disc list-inside text-foreground/80 text-sm md:text-[15px] font-sans leading-relaxed space-y-1 mt-2">
+            {(['target1','target2','target3','target4','target5'] as const).map(k => (
+              <li key={k}>{t(`ttx.${k}` as any)}</li>
+            ))}
+          </ul>
+        </Block>
+
+        <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
+          <SubTitle variant="highlight">{t('ttx.objectivesTitle')}</SubTitle>
+          <ul className="list-disc list-inside text-foreground/80 text-sm md:text-[15px] font-sans leading-relaxed space-y-1 mt-2">
+            {(['obj1','obj2','obj3','obj4','obj5','obj6'] as const).map(k => (
+              <li key={k}>{t(`ttx.${k}` as any)}</li>
+            ))}
+          </ul>
+        </Block>
+
+        <Block className="bg-primary/5 border border-primary/20 rounded-xl">
+          <SubTitle>{t('ttx.day1Title')}</SubTitle>
+          <div className="space-y-3 mt-2">
+            {(['mod1','mod2','mod3'] as const).map(m => (
+              <div key={m} className="bg-card/40 rounded-lg p-3">
+                <p className="font-semibold text-sm text-primary font-sans">{t(`ttx.${m}Title` as any)}</p>
+                <p className="text-foreground/80 text-sm font-sans mt-1">{t(`ttx.${m}Desc` as any)}</p>
+              </div>
+            ))}
+            <div className="bg-highlight/10 rounded-lg p-3 border border-highlight/20">
+              <p className="font-semibold text-sm text-highlight font-sans">{t('ttx.practiceTitle')}</p>
+              <p className="text-foreground/80 text-sm font-sans mt-1">{t('ttx.practiceDesc')}</p>
+            </div>
+          </div>
+        </Block>
+
+        <Block className="bg-primary/5 border border-primary/20 rounded-xl">
+          <SubTitle>{t('ttx.day2Title')}</SubTitle>
+          <div className="space-y-3 mt-2">
+            {(['mod4','mod5','mod6','mod7'] as const).map(m => (
+              <div key={m} className="bg-card/40 rounded-lg p-3">
+                <p className="font-semibold text-sm text-primary font-sans">{t(`ttx.${m}Title` as any)}</p>
+                <p className="text-foreground/80 text-sm font-sans mt-1">{t(`ttx.${m}Desc` as any)}</p>
+              </div>
+            ))}
+          </div>
+        </Block>
+
+        <Block className="bg-card/40 rounded-xl">
+          <SubTitle>{t('ttx.methodTitle')}</SubTitle>
+          <ul className="list-disc list-inside text-foreground/80 text-sm md:text-[15px] font-sans leading-relaxed space-y-1 mt-2">
+            {(['method1','method2','method3','method4','method5'] as const).map(k => (
+              <li key={k}>{t(`ttx.${k}` as any)}</li>
+            ))}
+          </ul>
+        </Block>
+
+        <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
+          <p className="text-highlight font-mono font-bold text-sm">{t('events.ctaTitle')}</p>
+          <p className="text-foreground/80 text-sm font-sans mt-1">{t('events.ctaDesc')}</p>
+          <button
+            onClick={() => setActive('contact')}
+            className="mt-3 inline-flex items-center gap-2 text-highlight font-mono font-bold text-sm hover:text-primary transition-electric cursor-pointer bg-transparent border-none p-0"
+          >
+            {t('events.ctaButton')}
+          </button>
+        </Block>
+      </TypedSection>
+    ),
     'ai-workflows': () => (
       <TypedSection title={t('aiWorkflows.title')} mode="typewriter" intro={<p>{t('aiWorkflows.intro')}</p>}>
         <Block className="bg-card/40 rounded-xl">
