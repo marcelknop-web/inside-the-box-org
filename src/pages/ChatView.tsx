@@ -26,6 +26,8 @@ const CyberFrogger = lazy(() => import('./CyberFrogger'));
 const EliteShipScene = lazy(() => import('./EliteShipScene'));
 const CraComplianceTool = lazy(() => import('./CraComplianceTool'));
 const DoraComplianceTool = lazy(() => import('./DoraComplianceTool'));
+const Nis2ComplianceTool = lazy(() => import('./Nis2ComplianceTool'));
+const Iec62443ComplianceTool = lazy(() => import('./Iec62443ComplianceTool'));
 const ButterflyEffectLab = lazy(() => import('./ButterflyEffectLab'));
 
 import { StaggerReveal } from '@/components/StaggerReveal';
