@@ -498,9 +498,9 @@ export class PdfDoc {
   bulletItem(text: string, indent = 6): void {
     this.doc.setFontSize(LAYOUT.BODY_SIZE);
     this.doc.setFont(this.bodyFont, 'normal');
-    const lines = this.doc.splitTextToSize(text, LAYOUT.WIDTH - indent - 7);
-    const itemH = lines.length * LAYOUT.BODY_LEADING + 3;
-    this.checkSpace(itemH);
+    const lines = this.doc.splitTextToSize(text, LAYOUT.WIDTH - indent - 8);
+    const itemH = lines.length * LAYOUT.BODY_LEADING + 4;
+    this.checkSpace(itemH + 2);
     // Subtle background for each bullet
     this.doc.setFillColor(252, 252, 253);
     this.doc.roundedRect(LAYOUT.LEFT + indent - 1, this.y - 2.5, LAYOUT.WIDTH - indent + 1, itemH, 0.6, 0.6, 'F');
