@@ -441,7 +441,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: Nis2IntakeData) => void }) {
             { label: t('nis2c.sumType'), val: d.entityType.map(id => entityTypes.find(et => et.id === id)?.label).join(', ') || '—' },
             { label: t('nis2c.sumCriticality'), val: critLevels.find(c => c.id === d.criticality)?.label || '—' },
             { label: t('nis2c.sumInfra'), val: d.infrastructure.length > 0 ? d.infrastructure.map(id => infraOpts.find(o => o.id === id)?.label || id).join(', ') : '—' },
-            { label: t('nis2c.sumProviders'), val: d.supplyChainProviders.length > 0 ? `${d.supplyChainProviders.length} ${language === 'de' ? 'Anbieter' : 'providers'}` : '—' },
+            { label: t('nis2c.sumProviders'), val: d.supplyChainProviders.length > 0 ? `${d.supplyChainProviders.length} ${t('nis2c.sumProvidersUnit')}` : '—' },
             { label: t('nis2c.sumRoles'), val: d.roles.length > 0 ? d.roles.join(', ') : '—' },
             { label: t('nis2c.sumMeasures'), val: (() => { const cnt = Object.keys(d.measures).length; return cnt > 0 ? `${cnt} ${t('nis2c.sumMeasuresSelected')}` : t('nis2c.sumMeasuresNone'); })() },
             { label: t('nis2c.sumAttach'), val: d.files.length > 0 ? `${d.files.length} ${t('nis2c.sumFiles')}` : t('nis2c.sumFilesNone') },
@@ -778,7 +778,7 @@ function ReportView({ intakeData, risks, reqs }: { intakeData: Nis2IntakeData; r
       {critRisks.length > 0 && (
         <div className="bg-card border-2 border-destructive/30 rounded-lg overflow-hidden">
           <div className="px-4 py-3 bg-destructive/10 border-b border-destructive/20">
-            <span className="text-sm font-bold text-destructive">{language === 'de' ? 'Kritische Risiken' : 'Critical Risks'} — {critRisks.length}</span>
+            <span className="text-sm font-bold text-destructive">{t('nis2c.criticalRisks')} — {critRisks.length}</span>
           </div>
           <div className="px-4 py-3 text-sm space-y-2">
             {critRisks.map(ri => (
@@ -798,7 +798,7 @@ function ReportView({ intakeData, risks, reqs }: { intakeData: Nis2IntakeData; r
       {/* Dashboard */}
       <details className="bg-card border border-border rounded-xl overflow-hidden" open>
         <summary className="px-5 py-3 cursor-pointer text-sm font-bold text-muted-foreground hover:text-foreground transition-colors">
-          📊 {language === 'de' ? 'Auswertungs-Dashboard' : 'Assessment Dashboard'}
+          📊 {t('nis2c.assessmentDashboard')}
         </summary>
         <div className="px-5 pb-5">
           <Nis2AuditCharts risks={localRisks} reqs={localReqs} />
@@ -899,7 +899,7 @@ const Nis2ComplianceTool = ({ embedded }: { embedded?: boolean }) => {
               <div className="text-lg font-bold text-foreground" key={`main-${step}`}><Typewriter text={mainSteps[step]} mode="typewriter" charDelay={10} cursor={false} /></div>
               {step > 0 && (
                 <Button variant="ghost" size="sm" onClick={reset} className="text-muted-foreground">
-                  <RotateCcw className="w-4 h-4 mr-1" /> {language === 'de' ? 'Neustart' : 'Restart'}
+                  <RotateCcw className="w-4 h-4 mr-1" /> {t('nis2c.restart')}
                 </Button>
               )}
             </div>

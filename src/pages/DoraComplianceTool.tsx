@@ -807,7 +807,7 @@ function ReportView({ intakeData, risks, reqs }: { intakeData: DoraIntakeData; r
       {critRisks.length > 0 && (
         <div className="bg-card border-2 border-destructive/30 rounded-lg overflow-hidden">
           <div className="px-4 py-3 bg-destructive/10 border-b border-destructive/20">
-            <span className="text-sm font-bold text-destructive">{language === 'de' ? 'Kritische IKT-Risiken' : 'Critical ICT Risks'} — {critRisks.length}</span>
+            <span className="text-sm font-bold text-destructive">{t('dora.criticalIctRisks')} — {critRisks.length}</span>
           </div>
           <div className="px-4 py-3 text-sm space-y-2">
             {critRisks.map(ri => (
@@ -827,7 +827,7 @@ function ReportView({ intakeData, risks, reqs }: { intakeData: DoraIntakeData; r
       {/* Dashboard */}
       <details className="bg-card border border-border rounded-xl overflow-hidden" open>
         <summary className="px-5 py-3 cursor-pointer text-sm font-bold text-muted-foreground hover:text-foreground transition-colors">
-          📊 {language === 'de' ? 'Auswertungs-Dashboard' : 'Assessment Dashboard'}
+          📊 {t('dora.assessmentDashboard')}
         </summary>
         <div className="px-5 pb-5">
           <DoraAuditCharts risks={localRisks} reqs={localReqs} />
@@ -927,7 +927,7 @@ const DoraComplianceTool = ({ embedded }: { embedded?: boolean }) => {
               <div className="text-lg font-bold text-foreground" key={`main-${step}`}><Typewriter text={mainSteps[step]} mode="typewriter" charDelay={10} cursor={false} /></div>
               {step > 0 && (
                 <Button variant="ghost" size="sm" onClick={reset} className="text-muted-foreground">
-                  <RotateCcw className="w-4 h-4 mr-1" /> {language === 'de' ? 'Neustart' : 'Restart'}
+                  <RotateCcw className="w-4 h-4 mr-1" /> {t('dora.restart')}
                 </Button>
               )}
             </div>
