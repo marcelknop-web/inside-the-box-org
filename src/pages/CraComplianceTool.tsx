@@ -459,7 +459,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
           return { ...prev, measures: { ...prev.measures, [id]: { active: true, documented: false, audited: false, certified: false } } };
         });
       };
-      const setMeasureProp = (id: string, prop: 'documented' | 'audited', val: boolean) => {
+      const setMeasureProp = (id: string, prop: 'documented' | 'audited' | 'certified', val: boolean) => {
         setD(prev => {
           const entry = prev.measures[id];
           if (!entry) return prev;
@@ -467,11 +467,13 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
         });
       };
       const maturityLabel = (entry: MeasureEntry) => {
+        if (entry.active && entry.documented && entry.audited && entry.certified) return t('cra.maturityCertified');
         if (entry.active && entry.documented && entry.audited) return t('cra.maturityFull');
         if (entry.active && entry.documented) return t('cra.maturityPartial');
         return t('cra.maturityBasic');
       };
       const maturityColor = (entry: MeasureEntry) => {
+        if (entry.active && entry.documented && entry.audited && entry.certified) return 'text-primary';
         if (entry.active && entry.documented && entry.audited) return 'text-green-400';
         if (entry.active && entry.documented) return 'text-yellow-400';
         return 'text-orange-400';
@@ -496,7 +498,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
                         {isActive && <span className={`text-xs font-semibold flex-shrink-0 ${maturityColor(entry)}`}>{maturityLabel(entry)}</span>}
                       </label>
                       {isActive && (
-                        <div className="flex gap-4 px-10 pb-2.5 -mt-1">
+                        <div className="flex flex-wrap gap-x-4 gap-y-1 px-3 sm:px-10 pb-2.5 -mt-1">
                           <label className="flex items-center gap-1.5 cursor-pointer group">
                             <input type="checkbox" className="w-3.5 h-3.5 rounded accent-primary flex-shrink-0" checked={entry.documented} onChange={e => setMeasureProp(m.id, 'documented', e.target.checked)} />
                             <span className="text-xs text-muted-foreground group-hover:text-foreground transition-colors">{t('cra.documented')}</span>
@@ -504,6 +506,10 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
                           <label className="flex items-center gap-1.5 cursor-pointer group">
                             <input type="checkbox" className="w-3.5 h-3.5 rounded accent-primary flex-shrink-0" checked={entry.audited} onChange={e => setMeasureProp(m.id, 'audited', e.target.checked)} />
                             <span className="text-xs text-muted-foreground group-hover:text-foreground transition-colors">{t('cra.audited')}</span>
+                          </label>
+                          <label className="flex items-center gap-1.5 cursor-pointer group">
+                            <input type="checkbox" className="w-3.5 h-3.5 rounded accent-primary flex-shrink-0" checked={entry.certified} onChange={e => setMeasureProp(m.id, 'certified', e.target.checked)} />
+                            <span className="text-xs text-muted-foreground group-hover:text-foreground transition-colors">{t('cra.certified')}</span>
                           </label>
                         </div>
                       )}
