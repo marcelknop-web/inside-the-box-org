@@ -26,6 +26,8 @@ const CyberFrogger = lazy(() => import('./CyberFrogger'));
 const EliteShipScene = lazy(() => import('./EliteShipScene'));
 const CraComplianceTool = lazy(() => import('./CraComplianceTool'));
 const DoraComplianceTool = lazy(() => import('./DoraComplianceTool'));
+const Nis2ComplianceTool = lazy(() => import('./Nis2ComplianceTool'));
+const Iec62443ComplianceTool = lazy(() => import('./Iec62443ComplianceTool'));
 const ButterflyEffectLab = lazy(() => import('./ButterflyEffectLab'));
 
 import { StaggerReveal } from '@/components/StaggerReveal';
@@ -1397,6 +1399,10 @@ const ChatView = () => {
     ? <Suspense fallback={lazyFallback}><CraComplianceTool embedded /></Suspense>
     : activeService === 'dora-compliance'
     ? <Suspense fallback={lazyFallback}><DoraComplianceTool embedded /></Suspense>
+    : activeService === 'nis2-compliance'
+    ? <Suspense fallback={lazyFallback}><Nis2ComplianceTool embedded /></Suspense>
+    : activeService === 'iacs-e27' || activeService === 'iec62443'
+    ? <Suspense fallback={lazyFallback}><Iec62443ComplianceTool embedded /></Suspense>
     : activeService === 'butterfly-lab'
     ? <Suspense fallback={lazyFallback}><ButterflyEffectLab embedded /></Suspense>
     : activeService === 'system-check'
