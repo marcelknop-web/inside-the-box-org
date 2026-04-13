@@ -419,9 +419,11 @@ export class PdfDoc {
   field(label: string, value: string): void {
     this.doc.setFont(this.bodyFont, 'normal');
     this.doc.setFontSize(LAYOUT.BODY_SIZE);
-    const valLines = this.doc.splitTextToSize(value, LAYOUT.WIDTH - 8);
-    const totalH = 5 + valLines.length * LAYOUT.BODY_LEADING + 4;
-    this.checkSpace(totalH + 2);
+    const valLines = this.doc.splitTextToSize(value, LAYOUT.WIDTH - 12);
+    const labelH = 6;
+    const textH = valLines.length * LAYOUT.BODY_LEADING;
+    const totalH = labelH + textH + 5;
+    this.checkSpace(totalH + 3);
 
     // Background panel
     const panelY = this.y - 2;
@@ -436,7 +438,7 @@ export class PdfDoc {
     this.doc.setFontSize(LAYOUT.LABEL_SIZE);
     this.doc.setTextColor(...C.accent);
     this.doc.text(label.toUpperCase(), LAYOUT.LEFT + 5, this.y + 1);
-    this.y += 5;
+    this.y += labelH;
 
     // Value
     this.doc.setFont(this.bodyFont, 'normal');
@@ -446,7 +448,10 @@ export class PdfDoc {
       this.doc.text(line, LAYOUT.LEFT + 5, this.y);
       this.y += LAYOUT.BODY_LEADING;
     }
-    this.y += 3;
+
+    // Ensure cursor is past panel bottom
+    const panelBottom = panelY + totalH;
+    this.y = Math.max(this.y + 2, panelBottom + 3);
   }
 
   /** Inline label: value on same line — with subtle background */
@@ -454,11 +459,11 @@ export class PdfDoc {
     const labelW = Math.min(this.doc.getTextWidth(label + ':  ') + 2, 48);
     this.doc.setFont(this.bodyFont, 'normal');
     this.doc.setFontSize(8.5);
-    const valLines = this.doc.splitTextToSize(value, LAYOUT.WIDTH - indent - labelW - 8);
+    const valLines = this.doc.splitTextToSize(value, LAYOUT.WIDTH - indent - labelW - 10);
     const valLineH = 3.8;
     const lineH = Math.max(valLines.length * valLineH, 4.5);
-    const totalH = lineH + 4;
-    this.checkSpace(totalH + 1);
+    const totalH = lineH + 5;
+    this.checkSpace(totalH + 2);
 
     // Subtle alternating background
     const panelY = this.y - 2.5;
@@ -476,7 +481,10 @@ export class PdfDoc {
     for (let i = 0; i < valLines.length; i++) {
       this.doc.text(valLines[i], valX, this.y + i * valLineH);
     }
-    this.y += lineH + 2.5;
+
+    // Ensure cursor is past panel bottom
+    const panelBottom = panelY + totalH;
+    this.y = Math.max(this.y + lineH + 2, panelBottom + 2);
   }
 
   separator(): void {
@@ -605,10 +613,10 @@ export class PdfDoc {
   scoreBar(text: string): void {
     this.doc.setFont(this.headFont, 'bold');
     this.doc.setFontSize(8);
-    const lines = this.doc.splitTextToSize(text, LAYOUT.WIDTH - 14);
+    const lines = this.doc.splitTextToSize(text, LAYOUT.WIDTH - 16);
     const scoreLineH = 4;
-    const barH = Math.max(10, lines.length * scoreLineH + 6);
-    this.checkSpace(barH + 4);
+    const barH = Math.max(12, lines.length * scoreLineH + 8);
+    this.checkSpace(barH + 6);
     const boxY = this.y - 1.5;
     this.doc.setFillColor(248, 249, 251);
     this.doc.roundedRect(LAYOUT.LEFT, boxY, LAYOUT.WIDTH, barH, 1.2, 1.2, 'F');
@@ -616,11 +624,12 @@ export class PdfDoc {
     this.doc.setFillColor(...C.navy);
     this.doc.rect(LAYOUT.LEFT, boxY, 1.5, barH, 'F');
     this.doc.setTextColor(...C.navy);
+    const textStartY = boxY + (barH - lines.length * scoreLineH) / 2 + 2;
     for (let i = 0; i < lines.length; i++) {
-      this.doc.text(lines[i], LAYOUT.LEFT + 7, this.y + 3 + i * scoreLineH);
+      this.doc.text(lines[i], LAYOUT.LEFT + 7, textStartY + i * scoreLineH);
     }
     this.doc.setTextColor(...C.dark);
-    this.y = Math.max(this.y + barH + 4, boxY + barH + 4);
+    this.y = boxY + barH + 5;
   }
 
   /** Section label (small uppercase) with accent underline */
