@@ -996,17 +996,22 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
   checkPage(20);
   const verdictBoxY = y;
   const verdictPad = 5;
-  doc.setFillColor(...(critRisks.length > 0 ? C.bgRed : failReqs.length > 0 ? C.bgYellow : C.bgGreen));
-  doc.roundedRect(ML, verdictBoxY, CW, 16, 2, 2, 'F');
-  const verdictAccent: [number, number, number] = critRisks.length > 0 ? C.redText : failReqs.length > 0 ? C.orangeText : C.greenText;
-  doc.setFillColor(...verdictAccent);
-  doc.rect(ML, verdictBoxY, 1.5, 16, 'F');
   doc.setFont(HEAD_FONT, 'bold');
   doc.setFontSize(10.5);
-  doc.setTextColor(...verdictAccent);
   const verdictLines = doc.splitTextToSize(summaryData.verdict, CW - verdictPad * 2 - 2);
-  doc.text(verdictLines, ML + verdictPad + 2, verdictBoxY + (verdictLines.length === 1 ? 10 : 7));
-  y = verdictBoxY + 16 + 5;
+  const verdictLineH = 4.8;
+  const verdictBoxH = Math.max(16, verdictLines.length * verdictLineH + 8);
+  checkPage(verdictBoxH + 5);
+  doc.setFillColor(...(critRisks.length > 0 ? C.bgRed : failReqs.length > 0 ? C.bgYellow : C.bgGreen));
+  doc.roundedRect(ML, verdictBoxY, CW, verdictBoxH, 2, 2, 'F');
+  const verdictAccent: [number, number, number] = critRisks.length > 0 ? C.redText : failReqs.length > 0 ? C.orangeText : C.greenText;
+  doc.setFillColor(...verdictAccent);
+  doc.rect(ML, verdictBoxY, 1.5, verdictBoxH, 'F');
+  doc.setTextColor(...verdictAccent);
+  for (let vi = 0; vi < verdictLines.length; vi++) {
+    doc.text(verdictLines[vi], ML + verdictPad + 2, verdictBoxY + 7 + vi * verdictLineH);
+  }
+  y = verdictBoxY + verdictBoxH + 5;
 
   // ── Situation line (compact data strip) ──
   checkPage(10);
@@ -1292,7 +1297,9 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     doc.text(fNum, ML, y);
     const fNumW = doc.getTextWidth(fNum + ' ');
     const titleLines = doc.splitTextToSize(f.title, CW - fNumW);
-    doc.text(titleLines, ML + fNumW, y);
+    for (let tli = 0; tli < titleLines.length; tli++) {
+      doc.text(titleLines[tli], ML + fNumW, y + tli * BODY_LEADING);
+    }
     y += titleLines.length * BODY_LEADING + 1;
 
     // Detail (normal, indented)
@@ -1319,16 +1326,20 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
 
   // Action box with accent
   checkPage(16);
-  doc.setFillColor(...C.bgLight);
+  doc.setFont(HEAD_FONT, 'normal');
+  doc.setFontSize(8.5);
   const actionLines = doc.splitTextToSize(summaryData.action, CW - 12);
-  const actionBoxH = actionLines.length * 4.2 + 6;
+  const actionLineH = 4.2;
+  const actionBoxH = actionLines.length * actionLineH + 6;
+  checkPage(actionBoxH + 5);
+  doc.setFillColor(...C.bgLight);
   doc.roundedRect(ML, y - 2, CW, actionBoxH, 1.5, 1.5, 'F');
   doc.setFillColor(...C.gold);
   doc.rect(ML, y - 2, 1.5, actionBoxH, 'F');
-  doc.setFont(HEAD_FONT, 'normal');
-  doc.setFontSize(8.5);
   doc.setTextColor(...C.bodyText);
-  doc.text(actionLines, ML + 6, y + 2);
+  for (let ai = 0; ai < actionLines.length; ai++) {
+    doc.text(actionLines[ai], ML + 6, y + 2 + ai * actionLineH);
+  }
   y += actionBoxH + 5;
 
   // ── STRIDE Distribution ──
@@ -1449,17 +1460,21 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
         : `The product ${intakeData.productName} ${intakeData.version} does not currently meet the essential CRA requirements (weighted compliance rate: ${crComplianceRate}%). ${critRisks.length} critical risks and ${failReqs.length} non-compliant requirements were identified. Market launch in the current state poses significant regulatory risks including penalties under Art. 64 CRA and potential recall obligations under Art. 49 CRA. Implementation of the remediation roadmap (Section 4.2) is mandatory before market launch.`;
 
   // Verdict box
-  checkPage(30);
+  doc.setFont(HEAD_FONT, 'normal'); doc.setFontSize(8.5);
   const stmtLines = doc.splitTextToSize(verdictStatement, CW - 14);
-  const stmtBoxH = stmtLines.length * 4.2 + 8;
+  const stmtLineH = 4.2;
+  const stmtBoxH = stmtLines.length * stmtLineH + 8;
+  checkPage(stmtBoxH + 6);
   const stmtBg: [number, number, number] = isCompliant ? C.bgGreen : isConditional ? C.bgYellow : C.bgRed;
   const stmtAccent: [number, number, number] = isCompliant ? C.greenText : isConditional ? C.orangeText : C.redText;
   doc.setFillColor(...stmtBg);
   doc.roundedRect(ML, y, CW, stmtBoxH, 2, 2, 'F');
   doc.setFillColor(...stmtAccent);
   doc.rect(ML, y, 2, stmtBoxH, 'F');
-  doc.setFont(HEAD_FONT, 'normal'); doc.setFontSize(8.5); doc.setTextColor(...C.bodyText);
-  doc.text(stmtLines, ML + 8, y + 5);
+  doc.setTextColor(...C.bodyText);
+  for (let si = 0; si < stmtLines.length; si++) {
+    doc.text(stmtLines[si], ML + 8, y + 5 + si * stmtLineH);
+  }
   y += stmtBoxH + 6;
 
   // Verdict label
@@ -2203,7 +2218,10 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
   doc.setFillColor(...C.gold);
   doc.rect(ML, y - 2, 1.5, roiBoxH, 'F');
   doc.setFont(HEAD_FONT, 'normal'); doc.setFontSize(8.5); doc.setTextColor(...C.bodyText);
-  doc.text(roiLines, ML + 6, y + 2);
+  const roiLineH = 4.2;
+  for (let ri = 0; ri < roiLines.length; ri++) {
+    doc.text(roiLines[ri], ML + 6, y + 2 + ri * roiLineH);
+  }
   y += roiBoxH + 5;
 
   /* ══════════════════════════════════════
