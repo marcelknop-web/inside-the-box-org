@@ -40,6 +40,17 @@ export function humanizeList(items: string[], lang: string, context: 'infra' | '
  * e.g. "Sicherheits-Datenblatt für Produkt publiziert. Release Notes enthalten Security-relevante Änderungen."
  * → "Im Rahmen der Prüfung wurde festgestellt, dass ein Sicherheits-Datenblatt für das Produkt publiziert wurde und die Release Notes Security-relevante Änderungen enthalten."
  */
+/**
+ * Lowercase the first character of a string, but only if it's not an acronym
+ * (e.g. "OTA Update" stays "OTA Update", but "Shared accounts" → "shared accounts").
+ */
+export function safeLowerFirst(s: string): string {
+  if (!s) return s;
+  // If the first 2+ chars are uppercase (acronym like OTA, MQTT, SSH), keep as-is
+  if (s.length >= 2 && s[0] === s[0].toUpperCase() && s[1] === s[1].toUpperCase()) return s;
+  return s.charAt(0).toLowerCase() + s.slice(1);
+}
+
 export function humanizeEvidence(raw: string, lang: string): string {
   if (!raw || !raw.trim()) return '';
   const trimmed = raw.trim();
@@ -50,34 +61,33 @@ export function humanizeEvidence(raw: string, lang: string): string {
   // Split by period-separated fragments
   const fragments = trimmed.split(/\.\s*/).filter(f => f.trim().length > 3);
   if (fragments.length <= 1) {
+    // Single fragment — just clean it up and return directly without a robotic preamble
     const frag = trimmed.replace(/\.$/, '');
-    if (lang === 'de') return `Im Rahmen der Prüfung wurde Folgendes festgestellt: ${frag}.`;
-    if (lang === 'fr') return `L'examen a permis de constater ce qui suit\u00a0: ${frag}.`;
-    return `The assessment identified the following: ${frag}.`;
+    return `${frag}.`;
   }
 
-  // Multiple fragments — join with proper connectors, keeping capitalisation intact
+  // Multiple fragments — join with proper connectors
   const cleaned = fragments.map(f => f.trim().replace(/\.$/, ''));
   if (lang === 'de') {
     const last = cleaned.pop()!;
     const joined = cleaned.length > 0
-      ? cleaned.join('. ') + '. Darüber hinaus ' + last.charAt(0).toLowerCase() + last.slice(1)
+      ? cleaned.join('. ') + '. Darüber hinaus ' + safeLowerFirst(last)
       : last;
-    return `Im Rahmen der Prüfung wurde Folgendes festgestellt: ${joined}.`;
+    return `${joined}.`;
   }
   if (lang === 'fr') {
     const last = cleaned.pop()!;
     const joined = cleaned.length > 0
-      ? cleaned.join('. ') + '. De plus, ' + last.charAt(0).toLowerCase() + last.slice(1)
+      ? cleaned.join('. ') + '. De plus, ' + safeLowerFirst(last)
       : last;
-    return `L'examen a permis de constater ce qui suit\u00a0: ${joined}.`;
+    return `${joined}.`;
   }
   // English
   const last = cleaned.pop()!;
   const joined = cleaned.length > 0
-    ? cleaned.join('. ') + '. Additionally, ' + last.charAt(0).toLowerCase() + last.slice(1)
+    ? cleaned.join('. ') + '. Additionally, ' + safeLowerFirst(last)
     : last;
-  return `The assessment identified the following: ${joined}.`;
+  return `${joined}.`;
 }
 
 /** Turn raw user-entered text (which may be staccato or bullet-like) into a readable paragraph. */
