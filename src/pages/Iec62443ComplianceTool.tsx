@@ -174,6 +174,9 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
   const scenarioRef = useRef(Math.floor(Math.random() * DEMO_SCENARIOS.length));
 
   const handleDemo = useCallback(() => {
+    if (sub === 0) {
+      scenarioRef.current = (scenarioRef.current + 1) % DEMO_SCENARIOS.length;
+    }
     const scenario = DEMO_SCENARIOS[scenarioRef.current];
     switch (sub) {
       case 0: setD(prev => ({ ...prev, facilityName: scenario.facility.name, systemTypes: scenario.facility.types })); break;
