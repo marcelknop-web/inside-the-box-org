@@ -862,6 +862,9 @@ const DoraComplianceTool = ({ embedded }: { embedded?: boolean }) => {
   const [intakeData, setIntakeData] = useState<DoraIntakeData>(EMPTY_INTAKE);
   const contentRef = useRef<HTMLDivElement>(null);
 
+  const localizedRisks = useMemo(() => localizeThreats(DORA_RISKS, language, DORA_RISKS_EN, DORA_RISKS_FR), [language]);
+  const localizedReqs = useMemo(() => localizeReqs(DORA_REQS, language, DORA_REQS_EN, DORA_REQS_FR), [language]);
+
   const scrollToTop = useCallback(() => {
     contentRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -934,10 +937,10 @@ const DoraComplianceTool = ({ embedded }: { embedded?: boolean }) => {
               )}
             </div>
             {step === 0 && <IntakeWizard onFinish={handleIntakeFinish} />}
-            {step === 1 && <RiskLandscape risks={DORA_RISKS} onNext={() => setStep(2)} />}
-            {step === 2 && <RiskMatrix risks={DORA_RISKS} onNext={() => setStep(3)} />}
-            {step === 3 && <DORAMapping reqs={DORA_REQS} onNext={() => setStep(4)} />}
-            {step === 4 && <ReportView intakeData={intakeData} risks={DORA_RISKS} reqs={DORA_REQS} />}
+            {step === 1 && <RiskLandscape risks={localizedRisks} onNext={() => setStep(2)} />}
+            {step === 2 && <RiskMatrix risks={localizedRisks} onNext={() => setStep(3)} />}
+            {step === 3 && <DORAMapping reqs={localizedReqs} onNext={() => setStep(4)} />}
+            {step === 4 && <ReportView intakeData={intakeData} risks={localizedRisks} reqs={localizedReqs} />}
           </div>
         )}
       </div>
