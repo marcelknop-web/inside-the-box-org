@@ -1,10 +1,11 @@
 import { useState, useCallback, useRef, useMemo, memo } from 'react';
 import { Button } from '@/components/ui/button';
-import { RotateCcw, ChevronDown, ChevronUp, Loader2, FileText, ShieldCheck, CheckCircle2, XCircle, AlertTriangle, Wrench } from 'lucide-react';
+import { RotateCcw, ChevronDown, ChevronUp, Loader2, FileText, ShieldCheck } from 'lucide-react';
 import { applyAuditFixes } from '@/utils/iec62443AuditFixes';
 import { generateIec62443Report } from '@/utils/iec62443ReportPdf';
 import { Iec62443AuditCharts } from '@/components/Iec62443AuditCharts';
 import { runQualityCheck, type QaResult, type QaCheck } from '@/utils/iec62443QualityCheck';
+import QualityCheckPanel from '@/components/QualityCheckPanel';
 import { PageMeta } from '@/components/PageMeta';
 import { Progress } from '@/components/ui/progress';
 import { useLanguage } from '@/i18n/LanguageContext';
@@ -777,7 +778,7 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IecIntakeData; 
 
   const qaVerdict = qaResult?.verdict;
 
-  const CATEGORY_LABELS: Record<string, string> = {
+  const QA_CATEGORIES: Record<string, string> = {
     consistency: 'A. Consistency Check', technical: 'B. Technical Correctness',
     evidence: 'C. Evidence Check', editorial: 'D. Editorial Check', ot: 'E. Maritime Check',
   };
@@ -866,62 +867,8 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IecIntakeData; 
         </SectionCard>
       )}
 
-      {/* QA Result */}
       {qaResult && qaExpanded && (
-        <div className={`bg-card border-2 rounded-xl overflow-hidden ${qaVerdict === 'passed' ? 'border-green-500/40' : qaVerdict === 'conditional' ? 'border-yellow-500/40' : 'border-destructive/40'}`}>
-          <div className={`px-5 py-3.5 border-b flex items-center justify-between ${qaVerdict === 'passed' ? 'bg-green-500/10 border-green-500/20' : qaVerdict === 'conditional' ? 'bg-yellow-500/10 border-yellow-500/20' : 'bg-destructive/10 border-destructive/20'}`}>
-            <div className="flex items-center gap-2">
-              {qaVerdict === 'passed' ? <CheckCircle2 className="w-5 h-5 text-green-500" /> : qaVerdict === 'conditional' ? <AlertTriangle className="w-5 h-5 text-yellow-500" /> : <XCircle className="w-5 h-5 text-destructive" />}
-              <span className={`text-sm font-bold ${qaVerdict === 'passed' ? 'text-green-500' : qaVerdict === 'conditional' ? 'text-yellow-500' : 'text-destructive'}`}>{qaResult.verdictLabel}</span>
-            </div>
-            <span className="text-xs font-mono text-muted-foreground">{qaResult.passed}/{qaResult.total}</span>
-          </div>
-          <div className="px-5 py-4 space-y-4 text-sm">
-            <div className="bg-secondary rounded-full h-2.5 overflow-hidden">
-              <div className={`h-full rounded-full transition-all ${qaVerdict === 'passed' ? 'bg-green-500' : qaVerdict === 'conditional' ? 'bg-yellow-500' : 'bg-destructive'}`} style={{ width: `${Math.round((qaResult.passed / qaResult.total) * 100)}%` }} />
-            </div>
-            {(['consistency', 'technical', 'evidence', 'editorial', 'ot'] as const).map(cat => {
-              const catChecks = qaResult.checks.filter(c => c.category === cat);
-              if (catChecks.length === 0) return null;
-              return (
-                <div key={cat} className="bg-secondary/30 rounded-lg p-3">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-semibold text-foreground text-xs">{CATEGORY_LABELS[cat]}</span>
-                    <span className="text-xs font-mono text-muted-foreground">{catChecks.filter(c => c.passed).length}/{catChecks.length}</span>
-                  </div>
-                  <div className="space-y-1">
-                    {catChecks.map(check => (
-                      <div key={check.id} className="flex items-start gap-2 text-xs">
-                        <span className="flex-shrink-0 mt-0.5">{check.passed ? '✅' : '❌'}</span>
-                        <div className="flex-1">
-                          <span className={check.passed ? 'text-foreground' : 'text-destructive font-medium'}>{check.label}</span>
-                          <span className="text-muted-foreground ml-1.5">— {check.detail}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              );
-            })}
-            {allFixLogs.length > 0 && (
-              <div className="border-t border-border pt-3">
-                <div className="flex items-center gap-2 mb-2">
-                  <Wrench className="w-3.5 h-3.5 text-primary" />
-                  <span className="font-semibold text-primary text-xs">Automated Corrections Applied</span>
-                  <span className="text-xs font-mono text-muted-foreground ml-auto">{allFixLogs.length} fixes</span>
-                </div>
-                <ul className="space-y-1 text-xs text-foreground">
-                  {allFixLogs.map((f, i) => (
-                    <li key={i} className="flex gap-1.5 items-start">
-                      <CheckCircle2 className="w-3 h-3 text-primary flex-shrink-0 mt-0.5" />
-                      <span>{f}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </div>
-        </div>
+        <QualityCheckPanel result={qaResult} fixLogs={allFixLogs} categories={QA_CATEGORIES} />
       )}
 
       {/* Export Bar */}

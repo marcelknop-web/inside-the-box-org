@@ -9,6 +9,8 @@ import { Progress } from '@/components/ui/progress';
 import { useLanguage } from '@/i18n/LanguageContext';
 import Typewriter from '@/components/Typewriter';
 import { StaggerReveal } from '@/components/StaggerReveal';
+import { localizeThreats, localizeReqs } from '@/data/localizeFindings';
+import { NIS2_RISKS_EN, NIS2_RISKS_FR, NIS2_REQS_EN, NIS2_REQS_FR } from '@/data/nis2DataI18n';
 import {
   getEntityTypes, getCriticalityLevels, getInfraOpts,
   SUPPLY_CHAIN_OPTS, getRiskMeasures, getRiskCategories,
@@ -830,6 +832,8 @@ const Nis2ComplianceTool = ({ embedded }: { embedded?: boolean }) => {
   const [loading, setLoading] = useState(false);
   const [intakeData, setIntakeData] = useState<Nis2IntakeData>(EMPTY_INTAKE);
   const sectorRisks = useMemo(() => getNis2Risks(intakeData.entityType), [intakeData.entityType]);
+  const localizedRisks = useMemo(() => localizeThreats(sectorRisks, language, NIS2_RISKS_EN, NIS2_RISKS_FR), [sectorRisks, language]);
+  const localizedReqs = useMemo(() => localizeReqs(NIS2_REQS, language, NIS2_REQS_EN, NIS2_REQS_FR), [language]);
   const contentRef = useRef<HTMLDivElement>(null);
 
   const scrollToTop = useCallback(() => {
@@ -904,10 +908,10 @@ const Nis2ComplianceTool = ({ embedded }: { embedded?: boolean }) => {
               )}
             </div>
             {step === 0 && <IntakeWizard onFinish={handleIntakeFinish} />}
-            {step === 1 && <RiskLandscape risks={sectorRisks} onNext={() => setStep(2)} />}
-            {step === 2 && <RiskMatrix risks={sectorRisks} onNext={() => setStep(3)} />}
-            {step === 3 && <NIS2Mapping reqs={NIS2_REQS} onNext={() => setStep(4)} />}
-            {step === 4 && <ReportView intakeData={intakeData} risks={sectorRisks} reqs={NIS2_REQS} />}
+            {step === 1 && <RiskLandscape risks={localizedRisks} onNext={() => setStep(2)} />}
+            {step === 2 && <RiskMatrix risks={localizedRisks} onNext={() => setStep(3)} />}
+            {step === 3 && <NIS2Mapping reqs={localizedReqs} onNext={() => setStep(4)} />}
+            {step === 4 && <ReportView intakeData={intakeData} risks={localizedRisks} reqs={localizedReqs} />}
           </div>
         )}
       </div>

@@ -1,15 +1,18 @@
 import { useState, useCallback, useRef, useMemo, memo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { RotateCcw, ChevronDown, ChevronUp, Loader2, Sparkles, FileText, ShieldCheck, CheckCircle2, XCircle, AlertTriangle, Wrench } from 'lucide-react';
+import { RotateCcw, ChevronDown, ChevronUp, Loader2, Sparkles, FileText, ShieldCheck } from 'lucide-react';
 import { applyAuditFixes } from '@/utils/craAuditFixes';
 import { generateCraReport } from '@/utils/craReportPdf';
 import { CraAuditCharts } from '@/components/CraAuditCharts';
 import { runQualityCheck, type QaResult } from '@/utils/craQualityCheck';
+import QualityCheckPanel from '@/components/QualityCheckPanel';
 import { PageMeta } from '@/components/PageMeta';
 import { Progress } from '@/components/ui/progress';
 import { useLanguage } from '@/i18n/LanguageContext';
 import Typewriter from '@/components/Typewriter';
 import { StaggerReveal } from '@/components/StaggerReveal';
+import { localizeThreats, localizeReqs } from '@/data/localizeFindings';
+import { CRA_THREATS_EN, CRA_THREATS_FR, CRA_REQS_EN, CRA_REQS_FR } from '@/data/craDataI18n';
 import {
   getProductTypes, getCraClasses, getDeploymentOpts,
   INTERFACE_OPTS, getSecurityMeasures, getSecurityCategories,
@@ -972,12 +975,12 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
 
   const qaVerdict = qaResult?.verdict;
 
-  const CATEGORY_LABELS: Record<string, string> = {
-    consistency: t('cra.qaCatConsistency'),
-    technical: t('cra.qaCatTechnical'),
-    evidence: t('cra.qaCatEvidence'),
-    editorial: t('cra.qaCatEditorial'),
-    ot: t('cra.qaCatOt'),
+  const QA_CATEGORIES: Record<string, string> = {
+    consistency: t('qa.catConsistency'),
+    technical: t('qa.catTechnical'),
+    evidence: t('qa.catEvidence'),
+    editorial: t('qa.catEditorial'),
+    ot: t('qa.catOt'),
   };
 
   return (
@@ -1072,83 +1075,17 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
 
       {/* ═══ QA CHECK RESULT ═══ */}
       {qaResult && qaExpanded && (
-        <div className={`bg-card border-2 rounded-lg overflow-hidden ${qaVerdict === 'passed' ? 'border-green-500/40' : qaVerdict === 'conditional' ? 'border-yellow-500/40' : 'border-destructive/40'}`}>
-          <div className={`px-4 py-3 border-b flex items-center justify-between ${qaVerdict === 'passed' ? 'bg-green-500/10 border-green-500/20' : qaVerdict === 'conditional' ? 'bg-yellow-500/10 border-yellow-500/20' : 'bg-destructive/10 border-destructive/20'}`}>
-            <div className="flex items-center gap-2">
-              {qaVerdict === 'passed' ? <CheckCircle2 className="w-5 h-5 text-green-500" /> : qaVerdict === 'conditional' ? <AlertTriangle className="w-5 h-5 text-yellow-500" /> : <XCircle className="w-5 h-5 text-destructive" />}
-              <span className={`text-sm font-bold ${qaVerdict === 'passed' ? 'text-green-500' : qaVerdict === 'conditional' ? 'text-yellow-500' : 'text-destructive'}`}>
-                {qaResult.verdictLabel}
-              </span>
-            </div>
-            <span className="text-xs font-mono text-muted-foreground">{qaResult.passed}/{qaResult.total}</span>
-          </div>
-          <div className="px-4 py-3 space-y-4 text-sm">
-            <div className="bg-secondary rounded-full h-2.5 overflow-hidden">
-              <div className={`h-full rounded-full transition-all ${qaVerdict === 'passed' ? 'bg-green-500' : qaVerdict === 'conditional' ? 'bg-yellow-500' : 'bg-destructive'}`} style={{ width: `${Math.round((qaResult.passed / qaResult.total) * 100)}%` }} />
-            </div>
-
-            {(['consistency', 'technical', 'evidence', 'editorial', 'ot'] as const).map(cat => {
-              const catChecks = qaResult.checks.filter(c => c.category === cat);
-              if (catChecks.length === 0) return null;
-              const catPassed = catChecks.filter(c => c.passed).length;
-              return (
-                <div key={cat}>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="font-semibold text-foreground text-xs">{CATEGORY_LABELS[cat]}</span>
-                    <span className="text-xs font-mono text-muted-foreground">{catPassed}/{catChecks.length}</span>
-                  </div>
-                  <div className="space-y-1">
-                    {catChecks.map(check => (
-                      <div key={check.id} className="flex items-start gap-2 text-xs">
-                        <span className="flex-shrink-0 mt-0.5">{check.passed ? '✅' : '❌'}</span>
-                        <div className="flex-1">
-                          <span className={check.passed ? 'text-foreground' : 'text-destructive font-medium'}>{check.label}</span>
-                          <span className="text-muted-foreground ml-1.5">— {check.detail}</span>
-                        </div>
-                        {!check.passed && (
-                          <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold flex-shrink-0 ${check.severity === 'critical' ? 'bg-destructive/10 text-destructive' : check.severity === 'major' ? 'bg-orange-500/10 text-orange-400' : 'bg-yellow-500/10 text-yellow-500'}`}>
-                            {check.severity.toUpperCase()}
-                          </span>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              );
-            })}
-
-            {/* Fix log */}
-            {allFixLogs.length > 0 && (
-              <div className="border-t border-border pt-3">
-                <div className="flex items-center gap-2 mb-2">
-                  <Wrench className="w-3.5 h-3.5 text-primary" />
-                  <span className="font-semibold text-primary text-xs">
-                    {t('cra.autoFixTitle')}
-                  </span>
-                  <span className="text-xs font-mono text-muted-foreground ml-auto">{allFixLogs.length} fixes</span>
-                </div>
-                <ul className="space-y-0.5 text-xs text-foreground">
-                  {allFixLogs.map((f, i) => (
-                    <li key={i} className="flex gap-1.5 items-start">
-                      <CheckCircle2 className="w-3 h-3 text-primary flex-shrink-0 mt-0.5" />
-                      <span>{f}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </div>
-        </div>
+        <QualityCheckPanel result={qaResult} fixLogs={allFixLogs} categories={QA_CATEGORIES} />
       )}
 
       {/* ═══ EXPORT BAR (simplified: QA → PDF Final) ═══ */}
       <div className="bg-secondary border border-border rounded-lg p-4">
         <div className="text-sm text-foreground mb-3">
-          <div className="font-semibold mb-0.5">{t('cra.rpExport')}</div>
+          <div className="font-semibold mb-0.5">{t('qa.exportTitle')}</div>
           <div className="text-xs text-muted-foreground">
             {qaResult
-              ? t('cra.qaCompletePdfReady')
-              : t('cra.qaStartHint')}
+              ? t('qa.completePdfReady')
+              : t('qa.startHint')}
           </div>
         </div>
         <div className="flex gap-3 flex-wrap items-center">
@@ -1161,8 +1098,8 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
           >
             {qaRunning ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <ShieldCheck className="w-4 h-4 mr-2" />}
             {qaRunning
-              ? t('cra.qaChecking')
-              : t('cra.qaCheckDoc')}
+              ? t('qa.checking')
+              : t('qa.checkDoc')}
           </Button>
 
           {qaResult && (
@@ -1176,7 +1113,7 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
               >
                 {finalPdfRunning ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <FileText className="w-4 h-4 mr-2" />}
                 {finalPdfRunning
-                  ? t('cra.qaGenerating')
+                  ? t('qa.generating')
                   : 'PDF Final'}
               </Button>
             </>
@@ -1190,11 +1127,14 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
 // ── Main ──────────────────────────────────────────────────────
 
 const CraComplianceTool = ({ embedded }: { embedded?: boolean }) => {
-  const { t, tArray } = useLanguage();
+  const { t, tArray, language } = useLanguage();
   const [step, setStepRaw] = useState(0);
   const [loading, setLoading] = useState(false);
   const [intakeData, setIntakeData] = useState<IntakeData>(EMPTY_INTAKE);
   const contentRef = useRef<HTMLDivElement>(null);
+
+  const localizedThreats = useMemo(() => localizeThreats(THREATS, language, CRA_THREATS_EN, CRA_THREATS_FR), [language]);
+  const localizedReqs = useMemo(() => localizeReqs(CRA_REQS, language, CRA_REQS_EN, CRA_REQS_FR), [language]);
 
   const scrollToTop = useCallback(() => {
     contentRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -1266,10 +1206,10 @@ const CraComplianceTool = ({ embedded }: { embedded?: boolean }) => {
               )}
             </div>
             {step === 0 && <IntakeWizard onFinish={handleIntakeFinish} />}
-            {step === 1 && <ThreatModel threats={THREATS} onNext={() => setStep(2)} />}
-            {step === 2 && <RiskAssessment threats={THREATS} onNext={() => setStep(3)} />}
-            {step === 3 && <CRAMapping reqs={CRA_REQS} onNext={() => setStep(4)} />}
-            {step === 4 && <ReportView intakeData={intakeData} threats={THREATS} reqs={CRA_REQS} />}
+            {step === 1 && <ThreatModel threats={localizedThreats} onNext={() => setStep(2)} />}
+            {step === 2 && <RiskAssessment threats={localizedThreats} onNext={() => setStep(3)} />}
+            {step === 3 && <CRAMapping reqs={localizedReqs} onNext={() => setStep(4)} />}
+            {step === 4 && <ReportView intakeData={intakeData} threats={localizedThreats} reqs={localizedReqs} />}
           </div>
         )}
       </div>
