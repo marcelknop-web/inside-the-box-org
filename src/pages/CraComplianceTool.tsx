@@ -1113,7 +1113,7 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
               >
                 {finalPdfRunning ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <FileText className="w-4 h-4 mr-2" />}
                 {finalPdfRunning
-                  ? t('cra.qaGenerating')
+                  ? t('qa.generating')
                   : 'PDF Final'}
               </Button>
             </>
