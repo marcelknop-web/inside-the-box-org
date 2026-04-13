@@ -832,6 +832,8 @@ const Nis2ComplianceTool = ({ embedded }: { embedded?: boolean }) => {
   const [loading, setLoading] = useState(false);
   const [intakeData, setIntakeData] = useState<Nis2IntakeData>(EMPTY_INTAKE);
   const sectorRisks = useMemo(() => getNis2Risks(intakeData.entityType), [intakeData.entityType]);
+  const localizedRisks = useMemo(() => localizeThreats(sectorRisks, language, NIS2_RISKS_EN, NIS2_RISKS_FR), [sectorRisks, language]);
+  const localizedReqs = useMemo(() => localizeReqs(NIS2_REQS, language, NIS2_REQS_EN, NIS2_REQS_FR), [language]);
   const contentRef = useRef<HTMLDivElement>(null);
 
   const scrollToTop = useCallback(() => {
