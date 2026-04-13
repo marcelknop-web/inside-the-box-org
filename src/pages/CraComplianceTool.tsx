@@ -200,7 +200,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
       deployment: 'hybrid',
       interfaces: ['HTTPS/REST', 'MQTT (TLS)', 'SSH', 'LAN/Ethernet'],
       roles: ['Administrator', 'Operator', 'Read-Only User'],
-      measures: { tls: { active: true, documented: true, audited: false }, auth: { active: true, documented: false, audited: false }, patch: { active: true, documented: true, audited: true }, log: { active: true, documented: false, audited: false } },
+      measures: { tls: { active: true, documented: true, audited: false, certified: false }, auth: { active: true, documented: false, audited: false, certified: false }, patch: { active: true, documented: true, audited: true, certified: false }, log: { active: true, documented: false, audited: false, certified: false } },
       knownIssues: 'OTA update currently uses HTTPS but without package signature verification.',
       files: [
         { name: 'SmartSense_Architecture_v2.4.pdf', size: 1_245_000, type: 'arch' },
@@ -217,7 +217,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
       deployment: 'embedded',
       interfaces: ['HTTPS/REST', 'OPC-UA', 'Modbus', 'SSH', 'LAN/Ethernet'],
       roles: ['Administrator', 'Maintenance Engineer', 'Operator'],
-      measures: { tls: { active: true, documented: true, audited: true }, auth: { active: true, documented: true, audited: false }, mfa: { active: true, documented: false, audited: false }, sbom: { active: true, documented: true, audited: false }, secboot: { active: true, documented: true, audited: true } },
+      measures: { tls: { active: true, documented: true, audited: true, certified: false }, auth: { active: true, documented: true, audited: false, certified: false }, mfa: { active: true, documented: false, audited: false, certified: false }, sbom: { active: true, documented: true, audited: false, certified: false }, secboot: { active: true, documented: true, audited: true, certified: false } },
       knownIssues: 'Modbus interface lacks authentication. SBOM does not yet cover all transitive dependencies.',
       files: [
         { name: 'IndustrialEdge_SystemArchitecture_v3.1.pdf', size: 2_850_000, type: 'arch' },
@@ -236,7 +236,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
       deployment: 'cloud',
       interfaces: ['HTTPS/REST', 'WebSocket', 'SMTP'],
       roles: ['Tenant Admin', 'Editor', 'Viewer'],
-      measures: { tls: { active: true, documented: true, audited: true }, rbac: { active: true, documented: true, audited: false }, monitor: { active: true, documented: true, audited: false }, pentest: { active: true, documented: false, audited: false }, ir: { active: true, documented: true, audited: false } },
+      measures: { tls: { active: true, documented: true, audited: true, certified: false }, rbac: { active: true, documented: true, audited: false, certified: false }, monitor: { active: true, documented: true, audited: false, certified: false }, pentest: { active: true, documented: false, audited: false, certified: false }, ir: { active: true, documented: true, audited: false, certified: false } },
       knownIssues: '',
       files: [
         { name: 'CloudVault_Architecture_Overview.pdf', size: 1_780_000, type: 'arch' },
@@ -254,7 +254,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
       deployment: 'hybrid',
       interfaces: ['HTTPS/REST', 'WebSocket', 'Bluetooth', 'WLAN'],
       roles: ['Fleet Manager', 'Driver', 'Dispatcher'],
-      measures: { tls: { active: true, documented: true, audited: false }, auth: { active: true, documented: true, audited: false }, encrypt: { active: true, documented: false, audited: false }, log: { active: true, documented: true, audited: false } },
+      measures: { tls: { active: true, documented: true, audited: false, certified: false }, auth: { active: true, documented: true, audited: false, certified: false }, encrypt: { active: true, documented: false, audited: false, certified: false }, log: { active: true, documented: true, audited: false, certified: false } },
       knownIssues: 'Default admin credentials are documented but not enforced to change on first login.',
       files: [
         { name: 'FleetTrack_AppArchitecture.pdf', size: 890_000, type: 'arch' },
@@ -270,7 +270,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
       deployment: 'onprem',
       interfaces: ['HTTPS/REST', 'SSH', 'WLAN', 'SNMP', 'LAN/Ethernet'],
       roles: ['Security Officer', 'Network Administrator', 'Auditor', 'Operator'],
-      measures: { tls: { active: true, documented: true, audited: true }, auth: { active: true, documented: true, audited: true }, mfa: { active: true, documented: true, audited: true }, fw: { active: true, documented: true, audited: false }, secboot: { active: true, documented: true, audited: true }, codesign: { active: true, documented: true, audited: false }, sbom: { active: true, documented: true, audited: true }, ir: { active: true, documented: true, audited: false }, monitor: { active: true, documented: true, audited: true } },
+      measures: { tls: { active: true, documented: true, audited: true, certified: false }, auth: { active: true, documented: true, audited: true, certified: false }, mfa: { active: true, documented: true, audited: true, certified: false }, fw: { active: true, documented: true, audited: false, certified: false }, secboot: { active: true, documented: true, audited: true, certified: false }, codesign: { active: true, documented: true, audited: false, certified: false }, sbom: { active: true, documented: true, audited: true, certified: false }, ir: { active: true, documented: true, audited: false, certified: false }, monitor: { active: true, documented: true, audited: true, certified: false } },
       knownIssues: 'MQTT broker accepts connections without rate limiting. No SBOM available yet.',
       files: [
         { name: 'SecureLink_Architecture_CritInfra.pdf', size: 3_200_000, type: 'arch' },
@@ -456,7 +456,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
             const { [id]: _, ...rest } = prev.measures;
             return { ...prev, measures: rest };
           }
-          return { ...prev, measures: { ...prev.measures, [id]: { active: true, documented: false, audited: false } } };
+          return { ...prev, measures: { ...prev.measures, [id]: { active: true, documented: false, audited: false, certified: false } } };
         });
       };
       const setMeasureProp = (id: string, prop: 'documented' | 'audited', val: boolean) => {

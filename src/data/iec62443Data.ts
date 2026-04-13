@@ -442,7 +442,7 @@ export const DEMO_SCENARIOS: DemoScenario[] = [
     zones: ['bridge', 'engineroom', 'crew', 'shore'],
     protocols: ['NMEA 0183', 'NMEA 2000', 'Modbus TCP', 'HTTPS/REST', 'VSAT/Fleet Broadband', 'Serial (RS-422/485)', 'USB'],
     roles: ['Captain', 'Chief Engineer', 'IT/ETO Officer', 'Watch Officer', 'Electrical Engineer'],
-    measures: { iac: { active: true, documented: false, audited: false }, backup: { active: true, documented: false, audited: false }, patch: { active: true, documented: false, audited: false } },
+    measures: { iac: { active: true, documented: false, audited: false, certified: false }, backup: { active: true, documented: false, audited: false, certified: false }, patch: { active: true, documented: false, audited: false, certified: false } },
     knownIssues: 'Flat network IT/OT, shared accounts on bridge, USB ports open, no monitoring, NMEA unprotected.',
     files: [
       { name: 'NorthernSpirit_NetworkArchitecture_v2.1.pdf', size: 2_200_000, type: 'arch' },
@@ -457,7 +457,7 @@ export const DEMO_SCENARIOS: DemoScenario[] = [
     zones: ['bridge', 'engineroom', 'crew', 'cargo_ot', 'safety_zone', 'shore'],
     protocols: ['NMEA 0183', 'NMEA 2000', 'IEC 61162-450', 'Modbus TCP', 'PROFINET', 'HTTPS/REST', 'VPN (IPsec)', 'Wireless (WiFi)'],
     roles: ['Captain', 'Safety Officer', 'Chief Engineer', 'IT/ETO Officer', 'DPO (Dynamic Positioning Operator)'],
-    measures: { iac: { active: true, documented: true, audited: false }, segmentation: { active: true, documented: false, audited: false }, monitoring: { active: true, documented: false, audited: false }, incident: { active: true, documented: true, audited: false } },
+    measures: { iac: { active: true, documented: true, audited: false, certified: false }, segmentation: { active: true, documented: false, audited: false, certified: false }, monitoring: { active: true, documented: false, audited: false, certified: false }, incident: { active: true, documented: true, audited: false, certified: false } },
     knownIssues: 'Passenger WiFi not segmented, remote maintenance without MFA, fire detection system legacy.',
     files: [
       { name: 'BalticTrader_CyberRiskAssessment_2024.pdf', size: 3_100_000, type: 'riskAssess' },
@@ -471,7 +471,7 @@ export const DEMO_SCENARIOS: DemoScenario[] = [
     zones: ['bridge', 'engineroom', 'cargo_ot', 'shore'],
     protocols: ['NMEA 2000', 'CANbus (J1939)', 'Modbus TCP', 'OPC-UA', 'VSAT/Fleet Broadband', 'VPN (IPsec)'],
     roles: ['Captain', 'DPO (Dynamic Positioning Operator)', 'Chief Engineer', 'ETO (Electro-Technical Officer)'],
-    measures: { iac: { active: true, documented: false, audited: false }, vendor: { active: true, documented: true, audited: true }, backup: { active: true, documented: true, audited: false } },
+    measures: { iac: { active: true, documented: false, audited: false, certified: false }, vendor: { active: true, documented: true, audited: true, certified: false }, backup: { active: true, documented: true, audited: false, certified: false } },
     knownIssues: 'DP system remote maintenance permanently active, no MFA, default passwords on crane control.',
     files: [
       { name: 'DeepExplorer_DP_SystemDoc.pdf', size: 4_500_000, type: 'arch' },
