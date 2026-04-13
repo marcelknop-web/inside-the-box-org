@@ -1081,11 +1081,11 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
       {/* ═══ EXPORT BAR (simplified: QA → PDF Final) ═══ */}
       <div className="bg-secondary border border-border rounded-lg p-4">
         <div className="text-sm text-foreground mb-3">
-          <div className="font-semibold mb-0.5">{t('cra.rpExport')}</div>
+          <div className="font-semibold mb-0.5">{t('qa.exportTitle')}</div>
           <div className="text-xs text-muted-foreground">
             {qaResult
-              ? t('cra.qaCompletePdfReady')
-              : t('cra.qaStartHint')}
+              ? t('qa.completePdfReady')
+              : t('qa.startHint')}
           </div>
         </div>
         <div className="flex gap-3 flex-wrap items-center">
@@ -1098,8 +1098,8 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
           >
             {qaRunning ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <ShieldCheck className="w-4 h-4 mr-2" />}
             {qaRunning
-              ? t('cra.qaChecking')
-              : t('cra.qaCheckDoc')}
+              ? t('qa.checking')
+              : t('qa.checkDoc')}
           </Button>
 
           {qaResult && (
