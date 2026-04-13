@@ -1239,7 +1239,8 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     doc.text(mapTitle, ML, y);
     y += 5;
 
-    const colX = [ML, ML + 16, ML + 58, ML + 82, ML + 108, ML + 138];
+    const colX = [ML, ML + 14, ML + 50, ML + 76, ML + 110, ML + 142];
+    const colW = [14, 36, 26, 34, 32, CW - 142]; // widths for each column
     const colHdr = [
       'ID',
       lang === 'de' ? 'Befund' : lang === 'fr' ? 'Constat' : 'Finding',
@@ -1270,11 +1271,13 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
       doc.setFontSize(6.5);
       doc.setTextColor(...C.bodyText);
       doc.text(threatId(th), colX[0], y);
-      const truncName = doc.splitTextToSize(th.name, 38)[0] || '';
+      const truncName = doc.splitTextToSize(th.name, colW[1] - 2)[0] || '';
       doc.text(truncName, colX[1], y);
       const strideName = STRIDE_NAMES[th.stride]?.[lang] || th.stride;
-      doc.text(`${th.stride} (${strideName.substring(0, 12)})`, colX[2], y);
-      doc.text(th.cra, colX[3], y);
+      const strideLabel = `${th.stride} (${strideName.substring(0, 12)})`;
+      doc.text(strideLabel, colX[2], y);
+      const craRefLines = doc.splitTextToSize(th.cra, colW[3] - 2)[0] || '';
+      doc.text(craRefLines, colX[3], y);
       doc.text(`E-${String(idx + 1).padStart(3, '0')}`, colX[4], y);
       const score = th.likelihood * th.impact;
       doc.text(`${th.likelihood}x${th.impact}=${score}`, colX[5], y);
