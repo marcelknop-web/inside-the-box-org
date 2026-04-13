@@ -1127,11 +1127,14 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
 // ── Main ──────────────────────────────────────────────────────
 
 const CraComplianceTool = ({ embedded }: { embedded?: boolean }) => {
-  const { t, tArray } = useLanguage();
+  const { t, tArray, language } = useLanguage();
   const [step, setStepRaw] = useState(0);
   const [loading, setLoading] = useState(false);
   const [intakeData, setIntakeData] = useState<IntakeData>(EMPTY_INTAKE);
   const contentRef = useRef<HTMLDivElement>(null);
+
+  const localizedThreats = useMemo(() => localizeThreats(THREATS, language, CRA_THREATS_EN, CRA_THREATS_FR), [language]);
+  const localizedReqs = useMemo(() => localizeReqs(CRA_REQS, language, CRA_REQS_EN, CRA_REQS_FR), [language]);
 
   const scrollToTop = useCallback(() => {
     contentRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -1203,10 +1206,10 @@ const CraComplianceTool = ({ embedded }: { embedded?: boolean }) => {
               )}
             </div>
             {step === 0 && <IntakeWizard onFinish={handleIntakeFinish} />}
-            {step === 1 && <ThreatModel threats={THREATS} onNext={() => setStep(2)} />}
-            {step === 2 && <RiskAssessment threats={THREATS} onNext={() => setStep(3)} />}
-            {step === 3 && <CRAMapping reqs={CRA_REQS} onNext={() => setStep(4)} />}
-            {step === 4 && <ReportView intakeData={intakeData} threats={THREATS} reqs={CRA_REQS} />}
+            {step === 1 && <ThreatModel threats={localizedThreats} onNext={() => setStep(2)} />}
+            {step === 2 && <RiskAssessment threats={localizedThreats} onNext={() => setStep(3)} />}
+            {step === 3 && <CRAMapping reqs={localizedReqs} onNext={() => setStep(4)} />}
+            {step === 4 && <ReportView intakeData={intakeData} threats={localizedThreats} reqs={localizedReqs} />}
           </div>
         )}
       </div>
