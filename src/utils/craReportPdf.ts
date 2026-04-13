@@ -1872,13 +1872,13 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     // 9. RISK LEVEL
     const reqRating = req.status === 'fail' ? t(I18N.highSev) : req.status === 'partial' ? t(I18N.mediumSev) : t(I18N.lowSev);
     const reqRatingColor = req.status === 'fail' ? C.redText : req.status === 'partial' ? C.orangeText : C.greenText;
-    checkPage(8);
+    checkPage(14);
     writeLabel(t(I18N.riskLevelLabel), 5);
     doc.setFont(HEAD_FONT, 'bold');
     doc.setFontSize(BODY_SIZE + 1);
     doc.setTextColor(...reqRatingColor);
     doc.text(reqRating, ML + 8, y);
-    y += BODY_LEADING + FIELD_GAP;
+    y += BODY_LEADING + FIELD_GAP + 3;
 
     // 10. ROOT CAUSE (precise technical root cause)
     const rootCause = req.status !== 'pass'
