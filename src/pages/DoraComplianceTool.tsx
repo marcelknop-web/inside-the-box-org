@@ -768,8 +768,9 @@ function ReportView({ intakeData, risks, reqs }: { intakeData: DoraIntakeData; r
       setTimeout(async () => {
         try {
           // Run QA silently for Appendix D in PDF
-          const qaResult = runDoraQualityCheck(localRisks, localReqs, language as 'de' | 'en' | 'fr', intakeData);
-          await generateDoraReport({ intakeData, risks: localRisks, reqs: localReqs, language: language as 'de' | 'en' | 'fr', entityTypeName: typeName, criticalityName: critName, isDraft: false, qaChecks: qaResult.checks, fixLog: [], qaIterations: 1 });
+          const detectedLang = detectLanguage(extractTexts(intakeData as any)) as 'de' | 'en' | 'fr';
+          const qaResult = runDoraQualityCheck(localRisks, localReqs, detectedLang, intakeData);
+          await generateDoraReport({ intakeData, risks: localRisks, reqs: localReqs, language: detectedLang, entityTypeName: typeName, criticalityName: critName, isDraft: false, qaChecks: qaResult.checks, fixLog: [], qaIterations: 1 });
         } finally { setFinalPdfRunning(false); }
       }, 100);
     });

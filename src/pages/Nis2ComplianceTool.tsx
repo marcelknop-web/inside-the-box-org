@@ -739,8 +739,9 @@ function ReportView({ intakeData, risks, reqs }: { intakeData: Nis2IntakeData; r
     requestAnimationFrame(() => {
       setTimeout(async () => {
         try {
-          const qaResult = runNis2QualityCheck(localRisks, localReqs, language as 'de' | 'en' | 'fr', intakeData);
-          await generateNis2Report({ intakeData, risks: localRisks, reqs: localReqs, language: language as 'de' | 'en' | 'fr', entityTypeName: typeName, criticalityName: critName, isDraft: false, qaChecks: qaResult.checks, fixLog: [], qaIterations: 1 });
+          const detectedLang = detectLanguage(extractTexts(intakeData as any)) as 'de' | 'en' | 'fr';
+          const qaResult = runNis2QualityCheck(localRisks, localReqs, detectedLang, intakeData);
+          await generateNis2Report({ intakeData, risks: localRisks, reqs: localReqs, language: detectedLang, entityTypeName: typeName, criticalityName: critName, isDraft: false, qaChecks: qaResult.checks, fixLog: [], qaIterations: 1 });
         } finally { setFinalPdfRunning(false); }
       }, 100);
     });
