@@ -730,11 +730,11 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     // Pre-calculate content height for background panel
     doc.setFont(HEAD_FONT, 'normal');
     doc.setFontSize(BODY_SIZE);
-    const textLines = doc.splitTextToSize(value, CW - indent - 10);
-    const labelH = 5;
+    const textLines = doc.splitTextToSize(value, CW - indent - 12);
+    const labelH = 6;
     const textH = textLines.length * BODY_LEADING;
-    const totalH = labelH + textH + 4;
-    checkPage(totalH + 2);
+    const totalH = labelH + textH + 5;
+    checkPage(totalH + 3);
 
     // Subtle background panel
     const panelY = y - 2;
@@ -759,7 +759,10 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
       doc.text(line, ML + indent + 4.5, y);
       y += BODY_LEADING;
     }
-    y += 3;
+
+    // Ensure cursor is past panel bottom
+    const panelBottom = panelY + totalH;
+    y = Math.max(y + 2, panelBottom + 3);
   }
 
   function riskLabel(score: number): string {
@@ -1631,13 +1634,13 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     // 9. RISK LEVEL (auto-derived scoring logic)
     const ratingLabel = score >= 20 ? t(I18N.criticalSev) : score >= 13 ? t(I18N.highSev) : score >= 6 ? t(I18N.mediumSev) : t(I18N.lowSev);
     const ratingColor: [number, number, number] = score >= 20 ? C.redText : score >= 13 ? C.orangeText : score >= 6 ? C.orangeText : C.greenText;
-    checkPage(8);
+    checkPage(14);
     writeLabel(t(I18N.riskLevelLabel), 5);
     doc.setFont(HEAD_FONT, 'bold');
     doc.setFontSize(BODY_SIZE + 1);
     doc.setTextColor(...ratingColor);
     doc.text(`${ratingLabel}  (${th.likelihood} × ${th.impact} = ${score}/25)`, ML + 8, y);
-    y += BODY_LEADING + FIELD_GAP;
+    y += BODY_LEADING + FIELD_GAP + 3;
 
     // 10. ROOT CAUSE (precise, no vague language)
     const rootCauseText = lang === 'de'
