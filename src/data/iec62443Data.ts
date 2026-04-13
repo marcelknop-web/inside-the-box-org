@@ -147,6 +147,7 @@ export interface MeasureEntry {
   active: boolean;
   documented: boolean;
   audited: boolean;
+  certified: boolean;
 }
 
 export interface IecIntakeData {
