@@ -438,12 +438,17 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
             { label: 'Measures', val: Object.keys(d.measures).length > 0 ? `${Object.keys(d.measures).length} selected` : 'None' },
             { label: 'Documents', val: d.files.length > 0 ? `${d.files.length} files` : 'None' },
           ].map(({ label, val }) => (
-            <div key={label} className="flex gap-3 text-sm border-b border-border/50 pb-2 last:border-0 last:pb-0">
-              <span className="text-muted-foreground w-28 flex-shrink-0">{label}</span>
-              <span className="text-foreground font-medium">{val}</span>
+            <div key={label} className="flex flex-col sm:flex-row gap-1 sm:gap-3 text-sm border-b border-border/50 pb-2 last:border-0 last:pb-0">
+              <span className="text-muted-foreground sm:w-36 flex-shrink-0 text-xs sm:text-sm">{label}</span>
+              <span className="text-foreground font-medium break-words min-w-0">{val}</span>
             </div>
           ))}
-          {d.knownIssues && <div className="text-sm border-b border-border/50 pb-2"><span className="text-muted-foreground">Known Issues: </span><span className="text-foreground">{d.knownIssues}</span></div>}
+          {d.knownIssues && (
+            <div className="flex flex-col sm:flex-row gap-1 sm:gap-3 text-sm border-b border-border/50 pb-2">
+              <span className="text-muted-foreground sm:w-36 flex-shrink-0 text-xs sm:text-sm">Known Issues</span>
+              <span className="text-foreground font-medium break-words min-w-0">{d.knownIssues}</span>
+            </div>
+          )}
         </StaggerReveal>
       );
       break;
