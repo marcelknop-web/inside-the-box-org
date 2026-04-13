@@ -9,8 +9,6 @@ import ChatView from "./pages/ChatView";
 import NotFound from "./pages/NotFound";
 import { lazy, Suspense } from "react";
 
-const Nis2ComplianceTool = lazy(() => import("./pages/Nis2ComplianceTool"));
-const Iec62443ComplianceTool = lazy(() => import("./pages/Iec62443ComplianceTool"));
 const EliteShipScene = lazy(() => import("./pages/EliteShipScene"));
 const TtxAdmin = lazy(() => import("./pages/TtxAdmin"));
 
