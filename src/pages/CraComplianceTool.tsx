@@ -973,11 +973,11 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
   const qaVerdict = qaResult?.verdict;
 
   const CATEGORY_LABELS: Record<string, string> = {
-    consistency: language === 'de' ? 'A. Konsistenzprüfung' : language === 'fr' ? 'A. Contrôle de cohérence' : 'A. Consistency Check',
-    technical: language === 'de' ? 'B. Fachliche Korrektheit' : language === 'fr' ? 'B. Exactitude technique' : 'B. Technical Correctness',
-    evidence: language === 'de' ? 'C. Evidenzprüfung' : language === 'fr' ? 'C. Contrôle des preuves' : 'C. Evidence Check',
-    editorial: language === 'de' ? 'D. Redaktionelle Prüfung' : language === 'fr' ? 'D. Contrôle rédactionnel' : 'D. Editorial Check',
-    ot: language === 'de' ? 'E. OT-spezifische Prüfung' : language === 'fr' ? 'E. Contrôle spécifique OT' : 'E. OT-Specific Check',
+    consistency: t('cra.qaCatConsistency'),
+    technical: t('cra.qaCatTechnical'),
+    evidence: t('cra.qaCatEvidence'),
+    editorial: t('cra.qaCatEditorial'),
+    ot: t('cra.qaCatOt'),
   };
 
   return (
@@ -1000,7 +1000,7 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
 
       {/* ═══ AUDIT CHARTS ═══ */}
       <div className="bg-card border border-border rounded-lg p-4">
-        <div className="text-sm font-bold text-foreground mb-3">📊 {language === 'de' ? 'Auswertungsübersicht' : language === 'fr' ? 'Aperçu de l\'évaluation' : 'Assessment Overview'}</div>
+        <div className="text-sm font-bold text-foreground mb-3">📊 {t('cra.assessmentOverview')}</div>
         <CraAuditCharts threats={localThreats} reqs={localReqs} />
       </div>
 
@@ -1123,7 +1123,7 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
                 <div className="flex items-center gap-2 mb-2">
                   <Wrench className="w-3.5 h-3.5 text-primary" />
                   <span className="font-semibold text-primary text-xs">
-                    {language === 'de' ? 'Automatisch umgesetzte Korrekturen' : language === 'fr' ? 'Corrections automatiques' : 'Auto-applied corrections'}
+                    {t('cra.autoFixTitle')}
                   </span>
                   <span className="text-xs font-mono text-muted-foreground ml-auto">{allFixLogs.length} fixes</span>
                 </div>
@@ -1147,8 +1147,8 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
           <div className="font-semibold mb-0.5">{t('cra.rpExport')}</div>
           <div className="text-xs text-muted-foreground">
             {qaResult
-              ? (language === 'de' ? 'Qualitätsprüfung abgeschlossen — PDF Final bereit' : language === 'fr' ? 'Contrôle qualité terminé — PDF Final prêt' : 'Quality check complete — PDF Final ready')
-              : (language === 'de' ? 'Starten Sie die Qualitätsprüfung, um den Bericht zu validieren' : language === 'fr' ? 'Lancez le contrôle qualité pour valider le rapport' : 'Run the quality check to validate the report')}
+              ? t('cra.qaCompletePdfReady')
+              : t('cra.qaStartHint')}
           </div>
         </div>
         <div className="flex gap-3 flex-wrap items-center">
@@ -1161,8 +1161,8 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
           >
             {qaRunning ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <ShieldCheck className="w-4 h-4 mr-2" />}
             {qaRunning
-              ? (language === 'de' ? 'Prüfung läuft…' : language === 'fr' ? 'Vérification…' : 'Checking…')
-              : (language === 'de' ? 'Dokument prüfen' : language === 'fr' ? 'Vérifier le document' : 'Check Document')}
+              ? t('cra.qaChecking')
+              : t('cra.qaCheckDoc')}
           </Button>
 
           {qaResult && (
@@ -1176,7 +1176,7 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
               >
                 {finalPdfRunning ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <FileText className="w-4 h-4 mr-2" />}
                 {finalPdfRunning
-                  ? (language === 'de' ? 'Wird erstellt…' : language === 'fr' ? 'Génération…' : 'Generating…')
+                  ? t('cra.qaGenerating')
                   : 'PDF Final'}
               </Button>
             </>
