@@ -109,6 +109,52 @@ export function humanizeText(raw: string, lang: string, context: 'issues' | 'des
    Font System
    ════════════════════════════════════════════════════════════ */
 
+/**
+ * Maps an evidence file path to a short, human-readable description of the
+ * audit procedure that produced it. Trilingual (DE/EN/FR).
+ */
+export function evidenceProcedure(filePath: string, lang: string): string {
+  const f = filePath.toLowerCase();
+  const m: Record<string, Record<string, string>> = {
+    'capture.pcap':               { de: 'Passiver Netzwerk-Mitschnitt während der Prüfung', en: 'Passive network capture during assessment', fr: 'Capture réseau passive pendant l\'évaluation' },
+    'wireshark-screenshot':       { de: 'Paketanalyse mittels Wireshark', en: 'Packet analysis using Wireshark', fr: 'Analyse de paquets avec Wireshark' },
+    'api-request-response':       { de: 'Manuelle API-Abfrage mit cURL/Postman', en: 'Manual API query using cURL/Postman', fr: 'Requête API manuelle via cURL/Postman' },
+    'nmap-scan':                  { de: 'Aktiver Port- und Service-Scan (nmap)', en: 'Active port and service scan (nmap)', fr: 'Scan actif de ports et services (nmap)' },
+    'config-export':              { de: 'Konfigurationsexport und Sichtprüfung', en: 'Configuration export and manual review', fr: 'Export de configuration et revue manuelle' },
+    'loadtest-results':           { de: 'Lasttest mittels automatisiertem Testframework', en: 'Load test using automated test framework', fr: 'Test de charge via framework automatisé' },
+    'cpu-memory-graph':           { de: 'Ressourcenmonitoring während Lasttest', en: 'Resource monitoring during load test', fr: 'Surveillance des ressources pendant le test de charge' },
+    'architecture-diagram':       { de: 'Dokumentenprüfung und Architektur-Review', en: 'Document review and architecture assessment', fr: 'Revue documentaire et évaluation d\'architecture' },
+    'backup-test-report':         { de: 'Stichprobenhafte Prüfung des Backup-/Recovery-Prozesses', en: 'Spot check of backup/recovery process', fr: 'Vérification par sondage du processus de sauvegarde' },
+    'recovery-test-report':       { de: 'Stichprobenhafte Prüfung des Recovery-Prozesses', en: 'Spot check of recovery process', fr: 'Vérification par sondage du processus de restauration' },
+    'policy-review-notes':        { de: 'Sichtung und Bewertung interner Richtlinien', en: 'Review and assessment of internal policies', fr: 'Examen et évaluation des politiques internes' },
+    'contract-analysis':          { de: 'Vertragsanalyse und SLA-Prüfung', en: 'Contract analysis and SLA review', fr: 'Analyse contractuelle et vérification des SLA' },
+    'remote-access-config':       { de: 'Prüfung der Fernzugangskonfiguration', en: 'Remote access configuration review', fr: 'Vérification de la configuration d\'accès à distance' },
+    'drill-report':               { de: 'Überprüfung der Notfallübungsdokumentation', en: 'Emergency drill documentation review', fr: 'Examen de la documentation d\'exercice d\'urgence' },
+    'log-config-screenshot':      { de: 'Prüfung der Protokollierungskonfiguration', en: 'Logging configuration review', fr: 'Vérification de la configuration de journalisation' },
+    'firmware-hash':              { de: 'Integritätsprüfung mittels Hash-Vergleich', en: 'Integrity check via hash comparison', fr: 'Vérification d\'intégrité par comparaison de hash' },
+    'modified-test-file':         { de: 'Kontrollierter Manipulationstest', en: 'Controlled tampering test', fr: 'Test de manipulation contrôlé' },
+    'processing-log':             { de: 'Auswertung der Verarbeitungsprotokolle', en: 'Processing log analysis', fr: 'Analyse des journaux de traitement' },
+    'analysis-notes':             { de: 'Strukturierte Prüfungsnotizen und Bewertung', en: 'Structured assessment notes and evaluation', fr: 'Notes d\'évaluation structurées' },
+    'login-screenshot':           { de: 'Manuelle Überprüfung der Authentifizierungsmechanismen', en: 'Manual authentication mechanism review', fr: 'Vérification manuelle des mécanismes d\'authentification' },
+    'ssh-audit-output':           { de: 'Automatisierter SSH-Sicherheitsaudit', en: 'Automated SSH security audit', fr: 'Audit de sécurité SSH automatisé' },
+    'debug-endpoint-response':    { de: 'Gezielte Abfrage offener Debug-Endpunkte', en: 'Targeted query of exposed debug endpoints', fr: 'Interrogation ciblée des points de terminaison de débogage' },
+    'spoofing-setup':             { de: 'Nachstellung eines Spoofing-Angriffsszenarios', en: 'Spoofing attack scenario recreation', fr: 'Reconstitution d\'un scénario d\'usurpation' },
+    'missing-logs-screenshot':    { de: 'Analyse der Protokollabdeckung und Lückenidentifikation', en: 'Log coverage analysis and gap identification', fr: 'Analyse de la couverture des journaux et identification des lacunes' },
+    'modbus-poc':                 { de: 'Proof-of-Concept-Test auf ungeschütztes Industrieprotokoll', en: 'Proof-of-concept test on unprotected industrial protocol', fr: 'Test de preuve de concept sur protocole industriel non protégé' },
+    'setpoint-before-after':      { de: 'Dokumentation der Sollwertänderung vor/nach Test', en: 'Setpoint change documentation before/after test', fr: 'Documentation du changement de consigne avant/après test' },
+    'cookie-analysis':            { de: 'Analyse der Session- und Cookie-Sicherheit', en: 'Session and cookie security analysis', fr: 'Analyse de la sécurité des sessions et cookies' },
+    'mitmproxy-session':          { de: 'Man-in-the-Middle-Analyse des Update-Kanals', en: 'Man-in-the-middle analysis of update channel', fr: 'Analyse man-in-the-middle du canal de mise à jour' },
+    'ot-protocol-capture':        { de: 'Mitschnitt von OT-Protokollverkehr', en: 'OT protocol traffic capture', fr: 'Capture du trafic de protocole OT' },
+  };
+
+  for (const [pattern, texts] of Object.entries(m)) {
+    if (f.includes(pattern.toLowerCase())) return texts[lang] || texts['en'];
+  }
+  // Fallback: generic
+  const fallback: Record<string, string> = { de: 'Technische Prüfung und Dokumentation', en: 'Technical assessment and documentation', fr: 'Évaluation technique et documentation' };
+  return fallback[lang] || fallback['en'];
+}
+
 const FONT_FILES = [
   { file: 'IBMPlexSerif-Regular.ttf', family: 'IBMPlexSerif', style: 'normal' },
   { file: 'IBMPlexSerif-Bold.ttf', family: 'IBMPlexSerif', style: 'bold' },
