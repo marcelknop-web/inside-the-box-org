@@ -756,18 +756,16 @@ function ReportView({ intakeData, risks, reqs }: { intakeData: Nis2IntakeData; r
         </div>
         <div className="h-px bg-border mb-3" />
         <p className="text-sm text-foreground leading-relaxed break-words">
-          {language === 'de'
-            ? `Die NIS-2-Konformitätsprüfung für ${intakeData.entityName} (${typeName}, Einstufung: ${critName}) wurde am ${today} durchgeführt. Es wurden ${localRisks.length} Risiken identifiziert, davon ${critRisks.length} mit kritischem Score (≥ 20). Von ${localReqs.length} NIS-2-Anforderungen bestehen ${failReqs.length} Lücken.`
-            : `The NIS-2 compliance assessment for ${intakeData.entityName} (${typeName}, classification: ${critName}) was conducted on ${today}. ${localRisks.length} risks were identified, ${critRisks.length} with critical score (≥ 20). Of ${localReqs.length} NIS-2 requirements, ${failReqs.length} gaps remain.`}
+          {t('nis2c.rpSummary').replace('{entity}', intakeData.entityName).replace('{type}', typeName).replace('{crit}', critName).replace('{date}', today).replace('{riskCount}', String(localRisks.length)).replace('{critCount}', String(critRisks.length)).replace('{reqCount}', String(localReqs.length)).replace('{gapCount}', String(failReqs.length))}
         </p>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-2 sm:gap-3">
         {([
-          [language === 'de' ? 'Risiken' : 'Risks', localRisks.length, 'text-foreground'],
-          [language === 'de' ? 'Kritisch (≥ 20)' : 'Critical (≥ 20)', critRisks.length, 'text-destructive'],
-          [language === 'de' ? 'NIS-2-Lücken' : 'NIS-2 Gaps', failReqs.length, 'text-destructive'],
+          [t('nis2c.rpStatRisks'), localRisks.length, 'text-foreground'],
+          [t('nis2c.rpStatCritical'), critRisks.length, 'text-destructive'],
+          [t('nis2c.rpStatGaps'), failReqs.length, 'text-destructive'],
         ] as [string, number, string][]).map(([l, n, c]) => (
           <div key={l} className="bg-card border border-border rounded-lg p-3 sm:p-4 text-center">
             <div className={`text-2xl sm:text-3xl font-bold font-mono ${c}`}>{n}</div>
@@ -815,7 +813,7 @@ function ReportView({ intakeData, risks, reqs }: { intakeData: Nis2IntakeData; r
         </div>
         <button onClick={handleFinalPdf} disabled={finalPdfRunning} className="text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2 transition-all bg-primary text-primary-foreground hover:bg-primary/90 ring-2 ring-primary/30 disabled:opacity-50 w-full sm:w-auto justify-center sm:justify-start">
           {finalPdfRunning ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
-          {finalPdfRunning ? (language === 'de' ? 'Wird erstellt...' : 'Generating...') : (language === 'de' ? 'PDF-Bericht exportieren' : 'Export PDF Report')}
+          {finalPdfRunning ? t('nis2c.rpPdfRunning') : t('nis2c.rpPdfBtn')}
         </button>
       </div>
     </StaggerReveal>
@@ -824,8 +822,7 @@ function ReportView({ intakeData, risks, reqs }: { intakeData: Nis2IntakeData; r
 
 // ── Main ──────────────────────────────────────────────────────
 
-const MAIN_STEPS_DE = ['Datenerfassung', 'Risikolandschaft', 'Risikomatrix', 'NIS-2-Mapping', 'Report & Export'];
-const MAIN_STEPS_EN = ['Data Collection', 'Risk Landscape', 'Risk Matrix', 'NIS-2 Mapping', 'Report & Export'];
+const MAIN_STEPS_KEYS = ['nis2c.msData', 'nis2c.msRiskLandscape', 'nis2c.msRiskMatrix', 'nis2c.msMapping', 'nis2c.msReport'];
 
 const Nis2ComplianceTool = ({ embedded }: { embedded?: boolean }) => {
   const { t, language } = useLanguage();
@@ -845,7 +842,7 @@ const Nis2ComplianceTool = ({ embedded }: { embedded?: boolean }) => {
     setTimeout(scrollToTop, 50);
   }, [scrollToTop]);
 
-  const mainSteps = language === 'de' ? MAIN_STEPS_DE : MAIN_STEPS_EN;
+  const mainSteps = MAIN_STEPS_KEYS.map(k => t(k));
 
   const handleIntakeFinish = useCallback((data: Nis2IntakeData) => {
     setIntakeData(data);
@@ -869,7 +866,7 @@ const Nis2ComplianceTool = ({ embedded }: { embedded?: boolean }) => {
           NIS-2 Compliance Audit
         </h1>
         <p className="text-muted-foreground text-sm mt-1">
-          {language === 'de' ? 'Konformitätsprüfung nach (EU) 2022/2555 – Network and Information Security Directive 2' : 'Conformity assessment per (EU) 2022/2555 – Network and Information Security Directive 2'}
+          {t('nis2c.rpSubtitle')}
         </p>
       </div>
 
@@ -893,8 +890,8 @@ const Nis2ComplianceTool = ({ embedded }: { embedded?: boolean }) => {
         {loading ? (
           <div className="bg-card rounded-xl border border-border p-16 text-center">
             <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-5" />
-            <div className="text-foreground font-semibold text-lg mb-2">{language === 'de' ? 'Analysiere Risiken...' : 'Analysing risks...'}</div>
-            <div className="text-muted-foreground text-sm">{language === 'de' ? 'NIS-2-Konformitätsprüfung wird durchgeführt' : 'NIS-2 compliance assessment in progress'}</div>
+            <div className="text-foreground font-semibold text-lg mb-2">{t('nis2c.rpLoading')}</div>
+            <div className="text-muted-foreground text-sm">{t('nis2c.rpLoadingSub')}</div>
           </div>
         ) : (
           <div>
