@@ -1577,15 +1577,15 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     // 2. TITLE
     writeFieldBlock(t(I18N.titleLabel), th.name);
 
-    // 3. OBSERVATION (concrete, fact-based — specific test results, not vague language)
+    // 3. OBSERVATION (concrete, fact-based — flowing prose, not a template)
     const reproLocal = reproMap[th.reproducibility]?.[lang] || th.reproducibility;
     const evidRef = `E-${String(sortedThreats.indexOf(th) + 1).padStart(3, '0')}`;
     const humanEvid = humanizeEvidence(th.evidence, lang);
     const obsText = lang === 'de'
-      ? `Bei der technischen Prüfung der Komponente „${th.component}" wurde festgestellt, dass ${th.name.charAt(0).toLowerCase() + th.name.slice(1)}. ${humanEvid} (Evidenz-Referenz: ${evidRef}). Reproduzierbarkeit: ${reproLocal} — der Befund konnte ${th.reproducibility === 'easy' ? 'in jedem Testlauf zuverlässig reproduziert werden' : th.reproducibility === 'medium' ? 'unter definierten Bedingungen reproduziert werden' : 'nur unter spezifischen Rahmenbedingungen nachgestellt werden'}.`
+      ? `Im Bereich der Komponente „${th.component}" wurde die Schwachstelle „${th.name}" identifiziert. ${humanEvid} Der Befund ist als ${reproLocal} reproduzierbar eingestuft (Evidenz-Referenz: ${evidRef}).`
       : lang === 'fr'
-        ? `L'examen technique du composant « ${th.component} » a révélé que ${th.name.charAt(0).toLowerCase() + th.name.slice(1)}. ${humanEvid} (référence de preuve : ${evidRef}). Reproductibilité : ${reproLocal} — la constatation ${th.reproducibility === 'easy' ? 'a pu être reproduite de manière fiable à chaque test' : th.reproducibility === 'medium' ? 'a pu être reproduite dans des conditions définies' : 'n\'a pu être reproduite que dans des conditions spécifiques'}.`
-        : `Technical examination of component "${th.component}" identified that ${th.name.charAt(0).toLowerCase() + th.name.slice(1)}. ${humanEvid} (evidence reference: ${evidRef}). Reproducibility: ${reproLocal} — the finding ${th.reproducibility === 'easy' ? 'was reliably reproduced in every test run' : th.reproducibility === 'medium' ? 'was reproduced under defined conditions' : 'could only be reproduced under specific conditions'}.`;
+        ? `Au niveau du composant « ${th.component} », la vulnérabilité « ${th.name} » a été identifiée. ${humanEvid} La constatation est classée comme ${reproLocal.toLowerCase()} à reproduire (référence de preuve : ${evidRef}).`
+        : `Within the scope of component "${th.component}", the vulnerability "${th.name}" was identified. ${humanEvid} The finding is classified as ${reproLocal.toLowerCase()} to reproduce (evidence reference: ${evidRef}).`;
     writeFieldBlock(t(I18N.observation), obsText);
 
     // 4. TECHNICAL DETAILS
