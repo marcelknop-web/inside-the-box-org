@@ -3,7 +3,7 @@
 import type { Nis2IntakeData, Nis2Risk, Nis2Req } from '@/data/nis2ComplianceData';
 import { riskId, RISK_CATEGORIES } from '@/data/nis2ComplianceData';
 import type { QaCheck } from '@/utils/nis2QualityCheck';
-import { createPdfDoc, C, LAYOUT, humanizeList, humanizeText, humanizeEvidence } from '@/utils/pdfCore';
+import { createPdfDoc, C, LAYOUT, humanizeList, humanizeText, humanizeEvidence, evidenceProcedure } from '@/utils/pdfCore';
 
 export interface Nis2ReportData {
   intakeData: Nis2IntakeData;
@@ -1163,14 +1163,19 @@ export async function generateNis2Report(data: Nis2ReportData): Promise<void> {
     }
 
     for (const ef of evidFiles) {
-      pdf.checkSpace(4);
+      pdf.checkSpace(7);
       if (ef.startsWith('---') || ef.startsWith('  ')) {
         pdf.doc.setFont(pdf.bodyFontName, 'italic'); pdf.doc.setFontSize(7); pdf.doc.setTextColor(...C.mid);
+        pdf.doc.text(`  ${ef}`, LAYOUT.LEFT + 8, pdf.y);
+        pdf.y += 3.5;
       } else {
         pdf.doc.setFont('courier', 'normal'); pdf.doc.setFontSize(7); pdf.doc.setTextColor(...C.mid);
+        pdf.doc.text(`  ${ef}`, LAYOUT.LEFT + 8, pdf.y);
+        pdf.y += 3.2;
+        pdf.doc.setFont(pdf.bodyFontName, 'italic'); pdf.doc.setFontSize(6.5); pdf.doc.setTextColor(...C.light);
+        pdf.doc.text(`    → ${evidenceProcedure(ef, lang)}`, LAYOUT.LEFT + 10, pdf.y);
+        pdf.y += 3.5;
       }
-      pdf.doc.text(`  ${ef}`, LAYOUT.LEFT + 8, pdf.y);
-      pdf.y += 3.5;
     }
     pdf.y += 4;
   });

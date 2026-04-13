@@ -5,7 +5,7 @@
 import type { IecThreat, IecReq, IecIntakeData } from '@/data/iec62443Data';
 import { threatId, FR_CATEGORIES } from '@/data/iec62443Data';
 import type { QaCheck } from '@/utils/iec62443QualityCheck';
-import { createPdfDoc, LAYOUT, C, humanizeEvidence } from '@/utils/pdfCore';
+import { createPdfDoc, LAYOUT, C, humanizeEvidence, evidenceProcedure } from '@/utils/pdfCore';
 
 export interface Iec62443ReportData {
   intakeData: IecIntakeData;
@@ -470,7 +470,20 @@ export async function generateIec62443Report(data: Iec62443ReportData): Promise<
   pdf.newPage();
   pdf.heading(t(I18N.secC, lang));
   pdf.addBookmark(t(I18N.secC, lang));
-  threats.forEach(th => { pdf.checkSpace(25); pdf.field(`E-${String(th.id).padStart(3, '0')} (${threatId(th)})`, th.evidence); pdf.metaLine(`${t(I18N.evidenceQuality, lang)}: ${th.evidenceQuality}/5 | ${t(I18N.reproducibility, lang)}: ${th.reproducibility}`); });
+  threats.forEach(th => {
+    pdf.checkSpace(25);
+    pdf.field(`E-${String(th.id).padStart(3, '0')} (${threatId(th)})`, th.evidence);
+    pdf.metaLine(`${t(I18N.evidenceQuality, lang)}: ${th.evidenceQuality}/5 | ${t(I18N.reproducibility, lang)}: ${th.reproducibility}`);
+    // Audit procedure
+    const proc = evidenceProcedure(th.evidence.toLowerCase().includes('scan') ? 'nmap-scan.txt'
+      : th.evidence.toLowerCase().includes('config') ? 'config-export.txt'
+      : th.evidence.toLowerCase().includes('log') ? 'log-config-screenshot.png'
+      : th.evidence.toLowerCase().includes('pcap') || th.evidence.toLowerCase().includes('wireshark') ? 'capture.pcap'
+      : 'analysis-notes.txt', lang);
+    pdf.doc.setFont(pdf.bodyFontName, 'italic'); pdf.doc.setFontSize(6.5); pdf.doc.setTextColor(...C.light);
+    pdf.doc.text(`  → ${proc}`, LAYOUT.LEFT + 4, pdf.y); pdf.y += 4;
+    pdf.doc.setFont(pdf.bodyFontName, 'normal'); pdf.doc.setFontSize(LAYOUT.BODY_SIZE); pdf.doc.setTextColor(...C.dark);
+  });
 
   /* APPENDIX D — WORKING PAPERS */
   pdf.newPage();
