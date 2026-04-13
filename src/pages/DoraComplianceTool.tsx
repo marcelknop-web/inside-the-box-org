@@ -2,6 +2,7 @@ import { useState, useCallback, useRef, useMemo, memo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { RotateCcw, ChevronDown, ChevronUp, Loader2, Sparkles, FileText } from 'lucide-react';
 import { generateDoraReport } from '@/utils/doraReportPdf';
+import { detectLanguage, extractTexts } from '@/utils/detectLanguage';
 import { DoraAuditCharts } from '@/components/DoraAuditCharts';
 import { runDoraQualityCheck } from '@/utils/doraQualityCheck';
 import { PageMeta } from '@/components/PageMeta';

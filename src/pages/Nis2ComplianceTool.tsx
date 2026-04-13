@@ -2,6 +2,7 @@ import { useState, useCallback, useRef, useMemo, memo } from 'react';
 import { Button } from '@/components/ui/button';
 import { RotateCcw, ChevronDown, ChevronUp, Loader2, Sparkles, FileText } from 'lucide-react';
 import { generateNis2Report } from '@/utils/nis2ReportPdf';
+import { detectLanguage, extractTexts } from '@/utils/detectLanguage';
 import { Nis2AuditCharts } from '@/components/Nis2AuditCharts';
 import { runNis2QualityCheck } from '@/utils/nis2QualityCheck';
 import { PageMeta } from '@/components/PageMeta';
