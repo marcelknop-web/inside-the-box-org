@@ -455,7 +455,8 @@ export class PdfDoc {
     this.doc.setFont(this.bodyFont, 'normal');
     this.doc.setFontSize(8.5);
     const valLines = this.doc.splitTextToSize(value, LAYOUT.WIDTH - indent - labelW - 8);
-    const lineH = Math.max(valLines.length * 3.8, 4.5);
+    const valLineH = 3.8;
+    const lineH = Math.max(valLines.length * valLineH, 4.5);
     const totalH = lineH + 4;
     this.checkSpace(totalH + 1);
 
@@ -471,7 +472,10 @@ export class PdfDoc {
     this.doc.setFont(this.bodyFont, 'normal');
     this.doc.setFontSize(8.5);
     this.doc.setTextColor(...C.dark);
-    this.doc.text(valLines, LAYOUT.LEFT + indent + labelW + 3, this.y);
+    const valX = LAYOUT.LEFT + indent + labelW + 3;
+    for (let i = 0; i < valLines.length; i++) {
+      this.doc.text(valLines[i], valX, this.y + i * valLineH);
+    }
     this.y += lineH + 2.5;
   }
 
@@ -497,7 +501,10 @@ export class PdfDoc {
     this.doc.text('▸', LAYOUT.LEFT + indent + 1, this.y);
     this.doc.setFontSize(LAYOUT.BODY_SIZE);
     this.doc.setTextColor(...C.dark);
-    this.doc.text(lines, LAYOUT.LEFT + indent + 5, this.y);
+    const bulletTextX = LAYOUT.LEFT + indent + 5;
+    for (let i = 0; i < lines.length; i++) {
+      this.doc.text(lines[i], bulletTextX, this.y + i * LAYOUT.BODY_LEADING);
+    }
     this.y += lines.length * LAYOUT.BODY_LEADING + 2.5;
   }
 
@@ -508,7 +515,8 @@ export class PdfDoc {
     this.doc.setFontSize(9.5);
     this.doc.setFont(this.headFont, 'bold');
     const lines = this.doc.splitTextToSize(text, LAYOUT.WIDTH - 20);
-    const boxH = Math.max(18, lines.length * 4.8 + 12);
+    const lineH = 4.8;
+    const boxH = Math.max(18, lines.length * lineH + 12);
     this.checkSpace(boxH + 4);
     const boxY = this.y;
     // Gradient-like effect: dark base + subtle border
@@ -518,7 +526,9 @@ export class PdfDoc {
     this.doc.setFillColor(245, 184, 0);
     this.doc.rect(LAYOUT.LEFT + 10, boxY, LAYOUT.WIDTH - 20, 0.6, 'F');
     this.doc.setTextColor(...C.white);
-    this.doc.text(lines, LAYOUT.LEFT + 10, boxY + 9);
+    for (let i = 0; i < lines.length; i++) {
+      this.doc.text(lines[i], LAYOUT.LEFT + 10, boxY + 9 + i * lineH);
+    }
     this.y = boxY + boxH + 6;
     this.doc.setTextColor(...C.dark);
   }
@@ -583,8 +593,11 @@ export class PdfDoc {
     this.doc.setFont(this.headFont, 'normal');
     this.doc.setTextColor(...C.light);
     const lines = this.doc.splitTextToSize(text, LAYOUT.WIDTH);
-    this.doc.text(lines, LAYOUT.LEFT, this.y);
-    this.y += lines.length * 3 + 2;
+    const metaLineH = 3;
+    for (let i = 0; i < lines.length; i++) {
+      this.doc.text(lines[i], LAYOUT.LEFT, this.y + i * metaLineH);
+    }
+    this.y += lines.length * metaLineH + 2;
     this.doc.setTextColor(...C.dark);
   }
 
@@ -593,7 +606,8 @@ export class PdfDoc {
     this.doc.setFont(this.headFont, 'bold');
     this.doc.setFontSize(8);
     const lines = this.doc.splitTextToSize(text, LAYOUT.WIDTH - 14);
-    const barH = Math.max(10, lines.length * 4 + 6);
+    const scoreLineH = 4;
+    const barH = Math.max(10, lines.length * scoreLineH + 6);
     this.checkSpace(barH + 4);
     const boxY = this.y - 1.5;
     this.doc.setFillColor(248, 249, 251);
@@ -602,7 +616,9 @@ export class PdfDoc {
     this.doc.setFillColor(...C.navy);
     this.doc.rect(LAYOUT.LEFT, boxY, 1.5, barH, 'F');
     this.doc.setTextColor(...C.navy);
-    this.doc.text(lines, LAYOUT.LEFT + 7, this.y + 3);
+    for (let i = 0; i < lines.length; i++) {
+      this.doc.text(lines[i], LAYOUT.LEFT + 7, this.y + 3 + i * scoreLineH);
+    }
     this.doc.setTextColor(...C.dark);
     this.y = Math.max(this.y + barH + 4, boxY + barH + 4);
   }
