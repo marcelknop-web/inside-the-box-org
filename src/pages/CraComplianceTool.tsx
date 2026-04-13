@@ -1,15 +1,18 @@
 import { useState, useCallback, useRef, useMemo, memo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { RotateCcw, ChevronDown, ChevronUp, Loader2, Sparkles, FileText, ShieldCheck, CheckCircle2, XCircle, AlertTriangle, Wrench } from 'lucide-react';
+import { RotateCcw, ChevronDown, ChevronUp, Loader2, Sparkles, FileText, ShieldCheck } from 'lucide-react';
 import { applyAuditFixes } from '@/utils/craAuditFixes';
 import { generateCraReport } from '@/utils/craReportPdf';
 import { CraAuditCharts } from '@/components/CraAuditCharts';
 import { runQualityCheck, type QaResult } from '@/utils/craQualityCheck';
+import QualityCheckPanel from '@/components/QualityCheckPanel';
 import { PageMeta } from '@/components/PageMeta';
 import { Progress } from '@/components/ui/progress';
 import { useLanguage } from '@/i18n/LanguageContext';
 import Typewriter from '@/components/Typewriter';
 import { StaggerReveal } from '@/components/StaggerReveal';
+import { localizeThreats, localizeReqs } from '@/data/localizeFindings';
+import { CRA_THREATS_EN, CRA_THREATS_FR, CRA_REQS_EN, CRA_REQS_FR } from '@/data/craDataI18n';
 import {
   getProductTypes, getCraClasses, getDeploymentOpts,
   INTERFACE_OPTS, getSecurityMeasures, getSecurityCategories,
