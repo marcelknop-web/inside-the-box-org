@@ -847,30 +847,44 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
   pageNum++;
   y = TOP + 5;
 
+  // Gold accent bar
   doc.setDrawColor(...C.gold);
-  doc.setLineWidth(0.8);
-  doc.line(ML, y, ML + 30, y);
-  y += 6;
+  doc.setLineWidth(1.2);
+  doc.line(ML, y, ML + 32, y);
+  y += 7;
 
+  // Title
   doc.setFont(HEAD_FONT, 'bold');
-  doc.setFontSize(14);
+  doc.setFontSize(15);
   doc.setTextColor(...C.darkNavy);
   doc.text(t(I18N.toc), ML, y);
-  y += 12;
+  y += 14;
 
   const tocItems = [I18N.sec2, I18N.sec9, I18N.sec4, I18N.sec4c, I18N.sec5, I18N.sec5c, I18N.sec3, I18N.sec1, I18N.sec6, I18N.sec7, I18N.sec8, I18N.secA, I18N.secB, I18N.secC, I18N.secD, I18N.secE];
+  const dotRight = W - MR;
   for (const item of tocItems) {
-    doc.setFont(HEAD_FONT, 'normal');
-    doc.setFontSize(SUBSECTION_SIZE);
-    doc.setTextColor(...C.bodyText);
-    doc.text(t(item), ML + 4, y);
-    doc.setDrawColor(...C.ruleStroke);
-    doc.setLineDashPattern([0.4, 1.2], 0);
-    doc.setLineWidth(0.12);
-    const tw = doc.getTextWidth(t(item));
-    doc.line(ML + 8 + tw, y - 0.5, W - MR, y - 0.5);
-    doc.setLineDashPattern([], 0);
-    y += 8.5;
+    const label = t(item);
+    // Detect subsections (e.g. "3.3" or "4.3")
+    const isSub = /^\s*\d+\.\d/.test(label);
+    const xOffset = isSub ? 8 : 0;
+
+    doc.setFont(HEAD_FONT, isSub ? 'normal' : 'bold');
+    doc.setFontSize(isSub ? 9 : 9.5);
+    doc.setTextColor(isSub ? C.bodyText[0] : C.darkNavy[0], isSub ? C.bodyText[1] : C.darkNavy[1], isSub ? C.bodyText[2] : C.darkNavy[2]);
+    doc.text(label, ML + xOffset, y);
+
+    // Dot leader
+    const tw = doc.getTextWidth(label);
+    const dotStart = ML + xOffset + tw + 3;
+    if (dotStart < dotRight - 5) {
+      doc.setDrawColor(...C.ruleStroke);
+      doc.setLineDashPattern([0.4, 1.4], 0);
+      doc.setLineWidth(0.15);
+      doc.line(dotStart, y - 0.5, dotRight, y - 0.5);
+      doc.setLineDashPattern([], 0);
+    }
+
+    y += isSub ? 7.5 : 8.5;
   }
 
   addFooter();
