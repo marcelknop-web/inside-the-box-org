@@ -9,6 +9,8 @@ import { Progress } from '@/components/ui/progress';
 import { useLanguage } from '@/i18n/LanguageContext';
 import Typewriter from '@/components/Typewriter';
 import { StaggerReveal } from '@/components/StaggerReveal';
+import { localizeThreats, localizeReqs } from '@/data/localizeFindings';
+import { NIS2_RISKS_EN, NIS2_RISKS_FR, NIS2_REQS_EN, NIS2_REQS_FR } from '@/data/nis2DataI18n';
 import {
   getEntityTypes, getCriticalityLevels, getInfraOpts,
   SUPPLY_CHAIN_OPTS, getRiskMeasures, getRiskCategories,

@@ -9,6 +9,8 @@ import { Progress } from '@/components/ui/progress';
 import { useLanguage } from '@/i18n/LanguageContext';
 import Typewriter from '@/components/Typewriter';
 import { StaggerReveal } from '@/components/StaggerReveal';
+import { localizeThreats, localizeReqs } from '@/data/localizeFindings';
+import { DORA_RISKS_EN, DORA_RISKS_FR, DORA_REQS_EN, DORA_REQS_FR } from '@/data/doraDataI18n';
 import {
   getEntityTypes, getCriticalityLevels, getInfraOpts,
   THIRD_PARTY_OPTS, getRiskMeasures, getRiskCategories,
