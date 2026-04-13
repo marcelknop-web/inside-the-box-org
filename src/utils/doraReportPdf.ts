@@ -2,7 +2,7 @@
 import type { DoraIntakeData, DoraRisk, DoraReq } from '@/data/doraData';
 import { riskId, RISK_CATEGORIES } from '@/data/doraData';
 import type { QaCheck } from '@/utils/doraQualityCheck';
-import { createPdfDoc, C, LAYOUT, humanizeList, humanizeText, humanizeEvidence } from '@/utils/pdfCore';
+import { createPdfDoc, C, LAYOUT, humanizeList, humanizeText, humanizeEvidence, evidenceProcedure } from '@/utils/pdfCore';
 
 export interface DoraReportData {
   intakeData: DoraIntakeData;
@@ -1164,14 +1164,20 @@ export async function generateDoraReport(data: DoraReportData): Promise<void> {
     }
 
     for (const ef of evidFiles) {
-      pdf.checkSpace(4);
+      pdf.checkSpace(7);
       if (ef.startsWith('---') || ef.startsWith('  ')) {
         pdf.doc.setFont(pdf.bodyFontName, 'italic'); pdf.doc.setFontSize(7); pdf.doc.setTextColor(...C.mid);
+        pdf.doc.text(`  ${ef}`, LAYOUT.LEFT + 8, pdf.y);
+        pdf.y += 3.5;
       } else {
         pdf.doc.setFont('courier', 'normal'); pdf.doc.setFontSize(7); pdf.doc.setTextColor(...C.mid);
+        pdf.doc.text(`  ${ef}`, LAYOUT.LEFT + 8, pdf.y);
+        pdf.y += 3.2;
+        // Audit procedure description
+        pdf.doc.setFont(pdf.bodyFontName, 'italic'); pdf.doc.setFontSize(6.5); pdf.doc.setTextColor(...C.light);
+        pdf.doc.text(`    → ${evidenceProcedure(ef, lang)}`, LAYOUT.LEFT + 10, pdf.y);
+        pdf.y += 3.5;
       }
-      pdf.doc.text(`  ${ef}`, LAYOUT.LEFT + 8, pdf.y);
-      pdf.y += 3.5;
     }
     pdf.y += 4;
   });

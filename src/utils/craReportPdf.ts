@@ -2,7 +2,7 @@ import jsPDF from 'jspdf';
 import type { IntakeData, Threat, CraReq } from '@/data/craData';
 import { threatId } from '@/data/craData';
 import type { QaCheck } from '@/utils/craQualityCheck';
-import { FONTS, humanizeEvidence } from '@/utils/pdfCore';
+import { FONTS, humanizeEvidence, evidenceProcedure } from '@/utils/pdfCore';
 
 /* ════════════════════════════════════════════════════════════
    Font System — shared with pdfCore for consistency
@@ -2853,9 +2853,13 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     }
 
     for (const ef of evidFiles) {
-      checkPage(4);
+      checkPage(7);
       doc.setFont(DATA_FONT, 'normal'); doc.setFontSize(MONO_SIZE); doc.setTextColor(...C.monoGray);
       doc.text(`  ${ef}`, ML + 8, y);
+      y += 3.2;
+      // Audit procedure description
+      doc.setFont(BODY_FONT, 'italic'); doc.setFontSize(6.5); doc.setTextColor(...C.labelText);
+      doc.text(`    \u2192 ${evidenceProcedure(ef, lang)}`, ML + 10, y);
       y += 3.5;
     }
     y += 3;
