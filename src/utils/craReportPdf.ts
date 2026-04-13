@@ -1297,7 +1297,9 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
     doc.text(fNum, ML, y);
     const fNumW = doc.getTextWidth(fNum + ' ');
     const titleLines = doc.splitTextToSize(f.title, CW - fNumW);
-    doc.text(titleLines, ML + fNumW, y);
+    for (let tli = 0; tli < titleLines.length; tli++) {
+      doc.text(titleLines[tli], ML + fNumW, y + tli * BODY_LEADING);
+    }
     y += titleLines.length * BODY_LEADING + 1;
 
     // Detail (normal, indented)
@@ -2216,7 +2218,10 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
   doc.setFillColor(...C.gold);
   doc.rect(ML, y - 2, 1.5, roiBoxH, 'F');
   doc.setFont(HEAD_FONT, 'normal'); doc.setFontSize(8.5); doc.setTextColor(...C.bodyText);
-  doc.text(roiLines, ML + 6, y + 2);
+  const roiLineH = 4.2;
+  for (let ri = 0; ri < roiLines.length; ri++) {
+    doc.text(roiLines[ri], ML + 6, y + 2 + ri * roiLineH);
+  }
   y += roiBoxH + 5;
 
   /* ══════════════════════════════════════
