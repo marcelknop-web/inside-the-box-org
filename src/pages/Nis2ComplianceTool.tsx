@@ -2,6 +2,7 @@ import { useState, useCallback, useRef, useMemo, memo } from 'react';
 import { Button } from '@/components/ui/button';
 import { RotateCcw, ChevronDown, ChevronUp, Loader2, Sparkles, FileText } from 'lucide-react';
 import { generateNis2Report } from '@/utils/nis2ReportPdf';
+import { detectLanguage, extractTexts } from '@/utils/detectLanguage';
 import { Nis2AuditCharts } from '@/components/Nis2AuditCharts';
 import { runNis2QualityCheck } from '@/utils/nis2QualityCheck';
 import { PageMeta } from '@/components/PageMeta';
@@ -738,8 +739,9 @@ function ReportView({ intakeData, risks, reqs }: { intakeData: Nis2IntakeData; r
     requestAnimationFrame(() => {
       setTimeout(async () => {
         try {
-          const qaResult = runNis2QualityCheck(localRisks, localReqs, language as 'de' | 'en' | 'fr', intakeData);
-          await generateNis2Report({ intakeData, risks: localRisks, reqs: localReqs, language: language as 'de' | 'en' | 'fr', entityTypeName: typeName, criticalityName: critName, isDraft: false, qaChecks: qaResult.checks, fixLog: [], qaIterations: 1 });
+          const detectedLang = detectLanguage(extractTexts(intakeData as any)) as 'de' | 'en' | 'fr';
+          const qaResult = runNis2QualityCheck(localRisks, localReqs, detectedLang, intakeData);
+          await generateNis2Report({ intakeData, risks: localRisks, reqs: localReqs, language: detectedLang, entityTypeName: typeName, criticalityName: critName, isDraft: false, qaChecks: qaResult.checks, fixLog: [], qaIterations: 1 });
         } finally { setFinalPdfRunning(false); }
       }, 100);
     });

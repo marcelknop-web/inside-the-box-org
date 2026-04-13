@@ -12,6 +12,7 @@ import { useLanguage } from '@/i18n/LanguageContext';
 import Typewriter from '@/components/Typewriter';
 import { StaggerReveal } from '@/components/StaggerReveal';
 import { localizeThreats, localizeReqs } from '@/data/localizeFindings';
+import { detectLanguage, extractTexts } from '@/utils/detectLanguage';
 import { CRA_THREATS_EN, CRA_THREATS_FR, CRA_REQS_EN, CRA_REQS_FR } from '@/data/craDataI18n';
 import {
   getProductTypes, getCraClasses, getDeploymentOpts,
@@ -871,7 +872,7 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IntakeData; thr
     try {
       await generateCraReport({
         intakeData, threats: localThreats, reqs: localReqs,
-        language: language as 'de' | 'en' | 'fr',
+        language: detectLanguage(extractTexts(intakeData as any)) as 'de' | 'en' | 'fr',
         productTypeName: typeName, craClassName: craName,
         isDraft: false,
         qaChecks: preFixQaChecks || qaResult.checks,

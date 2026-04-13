@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { RotateCcw, ChevronDown, ChevronUp, Loader2, FileText, ShieldCheck } from 'lucide-react';
 import { applyAuditFixes } from '@/utils/iec62443AuditFixes';
 import { generateIec62443Report } from '@/utils/iec62443ReportPdf';
+import { detectLanguage, extractTexts } from '@/utils/detectLanguage';
 import { Iec62443AuditCharts } from '@/components/Iec62443AuditCharts';
 import { runQualityCheck, type QaResult, type QaCheck } from '@/utils/iec62443QualityCheck';
 import QualityCheckPanel from '@/components/QualityCheckPanel';
@@ -906,7 +907,7 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IecIntakeData; 
                     intakeData,
                     threats: localThreats,
                     reqs: localReqs,
-                    language: 'en',
+                    language: detectLanguage(extractTexts(intakeData as any)) as 'de' | 'en' | 'fr',
                     isDraft: qaVerdict !== 'passed',
                     qaChecks: qaResult.checks,
                     fixLog: allFixLogs,
