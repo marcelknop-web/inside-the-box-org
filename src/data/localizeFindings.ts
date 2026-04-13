@@ -37,13 +37,6 @@ export function localizeReqs<T extends Record<string, any>>(
   return reqs.map(r => {
     const tr = map[r.id];
     if (!tr) return r;
-    const out = { ...r };
-    if (tr.name !== undefined) out.name = tr.name;
-    if (tr.gap !== undefined) out.gap = tr.gap;
-    if (tr.evidence !== undefined) out.evidence = tr.evidence;
-    if (tr.rationale !== undefined) out.rationale = tr.rationale;
-    if (tr.measure !== undefined) out.measure = tr.measure;
-    if (tr.criteria !== undefined) out.criteria = tr.criteria;
-    return out;
+    return { ...r, ...tr };
   });
 }
