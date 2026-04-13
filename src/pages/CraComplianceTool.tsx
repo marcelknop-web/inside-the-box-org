@@ -18,6 +18,7 @@ import {
   INTERFACE_OPTS, getSecurityMeasures, getSecurityCategories,
   getAttachTypes, THREATS, CRA_REQS, getStrideMeta, threatId,
   type Threat, type CraReq, type IntakeData, type MeasureEntry, EMPTY_INTAKE,
+  DEMO_SCENARIOS, type DemoScenario,
 } from '@/data/craData';
 
 // ── Helpers ─────────────────────────────────────────────────────
@@ -177,114 +178,12 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IntakeData) => void }) {
   ], [d.productName, d.productTypes.length, d.roles.length]);
 
   /* ── Demo: coherent end-to-end scenarios ── */
-  interface DemoScenario {
-    product: { name: string; version: string; types: string[] };
-    craClass: string;
-    description: string;
-    components: string[];
-    deployment: string;
-    interfaces: string[];
-    roles: string[];
-    measures: Record<string, MeasureEntry>;
-    knownIssues: string;
-    files: { name: string; size: number; type: string }[];
-  }
-
-  const DEMO_SCENARIOS: DemoScenario[] = [
-    {
-      // IoT Gateway – Klasse I, moderate Maßnahmen
-      product: { name: 'SmartSense IoT Gateway', version: '2.4.1', types: ['iot', 'embed'] },
-      craClass: 'k1',
-      description: 'IoT gateway collecting sensor data via MQTT, forwarding to cloud backend. Web-based admin UI for configuration. OTA firmware updates via HTTPS.',
-      components: ['Firmware', 'Web-UI', 'API-Server', 'MQTT-Client'],
-      deployment: 'hybrid',
-      interfaces: ['HTTPS/REST', 'MQTT (TLS)', 'SSH', 'LAN/Ethernet'],
-      roles: ['Administrator', 'Operator', 'Read-Only User'],
-      measures: { tls: { active: true, documented: true, audited: false, certified: false }, auth: { active: true, documented: false, audited: false, certified: false }, patch: { active: true, documented: true, audited: true, certified: false }, log: { active: true, documented: false, audited: false, certified: false } },
-      knownIssues: 'OTA update currently uses HTTPS but without package signature verification.',
-      files: [
-        { name: 'SmartSense_Architecture_v2.4.pdf', size: 1_245_000, type: 'arch' },
-        { name: 'SmartSense_SecurityPolicy_2025.pdf', size: 430_000, type: 'policy' },
-        { name: 'smartsense-sbom-2.4.1.spdx.json', size: 87_000, type: 'sbom' },
-      ],
-    },
-    {
-      // Industrial Edge – Klasse II, umfangreiche Maßnahmen
-      product: { name: 'IndustrialEdge Controller', version: '3.1.0', types: ['embed', 'network'] },
-      craClass: 'k2',
-      description: 'Edge computing controller for industrial automation. Connects to PLCs via OPC-UA/Modbus, exposes REST API for monitoring. Embedded Linux, secure boot.',
-      components: ['Embedded OS', 'OPC-UA Client', 'REST-API', 'Secure Boot'],
-      deployment: 'embedded',
-      interfaces: ['HTTPS/REST', 'OPC-UA', 'Modbus', 'SSH', 'LAN/Ethernet'],
-      roles: ['Administrator', 'Maintenance Engineer', 'Operator'],
-      measures: { tls: { active: true, documented: true, audited: true, certified: false }, auth: { active: true, documented: true, audited: false, certified: false }, mfa: { active: true, documented: false, audited: false, certified: false }, sbom: { active: true, documented: true, audited: false, certified: false }, secboot: { active: true, documented: true, audited: true, certified: false } },
-      knownIssues: 'Modbus interface lacks authentication. SBOM does not yet cover all transitive dependencies.',
-      files: [
-        { name: 'IndustrialEdge_SystemArchitecture_v3.1.pdf', size: 2_850_000, type: 'arch' },
-        { name: 'IE_Pentest_Report_Q4-2025.pdf', size: 1_120_000, type: 'pentest' },
-        { name: 'IE_SecurityPolicy_OT.pdf', size: 560_000, type: 'policy' },
-        { name: 'industrialedge-sbom-3.1.0.cdx.json', size: 142_000, type: 'sbom' },
-        { name: 'IE_ThreatModel_STRIDE.drawio', size: 310_000, type: 'arch' },
-      ],
-    },
-    {
-      // Cloud SaaS – Default-Klasse, gute Maßnahmen
-      product: { name: 'CloudVault SaaS Platform', version: '5.2.0', types: ['sw', 'cloud'] },
-      craClass: 'default',
-      description: 'Multi-tenant SaaS platform for document management and collaboration. REST API, SSO integration, role-based access. Hosted on AWS with CI/CD pipeline.',
-      components: ['Backend API', 'Web Frontend', 'Auth Service', 'Storage Engine'],
-      deployment: 'cloud',
-      interfaces: ['HTTPS/REST', 'WebSocket', 'SMTP'],
-      roles: ['Tenant Admin', 'Editor', 'Viewer'],
-      measures: { tls: { active: true, documented: true, audited: true, certified: false }, rbac: { active: true, documented: true, audited: false, certified: false }, monitor: { active: true, documented: true, audited: false, certified: false }, pentest: { active: true, documented: false, audited: false, certified: false }, ir: { active: true, documented: true, audited: false, certified: false } },
-      knownIssues: '',
-      files: [
-        { name: 'CloudVault_Architecture_Overview.pdf', size: 1_780_000, type: 'arch' },
-        { name: 'CloudVault_Pentest_2025-H2.pdf', size: 920_000, type: 'pentest' },
-        { name: 'CloudVault_ISMS_Policy_v4.pdf', size: 670_000, type: 'policy' },
-        { name: 'cloudvault-sbom-5.2.0.spdx.json', size: 205_000, type: 'sbom' },
-      ],
-    },
-    {
-      // Mobile Fleet App – Klasse I, Lücken bei Maßnahmen
-      product: { name: 'FleetTrack Mobile', version: '1.8.4', types: ['mobile', 'cloud'] },
-      craClass: 'k1',
-      description: 'Mobile fleet management app with real-time GPS tracking, push notifications, and integration with on-premises ERP via VPN tunnel.',
-      components: ['Mobile App', 'Backend API', 'Push Service', 'VPN Client'],
-      deployment: 'hybrid',
-      interfaces: ['HTTPS/REST', 'WebSocket', 'Bluetooth', 'WLAN'],
-      roles: ['Fleet Manager', 'Driver', 'Dispatcher'],
-      measures: { tls: { active: true, documented: true, audited: false, certified: false }, auth: { active: true, documented: true, audited: false, certified: false }, encrypt: { active: true, documented: false, audited: false, certified: false }, log: { active: true, documented: true, audited: false, certified: false } },
-      knownIssues: 'Default admin credentials are documented but not enforced to change on first login.',
-      files: [
-        { name: 'FleetTrack_AppArchitecture.pdf', size: 890_000, type: 'arch' },
-        { name: 'FleetTrack_DataProtection_Policy.pdf', size: 340_000, type: 'policy' },
-      ],
-    },
-    {
-      // Kritische Infrastruktur – Klasse Kritisch, hohe Anforderungen
-      product: { name: 'SecureLink Hub', version: '2.0.3', types: ['iot', 'hw', 'network'] },
-      craClass: 'krit',
-      description: 'Network gateway for critical infrastructure (energy sector). Provides encrypted tunnel between SCADA systems and central monitoring. Hardware security module for key storage.',
-      components: ['Firmware', 'HSM Interface', 'VPN Engine', 'Monitoring Agent'],
-      deployment: 'onprem',
-      interfaces: ['HTTPS/REST', 'SSH', 'WLAN', 'SNMP', 'LAN/Ethernet'],
-      roles: ['Security Officer', 'Network Administrator', 'Auditor', 'Operator'],
-      measures: { tls: { active: true, documented: true, audited: true, certified: false }, auth: { active: true, documented: true, audited: true, certified: false }, mfa: { active: true, documented: true, audited: true, certified: false }, fw: { active: true, documented: true, audited: false, certified: false }, secboot: { active: true, documented: true, audited: true, certified: false }, codesign: { active: true, documented: true, audited: false, certified: false }, sbom: { active: true, documented: true, audited: true, certified: false }, ir: { active: true, documented: true, audited: false, certified: false }, monitor: { active: true, documented: true, audited: true, certified: false } },
-      knownIssues: 'MQTT broker accepts connections without rate limiting. No SBOM available yet.',
-      files: [
-        { name: 'SecureLink_Architecture_CritInfra.pdf', size: 3_200_000, type: 'arch' },
-        { name: 'SecureLink_Pentest_BSI-Certified_2025.pdf', size: 1_540_000, type: 'pentest' },
-        { name: 'SecureLink_ISMS_BSI-Grundschutz.pdf', size: 890_000, type: 'policy' },
-        { name: 'securelink-sbom-2.0.3.cdx.xml', size: 178_000, type: 'sbom' },
-        { name: 'SecureLink_HSM_Certification_CC-EAL4.pdf', size: 2_100_000, type: 'other' },
-      ],
-    },
-  ];
-
   const scenarioRef = useRef(Math.floor(Math.random() * DEMO_SCENARIOS.length));
 
   const handleDemo = useCallback(() => {
+    if (sub === 0) {
+      scenarioRef.current = (scenarioRef.current + 1) % DEMO_SCENARIOS.length;
+    }
     const scenario = DEMO_SCENARIOS[scenarioRef.current];
     switch (sub) {
       case 0:
