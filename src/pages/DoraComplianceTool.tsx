@@ -785,18 +785,16 @@ function ReportView({ intakeData, risks, reqs }: { intakeData: DoraIntakeData; r
         </div>
         <div className="h-px bg-border mb-3" />
         <p className="text-sm text-foreground leading-relaxed break-words">
-          {language === 'de'
-            ? `Die DORA-Konformitätsprüfung für ${intakeData.entityName} (${typeName}, Kritikalität: ${critName}) wurde am ${today} durchgeführt. Es wurden ${localRisks.length} IKT-Risiken identifiziert, davon ${critRisks.length} mit kritischem Score (>= 20). Von ${localReqs.length} DORA-Anforderungen bestehen ${failReqs.length} Lücken.`
-            : `The DORA compliance assessment for ${intakeData.entityName} (${typeName}, criticality: ${critName}) was conducted on ${today}. ${localRisks.length} ICT risks were identified, ${critRisks.length} with critical score (>= 20). Of ${localReqs.length} DORA requirements, ${failReqs.length} gaps remain.`}
+          {t('dora.rpSummary').replace('{entity}', intakeData.entityName).replace('{type}', typeName).replace('{crit}', critName).replace('{date}', today).replace('{riskCount}', String(localRisks.length)).replace('{critCount}', String(critRisks.length)).replace('{reqCount}', String(localReqs.length)).replace('{gapCount}', String(failReqs.length))}
         </p>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-2 sm:gap-3">
         {([
-          [language === 'de' ? 'IKT-Risiken' : 'ICT Risks', localRisks.length, 'text-foreground'],
-          [language === 'de' ? 'Kritisch (≥ 20)' : 'Critical (≥ 20)', critRisks.length, 'text-destructive'],
-          [language === 'de' ? 'DORA-Lücken' : 'DORA Gaps', failReqs.length, 'text-destructive'],
+          [t('dora.rpStatRisks'), localRisks.length, 'text-foreground'],
+          [t('dora.rpStatCritical'), critRisks.length, 'text-destructive'],
+          [t('dora.rpStatGaps'), failReqs.length, 'text-destructive'],
         ] as [string, number, string][]).map(([l, n, c]) => (
           <div key={l} className="bg-card border border-border rounded-lg p-3 sm:p-4 text-center">
             <div className={`text-2xl sm:text-3xl font-bold font-mono ${c}`}>{n}</div>
@@ -844,7 +842,7 @@ function ReportView({ intakeData, risks, reqs }: { intakeData: DoraIntakeData; r
         </div>
         <button onClick={handleFinalPdf} disabled={finalPdfRunning} className="text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2 transition-all bg-primary text-primary-foreground hover:bg-primary/90 ring-2 ring-primary/30 disabled:opacity-50 w-full sm:w-auto justify-center sm:justify-start">
           {finalPdfRunning ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
-          {finalPdfRunning ? (language === 'de' ? 'Wird erstellt...' : 'Generating...') : (language === 'de' ? 'PDF-Bericht exportieren' : 'Export PDF Report')}
+          {finalPdfRunning ? t('dora.rpPdfRunning') : t('dora.rpPdfBtn')}
         </button>
       </div>
     </StaggerReveal>
@@ -853,8 +851,7 @@ function ReportView({ intakeData, risks, reqs }: { intakeData: DoraIntakeData; r
 
 // ── Main ──────────────────────────────────────────────────────
 
-const MAIN_STEPS_DE = ['Datenerfassung', 'IKT-Risikolandschaft', 'Risikomatrix', 'DORA-Mapping', 'Report & Export'];
-const MAIN_STEPS_EN = ['Data Collection', 'ICT Risk Landscape', 'Risk Matrix', 'DORA Mapping', 'Report & Export'];
+const MAIN_STEPS_KEYS = ['dora.msData', 'dora.msRiskLandscape', 'dora.msRiskMatrix', 'dora.msMapping', 'dora.msReport'];
 
 const DoraComplianceTool = ({ embedded }: { embedded?: boolean }) => {
   const { t, language } = useLanguage();
@@ -873,7 +870,7 @@ const DoraComplianceTool = ({ embedded }: { embedded?: boolean }) => {
     setTimeout(scrollToTop, 50);
   }, [scrollToTop]);
 
-  const mainSteps = language === 'de' ? MAIN_STEPS_DE : MAIN_STEPS_EN;
+  const mainSteps = MAIN_STEPS_KEYS.map(k => t(k));
 
   const handleIntakeFinish = useCallback((data: DoraIntakeData) => {
     setIntakeData(data);
@@ -897,7 +894,7 @@ const DoraComplianceTool = ({ embedded }: { embedded?: boolean }) => {
           DORA Compliance Audit
         </h1>
         <p className="text-muted-foreground text-sm mt-1">
-          {language === 'de' ? 'Konformitätsprüfung nach (EU) 2022/2554 – Digital Operational Resilience Act' : 'Conformity assessment per (EU) 2022/2554 – Digital Operational Resilience Act'}
+          {t('dora.rpSubtitle')}
         </p>
       </div>
 
@@ -921,8 +918,8 @@ const DoraComplianceTool = ({ embedded }: { embedded?: boolean }) => {
         {loading ? (
           <div className="bg-card rounded-xl border border-border p-16 text-center">
             <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-5" />
-            <div className="text-foreground font-semibold text-lg mb-2">{language === 'de' ? 'Analysiere IKT-Risiken...' : 'Analysing ICT risks...'}</div>
-            <div className="text-muted-foreground text-sm">{language === 'de' ? 'DORA-Konformitaetspruefung wird durchgefuehrt' : 'DORA compliance assessment in progress'}</div>
+            <div className="text-foreground font-semibold text-lg mb-2">{t('dora.rpLoading')}</div>
+            <div className="text-muted-foreground text-sm">{t('dora.rpLoadingSub')}</div>
           </div>
         ) : (
           <div>
