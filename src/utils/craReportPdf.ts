@@ -1458,17 +1458,21 @@ export async function generateCraReport(data: CraReportData): Promise<void> {
         : `The product ${intakeData.productName} ${intakeData.version} does not currently meet the essential CRA requirements (weighted compliance rate: ${crComplianceRate}%). ${critRisks.length} critical risks and ${failReqs.length} non-compliant requirements were identified. Market launch in the current state poses significant regulatory risks including penalties under Art. 64 CRA and potential recall obligations under Art. 49 CRA. Implementation of the remediation roadmap (Section 4.2) is mandatory before market launch.`;
 
   // Verdict box
-  checkPage(30);
+  doc.setFont(HEAD_FONT, 'normal'); doc.setFontSize(8.5);
   const stmtLines = doc.splitTextToSize(verdictStatement, CW - 14);
-  const stmtBoxH = stmtLines.length * 4.2 + 8;
+  const stmtLineH = 4.2;
+  const stmtBoxH = stmtLines.length * stmtLineH + 8;
+  checkPage(stmtBoxH + 6);
   const stmtBg: [number, number, number] = isCompliant ? C.bgGreen : isConditional ? C.bgYellow : C.bgRed;
   const stmtAccent: [number, number, number] = isCompliant ? C.greenText : isConditional ? C.orangeText : C.redText;
   doc.setFillColor(...stmtBg);
   doc.roundedRect(ML, y, CW, stmtBoxH, 2, 2, 'F');
   doc.setFillColor(...stmtAccent);
   doc.rect(ML, y, 2, stmtBoxH, 'F');
-  doc.setFont(HEAD_FONT, 'normal'); doc.setFontSize(8.5); doc.setTextColor(...C.bodyText);
-  doc.text(stmtLines, ML + 8, y + 5);
+  doc.setTextColor(...C.bodyText);
+  for (let si = 0; si < stmtLines.length; si++) {
+    doc.text(stmtLines[si], ML + 8, y + 5 + si * stmtLineH);
+  }
   y += stmtBoxH + 6;
 
   // Verdict label
