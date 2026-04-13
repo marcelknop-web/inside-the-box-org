@@ -520,13 +520,17 @@ export async function generateDoraReport(data: DoraReportData): Promise<void> {
   pdf.doc.setFontSize(9);
   pdf.doc.setFont(pdf.bodyFontName, 'normal');
   const stmtLines = pdf.doc.splitTextToSize(verdictStatement, LAYOUT.WIDTH - 14);
-  const stmtBoxH = stmtLines.length * 4 + 8;
+  const stmtLineH = 4;
+  const stmtBoxH = stmtLines.length * stmtLineH + 8;
+  pdf.checkSpace(stmtBoxH + 6);
   pdf.doc.setFillColor(...C.bg);
   pdf.doc.roundedRect(LAYOUT.LEFT, pdf.y, LAYOUT.WIDTH, stmtBoxH, 2, 2, 'F');
   pdf.doc.setFillColor(...stmtBg);
   pdf.doc.rect(LAYOUT.LEFT, pdf.y, 2, stmtBoxH, 'F');
   pdf.doc.setTextColor(...C.dark);
-  pdf.doc.text(stmtLines, LAYOUT.LEFT + 8, pdf.y + 5);
+  for (let si = 0; si < stmtLines.length; si++) {
+    pdf.doc.text(stmtLines[si], LAYOUT.LEFT + 8, pdf.y + 5 + si * stmtLineH);
+  }
   pdf.y += stmtBoxH + 6;
 
   // Verdict label banner
