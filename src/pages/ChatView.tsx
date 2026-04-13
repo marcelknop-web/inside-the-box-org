@@ -1231,7 +1231,17 @@ const ChatView = () => {
   const { serviceId: routeServiceId } = useParams<{ serviceId?: string }>();
   const navigate = useNavigate();
   const sidebarGroups = useSidebarGroups();
-  const [activeService, setActiveService] = useState<string | null>(routeServiceId || null);
+
+  // Derive service ID from either the :serviceId param OR from known explicit routes
+  const deriveServiceId = useCallback((): string | null => {
+    if (routeServiceId) return routeServiceId;
+    const path = window.location.pathname.replace(/^\//, '');
+    const explicitRoutes = ['nis2-compliance', 'iacs-e27', 'iec62443'];
+    if (explicitRoutes.includes(path)) return path;
+    return null;
+  }, [routeServiceId]);
+
+  const [activeService, setActiveService] = useState<string | null>(() => deriveServiceId());
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -1258,12 +1268,12 @@ const ChatView = () => {
 
   // Sync when route param changes (e.g. browser back/forward)
   useEffect(() => {
-    const newService = routeServiceId || null;
+    const newService = deriveServiceId();
     if (newService !== activeService) {
       setActiveService(newService);
       setMessages([]);
     }
-  }, [routeServiceId]);
+  }, [routeServiceId, deriveServiceId]);
 
   useEffect(() => { if (window.innerWidth > 1024) inputRef.current?.focus(); }, []);
 
