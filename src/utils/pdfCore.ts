@@ -1079,22 +1079,54 @@ export class PdfDoc {
     this.pageNum = 1;
   }
 
-  /** Table of Contents */
+  /** Table of Contents — premium typeset with gold accent, dot leaders */
   tableOfContents(title: string, entries: (string | null)[]): void {
     this.newPage();
-    this.heading(title);
-    this.y += 3;
+
+    // Gold accent bar above title
+    const goldColor: [number, number, number] = [178, 150, 80];
+    this.doc.setDrawColor(...goldColor);
+    this.doc.setLineWidth(1.2);
+    this.doc.line(LAYOUT.LEFT, this.y - 2, LAYOUT.LEFT + 32, this.y - 2);
+    this.y += 5;
+
+    // Title
+    this.doc.setFont(this.headFont, 'bold');
+    this.doc.setFontSize(15);
+    this.doc.setTextColor(...C.navy);
+    this.doc.text(title, LAYOUT.LEFT, this.y);
+    this.y += 12;
+
+    // Entries with dot leaders
+    const dotRight = LAYOUT.RIGHT;
     entries.forEach(entry => {
-      if (entry === null || entry === '') { this.y += 5; return; }
+      if (entry === null || entry === '') { this.y += 4; return; }
       const isSub = entry.startsWith('    ');
-      this.doc.setFontSize(8.5);
+      const label = isSub ? entry.trimStart() : entry;
+      const xOffset = isSub ? 8 : 0;
+
       this.doc.setFont(this.headFont, isSub ? 'normal' : 'bold');
+      this.doc.setFontSize(isSub ? 9 : 9.5);
       this.doc.setTextColor(isSub ? C.dark[0] : C.navy[0], isSub ? C.dark[1] : C.navy[1], isSub ? C.dark[2] : C.navy[2]);
-      this.doc.text(entry, LAYOUT.LEFT, this.y);
-      this.y += isSub ? 5 : 6;
+      this.doc.text(label, LAYOUT.LEFT + xOffset, this.y);
+
+      // Dot leader line
+      const tw = this.doc.getTextWidth(label);
+      const dotStart = LAYOUT.LEFT + xOffset + tw + 3;
+      if (dotStart < dotRight - 5) {
+        this.doc.setDrawColor(...C.rule);
+        this.doc.setLineDashPattern([0.4, 1.4], 0);
+        this.doc.setLineWidth(0.15);
+        this.doc.line(dotStart, this.y - 0.5, dotRight, this.y - 0.5);
+        this.doc.setLineDashPattern([], 0);
+      }
+
+      this.y += isSub ? 7.5 : 8.5;
     });
+
     this.doc.setFont(this.bodyFont, 'normal');
     this.doc.setTextColor(...C.dark);
+    this.doc.setFontSize(LAYOUT.BODY_SIZE);
   }
 
   /* ── Visual Charts for Management Dashboards ──────────────── */
