@@ -1009,6 +1009,15 @@ export const de = {
     rpExportHint: 'PDF-Export des vollständigen DORA-Prüfberichts',
     rpDone: 'Analyse abgeschlossen',
     rpDoneInfo: 'Der DORA-Prüfbericht wurde erstellt und kann exportiert werden.',
+    rpPdfBtn: 'PDF-Bericht exportieren',
+    rpPdfRunning: 'Wird erstellt...',
+    // Main steps
+    msData: 'Datenerfassung', msRiskLandscape: 'IKT-Risikolandschaft', msRiskMatrix: 'Risikomatrix', msMapping: 'DORA-Mapping', msReport: 'Report & Export',
+    // Report summary
+    rpSubtitle: 'Konformitätsprüfung nach (EU) 2022/2554 – Digital Operational Resilience Act',
+    rpSummary: 'Die DORA-Konformitätsprüfung für {entity} ({type}, Kritikalität: {crit}) wurde am {date} durchgeführt. Es wurden {riskCount} IKT-Risiken identifiziert, davon {critCount} mit kritischem Score (≥ 20). Von {reqCount} DORA-Anforderungen bestehen {gapCount} Lücken.',
+    rpStatRisks: 'IKT-Risiken', rpStatCritical: 'Kritisch (≥ 20)', rpStatGaps: 'DORA-Lücken',
+    rpLoading: 'Analysiere IKT-Risiken...', rpLoadingSub: 'DORA-Konformitätsprüfung wird durchgeführt',
     // Navigation title for ChatView
     agentTitle: 'DORA Compliance Tool',
     agentDesc: 'DORA-Konformitätsprüfung für Finanzunternehmen – IKT-Risiken, Incident Reporting, Third-Party-Management',
@@ -1084,6 +1093,12 @@ export const de = {
     rpTitle: 'NIS-2-Prüfbericht', rpExport: 'Bericht exportieren',
     rpExportHint: 'PDF-Export des vollständigen NIS-2-Prüfberichts',
     rpDone: 'Analyse abgeschlossen', rpDoneInfo: 'Der NIS-2-Prüfbericht wurde erstellt und kann exportiert werden.',
+    rpPdfBtn: 'PDF-Bericht exportieren', rpPdfRunning: 'Wird erstellt...',
+    msData: 'Datenerfassung', msRiskLandscape: 'Risikolandschaft', msRiskMatrix: 'Risikomatrix', msMapping: 'NIS-2-Mapping', msReport: 'Report & Export',
+    rpSubtitle: 'Konformitätsprüfung nach (EU) 2022/2555 – Network and Information Security Directive 2',
+    rpSummary: 'Die NIS-2-Konformitätsprüfung für {entity} ({type}, Einstufung: {crit}) wurde am {date} durchgeführt. Es wurden {riskCount} Risiken identifiziert, davon {critCount} mit kritischem Score (≥ 20). Von {reqCount} NIS-2-Anforderungen bestehen {gapCount} Lücken.',
+    rpStatRisks: 'Risiken', rpStatCritical: 'Kritisch (≥ 20)', rpStatGaps: 'NIS-2-Lücken',
+    rpLoading: 'Analysiere Risiken...', rpLoadingSub: 'NIS-2-Konformitätsprüfung wird durchgeführt',
     agentTitle: 'NIS-2 Compliance Tool', agentDesc: 'NIS-2-Konformitätsprüfung – Risikomanagement, Meldepflichten, Lieferkettensicherheit',
   },
 };
