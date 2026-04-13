@@ -591,13 +591,13 @@ export async function generateDoraReport(data: DoraReportData): Promise<void> {
     pdf.heading(`${l('finding', lang)} ${riskId(ri)}: ${ri.name}`, 3);
     pdf.metaLine(`${cat}  |  ${sev}  |  ${ri.doraRef}  |  ${eId}  |  ${l('evidence', lang)}: ${ri.evidenceQuality}/5`);
 
-    // 3. OBSERVATION (concrete, fact-based)
+    // 3. OBSERVATION (concrete, fact-based — natural prose)
     const humanEvid = humanizeEvidence(ri.evidence, lang);
     const obsText = lang === 'de'
-      ? `Die Komponente ${ri.component} ist so konfiguriert, dass ${ri.name}. ${humanEvid}`
+      ? `Im Bereich der Komponente ${ri.component} wurde festgestellt, dass die Schwachstelle „${ri.name}" vorliegt. ${humanEvid}`
       : lang === 'fr'
-        ? `Le composant ${ri.component} est configuré de telle manière que ${ri.name}. ${humanEvid}`
-        : `The component ${ri.component} is configured in a way that ${ri.name}. ${humanEvid}`;
+        ? `Au niveau du composant ${ri.component}, la vulnérabilité « ${ri.name} » a été constatée. ${humanEvid}`
+        : `Within the scope of component ${ri.component}, the vulnerability "${ri.name}" was identified. ${humanEvid}`;
     pdf.bodyText(`${l('observationLabel', lang)}: ${obsText}`, 0);
 
     // 4. TECHNICAL DETAILS
