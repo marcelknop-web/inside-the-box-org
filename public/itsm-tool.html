@@ -3277,6 +3277,11 @@ function init3DScene(THREE, OrbitControls, container) {
     scene.add(mesh);
     mesh.add(new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: 0xeab308, wireframe: true, transparent: true, opacity: 0.25 })));
 
+    const id = 'grp:' + g.name;
+    nodeObjects.push({ mesh, data: g, type: 'grp', layer: 'people', id, label: g.name });
+    posMap[id] = { x, y, z };
+  });
+
   // Build edges with tubes
   function addEdge(srcId, tgtId, color, lineType) {
     const src = posMap[srcId];
