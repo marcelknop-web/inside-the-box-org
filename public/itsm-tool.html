@@ -1024,6 +1024,10 @@ function renderPermissions(){
         <button class="btn btn-primary btn-sm" onclick="openPermForm()">+ Berechtigung</button>
       </div>
     </div>
+    <div class="mini-chart-row">
+      <div class="chart-panel"><div class="chart-title">🔐 Access Level Verteilung</div><div id="perm-level-chart"></div></div>
+      <div class="chart-panel"><div class="chart-title">⚠️ SoD-Flags & Zertifizierung</div><div id="perm-sod-chart"></div></div>
+    </div>
     <div class="filter-bar">
       <input class="search-input" id="perm-search" placeholder="🔍 Suche (Gruppe, Service, Scope…)" oninput="filterPerms()">
       <select class="filter-select" id="perm-level-filter" onchange="filterPerms()">
@@ -1035,6 +1039,22 @@ function renderPermissions(){
       </select>
     </div>
     <div id="perm-table-container"></div>`;
+
+  // Access Level donut
+  const lm={};DB.permissions.forEach(p=>{lm[p.level]=(lm[p.level]||0)+1;});
+  d3Donut('perm-level-chart',Object.entries(lm).map(([k,v])=>({label:k,value:v})).sort((a,b)=>b.value-a.value),
+    {size:130,colors:['#C62828','#6A1B9A','#1565C0','#2E7D32','#607D8B'],centerLabel:'levels'});
+
+  // SoD + Cert bar
+  const sodYes=DB.permissions.filter(p=>p.sodFlag==='Yes').length;
+  const sodNo=DB.permissions.filter(p=>p.sodFlag==='No').length;
+  const certYes=DB.permissions.filter(p=>p.certRequired==='Yes').length;
+  const certNo=DB.permissions.filter(p=>p.certRequired==='No').length;
+  d3HBar('perm-sod-chart',[
+    {label:'SoD: Yes',value:sodYes},{label:'SoD: No',value:sodNo},
+    {label:'Cert: Yes',value:certYes},{label:'Cert: No',value:certNo}
+  ],{colors:['#C62828','#2E7D32','#E65100','#1565C0'],labelWidth:80});
+
   filterPerms();
 }
 
