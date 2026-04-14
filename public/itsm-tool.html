@@ -1058,10 +1058,14 @@ function renderSettings(){
       <button class="btn btn-success" onclick="exportAll()">⬇ Alle Daten als JSON exportieren</button>
     </div>
     <div class="panel">
-      <div class="panel-title">📥 JSON-Import</div>
-      <div class="info-box">⚠ Der Import <strong>überschreibt alle vorhandenen Daten</strong>. Bitte vorher exportieren.</div>
-      <input type="file" id="import-file" accept=".json" style="display:none" onchange="importJSON(this)">
-      <button class="btn btn-warning" onclick="document.getElementById('import-file').click()">⬆ JSON-Datei importieren</button>
+      <div class="panel-title">📥 Smart-Import (JSON, CSV, TXT)</div>
+      <div class="info-box">Importiere Daten aus beliebigen Formaten. Bei Format-Unstimmigkeiten erkennt die KI die Struktur automatisch und zeigt dir eine Vorschau, bevor etwas geändert wird.</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+        <input type="file" id="import-file" accept=".json,.csv,.txt,.tsv,.xlsx" style="display:none" onchange="smartImport(this)">
+        <button class="btn btn-warning" onclick="document.getElementById('import-file').click()">⬆ Datei importieren</button>
+      </div>
+      <div id="import-status" style="display:none;margin-top:12px;padding:12px;border-radius:8px;font-size:.82rem"></div>
+      <div id="import-preview-area" style="margin-top:8px"></div>
     </div>
     <div class="panel">
       <div class="panel-title">📊 CSV-Exporte (einzelne Bereiche)</div>
