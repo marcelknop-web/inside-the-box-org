@@ -827,15 +827,23 @@ function renderDashboard(){
     {label:'Svcs isoliert', value: unassignedSvcs.length}
   ], {colors:['#2E7D32','#ef4444','#1565C0','#eab308'], labelWidth:120});
 
-  // Service Type donut
+  // Service Type donut — drill into services of that type
   const typeMap = {};
   svcs.forEach(s=>{ typeMap[s.svc_type]=(typeMap[s.svc_type]||0)+1; });
-  d3Donut('dash-svctype-donut', Object.entries(typeMap).map(([k,v])=>({label:k,value:v})).sort((a,b)=>b.value-a.value), {centerLabel:'types'});
+  d3Donut('dash-svctype-donut', Object.entries(typeMap).map(([k,v])=>({label:k,value:v})).sort((a,b)=>b.value-a.value), {centerLabel:'types',
+    onDrill:(label)=>{
+      const rows = svcs.filter(s=>s.svc_type===label).map(s=>[s.group,s.service,s.subservice,s.criticality]);
+      openDrilldown('Service Typ: '+label,'Alle Subservices vom Typ '+label,rows,['Group','Service','Subservice','Criticality']);
+    }});
 
   // Criticality donut
   d3Donut('dash-crit-donut', [
     {label:'High',value:high},{label:'Medium',value:med},{label:'Low',value:low}
-  ], {colors:['#ef4444','#eab308','#2E7D32'], centerLabel:'criticality'});
+  ], {colors:['#ef4444','#eab308','#22c55e'], centerLabel:'criticality',
+    onDrill:(label)=>{
+      const rows = svcs.filter(s=>s.criticality===label).map(s=>[s.group,s.service,s.subservice,s.svc_type]);
+      openDrilldown('Criticality: '+label,'Alle Subservices mit Criticality '+label,rows,['Group','Service','Subservice','Typ']);
+    }});
 
   // Service Group stacked bar
   const grpNames = [...new Set(svcs.map(s=>s.group))].sort();
@@ -846,24 +854,40 @@ function renderDashboard(){
     lowVals[g]=svcs.filter(s=>s.group===g&&s.criticality==='Low').length;
   });
   d3StackedBar('dash-group-stack', grpNames,
-    [{label:'High',values:highVals},{label:'Medium',values:medVals},{label:'Low',values:lowVals}]);
+    [{label:'High',values:highVals},{label:'Medium',values:medVals},{label:'Low',values:lowVals}],
+    {onDrill:(group, crit)=>{
+      const rows = svcs.filter(s=>s.group===group&&s.criticality===crit).map(s=>[s.service,s.subservice,s.svc_type,s.description||'–']);
+      openDrilldown(group+' · '+crit,'Subservices in dieser Gruppe/Criticality',rows,['Service','Subservice','Typ','Beschreibung']);
+    }});
 
   // Access Level bar
   const accMap = {};
   DB.permissions.forEach(p=>{ accMap[p.level]=(accMap[p.level]||0)+1; });
   d3HBar('dash-access-bar', Object.entries(accMap).map(([k,v])=>({label:k,value:v})).sort((a,b)=>b.value-a.value),
-    {colors:['#ef4444','#6A1B9A','#1565C0','#2E7D32','#607D8B']});
+    {colors:['#ef4444','#c084fc','#00bcd4','#22c55e','#64748b'],
+    onDrill:(label)=>{
+      const rows = DB.permissions.filter(p=>p.level===label).map(p=>[p.id,p.groupName,p.service,p.scope,p.provisioning]);
+      openDrilldown('Access Level: '+label,'Alle Berechtigungen mit Level '+label,rows,['ID','User Group','Service','Scope','Provisioning']);
+    }});
 
   // BP Category donut
   const bpCat = {};
   DB.businessProcesses.forEach(p=>{ bpCat[p.category]=(bpCat[p.category]||0)+1; });
-  d3Donut('dash-bp-donut', Object.entries(bpCat).map(([k,v])=>({label:k,value:v})).sort((a,b)=>b.value-a.value), {centerLabel:'categories'});
+  d3Donut('dash-bp-donut', Object.entries(bpCat).map(([k,v])=>({label:k,value:v})).sort((a,b)=>b.value-a.value), {centerLabel:'categories',
+    onDrill:(label)=>{
+      const rows = DB.businessProcesses.filter(p=>p.category===label).map(p=>[p.id,p.name,p.owner,p.criticality,p.rto||'–']);
+      openDrilldown('Kategorie: '+label,'Alle Prozesse in dieser Kategorie',rows,['ID','Prozess','Owner','Criticality','RTO']);
+    }});
 
   // User Group Type donut
   const ugType = {};
   DB.userGroups.forEach(g=>{ ugType[g.type]=(ugType[g.type]||0)+1; });
   d3Donut('dash-grp-donut', Object.entries(ugType).map(([k,v])=>({label:k,value:v})).sort((a,b)=>b.value-a.value),
-    {colors:['#FF9800','#1565C0','#6A1B9A','#2E7D32'], centerLabel:'types'});
+    {colors:['#f97316','#00bcd4','#c084fc','#22c55e'], centerLabel:'types',
+    onDrill:(label)=>{
+      const rows = DB.userGroups.filter(g=>g.type===label).map(g=>[g.id,g.name,g.department,g.location,g.count]);
+      openDrilldown('User Group Typ: '+label,'Alle Gruppen vom Typ '+label,rows,['ID','Gruppe','Abteilung','Standort','Anzahl']);
+    }});
 }
 
 function resetToSeed(){
