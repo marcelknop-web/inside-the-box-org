@@ -3080,8 +3080,8 @@ function init3DScene(THREE, OrbitControls, container) {
   scene.fog = new THREE.FogExp2(0x040810, 0.003);
 
   const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 2000);
-  camera.position.set(55, 50, 75);
-  camera.lookAt(0, 20, 0);
+  camera.position.set(45, 45, 65);
+  camera.lookAt(0, 18, 0);
 
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
