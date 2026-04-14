@@ -2427,12 +2427,40 @@ function renderDepGraph(){
         <div id="graph-detail-content"></div>
       </div>
       <div id="graph-legend" style="position:absolute;bottom:16px;left:16px;background:#080b10CC;border:1px solid #1e2a3a;border-radius:8px;padding:10px 14px;font-size:.72rem;display:flex;gap:12px;flex-wrap:wrap;backdrop-filter:blur(4px)">
-        <span style="color:#f5b800">● Services</span>
-        <span style="color:#f5b800">● Business Processes</span>
-        <span style="color:#facc15">● User Groups</span>
-        <span style="color:#f5b800">── Dependency</span>
-        <span style="color:#f87171">── BP Mapping</span>
-        <span style="color:#CE93D8">── Permission</span>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <div style="color:#8ba5c5;font-weight:700;font-size:.65rem;text-transform:uppercase;letter-spacing:.5px">Node-Typen</div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:50%;background:#00bcd4;display:inline-block"></span><span style="color:#f0f4fc">IT Service</span></span>
+            <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:50%;background:#C2185B;display:inline-block"></span><span style="color:#f0f4fc">Business Process</span></span>
+            <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:50%;background:#eab308;display:inline-block"></span><span style="color:#f0f4fc">User Group</span></span>
+          </div>
+        </div>
+        <div style="width:1px;background:#1e2a3a"></div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <div style="color:#8ba5c5;font-weight:700;font-size:.65rem;text-transform:uppercase;letter-spacing:.5px">Verbindungen</div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <span style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:2px;background:#f5b800;display:inline-block"></span><span style="color:#f0f4fc">Service Dependency</span></span>
+            <span style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:2px;background:#f87171;display:inline-block"></span><span style="color:#f0f4fc">BP → Service Mapping</span></span>
+            <span style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:2px;background:#CE93D8;display:inline-block"></span><span style="color:#f0f4fc">Permission</span></span>
+          </div>
+        </div>
+        <div style="width:1px;background:#1e2a3a"></div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <div style="color:#8ba5c5;font-weight:700;font-size:.65rem;text-transform:uppercase;letter-spacing:.5px">Criticality</div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:50%;border:2px solid #ef4444;display:inline-block"></span><span style="color:#f0f4fc">High</span></span>
+            <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:50%;border:2px solid #f97316;display:inline-block"></span><span style="color:#f0f4fc">Medium</span></span>
+            <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:50%;border:2px solid #66BB6A;display:inline-block"></span><span style="color:#f0f4fc">Low</span></span>
+          </div>
+        </div>
+        <div style="width:1px;background:#1e2a3a"></div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <div style="color:#8ba5c5;font-weight:700;font-size:.65rem;text-transform:uppercase;letter-spacing:.5px">Linienstil</div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <span style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:2px;background:#f5b800;display:inline-block"></span><span style="color:#f0f4fc">Mandatory</span></span>
+            <span style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:2px;background:#f5b800;display:inline-block;border-top:2px dashed #f5b800;height:0"></span><span style="color:#f0f4fc">Optional / Supporting</span></span>
+          </div>
+        </div>
       </div>
       <div id="graph-breadcrumb" style="position:absolute;top:16px;left:16px;font-size:.78rem;color:#435570;display:flex;gap:6px;align-items:center"></div>
     </div>`;
