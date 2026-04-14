@@ -929,6 +929,10 @@ function renderGroups(){
         <button class="btn btn-primary btn-sm" onclick="openGroupForm()">+ User Group</button>
       </div>
     </div>
+    <div class="mini-chart-row">
+      <div class="chart-panel"><div class="chart-title">🍩 Gruppen nach Typ</div><div id="grp-type-chart"></div></div>
+      <div class="chart-panel"><div class="chart-title">📍 Gruppen nach Standort</div><div id="grp-loc-chart"></div></div>
+    </div>
     <div class="filter-bar">
       <input class="search-input" id="grp-search" placeholder="🔍 Suche…" oninput="filterGroups()">
       <select class="filter-select" id="grp-type-filter" onchange="filterGroups()">
@@ -937,6 +941,13 @@ function renderGroups(){
       </select>
     </div>
     <div id="grp-table-container"></div>`;
+
+  const tm={};DB.userGroups.forEach(g=>{tm[g.type]=(tm[g.type]||0)+1;});
+  d3Donut('grp-type-chart',Object.entries(tm).map(([k,v])=>({label:k,value:v})).sort((a,b)=>b.value-a.value),{size:130,colors:['#FF9800','#1565C0','#6A1B9A','#2E7D32'],centerLabel:'types'});
+
+  const lm={};DB.userGroups.forEach(g=>{const loc=g.location||'Unknown';lm[loc]=(lm[loc]||0)+1;});
+  d3HBar('grp-loc-chart',Object.entries(lm).map(([k,v])=>({label:k,value:v})).sort((a,b)=>b.value-a.value));
+
   filterGroups();
 }
 
