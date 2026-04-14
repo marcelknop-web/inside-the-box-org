@@ -2638,7 +2638,7 @@ function renderGraph(nodes, links) {
   _graphSim = sim;
 
   // Links
-  const linkColors = { dep: '#f5b800', bpmap: '#f87171', perm: '#CE93D8' };
+  const linkColors = { dep: '#f5b800', bpmap: '#E040FB', perm: '#00E5FF' };
   const link = g.append('g').selectAll('line')
     .data(links).enter().append('line')
     .attr('stroke', d => linkColors[d.type] || '#435570')
