@@ -2925,10 +2925,10 @@ function renderDepGraph3D(){
   document.getElementById('main-content').innerHTML = `
     <div class="view-header" style="flex-shrink:0">
       <div>
-        <div class="view-title" style="color:#f5b800">🧊 3D Service Architecture Map</div>
-        <div class="view-subtitle">Enterprise Service Landscape — ${totalSvc} Services · ${totalBP} Business Processes · ${totalGrp} User Groups · ${totalMappings + totalDeps + totalPerm} Beziehungen</div>
+        <div class="view-title" style="color:#f5b800">🧊 3D Service Architecture</div>
+        <div class="view-subtitle">${totalSvc} Services · ${totalBP} Processes · ${totalGrp} Groups · ${totalMappings + totalDeps + totalPerm} Verbindungen</div>
       </div>
-      <div class="view-actions">
+      <div class="view-actions" style="flex-wrap:wrap;gap:4px">
         <select id="graph3d-filter" class="btn btn-ghost btn-sm" style="background:#080b10;color:#f5b800;border:1px solid #1e2a3a" onchange="rebuild3DGraph()">
           <option value="all">Alle Beziehungen</option>
           <option value="bp-svc">BP → Services</option>
@@ -2936,9 +2936,12 @@ function renderDepGraph3D(){
           <option value="svc-perm">Services → Permissions</option>
         </select>
         <select id="graph3d-group" class="btn btn-ghost btn-sm" style="background:#080b10;color:#f5b800;border:1px solid #1e2a3a" onchange="rebuild3DGraph()">
-          <option value="all">Alle Service Groups</option>
+          <option value="all">Alle Groups</option>
           ${svcGroups.map(g => '<option value="' + esc(g) + '">' + esc(g) + '</option>').join('')}
         </select>
+        <button class="btn btn-ghost btn-sm" onclick="set3DView('front')" title="Frontansicht">🔲 Front</button>
+        <button class="btn btn-ghost btn-sm" onclick="set3DView('top')" title="Draufsicht">⬇ Top</button>
+        <button class="btn btn-ghost btn-sm" onclick="set3DView('side')" title="Seitenansicht">➡ Seite</button>
         <button class="btn btn-ghost btn-sm" onclick="reset3DView()">⟳ Reset</button>
       </div>
     </div>
