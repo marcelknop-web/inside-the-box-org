@@ -360,7 +360,8 @@ function showView(name){
     bpmap:     renderBpMap,
     deps:      renderDeps,
     settings:  renderSettings,
-    agent:     renderAgent
+    agent:     renderAgent,
+    depgraph:  renderDepGraph
   };
   document.getElementById('main-content').innerHTML = '';
   if(views[name]) views[name]();
