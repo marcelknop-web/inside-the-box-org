@@ -270,17 +270,17 @@ tr:hover td{background:#1a2535}
       <span class="nav-count" id="cnt-bpmap">0</span>
     </div>
     <div class="nav-item" onclick="showView('deps')" id="nav-deps">
-      <div class="nav-dot" style="background:#FFD600"></div> Service Dependencies
+      <div class="nav-dot" style="background:#f5b800"></div> Service Dependencies
       <span class="nav-count" id="cnt-deps">0</span>
     </div>
 
     <div class="sidebar-section" style="margin-top:14px">Visualisierung</div>
-    <div class="nav-item" onclick="showView('depgraph')" id="nav-depgraph" style="background:linear-gradient(90deg,#0A2628,#080b10);border-left:3px solid #00BCD4">
+    <div class="nav-item" onclick="showView('depgraph')" id="nav-depgraph" style="background:linear-gradient(90deg,rgba(0,188,212,.06),#0e1218);border-left:3px solid #00bcd4">
       <div class="nav-dot" style="background:#00BCD4"></div> <span style="color:#80DEEA">Dependency Map</span>
       <span style="font-size:.65rem;padding:2px 5px;background:#006064;color:#80DEEA;border-radius:8px;margin-left:auto">LIVE</span>
     </div>
     <div class="sidebar-section" style="margin-top:14px">KI-Assistent</div>
-    <div class="nav-item" onclick="showView('agent')" id="nav-agent" style="background:linear-gradient(90deg,#1A0A2E,#080b10);border-left:3px solid #7B1FA2">
+    <div class="nav-item" onclick="showView('agent')" id="nav-agent" style="background:linear-gradient(90deg,rgba(168,85,247,.06),#0e1218);border-left:3px solid #c084fc">
       <div class="nav-dot" style="background:#CE93D8"></div> <span style="color:#CE93D8">AI Agent</span>
       <span style="font-size:.65rem;padding:2px 5px;background:#4A148C;color:#CE93D8;border-radius:8px;margin-left:auto">NEW</span>
     </div>
@@ -811,11 +811,11 @@ function renderDashboard(){
     </div>`;
 
   // ── Render Gauges ──
-  d3Gauge('gauge-cmdb', cmdbPct, 100, {color: cmdbPct>=80?'#2E7D32':cmdbPct>=50?'#FFD600':'#C62828', label:'Completeness'});
-  d3Gauge('gauge-rto', bpRtoPct, 100, {color: bpRtoPct>=80?'#2E7D32':bpRtoPct>=50?'#FFD600':'#C62828', label:'RTO'});
-  d3Gauge('gauge-rpo', bpRpoPct, 100, {color: bpRpoPct>=80?'#2E7D32':bpRpoPct>=50?'#FFD600':'#C62828', label:'RPO'});
-  d3Gauge('gauge-scope', permScopePct, 100, {color: permScopePct>=80?'#2E7D32':permScopePct>=50?'#FFD600':'#C62828', label:'Scope'});
-  d3Gauge('gauge-mgr', grpMgrPct, 100, {color: grpMgrPct>=80?'#2E7D32':grpMgrPct>=50?'#FFD600':'#C62828', label:'Owners'});
+  d3Gauge('gauge-cmdb', cmdbPct, 100, {color: cmdbPct>=80?'#2E7D32':cmdbPct>=50?'#f5b800':'#ef4444', label:'Completeness'});
+  d3Gauge('gauge-rto', bpRtoPct, 100, {color: bpRtoPct>=80?'#2E7D32':bpRtoPct>=50?'#f5b800':'#ef4444', label:'RTO'});
+  d3Gauge('gauge-rpo', bpRpoPct, 100, {color: bpRpoPct>=80?'#2E7D32':bpRpoPct>=50?'#f5b800':'#ef4444', label:'RPO'});
+  d3Gauge('gauge-scope', permScopePct, 100, {color: permScopePct>=80?'#2E7D32':permScopePct>=50?'#f5b800':'#ef4444', label:'Scope'});
+  d3Gauge('gauge-mgr', grpMgrPct, 100, {color: grpMgrPct>=80?'#2E7D32':grpMgrPct>=50?'#f5b800':'#ef4444', label:'Owners'});
 
   // Coverage bar
   const totalBPs = DB.businessProcesses.length;
@@ -825,7 +825,7 @@ function renderDashboard(){
     {label:'BPs ohne Mapping', value: orphanedBPs.length},
     {label:'Svcs verknüpft', value: totalSvcNames - unassignedSvcs.length},
     {label:'Svcs isoliert', value: unassignedSvcs.length}
-  ], {colors:['#2E7D32','#C62828','#1565C0','#E65100'], labelWidth:120});
+  ], {colors:['#2E7D32','#ef4444','#1565C0','#eab308'], labelWidth:120});
 
   // Service Type donut
   const typeMap = {};
@@ -835,7 +835,7 @@ function renderDashboard(){
   // Criticality donut
   d3Donut('dash-crit-donut', [
     {label:'High',value:high},{label:'Medium',value:med},{label:'Low',value:low}
-  ], {colors:['#C62828','#E65100','#2E7D32'], centerLabel:'criticality'});
+  ], {colors:['#ef4444','#eab308','#2E7D32'], centerLabel:'criticality'});
 
   // Service Group stacked bar
   const grpNames = [...new Set(svcs.map(s=>s.group))].sort();
@@ -852,7 +852,7 @@ function renderDashboard(){
   const accMap = {};
   DB.permissions.forEach(p=>{ accMap[p.level]=(accMap[p.level]||0)+1; });
   d3HBar('dash-access-bar', Object.entries(accMap).map(([k,v])=>({label:k,value:v})).sort((a,b)=>b.value-a.value),
-    {colors:['#C62828','#6A1B9A','#1565C0','#2E7D32','#607D8B']});
+    {colors:['#ef4444','#6A1B9A','#1565C0','#2E7D32','#607D8B']});
 
   // BP Category donut
   const bpCat = {};
@@ -1081,7 +1081,7 @@ function renderProcesses(){
   d3HBar('bp-crit-chart',[
     ...Object.entries(bpCrit).map(([k,v])=>({label:k,value:v})),
     {label:'w/ Regulatory',value:regCount}
-  ],{colors:['#C62828','#E65100','#2E7D32','#6A1B9A']});
+  ],{colors:['#ef4444','#eab308','#2E7D32','#6A1B9A']});
 
   filterProcesses();
 }
@@ -1100,7 +1100,7 @@ function filterProcesses(){
       <td><span class="chip chip-group">${esc(p.category)}</span></td>
       <td>${esc(p.owner)}</td>
       <td>${critChip(p.criticality)}</td>
-      <td><span style="font-size:.74rem;color:#EF9A9A">${esc(p.regulatory||'–')}</span></td>
+      <td><span style="font-size:.74rem;color:#f87171">${esc(p.regulatory||'–')}</span></td>
       <td class="td-nowrap">${esc(p.rto||'–')} / ${esc(p.rpo||'–')}</td>
       <td class="td-nowrap">
         <button class="btn btn-ghost btn-sm" onclick="openProcessForm(${JSON.stringify(p.id)})">✎</button>
@@ -1279,7 +1279,7 @@ function renderPermissions(){
   // Access Level donut
   const lm={};DB.permissions.forEach(p=>{lm[p.level]=(lm[p.level]||0)+1;});
   d3Donut('perm-level-chart',Object.entries(lm).map(([k,v])=>({label:k,value:v})).sort((a,b)=>b.value-a.value),
-    {size:130,colors:['#C62828','#6A1B9A','#1565C0','#2E7D32','#607D8B'],centerLabel:'levels'});
+    {size:130,colors:['#ef4444','#6A1B9A','#1565C0','#2E7D32','#607D8B'],centerLabel:'levels'});
 
   // SoD + Cert bar
   const sodYes=DB.permissions.filter(p=>p.sodFlag==='Yes').length;
@@ -1289,7 +1289,7 @@ function renderPermissions(){
   d3HBar('perm-sod-chart',[
     {label:'SoD: Yes',value:sodYes},{label:'SoD: No',value:sodNo},
     {label:'Cert: Yes',value:certYes},{label:'Cert: No',value:certNo}
-  ],{colors:['#C62828','#2E7D32','#E65100','#1565C0'],labelWidth:80});
+  ],{colors:['#ef4444','#2E7D32','#eab308','#1565C0'],labelWidth:80});
 
   filterPerms();
 }
@@ -1410,7 +1410,7 @@ function renderBpMap(){
   // Dep type donut
   const dm={};DB.bpServiceMap.forEach(m=>{dm[m.depType]=(dm[m.depType]||0)+1;});
   d3Donut('bpm-type-chart',Object.entries(dm).map(([k,v])=>({label:k,value:v})).sort((a,b)=>b.value-a.value),
-    {size:130,colors:['#C62828','#E65100','#1565C0'],centerLabel:'types'});
+    {size:130,colors:['#ef4444','#eab308','#1565C0'],centerLabel:'types'});
 
   // Top services by mapping count
   const sm={};DB.bpServiceMap.forEach(m=>{sm[m.service]=(sm[m.service]||0)+1;});
@@ -1507,7 +1507,7 @@ function renderDeps(){
   // Dep type donut
   const dtm={};DB.serviceDeps.forEach(d=>{dtm[d.depType]=(dtm[d.depType]||0)+1;});
   d3Donut('dep-type-chart',Object.entries(dtm).map(([k,v])=>({label:k,value:v})).sort((a,b)=>b.value-a.value),
-    {size:130,colors:['#C62828','#E65100','#1565C0'],centerLabel:'types'});
+    {size:130,colors:['#ef4444','#eab308','#1565C0'],centerLabel:'types'});
 
   // Most connected services
   const conn={};DB.serviceDeps.forEach(d=>{conn[d.upstream]=(conn[d.upstream]||0)+1;conn[d.downstream]=(conn[d.downstream]||0)+1;});
@@ -1524,7 +1524,7 @@ function filterDeps(){
   const tbody=rows.map((d,i)=>`
     <tr>
       <td><strong style="color:#f5b800">${esc(d.upstream)}</strong></td>
-      <td style="color:#FFD600;text-align:center">→</td>
+      <td style="color:#f5b800;text-align:center">→</td>
       <td><strong>${esc(d.downstream)}</strong></td>
       <td>${depChip(d.depType)}</td>
       <td class="td-wrap" style="font-size:.77rem;color:#8ba5c5">${esc(d.notes)}</td>
@@ -1612,9 +1612,9 @@ function renderSettings(){
         <button class="btn btn-ghost btn-sm" onclick="exportCSV('serviceDeps')">Service Deps (CSV)</button>
       </div>
     </div>
-    <div class="panel" style="border-color:#C62828">
-      <div class="panel-title" style="color:#EF9A9A">🗑 Daten zurücksetzen</div>
-      <div class="info-box" style="border-left-color:#C62828">Setzt alle Daten auf den Ausgangszustand zurück. Alle eigenen Änderungen gehen verloren.</div>
+    <div class="panel" style="border-color:#ef4444">
+      <div class="panel-title" style="color:#f87171">🗑 Daten zurücksetzen</div>
+      <div class="info-box" style="border-left-color:#ef4444">Setzt alle Daten auf den Ausgangszustand zurück. Alle eigenen Änderungen gehen verloren.</div>
       <button class="btn btn-danger" onclick="resetToSeed()">⟳ Auf Ausgangsdaten zurücksetzen</button>
     </div>`;
 }
@@ -1651,7 +1651,7 @@ function showImportStatus(msg, type) {
   const el = document.getElementById('import-status');
   if (!el) return;
   el.style.display = 'block';
-  const colors = { loading: '#1e2a3a', success: '#1B5E20', error: '#B71C1C', info: '#0D47A1' };
+  const colors = { loading: '#1e2a3a', success: '#22c55e', error: '#ef4444', info: '#0D47A1' };
   el.style.background = colors[type] || colors.info;
   el.style.color = '#f0f4fc';
   el.innerHTML = msg;
@@ -1738,10 +1738,10 @@ function renderImportPreview(data, mode) {
     const LABELS = {
       services:{label:'Services / Subservices', icon:'🔵', color:'#f5b800'},
       businessProcesses:{label:'Business Processes', icon:'🔴', color:'#f5b800'},
-      userGroups:{label:'User Groups', icon:'🟠', color:'#FFCC80'},
+      userGroups:{label:'User Groups', icon:'🟠', color:'#facc15'},
       permissions:{label:'Berechtigungen', icon:'🟣', color:'#CE93D8'},
-      bpServiceMap:{label:'BP → Service Mappings', icon:'🔗', color:'#EF9A9A'},
-      serviceDeps:{label:'Service Dependencies', icon:'🟡', color:'#FFD600'}
+      bpServiceMap:{label:'BP → Service Mappings', icon:'🔗', color:'#f87171'},
+      serviceDeps:{label:'Service Dependencies', icon:'🟡', color:'#f5b800'}
     };
 
     const existsSvc = new Set(DB.services.map(s=>s.subservice?.toLowerCase()));
@@ -1802,7 +1802,7 @@ function renderImportPreview(data, mode) {
   const counts = EXPECTED_KEYS.map(k => (data[k]?.length||0) + ' ' + k).filter(s => !s.startsWith('0')).join(', ');
   area.innerHTML = '<div class="ai-panel" style="border-color:#1565C0"><div class="ai-panel-title" style="color:#f5b800">📋 Direkt-Import Vorschau</div>' +
     '<div style="font-size:.82rem;color:#8ba5c5;margin-bottom:12px">Inhalt: ' + counts + '</div>' +
-    '<div class="info-box" style="border-left-color:#E65100">⚠ Dies <strong>überschreibt alle vorhandenen Daten</strong>. Bitte vorher exportieren.</div>' +
+    '<div class="info-box" style="border-left-color:#eab308">⚠ Dies <strong>überschreibt alle vorhandenen Daten</strong>. Bitte vorher exportieren.</div>' +
     '<div class="preview-actions">' +
     '<button class="btn btn-success" onclick="applyDirectImport()">✓ Alle Daten übernehmen</button>' +
     '<button class="btn btn-ghost btn-sm" onclick="document.getElementById(\'import-preview-area\').innerHTML=\'\';document.getElementById(\'import-status\').style.display=\'none\'">✕ Abbrechen</button>' +
@@ -1866,7 +1866,7 @@ function applySmartImport() {
 
   saveData();
   showToast('✓ ' + added + ' Einträge erfolgreich importiert!');
-  document.getElementById('import-preview-area').innerHTML = '<div class="ai-panel" style="border-color:#2E7D32"><div style="color:#A5D6A7;font-size:.9rem;font-weight:700;margin-bottom:8px">✓ ' + added + ' Einträge importiert</div><div style="color:#8ba5c5;font-size:.82rem">Die Daten wurden übernommen und gespeichert.</div></div>';
+  document.getElementById('import-preview-area').innerHTML = '<div class="ai-panel" style="border-color:#2E7D32"><div style="color:#4ade80;font-size:.9rem;font-weight:700;margin-bottom:8px">✓ ' + added + ' Einträge importiert</div><div style="color:#8ba5c5;font-size:.82rem">Die Daten wurden übernommen und gespeichert.</div></div>';
   document.getElementById('import-status').style.display = 'none';
   updateCounts();
 }
@@ -2174,10 +2174,10 @@ function renderPreview(extracted){
   const LABELS = {
     services:{label:'Services / Subservices', icon:'🔵', color:'#f5b800'},
     businessProcesses:{label:'Business Processes', icon:'🔴', color:'#f5b800'},
-    userGroups:{label:'User Groups', icon:'🟠', color:'#FFCC80'},
+    userGroups:{label:'User Groups', icon:'🟠', color:'#facc15'},
     permissions:{label:'Berechtigungen', icon:'🟣', color:'#CE93D8'},
-    bpServiceMap:{label:'BP → Service Mappings', icon:'🔗', color:'#EF9A9A'},
-    serviceDeps:{label:'Service Dependencies', icon:'🟡', color:'#FFD600'}
+    bpServiceMap:{label:'BP → Service Mappings', icon:'🔗', color:'#f87171'},
+    serviceDeps:{label:'Service Dependencies', icon:'🟡', color:'#f5b800'}
   };
 
   const existsSvc = new Set(DB.services.map(s=>s.subservice?.toLowerCase()));
@@ -2302,7 +2302,7 @@ function applyExtraction(extractedRaw){
   showToast(`✓ ${added} Einträge erfolgreich hinzugefügt!`);
   document.getElementById('preview-area').innerHTML = `
     <div class="ai-panel" style="border-color:#2E7D32">
-      <div style="color:#A5D6A7;font-size:.9rem;font-weight:700;margin-bottom:8px">✓ ${added} Einträge importiert</div>
+      <div style="color:#4ade80;font-size:.9rem;font-weight:700;margin-bottom:8px">✓ ${added} Einträge importiert</div>
       <div style="color:#8ba5c5;font-size:.82rem">Die Daten wurden in alle relevanten Tabellen übernommen und gespeichert.</div>
       <div style="margin-top:12px;display:flex;gap:8px">
         <button class="btn btn-ghost btn-sm" onclick="showView('services')">→ Service Catalog</button>
@@ -2342,9 +2342,9 @@ function renderDepGraph(){
       <div id="graph-legend" style="position:absolute;bottom:16px;left:16px;background:#080b10CC;border:1px solid #1e2a3a;border-radius:8px;padding:10px 14px;font-size:.72rem;display:flex;gap:12px;flex-wrap:wrap;backdrop-filter:blur(4px)">
         <span style="color:#f5b800">● Services</span>
         <span style="color:#f5b800">● Business Processes</span>
-        <span style="color:#FFCC80">● User Groups</span>
-        <span style="color:#FFD600">── Dependency</span>
-        <span style="color:#EF9A9A">── BP Mapping</span>
+        <span style="color:#facc15">● User Groups</span>
+        <span style="color:#f5b800">── Dependency</span>
+        <span style="color:#f87171">── BP Mapping</span>
         <span style="color:#CE93D8">── Permission</span>
       </div>
       <div id="graph-breadcrumb" style="position:absolute;top:16px;left:16px;font-size:.78rem;color:#435570;display:flex;gap:6px;align-items:center"></div>
@@ -2469,7 +2469,7 @@ function renderGraph(nodes, links) {
   // Arrow markers
   const defs = svg.append('defs');
   ['dep','bpmap','perm'].forEach(t => {
-    const colors = { dep: '#FFD600', bpmap: '#EF9A9A', perm: '#CE93D8' };
+    const colors = { dep: '#f5b800', bpmap: '#f87171', perm: '#CE93D8' };
     defs.append('marker').attr('id', 'arrow-'+t).attr('viewBox','0 0 10 6').attr('refX',28).attr('refY',3).attr('markerWidth',8).attr('markerHeight',6).attr('orient','auto')
       .append('path').attr('d','M0,0L10,3L0,6Z').attr('fill', colors[t]).attr('opacity', 0.6);
   });
@@ -2490,7 +2490,7 @@ function renderGraph(nodes, links) {
   _graphSim = sim;
 
   // Links
-  const linkColors = { dep: '#FFD600', bpmap: '#EF9A9A', perm: '#CE93D8' };
+  const linkColors = { dep: '#f5b800', bpmap: '#f87171', perm: '#CE93D8' };
   const link = g.append('g').selectAll('line')
     .data(links).enter().append('line')
     .attr('stroke', d => linkColors[d.type] || '#435570')
@@ -2509,8 +2509,8 @@ function renderGraph(nodes, links) {
     .attr('opacity', 0);
 
   // Node groups
-  const nodeColors = { service: '#1565C0', bp: '#C2185B', group: '#E65100' };
-  const nodeFill = { service: '#f5b800', bp: '#f5b800', group: '#FFCC80' };
+  const nodeColors = { service: '#1565C0', bp: '#C2185B', group: '#eab308' };
+  const nodeFill = { service: '#f5b800', bp: '#f5b800', group: '#facc15' };
   const critRadius = { High: 18, Medium: 14, Low: 10 };
 
   const node = g.append('g').selectAll('g')
@@ -2543,7 +2543,7 @@ function renderGraph(nodes, links) {
     .append('circle')
     .attr('r', 22)
     .attr('fill', 'none')
-    .attr('stroke', '#C62828')
+    .attr('stroke', '#ef4444')
     .attr('stroke-width', 1)
     .attr('stroke-dasharray', '3,3')
     .attr('opacity', 0.5);
@@ -2638,7 +2638,7 @@ function focusNode(d) {
   });
 
   const typeLabels = { service: '⚙ Service', bp: '⚡ Business Process', group: '👥 User Group' };
-  const typeColors = { service: '#f5b800', bp: '#f5b800', group: '#FFCC80' };
+  const typeColors = { service: '#f5b800', bp: '#f5b800', group: '#facc15' };
   const linkTypeLabels = { dep: 'Dependency', bpmap: 'BP Mapping', perm: 'Permission' };
 
   let html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">';
@@ -2675,7 +2675,7 @@ function focusNode(d) {
     if (!items.length) return '';
     let h = '<div style="font-size:.72rem;color:#435570;text-transform:uppercase;letter-spacing:1px;margin:8px 0 4px">' + title + ' (' + items.length + ')</div>';
     items.forEach(c => {
-      const lc = { dep: '#FFD600', bpmap: '#EF9A9A', perm: '#CE93D8' };
+      const lc = { dep: '#f5b800', bpmap: '#f87171', perm: '#CE93D8' };
       h += '<div style="display:flex;align-items:center;gap:6px;padding:4px 6px;margin:2px 0;background:#0D1B2A;border-radius:4px;cursor:pointer;font-size:.78rem" onclick="focusNodeById(\'' + c.nodeId + '\')">';
       h += '<div style="width:6px;height:6px;border-radius:50%;background:' + (lc[c.type]||'#435570') + ';flex-shrink:0"></div>';
       h += '<span style="color:#f0f4fc;flex:1">' + c.label + '</span>';
