@@ -224,7 +224,54 @@ tr:hover td{background:#1a2535}
 .drilldown-subtitle{font-size:.76rem;color:#8ba5c5;margin-bottom:16px;font-family:'IBM Plex Mono',monospace}
 .drilldown-close{position:absolute;top:14px;right:16px;background:none;border:none;color:#8ba5c5;font-size:1.1rem;cursor:pointer;padding:4px 8px;border-radius:4px}
 .drilldown-close:hover{background:#1a2535;color:#f5b800}
-@media(max-width:700px){.governance-row{grid-template-columns:1fr}.chart-row,.chart-row.tri,.mini-chart-row{grid-template-columns:1fr}}
+@media(max-width:700px){
+  .governance-row{grid-template-columns:1fr}
+  .chart-row,.chart-row.tri,.mini-chart-row{grid-template-columns:1fr}
+}
+/* ── Mobile layout ── */
+@media(max-width:768px){
+  .topbar{height:auto;padding:8px 12px;flex-wrap:wrap;gap:6px}
+  .topbar h1{font-size:.85rem}
+  .topbar .subtitle{display:none}
+  .topbar .badges{margin-left:0}
+  .layout{flex-direction:column}
+  .sidebar{
+    width:100%;min-width:100%;max-height:0;overflow:hidden;
+    border-right:none;border-bottom:1px solid #1e2a3a;
+    transition:max-height .3s ease;padding:0
+  }
+  .sidebar.open{max-height:600px;overflow-y:auto;padding:8px 0}
+  .sidebar .nav-item{padding:8px 12px;font-size:.78rem}
+  .sidebar .sidebar-section{padding:3px 12px;margin-top:6px}
+  .nav-count{font-size:.6rem;padding:1px 4px}
+  .main{padding:12px 10px}
+  .view-header{flex-direction:column;align-items:flex-start;gap:6px}
+  .view-actions{margin-left:0;width:100%;flex-wrap:wrap}
+  .view-actions select,.view-actions button{flex:1;min-width:0}
+  .filter-bar{flex-direction:column}
+  .search-input{min-width:auto}
+  .dashboard-grid{grid-template-columns:1fr 1fr;gap:8px}
+  .stat-card .num{font-size:1.4rem}
+  .readiness-grid{grid-template-columns:1fr 1fr;gap:8px}
+  .form-grid{grid-template-columns:1fr}
+  .modal{width:96vw;padding:14px}
+  .drilldown-panel{width:98vw;padding:14px}
+  .drilldown-panel table{font-size:.7rem}
+  .drilldown-panel td,.drilldown-panel th{padding:5px 6px}
+  table{font-size:.72rem}
+  th{font-size:.62rem;padding:6px 6px}
+  td{padding:5px 6px}
+  .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .ai-panel{padding:12px}
+  .ai-textarea{min-height:120px;font-size:.78rem}
+  .check-row{gap:6px}
+  .check-item{font-size:.72rem;padding:4px 7px}
+  .gap-card{padding:10px 12px}
+  .insight-title{font-size:.78rem;padding:6px 10px}
+}
+/* Hamburger toggle button */
+.mobile-menu-btn{display:none;background:none;border:none;color:#f5b800;font-size:1.3rem;cursor:pointer;padding:4px 8px}
+@media(max-width:768px){.mobile-menu-btn{display:flex;align-items:center}}
 </style>
 </head>
 <body>
