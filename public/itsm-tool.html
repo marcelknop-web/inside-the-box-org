@@ -3151,13 +3151,12 @@ function init3DScene(THREE, OrbitControls, container) {
     return null;
   }
 
-  // ── Connections: clean vertical curves between floors ──
+  // ── Connections: visible curves between floors ──
   function addEdge(srcId, tgtId, color, lineType) {
     const src = posMap[srcId];
     const tgt = posMap[tgtId];
     if (!src || !tgt) return;
 
-    // Clean vertical bezier curve
     const pts = [
       new THREE.Vector3(src.x, src.y, src.z),
       new THREE.Vector3(src.x, (src.y + tgt.y) / 2, src.z),
@@ -3165,16 +3164,16 @@ function init3DScene(THREE, OrbitControls, container) {
       new THREE.Vector3(tgt.x, tgt.y, tgt.z),
     ];
     const curve = new THREE.CatmullRomCurve3(pts);
-    const tubeGeo = new THREE.TubeGeometry(curve, 16, 0.1, 4, false);
-    const tubeMat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.25 });
+    const tubeGeo = new THREE.TubeGeometry(curve, 16, 0.25, 5, false);
+    const tubeMat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.45 });
     const tube = new THREE.Mesh(tubeGeo, tubeMat);
     scene.add(tube);
 
     // Arrowhead
-    const arrowGeo = new THREE.ConeGeometry(0.5, 1.8, 5);
-    const arrowMat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.5 });
+    const arrowGeo = new THREE.ConeGeometry(0.7, 2.2, 6);
+    const arrowMat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.7 });
     const arrow = new THREE.Mesh(arrowGeo, arrowMat);
-    const ap = curve.getPointAt(0.88);
+    const ap = curve.getPointAt(0.85);
     const ad = curve.getPointAt(0.92);
     arrow.position.copy(ap);
     arrow.lookAt(ad);
