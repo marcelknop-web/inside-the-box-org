@@ -1788,6 +1788,407 @@ function applyExtraction(extractedRaw){
 }
 
 // ═══════════════════════════════════════════════════════════════
+// DEPENDENCY GRAPH VISUALIZATION
+// ═══════════════════════════════════════════════════════════════
+function renderDepGraph(){
+  document.getElementById('main-content').innerHTML = `
+    <div class="view-header" style="flex-shrink:0">
+      <div>
+        <div class="view-title" style="color:#80DEEA">🌐 Interactive Dependency Map</div>
+        <div class="view-subtitle">Click nodes to drill down · Scroll to zoom · Drag to pan · Double-click to reset</div>
+      </div>
+      <div class="view-actions">
+        <select id="graph-filter" class="btn btn-ghost btn-sm" style="background:#0A1628;color:#90CAF9;border:1px solid #1E3A5F" onchange="updateGraph()">
+          <option value="all">All Relationships</option>
+          <option value="serviceDeps">Service Dependencies</option>
+          <option value="bpServiceMap">BP → Service</option>
+          <option value="permissions">Permissions</option>
+        </select>
+        <button class="btn btn-ghost btn-sm" onclick="resetGraphView()">⟳ Reset View</button>
+      </div>
+    </div>
+    <div id="graph-container" style="flex:1;position:relative;overflow:hidden;border-radius:8px;background:#060E18;border:1px solid #1E3A5F">
+      <svg id="dep-svg" style="width:100%;height:100%"></svg>
+      <div id="graph-detail" style="display:none;position:absolute;top:16px;right:16px;width:320px;max-height:calc(100% - 32px);overflow-y:auto;background:#0A1628EE;border:1px solid #1E3A5F;border-radius:10px;padding:16px;backdrop-filter:blur(8px)">
+        <div id="graph-detail-content"></div>
+      </div>
+      <div id="graph-legend" style="position:absolute;bottom:16px;left:16px;background:#0A1628CC;border:1px solid #1E3A5F;border-radius:8px;padding:10px 14px;font-size:.72rem;display:flex;gap:12px;flex-wrap:wrap;backdrop-filter:blur(4px)">
+        <span style="color:#64B5F6">● Services</span>
+        <span style="color:#F48FB1">● Business Processes</span>
+        <span style="color:#FFCC80">● User Groups</span>
+        <span style="color:#FFD600">── Dependency</span>
+        <span style="color:#EF9A9A">── BP Mapping</span>
+        <span style="color:#CE93D8">── Permission</span>
+      </div>
+      <div id="graph-breadcrumb" style="position:absolute;top:16px;left:16px;font-size:.78rem;color:#546E7A;display:flex;gap:6px;align-items:center"></div>
+    </div>`;
+
+  // Set container height
+  const container = document.getElementById('graph-container');
+  container.style.height = (window.innerHeight - 140) + 'px';
+
+  buildGraph();
+}
+
+let _graphSim = null;
+let _graphSvg = null;
+let _graphZoom = null;
+let _graphData = null;
+let _focusedNode = null;
+
+function buildGraph() {
+  const filter = document.getElementById('graph-filter')?.value || 'all';
+  const nodes = [];
+  const links = [];
+  const nodeMap = {};
+
+  // Build service nodes
+  const svcNames = new Set();
+  DB.services.forEach(s => {
+    const key = 'svc:' + s.subservice;
+    if (nodeMap[key]) return;
+    svcNames.add(s.subservice);
+    const n = { id: key, label: s.subservice, type: 'service', group: s.group, criticality: s.criticality, svc_type: s.svc_type, parentService: s.service, data: s };
+    nodes.push(n);
+    nodeMap[key] = n;
+  });
+
+  // Build BP nodes
+  DB.businessProcesses.forEach(bp => {
+    const key = 'bp:' + bp.id;
+    if (nodeMap[key]) return;
+    const n = { id: key, label: bp.name || bp.id, type: 'bp', category: bp.category, criticality: bp.criticality, data: bp };
+    nodes.push(n);
+    nodeMap[key] = n;
+  });
+
+  // Build user group nodes
+  DB.userGroups.forEach(g => {
+    const key = 'grp:' + g.name;
+    if (nodeMap[key]) return;
+    const n = { id: key, label: g.name, type: 'group', department: g.department, count: g.count, data: g };
+    nodes.push(n);
+    nodeMap[key] = n;
+  });
+
+  // Service Dependencies
+  if (filter === 'all' || filter === 'serviceDeps') {
+    DB.serviceDeps.forEach(d => {
+      const src = 'svc:' + d.upstream;
+      const tgt = 'svc:' + d.downstream;
+      if (!nodeMap[src]) { const n = { id: src, label: d.upstream, type: 'service', criticality: 'Medium', data: {} }; nodes.push(n); nodeMap[src] = n; }
+      if (!nodeMap[tgt]) { const n = { id: tgt, label: d.downstream, type: 'service', criticality: 'Medium', data: {} }; nodes.push(n); nodeMap[tgt] = n; }
+      links.push({ source: src, target: tgt, type: 'dep', depType: d.depType, label: d.depType });
+    });
+  }
+
+  // BP → Service mappings
+  if (filter === 'all' || filter === 'bpServiceMap') {
+    DB.bpServiceMap.forEach(m => {
+      const src = 'bp:' + m.bpId;
+      // Find service node by name
+      let tgt = null;
+      for (const [k, v] of Object.entries(nodeMap)) {
+        if (k.startsWith('svc:') && v.label.toLowerCase() === m.service.toLowerCase()) { tgt = k; break; }
+      }
+      if (!tgt) { tgt = 'svc:' + m.service; if (!nodeMap[tgt]) { const n = { id: tgt, label: m.service, type: 'service', criticality: 'Medium', data: {} }; nodes.push(n); nodeMap[tgt] = n; } }
+      if (!nodeMap[src]) return;
+      links.push({ source: src, target: tgt, type: 'bpmap', depType: m.depType, label: m.depType });
+    });
+  }
+
+  // Permissions
+  if (filter === 'all' || filter === 'permissions') {
+    DB.permissions.forEach(p => {
+      const src = 'grp:' + p.groupName;
+      let tgt = null;
+      for (const [k, v] of Object.entries(nodeMap)) {
+        if (k.startsWith('svc:') && v.label.toLowerCase() === p.service.toLowerCase()) { tgt = k; break; }
+      }
+      if (!tgt) { tgt = 'svc:' + p.service; if (!nodeMap[tgt]) { const n = { id: tgt, label: p.service, type: 'service', criticality: 'Medium', data: {} }; nodes.push(n); nodeMap[tgt] = n; } }
+      if (!nodeMap[src]) { const n = { id: src, label: p.groupName, type: 'group', data: {} }; nodes.push(n); nodeMap[src] = n; }
+      links.push({ source: src, target: tgt, type: 'perm', level: p.level, label: p.level });
+    });
+  }
+
+  _graphData = { nodes, links, nodeMap };
+  renderGraph(nodes, links);
+}
+
+function renderGraph(nodes, links) {
+  const svg = d3.select('#dep-svg');
+  svg.selectAll('*').remove();
+  const container = document.getElementById('graph-container');
+  const width = container.clientWidth;
+  const height = container.clientHeight;
+  svg.attr('viewBox', [0, 0, width, height]);
+
+  const g = svg.append('g');
+
+  // Zoom
+  _graphZoom = d3.zoom()
+    .scaleExtent([0.1, 8])
+    .on('zoom', (e) => g.attr('transform', e.transform));
+  svg.call(_graphZoom);
+
+  // Double-click to reset
+  svg.on('dblclick.zoom', () => {
+    svg.transition().duration(750).call(_graphZoom.transform, d3.zoomIdentity);
+    _focusedNode = null;
+    document.getElementById('graph-detail').style.display = 'none';
+    document.getElementById('graph-breadcrumb').innerHTML = '';
+  });
+
+  // Arrow markers
+  const defs = svg.append('defs');
+  ['dep','bpmap','perm'].forEach(t => {
+    const colors = { dep: '#FFD600', bpmap: '#EF9A9A', perm: '#CE93D8' };
+    defs.append('marker').attr('id', 'arrow-'+t).attr('viewBox','0 0 10 6').attr('refX',28).attr('refY',3).attr('markerWidth',8).attr('markerHeight',6).attr('orient','auto')
+      .append('path').attr('d','M0,0L10,3L0,6Z').attr('fill', colors[t]).attr('opacity', 0.6);
+  });
+
+  // Glow filter
+  const filter = defs.append('filter').attr('id','glow');
+  filter.append('feGaussianBlur').attr('stdDeviation',4).attr('result','blur');
+  filter.append('feMerge').selectAll('feMergeNode').data(['blur','SourceGraphic']).enter().append('feMergeNode').attr('in',d=>d);
+
+  // Simulation
+  const sim = d3.forceSimulation(nodes)
+    .force('link', d3.forceLink(links).id(d => d.id).distance(d => d.type === 'dep' ? 120 : 160).strength(0.4))
+    .force('charge', d3.forceManyBody().strength(-300).distanceMax(500))
+    .force('center', d3.forceCenter(width/2, height/2))
+    .force('collision', d3.forceCollide().radius(35))
+    .force('x', d3.forceX(width/2).strength(0.03))
+    .force('y', d3.forceY(height/2).strength(0.03));
+  _graphSim = sim;
+
+  // Links
+  const linkColors = { dep: '#FFD600', bpmap: '#EF9A9A', perm: '#CE93D8' };
+  const link = g.append('g').selectAll('line')
+    .data(links).enter().append('line')
+    .attr('stroke', d => linkColors[d.type] || '#546E7A')
+    .attr('stroke-width', d => d.depType === 'Mandatory' ? 2 : 1.2)
+    .attr('stroke-opacity', 0.35)
+    .attr('stroke-dasharray', d => d.depType === 'Optional' ? '4,4' : d.depType === 'Supporting' ? '6,3' : null)
+    .attr('marker-end', d => 'url(#arrow-'+d.type+')');
+
+  // Link labels (hidden by default, shown on zoom)
+  const linkLabel = g.append('g').selectAll('text')
+    .data(links).enter().append('text')
+    .text(d => d.label || '')
+    .attr('font-size', 8)
+    .attr('fill', '#546E7A')
+    .attr('text-anchor', 'middle')
+    .attr('opacity', 0);
+
+  // Node groups
+  const nodeColors = { service: '#1565C0', bp: '#C2185B', group: '#E65100' };
+  const nodeFill = { service: '#64B5F6', bp: '#F48FB1', group: '#FFCC80' };
+  const critRadius = { High: 18, Medium: 14, Low: 10 };
+
+  const node = g.append('g').selectAll('g')
+    .data(nodes).enter().append('g')
+    .attr('cursor', 'pointer')
+    .call(d3.drag()
+      .on('start', (e,d) => { if(!e.active) sim.alphaTarget(0.3).restart(); d.fx=d.x; d.fy=d.y; })
+      .on('drag', (e,d) => { d.fx=e.x; d.fy=e.y; })
+      .on('end', (e,d) => { if(!e.active) sim.alphaTarget(0); d.fx=null; d.fy=null; })
+    )
+    .on('click', (e, d) => { e.stopPropagation(); focusNode(d); });
+
+  // Glow circle (behind)
+  node.append('circle')
+    .attr('r', d => (critRadius[d.criticality] || 14) + 6)
+    .attr('fill', d => nodeFill[d.type])
+    .attr('opacity', 0.08)
+    .attr('filter', 'url(#glow)');
+
+  // Main circle
+  node.append('circle')
+    .attr('r', d => critRadius[d.criticality] || 14)
+    .attr('fill', d => nodeColors[d.type])
+    .attr('stroke', d => nodeFill[d.type])
+    .attr('stroke-width', 1.5)
+    .attr('opacity', 0.9);
+
+  // Criticality ring for High
+  node.filter(d => d.criticality === 'High')
+    .append('circle')
+    .attr('r', 22)
+    .attr('fill', 'none')
+    .attr('stroke', '#C62828')
+    .attr('stroke-width', 1)
+    .attr('stroke-dasharray', '3,3')
+    .attr('opacity', 0.5);
+
+  // Type icon
+  node.append('text')
+    .text(d => d.type === 'service' ? '⚙' : d.type === 'bp' ? '⚡' : '👥')
+    .attr('font-size', d => (critRadius[d.criticality] || 14) * 0.9)
+    .attr('text-anchor', 'middle')
+    .attr('dominant-baseline', 'central')
+    .attr('pointer-events', 'none');
+
+  // Label
+  node.append('text')
+    .text(d => d.label.length > 22 ? d.label.slice(0,20) + '…' : d.label)
+    .attr('dy', d => (critRadius[d.criticality] || 14) + 14)
+    .attr('text-anchor', 'middle')
+    .attr('font-size', 9)
+    .attr('fill', '#90A4AE')
+    .attr('font-family', 'Arial, sans-serif')
+    .attr('pointer-events', 'none');
+
+  // Hover effects
+  node.on('mouseenter', function(e, d) {
+    d3.select(this).select('circle:nth-child(2)').transition().duration(200).attr('r', (critRadius[d.criticality]||14) + 4).attr('opacity', 1);
+    // Highlight connected links
+    link.transition().duration(200)
+      .attr('stroke-opacity', l => (l.source.id === d.id || l.target.id === d.id) ? 0.8 : 0.1);
+    // Highlight connected nodes
+    const connected = new Set();
+    links.forEach(l => {
+      const sid = typeof l.source === 'object' ? l.source.id : l.source;
+      const tid = typeof l.target === 'object' ? l.target.id : l.target;
+      if (sid === d.id) connected.add(tid);
+      if (tid === d.id) connected.add(sid);
+    });
+    connected.add(d.id);
+    node.transition().duration(200).attr('opacity', n => connected.has(n.id) ? 1 : 0.15);
+  }).on('mouseleave', function() {
+    d3.select(this).select('circle:nth-child(2)').transition().duration(300).attr('r', d => critRadius[d.criticality]||14).attr('opacity', 0.9);
+    link.transition().duration(300).attr('stroke-opacity', 0.35);
+    node.transition().duration(300).attr('opacity', 1);
+  });
+
+  // Show link labels on high zoom
+  svg.on('zoom.labels', null);
+  _graphZoom.on('zoom', (e) => {
+    g.attr('transform', e.transform);
+    const show = e.transform.k > 1.5;
+    linkLabel.attr('opacity', show ? 0.7 : 0);
+  });
+
+  sim.on('tick', () => {
+    link.attr('x1',d=>d.source.x).attr('y1',d=>d.source.y).attr('x2',d=>d.target.x).attr('y2',d=>d.target.y);
+    linkLabel.attr('x',d=>(d.source.x+d.target.x)/2).attr('y',d=>(d.source.y+d.target.y)/2);
+    node.attr('transform',d=>'translate('+d.x+','+d.y+')');
+  });
+
+  _graphSvg = svg;
+}
+
+function focusNode(d) {
+  _focusedNode = d;
+  const container = document.getElementById('graph-container');
+  const width = container.clientWidth;
+  const height = container.clientHeight;
+
+  // Smooth zoom to node
+  _graphSvg.transition().duration(750).call(
+    _graphZoom.transform,
+    d3.zoomIdentity.translate(width/2, height/2).scale(2.5).translate(-d.x, -d.y)
+  );
+
+  // Breadcrumb
+  document.getElementById('graph-breadcrumb').innerHTML =
+    '<span style="cursor:pointer;color:#80DEEA" onclick="resetGraphView()">🌐 Global</span>' +
+    '<span style="color:#1E3A5F">›</span>' +
+    '<span style="color:#DDE3EC">' + d.label + '</span>';
+
+  // Detail panel
+  const detail = document.getElementById('graph-detail');
+  detail.style.display = 'block';
+
+  const connected = { incoming: [], outgoing: [] };
+  _graphData.links.forEach(l => {
+    const sid = typeof l.source === 'object' ? l.source.id : l.source;
+    const tid = typeof l.target === 'object' ? l.target.id : l.target;
+    const sLabel = typeof l.source === 'object' ? l.source.label : l.source.replace(/^[^:]+:/,'');
+    const tLabel = typeof l.target === 'object' ? l.target.label : l.target.replace(/^[^:]+:/,'');
+    if (sid === d.id) connected.outgoing.push({ label: tLabel, type: l.type, depType: l.depType || l.level || l.label, nodeId: tid });
+    if (tid === d.id) connected.incoming.push({ label: sLabel, type: l.type, depType: l.depType || l.level || l.label, nodeId: sid });
+  });
+
+  const typeLabels = { service: '⚙ Service', bp: '⚡ Business Process', group: '👥 User Group' };
+  const typeColors = { service: '#64B5F6', bp: '#F48FB1', group: '#FFCC80' };
+  const linkTypeLabels = { dep: 'Dependency', bpmap: 'BP Mapping', perm: 'Permission' };
+
+  let html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">';
+  html += '<div style="font-size:.95rem;font-weight:700;color:' + (typeColors[d.type]||'#DDE3EC') + '">' + d.label + '</div>';
+  html += '<button onclick="document.getElementById(\'graph-detail\').style.display=\'none\'" style="background:none;border:none;color:#546E7A;cursor:pointer;font-size:1.2rem">✕</button></div>';
+
+  html += '<div style="font-size:.72rem;color:#546E7A;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">' + (typeLabels[d.type]||d.type) + '</div>';
+
+  // Properties
+  const props = [];
+  if (d.criticality) props.push(['Criticality', d.criticality]);
+  if (d.group) props.push(['Group', d.group]);
+  if (d.parentService) props.push(['IT Service', d.parentService]);
+  if (d.svc_type) props.push(['Type', d.svc_type]);
+  if (d.category) props.push(['Category', d.category]);
+  if (d.department) props.push(['Department', d.department]);
+  if (d.count) props.push(['Users', d.count]);
+  if (d.data?.rto) props.push(['RTO', d.data.rto]);
+  if (d.data?.rpo) props.push(['RPO', d.data.rpo]);
+  if (d.data?.regulatory) props.push(['Regulatory', d.data.regulatory]);
+  if (d.data?.description) props.push(['Description', d.data.description]);
+
+  if (props.length) {
+    html += '<div style="background:#0D1B2A;border-radius:6px;padding:8px;margin-bottom:12px">';
+    props.forEach(([k,v]) => {
+      const critColor = v === 'High' ? '#EF5350' : v === 'Medium' ? '#FF9800' : v === 'Low' ? '#66BB6A' : '#DDE3EC';
+      html += '<div style="display:flex;justify-content:space-between;padding:3px 0;font-size:.78rem"><span style="color:#546E7A">' + k + '</span><span style="color:' + (k==='Criticality'?critColor:'#DDE3EC') + '">' + v + '</span></div>';
+    });
+    html += '</div>';
+  }
+
+  // Connections
+  const renderConnList = (title, items, direction) => {
+    if (!items.length) return '';
+    let h = '<div style="font-size:.72rem;color:#546E7A;text-transform:uppercase;letter-spacing:1px;margin:8px 0 4px">' + title + ' (' + items.length + ')</div>';
+    items.forEach(c => {
+      const lc = { dep: '#FFD600', bpmap: '#EF9A9A', perm: '#CE93D8' };
+      h += '<div style="display:flex;align-items:center;gap:6px;padding:4px 6px;margin:2px 0;background:#0D1B2A;border-radius:4px;cursor:pointer;font-size:.78rem" onclick="focusNodeById(\'' + c.nodeId + '\')">';
+      h += '<div style="width:6px;height:6px;border-radius:50%;background:' + (lc[c.type]||'#546E7A') + ';flex-shrink:0"></div>';
+      h += '<span style="color:#DDE3EC;flex:1">' + c.label + '</span>';
+      h += '<span style="color:#546E7A;font-size:.68rem">' + (c.depType||linkTypeLabels[c.type]||'') + '</span>';
+      h += '</div>';
+    });
+    return h;
+  };
+
+  html += renderConnList('→ Outgoing', connected.outgoing, 'out');
+  html += renderConnList('← Incoming', connected.incoming, 'in');
+
+  if (!connected.outgoing.length && !connected.incoming.length) {
+    html += '<div style="color:#546E7A;font-size:.82rem;text-align:center;padding:16px">No connections found</div>';
+  }
+
+  document.getElementById('graph-detail-content').innerHTML = html;
+}
+
+function focusNodeById(id) {
+  if (!_graphData) return;
+  const node = _graphData.nodes.find(n => n.id === id);
+  if (node) focusNode(node);
+}
+
+function updateGraph() {
+  if (_graphSim) { _graphSim.stop(); _graphSim = null; }
+  buildGraph();
+}
+
+function resetGraphView() {
+  _focusedNode = null;
+  document.getElementById('graph-detail').style.display = 'none';
+  document.getElementById('graph-breadcrumb').innerHTML = '';
+  if (_graphSvg && _graphZoom) {
+    _graphSvg.transition().duration(750).call(_graphZoom.transform, d3.zoomIdentity);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════════════════
 updateCounts();
