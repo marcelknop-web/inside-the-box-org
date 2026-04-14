@@ -2438,13 +2438,19 @@ function applyExtraction(extractedRaw){
 // DEPENDENCY GRAPH VISUALIZATION
 // ═══════════════════════════════════════════════════════════════
 function renderDepGraph(){
+  // Build quick-jump topics from BP categories and service groups
+  const bpCats = [...new Set(DB.businessProcesses.map(b => b.category).filter(Boolean))].sort();
+  const svcGrps = [...new Set(DB.services.map(s => s.group).filter(Boolean))].sort();
+  const criticalNodes = DB.services.filter(s => s.criticality === 'High').slice(0,6);
+
   document.getElementById('main-content').innerHTML = `
     <div class="view-header" style="flex-shrink:0">
       <div>
         <div class="view-title" style="color:#80DEEA">🌐 Interactive Dependency Map</div>
-        <div class="view-subtitle">Click nodes to drill down · Scroll to zoom · Drag to pan · Double-click to reset</div>
+        <div class="view-subtitle">Search or pick a topic below · Click nodes to drill down · Scroll to zoom</div>
       </div>
-      <div class="view-actions">
+      <div class="view-actions" style="gap:6px;display:flex;flex-wrap:wrap;align-items:center">
+        <input id="graph-search" type="text" placeholder="🔍 Search node…" style="background:#080b10;color:#f0f4fc;border:1px solid #1e2a3a;border-radius:6px;padding:4px 10px;font-size:.78rem;width:180px;font-family:inherit" oninput="graphSearchNode(this.value)" />
         <select id="graph-filter" class="btn btn-ghost btn-sm" style="background:#080b10;color:#f5b800;border:1px solid #1e2a3a" onchange="updateGraph()">
           <option value="all">All Relationships</option>
           <option value="serviceDeps">Service Dependencies</option>
@@ -2454,8 +2460,15 @@ function renderDepGraph(){
         <button class="btn btn-ghost btn-sm" onclick="resetGraphView()">⟳ Reset View</button>
       </div>
     </div>
+    <div id="graph-topics" style="flex-shrink:0;display:flex;gap:6px;flex-wrap:wrap;padding:0 0 8px;align-items:center">
+      <span style="color:#435570;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-right:4px">Quick Jump:</span>
+      <button class="topic-chip topic-crit" onclick="graphJumpCritical()">🔴 Critical Services</button>
+      ${bpCats.map(c => '<button class="topic-chip topic-bp" onclick="graphJumpCategory(\'' + esc(c) + '\')">' + esc(c) + '</button>').join('')}
+      ${svcGrps.map(g => '<button class="topic-chip topic-svc" onclick="graphJumpGroup(\'' + esc(g) + '\')">' + esc(g) + '</button>').join('')}
+    </div>
     <div id="graph-container" style="flex:1;position:relative;overflow:hidden;border-radius:8px;background:#060E18;border:1px solid #1e2a3a">
       <svg id="dep-svg" style="width:100%;height:100%"></svg>
+      <div id="graph-search-results" style="display:none;position:absolute;top:4px;left:200px;background:#080b10EE;border:1px solid #1e2a3a;border-radius:8px;max-height:260px;overflow-y:auto;width:260px;z-index:30;backdrop-filter:blur(8px)"></div>
       <div id="graph-detail" style="display:none;position:absolute;top:16px;right:16px;width:320px;max-height:calc(100% - 32px);overflow-y:auto;background:#080b10EE;border:1px solid #1e2a3a;border-radius:10px;padding:16px;backdrop-filter:blur(8px)">
         <div id="graph-detail-content"></div>
       </div>
@@ -2472,37 +2485,126 @@ function renderDepGraph(){
         <div style="display:flex;flex-direction:column;gap:6px">
           <div style="color:#8ba5c5;font-weight:700;font-size:.65rem;text-transform:uppercase;letter-spacing:.5px">Verbindungen</div>
           <div style="display:flex;gap:10px;flex-wrap:wrap">
-            <span style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:2px;background:#f5b800;display:inline-block"></span><span style="color:#f0f4fc">Service Dependency</span></span>
-            <span style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:2px;background:#E040FB;display:inline-block"></span><span style="color:#f0f4fc">BP → Service Mapping</span></span>
+            <span style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:2px;background:#f5b800;display:inline-block"></span><span style="color:#f0f4fc">Service Dep</span></span>
+            <span style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:2px;background:#E040FB;display:inline-block"></span><span style="color:#f0f4fc">BP → Svc</span></span>
             <span style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:2px;background:#00E5FF;display:inline-block"></span><span style="color:#f0f4fc">Permission</span></span>
-          </div>
-        </div>
-        <div style="width:1px;background:#1e2a3a"></div>
-        <div style="display:flex;flex-direction:column;gap:6px">
-          <div style="color:#8ba5c5;font-weight:700;font-size:.65rem;text-transform:uppercase;letter-spacing:.5px">Criticality</div>
-          <div style="display:flex;gap:10px;flex-wrap:wrap">
-            <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:50%;border:2px solid #ef4444;display:inline-block"></span><span style="color:#f0f4fc">High</span></span>
-            <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:50%;border:2px solid #f97316;display:inline-block"></span><span style="color:#f0f4fc">Medium</span></span>
-            <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:50%;border:2px solid #66BB6A;display:inline-block"></span><span style="color:#f0f4fc">Low</span></span>
-          </div>
-        </div>
-        <div style="width:1px;background:#1e2a3a"></div>
-        <div style="display:flex;flex-direction:column;gap:6px">
-          <div style="color:#8ba5c5;font-weight:700;font-size:.65rem;text-transform:uppercase;letter-spacing:.5px">Linienstil</div>
-          <div style="display:flex;gap:10px;flex-wrap:wrap">
-            <span style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:2px;background:#f5b800;display:inline-block"></span><span style="color:#f0f4fc">Mandatory</span></span>
-            <span style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:2px;background:#f5b800;display:inline-block;border-top:2px dashed #f5b800;height:0"></span><span style="color:#f0f4fc">Optional / Supporting</span></span>
           </div>
         </div>
       </div>
       <div id="graph-breadcrumb" style="position:absolute;top:16px;left:16px;font-size:.78rem;color:#435570;display:flex;gap:6px;align-items:center"></div>
     </div>`;
 
-  // Set container height
+  // Topic chip styles
+  const style = document.createElement('style');
+  style.textContent = '.topic-chip{background:#0D1B2A;border:1px solid #1e2a3a;color:#8ba5c5;padding:3px 10px;border-radius:12px;font-size:.7rem;cursor:pointer;font-family:inherit;transition:all .2s}.topic-chip:hover{border-color:#f5b800;color:#f5b800;background:#0e1218}.topic-crit{border-color:rgba(239,68,68,.3);color:#f87171}.topic-crit:hover{border-color:#ef4444;color:#ef4444}.topic-bp{border-color:rgba(194,24,91,.25);color:#E040FB}.topic-bp:hover{border-color:#E040FB}.topic-svc{border-color:rgba(0,188,212,.2);color:#80DEEA}.topic-svc:hover{border-color:#00bcd4;color:#00bcd4}';
+  document.getElementById('graph-topics').appendChild(style);
+
   const container = document.getElementById('graph-container');
-  container.style.height = (window.innerHeight - 140) + 'px';
+  container.style.height = (window.innerHeight - 190) + 'px';
 
   buildGraph();
+}
+
+// 2D Graph search
+function graphSearchNode(query) {
+  const panel = document.getElementById('graph-search-results');
+  if (!query || query.length < 2 || !_graphData) { panel.style.display = 'none'; return; }
+  const q = query.toLowerCase();
+  const matches = _graphData.nodes.filter(n => n.label.toLowerCase().includes(q)).slice(0, 12);
+  if (!matches.length) { panel.style.display = 'none'; return; }
+  panel.style.display = 'block';
+  const typeCol = { service: '#00bcd4', bp: '#C2185B', group: '#eab308' };
+  const typeIcon = { service: '⚙', bp: '⚡', group: '👥' };
+  panel.innerHTML = matches.map(n =>
+    '<div style="display:flex;align-items:center;gap:8px;padding:6px 12px;cursor:pointer;font-size:.78rem;border-bottom:1px solid #0D1B2A" onmouseover="this.style.background=\'#0D1B2A\'" onmouseout="this.style.background=\'transparent\'" onclick="document.getElementById(\'graph-search-results\').style.display=\'none\';focusNodeById(\'' + n.id + '\')">' +
+    '<span style="color:' + (typeCol[n.type]||'#435570') + '">' + (typeIcon[n.type]||'') + '</span>' +
+    '<span style="color:#f0f4fc;flex:1">' + esc(n.label) + '</span>' +
+    '<span style="color:#435570;font-size:.65rem">' + (n.criticality||'') + '</span></div>'
+  ).join('');
+}
+
+// Jump to critical services
+function graphJumpCritical() {
+  if (!_graphData) return;
+  const critical = _graphData.nodes.filter(n => n.criticality === 'High');
+  if (!critical.length) return;
+  graphHighlightSet(new Set(critical.map(n => n.id)), '🔴 Critical Services');
+}
+
+// Jump to a BP category
+function graphJumpCategory(cat) {
+  if (!_graphData) return;
+  const bps = _graphData.nodes.filter(n => n.type === 'bp' && n.data?.category === cat);
+  if (!bps.length) return;
+  // Also find connected services
+  const ids = new Set(bps.map(n => n.id));
+  _graphData.links.forEach(l => {
+    const sid = typeof l.source === 'object' ? l.source.id : l.source;
+    const tid = typeof l.target === 'object' ? l.target.id : l.target;
+    if (ids.has(sid)) ids.add(tid);
+    if (ids.has(tid)) ids.add(sid);
+  });
+  graphHighlightSet(ids, '📊 ' + cat);
+}
+
+// Jump to a service group
+function graphJumpGroup(grp) {
+  if (!_graphData) return;
+  const svcs = _graphData.nodes.filter(n => n.type === 'service' && n.group === grp);
+  if (!svcs.length) return;
+  const ids = new Set(svcs.map(n => n.id));
+  _graphData.links.forEach(l => {
+    const sid = typeof l.source === 'object' ? l.source.id : l.source;
+    const tid = typeof l.target === 'object' ? l.target.id : l.target;
+    if (ids.has(sid)) ids.add(tid);
+    if (ids.has(tid)) ids.add(sid);
+  });
+  graphHighlightSet(ids, '⚙ ' + grp);
+}
+
+// Highlight and zoom to a set of node IDs
+function graphHighlightSet(ids, label) {
+  if (!_graphSvg || !_graphZoom || !_graphData) return;
+  // Compute bounding box of matching nodes
+  let minX=Infinity,maxX=-Infinity,minY=Infinity,maxY=-Infinity;
+  const matchNodes = _graphData.nodes.filter(n => ids.has(n.id));
+  matchNodes.forEach(n => {
+    if (n.x < minX) minX = n.x;
+    if (n.x > maxX) maxX = n.x;
+    if (n.y < minY) minY = n.y;
+    if (n.y > maxY) maxY = n.y;
+  });
+  const container = document.getElementById('graph-container');
+  const cw = container.clientWidth, ch = container.clientHeight;
+  const pad = 80;
+  const bw = (maxX - minX) || 200, bh = (maxY - minY) || 200;
+  const scale = Math.min(cw / (bw + pad*2), ch / (bh + pad*2), 3);
+  const cx = (minX + maxX) / 2, cy = (minY + maxY) / 2;
+
+  _graphSvg.transition().duration(750).call(
+    _graphZoom.transform,
+    d3.zoomIdentity.translate(cw/2, ch/2).scale(scale).translate(-cx, -cy)
+  );
+
+  // Dim unrelated nodes/links
+  d3.select('#dep-svg').selectAll('g > g > g').transition().duration(400).attr('opacity', d => ids.has(d.id) ? 1 : 0.12);
+  d3.select('#dep-svg').selectAll('g > g > line').transition().duration(400).attr('stroke-opacity', l => {
+    const sid = typeof l.source === 'object' ? l.source.id : l.source;
+    const tid = typeof l.target === 'object' ? l.target.id : l.target;
+    return (ids.has(sid) && ids.has(tid)) ? 0.7 : 0.04;
+  });
+
+  // Breadcrumb
+  document.getElementById('graph-breadcrumb').innerHTML =
+    '<span style="cursor:pointer;color:#80DEEA" onclick="resetGraphView()"">🌐 Global</span>' +
+    '<span style="color:#1e2a3a">›</span>' +
+    '<span style="color:#f0f4fc">' + label + ' (' + matchNodes.length + ' nodes)</span>';
+
+  // Auto-reset dimming after 8s
+  setTimeout(() => {
+    d3.select('#dep-svg').selectAll('g > g > g').transition().duration(600).attr('opacity', 1);
+    d3.select('#dep-svg').selectAll('g > g > line').transition().duration(600).attr('stroke-opacity', 0.35);
+  }, 8000);
 }
 
 let _graphSim = null;
@@ -2546,33 +2648,13 @@ function buildGraph() {
     nodeMap[key] = n;
   });
 
-  // Helper: find service node by name (matches subservice label OR parent service name)
-  function find2dSvc(serviceName) {
-    const lower = serviceName.toLowerCase();
-    // Exact subservice label match
-    for (const [k, v] of Object.entries(nodeMap)) {
-      if (k.startsWith('svc:') && v.label.toLowerCase() === lower) return k;
-    }
-    // Parent service name match (data.service field from original DB entry)
-    for (const [k, v] of Object.entries(nodeMap)) {
-      if (k.startsWith('svc:') && v.data?.service && v.data.service.toLowerCase() === lower) return k;
-    }
-    // Partial match
-    for (const [k, v] of Object.entries(nodeMap)) {
-      if (!k.startsWith('svc:')) continue;
-      const parentL = (v.data?.service || '').toLowerCase();
-      if (parentL.includes(lower) || lower.includes(parentL)) return k;
-    }
-    return null;
-  }
-
   // Service Dependencies
   if (filter === 'all' || filter === 'serviceDeps') {
     DB.serviceDeps.forEach(d => {
-      let src = find2dSvc(d.upstream);
-      if (!src) { src = 'svc:' + d.upstream; if (!nodeMap[src]) { const n = { id: src, label: d.upstream, type: 'service', criticality: 'Medium', data: {} }; nodes.push(n); nodeMap[src] = n; } }
-      let tgt = find2dSvc(d.downstream);
-      if (!tgt) { tgt = 'svc:' + d.downstream; if (!nodeMap[tgt]) { const n = { id: tgt, label: d.downstream, type: 'service', criticality: 'Medium', data: {} }; nodes.push(n); nodeMap[tgt] = n; } }
+      const src = 'svc:' + d.upstream;
+      const tgt = 'svc:' + d.downstream;
+      if (!nodeMap[src]) { const n = { id: src, label: d.upstream, type: 'service', criticality: 'Medium', data: {} }; nodes.push(n); nodeMap[src] = n; }
+      if (!nodeMap[tgt]) { const n = { id: tgt, label: d.downstream, type: 'service', criticality: 'Medium', data: {} }; nodes.push(n); nodeMap[tgt] = n; }
       links.push({ source: src, target: tgt, type: 'dep', depType: d.depType, label: d.depType });
     });
   }
@@ -2581,9 +2663,13 @@ function buildGraph() {
   if (filter === 'all' || filter === 'bpServiceMap') {
     DB.bpServiceMap.forEach(m => {
       const src = 'bp:' + m.bpId;
-      if (!nodeMap[src]) return;
-      let tgt = find2dSvc(m.service);
+      // Find service node by name
+      let tgt = null;
+      for (const [k, v] of Object.entries(nodeMap)) {
+        if (k.startsWith('svc:') && v.label.toLowerCase() === m.service.toLowerCase()) { tgt = k; break; }
+      }
       if (!tgt) { tgt = 'svc:' + m.service; if (!nodeMap[tgt]) { const n = { id: tgt, label: m.service, type: 'service', criticality: 'Medium', data: {} }; nodes.push(n); nodeMap[tgt] = n; } }
+      if (!nodeMap[src]) return;
       links.push({ source: src, target: tgt, type: 'bpmap', depType: m.depType, label: m.depType });
     });
   }
@@ -2592,7 +2678,10 @@ function buildGraph() {
   if (filter === 'all' || filter === 'permissions') {
     DB.permissions.forEach(p => {
       const src = 'grp:' + p.groupName;
-      let tgt = find2dSvc(p.service);
+      let tgt = null;
+      for (const [k, v] of Object.entries(nodeMap)) {
+        if (k.startsWith('svc:') && v.label.toLowerCase() === p.service.toLowerCase()) { tgt = k; break; }
+      }
       if (!tgt) { tgt = 'svc:' + p.service; if (!nodeMap[tgt]) { const n = { id: tgt, label: p.service, type: 'service', criticality: 'Medium', data: {} }; nodes.push(n); nodeMap[tgt] = n; } }
       if (!nodeMap[src]) { const n = { id: src, label: p.groupName, type: 'group', data: {} }; nodes.push(n); nodeMap[src] = n; }
       links.push({ source: src, target: tgt, type: 'perm', level: p.level, label: p.level });
@@ -2772,40 +2861,10 @@ function focusNode(d) {
   const width = container.clientWidth;
   const height = container.clientHeight;
 
-  // Collect all connected node positions (including the clicked node)
-  const connectedNodes = [d];
-  _graphData.links.forEach(l => {
-    const sid = typeof l.source === 'object' ? l.source : _graphData.nodes.find(n => n.id === l.source);
-    const tid = typeof l.target === 'object' ? l.target : _graphData.nodes.find(n => n.id === l.target);
-    if (sid && tid) {
-      if (sid.id === d.id && tid) connectedNodes.push(tid);
-      if (tid.id === d.id && sid) connectedNodes.push(sid);
-    }
-  });
-
-  // Compute bounding box
-  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-  connectedNodes.forEach(n => {
-    if (n.x != null && n.y != null) {
-      minX = Math.min(minX, n.x);
-      maxX = Math.max(maxX, n.x);
-      minY = Math.min(minY, n.y);
-      maxY = Math.max(maxY, n.y);
-    }
-  });
-
-  // Add padding
-  const pad = 60;
-  minX -= pad; maxX += pad; minY -= pad; maxY += pad;
-  const bw = maxX - minX || 200;
-  const bh = maxY - minY || 200;
-  const cx = (minX + maxX) / 2;
-  const cy = (minY + maxY) / 2;
-  const scale = Math.min(width / bw, height / bh, 3);
-
+  // Smooth zoom to node
   _graphSvg.transition().duration(750).call(
     _graphZoom.transform,
-    d3.zoomIdentity.translate(width/2, height/2).scale(scale).translate(-cx, -cy)
+    d3.zoomIdentity.translate(width/2, height/2).scale(2.5).translate(-d.x, -d.y)
   );
 
   // Breadcrumb
@@ -2925,10 +2984,10 @@ function renderDepGraph3D(){
   document.getElementById('main-content').innerHTML = `
     <div class="view-header" style="flex-shrink:0">
       <div>
-        <div class="view-title" style="color:#f5b800">🧊 3D Service Architecture</div>
-        <div class="view-subtitle">${totalSvc} Services · ${totalBP} Processes · ${totalGrp} Groups · ${totalMappings + totalDeps + totalPerm} Verbindungen</div>
+        <div class="view-title" style="color:#f5b800">🧊 3D Service Architecture Map</div>
+        <div class="view-subtitle">Enterprise Service Landscape — ${totalSvc} Services · ${totalBP} Business Processes · ${totalGrp} User Groups · ${totalMappings + totalDeps + totalPerm} Beziehungen</div>
       </div>
-      <div class="view-actions" style="flex-wrap:wrap;gap:4px">
+      <div class="view-actions">
         <select id="graph3d-filter" class="btn btn-ghost btn-sm" style="background:#080b10;color:#f5b800;border:1px solid #1e2a3a" onchange="rebuild3DGraph()">
           <option value="all">Alle Beziehungen</option>
           <option value="bp-svc">BP → Services</option>
@@ -2936,12 +2995,9 @@ function renderDepGraph3D(){
           <option value="svc-perm">Services → Permissions</option>
         </select>
         <select id="graph3d-group" class="btn btn-ghost btn-sm" style="background:#080b10;color:#f5b800;border:1px solid #1e2a3a" onchange="rebuild3DGraph()">
-          <option value="all">Alle Groups</option>
+          <option value="all">Alle Service Groups</option>
           ${svcGroups.map(g => '<option value="' + esc(g) + '">' + esc(g) + '</option>').join('')}
         </select>
-        <button class="btn btn-ghost btn-sm" onclick="set3DView('front')" title="Frontansicht">🔲 Front</button>
-        <button class="btn btn-ghost btn-sm" onclick="set3DView('top')" title="Draufsicht">⬇ Top</button>
-        <button class="btn btn-ghost btn-sm" onclick="set3DView('side')" title="Seitenansicht">➡ Seite</button>
         <button class="btn btn-ghost btn-sm" onclick="reset3DView()">⟳ Reset</button>
       </div>
     </div>
@@ -2952,8 +3008,14 @@ function renderDepGraph3D(){
       <div id="three-tooltip" style="display:none;position:absolute;background:#0e1218EE;border:1px solid #f5b800;border-radius:6px;padding:10px 14px;font-size:.78rem;color:#f0f4fc;pointer-events:none;z-index:20;backdrop-filter:blur(4px);max-width:280px"></div>
       <div id="three-legend" style="position:absolute;bottom:12px;left:12px;background:#080b10DD;border:1px solid #1e2a3a;border-radius:8px;padding:12px 16px;font-size:.7rem;backdrop-filter:blur(4px);display:flex;gap:16px;flex-wrap:wrap">
         <div style="display:flex;flex-direction:column;gap:4px">
-          <div style="color:#8ba5c5;font-weight:700;font-size:.6rem;text-transform:uppercase;letter-spacing:.5px">Ebenen</div>
-          <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:8px;background:#C2185B;border-radius:2px;display:inline-block"></span><span style="color:#f0f4fc">Business Processes (oben)</span></span>
+          <div style="color:#8ba5c5;font-weight:700;font-size:.6rem;text-transform:uppercase;letter-spacing:.5px">Prozess-Typen (oben)</div>
+          <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#66BB6A;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);display:inline-block"></span><span style="color:#f0f4fc">📊 Business Process</span></span>
+          <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#42A5F5;display:inline-block"></span><span style="color:#f0f4fc">🖥 IT Process</span></span>
+          <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#FF7043;clip-path:polygon(50% 0,100% 100%,0 100%);display:inline-block"></span><span style="color:#f0f4fc">🛡 Security / Compliance</span></span>
+        </div>
+        <div style="width:1px;background:#1e2a3a"></div>
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <div style="color:#8ba5c5;font-weight:700;font-size:.6rem;text-transform:uppercase;letter-spacing:.5px">Weitere Ebenen</div>
           <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:8px;background:#00bcd4;border-radius:2px;display:inline-block"></span><span style="color:#f0f4fc">IT Services (mitte)</span></span>
           <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:8px;background:#eab308;border-radius:2px;display:inline-block"></span><span style="color:#f0f4fc">User Groups (unten)</span></span>
         </div>
@@ -3005,178 +3067,201 @@ function init3DScene(THREE, OrbitControls, container) {
   renderer.setClearColor(0x040810, 1);
 
   const scene = new THREE.Scene();
+  scene.fog = new THREE.FogExp2(0x040810, 0.0015);
 
-  const camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 2000);
-  camera.position.set(0, 90, 160);
-  camera.lookAt(0, 20, 0);
+  const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 2000);
+  camera.position.set(60, 80, 100);
+  camera.lookAt(0, 0, 0);
 
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
   controls.dampingFactor = 0.08;
-  controls.minDistance = 40;
-  controls.maxDistance = 400;
-  controls.target.set(0, 20, 0);
+  controls.minDistance = 20;
+  controls.maxDistance = 500;
 
-  scene.add(new THREE.AmbientLight(0x8899bb, 1.2));
-  const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
-  dirLight.position.set(30, 80, 50);
+  scene.add(new THREE.AmbientLight(0x334466, 0.8));
+  const dirLight = new THREE.DirectionalLight(0xffffff, 1.0);
+  dirLight.position.set(40, 80, 60);
   scene.add(dirLight);
+  scene.add(new THREE.PointLight(0xf5b800, 0.3, 400));
 
-  // ── Configuration ──
-  const FLOOR_GAP = 35;
-  const FLOOR_W = 120;
-  const FLOOR_D = 80;
-  const LAYERS = [
-    { key: 'bp',  y: FLOOR_GAP * 2, label: '⚡  BUSINESS PROCESSES', color: 0xE91E63, hex: '#E91E63', items: DB.businessProcesses },
-    { key: 'svc', y: FLOOR_GAP,     label: '⚙  IT SERVICES',        color: 0x00BCD4, hex: '#00BCD4', items: [] },
-    { key: 'grp', y: 0,             label: '👥  USER GROUPS',        color: 0xFFB300, hex: '#FFB300', items: DB.userGroups },
-  ];
+  const LAYER_Y = { bp: 40, svc: 0, grp: -40 };
+  const CRIT_COLORS = { High: 0xEF5350, Medium: 0xf97316, Low: 0x66BB6A };
+  const CRIT_SCALE = { High: 1.6, Medium: 1.0, Low: 0.7 };
+
+  const layerCols = [0xC2185B, 0x00bcd4, 0xeab308];
+  [LAYER_Y.bp, LAYER_Y.svc, LAYER_Y.grp].forEach((y, i) => {
+    const planeGeo = new THREE.PlaneGeometry(200, 200);
+    const planeMat = new THREE.MeshBasicMaterial({ color: layerCols[i], transparent: true, opacity: 0.015, side: THREE.DoubleSide });
+    const plane = new THREE.Mesh(planeGeo, planeMat);
+    plane.rotation.x = -Math.PI / 2;
+    plane.position.y = y - 0.5;
+    scene.add(plane);
+    const grid = new THREE.GridHelper(200, 20, layerCols[i], layerCols[i]);
+    grid.position.y = y - 0.5;
+    grid.material.opacity = 0.04;
+    grid.material.transparent = true;
+    scene.add(grid);
+  });
 
   const filter = document.getElementById('graph3d-filter')?.value || 'all';
   const groupFilter = document.getElementById('graph3d-group')?.value || 'all';
-
-  // Deduplicate services
-  let filteredServices = DB.services;
-  if (groupFilter !== 'all') filteredServices = filteredServices.filter(s => s.group === groupFilter);
-  const svcSeen = new Set();
-  filteredServices.forEach(s => { if (!svcSeen.has(s.subservice)) { svcSeen.add(s.subservice); LAYERS[1].items.push(s); } });
-
-  const CRIT_COLORS = { High: 0xEF5350, Medium: 0xFFA726, Low: 0x66BB6A };
-  const CRIT_SCALE = { High: 1.4, Medium: 1.0, Low: 0.7 };
 
   const nodeObjects = [];
   const edgeLines = [];
   const posMap = {};
   const labelsContainer = document.getElementById('three-labels');
 
-  // ── Draw each floor ──
-  LAYERS.forEach(layer => {
-    // Solid floor plate
-    const floorGeo = new THREE.BoxGeometry(FLOOR_W, 0.6, FLOOR_D);
-    const floorMat = new THREE.MeshPhongMaterial({
-      color: layer.color, transparent: true, opacity: 0.12
-    });
-    const floor = new THREE.Mesh(floorGeo, floorMat);
-    floor.position.set(0, layer.y - 0.3, 0);
-    scene.add(floor);
+  // Group services by service group for clustered layout
+  const svcByGroup = {};
+  const svcSet = new Set();
+  let filteredServices = DB.services;
+  if (groupFilter !== 'all') filteredServices = DB.services.filter(s => s.group === groupFilter);
+  filteredServices.forEach(s => {
+    if (svcSet.has(s.subservice)) return;
+    svcSet.add(s.subservice);
+    if (!svcByGroup[s.group]) svcByGroup[s.group] = [];
+    svcByGroup[s.group].push(s);
+  });
 
-    // Floor edge wireframe
-    const edgeGeo = new THREE.EdgesGeometry(new THREE.BoxGeometry(FLOOR_W, 0.6, FLOOR_D));
-    const edgeMat = new THREE.LineBasicMaterial({ color: layer.color, transparent: true, opacity: 0.35 });
-    const edgeLine = new THREE.LineSegments(edgeGeo, edgeMat);
-    edgeLine.position.copy(floor.position);
-    scene.add(edgeLine);
+  const svcGroupNames = Object.keys(svcByGroup);
+  const groupAngleStep = (Math.PI * 2) / Math.max(svcGroupNames.length, 1);
 
-    // Place nodes in a tidy grid on each floor
-    const items = layer.items;
-    const cols = Math.max(2, Math.ceil(Math.sqrt(items.length * 1.5)));
-    const rows = Math.ceil(items.length / cols);
-    const spacingX = (FLOOR_W - 20) / Math.max(cols, 1);
-    const spacingZ = (FLOOR_D - 16) / Math.max(rows, 1);
-    const startX = -(cols - 1) * spacingX / 2;
-    const startZ = -(rows - 1) * spacingZ / 2;
+  svcGroupNames.forEach((grpName, gi) => {
+    const groupAngle = gi * groupAngleStep;
+    const groupRadius = Math.min(70, 25 + svcGroupNames.length * 4);
+    const cx = Math.cos(groupAngle) * groupRadius;
+    const cz = Math.sin(groupAngle) * groupRadius;
+    const services = svcByGroup[grpName];
+    const clusterRadius = Math.max(4, Math.sqrt(services.length) * 3);
 
-    items.forEach((item, i) => {
-      const col = i % cols;
-      const row = Math.floor(i / cols);
-      const x = startX + col * spacingX;
-      const z = startZ + row * spacingZ;
-      const y = layer.y + 2;
-      const scale = CRIT_SCALE[item.criticality] || 1;
-      const critColor = CRIT_COLORS[item.criticality] || layer.color;
+    // Group ring
+    const ringGeo = new THREE.RingGeometry(clusterRadius + 1, clusterRadius + 1.5, 32);
+    const ringMat = new THREE.MeshBasicMaterial({ color: 0x00bcd4, transparent: true, opacity: 0.15, side: THREE.DoubleSide });
+    const ring = new THREE.Mesh(ringGeo, ringMat);
+    ring.rotation.x = -Math.PI / 2;
+    ring.position.set(cx, LAYER_Y.svc - 0.4, cz);
+    scene.add(ring);
 
-      let geo, shape;
-      if (layer.key === 'bp') {
-        geo = new THREE.OctahedronGeometry(1.8, 0);
-        shape = 'octahedron';
-      } else if (layer.key === 'svc') {
-        geo = new THREE.BoxGeometry(2.2, 2.2, 2.2);
-        shape = 'box';
-      } else {
-        geo = new THREE.SphereGeometry(1.6, 12, 8);
-        shape = 'sphere';
-      }
+    services.forEach((s, si) => {
+      const localAngle = (si / services.length) * Math.PI * 2;
+      const r = services.length === 1 ? 0 : clusterRadius * 0.7;
+      const x = cx + Math.cos(localAngle) * r;
+      const z = cz + Math.sin(localAngle) * r;
+      const y = LAYER_Y.svc;
+      const scale = CRIT_SCALE[s.criticality] || 1;
+      const critColor = CRIT_COLORS[s.criticality] || 0x00bcd4;
 
-      const mat = new THREE.MeshPhongMaterial({
-        color: layer.color, emissive: critColor, emissiveIntensity: 0.15,
-        transparent: true, opacity: 0.9
-      });
+      const geo = new THREE.BoxGeometry(2, 2, 2);
+      const mat = new THREE.MeshPhongMaterial({ color: 0x00bcd4, emissive: critColor, emissiveIntensity: 0.2, transparent: true, opacity: 0.9 });
       const mesh = new THREE.Mesh(geo, mat);
       mesh.position.set(x, y, z);
       mesh.scale.setScalar(scale);
       scene.add(mesh);
+      mesh.add(new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: critColor, wireframe: true, transparent: true, opacity: 0.4 })));
 
-      // Criticality ring for High
-      if (item.criticality === 'High') {
-        const ringGeo = new THREE.RingGeometry(2.8, 3.2, 16);
-        const ringMat = new THREE.MeshBasicMaterial({ color: 0xEF5350, transparent: true, opacity: 0.4, side: THREE.DoubleSide });
-        const ring = new THREE.Mesh(ringGeo, ringMat);
-        ring.rotation.x = -Math.PI / 2;
-        ring.position.set(x, layer.y + 0.5, z);
-        scene.add(ring);
-      }
-
-      const id = layer.key === 'bp' ? 'bp:' + item.id : layer.key === 'svc' ? 'svc:' + item.subservice : 'grp:' + item.name;
-      const label = layer.key === 'bp' ? (item.name || item.id) : layer.key === 'svc' ? item.subservice : item.name;
-      nodeObjects.push({ mesh, data: item, type: layer.key, id, label, groupName: item.group });
+      const id = 'svc:' + s.subservice;
+      nodeObjects.push({ mesh, data: s, type: 'svc', id, label: s.subservice, groupName: grpName });
       posMap[id] = { x, y, z, obj: nodeObjects[nodeObjects.length - 1] };
     });
   });
 
-  // ── Build service lookup: map parent service name → first node ID ──
-  const svcByParent = {};
-  const svcBySubservice = {};
-  nodeObjects.forEach(n => {
-    if (n.type !== 'svc') return;
-    const sub = n.label.toLowerCase();
-    svcBySubservice[sub] = n.id;
-    // Also map by parent service name (n.data.service)
-    const parent = (n.data.service || '').toLowerCase();
-    if (parent && !svcByParent[parent]) svcByParent[parent] = n.id;
+  // Business Processes — categorized into IT / Security / Business
+  const BP_META = {
+    'IT Operations': { meta: 'it', color: 0x42A5F5, icon: '🖥', label: 'IT Process' },
+    'EHS':           { meta: 'security', color: 0xFF7043, icon: '🛡', label: 'Security / Compliance' },
+    'Trade Compliance': { meta: 'security', color: 0xFF7043, icon: '🛡', label: 'Security / Compliance' },
+  };
+  const BP_META_DEFAULT = { meta: 'business', color: 0x66BB6A, icon: '📊', label: 'Business Process' };
+  function bpMeta(cat) { return BP_META[cat] || BP_META_DEFAULT; }
+
+  const bpNodes = DB.businessProcesses;
+  // Group BPs by meta-category for clustered sub-layout
+  const bpByCat = { business: [], it: [], security: [] };
+  bpNodes.forEach(bp => { const m = bpMeta(bp.category); (bpByCat[m.meta] = bpByCat[m.meta] || []).push(bp); });
+  const bpCatOrder = ['business','it','security'];
+  const bpCatAngles = { business: 0, it: (Math.PI*2/3), security: (Math.PI*4/3) };
+  const bpRadius = Math.min(65, 22 + bpNodes.length * 3);
+
+  bpCatOrder.forEach(metaKey => {
+    const items = bpByCat[metaKey] || [];
+    if (!items.length) return;
+    const baseAngle = bpCatAngles[metaKey];
+    const spread = Math.PI * 0.55; // each sector
+    items.forEach((bp, i) => {
+      const angle = baseAngle - spread/2 + (items.length > 1 ? (i/(items.length-1)) * spread : 0);
+      const x = Math.cos(angle) * bpRadius;
+      const z = Math.sin(angle) * bpRadius;
+      const y = LAYER_Y.bp;
+      const scale = CRIT_SCALE[bp.criticality] || 1;
+      const critColor = CRIT_COLORS[bp.criticality] || 0xC2185B;
+      const m = bpMeta(bp.category);
+
+      // Different geometry per meta-category
+      let geo;
+      if (m.meta === 'it') geo = new THREE.BoxGeometry(2.2, 2.2, 2.2);
+      else if (m.meta === 'security') geo = new THREE.TetrahedronGeometry(2.4, 0);
+      else geo = new THREE.OctahedronGeometry(2, 0);
+
+      const mat = new THREE.MeshPhongMaterial({ color: m.color, emissive: critColor, emissiveIntensity: 0.25, transparent: true, opacity: 0.92 });
+      const mesh = new THREE.Mesh(geo, mat);
+      mesh.position.set(x, y, z);
+      mesh.scale.setScalar(scale);
+      scene.add(mesh);
+      mesh.add(new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: m.color, wireframe: true, transparent: true, opacity: 0.35 })));
+
+      const id = 'bp:' + bp.id;
+      nodeObjects.push({ mesh, data: bp, type: 'bp', id, label: bp.name || bp.id, bpMeta: m.meta });
+      posMap[id] = { x, y, z };
+    });
   });
 
-  function findSvcNode(serviceName) {
-    const lower = serviceName.toLowerCase();
-    // Try exact subservice match first
-    if (svcBySubservice[lower]) return svcBySubservice[lower];
-    // Then parent service name match
-    if (svcByParent[lower]) return svcByParent[lower];
-    // Partial match: find first node whose parent or subservice contains the search
-    for (const n of nodeObjects) {
-      if (n.type !== 'svc') continue;
-      const parentL = (n.data.service || '').toLowerCase();
-      const subL = n.label.toLowerCase();
-      if (parentL.includes(lower) || lower.includes(parentL) || subL.includes(lower)) return n.id;
-    }
-    return null;
-  }
+  // User Groups
+  DB.userGroups.forEach((g, i) => {
+    const angle = (i / DB.userGroups.length) * Math.PI * 2;
+    const grpRadius = Math.min(50, 15 + DB.userGroups.length * 3);
+    const x = Math.cos(angle) * grpRadius;
+    const z = Math.sin(angle) * grpRadius;
+    const y = LAYER_Y.grp;
+    const userScale = Math.min(1.5, 0.7 + (g.count || 5) / 25);
 
-  // ── Connections: visible curves between floors ──
+    const geo = new THREE.SphereGeometry(1.8, 16, 12);
+    const mat = new THREE.MeshPhongMaterial({ color: 0xeab308, emissive: 0xeab308, emissiveIntensity: 0.15, transparent: true, opacity: 0.9 });
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.position.set(x, y, z);
+    mesh.scale.setScalar(userScale);
+    scene.add(mesh);
+    mesh.add(new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: 0xeab308, wireframe: true, transparent: true, opacity: 0.3 })));
+
+    const id = 'grp:' + g.name;
+    nodeObjects.push({ mesh, data: g, type: 'grp', id, label: g.name });
+    posMap[id] = { x, y, z };
+  });
+
+  // Build edges with tubes
   function addEdge(srcId, tgtId, color, lineType) {
     const src = posMap[srcId];
     const tgt = posMap[tgtId];
     if (!src || !tgt) return;
-
-    const pts = [
+    const mx = (src.x + tgt.x) / 2, my = (src.y + tgt.y) / 2, mz = (src.z + tgt.z) / 2;
+    const curve = new THREE.QuadraticBezierCurve3(
       new THREE.Vector3(src.x, src.y, src.z),
-      new THREE.Vector3(src.x, (src.y + tgt.y) / 2, src.z),
-      new THREE.Vector3(tgt.x, (src.y + tgt.y) / 2, tgt.z),
-      new THREE.Vector3(tgt.x, tgt.y, tgt.z),
-    ];
-    const curve = new THREE.CatmullRomCurve3(pts);
-    const tubeGeo = new THREE.TubeGeometry(curve, 16, 0.25, 5, false);
-    const tubeMat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.45 });
+      new THREE.Vector3(mx + (Math.random() - 0.5) * 4, my, mz + (Math.random() - 0.5) * 4),
+      new THREE.Vector3(tgt.x, tgt.y, tgt.z)
+    );
+    const tubePath = new THREE.CatmullRomCurve3(curve.getPoints(24));
+    const tubeGeo = new THREE.TubeGeometry(tubePath, 12, 0.15, 4, false);
+    const tubeMat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.35 });
     const tube = new THREE.Mesh(tubeGeo, tubeMat);
     scene.add(tube);
 
-    // Arrowhead
-    const arrowGeo = new THREE.ConeGeometry(0.7, 2.2, 6);
-    const arrowMat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.7 });
+    // Arrow
+    const arrowGeo = new THREE.ConeGeometry(0.5, 1.5, 6);
+    const arrowMat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.5 });
     const arrow = new THREE.Mesh(arrowGeo, arrowMat);
-    const ap = curve.getPointAt(0.85);
-    const ad = curve.getPointAt(0.92);
-    arrow.position.copy(ap);
-    arrow.lookAt(ad);
+    const nearTgt = new THREE.Vector3().lerpVectors(new THREE.Vector3(mx, my, mz), new THREE.Vector3(tgt.x, tgt.y, tgt.z), 0.8);
+    arrow.position.copy(nearTgt);
+    arrow.lookAt(tgt.x, tgt.y, tgt.z);
     arrow.rotateX(Math.PI / 2);
     scene.add(arrow);
 
@@ -3184,26 +3269,30 @@ function init3DScene(THREE, OrbitControls, container) {
   }
 
   if (filter === 'all' || filter === 'svc-dep') {
-    DB.serviceDeps.forEach(d => {
-      const src = findSvcNode(d.upstream) || 'svc:' + d.upstream;
-      const tgt = findSvcNode(d.downstream) || 'svc:' + d.downstream;
-      addEdge(src, tgt, 0xf5b800, d.depType);
-    });
+    DB.serviceDeps.forEach(d => addEdge('svc:' + d.upstream, 'svc:' + d.downstream, 0xf5b800, d.depType));
   }
   if (filter === 'all' || filter === 'bp-svc') {
     DB.bpServiceMap.forEach(m => {
-      const tgtId = findSvcNode(m.service);
-      if (tgtId) addEdge('bp:' + m.bpId, tgtId, 0xE040FB, m.depType);
+      let tgtId = null;
+      for (const key of Object.keys(posMap)) {
+        if (key.startsWith('svc:') && posMap[key].obj && posMap[key].obj.label.toLowerCase() === m.service.toLowerCase()) { tgtId = key; break; }
+      }
+      if (!tgtId) tgtId = 'svc:' + m.service;
+      addEdge('bp:' + m.bpId, tgtId, 0xE040FB, m.depType);
     });
   }
   if (filter === 'all' || filter === 'svc-perm') {
     DB.permissions.forEach(p => {
-      const tgtId = findSvcNode(p.service);
-      if (tgtId) addEdge('grp:' + p.groupName, tgtId, 0x00E5FF, p.level);
+      let tgtId = null;
+      for (const key of Object.keys(posMap)) {
+        if (key.startsWith('svc:') && posMap[key].obj && posMap[key].obj.label.toLowerCase() === p.service.toLowerCase()) { tgtId = key; break; }
+      }
+      if (!tgtId) tgtId = 'svc:' + p.service;
+      addEdge('grp:' + p.groupName, tgtId, 0x00E5FF, p.level);
     });
   }
 
-  // ── Interaction ──
+  // Interaction
   const raycaster = new THREE.Raycaster();
   const mouse = new THREE.Vector2();
   let hoveredNode = null;
@@ -3212,53 +3301,24 @@ function init3DScene(THREE, OrbitControls, container) {
 
   function updateLabels() {
     labelsContainer.innerHTML = '';
-    // Floor labels — large, always visible
-    LAYERS.forEach(lc => {
-      // Label at front-left edge of each floor
-      const labelPos = new THREE.Vector3(-FLOOR_W/2 + 4, lc.y + 1, FLOOR_D/2 + 3).project(camera);
-      if (labelPos.z > 1) return;
-      const lx = (labelPos.x * 0.5 + 0.5) * width;
-      const ly = (-labelPos.y * 0.5 + 0.5) * height;
-      const div = document.createElement('div');
-      div.style.cssText = 'position:absolute;left:'+lx+'px;top:'+ly+'px;font-size:13px;color:'+lc.hex+';font-family:IBM Plex Mono,monospace;font-weight:800;letter-spacing:2px;opacity:0.85;text-shadow:0 0 12px '+lc.hex+'66,0 2px 4px #000;pointer-events:none;white-space:nowrap;background:rgba(4,8,16,0.6);padding:2px 8px;border-radius:4px;border-left:3px solid '+lc.hex;
-      div.textContent = lc.label + ' (' + lc.items.length + ')';
-      labelsContainer.appendChild(div);
-    });
-
-    // Node labels
     nodeObjects.forEach(n => {
       const pos = n.mesh.position.clone().project(camera);
       if (pos.z > 1) return;
       const x = (pos.x * 0.5 + 0.5) * width;
       const y = (-pos.y * 0.5 + 0.5) * height;
       const camDist = camera.position.distanceTo(n.mesh.position);
-      if (camDist > 160) return;
-      if (camDist > 100 && n.data.criticality !== 'High') return;
-      const fontSize = camDist < 60 ? 10 : 8;
-      const opacity = Math.max(0.4, Math.min(1, 1 - (camDist - 40) / 140));
-      const shortLabel = n.label.length > 18 ? n.label.slice(0, 16) + '…' : n.label;
-      const typeCol = n.type === 'bp' ? '#E91E63' : n.type === 'svc' ? '#00BCD4' : '#FFB300';
+      if (camDist > 120 && n.data.criticality !== 'High') return;
+      if (camDist > 200) return;
+      const fontSize = camDist < 40 ? 11 : camDist < 80 ? 9 : 7;
+      const opacity = Math.max(0.3, Math.min(1, 1 - (camDist - 30) / 150));
+      const shortLabel = n.label.length > 20 ? n.label.slice(0, 18) + '…' : n.label;
+      const bpMetaCols = { it: '#42A5F5', security: '#FF7043', business: '#66BB6A' };
+      const typeCol = n.type === 'bp' ? (bpMetaCols[n.bpMeta] || '#C2185B') : n.type === 'svc' ? '#00bcd4' : '#eab308';
       const div = document.createElement('div');
-      div.style.cssText = 'position:absolute;left:'+x+'px;top:'+(y+12)+'px;transform:translateX(-50%);font-size:'+fontSize+'px;color:'+typeCol+';font-family:IBM Plex Mono,monospace;white-space:nowrap;opacity:'+opacity+';text-shadow:0 0 6px #040810,0 0 10px #040810;pointer-events:none;font-weight:600';
+      div.style.cssText = 'position:absolute;left:' + x + 'px;top:' + (y + 12) + 'px;transform:translateX(-50%);font-size:' + fontSize + 'px;color:' + typeCol + ';font-family:IBM Plex Mono,monospace;white-space:nowrap;opacity:' + opacity + ';text-shadow:0 0 4px #040810,0 0 8px #040810;pointer-events:none;font-weight:600';
       div.textContent = shortLabel;
       labelsContainer.appendChild(div);
     });
-  }
-
-  // ── End-to-end path tracing ──
-  // Build adjacency from edges for transitive traversal
-  function traceE2E(startId) {
-    const visited = new Set([startId]);
-    const queue = [startId];
-    const touchedEdges = new Set();
-    while (queue.length) {
-      const cur = queue.shift();
-      edgeLines.forEach((e, i) => {
-        if (e.srcId === cur && !visited.has(e.tgtId)) { visited.add(e.tgtId); queue.push(e.tgtId); touchedEdges.add(i); }
-        if (e.tgtId === cur && !visited.has(e.srcId)) { visited.add(e.srcId); queue.push(e.srcId); touchedEdges.add(i); }
-      });
-    }
-    return { nodeIds: visited, edgeIdxs: touchedEdges };
   }
 
   canvas.addEventListener('mousemove', (e) => {
@@ -3267,56 +3327,48 @@ function init3DScene(THREE, OrbitControls, container) {
     mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
     raycaster.setFromCamera(mouse, camera);
     const intersects = raycaster.intersectObjects(nodeObjects.map(n => n.mesh), true);
+
     if (intersects.length > 0) {
       let hitObj = intersects[0].object;
       let node = nodeObjects.find(n => n.mesh === hitObj) || nodeObjects.find(n => n.mesh === hitObj.parent);
       if (node && node !== hoveredNode) {
-        if (hoveredNode) hoveredNode.mesh.material.emissiveIntensity = 0.15;
+        if (hoveredNode) hoveredNode.mesh.material.emissiveIntensity = 0.2;
         hoveredNode = node;
-        node.mesh.material.emissiveIntensity = 0.7;
+        node.mesh.material.emissiveIntensity = 0.8;
         canvas.style.cursor = 'pointer';
-
-        // Trace full end-to-end path
-        const trace = traceE2E(node.id);
-        edgeLines.forEach((e, i) => {
-          const on = trace.edgeIdxs.has(i);
-          e.mat.opacity = on ? 0.8 : 0.03;
-          e.arrowMat.opacity = on ? 0.9 : 0.03;
+        const connIds = new Set([node.id]);
+        edgeLines.forEach(e => {
+          const conn = e.srcId === node.id || e.tgtId === node.id;
+          e.mat.opacity = conn ? 0.8 : 0.06;
+          e.arrowMat.opacity = conn ? 0.8 : 0.06;
+          if (conn) { connIds.add(e.srcId); connIds.add(e.tgtId); }
         });
-        nodeObjects.forEach(n => { n.mesh.material.opacity = trace.nodeIds.has(n.id) ? 1 : 0.06; });
+        nodeObjects.forEach(n => { n.mesh.material.opacity = connIds.has(n.id) ? 1 : 0.12; });
       }
       if (node) {
         tooltip.style.display = 'block';
         tooltip.style.left = (e.clientX - rect.left + 14) + 'px';
         tooltip.style.top = (e.clientY - rect.top - 10) + 'px';
-        const typeLabel = node.type === 'bp' ? '⚡ Business Process' : node.type === 'svc' ? '⚙ IT Service' : '👥 User Group';
+        const bpMetaLabels = { it: '🖥 IT Process', security: '🛡 Security / Compliance', business: '📊 Business Process' };
+        const typeLabel = node.type === 'bp' ? (bpMetaLabels[node.bpMeta] || '⚡ Business Process') : node.type === 'svc' ? '⚙ IT Service' : '👥 User Group';
         const critBg = node.data.criticality === 'High' ? 'rgba(239,68,68,.2);color:#f87171' : node.data.criticality === 'Medium' ? 'rgba(249,115,22,.2);color:#f97316' : 'rgba(34,197,94,.15);color:#4ade80';
-
-        // Count e2e chain
-        const trace = traceE2E(node.id);
-        const chainBPs = [...trace.nodeIds].filter(id => id.startsWith('bp:')).length;
-        const chainSvcs = [...trace.nodeIds].filter(id => id.startsWith('svc:')).length;
-        const chainGrps = [...trace.nodeIds].filter(id => id.startsWith('grp:')).length;
-
+        let connCount = 0;
+        edgeLines.forEach(e => { if (e.srcId === node.id || e.tgtId === node.id) connCount++; });
         let ttHtml = '<div style="font-weight:700;margin-bottom:3px;font-size:.85rem">' + esc(node.label) + '</div>';
         ttHtml += '<div style="font-size:.7rem;color:#8ba5c5;margin-bottom:4px">' + typeLabel + '</div>';
         if (node.data.criticality) ttHtml += '<span style="padding:1px 6px;border-radius:8px;font-size:.65rem;font-weight:700;background:' + critBg + '">' + node.data.criticality + '</span>';
-        ttHtml += '<div style="margin-top:6px;padding-top:4px;border-top:1px solid #1e2a3a;font-size:.68rem;color:#8ba5c5">End-to-End Kette:</div>';
-        ttHtml += '<div style="font-size:.68rem;display:flex;gap:8px;margin-top:2px">';
-        if (chainBPs) ttHtml += '<span style="color:#E91E63">' + chainBPs + ' BP</span>';
-        if (chainSvcs) ttHtml += '<span style="color:#00BCD4">' + chainSvcs + ' Svc</span>';
-        if (chainGrps) ttHtml += '<span style="color:#FFB300">' + chainGrps + ' Grp</span>';
-        ttHtml += '</div>';
-        ttHtml += '<div style="font-size:.62rem;color:#435570;margin-top:2px">' + trace.edgeIdxs.size + ' Verbindungen im Pfad</div>';
+        if (node.data.group) ttHtml += '<div style="font-size:.68rem;color:#435570;margin-top:4px">Group: ' + esc(node.data.group) + '</div>';
+        if (node.data.department) ttHtml += '<div style="font-size:.68rem;color:#435570">Dept: ' + esc(node.data.department) + '</div>';
+        ttHtml += '<div style="font-size:.68rem;color:#f5b800;margin-top:4px">' + connCount + ' Verbindungen</div>';
         tooltip.innerHTML = ttHtml;
       }
     } else {
       if (hoveredNode) {
-        hoveredNode.mesh.material.emissiveIntensity = 0.15;
+        hoveredNode.mesh.material.emissiveIntensity = 0.2;
         hoveredNode = null;
         canvas.style.cursor = 'grab';
         tooltip.style.display = 'none';
-        edgeLines.forEach(e => { e.mat.opacity = 0.45; e.arrowMat.opacity = 0.7; });
+        edgeLines.forEach(e => { e.mat.opacity = 0.35; e.arrowMat.opacity = 0.5; });
         nodeObjects.forEach(n => { n.mesh.material.opacity = 0.9; });
       }
     }
@@ -3326,15 +3378,15 @@ function init3DScene(THREE, OrbitControls, container) {
     if (!hoveredNode) { detail.style.display = 'none'; return; }
     const n = hoveredNode;
     controls.target.copy(n.mesh.position);
-    detail.style.display = 'block';
-    const typeLabel = n.type === 'bp' ? '⚡ Business Process' : n.type === 'svc' ? '⚙ IT Service' : '👥 User Group';
-    const typeColor = n.type === 'bp' ? '#E91E63' : n.type === 'svc' ? '#00BCD4' : '#FFB300';
 
+    detail.style.display = 'block';
+    const bpML2 = { it: '🖥 IT Process', security: '🛡 Security / Compliance', business: '📊 Business Process' };
+    const typeLabel = n.type === 'bp' ? (bpML2[n.bpMeta] || '⚡ Business Process') : n.type === 'svc' ? '⚙ IT Service' : '👥 User Group';
+    const typeColor = n.type === 'bp' ? '#C2185B' : n.type === 'svc' ? '#00bcd4' : '#eab308';
     let html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><div style="font-size:.95rem;font-weight:700;color:' + typeColor + '">' + esc(n.label) + '</div>';
     html += '<button onclick="document.getElementById(\'three-detail\').style.display=\'none\'" style="background:none;border:none;color:#435570;cursor:pointer;font-size:1.2rem">✕</button></div>';
     html += '<div style="font-size:.68rem;color:#435570;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">' + typeLabel + '</div>';
 
-    // Properties
     const props = [];
     if (n.data.criticality) props.push(['Criticality', n.data.criticality]);
     if (n.data.group) props.push(['Service Group', n.data.group]);
@@ -3346,6 +3398,8 @@ function init3DScene(THREE, OrbitControls, container) {
     if (n.data.rto) props.push(['RTO', n.data.rto]);
     if (n.data.rpo) props.push(['RPO', n.data.rpo]);
     if (n.data.description) props.push(['Beschreibung', n.data.description]);
+    if (n.data.notes) props.push(['Anmerkungen', n.data.notes]);
+
     if (props.length) {
       html += '<div style="background:#0D1B2A;border-radius:6px;padding:8px;margin-bottom:10px">';
       props.forEach(([k, v]) => {
@@ -3355,45 +3409,6 @@ function init3DScene(THREE, OrbitControls, container) {
       html += '</div>';
     }
 
-    // ── End-to-End Chain ──
-    const trace = traceE2E(n.id);
-    const chainNodes = { bp: [], svc: [], grp: [] };
-    trace.nodeIds.forEach(id => {
-      const nd = nodeObjects.find(o => o.id === id);
-      if (nd && nd.id !== n.id) chainNodes[nd.type]?.push(nd);
-    });
-
-    // Show E2E summary
-    const totalE2E = chainNodes.bp.length + chainNodes.svc.length + chainNodes.grp.length;
-    if (totalE2E > 0) {
-      html += '<div style="background:linear-gradient(135deg,#0D1B2A,#1a1040);border:1px solid #E040FB44;border-radius:8px;padding:10px;margin-bottom:10px">';
-      html += '<div style="font-size:.72rem;font-weight:700;color:#E040FB;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">🔗 End-to-End Kette</div>';
-
-      const renderChainLayer = (icon, label, items, color) => {
-        if (!items.length) return '';
-        let h = '<div style="margin:4px 0"><div style="font-size:.66rem;color:' + color + ';font-weight:700;margin-bottom:2px">' + icon + ' ' + label + ' (' + items.length + ')</div>';
-        items.forEach(c => {
-          h += '<div style="display:flex;align-items:center;gap:5px;padding:2px 6px;margin:1px 0;font-size:.74rem">';
-          h += '<span style="width:5px;height:5px;border-radius:50%;background:' + color + ';flex-shrink:0"></span>';
-          h += '<span style="color:#f0f4fc">' + esc(c.label) + '</span>';
-          if (c.data?.criticality) {
-            const cc = c.data.criticality === 'High' ? '#EF5350' : c.data.criticality === 'Medium' ? '#f97316' : '#66BB6A';
-            h += '<span style="font-size:.6rem;color:' + cc + ';margin-left:auto">' + c.data.criticality + '</span>';
-          }
-          h += '</div>';
-        });
-        h += '</div>';
-        return h;
-      };
-
-      html += renderChainLayer('⚡', 'Business Processes', chainNodes.bp, '#E91E63');
-      html += renderChainLayer('⚙', 'IT Services', chainNodes.svc, '#00BCD4');
-      html += renderChainLayer('👥', 'User Groups', chainNodes.grp, '#FFB300');
-      html += '<div style="font-size:.62rem;color:#435570;margin-top:4px;text-align:center">' + trace.edgeIdxs.size + ' Verbindungen · ' + (totalE2E + 1) + ' Knoten im Pfad</div>';
-      html += '</div>';
-    }
-
-    // Direct connections
     const incoming = [], outgoing = [];
     edgeLines.forEach(e => {
       if (e.srcId === n.id) { const t = nodeObjects.find(o => o.id === e.tgtId); if (t) outgoing.push({ ...t, lineType: e.lineType }); }
@@ -3403,7 +3418,7 @@ function init3DScene(THREE, OrbitControls, container) {
       if (!items.length) return '';
       let h = '<div style="font-size:.68rem;color:#435570;text-transform:uppercase;letter-spacing:1px;margin:8px 0 4px">' + title + ' (' + items.length + ')</div>';
       items.forEach(c => {
-        const col = c.type === 'bp' ? '#E91E63' : c.type === 'svc' ? '#00BCD4' : '#FFB300';
+        const col = c.type === 'bp' ? '#C2185B' : c.type === 'svc' ? '#00bcd4' : '#eab308';
         h += '<div style="display:flex;align-items:center;gap:6px;padding:4px 6px;margin:2px 0;background:#0D1B2A;border-radius:4px;font-size:.76rem">';
         h += '<div style="width:6px;height:6px;border-radius:50%;background:' + col + ';flex-shrink:0"></div>';
         h += '<span style="color:#f0f4fc;flex:1">' + esc(c.label) + '</span>';
@@ -3412,13 +3427,12 @@ function init3DScene(THREE, OrbitControls, container) {
       });
       return h;
     };
-    html += renderList('→ Direkt ausgehend', outgoing);
-    html += renderList('← Direkt eingehend', incoming);
-    if (!outgoing.length && !incoming.length && totalE2E === 0) html += '<div style="color:#435570;font-size:.82rem;text-align:center;padding:12px">Keine Verbindungen</div>';
+    html += renderList('→ Ausgehend', outgoing);
+    html += renderList('← Eingehend', incoming);
+    if (!outgoing.length && !incoming.length) html += '<div style="color:#435570;font-size:.82rem;text-align:center;padding:12px">Keine Verbindungen</div>';
     detail.innerHTML = html;
   });
 
-  // ── Animation ──
   let animId;
   const clock = new THREE.Clock();
   let labelTimer = 0;
@@ -3427,11 +3441,10 @@ function init3DScene(THREE, OrbitControls, container) {
     const t = clock.getElapsedTime();
     const dt = clock.getDelta();
     controls.update();
-    // Gentle hover animation
     nodeObjects.forEach((n, i) => {
-      const baseY = LAYERS.find(l => l.key === n.type)?.y || 0;
-      n.mesh.position.y = baseY + 2 + Math.sin(t * 0.4 + i * 0.7) * 0.15;
-      n.mesh.rotation.y = t * 0.06 + i * 0.4;
+      const baseY = n.type === 'bp' ? LAYER_Y.bp : n.type === 'svc' ? LAYER_Y.svc : LAYER_Y.grp;
+      n.mesh.position.y = baseY + Math.sin(t * 0.4 + i * 0.5) * 0.3;
+      n.mesh.rotation.y = t * 0.1 + i * 0.3;
     });
     labelTimer += dt;
     if (labelTimer > 0.1) { labelTimer = 0; updateLabels(); }
@@ -3466,30 +3479,14 @@ function rebuild3DGraph() { renderDepGraph3D(); }
 
 function reset3DView() {
   if (window._3dCamera && window._3dControls) {
-    window._3dCamera.position.set(0, 90, 160);
-    window._3dControls.target.set(0, 20, 0);
+    window._3dCamera.position.set(60, 80, 100);
+    window._3dControls.target.set(0, 0, 0);
     window._3dControls.update();
     document.getElementById('three-detail').style.display = 'none';
   }
 }
 
-function set3DView(preset) {
-  if (!window._3dCamera || !window._3dControls) return;
-  const cam = window._3dCamera;
-  const ctrl = window._3dControls;
-  const views = {
-    front: { pos: [0, 45, 180], target: [0, 35, 0] },
-    top:   { pos: [0, 180, 10], target: [0, 35, 0] },
-    side:  { pos: [180, 45, 0], target: [0, 35, 0] },
-  };
-  const v = views[preset];
-  if (!v) return;
-  cam.position.set(...v.pos);
-  ctrl.target.set(...v.target);
-  ctrl.update();
-}
-
-
+// ═══════════════════════════════════════════════════════════════
 function renderAudit(){
   const checks = runAuditChecks();
   const critical = checks.filter(c=>c.severity==='critical');
