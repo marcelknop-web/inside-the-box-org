@@ -2627,14 +2627,14 @@ function renderGraph(nodes, links) {
   filter.append('feGaussianBlur').attr('stdDeviation',4).attr('result','blur');
   filter.append('feMerge').selectAll('feMergeNode').data(['blur','SourceGraphic']).enter().append('feMergeNode').attr('in',d=>d);
 
-  // Simulation
+  // Simulation — layered layout: BPs top, services center, groups bottom
+  const typeY = { bp: height * 0.18, service: height * 0.5, group: height * 0.82 };
   const sim = d3.forceSimulation(nodes)
-    .force('link', d3.forceLink(links).id(d => d.id).distance(d => d.type === 'dep' ? 120 : 160).strength(0.4))
-    .force('charge', d3.forceManyBody().strength(-300).distanceMax(500))
-    .force('center', d3.forceCenter(width/2, height/2))
-    .force('collision', d3.forceCollide().radius(35))
-    .force('x', d3.forceX(width/2).strength(0.03))
-    .force('y', d3.forceY(height/2).strength(0.03));
+    .force('link', d3.forceLink(links).id(d => d.id).distance(d => d.type === 'dep' ? 100 : 140).strength(0.3))
+    .force('charge', d3.forceManyBody().strength(-200).distanceMax(400))
+    .force('x', d3.forceX(width/2).strength(0.05))
+    .force('y', d3.forceY(d => typeY[d.type] || height/2).strength(0.25))
+    .force('collision', d3.forceCollide().radius(30));
   _graphSim = sim;
 
   // Links
