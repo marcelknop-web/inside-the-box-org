@@ -2438,13 +2438,19 @@ function applyExtraction(extractedRaw){
 // DEPENDENCY GRAPH VISUALIZATION
 // ═══════════════════════════════════════════════════════════════
 function renderDepGraph(){
+  // Build quick-jump topics from BP categories and service groups
+  const bpCats = [...new Set(DB.businessProcesses.map(b => b.category).filter(Boolean))].sort();
+  const svcGrps = [...new Set(DB.services.map(s => s.group).filter(Boolean))].sort();
+  const criticalNodes = DB.services.filter(s => s.criticality === 'High').slice(0,6);
+
   document.getElementById('main-content').innerHTML = `
     <div class="view-header" style="flex-shrink:0">
       <div>
         <div class="view-title" style="color:#80DEEA">🌐 Interactive Dependency Map</div>
-        <div class="view-subtitle">Click nodes to drill down · Scroll to zoom · Drag to pan · Double-click to reset</div>
+        <div class="view-subtitle">Search or pick a topic below · Click nodes to drill down · Scroll to zoom</div>
       </div>
-      <div class="view-actions">
+      <div class="view-actions" style="gap:6px;display:flex;flex-wrap:wrap;align-items:center">
+        <input id="graph-search" type="text" placeholder="🔍 Search node…" style="background:#080b10;color:#f0f4fc;border:1px solid #1e2a3a;border-radius:6px;padding:4px 10px;font-size:.78rem;width:180px;font-family:inherit" oninput="graphSearchNode(this.value)" />
         <select id="graph-filter" class="btn btn-ghost btn-sm" style="background:#080b10;color:#f5b800;border:1px solid #1e2a3a" onchange="updateGraph()">
           <option value="all">All Relationships</option>
           <option value="serviceDeps">Service Dependencies</option>
@@ -2454,8 +2460,15 @@ function renderDepGraph(){
         <button class="btn btn-ghost btn-sm" onclick="resetGraphView()">⟳ Reset View</button>
       </div>
     </div>
+    <div id="graph-topics" style="flex-shrink:0;display:flex;gap:6px;flex-wrap:wrap;padding:0 0 8px;align-items:center">
+      <span style="color:#435570;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-right:4px">Quick Jump:</span>
+      <button class="topic-chip topic-crit" onclick="graphJumpCritical()">🔴 Critical Services</button>
+      ${bpCats.map(c => '<button class="topic-chip topic-bp" onclick="graphJumpCategory(\'' + esc(c) + '\')">' + esc(c) + '</button>').join('')}
+      ${svcGrps.map(g => '<button class="topic-chip topic-svc" onclick="graphJumpGroup(\'' + esc(g) + '\')">' + esc(g) + '</button>').join('')}
+    </div>
     <div id="graph-container" style="flex:1;position:relative;overflow:hidden;border-radius:8px;background:#060E18;border:1px solid #1e2a3a">
       <svg id="dep-svg" style="width:100%;height:100%"></svg>
+      <div id="graph-search-results" style="display:none;position:absolute;top:4px;left:200px;background:#080b10EE;border:1px solid #1e2a3a;border-radius:8px;max-height:260px;overflow-y:auto;width:260px;z-index:30;backdrop-filter:blur(8px)"></div>
       <div id="graph-detail" style="display:none;position:absolute;top:16px;right:16px;width:320px;max-height:calc(100% - 32px);overflow-y:auto;background:#080b10EE;border:1px solid #1e2a3a;border-radius:10px;padding:16px;backdrop-filter:blur(8px)">
         <div id="graph-detail-content"></div>
       </div>
@@ -2472,37 +2485,126 @@ function renderDepGraph(){
         <div style="display:flex;flex-direction:column;gap:6px">
           <div style="color:#8ba5c5;font-weight:700;font-size:.65rem;text-transform:uppercase;letter-spacing:.5px">Verbindungen</div>
           <div style="display:flex;gap:10px;flex-wrap:wrap">
-            <span style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:2px;background:#f5b800;display:inline-block"></span><span style="color:#f0f4fc">Service Dependency</span></span>
-            <span style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:2px;background:#E040FB;display:inline-block"></span><span style="color:#f0f4fc">BP → Service Mapping</span></span>
+            <span style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:2px;background:#f5b800;display:inline-block"></span><span style="color:#f0f4fc">Service Dep</span></span>
+            <span style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:2px;background:#E040FB;display:inline-block"></span><span style="color:#f0f4fc">BP → Svc</span></span>
             <span style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:2px;background:#00E5FF;display:inline-block"></span><span style="color:#f0f4fc">Permission</span></span>
-          </div>
-        </div>
-        <div style="width:1px;background:#1e2a3a"></div>
-        <div style="display:flex;flex-direction:column;gap:6px">
-          <div style="color:#8ba5c5;font-weight:700;font-size:.65rem;text-transform:uppercase;letter-spacing:.5px">Criticality</div>
-          <div style="display:flex;gap:10px;flex-wrap:wrap">
-            <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:50%;border:2px solid #ef4444;display:inline-block"></span><span style="color:#f0f4fc">High</span></span>
-            <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:50%;border:2px solid #f97316;display:inline-block"></span><span style="color:#f0f4fc">Medium</span></span>
-            <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:50%;border:2px solid #66BB6A;display:inline-block"></span><span style="color:#f0f4fc">Low</span></span>
-          </div>
-        </div>
-        <div style="width:1px;background:#1e2a3a"></div>
-        <div style="display:flex;flex-direction:column;gap:6px">
-          <div style="color:#8ba5c5;font-weight:700;font-size:.65rem;text-transform:uppercase;letter-spacing:.5px">Linienstil</div>
-          <div style="display:flex;gap:10px;flex-wrap:wrap">
-            <span style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:2px;background:#f5b800;display:inline-block"></span><span style="color:#f0f4fc">Mandatory</span></span>
-            <span style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:2px;background:#f5b800;display:inline-block;border-top:2px dashed #f5b800;height:0"></span><span style="color:#f0f4fc">Optional / Supporting</span></span>
           </div>
         </div>
       </div>
       <div id="graph-breadcrumb" style="position:absolute;top:16px;left:16px;font-size:.78rem;color:#435570;display:flex;gap:6px;align-items:center"></div>
     </div>`;
 
-  // Set container height
+  // Topic chip styles
+  const style = document.createElement('style');
+  style.textContent = '.topic-chip{background:#0D1B2A;border:1px solid #1e2a3a;color:#8ba5c5;padding:3px 10px;border-radius:12px;font-size:.7rem;cursor:pointer;font-family:inherit;transition:all .2s}.topic-chip:hover{border-color:#f5b800;color:#f5b800;background:#0e1218}.topic-crit{border-color:rgba(239,68,68,.3);color:#f87171}.topic-crit:hover{border-color:#ef4444;color:#ef4444}.topic-bp{border-color:rgba(194,24,91,.25);color:#E040FB}.topic-bp:hover{border-color:#E040FB}.topic-svc{border-color:rgba(0,188,212,.2);color:#80DEEA}.topic-svc:hover{border-color:#00bcd4;color:#00bcd4}';
+  document.getElementById('graph-topics').appendChild(style);
+
   const container = document.getElementById('graph-container');
-  container.style.height = (window.innerHeight - 140) + 'px';
+  container.style.height = (window.innerHeight - 190) + 'px';
 
   buildGraph();
+}
+
+// 2D Graph search
+function graphSearchNode(query) {
+  const panel = document.getElementById('graph-search-results');
+  if (!query || query.length < 2 || !_graphData) { panel.style.display = 'none'; return; }
+  const q = query.toLowerCase();
+  const matches = _graphData.nodes.filter(n => n.label.toLowerCase().includes(q)).slice(0, 12);
+  if (!matches.length) { panel.style.display = 'none'; return; }
+  panel.style.display = 'block';
+  const typeCol = { service: '#00bcd4', bp: '#C2185B', group: '#eab308' };
+  const typeIcon = { service: '⚙', bp: '⚡', group: '👥' };
+  panel.innerHTML = matches.map(n =>
+    '<div style="display:flex;align-items:center;gap:8px;padding:6px 12px;cursor:pointer;font-size:.78rem;border-bottom:1px solid #0D1B2A" onmouseover="this.style.background=\'#0D1B2A\'" onmouseout="this.style.background=\'transparent\'" onclick="document.getElementById(\'graph-search-results\').style.display=\'none\';focusNodeById(\'' + n.id + '\')">' +
+    '<span style="color:' + (typeCol[n.type]||'#435570') + '">' + (typeIcon[n.type]||'') + '</span>' +
+    '<span style="color:#f0f4fc;flex:1">' + esc(n.label) + '</span>' +
+    '<span style="color:#435570;font-size:.65rem">' + (n.criticality||'') + '</span></div>'
+  ).join('');
+}
+
+// Jump to critical services
+function graphJumpCritical() {
+  if (!_graphData) return;
+  const critical = _graphData.nodes.filter(n => n.criticality === 'High');
+  if (!critical.length) return;
+  graphHighlightSet(new Set(critical.map(n => n.id)), '🔴 Critical Services');
+}
+
+// Jump to a BP category
+function graphJumpCategory(cat) {
+  if (!_graphData) return;
+  const bps = _graphData.nodes.filter(n => n.type === 'bp' && n.data?.category === cat);
+  if (!bps.length) return;
+  // Also find connected services
+  const ids = new Set(bps.map(n => n.id));
+  _graphData.links.forEach(l => {
+    const sid = typeof l.source === 'object' ? l.source.id : l.source;
+    const tid = typeof l.target === 'object' ? l.target.id : l.target;
+    if (ids.has(sid)) ids.add(tid);
+    if (ids.has(tid)) ids.add(sid);
+  });
+  graphHighlightSet(ids, '📊 ' + cat);
+}
+
+// Jump to a service group
+function graphJumpGroup(grp) {
+  if (!_graphData) return;
+  const svcs = _graphData.nodes.filter(n => n.type === 'service' && n.group === grp);
+  if (!svcs.length) return;
+  const ids = new Set(svcs.map(n => n.id));
+  _graphData.links.forEach(l => {
+    const sid = typeof l.source === 'object' ? l.source.id : l.source;
+    const tid = typeof l.target === 'object' ? l.target.id : l.target;
+    if (ids.has(sid)) ids.add(tid);
+    if (ids.has(tid)) ids.add(sid);
+  });
+  graphHighlightSet(ids, '⚙ ' + grp);
+}
+
+// Highlight and zoom to a set of node IDs
+function graphHighlightSet(ids, label) {
+  if (!_graphSvg || !_graphZoom || !_graphData) return;
+  // Compute bounding box of matching nodes
+  let minX=Infinity,maxX=-Infinity,minY=Infinity,maxY=-Infinity;
+  const matchNodes = _graphData.nodes.filter(n => ids.has(n.id));
+  matchNodes.forEach(n => {
+    if (n.x < minX) minX = n.x;
+    if (n.x > maxX) maxX = n.x;
+    if (n.y < minY) minY = n.y;
+    if (n.y > maxY) maxY = n.y;
+  });
+  const container = document.getElementById('graph-container');
+  const cw = container.clientWidth, ch = container.clientHeight;
+  const pad = 80;
+  const bw = (maxX - minX) || 200, bh = (maxY - minY) || 200;
+  const scale = Math.min(cw / (bw + pad*2), ch / (bh + pad*2), 3);
+  const cx = (minX + maxX) / 2, cy = (minY + maxY) / 2;
+
+  _graphSvg.transition().duration(750).call(
+    _graphZoom.transform,
+    d3.zoomIdentity.translate(cw/2, ch/2).scale(scale).translate(-cx, -cy)
+  );
+
+  // Dim unrelated nodes/links
+  d3.select('#dep-svg').selectAll('g > g > g').transition().duration(400).attr('opacity', d => ids.has(d.id) ? 1 : 0.12);
+  d3.select('#dep-svg').selectAll('g > g > line').transition().duration(400).attr('stroke-opacity', l => {
+    const sid = typeof l.source === 'object' ? l.source.id : l.source;
+    const tid = typeof l.target === 'object' ? l.target.id : l.target;
+    return (ids.has(sid) && ids.has(tid)) ? 0.7 : 0.04;
+  });
+
+  // Breadcrumb
+  document.getElementById('graph-breadcrumb').innerHTML =
+    '<span style="cursor:pointer;color:#80DEEA" onclick="resetGraphView()"">🌐 Global</span>' +
+    '<span style="color:#1e2a3a">›</span>' +
+    '<span style="color:#f0f4fc">' + label + ' (' + matchNodes.length + ' nodes)</span>';
+
+  // Auto-reset dimming after 8s
+  setTimeout(() => {
+    d3.select('#dep-svg').selectAll('g > g > g').transition().duration(600).attr('opacity', 1);
+    d3.select('#dep-svg').selectAll('g > g > line').transition().duration(600).attr('stroke-opacity', 0.35);
+  }, 8000);
 }
 
 let _graphSim = null;
