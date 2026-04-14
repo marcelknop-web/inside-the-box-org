@@ -7,200 +7,222 @@
 <title>ARLANXEO ITSM – Service Catalog Manager</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:Arial,sans-serif;background:#0F1923;color:#DDE3EC;min-height:100vh;display:flex;flex-direction:column}
+body{
+  font-family:'DM Sans',system-ui,-apple-system,sans-serif;
+  background:
+    radial-gradient(circle at 20% 30%, hsl(216 26% 9%/.85) 0%, transparent 45%),
+    radial-gradient(circle at 80% 70%, hsl(216 26% 10%/.7) 0%, transparent 50%),
+    linear-gradient(hsl(214 28% 24%/.45) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(214 28% 24%/.45) 1px, transparent 1px),
+    linear-gradient(hsl(214 24% 20%/.2) .5px, transparent .5px),
+    linear-gradient(90deg, hsl(214 24% 20%/.2) .5px, transparent .5px),
+    linear-gradient(135deg, #080b10 0%, #0e1218 100%);
+  background-size:100% 100%,100% 100%,50px 50px,50px 50px,5px 5px,5px 5px,100% 100%;
+  color:#f0f4fc;min-height:100vh;display:flex;flex-direction:column
+}
 /* ── Top bar ── */
-.topbar{background:linear-gradient(90deg,#0D3B7A,#1565C0);padding:0 24px;height:54px;display:flex;align-items:center;gap:16px;border-bottom:3px solid #FFD600;flex-shrink:0}
-.topbar h1{font-size:1.1rem;font-weight:700;letter-spacing:.3px}
-.topbar .subtitle{font-size:.78rem;color:#BBDEFB}
+.topbar{background:linear-gradient(90deg,#080b10,#0e1218);padding:0 24px;height:54px;display:flex;align-items:center;gap:16px;border-bottom:2px solid #f5b800;flex-shrink:0}
+.topbar h1{font-size:1.05rem;font-weight:600;letter-spacing:.3px;color:#f0f4fc}
+.topbar .subtitle{font-size:.75rem;color:#8ba5c5;font-family:'IBM Plex Mono',monospace}
 .topbar .badges{margin-left:auto;display:flex;gap:8px}
-.badge{padding:3px 10px;border-radius:12px;font-size:.7rem;font-weight:700}
-.badge-gold{background:#FFD600;color:#0D1B2A}
-.badge-blue{background:#2196F3;color:#fff}
-.badge-green{background:#2E7D32;color:#fff}
+.badge{padding:3px 10px;border-radius:12px;font-size:.68rem;font-weight:700;font-family:'IBM Plex Mono',monospace}
+.badge-gold{background:#f5b800;color:#080b10}
+.badge-blue{background:#00bcd4;color:#080b10}
+.badge-green{background:#22c55e;color:#080b10}
 /* ── Layout ── */
 .layout{display:flex;flex:1;overflow:hidden}
 /* ── Sidebar ── */
-.sidebar{width:220px;min-width:220px;background:#0A1628;border-right:1px solid #1E3A5F;overflow-y:auto;padding:12px 0;flex-shrink:0}
-.sidebar-section{padding:4px 14px 2px;font-size:.65rem;color:#546E7A;text-transform:uppercase;letter-spacing:1px;margin-top:8px}
-.nav-item{padding:9px 14px;cursor:pointer;border-left:3px solid transparent;font-size:.83rem;color:#90A4AE;display:flex;align-items:center;gap:8px;transition:all .15s}
-.nav-item:hover{background:#112240;color:#90CAF9;border-left-color:#1E88E5}
-.nav-item.active{background:#112A4A;color:#64B5F6;border-left-color:#1E88E5;font-weight:600}
+.sidebar{width:220px;min-width:220px;background:#0e1218;border-right:1px solid #1e2a3a;overflow-y:auto;padding:12px 0;flex-shrink:0}
+.sidebar-section{padding:4px 14px 2px;font-size:.62rem;color:#8ba5c5;text-transform:uppercase;letter-spacing:1.2px;margin-top:10px;font-family:'IBM Plex Mono',monospace}
+.nav-item{padding:9px 14px;cursor:pointer;border-left:3px solid transparent;font-size:.82rem;color:#8ba5c5;display:flex;align-items:center;gap:8px;transition:all .15s}
+.nav-item:hover{background:#141c28;color:#f0f4fc;border-left-color:#f5b800}
+.nav-item.active{background:#1a2535;color:#f5b800;border-left-color:#f5b800;font-weight:600}
 .nav-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.nav-count{margin-left:auto;background:#1E3A5F;color:#90CAF9;font-size:.68rem;font-weight:700;padding:1px 6px;border-radius:10px}
+.nav-count{margin-left:auto;background:#1a2535;color:#f5b800;font-size:.66rem;font-weight:700;padding:1px 6px;border-radius:10px;font-family:'IBM Plex Mono',monospace}
 /* ── Main ── */
 .main{flex:1;overflow-y:auto;padding:20px 24px;display:flex;flex-direction:column;gap:0}
 /* ── View header ── */
 .view-header{display:flex;align-items:center;gap:12px;margin-bottom:16px}
-.view-title{font-size:1.05rem;font-weight:700;color:#90CAF9}
-.view-subtitle{font-size:.8rem;color:#546E7A}
+.view-title{font-size:1.05rem;font-weight:600;color:#f5b800}
+.view-subtitle{font-size:.78rem;color:#8ba5c5;font-family:'IBM Plex Mono',monospace}
 .view-actions{margin-left:auto;display:flex;gap:8px}
 /* ── Buttons ── */
-.btn{padding:7px 14px;border:none;border-radius:6px;cursor:pointer;font-size:.8rem;font-weight:600;display:flex;align-items:center;gap:6px;transition:all .15s}
-.btn-primary{background:#1565C0;color:#fff}.btn-primary:hover{background:#1976D2}
-.btn-success{background:#2E7D32;color:#fff}.btn-success:hover{background:#388E3C}
-.btn-warning{background:#E65100;color:#fff}.btn-warning:hover{background:#F4511E}
-.btn-danger{background:#B71C1C;color:#fff}.btn-danger:hover{background:#C62828}
-.btn-ghost{background:#1E3A5F;color:#90CAF9;border:1px solid #2A4A7F}.btn-ghost:hover{background:#2A4A7F}
-.btn-sm{padding:4px 9px;font-size:.74rem}
+.btn{padding:7px 14px;border:none;border-radius:6px;cursor:pointer;font-size:.78rem;font-weight:600;display:flex;align-items:center;gap:6px;transition:all .15s;font-family:'DM Sans',sans-serif}
+.btn-primary{background:#f5b800;color:#080b10}.btn-primary:hover{background:#ffc926}
+.btn-success{background:#22c55e;color:#080b10}.btn-success:hover{background:#4ade80}
+.btn-warning{background:#eab308;color:#080b10}.btn-warning:hover{background:#facc15}
+.btn-danger{background:#ef4444;color:#fff}.btn-danger:hover{background:#f87171}
+.btn-ghost{background:#1a2535;color:#f5b800;border:1px solid #1e2a3a}.btn-ghost:hover{background:#243447;border-color:#f5b800}
+.btn-sm{padding:4px 9px;font-size:.72rem}
 /* ── Search / filter bar ── */
 .filter-bar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
-.search-input{background:#112240;border:1px solid #1E3A5F;border-radius:6px;padding:7px 12px;color:#DDE3EC;font-size:.82rem;flex:1;min-width:180px}
-.search-input:focus{outline:none;border-color:#1E88E5}
-.filter-select{background:#112240;border:1px solid #1E3A5F;border-radius:6px;padding:7px 12px;color:#DDE3EC;font-size:.82rem;cursor:pointer}
-.filter-select:focus{outline:none;border-color:#1E88E5}
+.search-input{background:#141c28;border:1px solid #1e2a3a;border-radius:6px;padding:7px 12px;color:#f0f4fc;font-size:.82rem;flex:1;min-width:180px;font-family:'DM Sans',sans-serif}
+.search-input:focus{outline:none;border-color:#f5b800;box-shadow:0 0 6px rgba(245,184,0,.15)}
+.filter-select{background:#141c28;border:1px solid #1e2a3a;border-radius:6px;padding:7px 12px;color:#f0f4fc;font-size:.82rem;cursor:pointer;font-family:'DM Sans',sans-serif}
+.filter-select:focus{outline:none;border-color:#f5b800}
 /* ── Table ── */
-.table-wrap{overflow-x:auto;border-radius:8px;border:1px solid #1E3A5F}
+.table-wrap{overflow-x:auto;border-radius:8px;border:1px solid #1e2a3a}
 table{width:100%;border-collapse:collapse;font-size:.8rem}
-thead tr{background:#0D2040}
-th{padding:9px 12px;text-align:left;font-size:.72rem;color:#90CAF9;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;border-bottom:2px solid #1E3A5F}
-td{padding:8px 12px;border-bottom:1px solid #152035;vertical-align:top}
+thead tr{background:#0e1218}
+th{padding:9px 12px;text-align:left;font-size:.7rem;color:#f5b800;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;border-bottom:2px solid #1e2a3a;font-family:'IBM Plex Mono',monospace}
+td{padding:8px 12px;border-bottom:1px solid #141c28;vertical-align:top;color:#f0f4fc}
 tr:last-child td{border-bottom:none}
-tr:hover td{background:#112240}
+tr:hover td{background:#1a2535}
 .td-wrap{max-width:280px;word-break:break-word}
 .td-center{text-align:center}
 .td-nowrap{white-space:nowrap}
 /* ── Badges ── */
-.chip{display:inline-block;padding:2px 8px;border-radius:10px;font-size:.7rem;font-weight:700}
-.chip-high{background:#C62828;color:#fff}
-.chip-medium{background:#E65100;color:#fff}
-.chip-low{background:#2E7D32;color:#fff}
-.chip-mandatory{background:#C62828;color:#fff}
-.chip-supporting{background:#E65100;color:#fff}
-.chip-optional{background:#1565C0;color:#fff}
-.chip-admin{background:#C62828;color:#fff}
-.chip-readwrite{background:#1565C0;color:#fff}
-.chip-read{background:#2E7D32;color:#fff}
-.chip-limited{background:#607D8B;color:#fff}
-.chip-privileged{background:#6A1B9A;color:#fff}
-.chip-yes{background:#C62828;color:#fff}
-.chip-no{background:#1E3A5F;color:#90A4AE}
-.chip-group{background:#1A3560;color:#90CAF9;font-weight:400}
+.chip{display:inline-block;padding:2px 8px;border-radius:10px;font-size:.68rem;font-weight:700;font-family:'IBM Plex Mono',monospace}
+.chip-high{background:rgba(239,68,68,.2);color:#f87171;border:1px solid rgba(239,68,68,.3)}
+.chip-medium{background:rgba(234,179,8,.15);color:#facc15;border:1px solid rgba(234,179,8,.25)}
+.chip-low{background:rgba(34,197,94,.15);color:#4ade80;border:1px solid rgba(34,197,94,.25)}
+.chip-mandatory{background:rgba(239,68,68,.2);color:#f87171;border:1px solid rgba(239,68,68,.3)}
+.chip-supporting{background:rgba(234,179,8,.15);color:#facc15;border:1px solid rgba(234,179,8,.25)}
+.chip-optional{background:rgba(0,188,212,.15);color:#22d3ee;border:1px solid rgba(0,188,212,.25)}
+.chip-admin{background:rgba(239,68,68,.2);color:#f87171;border:1px solid rgba(239,68,68,.3)}
+.chip-readwrite{background:rgba(0,188,212,.15);color:#22d3ee;border:1px solid rgba(0,188,212,.25)}
+.chip-read{background:rgba(34,197,94,.15);color:#4ade80;border:1px solid rgba(34,197,94,.25)}
+.chip-limited{background:rgba(139,165,197,.15);color:#8ba5c5;border:1px solid rgba(139,165,197,.25)}
+.chip-privileged{background:rgba(168,85,247,.15);color:#c084fc;border:1px solid rgba(168,85,247,.25)}
+.chip-yes{background:rgba(239,68,68,.2);color:#f87171;border:1px solid rgba(239,68,68,.3)}
+.chip-no{background:#1a2535;color:#8ba5c5;border:1px solid #1e2a3a}
+.chip-group{background:rgba(245,184,0,.08);color:#f5b800;font-weight:500;border:1px solid rgba(245,184,0,.2)}
 /* ── Color dots ── */
 .grp-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px;vertical-align:middle}
 /* ── Modal ── */
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;align-items:center;justify-content:center}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(8,11,16,.85);z-index:100;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
 .modal-overlay.open{display:flex}
-.modal{background:#112240;border:1px solid #1E3A5F;border-radius:10px;width:680px;max-width:96vw;max-height:90vh;overflow-y:auto;padding:24px;position:relative}
-.modal-title{font-size:1rem;font-weight:700;color:#90CAF9;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid #1E3A5F}
-.modal-close{position:absolute;top:16px;right:16px;background:none;border:none;color:#546E7A;font-size:1.2rem;cursor:pointer;padding:4px 8px;border-radius:4px}
-.modal-close:hover{background:#1E3A5F;color:#90CAF9}
+.modal{background:#0e1218;border:1px solid #1e2a3a;border-radius:10px;width:680px;max-width:96vw;max-height:90vh;overflow-y:auto;padding:24px;position:relative;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.modal-title{font-size:1rem;font-weight:600;color:#f5b800;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid #1e2a3a}
+.modal-close{position:absolute;top:16px;right:16px;background:none;border:none;color:#8ba5c5;font-size:1.2rem;cursor:pointer;padding:4px 8px;border-radius:4px}
+.modal-close:hover{background:#1a2535;color:#f5b800}
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .form-grid.full{grid-template-columns:1fr}
 .form-group{display:flex;flex-direction:column;gap:5px}
-.form-group label{font-size:.75rem;color:#90A4AE;font-weight:600;text-transform:uppercase;letter-spacing:.4px}
-.form-input,.form-select,.form-textarea{background:#0A1628;border:1px solid #1E3A5F;border-radius:6px;padding:8px 10px;color:#DDE3EC;font-size:.83rem;width:100%}
-.form-input:focus,.form-select:focus,.form-textarea:focus{outline:none;border-color:#1E88E5}
+.form-group label{font-size:.72rem;color:#8ba5c5;font-weight:600;text-transform:uppercase;letter-spacing:.5px;font-family:'IBM Plex Mono',monospace}
+.form-input,.form-select,.form-textarea{background:#080b10;border:1px solid #1e2a3a;border-radius:6px;padding:8px 10px;color:#f0f4fc;font-size:.83rem;width:100%;font-family:'DM Sans',sans-serif}
+.form-input:focus,.form-select:focus,.form-textarea:focus{outline:none;border-color:#f5b800;box-shadow:0 0 6px rgba(245,184,0,.15)}
 .form-textarea{resize:vertical;min-height:72px}
-.form-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid #1E3A5F}
+.form-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid #1e2a3a}
 /* ── Dashboard ── */
 .dashboard-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:20px}
-.stat-card{background:#112240;border:1px solid #1E3A5F;border-radius:8px;padding:16px;text-align:center}
-.stat-card .num{font-size:2rem;font-weight:700;color:#64B5F6}
-.stat-card .lbl{font-size:.75rem;color:#546E7A;margin-top:4px}
-.stat-card .bar{height:4px;border-radius:2px;margin-top:10px}
+.stat-card{background:#0e1218;border:1px solid #1e2a3a;border-radius:8px;padding:16px;text-align:center;transition:border-color .2s}
+.stat-card:hover{border-color:#f5b800}
+.stat-card .num{font-size:2rem;font-weight:700;color:#f5b800;font-family:'IBM Plex Mono',monospace}
+.stat-card .lbl{font-size:.73rem;color:#8ba5c5;margin-top:4px}
+.stat-card .bar{height:3px;border-radius:2px;margin-top:10px;opacity:.6}
 .crit-bars{display:flex;flex-direction:column;gap:6px;margin-top:12px}
 .crit-row{display:flex;align-items:center;gap:8px;font-size:.78rem}
-.crit-label{width:62px;color:#90A4AE}
-.crit-bar-bg{flex:1;background:#1E3A5F;border-radius:3px;height:10px}
+.crit-label{width:62px;color:#8ba5c5}
+.crit-bar-bg{flex:1;background:#1a2535;border-radius:3px;height:10px}
 .crit-bar-fill{height:10px;border-radius:3px}
-.crit-val{width:30px;text-align:right;color:#90A4AE}
-.recent-changes{background:#112240;border:1px solid #1E3A5F;border-radius:8px;padding:16px;margin-top:0}
-.recent-title{font-size:.82rem;font-weight:700;color:#90CAF9;margin-bottom:10px}
-.change-item{padding:6px 0;border-bottom:1px solid #152035;font-size:.78rem;color:#90A4AE}
+.crit-val{width:30px;text-align:right;color:#8ba5c5}
+.recent-changes{background:#0e1218;border:1px solid #1e2a3a;border-radius:8px;padding:16px;margin-top:0}
+.recent-title{font-size:.82rem;font-weight:600;color:#f5b800;margin-bottom:10px}
+.change-item{padding:6px 0;border-bottom:1px solid #141c28;font-size:.78rem;color:#8ba5c5}
 .change-item:last-child{border-bottom:none}
-.change-item .time{color:#546E7A;font-size:.72rem}
+.change-item .time{color:#435570;font-size:.7rem;font-family:'IBM Plex Mono',monospace}
 /* ── Confirm dialog ── */
-.confirm-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:200;align-items:center;justify-content:center}
+.confirm-overlay{display:none;position:fixed;inset:0;background:rgba(8,11,16,.85);z-index:200;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
 .confirm-overlay.open{display:flex}
-.confirm-box{background:#112240;border:1px solid #C62828;border-radius:10px;padding:24px;width:400px;max-width:94vw}
-.confirm-title{font-size:.95rem;font-weight:700;color:#EF9A9A;margin-bottom:10px}
-.confirm-msg{font-size:.83rem;color:#90A4AE;margin-bottom:20px}
+.confirm-box{background:#0e1218;border:1px solid #ef4444;border-radius:10px;padding:24px;width:400px;max-width:94vw;box-shadow:0 10px 40px rgba(239,68,68,.15)}
+.confirm-title{font-size:.95rem;font-weight:600;color:#f87171;margin-bottom:10px}
+.confirm-msg{font-size:.83rem;color:#8ba5c5;margin-bottom:20px}
 .confirm-actions{display:flex;gap:8px;justify-content:flex-end}
-
 /* ── AI Agent ── */
-.ai-panel{background:#0A1628;border:1px solid #1E3A5F;border-radius:8px;padding:20px;margin-bottom:16px}
-.ai-panel-title{font-size:.88rem;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px}
-.ai-textarea{background:#0A1628;border:1px solid #2A4A7F;border-radius:6px;padding:12px;color:#DDE3EC;font-size:.82rem;width:100%;resize:vertical;min-height:160px;font-family:Arial,sans-serif;line-height:1.5}
-.ai-textarea:focus{outline:none;border-color:#1E88E5}
+.ai-panel{background:#0e1218;border:1px solid #1e2a3a;border-radius:8px;padding:20px;margin-bottom:16px}
+.ai-panel-title{font-size:.88rem;font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:8px;color:#f5b800}
+.ai-textarea{background:#080b10;border:1px solid #1e2a3a;border-radius:6px;padding:12px;color:#f0f4fc;font-size:.82rem;width:100%;resize:vertical;min-height:160px;font-family:'DM Sans',sans-serif;line-height:1.5}
+.ai-textarea:focus{outline:none;border-color:#f5b800;box-shadow:0 0 6px rgba(245,184,0,.15)}
 .ai-key-row{display:flex;gap:8px;align-items:center;margin-bottom:14px}
-.ai-key-input{flex:1;background:#0A1628;border:1px solid #1E3A5F;border-radius:6px;padding:7px 12px;color:#DDE3EC;font-size:.82rem}
-.ai-key-input:focus{outline:none;border-color:#1E88E5}
+.ai-key-input{flex:1;background:#080b10;border:1px solid #1e2a3a;border-radius:6px;padding:7px 12px;color:#f0f4fc;font-size:.82rem;font-family:'DM Sans',sans-serif}
+.ai-key-input:focus{outline:none;border-color:#f5b800}
 .check-row{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}
-.check-item{display:flex;align-items:center;gap:5px;font-size:.8rem;color:#90A4AE;cursor:pointer;padding:5px 10px;border:1px solid #1E3A5F;border-radius:6px;background:#112240}
-.check-item:hover{border-color:#2196F3;color:#90CAF9}
-.check-item input{accent-color:#2196F3}
+.check-item{display:flex;align-items:center;gap:5px;font-size:.8rem;color:#8ba5c5;cursor:pointer;padding:5px 10px;border:1px solid #1e2a3a;border-radius:6px;background:#141c28;transition:all .15s}
+.check-item:hover{border-color:#f5b800;color:#f5b800}
+.check-item input{accent-color:#f5b800}
 .ai-status{padding:10px 14px;border-radius:6px;font-size:.82rem;margin-top:12px;display:none}
-.ai-status.loading{display:flex;align-items:center;gap:10px;background:#1A2E4A;color:#90CAF9;border:1px solid #1E88E5}
-.ai-status.error{display:block;background:#2A0A0A;color:#EF9A9A;border:1px solid #C62828}
-.ai-status.success{display:block;background:#0A2A0A;color:#A5D6A7;border:1px solid #2E7D32}
-.spinner{width:18px;height:18px;border:2px solid #1E3A5F;border-top-color:#2196F3;border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0}
+.ai-status.loading{display:flex;align-items:center;gap:10px;background:rgba(245,184,0,.06);color:#f5b800;border:1px solid rgba(245,184,0,.3)}
+.ai-status.error{display:block;background:rgba(239,68,68,.08);color:#f87171;border:1px solid rgba(239,68,68,.3)}
+.ai-status.success{display:block;background:rgba(34,197,94,.08);color:#4ade80;border:1px solid rgba(34,197,94,.3)}
+.spinner{width:18px;height:18px;border:2px solid #1e2a3a;border-top-color:#f5b800;border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0}
 @keyframes spin{to{transform:rotate(360deg)}}
 .preview-section{margin-top:16px}
 .preview-group{margin-bottom:16px}
-.preview-group-title{font-size:.8rem;font-weight:700;color:#90CAF9;margin-bottom:8px;display:flex;align-items:center;gap:8px}
-.preview-item{display:flex;align-items:flex-start;gap:10px;padding:8px 12px;background:#112240;border:1px solid #1E3A5F;border-radius:6px;margin-bottom:6px;font-size:.8rem}
-.preview-item input[type=checkbox]{accent-color:#2196F3;margin-top:2px;flex-shrink:0}
+.preview-group-title{font-size:.8rem;font-weight:600;color:#f5b800;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.preview-item{display:flex;align-items:flex-start;gap:10px;padding:8px 12px;background:#141c28;border:1px solid #1e2a3a;border-radius:6px;margin-bottom:6px;font-size:.8rem}
+.preview-item input[type=checkbox]{accent-color:#f5b800;margin-top:2px;flex-shrink:0}
 .preview-item-body{flex:1}
-.preview-item-title{font-weight:700;color:#DDE3EC;margin-bottom:2px}
-.preview-item-sub{color:#90A4AE;font-size:.75rem}
-.preview-item.exists{border-color:#E65100;opacity:.75}
-.preview-item.exists .preview-item-title::after{content:" (bereits vorhanden)";color:#E65100;font-weight:400;font-size:.72rem}
-.preview-actions{display:flex;gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid #1E3A5F}
-.model-badge{font-size:.65rem;padding:2px 7px;border-radius:10px;background:#1E3A5F;color:#64B5F6;font-weight:600}
-.key-stored{font-size:.72rem;color:#2E7D32;margin-left:4px}
-.progress-bar{height:3px;background:#1E3A5F;border-radius:2px;margin-top:8px;overflow:hidden}
-.progress-fill{height:100%;background:linear-gradient(90deg,#1565C0,#2196F3);border-radius:2px;animation:progress 2s ease-in-out infinite}
+.preview-item-title{font-weight:600;color:#f0f4fc;margin-bottom:2px}
+.preview-item-sub{color:#8ba5c5;font-size:.75rem}
+.preview-item.exists{border-color:rgba(234,179,8,.4);opacity:.75}
+.preview-item.exists .preview-item-title::after{content:" (bereits vorhanden)";color:#eab308;font-weight:400;font-size:.72rem}
+.preview-actions{display:flex;gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid #1e2a3a}
+.model-badge{font-size:.63rem;padding:2px 7px;border-radius:10px;background:#1a2535;color:#f5b800;font-weight:600;font-family:'IBM Plex Mono',monospace}
+.key-stored{font-size:.72rem;color:#22c55e;margin-left:4px}
+.progress-bar{height:3px;background:#1a2535;border-radius:2px;margin-top:8px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,#f5b800,#ffc926);border-radius:2px;animation:progress 2s ease-in-out infinite}
 @keyframes progress{0%{width:0%;margin-left:0}50%{width:60%;margin-left:20%}100%{width:0%;margin-left:100%}}
-
 /* ── Toast ── */
-.toast{position:fixed;bottom:24px;right:24px;background:#1B5E20;color:#fff;padding:12px 20px;border-radius:8px;font-size:.83rem;font-weight:600;z-index:300;opacity:0;transform:translateY(10px);transition:all .3s;pointer-events:none}
+.toast{position:fixed;bottom:24px;right:24px;background:#22c55e;color:#080b10;padding:12px 20px;border-radius:8px;font-size:.83rem;font-weight:600;z-index:300;opacity:0;transform:translateY(10px);transition:all .3s;pointer-events:none;font-family:'DM Sans',sans-serif}
 .toast.show{opacity:1;transform:translateY(0)}
-.toast.error{background:#B71C1C}
+.toast.error{background:#ef4444;color:#fff}
 /* ── Import/Export panel ── */
-.panel{background:#112240;border:1px solid #1E3A5F;border-radius:8px;padding:20px;margin-bottom:16px}
-.panel-title{font-size:.88rem;font-weight:700;color:#90CAF9;margin-bottom:12px;display:flex;align-items:center;gap:8px}
-.info-box{background:#0A1628;border-left:3px solid #1E88E5;padding:10px 14px;border-radius:4px;font-size:.78rem;color:#90A4AE;margin-bottom:12px}
+.panel{background:#0e1218;border:1px solid #1e2a3a;border-radius:8px;padding:20px;margin-bottom:16px}
+.panel-title{font-size:.88rem;font-weight:600;color:#f5b800;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.info-box{background:#080b10;border-left:3px solid #f5b800;padding:10px 14px;border-radius:4px;font-size:.78rem;color:#8ba5c5;margin-bottom:12px}
 /* ── Empty state ── */
-.empty{text-align:center;padding:48px;color:#546E7A}
+.empty{text-align:center;padding:48px;color:#435570}
 .empty .icon{font-size:2.5rem;margin-bottom:12px}
 /* ── Pagination ── */
-.pagination{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:.8rem;color:#90A4AE}
-.page-btn{background:#1E3A5F;border:none;color:#90CAF9;padding:5px 10px;border-radius:4px;cursor:pointer;font-size:.78rem}
-.page-btn:hover{background:#2A4A7F}
+.pagination{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:.8rem;color:#8ba5c5}
+.page-btn{background:#1a2535;border:none;color:#f5b800;padding:5px 10px;border-radius:4px;cursor:pointer;font-size:.78rem;font-family:'DM Sans',sans-serif}
+.page-btn:hover{background:#243447}
 .page-btn:disabled{opacity:.4;cursor:not-allowed}
-.page-info{color:#546E7A}
+.page-info{color:#435570;font-family:'IBM Plex Mono',monospace}
 /* ── D3 Charts ── */
 .chart-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
 .chart-row.tri{grid-template-columns:1fr 1fr 1fr}
-.chart-panel{background:#112240;border:1px solid #1E3A5F;border-radius:8px;padding:16px}
-.chart-panel .chart-title{font-size:.82rem;font-weight:700;color:#90CAF9;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.chart-panel{background:#0e1218;border:1px solid #1e2a3a;border-radius:8px;padding:16px;transition:border-color .2s}
+.chart-panel:hover{border-color:rgba(245,184,0,.3)}
+.chart-panel .chart-title{font-size:.8rem;font-weight:600;color:#f5b800;margin-bottom:10px;display:flex;align-items:center;gap:6px}
 .chart-panel svg{width:100%;display:block}
 .chart-panel .legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:8px}
-.chart-panel .legend-item{display:flex;align-items:center;gap:4px;font-size:.72rem;color:#90A4AE}
+.chart-panel .legend-item{display:flex;align-items:center;gap:4px;font-size:.7rem;color:#8ba5c5;cursor:pointer;transition:color .15s}
+.chart-panel .legend-item:hover{color:#f0f4fc}
 .chart-panel .legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 .chart-panel .legend-rect{width:10px;height:6px;border-radius:1px;flex-shrink:0}
 .mini-chart-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
 /* ── Consulting Analytics ── */
 .insight-section{margin-bottom:20px}
-.insight-title{font-size:.92rem;font-weight:700;color:#FFD600;margin-bottom:12px;display:flex;align-items:center;gap:8px;padding:8px 14px;background:linear-gradient(90deg,rgba(255,214,0,.08),transparent);border-left:3px solid #FFD600;border-radius:0 6px 6px 0}
-.gap-card{background:#112240;border:1px solid #1E3A5F;border-radius:8px;padding:14px 16px;margin-bottom:8px;display:flex;align-items:flex-start;gap:12px}
+.insight-title{font-size:.88rem;font-weight:600;color:#f5b800;margin-bottom:12px;display:flex;align-items:center;gap:8px;padding:8px 14px;background:linear-gradient(90deg,rgba(245,184,0,.06),transparent);border-left:3px solid #f5b800;border-radius:0 6px 6px 0;font-family:'IBM Plex Mono',monospace;letter-spacing:.3px}
+.gap-card{background:#0e1218;border:1px solid #1e2a3a;border-radius:8px;padding:14px 16px;margin-bottom:8px;display:flex;align-items:flex-start;gap:12px;transition:border-color .2s}
+.gap-card:hover{border-color:rgba(245,184,0,.2)}
 .gap-card .gap-icon{font-size:1.2rem;flex-shrink:0;margin-top:2px}
 .gap-card .gap-body{flex:1}
-.gap-card .gap-label{font-size:.8rem;font-weight:700;color:#DDE3EC;margin-bottom:3px}
-.gap-card .gap-detail{font-size:.74rem;color:#90A4AE;line-height:1.4}
+.gap-card .gap-label{font-size:.8rem;font-weight:600;color:#f0f4fc;margin-bottom:3px}
+.gap-card .gap-detail{font-size:.74rem;color:#8ba5c5;line-height:1.5}
 .gap-card .gap-items{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
-.gap-card .gap-chip{padding:2px 8px;border-radius:10px;font-size:.68rem;font-weight:600;background:#1E3A5F;color:#90CAF9}
-.gap-card.critical{border-left:3px solid #C62828}.gap-card.critical .gap-label{color:#EF9A9A}
-.gap-card.warning{border-left:3px solid #E65100}.gap-card.warning .gap-label{color:#FFCC80}
-.gap-card.info{border-left:3px solid #1565C0}.gap-card.info .gap-label{color:#90CAF9}
-.gap-card.ok{border-left:3px solid #2E7D32}.gap-card.ok .gap-label{color:#A5D6A7}
+.gap-card .gap-chip{padding:2px 8px;border-radius:10px;font-size:.66rem;font-weight:600;background:#1a2535;color:#f5b800;font-family:'IBM Plex Mono',monospace;border:1px solid #1e2a3a}
+.gap-card.critical{border-left:3px solid #ef4444}.gap-card.critical .gap-label{color:#f87171}
+.gap-card.warning{border-left:3px solid #eab308}.gap-card.warning .gap-label{color:#facc15}
+.gap-card.info{border-left:3px solid #00bcd4}.gap-card.info .gap-label{color:#22d3ee}
+.gap-card.ok{border-left:3px solid #22c55e}.gap-card.ok .gap-label{color:#4ade80}
 .readiness-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:16px}
-.readiness-card{background:#112240;border:1px solid #1E3A5F;border-radius:8px;padding:14px;text-align:center}
-.readiness-card .rc-label{font-size:.72rem;color:#546E7A;margin-bottom:8px;text-transform:uppercase;letter-spacing:.3px}
+.readiness-card{background:#0e1218;border:1px solid #1e2a3a;border-radius:8px;padding:14px;text-align:center;transition:border-color .2s}
+.readiness-card:hover{border-color:rgba(245,184,0,.3)}
+.readiness-card .rc-label{font-size:.7rem;color:#8ba5c5;margin-bottom:8px;text-transform:uppercase;letter-spacing:.4px;font-family:'IBM Plex Mono',monospace}
 .readiness-card .rc-gauge{position:relative}
-.readiness-card .rc-pct{font-size:1.4rem;font-weight:700;margin-top:4px}
-.readiness-card .rc-pct.green{color:#A5D6A7}.readiness-card .rc-pct.yellow{color:#FFD600}.readiness-card .rc-pct.red{color:#EF9A9A}
+.readiness-card .rc-pct{font-size:1.3rem;font-weight:700;margin-top:4px;font-family:'IBM Plex Mono',monospace}
+.readiness-card .rc-pct.green{color:#4ade80}.readiness-card .rc-pct.yellow{color:#facc15}.readiness-card .rc-pct.red{color:#f87171}
 .governance-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+/* ── Drill-down panel ── */
+.drilldown-overlay{position:fixed;inset:0;background:rgba(8,11,16,.85);z-index:150;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.drilldown-panel{background:#0e1218;border:1px solid #1e2a3a;border-radius:10px;width:720px;max-width:96vw;max-height:85vh;overflow-y:auto;padding:24px;position:relative;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.drilldown-title{font-size:.95rem;font-weight:600;color:#f5b800;margin-bottom:4px}
+.drilldown-subtitle{font-size:.76rem;color:#8ba5c5;margin-bottom:16px;font-family:'IBM Plex Mono',monospace}
+.drilldown-close{position:absolute;top:14px;right:16px;background:none;border:none;color:#8ba5c5;font-size:1.1rem;cursor:pointer;padding:4px 8px;border-radius:4px}
+.drilldown-close:hover{background:#1a2535;color:#f5b800}
 @media(max-width:700px){.governance-row{grid-template-columns:1fr}.chart-row,.chart-row.tri,.mini-chart-row{grid-template-columns:1fr}}
 </style>
 </head>
@@ -221,12 +243,12 @@ tr:hover td{background:#112240}
   <nav class="sidebar">
     <div class="sidebar-section">Übersicht</div>
     <div class="nav-item active" onclick="showView('dashboard')" id="nav-dashboard">
-      <div class="nav-dot" style="background:#64B5F6"></div> Dashboard
+      <div class="nav-dot" style="background:#f5b800"></div> Dashboard
     </div>
 
     <div class="sidebar-section">Stammdaten</div>
     <div class="nav-item" onclick="showView('services')" id="nav-services">
-      <div class="nav-dot" style="background:#2196F3"></div> Service Catalog
+      <div class="nav-dot" style="background:#00bcd4"></div> Service Catalog
       <span class="nav-count" id="cnt-services">0</span>
     </div>
     <div class="nav-item" onclick="showView('processes')" id="nav-processes">
@@ -234,7 +256,7 @@ tr:hover td{background:#112240}
       <span class="nav-count" id="cnt-processes">0</span>
     </div>
     <div class="nav-item" onclick="showView('groups')" id="nav-groups">
-      <div class="nav-dot" style="background:#FF9800"></div> User Groups
+      <div class="nav-dot" style="background:#f97316"></div> User Groups
       <span class="nav-count" id="cnt-groups">0</span>
     </div>
 
@@ -248,23 +270,23 @@ tr:hover td{background:#112240}
       <span class="nav-count" id="cnt-bpmap">0</span>
     </div>
     <div class="nav-item" onclick="showView('deps')" id="nav-deps">
-      <div class="nav-dot" style="background:#FFD600"></div> Service Dependencies
+      <div class="nav-dot" style="background:#f5b800"></div> Service Dependencies
       <span class="nav-count" id="cnt-deps">0</span>
     </div>
 
     <div class="sidebar-section" style="margin-top:14px">Visualisierung</div>
-    <div class="nav-item" onclick="showView('depgraph')" id="nav-depgraph" style="background:linear-gradient(90deg,#0A2628,#0A1628);border-left:3px solid #00BCD4">
+    <div class="nav-item" onclick="showView('depgraph')" id="nav-depgraph" style="background:linear-gradient(90deg,rgba(0,188,212,.06),#0e1218);border-left:3px solid #00bcd4">
       <div class="nav-dot" style="background:#00BCD4"></div> <span style="color:#80DEEA">Dependency Map</span>
       <span style="font-size:.65rem;padding:2px 5px;background:#006064;color:#80DEEA;border-radius:8px;margin-left:auto">LIVE</span>
     </div>
     <div class="sidebar-section" style="margin-top:14px">KI-Assistent</div>
-    <div class="nav-item" onclick="showView('agent')" id="nav-agent" style="background:linear-gradient(90deg,#1A0A2E,#0A1628);border-left:3px solid #7B1FA2">
+    <div class="nav-item" onclick="showView('agent')" id="nav-agent" style="background:linear-gradient(90deg,rgba(168,85,247,.06),#0e1218);border-left:3px solid #c084fc">
       <div class="nav-dot" style="background:#CE93D8"></div> <span style="color:#CE93D8">AI Agent</span>
       <span style="font-size:.65rem;padding:2px 5px;background:#4A148C;color:#CE93D8;border-radius:8px;margin-left:auto">NEW</span>
     </div>
     <div class="sidebar-section">System</div>
     <div class="nav-item" onclick="showView('settings')" id="nav-settings">
-      <div class="nav-dot" style="background:#607D8B"></div> Import / Export
+      <div class="nav-dot" style="background:#64748b"></div> Import / Export
     </div>
   </nav>
 
@@ -324,7 +346,7 @@ function saveData(){
   localStorage.setItem('arl_itsm_data', JSON.stringify(DB));
   const ind = document.getElementById('save-indicator');
   ind.textContent = '✓ Gespeichert ' + new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
-  ind.style.background = '#2E7D32';
+  ind.style.background = '#22c55e';
   setTimeout(()=>{ ind.textContent='● Gespeichert'; ind.style.background=''; }, 3000);
   updateCounts();
 }
@@ -403,7 +425,26 @@ function showView(name){
 // ═══════════════════════════════════════════════════════════════
 // D3 CHART UTILITIES
 // ═══════════════════════════════════════════════════════════════
-const CHART_COLORS = ['#1565C0','#E65100','#2E7D32','#C62828','#6A1B9A','#00838F','#FF9800','#E91E63','#3F51B5','#009688','#795548','#607D8B'];
+const CHART_COLORS = ['#f5b800','#00bcd4','#22c55e','#ef4444','#c084fc','#f97316','#3b82f6','#ec4899','#14b8a6','#a855f7','#64748b','#06b6d4'];
+
+// Drill-down system
+function openDrilldown(title, subtitle, rows, columns){
+  const existing = document.querySelector('.drilldown-overlay');
+  if(existing) existing.remove();
+  const overlay = document.createElement('div');
+  overlay.className = 'drilldown-overlay';
+  overlay.onclick = e => { if(e.target===overlay) overlay.remove(); };
+  const thead = columns.map(c=>`<th>${esc(c)}</th>`).join('');
+  const tbody = rows.map(r=>`<tr>${r.map(v=>`<td>${esc(String(v))}</td>`).join('')}</tr>`).join('');
+  overlay.innerHTML = `
+    <div class="drilldown-panel">
+      <button class="drilldown-close" onclick="this.closest('.drilldown-overlay').remove()">✕</button>
+      <div class="drilldown-title">${esc(title)}</div>
+      <div class="drilldown-subtitle">${esc(subtitle)} · ${rows.length} Einträge</div>
+      <div class="table-wrap"><table><thead><tr>${thead}</tr></thead><tbody>${tbody}</tbody></table></div>
+    </div>`;
+  document.body.appendChild(overlay);
+}
 
 function d3Donut(containerId, data, opts={}){
   const el = document.getElementById(containerId);
@@ -419,32 +460,35 @@ function d3Donut(containerId, data, opts={}){
 
   g.selectAll('path').data(pie(data)).join('path')
     .attr('d', arc).attr('fill',(d,i)=>colors[i%colors.length])
-    .attr('stroke','#112240').attr('stroke-width',2)
+    .attr('stroke','#0e1218').attr('stroke-width',2)
     .style('cursor','pointer')
     .on('mouseover',function(e,d){
       d3.select(this).transition().duration(150).attr('d',arcHover);
       tooltip.style('display','block').html(`<strong>${d.data.label}</strong><br>${d.data.value} (${Math.round(d.data.value/total*100)}%)`);
     })
     .on('mousemove',function(e){tooltip.style('left',(e.offsetX+12)+'px').style('top',(e.offsetY-10)+'px');})
-    .on('mouseout',function(){d3.select(this).transition().duration(150).attr('d',arc);tooltip.style('display','none');});
+    .on('mouseout',function(){d3.select(this).transition().duration(150).attr('d',arc);tooltip.style('display','none');})
+    .on('click',function(e,d){
+      if(opts.onDrill) opts.onDrill(d.data.label, d.data.value);
+    });
 
   const tooltip = d3.select(el).append('div')
-    .style('position','absolute').style('display','none').style('background','#0A1628')
-    .style('border','1px solid #1E88E5').style('border-radius','6px').style('padding','6px 10px')
-    .style('font-size','.74rem').style('color','#DDE3EC').style('pointer-events','none').style('z-index','10');
+    .style('position','absolute').style('display','none').style('background','#0e1218')
+    .style('border','1px solid #f5b800').style('border-radius','6px').style('padding','6px 10px')
+    .style('font-size','.74rem').style('color','#f0f4fc').style('pointer-events','none').style('z-index','10')
+    .style('box-shadow','0 4px 12px rgba(245,184,0,.1)');
   d3.select(el).style('position','relative');
 
-  // center label
   g.append('text').attr('text-anchor','middle').attr('dy','-0.2em')
-    .style('font-size','.9rem').style('font-weight','700').style('fill','#64B5F6').text(total);
+    .style('font-size','.9rem').style('font-weight','700').style('fill','#f5b800').text(total);
   g.append('text').attr('text-anchor','middle').attr('dy','1em')
-    .style('font-size','.55rem').style('fill','#546E7A').text(opts.centerLabel||'total');
+    .style('font-size','.5rem').style('fill','#8ba5c5').text(opts.centerLabel||'total');
 
-  // legend
   const leg = d3.select(el).append('div').attr('class','legend');
   data.forEach((d,i)=>{
-    leg.append('span').attr('class','legend-item')
+    const item = leg.append('span').attr('class','legend-item').style('cursor','pointer')
       .html(`<span class="legend-dot" style="background:${colors[i%colors.length]}"></span>${d.label} (${d.value})`);
+    if(opts.onDrill) item.on('click',()=>opts.onDrill(d.label, d.value));
   });
 }
 
@@ -464,13 +508,19 @@ function d3HBar(containerId, data, opts={}){
 
   data.forEach((d,i)=>{
     const y=i*(barH+gap);
-    g.append('rect').attr('x',0).attr('y',y).attr('width',0).attr('height',barH)
-      .attr('rx',4).attr('fill',colors[i%colors.length])
+    const bar = g.append('rect').attr('x',0).attr('y',y).attr('width',0).attr('height',barH)
+      .attr('rx',4).attr('fill',colors[i%colors.length]).style('cursor','pointer')
       .transition().duration(600).delay(i*60).attr('width',x(d.value));
+    // clickable overlay
+    g.append('rect').attr('x',0).attr('y',y).attr('width',w-margin.left-margin.right).attr('height',barH)
+      .attr('fill','transparent').style('cursor','pointer')
+      .on('click',()=>{ if(opts.onDrill) opts.onDrill(d.label, d.value); })
+      .on('mouseover',function(){d3.select(this.previousSibling).attr('opacity',.8);})
+      .on('mouseout',function(){d3.select(this.previousSibling).attr('opacity',1);});
     g.append('text').attr('x',-6).attr('y',y+barH/2).attr('dy','.35em')
-      .attr('text-anchor','end').style('font-size','.7rem').style('fill','#90A4AE').text(d.label);
+      .attr('text-anchor','end').style('font-size','.7rem').style('fill','#8ba5c5').text(d.label);
     g.append('text').attr('x',x(d.value)+4).attr('y',y+barH/2).attr('dy','.35em')
-      .style('font-size','.72rem').style('fill','#64B5F6').style('font-weight','700').text(d.value)
+      .style('font-size','.72rem').style('fill','#f5b800').style('font-weight','700').text(d.value)
       .style('opacity',0).transition().duration(300).delay(i*60+400).style('opacity',1);
   });
 }
@@ -482,7 +532,7 @@ function d3StackedBar(containerId, categories, series, opts={}){
   const barH=18, gap=6;
   const h = categories.length*(barH+gap)+margin.top+margin.bottom;
   const w = opts.width||400;
-  const colors = opts.colors || ['#C62828','#E65100','#2E7D32'];
+  const colors = opts.colors || ['#ef4444','#eab308','#22c55e'];
 
   const maxVal = d3.max(categories, cat=>d3.sum(series, s=>s.values[cat]||0))||1;
   const svg = d3.select(el).append('svg').attr('viewBox',`0 0 ${w} ${h}`).attr('width','100%');
@@ -496,19 +546,19 @@ function d3StackedBar(containerId, categories, series, opts={}){
       const val=s.values[cat]||0;
       if(val>0){
         g.append('rect').attr('x',x(offset)).attr('y',y).attr('width',0).attr('height',barH)
-          .attr('rx',2).attr('fill',colors[si%colors.length])
+          .attr('rx',2).attr('fill',colors[si%colors.length]).style('cursor','pointer')
+          .on('click',()=>{ if(opts.onDrill) opts.onDrill(cat, s.label); })
           .transition().duration(500).delay(ci*40).attr('width',x(val));
         offset+=val;
       }
     });
     g.append('text').attr('x',-6).attr('y',y+barH/2).attr('dy','.35em')
-      .attr('text-anchor','end').style('font-size','.65rem').style('fill','#90A4AE')
+      .attr('text-anchor','end').style('font-size','.65rem').style('fill','#8ba5c5')
       .text(cat.length>16?cat.slice(0,15)+'…':cat);
     g.append('text').attr('x',x(offset)+4).attr('y',y+barH/2).attr('dy','.35em')
-      .style('font-size','.68rem').style('fill','#546E7A').text(offset);
+      .style('font-size','.68rem').style('fill','#435570').text(offset);
   });
 
-  // legend
   const leg = d3.select(el).append('div').attr('class','legend').style('margin-top','6px');
   series.forEach((s,i)=>{
     leg.append('span').attr('class','legend-item')
@@ -525,19 +575,19 @@ function d3Gauge(containerId, value, max, opts={}){
   const r=50;
   const bg = d3.arc().innerRadius(r-10).outerRadius(r).startAngle(-Math.PI/2).endAngle(Math.PI/2);
   const fg = d3.arc().innerRadius(r-10).outerRadius(r).startAngle(-Math.PI/2);
-  g.append('path').attr('d',bg).attr('fill','#1E3A5F');
+  g.append('path').attr('d',bg).attr('fill','#1a2535');
   const pct = Math.min(value/max,1);
   const endAngle = -Math.PI/2 + Math.PI*pct;
-  g.append('path').attr('fill',opts.color||'#1565C0')
+  g.append('path').attr('fill',opts.color||'#00bcd4')
     .transition().duration(800)
     .attrTween('d',function(){
       const interp = d3.interpolate(-Math.PI/2, endAngle);
       return t => fg.endAngle(interp(t))();
     });
   g.append('text').attr('text-anchor','middle').attr('dy','-0.3em')
-    .style('font-size','.8rem').style('font-weight','700').style('fill','#64B5F6').text(value);
+    .style('font-size','.8rem').style('font-weight','700').style('fill','#f5b800').text(value);
   g.append('text').attr('text-anchor','middle').attr('dy','0.9em')
-    .style('font-size','.5rem').style('fill','#546E7A').text(opts.label||'');
+    .style('font-size','.5rem').style('fill','#435570').text(opts.label||'');
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -555,7 +605,7 @@ function renderDashboard(){
     <div class="change-item">
       <strong>${esc(c.action)}</strong> ${esc(c.entity)}: <em>${esc(c.name)}</em>
       <div class="time">${new Date(c.time).toLocaleString('de-DE')}</div>
-    </div>`).join('') || '<div class="change-item" style="color:#546E7A">Noch keine Änderungen aufgezeichnet.</div>';
+    </div>`).join('') || '<div class="change-item" style="color:#435570">Noch keine Änderungen aufgezeichnet.</div>';
 
   // ── Compute Coverage Gaps ──
   const mappedBPs = new Set(DB.bpServiceMap.map(m=>m.bpId));
@@ -606,11 +656,11 @@ function renderDashboard(){
       </div>
     </div>
     <div class="dashboard-grid">
-      <div class="stat-card"><div class="num">${svcs.length}</div><div class="lbl">Subservices</div><div class="bar" style="background:#1565C0"></div></div>
+      <div class="stat-card"><div class="num">${svcs.length}</div><div class="lbl">Subservices</div><div class="bar" style="background:#00bcd4"></div></div>
       <div class="stat-card"><div class="num">${services}</div><div class="lbl">IT Services (OLAs)</div><div class="bar" style="background:#00838F"></div></div>
-      <div class="stat-card"><div class="num">${groups}</div><div class="lbl">Service Groups</div><div class="bar" style="background:#2E7D32"></div></div>
+      <div class="stat-card"><div class="num">${groups}</div><div class="lbl">Service Groups</div><div class="bar" style="background:#22c55e"></div></div>
       <div class="stat-card"><div class="num">${DB.businessProcesses.length}</div><div class="lbl">Business Processes</div><div class="bar" style="background:#E91E63"></div></div>
-      <div class="stat-card"><div class="num">${DB.userGroups.length}</div><div class="lbl">User Groups</div><div class="bar" style="background:#FF9800"></div></div>
+      <div class="stat-card"><div class="num">${DB.userGroups.length}</div><div class="lbl">User Groups</div><div class="bar" style="background:#f97316"></div></div>
       <div class="stat-card"><div class="num">${DB.permissions.length}</div><div class="lbl">Berechtigungen</div><div class="bar" style="background:#9C27B0"></div></div>
     </div>
 
@@ -761,11 +811,11 @@ function renderDashboard(){
     </div>`;
 
   // ── Render Gauges ──
-  d3Gauge('gauge-cmdb', cmdbPct, 100, {color: cmdbPct>=80?'#2E7D32':cmdbPct>=50?'#FFD600':'#C62828', label:'Completeness'});
-  d3Gauge('gauge-rto', bpRtoPct, 100, {color: bpRtoPct>=80?'#2E7D32':bpRtoPct>=50?'#FFD600':'#C62828', label:'RTO'});
-  d3Gauge('gauge-rpo', bpRpoPct, 100, {color: bpRpoPct>=80?'#2E7D32':bpRpoPct>=50?'#FFD600':'#C62828', label:'RPO'});
-  d3Gauge('gauge-scope', permScopePct, 100, {color: permScopePct>=80?'#2E7D32':permScopePct>=50?'#FFD600':'#C62828', label:'Scope'});
-  d3Gauge('gauge-mgr', grpMgrPct, 100, {color: grpMgrPct>=80?'#2E7D32':grpMgrPct>=50?'#FFD600':'#C62828', label:'Owners'});
+  d3Gauge('gauge-cmdb', cmdbPct, 100, {color: cmdbPct>=80?'#22c55e':cmdbPct>=50?'#f5b800':'#ef4444', label:'Completeness'});
+  d3Gauge('gauge-rto', bpRtoPct, 100, {color: bpRtoPct>=80?'#22c55e':bpRtoPct>=50?'#f5b800':'#ef4444', label:'RTO'});
+  d3Gauge('gauge-rpo', bpRpoPct, 100, {color: bpRpoPct>=80?'#22c55e':bpRpoPct>=50?'#f5b800':'#ef4444', label:'RPO'});
+  d3Gauge('gauge-scope', permScopePct, 100, {color: permScopePct>=80?'#22c55e':permScopePct>=50?'#f5b800':'#ef4444', label:'Scope'});
+  d3Gauge('gauge-mgr', grpMgrPct, 100, {color: grpMgrPct>=80?'#22c55e':grpMgrPct>=50?'#f5b800':'#ef4444', label:'Owners'});
 
   // Coverage bar
   const totalBPs = DB.businessProcesses.length;
@@ -775,17 +825,25 @@ function renderDashboard(){
     {label:'BPs ohne Mapping', value: orphanedBPs.length},
     {label:'Svcs verknüpft', value: totalSvcNames - unassignedSvcs.length},
     {label:'Svcs isoliert', value: unassignedSvcs.length}
-  ], {colors:['#2E7D32','#C62828','#1565C0','#E65100'], labelWidth:120});
+  ], {colors:['#22c55e','#ef4444','#00bcd4','#eab308'], labelWidth:120});
 
-  // Service Type donut
+  // Service Type donut — drill into services of that type
   const typeMap = {};
   svcs.forEach(s=>{ typeMap[s.svc_type]=(typeMap[s.svc_type]||0)+1; });
-  d3Donut('dash-svctype-donut', Object.entries(typeMap).map(([k,v])=>({label:k,value:v})).sort((a,b)=>b.value-a.value), {centerLabel:'types'});
+  d3Donut('dash-svctype-donut', Object.entries(typeMap).map(([k,v])=>({label:k,value:v})).sort((a,b)=>b.value-a.value), {centerLabel:'types',
+    onDrill:(label)=>{
+      const rows = svcs.filter(s=>s.svc_type===label).map(s=>[s.group,s.service,s.subservice,s.criticality]);
+      openDrilldown('Service Typ: '+label,'Alle Subservices vom Typ '+label,rows,['Group','Service','Subservice','Criticality']);
+    }});
 
   // Criticality donut
   d3Donut('dash-crit-donut', [
     {label:'High',value:high},{label:'Medium',value:med},{label:'Low',value:low}
-  ], {colors:['#C62828','#E65100','#2E7D32'], centerLabel:'criticality'});
+  ], {colors:['#ef4444','#eab308','#22c55e'], centerLabel:'criticality',
+    onDrill:(label)=>{
+      const rows = svcs.filter(s=>s.criticality===label).map(s=>[s.group,s.service,s.subservice,s.svc_type]);
+      openDrilldown('Criticality: '+label,'Alle Subservices mit Criticality '+label,rows,['Group','Service','Subservice','Typ']);
+    }});
 
   // Service Group stacked bar
   const grpNames = [...new Set(svcs.map(s=>s.group))].sort();
@@ -796,24 +854,40 @@ function renderDashboard(){
     lowVals[g]=svcs.filter(s=>s.group===g&&s.criticality==='Low').length;
   });
   d3StackedBar('dash-group-stack', grpNames,
-    [{label:'High',values:highVals},{label:'Medium',values:medVals},{label:'Low',values:lowVals}]);
+    [{label:'High',values:highVals},{label:'Medium',values:medVals},{label:'Low',values:lowVals}],
+    {onDrill:(group, crit)=>{
+      const rows = svcs.filter(s=>s.group===group&&s.criticality===crit).map(s=>[s.service,s.subservice,s.svc_type,s.description||'–']);
+      openDrilldown(group+' · '+crit,'Subservices in dieser Gruppe/Criticality',rows,['Service','Subservice','Typ','Beschreibung']);
+    }});
 
   // Access Level bar
   const accMap = {};
   DB.permissions.forEach(p=>{ accMap[p.level]=(accMap[p.level]||0)+1; });
   d3HBar('dash-access-bar', Object.entries(accMap).map(([k,v])=>({label:k,value:v})).sort((a,b)=>b.value-a.value),
-    {colors:['#C62828','#6A1B9A','#1565C0','#2E7D32','#607D8B']});
+    {colors:['#ef4444','#c084fc','#00bcd4','#22c55e','#64748b'],
+    onDrill:(label)=>{
+      const rows = DB.permissions.filter(p=>p.level===label).map(p=>[p.id,p.groupName,p.service,p.scope,p.provisioning]);
+      openDrilldown('Access Level: '+label,'Alle Berechtigungen mit Level '+label,rows,['ID','User Group','Service','Scope','Provisioning']);
+    }});
 
   // BP Category donut
   const bpCat = {};
   DB.businessProcesses.forEach(p=>{ bpCat[p.category]=(bpCat[p.category]||0)+1; });
-  d3Donut('dash-bp-donut', Object.entries(bpCat).map(([k,v])=>({label:k,value:v})).sort((a,b)=>b.value-a.value), {centerLabel:'categories'});
+  d3Donut('dash-bp-donut', Object.entries(bpCat).map(([k,v])=>({label:k,value:v})).sort((a,b)=>b.value-a.value), {centerLabel:'categories',
+    onDrill:(label)=>{
+      const rows = DB.businessProcesses.filter(p=>p.category===label).map(p=>[p.id,p.name,p.owner,p.criticality,p.rto||'–']);
+      openDrilldown('Kategorie: '+label,'Alle Prozesse in dieser Kategorie',rows,['ID','Prozess','Owner','Criticality','RTO']);
+    }});
 
   // User Group Type donut
   const ugType = {};
   DB.userGroups.forEach(g=>{ ugType[g.type]=(ugType[g.type]||0)+1; });
   d3Donut('dash-grp-donut', Object.entries(ugType).map(([k,v])=>({label:k,value:v})).sort((a,b)=>b.value-a.value),
-    {colors:['#FF9800','#1565C0','#6A1B9A','#2E7D32'], centerLabel:'types'});
+    {colors:['#f97316','#00bcd4','#c084fc','#22c55e'], centerLabel:'types',
+    onDrill:(label)=>{
+      const rows = DB.userGroups.filter(g=>g.type===label).map(g=>[g.id,g.name,g.department,g.location,g.count]);
+      openDrilldown('User Group Typ: '+label,'Alle Gruppen vom Typ '+label,rows,['ID','Gruppe','Abteilung','Standort','Anzahl']);
+    }});
 }
 
 function resetToSeed(){
@@ -859,13 +933,20 @@ function renderServices(){
 
   // Type donut
   const tm={};DB.services.forEach(s=>{tm[s.svc_type]=(tm[s.svc_type]||0)+1;});
-  d3Donut('svc-type-chart',Object.entries(tm).map(([k,v])=>({label:k,value:v})).sort((a,b)=>b.value-a.value),{size:130,centerLabel:'types'});
+  d3Donut('svc-type-chart',Object.entries(tm).map(([k,v])=>({label:k,value:v})).sort((a,b)=>b.value-a.value),{size:130,centerLabel:'types',
+    onDrill:(label)=>{
+      const rows=DB.services.filter(s=>s.svc_type===label).map(s=>[s.group,s.service,s.subservice,s.criticality]);
+      openDrilldown('Typ: '+label,'Services vom Typ '+label,rows,['Group','Service','Subservice','Criticality']);
+    }});
 
-  // Criticality stacked per group
   const gn=[...new Set(DB.services.map(s=>s.group))].sort();
   const hv={},mv={},lv={};
   gn.forEach(g=>{hv[g]=DB.services.filter(s=>s.group===g&&s.criticality==='High').length;mv[g]=DB.services.filter(s=>s.group===g&&s.criticality==='Medium').length;lv[g]=DB.services.filter(s=>s.group===g&&s.criticality==='Low').length;});
-  d3StackedBar('svc-grp-chart',gn,[{label:'High',values:hv},{label:'Medium',values:mv},{label:'Low',values:lv}]);
+  d3StackedBar('svc-grp-chart',gn,[{label:'High',values:hv},{label:'Medium',values:mv},{label:'Low',values:lv}],
+    {onDrill:(group,crit)=>{
+      const rows=DB.services.filter(s=>s.group===group&&s.criticality===crit).map(s=>[s.service,s.subservice,s.svc_type]);
+      openDrilldown(group+' · '+crit,'',rows,['Service','Subservice','Typ']);
+    }});
 
   filterServices();
 }
@@ -891,7 +972,7 @@ function renderServiceTable(rows){
   const tbody = slice.map(s=>`
     <tr>
       <td class="td-nowrap">${grpDot(s.group)}<span style="font-size:.75rem;color:#${groupColor(s.group)}">${esc(s.group)}</span></td>
-      <td><strong style="color:#90CAF9">${esc(s.service)}</strong></td>
+      <td><strong style="color:#f5b800">${esc(s.service)}</strong></td>
       <td>${esc(s.subservice)}</td>
       <td><span class="chip chip-group">${esc(s.svc_type)}</span></td>
       <td class="td-wrap">${esc(s.description)}</td>
@@ -1031,7 +1112,7 @@ function renderProcesses(){
   d3HBar('bp-crit-chart',[
     ...Object.entries(bpCrit).map(([k,v])=>({label:k,value:v})),
     {label:'w/ Regulatory',value:regCount}
-  ],{colors:['#C62828','#E65100','#2E7D32','#6A1B9A']});
+  ],{colors:['#ef4444','#eab308','#22c55e','#c084fc']});
 
   filterProcesses();
 }
@@ -1045,12 +1126,12 @@ function filterProcesses(){
     (!q||[p.id,p.name,p.category,p.description,p.regulatory].join(' ').toLowerCase().includes(q)));
   const tbody=rows.map(p=>`
     <tr>
-      <td class="td-nowrap"><span style="font-size:.72rem;color:#90A4AE">${esc(p.id)}</span></td>
+      <td class="td-nowrap"><span style="font-size:.72rem;color:#8ba5c5">${esc(p.id)}</span></td>
       <td><strong>${esc(p.name)}</strong></td>
       <td><span class="chip chip-group">${esc(p.category)}</span></td>
       <td>${esc(p.owner)}</td>
       <td>${critChip(p.criticality)}</td>
-      <td><span style="font-size:.74rem;color:#EF9A9A">${esc(p.regulatory||'–')}</span></td>
+      <td><span style="font-size:.74rem;color:#f87171">${esc(p.regulatory||'–')}</span></td>
       <td class="td-nowrap">${esc(p.rto||'–')} / ${esc(p.rpo||'–')}</td>
       <td class="td-nowrap">
         <button class="btn btn-ghost btn-sm" onclick="openProcessForm(${JSON.stringify(p.id)})">✎</button>
@@ -1129,7 +1210,7 @@ function renderGroups(){
     <div id="grp-table-container"></div>`;
 
   const tm={};DB.userGroups.forEach(g=>{tm[g.type]=(tm[g.type]||0)+1;});
-  d3Donut('grp-type-chart',Object.entries(tm).map(([k,v])=>({label:k,value:v})).sort((a,b)=>b.value-a.value),{size:130,colors:['#FF9800','#1565C0','#6A1B9A','#2E7D32'],centerLabel:'types'});
+  d3Donut('grp-type-chart',Object.entries(tm).map(([k,v])=>({label:k,value:v})).sort((a,b)=>b.value-a.value),{size:130,colors:['#f97316','#00bcd4','#c084fc','#22c55e'],centerLabel:'types'});
 
   const lm={};DB.userGroups.forEach(g=>{const loc=g.location||'Unknown';lm[loc]=(lm[loc]||0)+1;});
   d3HBar('grp-loc-chart',Object.entries(lm).map(([k,v])=>({label:k,value:v})).sort((a,b)=>b.value-a.value));
@@ -1144,13 +1225,13 @@ function filterGroups(){
   const TYPE_BG={Business:'FFF3E0',IT:'E3F2FD',Vendor:'F3E5F5',Management:'E8F5E9'};
   const tbody=rows.map(g=>`
     <tr>
-      <td class="td-nowrap"><span style="font-size:.72rem;color:#90A4AE">${esc(g.id)}</span></td>
+      <td class="td-nowrap"><span style="font-size:.72rem;color:#8ba5c5">${esc(g.id)}</span></td>
       <td><strong>${esc(g.name)}</strong></td>
       <td><span class="chip chip-group">${esc(g.type)}</span></td>
       <td>${esc(g.department)}</td>
       <td>${esc(g.location)}</td>
       <td class="td-center">${esc(g.count)}</td>
-      <td class="td-wrap" style="font-size:.75rem;color:#90A4AE">${esc(g.systems)}</td>
+      <td class="td-wrap" style="font-size:.75rem;color:#8ba5c5">${esc(g.systems)}</td>
       <td class="td-nowrap">
         <button class="btn btn-ghost btn-sm" onclick="openGroupForm(${JSON.stringify(g.id)})">✎</button>
         <button class="btn btn-danger btn-sm" onclick="confirmDelete('userGroups',${JSON.stringify(g.id)},${JSON.stringify(g.name)})">✕</button>
@@ -1229,7 +1310,7 @@ function renderPermissions(){
   // Access Level donut
   const lm={};DB.permissions.forEach(p=>{lm[p.level]=(lm[p.level]||0)+1;});
   d3Donut('perm-level-chart',Object.entries(lm).map(([k,v])=>({label:k,value:v})).sort((a,b)=>b.value-a.value),
-    {size:130,colors:['#C62828','#6A1B9A','#1565C0','#2E7D32','#607D8B'],centerLabel:'levels'});
+    {size:130,colors:['#ef4444','#c084fc','#00bcd4','#22c55e','#64748b'],centerLabel:'levels'});
 
   // SoD + Cert bar
   const sodYes=DB.permissions.filter(p=>p.sodFlag==='Yes').length;
@@ -1239,7 +1320,7 @@ function renderPermissions(){
   d3HBar('perm-sod-chart',[
     {label:'SoD: Yes',value:sodYes},{label:'SoD: No',value:sodNo},
     {label:'Cert: Yes',value:certYes},{label:'Cert: No',value:certNo}
-  ],{colors:['#C62828','#2E7D32','#E65100','#1565C0'],labelWidth:80});
+  ],{colors:['#ef4444','#22c55e','#eab308','#00bcd4'],labelWidth:80});
 
   filterPerms();
 }
@@ -1252,12 +1333,12 @@ function filterPerms(){
     (!q||[p.id,p.groupName,p.service,p.scope,p.notes].join(' ').toLowerCase().includes(q)));
   const tbody=rows.map(p=>`
     <tr>
-      <td class="td-nowrap"><span style="font-size:.72rem;color:#90A4AE">${esc(p.id)}</span></td>
+      <td class="td-nowrap"><span style="font-size:.72rem;color:#8ba5c5">${esc(p.id)}</span></td>
       <td>${esc(p.groupName)}</td>
-      <td><strong style="color:#90CAF9">${esc(p.service)}</strong></td>
+      <td><strong style="color:#f5b800">${esc(p.service)}</strong></td>
       <td style="font-size:.77rem">${esc(p.scope)}</td>
       <td>${accessChip(p.level)}</td>
-      <td><span style="font-size:.75rem;color:#90A4AE">${esc(p.provisioning)}</span></td>
+      <td><span style="font-size:.75rem;color:#8ba5c5">${esc(p.provisioning)}</span></td>
       <td>${yesnoChip(p.certRequired)}</td>
       <td>${yesnoChip(p.sodFlag)}</td>
       <td class="td-nowrap">
@@ -1360,7 +1441,7 @@ function renderBpMap(){
   // Dep type donut
   const dm={};DB.bpServiceMap.forEach(m=>{dm[m.depType]=(dm[m.depType]||0)+1;});
   d3Donut('bpm-type-chart',Object.entries(dm).map(([k,v])=>({label:k,value:v})).sort((a,b)=>b.value-a.value),
-    {size:130,colors:['#C62828','#E65100','#1565C0'],centerLabel:'types'});
+    {size:130,colors:['#ef4444','#eab308','#00bcd4'],centerLabel:'types'});
 
   // Top services by mapping count
   const sm={};DB.bpServiceMap.forEach(m=>{sm[m.service]=(sm[m.service]||0)+1;});
@@ -1376,10 +1457,10 @@ function filterBpMap(){
   let rows=DB.bpServiceMap.filter(m=>(!d||m.depType===d)&&(!q||[m.bpId,m.service,m.notes].join(' ').toLowerCase().includes(q)));
   const tbody=rows.map((m,i)=>`
     <tr>
-      <td class="td-nowrap"><span style="color:#F48FB1;font-weight:700">${esc(m.bpId)}</span></td>
+      <td class="td-nowrap"><span style="color:#f5b800;font-weight:700">${esc(m.bpId)}</span></td>
       <td>${esc(m.service)}</td>
       <td>${depChip(m.depType)}</td>
-      <td class="td-wrap" style="font-size:.77rem;color:#90A4AE">${esc(m.notes)}</td>
+      <td class="td-wrap" style="font-size:.77rem;color:#8ba5c5">${esc(m.notes)}</td>
       <td class="td-nowrap">
         <button class="btn btn-ghost btn-sm" onclick="openBpMapForm(${i})">✎</button>
         <button class="btn btn-danger btn-sm" onclick="confirmDeleteIdx('bpServiceMap',${i},${JSON.stringify(m.bpId+'→'+m.service)})">✕</button>
@@ -1457,7 +1538,7 @@ function renderDeps(){
   // Dep type donut
   const dtm={};DB.serviceDeps.forEach(d=>{dtm[d.depType]=(dtm[d.depType]||0)+1;});
   d3Donut('dep-type-chart',Object.entries(dtm).map(([k,v])=>({label:k,value:v})).sort((a,b)=>b.value-a.value),
-    {size:130,colors:['#C62828','#E65100','#1565C0'],centerLabel:'types'});
+    {size:130,colors:['#ef4444','#eab308','#00bcd4'],centerLabel:'types'});
 
   // Most connected services
   const conn={};DB.serviceDeps.forEach(d=>{conn[d.upstream]=(conn[d.upstream]||0)+1;conn[d.downstream]=(conn[d.downstream]||0)+1;});
@@ -1473,11 +1554,11 @@ function filterDeps(){
   let rows=DB.serviceDeps.filter(d=>(!t||d.depType===t)&&(!q||[d.upstream,d.downstream,d.notes].join(' ').toLowerCase().includes(q)));
   const tbody=rows.map((d,i)=>`
     <tr>
-      <td><strong style="color:#90CAF9">${esc(d.upstream)}</strong></td>
-      <td style="color:#FFD600;text-align:center">→</td>
+      <td><strong style="color:#f5b800">${esc(d.upstream)}</strong></td>
+      <td style="color:#f5b800;text-align:center">→</td>
       <td><strong>${esc(d.downstream)}</strong></td>
       <td>${depChip(d.depType)}</td>
-      <td class="td-wrap" style="font-size:.77rem;color:#90A4AE">${esc(d.notes)}</td>
+      <td class="td-wrap" style="font-size:.77rem;color:#8ba5c5">${esc(d.notes)}</td>
       <td class="td-nowrap">
         <button class="btn btn-ghost btn-sm" onclick="openDepForm(${i})">✎</button>
         <button class="btn btn-danger btn-sm" onclick="confirmDeleteIdx('serviceDeps',${i},${JSON.stringify(d.upstream+'→'+d.downstream)})">✕</button>
@@ -1562,9 +1643,9 @@ function renderSettings(){
         <button class="btn btn-ghost btn-sm" onclick="exportCSV('serviceDeps')">Service Deps (CSV)</button>
       </div>
     </div>
-    <div class="panel" style="border-color:#C62828">
-      <div class="panel-title" style="color:#EF9A9A">🗑 Daten zurücksetzen</div>
-      <div class="info-box" style="border-left-color:#C62828">Setzt alle Daten auf den Ausgangszustand zurück. Alle eigenen Änderungen gehen verloren.</div>
+    <div class="panel" style="border-color:#ef4444">
+      <div class="panel-title" style="color:#f87171">🗑 Daten zurücksetzen</div>
+      <div class="info-box" style="border-left-color:#ef4444">Setzt alle Daten auf den Ausgangszustand zurück. Alle eigenen Änderungen gehen verloren.</div>
       <button class="btn btn-danger" onclick="resetToSeed()">⟳ Auf Ausgangsdaten zurücksetzen</button>
     </div>`;
 }
@@ -1601,9 +1682,9 @@ function showImportStatus(msg, type) {
   const el = document.getElementById('import-status');
   if (!el) return;
   el.style.display = 'block';
-  const colors = { loading: '#1E3A5F', success: '#1B5E20', error: '#B71C1C', info: '#0D47A1' };
+  const colors = { loading: '#1e2a3a', success: '#22c55e', error: '#ef4444', info: '#00bcd4' };
   el.style.background = colors[type] || colors.info;
-  el.style.color = '#DDE3EC';
+  el.style.color = '#f0f4fc';
   el.innerHTML = msg;
 }
 
@@ -1686,12 +1767,12 @@ function renderImportPreview(data, mode) {
     window._lastExtracted = data;
     // Build preview HTML similar to agent preview
     const LABELS = {
-      services:{label:'Services / Subservices', icon:'🔵', color:'#64B5F6'},
-      businessProcesses:{label:'Business Processes', icon:'🔴', color:'#F48FB1'},
-      userGroups:{label:'User Groups', icon:'🟠', color:'#FFCC80'},
+      services:{label:'Services / Subservices', icon:'🔵', color:'#f5b800'},
+      businessProcesses:{label:'Business Processes', icon:'🔴', color:'#f5b800'},
+      userGroups:{label:'User Groups', icon:'🟠', color:'#facc15'},
       permissions:{label:'Berechtigungen', icon:'🟣', color:'#CE93D8'},
-      bpServiceMap:{label:'BP → Service Mappings', icon:'🔗', color:'#EF9A9A'},
-      serviceDeps:{label:'Service Dependencies', icon:'🟡', color:'#FFD600'}
+      bpServiceMap:{label:'BP → Service Mappings', icon:'🔗', color:'#f87171'},
+      serviceDeps:{label:'Service Dependencies', icon:'🟡', color:'#f5b800'}
     };
 
     const existsSvc = new Set(DB.services.map(s=>s.subservice?.toLowerCase()));
@@ -1700,19 +1781,19 @@ function renderImportPreview(data, mode) {
 
     let totalNew = 0;
     let html = '<div class="ai-panel"><div class="ai-panel-title" style="color:#CE93D8">📋 Vorschau – KI-transformierte Daten</div>';
-    html += '<div style="font-size:.78rem;color:#546E7A;margin-bottom:14px">Wähle aus, was hinzugefügt werden soll. Bereits vorhandene Einträge sind markiert.</div>';
+    html += '<div style="font-size:.78rem;color:#435570;margin-bottom:14px">Wähle aus, was hinzugefügt werden soll. Bereits vorhandene Einträge sind markiert.</div>';
 
     for (const [key, items] of Object.entries(data)) {
       if (!Array.isArray(items) || items.length === 0) continue;
-      const meta = LABELS[key] || {label:key, icon:'●', color:'#90A4AE'};
-      html += '<div class="preview-group"><div class="preview-group-title" style="color:' + meta.color + '">' + meta.icon + ' ' + meta.label + ' <span style="color:#546E7A;font-weight:400">(' + items.length + ' gefunden)</span></div>';
+      const meta = LABELS[key] || {label:key, icon:'●', color:'#8ba5c5'};
+      html += '<div class="preview-group"><div class="preview-group-title" style="color:' + meta.color + '">' + meta.icon + ' ' + meta.label + ' <span style="color:#435570;font-weight:400">(' + items.length + ' gefunden)</span></div>';
 
       items.forEach((item, idx) => {
         const checkId = 'imp-' + key + '-' + idx;
         let isExisting = false, title = '', sub = '';
         if (key === 'services') {
           isExisting = existsSvc.has(item.subservice?.toLowerCase());
-          title = '<strong>' + (item.subservice||'?') + '</strong> · <span style="color:#90A4AE">' + (item.service||'') + '</span>';
+          title = '<strong>' + (item.subservice||'?') + '</strong> · <span style="color:#8ba5c5">' + (item.service||'') + '</span>';
           sub = (item.group||'') + ' · ' + (item.svc_type||'') + ' · Criticality: ' + (item.criticality||'?');
         } else if (key === 'businessProcesses') {
           isExisting = existsBp.has(item.id?.toLowerCase());
@@ -1750,9 +1831,9 @@ function renderImportPreview(data, mode) {
 
   // Replace mode — full dataset preview
   const counts = EXPECTED_KEYS.map(k => (data[k]?.length||0) + ' ' + k).filter(s => !s.startsWith('0')).join(', ');
-  area.innerHTML = '<div class="ai-panel" style="border-color:#1565C0"><div class="ai-panel-title" style="color:#64B5F6">📋 Direkt-Import Vorschau</div>' +
-    '<div style="font-size:.82rem;color:#90A4AE;margin-bottom:12px">Inhalt: ' + counts + '</div>' +
-    '<div class="info-box" style="border-left-color:#E65100">⚠ Dies <strong>überschreibt alle vorhandenen Daten</strong>. Bitte vorher exportieren.</div>' +
+  area.innerHTML = '<div class="ai-panel" style="border-color:#00bcd4"><div class="ai-panel-title" style="color:#f5b800">📋 Direkt-Import Vorschau</div>' +
+    '<div style="font-size:.82rem;color:#8ba5c5;margin-bottom:12px">Inhalt: ' + counts + '</div>' +
+    '<div class="info-box" style="border-left-color:#eab308">⚠ Dies <strong>überschreibt alle vorhandenen Daten</strong>. Bitte vorher exportieren.</div>' +
     '<div class="preview-actions">' +
     '<button class="btn btn-success" onclick="applyDirectImport()">✓ Alle Daten übernehmen</button>' +
     '<button class="btn btn-ghost btn-sm" onclick="document.getElementById(\'import-preview-area\').innerHTML=\'\';document.getElementById(\'import-status\').style.display=\'none\'">✕ Abbrechen</button>' +
@@ -1816,7 +1897,7 @@ function applySmartImport() {
 
   saveData();
   showToast('✓ ' + added + ' Einträge erfolgreich importiert!');
-  document.getElementById('import-preview-area').innerHTML = '<div class="ai-panel" style="border-color:#2E7D32"><div style="color:#A5D6A7;font-size:.9rem;font-weight:700;margin-bottom:8px">✓ ' + added + ' Einträge importiert</div><div style="color:#90A4AE;font-size:.82rem">Die Daten wurden übernommen und gespeichert.</div></div>';
+  document.getElementById('import-preview-area').innerHTML = '<div class="ai-panel" style="border-color:#22c55e"><div style="color:#4ade80;font-size:.9rem;font-weight:700;margin-bottom:8px">✓ ' + added + ' Einträge importiert</div><div style="color:#8ba5c5;font-size:.82rem">Die Daten wurden übernommen und gespeichert.</div></div>';
   document.getElementById('import-status').style.display = 'none';
   updateCounts();
 }
@@ -1941,26 +2022,26 @@ function renderAgent(){
     </div>
 
     <div class="ai-panel">
-      <div class="ai-panel-title" style="color:#90A4AE">🔑 Anthropic API Key</div>
+      <div class="ai-panel-title" style="color:#8ba5c5">🔑 Anthropic API Key</div>
       <div class="ai-key-row">
         <input class="ai-key-input" type="password" id="api-key-input" placeholder="sk-ant-…" value="${savedKey?'●'.repeat(20):''}">
         <button class="btn btn-ghost btn-sm" onclick="toggleKeyVisibility()">👁</button>
         <button class="btn btn-primary btn-sm" onclick="saveApiKey()">Speichern</button>
         ${savedKey?'<span class="key-stored">✓ gespeichert</span>':''}
       </div>
-      <div style="font-size:.72rem;color:#546E7A">Der Key wird lokal in diesem Browser gespeichert. Er wird ausschließlich für direkte API-Aufrufe an Anthropic verwendet.</div>
+      <div style="font-size:.72rem;color:#435570">Der Key wird lokal in diesem Browser gespeichert. Er wird ausschließlich für direkte API-Aufrufe an Anthropic verwendet.</div>
     </div>
 
     <div class="ai-panel">
       <div class="ai-panel-title" style="color:#CE93D8">📋 Input</div>
-      <div style="font-size:.78rem;color:#546E7A;margin-bottom:8px">Füge beliebigen Text ein: E-Mail, Word-Dokument, Anforderungsliste, Systeminventar, Projektbeschreibung, Meeting-Notizen, SAP-Modulübersicht, Org-Chart…</div>
+      <div style="font-size:.78rem;color:#435570;margin-bottom:8px">Füge beliebigen Text ein: E-Mail, Word-Dokument, Anforderungsliste, Systeminventar, Projektbeschreibung, Meeting-Notizen, SAP-Modulübersicht, Org-Chart…</div>
       <textarea class="ai-textarea" id="agent-input" placeholder="Beispiele:
 • 'Wir führen SAP S/4HANA ein mit den Modulen PP, QM, PM. Die Produktionsplaner (ca. 15 Personen in Leverkusen) benötigen Zugriff auf PP Read-Write.'
 • Eine Liste neuer IT-Systeme aus einem Projektdokument
 • Der Inhalt eines Anforderungsworkshops
 • Eine Systemlandschaftsbeschreibung aus einem Architektur-Review"></textarea>
 
-      <div style="margin-top:12px;font-size:.78rem;color:#90A4AE;font-weight:600">Was soll extrahiert werden?</div>
+      <div style="margin-top:12px;font-size:.78rem;color:#8ba5c5;font-weight:600">Was soll extrahiert werden?</div>
       <div class="check-row">
         <label class="check-item"><input type="checkbox" id="chk-services" checked> 🔵 Services / Subservices</label>
         <label class="check-item"><input type="checkbox" id="chk-processes" checked> 🔴 Business Processes</label>
@@ -1975,7 +2056,7 @@ function renderAgent(){
           🔍 Analysieren &amp; Extrahieren
         </button>
         <button class="btn btn-ghost btn-sm" onclick="loadExample()">Beispiel laden</button>
-        <span style="font-size:.75rem;color:#546E7A" id="token-hint"></span>
+        <span style="font-size:.75rem;color:#435570" id="token-hint"></span>
       </div>
 
       <div class="ai-status" id="ai-status">
@@ -2117,17 +2198,17 @@ async function runExtraction(){
 function renderPreview(extracted){
   const area = document.getElementById('preview-area');
   if(!extracted||Object.keys(extracted).length===0){
-    area.innerHTML = '<div class="ai-panel"><div style="color:#90A4AE;text-align:center;padding:20px">Keine Daten im Input gefunden.</div></div>';
+    area.innerHTML = '<div class="ai-panel"><div style="color:#8ba5c5;text-align:center;padding:20px">Keine Daten im Input gefunden.</div></div>';
     return;
   }
 
   const LABELS = {
-    services:{label:'Services / Subservices', icon:'🔵', color:'#64B5F6'},
-    businessProcesses:{label:'Business Processes', icon:'🔴', color:'#F48FB1'},
-    userGroups:{label:'User Groups', icon:'🟠', color:'#FFCC80'},
+    services:{label:'Services / Subservices', icon:'🔵', color:'#f5b800'},
+    businessProcesses:{label:'Business Processes', icon:'🔴', color:'#f5b800'},
+    userGroups:{label:'User Groups', icon:'🟠', color:'#facc15'},
     permissions:{label:'Berechtigungen', icon:'🟣', color:'#CE93D8'},
-    bpServiceMap:{label:'BP → Service Mappings', icon:'🔗', color:'#EF9A9A'},
-    serviceDeps:{label:'Service Dependencies', icon:'🟡', color:'#FFD600'}
+    bpServiceMap:{label:'BP → Service Mappings', icon:'🔗', color:'#f87171'},
+    serviceDeps:{label:'Service Dependencies', icon:'🟡', color:'#f5b800'}
   };
 
   const existsSvc = new Set(DB.services.map(s=>s.subservice?.toLowerCase()));
@@ -2136,13 +2217,13 @@ function renderPreview(extracted){
 
   let totalNew = 0;
   let html = '<div class="ai-panel"><div class="ai-panel-title" style="color:#CE93D8">📋 Vorschau – Gefundene Einträge</div>';
-  html += '<div style="font-size:.78rem;color:#546E7A;margin-bottom:14px">Wähle aus, was hinzugefügt werden soll. Bereits vorhandene Einträge sind markiert.</div>';
+  html += '<div style="font-size:.78rem;color:#435570;margin-bottom:14px">Wähle aus, was hinzugefügt werden soll. Bereits vorhandene Einträge sind markiert.</div>';
 
   for(const [key, items] of Object.entries(extracted)){
     if(!Array.isArray(items)||items.length===0) continue;
-    const meta = LABELS[key]||{label:key,icon:'●',color:'#90A4AE'};
+    const meta = LABELS[key]||{label:key,icon:'●',color:'#8ba5c5'};
     html += `<div class="preview-group">
-      <div class="preview-group-title" style="color:${meta.color}">${meta.icon} ${meta.label} <span style="color:#546E7A;font-weight:400">(${items.length} gefunden)</span></div>`;
+      <div class="preview-group-title" style="color:${meta.color}">${meta.icon} ${meta.label} <span style="color:#435570;font-weight:400">(${items.length} gefunden)</span></div>`;
 
     items.forEach((item, idx) => {
       const checkId = `prev-${key}-${idx}`;
@@ -2151,7 +2232,7 @@ function renderPreview(extracted){
 
       if(key==='services'){
         isExisting = existsSvc.has(item.subservice?.toLowerCase());
-        title = `<strong>${item.subservice}</strong> · <span style="color:#90A4AE">${item.service}</span>`;
+        title = `<strong>${item.subservice}</strong> · <span style="color:#8ba5c5">${item.service}</span>`;
         sub = `${item.group} · ${item.svc_type} · Criticality: ${item.criticality||'?'}<br>${item.description||''}`;
       } else if(key==='businessProcesses'){
         isExisting = existsBp.has(item.id?.toLowerCase());
@@ -2251,9 +2332,9 @@ function applyExtraction(extractedRaw){
   saveData();
   showToast(`✓ ${added} Einträge erfolgreich hinzugefügt!`);
   document.getElementById('preview-area').innerHTML = `
-    <div class="ai-panel" style="border-color:#2E7D32">
-      <div style="color:#A5D6A7;font-size:.9rem;font-weight:700;margin-bottom:8px">✓ ${added} Einträge importiert</div>
-      <div style="color:#90A4AE;font-size:.82rem">Die Daten wurden in alle relevanten Tabellen übernommen und gespeichert.</div>
+    <div class="ai-panel" style="border-color:#22c55e">
+      <div style="color:#4ade80;font-size:.9rem;font-weight:700;margin-bottom:8px">✓ ${added} Einträge importiert</div>
+      <div style="color:#8ba5c5;font-size:.82rem">Die Daten wurden in alle relevanten Tabellen übernommen und gespeichert.</div>
       <div style="margin-top:12px;display:flex;gap:8px">
         <button class="btn btn-ghost btn-sm" onclick="showView('services')">→ Service Catalog</button>
         <button class="btn btn-ghost btn-sm" onclick="showView('processes')">→ Business Processes</button>
@@ -2275,7 +2356,7 @@ function renderDepGraph(){
         <div class="view-subtitle">Click nodes to drill down · Scroll to zoom · Drag to pan · Double-click to reset</div>
       </div>
       <div class="view-actions">
-        <select id="graph-filter" class="btn btn-ghost btn-sm" style="background:#0A1628;color:#90CAF9;border:1px solid #1E3A5F" onchange="updateGraph()">
+        <select id="graph-filter" class="btn btn-ghost btn-sm" style="background:#080b10;color:#f5b800;border:1px solid #1e2a3a" onchange="updateGraph()">
           <option value="all">All Relationships</option>
           <option value="serviceDeps">Service Dependencies</option>
           <option value="bpServiceMap">BP → Service</option>
@@ -2284,20 +2365,20 @@ function renderDepGraph(){
         <button class="btn btn-ghost btn-sm" onclick="resetGraphView()">⟳ Reset View</button>
       </div>
     </div>
-    <div id="graph-container" style="flex:1;position:relative;overflow:hidden;border-radius:8px;background:#060E18;border:1px solid #1E3A5F">
+    <div id="graph-container" style="flex:1;position:relative;overflow:hidden;border-radius:8px;background:#060E18;border:1px solid #1e2a3a">
       <svg id="dep-svg" style="width:100%;height:100%"></svg>
-      <div id="graph-detail" style="display:none;position:absolute;top:16px;right:16px;width:320px;max-height:calc(100% - 32px);overflow-y:auto;background:#0A1628EE;border:1px solid #1E3A5F;border-radius:10px;padding:16px;backdrop-filter:blur(8px)">
+      <div id="graph-detail" style="display:none;position:absolute;top:16px;right:16px;width:320px;max-height:calc(100% - 32px);overflow-y:auto;background:#080b10EE;border:1px solid #1e2a3a;border-radius:10px;padding:16px;backdrop-filter:blur(8px)">
         <div id="graph-detail-content"></div>
       </div>
-      <div id="graph-legend" style="position:absolute;bottom:16px;left:16px;background:#0A1628CC;border:1px solid #1E3A5F;border-radius:8px;padding:10px 14px;font-size:.72rem;display:flex;gap:12px;flex-wrap:wrap;backdrop-filter:blur(4px)">
-        <span style="color:#64B5F6">● Services</span>
-        <span style="color:#F48FB1">● Business Processes</span>
-        <span style="color:#FFCC80">● User Groups</span>
-        <span style="color:#FFD600">── Dependency</span>
-        <span style="color:#EF9A9A">── BP Mapping</span>
+      <div id="graph-legend" style="position:absolute;bottom:16px;left:16px;background:#080b10CC;border:1px solid #1e2a3a;border-radius:8px;padding:10px 14px;font-size:.72rem;display:flex;gap:12px;flex-wrap:wrap;backdrop-filter:blur(4px)">
+        <span style="color:#f5b800">● Services</span>
+        <span style="color:#f5b800">● Business Processes</span>
+        <span style="color:#facc15">● User Groups</span>
+        <span style="color:#f5b800">── Dependency</span>
+        <span style="color:#f87171">── BP Mapping</span>
         <span style="color:#CE93D8">── Permission</span>
       </div>
-      <div id="graph-breadcrumb" style="position:absolute;top:16px;left:16px;font-size:.78rem;color:#546E7A;display:flex;gap:6px;align-items:center"></div>
+      <div id="graph-breadcrumb" style="position:absolute;top:16px;left:16px;font-size:.78rem;color:#435570;display:flex;gap:6px;align-items:center"></div>
     </div>`;
 
   // Set container height
@@ -2419,7 +2500,7 @@ function renderGraph(nodes, links) {
   // Arrow markers
   const defs = svg.append('defs');
   ['dep','bpmap','perm'].forEach(t => {
-    const colors = { dep: '#FFD600', bpmap: '#EF9A9A', perm: '#CE93D8' };
+    const colors = { dep: '#f5b800', bpmap: '#f87171', perm: '#CE93D8' };
     defs.append('marker').attr('id', 'arrow-'+t).attr('viewBox','0 0 10 6').attr('refX',28).attr('refY',3).attr('markerWidth',8).attr('markerHeight',6).attr('orient','auto')
       .append('path').attr('d','M0,0L10,3L0,6Z').attr('fill', colors[t]).attr('opacity', 0.6);
   });
@@ -2440,10 +2521,10 @@ function renderGraph(nodes, links) {
   _graphSim = sim;
 
   // Links
-  const linkColors = { dep: '#FFD600', bpmap: '#EF9A9A', perm: '#CE93D8' };
+  const linkColors = { dep: '#f5b800', bpmap: '#f87171', perm: '#CE93D8' };
   const link = g.append('g').selectAll('line')
     .data(links).enter().append('line')
-    .attr('stroke', d => linkColors[d.type] || '#546E7A')
+    .attr('stroke', d => linkColors[d.type] || '#435570')
     .attr('stroke-width', d => d.depType === 'Mandatory' ? 2 : 1.2)
     .attr('stroke-opacity', 0.35)
     .attr('stroke-dasharray', d => d.depType === 'Optional' ? '4,4' : d.depType === 'Supporting' ? '6,3' : null)
@@ -2454,13 +2535,13 @@ function renderGraph(nodes, links) {
     .data(links).enter().append('text')
     .text(d => d.label || '')
     .attr('font-size', 8)
-    .attr('fill', '#546E7A')
+    .attr('fill', '#435570')
     .attr('text-anchor', 'middle')
     .attr('opacity', 0);
 
   // Node groups
-  const nodeColors = { service: '#1565C0', bp: '#C2185B', group: '#E65100' };
-  const nodeFill = { service: '#64B5F6', bp: '#F48FB1', group: '#FFCC80' };
+  const nodeColors = { service: '#00bcd4', bp: '#C2185B', group: '#eab308' };
+  const nodeFill = { service: '#f5b800', bp: '#f5b800', group: '#facc15' };
   const critRadius = { High: 18, Medium: 14, Low: 10 };
 
   const node = g.append('g').selectAll('g')
@@ -2493,7 +2574,7 @@ function renderGraph(nodes, links) {
     .append('circle')
     .attr('r', 22)
     .attr('fill', 'none')
-    .attr('stroke', '#C62828')
+    .attr('stroke', '#ef4444')
     .attr('stroke-width', 1)
     .attr('stroke-dasharray', '3,3')
     .attr('opacity', 0.5);
@@ -2512,7 +2593,7 @@ function renderGraph(nodes, links) {
     .attr('dy', d => (critRadius[d.criticality] || 14) + 14)
     .attr('text-anchor', 'middle')
     .attr('font-size', 9)
-    .attr('fill', '#90A4AE')
+    .attr('fill', '#8ba5c5')
     .attr('font-family', 'Arial, sans-serif')
     .attr('pointer-events', 'none');
 
@@ -2570,8 +2651,8 @@ function focusNode(d) {
   // Breadcrumb
   document.getElementById('graph-breadcrumb').innerHTML =
     '<span style="cursor:pointer;color:#80DEEA" onclick="resetGraphView()">🌐 Global</span>' +
-    '<span style="color:#1E3A5F">›</span>' +
-    '<span style="color:#DDE3EC">' + d.label + '</span>';
+    '<span style="color:#1e2a3a">›</span>' +
+    '<span style="color:#f0f4fc">' + d.label + '</span>';
 
   // Detail panel
   const detail = document.getElementById('graph-detail');
@@ -2588,14 +2669,14 @@ function focusNode(d) {
   });
 
   const typeLabels = { service: '⚙ Service', bp: '⚡ Business Process', group: '👥 User Group' };
-  const typeColors = { service: '#64B5F6', bp: '#F48FB1', group: '#FFCC80' };
+  const typeColors = { service: '#f5b800', bp: '#f5b800', group: '#facc15' };
   const linkTypeLabels = { dep: 'Dependency', bpmap: 'BP Mapping', perm: 'Permission' };
 
   let html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">';
-  html += '<div style="font-size:.95rem;font-weight:700;color:' + (typeColors[d.type]||'#DDE3EC') + '">' + d.label + '</div>';
-  html += '<button onclick="document.getElementById(\'graph-detail\').style.display=\'none\'" style="background:none;border:none;color:#546E7A;cursor:pointer;font-size:1.2rem">✕</button></div>';
+  html += '<div style="font-size:.95rem;font-weight:700;color:' + (typeColors[d.type]||'#f0f4fc') + '">' + d.label + '</div>';
+  html += '<button onclick="document.getElementById(\'graph-detail\').style.display=\'none\'" style="background:none;border:none;color:#435570;cursor:pointer;font-size:1.2rem">✕</button></div>';
 
-  html += '<div style="font-size:.72rem;color:#546E7A;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">' + (typeLabels[d.type]||d.type) + '</div>';
+  html += '<div style="font-size:.72rem;color:#435570;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">' + (typeLabels[d.type]||d.type) + '</div>';
 
   // Properties
   const props = [];
@@ -2614,8 +2695,8 @@ function focusNode(d) {
   if (props.length) {
     html += '<div style="background:#0D1B2A;border-radius:6px;padding:8px;margin-bottom:12px">';
     props.forEach(([k,v]) => {
-      const critColor = v === 'High' ? '#EF5350' : v === 'Medium' ? '#FF9800' : v === 'Low' ? '#66BB6A' : '#DDE3EC';
-      html += '<div style="display:flex;justify-content:space-between;padding:3px 0;font-size:.78rem"><span style="color:#546E7A">' + k + '</span><span style="color:' + (k==='Criticality'?critColor:'#DDE3EC') + '">' + v + '</span></div>';
+      const critColor = v === 'High' ? '#EF5350' : v === 'Medium' ? '#f97316' : v === 'Low' ? '#66BB6A' : '#f0f4fc';
+      html += '<div style="display:flex;justify-content:space-between;padding:3px 0;font-size:.78rem"><span style="color:#435570">' + k + '</span><span style="color:' + (k==='Criticality'?critColor:'#f0f4fc') + '">' + v + '</span></div>';
     });
     html += '</div>';
   }
@@ -2623,13 +2704,13 @@ function focusNode(d) {
   // Connections
   const renderConnList = (title, items, direction) => {
     if (!items.length) return '';
-    let h = '<div style="font-size:.72rem;color:#546E7A;text-transform:uppercase;letter-spacing:1px;margin:8px 0 4px">' + title + ' (' + items.length + ')</div>';
+    let h = '<div style="font-size:.72rem;color:#435570;text-transform:uppercase;letter-spacing:1px;margin:8px 0 4px">' + title + ' (' + items.length + ')</div>';
     items.forEach(c => {
-      const lc = { dep: '#FFD600', bpmap: '#EF9A9A', perm: '#CE93D8' };
+      const lc = { dep: '#f5b800', bpmap: '#f87171', perm: '#CE93D8' };
       h += '<div style="display:flex;align-items:center;gap:6px;padding:4px 6px;margin:2px 0;background:#0D1B2A;border-radius:4px;cursor:pointer;font-size:.78rem" onclick="focusNodeById(\'' + c.nodeId + '\')">';
-      h += '<div style="width:6px;height:6px;border-radius:50%;background:' + (lc[c.type]||'#546E7A') + ';flex-shrink:0"></div>';
-      h += '<span style="color:#DDE3EC;flex:1">' + c.label + '</span>';
-      h += '<span style="color:#546E7A;font-size:.68rem">' + (c.depType||linkTypeLabels[c.type]||'') + '</span>';
+      h += '<div style="width:6px;height:6px;border-radius:50%;background:' + (lc[c.type]||'#435570') + ';flex-shrink:0"></div>';
+      h += '<span style="color:#f0f4fc;flex:1">' + c.label + '</span>';
+      h += '<span style="color:#435570;font-size:.68rem">' + (c.depType||linkTypeLabels[c.type]||'') + '</span>';
       h += '</div>';
     });
     return h;
@@ -2639,7 +2720,7 @@ function focusNode(d) {
   html += renderConnList('← Incoming', connected.incoming, 'in');
 
   if (!connected.outgoing.length && !connected.incoming.length) {
-    html += '<div style="color:#546E7A;font-size:.82rem;text-align:center;padding:16px">No connections found</div>';
+    html += '<div style="color:#435570;font-size:.82rem;text-align:center;padding:16px">No connections found</div>';
   }
 
   document.getElementById('graph-detail-content').innerHTML = html;
