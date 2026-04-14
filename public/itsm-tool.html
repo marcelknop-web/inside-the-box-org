@@ -180,7 +180,28 @@ tr:hover td{background:#112240}
 .chart-panel .legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 .chart-panel .legend-rect{width:10px;height:6px;border-radius:1px;flex-shrink:0}
 .mini-chart-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
-@media(max-width:700px){.chart-row,.chart-row.tri,.mini-chart-row{grid-template-columns:1fr}}
+/* ── Consulting Analytics ── */
+.insight-section{margin-bottom:20px}
+.insight-title{font-size:.92rem;font-weight:700;color:#FFD600;margin-bottom:12px;display:flex;align-items:center;gap:8px;padding:8px 14px;background:linear-gradient(90deg,rgba(255,214,0,.08),transparent);border-left:3px solid #FFD600;border-radius:0 6px 6px 0}
+.gap-card{background:#112240;border:1px solid #1E3A5F;border-radius:8px;padding:14px 16px;margin-bottom:8px;display:flex;align-items:flex-start;gap:12px}
+.gap-card .gap-icon{font-size:1.2rem;flex-shrink:0;margin-top:2px}
+.gap-card .gap-body{flex:1}
+.gap-card .gap-label{font-size:.8rem;font-weight:700;color:#DDE3EC;margin-bottom:3px}
+.gap-card .gap-detail{font-size:.74rem;color:#90A4AE;line-height:1.4}
+.gap-card .gap-items{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.gap-card .gap-chip{padding:2px 8px;border-radius:10px;font-size:.68rem;font-weight:600;background:#1E3A5F;color:#90CAF9}
+.gap-card.critical{border-left:3px solid #C62828}.gap-card.critical .gap-label{color:#EF9A9A}
+.gap-card.warning{border-left:3px solid #E65100}.gap-card.warning .gap-label{color:#FFCC80}
+.gap-card.info{border-left:3px solid #1565C0}.gap-card.info .gap-label{color:#90CAF9}
+.gap-card.ok{border-left:3px solid #2E7D32}.gap-card.ok .gap-label{color:#A5D6A7}
+.readiness-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:16px}
+.readiness-card{background:#112240;border:1px solid #1E3A5F;border-radius:8px;padding:14px;text-align:center}
+.readiness-card .rc-label{font-size:.72rem;color:#546E7A;margin-bottom:8px;text-transform:uppercase;letter-spacing:.3px}
+.readiness-card .rc-gauge{position:relative}
+.readiness-card .rc-pct{font-size:1.4rem;font-weight:700;margin-top:4px}
+.readiness-card .rc-pct.green{color:#A5D6A7}.readiness-card .rc-pct.yellow{color:#FFD600}.readiness-card .rc-pct.red{color:#EF9A9A}
+.governance-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+@media(max-width:700px){.governance-row{grid-template-columns:1fr}.chart-row,.chart-row.tri,.mini-chart-row{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
