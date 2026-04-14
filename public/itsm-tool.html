@@ -2671,11 +2671,11 @@ function renderGraph(nodes, links) {
     )
     .on('click', (e, d) => { e.stopPropagation(); focusNode(d); });
 
-  // Glow circle (behind)
+  // Glow circle (behind) — subtle
   node.append('circle')
-    .attr('r', d => (critRadius[d.criticality] || 14) + 6)
+    .attr('r', d => (critRadius[d.criticality] || 14) + 4)
     .attr('fill', d => nodeFill[d.type])
-    .attr('opacity', 0.08)
+    .attr('opacity', 0.05)
     .attr('filter', 'url(#glow)');
 
   // Main circle
