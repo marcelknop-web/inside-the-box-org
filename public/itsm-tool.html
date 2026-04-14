@@ -3357,8 +3357,8 @@ function rebuild3DGraph() { renderDepGraph3D(); }
 
 function reset3DView() {
   if (window._3dCamera && window._3dControls) {
-    window._3dCamera.position.set(100, 60, 130);
-    window._3dControls.target.set(0, 0, 0);
+    window._3dCamera.position.set(0, 90, 160);
+    window._3dControls.target.set(0, 20, 0);
     window._3dControls.update();
     document.getElementById('three-detail').style.display = 'none';
   }
