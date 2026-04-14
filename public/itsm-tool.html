@@ -3403,7 +3403,23 @@ function reset3DView() {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════
+function set3DView(preset) {
+  if (!window._3dCamera || !window._3dControls) return;
+  const cam = window._3dCamera;
+  const ctrl = window._3dControls;
+  const views = {
+    front: { pos: [0, 45, 180], target: [0, 35, 0] },
+    top:   { pos: [0, 180, 10], target: [0, 35, 0] },
+    side:  { pos: [180, 45, 0], target: [0, 35, 0] },
+  };
+  const v = views[preset];
+  if (!v) return;
+  cam.position.set(...v.pos);
+  ctrl.target.set(...v.target);
+  ctrl.update();
+}
+
+
 function renderAudit(){
   const checks = runAuditChecks();
   const critical = checks.filter(c=>c.severity==='critical');
