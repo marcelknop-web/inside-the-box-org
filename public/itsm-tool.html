@@ -2977,23 +2977,55 @@ function init3DScene(THREE, OrbitControls, container) {
   scene.add(dirLight);
   scene.add(new THREE.PointLight(0xf5b800, 0.3, 400));
 
-  const LAYER_Y = { bp: 40, svc: 0, grp: -40 };
+  const LAYER_Y = { bp: 50, svc: 0, grp: -50 };
+  const LAYER_CONF = [
+    { key: 'bp', y: LAYER_Y.bp, label: 'BUSINESS PROCESSES', color: 0xC2185B, hex: '#C2185B' },
+    { key: 'svc', y: LAYER_Y.svc, label: 'IT SERVICES', color: 0x00bcd4, hex: '#00bcd4' },
+    { key: 'grp', y: LAYER_Y.grp, label: 'USER GROUPS & PERMISSIONS', color: 0xeab308, hex: '#eab308' },
+  ];
   const CRIT_COLORS = { High: 0xEF5350, Medium: 0xf97316, Low: 0x66BB6A };
   const CRIT_SCALE = { High: 1.6, Medium: 1.0, Low: 0.7 };
+  const FLOOR_SIZE = 160;
 
-  const layerCols = [0xC2185B, 0x00bcd4, 0xeab308];
-  [LAYER_Y.bp, LAYER_Y.svc, LAYER_Y.grp].forEach((y, i) => {
-    const planeGeo = new THREE.PlaneGeometry(200, 200);
-    const planeMat = new THREE.MeshBasicMaterial({ color: layerCols[i], transparent: true, opacity: 0.015, side: THREE.DoubleSide });
+  // --- Build glass floor plates with labels ---
+  LAYER_CONF.forEach(lc => {
+    // Main floor plate
+    const planeGeo = new THREE.PlaneGeometry(FLOOR_SIZE, FLOOR_SIZE);
+    const planeMat = new THREE.MeshPhongMaterial({ color: lc.color, transparent: true, opacity: 0.04, side: THREE.DoubleSide, depthWrite: false });
     const plane = new THREE.Mesh(planeGeo, planeMat);
     plane.rotation.x = -Math.PI / 2;
-    plane.position.y = y - 0.5;
+    plane.position.y = lc.y - 1;
     scene.add(plane);
-    const grid = new THREE.GridHelper(200, 20, layerCols[i], layerCols[i]);
-    grid.position.y = y - 0.5;
-    grid.material.opacity = 0.04;
+
+    // Subtle grid
+    const grid = new THREE.GridHelper(FLOOR_SIZE, 16, lc.color, lc.color);
+    grid.position.y = lc.y - 1;
+    grid.material.opacity = 0.06;
     grid.material.transparent = true;
     scene.add(grid);
+
+    // Edge border lines
+    const borderPts = [
+      new THREE.Vector3(-FLOOR_SIZE/2, lc.y - 1, -FLOOR_SIZE/2),
+      new THREE.Vector3( FLOOR_SIZE/2, lc.y - 1, -FLOOR_SIZE/2),
+      new THREE.Vector3( FLOOR_SIZE/2, lc.y - 1,  FLOOR_SIZE/2),
+      new THREE.Vector3(-FLOOR_SIZE/2, lc.y - 1,  FLOOR_SIZE/2),
+      new THREE.Vector3(-FLOOR_SIZE/2, lc.y - 1, -FLOOR_SIZE/2),
+    ];
+    const borderGeo = new THREE.BufferGeometry().setFromPoints(borderPts);
+    const borderMat = new THREE.LineBasicMaterial({ color: lc.color, transparent: true, opacity: 0.25 });
+    scene.add(new THREE.Line(borderGeo, borderMat));
+
+    // Vertical pillars at corners (connecting floors visually)
+    if (lc.key !== 'bp') {
+      const pillarGeo = new THREE.CylinderGeometry(0.2, 0.2, 50, 6);
+      const pillarMat = new THREE.MeshBasicMaterial({ color: 0x1e2a3a, transparent: true, opacity: 0.15 });
+      [[-1,-1],[1,-1],[1,1],[-1,1]].forEach(([sx,sz]) => {
+        const pillar = new THREE.Mesh(pillarGeo, pillarMat);
+        pillar.position.set(sx * FLOOR_SIZE/2, lc.y + 24, sz * FLOOR_SIZE/2);
+        scene.add(pillar);
+      });
+    }
   });
 
   const filter = document.getElementById('graph3d-filter')?.value || 'all';
@@ -3004,131 +3036,106 @@ function init3DScene(THREE, OrbitControls, container) {
   const posMap = {};
   const labelsContainer = document.getElementById('three-labels');
 
-  // Group services by service group for clustered layout
-  const svcByGroup = {};
-  const svcSet = new Set();
+  // --- Layout helpers: place nodes in a grid on their floor ---
+  function gridLayout(items, y, cols) {
+    const spacing = Math.min(18, FLOOR_SIZE * 0.8 / Math.max(cols, 1));
+    const rows = Math.ceil(items.length / cols);
+    const offsetX = -(cols - 1) * spacing / 2;
+    const offsetZ = -(rows - 1) * spacing / 2;
+    return items.map((item, i) => {
+      const col = i % cols;
+      const row = Math.floor(i / cols);
+      return { item, x: offsetX + col * spacing, y, z: offsetZ + row * spacing };
+    });
+  }
+
+  // --- IT Services (middle floor) ---
   let filteredServices = DB.services;
   if (groupFilter !== 'all') filteredServices = DB.services.filter(s => s.group === groupFilter);
-  filteredServices.forEach(s => {
-    if (svcSet.has(s.subservice)) return;
-    svcSet.add(s.subservice);
-    if (!svcByGroup[s.group]) svcByGroup[s.group] = [];
-    svcByGroup[s.group].push(s);
+  const uniqueSvc = [];
+  const svcSeen = new Set();
+  filteredServices.forEach(s => { if (!svcSeen.has(s.subservice)) { svcSeen.add(s.subservice); uniqueSvc.push(s); } });
+
+  const svcCols = Math.max(3, Math.ceil(Math.sqrt(uniqueSvc.length)));
+  const svcPositions = gridLayout(uniqueSvc, LAYER_Y.svc, svcCols);
+  svcPositions.forEach(({ item: s, x, y, z }) => {
+    const scale = CRIT_SCALE[s.criticality] || 1;
+    const critColor = CRIT_COLORS[s.criticality] || 0x00bcd4;
+    const geo = new THREE.BoxGeometry(2.5, 2.5, 2.5);
+    const mat = new THREE.MeshPhongMaterial({ color: 0x00bcd4, emissive: critColor, emissiveIntensity: 0.2, transparent: true, opacity: 0.9 });
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.position.set(x, y, z);
+    mesh.scale.setScalar(scale);
+    scene.add(mesh);
+    mesh.add(new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: critColor, wireframe: true, transparent: true, opacity: 0.3 })));
+    const id = 'svc:' + s.subservice;
+    nodeObjects.push({ mesh, data: s, type: 'svc', id, label: s.subservice, groupName: s.group });
+    posMap[id] = { x, y, z, obj: nodeObjects[nodeObjects.length - 1] };
   });
 
-  const svcGroupNames = Object.keys(svcByGroup);
-  const groupAngleStep = (Math.PI * 2) / Math.max(svcGroupNames.length, 1);
-
-  svcGroupNames.forEach((grpName, gi) => {
-    const groupAngle = gi * groupAngleStep;
-    const groupRadius = Math.min(70, 25 + svcGroupNames.length * 4);
-    const cx = Math.cos(groupAngle) * groupRadius;
-    const cz = Math.sin(groupAngle) * groupRadius;
-    const services = svcByGroup[grpName];
-    const clusterRadius = Math.max(4, Math.sqrt(services.length) * 3);
-
-    // Group ring
-    const ringGeo = new THREE.RingGeometry(clusterRadius + 1, clusterRadius + 1.5, 32);
-    const ringMat = new THREE.MeshBasicMaterial({ color: 0x00bcd4, transparent: true, opacity: 0.15, side: THREE.DoubleSide });
-    const ring = new THREE.Mesh(ringGeo, ringMat);
-    ring.rotation.x = -Math.PI / 2;
-    ring.position.set(cx, LAYER_Y.svc - 0.4, cz);
-    scene.add(ring);
-
-    services.forEach((s, si) => {
-      const localAngle = (si / services.length) * Math.PI * 2;
-      const r = services.length === 1 ? 0 : clusterRadius * 0.7;
-      const x = cx + Math.cos(localAngle) * r;
-      const z = cz + Math.sin(localAngle) * r;
-      const y = LAYER_Y.svc;
-      const scale = CRIT_SCALE[s.criticality] || 1;
-      const critColor = CRIT_COLORS[s.criticality] || 0x00bcd4;
-
-      const geo = new THREE.BoxGeometry(2, 2, 2);
-      const mat = new THREE.MeshPhongMaterial({ color: 0x00bcd4, emissive: critColor, emissiveIntensity: 0.2, transparent: true, opacity: 0.9 });
-      const mesh = new THREE.Mesh(geo, mat);
-      mesh.position.set(x, y, z);
-      mesh.scale.setScalar(scale);
-      scene.add(mesh);
-      mesh.add(new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: critColor, wireframe: true, transparent: true, opacity: 0.4 })));
-
-      const id = 'svc:' + s.subservice;
-      nodeObjects.push({ mesh, data: s, type: 'svc', id, label: s.subservice, groupName: grpName });
-      posMap[id] = { x, y, z, obj: nodeObjects[nodeObjects.length - 1] };
-    });
-  });
-
-  // Business Processes
-  const bpNodes = DB.businessProcesses;
-  const bpAngleStep = (Math.PI * 2) / Math.max(bpNodes.length, 1);
-  const bpRadius = Math.min(60, 20 + bpNodes.length * 3);
-  bpNodes.forEach((bp, i) => {
-    const angle = i * bpAngleStep;
-    const x = Math.cos(angle) * bpRadius;
-    const z = Math.sin(angle) * bpRadius;
-    const y = LAYER_Y.bp;
+  // --- Business Processes (top floor) ---
+  const bpCols = Math.max(3, Math.ceil(Math.sqrt(DB.businessProcesses.length)));
+  const bpPositions = gridLayout(DB.businessProcesses, LAYER_Y.bp, bpCols);
+  bpPositions.forEach(({ item: bp, x, y, z }) => {
     const scale = CRIT_SCALE[bp.criticality] || 1;
     const critColor = CRIT_COLORS[bp.criticality] || 0xC2185B;
-
-    const geo = new THREE.OctahedronGeometry(2, 0);
+    const geo = new THREE.OctahedronGeometry(2.2, 0);
     const mat = new THREE.MeshPhongMaterial({ color: 0xC2185B, emissive: critColor, emissiveIntensity: 0.2, transparent: true, opacity: 0.9 });
     const mesh = new THREE.Mesh(geo, mat);
     mesh.position.set(x, y, z);
     mesh.scale.setScalar(scale);
     scene.add(mesh);
-    mesh.add(new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: critColor, wireframe: true, transparent: true, opacity: 0.4 })));
-
+    mesh.add(new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: critColor, wireframe: true, transparent: true, opacity: 0.3 })));
     const id = 'bp:' + bp.id;
     nodeObjects.push({ mesh, data: bp, type: 'bp', id, label: bp.name || bp.id });
     posMap[id] = { x, y, z };
   });
 
-  // User Groups
-  DB.userGroups.forEach((g, i) => {
-    const angle = (i / DB.userGroups.length) * Math.PI * 2;
-    const grpRadius = Math.min(50, 15 + DB.userGroups.length * 3);
-    const x = Math.cos(angle) * grpRadius;
-    const z = Math.sin(angle) * grpRadius;
-    const y = LAYER_Y.grp;
+  // --- User Groups (bottom floor) ---
+  const grpCols = Math.max(3, Math.ceil(Math.sqrt(DB.userGroups.length)));
+  const grpPositions = gridLayout(DB.userGroups, LAYER_Y.grp, grpCols);
+  grpPositions.forEach(({ item: g, x, y, z }) => {
     const userScale = Math.min(1.5, 0.7 + (g.count || 5) / 25);
-
-    const geo = new THREE.SphereGeometry(1.8, 16, 12);
+    const geo = new THREE.SphereGeometry(2, 16, 12);
     const mat = new THREE.MeshPhongMaterial({ color: 0xeab308, emissive: 0xeab308, emissiveIntensity: 0.15, transparent: true, opacity: 0.9 });
     const mesh = new THREE.Mesh(geo, mat);
     mesh.position.set(x, y, z);
     mesh.scale.setScalar(userScale);
     scene.add(mesh);
     mesh.add(new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: 0xeab308, wireframe: true, transparent: true, opacity: 0.3 })));
-
     const id = 'grp:' + g.name;
     nodeObjects.push({ mesh, data: g, type: 'grp', id, label: g.name });
     posMap[id] = { x, y, z };
   });
 
-  // Build edges with tubes
+  // --- Edges with curved tubes + arrowheads between floors ---
   function addEdge(srcId, tgtId, color, lineType) {
     const src = posMap[srcId];
     const tgt = posMap[tgtId];
     if (!src || !tgt) return;
-    const mx = (src.x + tgt.x) / 2, my = (src.y + tgt.y) / 2, mz = (src.z + tgt.z) / 2;
-    const curve = new THREE.QuadraticBezierCurve3(
+
+    // Smooth S-curve between floors
+    const midY = (src.y + tgt.y) / 2;
+    const pts = [
       new THREE.Vector3(src.x, src.y, src.z),
-      new THREE.Vector3(mx + (Math.random() - 0.5) * 4, my, mz + (Math.random() - 0.5) * 4),
-      new THREE.Vector3(tgt.x, tgt.y, tgt.z)
-    );
-    const tubePath = new THREE.CatmullRomCurve3(curve.getPoints(24));
-    const tubeGeo = new THREE.TubeGeometry(tubePath, 12, 0.15, 4, false);
-    const tubeMat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.35 });
+      new THREE.Vector3(src.x, midY + (src.y - tgt.y) * 0.15, src.z),
+      new THREE.Vector3(tgt.x, midY - (src.y - tgt.y) * 0.15, tgt.z),
+      new THREE.Vector3(tgt.x, tgt.y, tgt.z),
+    ];
+    const curve = new THREE.CatmullRomCurve3(pts);
+    const tubeGeo = new THREE.TubeGeometry(curve, 20, 0.12, 4, false);
+    const tubeMat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.3 });
     const tube = new THREE.Mesh(tubeGeo, tubeMat);
     scene.add(tube);
 
-    // Arrow
-    const arrowGeo = new THREE.ConeGeometry(0.5, 1.5, 6);
-    const arrowMat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.5 });
+    // Arrowhead near target
+    const arrowGeo = new THREE.ConeGeometry(0.6, 2, 6);
+    const arrowMat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.6 });
     const arrow = new THREE.Mesh(arrowGeo, arrowMat);
-    const nearTgt = new THREE.Vector3().lerpVectors(new THREE.Vector3(mx, my, mz), new THREE.Vector3(tgt.x, tgt.y, tgt.z), 0.8);
-    arrow.position.copy(nearTgt);
-    arrow.lookAt(tgt.x, tgt.y, tgt.z);
+    const arrowPos = curve.getPointAt(0.85);
+    const arrowDir = curve.getPointAt(0.9);
+    arrow.position.copy(arrowPos);
+    arrow.lookAt(arrowDir);
     arrow.rotateX(Math.PI / 2);
     scene.add(arrow);
 
@@ -3159,7 +3166,7 @@ function init3DScene(THREE, OrbitControls, container) {
     });
   }
 
-  // Interaction
+  // --- Interaction (hover, click, tooltip, detail panel) ---
   const raycaster = new THREE.Raycaster();
   const mouse = new THREE.Vector2();
   let hoveredNode = null;
@@ -3168,20 +3175,32 @@ function init3DScene(THREE, OrbitControls, container) {
 
   function updateLabels() {
     labelsContainer.innerHTML = '';
+    // Floor labels (fixed HTML)
+    LAYER_CONF.forEach(lc => {
+      const floorPos = new THREE.Vector3(-FLOOR_SIZE/2 + 6, lc.y, -FLOOR_SIZE/2 + 2).project(camera);
+      if (floorPos.z > 1) return;
+      const fx = (floorPos.x * 0.5 + 0.5) * width;
+      const fy = (-floorPos.y * 0.5 + 0.5) * height;
+      const fd = document.createElement('div');
+      fd.style.cssText = 'position:absolute;left:'+fx+'px;top:'+fy+'px;font-size:11px;color:'+lc.hex+';font-family:IBM Plex Mono,monospace;font-weight:800;letter-spacing:3px;opacity:0.7;text-shadow:0 0 8px '+lc.hex+'44;pointer-events:none;white-space:nowrap';
+      fd.textContent = lc.label;
+      labelsContainer.appendChild(fd);
+    });
+    // Node labels
     nodeObjects.forEach(n => {
       const pos = n.mesh.position.clone().project(camera);
       if (pos.z > 1) return;
       const x = (pos.x * 0.5 + 0.5) * width;
       const y = (-pos.y * 0.5 + 0.5) * height;
       const camDist = camera.position.distanceTo(n.mesh.position);
-      if (camDist > 120 && n.data.criticality !== 'High') return;
-      if (camDist > 200) return;
-      const fontSize = camDist < 40 ? 11 : camDist < 80 ? 9 : 7;
-      const opacity = Math.max(0.3, Math.min(1, 1 - (camDist - 30) / 150));
-      const shortLabel = n.label.length > 20 ? n.label.slice(0, 18) + '…' : n.label;
+      if (camDist > 140 && n.data.criticality !== 'High') return;
+      if (camDist > 220) return;
+      const fontSize = camDist < 50 ? 10 : camDist < 100 ? 8 : 7;
+      const opacity = Math.max(0.3, Math.min(1, 1 - (camDist - 30) / 180));
+      const shortLabel = n.label.length > 22 ? n.label.slice(0, 20) + '…' : n.label;
       const typeCol = n.type === 'bp' ? '#C2185B' : n.type === 'svc' ? '#00bcd4' : '#eab308';
       const div = document.createElement('div');
-      div.style.cssText = 'position:absolute;left:' + x + 'px;top:' + (y + 12) + 'px;transform:translateX(-50%);font-size:' + fontSize + 'px;color:' + typeCol + ';font-family:IBM Plex Mono,monospace;white-space:nowrap;opacity:' + opacity + ';text-shadow:0 0 4px #040810,0 0 8px #040810;pointer-events:none;font-weight:600';
+      div.style.cssText = 'position:absolute;left:'+x+'px;top:'+(y+14)+'px;transform:translateX(-50%);font-size:'+fontSize+'px;color:'+typeCol+';font-family:IBM Plex Mono,monospace;white-space:nowrap;opacity:'+opacity+';text-shadow:0 0 4px #040810,0 0 8px #040810;pointer-events:none;font-weight:600';
       div.textContent = shortLabel;
       labelsContainer.appendChild(div);
     });
@@ -3193,7 +3212,6 @@ function init3DScene(THREE, OrbitControls, container) {
     mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
     raycaster.setFromCamera(mouse, camera);
     const intersects = raycaster.intersectObjects(nodeObjects.map(n => n.mesh), true);
-
     if (intersects.length > 0) {
       let hitObj = intersects[0].object;
       let node = nodeObjects.find(n => n.mesh === hitObj) || nodeObjects.find(n => n.mesh === hitObj.parent);
@@ -3205,11 +3223,11 @@ function init3DScene(THREE, OrbitControls, container) {
         const connIds = new Set([node.id]);
         edgeLines.forEach(e => {
           const conn = e.srcId === node.id || e.tgtId === node.id;
-          e.mat.opacity = conn ? 0.8 : 0.06;
-          e.arrowMat.opacity = conn ? 0.8 : 0.06;
+          e.mat.opacity = conn ? 0.8 : 0.04;
+          e.arrowMat.opacity = conn ? 0.9 : 0.04;
           if (conn) { connIds.add(e.srcId); connIds.add(e.tgtId); }
         });
-        nodeObjects.forEach(n => { n.mesh.material.opacity = connIds.has(n.id) ? 1 : 0.12; });
+        nodeObjects.forEach(n => { n.mesh.material.opacity = connIds.has(n.id) ? 1 : 0.1; });
       }
       if (node) {
         tooltip.style.display = 'block';
@@ -3233,7 +3251,7 @@ function init3DScene(THREE, OrbitControls, container) {
         hoveredNode = null;
         canvas.style.cursor = 'grab';
         tooltip.style.display = 'none';
-        edgeLines.forEach(e => { e.mat.opacity = 0.35; e.arrowMat.opacity = 0.5; });
+        edgeLines.forEach(e => { e.mat.opacity = 0.3; e.arrowMat.opacity = 0.6; });
         nodeObjects.forEach(n => { n.mesh.material.opacity = 0.9; });
       }
     }
@@ -3243,14 +3261,12 @@ function init3DScene(THREE, OrbitControls, container) {
     if (!hoveredNode) { detail.style.display = 'none'; return; }
     const n = hoveredNode;
     controls.target.copy(n.mesh.position);
-
     detail.style.display = 'block';
     const typeLabel = n.type === 'bp' ? '⚡ Business Process' : n.type === 'svc' ? '⚙ IT Service' : '👥 User Group';
     const typeColor = n.type === 'bp' ? '#C2185B' : n.type === 'svc' ? '#00bcd4' : '#eab308';
     let html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><div style="font-size:.95rem;font-weight:700;color:' + typeColor + '">' + esc(n.label) + '</div>';
     html += '<button onclick="document.getElementById(\'three-detail\').style.display=\'none\'" style="background:none;border:none;color:#435570;cursor:pointer;font-size:1.2rem">✕</button></div>';
     html += '<div style="font-size:.68rem;color:#435570;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">' + typeLabel + '</div>';
-
     const props = [];
     if (n.data.criticality) props.push(['Criticality', n.data.criticality]);
     if (n.data.group) props.push(['Service Group', n.data.group]);
@@ -3263,7 +3279,6 @@ function init3DScene(THREE, OrbitControls, container) {
     if (n.data.rpo) props.push(['RPO', n.data.rpo]);
     if (n.data.description) props.push(['Beschreibung', n.data.description]);
     if (n.data.notes) props.push(['Anmerkungen', n.data.notes]);
-
     if (props.length) {
       html += '<div style="background:#0D1B2A;border-radius:6px;padding:8px;margin-bottom:10px">';
       props.forEach(([k, v]) => {
@@ -3272,7 +3287,6 @@ function init3DScene(THREE, OrbitControls, container) {
       });
       html += '</div>';
     }
-
     const incoming = [], outgoing = [];
     edgeLines.forEach(e => {
       if (e.srcId === n.id) { const t = nodeObjects.find(o => o.id === e.tgtId); if (t) outgoing.push({ ...t, lineType: e.lineType }); }
@@ -3297,6 +3311,7 @@ function init3DScene(THREE, OrbitControls, container) {
     detail.innerHTML = html;
   });
 
+  // --- Animation ---
   let animId;
   const clock = new THREE.Clock();
   let labelTimer = 0;
@@ -3307,8 +3322,8 @@ function init3DScene(THREE, OrbitControls, container) {
     controls.update();
     nodeObjects.forEach((n, i) => {
       const baseY = n.type === 'bp' ? LAYER_Y.bp : n.type === 'svc' ? LAYER_Y.svc : LAYER_Y.grp;
-      n.mesh.position.y = baseY + Math.sin(t * 0.4 + i * 0.5) * 0.3;
-      n.mesh.rotation.y = t * 0.1 + i * 0.3;
+      n.mesh.position.y = baseY + Math.sin(t * 0.3 + i * 0.5) * 0.2;
+      n.mesh.rotation.y = t * 0.08 + i * 0.3;
     });
     labelTimer += dt;
     if (labelTimer > 0.1) { labelTimer = 0; updateLabels(); }
