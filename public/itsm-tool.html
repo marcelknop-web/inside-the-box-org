@@ -818,6 +818,10 @@ function renderProcesses(){
         <button class="btn btn-primary btn-sm" onclick="openProcessForm()">+ Prozess</button>
       </div>
     </div>
+    <div class="mini-chart-row">
+      <div class="chart-panel"><div class="chart-title">🍩 Kategorie-Verteilung</div><div id="bp-cat-chart"></div></div>
+      <div class="chart-panel"><div class="chart-title">⚡ Criticality & Regulatory</div><div id="bp-crit-chart"></div></div>
+    </div>
     <div class="filter-bar">
       <input class="search-input" id="bp-search" placeholder="🔍 Suche…" oninput="filterProcesses()">
       <select class="filter-select" id="bp-cat-filter" onchange="filterProcesses()">
@@ -830,6 +834,19 @@ function renderProcesses(){
       </select>
     </div>
     <div id="bp-table-container"></div>`;
+
+  // Category donut
+  const cm={};DB.businessProcesses.forEach(p=>{cm[p.category]=(cm[p.category]||0)+1;});
+  d3Donut('bp-cat-chart',Object.entries(cm).map(([k,v])=>({label:k,value:v})).sort((a,b)=>b.value-a.value),{size:130,centerLabel:'categories'});
+
+  // Criticality bar + regulatory count
+  const bpCrit={};DB.businessProcesses.forEach(p=>{bpCrit[p.criticality]=(bpCrit[p.criticality]||0)+1;});
+  const regCount = DB.businessProcesses.filter(p=>p.regulatory&&p.regulatory.trim()).length;
+  d3HBar('bp-crit-chart',[
+    ...Object.entries(bpCrit).map(([k,v])=>({label:k,value:v})),
+    {label:'w/ Regulatory',value:regCount}
+  ],{colors:['#C62828','#E65100','#2E7D32','#6A1B9A']});
+
   filterProcesses();
 }
 
