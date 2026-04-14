@@ -3245,6 +3245,22 @@ function init3DScene(THREE, OrbitControls, container) {
     });
   }
 
+  // ── End-to-end path tracing ──
+  // Build adjacency from edges for transitive traversal
+  function traceE2E(startId) {
+    const visited = new Set([startId]);
+    const queue = [startId];
+    const touchedEdges = new Set();
+    while (queue.length) {
+      const cur = queue.shift();
+      edgeLines.forEach((e, i) => {
+        if (e.srcId === cur && !visited.has(e.tgtId)) { visited.add(e.tgtId); queue.push(e.tgtId); touchedEdges.add(i); }
+        if (e.tgtId === cur && !visited.has(e.srcId)) { visited.add(e.srcId); queue.push(e.srcId); touchedEdges.add(i); }
+      });
+    }
+    return { nodeIds: visited, edgeIdxs: touchedEdges };
+  }
+
   canvas.addEventListener('mousemove', (e) => {
     const rect = canvas.getBoundingClientRect();
     mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
@@ -3259,14 +3275,15 @@ function init3DScene(THREE, OrbitControls, container) {
         hoveredNode = node;
         node.mesh.material.emissiveIntensity = 0.7;
         canvas.style.cursor = 'pointer';
-        const connIds = new Set([node.id]);
-        edgeLines.forEach(e => {
-          const conn = e.srcId === node.id || e.tgtId === node.id;
-          e.mat.opacity = conn ? 0.7 : 0.03;
-          e.arrowMat.opacity = conn ? 0.8 : 0.03;
-          if (conn) { connIds.add(e.srcId); connIds.add(e.tgtId); }
+
+        // Trace full end-to-end path
+        const trace = traceE2E(node.id);
+        edgeLines.forEach((e, i) => {
+          const on = trace.edgeIdxs.has(i);
+          e.mat.opacity = on ? 0.8 : 0.03;
+          e.arrowMat.opacity = on ? 0.9 : 0.03;
         });
-        nodeObjects.forEach(n => { n.mesh.material.opacity = connIds.has(n.id) ? 1 : 0.08; });
+        nodeObjects.forEach(n => { n.mesh.material.opacity = trace.nodeIds.has(n.id) ? 1 : 0.06; });
       }
       if (node) {
         tooltip.style.display = 'block';
@@ -3274,13 +3291,23 @@ function init3DScene(THREE, OrbitControls, container) {
         tooltip.style.top = (e.clientY - rect.top - 10) + 'px';
         const typeLabel = node.type === 'bp' ? '⚡ Business Process' : node.type === 'svc' ? '⚙ IT Service' : '👥 User Group';
         const critBg = node.data.criticality === 'High' ? 'rgba(239,68,68,.2);color:#f87171' : node.data.criticality === 'Medium' ? 'rgba(249,115,22,.2);color:#f97316' : 'rgba(34,197,94,.15);color:#4ade80';
-        let connCount = 0;
-        edgeLines.forEach(e => { if (e.srcId === node.id || e.tgtId === node.id) connCount++; });
+
+        // Count e2e chain
+        const trace = traceE2E(node.id);
+        const chainBPs = [...trace.nodeIds].filter(id => id.startsWith('bp:')).length;
+        const chainSvcs = [...trace.nodeIds].filter(id => id.startsWith('svc:')).length;
+        const chainGrps = [...trace.nodeIds].filter(id => id.startsWith('grp:')).length;
+
         let ttHtml = '<div style="font-weight:700;margin-bottom:3px;font-size:.85rem">' + esc(node.label) + '</div>';
         ttHtml += '<div style="font-size:.7rem;color:#8ba5c5;margin-bottom:4px">' + typeLabel + '</div>';
         if (node.data.criticality) ttHtml += '<span style="padding:1px 6px;border-radius:8px;font-size:.65rem;font-weight:700;background:' + critBg + '">' + node.data.criticality + '</span>';
-        if (node.data.group) ttHtml += '<div style="font-size:.68rem;color:#435570;margin-top:4px">Group: ' + esc(node.data.group) + '</div>';
-        ttHtml += '<div style="font-size:.68rem;color:#f5b800;margin-top:4px">' + connCount + ' Verbindungen</div>';
+        ttHtml += '<div style="margin-top:6px;padding-top:4px;border-top:1px solid #1e2a3a;font-size:.68rem;color:#8ba5c5">End-to-End Kette:</div>';
+        ttHtml += '<div style="font-size:.68rem;display:flex;gap:8px;margin-top:2px">';
+        if (chainBPs) ttHtml += '<span style="color:#E91E63">' + chainBPs + ' BP</span>';
+        if (chainSvcs) ttHtml += '<span style="color:#00BCD4">' + chainSvcs + ' Svc</span>';
+        if (chainGrps) ttHtml += '<span style="color:#FFB300">' + chainGrps + ' Grp</span>';
+        ttHtml += '</div>';
+        ttHtml += '<div style="font-size:.62rem;color:#435570;margin-top:2px">' + trace.edgeIdxs.size + ' Verbindungen im Pfad</div>';
         tooltip.innerHTML = ttHtml;
       }
     } else {
@@ -3302,9 +3329,12 @@ function init3DScene(THREE, OrbitControls, container) {
     detail.style.display = 'block';
     const typeLabel = n.type === 'bp' ? '⚡ Business Process' : n.type === 'svc' ? '⚙ IT Service' : '👥 User Group';
     const typeColor = n.type === 'bp' ? '#E91E63' : n.type === 'svc' ? '#00BCD4' : '#FFB300';
+
     let html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><div style="font-size:.95rem;font-weight:700;color:' + typeColor + '">' + esc(n.label) + '</div>';
     html += '<button onclick="document.getElementById(\'three-detail\').style.display=\'none\'" style="background:none;border:none;color:#435570;cursor:pointer;font-size:1.2rem">✕</button></div>';
     html += '<div style="font-size:.68rem;color:#435570;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">' + typeLabel + '</div>';
+
+    // Properties
     const props = [];
     if (n.data.criticality) props.push(['Criticality', n.data.criticality]);
     if (n.data.group) props.push(['Service Group', n.data.group]);
@@ -3324,6 +3354,46 @@ function init3DScene(THREE, OrbitControls, container) {
       });
       html += '</div>';
     }
+
+    // ── End-to-End Chain ──
+    const trace = traceE2E(n.id);
+    const chainNodes = { bp: [], svc: [], grp: [] };
+    trace.nodeIds.forEach(id => {
+      const nd = nodeObjects.find(o => o.id === id);
+      if (nd && nd.id !== n.id) chainNodes[nd.type]?.push(nd);
+    });
+
+    // Show E2E summary
+    const totalE2E = chainNodes.bp.length + chainNodes.svc.length + chainNodes.grp.length;
+    if (totalE2E > 0) {
+      html += '<div style="background:linear-gradient(135deg,#0D1B2A,#1a1040);border:1px solid #E040FB44;border-radius:8px;padding:10px;margin-bottom:10px">';
+      html += '<div style="font-size:.72rem;font-weight:700;color:#E040FB;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">🔗 End-to-End Kette</div>';
+
+      const renderChainLayer = (icon, label, items, color) => {
+        if (!items.length) return '';
+        let h = '<div style="margin:4px 0"><div style="font-size:.66rem;color:' + color + ';font-weight:700;margin-bottom:2px">' + icon + ' ' + label + ' (' + items.length + ')</div>';
+        items.forEach(c => {
+          h += '<div style="display:flex;align-items:center;gap:5px;padding:2px 6px;margin:1px 0;font-size:.74rem">';
+          h += '<span style="width:5px;height:5px;border-radius:50%;background:' + color + ';flex-shrink:0"></span>';
+          h += '<span style="color:#f0f4fc">' + esc(c.label) + '</span>';
+          if (c.data?.criticality) {
+            const cc = c.data.criticality === 'High' ? '#EF5350' : c.data.criticality === 'Medium' ? '#f97316' : '#66BB6A';
+            h += '<span style="font-size:.6rem;color:' + cc + ';margin-left:auto">' + c.data.criticality + '</span>';
+          }
+          h += '</div>';
+        });
+        h += '</div>';
+        return h;
+      };
+
+      html += renderChainLayer('⚡', 'Business Processes', chainNodes.bp, '#E91E63');
+      html += renderChainLayer('⚙', 'IT Services', chainNodes.svc, '#00BCD4');
+      html += renderChainLayer('👥', 'User Groups', chainNodes.grp, '#FFB300');
+      html += '<div style="font-size:.62rem;color:#435570;margin-top:4px;text-align:center">' + trace.edgeIdxs.size + ' Verbindungen · ' + (totalE2E + 1) + ' Knoten im Pfad</div>';
+      html += '</div>';
+    }
+
+    // Direct connections
     const incoming = [], outgoing = [];
     edgeLines.forEach(e => {
       if (e.srcId === n.id) { const t = nodeObjects.find(o => o.id === e.tgtId); if (t) outgoing.push({ ...t, lineType: e.lineType }); }
@@ -3342,9 +3412,9 @@ function init3DScene(THREE, OrbitControls, container) {
       });
       return h;
     };
-    html += renderList('→ Ausgehend', outgoing);
-    html += renderList('← Eingehend', incoming);
-    if (!outgoing.length && !incoming.length) html += '<div style="color:#435570;font-size:.82rem;text-align:center;padding:12px">Keine Verbindungen</div>';
+    html += renderList('→ Direkt ausgehend', outgoing);
+    html += renderList('← Direkt eingehend', incoming);
+    if (!outgoing.length && !incoming.length && totalE2E === 0) html += '<div style="color:#435570;font-size:.82rem;text-align:center;padding:12px">Keine Verbindungen</div>';
     detail.innerHTML = html;
   });
 
