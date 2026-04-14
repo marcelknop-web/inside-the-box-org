@@ -2642,8 +2642,8 @@ function renderGraph(nodes, links) {
   const link = g.append('g').selectAll('line')
     .data(links).enter().append('line')
     .attr('stroke', d => linkColors[d.type] || '#435570')
-    .attr('stroke-width', d => d.depType === 'Mandatory' ? 2 : 1.2)
-    .attr('stroke-opacity', 0.35)
+    .attr('stroke-width', d => d.depType === 'Mandatory' ? 1.8 : 1)
+    .attr('stroke-opacity', 0.25)
     .attr('stroke-dasharray', d => d.depType === 'Optional' ? '4,4' : d.depType === 'Supporting' ? '6,3' : null)
     .attr('marker-end', d => 'url(#arrow-'+d.type+')');
 
