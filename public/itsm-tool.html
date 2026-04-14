@@ -380,6 +380,146 @@ function showView(name){
 }
 
 // ═══════════════════════════════════════════════════════════════
+// D3 CHART UTILITIES
+// ═══════════════════════════════════════════════════════════════
+const CHART_COLORS = ['#1565C0','#E65100','#2E7D32','#C62828','#6A1B9A','#00838F','#FF9800','#E91E63','#3F51B5','#009688','#795548','#607D8B'];
+
+function d3Donut(containerId, data, opts={}){
+  const el = document.getElementById(containerId);
+  if(!el || !data.length) return;
+  const w = opts.size||160, h = w, r = w/2, inner = r*0.55;
+  const svg = d3.select(el).append('svg').attr('viewBox',`0 0 ${w} ${h}`).attr('width','100%');
+  const g = svg.append('g').attr('transform',`translate(${w/2},${h/2})`);
+  const pie = d3.pie().value(d=>d.value).sort(null);
+  const arc = d3.arc().innerRadius(inner).outerRadius(r-4);
+  const arcHover = d3.arc().innerRadius(inner).outerRadius(r);
+  const colors = opts.colors || CHART_COLORS;
+  const total = d3.sum(data, d=>d.value);
+
+  g.selectAll('path').data(pie(data)).join('path')
+    .attr('d', arc).attr('fill',(d,i)=>colors[i%colors.length])
+    .attr('stroke','#112240').attr('stroke-width',2)
+    .style('cursor','pointer')
+    .on('mouseover',function(e,d){
+      d3.select(this).transition().duration(150).attr('d',arcHover);
+      tooltip.style('display','block').html(`<strong>${d.data.label}</strong><br>${d.data.value} (${Math.round(d.data.value/total*100)}%)`);
+    })
+    .on('mousemove',function(e){tooltip.style('left',(e.offsetX+12)+'px').style('top',(e.offsetY-10)+'px');})
+    .on('mouseout',function(){d3.select(this).transition().duration(150).attr('d',arc);tooltip.style('display','none');});
+
+  const tooltip = d3.select(el).append('div')
+    .style('position','absolute').style('display','none').style('background','#0A1628')
+    .style('border','1px solid #1E88E5').style('border-radius','6px').style('padding','6px 10px')
+    .style('font-size','.74rem').style('color','#DDE3EC').style('pointer-events','none').style('z-index','10');
+  d3.select(el).style('position','relative');
+
+  // center label
+  g.append('text').attr('text-anchor','middle').attr('dy','-0.2em')
+    .style('font-size','.9rem').style('font-weight','700').style('fill','#64B5F6').text(total);
+  g.append('text').attr('text-anchor','middle').attr('dy','1em')
+    .style('font-size','.55rem').style('fill','#546E7A').text(opts.centerLabel||'total');
+
+  // legend
+  const leg = d3.select(el).append('div').attr('class','legend');
+  data.forEach((d,i)=>{
+    leg.append('span').attr('class','legend-item')
+      .html(`<span class="legend-dot" style="background:${colors[i%colors.length]}"></span>${d.label} (${d.value})`);
+  });
+}
+
+function d3HBar(containerId, data, opts={}){
+  const el = document.getElementById(containerId);
+  if(!el || !data.length) return;
+  const margin={top:8,right:40,bottom:8,left:opts.labelWidth||100};
+  const barH=22, gap=4;
+  const h = data.length*(barH+gap)+margin.top+margin.bottom;
+  const w = opts.width||320;
+  const colors = opts.colors || CHART_COLORS;
+  const maxVal = d3.max(data, d=>d.value)||1;
+
+  const svg = d3.select(el).append('svg').attr('viewBox',`0 0 ${w} ${h}`).attr('width','100%');
+  const x = d3.scaleLinear().domain([0,maxVal]).range([0,w-margin.left-margin.right]);
+  const g = svg.append('g').attr('transform',`translate(${margin.left},${margin.top})`);
+
+  data.forEach((d,i)=>{
+    const y=i*(barH+gap);
+    g.append('rect').attr('x',0).attr('y',y).attr('width',0).attr('height',barH)
+      .attr('rx',4).attr('fill',colors[i%colors.length])
+      .transition().duration(600).delay(i*60).attr('width',x(d.value));
+    g.append('text').attr('x',-6).attr('y',y+barH/2).attr('dy','.35em')
+      .attr('text-anchor','end').style('font-size','.7rem').style('fill','#90A4AE').text(d.label);
+    g.append('text').attr('x',x(d.value)+4).attr('y',y+barH/2).attr('dy','.35em')
+      .style('font-size','.72rem').style('fill','#64B5F6').style('font-weight','700').text(d.value)
+      .style('opacity',0).transition().duration(300).delay(i*60+400).style('opacity',1);
+  });
+}
+
+function d3StackedBar(containerId, categories, series, opts={}){
+  const el = document.getElementById(containerId);
+  if(!el || !categories.length) return;
+  const margin={top:14,right:10,bottom:26,left:opts.labelWidth||110};
+  const barH=18, gap=6;
+  const h = categories.length*(barH+gap)+margin.top+margin.bottom;
+  const w = opts.width||400;
+  const colors = opts.colors || ['#C62828','#E65100','#2E7D32'];
+
+  const maxVal = d3.max(categories, cat=>d3.sum(series, s=>s.values[cat]||0))||1;
+  const svg = d3.select(el).append('svg').attr('viewBox',`0 0 ${w} ${h}`).attr('width','100%');
+  const x = d3.scaleLinear().domain([0,maxVal]).range([0,w-margin.left-margin.right]);
+  const g = svg.append('g').attr('transform',`translate(${margin.left},${margin.top})`);
+
+  categories.forEach((cat,ci)=>{
+    const y = ci*(barH+gap);
+    let offset=0;
+    series.forEach((s,si)=>{
+      const val=s.values[cat]||0;
+      if(val>0){
+        g.append('rect').attr('x',x(offset)).attr('y',y).attr('width',0).attr('height',barH)
+          .attr('rx',2).attr('fill',colors[si%colors.length])
+          .transition().duration(500).delay(ci*40).attr('width',x(val));
+        offset+=val;
+      }
+    });
+    g.append('text').attr('x',-6).attr('y',y+barH/2).attr('dy','.35em')
+      .attr('text-anchor','end').style('font-size','.65rem').style('fill','#90A4AE')
+      .text(cat.length>16?cat.slice(0,15)+'…':cat);
+    g.append('text').attr('x',x(offset)+4).attr('y',y+barH/2).attr('dy','.35em')
+      .style('font-size','.68rem').style('fill','#546E7A').text(offset);
+  });
+
+  // legend
+  const leg = d3.select(el).append('div').attr('class','legend').style('margin-top','6px');
+  series.forEach((s,i)=>{
+    leg.append('span').attr('class','legend-item')
+      .html(`<span class="legend-rect" style="background:${colors[i%colors.length]}"></span>${s.label}`);
+  });
+}
+
+function d3Gauge(containerId, value, max, opts={}){
+  const el = document.getElementById(containerId);
+  if(!el) return;
+  const w=120,h=70;
+  const svg = d3.select(el).append('svg').attr('viewBox',`0 0 ${w} ${h}`).attr('width','100%');
+  const g = svg.append('g').attr('transform',`translate(${w/2},${h-8})`);
+  const r=50;
+  const bg = d3.arc().innerRadius(r-10).outerRadius(r).startAngle(-Math.PI/2).endAngle(Math.PI/2);
+  const fg = d3.arc().innerRadius(r-10).outerRadius(r).startAngle(-Math.PI/2);
+  g.append('path').attr('d',bg).attr('fill','#1E3A5F');
+  const pct = Math.min(value/max,1);
+  const endAngle = -Math.PI/2 + Math.PI*pct;
+  g.append('path').attr('fill',opts.color||'#1565C0')
+    .transition().duration(800)
+    .attrTween('d',function(){
+      const interp = d3.interpolate(-Math.PI/2, endAngle);
+      return t => fg.endAngle(interp(t))();
+    });
+  g.append('text').attr('text-anchor','middle').attr('dy','-0.3em')
+    .style('font-size','.8rem').style('font-weight','700').style('fill','#64B5F6').text(value);
+  g.append('text').attr('text-anchor','middle').attr('dy','0.9em')
+    .style('font-size','.5rem').style('fill','#546E7A').text(opts.label||'');
+}
+
+// ═══════════════════════════════════════════════════════════════
 // DASHBOARD
 // ═══════════════════════════════════════════════════════════════
 function renderDashboard(){
@@ -395,15 +535,6 @@ function renderDashboard(){
       <strong>${esc(c.action)}</strong> ${esc(c.entity)}: <em>${esc(c.name)}</em>
       <div class="time">${new Date(c.time).toLocaleString('de-DE')}</div>
     </div>`).join('') || '<div class="change-item" style="color:#546E7A">Noch keine Änderungen aufgezeichnet.</div>';
-
-  const grpStats = {};
-  svcs.forEach(s=>{ grpStats[s.group]=(grpStats[s.group]||0)+1; });
-  const grpRows = Object.entries(grpStats).sort((a,b)=>b[1]-a[1]).map(([g,c])=>`
-    <tr>
-      <td>${grpDot(g)}${esc(g)}</td>
-      <td class="td-center">${c}</td>
-      <td class="td-center">${svcs.filter(s=>s.group===g&&s.criticality==='High').length}</td>
-    </tr>`).join('');
 
   document.getElementById('main-content').innerHTML = `
     <div class="view-header">
@@ -421,27 +552,82 @@ function renderDashboard(){
       <div class="stat-card"><div class="num">${DB.userGroups.length}</div><div class="lbl">User Groups</div><div class="bar" style="background:#FF9800"></div></div>
       <div class="stat-card"><div class="num">${DB.permissions.length}</div><div class="lbl">Berechtigungen</div><div class="bar" style="background:#9C27B0"></div></div>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
-      <div class="panel">
-        <div class="panel-title">⚡ Criticality-Verteilung (Subservices)</div>
-        <div class="crit-bars">
-          <div class="crit-row"><div class="crit-label">High</div><div class="crit-bar-bg"><div class="crit-bar-fill" style="width:${Math.round(high/svcs.length*100)}%;background:#C62828"></div></div><div class="crit-val">${high}</div></div>
-          <div class="crit-row"><div class="crit-label">Medium</div><div class="crit-bar-bg"><div class="crit-bar-fill" style="width:${Math.round(med/svcs.length*100)}%;background:#E65100"></div></div><div class="crit-val">${med}</div></div>
-          <div class="crit-row"><div class="crit-label">Low</div><div class="crit-bar-bg"><div class="crit-bar-fill" style="width:${Math.round(low/svcs.length*100)}%;background:#2E7D32"></div></div><div class="crit-val">${low}</div></div>
-        </div>
+
+    <div class="chart-row">
+      <div class="chart-panel">
+        <div class="chart-title">🍩 Service Typen</div>
+        <div id="dash-svctype-donut"></div>
       </div>
-      <div class="panel">
-        <div class="panel-title">🗂 Subservices nach Service Group</div>
-        <div class="table-wrap" style="max-height:180px;overflow-y:auto">
-          <table><thead><tr><th>Group</th><th>Total</th><th>High</th></tr></thead>
-          <tbody>${grpRows}</tbody></table>
-        </div>
+      <div class="chart-panel">
+        <div class="chart-title">⚡ Criticality-Verteilung</div>
+        <div id="dash-crit-donut"></div>
       </div>
     </div>
+
+    <div class="chart-row">
+      <div class="chart-panel">
+        <div class="chart-title">📊 Subservices pro Service Group</div>
+        <div id="dash-group-stack"></div>
+      </div>
+      <div class="chart-panel">
+        <div class="chart-title">🔐 Berechtigungen nach Access Level</div>
+        <div id="dash-access-bar"></div>
+      </div>
+    </div>
+
+    <div class="chart-row">
+      <div class="chart-panel">
+        <div class="chart-title">🔴 Business Processes nach Kategorie</div>
+        <div id="dash-bp-donut"></div>
+      </div>
+      <div class="chart-panel">
+        <div class="chart-title">👥 User Groups nach Typ</div>
+        <div id="dash-grp-donut"></div>
+      </div>
+    </div>
+
     <div class="recent-changes">
       <div class="recent-title">🕐 Letzte Änderungen</div>
       ${changes}
     </div>`;
+
+  // Service Type donut
+  const typeMap = {};
+  svcs.forEach(s=>{ typeMap[s.svc_type]=(typeMap[s.svc_type]||0)+1; });
+  d3Donut('dash-svctype-donut', Object.entries(typeMap).map(([k,v])=>({label:k,value:v})).sort((a,b)=>b.value-a.value), {centerLabel:'types'});
+
+  // Criticality donut
+  d3Donut('dash-crit-donut', [
+    {label:'High',value:high},{label:'Medium',value:med},{label:'Low',value:low}
+  ], {colors:['#C62828','#E65100','#2E7D32'], centerLabel:'criticality'});
+
+  // Service Group stacked bar (High/Med/Low)
+  const grpNames = [...new Set(svcs.map(s=>s.group))].sort();
+  const highVals={}, medVals={}, lowVals={};
+  grpNames.forEach(g=>{
+    highVals[g]=svcs.filter(s=>s.group===g&&s.criticality==='High').length;
+    medVals[g]=svcs.filter(s=>s.group===g&&s.criticality==='Medium').length;
+    lowVals[g]=svcs.filter(s=>s.group===g&&s.criticality==='Low').length;
+  });
+  d3StackedBar('dash-group-stack', grpNames,
+    [{label:'High',values:highVals},{label:'Medium',values:medVals},{label:'Low',values:lowVals}]);
+
+  // Access Level bar
+  const accMap = {};
+  DB.permissions.forEach(p=>{ accMap[p.level]=(accMap[p.level]||0)+1; });
+  d3HBar('dash-access-bar', Object.entries(accMap).map(([k,v])=>({label:k,value:v})).sort((a,b)=>b.value-a.value),
+    {colors:['#C62828','#6A1B9A','#1565C0','#2E7D32','#607D8B']});
+
+  // BP Category donut
+  const bpCat = {};
+  DB.businessProcesses.forEach(p=>{ bpCat[p.category]=(bpCat[p.category]||0)+1; });
+  d3Donut('dash-bp-donut', Object.entries(bpCat).map(([k,v])=>({label:k,value:v})).sort((a,b)=>b.value-a.value), {centerLabel:'categories'});
+
+  // User Group Type donut
+  const ugType = {};
+  DB.userGroups.forEach(g=>{ ugType[g.type]=(ugType[g.type]||0)+1; });
+  d3Donut('dash-grp-donut', Object.entries(ugType).map(([k,v])=>({label:k,value:v})).sort((a,b)=>b.value-a.value),
+    {colors:['#FF9800','#1565C0','#6A1B9A','#2E7D32'], centerLabel:'types'});
 }
 
 function resetToSeed(){
