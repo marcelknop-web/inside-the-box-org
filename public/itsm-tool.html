@@ -653,6 +653,10 @@ function renderServices(){
         <button class="btn btn-primary btn-sm" onclick="openServiceForm()">+ Subservice</button>
       </div>
     </div>
+    <div class="mini-chart-row">
+      <div class="chart-panel"><div class="chart-title">🍩 Typ-Verteilung</div><div id="svc-type-chart"></div></div>
+      <div class="chart-panel"><div class="chart-title">📊 Criticality pro Group</div><div id="svc-grp-chart"></div></div>
+    </div>
     <div class="filter-bar">
       <input class="search-input" id="svc-search" placeholder="🔍 Suche (Service, Subservice, Beschreibung…)" oninput="filterServices()">
       <select class="filter-select" id="svc-grp-filter" onchange="filterServices()">
@@ -666,6 +670,17 @@ function renderServices(){
     </div>
     <div id="svc-table-container"></div>
     <div class="pagination" id="svc-pagination"></div>`;
+
+  // Type donut
+  const tm={};DB.services.forEach(s=>{tm[s.svc_type]=(tm[s.svc_type]||0)+1;});
+  d3Donut('svc-type-chart',Object.entries(tm).map(([k,v])=>({label:k,value:v})).sort((a,b)=>b.value-a.value),{size:130,centerLabel:'types'});
+
+  // Criticality stacked per group
+  const gn=[...new Set(DB.services.map(s=>s.group))].sort();
+  const hv={},mv={},lv={};
+  gn.forEach(g=>{hv[g]=DB.services.filter(s=>s.group===g&&s.criticality==='High').length;mv[g]=DB.services.filter(s=>s.group===g&&s.criticality==='Medium').length;lv[g]=DB.services.filter(s=>s.group===g&&s.criticality==='Low').length;});
+  d3StackedBar('svc-grp-chart',gn,[{label:'High',values:hv},{label:'Medium',values:mv},{label:'Low',values:lv}]);
+
   filterServices();
 }
 
