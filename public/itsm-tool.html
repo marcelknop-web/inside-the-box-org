@@ -557,16 +557,56 @@ function renderDashboard(){
       <div class="time">${new Date(c.time).toLocaleString('de-DE')}</div>
     </div>`).join('') || '<div class="change-item" style="color:#546E7A">Noch keine Änderungen aufgezeichnet.</div>';
 
+  // ── Compute Coverage Gaps ──
+  const mappedBPs = new Set(DB.bpServiceMap.map(m=>m.bpId));
+  const orphanedBPs = DB.businessProcesses.filter(p=>!mappedBPs.has(p.id));
+  const mappedSvcs = new Set([...DB.permissions.map(p=>p.service), ...DB.bpServiceMap.map(m=>m.service)]);
+  const allSvcNames = [...new Set(svcs.map(s=>s.service))];
+  const unassignedSvcs = allSvcNames.filter(s=>!mappedSvcs.has(s));
+
+  // ── CMDB Readiness ──
+  const totalFields = svcs.length * 4; // description, notes, ci_type, source
+  let filledFields = 0;
+  svcs.forEach(s=>{
+    if(s.description && s.description.trim()) filledFields++;
+    if(s.notes && s.notes.trim()) filledFields++;
+    if(s.ci_type && s.ci_type.trim()) filledFields++;
+    if(s.source && s.source.trim()) filledFields++;
+  });
+  const cmdbPct = totalFields ? Math.round(filledFields/totalFields*100) : 0;
+  const bpWithRto = DB.businessProcesses.filter(p=>p.rto&&p.rto.trim()).length;
+  const bpWithRpo = DB.businessProcesses.filter(p=>p.rpo&&p.rpo.trim()).length;
+  const bpRtoPct = DB.businessProcesses.length ? Math.round(bpWithRto/DB.businessProcesses.length*100) : 0;
+  const bpRpoPct = DB.businessProcesses.length ? Math.round(bpWithRpo/DB.businessProcesses.length*100) : 0;
+  const permWithScope = DB.permissions.filter(p=>p.scope&&p.scope.trim()).length;
+  const permScopePct = DB.permissions.length ? Math.round(permWithScope/DB.permissions.length*100) : 0;
+  const grpWithMgr = DB.userGroups.filter(g=>g.manager&&g.manager.trim()).length;
+  const grpMgrPct = DB.userGroups.length ? Math.round(grpWithMgr/DB.userGroups.length*100) : 0;
+
+  // ── Risk Governance Flags ──
+  const highCritSvcs = [...new Set(svcs.filter(s=>s.criticality==='High').map(s=>s.service))];
+  const weakPerms = highCritSvcs.filter(svc=>{
+    const perms = DB.permissions.filter(p=>p.service===svc);
+    return perms.length>0 && perms.every(p=>p.level==='Read'||p.level==='Limited');
+  });
+  const highCritBPsNoRto = DB.businessProcesses.filter(p=>p.criticality==='High'&&(!p.rto||!p.rto.trim()));
+  const adminNoSod = DB.permissions.filter(p=>(p.level==='Admin'||p.level==='Privileged')&&p.sodFlag==='No');
+  const highCritNoDep = highCritSvcs.filter(svc=>{
+    return !DB.serviceDeps.some(d=>d.upstream===svc||d.downstream===svc);
+  });
+
+  function pctClass(v){ return v>=80?'green':v>=50?'yellow':'red'; }
+
   document.getElementById('main-content').innerHTML = `
     <div class="view-header">
       <div><div class="view-title">📊 Dashboard</div>
-      <div class="view-subtitle">Übersicht über alle erfassten Daten</div></div>
+      <div class="view-subtitle">ITSM Service Catalog – Consulting Analytics</div></div>
       <div class="view-actions">
         <button class="btn btn-ghost btn-sm" onclick="resetToSeed()">⟳ Daten zurücksetzen</button>
       </div>
     </div>
     <div class="dashboard-grid">
-      <div class="stat-card"><div class="num">${svcs.length}</div><div class="lbl">Subservices gesamt</div><div class="bar" style="background:#1565C0"></div></div>
+      <div class="stat-card"><div class="num">${svcs.length}</div><div class="lbl">Subservices</div><div class="bar" style="background:#1565C0"></div></div>
       <div class="stat-card"><div class="num">${services}</div><div class="lbl">IT Services (OLAs)</div><div class="bar" style="background:#00838F"></div></div>
       <div class="stat-card"><div class="num">${groups}</div><div class="lbl">Service Groups</div><div class="bar" style="background:#2E7D32"></div></div>
       <div class="stat-card"><div class="num">${DB.businessProcesses.length}</div><div class="lbl">Business Processes</div><div class="bar" style="background:#E91E63"></div></div>
@@ -574,6 +614,114 @@ function renderDashboard(){
       <div class="stat-card"><div class="num">${DB.permissions.length}</div><div class="lbl">Berechtigungen</div><div class="bar" style="background:#9C27B0"></div></div>
     </div>
 
+    <!-- CMDB Readiness -->
+    <div class="insight-section">
+      <div class="insight-title">📋 CMDB Readiness Score</div>
+      <div class="readiness-grid">
+        <div class="readiness-card">
+          <div class="rc-label">Service Catalog</div>
+          <div class="rc-gauge" id="gauge-cmdb"></div>
+          <div class="rc-pct ${pctClass(cmdbPct)}">${cmdbPct}%</div>
+        </div>
+        <div class="readiness-card">
+          <div class="rc-label">RTO Coverage</div>
+          <div class="rc-gauge" id="gauge-rto"></div>
+          <div class="rc-pct ${pctClass(bpRtoPct)}">${bpRtoPct}%</div>
+        </div>
+        <div class="readiness-card">
+          <div class="rc-label">RPO Coverage</div>
+          <div class="rc-gauge" id="gauge-rpo"></div>
+          <div class="rc-pct ${pctClass(bpRpoPct)}">${bpRpoPct}%</div>
+        </div>
+        <div class="readiness-card">
+          <div class="rc-label">Perm. Scope</div>
+          <div class="rc-gauge" id="gauge-scope"></div>
+          <div class="rc-pct ${pctClass(permScopePct)}">${permScopePct}%</div>
+        </div>
+        <div class="readiness-card">
+          <div class="rc-label">Group Owners</div>
+          <div class="rc-gauge" id="gauge-mgr"></div>
+          <div class="rc-pct ${pctClass(grpMgrPct)}">${grpMgrPct}%</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Coverage Gap Analysis -->
+    <div class="insight-section">
+      <div class="insight-title">🔍 Coverage Gap Analysis</div>
+      <div class="governance-row">
+        <div>
+          ${orphanedBPs.length ?
+            `<div class="gap-card critical">
+              <div class="gap-icon">⚠️</div>
+              <div class="gap-body">
+                <div class="gap-label">${orphanedBPs.length} Business Process${orphanedBPs.length>1?'e':''} ohne Service-Zuordnung</div>
+                <div class="gap-detail">Diese Prozesse haben keine BP→Service Mappings und erscheinen nicht in der Dependency Map.</div>
+                <div class="gap-items">${orphanedBPs.slice(0,6).map(p=>`<span class="gap-chip">${esc(p.id)}: ${esc(p.name)}</span>`).join('')}${orphanedBPs.length>6?`<span class="gap-chip">+${orphanedBPs.length-6} weitere</span>`:''}</div>
+              </div>
+            </div>` :
+            `<div class="gap-card ok"><div class="gap-icon">✅</div><div class="gap-body"><div class="gap-label">Alle Business Processes zugeordnet</div><div class="gap-detail">Jeder BP hat mindestens ein Service-Mapping.</div></div></div>`}
+          ${unassignedSvcs.length ?
+            `<div class="gap-card warning">
+              <div class="gap-icon">⚡</div>
+              <div class="gap-body">
+                <div class="gap-label">${unassignedSvcs.length} IT Service${unassignedSvcs.length>1?'s':''} ohne Berechtigung/BP-Zuordnung</div>
+                <div class="gap-detail">Diese Services haben weder Permissions noch BP-Mappings zugewiesen.</div>
+                <div class="gap-items">${unassignedSvcs.slice(0,6).map(s=>`<span class="gap-chip">${esc(s)}</span>`).join('')}${unassignedSvcs.length>6?`<span class="gap-chip">+${unassignedSvcs.length-6} weitere</span>`:''}</div>
+              </div>
+            </div>` :
+            `<div class="gap-card ok"><div class="gap-icon">✅</div><div class="gap-body"><div class="gap-label">Alle IT Services verknüpft</div><div class="gap-detail">Jeder Service hat Permissions oder BP-Mappings.</div></div></div>`}
+        </div>
+        <div>
+          <div class="chart-panel"><div class="chart-title">📊 Mapping-Abdeckung</div><div id="dash-coverage-bar"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Risk Governance Flags -->
+    <div class="insight-section">
+      <div class="insight-title">🛡️ Risk & Governance Flags</div>
+      ${highCritBPsNoRto.length ?
+        `<div class="gap-card critical">
+          <div class="gap-icon">🕐</div>
+          <div class="gap-body">
+            <div class="gap-label">${highCritBPsNoRto.length} High-Criticality BP${highCritBPsNoRto.length>1?'s':''} ohne RTO</div>
+            <div class="gap-detail">Geschäftskritische Prozesse ohne definierte Recovery Time Objective.</div>
+            <div class="gap-items">${highCritBPsNoRto.slice(0,5).map(p=>`<span class="gap-chip">${esc(p.id)}</span>`).join('')}</div>
+          </div>
+        </div>` : ''}
+      ${adminNoSod.length ?
+        `<div class="gap-card warning">
+          <div class="gap-icon">🔓</div>
+          <div class="gap-body">
+            <div class="gap-label">${adminNoSod.length} Admin/Privileged Berechtigung${adminNoSod.length>1?'en':''} ohne SoD-Flag</div>
+            <div class="gap-detail">Hochprivilegierte Zugänge ohne Segregation of Duties – Compliance-Risiko.</div>
+            <div class="gap-items">${adminNoSod.slice(0,5).map(p=>`<span class="gap-chip">${esc(p.id)}: ${esc(p.service)}</span>`).join('')}</div>
+          </div>
+        </div>` : ''}
+      ${weakPerms.length ?
+        `<div class="gap-card info">
+          <div class="gap-icon">🔑</div>
+          <div class="gap-body">
+            <div class="gap-label">${weakPerms.length} High-Criticality Service${weakPerms.length>1?'s':''} nur mit Read/Limited Access</div>
+            <div class="gap-detail">Möglicherweise fehlende Admin-Berechtigungen für kritische Services.</div>
+            <div class="gap-items">${weakPerms.slice(0,5).map(s=>`<span class="gap-chip">${esc(s)}</span>`).join('')}</div>
+          </div>
+        </div>` : ''}
+      ${highCritNoDep.length ?
+        `<div class="gap-card info">
+          <div class="gap-icon">🔗</div>
+          <div class="gap-body">
+            <div class="gap-label">${highCritNoDep.length} High-Criticality Service${highCritNoDep.length>1?'s':''} ohne Dependencies</div>
+            <div class="gap-detail">Kritische Services ohne dokumentierte Upstream/Downstream-Abhängigkeiten.</div>
+            <div class="gap-items">${highCritNoDep.slice(0,5).map(s=>`<span class="gap-chip">${esc(s)}</span>`).join('')}</div>
+          </div>
+        </div>` : ''}
+      ${!highCritBPsNoRto.length && !adminNoSod.length && !weakPerms.length && !highCritNoDep.length ?
+        `<div class="gap-card ok"><div class="gap-icon">✅</div><div class="gap-body"><div class="gap-label">Keine Governance-Findings</div><div class="gap-detail">Alle geprüften Governance-Regeln werden eingehalten.</div></div></div>` : ''}
+    </div>
+
+    <!-- Existing Charts -->
     <div class="chart-row">
       <div class="chart-panel">
         <div class="chart-title">🍩 Service Typen</div>
@@ -612,6 +760,23 @@ function renderDashboard(){
       ${changes}
     </div>`;
 
+  // ── Render Gauges ──
+  d3Gauge('gauge-cmdb', cmdbPct, 100, {color: cmdbPct>=80?'#2E7D32':cmdbPct>=50?'#FFD600':'#C62828', label:'Completeness'});
+  d3Gauge('gauge-rto', bpRtoPct, 100, {color: bpRtoPct>=80?'#2E7D32':bpRtoPct>=50?'#FFD600':'#C62828', label:'RTO'});
+  d3Gauge('gauge-rpo', bpRpoPct, 100, {color: bpRpoPct>=80?'#2E7D32':bpRpoPct>=50?'#FFD600':'#C62828', label:'RPO'});
+  d3Gauge('gauge-scope', permScopePct, 100, {color: permScopePct>=80?'#2E7D32':permScopePct>=50?'#FFD600':'#C62828', label:'Scope'});
+  d3Gauge('gauge-mgr', grpMgrPct, 100, {color: grpMgrPct>=80?'#2E7D32':grpMgrPct>=50?'#FFD600':'#C62828', label:'Owners'});
+
+  // Coverage bar
+  const totalBPs = DB.businessProcesses.length;
+  const totalSvcNames = allSvcNames.length;
+  d3HBar('dash-coverage-bar', [
+    {label:'BPs zugeordnet', value: totalBPs - orphanedBPs.length},
+    {label:'BPs ohne Mapping', value: orphanedBPs.length},
+    {label:'Svcs verknüpft', value: totalSvcNames - unassignedSvcs.length},
+    {label:'Svcs isoliert', value: unassignedSvcs.length}
+  ], {colors:['#2E7D32','#C62828','#1565C0','#E65100'], labelWidth:120});
+
   // Service Type donut
   const typeMap = {};
   svcs.forEach(s=>{ typeMap[s.svc_type]=(typeMap[s.svc_type]||0)+1; });
@@ -622,7 +787,7 @@ function renderDashboard(){
     {label:'High',value:high},{label:'Medium',value:med},{label:'Low',value:low}
   ], {colors:['#C62828','#E65100','#2E7D32'], centerLabel:'criticality'});
 
-  // Service Group stacked bar (High/Med/Low)
+  // Service Group stacked bar
   const grpNames = [...new Set(svcs.map(s=>s.group))].sort();
   const highVals={}, medVals={}, lowVals={};
   grpNames.forEach(g=>{
