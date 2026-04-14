@@ -2744,13 +2744,25 @@ function renderGraph(nodes, links) {
     .force('collision', d3.forceCollide().radius(30));
   _graphSim = sim;
 
-  // Links — curved paths with bundling offset for parallel edges
+  // Links — deduplicate same-color arrows between same node pair (keep only one per type)
   const linkColors = { dep: '#f5b800', bpmap: '#E040FB', perm: '#00E5FF' };
+  const seenLinks = new Set();
+  const dedupedLinks = [];
+  links.forEach(l => {
+    const a = typeof l.source === 'object' ? l.source.id : l.source;
+    const b = typeof l.target === 'object' ? l.target.id : l.target;
+    const dedup = [a, b].sort().join('||') + '::' + l.type;
+    if (seenLinks.has(dedup)) return;
+    seenLinks.add(dedup);
+    dedupedLinks.push(l);
+  });
+  // Replace links array for rendering (keep original for data lookups)
+  const renderLinks = dedupedLinks;
 
-  // Compute bundling offsets: when multiple links share the same pair of nodes, fan them out
+  // Compute bundling offsets for remaining parallel edges (different types between same pair)
   const pairCount = {};
   const pairIdx = {};
-  links.forEach((l, i) => {
+  renderLinks.forEach((l, i) => {
     const a = typeof l.source === 'object' ? l.source.id : l.source;
     const b = typeof l.target === 'object' ? l.target.id : l.target;
     const key = [a, b].sort().join('||');
