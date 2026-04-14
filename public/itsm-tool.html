@@ -2546,13 +2546,33 @@ function buildGraph() {
     nodeMap[key] = n;
   });
 
+  // Helper: find service node by name (matches subservice label OR parent service name)
+  function find2dSvc(serviceName) {
+    const lower = serviceName.toLowerCase();
+    // Exact subservice label match
+    for (const [k, v] of Object.entries(nodeMap)) {
+      if (k.startsWith('svc:') && v.label.toLowerCase() === lower) return k;
+    }
+    // Parent service name match (data.service field from original DB entry)
+    for (const [k, v] of Object.entries(nodeMap)) {
+      if (k.startsWith('svc:') && v.data?.service && v.data.service.toLowerCase() === lower) return k;
+    }
+    // Partial match
+    for (const [k, v] of Object.entries(nodeMap)) {
+      if (!k.startsWith('svc:')) continue;
+      const parentL = (v.data?.service || '').toLowerCase();
+      if (parentL.includes(lower) || lower.includes(parentL)) return k;
+    }
+    return null;
+  }
+
   // Service Dependencies
   if (filter === 'all' || filter === 'serviceDeps') {
     DB.serviceDeps.forEach(d => {
-      const src = 'svc:' + d.upstream;
-      const tgt = 'svc:' + d.downstream;
-      if (!nodeMap[src]) { const n = { id: src, label: d.upstream, type: 'service', criticality: 'Medium', data: {} }; nodes.push(n); nodeMap[src] = n; }
-      if (!nodeMap[tgt]) { const n = { id: tgt, label: d.downstream, type: 'service', criticality: 'Medium', data: {} }; nodes.push(n); nodeMap[tgt] = n; }
+      let src = find2dSvc(d.upstream);
+      if (!src) { src = 'svc:' + d.upstream; if (!nodeMap[src]) { const n = { id: src, label: d.upstream, type: 'service', criticality: 'Medium', data: {} }; nodes.push(n); nodeMap[src] = n; } }
+      let tgt = find2dSvc(d.downstream);
+      if (!tgt) { tgt = 'svc:' + d.downstream; if (!nodeMap[tgt]) { const n = { id: tgt, label: d.downstream, type: 'service', criticality: 'Medium', data: {} }; nodes.push(n); nodeMap[tgt] = n; } }
       links.push({ source: src, target: tgt, type: 'dep', depType: d.depType, label: d.depType });
     });
   }
@@ -2561,13 +2581,9 @@ function buildGraph() {
   if (filter === 'all' || filter === 'bpServiceMap') {
     DB.bpServiceMap.forEach(m => {
       const src = 'bp:' + m.bpId;
-      // Find service node by name
-      let tgt = null;
-      for (const [k, v] of Object.entries(nodeMap)) {
-        if (k.startsWith('svc:') && v.label.toLowerCase() === m.service.toLowerCase()) { tgt = k; break; }
-      }
-      if (!tgt) { tgt = 'svc:' + m.service; if (!nodeMap[tgt]) { const n = { id: tgt, label: m.service, type: 'service', criticality: 'Medium', data: {} }; nodes.push(n); nodeMap[tgt] = n; } }
       if (!nodeMap[src]) return;
+      let tgt = find2dSvc(m.service);
+      if (!tgt) { tgt = 'svc:' + m.service; if (!nodeMap[tgt]) { const n = { id: tgt, label: m.service, type: 'service', criticality: 'Medium', data: {} }; nodes.push(n); nodeMap[tgt] = n; } }
       links.push({ source: src, target: tgt, type: 'bpmap', depType: m.depType, label: m.depType });
     });
   }
@@ -2576,10 +2592,7 @@ function buildGraph() {
   if (filter === 'all' || filter === 'permissions') {
     DB.permissions.forEach(p => {
       const src = 'grp:' + p.groupName;
-      let tgt = null;
-      for (const [k, v] of Object.entries(nodeMap)) {
-        if (k.startsWith('svc:') && v.label.toLowerCase() === p.service.toLowerCase()) { tgt = k; break; }
-      }
+      let tgt = find2dSvc(p.service);
       if (!tgt) { tgt = 'svc:' + p.service; if (!nodeMap[tgt]) { const n = { id: tgt, label: p.service, type: 'service', criticality: 'Medium', data: {} }; nodes.push(n); nodeMap[tgt] = n; } }
       if (!nodeMap[src]) { const n = { id: src, label: p.groupName, type: 'group', data: {} }; nodes.push(n); nodeMap[src] = n; }
       links.push({ source: src, target: tgt, type: 'perm', level: p.level, label: p.level });
