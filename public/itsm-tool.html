@@ -2764,21 +2764,26 @@ function renderGraph(nodes, links) {
     const sy = typeof d.source === 'object' ? d.source.y : 0;
     const tx = typeof d.target === 'object' ? d.target.x : 0;
     const ty = typeof d.target === 'object' ? d.target.y : 0;
-    const dx = tx - sx, dy = ty - sy;
-    const dist = Math.sqrt(dx*dx + dy*dy) || 1;
-    // Normal perpendicular vector
-    const nx = -dy / dist, ny = dx / dist;
-    // Bundling: fan offset for parallel links
+    // Orthogonal cable routing: leave source horizontally, then turn vertically, then horizontally to target
     const info = pairIdx[i];
     const total = pairCount[info.key];
-    const fanSpread = Math.min(25, dist * 0.15);
-    const offset = total <= 1 ? 0 : (info.idx - (total - 1) / 2) * fanSpread;
-    // Curve via midpoint + perpendicular offset + type-based curvature
-    const typeCurve = d.type === 'dep' ? 0.2 : d.type === 'bpmap' ? 0.25 : 0.15;
-    const curvature = dist * typeCurve;
-    const mx = (sx + tx) / 2 + nx * (curvature + offset);
-    const my = (sy + ty) / 2 + ny * (curvature + offset);
-    return `M${sx},${sy} Q${mx},${my} ${tx},${ty}`;
+    const cableSpacing = 6; // px between parallel cables
+    const offset = total <= 1 ? 0 : (info.idx - (total - 1) / 2) * cableSpacing;
+    const dx = tx - sx, dy = ty - sy;
+    // Determine routing strategy based on relative positions
+    if (Math.abs(dx) < 20) {
+      // Nearly vertical: route horizontally first, then vertical
+      const detour = 40 + offset;
+      return `M${sx},${sy} L${sx + detour},${sy} L${sx + detour},${ty} L${tx},${ty}`;
+    } else if (Math.abs(dy) < 20) {
+      // Nearly horizontal: route vertically first, then horizontal
+      const detour = 40 + offset;
+      return `M${sx},${sy} L${sx},${sy + detour} L${tx},${sy + detour} L${tx},${ty}`;
+    } else {
+      // General case: horizontal out, vertical transit, horizontal in (L-shaped cable tray)
+      const midX = sx + dx * 0.5 + offset;
+      return `M${sx},${sy} L${midX},${sy} L${midX},${ty} L${tx},${ty}`;
+    }
   }
 
   const link = g.append('g').selectAll('path')
