@@ -2925,10 +2925,10 @@ function renderDepGraph3D(){
   document.getElementById('main-content').innerHTML = `
     <div class="view-header" style="flex-shrink:0">
       <div>
-        <div class="view-title" style="color:#f5b800">🧊 3D Service Architecture Map</div>
-        <div class="view-subtitle">Enterprise Service Landscape — ${totalSvc} Services · ${totalBP} Business Processes · ${totalGrp} User Groups · ${totalMappings + totalDeps + totalPerm} Beziehungen</div>
+        <div class="view-title" style="color:#f5b800">🧊 3D Service Architecture</div>
+        <div class="view-subtitle">${totalSvc} Services · ${totalBP} Processes · ${totalGrp} Groups · ${totalMappings + totalDeps + totalPerm} Verbindungen</div>
       </div>
-      <div class="view-actions">
+      <div class="view-actions" style="flex-wrap:wrap;gap:4px">
         <select id="graph3d-filter" class="btn btn-ghost btn-sm" style="background:#080b10;color:#f5b800;border:1px solid #1e2a3a" onchange="rebuild3DGraph()">
           <option value="all">Alle Beziehungen</option>
           <option value="bp-svc">BP → Services</option>
@@ -2936,9 +2936,12 @@ function renderDepGraph3D(){
           <option value="svc-perm">Services → Permissions</option>
         </select>
         <select id="graph3d-group" class="btn btn-ghost btn-sm" style="background:#080b10;color:#f5b800;border:1px solid #1e2a3a" onchange="rebuild3DGraph()">
-          <option value="all">Alle Service Groups</option>
+          <option value="all">Alle Groups</option>
           ${svcGroups.map(g => '<option value="' + esc(g) + '">' + esc(g) + '</option>').join('')}
         </select>
+        <button class="btn btn-ghost btn-sm" onclick="set3DView('front')" title="Frontansicht">🔲 Front</button>
+        <button class="btn btn-ghost btn-sm" onclick="set3DView('top')" title="Draufsicht">⬇ Top</button>
+        <button class="btn btn-ghost btn-sm" onclick="set3DView('side')" title="Seitenansicht">➡ Seite</button>
         <button class="btn btn-ghost btn-sm" onclick="reset3DView()">⟳ Reset</button>
       </div>
     </div>
@@ -3148,13 +3151,12 @@ function init3DScene(THREE, OrbitControls, container) {
     return null;
   }
 
-  // ── Connections: clean vertical curves between floors ──
+  // ── Connections: visible curves between floors ──
   function addEdge(srcId, tgtId, color, lineType) {
     const src = posMap[srcId];
     const tgt = posMap[tgtId];
     if (!src || !tgt) return;
 
-    // Clean vertical bezier curve
     const pts = [
       new THREE.Vector3(src.x, src.y, src.z),
       new THREE.Vector3(src.x, (src.y + tgt.y) / 2, src.z),
@@ -3162,16 +3164,16 @@ function init3DScene(THREE, OrbitControls, container) {
       new THREE.Vector3(tgt.x, tgt.y, tgt.z),
     ];
     const curve = new THREE.CatmullRomCurve3(pts);
-    const tubeGeo = new THREE.TubeGeometry(curve, 16, 0.1, 4, false);
-    const tubeMat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.25 });
+    const tubeGeo = new THREE.TubeGeometry(curve, 16, 0.25, 5, false);
+    const tubeMat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.45 });
     const tube = new THREE.Mesh(tubeGeo, tubeMat);
     scene.add(tube);
 
     // Arrowhead
-    const arrowGeo = new THREE.ConeGeometry(0.5, 1.8, 5);
-    const arrowMat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.5 });
+    const arrowGeo = new THREE.ConeGeometry(0.7, 2.2, 6);
+    const arrowMat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.7 });
     const arrow = new THREE.Mesh(arrowGeo, arrowMat);
-    const ap = curve.getPointAt(0.88);
+    const ap = curve.getPointAt(0.85);
     const ad = curve.getPointAt(0.92);
     arrow.position.copy(ap);
     arrow.lookAt(ad);
@@ -3287,7 +3289,7 @@ function init3DScene(THREE, OrbitControls, container) {
         hoveredNode = null;
         canvas.style.cursor = 'grab';
         tooltip.style.display = 'none';
-        edgeLines.forEach(e => { e.mat.opacity = 0.25; e.arrowMat.opacity = 0.5; });
+        edgeLines.forEach(e => { e.mat.opacity = 0.45; e.arrowMat.opacity = 0.7; });
         nodeObjects.forEach(n => { n.mesh.material.opacity = 0.9; });
       }
     }
@@ -3401,7 +3403,23 @@ function reset3DView() {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════
+function set3DView(preset) {
+  if (!window._3dCamera || !window._3dControls) return;
+  const cam = window._3dCamera;
+  const ctrl = window._3dControls;
+  const views = {
+    front: { pos: [0, 45, 180], target: [0, 35, 0] },
+    top:   { pos: [0, 180, 10], target: [0, 35, 0] },
+    side:  { pos: [180, 45, 0], target: [0, 35, 0] },
+  };
+  const v = views[preset];
+  if (!v) return;
+  cam.position.set(...v.pos);
+  ctrl.target.set(...v.target);
+  ctrl.update();
+}
+
+
 function renderAudit(){
   const checks = runAuditChecks();
   const critical = checks.filter(c=>c.severity==='critical');
