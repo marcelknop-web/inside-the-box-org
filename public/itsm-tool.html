@@ -3374,8 +3374,9 @@ function init3DScene(THREE, OrbitControls, container) {
       ];
     }
 
-    const tubePath = new THREE.CatmullRomCurve3(points);
-    const tubeGeo = new THREE.TubeGeometry(tubePath, 16, 0.1, 4, false);
+    // Polyline path for sharp 90° cable routing (small tension for slight rounding at bends)
+    const tubePath = new THREE.CatmullRomCurve3(points, false, 'catmullrom', 0.05);
+    const tubeGeo = new THREE.TubeGeometry(tubePath, points.length * 8, 0.1, 4, false);
     const tubeMat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.22 });
     const tube = new THREE.Mesh(tubeGeo, tubeMat);
     scene.add(tube);
