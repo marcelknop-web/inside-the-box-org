@@ -169,6 +169,18 @@ tr:hover td{background:#112240}
 .page-btn:hover{background:#2A4A7F}
 .page-btn:disabled{opacity:.4;cursor:not-allowed}
 .page-info{color:#546E7A}
+/* ── D3 Charts ── */
+.chart-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.chart-row.tri{grid-template-columns:1fr 1fr 1fr}
+.chart-panel{background:#112240;border:1px solid #1E3A5F;border-radius:8px;padding:16px}
+.chart-panel .chart-title{font-size:.82rem;font-weight:700;color:#90CAF9;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.chart-panel svg{width:100%;display:block}
+.chart-panel .legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:8px}
+.chart-panel .legend-item{display:flex;align-items:center;gap:4px;font-size:.72rem;color:#90A4AE}
+.chart-panel .legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.chart-panel .legend-rect{width:10px;height:6px;border-radius:1px;flex-shrink:0}
+.mini-chart-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+@media(max-width:700px){.chart-row,.chart-row.tri,.mini-chart-row{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -368,6 +380,146 @@ function showView(name){
 }
 
 // ═══════════════════════════════════════════════════════════════
+// D3 CHART UTILITIES
+// ═══════════════════════════════════════════════════════════════
+const CHART_COLORS = ['#1565C0','#E65100','#2E7D32','#C62828','#6A1B9A','#00838F','#FF9800','#E91E63','#3F51B5','#009688','#795548','#607D8B'];
+
+function d3Donut(containerId, data, opts={}){
+  const el = document.getElementById(containerId);
+  if(!el || !data.length) return;
+  const w = opts.size||160, h = w, r = w/2, inner = r*0.55;
+  const svg = d3.select(el).append('svg').attr('viewBox',`0 0 ${w} ${h}`).attr('width','100%');
+  const g = svg.append('g').attr('transform',`translate(${w/2},${h/2})`);
+  const pie = d3.pie().value(d=>d.value).sort(null);
+  const arc = d3.arc().innerRadius(inner).outerRadius(r-4);
+  const arcHover = d3.arc().innerRadius(inner).outerRadius(r);
+  const colors = opts.colors || CHART_COLORS;
+  const total = d3.sum(data, d=>d.value);
+
+  g.selectAll('path').data(pie(data)).join('path')
+    .attr('d', arc).attr('fill',(d,i)=>colors[i%colors.length])
+    .attr('stroke','#112240').attr('stroke-width',2)
+    .style('cursor','pointer')
+    .on('mouseover',function(e,d){
+      d3.select(this).transition().duration(150).attr('d',arcHover);
+      tooltip.style('display','block').html(`<strong>${d.data.label}</strong><br>${d.data.value} (${Math.round(d.data.value/total*100)}%)`);
+    })
+    .on('mousemove',function(e){tooltip.style('left',(e.offsetX+12)+'px').style('top',(e.offsetY-10)+'px');})
+    .on('mouseout',function(){d3.select(this).transition().duration(150).attr('d',arc);tooltip.style('display','none');});
+
+  const tooltip = d3.select(el).append('div')
+    .style('position','absolute').style('display','none').style('background','#0A1628')
+    .style('border','1px solid #1E88E5').style('border-radius','6px').style('padding','6px 10px')
+    .style('font-size','.74rem').style('color','#DDE3EC').style('pointer-events','none').style('z-index','10');
+  d3.select(el).style('position','relative');
+
+  // center label
+  g.append('text').attr('text-anchor','middle').attr('dy','-0.2em')
+    .style('font-size','.9rem').style('font-weight','700').style('fill','#64B5F6').text(total);
+  g.append('text').attr('text-anchor','middle').attr('dy','1em')
+    .style('font-size','.55rem').style('fill','#546E7A').text(opts.centerLabel||'total');
+
+  // legend
+  const leg = d3.select(el).append('div').attr('class','legend');
+  data.forEach((d,i)=>{
+    leg.append('span').attr('class','legend-item')
+      .html(`<span class="legend-dot" style="background:${colors[i%colors.length]}"></span>${d.label} (${d.value})`);
+  });
+}
+
+function d3HBar(containerId, data, opts={}){
+  const el = document.getElementById(containerId);
+  if(!el || !data.length) return;
+  const margin={top:8,right:40,bottom:8,left:opts.labelWidth||100};
+  const barH=22, gap=4;
+  const h = data.length*(barH+gap)+margin.top+margin.bottom;
+  const w = opts.width||320;
+  const colors = opts.colors || CHART_COLORS;
+  const maxVal = d3.max(data, d=>d.value)||1;
+
+  const svg = d3.select(el).append('svg').attr('viewBox',`0 0 ${w} ${h}`).attr('width','100%');
+  const x = d3.scaleLinear().domain([0,maxVal]).range([0,w-margin.left-margin.right]);
+  const g = svg.append('g').attr('transform',`translate(${margin.left},${margin.top})`);
+
+  data.forEach((d,i)=>{
+    const y=i*(barH+gap);
+    g.append('rect').attr('x',0).attr('y',y).attr('width',0).attr('height',barH)
+      .attr('rx',4).attr('fill',colors[i%colors.length])
+      .transition().duration(600).delay(i*60).attr('width',x(d.value));
+    g.append('text').attr('x',-6).attr('y',y+barH/2).attr('dy','.35em')
+      .attr('text-anchor','end').style('font-size','.7rem').style('fill','#90A4AE').text(d.label);
+    g.append('text').attr('x',x(d.value)+4).attr('y',y+barH/2).attr('dy','.35em')
+      .style('font-size','.72rem').style('fill','#64B5F6').style('font-weight','700').text(d.value)
+      .style('opacity',0).transition().duration(300).delay(i*60+400).style('opacity',1);
+  });
+}
+
+function d3StackedBar(containerId, categories, series, opts={}){
+  const el = document.getElementById(containerId);
+  if(!el || !categories.length) return;
+  const margin={top:14,right:10,bottom:26,left:opts.labelWidth||110};
+  const barH=18, gap=6;
+  const h = categories.length*(barH+gap)+margin.top+margin.bottom;
+  const w = opts.width||400;
+  const colors = opts.colors || ['#C62828','#E65100','#2E7D32'];
+
+  const maxVal = d3.max(categories, cat=>d3.sum(series, s=>s.values[cat]||0))||1;
+  const svg = d3.select(el).append('svg').attr('viewBox',`0 0 ${w} ${h}`).attr('width','100%');
+  const x = d3.scaleLinear().domain([0,maxVal]).range([0,w-margin.left-margin.right]);
+  const g = svg.append('g').attr('transform',`translate(${margin.left},${margin.top})`);
+
+  categories.forEach((cat,ci)=>{
+    const y = ci*(barH+gap);
+    let offset=0;
+    series.forEach((s,si)=>{
+      const val=s.values[cat]||0;
+      if(val>0){
+        g.append('rect').attr('x',x(offset)).attr('y',y).attr('width',0).attr('height',barH)
+          .attr('rx',2).attr('fill',colors[si%colors.length])
+          .transition().duration(500).delay(ci*40).attr('width',x(val));
+        offset+=val;
+      }
+    });
+    g.append('text').attr('x',-6).attr('y',y+barH/2).attr('dy','.35em')
+      .attr('text-anchor','end').style('font-size','.65rem').style('fill','#90A4AE')
+      .text(cat.length>16?cat.slice(0,15)+'…':cat);
+    g.append('text').attr('x',x(offset)+4).attr('y',y+barH/2).attr('dy','.35em')
+      .style('font-size','.68rem').style('fill','#546E7A').text(offset);
+  });
+
+  // legend
+  const leg = d3.select(el).append('div').attr('class','legend').style('margin-top','6px');
+  series.forEach((s,i)=>{
+    leg.append('span').attr('class','legend-item')
+      .html(`<span class="legend-rect" style="background:${colors[i%colors.length]}"></span>${s.label}`);
+  });
+}
+
+function d3Gauge(containerId, value, max, opts={}){
+  const el = document.getElementById(containerId);
+  if(!el) return;
+  const w=120,h=70;
+  const svg = d3.select(el).append('svg').attr('viewBox',`0 0 ${w} ${h}`).attr('width','100%');
+  const g = svg.append('g').attr('transform',`translate(${w/2},${h-8})`);
+  const r=50;
+  const bg = d3.arc().innerRadius(r-10).outerRadius(r).startAngle(-Math.PI/2).endAngle(Math.PI/2);
+  const fg = d3.arc().innerRadius(r-10).outerRadius(r).startAngle(-Math.PI/2);
+  g.append('path').attr('d',bg).attr('fill','#1E3A5F');
+  const pct = Math.min(value/max,1);
+  const endAngle = -Math.PI/2 + Math.PI*pct;
+  g.append('path').attr('fill',opts.color||'#1565C0')
+    .transition().duration(800)
+    .attrTween('d',function(){
+      const interp = d3.interpolate(-Math.PI/2, endAngle);
+      return t => fg.endAngle(interp(t))();
+    });
+  g.append('text').attr('text-anchor','middle').attr('dy','-0.3em')
+    .style('font-size','.8rem').style('font-weight','700').style('fill','#64B5F6').text(value);
+  g.append('text').attr('text-anchor','middle').attr('dy','0.9em')
+    .style('font-size','.5rem').style('fill','#546E7A').text(opts.label||'');
+}
+
+// ═══════════════════════════════════════════════════════════════
 // DASHBOARD
 // ═══════════════════════════════════════════════════════════════
 function renderDashboard(){
@@ -383,15 +535,6 @@ function renderDashboard(){
       <strong>${esc(c.action)}</strong> ${esc(c.entity)}: <em>${esc(c.name)}</em>
       <div class="time">${new Date(c.time).toLocaleString('de-DE')}</div>
     </div>`).join('') || '<div class="change-item" style="color:#546E7A">Noch keine Änderungen aufgezeichnet.</div>';
-
-  const grpStats = {};
-  svcs.forEach(s=>{ grpStats[s.group]=(grpStats[s.group]||0)+1; });
-  const grpRows = Object.entries(grpStats).sort((a,b)=>b[1]-a[1]).map(([g,c])=>`
-    <tr>
-      <td>${grpDot(g)}${esc(g)}</td>
-      <td class="td-center">${c}</td>
-      <td class="td-center">${svcs.filter(s=>s.group===g&&s.criticality==='High').length}</td>
-    </tr>`).join('');
 
   document.getElementById('main-content').innerHTML = `
     <div class="view-header">
@@ -409,27 +552,82 @@ function renderDashboard(){
       <div class="stat-card"><div class="num">${DB.userGroups.length}</div><div class="lbl">User Groups</div><div class="bar" style="background:#FF9800"></div></div>
       <div class="stat-card"><div class="num">${DB.permissions.length}</div><div class="lbl">Berechtigungen</div><div class="bar" style="background:#9C27B0"></div></div>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
-      <div class="panel">
-        <div class="panel-title">⚡ Criticality-Verteilung (Subservices)</div>
-        <div class="crit-bars">
-          <div class="crit-row"><div class="crit-label">High</div><div class="crit-bar-bg"><div class="crit-bar-fill" style="width:${Math.round(high/svcs.length*100)}%;background:#C62828"></div></div><div class="crit-val">${high}</div></div>
-          <div class="crit-row"><div class="crit-label">Medium</div><div class="crit-bar-bg"><div class="crit-bar-fill" style="width:${Math.round(med/svcs.length*100)}%;background:#E65100"></div></div><div class="crit-val">${med}</div></div>
-          <div class="crit-row"><div class="crit-label">Low</div><div class="crit-bar-bg"><div class="crit-bar-fill" style="width:${Math.round(low/svcs.length*100)}%;background:#2E7D32"></div></div><div class="crit-val">${low}</div></div>
-        </div>
+
+    <div class="chart-row">
+      <div class="chart-panel">
+        <div class="chart-title">🍩 Service Typen</div>
+        <div id="dash-svctype-donut"></div>
       </div>
-      <div class="panel">
-        <div class="panel-title">🗂 Subservices nach Service Group</div>
-        <div class="table-wrap" style="max-height:180px;overflow-y:auto">
-          <table><thead><tr><th>Group</th><th>Total</th><th>High</th></tr></thead>
-          <tbody>${grpRows}</tbody></table>
-        </div>
+      <div class="chart-panel">
+        <div class="chart-title">⚡ Criticality-Verteilung</div>
+        <div id="dash-crit-donut"></div>
       </div>
     </div>
+
+    <div class="chart-row">
+      <div class="chart-panel">
+        <div class="chart-title">📊 Subservices pro Service Group</div>
+        <div id="dash-group-stack"></div>
+      </div>
+      <div class="chart-panel">
+        <div class="chart-title">🔐 Berechtigungen nach Access Level</div>
+        <div id="dash-access-bar"></div>
+      </div>
+    </div>
+
+    <div class="chart-row">
+      <div class="chart-panel">
+        <div class="chart-title">🔴 Business Processes nach Kategorie</div>
+        <div id="dash-bp-donut"></div>
+      </div>
+      <div class="chart-panel">
+        <div class="chart-title">👥 User Groups nach Typ</div>
+        <div id="dash-grp-donut"></div>
+      </div>
+    </div>
+
     <div class="recent-changes">
       <div class="recent-title">🕐 Letzte Änderungen</div>
       ${changes}
     </div>`;
+
+  // Service Type donut
+  const typeMap = {};
+  svcs.forEach(s=>{ typeMap[s.svc_type]=(typeMap[s.svc_type]||0)+1; });
+  d3Donut('dash-svctype-donut', Object.entries(typeMap).map(([k,v])=>({label:k,value:v})).sort((a,b)=>b.value-a.value), {centerLabel:'types'});
+
+  // Criticality donut
+  d3Donut('dash-crit-donut', [
+    {label:'High',value:high},{label:'Medium',value:med},{label:'Low',value:low}
+  ], {colors:['#C62828','#E65100','#2E7D32'], centerLabel:'criticality'});
+
+  // Service Group stacked bar (High/Med/Low)
+  const grpNames = [...new Set(svcs.map(s=>s.group))].sort();
+  const highVals={}, medVals={}, lowVals={};
+  grpNames.forEach(g=>{
+    highVals[g]=svcs.filter(s=>s.group===g&&s.criticality==='High').length;
+    medVals[g]=svcs.filter(s=>s.group===g&&s.criticality==='Medium').length;
+    lowVals[g]=svcs.filter(s=>s.group===g&&s.criticality==='Low').length;
+  });
+  d3StackedBar('dash-group-stack', grpNames,
+    [{label:'High',values:highVals},{label:'Medium',values:medVals},{label:'Low',values:lowVals}]);
+
+  // Access Level bar
+  const accMap = {};
+  DB.permissions.forEach(p=>{ accMap[p.level]=(accMap[p.level]||0)+1; });
+  d3HBar('dash-access-bar', Object.entries(accMap).map(([k,v])=>({label:k,value:v})).sort((a,b)=>b.value-a.value),
+    {colors:['#C62828','#6A1B9A','#1565C0','#2E7D32','#607D8B']});
+
+  // BP Category donut
+  const bpCat = {};
+  DB.businessProcesses.forEach(p=>{ bpCat[p.category]=(bpCat[p.category]||0)+1; });
+  d3Donut('dash-bp-donut', Object.entries(bpCat).map(([k,v])=>({label:k,value:v})).sort((a,b)=>b.value-a.value), {centerLabel:'categories'});
+
+  // User Group Type donut
+  const ugType = {};
+  DB.userGroups.forEach(g=>{ ugType[g.type]=(ugType[g.type]||0)+1; });
+  d3Donut('dash-grp-donut', Object.entries(ugType).map(([k,v])=>({label:k,value:v})).sort((a,b)=>b.value-a.value),
+    {colors:['#FF9800','#1565C0','#6A1B9A','#2E7D32'], centerLabel:'types'});
 }
 
 function resetToSeed(){
@@ -455,6 +653,10 @@ function renderServices(){
         <button class="btn btn-primary btn-sm" onclick="openServiceForm()">+ Subservice</button>
       </div>
     </div>
+    <div class="mini-chart-row">
+      <div class="chart-panel"><div class="chart-title">🍩 Typ-Verteilung</div><div id="svc-type-chart"></div></div>
+      <div class="chart-panel"><div class="chart-title">📊 Criticality pro Group</div><div id="svc-grp-chart"></div></div>
+    </div>
     <div class="filter-bar">
       <input class="search-input" id="svc-search" placeholder="🔍 Suche (Service, Subservice, Beschreibung…)" oninput="filterServices()">
       <select class="filter-select" id="svc-grp-filter" onchange="filterServices()">
@@ -468,6 +670,17 @@ function renderServices(){
     </div>
     <div id="svc-table-container"></div>
     <div class="pagination" id="svc-pagination"></div>`;
+
+  // Type donut
+  const tm={};DB.services.forEach(s=>{tm[s.svc_type]=(tm[s.svc_type]||0)+1;});
+  d3Donut('svc-type-chart',Object.entries(tm).map(([k,v])=>({label:k,value:v})).sort((a,b)=>b.value-a.value),{size:130,centerLabel:'types'});
+
+  // Criticality stacked per group
+  const gn=[...new Set(DB.services.map(s=>s.group))].sort();
+  const hv={},mv={},lv={};
+  gn.forEach(g=>{hv[g]=DB.services.filter(s=>s.group===g&&s.criticality==='High').length;mv[g]=DB.services.filter(s=>s.group===g&&s.criticality==='Medium').length;lv[g]=DB.services.filter(s=>s.group===g&&s.criticality==='Low').length;});
+  d3StackedBar('svc-grp-chart',gn,[{label:'High',values:hv},{label:'Medium',values:mv},{label:'Low',values:lv}]);
+
   filterServices();
 }
 
@@ -605,6 +818,10 @@ function renderProcesses(){
         <button class="btn btn-primary btn-sm" onclick="openProcessForm()">+ Prozess</button>
       </div>
     </div>
+    <div class="mini-chart-row">
+      <div class="chart-panel"><div class="chart-title">🍩 Kategorie-Verteilung</div><div id="bp-cat-chart"></div></div>
+      <div class="chart-panel"><div class="chart-title">⚡ Criticality & Regulatory</div><div id="bp-crit-chart"></div></div>
+    </div>
     <div class="filter-bar">
       <input class="search-input" id="bp-search" placeholder="🔍 Suche…" oninput="filterProcesses()">
       <select class="filter-select" id="bp-cat-filter" onchange="filterProcesses()">
@@ -617,6 +834,19 @@ function renderProcesses(){
       </select>
     </div>
     <div id="bp-table-container"></div>`;
+
+  // Category donut
+  const cm={};DB.businessProcesses.forEach(p=>{cm[p.category]=(cm[p.category]||0)+1;});
+  d3Donut('bp-cat-chart',Object.entries(cm).map(([k,v])=>({label:k,value:v})).sort((a,b)=>b.value-a.value),{size:130,centerLabel:'categories'});
+
+  // Criticality bar + regulatory count
+  const bpCrit={};DB.businessProcesses.forEach(p=>{bpCrit[p.criticality]=(bpCrit[p.criticality]||0)+1;});
+  const regCount = DB.businessProcesses.filter(p=>p.regulatory&&p.regulatory.trim()).length;
+  d3HBar('bp-crit-chart',[
+    ...Object.entries(bpCrit).map(([k,v])=>({label:k,value:v})),
+    {label:'w/ Regulatory',value:regCount}
+  ],{colors:['#C62828','#E65100','#2E7D32','#6A1B9A']});
+
   filterProcesses();
 }
 
@@ -699,6 +929,10 @@ function renderGroups(){
         <button class="btn btn-primary btn-sm" onclick="openGroupForm()">+ User Group</button>
       </div>
     </div>
+    <div class="mini-chart-row">
+      <div class="chart-panel"><div class="chart-title">🍩 Gruppen nach Typ</div><div id="grp-type-chart"></div></div>
+      <div class="chart-panel"><div class="chart-title">📍 Gruppen nach Standort</div><div id="grp-loc-chart"></div></div>
+    </div>
     <div class="filter-bar">
       <input class="search-input" id="grp-search" placeholder="🔍 Suche…" oninput="filterGroups()">
       <select class="filter-select" id="grp-type-filter" onchange="filterGroups()">
@@ -707,6 +941,13 @@ function renderGroups(){
       </select>
     </div>
     <div id="grp-table-container"></div>`;
+
+  const tm={};DB.userGroups.forEach(g=>{tm[g.type]=(tm[g.type]||0)+1;});
+  d3Donut('grp-type-chart',Object.entries(tm).map(([k,v])=>({label:k,value:v})).sort((a,b)=>b.value-a.value),{size:130,colors:['#FF9800','#1565C0','#6A1B9A','#2E7D32'],centerLabel:'types'});
+
+  const lm={};DB.userGroups.forEach(g=>{const loc=g.location||'Unknown';lm[loc]=(lm[loc]||0)+1;});
+  d3HBar('grp-loc-chart',Object.entries(lm).map(([k,v])=>({label:k,value:v})).sort((a,b)=>b.value-a.value));
+
   filterGroups();
 }
 
@@ -783,6 +1024,10 @@ function renderPermissions(){
         <button class="btn btn-primary btn-sm" onclick="openPermForm()">+ Berechtigung</button>
       </div>
     </div>
+    <div class="mini-chart-row">
+      <div class="chart-panel"><div class="chart-title">🔐 Access Level Verteilung</div><div id="perm-level-chart"></div></div>
+      <div class="chart-panel"><div class="chart-title">⚠️ SoD-Flags & Zertifizierung</div><div id="perm-sod-chart"></div></div>
+    </div>
     <div class="filter-bar">
       <input class="search-input" id="perm-search" placeholder="🔍 Suche (Gruppe, Service, Scope…)" oninput="filterPerms()">
       <select class="filter-select" id="perm-level-filter" onchange="filterPerms()">
@@ -794,6 +1039,22 @@ function renderPermissions(){
       </select>
     </div>
     <div id="perm-table-container"></div>`;
+
+  // Access Level donut
+  const lm={};DB.permissions.forEach(p=>{lm[p.level]=(lm[p.level]||0)+1;});
+  d3Donut('perm-level-chart',Object.entries(lm).map(([k,v])=>({label:k,value:v})).sort((a,b)=>b.value-a.value),
+    {size:130,colors:['#C62828','#6A1B9A','#1565C0','#2E7D32','#607D8B'],centerLabel:'levels'});
+
+  // SoD + Cert bar
+  const sodYes=DB.permissions.filter(p=>p.sodFlag==='Yes').length;
+  const sodNo=DB.permissions.filter(p=>p.sodFlag==='No').length;
+  const certYes=DB.permissions.filter(p=>p.certRequired==='Yes').length;
+  const certNo=DB.permissions.filter(p=>p.certRequired==='No').length;
+  d3HBar('perm-sod-chart',[
+    {label:'SoD: Yes',value:sodYes},{label:'SoD: No',value:sodNo},
+    {label:'Cert: Yes',value:certYes},{label:'Cert: No',value:certNo}
+  ],{colors:['#C62828','#2E7D32','#E65100','#1565C0'],labelWidth:80});
+
   filterPerms();
 }
 
@@ -898,6 +1159,10 @@ function renderBpMap(){
         <button class="btn btn-primary btn-sm" onclick="openBpMapForm()">+ Zuordnung</button>
       </div>
     </div>
+    <div class="mini-chart-row">
+      <div class="chart-panel"><div class="chart-title">🍩 Dependency Typen</div><div id="bpm-type-chart"></div></div>
+      <div class="chart-panel"><div class="chart-title">📊 Top Services nach BP-Zuordnungen</div><div id="bpm-top-chart"></div></div>
+    </div>
     <div class="filter-bar">
       <input class="search-input" id="bpm-search" placeholder="🔍 Suche…" oninput="filterBpMap()">
       <select class="filter-select" id="bpm-dep-filter" onchange="filterBpMap()">
@@ -905,6 +1170,17 @@ function renderBpMap(){
       </select>
     </div>
     <div id="bpm-table-container"></div>`;
+
+  // Dep type donut
+  const dm={};DB.bpServiceMap.forEach(m=>{dm[m.depType]=(dm[m.depType]||0)+1;});
+  d3Donut('bpm-type-chart',Object.entries(dm).map(([k,v])=>({label:k,value:v})).sort((a,b)=>b.value-a.value),
+    {size:130,colors:['#C62828','#E65100','#1565C0'],centerLabel:'types'});
+
+  // Top services by mapping count
+  const sm={};DB.bpServiceMap.forEach(m=>{sm[m.service]=(sm[m.service]||0)+1;});
+  const topSvcs=Object.entries(sm).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([k,v])=>({label:k,value:v}));
+  d3HBar('bpm-top-chart',topSvcs);
+
   filterBpMap();
 }
 
@@ -980,6 +1256,10 @@ function renderDeps(){
         <button class="btn btn-primary btn-sm" onclick="openDepForm()">+ Abhängigkeit</button>
       </div>
     </div>
+    <div class="mini-chart-row">
+      <div class="chart-panel"><div class="chart-title">🍩 Dependency Typen</div><div id="dep-type-chart"></div></div>
+      <div class="chart-panel"><div class="chart-title">📊 Most Connected Services</div><div id="dep-conn-chart"></div></div>
+    </div>
     <div class="filter-bar">
       <input class="search-input" id="dep-search" placeholder="🔍 Suche…" oninput="filterDeps()">
       <select class="filter-select" id="dep-type-filter" onchange="filterDeps()">
@@ -987,6 +1267,17 @@ function renderDeps(){
       </select>
     </div>
     <div id="dep-table-container"></div>`;
+
+  // Dep type donut
+  const dtm={};DB.serviceDeps.forEach(d=>{dtm[d.depType]=(dtm[d.depType]||0)+1;});
+  d3Donut('dep-type-chart',Object.entries(dtm).map(([k,v])=>({label:k,value:v})).sort((a,b)=>b.value-a.value),
+    {size:130,colors:['#C62828','#E65100','#1565C0'],centerLabel:'types'});
+
+  // Most connected services
+  const conn={};DB.serviceDeps.forEach(d=>{conn[d.upstream]=(conn[d.upstream]||0)+1;conn[d.downstream]=(conn[d.downstream]||0)+1;});
+  const topConn=Object.entries(conn).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([k,v])=>({label:k,value:v}));
+  d3HBar('dep-conn-chart',topConn);
+
   filterDeps();
 }
 
