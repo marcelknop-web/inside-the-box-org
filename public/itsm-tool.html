@@ -2759,10 +2759,40 @@ function focusNode(d) {
   const width = container.clientWidth;
   const height = container.clientHeight;
 
-  // Smooth zoom to node
+  // Collect all connected node positions (including the clicked node)
+  const connectedNodes = [d];
+  _graphData.links.forEach(l => {
+    const sid = typeof l.source === 'object' ? l.source : _graphData.nodes.find(n => n.id === l.source);
+    const tid = typeof l.target === 'object' ? l.target : _graphData.nodes.find(n => n.id === l.target);
+    if (sid && tid) {
+      if (sid.id === d.id && tid) connectedNodes.push(tid);
+      if (tid.id === d.id && sid) connectedNodes.push(sid);
+    }
+  });
+
+  // Compute bounding box
+  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+  connectedNodes.forEach(n => {
+    if (n.x != null && n.y != null) {
+      minX = Math.min(minX, n.x);
+      maxX = Math.max(maxX, n.x);
+      minY = Math.min(minY, n.y);
+      maxY = Math.max(maxY, n.y);
+    }
+  });
+
+  // Add padding
+  const pad = 60;
+  minX -= pad; maxX += pad; minY -= pad; maxY += pad;
+  const bw = maxX - minX || 200;
+  const bh = maxY - minY || 200;
+  const cx = (minX + maxX) / 2;
+  const cy = (minY + maxY) / 2;
+  const scale = Math.min(width / bw, height / bh, 3);
+
   _graphSvg.transition().duration(750).call(
     _graphZoom.transform,
-    d3.zoomIdentity.translate(width/2, height/2).scale(2.5).translate(-d.x, -d.y)
+    d3.zoomIdentity.translate(width/2, height/2).scale(scale).translate(-cx, -cy)
   );
 
   // Breadcrumb
