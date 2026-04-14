@@ -3166,55 +3166,29 @@ function init3DScene(THREE, OrbitControls, container) {
     });
   });
 
-  // Business Processes — categorized into IT / Security / Business
-  const BP_META = {
-    'IT Operations': { meta: 'it', color: 0x42A5F5, icon: '🖥', label: 'IT Process' },
-    'EHS':           { meta: 'security', color: 0xFF7043, icon: '🛡', label: 'Security / Compliance' },
-    'Trade Compliance': { meta: 'security', color: 0xFF7043, icon: '🛡', label: 'Security / Compliance' },
-  };
-  const BP_META_DEFAULT = { meta: 'business', color: 0x66BB6A, icon: '📊', label: 'Business Process' };
-  function bpMeta(cat) { return BP_META[cat] || BP_META_DEFAULT; }
+   // Business Processes — simple circular layout
+   const bpNodes = DB.businessProcesses;
+   const bpRadius = Math.min(65, 22 + bpNodes.length * 3);
+   bpNodes.forEach((bp, i) => {
+     const angle = (i / bpNodes.length) * Math.PI * 2;
+     const x = Math.cos(angle) * bpRadius;
+     const z = Math.sin(angle) * bpRadius;
+     const y = LAYER_Y.bp;
+     const scale = CRIT_SCALE[bp.criticality] || 1;
+     const critColor = CRIT_COLORS[bp.criticality] || 0xC2185B;
 
-  const bpNodes = DB.businessProcesses;
-  // Group BPs by meta-category for clustered sub-layout
-  const bpByCat = { business: [], it: [], security: [] };
-  bpNodes.forEach(bp => { const m = bpMeta(bp.category); (bpByCat[m.meta] = bpByCat[m.meta] || []).push(bp); });
-  const bpCatOrder = ['business','it','security'];
-  const bpCatAngles = { business: 0, it: (Math.PI*2/3), security: (Math.PI*4/3) };
-  const bpRadius = Math.min(65, 22 + bpNodes.length * 3);
+     const geo = new THREE.SphereGeometry(2, 16, 12);
+     const mat = new THREE.MeshPhongMaterial({ color: 0xC2185B, emissive: critColor, emissiveIntensity: 0.25, transparent: true, opacity: 0.92 });
+     const mesh = new THREE.Mesh(geo, mat);
+     mesh.position.set(x, y, z);
+     mesh.scale.setScalar(scale);
+     scene.add(mesh);
+     mesh.add(new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: 0xC2185B, wireframe: true, transparent: true, opacity: 0.35 })));
 
-  bpCatOrder.forEach(metaKey => {
-    const items = bpByCat[metaKey] || [];
-    if (!items.length) return;
-    const baseAngle = bpCatAngles[metaKey];
-    const spread = Math.PI * 0.55; // each sector
-    items.forEach((bp, i) => {
-      const angle = baseAngle - spread/2 + (items.length > 1 ? (i/(items.length-1)) * spread : 0);
-      const x = Math.cos(angle) * bpRadius;
-      const z = Math.sin(angle) * bpRadius;
-      const y = LAYER_Y.bp;
-      const scale = CRIT_SCALE[bp.criticality] || 1;
-      const critColor = CRIT_COLORS[bp.criticality] || 0xC2185B;
-      const m = bpMeta(bp.category);
-
-      // Different geometry per meta-category
-      let geo;
-      if (m.meta === 'it') geo = new THREE.BoxGeometry(2.2, 2.2, 2.2);
-      else if (m.meta === 'security') geo = new THREE.TetrahedronGeometry(2.4, 0);
-      else geo = new THREE.OctahedronGeometry(2, 0);
-
-      const mat = new THREE.MeshPhongMaterial({ color: m.color, emissive: critColor, emissiveIntensity: 0.25, transparent: true, opacity: 0.92 });
-      const mesh = new THREE.Mesh(geo, mat);
-      mesh.position.set(x, y, z);
-      mesh.scale.setScalar(scale);
-      scene.add(mesh);
-      mesh.add(new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: m.color, wireframe: true, transparent: true, opacity: 0.35 })));
-
-      const id = 'bp:' + bp.id;
-      nodeObjects.push({ mesh, data: bp, type: 'bp', id, label: bp.name || bp.id, bpMeta: m.meta });
-      posMap[id] = { x, y, z };
-    });
-  });
+     const id = 'bp:' + bp.id;
+     nodeObjects.push({ mesh, data: bp, type: 'bp', id, label: bp.name || bp.id });
+     posMap[id] = { x, y, z };
+   });
 
   // User Groups
   DB.userGroups.forEach((g, i) => {
@@ -3312,8 +3286,7 @@ function init3DScene(THREE, OrbitControls, container) {
       const fontSize = camDist < 40 ? 11 : camDist < 80 ? 9 : 7;
       const opacity = Math.max(0.3, Math.min(1, 1 - (camDist - 30) / 150));
       const shortLabel = n.label.length > 20 ? n.label.slice(0, 18) + '…' : n.label;
-      const bpMetaCols = { it: '#42A5F5', security: '#FF7043', business: '#66BB6A' };
-      const typeCol = n.type === 'bp' ? (bpMetaCols[n.bpMeta] || '#C2185B') : n.type === 'svc' ? '#00bcd4' : '#eab308';
+       const typeCol = n.type === 'bp' ? '#C2185B' : n.type === 'svc' ? '#00bcd4' : '#eab308';
       const div = document.createElement('div');
       div.style.cssText = 'position:absolute;left:' + x + 'px;top:' + (y + 12) + 'px;transform:translateX(-50%);font-size:' + fontSize + 'px;color:' + typeCol + ';font-family:IBM Plex Mono,monospace;white-space:nowrap;opacity:' + opacity + ';text-shadow:0 0 4px #040810,0 0 8px #040810;pointer-events:none;font-weight:600';
       div.textContent = shortLabel;
@@ -3349,8 +3322,7 @@ function init3DScene(THREE, OrbitControls, container) {
         tooltip.style.display = 'block';
         tooltip.style.left = (e.clientX - rect.left + 14) + 'px';
         tooltip.style.top = (e.clientY - rect.top - 10) + 'px';
-        const bpMetaLabels = { it: '🖥 IT Process', security: '🛡 Security / Compliance', business: '📊 Business Process' };
-        const typeLabel = node.type === 'bp' ? (bpMetaLabels[node.bpMeta] || '⚡ Business Process') : node.type === 'svc' ? '⚙ IT Service' : '👥 User Group';
+         const typeLabel = node.type === 'bp' ? '⚡ Business Process' : node.type === 'svc' ? '⚙ IT Service' : '👥 User Group';
         const critBg = node.data.criticality === 'High' ? 'rgba(239,68,68,.2);color:#f87171' : node.data.criticality === 'Medium' ? 'rgba(249,115,22,.2);color:#f97316' : 'rgba(34,197,94,.15);color:#4ade80';
         let connCount = 0;
         edgeLines.forEach(e => { if (e.srcId === node.id || e.tgtId === node.id) connCount++; });
@@ -3380,8 +3352,7 @@ function init3DScene(THREE, OrbitControls, container) {
     controls.target.copy(n.mesh.position);
 
     detail.style.display = 'block';
-    const bpML2 = { it: '🖥 IT Process', security: '🛡 Security / Compliance', business: '📊 Business Process' };
-    const typeLabel = n.type === 'bp' ? (bpML2[n.bpMeta] || '⚡ Business Process') : n.type === 'svc' ? '⚙ IT Service' : '👥 User Group';
+     const typeLabel = n.type === 'bp' ? '⚡ Business Process' : n.type === 'svc' ? '⚙ IT Service' : '👥 User Group';
     const typeColor = n.type === 'bp' ? '#C2185B' : n.type === 'svc' ? '#00bcd4' : '#eab308';
     let html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><div style="font-size:.95rem;font-weight:700;color:' + typeColor + '">' + esc(n.label) + '</div>';
     html += '<button onclick="document.getElementById(\'three-detail\').style.display=\'none\'" style="background:none;border:none;color:#435570;cursor:pointer;font-size:1.2rem">✕</button></div>';
