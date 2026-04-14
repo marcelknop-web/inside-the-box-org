@@ -1058,10 +1058,14 @@ function renderSettings(){
       <button class="btn btn-success" onclick="exportAll()">⬇ Alle Daten als JSON exportieren</button>
     </div>
     <div class="panel">
-      <div class="panel-title">📥 JSON-Import</div>
-      <div class="info-box">⚠ Der Import <strong>überschreibt alle vorhandenen Daten</strong>. Bitte vorher exportieren.</div>
-      <input type="file" id="import-file" accept=".json" style="display:none" onchange="importJSON(this)">
-      <button class="btn btn-warning" onclick="document.getElementById('import-file').click()">⬆ JSON-Datei importieren</button>
+      <div class="panel-title">📥 Smart-Import (JSON, CSV, TXT)</div>
+      <div class="info-box">Importiere Daten aus beliebigen Formaten. Bei Format-Unstimmigkeiten erkennt die KI die Struktur automatisch und zeigt dir eine Vorschau, bevor etwas geändert wird.</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+        <input type="file" id="import-file" accept=".json,.csv,.txt,.tsv,.xlsx" style="display:none" onchange="smartImport(this)">
+        <button class="btn btn-warning" onclick="document.getElementById('import-file').click()">⬆ Datei importieren</button>
+      </div>
+      <div id="import-status" style="display:none;margin-top:12px;padding:12px;border-radius:8px;font-size:.82rem"></div>
+      <div id="import-preview-area" style="margin-top:8px"></div>
     </div>
     <div class="panel">
       <div class="panel-title">📊 CSV-Exporte (einzelne Bereiche)</div>
@@ -1101,18 +1105,240 @@ function exportCSV(key){
   a.click(); showToast('CSV exportiert.');
 }
 
-function importJSON(input){
-  const file=input.files[0]; if(!file) return;
-  const reader=new FileReader();
-  reader.onload=e=>{
-    try {
-      const d=JSON.parse(e.target.result);
-      if(!d.services||!d.businessProcesses){showToast('Ungültiges JSON-Format.',true);return;}
-      DB=d; saveData(); showView('dashboard'); showToast('Import erfolgreich! '+d.services.length+' Services geladen.');
-    } catch(err){ showToast('Fehler beim Importieren: '+err.message,true); }
-  };
-  reader.readAsText(file);
+const ITSM_SUPABASE_URL = 'https://jbhfqocscbvcvzlgwvvy.supabase.co';
+const EXPECTED_KEYS = ['services','businessProcesses','userGroups','permissions','bpServiceMap','serviceDeps'];
+
+function isValidItsmFormat(d) {
+  if (!d || typeof d !== 'object') return false;
+  return d.services && Array.isArray(d.services) && d.businessProcesses && Array.isArray(d.businessProcesses);
 }
+
+function showImportStatus(msg, type) {
+  const el = document.getElementById('import-status');
+  if (!el) return;
+  el.style.display = 'block';
+  const colors = { loading: '#1E3A5F', success: '#1B5E20', error: '#B71C1C', info: '#0D47A1' };
+  el.style.background = colors[type] || colors.info;
+  el.style.color = '#DDE3EC';
+  el.innerHTML = msg;
+}
+
+function smartImport(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const ext = file.name.split('.').pop().toLowerCase();
+  const reader = new FileReader();
+
+  reader.onload = async (e) => {
+    const raw = e.target.result;
+    document.getElementById('import-preview-area').innerHTML = '';
+
+    // 1) Try native JSON import
+    if (ext === 'json') {
+      try {
+        const d = JSON.parse(raw);
+        if (isValidItsmFormat(d)) {
+          // Perfect format — show preview before overwriting
+          showImportStatus('✓ Gültiges ITSM-Format erkannt. Prüfe die Vorschau und bestätige den Import.', 'success');
+          renderImportPreview(d, 'replace');
+          return;
+        }
+        // JSON but wrong structure → AI transform
+        const missing = EXPECTED_KEYS.filter(k => !d[k] || !Array.isArray(d[k]));
+        const extra = Object.keys(d).filter(k => !EXPECTED_KEYS.includes(k));
+        const formatInfo = 'Fehlende Keys: ' + missing.join(', ') + (extra.length ? '. Unbekannte Keys: ' + extra.join(', ') : '');
+        showImportStatus('⚙ Format-Unstimmigkeit erkannt. KI transformiert die Daten…<br><small>' + formatInfo + '</small>', 'loading');
+        await aiTransform({ rawData: d, formatInfo });
+        return;
+      } catch (err) {
+        // Not valid JSON → treat as text
+        showImportStatus('⚙ Kein gültiges JSON. KI analysiert den Inhalt…', 'loading');
+        await aiTransform({ rawText: raw });
+        return;
+      }
+    }
+
+    // 2) CSV/TSV/TXT → always AI transform
+    showImportStatus('⚙ ' + ext.toUpperCase() + '-Datei erkannt. KI analysiert und transformiert die Daten…', 'loading');
+    await aiTransform({ rawText: raw });
+  };
+
+  reader.readAsText(file);
+  input.value = ''; // reset for re-upload
+}
+
+async function aiTransform({ rawData, rawText, formatInfo }) {
+  try {
+    const resp = await fetch(ITSM_SUPABASE_URL + '/functions/v1/itsm-transform', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ rawData, rawText, formatInfo })
+    });
+
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({ error: resp.statusText }));
+      throw new Error(err.error || 'HTTP ' + resp.status);
+    }
+
+    const result = await resp.json();
+    if (!result.transformed) throw new Error('Keine transformierten Daten erhalten.');
+
+    const t = result.transformed;
+    const counts = EXPECTED_KEYS.map(k => (t[k]?.length || 0) + ' ' + k).filter(s => !s.startsWith('0')).join(', ');
+    showImportStatus('✓ KI-Transformation abgeschlossen: ' + counts + '<br><small>Prüfe die Vorschau und entscheide, was übernommen werden soll.</small>', 'success');
+    renderImportPreview(t, 'merge');
+  } catch (err) {
+    showImportStatus('❌ Fehler: ' + err.message, 'error');
+    console.error('AI transform error:', err);
+  }
+}
+
+function renderImportPreview(data, mode) {
+  const area = document.getElementById('import-preview-area');
+  if (!area) return;
+
+  // Use the existing renderPreview for merge mode (additive)
+  if (mode === 'merge') {
+    window._lastExtracted = data;
+    // Build preview HTML similar to agent preview
+    const LABELS = {
+      services:{label:'Services / Subservices', icon:'🔵', color:'#64B5F6'},
+      businessProcesses:{label:'Business Processes', icon:'🔴', color:'#F48FB1'},
+      userGroups:{label:'User Groups', icon:'🟠', color:'#FFCC80'},
+      permissions:{label:'Berechtigungen', icon:'🟣', color:'#CE93D8'},
+      bpServiceMap:{label:'BP → Service Mappings', icon:'🔗', color:'#EF9A9A'},
+      serviceDeps:{label:'Service Dependencies', icon:'🟡', color:'#FFD600'}
+    };
+
+    const existsSvc = new Set(DB.services.map(s=>s.subservice?.toLowerCase()));
+    const existsBp  = new Set(DB.businessProcesses.map(p=>p.id?.toLowerCase()));
+    const existsGrp = new Set(DB.userGroups.map(g=>g.name?.toLowerCase()));
+
+    let totalNew = 0;
+    let html = '<div class="ai-panel"><div class="ai-panel-title" style="color:#CE93D8">📋 Vorschau – KI-transformierte Daten</div>';
+    html += '<div style="font-size:.78rem;color:#546E7A;margin-bottom:14px">Wähle aus, was hinzugefügt werden soll. Bereits vorhandene Einträge sind markiert.</div>';
+
+    for (const [key, items] of Object.entries(data)) {
+      if (!Array.isArray(items) || items.length === 0) continue;
+      const meta = LABELS[key] || {label:key, icon:'●', color:'#90A4AE'};
+      html += '<div class="preview-group"><div class="preview-group-title" style="color:' + meta.color + '">' + meta.icon + ' ' + meta.label + ' <span style="color:#546E7A;font-weight:400">(' + items.length + ' gefunden)</span></div>';
+
+      items.forEach((item, idx) => {
+        const checkId = 'imp-' + key + '-' + idx;
+        let isExisting = false, title = '', sub = '';
+        if (key === 'services') {
+          isExisting = existsSvc.has(item.subservice?.toLowerCase());
+          title = '<strong>' + (item.subservice||'?') + '</strong> · <span style="color:#90A4AE">' + (item.service||'') + '</span>';
+          sub = (item.group||'') + ' · ' + (item.svc_type||'') + ' · Criticality: ' + (item.criticality||'?');
+        } else if (key === 'businessProcesses') {
+          isExisting = existsBp.has(item.id?.toLowerCase());
+          title = '<strong>' + (item.id||'?') + '</strong> – ' + (item.name||'');
+          sub = (item.category||'') + ' · ' + (item.criticality||'');
+        } else if (key === 'userGroups') {
+          isExisting = existsGrp.has(item.name?.toLowerCase());
+          title = '<strong>' + (item.name||'?') + '</strong> · ' + (item.type||'');
+          sub = (item.department||'') + ' · ' + (item.location||'');
+        } else if (key === 'permissions') {
+          title = '<strong>' + (item.groupName||'?') + '</strong> → ' + (item.service||'');
+          sub = 'Level: ' + (item.level||'?');
+        } else if (key === 'bpServiceMap') {
+          title = '<strong>' + (item.bpId||'?') + '</strong> → ' + (item.service||'');
+          sub = 'Dep-Type: ' + (item.depType||'?');
+        } else if (key === 'serviceDeps') {
+          title = '<strong>' + (item.upstream||'?') + '</strong> → ' + (item.downstream||'');
+          sub = (item.depType||'');
+        }
+        if (!isExisting) totalNew++;
+        html += '<div class="preview-item' + (isExisting?' exists':'') + '"><input type="checkbox" id="' + checkId + '" data-key="' + key + '" data-idx="' + idx + '" ' + (isExisting?'':'checked') + '><div class="preview-item-body"><div class="preview-item-title">' + title + '</div><div class="preview-item-sub">' + sub + '</div></div></div>';
+      });
+      html += '</div>';
+    }
+
+    html += '<div class="preview-actions">';
+    html += '<button class="btn btn-ghost btn-sm" onclick="document.querySelectorAll(\'#import-preview-area input[type=checkbox]\').forEach(c=>c.checked=true)">Alle auswählen</button>';
+    html += '<button class="btn btn-ghost btn-sm" onclick="document.querySelectorAll(\'#import-preview-area input[type=checkbox]\').forEach(c=>c.checked=false)">Alle abwählen</button>';
+    html += '<button class="btn btn-success" onclick="applySmartImport()">✓ Ausgewählte ' + totalNew + ' Einträge hinzufügen</button>';
+    html += '<button class="btn btn-ghost btn-sm" onclick="document.getElementById(\'import-preview-area\').innerHTML=\'\';document.getElementById(\'import-status\').style.display=\'none\'">✕ Abbrechen</button>';
+    html += '</div></div>';
+    area.innerHTML = html;
+    return;
+  }
+
+  // Replace mode — full dataset preview
+  const counts = EXPECTED_KEYS.map(k => (data[k]?.length||0) + ' ' + k).filter(s => !s.startsWith('0')).join(', ');
+  area.innerHTML = '<div class="ai-panel" style="border-color:#1565C0"><div class="ai-panel-title" style="color:#64B5F6">📋 Direkt-Import Vorschau</div>' +
+    '<div style="font-size:.82rem;color:#90A4AE;margin-bottom:12px">Inhalt: ' + counts + '</div>' +
+    '<div class="info-box" style="border-left-color:#E65100">⚠ Dies <strong>überschreibt alle vorhandenen Daten</strong>. Bitte vorher exportieren.</div>' +
+    '<div class="preview-actions">' +
+    '<button class="btn btn-success" onclick="applyDirectImport()">✓ Alle Daten übernehmen</button>' +
+    '<button class="btn btn-ghost btn-sm" onclick="document.getElementById(\'import-preview-area\').innerHTML=\'\';document.getElementById(\'import-status\').style.display=\'none\'">✕ Abbrechen</button>' +
+    '</div></div>';
+  window._pendingDirectImport = data;
+}
+
+function applyDirectImport() {
+  const d = window._pendingDirectImport;
+  if (!d) return;
+  DB = d; saveData(); showView('dashboard');
+  showToast('Import erfolgreich! ' + d.services.length + ' Services geladen.');
+}
+
+function applySmartImport() {
+  const data = window._lastExtracted;
+  if (!data) return;
+  const checkboxes = document.querySelectorAll('#import-preview-area input[type=checkbox]');
+  const selected = {};
+  checkboxes.forEach(cb => {
+    if (cb.checked) {
+      const key = cb.dataset.key, idx = parseInt(cb.dataset.idx);
+      if (!selected[key]) selected[key] = [];
+      selected[key].push(idx);
+    }
+  });
+
+  let added = 0;
+  const existsSvc = new Set(DB.services.map(s=>s.subservice?.toLowerCase()));
+  const existsBp  = new Set(DB.businessProcesses.map(p=>p.id?.toLowerCase()));
+  const existsGrp = new Set(DB.userGroups.map(g=>g.name?.toLowerCase()));
+
+  for (const [key, idxs] of Object.entries(selected)) {
+    idxs.forEach(idx => {
+      const item = data[key][idx];
+      if (!item) return;
+      if (key==='services') {
+        if (existsSvc.has(item.subservice?.toLowerCase())) return;
+        item.id = item.id || 'SVC-'+uid(); DB.services.push(item); added++;
+        addChange('Smart-Import','Subservice',item.subservice);
+      } else if (key==='businessProcesses') {
+        if (existsBp.has(item.id?.toLowerCase())) return;
+        DB.businessProcesses.push(item); added++;
+        addChange('Smart-Import','Business Process',item.name);
+      } else if (key==='userGroups') {
+        if (existsGrp.has(item.name?.toLowerCase())) return;
+        item.id = item.id||'GRP-'+uid(); DB.userGroups.push(item); added++;
+        addChange('Smart-Import','User Group',item.name);
+      } else if (key==='permissions') {
+        item.id = item.id||'PERM-'+uid(); DB.permissions.push(item); added++;
+        addChange('Smart-Import','Permission',item.groupName+'→'+item.service);
+      } else if (key==='bpServiceMap') {
+        DB.bpServiceMap.push(item); added++;
+        addChange('Smart-Import','BP-Mapping',item.bpId+'→'+item.service);
+      } else if (key==='serviceDeps') {
+        DB.serviceDeps.push(item); added++;
+        addChange('Smart-Import','Dependency',item.upstream+'→'+item.downstream);
+      }
+    });
+  }
+
+  saveData();
+  showToast('✓ ' + added + ' Einträge erfolgreich importiert!');
+  document.getElementById('import-preview-area').innerHTML = '<div class="ai-panel" style="border-color:#2E7D32"><div style="color:#A5D6A7;font-size:.9rem;font-weight:700;margin-bottom:8px">✓ ' + added + ' Einträge importiert</div><div style="color:#90A4AE;font-size:.82rem">Die Daten wurden übernommen und gespeichert.</div></div>';
+  document.getElementById('import-status').style.display = 'none';
+  updateCounts();
+}
+
+// Legacy fallback
+function importJSON(input) { smartImport(input); }
 
 // ═══════════════════════════════════════════════════════════════
 // MODAL & CONFIRM
