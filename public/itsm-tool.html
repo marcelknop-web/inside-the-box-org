@@ -3088,7 +3088,7 @@ function init3DScene(THREE, OrbitControls, container) {
   controls.dampingFactor = 0.08;
   controls.minDistance = 20;
   controls.maxDistance = 300;
-  controls.target.set(0, 20, 0);
+  controls.target.set(0, 18, 0);
 
   scene.add(new THREE.AmbientLight(0x334466, 0.9));
   const dirLight = new THREE.DirectionalLight(0xffffff, 1.0);
@@ -3522,8 +3522,8 @@ function rebuild3DGraph() { renderDepGraph3D(); }
 
 function reset3DView() {
   if (window._3dCamera && window._3dControls) {
-    window._3dCamera.position.set(55, 50, 75);
-    window._3dControls.target.set(0, 20, 0);
+    window._3dCamera.position.set(45, 45, 65);
+    window._3dControls.target.set(0, 18, 0);
     window._3dControls.update();
     document.getElementById('three-detail').style.display = 'none';
   }
