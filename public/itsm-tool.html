@@ -169,6 +169,18 @@ tr:hover td{background:#112240}
 .page-btn:hover{background:#2A4A7F}
 .page-btn:disabled{opacity:.4;cursor:not-allowed}
 .page-info{color:#546E7A}
+/* ── D3 Charts ── */
+.chart-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.chart-row.tri{grid-template-columns:1fr 1fr 1fr}
+.chart-panel{background:#112240;border:1px solid #1E3A5F;border-radius:8px;padding:16px}
+.chart-panel .chart-title{font-size:.82rem;font-weight:700;color:#90CAF9;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.chart-panel svg{width:100%;display:block}
+.chart-panel .legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:8px}
+.chart-panel .legend-item{display:flex;align-items:center;gap:4px;font-size:.72rem;color:#90A4AE}
+.chart-panel .legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.chart-panel .legend-rect{width:10px;height:6px;border-radius:1px;flex-shrink:0}
+.mini-chart-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+@media(max-width:700px){.chart-row,.chart-row.tri,.mini-chart-row{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
