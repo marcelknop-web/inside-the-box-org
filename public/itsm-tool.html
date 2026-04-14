@@ -3325,27 +3325,64 @@ function init3DScene(THREE, OrbitControls, container) {
     posMap[id] = { x, y, z };
   });
 
-  // Build edges with tubes
+  // Build edges with tubes — structured routing through layer transition corridors
+  const edgePairCount = {};
+  function edgePairKey(a, b) { return [a, b].sort().join('||'); }
+
   function addEdge(srcId, tgtId, color, lineType) {
     const src = posMap[srcId];
     const tgt = posMap[tgtId];
     if (!src || !tgt) return;
-    const mx = (src.x + tgt.x) / 2, my = (src.y + tgt.y) / 2, mz = (src.z + tgt.z) / 2;
-    const curve = new THREE.QuadraticBezierCurve3(
-      new THREE.Vector3(src.x, src.y, src.z),
-      new THREE.Vector3(mx + (Math.random() - 0.5) * 2, my, mz + (Math.random() - 0.5) * 2),
-      new THREE.Vector3(tgt.x, tgt.y, tgt.z)
-    );
-    const tubePath = new THREE.CatmullRomCurve3(curve.getPoints(20));
-    const tubeGeo = new THREE.TubeGeometry(tubePath, 10, 0.12, 4, false);
-    const tubeMat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.3 });
+
+    // Track parallel edges for fanning
+    const pk = edgePairKey(srcId, tgtId);
+    if (!edgePairCount[pk]) edgePairCount[pk] = 0;
+    const fanIdx = edgePairCount[pk]++;
+
+    const sameLayer = Math.abs(src.y - tgt.y) < 2;
+    const mx = (src.x + tgt.x) / 2;
+    const mz = (src.z + tgt.z) / 2;
+
+    let points;
+    if (sameLayer) {
+      // Same layer: gentle arc within the floor, fan parallel edges
+      const dx = tgt.x - src.x, dz = tgt.z - src.z;
+      const dist = Math.sqrt(dx*dx + dz*dz) || 1;
+      const nx = -dz / dist, nz = dx / dist;
+      const arcH = dist * 0.15 + fanIdx * 1.5;
+      points = [
+        new THREE.Vector3(src.x, src.y, src.z),
+        new THREE.Vector3(mx + nx * arcH, src.y + 1.5, mz + nz * arcH),
+        new THREE.Vector3(tgt.x, tgt.y, tgt.z)
+      ];
+    } else {
+      // Cross-layer: route through central elevator shaft (x=0, z=0 corridor)
+      // Pull control points toward center to bundle vertical connections
+      const bundlePull = 0.6; // 0=direct, 1=full center routing
+      const fanOffset = (fanIdx - 0.5) * 2;
+      const srcMid = { x: src.x * (1 - bundlePull) + fanOffset, z: src.z * (1 - bundlePull) + fanOffset };
+      const tgtMid = { x: tgt.x * (1 - bundlePull) + fanOffset, z: tgt.z * (1 - bundlePull) + fanOffset };
+      const midY = (src.y + tgt.y) / 2;
+      points = [
+        new THREE.Vector3(src.x, src.y, src.z),
+        new THREE.Vector3(srcMid.x, src.y + (midY - src.y) * 0.3, srcMid.z),
+        new THREE.Vector3(fanOffset, midY, fanOffset),
+        new THREE.Vector3(tgtMid.x, tgt.y + (midY - tgt.y) * 0.3, tgtMid.z),
+        new THREE.Vector3(tgt.x, tgt.y, tgt.z)
+      ];
+    }
+
+    const tubePath = new THREE.CatmullRomCurve3(points);
+    const tubeGeo = new THREE.TubeGeometry(tubePath, 16, 0.1, 4, false);
+    const tubeMat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.22 });
     const tube = new THREE.Mesh(tubeGeo, tubeMat);
     scene.add(tube);
 
-    const arrowGeo = new THREE.ConeGeometry(0.5, 1.5, 6);
-    const arrowMat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.5 });
+    // Small arrow near target
+    const arrowGeo = new THREE.ConeGeometry(0.4, 1.2, 6);
+    const arrowMat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.4 });
     const arrow = new THREE.Mesh(arrowGeo, arrowMat);
-    const nearTgt = new THREE.Vector3().lerpVectors(new THREE.Vector3(mx, my, mz), new THREE.Vector3(tgt.x, tgt.y, tgt.z), 0.8);
+    const nearTgt = tubePath.getPointAt(0.85);
     arrow.position.copy(nearTgt);
     arrow.lookAt(tgt.x, tgt.y, tgt.z);
     arrow.rotateX(Math.PI / 2);
