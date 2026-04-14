@@ -3278,7 +3278,8 @@ function init3DScene(THREE, OrbitControls, container) {
     controls.target.copy(n.mesh.position);
 
     detail.style.display = 'block';
-    const typeLabel = n.type === 'bp' ? '⚡ Business Process' : n.type === 'svc' ? '⚙ IT Service' : '👥 User Group';
+    const bpML2 = { it: '🖥 IT Process', security: '🛡 Security / Compliance', business: '📊 Business Process' };
+    const typeLabel = n.type === 'bp' ? (bpML2[n.bpMeta] || '⚡ Business Process') : n.type === 'svc' ? '⚙ IT Service' : '👥 User Group';
     const typeColor = n.type === 'bp' ? '#C2185B' : n.type === 'svc' ? '#00bcd4' : '#eab308';
     let html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><div style="font-size:.95rem;font-weight:700;color:' + typeColor + '">' + esc(n.label) + '</div>';
     html += '<button onclick="document.getElementById(\'three-detail\').style.display=\'none\'" style="background:none;border:none;color:#435570;cursor:pointer;font-size:1.2rem">✕</button></div>';
