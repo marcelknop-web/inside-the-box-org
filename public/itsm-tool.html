@@ -256,7 +256,7 @@ tr:hover td{background:#1a2535}
       <span class="nav-count" id="cnt-processes">0</span>
     </div>
     <div class="nav-item" onclick="showView('groups')" id="nav-groups">
-      <div class="nav-dot" style="background:#FF9800"></div> User Groups
+      <div class="nav-dot" style="background:#f97316"></div> User Groups
       <span class="nav-count" id="cnt-groups">0</span>
     </div>
 
@@ -286,7 +286,7 @@ tr:hover td{background:#1a2535}
     </div>
     <div class="sidebar-section">System</div>
     <div class="nav-item" onclick="showView('settings')" id="nav-settings">
-      <div class="nav-dot" style="background:#607D8B"></div> Import / Export
+      <div class="nav-dot" style="background:#64748b"></div> Import / Export
     </div>
   </nav>
 
@@ -346,7 +346,7 @@ function saveData(){
   localStorage.setItem('arl_itsm_data', JSON.stringify(DB));
   const ind = document.getElementById('save-indicator');
   ind.textContent = '✓ Gespeichert ' + new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
-  ind.style.background = '#2E7D32';
+  ind.style.background = '#22c55e';
   setTimeout(()=>{ ind.textContent='● Gespeichert'; ind.style.background=''; }, 3000);
   updateCounts();
 }
@@ -578,7 +578,7 @@ function d3Gauge(containerId, value, max, opts={}){
   g.append('path').attr('d',bg).attr('fill','#1a2535');
   const pct = Math.min(value/max,1);
   const endAngle = -Math.PI/2 + Math.PI*pct;
-  g.append('path').attr('fill',opts.color||'#1565C0')
+  g.append('path').attr('fill',opts.color||'#00bcd4')
     .transition().duration(800)
     .attrTween('d',function(){
       const interp = d3.interpolate(-Math.PI/2, endAngle);
@@ -656,11 +656,11 @@ function renderDashboard(){
       </div>
     </div>
     <div class="dashboard-grid">
-      <div class="stat-card"><div class="num">${svcs.length}</div><div class="lbl">Subservices</div><div class="bar" style="background:#1565C0"></div></div>
+      <div class="stat-card"><div class="num">${svcs.length}</div><div class="lbl">Subservices</div><div class="bar" style="background:#00bcd4"></div></div>
       <div class="stat-card"><div class="num">${services}</div><div class="lbl">IT Services (OLAs)</div><div class="bar" style="background:#00838F"></div></div>
-      <div class="stat-card"><div class="num">${groups}</div><div class="lbl">Service Groups</div><div class="bar" style="background:#2E7D32"></div></div>
+      <div class="stat-card"><div class="num">${groups}</div><div class="lbl">Service Groups</div><div class="bar" style="background:#22c55e"></div></div>
       <div class="stat-card"><div class="num">${DB.businessProcesses.length}</div><div class="lbl">Business Processes</div><div class="bar" style="background:#E91E63"></div></div>
-      <div class="stat-card"><div class="num">${DB.userGroups.length}</div><div class="lbl">User Groups</div><div class="bar" style="background:#FF9800"></div></div>
+      <div class="stat-card"><div class="num">${DB.userGroups.length}</div><div class="lbl">User Groups</div><div class="bar" style="background:#f97316"></div></div>
       <div class="stat-card"><div class="num">${DB.permissions.length}</div><div class="lbl">Berechtigungen</div><div class="bar" style="background:#9C27B0"></div></div>
     </div>
 
@@ -811,11 +811,11 @@ function renderDashboard(){
     </div>`;
 
   // ── Render Gauges ──
-  d3Gauge('gauge-cmdb', cmdbPct, 100, {color: cmdbPct>=80?'#2E7D32':cmdbPct>=50?'#f5b800':'#ef4444', label:'Completeness'});
-  d3Gauge('gauge-rto', bpRtoPct, 100, {color: bpRtoPct>=80?'#2E7D32':bpRtoPct>=50?'#f5b800':'#ef4444', label:'RTO'});
-  d3Gauge('gauge-rpo', bpRpoPct, 100, {color: bpRpoPct>=80?'#2E7D32':bpRpoPct>=50?'#f5b800':'#ef4444', label:'RPO'});
-  d3Gauge('gauge-scope', permScopePct, 100, {color: permScopePct>=80?'#2E7D32':permScopePct>=50?'#f5b800':'#ef4444', label:'Scope'});
-  d3Gauge('gauge-mgr', grpMgrPct, 100, {color: grpMgrPct>=80?'#2E7D32':grpMgrPct>=50?'#f5b800':'#ef4444', label:'Owners'});
+  d3Gauge('gauge-cmdb', cmdbPct, 100, {color: cmdbPct>=80?'#22c55e':cmdbPct>=50?'#f5b800':'#ef4444', label:'Completeness'});
+  d3Gauge('gauge-rto', bpRtoPct, 100, {color: bpRtoPct>=80?'#22c55e':bpRtoPct>=50?'#f5b800':'#ef4444', label:'RTO'});
+  d3Gauge('gauge-rpo', bpRpoPct, 100, {color: bpRpoPct>=80?'#22c55e':bpRpoPct>=50?'#f5b800':'#ef4444', label:'RPO'});
+  d3Gauge('gauge-scope', permScopePct, 100, {color: permScopePct>=80?'#22c55e':permScopePct>=50?'#f5b800':'#ef4444', label:'Scope'});
+  d3Gauge('gauge-mgr', grpMgrPct, 100, {color: grpMgrPct>=80?'#22c55e':grpMgrPct>=50?'#f5b800':'#ef4444', label:'Owners'});
 
   // Coverage bar
   const totalBPs = DB.businessProcesses.length;
@@ -825,7 +825,7 @@ function renderDashboard(){
     {label:'BPs ohne Mapping', value: orphanedBPs.length},
     {label:'Svcs verknüpft', value: totalSvcNames - unassignedSvcs.length},
     {label:'Svcs isoliert', value: unassignedSvcs.length}
-  ], {colors:['#2E7D32','#ef4444','#1565C0','#eab308'], labelWidth:120});
+  ], {colors:['#22c55e','#ef4444','#00bcd4','#eab308'], labelWidth:120});
 
   // Service Type donut — drill into services of that type
   const typeMap = {};
@@ -1112,7 +1112,7 @@ function renderProcesses(){
   d3HBar('bp-crit-chart',[
     ...Object.entries(bpCrit).map(([k,v])=>({label:k,value:v})),
     {label:'w/ Regulatory',value:regCount}
-  ],{colors:['#ef4444','#eab308','#2E7D32','#6A1B9A']});
+  ],{colors:['#ef4444','#eab308','#22c55e','#c084fc']});
 
   filterProcesses();
 }
@@ -1210,7 +1210,7 @@ function renderGroups(){
     <div id="grp-table-container"></div>`;
 
   const tm={};DB.userGroups.forEach(g=>{tm[g.type]=(tm[g.type]||0)+1;});
-  d3Donut('grp-type-chart',Object.entries(tm).map(([k,v])=>({label:k,value:v})).sort((a,b)=>b.value-a.value),{size:130,colors:['#FF9800','#1565C0','#6A1B9A','#2E7D32'],centerLabel:'types'});
+  d3Donut('grp-type-chart',Object.entries(tm).map(([k,v])=>({label:k,value:v})).sort((a,b)=>b.value-a.value),{size:130,colors:['#f97316','#00bcd4','#c084fc','#22c55e'],centerLabel:'types'});
 
   const lm={};DB.userGroups.forEach(g=>{const loc=g.location||'Unknown';lm[loc]=(lm[loc]||0)+1;});
   d3HBar('grp-loc-chart',Object.entries(lm).map(([k,v])=>({label:k,value:v})).sort((a,b)=>b.value-a.value));
@@ -1310,7 +1310,7 @@ function renderPermissions(){
   // Access Level donut
   const lm={};DB.permissions.forEach(p=>{lm[p.level]=(lm[p.level]||0)+1;});
   d3Donut('perm-level-chart',Object.entries(lm).map(([k,v])=>({label:k,value:v})).sort((a,b)=>b.value-a.value),
-    {size:130,colors:['#ef4444','#6A1B9A','#1565C0','#2E7D32','#607D8B'],centerLabel:'levels'});
+    {size:130,colors:['#ef4444','#c084fc','#00bcd4','#22c55e','#64748b'],centerLabel:'levels'});
 
   // SoD + Cert bar
   const sodYes=DB.permissions.filter(p=>p.sodFlag==='Yes').length;
@@ -1320,7 +1320,7 @@ function renderPermissions(){
   d3HBar('perm-sod-chart',[
     {label:'SoD: Yes',value:sodYes},{label:'SoD: No',value:sodNo},
     {label:'Cert: Yes',value:certYes},{label:'Cert: No',value:certNo}
-  ],{colors:['#ef4444','#2E7D32','#eab308','#1565C0'],labelWidth:80});
+  ],{colors:['#ef4444','#22c55e','#eab308','#00bcd4'],labelWidth:80});
 
   filterPerms();
 }
@@ -1441,7 +1441,7 @@ function renderBpMap(){
   // Dep type donut
   const dm={};DB.bpServiceMap.forEach(m=>{dm[m.depType]=(dm[m.depType]||0)+1;});
   d3Donut('bpm-type-chart',Object.entries(dm).map(([k,v])=>({label:k,value:v})).sort((a,b)=>b.value-a.value),
-    {size:130,colors:['#ef4444','#eab308','#1565C0'],centerLabel:'types'});
+    {size:130,colors:['#ef4444','#eab308','#00bcd4'],centerLabel:'types'});
 
   // Top services by mapping count
   const sm={};DB.bpServiceMap.forEach(m=>{sm[m.service]=(sm[m.service]||0)+1;});
@@ -1538,7 +1538,7 @@ function renderDeps(){
   // Dep type donut
   const dtm={};DB.serviceDeps.forEach(d=>{dtm[d.depType]=(dtm[d.depType]||0)+1;});
   d3Donut('dep-type-chart',Object.entries(dtm).map(([k,v])=>({label:k,value:v})).sort((a,b)=>b.value-a.value),
-    {size:130,colors:['#ef4444','#eab308','#1565C0'],centerLabel:'types'});
+    {size:130,colors:['#ef4444','#eab308','#00bcd4'],centerLabel:'types'});
 
   // Most connected services
   const conn={};DB.serviceDeps.forEach(d=>{conn[d.upstream]=(conn[d.upstream]||0)+1;conn[d.downstream]=(conn[d.downstream]||0)+1;});
@@ -1682,7 +1682,7 @@ function showImportStatus(msg, type) {
   const el = document.getElementById('import-status');
   if (!el) return;
   el.style.display = 'block';
-  const colors = { loading: '#1e2a3a', success: '#22c55e', error: '#ef4444', info: '#0D47A1' };
+  const colors = { loading: '#1e2a3a', success: '#22c55e', error: '#ef4444', info: '#00bcd4' };
   el.style.background = colors[type] || colors.info;
   el.style.color = '#f0f4fc';
   el.innerHTML = msg;
@@ -1831,7 +1831,7 @@ function renderImportPreview(data, mode) {
 
   // Replace mode — full dataset preview
   const counts = EXPECTED_KEYS.map(k => (data[k]?.length||0) + ' ' + k).filter(s => !s.startsWith('0')).join(', ');
-  area.innerHTML = '<div class="ai-panel" style="border-color:#1565C0"><div class="ai-panel-title" style="color:#f5b800">📋 Direkt-Import Vorschau</div>' +
+  area.innerHTML = '<div class="ai-panel" style="border-color:#00bcd4"><div class="ai-panel-title" style="color:#f5b800">📋 Direkt-Import Vorschau</div>' +
     '<div style="font-size:.82rem;color:#8ba5c5;margin-bottom:12px">Inhalt: ' + counts + '</div>' +
     '<div class="info-box" style="border-left-color:#eab308">⚠ Dies <strong>überschreibt alle vorhandenen Daten</strong>. Bitte vorher exportieren.</div>' +
     '<div class="preview-actions">' +
@@ -1897,7 +1897,7 @@ function applySmartImport() {
 
   saveData();
   showToast('✓ ' + added + ' Einträge erfolgreich importiert!');
-  document.getElementById('import-preview-area').innerHTML = '<div class="ai-panel" style="border-color:#2E7D32"><div style="color:#4ade80;font-size:.9rem;font-weight:700;margin-bottom:8px">✓ ' + added + ' Einträge importiert</div><div style="color:#8ba5c5;font-size:.82rem">Die Daten wurden übernommen und gespeichert.</div></div>';
+  document.getElementById('import-preview-area').innerHTML = '<div class="ai-panel" style="border-color:#22c55e"><div style="color:#4ade80;font-size:.9rem;font-weight:700;margin-bottom:8px">✓ ' + added + ' Einträge importiert</div><div style="color:#8ba5c5;font-size:.82rem">Die Daten wurden übernommen und gespeichert.</div></div>';
   document.getElementById('import-status').style.display = 'none';
   updateCounts();
 }
@@ -2332,7 +2332,7 @@ function applyExtraction(extractedRaw){
   saveData();
   showToast(`✓ ${added} Einträge erfolgreich hinzugefügt!`);
   document.getElementById('preview-area').innerHTML = `
-    <div class="ai-panel" style="border-color:#2E7D32">
+    <div class="ai-panel" style="border-color:#22c55e">
       <div style="color:#4ade80;font-size:.9rem;font-weight:700;margin-bottom:8px">✓ ${added} Einträge importiert</div>
       <div style="color:#8ba5c5;font-size:.82rem">Die Daten wurden in alle relevanten Tabellen übernommen und gespeichert.</div>
       <div style="margin-top:12px;display:flex;gap:8px">
@@ -2540,7 +2540,7 @@ function renderGraph(nodes, links) {
     .attr('opacity', 0);
 
   // Node groups
-  const nodeColors = { service: '#1565C0', bp: '#C2185B', group: '#eab308' };
+  const nodeColors = { service: '#00bcd4', bp: '#C2185B', group: '#eab308' };
   const nodeFill = { service: '#f5b800', bp: '#f5b800', group: '#facc15' };
   const critRadius = { High: 18, Medium: 14, Low: 10 };
 
@@ -2695,7 +2695,7 @@ function focusNode(d) {
   if (props.length) {
     html += '<div style="background:#0D1B2A;border-radius:6px;padding:8px;margin-bottom:12px">';
     props.forEach(([k,v]) => {
-      const critColor = v === 'High' ? '#EF5350' : v === 'Medium' ? '#FF9800' : v === 'Low' ? '#66BB6A' : '#f0f4fc';
+      const critColor = v === 'High' ? '#EF5350' : v === 'Medium' ? '#f97316' : v === 'Low' ? '#66BB6A' : '#f0f4fc';
       html += '<div style="display:flex;justify-content:space-between;padding:3px 0;font-size:.78rem"><span style="color:#435570">' + k + '</span><span style="color:' + (k==='Criticality'?critColor:'#f0f4fc') + '">' + v + '</span></div>';
     });
     html += '</div>';
