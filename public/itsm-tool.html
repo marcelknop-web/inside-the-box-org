@@ -3381,34 +3381,38 @@ function init3DScene(THREE, OrbitControls, container) {
     const mz = (src.z + tgt.z) / 2;
 
     let points;
-    const cableSpacing = 1.2;
-    const fanOff = (fanIdx - 0.5) * cableSpacing;
+    const cableGap = 0.8;
+    const fanOff = (fanIdx - (edgePairCount[pk] - 1) / 2) * cableGap;
+    
     if (sameLayer) {
-      // Same layer: orthogonal cable — go along X, then Z (or vice versa), like a cable tray
-      const midX = src.x + (tgt.x - src.x) * 0.5 + fanOff;
+      // Same layer: clean orthogonal L-routing along X then Z, like a cable tray on a raised floor
+      const stubLen = 3; // short horizontal stub from node
+      const trunkX = mx + fanOff; // vertical trunk line
       points = [
         new THREE.Vector3(src.x, src.y, src.z),
-        new THREE.Vector3(midX, src.y, src.z),
-        new THREE.Vector3(midX, src.y, tgt.z),
+        new THREE.Vector3(trunkX, src.y, src.z),
+        new THREE.Vector3(trunkX, src.y, tgt.z),
         new THREE.Vector3(tgt.x, tgt.y, tgt.z)
       ];
     } else {
-      // Cross-layer: go horizontal to a cable shaft, then vertical, then horizontal to target
-      const shaftX = fanOff;
-      const shaftZ = fanOff;
+      // Cross-layer: proper cable shaft routing
+      // Route: horizontal stub → to shaft → vertical drop → horizontal to target
+      const shaftRadius = 2 + Math.abs(fanOff);
+      const shaftX = fanOff * 1.5;
+      const shaftZ = fanOff * 1.5;
       points = [
         new THREE.Vector3(src.x, src.y, src.z),
-        new THREE.Vector3(shaftX, src.y, src.z),
-        new THREE.Vector3(shaftX, src.y, shaftZ),
-        new THREE.Vector3(shaftX, tgt.y, shaftZ),
-        new THREE.Vector3(shaftX, tgt.y, tgt.z),
-        new THREE.Vector3(tgt.x, tgt.y, tgt.z)
+        new THREE.Vector3(src.x, src.y, shaftZ),      // horizontal to shaft Z
+        new THREE.Vector3(shaftX, src.y, shaftZ),      // horizontal to shaft X
+        new THREE.Vector3(shaftX, tgt.y, shaftZ),      // vertical drop
+        new THREE.Vector3(shaftX, tgt.y, tgt.z),       // horizontal from shaft
+        new THREE.Vector3(tgt.x, tgt.y, tgt.z)         // final approach
       ];
     }
 
-    // Polyline path for sharp 90° cable routing (small tension for slight rounding at bends)
-    const tubePath = new THREE.CatmullRomCurve3(points, false, 'catmullrom', 0.05);
-    const tubeGeo = new THREE.TubeGeometry(tubePath, points.length * 8, 0.1, 4, false);
+    // Sharp 90° bends with minimal rounding (like real cable bends)
+    const tubePath = new THREE.CatmullRomCurve3(points, false, 'catmullrom', 0.02);
+    const tubeGeo = new THREE.TubeGeometry(tubePath, points.length * 12, 0.08, 4, false);
     const tubeMat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.22 });
     const tube = new THREE.Mesh(tubeGeo, tubeMat);
     scene.add(tube);
