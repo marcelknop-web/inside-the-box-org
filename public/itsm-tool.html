@@ -2546,13 +2546,33 @@ function buildGraph() {
     nodeMap[key] = n;
   });
 
+  // Helper: find service node by name (matches subservice label OR parent service name)
+  function find2dSvc(serviceName) {
+    const lower = serviceName.toLowerCase();
+    // Exact subservice label match
+    for (const [k, v] of Object.entries(nodeMap)) {
+      if (k.startsWith('svc:') && v.label.toLowerCase() === lower) return k;
+    }
+    // Parent service name match (data.service field from original DB entry)
+    for (const [k, v] of Object.entries(nodeMap)) {
+      if (k.startsWith('svc:') && v.data?.service && v.data.service.toLowerCase() === lower) return k;
+    }
+    // Partial match
+    for (const [k, v] of Object.entries(nodeMap)) {
+      if (!k.startsWith('svc:')) continue;
+      const parentL = (v.data?.service || '').toLowerCase();
+      if (parentL.includes(lower) || lower.includes(parentL)) return k;
+    }
+    return null;
+  }
+
   // Service Dependencies
   if (filter === 'all' || filter === 'serviceDeps') {
     DB.serviceDeps.forEach(d => {
-      const src = 'svc:' + d.upstream;
-      const tgt = 'svc:' + d.downstream;
-      if (!nodeMap[src]) { const n = { id: src, label: d.upstream, type: 'service', criticality: 'Medium', data: {} }; nodes.push(n); nodeMap[src] = n; }
-      if (!nodeMap[tgt]) { const n = { id: tgt, label: d.downstream, type: 'service', criticality: 'Medium', data: {} }; nodes.push(n); nodeMap[tgt] = n; }
+      let src = find2dSvc(d.upstream);
+      if (!src) { src = 'svc:' + d.upstream; if (!nodeMap[src]) { const n = { id: src, label: d.upstream, type: 'service', criticality: 'Medium', data: {} }; nodes.push(n); nodeMap[src] = n; } }
+      let tgt = find2dSvc(d.downstream);
+      if (!tgt) { tgt = 'svc:' + d.downstream; if (!nodeMap[tgt]) { const n = { id: tgt, label: d.downstream, type: 'service', criticality: 'Medium', data: {} }; nodes.push(n); nodeMap[tgt] = n; } }
       links.push({ source: src, target: tgt, type: 'dep', depType: d.depType, label: d.depType });
     });
   }
@@ -2561,13 +2581,9 @@ function buildGraph() {
   if (filter === 'all' || filter === 'bpServiceMap') {
     DB.bpServiceMap.forEach(m => {
       const src = 'bp:' + m.bpId;
-      // Find service node by name
-      let tgt = null;
-      for (const [k, v] of Object.entries(nodeMap)) {
-        if (k.startsWith('svc:') && v.label.toLowerCase() === m.service.toLowerCase()) { tgt = k; break; }
-      }
-      if (!tgt) { tgt = 'svc:' + m.service; if (!nodeMap[tgt]) { const n = { id: tgt, label: m.service, type: 'service', criticality: 'Medium', data: {} }; nodes.push(n); nodeMap[tgt] = n; } }
       if (!nodeMap[src]) return;
+      let tgt = find2dSvc(m.service);
+      if (!tgt) { tgt = 'svc:' + m.service; if (!nodeMap[tgt]) { const n = { id: tgt, label: m.service, type: 'service', criticality: 'Medium', data: {} }; nodes.push(n); nodeMap[tgt] = n; } }
       links.push({ source: src, target: tgt, type: 'bpmap', depType: m.depType, label: m.depType });
     });
   }
@@ -2576,10 +2592,7 @@ function buildGraph() {
   if (filter === 'all' || filter === 'permissions') {
     DB.permissions.forEach(p => {
       const src = 'grp:' + p.groupName;
-      let tgt = null;
-      for (const [k, v] of Object.entries(nodeMap)) {
-        if (k.startsWith('svc:') && v.label.toLowerCase() === p.service.toLowerCase()) { tgt = k; break; }
-      }
+      let tgt = find2dSvc(p.service);
       if (!tgt) { tgt = 'svc:' + p.service; if (!nodeMap[tgt]) { const n = { id: tgt, label: p.service, type: 'service', criticality: 'Medium', data: {} }; nodes.push(n); nodeMap[tgt] = n; } }
       if (!nodeMap[src]) { const n = { id: src, label: p.groupName, type: 'group', data: {} }; nodes.push(n); nodeMap[src] = n; }
       links.push({ source: src, target: tgt, type: 'perm', level: p.level, label: p.level });
@@ -3107,6 +3120,34 @@ function init3DScene(THREE, OrbitControls, container) {
     });
   });
 
+  // ── Build service lookup: map parent service name → first node ID ──
+  const svcByParent = {};
+  const svcBySubservice = {};
+  nodeObjects.forEach(n => {
+    if (n.type !== 'svc') return;
+    const sub = n.label.toLowerCase();
+    svcBySubservice[sub] = n.id;
+    // Also map by parent service name (n.data.service)
+    const parent = (n.data.service || '').toLowerCase();
+    if (parent && !svcByParent[parent]) svcByParent[parent] = n.id;
+  });
+
+  function findSvcNode(serviceName) {
+    const lower = serviceName.toLowerCase();
+    // Try exact subservice match first
+    if (svcBySubservice[lower]) return svcBySubservice[lower];
+    // Then parent service name match
+    if (svcByParent[lower]) return svcByParent[lower];
+    // Partial match: find first node whose parent or subservice contains the search
+    for (const n of nodeObjects) {
+      if (n.type !== 'svc') continue;
+      const parentL = (n.data.service || '').toLowerCase();
+      const subL = n.label.toLowerCase();
+      if (parentL.includes(lower) || lower.includes(parentL) || subL.includes(lower)) return n.id;
+    }
+    return null;
+  }
+
   // ── Connections: clean vertical curves between floors ──
   function addEdge(srcId, tgtId, color, lineType) {
     const src = posMap[srcId];
@@ -3141,26 +3182,22 @@ function init3DScene(THREE, OrbitControls, container) {
   }
 
   if (filter === 'all' || filter === 'svc-dep') {
-    DB.serviceDeps.forEach(d => addEdge('svc:' + d.upstream, 'svc:' + d.downstream, 0xf5b800, d.depType));
+    DB.serviceDeps.forEach(d => {
+      const src = findSvcNode(d.upstream) || 'svc:' + d.upstream;
+      const tgt = findSvcNode(d.downstream) || 'svc:' + d.downstream;
+      addEdge(src, tgt, 0xf5b800, d.depType);
+    });
   }
   if (filter === 'all' || filter === 'bp-svc') {
     DB.bpServiceMap.forEach(m => {
-      let tgtId = null;
-      for (const key of Object.keys(posMap)) {
-        if (key.startsWith('svc:') && posMap[key].obj && posMap[key].obj.label.toLowerCase() === m.service.toLowerCase()) { tgtId = key; break; }
-      }
-      if (!tgtId) tgtId = 'svc:' + m.service;
-      addEdge('bp:' + m.bpId, tgtId, 0xE040FB, m.depType);
+      const tgtId = findSvcNode(m.service);
+      if (tgtId) addEdge('bp:' + m.bpId, tgtId, 0xE040FB, m.depType);
     });
   }
   if (filter === 'all' || filter === 'svc-perm') {
     DB.permissions.forEach(p => {
-      let tgtId = null;
-      for (const key of Object.keys(posMap)) {
-        if (key.startsWith('svc:') && posMap[key].obj && posMap[key].obj.label.toLowerCase() === p.service.toLowerCase()) { tgtId = key; break; }
-      }
-      if (!tgtId) tgtId = 'svc:' + p.service;
-      addEdge('grp:' + p.groupName, tgtId, 0x00E5FF, p.level);
+      const tgtId = findSvcNode(p.service);
+      if (tgtId) addEdge('grp:' + p.groupName, tgtId, 0x00E5FF, p.level);
     });
   }
 
