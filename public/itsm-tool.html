@@ -2,6 +2,7 @@
 <html lang="de">
 <head>
 <script src="https://d3js.org/d3.v7.min.js"></script>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ARLANXEO ITSM – Service Catalog Manager</title>
@@ -277,7 +278,11 @@ tr:hover td{background:#1a2535}
     <div class="sidebar-section" style="margin-top:14px">Visualisierung</div>
     <div class="nav-item" onclick="showView('depgraph')" id="nav-depgraph" style="background:linear-gradient(90deg,rgba(0,188,212,.06),#0e1218);border-left:3px solid #00bcd4">
       <div class="nav-dot" style="background:#00BCD4"></div> <span style="color:#80DEEA">Dependency Map</span>
-      <span style="font-size:.65rem;padding:2px 5px;background:#006064;color:#80DEEA;border-radius:8px;margin-left:auto">LIVE</span>
+      <span style="font-size:.65rem;padding:2px 5px;background:#006064;color:#80DEEA;border-radius:8px;margin-left:auto">2D</span>
+    </div>
+    <div class="nav-item" onclick="showView('depgraph3d')" id="nav-depgraph3d" style="background:linear-gradient(90deg,rgba(245,184,0,.06),#0e1218);border-left:3px solid #f5b800">
+      <div class="nav-dot" style="background:#f5b800"></div> <span style="color:#f5b800">3D Layer Map</span>
+      <span style="font-size:.65rem;padding:2px 5px;background:#5D4037;color:#FFD54F;border-radius:8px;margin-left:auto">3D</span>
     </div>
     <div class="sidebar-section" style="margin-top:14px">KI-Assistent</div>
     <div class="nav-item" onclick="showView('agent')" id="nav-agent" style="background:linear-gradient(90deg,rgba(168,85,247,.06),#0e1218);border-left:3px solid #c084fc">
@@ -416,7 +421,8 @@ function showView(name){
     deps:      renderDeps,
     settings:  renderSettings,
     agent:     renderAgent,
-    depgraph:  renderDepGraph
+    depgraph:  renderDepGraph,
+    depgraph3d: renderDepGraph3D
   };
   document.getElementById('main-content').innerHTML = '';
   if(views[name]) views[name]();
@@ -2747,8 +2753,495 @@ function resetGraphView() {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// INIT
+// 3D LAYERED DEPENDENCY MAP (Three.js)
 // ═══════════════════════════════════════════════════════════════
+let _3dCleanup = null;
+
+function renderDepGraph3D(){
+  // Clean up previous instance
+  if (_3dCleanup) { _3dCleanup(); _3dCleanup = null; }
+
+  document.getElementById('main-content').innerHTML = `
+    <div class="view-header" style="flex-shrink:0">
+      <div>
+        <div class="view-title" style="color:#f5b800">🧊 3D Layer Dependency Map</div>
+        <div class="view-subtitle">Business Processes · IT Services · User Groups &amp; Permissions — Drag to rotate · Scroll to zoom · Click nodes for details</div>
+      </div>
+      <div class="view-actions">
+        <select id="graph3d-filter" class="btn btn-ghost btn-sm" style="background:#080b10;color:#f5b800;border:1px solid #1e2a3a" onchange="rebuild3DGraph()">
+          <option value="all">All Layers</option>
+          <option value="bp-svc">BP → Services only</option>
+          <option value="svc-perm">Services → Permissions only</option>
+        </select>
+        <button class="btn btn-ghost btn-sm" onclick="reset3DView()">⟳ Reset Camera</button>
+      </div>
+    </div>
+    <div id="three-container" style="flex:1;position:relative;overflow:hidden;border-radius:8px;background:#040810;border:1px solid #1e2a3a">
+      <canvas id="three-canvas" style="width:100%;height:100%;display:block"></canvas>
+      <div id="three-detail" style="display:none;position:absolute;top:16px;right:16px;width:320px;max-height:calc(100% - 32px);overflow-y:auto;background:#080b10EE;border:1px solid #1e2a3a;border-radius:10px;padding:16px;backdrop-filter:blur(8px);z-index:10"></div>
+      <div id="three-tooltip" style="display:none;position:absolute;background:#0e1218EE;border:1px solid #f5b800;border-radius:6px;padding:8px 12px;font-size:.78rem;color:#f0f4fc;pointer-events:none;z-index:20;backdrop-filter:blur(4px)"></div>
+      <div style="position:absolute;bottom:16px;left:16px;background:#080b10CC;border:1px solid #1e2a3a;border-radius:8px;padding:10px 14px;font-size:.72rem;display:flex;gap:14px;flex-wrap:wrap;backdrop-filter:blur(4px)">
+        <span style="color:#C2185B">▲ Business Processes</span>
+        <span style="color:#00bcd4">◆ IT Services</span>
+        <span style="color:#eab308">● User Groups</span>
+        <span style="color:#f5b800;opacity:.5">── Dependency</span>
+        <span style="color:#f87171;opacity:.5">── BP Mapping</span>
+        <span style="color:#CE93D8;opacity:.5">── Permission</span>
+      </div>
+      <div id="three-layer-labels" style="position:absolute;left:16px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:40px">
+        <div style="color:#C2185B;font-size:.7rem;font-family:'IBM Plex Mono',monospace;letter-spacing:1px;text-transform:uppercase;writing-mode:vertical-lr;transform:rotate(180deg)">Business Processes</div>
+        <div style="color:#00bcd4;font-size:.7rem;font-family:'IBM Plex Mono',monospace;letter-spacing:1px;text-transform:uppercase;writing-mode:vertical-lr;transform:rotate(180deg)">IT Services</div>
+        <div style="color:#eab308;font-size:.7rem;font-family:'IBM Plex Mono',monospace;letter-spacing:1px;text-transform:uppercase;writing-mode:vertical-lr;transform:rotate(180deg)">Groups / Permissions</div>
+      </div>
+    </div>`;
+
+  const container = document.getElementById('three-container');
+  container.style.height = (window.innerHeight - 140) + 'px';
+
+  // Dynamically import Three.js modules
+  Promise.all([
+    import('three'),
+    import('three/addons/controls/OrbitControls.js')
+  ]).then(([THREE, { OrbitControls }]) => {
+    init3DScene(THREE, OrbitControls, container);
+  }).catch(err => {
+    container.innerHTML = '<div style="color:#f87171;padding:40px;text-align:center">Three.js konnte nicht geladen werden: ' + err.message + '</div>';
+  });
+}
+
+function init3DScene(THREE, OrbitControls, container) {
+  const canvas = document.getElementById('three-canvas');
+  if (!canvas) return;
+  const width = container.clientWidth;
+  const height = container.clientHeight;
+
+  // Renderer
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer.setSize(width, height);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setClearColor(0x040810, 1);
+
+  // Scene
+  const scene = new THREE.Scene();
+  scene.fog = new THREE.FogExp2(0x040810, 0.003);
+
+  // Camera
+  const camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 2000);
+  camera.position.set(80, 60, 120);
+  camera.lookAt(0, 0, 0);
+
+  // Controls
+  const controls = new OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.08;
+  controls.minDistance = 30;
+  controls.maxDistance = 400;
+  controls.maxPolarAngle = Math.PI * 0.85;
+
+  // Lighting
+  const ambientLight = new THREE.AmbientLight(0x334455, 0.6);
+  scene.add(ambientLight);
+  const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+  dirLight.position.set(50, 80, 60);
+  scene.add(dirLight);
+  const pointLight = new THREE.PointLight(0xf5b800, 0.4, 300);
+  pointLight.position.set(0, 40, 0);
+  scene.add(pointLight);
+
+  // Grid planes for layers
+  const LAYER_Y = { bp: 30, svc: 0, grp: -30 };
+  const LAYER_COLORS = { bp: 0xC2185B, svc: 0x00bcd4, grp: 0xeab308 };
+  const LAYER_SPREAD = 50;
+
+  // Semi-transparent layer planes
+  [LAYER_Y.bp, LAYER_Y.svc, LAYER_Y.grp].forEach((y, i) => {
+    const planeGeo = new THREE.PlaneGeometry(140, 140);
+    const planeMat = new THREE.MeshBasicMaterial({
+      color: [0xC2185B, 0x00bcd4, 0xeab308][i],
+      transparent: true, opacity: 0.03, side: THREE.DoubleSide
+    });
+    const plane = new THREE.Mesh(planeGeo, planeMat);
+    plane.rotation.x = -Math.PI / 2;
+    plane.position.y = y;
+    scene.add(plane);
+
+    // Grid lines on each layer
+    const gridHelper = new THREE.GridHelper(140, 14, [0xC2185B, 0x00bcd4, 0xeab308][i], [0xC2185B, 0x00bcd4, 0xeab308][i]);
+    gridHelper.position.y = y;
+    gridHelper.material.opacity = 0.06;
+    gridHelper.material.transparent = true;
+    scene.add(gridHelper);
+  });
+
+  // Build data
+  const filter = document.getElementById('graph3d-filter')?.value || 'all';
+  const nodeObjects = []; // { mesh, data, type, layer }
+  const edgeLines = [];
+  const raycaster = new THREE.Raycaster();
+  const mouse = new THREE.Vector2();
+  let hoveredNode = null;
+
+  // Layout: circular placement per layer
+  function circularLayout(items, y, radius) {
+    return items.map((item, i) => {
+      const angle = (i / items.length) * Math.PI * 2;
+      const r = radius * (0.5 + 0.5 * (items.length > 1 ? 1 : 0));
+      return { ...item, x: Math.cos(angle) * r, y, z: Math.sin(angle) * r };
+    });
+  }
+
+  // Create node meshes
+  function createNodeMesh(THREE, pos, type, data) {
+    let geo, mat, scale = 1;
+    const color = LAYER_COLORS[type];
+
+    if (type === 'bp') {
+      // Octahedron for BPs
+      geo = new THREE.OctahedronGeometry(1.8, 0);
+      scale = data.criticality === 'High' ? 1.4 : data.criticality === 'Low' ? 0.8 : 1;
+    } else if (type === 'svc') {
+      // Box for Services
+      geo = new THREE.BoxGeometry(2.5, 2.5, 2.5);
+      scale = data.criticality === 'High' ? 1.3 : data.criticality === 'Low' ? 0.7 : 1;
+    } else {
+      // Sphere for Groups
+      geo = new THREE.SphereGeometry(1.5, 12, 8);
+      scale = data.count ? Math.min(1.5, 0.6 + data.count / 30) : 1;
+    }
+
+    // Wireframe + solid
+    mat = new THREE.MeshPhongMaterial({
+      color, emissive: color, emissiveIntensity: 0.15,
+      transparent: true, opacity: 0.85
+    });
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.position.set(pos.x, pos.y, pos.z);
+    mesh.scale.setScalar(scale);
+
+    // Wireframe overlay
+    const wireMat = new THREE.MeshBasicMaterial({ color, wireframe: true, transparent: true, opacity: 0.3 });
+    const wire = new THREE.Mesh(geo, wireMat);
+    wire.scale.setScalar(scale * 1.15);
+    mesh.add(wire);
+
+    // Glow ring for High criticality
+    if (data.criticality === 'High') {
+      const ringGeo = new THREE.RingGeometry(3, 3.5, 32);
+      const ringMat = new THREE.MeshBasicMaterial({ color: 0xef4444, transparent: true, opacity: 0.4, side: THREE.DoubleSide });
+      const ring = new THREE.Mesh(ringGeo, ringMat);
+      ring.rotation.x = -Math.PI / 2;
+      mesh.add(ring);
+    }
+
+    scene.add(mesh);
+    return mesh;
+  }
+
+  // Build nodes
+  const bpNodes = DB.businessProcesses.map(bp => ({ id: 'bp:' + bp.id, label: bp.name || bp.id, data: bp, type: 'bp' }));
+  const svcSet = new Set();
+  const svcNodes = [];
+  DB.services.forEach(s => {
+    if (svcSet.has(s.subservice)) return;
+    svcSet.add(s.subservice);
+    svcNodes.push({ id: 'svc:' + s.subservice, label: s.subservice, data: s, type: 'svc' });
+  });
+  const grpSet = new Set();
+  const grpNodes = [];
+  DB.userGroups.forEach(g => {
+    if (grpSet.has(g.name)) return;
+    grpSet.add(g.name);
+    grpNodes.push({ id: 'grp:' + g.name, label: g.name, data: g, type: 'grp' });
+  });
+
+  const bpPositioned = circularLayout(bpNodes, LAYER_Y.bp, Math.max(20, bpNodes.length * 3.5));
+  const svcPositioned = circularLayout(svcNodes, LAYER_Y.svc, Math.max(25, svcNodes.length * 3));
+  const grpPositioned = circularLayout(grpNodes, LAYER_Y.grp, Math.max(20, grpNodes.length * 3.5));
+
+  const allPositioned = [...bpPositioned, ...svcPositioned, ...grpPositioned];
+  const posMap = {};
+  allPositioned.forEach(n => {
+    const mesh = createNodeMesh(THREE, n, n.type, n.data);
+    const obj = { mesh, data: n.data, type: n.type, id: n.id, label: n.label };
+    nodeObjects.push(obj);
+    posMap[n.id] = { x: n.x, y: n.y, z: n.z, obj };
+  });
+
+  // Build edges
+  function addEdge(THREE, srcId, tgtId, color, dashed) {
+    const src = posMap[srcId];
+    const tgt = posMap[tgtId];
+    if (!src || !tgt) return;
+
+    const points = [];
+    // Curved line through midpoint
+    const mx = (src.x + tgt.x) / 2;
+    const my = (src.y + tgt.y) / 2;
+    const mz = (src.z + tgt.z) / 2;
+    // Add slight curve offset
+    const curve = new THREE.QuadraticBezierCurve3(
+      new THREE.Vector3(src.x, src.y, src.z),
+      new THREE.Vector3(mx + (Math.random() - 0.5) * 6, my, mz + (Math.random() - 0.5) * 6),
+      new THREE.Vector3(tgt.x, tgt.y, tgt.z)
+    );
+    const curvePoints = curve.getPoints(20);
+    const lineGeo = new THREE.BufferGeometry().setFromPoints(curvePoints);
+
+    let mat;
+    if (dashed) {
+      mat = new THREE.LineDashedMaterial({ color, transparent: true, opacity: 0.35, dashSize: 1, gapSize: 0.5 });
+    } else {
+      mat = new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.35 });
+    }
+
+    const line = new THREE.Line(lineGeo, mat);
+    if (dashed) line.computeLineDistances();
+    scene.add(line);
+    edgeLines.push({ line, srcId, tgtId });
+
+    // Small sphere at midpoint for direction indication
+    const midSphGeo = new THREE.SphereGeometry(0.3, 6, 4);
+    const midSphMat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.5 });
+    const midSph = new THREE.Mesh(midSphGeo, midSphMat);
+    midSph.position.set(mx, my, mz);
+    scene.add(midSph);
+  }
+
+  // Service Dependencies (gold, between svc layer)
+  if (filter === 'all' || filter === 'svc-perm') {
+    DB.serviceDeps.forEach(d => {
+      addEdge(THREE, 'svc:' + d.upstream, 'svc:' + d.downstream, 0xf5b800, d.depType === 'Optional');
+    });
+  }
+
+  // BP → Service mappings (red, top to middle)
+  if (filter === 'all' || filter === 'bp-svc') {
+    DB.bpServiceMap.forEach(m => {
+      let tgtId = null;
+      for (const key of Object.keys(posMap)) {
+        if (key.startsWith('svc:') && posMap[key].obj.label.toLowerCase() === m.service.toLowerCase()) {
+          tgtId = key; break;
+        }
+      }
+      if (!tgtId) tgtId = 'svc:' + m.service;
+      addEdge(THREE, 'bp:' + m.bpId, tgtId, 0xf87171, m.depType === 'Optional');
+    });
+  }
+
+  // Permissions (purple, middle to bottom)
+  if (filter === 'all' || filter === 'svc-perm') {
+    DB.permissions.forEach(p => {
+      let tgtId = null;
+      for (const key of Object.keys(posMap)) {
+        if (key.startsWith('svc:') && posMap[key].obj.label.toLowerCase() === p.service.toLowerCase()) {
+          tgtId = key; break;
+        }
+      }
+      if (!tgtId) tgtId = 'svc:' + p.service;
+      addEdge(THREE, 'grp:' + p.groupName, tgtId, 0xCE93D8, false);
+    });
+  }
+
+  // Vertical connection pillars between layers (faint)
+  const pillarGeo = new THREE.CylinderGeometry(0.08, 0.08, 60, 4);
+  const pillarMat = new THREE.MeshBasicMaterial({ color: 0x1e2a3a, transparent: true, opacity: 0.15 });
+  [-50, -25, 0, 25, 50].forEach(x => {
+    [-50, 0, 50].forEach(z => {
+      const pillar = new THREE.Mesh(pillarGeo, pillarMat);
+      pillar.position.set(x, 0, z);
+      scene.add(pillar);
+    });
+  });
+
+  // Interaction
+  const tooltip = document.getElementById('three-tooltip');
+  const detail = document.getElementById('three-detail');
+  let selectedNode = null;
+
+  canvas.addEventListener('mousemove', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+    mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+
+    raycaster.setFromCamera(mouse, camera);
+    const meshes = nodeObjects.map(n => n.mesh);
+    const intersects = raycaster.intersectObjects(meshes, false);
+
+    if (intersects.length > 0) {
+      const hitMesh = intersects[0].object;
+      const node = nodeObjects.find(n => n.mesh === hitMesh);
+      if (node && node !== hoveredNode) {
+        if (hoveredNode) hoveredNode.mesh.material.emissiveIntensity = 0.15;
+        hoveredNode = node;
+        node.mesh.material.emissiveIntensity = 0.6;
+        canvas.style.cursor = 'pointer';
+        // Highlight connected edges
+        edgeLines.forEach(e => {
+          const connected = e.srcId === node.id || e.tgtId === node.id;
+          e.line.material.opacity = connected ? 0.8 : 0.08;
+        });
+        // Dim unconnected nodes
+        const connectedIds = new Set([node.id]);
+        edgeLines.forEach(e => {
+          if (e.srcId === node.id) connectedIds.add(e.tgtId);
+          if (e.tgtId === node.id) connectedIds.add(e.srcId);
+        });
+        nodeObjects.forEach(n => {
+          n.mesh.material.opacity = connectedIds.has(n.id) ? 0.95 : 0.15;
+        });
+      }
+      if (node) {
+        tooltip.style.display = 'block';
+        tooltip.style.left = (e.clientX - rect.left + 14) + 'px';
+        tooltip.style.top = (e.clientY - rect.top - 10) + 'px';
+        const typeLabel = node.type === 'bp' ? '⚡ Business Process' : node.type === 'svc' ? '⚙ IT Service' : '👥 User Group';
+        tooltip.innerHTML = '<div style="font-weight:600;margin-bottom:2px">' + esc(node.label) + '</div><div style="font-size:.68rem;color:#8ba5c5">' + typeLabel + (node.data.criticality ? ' · ' + node.data.criticality : '') + '</div>';
+      }
+    } else {
+      if (hoveredNode) {
+        hoveredNode.mesh.material.emissiveIntensity = 0.15;
+        hoveredNode = null;
+        canvas.style.cursor = 'grab';
+        tooltip.style.display = 'none';
+        edgeLines.forEach(e => { e.line.material.opacity = 0.35; });
+        nodeObjects.forEach(n => { n.mesh.material.opacity = 0.85; });
+      }
+    }
+  });
+
+  canvas.addEventListener('click', (e) => {
+    if (!hoveredNode) {
+      detail.style.display = 'none';
+      selectedNode = null;
+      return;
+    }
+
+    selectedNode = hoveredNode;
+    const n = selectedNode;
+
+    // Camera focus
+    const target = new THREE.Vector3();
+    n.mesh.getWorldPosition(target);
+    controls.target.copy(target);
+
+    // Detail panel
+    detail.style.display = 'block';
+    const typeLabel = n.type === 'bp' ? '⚡ Business Process' : n.type === 'svc' ? '⚙ IT Service' : '👥 User Group';
+    const typeColor = n.type === 'bp' ? '#C2185B' : n.type === 'svc' ? '#00bcd4' : '#eab308';
+
+    let html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">';
+    html += '<div style="font-size:.95rem;font-weight:700;color:' + typeColor + '">' + esc(n.label) + '</div>';
+    html += '<button onclick="document.getElementById(\'three-detail\').style.display=\'none\'" style="background:none;border:none;color:#435570;cursor:pointer;font-size:1.2rem">✕</button></div>';
+    html += '<div style="font-size:.68rem;color:#435570;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">' + typeLabel + '</div>';
+
+    // Properties
+    const props = [];
+    if (n.data.criticality) props.push(['Criticality', n.data.criticality]);
+    if (n.data.group) props.push(['Group', n.data.group]);
+    if (n.data.service) props.push(['IT Service', n.data.service]);
+    if (n.data.svc_type) props.push(['Type', n.data.svc_type]);
+    if (n.data.category) props.push(['Category', n.data.category]);
+    if (n.data.department) props.push(['Department', n.data.department]);
+    if (n.data.count) props.push(['Users', n.data.count]);
+    if (n.data.rto) props.push(['RTO', n.data.rto]);
+    if (n.data.rpo) props.push(['RPO', n.data.rpo]);
+    if (n.data.description) props.push(['Description', n.data.description]);
+
+    if (props.length) {
+      html += '<div style="background:#0D1B2A;border-radius:6px;padding:8px;margin-bottom:10px">';
+      props.forEach(([k, v]) => {
+        const critColor = v === 'High' ? '#EF5350' : v === 'Medium' ? '#f97316' : v === 'Low' ? '#66BB6A' : '#f0f4fc';
+        html += '<div style="display:flex;justify-content:space-between;padding:3px 0;font-size:.78rem"><span style="color:#435570">' + k + '</span><span style="color:' + (k === 'Criticality' ? critColor : '#f0f4fc') + '">' + esc(String(v)) + '</span></div>';
+      });
+      html += '</div>';
+    }
+
+    // Connected items
+    const incoming = [], outgoing = [];
+    edgeLines.forEach(e => {
+      if (e.srcId === n.id) { const t = nodeObjects.find(o => o.id === e.tgtId); if (t) outgoing.push(t); }
+      if (e.tgtId === n.id) { const s = nodeObjects.find(o => o.id === e.srcId); if (s) incoming.push(s); }
+    });
+
+    const renderList = (title, items) => {
+      if (!items.length) return '';
+      let h = '<div style="font-size:.68rem;color:#435570;text-transform:uppercase;letter-spacing:1px;margin:8px 0 4px">' + title + ' (' + items.length + ')</div>';
+      items.forEach(c => {
+        const col = c.type === 'bp' ? '#C2185B' : c.type === 'svc' ? '#00bcd4' : '#eab308';
+        h += '<div style="display:flex;align-items:center;gap:6px;padding:4px 6px;margin:2px 0;background:#0D1B2A;border-radius:4px;font-size:.78rem">';
+        h += '<div style="width:6px;height:6px;border-radius:50%;background:' + col + ';flex-shrink:0"></div>';
+        h += '<span style="color:#f0f4fc">' + esc(c.label) + '</span>';
+        h += '</div>';
+      });
+      return h;
+    };
+
+    html += renderList('→ Outgoing', outgoing);
+    html += renderList('← Incoming', incoming);
+    if (!outgoing.length && !incoming.length) {
+      html += '<div style="color:#435570;font-size:.82rem;text-align:center;padding:12px">No connections</div>';
+    }
+
+    detail.innerHTML = html;
+  });
+
+  // Animate
+  let animId;
+  const clock = new THREE.Clock();
+  function animate() {
+    animId = requestAnimationFrame(animate);
+    const t = clock.getElapsedTime();
+    controls.update();
+
+    // Gentle float animation
+    nodeObjects.forEach((n, i) => {
+      const baseY = n.type === 'bp' ? LAYER_Y.bp : n.type === 'svc' ? LAYER_Y.svc : LAYER_Y.grp;
+      n.mesh.position.y = baseY + Math.sin(t * 0.5 + i * 0.7) * 0.4;
+      n.mesh.rotation.y = t * 0.15 + i;
+    });
+
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  // Resize handler
+  function onResize() {
+    const w = container.clientWidth;
+    const h = container.clientHeight;
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+    renderer.setSize(w, h);
+  }
+  window.addEventListener('resize', onResize);
+
+  // Store camera ref for reset
+  window._3dCamera = camera;
+  window._3dControls = controls;
+
+  // Cleanup
+  _3dCleanup = () => {
+    cancelAnimationFrame(animId);
+    window.removeEventListener('resize', onResize);
+    renderer.dispose();
+    scene.traverse(obj => {
+      if (obj.geometry) obj.geometry.dispose();
+      if (obj.material) { if (Array.isArray(obj.material)) obj.material.forEach(m => m.dispose()); else obj.material.dispose(); }
+    });
+  };
+}
+
+function rebuild3DGraph() {
+  renderDepGraph3D();
+}
+
+function reset3DView() {
+  if (window._3dCamera && window._3dControls) {
+    window._3dCamera.position.set(80, 60, 120);
+    window._3dControls.target.set(0, 0, 0);
+    window._3dControls.update();
+    document.getElementById('three-detail').style.display = 'none';
+  }
+}
 updateCounts();
 showView('dashboard');
 </script>
