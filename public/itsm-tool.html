@@ -933,13 +933,20 @@ function renderServices(){
 
   // Type donut
   const tm={};DB.services.forEach(s=>{tm[s.svc_type]=(tm[s.svc_type]||0)+1;});
-  d3Donut('svc-type-chart',Object.entries(tm).map(([k,v])=>({label:k,value:v})).sort((a,b)=>b.value-a.value),{size:130,centerLabel:'types'});
+  d3Donut('svc-type-chart',Object.entries(tm).map(([k,v])=>({label:k,value:v})).sort((a,b)=>b.value-a.value),{size:130,centerLabel:'types',
+    onDrill:(label)=>{
+      const rows=DB.services.filter(s=>s.svc_type===label).map(s=>[s.group,s.service,s.subservice,s.criticality]);
+      openDrilldown('Typ: '+label,'Services vom Typ '+label,rows,['Group','Service','Subservice','Criticality']);
+    }});
 
-  // Criticality stacked per group
   const gn=[...new Set(DB.services.map(s=>s.group))].sort();
   const hv={},mv={},lv={};
   gn.forEach(g=>{hv[g]=DB.services.filter(s=>s.group===g&&s.criticality==='High').length;mv[g]=DB.services.filter(s=>s.group===g&&s.criticality==='Medium').length;lv[g]=DB.services.filter(s=>s.group===g&&s.criticality==='Low').length;});
-  d3StackedBar('svc-grp-chart',gn,[{label:'High',values:hv},{label:'Medium',values:mv},{label:'Low',values:lv}]);
+  d3StackedBar('svc-grp-chart',gn,[{label:'High',values:hv},{label:'Medium',values:mv},{label:'Low',values:lv}],
+    {onDrill:(group,crit)=>{
+      const rows=DB.services.filter(s=>s.group===group&&s.criticality===crit).map(s=>[s.service,s.subservice,s.svc_type]);
+      openDrilldown(group+' · '+crit,'',rows,['Service','Subservice','Typ']);
+    }});
 
   filterServices();
 }
