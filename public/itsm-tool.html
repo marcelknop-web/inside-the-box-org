@@ -3145,7 +3145,7 @@ function init3DScene(THREE, OrbitControls, container) {
         if (key.startsWith('svc:') && posMap[key].obj && posMap[key].obj.label.toLowerCase() === m.service.toLowerCase()) { tgtId = key; break; }
       }
       if (!tgtId) tgtId = 'svc:' + m.service;
-      addEdge('bp:' + m.bpId, tgtId, 0xf87171, m.depType);
+      addEdge('bp:' + m.bpId, tgtId, 0xE040FB, m.depType);
     });
   }
   if (filter === 'all' || filter === 'svc-perm') {
@@ -3155,7 +3155,7 @@ function init3DScene(THREE, OrbitControls, container) {
         if (key.startsWith('svc:') && posMap[key].obj && posMap[key].obj.label.toLowerCase() === p.service.toLowerCase()) { tgtId = key; break; }
       }
       if (!tgtId) tgtId = 'svc:' + p.service;
-      addEdge('grp:' + p.groupName, tgtId, 0xCE93D8, p.level);
+      addEdge('grp:' + p.groupName, tgtId, 0x00E5FF, p.level);
     });
   }
 
@@ -3627,7 +3627,7 @@ function init3DScene(THREE, OrbitControls, container) {
         }
       }
       if (!tgtId) tgtId = 'svc:' + m.service;
-      addEdge(THREE, 'bp:' + m.bpId, tgtId, 0xf87171, m.depType === 'Optional');
+      addEdge(THREE, 'bp:' + m.bpId, tgtId, 0xE040FB, m.depType === 'Optional');
     });
   }
 
@@ -3641,7 +3641,7 @@ function init3DScene(THREE, OrbitControls, container) {
         }
       }
       if (!tgtId) tgtId = 'svc:' + p.service;
-      addEdge(THREE, 'grp:' + p.groupName, tgtId, 0xCE93D8, false);
+      addEdge(THREE, 'grp:' + p.groupName, tgtId, 0x00E5FF, false);
     });
   }
 
