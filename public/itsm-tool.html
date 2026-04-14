@@ -2906,8 +2906,14 @@ function renderDepGraph3D(){
       <div id="three-tooltip" style="display:none;position:absolute;background:#0e1218EE;border:1px solid #f5b800;border-radius:6px;padding:10px 14px;font-size:.78rem;color:#f0f4fc;pointer-events:none;z-index:20;backdrop-filter:blur(4px);max-width:280px"></div>
       <div id="three-legend" style="position:absolute;bottom:12px;left:12px;background:#080b10DD;border:1px solid #1e2a3a;border-radius:8px;padding:12px 16px;font-size:.7rem;backdrop-filter:blur(4px);display:flex;gap:16px;flex-wrap:wrap">
         <div style="display:flex;flex-direction:column;gap:4px">
-          <div style="color:#8ba5c5;font-weight:700;font-size:.6rem;text-transform:uppercase;letter-spacing:.5px">Ebenen</div>
-          <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:8px;background:#C2185B;border-radius:2px;display:inline-block"></span><span style="color:#f0f4fc">Business Processes (oben)</span></span>
+          <div style="color:#8ba5c5;font-weight:700;font-size:.6rem;text-transform:uppercase;letter-spacing:.5px">Prozess-Typen (oben)</div>
+          <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#66BB6A;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);display:inline-block"></span><span style="color:#f0f4fc">📊 Business Process</span></span>
+          <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#42A5F5;display:inline-block"></span><span style="color:#f0f4fc">🖥 IT Process</span></span>
+          <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#FF7043;clip-path:polygon(50% 0,100% 100%,0 100%);display:inline-block"></span><span style="color:#f0f4fc">🛡 Security / Compliance</span></span>
+        </div>
+        <div style="width:1px;background:#1e2a3a"></div>
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <div style="color:#8ba5c5;font-weight:700;font-size:.6rem;text-transform:uppercase;letter-spacing:.5px">Weitere Ebenen</div>
           <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:8px;background:#00bcd4;border-radius:2px;display:inline-block"></span><span style="color:#f0f4fc">IT Services (mitte)</span></span>
           <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:8px;background:#eab308;border-radius:2px;display:inline-block"></span><span style="color:#f0f4fc">User Groups (unten)</span></span>
         </div>
@@ -3058,29 +3064,54 @@ function init3DScene(THREE, OrbitControls, container) {
     });
   });
 
-  // Business Processes
+  // Business Processes — categorized into IT / Security / Business
+  const BP_META = {
+    'IT Operations': { meta: 'it', color: 0x42A5F5, icon: '🖥', label: 'IT Process' },
+    'EHS':           { meta: 'security', color: 0xFF7043, icon: '🛡', label: 'Security / Compliance' },
+    'Trade Compliance': { meta: 'security', color: 0xFF7043, icon: '🛡', label: 'Security / Compliance' },
+  };
+  const BP_META_DEFAULT = { meta: 'business', color: 0x66BB6A, icon: '📊', label: 'Business Process' };
+  function bpMeta(cat) { return BP_META[cat] || BP_META_DEFAULT; }
+
   const bpNodes = DB.businessProcesses;
-  const bpAngleStep = (Math.PI * 2) / Math.max(bpNodes.length, 1);
-  const bpRadius = Math.min(60, 20 + bpNodes.length * 3);
-  bpNodes.forEach((bp, i) => {
-    const angle = i * bpAngleStep;
-    const x = Math.cos(angle) * bpRadius;
-    const z = Math.sin(angle) * bpRadius;
-    const y = LAYER_Y.bp;
-    const scale = CRIT_SCALE[bp.criticality] || 1;
-    const critColor = CRIT_COLORS[bp.criticality] || 0xC2185B;
+  // Group BPs by meta-category for clustered sub-layout
+  const bpByCat = { business: [], it: [], security: [] };
+  bpNodes.forEach(bp => { const m = bpMeta(bp.category); (bpByCat[m.meta] = bpByCat[m.meta] || []).push(bp); });
+  const bpCatOrder = ['business','it','security'];
+  const bpCatAngles = { business: 0, it: (Math.PI*2/3), security: (Math.PI*4/3) };
+  const bpRadius = Math.min(65, 22 + bpNodes.length * 3);
 
-    const geo = new THREE.OctahedronGeometry(2, 0);
-    const mat = new THREE.MeshPhongMaterial({ color: 0xC2185B, emissive: critColor, emissiveIntensity: 0.2, transparent: true, opacity: 0.9 });
-    const mesh = new THREE.Mesh(geo, mat);
-    mesh.position.set(x, y, z);
-    mesh.scale.setScalar(scale);
-    scene.add(mesh);
-    mesh.add(new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: critColor, wireframe: true, transparent: true, opacity: 0.4 })));
+  bpCatOrder.forEach(metaKey => {
+    const items = bpByCat[metaKey] || [];
+    if (!items.length) return;
+    const baseAngle = bpCatAngles[metaKey];
+    const spread = Math.PI * 0.55; // each sector
+    items.forEach((bp, i) => {
+      const angle = baseAngle - spread/2 + (items.length > 1 ? (i/(items.length-1)) * spread : 0);
+      const x = Math.cos(angle) * bpRadius;
+      const z = Math.sin(angle) * bpRadius;
+      const y = LAYER_Y.bp;
+      const scale = CRIT_SCALE[bp.criticality] || 1;
+      const critColor = CRIT_COLORS[bp.criticality] || 0xC2185B;
+      const m = bpMeta(bp.category);
 
-    const id = 'bp:' + bp.id;
-    nodeObjects.push({ mesh, data: bp, type: 'bp', id, label: bp.name || bp.id });
-    posMap[id] = { x, y, z };
+      // Different geometry per meta-category
+      let geo;
+      if (m.meta === 'it') geo = new THREE.BoxGeometry(2.2, 2.2, 2.2);
+      else if (m.meta === 'security') geo = new THREE.TetrahedronGeometry(2.4, 0);
+      else geo = new THREE.OctahedronGeometry(2, 0);
+
+      const mat = new THREE.MeshPhongMaterial({ color: m.color, emissive: critColor, emissiveIntensity: 0.25, transparent: true, opacity: 0.92 });
+      const mesh = new THREE.Mesh(geo, mat);
+      mesh.position.set(x, y, z);
+      mesh.scale.setScalar(scale);
+      scene.add(mesh);
+      mesh.add(new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: m.color, wireframe: true, transparent: true, opacity: 0.35 })));
+
+      const id = 'bp:' + bp.id;
+      nodeObjects.push({ mesh, data: bp, type: 'bp', id, label: bp.name || bp.id, bpMeta: m.meta });
+      posMap[id] = { x, y, z };
+    });
   });
 
   // User Groups
