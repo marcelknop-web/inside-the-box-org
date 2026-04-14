@@ -2744,13 +2744,25 @@ function renderGraph(nodes, links) {
     .force('collision', d3.forceCollide().radius(30));
   _graphSim = sim;
 
-  // Links — curved paths with bundling offset for parallel edges
+  // Links — deduplicate same-color arrows between same node pair (keep only one per type)
   const linkColors = { dep: '#f5b800', bpmap: '#E040FB', perm: '#00E5FF' };
+  const seenLinks = new Set();
+  const dedupedLinks = [];
+  links.forEach(l => {
+    const a = typeof l.source === 'object' ? l.source.id : l.source;
+    const b = typeof l.target === 'object' ? l.target.id : l.target;
+    const dedup = [a, b].sort().join('||') + '::' + l.type;
+    if (seenLinks.has(dedup)) return;
+    seenLinks.add(dedup);
+    dedupedLinks.push(l);
+  });
+  // Replace links array for rendering (keep original for data lookups)
+  const renderLinks = dedupedLinks;
 
-  // Compute bundling offsets: when multiple links share the same pair of nodes, fan them out
+  // Compute bundling offsets for remaining parallel edges (different types between same pair)
   const pairCount = {};
   const pairIdx = {};
-  links.forEach((l, i) => {
+  renderLinks.forEach((l, i) => {
     const a = typeof l.source === 'object' ? l.source.id : l.source;
     const b = typeof l.target === 'object' ? l.target.id : l.target;
     const key = [a, b].sort().join('||');
@@ -2765,7 +2777,7 @@ function renderGraph(nodes, links) {
   // Assign a unique channel index per link for parallel-cable spacing
   const channelMap = {};
   const channelCounters = {};
-  links.forEach((l, i) => {
+  renderLinks.forEach((l, i) => {
     const a = typeof l.source === 'object' ? l.source.id : l.source;
     const b = typeof l.target === 'object' ? l.target.id : l.target;
     const key = [a, b].sort().join('||');
@@ -2773,7 +2785,7 @@ function renderGraph(nodes, links) {
     channelMap[i] = { key, ch: channelCounters[key]++, total: 0 };
   });
   // Fill total counts
-  links.forEach((l, i) => {
+  renderLinks.forEach((l, i) => {
     channelMap[i].total = channelCounters[channelMap[i].key];
   });
 
@@ -2784,52 +2796,40 @@ function renderGraph(nodes, links) {
     const ty = typeof d.target === 'object' ? d.target.y : 0;
     
     const cm = channelMap[i];
-    const cableGap = 4; // px between parallel cables
+    const cableGap = 4;
     const chOff = (cm.ch - (cm.total - 1) / 2) * cableGap;
-    const bandOff = (trayBands[d.type] || 0) * 12; // type-based band separation
+    const bandOff = (trayBands[d.type] || 0) * 12;
     
     const dx = tx - sx, dy = ty - sy;
     const absDx = Math.abs(dx), absDy = Math.abs(dy);
     
-    // Strategy: source → horizontal stub → vertical trunk → horizontal stub → target
-    // Like proper cable management: exit node horizontally, route through a vertical trunk
-    const stubLen = 25; // horizontal stub length from node
-    const exitDir = dx >= 0 ? 1 : -1; // exit direction
-    
-    // Exit point from source (horizontal stub)
+    const stubLen = 25;
+    const exitDir = dx >= 0 ? 1 : -1;
     const ex1 = sx + stubLen * exitDir;
     const ey1 = sy + bandOff;
-    
-    // Entry point to target (horizontal stub from opposite side)  
     const ex2 = tx - stubLen * exitDir;
     const ey2 = ty + bandOff;
-    
-    // Vertical trunk X position: midpoint between exit and entry, offset for parallel cables
     const trunkX = (ex1 + ex2) / 2 + chOff;
     
     if (absDy < 8 && absDx > 40) {
-      // Nearly horizontal: simple straight with slight offset for cable band
       return `M${sx},${sy} L${sx + stubLen * exitDir},${sy + bandOff + chOff} L${tx - stubLen * exitDir},${ty + bandOff + chOff} L${tx},${ty}`;
     }
-    
-    // Full orthogonal routing: H → V → H
     return `M${sx},${sy} L${ex1},${ey1} L${trunkX},${ey1} L${trunkX},${ey2} L${ex2},${ey2} L${tx},${ty}`;
   }
 
   const link = g.append('g').selectAll('path')
-    .data(links).enter().append('path')
+    .data(renderLinks).enter().append('path')
     .attr('fill', 'none')
     .attr('stroke', d => linkColors[d.type] || '#435570')
     .attr('stroke-width', d => d.depType === 'Mandatory' || d.depType === 'primary' ? 1.4 : 0.7)
     .attr('stroke-opacity', 0.25)
-    .attr('stroke-linejoin', 'round')  // slight rounding at corners like real cable bends
+    .attr('stroke-linejoin', 'round')
     .attr('stroke-linecap', 'round')
     .attr('stroke-dasharray', d => d.depType === 'Optional' ? '4,4' : d.depType === 'Supporting' ? '6,3' : null)
     .attr('marker-end', d => 'url(#arrow-'+d.type+')');
 
-  // Link labels (hidden by default, shown on zoom)
   const linkLabel = g.append('g').selectAll('text')
-    .data(links).enter().append('text')
+    .data(renderLinks).enter().append('text')
     .text(d => d.label || '')
     .attr('font-size', 7)
     .attr('fill', '#435570')
@@ -3364,12 +3364,18 @@ function init3DScene(THREE, OrbitControls, container) {
 
   // Build edges with tubes — structured routing through layer transition corridors
   const edgePairCount = {};
+  const edgeSeen3D = new Set(); // deduplicate same-color edges between same pair
   function edgePairKey(a, b) { return [a, b].sort().join('||'); }
 
   function addEdge(srcId, tgtId, color, lineType) {
     const src = posMap[srcId];
     const tgt = posMap[tgtId];
     if (!src || !tgt) return;
+
+    // Deduplicate: skip if same pair + same color already drawn
+    const dedupKey = edgePairKey(srcId, tgtId) + '::' + color;
+    if (edgeSeen3D.has(dedupKey)) return;
+    edgeSeen3D.add(dedupKey);
 
     // Track parallel edges for fanning
     const pk = edgePairKey(srcId, tgtId);
