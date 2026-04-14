@@ -30,6 +30,7 @@ const App = () => (
               <Route path="/iec62443" element={<ChatView />} />
               <Route path="/berlin-drift" element={<Suspense fallback={null}><EliteShipScene /></Suspense>} />
               <Route path="/ttx-admin" element={<Suspense fallback={null}><TtxAdmin /></Suspense>} />
+              <Route path="/itsm" element={<Suspense fallback={null}><ItsmTool /></Suspense>} />
               <Route path="/:serviceId" element={<ChatView />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
