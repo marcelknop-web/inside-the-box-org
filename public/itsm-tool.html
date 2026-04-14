@@ -1159,6 +1159,10 @@ function renderBpMap(){
         <button class="btn btn-primary btn-sm" onclick="openBpMapForm()">+ Zuordnung</button>
       </div>
     </div>
+    <div class="mini-chart-row">
+      <div class="chart-panel"><div class="chart-title">🍩 Dependency Typen</div><div id="bpm-type-chart"></div></div>
+      <div class="chart-panel"><div class="chart-title">📊 Top Services nach BP-Zuordnungen</div><div id="bpm-top-chart"></div></div>
+    </div>
     <div class="filter-bar">
       <input class="search-input" id="bpm-search" placeholder="🔍 Suche…" oninput="filterBpMap()">
       <select class="filter-select" id="bpm-dep-filter" onchange="filterBpMap()">
@@ -1166,6 +1170,17 @@ function renderBpMap(){
       </select>
     </div>
     <div id="bpm-table-container"></div>`;
+
+  // Dep type donut
+  const dm={};DB.bpServiceMap.forEach(m=>{dm[m.depType]=(dm[m.depType]||0)+1;});
+  d3Donut('bpm-type-chart',Object.entries(dm).map(([k,v])=>({label:k,value:v})).sort((a,b)=>b.value-a.value),
+    {size:130,colors:['#C62828','#E65100','#1565C0'],centerLabel:'types'});
+
+  // Top services by mapping count
+  const sm={};DB.bpServiceMap.forEach(m=>{sm[m.service]=(sm[m.service]||0)+1;});
+  const topSvcs=Object.entries(sm).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([k,v])=>({label:k,value:v}));
+  d3HBar('bpm-top-chart',topSvcs);
+
   filterBpMap();
 }
 
