@@ -2593,7 +2593,7 @@ function graphHighlightSet(ids, label) {
 
   // Dim unrelated nodes/links
   d3.select('#dep-svg').selectAll('g > g > g').transition().duration(400).attr('opacity', d => ids.has(d.id) ? 1 : 0.12);
-  d3.select('#dep-svg').selectAll('g > g > line').transition().duration(400).attr('stroke-opacity', l => {
+  d3.select('#dep-svg').selectAll('g > g > path').transition().duration(400).attr('stroke-opacity', l => {
     const sid = typeof l.source === 'object' ? l.source.id : l.source;
     const tid = typeof l.target === 'object' ? l.target.id : l.target;
     return (ids.has(sid) && ids.has(tid)) ? 0.7 : 0.04;
@@ -2608,7 +2608,7 @@ function graphHighlightSet(ids, label) {
   // Auto-reset dimming after 8s
   setTimeout(() => {
     d3.select('#dep-svg').selectAll('g > g > g').transition().duration(600).attr('opacity', 1);
-    d3.select('#dep-svg').selectAll('g > g > line').transition().duration(600).attr('stroke-opacity', 0.35);
+    d3.select('#dep-svg').selectAll('g > g > path').transition().duration(600).attr('stroke-opacity', 0.18);
   }, 8000);
 }
 
