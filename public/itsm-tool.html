@@ -243,12 +243,12 @@ tr:hover td{background:#1a2535}
   <nav class="sidebar">
     <div class="sidebar-section">Übersicht</div>
     <div class="nav-item active" onclick="showView('dashboard')" id="nav-dashboard">
-      <div class="nav-dot" style="background:#64B5F6"></div> Dashboard
+      <div class="nav-dot" style="background:#f5b800"></div> Dashboard
     </div>
 
     <div class="sidebar-section">Stammdaten</div>
     <div class="nav-item" onclick="showView('services')" id="nav-services">
-      <div class="nav-dot" style="background:#2196F3"></div> Service Catalog
+      <div class="nav-dot" style="background:#00bcd4"></div> Service Catalog
       <span class="nav-count" id="cnt-services">0</span>
     </div>
     <div class="nav-item" onclick="showView('processes')" id="nav-processes">
@@ -275,12 +275,12 @@ tr:hover td{background:#1a2535}
     </div>
 
     <div class="sidebar-section" style="margin-top:14px">Visualisierung</div>
-    <div class="nav-item" onclick="showView('depgraph')" id="nav-depgraph" style="background:linear-gradient(90deg,#0A2628,#0A1628);border-left:3px solid #00BCD4">
+    <div class="nav-item" onclick="showView('depgraph')" id="nav-depgraph" style="background:linear-gradient(90deg,#0A2628,#080b10);border-left:3px solid #00BCD4">
       <div class="nav-dot" style="background:#00BCD4"></div> <span style="color:#80DEEA">Dependency Map</span>
       <span style="font-size:.65rem;padding:2px 5px;background:#006064;color:#80DEEA;border-radius:8px;margin-left:auto">LIVE</span>
     </div>
     <div class="sidebar-section" style="margin-top:14px">KI-Assistent</div>
-    <div class="nav-item" onclick="showView('agent')" id="nav-agent" style="background:linear-gradient(90deg,#1A0A2E,#0A1628);border-left:3px solid #7B1FA2">
+    <div class="nav-item" onclick="showView('agent')" id="nav-agent" style="background:linear-gradient(90deg,#1A0A2E,#080b10);border-left:3px solid #7B1FA2">
       <div class="nav-dot" style="background:#CE93D8"></div> <span style="color:#CE93D8">AI Agent</span>
       <span style="font-size:.65rem;padding:2px 5px;background:#4A148C;color:#CE93D8;border-radius:8px;margin-left:auto">NEW</span>
     </div>
@@ -585,9 +585,9 @@ function d3Gauge(containerId, value, max, opts={}){
       return t => fg.endAngle(interp(t))();
     });
   g.append('text').attr('text-anchor','middle').attr('dy','-0.3em')
-    .style('font-size','.8rem').style('font-weight','700').style('fill','#64B5F6').text(value);
+    .style('font-size','.8rem').style('font-weight','700').style('fill','#f5b800').text(value);
   g.append('text').attr('text-anchor','middle').attr('dy','0.9em')
-    .style('font-size','.5rem').style('fill','#546E7A').text(opts.label||'');
+    .style('font-size','.5rem').style('fill','#435570').text(opts.label||'');
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -605,7 +605,7 @@ function renderDashboard(){
     <div class="change-item">
       <strong>${esc(c.action)}</strong> ${esc(c.entity)}: <em>${esc(c.name)}</em>
       <div class="time">${new Date(c.time).toLocaleString('de-DE')}</div>
-    </div>`).join('') || '<div class="change-item" style="color:#546E7A">Noch keine Änderungen aufgezeichnet.</div>';
+    </div>`).join('') || '<div class="change-item" style="color:#435570">Noch keine Änderungen aufgezeichnet.</div>';
 
   // ── Compute Coverage Gaps ──
   const mappedBPs = new Set(DB.bpServiceMap.map(m=>m.bpId));
@@ -941,7 +941,7 @@ function renderServiceTable(rows){
   const tbody = slice.map(s=>`
     <tr>
       <td class="td-nowrap">${grpDot(s.group)}<span style="font-size:.75rem;color:#${groupColor(s.group)}">${esc(s.group)}</span></td>
-      <td><strong style="color:#90CAF9">${esc(s.service)}</strong></td>
+      <td><strong style="color:#f5b800">${esc(s.service)}</strong></td>
       <td>${esc(s.subservice)}</td>
       <td><span class="chip chip-group">${esc(s.svc_type)}</span></td>
       <td class="td-wrap">${esc(s.description)}</td>
@@ -1095,7 +1095,7 @@ function filterProcesses(){
     (!q||[p.id,p.name,p.category,p.description,p.regulatory].join(' ').toLowerCase().includes(q)));
   const tbody=rows.map(p=>`
     <tr>
-      <td class="td-nowrap"><span style="font-size:.72rem;color:#90A4AE">${esc(p.id)}</span></td>
+      <td class="td-nowrap"><span style="font-size:.72rem;color:#8ba5c5">${esc(p.id)}</span></td>
       <td><strong>${esc(p.name)}</strong></td>
       <td><span class="chip chip-group">${esc(p.category)}</span></td>
       <td>${esc(p.owner)}</td>
@@ -1194,13 +1194,13 @@ function filterGroups(){
   const TYPE_BG={Business:'FFF3E0',IT:'E3F2FD',Vendor:'F3E5F5',Management:'E8F5E9'};
   const tbody=rows.map(g=>`
     <tr>
-      <td class="td-nowrap"><span style="font-size:.72rem;color:#90A4AE">${esc(g.id)}</span></td>
+      <td class="td-nowrap"><span style="font-size:.72rem;color:#8ba5c5">${esc(g.id)}</span></td>
       <td><strong>${esc(g.name)}</strong></td>
       <td><span class="chip chip-group">${esc(g.type)}</span></td>
       <td>${esc(g.department)}</td>
       <td>${esc(g.location)}</td>
       <td class="td-center">${esc(g.count)}</td>
-      <td class="td-wrap" style="font-size:.75rem;color:#90A4AE">${esc(g.systems)}</td>
+      <td class="td-wrap" style="font-size:.75rem;color:#8ba5c5">${esc(g.systems)}</td>
       <td class="td-nowrap">
         <button class="btn btn-ghost btn-sm" onclick="openGroupForm(${JSON.stringify(g.id)})">✎</button>
         <button class="btn btn-danger btn-sm" onclick="confirmDelete('userGroups',${JSON.stringify(g.id)},${JSON.stringify(g.name)})">✕</button>
@@ -1302,12 +1302,12 @@ function filterPerms(){
     (!q||[p.id,p.groupName,p.service,p.scope,p.notes].join(' ').toLowerCase().includes(q)));
   const tbody=rows.map(p=>`
     <tr>
-      <td class="td-nowrap"><span style="font-size:.72rem;color:#90A4AE">${esc(p.id)}</span></td>
+      <td class="td-nowrap"><span style="font-size:.72rem;color:#8ba5c5">${esc(p.id)}</span></td>
       <td>${esc(p.groupName)}</td>
-      <td><strong style="color:#90CAF9">${esc(p.service)}</strong></td>
+      <td><strong style="color:#f5b800">${esc(p.service)}</strong></td>
       <td style="font-size:.77rem">${esc(p.scope)}</td>
       <td>${accessChip(p.level)}</td>
-      <td><span style="font-size:.75rem;color:#90A4AE">${esc(p.provisioning)}</span></td>
+      <td><span style="font-size:.75rem;color:#8ba5c5">${esc(p.provisioning)}</span></td>
       <td>${yesnoChip(p.certRequired)}</td>
       <td>${yesnoChip(p.sodFlag)}</td>
       <td class="td-nowrap">
@@ -1426,10 +1426,10 @@ function filterBpMap(){
   let rows=DB.bpServiceMap.filter(m=>(!d||m.depType===d)&&(!q||[m.bpId,m.service,m.notes].join(' ').toLowerCase().includes(q)));
   const tbody=rows.map((m,i)=>`
     <tr>
-      <td class="td-nowrap"><span style="color:#F48FB1;font-weight:700">${esc(m.bpId)}</span></td>
+      <td class="td-nowrap"><span style="color:#f5b800;font-weight:700">${esc(m.bpId)}</span></td>
       <td>${esc(m.service)}</td>
       <td>${depChip(m.depType)}</td>
-      <td class="td-wrap" style="font-size:.77rem;color:#90A4AE">${esc(m.notes)}</td>
+      <td class="td-wrap" style="font-size:.77rem;color:#8ba5c5">${esc(m.notes)}</td>
       <td class="td-nowrap">
         <button class="btn btn-ghost btn-sm" onclick="openBpMapForm(${i})">✎</button>
         <button class="btn btn-danger btn-sm" onclick="confirmDeleteIdx('bpServiceMap',${i},${JSON.stringify(m.bpId+'→'+m.service)})">✕</button>
@@ -1523,11 +1523,11 @@ function filterDeps(){
   let rows=DB.serviceDeps.filter(d=>(!t||d.depType===t)&&(!q||[d.upstream,d.downstream,d.notes].join(' ').toLowerCase().includes(q)));
   const tbody=rows.map((d,i)=>`
     <tr>
-      <td><strong style="color:#90CAF9">${esc(d.upstream)}</strong></td>
+      <td><strong style="color:#f5b800">${esc(d.upstream)}</strong></td>
       <td style="color:#FFD600;text-align:center">→</td>
       <td><strong>${esc(d.downstream)}</strong></td>
       <td>${depChip(d.depType)}</td>
-      <td class="td-wrap" style="font-size:.77rem;color:#90A4AE">${esc(d.notes)}</td>
+      <td class="td-wrap" style="font-size:.77rem;color:#8ba5c5">${esc(d.notes)}</td>
       <td class="td-nowrap">
         <button class="btn btn-ghost btn-sm" onclick="openDepForm(${i})">✎</button>
         <button class="btn btn-danger btn-sm" onclick="confirmDeleteIdx('serviceDeps',${i},${JSON.stringify(d.upstream+'→'+d.downstream)})">✕</button>
@@ -1651,9 +1651,9 @@ function showImportStatus(msg, type) {
   const el = document.getElementById('import-status');
   if (!el) return;
   el.style.display = 'block';
-  const colors = { loading: '#1E3A5F', success: '#1B5E20', error: '#B71C1C', info: '#0D47A1' };
+  const colors = { loading: '#1e2a3a', success: '#1B5E20', error: '#B71C1C', info: '#0D47A1' };
   el.style.background = colors[type] || colors.info;
-  el.style.color = '#DDE3EC';
+  el.style.color = '#f0f4fc';
   el.innerHTML = msg;
 }
 
@@ -1736,8 +1736,8 @@ function renderImportPreview(data, mode) {
     window._lastExtracted = data;
     // Build preview HTML similar to agent preview
     const LABELS = {
-      services:{label:'Services / Subservices', icon:'🔵', color:'#64B5F6'},
-      businessProcesses:{label:'Business Processes', icon:'🔴', color:'#F48FB1'},
+      services:{label:'Services / Subservices', icon:'🔵', color:'#f5b800'},
+      businessProcesses:{label:'Business Processes', icon:'🔴', color:'#f5b800'},
       userGroups:{label:'User Groups', icon:'🟠', color:'#FFCC80'},
       permissions:{label:'Berechtigungen', icon:'🟣', color:'#CE93D8'},
       bpServiceMap:{label:'BP → Service Mappings', icon:'🔗', color:'#EF9A9A'},
@@ -1750,19 +1750,19 @@ function renderImportPreview(data, mode) {
 
     let totalNew = 0;
     let html = '<div class="ai-panel"><div class="ai-panel-title" style="color:#CE93D8">📋 Vorschau – KI-transformierte Daten</div>';
-    html += '<div style="font-size:.78rem;color:#546E7A;margin-bottom:14px">Wähle aus, was hinzugefügt werden soll. Bereits vorhandene Einträge sind markiert.</div>';
+    html += '<div style="font-size:.78rem;color:#435570;margin-bottom:14px">Wähle aus, was hinzugefügt werden soll. Bereits vorhandene Einträge sind markiert.</div>';
 
     for (const [key, items] of Object.entries(data)) {
       if (!Array.isArray(items) || items.length === 0) continue;
-      const meta = LABELS[key] || {label:key, icon:'●', color:'#90A4AE'};
-      html += '<div class="preview-group"><div class="preview-group-title" style="color:' + meta.color + '">' + meta.icon + ' ' + meta.label + ' <span style="color:#546E7A;font-weight:400">(' + items.length + ' gefunden)</span></div>';
+      const meta = LABELS[key] || {label:key, icon:'●', color:'#8ba5c5'};
+      html += '<div class="preview-group"><div class="preview-group-title" style="color:' + meta.color + '">' + meta.icon + ' ' + meta.label + ' <span style="color:#435570;font-weight:400">(' + items.length + ' gefunden)</span></div>';
 
       items.forEach((item, idx) => {
         const checkId = 'imp-' + key + '-' + idx;
         let isExisting = false, title = '', sub = '';
         if (key === 'services') {
           isExisting = existsSvc.has(item.subservice?.toLowerCase());
-          title = '<strong>' + (item.subservice||'?') + '</strong> · <span style="color:#90A4AE">' + (item.service||'') + '</span>';
+          title = '<strong>' + (item.subservice||'?') + '</strong> · <span style="color:#8ba5c5">' + (item.service||'') + '</span>';
           sub = (item.group||'') + ' · ' + (item.svc_type||'') + ' · Criticality: ' + (item.criticality||'?');
         } else if (key === 'businessProcesses') {
           isExisting = existsBp.has(item.id?.toLowerCase());
@@ -1800,8 +1800,8 @@ function renderImportPreview(data, mode) {
 
   // Replace mode — full dataset preview
   const counts = EXPECTED_KEYS.map(k => (data[k]?.length||0) + ' ' + k).filter(s => !s.startsWith('0')).join(', ');
-  area.innerHTML = '<div class="ai-panel" style="border-color:#1565C0"><div class="ai-panel-title" style="color:#64B5F6">📋 Direkt-Import Vorschau</div>' +
-    '<div style="font-size:.82rem;color:#90A4AE;margin-bottom:12px">Inhalt: ' + counts + '</div>' +
+  area.innerHTML = '<div class="ai-panel" style="border-color:#1565C0"><div class="ai-panel-title" style="color:#f5b800">📋 Direkt-Import Vorschau</div>' +
+    '<div style="font-size:.82rem;color:#8ba5c5;margin-bottom:12px">Inhalt: ' + counts + '</div>' +
     '<div class="info-box" style="border-left-color:#E65100">⚠ Dies <strong>überschreibt alle vorhandenen Daten</strong>. Bitte vorher exportieren.</div>' +
     '<div class="preview-actions">' +
     '<button class="btn btn-success" onclick="applyDirectImport()">✓ Alle Daten übernehmen</button>' +
@@ -1866,7 +1866,7 @@ function applySmartImport() {
 
   saveData();
   showToast('✓ ' + added + ' Einträge erfolgreich importiert!');
-  document.getElementById('import-preview-area').innerHTML = '<div class="ai-panel" style="border-color:#2E7D32"><div style="color:#A5D6A7;font-size:.9rem;font-weight:700;margin-bottom:8px">✓ ' + added + ' Einträge importiert</div><div style="color:#90A4AE;font-size:.82rem">Die Daten wurden übernommen und gespeichert.</div></div>';
+  document.getElementById('import-preview-area').innerHTML = '<div class="ai-panel" style="border-color:#2E7D32"><div style="color:#A5D6A7;font-size:.9rem;font-weight:700;margin-bottom:8px">✓ ' + added + ' Einträge importiert</div><div style="color:#8ba5c5;font-size:.82rem">Die Daten wurden übernommen und gespeichert.</div></div>';
   document.getElementById('import-status').style.display = 'none';
   updateCounts();
 }
@@ -1991,26 +1991,26 @@ function renderAgent(){
     </div>
 
     <div class="ai-panel">
-      <div class="ai-panel-title" style="color:#90A4AE">🔑 Anthropic API Key</div>
+      <div class="ai-panel-title" style="color:#8ba5c5">🔑 Anthropic API Key</div>
       <div class="ai-key-row">
         <input class="ai-key-input" type="password" id="api-key-input" placeholder="sk-ant-…" value="${savedKey?'●'.repeat(20):''}">
         <button class="btn btn-ghost btn-sm" onclick="toggleKeyVisibility()">👁</button>
         <button class="btn btn-primary btn-sm" onclick="saveApiKey()">Speichern</button>
         ${savedKey?'<span class="key-stored">✓ gespeichert</span>':''}
       </div>
-      <div style="font-size:.72rem;color:#546E7A">Der Key wird lokal in diesem Browser gespeichert. Er wird ausschließlich für direkte API-Aufrufe an Anthropic verwendet.</div>
+      <div style="font-size:.72rem;color:#435570">Der Key wird lokal in diesem Browser gespeichert. Er wird ausschließlich für direkte API-Aufrufe an Anthropic verwendet.</div>
     </div>
 
     <div class="ai-panel">
       <div class="ai-panel-title" style="color:#CE93D8">📋 Input</div>
-      <div style="font-size:.78rem;color:#546E7A;margin-bottom:8px">Füge beliebigen Text ein: E-Mail, Word-Dokument, Anforderungsliste, Systeminventar, Projektbeschreibung, Meeting-Notizen, SAP-Modulübersicht, Org-Chart…</div>
+      <div style="font-size:.78rem;color:#435570;margin-bottom:8px">Füge beliebigen Text ein: E-Mail, Word-Dokument, Anforderungsliste, Systeminventar, Projektbeschreibung, Meeting-Notizen, SAP-Modulübersicht, Org-Chart…</div>
       <textarea class="ai-textarea" id="agent-input" placeholder="Beispiele:
 • 'Wir führen SAP S/4HANA ein mit den Modulen PP, QM, PM. Die Produktionsplaner (ca. 15 Personen in Leverkusen) benötigen Zugriff auf PP Read-Write.'
 • Eine Liste neuer IT-Systeme aus einem Projektdokument
 • Der Inhalt eines Anforderungsworkshops
 • Eine Systemlandschaftsbeschreibung aus einem Architektur-Review"></textarea>
 
-      <div style="margin-top:12px;font-size:.78rem;color:#90A4AE;font-weight:600">Was soll extrahiert werden?</div>
+      <div style="margin-top:12px;font-size:.78rem;color:#8ba5c5;font-weight:600">Was soll extrahiert werden?</div>
       <div class="check-row">
         <label class="check-item"><input type="checkbox" id="chk-services" checked> 🔵 Services / Subservices</label>
         <label class="check-item"><input type="checkbox" id="chk-processes" checked> 🔴 Business Processes</label>
@@ -2025,7 +2025,7 @@ function renderAgent(){
           🔍 Analysieren &amp; Extrahieren
         </button>
         <button class="btn btn-ghost btn-sm" onclick="loadExample()">Beispiel laden</button>
-        <span style="font-size:.75rem;color:#546E7A" id="token-hint"></span>
+        <span style="font-size:.75rem;color:#435570" id="token-hint"></span>
       </div>
 
       <div class="ai-status" id="ai-status">
@@ -2167,13 +2167,13 @@ async function runExtraction(){
 function renderPreview(extracted){
   const area = document.getElementById('preview-area');
   if(!extracted||Object.keys(extracted).length===0){
-    area.innerHTML = '<div class="ai-panel"><div style="color:#90A4AE;text-align:center;padding:20px">Keine Daten im Input gefunden.</div></div>';
+    area.innerHTML = '<div class="ai-panel"><div style="color:#8ba5c5;text-align:center;padding:20px">Keine Daten im Input gefunden.</div></div>';
     return;
   }
 
   const LABELS = {
-    services:{label:'Services / Subservices', icon:'🔵', color:'#64B5F6'},
-    businessProcesses:{label:'Business Processes', icon:'🔴', color:'#F48FB1'},
+    services:{label:'Services / Subservices', icon:'🔵', color:'#f5b800'},
+    businessProcesses:{label:'Business Processes', icon:'🔴', color:'#f5b800'},
     userGroups:{label:'User Groups', icon:'🟠', color:'#FFCC80'},
     permissions:{label:'Berechtigungen', icon:'🟣', color:'#CE93D8'},
     bpServiceMap:{label:'BP → Service Mappings', icon:'🔗', color:'#EF9A9A'},
@@ -2186,13 +2186,13 @@ function renderPreview(extracted){
 
   let totalNew = 0;
   let html = '<div class="ai-panel"><div class="ai-panel-title" style="color:#CE93D8">📋 Vorschau – Gefundene Einträge</div>';
-  html += '<div style="font-size:.78rem;color:#546E7A;margin-bottom:14px">Wähle aus, was hinzugefügt werden soll. Bereits vorhandene Einträge sind markiert.</div>';
+  html += '<div style="font-size:.78rem;color:#435570;margin-bottom:14px">Wähle aus, was hinzugefügt werden soll. Bereits vorhandene Einträge sind markiert.</div>';
 
   for(const [key, items] of Object.entries(extracted)){
     if(!Array.isArray(items)||items.length===0) continue;
-    const meta = LABELS[key]||{label:key,icon:'●',color:'#90A4AE'};
+    const meta = LABELS[key]||{label:key,icon:'●',color:'#8ba5c5'};
     html += `<div class="preview-group">
-      <div class="preview-group-title" style="color:${meta.color}">${meta.icon} ${meta.label} <span style="color:#546E7A;font-weight:400">(${items.length} gefunden)</span></div>`;
+      <div class="preview-group-title" style="color:${meta.color}">${meta.icon} ${meta.label} <span style="color:#435570;font-weight:400">(${items.length} gefunden)</span></div>`;
 
     items.forEach((item, idx) => {
       const checkId = `prev-${key}-${idx}`;
@@ -2201,7 +2201,7 @@ function renderPreview(extracted){
 
       if(key==='services'){
         isExisting = existsSvc.has(item.subservice?.toLowerCase());
-        title = `<strong>${item.subservice}</strong> · <span style="color:#90A4AE">${item.service}</span>`;
+        title = `<strong>${item.subservice}</strong> · <span style="color:#8ba5c5">${item.service}</span>`;
         sub = `${item.group} · ${item.svc_type} · Criticality: ${item.criticality||'?'}<br>${item.description||''}`;
       } else if(key==='businessProcesses'){
         isExisting = existsBp.has(item.id?.toLowerCase());
@@ -2303,7 +2303,7 @@ function applyExtraction(extractedRaw){
   document.getElementById('preview-area').innerHTML = `
     <div class="ai-panel" style="border-color:#2E7D32">
       <div style="color:#A5D6A7;font-size:.9rem;font-weight:700;margin-bottom:8px">✓ ${added} Einträge importiert</div>
-      <div style="color:#90A4AE;font-size:.82rem">Die Daten wurden in alle relevanten Tabellen übernommen und gespeichert.</div>
+      <div style="color:#8ba5c5;font-size:.82rem">Die Daten wurden in alle relevanten Tabellen übernommen und gespeichert.</div>
       <div style="margin-top:12px;display:flex;gap:8px">
         <button class="btn btn-ghost btn-sm" onclick="showView('services')">→ Service Catalog</button>
         <button class="btn btn-ghost btn-sm" onclick="showView('processes')">→ Business Processes</button>
@@ -2325,7 +2325,7 @@ function renderDepGraph(){
         <div class="view-subtitle">Click nodes to drill down · Scroll to zoom · Drag to pan · Double-click to reset</div>
       </div>
       <div class="view-actions">
-        <select id="graph-filter" class="btn btn-ghost btn-sm" style="background:#0A1628;color:#90CAF9;border:1px solid #1E3A5F" onchange="updateGraph()">
+        <select id="graph-filter" class="btn btn-ghost btn-sm" style="background:#080b10;color:#f5b800;border:1px solid #1e2a3a" onchange="updateGraph()">
           <option value="all">All Relationships</option>
           <option value="serviceDeps">Service Dependencies</option>
           <option value="bpServiceMap">BP → Service</option>
@@ -2334,20 +2334,20 @@ function renderDepGraph(){
         <button class="btn btn-ghost btn-sm" onclick="resetGraphView()">⟳ Reset View</button>
       </div>
     </div>
-    <div id="graph-container" style="flex:1;position:relative;overflow:hidden;border-radius:8px;background:#060E18;border:1px solid #1E3A5F">
+    <div id="graph-container" style="flex:1;position:relative;overflow:hidden;border-radius:8px;background:#060E18;border:1px solid #1e2a3a">
       <svg id="dep-svg" style="width:100%;height:100%"></svg>
-      <div id="graph-detail" style="display:none;position:absolute;top:16px;right:16px;width:320px;max-height:calc(100% - 32px);overflow-y:auto;background:#0A1628EE;border:1px solid #1E3A5F;border-radius:10px;padding:16px;backdrop-filter:blur(8px)">
+      <div id="graph-detail" style="display:none;position:absolute;top:16px;right:16px;width:320px;max-height:calc(100% - 32px);overflow-y:auto;background:#080b10EE;border:1px solid #1e2a3a;border-radius:10px;padding:16px;backdrop-filter:blur(8px)">
         <div id="graph-detail-content"></div>
       </div>
-      <div id="graph-legend" style="position:absolute;bottom:16px;left:16px;background:#0A1628CC;border:1px solid #1E3A5F;border-radius:8px;padding:10px 14px;font-size:.72rem;display:flex;gap:12px;flex-wrap:wrap;backdrop-filter:blur(4px)">
-        <span style="color:#64B5F6">● Services</span>
-        <span style="color:#F48FB1">● Business Processes</span>
+      <div id="graph-legend" style="position:absolute;bottom:16px;left:16px;background:#080b10CC;border:1px solid #1e2a3a;border-radius:8px;padding:10px 14px;font-size:.72rem;display:flex;gap:12px;flex-wrap:wrap;backdrop-filter:blur(4px)">
+        <span style="color:#f5b800">● Services</span>
+        <span style="color:#f5b800">● Business Processes</span>
         <span style="color:#FFCC80">● User Groups</span>
         <span style="color:#FFD600">── Dependency</span>
         <span style="color:#EF9A9A">── BP Mapping</span>
         <span style="color:#CE93D8">── Permission</span>
       </div>
-      <div id="graph-breadcrumb" style="position:absolute;top:16px;left:16px;font-size:.78rem;color:#546E7A;display:flex;gap:6px;align-items:center"></div>
+      <div id="graph-breadcrumb" style="position:absolute;top:16px;left:16px;font-size:.78rem;color:#435570;display:flex;gap:6px;align-items:center"></div>
     </div>`;
 
   // Set container height
@@ -2493,7 +2493,7 @@ function renderGraph(nodes, links) {
   const linkColors = { dep: '#FFD600', bpmap: '#EF9A9A', perm: '#CE93D8' };
   const link = g.append('g').selectAll('line')
     .data(links).enter().append('line')
-    .attr('stroke', d => linkColors[d.type] || '#546E7A')
+    .attr('stroke', d => linkColors[d.type] || '#435570')
     .attr('stroke-width', d => d.depType === 'Mandatory' ? 2 : 1.2)
     .attr('stroke-opacity', 0.35)
     .attr('stroke-dasharray', d => d.depType === 'Optional' ? '4,4' : d.depType === 'Supporting' ? '6,3' : null)
@@ -2504,13 +2504,13 @@ function renderGraph(nodes, links) {
     .data(links).enter().append('text')
     .text(d => d.label || '')
     .attr('font-size', 8)
-    .attr('fill', '#546E7A')
+    .attr('fill', '#435570')
     .attr('text-anchor', 'middle')
     .attr('opacity', 0);
 
   // Node groups
   const nodeColors = { service: '#1565C0', bp: '#C2185B', group: '#E65100' };
-  const nodeFill = { service: '#64B5F6', bp: '#F48FB1', group: '#FFCC80' };
+  const nodeFill = { service: '#f5b800', bp: '#f5b800', group: '#FFCC80' };
   const critRadius = { High: 18, Medium: 14, Low: 10 };
 
   const node = g.append('g').selectAll('g')
@@ -2562,7 +2562,7 @@ function renderGraph(nodes, links) {
     .attr('dy', d => (critRadius[d.criticality] || 14) + 14)
     .attr('text-anchor', 'middle')
     .attr('font-size', 9)
-    .attr('fill', '#90A4AE')
+    .attr('fill', '#8ba5c5')
     .attr('font-family', 'Arial, sans-serif')
     .attr('pointer-events', 'none');
 
@@ -2620,8 +2620,8 @@ function focusNode(d) {
   // Breadcrumb
   document.getElementById('graph-breadcrumb').innerHTML =
     '<span style="cursor:pointer;color:#80DEEA" onclick="resetGraphView()">🌐 Global</span>' +
-    '<span style="color:#1E3A5F">›</span>' +
-    '<span style="color:#DDE3EC">' + d.label + '</span>';
+    '<span style="color:#1e2a3a">›</span>' +
+    '<span style="color:#f0f4fc">' + d.label + '</span>';
 
   // Detail panel
   const detail = document.getElementById('graph-detail');
@@ -2638,14 +2638,14 @@ function focusNode(d) {
   });
 
   const typeLabels = { service: '⚙ Service', bp: '⚡ Business Process', group: '👥 User Group' };
-  const typeColors = { service: '#64B5F6', bp: '#F48FB1', group: '#FFCC80' };
+  const typeColors = { service: '#f5b800', bp: '#f5b800', group: '#FFCC80' };
   const linkTypeLabels = { dep: 'Dependency', bpmap: 'BP Mapping', perm: 'Permission' };
 
   let html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">';
-  html += '<div style="font-size:.95rem;font-weight:700;color:' + (typeColors[d.type]||'#DDE3EC') + '">' + d.label + '</div>';
-  html += '<button onclick="document.getElementById(\'graph-detail\').style.display=\'none\'" style="background:none;border:none;color:#546E7A;cursor:pointer;font-size:1.2rem">✕</button></div>';
+  html += '<div style="font-size:.95rem;font-weight:700;color:' + (typeColors[d.type]||'#f0f4fc') + '">' + d.label + '</div>';
+  html += '<button onclick="document.getElementById(\'graph-detail\').style.display=\'none\'" style="background:none;border:none;color:#435570;cursor:pointer;font-size:1.2rem">✕</button></div>';
 
-  html += '<div style="font-size:.72rem;color:#546E7A;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">' + (typeLabels[d.type]||d.type) + '</div>';
+  html += '<div style="font-size:.72rem;color:#435570;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">' + (typeLabels[d.type]||d.type) + '</div>';
 
   // Properties
   const props = [];
@@ -2664,8 +2664,8 @@ function focusNode(d) {
   if (props.length) {
     html += '<div style="background:#0D1B2A;border-radius:6px;padding:8px;margin-bottom:12px">';
     props.forEach(([k,v]) => {
-      const critColor = v === 'High' ? '#EF5350' : v === 'Medium' ? '#FF9800' : v === 'Low' ? '#66BB6A' : '#DDE3EC';
-      html += '<div style="display:flex;justify-content:space-between;padding:3px 0;font-size:.78rem"><span style="color:#546E7A">' + k + '</span><span style="color:' + (k==='Criticality'?critColor:'#DDE3EC') + '">' + v + '</span></div>';
+      const critColor = v === 'High' ? '#EF5350' : v === 'Medium' ? '#FF9800' : v === 'Low' ? '#66BB6A' : '#f0f4fc';
+      html += '<div style="display:flex;justify-content:space-between;padding:3px 0;font-size:.78rem"><span style="color:#435570">' + k + '</span><span style="color:' + (k==='Criticality'?critColor:'#f0f4fc') + '">' + v + '</span></div>';
     });
     html += '</div>';
   }
@@ -2673,13 +2673,13 @@ function focusNode(d) {
   // Connections
   const renderConnList = (title, items, direction) => {
     if (!items.length) return '';
-    let h = '<div style="font-size:.72rem;color:#546E7A;text-transform:uppercase;letter-spacing:1px;margin:8px 0 4px">' + title + ' (' + items.length + ')</div>';
+    let h = '<div style="font-size:.72rem;color:#435570;text-transform:uppercase;letter-spacing:1px;margin:8px 0 4px">' + title + ' (' + items.length + ')</div>';
     items.forEach(c => {
       const lc = { dep: '#FFD600', bpmap: '#EF9A9A', perm: '#CE93D8' };
       h += '<div style="display:flex;align-items:center;gap:6px;padding:4px 6px;margin:2px 0;background:#0D1B2A;border-radius:4px;cursor:pointer;font-size:.78rem" onclick="focusNodeById(\'' + c.nodeId + '\')">';
-      h += '<div style="width:6px;height:6px;border-radius:50%;background:' + (lc[c.type]||'#546E7A') + ';flex-shrink:0"></div>';
-      h += '<span style="color:#DDE3EC;flex:1">' + c.label + '</span>';
-      h += '<span style="color:#546E7A;font-size:.68rem">' + (c.depType||linkTypeLabels[c.type]||'') + '</span>';
+      h += '<div style="width:6px;height:6px;border-radius:50%;background:' + (lc[c.type]||'#435570') + ';flex-shrink:0"></div>';
+      h += '<span style="color:#f0f4fc;flex:1">' + c.label + '</span>';
+      h += '<span style="color:#435570;font-size:.68rem">' + (c.depType||linkTypeLabels[c.type]||'') + '</span>';
       h += '</div>';
     });
     return h;
@@ -2689,7 +2689,7 @@ function focusNode(d) {
   html += renderConnList('← Incoming', connected.incoming, 'in');
 
   if (!connected.outgoing.length && !connected.incoming.length) {
-    html += '<div style="color:#546E7A;font-size:.82rem;text-align:center;padding:16px">No connections found</div>';
+    html += '<div style="color:#435570;font-size:.82rem;text-align:center;padding:16px">No connections found</div>';
   }
 
   document.getElementById('graph-detail-content').innerHTML = html;
