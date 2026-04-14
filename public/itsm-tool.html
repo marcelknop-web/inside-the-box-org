@@ -3364,12 +3364,18 @@ function init3DScene(THREE, OrbitControls, container) {
 
   // Build edges with tubes — structured routing through layer transition corridors
   const edgePairCount = {};
+  const edgeSeen3D = new Set(); // deduplicate same-color edges between same pair
   function edgePairKey(a, b) { return [a, b].sort().join('||'); }
 
   function addEdge(srcId, tgtId, color, lineType) {
     const src = posMap[srcId];
     const tgt = posMap[tgtId];
     if (!src || !tgt) return;
+
+    // Deduplicate: skip if same pair + same color already drawn
+    const dedupKey = edgePairKey(srcId, tgtId) + '::' + color;
+    if (edgeSeen3D.has(dedupKey)) return;
+    edgeSeen3D.add(dedupKey);
 
     // Track parallel edges for fanning
     const pk = edgePairKey(srcId, tgtId);
