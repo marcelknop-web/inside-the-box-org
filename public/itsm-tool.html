@@ -2617,7 +2617,7 @@ function renderGraph(nodes, links) {
   // Arrow markers
   const defs = svg.append('defs');
   ['dep','bpmap','perm'].forEach(t => {
-    const colors = { dep: '#f5b800', bpmap: '#f87171', perm: '#CE93D8' };
+    const colors = { dep: '#f5b800', bpmap: '#E040FB', perm: '#00E5FF' };
     defs.append('marker').attr('id', 'arrow-'+t).attr('viewBox','0 0 10 6').attr('refX',28).attr('refY',3).attr('markerWidth',8).attr('markerHeight',6).attr('orient','auto')
       .append('path').attr('d','M0,0L10,3L0,6Z').attr('fill', colors[t]).attr('opacity', 0.6);
   });
@@ -2823,7 +2823,7 @@ function focusNode(d) {
     if (!items.length) return '';
     let h = '<div style="font-size:.72rem;color:#435570;text-transform:uppercase;letter-spacing:1px;margin:8px 0 4px">' + title + ' (' + items.length + ')</div>';
     items.forEach(c => {
-      const lc = { dep: '#f5b800', bpmap: '#f87171', perm: '#CE93D8' };
+      const lc = { dep: '#f5b800', bpmap: '#E040FB', perm: '#00E5FF' };
       h += '<div style="display:flex;align-items:center;gap:6px;padding:4px 6px;margin:2px 0;background:#0D1B2A;border-radius:4px;cursor:pointer;font-size:.78rem" onclick="focusNodeById(\'' + c.nodeId + '\')">';
       h += '<div style="width:6px;height:6px;border-radius:50%;background:' + (lc[c.type]||'#435570') + ';flex-shrink:0"></div>';
       h += '<span style="color:#f0f4fc;flex:1">' + c.label + '</span>';
