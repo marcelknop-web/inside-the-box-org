@@ -2981,13 +2981,21 @@ function renderDepGraph3D(){
   const totalDeps = DB.serviceDeps.length;
   const svcGroups = [...new Set(DB.services.map(s => s.group))];
 
+  // Categorize services into layers
+  const infraGroups = ['Infrastructure'];
+  const secGroups = ['Identity & Security'];
+  const itGroups = ['ITSM Platform', 'Monitoring & Alerting', 'Communication', 'Automation'];
+  const totalInfra = DB.services.filter(s => infraGroups.includes(s.group)).length;
+  const totalSec = DB.services.filter(s => secGroups.includes(s.group)).length;
+  const totalIT = DB.services.filter(s => itGroups.includes(s.group)).length;
+
   document.getElementById('main-content').innerHTML = `
     <div class="view-header" style="flex-shrink:0">
       <div>
         <div class="view-title" style="color:#f5b800">🧊 3D Service Architecture Map</div>
-        <div class="view-subtitle">Enterprise Service Landscape — ${totalSvc} Services · ${totalBP} Business Processes · ${totalGrp} User Groups · ${totalMappings + totalDeps + totalPerm} Beziehungen</div>
+        <div class="view-subtitle">5-Etagen-Modell — ${totalBP} Processes · ${totalIT} IT Services · ${totalInfra} Infra · ${totalSec} Security · ${totalGrp} People</div>
       </div>
-      <div class="view-actions">
+      <div class="view-actions" style="flex-wrap:wrap">
         <select id="graph3d-filter" class="btn btn-ghost btn-sm" style="background:#080b10;color:#f5b800;border:1px solid #1e2a3a" onchange="rebuild3DGraph()">
           <option value="all">Alle Beziehungen</option>
           <option value="bp-svc">BP → Services</option>
@@ -3001,49 +3009,46 @@ function renderDepGraph3D(){
         <button class="btn btn-ghost btn-sm" onclick="reset3DView()">⟳ Reset</button>
       </div>
     </div>
-    <div id="three-container" style="flex:1;position:relative;overflow:hidden;border-radius:8px;background:#040810;border:1px solid #1e2a3a">
+    <div id="three-container" style="flex:1;position:relative;overflow:hidden;border-radius:8px;background:#040810;border:1px solid #1e2a3a;min-height:400px">
       <canvas id="three-canvas" style="width:100%;height:100%;display:block"></canvas>
       <div id="three-labels" style="position:absolute;inset:0;pointer-events:none;overflow:hidden"></div>
-      <div id="three-detail" style="display:none;position:absolute;top:16px;right:16px;width:340px;max-height:calc(100% - 32px);overflow-y:auto;background:#080b10EE;border:1px solid #1e2a3a;border-radius:10px;padding:16px;backdrop-filter:blur(8px);z-index:10;pointer-events:auto"></div>
-      <div id="three-tooltip" style="display:none;position:absolute;background:#0e1218EE;border:1px solid #f5b800;border-radius:6px;padding:10px 14px;font-size:.78rem;color:#f0f4fc;pointer-events:none;z-index:20;backdrop-filter:blur(4px);max-width:280px"></div>
-      <div id="three-legend" style="position:absolute;bottom:12px;left:12px;background:#080b10DD;border:1px solid #1e2a3a;border-radius:8px;padding:12px 16px;font-size:.7rem;backdrop-filter:blur(4px);display:flex;gap:16px;flex-wrap:wrap">
-        <div style="display:flex;flex-direction:column;gap:4px">
-          <div style="color:#8ba5c5;font-weight:700;font-size:.6rem;text-transform:uppercase;letter-spacing:.5px">Prozess-Typen (oben)</div>
-          <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#66BB6A;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);display:inline-block"></span><span style="color:#f0f4fc">📊 Business Process</span></span>
-          <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#42A5F5;display:inline-block"></span><span style="color:#f0f4fc">🖥 IT Process</span></span>
-          <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:#FF7043;clip-path:polygon(50% 0,100% 100%,0 100%);display:inline-block"></span><span style="color:#f0f4fc">🛡 Security / Compliance</span></span>
+      <div id="three-detail" style="display:none;position:absolute;top:8px;right:8px;width:min(340px,calc(100% - 16px));max-height:calc(100% - 16px);overflow-y:auto;background:#080b10EE;border:1px solid #1e2a3a;border-radius:10px;padding:12px;backdrop-filter:blur(8px);z-index:10;pointer-events:auto;font-size:.78rem"></div>
+      <div id="three-tooltip" style="display:none;position:absolute;background:#0e1218EE;border:1px solid #f5b800;border-radius:6px;padding:8px 12px;font-size:.72rem;color:#f0f4fc;pointer-events:none;z-index:20;backdrop-filter:blur(4px);max-width:260px"></div>
+      <div id="three-legend" style="position:absolute;bottom:8px;left:8px;background:#080b10DD;border:1px solid #1e2a3a;border-radius:8px;padding:10px 12px;font-size:.65rem;backdrop-filter:blur(4px);display:flex;gap:12px;flex-wrap:wrap;max-width:calc(100% - 16px)">
+        <div style="display:flex;flex-direction:column;gap:3px">
+          <div style="color:#8ba5c5;font-weight:700;font-size:.58rem;text-transform:uppercase;letter-spacing:.5px">Etagen</div>
+          <span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:50%;background:#C2185B;display:inline-block"></span><span style="color:#f0f4fc">5F Business Processes</span></span>
+          <span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:6px;background:#00bcd4;border-radius:2px;display:inline-block"></span><span style="color:#f0f4fc">4F IT Services</span></span>
+          <span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:6px;background:#f97316;border-radius:2px;display:inline-block"></span><span style="color:#f0f4fc">3F Infrastructure</span></span>
+          <span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:6px;background:#e040fb;border-radius:2px;display:inline-block"></span><span style="color:#f0f4fc">2F Security</span></span>
+          <span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:50%;background:#eab308;display:inline-block"></span><span style="color:#f0f4fc">1F People</span></span>
         </div>
         <div style="width:1px;background:#1e2a3a"></div>
-        <div style="display:flex;flex-direction:column;gap:4px">
-          <div style="color:#8ba5c5;font-weight:700;font-size:.6rem;text-transform:uppercase;letter-spacing:.5px">Weitere Ebenen</div>
-          <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:8px;background:#00bcd4;border-radius:2px;display:inline-block"></span><span style="color:#f0f4fc">IT Services (mitte)</span></span>
-          <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:8px;background:#eab308;border-radius:2px;display:inline-block"></span><span style="color:#f0f4fc">User Groups (unten)</span></span>
+        <div style="display:flex;flex-direction:column;gap:3px">
+          <div style="color:#8ba5c5;font-weight:700;font-size:.58rem;text-transform:uppercase;letter-spacing:.5px">Verbindungen</div>
+          <span style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:2px;background:#f5b800;display:inline-block"></span><span style="color:#f0f4fc">Service Dep</span></span>
+          <span style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:2px;background:#E040FB;display:inline-block"></span><span style="color:#f0f4fc">BP → Service</span></span>
+          <span style="display:flex;align-items:center;gap:4px"><span style="width:14px;height:2px;background:#00E5FF;display:inline-block"></span><span style="color:#f0f4fc">Permission</span></span>
         </div>
         <div style="width:1px;background:#1e2a3a"></div>
-        <div style="display:flex;flex-direction:column;gap:4px">
-          <div style="color:#8ba5c5;font-weight:700;font-size:.6rem;text-transform:uppercase;letter-spacing:.5px">Verbindungen</div>
-          <span style="display:flex;align-items:center;gap:4px"><span style="width:16px;height:2px;background:#f5b800;display:inline-block"></span><span style="color:#f0f4fc">Service Dependency</span></span>
-          <span style="display:flex;align-items:center;gap:4px"><span style="width:16px;height:2px;background:#E040FB;display:inline-block"></span><span style="color:#f0f4fc">BP → Service Mapping</span></span>
-          <span style="display:flex;align-items:center;gap:4px"><span style="width:16px;height:2px;background:#00E5FF;display:inline-block"></span><span style="color:#f0f4fc">Permission</span></span>
-        </div>
-        <div style="width:1px;background:#1e2a3a"></div>
-        <div style="display:flex;flex-direction:column;gap:4px">
-          <div style="color:#8ba5c5;font-weight:700;font-size:.6rem;text-transform:uppercase;letter-spacing:.5px">Kritikalität (Größe)</div>
-          <span style="display:flex;align-items:center;gap:4px"><span style="width:12px;height:12px;border-radius:50%;border:2px solid #EF5350;display:inline-block"></span><span style="color:#f0f4fc">High — groß</span></span>
-          <span style="display:flex;align-items:center;gap:4px"><span style="width:9px;height:9px;border-radius:50%;border:2px solid #f97316;display:inline-block"></span><span style="color:#f0f4fc">Medium — mittel</span></span>
-          <span style="display:flex;align-items:center;gap:4px"><span style="width:7px;height:7px;border-radius:50%;border:2px solid #66BB6A;display:inline-block"></span><span style="color:#f0f4fc">Low — klein</span></span>
+        <div style="display:flex;flex-direction:column;gap:3px">
+          <div style="color:#8ba5c5;font-weight:700;font-size:.58rem;text-transform:uppercase;letter-spacing:.5px">Kritikalität</div>
+          <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:50%;border:2px solid #EF5350;display:inline-block"></span><span style="color:#f0f4fc">High</span></span>
+          <span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:50%;border:2px solid #f97316;display:inline-block"></span><span style="color:#f0f4fc">Medium</span></span>
+          <span style="display:flex;align-items:center;gap:4px"><span style="width:6px;height:6px;border-radius:50%;border:2px solid #66BB6A;display:inline-block"></span><span style="color:#f0f4fc">Low</span></span>
         </div>
       </div>
-      <div id="three-stats" style="position:absolute;top:12px;left:12px;background:#080b10DD;border:1px solid #1e2a3a;border-radius:8px;padding:10px 14px;font-size:.72rem;backdrop-filter:blur(4px);display:flex;gap:16px">
-        <div style="text-align:center"><div style="font-size:1.1rem;font-weight:700;color:#C2185B">${totalBP}</div><div style="color:#8ba5c5;font-size:.6rem;text-transform:uppercase">Processes</div></div>
-        <div style="text-align:center"><div style="font-size:1.1rem;font-weight:700;color:#00bcd4">${totalSvc}</div><div style="color:#8ba5c5;font-size:.6rem;text-transform:uppercase">Services</div></div>
-        <div style="text-align:center"><div style="font-size:1.1rem;font-weight:700;color:#eab308">${totalGrp}</div><div style="color:#8ba5c5;font-size:.6rem;text-transform:uppercase">Groups</div></div>
-        <div style="text-align:center"><div style="font-size:1.1rem;font-weight:700;color:#f5b800">${totalMappings + totalDeps + totalPerm}</div><div style="color:#8ba5c5;font-size:.6rem;text-transform:uppercase">Relations</div></div>
+      <div id="three-stats" style="position:absolute;top:8px;left:8px;background:#080b10DD;border:1px solid #1e2a3a;border-radius:8px;padding:8px 12px;font-size:.68rem;backdrop-filter:blur(4px);display:flex;gap:12px;flex-wrap:wrap">
+        <div style="text-align:center"><div style="font-size:1rem;font-weight:700;color:#C2185B">${totalBP}</div><div style="color:#8ba5c5;font-size:.55rem;text-transform:uppercase">Processes</div></div>
+        <div style="text-align:center"><div style="font-size:1rem;font-weight:700;color:#00bcd4">${totalIT}</div><div style="color:#8ba5c5;font-size:.55rem;text-transform:uppercase">IT Svc</div></div>
+        <div style="text-align:center"><div style="font-size:1rem;font-weight:700;color:#f97316">${totalInfra}</div><div style="color:#8ba5c5;font-size:.55rem;text-transform:uppercase">Infra</div></div>
+        <div style="text-align:center"><div style="font-size:1rem;font-weight:700;color:#e040fb">${totalSec}</div><div style="color:#8ba5c5;font-size:.55rem;text-transform:uppercase">Security</div></div>
+        <div style="text-align:center"><div style="font-size:1rem;font-weight:700;color:#eab308">${totalGrp}</div><div style="color:#8ba5c5;font-size:.55rem;text-transform:uppercase">People</div></div>
       </div>
     </div>`;
 
   const container = document.getElementById('three-container');
-  container.style.height = (window.innerHeight - 140) + 'px';
+  container.style.height = Math.max(400, window.innerHeight - 140) + 'px';
 
   Promise.all([
     import('three'),
@@ -3067,11 +3072,11 @@ function init3DScene(THREE, OrbitControls, container) {
   renderer.setClearColor(0x040810, 1);
 
   const scene = new THREE.Scene();
-  scene.fog = new THREE.FogExp2(0x040810, 0.0015);
+  scene.fog = new THREE.FogExp2(0x040810, 0.0012);
 
   const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 2000);
-  camera.position.set(60, 80, 100);
-  camera.lookAt(0, 0, 0);
+  camera.position.set(70, 90, 120);
+  camera.lookAt(0, 10, 0);
 
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
@@ -3081,27 +3086,50 @@ function init3DScene(THREE, OrbitControls, container) {
 
   scene.add(new THREE.AmbientLight(0x334466, 0.8));
   const dirLight = new THREE.DirectionalLight(0xffffff, 1.0);
-  dirLight.position.set(40, 80, 60);
+  dirLight.position.set(40, 100, 60);
   scene.add(dirLight);
-  scene.add(new THREE.PointLight(0xf5b800, 0.3, 400));
+  scene.add(new THREE.PointLight(0xf5b800, 0.3, 500));
 
-  const LAYER_Y = { bp: 40, svc: 0, grp: -40 };
+  // 5-Layer Y positions (floors)
+  const LAYER_Y = { bp: 60, it: 30, infra: 0, sec: -30, people: -60 };
+  const LAYER_COLORS = {
+    bp: 0xC2185B,
+    it: 0x00bcd4,
+    infra: 0xf97316,
+    sec: 0xe040fb,
+    people: 0xeab308
+  };
+  const LAYER_NAMES = {
+    bp: '5F Business Processes',
+    it: '4F IT Services',
+    infra: '3F Infrastructure',
+    sec: '2F Security',
+    people: '1F People'
+  };
+
   const CRIT_COLORS = { High: 0xEF5350, Medium: 0xf97316, Low: 0x66BB6A };
   const CRIT_SCALE = { High: 1.6, Medium: 1.0, Low: 0.7 };
 
-  const layerCols = [0xC2185B, 0x00bcd4, 0xeab308];
-  [LAYER_Y.bp, LAYER_Y.svc, LAYER_Y.grp].forEach((y, i) => {
+  // Draw floor planes and grids
+  const layerKeys = ['bp', 'it', 'infra', 'sec', 'people'];
+  layerKeys.forEach(key => {
+    const y = LAYER_Y[key];
+    const col = LAYER_COLORS[key];
     const planeGeo = new THREE.PlaneGeometry(200, 200);
-    const planeMat = new THREE.MeshBasicMaterial({ color: layerCols[i], transparent: true, opacity: 0.015, side: THREE.DoubleSide });
+    const planeMat = new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: 0.018, side: THREE.DoubleSide });
     const plane = new THREE.Mesh(planeGeo, planeMat);
     plane.rotation.x = -Math.PI / 2;
     plane.position.y = y - 0.5;
     scene.add(plane);
-    const grid = new THREE.GridHelper(200, 20, layerCols[i], layerCols[i]);
+    const grid = new THREE.GridHelper(200, 20, col, col);
     grid.position.y = y - 0.5;
     grid.material.opacity = 0.04;
     grid.material.transparent = true;
     scene.add(grid);
+
+    // Floor label pillar
+    const labelGeo = new THREE.BoxGeometry(0.3, LAYER_Y.bp - LAYER_Y.people + 10, 0.3);
+    // skip pillar, use text labels in overlay
   });
 
   const filter = document.getElementById('graph3d-filter')?.value || 'all';
@@ -3112,91 +3140,109 @@ function init3DScene(THREE, OrbitControls, container) {
   const posMap = {};
   const labelsContainer = document.getElementById('three-labels');
 
-  // Group services by service group for clustered layout
-  const svcByGroup = {};
+  // Categorize services
+  const infraGroupNames = ['Infrastructure'];
+  const secGroupNames = ['Identity & Security'];
+  const itGroupNames = ['ITSM Platform', 'Monitoring & Alerting', 'Communication', 'Automation'];
+
+  function getServiceLayer(group) {
+    if (infraGroupNames.includes(group)) return 'infra';
+    if (secGroupNames.includes(group)) return 'sec';
+    return 'it';
+  }
+
+  // Group services by layer, then by group
+  const svcByLayer = { it: {}, infra: {}, sec: {} };
   const svcSet = new Set();
   let filteredServices = DB.services;
   if (groupFilter !== 'all') filteredServices = DB.services.filter(s => s.group === groupFilter);
   filteredServices.forEach(s => {
     if (svcSet.has(s.subservice)) return;
     svcSet.add(s.subservice);
-    if (!svcByGroup[s.group]) svcByGroup[s.group] = [];
-    svcByGroup[s.group].push(s);
+    const layer = getServiceLayer(s.group);
+    if (!svcByLayer[layer][s.group]) svcByLayer[layer][s.group] = [];
+    svcByLayer[layer][s.group].push(s);
   });
 
-  const svcGroupNames = Object.keys(svcByGroup);
-  const groupAngleStep = (Math.PI * 2) / Math.max(svcGroupNames.length, 1);
+  // Render service nodes per layer
+  ['it', 'infra', 'sec'].forEach(layerKey => {
+    const groups = svcByLayer[layerKey];
+    const groupNames = Object.keys(groups);
+    const groupAngleStep = (Math.PI * 2) / Math.max(groupNames.length, 1);
+    const layerColor = LAYER_COLORS[layerKey];
+    const layerYPos = LAYER_Y[layerKey];
 
-  svcGroupNames.forEach((grpName, gi) => {
-    const groupAngle = gi * groupAngleStep;
-    const groupRadius = Math.min(70, 25 + svcGroupNames.length * 4);
-    const cx = Math.cos(groupAngle) * groupRadius;
-    const cz = Math.sin(groupAngle) * groupRadius;
-    const services = svcByGroup[grpName];
-    const clusterRadius = Math.max(4, Math.sqrt(services.length) * 3);
+    groupNames.forEach((grpName, gi) => {
+      const groupAngle = gi * groupAngleStep;
+      const groupRadius = Math.min(70, 25 + groupNames.length * 4);
+      const cx = Math.cos(groupAngle) * groupRadius;
+      const cz = Math.sin(groupAngle) * groupRadius;
+      const services = groups[grpName];
+      const clusterRadius = Math.max(4, Math.sqrt(services.length) * 3);
 
-    // Group ring
-    const ringGeo = new THREE.RingGeometry(clusterRadius + 1, clusterRadius + 1.5, 32);
-    const ringMat = new THREE.MeshBasicMaterial({ color: 0x00bcd4, transparent: true, opacity: 0.15, side: THREE.DoubleSide });
-    const ring = new THREE.Mesh(ringGeo, ringMat);
-    ring.rotation.x = -Math.PI / 2;
-    ring.position.set(cx, LAYER_Y.svc - 0.4, cz);
-    scene.add(ring);
+      // Group ring
+      const ringGeo = new THREE.RingGeometry(clusterRadius + 1, clusterRadius + 1.5, 32);
+      const ringMat = new THREE.MeshBasicMaterial({ color: layerColor, transparent: true, opacity: 0.15, side: THREE.DoubleSide });
+      const ring = new THREE.Mesh(ringGeo, ringMat);
+      ring.rotation.x = -Math.PI / 2;
+      ring.position.set(cx, layerYPos - 0.4, cz);
+      scene.add(ring);
 
-    services.forEach((s, si) => {
-      const localAngle = (si / services.length) * Math.PI * 2;
-      const r = services.length === 1 ? 0 : clusterRadius * 0.7;
-      const x = cx + Math.cos(localAngle) * r;
-      const z = cz + Math.sin(localAngle) * r;
-      const y = LAYER_Y.svc;
-      const scale = CRIT_SCALE[s.criticality] || 1;
-      const critColor = CRIT_COLORS[s.criticality] || 0x00bcd4;
+      services.forEach((s, si) => {
+        const localAngle = (si / services.length) * Math.PI * 2;
+        const r = services.length === 1 ? 0 : clusterRadius * 0.7;
+        const x = cx + Math.cos(localAngle) * r;
+        const z = cz + Math.sin(localAngle) * r;
+        const y = layerYPos;
+        const scale = CRIT_SCALE[s.criticality] || 1;
+        const critColor = CRIT_COLORS[s.criticality] || layerColor;
 
-      const geo = new THREE.BoxGeometry(2, 2, 2);
-      const mat = new THREE.MeshPhongMaterial({ color: 0x00bcd4, emissive: critColor, emissiveIntensity: 0.2, transparent: true, opacity: 0.9 });
-      const mesh = new THREE.Mesh(geo, mat);
-      mesh.position.set(x, y, z);
-      mesh.scale.setScalar(scale);
-      scene.add(mesh);
-      mesh.add(new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: critColor, wireframe: true, transparent: true, opacity: 0.4 })));
+        const geo = new THREE.BoxGeometry(2, 2, 2);
+        const mat = new THREE.MeshPhongMaterial({ color: layerColor, emissive: critColor, emissiveIntensity: 0.2, transparent: true, opacity: 0.9 });
+        const mesh = new THREE.Mesh(geo, mat);
+        mesh.position.set(x, y, z);
+        mesh.scale.setScalar(scale);
+        scene.add(mesh);
+        mesh.add(new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: critColor, wireframe: true, transparent: true, opacity: 0.4 })));
 
-      const id = 'svc:' + s.subservice;
-      nodeObjects.push({ mesh, data: s, type: 'svc', id, label: s.subservice, groupName: grpName });
-      posMap[id] = { x, y, z, obj: nodeObjects[nodeObjects.length - 1] };
+        const id = 'svc:' + s.subservice;
+        nodeObjects.push({ mesh, data: s, type: 'svc', layer: layerKey, id, label: s.subservice, groupName: grpName });
+        posMap[id] = { x, y, z, obj: nodeObjects[nodeObjects.length - 1] };
+      });
     });
   });
 
-   // Business Processes — simple circular layout
-   const bpNodes = DB.businessProcesses;
-   const bpRadius = Math.min(65, 22 + bpNodes.length * 3);
-   bpNodes.forEach((bp, i) => {
-     const angle = (i / bpNodes.length) * Math.PI * 2;
-     const x = Math.cos(angle) * bpRadius;
-     const z = Math.sin(angle) * bpRadius;
-     const y = LAYER_Y.bp;
-     const scale = CRIT_SCALE[bp.criticality] || 1;
-     const critColor = CRIT_COLORS[bp.criticality] || 0xC2185B;
+  // Business Processes — circular layout on top floor
+  const bpNodes = DB.businessProcesses;
+  const bpRadius = Math.min(65, 22 + bpNodes.length * 3);
+  bpNodes.forEach((bp, i) => {
+    const angle = (i / bpNodes.length) * Math.PI * 2;
+    const x = Math.cos(angle) * bpRadius;
+    const z = Math.sin(angle) * bpRadius;
+    const y = LAYER_Y.bp;
+    const scale = CRIT_SCALE[bp.criticality] || 1;
+    const critColor = CRIT_COLORS[bp.criticality] || 0xC2185B;
 
-     const geo = new THREE.SphereGeometry(2, 16, 12);
-     const mat = new THREE.MeshPhongMaterial({ color: 0xC2185B, emissive: critColor, emissiveIntensity: 0.25, transparent: true, opacity: 0.92 });
-     const mesh = new THREE.Mesh(geo, mat);
-     mesh.position.set(x, y, z);
-     mesh.scale.setScalar(scale);
-     scene.add(mesh);
-     mesh.add(new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: 0xC2185B, wireframe: true, transparent: true, opacity: 0.35 })));
+    const geo = new THREE.SphereGeometry(2, 16, 12);
+    const mat = new THREE.MeshPhongMaterial({ color: 0xC2185B, emissive: critColor, emissiveIntensity: 0.25, transparent: true, opacity: 0.92 });
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.position.set(x, y, z);
+    mesh.scale.setScalar(scale);
+    scene.add(mesh);
+    mesh.add(new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: 0xC2185B, wireframe: true, transparent: true, opacity: 0.35 })));
 
-     const id = 'bp:' + bp.id;
-     nodeObjects.push({ mesh, data: bp, type: 'bp', id, label: bp.name || bp.id });
-     posMap[id] = { x, y, z };
-   });
+    const id = 'bp:' + bp.id;
+    nodeObjects.push({ mesh, data: bp, type: 'bp', layer: 'bp', id, label: bp.name || bp.id });
+    posMap[id] = { x, y, z };
+  });
 
-  // User Groups
+  // People / User Groups — bottom floor
   DB.userGroups.forEach((g, i) => {
     const angle = (i / DB.userGroups.length) * Math.PI * 2;
     const grpRadius = Math.min(50, 15 + DB.userGroups.length * 3);
     const x = Math.cos(angle) * grpRadius;
     const z = Math.sin(angle) * grpRadius;
-    const y = LAYER_Y.grp;
+    const y = LAYER_Y.people;
     const userScale = Math.min(1.5, 0.7 + (g.count || 5) / 25);
 
     const geo = new THREE.SphereGeometry(1.8, 16, 12);
@@ -3208,7 +3254,7 @@ function init3DScene(THREE, OrbitControls, container) {
     mesh.add(new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: 0xeab308, wireframe: true, transparent: true, opacity: 0.3 })));
 
     const id = 'grp:' + g.name;
-    nodeObjects.push({ mesh, data: g, type: 'grp', id, label: g.name });
+    nodeObjects.push({ mesh, data: g, type: 'grp', layer: 'people', id, label: g.name });
     posMap[id] = { x, y, z };
   });
 
@@ -3229,7 +3275,6 @@ function init3DScene(THREE, OrbitControls, container) {
     const tube = new THREE.Mesh(tubeGeo, tubeMat);
     scene.add(tube);
 
-    // Arrow
     const arrowGeo = new THREE.ConeGeometry(0.5, 1.5, 6);
     const arrowMat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.5 });
     const arrow = new THREE.Mesh(arrowGeo, arrowMat);
@@ -3273,6 +3318,11 @@ function init3DScene(THREE, OrbitControls, container) {
   const tooltip = document.getElementById('three-tooltip');
   const detail = document.getElementById('three-detail');
 
+  function getLayerLabel(n) {
+    const layerMap = { bp: '⚡ Business Process', it: '⚙ IT Service', infra: '🏗 Infrastructure', sec: '🛡 Security', people: '👥 People' };
+    return layerMap[n.layer] || (n.type === 'bp' ? '⚡ Business Process' : n.type === 'grp' ? '👥 People' : '⚙ Service');
+  }
+
   function updateLabels() {
     labelsContainer.innerHTML = '';
     nodeObjects.forEach(n => {
@@ -3281,12 +3331,12 @@ function init3DScene(THREE, OrbitControls, container) {
       const x = (pos.x * 0.5 + 0.5) * width;
       const y = (-pos.y * 0.5 + 0.5) * height;
       const camDist = camera.position.distanceTo(n.mesh.position);
-      if (camDist > 120 && n.data.criticality !== 'High') return;
-      if (camDist > 200) return;
+      if (camDist > 140 && n.data.criticality !== 'High') return;
+      if (camDist > 220) return;
       const fontSize = camDist < 40 ? 11 : camDist < 80 ? 9 : 7;
-      const opacity = Math.max(0.3, Math.min(1, 1 - (camDist - 30) / 150));
+      const opacity = Math.max(0.3, Math.min(1, 1 - (camDist - 30) / 180));
       const shortLabel = n.label.length > 20 ? n.label.slice(0, 18) + '…' : n.label;
-       const typeCol = n.type === 'bp' ? '#C2185B' : n.type === 'svc' ? '#00bcd4' : '#eab308';
+      const typeCol = {bp:'#C2185B',it:'#00bcd4',infra:'#f97316',sec:'#e040fb',people:'#eab308'}[n.layer] || '#00bcd4';
       const div = document.createElement('div');
       div.style.cssText = 'position:absolute;left:' + x + 'px;top:' + (y + 12) + 'px;transform:translateX(-50%);font-size:' + fontSize + 'px;color:' + typeCol + ';font-family:IBM Plex Mono,monospace;white-space:nowrap;opacity:' + opacity + ';text-shadow:0 0 4px #040810,0 0 8px #040810;pointer-events:none;font-weight:600';
       div.textContent = shortLabel;
@@ -3320,18 +3370,17 @@ function init3DScene(THREE, OrbitControls, container) {
       }
       if (node) {
         tooltip.style.display = 'block';
-        tooltip.style.left = (e.clientX - rect.left + 14) + 'px';
+        tooltip.style.left = Math.min(e.clientX - rect.left + 14, rect.width - 270) + 'px';
         tooltip.style.top = (e.clientY - rect.top - 10) + 'px';
-         const typeLabel = node.type === 'bp' ? '⚡ Business Process' : node.type === 'svc' ? '⚙ IT Service' : '👥 User Group';
+        const typeLabel = getLayerLabel(node);
         const critBg = node.data.criticality === 'High' ? 'rgba(239,68,68,.2);color:#f87171' : node.data.criticality === 'Medium' ? 'rgba(249,115,22,.2);color:#f97316' : 'rgba(34,197,94,.15);color:#4ade80';
         let connCount = 0;
         edgeLines.forEach(e => { if (e.srcId === node.id || e.tgtId === node.id) connCount++; });
-        let ttHtml = '<div style="font-weight:700;margin-bottom:3px;font-size:.85rem">' + esc(node.label) + '</div>';
-        ttHtml += '<div style="font-size:.7rem;color:#8ba5c5;margin-bottom:4px">' + typeLabel + '</div>';
+        let ttHtml = '<div style="font-weight:700;margin-bottom:3px;font-size:.82rem">' + esc(node.label) + '</div>';
+        ttHtml += '<div style="font-size:.68rem;color:#8ba5c5;margin-bottom:4px">' + typeLabel + '</div>';
         if (node.data.criticality) ttHtml += '<span style="padding:1px 6px;border-radius:8px;font-size:.65rem;font-weight:700;background:' + critBg + '">' + node.data.criticality + '</span>';
-        if (node.data.group) ttHtml += '<div style="font-size:.68rem;color:#435570;margin-top:4px">Group: ' + esc(node.data.group) + '</div>';
-        if (node.data.department) ttHtml += '<div style="font-size:.68rem;color:#435570">Dept: ' + esc(node.data.department) + '</div>';
-        ttHtml += '<div style="font-size:.68rem;color:#f5b800;margin-top:4px">' + connCount + ' Verbindungen</div>';
+        if (node.data.group) ttHtml += '<div style="font-size:.66rem;color:#435570;margin-top:4px">Group: ' + esc(node.data.group) + '</div>';
+        ttHtml += '<div style="font-size:.66rem;color:#f5b800;margin-top:4px">' + connCount + ' Verbindungen</div>';
         tooltip.innerHTML = ttHtml;
       }
     } else {
@@ -3352,11 +3401,11 @@ function init3DScene(THREE, OrbitControls, container) {
     controls.target.copy(n.mesh.position);
 
     detail.style.display = 'block';
-     const typeLabel = n.type === 'bp' ? '⚡ Business Process' : n.type === 'svc' ? '⚙ IT Service' : '👥 User Group';
-    const typeColor = n.type === 'bp' ? '#C2185B' : n.type === 'svc' ? '#00bcd4' : '#eab308';
-    let html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><div style="font-size:.95rem;font-weight:700;color:' + typeColor + '">' + esc(n.label) + '</div>';
-    html += '<button onclick="document.getElementById(\'three-detail\').style.display=\'none\'" style="background:none;border:none;color:#435570;cursor:pointer;font-size:1.2rem">✕</button></div>';
-    html += '<div style="font-size:.68rem;color:#435570;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">' + typeLabel + '</div>';
+    const typeLabel = getLayerLabel(n);
+    const typeColor = {bp:'#C2185B',it:'#00bcd4',infra:'#f97316',sec:'#e040fb',people:'#eab308'}[n.layer] || '#00bcd4';
+    let html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><div style="font-size:.9rem;font-weight:700;color:' + typeColor + '">' + esc(n.label) + '</div>';
+    html += '<button onclick="document.getElementById(\'three-detail\').style.display=\'none\'" style="background:none;border:none;color:#435570;cursor:pointer;font-size:1.1rem">✕</button></div>';
+    html += '<div style="font-size:.65rem;color:#435570;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">' + typeLabel + '</div>';
 
     const props = [];
     if (n.data.criticality) props.push(['Criticality', n.data.criticality]);
@@ -3369,13 +3418,12 @@ function init3DScene(THREE, OrbitControls, container) {
     if (n.data.rto) props.push(['RTO', n.data.rto]);
     if (n.data.rpo) props.push(['RPO', n.data.rpo]);
     if (n.data.description) props.push(['Beschreibung', n.data.description]);
-    if (n.data.notes) props.push(['Anmerkungen', n.data.notes]);
 
     if (props.length) {
-      html += '<div style="background:#0D1B2A;border-radius:6px;padding:8px;margin-bottom:10px">';
+      html += '<div style="background:#0D1B2A;border-radius:6px;padding:6px;margin-bottom:8px">';
       props.forEach(([k, v]) => {
         const cc = v === 'High' ? '#EF5350' : v === 'Medium' ? '#f97316' : v === 'Low' ? '#66BB6A' : '#f0f4fc';
-        html += '<div style="display:flex;justify-content:space-between;padding:3px 0;font-size:.78rem;gap:8px"><span style="color:#435570;flex-shrink:0">' + k + '</span><span style="color:' + (k === 'Criticality' ? cc : '#f0f4fc') + ';text-align:right">' + esc(String(v)) + '</span></div>';
+        html += '<div style="display:flex;justify-content:space-between;padding:2px 0;font-size:.74rem;gap:6px"><span style="color:#435570;flex-shrink:0">' + k + '</span><span style="color:' + (k === 'Criticality' ? cc : '#f0f4fc') + ';text-align:right;word-break:break-word">' + esc(String(v)) + '</span></div>';
       });
       html += '</div>';
     }
@@ -3387,20 +3435,20 @@ function init3DScene(THREE, OrbitControls, container) {
     });
     const renderList = (title, items) => {
       if (!items.length) return '';
-      let h = '<div style="font-size:.68rem;color:#435570;text-transform:uppercase;letter-spacing:1px;margin:8px 0 4px">' + title + ' (' + items.length + ')</div>';
+      let h = '<div style="font-size:.65rem;color:#435570;text-transform:uppercase;letter-spacing:1px;margin:6px 0 3px">' + title + ' (' + items.length + ')</div>';
       items.forEach(c => {
-        const col = c.type === 'bp' ? '#C2185B' : c.type === 'svc' ? '#00bcd4' : '#eab308';
-        h += '<div style="display:flex;align-items:center;gap:6px;padding:4px 6px;margin:2px 0;background:#0D1B2A;border-radius:4px;font-size:.76rem">';
-        h += '<div style="width:6px;height:6px;border-radius:50%;background:' + col + ';flex-shrink:0"></div>';
-        h += '<span style="color:#f0f4fc;flex:1">' + esc(c.label) + '</span>';
-        if (c.lineType) h += '<span style="font-size:.62rem;color:#435570">' + esc(c.lineType) + '</span>';
+        const col = {bp:'#C2185B',it:'#00bcd4',infra:'#f97316',sec:'#e040fb',people:'#eab308'}[c.layer] || '#00bcd4';
+        h += '<div style="display:flex;align-items:center;gap:5px;padding:3px 5px;margin:1px 0;background:#0D1B2A;border-radius:3px;font-size:.72rem">';
+        h += '<div style="width:5px;height:5px;border-radius:50%;background:' + col + ';flex-shrink:0"></div>';
+        h += '<span style="color:#f0f4fc;flex:1;word-break:break-word">' + esc(c.label) + '</span>';
+        if (c.lineType) h += '<span style="font-size:.58rem;color:#435570">' + esc(c.lineType) + '</span>';
         h += '</div>';
       });
       return h;
     };
     html += renderList('→ Ausgehend', outgoing);
     html += renderList('← Eingehend', incoming);
-    if (!outgoing.length && !incoming.length) html += '<div style="color:#435570;font-size:.82rem;text-align:center;padding:12px">Keine Verbindungen</div>';
+    if (!outgoing.length && !incoming.length) html += '<div style="color:#435570;font-size:.78rem;text-align:center;padding:8px">Keine Verbindungen</div>';
     detail.innerHTML = html;
   });
 
@@ -3413,7 +3461,7 @@ function init3DScene(THREE, OrbitControls, container) {
     const dt = clock.getDelta();
     controls.update();
     nodeObjects.forEach((n, i) => {
-      const baseY = n.type === 'bp' ? LAYER_Y.bp : n.type === 'svc' ? LAYER_Y.svc : LAYER_Y.grp;
+      const baseY = LAYER_Y[n.layer] || 0;
       n.mesh.position.y = baseY + Math.sin(t * 0.4 + i * 0.5) * 0.3;
       n.mesh.rotation.y = t * 0.1 + i * 0.3;
     });
