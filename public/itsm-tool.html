@@ -1256,6 +1256,10 @@ function renderDeps(){
         <button class="btn btn-primary btn-sm" onclick="openDepForm()">+ Abhängigkeit</button>
       </div>
     </div>
+    <div class="mini-chart-row">
+      <div class="chart-panel"><div class="chart-title">🍩 Dependency Typen</div><div id="dep-type-chart"></div></div>
+      <div class="chart-panel"><div class="chart-title">📊 Most Connected Services</div><div id="dep-conn-chart"></div></div>
+    </div>
     <div class="filter-bar">
       <input class="search-input" id="dep-search" placeholder="🔍 Suche…" oninput="filterDeps()">
       <select class="filter-select" id="dep-type-filter" onchange="filterDeps()">
@@ -1263,6 +1267,17 @@ function renderDeps(){
       </select>
     </div>
     <div id="dep-table-container"></div>`;
+
+  // Dep type donut
+  const dtm={};DB.serviceDeps.forEach(d=>{dtm[d.depType]=(dtm[d.depType]||0)+1;});
+  d3Donut('dep-type-chart',Object.entries(dtm).map(([k,v])=>({label:k,value:v})).sort((a,b)=>b.value-a.value),
+    {size:130,colors:['#C62828','#E65100','#1565C0'],centerLabel:'types'});
+
+  // Most connected services
+  const conn={};DB.serviceDeps.forEach(d=>{conn[d.upstream]=(conn[d.upstream]||0)+1;conn[d.downstream]=(conn[d.downstream]||0)+1;});
+  const topConn=Object.entries(conn).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([k,v])=>({label:k,value:v}));
+  d3HBar('dep-conn-chart',topConn);
+
   filterDeps();
 }
 
