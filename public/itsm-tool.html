@@ -2744,13 +2744,49 @@ function renderGraph(nodes, links) {
     .force('collision', d3.forceCollide().radius(30));
   _graphSim = sim;
 
-  // Links
+  // Links — curved paths with bundling offset for parallel edges
   const linkColors = { dep: '#f5b800', bpmap: '#E040FB', perm: '#00E5FF' };
-  const link = g.append('g').selectAll('line')
-    .data(links).enter().append('line')
+
+  // Compute bundling offsets: when multiple links share the same pair of nodes, fan them out
+  const pairCount = {};
+  const pairIdx = {};
+  links.forEach((l, i) => {
+    const a = typeof l.source === 'object' ? l.source.id : l.source;
+    const b = typeof l.target === 'object' ? l.target.id : l.target;
+    const key = [a, b].sort().join('||');
+    if (!pairCount[key]) pairCount[key] = 0;
+    pairCount[key]++;
+    pairIdx[i] = { key, idx: pairCount[key] - 1 };
+  });
+
+  function linkPath(d, i) {
+    const sx = typeof d.source === 'object' ? d.source.x : 0;
+    const sy = typeof d.source === 'object' ? d.source.y : 0;
+    const tx = typeof d.target === 'object' ? d.target.x : 0;
+    const ty = typeof d.target === 'object' ? d.target.y : 0;
+    const dx = tx - sx, dy = ty - sy;
+    const dist = Math.sqrt(dx*dx + dy*dy) || 1;
+    // Normal perpendicular vector
+    const nx = -dy / dist, ny = dx / dist;
+    // Bundling: fan offset for parallel links
+    const info = pairIdx[i];
+    const total = pairCount[info.key];
+    const fanSpread = Math.min(25, dist * 0.15);
+    const offset = total <= 1 ? 0 : (info.idx - (total - 1) / 2) * fanSpread;
+    // Curve via midpoint + perpendicular offset + type-based curvature
+    const typeCurve = d.type === 'dep' ? 0.2 : d.type === 'bpmap' ? 0.25 : 0.15;
+    const curvature = dist * typeCurve;
+    const mx = (sx + tx) / 2 + nx * (curvature + offset);
+    const my = (sy + ty) / 2 + ny * (curvature + offset);
+    return `M${sx},${sy} Q${mx},${my} ${tx},${ty}`;
+  }
+
+  const link = g.append('g').selectAll('path')
+    .data(links).enter().append('path')
+    .attr('fill', 'none')
     .attr('stroke', d => linkColors[d.type] || '#435570')
-    .attr('stroke-width', d => d.depType === 'Mandatory' ? 1.8 : 1)
-    .attr('stroke-opacity', 0.25)
+    .attr('stroke-width', d => d.depType === 'Mandatory' || d.depType === 'primary' ? 1.6 : 0.8)
+    .attr('stroke-opacity', 0.18)
     .attr('stroke-dasharray', d => d.depType === 'Optional' ? '4,4' : d.depType === 'Supporting' ? '6,3' : null)
     .attr('marker-end', d => 'url(#arrow-'+d.type+')');
 
@@ -2758,7 +2794,7 @@ function renderGraph(nodes, links) {
   const linkLabel = g.append('g').selectAll('text')
     .data(links).enter().append('text')
     .text(d => d.label || '')
-    .attr('font-size', 8)
+    .attr('font-size', 7)
     .attr('fill', '#435570')
     .attr('text-anchor', 'middle')
     .attr('opacity', 0);
@@ -2826,7 +2862,8 @@ function renderGraph(nodes, links) {
     d3.select(this).select('circle:nth-child(2)').transition().duration(200).attr('r', (critRadius[d.criticality]||14) + 4).attr('opacity', 1);
     // Highlight connected links
     link.transition().duration(200)
-      .attr('stroke-opacity', l => (l.source.id === d.id || l.target.id === d.id) ? 0.8 : 0.1);
+      .attr('stroke-opacity', l => (l.source.id === d.id || l.target.id === d.id) ? 0.7 : 0.04)
+      .attr('stroke-width', l => (l.source.id === d.id || l.target.id === d.id) ? 2 : 0.5);
     // Highlight connected nodes
     const connected = new Set();
     links.forEach(l => {
@@ -2836,10 +2873,10 @@ function renderGraph(nodes, links) {
       if (tid === d.id) connected.add(sid);
     });
     connected.add(d.id);
-    node.transition().duration(200).attr('opacity', n => connected.has(n.id) ? 1 : 0.15);
+    node.transition().duration(200).attr('opacity', n => connected.has(n.id) ? 1 : 0.12);
   }).on('mouseleave', function() {
     d3.select(this).select('circle:nth-child(2)').transition().duration(300).attr('r', d => critRadius[d.criticality]||14).attr('opacity', 0.9);
-    link.transition().duration(300).attr('stroke-opacity', 0.35);
+    link.transition().duration(300).attr('stroke-opacity', 0.18).attr('stroke-width', d => d.depType === 'Mandatory' || d.depType === 'primary' ? 1.6 : 0.8);
     node.transition().duration(300).attr('opacity', 1);
   });
 
@@ -2848,12 +2885,18 @@ function renderGraph(nodes, links) {
   _graphZoom.on('zoom', (e) => {
     g.attr('transform', e.transform);
     const show = e.transform.k > 1.5;
-    linkLabel.attr('opacity', show ? 0.7 : 0);
+    linkLabel.attr('opacity', show ? 0.6 : 0);
   });
 
   sim.on('tick', () => {
-    link.attr('x1',d=>d.source.x).attr('y1',d=>d.source.y).attr('x2',d=>d.target.x).attr('y2',d=>d.target.y);
-    linkLabel.attr('x',d=>(d.source.x+d.target.x)/2).attr('y',d=>(d.source.y+d.target.y)/2);
+    link.attr('d', (d, i) => linkPath(d, i));
+    linkLabel.each(function(d, i) {
+      const sx = typeof d.source === 'object' ? d.source.x : 0;
+      const sy = typeof d.source === 'object' ? d.source.y : 0;
+      const tx = typeof d.target === 'object' ? d.target.x : 0;
+      const ty = typeof d.target === 'object' ? d.target.y : 0;
+      d3.select(this).attr('x', (sx+tx)/2).attr('y', (sy+ty)/2);
+    });
     node.attr('transform',d=>'translate('+d.x+','+d.y+')');
   });
 
