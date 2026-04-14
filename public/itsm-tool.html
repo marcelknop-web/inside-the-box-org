@@ -2725,8 +2725,8 @@ function renderGraph(nodes, links) {
   const defs = svg.append('defs');
   ['dep','bpmap','perm'].forEach(t => {
     const colors = { dep: '#f5b800', bpmap: '#E040FB', perm: '#00E5FF' };
-    defs.append('marker').attr('id', 'arrow-'+t).attr('viewBox','0 0 10 6').attr('refX',28).attr('refY',3).attr('markerWidth',8).attr('markerHeight',6).attr('orient','auto')
-      .append('path').attr('d','M0,0L10,3L0,6Z').attr('fill', colors[t]).attr('opacity', 0.6);
+    defs.append('marker').attr('id', 'arrow-'+t).attr('viewBox','0 0 10 6').attr('refX',18).attr('refY',3).attr('markerWidth',7).attr('markerHeight',5).attr('orient','auto')
+      .append('path').attr('d','M0,0L10,3L0,6Z').attr('fill', colors[t]).attr('opacity', 0.5);
   });
 
   // Glow filter
