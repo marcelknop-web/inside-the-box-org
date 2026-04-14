@@ -2759,39 +2759,71 @@ function renderGraph(nodes, links) {
     pairIdx[i] = { key, idx: pairCount[key] - 1 };
   });
 
+  // --- Technical-drawing style orthogonal cable routing ---
+  // Each link type gets its own horizontal "cable tray" Y-offset band so cables never overlap
+  const trayBands = { dep: -1, bpmap: 0, perm: 1 };
+  // Assign a unique channel index per link for parallel-cable spacing
+  const channelMap = {};
+  const channelCounters = {};
+  links.forEach((l, i) => {
+    const a = typeof l.source === 'object' ? l.source.id : l.source;
+    const b = typeof l.target === 'object' ? l.target.id : l.target;
+    const key = [a, b].sort().join('||');
+    if (channelCounters[key] === undefined) channelCounters[key] = 0;
+    channelMap[i] = { key, ch: channelCounters[key]++, total: 0 };
+  });
+  // Fill total counts
+  links.forEach((l, i) => {
+    channelMap[i].total = channelCounters[channelMap[i].key];
+  });
+
   function linkPath(d, i) {
     const sx = typeof d.source === 'object' ? d.source.x : 0;
     const sy = typeof d.source === 'object' ? d.source.y : 0;
     const tx = typeof d.target === 'object' ? d.target.x : 0;
     const ty = typeof d.target === 'object' ? d.target.y : 0;
-    // Orthogonal cable routing: leave source horizontally, then turn vertically, then horizontally to target
-    const info = pairIdx[i];
-    const total = pairCount[info.key];
-    const cableSpacing = 6; // px between parallel cables
-    const offset = total <= 1 ? 0 : (info.idx - (total - 1) / 2) * cableSpacing;
+    
+    const cm = channelMap[i];
+    const cableGap = 4; // px between parallel cables
+    const chOff = (cm.ch - (cm.total - 1) / 2) * cableGap;
+    const bandOff = (trayBands[d.type] || 0) * 12; // type-based band separation
+    
     const dx = tx - sx, dy = ty - sy;
-    // Determine routing strategy based on relative positions
-    if (Math.abs(dx) < 20) {
-      // Nearly vertical: route horizontally first, then vertical
-      const detour = 40 + offset;
-      return `M${sx},${sy} L${sx + detour},${sy} L${sx + detour},${ty} L${tx},${ty}`;
-    } else if (Math.abs(dy) < 20) {
-      // Nearly horizontal: route vertically first, then horizontal
-      const detour = 40 + offset;
-      return `M${sx},${sy} L${sx},${sy + detour} L${tx},${sy + detour} L${tx},${ty}`;
-    } else {
-      // General case: horizontal out, vertical transit, horizontal in (L-shaped cable tray)
-      const midX = sx + dx * 0.5 + offset;
-      return `M${sx},${sy} L${midX},${sy} L${midX},${ty} L${tx},${ty}`;
+    const absDx = Math.abs(dx), absDy = Math.abs(dy);
+    
+    // Strategy: source → horizontal stub → vertical trunk → horizontal stub → target
+    // Like proper cable management: exit node horizontally, route through a vertical trunk
+    const stubLen = 25; // horizontal stub length from node
+    const exitDir = dx >= 0 ? 1 : -1; // exit direction
+    
+    // Exit point from source (horizontal stub)
+    const ex1 = sx + stubLen * exitDir;
+    const ey1 = sy + bandOff;
+    
+    // Entry point to target (horizontal stub from opposite side)  
+    const ex2 = tx - stubLen * exitDir;
+    const ey2 = ty + bandOff;
+    
+    // Vertical trunk X position: midpoint between exit and entry, offset for parallel cables
+    const trunkX = (ex1 + ex2) / 2 + chOff;
+    
+    if (absDy < 8 && absDx > 40) {
+      // Nearly horizontal: simple straight with slight offset for cable band
+      return `M${sx},${sy} L${sx + stubLen * exitDir},${sy + bandOff + chOff} L${tx - stubLen * exitDir},${ty + bandOff + chOff} L${tx},${ty}`;
     }
+    
+    // Full orthogonal routing: H → V → H
+    return `M${sx},${sy} L${ex1},${ey1} L${trunkX},${ey1} L${trunkX},${ey2} L${ex2},${ey2} L${tx},${ty}`;
   }
 
   const link = g.append('g').selectAll('path')
     .data(links).enter().append('path')
     .attr('fill', 'none')
     .attr('stroke', d => linkColors[d.type] || '#435570')
-    .attr('stroke-width', d => d.depType === 'Mandatory' || d.depType === 'primary' ? 1.6 : 0.8)
-    .attr('stroke-opacity', 0.18)
+    .attr('stroke-width', d => d.depType === 'Mandatory' || d.depType === 'primary' ? 1.4 : 0.7)
+    .attr('stroke-opacity', 0.25)
+    .attr('stroke-linejoin', 'round')  // slight rounding at corners like real cable bends
+    .attr('stroke-linecap', 'round')
     .attr('stroke-dasharray', d => d.depType === 'Optional' ? '4,4' : d.depType === 'Supporting' ? '6,3' : null)
     .attr('marker-end', d => 'url(#arrow-'+d.type+')');
 
