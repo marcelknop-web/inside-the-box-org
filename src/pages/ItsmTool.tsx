@@ -26,7 +26,7 @@ const ItsmTool = () => {
     return (
       <iframe
         src="/itsm-tool.html"
-        className="fixed inset-0 w-full h-full border-none"
+        className="fixed inset-0 w-full h-full border-none z-[9999]"
         title="ITSM Tool"
       />
     );
