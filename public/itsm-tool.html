@@ -3349,30 +3349,27 @@ function init3DScene(THREE, OrbitControls, container) {
     const mz = (src.z + tgt.z) / 2;
 
     let points;
+    const cableSpacing = 1.2;
+    const fanOff = (fanIdx - 0.5) * cableSpacing;
     if (sameLayer) {
-      // Same layer: gentle arc within the floor, fan parallel edges
-      const dx = tgt.x - src.x, dz = tgt.z - src.z;
-      const dist = Math.sqrt(dx*dx + dz*dz) || 1;
-      const nx = -dz / dist, nz = dx / dist;
-      const arcH = dist * 0.15 + fanIdx * 1.5;
+      // Same layer: orthogonal cable — go along X, then Z (or vice versa), like a cable tray
+      const midX = src.x + (tgt.x - src.x) * 0.5 + fanOff;
       points = [
         new THREE.Vector3(src.x, src.y, src.z),
-        new THREE.Vector3(mx + nx * arcH, src.y + 1.5, mz + nz * arcH),
+        new THREE.Vector3(midX, src.y, src.z),
+        new THREE.Vector3(midX, src.y, tgt.z),
         new THREE.Vector3(tgt.x, tgt.y, tgt.z)
       ];
     } else {
-      // Cross-layer: route through central elevator shaft (x=0, z=0 corridor)
-      // Pull control points toward center to bundle vertical connections
-      const bundlePull = 0.6; // 0=direct, 1=full center routing
-      const fanOffset = (fanIdx - 0.5) * 2;
-      const srcMid = { x: src.x * (1 - bundlePull) + fanOffset, z: src.z * (1 - bundlePull) + fanOffset };
-      const tgtMid = { x: tgt.x * (1 - bundlePull) + fanOffset, z: tgt.z * (1 - bundlePull) + fanOffset };
-      const midY = (src.y + tgt.y) / 2;
+      // Cross-layer: go horizontal to a cable shaft, then vertical, then horizontal to target
+      const shaftX = fanOff;
+      const shaftZ = fanOff;
       points = [
         new THREE.Vector3(src.x, src.y, src.z),
-        new THREE.Vector3(srcMid.x, src.y + (midY - src.y) * 0.3, srcMid.z),
-        new THREE.Vector3(fanOffset, midY, fanOffset),
-        new THREE.Vector3(tgtMid.x, tgt.y + (midY - tgt.y) * 0.3, tgtMid.z),
+        new THREE.Vector3(shaftX, src.y, src.z),
+        new THREE.Vector3(shaftX, src.y, shaftZ),
+        new THREE.Vector3(shaftX, tgt.y, shaftZ),
+        new THREE.Vector3(shaftX, tgt.y, tgt.z),
         new THREE.Vector3(tgt.x, tgt.y, tgt.z)
       ];
     }
