@@ -2848,6 +2848,253 @@ function renderPagination(containerId, total, current, onPage){
     <button class="page-btn" onclick="(${onPage.toString()})(${current+1})" ${current>=pages?'disabled':''}>Weiter ›</button>`;
 }
 
+// ═══════════════════════════════════════════════════════════════
+// EXCEL EXPORT (SheetJS)
+// ═══════════════════════════════════════════════════════════════
+function exportExcelSection(key, title){
+  const data=DB[key]; if(!data?.length){showToast('Keine Daten vorhanden.','error');return;}
+  const wb=XLSX.utils.book_new();
+  const ws=XLSX.utils.json_to_sheet(data);
+  autoFitColumns(ws,data);
+  XLSX.utils.book_append_sheet(wb,ws,title.slice(0,31));
+  XLSX.writeFile(wb,'ITSM_'+title.replace(/\s/g,'_')+'_'+new Date().toISOString().slice(0,10)+'.xlsx');
+  showToast('Excel exportiert.');
+}
+
+function exportExcelAll(){
+  const wb=XLSX.utils.book_new();
+  const sheets=[
+    {key:'services',name:'Service Catalog'},
+    {key:'cis',name:'Configuration Items'},
+    {key:'businessProcesses',name:'Business Processes'},
+    {key:'userGroups',name:'User Groups'},
+    {key:'incidents',name:'Incidents'},
+    {key:'changes',name:'Changes'},
+    {key:'permissions',name:'Berechtigungen'},
+    {key:'bpServiceMap',name:'BP-Service Map'},
+    {key:'serviceDeps',name:'Service Dependencies'},
+    {key:'serviceCiMap',name:'Service-CI Map'},
+    {key:'slas',name:'SLAs'}
+  ];
+  let hasData=false;
+  sheets.forEach(s=>{
+    const data=DB[s.key]; if(!data?.length) return;
+    hasData=true;
+    const ws=XLSX.utils.json_to_sheet(data);
+    autoFitColumns(ws,data);
+    XLSX.utils.book_append_sheet(wb,ws,s.name.slice(0,31));
+  });
+  // Add Audit summary sheet
+  const checks=runAuditChecks();
+  const auditData=checks.map(c=>({ID:c.id,Kategorie:c.category,Prüfung:c.label,Schwere:c.severity,Bestanden:c.passed?'✅':'❌',Detail:c.detail}));
+  if(auditData.length){
+    const ws=XLSX.utils.json_to_sheet(auditData);
+    autoFitColumns(ws,auditData);
+    XLSX.utils.book_append_sheet(wb,ws,'Audit Results');
+    hasData=true;
+  }
+  // Maturity scores
+  const scores=calcMaturityScores();
+  const matData=scores.map(s=>({Domäne:s.axis,Score:s.value+'%',Reifegrad:s.value>=80?'Optimized':s.value>=60?'Managed':s.value>=40?'Defined':s.value>=20?'Initial':'Ad-hoc'}));
+  const msWs=XLSX.utils.json_to_sheet(matData);
+  autoFitColumns(msWs,matData);
+  XLSX.utils.book_append_sheet(wb,msWs,'Maturity Assessment');
+  hasData=true;
+
+  if(!hasData){showToast('Keine Daten vorhanden.','error');return;}
+  XLSX.writeFile(wb,'ITSM_Projektdaten_'+new Date().toISOString().slice(0,10)+'.xlsx');
+  showToast('Excel mit allen Daten exportiert.');
+}
+
+function autoFitColumns(ws,data){
+  if(!data.length) return;
+  const cols=Object.keys(data[0]);
+  ws['!cols']=cols.map(k=>{
+    let max=k.length;
+    data.forEach(r=>{const v=String(r[k]||'');if(v.length>max)max=v.length;});
+    return {wch:Math.min(max+2,50)};
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SECTION PDF EXPORT (jsPDF)
+// ═══════════════════════════════════════════════════════════════
+function exportSectionPDF(key, title){
+  const data=DB[key]; if(!data?.length){showToast('Keine Daten vorhanden.','error');return;}
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
+  const cols=Object.keys(data[0]);
+  const head=[cols.map(c=>c.charAt(0).toUpperCase()+c.slice(1))];
+  const body=data.map(r=>cols.map(c=>String(r[c]||'').slice(0,80)));
+
+  doc.setFontSize(14);doc.setTextColor(8,11,16);
+  doc.text('ITSM Service Catalog Manager',14,14);
+  doc.setFontSize(10);doc.setTextColor(100);
+  doc.text(title+' — Export '+new Date().toLocaleDateString('de-DE'),14,21);
+  doc.text('Projekt: '+(getCurrentProjectName()||'Standard'),14,27);
+
+  doc.autoTable({head,body,startY:32,styles:{fontSize:7,cellPadding:2},headStyles:{fillColor:[245,184,0],textColor:[8,11,16],fontStyle:'bold'},alternateRowStyles:{fillColor:[245,245,250]},margin:{left:10,right:10}});
+  doc.save('ITSM_'+title.replace(/\s/g,'_')+'_'+new Date().toISOString().slice(0,10)+'.pdf');
+  showToast('PDF exportiert.');
+}
+
+function getCurrentProjectName(){
+  try{
+    const sel=document.getElementById('project-select');
+    return sel?sel.options[sel.selectedIndex].text:'Standard-Projekt';
+  }catch(e){return 'Standard-Projekt';}
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PROJECT REPORT PDF
+// ═══════════════════════════════════════════════════════════════
+function generateProjectReport(){
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({unit:'mm',format:'a4'});
+  const pw=210,ph=297,m=15;
+  const projName=getCurrentProjectName();
+  const today=new Date().toLocaleDateString('de-DE');
+  let y=0;
+
+  function addPage(){doc.addPage();y=m;addFooter();}
+  function checkPage(need){if(y+need>ph-20)addPage();}
+  function addFooter(){
+    doc.setFontSize(7);doc.setTextColor(150);
+    doc.text('ITSM Service Catalog Manager — '+projName+' — '+today,m,ph-8);
+    doc.text('Seite '+doc.getNumberOfPages(),pw-m,ph-8,{align:'right'});
+  }
+  function sectionTitle(txt){
+    checkPage(16);
+    doc.setFontSize(13);doc.setTextColor(245,184,0);
+    doc.text(txt,m,y);y+=8;
+    doc.setDrawColor(245,184,0);doc.setLineWidth(0.5);
+    doc.line(m,y-2,pw-m,y-2);y+=4;
+  }
+  function subTitle(txt){
+    checkPage(10);
+    doc.setFontSize(10);doc.setTextColor(60);
+    doc.text(txt,m,y);y+=6;
+  }
+  function bodyText(txt){
+    doc.setFontSize(8);doc.setTextColor(40);
+    const lines=doc.splitTextToSize(txt,pw-2*m);
+    checkPage(lines.length*4+4);
+    doc.text(lines,m,y);y+=lines.length*4+2;
+  }
+  function dataTable(head,body){
+    checkPage(20);
+    doc.autoTable({head:[head],body,startY:y,styles:{fontSize:7,cellPadding:1.5},headStyles:{fillColor:[245,184,0],textColor:[8,11,16],fontStyle:'bold'},alternateRowStyles:{fillColor:[245,245,250]},margin:{left:m,right:m},didDrawPage:()=>{addFooter();}});
+    y=doc.lastAutoTable.finalY+6;
+  }
+
+  // ── Cover Page ──
+  doc.setFillColor(8,11,16);doc.rect(0,0,pw,ph,'F');
+  doc.setFontSize(28);doc.setTextColor(245,184,0);
+  doc.text('ITSM',pw/2,90,{align:'center'});
+  doc.setFontSize(14);doc.setTextColor(200);
+  doc.text('Service Catalog Manager',pw/2,102,{align:'center'});
+  doc.setFontSize(18);doc.setTextColor(255);
+  doc.text('Projektbericht',pw/2,125,{align:'center'});
+  doc.setFontSize(11);doc.setTextColor(180);
+  doc.text(projName,pw/2,140,{align:'center'});
+  doc.text(today,pw/2,150,{align:'center'});
+  doc.setFontSize(8);doc.setTextColor(100);
+  doc.text('Generiert aus dem ITSM Service Catalog Manager',pw/2,ph-30,{align:'center'});
+
+  // ── Page 2: Executive Summary ──
+  addPage();y=m+5;
+  sectionTitle('1. Executive Summary');
+  const scores=calcMaturityScores();
+  const avg=Math.round(scores.reduce((s,d)=>s+d.value,0)/scores.length);
+  const matLvl=avg>=80?'Optimized':avg>=60?'Managed':avg>=40?'Defined':avg>=20?'Initial':'Ad-hoc';
+  const checks=runAuditChecks();
+  const passed=checks.filter(c=>c.passed).length;
+  const failed=checks.filter(c=>!c.passed).length;
+  const auditScore=checks.length?Math.round(passed/checks.length*100):100;
+  const gaps=runGapAnalysis();
+
+  bodyText('Dieser Bericht fasst den aktuellen Stand des ITSM Service Catalog für das Projekt "'+projName+'" zusammen. Er enthält eine vollständige Bestandsaufnahme aller erfassten Daten, Qualitätsprüfungen, Maturity-Bewertungen und identifizierte Gaps.');
+  y+=4;
+  subTitle('Kennzahlen auf einen Blick');
+  dataTable(
+    ['Kennzahl','Wert'],
+    [
+      ['Services (Subservices)',String(DB.services.length)],
+      ['Configuration Items',String(DB.cis.length)],
+      ['Business Processes',String(DB.businessProcesses.length)],
+      ['User Groups',String(DB.userGroups.length)],
+      ['Incidents',String(DB.incidents.length)],
+      ['Changes',String(DB.changes.length)],
+      ['SLAs',String((DB.slas||[]).length)],
+      ['Audit Score',auditScore+'%'],
+      ['Maturity Score',avg+'% ('+matLvl+')'],
+      ['Offene Gaps',String(gaps.length)]
+    ]
+  );
+
+  // ── Maturity Assessment ──
+  sectionTitle('2. Maturity Assessment');
+  bodyText('Die Reifegradanalyse bewertet 8 ITIL-Prozessdomänen auf Basis der erfassten Daten. Der Gesamt-Reifegrad liegt bei '+avg+'% ('+matLvl+').');
+  dataTable(
+    ['Domäne','Score','Reifegrad'],
+    scores.map(s=>[s.axis,s.value+'%',s.value>=80?'Optimized':s.value>=60?'Managed':s.value>=40?'Defined':s.value>=20?'Initial':'Ad-hoc'])
+  );
+
+  // ── Audit Results ──
+  sectionTitle('3. Audit-Ergebnisse');
+  bodyText('Die automatische Qualitätsprüfung umfasst '+checks.length+' Checks. '+passed+' bestanden, '+failed+' mit Findings.');
+  if(failed>0){
+    dataTable(
+      ['ID','Kategorie','Prüfung','Schwere','Detail'],
+      checks.filter(c=>!c.passed).map(c=>[c.id,c.category,c.label,c.severity.toUpperCase(),c.detail])
+    );
+  }
+
+  // ── Gap Analysis ──
+  sectionTitle('4. Gap Analysis');
+  if(gaps.length){
+    bodyText(gaps.length+' Gaps identifiziert:');
+    dataTable(
+      ['Schwere','Kategorie','Gap','Betroffene Objekte','Empfehlung'],
+      gaps.map(g=>[g.sev.toUpperCase(),g.cat,g.title,String(g.items.length),g.action])
+    );
+  } else {
+    bodyText('Keine Gaps identifiziert — alle Zuordnungen vollständig.');
+  }
+
+  // ── Data Sections ──
+  const sections=[
+    {key:'services',name:'5. Service Catalog',cols:['group','service','subservice','criticality','ci_type','description']},
+    {key:'cis',name:'6. Configuration Items',cols:['id','name','ciType','status','location','owner']},
+    {key:'businessProcesses',name:'7. Business Processes',cols:['id','name','category','criticality','owner','rto']},
+    {key:'incidents',name:'8. Incidents',cols:['id','title','priority','status','assignedTo','createdAt']},
+    {key:'changes',name:'9. Changes',cols:['id','title','changeType','risk','status','owner']},
+    {key:'slas',name:'10. SLAs / SLOs',cols:['service','availability','rto','rpo','supportHours','escalationContact']}
+  ];
+
+  sections.forEach(s=>{
+    const data=DB[s.key]; if(!data?.length) return;
+    sectionTitle(s.name);
+    const cols=s.cols.filter(c=>data[0].hasOwnProperty(c));
+    const head=cols.map(c=>c.charAt(0).toUpperCase()+c.slice(1));
+    const body=data.map(r=>cols.map(c=>String(r[c]||'').slice(0,60)));
+    dataTable(head,body);
+  });
+
+  // ── Compliance Checks ──
+  const compItems=runComplianceChecks();
+  if(compItems.length){
+    sectionTitle('11. Compliance-Handlungsbedarf');
+    dataTable(
+      ['Prio','Titel','Ansprechpartner','Frist','Regulation'],
+      compItems.slice(0,20).map(i=>[i.priority,i.title.slice(0,50),i.owner,i.deadline,i.regulation||''])
+    );
+  }
+
+  doc.save('ITSM_Projektbericht_'+projName.replace(/\s/g,'_')+'_'+new Date().toISOString().slice(0,10)+'.pdf');
+  showToast('Projektbericht (PDF) generiert.');
+}
+
 
 // ═══════════════════════════════════════════════════════════════
 // AI AGENT
