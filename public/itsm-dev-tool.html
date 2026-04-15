@@ -108,6 +108,7 @@ tr:hover td{background:#1a2535}
 .form-grid.full{grid-template-columns:1fr}
 .form-group{display:flex;flex-direction:column;gap:5px}
 .form-group label{font-size:.72rem;color:#8ba5c5;font-weight:600;text-transform:uppercase;letter-spacing:.5px;font-family:'IBM Plex Mono',monospace}
+.form-group label .req{color:#ef4444;font-weight:700;margin-left:2px}
 .form-input,.form-select,.form-textarea{background:#080b10;border:1px solid #1e2a3a;border-radius:6px;padding:8px 10px;color:#f0f4fc;font-size:.83rem;width:100%;font-family:'DM Sans',sans-serif}
 .form-input:focus,.form-select:focus,.form-textarea:focus{outline:none;border-color:#f5b800;box-shadow:0 0 6px rgba(245,184,0,.15)}
 .form-textarea{resize:vertical;min-height:72px}
@@ -1512,23 +1513,29 @@ function openServiceForm(id){
   const allGroups = [...new Set([...defaultGroups,...groups])].sort();
   const svcs   = [...new Set(DB.services.map(x=>x.service))].sort();
   document.getElementById('modal-title').textContent = s ? '✎ Subservice bearbeiten' : '+ Neuer Subservice';
+  const subsvcList=[...new Set(DB.services.map(x=>x.subservice).filter(Boolean))].sort();
   document.getElementById('modal-body').innerHTML = `
     <div class="form-grid">
       <div class="form-group">
-        <label>Service Group</label>
+        <label>Service Group <span class="req">*</span></label>
         <select class="form-select" id="f-group">
           <option value="">– Gruppe wählen –</option>
           ${allGroups.map(g=>`<option value="${esc(g)}" ${s?.group===g?'selected':''}>${esc(g)}</option>`).join('')}
         </select>
       </div>
       <div class="form-group">
-        <label>Service (OLA)</label>
+        <label>Service (OLA) <span class="req">*</span></label>
         <input class="form-input" id="f-service" list="svc-list" value="${esc(s?.service||'')}" placeholder="z.B. SAP S/4HANA">
         <datalist id="svc-list">${svcs.map(x=>`<option value="${esc(x)}">`).join('')}</datalist>
       </div>
       <div class="form-group">
-        <label>Subservice</label>
-        <input class="form-input" id="f-subservice" value="${esc(s?.subservice||'')}" placeholder="z.B. General Ledger (FI-GL)">
+        <label>Subservice <span class="req">*</span></label>
+        <select class="form-select" id="f-subservice">
+          <option value="">– Auswählen –</option>
+          ${subsvcList.map(ss=>`<option value="${esc(ss)}" ${s?.subservice===ss?'selected':''}>${esc(ss)}</option>`).join('')}
+          <option value="__custom">+ Eigene Eingabe…</option>
+        </select>
+        <input class="form-input" id="f-subservice-custom" style="display:none;margin-top:4px" placeholder="z.B. General Ledger (FI-GL)" value="${s?.subservice&&!subsvcList.includes(s.subservice)?esc(s.subservice):''}">
       </div>
       <div class="form-group">
         <label>Typ</label>
@@ -1568,12 +1575,14 @@ function openServiceForm(id){
       <button class="btn btn-primary" onclick="saveService(${j(id||null)})">💾 Speichern</button>
     </div>`;
   openModal();
+  setupCustomDropdown('f-subservice');
 }
 
 function saveService(id){
   const get = x => document.getElementById(x)?.value?.trim()||'';
+  const subservice = getDropdownValue('f-subservice');
   const obj = { id: id||('SVC-'+uid()), group:get('f-group'), service:get('f-service'),
-    subservice:get('f-subservice'), svc_type:get('f-svc_type'), criticality:get('f-criticality'),
+    subservice: subservice, svc_type:get('f-svc_type'), criticality:get('f-criticality'),
     ci_type:get('f-ci_type'), description:get('f-description'), notes:get('f-notes'), source:get('f-source') };
   if(!obj.group||!obj.service||!obj.subservice){ showToast('Group, Service und Subservice sind Pflichtfelder.',true); return; }
   if(id){
@@ -1669,8 +1678,8 @@ function openProcessForm(id){
   document.getElementById('modal-title').textContent=p?'✎ Prozess bearbeiten':'+ Neuer Business Process';
   document.getElementById('modal-body').innerHTML=`
     <div class="form-grid">
-      <div class="form-group"><label>Prozess-ID</label><input class="form-input" id="f-id" value="${esc(p?.id||'BP-'+uid().toUpperCase())}" ${p?'readonly':''}></div>
-      <div class="form-group"><label>Prozessname</label><input class="form-input" id="f-name" value="${esc(p?.name||'')}" placeholder="z.B. Order-to-Cash"></div>
+      <div class="form-group"><label>Prozess-ID <span class="req">*</span></label><input class="form-input" id="f-id" value="${esc(p?.id||'BP-'+uid().toUpperCase())}" ${p?'readonly':''}></div>
+      <div class="form-group"><label>Prozessname <span class="req">*</span></label><input class="form-input" id="f-name" value="${esc(p?.name||'')}" placeholder="z.B. Order-to-Cash"></div>
       <div class="form-group"><label>Kategorie</label>
         <select class="form-select" id="f-cat">
           <option value="">– Bitte wählen –</option>
@@ -1786,8 +1795,8 @@ function openGroupForm(id){
   document.getElementById('modal-title').textContent=g?'✎ User Group bearbeiten':'+ Neue User Group';
   document.getElementById('modal-body').innerHTML=`
     <div class="form-grid">
-      <div class="form-group"><label>Group-ID</label><input class="form-input" id="f-id" value="${esc(g?.id||'GRP-000')}" ${g?'readonly':''}></div>
-      <div class="form-group"><label>Gruppenname</label><input class="form-input" id="f-name" value="${esc(g?.name||'')}"></div>
+      <div class="form-group"><label>Group-ID <span class="req">*</span></label><input class="form-input" id="f-id" value="${esc(g?.id||'GRP-000')}" ${g?'readonly':''}></div>
+      <div class="form-group"><label>Gruppenname <span class="req">*</span></label><input class="form-input" id="f-name" value="${esc(g?.name||'')}"></div>
       <div class="form-group"><label>Typ</label>
         <select class="form-select" id="f-type">${['Business','IT','Vendor','Management'].map(t=>`<option ${(g?.type||'Business')===t?'selected':''}>${t}</option>`).join('')}</select>
       </div>
@@ -1890,8 +1899,8 @@ function openCiForm(id){
   document.getElementById('modal-title').textContent=c?'✎ CI bearbeiten':'+ Neues Configuration Item';
   document.getElementById('modal-body').innerHTML=`
     <div class="form-grid">
-      <div class="form-group"><label>CI-ID</label><input class="form-input" id="f-id" value="${esc(c?.id||'CI-'+uid().toUpperCase())}" ${c?'readonly':''}></div>
-      <div class="form-group"><label>Name</label><input class="form-input" id="f-name" value="${esc(c?.name||'')}" placeholder="z.B. SRV-PRD-SAP-01"></div>
+      <div class="form-group"><label>CI-ID <span class="req">*</span></label><input class="form-input" id="f-id" value="${esc(c?.id||'CI-'+uid().toUpperCase())}" ${c?'readonly':''}></div>
+      <div class="form-group"><label>Name <span class="req">*</span></label><input class="form-input" id="f-name" value="${esc(c?.name||'')}" placeholder="z.B. SRV-PRD-SAP-01"></div>
       <div class="form-group"><label>CI-Typ</label>
         <select class="form-select" id="f-citype">
           ${['Server','Netzwerk','Appliance','Arbeitsplatz','Software','Datenbank','Storage','Cloud Resource','OT Device','Virtuell'].map(t=>`<option ${(c?.ciType||'Server')===t?'selected':''}>${t}</option>`).join('')}
@@ -2008,8 +2017,8 @@ function openIncidentForm(id){
   document.getElementById('modal-title').textContent=i?'✎ Incident bearbeiten':'+ Neuer Incident';
   document.getElementById('modal-body').innerHTML=`
     <div class="form-grid">
-      <div class="form-group"><label>INC-ID</label><input class="form-input" id="f-id" value="${esc(i?.id||'INC-'+uid().toUpperCase())}" ${i?'readonly':''}></div>
-      <div class="form-group"><label>Titel</label><input class="form-input" id="f-title" value="${esc(i?.title||'')}" placeholder="Kurzbeschreibung des Incidents"></div>
+      <div class="form-group"><label>INC-ID <span class="req">*</span></label><input class="form-input" id="f-id" value="${esc(i?.id||'INC-'+uid().toUpperCase())}" ${i?'readonly':''}></div>
+      <div class="form-group"><label>Titel <span class="req">*</span></label><input class="form-input" id="f-title" value="${esc(i?.title||'')}" placeholder="Kurzbeschreibung des Incidents"></div>
       <div class="form-group"><label>Priorität</label>
         <select class="form-select" id="f-prio">
           ${['P1 – Critical','P2 – High','P3 – Medium','P4 – Low'].map(p=>`<option ${(i?.priority||'P3 – Medium')===p?'selected':''}>${p}</option>`).join('')}
@@ -2133,8 +2142,8 @@ function openChangeForm(id){
   document.getElementById('modal-title').textContent=c?'✎ Change bearbeiten':'+ Neuer Change Request';
   document.getElementById('modal-body').innerHTML=`
     <div class="form-grid">
-      <div class="form-group"><label>CHG-ID</label><input class="form-input" id="f-id" value="${esc(c?.id||'CHG-'+uid().toUpperCase())}" ${c?'readonly':''}></div>
-      <div class="form-group"><label>Titel</label><input class="form-input" id="f-title" value="${esc(c?.title||'')}" placeholder="Kurzbeschreibung des Changes"></div>
+      <div class="form-group"><label>CHG-ID <span class="req">*</span></label><input class="form-input" id="f-id" value="${esc(c?.id||'CHG-'+uid().toUpperCase())}" ${c?'readonly':''}></div>
+      <div class="form-group"><label>Titel <span class="req">*</span></label><input class="form-input" id="f-title" value="${esc(c?.title||'')}" placeholder="Kurzbeschreibung des Changes"></div>
       <div class="form-group"><label>Change-Typ</label>
         <select class="form-select" id="f-type">
           ${['Standard','Normal','Emergency'].map(t=>`<option ${(c?.changeType||'Normal')===t?'selected':''}>${t}</option>`).join('')}
@@ -5871,6 +5880,9 @@ function showTourStep(){
   const rect=target.getBoundingClientRect();
   target.style.position='relative';target.style.zIndex='502';target.style.boxShadow='0 0 0 4px #f5b800';
 
+  // Scroll target into view if needed
+  target.scrollIntoView({behavior:'smooth',block:'center'});
+
   const popup=document.createElement('div');
   popup.className='tour-popup';
   popup.innerHTML=`<div class="tour-step">Schritt ${_tourStep+1} von ${TOUR_STEPS.length}</div>
@@ -5881,9 +5893,25 @@ function showTourStep(){
     ${_tourStep>0?'<button class="btn btn-ghost btn-sm" onclick="_tourStep--;showTourStep()">← Zurück</button>':''}
     <button class="btn btn-primary btn-sm" onclick="_tourStep++;showTourStep()">${_tourStep<TOUR_STEPS.length-1?'Weiter →':'Fertig ✓'}</button>
   </div>`;
-  popup.style.top=(rect.top)+'px';
-  popup.style.left=(rect.right+16)+'px';
-  if(rect.right+380>window.innerWidth){popup.style.left='auto';popup.style.right='16px';}
+
+  // Position popup within viewport bounds
+  const updatedRect=target.getBoundingClientRect();
+  let popTop=updatedRect.top;
+  let popLeft=updatedRect.right+16;
+
+  // If popup would go off-screen right, position to the left of target
+  if(popLeft+380>window.innerWidth){
+    popLeft=Math.max(16, updatedRect.left-380-16);
+  }
+  // If popup would go off-screen left, center it
+  if(popLeft<16) popLeft=Math.max(16,(window.innerWidth-360)/2);
+
+  // Clamp vertical position
+  if(popTop+220>window.innerHeight) popTop=window.innerHeight-240;
+  if(popTop<16) popTop=16;
+
+  popup.style.top=popTop+'px';
+  popup.style.left=popLeft+'px';
   document.body.appendChild(popup);
 }
 function endTour(soft){
