@@ -601,16 +601,142 @@ function showToast(msg, err=false){
   setTimeout(()=>t.classList.remove('show'), 2800);
 }
 function updateCounts(){
-  document.getElementById('cnt-services').textContent = DB.services.length;
-  document.getElementById('cnt-cis').textContent = DB.cis.length;
-  document.getElementById('cnt-processes').textContent = DB.businessProcesses.length;
-  document.getElementById('cnt-groups').textContent = DB.userGroups.length;
-  document.getElementById('cnt-incidents').textContent = DB.incidents.length;
-  document.getElementById('cnt-changes').textContent = DB.changes.length;
-  document.getElementById('cnt-permissions').textContent = DB.permissions.length;
-  document.getElementById('cnt-bpmap').textContent = DB.bpServiceMap.length;
-  document.getElementById('cnt-deps').textContent = DB.serviceDeps.length;
-  document.getElementById('cnt-servicecimap').textContent = DB.serviceCiMap.length;
+  // SLA count
+  const slaEl = document.getElementById('cnt-slas');
+  if(slaEl) slaEl.textContent = DB.slas.length;
+
+  // ── Completeness Score per section ──
+  function svcCompleteness(){
+    if(!DB.services.length) return 0;
+    let score=0, total=DB.services.length;
+    const mappedSvcs = new Set(DB.serviceCiMap.map(m=>m.service));
+    DB.services.forEach(s=>{
+      let filled=0, req=5; // group, service, subservice, criticality, description
+      if(s.group) filled++; if(s.service) filled++; if(s.subservice) filled++;
+      if(s.criticality) filled++; if(s.description&&s.description.trim()) filled++;
+      let pct = filled/req;
+      if(mappedSvcs.has(s.subservice)||mappedSvcs.has(s.service)) pct = Math.min(1, pct+0.1);
+      score+=pct;
+    });
+    return Math.round(score/total*100);
+  }
+  function ciCompleteness(){
+    if(!DB.cis.length) return 0;
+    let score=0;
+    const mappedCIs = new Set(DB.serviceCiMap.map(m=>m.ci));
+    DB.cis.forEach(c=>{
+      let filled=0, req=4; // name, type, status, owner
+      if(c.name) filled++; if(c.type) filled++; if(c.status) filled++; if(c.owner&&c.owner.trim()) filled++;
+      let pct=filled/req;
+      if(mappedCIs.has(c.name)) pct=Math.min(1,pct+0.15);
+      score+=pct;
+    });
+    return Math.round(score/DB.cis.length*100);
+  }
+  function bpCompleteness(){
+    if(!DB.businessProcesses.length) return 0;
+    let score=0;
+    const mappedBPs = new Set(DB.bpServiceMap.map(m=>m.bpId));
+    DB.businessProcesses.forEach(p=>{
+      let filled=0, req=5; // name, category, owner, criticality, rto
+      if(p.name) filled++; if(p.category) filled++; if(p.owner&&p.owner.trim()) filled++;
+      if(p.criticality) filled++; if(p.rto&&p.rto.trim()) filled++;
+      let pct=filled/req;
+      if(mappedBPs.has(p.id)) pct=Math.min(1,pct+0.1);
+      score+=pct;
+    });
+    return Math.round(score/DB.businessProcesses.length*100);
+  }
+  function grpCompleteness(){
+    if(!DB.userGroups.length) return 0;
+    let score=0;
+    DB.userGroups.forEach(g=>{
+      let filled=0, req=4; // name, type, department, manager
+      if(g.name) filled++; if(g.type) filled++; if(g.department&&g.department.trim()) filled++;
+      if(g.manager&&g.manager.trim()) filled++;
+      score+=filled/req;
+    });
+    return Math.round(score/DB.userGroups.length*100);
+  }
+  function incCompleteness(){
+    if(!DB.incidents.length) return 0;
+    let score=0;
+    DB.incidents.forEach(i=>{
+      let filled=0, req=5; // title, priority, status, service, assignedTo
+      if(i.title) filled++; if(i.priority) filled++; if(i.status) filled++;
+      if(i.service&&i.service!=='–') filled++; if(i.assignedTo&&i.assignedTo!=='–'&&i.assignedTo.trim()) filled++;
+      score+=filled/req;
+    });
+    return Math.round(score/DB.incidents.length*100);
+  }
+  function chgCompleteness(){
+    if(!DB.changes.length) return 0;
+    let score=0;
+    DB.changes.forEach(c=>{
+      let filled=0, req=5; // title, changeType, risk, status, owner
+      if(c.title) filled++; if(c.changeType) filled++; if(c.risk) filled++;
+      if(c.status) filled++; if(c.owner&&c.owner.trim()) filled++;
+      score+=filled/req;
+    });
+    return Math.round(score/DB.changes.length*100);
+  }
+  function permCompleteness(){
+    if(!DB.permissions.length) return 0;
+    let score=0;
+    DB.permissions.forEach(p=>{
+      let filled=0, req=4; // groupName, service, level, scope
+      if(p.groupName) filled++; if(p.service) filled++; if(p.level) filled++;
+      if(p.scope&&p.scope.trim()) filled++;
+      score+=filled/req;
+    });
+    return Math.round(score/DB.permissions.length*100);
+  }
+  function bpmapCompleteness(){ return DB.bpServiceMap.length>0?100:0; }
+  function depsCompleteness(){
+    if(!DB.serviceDeps.length) return 0;
+    let score=0;
+    DB.serviceDeps.forEach(d=>{
+      let filled=0, req=3;
+      if(d.upstream) filled++; if(d.downstream) filled++; if(d.depType) filled++;
+      score+=filled/req;
+    });
+    return Math.round(score/DB.serviceDeps.length*100);
+  }
+  function scimapCompleteness(){ return DB.serviceCiMap.length>0?100:0; }
+
+  const scores = {
+    services: svcCompleteness(),
+    cis: ciCompleteness(),
+    processes: bpCompleteness(),
+    groups: grpCompleteness(),
+    incidents: incCompleteness(),
+    changes: chgCompleteness(),
+    permissions: permCompleteness(),
+    bpmap: bpmapCompleteness(),
+    deps: depsCompleteness(),
+    servicecimap: scimapCompleteness()
+  };
+
+  // Update sidebar percentage bars
+  Object.entries(scores).forEach(([key, pct])=>{
+    const el = document.getElementById('pct-'+key);
+    if(!el) return;
+    const fill = el.querySelector('.nav-pct-fill');
+    const val = el.querySelector('.nav-pct-val');
+    if(fill){
+      fill.style.width = pct+'%';
+      fill.style.background = pct>=80?'#22c55e':pct>=50?'#f5b800':'#ef4444';
+    }
+    if(val){
+      val.textContent = pct+'%';
+      val.style.color = pct>=80?'#4ade80':pct>=50?'#facc15':'#f87171';
+    }
+  });
+
+  // Store overall score for dashboard
+  window._projectCompleteness = scores;
+  const vals = Object.values(scores);
+  window._overallCompleteness = vals.length ? Math.round(vals.reduce((a,b)=>a+b,0)/vals.length) : 0;
 }
 
 // ═══════════════════════════════════════════════════════════════
