@@ -426,7 +426,7 @@ tr:hover td{background:#1a2535}
 // ═══════════════════════════════════════════════════════════════
 // DATA & STATE
 // ═══════════════════════════════════════════════════════════════
-const SEED_DATA = {"services":[],"serviceDeps":[],"businessProcesses":[],"bpServiceMap":[],"permissions":[],"userGroups":[],"cis":[],"incidents":[],"changes":[],"serviceCiMap":[],"changelog":[]};
+const SEED_DATA = {"services":[],"serviceDeps":[],"businessProcesses":[],"bpServiceMap":[],"permissions":[],"userGroups":[],"cis":[],"incidents":[],"changes":[],"serviceCiMap":[],"changelog":[],"slas":[],"maturity":{}};
 
 const GROUP_COLORS = {
   "Microsoft Services":"1565C0","Identity & Security":"6A1B9A",
@@ -440,18 +440,99 @@ const DEFAULT_COLOR = "455A64";
 function groupColor(g){ return GROUP_COLORS[g] || DEFAULT_COLOR; }
 function grpDot(g){ return `<span class="grp-dot" style="background:#${groupColor(g)}"></span>`; }
 
+/* ── Multi-tenancy: Project Management ── */
+function getProjects(){
+  return JSON.parse(localStorage.getItem('itsm_dev_projects')||'[]');
+}
+function saveProjects(p){
+  localStorage.setItem('itsm_dev_projects', JSON.stringify(p));
+}
+function getCurrentProjectId(){
+  return localStorage.getItem('itsm_dev_current_project')||'';
+}
+function setCurrentProjectId(id){
+  localStorage.setItem('itsm_dev_current_project', id);
+}
+function projectStorageKey(pid){
+  return 'itsm_dev_data_' + pid;
+}
+function projectLogKey(pid){
+  return 'arl_itsm_log_' + pid;
+}
+function ensureDefaultProject(){
+  let projects = getProjects();
+  if(projects.length === 0){
+    const pid = 'prj-' + Math.random().toString(36).substr(2,8);
+    projects.push({id: pid, name: 'Standard-Projekt', created: new Date().toISOString()});
+    saveProjects(projects);
+    // Migrate existing data if any
+    const existing = localStorage.getItem('itsm_dev_data');
+    if(existing) localStorage.setItem(projectStorageKey(pid), existing);
+    const existingLog = localStorage.getItem('arl_itsm_log');
+    if(existingLog) localStorage.setItem(projectLogKey(pid), existingLog);
+  }
+  if(!getCurrentProjectId() || !projects.find(p=>p.id===getCurrentProjectId())){
+    setCurrentProjectId(projects[0].id);
+  }
+  return projects;
+}
+function createProject(name){
+  const projects = getProjects();
+  const pid = 'prj-' + Math.random().toString(36).substr(2,8);
+  projects.push({id: pid, name, created: new Date().toISOString()});
+  saveProjects(projects);
+  switchProject(pid);
+  return pid;
+}
+function deleteProject(pid){
+  let projects = getProjects();
+  if(projects.length <= 1){ showToast('Das letzte Projekt kann nicht gelöscht werden.','error'); return; }
+  projects = projects.filter(p=>p.id!==pid);
+  saveProjects(projects);
+  localStorage.removeItem(projectStorageKey(pid));
+  localStorage.removeItem(projectLogKey(pid));
+  if(getCurrentProjectId()===pid) switchProject(projects[0].id);
+  else renderProjectSelector();
+}
+function renameProject(pid, newName){
+  const projects = getProjects();
+  const p = projects.find(x=>x.id===pid);
+  if(p){ p.name = newName; saveProjects(projects); renderProjectSelector(); }
+}
+function switchProject(pid){
+  saveData(); // save current first
+  setCurrentProjectId(pid);
+  DB = loadData();
+  renderProjectSelector();
+  showView(currentView);
+  updateCounts();
+  showToast('Projekt gewechselt.');
+}
+function renderProjectSelector(){
+  const sel = document.getElementById('project-selector');
+  if(!sel) return;
+  const projects = getProjects();
+  const cur = getCurrentProjectId();
+  sel.innerHTML = projects.map(p=>
+    `<option value="${esc(p.id)}" ${p.id===cur?'selected':''}>${esc(p.name)}</option>`
+  ).join('');
+}
+
 function loadData(){
   try {
-    const s = localStorage.getItem('itsm_dev_data');
+    ensureDefaultProject();
+    const pid = getCurrentProjectId();
+    const s = localStorage.getItem(projectStorageKey(pid));
     const d = s ? JSON.parse(s) : JSON.parse(JSON.stringify(SEED_DATA));
-    // Ensure all required keys exist (fix for data saved before userGroups was added)
-    const keys = ['services','serviceDeps','businessProcesses','bpServiceMap','permissions','userGroups','cis','incidents','changes','serviceCiMap','changelog'];
-    keys.forEach(k => { if(!Array.isArray(d[k])) d[k] = []; });
+    const keys = ['services','serviceDeps','businessProcesses','bpServiceMap','permissions','userGroups','cis','incidents','changes','serviceCiMap','changelog','slas','maturity'];
+    keys.forEach(k => { if(k==='maturity'){ if(typeof d[k]!=='object'||Array.isArray(d[k])) d[k]={}; } else { if(!Array.isArray(d[k])) d[k]=[]; } });
     return d;
   } catch(e){ return JSON.parse(JSON.stringify(SEED_DATA)); }
 }
 function saveData(){
-  localStorage.setItem('itsm_dev_data', JSON.stringify(DB));
+  const pid = getCurrentProjectId();
+  if(!pid) return;
+  localStorage.setItem(projectStorageKey(pid), JSON.stringify(DB));
   const ind = document.getElementById('save-indicator');
   ind.textContent = '✓ Gespeichert ' + new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
   ind.style.background = '#22c55e';
@@ -459,12 +540,14 @@ function saveData(){
   updateCounts();
 }
 function addChange(action, entity, name){
-  const log = JSON.parse(localStorage.getItem('arl_itsm_log')||'[]');
+  const pid = getCurrentProjectId();
+  const log = JSON.parse(localStorage.getItem(projectLogKey(pid))||'[]');
   log.unshift({action, entity, name, time: new Date().toISOString()});
-  localStorage.setItem('arl_itsm_log', JSON.stringify(log.slice(0,20)));
+  localStorage.setItem(projectLogKey(pid), JSON.stringify(log.slice(0,20)));
 }
 function getChanges(){
-  return JSON.parse(localStorage.getItem('arl_itsm_log')||'[]');
+  const pid = getCurrentProjectId();
+  return JSON.parse(localStorage.getItem(projectLogKey(pid))||'[]');
 }
 
 let DB = loadData();
