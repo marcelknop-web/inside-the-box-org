@@ -316,64 +316,61 @@ tr:hover td{background:#1a2535}
 <div class="layout">
   <button class="mobile-menu-btn" onclick="document.querySelector('.sidebar').classList.toggle('open')">☰ Menü</button>
   <nav class="sidebar">
-    <div class="sidebar-section">Übersicht</div>
+    <div class="sidebar-section">Workflow</div>
     <div class="nav-item active" onclick="showView('dashboard')" id="nav-dashboard">
-      <div class="nav-dot" style="background:#f5b800"></div> Dashboard
+      <div class="nav-dot" style="background:#f5b800"></div> <span style="opacity:.5;font-size:.7rem;margin-right:2px">0</span> Dashboard
     </div>
 
-    <div class="sidebar-section">Stammdaten</div>
+    <div class="sidebar-section">1 · Stammdaten erfassen</div>
     <div class="nav-item" onclick="showView('services')" id="nav-services">
-      <div class="nav-dot" style="background:#00bcd4"></div> Service Catalog
+      <div class="nav-dot" style="background:#00bcd4"></div> <span style="opacity:.5;font-size:.7rem;margin-right:2px">1.1</span> Service Catalog
       <span class="nav-count" id="cnt-services">0</span>
     </div>
     <div class="nav-item" onclick="showView('processes')" id="nav-processes">
-      <div class="nav-dot" style="background:#E91E63"></div> Business Processes
+      <div class="nav-dot" style="background:#E91E63"></div> <span style="opacity:.5;font-size:.7rem;margin-right:2px">1.2</span> Business Processes
       <span class="nav-count" id="cnt-processes">0</span>
     </div>
     <div class="nav-item" onclick="showView('groups')" id="nav-groups">
-      <div class="nav-dot" style="background:#f97316"></div> User Groups
+      <div class="nav-dot" style="background:#f97316"></div> <span style="opacity:.5;font-size:.7rem;margin-right:2px">1.3</span> User Groups
       <span class="nav-count" id="cnt-groups">0</span>
     </div>
 
-    <div class="sidebar-section">Beziehungen</div>
+    <div class="sidebar-section">2 · Verknüpfungen</div>
     <div class="nav-item" onclick="showView('permissions')" id="nav-permissions">
-      <div class="nav-dot" style="background:#9C27B0"></div> Permission Matrix
+      <div class="nav-dot" style="background:#9C27B0"></div> <span style="opacity:.5;font-size:.7rem;margin-right:2px">2.1</span> Berechtigungen
       <span class="nav-count" id="cnt-permissions">0</span>
     </div>
     <div class="nav-item" onclick="showView('bpmap')" id="nav-bpmap">
-      <div class="nav-dot" style="background:#F44336"></div> BP → Service Map
+      <div class="nav-dot" style="background:#F44336"></div> <span style="opacity:.5;font-size:.7rem;margin-right:2px">2.2</span> Prozess → Service
       <span class="nav-count" id="cnt-bpmap">0</span>
     </div>
     <div class="nav-item" onclick="showView('deps')" id="nav-deps">
-      <div class="nav-dot" style="background:#f5b800"></div> Service Dependencies
+      <div class="nav-dot" style="background:#f5b800"></div> <span style="opacity:.5;font-size:.7rem;margin-right:2px">2.3</span> Service-Abhängigkeiten
       <span class="nav-count" id="cnt-deps">0</span>
     </div>
 
-    <div class="sidebar-section" style="margin-top:14px">Qualität & Compliance</div>
+    <div class="sidebar-section">3 · Qualitätsprüfung</div>
     <div class="nav-item" onclick="showView('audit')" id="nav-audit" style="background:linear-gradient(90deg,rgba(239,68,68,.06),#0e1218);border-left:3px solid #ef4444">
-      <div class="nav-dot" style="background:#ef4444"></div> <span style="color:#f87171">Audit</span>
-      <span style="font-size:.65rem;padding:2px 5px;background:#7F1D1D;color:#f87171;border-radius:8px;margin-left:auto">QA</span>
+      <div class="nav-dot" style="background:#ef4444"></div> <span style="opacity:.5;font-size:.7rem;margin-right:2px">3.1</span> <span style="color:#f87171">Audit</span>
     </div>
     <div class="nav-item" onclick="showView('compliance')" id="nav-compliance" style="background:linear-gradient(90deg,rgba(34,197,94,.06),#0e1218);border-left:3px solid #22c55e">
-      <div class="nav-dot" style="background:#22c55e"></div> <span style="color:#4ade80">Compliance Check</span>
-      <span style="font-size:.65rem;padding:2px 5px;background:#14532D;color:#4ade80;border-radius:8px;margin-left:auto">NEW</span>
+      <div class="nav-dot" style="background:#22c55e"></div> <span style="opacity:.5;font-size:.7rem;margin-right:2px">3.2</span> <span style="color:#4ade80">Compliance Check</span>
     </div>
 
-    <div class="sidebar-section" style="margin-top:14px">Visualisierung</div>
+    <div class="sidebar-section">4 · Visualisierung</div>
     <div class="nav-item" onclick="showView('depgraph')" id="nav-depgraph" style="background:linear-gradient(90deg,rgba(0,188,212,.06),#0e1218);border-left:3px solid #00bcd4">
-      <div class="nav-dot" style="background:#00BCD4"></div> <span style="color:#80DEEA">Dependency Map</span>
+      <div class="nav-dot" style="background:#00BCD4"></div> <span style="opacity:.5;font-size:.7rem;margin-right:2px">4.1</span> <span style="color:#80DEEA">Dependency Map</span>
       <span style="font-size:.65rem;padding:2px 5px;background:#006064;color:#80DEEA;border-radius:8px;margin-left:auto">2D</span>
     </div>
     <div class="nav-item" onclick="showView('depgraph3d')" id="nav-depgraph3d" style="background:linear-gradient(90deg,rgba(245,184,0,.06),#0e1218);border-left:3px solid #f5b800">
-      <div class="nav-dot" style="background:#f5b800"></div> <span style="color:#f5b800">3D Layer Map</span>
+      <div class="nav-dot" style="background:#f5b800"></div> <span style="opacity:.5;font-size:.7rem;margin-right:2px">4.2</span> <span style="color:#f5b800">3D Layer Map</span>
       <span style="font-size:.65rem;padding:2px 5px;background:#5D4037;color:#FFD54F;border-radius:8px;margin-left:auto">3D</span>
     </div>
-    <div class="sidebar-section" style="margin-top:14px">KI-Assistent</div>
+
+    <div class="sidebar-section">Werkzeuge</div>
     <div class="nav-item" onclick="showView('agent')" id="nav-agent" style="background:linear-gradient(90deg,rgba(168,85,247,.06),#0e1218);border-left:3px solid #c084fc">
       <div class="nav-dot" style="background:#CE93D8"></div> <span style="color:#CE93D8">AI Agent</span>
-      <span style="font-size:.65rem;padding:2px 5px;background:#4A148C;color:#CE93D8;border-radius:8px;margin-left:auto">NEW</span>
     </div>
-    <div class="sidebar-section">System</div>
     <div class="nav-item" onclick="showView('settings')" id="nav-settings">
       <div class="nav-dot" style="background:#64748b"></div> Import / Export
     </div>
@@ -1095,15 +1092,19 @@ function renderServiceTable(rows){
 
 function openServiceForm(id){
   const s = id ? DB.services.find(x=>x.id===id) : null;
-  const groups = [...new Set(DB.services.map(x=>x.group))].sort();
+  const groups = [...new Set(DB.services.map(x=>x.group).filter(Boolean))].sort();
+  const defaultGroups = Object.keys(GROUP_COLORS);
+  const allGroups = [...new Set([...defaultGroups,...groups])].sort();
   const svcs   = [...new Set(DB.services.map(x=>x.service))].sort();
   document.getElementById('modal-title').textContent = s ? '✎ Subservice bearbeiten' : '+ Neuer Subservice';
   document.getElementById('modal-body').innerHTML = `
     <div class="form-grid">
       <div class="form-group">
         <label>Service Group</label>
-        <input class="form-input" id="f-group" list="grp-list" value="${esc(s?.group||'')}" placeholder="z.B. Business Applications">
-        <datalist id="grp-list">${groups.map(g=>`<option value="${esc(g)}">`).join('')}</datalist>
+        <select class="form-select" id="f-group">
+          <option value="">– Gruppe wählen –</option>
+          ${allGroups.map(g=>`<option value="${esc(g)}" ${s?.group===g?'selected':''}>${esc(g)}</option>`).join('')}
+        </select>
       </div>
       <div class="form-group">
         <label>Service (OLA)</label>
@@ -1144,7 +1145,7 @@ function openServiceForm(id){
       </div>
       <div class="form-group">
         <label>Source</label>
-        <input class="form-input" id="f-source" value="${esc(s?.source||'ARLANXEO ITSM')}">
+        <input class="form-input" id="f-source" value="${esc(s?.source||'')}">
       </div>
     </div>
     <div class="form-actions">
@@ -1247,21 +1248,42 @@ function filterProcesses(){
 
 function openProcessForm(id){
   const p=id?DB.businessProcesses.find(x=>x.id===id):null;
+  const existingCats=[...new Set(DB.businessProcesses.map(x=>x.category).filter(Boolean))].sort();
+  const defaultCats=['Finance','Supply Chain','Manufacturing','Sales','HR','IT','Procurement','Quality','EHS','Legal'];
+  const allCats=[...new Set([...defaultCats,...existingCats])].sort();
   document.getElementById('modal-title').textContent=p?'✎ Prozess bearbeiten':'+ Neuer Business Process';
   document.getElementById('modal-body').innerHTML=`
     <div class="form-grid">
-      <div class="form-group"><label>Prozess-ID</label><input class="form-input" id="f-id" value="${esc(p?.id||'BP-XXX-000')}" ${p?'readonly':''}></div>
-      <div class="form-group"><label>Prozessname</label><input class="form-input" id="f-name" value="${esc(p?.name||'')}"></div>
-      <div class="form-group"><label>Kategorie</label><input class="form-input" id="f-cat" list="cat-list" value="${esc(p?.category||'')}">
-        <datalist id="cat-list">${[...new Set(DB.businessProcesses.map(x=>x.category))].map(c=>`<option>${esc(c)}</option>`).join('')}</datalist>
+      <div class="form-group"><label>Prozess-ID</label><input class="form-input" id="f-id" value="${esc(p?.id||'BP-'+uid().toUpperCase())}" ${p?'readonly':''}></div>
+      <div class="form-group"><label>Prozessname</label><input class="form-input" id="f-name" value="${esc(p?.name||'')}" placeholder="z.B. Order-to-Cash"></div>
+      <div class="form-group"><label>Kategorie</label>
+        <select class="form-select" id="f-cat">
+          <option value="">– Bitte wählen –</option>
+          ${allCats.map(c=>`<option ${p?.category===c?'selected':''}>${esc(c)}</option>`).join('')}
+        </select>
       </div>
-      <div class="form-group"><label>Process Owner (Rolle)</label><input class="form-input" id="f-owner" value="${esc(p?.owner||'')}"></div>
+      <div class="form-group"><label>Process Owner (Rolle)</label><input class="form-input" id="f-owner" value="${esc(p?.owner||'')}" placeholder="z.B. VP Finance"></div>
       <div class="form-group"><label>Criticality</label>
         <select class="form-select" id="f-crit">${['High','Medium','Low'].map(c=>`<option ${(p?.criticality||'High')===c?'selected':''}>${c}</option>`).join('')}</select>
       </div>
-      <div class="form-group"><label>Regulatory</label><input class="form-input" id="f-reg" value="${esc(p?.regulatory||'')}" placeholder="SOX; GMP; EHS; GDPR…"></div>
-      <div class="form-group"><label>RTO</label><input class="form-input" id="f-rto" value="${esc(p?.rto||'')}" placeholder="z.B. 4h"></div>
-      <div class="form-group"><label>RPO</label><input class="form-input" id="f-rpo" value="${esc(p?.rpo||'')}" placeholder="z.B. 1h"></div>
+      <div class="form-group"><label>Regulatory</label>
+        <select class="form-select" id="f-reg">
+          <option value="" ${!p?.regulatory?'selected':''}>– Keine –</option>
+          ${['SOX','GMP','EHS','GDPR','REACH','IATF 16949','ISO 27001','NIS-2','DORA'].map(r=>`<option ${p?.regulatory===r?'selected':''}>${r}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group"><label>RTO</label>
+        <select class="form-select" id="f-rto">
+          <option value="" ${!p?.rto?'selected':''}>– Nicht definiert –</option>
+          ${['0h (Zero Downtime)','1h','2h','4h','8h','24h','48h','72h','1 Woche'].map(r=>`<option ${p?.rto===r?'selected':''}>${r}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group"><label>RPO</label>
+        <select class="form-select" id="f-rpo">
+          <option value="" ${!p?.rpo?'selected':''}>– Nicht definiert –</option>
+          ${['0h (Zero Loss)','1h','2h','4h','8h','24h','48h','72h'].map(r=>`<option ${p?.rpo===r?'selected':''}>${r}</option>`).join('')}
+        </select>
+      </div>
     </div>
     <div class="form-grid full" style="margin-top:14px">
       <div class="form-group"><label>Beschreibung</label><textarea class="form-textarea" id="f-desc">${esc(p?.description||'')}</textarea></div>
@@ -1457,24 +1479,32 @@ function openPermForm(id){
   const p=id?DB.permissions.find(x=>x.id===id):null;
   const svcs=[...new Set(DB.services.map(s=>s.service))].sort();
   const grps=DB.userGroups;
+  if(!grps.length||!svcs.length){ showToast('Bitte zuerst User Groups (1.3) und Services (1.1) anlegen.',true); return; }
   document.getElementById('modal-title').textContent=p?'✎ Berechtigung bearbeiten':'+ Neue Berechtigung';
   document.getElementById('modal-body').innerHTML=`
     <div class="form-grid">
       <div class="form-group"><label>Perm-ID</label><input class="form-input" id="f-id" value="${esc(p?.id||'PERM-'+uid())}" ${p?'readonly':''}></div>
       <div class="form-group"><label>User Group</label>
         <select class="form-select" id="f-grp" onchange="syncGroupName()">
+          <option value="">– Gruppe wählen –</option>
           ${grps.map(g=>`<option value="${esc(g.id)}" ${p?.groupId===g.id?'selected':''}>${esc(g.name)}</option>`).join('')}
         </select>
       </div>
       <div class="form-group"><label>Service (OLA)</label>
-        <input class="form-input" id="f-svc" list="svc-perm-list" value="${esc(p?.service||'')}">
-        <datalist id="svc-perm-list">${svcs.map(s=>`<option value="${esc(s)}">`).join('')}</datalist>
+        <select class="form-select" id="f-svc">
+          <option value="">– Service wählen –</option>
+          ${svcs.map(s=>`<option value="${esc(s)}" ${p?.service===s?'selected':''}>${esc(s)}</option>`).join('')}
+        </select>
       </div>
       <div class="form-group"><label>Scope / Subservice</label><input class="form-input" id="f-scope" value="${esc(p?.scope||'')}"></div>
       <div class="form-group"><label>Access Level</label>
         <select class="form-select" id="f-level">${['Read','Read-Write','Admin','Privileged','Limited'].map(l=>`<option ${(p?.level||'Read')===l?'selected':''}>${l}</option>`).join('')}</select>
       </div>
-      <div class="form-group"><label>Auth. Type</label><input class="form-input" id="f-authtype" value="${esc(p?.authType||'')}"></div>
+      <div class="form-group"><label>Auth. Type</label>
+        <select class="form-select" id="f-authtype">
+          ${['SSO / SAML','AD Group','API Key','Certificate','MFA','Local Account','OAuth','Service Account'].map(a=>`<option ${p?.authType===a?'selected':''}>${a}</option>`).join('')}
+        </select>
+      </div>
       <div class="form-group"><label>Provisioning Method</label>
         <select class="form-select" id="f-prov">${['Omada Automated','AD Group','Manual','Manual + Time-limited','Service Request'].map(l=>`<option ${(p?.provisioning||'Omada Automated')===l?'selected':''}>${l}</option>`).join('')}</select>
       </div>
@@ -1575,24 +1605,30 @@ function filterBpMap(){
 
 function openBpMapForm(idx){
   const m=idx!=null?DB.bpServiceMap[idx]:null;
-  const bps=DB.businessProcesses.map(p=>p.id).sort();
+  const bps=DB.businessProcesses;
   const svcs=[...new Set(DB.services.map(s=>s.service))].sort();
-  document.getElementById('modal-title').textContent=m?'✎ Zuordnung bearbeiten':'+ Neue BP → Service Zuordnung';
+  if(!bps.length||!svcs.length){ showToast('Bitte zuerst Business Processes (1.2) und Services (1.1) anlegen.',true); return; }
+  document.getElementById('modal-title').textContent=m?'✎ Zuordnung bearbeiten':'+ Prozess → Service Zuordnung';
   document.getElementById('modal-body').innerHTML=`
     <div class="form-grid">
       <div class="form-group"><label>Business Process</label>
-        <select class="form-select" id="f-bpid">${bps.map(b=>`<option ${m?.bpId===b?'selected':''}>${esc(b)}</option>`).join('')}</select>
+        <select class="form-select" id="f-bpid">
+          <option value="">– Prozess wählen –</option>
+          ${bps.map(b=>`<option value="${esc(b.id)}" ${m?.bpId===b.id?'selected':''}>${esc(b.id)} – ${esc(b.name)}</option>`).join('')}
+        </select>
       </div>
       <div class="form-group"><label>Service (OLA)</label>
-        <input class="form-input" id="f-svc" list="bpm-svc-list" value="${esc(m?.service||'')}">
-        <datalist id="bpm-svc-list">${svcs.map(s=>`<option value="${esc(s)}">`).join('')}</datalist>
+        <select class="form-select" id="f-svc">
+          <option value="">– Service wählen –</option>
+          ${svcs.map(s=>`<option value="${esc(s)}" ${m?.service===s?'selected':''}>${esc(s)}</option>`).join('')}
+        </select>
       </div>
-      <div class="form-group"><label>Dependency Type</label>
+      <div class="form-group"><label>Abhängigkeitstyp</label>
         <select class="form-select" id="f-dep">${['Mandatory','Supporting','Optional'].map(d=>`<option ${(m?.depType||'Mandatory')===d?'selected':''}>${d}</option>`).join('')}</select>
       </div>
     </div>
     <div class="form-grid full" style="margin-top:14px">
-      <div class="form-group"><label>Notes</label><textarea class="form-textarea" id="f-notes">${esc(m?.notes||'')}</textarea></div>
+      <div class="form-group"><label>Anmerkungen</label><textarea class="form-textarea" id="f-notes">${esc(m?.notes||'')}</textarea></div>
     </div>
     <div class="form-actions">
       <button class="btn btn-ghost" onclick="closeModal()">Abbrechen</button>
@@ -1674,23 +1710,28 @@ function filterDeps(){
 function openDepForm(idx){
   const d=idx!=null?DB.serviceDeps[idx]:null;
   const svcs=[...new Set(DB.services.map(s=>s.service))].sort();
-  document.getElementById('modal-title').textContent=d?'✎ Abhängigkeit bearbeiten':'+ Neue Service Dependency';
+  if(!svcs.length){ showToast('Bitte zuerst Services im Service Catalog anlegen (Schritt 1.1).',true); return; }
+  document.getElementById('modal-title').textContent=d?'✎ Abhängigkeit bearbeiten':'+ Neue Service-Abhängigkeit';
   document.getElementById('modal-body').innerHTML=`
     <div class="form-grid">
       <div class="form-group"><label>Upstream Service</label>
-        <input class="form-input" id="f-up" list="dep-svc-list" value="${esc(d?.upstream||'')}">
-        <datalist id="dep-svc-list">${svcs.map(s=>`<option value="${esc(s)}">`).join('')}</datalist>
+        <select class="form-select" id="f-up">
+          <option value="">– Service wählen –</option>
+          ${svcs.map(s=>`<option value="${esc(s)}" ${d?.upstream===s?'selected':''}>${esc(s)}</option>`).join('')}
+        </select>
       </div>
       <div class="form-group"><label>Downstream Service</label>
-        <input class="form-input" id="f-dn" list="dep-svc-list2" value="${esc(d?.downstream||'')}">
-        <datalist id="dep-svc-list2">${svcs.map(s=>`<option value="${esc(s)}">`).join('')}</datalist>
+        <select class="form-select" id="f-dn">
+          <option value="">– Service wählen –</option>
+          ${svcs.map(s=>`<option value="${esc(s)}" ${d?.downstream===s?'selected':''}>${esc(s)}</option>`).join('')}
+        </select>
       </div>
-      <div class="form-group"><label>Dependency Type</label>
+      <div class="form-group"><label>Abhängigkeitstyp</label>
         <select class="form-select" id="f-dep">${['Mandatory','Supporting','Optional'].map(t=>`<option ${(d?.depType||'Mandatory')===t?'selected':''}>${t}</option>`).join('')}</select>
       </div>
     </div>
     <div class="form-grid full" style="margin-top:14px">
-      <div class="form-group"><label>Notes</label><textarea class="form-textarea" id="f-notes">${esc(d?.notes||'')}</textarea></div>
+      <div class="form-group"><label>Anmerkungen</label><textarea class="form-textarea" id="f-notes">${esc(d?.notes||'')}</textarea></div>
     </div>
     <div class="form-actions">
       <button class="btn btn-ghost" onclick="closeModal()">Abbrechen</button>
