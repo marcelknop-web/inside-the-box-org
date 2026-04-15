@@ -1754,10 +1754,16 @@ function openGroupForm(id){
       <div class="form-group"><label>Typ</label>
         <select class="form-select" id="f-type">${['Business','IT','Vendor','Management'].map(t=>`<option ${(g?.type||'Business')===t?'selected':''}>${t}</option>`).join('')}</select>
       </div>
-      <div class="form-group"><label>Abteilung</label><input class="form-input" id="f-dept" value="${esc(g?.department||'')}"></div>
-      <div class="form-group"><label>Standort</label><input class="form-input" id="f-loc" value="${esc(g?.location||'')}"></div>
-      <div class="form-group"><label>Anzahl User (ca.)</label><input class="form-input" id="f-cnt" value="${esc(g?.count||'')}"></div>
-      <div class="form-group"><label>Group Manager (Rolle)</label><input class="form-input" id="f-mgr" value="${esc(g?.manager||'')}"></div>
+      <div class="form-group"><label>Abteilung ${helpIcon('Ordnen Sie die Gruppe einer Fachabteilung zu für Impact-Analysen.')}</label>
+        ${departmentDropdown('f-dept',g?.department||'')}
+      </div>
+      <div class="form-group"><label>Standort ${helpIcon('Primärer Standort der Gruppe. Relevant für BCM und Geo-Redundanz.')}</label>
+        ${locationDropdown('f-loc',g?.location||'')}
+      </div>
+      <div class="form-group"><label>Anzahl User (ca.) ${helpIcon('Ungefähre Anzahl der Mitglieder. Wird für Lizenz- und Kapazitätsplanung verwendet.')}</label><input class="form-input" id="f-cnt" type="number" min="0" value="${esc(g?.count||'')}"></div>
+      <div class="form-group"><label>Group Manager ${helpIcon('Verantwortliche Person/Rolle für Eskalationen und Berechtigungsfreigaben.')}</label>
+        ${ownerDropdown('f-mgr',g?.manager||'')}
+      </div>
     </div>
     <div class="form-grid full" style="margin-top:14px">
       <div class="form-group"><label>Primäre Systeme</label><textarea class="form-textarea" id="f-sys">${esc(g?.systems||'')}</textarea></div>
@@ -1767,6 +1773,7 @@ function openGroupForm(id){
       <button class="btn btn-primary" onclick="saveGroup(${j(id||null)})">💾 Speichern</button>
     </div>`;
   openModal();
+  setupCustomDropdown('f-dept');setupCustomDropdown('f-loc');setupCustomDropdown('f-mgr');
 }
 
 function saveGroup(id){
