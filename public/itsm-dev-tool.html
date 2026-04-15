@@ -316,64 +316,61 @@ tr:hover td{background:#1a2535}
 <div class="layout">
   <button class="mobile-menu-btn" onclick="document.querySelector('.sidebar').classList.toggle('open')">☰ Menü</button>
   <nav class="sidebar">
-    <div class="sidebar-section">Übersicht</div>
+    <div class="sidebar-section">Workflow</div>
     <div class="nav-item active" onclick="showView('dashboard')" id="nav-dashboard">
-      <div class="nav-dot" style="background:#f5b800"></div> Dashboard
+      <div class="nav-dot" style="background:#f5b800"></div> <span style="opacity:.5;font-size:.7rem;margin-right:2px">0</span> Dashboard
     </div>
 
-    <div class="sidebar-section">Stammdaten</div>
+    <div class="sidebar-section">1 · Stammdaten erfassen</div>
     <div class="nav-item" onclick="showView('services')" id="nav-services">
-      <div class="nav-dot" style="background:#00bcd4"></div> Service Catalog
+      <div class="nav-dot" style="background:#00bcd4"></div> <span style="opacity:.5;font-size:.7rem;margin-right:2px">1.1</span> Service Catalog
       <span class="nav-count" id="cnt-services">0</span>
     </div>
     <div class="nav-item" onclick="showView('processes')" id="nav-processes">
-      <div class="nav-dot" style="background:#E91E63"></div> Business Processes
+      <div class="nav-dot" style="background:#E91E63"></div> <span style="opacity:.5;font-size:.7rem;margin-right:2px">1.2</span> Business Processes
       <span class="nav-count" id="cnt-processes">0</span>
     </div>
     <div class="nav-item" onclick="showView('groups')" id="nav-groups">
-      <div class="nav-dot" style="background:#f97316"></div> User Groups
+      <div class="nav-dot" style="background:#f97316"></div> <span style="opacity:.5;font-size:.7rem;margin-right:2px">1.3</span> User Groups
       <span class="nav-count" id="cnt-groups">0</span>
     </div>
 
-    <div class="sidebar-section">Beziehungen</div>
+    <div class="sidebar-section">2 · Verknüpfungen</div>
     <div class="nav-item" onclick="showView('permissions')" id="nav-permissions">
-      <div class="nav-dot" style="background:#9C27B0"></div> Permission Matrix
+      <div class="nav-dot" style="background:#9C27B0"></div> <span style="opacity:.5;font-size:.7rem;margin-right:2px">2.1</span> Berechtigungen
       <span class="nav-count" id="cnt-permissions">0</span>
     </div>
     <div class="nav-item" onclick="showView('bpmap')" id="nav-bpmap">
-      <div class="nav-dot" style="background:#F44336"></div> BP → Service Map
+      <div class="nav-dot" style="background:#F44336"></div> <span style="opacity:.5;font-size:.7rem;margin-right:2px">2.2</span> Prozess → Service
       <span class="nav-count" id="cnt-bpmap">0</span>
     </div>
     <div class="nav-item" onclick="showView('deps')" id="nav-deps">
-      <div class="nav-dot" style="background:#f5b800"></div> Service Dependencies
+      <div class="nav-dot" style="background:#f5b800"></div> <span style="opacity:.5;font-size:.7rem;margin-right:2px">2.3</span> Service-Abhängigkeiten
       <span class="nav-count" id="cnt-deps">0</span>
     </div>
 
-    <div class="sidebar-section" style="margin-top:14px">Qualität & Compliance</div>
+    <div class="sidebar-section">3 · Qualitätsprüfung</div>
     <div class="nav-item" onclick="showView('audit')" id="nav-audit" style="background:linear-gradient(90deg,rgba(239,68,68,.06),#0e1218);border-left:3px solid #ef4444">
-      <div class="nav-dot" style="background:#ef4444"></div> <span style="color:#f87171">Audit</span>
-      <span style="font-size:.65rem;padding:2px 5px;background:#7F1D1D;color:#f87171;border-radius:8px;margin-left:auto">QA</span>
+      <div class="nav-dot" style="background:#ef4444"></div> <span style="opacity:.5;font-size:.7rem;margin-right:2px">3.1</span> <span style="color:#f87171">Audit</span>
     </div>
     <div class="nav-item" onclick="showView('compliance')" id="nav-compliance" style="background:linear-gradient(90deg,rgba(34,197,94,.06),#0e1218);border-left:3px solid #22c55e">
-      <div class="nav-dot" style="background:#22c55e"></div> <span style="color:#4ade80">Compliance Check</span>
-      <span style="font-size:.65rem;padding:2px 5px;background:#14532D;color:#4ade80;border-radius:8px;margin-left:auto">NEW</span>
+      <div class="nav-dot" style="background:#22c55e"></div> <span style="opacity:.5;font-size:.7rem;margin-right:2px">3.2</span> <span style="color:#4ade80">Compliance Check</span>
     </div>
 
-    <div class="sidebar-section" style="margin-top:14px">Visualisierung</div>
+    <div class="sidebar-section">4 · Visualisierung</div>
     <div class="nav-item" onclick="showView('depgraph')" id="nav-depgraph" style="background:linear-gradient(90deg,rgba(0,188,212,.06),#0e1218);border-left:3px solid #00bcd4">
-      <div class="nav-dot" style="background:#00BCD4"></div> <span style="color:#80DEEA">Dependency Map</span>
+      <div class="nav-dot" style="background:#00BCD4"></div> <span style="opacity:.5;font-size:.7rem;margin-right:2px">4.1</span> <span style="color:#80DEEA">Dependency Map</span>
       <span style="font-size:.65rem;padding:2px 5px;background:#006064;color:#80DEEA;border-radius:8px;margin-left:auto">2D</span>
     </div>
     <div class="nav-item" onclick="showView('depgraph3d')" id="nav-depgraph3d" style="background:linear-gradient(90deg,rgba(245,184,0,.06),#0e1218);border-left:3px solid #f5b800">
-      <div class="nav-dot" style="background:#f5b800"></div> <span style="color:#f5b800">3D Layer Map</span>
+      <div class="nav-dot" style="background:#f5b800"></div> <span style="opacity:.5;font-size:.7rem;margin-right:2px">4.2</span> <span style="color:#f5b800">3D Layer Map</span>
       <span style="font-size:.65rem;padding:2px 5px;background:#5D4037;color:#FFD54F;border-radius:8px;margin-left:auto">3D</span>
     </div>
-    <div class="sidebar-section" style="margin-top:14px">KI-Assistent</div>
+
+    <div class="sidebar-section">Werkzeuge</div>
     <div class="nav-item" onclick="showView('agent')" id="nav-agent" style="background:linear-gradient(90deg,rgba(168,85,247,.06),#0e1218);border-left:3px solid #c084fc">
       <div class="nav-dot" style="background:#CE93D8"></div> <span style="color:#CE93D8">AI Agent</span>
-      <span style="font-size:.65rem;padding:2px 5px;background:#4A148C;color:#CE93D8;border-radius:8px;margin-left:auto">NEW</span>
     </div>
-    <div class="sidebar-section">System</div>
     <div class="nav-item" onclick="showView('settings')" id="nav-settings">
       <div class="nav-dot" style="background:#64748b"></div> Import / Export
     </div>
