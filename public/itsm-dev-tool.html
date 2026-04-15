@@ -40,6 +40,10 @@ body{
 .nav-item.active{background:#1a2535;color:#f5b800;border-left-color:#f5b800;font-weight:600}
 .nav-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 .nav-count{margin-left:auto;background:#1a2535;color:#f5b800;font-size:.66rem;font-weight:700;padding:1px 6px;border-radius:10px;font-family:'IBM Plex Mono',monospace}
+.nav-pct{margin-left:auto;display:flex;align-items:center;gap:4px;font-size:.62rem;font-family:'IBM Plex Mono',monospace;color:#8ba5c5}
+.nav-pct-bar{width:36px;height:4px;background:#1a2535;border-radius:2px;overflow:hidden;flex-shrink:0}
+.nav-pct-fill{height:100%;border-radius:2px;transition:width .3s}
+.nav-pct-val{min-width:24px;text-align:right}
 /* ── Main ── */
 .main{flex:1;overflow-y:auto;padding:20px 24px;display:flex;flex-direction:column;gap:0}
 /* ── View header ── */
@@ -332,47 +336,53 @@ tr:hover td{background:#1a2535}
     <div class="sidebar-section">1 · Stammdaten erfassen</div>
     <div class="nav-item" onclick="showView('services')" id="nav-services">
       <div class="nav-dot" style="background:#00bcd4"></div> <span style="opacity:.5;font-size:.7rem;margin-right:2px">1.1</span> Service Catalog
-      <span class="nav-count" id="cnt-services">0</span>
+      <span class="nav-pct" id="pct-services"><span class="nav-pct-bar"><span class="nav-pct-fill" style="width:0%;background:#8ba5c5"></span></span><span class="nav-pct-val">–</span></span>
     </div>
     <div class="nav-item" onclick="showView('cis')" id="nav-cis">
       <div class="nav-dot" style="background:#26C6DA"></div> <span style="opacity:.5;font-size:.7rem;margin-right:2px">1.2</span> Configuration Items
-      <span class="nav-count" id="cnt-cis">0</span>
+      <span class="nav-pct" id="pct-cis"><span class="nav-pct-bar"><span class="nav-pct-fill" style="width:0%;background:#8ba5c5"></span></span><span class="nav-pct-val">–</span></span>
     </div>
     <div class="nav-item" onclick="showView('processes')" id="nav-processes">
       <div class="nav-dot" style="background:#E91E63"></div> <span style="opacity:.5;font-size:.7rem;margin-right:2px">1.3</span> Business Processes
-      <span class="nav-count" id="cnt-processes">0</span>
+      <span class="nav-pct" id="pct-processes"><span class="nav-pct-bar"><span class="nav-pct-fill" style="width:0%;background:#8ba5c5"></span></span><span class="nav-pct-val">–</span></span>
     </div>
     <div class="nav-item" onclick="showView('groups')" id="nav-groups">
       <div class="nav-dot" style="background:#f97316"></div> <span style="opacity:.5;font-size:.7rem;margin-right:2px">1.4</span> User Groups
-      <span class="nav-count" id="cnt-groups">0</span>
+      <span class="nav-pct" id="pct-groups"><span class="nav-pct-bar"><span class="nav-pct-fill" style="width:0%;background:#8ba5c5"></span></span><span class="nav-pct-val">–</span></span>
     </div>
 
     <div class="sidebar-section">2 · Prozesse</div>
     <div class="nav-item" onclick="showView('incidents')" id="nav-incidents">
       <div class="nav-dot" style="background:#FF5252"></div> <span style="opacity:.5;font-size:.7rem;margin-right:2px">2.1</span> Incidents
-      <span class="nav-count" id="cnt-incidents">0</span>
+      <span class="nav-pct" id="pct-incidents"><span class="nav-pct-bar"><span class="nav-pct-fill" style="width:0%;background:#8ba5c5"></span></span><span class="nav-pct-val">–</span></span>
     </div>
     <div class="nav-item" onclick="showView('changes')" id="nav-changes">
       <div class="nav-dot" style="background:#7E57C2"></div> <span style="opacity:.5;font-size:.7rem;margin-right:2px">2.2</span> Changes
-      <span class="nav-count" id="cnt-changes">0</span>
+      <span class="nav-pct" id="pct-changes"><span class="nav-pct-bar"><span class="nav-pct-fill" style="width:0%;background:#8ba5c5"></span></span><span class="nav-pct-val">–</span></span>
     </div>
 
     <div class="sidebar-section">3 · Verknüpfungen</div>
     <div class="nav-item" onclick="showView('permissions')" id="nav-permissions">
       <div class="nav-dot" style="background:#9C27B0"></div> <span style="opacity:.5;font-size:.7rem;margin-right:2px">3.1</span> Berechtigungen
-      <span class="nav-count" id="cnt-permissions">0</span>
+      <span class="nav-pct" id="pct-permissions"><span class="nav-pct-bar"><span class="nav-pct-fill" style="width:0%;background:#8ba5c5"></span></span><span class="nav-pct-val">–</span></span>
     </div>
     <div class="nav-item" onclick="showView('bpmap')" id="nav-bpmap">
       <div class="nav-dot" style="background:#F44336"></div> <span style="opacity:.5;font-size:.7rem;margin-right:2px">3.2</span> Prozess → Service
-      <span class="nav-count" id="cnt-bpmap">0</span>
+      <span class="nav-pct" id="pct-bpmap"><span class="nav-pct-bar"><span class="nav-pct-fill" style="width:0%;background:#8ba5c5"></span></span><span class="nav-pct-val">–</span></span>
     </div>
     <div class="nav-item" onclick="showView('deps')" id="nav-deps">
       <div class="nav-dot" style="background:#f5b800"></div> <span style="opacity:.5;font-size:.7rem;margin-right:2px">3.3</span> Service-Abhängigkeiten
-      <span class="nav-count" id="cnt-deps">0</span>
+      <span class="nav-pct" id="pct-deps"><span class="nav-pct-bar"><span class="nav-pct-fill" style="width:0%;background:#8ba5c5"></span></span><span class="nav-pct-val">–</span></span>
     </div>
     <div class="nav-item" onclick="showView('servicecimap')" id="nav-servicecimap">
       <div class="nav-dot" style="background:#26C6DA"></div> <span style="opacity:.5;font-size:.7rem;margin-right:2px">3.4</span> Service → CI
-      <span class="nav-count" id="cnt-servicecimap">0</span>
+      <span class="nav-pct" id="pct-servicecimap"><span class="nav-pct-bar"><span class="nav-pct-fill" style="width:0%;background:#8ba5c5"></span></span><span class="nav-pct-val">–</span></span>
+    </div>
+
+    <div class="sidebar-section">Service Levels</div>
+    <div class="nav-item" onclick="showView('slas')" id="nav-slas" style="background:linear-gradient(90deg,rgba(0,188,212,.06),#0e1218);border-left:3px solid #00bcd4">
+      <div class="nav-dot" style="background:#00bcd4"></div> <span style="color:#22d3ee">SLAs / SLOs</span>
+      <span class="nav-count" id="cnt-slas">0</span>
     </div>
 
     <div class="sidebar-section">4 · Qualitätsprüfung</div>
@@ -591,16 +601,142 @@ function showToast(msg, err=false){
   setTimeout(()=>t.classList.remove('show'), 2800);
 }
 function updateCounts(){
-  document.getElementById('cnt-services').textContent = DB.services.length;
-  document.getElementById('cnt-cis').textContent = DB.cis.length;
-  document.getElementById('cnt-processes').textContent = DB.businessProcesses.length;
-  document.getElementById('cnt-groups').textContent = DB.userGroups.length;
-  document.getElementById('cnt-incidents').textContent = DB.incidents.length;
-  document.getElementById('cnt-changes').textContent = DB.changes.length;
-  document.getElementById('cnt-permissions').textContent = DB.permissions.length;
-  document.getElementById('cnt-bpmap').textContent = DB.bpServiceMap.length;
-  document.getElementById('cnt-deps').textContent = DB.serviceDeps.length;
-  document.getElementById('cnt-servicecimap').textContent = DB.serviceCiMap.length;
+  // SLA count
+  const slaEl = document.getElementById('cnt-slas');
+  if(slaEl) slaEl.textContent = DB.slas.length;
+
+  // ── Completeness Score per section ──
+  function svcCompleteness(){
+    if(!DB.services.length) return 0;
+    let score=0, total=DB.services.length;
+    const mappedSvcs = new Set(DB.serviceCiMap.map(m=>m.service));
+    DB.services.forEach(s=>{
+      let filled=0, req=5; // group, service, subservice, criticality, description
+      if(s.group) filled++; if(s.service) filled++; if(s.subservice) filled++;
+      if(s.criticality) filled++; if(s.description&&s.description.trim()) filled++;
+      let pct = filled/req;
+      if(mappedSvcs.has(s.subservice)||mappedSvcs.has(s.service)) pct = Math.min(1, pct+0.1);
+      score+=pct;
+    });
+    return Math.round(score/total*100);
+  }
+  function ciCompleteness(){
+    if(!DB.cis.length) return 0;
+    let score=0;
+    const mappedCIs = new Set(DB.serviceCiMap.map(m=>m.ci));
+    DB.cis.forEach(c=>{
+      let filled=0, req=4; // name, type, status, owner
+      if(c.name) filled++; if(c.type) filled++; if(c.status) filled++; if(c.owner&&c.owner.trim()) filled++;
+      let pct=filled/req;
+      if(mappedCIs.has(c.name)) pct=Math.min(1,pct+0.15);
+      score+=pct;
+    });
+    return Math.round(score/DB.cis.length*100);
+  }
+  function bpCompleteness(){
+    if(!DB.businessProcesses.length) return 0;
+    let score=0;
+    const mappedBPs = new Set(DB.bpServiceMap.map(m=>m.bpId));
+    DB.businessProcesses.forEach(p=>{
+      let filled=0, req=5; // name, category, owner, criticality, rto
+      if(p.name) filled++; if(p.category) filled++; if(p.owner&&p.owner.trim()) filled++;
+      if(p.criticality) filled++; if(p.rto&&p.rto.trim()) filled++;
+      let pct=filled/req;
+      if(mappedBPs.has(p.id)) pct=Math.min(1,pct+0.1);
+      score+=pct;
+    });
+    return Math.round(score/DB.businessProcesses.length*100);
+  }
+  function grpCompleteness(){
+    if(!DB.userGroups.length) return 0;
+    let score=0;
+    DB.userGroups.forEach(g=>{
+      let filled=0, req=4; // name, type, department, manager
+      if(g.name) filled++; if(g.type) filled++; if(g.department&&g.department.trim()) filled++;
+      if(g.manager&&g.manager.trim()) filled++;
+      score+=filled/req;
+    });
+    return Math.round(score/DB.userGroups.length*100);
+  }
+  function incCompleteness(){
+    if(!DB.incidents.length) return 0;
+    let score=0;
+    DB.incidents.forEach(i=>{
+      let filled=0, req=5; // title, priority, status, service, assignedTo
+      if(i.title) filled++; if(i.priority) filled++; if(i.status) filled++;
+      if(i.service&&i.service!=='–') filled++; if(i.assignedTo&&i.assignedTo!=='–'&&i.assignedTo.trim()) filled++;
+      score+=filled/req;
+    });
+    return Math.round(score/DB.incidents.length*100);
+  }
+  function chgCompleteness(){
+    if(!DB.changes.length) return 0;
+    let score=0;
+    DB.changes.forEach(c=>{
+      let filled=0, req=5; // title, changeType, risk, status, owner
+      if(c.title) filled++; if(c.changeType) filled++; if(c.risk) filled++;
+      if(c.status) filled++; if(c.owner&&c.owner.trim()) filled++;
+      score+=filled/req;
+    });
+    return Math.round(score/DB.changes.length*100);
+  }
+  function permCompleteness(){
+    if(!DB.permissions.length) return 0;
+    let score=0;
+    DB.permissions.forEach(p=>{
+      let filled=0, req=4; // groupName, service, level, scope
+      if(p.groupName) filled++; if(p.service) filled++; if(p.level) filled++;
+      if(p.scope&&p.scope.trim()) filled++;
+      score+=filled/req;
+    });
+    return Math.round(score/DB.permissions.length*100);
+  }
+  function bpmapCompleteness(){ return DB.bpServiceMap.length>0?100:0; }
+  function depsCompleteness(){
+    if(!DB.serviceDeps.length) return 0;
+    let score=0;
+    DB.serviceDeps.forEach(d=>{
+      let filled=0, req=3;
+      if(d.upstream) filled++; if(d.downstream) filled++; if(d.depType) filled++;
+      score+=filled/req;
+    });
+    return Math.round(score/DB.serviceDeps.length*100);
+  }
+  function scimapCompleteness(){ return DB.serviceCiMap.length>0?100:0; }
+
+  const scores = {
+    services: svcCompleteness(),
+    cis: ciCompleteness(),
+    processes: bpCompleteness(),
+    groups: grpCompleteness(),
+    incidents: incCompleteness(),
+    changes: chgCompleteness(),
+    permissions: permCompleteness(),
+    bpmap: bpmapCompleteness(),
+    deps: depsCompleteness(),
+    servicecimap: scimapCompleteness()
+  };
+
+  // Update sidebar percentage bars
+  Object.entries(scores).forEach(([key, pct])=>{
+    const el = document.getElementById('pct-'+key);
+    if(!el) return;
+    const fill = el.querySelector('.nav-pct-fill');
+    const val = el.querySelector('.nav-pct-val');
+    if(fill){
+      fill.style.width = pct+'%';
+      fill.style.background = pct>=80?'#22c55e':pct>=50?'#f5b800':'#ef4444';
+    }
+    if(val){
+      val.textContent = pct+'%';
+      val.style.color = pct>=80?'#4ade80':pct>=50?'#facc15':'#f87171';
+    }
+  });
+
+  // Store overall score for dashboard
+  window._projectCompleteness = scores;
+  const vals = Object.values(scores);
+  window._overallCompleteness = vals.length ? Math.round(vals.reduce((a,b)=>a+b,0)/vals.length) : 0;
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -630,7 +766,8 @@ function showView(name){
     depgraph:  renderDepGraph,
     depgraph3d: renderDepGraph3D,
     audit:     renderAudit,
-    compliance: renderComplianceCheck
+    compliance: renderComplianceCheck,
+    slas:      renderSLAs
   };
   document.getElementById('main-content').innerHTML = '';
   if(views[name]) views[name]();
@@ -869,6 +1006,21 @@ function renderDashboard(){
         <button class="btn btn-ghost btn-sm" onclick="resetToSeed()">⟳ Daten zurücksetzen</button>
       </div>
     </div>
+
+    <!-- Overall Completeness Score -->
+    <div class="insight-section" style="margin-bottom:16px">
+      <div class="insight-title">📈 Projekt-Vollständigkeit</div>
+      <div style="display:flex;align-items:center;gap:20px;padding:12px 16px;background:#0e1218;border:1px solid #1e2a3a;border-radius:8px">
+        <div id="gauge-overall" style="flex-shrink:0"></div>
+        <div style="flex:1;display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:6px">
+          ${Object.entries({services:'Service Catalog',cis:'Config Items',processes:'Business Proc.',groups:'User Groups',incidents:'Incidents',changes:'Changes',permissions:'Berechtigungen',bpmap:'BP→Service',deps:'Dependencies',servicecimap:'Service→CI'}).map(([k,label])=>{
+            const s = window._projectCompleteness?.[k]||0;
+            return '<div style="display:flex;align-items:center;gap:6px;font-size:.7rem;color:#8ba5c5"><span style="width:80px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+label+'</span><span style="flex:1;height:4px;background:#1a2535;border-radius:2px;overflow:hidden"><span style="display:block;height:100%;width:'+s+'%;background:'+(s>=80?'#22c55e':s>=50?'#f5b800':'#ef4444')+';border-radius:2px"></span></span><span style="width:28px;text-align:right;font-family:IBM Plex Mono,monospace;color:'+(s>=80?'#4ade80':s>=50?'#facc15':'#f87171')+'">'+s+'%</span></div>';
+          }).join('')}
+        </div>
+      </div>
+    </div>
+
     <div class="dashboard-grid">
       <div class="stat-card"><div class="num">${svcs.length}</div><div class="lbl">Subservices</div><div class="bar" style="background:#00bcd4"></div></div>
       <div class="stat-card"><div class="num">${services}</div><div class="lbl">IT Services (OLAs)</div><div class="bar" style="background:#00838F"></div></div>
@@ -879,6 +1031,7 @@ function renderDashboard(){
       <div class="stat-card"><div class="num">${DB.incidents.length}</div><div class="lbl">Incidents</div><div class="bar" style="background:#FF5252"></div></div>
       <div class="stat-card"><div class="num">${DB.changes.length}</div><div class="lbl">Changes</div><div class="bar" style="background:#7E57C2"></div></div>
       <div class="stat-card"><div class="num">${DB.permissions.length}</div><div class="lbl">Berechtigungen</div><div class="bar" style="background:#9C27B0"></div></div>
+      <div class="stat-card"><div class="num">${DB.slas.length}</div><div class="lbl">SLAs / SLOs</div><div class="bar" style="background:#00bcd4"></div></div>
     </div>
 
     <!-- CMDB Readiness -->
@@ -1033,6 +1186,9 @@ function renderDashboard(){
   d3Gauge('gauge-rpo', bpRpoPct, 100, {color: bpRpoPct>=80?'#22c55e':bpRpoPct>=50?'#f5b800':'#ef4444', label:'RPO'});
   d3Gauge('gauge-scope', permScopePct, 100, {color: permScopePct>=80?'#22c55e':permScopePct>=50?'#f5b800':'#ef4444', label:'Scope'});
   d3Gauge('gauge-mgr', grpMgrPct, 100, {color: grpMgrPct>=80?'#22c55e':grpMgrPct>=50?'#f5b800':'#ef4444', label:'Owners'});
+  // Overall completeness gauge
+  const oc = window._overallCompleteness||0;
+  d3Gauge('gauge-overall', oc, 100, {color: oc>=80?'#22c55e':oc>=50?'#f5b800':'#ef4444', label:'Gesamt'});
 
   // Coverage bar
   const totalBPs = DB.businessProcesses.length;
@@ -4597,6 +4753,147 @@ function runComplianceChecks(){
 function findGroupManager(groupName){
   const grp = DB.userGroups.find(g=>g.name===groupName);
   return grp?.manager || 'Nicht zugewiesen';
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SLA / SLO MODULE
+// ═══════════════════════════════════════════════════════════════
+function renderSLAs(){
+  const slas = DB.slas||[];
+  const svcNames = [...new Set(DB.services.map(s=>s.service))].sort();
+  document.getElementById('main-content').innerHTML = `
+    <div class="view-header">
+      <div><div class="view-title" style="color:#22d3ee">📋 SLAs / SLOs</div>
+      <div class="view-subtitle">${slas.length} Service Level Agreements definiert</div></div>
+      <div class="view-actions">
+        <button class="btn btn-primary btn-sm" onclick="openSlaModal()">＋ SLA</button>
+      </div>
+    </div>
+    ${slas.length ? `
+    <div class="table-wrap"><table>
+      <thead><tr>
+        <th>Service</th><th>Availability</th><th>RTO</th><th>RPO</th>
+        <th>Support Hours</th><th>Escalation Contact</th><th>Aktionen</th>
+      </tr></thead>
+      <tbody>
+      ${slas.map((s,i)=>`<tr>
+        <td><strong>${esc(s.service)}</strong></td>
+        <td style="font-family:'IBM Plex Mono',monospace;color:${parseFloat(s.availability)>=99.9?'#4ade80':parseFloat(s.availability)>=99?'#facc15':'#f87171'}">${esc(s.availability)}%</td>
+        <td style="font-family:'IBM Plex Mono',monospace">${esc(s.rto||'–')}</td>
+        <td style="font-family:'IBM Plex Mono',monospace">${esc(s.rpo||'–')}</td>
+        <td>${esc(s.supportHours||'–')}</td>
+        <td>${esc(s.escalationContact||'–')}</td>
+        <td class="td-nowrap">
+          <button class="btn btn-ghost btn-sm" onclick="openSlaModal(${i})">✏️</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteSla(${i})">🗑</button>
+        </td>
+      </tr>`).join('')}
+      </tbody>
+    </table></div>
+
+    <!-- SLA Overview Charts -->
+    <div class="chart-row" style="margin-top:16px">
+      <div class="chart-panel">
+        <div class="chart-title">📊 Availability Targets</div>
+        <div id="sla-avail-bar"></div>
+      </div>
+      <div class="chart-panel">
+        <div class="chart-title">⏱ RTO Verteilung</div>
+        <div id="sla-rto-donut"></div>
+      </div>
+    </div>
+    ` : `
+    <div class="empty"><div class="icon">📋</div>Keine SLAs definiert.<br><br>
+    <button class="btn btn-primary" onclick="openSlaModal()">＋ Erstes SLA anlegen</button></div>`}
+  `;
+  if(slas.length){
+    // Availability bar chart
+    d3HBar('sla-avail-bar', slas.map(s=>({label:s.service.length>18?s.service.slice(0,17)+'…':s.service, value:parseFloat(s.availability)||0})).sort((a,b)=>b.value-a.value),
+      {colors:slas.map(s=>parseFloat(s.availability)>=99.9?'#22c55e':parseFloat(s.availability)>=99?'#f5b800':'#ef4444'), labelWidth:130});
+    // RTO donut
+    const rtoMap = {};
+    slas.forEach(s=>{ const r=s.rto||'nicht definiert'; rtoMap[r]=(rtoMap[r]||0)+1; });
+    d3Donut('sla-rto-donut', Object.entries(rtoMap).map(([k,v])=>({label:k,value:v})), {centerLabel:'RTO'});
+  }
+}
+
+function openSlaModal(idx){
+  const editing = idx!==undefined;
+  const sla = editing ? DB.slas[idx] : {};
+  const svcNames = [...new Set(DB.services.map(s=>s.service))].sort();
+  const svcOptions = svcNames.map(s=>`<option value="${esc(s)}" ${sla.service===s?'selected':''}>${esc(s)}</option>`).join('');
+
+  document.getElementById('modal-title').textContent = editing ? 'SLA bearbeiten' : 'Neues SLA anlegen';
+  document.getElementById('modal-body').innerHTML = `
+    <div class="form-grid">
+      <div class="form-group"><label>Service *</label>
+        ${svcNames.length ? `<select class="form-select" id="sla-service"><option value="">– Service wählen –</option>${svcOptions}</select>` : `<input class="form-input" id="sla-service" value="${esc(sla.service||'')}" placeholder="Service Name">`}
+      </div>
+      <div class="form-group"><label>Availability Target (%)</label>
+        <input class="form-input" id="sla-avail" type="number" step="0.01" min="0" max="100" value="${sla.availability||'99.9'}" placeholder="99.9">
+      </div>
+      <div class="form-group"><label>RTO (Recovery Time Objective)</label>
+        <select class="form-select" id="sla-rto">
+          <option value="">– wählen –</option>
+          ${['15 min','30 min','1h','2h','4h','8h','12h','24h','48h','72h'].map(v=>`<option ${sla.rto===v?'selected':''}>${v}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group"><label>RPO (Recovery Point Objective)</label>
+        <select class="form-select" id="sla-rpo">
+          <option value="">– wählen –</option>
+          ${['0 (kein Datenverlust)','15 min','1h','4h','8h','24h'].map(v=>`<option ${sla.rpo===v?'selected':''}>${v}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group"><label>Support Hours</label>
+        <select class="form-select" id="sla-hours">
+          <option value="">– wählen –</option>
+          ${['24/7','Mo-Fr 08-18','Mo-Fr 06-22','Mo-Sa 08-18','Best Effort'].map(v=>`<option ${sla.supportHours===v?'selected':''}>${v}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group"><label>Escalation Contact</label>
+        <input class="form-input" id="sla-escalation" value="${esc(sla.escalationContact||'')}" placeholder="Name / Team / E-Mail">
+      </div>
+    </div>
+    <div class="form-grid full" style="margin-top:10px">
+      <div class="form-group"><label>Anmerkungen</label>
+        <textarea class="form-textarea" id="sla-notes" rows="2">${esc(sla.notes||'')}</textarea>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-ghost btn-sm" onclick="closeModal()">Abbrechen</button>
+      <button class="btn btn-primary btn-sm" onclick="saveSla(${editing?idx:'undefined'})">${editing?'Speichern':'Anlegen'}</button>
+    </div>`;
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function saveSla(idx){
+  const service = document.getElementById('sla-service').value;
+  if(!service){ showToast('Service ist erforderlich.','error'); return; }
+  const sla = {
+    id: idx!==undefined ? DB.slas[idx].id : 'SLA-'+uid(),
+    service,
+    availability: document.getElementById('sla-avail').value||'99.9',
+    rto: document.getElementById('sla-rto').value,
+    rpo: document.getElementById('sla-rpo').value,
+    supportHours: document.getElementById('sla-hours').value,
+    escalationContact: document.getElementById('sla-escalation').value,
+    notes: document.getElementById('sla-notes').value
+  };
+  if(idx!==undefined){ DB.slas[idx]=sla; addChange('Bearbeitet','SLA',sla.service); }
+  else { DB.slas.push(sla); addChange('Erstellt','SLA',sla.service); }
+  closeModal(); saveData(); showView('slas'); showToast(idx!==undefined?'SLA aktualisiert.':'SLA erstellt.');
+}
+
+function deleteSla(idx){
+  const sla = DB.slas[idx];
+  confirmCallback = ()=>{
+    DB.slas.splice(idx,1);
+    addChange('Gelöscht','SLA',sla.service);
+    closeConfirm(); saveData(); showView('slas'); showToast('SLA gelöscht.');
+  };
+  document.getElementById('confirm-msg').textContent = 'SLA für "'+sla.service+'" wirklich löschen?';
+  document.getElementById('confirm-ok-btn').onclick = confirmCallback;
+  document.getElementById('confirm-overlay').classList.add('open');
 }
 
 function futureDate(days){
