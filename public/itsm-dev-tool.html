@@ -1092,15 +1092,19 @@ function renderServiceTable(rows){
 
 function openServiceForm(id){
   const s = id ? DB.services.find(x=>x.id===id) : null;
-  const groups = [...new Set(DB.services.map(x=>x.group))].sort();
+  const groups = [...new Set(DB.services.map(x=>x.group).filter(Boolean))].sort();
+  const defaultGroups = Object.keys(GROUP_COLORS);
+  const allGroups = [...new Set([...defaultGroups,...groups])].sort();
   const svcs   = [...new Set(DB.services.map(x=>x.service))].sort();
   document.getElementById('modal-title').textContent = s ? '✎ Subservice bearbeiten' : '+ Neuer Subservice';
   document.getElementById('modal-body').innerHTML = `
     <div class="form-grid">
       <div class="form-group">
         <label>Service Group</label>
-        <input class="form-input" id="f-group" list="grp-list" value="${esc(s?.group||'')}" placeholder="z.B. Business Applications">
-        <datalist id="grp-list">${groups.map(g=>`<option value="${esc(g)}">`).join('')}</datalist>
+        <select class="form-select" id="f-group">
+          <option value="">– Gruppe wählen –</option>
+          ${allGroups.map(g=>`<option value="${esc(g)}" ${s?.group===g?'selected':''}>${esc(g)}</option>`).join('')}
+        </select>
       </div>
       <div class="form-group">
         <label>Service (OLA)</label>
@@ -1141,7 +1145,7 @@ function openServiceForm(id){
       </div>
       <div class="form-group">
         <label>Source</label>
-        <input class="form-input" id="f-source" value="${esc(s?.source||'ARLANXEO ITSM')}">
+        <input class="form-input" id="f-source" value="${esc(s?.source||'')}">
       </div>
     </div>
     <div class="form-actions">
