@@ -2528,6 +2528,16 @@ function renderSettings(){
       <div id="import-preview-area" style="margin-top:8px"></div>
     </div>
     <div class="panel">
+      <div class="panel-title">📊 Excel-Export (alle Daten in einer Datei)</div>
+      <div class="info-box">Exportiert alle Datenbereiche als separate Worksheets in einer Excel-Datei.</div>
+      <button class="btn btn-warning" onclick="exportExcelAll()">⬇ Alle Daten als Excel exportieren</button>
+    </div>
+    <div class="panel">
+      <div class="panel-title">📄 Projektbericht (PDF)</div>
+      <div class="info-box">Generiert einen vollständigen Übergabe-Bericht mit allen Daten, Audit-Ergebnissen und Maturity Assessment.</div>
+      <button class="btn btn-success" onclick="generateProjectReport()">⬇ Projektbericht als PDF generieren</button>
+    </div>
+    <div class="panel">
       <div class="panel-title">📊 CSV-Exporte (einzelne Bereiche)</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
         <button class="btn btn-ghost btn-sm" onclick="exportCSV('services')">Services (CSV)</button>
