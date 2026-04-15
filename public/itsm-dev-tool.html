@@ -428,7 +428,11 @@ function grpDot(g){ return `<span class="grp-dot" style="background:#${groupColo
 function loadData(){
   try {
     const s = localStorage.getItem('itsm_dev_data');
-    return s ? JSON.parse(s) : JSON.parse(JSON.stringify(SEED_DATA));
+    const d = s ? JSON.parse(s) : JSON.parse(JSON.stringify(SEED_DATA));
+    // Ensure all required keys exist (fix for data saved before userGroups was added)
+    const keys = ['services','serviceDeps','businessProcesses','bpServiceMap','permissions','userGroups','changelog'];
+    keys.forEach(k => { if(!Array.isArray(d[k])) d[k] = []; });
+    return d;
   } catch(e){ return JSON.parse(JSON.stringify(SEED_DATA)); }
 }
 function saveData(){
@@ -461,6 +465,8 @@ const PAGE_SIZE = 25;
 // ═══════════════════════════════════════════════════════════════
 function uid(){ return Math.random().toString(36).slice(2,9); }
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+// Safe JSON.stringify for use inside onclick="" HTML attributes
+function j(v){ return esc(JSON.stringify(v)); }
 function chip(val, map){
   const cls = map ? map[val] : val.toLowerCase().replace(/[^a-z]/g,'');
   return `<span class="chip chip-${cls}">${esc(val)}</span>`;
@@ -1072,8 +1078,8 @@ function renderServiceTable(rows){
       <td class="td-wrap">${esc(s.description)}</td>
       <td>${critChip(s.criticality)}</td>
       <td class="td-nowrap">
-        <button class="btn btn-ghost btn-sm" onclick="openServiceForm(${JSON.stringify(s.id)})">✎</button>
-        <button class="btn btn-danger btn-sm" onclick="confirmDelete('services',${JSON.stringify(s.id)},${JSON.stringify(s.subservice)})">✕</button>
+        <button class="btn btn-ghost btn-sm" onclick="openServiceForm(${j(s.id)})">✎</button>
+        <button class="btn btn-danger btn-sm" onclick="confirmDelete('services',${j(s.id)},${j(s.subservice)})">✕</button>
       </td>
     </tr>`).join('');
 
@@ -1143,7 +1149,7 @@ function openServiceForm(id){
     </div>
     <div class="form-actions">
       <button class="btn btn-ghost" onclick="closeModal()">Abbrechen</button>
-      <button class="btn btn-primary" onclick="saveService(${JSON.stringify(id||null)})">💾 Speichern</button>
+      <button class="btn btn-primary" onclick="saveService(${j(id||null)})">💾 Speichern</button>
     </div>`;
   openModal();
 }
@@ -1228,8 +1234,8 @@ function filterProcesses(){
       <td><span style="font-size:.74rem;color:#f87171">${esc(p.regulatory||'–')}</span></td>
       <td class="td-nowrap">${esc(p.rto||'–')} / ${esc(p.rpo||'–')}</td>
       <td class="td-nowrap">
-        <button class="btn btn-ghost btn-sm" onclick="openProcessForm(${JSON.stringify(p.id)})">✎</button>
-        <button class="btn btn-danger btn-sm" onclick="confirmDelete('businessProcesses',${JSON.stringify(p.id)},${JSON.stringify(p.name)})">✕</button>
+        <button class="btn btn-ghost btn-sm" onclick="openProcessForm(${j(p.id)})">✎</button>
+        <button class="btn btn-danger btn-sm" onclick="confirmDelete('businessProcesses',${j(p.id)},${j(p.name)})">✕</button>
       </td>
     </tr>`).join('');
   document.getElementById('bp-table-container').innerHTML=`
@@ -1262,7 +1268,7 @@ function openProcessForm(id){
     </div>
     <div class="form-actions">
       <button class="btn btn-ghost" onclick="closeModal()">Abbrechen</button>
-      <button class="btn btn-primary" onclick="saveProcess(${JSON.stringify(id||null)})">💾 Speichern</button>
+      <button class="btn btn-primary" onclick="saveProcess(${j(id||null)})">💾 Speichern</button>
     </div>`;
   openModal();
 }
@@ -1327,8 +1333,8 @@ function filterGroups(){
       <td class="td-center">${esc(g.count)}</td>
       <td class="td-wrap" style="font-size:.75rem;color:#8ba5c5">${esc(g.systems)}</td>
       <td class="td-nowrap">
-        <button class="btn btn-ghost btn-sm" onclick="openGroupForm(${JSON.stringify(g.id)})">✎</button>
-        <button class="btn btn-danger btn-sm" onclick="confirmDelete('userGroups',${JSON.stringify(g.id)},${JSON.stringify(g.name)})">✕</button>
+        <button class="btn btn-ghost btn-sm" onclick="openGroupForm(${j(g.id)})">✎</button>
+        <button class="btn btn-danger btn-sm" onclick="confirmDelete('userGroups',${j(g.id)},${j(g.name)})">✕</button>
       </td>
     </tr>`).join('');
   document.getElementById('grp-table-container').innerHTML=`
@@ -1358,7 +1364,7 @@ function openGroupForm(id){
     </div>
     <div class="form-actions">
       <button class="btn btn-ghost" onclick="closeModal()">Abbrechen</button>
-      <button class="btn btn-primary" onclick="saveGroup(${JSON.stringify(id||null)})">💾 Speichern</button>
+      <button class="btn btn-primary" onclick="saveGroup(${j(id||null)})">💾 Speichern</button>
     </div>`;
   openModal();
 }
@@ -1436,8 +1442,8 @@ function filterPerms(){
       <td>${yesnoChip(p.certRequired)}</td>
       <td>${yesnoChip(p.sodFlag)}</td>
       <td class="td-nowrap">
-        <button class="btn btn-ghost btn-sm" onclick="openPermForm(${JSON.stringify(p.id)})">✎</button>
-        <button class="btn btn-danger btn-sm" onclick="confirmDelete('permissions',${JSON.stringify(p.id)},${JSON.stringify(p.id)})">✕</button>
+        <button class="btn btn-ghost btn-sm" onclick="openPermForm(${j(p.id)})">✎</button>
+        <button class="btn btn-danger btn-sm" onclick="confirmDelete('permissions',${j(p.id)},${j(p.id)})">✕</button>
       </td>
     </tr>`).join('');
   document.getElementById('perm-table-container').innerHTML=`
@@ -1484,7 +1490,7 @@ function openPermForm(id){
     </div>
     <div class="form-actions">
       <button class="btn btn-ghost" onclick="closeModal()">Abbrechen</button>
-      <button class="btn btn-primary" onclick="savePerm(${JSON.stringify(id||null)})">💾 Speichern</button>
+      <button class="btn btn-primary" onclick="savePerm(${j(id||null)})">💾 Speichern</button>
     </div>`;
   openModal();
 }
@@ -1557,7 +1563,7 @@ function filterBpMap(){
       <td class="td-wrap" style="font-size:.77rem;color:#8ba5c5">${esc(m.notes)}</td>
       <td class="td-nowrap">
         <button class="btn btn-ghost btn-sm" onclick="openBpMapForm(${i})">✎</button>
-        <button class="btn btn-danger btn-sm" onclick="confirmDeleteIdx('bpServiceMap',${i},${JSON.stringify(m.bpId+'→'+m.service)})">✕</button>
+        <button class="btn btn-danger btn-sm" onclick="confirmDeleteIdx('bpServiceMap',${i},${j(m.bpId+'→'+m.service)})">✕</button>
       </td>
     </tr>`).join('');
   document.getElementById('bpm-table-container').innerHTML=`
@@ -1655,7 +1661,7 @@ function filterDeps(){
       <td class="td-wrap" style="font-size:.77rem;color:#8ba5c5">${esc(d.notes)}</td>
       <td class="td-nowrap">
         <button class="btn btn-ghost btn-sm" onclick="openDepForm(${i})">✎</button>
-        <button class="btn btn-danger btn-sm" onclick="confirmDeleteIdx('serviceDeps',${i},${JSON.stringify(d.upstream+'→'+d.downstream)})">✕</button>
+        <button class="btn btn-danger btn-sm" onclick="confirmDeleteIdx('serviceDeps',${i},${j(d.upstream+'→'+d.downstream)})">✕</button>
       </td>
     </tr>`).join('');
   document.getElementById('dep-table-container').innerHTML=`
