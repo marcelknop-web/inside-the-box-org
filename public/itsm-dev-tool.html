@@ -1860,7 +1860,7 @@ function openCiForm(id){
           ${['Server','Netzwerk','Appliance','Arbeitsplatz','Software','Datenbank','Storage','Cloud Resource','OT Device','Virtuell'].map(t=>`<option ${(c?.ciType||'Server')===t?'selected':''}>${t}</option>`).join('')}
         </select>
       </div>
-      <div class="form-group"><label>Criticality</label>
+      <div class="form-group"><label>Criticality ${helpIcon('Wie geschäftskritisch ist dieses CI? High = produktionskritisch, Low = entwicklungsnah.')}</label>
         <select class="form-select" id="f-crit">${['High','Medium','Low'].map(v=>`<option ${(c?.criticality||'Medium')===v?'selected':''}>${v}</option>`).join('')}</select>
       </div>
       <div class="form-group"><label>Status</label>
@@ -1868,14 +1868,15 @@ function openCiForm(id){
           ${['Aktiv','Geplant','In Wartung','Außer Betrieb','Retired'].map(s=>`<option ${(c?.status||'Aktiv')===s?'selected':''}>${s}</option>`).join('')}
         </select>
       </div>
-      <div class="form-group"><label>Standort</label>
-        <select class="form-select" id="f-loc">
-          <option value="">– Wählen –</option>
-          ${['Leverkusen','Dormagen','Marl','Singapore','Triunfo','Nantong','Global','Cloud (Azure)','Cloud (AWS)','Cloud (GCP)','On-Premises'].map(l=>`<option ${c?.location===l?'selected':''}>${l}</option>`).join('')}
-        </select>
+      <div class="form-group"><label>Standort ${helpIcon('Physischer Standort oder Cloud-Provider des CIs.')}</label>
+        ${locationDropdown('f-loc',c?.location||'')}
       </div>
-      <div class="form-group"><label>Owner / Verantwortlicher</label><input class="form-input" id="f-owner" value="${esc(c?.owner||'')}" placeholder="z.B. IT Infrastructure"></div>
-      <div class="form-group"><label>Hersteller</label><input class="form-input" id="f-vendor" value="${esc(c?.vendor||'')}" placeholder="z.B. Dell, HP, VMware"></div>
+      <div class="form-group"><label>Owner ${helpIcon('Team oder Rolle, das/die für dieses CI verantwortlich ist.')}</label>
+        ${ownerDropdown('f-owner',c?.owner||'',['IT Infrastructure','IT Security','Application Management','Database Team','Network Team'])}
+      </div>
+      <div class="form-group"><label>Hersteller ${helpIcon('Hersteller des Geräts oder der Software.')}</label>
+        ${vendorDropdown('f-vendor',c?.vendor||'')}
+      </div>
       <div class="form-group"><label>Modell / Version</label><input class="form-input" id="f-model" value="${esc(c?.model||'')}"></div>
       <div class="form-group"><label>IP / FQDN</label><input class="form-input" id="f-ip" value="${esc(c?.ip||'')}"></div>
     </div>
@@ -1887,6 +1888,7 @@ function openCiForm(id){
       <button class="btn btn-primary" onclick="saveCi(${j(id||null)})">💾 Speichern</button>
     </div>`;
   openModal();
+  setupCustomDropdown('f-loc');setupCustomDropdown('f-owner');setupCustomDropdown('f-vendor');
 }
 
 function saveCi(id){
