@@ -326,13 +326,25 @@ tr:hover td{background:#1a2535}
       <div class="nav-dot" style="background:#00bcd4"></div> <span style="opacity:.5;font-size:.7rem;margin-right:2px">1.1</span> Service Catalog
       <span class="nav-count" id="cnt-services">0</span>
     </div>
+    <div class="nav-item" onclick="showView('cis')" id="nav-cis">
+      <div class="nav-dot" style="background:#26C6DA"></div> <span style="opacity:.5;font-size:.7rem;margin-right:2px">1.2</span> Configuration Items
+      <span class="nav-count" id="cnt-cis">0</span>
+    </div>
     <div class="nav-item" onclick="showView('processes')" id="nav-processes">
-      <div class="nav-dot" style="background:#E91E63"></div> <span style="opacity:.5;font-size:.7rem;margin-right:2px">1.2</span> Business Processes
+      <div class="nav-dot" style="background:#E91E63"></div> <span style="opacity:.5;font-size:.7rem;margin-right:2px">1.3</span> Business Processes
       <span class="nav-count" id="cnt-processes">0</span>
     </div>
     <div class="nav-item" onclick="showView('groups')" id="nav-groups">
-      <div class="nav-dot" style="background:#f97316"></div> <span style="opacity:.5;font-size:.7rem;margin-right:2px">1.3</span> User Groups
+      <div class="nav-dot" style="background:#f97316"></div> <span style="opacity:.5;font-size:.7rem;margin-right:2px">1.4</span> User Groups
       <span class="nav-count" id="cnt-groups">0</span>
+    </div>
+    <div class="nav-item" onclick="showView('incidents')" id="nav-incidents">
+      <div class="nav-dot" style="background:#FF5252"></div> <span style="opacity:.5;font-size:.7rem;margin-right:2px">1.5</span> Incidents
+      <span class="nav-count" id="cnt-incidents">0</span>
+    </div>
+    <div class="nav-item" onclick="showView('changes')" id="nav-changes">
+      <div class="nav-dot" style="background:#7E57C2"></div> <span style="opacity:.5;font-size:.7rem;margin-right:2px">1.6</span> Changes
+      <span class="nav-count" id="cnt-changes">0</span>
     </div>
 
     <div class="sidebar-section">2 · Verknüpfungen</div>
@@ -347,6 +359,10 @@ tr:hover td{background:#1a2535}
     <div class="nav-item" onclick="showView('deps')" id="nav-deps">
       <div class="nav-dot" style="background:#f5b800"></div> <span style="opacity:.5;font-size:.7rem;margin-right:2px">2.3</span> Service-Abhängigkeiten
       <span class="nav-count" id="cnt-deps">0</span>
+    </div>
+    <div class="nav-item" onclick="showView('servicecimap')" id="nav-servicecimap">
+      <div class="nav-dot" style="background:#26C6DA"></div> <span style="opacity:.5;font-size:.7rem;margin-right:2px">2.4</span> Service → CI
+      <span class="nav-count" id="cnt-servicecimap">0</span>
     </div>
 
     <div class="sidebar-section">3 · Qualitätsprüfung</div>
@@ -408,7 +424,7 @@ tr:hover td{background:#1a2535}
 // ═══════════════════════════════════════════════════════════════
 // DATA & STATE
 // ═══════════════════════════════════════════════════════════════
-const SEED_DATA = {"services":[],"serviceDeps":[],"businessProcesses":[],"bpServiceMap":[],"permissions":[],"userGroups":[],"changelog":[]};
+const SEED_DATA = {"services":[],"serviceDeps":[],"businessProcesses":[],"bpServiceMap":[],"permissions":[],"userGroups":[],"cis":[],"incidents":[],"changes":[],"serviceCiMap":[],"changelog":[]};
 
 const GROUP_COLORS = {
   "Microsoft Services":"1565C0","Identity & Security":"6A1B9A",
@@ -427,7 +443,7 @@ function loadData(){
     const s = localStorage.getItem('itsm_dev_data');
     const d = s ? JSON.parse(s) : JSON.parse(JSON.stringify(SEED_DATA));
     // Ensure all required keys exist (fix for data saved before userGroups was added)
-    const keys = ['services','serviceDeps','businessProcesses','bpServiceMap','permissions','userGroups','changelog'];
+    const keys = ['services','serviceDeps','businessProcesses','bpServiceMap','permissions','userGroups','cis','incidents','changes','serviceCiMap','changelog'];
     keys.forEach(k => { if(!Array.isArray(d[k])) d[k] = []; });
     return d;
   } catch(e){ return JSON.parse(JSON.stringify(SEED_DATA)); }
@@ -454,7 +470,7 @@ let currentView = 'dashboard';
 let confirmCallback = null;
 
 // Pagination state
-const PAGE = { services:1, processes:1, groups:1, permissions:1, bpmap:1, deps:1 };
+const PAGE = { services:1, cis:1, processes:1, groups:1, incidents:1, changes:1, permissions:1, bpmap:1, deps:1, servicecimap:1 };
 const PAGE_SIZE = 25;
 
 // ═══════════════════════════════════════════════════════════════
@@ -483,11 +499,15 @@ function showToast(msg, err=false){
 }
 function updateCounts(){
   document.getElementById('cnt-services').textContent = DB.services.length;
+  document.getElementById('cnt-cis').textContent = DB.cis.length;
   document.getElementById('cnt-processes').textContent = DB.businessProcesses.length;
   document.getElementById('cnt-groups').textContent = DB.userGroups.length;
+  document.getElementById('cnt-incidents').textContent = DB.incidents.length;
+  document.getElementById('cnt-changes').textContent = DB.changes.length;
   document.getElementById('cnt-permissions').textContent = DB.permissions.length;
   document.getElementById('cnt-bpmap').textContent = DB.bpServiceMap.length;
   document.getElementById('cnt-deps').textContent = DB.serviceDeps.length;
+  document.getElementById('cnt-servicecimap').textContent = DB.serviceCiMap.length;
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -503,11 +523,15 @@ function showView(name){
   const views = {
     dashboard: renderDashboard,
     services:  renderServices,
+    cis:       renderCIs,
     processes: renderProcesses,
     groups:    renderGroups,
+    incidents: renderIncidents,
+    changes:   renderChanges,
     permissions: renderPermissions,
     bpmap:     renderBpMap,
     deps:      renderDeps,
+    servicecimap: renderServiceCiMap,
     settings:  renderSettings,
     agent:     renderAgent,
     depgraph:  renderDepGraph,
