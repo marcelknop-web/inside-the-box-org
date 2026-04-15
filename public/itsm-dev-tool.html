@@ -4755,6 +4755,147 @@ function findGroupManager(groupName){
   return grp?.manager || 'Nicht zugewiesen';
 }
 
+// ═══════════════════════════════════════════════════════════════
+// SLA / SLO MODULE
+// ═══════════════════════════════════════════════════════════════
+function renderSLAs(){
+  const slas = DB.slas||[];
+  const svcNames = [...new Set(DB.services.map(s=>s.service))].sort();
+  document.getElementById('main-content').innerHTML = `
+    <div class="view-header">
+      <div><div class="view-title" style="color:#22d3ee">📋 SLAs / SLOs</div>
+      <div class="view-subtitle">${slas.length} Service Level Agreements definiert</div></div>
+      <div class="view-actions">
+        <button class="btn btn-primary btn-sm" onclick="openSlaModal()">＋ SLA</button>
+      </div>
+    </div>
+    ${slas.length ? `
+    <div class="table-wrap"><table>
+      <thead><tr>
+        <th>Service</th><th>Availability</th><th>RTO</th><th>RPO</th>
+        <th>Support Hours</th><th>Escalation Contact</th><th>Aktionen</th>
+      </tr></thead>
+      <tbody>
+      ${slas.map((s,i)=>`<tr>
+        <td><strong>${esc(s.service)}</strong></td>
+        <td style="font-family:'IBM Plex Mono',monospace;color:${parseFloat(s.availability)>=99.9?'#4ade80':parseFloat(s.availability)>=99?'#facc15':'#f87171'}">${esc(s.availability)}%</td>
+        <td style="font-family:'IBM Plex Mono',monospace">${esc(s.rto||'–')}</td>
+        <td style="font-family:'IBM Plex Mono',monospace">${esc(s.rpo||'–')}</td>
+        <td>${esc(s.supportHours||'–')}</td>
+        <td>${esc(s.escalationContact||'–')}</td>
+        <td class="td-nowrap">
+          <button class="btn btn-ghost btn-sm" onclick="openSlaModal(${i})">✏️</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteSla(${i})">🗑</button>
+        </td>
+      </tr>`).join('')}
+      </tbody>
+    </table></div>
+
+    <!-- SLA Overview Charts -->
+    <div class="chart-row" style="margin-top:16px">
+      <div class="chart-panel">
+        <div class="chart-title">📊 Availability Targets</div>
+        <div id="sla-avail-bar"></div>
+      </div>
+      <div class="chart-panel">
+        <div class="chart-title">⏱ RTO Verteilung</div>
+        <div id="sla-rto-donut"></div>
+      </div>
+    </div>
+    ` : `
+    <div class="empty"><div class="icon">📋</div>Keine SLAs definiert.<br><br>
+    <button class="btn btn-primary" onclick="openSlaModal()">＋ Erstes SLA anlegen</button></div>`}
+  `;
+  if(slas.length){
+    // Availability bar chart
+    d3HBar('sla-avail-bar', slas.map(s=>({label:s.service.length>18?s.service.slice(0,17)+'…':s.service, value:parseFloat(s.availability)||0})).sort((a,b)=>b.value-a.value),
+      {colors:slas.map(s=>parseFloat(s.availability)>=99.9?'#22c55e':parseFloat(s.availability)>=99?'#f5b800':'#ef4444'), labelWidth:130});
+    // RTO donut
+    const rtoMap = {};
+    slas.forEach(s=>{ const r=s.rto||'nicht definiert'; rtoMap[r]=(rtoMap[r]||0)+1; });
+    d3Donut('sla-rto-donut', Object.entries(rtoMap).map(([k,v])=>({label:k,value:v})), {centerLabel:'RTO'});
+  }
+}
+
+function openSlaModal(idx){
+  const editing = idx!==undefined;
+  const sla = editing ? DB.slas[idx] : {};
+  const svcNames = [...new Set(DB.services.map(s=>s.service))].sort();
+  const svcOptions = svcNames.map(s=>`<option value="${esc(s)}" ${sla.service===s?'selected':''}>${esc(s)}</option>`).join('');
+
+  document.getElementById('modal-title').textContent = editing ? 'SLA bearbeiten' : 'Neues SLA anlegen';
+  document.getElementById('modal-body').innerHTML = `
+    <div class="form-grid">
+      <div class="form-group"><label>Service *</label>
+        ${svcNames.length ? `<select class="form-select" id="sla-service"><option value="">– Service wählen –</option>${svcOptions}</select>` : `<input class="form-input" id="sla-service" value="${esc(sla.service||'')}" placeholder="Service Name">`}
+      </div>
+      <div class="form-group"><label>Availability Target (%)</label>
+        <input class="form-input" id="sla-avail" type="number" step="0.01" min="0" max="100" value="${sla.availability||'99.9'}" placeholder="99.9">
+      </div>
+      <div class="form-group"><label>RTO (Recovery Time Objective)</label>
+        <select class="form-select" id="sla-rto">
+          <option value="">– wählen –</option>
+          ${['15 min','30 min','1h','2h','4h','8h','12h','24h','48h','72h'].map(v=>`<option ${sla.rto===v?'selected':''}>${v}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group"><label>RPO (Recovery Point Objective)</label>
+        <select class="form-select" id="sla-rpo">
+          <option value="">– wählen –</option>
+          ${['0 (kein Datenverlust)','15 min','1h','4h','8h','24h'].map(v=>`<option ${sla.rpo===v?'selected':''}>${v}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group"><label>Support Hours</label>
+        <select class="form-select" id="sla-hours">
+          <option value="">– wählen –</option>
+          ${['24/7','Mo-Fr 08-18','Mo-Fr 06-22','Mo-Sa 08-18','Best Effort'].map(v=>`<option ${sla.supportHours===v?'selected':''}>${v}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group"><label>Escalation Contact</label>
+        <input class="form-input" id="sla-escalation" value="${esc(sla.escalationContact||'')}" placeholder="Name / Team / E-Mail">
+      </div>
+    </div>
+    <div class="form-grid full" style="margin-top:10px">
+      <div class="form-group"><label>Anmerkungen</label>
+        <textarea class="form-textarea" id="sla-notes" rows="2">${esc(sla.notes||'')}</textarea>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-ghost btn-sm" onclick="closeModal()">Abbrechen</button>
+      <button class="btn btn-primary btn-sm" onclick="saveSla(${editing?idx:'undefined'})">${editing?'Speichern':'Anlegen'}</button>
+    </div>`;
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function saveSla(idx){
+  const service = document.getElementById('sla-service').value;
+  if(!service){ showToast('Service ist erforderlich.','error'); return; }
+  const sla = {
+    id: idx!==undefined ? DB.slas[idx].id : 'SLA-'+uid(),
+    service,
+    availability: document.getElementById('sla-avail').value||'99.9',
+    rto: document.getElementById('sla-rto').value,
+    rpo: document.getElementById('sla-rpo').value,
+    supportHours: document.getElementById('sla-hours').value,
+    escalationContact: document.getElementById('sla-escalation').value,
+    notes: document.getElementById('sla-notes').value
+  };
+  if(idx!==undefined){ DB.slas[idx]=sla; addChange('Bearbeitet','SLA',sla.service); }
+  else { DB.slas.push(sla); addChange('Erstellt','SLA',sla.service); }
+  closeModal(); saveData(); showView('slas'); showToast(idx!==undefined?'SLA aktualisiert.':'SLA erstellt.');
+}
+
+function deleteSla(idx){
+  const sla = DB.slas[idx];
+  confirmCallback = ()=>{
+    DB.slas.splice(idx,1);
+    addChange('Gelöscht','SLA',sla.service);
+    closeConfirm(); saveData(); showView('slas'); showToast('SLA gelöscht.');
+  };
+  document.getElementById('confirm-msg').textContent = 'SLA für "'+sla.service+'" wirklich löschen?';
+  document.getElementById('confirm-ok-btn').onclick = confirmCallback;
+  document.getElementById('confirm-overlay').classList.add('open');
+}
+
 function futureDate(days){
   const d = new Date();
   d.setDate(d.getDate()+days);
