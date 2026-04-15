@@ -1893,7 +1893,10 @@ function openCiForm(id){
 
 function saveCi(id){
   const v=x=>document.getElementById(x)?.value?.trim()||'';
-  const obj={id:v('f-id'),name:v('f-name'),ciType:v('f-citype'),criticality:v('f-crit'),status:v('f-status'),location:v('f-loc'),owner:v('f-owner'),vendor:v('f-vendor'),model:v('f-model'),ip:v('f-ip'),description:v('f-desc')};
+  const loc=getDropdownValue('f-loc');
+  const owner=getDropdownValue('f-owner');
+  const vendor=getDropdownValue('f-vendor');
+  const obj={id:v('f-id'),name:v('f-name'),ciType:v('f-citype'),criticality:v('f-crit'),status:v('f-status'),location:loc,owner:owner,vendor:vendor,model:v('f-model'),ip:v('f-ip'),description:v('f-desc')};
   if(!obj.id||!obj.name){showToast('ID und Name sind Pflichtfelder.',true);return;}
   if(id){const i=DB.cis.findIndex(x=>x.id===id);DB.cis[i]=obj;addChange('Geändert','CI',obj.name);}
   else{if(DB.cis.find(x=>x.id===obj.id)){showToast('ID bereits vorhanden.',true);return;}DB.cis.push(obj);addChange('Hinzugefügt','CI',obj.name);}
