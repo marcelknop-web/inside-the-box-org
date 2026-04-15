@@ -1244,21 +1244,42 @@ function filterProcesses(){
 
 function openProcessForm(id){
   const p=id?DB.businessProcesses.find(x=>x.id===id):null;
+  const existingCats=[...new Set(DB.businessProcesses.map(x=>x.category).filter(Boolean))].sort();
+  const defaultCats=['Finance','Supply Chain','Manufacturing','Sales','HR','IT','Procurement','Quality','EHS','Legal'];
+  const allCats=[...new Set([...defaultCats,...existingCats])].sort();
   document.getElementById('modal-title').textContent=p?'✎ Prozess bearbeiten':'+ Neuer Business Process';
   document.getElementById('modal-body').innerHTML=`
     <div class="form-grid">
-      <div class="form-group"><label>Prozess-ID</label><input class="form-input" id="f-id" value="${esc(p?.id||'BP-XXX-000')}" ${p?'readonly':''}></div>
-      <div class="form-group"><label>Prozessname</label><input class="form-input" id="f-name" value="${esc(p?.name||'')}"></div>
-      <div class="form-group"><label>Kategorie</label><input class="form-input" id="f-cat" list="cat-list" value="${esc(p?.category||'')}">
-        <datalist id="cat-list">${[...new Set(DB.businessProcesses.map(x=>x.category))].map(c=>`<option>${esc(c)}</option>`).join('')}</datalist>
+      <div class="form-group"><label>Prozess-ID</label><input class="form-input" id="f-id" value="${esc(p?.id||'BP-'+uid().toUpperCase())}" ${p?'readonly':''}></div>
+      <div class="form-group"><label>Prozessname</label><input class="form-input" id="f-name" value="${esc(p?.name||'')}" placeholder="z.B. Order-to-Cash"></div>
+      <div class="form-group"><label>Kategorie</label>
+        <select class="form-select" id="f-cat">
+          <option value="">– Bitte wählen –</option>
+          ${allCats.map(c=>`<option ${p?.category===c?'selected':''}>${esc(c)}</option>`).join('')}
+        </select>
       </div>
-      <div class="form-group"><label>Process Owner (Rolle)</label><input class="form-input" id="f-owner" value="${esc(p?.owner||'')}"></div>
+      <div class="form-group"><label>Process Owner (Rolle)</label><input class="form-input" id="f-owner" value="${esc(p?.owner||'')}" placeholder="z.B. VP Finance"></div>
       <div class="form-group"><label>Criticality</label>
         <select class="form-select" id="f-crit">${['High','Medium','Low'].map(c=>`<option ${(p?.criticality||'High')===c?'selected':''}>${c}</option>`).join('')}</select>
       </div>
-      <div class="form-group"><label>Regulatory</label><input class="form-input" id="f-reg" value="${esc(p?.regulatory||'')}" placeholder="SOX; GMP; EHS; GDPR…"></div>
-      <div class="form-group"><label>RTO</label><input class="form-input" id="f-rto" value="${esc(p?.rto||'')}" placeholder="z.B. 4h"></div>
-      <div class="form-group"><label>RPO</label><input class="form-input" id="f-rpo" value="${esc(p?.rpo||'')}" placeholder="z.B. 1h"></div>
+      <div class="form-group"><label>Regulatory</label>
+        <select class="form-select" id="f-reg">
+          <option value="" ${!p?.regulatory?'selected':''}>– Keine –</option>
+          ${['SOX','GMP','EHS','GDPR','REACH','IATF 16949','ISO 27001','NIS-2','DORA'].map(r=>`<option ${p?.regulatory===r?'selected':''}>${r}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group"><label>RTO</label>
+        <select class="form-select" id="f-rto">
+          <option value="" ${!p?.rto?'selected':''}>– Nicht definiert –</option>
+          ${['0h (Zero Downtime)','1h','2h','4h','8h','24h','48h','72h','1 Woche'].map(r=>`<option ${p?.rto===r?'selected':''}>${r}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group"><label>RPO</label>
+        <select class="form-select" id="f-rpo">
+          <option value="" ${!p?.rpo?'selected':''}>– Nicht definiert –</option>
+          ${['0h (Zero Loss)','1h','2h','4h','8h','24h','48h','72h'].map(r=>`<option ${p?.rpo===r?'selected':''}>${r}</option>`).join('')}
+        </select>
+      </div>
     </div>
     <div class="form-grid full" style="margin-top:14px">
       <div class="form-group"><label>Beschreibung</label><textarea class="form-textarea" id="f-desc">${esc(p?.description||'')}</textarea></div>
