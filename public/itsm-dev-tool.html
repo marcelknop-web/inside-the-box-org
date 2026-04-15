@@ -475,6 +475,9 @@ tr:hover td{background:#1a2535}
       <div class="nav-dot" style="background:#f5b800"></div> <span style="opacity:.5;font-size:.7rem;margin-right:2px">5.2</span> <span style="color:#f5b800">3D Layer Map</span>
       <span style="font-size:.65rem;padding:2px 5px;background:#5D4037;color:#FFD54F;border-radius:8px;margin-left:auto">3D</span>
     </div>
+    <div class="nav-item" onclick="showView('ciheatmap')" id="nav-ciheatmap" style="background:linear-gradient(90deg,rgba(239,68,68,.06),#0e1218);border-left:3px solid #ef4444">
+      <div class="nav-dot" style="background:#ef4444"></div> <span style="opacity:.5;font-size:.7rem;margin-right:2px">5.3</span> <span style="color:#f87171">CI Risk Heatmap</span>
+    </div>
 
     <div class="sidebar-section">Werkzeuge</div>
     <div class="nav-item" onclick="showView('agent')" id="nav-agent" style="background:linear-gradient(90deg,rgba(168,85,247,.06),#0e1218);border-left:3px solid #c084fc">
@@ -842,7 +845,8 @@ function showView(name){
     compliance: renderComplianceCheck,
     maturity:  renderMaturity,
     gapanalysis: renderGapAnalysis,
-    slas:      renderSLAs
+    slas:      renderSLAs,
+    ciheatmap: renderCiHeatmap
   };
   document.getElementById('main-content').innerHTML = '';
   if(views[name]) views[name]();
