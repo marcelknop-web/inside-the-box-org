@@ -4405,6 +4405,35 @@ function runAuditChecks(){
   const emptyGrps = grps.filter(g=>!g.count||parseInt(g.count)===0);
   checks.push({id:'D2',category:'Plausibilität',label:'Keine leeren User Groups',severity:'info',passed:emptyGrps.length===0,detail:emptyGrps.length?`${emptyGrps.length} Gruppe(n) mit 0 Mitgliedern`:'Alle Gruppen haben Mitglieder',items:emptyGrps.map(g=>g.name)});
 
+  // 13. CIs without Service mapping
+  const mappedCIs = new Set(DB.serviceCiMap.map(m=>m.ci));
+  const orphanCIs = DB.cis.filter(c=>!mappedCIs.has(c.name));
+  checks.push({id:'E1',category:'CMDB-Integrität',label:'CIs mit Service-Zuordnung',severity:'critical',passed:orphanCIs.length===0,detail:orphanCIs.length?`${orphanCIs.length} CI(s) ohne Service-Zuordnung – keine Impact-Analyse möglich`:'Alle CIs zugeordnet',items:orphanCIs.map(c=>c.id+' – '+c.name)});
+
+  // 14. CIs without Owner
+  const ciNoOwner = DB.cis.filter(c=>!c.owner||!c.owner.trim());
+  checks.push({id:'E2',category:'CMDB-Integrität',label:'CIs mit Owner',severity:'warning',passed:ciNoOwner.length===0,detail:ciNoOwner.length?`${ciNoOwner.length} CI(s) ohne zugewiesenen Verantwortlichen`:'Alle CIs haben einen Owner',items:ciNoOwner.map(c=>c.id+' – '+c.name)});
+
+  // 15. Open P1/P2 Incidents
+  const openP1 = DB.incidents.filter(i=>(i.priority==='P1 – Critical'||i.priority==='P2 – High')&&i.status!=='Gelöst'&&i.status!=='Geschlossen');
+  checks.push({id:'E3',category:'Incident Management',label:'Offene P1/P2 Incidents',severity:openP1.length?'critical':'ok',passed:openP1.length===0,detail:openP1.length?`${openP1.length} kritische(r) Incident(s) noch offen`:'Keine offenen kritischen Incidents',items:openP1.map(i=>i.id+' – '+i.title+' ('+i.priority+')')});
+
+  // 16. Incidents without assigned team
+  const incNoAssign = DB.incidents.filter(i=>(!i.assignedTo||i.assignedTo==='–'||!i.assignedTo.trim())&&i.status!=='Geschlossen');
+  checks.push({id:'E4',category:'Incident Management',label:'Incidents mit Zuweisung',severity:'warning',passed:incNoAssign.length===0,detail:incNoAssign.length?`${incNoAssign.length} offene(r) Incident(s) ohne Team-Zuweisung`:'Alle offenen Incidents zugewiesen',items:incNoAssign.map(i=>i.id+' – '+i.title)});
+
+  // 17. Unapproved Changes (not in status "Genehmigt" or "Implementiert" or "Abgeschlossen")
+  const unapprovedChanges = DB.changes.filter(c=>c.status==='Entwurf'||c.status==='Eingereicht');
+  checks.push({id:'F1',category:'Change Management',label:'Nicht genehmigte Changes',severity:unapprovedChanges.length?'warning':'ok',passed:unapprovedChanges.length===0,detail:unapprovedChanges.length?`${unapprovedChanges.length} Change(s) warten auf Genehmigung`:'Alle Changes bearbeitet',items:unapprovedChanges.map(c=>c.id+' – '+c.title+' ('+c.status+')')});
+
+  // 18. Emergency Changes without rollback plan
+  const emergNoRollback = DB.changes.filter(c=>c.changeType==='Emergency'&&(!c.rollback||!c.rollback.trim()));
+  checks.push({id:'F2',category:'Change Management',label:'Emergency Changes mit Rollback-Plan',severity:'critical',passed:emergNoRollback.length===0,detail:emergNoRollback.length?`${emergNoRollback.length} Emergency Change(s) ohne dokumentierten Rollback-Plan`:'Alle Emergency Changes haben Rollback-Pläne',items:emergNoRollback.map(c=>c.id+' – '+c.title)});
+
+  // 19. High-risk Changes without owner
+  const chgNoOwner = DB.changes.filter(c=>c.risk==='High'&&(!c.owner||!c.owner.trim()));
+  checks.push({id:'F3',category:'Change Management',label:'High-Risk Changes mit Owner',severity:'warning',passed:chgNoOwner.length===0,detail:chgNoOwner.length?`${chgNoOwner.length} High-Risk Change(s) ohne Change Owner`:'Alle High-Risk Changes haben einen Owner',items:chgNoOwner.map(c=>c.id+' – '+c.title)});
+
   return checks;
 }
 
