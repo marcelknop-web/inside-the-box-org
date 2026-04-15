@@ -392,6 +392,12 @@ tr:hover td{background:#1a2535}
     <div class="nav-item" onclick="showView('compliance')" id="nav-compliance" style="background:linear-gradient(90deg,rgba(34,197,94,.06),#0e1218);border-left:3px solid #22c55e">
       <div class="nav-dot" style="background:#22c55e"></div> <span style="opacity:.5;font-size:.7rem;margin-right:2px">4.2</span> <span style="color:#4ade80">Compliance Check</span>
     </div>
+    <div class="nav-item" onclick="showView('maturity')" id="nav-maturity" style="background:linear-gradient(90deg,rgba(99,102,241,.06),#0e1218);border-left:3px solid #6366f1">
+      <div class="nav-dot" style="background:#6366f1"></div> <span style="opacity:.5;font-size:.7rem;margin-right:2px">4.3</span> <span style="color:#a5b4fc">Maturity Assessment</span>
+    </div>
+    <div class="nav-item" onclick="showView('gapanalysis')" id="nav-gapanalysis" style="background:linear-gradient(90deg,rgba(249,115,22,.06),#0e1218);border-left:3px solid #f97316">
+      <div class="nav-dot" style="background:#f97316"></div> <span style="opacity:.5;font-size:.7rem;margin-right:2px">4.4</span> <span style="color:#fdba74">Gap Analysis</span>
+    </div>
 
     <div class="sidebar-section">5 · Visualisierung</div>
     <div class="nav-item" onclick="showView('depgraph')" id="nav-depgraph" style="background:linear-gradient(90deg,rgba(0,188,212,.06),#0e1218);border-left:3px solid #00bcd4">
@@ -767,6 +773,8 @@ function showView(name){
     depgraph3d: renderDepGraph3D,
     audit:     renderAudit,
     compliance: renderComplianceCheck,
+    maturity:  renderMaturity,
+    gapanalysis: renderGapAnalysis,
     slas:      renderSLAs
   };
   document.getElementById('main-content').innerHTML = '';
@@ -4894,6 +4902,323 @@ function deleteSla(idx){
   document.getElementById('confirm-msg').textContent = 'SLA für "'+sla.service+'" wirklich löschen?';
   document.getElementById('confirm-ok-btn').onclick = confirmCallback;
   document.getElementById('confirm-overlay').classList.add('open');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// MATURITY ASSESSMENT — ITIL Radar Chart
+// ═══════════════════════════════════════════════════════════════
+function calcMaturityScores(){
+  const svcs=DB.services, bps=DB.businessProcesses, grps=DB.userGroups, perms=DB.permissions,
+        deps=DB.serviceDeps, bpMap=DB.bpServiceMap, cis=DB.cis, ciMap=DB.serviceCiMap,
+        incs=DB.incidents, chgs=DB.changes, slas=DB.slas||[];
+
+  function pct(num,den){ return den?Math.round(num/den*100):100; }
+
+  // 1. Service Catalog Management — descriptions, CI types, criticality
+  const descOk=svcs.filter(s=>s.description&&s.description.trim()).length;
+  const ciTypeOk=svcs.filter(s=>s.ci_type&&s.ci_type.trim()).length;
+  const critOk=svcs.filter(s=>s.criticality&&s.criticality!=='').length;
+  const scm=svcs.length?Math.round((pct(descOk,svcs.length)+pct(ciTypeOk,svcs.length)+pct(critOk,svcs.length))/3):0;
+
+  // 2. Configuration Management — CIs mapped, CIs with owner, CI type coverage
+  const ciMapped=new Set(ciMap.map(m=>m.ci));
+  const ciOwned=cis.filter(c=>c.owner&&c.owner.trim()).length;
+  const ciWithMap=cis.filter(c=>ciMapped.has(c.name)).length;
+  const cm=cis.length?Math.round((pct(ciWithMap,cis.length)+pct(ciOwned,cis.length))/2):0;
+
+  // 3. Incident Management — assigned, resolved, no P1 open
+  const openInc=incs.filter(i=>i.status!=='Gelöst'&&i.status!=='Geschlossen');
+  const assignedInc=openInc.filter(i=>i.assignedTo&&i.assignedTo!=='–'&&i.assignedTo.trim());
+  const openP1=openInc.filter(i=>i.priority==='P1 – Critical');
+  const incScore=incs.length?Math.round((pct(assignedInc.length,Math.max(openInc.length,1))*0.4 + pct(incs.length-openInc.length,incs.length)*0.4 + (openP1.length===0?100:Math.max(0,100-openP1.length*30))*0.2)):100;
+
+  // 4. Change Management — approved, rollback plans, owners
+  const approved=chgs.filter(c=>c.status!=='Entwurf'&&c.status!=='Eingereicht').length;
+  const rollback=chgs.filter(c=>c.rollback&&c.rollback.trim()).length;
+  const chgOwned=chgs.filter(c=>c.owner&&c.owner.trim()).length;
+  const chgScore=chgs.length?Math.round((pct(approved,chgs.length)+pct(rollback,chgs.length)+pct(chgOwned,chgs.length))/3):100;
+
+  // 5. Access Management — SoD coverage, groups with managers
+  const sodOk=perms.filter(p=>!(p.level==='Admin'||p.level==='Privileged')||p.sodFlag==='Yes').length;
+  const mgrOk=grps.filter(g=>g.manager&&g.manager.trim()).length;
+  const am=Math.round((pct(sodOk,Math.max(perms.length,1))+pct(mgrOk,Math.max(grps.length,1)))/2);
+
+  // 6. Business Continuity — BPs with RTO, BP-Service mappings
+  const rtoOk=bps.filter(p=>p.rto&&p.rto.trim()).length;
+  const bpMapped=new Set(bpMap.map(m=>m.bpId));
+  const bpWithMap=bps.filter(p=>bpMapped.has(p.id)).length;
+  const bc=bps.length?Math.round((pct(rtoOk,bps.length)+pct(bpWithMap,bps.length))/2):0;
+
+  // 7. Service Level Management — SLA coverage
+  const svcNames=[...new Set(svcs.map(s=>s.service))];
+  const slaCovered=slas.filter(s=>svcNames.includes(s.service)).length;
+  const slm=svcNames.length?pct(slaCovered,svcNames.length):0;
+
+  // 8. Dependency & Relationship Mgmt
+  const highSvcs=[...new Set(svcs.filter(s=>s.criticality==='High').map(s=>s.subservice))];
+  const highWithDep=highSvcs.filter(s=>deps.some(d=>d.upstream===s||d.downstream===s)).length;
+  const depsWithType=deps.filter(d=>d.type&&d.type.trim()&&d.type!=='–').length;
+  const drm=Math.round(((highSvcs.length?pct(highWithDep,highSvcs.length):100)*0.6 + (deps.length?pct(depsWithType,deps.length):100)*0.4));
+
+  return [
+    {axis:'Service Catalog',value:scm,abbr:'SCM'},
+    {axis:'Configuration Mgmt',value:cm,abbr:'CM'},
+    {axis:'Incident Mgmt',value:Math.min(100,Math.max(0,incScore)),abbr:'IM'},
+    {axis:'Change Mgmt',value:chgScore,abbr:'CHG'},
+    {axis:'Access Mgmt',value:am,abbr:'AM'},
+    {axis:'Business Continuity',value:bc,abbr:'BCM'},
+    {axis:'Service Levels',value:slm,abbr:'SLM'},
+    {axis:'Dependencies',value:drm,abbr:'DEP'}
+  ];
+}
+
+function renderMaturity(){
+  const scores = calcMaturityScores();
+  const avg = Math.round(scores.reduce((s,d)=>s+d.value,0)/scores.length);
+  const maturityLevel = avg>=80?'Optimized':avg>=60?'Managed':avg>=40?'Defined':avg>=20?'Initial':'Ad-hoc';
+  const maturityColor = avg>=80?'#22c55e':avg>=60?'#f5b800':avg>=40?'#eab308':'#ef4444';
+
+  document.getElementById('main-content').innerHTML = `
+    <div class="view-header">
+      <div><div class="view-title" style="color:#a5b4fc">📐 Maturity Assessment — ITIL Capability</div>
+      <div class="view-subtitle">Automatisierte Reifegradmessung über 8 ITIL-Prozessdomänen</div></div>
+    </div>
+
+    <div class="dashboard-grid" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr));margin-bottom:20px">
+      <div class="stat-card"><div class="num" style="color:${maturityColor}">${avg}%</div><div class="lbl">Gesamt-Score</div></div>
+      <div class="stat-card"><div class="num" style="color:${maturityColor};font-size:1.2rem">${maturityLevel}</div><div class="lbl">Reifegrad</div></div>
+      ${scores.map(s=>`<div class="stat-card"><div class="num" style="font-size:1.4rem;color:${s.value>=80?'#22c55e':s.value>=60?'#f5b800':s.value>=40?'#eab308':'#ef4444'}">${s.value}%</div><div class="lbl">${s.abbr}</div></div>`).join('')}
+    </div>
+
+    <div class="chart-row">
+      <div class="chart-panel" style="grid-column:span 2">
+        <div class="chart-title">🕸 ITIL Maturity Radar</div>
+        <div id="maturity-radar" style="display:flex;justify-content:center"></div>
+      </div>
+    </div>
+
+    <div class="insight-title" style="border-left-color:#6366f1;background:linear-gradient(90deg,rgba(99,102,241,.06),transparent)">📋 Domänen-Details</div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Domäne</th><th>Score</th><th>Reifegrad</th><th>Bewertung</th></tr></thead>
+      <tbody>
+      ${scores.map(s=>{
+        const lvl=s.value>=80?'Optimized':s.value>=60?'Managed':s.value>=40?'Defined':s.value>=20?'Initial':'Ad-hoc';
+        const col=s.value>=80?'#4ade80':s.value>=60?'#f5b800':s.value>=40?'#facc15':'#f87171';
+        return `<tr>
+          <td><strong>${s.axis}</strong></td>
+          <td style="font-family:'IBM Plex Mono',monospace;color:${col}">${s.value}%</td>
+          <td><span class="chip" style="background:${col}20;color:${col};border:1px solid ${col}40">${lvl}</span></td>
+          <td style="color:#8ba5c5;font-size:.76rem">${s.value>=80?'Prozess vollständig implementiert und optimiert':s.value>=60?'Prozess etabliert, Verbesserungspotenzial vorhanden':s.value>=40?'Grundlagen definiert, Umsetzung lückenhaft':s.value>=20?'Ansätze vorhanden, nicht strukturiert':'Kein strukturierter Prozess erkennbar'}</td>
+        </tr>`;
+      }).join('')}
+      </tbody>
+    </table></div>
+  `;
+
+  // Draw radar chart
+  d3Radar('maturity-radar', scores);
+}
+
+function d3Radar(containerId, data){
+  const el=document.getElementById(containerId);
+  if(!el) return;
+  const w=380, h=380, margin=50;
+  const r=Math.min(w,h)/2-margin;
+  const levels=5;
+  const n=data.length;
+  const angleSlice=Math.PI*2/n;
+
+  const svg=d3.select(el).append('svg').attr('viewBox',`0 0 ${w} ${h}`).attr('width','100%').style('max-width','420px');
+  const g=svg.append('g').attr('transform',`translate(${w/2},${h/2})`);
+
+  // Grid circles
+  for(let lvl=1;lvl<=levels;lvl++){
+    const rr=r*lvl/levels;
+    g.append('circle').attr('r',rr).attr('fill','none').attr('stroke','#1e2a3a').attr('stroke-width',.5);
+    g.append('text').attr('x',4).attr('y',-rr+4).text(Math.round(100*lvl/levels)+'%')
+      .attr('fill','#435570').attr('font-size','9px').attr('font-family','IBM Plex Mono,monospace');
+  }
+
+  // Axes
+  data.forEach((d,i)=>{
+    const angle=angleSlice*i-Math.PI/2;
+    const x=Math.cos(angle)*r, y=Math.sin(angle)*r;
+    g.append('line').attr('x1',0).attr('y1',0).attr('x2',x).attr('y2',y)
+      .attr('stroke','#1e2a3a').attr('stroke-width',.5);
+    const lx=Math.cos(angle)*(r+20), ly=Math.sin(angle)*(r+20);
+    g.append('text').attr('x',lx).attr('y',ly).text(d.abbr)
+      .attr('fill','#8ba5c5').attr('font-size','10px').attr('font-family','IBM Plex Mono,monospace')
+      .attr('text-anchor','middle').attr('dominant-baseline','central');
+  });
+
+  // Data polygon
+  const pts=data.map((d,i)=>{
+    const angle=angleSlice*i-Math.PI/2;
+    const rVal=r*d.value/100;
+    return [Math.cos(angle)*rVal, Math.sin(angle)*rVal];
+  });
+  const lineGen=d3.line().curve(d3.curveLinearClosed);
+
+  g.append('path').attr('d',lineGen(pts))
+    .attr('fill','rgba(99,102,241,.15)').attr('stroke','#6366f1').attr('stroke-width',2);
+
+  // Data dots
+  pts.forEach((p,i)=>{
+    g.append('circle').attr('cx',p[0]).attr('cy',p[1]).attr('r',4)
+      .attr('fill','#6366f1').attr('stroke','#0e1218').attr('stroke-width',2);
+    // tooltip
+    g.append('title').text(data[i].axis+': '+data[i].value+'%');
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// GAP ANALYSIS — Automatic Flags
+// ═══════════════════════════════════════════════════════════════
+function runGapAnalysis(){
+  const gaps=[];
+  const svcs=DB.services, bps=DB.businessProcesses, grps=DB.userGroups, perms=DB.permissions,
+        deps=DB.serviceDeps, bpMap=DB.bpServiceMap, cis=DB.cis, ciMap=DB.serviceCiMap,
+        incs=DB.incidents, chgs=DB.changes, slas=DB.slas||[];
+
+  // 1. Services without description
+  const noDesc=svcs.filter(s=>!s.description||!s.description.trim());
+  if(noDesc.length) gaps.push({sev:'warning',cat:'Dokumentation',title:`${noDesc.length} Service(s) ohne Beschreibung`,detail:'Fehlende Beschreibungen beeinträchtigen CMDB-Compliance und Incident-Triage.',items:noDesc.map(s=>s.subservice),action:'Beschreibungen ergänzen'});
+
+  // 2. CIs without service mapping
+  const mappedCIs=new Set(ciMap.map(m=>m.ci));
+  const orphanCIs=cis.filter(c=>!mappedCIs.has(c.name));
+  if(orphanCIs.length) gaps.push({sev:'critical',cat:'CMDB',title:`${orphanCIs.length} CI(s) ohne Service-Zuordnung`,detail:'Nicht zugeordnete CIs verhindern Impact-Analysen bei Störungen.',items:orphanCIs.map(c=>c.name),action:'CI→Service Mapping anlegen'});
+
+  // 3. CIs without owner
+  const ciNoOwner=cis.filter(c=>!c.owner||!c.owner.trim());
+  if(ciNoOwner.length) gaps.push({sev:'warning',cat:'CMDB',title:`${ciNoOwner.length} CI(s) ohne Owner`,detail:'CIs ohne zugewiesenen Verantwortlichen können nicht eskaliert werden.',items:ciNoOwner.map(c=>c.name),action:'CI-Owner zuweisen'});
+
+  // 4. Dependencies without type
+  const noType=deps.filter(d=>!d.type||!d.type.trim()||d.type==='–');
+  if(noType.length) gaps.push({sev:'info',cat:'Abhängigkeiten',title:`${noType.length} Dependency(ies) ohne Typ`,detail:'Fehlende Abhängigkeitstypen (runs-on, uses, feeds) erschweren Root-Cause-Analysen.',items:noType.map(d=>d.upstream+' → '+d.downstream),action:'Dependency-Typ definieren'});
+
+  // 5. High-crit services without dependencies
+  const highSvcs=[...new Set(svcs.filter(s=>s.criticality==='High').map(s=>s.subservice))];
+  const highNoDep=highSvcs.filter(s=>!deps.some(d=>d.upstream===s||d.downstream===s));
+  if(highNoDep.length) gaps.push({sev:'critical',cat:'Abhängigkeiten',title:`${highNoDep.length} kritische(r) Service ohne Abhängigkeiten`,detail:'High-Criticality Services ohne Upstream/Downstream-Verknüpfungen — blinde Flecken bei Incident-Impact.',items:highNoDep,action:'Dependencies dokumentieren'});
+
+  // 6. BPs without service mapping
+  const bpMapped=new Set(bpMap.map(m=>m.bpId));
+  const orphanBPs=bps.filter(p=>!bpMapped.has(p.id));
+  if(orphanBPs.length) gaps.push({sev:'warning',cat:'Prozesse',title:`${orphanBPs.length} Business Process(e) ohne Service-Zuordnung`,detail:'Unmapped BPs verhindern End-to-End Impact Assessments.',items:orphanBPs.map(p=>p.name),action:'BP→Service Mapping anlegen'});
+
+  // 7. Groups without managers
+  const noMgr=grps.filter(g=>!g.manager||!g.manager.trim());
+  if(noMgr.length) gaps.push({sev:'warning',cat:'Governance',title:`${noMgr.length} User Group(s) ohne Manager`,detail:'Gruppen ohne Owner verstoßen gegen Accountability-Prinzipien.',items:noMgr.map(g=>g.name),action:'Manager benennen'});
+
+  // 8. Admin perms without SoD
+  const adminNoSod=perms.filter(p=>(p.level==='Admin'||p.level==='Privileged')&&p.sodFlag==='No');
+  if(adminNoSod.length) gaps.push({sev:'critical',cat:'Governance',title:`${adminNoSod.length} privilegierte Berechtigung(en) ohne SoD`,detail:'Segregation of Duties ist für Admin/Privileged-Zugriffe regulatorisch erforderlich.',items:adminNoSod.map(p=>p.groupName+' → '+p.service),action:'SoD-Flag setzen'});
+
+  // 9. Open P1 incidents
+  const openP1=incs.filter(i=>i.priority==='P1 – Critical'&&i.status!=='Gelöst'&&i.status!=='Geschlossen');
+  if(openP1.length) gaps.push({sev:'critical',cat:'Incidents',title:`${openP1.length} offene(r) P1-Incident(s)`,detail:'Kritische Incidents erfordern sofortige Eskalation und Lösung.',items:openP1.map(i=>i.id+' – '+i.title),action:'Sofort eskalieren'});
+
+  // 10. Unassigned incidents
+  const unassigned=incs.filter(i=>(!i.assignedTo||i.assignedTo==='–'||!i.assignedTo.trim())&&i.status!=='Geschlossen');
+  if(unassigned.length) gaps.push({sev:'warning',cat:'Incidents',title:`${unassigned.length} Incident(s) ohne Zuweisung`,detail:'Nicht zugewiesene Tickets verzögern die Bearbeitung.',items:unassigned.map(i=>i.id+' – '+i.title),action:'Team zuweisen'});
+
+  // 11. Unapproved changes
+  const unapproved=chgs.filter(c=>c.status==='Entwurf'||c.status==='Eingereicht');
+  if(unapproved.length) gaps.push({sev:'warning',cat:'Changes',title:`${unapproved.length} nicht genehmigte(r) Change(s)`,detail:'Changes im Status Entwurf/Eingereicht blockieren die Implementierung.',items:unapproved.map(c=>c.id+' – '+c.title),action:'CAB-Genehmigung einholen'});
+
+  // 12. Emergency changes without rollback
+  const emergNoRollback=chgs.filter(c=>c.changeType==='Emergency'&&(!c.rollback||!c.rollback.trim()));
+  if(emergNoRollback.length) gaps.push({sev:'critical',cat:'Changes',title:`${emergNoRollback.length} Emergency Change(s) ohne Rollback-Plan`,detail:'Emergency Changes ohne dokumentierte Rückfalloption sind ein kritisches Risiko.',items:emergNoRollback.map(c=>c.id+' – '+c.title),action:'Rollback-Plan dokumentieren'});
+
+  // 13. High-risk changes without owner
+  const chgNoOwner=chgs.filter(c=>c.risk==='High'&&(!c.owner||!c.owner.trim()));
+  if(chgNoOwner.length) gaps.push({sev:'warning',cat:'Changes',title:`${chgNoOwner.length} High-Risk Change(s) ohne Owner`,detail:'Hochriskante Changes benötigen einen benannten Verantwortlichen.',items:chgNoOwner.map(c=>c.id+' – '+c.title),action:'Change Owner zuweisen'});
+
+  // 14. Services without SLA
+  const svcNames=[...new Set(svcs.map(s=>s.service))];
+  const slaCovered=new Set(slas.map(s=>s.service));
+  const noSla=svcNames.filter(s=>!slaCovered.has(s));
+  if(noSla.length&&slas.length) gaps.push({sev:'info',cat:'Service Levels',title:`${noSla.length} Service(s) ohne SLA`,detail:'Services ohne definiertes SLA haben keine messbaren Verfügbarkeitsziele.',items:noSla,action:'SLA anlegen'});
+
+  // 15. High-crit BPs without RTO
+  const highBpNoRto=bps.filter(p=>p.criticality==='High'&&(!p.rto||!p.rto.trim()));
+  if(highBpNoRto.length) gaps.push({sev:'critical',cat:'BCM',title:`${highBpNoRto.length} kritische(r) BP ohne RTO`,detail:'Geschäftskritische Prozesse ohne Recovery Time Objective gefährden die Business Continuity.',items:highBpNoRto.map(p=>p.name),action:'RTO/RPO definieren'});
+
+  return gaps.sort((a,b)=>{const o={critical:0,warning:1,info:2};return (o[a.sev]||9)-(o[b.sev]||9);});
+}
+
+function renderGapAnalysis(){
+  const gaps=runGapAnalysis();
+  const crit=gaps.filter(g=>g.sev==='critical'), warn=gaps.filter(g=>g.sev==='warning'), info=gaps.filter(g=>g.sev==='info');
+  const total=gaps.reduce((s,g)=>s+g.items.length,0);
+
+  document.getElementById('main-content').innerHTML = `
+    <div class="view-header">
+      <div><div class="view-title" style="color:#fdba74">🔎 Gap Analysis — Automatische Flags</div>
+      <div class="view-subtitle">Systematische Erkennung fehlender Zuordnungen, Owners und Konfigurationen</div></div>
+      <div class="view-actions">
+        <button class="btn btn-primary btn-sm" onclick="renderGapAnalysis()">⟳ Aktualisieren</button>
+      </div>
+    </div>
+
+    <div class="dashboard-grid" style="grid-template-columns:repeat(auto-fit,minmax(130px,1fr));margin-bottom:20px">
+      <div class="stat-card"><div class="num" style="color:#ef4444">${crit.length}</div><div class="lbl">Kritisch</div></div>
+      <div class="stat-card"><div class="num" style="color:#eab308">${warn.length}</div><div class="lbl">Warnung</div></div>
+      <div class="stat-card"><div class="num" style="color:#00bcd4">${info.length}</div><div class="lbl">Info</div></div>
+      <div class="stat-card"><div class="num">${total}</div><div class="lbl">Betroffene Objekte</div></div>
+    </div>
+
+    <div class="chart-row">
+      <div class="chart-panel">
+        <div class="chart-title">📊 Gaps nach Kategorie</div>
+        <div id="gap-cat-bar"></div>
+      </div>
+      <div class="chart-panel">
+        <div class="chart-title">🎯 Schweregrad-Verteilung</div>
+        <div id="gap-sev-donut"></div>
+      </div>
+    </div>
+
+    ${gaps.length===0?'<div class="empty"><div class="icon">✅</div>Keine Gaps identifiziert — alle Zuordnungen vollständig!</div>':''}
+
+    ${crit.length?`<div class="insight-title" style="border-left-color:#ef4444;background:linear-gradient(90deg,rgba(239,68,68,.06),transparent)">🔴 ${crit.length} Kritische Gaps</div>
+    ${crit.map(g=>renderGapCard(g)).join('')}`:''}
+
+    ${warn.length?`<div class="insight-title" style="border-left-color:#eab308;background:linear-gradient(90deg,rgba(234,179,8,.06),transparent)">🟡 ${warn.length} Warnungen</div>
+    ${warn.map(g=>renderGapCard(g)).join('')}`:''}
+
+    ${info.length?`<div class="insight-title" style="border-left-color:#00bcd4;background:linear-gradient(90deg,rgba(0,188,212,.06),transparent)">🔵 ${info.length} Informationen</div>
+    ${info.map(g=>renderGapCard(g)).join('')}`:''}
+  `;
+
+  // Charts
+  const catCounts={};
+  gaps.forEach(g=>{ catCounts[g.cat]=(catCounts[g.cat]||0)+g.items.length; });
+  if(Object.keys(catCounts).length){
+    d3HBar('gap-cat-bar', Object.entries(catCounts).map(([k,v])=>({label:k,value:v})).sort((a,b)=>b.value-a.value), {});
+  }
+  const sevData=[
+    {label:'Kritisch',value:crit.reduce((s,g)=>s+g.items.length,0)},
+    {label:'Warnung',value:warn.reduce((s,g)=>s+g.items.length,0)},
+    {label:'Info',value:info.reduce((s,g)=>s+g.items.length,0)}
+  ].filter(d=>d.value>0);
+  if(sevData.length){
+    d3Donut('gap-sev-donut', sevData, {colors:['#ef4444','#eab308','#00bcd4'],centerLabel:'Gaps'});
+  }
+}
+
+function renderGapCard(g){
+  const sevIcon={critical:'🔴',warning:'🟡',info:'🔵'}[g.sev]||'⚪';
+  return `<div class="gap-card ${g.sev}">
+    <div class="gap-icon">${sevIcon}</div>
+    <div class="gap-body">
+      <div class="gap-label">${esc(g.cat)}: ${esc(g.title)}</div>
+      <div class="gap-detail">${esc(g.detail)}</div>
+      <div class="gap-detail" style="color:#f5b800;margin-top:4px">→ ${esc(g.action)}</div>
+      ${g.items.length?`<div class="gap-items">${g.items.slice(0,10).map(i=>`<span class="gap-chip">${esc(i)}</span>`).join('')}${g.items.length>10?`<span class="gap-chip">+${g.items.length-10}</span>`:''}</div>`:''}
+    </div>
+  </div>`;
 }
 
 function futureDate(days){
