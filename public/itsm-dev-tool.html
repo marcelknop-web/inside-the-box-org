@@ -1479,18 +1479,22 @@ function openPermForm(id){
   const p=id?DB.permissions.find(x=>x.id===id):null;
   const svcs=[...new Set(DB.services.map(s=>s.service))].sort();
   const grps=DB.userGroups;
+  if(!grps.length||!svcs.length){ showToast('Bitte zuerst User Groups (1.3) und Services (1.1) anlegen.',true); return; }
   document.getElementById('modal-title').textContent=p?'✎ Berechtigung bearbeiten':'+ Neue Berechtigung';
   document.getElementById('modal-body').innerHTML=`
     <div class="form-grid">
       <div class="form-group"><label>Perm-ID</label><input class="form-input" id="f-id" value="${esc(p?.id||'PERM-'+uid())}" ${p?'readonly':''}></div>
       <div class="form-group"><label>User Group</label>
         <select class="form-select" id="f-grp" onchange="syncGroupName()">
+          <option value="">– Gruppe wählen –</option>
           ${grps.map(g=>`<option value="${esc(g.id)}" ${p?.groupId===g.id?'selected':''}>${esc(g.name)}</option>`).join('')}
         </select>
       </div>
       <div class="form-group"><label>Service (OLA)</label>
-        <input class="form-input" id="f-svc" list="svc-perm-list" value="${esc(p?.service||'')}">
-        <datalist id="svc-perm-list">${svcs.map(s=>`<option value="${esc(s)}">`).join('')}</datalist>
+        <select class="form-select" id="f-svc">
+          <option value="">– Service wählen –</option>
+          ${svcs.map(s=>`<option value="${esc(s)}" ${p?.service===s?'selected':''}>${esc(s)}</option>`).join('')}
+        </select>
       </div>
       <div class="form-group"><label>Scope / Subservice</label><input class="form-input" id="f-scope" value="${esc(p?.scope||'')}"></div>
       <div class="form-group"><label>Access Level</label>
