@@ -1692,23 +1692,28 @@ function filterDeps(){
 function openDepForm(idx){
   const d=idx!=null?DB.serviceDeps[idx]:null;
   const svcs=[...new Set(DB.services.map(s=>s.service))].sort();
-  document.getElementById('modal-title').textContent=d?'✎ Abhängigkeit bearbeiten':'+ Neue Service Dependency';
+  if(!svcs.length){ showToast('Bitte zuerst Services im Service Catalog anlegen (Schritt 1.1).',true); return; }
+  document.getElementById('modal-title').textContent=d?'✎ Abhängigkeit bearbeiten':'+ Neue Service-Abhängigkeit';
   document.getElementById('modal-body').innerHTML=`
     <div class="form-grid">
       <div class="form-group"><label>Upstream Service</label>
-        <input class="form-input" id="f-up" list="dep-svc-list" value="${esc(d?.upstream||'')}">
-        <datalist id="dep-svc-list">${svcs.map(s=>`<option value="${esc(s)}">`).join('')}</datalist>
+        <select class="form-select" id="f-up">
+          <option value="">– Service wählen –</option>
+          ${svcs.map(s=>`<option value="${esc(s)}" ${d?.upstream===s?'selected':''}>${esc(s)}</option>`).join('')}
+        </select>
       </div>
       <div class="form-group"><label>Downstream Service</label>
-        <input class="form-input" id="f-dn" list="dep-svc-list2" value="${esc(d?.downstream||'')}">
-        <datalist id="dep-svc-list2">${svcs.map(s=>`<option value="${esc(s)}">`).join('')}</datalist>
+        <select class="form-select" id="f-dn">
+          <option value="">– Service wählen –</option>
+          ${svcs.map(s=>`<option value="${esc(s)}" ${d?.downstream===s?'selected':''}>${esc(s)}</option>`).join('')}
+        </select>
       </div>
-      <div class="form-group"><label>Dependency Type</label>
+      <div class="form-group"><label>Abhängigkeitstyp</label>
         <select class="form-select" id="f-dep">${['Mandatory','Supporting','Optional'].map(t=>`<option ${(d?.depType||'Mandatory')===t?'selected':''}>${t}</option>`).join('')}</select>
       </div>
     </div>
     <div class="form-grid full" style="margin-top:14px">
-      <div class="form-group"><label>Notes</label><textarea class="form-textarea" id="f-notes">${esc(d?.notes||'')}</textarea></div>
+      <div class="form-group"><label>Anmerkungen</label><textarea class="form-textarea" id="f-notes">${esc(d?.notes||'')}</textarea></div>
     </div>
     <div class="form-actions">
       <button class="btn btn-ghost" onclick="closeModal()">Abbrechen</button>
