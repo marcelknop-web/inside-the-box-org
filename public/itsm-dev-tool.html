@@ -428,7 +428,11 @@ function grpDot(g){ return `<span class="grp-dot" style="background:#${groupColo
 function loadData(){
   try {
     const s = localStorage.getItem('itsm_dev_data');
-    return s ? JSON.parse(s) : JSON.parse(JSON.stringify(SEED_DATA));
+    const d = s ? JSON.parse(s) : JSON.parse(JSON.stringify(SEED_DATA));
+    // Ensure all required keys exist (fix for data saved before userGroups was added)
+    const keys = ['services','serviceDeps','businessProcesses','bpServiceMap','permissions','userGroups','changelog'];
+    keys.forEach(k => { if(!Array.isArray(d[k])) d[k] = []; });
+    return d;
   } catch(e){ return JSON.parse(JSON.stringify(SEED_DATA)); }
 }
 function saveData(){
