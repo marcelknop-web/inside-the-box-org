@@ -853,6 +853,38 @@ function showView(name){
 // ═══════════════════════════════════════════════════════════════
 const CHART_COLORS = ['#f5b800','#00bcd4','#22c55e','#ef4444','#c084fc','#f97316','#3b82f6','#ec4899','#14b8a6','#a855f7','#64748b','#06b6d4'];
 
+// ── Sparkline SVG helper ──
+function sparklineSVG(dataPoints, color='#00bcd4', w=80, h=24){
+  if(!dataPoints||dataPoints.length<2) return '<span style="color:#435570;font-size:.65rem">–</span>';
+  const min=Math.min(...dataPoints), max=Math.max(...dataPoints);
+  const range=max-min||1;
+  const pts=dataPoints.map((v,i)=>{
+    const x=(i/(dataPoints.length-1))*w;
+    const y=h-((v-min)/range)*h;
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  });
+  const last=dataPoints[dataPoints.length-1], prev=dataPoints[dataPoints.length-2];
+  const trend=last>prev?'▲':last<prev?'▼':'●';
+  const trendColor=last>prev?'#ef4444':last<prev?'#22c55e':'#8ba5c5';
+  return `<span style="display:inline-flex;align-items:center;gap:4px">
+    <svg width="${w}" height="${h}" style="vertical-align:middle"><polyline points="${pts.join(' ')}" fill="none" stroke="${color}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="${(w).toFixed(1)}" cy="${pts[pts.length-1].split(',')[1]}" r="2" fill="${color}"/></svg>
+    <span style="font-size:.6rem;color:${trendColor}">${trend}</span></span>`;
+}
+
+// Generate fake sparkline data for a service based on criticality
+function serviceSparkData(svc){
+  const seed=svc.service.length+svc.subservice.length+(svc.criticality==='High'?50:svc.criticality==='Medium'?30:10);
+  const base=svc.criticality==='High'?[4,5,3,6,5,7,6]:(svc.criticality==='Medium'?[2,3,2,3,4,3,2]:[1,1,2,1,1,2,1]);
+  return base.map((v,i)=>v+((seed*7+i*13)%5));
+}
+
+// Generate fake sparkline data for incidents (monthly count trend)
+function incidentSparkData(inc){
+  const seed=inc.id.length+(inc.priority==='P1 – Critical'?60:inc.priority==='P2 – High'?40:20);
+  return [3,5,4,6,2,4,3].map((v,i)=>v+((seed*3+i*11)%4));
+}
+
 // Drill-down system
 function openDrilldown(title, subtitle, rows, columns){
   const existing = document.querySelector('.drilldown-overlay');
@@ -1452,6 +1484,7 @@ function renderServiceTable(rows){
       <td><span class="chip chip-group">${esc(s.svc_type)}</span></td>
       <td class="td-wrap">${esc(s.description)}</td>
       <td>${critChip(s.criticality)}</td>
+      <td class="td-center">${sparklineSVG(serviceSparkData(s), s.criticality==='High'?'#ef4444':s.criticality==='Medium'?'#f5b800':'#22c55e')}</td>
       <td class="td-nowrap">
         <button class="btn btn-ghost btn-sm" onclick="openServiceForm(${j(s.id)})">✎</button>
         <button class="btn btn-danger btn-sm" onclick="confirmDelete('services',${j(s.id)},${j(s.subservice)})">✕</button>
@@ -1461,8 +1494,8 @@ function renderServiceTable(rows){
   document.getElementById('svc-table-container').innerHTML = `
     <div class="table-wrap">
       <table>
-        <thead><tr><th>Group</th><th>Service (OLA)</th><th>Subservice</th><th>Typ</th><th>Beschreibung</th><th>Criticality</th><th>Aktionen</th></tr></thead>
-        <tbody>${tbody||'<tr><td colspan="7" class="empty"><div class="icon">🔍</div>Keine Einträge gefunden.</td></tr>'}</tbody>
+        <thead><tr><th>Group</th><th>Service (OLA)</th><th>Subservice</th><th>Typ</th><th>Beschreibung</th><th>Criticality</th><th>Trend</th><th>Aktionen</th></tr></thead>
+        <tbody>${tbody||'<tr><td colspan="8" class="empty"><div class="icon">🔍</div>Keine Einträge gefunden.</td></tr>'}</tbody>
       </table>
     </div>`;
   renderPagination('svc-pagination', total, PAGE.services, p=>{ PAGE.services=p; filterServices(); });
@@ -1950,6 +1983,7 @@ function filterIncidents(){
       <td>${statusChip(i.status)}</td>
       <td style="color:#f5b800">${esc(i.service||'–')}</td>
       <td>${esc(i.assignee||'–')}</td>
+      <td class="td-center">${sparklineSVG(incidentSparkData(i), i.priority.startsWith('P1')?'#ef4444':i.priority.startsWith('P2')?'#f97316':'#00bcd4')}</td>
       <td class="td-nowrap" style="font-size:.72rem;color:#8ba5c5">${esc(i.created||'–')}</td>
       <td class="td-nowrap">
         <button class="btn btn-ghost btn-sm" onclick="openIncidentForm(${j(i.id)})">✎</button>
@@ -1958,8 +1992,8 @@ function filterIncidents(){
     </tr>`).join('');
   document.getElementById('inc-table-container').innerHTML=`
     <div class="table-wrap"><table>
-      <thead><tr><th>INC-ID</th><th>Titel</th><th>Priorität</th><th>Status</th><th>Service</th><th>Zugewiesen</th><th>Erstellt</th><th>Aktionen</th></tr></thead>
-      <tbody>${tbody||'<tr><td colspan="8"><div class="empty"><div class="icon">🔥</div>Keine Incidents vorhanden.</div></td></tr>'}</tbody>
+      <thead><tr><th>INC-ID</th><th>Titel</th><th>Priorität</th><th>Status</th><th>Service</th><th>Zugewiesen</th><th>Trend</th><th>Erstellt</th><th>Aktionen</th></tr></thead>
+      <tbody>${tbody||'<tr><td colspan="9"><div class="empty"><div class="icon">🔥</div>Keine Incidents vorhanden.</div></td></tr>'}</tbody>
     </table></div>`;
 }
 
