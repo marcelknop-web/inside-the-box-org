@@ -1014,6 +1014,8 @@ function renderDashboard(){
       <div><div class="view-title">📊 Dashboard</div>
       <div class="view-subtitle">ITSM Service Catalog – Consulting Analytics</div></div>
       <div class="view-actions">
+        <button class="btn btn-success btn-sm" onclick="generateProjectReport()">📄 Projektbericht (PDF)</button>
+        <button class="btn btn-warning btn-sm" onclick="exportExcelAll()">📊 Alle Daten (Excel)</button>
         <button class="btn btn-ghost btn-sm" onclick="resetToSeed()">⟳ Daten zurücksetzen</button>
       </div>
     </div>
@@ -1317,6 +1319,8 @@ function renderServices(){
       <div class="view-subtitle">${DB.services.length} Subservices · ${[...new Set(DB.services.map(s=>s.service))].length} IT Services</div></div>
       <div class="view-actions">
         <button class="btn btn-ghost btn-sm" onclick="exportCSV('services')">↓ CSV</button>
+        <button class="btn btn-ghost btn-sm" onclick="exportExcelSection('services','Service Catalog')">↓ Excel</button>
+        <button class="btn btn-ghost btn-sm" onclick="exportSectionPDF('services','Service Catalog')">↓ PDF</button>
         <button class="btn btn-primary btn-sm" onclick="openServiceForm()">+ Subservice</button>
       </div>
     </div>
@@ -1722,6 +1726,8 @@ function renderCIs(){
       <div class="view-subtitle">${DB.cis.length} CIs im CMDB</div></div>
       <div class="view-actions">
         <button class="btn btn-ghost btn-sm" onclick="exportCSV('cis')">↓ CSV</button>
+        <button class="btn btn-ghost btn-sm" onclick="exportExcelSection('cis','Configuration Items')">↓ Excel</button>
+        <button class="btn btn-ghost btn-sm" onclick="exportSectionPDF('cis','Configuration Items')">↓ PDF</button>
         <button class="btn btn-primary btn-sm" onclick="openCiForm()">+ Configuration Item</button>
       </div>
     </div>
@@ -1828,6 +1834,8 @@ function renderIncidents(){
       <div class="view-subtitle">${DB.incidents.length} Incidents</div></div>
       <div class="view-actions">
         <button class="btn btn-ghost btn-sm" onclick="exportCSV('incidents')">↓ CSV</button>
+        <button class="btn btn-ghost btn-sm" onclick="exportExcelSection('incidents','Incidents')">↓ Excel</button>
+        <button class="btn btn-ghost btn-sm" onclick="exportSectionPDF('incidents','Incidents')">↓ PDF</button>
         <button class="btn btn-primary btn-sm" onclick="openIncidentForm()">+ Incident</button>
       </div>
     </div>
@@ -1951,6 +1959,8 @@ function renderChanges(){
       <div class="view-subtitle">${DB.changes.length} Change Requests</div></div>
       <div class="view-actions">
         <button class="btn btn-ghost btn-sm" onclick="exportCSV('changes')">↓ CSV</button>
+        <button class="btn btn-ghost btn-sm" onclick="exportExcelSection('changes','Changes')">↓ Excel</button>
+        <button class="btn btn-ghost btn-sm" onclick="exportSectionPDF('changes','Changes')">↓ PDF</button>
         <button class="btn btn-primary btn-sm" onclick="openChangeForm()">+ Change Request</button>
       </div>
     </div>
