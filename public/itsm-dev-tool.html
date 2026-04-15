@@ -2018,6 +2018,93 @@ function saveBpMap(idx){
 }
 
 // ═══════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
+// SERVICE → CI MAPPING
+// ═══════════════════════════════════════════════════════════════
+function renderServiceCiMap(){
+  document.getElementById('main-content').innerHTML=`
+    <div class="view-header">
+      <div><div class="view-title" style="color:#26C6DA">🔗 Service → CI Mapping</div>
+      <div class="view-subtitle">${DB.serviceCiMap.length} Zuordnungen</div></div>
+      <div class="view-actions">
+        <button class="btn btn-ghost btn-sm" onclick="exportCSV('serviceCiMap')">↓ CSV</button>
+        <button class="btn btn-primary btn-sm" onclick="openServiceCiMapForm()">+ Zuordnung</button>
+      </div>
+    </div>
+    <div class="filter-bar">
+      <input class="search-input" id="scm-search" placeholder="🔍 Suche…" oninput="filterServiceCiMap()">
+    </div>
+    <div id="scm-table-container"></div>`;
+  filterServiceCiMap();
+}
+
+function filterServiceCiMap(){
+  const q=(document.getElementById('scm-search')?.value||'').toLowerCase();
+  let rows=DB.serviceCiMap.filter(m=>(!q||[m.service,m.ci,m.relation,m.notes].join(' ').toLowerCase().includes(q)));
+  const tbody=rows.map((m,i)=>`
+    <tr>
+      <td><strong style="color:#f5b800">${esc(m.service)}</strong></td>
+      <td style="color:#f5b800;text-align:center">→</td>
+      <td><strong style="color:#26C6DA">${esc(m.ci)}</strong></td>
+      <td><span class="chip chip-group">${esc(m.relation)}</span></td>
+      <td class="td-wrap" style="font-size:.77rem;color:#8ba5c5">${esc(m.notes)}</td>
+      <td class="td-nowrap">
+        <button class="btn btn-ghost btn-sm" onclick="openServiceCiMapForm(${i})">✎</button>
+        <button class="btn btn-danger btn-sm" onclick="confirmDeleteIdx('serviceCiMap',${i},${j(m.service+'→'+m.ci)})">✕</button>
+      </td>
+    </tr>`).join('');
+  document.getElementById('scm-table-container').innerHTML=`
+    <div class="table-wrap"><table>
+      <thead><tr><th>Service</th><th></th><th>CI</th><th>Beziehung</th><th>Notes</th><th>Aktionen</th></tr></thead>
+      <tbody>${tbody||'<tr><td colspan="6"><div class="empty">Keine Zuordnungen.</div></td></tr>'}</tbody>
+    </table></div>`;
+}
+
+function openServiceCiMapForm(idx){
+  const m=idx!=null?DB.serviceCiMap[idx]:null;
+  const svcs=[...new Set(DB.services.map(s=>s.service))].sort();
+  const cis=DB.cis;
+  if(!svcs.length||!cis.length){ showToast('Bitte zuerst Services (1.1) und CIs (1.2) anlegen.',true); return; }
+  document.getElementById('modal-title').textContent=m?'✎ Zuordnung bearbeiten':'+ Service → CI Zuordnung';
+  document.getElementById('modal-body').innerHTML=`
+    <div class="form-grid">
+      <div class="form-group"><label>Service (OLA)</label>
+        <select class="form-select" id="f-svc">
+          <option value="">– Service wählen –</option>
+          ${svcs.map(s=>`<option value="${esc(s)}" ${m?.service===s?'selected':''}>${esc(s)}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group"><label>Configuration Item</label>
+        <select class="form-select" id="f-ci">
+          <option value="">– CI wählen –</option>
+          ${cis.map(c=>`<option value="${esc(c.name)}" ${m?.ci===c.name?'selected':''}>${esc(c.id)} – ${esc(c.name)}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group"><label>Beziehungstyp</label>
+        <select class="form-select" id="f-rel">
+          ${['Runs On','Depends On','Managed By','Hosted On','Connected To','Uses'].map(r=>`<option ${(m?.relation||'Runs On')===r?'selected':''}>${r}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+    <div class="form-grid full" style="margin-top:14px">
+      <div class="form-group"><label>Anmerkungen</label><textarea class="form-textarea" id="f-notes">${esc(m?.notes||'')}</textarea></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Abbrechen</button>
+      <button class="btn btn-primary" onclick="saveServiceCiMap(${idx??'null'})">💾 Speichern</button>
+    </div>`;
+  openModal();
+}
+
+function saveServiceCiMap(idx){
+  const v=x=>document.getElementById(x)?.value?.trim()||'';
+  const obj={service:v('f-svc'),ci:v('f-ci'),relation:v('f-rel'),notes:v('f-notes')};
+  if(!obj.service||!obj.ci){showToast('Service und CI sind Pflichtfelder.',true);return;}
+  if(idx!=null){DB.serviceCiMap[idx]=obj;addChange('Geändert','Svc→CI',obj.service+'→'+obj.ci);}
+  else{DB.serviceCiMap.push(obj);addChange('Hinzugefügt','Svc→CI',obj.service+'→'+obj.ci);}
+  saveData();closeModal();renderServiceCiMap();showToast('Zuordnung gespeichert.');
+}
+
 // SERVICE DEPENDENCIES
 // ═══════════════════════════════════════════════════════════════
 function renderDeps(){
