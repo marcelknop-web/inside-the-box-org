@@ -1108,11 +1108,34 @@ function renderDashboard(){
 }
 
 function resetToSeed(){
-  if(!confirm('Alle Daten auf den Ausgangszustand zurücksetzen? Eigene Änderungen gehen verloren.')) return;
+  if(!confirm('Alle Daten dieses Projekts auf den Ausgangszustand zurücksetzen?')) return;
   DB = JSON.parse(JSON.stringify(SEED_DATA));
-  localStorage.removeItem('itsm_dev_data');
-  localStorage.removeItem('arl_itsm_log');
+  const pid = getCurrentProjectId();
+  localStorage.removeItem(projectStorageKey(pid));
+  localStorage.removeItem(projectLogKey(pid));
+  saveData();
   updateCounts(); showView('dashboard'); showToast('Daten zurückgesetzt.');
+}
+
+function promptNewProject(){
+  const name = prompt('Name des neuen Projekts:');
+  if(!name || !name.trim()) return;
+  createProject(name.trim());
+  showToast('Projekt "'+name.trim()+'" erstellt.');
+}
+function promptProjectActions(){
+  const projects = getProjects();
+  const cur = getCurrentProjectId();
+  const curP = projects.find(p=>p.id===cur);
+  const choice = prompt('Projekt "'+curP.name+'":\n\n1 = Umbenennen\n2 = Löschen\n\nNummer eingeben:');
+  if(choice==='1'){
+    const nn = prompt('Neuer Name:', curP.name);
+    if(nn && nn.trim()){ renameProject(cur, nn.trim()); showToast('Projekt umbenannt.'); }
+  } else if(choice==='2'){
+    if(confirm('Projekt "'+curP.name+'" wirklich löschen? Alle Daten gehen verloren.')){
+      deleteProject(cur);
+    }
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════
