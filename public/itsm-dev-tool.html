@@ -305,6 +305,70 @@ tr:hover td{background:#1a2535}
 .compliance-card .cc-meta-item .label{color:#435570;font-size:.66rem;text-transform:uppercase;letter-spacing:.4px;font-family:'IBM Plex Mono',monospace}
 .compliance-card .cc-meta-item .value{color:#f0f4fc}
 .audit-summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:20px}
+
+/* ── Skeleton Loading ── */
+.skeleton{position:relative;overflow:hidden;background:#141c28;border-radius:6px}
+.skeleton::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(245,184,0,.04),transparent);animation:skeleton-shimmer 1.5s infinite}
+@keyframes skeleton-shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+.skeleton-row{display:flex;gap:12px;margin-bottom:12px}
+.skeleton-bar{height:14px;border-radius:4px}
+.skeleton-block{height:48px;border-radius:8px;margin-bottom:8px}
+
+/* ── Breadcrumb ── */
+.breadcrumb{display:flex;align-items:center;gap:6px;font-size:.72rem;font-family:'IBM Plex Mono',monospace;color:#435570;margin-bottom:12px;padding:6px 12px;background:#0e1218;border:1px solid #1e2a3a;border-radius:6px}
+.breadcrumb a,.breadcrumb span.bc-link{color:#00bcd4;cursor:pointer;text-decoration:none;transition:color .15s}
+.breadcrumb a:hover,.breadcrumb span.bc-link:hover{color:#f5b800}
+.breadcrumb .bc-sep{color:#1e2a3a;margin:0 2px}
+.breadcrumb .bc-current{color:#f0f4fc}
+
+/* ── Onboarding Tour ── */
+.tour-overlay{position:fixed;inset:0;background:rgba(8,11,16,.8);z-index:500;backdrop-filter:blur(3px)}
+.tour-popup{position:fixed;z-index:501;background:#0e1218;border:2px solid #f5b800;border-radius:10px;padding:18px 20px;max-width:360px;box-shadow:0 12px 40px rgba(245,184,0,.15)}
+.tour-popup .tour-title{font-size:.88rem;font-weight:700;color:#f5b800;margin-bottom:8px;font-family:'IBM Plex Mono',monospace}
+.tour-popup .tour-text{font-size:.78rem;color:#8ba5c5;line-height:1.5;margin-bottom:14px}
+.tour-popup .tour-step{font-size:.66rem;color:#435570;margin-bottom:10px;font-family:'IBM Plex Mono',monospace}
+.tour-actions{display:flex;gap:8px;justify-content:flex-end}
+.tour-popup .tour-arrow{position:absolute;width:12px;height:12px;background:#0e1218;border-right:2px solid #f5b800;border-bottom:2px solid #f5b800;transform:rotate(45deg)}
+
+/* ── Context Help Tooltips ── */
+.help-icon{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:#1a2535;color:#8ba5c5;font-size:.6rem;font-weight:700;cursor:help;margin-left:4px;border:1px solid #1e2a3a;vertical-align:middle;position:relative}
+.help-icon:hover{background:#243447;color:#f5b800;border-color:#f5b800}
+.help-tooltip{display:none;position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:#0e1218;border:1px solid #f5b800;border-radius:6px;padding:8px 12px;font-size:.72rem;color:#8ba5c5;white-space:normal;width:220px;z-index:200;box-shadow:0 6px 20px rgba(0,0,0,.4);font-weight:400;text-transform:none;letter-spacing:0;line-height:1.5}
+.help-icon:hover .help-tooltip{display:block}
+
+/* ── Keyboard Shortcuts Panel ── */
+.shortcuts-panel{position:fixed;bottom:16px;left:16px;background:#0e1218;border:1px solid #1e2a3a;border-radius:10px;padding:14px 18px;z-index:400;font-size:.72rem;color:#8ba5c5;max-width:240px;box-shadow:0 8px 24px rgba(0,0,0,.4);display:none}
+.shortcuts-panel.visible{display:block}
+.shortcuts-panel .sc-title{font-size:.78rem;font-weight:700;color:#f5b800;margin-bottom:10px;font-family:'IBM Plex Mono',monospace}
+.shortcuts-panel .sc-row{display:flex;justify-content:space-between;padding:3px 0}
+.shortcuts-panel .sc-key{background:#1a2535;color:#f0f4fc;padding:1px 6px;border-radius:3px;font-size:.66rem;font-family:'IBM Plex Mono',monospace;border:1px solid #1e2a3a}
+
+/* ── Undo Toast ── */
+.toast.undo{background:#0e1218;border:1px solid #f5b800;display:flex;align-items:center;gap:10px}
+.toast.undo .undo-btn{background:#f5b800;color:#080b10;border:none;padding:4px 10px;border-radius:4px;font-size:.72rem;font-weight:700;cursor:pointer}
+
+/* ── Bulk Actions ── */
+.bulk-bar{display:none;align-items:center;gap:10px;padding:8px 14px;background:linear-gradient(90deg,rgba(245,184,0,.08),#0e1218);border:1px solid #f5b800;border-radius:6px;margin-bottom:10px;font-size:.78rem}
+.bulk-bar.active{display:flex}
+.bulk-bar .bulk-count{color:#f5b800;font-weight:700;font-family:'IBM Plex Mono',monospace}
+.bulk-check{width:16px;height:16px;cursor:pointer;accent-color:#f5b800}
+
+/* ── Favorites ── */
+.nav-item .fav-star{margin-left:auto;opacity:0;cursor:pointer;font-size:.7rem;transition:opacity .15s;padding:0 4px}
+.nav-item:hover .fav-star{opacity:.5}
+.nav-item .fav-star.active{opacity:1;color:#f5b800}
+.nav-item .fav-star:hover{opacity:1;color:#f5b800}
+.sidebar .fav-section{display:none}
+.sidebar .fav-section.has-favs{display:block}
+
+/* ── Changelog ── */
+.changelog-entry{display:flex;align-items:flex-start;gap:8px;padding:8px 12px;border-bottom:1px solid #141c28;font-size:.76rem}
+.changelog-entry .cl-time{color:#435570;font-size:.68rem;font-family:'IBM Plex Mono',monospace;white-space:nowrap;min-width:60px}
+.changelog-entry .cl-action{padding:1px 6px;border-radius:8px;font-size:.62rem;font-weight:700;font-family:'IBM Plex Mono',monospace;white-space:nowrap}
+.cl-action.add{background:rgba(34,197,94,.15);color:#4ade80}
+.cl-action.edit{background:rgba(245,184,0,.15);color:#f5b800}
+.cl-action.delete{background:rgba(239,68,68,.15);color:#f87171}
+.cl-action.import{background:rgba(168,85,247,.15);color:#c084fc}
 </style>
 </head>
 <body>
@@ -1690,10 +1754,16 @@ function openGroupForm(id){
       <div class="form-group"><label>Typ</label>
         <select class="form-select" id="f-type">${['Business','IT','Vendor','Management'].map(t=>`<option ${(g?.type||'Business')===t?'selected':''}>${t}</option>`).join('')}</select>
       </div>
-      <div class="form-group"><label>Abteilung</label><input class="form-input" id="f-dept" value="${esc(g?.department||'')}"></div>
-      <div class="form-group"><label>Standort</label><input class="form-input" id="f-loc" value="${esc(g?.location||'')}"></div>
-      <div class="form-group"><label>Anzahl User (ca.)</label><input class="form-input" id="f-cnt" value="${esc(g?.count||'')}"></div>
-      <div class="form-group"><label>Group Manager (Rolle)</label><input class="form-input" id="f-mgr" value="${esc(g?.manager||'')}"></div>
+      <div class="form-group"><label>Abteilung ${helpIcon('Ordnen Sie die Gruppe einer Fachabteilung zu für Impact-Analysen.')}</label>
+        ${departmentDropdown('f-dept',g?.department||'')}
+      </div>
+      <div class="form-group"><label>Standort ${helpIcon('Primärer Standort der Gruppe. Relevant für BCM und Geo-Redundanz.')}</label>
+        ${locationDropdown('f-loc',g?.location||'')}
+      </div>
+      <div class="form-group"><label>Anzahl User (ca.) ${helpIcon('Ungefähre Anzahl der Mitglieder. Wird für Lizenz- und Kapazitätsplanung verwendet.')}</label><input class="form-input" id="f-cnt" type="number" min="0" value="${esc(g?.count||'')}"></div>
+      <div class="form-group"><label>Group Manager ${helpIcon('Verantwortliche Person/Rolle für Eskalationen und Berechtigungsfreigaben.')}</label>
+        ${ownerDropdown('f-mgr',g?.manager||'')}
+      </div>
     </div>
     <div class="form-grid full" style="margin-top:14px">
       <div class="form-group"><label>Primäre Systeme</label><textarea class="form-textarea" id="f-sys">${esc(g?.systems||'')}</textarea></div>
@@ -1703,11 +1773,15 @@ function openGroupForm(id){
       <button class="btn btn-primary" onclick="saveGroup(${j(id||null)})">💾 Speichern</button>
     </div>`;
   openModal();
+  setupCustomDropdown('f-dept');setupCustomDropdown('f-loc');setupCustomDropdown('f-mgr');
 }
 
 function saveGroup(id){
   const v=x=>document.getElementById(x)?.value?.trim()||'';
-  const obj={id:v('f-id'),name:v('f-name'),type:v('f-type'),department:v('f-dept'),location:v('f-loc'),count:v('f-cnt'),manager:v('f-mgr'),systems:v('f-sys')};
+  const dept=getDropdownValue('f-dept');
+  const loc=getDropdownValue('f-loc');
+  const mgr=getDropdownValue('f-mgr');
+  const obj={id:v('f-id'),name:v('f-name'),type:v('f-type'),department:dept,location:loc,count:v('f-cnt'),manager:mgr,systems:v('f-sys')};
   if(!obj.id||!obj.name){showToast('ID und Name sind Pflichtfelder.',true);return;}
   if(id){const i=DB.userGroups.findIndex(x=>x.id===id);DB.userGroups[i]=obj;addChange('Geändert','User Group',obj.name);}
   else{if(DB.userGroups.find(x=>x.id===obj.id)){showToast('ID bereits vorhanden.',true);return;}DB.userGroups.push(obj);addChange('Hinzugefügt','User Group',obj.name);}
@@ -1786,7 +1860,7 @@ function openCiForm(id){
           ${['Server','Netzwerk','Appliance','Arbeitsplatz','Software','Datenbank','Storage','Cloud Resource','OT Device','Virtuell'].map(t=>`<option ${(c?.ciType||'Server')===t?'selected':''}>${t}</option>`).join('')}
         </select>
       </div>
-      <div class="form-group"><label>Criticality</label>
+      <div class="form-group"><label>Criticality ${helpIcon('Wie geschäftskritisch ist dieses CI? High = produktionskritisch, Low = entwicklungsnah.')}</label>
         <select class="form-select" id="f-crit">${['High','Medium','Low'].map(v=>`<option ${(c?.criticality||'Medium')===v?'selected':''}>${v}</option>`).join('')}</select>
       </div>
       <div class="form-group"><label>Status</label>
@@ -1794,14 +1868,15 @@ function openCiForm(id){
           ${['Aktiv','Geplant','In Wartung','Außer Betrieb','Retired'].map(s=>`<option ${(c?.status||'Aktiv')===s?'selected':''}>${s}</option>`).join('')}
         </select>
       </div>
-      <div class="form-group"><label>Standort</label>
-        <select class="form-select" id="f-loc">
-          <option value="">– Wählen –</option>
-          ${['Leverkusen','Dormagen','Marl','Singapore','Triunfo','Nantong','Global','Cloud (Azure)','Cloud (AWS)','Cloud (GCP)','On-Premises'].map(l=>`<option ${c?.location===l?'selected':''}>${l}</option>`).join('')}
-        </select>
+      <div class="form-group"><label>Standort ${helpIcon('Physischer Standort oder Cloud-Provider des CIs.')}</label>
+        ${locationDropdown('f-loc',c?.location||'')}
       </div>
-      <div class="form-group"><label>Owner / Verantwortlicher</label><input class="form-input" id="f-owner" value="${esc(c?.owner||'')}" placeholder="z.B. IT Infrastructure"></div>
-      <div class="form-group"><label>Hersteller</label><input class="form-input" id="f-vendor" value="${esc(c?.vendor||'')}" placeholder="z.B. Dell, HP, VMware"></div>
+      <div class="form-group"><label>Owner ${helpIcon('Team oder Rolle, das/die für dieses CI verantwortlich ist.')}</label>
+        ${ownerDropdown('f-owner',c?.owner||'',['IT Infrastructure','IT Security','Application Management','Database Team','Network Team'])}
+      </div>
+      <div class="form-group"><label>Hersteller ${helpIcon('Hersteller des Geräts oder der Software.')}</label>
+        ${vendorDropdown('f-vendor',c?.vendor||'')}
+      </div>
       <div class="form-group"><label>Modell / Version</label><input class="form-input" id="f-model" value="${esc(c?.model||'')}"></div>
       <div class="form-group"><label>IP / FQDN</label><input class="form-input" id="f-ip" value="${esc(c?.ip||'')}"></div>
     </div>
@@ -1813,11 +1888,15 @@ function openCiForm(id){
       <button class="btn btn-primary" onclick="saveCi(${j(id||null)})">💾 Speichern</button>
     </div>`;
   openModal();
+  setupCustomDropdown('f-loc');setupCustomDropdown('f-owner');setupCustomDropdown('f-vendor');
 }
 
 function saveCi(id){
   const v=x=>document.getElementById(x)?.value?.trim()||'';
-  const obj={id:v('f-id'),name:v('f-name'),ciType:v('f-citype'),criticality:v('f-crit'),status:v('f-status'),location:v('f-loc'),owner:v('f-owner'),vendor:v('f-vendor'),model:v('f-model'),ip:v('f-ip'),description:v('f-desc')};
+  const loc=getDropdownValue('f-loc');
+  const owner=getDropdownValue('f-owner');
+  const vendor=getDropdownValue('f-vendor');
+  const obj={id:v('f-id'),name:v('f-name'),ciType:v('f-citype'),criticality:v('f-crit'),status:v('f-status'),location:loc,owner:owner,vendor:vendor,model:v('f-model'),ip:v('f-ip'),description:v('f-desc')};
   if(!obj.id||!obj.name){showToast('ID und Name sind Pflichtfelder.',true);return;}
   if(id){const i=DB.cis.findIndex(x=>x.id===id);DB.cis[i]=obj;addChange('Geändert','CI',obj.name);}
   else{if(DB.cis.find(x=>x.id===obj.id)){showToast('ID bereits vorhanden.',true);return;}DB.cis.push(obj);addChange('Hinzugefügt','CI',obj.name);}
@@ -5496,10 +5575,376 @@ function futureDate(days){
   d.setDate(d.getDate()+days);
   return d.toISOString().slice(0,10);
 }
+// ═══════════════════════════════════════════════════════════════
+// SKELETON LOADING
+// ═══════════════════════════════════════════════════════════════
+function showSkeleton(){
+  const mc=document.getElementById('main-content');
+  mc.innerHTML=`<div style="padding:20px"><div class="skeleton skeleton-block" style="width:40%;height:24px;margin-bottom:20px"></div>
+  <div class="skeleton-row"><div class="skeleton skeleton-bar" style="width:160px;height:48px"></div><div class="skeleton skeleton-bar" style="width:160px;height:48px"></div><div class="skeleton skeleton-bar" style="width:160px;height:48px"></div><div class="skeleton skeleton-bar" style="width:160px;height:48px"></div></div>
+  <div class="skeleton skeleton-block" style="width:100%;height:180px;margin-top:12px"></div>
+  <div class="skeleton skeleton-block" style="width:100%;height:120px;margin-top:8px"></div>
+  <div class="skeleton skeleton-block" style="width:80%;height:80px;margin-top:8px"></div></div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// BREADCRUMB NAVIGATION
+// ═══════════════════════════════════════════════════════════════
+const VIEW_LABELS={dashboard:'Dashboard',services:'Service Catalog',cis:'Configuration Items',processes:'Business Processes',groups:'User Groups',incidents:'Incidents',changes:'Changes',permissions:'Berechtigungen',bpmap:'BP → Service',deps:'Service-Abhängigkeiten',servicecimap:'Service → CI',slas:'SLAs / SLOs',audit:'Audit',compliance:'Compliance Check',maturity:'Maturity Assessment',gapanalysis:'Gap Analysis',depgraph:'Dependency Map',depgraph3d:'3D Layer Map',agent:'AI Agent',settings:'Import / Export'};
+const VIEW_SECTIONS={services:'1 · Stammdaten',cis:'1 · Stammdaten',processes:'1 · Stammdaten',groups:'1 · Stammdaten',incidents:'2 · Prozesse',changes:'2 · Prozesse',permissions:'3 · Verknüpfungen',bpmap:'3 · Verknüpfungen',deps:'3 · Verknüpfungen',servicecimap:'3 · Verknüpfungen',slas:'Service Levels',audit:'4 · Qualität',compliance:'4 · Qualität',maturity:'4 · Qualität',gapanalysis:'4 · Qualität',depgraph:'5 · Visualisierung',depgraph3d:'5 · Visualisierung',agent:'Werkzeuge',settings:'Werkzeuge'};
+
+function renderBreadcrumb(viewName){
+  if(viewName==='dashboard') return '';
+  const section=VIEW_SECTIONS[viewName]||'';
+  const label=VIEW_LABELS[viewName]||viewName;
+  return `<div class="breadcrumb"><span class="bc-link" onclick="showView('dashboard')">📊 Dashboard</span>${section?`<span class="bc-sep">›</span><span style="color:#435570">${section}</span>`:''}<span class="bc-sep">›</span><span class="bc-current">${label}</span></div>`;
+}
+
+// Patch showView for skeleton + breadcrumb
+const _origShowView = showView;
+showView = function(name){
+  if(name!==currentView){
+    showSkeleton();
+    setTimeout(()=>{_doShowView(name);},80);
+  } else {
+    _doShowView(name);
+  }
+};
+function _doShowView(name){
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  if(window.innerWidth<=768){const sb=document.querySelector('.sidebar');if(sb)sb.classList.remove('open');}
+  const nav=document.getElementById('nav-'+name);
+  if(nav)nav.classList.add('active');
+  currentView=name;
+  const views={dashboard:renderDashboard,services:renderServices,cis:renderCIs,processes:renderProcesses,groups:renderGroups,incidents:renderIncidents,changes:renderChanges,permissions:renderPermissions,bpmap:renderBpMap,deps:renderDeps,servicecimap:renderServiceCiMap,settings:renderSettings,agent:renderAgent,depgraph:renderDepGraph,depgraph3d:renderDepGraph3D,audit:renderAudit,compliance:renderComplianceCheck,maturity:renderMaturity,gapanalysis:renderGapAnalysis,slas:renderSLAs};
+  document.getElementById('main-content').innerHTML='';
+  if(views[name]) views[name]();
+  // Inject breadcrumb
+  const mc=document.getElementById('main-content');
+  const bc=renderBreadcrumb(name);
+  if(bc) mc.insertAdjacentHTML('afterbegin',bc);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// KEYBOARD SHORTCUTS
+// ═══════════════════════════════════════════════════════════════
+let _shortcutsVisible=false;
+document.addEventListener('keydown',e=>{
+  // Don't trigger in inputs
+  if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'||e.target.tagName==='SELECT') return;
+  if(e.key==='?'){ toggleShortcutsPanel(); return; }
+  if(e.key==='Escape'){
+    const modal=document.getElementById('modal-overlay');
+    if(modal.classList.contains('open')){closeModal();return;}
+    const confirm=document.getElementById('confirm-overlay');
+    if(confirm.classList.contains('open')){closeConfirm();return;}
+    if(_shortcutsVisible){toggleShortcutsPanel();return;}
+    if(document.querySelector('.tour-overlay')){endTour();return;}
+    return;
+  }
+  if(e.key==='n'||e.key==='N'){triggerNewEntry();return;}
+  if(e.key==='s'){document.querySelector('.search-input')?.focus();e.preventDefault();return;}
+  if(e.key==='d'){showView('dashboard');return;}
+  if(e.key==='1'){showView('services');return;}
+  if(e.key==='2'){showView('cis');return;}
+  if(e.key==='3'){showView('incidents');return;}
+  if(e.key==='4'){showView('audit');return;}
+});
+
+function triggerNewEntry(){
+  const actions={services:'openServiceForm',cis:'openCiForm',processes:'openProcessForm',groups:'openGroupForm',incidents:'openIncidentForm',changes:'openChangeForm',permissions:'openPermForm',slas:'openSlaModal'};
+  if(actions[currentView]) window[actions[currentView]]();
+}
+
+function toggleShortcutsPanel(){
+  _shortcutsVisible=!_shortcutsVisible;
+  let panel=document.getElementById('shortcuts-panel');
+  if(!panel){
+    panel=document.createElement('div');
+    panel.id='shortcuts-panel';
+    panel.className='shortcuts-panel';
+    panel.innerHTML=`<div class="sc-title">⌨ Tastaturkürzel</div>
+    <div class="sc-row"><span>Neuer Eintrag</span><span class="sc-key">N</span></div>
+    <div class="sc-row"><span>Suche fokussieren</span><span class="sc-key">S</span></div>
+    <div class="sc-row"><span>Dashboard</span><span class="sc-key">D</span></div>
+    <div class="sc-row"><span>Services</span><span class="sc-key">1</span></div>
+    <div class="sc-row"><span>Config Items</span><span class="sc-key">2</span></div>
+    <div class="sc-row"><span>Incidents</span><span class="sc-key">3</span></div>
+    <div class="sc-row"><span>Audit</span><span class="sc-key">4</span></div>
+    <div class="sc-row"><span>Schließen</span><span class="sc-key">Esc</span></div>
+    <div class="sc-row"><span>Diese Hilfe</span><span class="sc-key">?</span></div>`;
+    document.body.appendChild(panel);
+  }
+  panel.classList.toggle('visible',_shortcutsVisible);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// UNDO DELETE SYSTEM
+// ═══════════════════════════════════════════════════════════════
+let _undoStack=[];
+const _origConfirmDelete=confirmDelete;
+confirmDelete=function(collection, id, name){
+  document.getElementById('confirm-msg').textContent=`Eintrag "${name}" wirklich löschen?`;
+  confirmCallback=()=>{
+    const item=DB[collection].find(x=>x.id===id);
+    if(item) _undoStack.push({collection,item:JSON.parse(JSON.stringify(item)),name});
+    DB[collection]=DB[collection].filter(x=>x.id!==id);
+    addChange('Gelöscht',collection,name);
+    saveData();closeConfirm();showView(currentView);
+    showUndoToast(name);
+  };
+  document.getElementById('confirm-overlay').classList.add('open');
+};
+
+function showUndoToast(name){
+  const t=document.getElementById('toast');
+  t.innerHTML=`Eintrag "${esc(name)}" gelöscht. <button class="undo-btn" onclick="undoLastDelete()">↩ Rückgängig</button>`;
+  t.className='toast undo';
+  void t.offsetWidth;t.classList.add('show');
+  setTimeout(()=>{t.classList.remove('show');},6000);
+}
+
+function undoLastDelete(){
+  if(!_undoStack.length){showToast('Nichts zum Rückgängig machen.',true);return;}
+  const last=_undoStack.pop();
+  DB[last.collection].push(last.item);
+  addChange('Wiederhergestellt',last.collection,last.name);
+  saveData();showView(currentView);
+  showToast('↩ "'+last.name+'" wiederhergestellt.');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ONBOARDING TOUR
+// ═══════════════════════════════════════════════════════════════
+const TOUR_STEPS=[
+  {target:'nav-dashboard',title:'Dashboard',text:'Hier sehen Sie alle KPIs auf einen Blick: Completeness, Readiness-Scores und Risk-Flags.',pos:'right'},
+  {target:'nav-services',title:'Service Catalog',text:'Erfassen Sie alle IT-Services und Subservices mit Criticality, Typ und Beschreibung.',pos:'right'},
+  {target:'nav-cis',title:'Configuration Items',text:'Verwalten Sie Ihre CIs (Server, Netzwerk, Software) und verknüpfen Sie sie mit Services.',pos:'right'},
+  {target:'nav-audit',title:'Audit & Quality',text:'Automatische Prüfungen auf Datenqualität, Konsistenz und Compliance-Gaps.',pos:'right'},
+  {target:'nav-depgraph',title:'Dependency Map',text:'Interaktive Visualisierung aller Beziehungen zwischen Services, Prozessen und Gruppen.',pos:'right'},
+  {target:'nav-agent',title:'AI Agent',text:'Fügen Sie unstrukturierte Texte ein und lassen Sie KI automatisch ITSM-Daten extrahieren.',pos:'right'},
+];
+let _tourStep=-1;
+
+function startTour(){
+  _tourStep=0;
+  showTourStep();
+}
+function showTourStep(){
+  endTour(true);
+  if(_tourStep>=TOUR_STEPS.length){endTour();showToast('Tour abgeschlossen! 🎉');return;}
+  const step=TOUR_STEPS[_tourStep];
+  const target=document.getElementById(step.target);
+  if(!target){_tourStep++;showTourStep();return;}
+
+  const overlay=document.createElement('div');
+  overlay.className='tour-overlay';
+  overlay.onclick=endTour;
+  document.body.appendChild(overlay);
+
+  const rect=target.getBoundingClientRect();
+  target.style.position='relative';target.style.zIndex='502';target.style.boxShadow='0 0 0 4px #f5b800';
+
+  const popup=document.createElement('div');
+  popup.className='tour-popup';
+  popup.innerHTML=`<div class="tour-step">Schritt ${_tourStep+1} von ${TOUR_STEPS.length}</div>
+  <div class="tour-title">${step.title}</div>
+  <div class="tour-text">${step.text}</div>
+  <div class="tour-actions">
+    <button class="btn btn-ghost btn-sm" onclick="endTour()">Tour beenden</button>
+    ${_tourStep>0?'<button class="btn btn-ghost btn-sm" onclick="_tourStep--;showTourStep()">← Zurück</button>':''}
+    <button class="btn btn-primary btn-sm" onclick="_tourStep++;showTourStep()">${_tourStep<TOUR_STEPS.length-1?'Weiter →':'Fertig ✓'}</button>
+  </div>`;
+  popup.style.top=(rect.top)+'px';
+  popup.style.left=(rect.right+16)+'px';
+  if(rect.right+380>window.innerWidth){popup.style.left='auto';popup.style.right='16px';}
+  document.body.appendChild(popup);
+}
+function endTour(soft){
+  document.querySelectorAll('.tour-overlay,.tour-popup').forEach(e=>e.remove());
+  document.querySelectorAll('.nav-item').forEach(n=>{n.style.zIndex='';n.style.boxShadow='';});
+  if(!soft)_tourStep=-1;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// FAVORITES / PINNED VIEWS
+// ═══════════════════════════════════════════════════════════════
+function getFavorites(){return JSON.parse(localStorage.getItem('itsm_favs')||'[]');}
+function saveFavorites(f){localStorage.setItem('itsm_favs',JSON.stringify(f));}
+function toggleFavorite(view){
+  let favs=getFavorites();
+  if(favs.includes(view)) favs=favs.filter(v=>v!==view);
+  else favs.push(view);
+  saveFavorites(favs);
+  renderFavorites();
+}
+function renderFavorites(){
+  const favs=getFavorites();
+  // Update stars
+  document.querySelectorAll('.fav-star').forEach(s=>{
+    s.classList.toggle('active',favs.includes(s.dataset.view));
+    s.textContent=favs.includes(s.dataset.view)?'★':'☆';
+  });
+  // Render favorites section
+  let favSection=document.getElementById('fav-section');
+  if(!favSection){
+    const sidebar=document.querySelector('.sidebar');
+    const firstSection=sidebar.querySelector('.sidebar-section');
+    favSection=document.createElement('div');
+    favSection.id='fav-section';
+    sidebar.insertBefore(favSection,firstSection);
+  }
+  if(favs.length){
+    favSection.className='fav-section has-favs';
+    favSection.innerHTML='<div class="sidebar-section" style="color:#f5b800">★ Favoriten</div>'+favs.map(v=>{
+      const label=VIEW_LABELS[v]||v;
+      return `<div class="nav-item" onclick="showView('${v}')" id="nav-fav-${v}"><div class="nav-dot" style="background:#f5b800"></div>${label}<span class="fav-star active" data-view="${v}" onclick="event.stopPropagation();toggleFavorite('${v}')">★</span></div>`;
+    }).join('');
+  } else {
+    favSection.className='fav-section';
+    favSection.innerHTML='';
+  }
+}
+
+// Add favorite stars to sidebar items
+function initFavoriteStars(){
+  document.querySelectorAll('.nav-item[onclick*="showView"]').forEach(item=>{
+    const match=item.getAttribute('onclick')?.match(/showView\('(\w+)'\)/);
+    if(!match) return;
+    const view=match[1];
+    const star=document.createElement('span');
+    star.className='fav-star';
+    star.dataset.view=view;
+    star.textContent='☆';
+    star.onclick=e=>{e.stopPropagation();toggleFavorite(view);};
+    // Only add if pct or count element exists to position after
+    const existing=item.querySelector('.nav-pct,.nav-count');
+    if(existing) item.insertBefore(star,existing);
+    else item.appendChild(star);
+  });
+  renderFavorites();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ENHANCED CHANGELOG (replaces simple addChange)
+// ═══════════════════════════════════════════════════════════════
+const _origAddChange=addChange;
+addChange=function(action,entity,name){
+  const pid=getCurrentProjectId();
+  const log=JSON.parse(localStorage.getItem(projectLogKey(pid))||'[]');
+  const actionType=action.includes('Gelöscht')||action.includes('Löschen')?'delete':
+    action.includes('Geändert')||action.includes('Bearbeitet')?'edit':
+    action.includes('Import')||action.includes('Wiederhergestellt')?'import':'add';
+  log.unshift({action,entity,name,time:new Date().toISOString(),type:actionType});
+  localStorage.setItem(projectLogKey(pid),JSON.stringify(log.slice(0,100)));
+};
+
+// ═══════════════════════════════════════════════════════════════
+// CONTEXT HELP TOOLTIPS
+// ═══════════════════════════════════════════════════════════════
+function helpIcon(text){
+  return `<span class="help-icon">?<span class="help-tooltip">${text}</span></span>`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// DROPDOWN HELPERS FOR FORMS
+// ═══════════════════════════════════════════════════════════════
+function ownerDropdown(id, selected, extraOpts){
+  const owners=[...new Set([
+    ...DB.userGroups.map(g=>g.manager).filter(Boolean),
+    ...DB.businessProcesses.map(p=>p.owner).filter(Boolean),
+    ...DB.changes.map(c=>c.owner).filter(Boolean),
+    ...DB.incidents.map(i=>i.assignee||i.assignedTo).filter(Boolean),
+    ...(extraOpts||[])
+  ].filter(v=>v&&v.trim()&&v!=='–'))].sort();
+  if(selected&&!owners.includes(selected))owners.unshift(selected);
+  return `<select class="form-select" id="${id}"><option value="">– Auswählen –</option>${owners.map(o=>`<option value="${esc(o)}" ${selected===o?'selected':''}>${esc(o)}</option>`).join('')}<option value="__custom">+ Eigene Eingabe…</option></select>
+  <input class="form-input" id="${id}-custom" style="display:none;margin-top:4px" placeholder="Name eingeben…">`;
+}
+function setupCustomDropdown(selectId){
+  const sel=document.getElementById(selectId);
+  const inp=document.getElementById(selectId+'-custom');
+  if(!sel||!inp)return;
+  sel.addEventListener('change',()=>{
+    if(sel.value==='__custom'){inp.style.display='block';inp.focus();}
+    else{inp.style.display='none';inp.value='';}
+  });
+}
+function getDropdownValue(selectId){
+  const sel=document.getElementById(selectId);
+  const inp=document.getElementById(selectId+'-custom');
+  if(sel?.value==='__custom') return inp?.value?.trim()||'';
+  return sel?.value?.trim()||'';
+}
+
+function locationDropdown(id, selected){
+  const locs=[...new Set([
+    'Leverkusen','Dormagen','Marl','Singapore','Triunfo','Nantong','Global',
+    'Cloud (Azure)','Cloud (AWS)','Cloud (GCP)','On-Premises',
+    ...DB.cis.map(c=>c.location).filter(Boolean),
+    ...DB.userGroups.map(g=>g.location).filter(Boolean)
+  ].filter(Boolean))].sort();
+  return `<select class="form-select" id="${id}"><option value="">– Standort wählen –</option>${locs.map(l=>`<option value="${esc(l)}" ${selected===l?'selected':''}>${esc(l)}</option>`).join('')}<option value="__custom">+ Eigener Standort…</option></select>
+  <input class="form-input" id="${id}-custom" style="display:none;margin-top:4px" placeholder="Standort eingeben…">`;
+}
+
+function departmentDropdown(id, selected){
+  const depts=[...new Set([
+    'IT','Finance','HR','Procurement','Sales','Marketing','Manufacturing','Supply Chain','Quality','EHS','Legal','R&D','Management','Engineering','Operations',
+    ...DB.userGroups.map(g=>g.department).filter(Boolean),
+    ...DB.businessProcesses.map(p=>p.category).filter(Boolean)
+  ].filter(Boolean))].sort();
+  return `<select class="form-select" id="${id}"><option value="">– Abteilung wählen –</option>${depts.map(d=>`<option value="${esc(d)}" ${selected===d?'selected':''}>${esc(d)}</option>`).join('')}<option value="__custom">+ Eigene Abteilung…</option></select>
+  <input class="form-input" id="${id}-custom" style="display:none;margin-top:4px" placeholder="Abteilung eingeben…">`;
+}
+
+function vendorDropdown(id, selected){
+  const vendors=[...new Set([
+    'Microsoft','SAP','Dell','HP','Cisco','VMware','AWS','Google Cloud','Oracle','ServiceNow','IBM','Fortinet','Palo Alto','CrowdStrike','Splunk',
+    ...DB.cis.map(c=>c.vendor).filter(Boolean)
+  ].filter(Boolean))].sort();
+  return `<select class="form-select" id="${id}"><option value="">– Hersteller wählen –</option>${vendors.map(v=>`<option value="${esc(v)}" ${selected===v?'selected':''}>${esc(v)}</option>`).join('')}<option value="__custom">+ Eigener Hersteller…</option></select>
+  <input class="form-input" id="${id}-custom" style="display:none;margin-top:4px" placeholder="Hersteller eingeben…">`;
+}
+
+// Add tour button to dashboard header
+const _origRenderDashboard=renderDashboard;
+renderDashboard=function(){
+  _origRenderDashboard();
+  const header=document.querySelector('.view-actions');
+  if(header){
+    const tourBtn=document.createElement('button');
+    tourBtn.className='btn btn-ghost btn-sm';
+    tourBtn.innerHTML='🎓 Tour starten';
+    tourBtn.onclick=startTour;
+    header.insertBefore(tourBtn,header.firstChild);
+
+    const kbBtn=document.createElement('button');
+    kbBtn.className='btn btn-ghost btn-sm';
+    kbBtn.innerHTML='⌨ Shortcuts';
+    kbBtn.onclick=toggleShortcutsPanel;
+    header.insertBefore(kbBtn,header.firstChild);
+  }
+};
+
+// ═══════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════
 ensureDefaultProject();
 renderProjectSelector();
 updateCounts();
 showView('dashboard');
+setTimeout(initFavoriteStars,100);
+
+// Show tour hint for first-time users
+if(!localStorage.getItem('itsm_tour_done')){
+  setTimeout(()=>{
+    if(confirm('👋 Willkommen! Möchten Sie eine kurze Einführungstour starten?')){
+      startTour();
+    }
+    localStorage.setItem('itsm_tour_done','1');
+  },800);
+}
 </script>
 </body>
 </html>
