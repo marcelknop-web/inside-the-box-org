@@ -1425,6 +1425,353 @@ function saveGroup(id){
 }
 
 // ═══════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
+// CONFIGURATION ITEMS (CIs)
+// ═══════════════════════════════════════════════════════════════
+function renderCIs(){
+  const types=[...new Set(DB.cis.map(c=>c.ciType).filter(Boolean))].sort();
+  document.getElementById('main-content').innerHTML=`
+    <div class="view-header">
+      <div><div class="view-title">🔷 Configuration Items</div>
+      <div class="view-subtitle">${DB.cis.length} CIs im CMDB</div></div>
+      <div class="view-actions">
+        <button class="btn btn-ghost btn-sm" onclick="exportCSV('cis')">↓ CSV</button>
+        <button class="btn btn-primary btn-sm" onclick="openCiForm()">+ Configuration Item</button>
+      </div>
+    </div>
+    <div class="filter-bar">
+      <input class="search-input" id="ci-search" placeholder="🔍 Suche (Name, Typ, Standort…)" oninput="filterCIs()">
+      <select class="filter-select" id="ci-type-filter" onchange="filterCIs()">
+        <option value="">Alle CI-Typen</option>
+        ${['Server','Netzwerk','Appliance','Arbeitsplatz','Software','Datenbank','Storage','Cloud Resource','OT Device','Virtuell'].map(t=>`<option>${t}</option>`).join('')}
+      </select>
+      <select class="filter-select" id="ci-status-filter" onchange="filterCIs()">
+        <option value="">Alle Status</option>
+        ${['Aktiv','Geplant','In Wartung','Außer Betrieb','Retired'].map(s=>`<option>${s}</option>`).join('')}
+      </select>
+    </div>
+    <div id="ci-table-container"></div>`;
+  filterCIs();
+}
+
+function filterCIs(){
+  const q=(document.getElementById('ci-search')?.value||'').toLowerCase();
+  const t=document.getElementById('ci-type-filter')?.value||'';
+  const s=document.getElementById('ci-status-filter')?.value||'';
+  let rows=DB.cis.filter(c=>
+    (!t||c.ciType===t)&&(!s||c.status===s)&&
+    (!q||[c.id,c.name,c.ciType,c.location,c.owner,c.description].join(' ').toLowerCase().includes(q)));
+  const tbody=rows.map(c=>`
+    <tr>
+      <td class="td-nowrap"><span style="font-size:.72rem;color:#8ba5c5">${esc(c.id)}</span></td>
+      <td><strong style="color:#26C6DA">${esc(c.name)}</strong></td>
+      <td><span class="chip chip-group">${esc(c.ciType)}</span></td>
+      <td>${critChip(c.criticality||'Low')}</td>
+      <td><span class="chip chip-${c.status==='Aktiv'?'low':c.status==='Außer Betrieb'||c.status==='Retired'?'high':'medium'}">${esc(c.status)}</span></td>
+      <td>${esc(c.location||'–')}</td>
+      <td>${esc(c.owner||'–')}</td>
+      <td class="td-nowrap">
+        <button class="btn btn-ghost btn-sm" onclick="openCiForm(${j(c.id)})">✎</button>
+        <button class="btn btn-danger btn-sm" onclick="confirmDelete('cis',${j(c.id)},${j(c.name)})">✕</button>
+      </td>
+    </tr>`).join('');
+  document.getElementById('ci-table-container').innerHTML=`
+    <div class="table-wrap"><table>
+      <thead><tr><th>CI-ID</th><th>Name</th><th>Typ</th><th>Criticality</th><th>Status</th><th>Standort</th><th>Owner</th><th>Aktionen</th></tr></thead>
+      <tbody>${tbody||'<tr><td colspan="8"><div class="empty"><div class="icon">🔷</div>Keine CIs vorhanden. Legen Sie das erste Configuration Item an.</div></td></tr>'}</tbody>
+    </table></div>`;
+}
+
+function openCiForm(id){
+  const c=id?DB.cis.find(x=>x.id===id):null;
+  document.getElementById('modal-title').textContent=c?'✎ CI bearbeiten':'+ Neues Configuration Item';
+  document.getElementById('modal-body').innerHTML=`
+    <div class="form-grid">
+      <div class="form-group"><label>CI-ID</label><input class="form-input" id="f-id" value="${esc(c?.id||'CI-'+uid().toUpperCase())}" ${c?'readonly':''}></div>
+      <div class="form-group"><label>Name</label><input class="form-input" id="f-name" value="${esc(c?.name||'')}" placeholder="z.B. SRV-PRD-SAP-01"></div>
+      <div class="form-group"><label>CI-Typ</label>
+        <select class="form-select" id="f-citype">
+          ${['Server','Netzwerk','Appliance','Arbeitsplatz','Software','Datenbank','Storage','Cloud Resource','OT Device','Virtuell'].map(t=>`<option ${(c?.ciType||'Server')===t?'selected':''}>${t}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group"><label>Criticality</label>
+        <select class="form-select" id="f-crit">${['High','Medium','Low'].map(v=>`<option ${(c?.criticality||'Medium')===v?'selected':''}>${v}</option>`).join('')}</select>
+      </div>
+      <div class="form-group"><label>Status</label>
+        <select class="form-select" id="f-status">
+          ${['Aktiv','Geplant','In Wartung','Außer Betrieb','Retired'].map(s=>`<option ${(c?.status||'Aktiv')===s?'selected':''}>${s}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group"><label>Standort</label>
+        <select class="form-select" id="f-loc">
+          <option value="">– Wählen –</option>
+          ${['Leverkusen','Dormagen','Marl','Singapore','Triunfo','Nantong','Global','Cloud (Azure)','Cloud (AWS)','Cloud (GCP)','On-Premises'].map(l=>`<option ${c?.location===l?'selected':''}>${l}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group"><label>Owner / Verantwortlicher</label><input class="form-input" id="f-owner" value="${esc(c?.owner||'')}" placeholder="z.B. IT Infrastructure"></div>
+      <div class="form-group"><label>Hersteller</label><input class="form-input" id="f-vendor" value="${esc(c?.vendor||'')}" placeholder="z.B. Dell, HP, VMware"></div>
+      <div class="form-group"><label>Modell / Version</label><input class="form-input" id="f-model" value="${esc(c?.model||'')}"></div>
+      <div class="form-group"><label>IP / FQDN</label><input class="form-input" id="f-ip" value="${esc(c?.ip||'')}"></div>
+    </div>
+    <div class="form-grid full" style="margin-top:14px">
+      <div class="form-group"><label>Beschreibung / Notizen</label><textarea class="form-textarea" id="f-desc">${esc(c?.description||'')}</textarea></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Abbrechen</button>
+      <button class="btn btn-primary" onclick="saveCi(${j(id||null)})">💾 Speichern</button>
+    </div>`;
+  openModal();
+}
+
+function saveCi(id){
+  const v=x=>document.getElementById(x)?.value?.trim()||'';
+  const obj={id:v('f-id'),name:v('f-name'),ciType:v('f-citype'),criticality:v('f-crit'),status:v('f-status'),location:v('f-loc'),owner:v('f-owner'),vendor:v('f-vendor'),model:v('f-model'),ip:v('f-ip'),description:v('f-desc')};
+  if(!obj.id||!obj.name){showToast('ID und Name sind Pflichtfelder.',true);return;}
+  if(id){const i=DB.cis.findIndex(x=>x.id===id);DB.cis[i]=obj;addChange('Geändert','CI',obj.name);}
+  else{if(DB.cis.find(x=>x.id===obj.id)){showToast('ID bereits vorhanden.',true);return;}DB.cis.push(obj);addChange('Hinzugefügt','CI',obj.name);}
+  saveData();closeModal();renderCIs();showToast('Configuration Item gespeichert.');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// INCIDENTS
+// ═══════════════════════════════════════════════════════════════
+function renderIncidents(){
+  document.getElementById('main-content').innerHTML=`
+    <div class="view-header">
+      <div><div class="view-title" style="color:#FF5252">🔥 Incidents</div>
+      <div class="view-subtitle">${DB.incidents.length} Incidents</div></div>
+      <div class="view-actions">
+        <button class="btn btn-ghost btn-sm" onclick="exportCSV('incidents')">↓ CSV</button>
+        <button class="btn btn-primary btn-sm" onclick="openIncidentForm()">+ Incident</button>
+      </div>
+    </div>
+    <div class="filter-bar">
+      <input class="search-input" id="inc-search" placeholder="🔍 Suche…" oninput="filterIncidents()">
+      <select class="filter-select" id="inc-prio-filter" onchange="filterIncidents()">
+        <option value="">Alle Prioritäten</option>
+        <option>P1 – Critical</option><option>P2 – High</option><option>P3 – Medium</option><option>P4 – Low</option>
+      </select>
+      <select class="filter-select" id="inc-status-filter" onchange="filterIncidents()">
+        <option value="">Alle Status</option>
+        <option>Offen</option><option>In Bearbeitung</option><option>Wartend</option><option>Gelöst</option><option>Geschlossen</option>
+      </select>
+    </div>
+    <div id="inc-table-container"></div>`;
+  filterIncidents();
+}
+
+function filterIncidents(){
+  const q=(document.getElementById('inc-search')?.value||'').toLowerCase();
+  const p=document.getElementById('inc-prio-filter')?.value||'';
+  const s=document.getElementById('inc-status-filter')?.value||'';
+  let rows=DB.incidents.filter(i=>
+    (!p||i.priority===p)&&(!s||i.status===s)&&
+    (!q||[i.id,i.title,i.service,i.assignee,i.description].join(' ').toLowerCase().includes(q)));
+  const prioChip=v=>{const m={'P1 – Critical':'high','P2 – High':'high','P3 – Medium':'medium','P4 – Low':'low'};return `<span class="chip chip-${m[v]||'low'}">${esc(v)}</span>`;};
+  const statusChip=v=>{const m={'Offen':'high','In Bearbeitung':'medium','Wartend':'medium','Gelöst':'low','Geschlossen':'no'};return `<span class="chip chip-${m[v]||'low'}">${esc(v)}</span>`;};
+  const tbody=rows.map(i=>`
+    <tr>
+      <td class="td-nowrap"><span style="font-size:.72rem;color:#8ba5c5">${esc(i.id)}</span></td>
+      <td><strong>${esc(i.title)}</strong></td>
+      <td>${prioChip(i.priority)}</td>
+      <td>${statusChip(i.status)}</td>
+      <td style="color:#f5b800">${esc(i.service||'–')}</td>
+      <td>${esc(i.assignee||'–')}</td>
+      <td class="td-nowrap" style="font-size:.72rem;color:#8ba5c5">${esc(i.created||'–')}</td>
+      <td class="td-nowrap">
+        <button class="btn btn-ghost btn-sm" onclick="openIncidentForm(${j(i.id)})">✎</button>
+        <button class="btn btn-danger btn-sm" onclick="confirmDelete('incidents',${j(i.id)},${j(i.title)})">✕</button>
+      </td>
+    </tr>`).join('');
+  document.getElementById('inc-table-container').innerHTML=`
+    <div class="table-wrap"><table>
+      <thead><tr><th>INC-ID</th><th>Titel</th><th>Priorität</th><th>Status</th><th>Service</th><th>Zugewiesen</th><th>Erstellt</th><th>Aktionen</th></tr></thead>
+      <tbody>${tbody||'<tr><td colspan="8"><div class="empty"><div class="icon">🔥</div>Keine Incidents vorhanden.</div></td></tr>'}</tbody>
+    </table></div>`;
+}
+
+function openIncidentForm(id){
+  const i=id?DB.incidents.find(x=>x.id===id):null;
+  const svcs=[...new Set(DB.services.map(s=>s.service))].sort();
+  const grps=DB.userGroups;
+  document.getElementById('modal-title').textContent=i?'✎ Incident bearbeiten':'+ Neuer Incident';
+  document.getElementById('modal-body').innerHTML=`
+    <div class="form-grid">
+      <div class="form-group"><label>INC-ID</label><input class="form-input" id="f-id" value="${esc(i?.id||'INC-'+uid().toUpperCase())}" ${i?'readonly':''}></div>
+      <div class="form-group"><label>Titel</label><input class="form-input" id="f-title" value="${esc(i?.title||'')}" placeholder="Kurzbeschreibung des Incidents"></div>
+      <div class="form-group"><label>Priorität</label>
+        <select class="form-select" id="f-prio">
+          ${['P1 – Critical','P2 – High','P3 – Medium','P4 – Low'].map(p=>`<option ${(i?.priority||'P3 – Medium')===p?'selected':''}>${p}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group"><label>Status</label>
+        <select class="form-select" id="f-status">
+          ${['Offen','In Bearbeitung','Wartend','Gelöst','Geschlossen'].map(s=>`<option ${(i?.status||'Offen')===s?'selected':''}>${s}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group"><label>Betroffener Service</label>
+        <select class="form-select" id="f-svc">
+          <option value="">– Service wählen –</option>
+          ${svcs.map(s=>`<option value="${esc(s)}" ${i?.service===s?'selected':''}>${esc(s)}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group"><label>Betroffenes CI</label>
+        <select class="form-select" id="f-ci">
+          <option value="">– CI wählen –</option>
+          ${DB.cis.map(c=>`<option value="${esc(c.name)}" ${i?.ci===c.name?'selected':''}>${esc(c.id)} – ${esc(c.name)}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group"><label>Zugewiesen an</label>
+        <select class="form-select" id="f-assignee">
+          <option value="">– Auswählen –</option>
+          ${grps.map(g=>`<option value="${esc(g.name)}" ${i?.assignee===g.name?'selected':''}>${esc(g.name)}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group"><label>Kategorie</label>
+        <select class="form-select" id="f-cat">
+          ${['Hardware','Software','Netzwerk','Security','Zugriff','Performance','Sonstiges'].map(c=>`<option ${(i?.category||'Software')===c?'selected':''}>${c}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group"><label>Erstellt am</label><input class="form-input" type="date" id="f-created" value="${esc(i?.created||new Date().toISOString().slice(0,10))}"></div>
+      <div class="form-group"><label>Gelöst am</label><input class="form-input" type="date" id="f-resolved" value="${esc(i?.resolved||'')}"></div>
+    </div>
+    <div class="form-grid full" style="margin-top:14px">
+      <div class="form-group"><label>Beschreibung</label><textarea class="form-textarea" id="f-desc">${esc(i?.description||'')}</textarea></div>
+      <div class="form-group"><label>Lösung / Workaround</label><textarea class="form-textarea" id="f-resolution">${esc(i?.resolution||'')}</textarea></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Abbrechen</button>
+      <button class="btn btn-primary" onclick="saveIncident(${j(id||null)})">💾 Speichern</button>
+    </div>`;
+  openModal();
+}
+
+function saveIncident(id){
+  const v=x=>document.getElementById(x)?.value?.trim()||'';
+  const obj={id:v('f-id'),title:v('f-title'),priority:v('f-prio'),status:v('f-status'),service:v('f-svc'),ci:v('f-ci'),assignee:v('f-assignee'),category:v('f-cat'),created:v('f-created'),resolved:v('f-resolved'),description:v('f-desc'),resolution:v('f-resolution')};
+  if(!obj.id||!obj.title){showToast('ID und Titel sind Pflichtfelder.',true);return;}
+  if(id){const i=DB.incidents.findIndex(x=>x.id===id);DB.incidents[i]=obj;addChange('Geändert','Incident',obj.title);}
+  else{if(DB.incidents.find(x=>x.id===obj.id)){showToast('ID bereits vorhanden.',true);return;}DB.incidents.push(obj);addChange('Hinzugefügt','Incident',obj.title);}
+  saveData();closeModal();renderIncidents();showToast('Incident gespeichert.');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CHANGES
+// ═══════════════════════════════════════════════════════════════
+function renderChanges(){
+  document.getElementById('main-content').innerHTML=`
+    <div class="view-header">
+      <div><div class="view-title" style="color:#7E57C2">📋 Changes</div>
+      <div class="view-subtitle">${DB.changes.length} Change Requests</div></div>
+      <div class="view-actions">
+        <button class="btn btn-ghost btn-sm" onclick="exportCSV('changes')">↓ CSV</button>
+        <button class="btn btn-primary btn-sm" onclick="openChangeForm()">+ Change Request</button>
+      </div>
+    </div>
+    <div class="filter-bar">
+      <input class="search-input" id="chg-search" placeholder="🔍 Suche…" oninput="filterChanges()">
+      <select class="filter-select" id="chg-type-filter" onchange="filterChanges()">
+        <option value="">Alle Typen</option>
+        <option>Standard</option><option>Normal</option><option>Emergency</option>
+      </select>
+      <select class="filter-select" id="chg-status-filter" onchange="filterChanges()">
+        <option value="">Alle Status</option>
+        <option>Entwurf</option><option>Beantragt</option><option>Genehmigt</option><option>Implementierung</option><option>Abgeschlossen</option><option>Abgelehnt</option>
+      </select>
+    </div>
+    <div id="chg-table-container"></div>`;
+  filterChanges();
+}
+
+function filterChanges(){
+  const q=(document.getElementById('chg-search')?.value||'').toLowerCase();
+  const t=document.getElementById('chg-type-filter')?.value||'';
+  const s=document.getElementById('chg-status-filter')?.value||'';
+  let rows=DB.changes.filter(c=>
+    (!t||c.changeType===t)&&(!s||c.status===s)&&
+    (!q||[c.id,c.title,c.service,c.owner,c.description].join(' ').toLowerCase().includes(q)));
+  const typeChip=v=>{const m={'Standard':'low','Normal':'medium','Emergency':'high'};return `<span class="chip chip-${m[v]||'low'}">${esc(v)}</span>`;};
+  const statusChip=v=>{const m={'Entwurf':'no','Beantragt':'medium','Genehmigt':'low','Implementierung':'medium','Abgeschlossen':'low','Abgelehnt':'high'};return `<span class="chip chip-${m[v]||'low'}">${esc(v)}</span>`;};
+  const tbody=rows.map(c=>`
+    <tr>
+      <td class="td-nowrap"><span style="font-size:.72rem;color:#8ba5c5">${esc(c.id)}</span></td>
+      <td><strong>${esc(c.title)}</strong></td>
+      <td>${typeChip(c.changeType)}</td>
+      <td>${statusChip(c.status)}</td>
+      <td>${critChip(c.risk||'Low')}</td>
+      <td style="color:#f5b800">${esc(c.service||'–')}</td>
+      <td>${esc(c.owner||'–')}</td>
+      <td class="td-nowrap" style="font-size:.72rem;color:#8ba5c5">${esc(c.planned||'–')}</td>
+      <td class="td-nowrap">
+        <button class="btn btn-ghost btn-sm" onclick="openChangeForm(${j(c.id)})">✎</button>
+        <button class="btn btn-danger btn-sm" onclick="confirmDelete('changes',${j(c.id)},${j(c.title)})">✕</button>
+      </td>
+    </tr>`).join('');
+  document.getElementById('chg-table-container').innerHTML=`
+    <div class="table-wrap"><table>
+      <thead><tr><th>CHG-ID</th><th>Titel</th><th>Typ</th><th>Status</th><th>Risiko</th><th>Service</th><th>Owner</th><th>Geplant</th><th>Aktionen</th></tr></thead>
+      <tbody>${tbody||'<tr><td colspan="9"><div class="empty"><div class="icon">📋</div>Keine Changes vorhanden.</div></td></tr>'}</tbody>
+    </table></div>`;
+}
+
+function openChangeForm(id){
+  const c=id?DB.changes.find(x=>x.id===id):null;
+  const svcs=[...new Set(DB.services.map(s=>s.service))].sort();
+  document.getElementById('modal-title').textContent=c?'✎ Change bearbeiten':'+ Neuer Change Request';
+  document.getElementById('modal-body').innerHTML=`
+    <div class="form-grid">
+      <div class="form-group"><label>CHG-ID</label><input class="form-input" id="f-id" value="${esc(c?.id||'CHG-'+uid().toUpperCase())}" ${c?'readonly':''}></div>
+      <div class="form-group"><label>Titel</label><input class="form-input" id="f-title" value="${esc(c?.title||'')}" placeholder="Kurzbeschreibung des Changes"></div>
+      <div class="form-group"><label>Change-Typ</label>
+        <select class="form-select" id="f-type">
+          ${['Standard','Normal','Emergency'].map(t=>`<option ${(c?.changeType||'Normal')===t?'selected':''}>${t}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group"><label>Status</label>
+        <select class="form-select" id="f-status">
+          ${['Entwurf','Beantragt','Genehmigt','Implementierung','Abgeschlossen','Abgelehnt'].map(s=>`<option ${(c?.status||'Entwurf')===s?'selected':''}>${s}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group"><label>Risiko</label>
+        <select class="form-select" id="f-risk">${['High','Medium','Low'].map(r=>`<option ${(c?.risk||'Medium')===r?'selected':''}>${r}</option>`).join('')}</select>
+      </div>
+      <div class="form-group"><label>Betroffener Service</label>
+        <select class="form-select" id="f-svc">
+          <option value="">– Service wählen –</option>
+          ${svcs.map(s=>`<option value="${esc(s)}" ${c?.service===s?'selected':''}>${esc(s)}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group"><label>Betroffenes CI</label>
+        <select class="form-select" id="f-ci">
+          <option value="">– CI wählen –</option>
+          ${DB.cis.map(ci=>`<option value="${esc(ci.name)}" ${c?.ci===ci.name?'selected':''}>${esc(ci.id)} – ${esc(ci.name)}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group"><label>Change Owner</label><input class="form-input" id="f-owner" value="${esc(c?.owner||'')}" placeholder="z.B. IT Infrastructure Lead"></div>
+      <div class="form-group"><label>Geplantes Datum</label><input class="form-input" type="date" id="f-planned" value="${esc(c?.planned||'')}"></div>
+      <div class="form-group"><label>Abgeschlossen am</label><input class="form-input" type="date" id="f-completed" value="${esc(c?.completed||'')}"></div>
+    </div>
+    <div class="form-grid full" style="margin-top:14px">
+      <div class="form-group"><label>Beschreibung / Begründung</label><textarea class="form-textarea" id="f-desc">${esc(c?.description||'')}</textarea></div>
+      <div class="form-group"><label>Rollback-Plan</label><textarea class="form-textarea" id="f-rollback">${esc(c?.rollback||'')}</textarea></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Abbrechen</button>
+      <button class="btn btn-primary" onclick="saveChange(${j(id||null)})">💾 Speichern</button>
+    </div>`;
+  openModal();
+}
+
+function saveChange(id){
+  const v=x=>document.getElementById(x)?.value?.trim()||'';
+  const obj={id:v('f-id'),title:v('f-title'),changeType:v('f-type'),status:v('f-status'),risk:v('f-risk'),service:v('f-svc'),ci:v('f-ci'),owner:v('f-owner'),planned:v('f-planned'),completed:v('f-completed'),description:v('f-desc'),rollback:v('f-rollback')};
+  if(!obj.id||!obj.title){showToast('ID und Titel sind Pflichtfelder.',true);return;}
+  if(id){const i=DB.changes.findIndex(x=>x.id===id);DB.changes[i]=obj;addChange('Geändert','Change',obj.title);}
+  else{if(DB.changes.find(x=>x.id===obj.id)){showToast('ID bereits vorhanden.',true);return;}DB.changes.push(obj);addChange('Hinzugefügt','Change',obj.title);}
+  saveData();closeModal();renderChanges();showToast('Change Request gespeichert.');
+}
+
+// ═══════════════════════════════════════════════════════════════
 // PERMISSIONS
 // ═══════════════════════════════════════════════════════════════
 function renderPermissions(){
