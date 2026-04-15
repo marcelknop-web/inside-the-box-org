@@ -12,6 +12,7 @@ import { lazy, Suspense } from "react";
 const EliteShipScene = lazy(() => import("./pages/EliteShipScene"));
 const TtxAdmin = lazy(() => import("./pages/TtxAdmin"));
 const ItsmTool = lazy(() => import("./pages/ItsmTool"));
+const ItsmDevTool = lazy(() => import("./pages/ItsmDevTool"));
 
 const queryClient = new QueryClient();
 
