@@ -1593,24 +1593,30 @@ function filterBpMap(){
 
 function openBpMapForm(idx){
   const m=idx!=null?DB.bpServiceMap[idx]:null;
-  const bps=DB.businessProcesses.map(p=>p.id).sort();
+  const bps=DB.businessProcesses;
   const svcs=[...new Set(DB.services.map(s=>s.service))].sort();
-  document.getElementById('modal-title').textContent=m?'✎ Zuordnung bearbeiten':'+ Neue BP → Service Zuordnung';
+  if(!bps.length||!svcs.length){ showToast('Bitte zuerst Business Processes (1.2) und Services (1.1) anlegen.',true); return; }
+  document.getElementById('modal-title').textContent=m?'✎ Zuordnung bearbeiten':'+ Prozess → Service Zuordnung';
   document.getElementById('modal-body').innerHTML=`
     <div class="form-grid">
       <div class="form-group"><label>Business Process</label>
-        <select class="form-select" id="f-bpid">${bps.map(b=>`<option ${m?.bpId===b?'selected':''}>${esc(b)}</option>`).join('')}</select>
+        <select class="form-select" id="f-bpid">
+          <option value="">– Prozess wählen –</option>
+          ${bps.map(b=>`<option value="${esc(b.id)}" ${m?.bpId===b.id?'selected':''}>${esc(b.id)} – ${esc(b.name)}</option>`).join('')}
+        </select>
       </div>
       <div class="form-group"><label>Service (OLA)</label>
-        <input class="form-input" id="f-svc" list="bpm-svc-list" value="${esc(m?.service||'')}">
-        <datalist id="bpm-svc-list">${svcs.map(s=>`<option value="${esc(s)}">`).join('')}</datalist>
+        <select class="form-select" id="f-svc">
+          <option value="">– Service wählen –</option>
+          ${svcs.map(s=>`<option value="${esc(s)}" ${m?.service===s?'selected':''}>${esc(s)}</option>`).join('')}
+        </select>
       </div>
-      <div class="form-group"><label>Dependency Type</label>
+      <div class="form-group"><label>Abhängigkeitstyp</label>
         <select class="form-select" id="f-dep">${['Mandatory','Supporting','Optional'].map(d=>`<option ${(m?.depType||'Mandatory')===d?'selected':''}>${d}</option>`).join('')}</select>
       </div>
     </div>
     <div class="form-grid full" style="margin-top:14px">
-      <div class="form-group"><label>Notes</label><textarea class="form-textarea" id="f-notes">${esc(m?.notes||'')}</textarea></div>
+      <div class="form-group"><label>Anmerkungen</label><textarea class="form-textarea" id="f-notes">${esc(m?.notes||'')}</textarea></div>
     </div>
     <div class="form-actions">
       <button class="btn btn-ghost" onclick="closeModal()">Abbrechen</button>
