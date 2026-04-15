@@ -1778,7 +1778,10 @@ function openGroupForm(id){
 
 function saveGroup(id){
   const v=x=>document.getElementById(x)?.value?.trim()||'';
-  const obj={id:v('f-id'),name:v('f-name'),type:v('f-type'),department:v('f-dept'),location:v('f-loc'),count:v('f-cnt'),manager:v('f-mgr'),systems:v('f-sys')};
+  const dept=getDropdownValue('f-dept');
+  const loc=getDropdownValue('f-loc');
+  const mgr=getDropdownValue('f-mgr');
+  const obj={id:v('f-id'),name:v('f-name'),type:v('f-type'),department:dept,location:loc,count:v('f-cnt'),manager:mgr,systems:v('f-sys')};
   if(!obj.id||!obj.name){showToast('ID und Name sind Pflichtfelder.',true);return;}
   if(id){const i=DB.userGroups.findIndex(x=>x.id===id);DB.userGroups[i]=obj;addChange('Geändert','User Group',obj.name);}
   else{if(DB.userGroups.find(x=>x.id===obj.id)){showToast('ID bereits vorhanden.',true);return;}DB.userGroups.push(obj);addChange('Hinzugefügt','User Group',obj.name);}
