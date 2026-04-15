@@ -1006,6 +1006,21 @@ function renderDashboard(){
         <button class="btn btn-ghost btn-sm" onclick="resetToSeed()">⟳ Daten zurücksetzen</button>
       </div>
     </div>
+
+    <!-- Overall Completeness Score -->
+    <div class="insight-section" style="margin-bottom:16px">
+      <div class="insight-title">📈 Projekt-Vollständigkeit</div>
+      <div style="display:flex;align-items:center;gap:20px;padding:12px 16px;background:#0e1218;border:1px solid #1e2a3a;border-radius:8px">
+        <div id="gauge-overall" style="flex-shrink:0"></div>
+        <div style="flex:1;display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:6px">
+          ${Object.entries({services:'Service Catalog',cis:'Config Items',processes:'Business Proc.',groups:'User Groups',incidents:'Incidents',changes:'Changes',permissions:'Berechtigungen',bpmap:'BP→Service',deps:'Dependencies',servicecimap:'Service→CI'}).map(([k,label])=>{
+            const s = window._projectCompleteness?.[k]||0;
+            return '<div style="display:flex;align-items:center;gap:6px;font-size:.7rem;color:#8ba5c5"><span style="width:80px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+label+'</span><span style="flex:1;height:4px;background:#1a2535;border-radius:2px;overflow:hidden"><span style="display:block;height:100%;width:'+s+'%;background:'+(s>=80?'#22c55e':s>=50?'#f5b800':'#ef4444')+';border-radius:2px"></span></span><span style="width:28px;text-align:right;font-family:IBM Plex Mono,monospace;color:'+(s>=80?'#4ade80':s>=50?'#facc15':'#f87171')+'">'+s+'%</span></div>';
+          }).join('')}
+        </div>
+      </div>
+    </div>
+
     <div class="dashboard-grid">
       <div class="stat-card"><div class="num">${svcs.length}</div><div class="lbl">Subservices</div><div class="bar" style="background:#00bcd4"></div></div>
       <div class="stat-card"><div class="num">${services}</div><div class="lbl">IT Services (OLAs)</div><div class="bar" style="background:#00838F"></div></div>
@@ -1016,6 +1031,7 @@ function renderDashboard(){
       <div class="stat-card"><div class="num">${DB.incidents.length}</div><div class="lbl">Incidents</div><div class="bar" style="background:#FF5252"></div></div>
       <div class="stat-card"><div class="num">${DB.changes.length}</div><div class="lbl">Changes</div><div class="bar" style="background:#7E57C2"></div></div>
       <div class="stat-card"><div class="num">${DB.permissions.length}</div><div class="lbl">Berechtigungen</div><div class="bar" style="background:#9C27B0"></div></div>
+      <div class="stat-card"><div class="num">${DB.slas.length}</div><div class="lbl">SLAs / SLOs</div><div class="bar" style="background:#00bcd4"></div></div>
     </div>
 
     <!-- CMDB Readiness -->
