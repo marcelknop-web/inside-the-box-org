@@ -1500,7 +1500,11 @@ function openPermForm(id){
       <div class="form-group"><label>Access Level</label>
         <select class="form-select" id="f-level">${['Read','Read-Write','Admin','Privileged','Limited'].map(l=>`<option ${(p?.level||'Read')===l?'selected':''}>${l}</option>`).join('')}</select>
       </div>
-      <div class="form-group"><label>Auth. Type</label><input class="form-input" id="f-authtype" value="${esc(p?.authType||'')}"></div>
+      <div class="form-group"><label>Auth. Type</label>
+        <select class="form-select" id="f-authtype">
+          ${['SSO / SAML','AD Group','API Key','Certificate','MFA','Local Account','OAuth','Service Account'].map(a=>`<option ${p?.authType===a?'selected':''}>${a}</option>`).join('')}
+        </select>
+      </div>
       <div class="form-group"><label>Provisioning Method</label>
         <select class="form-select" id="f-prov">${['Omada Automated','AD Group','Manual','Manual + Time-limited','Service Request'].map(l=>`<option ${(p?.provisioning||'Omada Automated')===l?'selected':''}>${l}</option>`).join('')}</select>
       </div>
