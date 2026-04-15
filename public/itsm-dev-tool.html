@@ -1186,6 +1186,9 @@ function renderDashboard(){
   d3Gauge('gauge-rpo', bpRpoPct, 100, {color: bpRpoPct>=80?'#22c55e':bpRpoPct>=50?'#f5b800':'#ef4444', label:'RPO'});
   d3Gauge('gauge-scope', permScopePct, 100, {color: permScopePct>=80?'#22c55e':permScopePct>=50?'#f5b800':'#ef4444', label:'Scope'});
   d3Gauge('gauge-mgr', grpMgrPct, 100, {color: grpMgrPct>=80?'#22c55e':grpMgrPct>=50?'#f5b800':'#ef4444', label:'Owners'});
+  // Overall completeness gauge
+  const oc = window._overallCompleteness||0;
+  d3Gauge('gauge-overall', oc, 100, {color: oc>=80?'#22c55e':oc>=50?'#f5b800':'#ef4444', label:'Gesamt'});
 
   // Coverage bar
   const totalBPs = DB.businessProcesses.length;
