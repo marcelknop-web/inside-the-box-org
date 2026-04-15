@@ -1563,7 +1563,7 @@ function filterBpMap(){
       <td class="td-wrap" style="font-size:.77rem;color:#8ba5c5">${esc(m.notes)}</td>
       <td class="td-nowrap">
         <button class="btn btn-ghost btn-sm" onclick="openBpMapForm(${i})">✎</button>
-        <button class="btn btn-danger btn-sm" onclick="confirmDeleteIdx('bpServiceMap',${i},${JSON.stringify(m.bpId+'→'+m.service)})">✕</button>
+        <button class="btn btn-danger btn-sm" onclick="confirmDeleteIdx('bpServiceMap',${i},${j(m.bpId+'→'+m.service)})">✕</button>
       </td>
     </tr>`).join('');
   document.getElementById('bpm-table-container').innerHTML=`
@@ -1661,7 +1661,7 @@ function filterDeps(){
       <td class="td-wrap" style="font-size:.77rem;color:#8ba5c5">${esc(d.notes)}</td>
       <td class="td-nowrap">
         <button class="btn btn-ghost btn-sm" onclick="openDepForm(${i})">✎</button>
-        <button class="btn btn-danger btn-sm" onclick="confirmDeleteIdx('serviceDeps',${i},${JSON.stringify(d.upstream+'→'+d.downstream)})">✕</button>
+        <button class="btn btn-danger btn-sm" onclick="confirmDeleteIdx('serviceDeps',${i},${j(d.upstream+'→'+d.downstream)})">✕</button>
       </td>
     </tr>`).join('');
   document.getElementById('dep-table-container').innerHTML=`
