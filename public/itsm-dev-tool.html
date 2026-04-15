@@ -316,6 +316,14 @@ tr:hover td{background:#1a2535}
 <div class="layout">
   <button class="mobile-menu-btn" onclick="document.querySelector('.sidebar').classList.toggle('open')">☰ Menü</button>
   <nav class="sidebar">
+    <div style="padding:10px 14px 6px;border-bottom:1px solid #1e2a3a;margin-bottom:6px">
+      <label style="font-size:.6rem;color:#8ba5c5;text-transform:uppercase;letter-spacing:1px;font-family:'IBM Plex Mono',monospace;display:block;margin-bottom:4px">Projekt</label>
+      <div style="display:flex;gap:4px;align-items:center">
+        <select class="filter-select" id="project-selector" onchange="switchProject(this.value)" style="flex:1;padding:5px 8px;font-size:.76rem"></select>
+        <button class="btn btn-sm" style="background:#1a2535;color:#f5b800;border:1px solid #1e2a3a;padding:3px 6px;font-size:.7rem" onclick="promptNewProject()" title="Neues Projekt">＋</button>
+        <button class="btn btn-sm" style="background:#1a2535;color:#8ba5c5;border:1px solid #1e2a3a;padding:3px 6px;font-size:.7rem" onclick="promptProjectActions()" title="Projekt-Aktionen">⋯</button>
+      </div>
+    </div>
     <div class="sidebar-section">Workflow</div>
     <div class="nav-item active" onclick="showView('dashboard')" id="nav-dashboard">
       <div class="nav-dot" style="background:#f5b800"></div> <span style="opacity:.5;font-size:.7rem;margin-right:2px">0</span> Dashboard
