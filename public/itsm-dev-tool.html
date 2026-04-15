@@ -465,6 +465,8 @@ const PAGE_SIZE = 25;
 // ═══════════════════════════════════════════════════════════════
 function uid(){ return Math.random().toString(36).slice(2,9); }
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+// Safe JSON.stringify for use inside onclick="" HTML attributes
+function j(v){ return esc(JSON.stringify(v)); }
 function chip(val, map){
   const cls = map ? map[val] : val.toLowerCase().replace(/[^a-z]/g,'');
   return `<span class="chip chip-${cls}">${esc(val)}</span>`;
