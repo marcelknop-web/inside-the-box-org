@@ -3066,7 +3066,7 @@ function exportSectionPDF(key, title){
 
 function getCurrentProjectName(){
   try{
-    const sel=document.getElementById('project-select');
+    const sel=document.getElementById('project-selector');
     return sel?sel.options[sel.selectedIndex].text:'Standard-Projekt';
   }catch(e){return 'Standard-Projekt';}
 }
