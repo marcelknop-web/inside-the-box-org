@@ -1078,8 +1078,8 @@ function renderServiceTable(rows){
       <td class="td-wrap">${esc(s.description)}</td>
       <td>${critChip(s.criticality)}</td>
       <td class="td-nowrap">
-        <button class="btn btn-ghost btn-sm" onclick="openServiceForm(${JSON.stringify(s.id)})">✎</button>
-        <button class="btn btn-danger btn-sm" onclick="confirmDelete('services',${JSON.stringify(s.id)},${JSON.stringify(s.subservice)})">✕</button>
+        <button class="btn btn-ghost btn-sm" onclick="openServiceForm(${j(s.id)})">✎</button>
+        <button class="btn btn-danger btn-sm" onclick="confirmDelete('services',${j(s.id)},${j(s.subservice)})">✕</button>
       </td>
     </tr>`).join('');
 
@@ -1149,7 +1149,7 @@ function openServiceForm(id){
     </div>
     <div class="form-actions">
       <button class="btn btn-ghost" onclick="closeModal()">Abbrechen</button>
-      <button class="btn btn-primary" onclick="saveService(${JSON.stringify(id||null)})">💾 Speichern</button>
+      <button class="btn btn-primary" onclick="saveService(${j(id||null)})">💾 Speichern</button>
     </div>`;
   openModal();
 }
@@ -1234,8 +1234,8 @@ function filterProcesses(){
       <td><span style="font-size:.74rem;color:#f87171">${esc(p.regulatory||'–')}</span></td>
       <td class="td-nowrap">${esc(p.rto||'–')} / ${esc(p.rpo||'–')}</td>
       <td class="td-nowrap">
-        <button class="btn btn-ghost btn-sm" onclick="openProcessForm(${JSON.stringify(p.id)})">✎</button>
-        <button class="btn btn-danger btn-sm" onclick="confirmDelete('businessProcesses',${JSON.stringify(p.id)},${JSON.stringify(p.name)})">✕</button>
+        <button class="btn btn-ghost btn-sm" onclick="openProcessForm(${j(p.id)})">✎</button>
+        <button class="btn btn-danger btn-sm" onclick="confirmDelete('businessProcesses',${j(p.id)},${j(p.name)})">✕</button>
       </td>
     </tr>`).join('');
   document.getElementById('bp-table-container').innerHTML=`
@@ -1268,7 +1268,7 @@ function openProcessForm(id){
     </div>
     <div class="form-actions">
       <button class="btn btn-ghost" onclick="closeModal()">Abbrechen</button>
-      <button class="btn btn-primary" onclick="saveProcess(${JSON.stringify(id||null)})">💾 Speichern</button>
+      <button class="btn btn-primary" onclick="saveProcess(${j(id||null)})">💾 Speichern</button>
     </div>`;
   openModal();
 }
@@ -1333,8 +1333,8 @@ function filterGroups(){
       <td class="td-center">${esc(g.count)}</td>
       <td class="td-wrap" style="font-size:.75rem;color:#8ba5c5">${esc(g.systems)}</td>
       <td class="td-nowrap">
-        <button class="btn btn-ghost btn-sm" onclick="openGroupForm(${JSON.stringify(g.id)})">✎</button>
-        <button class="btn btn-danger btn-sm" onclick="confirmDelete('userGroups',${JSON.stringify(g.id)},${JSON.stringify(g.name)})">✕</button>
+        <button class="btn btn-ghost btn-sm" onclick="openGroupForm(${j(g.id)})">✎</button>
+        <button class="btn btn-danger btn-sm" onclick="confirmDelete('userGroups',${j(g.id)},${j(g.name)})">✕</button>
       </td>
     </tr>`).join('');
   document.getElementById('grp-table-container').innerHTML=`
@@ -1364,7 +1364,7 @@ function openGroupForm(id){
     </div>
     <div class="form-actions">
       <button class="btn btn-ghost" onclick="closeModal()">Abbrechen</button>
-      <button class="btn btn-primary" onclick="saveGroup(${JSON.stringify(id||null)})">💾 Speichern</button>
+      <button class="btn btn-primary" onclick="saveGroup(${j(id||null)})">💾 Speichern</button>
     </div>`;
   openModal();
 }
@@ -1442,8 +1442,8 @@ function filterPerms(){
       <td>${yesnoChip(p.certRequired)}</td>
       <td>${yesnoChip(p.sodFlag)}</td>
       <td class="td-nowrap">
-        <button class="btn btn-ghost btn-sm" onclick="openPermForm(${JSON.stringify(p.id)})">✎</button>
-        <button class="btn btn-danger btn-sm" onclick="confirmDelete('permissions',${JSON.stringify(p.id)},${JSON.stringify(p.id)})">✕</button>
+        <button class="btn btn-ghost btn-sm" onclick="openPermForm(${j(p.id)})">✎</button>
+        <button class="btn btn-danger btn-sm" onclick="confirmDelete('permissions',${j(p.id)},${j(p.id)})">✕</button>
       </td>
     </tr>`).join('');
   document.getElementById('perm-table-container').innerHTML=`
@@ -1490,7 +1490,7 @@ function openPermForm(id){
     </div>
     <div class="form-actions">
       <button class="btn btn-ghost" onclick="closeModal()">Abbrechen</button>
-      <button class="btn btn-primary" onclick="savePerm(${JSON.stringify(id||null)})">💾 Speichern</button>
+      <button class="btn btn-primary" onclick="savePerm(${j(id||null)})">💾 Speichern</button>
     </div>`;
   openModal();
 }
