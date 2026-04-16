@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLanguage } from "@/i18n/LanguageContext";
-import { Incident, PlaybookStep, ROOMS, RoomId, Lang } from "@/data/socLifeData";
+import { Incident, PlaybookStep, ROOMS, RoomId, Lang, IncidentTier } from "@/data/socLifeData";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
