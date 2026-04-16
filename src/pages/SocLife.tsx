@@ -58,6 +58,9 @@ export default function SocLife() {
   const [coffee, setCoffee] = useState(60);
   const [score, setScore] = useState(0);
   const [shiftSec, setShiftSec] = useState(0);
+  // Number of incidents fully resolved (or escalated) so far this shift.
+  // Drives the progressive time-pressure curve above.
+  const [incidentsCompleted, setIncidentsCompleted] = useState(0);
 
   const [isFullscreen, setIsFullscreen] = useState(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
