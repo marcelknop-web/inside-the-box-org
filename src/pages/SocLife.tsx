@@ -16,6 +16,10 @@ import { RoomActions, IdleAction } from "@/components/socLife/RoomActions";
 import { ConsequenceOverlay, ConsequenceData } from "@/components/socLife/ConsequenceOverlay";
 import { Onboarding } from "@/components/socLife/Onboarding";
 import { reasonFor } from "@/data/socLifeReasons";
+import {
+  loadHighscores, saveHighscore, qualifiesForHighscore,
+  HIGHSCORE_NAME_MAX, HighscoreEntry,
+} from "@/utils/socLifeHighscore";
 
 const TICK_MS = 250;
 const MIN_INCIDENT_GAP_MS = 18_000;
@@ -128,6 +132,16 @@ export default function SocLife() {
   // Number of incidents fully resolved (or escalated) so far this shift.
   // Drives the progressive time-pressure curve above.
   const [incidentsCompleted, setIncidentsCompleted] = useState(0);
+
+  // Local highscore state. `highscores` is loaded fresh whenever a shift ends
+  // so multiple browser tabs stay roughly in sync. `playerName` persists across
+  // shifts so returning players don't have to re-type it.
+  const [highscores, setHighscores] = useState<HighscoreEntry[]>([]);
+  const [playerName, setPlayerName] = useState<string>(() => {
+    try { return localStorage.getItem("socLife.playerName") || ""; } catch { return ""; }
+  });
+  const [highscoreSubmitted, setHighscoreSubmitted] = useState(false);
+  const qualifies = gameOver && !highscoreSubmitted && qualifiesForHighscore(score);
 
   const [isFullscreen, setIsFullscreen] = useState(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
@@ -432,9 +446,21 @@ export default function SocLife() {
   useEffect(() => {
     if (!gameOver) return;
     audio.setMusicMode("calm");
+    setHighscores(loadHighscores());
+    setHighscoreSubmitted(false);
     const id = window.setTimeout(() => setGameOverActionsReady(true), 2200);
     return () => window.clearTimeout(id);
   }, [gameOver, audio]);
+
+  const submitHighscore = () => {
+    const name = playerName.trim().slice(0, HIGHSCORE_NAME_MAX) || "ANON";
+    try { localStorage.setItem("socLife.playerName", name); } catch { /* ignore */ }
+    const updated = saveHighscore({
+      name, score, incidents: incidentsCompleted, shiftSec: Math.floor(shiftSec),
+    });
+    setHighscores(updated);
+    setHighscoreSubmitted(true);
+  };
 
   return (
     <div ref={rootRef} className="h-[100dvh] overflow-hidden bg-background text-foreground flex flex-col">
@@ -603,17 +629,17 @@ export default function SocLife() {
                 Gives the user time to read what happened before any CTA appears. */}
             {gameOver && (
               <div className="absolute inset-0 z-30 flex items-center justify-center bg-background/85 backdrop-blur-sm animate-fade-in">
-                <div className="mx-3 max-w-md w-full rounded-lg border border-rose-500/50 bg-background/95 p-6 sm:p-8 shadow-[0_0_0_1px_hsl(var(--destructive)/0.25),0_20px_60px_-10px_hsl(var(--destructive)/0.4)]">
+                <div className="mx-3 max-w-md w-full max-h-[92vh] overflow-y-auto rounded-lg border border-rose-500/50 bg-background/95 p-5 sm:p-6 shadow-[0_0_0_1px_hsl(var(--destructive)/0.25),0_20px_60px_-10px_hsl(var(--destructive)/0.4)]">
                   <div className="mb-2 font-mono text-[11px] uppercase tracking-[0.25em] text-rose-400">
                     ▲ {t("socLife.gameOverTitle")}
                   </div>
-                  <h2 className="mb-3 font-mono text-xl sm:text-2xl text-foreground leading-tight">
+                  <h2 className="mb-2 font-mono text-xl sm:text-2xl text-foreground leading-tight">
                     {t("socLife.gameOverHeadline")}
                   </h2>
-                  <p className="mb-5 text-sm text-muted-foreground leading-relaxed">
+                  <p className="mb-4 text-sm text-muted-foreground leading-relaxed">
                     {t("socLife.gameOverFlavor")}
                   </p>
-                  <div className="mb-6 grid grid-cols-2 gap-3 font-mono text-xs">
+                  <div className="mb-4 grid grid-cols-2 gap-3 font-mono text-xs">
                     <div className="rounded-md border border-border/40 bg-background/60 p-3">
                       <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
                         {t("socLife.gameOverFinalScore")}
@@ -630,6 +656,76 @@ export default function SocLife() {
                       </div>
                     </div>
                   </div>
+
+                  {/* Highscore name entry — only when this score qualifies for the Top 10
+                      and the player hasn't yet submitted (or skipped) it. */}
+                  {qualifies && (
+                    <div className="mb-4 rounded-md border border-primary/40 bg-primary/5 p-3">
+                      <div className="mb-2 font-mono text-[10px] uppercase tracking-wider text-primary">
+                        ★ {t("socLife.highscoreNew")}
+                      </div>
+                      <div className="flex flex-col sm:flex-row gap-2">
+                        <input
+                          type="text"
+                          value={playerName}
+                          onChange={(e) => setPlayerName(e.target.value.slice(0, HIGHSCORE_NAME_MAX))}
+                          placeholder={t("socLife.highscoreNamePlaceholder")}
+                          maxLength={HIGHSCORE_NAME_MAX}
+                          autoFocus
+                          className="flex-1 rounded-md border border-border/60 bg-background px-3 py-2 font-mono text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-primary"
+                          onKeyDown={(e) => { if (e.key === "Enter") submitHighscore(); }}
+                        />
+                        <Button
+                          size="sm"
+                          onClick={submitHighscore}
+                          className="font-mono shrink-0"
+                        >
+                          {t("socLife.highscoreSave")}
+                        </Button>
+                      </div>
+                      <button
+                        onClick={() => setHighscoreSubmitted(true)}
+                        className="mt-2 font-mono text-[10px] uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        {t("socLife.highscoreSkip")}
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Top-10 leaderboard. Always shown so the player sees what they're chasing. */}
+                  <div className="mb-4 rounded-md border border-border/40 bg-background/60 p-3">
+                    <div className="mb-2 flex items-baseline justify-between gap-2">
+                      <div className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
+                        ☷ {t("socLife.highscoreTitle")}
+                      </div>
+                    </div>
+                    {highscores.length === 0 ? (
+                      <div className="font-mono text-[11px] text-muted-foreground/70 italic py-2">
+                        {t("socLife.highscoreEmpty")}
+                      </div>
+                    ) : (
+                      <ol className="space-y-0.5 font-mono text-[11px]">
+                        {highscores.map((entry, i) => {
+                          // Mark the freshly-saved row so the player can spot themselves.
+                          const isMine = highscoreSubmitted && entry.score === score && entry.name === (playerName.trim().slice(0, HIGHSCORE_NAME_MAX) || "ANON");
+                          return (
+                            <li
+                              key={`${entry.ts}-${i}`}
+                              className={isMine
+                                ? "flex items-baseline gap-2 rounded px-1.5 py-0.5 bg-primary/15 text-primary"
+                                : "flex items-baseline gap-2 px-1.5 py-0.5 text-foreground/85"}
+                            >
+                              <span className="w-5 text-right text-muted-foreground tabular-nums">{i + 1}.</span>
+                              <span className="flex-1 truncate">{entry.name}{isMine && <span className="ml-1 text-[9px] uppercase tracking-wider text-primary/70">· {t("socLife.highscoreYou")}</span>}</span>
+                              <span className="tabular-nums text-muted-foreground/80">{entry.incidents}</span>
+                              <span className="w-12 text-right tabular-nums">{entry.score}</span>
+                            </li>
+                          );
+                        })}
+                      </ol>
+                    )}
+                  </div>
+
                   {/* Restart CTA fades in only after a short reading pause */}
                   <div className="min-h-[44px]">
                     {gameOverActionsReady ? (
