@@ -233,19 +233,25 @@ function useWalker(
               // Arrived at door — call the lift to this floor.
               const myFloor: 0 | 1 = s.y < CORRIDOR_Y + CORRIDOR_H / 2 ? 0 : 1;
               if (lift.targetFloor !== myFloor) lift.targetFloor = myFloor;
-              lift.occupied = false; // we're outside, doors may open
+              // We're outside, signal we want to board so the lift knows
+              // to open and *hold* the doors for us.
+              lift.boardingHold = true;
               phaseRef.current = "wait_for_lift";
               next.walking = false;
             } else next.walking = true;
             break;
           }
           case "wait_for_lift": {
-            // Stand still, face the doors (slight bob via frame=0).
+            // Stand still, face the doors. Keep the call active.
             next.walking = false;
             const myFloor: 0 | 1 = s.y < CORRIDOR_Y + CORRIDOR_H / 2 ? 0 : 1;
-            // Keep requesting our floor in case the lift was diverted.
             if (lift.targetFloor !== myFloor) lift.targetFloor = myFloor;
-            const cabinHere = lift.currentFloor === myFloor && lift.phase === "doors_open" && lift.doorOpen > 0.85;
+            lift.boardingHold = true; // keep doors held open while we wait
+            // Cabin must be parked at our floor with doors fully open.
+            const cabinHere =
+              lift.currentFloor === myFloor &&
+              (lift.phase === "doors_open" || lift.phase === "doors_opening") &&
+              lift.doorOpen > 0.9;
             if (cabinHere) {
               phaseRef.current = "board";
             }
@@ -253,8 +259,12 @@ function useWalker(
           }
           case "board": {
             // Step into the cabin (same Y, X centered on shaft).
+            // Doors are still held open by `boardingHold` until we're inside.
+            lift.boardingHold = true;
             if (moveTowards(INSIDE_X, s.y)) {
-              // Mark cabin as occupied → doors will close, lift will move.
+              // Now fully inside → release the hold, mark occupied.
+              // The lift will close the doors and depart.
+              lift.boardingHold = false;
               lift.occupied = true;
               if (target) lift.targetFloor = target.row;
               phaseRef.current = "ride";
@@ -263,14 +273,17 @@ function useWalker(
             break;
           }
           case "ride": {
-            // Player is inside — y follows cabinY exactly.
+            // Player is inside — y follows cabinY exactly. No control.
             next.x = INSIDE_X;
             next.y = lift.cabinY;
             next.walking = false;
+            // Arrived = at target floor + doors fully open again.
             const arrived =
               target && lift.currentFloor === target.row &&
-              lift.phase === "doors_open" && lift.doorOpen > 0.85;
+              lift.phase === "doors_open" && lift.doorOpen > 0.9;
             if (arrived) {
+              // Hold the doors while we step out.
+              lift.boardingHold = true;
               phaseRef.current = "exit";
             }
             break;
@@ -281,7 +294,9 @@ function useWalker(
             const exitDir = target.x > INSIDE_X ? 1 : -1;
             const exitX = INSIDE_X + exitDir * 10;
             if (moveTowards(exitX, roomFloorLineY(target.row))) {
-              lift.occupied = false; // free the cabin
+              // Free the cabin: no longer occupied, no longer boarding.
+              lift.occupied = false;
+              lift.boardingHold = false;
               phaseRef.current = "walk_final";
               next.walking = false;
             } else next.walking = true;
