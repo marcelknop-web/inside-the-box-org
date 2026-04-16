@@ -1232,6 +1232,8 @@ export const en = {
       wrong:   'Wrong — reputation drops.',
       timeout: 'Too late. Incident escalates.',
       wrongRoomMsg: 'Wrong room. Get to where it happens first.',
+      chooseRoomFirst: 'Pick the right room first — your action options will appear once you arrive.',
+      goToRoomCta: 'Go to the scene',
     },
   },
 };

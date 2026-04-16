@@ -1312,6 +1312,8 @@ export const de = {
       wrong:   'Falsch — Reputation leidet.',
       timeout: 'Zu spät. Vorfall eskaliert.',
       wrongRoomMsg: 'Du bist im falschen Raum. Geh erst dorthin, wo es passiert.',
+      chooseRoomFirst: 'Wähle zuerst den richtigen Raum, dann erscheinen die Handlungsoptionen.',
+      goToRoomCta: 'Zum Einsatzort gehen',
     },
   },
 };
