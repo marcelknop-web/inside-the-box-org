@@ -1138,10 +1138,10 @@ export const de = {
     exportHint: 'Exportieren Sie den Bericht als PDF',
   },
   socLife: {
-    metaTitle: 'SOC Life — Underground Cyber-Sim',
-    metaDesc: 'Ein retro Berlin-Underground SOC-Simulator im Stil von Little Computer People. Räume, Kollegen, Incidents — entscheide unter Druck.',
+    metaTitle: 'SOC Life — Corporate Cyber-Sim',
+    metaDesc: 'Ein Corporate SOC-Simulator in Frankfurt im Stil von Little Computer People. Räume, Kollegen, Incidents — entscheide unter Druck.',
     title: 'SOC LIFE',
-    subtitle: 'Underground SOC. Berliner Schicht. Entscheide unter Druck.',
+    subtitle: 'Corporate SOC. Frankfurter Nachtschicht. Entscheide unter Druck.',
     intro: 'Bewege deinen Analysten durch das Stockwerk. Lies Threat-Intel, hole Kaffee, smalltalke mit Kollegen. Wenn ein Vorfall reinkommt: in den richtigen Raum gehen und das passende Playbook abarbeiten.',
     start: 'Schicht starten',
     pause: 'Pause',
