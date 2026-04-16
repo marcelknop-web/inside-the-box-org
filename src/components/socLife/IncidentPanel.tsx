@@ -12,6 +12,7 @@ interface IncidentPanelProps {
   currentRoom: RoomId;
   timeLeftMs: number;
   onChoose: (optionId: string) => void;
+  onGoToRoom?: (room: RoomId) => void;
 }
 
 // Deterministic Fisher-Yates shuffle seeded by incident+step so the order
@@ -37,7 +38,7 @@ function shuffleOptions<T>(arr: T[], seed: string): T[] {
 }
 
 export function IncidentPanel({
-  incident, step, stepIndex, totalSteps, currentRoom, timeLeftMs, onChoose,
+  incident, step, stepIndex, totalSteps, currentRoom, timeLeftMs, onChoose, onGoToRoom,
 }: IncidentPanelProps) {
   const { t, language } = useLanguage();
   const lang = language as Lang;
