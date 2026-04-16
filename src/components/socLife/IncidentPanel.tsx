@@ -87,6 +87,11 @@ export function IncidentPanel({
   const pct = Math.max(0, Math.min(100, (timeLeftMs / step.timeLimitMs) * 100));
   const sec = Math.max(0, Math.ceil(timeLeftMs / 1000));
 
+  // Localized strings used by the typewriters below.
+  const titleText  = incident.title[lang];
+  const briefText  = incident.brief[lang];
+  const promptText = step.prompt[lang];
+
   // === Sequenced reveal cascade ===
   // The klaxon sound has just played in SocLife when the incident spawns.
   // We give the user a beat to LOOK before any text starts typing, then
