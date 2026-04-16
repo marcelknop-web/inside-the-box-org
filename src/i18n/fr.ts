@@ -1256,6 +1256,7 @@ export const fr = {
       solid:     'Acceptable — peut mieux faire.',
       risky:     'Risqué. Dégâts tangibles.',
       severe:    'Grave erreur. L’incident s’aggrave.',
+      bestAnswer: 'La meilleure réponse aurait été',
     },
     onboarding: {
       tag: 'Intro rapide',

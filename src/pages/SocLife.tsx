@@ -198,12 +198,16 @@ export default function SocLife() {
 
     audio.playSfx(opt.correct ? "success_chime" : "fail_buzz", 0.45);
 
+    const bestAnswer = step.options.find((o) => o.correct);
     setConsequence({
       optionLabel: opt.label[language as "de" | "en" | "fr"],
       correct: opt.correct,
       repDelta: opt.delta,
       stressDelta,
       reason: reasonFor(step, opt, language as "de" | "en" | "fr"),
+      bestAnswerLabel: !opt.correct && bestAnswer
+        ? bestAnswer.label[language as "de" | "en" | "fr"]
+        : undefined,
     });
   }, [activeIncident, stepIdx, currentRoom, audio, language, consequence, paused]);
 

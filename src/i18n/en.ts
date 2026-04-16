@@ -1256,6 +1256,7 @@ export const en = {
       solid:     'Defensible — could be sharper.',
       risky:     'Risky. Tangible damage.',
       severe:    'Serious mistake. Incident escalates.',
+      bestAnswer: 'Best answer would have been',
     },
     onboarding: {
       tag: 'Quick intro',
