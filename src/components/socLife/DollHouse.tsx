@@ -942,12 +942,18 @@ export function DollHouse({ current, highlight, onMove, maxHeight, isNight = fal
       const dtMs = Math.min(48, now - lastFrame); // clamp to avoid huge jumps after tab-blur
       lastFrame = now;
 
+      // Reset transform and apply 2× supersampling: every "1 design px" the
+      // renderers below draw fills a crisp 2×2 block on the canvas. This
+      // gives sprites and detail work twice the effective resolution while
+      // keeping all geometry constants in the legacy 256×144 grid.
+      ctx.setTransform(RENDER_SCALE, 0, 0, RENDER_SCALE, 0, 0);
+
       // Clear
-      drawRect(ctx, 0, 0, LOGICAL_W, LOGICAL_H, C.bg);
+      drawRect(ctx, 0, 0, DESIGN_W, DESIGN_H, C.bg);
 
       // Building outline
-      drawRect(ctx, 0, 0, LOGICAL_W, LOGICAL_H, C.buildingDark);
-      drawRect(ctx, 1, 1, LOGICAL_W - 2, LOGICAL_H - 2, C.buildingMid);
+      drawRect(ctx, 0, 0, DESIGN_W, DESIGN_H, C.buildingDark);
+      drawRect(ctx, 1, 1, DESIGN_W - 2, DESIGN_H - 2, C.buildingMid);
 
       // Render rooms
       ROOMS.forEach((room) => {
