@@ -133,6 +133,16 @@ export default function SocLife() {
   // Drives the progressive time-pressure curve above.
   const [incidentsCompleted, setIncidentsCompleted] = useState(0);
 
+  // Local highscore state. `highscores` is loaded fresh whenever a shift ends
+  // so multiple browser tabs stay roughly in sync. `playerName` persists across
+  // shifts so returning players don't have to re-type it.
+  const [highscores, setHighscores] = useState<HighscoreEntry[]>([]);
+  const [playerName, setPlayerName] = useState<string>(() => {
+    try { return localStorage.getItem("socLife.playerName") || ""; } catch { return ""; }
+  });
+  const [highscoreSubmitted, setHighscoreSubmitted] = useState(false);
+  const qualifies = gameOver && !highscoreSubmitted && qualifiesForHighscore(score);
+
   const [isFullscreen, setIsFullscreen] = useState(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
 
