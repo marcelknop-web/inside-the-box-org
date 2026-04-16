@@ -56,6 +56,11 @@ export default function SocLife() {
   // until the user clicks "Continue". This forces the player to actually read
   // the outcome before the next step kicks in.
   const [consequence, setConsequence] = useState<ConsequenceData | null>(null);
+  // Delay the visual room-highlight on the floor plan until after the player
+  // has had time to read the incident title + brief in the side panel.
+  // Without this, the cyan pulse "spoils" where to go before a human could
+  // possibly have read the story — felt robotic.
+  const [revealRequiredRoom, setRevealRequiredRoom] = useState(false);
   const nextIncidentAtRef = useRef<number>(0);
   // Shuffle-bag: each of the 10 scenarios appears once per cycle, then reshuffles.
   const incidentBagRef = useRef<Incident[]>([]);
@@ -78,6 +83,16 @@ export default function SocLife() {
 
   const status: "calm" | "oncall" | "incident" =
     activeIncident ? "incident" : (isNight ? "oncall" : "calm");
+
+  // Reset + delay the floor-plan room-highlight whenever a new incident or
+  // step starts. ~3.2 s lines up with the panel's title-then-brief reveal,
+  // so a human reads the story first and then sees where to go.
+  useEffect(() => {
+    if (!activeIncident) { setRevealRequiredRoom(false); return; }
+    setRevealRequiredRoom(false);
+    const id = window.setTimeout(() => setRevealRequiredRoom(true), 3200);
+    return () => window.clearTimeout(id);
+  }, [activeIncident, stepIdx]);
 
   // ----- Sound: switch loops based on status (incl. comic-relief "audit" mode) -----
   useEffect(() => {
@@ -421,8 +436,8 @@ export default function SocLife() {
               <div className="min-h-0 lg:flex-1">
                 <DollHouse
                   current={currentRoom}
-                  highlight={activeIncident?.steps[stepIdx]?.requiredRoom ?? null}
-                  alertRoom={activeIncident?.steps[stepIdx]?.requiredRoom ?? null}
+                  highlight={revealRequiredRoom ? (activeIncident?.steps[stepIdx]?.requiredRoom ?? null) : null}
+                  alertRoom={revealRequiredRoom ? (activeIncident?.steps[stepIdx]?.requiredRoom ?? null) : null}
                   onMove={handleMove}
                   isNight={isNight}
                   maxHeight={
