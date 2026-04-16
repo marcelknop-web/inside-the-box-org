@@ -533,7 +533,7 @@ function renderRoom(ctx: CanvasRenderingContext2D, room: RoomId, x: number, y: n
   }
 }
 
-export function DollHouse({ current, highlight, onMove, maxHeight, isNight = false }: DollHouseProps) {
+export function DollHouse({ current, highlight, onMove, maxHeight, isNight = false, alertRoom = null }: DollHouseProps) {
   const { t } = useLanguage();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const wrapRef = useRef<HTMLDivElement | null>(null);
@@ -603,17 +603,20 @@ export function DollHouse({ current, highlight, onMove, maxHeight, isNight = fal
   });
 
   // Per-NPC behavior state — natural "stand for a few seconds, then take a few
-  // steps to a new spot" loop. State lives in a ref so the rAF loop can mutate
-  // it without re-rendering React.
+  // steps to a new spot" loop. When an incident is active in their home room,
+  // they rush to their workstation and type frantically until cleared.
+  // State lives in a ref so the rAF loop can mutate it without re-rendering.
   interface NpcState {
     x: number;
     targetX: number;
     phaseUntil: number;            // ms timestamp when the current phase ends
-    phase: "idle" | "walk";
+    phase: "idle" | "walk" | "work";
     facing: 1 | -1;
     initialized: boolean;
   }
   const npcStatesRef = useRef<Record<string, NpcState>>({});
+  const alertRoomRef = useRef<RoomId | null>(alertRoom);
+  alertRoomRef.current = alertRoom;
 
   // Animation loop
   useEffect(() => {
