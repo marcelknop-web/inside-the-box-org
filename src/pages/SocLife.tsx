@@ -49,8 +49,7 @@ export default function SocLife() {
   // ----- Sound: switch loops based on status -----
   useEffect(() => {
     if (!started || !audio.enabled) return;
-    if (activeIncident) audio.switchMusic("alert_loop");
-    else audio.switchMusic("ambient_loop");
+    audio.setMusicMode(activeIncident ? "alert" : "calm");
   }, [activeIncident, started, audio]);
 
   // ----- Main game tick -----
