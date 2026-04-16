@@ -12,6 +12,7 @@ import { DollHouse } from "@/components/socLife/DollHouse";
 import { SocMeters } from "@/components/socLife/SocMeters";
 import { IncidentPanel } from "@/components/socLife/IncidentPanel";
 import { RoomActions, IdleAction } from "@/components/socLife/RoomActions";
+import { ConsequenceOverlay, ConsequenceData } from "@/components/socLife/ConsequenceOverlay";
 
 const TICK_MS = 250;
 const MIN_INCIDENT_GAP_MS = 18_000;
@@ -41,6 +42,10 @@ export default function SocLife() {
   const [activeIncident, setActiveIncident] = useState<Incident | null>(null);
   const [stepIdx, setStepIdx] = useState(0);
   const [stepTimeLeft, setStepTimeLeft] = useState(0);
+  // When set, a prominent consequence overlay is shown and the step timer pauses
+  // until the user clicks "Continue". This forces the player to actually read
+  // the outcome before the next step kicks in.
+  const [consequence, setConsequence] = useState<ConsequenceData | null>(null);
   const nextIncidentAtRef = useRef<number>(0);
   // Shuffle-bag: each of the 10 scenarios appears once per cycle, then reshuffles.
   const incidentBagRef = useRef<Incident[]>([]);
