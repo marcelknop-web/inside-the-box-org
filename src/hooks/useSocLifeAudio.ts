@@ -17,7 +17,7 @@ export type SfxKey =
   | "click_ui"
   | "escalation";
 
-export type MusicMode = "calm" | "alert";
+export type MusicMode = "calm" | "alert" | "audit";
 
 export function useSocLifeAudio() {
   const ctxRef = useRef<AudioContext | null>(null);
@@ -122,6 +122,41 @@ export function useSocLifeAudio() {
     noiseBurst(ctx, open ? 0.12 : 0.04, dest, open ? 0.12 : 0.18, 7000);
   }
 
+  // Soft sustained pad note (sine + slight detune) — gives the hypnotic glue
+  function pad(ctx: AudioContext, dest: AudioNode, freq: number, dur: number, level = 0.06) {
+    const now = ctx.currentTime;
+    [1, 1.005, 0.5].forEach((mul, i) => {
+      const o = ctx.createOscillator();
+      o.type = "sine";
+      o.frequency.value = freq * mul;
+      const filt = ctx.createBiquadFilter();
+      filt.type = "lowpass";
+      filt.frequency.value = 1200;
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0, now);
+      g.gain.linearRampToValueAtTime(level * (i === 2 ? 0.5 : 1), now + 0.4);
+      g.gain.linearRampToValueAtTime(level * 0.7, now + dur - 0.4);
+      g.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+      o.connect(filt); filt.connect(g); g.connect(dest);
+      o.start(now); o.stop(now + dur + 0.05);
+    });
+  }
+
+  // Cheesy bell/arpeggio note (for "auditor" elevator-music vibe)
+  function bell(ctx: AudioContext, dest: AudioNode, freq: number) {
+    const now = ctx.currentTime;
+    const o = ctx.createOscillator(); o.type = "triangle"; o.frequency.value = freq;
+    const o2 = ctx.createOscillator(); o2.type = "sine"; o2.frequency.value = freq * 2;
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0, now);
+    g.gain.linearRampToValueAtTime(0.18, now + 0.005);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+    const g2 = ctx.createGain(); g2.gain.value = 0.05;
+    o.connect(g); o2.connect(g2); g2.connect(g); g.connect(dest);
+    o.start(now); o.stop(now + 0.5);
+    o2.start(now); o2.stop(now + 0.5);
+  }
+
   // Dub stab — single short chord
   function stab(ctx: AudioContext, dest: AudioNode, freq: number, alert = false) {
     const now = ctx.currentTime;
@@ -143,31 +178,84 @@ export function useSocLifeAudio() {
   }
 
   // ---------- Sequencer ----------
-  // 16-step pattern; 130 BPM. Each step = 60 / 130 / 4 sec ≈ 0.115 s
-  const STEP_MS = (60_000 / 130) / 4; // 16ths
+  // Per-mode tempo so each mood has its own rhythmic pull.
+  // calm  = 108 BPM (hypnotic, slow)
+  // alert = 138 BPM (driving, urgent)
+  // audit = 100 BPM (cheesy elevator-muzak)
+  const STEP_MS_BY_MODE: Record<MusicMode, number> = {
+    calm:  (60_000 / 108) / 4,
+    alert: (60_000 / 138) / 4,
+    audit: (60_000 / 100) / 4,
+  };
+
+  // 32-step patterns for more variation / hypnotic depth.
+  // Hypnotic calm: rolling 16ths in A minor pentatonic, soft kick on 1 & 9,
+  // sustained pad on bar starts, ghost stab on 23.
+  const CALM_BASS = [
+    110, 0, 110, 0,  82, 0, 110, 0,   98, 0, 110, 0,  82, 0, 65, 0,
+    110, 0, 130, 0,  82, 0, 110, 0,  146, 0, 110, 0,  82, 0, 65, 0,
+  ];
+  // Driving alert: relentless 8ths, accented & dissonant
+  const ALERT_BASS = [
+    110, 0, 110, 110,  65, 0, 110, 0,  130, 0, 110, 110,  65, 0, 73, 0,
+    110, 110, 65, 0,  110, 130, 65, 0,  110, 110, 73, 0,  110, 130, 65, 65,
+  ];
+  // Cheesy auditor elevator: major arp C-E-G-B in a slow 16th roll
+  const AUDIT_ARP = [
+    523, 0, 659, 0,  784, 0, 988, 0,  784, 0, 659, 0,  523, 0, 0, 0,
+    523, 0, 659, 0,  784, 0, 1175,0,  988, 0, 784, 0,  659, 0, 0, 0,
+  ];
 
   function tickStep(ctx: AudioContext, music: GainNode) {
-    const i = stepIndexRef.current % 16;
+    const i = stepIndexRef.current % 32;
     const mode = modeRef.current;
+
+    if (mode === "audit") {
+      // Soft swing: kick on 1 & 17 only, gentle rim on 9/25, bell arp constant.
+      if (i === 0 || i === 16) kick(ctx, music, false);
+      if (i === 8 || i === 24) hat(ctx, music, true);
+      const f = AUDIT_ARP[i];
+      if (f) bell(ctx, music, f);
+      // Soft pad on bar starts
+      if (i === 0) pad(ctx, music, 261.63, 1.5, 0.05);
+      return;
+    }
+
     const alert = mode === "alert";
 
-    // Kick on 1, 5, 9, 13 (4-on-the-floor)
-    if (i % 4 === 0) kick(ctx, music, alert);
-    // Hat on every off-beat
-    if (i % 2 === 1) hat(ctx, music, alert && i === 7);
-    // Open hat on 7
-    if (i === 7) hat(ctx, music, true);
+    // Kick: calm = halftime (1 & 9 & 17 & 25), alert = 4-on-the-floor on every 4th.
+    if (alert) {
+      if (i % 4 === 0) kick(ctx, music, true);
+    } else {
+      if (i === 0 || i === 8 || i === 16 || i === 24) kick(ctx, music, false);
+    }
 
-    // Acid-bass pattern (A minor): A2, A2, E2, G2, A2, C3, E2, A2 across two bars
-    const calmBass = [110, 0, 0, 110, 82, 0, 98, 0, 110, 0, 130, 0, 82, 0, 0, 110];
-    const alertBass = [110, 110, 65, 0, 110, 130, 65, 0, 110, 110, 73, 0, 110, 130, 65, 65];
-    const pat = alert ? alertBass : calmBass;
+    // Hats — calm: shuffled offbeats, alert: relentless 8ths
+    if (alert) {
+      if (i % 2 === 1) hat(ctx, music, false);
+      if (i === 7 || i === 23) hat(ctx, music, true);
+    } else {
+      if (i === 3 || i === 11 || i === 19 || i === 27) hat(ctx, music, false);
+      if (i === 15) hat(ctx, music, true);
+    }
+
+    // Bass / acid line
+    const pat = alert ? ALERT_BASS : CALM_BASS;
     const f = pat[i];
-    if (f) acidNote(ctx, music, f, alert ? 0.18 : 0.22, alert ? (i % 4 === 0) : (i === 11));
+    if (f) {
+      const accent = alert ? (i % 8 === 0) : (i === 11 || i === 27);
+      acidNote(ctx, music, f, alert ? 0.16 : 0.26, accent);
+    }
 
-    // Dub stab on bar 2 step 8 (calm) or step 12 (alert)
-    if (mode === "calm" && i === 8) stab(ctx, music, 220);
-    if (mode === "alert" && (i === 4 || i === 12)) stab(ctx, music, 196, true);
+    // Sustained pad — only in calm mode, on bar starts, very soft (hypnosis glue)
+    if (!alert && (i === 0 || i === 16)) {
+      pad(ctx, music, 110, 3.0, 0.05); // A2 root drone
+      pad(ctx, music, 164.81, 3.0, 0.035); // E3 fifth drone
+    }
+
+    // Stabs
+    if (!alert && i === 22) stab(ctx, music, 220);
+    if (alert && (i === 4 || i === 20 || i === 28)) stab(ctx, music, 196, true);
   }
 
   const startSequencer = useCallback(() => {
