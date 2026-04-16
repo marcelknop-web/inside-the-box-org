@@ -12,6 +12,8 @@ export interface ConsequenceData {
   repDelta: number;
   /** Stress delta applied (positive = more stress, negative = relief) */
   stressDelta: number;
+  /** Short professional rationale shown under the verdict */
+  reason: string;
 }
 
 interface Props {
