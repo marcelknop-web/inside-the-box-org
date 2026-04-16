@@ -224,10 +224,13 @@ export function useSocLifeAudio() {
     const ctx = ctxRef.current;
     if (!g || !ctx || !enabledRef.current) return;
     const target = mode === "alert" ? 0.55 : 0.45;
-    g.gain.cancelScheduledValues(ctx.currentTime);
-    g.gain.setValueAtTime(g.gain.value, ctx.currentTime);
-    g.gain.linearRampToValueAtTime(0.15, ctx.currentTime + 0.08);
-    g.gain.linearRampToValueAtTime(target, ctx.currentTime + 0.5);
+    const now = ctx.currentTime;
+    // Clamp current value to a safe non-zero floor so exponential ramps work.
+    const safeNow = Math.max(g.gain.value, 0.05);
+    g.gain.cancelScheduledValues(now);
+    g.gain.setValueAtTime(safeNow, now);
+    g.gain.linearRampToValueAtTime(0.18, now + 0.08);
+    g.gain.linearRampToValueAtTime(target, now + 0.6);
   }, []);
 
   const playSfx = useCallback((key: SfxKey, volume = 0.7) => {
