@@ -215,7 +215,6 @@ export default function SocLife() {
   }, [audio, t]);
 
   const startShift = async () => {
-  const startShift = async () => {
     audio.setEnabled(true);
     setStarted(true);
     setPaused(false);
