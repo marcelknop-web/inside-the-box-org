@@ -221,31 +221,56 @@ export default function SocLife() {
   const restart = () => startShift();
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="h-screen overflow-hidden bg-background text-foreground flex flex-col">
       <Helmet>
         <title>{t("socLife.metaTitle")}</title>
         <meta name="description" content={t("socLife.metaDesc")} />
       </Helmet>
 
-      <div className="mx-auto max-w-5xl px-4 py-6 sm:py-10">
-        <header className="mb-6">
-          <div className="font-mono text-[11px] uppercase tracking-[0.3em] text-cyan-300">
-            inside-the-box · sim
+      <div className="mx-auto w-full max-w-6xl px-4 py-3 flex-1 flex flex-col min-h-0">
+        {/* Compact header */}
+        <header className="mb-2 flex items-end justify-between gap-3 shrink-0">
+          <div>
+            <div className="font-mono text-[10px] uppercase tracking-[0.3em] text-cyan-300">
+              inside-the-box · sim
+            </div>
+            <h1 className="font-mono text-xl text-primary sm:text-2xl leading-tight">
+              {t("socLife.title")}
+            </h1>
           </div>
-          <h1 className="mt-1 font-mono text-3xl text-primary sm:text-4xl">
-            {t("socLife.title")}
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground sm:text-base">
-            {t("socLife.subtitle")}
-          </p>
+          {started && (
+            <div className="flex gap-2 shrink-0">
+              <Button
+                size="sm" variant="outline" className="font-mono h-8"
+                onClick={() => setPaused((p) => !p)}
+                disabled={gameOver}
+              >
+                {paused ? `▶ ${t("socLife.resume")}` : `❚❚ ${t("socLife.pause")}`}
+              </Button>
+              <Button
+                size="sm" variant="outline" className="font-mono h-8"
+                onClick={() => audio.setEnabled(!audio.enabled)}
+              >
+                {audio.enabled ? `🔊` : `🔇`}
+              </Button>
+              {gameOver && (
+                <Button size="sm" onClick={restart} className="font-mono h-8">
+                  ↻ {t("socLife.restart")}
+                </Button>
+              )}
+            </div>
+          )}
         </header>
 
         {!started && (
-          <section className="rounded-lg border border-border/40 bg-background/40 p-6">
+          <section className="rounded-lg border border-border/40 bg-background/40 p-6 max-w-2xl">
+            <p className="mb-3 text-sm text-muted-foreground sm:text-base">
+              {t("socLife.subtitle")}
+            </p>
             <p className="mb-4 text-sm text-muted-foreground sm:text-base">
               {t("socLife.intro")}
             </p>
-            <p className="mb-6 font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
+            <p className="mb-5 font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
               {t("socLife.audioHint")}
             </p>
             <Button size="lg" onClick={startShift} className="font-mono">
@@ -255,68 +280,50 @@ export default function SocLife() {
         )}
 
         {started && (
-          <>
-            <div className="mb-3 flex items-center justify-between gap-2">
-              <div className="flex gap-2">
-                <Button
-                  size="sm" variant="outline" className="font-mono"
-                  onClick={() => setPaused((p) => !p)}
-                  disabled={gameOver}
-                >
-                  {paused ? `▶ ${t("socLife.resume")}` : `❚❚ ${t("socLife.pause")}`}
-                </Button>
-                <Button
-                  size="sm" variant="outline" className="font-mono"
-                  onClick={() => audio.setEnabled(!audio.enabled)}
-                >
-                  {audio.enabled ? `🔊 ${t("socLife.soundOn")}` : `🔇 ${t("socLife.soundOff")}`}
-                </Button>
-              </div>
-              {gameOver && (
-                <Button size="sm" onClick={restart} className="font-mono">
-                  ↻ {t("socLife.restart")}
-                </Button>
-              )}
-            </div>
-
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_320px]">
-              <div className="space-y-4">
-                <SocMeters
-                  reputation={reputation} stress={stress} coffee={coffee}
-                  score={score} shift={Math.floor(shiftSec)} isNight={isNight}
-                  status={status}
-                />
+          <div className="relative flex-1 grid grid-cols-1 gap-3 lg:grid-cols-[1fr_300px] min-h-0">
+            <div className="flex flex-col gap-3 min-h-0">
+              <SocMeters
+                reputation={reputation} stress={stress} coffee={coffee}
+                score={score} shift={Math.floor(shiftSec)} isNight={isNight}
+                status={status}
+              />
+              <div className="flex-1 min-h-0">
                 <DollHouse
                   current={currentRoom}
                   highlight={activeIncident?.steps[stepIdx]?.requiredRoom ?? null}
                   onMove={handleMove}
+                  maxHeight={typeof window !== "undefined" ? window.innerHeight - 260 : 480}
                 />
-                {activeIncident && (
-                  <IncidentPanel
-                    incident={activeIncident}
-                    step={activeIncident.steps[stepIdx]}
-                    stepIndex={stepIdx}
-                    totalSteps={activeIncident.steps.length}
-                    currentRoom={currentRoom}
-                    timeLeftMs={stepTimeLeft}
-                    onChoose={handleChoose}
-                  />
-                )}
-                {gameOver && (
-                  <div className="rounded-lg border border-rose-500/50 bg-rose-500/10 p-4">
-                    <div className="font-mono text-sm text-rose-300">{t("socLife.gameOver")}</div>
-                    <div className="mt-1 text-xs text-muted-foreground">
-                      {t("socLife.score")}: <span className="text-primary">{score}</span>
-                    </div>
-                  </div>
-                )}
               </div>
-
-              <aside>
-                <RoomActions currentRoom={currentRoom} onIdleAction={handleIdle} />
-              </aside>
+              {gameOver && (
+                <div className="rounded-lg border border-rose-500/50 bg-rose-500/10 p-3 shrink-0">
+                  <div className="font-mono text-sm text-rose-300">{t("socLife.gameOver")}</div>
+                  <div className="mt-1 text-xs text-muted-foreground">
+                    {t("socLife.score")}: <span className="text-primary">{score}</span>
+                  </div>
+                </div>
+              )}
             </div>
-          </>
+
+            <aside className="min-h-0 overflow-y-auto">
+              <RoomActions currentRoom={currentRoom} onIdleAction={handleIdle} />
+            </aside>
+
+            {/* Incident as floating overlay so it never pushes layout */}
+            {activeIncident && (
+              <div className="absolute inset-x-0 bottom-0 z-20 lg:right-[312px] lg:left-0 max-h-[55%] overflow-y-auto rounded-lg backdrop-blur-sm">
+                <IncidentPanel
+                  incident={activeIncident}
+                  step={activeIncident.steps[stepIdx]}
+                  stepIndex={stepIdx}
+                  totalSteps={activeIncident.steps.length}
+                  currentRoom={currentRoom}
+                  timeLeftMs={stepTimeLeft}
+                  onChoose={handleChoose}
+                />
+              </div>
+            )}
+          </div>
         )}
       </div>
     </div>
