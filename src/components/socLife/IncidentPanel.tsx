@@ -87,16 +87,34 @@ export function IncidentPanel({
   const pct = Math.max(0, Math.min(100, (timeLeftMs / step.timeLimitMs) * 100));
   const sec = Math.max(0, Math.ceil(timeLeftMs / 1000));
 
-  // Typewriter reveals: title first, then brief, then prompt.
-  // Each text restarts whenever the underlying string changes (new step / incident).
-  const titleText = incident.title[lang];
-  const briefText = incident.brief[lang];
-  const promptText = step.prompt[lang];
-  const typedTitle = useTypewriter(titleText, 22);
-  const typedBrief = useTypewriter(briefText, 16);
-  const typedPrompt = useTypewriter(promptText, 18);
-  const titleDone = typedTitle.length >= titleText.length;
-  const briefDone = typedBrief.length >= briefText.length;
+  // === Sequenced reveal cascade ===
+  // The klaxon sound has just played in SocLife when the incident spawns.
+  // We give the user a beat to LOOK before any text starts typing, then
+  // unlock each section one at a time with a pause between them so the eye
+  // can track the order: alarm → title (blinking) → brief → meta → prompt
+  // → actions.
+  const stepKey = `${incident.id}:${step.id}:${stepIndex}`;
+  // T+0     klaxon already firing, panel mounts
+  // T+800   title starts typing (blinking)
+  // After title typed + 1200ms pause → brief
+  // After brief typed + 1000ms pause → meta + prompt
+  // After prompt typed + 600ms pause  → actions (only if in correct room)
+  const titleStarts = useDelayedFlag(800, [stepKey]);
+
+  const typedTitle  = useTypewriter(titleText, 28, titleStarts);
+  const titleDone   = titleStarts && typedTitle.length >= titleText.length;
+
+  const briefStarts = useDelayedFlag(1200, [titleDone]) && titleDone;
+  const typedBrief  = useTypewriter(briefText, 18, briefStarts);
+  const briefDone   = briefStarts && typedBrief.length >= briefText.length;
+
+  const metaStarts  = useDelayedFlag(1000, [briefDone]) && briefDone;
+
+  const promptStarts = metaStarts;
+  const typedPrompt  = useTypewriter(promptText, 20, promptStarts);
+  const promptDone   = promptStarts && typedPrompt.length >= promptText.length;
+
+  const actionsReady = useDelayedFlag(600, [promptDone]) && promptDone;
 
   // Numbered, sequential reveal — each block "unlocks" only when the previous
   // typewriter has finished, so the eye knows exactly where to look next.
@@ -113,25 +131,33 @@ export function IncidentPanel({
     </span>
   );
 
-  const showBrief = titleDone;
-  const showMeta = briefDone;
-  const showPrompt = briefDone;
-  const promptDone = typedPrompt.length >= promptText.length;
-  const showActions = promptDone;
+  const showTitleRow = true;       // always visible (cursor blinks while waiting)
+  const showBrief    = briefStarts;
+  const showMeta     = metaStarts;
+  const showPrompt   = promptStarts;
+  const showActions  = actionsReady;
 
   return (
     <div className="rounded-lg border border-rose-500/40 bg-background/95 p-4 shadow-[0_0_0_1px_hsl(var(--destructive)/0.2)] max-w-full overflow-hidden">
       <div className="mb-3 flex items-center justify-between gap-2 font-mono text-[11px] uppercase tracking-wider">
-        <span className="text-rose-300 truncate">▲ {t("socLife.incomingIncident")}</span>
+        <span className={cn("text-rose-300 truncate", !titleDone && "animate-pulse")}>▲ {t("socLife.incomingIncident")}</span>
         <span className="text-muted-foreground shrink-0">{stepIndex + 1} / {totalSteps}</span>
       </div>
 
-      {/* 1 — Title */}
+      {/* 1 — Title (blinks while waiting/typing for emphasis) */}
       <div className="mb-3 flex items-start gap-2">
         {stepNum(1, !titleDone, titleDone)}
-        <h3 className="font-mono text-base sm:text-lg text-foreground break-words min-h-[1.5em] leading-snug flex-1">
-          {typedTitle}
-          {!titleDone && <span className="ml-0.5 inline-block w-2 h-4 align-middle bg-rose-300 animate-pulse" />}
+        <h3
+          className={cn(
+            "font-mono text-base sm:text-lg break-words min-h-[1.5em] leading-snug flex-1",
+            titleDone ? "text-foreground" : "text-rose-200",
+            !titleDone && "animate-pulse",
+          )}
+        >
+          {typedTitle || (titleStarts ? "" : "…")}
+          {titleStarts && !titleDone && (
+            <span className="ml-0.5 inline-block w-2 h-4 align-middle bg-rose-300 animate-pulse" />
+          )}
         </h3>
       </div>
 
