@@ -24,6 +24,9 @@ export default function SocLife() {
   const [started, setStarted] = useState(false);
   const [paused, setPaused] = useState(false);
   const [gameOver, setGameOver] = useState(false);
+  // Slight delay before showing the "Restart" CTA on game over so the user
+  // can read what happened first instead of being rushed into another run.
+  const [gameOverActionsReady, setGameOverActionsReady] = useState(false);
 
   const [currentRoom, setCurrentRoom] = useState<RoomId>("soc_floor");
   const [reputation, setReputation] = useState(70);
