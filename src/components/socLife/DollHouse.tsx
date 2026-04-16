@@ -830,62 +830,140 @@ export function DollHouse({ current, highlight, onMove, maxHeight, isNight = fal
       drawRect(ctx, shaftX + 1, shaftTop, 1, shaftBottom - shaftTop, C.goldDim);
       drawRect(ctx, shaftX + SHAFT_W - 2, shaftTop, 1, shaftBottom - shaftTop, C.goldDim);
 
-      // 2) Update elevator state machine.
-      // The cabin is the SOLE means of changing floor. The walker pushes
-      // `targetFloor` and `occupied`; we advance physics + door dwell here.
+      // 2) Update elevator state machine with REAL physics.
+      // The cabin is heavy: it must accelerate, cruise at top speed, then
+      // brake on approach. Doors only operate while the cabin is at-floor and
+      // stationary. Departure is gated on doors being fully closed AND a
+      // committed passenger (or empty re-position request).
       const lift = elevatorRef.current;
       const targetY = roomFloorLineY(lift.targetFloor);
-      const FLOOR_TOL = 0.6;          // px — when we consider cabin "at floor"
-      const DOOR_DWELL_MS = 1400;     // doors stay open this long when idle
-      const ARRIVAL_DWELL_MS = 2200;  // a touch longer right after arrival, so player can step in/out
+      const FLOOR_TOL = 0.4;          // px — when we consider cabin "at floor"
+      const VEL_TOL = 0.005;          // px/ms — when we consider cabin stopped
+      const DOOR_DWELL_MS = 1600;     // doors stay open this long with no passenger nearby
+      const DOOR_HOLD_MS = 4500;      // max hold while passenger is boarding
+      const DOOR_OPEN_SPEED = 0.0035; // 1/ms — full open in ~285ms (fast, mechanical)
+      const DOOR_CLOSE_SPEED = 0.0028;// closes a touch slower (heavier movement)
+      // Heavy-cabin physics tuning:
+      const MAX_VEL = 0.085;          // px/ms — top cruising speed (~5px/frame@60fps)
+      const ACCEL = 0.00045;          // px/ms² — gentle ramp up (you SEE the load)
+      const DECEL = 0.00060;          // px/ms² — slightly stronger braking (safety!)
 
-      // Move the cabin
-      const dyToTarget = targetY - lift.cabinY;
-      if (Math.abs(dyToTarget) > FLOOR_TOL) {
-        // In transit — close doors, drift toward target with gentle ease
-        lift.phase = "moving";
-        lift.cabinY += dyToTarget * 0.06;
+      // ----- Door physics (always runs) -----
+      // What does the door WANT to be?
+      let wantOpen: number;
+      if (lift.phase === "moving") {
+        wantOpen = 0; // doors firmly closed in transit, no exceptions
+      } else if (lift.phase === "doors_opening" || lift.phase === "doors_open") {
+        wantOpen = 1;
+      } else if (lift.phase === "doors_closing") {
+        wantOpen = 0;
       } else {
-        // At a floor — snap, mark currentFloor reached, open doors
-        lift.cabinY = targetY;
-        if (lift.currentFloor !== lift.targetFloor) {
-          lift.currentFloor = lift.targetFloor;
-          lift.phase = "doors_open";
-          lift.phaseUntil = t + ARRIVAL_DWELL_MS;
-        } else if (lift.phase === "moving") {
-          // Just settled
-          lift.phase = "doors_open";
-          lift.phaseUntil = t + ARRIVAL_DWELL_MS;
-        }
+        wantOpen = 1; // idle = open
+      }
+      const dStep = (wantOpen > lift.doorOpen ? DOOR_OPEN_SPEED : DOOR_CLOSE_SPEED) * dtMs;
+      if (Math.abs(wantOpen - lift.doorOpen) <= dStep) {
+        lift.doorOpen = wantOpen;
+      } else {
+        lift.doorOpen += Math.sign(wantOpen - lift.doorOpen) * dStep;
       }
 
-      // Door progress
-      // Doors closed while moving OR while occupied (passenger inside, ready to ride).
-      // Doors open while idle at a floor and not occupied, or while waiting for passenger to step in/out.
-      const doorsShouldOpen =
-        lift.phase === "doors_open" &&
-        Math.abs(targetY - lift.cabinY) <= FLOOR_TOL &&
-        !lift.occupied;
-      const doorTarget = doorsShouldOpen ? 1 : 0;
-      lift.doorOpen = lift.doorOpen + (doorTarget - lift.doorOpen) * 0.14;
+      // ----- State transitions -----
+      switch (lift.phase) {
+        case "doors_opening": {
+          if (lift.doorOpen >= 0.999) {
+            lift.phase = "doors_open";
+            lift.phaseUntil = t + (lift.boardingHold ? DOOR_HOLD_MS : DOOR_DWELL_MS);
+          }
+          break;
+        }
+        case "doors_open": {
+          // Stay open while passenger is mid-boarding/exiting; otherwise
+          // close once the dwell elapses, OR immediately if a new floor was
+          // requested (and nobody's boarding).
+          if (lift.boardingHold) {
+            // refresh dwell so we don't time out on a slow walker
+            lift.phaseUntil = t + DOOR_HOLD_MS;
+          } else if (lift.occupied) {
+            // passenger committed → start closing now to depart
+            lift.phase = "doors_closing";
+          } else if (t >= lift.phaseUntil) {
+            // nobody coming + a different floor requested → close & go
+            if (lift.targetFloor !== lift.currentFloor) {
+              lift.phase = "doors_closing";
+            } else {
+              // refresh idle dwell
+              lift.phaseUntil = t + DOOR_DWELL_MS;
+            }
+          }
+          break;
+        }
+        case "doors_closing": {
+          if (lift.doorOpen <= 0.001) {
+            if (lift.targetFloor !== lift.currentFloor) {
+              lift.phase = "moving";
+              lift.cabinVy = 0; // start from rest — heavy cabin
+            } else {
+              // closed but nowhere to go → just sit closed briefly then reopen
+              lift.phase = "doors_opening";
+            }
+          }
+          // Safety: if a passenger appears mid-close, reopen
+          if (lift.boardingHold) {
+            lift.phase = "doors_opening";
+          }
+          break;
+        }
+        case "moving": {
+          // Real physics: accel toward target, brake on approach.
+          // Compute "stopping distance" given current velocity.
+          const remaining = targetY - lift.cabinY;
+          const dir = Math.sign(remaining) || 1;
+          const speed = Math.abs(lift.cabinVy);
+          // distance needed to brake to 0 at DECEL: v²/(2a)
+          const brakeDist = (speed * speed) / (2 * DECEL);
+          const absRemaining = Math.abs(remaining);
 
-      // While doors are open and dwell expired, allow new floor calls;
-      // if no fresh call, just stay put. (targetFloor==currentFloor → idle)
-      if (lift.phase === "doors_open" && t >= lift.phaseUntil && !lift.occupied) {
-        // refresh dwell so doors keep gently breathing
-        lift.phaseUntil = t + DOOR_DWELL_MS;
+          if (absRemaining <= brakeDist + 0.05) {
+            // Brake phase
+            const newSpeed = Math.max(0, speed - DECEL * dtMs);
+            lift.cabinVy = dir * newSpeed;
+          } else if (speed < MAX_VEL) {
+            // Accel phase
+            const newSpeed = Math.min(MAX_VEL, speed + ACCEL * dtMs);
+            lift.cabinVy = dir * newSpeed;
+          } else {
+            // Cruise
+            lift.cabinVy = dir * MAX_VEL;
+          }
+
+          // Integrate position
+          lift.cabinY += lift.cabinVy * dtMs;
+
+          // Arrival check
+          if (Math.abs(targetY - lift.cabinY) <= FLOOR_TOL && Math.abs(lift.cabinVy) <= VEL_TOL * 6) {
+            // Snap & settle
+            lift.cabinY = targetY;
+            lift.cabinVy = 0;
+            lift.currentFloor = lift.targetFloor;
+            lift.phase = "doors_opening";
+          }
+          break;
+        }
+        // "idle" never used as a runtime state in this loop, just a placeholder
       }
 
       const cabinY = lift.cabinY;
-      const moving = Math.abs(targetY - cabinY) > FLOOR_TOL;
+      const moving = lift.phase === "moving";
       const doorOpen = lift.doorOpen;
 
-      // 3) Cable from top of shaft to cabin
-      drawRect(ctx, STAIR_X, shaftTop, 1, Math.max(0, Math.round(cabinY - 14 - shaftTop)), "#3a3a4a");
-      // Cable wobble pixel when moving
-      if (moving) {
-        const wob = Math.sin(t / 60) > 0 ? 1 : -1;
-        drawPx(ctx, STAIR_X + wob, shaftTop + Math.floor((cabinY - shaftTop) / 2), "#5a5a6a");
+      // 3) Cable from top of shaft to top of cabin (cabin top is at cabinY-16)
+      const cabTopY = Math.round(cabinY) - 16;
+      drawRect(ctx, STAIR_X, shaftTop, 1, Math.max(0, cabTopY - shaftTop), "#3a3a4a");
+      // Cable wobble pixel when moving — frequency scales with speed
+      if (moving && Math.abs(lift.cabinVy) > 0.01) {
+        const wobFreq = 30 + (1 - Math.min(1, Math.abs(lift.cabinVy) / MAX_VEL)) * 60;
+        const wob = Math.sin(t / wobFreq) > 0 ? 1 : -1;
+        drawPx(ctx, STAIR_X + wob, shaftTop + Math.floor((cabTopY - shaftTop) / 2), "#5a5a6a");
       }
 
       // 4) Cabin (16x16) — body, ceiling lamp, floor
