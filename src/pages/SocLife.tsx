@@ -20,6 +20,27 @@ const TICK_MS = 250;
 const MIN_INCIDENT_GAP_MS = 18_000;
 const MAX_INCIDENT_GAP_MS = 38_000;
 
+// Progressive time pressure: the first few incidents give the player generous
+// thinking time, then each subsequent incident shortens the per-step deadline
+// until we hit a hard floor. This way newcomers aren't punished for reading,
+// but veterans still feel the heat as their shift wears on.
+//   incident #1 → 1.60×   (ample time to read brief, choose room, decide)
+//   incident #2 → 1.45×
+//   incident #3 → 1.30×
+//   incident #4 → 1.15×
+//   incident #5 → 1.00×   (designer-authored baseline)
+//   incident #6 → 0.90×
+//   incident #7 → 0.80×
+//   incident #8+ → 0.70×  (floor)
+// Absolute minimum per step: 8 seconds — never less, no matter the multiplier.
+const TIME_PRESSURE_CURVE = [1.6, 1.45, 1.3, 1.15, 1.0, 0.9, 0.8, 0.7];
+const MIN_STEP_TIME_MS = 8_000;
+function stepTimeFor(baseMs: number, incidentsCompleted: number): number {
+  const idx = Math.min(incidentsCompleted, TIME_PRESSURE_CURVE.length - 1);
+  const mult = TIME_PRESSURE_CURVE[idx];
+  return Math.max(MIN_STEP_TIME_MS, Math.round(baseMs * mult));
+}
+
 export default function SocLife() {
   const { t, language } = useLanguage();
   const audio = useSocLifeAudio();
@@ -37,6 +58,9 @@ export default function SocLife() {
   const [coffee, setCoffee] = useState(60);
   const [score, setScore] = useState(0);
   const [shiftSec, setShiftSec] = useState(0);
+  // Number of incidents fully resolved (or escalated) so far this shift.
+  // Drives the progressive time-pressure curve above.
+  const [incidentsCompleted, setIncidentsCompleted] = useState(0);
 
   const [isFullscreen, setIsFullscreen] = useState(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
@@ -163,7 +187,7 @@ export default function SocLife() {
     const inc = incidentBagRef.current.shift()!;
     setActiveIncident(inc);
     setStepIdx(0);
-    setStepTimeLeft(inc.steps[0].timeLimitMs);
+    setStepTimeLeft(stepTimeFor(inc.steps[0].timeLimitMs, incidentsCompleted));
     setConsequence(null);
     nextIncidentAtRef.current = 0;
     audio.playSfx("incident_klaxon", 0.6);
@@ -171,7 +195,7 @@ export default function SocLife() {
       description: inc.title[language as "de" | "en" | "fr"],
       duration: 2200,
     });
-  }, [audio, t, refillBag, language]);
+  }, [audio, t, refillBag, language, incidentsCompleted]);
 
   const finishIncident = useCallback((escalated: boolean) => {
     setActiveIncident(null);
@@ -179,6 +203,8 @@ export default function SocLife() {
     setStepTimeLeft(0);
     setConsequence(null);
     nextIncidentAtRef.current = Date.now() + randIncidentDelay();
+    // Bump the completed-counter so the *next* incident uses a tighter deadline.
+    setIncidentsCompleted((n) => n + 1);
     if (escalated) {
       audio.playSfx("escalation", 0.5);
       toast.error(t("socLife.incidentEscalated"), { duration: 1800 });
@@ -237,9 +263,9 @@ export default function SocLife() {
     } else {
       setStepIdx(nextIdx);
       const next: PlaybookStep = activeIncident.steps[nextIdx];
-      setStepTimeLeft(next.timeLimitMs);
+      setStepTimeLeft(stepTimeFor(next.timeLimitMs, incidentsCompleted));
     }
-  }, [activeIncident, stepIdx, finishIncident]);
+  }, [activeIncident, stepIdx, finishIncident, incidentsCompleted]);
 
   const handleMove = useCallback((room: RoomId) => {
     setCurrentRoom(room);
@@ -284,6 +310,7 @@ export default function SocLife() {
     setCoffee(60);
     setScore(0);
     setShiftSec(0);
+    setIncidentsCompleted(0);
     setActiveIncident(null);
     setStepIdx(0);
     setConsequence(null);
