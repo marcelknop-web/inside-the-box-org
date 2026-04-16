@@ -8,7 +8,7 @@ import {
   Incident, INCIDENTS, INCIDENT_TYPES, IncidentType, PlaybookStep,
   ROOMS, RoomId,
 } from "@/data/socLifeData";
-import { SocFloorPlan } from "@/components/socLife/SocFloorPlan";
+import { DollHouse } from "@/components/socLife/DollHouse";
 import { SocMeters } from "@/components/socLife/SocMeters";
 import { IncidentPanel } from "@/components/socLife/IncidentPanel";
 import { RoomActions, IdleAction } from "@/components/socLife/RoomActions";
@@ -289,7 +289,7 @@ export default function SocLife() {
                   score={score} shift={Math.floor(shiftSec)} isNight={isNight}
                   status={status}
                 />
-                <SocFloorPlan
+                <DollHouse
                   current={currentRoom}
                   highlight={activeIncident?.steps[stepIdx]?.requiredRoom ?? null}
                   onMove={handleMove}
