@@ -1146,6 +1146,8 @@ export const de = {
     start: 'Schicht starten',
     pause: 'Pause',
     resume: 'Weiter',
+    pausedHeadline: 'Schicht angehalten',
+    pausedHint: 'Klicken oder ▶ drücken, um fortzufahren.',
     soundOn: 'Sound an',
     soundOff: 'Sound aus',
     loadingAudio: 'Audio wird vorbereitet …',

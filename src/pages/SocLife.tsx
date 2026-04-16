@@ -183,7 +183,7 @@ export default function SocLife() {
   }
 
   const handleChoose = useCallback((optionId: string) => {
-    if (!activeIncident || consequence) return; // ignore clicks while overlay is up
+    if (!activeIncident || consequence || paused) return; // ignore clicks while overlay is up or paused
     const step = activeIncident.steps[stepIdx];
     const opt = step.options.find((o) => o.id === optionId);
     if (!opt) return;
@@ -205,7 +205,7 @@ export default function SocLife() {
       stressDelta,
       reason: reasonFor(step, opt, language as "de" | "en" | "fr"),
     });
-  }, [activeIncident, stepIdx, currentRoom, audio, language, consequence]);
+  }, [activeIncident, stepIdx, currentRoom, audio, language, consequence, paused]);
 
   // Called when the player dismisses the consequence overlay — only now do we
   // advance to the next step (or finish the incident).
@@ -459,6 +459,29 @@ export default function SocLife() {
                 data={consequence}
                 onContinue={continueAfterConsequence}
               />
+            )}
+
+            {/* Pause overlay: clear visual confirmation that the game is frozen.
+                Click anywhere or press Resume to continue. */}
+            {paused && !gameOver && (
+              <div
+                className="absolute inset-0 z-30 flex items-center justify-center bg-background/80 backdrop-blur-sm animate-fade-in cursor-pointer"
+                onClick={() => setPaused(false)}
+                role="button"
+                aria-label={t("socLife.resume")}
+              >
+                <div className="mx-3 max-w-sm w-full rounded-lg border border-primary/40 bg-background/95 p-6 sm:p-8 text-center shadow-[0_0_0_1px_hsl(var(--primary)/0.2),0_20px_60px_-10px_hsl(var(--primary)/0.3)]">
+                  <div className="mb-2 font-mono text-[11px] uppercase tracking-[0.25em] text-primary">
+                    ❚❚ {t("socLife.pause")}
+                  </div>
+                  <h2 className="mb-3 font-mono text-2xl sm:text-3xl text-foreground leading-tight">
+                    {t("socLife.pausedHeadline") || "Schicht angehalten"}
+                  </h2>
+                  <p className="text-sm text-muted-foreground">
+                    {t("socLife.pausedHint") || "Klicken oder ▶ drücken, um fortzufahren."}
+                  </p>
+                </div>
+              </div>
             )}
 
             {/* Game-over: full-area calm overlay, NOT a toast spam.

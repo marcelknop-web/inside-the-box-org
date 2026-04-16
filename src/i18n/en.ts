@@ -1066,6 +1066,8 @@ export const en = {
     start: 'Start shift',
     pause: 'Pause',
     resume: 'Resume',
+    pausedHeadline: 'Shift paused',
+    pausedHint: 'Click or press ▶ to continue.',
     soundOn: 'Sound on',
     soundOff: 'Sound off',
     loadingAudio: 'Preparing audio …',
