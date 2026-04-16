@@ -11,6 +11,12 @@ interface DollHouseProps {
   maxHeight?: number;
   /** When true, the house gets a cool-blue night tint overlay. */
   isNight?: boolean;
+  /**
+   * When set, every NPC whose home room matches this value rushes to their
+   * workstation and types frantically until the room clears. Used to make the
+   * SOC visibly *react* to a live incident.
+   */
+  alertRoom?: RoomId | null;
 }
 
 /**
