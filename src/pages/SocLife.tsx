@@ -314,6 +314,7 @@ export default function SocLife() {
                 <DollHouse
                   current={currentRoom}
                   highlight={activeIncident?.steps[stepIdx]?.requiredRoom ?? null}
+                  alertRoom={activeIncident?.steps[stepIdx]?.requiredRoom ?? null}
                   onMove={handleMove}
                   isNight={isNight}
                   maxHeight={
