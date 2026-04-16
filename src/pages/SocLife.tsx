@@ -183,7 +183,7 @@ export default function SocLife() {
   }
 
   const handleChoose = useCallback((optionId: string) => {
-    if (!activeIncident || consequence) return; // ignore clicks while overlay is up
+    if (!activeIncident || consequence || paused) return; // ignore clicks while overlay is up or paused
     const step = activeIncident.steps[stepIdx];
     const opt = step.options.find((o) => o.id === optionId);
     if (!opt) return;
