@@ -629,18 +629,136 @@ export function DollHouse({ current, highlight, onMove, maxHeight, isNight = fal
       drawRect(ctx, 0, CORRIDOR_Y + CORRIDOR_H - 2, LOGICAL_W, 2, "#1a0e22");
       // dotted ceiling line
       for (let i = 0; i < LOGICAL_W; i += 4) drawPx(ctx, i, CORRIDOR_Y + 1, C.corridorLine);
-      // staircase: diagonal pixel steps
-      for (let i = 0; i < 12; i++) {
-        const sx = STAIR_X - 6 + i;
-        const sy = CORRIDOR_Y + CORRIDOR_H - 2 - i * (CORRIDOR_H / 12);
-        drawRect(ctx, sx, sy, 2, 2, C.gold);
-        drawPx(ctx, sx, sy + 2, C.goldDim);
+      // ===== Elevator =====
+      // Lovingly animated lift in the central shaft. The cabin tracks any figure
+      // currently traversing the vertical staircase column; otherwise it idles
+      // at whichever floor was last visited.
+      const SHAFT_W = 18;
+      const shaftX = STAIR_X - SHAFT_W / 2;
+      const shaftTop = CORRIDOR_Y - 4;            // peeks slightly into upper floor
+      const shaftBottom = CORRIDOR_Y + CORRIDOR_H + 2; // and into lower floor
+      const upperFloorY = roomFloorLineY(0);
+      const lowerFloorY = roomFloorLineY(1);
+
+      // 1) Shaft frame & rails
+      drawRect(ctx, shaftX - 1, shaftTop, SHAFT_W + 2, shaftBottom - shaftTop, "#0a0a14");
+      drawRect(ctx, shaftX, shaftTop, SHAFT_W, shaftBottom - shaftTop, "#141422");
+      // vertical guide rails (subtle gold)
+      drawRect(ctx, shaftX + 1, shaftTop, 1, shaftBottom - shaftTop, C.goldDim);
+      drawRect(ctx, shaftX + SHAFT_W - 2, shaftTop, 1, shaftBottom - shaftTop, C.goldDim);
+
+      // 2) Determine target cabin Y based on player vertical position
+      // (smooth follow — gives the lift a "lovely" easing motion)
+      // We track a moving cabin Y across frames using a ref-ish pattern via dataset.
+      const playerY = player.y;
+      // Snap target to one of the two floor lines depending on which half the player is in
+      const cabinTargetFloor = playerY < CORRIDOR_Y + CORRIDOR_H / 2 ? upperFloorY : lowerFloorY;
+      // Smooth interpolate using a stable global on the canvas element
+      const cv2 = canvasRef.current!;
+      const prevCabinY = parseFloat(cv2.dataset.cabinY ?? String(lowerFloorY));
+      const cabinY = prevCabinY + (cabinTargetFloor - prevCabinY) * 0.06; // gentle ease
+      cv2.dataset.cabinY = String(cabinY);
+      const moving = Math.abs(cabinTargetFloor - cabinY) > 0.6;
+
+      // 3) Cable from top of shaft to cabin
+      drawRect(ctx, STAIR_X, shaftTop, 1, Math.max(0, Math.round(cabinY - 14 - shaftTop)), "#3a3a4a");
+      // Cable wobble pixel when moving
+      if (moving) {
+        const wob = Math.sin(t / 60) > 0 ? 1 : -1;
+        drawPx(ctx, STAIR_X + wob, shaftTop + Math.floor((cabinY - shaftTop) / 2), "#5a5a6a");
       }
-      // stair rail neon — flicker between magenta tones
+
+      // 4) Cabin (16x16) — body, ceiling lamp, floor
+      const cabX = shaftX + 1;
+      const cabY = Math.round(cabinY) - 16;
+      drawRect(ctx, cabX, cabY, SHAFT_W - 2, 16, "#1d1d33");
+      drawRect(ctx, cabX + 1, cabY + 1, SHAFT_W - 4, 14, "#22223a");
+      // ceiling lamp — warm gold, soft pulse
+      const lampOn = ((Math.sin(t / 350) + 1) * 0.5) > 0.25;
+      drawRect(ctx, cabX + 5, cabY + 1, 6, 2, lampOn ? C.gold : C.goldDim);
+      drawPx(ctx, cabX + 7, cabY + 3, lampOn ? C.gold : C.goldDim);
+      drawPx(ctx, cabX + 8, cabY + 3, lampOn ? C.gold : C.goldDim);
+      // cabin floor strip
+      drawRect(ctx, cabX, cabY + 14, SHAFT_W - 2, 2, "#0a0a14");
+
+      // 5) Sliding doors — open when cabin is at a floor AND not moving; otherwise closed.
+      // Door open progress 0..1 with smooth ease.
+      const cabinAtFloor = !moving;
+      const prevDoor = parseFloat(cv2.dataset.doorOpen ?? "0");
+      const doorTarget = cabinAtFloor ? 1 : 0;
+      const doorOpen = prevDoor + (doorTarget - prevDoor) * 0.12;
+      cv2.dataset.doorOpen = String(doorOpen);
+      const halfDoor = Math.floor((SHAFT_W - 4) / 2);
+      const slide = Math.round(halfDoor * doorOpen);
+      // Left door
+      drawRect(ctx, cabX + 1, cabY + 3, halfDoor - slide, 11, "#2a2a45");
+      drawRect(ctx, cabX + 1 + halfDoor - slide - 1, cabY + 3, 1, 11, C.cyanDim);
+      // Right door
+      drawRect(ctx, cabX + 1 + halfDoor + slide, cabY + 3, halfDoor - slide, 11, "#2a2a45");
+      drawRect(ctx, cabX + 1 + halfDoor + slide, cabY + 3, 1, 11, C.cyanDim);
+      // Door seam light when fully open — magenta neon glow
+      if (doorOpen > 0.85) {
+        drawRect(ctx, cabX + 1 + halfDoor - slide, cabY + 13, 2 * slide, 1, C.magenta);
+      }
+
+      // 6) Floor indicator above the upper door — shows current floor + travel arrow
+      const indY = shaftTop - 1;
+      drawRect(ctx, shaftX + 4, indY, SHAFT_W - 8, 4, "#0a0a14");
+      // Floor digit (1 = upper, 2 = lower) — render as small pixel digit
+      const floorNum = cabinTargetFloor === upperFloorY ? 1 : 2;
+      // simple 3x3 pixel digit
+      const digitX = shaftX + 6;
+      const digitY = indY + 1;
+      const digitOn = lampOn ? C.amber : "#5a3a10";
+      if (floorNum === 1) {
+        drawPx(ctx, digitX + 1, digitY, digitOn);
+        drawPx(ctx, digitX + 1, digitY + 1, digitOn);
+        drawPx(ctx, digitX + 1, digitY + 2, digitOn);
+      } else {
+        drawPx(ctx, digitX, digitY, digitOn);
+        drawPx(ctx, digitX + 1, digitY, digitOn);
+        drawPx(ctx, digitX + 2, digitY, digitOn);
+        drawPx(ctx, digitX + 2, digitY + 1, digitOn);
+        drawPx(ctx, digitX + 1, digitY + 2, digitOn);
+        drawPx(ctx, digitX, digitY + 2, digitOn);
+        drawPx(ctx, digitX, digitY + 3, digitOn);
+        drawPx(ctx, digitX + 1, digitY + 3, digitOn);
+        drawPx(ctx, digitX + 2, digitY + 3, digitOn);
+      }
+      // Travel arrow — points up or down when moving, off when idle
+      const arrowX = shaftX + SHAFT_W - 5;
+      if (moving) {
+        const goingUp = cabinTargetFloor < cabinY;
+        const blink = (Math.floor(t / 220) % 2) === 0;
+        const aCol = blink ? C.green : C.greenDim;
+        if (goingUp) {
+          drawPx(ctx, arrowX + 1, digitY, aCol);
+          drawPx(ctx, arrowX, digitY + 1, aCol);
+          drawPx(ctx, arrowX + 1, digitY + 1, aCol);
+          drawPx(ctx, arrowX + 2, digitY + 1, aCol);
+          drawPx(ctx, arrowX + 1, digitY + 2, aCol);
+        } else {
+          drawPx(ctx, arrowX + 1, digitY + 1, aCol);
+          drawPx(ctx, arrowX, digitY + 2, aCol);
+          drawPx(ctx, arrowX + 1, digitY + 2, aCol);
+          drawPx(ctx, arrowX + 2, digitY + 2, aCol);
+          drawPx(ctx, arrowX + 1, digitY + 3, aCol);
+        }
+      } else {
+        drawPx(ctx, arrowX + 1, digitY + 1, "#3a3a4a");
+        drawPx(ctx, arrowX + 1, digitY + 2, "#3a3a4a");
+      }
+
+      // 7) Call buttons next to door at each floor (decorative — soft glow)
+      const callBlink = ((Math.sin(t / 280) + 1) * 0.5) > 0.55;
+      drawPx(ctx, shaftX - 2, upperFloorY - 6, callBlink ? C.cyan : C.cyanDim);
+      drawPx(ctx, shaftX + SHAFT_W + 1, lowerFloorY - 6, callBlink ? C.cyan : C.cyanDim);
+
+      // 8) Subtle neon side rails replacing old stair rail
       const railFlicker = (Math.floor(t / 80) % 17) === 0;
       const railCol = railFlicker ? C.magenta : C.magentaDim;
-      drawRect(ctx, STAIR_X - 8, CORRIDOR_Y + 4, 1, CORRIDOR_H - 8, railCol);
-      drawRect(ctx, STAIR_X + 6, CORRIDOR_Y + 4, 1, CORRIDOR_H - 8, railCol);
+      drawRect(ctx, shaftX - 3, CORRIDOR_Y + 4, 1, CORRIDOR_H - 8, railCol);
+      drawRect(ctx, shaftX + SHAFT_W + 2, CORRIDOR_Y + 4, 1, CORRIDOR_H - 8, railCol);
 
       // Ambient corridor "data motes" — small pixels drifting horizontally
       for (let m = 0; m < 6; m++) {
