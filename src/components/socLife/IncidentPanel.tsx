@@ -72,22 +72,35 @@ export function IncidentPanel({
   const pct = Math.max(0, Math.min(100, (timeLeftMs / step.timeLimitMs) * 100));
   const sec = Math.max(0, Math.ceil(timeLeftMs / 1000));
 
+  // Typewriter reveals: title first, then brief, then prompt.
+  // Each text restarts whenever the underlying string changes (new step / incident).
+  const titleText = incident.title[lang];
+  const briefText = incident.brief[lang];
+  const promptText = step.prompt[lang];
+  const typedTitle = useTypewriter(titleText, 22);
+  const typedBrief = useTypewriter(briefText, 16);
+  const typedPrompt = useTypewriter(promptText, 18);
+  const titleDone = typedTitle.length >= titleText.length;
+  const briefDone = typedBrief.length >= briefText.length;
+
   return (
-    <div className="rounded-lg border border-rose-500/40 bg-background/95 p-4 shadow-[0_0_0_1px_hsl(var(--destructive)/0.2)]">
-      <div className="mb-2 flex items-center justify-between font-mono text-[11px] uppercase tracking-wider">
-        <span className="text-rose-300">▲ {t("socLife.incomingIncident")}</span>
-        <span className="text-muted-foreground">{stepIndex + 1} / {totalSteps}</span>
+    <div className="rounded-lg border border-rose-500/40 bg-background/95 p-4 shadow-[0_0_0_1px_hsl(var(--destructive)/0.2)] max-w-full overflow-hidden">
+      <div className="mb-2 flex items-center justify-between gap-2 font-mono text-[11px] uppercase tracking-wider">
+        <span className="text-rose-300 truncate">▲ {t("socLife.incomingIncident")}</span>
+        <span className="text-muted-foreground shrink-0">{stepIndex + 1} / {totalSteps}</span>
       </div>
 
-      <h3 className="font-mono text-base sm:text-lg text-foreground">
-        {incident.title[lang]}
+      <h3 className="font-mono text-base sm:text-lg text-foreground break-words min-h-[1.5em]">
+        {typedTitle}
+        {!titleDone && <span className="ml-0.5 inline-block w-2 h-4 align-middle bg-rose-300 animate-pulse" />}
       </h3>
-      <p className="mb-3 text-xs sm:text-sm text-muted-foreground">
-        {incident.brief[lang]}
+      <p className="mb-3 text-xs sm:text-sm text-muted-foreground break-words min-h-[2.4em]">
+        {typedBrief}
+        {titleDone && !briefDone && <span className="ml-0.5 inline-block w-1.5 h-3 align-middle bg-muted-foreground animate-pulse" />}
       </p>
 
-      <div className="mb-2 flex flex-wrap items-center gap-3 text-[11px] font-mono uppercase tracking-wider">
-        <span className="text-muted-foreground">
+      <div className="mb-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] font-mono uppercase tracking-wider">
+        <span className="text-muted-foreground break-words">
           {t("socLife.incidentRoomHint")}:{" "}
           <span className={cn("ml-1", inRightRoom ? "text-emerald-400" : "text-cyan-300")}>
             {requiredRoom ? t(`socLife.rooms.${requiredRoom.i18n}.name`) : "—"}
@@ -106,10 +119,10 @@ export function IncidentPanel({
       </div>
 
       <div className="mb-2">
-        <div className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
+        <div className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground break-words">
           {step.title[lang]}
         </div>
-        <div className="text-sm text-foreground">{step.prompt[lang]}</div>
+        <div className="text-sm text-foreground break-words min-h-[1.4em]">{typedPrompt}</div>
       </div>
 
       {!inRightRoom && requiredRoom ? (
