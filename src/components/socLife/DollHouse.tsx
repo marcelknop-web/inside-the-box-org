@@ -92,36 +92,52 @@ interface FigState {
 }
 
 // Shared elevator state — both the walker and the renderer mutate / read it.
-// The cabin is the single source of truth for vertical movement: nobody
-// "teleports" through the floor, you must call the lift, wait, ride, and step out.
-type ElevatorPhase = "idle" | "moving" | "doors_open";
+// The cabin is the single source of truth for vertical movement. Nobody
+// "teleports" through the floor: you must call the lift, wait for the doors
+// to FULLY open, step in, wait for them to CLOSE, ride (with realistic mass
+// and acceleration), wait for them to open again, then step out.
+//
+// Physics: the cabin has actual velocity. It accelerates, cruises, then
+// decelerates with a clean ease-out. This makes a heavy cabin *feel* heavy:
+// you see it overcome inertia, gather speed, then slow down on approach.
+type ElevatorPhase =
+  | "idle"           // parked, doors open, no passenger, no call
+  | "doors_opening"  // just arrived, doors sliding open
+  | "doors_open"    // doors fully open, dwelling for boarding/exit
+  | "doors_closing" // received call to leave or got passenger, doors sliding shut
+  | "moving";        // cabin in transit between floors
+
 interface ElevatorState {
-  /** Current pixel Y of the cabin floor (where feet stand inside the cabin). */
+  /** Pixel Y of the cabin floor (where feet stand inside the cabin). */
   cabinY: number;
-  /** Floor the cabin is currently parked at OR moving toward. */
+  /** Pixel Y velocity of the cabin (px/ms). Positive = downward. */
+  cabinVy: number;
+  /** Floor the cabin is currently parked at (only updated when at-floor). */
   currentFloor: 0 | 1;
-  /** Floor the cabin should head to next (set by callLift). */
+  /** Floor the cabin should head to next (set by walker). */
   targetFloor: 0 | 1;
-  /** 0..1 — how open the doors are. */
+  /** 0..1 — how open the doors are (0 = closed, 1 = fully open). */
   doorOpen: number;
   phase: ElevatorPhase;
-  /** ms timestamp when current phase ends (used for door dwell). */
+  /** ms timestamp when current phase ends (used for dwell). */
   phaseUntil: number;
-  /** True while a passenger is riding — keeps doors closed during transit. */
+  /** True while a passenger is inside the cabin and committed to the ride. */
   occupied: boolean;
+  /** True while a passenger is currently boarding/exiting (hold doors open). */
+  boardingHold: boolean;
 }
 
-// X offsets the player uses to wait at / step into the cabin.
-// `boardX` is the doorway lane the figure aims for when waiting outside.
 function makeElevatorRef(initialFloor: 0 | 1): ElevatorState {
   return {
     cabinY: roomFloorLineY(initialFloor),
+    cabinVy: 0,
     currentFloor: initialFloor,
     targetFloor: initialFloor,
     doorOpen: 1,
     phase: "doors_open",
     phaseUntil: 0,
     occupied: false,
+    boardingHold: false,
   };
 }
 
