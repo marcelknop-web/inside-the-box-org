@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ROOMS, RoomId, NPCS, NpcId } from "@/data/socLifeData";
 import { useLanguage } from "@/i18n/LanguageContext";
+import { cn } from "@/lib/utils";
 
 interface DollHouseProps {
   current: RoomId;
