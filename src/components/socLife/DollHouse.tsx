@@ -1421,10 +1421,8 @@ export function DollHouse({ current, highlight, onMove, maxHeight, isNight = fal
         true,
       );
 
-      // Subtle "neon" sweep on the building outline (very faint, slow)
-      const sweepX = (t / 18) % (LOGICAL_W + 40) - 20;
-      ctx.fillStyle = "rgba(255,58,160,0.05)";
-      ctx.fillRect(sweepX, 0, 12, LOGICAL_H);
+      // (Removed: faint magenta "neon sweep" across the building outline —
+      // it produced an unmotivated coloured stripe drifting across the scene.)
 
       // ---- Day/night tint overlay (smooth ease toward target) ----
       const target = isNightRef.current ? 1 : 0;
