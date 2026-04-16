@@ -20,6 +20,27 @@ const TICK_MS = 250;
 const MIN_INCIDENT_GAP_MS = 18_000;
 const MAX_INCIDENT_GAP_MS = 38_000;
 
+// Progressive time pressure: the first few incidents give the player generous
+// thinking time, then each subsequent incident shortens the per-step deadline
+// until we hit a hard floor. This way newcomers aren't punished for reading,
+// but veterans still feel the heat as their shift wears on.
+//   incident #1 → 1.60×   (ample time to read brief, choose room, decide)
+//   incident #2 → 1.45×
+//   incident #3 → 1.30×
+//   incident #4 → 1.15×
+//   incident #5 → 1.00×   (designer-authored baseline)
+//   incident #6 → 0.90×
+//   incident #7 → 0.80×
+//   incident #8+ → 0.70×  (floor)
+// Absolute minimum per step: 8 seconds — never less, no matter the multiplier.
+const TIME_PRESSURE_CURVE = [1.6, 1.45, 1.3, 1.15, 1.0, 0.9, 0.8, 0.7];
+const MIN_STEP_TIME_MS = 8_000;
+function stepTimeFor(baseMs: number, incidentsCompleted: number): number {
+  const idx = Math.min(incidentsCompleted, TIME_PRESSURE_CURVE.length - 1);
+  const mult = TIME_PRESSURE_CURVE[idx];
+  return Math.max(MIN_STEP_TIME_MS, Math.round(baseMs * mult));
+}
+
 export default function SocLife() {
   const { t, language } = useLanguage();
   const audio = useSocLifeAudio();
