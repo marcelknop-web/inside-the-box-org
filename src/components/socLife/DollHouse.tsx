@@ -170,20 +170,27 @@ function useWalker(
 
   useEffect(() => {
     if (targetRoom === lastRoomRef.current) return;
-    const fromRow = ROOMS.find((r) => r.id === lastRoomRef.current)!.row;
     const toRoom = ROOMS.find((r) => r.id === targetRoom)!;
     const toX = roomCenterX(toRoom.col) + 8;
     const toY = roomFloorLineY(toRoom.row);
     finalTargetRef.current = { x: toX, y: toY, row: toRoom.row };
     lastRoomRef.current = targetRoom;
-    // Choose initial phase: same floor → walk straight there.
-    // Different floor → head for the lift first.
-    if (fromRow === toRoom.row) {
-      phaseRef.current = "walk_to_target";
-    } else {
-      phaseRef.current = "walk_to_lift";
-    }
-    setState((s) => ({ ...s, walking: true }));
+    // Choose initial phase based on the player's *actual current row*, not the
+    // last commanded room's row. This prevents the walker from getting stuck
+    // when a new destination is requested mid-traversal (e.g. while still
+    // walking on the lower floor toward the kitchen) — the previous logic
+    // computed `fromRow` from a stale `lastRoomRef`, which could leave the
+    // walker in a phase that no longer matched its real position.
+    setState((s) => {
+      // Determine which floor the player is *actually* standing on right now.
+      const actualRow: 0 | 1 = s.y < CORRIDOR_Y + CORRIDOR_H / 2 ? 0 : 1;
+      if (actualRow === toRoom.row) {
+        phaseRef.current = "walk_to_target";
+      } else {
+        phaseRef.current = "walk_to_lift";
+      }
+      return { ...s, walking: true };
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [targetRoom]);
 
