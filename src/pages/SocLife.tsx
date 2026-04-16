@@ -127,7 +127,7 @@ export default function SocLife() {
     }, TICK_MS);
     return () => window.clearInterval(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [started, paused, gameOver, activeIncident, reputation, stress, coffee]);
+  }, [started, paused, gameOver, activeIncident, reputation, stress, coffee, consequence]);
 
   function randIncidentDelay() {
     return MIN_INCIDENT_GAP_MS + Math.random() * (MAX_INCIDENT_GAP_MS - MIN_INCIDENT_GAP_MS);
@@ -139,6 +139,7 @@ export default function SocLife() {
     setActiveIncident(inc);
     setStepIdx(0);
     setStepTimeLeft(inc.steps[0].timeLimitMs);
+    setConsequence(null);
     nextIncidentAtRef.current = 0;
     audio.playSfx("incident_klaxon", 0.6);
     toast(t("socLife.incomingIncident"), {
@@ -151,6 +152,7 @@ export default function SocLife() {
     setActiveIncident(null);
     setStepIdx(0);
     setStepTimeLeft(0);
+    setConsequence(null);
     nextIncidentAtRef.current = Date.now() + randIncidentDelay();
     if (escalated) {
       audio.playSfx("escalation", 0.5);
@@ -171,25 +173,35 @@ export default function SocLife() {
   }
 
   const handleChoose = useCallback((optionId: string) => {
-    if (!activeIncident) return;
+    if (!activeIncident || consequence) return; // ignore clicks while overlay is up
     const step = activeIncident.steps[stepIdx];
     const opt = step.options.find((o) => o.id === optionId);
     if (!opt) return;
     if (step.requiredRoom && step.requiredRoom !== currentRoom) return;
 
+    // Apply effects immediately so meters react in real time, but DON'T advance
+    // the step yet — we want the player to read the consequence first.
+    const stressDelta = opt.correct ? -2 : +6;
     setReputation((r) => Math.max(0, Math.min(100, r + opt.delta)));
-    setStress((s) => Math.min(100, s + (opt.correct ? -2 : +6)));
+    setStress((s) => Math.min(100, Math.max(0, s + stressDelta)));
+    if (opt.correct) setScore((s) => s + 10);
 
-    if (opt.correct) {
-      setScore((s) => s + 10);
-      audio.playSfx("success_chime", 0.45);
-      toast.success(t("socLife.feedback.correct"), { duration: 1200 });
-    } else {
-      audio.playSfx("fail_buzz", 0.45);
-      toast.error(t("socLife.feedback.wrong"), { duration: 1200 });
-    }
+    audio.playSfx(opt.correct ? "success_chime" : "fail_buzz", 0.45);
 
+    setConsequence({
+      optionLabel: opt.label[language as "de" | "en" | "fr"],
+      correct: opt.correct,
+      repDelta: opt.delta,
+      stressDelta,
+    });
+  }, [activeIncident, stepIdx, currentRoom, audio, language, consequence]);
+
+  // Called when the player dismisses the consequence overlay — only now do we
+  // advance to the next step (or finish the incident).
+  const continueAfterConsequence = useCallback(() => {
+    if (!activeIncident) { setConsequence(null); return; }
     const nextIdx = stepIdx + 1;
+    setConsequence(null);
     if (nextIdx >= activeIncident.steps.length) {
       finishIncident(false);
     } else {
@@ -197,7 +209,7 @@ export default function SocLife() {
       const next: PlaybookStep = activeIncident.steps[nextIdx];
       setStepTimeLeft(next.timeLimitMs);
     }
-  }, [activeIncident, stepIdx, currentRoom, audio, t, finishIncident]);
+  }, [activeIncident, stepIdx, finishIncident]);
 
   const handleMove = useCallback((room: RoomId) => {
     setCurrentRoom(room);
