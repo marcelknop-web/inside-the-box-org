@@ -1567,9 +1567,9 @@ export function DollHouse({ current, highlight, onMove, maxHeight, isNight = fal
         {ROOMS.map((room) => {
           const isCurrent = room.id === current;
           const isHighlight = room.id === highlight;
-          const leftPct = (room.col * ROOM_W + 2) / LOGICAL_W * 100;
-          const topPct = (roomTopY(room.row) + 2) / LOGICAL_H * 100;
-          const widthPct = (ROOM_W - 4) / LOGICAL_W * 100;
+          const leftPct = (room.col * ROOM_W + 2) / DESIGN_W * 100;
+          const topPct = (roomTopY(room.row) + 2) / DESIGN_H * 100;
+          const widthPct = (ROOM_W - 4) / DESIGN_W * 100;
           return (
             <button
               key={room.id}
