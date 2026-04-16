@@ -508,6 +508,10 @@ export default function SocLife() {
           </div>
         )}
       </div>
+
+      {/* Skippable intro carousel — shown automatically on first visit, and on
+          demand via the "?" button on the welcome screen. */}
+      {showOnboarding && <Onboarding onClose={closeOnboarding} />}
     </div>
   );
 }
