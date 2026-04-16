@@ -8,7 +8,8 @@
  * generic text in special cases.
  */
 
-import type { Lang, PlaybookOption, PlaybookStep } from "@/data/socLifeData";
+import type { Incident, Lang, PlaybookOption, PlaybookStep } from "@/data/socLifeData";
+import { lookupReasonOverride } from "@/data/socLifeReasonOverrides";
 
 type Tier = "excellent" | "solid" | "risky" | "severe";
 
@@ -147,13 +148,23 @@ function tierOf(opt: PlaybookOption): Tier {
 
 /**
  * Public API: returns the localized rationale for a chosen option.
- * Per-option `reason` (if set on the data) wins over the generic bank.
+ *
+ * Resolution order (most specific wins):
+ *   1. inline `option.reason` on the data (rare, per-option overrides)
+ *   2. central per-option override map in socLifeReasonOverrides.ts
+ *      (covers all 15 incidents × ~3 steps × ~3 options with tailored,
+ *      domain-correct rationales)
+ *   3. generic tier+phase fallback bank (only kicks in if a new option
+ *      gets added without an entry in the override map)
  */
 export function reasonFor(
+  incident: Incident,
   step: PlaybookStep,
   option: PlaybookOption,
   lang: Lang,
 ): string {
   if (option.reason && option.reason[lang]) return option.reason[lang];
+  const override = lookupReasonOverride(incident.id, step.id, option.id, lang);
+  if (override) return override;
   return REASONS[tierOf(option)][phaseOf(step.id)][lang];
 }
