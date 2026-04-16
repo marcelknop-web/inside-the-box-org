@@ -13,6 +13,7 @@ const EliteShipScene = lazy(() => import("./pages/EliteShipScene"));
 const TtxAdmin = lazy(() => import("./pages/TtxAdmin"));
 const ItsmTool = lazy(() => import("./pages/ItsmTool"));
 const ItsmDevTool = lazy(() => import("./pages/ItsmDevTool"));
+const SocLife = lazy(() => import("./pages/SocLife"));
 
 const queryClient = new QueryClient();
 
@@ -33,6 +34,7 @@ const App = () => (
               <Route path="/ttx-admin" element={<Suspense fallback={null}><TtxAdmin /></Suspense>} />
               <Route path="/itsm" element={<Suspense fallback={null}><ItsmTool /></Suspense>} />
               <Route path="/itsm-dev" element={<Suspense fallback={null}><ItsmDevTool /></Suspense>} />
+              <Route path="/soc-life" element={<Suspense fallback={null}><SocLife /></Suspense>} />
               <Route path="/:serviceId" element={<ChatView />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
