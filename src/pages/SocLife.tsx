@@ -272,6 +272,13 @@ export default function SocLife() {
     refillBag();
     nextIncidentAtRef.current = Date.now() + 6_000;
     audio.setMusicMode("calm");
+    // First-time visitors see the intro right after starting their shift,
+    // so they actually know what they're about to do.
+    try {
+      if (!window.localStorage.getItem("socLife.onboarded")) {
+        setShowOnboarding(true);
+      }
+    } catch { /* ignore */ }
   };
 
   const restart = () => startShift();
