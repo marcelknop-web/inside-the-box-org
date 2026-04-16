@@ -29,8 +29,18 @@ interface DollHouseProps {
  */
 
 // --- Logical pixel grid ---
-const LOGICAL_W = 256;
-const LOGICAL_H = 144;
+// We render at 2× the original 256×144 grid so every existing 1-px detail can
+// now be drawn with sub-pixel precision (effectively giving us 2× the detail
+// budget). Geometry constants and the render code keep using the original
+// 256×144 coordinate space — a single ctx.scale(2,2) at the top of each frame
+// promotes every "1 logical px" to a crisp 2×2 pixel block on the actual
+// canvas. Sprite & furniture renderers can then opt in to half-step details
+// by drawing at 0.5 offsets where it matters.
+const LOGICAL_W = 512;
+const LOGICAL_H = 288;
+const RENDER_SCALE = 2; // canvas is rendered at 2× the legacy logical grid
+// Legacy "design grid" coordinates — keep using these everywhere; the
+// ctx.scale(RENDER_SCALE) at draw time maps them to the higher-density canvas.
 const ROOM_W = 64;          // 4 rooms × 64 = 256
 const ROOM_H = 60;          // upper room incl. floor
 const CORRIDOR_H = 24;      // middle corridor with stairs
@@ -46,6 +56,8 @@ function roomCenterX(col: 0 | 1 | 2 | 3) {
 }
 const CORRIDOR_Y = ROOM_H;
 const STAIR_X = ROOM_W * 2; // staircase between col 1 and col 2
+const DESIGN_W = 256;
+const DESIGN_H = 144;
 
 // --- Palette (PICO-8 inspired but tuned to brand: gold/cyan/magenta) ---
 const C = {
