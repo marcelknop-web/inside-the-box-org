@@ -14,6 +14,7 @@ import { IncidentPanel } from "@/components/socLife/IncidentPanel";
 import { RoomActions, IdleAction } from "@/components/socLife/RoomActions";
 import { ConsequenceOverlay, ConsequenceData } from "@/components/socLife/ConsequenceOverlay";
 import { Onboarding } from "@/components/socLife/Onboarding";
+import { reasonFor } from "@/data/socLifeReasons";
 
 const TICK_MS = 250;
 const MIN_INCIDENT_GAP_MS = 18_000;
@@ -205,6 +206,7 @@ export default function SocLife() {
       correct: opt.correct,
       repDelta: opt.delta,
       stressDelta,
+      reason: reasonFor(step, opt, language as "de" | "en" | "fr"),
     });
   }, [activeIncident, stepIdx, currentRoom, audio, language, consequence]);
 

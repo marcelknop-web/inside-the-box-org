@@ -1325,6 +1325,7 @@ export const de = {
     consequence: {
       yourCall: 'Deine Entscheidung',
       verdict: 'Bewertung',
+      rationale: 'Begründung',
       impact: 'Auswirkung',
       reputation: 'Reputation',
       stress: 'Stress',

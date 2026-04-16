@@ -58,6 +58,9 @@ export interface PlaybookOption {
   correct: boolean;
   /** Reputation delta if chosen */
   delta: number;
+  /** Optional: explicit per-option rationale shown in the consequence overlay.
+   *  If omitted, a generic, tier+phase-based reason is generated automatically. */
+  reason?: LocaleStr;
 }
 
 export interface PlaybookStep {
