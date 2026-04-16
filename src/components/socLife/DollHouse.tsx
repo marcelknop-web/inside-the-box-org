@@ -9,6 +9,8 @@ interface DollHouseProps {
   onMove: (room: RoomId) => void;
   /** Max display height in CSS pixels. Used to compute integer pixel scale. */
   maxHeight?: number;
+  /** When true, the house gets a cool-blue night tint overlay. */
+  isNight?: boolean;
 }
 
 /**
