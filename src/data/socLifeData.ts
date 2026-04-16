@@ -103,7 +103,7 @@ const PHISHING: Incident = {
       ],
     },
     {
-      id: "contain", requiredRoom: "soc_floor", timeLimitMs: 25_000,
+      id: "contain", requiredRoom: "noc", timeLimitMs: 25_000,
       title: L("Eindämmung", "Contain", "Confinement"),
       prompt: L("Wie eindämmen?", "How do you contain?", "Comment confiner ?"),
       options: [
@@ -275,7 +275,7 @@ const BEC: Incident = {
       ],
     },
     {
-      id: "stop_payment", requiredRoom: "soc_floor", timeLimitMs: 18_000,
+      id: "stop_payment", requiredRoom: "war_room", timeLimitMs: 18_000,
       title: L("Zahlung stoppen", "Stop payment", "Stopper le paiement"),
       prompt: L("Wie stoppen?", "How do you stop it?", "Comment stopper ?"),
       options: [
@@ -482,7 +482,7 @@ const EXFIL: Incident = {
     {
       id: "scope", requiredRoom: "siem", timeLimitMs: 20_000,
       title: L("Scope", "Scope", "Périmètre"),
-      prompt: L("Wie cadrieren?", "How do you scope?", "Comment cadrer ?"),
+      prompt: L("Wie eingrenzen?", "How do you scope?", "Comment cadrer ?"),
       options: [
         { id: "proxy_dlp", correct: true,  delta: +6, label: L("Proxy- + DLP-Logs korrelieren, Datentyp + Volumen klassifizieren", "Correlate proxy + DLP logs, classify data type + volume", "Corréler logs proxy + DLP, classifier type & volume") },
         { id: "block_first",correct: false, delta: -3, label: L("Erst Cloud-Domain blocken, dann analysieren", "Block the cloud domain first, then analyse", "Bloquer le domaine cloud d'abord, puis analyser") },
