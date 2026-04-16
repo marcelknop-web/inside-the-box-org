@@ -383,7 +383,8 @@ export default function SocLife() {
     setStepIdx(0);
     setConsequence(null);
     setCurrentRoom("soc_floor");
-    refillBag();
+    recentIncidentIdsRef.current = [];
+    lastCategoryRef.current = null;
     nextIncidentAtRef.current = Date.now() + 6_000;
     audio.setMusicMode("calm");
     // First-time visitors see the intro right after starting their shift,
