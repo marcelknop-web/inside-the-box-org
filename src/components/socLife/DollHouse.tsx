@@ -828,15 +828,32 @@ export function DollHouse({ current, highlight, onMove, maxHeight, isNight = fal
 
       // NPCs — natural behavior: stand still most of the time, occasionally
       // walk a few steps to a new spot in the room, then stand again.
-      // No more triangle-wave pacing (which looked like jitter).
+      // When an incident touches their home room they rush to their workstation
+      // and type frantically until the alert clears.
       const npcPositions: Partial<Record<NpcId, { x: number; y: number }>> = {};
-      const WALK_SPEED = 22; // logical px/s — calm office pace
+      const WALK_SPEED = 22;        // px/s — calm office pace
+      const RUSH_SPEED = 70;        // px/s — hectic when alerted
+      // Per-room workstation X offset (relative to room left edge).
+      // Picked so the NPC stands right next to a desk / rack / monitor.
+      const WORKSTATION_OFFSET: Record<RoomId, number> = {
+        soc_floor:   12,   // left desk in SOC bullpen
+        siem:        20,   // in front of the video wall
+        forensics:   18,   // forensic bench
+        noc:         52,   // NOC desk on the right
+        server_room: 12,   // first rack
+        war_room:    32,   // wall screen
+        ciso_office: 18,   // CISO desk
+        kitchen:     16,   // coffee machine
+      };
+
       NPCS.forEach((npc, idx) => {
         const r = ROOMS.find((x) => x.id === npc.homeRoom)!;
         const baseX = r.col * ROOM_W;
         const minX = baseX + 6;
         const maxX = baseX + ROOM_W - 14;
         const span = Math.max(16, maxX - minX);
+        const workstationX = Math.max(minX, Math.min(maxX, baseX + WORKSTATION_OFFSET[npc.homeRoom]));
+        const isAlerted = alertRoomRef.current === npc.homeRoom;
 
         // Initialize per-NPC state on first frame
         let st = npcStatesRef.current[npc.id];
@@ -854,15 +871,38 @@ export function DollHouse({ current, highlight, onMove, maxHeight, isNight = fal
           npcStatesRef.current[npc.id] = st;
         }
 
-        // Phase transitions
-        if (t >= st.phaseUntil) {
+        // === Alert override ===
+        // If their room is hot and they aren't already at the workstation,
+        // force a rush-to-desk. If they're there, lock them into "work" mode.
+        if (isAlerted) {
+          const distToWs = Math.abs(st.x - workstationX);
+          if (distToWs > 1.2) {
+            // (Re)target the workstation if not already heading there
+            if (st.phase !== "walk" || Math.abs(st.targetX - workstationX) > 0.5) {
+              st.targetX = workstationX;
+              st.phase = "walk";
+              st.facing = workstationX > st.x ? 1 : -1;
+              st.phaseUntil = t + 30_000;
+            }
+          } else if (st.phase !== "work") {
+            st.x = workstationX;
+            st.phase = "work";
+            st.facing = 1; // face the desk/screen
+            st.phaseUntil = t + 60_000; // refresh while alert lasts
+          }
+        } else if (st.phase === "work") {
+          // Alert just cleared — relax back into idle wandering
+          st.phase = "idle";
+          st.phaseUntil = t + 1200 + Math.random() * 2000;
+        }
+
+        // Phase transitions (only when not under alert lock)
+        if (!isAlerted && t >= st.phaseUntil) {
           if (st.phase === "idle") {
-            // Decide on a new walking target — short hop most of the time,
-            // occasionally a longer stroll across the room.
             const longTrip = Math.random() < 0.25;
             const stepDist = longTrip
-              ? 16 + Math.random() * (span - 16)   // 16-span px
-              : 8 + Math.random() * 14;            // 8-22 px
+              ? 16 + Math.random() * (span - 16)
+              : 8 + Math.random() * 14;
             const dir = Math.random() < 0.5 ? -1 : 1;
             let target = st.x + dir * stepDist;
             if (target < minX) target = st.x + stepDist;
@@ -871,10 +911,8 @@ export function DollHouse({ current, highlight, onMove, maxHeight, isNight = fal
             st.targetX = target;
             st.phase = "walk";
             st.facing = target > st.x ? 1 : -1;
-            // Walk phase ends when we arrive (we'll detect that below)
-            st.phaseUntil = t + 30_000; // safety timeout
-          } else {
-            // Just finished walking — stand for 3-9 seconds
+            st.phaseUntil = t + 30_000;
+          } else if (st.phase === "walk") {
             st.phase = "idle";
             st.phaseUntil = t + 3000 + Math.random() * 6000;
           }
@@ -886,12 +924,19 @@ export function DollHouse({ current, highlight, onMove, maxHeight, isNight = fal
           const dx = st.targetX - st.x;
           const adx = Math.abs(dx);
           if (adx < 0.6) {
-            // Arrived
             st.x = st.targetX;
-            st.phase = "idle";
-            st.phaseUntil = t + 3000 + Math.random() * 6000;
+            // If we just arrived at the workstation under alert, snap to work
+            if (isAlerted && Math.abs(st.x - workstationX) < 1.2) {
+              st.phase = "work";
+              st.facing = 1;
+              st.phaseUntil = t + 60_000;
+            } else {
+              st.phase = "idle";
+              st.phaseUntil = t + 3000 + Math.random() * 6000;
+            }
           } else {
-            const step = WALK_SPEED * (1 / 60); // assume ~60fps step
+            const speed = isAlerted ? RUSH_SPEED : WALK_SPEED;
+            const step = speed * (1 / 60);
             st.x += Math.sign(dx) * Math.min(step, adx);
             st.facing = dx > 0 ? 1 : -1;
             walkingNow = true;
@@ -901,13 +946,35 @@ export function DollHouse({ current, highlight, onMove, maxHeight, isNight = fal
         const x = Math.round(st.x);
         const y = roomFloorLineY(r.row);
         const look = NPC_LOOK[npc.id];
-        const movingFrame = walkingNow ? Math.floor(t / 130) % 4 : 0;
+        // Walking gait: faster cadence when rushing
+        const movingFrame = walkingNow
+          ? Math.floor(t / (isAlerted ? 80 : 130)) % 4
+          : 0;
+        // While "working", flicker a tiny typing animation in arms by toggling
+        // the frame (drawFigure swings arms based on frame parity).
+        const typingFrame = st.phase === "work" ? (Math.floor(t / 90) % 4) : movingFrame;
+        const showAsWalking = walkingNow || st.phase === "work";
         npcPositions[npc.id] = { x, y };
         drawFigure(
           ctx, x, y,
-          st.facing, walkingNow, movingFrame,
+          st.facing, showAsWalking, typingFrame,
           look.shirt, look.pants, look.skin, look.hair,
         );
+
+        // Workstation visual cues during "work" phase: keyboard tap sparks +
+        // a small red exclamation badge above their head so the player can see
+        // which NPC is on it.
+        if (st.phase === "work") {
+          // Tap spark on the desk (roughly where the keyboard sits)
+          if ((Math.floor(t / 70) % 2) === 0) {
+            drawPx(ctx, x + 1, y - 2, C.amber);
+            drawPx(ctx, x + 2, y - 2, C.gold);
+          }
+          // Blinking red alert dot above the head
+          const blink = (Math.floor(t / 240) % 2) === 0;
+          drawPx(ctx, x, y - 20, blink ? C.red : C.redDim);
+          drawPx(ctx, x + 1, y - 20, blink ? C.red : C.redDim);
+        }
       });
 
       // ---- Visitor state machine ----------------------------------------
