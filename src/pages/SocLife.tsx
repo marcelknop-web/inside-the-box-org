@@ -187,7 +187,7 @@ export default function SocLife() {
     const inc = incidentBagRef.current.shift()!;
     setActiveIncident(inc);
     setStepIdx(0);
-    setStepTimeLeft(inc.steps[0].timeLimitMs);
+    setStepTimeLeft(stepTimeFor(inc.steps[0].timeLimitMs, incidentsCompleted));
     setConsequence(null);
     nextIncidentAtRef.current = 0;
     audio.playSfx("incident_klaxon", 0.6);
@@ -195,7 +195,7 @@ export default function SocLife() {
       description: inc.title[language as "de" | "en" | "fr"],
       duration: 2200,
     });
-  }, [audio, t, refillBag, language]);
+  }, [audio, t, refillBag, language, incidentsCompleted]);
 
   const finishIncident = useCallback((escalated: boolean) => {
     setActiveIncident(null);
@@ -203,6 +203,8 @@ export default function SocLife() {
     setStepTimeLeft(0);
     setConsequence(null);
     nextIncidentAtRef.current = Date.now() + randIncidentDelay();
+    // Bump the completed-counter so the *next* incident uses a tighter deadline.
+    setIncidentsCompleted((n) => n + 1);
     if (escalated) {
       audio.playSfx("escalation", 0.5);
       toast.error(t("socLife.incidentEscalated"), { duration: 1800 });
@@ -261,9 +263,9 @@ export default function SocLife() {
     } else {
       setStepIdx(nextIdx);
       const next: PlaybookStep = activeIncident.steps[nextIdx];
-      setStepTimeLeft(next.timeLimitMs);
+      setStepTimeLeft(stepTimeFor(next.timeLimitMs, incidentsCompleted));
     }
-  }, [activeIncident, stepIdx, finishIncident]);
+  }, [activeIncident, stepIdx, finishIncident, incidentsCompleted]);
 
   const handleMove = useCallback((room: RoomId) => {
     setCurrentRoom(room);
@@ -308,6 +310,7 @@ export default function SocLife() {
     setCoffee(60);
     setScore(0);
     setShiftSec(0);
+    setIncidentsCompleted(0);
     setActiveIncident(null);
     setStepIdx(0);
     setConsequence(null);
