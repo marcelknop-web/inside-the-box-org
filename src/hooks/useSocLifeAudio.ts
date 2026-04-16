@@ -28,6 +28,8 @@ export function useSocLifeAudio() {
   const stepIndexRef = useRef(0);
   const modeRef = useRef<MusicMode>("calm");
   const enabledRef = useRef(false);
+  // Track the music bus' "non-pumped" base gain so the sidechain duck can recover to it.
+  const musicBaseGainRef = useRef(0.45);
   const [enabled, setEnabledState] = useState(false);
 
   // ---------- Init ----------
