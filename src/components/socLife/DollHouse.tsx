@@ -519,19 +519,35 @@ export function DollHouse({ current, highlight, onMove, maxHeight }: DollHousePr
         drawRect(ctx, sx, sy, 2, 2, C.gold);
         drawPx(ctx, sx, sy + 2, C.goldDim);
       }
-      // stair rail neon
-      drawRect(ctx, STAIR_X - 8, CORRIDOR_Y + 4, 1, CORRIDOR_H - 8, C.magentaDim);
-      drawRect(ctx, STAIR_X + 6, CORRIDOR_Y + 4, 1, CORRIDOR_H - 8, C.magentaDim);
+      // stair rail neon — flicker between magenta tones
+      const railFlicker = (Math.floor(t / 80) % 17) === 0;
+      const railCol = railFlicker ? C.magenta : C.magentaDim;
+      drawRect(ctx, STAIR_X - 8, CORRIDOR_Y + 4, 1, CORRIDOR_H - 8, railCol);
+      drawRect(ctx, STAIR_X + 6, CORRIDOR_Y + 4, 1, CORRIDOR_H - 8, railCol);
+
+      // Ambient corridor "data motes" — small pixels drifting horizontally
+      for (let m = 0; m < 6; m++) {
+        const phase = (t / 40 + m * 43) % (LOGICAL_W + 16);
+        const mx = phase - 8;
+        const my = CORRIDOR_Y + 4 + ((m * 5) % (CORRIDOR_H - 8));
+        const col = m % 2 === 0 ? C.cyan : C.magenta;
+        drawPx(ctx, mx, my, col);
+      }
 
       // Highlight ring around required incident room
       if (highlight) {
         const r = ROOMS.find((x) => x.id === highlight)!;
         const x = r.col * ROOM_W;
         const y = roomTopY(r.row);
-        const blink = (Math.floor(t / 250) % 2) === 0;
+        const blink = (Math.floor(t / 200) % 2) === 0;
         ctx.strokeStyle = blink ? C.cyan : C.cyanDim;
         ctx.lineWidth = 1;
         ctx.strokeRect(x + 0.5, y + 0.5, ROOM_W - 1, ROOM_H - 1);
+        // pulsing inner glow band
+        const a = 0.08 + 0.07 * (1 + Math.sin(t / 220));
+        ctx.fillStyle = `rgba(0,188,212,${a.toFixed(3)})`;
+        ctx.fillRect(x + 1, y + 1, ROOM_W - 2, 2);
+        ctx.fillRect(x + 1, y + ROOM_H - 5, ROOM_W - 2, 2);
       }
 
       // Current room marker (subtle gold inset)
@@ -542,17 +558,43 @@ export function DollHouse({ current, highlight, onMove, maxHeight }: DollHousePr
       ctx.lineWidth = 1;
       ctx.strokeRect(cx + 0.5, cy + 0.5, ROOM_W - 1, ROOM_H - 1);
 
-      // NPCs
-      NPCS.forEach((npc) => {
+      // Occasional spark in server / NOC rooms (visual life)
+      const sparkRoom = ((Math.floor(t / 1700)) % 2 === 0) ? "server_room" : "noc";
+      if ((Math.floor(t / 60) % 28) === 0) {
+        const r = ROOMS.find((x) => x.id === sparkRoom)!;
+        const sx = r.col * ROOM_W + 8 + ((Math.floor(t / 60)) % 40);
+        const sy = roomTopY(r.row) + 12 + ((Math.floor(t / 60)) % 16);
+        drawPx(ctx, sx, sy, C.amber);
+        drawPx(ctx, sx + 1, sy, C.gold);
+        drawPx(ctx, sx, sy + 1, C.gold);
+      }
+
+      // NPCs — wander left/right within their room at floor level.
+      // Each NPC has its own phase + speed so motion feels organic but bounded.
+      NPCS.forEach((npc, idx) => {
         const r = ROOMS.find((x) => x.id === npc.homeRoom)!;
-        const offset = npc.id === "ciso" || npc.id === "sysadmin" ? -16 : -10;
-        const x = roomCenterX(r.col) + offset;
+        const baseX = r.col * ROOM_W;
+        const minX = baseX + 8;
+        const maxX = baseX + ROOM_W - 12;
+        const span = maxX - minX;
+        // slow oscillation, offset per NPC
+        const speed = 0.00035 + idx * 0.00007; // very gentle
+        const phase = idx * 1.7;
+        const tri = Math.abs(((t * speed + phase) % 2) - 1); // 0..1 triangle wave
+        const x = Math.round(minX + tri * span);
+        const facing: 1 | -1 = ((t * speed + phase) % 2) < 1 ? 1 : -1;
         const y = roomFloorLineY(r.row);
         const look = NPC_LOOK[npc.id];
-        // gentle bob
-        const bob = Math.round(Math.sin(t / 600 + r.col) * 0.5);
-        drawFigure(ctx, x, y + bob, 1, false, 0,
-          look.shirt, look.pants, look.skin, look.hair);
+        // walking only when actually moving (avoid pose-spam during pause moments)
+        const movingFrame = Math.floor(t / 160) % 4;
+        // small idle pause every ~5s
+        const idle = (Math.floor((t + idx * 1300) / 5000) % 4) === 0;
+        const bob = idle ? Math.round(Math.sin(t / 500 + idx) * 0.5) : 0;
+        drawFigure(
+          ctx, x, y + bob,
+          facing, !idle, movingFrame,
+          look.shirt, look.pants, look.skin, look.hair,
+        );
       });
 
       // Player figure (gold)
@@ -561,6 +603,11 @@ export function DollHouse({ current, highlight, onMove, maxHeight }: DollHousePr
         C.gold, "#0a0a14", "#e8c0a0", "#3a2014",
         true,
       );
+
+      // Subtle "neon" sweep on the building outline (very faint, slow)
+      const sweepX = (t / 18) % (LOGICAL_W + 40) - 20;
+      ctx.fillStyle = "rgba(255,58,160,0.05)";
+      ctx.fillRect(sweepX, 0, 12, LOGICAL_H);
 
       // (Room labels rendered as HTML overlay below for crisp readability)
 
