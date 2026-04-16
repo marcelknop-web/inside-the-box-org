@@ -1,7 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, ComponentType } from "react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import {
+  FloorplanPreview, MetersPreview, IncidentPreview, ConsequencePreview,
+} from "./OnboardingPreviews";
 
 interface OnboardingProps {
   onClose: () => void;
@@ -39,24 +42,24 @@ export function Onboarding({ onClose }: OnboardingProps) {
     return () => window.removeEventListener("keydown", onKey);
   }, [isLast, onClose]);
 
-  const slides = [
+  const slides: { Preview: ComponentType<{ className?: string }>; title: string; body: string }[] = [
     {
-      icon: "▦",
+      Preview: FloorplanPreview,
       title: t("socLife.onboarding.s1Title"),
       body:  t("socLife.onboarding.s1Body"),
     },
     {
-      icon: "■",
+      Preview: MetersPreview,
       title: t("socLife.onboarding.s2Title"),
       body:  t("socLife.onboarding.s2Body"),
     },
     {
-      icon: "▲",
+      Preview: IncidentPreview,
       title: t("socLife.onboarding.s3Title"),
       body:  t("socLife.onboarding.s3Body"),
     },
     {
-      icon: "✓",
+      Preview: ConsequencePreview,
       title: t("socLife.onboarding.s4Title"),
       body:  t("socLife.onboarding.s4Body"),
     },
@@ -80,10 +83,10 @@ export function Onboarding({ onClose }: OnboardingProps) {
           </button>
         </div>
 
-        {/* Slide content */}
-        <div className="mb-5 min-h-[150px]">
-          <div className="mb-3 font-mono text-3xl text-primary leading-none">
-            {slide.icon}
+        {/* Slide content: animated SVG preview + title + body */}
+        <div className="mb-5">
+          <div className="mb-3 rounded-md border border-border/40 bg-background/60 p-2">
+            <slide.Preview />
           </div>
           <h3 className="mb-2 font-mono text-lg sm:text-xl text-foreground leading-tight">
             {slide.title}
