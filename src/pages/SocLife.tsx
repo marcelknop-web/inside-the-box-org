@@ -49,8 +49,7 @@ export default function SocLife() {
   // ----- Sound: switch loops based on status -----
   useEffect(() => {
     if (!started || !audio.enabled) return;
-    if (activeIncident) audio.switchMusic("alert_loop");
-    else audio.switchMusic("ambient_loop");
+    audio.setMusicMode(activeIncident ? "alert" : "calm");
   }, [activeIncident, started, audio]);
 
   // ----- Main game tick -----
@@ -216,9 +215,7 @@ export default function SocLife() {
     setActiveIncident(null);
     setStepIdx(0);
     nextIncidentAtRef.current = Date.now() + 6_000;
-    // Kick off audio in background (lazy fetch)
-    audio.ensureMusic("ambient_loop");
-    audio.prewarm();
+    audio.setMusicMode("calm");
   };
 
   const restart = () => startShift();

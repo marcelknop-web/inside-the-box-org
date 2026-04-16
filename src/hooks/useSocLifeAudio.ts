@@ -1,5 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+
+/**
+ * 80s Berlin-underground chiptune engine, fully Web-Audio (no network).
+ * - Calm loop: hypnotic 4/4 acid-bass + dub chord, soft kick, hat
+ * - Alert loop: tighter, distorted kick, faster hat, dissonant stab
+ * - SFX: incident klaxon, success chime, fail buzz, footstep, click, escalation
+ *
+ * Designed to feel like a Berlin warehouse C64-techno hybrid.
+ */
 
 export type SfxKey =
   | "incident_klaxon"
@@ -9,165 +17,309 @@ export type SfxKey =
   | "click_ui"
   | "escalation";
 
-export type MusicKey = "ambient_loop" | "alert_loop";
-
-const DB_NAME = "soc-life-audio";
-const DB_STORE = "clips";
-const DB_VERSION = 1;
-
-function openDb(): Promise<IDBDatabase> {
-  return new Promise((resolve, reject) => {
-    const req = indexedDB.open(DB_NAME, DB_VERSION);
-    req.onupgradeneeded = () => {
-      const db = req.result;
-      if (!db.objectStoreNames.contains(DB_STORE)) db.createObjectStore(DB_STORE);
-    };
-    req.onsuccess = () => resolve(req.result);
-    req.onerror = () => reject(req.error);
-  });
-}
-
-async function dbGet(key: string): Promise<Blob | null> {
-  try {
-    const db = await openDb();
-    return await new Promise((resolve) => {
-      const tx = db.transaction(DB_STORE, "readonly");
-      const req = tx.objectStore(DB_STORE).get(key);
-      req.onsuccess = () => resolve((req.result as Blob) ?? null);
-      req.onerror = () => resolve(null);
-    });
-  } catch {
-    return null;
-  }
-}
-
-async function dbPut(key: string, blob: Blob): Promise<void> {
-  try {
-    const db = await openDb();
-    await new Promise<void>((resolve) => {
-      const tx = db.transaction(DB_STORE, "readwrite");
-      tx.objectStore(DB_STORE).put(blob, key);
-      tx.oncomplete = () => resolve();
-      tx.onerror = () => resolve();
-    });
-  } catch {
-    /* noop */
-  }
-}
-
-async function fetchClip(preset: string): Promise<Blob | null> {
-  const cached = await dbGet(preset);
-  if (cached) return cached;
-  try {
-    const { data, error } = await supabase.functions.invoke("soc-life-audio", {
-      body: { preset },
-    });
-    if (error || !data?.audio) return null;
-    const bytes = Uint8Array.from(atob(data.audio), (c) => c.charCodeAt(0));
-    const blob = new Blob([bytes], { type: data.mime || "audio/mpeg" });
-    await dbPut(preset, blob);
-    return blob;
-  } catch {
-    return null;
-  }
-}
+export type MusicMode = "calm" | "alert";
 
 export function useSocLifeAudio() {
-  const musicElRef = useRef<HTMLAudioElement | null>(null);
-  const currentMusicRef = useRef<MusicKey | null>(null);
-  const sfxCacheRef = useRef<Map<SfxKey, string>>(new Map());
+  const ctxRef = useRef<AudioContext | null>(null);
+  const masterRef = useRef<GainNode | null>(null);
+  const musicGainRef = useRef<GainNode | null>(null);
+  const sfxGainRef = useRef<GainNode | null>(null);
+  const stepHandleRef = useRef<number | null>(null);
+  const stepIndexRef = useRef(0);
+  const modeRef = useRef<MusicMode>("calm");
   const enabledRef = useRef(false);
   const [enabled, setEnabledState] = useState(false);
-  const [musicReady, setMusicReady] = useState(false);
 
-  useEffect(() => {
-    return () => {
-      if (musicElRef.current) {
-        musicElRef.current.pause();
-        musicElRef.current.src = "";
-      }
-      sfxCacheRef.current.forEach((url) => URL.revokeObjectURL(url));
-      sfxCacheRef.current.clear();
-    };
+  // ---------- Init ----------
+  const ensureCtx = useCallback(() => {
+    if (!ctxRef.current) {
+      const Ctx: typeof AudioContext =
+        (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext);
+      const ctx = new Ctx();
+      const master = ctx.createGain(); master.gain.value = 0.6; master.connect(ctx.destination);
+      const music = ctx.createGain(); music.gain.value = 0.45; music.connect(master);
+      const sfx = ctx.createGain(); sfx.gain.value = 0.7; sfx.connect(master);
+      ctxRef.current = ctx;
+      masterRef.current = master;
+      musicGainRef.current = music;
+      sfxGainRef.current = sfx;
+    }
+    if (ctxRef.current.state === "suspended") ctxRef.current.resume();
+    return ctxRef.current;
   }, []);
 
+  // ---------- Voice helpers ----------
+  function pulseBuffer(ctx: AudioContext, freq: number, duty: number, length: number): AudioBuffer {
+    const sr = ctx.sampleRate;
+    const len = Math.floor(sr * length);
+    const buf = ctx.createBuffer(1, len, sr);
+    const data = buf.getChannelData(0);
+    const period = sr / freq;
+    const high = period * duty;
+    for (let i = 0; i < len; i++) {
+      const phase = i % period;
+      data[i] = phase < high ? 0.5 : -0.5;
+    }
+    return buf;
+  }
+
+  function noiseBurst(ctx: AudioContext, dur: number, dest: AudioNode, gain = 0.2, hp = 4000) {
+    const sr = ctx.sampleRate;
+    const len = Math.floor(sr * dur);
+    const buf = ctx.createBuffer(1, len, sr);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1);
+    const src = ctx.createBufferSource(); src.buffer = buf;
+    const filt = ctx.createBiquadFilter(); filt.type = "highpass"; filt.frequency.value = hp;
+    const g = ctx.createGain();
+    const now = ctx.currentTime;
+    g.gain.setValueAtTime(gain, now);
+    g.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+    src.connect(filt); filt.connect(g); g.connect(dest);
+    src.start(now); src.stop(now + dur);
+  }
+
+  // Acid-bass voice (sawtooth + LP filter with envelope) — the soul of Berlin techno
+  function acidNote(ctx: AudioContext, dest: AudioNode, freq: number, dur: number, accent = false) {
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    osc.type = "sawtooth";
+    osc.frequency.setValueAtTime(freq, now);
+    const filt = ctx.createBiquadFilter();
+    filt.type = "lowpass";
+    filt.Q.value = accent ? 18 : 12;
+    const cutoffPeak = accent ? 2400 : 1400;
+    const cutoffBase = 240;
+    filt.frequency.setValueAtTime(cutoffPeak, now);
+    filt.frequency.exponentialRampToValueAtTime(cutoffBase, now + dur);
+    const g = ctx.createGain();
+    const peak = accent ? 0.34 : 0.22;
+    g.gain.setValueAtTime(0, now);
+    g.gain.linearRampToValueAtTime(peak, now + 0.005);
+    g.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+    osc.connect(filt); filt.connect(g); g.connect(dest);
+    osc.start(now); osc.stop(now + dur + 0.05);
+  }
+
+  // Kick: sine pitch-drop + tiny click
+  function kick(ctx: AudioContext, dest: AudioNode, hard = false) {
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(hard ? 150 : 110, now);
+    osc.frequency.exponentialRampToValueAtTime(40, now + 0.12);
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(hard ? 0.95 : 0.7, now);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+    osc.connect(g); g.connect(dest);
+    osc.start(now); osc.stop(now + 0.25);
+    // click
+    noiseBurst(ctx, 0.012, dest, hard ? 0.18 : 0.1, 2000);
+  }
+
+  // Hi-hat: short high-passed noise
+  function hat(ctx: AudioContext, dest: AudioNode, open = false) {
+    noiseBurst(ctx, open ? 0.12 : 0.04, dest, open ? 0.12 : 0.18, 7000);
+  }
+
+  // Dub stab — single short chord
+  function stab(ctx: AudioContext, dest: AudioNode, freq: number, alert = false) {
+    const now = ctx.currentTime;
+    const intervals = alert ? [1, 1.18, 1.5] : [1, 1.25, 1.5]; // dissonant when alert
+    intervals.forEach((mul, i) => {
+      const o = ctx.createOscillator();
+      o.type = "square";
+      o.frequency.value = freq * mul;
+      const filt = ctx.createBiquadFilter();
+      filt.type = "lowpass"; filt.frequency.value = alert ? 2200 : 1600; filt.Q.value = 4;
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0, now);
+      g.gain.linearRampToValueAtTime(0.05, now + 0.01);
+      g.gain.exponentialRampToValueAtTime(0.0001, now + 0.18);
+      o.connect(filt); filt.connect(g); g.connect(dest);
+      o.start(now); o.stop(now + 0.22);
+      void i;
+    });
+  }
+
+  // ---------- Sequencer ----------
+  // 16-step pattern; 130 BPM. Each step = 60 / 130 / 4 sec ≈ 0.115 s
+  const STEP_MS = (60_000 / 130) / 4; // 16ths
+
+  function tickStep(ctx: AudioContext, music: GainNode) {
+    const i = stepIndexRef.current % 16;
+    const mode = modeRef.current;
+    const alert = mode === "alert";
+
+    // Kick on 1, 5, 9, 13 (4-on-the-floor)
+    if (i % 4 === 0) kick(ctx, music, alert);
+    // Hat on every off-beat
+    if (i % 2 === 1) hat(ctx, music, alert && i === 7);
+    // Open hat on 7
+    if (i === 7) hat(ctx, music, true);
+
+    // Acid-bass pattern (A minor): A2, A2, E2, G2, A2, C3, E2, A2 across two bars
+    const calmBass = [110, 0, 0, 110, 82, 0, 98, 0, 110, 0, 130, 0, 82, 0, 0, 110];
+    const alertBass = [110, 110, 65, 0, 110, 130, 65, 0, 110, 110, 73, 0, 110, 130, 65, 65];
+    const pat = alert ? alertBass : calmBass;
+    const f = pat[i];
+    if (f) acidNote(ctx, music, f, alert ? 0.18 : 0.22, alert ? (i % 4 === 0) : (i === 11));
+
+    // Dub stab on bar 2 step 8 (calm) or step 12 (alert)
+    if (mode === "calm" && i === 8) stab(ctx, music, 220);
+    if (mode === "alert" && (i === 4 || i === 12)) stab(ctx, music, 196, true);
+  }
+
+  const startSequencer = useCallback(() => {
+    const ctx = ensureCtx();
+    const music = musicGainRef.current!;
+    if (stepHandleRef.current != null) return;
+    stepIndexRef.current = 0;
+    const step = () => {
+      if (!enabledRef.current) return;
+      try { tickStep(ctx, music); } catch { /* noop */ }
+      stepIndexRef.current = (stepIndexRef.current + 1) % 16;
+      stepHandleRef.current = window.setTimeout(step, STEP_MS);
+    };
+    step();
+  }, [ensureCtx]);
+
+  const stopSequencer = useCallback(() => {
+    if (stepHandleRef.current != null) {
+      clearTimeout(stepHandleRef.current);
+      stepHandleRef.current = null;
+    }
+  }, []);
+
+  // ---------- Public API ----------
   const setEnabled = useCallback((v: boolean) => {
     enabledRef.current = v;
     setEnabledState(v);
-    if (!v && musicElRef.current) musicElRef.current.pause();
-    else if (v && musicElRef.current && musicElRef.current.src) {
-      musicElRef.current.play().catch(() => {});
+    if (v) {
+      ensureCtx();
+      // fade in music
+      const g = musicGainRef.current!;
+      const ctx = ctxRef.current!;
+      g.gain.cancelScheduledValues(ctx.currentTime);
+      g.gain.setValueAtTime(0.0001, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.45, ctx.currentTime + 1.2);
+      startSequencer();
+    } else {
+      const g = musicGainRef.current;
+      const ctx = ctxRef.current;
+      if (g && ctx) {
+        g.gain.cancelScheduledValues(ctx.currentTime);
+        g.gain.setValueAtTime(g.gain.value, ctx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.4);
+      }
+      window.setTimeout(() => stopSequencer(), 500);
     }
+  }, [ensureCtx, startSequencer, stopSequencer]);
+
+  const setMusicMode = useCallback((mode: MusicMode) => {
+    if (modeRef.current === mode) return;
+    modeRef.current = mode;
+    // gentle volume duck on transition for impact
+    const g = musicGainRef.current;
+    const ctx = ctxRef.current;
+    if (!g || !ctx || !enabledRef.current) return;
+    const target = mode === "alert" ? 0.55 : 0.45;
+    g.gain.cancelScheduledValues(ctx.currentTime);
+    g.gain.setValueAtTime(g.gain.value, ctx.currentTime);
+    g.gain.linearRampToValueAtTime(0.15, ctx.currentTime + 0.08);
+    g.gain.linearRampToValueAtTime(target, ctx.currentTime + 0.5);
   }, []);
 
-  const ensureMusic = useCallback(async (key: MusicKey) => {
-    if (currentMusicRef.current === key && musicElRef.current?.src) return;
-    const blob = await fetchClip(key);
-    if (!blob) return;
-    if (!musicElRef.current) {
-      const el = new Audio();
-      el.loop = true;
-      el.volume = 0.35;
-      musicElRef.current = el;
-    }
-    const oldSrc = musicElRef.current.src;
-    musicElRef.current.src = URL.createObjectURL(blob);
-    if (oldSrc) URL.revokeObjectURL(oldSrc);
-    currentMusicRef.current = key;
-    setMusicReady(true);
-    if (enabledRef.current) {
-      musicElRef.current.play().catch(() => {});
-    }
-  }, []);
-
-  const switchMusic = useCallback(async (key: MusicKey) => {
-    if (currentMusicRef.current === key) return;
-    // Crossfade-ish: lower vol, swap, raise
-    const el = musicElRef.current;
-    if (el && enabledRef.current) {
-      const start = el.volume;
-      const steps = 8;
-      for (let i = 0; i < steps; i++) {
-        el.volume = Math.max(0, start * (1 - i / steps));
-        await new Promise((r) => setTimeout(r, 30));
-      }
-    }
-    await ensureMusic(key);
-    if (musicElRef.current && enabledRef.current) {
-      const el2 = musicElRef.current;
-      el2.volume = 0;
-      el2.play().catch(() => {});
-      const target = 0.35;
-      for (let i = 0; i < 12; i++) {
-        el2.volume = Math.min(target, (target * (i + 1)) / 12);
-        await new Promise((r) => setTimeout(r, 40));
-      }
-    }
-  }, [ensureMusic]);
-
-  const playSfx = useCallback(async (key: SfxKey, volume = 0.5) => {
+  const playSfx = useCallback((key: SfxKey, volume = 0.7) => {
     if (!enabledRef.current) return;
-    let url = sfxCacheRef.current.get(key);
-    if (!url) {
-      const blob = await fetchClip(key);
-      if (!blob) return;
-      url = URL.createObjectURL(blob);
-      sfxCacheRef.current.set(key, url);
-    }
-    const a = new Audio(url);
-    a.volume = volume;
-    a.play().catch(() => {});
-  }, []);
+    const ctx = ensureCtx();
+    const dest = sfxGainRef.current!;
+    const now = ctx.currentTime;
+    const g = ctx.createGain(); g.gain.value = volume; g.connect(dest);
 
-  // Preload commonly used sfx in background once enabled
-  const prewarm = useCallback(async () => {
-    const keys: SfxKey[] = ["click_ui", "incident_klaxon", "success_chime", "fail_buzz"];
-    for (const k of keys) {
-      if (sfxCacheRef.current.has(k)) continue;
-      const blob = await fetchClip(k);
-      if (blob) sfxCacheRef.current.set(k, URL.createObjectURL(blob));
+    switch (key) {
+      case "incident_klaxon": {
+        // Two descending square notes
+        [880, 660].forEach((f, i) => {
+          const o = ctx.createOscillator(); o.type = "square"; o.frequency.value = f;
+          const og = ctx.createGain();
+          og.gain.setValueAtTime(0, now + i * 0.15);
+          og.gain.linearRampToValueAtTime(0.4, now + i * 0.15 + 0.01);
+          og.gain.exponentialRampToValueAtTime(0.001, now + i * 0.15 + 0.25);
+          o.connect(og); og.connect(g);
+          o.start(now + i * 0.15); o.stop(now + i * 0.15 + 0.3);
+        });
+        break;
+      }
+      case "success_chime": {
+        // Two ascending square tones — C5, G5
+        [523, 784].forEach((f, i) => {
+          const o = ctx.createOscillator(); o.type = "square"; o.frequency.value = f;
+          const og = ctx.createGain();
+          og.gain.setValueAtTime(0, now + i * 0.1);
+          og.gain.linearRampToValueAtTime(0.3, now + i * 0.1 + 0.01);
+          og.gain.exponentialRampToValueAtTime(0.001, now + i * 0.1 + 0.18);
+          o.connect(og); og.connect(g);
+          o.start(now + i * 0.1); o.stop(now + i * 0.1 + 0.2);
+        });
+        break;
+      }
+      case "fail_buzz": {
+        const o = ctx.createOscillator(); o.type = "sawtooth"; o.frequency.value = 110;
+        const filt = ctx.createBiquadFilter(); filt.type = "lowpass"; filt.frequency.value = 600;
+        const og = ctx.createGain();
+        og.gain.setValueAtTime(0.4, now);
+        og.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+        o.connect(filt); filt.connect(og); og.connect(g);
+        o.start(now); o.stop(now + 0.4);
+        break;
+      }
+      case "footstep": {
+        noiseBurst(ctx, 0.06, g, 0.18, 1500);
+        break;
+      }
+      case "click_ui": {
+        const o = ctx.createOscillator(); o.type = "square"; o.frequency.value = 1400;
+        const og = ctx.createGain();
+        og.gain.setValueAtTime(0.18, now);
+        og.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+        o.connect(og); og.connect(g);
+        o.start(now); o.stop(now + 0.06);
+        break;
+      }
+      case "escalation": {
+        // Riser sweep + impact
+        const o = ctx.createOscillator(); o.type = "sawtooth"; o.frequency.value = 200;
+        o.frequency.exponentialRampToValueAtTime(1500, now + 1.5);
+        const filt = ctx.createBiquadFilter(); filt.type = "lowpass"; filt.frequency.value = 800;
+        filt.frequency.exponentialRampToValueAtTime(3000, now + 1.5);
+        const og = ctx.createGain();
+        og.gain.setValueAtTime(0, now);
+        og.gain.linearRampToValueAtTime(0.3, now + 1.4);
+        og.gain.exponentialRampToValueAtTime(0.001, now + 2.0);
+        o.connect(filt); filt.connect(og); og.connect(g);
+        o.start(now); o.stop(now + 2.0);
+        // impact at end
+        const k = ctx.createOscillator(); k.type = "sine"; k.frequency.setValueAtTime(120, now + 1.45);
+        k.frequency.exponentialRampToValueAtTime(35, now + 1.95);
+        const kg = ctx.createGain();
+        kg.gain.setValueAtTime(0.6, now + 1.45);
+        kg.gain.exponentialRampToValueAtTime(0.001, now + 2.1);
+        k.connect(kg); kg.connect(g);
+        k.start(now + 1.45); k.stop(now + 2.15);
+        break;
+      }
     }
-  }, []);
+  }, [ensureCtx]);
 
-  return { enabled, setEnabled, musicReady, ensureMusic, switchMusic, playSfx, prewarm };
+  // Cleanup
+  useEffect(() => {
+    return () => {
+      stopSequencer();
+      const ctx = ctxRef.current;
+      if (ctx) ctx.close().catch(() => {});
+    };
+  }, [stopSequencer]);
+
+  return { enabled, setEnabled, setMusicMode, playSfx };
 }
