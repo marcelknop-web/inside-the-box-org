@@ -1485,16 +1485,16 @@ export function DollHouse({ current, highlight, onMove, maxHeight, isNight = fal
       if (tint > 0.01) {
         // cool moonlight blue, multiply-style on dark scene via additive overlay
         ctx.fillStyle = `rgba(40,90,180,${(0.22 * tint).toFixed(3)})`;
-        ctx.fillRect(0, 0, LOGICAL_W, LOGICAL_H);
+        ctx.fillRect(0, 0, DESIGN_W, DESIGN_H);
         // subtle vignette darkening at edges
         ctx.fillStyle = `rgba(6,10,28,${(0.18 * tint).toFixed(3)})`;
-        ctx.fillRect(0, 0, LOGICAL_W, 6);
-        ctx.fillRect(0, LOGICAL_H - 6, LOGICAL_W, 6);
-        ctx.fillRect(0, 0, 4, LOGICAL_H);
-        ctx.fillRect(LOGICAL_W - 4, 0, 4, LOGICAL_H);
+        ctx.fillRect(0, 0, DESIGN_W, 6);
+        ctx.fillRect(0, DESIGN_H - 6, DESIGN_W, 6);
+        ctx.fillRect(0, 0, 4, DESIGN_H);
+        ctx.fillRect(DESIGN_W - 4, 0, 4, DESIGN_H);
         // a few "stars" in the building's dark trim (top strip)
         for (let s = 0; s < 5; s++) {
-          const sx = ((s * 53 + Math.floor(t / 2000) * 17) % (LOGICAL_W - 4)) + 2;
+          const sx = ((s * 53 + Math.floor(t / 2000) * 17) % (DESIGN_W - 4)) + 2;
           const twinkle = (Math.floor(t / 280 + s) % 5) === 0 ? C.white : "rgba(232,232,240,0.5)";
           drawPx(ctx, sx, 2 + (s % 2), twinkle);
         }
