@@ -383,9 +383,19 @@ export default function SocLife() {
             <p className="mb-5 font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
               {t("socLife.audioHint")}
             </p>
-            <Button size="lg" onClick={startShift} className="font-mono">
-              ▶ {t("socLife.start")}
-            </Button>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button size="lg" onClick={startShift} className="font-mono">
+                ▶ {t("socLife.start")}
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={() => setShowOnboarding(true)}
+                className="font-mono"
+              >
+                ? {t("socLife.onboarding.showAgain")}
+              </Button>
+            </div>
           </section>
         )}
 
