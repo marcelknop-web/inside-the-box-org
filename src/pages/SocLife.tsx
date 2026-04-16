@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useSocLifeAudio } from "@/hooks/useSocLifeAudio";
 import {
-  Incident, INCIDENTS, INCIDENT_TYPES, IncidentType, PlaybookStep,
+  Incident, INCIDENTS, PlaybookStep,
   ROOMS, RoomId,
 } from "@/data/socLifeData";
 import { DollHouse } from "@/components/socLife/DollHouse";
@@ -18,7 +18,7 @@ const MIN_INCIDENT_GAP_MS = 18_000;
 const MAX_INCIDENT_GAP_MS = 38_000;
 
 export default function SocLife() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const audio = useSocLifeAudio();
 
   const [started, setStarted] = useState(false);
@@ -36,6 +36,18 @@ export default function SocLife() {
   const [stepIdx, setStepIdx] = useState(0);
   const [stepTimeLeft, setStepTimeLeft] = useState(0);
   const nextIncidentAtRef = useRef<number>(0);
+  // Shuffle-bag: each of the 10 scenarios appears once per cycle, then reshuffles.
+  const incidentBagRef = useRef<Incident[]>([]);
+
+  const refillBag = useCallback(() => {
+    const arr = [...INCIDENTS];
+    // Fisher-Yates
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    incidentBagRef.current = arr;
+  }, []);
 
   const isNight = useMemo(() => {
     // 6 minutes day / 4 minutes night cycle for variety
@@ -107,17 +119,17 @@ export default function SocLife() {
   }
 
   const spawnIncident = useCallback(() => {
-    const type: IncidentType = INCIDENT_TYPES[Math.floor(Math.random() * INCIDENT_TYPES.length)];
-    const inc = INCIDENTS[type];
+    if (incidentBagRef.current.length === 0) refillBag();
+    const inc = incidentBagRef.current.shift()!;
     setActiveIncident(inc);
     setStepIdx(0);
     setStepTimeLeft(inc.steps[0].timeLimitMs);
     nextIncidentAtRef.current = 0;
     audio.playSfx("incident_klaxon", 0.6);
     toast(t("socLife.incomingIncident"), {
-      description: t(`socLife.incidents.${inc.i18nBase}.title`),
+      description: inc.title[language as "de" | "en" | "fr"],
     });
-  }, [audio, t]);
+  }, [audio, t, refillBag, language]);
 
   const finishIncident = useCallback((escalated: boolean) => {
     setActiveIncident(null);
@@ -214,6 +226,7 @@ export default function SocLife() {
     setShiftSec(0);
     setActiveIncident(null);
     setStepIdx(0);
+    refillBag();
     nextIncidentAtRef.current = Date.now() + 6_000;
     audio.setMusicMode("calm");
   };
@@ -280,7 +293,7 @@ export default function SocLife() {
         )}
 
         {started && (
-          <div className="relative flex-1 grid grid-cols-1 gap-3 lg:grid-cols-[1fr_300px] min-h-0">
+          <div className="flex-1 grid grid-cols-1 gap-3 lg:grid-cols-[1fr_320px] min-h-0">
             <div className="flex flex-col gap-3 min-h-0">
               <SocMeters
                 reputation={reputation} stress={stress} coffee={coffee}
@@ -305,13 +318,9 @@ export default function SocLife() {
               )}
             </div>
 
+            {/* Right sidebar: Incident takes priority over idle actions */}
             <aside className="min-h-0 overflow-y-auto">
-              <RoomActions currentRoom={currentRoom} onIdleAction={handleIdle} />
-            </aside>
-
-            {/* Incident as floating overlay so it never pushes layout */}
-            {activeIncident && (
-              <div className="absolute inset-x-0 bottom-0 z-20 lg:right-[312px] lg:left-0 max-h-[55%] overflow-y-auto rounded-lg backdrop-blur-sm">
+              {activeIncident ? (
                 <IncidentPanel
                   incident={activeIncident}
                   step={activeIncident.steps[stepIdx]}
@@ -321,8 +330,10 @@ export default function SocLife() {
                   timeLeftMs={stepTimeLeft}
                   onChoose={handleChoose}
                 />
-              </div>
-            )}
+              ) : (
+                <RoomActions currentRoom={currentRoom} onIdleAction={handleIdle} />
+              )}
+            </aside>
           </div>
         )}
       </div>
