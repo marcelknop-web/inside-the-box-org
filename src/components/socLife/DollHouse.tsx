@@ -963,11 +963,11 @@ export function DollHouse({ current, highlight, onMove, maxHeight, isNight = fal
       });
 
       // Corridor strip
-      drawRect(ctx, 0, CORRIDOR_Y, LOGICAL_W, CORRIDOR_H, C.corridor);
+      drawRect(ctx, 0, CORRIDOR_Y, DESIGN_W, CORRIDOR_H, C.corridor);
       // floor of corridor
-      drawRect(ctx, 0, CORRIDOR_Y + CORRIDOR_H - 2, LOGICAL_W, 2, "#1a0e22");
+      drawRect(ctx, 0, CORRIDOR_Y + CORRIDOR_H - 2, DESIGN_W, 2, "#1a0e22");
       // dotted ceiling line
-      for (let i = 0; i < LOGICAL_W; i += 4) drawPx(ctx, i, CORRIDOR_Y + 1, C.corridorLine);
+      for (let i = 0; i < DESIGN_W; i += 4) drawPx(ctx, i, CORRIDOR_Y + 1, C.corridorLine);
       // ===== Elevator =====
       // Lovingly animated lift in the central shaft. The cabin tracks any figure
       // currently traversing the vertical staircase column; otherwise it idles
