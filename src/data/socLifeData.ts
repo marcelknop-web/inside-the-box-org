@@ -72,12 +72,31 @@ export interface PlaybookStep {
   timeLimitMs: number;
 }
 
+/** Difficulty tier — drives the spawn curve in SocLife.tsx so the shift
+ *  starts gentle and ramps up. `comic` = light-relief breather episodes. */
+export type IncidentTier = "easy" | "medium" | "hard" | "comic";
+
+/** Coarse subject category — used to avoid two thematically identical
+ *  incidents back-to-back, which felt monotonous. */
+export type IncidentCategory =
+  | "email"      // phishing, BEC
+  | "endpoint"   // ransomware, LSASS, lateral
+  | "network"    // DDoS, C2, exfil
+  | "identity"   // insider
+  | "vuln"       // 0-day, supply chain
+  | "governance" // auditor / DPO / compliance / fire drill
+  ;
+
 export interface Incident {
   id: string;
   title: LocaleStr;
   brief: LocaleStr;
   initialDelayMs: number;
   steps: PlaybookStep[];
+  /** Difficulty tier. Defaults to "medium" if omitted. */
+  tier?: IncidentTier;
+  /** Subject category. Used to avoid topic repetition. */
+  category?: IncidentCategory;
 }
 
 // Helper to keep entries terse
