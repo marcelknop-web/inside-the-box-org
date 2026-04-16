@@ -9,6 +9,8 @@ interface DollHouseProps {
   onMove: (room: RoomId) => void;
   /** Max display height in CSS pixels. Used to compute integer pixel scale. */
   maxHeight?: number;
+  /** When true, the house gets a cool-blue night tint overlay. */
+  isNight?: boolean;
 }
 
 /**
@@ -450,7 +452,7 @@ function renderRoom(ctx: CanvasRenderingContext2D, room: RoomId, x: number, y: n
   }
 }
 
-export function DollHouse({ current, highlight, onMove, maxHeight }: DollHouseProps) {
+export function DollHouse({ current, highlight, onMove, maxHeight, isNight = false }: DollHouseProps) {
   const { t } = useLanguage();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const wrapRef = useRef<HTMLDivElement | null>(null);
@@ -478,6 +480,12 @@ export function DollHouse({ current, highlight, onMove, maxHeight }: DollHousePr
   }, []); // initial only
 
   const player = useWalker(current, playerInitial);
+
+  // Track isNight in a ref so the rAF loop sees latest value without
+  // re-binding (and we can smoothly interpolate the tint strength).
+  const isNightRef = useRef(isNight);
+  isNightRef.current = isNight;
+  const tintRef = useRef(isNight ? 1 : 0); // 0 = day, 1 = night
 
   // Animation loop
   useEffect(() => {
@@ -608,6 +616,29 @@ export function DollHouse({ current, highlight, onMove, maxHeight }: DollHousePr
       const sweepX = (t / 18) % (LOGICAL_W + 40) - 20;
       ctx.fillStyle = "rgba(255,58,160,0.05)";
       ctx.fillRect(sweepX, 0, 12, LOGICAL_H);
+
+      // ---- Day/night tint overlay (smooth ease toward target) ----
+      const target = isNightRef.current ? 1 : 0;
+      // ~1s fade at 60fps: step ~0.016 per frame
+      tintRef.current += (target - tintRef.current) * 0.04;
+      const tint = tintRef.current;
+      if (tint > 0.01) {
+        // cool moonlight blue, multiply-style on dark scene via additive overlay
+        ctx.fillStyle = `rgba(40,90,180,${(0.22 * tint).toFixed(3)})`;
+        ctx.fillRect(0, 0, LOGICAL_W, LOGICAL_H);
+        // subtle vignette darkening at edges
+        ctx.fillStyle = `rgba(6,10,28,${(0.18 * tint).toFixed(3)})`;
+        ctx.fillRect(0, 0, LOGICAL_W, 6);
+        ctx.fillRect(0, LOGICAL_H - 6, LOGICAL_W, 6);
+        ctx.fillRect(0, 0, 4, LOGICAL_H);
+        ctx.fillRect(LOGICAL_W - 4, 0, 4, LOGICAL_H);
+        // a few "stars" in the building's dark trim (top strip)
+        for (let s = 0; s < 5; s++) {
+          const sx = ((s * 53 + Math.floor(t / 2000) * 17) % (LOGICAL_W - 4)) + 2;
+          const twinkle = (Math.floor(t / 280 + s) % 5) === 0 ? C.white : "rgba(232,232,240,0.5)";
+          drawPx(ctx, sx, 2 + (s % 2), twinkle);
+        }
+      }
 
       // (Room labels rendered as HTML overlay below for crisp readability)
 
