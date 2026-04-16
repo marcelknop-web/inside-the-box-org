@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { useSocLifeAudio } from "@/hooks/useSocLifeAudio";
 import {
   Incident, INCIDENTS, PlaybookStep,
-  ROOMS, RoomId,
+  ROOMS, RoomId, COMIC_INCIDENT_IDS,
 } from "@/data/socLifeData";
 import { DollHouse } from "@/components/socLife/DollHouse";
 import { SocMeters } from "@/components/socLife/SocMeters";
@@ -58,10 +58,14 @@ export default function SocLife() {
   const status: "calm" | "oncall" | "incident" =
     activeIncident ? "incident" : (isNight ? "oncall" : "calm");
 
-  // ----- Sound: switch loops based on status -----
+  // ----- Sound: switch loops based on status (incl. comic-relief "audit" mode) -----
   useEffect(() => {
     if (!started || !audio.enabled) return;
-    audio.setMusicMode(activeIncident ? "alert" : "calm");
+    if (activeIncident) {
+      audio.setMusicMode(COMIC_INCIDENT_IDS.has(activeIncident.id) ? "audit" : "alert");
+    } else {
+      audio.setMusicMode("calm");
+    }
   }, [activeIncident, started, audio]);
 
   // ----- Main game tick -----
