@@ -1174,17 +1174,17 @@ export function DollHouse({ current, highlight, onMove, maxHeight, isNight = fal
       }
 
       // Current room marker (subtle gold inset)
-      // (Removed: random sparks in server / NOC rooms — they appeared at
-      // arbitrary coordinates and read as visual noise rather than a signal.
-      // Server/rack/NOC LEDs already convey activity in a structured way.)
       const cur = ROOMS.find((x) => x.id === current)!;
-        const r = ROOMS.find((x) => x.id === sparkRoom)!;
-        const sx = r.col * ROOM_W + 8 + ((Math.floor(t / 60)) % 40);
-        const sy = roomTopY(r.row) + 12 + ((Math.floor(t / 60)) % 16);
-        drawPx(ctx, sx, sy, C.amber);
-        drawPx(ctx, sx + 1, sy, C.gold);
-        drawPx(ctx, sx, sy + 1, C.gold);
-      }
+      const cx = cur.col * ROOM_W;
+      const cy = roomTopY(cur.row);
+      ctx.strokeStyle = "rgba(245,184,0,0.45)";
+      ctx.lineWidth = 1;
+      ctx.strokeRect(cx + 0.5, cy + 0.5, ROOM_W - 1, ROOM_H - 1);
+
+      // (Removed: random "sparks" in server / NOC rooms — they appeared at
+      // arbitrary coordinates and read as colour noise rather than as a
+      // meaningful signal. Server racks and NOC switches already convey
+      // activity through their structured, per-port LEDs.)
 
       // NPCs — natural behavior: stand still most of the time, occasionally
       // walk a few steps to a new spot in the room, then stand again.
