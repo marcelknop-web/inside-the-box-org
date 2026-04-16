@@ -1337,6 +1337,7 @@ export const de = {
       solid:     'Vertretbar — geht aber besser.',
       risky:     'Riskant. Spürbarer Schaden.',
       severe:    'Schwerer Fehler. Vorfall eskaliert.',
+      bestAnswer: 'Beste Antwort wäre gewesen',
     },
     onboarding: {
       tag: 'Kurzeinführung',
