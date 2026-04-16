@@ -13,15 +13,18 @@ interface MetersProps {
 
 function Meter({ label, value, color }: { label: string; value: number; color: string }) {
   const v = Math.max(0, Math.min(100, value));
+  // Mobile: compact 3-letter label, no numeric readout (saves vertical+horizontal space).
+  const short = label.slice(0, 3);
   return (
-    <div className="flex items-center gap-2 min-w-0">
-      <span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground w-14 shrink-0">
-        {label}
+    <div className="flex items-center gap-1.5 min-w-0">
+      <span className="font-mono text-[9px] sm:text-[10px] uppercase tracking-wider text-muted-foreground shrink-0 w-8 sm:w-14">
+        <span className="sm:hidden">{short}</span>
+        <span className="hidden sm:inline">{label}</span>
       </span>
-      <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-background/60 min-w-[40px]">
+      <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-background/60 min-w-[30px]">
         <div className={cn("h-full transition-all", color)} style={{ width: `${v}%` }} />
       </div>
-      <span className="font-mono text-[10px] tabular-nums text-foreground/70 w-7 text-right">
+      <span className="hidden sm:inline font-mono text-[10px] tabular-nums text-foreground/70 w-7 text-right">
         {Math.round(v)}
       </span>
     </div>
@@ -42,9 +45,25 @@ export function SocMeters({ reputation, stress, coffee, score, shift, isNight, s
     "text-rose-400 animate-pulse";
 
   return (
-    <div className="rounded-lg border border-border/40 bg-background/40 px-3 py-2">
-      <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
-        {/* Status block */}
+    <div className="rounded-lg border border-border/40 bg-background/40 px-2 py-1.5 sm:px-3 sm:py-2">
+      {/* Mobile: single row — status + 3 mini meters + score. No wrap. */}
+      <div className="flex items-center gap-2 sm:hidden">
+        <span className={cn("font-mono text-[10px] uppercase tracking-wider shrink-0", statusColor)}>
+          ●
+        </span>
+        <span className="font-mono text-[10px] tabular-nums text-muted-foreground shrink-0">
+          {mins}:{secs}
+        </span>
+        <div className="flex-1 grid grid-cols-3 gap-1.5 min-w-0">
+          <Meter label={t("socLife.meterReputation")} value={reputation} color="bg-primary" />
+          <Meter label={t("socLife.meterStress")} value={stress} color={stress > 70 ? "bg-rose-500" : "bg-amber-400"} />
+          <Meter label={t("socLife.meterCoffee")} value={coffee} color="bg-cyan-400" />
+        </div>
+        <span className="font-mono text-sm tabular-nums text-primary shrink-0">{score}</span>
+      </div>
+
+      {/* Desktop / tablet: original layout with full labels and numbers. */}
+      <div className="hidden sm:flex flex-wrap items-center gap-x-5 gap-y-2">
         <div className="flex items-center gap-3 shrink-0">
           <span className={cn("font-mono text-[11px] uppercase tracking-wider", statusColor)}>
             ● {statusLabel}
@@ -53,15 +72,11 @@ export function SocMeters({ reputation, stress, coffee, score, shift, isNight, s
             {mins}:{secs} · {isNight ? t("socLife.night") : t("socLife.day")}
           </span>
         </div>
-
-        {/* Meters in one line */}
-        <div className="flex-1 grid grid-cols-1 gap-1.5 min-w-[220px] sm:grid-cols-3 sm:gap-3">
+        <div className="flex-1 grid grid-cols-3 gap-3 min-w-[220px]">
           <Meter label={t("socLife.meterReputation")} value={reputation} color="bg-primary" />
           <Meter label={t("socLife.meterStress")} value={stress} color={stress > 70 ? "bg-rose-500" : "bg-amber-400"} />
           <Meter label={t("socLife.meterCoffee")} value={coffee} color="bg-cyan-400" />
         </div>
-
-        {/* Score */}
         <div className="flex items-baseline gap-2 shrink-0">
           <span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
             {t("socLife.score")}
