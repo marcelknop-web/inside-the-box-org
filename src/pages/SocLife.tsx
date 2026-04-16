@@ -289,7 +289,7 @@ export default function SocLife() {
                   score={score} shift={Math.floor(shiftSec)} isNight={isNight}
                   status={status}
                 />
-                <SocFloorPlan
+                <DollHouse
                   current={currentRoom}
                   highlight={activeIncident?.steps[stepIdx]?.requiredRoom ?? null}
                   onMove={handleMove}
