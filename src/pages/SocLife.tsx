@@ -309,6 +309,7 @@ export default function SocLife() {
                   current={currentRoom}
                   highlight={activeIncident?.steps[stepIdx]?.requiredRoom ?? null}
                   onMove={handleMove}
+                  isNight={isNight}
                   maxHeight={
                     typeof window !== "undefined"
                       ? window.innerWidth < 1024
