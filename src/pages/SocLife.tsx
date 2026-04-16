@@ -13,6 +13,7 @@ import { SocMeters } from "@/components/socLife/SocMeters";
 import { IncidentPanel } from "@/components/socLife/IncidentPanel";
 import { RoomActions, IdleAction } from "@/components/socLife/RoomActions";
 import { ConsequenceOverlay, ConsequenceData } from "@/components/socLife/ConsequenceOverlay";
+import { Onboarding } from "@/components/socLife/Onboarding";
 
 const TICK_MS = 250;
 const MIN_INCIDENT_GAP_MS = 18_000;
