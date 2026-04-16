@@ -6,6 +6,8 @@ interface DollHouseProps {
   current: RoomId;
   highlight: RoomId | null;
   onMove: (room: RoomId) => void;
+  /** Max display height in CSS pixels. Used to compute integer pixel scale. */
+  maxHeight?: number;
 }
 
 /**
@@ -439,24 +441,27 @@ function renderRoom(ctx: CanvasRenderingContext2D, room: RoomId, x: number, y: n
   }
 }
 
-export function DollHouse({ current, highlight, onMove }: DollHouseProps) {
+export function DollHouse({ current, highlight, onMove, maxHeight }: DollHouseProps) {
   const { t } = useLanguage();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const wrapRef = useRef<HTMLDivElement | null>(null);
   const [scale, setScale] = useState(3);
 
-  // Compute integer scale for crisp pixels based on container width
+  // Compute integer scale for crisp pixels based on container width AND height
   useEffect(() => {
     const update = () => {
       const w = wrapRef.current?.clientWidth ?? 800;
-      const s = Math.max(2, Math.min(6, Math.floor(w / LOGICAL_W)));
+      const h = maxHeight ?? Number.POSITIVE_INFINITY;
+      const sByW = Math.floor(w / LOGICAL_W);
+      const sByH = Math.floor(h / LOGICAL_H);
+      const s = Math.max(2, Math.min(6, Math.min(sByW, sByH)));
       setScale(s);
     };
     update();
     const ro = new ResizeObserver(update);
     if (wrapRef.current) ro.observe(wrapRef.current);
     return () => ro.disconnect();
-  }, []);
+  }, [maxHeight]);
 
   const playerInitial = useMemo(() => {
     const r = ROOMS.find((x) => x.id === current)!;
