@@ -423,6 +423,16 @@ export default function SocLife() {
               )}
             </aside>
 
+            {/* Consequence overlay: blocks input, surfaces the outcome of the
+                last choice in differentiated language. User must dismiss to
+                continue — replaces the previous toast-spam. */}
+            {consequence && !gameOver && (
+              <ConsequenceOverlay
+                data={consequence}
+                onContinue={continueAfterConsequence}
+              />
+            )}
+
             {/* Game-over: full-area calm overlay, NOT a toast spam.
                 Gives the user time to read what happened before any CTA appears. */}
             {gameOver && (
