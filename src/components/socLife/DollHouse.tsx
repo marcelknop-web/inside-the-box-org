@@ -1174,16 +1174,10 @@ export function DollHouse({ current, highlight, onMove, maxHeight, isNight = fal
       }
 
       // Current room marker (subtle gold inset)
+      // (Removed: random sparks in server / NOC rooms — they appeared at
+      // arbitrary coordinates and read as visual noise rather than a signal.
+      // Server/rack/NOC LEDs already convey activity in a structured way.)
       const cur = ROOMS.find((x) => x.id === current)!;
-      const cx = cur.col * ROOM_W;
-      const cy = roomTopY(cur.row);
-      ctx.strokeStyle = "rgba(245,184,0,0.45)";
-      ctx.lineWidth = 1;
-      ctx.strokeRect(cx + 0.5, cy + 0.5, ROOM_W - 1, ROOM_H - 1);
-
-      // Occasional spark in server / NOC rooms (visual life)
-      const sparkRoom = ((Math.floor(t / 1700)) % 2 === 0) ? "server_room" : "noc";
-      if ((Math.floor(t / 60) % 28) === 0) {
         const r = ROOMS.find((x) => x.id === sparkRoom)!;
         const sx = r.col * ROOM_W + 8 + ((Math.floor(t / 60)) % 40);
         const sy = roomTopY(r.row) + 12 + ((Math.floor(t / 60)) % 16);
