@@ -694,8 +694,21 @@ function drawFigure(
     ctx.translate(-(fx + 3), 0);
   }
 
-  // shadow
+  // Drop shadow under the feet
   drawRect(ctx, fx - 2, y, 10, 1, C.shadow);
+
+  // Highlighted (player) figures get a 1-px dark outline drawn first, so the
+  // bright gold body always reads against ANY background (dark wallpaper,
+  // server racks, lit screens, monitor glow, etc.).
+  if (highlight) {
+    const OUT = "#0a0a14";
+    // Outline rectangle around head + body footprint, 1 px around silhouette
+    drawRect(ctx, fx,     fy - 1, 6, 1, OUT);   // top of head
+    drawRect(ctx, fx,     fy + 4, 6, 1, OUT);   // (overdrawn by body, harmless)
+    drawRect(ctx, fx - 1, fy + 4, 1, 6, OUT);   // left body edge
+    drawRect(ctx, fx + 6, fy + 4, 1, 6, OUT);   // right body edge
+    drawRect(ctx, fx,     fy + 16, 6, 1, OUT);  // under feet
+  }
 
   // Walk swing
   const lOff = walking ? (frame === 1 ? -1 : frame === 3 ? 1 : 0) : 0;
@@ -722,12 +735,32 @@ function drawFigure(
 
   ctx.restore();
 
-  // Highlight halo for the player
+  // Bright halo + bouncing chevron marker for the player so they're never lost
+  // on screen (especially on dark wallpaper or in front of monitors).
   if (highlight) {
-    ctx.fillStyle = "rgba(245,184,0,0.18)";
+    // Outer soft glow
+    const grad = ctx.createRadialGradient(x + 0.5, y - 4, 1, x + 0.5, y - 4, 14);
+    grad.addColorStop(0, "rgba(245,184,0,0.55)");
+    grad.addColorStop(0.6, "rgba(245,184,0,0.18)");
+    grad.addColorStop(1, "rgba(245,184,0,0)");
+    ctx.fillStyle = grad;
     ctx.beginPath();
-    ctx.arc(x + 0.5, y - 2, 8, 0, Math.PI * 2);
+    ctx.arc(x + 0.5, y - 4, 14, 0, Math.PI * 2);
     ctx.fill();
+
+    // Small downward chevron above head, gentle bob using performance.now()
+    const bob = Math.round(Math.sin(performance.now() / 280) * 1);
+    const ay = fy - 6 + bob;
+    const ax = fx + 1;
+    drawPx(ctx, ax,     ay,     C.gold);
+    drawPx(ctx, ax + 1, ay,     C.gold);
+    drawPx(ctx, ax + 2, ay,     C.gold);
+    drawPx(ctx, ax + 3, ay,     C.gold);
+    drawPx(ctx, ax + 1, ay + 1, C.gold);
+    drawPx(ctx, ax + 2, ay + 1, C.gold);
+    // Dark backing pixel under the chevron tip for extra contrast
+    drawPx(ctx, ax + 1, ay + 2, "#0a0a14");
+    drawPx(ctx, ax + 2, ay + 2, "#0a0a14");
   }
 }
 
