@@ -596,6 +596,19 @@ export function DollHouse({ current, highlight, onMove, maxHeight, isNight = fal
     nextSpawnAt: 12_000, // first visitor after ~12s
   });
 
+  // Per-NPC behavior state — natural "stand for a few seconds, then take a few
+  // steps to a new spot" loop. State lives in a ref so the rAF loop can mutate
+  // it without re-rendering React.
+  interface NpcState {
+    x: number;
+    targetX: number;
+    phaseUntil: number;            // ms timestamp when the current phase ends
+    phase: "idle" | "walk";
+    facing: 1 | -1;
+    initialized: boolean;
+  }
+  const npcStatesRef = useRef<Record<string, NpcState>>({});
+
   // Animation loop
   useEffect(() => {
     const cv = canvasRef.current;
@@ -804,40 +817,86 @@ export function DollHouse({ current, highlight, onMove, maxHeight, isNight = fal
         drawPx(ctx, sx, sy + 1, C.gold);
       }
 
-      // NPCs — wander left/right within their room at floor level.
-      // We keep them out of the rightmost ~14 px (visitor "chat" slot) but
-      // give them a much wider lane than before so the motion is clearly
-      // visible. Also faster pacing + a true walking gait.
+      // NPCs — natural behavior: stand still most of the time, occasionally
+      // walk a few steps to a new spot in the room, then stand again.
+      // No more triangle-wave pacing (which looked like jitter).
       const npcPositions: Partial<Record<NpcId, { x: number; y: number }>> = {};
+      const WALK_SPEED = 22; // logical px/s — calm office pace
       NPCS.forEach((npc, idx) => {
         const r = ROOMS.find((x) => x.id === npc.homeRoom)!;
         const baseX = r.col * ROOM_W;
-        // Use most of the room: leave 14px reserved on the right for visitors.
         const minX = baseX + 6;
         const maxX = baseX + ROOM_W - 14;
         const span = Math.max(16, maxX - minX);
-        // ~3.5x faster than before — clearly visible pacing (~25-35 px/s)
-        const speed = 0.0042 + idx * 0.00055;
-        const phase = idx * 1.7;
-        const cycle = (t * speed + phase) % 2;
-        const tri = Math.abs(cycle - 1);
-        const x = Math.round(minX + tri * span);
-        // Idle window: pause briefly at each end of the lane, otherwise walk.
-        const nearEnd = tri < 0.04 || tri > 0.96;
-        const idleCycle = (t + idx * 1700) % 9000;
-        const longIdle = idleCycle > 8200; // brief stand-still ~0.8s every 9s
-        const idle = nearEnd || longIdle;
-        // Facing follows direction of travel (cycle < 1 → moving right, else left)
-        const facing: 1 | -1 = cycle < 1 ? 1 : -1;
+
+        // Initialize per-NPC state on first frame
+        let st = npcStatesRef.current[npc.id];
+        if (!st) {
+          const startX = minX + Math.floor(span * (0.2 + (idx * 0.17) % 0.6));
+          st = {
+            x: startX,
+            targetX: startX,
+            phase: "idle",
+            // Stagger first decision so they don't all move in sync
+            phaseUntil: t + 1500 + idx * 700,
+            facing: 1,
+            initialized: true,
+          };
+          npcStatesRef.current[npc.id] = st;
+        }
+
+        // Phase transitions
+        if (t >= st.phaseUntil) {
+          if (st.phase === "idle") {
+            // Decide on a new walking target — short hop most of the time,
+            // occasionally a longer stroll across the room.
+            const longTrip = Math.random() < 0.25;
+            const stepDist = longTrip
+              ? 16 + Math.random() * (span - 16)   // 16-span px
+              : 8 + Math.random() * 14;            // 8-22 px
+            const dir = Math.random() < 0.5 ? -1 : 1;
+            let target = st.x + dir * stepDist;
+            if (target < minX) target = st.x + stepDist;
+            if (target > maxX) target = st.x - stepDist;
+            target = Math.max(minX, Math.min(maxX, target));
+            st.targetX = target;
+            st.phase = "walk";
+            st.facing = target > st.x ? 1 : -1;
+            // Walk phase ends when we arrive (we'll detect that below)
+            st.phaseUntil = t + 30_000; // safety timeout
+          } else {
+            // Just finished walking — stand for 3-9 seconds
+            st.phase = "idle";
+            st.phaseUntil = t + 3000 + Math.random() * 6000;
+          }
+        }
+
+        // Move during walk phase
+        let walkingNow = false;
+        if (st.phase === "walk") {
+          const dx = st.targetX - st.x;
+          const adx = Math.abs(dx);
+          if (adx < 0.6) {
+            // Arrived
+            st.x = st.targetX;
+            st.phase = "idle";
+            st.phaseUntil = t + 3000 + Math.random() * 6000;
+          } else {
+            const step = WALK_SPEED * (1 / 60); // assume ~60fps step
+            st.x += Math.sign(dx) * Math.min(step, adx);
+            st.facing = dx > 0 ? 1 : -1;
+            walkingNow = true;
+          }
+        }
+
+        const x = Math.round(st.x);
         const y = roomFloorLineY(r.row);
         const look = NPC_LOOK[npc.id];
-        // Walking gait — animate frame only while actually moving
-        const movingFrame = idle ? 0 : Math.floor(t / 110) % 4;
-        const bob = idle ? Math.round(Math.sin(t / 380 + idx) * 0.5) : 0;
+        const movingFrame = walkingNow ? Math.floor(t / 130) % 4 : 0;
         npcPositions[npc.id] = { x, y };
         drawFigure(
-          ctx, x, y + bob,
-          facing, !idle, movingFrame,
+          ctx, x, y,
+          st.facing, walkingNow, movingFrame,
           look.shirt, look.pants, look.skin, look.hair,
         );
       });
