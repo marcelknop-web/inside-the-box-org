@@ -170,20 +170,27 @@ function useWalker(
 
   useEffect(() => {
     if (targetRoom === lastRoomRef.current) return;
-    const fromRow = ROOMS.find((r) => r.id === lastRoomRef.current)!.row;
     const toRoom = ROOMS.find((r) => r.id === targetRoom)!;
     const toX = roomCenterX(toRoom.col) + 8;
     const toY = roomFloorLineY(toRoom.row);
     finalTargetRef.current = { x: toX, y: toY, row: toRoom.row };
     lastRoomRef.current = targetRoom;
-    // Choose initial phase: same floor → walk straight there.
-    // Different floor → head for the lift first.
-    if (fromRow === toRoom.row) {
-      phaseRef.current = "walk_to_target";
-    } else {
-      phaseRef.current = "walk_to_lift";
-    }
-    setState((s) => ({ ...s, walking: true }));
+    // Choose initial phase based on the player's *actual current row*, not the
+    // last commanded room's row. This prevents the walker from getting stuck
+    // when a new destination is requested mid-traversal (e.g. while still
+    // walking on the lower floor toward the kitchen) — the previous logic
+    // computed `fromRow` from a stale `lastRoomRef`, which could leave the
+    // walker in a phase that no longer matched its real position.
+    setState((s) => {
+      // Determine which floor the player is *actually* standing on right now.
+      const actualRow: 0 | 1 = s.y < CORRIDOR_Y + CORRIDOR_H / 2 ? 0 : 1;
+      if (actualRow === toRoom.row) {
+        phaseRef.current = "walk_to_target";
+      } else {
+        phaseRef.current = "walk_to_lift";
+      }
+      return { ...s, walking: true };
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [targetRoom]);
 
@@ -219,8 +226,11 @@ function useWalker(
           }
           case "walk_to_target": {
             if (!target) { phaseRef.current = "idle"; break; }
-            // pure horizontal on current floor
-            if (moveTowards(target.x, s.y)) {
+            // Pure horizontal on current floor — but pin Y to the floor line of
+            // the target row (which == our row in this branch) so the walker
+            // can never hang on a fractional Y after a previous lift ride.
+            const floorY = roomFloorLineY(target.row);
+            if (moveTowards(target.x, floorY)) {
               phaseRef.current = "idle";
               next.walking = false;
             } else next.walking = true;
@@ -228,10 +238,12 @@ function useWalker(
           }
           case "walk_to_lift": {
             if (!target) { phaseRef.current = "idle"; break; }
-            // walk horizontally on current floor to the door column
-            if (moveTowards(BOARD_X, s.y)) {
+            // walk horizontally on current floor to the door column, snapping
+            // to the current floor's exact y-line.
+            const myFloor: 0 | 1 = s.y < CORRIDOR_Y + CORRIDOR_H / 2 ? 0 : 1;
+            const floorY = roomFloorLineY(myFloor);
+            if (moveTowards(BOARD_X, floorY)) {
               // Arrived at door — call the lift to this floor.
-              const myFloor: 0 | 1 = s.y < CORRIDOR_Y + CORRIDOR_H / 2 ? 0 : 1;
               if (lift.targetFloor !== myFloor) lift.targetFloor = myFloor;
               // We're outside, signal we want to board so the lift knows
               // to open and *hold* the doors for us.
