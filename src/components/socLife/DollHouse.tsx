@@ -83,14 +83,22 @@ interface FigState {
   frame: number;
 }
 
-function buildPath(from: { x: number; y: number; row: 0 | 1 }, to: { x: number; y: number; row: 0 | 1 }) {
-  if (from.row === to.row) return [{ x: to.x, y: from.y }];
-  const corridorY = CORRIDOR_Y + CORRIDOR_H / 2;
+function buildPath(
+  from: { x: number; y: number; row: 0 | 1 },
+  to: { x: number; y: number; row: 0 | 1 },
+) {
+  // Same floor: walk horizontally on that floor's level only.
+  if (from.row === to.row) {
+    return [{ x: to.x, y: from.y }];
+  }
+  // Different floor: only the staircase changes elevation.
+  // 1) walk to stair column on current floor, 2) climb/descend, 3) walk to target room.
+  const fromFloorY = roomFloorLineY(from.row);
+  const toFloorY = roomFloorLineY(to.row);
   return [
-    { x: STAIR_X, y: from.y },
-    { x: STAIR_X, y: corridorY },
-    { x: to.x, y: corridorY },
-    { x: to.x, y: to.y },
+    { x: STAIR_X, y: fromFloorY },
+    { x: STAIR_X, y: toFloorY },
+    { x: to.x,    y: toFloorY },
   ];
 }
 
