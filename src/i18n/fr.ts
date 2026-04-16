@@ -1232,6 +1232,8 @@ export const fr = {
       wrong:   'Mauvais choix — la réputation chute.',
       timeout: 'Trop tard. L’incident s’aggrave.',
       wrongRoomMsg: 'Mauvaise salle. Allez d’abord là où ça se passe.',
+      chooseRoomFirst: 'Choisissez d’abord la bonne salle — les options d’action apparaîtront à votre arrivée.',
+      goToRoomCta: 'Aller sur place',
     },
   },
 };

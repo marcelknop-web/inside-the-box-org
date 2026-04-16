@@ -346,6 +346,7 @@ export default function SocLife() {
                   currentRoom={currentRoom}
                   timeLeftMs={stepTimeLeft}
                   onChoose={handleChoose}
+                  onGoToRoom={handleMove}
                 />
               ) : (
                 <RoomActions currentRoom={currentRoom} onIdleAction={handleIdle} />
