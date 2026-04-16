@@ -796,18 +796,55 @@ export function DollHouse({ current, highlight, onMove, maxHeight, isNight = fal
       drawRect(ctx, shaftX + 1, shaftTop, 1, shaftBottom - shaftTop, C.goldDim);
       drawRect(ctx, shaftX + SHAFT_W - 2, shaftTop, 1, shaftBottom - shaftTop, C.goldDim);
 
-      // 2) Determine target cabin Y based on player vertical position
-      // (smooth follow — gives the lift a "lovely" easing motion)
-      // We track a moving cabin Y across frames using a ref-ish pattern via dataset.
-      const playerY = player.y;
-      // Snap target to one of the two floor lines depending on which half the player is in
-      const cabinTargetFloor = playerY < CORRIDOR_Y + CORRIDOR_H / 2 ? upperFloorY : lowerFloorY;
-      // Smooth interpolate using a stable global on the canvas element
-      const cv2 = canvasRef.current!;
-      const prevCabinY = parseFloat(cv2.dataset.cabinY ?? String(lowerFloorY));
-      const cabinY = prevCabinY + (cabinTargetFloor - prevCabinY) * 0.06; // gentle ease
-      cv2.dataset.cabinY = String(cabinY);
-      const moving = Math.abs(cabinTargetFloor - cabinY) > 0.6;
+      // 2) Update elevator state machine.
+      // The cabin is the SOLE means of changing floor. The walker pushes
+      // `targetFloor` and `occupied`; we advance physics + door dwell here.
+      const lift = elevatorRef.current;
+      const targetY = roomFloorLineY(lift.targetFloor);
+      const FLOOR_TOL = 0.6;          // px — when we consider cabin "at floor"
+      const DOOR_DWELL_MS = 1400;     // doors stay open this long when idle
+      const ARRIVAL_DWELL_MS = 2200;  // a touch longer right after arrival, so player can step in/out
+
+      // Move the cabin
+      const dyToTarget = targetY - lift.cabinY;
+      if (Math.abs(dyToTarget) > FLOOR_TOL) {
+        // In transit — close doors, drift toward target with gentle ease
+        lift.phase = "moving";
+        lift.cabinY += dyToTarget * 0.06;
+      } else {
+        // At a floor — snap, mark currentFloor reached, open doors
+        lift.cabinY = targetY;
+        if (lift.currentFloor !== lift.targetFloor) {
+          lift.currentFloor = lift.targetFloor;
+          lift.phase = "doors_open";
+          lift.phaseUntil = t + ARRIVAL_DWELL_MS;
+        } else if (lift.phase === "moving") {
+          // Just settled
+          lift.phase = "doors_open";
+          lift.phaseUntil = t + ARRIVAL_DWELL_MS;
+        }
+      }
+
+      // Door progress
+      // Doors closed while moving OR while occupied (passenger inside, ready to ride).
+      // Doors open while idle at a floor and not occupied, or while waiting for passenger to step in/out.
+      const doorsShouldOpen =
+        lift.phase === "doors_open" &&
+        Math.abs(targetY - lift.cabinY) <= FLOOR_TOL &&
+        !lift.occupied;
+      const doorTarget = doorsShouldOpen ? 1 : 0;
+      lift.doorOpen = lift.doorOpen + (doorTarget - lift.doorOpen) * 0.14;
+
+      // While doors are open and dwell expired, allow new floor calls;
+      // if no fresh call, just stay put. (targetFloor==currentFloor → idle)
+      if (lift.phase === "doors_open" && t >= lift.phaseUntil && !lift.occupied) {
+        // refresh dwell so doors keep gently breathing
+        lift.phaseUntil = t + DOOR_DWELL_MS;
+      }
+
+      const cabinY = lift.cabinY;
+      const moving = Math.abs(targetY - cabinY) > FLOOR_TOL;
+      const doorOpen = lift.doorOpen;
 
       // 3) Cable from top of shaft to cabin
       drawRect(ctx, STAIR_X, shaftTop, 1, Math.max(0, Math.round(cabinY - 14 - shaftTop)), "#3a3a4a");
@@ -830,13 +867,7 @@ export function DollHouse({ current, highlight, onMove, maxHeight, isNight = fal
       // cabin floor strip
       drawRect(ctx, cabX, cabY + 14, SHAFT_W - 2, 2, "#0a0a14");
 
-      // 5) Sliding doors — open when cabin is at a floor AND not moving; otherwise closed.
-      // Door open progress 0..1 with smooth ease.
-      const cabinAtFloor = !moving;
-      const prevDoor = parseFloat(cv2.dataset.doorOpen ?? "0");
-      const doorTarget = cabinAtFloor ? 1 : 0;
-      const doorOpen = prevDoor + (doorTarget - prevDoor) * 0.12;
-      cv2.dataset.doorOpen = String(doorOpen);
+      // 5) Sliding doors (driven by elevator state, not by player position)
       const halfDoor = Math.floor((SHAFT_W - 4) / 2);
       const slide = Math.round(halfDoor * doorOpen);
       // Left door
