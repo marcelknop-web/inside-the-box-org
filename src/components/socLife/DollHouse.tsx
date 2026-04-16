@@ -484,8 +484,8 @@ function renderRoom(ctx: CanvasRenderingContext2D, room: RoomId, x: number, y: n
 
   switch (room) {
     case "soc_floor": {
-      drawDesk(ctx, x + 4, y + 24, C.cyan, t);
-      drawDesk(ctx, x + 34, y + 24, C.amber, t + 50);
+      drawDesk(ctx, x + 4, y + 24, C.cyan, t, 1);
+      drawDesk(ctx, x + 34, y + 24, C.amber, t + 50, 2);
       break;
     }
     case "siem": {
@@ -499,7 +499,7 @@ function renderRoom(ctx: CanvasRenderingContext2D, room: RoomId, x: number, y: n
     case "noc": {
       drawNocRack(ctx, x + 4, y + 10, t);
       drawNocRack(ctx, x + 26, y + 10, t + 100);
-      drawDesk(ctx, x + 44, y + 24, C.green, t + 200);
+      drawDesk(ctx, x + 44, y + 24, C.green, t + 200, 3);
       break;
     }
     case "server_room": {
