@@ -436,8 +436,8 @@ export default function SocLife() {
               <div className="min-h-0 lg:flex-1">
                 <DollHouse
                   current={currentRoom}
-                  highlight={activeIncident?.steps[stepIdx]?.requiredRoom ?? null}
-                  alertRoom={activeIncident?.steps[stepIdx]?.requiredRoom ?? null}
+                  highlight={revealRequiredRoom ? (activeIncident?.steps[stepIdx]?.requiredRoom ?? null) : null}
+                  alertRoom={revealRequiredRoom ? (activeIncident?.steps[stepIdx]?.requiredRoom ?? null) : null}
                   onMove={handleMove}
                   isNight={isNight}
                   maxHeight={
