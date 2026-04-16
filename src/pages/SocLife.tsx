@@ -446,9 +446,21 @@ export default function SocLife() {
   useEffect(() => {
     if (!gameOver) return;
     audio.setMusicMode("calm");
+    setHighscores(loadHighscores());
+    setHighscoreSubmitted(false);
     const id = window.setTimeout(() => setGameOverActionsReady(true), 2200);
     return () => window.clearTimeout(id);
   }, [gameOver, audio]);
+
+  const submitHighscore = () => {
+    const name = playerName.trim().slice(0, HIGHSCORE_NAME_MAX) || "ANON";
+    try { localStorage.setItem("socLife.playerName", name); } catch { /* ignore */ }
+    const updated = saveHighscore({
+      name, score, incidents: incidentsCompleted, shiftSec: Math.floor(shiftSec),
+    });
+    setHighscores(updated);
+    setHighscoreSubmitted(true);
+  };
 
   return (
     <div ref={rootRef} className="h-[100dvh] overflow-hidden bg-background text-foreground flex flex-col">
