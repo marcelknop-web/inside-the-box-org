@@ -681,10 +681,13 @@ export function DollHouse({ current, highlight, onMove, maxHeight, isNight = fal
 
   const playerInitial = useMemo(() => {
     const r = ROOMS.find((x) => x.id === current)!;
-    return { x: roomCenterX(r.col) + 8, y: roomFloorLineY(r.row) };
+    return { x: roomCenterX(r.col) + 8, y: roomFloorLineY(r.row), row: r.row };
   }, []); // initial only
 
-  const player = useWalker(current, playerInitial);
+  // Shared elevator state — single source of truth for the cabin.
+  const elevatorRef = useRef<ElevatorState>(makeElevatorRef(playerInitial.row));
+
+  const player = useWalker(current, playerInitial, elevatorRef);
 
   // Track isNight in a ref so the rAF loop sees latest value without
   // re-binding (and we can smoothly interpolate the tint strength).
