@@ -14,6 +14,9 @@ export interface ConsequenceData {
   stressDelta: number;
   /** Short professional rationale shown under the verdict */
   reason: string;
+  /** Localized text of the option that *would* have been correct.
+   *  Only shown when the user picked a wrong option, as a learning aid. */
+  bestAnswerLabel?: string;
 }
 
 interface Props {
@@ -110,6 +113,19 @@ export function ConsequenceOverlay({ data, onContinue }: Props) {
             {data.reason}
           </div>
         </div>
+
+        {/* If the user got it wrong, surface what *would* have been right —
+            this turns every mistake into a teaching moment instead of a mystery. */}
+        {!data.correct && data.bestAnswerLabel && (
+          <div className="mb-3 rounded-md border border-emerald-500/40 bg-emerald-500/5 px-3 py-2">
+            <div className="font-mono text-[10px] uppercase tracking-wider text-emerald-300/90 mb-1">
+              ✓ {t("socLife.consequence.bestAnswer")}
+            </div>
+            <div className="text-sm text-foreground leading-snug">
+              „{data.bestAnswerLabel}“
+            </div>
+          </div>
+        )}
 
         {/* Quantified impact */}
         <div className="mb-4 grid grid-cols-2 gap-2 font-mono text-xs">
