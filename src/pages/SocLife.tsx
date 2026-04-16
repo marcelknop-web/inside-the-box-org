@@ -35,6 +35,9 @@ export default function SocLife() {
   const [score, setScore] = useState(0);
   const [shiftSec, setShiftSec] = useState(0);
 
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const rootRef = useRef<HTMLDivElement | null>(null);
+
   const [activeIncident, setActiveIncident] = useState<Incident | null>(null);
   const [stepIdx, setStepIdx] = useState(0);
   const [stepTimeLeft, setStepTimeLeft] = useState(0);
@@ -254,6 +257,25 @@ export default function SocLife() {
     if (window.confirm(t("socLife.confirmRestart"))) restart();
   };
 
+  // Track native fullscreen state (e.g. user pressing ESC) so the icon stays in sync.
+  useEffect(() => {
+    const onChange = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener("fullscreenchange", onChange);
+    return () => document.removeEventListener("fullscreenchange", onChange);
+  }, []);
+
+  const toggleFullscreen = useCallback(async () => {
+    try {
+      if (!document.fullscreenElement) {
+        await rootRef.current?.requestFullscreen?.();
+      } else {
+        await document.exitFullscreen?.();
+      }
+    } catch {
+      toast.error(t("socLife.fullscreenUnavailable") || "Fullscreen unavailable");
+    }
+  }, [t]);
+
   // Game-over: pause music, give the user a beat to read the result before
   // surfacing the "Restart" CTA. No toast spam, no rushing.
   useEffect(() => {
@@ -264,7 +286,7 @@ export default function SocLife() {
   }, [gameOver, audio]);
 
   return (
-    <div className="h-[100dvh] overflow-hidden bg-background text-foreground flex flex-col">
+    <div ref={rootRef} className="h-[100dvh] overflow-hidden bg-background text-foreground flex flex-col">
       <Helmet>
         <title>{t("socLife.metaTitle")}</title>
         <meta name="description" content={t("socLife.metaDesc")} />
