@@ -226,8 +226,11 @@ function useWalker(
           }
           case "walk_to_target": {
             if (!target) { phaseRef.current = "idle"; break; }
-            // pure horizontal on current floor
-            if (moveTowards(target.x, s.y)) {
+            // Pure horizontal on current floor — but pin Y to the floor line of
+            // the target row (which == our row in this branch) so the walker
+            // can never hang on a fractional Y after a previous lift ride.
+            const floorY = roomFloorLineY(target.row);
+            if (moveTowards(target.x, floorY)) {
               phaseRef.current = "idle";
               next.walking = false;
             } else next.walking = true;
@@ -235,8 +238,11 @@ function useWalker(
           }
           case "walk_to_lift": {
             if (!target) { phaseRef.current = "idle"; break; }
-            // walk horizontally on current floor to the door column
-            if (moveTowards(BOARD_X, s.y)) {
+            // walk horizontally on current floor to the door column, snapping
+            // to the current floor's exact y-line.
+            const myFloor: 0 | 1 = s.y < CORRIDOR_Y + CORRIDOR_H / 2 ? 0 : 1;
+            const floorY = roomFloorLineY(myFloor);
+            if (moveTowards(BOARD_X, floorY)) {
               // Arrived at door — call the lift to this floor.
               const myFloor: 0 | 1 = s.y < CORRIDOR_Y + CORRIDOR_H / 2 ? 0 : 1;
               if (lift.targetFloor !== myFloor) lift.targetFloor = myFloor;
