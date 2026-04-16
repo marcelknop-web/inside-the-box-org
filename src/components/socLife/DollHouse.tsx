@@ -885,7 +885,7 @@ export function DollHouse({ current, highlight, onMove, maxHeight, isNight = fal
       const indY = shaftTop - 1;
       drawRect(ctx, shaftX + 4, indY, SHAFT_W - 8, 4, "#0a0a14");
       // Floor digit (1 = upper, 2 = lower) — render as small pixel digit
-      const floorNum = cabinTargetFloor === upperFloorY ? 1 : 2;
+      const floorNum = lift.targetFloor === 0 ? 1 : 2;
       // simple 3x3 pixel digit
       const digitX = shaftX + 6;
       const digitY = indY + 1;
@@ -908,7 +908,7 @@ export function DollHouse({ current, highlight, onMove, maxHeight, isNight = fal
       // Travel arrow — points up or down when moving, off when idle
       const arrowX = shaftX + SHAFT_W - 5;
       if (moving) {
-        const goingUp = cabinTargetFloor < cabinY;
+        const goingUp = targetY < cabinY;
         const blink = (Math.floor(t / 220) % 2) === 0;
         const aCol = blink ? C.green : C.greenDim;
         if (goingUp) {
