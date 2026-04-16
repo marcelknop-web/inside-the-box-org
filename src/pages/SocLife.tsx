@@ -84,6 +84,16 @@ export default function SocLife() {
   const status: "calm" | "oncall" | "incident" =
     activeIncident ? "incident" : (isNight ? "oncall" : "calm");
 
+  // Reset + delay the floor-plan room-highlight whenever a new incident or
+  // step starts. ~3.2 s lines up with the panel's title-then-brief reveal,
+  // so a human reads the story first and then sees where to go.
+  useEffect(() => {
+    if (!activeIncident) { setRevealRequiredRoom(false); return; }
+    setRevealRequiredRoom(false);
+    const id = window.setTimeout(() => setRevealRequiredRoom(true), 3200);
+    return () => window.clearTimeout(id);
+  }, [activeIncident, stepIdx]);
+
   // ----- Sound: switch loops based on status (incl. comic-relief "audit" mode) -----
   useEffect(() => {
     if (!started || !audio.enabled) return;
