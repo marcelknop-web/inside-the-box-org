@@ -24,6 +24,9 @@ export default function SocLife() {
   const [started, setStarted] = useState(false);
   const [paused, setPaused] = useState(false);
   const [gameOver, setGameOver] = useState(false);
+  // Slight delay before showing the "Restart" CTA on game over so the user
+  // can read what happened first instead of being rushed into another run.
+  const [gameOverActionsReady, setGameOverActionsReady] = useState(false);
 
   const [currentRoom, setCurrentRoom] = useState<RoomId>("soc_floor");
   const [reputation, setReputation] = useState(70);
@@ -225,6 +228,7 @@ export default function SocLife() {
     setStarted(true);
     setPaused(false);
     setGameOver(false);
+    setGameOverActionsReady(false);
     setReputation(70);
     setStress(20);
     setCoffee(60);
@@ -232,12 +236,32 @@ export default function SocLife() {
     setShiftSec(0);
     setActiveIncident(null);
     setStepIdx(0);
+    setCurrentRoom("soc_floor");
     refillBag();
     nextIncidentAtRef.current = Date.now() + 6_000;
     audio.setMusicMode("calm");
   };
 
   const restart = () => startShift();
+
+  // Header restart with confirmation, so an accidental click while
+  // mid-incident doesn't wipe progress.
+  const confirmRestart = () => {
+    if (gameOver) {
+      restart();
+      return;
+    }
+    if (window.confirm(t("socLife.confirmRestart"))) restart();
+  };
+
+  // Game-over: pause music, give the user a beat to read the result before
+  // surfacing the "Restart" CTA. No toast spam, no rushing.
+  useEffect(() => {
+    if (!gameOver) return;
+    audio.setMusicMode("calm");
+    const id = window.setTimeout(() => setGameOverActionsReady(true), 2200);
+    return () => window.clearTimeout(id);
+  }, [gameOver, audio]);
 
   return (
     <div className="h-[100dvh] overflow-hidden bg-background text-foreground flex flex-col">
@@ -264,21 +288,27 @@ export default function SocLife() {
                 onClick={() => setPaused((p) => !p)}
                 disabled={gameOver}
                 aria-label={paused ? t("socLife.resume") : t("socLife.pause")}
+                title={paused ? t("socLife.resume") : t("socLife.pause")}
               >
                 {paused ? "▶" : "❚❚"}
               </Button>
               <Button
                 size="sm" variant="outline" className="font-mono h-8 px-2"
                 onClick={() => audio.setEnabled(!audio.enabled)}
-                aria-label="Audio"
+                aria-label={audio.enabled ? t("socLife.soundOff") : t("socLife.soundOn")}
+                title={audio.enabled ? t("socLife.soundOff") : t("socLife.soundOn")}
               >
                 {audio.enabled ? `🔊` : `🔇`}
               </Button>
-              {gameOver && (
-                <Button size="sm" onClick={restart} className="font-mono h-8 px-2">
-                  ↻
-                </Button>
-              )}
+              {/* Restart is ALWAYS available while playing — not just on game over */}
+              <Button
+                size="sm" variant="outline" className="font-mono h-8 px-2"
+                onClick={confirmRestart}
+                aria-label={t("socLife.restartShift")}
+                title={t("socLife.restartShift")}
+              >
+                ↻
+              </Button>
             </div>
           )}
         </header>
@@ -301,9 +331,8 @@ export default function SocLife() {
         )}
 
         {started && (
-          <div className="flex-1 grid grid-cols-1 gap-2 sm:gap-3 lg:grid-cols-[1fr_320px] min-h-0 overflow-hidden">
-            {/* Left: meters + house. On mobile, house gets a hard cap so the
-                sidebar/incident panel below stays visible without scrolling. */}
+          <div className="flex-1 grid grid-cols-1 gap-2 sm:gap-3 lg:grid-cols-[1fr_320px] min-h-0 overflow-hidden relative">
+            {/* Left: meters + house. */}
             <div className="flex flex-col gap-2 sm:gap-3 min-h-0">
               <SocMeters
                 reputation={reputation} stress={stress} coffee={coffee}
@@ -320,25 +349,15 @@ export default function SocLife() {
                   maxHeight={
                     typeof window !== "undefined"
                       ? window.innerWidth < 1024
-                        // mobile/tablet: leave generous room for sidebar panel below
                         ? Math.min(280, window.innerHeight * 0.38)
                         : window.innerHeight - 260
                       : 320
                   }
                 />
               </div>
-              {gameOver && (
-                <div className="rounded-lg border border-rose-500/50 bg-rose-500/10 p-3 shrink-0">
-                  <div className="font-mono text-sm text-rose-300">{t("socLife.gameOver")}</div>
-                  <div className="mt-1 text-xs text-muted-foreground">
-                    {t("socLife.score")}: <span className="text-primary">{score}</span>
-                  </div>
-                </div>
-              )}
             </div>
 
-            {/* Right sidebar: Incident takes priority over idle actions.
-                On mobile this sits below the house and scrolls internally. */}
+            {/* Right sidebar: Incident takes priority over idle actions. */}
             <aside className="min-h-0 flex-1 overflow-y-auto">
               {activeIncident ? (
                 <IncidentPanel
@@ -355,6 +374,57 @@ export default function SocLife() {
                 <RoomActions currentRoom={currentRoom} onIdleAction={handleIdle} />
               )}
             </aside>
+
+            {/* Game-over: full-area calm overlay, NOT a toast spam.
+                Gives the user time to read what happened before any CTA appears. */}
+            {gameOver && (
+              <div className="absolute inset-0 z-30 flex items-center justify-center bg-background/85 backdrop-blur-sm animate-fade-in">
+                <div className="mx-3 max-w-md w-full rounded-lg border border-rose-500/50 bg-background/95 p-6 sm:p-8 shadow-[0_0_0_1px_hsl(var(--destructive)/0.25),0_20px_60px_-10px_hsl(var(--destructive)/0.4)]">
+                  <div className="mb-2 font-mono text-[11px] uppercase tracking-[0.25em] text-rose-400">
+                    ▲ {t("socLife.gameOverTitle")}
+                  </div>
+                  <h2 className="mb-3 font-mono text-xl sm:text-2xl text-foreground leading-tight">
+                    {t("socLife.gameOverHeadline")}
+                  </h2>
+                  <p className="mb-5 text-sm text-muted-foreground leading-relaxed">
+                    {t("socLife.gameOverFlavor")}
+                  </p>
+                  <div className="mb-6 grid grid-cols-2 gap-3 font-mono text-xs">
+                    <div className="rounded-md border border-border/40 bg-background/60 p-3">
+                      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                        {t("socLife.gameOverFinalScore")}
+                      </div>
+                      <div className="mt-1 text-lg text-primary">{score}</div>
+                    </div>
+                    <div className="rounded-md border border-border/40 bg-background/60 p-3">
+                      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                        {t("socLife.gameOverShift")}
+                      </div>
+                      <div className="mt-1 text-lg text-foreground">
+                        {Math.floor(shiftSec / 60).toString().padStart(2, "0")}:
+                        {Math.floor(shiftSec % 60).toString().padStart(2, "0")}
+                      </div>
+                    </div>
+                  </div>
+                  {/* Restart CTA fades in only after a short reading pause */}
+                  <div className="min-h-[44px]">
+                    {gameOverActionsReady ? (
+                      <Button
+                        size="lg"
+                        onClick={restart}
+                        className="w-full font-mono animate-fade-in"
+                      >
+                        ↻ {t("socLife.restart")}
+                      </Button>
+                    ) : (
+                      <div className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground/60 text-center">
+                        …
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
