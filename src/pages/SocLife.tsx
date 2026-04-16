@@ -215,9 +215,7 @@ export default function SocLife() {
     setActiveIncident(null);
     setStepIdx(0);
     nextIncidentAtRef.current = Date.now() + 6_000;
-    // Kick off audio in background (lazy fetch)
-    audio.ensureMusic("ambient_loop");
-    audio.prewarm();
+    audio.setMusicMode("calm");
   };
 
   const restart = () => startShift();
