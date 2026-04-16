@@ -555,7 +555,82 @@ const PATCH: Incident = {
   ],
 };
 
+// ---------------- Comic-relief: the auditor visits ----------------
+// These are intentionally light/funny but still teach a real point:
+// the "correct" answer is the boring, professional one (have the doc ready).
+// Music switches to "audit" mode (cheesy elevator) while one of these is active.
+
+const AUDITOR: Incident = {
+  id: "auditor_visit",
+  title: L("Der Prüfer kommt!", "The auditor is here!", "L'auditeur arrive !"),
+  brief: L(
+    "Externer ISO-Auditor steht unangekündigt im War-Room und will 'mal kurz reinschauen'.",
+    "An external ISO auditor showed up unannounced and wants to 'just take a quick look'.",
+    "Un auditeur ISO externe débarque sans prévenir et veut 'juste jeter un œil'."
+  ),
+  initialDelayMs: 9_000,
+  steps: [
+    {
+      id: "greet", requiredRoom: "war_room", timeLimitMs: 22_000,
+      title: L("Empfang", "Reception", "Accueil"),
+      prompt: L("Wie reagieren?", "How do you react?", "Comment réagir ?"),
+      options: [
+        { id: "calm_pro",   correct: true,  delta: +6, label: L("Ruhig empfangen, Kaffee anbieten, Scope klären, Begleitperson stellen", "Welcome calmly, offer coffee, clarify scope, assign an escort", "Accueillir calmement, offrir un café, clarifier le périmètre, assigner un accompagnant") },
+        { id: "hide_run",   correct: false, delta: -4, label: L("So tun, als wäre niemand da — Tür zu, Licht aus", "Pretend nobody is here — door shut, lights off", "Faire semblant qu'il n'y a personne — porte fermée, lumière éteinte") },
+        { id: "blame_ciso", correct: false, delta: -3, label: L("Sofort dem CISO 'eskalieren', der soll das machen", "Immediately 'escalate' to the CISO, let them handle it", "Escalader tout de suite au CISO, qu'il s'en occupe") },
+      ],
+    },
+    {
+      id: "doc", requiredRoom: "ciso_office", timeLimitMs: 25_000,
+      title: L("Dokumentation", "Documentation", "Documentation"),
+      prompt: L("Er will das ISMS-Dokument.", "They want the ISMS document.", "Il demande le document SMSI."),
+      options: [
+        { id: "show_doc",     correct: true,  delta: +7, label: L("Aktuelle, freigegebene Version aus dem ISMS-Tool zeigen", "Show the current, approved version from the ISMS tool", "Présenter la version actuelle approuvée depuis l'outil SMSI") },
+        { id: "fake_pdf",     correct: false, delta: -5, label: L("Schnell ein PDF antedatieren — wer prüft schon das Datum?", "Quickly back-date a PDF — who really checks the date?", "Antidater vite un PDF — qui vérifie vraiment la date ?") },
+        { id: "promise_send", correct: false, delta: -3, label: L("'Schicken wir per Mail nach' — und auf Wiedervorlage in 6 Monaten legen", "'We'll send it by email later' — and bury it for six months", "'On vous l'envoie par mail' — et l'oublier pendant six mois") },
+      ],
+    },
+    {
+      id: "finding", requiredRoom: "war_room", timeLimitMs: 22_000,
+      title: L("Befund", "Finding", "Constat"),
+      prompt: L("Er findet ein offenes Ticket seit 9 Monaten.", "They spot an open ticket from 9 months ago.", "Il repère un ticket ouvert depuis 9 mois."),
+      options: [
+        { id: "own_it",     correct: true,  delta: +6, label: L("Offen anerkennen, Risiko-Akzeptanz + Zieldatum vorlegen", "Acknowledge openly, present risk acceptance + target date", "Reconnaître ouvertement, présenter acceptation du risque + échéance") },
+        { id: "blame_intern",correct: false, delta: -4, label: L("Auf den Praktikanten schieben, der nicht mehr da ist", "Blame the intern who isn't around anymore", "Mettre ça sur le stagiaire qui n'est plus là") },
+        { id: "ticket_close",correct: false, delta: -5, label: L("Das Ticket schnell schließen, bevor er es notiert", "Quickly close the ticket before they write it down", "Fermer vite le ticket avant qu'il ne le note") },
+      ],
+    },
+  ],
+};
+
+const FIRE_DRILL: Incident = {
+  id: "fire_drill",
+  title: L("Brandschutzübung — jetzt?!", "Fire drill — right now?!", "Exercice incendie — maintenant ?!"),
+  brief: L(
+    "Lautsprecher: 'Alle Mitarbeiter bitte das Gebäude verlassen.' Mitten in der Schicht.",
+    "PA system: 'All staff please leave the building.' Mid-shift.",
+    "Haut-parleur : 'Tout le personnel évacue le bâtiment.' En pleine garde."
+  ),
+  initialDelayMs: 8_000,
+  steps: [
+    {
+      id: "act", requiredRoom: "soc_floor", timeLimitMs: 18_000,
+      title: L("Reaktion", "Reaction", "Réaction"),
+      prompt: L("Was machst du?", "What do you do?", "Que fais-tu ?"),
+      options: [
+        { id: "handover",   correct: true,  delta: +6, label: L("On-Call-Übergabe an Backup-SOC dokumentieren, dann raus", "Document on-call handover to backup SOC, then leave", "Documenter le passage de relais au SOC de secours, puis sortir") },
+        { id: "stay",       correct: false, delta: -5, label: L("Drinbleiben — 'der SIEM darf nicht unbeobachtet sein'", "Stay inside — 'the SIEM mustn't be unattended'", "Rester — 'on ne peut pas laisser le SIEM sans surveillance'") },
+        { id: "panic_run",  correct: false, delta: -3, label: L("Sofort raus, alle Sessions offen lassen", "Run out immediately, leave all sessions open", "Sortir tout de suite, laisser toutes les sessions ouvertes") },
+      ],
+    },
+  ],
+};
+
 export const INCIDENTS: Incident[] = [
   PHISHING, RANSOMWARE, DDOS, INSIDER, BEC,
   LATERAL, C2, CRED_DUMP, SUPPLY, EXFIL, PATCH,
-].slice(0, 10);
+  AUDITOR, FIRE_DRILL,
+];
+
+/** Comic-relief incidents trigger the cheesy "audit" music mode. */
+export const COMIC_INCIDENT_IDS = new Set<string>(["auditor_visit", "fire_drill"]);
