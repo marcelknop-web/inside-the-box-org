@@ -277,7 +277,7 @@ function drawCoffee(ctx: CanvasRenderingContext2D, x: number, y: number, t: numb
 }
 
 // Desk + monitor + chair
-function drawDesk(ctx: CanvasRenderingContext2D, x: number, y: number, screen: string, t: number) {
+function drawDesk(ctx: CanvasRenderingContext2D, x: number, y: number, screen: string, t: number, seed = 0) {
   // chair
   drawRect(ctx, x + 16, y + 14, 6, 6, "#1a1a26");
   drawRect(ctx, x + 16, y + 14, 6, 1, "#3a3a4a");
@@ -286,18 +286,27 @@ function drawDesk(ctx: CanvasRenderingContext2D, x: number, y: number, screen: s
   drawRect(ctx, x, y + 15, 2, 8, "#2a1a14");
   drawRect(ctx, x + 20, y + 15, 2, 8, "#2a1a14");
   // monitor on desk
-  drawCrt(ctx, x + 4, y + 3, screen, t);
+  drawCrt(ctx, x + 4, y + 3, screen, t, seed);
 }
 
-// Network rack (NOC)
+// Network rack (NOC) — port lanes with link/activity LEDs that look like a real switch
 function drawNocRack(ctx: CanvasRenderingContext2D, x: number, y: number, t: number) {
   drawRect(ctx, x, y, 18, 30, "#1a1a26");
   for (let i = 0; i < 5; i++) {
     const ry = y + 3 + i * 5;
     drawRect(ctx, x + 2, ry, 14, 3, "#0a0a14");
     for (let j = 0; j < 6; j++) {
-      const on = ((Math.floor(t / 180) + i * 3 + j) % 4) !== 0;
-      drawPx(ctx, x + 3 + j * 2, ry + 1, on ? C.cyan : C.cyanDim);
+      // Each port: link is mostly steady, traffic flickers in bursts
+      const portSeed = i * 23 + j * 7;
+      const link = rand1(Math.floor(t / 1500) + portSeed) > 0.12;
+      const traffic = rand1(Math.floor(t / 80) + portSeed * 3) > 0.55;
+      const col = link
+        ? (traffic ? C.cyan : C.cyanDim)
+        : "#0a0a14";
+      drawPx(ctx, x + 3 + j * 2, ry + 1, col);
+    }
+  }
+}
     }
   }
 }
