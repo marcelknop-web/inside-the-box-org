@@ -648,11 +648,3 @@ export function DollHouse({ current, highlight, onMove, maxHeight }: DollHousePr
     </div>
   );
 }
-
-      <div className="mt-2 flex flex-wrap gap-3 text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
-        <span><span className="inline-block h-2 w-2 mr-1 align-middle" style={{ background: C.gold }} />{t("socLife.youAreHere")}</span>
-        <span><span className="inline-block h-2 w-2 mr-1 align-middle" style={{ background: C.cyan }} />NPC / {t("socLife.incidentRoomHint")}</span>
-      </div>
-    </div>
-  );
-}
