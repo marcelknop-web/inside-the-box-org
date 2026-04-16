@@ -324,6 +324,14 @@ export default function SocLife() {
               </Button>
               <Button
                 size="sm" variant="outline" className="font-mono h-7 sm:h-8 px-2 text-xs"
+                onClick={toggleFullscreen}
+                aria-label={isFullscreen ? (t("socLife.fullscreenExit") || "Exit fullscreen") : (t("socLife.fullscreenEnter") || "Fullscreen")}
+                title={isFullscreen ? (t("socLife.fullscreenExit") || "Exit fullscreen") : (t("socLife.fullscreenEnter") || "Fullscreen")}
+              >
+                {isFullscreen ? "⤡" : "⛶"}
+              </Button>
+              <Button
+                size="sm" variant="outline" className="font-mono h-7 sm:h-8 px-2 text-xs"
                 onClick={confirmRestart}
                 aria-label={t("socLife.restartShift")}
                 title={t("socLife.restartShift")}
