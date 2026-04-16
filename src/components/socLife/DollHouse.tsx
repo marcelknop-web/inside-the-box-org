@@ -244,7 +244,6 @@ function useWalker(
             const floorY = roomFloorLineY(myFloor);
             if (moveTowards(BOARD_X, floorY)) {
               // Arrived at door — call the lift to this floor.
-              const myFloor: 0 | 1 = s.y < CORRIDOR_Y + CORRIDOR_H / 2 ? 0 : 1;
               if (lift.targetFloor !== myFloor) lift.targetFloor = myFloor;
               // We're outside, signal we want to board so the lift knows
               // to open and *hold* the doors for us.
