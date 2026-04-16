@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      soc_life_scores: {
+        Row: {
+          created_at: string
+          id: string
+          incidents_handled: number
+          player_name: string
+          score: number
+          shift_seconds: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          incidents_handled?: number
+          player_name: string
+          score: number
+          shift_seconds?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          incidents_handled?: number
+          player_name?: string
+          score?: number
+          shift_seconds?: number
+        }
+        Relationships: []
+      }
       ttx_registrations: {
         Row: {
           company: string | null
