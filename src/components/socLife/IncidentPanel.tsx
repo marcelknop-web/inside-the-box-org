@@ -83,75 +83,128 @@ export function IncidentPanel({
   const titleDone = typedTitle.length >= titleText.length;
   const briefDone = typedBrief.length >= briefText.length;
 
+  // Numbered, sequential reveal — each block "unlocks" only when the previous
+  // typewriter has finished, so the eye knows exactly where to look next.
+  const stepNum = (n: number, active: boolean, done: boolean) => (
+    <span
+      className={cn(
+        "inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full font-mono text-[10px] font-bold",
+        done && "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40",
+        active && !done && "bg-rose-500/30 text-rose-200 border border-rose-400/60 animate-pulse",
+        !active && !done && "bg-muted/30 text-muted-foreground/50 border border-muted/30",
+      )}
+    >
+      {n}
+    </span>
+  );
+
+  const showBrief = titleDone;
+  const showMeta = briefDone;
+  const showPrompt = briefDone;
+  const promptDone = typedPrompt.length >= promptText.length;
+  const showActions = promptDone;
+
   return (
     <div className="rounded-lg border border-rose-500/40 bg-background/95 p-4 shadow-[0_0_0_1px_hsl(var(--destructive)/0.2)] max-w-full overflow-hidden">
-      <div className="mb-2 flex items-center justify-between gap-2 font-mono text-[11px] uppercase tracking-wider">
+      <div className="mb-3 flex items-center justify-between gap-2 font-mono text-[11px] uppercase tracking-wider">
         <span className="text-rose-300 truncate">▲ {t("socLife.incomingIncident")}</span>
         <span className="text-muted-foreground shrink-0">{stepIndex + 1} / {totalSteps}</span>
       </div>
 
-      <h3 className="font-mono text-base sm:text-lg text-foreground break-words min-h-[1.5em]">
-        {typedTitle}
-        {!titleDone && <span className="ml-0.5 inline-block w-2 h-4 align-middle bg-rose-300 animate-pulse" />}
-      </h3>
-      <p className="mb-3 text-xs sm:text-sm text-muted-foreground break-words min-h-[2.4em]">
-        {typedBrief}
-        {titleDone && !briefDone && <span className="ml-0.5 inline-block w-1.5 h-3 align-middle bg-muted-foreground animate-pulse" />}
-      </p>
-
-      <div className="mb-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] font-mono uppercase tracking-wider">
-        <span className="text-muted-foreground break-words">
-          {t("socLife.incidentRoomHint")}:{" "}
-          <span className={cn("ml-1", inRightRoom ? "text-emerald-400" : "text-cyan-300")}>
-            {requiredRoom ? t(`socLife.rooms.${requiredRoom.i18n}.name`) : "—"}
-          </span>
-        </span>
-        <span className="text-muted-foreground">
-          {t("socLife.timeLeft")}: <span className={cn("ml-1", sec <= 5 ? "text-rose-400 animate-pulse" : "text-foreground")}>{sec}s</span>
-        </span>
+      {/* 1 — Title */}
+      <div className="mb-3 flex items-start gap-2">
+        {stepNum(1, !titleDone, titleDone)}
+        <h3 className="font-mono text-base sm:text-lg text-foreground break-words min-h-[1.5em] leading-snug flex-1">
+          {typedTitle}
+          {!titleDone && <span className="ml-0.5 inline-block w-2 h-4 align-middle bg-rose-300 animate-pulse" />}
+        </h3>
       </div>
 
-      <div className="mb-3 h-1 w-full overflow-hidden rounded-full bg-background/60">
-        <div
-          className={cn("h-full transition-[width] duration-100", sec <= 5 ? "bg-rose-500" : "bg-cyan-400")}
-          style={{ width: `${pct}%` }}
-        />
-      </div>
-
-      <div className="mb-2">
-        <div className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground break-words">
-          {step.title[lang]}
+      {/* 2 — Brief */}
+      {showBrief && (
+        <div className="mb-3 flex items-start gap-2 animate-fade-in">
+          {stepNum(2, !briefDone, briefDone)}
+          <p className="text-xs sm:text-sm text-muted-foreground break-words min-h-[2.4em] leading-relaxed flex-1">
+            {typedBrief}
+            {!briefDone && <span className="ml-0.5 inline-block w-1.5 h-3 align-middle bg-muted-foreground animate-pulse" />}
+          </p>
         </div>
-        <div className="text-sm text-foreground break-words min-h-[1.4em]">{typedPrompt}</div>
-      </div>
+      )}
 
-      {!inRightRoom && requiredRoom ? (
-        <div className="space-y-2">
-          <div className="rounded-md border border-cyan-400/40 bg-cyan-400/10 p-3 font-mono text-xs text-cyan-200">
-            {t("socLife.feedback.chooseRoomFirst")}
+      {/* 3 — Meta (room + timer) */}
+      {showMeta && (
+        <div className="mb-3 ml-7 animate-fade-in">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] font-mono uppercase tracking-wider mb-2">
+            <span className="text-muted-foreground break-words">
+              {t("socLife.incidentRoomHint")}:{" "}
+              <span className={cn("ml-1", inRightRoom ? "text-emerald-400" : "text-cyan-300")}>
+                {requiredRoom ? t(`socLife.rooms.${requiredRoom.i18n}.name`) : "—"}
+              </span>
+            </span>
+            <span className="text-muted-foreground">
+              {t("socLife.timeLeft")}: <span className={cn("ml-1", sec <= 5 ? "text-rose-400 animate-pulse" : "text-foreground")}>{sec}s</span>
+            </span>
           </div>
-          {onGoToRoom && (
-            <Button
-              variant="default"
-              className="w-full justify-center font-mono"
-              onClick={() => onGoToRoom(step.requiredRoom!)}
-            >
-              → {t("socLife.feedback.goToRoomCta")}: {t(`socLife.rooms.${requiredRoom.i18n}.name`)}
-            </Button>
-          )}
+          <div className="h-1 w-full overflow-hidden rounded-full bg-background/60">
+            <div
+              className={cn("h-full transition-[width] duration-100", sec <= 5 ? "bg-rose-500" : "bg-cyan-400")}
+              style={{ width: `${pct}%` }}
+            />
+          </div>
         </div>
-      ) : (
-        <div className="grid grid-cols-1 gap-2">
-          {shuffledOptions.map((opt) => (
-            <Button
-              key={opt.id}
-              variant="outline"
-              className="justify-start whitespace-normal text-left h-auto py-2 px-3 font-sans"
-              onClick={() => onChoose(opt.id)}
-            >
-              {opt.label[lang]}
-            </Button>
-          ))}
+      )}
+
+      {/* 4 — Prompt */}
+      {showPrompt && (
+        <div className="mb-3 flex items-start gap-2 animate-fade-in">
+          {stepNum(4, !promptDone, promptDone)}
+          <div className="flex-1">
+            <div className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground break-words mb-1">
+              {step.title[lang]}
+            </div>
+            <div className="text-sm text-foreground break-words min-h-[1.4em] leading-relaxed">
+              {typedPrompt}
+              {!promptDone && <span className="ml-0.5 inline-block w-1.5 h-3 align-middle bg-foreground/60 animate-pulse" />}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 5 — Action area: only after the prompt is fully revealed AND user is in the right room */}
+      {showActions && (
+        <div className="ml-7 animate-fade-in">
+          {!inRightRoom && requiredRoom ? (
+            <div className="space-y-2">
+              <div className="rounded-md border border-cyan-400/40 bg-cyan-400/10 p-3 font-mono text-xs text-cyan-200">
+                {t("socLife.feedback.chooseRoomFirst")}
+              </div>
+              {onGoToRoom && (
+                <Button
+                  variant="default"
+                  className="w-full justify-center font-mono"
+                  onClick={() => onGoToRoom(step.requiredRoom!)}
+                >
+                  → {t("socLife.feedback.goToRoomCta")}: {t(`socLife.rooms.${requiredRoom.i18n}.name`)}
+                </Button>
+              )}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-2">
+              {shuffledOptions.map((opt, i) => (
+                <Button
+                  key={opt.id}
+                  variant="outline"
+                  className="justify-start whitespace-normal text-left h-auto py-2 px-3 font-sans gap-2"
+                  onClick={() => onChoose(opt.id)}
+                >
+                  <span className="font-mono text-[10px] text-muted-foreground shrink-0">
+                    {String.fromCharCode(65 + i)}
+                  </span>
+                  <span className="flex-1">{opt.label[lang]}</span>
+                </Button>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>
