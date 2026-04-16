@@ -132,6 +132,7 @@ export default function SocLife() {
     audio.playSfx("incident_klaxon", 0.6);
     toast(t("socLife.incomingIncident"), {
       description: inc.title[language as "de" | "en" | "fr"],
+      duration: 2200,
     });
   }, [audio, t, refillBag, language]);
 
@@ -142,18 +143,18 @@ export default function SocLife() {
     nextIncidentAtRef.current = Date.now() + randIncidentDelay();
     if (escalated) {
       audio.playSfx("escalation", 0.5);
-      toast.error(t("socLife.incidentEscalated"));
+      toast.error(t("socLife.incidentEscalated"), { duration: 1800 });
       setReputation((r) => Math.max(0, r - 10));
     } else {
       audio.playSfx("success_chime", 0.55);
-      toast.success(t("socLife.incidentResolved"));
+      toast.success(t("socLife.incidentResolved"), { duration: 1800 });
       setScore((s) => s + 50);
     }
   }, [audio, t]);
 
   function handleTimeout() {
     audio.playSfx("fail_buzz", 0.5);
-    toast.error(t("socLife.feedback.timeout"));
+    toast.error(t("socLife.feedback.timeout"), { duration: 1600 });
     setReputation((r) => Math.max(0, r - 8));
     finishIncident(true);
   }
@@ -171,10 +172,10 @@ export default function SocLife() {
     if (opt.correct) {
       setScore((s) => s + 10);
       audio.playSfx("success_chime", 0.45);
-      toast.success(t("socLife.feedback.correct"));
+      toast.success(t("socLife.feedback.correct"), { duration: 1200 });
     } else {
       audio.playSfx("fail_buzz", 0.45);
-      toast.error(t("socLife.feedback.wrong"));
+      toast.error(t("socLife.feedback.wrong"), { duration: 1200 });
     }
 
     const nextIdx = stepIdx + 1;
@@ -215,6 +216,7 @@ export default function SocLife() {
     }
     toast(t(`socLife.idle.${action}.name`), {
       description: t(`socLife.idle.${action}.result`),
+      duration: 1400,
     });
   }, [audio, t]);
 
