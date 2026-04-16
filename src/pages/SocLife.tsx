@@ -18,7 +18,7 @@ const MIN_INCIDENT_GAP_MS = 18_000;
 const MAX_INCIDENT_GAP_MS = 38_000;
 
 export default function SocLife() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const audio = useSocLifeAudio();
 
   const [started, setStarted] = useState(false);
@@ -127,9 +127,9 @@ export default function SocLife() {
     nextIncidentAtRef.current = 0;
     audio.playSfx("incident_klaxon", 0.6);
     toast(t("socLife.incomingIncident"), {
-      description: inc.title[(["en","de","fr"] as const).find((l) => l === (typeof navigator !== "undefined" ? navigator.language?.slice(0,2) : "en")) ?? "en"],
+      description: inc.title[language as "de" | "en" | "fr"],
     });
-  }, [audio, t, refillBag]);
+  }, [audio, t, refillBag, language]);
 
   const finishIncident = useCallback((escalated: boolean) => {
     setActiveIncident(null);
@@ -215,6 +215,7 @@ export default function SocLife() {
   }, [audio, t]);
 
   const startShift = async () => {
+  const startShift = async () => {
     audio.setEnabled(true);
     setStarted(true);
     setPaused(false);
@@ -226,6 +227,7 @@ export default function SocLife() {
     setShiftSec(0);
     setActiveIncident(null);
     setStepIdx(0);
+    refillBag();
     nextIncidentAtRef.current = Date.now() + 6_000;
     audio.setMusicMode("calm");
   };
@@ -292,7 +294,7 @@ export default function SocLife() {
         )}
 
         {started && (
-          <div className="relative flex-1 grid grid-cols-1 gap-3 lg:grid-cols-[1fr_300px] min-h-0">
+          <div className="flex-1 grid grid-cols-1 gap-3 lg:grid-cols-[1fr_320px] min-h-0">
             <div className="flex flex-col gap-3 min-h-0">
               <SocMeters
                 reputation={reputation} stress={stress} coffee={coffee}
@@ -317,13 +319,9 @@ export default function SocLife() {
               )}
             </div>
 
+            {/* Right sidebar: Incident takes priority over idle actions */}
             <aside className="min-h-0 overflow-y-auto">
-              <RoomActions currentRoom={currentRoom} onIdleAction={handleIdle} />
-            </aside>
-
-            {/* Incident as floating overlay so it never pushes layout */}
-            {activeIncident && (
-              <div className="absolute inset-x-0 bottom-0 z-20 lg:right-[312px] lg:left-0 max-h-[55%] overflow-y-auto rounded-lg backdrop-blur-sm">
+              {activeIncident ? (
                 <IncidentPanel
                   incident={activeIncident}
                   step={activeIncident.steps[stepIdx]}
@@ -333,8 +331,10 @@ export default function SocLife() {
                   timeLeftMs={stepTimeLeft}
                   onChoose={handleChoose}
                 />
-              </div>
-            )}
+              ) : (
+                <RoomActions currentRoom={currentRoom} onIdleAction={handleIdle} />
+              )}
+            </aside>
           </div>
         )}
       </div>
