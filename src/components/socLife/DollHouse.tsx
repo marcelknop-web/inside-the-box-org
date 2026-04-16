@@ -307,9 +307,7 @@ function drawNocRack(ctx: CanvasRenderingContext2D, x: number, y: number, t: num
     }
   }
 }
-    }
-  }
-}
+
 
 // Plant
 function drawPlant(ctx: CanvasRenderingContext2D, x: number, y: number) {
