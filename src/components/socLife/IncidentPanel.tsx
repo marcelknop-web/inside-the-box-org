@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { Incident, PlaybookStep, ROOMS, RoomId, Lang } from "@/data/socLifeData";
 import { Button } from "@/components/ui/button";
@@ -13,11 +14,39 @@ interface IncidentPanelProps {
   onChoose: (optionId: string) => void;
 }
 
+// Deterministic Fisher-Yates shuffle seeded by incident+step so the order
+// stays stable while the same step is shown, but differs between steps and runs.
+function shuffleOptions<T>(arr: T[], seed: string): T[] {
+  let h = 2166136261;
+  for (let i = 0; i < seed.length; i++) {
+    h ^= seed.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  const rand = () => {
+    h = Math.imul(h ^ (h >>> 15), 2246822507);
+    h = Math.imul(h ^ (h >>> 13), 3266489909);
+    h ^= h >>> 16;
+    return ((h >>> 0) % 1_000_000) / 1_000_000;
+  };
+  const out = [...arr];
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
+}
+
 export function IncidentPanel({
   incident, step, stepIndex, totalSteps, currentRoom, timeLeftMs, onChoose,
 }: IncidentPanelProps) {
   const { t, language } = useLanguage();
   const lang = language as Lang;
+  // Reseed per page-load too, so refresh varies the order.
+  const sessionSeed = useMemo(() => Math.random().toString(36).slice(2, 8), []);
+  const shuffledOptions = useMemo(
+    () => shuffleOptions(step.options, `${sessionSeed}:${incident.id}:${step.id}`),
+    [step, incident.id, sessionSeed],
+  );
   const inRightRoom = step.requiredRoom == null || step.requiredRoom === currentRoom;
   const requiredRoom = step.requiredRoom
     ? ROOMS.find((r) => r.id === step.requiredRoom)
@@ -72,7 +101,7 @@ export function IncidentPanel({
       )}
 
       <div className="grid grid-cols-1 gap-2">
-        {step.options.map((opt) => (
+        {shuffledOptions.map((opt) => (
           <Button
             key={opt.id}
             variant="outline"

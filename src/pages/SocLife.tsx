@@ -234,41 +234,43 @@ export default function SocLife() {
   const restart = () => startShift();
 
   return (
-    <div className="h-screen overflow-hidden bg-background text-foreground flex flex-col">
+    <div className="h-[100dvh] overflow-hidden bg-background text-foreground flex flex-col">
       <Helmet>
         <title>{t("socLife.metaTitle")}</title>
         <meta name="description" content={t("socLife.metaDesc")} />
       </Helmet>
 
-      <div className="mx-auto w-full max-w-6xl px-4 py-3 flex-1 flex flex-col min-h-0">
+      <div className="mx-auto w-full max-w-6xl px-3 sm:px-4 py-2 sm:py-3 flex-1 flex flex-col min-h-0">
         {/* Compact header */}
-        <header className="mb-2 flex items-end justify-between gap-3 shrink-0">
-          <div>
-            <div className="font-mono text-[10px] uppercase tracking-[0.3em] text-cyan-300">
+        <header className="mb-2 flex items-center justify-between gap-2 shrink-0">
+          <div className="min-w-0">
+            <div className="font-mono text-[9px] sm:text-[10px] uppercase tracking-[0.25em] text-cyan-300 truncate">
               inside-the-box · sim
             </div>
-            <h1 className="font-mono text-xl text-primary sm:text-2xl leading-tight">
+            <h1 className="font-mono text-base sm:text-xl md:text-2xl text-primary leading-tight truncate">
               {t("socLife.title")}
             </h1>
           </div>
           {started && (
-            <div className="flex gap-2 shrink-0">
+            <div className="flex gap-1.5 shrink-0">
               <Button
-                size="sm" variant="outline" className="font-mono h-8"
+                size="sm" variant="outline" className="font-mono h-8 px-2"
                 onClick={() => setPaused((p) => !p)}
                 disabled={gameOver}
+                aria-label={paused ? t("socLife.resume") : t("socLife.pause")}
               >
-                {paused ? `▶ ${t("socLife.resume")}` : `❚❚ ${t("socLife.pause")}`}
+                {paused ? "▶" : "❚❚"}
               </Button>
               <Button
-                size="sm" variant="outline" className="font-mono h-8"
+                size="sm" variant="outline" className="font-mono h-8 px-2"
                 onClick={() => audio.setEnabled(!audio.enabled)}
+                aria-label="Audio"
               >
                 {audio.enabled ? `🔊` : `🔇`}
               </Button>
               {gameOver && (
-                <Button size="sm" onClick={restart} className="font-mono h-8">
-                  ↻ {t("socLife.restart")}
+                <Button size="sm" onClick={restart} className="font-mono h-8 px-2">
+                  ↻
                 </Button>
               )}
             </div>
@@ -276,7 +278,7 @@ export default function SocLife() {
         </header>
 
         {!started && (
-          <section className="rounded-lg border border-border/40 bg-background/40 p-6 max-w-2xl">
+          <section className="rounded-lg border border-border/40 bg-background/40 p-4 sm:p-6 max-w-2xl overflow-y-auto">
             <p className="mb-3 text-sm text-muted-foreground sm:text-base">
               {t("socLife.subtitle")}
             </p>
@@ -293,19 +295,28 @@ export default function SocLife() {
         )}
 
         {started && (
-          <div className="flex-1 grid grid-cols-1 gap-3 lg:grid-cols-[1fr_320px] min-h-0">
-            <div className="flex flex-col gap-3 min-h-0">
+          <div className="flex-1 grid grid-cols-1 gap-2 sm:gap-3 lg:grid-cols-[1fr_320px] min-h-0 overflow-hidden">
+            {/* Left: meters + house. On mobile, house gets a hard cap so the
+                sidebar/incident panel below stays visible without scrolling. */}
+            <div className="flex flex-col gap-2 sm:gap-3 min-h-0">
               <SocMeters
                 reputation={reputation} stress={stress} coffee={coffee}
                 score={score} shift={Math.floor(shiftSec)} isNight={isNight}
                 status={status}
               />
-              <div className="flex-1 min-h-0">
+              <div className="min-h-0 lg:flex-1">
                 <DollHouse
                   current={currentRoom}
                   highlight={activeIncident?.steps[stepIdx]?.requiredRoom ?? null}
                   onMove={handleMove}
-                  maxHeight={typeof window !== "undefined" ? window.innerHeight - 260 : 480}
+                  maxHeight={
+                    typeof window !== "undefined"
+                      ? window.innerWidth < 1024
+                        // mobile/tablet: leave generous room for sidebar panel below
+                        ? Math.min(280, window.innerHeight * 0.38)
+                        : window.innerHeight - 260
+                      : 320
+                  }
                 />
               </div>
               {gameOver && (
@@ -318,8 +329,9 @@ export default function SocLife() {
               )}
             </div>
 
-            {/* Right sidebar: Incident takes priority over idle actions */}
-            <aside className="min-h-0 overflow-y-auto">
+            {/* Right sidebar: Incident takes priority over idle actions.
+                On mobile this sits below the house and scrolls internally. */}
+            <aside className="min-h-0 flex-1 overflow-y-auto">
               {activeIncident ? (
                 <IncidentPanel
                   incident={activeIncident}
