@@ -153,18 +153,10 @@ export default function SocLife() {
   // possibly have read the story — felt robotic.
   const [revealRequiredRoom, setRevealRequiredRoom] = useState(false);
   const nextIncidentAtRef = useRef<number>(0);
-  // Shuffle-bag: each of the 10 scenarios appears once per cycle, then reshuffles.
-  const incidentBagRef = useRef<Incident[]>([]);
-
-  const refillBag = useCallback(() => {
-    const arr = [...INCIDENTS];
-    // Fisher-Yates
-    for (let i = arr.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [arr[i], arr[j]] = [arr[j], arr[i]];
-    }
-    incidentBagRef.current = arr;
-  }, []);
+  // History (most recent first) used by the picker to avoid repeats.
+  // Window size = floor(N/2) keeps variety while still allowing rotation.
+  const recentIncidentIdsRef = useRef<string[]>([]);
+  const lastCategoryRef = useRef<IncidentCategory | null>(null);
 
   const isNight = useMemo(() => {
     // 6 minutes day / 4 minutes night cycle for variety
@@ -250,8 +242,17 @@ export default function SocLife() {
   }
 
   const spawnIncident = useCallback(() => {
-    if (incidentBagRef.current.length === 0) refillBag();
-    const inc = incidentBagRef.current.shift()!;
+    const inc = pickNextIncident(
+      incidentsCompleted,
+      recentIncidentIdsRef.current,
+      lastCategoryRef.current,
+    );
+    // Update history: keep window of ~half the catalogue so we don't recycle
+    // the same scenario back-to-back, but still cycle through everything.
+    const windowSize = Math.max(3, Math.floor(INCIDENTS.length / 2));
+    recentIncidentIdsRef.current = [inc.id, ...recentIncidentIdsRef.current].slice(0, windowSize);
+    lastCategoryRef.current = inc.category ?? null;
+
     setActiveIncident(inc);
     setStepIdx(0);
     setStepTimeLeft(stepTimeFor(inc.steps[0].timeLimitMs, incidentsCompleted));
@@ -262,7 +263,7 @@ export default function SocLife() {
       description: inc.title[language as "de" | "en" | "fr"],
       duration: 2200,
     });
-  }, [audio, t, refillBag, language, incidentsCompleted]);
+  }, [audio, t, language, incidentsCompleted]);
 
   const finishIncident = useCallback((escalated: boolean) => {
     setActiveIncident(null);
