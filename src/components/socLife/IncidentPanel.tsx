@@ -4,12 +4,14 @@ import { Incident, PlaybookStep, ROOMS, RoomId, Lang } from "@/data/socLifeData"
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-/** Letter-by-letter reveal — guides the user's eye to incoming briefing text. */
-function useTypewriter(text: string, msPerChar = 18) {
+/** Letter-by-letter reveal — guides the user's eye to incoming briefing text.
+ *  When `start` is false the typewriter sits at empty so we can sequence
+ *  reveals with explicit pauses between sections. */
+function useTypewriter(text: string, msPerChar = 18, start = true) {
   const [shown, setShown] = useState("");
   useEffect(() => {
     setShown("");
-    if (!text) return;
+    if (!text || !start) return;
     let i = 0;
     const id = window.setInterval(() => {
       i += 1;
@@ -17,8 +19,21 @@ function useTypewriter(text: string, msPerChar = 18) {
       if (i >= text.length) window.clearInterval(id);
     }, msPerChar);
     return () => window.clearInterval(id);
-  }, [text, msPerChar]);
+  }, [text, msPerChar, start]);
   return shown;
+}
+
+/** Fires `true` after `delayMs`, resets on dependency change. */
+function useDelayedFlag(delayMs: number, deps: unknown[] = []): boolean {
+  const [ready, setReady] = useState(delayMs <= 0);
+  useEffect(() => {
+    setReady(delayMs <= 0);
+    if (delayMs <= 0) return;
+    const id = window.setTimeout(() => setReady(true), delayMs);
+    return () => window.clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, deps);
+  return ready;
 }
 
 interface IncidentPanelProps {
