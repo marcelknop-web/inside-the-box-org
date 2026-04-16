@@ -36,6 +36,18 @@ export default function SocLife() {
   const [stepIdx, setStepIdx] = useState(0);
   const [stepTimeLeft, setStepTimeLeft] = useState(0);
   const nextIncidentAtRef = useRef<number>(0);
+  // Shuffle-bag: each of the 10 scenarios appears once per cycle, then reshuffles.
+  const incidentBagRef = useRef<Incident[]>([]);
+
+  const refillBag = useCallback(() => {
+    const arr = [...INCIDENTS];
+    // Fisher-Yates
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    incidentBagRef.current = arr;
+  }, []);
 
   const isNight = useMemo(() => {
     // 6 minutes day / 4 minutes night cycle for variety
@@ -107,17 +119,17 @@ export default function SocLife() {
   }
 
   const spawnIncident = useCallback(() => {
-    const type: IncidentType = INCIDENT_TYPES[Math.floor(Math.random() * INCIDENT_TYPES.length)];
-    const inc = INCIDENTS[type];
+    if (incidentBagRef.current.length === 0) refillBag();
+    const inc = incidentBagRef.current.shift()!;
     setActiveIncident(inc);
     setStepIdx(0);
     setStepTimeLeft(inc.steps[0].timeLimitMs);
     nextIncidentAtRef.current = 0;
     audio.playSfx("incident_klaxon", 0.6);
     toast(t("socLife.incomingIncident"), {
-      description: t(`socLife.incidents.${inc.i18nBase}.title`),
+      description: inc.title[(["en","de","fr"] as const).find((l) => l === (typeof navigator !== "undefined" ? navigator.language?.slice(0,2) : "en")) ?? "en"],
     });
-  }, [audio, t]);
+  }, [audio, t, refillBag]);
 
   const finishIncident = useCallback((escalated: boolean) => {
     setActiveIncident(null);
