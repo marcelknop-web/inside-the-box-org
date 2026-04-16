@@ -495,10 +495,9 @@ function drawCrt(
   // Rolling scanline
   const sl = Math.floor((t / 90 + seed) % 6);
   drawRect(ctx, x + 1, y + 1 + sl, 10, 1, "rgba(0,0,0,0.35)");
-  // Random hot pixel occasionally
-  if (rand1(Math.floor(t / 180) + seed) > 0.92) {
-    drawPx(ctx, x + 1 + (Math.floor(t / 50 + seed) % 10), y + 1 + (Math.floor(t / 70 + seed) % 6), C.white);
-  }
+  // (Removed: occasional white "hot pixel" inside CRT — it looked like dirt
+  // on the screen rather than meaningful UI. The animated bars + scanline
+  // already give the monitor a believable, alive feel.)
   drawRect(ctx, x + 4, y + 9, 4, 1, "#0a0a0a");
   drawRect(ctx, x + 3, y + 9, 6, 1, "#2a2a2a");
 }
@@ -1155,14 +1154,7 @@ export function DollHouse({ current, highlight, onMove, maxHeight, isNight = fal
       drawRect(ctx, shaftX - 3, CORRIDOR_Y + 4, 1, CORRIDOR_H - 8, railCol);
       drawRect(ctx, shaftX + SHAFT_W + 2, CORRIDOR_Y + 4, 1, CORRIDOR_H - 8, railCol);
 
-      // Ambient corridor "data motes" — small pixels drifting horizontally
-      for (let m = 0; m < 6; m++) {
-        const phase = (t / 40 + m * 43) % (LOGICAL_W + 16);
-        const mx = phase - 8;
-        const my = CORRIDOR_Y + 4 + ((m * 5) % (CORRIDOR_H - 8));
-        const col = m % 2 === 0 ? C.cyan : C.magenta;
-        drawPx(ctx, mx, my, col);
-      }
+      // (Removed: ambient corridor "data motes" — they read as random colour noise.)
 
       // Highlight ring around required incident room
       if (highlight) {
@@ -1188,16 +1180,10 @@ export function DollHouse({ current, highlight, onMove, maxHeight, isNight = fal
       ctx.lineWidth = 1;
       ctx.strokeRect(cx + 0.5, cy + 0.5, ROOM_W - 1, ROOM_H - 1);
 
-      // Occasional spark in server / NOC rooms (visual life)
-      const sparkRoom = ((Math.floor(t / 1700)) % 2 === 0) ? "server_room" : "noc";
-      if ((Math.floor(t / 60) % 28) === 0) {
-        const r = ROOMS.find((x) => x.id === sparkRoom)!;
-        const sx = r.col * ROOM_W + 8 + ((Math.floor(t / 60)) % 40);
-        const sy = roomTopY(r.row) + 12 + ((Math.floor(t / 60)) % 16);
-        drawPx(ctx, sx, sy, C.amber);
-        drawPx(ctx, sx + 1, sy, C.gold);
-        drawPx(ctx, sx, sy + 1, C.gold);
-      }
+      // (Removed: random "sparks" in server / NOC rooms — they appeared at
+      // arbitrary coordinates and read as colour noise rather than as a
+      // meaningful signal. Server racks and NOC switches already convey
+      // activity through their structured, per-port LEDs.)
 
       // NPCs — natural behavior: stand still most of the time, occasionally
       // walk a few steps to a new spot in the room, then stand again.
@@ -1434,10 +1420,8 @@ export function DollHouse({ current, highlight, onMove, maxHeight, isNight = fal
         true,
       );
 
-      // Subtle "neon" sweep on the building outline (very faint, slow)
-      const sweepX = (t / 18) % (LOGICAL_W + 40) - 20;
-      ctx.fillStyle = "rgba(255,58,160,0.05)";
-      ctx.fillRect(sweepX, 0, 12, LOGICAL_H);
+      // (Removed: faint magenta "neon sweep" across the building outline —
+      // it produced an unmotivated coloured stripe drifting across the scene.)
 
       // ---- Day/night tint overlay (smooth ease toward target) ----
       const target = isNightRef.current ? 1 : 0;

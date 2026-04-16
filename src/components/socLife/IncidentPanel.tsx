@@ -196,9 +196,27 @@ export function IncidentPanel({
               {t("socLife.timeLeft")}: <span className={cn("ml-1", sec <= 5 ? "text-rose-400 animate-pulse" : "text-foreground")}>{sec}s</span>
             </span>
           </div>
-          <div className="h-1 w-full overflow-hidden rounded-full bg-background/60">
+          {/* Timer bar — tick marks on a calm track, smoothly draining fill,
+              colour shifts from cyan → amber → rose as time runs out. */}
+          <div className="relative h-2 w-full overflow-hidden rounded-sm border border-border/50 bg-background/80">
+            {/* Subtle tick marks every 10% for a "studio meter" feel */}
             <div
-              className={cn("h-full transition-[width] duration-100", sec <= 5 ? "bg-rose-500" : "bg-cyan-400")}
+              aria-hidden
+              className="pointer-events-none absolute inset-0 opacity-40"
+              style={{
+                backgroundImage:
+                  "repeating-linear-gradient(to right, transparent 0, transparent calc(10% - 1px), hsl(var(--border)) calc(10% - 1px), hsl(var(--border)) 10%)",
+              }}
+            />
+            <div
+              className={cn(
+                "h-full transition-[width,background-color] duration-150 ease-linear",
+                sec <= 5
+                  ? "bg-rose-500 shadow-[0_0_6px_hsl(var(--destructive)/0.6)]"
+                  : sec <= 10
+                  ? "bg-amber-400"
+                  : "bg-cyan-400",
+              )}
               style={{ width: `${pct}%` }}
             />
           </div>
