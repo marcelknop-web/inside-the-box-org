@@ -83,10 +83,10 @@ export function Onboarding({ onClose }: OnboardingProps) {
           </button>
         </div>
 
-        {/* Slide content */}
-        <div className="mb-5 min-h-[150px]">
-          <div className="mb-3 font-mono text-3xl text-primary leading-none">
-            {slide.icon}
+        {/* Slide content: animated SVG preview + title + body */}
+        <div className="mb-5">
+          <div className="mb-3 rounded-md border border-border/40 bg-background/60 p-2">
+            <slide.Preview />
           </div>
           <h3 className="mb-2 font-mono text-lg sm:text-xl text-foreground leading-tight">
             {slide.title}
