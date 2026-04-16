@@ -1066,6 +1066,8 @@ export const fr = {
     start: 'Lancer la garde',
     pause: 'Pause',
     resume: 'Reprendre',
+    pausedHeadline: 'Garde en pause',
+    pausedHint: 'Cliquer ou appuyer sur ▶ pour continuer.',
     soundOn: 'Son activé',
     soundOff: 'Son désactivé',
     loadingAudio: 'Préparation audio …',
