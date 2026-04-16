@@ -123,8 +123,14 @@ serve(async (req) => {
       url = "https://api.elevenlabs.io/v1/sound-generation";
       payload = { text: preset.prompt, duration_seconds: preset.duration, prompt_influence: 0.4 };
     } else {
+      // ElevenLabs Music API expects `music_length_ms`. Some accounts/regions also accept
+      // `duration_seconds`. We send both for resilience.
       url = "https://api.elevenlabs.io/v1/music";
-      payload = { prompt: preset.prompt, music_length_ms: Math.round(preset.duration * 1000) };
+      payload = {
+        prompt: preset.prompt,
+        music_length_ms: Math.round(preset.duration * 1000),
+        duration_seconds: preset.duration,
+      };
     }
 
     const upstream = await fetch(url, {
