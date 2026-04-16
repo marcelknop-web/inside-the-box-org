@@ -29,8 +29,18 @@ interface DollHouseProps {
  */
 
 // --- Logical pixel grid ---
-const LOGICAL_W = 256;
-const LOGICAL_H = 144;
+// We render at 2× the original 256×144 grid so every existing 1-px detail can
+// now be drawn with sub-pixel precision (effectively giving us 2× the detail
+// budget). Geometry constants and the render code keep using the original
+// 256×144 coordinate space — a single ctx.scale(2,2) at the top of each frame
+// promotes every "1 logical px" to a crisp 2×2 pixel block on the actual
+// canvas. Sprite & furniture renderers can then opt in to half-step details
+// by drawing at 0.5 offsets where it matters.
+const LOGICAL_W = 512;
+const LOGICAL_H = 288;
+const RENDER_SCALE = 2; // canvas is rendered at 2× the legacy logical grid
+// Legacy "design grid" coordinates — keep using these everywhere; the
+// ctx.scale(RENDER_SCALE) at draw time maps them to the higher-density canvas.
 const ROOM_W = 64;          // 4 rooms × 64 = 256
 const ROOM_H = 60;          // upper room incl. floor
 const CORRIDOR_H = 24;      // middle corridor with stairs
@@ -46,6 +56,8 @@ function roomCenterX(col: 0 | 1 | 2 | 3) {
 }
 const CORRIDOR_Y = ROOM_H;
 const STAIR_X = ROOM_W * 2; // staircase between col 1 and col 2
+const DESIGN_W = 256;
+const DESIGN_H = 144;
 
 // --- Palette (PICO-8 inspired but tuned to brand: gold/cyan/magenta) ---
 const C = {
@@ -834,8 +846,11 @@ export function DollHouse({ current, highlight, onMove, maxHeight, isNight = fal
     const update = () => {
       const w = wrapRef.current?.clientWidth ?? 800;
       const h = maxHeight ?? Number.POSITIVE_INFINITY;
-      const sByW = Math.floor(w / LOGICAL_W);
-      const sByH = Math.floor(h / LOGICAL_H);
+      // Display scale uses the legacy 256×144 design grid so the on-screen
+      // size stays identical; the canvas itself renders at 2× that for
+      // crisper detail.
+      const sByW = Math.floor(w / DESIGN_W);
+      const sByH = Math.floor(h / DESIGN_H);
       const s = Math.max(2, Math.min(6, Math.min(sByW, sByH)));
       setScale(s);
     };
@@ -927,12 +942,18 @@ export function DollHouse({ current, highlight, onMove, maxHeight, isNight = fal
       const dtMs = Math.min(48, now - lastFrame); // clamp to avoid huge jumps after tab-blur
       lastFrame = now;
 
+      // Reset transform and apply 2× supersampling: every "1 design px" the
+      // renderers below draw fills a crisp 2×2 block on the canvas. This
+      // gives sprites and detail work twice the effective resolution while
+      // keeping all geometry constants in the legacy 256×144 grid.
+      ctx.setTransform(RENDER_SCALE, 0, 0, RENDER_SCALE, 0, 0);
+
       // Clear
-      drawRect(ctx, 0, 0, LOGICAL_W, LOGICAL_H, C.bg);
+      drawRect(ctx, 0, 0, DESIGN_W, DESIGN_H, C.bg);
 
       // Building outline
-      drawRect(ctx, 0, 0, LOGICAL_W, LOGICAL_H, C.buildingDark);
-      drawRect(ctx, 1, 1, LOGICAL_W - 2, LOGICAL_H - 2, C.buildingMid);
+      drawRect(ctx, 0, 0, DESIGN_W, DESIGN_H, C.buildingDark);
+      drawRect(ctx, 1, 1, DESIGN_W - 2, DESIGN_H - 2, C.buildingMid);
 
       // Render rooms
       ROOMS.forEach((room) => {
@@ -942,11 +963,11 @@ export function DollHouse({ current, highlight, onMove, maxHeight, isNight = fal
       });
 
       // Corridor strip
-      drawRect(ctx, 0, CORRIDOR_Y, LOGICAL_W, CORRIDOR_H, C.corridor);
+      drawRect(ctx, 0, CORRIDOR_Y, DESIGN_W, CORRIDOR_H, C.corridor);
       // floor of corridor
-      drawRect(ctx, 0, CORRIDOR_Y + CORRIDOR_H - 2, LOGICAL_W, 2, "#1a0e22");
+      drawRect(ctx, 0, CORRIDOR_Y + CORRIDOR_H - 2, DESIGN_W, 2, "#1a0e22");
       // dotted ceiling line
-      for (let i = 0; i < LOGICAL_W; i += 4) drawPx(ctx, i, CORRIDOR_Y + 1, C.corridorLine);
+      for (let i = 0; i < DESIGN_W; i += 4) drawPx(ctx, i, CORRIDOR_Y + 1, C.corridorLine);
       // ===== Elevator =====
       // Lovingly animated lift in the central shaft. The cabin tracks any figure
       // currently traversing the vertical staircase column; otherwise it idles
@@ -1464,16 +1485,16 @@ export function DollHouse({ current, highlight, onMove, maxHeight, isNight = fal
       if (tint > 0.01) {
         // cool moonlight blue, multiply-style on dark scene via additive overlay
         ctx.fillStyle = `rgba(40,90,180,${(0.22 * tint).toFixed(3)})`;
-        ctx.fillRect(0, 0, LOGICAL_W, LOGICAL_H);
+        ctx.fillRect(0, 0, DESIGN_W, DESIGN_H);
         // subtle vignette darkening at edges
         ctx.fillStyle = `rgba(6,10,28,${(0.18 * tint).toFixed(3)})`;
-        ctx.fillRect(0, 0, LOGICAL_W, 6);
-        ctx.fillRect(0, LOGICAL_H - 6, LOGICAL_W, 6);
-        ctx.fillRect(0, 0, 4, LOGICAL_H);
-        ctx.fillRect(LOGICAL_W - 4, 0, 4, LOGICAL_H);
+        ctx.fillRect(0, 0, DESIGN_W, 6);
+        ctx.fillRect(0, DESIGN_H - 6, DESIGN_W, 6);
+        ctx.fillRect(0, 0, 4, DESIGN_H);
+        ctx.fillRect(DESIGN_W - 4, 0, 4, DESIGN_H);
         // a few "stars" in the building's dark trim (top strip)
         for (let s = 0; s < 5; s++) {
-          const sx = ((s * 53 + Math.floor(t / 2000) * 17) % (LOGICAL_W - 4)) + 2;
+          const sx = ((s * 53 + Math.floor(t / 2000) * 17) % (DESIGN_W - 4)) + 2;
           const twinkle = (Math.floor(t / 280 + s) % 5) === 0 ? C.white : "rgba(232,232,240,0.5)";
           drawPx(ctx, sx, 2 + (s % 2), twinkle);
         }
@@ -1489,13 +1510,13 @@ export function DollHouse({ current, highlight, onMove, maxHeight, isNight = fal
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [player, current, highlight]);
 
-  // Click handler: map screen coords -> logical room
+  // Click handler: map screen coords -> design-grid coords -> room
   const handleClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const cv = canvasRef.current;
     if (!cv) return;
     const rect = cv.getBoundingClientRect();
-    const cx = ((e.clientX - rect.left) / rect.width) * LOGICAL_W;
-    const cy = ((e.clientY - rect.top) / rect.height) * LOGICAL_H;
+    const cx = ((e.clientX - rect.left) / rect.width) * DESIGN_W;
+    const cy = ((e.clientY - rect.top) / rect.height) * DESIGN_H;
     const col = Math.floor(cx / ROOM_W) as 0 | 1 | 2 | 3;
     let row: 0 | 1 | null = null;
     if (cy < ROOM_H) row = 0;
@@ -1510,9 +1531,11 @@ export function DollHouse({ current, highlight, onMove, maxHeight, isNight = fal
       <div
         className="relative mx-auto"
         style={{
-          width: LOGICAL_W * scale,
+          // Display in the legacy 256×144 design size (scaled), while the
+          // canvas itself holds 2× pixels for sharper detail.
+          width: DESIGN_W * scale,
           maxWidth: "100%",
-          aspectRatio: `${LOGICAL_W} / ${LOGICAL_H}`,
+          aspectRatio: `${DESIGN_W} / ${DESIGN_H}`,
         }}
       >
         <canvas
@@ -1544,9 +1567,9 @@ export function DollHouse({ current, highlight, onMove, maxHeight, isNight = fal
         {ROOMS.map((room) => {
           const isCurrent = room.id === current;
           const isHighlight = room.id === highlight;
-          const leftPct = (room.col * ROOM_W + 2) / LOGICAL_W * 100;
-          const topPct = (roomTopY(room.row) + 2) / LOGICAL_H * 100;
-          const widthPct = (ROOM_W - 4) / LOGICAL_W * 100;
+          const leftPct = (room.col * ROOM_W + 2) / DESIGN_W * 100;
+          const topPct = (roomTopY(room.row) + 2) / DESIGN_H * 100;
+          const widthPct = (ROOM_W - 4) / DESIGN_W * 100;
           return (
             <button
               key={room.id}
