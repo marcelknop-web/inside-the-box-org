@@ -224,10 +224,13 @@ export function useSocLifeAudio() {
     const ctx = ctxRef.current;
     if (!g || !ctx || !enabledRef.current) return;
     const target = mode === "alert" ? 0.55 : 0.45;
-    g.gain.cancelScheduledValues(ctx.currentTime);
-    g.gain.setValueAtTime(g.gain.value, ctx.currentTime);
-    g.gain.linearRampToValueAtTime(0.15, ctx.currentTime + 0.08);
-    g.gain.linearRampToValueAtTime(target, ctx.currentTime + 0.5);
+    const now = ctx.currentTime;
+    // Clamp current value to a safe non-zero floor so exponential ramps work.
+    const safeNow = Math.max(g.gain.value, 0.05);
+    g.gain.cancelScheduledValues(now);
+    g.gain.setValueAtTime(safeNow, now);
+    g.gain.linearRampToValueAtTime(0.18, now + 0.08);
+    g.gain.linearRampToValueAtTime(target, now + 0.6);
   }, []);
 
   const playSfx = useCallback((key: SfxKey, volume = 0.7) => {
@@ -321,5 +324,30 @@ export function useSocLifeAudio() {
     };
   }, [stopSequencer]);
 
-  return { enabled, setEnabled, setMusicMode, playSfx };
+  // Stable API object — referentially identical across renders so consumers
+  // can safely depend on it without retriggering effects (which previously
+  // caused the music to keep "ducking" on every render and sound broken).
+  const setEnabledRef = useRef(setEnabled);
+  const setMusicModeRef = useRef(setMusicMode);
+  const playSfxRef = useRef(playSfx);
+  setEnabledRef.current = setEnabled;
+  setMusicModeRef.current = setMusicMode;
+  playSfxRef.current = playSfx;
+
+  const apiRef = useRef<{
+    enabled: boolean;
+    setEnabled: (v: boolean) => void;
+    setMusicMode: (m: MusicMode) => void;
+    playSfx: (k: SfxKey, vol?: number) => void;
+  } | null>(null);
+  if (!apiRef.current) {
+    apiRef.current = {
+      enabled,
+      setEnabled: (v) => setEnabledRef.current(v),
+      setMusicMode: (m) => setMusicModeRef.current(m),
+      playSfx: (k, v) => playSfxRef.current(k, v),
+    };
+  }
+  apiRef.current.enabled = enabled;
+  return apiRef.current;
 }
