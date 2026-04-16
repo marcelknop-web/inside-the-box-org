@@ -461,6 +461,29 @@ export default function SocLife() {
               />
             )}
 
+            {/* Pause overlay: clear visual confirmation that the game is frozen.
+                Click anywhere or press Resume to continue. */}
+            {paused && !gameOver && (
+              <div
+                className="absolute inset-0 z-30 flex items-center justify-center bg-background/80 backdrop-blur-sm animate-fade-in cursor-pointer"
+                onClick={() => setPaused(false)}
+                role="button"
+                aria-label={t("socLife.resume")}
+              >
+                <div className="mx-3 max-w-sm w-full rounded-lg border border-primary/40 bg-background/95 p-6 sm:p-8 text-center shadow-[0_0_0_1px_hsl(var(--primary)/0.2),0_20px_60px_-10px_hsl(var(--primary)/0.3)]">
+                  <div className="mb-2 font-mono text-[11px] uppercase tracking-[0.25em] text-primary">
+                    ❚❚ {t("socLife.pause")}
+                  </div>
+                  <h2 className="mb-3 font-mono text-2xl sm:text-3xl text-foreground leading-tight">
+                    {t("socLife.pausedHeadline") || "Schicht angehalten"}
+                  </h2>
+                  <p className="text-sm text-muted-foreground">
+                    {t("socLife.pausedHint") || "Klicken oder ▶ drücken, um fortzufahren."}
+                  </p>
+                </div>
+              </div>
+            )}
+
             {/* Game-over: full-area calm overlay, NOT a toast spam.
                 Gives the user time to read what happened before any CTA appears. */}
             {gameOver && (
