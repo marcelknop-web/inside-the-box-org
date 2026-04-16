@@ -147,10 +147,37 @@ export function IncidentPanel({
   const showPrompt   = promptStarts;
   const showActions  = actionsReady;
 
+  // Difficulty-tier badge — quick visual cue of how hard the current incident
+  // is supposed to be. Colour follows the existing semantic palette so it
+  // reads at a glance: routine = cool/calm, major = hot.
+  const tier: IncidentTier = incident.tier ?? "medium";
+  const tierLabel: Record<IncidentTier, string> = {
+    easy:   t("socLife.tierEasy"),
+    medium: t("socLife.tierMedium"),
+    hard:   t("socLife.tierHard"),
+    comic:  t("socLife.tierComic"),
+  };
+  const tierClasses: Record<IncidentTier, string> = {
+    easy:   "border-emerald-500/40 bg-emerald-500/10 text-emerald-300",
+    medium: "border-amber-400/40 bg-amber-400/10 text-amber-200",
+    hard:   "border-rose-500/50 bg-rose-500/15 text-rose-200",
+    comic:  "border-cyan-400/40 bg-cyan-400/10 text-cyan-200",
+  };
+
   return (
     <div className="rounded-lg border border-rose-500/40 bg-background/95 p-4 shadow-[0_0_0_1px_hsl(var(--destructive)/0.2)] max-w-full overflow-hidden">
       <div className="mb-3 flex items-center justify-between gap-2 font-mono text-[11px] uppercase tracking-wider">
-        <span className={cn("text-rose-300 truncate", !titleDone && "animate-pulse")}>▲ {t("socLife.incomingIncident")}</span>
+        <div className="flex items-center gap-2 min-w-0">
+          <span className={cn("text-rose-300 truncate", !titleDone && "animate-pulse")}>▲ {t("socLife.incomingIncident")}</span>
+          <span
+            className={cn(
+              "shrink-0 rounded-sm border px-1.5 py-px text-[9px] font-bold tracking-[0.12em]",
+              tierClasses[tier],
+            )}
+          >
+            {tierLabel[tier]}
+          </span>
+        </div>
         <span className="text-muted-foreground shrink-0">{stepIndex + 1} / {totalSteps}</span>
       </div>
 
