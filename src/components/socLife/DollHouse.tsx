@@ -846,8 +846,11 @@ export function DollHouse({ current, highlight, onMove, maxHeight, isNight = fal
     const update = () => {
       const w = wrapRef.current?.clientWidth ?? 800;
       const h = maxHeight ?? Number.POSITIVE_INFINITY;
-      const sByW = Math.floor(w / LOGICAL_W);
-      const sByH = Math.floor(h / LOGICAL_H);
+      // Display scale uses the legacy 256×144 design grid so the on-screen
+      // size stays identical; the canvas itself renders at 2× that for
+      // crisper detail.
+      const sByW = Math.floor(w / DESIGN_W);
+      const sByH = Math.floor(h / DESIGN_H);
       const s = Math.max(2, Math.min(6, Math.min(sByW, sByH)));
       setScale(s);
     };
