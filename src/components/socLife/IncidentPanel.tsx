@@ -1,8 +1,25 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { Incident, PlaybookStep, ROOMS, RoomId, Lang } from "@/data/socLifeData";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+
+/** Letter-by-letter reveal — guides the user's eye to incoming briefing text. */
+function useTypewriter(text: string, msPerChar = 18) {
+  const [shown, setShown] = useState("");
+  useEffect(() => {
+    setShown("");
+    if (!text) return;
+    let i = 0;
+    const id = window.setInterval(() => {
+      i += 1;
+      setShown(text.slice(0, i));
+      if (i >= text.length) window.clearInterval(id);
+    }, msPerChar);
+    return () => window.clearInterval(id);
+  }, [text, msPerChar]);
+  return shown;
+}
 
 interface IncidentPanelProps {
   incident: Incident;
