@@ -1245,6 +1245,7 @@ export const en = {
     consequence: {
       yourCall: 'Your call',
       verdict: 'Verdict',
+      rationale: 'Why',
       impact: 'Impact',
       reputation: 'Reputation',
       stress: 'Stress',
