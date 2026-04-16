@@ -596,6 +596,19 @@ export function DollHouse({ current, highlight, onMove, maxHeight, isNight = fal
     nextSpawnAt: 12_000, // first visitor after ~12s
   });
 
+  // Per-NPC behavior state — natural "stand for a few seconds, then take a few
+  // steps to a new spot" loop. State lives in a ref so the rAF loop can mutate
+  // it without re-rendering React.
+  interface NpcState {
+    x: number;
+    targetX: number;
+    phaseUntil: number;            // ms timestamp when the current phase ends
+    phase: "idle" | "walk";
+    facing: 1 | -1;
+    initialized: boolean;
+  }
+  const npcStatesRef = useRef<Record<string, NpcState>>({});
+
   // Animation loop
   useEffect(() => {
     const cv = canvasRef.current;
