@@ -489,7 +489,7 @@ export function DollHouse({ current, highlight, onMove }: DollHouseProps) {
       ROOMS.forEach((room) => {
         const x = room.col * ROOM_W;
         const y = roomTopY(room.row);
-        renderRoom(ctx, room, x, y, t);
+        renderRoom(ctx, room.id, x, y, t);
       });
 
       // Corridor strip
