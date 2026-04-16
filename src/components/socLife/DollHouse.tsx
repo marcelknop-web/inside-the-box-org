@@ -786,8 +786,11 @@ export function DollHouse({ current, highlight, onMove, maxHeight, isNight = fal
 
     let raf = 0;
     let start = performance.now();
+    let lastFrame = performance.now();
     const draw = (now: number) => {
       const t = now - start;
+      const dtMs = Math.min(48, now - lastFrame); // clamp to avoid huge jumps after tab-blur
+      lastFrame = now;
 
       // Clear
       drawRect(ctx, 0, 0, LOGICAL_W, LOGICAL_H, C.bg);
