@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ROOMS, RoomId, NPCS, NpcId } from "@/data/socLifeData";
 import { useLanguage } from "@/i18n/LanguageContext";
+import { cn } from "@/lib/utils";
 
 interface DollHouseProps {
   current: RoomId;
@@ -553,15 +554,7 @@ export function DollHouse({ current, highlight, onMove, maxHeight }: DollHousePr
         true,
       );
 
-      // Room labels (top of each room) — small monospace pixel text via canvas
-      ctx.font = "5px ui-monospace, monospace";
-      ctx.textBaseline = "top";
-      ctx.fillStyle = "rgba(232,232,240,0.7)";
-      ROOMS.forEach((room) => {
-        const x = room.col * ROOM_W + 3;
-        const y = roomTopY(room.row) + 3;
-        ctx.fillText(t_label(t_translate(room.i18n)), x, y);
-      });
+      // (Room labels rendered as HTML overlay below for crisp readability)
 
       raf = requestAnimationFrame(draw);
     };
@@ -570,10 +563,6 @@ export function DollHouse({ current, highlight, onMove, maxHeight }: DollHousePr
     // re-bind when current/highlight/player/scale change
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [player, current, highlight]);
-
-  // helpers that read i18n
-  function t_translate(key: string) { return t(`socLife.rooms.${key}.name`); }
-  function t_label(s: string) { return s.toUpperCase().slice(0, 11); }
 
   // Click handler: map screen coords -> logical room
   const handleClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -623,11 +612,39 @@ export function DollHouse({ current, highlight, onMove, maxHeight }: DollHousePr
           className="pointer-events-none absolute inset-0 rounded-md"
           style={{ boxShadow: "inset 0 0 60px rgba(0,0,0,0.6)" }}
         />
-      </div>
 
-      <div className="mt-2 flex flex-wrap gap-3 text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
-        <span><span className="inline-block h-2 w-2 mr-1 align-middle" style={{ background: C.gold }} />{t("socLife.youAreHere")}</span>
-        <span><span className="inline-block h-2 w-2 mr-1 align-middle" style={{ background: C.cyan }} />NPC / {t("socLife.incidentRoomHint")}</span>
+        {/* Crisp HTML room labels — readable, professional, no pixel-noise */}
+        {ROOMS.map((room) => {
+          const isCurrent = room.id === current;
+          const isHighlight = room.id === highlight;
+          const leftPct = (room.col * ROOM_W + 2) / LOGICAL_W * 100;
+          const topPct = (roomTopY(room.row) + 2) / LOGICAL_H * 100;
+          const widthPct = (ROOM_W - 4) / LOGICAL_W * 100;
+          return (
+            <button
+              key={room.id}
+              type="button"
+              onClick={() => room.id !== current && onMove(room.id)}
+              className="absolute pointer-events-auto text-left"
+              style={{ left: `${leftPct}%`, top: `${topPct}%`, width: `${widthPct}%` }}
+              title={t(`socLife.rooms.${room.i18n}.name`)}
+            >
+              <span
+                className={cn(
+                  "inline-block px-1.5 py-0.5 font-mono uppercase tracking-wider rounded-sm transition-colors",
+                  "text-[10px] sm:text-[11px] leading-tight",
+                  isCurrent
+                    ? "bg-primary text-primary-foreground"
+                    : isHighlight
+                    ? "bg-cyan-400/90 text-background animate-pulse"
+                    : "bg-background/80 text-foreground/80 hover:bg-background hover:text-foreground"
+                )}
+              >
+                {t(`socLife.rooms.${room.i18n}.name`)}
+              </span>
+            </button>
+          );
+        })}
       </div>
     </div>
   );
