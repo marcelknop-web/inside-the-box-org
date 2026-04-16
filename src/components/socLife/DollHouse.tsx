@@ -1510,13 +1510,13 @@ export function DollHouse({ current, highlight, onMove, maxHeight, isNight = fal
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [player, current, highlight]);
 
-  // Click handler: map screen coords -> logical room
+  // Click handler: map screen coords -> design-grid coords -> room
   const handleClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const cv = canvasRef.current;
     if (!cv) return;
     const rect = cv.getBoundingClientRect();
-    const cx = ((e.clientX - rect.left) / rect.width) * LOGICAL_W;
-    const cy = ((e.clientY - rect.top) / rect.height) * LOGICAL_H;
+    const cx = ((e.clientX - rect.left) / rect.width) * DESIGN_W;
+    const cy = ((e.clientY - rect.top) / rect.height) * DESIGN_H;
     const col = Math.floor(cx / ROOM_W) as 0 | 1 | 2 | 3;
     let row: 0 | 1 | null = null;
     if (cy < ROOM_H) row = 0;
@@ -1531,9 +1531,11 @@ export function DollHouse({ current, highlight, onMove, maxHeight, isNight = fal
       <div
         className="relative mx-auto"
         style={{
-          width: LOGICAL_W * scale,
+          // Display in the legacy 256×144 design size (scaled), while the
+          // canvas itself holds 2× pixels for sharper detail.
+          width: DESIGN_W * scale,
           maxWidth: "100%",
-          aspectRatio: `${LOGICAL_W} / ${LOGICAL_H}`,
+          aspectRatio: `${DESIGN_W} / ${DESIGN_H}`,
         }}
       >
         <canvas
