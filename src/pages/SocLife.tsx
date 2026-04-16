@@ -99,8 +99,8 @@ export default function SocLife() {
         setReputation((r) => (stress < 50 ? Math.min(100, r + 0.02) : r));
       }
 
-      // Step timer countdown
-      if (activeIncident) {
+      // Step timer countdown — paused while a consequence overlay is shown
+      if (activeIncident && !consequence) {
         setStepTimeLeft((t2) => {
           const next = t2 - TICK_MS;
           if (next <= 0) {
@@ -110,7 +110,7 @@ export default function SocLife() {
           }
           return next;
         });
-      } else {
+      } else if (!activeIncident) {
         // Schedule next incident
         const now = Date.now();
         if (nextIncidentAtRef.current === 0) {
