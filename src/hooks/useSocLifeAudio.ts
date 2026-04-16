@@ -313,7 +313,7 @@ export function useSocLifeAudio() {
     const g = musicGainRef.current;
     const ctx = ctxRef.current;
     if (!g || !ctx || !enabledRef.current) return;
-    const target = mode === "alert" ? 0.55 : 0.45;
+    const target = mode === "alert" ? 0.55 : mode === "audit" ? 0.4 : 0.45;
     const now = ctx.currentTime;
     // Clamp current value to a safe non-zero floor so exponential ramps work.
     const safeNow = Math.max(g.gain.value, 0.05);
