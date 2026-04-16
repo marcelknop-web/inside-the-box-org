@@ -612,32 +612,111 @@ export function DollHouse({ current, highlight, onMove, maxHeight, isNight = fal
       }
 
       // NPCs — wander left/right within their room at floor level.
-      // Faster, more visible motion: clear pacing back and forth, brief idle pauses.
+      // Each NPC is restricted to the LEFT half of its room so a possible
+      // visitor (right half) never blends on top of them.
+      const npcPositions: Partial<Record<NpcId, { x: number; y: number }>> = {};
       NPCS.forEach((npc, idx) => {
         const r = ROOMS.find((x) => x.id === npc.homeRoom)!;
         const baseX = r.col * ROOM_W;
+        // Left lane only: 8 .. (ROOM_W/2 - 4) → ~22 px wide pacing area
         const minX = baseX + 8;
-        const maxX = baseX + ROOM_W - 12;
-        const span = maxX - minX;
-        // ~3-4x faster than before so the wandering is visible at a glance
+        const maxX = baseX + Math.floor(ROOM_W / 2) - 4;
+        const span = Math.max(8, maxX - minX);
         const speed = 0.0011 + idx * 0.00018;
         const phase = idx * 1.7;
-        const tri = Math.abs(((t * speed + phase) % 2) - 1); // 0..1 triangle wave
+        const tri = Math.abs(((t * speed + phase) % 2) - 1);
         const x = Math.round(minX + tri * span);
         const facing: 1 | -1 = ((t * speed + phase) % 2) < 1 ? 1 : -1;
         const y = roomFloorLineY(r.row);
         const look = NPC_LOOK[npc.id];
         const movingFrame = Math.floor(t / 130) % 4;
-        // shorter, rarer idle pauses (~1s every ~8s)
         const idleCycle = (t + idx * 1700) % 8000;
         const idle = idleCycle > 7000;
         const bob = idle ? Math.round(Math.sin(t / 380 + idx) * 0.5) : 0;
+        npcPositions[npc.id] = { x, y };
         drawFigure(
           ctx, x, y + bob,
           facing, !idle, movingFrame,
           look.shirt, look.pants, look.skin, look.hair,
         );
       });
+
+      // ---- Visitor state machine ----------------------------------------
+      // Spawns occasionally, walks from staircase to a chosen room's right
+      // half, chats next to the resident NPC for a few seconds, then leaves.
+      const v = visitorRef.current;
+      const vSpeed = 28; // logical px/s
+      const dt = 16; // approx ms/frame — visitors don't need exact dt
+      const walkBy = (tx: number, ty: number) => {
+        const dx = tx - v.x, dy = ty - v.y;
+        const dist = Math.hypot(dx, dy);
+        if (dist < 1) { v.x = tx; v.y = ty; return true; }
+        const step = (vSpeed * dt) / 1000;
+        v.x += (dx / dist) * step;
+        v.y += (dy / dist) * step;
+        if (Math.abs(dx) > 0.2) v.facing = dx > 0 ? 1 : -1;
+        return false;
+      };
+
+      if (v.phase === "idle") {
+        if (t >= v.nextSpawnAt) {
+          const npc = NPCS[Math.floor(Math.random() * NPCS.length)];
+          const palette = visitorPalette[Math.floor(Math.random() * visitorPalette.length)];
+          v.targetRoom = npc.homeRoom;
+          v.shirt = palette.shirt; v.pants = palette.pants;
+          v.skin = palette.skin; v.hair = palette.hair;
+          v.x = STAIR_X + 2;
+          v.y = roomFloorLineY(1);
+          v.facing = 1;
+          v.phase = "enter";
+        }
+      } else if (v.phase === "enter") {
+        const r = ROOMS.find((x) => x.id === v.targetRoom)!;
+        const targetX = r.col * ROOM_W + Math.floor(ROOM_W * 0.75); // right lane
+        const targetY = roomFloorLineY(r.row);
+        if (Math.abs(v.y - targetY) > 1) {
+          if (Math.abs(v.x - STAIR_X) > 1) walkBy(STAIR_X, v.y);
+          else walkBy(STAIR_X, targetY);
+        } else if (walkBy(targetX, targetY)) {
+          v.phase = "chat";
+          v.chatUntil = t + 4500 + Math.random() * 3500;
+          const npc = NPCS.find((n) => n.homeRoom === v.targetRoom);
+          const pos = npc ? npcPositions[npc.id] : undefined;
+          if (pos) v.facing = pos.x < v.x ? -1 : 1;
+        }
+      } else if (v.phase === "chat") {
+        if (t >= v.chatUntil) v.phase = "leave";
+      } else if (v.phase === "leave") {
+        const targetY = roomFloorLineY(1);
+        if (Math.abs(v.y - targetY) > 1) {
+          if (Math.abs(v.x - STAIR_X) > 1) walkBy(STAIR_X, v.y);
+          else walkBy(STAIR_X, targetY);
+        } else if (walkBy(-10, targetY)) {
+          v.phase = "idle";
+          v.nextSpawnAt = t + 18_000 + Math.random() * 22_000;
+        }
+      }
+
+      if (v.phase !== "idle") {
+        const walking = v.phase !== "chat";
+        const frame = Math.floor(t / 130) % 4;
+        drawFigure(
+          ctx, Math.round(v.x), Math.round(v.y),
+          v.facing, walking, frame,
+          v.shirt, v.pants, v.skin, v.hair,
+        );
+        if (v.phase === "chat") {
+          const bx = Math.round(v.x) + (v.facing === 1 ? -10 : 4);
+          const by = Math.round(v.y) - 22;
+          drawRect(ctx, bx, by, 10, 6, "#e8e8f0");
+          drawRect(ctx, bx + (v.facing === 1 ? 7 : 1), by + 6, 2, 1, "#e8e8f0");
+          const dotPhase = Math.floor(t / 250) % 3;
+          drawPx(ctx, bx + 2, by + 3, dotPhase >= 0 ? "#0a0a14" : "#7a7a8a");
+          drawPx(ctx, bx + 5, by + 3, dotPhase >= 1 ? "#0a0a14" : "#7a7a8a");
+          drawPx(ctx, bx + 8, by + 3, dotPhase >= 2 ? "#0a0a14" : "#7a7a8a");
+        }
+      }
+
 
       // Player figure (gold)
       drawFigure(ctx, player.x, player.y,
