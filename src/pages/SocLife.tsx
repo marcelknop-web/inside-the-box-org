@@ -16,6 +16,10 @@ import { RoomActions, IdleAction } from "@/components/socLife/RoomActions";
 import { ConsequenceOverlay, ConsequenceData } from "@/components/socLife/ConsequenceOverlay";
 import { Onboarding } from "@/components/socLife/Onboarding";
 import { reasonFor } from "@/data/socLifeReasons";
+import {
+  loadHighscores, saveHighscore, qualifiesForHighscore,
+  HIGHSCORE_NAME_MAX, HighscoreEntry,
+} from "@/utils/socLifeHighscore";
 
 const TICK_MS = 250;
 const MIN_INCIDENT_GAP_MS = 18_000;
