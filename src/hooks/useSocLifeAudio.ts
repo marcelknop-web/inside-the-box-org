@@ -324,6 +324,13 @@ export function useSocLifeAudio() {
   // Stable API object — referentially identical across renders so consumers
   // can safely depend on it without retriggering effects (which previously
   // caused the music to keep "ducking" on every render and sound broken).
+  const setEnabledRef = useRef(setEnabled);
+  const setMusicModeRef = useRef(setMusicMode);
+  const playSfxRef = useRef(playSfx);
+  setEnabledRef.current = setEnabled;
+  setMusicModeRef.current = setMusicMode;
+  playSfxRef.current = playSfx;
+
   const apiRef = useRef<{
     enabled: boolean;
     setEnabled: (v: boolean) => void;
@@ -338,14 +345,6 @@ export function useSocLifeAudio() {
       playSfx: (k, v) => playSfxRef.current(k, v),
     };
   }
-  // Keep ref-functions up to date without changing the api object identity
-  const setEnabledRef = useRef(setEnabled);
-  const setMusicModeRef = useRef(setMusicMode);
-  const playSfxRef = useRef(playSfx);
-  setEnabledRef.current = setEnabled;
-  setMusicModeRef.current = setMusicMode;
-  playSfxRef.current = playSfx;
-  // Sync the latest enabled flag so consumers see updates without a new object
   apiRef.current.enabled = enabled;
   return apiRef.current;
 }
