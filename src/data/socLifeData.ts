@@ -103,7 +103,7 @@ const PHISHING: Incident = {
       ],
     },
     {
-      id: "contain", requiredRoom: "soc_floor", timeLimitMs: 25_000,
+      id: "contain", requiredRoom: "noc", timeLimitMs: 25_000,
       title: L("Eindämmung", "Contain", "Confinement"),
       prompt: L("Wie eindämmen?", "How do you contain?", "Comment confiner ?"),
       options: [
