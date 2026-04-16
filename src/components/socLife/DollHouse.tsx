@@ -578,26 +578,26 @@ export function DollHouse({ current, highlight, onMove, maxHeight, isNight = fal
       }
 
       // NPCs — wander left/right within their room at floor level.
-      // Each NPC has its own phase + speed so motion feels organic but bounded.
+      // Faster, more visible motion: clear pacing back and forth, brief idle pauses.
       NPCS.forEach((npc, idx) => {
         const r = ROOMS.find((x) => x.id === npc.homeRoom)!;
         const baseX = r.col * ROOM_W;
         const minX = baseX + 8;
         const maxX = baseX + ROOM_W - 12;
         const span = maxX - minX;
-        // slow oscillation, offset per NPC
-        const speed = 0.00035 + idx * 0.00007; // very gentle
+        // ~3-4x faster than before so the wandering is visible at a glance
+        const speed = 0.0011 + idx * 0.00018;
         const phase = idx * 1.7;
         const tri = Math.abs(((t * speed + phase) % 2) - 1); // 0..1 triangle wave
         const x = Math.round(minX + tri * span);
         const facing: 1 | -1 = ((t * speed + phase) % 2) < 1 ? 1 : -1;
         const y = roomFloorLineY(r.row);
         const look = NPC_LOOK[npc.id];
-        // walking only when actually moving (avoid pose-spam during pause moments)
-        const movingFrame = Math.floor(t / 160) % 4;
-        // small idle pause every ~5s
-        const idle = (Math.floor((t + idx * 1300) / 5000) % 4) === 0;
-        const bob = idle ? Math.round(Math.sin(t / 500 + idx) * 0.5) : 0;
+        const movingFrame = Math.floor(t / 130) % 4;
+        // shorter, rarer idle pauses (~1s every ~8s)
+        const idleCycle = (t + idx * 1700) % 8000;
+        const idle = idleCycle > 7000;
+        const bob = idle ? Math.round(Math.sin(t / 380 + idx) * 0.5) : 0;
         drawFigure(
           ctx, x, y + bob,
           facing, !idle, movingFrame,
