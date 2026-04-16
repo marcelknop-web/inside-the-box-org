@@ -1242,5 +1242,17 @@ export const en = {
       chooseRoomFirst: 'Pick the right room first — your action options will appear once you arrive.',
       goToRoomCta: 'Go to the scene',
     },
+    consequence: {
+      yourCall: 'Your call',
+      verdict: 'Verdict',
+      impact: 'Impact',
+      reputation: 'Reputation',
+      stress: 'Stress',
+      continue: 'Continue',
+      excellent: 'Textbook response.',
+      solid:     'Defensible — could be sharper.',
+      risky:     'Risky. Tangible damage.',
+      severe:    'Serious mistake. Incident escalates.',
+    },
   },
 };
