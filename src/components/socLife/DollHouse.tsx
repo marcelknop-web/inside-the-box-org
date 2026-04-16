@@ -198,27 +198,68 @@ function drawDoor(ctx: CanvasRenderingContext2D, x: number, y: number) {
   drawPx(ctx, x + 5, y + 7, C.gold);
 }
 
-// CRT monitor 12x9 at (x,y), with screen color
-function drawCrt(ctx: CanvasRenderingContext2D, x: number, y: number, screenColor: string, frame: number) {
+// Deterministic pseudo-random in [0,1) — stable per (seed) so flicker has structure
+function rand1(seed: number) {
+  const s = Math.sin(seed * 127.1 + 311.7) * 43758.5453;
+  return s - Math.floor(s);
+}
+
+// CRT monitor 12x9 at (x,y), with screen color.
+// Realistic: animated bar-graph inside the screen, occasional flicker, scanline roll.
+function drawCrt(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  screenColor: string,
+  t: number,
+  seed = 0,
+) {
   drawRect(ctx, x, y, 12, 9, "#1a1a1a");        // bezel
+  // Brief flicker every ~4-7s
+  const flickerPhase = (t / 1000 + seed * 0.37) % (4 + (seed % 3));
+  const flicker = flickerPhase < 0.06 ? 0.55 : 1;
   drawRect(ctx, x + 1, y + 1, 10, 6, screenColor);
-  // scanline blink
-  drawRect(ctx, x + 1, y + 2 + (frame % 3), 10, 1, "rgba(0,0,0,0.3)");
+  // Animated bar-graph (10 cols x 6 rows of pixels) — looks like SIEM volume meter
+  for (let bx = 0; bx < 10; bx++) {
+    // smooth wave per column with random phase
+    const phase = seed * 0.6 + bx * 0.55;
+    const wave = (Math.sin(t / 420 + phase) + Math.sin(t / 230 + phase * 1.7)) * 0.5;
+    const h = Math.max(0, Math.min(6, Math.round(3 + wave * 2.5 * flicker)));
+    const barCol = bx % 3 === 0 ? "rgba(0,0,0,0.55)" : "rgba(0,0,0,0.3)";
+    if (h < 6) drawRect(ctx, x + 1 + bx, y + 1, 1, 6 - h, barCol);
+  }
+  // Rolling scanline
+  const sl = Math.floor((t / 90 + seed) % 6);
+  drawRect(ctx, x + 1, y + 1 + sl, 10, 1, "rgba(0,0,0,0.35)");
+  // Random hot pixel occasionally
+  if (rand1(Math.floor(t / 180) + seed) > 0.92) {
+    drawPx(ctx, x + 1 + (Math.floor(t / 50 + seed) % 10), y + 1 + (Math.floor(t / 70 + seed) % 6), C.white);
+  }
   drawRect(ctx, x + 4, y + 9, 4, 1, "#0a0a0a");
   drawRect(ctx, x + 3, y + 9, 6, 1, "#2a2a2a");
 }
 
-// Server rack 14x40 — blinking LEDs
+// Server rack 14x40 — realistic LED activity (heartbeat + bursts + steady link lights)
 function drawRack(ctx: CanvasRenderingContext2D, x: number, y: number, t: number) {
   drawRect(ctx, x, y, 14, 40, "#1a1a26");
   drawRect(ctx, x + 1, y + 1, 12, 38, "#0e0e18");
   for (let i = 0; i < 9; i++) {
     const ry = y + 3 + i * 4;
     drawRect(ctx, x + 2, ry, 10, 3, "#2a2a3a");
-    // blinking LED — use t (animation tick) to flicker
-    const on = ((Math.floor(t / 200) + i) % 3) !== 0;
-    drawPx(ctx, x + 3, ry + 1, on ? C.green : C.greenDim);
-    drawPx(ctx, x + 11, ry + 1, ((i + Math.floor(t / 350)) % 2) === 0 ? C.amber : "#3a2a10");
+
+    // Steady "power" LED — slow soft pulse, never quite off
+    const pulse = (Math.sin(t / 600 + i * 0.7) + 1) * 0.5; // 0..1
+    drawPx(ctx, x + 3, ry + 1, pulse > 0.35 ? C.green : C.greenDim);
+
+    // Activity LED — bursty traffic. Each lane has its own randomized bursts.
+    const burstSeed = Math.floor(t / 90) + i * 11;
+    const burstActive = rand1(Math.floor(t / 600) + i * 7) > 0.55;
+    const flick = burstActive && rand1(burstSeed) > 0.45;
+    drawPx(ctx, x + 6, ry + 1, flick ? C.amber : "#3a2a10");
+
+    // Link LED — mostly on, occasional drop
+    const linkUp = rand1(Math.floor(t / 1200) + i * 3) > 0.08;
+    drawPx(ctx, x + 11, ry + 1, linkUp ? C.cyan : C.cyanDim);
   }
 }
 
