@@ -141,197 +141,288 @@ function makeElevatorRef(initialFloor: 0 | 1): ElevatorState {
   };
 }
 
+/**
+ * Walker state machine.
+ *
+ * Design goals (after multiple "stuck" bugs in the previous version):
+ *   1. Single source of truth: the walker's position lives in a ref. We only
+ *      `setState` ~30 fps when something visible actually changed (position
+ *      moved >= 0.5 px, facing flipped, walking flag flipped, or frame ticked).
+ *      The RAF loop never schedules a render per frame.
+ *   2. Phase transitions are *idempotent* and computed from the *real* current
+ *      position + the live elevator state — never from stale "last command"
+ *      data. This means a new destination request mid-traversal (even mid-ride)
+ *      always converges to a sane state.
+ *   3. The walker can re-plan at any moment. When `targetRoom` changes:
+ *        - if we're inside the cabin (board/ride/exit), we update the ride
+ *          target and let the lift physics run; we re-pick the post-exit
+ *          phase based on where the cabin actually drops us.
+ *        - otherwise we re-pick walk_to_target vs walk_to_lift from our
+ *          current row.
+ *   4. We never compare two floats with ==. Arrival uses an explicit epsilon.
+ */
+type WalkerPhase =
+  | "idle"            // standing at destination
+  | "walk_to_target"  // horizontal walk on current floor → final room
+  | "walk_to_lift"    // horizontal walk on current floor → lift doors
+  | "wait_for_lift"   // standing at doors, waiting for cabin
+  | "board"           // stepping into cabin
+  | "ride"            // inside cabin, y follows cabinY
+  | "exit"            // stepping out of cabin onto destination floor
+  | "walk_final";     // last horizontal walk to room center
+
+interface WalkerInternal {
+  x: number;
+  y: number;
+  facing: 1 | -1;
+  walking: boolean;
+  frame: number;
+  phase: WalkerPhase;
+  targetX: number;
+  targetY: number;
+  targetRow: 0 | 1;
+}
+
+function rowOfY(y: number): 0 | 1 {
+  return y < CORRIDOR_Y + CORRIDOR_H / 2 ? 0 : 1;
+}
+
+const ARRIVE_EPS = 0.6; // px — anything closer counts as arrived
+
 function useWalker(
   targetRoom: RoomId,
   initial: { x: number; y: number },
   elevatorRef: React.MutableRefObject<ElevatorState>,
 ) {
+  // Single internal ref — the loop mutates this directly, no per-frame setState.
+  const internalRef = useRef<WalkerInternal>({
+    x: initial.x,
+    y: initial.y,
+    facing: 1,
+    walking: false,
+    frame: 0,
+    phase: "idle",
+    targetX: initial.x,
+    targetY: initial.y,
+    targetRow: rowOfY(initial.y),
+  });
+
+  // What renders. We push updates from the loop only when something changed
+  // enough to be visible.
   const [state, setState] = useState<FigState>({
     x: initial.x, y: initial.y, facing: 1, walking: false, frame: 0,
   });
-  // Walker phases:
-  //   walk_to_target : walking horizontally on current floor toward final room
-  //   walk_to_lift   : same floor needs lift (different row from target)
-  //   wait_for_lift  : standing at the call button until cabin arrives + opens
-  //   board          : stepping into the cabin
-  //   ride           : riding the cabin to target floor (y follows cabinY)
-  //   exit           : stepping out of the cabin onto the destination floor
-  //   walk_final     : last horizontal walk to the room center
-  type Phase =
-    | "idle" | "walk_to_target" | "walk_to_lift" | "wait_for_lift"
-    | "board" | "ride" | "exit" | "walk_final";
-  const phaseRef = useRef<Phase>("idle");
-  const finalTargetRef = useRef<{ x: number; y: number; row: 0 | 1 } | null>(null);
-  const lastRoomRef = useRef<RoomId>(targetRoom);
 
-  // Door positions for boarding / exiting (centered on shaft).
-  const BOARD_X = STAIR_X;       // standing right in front of doors
-  const INSIDE_X = STAIR_X;      // inside the cabin, same column
+  const BOARD_X = STAIR_X;
+  const INSIDE_X = STAIR_X;
 
+  // ---- Re-plan whenever the destination changes -------------------------
   useEffect(() => {
-    if (targetRoom === lastRoomRef.current) return;
-    const toRoom = ROOMS.find((r) => r.id === targetRoom)!;
-    const toX = roomCenterX(toRoom.col) + 8;
-    const toY = roomFloorLineY(toRoom.row);
-    finalTargetRef.current = { x: toX, y: toY, row: toRoom.row };
-    lastRoomRef.current = targetRoom;
-    // Choose initial phase based on the player's *actual current row*, not the
-    // last commanded room's row. This prevents the walker from getting stuck
-    // when a new destination is requested mid-traversal (e.g. while still
-    // walking on the lower floor toward the kitchen) — the previous logic
-    // computed `fromRow` from a stale `lastRoomRef`, which could leave the
-    // walker in a phase that no longer matched its real position.
-    setState((s) => {
-      // Determine which floor the player is *actually* standing on right now.
-      const actualRow: 0 | 1 = s.y < CORRIDOR_Y + CORRIDOR_H / 2 ? 0 : 1;
-      if (actualRow === toRoom.row) {
-        phaseRef.current = "walk_to_target";
-      } else {
-        phaseRef.current = "walk_to_lift";
+    const toRoom = ROOMS.find((r) => r.id === targetRoom);
+    if (!toRoom) return;
+    const w = internalRef.current;
+    w.targetX = roomCenterX(toRoom.col) + 8;
+    w.targetY = roomFloorLineY(toRoom.row);
+    w.targetRow = toRoom.row;
+
+    // Re-pick the phase from our REAL current state. This is the bit that
+    // makes mid-traversal re-routing safe.
+    const lift = elevatorRef.current;
+    switch (w.phase) {
+      case "ride":
+      case "board":
+        // We're inside (or stepping into) the cabin — let the lift take us
+        // to the new target row. The ride/exit logic below will pick up the
+        // new target automatically.
+        lift.targetFloor = toRoom.row;
+        break;
+      case "exit":
+      case "walk_final":
+      case "walk_to_target":
+      case "walk_to_lift":
+      case "wait_for_lift":
+      case "idle": {
+        // Re-decide based on actual floor we're standing on right now.
+        const myRow = rowOfY(w.y);
+        if (myRow === toRoom.row) {
+          w.phase = "walk_to_target";
+        } else {
+          w.phase = "walk_to_lift";
+        }
+        break;
       }
-      return { ...s, walking: true };
-    });
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [targetRoom]);
 
+  // ---- Animation loop ---------------------------------------------------
   useEffect(() => {
     let raf = 0;
     let last = performance.now();
-    const speed = 38; // logical px / sec
+    let lastPushed = performance.now();
+    let dirty = true;
+    const SPEED = 38; // logical px / sec
+    const PUSH_INTERVAL_MS = 1000 / 30; // throttle React updates to ~30 fps
+
     const loop = (now: number) => {
-      const dt = (now - last) / 1000; last = now;
+      const dt = Math.min(0.05, (now - last) / 1000);
+      last = now;
+      const w = internalRef.current;
       const lift = elevatorRef.current;
-      const target = finalTargetRef.current;
 
-      setState((s) => {
-        const next = { ...s };
-        const moveTowards = (tx: number, ty: number) => {
-          const dx = tx - s.x, dy = ty - s.y;
-          const dist = Math.hypot(dx, dy);
-          const step = speed * dt;
-          if (dist <= step) {
-            next.x = tx; next.y = ty;
-            return true; // arrived
-          }
-          next.x = s.x + (dx / dist) * step;
-          next.y = s.y + (dy / dist) * step;
-          if (Math.abs(dx) > 0.2) next.facing = dx > 0 ? 1 : -1;
-          return false;
-        };
+      const prevX = w.x, prevY = w.y, prevFacing = w.facing, prevWalking = w.walking;
 
-        switch (phaseRef.current) {
-          case "idle": {
-            next.walking = false;
-            break;
-          }
-          case "walk_to_target": {
-            if (!target) { phaseRef.current = "idle"; break; }
-            // Pure horizontal on current floor — but pin Y to the floor line of
-            // the target row (which == our row in this branch) so the walker
-            // can never hang on a fractional Y after a previous lift ride.
-            const floorY = roomFloorLineY(target.row);
-            if (moveTowards(target.x, floorY)) {
-              phaseRef.current = "idle";
-              next.walking = false;
-            } else next.walking = true;
-            break;
-          }
-          case "walk_to_lift": {
-            if (!target) { phaseRef.current = "idle"; break; }
-            // walk horizontally on current floor to the door column, snapping
-            // to the current floor's exact y-line.
-            const myFloor: 0 | 1 = s.y < CORRIDOR_Y + CORRIDOR_H / 2 ? 0 : 1;
-            const floorY = roomFloorLineY(myFloor);
-            if (moveTowards(BOARD_X, floorY)) {
-              // Arrived at door — call the lift to this floor.
-              if (lift.targetFloor !== myFloor) lift.targetFloor = myFloor;
-              // We're outside, signal we want to board so the lift knows
-              // to open and *hold* the doors for us.
-              lift.boardingHold = true;
-              phaseRef.current = "wait_for_lift";
-              next.walking = false;
-            } else next.walking = true;
-            break;
-          }
-          case "wait_for_lift": {
-            // Stand still, face the doors. Keep the call active.
-            next.walking = false;
-            const myFloor: 0 | 1 = s.y < CORRIDOR_Y + CORRIDOR_H / 2 ? 0 : 1;
-            if (lift.targetFloor !== myFloor) lift.targetFloor = myFloor;
-            lift.boardingHold = true; // keep doors held open while we wait
-            // Cabin must be parked at our floor with doors fully open.
-            const cabinHere =
-              lift.currentFloor === myFloor &&
-              (lift.phase === "doors_open" || lift.phase === "doors_opening") &&
-              lift.doorOpen > 0.9;
-            if (cabinHere) {
-              phaseRef.current = "board";
-            }
-            break;
-          }
-          case "board": {
-            // Step into the cabin (same Y, X centered on shaft).
-            // Doors are still held open by `boardingHold` until we're inside.
-            lift.boardingHold = true;
-            if (moveTowards(INSIDE_X, s.y)) {
-              // Now fully inside → release the hold, mark occupied.
-              // The lift will close the doors and depart.
-              lift.boardingHold = false;
-              lift.occupied = true;
-              if (target) lift.targetFloor = target.row;
-              phaseRef.current = "ride";
-              next.walking = false;
-            } else next.walking = true;
-            break;
-          }
-          case "ride": {
-            // Player is inside — y follows cabinY exactly. No control.
-            next.x = INSIDE_X;
-            next.y = lift.cabinY;
-            next.walking = false;
-            // Arrived = at target floor + doors fully open again.
-            const arrived =
-              target && lift.currentFloor === target.row &&
-              lift.phase === "doors_open" && lift.doorOpen > 0.9;
-            if (arrived) {
-              // Hold the doors while we step out.
-              lift.boardingHold = true;
-              phaseRef.current = "exit";
-            }
-            break;
-          }
-          case "exit": {
-            if (!target) { phaseRef.current = "idle"; break; }
-            // Step out onto the destination floor (toward the target room).
-            const exitDir = target.x > INSIDE_X ? 1 : -1;
-            const exitX = INSIDE_X + exitDir * 10;
-            if (moveTowards(exitX, roomFloorLineY(target.row))) {
-              // Free the cabin: no longer occupied, no longer boarding.
-              lift.occupied = false;
-              lift.boardingHold = false;
-              phaseRef.current = "walk_final";
-              next.walking = false;
-            } else next.walking = true;
-            break;
-          }
-          case "walk_final": {
-            if (!target) { phaseRef.current = "idle"; break; }
-            if (moveTowards(target.x, target.y)) {
-              phaseRef.current = "idle";
-              next.walking = false;
-            } else next.walking = true;
-            break;
-          }
+      // moveTowards: mutate w.{x,y,facing}, return true if arrived (within eps)
+      const moveTowards = (tx: number, ty: number): boolean => {
+        const dx = tx - w.x, dy = ty - w.y;
+        const dist = Math.hypot(dx, dy);
+        if (dist <= ARRIVE_EPS) {
+          w.x = tx; w.y = ty;
+          return true;
         }
+        const step = SPEED * dt;
+        if (dist <= step) {
+          w.x = tx; w.y = ty;
+          return true;
+        }
+        w.x += (dx / dist) * step;
+        w.y += (dy / dist) * step;
+        if (Math.abs(dx) > 0.2) w.facing = dx > 0 ? 1 : -1;
+        return false;
+      };
 
-        if (next.walking) next.frame = Math.floor(now / 140) % 4;
-        else next.frame = 0;
-        return next;
-      });
+      switch (w.phase) {
+        case "idle": {
+          w.walking = false;
+          break;
+        }
+        case "walk_to_target": {
+          // Pin Y to the floor line of the row we *intend* to end on so we
+          // can never hang on a fractional Y after a previous lift ride.
+          const myRow = rowOfY(w.y);
+          // Sanity: if the target row differs from our row (shouldn't happen
+          // here, but can after a re-plan), kick to walk_to_lift instead.
+          if (myRow !== w.targetRow) {
+            w.phase = "walk_to_lift";
+            break;
+          }
+          if (moveTowards(w.targetX, roomFloorLineY(myRow))) {
+            w.phase = "idle";
+            w.walking = false;
+          } else w.walking = true;
+          break;
+        }
+        case "walk_to_lift": {
+          const myRow = rowOfY(w.y);
+          // If we've already been moved (e.g. by re-plan) onto the right floor,
+          // skip straight to walk_to_target.
+          if (myRow === w.targetRow) {
+            w.phase = "walk_to_target";
+            break;
+          }
+          if (moveTowards(BOARD_X, roomFloorLineY(myRow))) {
+            lift.targetFloor = myRow;
+            lift.boardingHold = true;
+            w.phase = "wait_for_lift";
+            w.walking = false;
+          } else w.walking = true;
+          break;
+        }
+        case "wait_for_lift": {
+          w.walking = false;
+          const myRow = rowOfY(w.y);
+          // If user re-routed to our own floor while we were waiting, abort
+          // the lift call and walk to the new target instead.
+          if (myRow === w.targetRow) {
+            lift.boardingHold = false;
+            w.phase = "walk_to_target";
+            break;
+          }
+          lift.targetFloor = myRow;
+          lift.boardingHold = true;
+          const cabinHere =
+            lift.currentFloor === myRow &&
+            (lift.phase === "doors_open" || lift.phase === "doors_opening") &&
+            lift.doorOpen > 0.9;
+          if (cabinHere) w.phase = "board";
+          break;
+        }
+        case "board": {
+          lift.boardingHold = true;
+          if (moveTowards(INSIDE_X, w.y)) {
+            lift.boardingHold = false;
+            lift.occupied = true;
+            lift.targetFloor = w.targetRow;
+            w.phase = "ride";
+            w.walking = false;
+          } else w.walking = true;
+          break;
+        }
+        case "ride": {
+          // Inside the cabin: y follows cabin exactly, x is locked.
+          w.x = INSIDE_X;
+          w.y = lift.cabinY;
+          w.walking = false;
+          // Keep the cabin pointed at our (possibly re-routed) target.
+          lift.targetFloor = w.targetRow;
+          const arrived =
+            lift.currentFloor === w.targetRow &&
+            lift.phase === "doors_open" &&
+            lift.doorOpen > 0.9;
+          if (arrived) {
+            lift.boardingHold = true;
+            w.phase = "exit";
+          }
+          break;
+        }
+        case "exit": {
+          const exitDir = w.targetX > INSIDE_X ? 1 : -1;
+          const exitX = INSIDE_X + exitDir * 10;
+          if (moveTowards(exitX, roomFloorLineY(w.targetRow))) {
+            lift.occupied = false;
+            lift.boardingHold = false;
+            w.phase = "walk_final";
+            w.walking = false;
+          } else w.walking = true;
+          break;
+        }
+        case "walk_final": {
+          if (moveTowards(w.targetX, w.targetY)) {
+            w.phase = "idle";
+            w.walking = false;
+          } else w.walking = true;
+          break;
+        }
+      }
+
+      // Frame counter for sprite animation
+      const newFrame = w.walking ? Math.floor(now / 140) % 4 : 0;
+      if (newFrame !== w.frame) { w.frame = newFrame; dirty = true; }
+
+      // Detect "visible change" since last push
+      if (
+        Math.abs(w.x - prevX) > 0.4 ||
+        Math.abs(w.y - prevY) > 0.4 ||
+        w.facing !== prevFacing ||
+        w.walking !== prevWalking
+      ) {
+        dirty = true;
+      }
+
+      // Throttled push to React state
+      if (dirty && now - lastPushed >= PUSH_INTERVAL_MS) {
+        lastPushed = now;
+        dirty = false;
+        setState({
+          x: w.x, y: w.y, facing: w.facing, walking: w.walking, frame: w.frame,
+        });
+      }
+
       raf = requestAnimationFrame(loop);
     };
     raf = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(raf);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return state;
