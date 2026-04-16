@@ -404,7 +404,7 @@ export function useSocLifeAudio() {
     stepIndexRef.current = 0;
     const step = () => {
       if (!enabledRef.current) return;
-      try { tickStep(ctx, music); } catch { /* noop */ }
+      try { tickStep(ctx, music, musicBaseGainRef.current); } catch { /* noop */ }
       stepIndexRef.current = (stepIndexRef.current + 1) % 32;
       // Use the current mode's tempo so transitions feel natural.
       const ms = STEP_MS_BY_MODE[modeRef.current] ?? STEP_MS_BY_MODE.calm;
