@@ -487,6 +487,40 @@ export function DollHouse({ current, highlight, onMove, maxHeight, isNight = fal
   isNightRef.current = isNight;
   const tintRef = useRef(isNight ? 1 : 0); // 0 = day, 1 = night
 
+  // ---- Visitor system ------------------------------------------------------
+  // Occasionally an "extra" colleague appears from the staircase, walks into a
+  // random room, chats next to the resident NPC for a few seconds, then leaves
+  // again. Pure ref state — no React re-renders — so the rAF loop stays smooth.
+  type VisitorPhase = "enter" | "chat" | "leave" | "idle";
+  interface Visitor {
+    phase: VisitorPhase;
+    targetRoom: RoomId;
+    x: number; y: number;
+    facing: 1 | -1;
+    shirt: string; pants: string; skin: string; hair: string;
+    chatUntil: number;
+    nextSpawnAt: number;
+  }
+  const visitorPalette: Array<{ shirt: string; pants: string; skin: string; hair: string }> = [
+    { shirt: "#ff7a3a", pants: "#1a1a26", skin: C.skinA, hair: C.hairC }, // orange dev
+    { shirt: "#3aa0ff", pants: "#0a0a14", skin: C.skinC, hair: C.hairB }, // blue consultant
+    { shirt: "#9a6aff", pants: "#1a1a26", skin: C.skinB, hair: C.hairA }, // purple manager
+    { shirt: "#7af542", pants: "#0a0a14", skin: C.skinD, hair: C.hairD }, // green pentester
+    { shirt: "#ffd23a", pants: "#2a1a14", skin: C.skinA, hair: C.hairB }, // gold auditor
+  ];
+  const visitorRef = useRef<Visitor>({
+    phase: "idle",
+    targetRoom: "soc_floor",
+    x: STAIR_X, y: roomFloorLineY(1),
+    facing: 1,
+    shirt: visitorPalette[0].shirt,
+    pants: visitorPalette[0].pants,
+    skin: visitorPalette[0].skin,
+    hair: visitorPalette[0].hair,
+    chatUntil: 0,
+    nextSpawnAt: 12_000, // first visitor after ~12s
+  });
+
   // Animation loop
   useEffect(() => {
     const cv = canvasRef.current;
