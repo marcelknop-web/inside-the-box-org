@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useSocLifeAudio } from "@/hooks/useSocLifeAudio";
 import {
-  Incident, INCIDENTS, INCIDENT_TYPES, IncidentType, PlaybookStep,
+  Incident, INCIDENTS, PlaybookStep,
   ROOMS, RoomId,
 } from "@/data/socLifeData";
 import { DollHouse } from "@/components/socLife/DollHouse";
