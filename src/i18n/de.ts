@@ -1200,7 +1200,7 @@ export const de = {
     incidents: {
       phishing: {
         title: 'Phishing-Welle',
-        brief: 'Mehrere Mitarbeitende melden eine verdächtige Mail mit Anhang.',
+        brief: 'Mehrere Mitarbeiter melden eine verdächtige Mail mit Anhang.',
         steps: {
           detect: { title: 'Erkennung & Triage', prompt: 'Was tust du zuerst?',
             options: {
