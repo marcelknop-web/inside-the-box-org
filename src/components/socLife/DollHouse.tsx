@@ -1155,14 +1155,7 @@ export function DollHouse({ current, highlight, onMove, maxHeight, isNight = fal
       drawRect(ctx, shaftX - 3, CORRIDOR_Y + 4, 1, CORRIDOR_H - 8, railCol);
       drawRect(ctx, shaftX + SHAFT_W + 2, CORRIDOR_Y + 4, 1, CORRIDOR_H - 8, railCol);
 
-      // Ambient corridor "data motes" — small pixels drifting horizontally
-      for (let m = 0; m < 6; m++) {
-        const phase = (t / 40 + m * 43) % (LOGICAL_W + 16);
-        const mx = phase - 8;
-        const my = CORRIDOR_Y + 4 + ((m * 5) % (CORRIDOR_H - 8));
-        const col = m % 2 === 0 ? C.cyan : C.magenta;
-        drawPx(ctx, mx, my, col);
-      }
+      // (Removed: ambient corridor "data motes" — they read as random colour noise.)
 
       // Highlight ring around required incident room
       if (highlight) {
