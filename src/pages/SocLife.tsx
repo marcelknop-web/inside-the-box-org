@@ -12,6 +12,7 @@ import { DollHouse } from "@/components/socLife/DollHouse";
 import { SocMeters } from "@/components/socLife/SocMeters";
 import { IncidentPanel } from "@/components/socLife/IncidentPanel";
 import { RoomActions, IdleAction } from "@/components/socLife/RoomActions";
+import { ConsequenceOverlay, ConsequenceData } from "@/components/socLife/ConsequenceOverlay";
 
 const TICK_MS = 250;
 const MIN_INCIDENT_GAP_MS = 18_000;
@@ -41,6 +42,10 @@ export default function SocLife() {
   const [activeIncident, setActiveIncident] = useState<Incident | null>(null);
   const [stepIdx, setStepIdx] = useState(0);
   const [stepTimeLeft, setStepTimeLeft] = useState(0);
+  // When set, a prominent consequence overlay is shown and the step timer pauses
+  // until the user clicks "Continue". This forces the player to actually read
+  // the outcome before the next step kicks in.
+  const [consequence, setConsequence] = useState<ConsequenceData | null>(null);
   const nextIncidentAtRef = useRef<number>(0);
   // Shuffle-bag: each of the 10 scenarios appears once per cycle, then reshuffles.
   const incidentBagRef = useRef<Incident[]>([]);
@@ -94,8 +99,8 @@ export default function SocLife() {
         setReputation((r) => (stress < 50 ? Math.min(100, r + 0.02) : r));
       }
 
-      // Step timer countdown
-      if (activeIncident) {
+      // Step timer countdown — paused while a consequence overlay is shown
+      if (activeIncident && !consequence) {
         setStepTimeLeft((t2) => {
           const next = t2 - TICK_MS;
           if (next <= 0) {
@@ -105,7 +110,7 @@ export default function SocLife() {
           }
           return next;
         });
-      } else {
+      } else if (!activeIncident) {
         // Schedule next incident
         const now = Date.now();
         if (nextIncidentAtRef.current === 0) {
@@ -122,7 +127,7 @@ export default function SocLife() {
     }, TICK_MS);
     return () => window.clearInterval(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [started, paused, gameOver, activeIncident, reputation, stress, coffee]);
+  }, [started, paused, gameOver, activeIncident, reputation, stress, coffee, consequence]);
 
   function randIncidentDelay() {
     return MIN_INCIDENT_GAP_MS + Math.random() * (MAX_INCIDENT_GAP_MS - MIN_INCIDENT_GAP_MS);
@@ -134,6 +139,7 @@ export default function SocLife() {
     setActiveIncident(inc);
     setStepIdx(0);
     setStepTimeLeft(inc.steps[0].timeLimitMs);
+    setConsequence(null);
     nextIncidentAtRef.current = 0;
     audio.playSfx("incident_klaxon", 0.6);
     toast(t("socLife.incomingIncident"), {
@@ -146,6 +152,7 @@ export default function SocLife() {
     setActiveIncident(null);
     setStepIdx(0);
     setStepTimeLeft(0);
+    setConsequence(null);
     nextIncidentAtRef.current = Date.now() + randIncidentDelay();
     if (escalated) {
       audio.playSfx("escalation", 0.5);
@@ -166,25 +173,35 @@ export default function SocLife() {
   }
 
   const handleChoose = useCallback((optionId: string) => {
-    if (!activeIncident) return;
+    if (!activeIncident || consequence) return; // ignore clicks while overlay is up
     const step = activeIncident.steps[stepIdx];
     const opt = step.options.find((o) => o.id === optionId);
     if (!opt) return;
     if (step.requiredRoom && step.requiredRoom !== currentRoom) return;
 
+    // Apply effects immediately so meters react in real time, but DON'T advance
+    // the step yet — we want the player to read the consequence first.
+    const stressDelta = opt.correct ? -2 : +6;
     setReputation((r) => Math.max(0, Math.min(100, r + opt.delta)));
-    setStress((s) => Math.min(100, s + (opt.correct ? -2 : +6)));
+    setStress((s) => Math.min(100, Math.max(0, s + stressDelta)));
+    if (opt.correct) setScore((s) => s + 10);
 
-    if (opt.correct) {
-      setScore((s) => s + 10);
-      audio.playSfx("success_chime", 0.45);
-      toast.success(t("socLife.feedback.correct"), { duration: 1200 });
-    } else {
-      audio.playSfx("fail_buzz", 0.45);
-      toast.error(t("socLife.feedback.wrong"), { duration: 1200 });
-    }
+    audio.playSfx(opt.correct ? "success_chime" : "fail_buzz", 0.45);
 
+    setConsequence({
+      optionLabel: opt.label[language as "de" | "en" | "fr"],
+      correct: opt.correct,
+      repDelta: opt.delta,
+      stressDelta,
+    });
+  }, [activeIncident, stepIdx, currentRoom, audio, language, consequence]);
+
+  // Called when the player dismisses the consequence overlay — only now do we
+  // advance to the next step (or finish the incident).
+  const continueAfterConsequence = useCallback(() => {
+    if (!activeIncident) { setConsequence(null); return; }
     const nextIdx = stepIdx + 1;
+    setConsequence(null);
     if (nextIdx >= activeIncident.steps.length) {
       finishIncident(false);
     } else {
@@ -192,7 +209,7 @@ export default function SocLife() {
       const next: PlaybookStep = activeIncident.steps[nextIdx];
       setStepTimeLeft(next.timeLimitMs);
     }
-  }, [activeIncident, stepIdx, currentRoom, audio, t, finishIncident]);
+  }, [activeIncident, stepIdx, finishIncident]);
 
   const handleMove = useCallback((room: RoomId) => {
     setCurrentRoom(room);
@@ -239,6 +256,7 @@ export default function SocLife() {
     setShiftSec(0);
     setActiveIncident(null);
     setStepIdx(0);
+    setConsequence(null);
     setCurrentRoom("soc_floor");
     refillBag();
     nextIncidentAtRef.current = Date.now() + 6_000;
@@ -404,6 +422,16 @@ export default function SocLife() {
                 <RoomActions currentRoom={currentRoom} onIdleAction={handleIdle} />
               )}
             </aside>
+
+            {/* Consequence overlay: blocks input, surfaces the outcome of the
+                last choice in differentiated language. User must dismiss to
+                continue — replaces the previous toast-spam. */}
+            {consequence && !gameOver && (
+              <ConsequenceOverlay
+                data={consequence}
+                onContinue={continueAfterConsequence}
+              />
+            )}
 
             {/* Game-over: full-area calm overlay, NOT a toast spam.
                 Gives the user time to read what happened before any CTA appears. */}

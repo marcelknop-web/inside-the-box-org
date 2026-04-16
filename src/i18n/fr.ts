@@ -1242,5 +1242,17 @@ export const fr = {
       chooseRoomFirst: 'Choisissez d’abord la bonne salle — les options d’action apparaîtront à votre arrivée.',
       goToRoomCta: 'Aller sur place',
     },
+    consequence: {
+      yourCall: 'Votre choix',
+      verdict: 'Verdict',
+      impact: 'Impact',
+      reputation: 'Réputation',
+      stress: 'Stress',
+      continue: 'Continuer',
+      excellent: 'Réaction de manuel.',
+      solid:     'Acceptable — peut mieux faire.',
+      risky:     'Risqué. Dégâts tangibles.',
+      severe:    'Grave erreur. L’incident s’aggrave.',
+    },
   },
 };

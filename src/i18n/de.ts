@@ -1322,5 +1322,18 @@ export const de = {
       chooseRoomFirst: 'Wähle zuerst den richtigen Raum, dann erscheinen die Handlungsoptionen.',
       goToRoomCta: 'Zum Einsatzort gehen',
     },
+    consequence: {
+      yourCall: 'Deine Entscheidung',
+      verdict: 'Bewertung',
+      impact: 'Auswirkung',
+      reputation: 'Reputation',
+      stress: 'Stress',
+      continue: 'Weiter',
+      // Vier Abstufungen — von Lehrbuch bis schwerwiegend
+      excellent: 'Lehrbuchreife Reaktion.',
+      solid:     'Vertretbar — geht aber besser.',
+      risky:     'Riskant. Spürbarer Schaden.',
+      severe:    'Schwerer Fehler. Vorfall eskaliert.',
+    },
   },
 };
