@@ -1430,7 +1430,9 @@ export function DollHouse({ current, highlight, onMove, maxHeight, isNight = fal
           style={{ boxShadow: "inset 0 0 60px rgba(0,0,0,0.6)" }}
         />
 
-        {/* Crisp HTML room labels — readable, professional, no pixel-noise */}
+        {/* Crisp HTML room labels — anchored to the very top edge of each room
+            so the walking figure (whose feet sit on the floor line ~93% down)
+            is never hidden behind a label, especially on small screens. */}
         {ROOMS.map((room) => {
           const isCurrent = room.id === current;
           const isHighlight = room.id === highlight;
@@ -1442,14 +1444,16 @@ export function DollHouse({ current, highlight, onMove, maxHeight, isNight = fal
               key={room.id}
               type="button"
               onClick={() => room.id !== current && onMove(room.id)}
-              className="absolute pointer-events-auto text-left"
+              className="absolute pointer-events-auto text-left flex"
               style={{ left: `${leftPct}%`, top: `${topPct}%`, width: `${widthPct}%` }}
               title={t(`socLife.rooms.${room.i18n}.name`)}
             >
               <span
                 className={cn(
-                  "inline-block px-1.5 py-0.5 font-mono uppercase tracking-wider rounded-sm transition-colors",
-                  "text-[10px] sm:text-[11px] leading-tight",
+                  "inline-block px-1 py-0 font-mono uppercase tracking-wider rounded-sm transition-colors truncate max-w-full",
+                  // Tiny on mobile (single line, kept short to never overlap the figure),
+                  // a bit roomier on larger screens where the canvas is bigger.
+                  "text-[8px] sm:text-[11px] leading-[1.1]",
                   isCurrent
                     ? "bg-primary text-primary-foreground"
                     : isHighlight
