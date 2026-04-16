@@ -495,10 +495,9 @@ function drawCrt(
   // Rolling scanline
   const sl = Math.floor((t / 90 + seed) % 6);
   drawRect(ctx, x + 1, y + 1 + sl, 10, 1, "rgba(0,0,0,0.35)");
-  // Random hot pixel occasionally
-  if (rand1(Math.floor(t / 180) + seed) > 0.92) {
-    drawPx(ctx, x + 1 + (Math.floor(t / 50 + seed) % 10), y + 1 + (Math.floor(t / 70 + seed) % 6), C.white);
-  }
+  // (Removed: occasional white "hot pixel" inside CRT — it looked like dirt
+  // on the screen rather than meaningful UI. The animated bars + scanline
+  // already give the monitor a believable, alive feel.)
   drawRect(ctx, x + 4, y + 9, 4, 1, "#0a0a0a");
   drawRect(ctx, x + 3, y + 9, 6, 1, "#2a2a2a");
 }
