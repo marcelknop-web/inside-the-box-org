@@ -626,11 +626,99 @@ const FIRE_DRILL: Incident = {
   ],
 };
 
+const DPO_VISIT: Incident = {
+  id: "dpo_visit",
+  title: L("Datenschutzbeauftragte vor der Tür", "Data Protection Officer at the door", "Le DPO frappe à la porte"),
+  brief: L(
+    "Die DPO will wissen, warum SIEM-Logs personenbezogene Daten enthalten — und wie lange ihr die aufhebt.",
+    "The DPO wants to know why SIEM logs contain personal data — and how long you keep them.",
+    "La DPO veut savoir pourquoi les logs SIEM contiennent des données personnelles — et combien de temps vous les gardez."
+  ),
+  initialDelayMs: 10_000,
+  steps: [
+    {
+      id: "lawful_basis", requiredRoom: "ciso_office", timeLimitMs: 24_000,
+      title: L("Rechtsgrundlage", "Lawful basis", "Base légale"),
+      prompt: L("Wie begründest du die Verarbeitung?", "How do you justify the processing?", "Comment justifier le traitement ?"),
+      options: [
+        { id: "legit_interest", correct: true,  delta: +7, label: L("Berechtigtes Interesse (Art. 6(1)(f)) + dokumentierte Interessenabwägung zeigen", "Legitimate interest (Art. 6(1)(f)) + documented balancing test", "Intérêt légitime (Art. 6(1)(f)) + test de mise en balance documenté") },
+        { id: "consent",        correct: false, delta: -4, label: L("Mit 'Einwilligung im Arbeitsvertrag' argumentieren", "Argue with 'consent in the employment contract'", "Argumenter avec 'consentement dans le contrat de travail'") },
+        { id: "vague",          correct: false, delta: -3, label: L("'Wir machen das halt für die Sicherheit' — sie wird das verstehen", "'We just do it for security' — they'll understand", "'On le fait pour la sécurité' — elle comprendra") },
+      ],
+    },
+    {
+      id: "retention", requiredRoom: "siem", timeLimitMs: 22_000,
+      title: L("Aufbewahrung", "Retention", "Conservation"),
+      prompt: L("Sie fragt nach der Löschfrist.", "She asks for the retention period.", "Elle demande la durée de conservation."),
+      options: [
+        { id: "policy_pointer", correct: true,  delta: +6, label: L("Auf das Log-Retention-Konzept verweisen: 90 Tage Hot, 12 Monate Cold, dann anonymisiert", "Point to the log retention policy: 90 days hot, 12 months cold, then anonymised", "Renvoyer à la politique : 90j chaud, 12 mois froid, puis anonymisé") },
+        { id: "forever",        correct: false, delta: -5, label: L("'Wir behalten alles für immer — man weiß ja nie'", "'We keep everything forever — you never know'", "'On garde tout pour toujours — on ne sait jamais'") },
+        { id: "delete_now",     correct: false, delta: -4, label: L("Schnell alle Logs der letzten 6 Monate löschen, bevor sie nachfragt", "Quickly delete the last 6 months of logs before she asks again", "Effacer vite les logs des 6 derniers mois avant qu'elle ne redemande") },
+      ],
+    },
+    {
+      id: "incident_log", requiredRoom: "war_room", timeLimitMs: 22_000,
+      title: L("Vorfallregister", "Incident register", "Registre d'incidents"),
+      prompt: L("Sie will einen Auszug aus dem Vorfallregister.", "She wants an excerpt from the incident register.", "Elle veut un extrait du registre d'incidents."),
+      options: [
+        { id: "show_register", correct: true,  delta: +6, label: L("Aktuelles Register zeigen, mit Bewertung 'meldepflichtig ja/nein' pro Vorfall", "Show the live register, with 'reportable yes/no' assessment per incident", "Présenter le registre vivant, avec évaluation 'à signaler oui/non'") },
+        { id: "verbal_only",   correct: false, delta: -3, label: L("Mündlich zusammenfassen — 'wir haben das alles im Kopf'", "Summarise verbally — 'we keep all of it in our heads'", "Résumer à l'oral — 'on a tout ça en tête'") },
+        { id: "filter_out",    correct: false, delta: -5, label: L("Nur die unkritischen Vorfälle exportieren, der Rest 'ist noch in Prüfung'", "Export only the harmless incidents, the rest is 'still under review'", "N'exporter que les incidents bénins, le reste est 'en cours d'examen'") },
+      ],
+    },
+  ],
+};
+
+const COMPLIANCE_VISIT: Incident = {
+  id: "compliance_visit",
+  title: L("Compliance schaut vorbei", "Compliance drops by", "La conformité passe vous voir"),
+  brief: L(
+    "Die interne Revision will spontan euren NIS-2-Reifegrad sehen. Mit Beweisen.",
+    "Internal audit wants an unscheduled look at your NIS-2 maturity. With evidence.",
+    "L'audit interne veut voir à l'improviste votre maturité NIS-2. Avec des preuves."
+  ),
+  initialDelayMs: 11_000,
+  steps: [
+    {
+      id: "scope_meeting", requiredRoom: "war_room", timeLimitMs: 22_000,
+      title: L("Scope-Meeting", "Scope meeting", "Cadrage"),
+      prompt: L("Was bietest du an?", "What do you offer?", "Que proposes-tu ?"),
+      options: [
+        { id: "agenda",       correct: true,  delta: +6, label: L("Kurze Agenda + Themenliste vorschlagen, Termine pro Domain abstimmen", "Propose a short agenda + topic list, schedule slots per domain", "Proposer une agenda + liste de thèmes, créneaux par domaine") },
+        { id: "open_bar",     correct: false, delta: -3, label: L("'Schaut euch alles an, was ihr wollt' — keine Struktur", "'Look at whatever you want' — no structure", "'Regardez tout ce que vous voulez' — sans structure") },
+        { id: "delay_weeks",  correct: false, delta: -4, label: L("Auf 'in drei Wochen, da haben wir mehr Zeit' vertrösten", "Push it to 'three weeks from now, we'll have more time'", "Reporter à 'dans trois semaines, on aura plus de temps'") },
+      ],
+    },
+    {
+      id: "evidence", requiredRoom: "ciso_office", timeLimitMs: 24_000,
+      title: L("Nachweise", "Evidence", "Preuves"),
+      prompt: L("Sie wollen drei Stichproben.", "They want three samples.", "Ils veulent trois échantillons."),
+      options: [
+        { id: "live_export",  correct: true,  delta: +7, label: L("Live aus dem Compliance-Tool exportieren: Findings, Maßnahmen, Zieldaten", "Export live from the compliance tool: findings, actions, target dates", "Exporter en direct depuis l'outil : findings, actions, échéances") },
+        { id: "screenshot",   correct: false, delta: -3, label: L("Screenshots aus alten Slides zusammensuchen — sieht ähnlich aus", "Cobble together screenshots from old slides — looks similar", "Bricoler des captures d'anciennes slides — ça se ressemble") },
+        { id: "rewrite",      correct: false, delta: -5, label: L("Über Nacht ein paar Maßnahmen 'rückwirkend dokumentieren'", "Overnight, 'retroactively document' a few actions", "Documenter 'rétroactivement' quelques actions du jour au lendemain") },
+      ],
+    },
+    {
+      id: "gap", requiredRoom: "war_room", timeLimitMs: 22_000,
+      title: L("Lücke", "Gap", "Écart"),
+      prompt: L("Sie finden eine offene NIS-2-Pflicht.", "They find an open NIS-2 obligation.", "Ils trouvent une obligation NIS-2 ouverte."),
+      options: [
+        { id: "own_plan",   correct: true,  delta: +6, label: L("Lücke anerkennen, Maßnahme + verantwortliche Person + Zieldatum nennen", "Acknowledge the gap, name action + owner + target date", "Reconnaître l'écart, nommer action + responsable + échéance") },
+        { id: "wordsmith", correct: false, delta: -4, label: L("Die Pflicht 'kreativ uminterpretieren' — vielleicht trifft sie uns gar nicht", "'Creatively reinterpret' the obligation — maybe it doesn't apply", "'Réinterpréter' l'obligation — peut-être qu'elle ne s'applique pas") },
+        { id: "blame_it",   correct: false, delta: -5, label: L("Auf die IT zeigen — 'das ist nicht unser Bereich'", "Point at IT — 'that's not our area'", "Pointer vers l'IT — 'ce n'est pas notre domaine'") },
+      ],
+    },
+  ],
+};
+
 export const INCIDENTS: Incident[] = [
   PHISHING, RANSOMWARE, DDOS, INSIDER, BEC,
   LATERAL, C2, CRED_DUMP, SUPPLY, EXFIL, PATCH,
-  AUDITOR, FIRE_DRILL,
+  AUDITOR, FIRE_DRILL, DPO_VISIT, COMPLIANCE_VISIT,
 ];
 
 /** Comic-relief incidents trigger the cheesy "audit" music mode. */
-export const COMIC_INCIDENT_IDS = new Set<string>(["auditor_visit", "fire_drill"]);
+export const COMIC_INCIDENT_IDS = new Set<string>([
+  "auditor_visit", "fire_drill", "dpo_visit", "compliance_visit",
+]);
