@@ -256,6 +256,7 @@ export default function SocLife() {
     setShiftSec(0);
     setActiveIncident(null);
     setStepIdx(0);
+    setConsequence(null);
     setCurrentRoom("soc_floor");
     refillBag();
     nextIncidentAtRef.current = Date.now() + 6_000;
