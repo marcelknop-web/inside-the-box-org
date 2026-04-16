@@ -56,6 +56,11 @@ export default function SocLife() {
   // until the user clicks "Continue". This forces the player to actually read
   // the outcome before the next step kicks in.
   const [consequence, setConsequence] = useState<ConsequenceData | null>(null);
+  // Delay the visual room-highlight on the floor plan until after the player
+  // has had time to read the incident title + brief in the side panel.
+  // Without this, the cyan pulse "spoils" where to go before a human could
+  // possibly have read the story — felt robotic.
+  const [revealRequiredRoom, setRevealRequiredRoom] = useState(false);
   const nextIncidentAtRef = useRef<number>(0);
   // Shuffle-bag: each of the 10 scenarios appears once per cycle, then reshuffles.
   const incidentBagRef = useRef<Incident[]>([]);
