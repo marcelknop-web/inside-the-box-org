@@ -270,21 +270,21 @@ export default function SocLife() {
         <meta name="description" content={t("socLife.metaDesc")} />
       </Helmet>
 
-      <div className="mx-auto w-full max-w-6xl px-3 sm:px-4 py-2 sm:py-3 flex-1 flex flex-col min-h-0">
-        {/* Compact header */}
-        <header className="mb-2 flex items-center justify-between gap-2 shrink-0">
+      <div className="mx-auto w-full max-w-6xl px-2 sm:px-4 py-1.5 sm:py-3 flex-1 flex flex-col min-h-0">
+        {/* Compact header — even tighter on mobile so the floor plan gets the space */}
+        <header className="mb-1.5 sm:mb-2 flex items-center justify-between gap-2 shrink-0">
           <div className="min-w-0">
-            <div className="font-mono text-[9px] sm:text-[10px] uppercase tracking-[0.25em] text-cyan-300 truncate">
+            <div className="hidden sm:block font-mono text-[9px] sm:text-[10px] uppercase tracking-[0.25em] text-cyan-300 truncate">
               inside-the-box · sim
             </div>
-            <h1 className="font-mono text-base sm:text-xl md:text-2xl text-primary leading-tight truncate">
+            <h1 className="font-mono text-sm sm:text-xl md:text-2xl text-primary leading-tight truncate">
               {t("socLife.title")}
             </h1>
           </div>
           {started && (
-            <div className="flex gap-1.5 shrink-0">
+            <div className="flex gap-1 sm:gap-1.5 shrink-0">
               <Button
-                size="sm" variant="outline" className="font-mono h-8 px-2"
+                size="sm" variant="outline" className="font-mono h-7 sm:h-8 px-2 text-xs"
                 onClick={() => setPaused((p) => !p)}
                 disabled={gameOver}
                 aria-label={paused ? t("socLife.resume") : t("socLife.pause")}
@@ -293,16 +293,15 @@ export default function SocLife() {
                 {paused ? "▶" : "❚❚"}
               </Button>
               <Button
-                size="sm" variant="outline" className="font-mono h-8 px-2"
+                size="sm" variant="outline" className="font-mono h-7 sm:h-8 px-2 text-xs"
                 onClick={() => audio.setEnabled(!audio.enabled)}
                 aria-label={audio.enabled ? t("socLife.soundOff") : t("socLife.soundOn")}
                 title={audio.enabled ? t("socLife.soundOff") : t("socLife.soundOn")}
               >
                 {audio.enabled ? `🔊` : `🔇`}
               </Button>
-              {/* Restart is ALWAYS available while playing — not just on game over */}
               <Button
-                size="sm" variant="outline" className="font-mono h-8 px-2"
+                size="sm" variant="outline" className="font-mono h-7 sm:h-8 px-2 text-xs"
                 onClick={confirmRestart}
                 aria-label={t("socLife.restartShift")}
                 title={t("socLife.restartShift")}
@@ -349,7 +348,8 @@ export default function SocLife() {
                   maxHeight={
                     typeof window !== "undefined"
                       ? window.innerWidth < 1024
-                        ? Math.min(280, window.innerHeight * 0.38)
+                        // Mobile/tablet: give the floor plan ~55% of viewport so it's actually visible.
+                        ? Math.max(240, Math.min(window.innerHeight * 0.55, window.innerHeight - 260))
                         : window.innerHeight - 260
                       : 320
                   }
