@@ -13,6 +13,7 @@ import { SocMeters } from "@/components/socLife/SocMeters";
 import { IncidentPanel } from "@/components/socLife/IncidentPanel";
 import { RoomActions, IdleAction } from "@/components/socLife/RoomActions";
 import { ConsequenceOverlay, ConsequenceData } from "@/components/socLife/ConsequenceOverlay";
+import { Onboarding } from "@/components/socLife/Onboarding";
 
 const TICK_MS = 250;
 const MIN_INCIDENT_GAP_MS = 18_000;
@@ -38,6 +39,17 @@ export default function SocLife() {
 
   const [isFullscreen, setIsFullscreen] = useState(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
+
+  // Onboarding: show automatically on first ever visit, otherwise on demand.
+  const [showOnboarding, setShowOnboarding] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    try { return !window.localStorage.getItem("socLife.onboarded"); }
+    catch { return false; }
+  });
+  const closeOnboarding = useCallback(() => {
+    setShowOnboarding(false);
+    try { window.localStorage.setItem("socLife.onboarded", "1"); } catch { /* ignore */ }
+  }, []);
 
   const [activeIncident, setActiveIncident] = useState<Incident | null>(null);
   const [stepIdx, setStepIdx] = useState(0);
@@ -371,9 +383,19 @@ export default function SocLife() {
             <p className="mb-5 font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
               {t("socLife.audioHint")}
             </p>
-            <Button size="lg" onClick={startShift} className="font-mono">
-              ▶ {t("socLife.start")}
-            </Button>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button size="lg" onClick={startShift} className="font-mono">
+                ▶ {t("socLife.start")}
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={() => setShowOnboarding(true)}
+                className="font-mono"
+              >
+                ? {t("socLife.onboarding.showAgain")}
+              </Button>
+            </div>
           </section>
         )}
 
@@ -486,6 +508,10 @@ export default function SocLife() {
           </div>
         )}
       </div>
+
+      {/* Skippable intro carousel — shown automatically on first visit, and on
+          demand via the "?" button on the welcome screen. */}
+      {showOnboarding && <Onboarding onClose={closeOnboarding} />}
     </div>
   );
 }
