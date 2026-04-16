@@ -92,36 +92,52 @@ interface FigState {
 }
 
 // Shared elevator state — both the walker and the renderer mutate / read it.
-// The cabin is the single source of truth for vertical movement: nobody
-// "teleports" through the floor, you must call the lift, wait, ride, and step out.
-type ElevatorPhase = "idle" | "moving" | "doors_open";
+// The cabin is the single source of truth for vertical movement. Nobody
+// "teleports" through the floor: you must call the lift, wait for the doors
+// to FULLY open, step in, wait for them to CLOSE, ride (with realistic mass
+// and acceleration), wait for them to open again, then step out.
+//
+// Physics: the cabin has actual velocity. It accelerates, cruises, then
+// decelerates with a clean ease-out. This makes a heavy cabin *feel* heavy:
+// you see it overcome inertia, gather speed, then slow down on approach.
+type ElevatorPhase =
+  | "idle"           // parked, doors open, no passenger, no call
+  | "doors_opening"  // just arrived, doors sliding open
+  | "doors_open"    // doors fully open, dwelling for boarding/exit
+  | "doors_closing" // received call to leave or got passenger, doors sliding shut
+  | "moving";        // cabin in transit between floors
+
 interface ElevatorState {
-  /** Current pixel Y of the cabin floor (where feet stand inside the cabin). */
+  /** Pixel Y of the cabin floor (where feet stand inside the cabin). */
   cabinY: number;
-  /** Floor the cabin is currently parked at OR moving toward. */
+  /** Pixel Y velocity of the cabin (px/ms). Positive = downward. */
+  cabinVy: number;
+  /** Floor the cabin is currently parked at (only updated when at-floor). */
   currentFloor: 0 | 1;
-  /** Floor the cabin should head to next (set by callLift). */
+  /** Floor the cabin should head to next (set by walker). */
   targetFloor: 0 | 1;
-  /** 0..1 — how open the doors are. */
+  /** 0..1 — how open the doors are (0 = closed, 1 = fully open). */
   doorOpen: number;
   phase: ElevatorPhase;
-  /** ms timestamp when current phase ends (used for door dwell). */
+  /** ms timestamp when current phase ends (used for dwell). */
   phaseUntil: number;
-  /** True while a passenger is riding — keeps doors closed during transit. */
+  /** True while a passenger is inside the cabin and committed to the ride. */
   occupied: boolean;
+  /** True while a passenger is currently boarding/exiting (hold doors open). */
+  boardingHold: boolean;
 }
 
-// X offsets the player uses to wait at / step into the cabin.
-// `boardX` is the doorway lane the figure aims for when waiting outside.
 function makeElevatorRef(initialFloor: 0 | 1): ElevatorState {
   return {
     cabinY: roomFloorLineY(initialFloor),
+    cabinVy: 0,
     currentFloor: initialFloor,
     targetFloor: initialFloor,
     doorOpen: 1,
     phase: "doors_open",
     phaseUntil: 0,
     occupied: false,
+    boardingHold: false,
   };
 }
 
@@ -217,19 +233,25 @@ function useWalker(
               // Arrived at door — call the lift to this floor.
               const myFloor: 0 | 1 = s.y < CORRIDOR_Y + CORRIDOR_H / 2 ? 0 : 1;
               if (lift.targetFloor !== myFloor) lift.targetFloor = myFloor;
-              lift.occupied = false; // we're outside, doors may open
+              // We're outside, signal we want to board so the lift knows
+              // to open and *hold* the doors for us.
+              lift.boardingHold = true;
               phaseRef.current = "wait_for_lift";
               next.walking = false;
             } else next.walking = true;
             break;
           }
           case "wait_for_lift": {
-            // Stand still, face the doors (slight bob via frame=0).
+            // Stand still, face the doors. Keep the call active.
             next.walking = false;
             const myFloor: 0 | 1 = s.y < CORRIDOR_Y + CORRIDOR_H / 2 ? 0 : 1;
-            // Keep requesting our floor in case the lift was diverted.
             if (lift.targetFloor !== myFloor) lift.targetFloor = myFloor;
-            const cabinHere = lift.currentFloor === myFloor && lift.phase === "doors_open" && lift.doorOpen > 0.85;
+            lift.boardingHold = true; // keep doors held open while we wait
+            // Cabin must be parked at our floor with doors fully open.
+            const cabinHere =
+              lift.currentFloor === myFloor &&
+              (lift.phase === "doors_open" || lift.phase === "doors_opening") &&
+              lift.doorOpen > 0.9;
             if (cabinHere) {
               phaseRef.current = "board";
             }
@@ -237,8 +259,12 @@ function useWalker(
           }
           case "board": {
             // Step into the cabin (same Y, X centered on shaft).
+            // Doors are still held open by `boardingHold` until we're inside.
+            lift.boardingHold = true;
             if (moveTowards(INSIDE_X, s.y)) {
-              // Mark cabin as occupied → doors will close, lift will move.
+              // Now fully inside → release the hold, mark occupied.
+              // The lift will close the doors and depart.
+              lift.boardingHold = false;
               lift.occupied = true;
               if (target) lift.targetFloor = target.row;
               phaseRef.current = "ride";
@@ -247,14 +273,17 @@ function useWalker(
             break;
           }
           case "ride": {
-            // Player is inside — y follows cabinY exactly.
+            // Player is inside — y follows cabinY exactly. No control.
             next.x = INSIDE_X;
             next.y = lift.cabinY;
             next.walking = false;
+            // Arrived = at target floor + doors fully open again.
             const arrived =
               target && lift.currentFloor === target.row &&
-              lift.phase === "doors_open" && lift.doorOpen > 0.85;
+              lift.phase === "doors_open" && lift.doorOpen > 0.9;
             if (arrived) {
+              // Hold the doors while we step out.
+              lift.boardingHold = true;
               phaseRef.current = "exit";
             }
             break;
@@ -265,7 +294,9 @@ function useWalker(
             const exitDir = target.x > INSIDE_X ? 1 : -1;
             const exitX = INSIDE_X + exitDir * 10;
             if (moveTowards(exitX, roomFloorLineY(target.row))) {
-              lift.occupied = false; // free the cabin
+              // Free the cabin: no longer occupied, no longer boarding.
+              lift.occupied = false;
+              lift.boardingHold = false;
               phaseRef.current = "walk_final";
               next.walking = false;
             } else next.walking = true;
@@ -755,8 +786,11 @@ export function DollHouse({ current, highlight, onMove, maxHeight, isNight = fal
 
     let raf = 0;
     let start = performance.now();
+    let lastFrame = performance.now();
     const draw = (now: number) => {
       const t = now - start;
+      const dtMs = Math.min(48, now - lastFrame); // clamp to avoid huge jumps after tab-blur
+      lastFrame = now;
 
       // Clear
       drawRect(ctx, 0, 0, LOGICAL_W, LOGICAL_H, C.bg);
@@ -796,62 +830,140 @@ export function DollHouse({ current, highlight, onMove, maxHeight, isNight = fal
       drawRect(ctx, shaftX + 1, shaftTop, 1, shaftBottom - shaftTop, C.goldDim);
       drawRect(ctx, shaftX + SHAFT_W - 2, shaftTop, 1, shaftBottom - shaftTop, C.goldDim);
 
-      // 2) Update elevator state machine.
-      // The cabin is the SOLE means of changing floor. The walker pushes
-      // `targetFloor` and `occupied`; we advance physics + door dwell here.
+      // 2) Update elevator state machine with REAL physics.
+      // The cabin is heavy: it must accelerate, cruise at top speed, then
+      // brake on approach. Doors only operate while the cabin is at-floor and
+      // stationary. Departure is gated on doors being fully closed AND a
+      // committed passenger (or empty re-position request).
       const lift = elevatorRef.current;
       const targetY = roomFloorLineY(lift.targetFloor);
-      const FLOOR_TOL = 0.6;          // px — when we consider cabin "at floor"
-      const DOOR_DWELL_MS = 1400;     // doors stay open this long when idle
-      const ARRIVAL_DWELL_MS = 2200;  // a touch longer right after arrival, so player can step in/out
+      const FLOOR_TOL = 0.4;          // px — when we consider cabin "at floor"
+      const VEL_TOL = 0.005;          // px/ms — when we consider cabin stopped
+      const DOOR_DWELL_MS = 1600;     // doors stay open this long with no passenger nearby
+      const DOOR_HOLD_MS = 4500;      // max hold while passenger is boarding
+      const DOOR_OPEN_SPEED = 0.0035; // 1/ms — full open in ~285ms (fast, mechanical)
+      const DOOR_CLOSE_SPEED = 0.0028;// closes a touch slower (heavier movement)
+      // Heavy-cabin physics tuning:
+      const MAX_VEL = 0.085;          // px/ms — top cruising speed (~5px/frame@60fps)
+      const ACCEL = 0.00045;          // px/ms² — gentle ramp up (you SEE the load)
+      const DECEL = 0.00060;          // px/ms² — slightly stronger braking (safety!)
 
-      // Move the cabin
-      const dyToTarget = targetY - lift.cabinY;
-      if (Math.abs(dyToTarget) > FLOOR_TOL) {
-        // In transit — close doors, drift toward target with gentle ease
-        lift.phase = "moving";
-        lift.cabinY += dyToTarget * 0.06;
+      // ----- Door physics (always runs) -----
+      // What does the door WANT to be?
+      let wantOpen: number;
+      if (lift.phase === "moving") {
+        wantOpen = 0; // doors firmly closed in transit, no exceptions
+      } else if (lift.phase === "doors_opening" || lift.phase === "doors_open") {
+        wantOpen = 1;
+      } else if (lift.phase === "doors_closing") {
+        wantOpen = 0;
       } else {
-        // At a floor — snap, mark currentFloor reached, open doors
-        lift.cabinY = targetY;
-        if (lift.currentFloor !== lift.targetFloor) {
-          lift.currentFloor = lift.targetFloor;
-          lift.phase = "doors_open";
-          lift.phaseUntil = t + ARRIVAL_DWELL_MS;
-        } else if (lift.phase === "moving") {
-          // Just settled
-          lift.phase = "doors_open";
-          lift.phaseUntil = t + ARRIVAL_DWELL_MS;
-        }
+        wantOpen = 1; // idle = open
+      }
+      const dStep = (wantOpen > lift.doorOpen ? DOOR_OPEN_SPEED : DOOR_CLOSE_SPEED) * dtMs;
+      if (Math.abs(wantOpen - lift.doorOpen) <= dStep) {
+        lift.doorOpen = wantOpen;
+      } else {
+        lift.doorOpen += Math.sign(wantOpen - lift.doorOpen) * dStep;
       }
 
-      // Door progress
-      // Doors closed while moving OR while occupied (passenger inside, ready to ride).
-      // Doors open while idle at a floor and not occupied, or while waiting for passenger to step in/out.
-      const doorsShouldOpen =
-        lift.phase === "doors_open" &&
-        Math.abs(targetY - lift.cabinY) <= FLOOR_TOL &&
-        !lift.occupied;
-      const doorTarget = doorsShouldOpen ? 1 : 0;
-      lift.doorOpen = lift.doorOpen + (doorTarget - lift.doorOpen) * 0.14;
+      // ----- State transitions -----
+      switch (lift.phase) {
+        case "doors_opening": {
+          if (lift.doorOpen >= 0.999) {
+            lift.phase = "doors_open";
+            lift.phaseUntil = t + (lift.boardingHold ? DOOR_HOLD_MS : DOOR_DWELL_MS);
+          }
+          break;
+        }
+        case "doors_open": {
+          // Stay open while passenger is mid-boarding/exiting; otherwise
+          // close once the dwell elapses, OR immediately if a new floor was
+          // requested (and nobody's boarding).
+          if (lift.boardingHold) {
+            // refresh dwell so we don't time out on a slow walker
+            lift.phaseUntil = t + DOOR_HOLD_MS;
+          } else if (lift.occupied) {
+            // passenger committed → start closing now to depart
+            lift.phase = "doors_closing";
+          } else if (t >= lift.phaseUntil) {
+            // nobody coming + a different floor requested → close & go
+            if (lift.targetFloor !== lift.currentFloor) {
+              lift.phase = "doors_closing";
+            } else {
+              // refresh idle dwell
+              lift.phaseUntil = t + DOOR_DWELL_MS;
+            }
+          }
+          break;
+        }
+        case "doors_closing": {
+          if (lift.doorOpen <= 0.001) {
+            if (lift.targetFloor !== lift.currentFloor) {
+              lift.phase = "moving";
+              lift.cabinVy = 0; // start from rest — heavy cabin
+            } else {
+              // closed but nowhere to go → just sit closed briefly then reopen
+              lift.phase = "doors_opening";
+            }
+          }
+          // Safety: if a passenger appears mid-close, reopen
+          if (lift.boardingHold) {
+            lift.phase = "doors_opening";
+          }
+          break;
+        }
+        case "moving": {
+          // Real physics: accel toward target, brake on approach.
+          // Compute "stopping distance" given current velocity.
+          const remaining = targetY - lift.cabinY;
+          const dir = Math.sign(remaining) || 1;
+          const speed = Math.abs(lift.cabinVy);
+          // distance needed to brake to 0 at DECEL: v²/(2a)
+          const brakeDist = (speed * speed) / (2 * DECEL);
+          const absRemaining = Math.abs(remaining);
 
-      // While doors are open and dwell expired, allow new floor calls;
-      // if no fresh call, just stay put. (targetFloor==currentFloor → idle)
-      if (lift.phase === "doors_open" && t >= lift.phaseUntil && !lift.occupied) {
-        // refresh dwell so doors keep gently breathing
-        lift.phaseUntil = t + DOOR_DWELL_MS;
+          if (absRemaining <= brakeDist + 0.05) {
+            // Brake phase
+            const newSpeed = Math.max(0, speed - DECEL * dtMs);
+            lift.cabinVy = dir * newSpeed;
+          } else if (speed < MAX_VEL) {
+            // Accel phase
+            const newSpeed = Math.min(MAX_VEL, speed + ACCEL * dtMs);
+            lift.cabinVy = dir * newSpeed;
+          } else {
+            // Cruise
+            lift.cabinVy = dir * MAX_VEL;
+          }
+
+          // Integrate position
+          lift.cabinY += lift.cabinVy * dtMs;
+
+          // Arrival check
+          if (Math.abs(targetY - lift.cabinY) <= FLOOR_TOL && Math.abs(lift.cabinVy) <= VEL_TOL * 6) {
+            // Snap & settle
+            lift.cabinY = targetY;
+            lift.cabinVy = 0;
+            lift.currentFloor = lift.targetFloor;
+            lift.phase = "doors_opening";
+          }
+          break;
+        }
+        // "idle" never used as a runtime state in this loop, just a placeholder
       }
 
       const cabinY = lift.cabinY;
-      const moving = Math.abs(targetY - cabinY) > FLOOR_TOL;
+      const moving = lift.phase === "moving";
       const doorOpen = lift.doorOpen;
 
-      // 3) Cable from top of shaft to cabin
-      drawRect(ctx, STAIR_X, shaftTop, 1, Math.max(0, Math.round(cabinY - 14 - shaftTop)), "#3a3a4a");
-      // Cable wobble pixel when moving
-      if (moving) {
-        const wob = Math.sin(t / 60) > 0 ? 1 : -1;
-        drawPx(ctx, STAIR_X + wob, shaftTop + Math.floor((cabinY - shaftTop) / 2), "#5a5a6a");
+      // 3) Cable from top of shaft to top of cabin (cabin top is at cabinY-16)
+      const cabTopY = Math.round(cabinY) - 16;
+      drawRect(ctx, STAIR_X, shaftTop, 1, Math.max(0, cabTopY - shaftTop), "#3a3a4a");
+      // Cable wobble pixel when moving — frequency scales with speed
+      if (moving && Math.abs(lift.cabinVy) > 0.01) {
+        const wobFreq = 30 + (1 - Math.min(1, Math.abs(lift.cabinVy) / MAX_VEL)) * 60;
+        const wob = Math.sin(t / wobFreq) > 0 ? 1 : -1;
+        drawPx(ctx, STAIR_X + wob, shaftTop + Math.floor((cabTopY - shaftTop) / 2), "#5a5a6a");
       }
 
       // 4) Cabin (16x16) — body, ceiling lamp, floor
