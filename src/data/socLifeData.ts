@@ -72,12 +72,31 @@ export interface PlaybookStep {
   timeLimitMs: number;
 }
 
+/** Difficulty tier — drives the spawn curve in SocLife.tsx so the shift
+ *  starts gentle and ramps up. `comic` = light-relief breather episodes. */
+export type IncidentTier = "easy" | "medium" | "hard" | "comic";
+
+/** Coarse subject category — used to avoid two thematically identical
+ *  incidents back-to-back, which felt monotonous. */
+export type IncidentCategory =
+  | "email"      // phishing, BEC
+  | "endpoint"   // ransomware, LSASS, lateral
+  | "network"    // DDoS, C2, exfil
+  | "identity"   // insider
+  | "vuln"       // 0-day, supply chain
+  | "governance" // auditor / DPO / compliance / fire drill
+  ;
+
 export interface Incident {
   id: string;
   title: LocaleStr;
   brief: LocaleStr;
   initialDelayMs: number;
   steps: PlaybookStep[];
+  /** Difficulty tier. Defaults to "medium" if omitted. */
+  tier?: IncidentTier;
+  /** Subject category. Used to avoid topic repetition. */
+  category?: IncidentCategory;
 }
 
 // Helper to keep entries terse
@@ -87,6 +106,8 @@ const L = (de: string, en: string, fr: string): LocaleStr => ({ de, en, fr });
 
 const PHISHING: Incident = {
   id: "phishing",
+  tier: "easy",
+  category: "email",
   title: L("Phishing-Welle", "Phishing wave", "Vague de phishing"),
   brief: L(
     "Mehrere Mitarbeiter melden eine Mail mit verdächtigem Anhang.",
@@ -130,6 +151,8 @@ const PHISHING: Incident = {
 
 const RANSOMWARE: Incident = {
   id: "ransomware",
+  tier: "hard",
+  category: "endpoint",
   title: L("Ransomware-Verdacht", "Ransomware suspicion", "Suspicion de ransomware"),
   brief: L(
     "EDR meldet massenhafte Datei-Verschlüsselung auf einem File-Server.",
@@ -173,6 +196,8 @@ const RANSOMWARE: Incident = {
 
 const DDOS: Incident = {
   id: "ddos",
+  tier: "easy",
+  category: "network",
   title: L("DDoS auf Kunden-Portal", "DDoS on customer portal", "DDoS sur portail client"),
   brief: L(
     "Latenzanstieg + Traffic-Spike auf das öffentliche Login.",
@@ -216,6 +241,8 @@ const DDOS: Incident = {
 
 const INSIDER: Incident = {
   id: "insider",
+  tier: "medium",
+  category: "identity",
   title: L("Insider-Verdacht", "Insider threat", "Menace interne"),
   brief: L(
     "DLP meldet ungewöhnliche Datenabflüsse durch internen Account.",
@@ -259,6 +286,8 @@ const INSIDER: Incident = {
 
 const BEC: Incident = {
   id: "bec",
+  tier: "medium",
+  category: "email",
   title: L("CEO-Fraud / BEC", "CEO fraud / BEC", "Fraude CEO / BEC"),
   brief: L(
     "Buchhaltung meldet eine ungewöhnliche Zahlungsanweisung 'vom CEO'.",
@@ -302,6 +331,8 @@ const BEC: Incident = {
 
 const LATERAL: Incident = {
   id: "lateral_movement",
+  tier: "hard",
+  category: "endpoint",
   title: L("Lateral Movement erkannt", "Lateral movement detected", "Mouvement latéral détecté"),
   brief: L(
     "EDR sieht PsExec/SMB-Anmeldungen von einer Workstation auf mehrere Server.",
@@ -345,6 +376,8 @@ const LATERAL: Incident = {
 
 const C2: Incident = {
   id: "c2_beacon",
+  tier: "medium",
+  category: "network",
   title: L("C2-Beaconing erkannt", "C2 beaconing detected", "Beaconing C2 détecté"),
   brief: L(
     "Proxy-Logs zeigen periodische Verbindungen zu einer unbekannten Domain.",
@@ -388,6 +421,8 @@ const C2: Incident = {
 
 const CRED_DUMP: Incident = {
   id: "cred_dump",
+  tier: "hard",
+  category: "endpoint",
   title: L("LSASS-Dump erkannt", "LSASS dump detected", "Dump LSASS détecté"),
   brief: L(
     "EDR alarmiert: Zugriff auf LSASS-Speicher von einer Admin-Workstation.",
@@ -431,6 +466,8 @@ const CRED_DUMP: Incident = {
 
 const SUPPLY: Incident = {
   id: "supply_chain",
+  tier: "hard",
+  category: "vuln",
   title: L("Supply-Chain-Alert", "Supply-chain alert", "Alerte supply chain"),
   brief: L(
     "Hersteller meldet kompromittiertes Update einer eingesetzten Software.",
@@ -474,6 +511,8 @@ const SUPPLY: Incident = {
 
 const EXFIL: Incident = {
   id: "data_exfil",
+  tier: "medium",
+  category: "network",
   title: L("Daten-Exfiltration", "Data exfiltration", "Exfiltration de données"),
   brief: L(
     "Großvolumige Uploads zu einem Cloud-Speicher außerhalb der genehmigten Liste.",
@@ -517,6 +556,8 @@ const EXFIL: Incident = {
 
 const PATCH: Incident = {
   id: "zero_day",
+  tier: "hard",
+  category: "vuln",
   title: L("0-Day im Edge-Gateway", "0-day in edge gateway", "0-day sur passerelle edge"),
   brief: L(
     "CISA / Hersteller meldet aktiv ausgenutzte Schwachstelle in eurem VPN-Gateway.",
@@ -565,6 +606,8 @@ const PATCH: Incident = {
 
 const AUDITOR: Incident = {
   id: "auditor_visit",
+  tier: "comic",
+  category: "governance",
   title: L("Der Prüfer kommt!", "The auditor is here!", "L'auditeur arrive !"),
   brief: L(
     "Externer ISO-Auditor steht unangekündigt im War-Room und will 'mal kurz reinschauen'.",
@@ -608,6 +651,8 @@ const AUDITOR: Incident = {
 
 const FIRE_DRILL: Incident = {
   id: "fire_drill",
+  tier: "comic",
+  category: "governance",
   title: L("Brandschutzübung — jetzt?!", "Fire drill — right now?!", "Exercice incendie — maintenant ?!"),
   brief: L(
     "Lautsprecher: 'Alle Mitarbeiter bitte das Gebäude verlassen.' Mitten in der Schicht.",
@@ -631,6 +676,8 @@ const FIRE_DRILL: Incident = {
 
 const DPO_VISIT: Incident = {
   id: "dpo_visit",
+  tier: "comic",
+  category: "governance",
   title: L("Datenschutzbeauftragte vor der Tür", "Data Protection Officer at the door", "Le DPO frappe à la porte"),
   brief: L(
     "Die DPO will wissen, warum SIEM-Logs personenbezogene Daten enthalten — und wie lange ihr die aufhebt.",
@@ -674,6 +721,8 @@ const DPO_VISIT: Incident = {
 
 const COMPLIANCE_VISIT: Incident = {
   id: "compliance_visit",
+  tier: "comic",
+  category: "governance",
   title: L("Compliance schaut vorbei", "Compliance drops by", "La conformité passe vous voir"),
   brief: L(
     "Die interne Revision will spontan euren NIS-2-Reifegrad sehen. Mit Beweisen.",

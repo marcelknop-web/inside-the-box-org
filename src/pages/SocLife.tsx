@@ -7,6 +7,7 @@ import { useSocLifeAudio } from "@/hooks/useSocLifeAudio";
 import {
   Incident, INCIDENTS, PlaybookStep,
   ROOMS, RoomId, COMIC_INCIDENT_IDS,
+  IncidentTier, IncidentCategory,
 } from "@/data/socLifeData";
 import { DollHouse } from "@/components/socLife/DollHouse";
 import { SocMeters } from "@/components/socLife/SocMeters";
@@ -39,6 +40,72 @@ function stepTimeFor(baseMs: number, incidentsCompleted: number): number {
   const idx = Math.min(incidentsCompleted, TIME_PRESSURE_CURVE.length - 1);
   const mult = TIME_PRESSURE_CURVE[idx];
   return Math.max(MIN_STEP_TIME_MS, Math.round(baseMs * mult));
+}
+
+// === Difficulty curve ============================================
+// Each "slot" of the shift has a weighted distribution over the four
+// incident tiers. Early slots favour easy material; the boss-tier load
+// rises steadily; comic-relief breathers are sprinkled in at a low,
+// steady rate so the shift never feels samey for long.
+//
+// Index = number of incidents already completed.
+// After the curve runs out we stay on the last (hardest) profile.
+type TierWeights = Record<IncidentTier, number>;
+const DIFFICULTY_CURVE: TierWeights[] = [
+  { easy: 70, medium: 25, hard:  0, comic:  5 }, // #1 — gentle warm-up
+  { easy: 55, medium: 35, hard:  5, comic:  5 }, // #2
+  { easy: 35, medium: 45, hard: 15, comic:  5 }, // #3
+  { easy: 20, medium: 50, hard: 25, comic:  5 }, // #4
+  { easy: 10, medium: 45, hard: 35, comic: 10 }, // #5 — comic breather more likely
+  { easy:  5, medium: 35, hard: 50, comic: 10 }, // #6
+  { easy:  0, medium: 25, hard: 65, comic: 10 }, // #7
+  { easy:  0, medium: 15, hard: 75, comic: 10 }, // #8+
+];
+
+function pickTier(weights: TierWeights, exclude?: IncidentTier): IncidentTier {
+  const entries = (Object.entries(weights) as [IncidentTier, number][])
+    .filter(([t, w]) => w > 0 && t !== exclude);
+  const total = entries.reduce((s, [, w]) => s + w, 0);
+  if (total <= 0) return "medium";
+  let r = Math.random() * total;
+  for (const [tier, w] of entries) {
+    r -= w;
+    if (r <= 0) return tier;
+  }
+  return entries[entries.length - 1][0];
+}
+
+/** Pick the next incident:
+ *   1. Choose a tier from the difficulty curve.
+ *   2. Filter INCIDENTS to that tier, exclude the most recent N to avoid
+ *      repetition, and exclude the previous category to keep variety.
+ *   3. If filtering empties the pool, progressively relax the constraints. */
+function pickNextIncident(
+  completed: number,
+  recentIds: string[],
+  lastCategory: IncidentCategory | null,
+): Incident {
+  const profile = DIFFICULTY_CURVE[Math.min(completed, DIFFICULTY_CURVE.length - 1)];
+  const tier = pickTier(profile);
+  const sameTier = INCIDENTS.filter((i) => (i.tier ?? "medium") === tier);
+
+  // Strict: not recently shown AND different category from previous.
+  const strict = sameTier.filter(
+    (i) => !recentIds.includes(i.id) && (i.category ?? null) !== lastCategory,
+  );
+  if (strict.length) return strict[Math.floor(Math.random() * strict.length)];
+
+  // Relax category constraint.
+  const noRecent = sameTier.filter((i) => !recentIds.includes(i.id));
+  if (noRecent.length) return noRecent[Math.floor(Math.random() * noRecent.length)];
+
+  // Relax everything within tier.
+  if (sameTier.length) return sameTier[Math.floor(Math.random() * sameTier.length)];
+
+  // Last resort: any incident not just shown.
+  const anyOk = INCIDENTS.filter((i) => !recentIds.includes(i.id));
+  const pool = anyOk.length ? anyOk : INCIDENTS;
+  return pool[Math.floor(Math.random() * pool.length)];
 }
 
 export default function SocLife() {
@@ -86,18 +153,10 @@ export default function SocLife() {
   // possibly have read the story — felt robotic.
   const [revealRequiredRoom, setRevealRequiredRoom] = useState(false);
   const nextIncidentAtRef = useRef<number>(0);
-  // Shuffle-bag: each of the 10 scenarios appears once per cycle, then reshuffles.
-  const incidentBagRef = useRef<Incident[]>([]);
-
-  const refillBag = useCallback(() => {
-    const arr = [...INCIDENTS];
-    // Fisher-Yates
-    for (let i = arr.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [arr[i], arr[j]] = [arr[j], arr[i]];
-    }
-    incidentBagRef.current = arr;
-  }, []);
+  // History (most recent first) used by the picker to avoid repeats.
+  // Window size = floor(N/2) keeps variety while still allowing rotation.
+  const recentIncidentIdsRef = useRef<string[]>([]);
+  const lastCategoryRef = useRef<IncidentCategory | null>(null);
 
   const isNight = useMemo(() => {
     // 6 minutes day / 4 minutes night cycle for variety
@@ -183,8 +242,17 @@ export default function SocLife() {
   }
 
   const spawnIncident = useCallback(() => {
-    if (incidentBagRef.current.length === 0) refillBag();
-    const inc = incidentBagRef.current.shift()!;
+    const inc = pickNextIncident(
+      incidentsCompleted,
+      recentIncidentIdsRef.current,
+      lastCategoryRef.current,
+    );
+    // Update history: keep window of ~half the catalogue so we don't recycle
+    // the same scenario back-to-back, but still cycle through everything.
+    const windowSize = Math.max(3, Math.floor(INCIDENTS.length / 2));
+    recentIncidentIdsRef.current = [inc.id, ...recentIncidentIdsRef.current].slice(0, windowSize);
+    lastCategoryRef.current = inc.category ?? null;
+
     setActiveIncident(inc);
     setStepIdx(0);
     setStepTimeLeft(stepTimeFor(inc.steps[0].timeLimitMs, incidentsCompleted));
@@ -195,7 +263,7 @@ export default function SocLife() {
       description: inc.title[language as "de" | "en" | "fr"],
       duration: 2200,
     });
-  }, [audio, t, refillBag, language, incidentsCompleted]);
+  }, [audio, t, language, incidentsCompleted]);
 
   const finishIncident = useCallback((escalated: boolean) => {
     setActiveIncident(null);
@@ -315,7 +383,8 @@ export default function SocLife() {
     setStepIdx(0);
     setConsequence(null);
     setCurrentRoom("soc_floor");
-    refillBag();
+    recentIncidentIdsRef.current = [];
+    lastCategoryRef.current = null;
     nextIncidentAtRef.current = Date.now() + 6_000;
     audio.setMusicMode("calm");
     // First-time visitors see the intro right after starting their shift,
