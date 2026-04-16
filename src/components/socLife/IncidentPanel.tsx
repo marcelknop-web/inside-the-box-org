@@ -98,28 +98,33 @@ export function IncidentPanel({
   // unlock each section one at a time with a pause between them so the eye
   // can track the order: alarm → title (blinking) → brief → meta → prompt
   // → actions.
-  const stepKey = `${incident.id}:${step.id}:${stepIndex}`;
+  //
+  // IMPORTANT: We key the cascade on `${incident.id}:${stepIndex}` only
+  // (NOT on `step.id`) so React-fast-refresh, language toggles or other
+  // re-renders that produce a fresh `step` reference don't accidentally
+  // restart the cascade mid-way through.
+  const stepKey = `${incident.id}:${stepIndex}`;
   // T+0     klaxon already firing, panel mounts
-  // T+800   title starts typing (blinking)
-  // After title typed + 1200ms pause → brief
-  // After brief typed + 1000ms pause → meta + prompt
-  // After prompt typed + 600ms pause  → actions (only if in correct room)
-  const titleStarts = useDelayedFlag(800, [stepKey]);
+  // T+700   title starts typing (blinking)
+  // After title typed + 1100ms pause → brief
+  // After brief typed +  900ms pause → meta + prompt
+  // After prompt typed + 500ms pause → actions
+  const titleStarts = useDelayedFlag(700, [stepKey]);
 
-  const typedTitle  = useTypewriter(titleText, 28, titleStarts);
+  const typedTitle  = useTypewriter(titleText, 26, titleStarts);
   const titleDone   = titleStarts && typedTitle.length >= titleText.length;
 
-  const briefStarts = useDelayedFlag(1200, [titleDone]) && titleDone;
-  const typedBrief  = useTypewriter(briefText, 18, briefStarts);
+  const briefStarts = useDelayedFlag(1100, [titleDone]) && titleDone;
+  const typedBrief  = useTypewriter(briefText, 16, briefStarts);
   const briefDone   = briefStarts && typedBrief.length >= briefText.length;
 
-  const metaStarts  = useDelayedFlag(1000, [briefDone]) && briefDone;
+  const metaStarts  = useDelayedFlag(900, [briefDone]) && briefDone;
 
   const promptStarts = metaStarts;
-  const typedPrompt  = useTypewriter(promptText, 20, promptStarts);
+  const typedPrompt  = useTypewriter(promptText, 18, promptStarts);
   const promptDone   = promptStarts && typedPrompt.length >= promptText.length;
 
-  const actionsReady = useDelayedFlag(600, [promptDone]) && promptDone;
+  const actionsReady = useDelayedFlag(500, [promptDone]) && promptDone;
 
   // Numbered, sequential reveal — each block "unlocks" only when the previous
   // typewriter has finished, so the eye knows exactly where to look next.
