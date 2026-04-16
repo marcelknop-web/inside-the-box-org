@@ -96,6 +96,21 @@ export function ConsequenceOverlay({ data, onContinue }: Props) {
           </div>
         </div>
 
+        {/* Short professional rationale — turns the game into a learning loop */}
+        <div className={cn("mb-3 rounded-md border-l-2 bg-background/60 px-3 py-2",
+          tier === "excellent" ? "border-l-emerald-500/70"
+          : tier === "solid"   ? "border-l-cyan-400/70"
+          : tier === "risky"   ? "border-l-amber-400/70"
+          :                      "border-l-rose-500/70",
+        )}>
+          <div className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground mb-1">
+            {t("socLife.consequence.rationale")}
+          </div>
+          <div className="text-sm text-foreground/90 leading-relaxed">
+            {data.reason}
+          </div>
+        </div>
+
         {/* Quantified impact */}
         <div className="mb-4 grid grid-cols-2 gap-2 font-mono text-xs">
           <div className="rounded-md border border-border/40 bg-background/60 p-2.5">
