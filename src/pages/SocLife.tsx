@@ -205,7 +205,7 @@ export default function SocLife() {
       stressDelta,
       reason: reasonFor(step, opt, language as "de" | "en" | "fr"),
     });
-  }, [activeIncident, stepIdx, currentRoom, audio, language, consequence]);
+  }, [activeIncident, stepIdx, currentRoom, audio, language, consequence, paused]);
 
   // Called when the player dismisses the consequence overlay — only now do we
   // advance to the next step (or finish the incident).
