@@ -245,7 +245,7 @@ export default function SocLife() {
       correct: opt.correct,
       repDelta: opt.delta,
       stressDelta,
-      reason: reasonFor(step, opt, language as "de" | "en" | "fr"),
+      reason: reasonFor(activeIncident, step, opt, language as "de" | "en" | "fr"),
       bestAnswerLabel: !opt.correct && bestAnswer
         ? bestAnswer.label[language as "de" | "en" | "fr"]
         : undefined,
