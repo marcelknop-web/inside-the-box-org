@@ -198,27 +198,68 @@ function drawDoor(ctx: CanvasRenderingContext2D, x: number, y: number) {
   drawPx(ctx, x + 5, y + 7, C.gold);
 }
 
-// CRT monitor 12x9 at (x,y), with screen color
-function drawCrt(ctx: CanvasRenderingContext2D, x: number, y: number, screenColor: string, frame: number) {
+// Deterministic pseudo-random in [0,1) — stable per (seed) so flicker has structure
+function rand1(seed: number) {
+  const s = Math.sin(seed * 127.1 + 311.7) * 43758.5453;
+  return s - Math.floor(s);
+}
+
+// CRT monitor 12x9 at (x,y), with screen color.
+// Realistic: animated bar-graph inside the screen, occasional flicker, scanline roll.
+function drawCrt(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  screenColor: string,
+  t: number,
+  seed = 0,
+) {
   drawRect(ctx, x, y, 12, 9, "#1a1a1a");        // bezel
+  // Brief flicker every ~4-7s
+  const flickerPhase = (t / 1000 + seed * 0.37) % (4 + (seed % 3));
+  const flicker = flickerPhase < 0.06 ? 0.55 : 1;
   drawRect(ctx, x + 1, y + 1, 10, 6, screenColor);
-  // scanline blink
-  drawRect(ctx, x + 1, y + 2 + (frame % 3), 10, 1, "rgba(0,0,0,0.3)");
+  // Animated bar-graph (10 cols x 6 rows of pixels) — looks like SIEM volume meter
+  for (let bx = 0; bx < 10; bx++) {
+    // smooth wave per column with random phase
+    const phase = seed * 0.6 + bx * 0.55;
+    const wave = (Math.sin(t / 420 + phase) + Math.sin(t / 230 + phase * 1.7)) * 0.5;
+    const h = Math.max(0, Math.min(6, Math.round(3 + wave * 2.5 * flicker)));
+    const barCol = bx % 3 === 0 ? "rgba(0,0,0,0.55)" : "rgba(0,0,0,0.3)";
+    if (h < 6) drawRect(ctx, x + 1 + bx, y + 1, 1, 6 - h, barCol);
+  }
+  // Rolling scanline
+  const sl = Math.floor((t / 90 + seed) % 6);
+  drawRect(ctx, x + 1, y + 1 + sl, 10, 1, "rgba(0,0,0,0.35)");
+  // Random hot pixel occasionally
+  if (rand1(Math.floor(t / 180) + seed) > 0.92) {
+    drawPx(ctx, x + 1 + (Math.floor(t / 50 + seed) % 10), y + 1 + (Math.floor(t / 70 + seed) % 6), C.white);
+  }
   drawRect(ctx, x + 4, y + 9, 4, 1, "#0a0a0a");
   drawRect(ctx, x + 3, y + 9, 6, 1, "#2a2a2a");
 }
 
-// Server rack 14x40 — blinking LEDs
+// Server rack 14x40 — realistic LED activity (heartbeat + bursts + steady link lights)
 function drawRack(ctx: CanvasRenderingContext2D, x: number, y: number, t: number) {
   drawRect(ctx, x, y, 14, 40, "#1a1a26");
   drawRect(ctx, x + 1, y + 1, 12, 38, "#0e0e18");
   for (let i = 0; i < 9; i++) {
     const ry = y + 3 + i * 4;
     drawRect(ctx, x + 2, ry, 10, 3, "#2a2a3a");
-    // blinking LED — use t (animation tick) to flicker
-    const on = ((Math.floor(t / 200) + i) % 3) !== 0;
-    drawPx(ctx, x + 3, ry + 1, on ? C.green : C.greenDim);
-    drawPx(ctx, x + 11, ry + 1, ((i + Math.floor(t / 350)) % 2) === 0 ? C.amber : "#3a2a10");
+
+    // Steady "power" LED — slow soft pulse, never quite off
+    const pulse = (Math.sin(t / 600 + i * 0.7) + 1) * 0.5; // 0..1
+    drawPx(ctx, x + 3, ry + 1, pulse > 0.35 ? C.green : C.greenDim);
+
+    // Activity LED — bursty traffic. Each lane has its own randomized bursts.
+    const burstSeed = Math.floor(t / 90) + i * 11;
+    const burstActive = rand1(Math.floor(t / 600) + i * 7) > 0.55;
+    const flick = burstActive && rand1(burstSeed) > 0.45;
+    drawPx(ctx, x + 6, ry + 1, flick ? C.amber : "#3a2a10");
+
+    // Link LED — mostly on, occasional drop
+    const linkUp = rand1(Math.floor(t / 1200) + i * 3) > 0.08;
+    drawPx(ctx, x + 11, ry + 1, linkUp ? C.cyan : C.cyanDim);
   }
 }
 
@@ -236,7 +277,7 @@ function drawCoffee(ctx: CanvasRenderingContext2D, x: number, y: number, t: numb
 }
 
 // Desk + monitor + chair
-function drawDesk(ctx: CanvasRenderingContext2D, x: number, y: number, screen: string, t: number) {
+function drawDesk(ctx: CanvasRenderingContext2D, x: number, y: number, screen: string, t: number, seed = 0) {
   // chair
   drawRect(ctx, x + 16, y + 14, 6, 6, "#1a1a26");
   drawRect(ctx, x + 16, y + 14, 6, 1, "#3a3a4a");
@@ -245,21 +286,28 @@ function drawDesk(ctx: CanvasRenderingContext2D, x: number, y: number, screen: s
   drawRect(ctx, x, y + 15, 2, 8, "#2a1a14");
   drawRect(ctx, x + 20, y + 15, 2, 8, "#2a1a14");
   // monitor on desk
-  drawCrt(ctx, x + 4, y + 3, screen, t);
+  drawCrt(ctx, x + 4, y + 3, screen, t, seed);
 }
 
-// Network rack (NOC)
+// Network rack (NOC) — port lanes with link/activity LEDs that look like a real switch
 function drawNocRack(ctx: CanvasRenderingContext2D, x: number, y: number, t: number) {
   drawRect(ctx, x, y, 18, 30, "#1a1a26");
   for (let i = 0; i < 5; i++) {
     const ry = y + 3 + i * 5;
     drawRect(ctx, x + 2, ry, 14, 3, "#0a0a14");
     for (let j = 0; j < 6; j++) {
-      const on = ((Math.floor(t / 180) + i * 3 + j) % 4) !== 0;
-      drawPx(ctx, x + 3 + j * 2, ry + 1, on ? C.cyan : C.cyanDim);
+      // Each port: link is mostly steady, traffic flickers in bursts
+      const portSeed = i * 23 + j * 7;
+      const link = rand1(Math.floor(t / 1500) + portSeed) > 0.12;
+      const traffic = rand1(Math.floor(t / 80) + portSeed * 3) > 0.55;
+      const col = link
+        ? (traffic ? C.cyan : C.cyanDim)
+        : "#0a0a14";
+      drawPx(ctx, x + 3 + j * 2, ry + 1, col);
     }
   }
 }
+
 
 // Plant
 function drawPlant(ctx: CanvasRenderingContext2D, x: number, y: number) {
@@ -273,26 +321,39 @@ function drawPlant(ctx: CanvasRenderingContext2D, x: number, y: number) {
   drawPx(ctx, x + 4, y + 5, C.green);
 }
 
-// Big SIEM video wall: 3 large screens in a row
+// Big SIEM video wall: 3 large screens with realistic animated bar-graphs
 function drawSiemWall(ctx: CanvasRenderingContext2D, x: number, y: number, t: number) {
   // back wall plate
   drawRect(ctx, x, y, 60, 24, "#0a0a14");
   drawRect(ctx, x, y + 24, 60, 1, "#1a1a26");
-  // 3 screens
-  const screens = [C.amber, C.cyan, C.red];
+  // 3 screens — each: bg color + vertical bar-graph + occasional spike
+  const tints = [
+    { bg: "#3a2810", bar: C.amber, dim: "#5a3a14" },     // events / log volume
+    { bg: "#08303a", bar: C.cyan, dim: "#0a4a5a" },      // network throughput
+    { bg: "#3a1010", bar: C.red, dim: "#5a1818" },       // alerts (red)
+  ];
   for (let i = 0; i < 3; i++) {
     const sx = x + 2 + i * 20;
+    const tint = tints[i];
     drawRect(ctx, sx, y + 2, 18, 16, "#0e0e18");
-    drawRect(ctx, sx + 1, y + 3, 16, 14, screens[i] + "");
-    // pseudo data lines
-    for (let r = 0; r < 6; r++) {
-      const w = ((i * 3 + r + Math.floor(t / 250)) % 12) + 2;
-      drawRect(ctx, sx + 1, y + 3 + r * 2, w, 1, "rgba(0,0,0,0.45)");
+    drawRect(ctx, sx + 1, y + 3, 16, 14, tint.bg);
+    // 16 vertical bars, height animated with seeded noise
+    for (let bx = 0; bx < 16; bx++) {
+      const ph = i * 7.3 + bx * 0.45;
+      const wave = (Math.sin(t / 380 + ph) + Math.sin(t / 170 + ph * 2.1)) * 0.5;
+      const spike = rand1(Math.floor(t / 250) + i * 31 + bx) > 0.92 ? 4 : 0;
+      const h = Math.max(1, Math.min(13, Math.round(7 + wave * 4 + spike)));
+      // bar: dim base + bright top pixel
+      drawRect(ctx, sx + 1 + bx, y + 3 + (14 - h), 1, h, tint.dim);
+      drawPx(ctx, sx + 1 + bx, y + 3 + (14 - h), tint.bar);
     }
+    // Rolling scanline across the screen
+    const sl = Math.floor((t / 70 + i * 5) % 14);
+    drawRect(ctx, sx + 1, y + 3 + sl, 16, 1, "rgba(0,0,0,0.3)");
   }
 }
 
-// Forensic lab: bench with microscope + drives
+// Forensic lab: bench with microscope + drives. Drive LED = realistic disk activity.
 function drawForensics(ctx: CanvasRenderingContext2D, x: number, y: number, t: number) {
   drawRect(ctx, x, y + 12, 50, 4, "#3a2a1a");
   drawRect(ctx, x + 4, y + 16, 2, 8, "#2a1a14");
@@ -300,14 +361,19 @@ function drawForensics(ctx: CanvasRenderingContext2D, x: number, y: number, t: n
   // microscope
   drawRect(ctx, x + 8, y + 4, 4, 8, "#2a2a3a");
   drawRect(ctx, x + 6, y + 12, 8, 1, "#3a3a4a");
-  drawPx(ctx, x + 10, y + 2, C.cyan);
-  // drive
+  // microscope eyepiece light — slow pulse
+  drawPx(ctx, x + 10, y + 2, ((Math.sin(t / 700) + 1) * 0.5) > 0.4 ? C.cyan : C.cyanDim);
+  // drive — power LED steady-soft, activity LED bursty
   drawRect(ctx, x + 28, y + 6, 14, 6, "#1a1a26");
-  drawPx(ctx, x + 30, y + 8, ((Math.floor(t / 220) % 2) === 0) ? C.green : C.greenDim);
+  drawPx(ctx, x + 30, y + 8, C.greenDim);
+  const burst = rand1(Math.floor(t / 70)) > 0.55;
+  drawPx(ctx, x + 31, y + 8, burst ? C.green : C.greenDim);
   drawRect(ctx, x + 32, y + 8, 8, 2, "#0a0a14");
+  // tiny activity blip on the drive bezel
+  if (rand1(Math.floor(t / 110) + 5) > 0.7) drawPx(ctx, x + 40, y + 8, C.amber);
 }
 
-// Conference table + chairs (war room)
+// Conference table + chairs (war room) — wall screen with smooth animated waveform
 function drawWarRoom(ctx: CanvasRenderingContext2D, x: number, y: number, t: number) {
   drawRect(ctx, x, y + 14, 56, 6, "#3a2a1a");
   drawRect(ctx, x + 6, y + 20, 4, 4, "#1a1a26");
@@ -315,11 +381,19 @@ function drawWarRoom(ctx: CanvasRenderingContext2D, x: number, y: number, t: num
   drawRect(ctx, x + 46, y + 20, 4, 4, "#1a1a26");
   // wall screen
   drawRect(ctx, x + 8, y, 40, 12, "#0a0a14");
-  drawRect(ctx, x + 9, y + 1, 38, 10, C.cyanDim);
-  for (let r = 0; r < 4; r++) {
-    const w = ((r * 5 + Math.floor(t / 300)) % 30) + 4;
-    drawRect(ctx, x + 9, y + 1 + r * 2, w, 1, C.cyan);
+  drawRect(ctx, x + 9, y + 1, 38, 10, "#062028");
+  // Animated waveform line across the screen
+  for (let bx = 0; bx < 38; bx++) {
+    const v = Math.sin(t / 280 + bx * 0.35) * 0.5 + Math.sin(t / 130 + bx * 0.7) * 0.25;
+    const yy = y + 6 + Math.round(v * 3);
+    drawPx(ctx, x + 9 + bx, yy, C.cyan);
+    drawPx(ctx, x + 9 + bx, yy + 1, C.cyanDim);
   }
+  // baseline grid
+  for (let bx = 0; bx < 38; bx += 4) drawPx(ctx, x + 9 + bx, y + 6, "rgba(0,188,212,0.25)");
+  // Rolling scanline
+  const sl = Math.floor((t / 100) % 10);
+  drawRect(ctx, x + 9, y + 1 + sl, 38, 1, "rgba(0,0,0,0.3)");
 }
 
 // Executive office: desk + lamp + plant
@@ -327,11 +401,12 @@ function drawCisoOffice(ctx: CanvasRenderingContext2D, x: number, y: number, t: 
   drawRect(ctx, x, y + 14, 36, 6, "#5a3820");
   drawRect(ctx, x + 4, y + 20, 4, 4, "#3a2a14");
   drawRect(ctx, x + 28, y + 20, 4, 4, "#3a2a14");
-  // monitor
-  drawCrt(ctx, x + 8, y + 4, C.gold, Math.floor(t / 200));
-  // lamp
+  // monitor — pass live t with seed for animated bars
+  drawCrt(ctx, x + 8, y + 4, C.gold, t, 9);
+  // lamp — soft warm pulse
   drawRect(ctx, x + 26, y + 6, 1, 8, "#3a3a4a");
-  drawRect(ctx, x + 24, y + 4, 5, 3, C.gold);
+  const lampOn = ((Math.sin(t / 1300) + 1) * 0.5) > 0.25;
+  drawRect(ctx, x + 24, y + 4, 5, 3, lampOn ? C.gold : C.goldDim);
   drawPlant(ctx, x + 42, y + 8);
 }
 
@@ -409,8 +484,8 @@ function renderRoom(ctx: CanvasRenderingContext2D, room: RoomId, x: number, y: n
 
   switch (room) {
     case "soc_floor": {
-      drawDesk(ctx, x + 4, y + 24, C.cyan, t);
-      drawDesk(ctx, x + 34, y + 24, C.amber, t + 50);
+      drawDesk(ctx, x + 4, y + 24, C.cyan, t, 1);
+      drawDesk(ctx, x + 34, y + 24, C.amber, t + 50, 2);
       break;
     }
     case "siem": {
@@ -424,7 +499,7 @@ function renderRoom(ctx: CanvasRenderingContext2D, room: RoomId, x: number, y: n
     case "noc": {
       drawNocRack(ctx, x + 4, y + 10, t);
       drawNocRack(ctx, x + 26, y + 10, t + 100);
-      drawDesk(ctx, x + 44, y + 24, C.green, t + 200);
+      drawDesk(ctx, x + 44, y + 24, C.green, t + 200, 3);
       break;
     }
     case "server_room": {
