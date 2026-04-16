@@ -452,7 +452,7 @@ function renderRoom(ctx: CanvasRenderingContext2D, room: RoomId, x: number, y: n
   }
 }
 
-export function DollHouse({ current, highlight, onMove, maxHeight }: DollHouseProps) {
+export function DollHouse({ current, highlight, onMove, maxHeight, isNight = false }: DollHouseProps) {
   const { t } = useLanguage();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const wrapRef = useRef<HTMLDivElement | null>(null);
