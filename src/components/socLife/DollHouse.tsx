@@ -805,26 +805,34 @@ export function DollHouse({ current, highlight, onMove, maxHeight, isNight = fal
       }
 
       // NPCs — wander left/right within their room at floor level.
-      // Each NPC is restricted to the LEFT half of its room so a possible
-      // visitor (right half) never blends on top of them.
+      // We keep them out of the rightmost ~14 px (visitor "chat" slot) but
+      // give them a much wider lane than before so the motion is clearly
+      // visible. Also faster pacing + a true walking gait.
       const npcPositions: Partial<Record<NpcId, { x: number; y: number }>> = {};
       NPCS.forEach((npc, idx) => {
         const r = ROOMS.find((x) => x.id === npc.homeRoom)!;
         const baseX = r.col * ROOM_W;
-        // Left lane only: 8 .. (ROOM_W/2 - 4) → ~22 px wide pacing area
-        const minX = baseX + 8;
-        const maxX = baseX + Math.floor(ROOM_W / 2) - 4;
-        const span = Math.max(8, maxX - minX);
-        const speed = 0.0011 + idx * 0.00018;
+        // Use most of the room: leave 14px reserved on the right for visitors.
+        const minX = baseX + 6;
+        const maxX = baseX + ROOM_W - 14;
+        const span = Math.max(16, maxX - minX);
+        // ~3.5x faster than before — clearly visible pacing (~25-35 px/s)
+        const speed = 0.0042 + idx * 0.00055;
         const phase = idx * 1.7;
-        const tri = Math.abs(((t * speed + phase) % 2) - 1);
+        const cycle = (t * speed + phase) % 2;
+        const tri = Math.abs(cycle - 1);
         const x = Math.round(minX + tri * span);
-        const facing: 1 | -1 = ((t * speed + phase) % 2) < 1 ? 1 : -1;
+        // Idle window: pause briefly at each end of the lane, otherwise walk.
+        const nearEnd = tri < 0.04 || tri > 0.96;
+        const idleCycle = (t + idx * 1700) % 9000;
+        const longIdle = idleCycle > 8200; // brief stand-still ~0.8s every 9s
+        const idle = nearEnd || longIdle;
+        // Facing follows direction of travel (cycle < 1 → moving right, else left)
+        const facing: 1 | -1 = cycle < 1 ? 1 : -1;
         const y = roomFloorLineY(r.row);
         const look = NPC_LOOK[npc.id];
-        const movingFrame = Math.floor(t / 130) % 4;
-        const idleCycle = (t + idx * 1700) % 8000;
-        const idle = idleCycle > 7000;
+        // Walking gait — animate frame only while actually moving
+        const movingFrame = idle ? 0 : Math.floor(t / 110) % 4;
         const bob = idle ? Math.round(Math.sin(t / 380 + idx) * 0.5) : 0;
         npcPositions[npc.id] = { x, y };
         drawFigure(
