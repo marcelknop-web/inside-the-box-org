@@ -40,6 +40,17 @@ export default function SocLife() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
 
+  // Onboarding: show automatically on first ever visit, otherwise on demand.
+  const [showOnboarding, setShowOnboarding] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    try { return !window.localStorage.getItem("socLife.onboarded"); }
+    catch { return false; }
+  });
+  const closeOnboarding = useCallback(() => {
+    setShowOnboarding(false);
+    try { window.localStorage.setItem("socLife.onboarded", "1"); } catch { /* ignore */ }
+  }, []);
+
   const [activeIncident, setActiveIncident] = useState<Incident | null>(null);
   const [stepIdx, setStepIdx] = useState(0);
   const [stepTimeLeft, setStepTimeLeft] = useState(0);
