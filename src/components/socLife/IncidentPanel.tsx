@@ -94,25 +94,35 @@ export function IncidentPanel({
         <div className="text-sm text-foreground">{step.prompt[lang]}</div>
       </div>
 
-      {!inRightRoom && requiredRoom && (
-        <div className="mb-2 rounded-md border border-cyan-400/40 bg-cyan-400/10 p-2 font-mono text-xs text-cyan-200">
-          {t("socLife.feedback.wrongRoomMsg")}
+      {!inRightRoom && requiredRoom ? (
+        <div className="space-y-2">
+          <div className="rounded-md border border-cyan-400/40 bg-cyan-400/10 p-3 font-mono text-xs text-cyan-200">
+            {t("socLife.feedback.chooseRoomFirst")}
+          </div>
+          {onGoToRoom && (
+            <Button
+              variant="default"
+              className="w-full justify-center font-mono"
+              onClick={() => onGoToRoom(step.requiredRoom!)}
+            >
+              → {t("socLife.feedback.goToRoomCta")}: {t(`socLife.rooms.${requiredRoom.i18n}.name`)}
+            </Button>
+          )}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 gap-2">
+          {shuffledOptions.map((opt) => (
+            <Button
+              key={opt.id}
+              variant="outline"
+              className="justify-start whitespace-normal text-left h-auto py-2 px-3 font-sans"
+              onClick={() => onChoose(opt.id)}
+            >
+              {opt.label[lang]}
+            </Button>
+          ))}
         </div>
       )}
-
-      <div className="grid grid-cols-1 gap-2">
-        {shuffledOptions.map((opt) => (
-          <Button
-            key={opt.id}
-            variant="outline"
-            disabled={!inRightRoom}
-            className="justify-start whitespace-normal text-left h-auto py-2 px-3 font-sans"
-            onClick={() => onChoose(opt.id)}
-          >
-            {opt.label[lang]}
-          </Button>
-        ))}
-      </div>
     </div>
   );
 }
