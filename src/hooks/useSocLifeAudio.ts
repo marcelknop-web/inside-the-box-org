@@ -429,9 +429,11 @@ export function useSocLifeAudio() {
       // fade in music
       const g = musicGainRef.current!;
       const ctx = ctxRef.current!;
+      const target = modeRef.current === "alert" ? 0.55 : modeRef.current === "audit" ? 0.4 : 0.45;
+      musicBaseGainRef.current = target;
       g.gain.cancelScheduledValues(ctx.currentTime);
       g.gain.setValueAtTime(0.0001, ctx.currentTime);
-      g.gain.exponentialRampToValueAtTime(0.45, ctx.currentTime + 1.2);
+      g.gain.exponentialRampToValueAtTime(target, ctx.currentTime + 1.2);
       startSequencer();
     } else {
       const g = musicGainRef.current;
