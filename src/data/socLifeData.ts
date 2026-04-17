@@ -481,9 +481,9 @@ const SUPPLY: Incident = {
       title: L("Exposition", "Exposure", "Exposition"),
       prompt: L("Wie ermitteln?", "How do you assess?", "Comment évaluer ?"),
       options: [
-        { id: "cmdb_query",  correct: true,  delta: +6, label: L("CMDB + EDR nach Version & Hash der betroffenen Komponente abfragen", "Query CMDB + EDR for version & hash of affected component", "Interroger CMDB + EDR pour version & hash du composant") },
-        { id: "ask_owners",  correct: false, delta: -3, label: L("System-Owner einzeln per E-Mail anfragen", "Ask system owners individually by email", "Demander aux owners par mail un par un") },
-        { id: "wait_advisory",correct: false, delta: -4, label: L("Auf detailliertes Hersteller-Advisory warten", "Wait for the detailed vendor advisory", "Attendre l'advisory détaillé du fournisseur") },
+        { id: "cmdb_query",  correct: true,  delta: +6, label: L("CMDB + EDR nach Version & Hash der betroffenen Komponente abfragen, SBOM-Match prüfen", "Query CMDB + EDR for version & hash of affected component, check SBOM match", "Interroger CMDB + EDR pour version & hash, vérifier le match SBOM") },
+        { id: "ask_owners",  correct: false, delta: -3, label: L("System-Owner per strukturiertem Service-Now-Ticket einzeln zur Versions-Bestätigung anfragen", "Request version confirmation from system owners individually via structured ServiceNow ticket", "Demander confirmation de version aux owners via tickets ServiceNow structurés") },
+        { id: "wait_advisory",correct: false, delta: -4, label: L("Detailliertes Hersteller-Advisory mit IOC-Liste + KEV-Eintrag abwarten, dann fundiert handeln", "Wait for detailed vendor advisory with IOC list + KEV entry, then act on solid ground", "Attendre l'advisory détaillé avec liste d'IOCs + entrée KEV, puis agir") },
       ],
     },
     {
@@ -491,9 +491,9 @@ const SUPPLY: Incident = {
       title: L("Sofort-Mitigation", "Immediate mitigation", "Mitigation immédiate"),
       prompt: L("Was tun?", "What do you do?", "Que faire ?"),
       options: [
-        { id: "isolate_block", correct: true,  delta: +7, label: L("Betroffene Hosts isolieren, Update-Server + IOCs auf FW blocken", "Isolate affected hosts, block update server + IOCs at FW", "Isoler les hôtes, bloquer serveur d'update + IOCs au FW") },
-        { id: "uninstall_all", correct: false, delta: -3, label: L("Komponente sofort überall deinstallieren — auch Produktion", "Uninstall the component everywhere — including production", "Désinstaller le composant partout — même en prod") },
-        { id: "patch_now",     correct: false, delta: -3, label: L("Sofort den nächsten Patch ausrollen, ungetestet", "Roll out the next patch immediately, untested", "Déployer le prochain patch immédiatement, non testé") },
+        { id: "isolate_block", correct: true,  delta: +7, label: L("Betroffene Hosts isolieren, Update-Server + IOCs auf Firewall + Proxy blocken", "Isolate affected hosts, block update server + IOCs at firewall + proxy", "Isoler les hôtes affectés, bloquer serveur d'update + IOCs au FW + proxy") },
+        { id: "uninstall_all", correct: false, delta: -3, label: L("Komponente per orchestrierter Deployment-Pipeline überall deinstallieren, inkl. Produktion", "Uninstall the component everywhere via orchestrated deployment pipeline, incl. production", "Désinstaller le composant partout via pipeline de déploiement, incl. prod") },
+        { id: "patch_now",     correct: false, delta: -3, label: L("Nächsten Hersteller-Patch sofort über alle Stages ausrollen, Rollback-Snapshot vorab erstellen", "Roll out the next vendor patch immediately across all stages, take rollback snapshot first", "Déployer le prochain patch éditeur sur toutes les stages, snapshot de rollback préalable") },
       ],
     },
     {
@@ -502,8 +502,8 @@ const SUPPLY: Incident = {
       prompt: L("An wen reporten?", "Who do you report to?", "À qui reporter ?"),
       options: [
         { id: "ciso_legal", correct: true,  delta: +6, label: L("CISO + Legal + DPO informieren, Meldepflichten (NIS-2/DORA) prüfen", "Inform CISO + Legal + DPO, check notification duties (NIS-2/DORA)", "Informer CISO + juridique + DPO, vérifier obligations (NIS-2/DORA)") },
-        { id: "ciso_only",  correct: false, delta: -2, label: L("Nur CISO informieren, Rest später", "Inform CISO only, the rest later", "Informer uniquement le CISO, le reste plus tard") },
-        { id: "wait_impact",correct: false, delta: -4, label: L("Erst auf konkrete Auswirkungen warten, dann melden", "Wait for actual impact, then report", "Attendre un impact concret, puis signaler") },
+        { id: "ciso_only",  correct: false, delta: -2, label: L("CISO als zentralen Eskalationspunkt briefen, Legal/DPO nach Impact-Bewertung einbinden", "Brief CISO as central escalation point, loop Legal/DPO after impact assessment", "Briefer le CISO comme point d'escalade central, juridique/DPO après évaluation d'impact") },
+        { id: "wait_impact",correct: false, delta: -4, label: L("Konkrete Impact-Metriken (betroffene Hosts, Datenklassen) erheben, dann formell melden", "Gather concrete impact metrics (affected hosts, data classes), then notify formally", "Collecter les métriques d'impact concrètes (hôtes, classes de données), puis signaler formellement") },
       ],
     },
   ],
@@ -526,9 +526,9 @@ const EXFIL: Incident = {
       title: L("Scope", "Scope", "Périmètre"),
       prompt: L("Wie eingrenzen?", "How do you scope?", "Comment cadrer ?"),
       options: [
-        { id: "proxy_dlp", correct: true,  delta: +6, label: L("Proxy- + DLP-Logs korrelieren, Datentyp + Volumen klassifizieren", "Correlate proxy + DLP logs, classify data type + volume", "Corréler logs proxy + DLP, classifier type & volume") },
-        { id: "block_first",correct: false, delta: -3, label: L("Erst Cloud-Domain blocken, dann analysieren", "Block the cloud domain first, then analyse", "Bloquer le domaine cloud d'abord, puis analyser") },
-        { id: "ask_user",  correct: false, delta: -3, label: L("Den User direkt anrufen und fragen", "Call the user directly and ask", "Appeler directement l'utilisateur") },
+        { id: "proxy_dlp", correct: true,  delta: +6, label: L("Proxy- + DLP-Logs korrelieren, Datentyp + Volumen + Empfänger-Tenant klassifizieren", "Correlate proxy + DLP logs, classify data type + volume + recipient tenant", "Corréler logs proxy + DLP, classifier type, volume et tenant destinataire") },
+        { id: "block_first",correct: false, delta: -3, label: L("Cloud-Domain per CASB-Policy + Proxy-Block sofort sperren, Forensik im Anschluss", "Block the cloud domain immediately via CASB policy + proxy block, forensics afterwards", "Bloquer le domaine cloud via politique CASB + proxy, forensique ensuite") },
+        { id: "ask_user",  correct: false, delta: -3, label: L("User per gesichertem Voice-Channel kontaktieren und Geschäftskontext der Uploads erfragen", "Contact user via secure voice channel and request business context for the uploads", "Contacter l'utilisateur via canal vocal sécurisé pour le contexte métier des uploads") },
       ],
     },
     {
@@ -536,9 +536,9 @@ const EXFIL: Incident = {
       title: L("Stoppen", "Stop", "Stopper"),
       prompt: L("Wie stoppen?", "How to stop?", "Comment stopper ?"),
       options: [
-        { id: "isolate_revoke", correct: true,  delta: +7, label: L("Endpoint isolieren, Cloud-Tokens des Users revoken", "Isolate endpoint, revoke user's cloud tokens", "Isoler l'endpoint, révoquer les tokens cloud de l'utilisateur") },
-        { id: "block_cloud",    correct: false, delta: -3, label: L("Den Cloud-Anbieter im ganzen Unternehmen blocken", "Block the cloud provider company-wide", "Bloquer le provider cloud sur toute l'entreprise") },
-        { id: "rate_limit",     correct: false, delta: -3, label: L("Upload-Bandbreite des Users limitieren", "Rate-limit the user's upload bandwidth", "Limiter la bande passante d'upload de l'utilisateur") },
+        { id: "isolate_revoke", correct: true,  delta: +7, label: L("Endpoint EDR-isolieren, OAuth-/Cloud-Tokens des Users revoken, Refresh-Tokens invalidieren", "EDR-isolate endpoint, revoke user's OAuth/cloud tokens, invalidate refresh tokens", "Isoler l'endpoint via EDR, révoquer les tokens OAuth/cloud, invalider les refresh tokens") },
+        { id: "block_cloud",    correct: false, delta: -3, label: L("Cloud-Anbieter unternehmensweit per CASB + DNS-Policy blocken, Ausnahmen via Approval-Workflow", "Block the cloud provider company-wide via CASB + DNS policy, exceptions via approval workflow", "Bloquer le provider cloud via CASB + politique DNS, exceptions via workflow d'approbation") },
+        { id: "rate_limit",     correct: false, delta: -3, label: L("Upload-Bandbreite des Users via QoS-Policy auf 50 kbps drosseln, Session bleibt offen", "Rate-limit the user's upload bandwidth via QoS policy to 50 kbps, session stays open", "Limiter la bande passante upload via QoS à 50 kbps, session maintenue") },
       ],
     },
     {
@@ -546,9 +546,9 @@ const EXFIL: Incident = {
       title: L("Meldung", "Notification", "Notification"),
       prompt: L("Wer wird benachrichtigt?", "Who is notified?", "Qui est notifié ?"),
       options: [
-        { id: "dpo_legal", correct: true,  delta: +6, label: L("DPO + Legal einbinden, DSGVO-72h-Frist bewerten", "Loop DPO + Legal, assess GDPR 72h deadline", "Impliquer DPO + juridique, évaluer le délai RGPD 72h") },
-        { id: "ciso_only", correct: false, delta: -3, label: L("Nur CISO informieren, DPO erst nach Forensik", "Inform CISO only, DPO after forensics", "Informer uniquement le CISO, DPO après forensique") },
-        { id: "wait_proof",correct: false, delta: -4, label: L("Erst eindeutigen Beweis abwarten, dann melden", "Wait for hard proof, then notify", "Attendre une preuve dure, puis signaler") },
+        { id: "dpo_legal", correct: true,  delta: +6, label: L("DPO + Legal einbinden, DSGVO-72h-Frist und betroffene Datenkategorien bewerten", "Loop DPO + Legal, assess GDPR 72h deadline and affected data categories", "Impliquer DPO + juridique, évaluer le délai RGPD 72h et catégories de données") },
+        { id: "ciso_only", correct: false, delta: -3, label: L("CISO als zentrale Eskalation briefen, DPO nach Abschluss der Forensik einbinden", "Brief CISO as central escalation, loop DPO after forensics completes", "Briefer le CISO comme escalade centrale, DPO après clôture de la forensique") },
+        { id: "wait_proof",correct: false, delta: -4, label: L("Beweissichere Bestätigung der Datenklassifizierung abwarten, dann formell an Aufsichtsbehörde melden", "Wait for evidence-grade confirmation of data classification, then formally notify the regulator", "Attendre une confirmation probante de la classification, puis signaler formellement au régulateur") },
       ],
     },
   ],
@@ -571,9 +571,9 @@ const PATCH: Incident = {
       title: L("Kompromittierung prüfen", "Check compromise", "Vérifier compromission"),
       prompt: L("Wie prüfen?", "How do you check?", "Comment vérifier ?"),
       options: [
-        { id: "ioc_hunt",  correct: true,  delta: +6, label: L("IOCs des Advisories über alle Logs jagen, Konfiguration auf Webshells prüfen", "Hunt advisory IOCs across logs, check config for webshells", "Chasser les IOCs de l'advisory, vérifier la conf pour webshells") },
-        { id: "patch_now", correct: false, delta: -3, label: L("Sofort patchen, Forensik überspringen", "Patch immediately, skip forensics", "Patcher tout de suite, sauter la forensique") },
-        { id: "trust_vendor",correct: false, delta: -3, label: L("Wenn Hersteller noch keine konkreten IOCs hat, abwarten", "If vendor has no concrete IOCs yet, wait", "Si le fournisseur n'a pas d'IOC concret, attendre") },
+        { id: "ioc_hunt",  correct: true,  delta: +6, label: L("IOCs des Advisories über alle Logs jagen, Konfiguration auf Webshells + persistente Sessions prüfen", "Hunt advisory IOCs across logs, check config for webshells + persistent sessions", "Chasser les IOCs de l'advisory, vérifier la config pour webshells + sessions persistantes") },
+        { id: "patch_now", correct: false, delta: -3, label: L("Hersteller-Patch sofort einspielen, Forensik-Snapshot für nachgelagerte Analyse archivieren", "Apply vendor patch immediately, archive a forensic snapshot for downstream analysis", "Appliquer le patch éditeur immédiatement, archiver un snapshot forensique pour analyse ultérieure") },
+        { id: "trust_vendor",correct: false, delta: -3, label: L("Auf belastbare IOCs aus dem Hersteller-PSIRT warten, dann gezielt Hunting-Queries fahren", "Wait for solid IOCs from the vendor PSIRT, then run targeted hunting queries", "Attendre des IOCs solides du PSIRT éditeur, puis lancer des requêtes de hunting ciblées") },
       ],
     },
     {
@@ -581,9 +581,9 @@ const PATCH: Incident = {
       title: L("Mitigation", "Mitigate", "Mitigation"),
       prompt: L("Was tun?", "What do you do?", "Que faire ?"),
       options: [
-        { id: "workaround", correct: true,  delta: +7, label: L("Hersteller-Workaround anwenden, Management-Interface auf Allowlist", "Apply vendor workaround, allowlist management interface", "Appliquer le workaround éditeur, allowlist sur le management") },
-        { id: "shut_vpn",   correct: false, delta: -3, label: L("VPN komplett abschalten — alle User trennen", "Shut down the VPN entirely — disconnect all users", "Couper le VPN entièrement — déconnecter tous les utilisateurs") },
-        { id: "block_external",correct: false, delta: -2, label: L("Nur externe IPs außerhalb DE/EU blocken", "Only block external IPs outside DE/EU", "Bloquer uniquement les IPs hors DE/UE") },
+        { id: "workaround", correct: true,  delta: +7, label: L("Hersteller-Workaround anwenden, Management-Interface auf Allowlist + MFA-Enforce", "Apply vendor workaround, allowlist management interface + enforce MFA", "Appliquer le workaround éditeur, allowlist du management + MFA imposé") },
+        { id: "shut_vpn",   correct: false, delta: -3, label: L("VPN-Tunnel kontrolliert per Maintenance-Mode terminieren, alle aktiven Sessions invalidieren", "Gracefully terminate VPN tunnels via maintenance mode, invalidate all active sessions", "Terminer les tunnels VPN proprement via mode maintenance, invalider toutes les sessions") },
+        { id: "block_external",correct: false, delta: -2, label: L("GeoIP-Filter aktivieren: nur Source-IPs aus DE/EU + bekannte Partner-ASNs erlauben", "Enable GeoIP filter: allow only source IPs from DE/EU + known partner ASNs", "Activer filtre GeoIP : autoriser uniquement IPs DE/UE + ASNs partenaires connus") },
       ],
     },
     {
@@ -591,9 +591,9 @@ const PATCH: Incident = {
       title: L("Patchen", "Patch", "Patcher"),
       prompt: L("Wie patchen?", "How do you patch?", "Comment patcher ?"),
       options: [
-        { id: "patch_verify", correct: true,  delta: +7, label: L("Patch in Wartungsfenster einspielen + IOC-Re-Hunt nach Patch", "Apply patch in maintenance window + re-hunt IOCs post-patch", "Patcher dans la fenêtre de maintenance + re-hunt IOCs après") },
-        { id: "patch_blind",  correct: false, delta: -3, label: L("Patch sofort live einspielen, ohne Re-Hunt", "Push patch live immediately, no re-hunt", "Pousser le patch en live immédiatement, sans re-hunt") },
-        { id: "wait_window",  correct: false, delta: -4, label: L("Auf das nächste reguläre Patch-Fenster in 4 Wochen warten", "Wait for the next regular patch window in 4 weeks", "Attendre la prochaine fenêtre régulière dans 4 semaines") },
+        { id: "patch_verify", correct: true,  delta: +7, label: L("Patch in Wartungsfenster einspielen + IOC-Re-Hunt nach Patch zur Kompromittierungs-Verifikation", "Apply patch in maintenance window + re-hunt IOCs post-patch to verify no compromise", "Patcher dans la fenêtre de maintenance + re-hunt IOCs après patch pour vérification") },
+        { id: "patch_blind",  correct: false, delta: -3, label: L("Patch als Hot-Fix produktiv per CI/CD-Pipeline ausrollen, Smoke-Tests parallel", "Roll out the patch as a hotfix to production via CI/CD pipeline, smoke tests in parallel", "Déployer le patch en hotfix via pipeline CI/CD, smoke tests en parallèle") },
+        { id: "wait_window",  correct: false, delta: -4, label: L("Reguläres Patch-Fenster in 4 Wochen abwarten, Change-Management-Prozess vollständig durchlaufen", "Wait for the regular patch window in 4 weeks, complete the full change-management process", "Attendre la fenêtre régulière dans 4 semaines, processus complet de change management") },
       ],
     },
   ],
