@@ -571,9 +571,9 @@ const PATCH: Incident = {
       title: L("Kompromittierung prüfen", "Check compromise", "Vérifier compromission"),
       prompt: L("Wie prüfen?", "How do you check?", "Comment vérifier ?"),
       options: [
-        { id: "ioc_hunt",  correct: true,  delta: +6, label: L("IOCs des Advisories über alle Logs jagen, Konfiguration auf Webshells + persistente Sessions prüfen", "Hunt advisory IOCs across logs, check config for webshells + persistent sessions", "Chasser les IOCs de l'advisory, vérifier la config pour webshells + sessions persistantes") },
-        { id: "patch_now", correct: false, delta: -3, label: L("Hersteller-Patch sofort einspielen, Forensik-Snapshot für nachgelagerte Analyse archivieren", "Apply vendor patch immediately, archive a forensic snapshot for downstream analysis", "Appliquer le patch éditeur immédiatement, archiver un snapshot forensique pour analyse ultérieure") },
-        { id: "trust_vendor",correct: false, delta: -3, label: L("Auf belastbare IOCs aus dem Hersteller-PSIRT warten, dann gezielt Hunting-Queries fahren", "Wait for solid IOCs from the vendor PSIRT, then run targeted hunting queries", "Attendre des IOCs solides du PSIRT éditeur, puis lancer des requêtes de hunting ciblées") },
+        { id: "ioc_hunt",  correct: true,  delta: +6, label: L("Mit den Indikatoren des Advisories durch alle Logs jagen und die Konfiguration auf hinterlegte Hintertüren prüfen", "Hunt the advisory's indicators across all logs and check the configuration for backdoors that may have been planted", "Chasser les indicateurs de l'advisory dans tous les logs et examiner la configuration à la recherche de portes dérobées") },
+        { id: "patch_now", correct: false, delta: -3, label: L("Den Hersteller-Patch sofort einspielen und Beweise erst danach sichern", "Apply the vendor patch immediately and preserve evidence afterwards", "Appliquer le patch immédiatement et préserver les preuves après") },
+        { id: "trust_vendor",correct: false, delta: -3, label: L("Auf belastbare Indikatoren vom Hersteller warten und bis dahin nichts tun", "Wait for solid indicators from the vendor and do nothing in the meantime", "Attendre des indicateurs solides du fournisseur et ne rien faire entre-temps") },
       ],
     },
     {
@@ -581,9 +581,9 @@ const PATCH: Incident = {
       title: L("Mitigation", "Mitigate", "Mitigation"),
       prompt: L("Was tun?", "What do you do?", "Que faire ?"),
       options: [
-        { id: "workaround", correct: true,  delta: +7, label: L("Hersteller-Workaround anwenden, Management-Interface auf Allowlist + MFA-Enforce", "Apply vendor workaround, allowlist management interface + enforce MFA", "Appliquer le workaround éditeur, allowlist du management + MFA imposé") },
-        { id: "shut_vpn",   correct: false, delta: -3, label: L("VPN-Tunnel kontrolliert per Maintenance-Mode terminieren, alle aktiven Sessions invalidieren", "Gracefully terminate VPN tunnels via maintenance mode, invalidate all active sessions", "Terminer les tunnels VPN proprement via mode maintenance, invalider toutes les sessions") },
-        { id: "block_external",correct: false, delta: -2, label: L("GeoIP-Filter aktivieren: nur Source-IPs aus DE/EU + bekannte Partner-ASNs erlauben", "Enable GeoIP filter: allow only source IPs from DE/EU + known partner ASNs", "Activer filtre GeoIP : autoriser uniquement IPs DE/UE + ASNs partenaires connus") },
+        { id: "workaround", correct: true,  delta: +7, label: L("Empfohlenen Workaround anwenden, das Management-Interface auf eine Allowlist setzen und MFA erzwingen", "Apply the recommended workaround, restrict the management interface to an allowlist and enforce MFA", "Appliquer le workaround recommandé, restreindre l'interface d'administration à une allowlist et imposer le MFA") },
+        { id: "shut_vpn",   correct: false, delta: -3, label: L("Die VPN-Tunnel kontrolliert beenden und alle aktiven Sitzungen verfallen lassen", "Cleanly terminate the VPN tunnels and expire all active sessions", "Terminer proprement les tunnels VPN et faire expirer toutes les sessions actives") },
+        { id: "block_external",correct: false, delta: -2, label: L("Nur ausgewählte Länder am Edge zulassen, alle anderen Quellen blocken", "Only allow selected countries at the edge, block everything else", "N'autoriser que certains pays au edge, bloquer tout le reste") },
       ],
     },
     {
@@ -591,9 +591,9 @@ const PATCH: Incident = {
       title: L("Patchen", "Patch", "Patcher"),
       prompt: L("Wie patchen?", "How do you patch?", "Comment patcher ?"),
       options: [
-        { id: "patch_verify", correct: true,  delta: +7, label: L("Patch in Wartungsfenster einspielen + IOC-Re-Hunt nach Patch zur Kompromittierungs-Verifikation", "Apply patch in maintenance window + re-hunt IOCs post-patch to verify no compromise", "Patcher dans la fenêtre de maintenance + re-hunt IOCs après patch pour vérification") },
-        { id: "patch_blind",  correct: false, delta: -3, label: L("Patch als Hot-Fix produktiv per CI/CD-Pipeline ausrollen, Smoke-Tests parallel", "Roll out the patch as a hotfix to production via CI/CD pipeline, smoke tests in parallel", "Déployer le patch en hotfix via pipeline CI/CD, smoke tests en parallèle") },
-        { id: "wait_window",  correct: false, delta: -4, label: L("Reguläres Patch-Fenster in 4 Wochen abwarten, Change-Management-Prozess vollständig durchlaufen", "Wait for the regular patch window in 4 weeks, complete the full change-management process", "Attendre la fenêtre régulière dans 4 semaines, processus complet de change management") },
+        { id: "patch_verify", correct: true,  delta: +7, label: L("Im Wartungsfenster patchen und danach nochmals mit den Indikatoren prüfen, ob etwas hängengeblieben ist", "Patch in the maintenance window and re-hunt the indicators afterwards to verify nothing remained", "Patcher dans la fenêtre de maintenance et relancer la chasse d'indicateurs après pour vérifier qu'il ne reste rien") },
+        { id: "patch_blind",  correct: false, delta: -3, label: L("Den Patch direkt als Hot-Fix in die Produktion ausrollen, Tests parallel", "Roll out the patch as a hotfix straight to production, tests in parallel", "Déployer le patch en hotfix directement en production, tests en parallèle") },
+        { id: "wait_window",  correct: false, delta: -4, label: L("Auf das reguläre Patch-Fenster in vier Wochen warten und den vollen Change-Prozess durchlaufen", "Wait for the regular patch window in four weeks and run the full change process", "Attendre la fenêtre régulière dans quatre semaines et faire tourner le processus de change complet") },
       ],
     },
   ],
