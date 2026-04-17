@@ -500,7 +500,7 @@ export default function SocLife() {
         <meta name="description" content={t("socLife.metaDesc")} />
       </Helmet>
 
-      <div className="mx-auto w-full max-w-6xl px-2 sm:px-4 py-1.5 sm:py-3 flex-1 flex flex-col min-h-0">
+      <div className="mx-auto w-full max-w-6xl xl:max-w-7xl 2xl:max-w-[1600px] px-2 sm:px-4 py-1.5 sm:py-3 flex-1 flex flex-col min-h-0">
         {/* Compact header — even tighter on mobile so the floor plan gets the space */}
         <header className="mb-1.5 sm:mb-2 flex items-center justify-between gap-2 shrink-0">
           <div className="min-w-0">
