@@ -121,9 +121,9 @@ const PHISHING: Incident = {
       title: L("Triage", "Triage", "Triage"),
       prompt: L("Was zuerst?", "What first?", "Quelle première action ?"),
       options: [
-        { id: "verify",     correct: true,  delta: +6, label: L("Header & URLs im SIEM verifizieren, Sandbox-Detonation des Anhangs", "Verify headers & URLs in SIEM, sandbox-detonate the attachment", "Vérifier en-têtes/URLs dans le SIEM, détonation sandbox de la pièce jointe") },
-        { id: "block_now",  correct: false, delta: -3, label: L("Sender im Mail-Gateway blocken und Mails löschen, IOCs später nachziehen", "Block sender at mail gateway and purge mails, capture IOCs later", "Bloquer l'expéditeur au gateway et purger les mails, IOCs plus tard") },
-        { id: "user_train", correct: false, delta: -4, label: L("Awareness-Broadcast an alle Postfächer mit Indikatoren ausspielen, dann triagieren", "Broadcast awareness with indicators to all mailboxes, then triage", "Diffuser une alerte sensibilisation avec indicateurs à toutes les boîtes, puis triagir") },
+        { id: "verify",     correct: true,  delta: +6, label: L("Header und Links prüfen, Anhang in der Sandbox testen", "Check headers and links, detonate the attachment in a sandbox", "Vérifier les en-têtes et les liens, tester la pièce jointe en sandbox") },
+        { id: "block_now",  correct: false, delta: -3, label: L("Sender sofort blocken und Mails löschen, Indikatoren später nachziehen", "Block the sender and purge mails first, capture indicators later", "Bloquer l'expéditeur et purger les mails d'abord, indicateurs ensuite") },
+        { id: "user_train", correct: false, delta: -4, label: L("Awareness-Mail an alle schicken, dann erst triagieren", "Blast an awareness mail to everyone, then start triage", "Envoyer une alerte sensibilisation à tous, puis triager") },
       ],
     },
     {
@@ -131,9 +131,9 @@ const PHISHING: Incident = {
       title: L("Eindämmung", "Contain", "Confinement"),
       prompt: L("Wie eindämmen?", "How do you contain?", "Comment confiner ?"),
       options: [
-        { id: "block_sender", correct: true,  delta: +6, label: L("Sender + URLs am Mail-Gateway blocken, ZAP/Recall der Mails aus den Postfächern", "Block sender + URLs at gateway, ZAP/recall mails from mailboxes", "Bloquer expéditeur + URLs sur la passerelle, ZAP/rappel des mails") },
-        { id: "delete_only",  correct: false, delta: -3, label: L("Mails per eDiscovery-Search aus allen Postfächern hard-deleten, Gateway-Regel bleibt offen", "Hard-delete mails via eDiscovery search across mailboxes, leave gateway rule open", "Supprimer définitivement via eDiscovery, sans règle gateway") },
-        { id: "quarantine",   correct: false, delta: -2, label: L("Empfänger-Postfächer per Litigation-Hold + Forwarding-Block komplett quarantänisieren", "Quarantine recipient mailboxes via litigation-hold + forwarding-block", "Mettre en quarantaine via litigation-hold + blocage forwarding") },
+        { id: "block_sender", correct: true,  delta: +6, label: L("Sender und URLs am Mail-Gateway blocken, ausgelieferte Mails aus den Postfächern zurückholen", "Block sender and URLs at the mail gateway, recall delivered mails from mailboxes", "Bloquer l'expéditeur et les URLs sur la passerelle, rappeler les mails déjà livrés") },
+        { id: "delete_only",  correct: false, delta: -3, label: L("Nur die Mails aus den Postfächern löschen, Gateway-Regel weglassen", "Just delete the mails from mailboxes, skip the gateway rule", "Effacer seulement les mails des boîtes, sans règle gateway") },
+        { id: "quarantine",   correct: false, delta: -2, label: L("Alle betroffenen Postfächer komplett sperren, bis die Analyse durch ist", "Lock down all affected mailboxes entirely until analysis is done", "Verrouiller toutes les boîtes concernées jusqu'à fin d'analyse") },
       ],
     },
     {
@@ -141,9 +141,9 @@ const PHISHING: Incident = {
       title: L("Reporting", "Report", "Reporting"),
       prompt: L("CISO-Briefing?", "Brief the CISO?", "Briefer le CISO ?"),
       options: [
-        { id: "brief_ciso", correct: true,  delta: +5, label: L("Knappes Briefing: Scope, Impact, Containment-Status, nächste Schritte", "Tight brief: scope, impact, containment status, next steps", "Brief concis : portée, impact, état de containment, prochaines étapes") },
-        { id: "wait_full",  correct: false, delta: -3, label: L("Vollständigen Forensik-Bericht inkl. Root-Cause abwarten, dann strukturiert briefen", "Wait for the full forensic report incl. root cause, then brief structured", "Attendre le rapport forensique complet incl. cause racine, puis briefer") },
-        { id: "email_only", correct: false, delta: -2, label: L("Strukturierte E-Mail mit Executive-Summary an CISO + IR-Lead, kein Sync-Termin", "Structured email with executive summary to CISO + IR lead, no sync meeting", "Mail structuré avec résumé exécutif au CISO + IR lead, sans sync") },
+        { id: "brief_ciso", correct: true,  delta: +5, label: L("Knappes Briefing: Umfang, Auswirkung, Status der Eindämmung, nächste Schritte", "Tight brief: scope, impact, containment status, next steps", "Brief concis : portée, impact, état de containment, prochaines étapes") },
+        { id: "wait_full",  correct: false, delta: -3, label: L("Erst den vollständigen Forensik-Bericht abwarten, dann briefen", "Wait for the full forensic report first, then brief", "Attendre le rapport forensique complet, puis briefer") },
+        { id: "email_only", correct: false, delta: -2, label: L("Nur eine strukturierte Mail an CISO und IR-Lead, kein Sync-Termin", "Send a structured email to CISO and IR lead only, no sync meeting", "Mail structuré au CISO et IR lead seulement, sans réunion") },
       ],
     },
   ],
