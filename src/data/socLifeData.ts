@@ -873,9 +873,9 @@ const ROGUE_WIFI: Incident = {
       title: L("Lokalisieren", "Locate", "Localiser"),
       prompt: L("Wie lokalisieren?", "How do you locate?", "Comment localiser ?"),
       options: [
-        { id: "triangulate", correct: true,  delta: +6, label: L("RSSI-Triangulation über die nächstgelegenen Corporate-APs, BSSID + Channel notieren", "RSSI-triangulate via the nearest corporate APs, note BSSID + channel", "Trianguler via RSSI sur les APs corporate proches, noter BSSID + canal") },
-        { id: "deauth_now",  correct: false, delta: -3, label: L("Sofort gezielte Deauth-Frames gegen den Rogue-AP senden, ohne Standort zu kennen", "Immediately send targeted deauth frames against the rogue AP without knowing its location", "Envoyer immédiatement des deauth ciblés sans connaître l'emplacement") },
-        { id: "ignore",      correct: false, delta: -4, label: L("Als bekannten False-Positive der WIDS-Engine schließen — die Heuristik lärmt oft", "Close as a known false positive of the WIDS engine — the heuristic often noises", "Clôturer en faux positif connu — l'heuristique fait du bruit") },
+        { id: "triangulate", correct: true,  delta: +6, label: L("Über die Signalstärke an den nächstgelegenen Access-Points triangulieren und die Geräte-Identität festhalten", "Triangulate via signal strength on the nearest corporate access points and record the device identity", "Trianguler via la puissance du signal sur les bornes Wi-Fi corporate proches et noter l'identité du dispositif") },
+        { id: "deauth_now",  correct: false, delta: -3, label: L("Sofort gezielt den fremden Access-Point stören, ohne den Standort zu kennen", "Immediately jam the rogue access point without knowing where it is", "Brouiller immédiatement le point d'accès pirate sans connaître son emplacement") },
+        { id: "ignore",      correct: false, delta: -4, label: L("Als bekannten Fehlalarm der WIDS-Engine schließen — die meldet öfter solche Muster", "Close as a known WIDS false positive — the engine often noises like this", "Clôturer en faux positif connu — l'engine WIDS bruite souvent ainsi") },
       ],
     },
     {
@@ -883,9 +883,9 @@ const ROGUE_WIFI: Incident = {
       title: L("Entfernen", "Remove", "Retirer"),
       prompt: L("Was tun, wenn lokalisiert?", "What once located?", "Que faire une fois localisé ?"),
       options: [
-        { id: "facilities", correct: true,  delta: +6, label: L("Mit Facility-Security gemeinsam abholen, Gerät als Beweismittel sichern, Etage informieren", "Pick it up with facility security, preserve as evidence, inform the floor", "Récupérer avec la sécurité des locaux, conserver comme preuve, informer l'étage") },
-        { id: "smash",      correct: false, delta: -5, label: L("Gerät vor Ort sofort 'außer Gefecht setzen' — drauftreten, fertig", "On-site, just 'put it out of action' — step on it, done", "Sur place, le 'mettre hors-service' tout de suite — l'écraser, voilà") },
-        { id: "leave_run",  correct: false, delta: -3, label: L("Stehen lassen und 24h Honeypot-Auswertung im Hintergrund laufen lassen", "Leave it running and run a 24h background honeypot analysis", "Le laisser tourner et faire 24h d'analyse honeypot en arrière-plan") },
+        { id: "facilities", correct: true,  delta: +6, label: L("Gemeinsam mit dem Werkschutz abholen, das Gerät als Beweis sichern und die Etage informieren", "Pick it up together with site security, preserve the device as evidence and inform the floor", "Récupérer avec la sécurité du site, conserver le dispositif comme preuve et informer l'étage") },
+        { id: "smash",      correct: false, delta: -5, label: L("Vor Ort einfach drauftreten und das Gerät unbrauchbar machen", "Just step on it on the spot and render the device unusable", "Sur place, l'écraser tout de suite pour le rendre inutilisable") },
+        { id: "leave_run",  correct: false, delta: -3, label: L("Stehen lassen und 24 Stunden im Hintergrund als Honeypot beobachten", "Leave it running and observe it as a honeypot in the background for 24 hours", "Le laisser tourner et l'observer en arrière-plan comme honeypot pendant 24h") },
       ],
     },
     {
@@ -893,9 +893,9 @@ const ROGUE_WIFI: Incident = {
       title: L("Userseite", "User side", "Côté utilisateurs"),
       prompt: L("Was kommunizieren?", "What do you communicate?", "Que communiquer ?"),
       options: [
-        { id: "etage_brief", correct: true,  delta: +5, label: L("Kurze Etagen-Info: Geräte mit dem geklonten SSID prüfen, Zertifikat-Pin-Hinweis", "Brief floor note: check devices for the cloned SSID, mention cert-pinning", "Note d'étage : vérifier les appareils sur le SSID cloné, rappel du cert-pinning") },
-        { id: "company_wide",correct: false, delta: -3, label: L("Unternehmensweite Panik-Mail mit Foto des Geräts an alle 4 000 Mitarbeiter ausspielen", "Company-wide panic mail with photo of the device to all 4,000 staff", "Mail panique à toute l'entreprise avec photo du dispositif à 4 000 personnes") },
-        { id: "silent",      correct: false, delta: -2, label: L("Bewusst nichts kommunizieren — der Vorfall bleibt intern, fertig", "Deliberately communicate nothing — incident stays internal, done", "Volontairement ne rien communiquer — l'incident reste interne") },
+        { id: "etage_brief", correct: true,  delta: +5, label: L("Kurze, sachliche Info an die betroffene Etage: Geräte prüfen und Hinweis auf das geprüfte Zertifikat", "Brief, factual note to the affected floor: check devices and remind people about the verified certificate", "Note brève et factuelle à l'étage concerné : vérifier les appareils et rappeler le certificat vérifié") },
+        { id: "company_wide",correct: false, delta: -3, label: L("Eine unternehmensweite Panik-Mail mit Foto an alle Mitarbeitenden ausspielen", "Send a company-wide panic mail with a photo to every employee", "Envoyer un mail panique à toute l'entreprise avec photo") },
+        { id: "silent",      correct: false, delta: -2, label: L("Bewusst nichts kommunizieren, der Vorfall bleibt komplett intern", "Deliberately communicate nothing, the incident stays purely internal", "Volontairement ne rien communiquer, l'incident reste purement interne") },
       ],
     },
   ],
