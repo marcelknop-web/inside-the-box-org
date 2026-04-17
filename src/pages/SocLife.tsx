@@ -186,6 +186,10 @@ export default function SocLife() {
     () => resolveIsNight(dayNightMode, shiftSec),
     [dayNightMode, shiftSec],
   );
+  // Mirror isNight in a ref so the (non-React) randIncidentDelay() helper
+  // and other event handlers can read the current value without going stale.
+  const isNightRef = useRef(isNight);
+  isNightRef.current = isNight;
 
   const status: "calm" | "oncall" | "incident" =
     activeIncident ? "incident" : (isNight ? "oncall" : "calm");
@@ -260,8 +264,15 @@ export default function SocLife() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [started, paused, gameOver, activeIncident, reputation, stress, coffee, consequence]);
 
+  // Night shifts feel meaningfully busier: the gap between incidents is
+  // compressed by ~30 %, so spawns come noticeably faster than during the day.
+  // Day window: 18–38 s · Night window: ~12.6–26.6 s.
+  const NIGHT_GAP_FACTOR = 0.7;
   function randIncidentDelay() {
-    return MIN_INCIDENT_GAP_MS + Math.random() * (MAX_INCIDENT_GAP_MS - MIN_INCIDENT_GAP_MS);
+    const factor = isNightRef.current ? NIGHT_GAP_FACTOR : 1;
+    const min = MIN_INCIDENT_GAP_MS * factor;
+    const max = MAX_INCIDENT_GAP_MS * factor;
+    return min + Math.random() * (max - min);
   }
 
   const spawnIncident = useCallback(() => {
