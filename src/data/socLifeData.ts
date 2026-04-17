@@ -256,9 +256,9 @@ const INSIDER: Incident = {
       title: L("Triage", "Triage", "Triage"),
       prompt: L("Erste Aktion?", "First action?", "Première action ?"),
       options: [
-        { id: "review_dlp", correct: true,  delta: +6, label: L("DLP-Logs + UEBA-Profil prüfen, Baseline + Peer-Group des Users vergleichen", "Review DLP logs + UEBA profile, compare baseline + user peer group", "Examiner logs DLP + profil UEBA, comparer baseline + groupe pair") },
-        { id: "lock_acct",  correct: false, delta: -3, label: L("Account in Azure AD per Conditional-Access-Block sofort sperren, Token revoken, Kontext nachreichen", "Lock account immediately via Azure-AD conditional-access block, revoke tokens, gather context after", "Verrouiller via accès conditionnel Azure-AD, révoquer les tokens, contexte après") },
-        { id: "ask_mgr",    correct: false, delta: -3, label: L("Direkten Vorgesetzten kontaktieren und Geschäftskontext der Datenabflüsse erfragen", "Contact line manager and request business context for the egress events", "Contacter le manager pour le contexte métier des flux sortants") },
+        { id: "review_dlp", correct: true,  delta: +6, label: L("DLP-Logs und Verhaltensprofil prüfen, mit Baseline und Peer-Group vergleichen", "Review DLP logs and behavioural profile, compare with baseline and peer group", "Examiner les logs DLP et le profil comportemental, comparer avec la baseline et le groupe pair") },
+        { id: "lock_acct",  correct: false, delta: -3, label: L("Konto sofort sperren und Sitzungen beenden, Kontext erst danach klären", "Lock the account immediately and kill sessions, clarify context afterwards", "Verrouiller le compte immédiatement et couper les sessions, contexte ensuite") },
+        { id: "ask_mgr",    correct: false, delta: -3, label: L("Den direkten Vorgesetzten fragen, ob es einen Geschäftsgrund für die Datenabflüsse gibt", "Ask the direct manager if there's a business reason for the data egress", "Demander au manager direct s'il y a une raison métier pour ces flux") },
       ],
     },
     {
@@ -266,9 +266,9 @@ const INSIDER: Incident = {
       title: L("Beweissicherung", "Preserve", "Préserver"),
       prompt: L("Forensik?", "Forensics?", "Forensique ?"),
       options: [
-        { id: "image_endpoint", correct: true,  delta: +8, label: L("Endpoint per Write-Blocker forensisch imagen, Memory-Dump, Chain-of-Custody dokumentieren", "Forensically image endpoint via write-blocker, memory dump, document chain of custody", "Imager l'endpoint via write-blocker, dump mémoire, documenter la chaîne de garde") },
-        { id: "remote_collect", correct: false, delta: -3, label: L("Remote-Triage-Pakete (KAPE/Velociraptor) sammeln, Disk-Image im nächsten Wartungsfenster", "Collect remote triage packs (KAPE/Velociraptor), disk image in next maintenance window", "Collecter triage à distance (KAPE/Velociraptor), image disque à la prochaine fenêtre") },
-        { id: "snapshot_vm",    correct: false, delta: -2, label: L("VM-Snapshot mit Memory-State über Hypervisor-API ziehen, Disk-Image später aus Snapshot exportieren", "Take a hypervisor-API VM snapshot incl. memory state, export disk image from it later", "Snapshot VM via API hyperviseur incl. mémoire, image disque exportée du snapshot plus tard") },
+        { id: "image_endpoint", correct: true,  delta: +8, label: L("Endgerät forensisch sauber abbilden inkl. Arbeitsspeicher, Beweiskette dokumentieren", "Forensically image the endpoint incl. memory, document the chain of custody", "Image forensique de l'endpoint, mémoire incluse, documenter la chaîne de garde") },
+        { id: "remote_collect", correct: false, delta: -3, label: L("Nur Remote-Triage-Daten sammeln, das volle Image erst im nächsten Wartungsfenster", "Collect only remote triage data, full image deferred to the next maintenance window", "Collecter seulement les données de triage à distance, image complète au prochain créneau") },
+        { id: "snapshot_vm",    correct: false, delta: -2, label: L("Nur einen VM-Snapshot anstoßen und das Disk-Image später daraus exportieren", "Just take a VM snapshot and export the disk image from it later", "Faire seulement un snapshot VM et exporter l'image disque ensuite") },
       ],
     },
     {
@@ -276,9 +276,9 @@ const INSIDER: Incident = {
       title: L("HR & Legal", "HR & Legal", "RH & Juridique"),
       prompt: L("Wer wird einbezogen?", "Who do you involve?", "Qui impliquer ?"),
       options: [
-        { id: "loop_hr_legal", correct: true,  delta: +7, label: L("HR + Legal + Datenschutz formell + dokumentiert via Eskalationsprozess einbinden", "Loop HR + Legal + DPO formally and documented via escalation process", "Impliquer formellement RH + Juridique + DPO via le processus d'escalade") },
-        { id: "ciso_only",     correct: false, delta: -3, label: L("CISO als Single-Point-of-Contact briefen, HR/Legal nach Abschluss der technischen Analyse einbinden", "Brief CISO as single point of contact, loop HR/Legal after technical analysis completes", "Briefer le CISO comme SPOC, RH/juridique après l'analyse technique") },
-        { id: "shadow",        correct: false, delta: -4, label: L("Verdeckte Überwachung (Endpoint + Mail) ausweiten, keine Eskalation, um Operations-Security zu wahren", "Expand covert monitoring (endpoint + mail), no escalation, preserve OPSEC", "Étendre la surveillance discrète (endpoint + mail), pas d'escalade, préserver l'OPSEC") },
+        { id: "loop_hr_legal", correct: true,  delta: +7, label: L("HR, Legal und Datenschutz formell und dokumentiert über den Eskalationsprozess einbinden", "Involve HR, Legal and the DPO formally and documented via the escalation process", "Impliquer formellement RH, juridique et DPO via le processus d'escalade") },
+        { id: "ciso_only",     correct: false, delta: -3, label: L("Nur den CISO briefen, HR und Legal erst nach der technischen Analyse einbinden", "Brief only the CISO, loop HR and Legal in after the technical analysis", "Briefer uniquement le CISO, impliquer RH et juridique après l'analyse technique") },
+        { id: "shadow",        correct: false, delta: -4, label: L("Verdeckt weiter beobachten und niemanden eskalieren, um die Operation nicht zu gefährden", "Keep monitoring covertly and escalate to nobody, to protect the operation", "Continuer à surveiller en discrétion et n'escalader à personne, pour protéger l'opération") },
       ],
     },
   ],
