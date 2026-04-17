@@ -636,8 +636,16 @@ export default function SocLife({ embedded = false }: SocLifeProps = {}) {
                   isNight={isNight}
                   maxHeight={
                     viewport.w < 1024
-                      // Mobile/tablet: give the floor plan ~55% of viewport so it's actually visible.
-                      ? Math.max(240, Math.min(viewport.h * 0.55, viewport.h - 260))
+                      // Mobile/tablet: when an incident is active the IncidentPanel
+                      // below needs the lion's share of the viewport for the prompt
+                      // + answer buttons (otherwise the user has to scroll to even
+                      // see the choices on small phones like iPhone SE 375×667).
+                      // Shrink the floor plan to ~32% so the panel sits above the fold.
+                      // When idle, keep the original generous ~55% so the house is
+                      // visually present.
+                      ? activeIncident
+                        ? Math.max(180, Math.min(viewport.h * 0.32, 260))
+                        : Math.max(240, Math.min(viewport.h * 0.55, viewport.h - 260))
                       // Desktop: subtract header + meters + padding. Bigger viewport → bigger house.
                       : Math.max(360, viewport.h - 200)
                   }
