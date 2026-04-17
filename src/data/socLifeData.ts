@@ -918,9 +918,9 @@ const CLOUD_BUCKET: Incident = {
       title: L("Verifizieren", "Verify", "Vérifier"),
       prompt: L("Was zuerst?", "What first?", "Première action ?"),
       options: [
-        { id: "cloudtrail", correct: true,  delta: +6, label: L("CloudTrail/Access-Logs prüfen: Wer hat gelesen, ab wann, welche Objekte, IP-/UA-Pattern", "Review CloudTrail/access logs: who read what, since when, which objects, IP/UA patterns", "Examiner CloudTrail/access logs : qui a lu quoi, depuis quand, quels objets, patterns IP/UA") },
-        { id: "close_now",  correct: false, delta: -3, label: L("Bucket sofort komplett auf Private setzen, Logs später zur Aufarbeitung ziehen", "Immediately flip the bucket to private, pull logs for cleanup later", "Mettre le bucket en privé immédiatement, examiner les logs après") },
-        { id: "ask_dev",    correct: false, delta: -4, label: L("Dev-Team über Slack fragen, ob der Bucket 'eigentlich öffentlich sein sollte'", "Ask the dev team on Slack whether the bucket 'should be public anyway'", "Demander à l'équipe dev sur Slack si le bucket 'devait être public'") },
+        { id: "cloudtrail", correct: true,  delta: +6, label: L("Zugriffsprotokolle der Cloud prüfen: wer hat seit wann was gelesen, welche Muster auf der Quelle", "Review cloud access logs: who has read what since when, and what patterns the source shows", "Examiner les logs d'accès cloud : qui a lu quoi et depuis quand, quels patterns sur la source") },
+        { id: "close_now",  correct: false, delta: -3, label: L("Den Bucket sofort auf privat schalten und die Logs erst später aufarbeiten", "Flip the bucket to private straight away and process the logs later", "Mettre le bucket en privé tout de suite et traiter les logs plus tard") },
+        { id: "ask_dev",    correct: false, delta: -4, label: L("Im Entwickler-Chat nachfragen, ob der Bucket vielleicht 'eigentlich öffentlich sein sollte'", "Ask in the developer chat whether the bucket 'should be public anyway'", "Demander dans le chat dev si le bucket 'devait être public'") },
       ],
     },
     {
@@ -928,9 +928,9 @@ const CLOUD_BUCKET: Incident = {
       title: L("Bereinigung", "Remediate", "Remédier"),
       prompt: L("Wie schließen?", "How do you close it?", "Comment fermer ?"),
       options: [
-        { id: "block_public", correct: true,  delta: +7, label: L("Block-Public-Access auf Account-Ebene aktivieren, IAM/Bucket-Policy korrigieren, SCP nachziehen", "Enable Block-Public-Access at account level, fix IAM/bucket policy, tighten SCP", "Activer Block-Public-Access au niveau compte, corriger IAM/policy bucket, durcir SCP") },
-        { id: "rename_only",  correct: false, delta: -3, label: L("Bucket umbenennen und an gleiche Stelle einen 'sauberen' anlegen, Daten umkopieren", "Rename the bucket and create a 'clean' one at the same path, copy data over", "Renommer le bucket et en créer un 'propre' au même chemin, copier les données") },
-        { id: "url_obfuscate",correct: false, delta: -4, label: L("Den Bucket-Namen 'unauffindbar' machen (Random-Suffix), Zugriff über kurzem Pre-Signed-Link", "Make the bucket name 'unguessable' (random suffix), access via short pre-signed URL", "Rendre le nom 'introuvable' (suffixe aléatoire), accès via URL pré-signée courte") },
+        { id: "block_public", correct: true,  delta: +7, label: L("Den öffentlichen Zugriff auf Account-Ebene unterbinden, die Berechtigungen sauber korrigieren und die Leitplanken nachziehen", "Disable public access at the account level, correct the permissions cleanly and tighten the guardrails", "Désactiver l'accès public au niveau du compte, corriger proprement les permissions et durcir les garde-fous") },
+        { id: "rename_only",  correct: false, delta: -3, label: L("Den Bucket umbenennen und einen 'sauberen' an gleicher Stelle anlegen, Daten umkopieren", "Rename the bucket and create a 'clean' one at the same path, copy the data over", "Renommer le bucket et en créer un 'propre' au même chemin, copier les données") },
+        { id: "url_obfuscate",correct: false, delta: -4, label: L("Den Namen unauffällig machen und den Zugriff über kurze, signierte Links absichern", "Obscure the name and secure access through short signed links", "Rendre le nom discret et sécuriser l'accès par des liens signés courts") },
       ],
     },
     {
@@ -938,9 +938,9 @@ const CLOUD_BUCKET: Incident = {
       title: L("Meldung", "Notify", "Notifier"),
       prompt: L("Wer wird informiert?", "Who is informed?", "Qui informer ?"),
       options: [
-        { id: "dpo_legal", correct: true,  delta: +6, label: L("DPO + Legal einbinden, DSGVO-72h-Frist prüfen, betroffene Datenkategorien klassifizieren", "Loop DPO + Legal, check GDPR 72h deadline, classify affected data categories", "Impliquer DPO + juridique, vérifier le délai RGPD 72h, classifier les données") },
-        { id: "ciso_only", correct: false, delta: -3, label: L("Nur den CISO briefen, alles weitere nach finaler Forensik klären", "Brief only the CISO, everything else after final forensics", "Briefer uniquement le CISO, le reste après forensique finale") },
-        { id: "no_proof",  correct: false, delta: -4, label: L("Da 'kein Beweis für Massendownload' vorliegt, vorerst gar nicht melden", "Since 'no proof of mass download' exists, do not notify for now", "Aucune preuve de téléchargement massif : ne pas notifier pour l'instant") },
+        { id: "dpo_legal", correct: true,  delta: +6, label: L("Datenschutz und Legal einbinden, 72-Stunden-Frist prüfen und die betroffenen Datenkategorien einordnen", "Loop the DPO and Legal, check the 72h deadline and classify the affected data categories", "Impliquer DPO et juridique, vérifier le délai de 72h et classifier les données concernées") },
+        { id: "ciso_only", correct: false, delta: -3, label: L("Nur den CISO briefen, alles weitere nach der finalen Forensik klären", "Brief only the CISO, clarify everything else after final forensics", "Briefer uniquement le CISO, le reste après forensique finale") },
+        { id: "no_proof",  correct: false, delta: -4, label: L("Da es 'keinen Beweis für massenhaftes Herunterladen' gibt, vorerst gar nicht melden", "Since there's 'no proof of mass download', don't notify for now", "Pas de 'preuve de téléchargement massif' : ne pas notifier pour l'instant") },
       ],
     },
   ],
