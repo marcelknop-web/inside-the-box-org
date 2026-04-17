@@ -1353,8 +1353,12 @@ const ChatView = () => {
         // Mobile: sidebar stays closed, mark initialized
         setSidebarInitialized(true);
       } else if (activeService !== null) {
-        // Desktop with active service: open immediately
-        setSidebarOpen(true);
+        // Desktop with active service: open immediately — except for SocLife,
+        // where the simulator should get full focus on first load. The user
+        // can still open the sidebar manually via the trigger.
+        if (activeService !== 'soc-life') {
+          setSidebarOpen(true);
+        }
         setSidebarInitialized(true);
       } else if (claimDone) {
         // Desktop welcome screen: open after user has time to read content
