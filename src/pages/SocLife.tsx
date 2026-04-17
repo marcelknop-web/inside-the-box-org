@@ -430,29 +430,47 @@ export default function SocLife({ embedded = false }: SocLifeProps = {}) {
 
   const handleIdle = useCallback((action: IdleAction) => {
     audio.playSfx("click_ui", 0.3);
+    const deltas: { stress?: number; coffee?: number; reputation?: number } = {};
+    let icon = "✨";
     switch (action) {
       case "coffee":
         setCoffee((c) => Math.min(100, c + 20));
         setStress((s) => Math.max(0, s - 10));
+        deltas.coffee = 20; deltas.stress = -10; icon = "☕";
         break;
       case "threat_intel":
         setReputation((r) => Math.min(100, r + 2));
+        deltas.reputation = 2; icon = "📡";
         break;
       case "playbook":
         setReputation((r) => Math.min(100, r + 3));
         setStress((s) => Math.min(100, s + 5));
+        deltas.reputation = 3; deltas.stress = 5; icon = "📘";
         break;
       case "smalltalk":
         setStress((s) => Math.max(0, s - 8));
+        deltas.stress = -8; icon = "💬";
         break;
       case "stretch":
         setStress((s) => Math.max(0, s - 5));
+        deltas.stress = -5; icon = "🧘";
         break;
     }
+    // Sonner toast — visible on desktop where the bottom-right corner is free.
     toast(t(`socLife.idle.${action}.name`), {
       description: t(`socLife.idle.${action}.result`),
       duration: 1400,
     });
+    // In-component pop-up — guaranteed visible on mobile, sits on top of the
+    // SocLife container regardless of chat input bar or sidebar overlays.
+    if (idlePopTimerRef.current) window.clearTimeout(idlePopTimerRef.current);
+    setIdlePop({
+      id: Date.now(),
+      icon,
+      label: t(`socLife.idle.${action}.name`),
+      deltas,
+    });
+    idlePopTimerRef.current = window.setTimeout(() => setIdlePop(null), 1600);
   }, [audio, t]);
 
   const startShift = async () => {
