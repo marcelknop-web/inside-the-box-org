@@ -491,7 +491,10 @@ export default function SocLife({ embedded = false }: SocLifeProps = {}) {
     setCurrentRoom("soc_floor");
     recentIncidentIdsRef.current = [];
     lastCategoryRef.current = null;
-    nextIncidentAtRef.current = Date.now() + 6_000;
+    // Grace period at shift start — gives the player ~20s to walk around the
+    // floor, try out the controls and read the meters before the first
+    // incident klaxon hits. Less jarring than the previous 6s onboarding cliff.
+    nextIncidentAtRef.current = Date.now() + 20_000;
     audio.setMusicMode("calm");
     // First-time visitors see the intro right after starting their shift,
     // so they actually know what they're about to do.
