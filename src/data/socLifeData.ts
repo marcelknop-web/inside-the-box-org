@@ -828,9 +828,9 @@ const OT_ANOMALY: Incident = {
       title: L("Verifizieren", "Verify", "Vérifier"),
       prompt: L("Wie validieren — ohne Anlage zu stören?", "How do you validate — without disturbing the plant?", "Comment valider sans perturber l'usine ?"),
       options: [
-        { id: "passive_capture", correct: true,  delta: +7, label: L("Passive PCAP via SPAN-Port der OT-Firewall, Modbus/S7-Funktionscodes mit Engineering abgleichen", "Passive PCAP via OT firewall SPAN port, cross-check Modbus/S7 function codes with engineering", "PCAP passive via port SPAN du firewall OT, croiser les codes fonction Modbus/S7 avec l'ingénierie") },
-        { id: "active_scan",     correct: false, delta: -5, label: L("Schnellen aktiven Nmap-Scan auf das OT-Segment fahren, um den Host zu fingerprinten", "Run a quick active Nmap scan on the OT segment to fingerprint the host", "Lancer un scan Nmap actif sur le segment OT pour fingerprinter l'hôte") },
-        { id: "ask_vendor",      correct: false, delta: -3, label: L("Erst auf Rückmeldung des SPS-Herstellers warten, bevor irgendetwas getan wird", "Wait for the PLC vendor's response before doing anything", "Attendre la réponse du fournisseur API avant d'agir") },
+        { id: "passive_capture", correct: true,  delta: +7, label: L("Verkehr passiv mitschneiden und die beobachteten Steuerbefehle gemeinsam mit dem Engineering bewerten", "Capture traffic passively and assess the observed control commands together with engineering", "Capturer le trafic en passif et évaluer les commandes observées avec l'ingénierie") },
+        { id: "active_scan",     correct: false, delta: -5, label: L("Schnell aktiv durch das OT-Netz scannen, um den Host zu identifizieren", "Run a quick active scan through the OT network to identify the host", "Lancer un scan actif rapide sur le réseau OT pour identifier l'hôte") },
+        { id: "ask_vendor",      correct: false, delta: -3, label: L("Erst auf eine Rückmeldung des SPS-Herstellers warten, bevor irgendetwas passiert", "Wait for the PLC vendor's response before doing anything at all", "Attendre la réponse du fournisseur API avant la moindre action") },
       ],
     },
     {
@@ -838,9 +838,9 @@ const OT_ANOMALY: Incident = {
       title: L("Eindämmung", "Contain", "Confinement"),
       prompt: L("Wie eindämmen?", "How to contain?", "Comment confiner ?"),
       options: [
-        { id: "fw_acl",      correct: true,  delta: +7, label: L("OT-Firewall-Regel: nur Engineering-Workstation auf SPS, gemeinsam mit Schichtleitung freigeben", "OT firewall rule: only the engineering workstation onto the PLC, sign-off with shift lead", "Règle FW OT : seul le poste ingénierie vers l'API, validé avec le chef de quart") },
-        { id: "shutdown_plc",correct: false, delta: -5, label: L("SPS umgehend stromlos schalten, um jeden weiteren Schreibzugriff zu verhindern", "Power off the PLC immediately to prevent any further writes", "Couper l'alimentation de l'API pour empêcher toute nouvelle écriture") },
-        { id: "block_all_ot",correct: false, delta: -4, label: L("Komplettes OT-Segment vom IT-Netz trennen, inklusive Visualisierungs- und Historian-Verbindungen", "Cut the entire OT segment from IT, including HMI and historian links", "Couper tout le segment OT du réseau IT, y compris HMI et historian") },
+        { id: "fw_acl",      correct: true,  delta: +7, label: L("Firewall-Regel im OT-Netz so anpassen, dass nur die Engineering-Workstation zur SPS spricht — gemeinsam mit der Schichtleitung freigegeben", "Tighten the OT firewall so only the engineering workstation can talk to the PLC — signed off with the shift lead", "Restreindre la règle FW OT pour que seul le poste d'ingénierie puisse parler à l'API — validé avec le chef de quart") },
+        { id: "shutdown_plc",correct: false, delta: -5, label: L("Die SPS sofort stromlos schalten, um jede weitere Schreibaktion zu verhindern", "Power off the PLC immediately to prevent any further write actions", "Couper l'alimentation de l'API pour empêcher toute écriture supplémentaire") },
+        { id: "block_all_ot",correct: false, delta: -4, label: L("Das gesamte OT-Netz von der IT trennen, einschließlich Visualisierung und Datenarchiv", "Cut the entire OT network from IT, including HMI and historian", "Couper tout le réseau OT de l'IT, y compris HMI et historian") },
       ],
     },
     {
@@ -848,9 +848,9 @@ const OT_ANOMALY: Incident = {
       title: L("Koordination", "Coordination", "Coordination"),
       prompt: L("Wer wird einbezogen?", "Who do you involve?", "Qui impliquer ?"),
       options: [
-        { id: "ot_safety",  correct: true,  delta: +6, label: L("Schichtleitung + OT-Engineering + Safety informieren, Production-Impact gemeinsam bewerten", "Inform shift lead + OT engineering + safety, jointly assess production impact", "Informer chef de quart + ingénierie OT + safety, évaluer ensemble l'impact production") },
-        { id: "it_only",    correct: false, delta: -3, label: L("Im IT-SOC bleiben — die OT-Welt 'kümmert sich selbst' um Produktionsthemen", "Keep it inside IT-SOC — OT 'handles its own' production topics", "Rester dans le SOC IT — l'OT 'gère' ses sujets de production") },
-        { id: "press_first",correct: false, delta: -5, label: L("Frühzeitig die Pressestelle vorwarnen, bevor Engineering-Befund vorliegt", "Pre-warn the press office before engineering findings are in", "Prévenir le service presse avant les conclusions ingénierie") },
+        { id: "ot_safety",  correct: true,  delta: +6, label: L("Schichtleitung, OT-Engineering und Arbeitssicherheit informieren und die Auswirkungen auf die Produktion gemeinsam bewerten", "Inform shift lead, OT engineering and safety, and jointly assess the production impact", "Informer le chef de quart, l'ingénierie OT et la safety, évaluer ensemble l'impact production") },
+        { id: "it_only",    correct: false, delta: -3, label: L("Im IT-SOC bleiben — die Produktion regelt das schon selbst", "Keep it inside the IT-SOC — production will sort it out themselves", "Rester dans le SOC IT — la production s'en occupera elle-même") },
+        { id: "press_first",correct: false, delta: -5, label: L("Frühzeitig die Pressestelle vorwarnen, bevor das Engineering überhaupt einen Befund hat", "Pre-warn the press office before engineering even has a finding", "Prévenir le service presse avant même que l'ingénierie n'ait un constat") },
       ],
     },
   ],
