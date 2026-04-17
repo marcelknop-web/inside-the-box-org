@@ -156,20 +156,44 @@ export default function SocLife({ embedded = false }: SocLifeProps = {}) {
   // Track viewport so the DollHouse maxHeight recomputes on resize / fullscreen
   // toggle / orientation change. Without this the floor plan stays small after
   // entering fullscreen on desktop because maxHeight was captured once at mount.
+  //
+  // In embedded mode (inside ChatView) we cannot use window.innerHeight as the
+  // available height, because the parent reserves space for the chat header,
+  // sidebar trigger, padding, etc. Instead we measure the rootRef element's
+  // own bounding box. ResizeObserver picks up parent layout changes too.
   const [viewport, setViewport] = useState(() =>
     typeof window !== "undefined"
       ? { w: window.innerWidth, h: window.innerHeight }
       : { w: 1280, h: 720 },
   );
   useEffect(() => {
-    const onResize = () => setViewport({ w: window.innerWidth, h: window.innerHeight });
-    window.addEventListener("resize", onResize);
-    document.addEventListener("fullscreenchange", onResize);
-    return () => {
-      window.removeEventListener("resize", onResize);
-      document.removeEventListener("fullscreenchange", onResize);
+    const measure = () => {
+      const w = window.innerWidth;
+      const fs = !!document.fullscreenElement;
+      const rect = rootRef.current?.getBoundingClientRect();
+      // When embedded and not in native fullscreen, use the container's own
+      // height — that's the real space we can paint into. Otherwise use the
+      // window so the maxHeight scales with true viewport (and fullscreen).
+      const h =
+        embedded && !fs && rect && rect.height > 0
+          ? rect.height
+          : window.innerHeight;
+      setViewport({ w, h });
     };
-  }, []);
+    measure();
+    window.addEventListener("resize", measure);
+    document.addEventListener("fullscreenchange", measure);
+    let ro: ResizeObserver | null = null;
+    if (embedded && rootRef.current && typeof ResizeObserver !== "undefined") {
+      ro = new ResizeObserver(() => measure());
+      ro.observe(rootRef.current);
+    }
+    return () => {
+      window.removeEventListener("resize", measure);
+      document.removeEventListener("fullscreenchange", measure);
+      ro?.disconnect();
+    };
+  }, [embedded]);
 
   // Onboarding: shown after "Start shift" on first ever visit, otherwise on demand
   // via the "?" button on the welcome screen. Never shown before the user opts in.
@@ -504,7 +528,12 @@ export default function SocLife({ embedded = false }: SocLifeProps = {}) {
       ref={rootRef}
       className={
         embedded
-          ? "min-h-[70vh] overflow-hidden bg-background text-foreground flex flex-col rounded-lg border border-border/40"
+          // Embedded inside ChatView: fill the parent column without forcing
+          // page-level scroll. min-h ensures the simulator is always usable
+          // even when the chat layout collapses to a small region. h-[80vh]
+          // caps the height on tall desktop monitors so the chat sidebar
+          // (left) and chat input (bottom) stay reachable without scroll.
+          ? "h-[80vh] min-h-[560px] max-h-[900px] overflow-hidden bg-background text-foreground flex flex-col rounded-lg border border-border/40"
           : "h-[100dvh] overflow-hidden bg-background text-foreground flex flex-col"
       }
     >
@@ -612,8 +641,16 @@ export default function SocLife({ embedded = false }: SocLifeProps = {}) {
                   isNight={isNight}
                   maxHeight={
                     viewport.w < 1024
-                      // Mobile/tablet: give the floor plan ~55% of viewport so it's actually visible.
-                      ? Math.max(240, Math.min(viewport.h * 0.55, viewport.h - 260))
+                      // Mobile/tablet: when an incident is active the IncidentPanel
+                      // below needs the lion's share of the viewport for the prompt
+                      // + answer buttons (otherwise the user has to scroll to even
+                      // see the choices on small phones like iPhone SE 375×667).
+                      // Shrink the floor plan to ~32% so the panel sits above the fold.
+                      // When idle, keep the original generous ~55% so the house is
+                      // visually present.
+                      ? activeIncident
+                        ? Math.max(180, Math.min(viewport.h * 0.32, 260))
+                        : Math.max(240, Math.min(viewport.h * 0.55, viewport.h - 260))
                       // Desktop: subtract header + meters + padding. Bigger viewport → bigger house.
                       : Math.max(360, viewport.h - 200)
                   }
