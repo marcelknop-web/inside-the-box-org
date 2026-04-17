@@ -1063,7 +1063,7 @@ export const fr = {
     metaTitle: 'SOC Life — Cyber-Sim Corporate',
     metaDesc: 'Un simulateur SOC corporate à Francfort dans l’esprit de Little Computer People. Salles, collègues, incidents — décider sous pression.',
     title: 'SOC LIFE',
-    subtitle: 'SOC corporate. Garde de nuit à Francfort. Décider sous pression.',
+    subtitle: 'SOC corporate. Francfort-sur-le-Main. Décider sous pression.',
     intro: 'Déplacez votre analyste sur le plateau. Lisez le renseignement, prenez un café, échangez avec l’équipe. Quand un incident tombe : rejoignez la bonne salle et exécutez le bon playbook.',
     start: 'Lancer la garde',
     pause: 'Pause',

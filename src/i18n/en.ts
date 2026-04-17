@@ -1063,7 +1063,7 @@ export const en = {
     metaTitle: 'SOC Life — Corporate Cyber-Sim',
     metaDesc: 'A retro Frankfurt corporate SOC simulator in the spirit of Little Computer People. Rooms, colleagues, incidents — decide under pressure.',
     title: 'SOC LIFE',
-    subtitle: 'Corporate SOC. Frankfurt night shift. Decide under pressure.',
+    subtitle: 'Corporate SOC. Frankfurt am Main. Decide under pressure.',
     intro: 'Move your analyst across the floor. Read threat intel, grab a coffee, chat with the team. When an incident drops: get into the right room and run the right playbook.',
     start: 'Start shift',
     pause: 'Pause',
