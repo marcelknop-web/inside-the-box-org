@@ -528,7 +528,12 @@ export default function SocLife({ embedded = false }: SocLifeProps = {}) {
       ref={rootRef}
       className={
         embedded
-          ? "min-h-[70vh] overflow-hidden bg-background text-foreground flex flex-col rounded-lg border border-border/40"
+          // Embedded inside ChatView: fill the parent column without forcing
+          // page-level scroll. min-h ensures the simulator is always usable
+          // even when the chat layout collapses to a small region. h-[80vh]
+          // caps the height on tall desktop monitors so the chat sidebar
+          // (left) and chat input (bottom) stay reachable without scroll.
+          ? "h-[80vh] min-h-[560px] max-h-[900px] overflow-hidden bg-background text-foreground flex flex-col rounded-lg border border-border/40"
           : "h-[100dvh] overflow-hidden bg-background text-foreground flex flex-col"
       }
     >
