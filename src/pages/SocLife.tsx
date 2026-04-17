@@ -186,6 +186,10 @@ export default function SocLife() {
     () => resolveIsNight(dayNightMode, shiftSec),
     [dayNightMode, shiftSec],
   );
+  // Mirror isNight in a ref so the (non-React) randIncidentDelay() helper
+  // and other event handlers can read the current value without going stale.
+  const isNightRef = useRef(isNight);
+  isNightRef.current = isNight;
 
   const status: "calm" | "oncall" | "incident" =
     activeIncident ? "incident" : (isNight ? "oncall" : "calm");
