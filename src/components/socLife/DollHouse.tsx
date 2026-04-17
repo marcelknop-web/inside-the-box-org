@@ -1336,20 +1336,50 @@ export function DollHouse({ current, highlight, onMove, maxHeight, isNight = fal
 
       // (Removed: ambient corridor "data motes" — they read as random colour noise.)
 
-      // Highlight ring around required incident room
+      // Highlight ring around required incident room — RED pulsing alarm
       if (highlight) {
         const r = ROOMS.find((x) => x.id === highlight)!;
         const x = r.col * ROOM_W;
         const y = roomTopY(r.row);
-        const blink = (Math.floor(t / 200) % 2) === 0;
-        ctx.strokeStyle = blink ? C.cyan : C.cyanDim;
+        const blink = (Math.floor(t / 180) % 2) === 0;
+        // Outer ring: bright red blink
+        ctx.strokeStyle = blink ? C.red : C.redDim;
         ctx.lineWidth = 1;
         ctx.strokeRect(x + 0.5, y + 0.5, ROOM_W - 1, ROOM_H - 1);
-        // pulsing inner glow band
-        const a = 0.08 + 0.07 * (1 + Math.sin(t / 220));
-        ctx.fillStyle = `rgba(0,188,212,${a.toFixed(3)})`;
+        // Pulsing radial red glow filling the room
+        const pulse = 0.18 + 0.18 * (1 + Math.sin(t / 200)) * 0.5;
+        const grad = ctx.createRadialGradient(
+          x + ROOM_W / 2, y + ROOM_H / 2, 4,
+          x + ROOM_W / 2, y + ROOM_H / 2, ROOM_W * 0.7,
+        );
+        grad.addColorStop(0, `rgba(255,74,74,${pulse.toFixed(3)})`);
+        grad.addColorStop(1, "rgba(255,74,74,0)");
+        ctx.fillStyle = grad;
+        ctx.fillRect(x, y, ROOM_W, ROOM_H);
+        // Top + bottom alert bands
+        ctx.fillStyle = `rgba(255,74,74,${(0.35 + 0.25 * Math.sin(t / 180)).toFixed(3)})`;
         ctx.fillRect(x + 1, y + 1, ROOM_W - 2, 2);
         ctx.fillRect(x + 1, y + ROOM_H - 5, ROOM_W - 2, 2);
+        // Sirenen-Lichtkegel im Korridor unter/über dem Alarm-Raum
+        if (blink) {
+          const corX = x + ROOM_W / 2;
+          ctx.fillStyle = "rgba(255,74,74,0.18)";
+          if (r.row === 0) {
+            ctx.beginPath();
+            ctx.moveTo(corX, y + ROOM_H);
+            ctx.lineTo(corX - 12, CORRIDOR_Y + CORRIDOR_H);
+            ctx.lineTo(corX + 12, CORRIDOR_Y + CORRIDOR_H);
+            ctx.closePath();
+            ctx.fill();
+          } else {
+            ctx.beginPath();
+            ctx.moveTo(corX, y);
+            ctx.lineTo(corX - 12, CORRIDOR_Y);
+            ctx.lineTo(corX + 12, CORRIDOR_Y);
+            ctx.closePath();
+            ctx.fill();
+          }
+        }
       }
 
       // Current room marker (subtle gold inset)
@@ -1605,21 +1635,44 @@ export function DollHouse({ current, highlight, onMove, maxHeight, isNight = fal
 
       // ---- Day/night tint overlay (smooth ease toward target) ----
       const target = isNightRef.current ? 1 : 0;
-      // ~1s fade at 60fps: step ~0.016 per frame
       tintRef.current += (target - tintRef.current) * 0.04;
       const tint = tintRef.current;
+
+      // Daytime warm light from above (always on, fades out at night)
+      const dayStrength = 1 - tint;
+      if (dayStrength > 0.01) {
+        const dayGrad = ctx.createLinearGradient(0, 0, 0, DESIGN_H);
+        dayGrad.addColorStop(0, `rgba(255,210,120,${(0.10 * dayStrength).toFixed(3)})`);
+        dayGrad.addColorStop(0.5, `rgba(255,200,100,${(0.04 * dayStrength).toFixed(3)})`);
+        dayGrad.addColorStop(1, "rgba(255,200,100,0)");
+        ctx.fillStyle = dayGrad;
+        ctx.fillRect(0, 0, DESIGN_W, DESIGN_H);
+      }
+
       if (tint > 0.01) {
-        // cool moonlight blue, multiply-style on dark scene via additive overlay
+        // Cool moonlight blue, additive overlay on dark scene
         ctx.fillStyle = `rgba(40,90,180,${(0.22 * tint).toFixed(3)})`;
         ctx.fillRect(0, 0, DESIGN_W, DESIGN_H);
-        // subtle vignette darkening at edges
-        ctx.fillStyle = `rgba(6,10,28,${(0.18 * tint).toFixed(3)})`;
-        ctx.fillRect(0, 0, DESIGN_W, 6);
-        ctx.fillRect(0, DESIGN_H - 6, DESIGN_W, 6);
-        ctx.fillRect(0, 0, 4, DESIGN_H);
-        ctx.fillRect(DESIGN_W - 4, 0, 4, DESIGN_H);
-        // a few "stars" in the building's dark trim (top strip)
-        for (let s = 0; s < 5; s++) {
+        // Stronger vignette at edges (deeper night)
+        const vignette = ctx.createRadialGradient(
+          DESIGN_W / 2, DESIGN_H / 2, DESIGN_W * 0.3,
+          DESIGN_W / 2, DESIGN_H / 2, DESIGN_W * 0.7,
+        );
+        vignette.addColorStop(0, "rgba(6,10,28,0)");
+        vignette.addColorStop(1, `rgba(6,10,28,${(0.45 * tint).toFixed(3)})`);
+        ctx.fillStyle = vignette;
+        ctx.fillRect(0, 0, DESIGN_W, DESIGN_H);
+        // Soft moon glow patch in upper-right corner
+        const moonGrad = ctx.createRadialGradient(
+          DESIGN_W - 20, 12, 1,
+          DESIGN_W - 20, 12, 28,
+        );
+        moonGrad.addColorStop(0, `rgba(232,232,200,${(0.28 * tint).toFixed(3)})`);
+        moonGrad.addColorStop(1, "rgba(232,232,200,0)");
+        ctx.fillStyle = moonGrad;
+        ctx.fillRect(DESIGN_W - 50, 0, 50, 40);
+        // Twinkling stars in the building's dark trim (top strip)
+        for (let s = 0; s < 8; s++) {
           const sx = ((s * 53 + Math.floor(t / 2000) * 17) % (DESIGN_W - 4)) + 2;
           const twinkle = (Math.floor(t / 280 + s) % 5) === 0 ? C.white : "rgba(232,232,240,0.5)";
           drawPx(ctx, sx, 2 + (s % 2), twinkle);
