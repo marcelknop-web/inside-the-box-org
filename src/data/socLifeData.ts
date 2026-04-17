@@ -526,9 +526,9 @@ const EXFIL: Incident = {
       title: L("Scope", "Scope", "Périmètre"),
       prompt: L("Wie eingrenzen?", "How do you scope?", "Comment cadrer ?"),
       options: [
-        { id: "proxy_dlp", correct: true,  delta: +6, label: L("Proxy- + DLP-Logs korrelieren, Datentyp + Volumen + Empfänger-Tenant klassifizieren", "Correlate proxy + DLP logs, classify data type + volume + recipient tenant", "Corréler logs proxy + DLP, classifier type, volume et tenant destinataire") },
-        { id: "block_first",correct: false, delta: -3, label: L("Cloud-Domain per CASB-Policy + Proxy-Block sofort sperren, Forensik im Anschluss", "Block the cloud domain immediately via CASB policy + proxy block, forensics afterwards", "Bloquer le domaine cloud via politique CASB + proxy, forensique ensuite") },
-        { id: "ask_user",  correct: false, delta: -3, label: L("User per gesichertem Voice-Channel kontaktieren und Geschäftskontext der Uploads erfragen", "Contact user via secure voice channel and request business context for the uploads", "Contacter l'utilisateur via canal vocal sécurisé pour le contexte métier des uploads") },
+        { id: "proxy_dlp", correct: true,  delta: +6, label: L("Proxy- und DLP-Logs zusammenführen, Datentyp, Volumen und Empfänger klar bestimmen", "Combine proxy and DLP logs, clearly determine data type, volume and recipient", "Croiser logs proxy et DLP, déterminer clairement type, volume et destinataire") },
+        { id: "block_first",correct: false, delta: -3, label: L("Den Cloud-Dienst sofort sperren und die Forensik erst danach machen", "Block the cloud service immediately and do the forensics later", "Bloquer le service cloud immédiatement, forensique ensuite") },
+        { id: "ask_user",  correct: false, delta: -3, label: L("Den User direkt fragen, ob es einen Geschäftsgrund für die Uploads gibt", "Just ask the user if there's a business reason for the uploads", "Demander à l'utilisateur s'il y a une raison métier pour ces uploads") },
       ],
     },
     {
@@ -536,9 +536,9 @@ const EXFIL: Incident = {
       title: L("Stoppen", "Stop", "Stopper"),
       prompt: L("Wie stoppen?", "How to stop?", "Comment stopper ?"),
       options: [
-        { id: "isolate_revoke", correct: true,  delta: +7, label: L("Endpoint EDR-isolieren, OAuth-/Cloud-Tokens des Users revoken, Refresh-Tokens invalidieren", "EDR-isolate endpoint, revoke user's OAuth/cloud tokens, invalidate refresh tokens", "Isoler l'endpoint via EDR, révoquer les tokens OAuth/cloud, invalider les refresh tokens") },
-        { id: "block_cloud",    correct: false, delta: -3, label: L("Cloud-Anbieter unternehmensweit per CASB + DNS-Policy blocken, Ausnahmen via Approval-Workflow", "Block the cloud provider company-wide via CASB + DNS policy, exceptions via approval workflow", "Bloquer le provider cloud via CASB + politique DNS, exceptions via workflow d'approbation") },
-        { id: "rate_limit",     correct: false, delta: -3, label: L("Upload-Bandbreite des Users via QoS-Policy auf 50 kbps drosseln, Session bleibt offen", "Rate-limit the user's upload bandwidth via QoS policy to 50 kbps, session stays open", "Limiter la bande passante upload via QoS à 50 kbps, session maintenue") },
+        { id: "isolate_revoke", correct: true,  delta: +7, label: L("Endgerät isolieren, Cloud-Token des Users widerrufen, Sitzungen verfallen lassen", "Isolate the endpoint, revoke the user's cloud tokens, expire sessions", "Isoler l'endpoint, révoquer les tokens cloud de l'utilisateur, faire expirer les sessions") },
+        { id: "block_cloud",    correct: false, delta: -3, label: L("Den ganzen Cloud-Anbieter unternehmensweit sperren, Ausnahmen über einen Antrag", "Block the entire cloud provider company-wide, exceptions via request workflow", "Bloquer tout le provider cloud à l'échelle de l'entreprise, exceptions sur demande") },
+        { id: "rate_limit",     correct: false, delta: -3, label: L("Nur die Upload-Bandbreite des Users drosseln, die Sitzung läuft weiter", "Just throttle the user's upload bandwidth, leave the session running", "Limiter seulement la bande passante de l'utilisateur, laisser la session ouverte") },
       ],
     },
     {
@@ -546,9 +546,9 @@ const EXFIL: Incident = {
       title: L("Meldung", "Notification", "Notification"),
       prompt: L("Wer wird benachrichtigt?", "Who is notified?", "Qui est notifié ?"),
       options: [
-        { id: "dpo_legal", correct: true,  delta: +6, label: L("DPO + Legal einbinden, DSGVO-72h-Frist und betroffene Datenkategorien bewerten", "Loop DPO + Legal, assess GDPR 72h deadline and affected data categories", "Impliquer DPO + juridique, évaluer le délai RGPD 72h et catégories de données") },
-        { id: "ciso_only", correct: false, delta: -3, label: L("CISO als zentrale Eskalation briefen, DPO nach Abschluss der Forensik einbinden", "Brief CISO as central escalation, loop DPO after forensics completes", "Briefer le CISO comme escalade centrale, DPO après clôture de la forensique") },
-        { id: "wait_proof",correct: false, delta: -4, label: L("Beweissichere Bestätigung der Datenklassifizierung abwarten, dann formell an Aufsichtsbehörde melden", "Wait for evidence-grade confirmation of data classification, then formally notify the regulator", "Attendre une confirmation probante de la classification, puis signaler formellement au régulateur") },
+        { id: "dpo_legal", correct: true,  delta: +6, label: L("Datenschutz und Legal einbinden, 72-Stunden-Frist und betroffene Datenkategorien bewerten", "Loop the DPO and Legal, assess the 72h deadline and affected data categories", "Impliquer DPO et juridique, évaluer le délai de 72h et les catégories de données") },
+        { id: "ciso_only", correct: false, delta: -3, label: L("Nur den CISO briefen, Datenschutz erst nach der Forensik einbinden", "Brief only the CISO, loop in the DPO after forensics is done", "Briefer uniquement le CISO, impliquer le DPO après la forensique") },
+        { id: "wait_proof",correct: false, delta: -4, label: L("Auf einen vollständigen Beweis der Datenkategorie warten, dann formell melden", "Wait for full evidence of the data category, then notify formally", "Attendre une preuve complète de la catégorie de données, puis notifier formellement") },
       ],
     },
   ],
