@@ -301,9 +301,9 @@ const BEC: Incident = {
       title: L("Verifizieren", "Verify", "Vérifier"),
       prompt: L("Wie verifizieren?", "How do you verify?", "Comment vérifier ?"),
       options: [
-        { id: "auth_logs",  correct: true,  delta: +6, label: L("Mail-Auth (SPF/DKIM/DMARC) + Login-Geo des Postfachs prüfen", "Check mail auth (SPF/DKIM/DMARC) + login geo of mailbox", "Vérifier l'auth mail (SPF/DKIM/DMARC) + géo des connexions") },
-        { id: "call_ceo",   correct: false, delta: -2, label: L("CEO direkt anrufen — auf der Nummer aus der Mail-Signatur", "Call the CEO — on the number from the mail signature", "Appeler le CEO — sur le numéro de la signature mail") },
-        { id: "ask_finance",correct: false, delta: -3, label: L("Buchhaltung fragen, ob die Anweisung 'plausibel' wirkt", "Ask finance if the request 'looks plausible'", "Demander à la finance si la demande 'semble plausible'") },
+        { id: "auth_logs",  correct: true,  delta: +6, label: L("Mail-Auth (SPF/DKIM/DMARC) + Login-Geo + MFA-Status des CEO-Postfachs prüfen", "Check mail auth (SPF/DKIM/DMARC) + login geo + MFA status of CEO mailbox", "Vérifier auth mail (SPF/DKIM/DMARC) + géo + statut MFA de la boîte CEO") },
+        { id: "call_ceo",   correct: false, delta: -2, label: L("CEO direkt zurückrufen über die Nummer in der Mail-Signatur und Anweisung verbal verifizieren", "Call the CEO back on the number in the mail signature and verify verbally", "Rappeler le CEO sur le numéro de la signature mail et vérifier verbalement") },
+        { id: "ask_finance",correct: false, delta: -3, label: L("Buchhaltung kontextuell befragen, ob Anweisung zum üblichen Zahlungsmuster passt", "Contextually ask finance whether the request matches the usual payment pattern", "Interroger la finance pour savoir si la demande correspond au schéma habituel") },
       ],
     },
     {
@@ -311,9 +311,9 @@ const BEC: Incident = {
       title: L("Zahlung stoppen", "Stop payment", "Stopper le paiement"),
       prompt: L("Wie stoppen?", "How do you stop it?", "Comment stopper ?"),
       options: [
-        { id: "freeze_call", correct: true,  delta: +7, label: L("Buchhaltung + Bank-Hotline parallel kontaktieren, Transfer einfrieren", "Contact finance + bank hotline in parallel, freeze transfer", "Contacter finance + hotline banque en parallèle, geler le virement") },
-        { id: "email_only",  correct: false, delta: -3, label: L("Nur eine Stop-Mail an die Buchhaltung senden", "Send a stop email to finance only", "Envoyer juste un mail d'arrêt à la finance") },
-        { id: "wait_legal",  correct: false, delta: -4, label: L("Erst auf Freigabe von Legal warten, dann handeln", "Wait for legal sign-off first, then act", "Attendre l'aval du juridique d'abord, puis agir") },
+        { id: "freeze_call", correct: true,  delta: +7, label: L("Buchhaltung + Bank-Hotline (Fraud-Desk) parallel kontaktieren, Transfer einfrieren", "Contact finance + bank fraud-desk hotline in parallel, freeze the transfer", "Contacter finance + hotline fraude banque en parallèle, geler le virement") },
+        { id: "email_only",  correct: false, delta: -3, label: L("Strukturierte Stop-Mail mit Incident-Referenz an Buchhaltung + Treasury senden", "Send structured stop email with incident reference to finance + treasury", "Envoyer un mail d'arrêt structuré avec référence d'incident à finance + trésorerie") },
+        { id: "wait_legal",  correct: false, delta: -4, label: L("Auf Freigabe von Legal + Compliance warten, dann mit Bank-Mandat formell stoppen", "Wait for legal + compliance sign-off, then stop formally via bank mandate", "Attendre l'aval juridique + conformité, puis stopper formellement via mandat bancaire") },
       ],
     },
     {
@@ -321,9 +321,9 @@ const BEC: Incident = {
       title: L("Härtung", "Harden", "Durcissement"),
       prompt: L("Was härten?", "What do you harden?", "Que durcir ?"),
       options: [
-        { id: "policy_4eyes", correct: true,  delta: +6, label: L("4-Augen-Prinzip + Rückruf-Pflicht für Zahlungen >X€ einführen", "Four-eyes + callback rule for payments above €X", "Quatre yeux + rappel obligatoire pour paiements > X€") },
-        { id: "block_ext",    correct: false, delta: -3, label: L("Alle externen E-Mails grundsätzlich blocken", "Block all external emails by default", "Bloquer tous les mails externes par défaut") },
-        { id: "rotate_ceo",   correct: false, delta: -2, label: L("Nur das CEO-Passwort rotieren, fertig", "Just rotate the CEO password, done", "Faire juste tourner le mot de passe du CEO") },
+        { id: "policy_4eyes", correct: true,  delta: +6, label: L("4-Augen-Prinzip + Out-of-Band-Rückruf-Pflicht für Zahlungen über X € einführen", "Four-eyes + out-of-band callback rule for payments above €X", "Quatre yeux + rappel out-of-band obligatoire pour paiements > X €") },
+        { id: "block_ext",    correct: false, delta: -3, label: L("Externe Mail-Domains per Allowlist-Modus am Gateway blocken, Ausnahmen über IT-Antrag", "Block external mail domains via gateway allowlist mode, exceptions via IT request", "Bloquer les domaines externes via mode allowlist du gateway, exceptions via demande IT") },
+        { id: "rotate_ceo",   correct: false, delta: -2, label: L("CEO-Account: Passwort + MFA-Token rotieren, Conditional-Access-Policy verschärfen", "CEO account: rotate password + MFA token, tighten conditional-access policy", "Compte CEO : rotation mot de passe + token MFA, politique d'accès conditionnel renforcée") },
       ],
     },
   ],
@@ -346,9 +346,9 @@ const LATERAL: Incident = {
       title: L("Scope", "Scope", "Périmètre"),
       prompt: L("Wie ermitteln?", "How do you scope?", "Comment cadrer ?"),
       options: [
-        { id: "graph",        correct: true,  delta: +6, label: L("Authentifizierungs-Graph + 4624/4672-Events korrelieren", "Correlate auth graph + 4624/4672 events", "Corréler graphe d'authentification + events 4624/4672") },
-        { id: "endpoint_only",correct: false, delta: -3, label: L("Nur den ursprünglichen Endpoint analysieren", "Analyse only the originating endpoint", "Analyser uniquement l'endpoint d'origine") },
-        { id: "ask_user",     correct: false, delta: -3, label: L("User fragen, ob er sich überall angemeldet hat", "Ask the user if they logged in everywhere", "Demander à l'utilisateur s'il s'est connecté partout") },
+        { id: "graph",        correct: true,  delta: +6, label: L("Authentifizierungs-Graph + 4624/4672-Events korrelieren, BloodHound-Pfade prüfen", "Correlate auth graph + 4624/4672 events, review BloodHound paths", "Corréler graphe d'authentification + events 4624/4672, examiner les chemins BloodHound") },
+        { id: "endpoint_only",correct: false, delta: -3, label: L("Ursprungs-Endpoint per EDR-Deep-Dive analysieren, Sysmon-Logs + DLL-Loads aufrollen", "Deep-dive the origin endpoint via EDR, walk Sysmon logs + DLL loads", "Analyse approfondie EDR de l'endpoint d'origine, dérouler logs Sysmon + DLL loads") },
+        { id: "ask_user",     correct: false, delta: -3, label: L("User per Teams kontaktieren und Login-Aktivität via Self-Service-Portal verifizieren lassen", "Contact user via Teams, have them verify login activity through self-service portal", "Contacter l'utilisateur via Teams, vérification des connexions via portail self-service") },
       ],
     },
     {
@@ -356,9 +356,9 @@ const LATERAL: Incident = {
       title: L("Eindämmung", "Contain", "Confinement"),
       prompt: L("Wie eindämmen?", "How to contain?", "Comment confiner ?"),
       options: [
-        { id: "isolate_set", correct: true,  delta: +7, label: L("Alle betroffenen Hosts EDR-isolieren, Service-Konten sperren", "EDR-isolate all affected hosts, disable service accounts", "Isoler via EDR tous les hôtes affectés, désactiver les comptes service") },
-        { id: "isolate_one", correct: false, delta: -3, label: L("Nur den ersten Host isolieren, Rest beobachten", "Isolate only the first host, watch the rest", "Isoler seulement le premier hôte, observer le reste") },
-        { id: "block_smb",   correct: false, delta: -2, label: L("SMB im ganzen Netz blocken — Kollateralschaden in Kauf nehmen", "Block SMB across the entire network — accept collateral", "Bloquer SMB sur tout le réseau — accepter les collatéraux") },
+        { id: "isolate_set", correct: true,  delta: +7, label: L("Alle betroffenen Hosts EDR-isolieren, Service-Konten + Tier-0-Sessions sperren", "EDR-isolate all affected hosts, disable service accounts + tier-0 sessions", "Isoler via EDR tous les hôtes affectés, désactiver comptes service + sessions tier-0") },
+        { id: "isolate_one", correct: false, delta: -3, label: L("Nur den initialen Host isolieren, restliche Hosts mit verschärftem EDR-Monitoring beobachten", "Isolate only the initial host, monitor the rest under heightened EDR alerting", "Isoler uniquement l'hôte initial, observer les autres avec alertes EDR renforcées") },
+        { id: "block_smb",   correct: false, delta: -2, label: L("SMB (Port 445) per Firewall im gesamten Server-Segment blocken, Kollateralschaden in Kauf nehmen", "Block SMB (port 445) at firewall across the server segment, accept collateral damage", "Bloquer SMB (port 445) au firewall sur tout le segment serveur, accepter les collatéraux") },
       ],
     },
     {
@@ -366,9 +366,9 @@ const LATERAL: Incident = {
       title: L("Credentials", "Credentials", "Identifiants"),
       prompt: L("Was tun mit Konten?", "What about accounts?", "Que faire des comptes ?"),
       options: [
-        { id: "rotate_tier", correct: true,  delta: +7, label: L("Tier-0-Konten + Kerberos-Tickets (krbtgt 2x) rotieren", "Rotate tier-0 accounts + Kerberos tickets (krbtgt 2x)", "Faire tourner comptes tier-0 + tickets Kerberos (krbtgt x2)") },
-        { id: "rotate_all",  correct: false, delta: -3, label: L("Alle User-Passwörter im Unternehmen sofort zurücksetzen", "Reset every user password company-wide", "Réinitialiser tous les mots de passe utilisateurs") },
-        { id: "rotate_one",  correct: false, delta: -3, label: L("Nur das Passwort des kompromittierten Users ändern", "Reset only the compromised user's password", "Changer uniquement le mot de passe de l'utilisateur compromis") },
+        { id: "rotate_tier", correct: true,  delta: +7, label: L("Tier-0-Konten + Kerberos-krbtgt zwei Mal rotieren, Service-Acc-Passwörter erzwingen", "Rotate tier-0 accounts + Kerberos krbtgt twice, force service-account password reset", "Faire tourner comptes tier-0 + krbtgt 2x, forcer la rotation des comptes de service") },
+        { id: "rotate_all",  correct: false, delta: -3, label: L("Unternehmensweiten Force-Password-Reset bei nächster AD-Anmeldung erzwingen, MFA-Re-Enrollment", "Force company-wide password reset at next AD logon, MFA re-enrollment", "Forcer la réinitialisation à la prochaine connexion AD, ré-enrôlement MFA") },
+        { id: "rotate_one",  correct: false, delta: -3, label: L("Passwort des kompromittierten Users rotieren, MFA-Tokens revoken, Kerberos-TGT invalidieren", "Reset compromised user's password, revoke MFA tokens, invalidate Kerberos TGT", "Changer le mot de passe de l'utilisateur compromis, révoquer les tokens MFA, invalider le TGT") },
       ],
     },
   ],
