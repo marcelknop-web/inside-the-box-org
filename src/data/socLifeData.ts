@@ -211,9 +211,9 @@ const DDOS: Incident = {
       title: L("Verifizieren", "Verify", "Vérifier"),
       prompt: L("Was zuerst?", "What first?", "Première action ?"),
       options: [
-        { id: "verify_traffic", correct: true,  delta: +5, label: L("NetFlow + Geo-Verteilung prüfen, Layer 3/4 vs. 7 abgrenzen, Top-Talker identifizieren", "Check NetFlow + geo, classify L3/4 vs L7, identify top talkers", "Analyser NetFlow + géo, distinguer L3/4 vs L7, identifier top talkers") },
-        { id: "scale_up",       correct: false, delta: -3, label: L("Web-Tier per Auto-Scaling-Group hochskalieren und Load-Balancer-Health-Checks lockern", "Scale the web tier via auto-scaling group + relax LB health checks", "Scaler le tier web via auto-scaling + assouplir les health-checks LB") },
-        { id: "rate_limit_all", correct: false, delta: -2, label: L("Globales Rate-Limit per WAF-Regel auf alle Source-IPs setzen, Token-Bucket eng konfigurieren", "Apply WAF-based global rate-limit on all source IPs, tight token bucket", "Rate-limit global via WAF sur toutes les IPs sources, token bucket strict") },
+        { id: "verify_traffic", correct: true,  delta: +5, label: L("Verkehrsmuster und Herkunftsländer prüfen, Netzwerk- vs. Anwendungslast trennen, Top-Quellen identifizieren", "Check traffic patterns and source geos, separate network vs. application load, identify top sources", "Analyser les flux et la géo, distinguer charge réseau et applicative, identifier les principales sources") },
+        { id: "scale_up",       correct: false, delta: -3, label: L("Einfach mehr Web-Server hochfahren und die Health-Checks lockern", "Just spin up more web servers and loosen the health checks", "Faire monter plus de serveurs web et assouplir les health-checks") },
+        { id: "rate_limit_all", correct: false, delta: -2, label: L("Pauschales Rate-Limit über die WAF auf alle Quellen anwenden, eng konfiguriert", "Apply a blanket WAF rate-limit on every source, tightly configured", "Limiter strictement le débit sur toutes les sources via la WAF") },
       ],
     },
     {
@@ -221,9 +221,9 @@ const DDOS: Incident = {
       title: L("Mitigation", "Mitigate", "Mitigation"),
       prompt: L("Wie reagieren?", "How do you respond?", "Comment réagir ?"),
       options: [
-        { id: "scrubbing", correct: true,  delta: +8, label: L("Traffic über Scrubbing-Provider routen (BGP-Anycast), gezielte WAF-Regeln nachschärfen", "Route via scrubbing provider (BGP anycast), tighten targeted WAF rules", "Router via provider de scrubbing (BGP anycast), affiner les règles WAF") },
-        { id: "geoblock",  correct: false, delta: -2, label: L("Geo-Blocking per ASN-/Country-Liste auf verdächtige Regionen am Edge ausrollen", "Roll out geo-blocking via ASN/country list on suspect regions at the edge", "Géo-blocage via liste ASN/pays sur régions suspectes au edge") },
-        { id: "captcha_all",correct: false, delta: -3, label: L("Adaptiven Bot-Mitigation-Modus mit verpflichtendem CAPTCHA für alle Login-Sessions aktivieren", "Enable adaptive bot-mitigation with mandatory CAPTCHA for all login sessions", "Activer la mitigation bot adaptative avec CAPTCHA obligatoire pour toutes les sessions") },
+        { id: "scrubbing", correct: true,  delta: +8, label: L("Verkehr über einen DDoS-Schutzdienst leiten und gezielte WAF-Regeln nachschärfen", "Route traffic through a DDoS scrubbing provider and tighten targeted WAF rules", "Router le trafic via un service anti-DDoS et affiner les règles WAF ciblées") },
+        { id: "geoblock",  correct: false, delta: -2, label: L("Ganze Regionen am Edge geo-blocken, ohne die Quellen zu prüfen", "Geo-block entire regions at the edge without checking the sources", "Géo-bloquer des régions entières au edge sans analyser les sources") },
+        { id: "captcha_all",correct: false, delta: -3, label: L("Für jede Login-Sitzung verpflichtend ein CAPTCHA einblenden", "Force a mandatory CAPTCHA on every login session", "Imposer un CAPTCHA pour chaque session de login") },
       ],
     },
     {
@@ -231,9 +231,9 @@ const DDOS: Incident = {
       title: L("Kommunikation", "Comms", "Communication"),
       prompt: L("Was kommunizieren?", "What do you communicate?", "Que communiquer ?"),
       options: [
-        { id: "status_page",  correct: true,  delta: +5, label: L("Status-Page mit klassifiziertem Incident-Level aktualisieren + interne Stakeholder via War-Room-Kanal informieren", "Update status page with classified incident level + inform internal stakeholders via war-room channel", "Mettre à jour la status page avec niveau d'incident + informer les stakeholders via canal war-room") },
-        { id: "wait_resolved",correct: false, delta: -3, label: L("Erst bis Stabilisierung warten, dann strukturiertes Statement mit Root-Cause veröffentlichen", "Wait until stabilised, then publish a structured statement with root cause", "Attendre la stabilisation, puis publier un communiqué structuré avec la cause racine") },
-        { id: "internal_only",correct: false, delta: -2, label: L("Nur interne Comms via Teams + Mail-Verteiler, externe Status-Page bewusst unverändert lassen", "Internal comms via Teams + mail list only, deliberately leave external status page unchanged", "Communication interne via Teams + mailing list, status page externe volontairement inchangée") },
+        { id: "status_page",  correct: true,  delta: +5, label: L("Status-Page mit klar eingestuftem Vorfall aktualisieren und interne Stakeholder im War Room informieren", "Update the status page with a clearly classified incident and inform internal stakeholders in the war room", "Mettre à jour la status page avec un niveau d'incident clair et informer les parties prenantes internes en war room") },
+        { id: "wait_resolved",correct: false, delta: -3, label: L("Erst warten, bis alles wieder läuft, dann ein Statement mit Ursache veröffentlichen", "Wait until everything is back up, then publish a statement with the root cause", "Attendre la stabilisation, puis publier un communiqué avec la cause") },
+        { id: "internal_only",correct: false, delta: -2, label: L("Nur intern kommunizieren, die externe Status-Page bewusst nicht anfassen", "Only communicate internally, deliberately leave the public status page untouched", "Communiquer uniquement en interne, ne pas toucher à la status page publique") },
       ],
     },
   ],
