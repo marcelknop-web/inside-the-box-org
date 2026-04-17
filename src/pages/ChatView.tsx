@@ -29,6 +29,7 @@ const DoraComplianceTool = lazy(() => import('./DoraComplianceTool'));
 const Nis2ComplianceTool = lazy(() => import('./Nis2ComplianceTool'));
 const Iec62443ComplianceTool = lazy(() => import('./Iec62443ComplianceTool'));
 const ButterflyEffectLab = lazy(() => import('./ButterflyEffectLab'));
+const SocLife = lazy(() => import('./SocLife'));
 
 import { StaggerReveal } from '@/components/StaggerReveal';
 import GlitchText from '@/components/GlitchText';
