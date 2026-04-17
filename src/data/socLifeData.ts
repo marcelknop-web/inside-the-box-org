@@ -764,13 +764,278 @@ const COMPLIANCE_VISIT: Incident = {
   ],
 };
 
+// ---------------- Additional incidents — keep variety high ----------------
+
+const MFA_BOMB: Incident = {
+  id: "mfa_bombing",
+  tier: "medium",
+  category: "identity",
+  title: L("MFA-Push-Bombing", "MFA push bombing", "MFA push bombing"),
+  brief: L(
+    "Ein User meldet 30 Push-Anfragen in 5 Minuten — eine davon hat er versehentlich akzeptiert.",
+    "A user reports 30 push requests in 5 minutes — they accidentally accepted one.",
+    "Un utilisateur signale 30 demandes push en 5 min — il en a accepté une par erreur."
+  ),
+  initialDelayMs: 10_000,
+  steps: [
+    {
+      id: "validate", requiredRoom: "siem", timeLimitMs: 20_000,
+      title: L("Validieren", "Validate", "Valider"),
+      prompt: L("Wie verifizieren?", "How do you verify?", "Comment vérifier ?"),
+      options: [
+        { id: "auth_review", correct: true,  delta: +6, label: L("Sign-in-Logs + IdP-Telemetrie prüfen, Source-IP/ASN/UA des erfolgreichen Logins korrelieren", "Review sign-in logs + IdP telemetry, correlate source IP/ASN/UA of the successful sign-in", "Examiner les sign-in logs + télémétrie IdP, corréler IP/ASN/UA du login réussi") },
+        { id: "ask_user_only", correct: false, delta: -3, label: L("User per Telefon zur Beschreibung des Klicks befragen, Logs erst danach ziehen", "Phone the user to describe the tap, pull logs only afterwards", "Appeler l'utilisateur pour décrire le tap, logs ensuite") },
+        { id: "trust_idp",  correct: false, delta: -4, label: L("Da MFA bestätigt wurde, als legitime Anmeldung klassifizieren und Ticket schließen", "Since MFA was confirmed, classify as legitimate sign-in and close the ticket", "MFA confirmé : classer comme login légitime et clôturer le ticket") },
+      ],
+    },
+    {
+      id: "contain", requiredRoom: "noc", timeLimitMs: 16_000,
+      title: L("Eindämmung", "Contain", "Confinement"),
+      prompt: L("Wie eindämmen?", "How to contain?", "Comment confiner ?"),
+      options: [
+        { id: "revoke_sessions", correct: true,  delta: +7, label: L("Alle Sessions/Refresh-Tokens des Users revoken, Conditional-Access auf Re-Auth + bekannte Geräte zwingen", "Revoke all sessions/refresh tokens, force conditional access to re-auth + known devices", "Révoquer toutes sessions/refresh tokens, accès conditionnel forcé en ré-auth + appareils connus") },
+        { id: "disable_user",    correct: false, delta: -3, label: L("Account komplett deaktivieren, User wartet auf Reset im IT-Service-Desk", "Disable the account entirely, user waits for reset at the service desk", "Désactiver le compte, l'utilisateur attend un reset au service desk") },
+        { id: "wait_more",       correct: false, delta: -4, label: L("Erst die Forensik-Analyse abwarten, bevor man den User in seiner Arbeit stört", "Wait for forensic analysis before disrupting the user's work", "Attendre l'analyse forensique avant de perturber l'utilisateur") },
+      ],
+    },
+    {
+      id: "harden", requiredRoom: "ciso_office", timeLimitMs: 22_000,
+      title: L("Härtung", "Harden", "Durcissement"),
+      prompt: L("Was ändern?", "What do you change?", "Que changer ?"),
+      options: [
+        { id: "number_match",  correct: true,  delta: +6, label: L("Number-Matching + Geo/App-Kontext im IdP erzwingen, Push-Fatigue-Pattern alarmieren", "Enforce number-matching + geo/app context in IdP, alert on push-fatigue patterns", "Forcer number-matching + contexte géo/app dans l'IdP, alerter sur push-fatigue") },
+        { id: "more_training", correct: false, delta: -2, label: L("Awareness-Mail an alle User schicken: 'bitte keine fremden Pushs akzeptieren'", "Send awareness mail to all users: 'please don't accept unknown pushes'", "Envoyer un mail de sensibilisation : 'ne pas accepter de pushs inconnus'") },
+        { id: "remove_mfa",    correct: false, delta: -5, label: L("Push-MFA für den User auf SMS-OTP zurückstellen, da Push 'nicht zuverlässig' sei", "Downgrade user's push MFA to SMS OTP because push is 'unreliable'", "Rétrograder le MFA push en SMS OTP car le push est 'peu fiable'") },
+      ],
+    },
+  ],
+};
+
+const OT_ANOMALY: Incident = {
+  id: "ot_anomaly",
+  tier: "hard",
+  category: "network",
+  title: L("OT-Anomalie an SPS", "OT anomaly on PLC", "Anomalie OT sur API"),
+  brief: L(
+    "Engineering meldet ungewöhnliche Schreibzugriffe auf eine SPS in der Produktion (IEC 62443 Zone 2).",
+    "Engineering reports unusual write commands on a production PLC (IEC 62443 zone 2).",
+    "L'ingénierie signale des écritures inhabituelles sur un API en production (zone IEC 62443 2)."
+  ),
+  initialDelayMs: 10_000,
+  steps: [
+    {
+      id: "verify", requiredRoom: "siem", timeLimitMs: 22_000,
+      title: L("Verifizieren", "Verify", "Vérifier"),
+      prompt: L("Wie validieren — ohne Anlage zu stören?", "How do you validate — without disturbing the plant?", "Comment valider sans perturber l'usine ?"),
+      options: [
+        { id: "passive_capture", correct: true,  delta: +7, label: L("Passive PCAP via SPAN-Port der OT-Firewall, Modbus/S7-Funktionscodes mit Engineering abgleichen", "Passive PCAP via OT firewall SPAN port, cross-check Modbus/S7 function codes with engineering", "PCAP passive via port SPAN du firewall OT, croiser les codes fonction Modbus/S7 avec l'ingénierie") },
+        { id: "active_scan",     correct: false, delta: -5, label: L("Schnellen aktiven Nmap-Scan auf das OT-Segment fahren, um den Host zu fingerprinten", "Run a quick active Nmap scan on the OT segment to fingerprint the host", "Lancer un scan Nmap actif sur le segment OT pour fingerprinter l'hôte") },
+        { id: "ask_vendor",      correct: false, delta: -3, label: L("Erst auf Rückmeldung des SPS-Herstellers warten, bevor irgendetwas getan wird", "Wait for the PLC vendor's response before doing anything", "Attendre la réponse du fournisseur API avant d'agir") },
+      ],
+    },
+    {
+      id: "isolate", requiredRoom: "noc", timeLimitMs: 18_000,
+      title: L("Eindämmung", "Contain", "Confinement"),
+      prompt: L("Wie eindämmen?", "How to contain?", "Comment confiner ?"),
+      options: [
+        { id: "fw_acl",      correct: true,  delta: +7, label: L("OT-Firewall-Regel: nur Engineering-Workstation auf SPS, gemeinsam mit Schichtleitung freigeben", "OT firewall rule: only the engineering workstation onto the PLC, sign-off with shift lead", "Règle FW OT : seul le poste ingénierie vers l'API, validé avec le chef de quart") },
+        { id: "shutdown_plc",correct: false, delta: -5, label: L("SPS umgehend stromlos schalten, um jeden weiteren Schreibzugriff zu verhindern", "Power off the PLC immediately to prevent any further writes", "Couper l'alimentation de l'API pour empêcher toute nouvelle écriture") },
+        { id: "block_all_ot",correct: false, delta: -4, label: L("Komplettes OT-Segment vom IT-Netz trennen, inklusive Visualisierungs- und Historian-Verbindungen", "Cut the entire OT segment from IT, including HMI and historian links", "Couper tout le segment OT du réseau IT, y compris HMI et historian") },
+      ],
+    },
+    {
+      id: "coord", requiredRoom: "war_room", timeLimitMs: 22_000,
+      title: L("Koordination", "Coordination", "Coordination"),
+      prompt: L("Wer wird einbezogen?", "Who do you involve?", "Qui impliquer ?"),
+      options: [
+        { id: "ot_safety",  correct: true,  delta: +6, label: L("Schichtleitung + OT-Engineering + Safety informieren, Production-Impact gemeinsam bewerten", "Inform shift lead + OT engineering + safety, jointly assess production impact", "Informer chef de quart + ingénierie OT + safety, évaluer ensemble l'impact production") },
+        { id: "it_only",    correct: false, delta: -3, label: L("Im IT-SOC bleiben — die OT-Welt 'kümmert sich selbst' um Produktionsthemen", "Keep it inside IT-SOC — OT 'handles its own' production topics", "Rester dans le SOC IT — l'OT 'gère' ses sujets de production") },
+        { id: "press_first",correct: false, delta: -5, label: L("Frühzeitig die Pressestelle vorwarnen, bevor Engineering-Befund vorliegt", "Pre-warn the press office before engineering findings are in", "Prévenir le service presse avant les conclusions ingénierie") },
+      ],
+    },
+  ],
+};
+
+const ROGUE_WIFI: Incident = {
+  id: "rogue_wifi",
+  tier: "easy",
+  category: "network",
+  title: L("Rogue Wi-Fi im Office", "Rogue Wi-Fi in the office", "Wi-Fi pirate au bureau"),
+  brief: L(
+    "WIDS meldet einen SSID-Klon eures Corporate-WLAN auf Etage 3.",
+    "WIDS reports an SSID clone of your corporate Wi-Fi on floor 3.",
+    "Le WIDS signale un clone du SSID corporate à l'étage 3."
+  ),
+  initialDelayMs: 9_000,
+  steps: [
+    {
+      id: "locate", requiredRoom: "noc", timeLimitMs: 18_000,
+      title: L("Lokalisieren", "Locate", "Localiser"),
+      prompt: L("Wie lokalisieren?", "How do you locate?", "Comment localiser ?"),
+      options: [
+        { id: "triangulate", correct: true,  delta: +6, label: L("RSSI-Triangulation über die nächstgelegenen Corporate-APs, BSSID + Channel notieren", "RSSI-triangulate via the nearest corporate APs, note BSSID + channel", "Trianguler via RSSI sur les APs corporate proches, noter BSSID + canal") },
+        { id: "deauth_now",  correct: false, delta: -3, label: L("Sofort gezielte Deauth-Frames gegen den Rogue-AP senden, ohne Standort zu kennen", "Immediately send targeted deauth frames against the rogue AP without knowing its location", "Envoyer immédiatement des deauth ciblés sans connaître l'emplacement") },
+        { id: "ignore",      correct: false, delta: -4, label: L("Als bekannten False-Positive der WIDS-Engine schließen — die Heuristik lärmt oft", "Close as a known false positive of the WIDS engine — the heuristic often noises", "Clôturer en faux positif connu — l'heuristique fait du bruit") },
+      ],
+    },
+    {
+      id: "remove", requiredRoom: "soc_floor", timeLimitMs: 18_000,
+      title: L("Entfernen", "Remove", "Retirer"),
+      prompt: L("Was tun, wenn lokalisiert?", "What once located?", "Que faire une fois localisé ?"),
+      options: [
+        { id: "facilities", correct: true,  delta: +6, label: L("Mit Facility-Security gemeinsam abholen, Gerät als Beweismittel sichern, Etage informieren", "Pick it up with facility security, preserve as evidence, inform the floor", "Récupérer avec la sécurité des locaux, conserver comme preuve, informer l'étage") },
+        { id: "smash",      correct: false, delta: -5, label: L("Gerät vor Ort sofort 'außer Gefecht setzen' — drauftreten, fertig", "On-site, just 'put it out of action' — step on it, done", "Sur place, le 'mettre hors-service' tout de suite — l'écraser, voilà") },
+        { id: "leave_run",  correct: false, delta: -3, label: L("Stehen lassen und 24h Honeypot-Auswertung im Hintergrund laufen lassen", "Leave it running and run a 24h background honeypot analysis", "Le laisser tourner et faire 24h d'analyse honeypot en arrière-plan") },
+      ],
+    },
+    {
+      id: "users", requiredRoom: "ciso_office", timeLimitMs: 20_000,
+      title: L("Userseite", "User side", "Côté utilisateurs"),
+      prompt: L("Was kommunizieren?", "What do you communicate?", "Que communiquer ?"),
+      options: [
+        { id: "etage_brief", correct: true,  delta: +5, label: L("Kurze Etagen-Info: Geräte mit dem geklonten SSID prüfen, Zertifikat-Pin-Hinweis", "Brief floor note: check devices for the cloned SSID, mention cert-pinning", "Note d'étage : vérifier les appareils sur le SSID cloné, rappel du cert-pinning") },
+        { id: "company_wide",correct: false, delta: -3, label: L("Unternehmensweite Panik-Mail mit Foto des Geräts an alle 4 000 Mitarbeiter ausspielen", "Company-wide panic mail with photo of the device to all 4,000 staff", "Mail panique à toute l'entreprise avec photo du dispositif à 4 000 personnes") },
+        { id: "silent",      correct: false, delta: -2, label: L("Bewusst nichts kommunizieren — der Vorfall bleibt intern, fertig", "Deliberately communicate nothing — incident stays internal, done", "Volontairement ne rien communiquer — l'incident reste interne") },
+      ],
+    },
+  ],
+};
+
+const CLOUD_BUCKET: Incident = {
+  id: "open_bucket",
+  tier: "medium",
+  category: "vuln",
+  title: L("Offener S3-Bucket", "Open S3 bucket", "Bucket S3 ouvert"),
+  brief: L(
+    "Ein Sicherheitsforscher meldet öffentlich lesbaren S3-Bucket mit Kunden-Exporten.",
+    "A security researcher reports a publicly readable S3 bucket with customer exports.",
+    "Un chercheur signale un bucket S3 lisible publiquement avec des exports clients."
+  ),
+  initialDelayMs: 10_000,
+  steps: [
+    {
+      id: "verify", requiredRoom: "siem", timeLimitMs: 20_000,
+      title: L("Verifizieren", "Verify", "Vérifier"),
+      prompt: L("Was zuerst?", "What first?", "Première action ?"),
+      options: [
+        { id: "cloudtrail", correct: true,  delta: +6, label: L("CloudTrail/Access-Logs prüfen: Wer hat gelesen, ab wann, welche Objekte, IP-/UA-Pattern", "Review CloudTrail/access logs: who read what, since when, which objects, IP/UA patterns", "Examiner CloudTrail/access logs : qui a lu quoi, depuis quand, quels objets, patterns IP/UA") },
+        { id: "close_now",  correct: false, delta: -3, label: L("Bucket sofort komplett auf Private setzen, Logs später zur Aufarbeitung ziehen", "Immediately flip the bucket to private, pull logs for cleanup later", "Mettre le bucket en privé immédiatement, examiner les logs après") },
+        { id: "ask_dev",    correct: false, delta: -4, label: L("Dev-Team über Slack fragen, ob der Bucket 'eigentlich öffentlich sein sollte'", "Ask the dev team on Slack whether the bucket 'should be public anyway'", "Demander à l'équipe dev sur Slack si le bucket 'devait être public'") },
+      ],
+    },
+    {
+      id: "remediate", requiredRoom: "noc", timeLimitMs: 18_000,
+      title: L("Bereinigung", "Remediate", "Remédier"),
+      prompt: L("Wie schließen?", "How do you close it?", "Comment fermer ?"),
+      options: [
+        { id: "block_public", correct: true,  delta: +7, label: L("Block-Public-Access auf Account-Ebene aktivieren, IAM/Bucket-Policy korrigieren, SCP nachziehen", "Enable Block-Public-Access at account level, fix IAM/bucket policy, tighten SCP", "Activer Block-Public-Access au niveau compte, corriger IAM/policy bucket, durcir SCP") },
+        { id: "rename_only",  correct: false, delta: -3, label: L("Bucket umbenennen und an gleiche Stelle einen 'sauberen' anlegen, Daten umkopieren", "Rename the bucket and create a 'clean' one at the same path, copy data over", "Renommer le bucket et en créer un 'propre' au même chemin, copier les données") },
+        { id: "url_obfuscate",correct: false, delta: -4, label: L("Den Bucket-Namen 'unauffindbar' machen (Random-Suffix), Zugriff über kurzem Pre-Signed-Link", "Make the bucket name 'unguessable' (random suffix), access via short pre-signed URL", "Rendre le nom 'introuvable' (suffixe aléatoire), accès via URL pré-signée courte") },
+      ],
+    },
+    {
+      id: "notify", requiredRoom: "ciso_office", timeLimitMs: 22_000,
+      title: L("Meldung", "Notify", "Notifier"),
+      prompt: L("Wer wird informiert?", "Who is informed?", "Qui informer ?"),
+      options: [
+        { id: "dpo_legal", correct: true,  delta: +6, label: L("DPO + Legal einbinden, DSGVO-72h-Frist prüfen, betroffene Datenkategorien klassifizieren", "Loop DPO + Legal, check GDPR 72h deadline, classify affected data categories", "Impliquer DPO + juridique, vérifier le délai RGPD 72h, classifier les données") },
+        { id: "ciso_only", correct: false, delta: -3, label: L("Nur den CISO briefen, alles weitere nach finaler Forensik klären", "Brief only the CISO, everything else after final forensics", "Briefer uniquement le CISO, le reste après forensique finale") },
+        { id: "no_proof",  correct: false, delta: -4, label: L("Da 'kein Beweis für Massendownload' vorliegt, vorerst gar nicht melden", "Since 'no proof of mass download' exists, do not notify for now", "Aucune preuve de téléchargement massif : ne pas notifier pour l'instant") },
+      ],
+    },
+  ],
+};
+
+const POWER_OUTAGE: Incident = {
+  id: "power_outage",
+  tier: "comic",
+  category: "governance",
+  title: L("Stromausfall im RZ", "Power outage in the DC", "Coupure électrique au DC"),
+  brief: L(
+    "Facility ruft an: 'Kurze Wartung am USV-System geplant — sollten wir euch das vorher sagen?'",
+    "Facilities calls: 'Quick UPS maintenance planned — should we tell you in advance?'",
+    "Facilities appelle : 'Petite maintenance UPS — on aurait dû vous prévenir ?'"
+  ),
+  initialDelayMs: 9_000,
+  steps: [
+    {
+      id: "react", requiredRoom: "war_room", timeLimitMs: 20_000,
+      title: L("Reaktion", "Reaction", "Réaction"),
+      prompt: L("Was machst du?", "What do you do?", "Que fais-tu ?"),
+      options: [
+        { id: "stop_freeze", correct: true,  delta: +7, label: L("Wartung sofort stoppen lassen, Change-Freeze + DR-Plan aktivieren, Auswirkungen prüfen", "Have maintenance halted now, activate change-freeze + DR plan, assess impact", "Faire stopper la maintenance, activer gel des changements + plan DR, évaluer l'impact") },
+        { id: "let_it_run",  correct: false, delta: -5, label: L("'Macht mal' — Logs danach kontrollieren, Risiko ist überschaubar", "'Just do it' — review logs afterwards, risk is manageable", "'Allez-y' — vérifier les logs après, risque maîtrisable") },
+        { id: "blame_loud",  correct: false, delta: -3, label: L("Lautstark in Teams beschweren, dass Facility 'wieder mal' nicht informiert", "Loudly vent in Teams that facilities 'as usual' didn't inform anyone", "Râler dans Teams contre facilities qui 'comme d'hab' n'a rien dit") },
+      ],
+    },
+    {
+      id: "comms", requiredRoom: "ciso_office", timeLimitMs: 18_000,
+      title: L("Kommunikation", "Comms", "Communication"),
+      prompt: L("Wer wird informiert?", "Who do you inform?", "Qui informer ?"),
+      options: [
+        { id: "noc_business", correct: true,  delta: +6, label: L("NOC + Business-Kontinuität + Service-Owner kurz und faktenbasiert informieren, Status-Page bereitstellen", "Brief NOC + business continuity + service owners briefly and factually, prepare status page", "Briefer NOC + continuité métier + owners de service brièvement, préparer la status page") },
+        { id: "everyone",     correct: false, delta: -4, label: L("Mail an die gesamte Firma 'wir hatten beinahe einen Totalausfall'", "All-hands email 'we nearly had a total outage'", "Mail à toute l'entreprise 'on a failli avoir une panne totale'") },
+        { id: "silent",       correct: false, delta: -3, label: L("Nichts sagen — wenn nichts passiert ist, hat es nie stattgefunden", "Say nothing — if nothing happened, it never happened", "Ne rien dire — s'il ne s'est rien passé, ça n'a jamais existé") },
+      ],
+    },
+  ],
+};
+
+const DEEPFAKE_VOICE: Incident = {
+  id: "deepfake_voice",
+  tier: "comic",
+  category: "email",
+  title: L("Deepfake-Voicemail vom CFO", "Deepfake voicemail from the CFO", "Messagerie deepfake du CFO"),
+  brief: L(
+    "Der Treasurer bekommt eine Sprachnachricht: 'Hier CFO, bitte 480 k€ auf neue IBAN überweisen — dringend.'",
+    "The treasurer gets a voice note: 'CFO here, please wire €480k to a new IBAN — urgent.'",
+    "Le trésorier reçoit un vocal : 'Le CFO, virez 480 k€ sur ce nouvel IBAN — urgent.'"
+  ),
+  initialDelayMs: 10_000,
+  steps: [
+    {
+      id: "verify", requiredRoom: "war_room", timeLimitMs: 22_000,
+      title: L("Verifizieren", "Verify", "Vérifier"),
+      prompt: L("Wie verifizieren?", "How do you verify?", "Comment vérifier ?"),
+      options: [
+        { id: "callback_known", correct: true,  delta: +7, label: L("Out-of-Band-Callback an die im Identitätsverzeichnis hinterlegte Nummer des CFO, 4-Augen-Bestätigung", "Out-of-band callback on the CFO's number from the identity directory, four-eyes confirmation", "Rappel out-of-band sur le numéro CFO de l'annuaire, confirmation à quatre yeux") },
+        { id: "reply_voice",    correct: false, delta: -5, label: L("Per Sprachnachricht zurückantworten und die IBAN noch einmal vorlesen lassen", "Reply by voice note and have the IBAN read out again", "Répondre en vocal et faire relire l'IBAN") },
+        { id: "trust_voice",    correct: false, delta: -5, label: L("Stimme klingt sehr echt — also Anweisung umsetzen, Compliance hinterher informieren", "Voice sounds very real — execute the instruction, inform compliance afterwards", "La voix paraît vraie — exécuter et informer la conformité après") },
+      ],
+    },
+    {
+      id: "stop", requiredRoom: "noc", timeLimitMs: 16_000,
+      title: L("Zahlung sichern", "Secure payment", "Sécuriser le paiement"),
+      prompt: L("Falls schon initiiert?", "If already initiated?", "Si déjà lancé ?"),
+      options: [
+        { id: "bank_freeze", correct: true,  delta: +6, label: L("Sofort den Fraud-Desk der Bank kontaktieren, Treasury parallel den Auftrag stornieren lassen", "Call the bank fraud desk immediately, treasury cancels the order in parallel", "Contacter le fraud desk de la banque, le treasury annule en parallèle") },
+        { id: "wait_swift",  correct: false, delta: -4, label: L("Auf SWIFT-Tracking warten und schauen, ob das Geld 'wiederkommt'", "Wait for SWIFT tracking to see if the money 'comes back'", "Attendre le tracking SWIFT pour voir si l'argent 'revient'") },
+        { id: "send_again",  correct: false, delta: -5, label: L("Zur Sicherheit eine zweite Korrektur-Überweisung auf die 'echte' IBAN nachschicken", "For safety, send a second corrective wire to the 'real' IBAN", "Par sécurité, envoyer un second virement correctif vers le 'vrai' IBAN") },
+      ],
+    },
+    {
+      id: "policy", requiredRoom: "ciso_office", timeLimitMs: 22_000,
+      title: L("Lehre & Policy", "Lesson & policy", "Leçon & politique"),
+      prompt: L("Was härtest du?", "What do you harden?", "Que renforcer ?"),
+      options: [
+        { id: "voice_policy", correct: true,  delta: +6, label: L("Sprach-/Video-Anweisungen für Zahlungen verbieten, Out-of-Band-Callback-Pflicht in Zahlungspolicy verankern", "Ban voice/video-only payment instructions, codify out-of-band callback in the payment policy", "Interdire les instructions de paiement vocales/vidéo, inscrire le rappel out-of-band dans la policy") },
+        { id: "ai_detector",  correct: false, delta: -3, label: L("Einen 'Deepfake-Detektor' einkaufen und damit alle Sprachnachrichten automatisch prüfen lassen", "Buy a 'deepfake detector' and auto-screen all voice notes through it", "Acheter un 'détecteur de deepfake' et filtrer tous les vocaux automatiquement") },
+        { id: "no_change",    correct: false, delta: -4, label: L("Keine Policy-Änderung — der Fall war ja zum Glück verhindert worden", "No policy change — luckily the case was avoided", "Pas de changement de policy — le cas a été évité, c'est bon") },
+      ],
+    },
+  ],
+};
+
 export const INCIDENTS: Incident[] = [
   PHISHING, RANSOMWARE, DDOS, INSIDER, BEC,
   LATERAL, C2, CRED_DUMP, SUPPLY, EXFIL, PATCH,
+  MFA_BOMB, OT_ANOMALY, ROGUE_WIFI, CLOUD_BUCKET,
   AUDITOR, FIRE_DRILL, DPO_VISIT, COMPLIANCE_VISIT,
+  POWER_OUTAGE, DEEPFAKE_VOICE,
 ];
 
 /** Comic-relief incidents trigger the cheesy "audit" music mode. */
 export const COMIC_INCIDENT_IDS = new Set<string>([
   "auditor_visit", "fire_drill", "dpo_visit", "compliance_visit",
+  "power_outage", "deepfake_voice",
 ]);
