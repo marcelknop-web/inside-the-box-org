@@ -156,20 +156,44 @@ export default function SocLife({ embedded = false }: SocLifeProps = {}) {
   // Track viewport so the DollHouse maxHeight recomputes on resize / fullscreen
   // toggle / orientation change. Without this the floor plan stays small after
   // entering fullscreen on desktop because maxHeight was captured once at mount.
+  //
+  // In embedded mode (inside ChatView) we cannot use window.innerHeight as the
+  // available height, because the parent reserves space for the chat header,
+  // sidebar trigger, padding, etc. Instead we measure the rootRef element's
+  // own bounding box. ResizeObserver picks up parent layout changes too.
   const [viewport, setViewport] = useState(() =>
     typeof window !== "undefined"
       ? { w: window.innerWidth, h: window.innerHeight }
       : { w: 1280, h: 720 },
   );
   useEffect(() => {
-    const onResize = () => setViewport({ w: window.innerWidth, h: window.innerHeight });
-    window.addEventListener("resize", onResize);
-    document.addEventListener("fullscreenchange", onResize);
-    return () => {
-      window.removeEventListener("resize", onResize);
-      document.removeEventListener("fullscreenchange", onResize);
+    const measure = () => {
+      const w = window.innerWidth;
+      const fs = !!document.fullscreenElement;
+      const rect = rootRef.current?.getBoundingClientRect();
+      // When embedded and not in native fullscreen, use the container's own
+      // height — that's the real space we can paint into. Otherwise use the
+      // window so the maxHeight scales with true viewport (and fullscreen).
+      const h =
+        embedded && !fs && rect && rect.height > 0
+          ? rect.height
+          : window.innerHeight;
+      setViewport({ w, h });
     };
-  }, []);
+    measure();
+    window.addEventListener("resize", measure);
+    document.addEventListener("fullscreenchange", measure);
+    let ro: ResizeObserver | null = null;
+    if (embedded && rootRef.current && typeof ResizeObserver !== "undefined") {
+      ro = new ResizeObserver(() => measure());
+      ro.observe(rootRef.current);
+    }
+    return () => {
+      window.removeEventListener("resize", measure);
+      document.removeEventListener("fullscreenchange", measure);
+      ro?.disconnect();
+    };
+  }, [embedded]);
 
   // Onboarding: shown after "Start shift" on first ever visit, otherwise on demand
   // via the "?" button on the welcome screen. Never shown before the user opts in.
