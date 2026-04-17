@@ -580,7 +580,7 @@ export default function SocLife() {
         )}
 
         {started && (
-          <div className="flex-1 grid grid-cols-1 gap-2 sm:gap-3 lg:grid-cols-[1fr_320px] min-h-0 overflow-hidden relative">
+          <div className="flex-1 grid grid-cols-1 gap-2 sm:gap-3 lg:grid-cols-[1fr_320px] xl:grid-cols-[1fr_360px] 2xl:grid-cols-[1fr_400px] min-h-0 overflow-hidden relative">
             {/* Left: meters + house. */}
             <div className="flex flex-col gap-2 sm:gap-3 min-h-0">
               <SocMeters
@@ -596,12 +596,11 @@ export default function SocLife() {
                   onMove={handleMove}
                   isNight={isNight}
                   maxHeight={
-                    typeof window !== "undefined"
-                      ? window.innerWidth < 1024
-                        // Mobile/tablet: give the floor plan ~55% of viewport so it's actually visible.
-                        ? Math.max(240, Math.min(window.innerHeight * 0.55, window.innerHeight - 260))
-                        : window.innerHeight - 260
-                      : 320
+                    viewport.w < 1024
+                      // Mobile/tablet: give the floor plan ~55% of viewport so it's actually visible.
+                      ? Math.max(240, Math.min(viewport.h * 0.55, viewport.h - 260))
+                      // Desktop: subtract header + meters + padding. Bigger viewport → bigger house.
+                      : Math.max(360, viewport.h - 200)
                   }
                 />
               </div>
