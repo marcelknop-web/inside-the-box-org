@@ -166,9 +166,9 @@ const RANSOMWARE: Incident = {
       title: L("Verifizieren", "Verify", "Vérifier"),
       prompt: L("Erste Reaktion?", "First reaction?", "Première réaction ?"),
       options: [
-        { id: "confirm_edr",  correct: true,  delta: +6, label: L("EDR-Telemetrie + Datei-Hashes verifizieren, Prozess-Tree und Parent-PID prüfen", "Verify EDR telemetry + file hashes, check process tree and parent PID", "Vérifier télémétrie EDR + hashes, examiner l'arbre de processus et le parent") },
-        { id: "shutdown_srv", correct: false, delta: -3, label: L("File-Server kontrolliert per ACPI-Shutdown herunterfahren, Volume-Snapshot ziehen", "Gracefully ACPI-shutdown the file server, then take a volume snapshot", "Éteindre proprement via ACPI, puis snapshot volume") },
-        { id: "kill_share",   correct: false, delta: -2, label: L("SMB-Share via PowerShell offline nehmen und ACLs auf Read-Only setzen", "Take SMB share offline via PowerShell, set ACLs to read-only", "Couper le partage SMB via PowerShell, ACLs en lecture seule") },
+        { id: "confirm_edr",  correct: true,  delta: +6, label: L("EDR-Telemetrie und Datei-Hashes prüfen, Prozess-Stammbaum nachvollziehen", "Verify EDR telemetry and file hashes, walk the process tree", "Vérifier la télémétrie EDR et les hashes, suivre l'arbre de processus") },
+        { id: "shutdown_srv", correct: false, delta: -3, label: L("Den Datei-Server sauber herunterfahren, dann ein Image ziehen", "Cleanly shut down the file server, then take an image", "Éteindre proprement le serveur de fichiers, puis prendre une image") },
+        { id: "kill_share",   correct: false, delta: -2, label: L("Die Datei-Freigabe offline nehmen und auf Nur-Lesen stellen", "Take the file share offline and switch it to read-only", "Couper le partage et passer en lecture seule") },
       ],
     },
     {
@@ -176,9 +176,9 @@ const RANSOMWARE: Incident = {
       title: L("Isolation", "Isolate", "Isoler"),
       prompt: L("Wie isolieren?", "How to isolate?", "Comment isoler ?"),
       options: [
-        { id: "segment_vlan",  correct: true,  delta: +8, label: L("Host-VLAN segmentieren, EDR-Quarantäne, Lateral-Movement-Pfade kappen", "Segment host VLAN, EDR-isolate, sever lateral-movement paths", "Segmenter le VLAN, isoler via EDR, couper les chemins de mouvement latéral") },
-        { id: "block_ad",      correct: false, delta: -3, label: L("Computer-Konto im AD deaktivieren + GPO-Push für Defender-Vollscan auf dem Host", "Disable AD computer account + GPO-push Defender full-scan on host", "Désactiver le compte machine AD + GPO push scan complet Defender") },
-        { id: "block_internet",correct: false, delta: -2, label: L("Internet-Uplink des Hosts auf Firewall droppen + Proxy-Bypass-Regel entfernen", "Drop the host's internet uplink at FW + remove proxy-bypass rule", "Couper l'uplink internet au firewall + retirer la règle proxy-bypass") },
+        { id: "segment_vlan",  correct: true,  delta: +8, label: L("Host vom Netz isolieren, EDR-Quarantäne aktivieren, Wege zu anderen Systemen kappen", "Isolate the host from the network, EDR-quarantine, sever paths to other systems", "Isoler l'hôte du réseau, mettre en quarantaine EDR, couper les chemins vers d'autres systèmes") },
+        { id: "block_ad",      correct: false, delta: -3, label: L("Computerkonto im Verzeichnis deaktivieren und einen Vollscan auf dem Host anstoßen", "Disable the computer account in the directory and trigger a full scan on the host", "Désactiver le compte machine dans l'annuaire et lancer un scan complet sur l'hôte") },
+        { id: "block_internet",correct: false, delta: -2, label: L("Nur den Internet-Zugang des Hosts an der Firewall sperren, Rest unverändert", "Only block the host's internet access at the firewall, leave the rest", "Bloquer uniquement l'accès internet de l'hôte au firewall, le reste inchangé") },
       ],
     },
     {
@@ -186,9 +186,9 @@ const RANSOMWARE: Incident = {
       title: L("Wiederherstellung", "Recovery", "Restauration"),
       prompt: L("Recovery?", "Recovery?", "Recovery ?"),
       options: [
-        { id: "restore_backup", correct: true,  delta: +8, label: L("Backups aus Offline-/Immutable-Vault auf Integrität prüfen, dann sauber restoren", "Verify offline/immutable-vault backups for integrity, then restore cleanly", "Vérifier l'intégrité des sauvegardes hors-ligne/immuables, puis restaurer") },
-        { id: "restore_latest", correct: false, delta: -4, label: L("Letztes Online-Backup aus dem Backup-Repository per One-Click-Restore einspielen", "Restore the latest online backup from the repo via one-click-restore", "Restaurer la dernière sauvegarde en ligne via restauration en un clic") },
-        { id: "shadow_copies",  correct: false, delta: -3, label: L("Volume Shadow Copies per vssadmin revertieren und Datei-Versionen vergleichen", "Revert via vssadmin volume-shadow-copies and diff file versions", "Restaurer via vssadmin shadow-copies et comparer les versions") },
+        { id: "restore_backup", correct: true,  delta: +8, label: L("Offline- bzw. unveränderliche Backups auf Integrität prüfen, dann sauber zurückspielen", "Verify offline / immutable backups for integrity, then restore cleanly", "Vérifier l'intégrité des sauvegardes hors-ligne ou immuables, puis restaurer proprement") },
+        { id: "restore_latest", correct: false, delta: -4, label: L("Einfach das jüngste Online-Backup einspielen, ohne Integritätscheck", "Just restore the most recent online backup, no integrity check", "Restaurer simplement la sauvegarde en ligne la plus récente, sans vérification") },
+        { id: "shadow_copies",  correct: false, delta: -3, label: L("Auf Schattenkopien zurückrollen und Datei-Versionen vergleichen", "Roll back via shadow copies and diff file versions", "Restaurer via les copies fantômes et comparer les versions") },
       ],
     },
   ],
