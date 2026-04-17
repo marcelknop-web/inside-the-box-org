@@ -1,7 +1,38 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+
+/** Letter-by-letter typewriter, gated on `start`. Mirrors the pattern used
+ *  in IncidentPanel so reveal cadence feels consistent across the game. */
+function useTypewriter(text: string, msPerChar = 18, start = true) {
+  const [shown, setShown] = useState("");
+  useEffect(() => {
+    setShown("");
+    if (!text || !start) return;
+    let i = 0;
+    const id = window.setInterval(() => {
+      i += 1;
+      setShown(text.slice(0, i));
+      if (i >= text.length) window.clearInterval(id);
+    }, msPerChar);
+    return () => window.clearInterval(id);
+  }, [text, msPerChar, start]);
+  return shown;
+}
+
+/** Fires `true` after `delayMs`; resets when `deps` change. */
+function useDelayedFlag(delayMs: number, deps: unknown[] = []): boolean {
+  const [ready, setReady] = useState(delayMs <= 0);
+  useEffect(() => {
+    setReady(delayMs <= 0);
+    if (delayMs <= 0) return;
+    const id = window.setTimeout(() => setReady(true), delayMs);
+    return () => window.clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, deps);
+  return ready;
+}
 
 export interface ConsequenceData {
   /** The exact option the user picked, in their language */
@@ -77,6 +108,43 @@ export function ConsequenceOverlay({ data, onContinue }: Props) {
   // Stress is inverted: less stress = good
   const stressColor = data.stressDelta < 0 ? "text-emerald-300" : data.stressDelta > 0 ? "text-rose-300" : "text-muted-foreground";
 
+  // === Sequenced reveal cascade ===
+  // Lets the user actually *follow* what's happening: verdict → quoted call →
+  // rationale → (best answer if wrong) → numbers + continue. Each section is
+  // gated on the previous one being fully typed, mirroring IncidentPanel.
+  // Reset key includes `reason` so each new consequence re-animates from zero.
+  const stepKey = data.reason;
+
+  // T+0   verdict label visible immediately, title types after a tiny pause
+  const titleStarts = useDelayedFlag(150, [stepKey]);
+  const typedTitle  = useTypewriter(verdictText, 32, titleStarts);
+  const titleDone   = titleStarts && typedTitle.length >= verdictText.length;
+
+  // Quoted choice — types after the verdict title is done
+  const callStarts  = useDelayedFlag(250, [titleDone]) && titleDone;
+  const typedCall   = useTypewriter(data.optionLabel, 14, callStarts);
+  const callDone    = callStarts && typedCall.length >= data.optionLabel.length;
+
+  // Rationale — the meat of the learning loop
+  const reasonStarts = useDelayedFlag(300, [callDone]) && callDone;
+  const typedReason  = useTypewriter(data.reason, 16, reasonStarts);
+  const reasonDone   = reasonStarts && typedReason.length >= data.reason.length;
+
+  // Optional best-answer (only shown on wrong picks)
+  const showBest = !data.correct && !!data.bestAnswerLabel;
+  const bestStarts = useDelayedFlag(300, [reasonDone, showBest]) && reasonDone && showBest;
+  const typedBest  = useTypewriter(data.bestAnswerLabel ?? "", 14, bestStarts);
+  const bestDone   = !showBest || (bestStarts && typedBest.length >= (data.bestAnswerLabel?.length ?? 0));
+
+  // Numbers + continue — only after all text has finished
+  const tailReady = useDelayedFlag(250, [reasonDone, bestDone]) && reasonDone && bestDone;
+
+  // Caret used inline while a section is still typing — visual hint that more
+  // is coming, so the user doesn't try to dismiss too early.
+  const caret = (color: string) => (
+    <span className={cn("ml-0.5 inline-block w-1.5 h-3 align-middle animate-pulse", color)} />
+  );
+
   return (
     // Outer wrapper handles overflow so the panel can scroll on tiny viewports
     // instead of pushing layout around when reason text length varies.
@@ -87,76 +155,88 @@ export function ConsequenceOverlay({ data, onContinue }: Props) {
           <span className="text-base leading-none">{symbol}</span>
           <span>{t("socLife.consequence.verdict")}</span>
         </div>
-        <h3 className={cn("mb-3 font-mono text-lg sm:text-xl leading-tight", verdictColor)}>
-          {verdictText}
+        <h3 className={cn("mb-3 font-mono text-lg sm:text-xl leading-tight min-h-[1.5em]", verdictColor)}>
+          {typedTitle}
+          {titleStarts && !titleDone && caret("bg-current")}
         </h3>
 
         {/* The actual choice the user made — quoted, so they remember */}
-        <div className="mb-3 rounded-md border border-border/40 bg-background/60 p-3">
-          <div className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground mb-1">
-            {t("socLife.consequence.yourCall")}
-          </div>
-          <div className="text-sm text-foreground leading-snug">
-            „{data.optionLabel}“
-          </div>
-        </div>
-
-        {/* Short professional rationale — turns the game into a learning loop */}
-        <div className={cn("mb-3 rounded-md border-l-2 bg-background/60 px-3 py-2",
-          tier === "excellent" ? "border-l-emerald-500/70"
-          : tier === "solid"   ? "border-l-cyan-400/70"
-          : tier === "risky"   ? "border-l-amber-400/70"
-          :                      "border-l-rose-500/70",
-        )}>
-          <div className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground mb-1">
-            {t("socLife.consequence.rationale")}
-          </div>
-          <div className="text-sm text-foreground/90 leading-relaxed">
-            {data.reason}
-          </div>
-        </div>
-
-        {/* If the user got it wrong, surface what *would* have been right —
-            this turns every mistake into a teaching moment instead of a mystery. */}
-        {!data.correct && data.bestAnswerLabel && (
-          <div className="mb-3 rounded-md border border-emerald-500/40 bg-emerald-500/5 px-3 py-2">
-            <div className="font-mono text-[10px] uppercase tracking-wider text-emerald-300/90 mb-1">
-              ✓ {t("socLife.consequence.bestAnswer")}
+        {callStarts && (
+          <div className="mb-3 rounded-md border border-border/40 bg-background/60 p-3 animate-fade-in">
+            <div className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground mb-1">
+              {t("socLife.consequence.yourCall")}
             </div>
-            <div className="text-sm text-foreground leading-snug">
-              „{data.bestAnswerLabel}“
+            <div className="text-sm text-foreground leading-snug min-h-[1.4em]">
+              „{typedCall}“
+              {!callDone && caret("bg-foreground/60")}
             </div>
           </div>
         )}
 
-        {/* Quantified impact */}
-        <div className="mb-4 grid grid-cols-2 gap-2 font-mono text-xs">
-          <div className="rounded-md border border-border/40 bg-background/60 p-2.5">
-            <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
-              {t("socLife.consequence.reputation")}
+        {/* Short professional rationale — turns the game into a learning loop */}
+        {reasonStarts && (
+          <div className={cn("mb-3 rounded-md border-l-2 bg-background/60 px-3 py-2 animate-fade-in",
+            tier === "excellent" ? "border-l-emerald-500/70"
+            : tier === "solid"   ? "border-l-cyan-400/70"
+            : tier === "risky"   ? "border-l-amber-400/70"
+            :                      "border-l-rose-500/70",
+          )}>
+            <div className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground mb-1">
+              {t("socLife.consequence.rationale")}
             </div>
-            <div className={cn("mt-0.5 text-base tabular-nums", repColor)}>
-              {fmt(data.repDelta)}
-            </div>
-          </div>
-          <div className="rounded-md border border-border/40 bg-background/60 p-2.5">
-            <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
-              {t("socLife.consequence.stress")}
-            </div>
-            <div className={cn("mt-0.5 text-base tabular-nums", stressColor)}>
-              {fmt(data.stressDelta)}
+            <div className="text-sm text-foreground/90 leading-relaxed min-h-[1.4em]">
+              {typedReason}
+              {!reasonDone && caret("bg-foreground/60")}
             </div>
           </div>
-        </div>
+        )}
 
-        <Button
-          onClick={onContinue}
-          className="w-full font-mono"
-          size="lg"
-          autoFocus
-        >
-          {t("socLife.consequence.continue")} →
-        </Button>
+        {/* If the user got it wrong, surface what *would* have been right —
+            this turns every mistake into a teaching moment instead of a mystery. */}
+        {showBest && bestStarts && (
+          <div className="mb-3 rounded-md border border-emerald-500/40 bg-emerald-500/5 px-3 py-2 animate-fade-in">
+            <div className="font-mono text-[10px] uppercase tracking-wider text-emerald-300/90 mb-1">
+              ✓ {t("socLife.consequence.bestAnswer")}
+            </div>
+            <div className="text-sm text-foreground leading-snug min-h-[1.4em]">
+              „{typedBest}“
+              {bestStarts && typedBest.length < (data.bestAnswerLabel?.length ?? 0) && caret("bg-emerald-300/70")}
+            </div>
+          </div>
+        )}
+
+        {/* Quantified impact + continue — only after the text has fully arrived */}
+        {tailReady && (
+          <div className="animate-fade-in">
+            <div className="mb-4 grid grid-cols-2 gap-2 font-mono text-xs">
+              <div className="rounded-md border border-border/40 bg-background/60 p-2.5">
+                <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                  {t("socLife.consequence.reputation")}
+                </div>
+                <div className={cn("mt-0.5 text-base tabular-nums", repColor)}>
+                  {fmt(data.repDelta)}
+                </div>
+              </div>
+              <div className="rounded-md border border-border/40 bg-background/60 p-2.5">
+                <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                  {t("socLife.consequence.stress")}
+                </div>
+                <div className={cn("mt-0.5 text-base tabular-nums", stressColor)}>
+                  {fmt(data.stressDelta)}
+                </div>
+              </div>
+            </div>
+
+            <Button
+              onClick={onContinue}
+              className="w-full font-mono"
+              size="lg"
+              autoFocus
+            >
+              {t("socLife.consequence.continue")} →
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );
