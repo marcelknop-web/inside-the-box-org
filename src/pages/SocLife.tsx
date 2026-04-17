@@ -206,6 +206,19 @@ export default function SocLife({ embedded = false }: SocLifeProps = {}) {
   const [activeIncident, setActiveIncident] = useState<Incident | null>(null);
   const [stepIdx, setStepIdx] = useState(0);
   const [stepTimeLeft, setStepTimeLeft] = useState(0);
+  // Inline floating pop-up for idle actions (coffee, smalltalk, etc.).
+  // The Sonner toast at the bottom of the screen is easy to miss on mobile
+  // because the chat input bar (in ChatView) and the absolute consequence
+  // overlay can sit on top of it. This in-component pill is portaled into
+  // the SocLife root so the user always sees the immediate feedback right
+  // next to the action they just clicked. Auto-dismisses after ~1.4s.
+  const [idlePop, setIdlePop] = useState<{
+    id: number;
+    icon: string;
+    label: string;
+    deltas: { stress?: number; coffee?: number; reputation?: number };
+  } | null>(null);
+  const idlePopTimerRef = useRef<number | null>(null);
   // When set, a prominent consequence overlay is shown and the step timer pauses
   // until the user clicks "Continue". This forces the player to actually read
   // the outcome before the next step kicks in.
@@ -417,29 +430,47 @@ export default function SocLife({ embedded = false }: SocLifeProps = {}) {
 
   const handleIdle = useCallback((action: IdleAction) => {
     audio.playSfx("click_ui", 0.3);
+    const deltas: { stress?: number; coffee?: number; reputation?: number } = {};
+    let icon = "✨";
     switch (action) {
       case "coffee":
         setCoffee((c) => Math.min(100, c + 20));
         setStress((s) => Math.max(0, s - 10));
+        deltas.coffee = 20; deltas.stress = -10; icon = "☕";
         break;
       case "threat_intel":
         setReputation((r) => Math.min(100, r + 2));
+        deltas.reputation = 2; icon = "📡";
         break;
       case "playbook":
         setReputation((r) => Math.min(100, r + 3));
         setStress((s) => Math.min(100, s + 5));
+        deltas.reputation = 3; deltas.stress = 5; icon = "📘";
         break;
       case "smalltalk":
         setStress((s) => Math.max(0, s - 8));
+        deltas.stress = -8; icon = "💬";
         break;
       case "stretch":
         setStress((s) => Math.max(0, s - 5));
+        deltas.stress = -5; icon = "🧘";
         break;
     }
+    // Sonner toast — visible on desktop where the bottom-right corner is free.
     toast(t(`socLife.idle.${action}.name`), {
       description: t(`socLife.idle.${action}.result`),
       duration: 1400,
     });
+    // In-component pop-up — guaranteed visible on mobile, sits on top of the
+    // SocLife container regardless of chat input bar or sidebar overlays.
+    if (idlePopTimerRef.current) window.clearTimeout(idlePopTimerRef.current);
+    setIdlePop({
+      id: Date.now(),
+      icon,
+      label: t(`socLife.idle.${action}.name`),
+      deltas,
+    });
+    idlePopTimerRef.current = window.setTimeout(() => setIdlePop(null), 1600);
   }, [audio, t]);
 
   const startShift = async () => {
@@ -675,6 +706,42 @@ export default function SocLife({ embedded = false }: SocLifeProps = {}) {
                 <RoomActions currentRoom={currentRoom} onIdleAction={handleIdle} />
               )}
             </aside>
+
+            {/* Idle action pop-up — short floating pill that confirms the
+                effect of coffee/smalltalk/stretch etc. with delta hints.
+                Sits centered near the top of the play area so it's visible
+                on every viewport size, even when the bottom Sonner toast
+                is hidden behind the chat input bar on mobile. */}
+            {idlePop && (
+              <div
+                key={idlePop.id}
+                className="pointer-events-none absolute top-2 left-1/2 -translate-x-1/2 z-40 animate-fade-in"
+              >
+                <div className="flex items-center gap-2 rounded-full border border-primary/40 bg-background/95 px-3 py-1.5 shadow-[0_4px_20px_-4px_hsl(var(--primary)/0.4)] backdrop-blur-sm">
+                  <span className="text-base leading-none">{idlePop.icon}</span>
+                  <span className="font-mono text-xs uppercase tracking-wider text-foreground">
+                    {idlePop.label}
+                  </span>
+                  <span className="flex items-center gap-1.5 font-mono text-[11px] tabular-nums">
+                    {idlePop.deltas.coffee != null && (
+                      <span className={idlePop.deltas.coffee > 0 ? "text-cyan-300" : "text-rose-300"}>
+                        {idlePop.deltas.coffee > 0 ? "+" : ""}{idlePop.deltas.coffee}☕
+                      </span>
+                    )}
+                    {idlePop.deltas.stress != null && (
+                      <span className={idlePop.deltas.stress < 0 ? "text-emerald-300" : "text-amber-300"}>
+                        {idlePop.deltas.stress > 0 ? "+" : ""}{idlePop.deltas.stress}😰
+                      </span>
+                    )}
+                    {idlePop.deltas.reputation != null && (
+                      <span className={idlePop.deltas.reputation > 0 ? "text-emerald-300" : "text-rose-300"}>
+                        {idlePop.deltas.reputation > 0 ? "+" : ""}{idlePop.deltas.reputation}★
+                      </span>
+                    )}
+                  </span>
+                </div>
+              </div>
+            )}
 
             {/* Consequence overlay: blocks input, surfaces the outcome of the
                 last choice in differentiated language. User must dismiss to
