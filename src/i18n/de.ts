@@ -340,7 +340,7 @@ export const de = {
     agentSocLifeTitle: 'SOC Life',
     agentSocLifeDesc: 'Corporate SOC-Simulation in Frankfurt – Räume, Kollegen, Incidents',
     butterflyTitle: 'Butterfly Effect Lab',
-    butterflyDesc: 'Interaktiv erleben, wie kleinste Parameteränderungen nichtlineare Systeme wie das Klima kippen lassen',
+    butterflyDesc: 'Interaktiv erleben, wie kleinste Parameteränderungen nichtlineare Systeme kippen lassen',
     eliteTitle: 'Keine Lust auf Security?',
     eliteDesc: 'Abschalten, fliegen, loslassen – eine meditative 3D-Szene zum Entspannen',
     agentYtTitle: 'Video-Einspieler',
