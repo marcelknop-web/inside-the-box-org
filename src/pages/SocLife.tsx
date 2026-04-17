@@ -113,7 +113,13 @@ function pickNextIncident(
   return pool[Math.floor(Math.random() * pool.length)];
 }
 
-export default function SocLife() {
+interface SocLifeProps {
+  /** When embedded inside ChatView the page chrome (full-viewport wrapper,
+   *  Helmet meta) is suppressed and the simulator fills its parent container. */
+  embedded?: boolean;
+}
+
+export default function SocLife({ embedded = false }: SocLifeProps = {}) {
   const { t, language } = useLanguage();
   const audio = useSocLifeAudio();
 
@@ -494,11 +500,20 @@ export default function SocLife() {
   };
 
   return (
-    <div ref={rootRef} className="h-[100dvh] overflow-hidden bg-background text-foreground flex flex-col">
-      <Helmet>
-        <title>{t("socLife.metaTitle")}</title>
-        <meta name="description" content={t("socLife.metaDesc")} />
-      </Helmet>
+    <div
+      ref={rootRef}
+      className={
+        embedded
+          ? "min-h-[70vh] overflow-hidden bg-background text-foreground flex flex-col rounded-lg border border-border/40"
+          : "h-[100dvh] overflow-hidden bg-background text-foreground flex flex-col"
+      }
+    >
+      {!embedded && (
+        <Helmet>
+          <title>{t("socLife.metaTitle")}</title>
+          <meta name="description" content={t("socLife.metaDesc")} />
+        </Helmet>
+      )}
 
       <div className="mx-auto w-full max-w-6xl xl:max-w-7xl 2xl:max-w-[1600px] px-2 sm:px-4 py-1.5 sm:py-3 flex-1 flex flex-col min-h-0">
         {/* Compact header — even tighter on mobile so the floor plan gets the space */}

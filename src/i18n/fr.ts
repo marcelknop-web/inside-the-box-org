@@ -337,6 +337,8 @@ export const fr = {
     agentTriggerTriageDesc: 'Classer les incidents par priorité à toute vitesse',
     agentFroggerTitle: 'Cyber Frogger',
     agentFroggerDesc: 'Format arcade et sensibilisation cybersécurité',
+    agentSocLifeTitle: 'SOC Life',
+    agentSocLifeDesc: 'Simulateur SOC corporate à Francfort — salles, collègues, incidents',
     butterflyTitle: 'Laboratoire Effet Papillon',
     butterflyDesc: 'Découvrez de manière interactive comment de minuscules changements de paramètres peuvent faire basculer des systèmes non linéaires comme le climat',
     eliteTitle: 'Assez de sécurité ?',
