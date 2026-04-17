@@ -661,7 +661,13 @@ export default function SocLife({ embedded = false }: SocLifeProps = {}) {
         )}
 
         {started && (
-          <div className="flex-1 grid grid-cols-1 gap-2 sm:gap-3 lg:grid-cols-[1fr_320px] xl:grid-cols-[1fr_360px] 2xl:grid-cols-[1fr_400px] min-h-0 overflow-hidden relative">
+          // On mobile: allow vertical page scroll (overflow-y-auto) so the
+          // floor plan + incident panel + answer buttons can all be reached
+          // with a single natural swipe instead of fighting a nested
+          // scrollbar inside the sidebar. From lg upwards we restore the
+          // strict no-scroll desktop layout where the two columns are
+          // independently sized.
+          <div className="flex-1 grid grid-cols-1 gap-2 sm:gap-3 lg:grid-cols-[1fr_320px] xl:grid-cols-[1fr_360px] 2xl:grid-cols-[1fr_400px] min-h-0 overflow-y-auto lg:overflow-hidden relative">
             {/* Left: meters + house. */}
             <div className="flex flex-col gap-2 sm:gap-3 min-h-0">
               <SocMeters
