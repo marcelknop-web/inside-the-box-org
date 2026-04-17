@@ -391,9 +391,9 @@ const C2: Incident = {
       title: L("Analyse", "Analyse", "Analyse"),
       prompt: L("Wie analysieren?", "How do you analyse?", "Comment analyser ?"),
       options: [
-        { id: "ti_lookup",  correct: true,  delta: +6, label: L("TI-Lookup + JA3/Beacon-Intervall + betroffene Hosts identifizieren", "TI lookup + JA3/beacon interval + identify affected hosts", "Lookup TI + JA3/intervalle + identifier les hôtes affectés") },
-        { id: "block_dns",  correct: false, delta: -3, label: L("Domain per DNS-Sinkhole umleiten und passdns-Snapshots für spätere Analyse archivieren", "Sinkhole the domain via DNS and archive passive-DNS snapshots for later analysis", "Sinkholer le domaine via DNS et archiver des snapshots passive-DNS") },
-        { id: "wait",       correct: false, delta: -4, label: L("24h kontrolliertes Monitoring mit erweiterter Packet-Capture, dann Pattern-Validierung", "Run 24h controlled monitoring with extended packet capture, then validate the pattern", "Surveillance contrôlée 24h avec packet capture étendue, puis validation du pattern") },
+        { id: "ti_lookup",  correct: true,  delta: +6, label: L("Threat-Intel zur Domain abfragen, Beacon-Takt prüfen und betroffene Hosts auflisten", "Look up threat intel on the domain, check the beacon cadence and list the affected hosts", "Interroger la threat intel sur le domaine, vérifier le rythme du beacon et lister les hôtes affectés") },
+        { id: "block_dns",  correct: false, delta: -3, label: L("Die Domain per DNS umleiten und für später Verkehrsdaten archivieren", "Redirect the domain via DNS and archive traffic data for later analysis", "Rediriger le domaine via DNS et archiver les données de trafic pour plus tard") },
+        { id: "wait",       correct: false, delta: -4, label: L("24 Stunden nur beobachten, dann auf Basis der Aufzeichnungen entscheiden", "Just observe for 24 hours, then decide based on the recordings", "Observer 24h, puis décider sur la base des enregistrements") },
       ],
     },
     {
@@ -401,9 +401,9 @@ const C2: Incident = {
       title: L("Blockieren", "Block", "Bloquer"),
       prompt: L("Wo blocken?", "Where do you block?", "Où bloquer ?"),
       options: [
-        { id: "fw_proxy",   correct: true,  delta: +7, label: L("Domain + IPs auf Firewall und Proxy blocken, DNS-Sinkhole + EDR-IOC-Push", "Block domain + IPs at firewall and proxy, DNS sinkhole + EDR IOC push", "Bloquer domaine + IPs au firewall et proxy, sinkhole DNS + push IOC EDR") },
-        { id: "edr_only",   correct: false, delta: -3, label: L("Hash-Signaturen + Datei-Pfade per EDR-Custom-Indicator zentral blacklisten, Netz unverändert", "Centrally blacklist hashes + file paths via EDR custom indicators, leave network as-is", "Blacklister hashes + chemins via indicateurs EDR custom, réseau inchangé") },
-        { id: "block_outb", correct: false, delta: -2, label: L("Allen ausgehenden Traffic des Hosts per Firewall-Quarantänezone droppen, inkl. legitimer Flows", "Drop all outbound traffic from the host into a FW quarantine zone, incl. legitimate flows", "Couper tout le trafic sortant via zone de quarantaine FW, incl. flux légitimes") },
+        { id: "fw_proxy",   correct: true,  delta: +7, label: L("Domain und IPs an Firewall, Proxy und DNS blocken, Indikatoren ans EDR ausspielen", "Block domain and IPs at firewall, proxy and DNS, push the indicators to EDR", "Bloquer le domaine et les IPs au firewall, proxy et DNS, pousser les indicateurs à l'EDR") },
+        { id: "edr_only",   correct: false, delta: -3, label: L("Nur datei-bezogene Indikatoren im EDR sperren, das Netz unverändert lassen", "Only blacklist file-related indicators in EDR, leave the network as-is", "Bloquer seulement les indicateurs fichiers dans l'EDR, laisser le réseau inchangé") },
+        { id: "block_outb", correct: false, delta: -2, label: L("Den gesamten ausgehenden Verkehr des Hosts kappen, auch legitime Verbindungen", "Cut all outbound traffic from the host, including legitimate connections", "Couper tout le trafic sortant de l'hôte, y compris les connexions légitimes") },
       ],
     },
     {
@@ -411,9 +411,9 @@ const C2: Incident = {
       title: L("Bereinigung", "Remediate", "Remédiation"),
       prompt: L("Wie bereinigen?", "How to remediate?", "Comment remédier ?"),
       options: [
-        { id: "image_reimage", correct: true,  delta: +7, label: L("Host imagen, Persistenz (Run-Keys, Tasks, WMI) suchen, dann sauber neu aufsetzen", "Image host, hunt persistence (run keys, tasks, WMI), then reimage cleanly", "Imager l'hôte, chasser la persistance (run keys, tasks, WMI), puis réinstaller proprement") },
-        { id: "av_scan",       correct: false, delta: -3, label: L("Tiefen-Scan mit AV + EDR + zwei Drittanbieter-Scannern offline durchführen, Quarantäne automatisiert", "Run deep AV + EDR + two third-party scanners offline, automated quarantine", "Scan approfondi AV + EDR + 2 scanners tiers hors-ligne, quarantaine automatisée") },
-        { id: "kill_proc",     correct: false, delta: -3, label: L("Beacon-Prozess-Tree per EDR terminieren, Auto-Run-Einträge bereinigen, Host weiternutzen", "Kill the beacon process tree via EDR, clean auto-run entries, keep using host", "Terminer l'arbre de processus du beacon via EDR, nettoyer les auto-runs, garder l'hôte") },
+        { id: "image_reimage", correct: true,  delta: +7, label: L("Host abbilden, gezielt nach Persistenz suchen und anschließend sauber neu aufsetzen", "Image the host, hunt persistence systematically, then reimage cleanly", "Imager l'hôte, chercher la persistance méthodiquement, puis réinstaller proprement") },
+        { id: "av_scan",       correct: false, delta: -3, label: L("Mehrere Virenscanner offline drüber laufen lassen und auf das Ergebnis vertrauen", "Run several AV scanners offline and trust the result", "Lancer plusieurs antivirus hors-ligne et faire confiance au résultat") },
+        { id: "kill_proc",     correct: false, delta: -3, label: L("Nur den Beacon-Prozess beenden und Auto-Start-Einträge bereinigen, Host weiternutzen", "Just kill the beacon process and clean up auto-start entries, keep using the host", "Terminer juste le processus du beacon et nettoyer les auto-runs, garder l'hôte") },
       ],
     },
   ],
