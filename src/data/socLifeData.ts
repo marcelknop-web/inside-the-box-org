@@ -121,9 +121,9 @@ const PHISHING: Incident = {
       title: L("Triage", "Triage", "Triage"),
       prompt: L("Was zuerst?", "What first?", "Quelle première action ?"),
       options: [
-        { id: "verify",     correct: true,  delta: +6, label: L("Header & URLs im SIEM verifizieren, Sandbox-Detonation", "Verify headers & URLs in SIEM, sandbox detonation", "Vérifier en-têtes/URLs dans le SIEM, détonation sandbox") },
-        { id: "block_now",  correct: false, delta: -3, label: L("Sofort Sender blocken, ohne IOCs zu erfassen", "Block sender immediately without capturing IOCs", "Bloquer l'expéditeur tout de suite sans collecter les IOCs") },
-        { id: "user_train", correct: false, delta: -4, label: L("Awareness-Mail an alle senden, dann auswerten", "Mass-mail awareness to all, then analyse", "Envoyer un rappel sensibilisation à tous, puis analyser") },
+        { id: "verify",     correct: true,  delta: +6, label: L("Header & URLs im SIEM verifizieren, Sandbox-Detonation des Anhangs", "Verify headers & URLs in SIEM, sandbox-detonate the attachment", "Vérifier en-têtes/URLs dans le SIEM, détonation sandbox de la pièce jointe") },
+        { id: "block_now",  correct: false, delta: -3, label: L("Sender im Mail-Gateway blocken und Mails löschen, IOCs später nachziehen", "Block sender at mail gateway and purge mails, capture IOCs later", "Bloquer l'expéditeur au gateway et purger les mails, IOCs plus tard") },
+        { id: "user_train", correct: false, delta: -4, label: L("Awareness-Broadcast an alle Postfächer mit Indikatoren ausspielen, dann triagieren", "Broadcast awareness with indicators to all mailboxes, then triage", "Diffuser une alerte sensibilisation avec indicateurs à toutes les boîtes, puis triagir") },
       ],
     },
     {
@@ -131,9 +131,9 @@ const PHISHING: Incident = {
       title: L("Eindämmung", "Contain", "Confinement"),
       prompt: L("Wie eindämmen?", "How do you contain?", "Comment confiner ?"),
       options: [
-        { id: "block_sender", correct: true,  delta: +6, label: L("Sender + URLs am Mail-Gateway blocken, Mails zurückziehen", "Block sender + URLs at gateway, recall mails", "Bloquer expéditeur + URLs sur la passerelle, rappeler les mails") },
-        { id: "delete_only",  correct: false, delta: -3, label: L("Nur die Mails aus den Postfächern löschen", "Only delete the mails from mailboxes", "Supprimer uniquement les mails des boîtes") },
-        { id: "quarantine",   correct: false, delta: -2, label: L("Empfänger-Postfächer komplett quarantänisieren", "Quarantine entire recipient mailboxes", "Mettre en quarantaine les boîtes destinataires entières") },
+        { id: "block_sender", correct: true,  delta: +6, label: L("Sender + URLs am Mail-Gateway blocken, ZAP/Recall der Mails aus den Postfächern", "Block sender + URLs at gateway, ZAP/recall mails from mailboxes", "Bloquer expéditeur + URLs sur la passerelle, ZAP/rappel des mails") },
+        { id: "delete_only",  correct: false, delta: -3, label: L("Mails per eDiscovery-Search aus allen Postfächern hard-deleten, Gateway-Regel bleibt offen", "Hard-delete mails via eDiscovery search across mailboxes, leave gateway rule open", "Supprimer définitivement via eDiscovery, sans règle gateway") },
+        { id: "quarantine",   correct: false, delta: -2, label: L("Empfänger-Postfächer per Litigation-Hold + Forwarding-Block komplett quarantänisieren", "Quarantine recipient mailboxes via litigation-hold + forwarding-block", "Mettre en quarantaine via litigation-hold + blocage forwarding") },
       ],
     },
     {
@@ -141,9 +141,9 @@ const PHISHING: Incident = {
       title: L("Reporting", "Report", "Reporting"),
       prompt: L("CISO-Briefing?", "Brief the CISO?", "Briefer le CISO ?"),
       options: [
-        { id: "brief_ciso", correct: true,  delta: +5, label: L("Knapp briefen: Scope, Impact, nächste Schritte", "Brief: scope, impact, next steps", "Briefer : portée, impact, prochaines étapes") },
-        { id: "wait_full",  correct: false, delta: -3, label: L("Erst vollständigen Bericht abwarten, dann briefen", "Wait for the full report, then brief", "Attendre le rapport complet, puis briefer") },
-        { id: "email_only", correct: false, delta: -2, label: L("Nur eine kurze E-Mail an CISO, kein Gespräch", "Send a short email to the CISO, no meeting", "Juste un email au CISO, sans entretien") },
+        { id: "brief_ciso", correct: true,  delta: +5, label: L("Knappes Briefing: Scope, Impact, Containment-Status, nächste Schritte", "Tight brief: scope, impact, containment status, next steps", "Brief concis : portée, impact, état de containment, prochaines étapes") },
+        { id: "wait_full",  correct: false, delta: -3, label: L("Vollständigen Forensik-Bericht inkl. Root-Cause abwarten, dann strukturiert briefen", "Wait for the full forensic report incl. root cause, then brief structured", "Attendre le rapport forensique complet incl. cause racine, puis briefer") },
+        { id: "email_only", correct: false, delta: -2, label: L("Strukturierte E-Mail mit Executive-Summary an CISO + IR-Lead, kein Sync-Termin", "Structured email with executive summary to CISO + IR lead, no sync meeting", "Mail structuré avec résumé exécutif au CISO + IR lead, sans sync") },
       ],
     },
   ],
@@ -166,9 +166,9 @@ const RANSOMWARE: Incident = {
       title: L("Verifizieren", "Verify", "Vérifier"),
       prompt: L("Erste Reaktion?", "First reaction?", "Première réaction ?"),
       options: [
-        { id: "confirm_edr",  correct: true,  delta: +6, label: L("EDR-Telemetrie + Datei-Hashes verifizieren, Prozess-Tree prüfen", "Verify EDR telemetry + file hashes, check process tree", "Vérifier télémétrie EDR + hashes, examiner l'arbre de processus") },
-        { id: "shutdown_srv", correct: false, delta: -3, label: L("Den File-Server hart herunterfahren, dann analysieren", "Hard-shutdown the file server, then analyse", "Éteindre brutalement le serveur, puis analyser") },
-        { id: "kill_share",   correct: false, delta: -2, label: L("SMB-Share offline nehmen, ohne Forensik zu sichern", "Take SMB share offline without preserving forensics", "Couper le partage SMB sans préserver la forensique") },
+        { id: "confirm_edr",  correct: true,  delta: +6, label: L("EDR-Telemetrie + Datei-Hashes verifizieren, Prozess-Tree und Parent-PID prüfen", "Verify EDR telemetry + file hashes, check process tree and parent PID", "Vérifier télémétrie EDR + hashes, examiner l'arbre de processus et le parent") },
+        { id: "shutdown_srv", correct: false, delta: -3, label: L("File-Server kontrolliert per ACPI-Shutdown herunterfahren, Volume-Snapshot ziehen", "Gracefully ACPI-shutdown the file server, then take a volume snapshot", "Éteindre proprement via ACPI, puis snapshot volume") },
+        { id: "kill_share",   correct: false, delta: -2, label: L("SMB-Share via PowerShell offline nehmen und ACLs auf Read-Only setzen", "Take SMB share offline via PowerShell, set ACLs to read-only", "Couper le partage SMB via PowerShell, ACLs en lecture seule") },
       ],
     },
     {
@@ -176,9 +176,9 @@ const RANSOMWARE: Incident = {
       title: L("Isolation", "Isolate", "Isoler"),
       prompt: L("Wie isolieren?", "How to isolate?", "Comment isoler ?"),
       options: [
-        { id: "segment_vlan",  correct: true,  delta: +8, label: L("Host-VLAN segmentieren, EDR-Quarantäne, Lateral-Movement stoppen", "Segment host VLAN, EDR-isolate, stop lateral movement", "Segmenter le VLAN, isoler via EDR, stopper mouvement latéral") },
-        { id: "block_ad",      correct: false, delta: -3, label: L("AD-Konto sperren, aber Host im Netz lassen", "Disable AD account but leave host on network", "Désactiver le compte AD mais laisser l'hôte sur le réseau") },
-        { id: "block_internet",correct: false, delta: -2, label: L("Nur Internet-Uplink des Hosts kappen", "Only cut the host's internet uplink", "Couper uniquement le lien internet de l'hôte") },
+        { id: "segment_vlan",  correct: true,  delta: +8, label: L("Host-VLAN segmentieren, EDR-Quarantäne, Lateral-Movement-Pfade kappen", "Segment host VLAN, EDR-isolate, sever lateral-movement paths", "Segmenter le VLAN, isoler via EDR, couper les chemins de mouvement latéral") },
+        { id: "block_ad",      correct: false, delta: -3, label: L("Computer-Konto im AD deaktivieren + GPO-Push für Defender-Vollscan auf dem Host", "Disable AD computer account + GPO-push Defender full-scan on host", "Désactiver le compte machine AD + GPO push scan complet Defender") },
+        { id: "block_internet",correct: false, delta: -2, label: L("Internet-Uplink des Hosts auf Firewall droppen + Proxy-Bypass-Regel entfernen", "Drop the host's internet uplink at FW + remove proxy-bypass rule", "Couper l'uplink internet au firewall + retirer la règle proxy-bypass") },
       ],
     },
     {
@@ -186,9 +186,9 @@ const RANSOMWARE: Incident = {
       title: L("Wiederherstellung", "Recovery", "Restauration"),
       prompt: L("Recovery?", "Recovery?", "Recovery ?"),
       options: [
-        { id: "restore_backup", correct: true,  delta: +8, label: L("Backups aus Offline-Vault prüfen, dann sauber restoren", "Verify offline-vault backups, then restore cleanly", "Vérifier sauvegardes hors-ligne, puis restaurer proprement") },
-        { id: "restore_latest", correct: false, delta: -4, label: L("Letztes Online-Backup sofort einspielen", "Restore latest online backup immediately", "Restaurer immédiatement la dernière sauvegarde en ligne") },
-        { id: "shadow_copies",  correct: false, delta: -3, label: L("Volume Shadow Copies nutzen, ohne Integrität zu prüfen", "Use volume shadow copies without integrity check", "Utiliser les shadow copies sans vérifier l'intégrité") },
+        { id: "restore_backup", correct: true,  delta: +8, label: L("Backups aus Offline-/Immutable-Vault auf Integrität prüfen, dann sauber restoren", "Verify offline/immutable-vault backups for integrity, then restore cleanly", "Vérifier l'intégrité des sauvegardes hors-ligne/immuables, puis restaurer") },
+        { id: "restore_latest", correct: false, delta: -4, label: L("Letztes Online-Backup aus dem Backup-Repository per One-Click-Restore einspielen", "Restore the latest online backup from the repo via one-click-restore", "Restaurer la dernière sauvegarde en ligne via restauration en un clic") },
+        { id: "shadow_copies",  correct: false, delta: -3, label: L("Volume Shadow Copies per vssadmin revertieren und Datei-Versionen vergleichen", "Revert via vssadmin volume-shadow-copies and diff file versions", "Restaurer via vssadmin shadow-copies et comparer les versions") },
       ],
     },
   ],
@@ -211,9 +211,9 @@ const DDOS: Incident = {
       title: L("Verifizieren", "Verify", "Vérifier"),
       prompt: L("Was zuerst?", "What first?", "Première action ?"),
       options: [
-        { id: "verify_traffic", correct: true,  delta: +5, label: L("Flow-Daten + Geo-Verteilung prüfen, Layer 3/4 vs 7 abgrenzen", "Check flow data + geo, classify L3/4 vs L7", "Analyser flow data + géo, distinguer L3/4 vs L7") },
-        { id: "scale_up",       correct: false, delta: -3, label: L("Sofort Web-Tier hochskalieren, dann analysieren", "Scale up the web tier first, then analyse", "Scaler la couche web d'abord, puis analyser") },
-        { id: "rate_limit_all", correct: false, delta: -2, label: L("Globales Rate-Limit auf alle Clients setzen", "Global rate-limit on all clients", "Rate-limit global sur tous les clients") },
+        { id: "verify_traffic", correct: true,  delta: +5, label: L("NetFlow + Geo-Verteilung prüfen, Layer 3/4 vs. 7 abgrenzen, Top-Talker identifizieren", "Check NetFlow + geo, classify L3/4 vs L7, identify top talkers", "Analyser NetFlow + géo, distinguer L3/4 vs L7, identifier top talkers") },
+        { id: "scale_up",       correct: false, delta: -3, label: L("Web-Tier per Auto-Scaling-Group hochskalieren und Load-Balancer-Health-Checks lockern", "Scale the web tier via auto-scaling group + relax LB health checks", "Scaler le tier web via auto-scaling + assouplir les health-checks LB") },
+        { id: "rate_limit_all", correct: false, delta: -2, label: L("Globales Rate-Limit per WAF-Regel auf alle Source-IPs setzen, Token-Bucket eng konfigurieren", "Apply WAF-based global rate-limit on all source IPs, tight token bucket", "Rate-limit global via WAF sur toutes les IPs sources, token bucket strict") },
       ],
     },
     {
@@ -221,9 +221,9 @@ const DDOS: Incident = {
       title: L("Mitigation", "Mitigate", "Mitigation"),
       prompt: L("Wie reagieren?", "How do you respond?", "Comment réagir ?"),
       options: [
-        { id: "scrubbing", correct: true,  delta: +8, label: L("Traffic über Scrubbing-Provider routen, gezielte WAF-Regeln", "Route via scrubbing provider, targeted WAF rules", "Router via provider de scrubbing, règles WAF ciblées") },
-        { id: "geoblock",  correct: false, delta: -2, label: L("Pauschalen Geoblock auf verdächtige Regionen ausrollen", "Blanket geo-block on suspect regions", "Géo-blocage massif sur régions suspectes") },
-        { id: "captcha_all",correct: false, delta: -3, label: L("CAPTCHA für alle Logins zwingend aktivieren", "Force CAPTCHA on all logins", "Imposer CAPTCHA sur tous les logins") },
+        { id: "scrubbing", correct: true,  delta: +8, label: L("Traffic über Scrubbing-Provider routen (BGP-Anycast), gezielte WAF-Regeln nachschärfen", "Route via scrubbing provider (BGP anycast), tighten targeted WAF rules", "Router via provider de scrubbing (BGP anycast), affiner les règles WAF") },
+        { id: "geoblock",  correct: false, delta: -2, label: L("Geo-Blocking per ASN-/Country-Liste auf verdächtige Regionen am Edge ausrollen", "Roll out geo-blocking via ASN/country list on suspect regions at the edge", "Géo-blocage via liste ASN/pays sur régions suspectes au edge") },
+        { id: "captcha_all",correct: false, delta: -3, label: L("Adaptiven Bot-Mitigation-Modus mit verpflichtendem CAPTCHA für alle Login-Sessions aktivieren", "Enable adaptive bot-mitigation with mandatory CAPTCHA for all login sessions", "Activer la mitigation bot adaptative avec CAPTCHA obligatoire pour toutes les sessions") },
       ],
     },
     {
@@ -231,9 +231,9 @@ const DDOS: Incident = {
       title: L("Kommunikation", "Comms", "Communication"),
       prompt: L("Was kommunizieren?", "What do you communicate?", "Que communiquer ?"),
       options: [
-        { id: "status_page",  correct: true,  delta: +5, label: L("Status-Page aktualisieren + interne Stakeholder informieren", "Update status page + inform internal stakeholders", "Mettre à jour la status page + informer parties prenantes") },
-        { id: "wait_resolved",correct: false, delta: -3, label: L("Erst warten, bis stabil — dann ein Statement rausgeben", "Wait until stable, then put out a statement", "Attendre que ce soit stable, puis publier") },
-        { id: "internal_only",correct: false, delta: -2, label: L("Nur intern kommunizieren, Kunden nicht beunruhigen", "Internal comms only, don't alarm customers", "Communiquer en interne seulement, ne pas alarmer les clients") },
+        { id: "status_page",  correct: true,  delta: +5, label: L("Status-Page mit klassifiziertem Incident-Level aktualisieren + interne Stakeholder via War-Room-Kanal informieren", "Update status page with classified incident level + inform internal stakeholders via war-room channel", "Mettre à jour la status page avec niveau d'incident + informer les stakeholders via canal war-room") },
+        { id: "wait_resolved",correct: false, delta: -3, label: L("Erst bis Stabilisierung warten, dann strukturiertes Statement mit Root-Cause veröffentlichen", "Wait until stabilised, then publish a structured statement with root cause", "Attendre la stabilisation, puis publier un communiqué structuré avec la cause racine") },
+        { id: "internal_only",correct: false, delta: -2, label: L("Nur interne Comms via Teams + Mail-Verteiler, externe Status-Page bewusst unverändert lassen", "Internal comms via Teams + mail list only, deliberately leave external status page unchanged", "Communication interne via Teams + mailing list, status page externe volontairement inchangée") },
       ],
     },
   ],
@@ -256,9 +256,9 @@ const INSIDER: Incident = {
       title: L("Triage", "Triage", "Triage"),
       prompt: L("Erste Aktion?", "First action?", "Première action ?"),
       options: [
-        { id: "review_dlp", correct: true,  delta: +6, label: L("DLP-Logs + UEBA-Profil prüfen, Baseline vergleichen", "Review DLP logs + UEBA profile, compare baseline", "Examiner logs DLP + profil UEBA, comparer la baseline") },
-        { id: "lock_acct",  correct: false, delta: -3, label: L("Account sofort sperren, bevor man Kontext hat", "Lock account immediately before you have context", "Verrouiller le compte avant d'avoir le contexte") },
-        { id: "ask_mgr",    correct: false, delta: -3, label: L("Direkt den Vorgesetzten fragen, ob das normal ist", "Ask the line manager directly if this is normal", "Demander au manager si c'est normal") },
+        { id: "review_dlp", correct: true,  delta: +6, label: L("DLP-Logs + UEBA-Profil prüfen, Baseline + Peer-Group des Users vergleichen", "Review DLP logs + UEBA profile, compare baseline + user peer group", "Examiner logs DLP + profil UEBA, comparer baseline + groupe pair") },
+        { id: "lock_acct",  correct: false, delta: -3, label: L("Account in Azure AD per Conditional-Access-Block sofort sperren, Token revoken, Kontext nachreichen", "Lock account immediately via Azure-AD conditional-access block, revoke tokens, gather context after", "Verrouiller via accès conditionnel Azure-AD, révoquer les tokens, contexte après") },
+        { id: "ask_mgr",    correct: false, delta: -3, label: L("Direkten Vorgesetzten kontaktieren und Geschäftskontext der Datenabflüsse erfragen", "Contact line manager and request business context for the egress events", "Contacter le manager pour le contexte métier des flux sortants") },
       ],
     },
     {
@@ -266,9 +266,9 @@ const INSIDER: Incident = {
       title: L("Beweissicherung", "Preserve", "Préserver"),
       prompt: L("Forensik?", "Forensics?", "Forensique ?"),
       options: [
-        { id: "image_endpoint", correct: true,  delta: +8, label: L("Endpoint forensisch imagen, Chain-of-Custody dokumentieren", "Forensically image endpoint, document chain of custody", "Imager l'endpoint, documenter la chaîne de garde") },
-        { id: "remote_collect", correct: false, delta: -3, label: L("Nur Remote-Triage-Pakete sammeln, kein Image", "Only collect remote triage packs, no image", "Collecter uniquement triage à distance, sans image") },
-        { id: "snapshot_vm",    correct: false, delta: -2, label: L("Nur einen VM-Snapshot ziehen, ohne Memory-Dump", "Take a VM snapshot only, no memory dump", "Snapshot VM uniquement, sans dump mémoire") },
+        { id: "image_endpoint", correct: true,  delta: +8, label: L("Endpoint per Write-Blocker forensisch imagen, Memory-Dump, Chain-of-Custody dokumentieren", "Forensically image endpoint via write-blocker, memory dump, document chain of custody", "Imager l'endpoint via write-blocker, dump mémoire, documenter la chaîne de garde") },
+        { id: "remote_collect", correct: false, delta: -3, label: L("Remote-Triage-Pakete (KAPE/Velociraptor) sammeln, Disk-Image im nächsten Wartungsfenster", "Collect remote triage packs (KAPE/Velociraptor), disk image in next maintenance window", "Collecter triage à distance (KAPE/Velociraptor), image disque à la prochaine fenêtre") },
+        { id: "snapshot_vm",    correct: false, delta: -2, label: L("VM-Snapshot mit Memory-State über Hypervisor-API ziehen, Disk-Image später aus Snapshot exportieren", "Take a hypervisor-API VM snapshot incl. memory state, export disk image from it later", "Snapshot VM via API hyperviseur incl. mémoire, image disque exportée du snapshot plus tard") },
       ],
     },
     {
@@ -276,9 +276,9 @@ const INSIDER: Incident = {
       title: L("HR & Legal", "HR & Legal", "RH & Juridique"),
       prompt: L("Wer wird einbezogen?", "Who do you involve?", "Qui impliquer ?"),
       options: [
-        { id: "loop_hr_legal", correct: true,  delta: +7, label: L("HR + Legal + Datenschutz formell einbeziehen", "Loop HR + Legal + DPO formally", "Impliquer formellement RH + Juridique + DPO") },
-        { id: "ciso_only",     correct: false, delta: -3, label: L("Nur CISO informieren, HR später", "Inform CISO only, HR later", "Informer uniquement le CISO, RH plus tard") },
-        { id: "shadow",        correct: false, delta: -4, label: L("Weiter beobachten und keine Eskalation auslösen", "Keep monitoring without escalating", "Continuer à observer sans escalader") },
+        { id: "loop_hr_legal", correct: true,  delta: +7, label: L("HR + Legal + Datenschutz formell + dokumentiert via Eskalationsprozess einbinden", "Loop HR + Legal + DPO formally and documented via escalation process", "Impliquer formellement RH + Juridique + DPO via le processus d'escalade") },
+        { id: "ciso_only",     correct: false, delta: -3, label: L("CISO als Single-Point-of-Contact briefen, HR/Legal nach Abschluss der technischen Analyse einbinden", "Brief CISO as single point of contact, loop HR/Legal after technical analysis completes", "Briefer le CISO comme SPOC, RH/juridique après l'analyse technique") },
+        { id: "shadow",        correct: false, delta: -4, label: L("Verdeckte Überwachung (Endpoint + Mail) ausweiten, keine Eskalation, um Operations-Security zu wahren", "Expand covert monitoring (endpoint + mail), no escalation, preserve OPSEC", "Étendre la surveillance discrète (endpoint + mail), pas d'escalade, préserver l'OPSEC") },
       ],
     },
   ],
@@ -301,9 +301,9 @@ const BEC: Incident = {
       title: L("Verifizieren", "Verify", "Vérifier"),
       prompt: L("Wie verifizieren?", "How do you verify?", "Comment vérifier ?"),
       options: [
-        { id: "auth_logs",  correct: true,  delta: +6, label: L("Mail-Auth (SPF/DKIM/DMARC) + Login-Geo des Postfachs prüfen", "Check mail auth (SPF/DKIM/DMARC) + login geo of mailbox", "Vérifier l'auth mail (SPF/DKIM/DMARC) + géo des connexions") },
-        { id: "call_ceo",   correct: false, delta: -2, label: L("CEO direkt anrufen — auf der Nummer aus der Mail-Signatur", "Call the CEO — on the number from the mail signature", "Appeler le CEO — sur le numéro de la signature mail") },
-        { id: "ask_finance",correct: false, delta: -3, label: L("Buchhaltung fragen, ob die Anweisung 'plausibel' wirkt", "Ask finance if the request 'looks plausible'", "Demander à la finance si la demande 'semble plausible'") },
+        { id: "auth_logs",  correct: true,  delta: +6, label: L("Mail-Auth (SPF/DKIM/DMARC) + Login-Geo + MFA-Status des CEO-Postfachs prüfen", "Check mail auth (SPF/DKIM/DMARC) + login geo + MFA status of CEO mailbox", "Vérifier auth mail (SPF/DKIM/DMARC) + géo + statut MFA de la boîte CEO") },
+        { id: "call_ceo",   correct: false, delta: -2, label: L("CEO direkt zurückrufen über die Nummer in der Mail-Signatur und Anweisung verbal verifizieren", "Call the CEO back on the number in the mail signature and verify verbally", "Rappeler le CEO sur le numéro de la signature mail et vérifier verbalement") },
+        { id: "ask_finance",correct: false, delta: -3, label: L("Buchhaltung kontextuell befragen, ob Anweisung zum üblichen Zahlungsmuster passt", "Contextually ask finance whether the request matches the usual payment pattern", "Interroger la finance pour savoir si la demande correspond au schéma habituel") },
       ],
     },
     {
@@ -311,9 +311,9 @@ const BEC: Incident = {
       title: L("Zahlung stoppen", "Stop payment", "Stopper le paiement"),
       prompt: L("Wie stoppen?", "How do you stop it?", "Comment stopper ?"),
       options: [
-        { id: "freeze_call", correct: true,  delta: +7, label: L("Buchhaltung + Bank-Hotline parallel kontaktieren, Transfer einfrieren", "Contact finance + bank hotline in parallel, freeze transfer", "Contacter finance + hotline banque en parallèle, geler le virement") },
-        { id: "email_only",  correct: false, delta: -3, label: L("Nur eine Stop-Mail an die Buchhaltung senden", "Send a stop email to finance only", "Envoyer juste un mail d'arrêt à la finance") },
-        { id: "wait_legal",  correct: false, delta: -4, label: L("Erst auf Freigabe von Legal warten, dann handeln", "Wait for legal sign-off first, then act", "Attendre l'aval du juridique d'abord, puis agir") },
+        { id: "freeze_call", correct: true,  delta: +7, label: L("Buchhaltung + Bank-Hotline (Fraud-Desk) parallel kontaktieren, Transfer einfrieren", "Contact finance + bank fraud-desk hotline in parallel, freeze the transfer", "Contacter finance + hotline fraude banque en parallèle, geler le virement") },
+        { id: "email_only",  correct: false, delta: -3, label: L("Strukturierte Stop-Mail mit Incident-Referenz an Buchhaltung + Treasury senden", "Send structured stop email with incident reference to finance + treasury", "Envoyer un mail d'arrêt structuré avec référence d'incident à finance + trésorerie") },
+        { id: "wait_legal",  correct: false, delta: -4, label: L("Auf Freigabe von Legal + Compliance warten, dann mit Bank-Mandat formell stoppen", "Wait for legal + compliance sign-off, then stop formally via bank mandate", "Attendre l'aval juridique + conformité, puis stopper formellement via mandat bancaire") },
       ],
     },
     {
@@ -321,9 +321,9 @@ const BEC: Incident = {
       title: L("Härtung", "Harden", "Durcissement"),
       prompt: L("Was härten?", "What do you harden?", "Que durcir ?"),
       options: [
-        { id: "policy_4eyes", correct: true,  delta: +6, label: L("4-Augen-Prinzip + Rückruf-Pflicht für Zahlungen >X€ einführen", "Four-eyes + callback rule for payments above €X", "Quatre yeux + rappel obligatoire pour paiements > X€") },
-        { id: "block_ext",    correct: false, delta: -3, label: L("Alle externen E-Mails grundsätzlich blocken", "Block all external emails by default", "Bloquer tous les mails externes par défaut") },
-        { id: "rotate_ceo",   correct: false, delta: -2, label: L("Nur das CEO-Passwort rotieren, fertig", "Just rotate the CEO password, done", "Faire juste tourner le mot de passe du CEO") },
+        { id: "policy_4eyes", correct: true,  delta: +6, label: L("4-Augen-Prinzip + Out-of-Band-Rückruf-Pflicht für Zahlungen über X € einführen", "Four-eyes + out-of-band callback rule for payments above €X", "Quatre yeux + rappel out-of-band obligatoire pour paiements > X €") },
+        { id: "block_ext",    correct: false, delta: -3, label: L("Externe Mail-Domains per Allowlist-Modus am Gateway blocken, Ausnahmen über IT-Antrag", "Block external mail domains via gateway allowlist mode, exceptions via IT request", "Bloquer les domaines externes via mode allowlist du gateway, exceptions via demande IT") },
+        { id: "rotate_ceo",   correct: false, delta: -2, label: L("CEO-Account: Passwort + MFA-Token rotieren, Conditional-Access-Policy verschärfen", "CEO account: rotate password + MFA token, tighten conditional-access policy", "Compte CEO : rotation mot de passe + token MFA, politique d'accès conditionnel renforcée") },
       ],
     },
   ],
@@ -346,9 +346,9 @@ const LATERAL: Incident = {
       title: L("Scope", "Scope", "Périmètre"),
       prompt: L("Wie ermitteln?", "How do you scope?", "Comment cadrer ?"),
       options: [
-        { id: "graph",        correct: true,  delta: +6, label: L("Authentifizierungs-Graph + 4624/4672-Events korrelieren", "Correlate auth graph + 4624/4672 events", "Corréler graphe d'authentification + events 4624/4672") },
-        { id: "endpoint_only",correct: false, delta: -3, label: L("Nur den ursprünglichen Endpoint analysieren", "Analyse only the originating endpoint", "Analyser uniquement l'endpoint d'origine") },
-        { id: "ask_user",     correct: false, delta: -3, label: L("User fragen, ob er sich überall angemeldet hat", "Ask the user if they logged in everywhere", "Demander à l'utilisateur s'il s'est connecté partout") },
+        { id: "graph",        correct: true,  delta: +6, label: L("Authentifizierungs-Graph + 4624/4672-Events korrelieren, BloodHound-Pfade prüfen", "Correlate auth graph + 4624/4672 events, review BloodHound paths", "Corréler graphe d'authentification + events 4624/4672, examiner les chemins BloodHound") },
+        { id: "endpoint_only",correct: false, delta: -3, label: L("Ursprungs-Endpoint per EDR-Deep-Dive analysieren, Sysmon-Logs + DLL-Loads aufrollen", "Deep-dive the origin endpoint via EDR, walk Sysmon logs + DLL loads", "Analyse approfondie EDR de l'endpoint d'origine, dérouler logs Sysmon + DLL loads") },
+        { id: "ask_user",     correct: false, delta: -3, label: L("User per Teams kontaktieren und Login-Aktivität via Self-Service-Portal verifizieren lassen", "Contact user via Teams, have them verify login activity through self-service portal", "Contacter l'utilisateur via Teams, vérification des connexions via portail self-service") },
       ],
     },
     {
@@ -356,9 +356,9 @@ const LATERAL: Incident = {
       title: L("Eindämmung", "Contain", "Confinement"),
       prompt: L("Wie eindämmen?", "How to contain?", "Comment confiner ?"),
       options: [
-        { id: "isolate_set", correct: true,  delta: +7, label: L("Alle betroffenen Hosts EDR-isolieren, Service-Konten sperren", "EDR-isolate all affected hosts, disable service accounts", "Isoler via EDR tous les hôtes affectés, désactiver les comptes service") },
-        { id: "isolate_one", correct: false, delta: -3, label: L("Nur den ersten Host isolieren, Rest beobachten", "Isolate only the first host, watch the rest", "Isoler seulement le premier hôte, observer le reste") },
-        { id: "block_smb",   correct: false, delta: -2, label: L("SMB im ganzen Netz blocken — Kollateralschaden in Kauf nehmen", "Block SMB across the entire network — accept collateral", "Bloquer SMB sur tout le réseau — accepter les collatéraux") },
+        { id: "isolate_set", correct: true,  delta: +7, label: L("Alle betroffenen Hosts EDR-isolieren, Service-Konten + Tier-0-Sessions sperren", "EDR-isolate all affected hosts, disable service accounts + tier-0 sessions", "Isoler via EDR tous les hôtes affectés, désactiver comptes service + sessions tier-0") },
+        { id: "isolate_one", correct: false, delta: -3, label: L("Nur den initialen Host isolieren, restliche Hosts mit verschärftem EDR-Monitoring beobachten", "Isolate only the initial host, monitor the rest under heightened EDR alerting", "Isoler uniquement l'hôte initial, observer les autres avec alertes EDR renforcées") },
+        { id: "block_smb",   correct: false, delta: -2, label: L("SMB (Port 445) per Firewall im gesamten Server-Segment blocken, Kollateralschaden in Kauf nehmen", "Block SMB (port 445) at firewall across the server segment, accept collateral damage", "Bloquer SMB (port 445) au firewall sur tout le segment serveur, accepter les collatéraux") },
       ],
     },
     {
@@ -366,9 +366,9 @@ const LATERAL: Incident = {
       title: L("Credentials", "Credentials", "Identifiants"),
       prompt: L("Was tun mit Konten?", "What about accounts?", "Que faire des comptes ?"),
       options: [
-        { id: "rotate_tier", correct: true,  delta: +7, label: L("Tier-0-Konten + Kerberos-Tickets (krbtgt 2x) rotieren", "Rotate tier-0 accounts + Kerberos tickets (krbtgt 2x)", "Faire tourner comptes tier-0 + tickets Kerberos (krbtgt x2)") },
-        { id: "rotate_all",  correct: false, delta: -3, label: L("Alle User-Passwörter im Unternehmen sofort zurücksetzen", "Reset every user password company-wide", "Réinitialiser tous les mots de passe utilisateurs") },
-        { id: "rotate_one",  correct: false, delta: -3, label: L("Nur das Passwort des kompromittierten Users ändern", "Reset only the compromised user's password", "Changer uniquement le mot de passe de l'utilisateur compromis") },
+        { id: "rotate_tier", correct: true,  delta: +7, label: L("Tier-0-Konten + Kerberos-krbtgt zwei Mal rotieren, Service-Acc-Passwörter erzwingen", "Rotate tier-0 accounts + Kerberos krbtgt twice, force service-account password reset", "Faire tourner comptes tier-0 + krbtgt 2x, forcer la rotation des comptes de service") },
+        { id: "rotate_all",  correct: false, delta: -3, label: L("Unternehmensweiten Force-Password-Reset bei nächster AD-Anmeldung erzwingen, MFA-Re-Enrollment", "Force company-wide password reset at next AD logon, MFA re-enrollment", "Forcer la réinitialisation à la prochaine connexion AD, ré-enrôlement MFA") },
+        { id: "rotate_one",  correct: false, delta: -3, label: L("Passwort des kompromittierten Users rotieren, MFA-Tokens revoken, Kerberos-TGT invalidieren", "Reset compromised user's password, revoke MFA tokens, invalidate Kerberos TGT", "Changer le mot de passe de l'utilisateur compromis, révoquer les tokens MFA, invalider le TGT") },
       ],
     },
   ],
@@ -392,8 +392,8 @@ const C2: Incident = {
       prompt: L("Wie analysieren?", "How do you analyse?", "Comment analyser ?"),
       options: [
         { id: "ti_lookup",  correct: true,  delta: +6, label: L("TI-Lookup + JA3/Beacon-Intervall + betroffene Hosts identifizieren", "TI lookup + JA3/beacon interval + identify affected hosts", "Lookup TI + JA3/intervalle + identifier les hôtes affectés") },
-        { id: "block_dns",  correct: false, delta: -3, label: L("Domain einfach im DNS sinkholen, ohne Analyse", "Sinkhole the domain in DNS without analysis", "Sinkholer le domaine sans analyse") },
-        { id: "wait",       correct: false, delta: -4, label: L("24h beobachten, ob das Muster stabil bleibt", "Observe 24h whether the pattern persists", "Observer 24h si le pattern persiste") },
+        { id: "block_dns",  correct: false, delta: -3, label: L("Domain per DNS-Sinkhole umleiten und passdns-Snapshots für spätere Analyse archivieren", "Sinkhole the domain via DNS and archive passive-DNS snapshots for later analysis", "Sinkholer le domaine via DNS et archiver des snapshots passive-DNS") },
+        { id: "wait",       correct: false, delta: -4, label: L("24h kontrolliertes Monitoring mit erweiterter Packet-Capture, dann Pattern-Validierung", "Run 24h controlled monitoring with extended packet capture, then validate the pattern", "Surveillance contrôlée 24h avec packet capture étendue, puis validation du pattern") },
       ],
     },
     {
@@ -401,9 +401,9 @@ const C2: Incident = {
       title: L("Blockieren", "Block", "Bloquer"),
       prompt: L("Wo blocken?", "Where do you block?", "Où bloquer ?"),
       options: [
-        { id: "fw_proxy",   correct: true,  delta: +7, label: L("Domain + IPs auf Firewall und Proxy blocken, DNS-Sinkhole setzen", "Block domain + IPs at firewall and proxy, DNS sinkhole", "Bloquer domaine + IPs sur firewall et proxy, sinkhole DNS") },
-        { id: "edr_only",   correct: false, delta: -3, label: L("Nur die Hash-Signatur im EDR blacklisten", "Only blacklist the hash in EDR", "Uniquement blacklister le hash dans l'EDR") },
-        { id: "block_outb", correct: false, delta: -2, label: L("Allen ausgehenden Traffic des Hosts blocken — auch legitimen", "Block all outbound traffic from the host — including legit", "Bloquer tout le trafic sortant de l'hôte — même légitime") },
+        { id: "fw_proxy",   correct: true,  delta: +7, label: L("Domain + IPs auf Firewall und Proxy blocken, DNS-Sinkhole + EDR-IOC-Push", "Block domain + IPs at firewall and proxy, DNS sinkhole + EDR IOC push", "Bloquer domaine + IPs au firewall et proxy, sinkhole DNS + push IOC EDR") },
+        { id: "edr_only",   correct: false, delta: -3, label: L("Hash-Signaturen + Datei-Pfade per EDR-Custom-Indicator zentral blacklisten, Netz unverändert", "Centrally blacklist hashes + file paths via EDR custom indicators, leave network as-is", "Blacklister hashes + chemins via indicateurs EDR custom, réseau inchangé") },
+        { id: "block_outb", correct: false, delta: -2, label: L("Allen ausgehenden Traffic des Hosts per Firewall-Quarantänezone droppen, inkl. legitimer Flows", "Drop all outbound traffic from the host into a FW quarantine zone, incl. legitimate flows", "Couper tout le trafic sortant via zone de quarantaine FW, incl. flux légitimes") },
       ],
     },
     {
@@ -411,9 +411,9 @@ const C2: Incident = {
       title: L("Bereinigung", "Remediate", "Remédiation"),
       prompt: L("Wie bereinigen?", "How to remediate?", "Comment remédier ?"),
       options: [
-        { id: "image_reimage", correct: true,  delta: +7, label: L("Host imagen, Persistenz suchen, dann sauber neu aufsetzen", "Image host, hunt persistence, then reimage cleanly", "Imager l'hôte, chasser la persistance, puis réinstaller") },
-        { id: "av_scan",       correct: false, delta: -3, label: L("Nur einen AV-Vollscan laufen lassen", "Run a full AV scan only", "Lancer juste un scan AV complet") },
-        { id: "kill_proc",     correct: false, delta: -3, label: L("Nur den Beacon-Prozess killen, Host weiternutzen", "Kill the beacon process only, keep using host", "Tuer juste le processus beacon, continuer à utiliser l'hôte") },
+        { id: "image_reimage", correct: true,  delta: +7, label: L("Host imagen, Persistenz (Run-Keys, Tasks, WMI) suchen, dann sauber neu aufsetzen", "Image host, hunt persistence (run keys, tasks, WMI), then reimage cleanly", "Imager l'hôte, chasser la persistance (run keys, tasks, WMI), puis réinstaller proprement") },
+        { id: "av_scan",       correct: false, delta: -3, label: L("Tiefen-Scan mit AV + EDR + zwei Drittanbieter-Scannern offline durchführen, Quarantäne automatisiert", "Run deep AV + EDR + two third-party scanners offline, automated quarantine", "Scan approfondi AV + EDR + 2 scanners tiers hors-ligne, quarantaine automatisée") },
+        { id: "kill_proc",     correct: false, delta: -3, label: L("Beacon-Prozess-Tree per EDR terminieren, Auto-Run-Einträge bereinigen, Host weiternutzen", "Kill the beacon process tree via EDR, clean auto-run entries, keep using host", "Terminer l'arbre de processus du beacon via EDR, nettoyer les auto-runs, garder l'hôte") },
       ],
     },
   ],
@@ -436,9 +436,9 @@ const CRED_DUMP: Incident = {
       title: L("Validieren", "Validate", "Valider"),
       prompt: L("Wie validieren?", "How do you validate?", "Comment valider ?"),
       options: [
-        { id: "process_tree", correct: true,  delta: +6, label: L("Prozess-Tree + Tool-Signatur (Mimikatz/comsvcs) prüfen", "Check process tree + tool signature (Mimikatz/comsvcs)", "Examiner l'arbre de processus + signature outil (Mimikatz/comsvcs)") },
-        { id: "ask_admin",    correct: false, delta: -3, label: L("Den Admin fragen, ob er gerade ein Diagnose-Tool nutzt", "Ask the admin if they're running a diagnostic tool", "Demander à l'admin s'il lance un outil de diagnostic") },
-        { id: "trust_av",     correct: false, delta: -4, label: L("Wenn AV nichts sagt, als False Positive schließen", "If AV stays silent, close as false positive", "Si l'AV ne dit rien, fermer comme faux positif") },
+        { id: "process_tree", correct: true,  delta: +6, label: L("Prozess-Tree + Tool-Signatur (Mimikatz/comsvcs.dll/MiniDumpWriteDump) prüfen", "Check process tree + tool signature (Mimikatz/comsvcs.dll/MiniDumpWriteDump)", "Examiner l'arbre de processus + signature outil (Mimikatz/comsvcs.dll/MiniDumpWriteDump)") },
+        { id: "ask_admin",    correct: false, delta: -3, label: L("Admin direkt kontaktieren und legitimen Diagnose-Use-Case (z. B. Procdump-Wartung) verifizieren", "Contact the admin directly and verify a legitimate diagnostic use case (e.g. procdump maintenance)", "Contacter l'admin et vérifier un usage diagnostique légitime (p. ex. procdump)") },
+        { id: "trust_av",     correct: false, delta: -4, label: L("Defender ATP + EDR-Telemetrie quer-prüfen — bleibt beides still, als False Positive klassifizieren", "Cross-check Defender ATP + EDR telemetry — if both stay silent, classify as false positive", "Recouper Defender ATP + EDR — si les deux restent silencieux, classer en faux positif") },
       ],
     },
     {
@@ -446,9 +446,9 @@ const CRED_DUMP: Incident = {
       title: L("Isolieren", "Isolate", "Isoler"),
       prompt: L("Was zuerst?", "What first?", "Première action ?"),
       options: [
-        { id: "edr_isolate", correct: true,  delta: +7, label: L("Workstation EDR-isolieren, Admin-Sessions terminieren", "EDR-isolate the workstation, kill admin sessions", "Isoler le poste via EDR, terminer les sessions admin") },
-        { id: "shutdown",    correct: false, delta: -3, label: L("Workstation hart ausschalten, Memory verlieren", "Hard-power-off the workstation, lose memory", "Éteindre brutalement le poste, perdre la mémoire") },
-        { id: "user_logoff", correct: false, delta: -3, label: L("Nur User abmelden, Maschine im Netz lassen", "Just log the user off, keep machine on network", "Juste déconnecter l'utilisateur, laisser la machine sur le réseau") },
+        { id: "edr_isolate", correct: true,  delta: +7, label: L("Workstation EDR-isolieren, alle Admin-Sessions terminieren, Kerberos-Tickets purgen", "EDR-isolate the workstation, kill all admin sessions, purge Kerberos tickets", "Isoler le poste via EDR, terminer toutes les sessions admin, purger les tickets Kerberos") },
+        { id: "shutdown",    correct: false, delta: -3, label: L("Workstation kontrolliert per ACPI-Shutdown herunterfahren, Disk-Image im nächsten Schritt", "Gracefully ACPI-shutdown the workstation, take a disk image in the next step", "Éteindre proprement via ACPI, image disque à l'étape suivante") },
+        { id: "user_logoff", correct: false, delta: -3, label: L("Admin-Sitzung per quser/logoff terminieren, Maschine im Netz lassen für Live-Forensik", "Terminate admin session via quser/logoff, keep machine on network for live forensics", "Terminer la session admin via quser/logoff, garder la machine en ligne pour forensique live") },
       ],
     },
     {
@@ -456,9 +456,9 @@ const CRED_DUMP: Incident = {
       title: L("Rotieren", "Rotate", "Rotation"),
       prompt: L("Welche Konten?", "Which accounts?", "Quels comptes ?"),
       options: [
-        { id: "all_admin",  correct: true,  delta: +7, label: L("Alle auf dem Host genutzten Privileged-Konten + Service-Acc rotieren", "Rotate all privileged + service accounts used on host", "Faire tourner tous les comptes priv. + service utilisés sur l'hôte") },
-        { id: "owner_only", correct: false, delta: -3, label: L("Nur das Konto des betroffenen Admins rotieren", "Rotate only the affected admin's account", "Faire tourner uniquement le compte de l'admin concerné") },
-        { id: "schedule",   correct: false, delta: -3, label: L("Rotation auf das nächste Wartungsfenster legen", "Schedule rotation for the next maintenance window", "Programmer la rotation pour la prochaine fenêtre de maintenance") },
+        { id: "all_admin",  correct: true,  delta: +7, label: L("Alle auf dem Host genutzten Privileged- + Service-Konten rotieren, gMSA-Passwort-Cycle erzwingen", "Rotate all privileged + service accounts used on host, force gMSA password cycle", "Faire tourner tous les comptes priv. + service utilisés, forcer le cycle gMSA") },
+        { id: "owner_only", correct: false, delta: -3, label: L("Konto des betroffenen Admins rotieren, MFA neu enrollen, Sitzungen revoken", "Rotate the affected admin's account, re-enroll MFA, revoke sessions", "Faire tourner le compte de l'admin concerné, ré-enrôler MFA, révoquer les sessions") },
+        { id: "schedule",   correct: false, delta: -3, label: L("Geplante Rotation in das nächste Wartungsfenster + JIT-Access-Workflow integrieren", "Integrate scheduled rotation into the next maintenance window + JIT-access workflow", "Intégrer la rotation prévue dans la prochaine fenêtre de maintenance + workflow JIT") },
       ],
     },
   ],
@@ -481,9 +481,9 @@ const SUPPLY: Incident = {
       title: L("Exposition", "Exposure", "Exposition"),
       prompt: L("Wie ermitteln?", "How do you assess?", "Comment évaluer ?"),
       options: [
-        { id: "cmdb_query",  correct: true,  delta: +6, label: L("CMDB + EDR nach Version & Hash der betroffenen Komponente abfragen", "Query CMDB + EDR for version & hash of affected component", "Interroger CMDB + EDR pour version & hash du composant") },
-        { id: "ask_owners",  correct: false, delta: -3, label: L("System-Owner einzeln per E-Mail anfragen", "Ask system owners individually by email", "Demander aux owners par mail un par un") },
-        { id: "wait_advisory",correct: false, delta: -4, label: L("Auf detailliertes Hersteller-Advisory warten", "Wait for the detailed vendor advisory", "Attendre l'advisory détaillé du fournisseur") },
+        { id: "cmdb_query",  correct: true,  delta: +6, label: L("CMDB + EDR nach Version & Hash der betroffenen Komponente abfragen, SBOM-Match prüfen", "Query CMDB + EDR for version & hash of affected component, check SBOM match", "Interroger CMDB + EDR pour version & hash, vérifier le match SBOM") },
+        { id: "ask_owners",  correct: false, delta: -3, label: L("System-Owner per strukturiertem Service-Now-Ticket einzeln zur Versions-Bestätigung anfragen", "Request version confirmation from system owners individually via structured ServiceNow ticket", "Demander confirmation de version aux owners via tickets ServiceNow structurés") },
+        { id: "wait_advisory",correct: false, delta: -4, label: L("Detailliertes Hersteller-Advisory mit IOC-Liste + KEV-Eintrag abwarten, dann fundiert handeln", "Wait for detailed vendor advisory with IOC list + KEV entry, then act on solid ground", "Attendre l'advisory détaillé avec liste d'IOCs + entrée KEV, puis agir") },
       ],
     },
     {
@@ -491,9 +491,9 @@ const SUPPLY: Incident = {
       title: L("Sofort-Mitigation", "Immediate mitigation", "Mitigation immédiate"),
       prompt: L("Was tun?", "What do you do?", "Que faire ?"),
       options: [
-        { id: "isolate_block", correct: true,  delta: +7, label: L("Betroffene Hosts isolieren, Update-Server + IOCs auf FW blocken", "Isolate affected hosts, block update server + IOCs at FW", "Isoler les hôtes, bloquer serveur d'update + IOCs au FW") },
-        { id: "uninstall_all", correct: false, delta: -3, label: L("Komponente sofort überall deinstallieren — auch Produktion", "Uninstall the component everywhere — including production", "Désinstaller le composant partout — même en prod") },
-        { id: "patch_now",     correct: false, delta: -3, label: L("Sofort den nächsten Patch ausrollen, ungetestet", "Roll out the next patch immediately, untested", "Déployer le prochain patch immédiatement, non testé") },
+        { id: "isolate_block", correct: true,  delta: +7, label: L("Betroffene Hosts isolieren, Update-Server + IOCs auf Firewall + Proxy blocken", "Isolate affected hosts, block update server + IOCs at firewall + proxy", "Isoler les hôtes affectés, bloquer serveur d'update + IOCs au FW + proxy") },
+        { id: "uninstall_all", correct: false, delta: -3, label: L("Komponente per orchestrierter Deployment-Pipeline überall deinstallieren, inkl. Produktion", "Uninstall the component everywhere via orchestrated deployment pipeline, incl. production", "Désinstaller le composant partout via pipeline de déploiement, incl. prod") },
+        { id: "patch_now",     correct: false, delta: -3, label: L("Nächsten Hersteller-Patch sofort über alle Stages ausrollen, Rollback-Snapshot vorab erstellen", "Roll out the next vendor patch immediately across all stages, take rollback snapshot first", "Déployer le prochain patch éditeur sur toutes les stages, snapshot de rollback préalable") },
       ],
     },
     {
@@ -502,8 +502,8 @@ const SUPPLY: Incident = {
       prompt: L("An wen reporten?", "Who do you report to?", "À qui reporter ?"),
       options: [
         { id: "ciso_legal", correct: true,  delta: +6, label: L("CISO + Legal + DPO informieren, Meldepflichten (NIS-2/DORA) prüfen", "Inform CISO + Legal + DPO, check notification duties (NIS-2/DORA)", "Informer CISO + juridique + DPO, vérifier obligations (NIS-2/DORA)") },
-        { id: "ciso_only",  correct: false, delta: -2, label: L("Nur CISO informieren, Rest später", "Inform CISO only, the rest later", "Informer uniquement le CISO, le reste plus tard") },
-        { id: "wait_impact",correct: false, delta: -4, label: L("Erst auf konkrete Auswirkungen warten, dann melden", "Wait for actual impact, then report", "Attendre un impact concret, puis signaler") },
+        { id: "ciso_only",  correct: false, delta: -2, label: L("CISO als zentralen Eskalationspunkt briefen, Legal/DPO nach Impact-Bewertung einbinden", "Brief CISO as central escalation point, loop Legal/DPO after impact assessment", "Briefer le CISO comme point d'escalade central, juridique/DPO après évaluation d'impact") },
+        { id: "wait_impact",correct: false, delta: -4, label: L("Konkrete Impact-Metriken (betroffene Hosts, Datenklassen) erheben, dann formell melden", "Gather concrete impact metrics (affected hosts, data classes), then notify formally", "Collecter les métriques d'impact concrètes (hôtes, classes de données), puis signaler formellement") },
       ],
     },
   ],
@@ -526,9 +526,9 @@ const EXFIL: Incident = {
       title: L("Scope", "Scope", "Périmètre"),
       prompt: L("Wie eingrenzen?", "How do you scope?", "Comment cadrer ?"),
       options: [
-        { id: "proxy_dlp", correct: true,  delta: +6, label: L("Proxy- + DLP-Logs korrelieren, Datentyp + Volumen klassifizieren", "Correlate proxy + DLP logs, classify data type + volume", "Corréler logs proxy + DLP, classifier type & volume") },
-        { id: "block_first",correct: false, delta: -3, label: L("Erst Cloud-Domain blocken, dann analysieren", "Block the cloud domain first, then analyse", "Bloquer le domaine cloud d'abord, puis analyser") },
-        { id: "ask_user",  correct: false, delta: -3, label: L("Den User direkt anrufen und fragen", "Call the user directly and ask", "Appeler directement l'utilisateur") },
+        { id: "proxy_dlp", correct: true,  delta: +6, label: L("Proxy- + DLP-Logs korrelieren, Datentyp + Volumen + Empfänger-Tenant klassifizieren", "Correlate proxy + DLP logs, classify data type + volume + recipient tenant", "Corréler logs proxy + DLP, classifier type, volume et tenant destinataire") },
+        { id: "block_first",correct: false, delta: -3, label: L("Cloud-Domain per CASB-Policy + Proxy-Block sofort sperren, Forensik im Anschluss", "Block the cloud domain immediately via CASB policy + proxy block, forensics afterwards", "Bloquer le domaine cloud via politique CASB + proxy, forensique ensuite") },
+        { id: "ask_user",  correct: false, delta: -3, label: L("User per gesichertem Voice-Channel kontaktieren und Geschäftskontext der Uploads erfragen", "Contact user via secure voice channel and request business context for the uploads", "Contacter l'utilisateur via canal vocal sécurisé pour le contexte métier des uploads") },
       ],
     },
     {
@@ -536,9 +536,9 @@ const EXFIL: Incident = {
       title: L("Stoppen", "Stop", "Stopper"),
       prompt: L("Wie stoppen?", "How to stop?", "Comment stopper ?"),
       options: [
-        { id: "isolate_revoke", correct: true,  delta: +7, label: L("Endpoint isolieren, Cloud-Tokens des Users revoken", "Isolate endpoint, revoke user's cloud tokens", "Isoler l'endpoint, révoquer les tokens cloud de l'utilisateur") },
-        { id: "block_cloud",    correct: false, delta: -3, label: L("Den Cloud-Anbieter im ganzen Unternehmen blocken", "Block the cloud provider company-wide", "Bloquer le provider cloud sur toute l'entreprise") },
-        { id: "rate_limit",     correct: false, delta: -3, label: L("Upload-Bandbreite des Users limitieren", "Rate-limit the user's upload bandwidth", "Limiter la bande passante d'upload de l'utilisateur") },
+        { id: "isolate_revoke", correct: true,  delta: +7, label: L("Endpoint EDR-isolieren, OAuth-/Cloud-Tokens des Users revoken, Refresh-Tokens invalidieren", "EDR-isolate endpoint, revoke user's OAuth/cloud tokens, invalidate refresh tokens", "Isoler l'endpoint via EDR, révoquer les tokens OAuth/cloud, invalider les refresh tokens") },
+        { id: "block_cloud",    correct: false, delta: -3, label: L("Cloud-Anbieter unternehmensweit per CASB + DNS-Policy blocken, Ausnahmen via Approval-Workflow", "Block the cloud provider company-wide via CASB + DNS policy, exceptions via approval workflow", "Bloquer le provider cloud via CASB + politique DNS, exceptions via workflow d'approbation") },
+        { id: "rate_limit",     correct: false, delta: -3, label: L("Upload-Bandbreite des Users via QoS-Policy auf 50 kbps drosseln, Session bleibt offen", "Rate-limit the user's upload bandwidth via QoS policy to 50 kbps, session stays open", "Limiter la bande passante upload via QoS à 50 kbps, session maintenue") },
       ],
     },
     {
@@ -546,9 +546,9 @@ const EXFIL: Incident = {
       title: L("Meldung", "Notification", "Notification"),
       prompt: L("Wer wird benachrichtigt?", "Who is notified?", "Qui est notifié ?"),
       options: [
-        { id: "dpo_legal", correct: true,  delta: +6, label: L("DPO + Legal einbinden, DSGVO-72h-Frist bewerten", "Loop DPO + Legal, assess GDPR 72h deadline", "Impliquer DPO + juridique, évaluer le délai RGPD 72h") },
-        { id: "ciso_only", correct: false, delta: -3, label: L("Nur CISO informieren, DPO erst nach Forensik", "Inform CISO only, DPO after forensics", "Informer uniquement le CISO, DPO après forensique") },
-        { id: "wait_proof",correct: false, delta: -4, label: L("Erst eindeutigen Beweis abwarten, dann melden", "Wait for hard proof, then notify", "Attendre une preuve dure, puis signaler") },
+        { id: "dpo_legal", correct: true,  delta: +6, label: L("DPO + Legal einbinden, DSGVO-72h-Frist und betroffene Datenkategorien bewerten", "Loop DPO + Legal, assess GDPR 72h deadline and affected data categories", "Impliquer DPO + juridique, évaluer le délai RGPD 72h et catégories de données") },
+        { id: "ciso_only", correct: false, delta: -3, label: L("CISO als zentrale Eskalation briefen, DPO nach Abschluss der Forensik einbinden", "Brief CISO as central escalation, loop DPO after forensics completes", "Briefer le CISO comme escalade centrale, DPO après clôture de la forensique") },
+        { id: "wait_proof",correct: false, delta: -4, label: L("Beweissichere Bestätigung der Datenklassifizierung abwarten, dann formell an Aufsichtsbehörde melden", "Wait for evidence-grade confirmation of data classification, then formally notify the regulator", "Attendre une confirmation probante de la classification, puis signaler formellement au régulateur") },
       ],
     },
   ],
@@ -571,9 +571,9 @@ const PATCH: Incident = {
       title: L("Kompromittierung prüfen", "Check compromise", "Vérifier compromission"),
       prompt: L("Wie prüfen?", "How do you check?", "Comment vérifier ?"),
       options: [
-        { id: "ioc_hunt",  correct: true,  delta: +6, label: L("IOCs des Advisories über alle Logs jagen, Konfiguration auf Webshells prüfen", "Hunt advisory IOCs across logs, check config for webshells", "Chasser les IOCs de l'advisory, vérifier la conf pour webshells") },
-        { id: "patch_now", correct: false, delta: -3, label: L("Sofort patchen, Forensik überspringen", "Patch immediately, skip forensics", "Patcher tout de suite, sauter la forensique") },
-        { id: "trust_vendor",correct: false, delta: -3, label: L("Wenn Hersteller noch keine konkreten IOCs hat, abwarten", "If vendor has no concrete IOCs yet, wait", "Si le fournisseur n'a pas d'IOC concret, attendre") },
+        { id: "ioc_hunt",  correct: true,  delta: +6, label: L("IOCs des Advisories über alle Logs jagen, Konfiguration auf Webshells + persistente Sessions prüfen", "Hunt advisory IOCs across logs, check config for webshells + persistent sessions", "Chasser les IOCs de l'advisory, vérifier la config pour webshells + sessions persistantes") },
+        { id: "patch_now", correct: false, delta: -3, label: L("Hersteller-Patch sofort einspielen, Forensik-Snapshot für nachgelagerte Analyse archivieren", "Apply vendor patch immediately, archive a forensic snapshot for downstream analysis", "Appliquer le patch éditeur immédiatement, archiver un snapshot forensique pour analyse ultérieure") },
+        { id: "trust_vendor",correct: false, delta: -3, label: L("Auf belastbare IOCs aus dem Hersteller-PSIRT warten, dann gezielt Hunting-Queries fahren", "Wait for solid IOCs from the vendor PSIRT, then run targeted hunting queries", "Attendre des IOCs solides du PSIRT éditeur, puis lancer des requêtes de hunting ciblées") },
       ],
     },
     {
@@ -581,9 +581,9 @@ const PATCH: Incident = {
       title: L("Mitigation", "Mitigate", "Mitigation"),
       prompt: L("Was tun?", "What do you do?", "Que faire ?"),
       options: [
-        { id: "workaround", correct: true,  delta: +7, label: L("Hersteller-Workaround anwenden, Management-Interface auf Allowlist", "Apply vendor workaround, allowlist management interface", "Appliquer le workaround éditeur, allowlist sur le management") },
-        { id: "shut_vpn",   correct: false, delta: -3, label: L("VPN komplett abschalten — alle User trennen", "Shut down the VPN entirely — disconnect all users", "Couper le VPN entièrement — déconnecter tous les utilisateurs") },
-        { id: "block_external",correct: false, delta: -2, label: L("Nur externe IPs außerhalb DE/EU blocken", "Only block external IPs outside DE/EU", "Bloquer uniquement les IPs hors DE/UE") },
+        { id: "workaround", correct: true,  delta: +7, label: L("Hersteller-Workaround anwenden, Management-Interface auf Allowlist + MFA-Enforce", "Apply vendor workaround, allowlist management interface + enforce MFA", "Appliquer le workaround éditeur, allowlist du management + MFA imposé") },
+        { id: "shut_vpn",   correct: false, delta: -3, label: L("VPN-Tunnel kontrolliert per Maintenance-Mode terminieren, alle aktiven Sessions invalidieren", "Gracefully terminate VPN tunnels via maintenance mode, invalidate all active sessions", "Terminer les tunnels VPN proprement via mode maintenance, invalider toutes les sessions") },
+        { id: "block_external",correct: false, delta: -2, label: L("GeoIP-Filter aktivieren: nur Source-IPs aus DE/EU + bekannte Partner-ASNs erlauben", "Enable GeoIP filter: allow only source IPs from DE/EU + known partner ASNs", "Activer filtre GeoIP : autoriser uniquement IPs DE/UE + ASNs partenaires connus") },
       ],
     },
     {
@@ -591,9 +591,9 @@ const PATCH: Incident = {
       title: L("Patchen", "Patch", "Patcher"),
       prompt: L("Wie patchen?", "How do you patch?", "Comment patcher ?"),
       options: [
-        { id: "patch_verify", correct: true,  delta: +7, label: L("Patch in Wartungsfenster einspielen + IOC-Re-Hunt nach Patch", "Apply patch in maintenance window + re-hunt IOCs post-patch", "Patcher dans la fenêtre de maintenance + re-hunt IOCs après") },
-        { id: "patch_blind",  correct: false, delta: -3, label: L("Patch sofort live einspielen, ohne Re-Hunt", "Push patch live immediately, no re-hunt", "Pousser le patch en live immédiatement, sans re-hunt") },
-        { id: "wait_window",  correct: false, delta: -4, label: L("Auf das nächste reguläre Patch-Fenster in 4 Wochen warten", "Wait for the next regular patch window in 4 weeks", "Attendre la prochaine fenêtre régulière dans 4 semaines") },
+        { id: "patch_verify", correct: true,  delta: +7, label: L("Patch in Wartungsfenster einspielen + IOC-Re-Hunt nach Patch zur Kompromittierungs-Verifikation", "Apply patch in maintenance window + re-hunt IOCs post-patch to verify no compromise", "Patcher dans la fenêtre de maintenance + re-hunt IOCs après patch pour vérification") },
+        { id: "patch_blind",  correct: false, delta: -3, label: L("Patch als Hot-Fix produktiv per CI/CD-Pipeline ausrollen, Smoke-Tests parallel", "Roll out the patch as a hotfix to production via CI/CD pipeline, smoke tests in parallel", "Déployer le patch en hotfix via pipeline CI/CD, smoke tests en parallèle") },
+        { id: "wait_window",  correct: false, delta: -4, label: L("Reguläres Patch-Fenster in 4 Wochen abwarten, Change-Management-Prozess vollständig durchlaufen", "Wait for the regular patch window in 4 weeks, complete the full change-management process", "Attendre la fenêtre régulière dans 4 semaines, processus complet de change management") },
       ],
     },
   ],
