@@ -707,6 +707,42 @@ export default function SocLife({ embedded = false }: SocLifeProps = {}) {
               )}
             </aside>
 
+            {/* Idle action pop-up — short floating pill that confirms the
+                effect of coffee/smalltalk/stretch etc. with delta hints.
+                Sits centered near the top of the play area so it's visible
+                on every viewport size, even when the bottom Sonner toast
+                is hidden behind the chat input bar on mobile. */}
+            {idlePop && (
+              <div
+                key={idlePop.id}
+                className="pointer-events-none absolute top-2 left-1/2 -translate-x-1/2 z-40 animate-fade-in"
+              >
+                <div className="flex items-center gap-2 rounded-full border border-primary/40 bg-background/95 px-3 py-1.5 shadow-[0_4px_20px_-4px_hsl(var(--primary)/0.4)] backdrop-blur-sm">
+                  <span className="text-base leading-none">{idlePop.icon}</span>
+                  <span className="font-mono text-xs uppercase tracking-wider text-foreground">
+                    {idlePop.label}
+                  </span>
+                  <span className="flex items-center gap-1.5 font-mono text-[11px] tabular-nums">
+                    {idlePop.deltas.coffee != null && (
+                      <span className={idlePop.deltas.coffee > 0 ? "text-cyan-300" : "text-rose-300"}>
+                        {idlePop.deltas.coffee > 0 ? "+" : ""}{idlePop.deltas.coffee}☕
+                      </span>
+                    )}
+                    {idlePop.deltas.stress != null && (
+                      <span className={idlePop.deltas.stress < 0 ? "text-emerald-300" : "text-amber-300"}>
+                        {idlePop.deltas.stress > 0 ? "+" : ""}{idlePop.deltas.stress}😰
+                      </span>
+                    )}
+                    {idlePop.deltas.reputation != null && (
+                      <span className={idlePop.deltas.reputation > 0 ? "text-emerald-300" : "text-rose-300"}>
+                        {idlePop.deltas.reputation > 0 ? "+" : ""}{idlePop.deltas.reputation}★
+                      </span>
+                    )}
+                  </span>
+                </div>
+              </div>
+            )}
+
             {/* Consequence overlay: blocks input, surfaces the outcome of the
                 last choice in differentiated language. User must dismiss to
                 continue — replaces the previous toast-spam. */}
