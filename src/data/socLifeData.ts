@@ -392,8 +392,8 @@ const C2: Incident = {
       prompt: L("Wie analysieren?", "How do you analyse?", "Comment analyser ?"),
       options: [
         { id: "ti_lookup",  correct: true,  delta: +6, label: L("TI-Lookup + JA3/Beacon-Intervall + betroffene Hosts identifizieren", "TI lookup + JA3/beacon interval + identify affected hosts", "Lookup TI + JA3/intervalle + identifier les hôtes affectés") },
-        { id: "block_dns",  correct: false, delta: -3, label: L("Domain einfach im DNS sinkholen, ohne Analyse", "Sinkhole the domain in DNS without analysis", "Sinkholer le domaine sans analyse") },
-        { id: "wait",       correct: false, delta: -4, label: L("24h beobachten, ob das Muster stabil bleibt", "Observe 24h whether the pattern persists", "Observer 24h si le pattern persiste") },
+        { id: "block_dns",  correct: false, delta: -3, label: L("Domain per DNS-Sinkhole umleiten und passdns-Snapshots für spätere Analyse archivieren", "Sinkhole the domain via DNS and archive passive-DNS snapshots for later analysis", "Sinkholer le domaine via DNS et archiver des snapshots passive-DNS") },
+        { id: "wait",       correct: false, delta: -4, label: L("24h kontrolliertes Monitoring mit erweiterter Packet-Capture, dann Pattern-Validierung", "Run 24h controlled monitoring with extended packet capture, then validate the pattern", "Surveillance contrôlée 24h avec packet capture étendue, puis validation du pattern") },
       ],
     },
     {
@@ -401,9 +401,9 @@ const C2: Incident = {
       title: L("Blockieren", "Block", "Bloquer"),
       prompt: L("Wo blocken?", "Where do you block?", "Où bloquer ?"),
       options: [
-        { id: "fw_proxy",   correct: true,  delta: +7, label: L("Domain + IPs auf Firewall und Proxy blocken, DNS-Sinkhole setzen", "Block domain + IPs at firewall and proxy, DNS sinkhole", "Bloquer domaine + IPs sur firewall et proxy, sinkhole DNS") },
-        { id: "edr_only",   correct: false, delta: -3, label: L("Nur die Hash-Signatur im EDR blacklisten", "Only blacklist the hash in EDR", "Uniquement blacklister le hash dans l'EDR") },
-        { id: "block_outb", correct: false, delta: -2, label: L("Allen ausgehenden Traffic des Hosts blocken — auch legitimen", "Block all outbound traffic from the host — including legit", "Bloquer tout le trafic sortant de l'hôte — même légitime") },
+        { id: "fw_proxy",   correct: true,  delta: +7, label: L("Domain + IPs auf Firewall und Proxy blocken, DNS-Sinkhole + EDR-IOC-Push", "Block domain + IPs at firewall and proxy, DNS sinkhole + EDR IOC push", "Bloquer domaine + IPs au firewall et proxy, sinkhole DNS + push IOC EDR") },
+        { id: "edr_only",   correct: false, delta: -3, label: L("Hash-Signaturen + Datei-Pfade per EDR-Custom-Indicator zentral blacklisten, Netz unverändert", "Centrally blacklist hashes + file paths via EDR custom indicators, leave network as-is", "Blacklister hashes + chemins via indicateurs EDR custom, réseau inchangé") },
+        { id: "block_outb", correct: false, delta: -2, label: L("Allen ausgehenden Traffic des Hosts per Firewall-Quarantänezone droppen, inkl. legitimer Flows", "Drop all outbound traffic from the host into a FW quarantine zone, incl. legitimate flows", "Couper tout le trafic sortant via zone de quarantaine FW, incl. flux légitimes") },
       ],
     },
     {
@@ -411,9 +411,9 @@ const C2: Incident = {
       title: L("Bereinigung", "Remediate", "Remédiation"),
       prompt: L("Wie bereinigen?", "How to remediate?", "Comment remédier ?"),
       options: [
-        { id: "image_reimage", correct: true,  delta: +7, label: L("Host imagen, Persistenz suchen, dann sauber neu aufsetzen", "Image host, hunt persistence, then reimage cleanly", "Imager l'hôte, chasser la persistance, puis réinstaller") },
-        { id: "av_scan",       correct: false, delta: -3, label: L("Nur einen AV-Vollscan laufen lassen", "Run a full AV scan only", "Lancer juste un scan AV complet") },
-        { id: "kill_proc",     correct: false, delta: -3, label: L("Nur den Beacon-Prozess killen, Host weiternutzen", "Kill the beacon process only, keep using host", "Tuer juste le processus beacon, continuer à utiliser l'hôte") },
+        { id: "image_reimage", correct: true,  delta: +7, label: L("Host imagen, Persistenz (Run-Keys, Tasks, WMI) suchen, dann sauber neu aufsetzen", "Image host, hunt persistence (run keys, tasks, WMI), then reimage cleanly", "Imager l'hôte, chasser la persistance (run keys, tasks, WMI), puis réinstaller proprement") },
+        { id: "av_scan",       correct: false, delta: -3, label: L("Tiefen-Scan mit AV + EDR + zwei Drittanbieter-Scannern offline durchführen, Quarantäne automatisiert", "Run deep AV + EDR + two third-party scanners offline, automated quarantine", "Scan approfondi AV + EDR + 2 scanners tiers hors-ligne, quarantaine automatisée") },
+        { id: "kill_proc",     correct: false, delta: -3, label: L("Beacon-Prozess-Tree per EDR terminieren, Auto-Run-Einträge bereinigen, Host weiternutzen", "Kill the beacon process tree via EDR, clean auto-run entries, keep using host", "Terminer l'arbre de processus du beacon via EDR, nettoyer les auto-runs, garder l'hôte") },
       ],
     },
   ],
@@ -436,9 +436,9 @@ const CRED_DUMP: Incident = {
       title: L("Validieren", "Validate", "Valider"),
       prompt: L("Wie validieren?", "How do you validate?", "Comment valider ?"),
       options: [
-        { id: "process_tree", correct: true,  delta: +6, label: L("Prozess-Tree + Tool-Signatur (Mimikatz/comsvcs) prüfen", "Check process tree + tool signature (Mimikatz/comsvcs)", "Examiner l'arbre de processus + signature outil (Mimikatz/comsvcs)") },
-        { id: "ask_admin",    correct: false, delta: -3, label: L("Den Admin fragen, ob er gerade ein Diagnose-Tool nutzt", "Ask the admin if they're running a diagnostic tool", "Demander à l'admin s'il lance un outil de diagnostic") },
-        { id: "trust_av",     correct: false, delta: -4, label: L("Wenn AV nichts sagt, als False Positive schließen", "If AV stays silent, close as false positive", "Si l'AV ne dit rien, fermer comme faux positif") },
+        { id: "process_tree", correct: true,  delta: +6, label: L("Prozess-Tree + Tool-Signatur (Mimikatz/comsvcs.dll/MiniDumpWriteDump) prüfen", "Check process tree + tool signature (Mimikatz/comsvcs.dll/MiniDumpWriteDump)", "Examiner l'arbre de processus + signature outil (Mimikatz/comsvcs.dll/MiniDumpWriteDump)") },
+        { id: "ask_admin",    correct: false, delta: -3, label: L("Admin direkt kontaktieren und legitimen Diagnose-Use-Case (z. B. Procdump-Wartung) verifizieren", "Contact the admin directly and verify a legitimate diagnostic use case (e.g. procdump maintenance)", "Contacter l'admin et vérifier un usage diagnostique légitime (p. ex. procdump)") },
+        { id: "trust_av",     correct: false, delta: -4, label: L("Defender ATP + EDR-Telemetrie quer-prüfen — bleibt beides still, als False Positive klassifizieren", "Cross-check Defender ATP + EDR telemetry — if both stay silent, classify as false positive", "Recouper Defender ATP + EDR — si les deux restent silencieux, classer en faux positif") },
       ],
     },
     {
@@ -446,9 +446,9 @@ const CRED_DUMP: Incident = {
       title: L("Isolieren", "Isolate", "Isoler"),
       prompt: L("Was zuerst?", "What first?", "Première action ?"),
       options: [
-        { id: "edr_isolate", correct: true,  delta: +7, label: L("Workstation EDR-isolieren, Admin-Sessions terminieren", "EDR-isolate the workstation, kill admin sessions", "Isoler le poste via EDR, terminer les sessions admin") },
-        { id: "shutdown",    correct: false, delta: -3, label: L("Workstation hart ausschalten, Memory verlieren", "Hard-power-off the workstation, lose memory", "Éteindre brutalement le poste, perdre la mémoire") },
-        { id: "user_logoff", correct: false, delta: -3, label: L("Nur User abmelden, Maschine im Netz lassen", "Just log the user off, keep machine on network", "Juste déconnecter l'utilisateur, laisser la machine sur le réseau") },
+        { id: "edr_isolate", correct: true,  delta: +7, label: L("Workstation EDR-isolieren, alle Admin-Sessions terminieren, Kerberos-Tickets purgen", "EDR-isolate the workstation, kill all admin sessions, purge Kerberos tickets", "Isoler le poste via EDR, terminer toutes les sessions admin, purger les tickets Kerberos") },
+        { id: "shutdown",    correct: false, delta: -3, label: L("Workstation kontrolliert per ACPI-Shutdown herunterfahren, Disk-Image im nächsten Schritt", "Gracefully ACPI-shutdown the workstation, take a disk image in the next step", "Éteindre proprement via ACPI, image disque à l'étape suivante") },
+        { id: "user_logoff", correct: false, delta: -3, label: L("Admin-Sitzung per quser/logoff terminieren, Maschine im Netz lassen für Live-Forensik", "Terminate admin session via quser/logoff, keep machine on network for live forensics", "Terminer la session admin via quser/logoff, garder la machine en ligne pour forensique live") },
       ],
     },
     {
@@ -456,9 +456,9 @@ const CRED_DUMP: Incident = {
       title: L("Rotieren", "Rotate", "Rotation"),
       prompt: L("Welche Konten?", "Which accounts?", "Quels comptes ?"),
       options: [
-        { id: "all_admin",  correct: true,  delta: +7, label: L("Alle auf dem Host genutzten Privileged-Konten + Service-Acc rotieren", "Rotate all privileged + service accounts used on host", "Faire tourner tous les comptes priv. + service utilisés sur l'hôte") },
-        { id: "owner_only", correct: false, delta: -3, label: L("Nur das Konto des betroffenen Admins rotieren", "Rotate only the affected admin's account", "Faire tourner uniquement le compte de l'admin concerné") },
-        { id: "schedule",   correct: false, delta: -3, label: L("Rotation auf das nächste Wartungsfenster legen", "Schedule rotation for the next maintenance window", "Programmer la rotation pour la prochaine fenêtre de maintenance") },
+        { id: "all_admin",  correct: true,  delta: +7, label: L("Alle auf dem Host genutzten Privileged- + Service-Konten rotieren, gMSA-Passwort-Cycle erzwingen", "Rotate all privileged + service accounts used on host, force gMSA password cycle", "Faire tourner tous les comptes priv. + service utilisés, forcer le cycle gMSA") },
+        { id: "owner_only", correct: false, delta: -3, label: L("Konto des betroffenen Admins rotieren, MFA neu enrollen, Sitzungen revoken", "Rotate the affected admin's account, re-enroll MFA, revoke sessions", "Faire tourner le compte de l'admin concerné, ré-enrôler MFA, révoquer les sessions") },
+        { id: "schedule",   correct: false, delta: -3, label: L("Geplante Rotation in das nächste Wartungsfenster + JIT-Access-Workflow integrieren", "Integrate scheduled rotation into the next maintenance window + JIT-access workflow", "Intégrer la rotation prévue dans la prochaine fenêtre de maintenance + workflow JIT") },
       ],
     },
   ],
