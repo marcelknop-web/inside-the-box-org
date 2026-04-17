@@ -175,11 +175,17 @@ export default function SocLife() {
   const recentIncidentIdsRef = useRef<string[]>([]);
   const lastCategoryRef = useRef<IncidentCategory | null>(null);
 
-  const isNight = useMemo(() => {
-    // 6 minutes day / 4 minutes night cycle for variety
-    const cycle = shiftSec % 600;
-    return cycle >= 360;
-  }, [shiftSec]);
+  // Day/night source: persisted player choice. Re-renders driven by shiftSec
+  // also re-evaluate "realtime" mode so the world flips at 20:00 / 06:00.
+  const [dayNightMode, setDayNightMode] = useState<DayNightMode>(() => loadDayNightMode());
+  const setDayNightModePersist = useCallback((m: DayNightMode) => {
+    setDayNightMode(m);
+    saveDayNightMode(m);
+  }, []);
+  const isNight = useMemo(
+    () => resolveIsNight(dayNightMode, shiftSec),
+    [dayNightMode, shiftSec],
+  );
 
   const status: "calm" | "oncall" | "incident" =
     activeIncident ? "incident" : (isNight ? "oncall" : "calm");
