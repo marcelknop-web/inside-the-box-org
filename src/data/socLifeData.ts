@@ -783,9 +783,9 @@ const MFA_BOMB: Incident = {
       title: L("Validieren", "Validate", "Valider"),
       prompt: L("Wie verifizieren?", "How do you verify?", "Comment vérifier ?"),
       options: [
-        { id: "auth_review", correct: true,  delta: +6, label: L("Sign-in-Logs + IdP-Telemetrie prüfen, Source-IP/ASN/UA des erfolgreichen Logins korrelieren", "Review sign-in logs + IdP telemetry, correlate source IP/ASN/UA of the successful sign-in", "Examiner les sign-in logs + télémétrie IdP, corréler IP/ASN/UA du login réussi") },
-        { id: "ask_user_only", correct: false, delta: -3, label: L("User per Telefon zur Beschreibung des Klicks befragen, Logs erst danach ziehen", "Phone the user to describe the tap, pull logs only afterwards", "Appeler l'utilisateur pour décrire le tap, logs ensuite") },
-        { id: "trust_idp",  correct: false, delta: -4, label: L("Da MFA bestätigt wurde, als legitime Anmeldung klassifizieren und Ticket schließen", "Since MFA was confirmed, classify as legitimate sign-in and close the ticket", "MFA confirmé : classer comme login légitime et clôturer le ticket") },
+        { id: "auth_review", correct: true,  delta: +6, label: L("Anmeldeprotokolle und Identitäts-Telemetrie prüfen, Quelle und Geräte-Kontext der erfolgreichen Anmeldung abgleichen", "Review sign-in logs and identity telemetry, correlate source and device context of the successful sign-in", "Examiner les sign-in logs et la télémétrie d'identité, corréler la source et le contexte d'appareil de la connexion réussie") },
+        { id: "ask_user_only", correct: false, delta: -3, label: L("Den User anrufen und sich den Klick beschreiben lassen, Logs erst danach", "Call the user and have them describe the tap, pull logs afterwards", "Appeler l'utilisateur et lui faire décrire le tap, logs ensuite") },
+        { id: "trust_idp",  correct: false, delta: -4, label: L("Da MFA bestätigt wurde, als legitime Anmeldung einstufen und das Ticket schließen", "Since MFA was confirmed, classify as legitimate sign-in and close the ticket", "MFA confirmé : classer comme login légitime et clôturer le ticket") },
       ],
     },
     {
@@ -793,9 +793,9 @@ const MFA_BOMB: Incident = {
       title: L("Eindämmung", "Contain", "Confinement"),
       prompt: L("Wie eindämmen?", "How to contain?", "Comment confiner ?"),
       options: [
-        { id: "revoke_sessions", correct: true,  delta: +7, label: L("Alle Sessions/Refresh-Tokens des Users revoken, Conditional-Access auf Re-Auth + bekannte Geräte zwingen", "Revoke all sessions/refresh tokens, force conditional access to re-auth + known devices", "Révoquer toutes sessions/refresh tokens, accès conditionnel forcé en ré-auth + appareils connus") },
-        { id: "disable_user",    correct: false, delta: -3, label: L("Account komplett deaktivieren, User wartet auf Reset im IT-Service-Desk", "Disable the account entirely, user waits for reset at the service desk", "Désactiver le compte, l'utilisateur attend un reset au service desk") },
-        { id: "wait_more",       correct: false, delta: -4, label: L("Erst die Forensik-Analyse abwarten, bevor man den User in seiner Arbeit stört", "Wait for forensic analysis before disrupting the user's work", "Attendre l'analyse forensique avant de perturber l'utilisateur") },
+        { id: "revoke_sessions", correct: true,  delta: +7, label: L("Alle Sitzungen des Users beenden und Re-Anmeldung nur von bekannten Geräten erzwingen", "End all of the user's sessions and force re-authentication only from known devices", "Couper toutes les sessions de l'utilisateur et forcer la ré-authentification uniquement depuis les appareils connus") },
+        { id: "disable_user",    correct: false, delta: -3, label: L("Den Account komplett deaktivieren, der User wartet beim Service-Desk auf einen Reset", "Disable the account entirely, the user waits at the service desk for a reset", "Désactiver complètement le compte, l'utilisateur attend un reset au service desk") },
+        { id: "wait_more",       correct: false, delta: -4, label: L("Erst die Forensik abwarten, bevor man dem User irgendetwas aufzwingt", "Wait for the forensic analysis before forcing anything on the user", "Attendre l'analyse forensique avant d'imposer quoi que ce soit à l'utilisateur") },
       ],
     },
     {
@@ -803,9 +803,9 @@ const MFA_BOMB: Incident = {
       title: L("Härtung", "Harden", "Durcissement"),
       prompt: L("Was ändern?", "What do you change?", "Que changer ?"),
       options: [
-        { id: "number_match",  correct: true,  delta: +6, label: L("Number-Matching + Geo/App-Kontext im IdP erzwingen, Push-Fatigue-Pattern alarmieren", "Enforce number-matching + geo/app context in IdP, alert on push-fatigue patterns", "Forcer number-matching + contexte géo/app dans l'IdP, alerter sur push-fatigue") },
-        { id: "more_training", correct: false, delta: -2, label: L("Awareness-Mail an alle User schicken: 'bitte keine fremden Pushs akzeptieren'", "Send awareness mail to all users: 'please don't accept unknown pushes'", "Envoyer un mail de sensibilisation : 'ne pas accepter de pushs inconnus'") },
-        { id: "remove_mfa",    correct: false, delta: -5, label: L("Push-MFA für den User auf SMS-OTP zurückstellen, da Push 'nicht zuverlässig' sei", "Downgrade user's push MFA to SMS OTP because push is 'unreliable'", "Rétrograder le MFA push en SMS OTP car le push est 'peu fiable'") },
+        { id: "number_match",  correct: true,  delta: +6, label: L("MFA so umstellen, dass der User eine Zahl bestätigen muss, und Standort plus App-Kontext einfließen lassen", "Switch MFA to require a number match and factor in location and app context", "Passer le MFA en mode 'number-matching' et intégrer le contexte de localisation et d'application") },
+        { id: "more_training", correct: false, delta: -2, label: L("Eine Awareness-Mail an alle schicken: 'bitte keine fremden Pushs akzeptieren'", "Blast an awareness mail to everyone: 'please don't accept unknown pushes'", "Envoyer un mail de sensibilisation à tous : 'ne pas accepter de pushs inconnus'") },
+        { id: "remove_mfa",    correct: false, delta: -5, label: L("Den User von Push auf SMS umstellen, weil Push 'unzuverlässig' sei", "Downgrade the user from push to SMS because push is 'unreliable'", "Rétrograder l'utilisateur du push au SMS parce que le push est 'peu fiable'") },
       ],
     },
   ],
