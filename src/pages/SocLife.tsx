@@ -13,6 +13,7 @@ import { DollHouse } from "@/components/socLife/DollHouse";
 import { SocMeters } from "@/components/socLife/SocMeters";
 import { IncidentPanel } from "@/components/socLife/IncidentPanel";
 import { RoomActions, IdleAction } from "@/components/socLife/RoomActions";
+import { resolveIdleLabel } from "@/components/socLife/idleI18n";
 import { ConsequenceOverlay, ConsequenceData } from "@/components/socLife/ConsequenceOverlay";
 import { Onboarding } from "@/components/socLife/Onboarding";
 import { reasonFor } from "@/data/socLifeReasons";
@@ -457,8 +458,10 @@ export default function SocLife({ embedded = false }: SocLifeProps = {}) {
         break;
     }
     // Sonner toast — visible on desktop where the bottom-right corner is free.
-    toast(t(`socLife.idle.${action}.name`), {
-      description: t(`socLife.idle.${action}.result`),
+    const label  = resolveIdleLabel(t, action, currentRoom, "name");
+    const result = resolveIdleLabel(t, action, currentRoom, "result");
+    toast(label, {
+      description: result,
       duration: 1400,
     });
     // In-component pop-up — guaranteed visible on mobile, sits on top of the
@@ -467,11 +470,11 @@ export default function SocLife({ embedded = false }: SocLifeProps = {}) {
     setIdlePop({
       id: Date.now(),
       icon,
-      label: t(`socLife.idle.${action}.name`),
+      label,
       deltas,
     });
     idlePopTimerRef.current = window.setTimeout(() => setIdlePop(null), 1600);
-  }, [audio, t]);
+  }, [audio, t, currentRoom]);
 
   const startShift = async () => {
     audio.setEnabled(true);

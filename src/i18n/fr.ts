@@ -1139,6 +1139,39 @@ export const fr = {
       playbook:      { name: 'Revoir un playbook',  result: 'Réputation +3, Stress +5' },
       smalltalk:     { name: 'Smalltalk',           result: 'Stress -8' },
       stretch:       { name: 'S’étirer',            result: 'Stress -5' },
+      // Variantes par salle — repli automatique sur le texte générique
+      // ci-dessus si une clé manque (voir RoomActions/handleIdle).
+      byRoom: {
+        soc_floor: {
+          threat_intel: { name: 'Lire les notes de passation', result: 'Réputation +2' },
+          smalltalk:    { name: 'Discuter de l’alerte avec Lina', result: 'Stress -8' },
+        },
+        siem: {
+          threat_intel: { name: 'Vérifier les flux IOC dans le SIEM', result: 'Réputation +2' },
+          playbook:     { name: 'Revoir les règles de détection', result: 'Réputation +3, Stress +5' },
+        },
+        forensics: {
+          playbook: { name: 'Dérouler la check-list de chaîne de garde', result: 'Réputation +3, Stress +5' },
+        },
+        noc: {
+          threat_intel: { name: 'Scanner les dashboards NetFlow', result: 'Réputation +2' },
+        },
+        server_room: {
+          stretch: { name: 'Se dégourdir entre les baies', result: 'Stress -5' },
+        },
+        war_room: {
+          playbook:  { name: 'Dérouler le runbook incident majeur', result: 'Réputation +3, Stress +5' },
+          smalltalk: { name: 'Se caler avec le chef IR', result: 'Stress -8' },
+        },
+        ciso_office: {
+          playbook: { name: 'Revoir la matrice d’escalade', result: 'Réputation +3, Stress +5' },
+        },
+        kitchen: {
+          coffee:    { name: 'Tirer un espresso à la machine', result: 'Stress -10, Café +20' },
+          smalltalk: { name: 'Discuter sauvegardes avec Murat', result: 'Stress -8' },
+          stretch:   { name: 'Respirer près de la fenêtre', result: 'Stress -5' },
+        },
+      },
     },
     incidents: {
       phishing: {
