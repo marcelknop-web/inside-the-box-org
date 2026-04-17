@@ -436,9 +436,9 @@ const CRED_DUMP: Incident = {
       title: L("Validieren", "Validate", "Valider"),
       prompt: L("Wie validieren?", "How do you validate?", "Comment valider ?"),
       options: [
-        { id: "process_tree", correct: true,  delta: +6, label: L("Prozess-Tree + Tool-Signatur (Mimikatz/comsvcs.dll/MiniDumpWriteDump) prüfen", "Check process tree + tool signature (Mimikatz/comsvcs.dll/MiniDumpWriteDump)", "Examiner l'arbre de processus + signature outil (Mimikatz/comsvcs.dll/MiniDumpWriteDump)") },
-        { id: "ask_admin",    correct: false, delta: -3, label: L("Admin direkt kontaktieren und legitimen Diagnose-Use-Case (z. B. Procdump-Wartung) verifizieren", "Contact the admin directly and verify a legitimate diagnostic use case (e.g. procdump maintenance)", "Contacter l'admin et vérifier un usage diagnostique légitime (p. ex. procdump)") },
-        { id: "trust_av",     correct: false, delta: -4, label: L("Defender ATP + EDR-Telemetrie quer-prüfen — bleibt beides still, als False Positive klassifizieren", "Cross-check Defender ATP + EDR telemetry — if both stay silent, classify as false positive", "Recouper Defender ATP + EDR — si les deux restent silencieux, classer en faux positif") },
+        { id: "process_tree", correct: true,  delta: +6, label: L("Prozess-Stammbaum und Werkzeug-Signaturen prüfen, typische Credential-Dump-Muster suchen", "Check the process tree and tool signatures, look for typical credential-dump patterns", "Examiner l'arbre de processus et les signatures d'outils, chercher des patterns typiques de dump") },
+        { id: "ask_admin",    correct: false, delta: -3, label: L("Den Admin direkt anrufen und einen legitimen Wartungsgrund bestätigen lassen", "Call the admin directly and have them confirm a legitimate maintenance reason", "Appeler l'admin et lui faire confirmer un motif de maintenance légitime") },
+        { id: "trust_av",     correct: false, delta: -4, label: L("Wenn EDR und Antivirus still bleiben, als Fehlalarm einstufen", "If EDR and antivirus stay silent, classify as false positive", "Si EDR et antivirus restent silencieux, classer en faux positif") },
       ],
     },
     {
@@ -446,9 +446,9 @@ const CRED_DUMP: Incident = {
       title: L("Isolieren", "Isolate", "Isoler"),
       prompt: L("Was zuerst?", "What first?", "Première action ?"),
       options: [
-        { id: "edr_isolate", correct: true,  delta: +7, label: L("Workstation EDR-isolieren, alle Admin-Sessions terminieren, Kerberos-Tickets purgen", "EDR-isolate the workstation, kill all admin sessions, purge Kerberos tickets", "Isoler le poste via EDR, terminer toutes les sessions admin, purger les tickets Kerberos") },
-        { id: "shutdown",    correct: false, delta: -3, label: L("Workstation kontrolliert per ACPI-Shutdown herunterfahren, Disk-Image im nächsten Schritt", "Gracefully ACPI-shutdown the workstation, take a disk image in the next step", "Éteindre proprement via ACPI, image disque à l'étape suivante") },
-        { id: "user_logoff", correct: false, delta: -3, label: L("Admin-Sitzung per quser/logoff terminieren, Maschine im Netz lassen für Live-Forensik", "Terminate admin session via quser/logoff, keep machine on network for live forensics", "Terminer la session admin via quser/logoff, garder la machine en ligne pour forensique live") },
+        { id: "edr_isolate", correct: true,  delta: +7, label: L("Workstation isolieren, alle Admin-Sitzungen beenden, vergebene Tickets/Token verfallen lassen", "Isolate the workstation, end all admin sessions, expire any issued tickets/tokens", "Isoler le poste, terminer toutes les sessions admin, faire expirer les tickets/tokens émis") },
+        { id: "shutdown",    correct: false, delta: -3, label: L("Workstation sauber herunterfahren, das Image im nächsten Schritt ziehen", "Cleanly shut down the workstation, take the image in the next step", "Éteindre proprement le poste, image disque à l'étape suivante") },
+        { id: "user_logoff", correct: false, delta: -3, label: L("Nur die Admin-Sitzung beenden, das Gerät bleibt im Netz für Live-Forensik", "Just end the admin session, keep the machine on the network for live forensics", "Terminer juste la session admin, laisser la machine en ligne pour forensique live") },
       ],
     },
     {
@@ -456,9 +456,9 @@ const CRED_DUMP: Incident = {
       title: L("Rotieren", "Rotate", "Rotation"),
       prompt: L("Welche Konten?", "Which accounts?", "Quels comptes ?"),
       options: [
-        { id: "all_admin",  correct: true,  delta: +7, label: L("Alle auf dem Host genutzten Privileged- + Service-Konten rotieren, gMSA-Passwort-Cycle erzwingen", "Rotate all privileged + service accounts used on host, force gMSA password cycle", "Faire tourner tous les comptes priv. + service utilisés, forcer le cycle gMSA") },
-        { id: "owner_only", correct: false, delta: -3, label: L("Konto des betroffenen Admins rotieren, MFA neu enrollen, Sitzungen revoken", "Rotate the affected admin's account, re-enroll MFA, revoke sessions", "Faire tourner le compte de l'admin concerné, ré-enrôler MFA, révoquer les sessions") },
-        { id: "schedule",   correct: false, delta: -3, label: L("Geplante Rotation in das nächste Wartungsfenster + JIT-Access-Workflow integrieren", "Integrate scheduled rotation into the next maintenance window + JIT-access workflow", "Intégrer la rotation prévue dans la prochaine fenêtre de maintenance + workflow JIT") },
+        { id: "all_admin",  correct: true,  delta: +7, label: L("Alle auf dem Host genutzten privilegierten und Service-Konten rotieren, gemanagte Passwörter erneuern", "Rotate every privileged and service account used on the host, renew managed passwords", "Faire tourner tous les comptes privilégiés et de service utilisés sur l'hôte, renouveler les mots de passe gérés") },
+        { id: "owner_only", correct: false, delta: -3, label: L("Nur das Konto des betroffenen Admins rotieren, MFA neu einrichten, Sitzungen beenden", "Rotate only the affected admin's account, re-enroll MFA, end sessions", "Faire tourner uniquement le compte de l'admin concerné, ré-enrôler MFA, couper les sessions") },
+        { id: "schedule",   correct: false, delta: -3, label: L("Die Rotation in das nächste reguläre Wartungsfenster verschieben", "Defer the rotation to the next regular maintenance window", "Reporter la rotation à la prochaine fenêtre de maintenance régulière") },
       ],
     },
   ],
