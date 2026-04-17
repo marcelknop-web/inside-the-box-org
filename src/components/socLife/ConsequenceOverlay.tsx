@@ -1,7 +1,38 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+
+/** Letter-by-letter typewriter, gated on `start`. Mirrors the pattern used
+ *  in IncidentPanel so reveal cadence feels consistent across the game. */
+function useTypewriter(text: string, msPerChar = 18, start = true) {
+  const [shown, setShown] = useState("");
+  useEffect(() => {
+    setShown("");
+    if (!text || !start) return;
+    let i = 0;
+    const id = window.setInterval(() => {
+      i += 1;
+      setShown(text.slice(0, i));
+      if (i >= text.length) window.clearInterval(id);
+    }, msPerChar);
+    return () => window.clearInterval(id);
+  }, [text, msPerChar, start]);
+  return shown;
+}
+
+/** Fires `true` after `delayMs`; resets when `deps` change. */
+function useDelayedFlag(delayMs: number, deps: unknown[] = []): boolean {
+  const [ready, setReady] = useState(delayMs <= 0);
+  useEffect(() => {
+    setReady(delayMs <= 0);
+    if (delayMs <= 0) return;
+    const id = window.setTimeout(() => setReady(true), delayMs);
+    return () => window.clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, deps);
+  return ready;
+}
 
 export interface ConsequenceData {
   /** The exact option the user picked, in their language */
