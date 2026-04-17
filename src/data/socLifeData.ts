@@ -211,9 +211,9 @@ const DDOS: Incident = {
       title: L("Verifizieren", "Verify", "Vérifier"),
       prompt: L("Was zuerst?", "What first?", "Première action ?"),
       options: [
-        { id: "verify_traffic", correct: true,  delta: +5, label: L("Flow-Daten + Geo-Verteilung prüfen, Layer 3/4 vs 7 abgrenzen", "Check flow data + geo, classify L3/4 vs L7", "Analyser flow data + géo, distinguer L3/4 vs L7") },
-        { id: "scale_up",       correct: false, delta: -3, label: L("Sofort Web-Tier hochskalieren, dann analysieren", "Scale up the web tier first, then analyse", "Scaler la couche web d'abord, puis analyser") },
-        { id: "rate_limit_all", correct: false, delta: -2, label: L("Globales Rate-Limit auf alle Clients setzen", "Global rate-limit on all clients", "Rate-limit global sur tous les clients") },
+        { id: "verify_traffic", correct: true,  delta: +5, label: L("NetFlow + Geo-Verteilung prüfen, Layer 3/4 vs. 7 abgrenzen, Top-Talker identifizieren", "Check NetFlow + geo, classify L3/4 vs L7, identify top talkers", "Analyser NetFlow + géo, distinguer L3/4 vs L7, identifier top talkers") },
+        { id: "scale_up",       correct: false, delta: -3, label: L("Web-Tier per Auto-Scaling-Group hochskalieren und Load-Balancer-Health-Checks lockern", "Scale the web tier via auto-scaling group + relax LB health checks", "Scaler le tier web via auto-scaling + assouplir les health-checks LB") },
+        { id: "rate_limit_all", correct: false, delta: -2, label: L("Globales Rate-Limit per WAF-Regel auf alle Source-IPs setzen, Token-Bucket eng konfigurieren", "Apply WAF-based global rate-limit on all source IPs, tight token bucket", "Rate-limit global via WAF sur toutes les IPs sources, token bucket strict") },
       ],
     },
     {
@@ -221,9 +221,9 @@ const DDOS: Incident = {
       title: L("Mitigation", "Mitigate", "Mitigation"),
       prompt: L("Wie reagieren?", "How do you respond?", "Comment réagir ?"),
       options: [
-        { id: "scrubbing", correct: true,  delta: +8, label: L("Traffic über Scrubbing-Provider routen, gezielte WAF-Regeln", "Route via scrubbing provider, targeted WAF rules", "Router via provider de scrubbing, règles WAF ciblées") },
-        { id: "geoblock",  correct: false, delta: -2, label: L("Pauschalen Geoblock auf verdächtige Regionen ausrollen", "Blanket geo-block on suspect regions", "Géo-blocage massif sur régions suspectes") },
-        { id: "captcha_all",correct: false, delta: -3, label: L("CAPTCHA für alle Logins zwingend aktivieren", "Force CAPTCHA on all logins", "Imposer CAPTCHA sur tous les logins") },
+        { id: "scrubbing", correct: true,  delta: +8, label: L("Traffic über Scrubbing-Provider routen (BGP-Anycast), gezielte WAF-Regeln nachschärfen", "Route via scrubbing provider (BGP anycast), tighten targeted WAF rules", "Router via provider de scrubbing (BGP anycast), affiner les règles WAF") },
+        { id: "geoblock",  correct: false, delta: -2, label: L("Geo-Blocking per ASN-/Country-Liste auf verdächtige Regionen am Edge ausrollen", "Roll out geo-blocking via ASN/country list on suspect regions at the edge", "Géo-blocage via liste ASN/pays sur régions suspectes au edge") },
+        { id: "captcha_all",correct: false, delta: -3, label: L("Adaptiven Bot-Mitigation-Modus mit verpflichtendem CAPTCHA für alle Login-Sessions aktivieren", "Enable adaptive bot-mitigation with mandatory CAPTCHA for all login sessions", "Activer la mitigation bot adaptative avec CAPTCHA obligatoire pour toutes les sessions") },
       ],
     },
     {
@@ -231,9 +231,9 @@ const DDOS: Incident = {
       title: L("Kommunikation", "Comms", "Communication"),
       prompt: L("Was kommunizieren?", "What do you communicate?", "Que communiquer ?"),
       options: [
-        { id: "status_page",  correct: true,  delta: +5, label: L("Status-Page aktualisieren + interne Stakeholder informieren", "Update status page + inform internal stakeholders", "Mettre à jour la status page + informer parties prenantes") },
-        { id: "wait_resolved",correct: false, delta: -3, label: L("Erst warten, bis stabil — dann ein Statement rausgeben", "Wait until stable, then put out a statement", "Attendre que ce soit stable, puis publier") },
-        { id: "internal_only",correct: false, delta: -2, label: L("Nur intern kommunizieren, Kunden nicht beunruhigen", "Internal comms only, don't alarm customers", "Communiquer en interne seulement, ne pas alarmer les clients") },
+        { id: "status_page",  correct: true,  delta: +5, label: L("Status-Page mit klassifiziertem Incident-Level aktualisieren + interne Stakeholder via War-Room-Kanal informieren", "Update status page with classified incident level + inform internal stakeholders via war-room channel", "Mettre à jour la status page avec niveau d'incident + informer les stakeholders via canal war-room") },
+        { id: "wait_resolved",correct: false, delta: -3, label: L("Erst bis Stabilisierung warten, dann strukturiertes Statement mit Root-Cause veröffentlichen", "Wait until stabilised, then publish a structured statement with root cause", "Attendre la stabilisation, puis publier un communiqué structuré avec la cause racine") },
+        { id: "internal_only",correct: false, delta: -2, label: L("Nur interne Comms via Teams + Mail-Verteiler, externe Status-Page bewusst unverändert lassen", "Internal comms via Teams + mail list only, deliberately leave external status page unchanged", "Communication interne via Teams + mailing list, status page externe volontairement inchangée") },
       ],
     },
   ],
@@ -256,9 +256,9 @@ const INSIDER: Incident = {
       title: L("Triage", "Triage", "Triage"),
       prompt: L("Erste Aktion?", "First action?", "Première action ?"),
       options: [
-        { id: "review_dlp", correct: true,  delta: +6, label: L("DLP-Logs + UEBA-Profil prüfen, Baseline vergleichen", "Review DLP logs + UEBA profile, compare baseline", "Examiner logs DLP + profil UEBA, comparer la baseline") },
-        { id: "lock_acct",  correct: false, delta: -3, label: L("Account sofort sperren, bevor man Kontext hat", "Lock account immediately before you have context", "Verrouiller le compte avant d'avoir le contexte") },
-        { id: "ask_mgr",    correct: false, delta: -3, label: L("Direkt den Vorgesetzten fragen, ob das normal ist", "Ask the line manager directly if this is normal", "Demander au manager si c'est normal") },
+        { id: "review_dlp", correct: true,  delta: +6, label: L("DLP-Logs + UEBA-Profil prüfen, Baseline + Peer-Group des Users vergleichen", "Review DLP logs + UEBA profile, compare baseline + user peer group", "Examiner logs DLP + profil UEBA, comparer baseline + groupe pair") },
+        { id: "lock_acct",  correct: false, delta: -3, label: L("Account in Azure AD per Conditional-Access-Block sofort sperren, Token revoken, Kontext nachreichen", "Lock account immediately via Azure-AD conditional-access block, revoke tokens, gather context after", "Verrouiller via accès conditionnel Azure-AD, révoquer les tokens, contexte après") },
+        { id: "ask_mgr",    correct: false, delta: -3, label: L("Direkten Vorgesetzten kontaktieren und Geschäftskontext der Datenabflüsse erfragen", "Contact line manager and request business context for the egress events", "Contacter le manager pour le contexte métier des flux sortants") },
       ],
     },
     {
@@ -266,9 +266,9 @@ const INSIDER: Incident = {
       title: L("Beweissicherung", "Preserve", "Préserver"),
       prompt: L("Forensik?", "Forensics?", "Forensique ?"),
       options: [
-        { id: "image_endpoint", correct: true,  delta: +8, label: L("Endpoint forensisch imagen, Chain-of-Custody dokumentieren", "Forensically image endpoint, document chain of custody", "Imager l'endpoint, documenter la chaîne de garde") },
-        { id: "remote_collect", correct: false, delta: -3, label: L("Nur Remote-Triage-Pakete sammeln, kein Image", "Only collect remote triage packs, no image", "Collecter uniquement triage à distance, sans image") },
-        { id: "snapshot_vm",    correct: false, delta: -2, label: L("Nur einen VM-Snapshot ziehen, ohne Memory-Dump", "Take a VM snapshot only, no memory dump", "Snapshot VM uniquement, sans dump mémoire") },
+        { id: "image_endpoint", correct: true,  delta: +8, label: L("Endpoint per Write-Blocker forensisch imagen, Memory-Dump, Chain-of-Custody dokumentieren", "Forensically image endpoint via write-blocker, memory dump, document chain of custody", "Imager l'endpoint via write-blocker, dump mémoire, documenter la chaîne de garde") },
+        { id: "remote_collect", correct: false, delta: -3, label: L("Remote-Triage-Pakete (KAPE/Velociraptor) sammeln, Disk-Image im nächsten Wartungsfenster", "Collect remote triage packs (KAPE/Velociraptor), disk image in next maintenance window", "Collecter triage à distance (KAPE/Velociraptor), image disque à la prochaine fenêtre") },
+        { id: "snapshot_vm",    correct: false, delta: -2, label: L("VM-Snapshot mit Memory-State über Hypervisor-API ziehen, Disk-Image später aus Snapshot exportieren", "Take a hypervisor-API VM snapshot incl. memory state, export disk image from it later", "Snapshot VM via API hyperviseur incl. mémoire, image disque exportée du snapshot plus tard") },
       ],
     },
     {
@@ -276,9 +276,9 @@ const INSIDER: Incident = {
       title: L("HR & Legal", "HR & Legal", "RH & Juridique"),
       prompt: L("Wer wird einbezogen?", "Who do you involve?", "Qui impliquer ?"),
       options: [
-        { id: "loop_hr_legal", correct: true,  delta: +7, label: L("HR + Legal + Datenschutz formell einbeziehen", "Loop HR + Legal + DPO formally", "Impliquer formellement RH + Juridique + DPO") },
-        { id: "ciso_only",     correct: false, delta: -3, label: L("Nur CISO informieren, HR später", "Inform CISO only, HR later", "Informer uniquement le CISO, RH plus tard") },
-        { id: "shadow",        correct: false, delta: -4, label: L("Weiter beobachten und keine Eskalation auslösen", "Keep monitoring without escalating", "Continuer à observer sans escalader") },
+        { id: "loop_hr_legal", correct: true,  delta: +7, label: L("HR + Legal + Datenschutz formell + dokumentiert via Eskalationsprozess einbinden", "Loop HR + Legal + DPO formally and documented via escalation process", "Impliquer formellement RH + Juridique + DPO via le processus d'escalade") },
+        { id: "ciso_only",     correct: false, delta: -3, label: L("CISO als Single-Point-of-Contact briefen, HR/Legal nach Abschluss der technischen Analyse einbinden", "Brief CISO as single point of contact, loop HR/Legal after technical analysis completes", "Briefer le CISO comme SPOC, RH/juridique après l'analyse technique") },
+        { id: "shadow",        correct: false, delta: -4, label: L("Verdeckte Überwachung (Endpoint + Mail) ausweiten, keine Eskalation, um Operations-Security zu wahren", "Expand covert monitoring (endpoint + mail), no escalation, preserve OPSEC", "Étendre la surveillance discrète (endpoint + mail), pas d'escalade, préserver l'OPSEC") },
       ],
     },
   ],
