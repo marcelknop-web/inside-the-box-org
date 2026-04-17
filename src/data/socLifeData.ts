@@ -121,9 +121,9 @@ const PHISHING: Incident = {
       title: L("Triage", "Triage", "Triage"),
       prompt: L("Was zuerst?", "What first?", "Quelle première action ?"),
       options: [
-        { id: "verify",     correct: true,  delta: +6, label: L("Header & URLs im SIEM verifizieren, Sandbox-Detonation", "Verify headers & URLs in SIEM, sandbox detonation", "Vérifier en-têtes/URLs dans le SIEM, détonation sandbox") },
-        { id: "block_now",  correct: false, delta: -3, label: L("Sofort Sender blocken, ohne IOCs zu erfassen", "Block sender immediately without capturing IOCs", "Bloquer l'expéditeur tout de suite sans collecter les IOCs") },
-        { id: "user_train", correct: false, delta: -4, label: L("Awareness-Mail an alle senden, dann auswerten", "Mass-mail awareness to all, then analyse", "Envoyer un rappel sensibilisation à tous, puis analyser") },
+        { id: "verify",     correct: true,  delta: +6, label: L("Header & URLs im SIEM verifizieren, Sandbox-Detonation des Anhangs", "Verify headers & URLs in SIEM, sandbox-detonate the attachment", "Vérifier en-têtes/URLs dans le SIEM, détonation sandbox de la pièce jointe") },
+        { id: "block_now",  correct: false, delta: -3, label: L("Sender im Mail-Gateway blocken und Mails löschen, IOCs später nachziehen", "Block sender at mail gateway and purge mails, capture IOCs later", "Bloquer l'expéditeur au gateway et purger les mails, IOCs plus tard") },
+        { id: "user_train", correct: false, delta: -4, label: L("Awareness-Broadcast an alle Postfächer mit Indikatoren ausspielen, dann triagieren", "Broadcast awareness with indicators to all mailboxes, then triage", "Diffuser une alerte sensibilisation avec indicateurs à toutes les boîtes, puis triagir") },
       ],
     },
     {
@@ -131,9 +131,9 @@ const PHISHING: Incident = {
       title: L("Eindämmung", "Contain", "Confinement"),
       prompt: L("Wie eindämmen?", "How do you contain?", "Comment confiner ?"),
       options: [
-        { id: "block_sender", correct: true,  delta: +6, label: L("Sender + URLs am Mail-Gateway blocken, Mails zurückziehen", "Block sender + URLs at gateway, recall mails", "Bloquer expéditeur + URLs sur la passerelle, rappeler les mails") },
-        { id: "delete_only",  correct: false, delta: -3, label: L("Nur die Mails aus den Postfächern löschen", "Only delete the mails from mailboxes", "Supprimer uniquement les mails des boîtes") },
-        { id: "quarantine",   correct: false, delta: -2, label: L("Empfänger-Postfächer komplett quarantänisieren", "Quarantine entire recipient mailboxes", "Mettre en quarantaine les boîtes destinataires entières") },
+        { id: "block_sender", correct: true,  delta: +6, label: L("Sender + URLs am Mail-Gateway blocken, ZAP/Recall der Mails aus den Postfächern", "Block sender + URLs at gateway, ZAP/recall mails from mailboxes", "Bloquer expéditeur + URLs sur la passerelle, ZAP/rappel des mails") },
+        { id: "delete_only",  correct: false, delta: -3, label: L("Mails per eDiscovery-Search aus allen Postfächern hard-deleten, Gateway-Regel bleibt offen", "Hard-delete mails via eDiscovery search across mailboxes, leave gateway rule open", "Supprimer définitivement via eDiscovery, sans règle gateway") },
+        { id: "quarantine",   correct: false, delta: -2, label: L("Empfänger-Postfächer per Litigation-Hold + Forwarding-Block komplett quarantänisieren", "Quarantine recipient mailboxes via litigation-hold + forwarding-block", "Mettre en quarantaine via litigation-hold + blocage forwarding") },
       ],
     },
     {
@@ -141,9 +141,9 @@ const PHISHING: Incident = {
       title: L("Reporting", "Report", "Reporting"),
       prompt: L("CISO-Briefing?", "Brief the CISO?", "Briefer le CISO ?"),
       options: [
-        { id: "brief_ciso", correct: true,  delta: +5, label: L("Knapp briefen: Scope, Impact, nächste Schritte", "Brief: scope, impact, next steps", "Briefer : portée, impact, prochaines étapes") },
-        { id: "wait_full",  correct: false, delta: -3, label: L("Erst vollständigen Bericht abwarten, dann briefen", "Wait for the full report, then brief", "Attendre le rapport complet, puis briefer") },
-        { id: "email_only", correct: false, delta: -2, label: L("Nur eine kurze E-Mail an CISO, kein Gespräch", "Send a short email to the CISO, no meeting", "Juste un email au CISO, sans entretien") },
+        { id: "brief_ciso", correct: true,  delta: +5, label: L("Knappes Briefing: Scope, Impact, Containment-Status, nächste Schritte", "Tight brief: scope, impact, containment status, next steps", "Brief concis : portée, impact, état de containment, prochaines étapes") },
+        { id: "wait_full",  correct: false, delta: -3, label: L("Vollständigen Forensik-Bericht inkl. Root-Cause abwarten, dann strukturiert briefen", "Wait for the full forensic report incl. root cause, then brief structured", "Attendre le rapport forensique complet incl. cause racine, puis briefer") },
+        { id: "email_only", correct: false, delta: -2, label: L("Strukturierte E-Mail mit Executive-Summary an CISO + IR-Lead, kein Sync-Termin", "Structured email with executive summary to CISO + IR lead, no sync meeting", "Mail structuré avec résumé exécutif au CISO + IR lead, sans sync") },
       ],
     },
   ],
@@ -166,9 +166,9 @@ const RANSOMWARE: Incident = {
       title: L("Verifizieren", "Verify", "Vérifier"),
       prompt: L("Erste Reaktion?", "First reaction?", "Première réaction ?"),
       options: [
-        { id: "confirm_edr",  correct: true,  delta: +6, label: L("EDR-Telemetrie + Datei-Hashes verifizieren, Prozess-Tree prüfen", "Verify EDR telemetry + file hashes, check process tree", "Vérifier télémétrie EDR + hashes, examiner l'arbre de processus") },
-        { id: "shutdown_srv", correct: false, delta: -3, label: L("Den File-Server hart herunterfahren, dann analysieren", "Hard-shutdown the file server, then analyse", "Éteindre brutalement le serveur, puis analyser") },
-        { id: "kill_share",   correct: false, delta: -2, label: L("SMB-Share offline nehmen, ohne Forensik zu sichern", "Take SMB share offline without preserving forensics", "Couper le partage SMB sans préserver la forensique") },
+        { id: "confirm_edr",  correct: true,  delta: +6, label: L("EDR-Telemetrie + Datei-Hashes verifizieren, Prozess-Tree und Parent-PID prüfen", "Verify EDR telemetry + file hashes, check process tree and parent PID", "Vérifier télémétrie EDR + hashes, examiner l'arbre de processus et le parent") },
+        { id: "shutdown_srv", correct: false, delta: -3, label: L("File-Server kontrolliert per ACPI-Shutdown herunterfahren, Volume-Snapshot ziehen", "Gracefully ACPI-shutdown the file server, then take a volume snapshot", "Éteindre proprement via ACPI, puis snapshot volume") },
+        { id: "kill_share",   correct: false, delta: -2, label: L("SMB-Share via PowerShell offline nehmen und ACLs auf Read-Only setzen", "Take SMB share offline via PowerShell, set ACLs to read-only", "Couper le partage SMB via PowerShell, ACLs en lecture seule") },
       ],
     },
     {
@@ -176,9 +176,9 @@ const RANSOMWARE: Incident = {
       title: L("Isolation", "Isolate", "Isoler"),
       prompt: L("Wie isolieren?", "How to isolate?", "Comment isoler ?"),
       options: [
-        { id: "segment_vlan",  correct: true,  delta: +8, label: L("Host-VLAN segmentieren, EDR-Quarantäne, Lateral-Movement stoppen", "Segment host VLAN, EDR-isolate, stop lateral movement", "Segmenter le VLAN, isoler via EDR, stopper mouvement latéral") },
-        { id: "block_ad",      correct: false, delta: -3, label: L("AD-Konto sperren, aber Host im Netz lassen", "Disable AD account but leave host on network", "Désactiver le compte AD mais laisser l'hôte sur le réseau") },
-        { id: "block_internet",correct: false, delta: -2, label: L("Nur Internet-Uplink des Hosts kappen", "Only cut the host's internet uplink", "Couper uniquement le lien internet de l'hôte") },
+        { id: "segment_vlan",  correct: true,  delta: +8, label: L("Host-VLAN segmentieren, EDR-Quarantäne, Lateral-Movement-Pfade kappen", "Segment host VLAN, EDR-isolate, sever lateral-movement paths", "Segmenter le VLAN, isoler via EDR, couper les chemins de mouvement latéral") },
+        { id: "block_ad",      correct: false, delta: -3, label: L("Computer-Konto im AD deaktivieren + GPO-Push für Defender-Vollscan auf dem Host", "Disable AD computer account + GPO-push Defender full-scan on host", "Désactiver le compte machine AD + GPO push scan complet Defender") },
+        { id: "block_internet",correct: false, delta: -2, label: L("Internet-Uplink des Hosts auf Firewall droppen + Proxy-Bypass-Regel entfernen", "Drop the host's internet uplink at FW + remove proxy-bypass rule", "Couper l'uplink internet au firewall + retirer la règle proxy-bypass") },
       ],
     },
     {
@@ -186,9 +186,9 @@ const RANSOMWARE: Incident = {
       title: L("Wiederherstellung", "Recovery", "Restauration"),
       prompt: L("Recovery?", "Recovery?", "Recovery ?"),
       options: [
-        { id: "restore_backup", correct: true,  delta: +8, label: L("Backups aus Offline-Vault prüfen, dann sauber restoren", "Verify offline-vault backups, then restore cleanly", "Vérifier sauvegardes hors-ligne, puis restaurer proprement") },
-        { id: "restore_latest", correct: false, delta: -4, label: L("Letztes Online-Backup sofort einspielen", "Restore latest online backup immediately", "Restaurer immédiatement la dernière sauvegarde en ligne") },
-        { id: "shadow_copies",  correct: false, delta: -3, label: L("Volume Shadow Copies nutzen, ohne Integrität zu prüfen", "Use volume shadow copies without integrity check", "Utiliser les shadow copies sans vérifier l'intégrité") },
+        { id: "restore_backup", correct: true,  delta: +8, label: L("Backups aus Offline-/Immutable-Vault auf Integrität prüfen, dann sauber restoren", "Verify offline/immutable-vault backups for integrity, then restore cleanly", "Vérifier l'intégrité des sauvegardes hors-ligne/immuables, puis restaurer") },
+        { id: "restore_latest", correct: false, delta: -4, label: L("Letztes Online-Backup aus dem Backup-Repository per One-Click-Restore einspielen", "Restore the latest online backup from the repo via one-click-restore", "Restaurer la dernière sauvegarde en ligne via restauration en un clic") },
+        { id: "shadow_copies",  correct: false, delta: -3, label: L("Volume Shadow Copies per vssadmin revertieren und Datei-Versionen vergleichen", "Revert via vssadmin volume-shadow-copies and diff file versions", "Restaurer via vssadmin shadow-copies et comparer les versions") },
       ],
     },
   ],
