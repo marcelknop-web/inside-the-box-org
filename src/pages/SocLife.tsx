@@ -206,6 +206,19 @@ export default function SocLife({ embedded = false }: SocLifeProps = {}) {
   const [activeIncident, setActiveIncident] = useState<Incident | null>(null);
   const [stepIdx, setStepIdx] = useState(0);
   const [stepTimeLeft, setStepTimeLeft] = useState(0);
+  // Inline floating pop-up for idle actions (coffee, smalltalk, etc.).
+  // The Sonner toast at the bottom of the screen is easy to miss on mobile
+  // because the chat input bar (in ChatView) and the absolute consequence
+  // overlay can sit on top of it. This in-component pill is portaled into
+  // the SocLife root so the user always sees the immediate feedback right
+  // next to the action they just clicked. Auto-dismisses after ~1.4s.
+  const [idlePop, setIdlePop] = useState<{
+    id: number;
+    icon: string;
+    label: string;
+    deltas: { stress?: number; coffee?: number; reputation?: number };
+  } | null>(null);
+  const idlePopTimerRef = useRef<number | null>(null);
   // When set, a prominent consequence overlay is shown and the step timer pauses
   // until the user clicks "Continue". This forces the player to actually read
   // the outcome before the next step kicks in.
