@@ -596,6 +596,93 @@ function drawPlant(ctx: CanvasRenderingContext2D, x: number, y: number) {
   drawPx(ctx, x + 4, y + 5, C.green);
 }
 
+// --- Decorative props (posters, whiteboards, binders, clocks) -----------
+// All wall-mounted, drawn on the upper wall area so they don't clash with
+// the existing furniture lines. Coordinates are room-local.
+
+function drawPoster(ctx: CanvasRenderingContext2D, x: number, y: number, accent: string) {
+  drawRect(ctx, x, y, 9, 12, "#0a0a14");
+  drawRect(ctx, x + 1, y + 1, 7, 10, "#1d1d33");
+  // Abstract shapes — feels like a tech/security poster
+  drawRect(ctx, x + 2, y + 2, 5, 4, accent);
+  drawPx(ctx, x + 3, y + 3, "#0a0a14");
+  drawPx(ctx, x + 5, y + 4, "#0a0a14");
+  // Caption strip
+  drawRect(ctx, x + 2, y + 8, 5, 1, accent);
+  drawRect(ctx, x + 2, y + 10, 3, 1, "#5a5a6a");
+}
+
+function drawWhiteboard(ctx: CanvasRenderingContext2D, x: number, y: number, t: number, seed = 0) {
+  drawRect(ctx, x, y, 18, 10, "#3a2a14");           // wood frame
+  drawRect(ctx, x + 1, y + 1, 16, 8, "#e8e8f0");    // white surface
+  // Sketched lines — pseudo-random but stable per seed
+  for (let i = 0; i < 4; i++) {
+    const lx = x + 2 + Math.floor(rand1(seed + i * 3) * 12);
+    const ly = y + 2 + i * 2;
+    const lw = 2 + Math.floor(rand1(seed + i * 7) * 10);
+    drawRect(ctx, lx, ly, lw, 1, i % 2 === 0 ? "#2a2a3a" : "#7a1a4d");
+  }
+  // Tiny marker tray
+  drawRect(ctx, x + 2, y + 9, 14, 1, "#3a2a14");
+  // Occasional "highlighted" pixel — looks like someone just wrote on it
+  if (((Math.floor(t / 1800) + seed) % 5) === 0) {
+    drawPx(ctx, x + 4 + ((Math.floor(t / 200) + seed) % 10), y + 5, "#ff3aa0");
+  }
+}
+
+function drawBinders(ctx: CanvasRenderingContext2D, x: number, y: number) {
+  // Shelf
+  drawRect(ctx, x - 1, y + 14, 16, 1, "#3a2a14");
+  // 7 colourful binders
+  const cols = ["#7a1a1a", C.amber, C.cyanDim, "#5a1a4a", "#2a6a18", C.goldDim, "#3a3a5e"];
+  for (let i = 0; i < 7; i++) {
+    drawRect(ctx, x + i * 2, y + 6, 2, 8, cols[i]);
+    drawPx(ctx, x + i * 2, y + 7, "#0a0a14");
+    drawPx(ctx, x + i * 2 + 1, y + 12, "#e8e8f0"); // label
+  }
+}
+
+function drawClock(ctx: CanvasRenderingContext2D, x: number, y: number, t: number) {
+  // Outer ring
+  drawRect(ctx, x + 1, y, 5, 1, "#3a3a4a");
+  drawRect(ctx, x + 1, y + 6, 5, 1, "#3a3a4a");
+  drawRect(ctx, x, y + 1, 1, 5, "#3a3a4a");
+  drawRect(ctx, x + 6, y + 1, 1, 5, "#3a3a4a");
+  // Face
+  drawRect(ctx, x + 1, y + 1, 5, 5, "#e8e8f0");
+  // Tick marks
+  drawPx(ctx, x + 3, y + 1, "#0a0a14");
+  drawPx(ctx, x + 3, y + 5, "#0a0a14");
+  drawPx(ctx, x + 1, y + 3, "#0a0a14");
+  drawPx(ctx, x + 5, y + 3, "#0a0a14");
+  // Hour & minute hand — minute hand sweeps once per ~6s for visible motion
+  const ang = (t / 6000) * Math.PI * 2;
+  const mx = Math.round(3 + Math.cos(ang - Math.PI / 2) * 1.5);
+  const my = Math.round(3 + Math.sin(ang - Math.PI / 2) * 1.5);
+  drawPx(ctx, x + mx, y + my, "#7a1a1a");
+  drawPx(ctx, x + 3, y + 3, "#0a0a14"); // pivot
+}
+
+function drawWindow(ctx: CanvasRenderingContext2D, x: number, y: number, isNight: boolean) {
+  drawRect(ctx, x, y, 12, 10, "#3a2a14");                    // frame
+  const sky = isNight ? "#0a1838" : "#5ab4e8";
+  drawRect(ctx, x + 1, y + 1, 10, 8, sky);
+  // Cross mullions
+  drawRect(ctx, x + 6, y + 1, 1, 8, "#3a2a14");
+  drawRect(ctx, x + 1, y + 5, 10, 1, "#3a2a14");
+  if (isNight) {
+    // Stars + moon glow
+    drawPx(ctx, x + 3, y + 2, C.white);
+    drawPx(ctx, x + 9, y + 3, C.white);
+    drawPx(ctx, x + 4, y + 7, "rgba(232,232,240,0.7)");
+    drawRect(ctx, x + 8, y + 6, 2, 2, "#e8e8c0"); // moon sliver
+  } else {
+    // Cloud
+    drawRect(ctx, x + 2, y + 3, 3, 1, "#e8e8f0");
+    drawPx(ctx, x + 8, y + 7, "#e8e8f0");
+  }
+}
+
 // Big SIEM video wall: 3 large screens with realistic animated bar-graphs
 function drawSiemWall(ctx: CanvasRenderingContext2D, x: number, y: number, t: number) {
   // back wall plate
@@ -784,7 +871,14 @@ const NPC_LOOK: Record<NpcId, { shirt: string; pants: string; skin: string; hair
 };
 
 // Per-room furniture renderer
-function renderRoom(ctx: CanvasRenderingContext2D, room: RoomId, x: number, y: number, t: number) {
+function renderRoom(
+  ctx: CanvasRenderingContext2D,
+  room: RoomId,
+  x: number,
+  y: number,
+  t: number,
+  isNight: boolean,
+) {
   drawWallpaper(ctx, x, y, ROOM_W, ROOM_H - 4);
   drawFloor(ctx, x, y + ROOM_H - 4, ROOM_W, 4);
   // Door on right side leading to corridor
@@ -792,36 +886,55 @@ function renderRoom(ctx: CanvasRenderingContext2D, room: RoomId, x: number, y: n
 
   switch (room) {
     case "soc_floor": {
+      // Wall props above the desks
+      drawPoster(ctx, x + 6, y + 6, C.cyan);
+      drawClock(ctx, x + 28, y + 8, t);
+      drawWhiteboard(ctx, x + 38, y + 6, t, 11);
       drawDesk(ctx, x + 4, y + 24, C.cyan, t, 1);
       drawDesk(ctx, x + 34, y + 24, C.amber, t + 50, 2);
+      drawPlant(ctx, x + 26, y + 32);
       break;
     }
     case "siem": {
       drawSiemWall(ctx, x + 2, y + 6, t);
+      // Plant + clock to anchor the room
+      drawPlant(ctx, x + 2, y + 36);
+      drawClock(ctx, x + 54, y + 36, t);
       break;
     }
     case "forensics": {
       drawForensics(ctx, x + 6, y + 18, t);
+      drawBinders(ctx, x + 4, y + 4);
+      drawPoster(ctx, x + 50, y + 6, C.green);
       break;
     }
     case "noc": {
       drawNocRack(ctx, x + 4, y + 10, t);
       drawNocRack(ctx, x + 26, y + 10, t + 100);
       drawDesk(ctx, x + 44, y + 24, C.green, t + 200, 3);
+      drawClock(ctx, x + 47, y + 6, t);
       break;
     }
     case "server_room": {
       drawRack(ctx, x + 4, y + 6, t);
       drawRack(ctx, x + 22, y + 6, t + 80);
       drawRack(ctx, x + 40, y + 6, t + 160);
+      // Floor cable tray
+      drawRect(ctx, x + 2, y + ROOM_H - 8, ROOM_W - 4, 1, "#3a2a14");
+      drawPx(ctx, x + 10, y + ROOM_H - 9, C.amber);
+      drawPx(ctx, x + 30, y + ROOM_H - 9, C.cyan);
+      drawPx(ctx, x + 50, y + ROOM_H - 9, C.green);
       break;
     }
     case "war_room": {
       drawWarRoom(ctx, x + 4, y + 14, t);
+      drawWindow(ctx, x + 50, y + 4, isNight);
       break;
     }
     case "ciso_office": {
       drawCisoOffice(ctx, x + 6, y + 16, t);
+      drawWindow(ctx, x + 48, y + 4, isNight);
+      drawBinders(ctx, x + 2, y + 4);
       break;
     }
     case "kitchen": {
@@ -830,6 +943,13 @@ function renderRoom(ctx: CanvasRenderingContext2D, room: RoomId, x: number, y: n
       drawRect(ctx, x + 36, y + 38, 12, 4, "#3a2a1a"); // counter
       drawPx(ctx, x + 38, y + 36, C.amber); // cup
       drawPx(ctx, x + 44, y + 36, C.amber);
+      // Fridge
+      drawRect(ctx, x + 50, y + 24, 10, 18, "#3a3a4a");
+      drawRect(ctx, x + 51, y + 25, 8, 8, "#5a5a6a");
+      drawRect(ctx, x + 51, y + 34, 8, 7, "#5a5a6a");
+      drawPx(ctx, x + 58, y + 29, C.amber);
+      // Plant on counter
+      drawPlant(ctx, x + 4, y + 28);
       break;
     }
   }
