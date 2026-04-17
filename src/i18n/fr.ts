@@ -340,7 +340,7 @@ export const fr = {
     agentSocLifeTitle: 'SOC Life',
     agentSocLifeDesc: 'Simulateur SOC corporate à Francfort — salles, collègues, incidents',
     butterflyTitle: 'Laboratoire Effet Papillon',
-    butterflyDesc: 'Découvrez de manière interactive comment de minuscules changements de paramètres peuvent faire basculer des systèmes non linéaires comme le climat',
+    butterflyDesc: 'Découvrez de manière interactive comment de minuscules changements de paramètres peuvent faire basculer des systèmes non linéaires',
     eliteTitle: 'Assez de sécurité ?',
     eliteDesc: 'Déconnectez, volez, lâchez prise — une scène 3D méditative pour se détendre',
     agentYtTitle: 'Vidéos d\'injection',
