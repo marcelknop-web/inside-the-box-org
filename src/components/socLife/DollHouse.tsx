@@ -793,8 +793,13 @@ function drawFigure(
     ctx.translate(-(fx + 3), 0);
   }
 
-  // Drop shadow under the feet
-  drawRect(ctx, fx - 2, y, 10, 1, C.shadow);
+  // Soft elliptical drop shadow under the feet — feels grounded
+  ctx.save();
+  ctx.fillStyle = "rgba(0,0,0,0.45)";
+  ctx.beginPath();
+  ctx.ellipse(fx + 3, y + 0.5, 4, 1.2, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
 
   // Highlighted (player) figures get a 1-px dark outline drawn first, so the
   // bright gold body always reads against ANY background (dark wallpaper,
@@ -819,6 +824,7 @@ function drawFigure(
   drawRect(ctx, fx + 1, fy, 4, 1, hair);
   drawPx(ctx, fx + 4, fy + 1, hair);
   drawPx(ctx, fx + 3, fy + 2, "#0a0a0a"); // eye
+  drawPx(ctx, fx + 1, fy + 1, "rgba(255,255,255,0.35)"); // skin highlight
   // Body
   drawRect(ctx, fx, fy + 4, 6, 6, shirt);
   drawRect(ctx, fx, fy + 9, 6, 1, "#0a0a0a");
@@ -1079,7 +1085,7 @@ export function DollHouse({ current, highlight, onMove, maxHeight, isNight = fal
       ROOMS.forEach((room) => {
         const x = room.col * ROOM_W;
         const y = roomTopY(room.row);
-        renderRoom(ctx, room.id, x, y, t);
+        renderRoom(ctx, room.id, x, y, t, isNightRef.current);
       });
 
       // Corridor strip
