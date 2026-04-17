@@ -596,6 +596,93 @@ function drawPlant(ctx: CanvasRenderingContext2D, x: number, y: number) {
   drawPx(ctx, x + 4, y + 5, C.green);
 }
 
+// --- Decorative props (posters, whiteboards, binders, clocks) -----------
+// All wall-mounted, drawn on the upper wall area so they don't clash with
+// the existing furniture lines. Coordinates are room-local.
+
+function drawPoster(ctx: CanvasRenderingContext2D, x: number, y: number, accent: string) {
+  drawRect(ctx, x, y, 9, 12, "#0a0a14");
+  drawRect(ctx, x + 1, y + 1, 7, 10, "#1d1d33");
+  // Abstract shapes — feels like a tech/security poster
+  drawRect(ctx, x + 2, y + 2, 5, 4, accent);
+  drawPx(ctx, x + 3, y + 3, "#0a0a14");
+  drawPx(ctx, x + 5, y + 4, "#0a0a14");
+  // Caption strip
+  drawRect(ctx, x + 2, y + 8, 5, 1, accent);
+  drawRect(ctx, x + 2, y + 10, 3, 1, "#5a5a6a");
+}
+
+function drawWhiteboard(ctx: CanvasRenderingContext2D, x: number, y: number, t: number, seed = 0) {
+  drawRect(ctx, x, y, 18, 10, "#3a2a14");           // wood frame
+  drawRect(ctx, x + 1, y + 1, 16, 8, "#e8e8f0");    // white surface
+  // Sketched lines — pseudo-random but stable per seed
+  for (let i = 0; i < 4; i++) {
+    const lx = x + 2 + Math.floor(rand1(seed + i * 3) * 12);
+    const ly = y + 2 + i * 2;
+    const lw = 2 + Math.floor(rand1(seed + i * 7) * 10);
+    drawRect(ctx, lx, ly, lw, 1, i % 2 === 0 ? "#2a2a3a" : "#7a1a4d");
+  }
+  // Tiny marker tray
+  drawRect(ctx, x + 2, y + 9, 14, 1, "#3a2a14");
+  // Occasional "highlighted" pixel — looks like someone just wrote on it
+  if (((Math.floor(t / 1800) + seed) % 5) === 0) {
+    drawPx(ctx, x + 4 + ((Math.floor(t / 200) + seed) % 10), y + 5, "#ff3aa0");
+  }
+}
+
+function drawBinders(ctx: CanvasRenderingContext2D, x: number, y: number) {
+  // Shelf
+  drawRect(ctx, x - 1, y + 14, 16, 1, "#3a2a14");
+  // 7 colourful binders
+  const cols = ["#7a1a1a", C.amber, C.cyanDim, "#5a1a4a", "#2a6a18", C.goldDim, "#3a3a5e"];
+  for (let i = 0; i < 7; i++) {
+    drawRect(ctx, x + i * 2, y + 6, 2, 8, cols[i]);
+    drawPx(ctx, x + i * 2, y + 7, "#0a0a14");
+    drawPx(ctx, x + i * 2 + 1, y + 12, "#e8e8f0"); // label
+  }
+}
+
+function drawClock(ctx: CanvasRenderingContext2D, x: number, y: number, t: number) {
+  // Outer ring
+  drawRect(ctx, x + 1, y, 5, 1, "#3a3a4a");
+  drawRect(ctx, x + 1, y + 6, 5, 1, "#3a3a4a");
+  drawRect(ctx, x, y + 1, 1, 5, "#3a3a4a");
+  drawRect(ctx, x + 6, y + 1, 1, 5, "#3a3a4a");
+  // Face
+  drawRect(ctx, x + 1, y + 1, 5, 5, "#e8e8f0");
+  // Tick marks
+  drawPx(ctx, x + 3, y + 1, "#0a0a14");
+  drawPx(ctx, x + 3, y + 5, "#0a0a14");
+  drawPx(ctx, x + 1, y + 3, "#0a0a14");
+  drawPx(ctx, x + 5, y + 3, "#0a0a14");
+  // Hour & minute hand — minute hand sweeps once per ~6s for visible motion
+  const ang = (t / 6000) * Math.PI * 2;
+  const mx = Math.round(3 + Math.cos(ang - Math.PI / 2) * 1.5);
+  const my = Math.round(3 + Math.sin(ang - Math.PI / 2) * 1.5);
+  drawPx(ctx, x + mx, y + my, "#7a1a1a");
+  drawPx(ctx, x + 3, y + 3, "#0a0a14"); // pivot
+}
+
+function drawWindow(ctx: CanvasRenderingContext2D, x: number, y: number, isNight: boolean) {
+  drawRect(ctx, x, y, 12, 10, "#3a2a14");                    // frame
+  const sky = isNight ? "#0a1838" : "#5ab4e8";
+  drawRect(ctx, x + 1, y + 1, 10, 8, sky);
+  // Cross mullions
+  drawRect(ctx, x + 6, y + 1, 1, 8, "#3a2a14");
+  drawRect(ctx, x + 1, y + 5, 10, 1, "#3a2a14");
+  if (isNight) {
+    // Stars + moon glow
+    drawPx(ctx, x + 3, y + 2, C.white);
+    drawPx(ctx, x + 9, y + 3, C.white);
+    drawPx(ctx, x + 4, y + 7, "rgba(232,232,240,0.7)");
+    drawRect(ctx, x + 8, y + 6, 2, 2, "#e8e8c0"); // moon sliver
+  } else {
+    // Cloud
+    drawRect(ctx, x + 2, y + 3, 3, 1, "#e8e8f0");
+    drawPx(ctx, x + 8, y + 7, "#e8e8f0");
+  }
+}
+
 // Big SIEM video wall: 3 large screens with realistic animated bar-graphs
 function drawSiemWall(ctx: CanvasRenderingContext2D, x: number, y: number, t: number) {
   // back wall plate
@@ -706,8 +793,13 @@ function drawFigure(
     ctx.translate(-(fx + 3), 0);
   }
 
-  // Drop shadow under the feet
-  drawRect(ctx, fx - 2, y, 10, 1, C.shadow);
+  // Soft elliptical drop shadow under the feet — feels grounded
+  ctx.save();
+  ctx.fillStyle = "rgba(0,0,0,0.45)";
+  ctx.beginPath();
+  ctx.ellipse(fx + 3, y + 0.5, 4, 1.2, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
 
   // Highlighted (player) figures get a 1-px dark outline drawn first, so the
   // bright gold body always reads against ANY background (dark wallpaper,
@@ -732,6 +824,7 @@ function drawFigure(
   drawRect(ctx, fx + 1, fy, 4, 1, hair);
   drawPx(ctx, fx + 4, fy + 1, hair);
   drawPx(ctx, fx + 3, fy + 2, "#0a0a0a"); // eye
+  drawPx(ctx, fx + 1, fy + 1, "rgba(255,255,255,0.35)"); // skin highlight
   // Body
   drawRect(ctx, fx, fy + 4, 6, 6, shirt);
   drawRect(ctx, fx, fy + 9, 6, 1, "#0a0a0a");
@@ -784,7 +877,14 @@ const NPC_LOOK: Record<NpcId, { shirt: string; pants: string; skin: string; hair
 };
 
 // Per-room furniture renderer
-function renderRoom(ctx: CanvasRenderingContext2D, room: RoomId, x: number, y: number, t: number) {
+function renderRoom(
+  ctx: CanvasRenderingContext2D,
+  room: RoomId,
+  x: number,
+  y: number,
+  t: number,
+  isNight: boolean,
+) {
   drawWallpaper(ctx, x, y, ROOM_W, ROOM_H - 4);
   drawFloor(ctx, x, y + ROOM_H - 4, ROOM_W, 4);
   // Door on right side leading to corridor
@@ -792,36 +892,55 @@ function renderRoom(ctx: CanvasRenderingContext2D, room: RoomId, x: number, y: n
 
   switch (room) {
     case "soc_floor": {
+      // Wall props above the desks
+      drawPoster(ctx, x + 6, y + 6, C.cyan);
+      drawClock(ctx, x + 28, y + 8, t);
+      drawWhiteboard(ctx, x + 38, y + 6, t, 11);
       drawDesk(ctx, x + 4, y + 24, C.cyan, t, 1);
       drawDesk(ctx, x + 34, y + 24, C.amber, t + 50, 2);
+      drawPlant(ctx, x + 26, y + 32);
       break;
     }
     case "siem": {
       drawSiemWall(ctx, x + 2, y + 6, t);
+      // Plant + clock to anchor the room
+      drawPlant(ctx, x + 2, y + 36);
+      drawClock(ctx, x + 54, y + 36, t);
       break;
     }
     case "forensics": {
       drawForensics(ctx, x + 6, y + 18, t);
+      drawBinders(ctx, x + 4, y + 4);
+      drawPoster(ctx, x + 50, y + 6, C.green);
       break;
     }
     case "noc": {
       drawNocRack(ctx, x + 4, y + 10, t);
       drawNocRack(ctx, x + 26, y + 10, t + 100);
       drawDesk(ctx, x + 44, y + 24, C.green, t + 200, 3);
+      drawClock(ctx, x + 47, y + 6, t);
       break;
     }
     case "server_room": {
       drawRack(ctx, x + 4, y + 6, t);
       drawRack(ctx, x + 22, y + 6, t + 80);
       drawRack(ctx, x + 40, y + 6, t + 160);
+      // Floor cable tray
+      drawRect(ctx, x + 2, y + ROOM_H - 8, ROOM_W - 4, 1, "#3a2a14");
+      drawPx(ctx, x + 10, y + ROOM_H - 9, C.amber);
+      drawPx(ctx, x + 30, y + ROOM_H - 9, C.cyan);
+      drawPx(ctx, x + 50, y + ROOM_H - 9, C.green);
       break;
     }
     case "war_room": {
       drawWarRoom(ctx, x + 4, y + 14, t);
+      drawWindow(ctx, x + 50, y + 4, isNight);
       break;
     }
     case "ciso_office": {
       drawCisoOffice(ctx, x + 6, y + 16, t);
+      drawWindow(ctx, x + 48, y + 4, isNight);
+      drawBinders(ctx, x + 2, y + 4);
       break;
     }
     case "kitchen": {
@@ -830,6 +949,13 @@ function renderRoom(ctx: CanvasRenderingContext2D, room: RoomId, x: number, y: n
       drawRect(ctx, x + 36, y + 38, 12, 4, "#3a2a1a"); // counter
       drawPx(ctx, x + 38, y + 36, C.amber); // cup
       drawPx(ctx, x + 44, y + 36, C.amber);
+      // Fridge
+      drawRect(ctx, x + 50, y + 24, 10, 18, "#3a3a4a");
+      drawRect(ctx, x + 51, y + 25, 8, 8, "#5a5a6a");
+      drawRect(ctx, x + 51, y + 34, 8, 7, "#5a5a6a");
+      drawPx(ctx, x + 58, y + 29, C.amber);
+      // Plant on counter
+      drawPlant(ctx, x + 4, y + 28);
       break;
     }
   }
@@ -959,7 +1085,7 @@ export function DollHouse({ current, highlight, onMove, maxHeight, isNight = fal
       ROOMS.forEach((room) => {
         const x = room.col * ROOM_W;
         const y = roomTopY(room.row);
-        renderRoom(ctx, room.id, x, y, t);
+        renderRoom(ctx, room.id, x, y, t, isNightRef.current);
       });
 
       // Corridor strip
@@ -1210,20 +1336,50 @@ export function DollHouse({ current, highlight, onMove, maxHeight, isNight = fal
 
       // (Removed: ambient corridor "data motes" — they read as random colour noise.)
 
-      // Highlight ring around required incident room
+      // Highlight ring around required incident room — RED pulsing alarm
       if (highlight) {
         const r = ROOMS.find((x) => x.id === highlight)!;
         const x = r.col * ROOM_W;
         const y = roomTopY(r.row);
-        const blink = (Math.floor(t / 200) % 2) === 0;
-        ctx.strokeStyle = blink ? C.cyan : C.cyanDim;
+        const blink = (Math.floor(t / 180) % 2) === 0;
+        // Outer ring: bright red blink
+        ctx.strokeStyle = blink ? C.red : C.redDim;
         ctx.lineWidth = 1;
         ctx.strokeRect(x + 0.5, y + 0.5, ROOM_W - 1, ROOM_H - 1);
-        // pulsing inner glow band
-        const a = 0.08 + 0.07 * (1 + Math.sin(t / 220));
-        ctx.fillStyle = `rgba(0,188,212,${a.toFixed(3)})`;
+        // Pulsing radial red glow filling the room
+        const pulse = 0.18 + 0.18 * (1 + Math.sin(t / 200)) * 0.5;
+        const grad = ctx.createRadialGradient(
+          x + ROOM_W / 2, y + ROOM_H / 2, 4,
+          x + ROOM_W / 2, y + ROOM_H / 2, ROOM_W * 0.7,
+        );
+        grad.addColorStop(0, `rgba(255,74,74,${pulse.toFixed(3)})`);
+        grad.addColorStop(1, "rgba(255,74,74,0)");
+        ctx.fillStyle = grad;
+        ctx.fillRect(x, y, ROOM_W, ROOM_H);
+        // Top + bottom alert bands
+        ctx.fillStyle = `rgba(255,74,74,${(0.35 + 0.25 * Math.sin(t / 180)).toFixed(3)})`;
         ctx.fillRect(x + 1, y + 1, ROOM_W - 2, 2);
         ctx.fillRect(x + 1, y + ROOM_H - 5, ROOM_W - 2, 2);
+        // Sirenen-Lichtkegel im Korridor unter/über dem Alarm-Raum
+        if (blink) {
+          const corX = x + ROOM_W / 2;
+          ctx.fillStyle = "rgba(255,74,74,0.18)";
+          if (r.row === 0) {
+            ctx.beginPath();
+            ctx.moveTo(corX, y + ROOM_H);
+            ctx.lineTo(corX - 12, CORRIDOR_Y + CORRIDOR_H);
+            ctx.lineTo(corX + 12, CORRIDOR_Y + CORRIDOR_H);
+            ctx.closePath();
+            ctx.fill();
+          } else {
+            ctx.beginPath();
+            ctx.moveTo(corX, y);
+            ctx.lineTo(corX - 12, CORRIDOR_Y);
+            ctx.lineTo(corX + 12, CORRIDOR_Y);
+            ctx.closePath();
+            ctx.fill();
+          }
+        }
       }
 
       // Current room marker (subtle gold inset)
@@ -1479,21 +1635,44 @@ export function DollHouse({ current, highlight, onMove, maxHeight, isNight = fal
 
       // ---- Day/night tint overlay (smooth ease toward target) ----
       const target = isNightRef.current ? 1 : 0;
-      // ~1s fade at 60fps: step ~0.016 per frame
       tintRef.current += (target - tintRef.current) * 0.04;
       const tint = tintRef.current;
+
+      // Daytime warm light from above (always on, fades out at night)
+      const dayStrength = 1 - tint;
+      if (dayStrength > 0.01) {
+        const dayGrad = ctx.createLinearGradient(0, 0, 0, DESIGN_H);
+        dayGrad.addColorStop(0, `rgba(255,210,120,${(0.10 * dayStrength).toFixed(3)})`);
+        dayGrad.addColorStop(0.5, `rgba(255,200,100,${(0.04 * dayStrength).toFixed(3)})`);
+        dayGrad.addColorStop(1, "rgba(255,200,100,0)");
+        ctx.fillStyle = dayGrad;
+        ctx.fillRect(0, 0, DESIGN_W, DESIGN_H);
+      }
+
       if (tint > 0.01) {
-        // cool moonlight blue, multiply-style on dark scene via additive overlay
+        // Cool moonlight blue, additive overlay on dark scene
         ctx.fillStyle = `rgba(40,90,180,${(0.22 * tint).toFixed(3)})`;
         ctx.fillRect(0, 0, DESIGN_W, DESIGN_H);
-        // subtle vignette darkening at edges
-        ctx.fillStyle = `rgba(6,10,28,${(0.18 * tint).toFixed(3)})`;
-        ctx.fillRect(0, 0, DESIGN_W, 6);
-        ctx.fillRect(0, DESIGN_H - 6, DESIGN_W, 6);
-        ctx.fillRect(0, 0, 4, DESIGN_H);
-        ctx.fillRect(DESIGN_W - 4, 0, 4, DESIGN_H);
-        // a few "stars" in the building's dark trim (top strip)
-        for (let s = 0; s < 5; s++) {
+        // Stronger vignette at edges (deeper night)
+        const vignette = ctx.createRadialGradient(
+          DESIGN_W / 2, DESIGN_H / 2, DESIGN_W * 0.3,
+          DESIGN_W / 2, DESIGN_H / 2, DESIGN_W * 0.7,
+        );
+        vignette.addColorStop(0, "rgba(6,10,28,0)");
+        vignette.addColorStop(1, `rgba(6,10,28,${(0.45 * tint).toFixed(3)})`);
+        ctx.fillStyle = vignette;
+        ctx.fillRect(0, 0, DESIGN_W, DESIGN_H);
+        // Soft moon glow patch in upper-right corner
+        const moonGrad = ctx.createRadialGradient(
+          DESIGN_W - 20, 12, 1,
+          DESIGN_W - 20, 12, 28,
+        );
+        moonGrad.addColorStop(0, `rgba(232,232,200,${(0.28 * tint).toFixed(3)})`);
+        moonGrad.addColorStop(1, "rgba(232,232,200,0)");
+        ctx.fillStyle = moonGrad;
+        ctx.fillRect(DESIGN_W - 50, 0, 50, 40);
+        // Twinkling stars in the building's dark trim (top strip)
+        for (let s = 0; s < 8; s++) {
           const sx = ((s * 53 + Math.floor(t / 2000) * 17) % (DESIGN_W - 4)) + 2;
           const twinkle = (Math.floor(t / 280 + s) % 5) === 0 ? C.white : "rgba(232,232,240,0.5)";
           drawPx(ctx, sx, 2 + (s % 2), twinkle);
