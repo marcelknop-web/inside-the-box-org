@@ -346,9 +346,9 @@ const LATERAL: Incident = {
       title: L("Scope", "Scope", "Périmètre"),
       prompt: L("Wie ermitteln?", "How do you scope?", "Comment cadrer ?"),
       options: [
-        { id: "graph",        correct: true,  delta: +6, label: L("Authentifizierungs-Graph + 4624/4672-Events korrelieren, BloodHound-Pfade prüfen", "Correlate auth graph + 4624/4672 events, review BloodHound paths", "Corréler graphe d'authentification + events 4624/4672, examiner les chemins BloodHound") },
-        { id: "endpoint_only",correct: false, delta: -3, label: L("Ursprungs-Endpoint per EDR-Deep-Dive analysieren, Sysmon-Logs + DLL-Loads aufrollen", "Deep-dive the origin endpoint via EDR, walk Sysmon logs + DLL loads", "Analyse approfondie EDR de l'endpoint d'origine, dérouler logs Sysmon + DLL loads") },
-        { id: "ask_user",     correct: false, delta: -3, label: L("User per Teams kontaktieren und Login-Aktivität via Self-Service-Portal verifizieren lassen", "Contact user via Teams, have them verify login activity through self-service portal", "Contacter l'utilisateur via Teams, vérification des connexions via portail self-service") },
+        { id: "graph",        correct: true,  delta: +6, label: L("Anmeldeverläufe quer über die Konten korrelieren und Angriffspfade durch das Netz nachzeichnen", "Correlate sign-in trails across accounts and map attack paths through the network", "Corréler les traces d'authentification sur tous les comptes et cartographier les chemins d'attaque dans le réseau") },
+        { id: "endpoint_only",correct: false, delta: -3, label: L("Nur den ursprünglichen Endpoint tief analysieren, das Umfeld später anschauen", "Deep-dive only the origin endpoint, look at the surroundings later", "Analyser à fond uniquement l'endpoint d'origine, examiner l'environnement plus tard") },
+        { id: "ask_user",     correct: false, delta: -3, label: L("Den User direkt fragen, ob er sich an ungewöhnliche Anmeldungen erinnert", "Just ask the user if they remember any unusual sign-ins", "Demander à l'utilisateur s'il se souvient de connexions inhabituelles") },
       ],
     },
     {
@@ -356,9 +356,9 @@ const LATERAL: Incident = {
       title: L("Eindämmung", "Contain", "Confinement"),
       prompt: L("Wie eindämmen?", "How to contain?", "Comment confiner ?"),
       options: [
-        { id: "isolate_set", correct: true,  delta: +7, label: L("Alle betroffenen Hosts EDR-isolieren, Service-Konten + Tier-0-Sessions sperren", "EDR-isolate all affected hosts, disable service accounts + tier-0 sessions", "Isoler via EDR tous les hôtes affectés, désactiver comptes service + sessions tier-0") },
-        { id: "isolate_one", correct: false, delta: -3, label: L("Nur den initialen Host isolieren, restliche Hosts mit verschärftem EDR-Monitoring beobachten", "Isolate only the initial host, monitor the rest under heightened EDR alerting", "Isoler uniquement l'hôte initial, observer les autres avec alertes EDR renforcées") },
-        { id: "block_smb",   correct: false, delta: -2, label: L("SMB (Port 445) per Firewall im gesamten Server-Segment blocken, Kollateralschaden in Kauf nehmen", "Block SMB (port 445) at firewall across the server segment, accept collateral damage", "Bloquer SMB (port 445) au firewall sur tout le segment serveur, accepter les collatéraux") },
+        { id: "isolate_set", correct: true,  delta: +7, label: L("Alle betroffenen Hosts isolieren, Service-Konten und privilegierte Sitzungen sperren", "Isolate all affected hosts, disable service accounts and privileged sessions", "Isoler tous les hôtes affectés, désactiver les comptes de service et les sessions privilégiées") },
+        { id: "isolate_one", correct: false, delta: -3, label: L("Nur den ersten Host isolieren, die anderen nur enger überwachen", "Isolate only the first host, just monitor the others more tightly", "Isoler uniquement le premier hôte, surveiller les autres de plus près") },
+        { id: "block_smb",   correct: false, delta: -2, label: L("Datei-Freigaben im gesamten Server-Segment pauschal blocken, Kollateralschaden in Kauf nehmen", "Blanket-block file sharing across the whole server segment, accept collateral damage", "Bloquer en bloc le partage de fichiers sur tout le segment serveur, accepter les collatéraux") },
       ],
     },
     {
@@ -366,9 +366,9 @@ const LATERAL: Incident = {
       title: L("Credentials", "Credentials", "Identifiants"),
       prompt: L("Was tun mit Konten?", "What about accounts?", "Que faire des comptes ?"),
       options: [
-        { id: "rotate_tier", correct: true,  delta: +7, label: L("Tier-0-Konten + Kerberos-krbtgt zwei Mal rotieren, Service-Acc-Passwörter erzwingen", "Rotate tier-0 accounts + Kerberos krbtgt twice, force service-account password reset", "Faire tourner comptes tier-0 + krbtgt 2x, forcer la rotation des comptes de service") },
-        { id: "rotate_all",  correct: false, delta: -3, label: L("Unternehmensweiten Force-Password-Reset bei nächster AD-Anmeldung erzwingen, MFA-Re-Enrollment", "Force company-wide password reset at next AD logon, MFA re-enrollment", "Forcer la réinitialisation à la prochaine connexion AD, ré-enrôlement MFA") },
-        { id: "rotate_one",  correct: false, delta: -3, label: L("Passwort des kompromittierten Users rotieren, MFA-Tokens revoken, Kerberos-TGT invalidieren", "Reset compromised user's password, revoke MFA tokens, invalidate Kerberos TGT", "Changer le mot de passe de l'utilisateur compromis, révoquer les tokens MFA, invalider le TGT") },
+        { id: "rotate_tier", correct: true,  delta: +7, label: L("Die hochprivilegierten Konten und zentralen Verzeichnis-Geheimnisse zweifach rotieren, Service-Konten zwingend zurücksetzen", "Rotate the highly privileged accounts and the directory's core secrets twice, force a reset of service accounts", "Faire tourner deux fois les comptes très privilégiés et les secrets centraux de l'annuaire, réinitialiser les comptes de service") },
+        { id: "rotate_all",  correct: false, delta: -3, label: L("Unternehmensweit alle User zum Passwortwechsel bei der nächsten Anmeldung zwingen", "Force every user company-wide to change their password at next sign-in", "Forcer tous les utilisateurs à changer leur mot de passe à la prochaine connexion") },
+        { id: "rotate_one",  correct: false, delta: -3, label: L("Nur den kompromittierten User zurücksetzen, MFA neu einrichten, Sitzungen beenden", "Reset only the compromised user, re-enroll MFA, end the sessions", "Réinitialiser uniquement l'utilisateur compromis, ré-enrôler le MFA, couper les sessions") },
       ],
     },
   ],
