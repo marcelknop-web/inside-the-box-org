@@ -695,8 +695,12 @@ export default function SocLife({ embedded = false }: SocLifeProps = {}) {
               </div>
             </div>
 
-            {/* Right sidebar: Incident takes priority over idle actions. */}
-            <aside className="min-h-0 flex-1 overflow-y-auto">
+            {/* Right sidebar: Incident takes priority over idle actions.
+                On mobile (lg- and below) we let content flow naturally without
+                a nested scrollbar — the parent grid expands and the page
+                scrolls as a single surface. The inner overflow-y-auto only
+                kicks in from lg upwards where the sidebar is a true column. */}
+            <aside className="min-h-0 lg:flex-1 lg:overflow-y-auto">
               {activeIncident ? (
                 <IncidentPanel
                   incident={activeIncident}
