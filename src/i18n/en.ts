@@ -1139,6 +1139,39 @@ export const en = {
       playbook:      { name: 'Review playbook',  result: 'Reputation +3, Stress +5' },
       smalltalk:     { name: 'Small talk',       result: 'Stress -8' },
       stretch:       { name: 'Stretch',          result: 'Stress -5' },
+      // Room-specific variants — automatically fall back to the generic copy
+      // above when a key is missing (see RoomActions/handleIdle).
+      byRoom: {
+        soc_floor: {
+          threat_intel: { name: 'Read shift handover notes', result: 'Reputation +2' },
+          smalltalk:    { name: 'Chat with Lina about the alert', result: 'Stress -8' },
+        },
+        siem: {
+          threat_intel: { name: 'Check IOC feeds in SIEM', result: 'Reputation +2' },
+          playbook:     { name: 'Review detection rules', result: 'Reputation +3, Stress +5' },
+        },
+        forensics: {
+          playbook: { name: 'Walk the chain-of-custody checklist', result: 'Reputation +3, Stress +5' },
+        },
+        noc: {
+          threat_intel: { name: 'Scan NetFlow dashboards', result: 'Reputation +2' },
+        },
+        server_room: {
+          stretch: { name: 'Loosen up between the racks', result: 'Stress -5' },
+        },
+        war_room: {
+          playbook:  { name: 'Walk the major-incident runbook', result: 'Reputation +3, Stress +5' },
+          smalltalk: { name: 'Sync with the IR lead', result: 'Stress -8' },
+        },
+        ciso_office: {
+          playbook: { name: 'Review the escalation matrix', result: 'Reputation +3, Stress +5' },
+        },
+        kitchen: {
+          coffee:    { name: 'Pull an espresso from the machine', result: 'Stress -10, Coffee +20' },
+          smalltalk: { name: 'Chat with Murat about backups', result: 'Stress -8' },
+          stretch:   { name: 'Breathe by the window', result: 'Stress -5' },
+        },
+      },
     },
     incidents: {
       phishing: {
