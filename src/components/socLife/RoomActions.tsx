@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { NPCS, ROOMS, RoomId } from "@/data/socLifeData";
+import { resolveIdleLabel } from "./idleI18n";
 
 export type IdleAction = "coffee" | "threat_intel" | "playbook" | "smalltalk" | "stretch";
 
@@ -69,10 +70,10 @@ export function RoomActions({ currentRoom, onIdleAction }: RoomActionsProps) {
               key={a}
               size="sm"
               variant="outline"
-              className="justify-start font-sans h-8"
+              className="justify-start whitespace-normal text-left h-auto min-h-8 py-1.5 font-sans"
               onClick={() => onIdleAction(a)}
             >
-              {t(`socLife.idle.${a}.name`)}
+              {resolveIdleLabel(t, a, currentRoom, "name")}
             </Button>
           ))}
         </div>
