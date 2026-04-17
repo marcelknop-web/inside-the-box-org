@@ -1416,6 +1416,8 @@ const ChatView = () => {
     ? <Suspense fallback={lazyFallback}><Iec62443ComplianceTool embedded /></Suspense>
     : activeService === 'butterfly-lab'
     ? <Suspense fallback={lazyFallback}><ButterflyEffectLab embedded /></Suspense>
+    : activeService === 'soc-life'
+    ? <Suspense fallback={lazyFallback}><SocLife embedded /></Suspense>
     : activeService === 'system-check'
     ? <InlineSystemCheck t={t} />
     : activeService && contentMap[activeService] ? contentMap[activeService]() : null;
