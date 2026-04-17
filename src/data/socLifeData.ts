@@ -481,9 +481,9 @@ const SUPPLY: Incident = {
       title: L("Exposition", "Exposure", "Exposition"),
       prompt: L("Wie ermitteln?", "How do you assess?", "Comment évaluer ?"),
       options: [
-        { id: "cmdb_query",  correct: true,  delta: +6, label: L("CMDB + EDR nach Version & Hash der betroffenen Komponente abfragen, SBOM-Match prüfen", "Query CMDB + EDR for version & hash of affected component, check SBOM match", "Interroger CMDB + EDR pour version & hash, vérifier le match SBOM") },
-        { id: "ask_owners",  correct: false, delta: -3, label: L("System-Owner per strukturiertem Service-Now-Ticket einzeln zur Versions-Bestätigung anfragen", "Request version confirmation from system owners individually via structured ServiceNow ticket", "Demander confirmation de version aux owners via tickets ServiceNow structurés") },
-        { id: "wait_advisory",correct: false, delta: -4, label: L("Detailliertes Hersteller-Advisory mit IOC-Liste + KEV-Eintrag abwarten, dann fundiert handeln", "Wait for detailed vendor advisory with IOC list + KEV entry, then act on solid ground", "Attendre l'advisory détaillé avec liste d'IOCs + entrée KEV, puis agir") },
+        { id: "cmdb_query",  correct: true,  delta: +6, label: L("Asset-Inventar und EDR nach Version und Hash der betroffenen Komponente abfragen, Software-Stückliste abgleichen", "Query the asset inventory and EDR for version and hash of the affected component, cross-check the software bill of materials", "Interroger l'inventaire et l'EDR pour version et hash du composant, croiser avec la nomenclature logicielle") },
+        { id: "ask_owners",  correct: false, delta: -3, label: L("Jeden System-Owner einzeln per Ticket nach der laufenden Version fragen", "Ticket every system owner individually for the deployed version", "Demander à chaque propriétaire système la version déployée via ticket") },
+        { id: "wait_advisory",correct: false, delta: -4, label: L("Auf das ausführliche Hersteller-Advisory mit Indikatoren-Liste warten, dann handeln", "Wait for the detailed vendor advisory with the indicator list, then act", "Attendre l'advisory détaillé du fournisseur avec la liste d'indicateurs, puis agir") },
       ],
     },
     {
@@ -491,9 +491,9 @@ const SUPPLY: Incident = {
       title: L("Sofort-Mitigation", "Immediate mitigation", "Mitigation immédiate"),
       prompt: L("Was tun?", "What do you do?", "Que faire ?"),
       options: [
-        { id: "isolate_block", correct: true,  delta: +7, label: L("Betroffene Hosts isolieren, Update-Server + IOCs auf Firewall + Proxy blocken", "Isolate affected hosts, block update server + IOCs at firewall + proxy", "Isoler les hôtes affectés, bloquer serveur d'update + IOCs au FW + proxy") },
-        { id: "uninstall_all", correct: false, delta: -3, label: L("Komponente per orchestrierter Deployment-Pipeline überall deinstallieren, inkl. Produktion", "Uninstall the component everywhere via orchestrated deployment pipeline, incl. production", "Désinstaller le composant partout via pipeline de déploiement, incl. prod") },
-        { id: "patch_now",     correct: false, delta: -3, label: L("Nächsten Hersteller-Patch sofort über alle Stages ausrollen, Rollback-Snapshot vorab erstellen", "Roll out the next vendor patch immediately across all stages, take rollback snapshot first", "Déployer le prochain patch éditeur sur toutes les stages, snapshot de rollback préalable") },
+        { id: "isolate_block", correct: true,  delta: +7, label: L("Betroffene Hosts isolieren, Update-Server und Indikatoren an Firewall und Proxy blocken", "Isolate affected hosts, block the update server and indicators at firewall and proxy", "Isoler les hôtes affectés, bloquer le serveur d'update et les indicateurs au firewall et proxy") },
+        { id: "uninstall_all", correct: false, delta: -3, label: L("Die Komponente überall sofort deinstallieren, einschließlich Produktion", "Uninstall the component everywhere immediately, including production", "Désinstaller le composant partout immédiatement, y compris en production") },
+        { id: "patch_now",     correct: false, delta: -3, label: L("Den nächsten Hersteller-Patch sofort über alle Stages ausrollen, ohne IOC-Hunt", "Roll out the next vendor patch across all stages immediately, with no indicator hunt", "Déployer le prochain patch du fournisseur sur toutes les stages, sans recherche d'indicateurs") },
       ],
     },
     {
@@ -501,9 +501,9 @@ const SUPPLY: Incident = {
       title: L("Reporting", "Report", "Reporting"),
       prompt: L("An wen reporten?", "Who do you report to?", "À qui reporter ?"),
       options: [
-        { id: "ciso_legal", correct: true,  delta: +6, label: L("CISO + Legal + DPO informieren, Meldepflichten (NIS-2/DORA) prüfen", "Inform CISO + Legal + DPO, check notification duties (NIS-2/DORA)", "Informer CISO + juridique + DPO, vérifier obligations (NIS-2/DORA)") },
-        { id: "ciso_only",  correct: false, delta: -2, label: L("CISO als zentralen Eskalationspunkt briefen, Legal/DPO nach Impact-Bewertung einbinden", "Brief CISO as central escalation point, loop Legal/DPO after impact assessment", "Briefer le CISO comme point d'escalade central, juridique/DPO après évaluation d'impact") },
-        { id: "wait_impact",correct: false, delta: -4, label: L("Konkrete Impact-Metriken (betroffene Hosts, Datenklassen) erheben, dann formell melden", "Gather concrete impact metrics (affected hosts, data classes), then notify formally", "Collecter les métriques d'impact concrètes (hôtes, classes de données), puis signaler formellement") },
+        { id: "ciso_legal", correct: true,  delta: +6, label: L("CISO, Legal und Datenschutz informieren, Meldepflichten nach NIS-2/DORA prüfen", "Inform CISO, Legal and the DPO, check notification duties under NIS-2/DORA", "Informer CISO, juridique et DPO, vérifier les obligations NIS-2/DORA") },
+        { id: "ciso_only",  correct: false, delta: -2, label: L("Nur den CISO briefen, Legal und Datenschutz erst nach der Impact-Bewertung einbinden", "Brief only the CISO, loop in Legal and the DPO after the impact assessment", "Briefer uniquement le CISO, impliquer juridique et DPO après l'évaluation d'impact") },
+        { id: "wait_impact",correct: false, delta: -4, label: L("Erst harte Impact-Zahlen sammeln, dann formell melden", "Gather hard impact numbers first, then notify formally", "Collecter d'abord des chiffres d'impact concrets, puis notifier formellement") },
       ],
     },
   ],
