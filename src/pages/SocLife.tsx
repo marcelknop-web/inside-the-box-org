@@ -20,6 +20,9 @@ import {
   loadHighscores, saveHighscore, qualifiesForHighscore,
   HIGHSCORE_NAME_MAX, HighscoreEntry,
 } from "@/utils/socLifeHighscore";
+import {
+  DayNightMode, loadDayNightMode, saveDayNightMode, resolveIsNight,
+} from "@/utils/socLifeDayNight";
 
 const TICK_MS = 250;
 const MIN_INCIDENT_GAP_MS = 18_000;
