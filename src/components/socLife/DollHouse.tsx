@@ -36,9 +36,9 @@ interface DollHouseProps {
 // promotes every "1 logical px" to a crisp 2×2 pixel block on the actual
 // canvas. Sprite & furniture renderers can then opt in to half-step details
 // by drawing at 0.5 offsets where it matters.
-const LOGICAL_W = 512;
-const LOGICAL_H = 288;
-const RENDER_SCALE = 2; // canvas is rendered at 2× the legacy logical grid
+const RENDER_SCALE = 3; // canvas is rendered at 3× the legacy logical grid (was 2×)
+const LOGICAL_W = 256 * RENDER_SCALE;
+const LOGICAL_H = 144 * RENDER_SCALE;
 // Legacy "design grid" coordinates — keep using these everywhere; the
 // ctx.scale(RENDER_SCALE) at draw time maps them to the higher-density canvas.
 const ROOM_W = 64;          // 4 rooms × 64 = 256
