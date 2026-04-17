@@ -147,6 +147,24 @@ export default function SocLife() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
 
+  // Track viewport so the DollHouse maxHeight recomputes on resize / fullscreen
+  // toggle / orientation change. Without this the floor plan stays small after
+  // entering fullscreen on desktop because maxHeight was captured once at mount.
+  const [viewport, setViewport] = useState(() =>
+    typeof window !== "undefined"
+      ? { w: window.innerWidth, h: window.innerHeight }
+      : { w: 1280, h: 720 },
+  );
+  useEffect(() => {
+    const onResize = () => setViewport({ w: window.innerWidth, h: window.innerHeight });
+    window.addEventListener("resize", onResize);
+    document.addEventListener("fullscreenchange", onResize);
+    return () => {
+      window.removeEventListener("resize", onResize);
+      document.removeEventListener("fullscreenchange", onResize);
+    };
+  }, []);
+
   // Onboarding: shown after "Start shift" on first ever visit, otherwise on demand
   // via the "?" button on the welcome screen. Never shown before the user opts in.
   const [showOnboarding, setShowOnboarding] = useState<boolean>(false);
@@ -482,7 +500,7 @@ export default function SocLife() {
         <meta name="description" content={t("socLife.metaDesc")} />
       </Helmet>
 
-      <div className="mx-auto w-full max-w-6xl px-2 sm:px-4 py-1.5 sm:py-3 flex-1 flex flex-col min-h-0">
+      <div className="mx-auto w-full max-w-6xl xl:max-w-7xl 2xl:max-w-[1600px] px-2 sm:px-4 py-1.5 sm:py-3 flex-1 flex flex-col min-h-0">
         {/* Compact header — even tighter on mobile so the floor plan gets the space */}
         <header className="mb-1.5 sm:mb-2 flex items-center justify-between gap-2 shrink-0">
           <div className="min-w-0">
@@ -562,7 +580,7 @@ export default function SocLife() {
         )}
 
         {started && (
-          <div className="flex-1 grid grid-cols-1 gap-2 sm:gap-3 lg:grid-cols-[1fr_320px] min-h-0 overflow-hidden relative">
+          <div className="flex-1 grid grid-cols-1 gap-2 sm:gap-3 lg:grid-cols-[1fr_320px] xl:grid-cols-[1fr_360px] 2xl:grid-cols-[1fr_400px] min-h-0 overflow-hidden relative">
             {/* Left: meters + house. */}
             <div className="flex flex-col gap-2 sm:gap-3 min-h-0">
               <SocMeters
@@ -578,12 +596,11 @@ export default function SocLife() {
                   onMove={handleMove}
                   isNight={isNight}
                   maxHeight={
-                    typeof window !== "undefined"
-                      ? window.innerWidth < 1024
-                        // Mobile/tablet: give the floor plan ~55% of viewport so it's actually visible.
-                        ? Math.max(240, Math.min(window.innerHeight * 0.55, window.innerHeight - 260))
-                        : window.innerHeight - 260
-                      : 320
+                    viewport.w < 1024
+                      // Mobile/tablet: give the floor plan ~55% of viewport so it's actually visible.
+                      ? Math.max(240, Math.min(viewport.h * 0.55, viewport.h - 260))
+                      // Desktop: subtract header + meters + padding. Bigger viewport → bigger house.
+                      : Math.max(360, viewport.h - 200)
                   }
                 />
               </div>
