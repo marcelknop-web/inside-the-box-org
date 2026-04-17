@@ -661,7 +661,13 @@ export default function SocLife({ embedded = false }: SocLifeProps = {}) {
         )}
 
         {started && (
-          <div className="flex-1 grid grid-cols-1 gap-2 sm:gap-3 lg:grid-cols-[1fr_320px] xl:grid-cols-[1fr_360px] 2xl:grid-cols-[1fr_400px] min-h-0 overflow-hidden relative">
+          // On mobile: allow vertical page scroll (overflow-y-auto) so the
+          // floor plan + incident panel + answer buttons can all be reached
+          // with a single natural swipe instead of fighting a nested
+          // scrollbar inside the sidebar. From lg upwards we restore the
+          // strict no-scroll desktop layout where the two columns are
+          // independently sized.
+          <div className="flex-1 grid grid-cols-1 gap-2 sm:gap-3 lg:grid-cols-[1fr_320px] xl:grid-cols-[1fr_360px] 2xl:grid-cols-[1fr_400px] min-h-0 overflow-y-auto lg:overflow-hidden relative">
             {/* Left: meters + house. */}
             <div className="flex flex-col gap-2 sm:gap-3 min-h-0">
               <SocMeters
@@ -695,8 +701,12 @@ export default function SocLife({ embedded = false }: SocLifeProps = {}) {
               </div>
             </div>
 
-            {/* Right sidebar: Incident takes priority over idle actions. */}
-            <aside className="min-h-0 flex-1 overflow-y-auto">
+            {/* Right sidebar: Incident takes priority over idle actions.
+                On mobile (lg- and below) we let content flow naturally without
+                a nested scrollbar — the parent grid expands and the page
+                scrolls as a single surface. The inner overflow-y-auto only
+                kicks in from lg upwards where the sidebar is a true column. */}
+            <aside className="min-h-0 lg:flex-1 lg:overflow-y-auto">
               {activeIncident ? (
                 <IncidentPanel
                   incident={activeIncident}
