@@ -301,9 +301,9 @@ const BEC: Incident = {
       title: L("Verifizieren", "Verify", "Vérifier"),
       prompt: L("Wie verifizieren?", "How do you verify?", "Comment vérifier ?"),
       options: [
-        { id: "auth_logs",  correct: true,  delta: +6, label: L("Mail-Auth (SPF/DKIM/DMARC) + Login-Geo + MFA-Status des CEO-Postfachs prüfen", "Check mail auth (SPF/DKIM/DMARC) + login geo + MFA status of CEO mailbox", "Vérifier auth mail (SPF/DKIM/DMARC) + géo + statut MFA de la boîte CEO") },
-        { id: "call_ceo",   correct: false, delta: -2, label: L("CEO direkt zurückrufen über die Nummer in der Mail-Signatur und Anweisung verbal verifizieren", "Call the CEO back on the number in the mail signature and verify verbally", "Rappeler le CEO sur le numéro de la signature mail et vérifier verbalement") },
-        { id: "ask_finance",correct: false, delta: -3, label: L("Buchhaltung kontextuell befragen, ob Anweisung zum üblichen Zahlungsmuster passt", "Contextually ask finance whether the request matches the usual payment pattern", "Interroger la finance pour savoir si la demande correspond au schéma habituel") },
+        { id: "auth_logs",  correct: true,  delta: +6, label: L("Mail-Authentizität, Login-Geo und MFA-Status des CEO-Postfachs prüfen", "Check mail authenticity, login geo and MFA status of the CEO mailbox", "Vérifier l'authenticité du mail, la géo de login et le statut MFA de la boîte CEO") },
+        { id: "call_ceo",   correct: false, delta: -2, label: L("Den CEO über die Nummer in der verdächtigen Mail zurückrufen und mündlich bestätigen lassen", "Call back the CEO using the number in the suspicious mail and confirm verbally", "Rappeler le CEO sur le numéro indiqué dans le mail suspect et confirmer oralement") },
+        { id: "ask_finance",correct: false, delta: -3, label: L("Bei der Buchhaltung nachfragen, ob die Anweisung zum üblichen Muster passt", "Ask finance whether the instruction fits the usual pattern", "Demander à la comptabilité si l'instruction correspond au schéma habituel") },
       ],
     },
     {
@@ -311,9 +311,9 @@ const BEC: Incident = {
       title: L("Zahlung stoppen", "Stop payment", "Stopper le paiement"),
       prompt: L("Wie stoppen?", "How do you stop it?", "Comment stopper ?"),
       options: [
-        { id: "freeze_call", correct: true,  delta: +7, label: L("Buchhaltung + Bank-Hotline (Fraud-Desk) parallel kontaktieren, Transfer einfrieren", "Contact finance + bank fraud-desk hotline in parallel, freeze the transfer", "Contacter finance + hotline fraude banque en parallèle, geler le virement") },
-        { id: "email_only",  correct: false, delta: -3, label: L("Strukturierte Stop-Mail mit Incident-Referenz an Buchhaltung + Treasury senden", "Send structured stop email with incident reference to finance + treasury", "Envoyer un mail d'arrêt structuré avec référence d'incident à finance + trésorerie") },
-        { id: "wait_legal",  correct: false, delta: -4, label: L("Auf Freigabe von Legal + Compliance warten, dann mit Bank-Mandat formell stoppen", "Wait for legal + compliance sign-off, then stop formally via bank mandate", "Attendre l'aval juridique + conformité, puis stopper formellement via mandat bancaire") },
+        { id: "freeze_call", correct: true,  delta: +7, label: L("Buchhaltung und Bank-Hotline parallel anrufen, Überweisung sofort einfrieren lassen", "Call finance and the bank hotline in parallel, have the transfer frozen immediately", "Appeler en parallèle la comptabilité et la hotline banque, geler le virement tout de suite") },
+        { id: "email_only",  correct: false, delta: -3, label: L("Nur eine strukturierte Stop-Mail an Buchhaltung und Treasury schicken", "Send only a structured stop email to finance and treasury", "Envoyer seulement un mail d'arrêt structuré à finance et trésorerie") },
+        { id: "wait_legal",  correct: false, delta: -4, label: L("Erst die Freigabe von Legal abwarten, dann formell stoppen", "Wait for legal sign-off first, then stop formally", "Attendre l'aval juridique d'abord, puis stopper formellement") },
       ],
     },
     {
@@ -321,9 +321,9 @@ const BEC: Incident = {
       title: L("Härtung", "Harden", "Durcissement"),
       prompt: L("Was härten?", "What do you harden?", "Que durcir ?"),
       options: [
-        { id: "policy_4eyes", correct: true,  delta: +6, label: L("4-Augen-Prinzip + Out-of-Band-Rückruf-Pflicht für Zahlungen über X € einführen", "Four-eyes + out-of-band callback rule for payments above €X", "Quatre yeux + rappel out-of-band obligatoire pour paiements > X €") },
-        { id: "block_ext",    correct: false, delta: -3, label: L("Externe Mail-Domains per Allowlist-Modus am Gateway blocken, Ausnahmen über IT-Antrag", "Block external mail domains via gateway allowlist mode, exceptions via IT request", "Bloquer les domaines externes via mode allowlist du gateway, exceptions via demande IT") },
-        { id: "rotate_ceo",   correct: false, delta: -2, label: L("CEO-Account: Passwort + MFA-Token rotieren, Conditional-Access-Policy verschärfen", "CEO account: rotate password + MFA token, tighten conditional-access policy", "Compte CEO : rotation mot de passe + token MFA, politique d'accès conditionnel renforcée") },
+        { id: "policy_4eyes", correct: true,  delta: +6, label: L("Vier-Augen-Prinzip und verpflichtenden Rückruf auf einem zweiten Kanal für Zahlungen ab einer Schwelle einführen", "Four-eyes plus mandatory callback on a second channel for payments above a threshold", "Quatre yeux et rappel obligatoire sur un second canal pour les paiements au-dessus d'un seuil") },
+        { id: "block_ext",    correct: false, delta: -3, label: L("Externe Mail-Domains pauschal am Gateway blocken, Ausnahmen nur per IT-Antrag", "Blanket-block external mail domains at the gateway, exceptions only via IT request", "Bloquer en bloc les domaines mail externes, exceptions sur demande IT") },
+        { id: "rotate_ceo",   correct: false, delta: -2, label: L("Nur das CEO-Konto neu absichern: Passwort, MFA, strengere Zugriffsregeln", "Just re-secure the CEO account: password, MFA, stricter access rules", "Re-sécuriser uniquement le compte CEO : mot de passe, MFA, règles d'accès plus strictes") },
       ],
     },
   ],
