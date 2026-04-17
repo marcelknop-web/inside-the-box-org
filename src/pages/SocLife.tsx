@@ -20,6 +20,9 @@ import {
   loadHighscores, saveHighscore, qualifiesForHighscore,
   HIGHSCORE_NAME_MAX, HighscoreEntry,
 } from "@/utils/socLifeHighscore";
+import {
+  DayNightMode, loadDayNightMode, saveDayNightMode, resolveIsNight,
+} from "@/utils/socLifeDayNight";
 
 const TICK_MS = 250;
 const MIN_INCIDENT_GAP_MS = 18_000;
@@ -172,11 +175,17 @@ export default function SocLife() {
   const recentIncidentIdsRef = useRef<string[]>([]);
   const lastCategoryRef = useRef<IncidentCategory | null>(null);
 
-  const isNight = useMemo(() => {
-    // 6 minutes day / 4 minutes night cycle for variety
-    const cycle = shiftSec % 600;
-    return cycle >= 360;
-  }, [shiftSec]);
+  // Day/night source: persisted player choice. Re-renders driven by shiftSec
+  // also re-evaluate "realtime" mode so the world flips at 20:00 / 06:00.
+  const [dayNightMode, setDayNightMode] = useState<DayNightMode>(() => loadDayNightMode());
+  const setDayNightModePersist = useCallback((m: DayNightMode) => {
+    setDayNightMode(m);
+    saveDayNightMode(m);
+  }, []);
+  const isNight = useMemo(
+    () => resolveIsNight(dayNightMode, shiftSec),
+    [dayNightMode, shiftSec],
+  );
 
   const status: "calm" | "oncall" | "incident" =
     activeIncident ? "incident" : (isNight ? "oncall" : "calm");
@@ -530,6 +539,34 @@ export default function SocLife() {
             <p className="mb-5 font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
               {t("socLife.audioHint")}
             </p>
+
+            {/* Day/night mode picker. Cycle = original gameplay rhythm,
+                Realtime binds the world to the player's local clock
+                (night 20:00–06:00). Persisted across shifts. */}
+            <div className="mb-5">
+              <div className="mb-2 font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
+                {t("socLife.dayNight.label")}
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {(["cycle", "realtime", "day", "night"] as DayNightMode[]).map((m) => (
+                  <Button
+                    key={m}
+                    size="sm"
+                    variant={dayNightMode === m ? "default" : "outline"}
+                    onClick={() => setDayNightModePersist(m)}
+                    className="font-mono text-xs h-8"
+                    aria-pressed={dayNightMode === m}
+                    title={t(`socLife.dayNight.${m}Hint`)}
+                  >
+                    {t(`socLife.dayNight.${m}`)}
+                  </Button>
+                ))}
+              </div>
+              <p className="mt-1.5 font-mono text-[10px] text-muted-foreground/80">
+                {t(`socLife.dayNight.${dayNightMode}Hint`)}
+              </p>
+            </div>
+
             <div className="flex flex-wrap items-center gap-2">
               <Button size="lg" onClick={startShift} className="font-mono">
                 ▶ {t("socLife.start")}
