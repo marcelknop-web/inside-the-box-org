@@ -147,6 +147,24 @@ export default function SocLife() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
 
+  // Track viewport so the DollHouse maxHeight recomputes on resize / fullscreen
+  // toggle / orientation change. Without this the floor plan stays small after
+  // entering fullscreen on desktop because maxHeight was captured once at mount.
+  const [viewport, setViewport] = useState(() =>
+    typeof window !== "undefined"
+      ? { w: window.innerWidth, h: window.innerHeight }
+      : { w: 1280, h: 720 },
+  );
+  useEffect(() => {
+    const onResize = () => setViewport({ w: window.innerWidth, h: window.innerHeight });
+    window.addEventListener("resize", onResize);
+    document.addEventListener("fullscreenchange", onResize);
+    return () => {
+      window.removeEventListener("resize", onResize);
+      document.removeEventListener("fullscreenchange", onResize);
+    };
+  }, []);
+
   // Onboarding: shown after "Start shift" on first ever visit, otherwise on demand
   // via the "?" button on the welcome screen. Never shown before the user opts in.
   const [showOnboarding, setShowOnboarding] = useState<boolean>(false);
