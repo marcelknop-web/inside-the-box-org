@@ -996,6 +996,14 @@ export function DollHouse({ current, highlight, onMove, maxHeight, isNight = fal
 
   const player = useWalker(current, playerInitial, elevatorRef);
 
+  // Mirror `player` into a ref so the rAF draw loop can read the latest
+  // figure position WITHOUT being in the effect's dependency array.
+  // Without this, the entire animation effect would tear down + rebuild
+  // ~30 times per second (every walker tick), causing visible stutter and
+  // CPU spikes on mobile — the "Hänger" reported by the user.
+  const playerRef = useRef(player);
+  playerRef.current = player;
+
   // Track isNight in a ref so the rAF loop sees latest value without
   // re-binding (and we can smoothly interpolate the tint strength).
   const isNightRef = useRef(isNight);
@@ -1623,9 +1631,11 @@ export function DollHouse({ current, highlight, onMove, maxHeight, isNight = fal
       }
 
 
-      // Player figure (gold)
-      drawFigure(ctx, player.x, player.y,
-        player.facing, player.walking, player.frame,
+      // Player figure (gold) — read from ref so the rAF loop doesn't
+      // need to be re-created on every walker tick.
+      const p = playerRef.current;
+      drawFigure(ctx, p.x, p.y,
+        p.facing, p.walking, p.frame,
         C.gold, "#0a0a14", "#e8c0a0", "#3a2014",
         true,
       );
@@ -1685,9 +1695,11 @@ export function DollHouse({ current, highlight, onMove, maxHeight, isNight = fal
     };
     raf = requestAnimationFrame(draw);
     return () => cancelAnimationFrame(raf);
-    // re-bind when current/highlight/player/scale change
+    // Only re-bind when the room layout intent changes — NOT on every
+    // walker tick. The figure position is read live from `playerRef` so
+    // the rAF loop runs continuously without React-driven teardowns.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [player, current, highlight]);
+  }, [current, highlight]);
 
   // Click handler: map screen coords -> design-grid coords -> room
   const handleClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
