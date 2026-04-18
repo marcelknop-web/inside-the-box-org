@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>https://www.inside-the-box.org/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.inside-the-box.org/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://www.inside-the-box.org/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://www.inside-the-box.org/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.inside-the-box.org/"/>
+  </url>
+  <url><loc>https://www.inside-the-box.org/isms</loc><priority>0.9</priority></url>
+  <url><loc>https://www.inside-the-box.org/nis2-dora</loc><priority>0.9</priority></url>
+  <url><loc>https://www.inside-the-box.org/nis2-compliance</loc><priority>0.9</priority></url>
+  <url><loc>https://www.inside-the-box.org/iec62443</loc><priority>0.9</priority></url>
+  <url><loc>https://www.inside-the-box.org/iacs-e27</loc><priority>0.7</priority></url>
+  <url><loc>https://www.inside-the-box.org/tisax-pci-dss</loc><priority>0.9</priority></url>
+  <url><loc>https://www.inside-the-box.org/cyber-crisis-management</loc><priority>0.9</priority></url>
+  <url><loc>https://www.inside-the-box.org/incident-management</loc><priority>0.9</priority></url>
+  <url><loc>https://www.inside-the-box.org/arena-training</loc><priority>0.8</priority></url>
+  <url><loc>https://www.inside-the-box.org/dora-nis2-ttx</loc><priority>0.8</priority></url>
+  <url><loc>https://www.inside-the-box.org/virtual-ciso</loc><priority>0.8</priority></url>
+  <url><loc>https://www.inside-the-box.org/assessments-concepts</loc><priority>0.8</priority></url>
+  <url><loc>https://www.inside-the-box.org/ai-workflows</loc><priority>0.8</priority></url>
+  <url><loc>https://www.inside-the-box.org/events-workshops</loc><priority>0.8</priority></url>
+  <url><loc>https://www.inside-the-box.org/publications</loc><priority>0.7</priority></url>
+  <url><loc>https://www.inside-the-box.org/by-whom</loc><priority>0.7</priority></url>
+  <url><loc>https://www.inside-the-box.org/contact</loc><priority>0.7</priority></url>
+  <url><loc>https://www.inside-the-box.org/dora-check</loc><priority>0.6</priority></url>
+  <url><loc>https://www.inside-the-box.org/tisax-check</loc><priority>0.6</priority></url>
+  <url><loc>https://www.inside-the-box.org/pci-check</loc><priority>0.6</priority></url>
+  <url><loc>https://www.inside-the-box.org/cra-check</loc><priority>0.6</priority></url>
+  <url><loc>https://www.inside-the-box.org/dora-compliance</loc><priority>0.6</priority></url>
+  <url><loc>https://www.inside-the-box.org/imprint</loc><priority>0.3</priority></url>
+</urlset>
