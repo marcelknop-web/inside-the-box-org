@@ -152,6 +152,12 @@ export default function SocLife({ embedded = false }: SocLifeProps = {}) {
   const qualifies = gameOver && !highscoreSubmitted && qualifiesForHighscore(score);
 
   const [isFullscreen, setIsFullscreen] = useState(false);
+  // CSS-based pseudo-fullscreen for browsers without Fullscreen API support
+  // (notably iOS Safari on iPhone, where Element.requestFullscreen is missing
+  // or rejected). Toggling this flag pins the root to `fixed inset-0 z-50`,
+  // which gives the simulator the entire visual viewport without relying on
+  // the native API.
+  const [pseudoFullscreen, setPseudoFullscreen] = useState(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
 
   // Track viewport so the DollHouse maxHeight recomputes on resize / fullscreen
@@ -170,9 +176,9 @@ export default function SocLife({ embedded = false }: SocLifeProps = {}) {
   useEffect(() => {
     const measure = () => {
       const w = window.innerWidth;
-      const fs = !!document.fullscreenElement;
+      const fs = !!document.fullscreenElement || pseudoFullscreen;
       const rect = rootRef.current?.getBoundingClientRect();
-      // When embedded and not in native fullscreen, use the container's own
+      // When embedded and not in any fullscreen, use the container's own
       // height — that's the real space we can paint into. Otherwise use the
       // window so the maxHeight scales with true viewport (and fullscreen).
       const h =
@@ -194,7 +200,7 @@ export default function SocLife({ embedded = false }: SocLifeProps = {}) {
       document.removeEventListener("fullscreenchange", measure);
       ro?.disconnect();
     };
-  }, [embedded]);
+  }, [embedded, pseudoFullscreen]);
 
   // Onboarding: shown after "Start shift" on first ever visit, otherwise on demand
   // via the "?" button on the welcome screen. Never shown before the user opts in.
@@ -522,22 +528,52 @@ export default function SocLife({ embedded = false }: SocLifeProps = {}) {
 
   // Track native fullscreen state (e.g. user pressing ESC) so the icon stays in sync.
   useEffect(() => {
-    const onChange = () => setIsFullscreen(!!document.fullscreenElement);
+    const onChange = () =>
+      setIsFullscreen(!!document.fullscreenElement || pseudoFullscreen);
     document.addEventListener("fullscreenchange", onChange);
+    onChange();
     return () => document.removeEventListener("fullscreenchange", onChange);
-  }, []);
+  }, [pseudoFullscreen]);
+
+  // Exit pseudo-fullscreen via Escape, mirroring native fullscreen UX.
+  useEffect(() => {
+    if (!pseudoFullscreen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setPseudoFullscreen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [pseudoFullscreen]);
 
   const toggleFullscreen = useCallback(async () => {
-    try {
-      if (!document.fullscreenElement) {
-        await rootRef.current?.requestFullscreen?.();
-      } else {
-        await document.exitFullscreen?.();
-      }
-    } catch {
-      toast.error(t("socLife.fullscreenUnavailable") || "Fullscreen unavailable");
+    // If we're already in pseudo-fullscreen, just exit it.
+    if (pseudoFullscreen) {
+      setPseudoFullscreen(false);
+      return;
     }
-  }, [t]);
+    const el = rootRef.current;
+    const nativeSupported =
+      !!el &&
+      typeof el.requestFullscreen === "function" &&
+      // iOS Safari on iPhone exposes neither requestFullscreen nor the
+      // webkit-prefixed variant on arbitrary elements — fall back to CSS.
+      (document.fullscreenEnabled ?? true);
+    try {
+      if (document.fullscreenElement) {
+        await document.exitFullscreen?.();
+        return;
+      }
+      if (nativeSupported) {
+        await el!.requestFullscreen();
+        return;
+      }
+      // Fallback: CSS-based fullscreen (works on iOS Safari).
+      setPseudoFullscreen(true);
+    } catch {
+      // Native API rejected (common on iOS / inside iframes) — use CSS fallback.
+      setPseudoFullscreen(true);
+    }
+  }, [pseudoFullscreen]);
 
   // Game-over: pause music, give the user a beat to read the result before
   // surfacing the "Restart" CTA. No toast spam, no rushing.
@@ -564,7 +600,11 @@ export default function SocLife({ embedded = false }: SocLifeProps = {}) {
     <div
       ref={rootRef}
       className={
-        embedded
+        pseudoFullscreen
+          // CSS-based fullscreen (iOS Safari fallback): pin to the visual
+          // viewport on top of everything else, including the chat shell.
+          ? "fixed inset-0 z-50 h-[100dvh] w-screen overflow-hidden bg-background text-foreground flex flex-col"
+          : embedded
           // Embedded inside ChatView: fill the parent column without forcing
           // page-level scroll. min-h ensures the simulator is always usable
           // even when the chat layout collapses to a small region. h-[80vh]
