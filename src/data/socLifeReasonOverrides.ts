@@ -693,6 +693,273 @@ export const REASON_OVERRIDES: Record<string, Reason> = {
     "Pointing at IT exposes absent ISMS ownership — governance gap logged.",
     "Pointer l'IT révèle un manque d'ownership SMSI — lacune de gouvernance notée.",
   ),
+
+  // ============================ MFA BOMBING ============================
+  "mfa_bombing::validate::auth_review": R(
+    "Sign-in-Telemetrie zuerst — Quelle, Gerät, Geo machen den Fall klar.",
+    "Sign-in telemetry first — source, device and geo make the case clear.",
+    "Télémétrie de connexion d'abord — source, appareil, géo clarifient.",
+  ),
+  "mfa_bombing::validate::ask_user_only": R(
+    "Nur den User fragen genügt nicht — ohne IdP-Logs fehlt der Beweis.",
+    "Asking the user alone isn't enough — without IdP logs the proof is missing.",
+    "Demander à l'utilisateur ne suffit pas — sans logs IdP la preuve manque.",
+  ),
+  "mfa_bombing::validate::trust_idp": R(
+    "Bestätigtes MFA ≠ legitim — Push-Bombing umgeht genau diese Annahme.",
+    "Confirmed MFA ≠ legitimate — push bombing exploits exactly that assumption.",
+    "MFA confirmé ≠ légitime — le push bombing exploite cette hypothèse.",
+  ),
+  "mfa_bombing::contain::revoke_sessions": R(
+    "Sessions beenden + Re-Auth nur von bekannten Geräten — Angreifer raus, User arbeitsfähig.",
+    "End sessions and re-auth only from known devices — attacker out, user productive.",
+    "Mettre fin aux sessions, ré-auth depuis appareils connus — attaquant out, user OK.",
+  ),
+  "mfa_bombing::contain::disable_user": R(
+    "Account komplett sperren ist Overkill — Service-Desk-Stau ohne Sicherheitsplus.",
+    "Fully disabling the account is overkill — service-desk backlog with no security gain.",
+    "Désactiver entièrement le compte est excessif — engorgement sans bénéfice.",
+  ),
+  "mfa_bombing::contain::wait_more": R(
+    "Auf Forensik warten lässt den Angreifer aktiv — Containment ist zeitkritisch.",
+    "Waiting for forensics keeps the attacker active — containment is time-critical.",
+    "Attendre la forensique laisse l'attaquant actif — confinement urgent.",
+  ),
+  "mfa_bombing::harden::number_match": R(
+    "Number-Matching + Kontext schließt die Push-Müdigkeits-Lücke strukturell.",
+    "Number matching plus context closes the push-fatigue gap structurally.",
+    "Number matching et contexte ferment la faille de fatigue push structurellement.",
+  ),
+  "mfa_bombing::harden::more_training": R(
+    "Awareness-Mail allein behebt keine technische Schwäche — Lücke bleibt.",
+    "An awareness blast alone doesn't fix a technical weakness — gap persists.",
+    "Un mail de sensibilisation ne corrige pas une faiblesse technique — faille reste.",
+  ),
+  "mfa_bombing::harden::remove_mfa": R(
+    "Push auf SMS herunterstufen schwächt MFA — SIM-Swap wird die nächste Tür.",
+    "Downgrading push to SMS weakens MFA — SIM swap becomes the next door.",
+    "Rétrograder push vers SMS affaiblit le MFA — le SIM-swap suit.",
+  ),
+
+  // ============================ OT ANOMALY ============================
+  "ot_anomaly::verify::passive_capture": R(
+    "Passiver Mitschnitt mit Engineering — kein Eingriff in laufende Steuerbefehle.",
+    "Passive capture with engineering — no interference with live control commands.",
+    "Capture passive avec l'ingénierie — aucun impact sur les commandes en cours.",
+  ),
+  "ot_anomaly::verify::active_scan": R(
+    "Aktiver Scan in OT kann SPS umkippen — produktionskritisches Risiko.",
+    "Active scanning in OT can crash a PLC — production-critical risk.",
+    "Un scan actif en OT peut planter un PLC — risque critique production.",
+  ),
+  "ot_anomaly::verify::ask_vendor": R(
+    "Nur auf den Hersteller zu warten verschenkt das Reaktionsfenster.",
+    "Just waiting for the vendor wastes the response window.",
+    "Attendre seulement le fournisseur gaspille la fenêtre de réaction.",
+  ),
+  "ot_anomaly::isolate::fw_acl": R(
+    "Engineering-only ACL mit Schichtleitung abgestimmt — Containment ohne Stillstand.",
+    "Engineering-only ACL signed off with shift lead — containment without downtime.",
+    "ACL engineering-only validée avec chef de quart — confinement sans arrêt.",
+  ),
+  "ot_anomaly::isolate::shutdown_plc": R(
+    "SPS hart abschalten erzeugt unkontrollierten Prozessstopp — Safety-Risiko.",
+    "Hard-stopping the PLC creates an uncontrolled process halt — safety risk.",
+    "Couper le PLC à chaud crée un arrêt incontrôlé — risque sécurité.",
+  ),
+  "ot_anomaly::isolate::block_all_ot": R(
+    "Komplette OT-IT-Trennung kappt auch HMI/Historian — Blindflug für die Schicht.",
+    "Cutting all OT-IT also kills HMI/historian — shift flies blind.",
+    "Couper tout OT-IT supprime aussi HMI/historian — équipe en aveugle.",
+  ),
+  "ot_anomaly::coord::ot_safety": R(
+    "Schicht, OT-Engineering und Safety gemeinsam — Produktionsimpact wird greifbar.",
+    "Shift, OT engineering and safety together — production impact becomes tangible.",
+    "Quart, ingénierie OT et safety ensemble — l'impact production devient palpable.",
+  ),
+  "ot_anomaly::coord::it_only": R(
+    "Im IT-SOC abkapseln ignoriert Safety und Schicht — Eskalationspfad fehlt.",
+    "Keeping it inside IT-SOC ignores safety and shift — escalation path missing.",
+    "Garder en interne IT-SOC ignore safety et quart — chemin d'escalade absent.",
+  ),
+  "ot_anomaly::coord::press_first": R(
+    "Presse vor Engineering ist Reputationsschaden ohne belastbaren Befund.",
+    "Press before engineering is reputation damage without a solid finding.",
+    "La presse avant l'ingénierie nuit à la réputation sans constat solide.",
+  ),
+
+  // ============================ ROGUE WIFI ============================
+  "rogue_wifi::locate::triangulate": R(
+    "Triangulation über Signalstärke + Geräte-ID liefert Beweis und Standort.",
+    "Triangulation via signal strength and device ID yields evidence and location.",
+    "Triangulation par force de signal et ID donne preuve et emplacement.",
+  ),
+  "rogue_wifi::locate::deauth_now": R(
+    "Blind deauthen warnt den Angreifer und vernichtet Funkbeweise.",
+    "Blind deauth tips off the attacker and destroys radio evidence.",
+    "Désauthentifier à l'aveugle alerte l'attaquant et détruit les preuves radio.",
+  ),
+  "rogue_wifi::locate::ignore": R(
+    "Als WIDS-Falschmeldung schließen ist bequem — und genau das, worauf der Angreifer baut.",
+    "Closing as WIDS false positive is convenient — and exactly what the attacker counts on.",
+    "Clore comme faux positif WIDS est commode — et c'est ce sur quoi l'attaquant compte.",
+  ),
+  "rogue_wifi::remove::facilities": R(
+    "Mit Site-Security einsammeln, Beweis sichern, Etage informieren — sauberer Ablauf.",
+    "Collect with site security, preserve evidence, brief the floor — clean workflow.",
+    "Récupérer avec la sécurité du site, conserver la preuve, briefer l'étage — propre.",
+  ),
+  "rogue_wifi::remove::smash": R(
+    "Vor Ort zerstören vernichtet Forensik — Täterzuordnung verloren.",
+    "Smashing it on the spot destroys forensics — attribution lost.",
+    "L'écraser sur place détruit la forensique — attribution perdue.",
+  ),
+  "rogue_wifi::remove::leave_run": R(
+    "Als Honeypot weiterlaufen lassen ohne Mandat überschreitet die SOC-Befugnis.",
+    "Leaving it as a honeypot without authorisation oversteps SOC authority.",
+    "Le laisser en honeypot sans mandat dépasse l'autorité du SOC.",
+  ),
+  "rogue_wifi::users::etage_brief": R(
+    "Knappe, sachliche Etagen-Notiz — Hinweis auf Zertifikatsprüfung reicht.",
+    "Brief factual floor note — pointing at certificate checks is enough.",
+    "Note d'étage brève et factuelle — rappeler la vérif certificat suffit.",
+  ),
+  "rogue_wifi::users::company_wide": R(
+    "Firmenweite Panikmail mit Foto erzeugt Lärm und neue Phishing-Vorlage.",
+    "Company-wide panic mail with a photo creates noise and a fresh phishing template.",
+    "Mail panique globale avec photo crée du bruit et un modèle de phishing.",
+  ),
+  "rogue_wifi::users::silent": R(
+    "Ganz schweigen lässt Betroffene unwissend weitersurfen — Lerneffekt null.",
+    "Total silence leaves affected users browsing on unaware — zero learning effect.",
+    "Silence total laisse les utilisateurs naviguer sans savoir — zéro apprentissage.",
+  ),
+
+  // ============================ OPEN BUCKET ============================
+  "open_bucket::verify::cloudtrail": R(
+    "CloudTrail zuerst — wer hat was seit wann gelesen, bevor wir handeln.",
+    "CloudTrail first — who read what since when, before we act.",
+    "CloudTrail d'abord — qui a lu quoi depuis quand, avant d'agir.",
+  ),
+  "open_bucket::verify::close_now": R(
+    "Sofort schließen klingt sicher, vernichtet aber Zugriffsspuren.",
+    "Closing immediately feels safe but destroys access traces.",
+    "Fermer tout de suite paraît sûr mais détruit les traces d'accès.",
+  ),
+  "open_bucket::verify::ask_dev": R(
+    "Im Dev-Chat fragen, ob 'public okay' ist, ist keine Risikoanalyse.",
+    "Asking dev chat whether 'public is fine' isn't a risk assessment.",
+    "Demander au chat dev si 'public est OK' n'est pas une analyse de risque.",
+  ),
+  "open_bucket::remediate::block_public": R(
+    "Public-Access auf Account-Ebene blocken + Guardrails — Wiederholung strukturell ausgeschlossen.",
+    "Block public access at account level plus guardrails — recurrence structurally ruled out.",
+    "Bloquer l'accès public au niveau compte + garde-fous — récidive exclue.",
+  ),
+  "open_bucket::remediate::rename_only": R(
+    "Umbenennen lässt das Datenleck weiter offen — Security through Obscurity scheitert hier.",
+    "Renaming leaves the leak open — security through obscurity fails here.",
+    "Renommer laisse la fuite ouverte — security by obscurity échoue.",
+  ),
+  "open_bucket::remediate::url_obfuscate": R(
+    "Signed Links lösen das Symptom, lassen die Public-Konfiguration aber stehen.",
+    "Signed links treat the symptom but leave the public config in place.",
+    "Liens signés traitent le symptôme mais laissent la config publique en place.",
+  ),
+  "open_bucket::notify::dpo_legal": R(
+    "DSB + Legal mit 72h-Frist und Datenkategorien — saubere DSGVO-Linie.",
+    "DPO + Legal with 72h deadline and data categories — clean GDPR track.",
+    "DPO + juridique avec délai 72h et catégories de données — voie RGPD propre.",
+  ),
+  "open_bucket::notify::ciso_only": R(
+    "Nur CISO informieren reicht bei Personenbezug nicht — Meldepflicht prüfen.",
+    "CISO-only briefing isn't enough for personal data — check notification duty.",
+    "Briefer le CISO seul ne suffit pas pour données personnelles — vérifier l'obligation.",
+  ),
+  "open_bucket::notify::no_proof": R(
+    "'Kein Massendownload' ist kein Freifahrtschein — Risiko, nicht Beweis ist der Trigger.",
+    "'No mass download' isn't a free pass — risk, not proof, triggers notification.",
+    "'Pas de téléchargement de masse' n'exonère pas — c'est le risque qui déclenche.",
+  ),
+
+  // ============================ POWER OUTAGE ============================
+  "power_outage::react::stop_freeze": R(
+    "Wartung stoppen, Change-Freeze + DR-Plan aktivieren — kontrollierte Lage.",
+    "Halt maintenance, activate change-freeze and DR plan — controlled situation.",
+    "Arrêter la maintenance, activer freeze + plan DR — situation maîtrisée.",
+  ),
+  "power_outage::react::let_it_run": R(
+    "'Just do it' bei Strom-Risiko ist Glücksspiel mit Produktionsausfall als Einsatz.",
+    "'Just do it' on power risk is gambling with production outage as the stake.",
+    "'Just do it' face au risque électrique, c'est jouer la prod en pari.",
+  ),
+  "power_outage::react::blame_loud": R(
+    "Lautes Meckern in Teams ersetzt keinen Krisenprozess.",
+    "Loud venting in Teams isn't a substitute for a crisis process.",
+    "Râler dans Teams ne remplace pas un processus de crise.",
+  ),
+  "power_outage::comms::noc_business": R(
+    "NOC + BC + Service-Owner kurz und sachlich — Statuspage vorbereiten.",
+    "NOC + BC + service owners briefed factually — status page ready.",
+    "NOC + BC + service owners briefés factuellement — status page prête.",
+  ),
+  "power_outage::comms::everyone": R(
+    "All-Hands-Mail dramatisiert ohne Mehrwert — Lärm im falschen Kanal.",
+    "All-hands mail dramatises without added value — noise in the wrong channel.",
+    "Mail tout-personnel dramatise sans valeur — bruit au mauvais endroit.",
+  ),
+  "power_outage::comms::silent": R(
+    "Schweigen lässt Betrieb und Service-Owner blind — Vertrauen leidet.",
+    "Silence leaves ops and service owners blind — trust suffers.",
+    "Le silence laisse ops et owners aveugles — la confiance souffre.",
+  ),
+
+  // ============================ DEEPFAKE VOICE ============================
+  "deepfake_voice::verify::callback_known": R(
+    "Rückruf auf hinterlegte CFO-Nummer + Vier-Augen — Out-of-Band schlägt Stimme.",
+    "Callback on the directory CFO number + four-eyes — out-of-band beats voice.",
+    "Rappel sur le numéro CFO du répertoire + quatre yeux — hors-bande l'emporte.",
+  ),
+  "deepfake_voice::verify::reply_voice": R(
+    "Antwort per Sprachnachricht spielt dem Angreifer in die Hände — selber Kanal.",
+    "Replying by voice note plays into the attacker's hand — same channel.",
+    "Répondre par message vocal joue le jeu de l'attaquant — même canal.",
+  ),
+  "deepfake_voice::verify::trust_voice": R(
+    "'Klingt echt' ist genau der Trick — Stimme ist 2025 kein Authentifizierer mehr.",
+    "'Sounds real' is exactly the trick — voice in 2025 isn't an authenticator.",
+    "'Ça sonne vrai' c'est le piège — la voix en 2025 n'authentifie plus.",
+  ),
+  "deepfake_voice::stop::bank_freeze": R(
+    "Bank-Fraud-Desk anrufen + Treasury parallel — schnellster Stoppmechanismus.",
+    "Call the bank fraud desk + treasury in parallel — fastest stop mechanism.",
+    "Appeler la fraude bancaire + treasury en parallèle — arrêt le plus rapide.",
+  ),
+  "deepfake_voice::stop::wait_swift": R(
+    "Auf SWIFT-Tracking warten ist passiv — Geld ist meist schon weitergeleitet.",
+    "Waiting for SWIFT tracking is passive — money is usually already moved on.",
+    "Attendre le tracking SWIFT est passif — l'argent est souvent déjà reparti.",
+  ),
+  "deepfake_voice::stop::send_again": R(
+    "Eine 'Korrektur-Überweisung' verdoppelt den Schaden, statt ihn zu mindern.",
+    "A 'corrective' wire doubles the loss instead of mitigating it.",
+    "Un virement 'correctif' double la perte au lieu de la réduire.",
+  ),
+  "deepfake_voice::policy::voice_policy": R(
+    "Voice-only-Anweisungen verbieten + Out-of-Band kodifizieren — Lücke strukturell zu.",
+    "Ban voice-only instructions + codify out-of-band — gap closed structurally.",
+    "Interdire les instructions vocales seules + codifier hors-bande — faille fermée.",
+  ),
+  "deepfake_voice::policy::ai_detector": R(
+    "Detektor-Tool ohne Prozess-Änderung — False-Positive-Roulette ohne Kontrolle.",
+    "Detector tool without process change — false-positive roulette without control.",
+    "Outil de détection sans changement de process — roulette de faux positifs.",
+  ),
+  "deepfake_voice::policy::no_change": R(
+    "Keine Policy-Anpassung lässt die exakt gleiche Lücke offen — nächster Versuch landet.",
+    "No policy change leaves the exact same gap — next attempt lands.",
+    "Pas de changement de politique laisse la même faille — la prochaine tentative passera.",
+  ),
 };
 
 /** Lookup helper used by socLifeReasons.ts. */

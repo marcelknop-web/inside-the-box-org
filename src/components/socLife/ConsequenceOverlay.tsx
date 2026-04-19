@@ -82,9 +82,15 @@ export function ConsequenceOverlay({ data, onContinue }: Props) {
     return () => window.removeEventListener("keydown", onKey);
   }, [onContinue]);
 
+  // Tier thresholds — calibrated so wrong answers register as "lückenhaft/risky"
+  // (the realistic case: an analyst made a defensible-but-incomplete call) rather
+  // than as catastrophic. The "severe" bucket is reserved for truly egregious
+  // procedural failures (delta ≤ -8). With the current option deltas (-2…-5)
+  // every wrong pick lands in "risky", which matches the design intent: no
+  // playbook step in this game models a cartoonishly wrong action.
   const tier = data.correct
     ? data.repDelta >= 6 ? "excellent" : "solid"
-    : data.repDelta <= -4 ? "severe" : "risky";
+    : data.repDelta <= -8 ? "severe" : "risky";
 
   const verdictText = t(`socLife.consequence.${tier}`);
   const accent =
