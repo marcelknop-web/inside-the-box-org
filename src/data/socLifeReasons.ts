@@ -143,7 +143,9 @@ const REASONS: Record<Tier, Record<Phase, Record<Lang, string>>> = {
  */
 function tierOf(opt: PlaybookOption): Tier {
   if (opt.correct) return opt.delta >= 6 ? "excellent" : "solid";
-  return opt.delta <= -4 ? "severe" : "risky";
+  // Mirror ConsequenceOverlay tier logic: wrong answers are "risky" (incomplete /
+  // defensible-but-flawed) rather than "severe" unless the delta is extreme.
+  return opt.delta <= -8 ? "severe" : "risky";
 }
 
 /**

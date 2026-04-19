@@ -693,6 +693,147 @@ export const REASON_OVERRIDES: Record<string, Reason> = {
     "Pointing at IT exposes absent ISMS ownership — governance gap logged.",
     "Pointer l'IT révèle un manque d'ownership SMSI — lacune de gouvernance notée.",
   ),
+
+  // ============================ MFA BOMBING ============================
+  "mfa_bombing::validate::auth_review": R(
+    "Sign-in-Telemetrie zuerst — Quelle, Gerät, Geo machen den Fall klar.",
+    "Sign-in telemetry first — source, device and geo make the case clear.",
+    "Télémétrie de connexion d'abord — source, appareil, géo clarifient.",
+  ),
+  "mfa_bombing::validate::ask_user_only": R(
+    "Nur den User fragen genügt nicht — ohne IdP-Logs fehlt der Beweis.",
+    "Asking the user alone isn't enough — without IdP logs the proof is missing.",
+    "Demander à l'utilisateur ne suffit pas — sans logs IdP la preuve manque.",
+  ),
+  "mfa_bombing::validate::trust_idp": R(
+    "Bestätigtes MFA ≠ legitim — Push-Bombing umgeht genau diese Annahme.",
+    "Confirmed MFA ≠ legitimate — push bombing exploits exactly that assumption.",
+    "MFA confirmé ≠ légitime — le push bombing exploite cette hypothèse.",
+  ),
+  "mfa_bombing::contain::revoke_sessions": R(
+    "Sessions beenden + Re-Auth nur von bekannten Geräten — Angreifer raus, User arbeitsfähig.",
+    "End sessions and re-auth only from known devices — attacker out, user productive.",
+    "Mettre fin aux sessions, ré-auth depuis appareils connus — attaquant out, user OK.",
+  ),
+  "mfa_bombing::contain::disable_user": R(
+    "Account komplett sperren ist Overkill — Service-Desk-Stau ohne Sicherheitsplus.",
+    "Fully disabling the account is overkill — service-desk backlog with no security gain.",
+    "Désactiver entièrement le compte est excessif — engorgement sans bénéfice.",
+  ),
+  "mfa_bombing::contain::wait_more": R(
+    "Auf Forensik warten lässt den Angreifer aktiv — Containment ist zeitkritisch.",
+    "Waiting for forensics keeps the attacker active — containment is time-critical.",
+    "Attendre la forensique laisse l'attaquant actif — confinement urgent.",
+  ),
+  "mfa_bombing::harden::number_match": R(
+    "Number-Matching + Kontext schließt die Push-Müdigkeits-Lücke strukturell.",
+    "Number matching plus context closes the push-fatigue gap structurally.",
+    "Number matching et contexte ferment la faille de fatigue push structurellement.",
+  ),
+  "mfa_bombing::harden::more_training": R(
+    "Awareness-Mail allein behebt keine technische Schwäche — Lücke bleibt.",
+    "An awareness blast alone doesn't fix a technical weakness — gap persists.",
+    "Un mail de sensibilisation ne corrige pas une faiblesse technique — faille reste.",
+  ),
+  "mfa_bombing::harden::remove_mfa": R(
+    "Push auf SMS herunterstufen schwächt MFA — SIM-Swap wird die nächste Tür.",
+    "Downgrading push to SMS weakens MFA — SIM swap becomes the next door.",
+    "Rétrograder push vers SMS affaiblit le MFA — le SIM-swap suit.",
+  ),
+
+  // ============================ OT ANOMALY ============================
+  "ot_anomaly::verify::passive_capture": R(
+    "Passiver Mitschnitt mit Engineering — kein Eingriff in laufende Steuerbefehle.",
+    "Passive capture with engineering — no interference with live control commands.",
+    "Capture passive avec l'ingénierie — aucun impact sur les commandes en cours.",
+  ),
+  "ot_anomaly::verify::active_scan": R(
+    "Aktiver Scan in OT kann SPS umkippen — produktionskritisches Risiko.",
+    "Active scanning in OT can crash a PLC — production-critical risk.",
+    "Un scan actif en OT peut planter un PLC — risque critique production.",
+  ),
+  "ot_anomaly::verify::ask_vendor": R(
+    "Nur auf den Hersteller zu warten verschenkt das Reaktionsfenster.",
+    "Just waiting for the vendor wastes the response window.",
+    "Attendre seulement le fournisseur gaspille la fenêtre de réaction.",
+  ),
+  "ot_anomaly::isolate::fw_acl": R(
+    "Engineering-only ACL mit Schichtleitung abgestimmt — Containment ohne Stillstand.",
+    "Engineering-only ACL signed off with shift lead — containment without downtime.",
+    "ACL engineering-only validée avec chef de quart — confinement sans arrêt.",
+  ),
+  "ot_anomaly::isolate::shutdown_plc": R(
+    "SPS hart abschalten erzeugt unkontrollierten Prozessstopp — Safety-Risiko.",
+    "Hard-stopping the PLC creates an uncontrolled process halt — safety risk.",
+    "Couper le PLC à chaud crée un arrêt incontrôlé — risque sécurité.",
+  ),
+  "ot_anomaly::isolate::block_all_ot": R(
+    "Komplette OT-IT-Trennung kappt auch HMI/Historian — Blindflug für die Schicht.",
+    "Cutting all OT-IT also kills HMI/historian — shift flies blind.",
+    "Couper tout OT-IT supprime aussi HMI/historian — équipe en aveugle.",
+  ),
+  "ot_anomaly::coord::ot_safety": R(
+    "Schicht, OT-Engineering und Safety gemeinsam — Produktionsimpact wird greifbar.",
+    "Shift, OT engineering and safety together — production impact becomes tangible.",
+    "Quart, ingénierie OT et safety ensemble — l'impact production devient palpable.",
+  ),
+  "ot_anomaly::coord::it_only": R(
+    "Im IT-SOC abkapseln ignoriert Safety und Schicht — Eskalationspfad fehlt.",
+    "Keeping it inside IT-SOC ignores safety and shift — escalation path missing.",
+    "Garder en interne IT-SOC ignore safety et quart — chemin d'escalade absent.",
+  ),
+  "ot_anomaly::coord::press_first": R(
+    "Presse vor Engineering ist Reputationsschaden ohne belastbaren Befund.",
+    "Press before engineering is reputation damage without a solid finding.",
+    "La presse avant l'ingénierie nuit à la réputation sans constat solide.",
+  ),
+
+  // ============================ ROGUE WIFI ============================
+  "rogue_wifi::locate::triangulate": R(
+    "Triangulation über Signalstärke + Geräte-ID liefert Beweis und Standort.",
+    "Triangulation via signal strength and device ID yields evidence and location.",
+    "Triangulation par force de signal et ID donne preuve et emplacement.",
+  ),
+  "rogue_wifi::locate::deauth_now": R(
+    "Blind deauthen warnt den Angreifer und vernichtet Funkbeweise.",
+    "Blind deauth tips off the attacker and destroys radio evidence.",
+    "Désauthentifier à l'aveugle alerte l'attaquant et détruit les preuves radio.",
+  ),
+  "rogue_wifi::locate::ignore": R(
+    "Als WIDS-Falschmeldung schließen ist bequem — und genau das, worauf der Angreifer baut.",
+    "Closing as WIDS false positive is convenient — and exactly what the attacker counts on.",
+    "Clore comme faux positif WIDS est commode — et c'est ce sur quoi l'attaquant compte.",
+  ),
+  "rogue_wifi::remove::facilities": R(
+    "Mit Site-Security einsammeln, Beweis sichern, Etage informieren — sauberer Ablauf.",
+    "Collect with site security, preserve evidence, brief the floor — clean workflow.",
+    "Récupérer avec la sécurité du site, conserver la preuve, briefer l'étage — propre.",
+  ),
+  "rogue_wifi::remove::smash": R(
+    "Vor Ort zerstören vernichtet Forensik — Täterzuordnung verloren.",
+    "Smashing it on the spot destroys forensics — attribution lost.",
+    "L'écraser sur place détruit la forensique — attribution perdue.",
+  ),
+  "rogue_wifi::remove::leave_run": R(
+    "Als Honeypot weiterlaufen lassen ohne Mandat überschreitet die SOC-Befugnis.",
+    "Leaving it as a honeypot without authorisation oversteps SOC authority.",
+    "Le laisser en honeypot sans mandat dépasse l'autorité du SOC.",
+  ),
+  "rogue_wifi::users::etage_brief": R(
+    "Knappe, sachliche Etagen-Notiz — Hinweis auf Zertifikatsprüfung reicht.",
+    "Brief factual floor note — pointing at certificate checks is enough.",
+    "Note d'étage brève et factuelle — rappeler la vérif certificat suffit.",
+  ),
+  "rogue_wifi::users::company_wide": R(
+    "Firmenweite Panikmail mit Foto erzeugt Lärm und neue Phishing-Vorlage.",
+    "Company-wide panic mail with a photo creates noise and a fresh phishing template.",
+    "Mail panique globale avec photo crée du bruit et un modèle de phishing.",
+  ),
+  "rogue_wifi::users::silent": R(
+    "Ganz schweigen lässt Betroffene unwissend weitersurfen — Lerneffekt null.",
+    "Total silence leaves affected users browsing on unaware — zero learning effect.",
+    "Silence total laisse les utilisateurs naviguer sans savoir — zéro apprentissage.",
+  ),
 };
 
 /** Lookup helper used by socLifeReasons.ts. */
