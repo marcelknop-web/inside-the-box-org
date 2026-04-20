@@ -132,6 +132,11 @@ const STR = {
     clickHint: "Click a key or type any letter.",
     historyTitle: "History",
     historyText: "The Wehrmacht Enigma I (1930–1945) encrypted using 3 of 5 rotors, a plugboard and a reflector. This implementation follows the original wiring including the famous double-step anomaly.",
+    fullscreen: "Fullscreen",
+    exitFullscreen: "Exit fullscreen",
+    sound: "Sound",
+    muteOn: "Muted",
+    muteOff: "On",
   },
   fr: {
     title: "Enigma I — Simulateur fonctionnel",
@@ -157,6 +162,11 @@ const STR = {
     clickHint: "Cliquez une touche ou tapez une lettre.",
     historyTitle: "Histoire",
     historyText: "L'Enigma I de la Wehrmacht (1930–1945) chiffrait avec 3 rotors sur 5, un tableau de connexions et un réflecteur. Cette implémentation suit le câblage d'origine, y compris l'anomalie du double pas du rotor central.",
+    fullscreen: "Plein écran",
+    exitFullscreen: "Quitter plein écran",
+    sound: "Son",
+    muteOn: "Muet",
+    muteOff: "Activé",
   },
 } as const;
 
