@@ -454,7 +454,7 @@ function WiringDiagram({ trace, cfg }: { trace: TraceStep[]; cfg: EnigmaConfig }
   // not on every render — otherwise the SVG would remount on hover/state
   // changes and the gold line would visibly "twitch" / redraw.
   const traceSig = useMemo(
-    () => trace.map((s) => `${s.in}>${s.out}`).join("|"),
+    () => trace.map((s) => `${s.from}>${s.to}`).join("|"),
     [trace]
   );
   const animKeyRef = useRef(0);
