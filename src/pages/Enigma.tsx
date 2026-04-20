@@ -830,44 +830,14 @@ export default function EnigmaPage() {
             </div>
           </div>
 
-          {/* ----- Lab Panel --------------------------------------------- */}
+          {/* ----- Lab Panel — visual wiring diagram --------------------- */}
           {showLab && (
-            <aside className="rounded-xl border border-primary/30 bg-card/60 p-4 backdrop-blur overflow-y-auto">
-              <h2 className="font-mono text-xs uppercase tracking-[0.18em] text-primary">
+            <aside className="rounded-xl border border-primary/30 bg-card/60 p-3 backdrop-blur overflow-hidden flex flex-col">
+              <h2 className="shrink-0 font-mono text-[10px] uppercase tracking-[0.18em] text-primary">
                 {t.lab}
               </h2>
-              <p className="mt-1 text-xs text-muted-foreground">{t.labHint}</p>
-              <div className="mt-3 space-y-1.5">
-                {trace.length === 0 ? (
-                  <p className="rounded border border-dashed border-border px-3 py-6 text-center font-mono text-xs text-muted-foreground">
-                    —
-                  </p>
-                ) : (
-                  trace.map((s, i) => (
-                    <div
-                      key={i}
-                      className="flex items-center justify-between rounded border border-border bg-background/50 px-3 py-1.5"
-                    >
-                      <span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
-                        {s.label}
-                      </span>
-                      <span className="font-mono text-xs">
-                        <span className="text-foreground">{s.from}</span>
-                        <span className="mx-1.5 text-primary">→</span>
-                        <span className="text-primary font-semibold">{s.to}</span>
-                      </span>
-                    </div>
-                  ))
-                )}
-              </div>
-
-              <div className="mt-5 border-t border-border pt-3">
-                <h3 className="font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                  {t.historyTitle}
-                </h3>
-                <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-                  {t.historyText}
-                </p>
+              <div className="flex-1 min-h-0 mt-2">
+                <WiringDiagram trace={trace} cfg={cfg} />
               </div>
             </aside>
           )}
