@@ -600,6 +600,14 @@ export default function EnigmaPage() {
           </div>
           <div className="flex items-center gap-1 sm:gap-2">
             <button
+              onClick={() => setShowIntro(true)}
+              title={t.introTitle}
+              className="inline-flex items-center gap-1.5 rounded border border-border px-2 py-1 font-mono text-[10px] uppercase tracking-wider text-muted-foreground hover:text-primary hover:border-primary/50 transition-colors"
+            >
+              <HelpCircle className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">{t.introTitle}</span>
+            </button>
+            <button
               onClick={() => setMuted((m) => !m)}
               title={`${t.sound}: ${muted ? t.muteOn : t.muteOff}`}
               className="inline-flex items-center gap-1.5 rounded border border-border px-2 py-1 font-mono text-[10px] uppercase tracking-wider text-muted-foreground hover:text-primary hover:border-primary/50 transition-colors"
@@ -704,12 +712,19 @@ export default function EnigmaPage() {
             {/* Configuration */}
             <div className="mt-3 grid gap-3 rounded-lg border border-primary/30 bg-black/40 p-3 sm:grid-cols-2">
               <div>
-                <div className="mb-2 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-                  {t.rotors} · {t.pos} / {t.ring}
+                <div className="mb-2 flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+                  {t.setup}
+                </div>
+                {/* Column headers */}
+                <div className="mb-1 grid grid-cols-[1rem_1fr_1fr_1fr] gap-2 text-[9px] uppercase tracking-wider text-muted-foreground/70">
+                  <span />
+                  <span className="flex items-center gap-1">{t.rotorChoice}<HelpDot text={t.rotorChoiceHelp} /></span>
+                  <span className="flex items-center gap-1">{t.pos}<HelpDot text={t.posHelp} /></span>
+                  <span className="flex items-center gap-1">{t.ring}<HelpDot text={t.ringHelp} /></span>
                 </div>
                 <div className="space-y-2">
                   {([0, 1, 2] as const).map((i) => (
-                    <div key={i} className="flex items-center gap-2 text-xs">
+                    <div key={i} className="grid grid-cols-[1rem_1fr_1fr_1fr] items-center gap-2 text-xs">
                       <span className="w-4 font-mono text-muted-foreground">{["L", "M", "R"][i]}</span>
                       <select
                         value={rotors[i].name}
@@ -748,8 +763,9 @@ export default function EnigmaPage() {
               </div>
               <div className="space-y-3">
                 <div>
-                  <div className="mb-2 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+                  <div className="mb-2 flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
                     {t.reflector}
+                    <HelpDot text={t.reflectorHelp} />
                   </div>
                   <div className="flex gap-2">
                     {(Object.keys(REFLECTORS) as ReflectorName[]).map((r) => (
@@ -768,8 +784,9 @@ export default function EnigmaPage() {
                   </div>
                 </div>
                 <div>
-                  <div className="mb-2 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+                  <div className="mb-2 flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
                     {t.plugboard}
+                    <HelpDot text={t.plugboardHelp} />
                   </div>
                   <input
                     value={plugboard}
@@ -855,6 +872,7 @@ export default function EnigmaPage() {
             </aside>
           )}
         </div>
+        {showIntro && <IntroOverlay t={t} onClose={closeIntro} />}
       </div>
     </>
   );
