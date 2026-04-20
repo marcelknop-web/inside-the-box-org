@@ -518,6 +518,9 @@ function WiringDiagram({ trace, cfg }: { trace: TraceStep[]; cfg: EnigmaConfig }
   const polyline = (pts: [number, number][]) =>
     pts.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(" ");
 
+  const pointsToPath = (pts: [number, number][]) =>
+    pts.map(([x, y], i) => `${i === 0 ? "M" : "L"}${x.toFixed(1)},${y.toFixed(1)}`).join(" ");
+
   // Total length of a polyline in pixel-space (for stroke-dashoffset animation)
   const pathLength = (pts: [number, number][]) => {
     let l = 0;
@@ -607,47 +610,69 @@ function WiringDiagram({ trace, cfg }: { trace: TraceStep[]; cfg: EnigmaConfig }
       {/* Forward path (gold) — draws left → right */}
       {fwdPts.length > 0 && (() => {
         const len = pathLength(fwdPts);
+        const d = pointsToPath(fwdPts);
         return (
-          <polyline
-            key={`fwd-${animKey.current}`}
-            points={polyline(fwdPts)}
-            fill="none"
-            stroke="hsl(var(--primary))"
-            strokeWidth={1.8}
-            strokeLinejoin="round"
-            strokeLinecap="round"
-            opacity={0.95}
-            style={{
-              ["--enigma-len" as any]: len,
-              strokeDasharray: len,
-              strokeDashoffset: len,
-              animation: `enigmaDraw 480ms cubic-bezier(0.4,0,0.2,1) forwards`,
-              filter: "drop-shadow(0 0 3px hsl(var(--primary) / 0.5))",
-            }}
-          />
+          <g key={`fwd-${animKey.current}`}>
+            <polyline
+              points={polyline(fwdPts)}
+              fill="none"
+              stroke="hsl(var(--primary))"
+              strokeWidth={1.8}
+              strokeLinejoin="round"
+              strokeLinecap="round"
+              opacity={0.95}
+              style={{
+                ["--enigma-len" as any]: len,
+                strokeDasharray: len,
+                strokeDashoffset: len,
+                animation: `enigmaDraw 480ms cubic-bezier(0.4,0,0.2,1) forwards`,
+                filter: "drop-shadow(0 0 3px hsl(var(--primary) / 0.5))",
+              }}
+            />
+            {/* Hidden motion path + glowing electron */}
+            <path id={`fwd-path-${animKey.current}`} d={d} fill="none" stroke="none" />
+            <circle r={3.6} fill="hsl(var(--primary))" opacity={0.95}
+              style={{ filter: "drop-shadow(0 0 6px hsl(var(--primary)))" }}>
+              <animateMotion dur="480ms" begin="0s" fill="freeze" rotate="auto" keyTimes="0;1" keySplines="0.4 0 0.2 1" calcMode="spline">
+                <mpath href={`#fwd-path-${animKey.current}`} />
+              </animateMotion>
+              {/* Fade out at the end so the dot doesn't sit on the reflector */}
+              <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.05;0.9;1" dur="480ms" begin="0s" fill="freeze" />
+            </circle>
+          </g>
         );
       })()}
       {/* Back path (cyan) — draws right → left, after the forward pass */}
       {bckPts.length > 0 && (() => {
         const len = pathLength(bckPts);
+        const d = pointsToPath(bckPts);
         return (
-          <polyline
-            key={`bck-${animKey.current}`}
-            points={polyline(bckPts)}
-            fill="none"
-            stroke="#00bcd4"
-            strokeWidth={1.8}
-            strokeDasharray={`${len}`}
-            strokeLinejoin="round"
-            strokeLinecap="round"
-            opacity={0.95}
-            style={{
-              ["--enigma-len" as any]: len,
-              strokeDashoffset: len,
-              animation: `enigmaDraw 480ms cubic-bezier(0.4,0,0.2,1) 420ms forwards`,
-              filter: "drop-shadow(0 0 3px #00bcd4aa)",
-            }}
-          />
+          <g key={`bck-${animKey.current}`}>
+            <polyline
+              points={polyline(bckPts)}
+              fill="none"
+              stroke="#00bcd4"
+              strokeWidth={1.8}
+              strokeDasharray={`${len}`}
+              strokeLinejoin="round"
+              strokeLinecap="round"
+              opacity={0.95}
+              style={{
+                ["--enigma-len" as any]: len,
+                strokeDashoffset: len,
+                animation: `enigmaDraw 480ms cubic-bezier(0.4,0,0.2,1) 420ms forwards`,
+                filter: "drop-shadow(0 0 3px #00bcd4aa)",
+              }}
+            />
+            <path id={`bck-path-${animKey.current}`} d={d} fill="none" stroke="none" />
+            <circle r={3.6} fill="#00bcd4" opacity={0}
+              style={{ filter: "drop-shadow(0 0 6px #00bcd4)" }}>
+              <animateMotion dur="480ms" begin="0.42s" fill="freeze" rotate="auto" keyTimes="0;1" keySplines="0.4 0 0.2 1" calcMode="spline">
+                <mpath href={`#bck-path-${animKey.current}`} />
+              </animateMotion>
+              <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.05;0.9;1" dur="480ms" begin="0.42s" fill="freeze" />
+            </circle>
+          </g>
         );
       })()}
 
