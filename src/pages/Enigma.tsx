@@ -436,77 +436,85 @@ export default function EnigmaPage() {
     <>
       <PageMeta title={t.title} description={t.desc} />
       <div
+        ref={rootRef}
         tabIndex={0}
         onKeyDown={onKeyDown}
-        className="min-h-screen w-full px-4 py-8 sm:px-6 lg:px-10 outline-none"
+        className="h-[100svh] w-full flex flex-col overflow-hidden outline-none bg-background"
       >
-        {/* Header */}
-        <div className="mx-auto max-w-7xl mb-6 flex items-center justify-between">
-          <Link
-            to="/"
-            className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground hover:text-primary transition-colors"
-          >
-            <ArrowLeft className="h-3.5 w-3.5" />
-            {t.back}
-          </Link>
-          <button
-            onClick={() => setShowLab((s) => !s)}
-            className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground hover:text-primary transition-colors"
-          >
-            {showLab ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
-            {showLab ? t.hideLab : t.showLab}
-          </button>
+        {/* Header — compact, single row */}
+        <div className="shrink-0 flex items-center justify-between gap-3 border-b border-border/60 px-4 py-2 sm:px-6">
+          <div className="flex items-center gap-3 min-w-0">
+            <Link
+              to="/"
+              className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground hover:text-primary transition-colors"
+            >
+              <ArrowLeft className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">{t.back}</span>
+            </Link>
+            <span className="hidden md:inline font-mono text-xs uppercase tracking-[0.3em] text-primary/80 truncate">
+              Chiffriermaschine · Enigma I
+            </span>
+          </div>
+          <div className="flex items-center gap-1 sm:gap-2">
+            <button
+              onClick={() => setMuted((m) => !m)}
+              title={`${t.sound}: ${muted ? t.muteOn : t.muteOff}`}
+              className="inline-flex items-center gap-1.5 rounded border border-border px-2 py-1 font-mono text-[10px] uppercase tracking-wider text-muted-foreground hover:text-primary hover:border-primary/50 transition-colors"
+            >
+              {muted ? <VolumeX className="h-3.5 w-3.5" /> : <Volume2 className="h-3.5 w-3.5" />}
+              <span className="hidden sm:inline">{muted ? t.muteOn : t.muteOff}</span>
+            </button>
+            <button
+              onClick={() => setShowLab((s) => !s)}
+              className="inline-flex items-center gap-1.5 rounded border border-border px-2 py-1 font-mono text-[10px] uppercase tracking-wider text-muted-foreground hover:text-primary hover:border-primary/50 transition-colors"
+            >
+              {showLab ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+              <span className="hidden md:inline">{showLab ? t.hideLab : t.showLab}</span>
+            </button>
+            <button
+              onClick={toggleFullscreen}
+              title={isFullscreen ? t.exitFullscreen : t.fullscreen}
+              className="inline-flex items-center gap-1.5 rounded border border-border px-2 py-1 font-mono text-[10px] uppercase tracking-wider text-muted-foreground hover:text-primary hover:border-primary/50 transition-colors"
+            >
+              {isFullscreen ? <Minimize2 className="h-3.5 w-3.5" /> : <Maximize2 className="h-3.5 w-3.5" />}
+              <span className="hidden sm:inline">{isFullscreen ? t.exitFullscreen : t.fullscreen}</span>
+            </button>
+          </div>
         </div>
 
-        <div className="mx-auto max-w-7xl mb-6">
-          <h1 className="font-mono text-2xl sm:text-3xl text-foreground">{t.title}</h1>
-          <p className="mt-1 text-sm text-muted-foreground max-w-2xl">{t.desc}</p>
-        </div>
-
-        <div className={`mx-auto max-w-7xl grid gap-6 ${showLab ? "lg:grid-cols-[1fr_360px]" : ""}`}>
+        {/* Body — fills remaining viewport */}
+        <div className={`flex-1 min-h-0 grid gap-3 p-3 sm:p-4 ${showLab ? "lg:grid-cols-[1fr_340px]" : ""}`}>
           {/* ----- Machine ------------------------------------------------ */}
           <div
-            className="relative rounded-xl border-2 border-primary/30 p-5 sm:p-7 shadow-[0_10px_40px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.04)]"
+            className="relative rounded-xl border-2 border-primary/30 p-3 sm:p-4 shadow-[0_10px_40px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.04)] overflow-y-auto"
             style={{
               background:
                 "linear-gradient(180deg, #3a2a14 0%, #2a1d0a 35%, #221808 100%)",
             }}
           >
-            {/* Brass nameplate */}
-            <div className="mb-5 flex items-center justify-between">
-              <div className="rounded-sm border border-primary/40 bg-black/30 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.3em] text-primary/80">
-                Chiffriermaschine · Enigma I
-              </div>
-              <div className="hidden sm:flex gap-2">
-                {[0, 1, 2, 3].map((i) => (
-                  <div
-                    key={i}
-                    className="h-2 w-2 rounded-full bg-primary/50 shadow-[0_0_4px_hsl(var(--primary)/0.6)]"
-                  />
-                ))}
-              </div>
-            </div>
-
             {/* Rotor windows */}
-            <div className="rounded-lg border border-primary/30 bg-black/40 p-4">
-              <div className="mb-3 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+            <div className="rounded-lg border border-primary/30 bg-black/40 p-3">
+              <div className="mb-2 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
                 {t.rotors}
               </div>
-              <div className="flex items-center justify-center gap-6">
+              <div className="flex items-center justify-center gap-4 sm:gap-6">
                 {([0, 1, 2] as const).map((i) => (
                   <RotorWindow
                     key={i}
                     rotor={rotors[i]}
                     label={["L", "M", "R"][i]}
-                    onChangePos={(d) => setRotorPos(i, rotors[i].position + d)}
+                    onChangePos={(d) => {
+                      setRotorPos(i, rotors[i].position + d);
+                      playClick(0.7);
+                    }}
                   />
                 ))}
               </div>
             </div>
 
             {/* Lampboard */}
-            <div className="mt-5 rounded-lg border border-primary/30 bg-black/40 p-4">
-              <div className="mb-3 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+            <div className="mt-3 rounded-lg border border-primary/30 bg-black/40 p-3">
+              <div className="mb-2 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
                 {t.lampboard}
               </div>
               <div className="flex flex-col items-center gap-1.5">
@@ -514,7 +522,7 @@ export default function EnigmaPage() {
                   <div
                     key={ri}
                     className="flex gap-1.5"
-                    style={{ marginLeft: ri === 1 ? 16 : ri === 2 ? 0 : 0 }}
+                    style={{ marginLeft: ri === 1 ? 16 : 0 }}
                   >
                     {row.map((l) => (
                       <Lamp key={l} letter={l} lit={lit === l} />
@@ -525,8 +533,8 @@ export default function EnigmaPage() {
             </div>
 
             {/* Keyboard */}
-            <div className="mt-5 rounded-lg border border-primary/30 bg-black/40 p-4">
-              <div className="mb-3 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+            <div className="mt-3 rounded-lg border border-primary/30 bg-black/40 p-3">
+              <div className="mb-2 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
                 {t.keyboard} <span className="ml-2 normal-case tracking-normal text-muted-foreground/70">— {t.clickHint}</span>
               </div>
               <div className="flex flex-col items-center gap-1.5">
@@ -551,7 +559,7 @@ export default function EnigmaPage() {
             </div>
 
             {/* Configuration */}
-            <div className="mt-5 grid gap-4 rounded-lg border border-primary/30 bg-black/40 p-4 sm:grid-cols-2">
+            <div className="mt-3 grid gap-3 rounded-lg border border-primary/30 bg-black/40 p-3 sm:grid-cols-2">
               <div>
                 <div className="mb-2 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
                   {t.rotors} · {t.pos} / {t.ring}
@@ -633,7 +641,7 @@ export default function EnigmaPage() {
             </div>
 
             {/* I/O */}
-            <div className="mt-5 grid gap-4 sm:grid-cols-2">
+            <div className="mt-3 grid gap-3 sm:grid-cols-2">
               <div className="rounded-lg border border-primary/30 bg-black/40 p-3">
                 <div className="mb-1 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
                   {t.input}
@@ -664,12 +672,12 @@ export default function EnigmaPage() {
 
           {/* ----- Lab Panel --------------------------------------------- */}
           {showLab && (
-            <aside className="rounded-xl border border-primary/30 bg-card/60 p-5 backdrop-blur">
+            <aside className="rounded-xl border border-primary/30 bg-card/60 p-4 backdrop-blur overflow-y-auto">
               <h2 className="font-mono text-xs uppercase tracking-[0.18em] text-primary">
                 {t.lab}
               </h2>
               <p className="mt-1 text-xs text-muted-foreground">{t.labHint}</p>
-              <div className="mt-4 space-y-1.5">
+              <div className="mt-3 space-y-1.5">
                 {trace.length === 0 ? (
                   <p className="rounded border border-dashed border-border px-3 py-6 text-center font-mono text-xs text-muted-foreground">
                     —
@@ -693,7 +701,7 @@ export default function EnigmaPage() {
                 )}
               </div>
 
-              <div className="mt-6 border-t border-border pt-4">
+              <div className="mt-5 border-t border-border pt-3">
                 <h3 className="font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground">
                   {t.historyTitle}
                 </h3>
