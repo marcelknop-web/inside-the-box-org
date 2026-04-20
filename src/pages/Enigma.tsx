@@ -344,27 +344,53 @@ export default function EnigmaPage() {
   const [lit, setLit] = useState<string | null>(null);
   const [trace, setTrace] = useState<TraceStep[]>([]);
   const [showLab, setShowLab] = useState(true);
+  const [muted, setMuted] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const rootRef = useRef<HTMLDivElement | null>(null);
   const litTimer = useRef<number | null>(null);
+  const playClick = useRotorClick(muted);
 
   const cfg: EnigmaConfig = useMemo(
     () => ({ rotors, reflector, plugboard }),
     [rotors, reflector, plugboard]
   );
 
+  // Track native fullscreen state (user may exit with Esc)
+  useEffect(() => {
+    const onChange = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener("fullscreenchange", onChange);
+    return () => document.removeEventListener("fullscreenchange", onChange);
+  }, []);
+
+  const toggleFullscreen = useCallback(() => {
+    if (document.fullscreenElement) {
+      document.exitFullscreen().catch(() => {});
+    } else {
+      rootRef.current?.requestFullscreen().catch(() => {});
+    }
+  }, []);
+
   const press = useCallback(
     (letter: string) => {
       const ch = letter.toUpperCase();
       if (!/^[A-Z]$/.test(ch)) return;
+      const before = rotors;
       const result = encryptLetter(ch, { rotors, reflector, plugboard });
       setRotors(result.rotors);
       setInput((s) => (s + ch).slice(-200));
       setOutput((s) => (s + result.output).slice(-200));
       setTrace(result.trace);
       setLit(result.output);
+      // Count how many rotors stepped — each step = a click (slightly louder if multiple)
+      const steps = result.rotors.reduce(
+        (n, r, i) => n + (r.position !== before[i].position ? 1 : 0),
+        0
+      );
+      if (steps > 0) playClick(steps === 1 ? 1 : steps === 2 ? 1.25 : 1.5);
       if (litTimer.current) window.clearTimeout(litTimer.current);
       litTimer.current = window.setTimeout(() => setLit(null), 220);
     },
-    [rotors, reflector, plugboard]
+    [rotors, reflector, plugboard, playClick]
   );
 
   const onKeyDown = useCallback(
