@@ -1,6 +1,6 @@
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, RotateCcw, Eye, EyeOff } from "lucide-react";
+import { ArrowLeft, RotateCcw, Eye, EyeOff, Maximize2, Minimize2, Volume2, VolumeX } from "lucide-react";
 import { PageMeta } from "@/components/PageMeta";
 import { useLanguage } from "@/i18n/LanguageContext";
 import {
@@ -14,6 +14,67 @@ import {
   type TraceStep,
   encryptLetter,
 } from "@/lib/enigma";
+
+/* --------------------------- Audio (rotor click) ------------------------- */
+/**
+ * Short mechanical "klack": narrow noise burst + low thump, < 60ms.
+ * Lazily creates a single AudioContext on first user interaction.
+ */
+function useRotorClick(muted: boolean) {
+  const ctxRef = useRef<AudioContext | null>(null);
+
+  const ensureCtx = () => {
+    if (ctxRef.current) return ctxRef.current;
+    const AC = (window.AudioContext || (window as any).webkitAudioContext) as typeof AudioContext | undefined;
+    if (!AC) return null;
+    ctxRef.current = new AC();
+    return ctxRef.current;
+  };
+
+  return useCallback(
+    (intensity = 1) => {
+      if (muted) return;
+      const ctx = ensureCtx();
+      if (!ctx) return;
+      if (ctx.state === "suspended") ctx.resume().catch(() => {});
+      const t0 = ctx.currentTime;
+
+      // 1) Noise burst (the wood/plastic "tick")
+      const dur = 0.045;
+      const buf = ctx.createBuffer(1, Math.floor(ctx.sampleRate * dur), ctx.sampleRate);
+      const data = buf.getChannelData(0);
+      for (let i = 0; i < data.length; i++) {
+        const env = Math.exp(-i / (ctx.sampleRate * 0.008));
+        data[i] = (Math.random() * 2 - 1) * env;
+      }
+      const noise = ctx.createBufferSource();
+      noise.buffer = buf;
+      const noiseHP = ctx.createBiquadFilter();
+      noiseHP.type = "highpass";
+      noiseHP.frequency.value = 1800;
+      const noiseGain = ctx.createGain();
+      noiseGain.gain.value = 0.18 * intensity;
+      noise.connect(noiseHP).connect(noiseGain).connect(ctx.destination);
+      noise.start(t0);
+      noise.stop(t0 + dur);
+
+      // 2) Low thump (the metallic body resonance)
+      const osc = ctx.createOscillator();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(180, t0);
+      osc.frequency.exponentialRampToValueAtTime(70, t0 + 0.05);
+      const oscGain = ctx.createGain();
+      oscGain.gain.setValueAtTime(0.0001, t0);
+      oscGain.gain.exponentialRampToValueAtTime(0.22 * intensity, t0 + 0.004);
+      oscGain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.06);
+      osc.connect(oscGain).connect(ctx.destination);
+      osc.start(t0);
+      osc.stop(t0 + 0.07);
+    },
+    [muted]
+  );
+}
+
 
 /* ---------------------------------- i18n --------------------------------- */
 const STR = {
