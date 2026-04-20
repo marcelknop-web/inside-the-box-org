@@ -518,6 +518,17 @@ function WiringDiagram({ trace, cfg }: { trace: TraceStep[]; cfg: EnigmaConfig }
   const polyline = (pts: [number, number][]) =>
     pts.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(" ");
 
+  // Total length of a polyline in pixel-space (for stroke-dashoffset animation)
+  const pathLength = (pts: [number, number][]) => {
+    let l = 0;
+    for (let i = 1; i < pts.length; i++) {
+      const dx = pts[i][0] - pts[i - 1][0];
+      const dy = pts[i][1] - pts[i - 1][1];
+      l += Math.sqrt(dx * dx + dy * dy);
+    }
+    return Math.round(l);
+  };
+
   // Active letter highlights per column
   const activeIdx = letters.length ? letters.map(idxOf) : [];
 
