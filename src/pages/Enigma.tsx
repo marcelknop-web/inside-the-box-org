@@ -450,6 +450,12 @@ function RotorWindow({
  * back (cyan), so you can SEE how the wiring works.
  */
 function WiringDiagram({ trace, cfg }: { trace: TraceStep[]; cfg: EnigmaConfig }) {
+  // Re-key on every new trace so the polylines remount and re-run the
+  // stroke-dashoffset animation from the start (otherwise the same element
+  // wouldn't restart).
+  const animKey = useRef(0);
+  animKey.current += 1;
+
   // Column positions
   const W = 320;       // viewBox width
   const H = 360;       // viewBox height
