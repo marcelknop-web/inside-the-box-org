@@ -450,11 +450,20 @@ function RotorWindow({
  * back (cyan), so you can SEE how the wiring works.
  */
 function WiringDiagram({ trace, cfg }: { trace: TraceStep[]; cfg: EnigmaConfig }) {
-  // Re-key on every new trace so the polylines remount and re-run the
-  // stroke-dashoffset animation from the start (otherwise the same element
-  // wouldn't restart).
-  const animKey = useRef(0);
-  animKey.current += 1;
+  // Re-key only when the trace actually changes (i.e. a new key was pressed),
+  // not on every render — otherwise the SVG would remount on hover/state
+  // changes and the gold line would visibly "twitch" / redraw.
+  const traceSig = useMemo(
+    () => trace.map((s) => `${s.in}>${s.out}`).join("|"),
+    [trace]
+  );
+  const animKeyRef = useRef(0);
+  const lastSigRef = useRef<string>("");
+  if (traceSig !== lastSigRef.current) {
+    lastSigRef.current = traceSig;
+    animKeyRef.current += 1;
+  }
+  const animKey = animKeyRef;
 
   // Column positions
   const W = 320;       // viewBox width
