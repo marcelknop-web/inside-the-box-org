@@ -588,31 +588,57 @@ function WiringDiagram({ trace, cfg }: { trace: TraceStep[]; cfg: EnigmaConfig }
         </g>
       ))}
 
-      {/* Forward path (gold) */}
-      {fwdPts.length > 0 && (
-        <polyline
-          points={polyline(fwdPts)}
-          fill="none"
-          stroke="hsl(var(--primary))"
-          strokeWidth={1.6}
-          strokeLinejoin="round"
-          strokeLinecap="round"
-          opacity={0.95}
-        />
-      )}
-      {/* Back path (cyan / accent) */}
-      {bckPts.length > 0 && (
-        <polyline
-          points={polyline(bckPts)}
-          fill="none"
-          stroke="#00bcd4"
-          strokeWidth={1.6}
-          strokeDasharray="3 2"
-          strokeLinejoin="round"
-          strokeLinecap="round"
-          opacity={0.95}
-        />
-      )}
+      {/* --- animated stroke-dashoffset draw effect --- */}
+      <style>{`
+        @keyframes enigmaDraw { from { stroke-dashoffset: var(--enigma-len); } to { stroke-dashoffset: 0; } }
+      `}</style>
+
+      {/* Forward path (gold) — draws left → right */}
+      {fwdPts.length > 0 && (() => {
+        const len = pathLength(fwdPts);
+        return (
+          <polyline
+            key={`fwd-${animKey.current}`}
+            points={polyline(fwdPts)}
+            fill="none"
+            stroke="hsl(var(--primary))"
+            strokeWidth={1.8}
+            strokeLinejoin="round"
+            strokeLinecap="round"
+            opacity={0.95}
+            style={{
+              ["--enigma-len" as any]: len,
+              strokeDasharray: len,
+              strokeDashoffset: len,
+              animation: `enigmaDraw 480ms cubic-bezier(0.4,0,0.2,1) forwards`,
+              filter: "drop-shadow(0 0 3px hsl(var(--primary) / 0.5))",
+            }}
+          />
+        );
+      })()}
+      {/* Back path (cyan) — draws right → left, after the forward pass */}
+      {bckPts.length > 0 && (() => {
+        const len = pathLength(bckPts);
+        return (
+          <polyline
+            key={`bck-${animKey.current}`}
+            points={polyline(bckPts)}
+            fill="none"
+            stroke="#00bcd4"
+            strokeWidth={1.8}
+            strokeDasharray={`${len}`}
+            strokeLinejoin="round"
+            strokeLinecap="round"
+            opacity={0.95}
+            style={{
+              ["--enigma-len" as any]: len,
+              strokeDashoffset: len,
+              animation: `enigmaDraw 480ms cubic-bezier(0.4,0,0.2,1) 420ms forwards`,
+              filter: "drop-shadow(0 0 3px #00bcd4aa)",
+            }}
+          />
+        );
+      })()}
 
       {/* IN / OUT letter chips */}
       {letters.length > 0 && (
