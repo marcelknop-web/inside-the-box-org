@@ -102,6 +102,11 @@ const STR = {
     clickHint: "Auf eine Taste klicken oder beliebigen Buchstaben tippen.",
     historyTitle: "Geschichte",
     historyText: "Die Wehrmachts-Enigma I (1930–1945) verschlüsselte mit 3 von 5 Walzen, Steckerbrett und Reflektor. Diese Implementierung folgt der originalen Verdrahtung inkl. Doppelschritt-Anomalie der mittleren Walze.",
+    fullscreen: "Vollbild",
+    exitFullscreen: "Vollbild beenden",
+    sound: "Ton",
+    muteOn: "Stumm",
+    muteOff: "Aktiv",
   },
   en: {
     title: "Enigma I — Working Simulator",
