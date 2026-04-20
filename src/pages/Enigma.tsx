@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, RotateCcw, Eye, EyeOff, Maximize2, Minimize2, Volume2, VolumeX } from "lucide-react";
+import { ArrowLeft, RotateCcw, Eye, EyeOff, Maximize2, Minimize2, Volume2, VolumeX, HelpCircle } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { PageMeta } from "@/components/PageMeta";
 import { useLanguage } from "@/i18n/LanguageContext";
 import {
@@ -225,6 +226,86 @@ const QWERTZ = [
   "ASDFGHJK".split(""),
   "PYXCVBNML".split(""),
 ];
+
+/* ------------------------------- HelpDot --------------------------------- */
+/** Small "?" icon next to a label that reveals a plain-language explanation. */
+function HelpDot({ text }: { text: string }) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <button
+          type="button"
+          tabIndex={-1}
+          aria-label="help"
+          className="inline-flex h-3.5 w-3.5 items-center justify-center rounded-full border border-muted-foreground/40 text-[9px] font-mono text-muted-foreground/70 hover:text-primary hover:border-primary transition-colors"
+        >
+          ?
+        </button>
+      </TooltipTrigger>
+      <TooltipContent side="top" className="max-w-[260px] text-xs leading-relaxed">
+        {text}
+      </TooltipContent>
+    </Tooltip>
+  );
+}
+
+/* ------------------------------ IntroOverlay ----------------------------- */
+const INTRO_KEY = "enigma_intro_seen_v1";
+
+function IntroOverlay({
+  t,
+  onClose,
+}: {
+  t: (typeof STR)[keyof typeof STR];
+  onClose: () => void;
+}) {
+  const [step, setStep] = useState(0);
+  const steps = [
+    { title: t.intro1Title, body: t.intro1Body },
+    { title: t.intro2Title, body: t.intro2Body },
+    { title: t.intro3Title, body: t.intro3Body },
+  ];
+  const isLast = step === steps.length - 1;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/85 backdrop-blur-sm p-4">
+      <div className="w-full max-w-md rounded-xl border-2 border-primary/40 bg-card p-6 shadow-[0_20px_60px_rgba(0,0,0,0.6)]">
+        <div className="mb-2 font-mono text-[10px] uppercase tracking-[0.3em] text-primary/80">
+          {t.introTitle}
+        </div>
+        <h2 className="font-mono text-lg text-foreground mb-2">{steps[step].title}</h2>
+        <p className="text-sm text-muted-foreground leading-relaxed mb-5">{steps[step].body}</p>
+
+        {/* progress dots */}
+        <div className="flex items-center gap-1.5 mb-5">
+          {steps.map((_, i) => (
+            <div
+              key={i}
+              className={`h-1.5 rounded-full transition-all ${
+                i === step ? "w-6 bg-primary" : "w-1.5 bg-muted"
+              }`}
+            />
+          ))}
+        </div>
+
+        <div className="flex items-center justify-between">
+          <button
+            onClick={onClose}
+            className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground hover:text-primary transition-colors"
+          >
+            {t.introSkip}
+          </button>
+          <button
+            onClick={() => (isLast ? onClose() : setStep(step + 1))}
+            className="rounded border border-primary bg-primary/10 px-4 py-1.5 font-mono text-xs uppercase tracking-wider text-primary hover:bg-primary/20 transition-colors"
+          >
+            {isLast ? t.introStart : t.introNext}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 /* ----------------------------- Rotor visual ------------------------------ */
 /**
