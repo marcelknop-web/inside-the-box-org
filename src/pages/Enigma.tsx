@@ -442,6 +442,223 @@ function RotorWindow({
   );
 }
 
+/* --------------------------- Wiring Diagram ------------------------------ */
+/**
+ * Visual side-view of the signal flowing through the machine.
+ * Shows 5 columns of 26 letter contacts (Plugboard | R | M | L | Reflector)
+ * and draws the actual path the last keypress took: forward (gold) and
+ * back (cyan), so you can SEE how the wiring works.
+ */
+function WiringDiagram({ trace, cfg }: { trace: TraceStep[]; cfg: EnigmaConfig }) {
+  // Column positions
+  const W = 320;       // viewBox width
+  const H = 360;       // viewBox height
+  const TOP = 14;
+  const BOT = H - 14;
+  const COLS = ["IN", "PB", "R", "M", "L", "UKW"]; // input, plugboard, right, middle, left, reflector
+  const xFor = (i: number) => 18 + (i * (W - 36)) / (COLS.length - 1);
+  const yFor = (idx: number) => TOP + ((BOT - TOP) * idx) / 25;
+  const A0 = "A".charCodeAt(0);
+  const idxOf = (ch: string) => ch.charCodeAt(0) - A0;
+
+  // Decode trace into letter indices at each column boundary.
+  // trace order produced by encryptLetter:
+  //   0: Plugboard in       (in -> pb)
+  //   1..3: Rotor pass forward (R, M, L)
+  //   4: Reflector
+  //   5..7: Rotor pass back (L, M, R) — note: shown as III, II, I labels
+  //   8: Plugboard out
+  let letters: string[] = [];
+  if (trace.length >= 9) {
+    letters = [
+      trace[0].from, // typed letter (IN)
+      trace[0].to,   // after plugboard
+      trace[1].to,   // after R
+      trace[2].to,   // after M
+      trace[3].to,   // after L
+      trace[4].to,   // after reflector
+      // back path: trace[5].to is after L (back), [6].to after M, [7].to after R
+      trace[5].to,
+      trace[6].to,
+      trace[7].to,
+      trace[8].to,   // final lamp
+    ];
+  }
+
+  // Build forward & back path point sets in viewBox coords.
+  // Forward goes IN(0) -> PB(1) -> R(2) -> M(3) -> L(4) -> UKW(5)
+  // Back goes UKW(5) -> L(4) -> M(3) -> R(2) -> PB(1) -> OUT (back to col 0)
+  const fwdPts: [number, number][] = letters.length
+    ? [
+        [xFor(0), yFor(idxOf(letters[0]))],
+        [xFor(1), yFor(idxOf(letters[1]))],
+        [xFor(2), yFor(idxOf(letters[2]))],
+        [xFor(3), yFor(idxOf(letters[3]))],
+        [xFor(4), yFor(idxOf(letters[4]))],
+        [xFor(5), yFor(idxOf(letters[5]))],
+      ]
+    : [];
+  const bckPts: [number, number][] = letters.length
+    ? [
+        [xFor(5), yFor(idxOf(letters[5]))],
+        [xFor(4), yFor(idxOf(letters[6]))],
+        [xFor(3), yFor(idxOf(letters[7]))],
+        [xFor(2), yFor(idxOf(letters[8]))],
+        [xFor(1), yFor(idxOf(letters[9]))],
+        [xFor(0), yFor(idxOf(letters[9]))],
+      ]
+    : [];
+
+  const polyline = (pts: [number, number][]) =>
+    pts.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(" ");
+
+  // Active letter highlights per column
+  const activeIdx = letters.length ? letters.map(idxOf) : [];
+
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-full" preserveAspectRatio="xMidYMid meet">
+      {/* Column headers */}
+      {["IN", "PB", "I", "II", "III", "UKW"].map((label, i) => (
+        <text
+          key={label + i}
+          x={xFor(i)}
+          y={10}
+          textAnchor="middle"
+          className="fill-muted-foreground"
+          style={{ font: "600 8px ui-monospace, monospace", letterSpacing: "0.1em" }}
+        >
+          {label}
+        </text>
+      ))}
+
+      {/* Vertical rails: 26 letter contacts per column */}
+      {COLS.map((_, ci) => (
+        <g key={ci}>
+          <line
+            x1={xFor(ci)}
+            x2={xFor(ci)}
+            y1={TOP}
+            y2={BOT}
+            stroke="hsl(var(--border))"
+            strokeWidth={ci === 0 ? 0 : 1}
+            opacity={0.6}
+          />
+          {ci > 0 &&
+            ALPHA.split("").map((l, li) => {
+              const isHot =
+                activeIdx.length > 0 &&
+                ((ci === 1 && (li === activeIdx[1] || li === activeIdx[9])) ||
+                  (ci === 2 && (li === activeIdx[2] || li === activeIdx[8])) ||
+                  (ci === 3 && (li === activeIdx[3] || li === activeIdx[7])) ||
+                  (ci === 4 && (li === activeIdx[4] || li === activeIdx[6])) ||
+                  (ci === 5 && li === activeIdx[5]));
+              return (
+                <circle
+                  key={l}
+                  cx={xFor(ci)}
+                  cy={yFor(li)}
+                  r={isHot ? 2.4 : 1.1}
+                  fill={isHot ? "hsl(var(--primary))" : "hsl(var(--muted-foreground))"}
+                  opacity={isHot ? 1 : 0.35}
+                />
+              );
+            })}
+        </g>
+      ))}
+
+      {/* Letter labels on outer rails (IN + UKW) */}
+      {ALPHA.split("").map((l, li) => (
+        <g key={"lbl" + l}>
+          <text
+            x={xFor(0) - 4}
+            y={yFor(li) + 2}
+            textAnchor="end"
+            className="fill-muted-foreground"
+            style={{ font: "500 6.5px ui-monospace, monospace" }}
+            opacity={activeIdx[0] === li || activeIdx[9] === li ? 1 : 0.45}
+          >
+            {l}
+          </text>
+        </g>
+      ))}
+
+      {/* Forward path (gold) */}
+      {fwdPts.length > 0 && (
+        <polyline
+          points={polyline(fwdPts)}
+          fill="none"
+          stroke="hsl(var(--primary))"
+          strokeWidth={1.6}
+          strokeLinejoin="round"
+          strokeLinecap="round"
+          opacity={0.95}
+        />
+      )}
+      {/* Back path (cyan / accent) */}
+      {bckPts.length > 0 && (
+        <polyline
+          points={polyline(bckPts)}
+          fill="none"
+          stroke="#00bcd4"
+          strokeWidth={1.6}
+          strokeDasharray="3 2"
+          strokeLinejoin="round"
+          strokeLinecap="round"
+          opacity={0.95}
+        />
+      )}
+
+      {/* IN / OUT letter chips */}
+      {letters.length > 0 && (
+        <>
+          <text
+            x={xFor(0) - 4}
+            y={yFor(idxOf(letters[0])) - 6}
+            textAnchor="end"
+            className="fill-primary"
+            style={{ font: "700 9px ui-monospace, monospace" }}
+          >
+            {letters[0]} ▶
+          </text>
+          <text
+            x={xFor(0) - 4}
+            y={yFor(idxOf(letters[9])) + 12}
+            textAnchor="end"
+            style={{ font: "700 9px ui-monospace, monospace", fill: "#00bcd4" }}
+          >
+            ◀ {letters[9]}
+          </text>
+        </>
+      )}
+
+      {/* Empty-state hint */}
+      {letters.length === 0 && (
+        <text
+          x={W / 2}
+          y={H / 2}
+          textAnchor="middle"
+          className="fill-muted-foreground"
+          style={{ font: "500 9px ui-monospace, monospace" }}
+        >
+          —
+        </text>
+      )}
+
+      {/* Legend */}
+      <g transform={`translate(${W - 110}, ${H - 18})`}>
+        <line x1={0} x2={14} y1={0} y2={0} stroke="hsl(var(--primary))" strokeWidth={1.6} />
+        <text x={18} y={3} className="fill-muted-foreground" style={{ font: "500 7px ui-monospace, monospace" }}>
+          forward
+        </text>
+        <line x1={56} x2={70} y1={0} y2={0} stroke="#00bcd4" strokeWidth={1.6} strokeDasharray="3 2" />
+        <text x={74} y={3} className="fill-muted-foreground" style={{ font: "500 7px ui-monospace, monospace" }}>
+          back
+        </text>
+      </g>
+    </svg>
+  );
+}
+
 /* ------------------------------ Lampboard -------------------------------- */
 function Lamp({ letter, lit }: { letter: string; lit: boolean }) {
   return (
