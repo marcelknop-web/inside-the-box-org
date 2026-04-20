@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, RotateCcw, Eye, EyeOff, Maximize2, Minimize2, Volume2, VolumeX } from "lucide-react";
+import { ArrowLeft, RotateCcw, Eye, EyeOff, Maximize2, Minimize2, Volume2, VolumeX, HelpCircle } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { PageMeta } from "@/components/PageMeta";
 import { useLanguage } from "@/i18n/LanguageContext";
 import {
@@ -79,94 +80,143 @@ function useRotorClick(muted: boolean) {
 /* ---------------------------------- i18n --------------------------------- */
 const STR = {
   de: {
-    title: "Enigma I — Funktionierender Simulator",
-    desc: "Historisch korrekte Wehrmachts-Enigma I mit drei Walzen, Steckerbrett und sichtbarem Signalweg.",
+    title: "Enigma — die berühmte Verschlüsselungs­maschine",
+    desc: "Tippe einen Buchstaben — sieh, wie die Walzen sich drehen und ein anderer Buchstabe aufleuchtet. Tippe ihn mit gleicher Startstellung nochmal — und du bekommst das Original zurück.",
     back: "Zurück",
-    setup: "Konfiguration",
+    setup: "Einstellungen",
     rotors: "Walzen (Links · Mitte · Rechts)",
-    reflector: "Reflektor",
-    ring: "Ringstellung",
-    pos: "Grundstellung",
-    plugboard: "Steckerbrett",
-    plugboardHint: "Paare durch Leerzeichen, z.B. AV BS CG DL FU HZ IN KM OW RX",
+    reflector: "Umkehrwalze (Reflektor)",
+    reflectorHelp: "Schickt das Signal am Ende wieder zurück durch die Walzen. Deshalb ist Verschlüsseln und Entschlüsseln dasselbe.",
+    ring: "Ring-Offset (Ringstellung)",
+    ringHelp: "Verschiebt die Verdrahtung innerhalb der Walze gegen die Buchstaben außen. Selten benötigt — lass es einfach auf 01.",
+    pos: "Startposition (Grundstellung)",
+    posHelp: "Welcher Buchstabe steht am Anfang im Walzenfenster. Sender und Empfänger müssen die gleiche Position einstellen.",
+    rotorChoice: "Walzentyp",
+    rotorChoiceHelp: "Drei der fünf historischen Walzen (I–V) wählen. Jede hat eine andere Verdrahtung.",
+    plugboard: "Buchstaben-Tausch (Steckerbrett)",
+    plugboardHelp: "Vertauscht Buchstaben paarweise vor und nach den Walzen. Beispiel „AB“ tauscht A↔B. Kannst du leer lassen.",
+    plugboardHint: "Buchstabenpaare durch Leerzeichen, z.B. AV BS CG DL.",
     keyboard: "Tastatur",
-    lampboard: "Lampenfeld",
-    output: "Ausgabe",
-    input: "Eingabe",
+    lampboard: "Lampenfeld (Ausgabe)",
+    output: "Verschlüsselter Text",
+    input: "Eingegebener Text",
     reset: "Zurücksetzen",
-    showLab: "Signalweg zeigen",
-    hideLab: "Signalweg ausblenden",
-    lab: "Signalweg-Labor",
-    labHint: "Letzter Tastendruck — vollständiger Pfad durch die Maschine.",
+    showLab: "Signalweg",
+    hideLab: "Signalweg aus",
+    lab: "Wo das Signal langläuft",
+    labHint: "Der Weg deines letzten Buchstabens durch die Maschine.",
     clear: "Löschen",
-    clickHint: "Auf eine Taste klicken oder beliebigen Buchstaben tippen.",
-    historyTitle: "Geschichte",
-    historyText: "Die Wehrmachts-Enigma I (1930–1945) verschlüsselte mit 3 von 5 Walzen, Steckerbrett und Reflektor. Diese Implementierung folgt der originalen Verdrahtung inkl. Doppelschritt-Anomalie der mittleren Walze.",
+    clickHint: "Klick auf eine Taste oder tippe einen Buchstaben.",
+    historyTitle: "Wie sie funktioniert",
+    historyText: "Bei jedem Tastendruck dreht sich die rechte Walze einen Schritt weiter. Das Signal läuft durchs Steckerbrett, durch alle drei Walzen, wird von der Umkehrwalze zurückgespiegelt und kommt durch andere Wege wieder zurück. So wird aus jedem Buchstaben ein anderer — und nie er selbst.",
     fullscreen: "Vollbild",
-    exitFullscreen: "Vollbild beenden",
+    exitFullscreen: "Vollbild aus",
     sound: "Ton",
     muteOn: "Stumm",
     muteOff: "Aktiv",
+    /* Intro */
+    introTitle: "Willkommen an der Enigma",
+    introNext: "Weiter",
+    introStart: "Los geht’s",
+    introSkip: "Überspringen",
+    intro1Title: "1 · Tippe einen Buchstaben",
+    intro1Body: "Drück eine Taste auf der Tastatur — oder tipp einfach auf deiner echten Tastatur. Im Lampenfeld leuchtet sofort der verschlüsselte Buchstabe auf.",
+    intro2Title: "2 · Beobachte die Walzen",
+    intro2Body: "Mit jedem Tastendruck dreht sich die rechte Walze. Sie verändert die Verdrahtung — derselbe Buchstabe ergibt das nächste Mal etwas anderes.",
+    intro3Title: "3 · Probier’s aus",
+    intro3Body: "Tipp ein Wort. Dann stell die Walzen wieder auf die gleiche Startposition und tipp den verschlüsselten Text — du bekommst dein Original zurück. Das ist die Magie der Enigma.",
   },
   en: {
-    title: "Enigma I — Working Simulator",
-    desc: "Historically accurate Wehrmacht Enigma I with three rotors, plugboard and live signal path.",
+    title: "Enigma — the famous cipher machine",
+    desc: "Type a letter — watch the rotors turn and a different letter light up. Type it again with the same start position — and you get the original back.",
     back: "Back",
-    setup: "Configuration",
+    setup: "Settings",
     rotors: "Rotors (Left · Middle · Right)",
-    reflector: "Reflector",
-    ring: "Ring setting",
-    pos: "Start position",
-    plugboard: "Plugboard",
-    plugboardHint: "Pairs separated by spaces, e.g. AV BS CG DL FU HZ IN KM OW RX",
+    reflector: "Reflector wheel",
+    reflectorHelp: "Sends the signal back through the rotors at the end. That's why encrypting and decrypting are the same operation.",
+    ring: "Ring offset (Ringstellung)",
+    ringHelp: "Shifts the wiring inside the rotor against the outer letters. Rarely needed — just leave it at 01.",
+    pos: "Start position (Grundstellung)",
+    posHelp: "Which letter shows in the rotor window at the start. Sender and receiver must set the same position.",
+    rotorChoice: "Rotor type",
+    rotorChoiceHelp: "Pick three of the five historical rotors (I–V). Each has a different wiring.",
+    plugboard: "Letter swap (Plugboard)",
+    plugboardHelp: "Swaps letter pairs before and after the rotors. E.g. \"AB\" swaps A↔B. Can be left empty.",
+    plugboardHint: "Letter pairs separated by spaces, e.g. AV BS CG DL.",
     keyboard: "Keyboard",
-    lampboard: "Lampboard",
-    output: "Output",
-    input: "Input",
+    lampboard: "Lampboard (output)",
+    output: "Encrypted text",
+    input: "Typed text",
     reset: "Reset",
-    showLab: "Show signal path",
-    hideLab: "Hide signal path",
-    lab: "Signal Path Lab",
-    labHint: "Last keystroke — full electrical journey through the machine.",
+    showLab: "Signal path",
+    hideLab: "Hide path",
+    lab: "Where the signal travels",
+    labHint: "The path of your last letter through the machine.",
     clear: "Clear",
     clickHint: "Click a key or type any letter.",
-    historyTitle: "History",
-    historyText: "The Wehrmacht Enigma I (1930–1945) encrypted using 3 of 5 rotors, a plugboard and a reflector. This implementation follows the original wiring including the famous double-step anomaly.",
+    historyTitle: "How it works",
+    historyText: "Every keystroke advances the right rotor by one step. The signal flows through the plugboard, through all three rotors, is reflected back, and returns via different paths. So every letter becomes a different one — and never itself.",
     fullscreen: "Fullscreen",
     exitFullscreen: "Exit fullscreen",
     sound: "Sound",
     muteOn: "Muted",
     muteOff: "On",
+    introTitle: "Welcome to the Enigma",
+    introNext: "Next",
+    introStart: "Let's go",
+    introSkip: "Skip",
+    intro1Title: "1 · Type a letter",
+    intro1Body: "Press a key on the keyboard — or just type on your real keyboard. The encrypted letter lights up instantly on the lampboard.",
+    intro2Title: "2 · Watch the rotors",
+    intro2Body: "With every keystroke the right rotor turns. It changes the wiring — so the same letter produces something different next time.",
+    intro3Title: "3 · Try it out",
+    intro3Body: "Type a word. Then set the rotors back to the same start position and type the encrypted text — you'll get your original back. That's the magic of Enigma.",
   },
   fr: {
-    title: "Enigma I — Simulateur fonctionnel",
-    desc: "Enigma I de la Wehrmacht historiquement exacte avec trois rotors, tableau de connexions et chemin du signal en direct.",
+    title: "Enigma — la célèbre machine à chiffrer",
+    desc: "Tape une lettre — regarde les rotors tourner et une autre lettre s'allumer. Retape-la avec la même position de départ — et tu retrouves l'original.",
     back: "Retour",
-    setup: "Configuration",
+    setup: "Réglages",
     rotors: "Rotors (Gauche · Milieu · Droite)",
-    reflector: "Réflecteur",
-    ring: "Réglage anneau",
-    pos: "Position initiale",
-    plugboard: "Tableau de connexions",
-    plugboardHint: "Paires séparées par des espaces, ex. AV BS CG DL FU HZ IN KM OW RX",
+    reflector: "Roue réflectrice",
+    reflectorHelp: "Renvoie le signal à travers les rotors à la fin. C'est pourquoi chiffrer et déchiffrer sont la même opération.",
+    ring: "Décalage anneau (Ringstellung)",
+    ringHelp: "Décale le câblage interne du rotor par rapport aux lettres extérieures. Rarement nécessaire — laisse à 01.",
+    pos: "Position de départ (Grundstellung)",
+    posHelp: "Quelle lettre apparaît dans la fenêtre du rotor au début. Émetteur et destinataire doivent régler la même.",
+    rotorChoice: "Type de rotor",
+    rotorChoiceHelp: "Choisis trois des cinq rotors historiques (I–V). Chacun a un câblage différent.",
+    plugboard: "Échange de lettres (tableau de connexions)",
+    plugboardHelp: "Échange des paires de lettres avant et après les rotors. Ex. « AB » échange A↔B. Peut rester vide.",
+    plugboardHint: "Paires séparées par des espaces, ex. AV BS CG DL.",
     keyboard: "Clavier",
-    lampboard: "Tableau lumineux",
-    output: "Sortie",
-    input: "Entrée",
+    lampboard: "Tableau lumineux (sortie)",
+    output: "Texte chiffré",
+    input: "Texte saisi",
     reset: "Réinitialiser",
-    showLab: "Afficher le chemin du signal",
-    hideLab: "Masquer le chemin du signal",
-    lab: "Laboratoire du signal",
-    labHint: "Dernière frappe — trajet complet à travers la machine.",
+    showLab: "Chemin du signal",
+    hideLab: "Masquer chemin",
+    lab: "Où passe le signal",
+    labHint: "Le trajet de ta dernière lettre à travers la machine.",
     clear: "Effacer",
-    clickHint: "Cliquez une touche ou tapez une lettre.",
-    historyTitle: "Histoire",
-    historyText: "L'Enigma I de la Wehrmacht (1930–1945) chiffrait avec 3 rotors sur 5, un tableau de connexions et un réflecteur. Cette implémentation suit le câblage d'origine, y compris l'anomalie du double pas du rotor central.",
+    clickHint: "Clique une touche ou tape une lettre.",
+    historyTitle: "Comment ça marche",
+    historyText: "Chaque frappe fait avancer le rotor de droite d'un cran. Le signal traverse le tableau de connexions, les trois rotors, est renvoyé par la roue réflectrice, et revient par d'autres chemins. Chaque lettre devient une autre — jamais elle-même.",
     fullscreen: "Plein écran",
     exitFullscreen: "Quitter plein écran",
     sound: "Son",
     muteOn: "Muet",
     muteOff: "Activé",
+    introTitle: "Bienvenue sur l'Enigma",
+    introNext: "Suivant",
+    introStart: "C'est parti",
+    introSkip: "Passer",
+    intro1Title: "1 · Tape une lettre",
+    intro1Body: "Appuie sur une touche du clavier — ou tape sur ton vrai clavier. La lettre chiffrée s'allume aussitôt sur le tableau lumineux.",
+    intro2Title: "2 · Regarde les rotors",
+    intro2Body: "À chaque frappe, le rotor de droite tourne. Il modifie le câblage — la même lettre donne quelque chose de différent la fois suivante.",
+    intro3Title: "3 · Essaie",
+    intro3Body: "Tape un mot. Puis remets les rotors à la même position de départ et tape le texte chiffré — tu retrouves ton original. C'est la magie de l'Enigma.",
   },
 } as const;
 
@@ -176,6 +226,86 @@ const QWERTZ = [
   "ASDFGHJK".split(""),
   "PYXCVBNML".split(""),
 ];
+
+/* ------------------------------- HelpDot --------------------------------- */
+/** Small "?" icon next to a label that reveals a plain-language explanation. */
+function HelpDot({ text }: { text: string }) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <button
+          type="button"
+          tabIndex={-1}
+          aria-label="help"
+          className="inline-flex h-3.5 w-3.5 items-center justify-center rounded-full border border-muted-foreground/40 text-[9px] font-mono text-muted-foreground/70 hover:text-primary hover:border-primary transition-colors"
+        >
+          ?
+        </button>
+      </TooltipTrigger>
+      <TooltipContent side="top" className="max-w-[260px] text-xs leading-relaxed">
+        {text}
+      </TooltipContent>
+    </Tooltip>
+  );
+}
+
+/* ------------------------------ IntroOverlay ----------------------------- */
+const INTRO_KEY = "enigma_intro_seen_v1";
+
+function IntroOverlay({
+  t,
+  onClose,
+}: {
+  t: (typeof STR)[keyof typeof STR];
+  onClose: () => void;
+}) {
+  const [step, setStep] = useState(0);
+  const steps = [
+    { title: t.intro1Title, body: t.intro1Body },
+    { title: t.intro2Title, body: t.intro2Body },
+    { title: t.intro3Title, body: t.intro3Body },
+  ];
+  const isLast = step === steps.length - 1;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/85 backdrop-blur-sm p-4">
+      <div className="w-full max-w-md rounded-xl border-2 border-primary/40 bg-card p-6 shadow-[0_20px_60px_rgba(0,0,0,0.6)]">
+        <div className="mb-2 font-mono text-[10px] uppercase tracking-[0.3em] text-primary/80">
+          {t.introTitle}
+        </div>
+        <h2 className="font-mono text-lg text-foreground mb-2">{steps[step].title}</h2>
+        <p className="text-sm text-muted-foreground leading-relaxed mb-5">{steps[step].body}</p>
+
+        {/* progress dots */}
+        <div className="flex items-center gap-1.5 mb-5">
+          {steps.map((_, i) => (
+            <div
+              key={i}
+              className={`h-1.5 rounded-full transition-all ${
+                i === step ? "w-6 bg-primary" : "w-1.5 bg-muted"
+              }`}
+            />
+          ))}
+        </div>
+
+        <div className="flex items-center justify-between">
+          <button
+            onClick={onClose}
+            className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground hover:text-primary transition-colors"
+          >
+            {t.introSkip}
+          </button>
+          <button
+            onClick={() => (isLast ? onClose() : setStep(step + 1))}
+            className="rounded border border-primary bg-primary/10 px-4 py-1.5 font-mono text-xs uppercase tracking-wider text-primary hover:bg-primary/20 transition-colors"
+          >
+            {isLast ? t.introStart : t.introNext}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 /* ----------------------------- Rotor visual ------------------------------ */
 /**
@@ -346,6 +476,7 @@ export default function EnigmaPage() {
   const [showLab, setShowLab] = useState(true);
   const [muted, setMuted] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [showIntro, setShowIntro] = useState(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
   const litTimer = useRef<number | null>(null);
   const playClick = useRotorClick(muted);
@@ -360,6 +491,18 @@ export default function EnigmaPage() {
     const onChange = () => setIsFullscreen(!!document.fullscreenElement);
     document.addEventListener("fullscreenchange", onChange);
     return () => document.removeEventListener("fullscreenchange", onChange);
+  }, []);
+
+  // Show 3-step intro on first visit
+  useEffect(() => {
+    try {
+      if (!localStorage.getItem(INTRO_KEY)) setShowIntro(true);
+    } catch { /* localStorage unavailable */ }
+  }, []);
+
+  const closeIntro = useCallback(() => {
+    setShowIntro(false);
+    try { localStorage.setItem(INTRO_KEY, "1"); } catch { /* noop */ }
   }, []);
 
   const toggleFullscreen = useCallback(() => {
@@ -456,6 +599,14 @@ export default function EnigmaPage() {
             </span>
           </div>
           <div className="flex items-center gap-1 sm:gap-2">
+            <button
+              onClick={() => setShowIntro(true)}
+              title={t.introTitle}
+              className="inline-flex items-center gap-1.5 rounded border border-border px-2 py-1 font-mono text-[10px] uppercase tracking-wider text-muted-foreground hover:text-primary hover:border-primary/50 transition-colors"
+            >
+              <HelpCircle className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">{t.introTitle}</span>
+            </button>
             <button
               onClick={() => setMuted((m) => !m)}
               title={`${t.sound}: ${muted ? t.muteOn : t.muteOff}`}
@@ -561,12 +712,19 @@ export default function EnigmaPage() {
             {/* Configuration */}
             <div className="mt-3 grid gap-3 rounded-lg border border-primary/30 bg-black/40 p-3 sm:grid-cols-2">
               <div>
-                <div className="mb-2 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-                  {t.rotors} · {t.pos} / {t.ring}
+                <div className="mb-2 flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+                  {t.setup}
+                </div>
+                {/* Column headers */}
+                <div className="mb-1 grid grid-cols-[1rem_1fr_1fr_1fr] gap-2 text-[9px] uppercase tracking-wider text-muted-foreground/70">
+                  <span />
+                  <span className="flex items-center gap-1">{t.rotorChoice}<HelpDot text={t.rotorChoiceHelp} /></span>
+                  <span className="flex items-center gap-1">{t.pos}<HelpDot text={t.posHelp} /></span>
+                  <span className="flex items-center gap-1">{t.ring}<HelpDot text={t.ringHelp} /></span>
                 </div>
                 <div className="space-y-2">
                   {([0, 1, 2] as const).map((i) => (
-                    <div key={i} className="flex items-center gap-2 text-xs">
+                    <div key={i} className="grid grid-cols-[1rem_1fr_1fr_1fr] items-center gap-2 text-xs">
                       <span className="w-4 font-mono text-muted-foreground">{["L", "M", "R"][i]}</span>
                       <select
                         value={rotors[i].name}
@@ -605,8 +763,9 @@ export default function EnigmaPage() {
               </div>
               <div className="space-y-3">
                 <div>
-                  <div className="mb-2 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+                  <div className="mb-2 flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
                     {t.reflector}
+                    <HelpDot text={t.reflectorHelp} />
                   </div>
                   <div className="flex gap-2">
                     {(Object.keys(REFLECTORS) as ReflectorName[]).map((r) => (
@@ -625,8 +784,9 @@ export default function EnigmaPage() {
                   </div>
                 </div>
                 <div>
-                  <div className="mb-2 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+                  <div className="mb-2 flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
                     {t.plugboard}
+                    <HelpDot text={t.plugboardHelp} />
                   </div>
                   <input
                     value={plugboard}
@@ -712,6 +872,7 @@ export default function EnigmaPage() {
             </aside>
           )}
         </div>
+        {showIntro && <IntroOverlay t={t} onClose={closeIntro} />}
       </div>
     </>
   );
