@@ -518,6 +518,9 @@ function WiringDiagram({ trace, cfg }: { trace: TraceStep[]; cfg: EnigmaConfig }
   const polyline = (pts: [number, number][]) =>
     pts.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(" ");
 
+  const pointsToPath = (pts: [number, number][]) =>
+    pts.map(([x, y], i) => `${i === 0 ? "M" : "L"}${x.toFixed(1)},${y.toFixed(1)}`).join(" ");
+
   // Total length of a polyline in pixel-space (for stroke-dashoffset animation)
   const pathLength = (pts: [number, number][]) => {
     let l = 0;
