@@ -476,6 +476,7 @@ export default function EnigmaPage() {
   const [showLab, setShowLab] = useState(true);
   const [muted, setMuted] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [showIntro, setShowIntro] = useState(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
   const litTimer = useRef<number | null>(null);
   const playClick = useRotorClick(muted);
@@ -490,6 +491,18 @@ export default function EnigmaPage() {
     const onChange = () => setIsFullscreen(!!document.fullscreenElement);
     document.addEventListener("fullscreenchange", onChange);
     return () => document.removeEventListener("fullscreenchange", onChange);
+  }, []);
+
+  // Show 3-step intro on first visit
+  useEffect(() => {
+    try {
+      if (!localStorage.getItem(INTRO_KEY)) setShowIntro(true);
+    } catch { /* localStorage unavailable */ }
+  }, []);
+
+  const closeIntro = useCallback(() => {
+    setShowIntro(false);
+    try { localStorage.setItem(INTRO_KEY, "1"); } catch { /* noop */ }
   }, []);
 
   const toggleFullscreen = useCallback(() => {
