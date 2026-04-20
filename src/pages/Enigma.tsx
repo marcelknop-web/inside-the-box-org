@@ -102,6 +102,10 @@ const QWERTZ = [
 ];
 
 /* ----------------------------- Rotor visual ------------------------------ */
+/**
+ * 3D cylindrical rotor showing all 26 letters wrapped around the drum.
+ * Front-most letter is the active position; side letters fade with depth.
+ */
 function RotorWindow({
   rotor,
   label,
@@ -111,36 +115,121 @@ function RotorWindow({
   label: string;
   onChangePos: (delta: number) => void;
 }) {
-  const center = rotor.position;
-  const above = (center + 1) % 26;
-  const below = (center + 25) % 26;
+  const RADIUS = 70; // px — controls drum size
+  // Each letter occupies 360/26 ≈ 13.846° around the cylinder.
+  // We rotate the whole drum so the active position sits at the front (0°).
+  const stepAngle = 360 / 26;
+  const drumRotation = -rotor.position * stepAngle;
 
   return (
     <div className="flex flex-col items-center gap-2">
       <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
         {label} · {rotor.name}
       </span>
-      <div className="relative rounded-md border border-primary/40 bg-gradient-to-b from-[#2a1d0a] via-[#1a1305] to-[#2a1d0a] shadow-[inset_0_2px_8px_rgba(0,0,0,0.6),0_2px_6px_rgba(0,0,0,0.4)] px-3 py-2 w-[68px]">
-        <button
-          type="button"
-          aria-label="step up"
-          onClick={() => onChangePos(1)}
-          className="block w-full text-center font-mono text-base text-primary/40 hover:text-primary transition-colors leading-tight"
-        >
-          {ALPHA[above]}
-        </button>
-        <div className="my-1 border-y border-primary/30 bg-black/40 py-1">
-          <span className="block text-center font-mono text-2xl font-bold text-primary drop-shadow-[0_0_6px_hsl(var(--primary)/0.6)] leading-none">
-            {ALPHA[center]}
-          </span>
-        </div>
+
+      <div className="flex items-center gap-1.5">
         <button
           type="button"
           aria-label="step down"
           onClick={() => onChangePos(-1)}
-          className="block w-full text-center font-mono text-base text-primary/40 hover:text-primary transition-colors leading-tight"
+          className="font-mono text-xs text-muted-foreground hover:text-primary transition-colors px-1"
         >
-          {ALPHA[below]}
+          ▲
+        </button>
+
+        {/* Cylinder housing */}
+        <div
+          className="relative"
+          style={{
+            width: 78,
+            height: RADIUS * 2 + 14,
+            perspective: 600,
+          }}
+        >
+          {/* Brass end-caps */}
+          <div
+            aria-hidden
+            className="absolute inset-x-0 top-0 h-1.5 rounded-t bg-gradient-to-b from-[#d4a84a] via-[#9a7820] to-[#5c4612] shadow-[0_1px_2px_rgba(0,0,0,0.6)]"
+          />
+          <div
+            aria-hidden
+            className="absolute inset-x-0 bottom-0 h-1.5 rounded-b bg-gradient-to-t from-[#d4a84a] via-[#9a7820] to-[#5c4612] shadow-[0_-1px_2px_rgba(0,0,0,0.6)]"
+          />
+
+          {/* Drum */}
+          <div
+            className="absolute inset-y-1.5 left-1/2"
+            style={{
+              width: 0,
+              transformStyle: "preserve-3d",
+              transform: `rotateX(${drumRotation}deg)`,
+              transition: "transform 280ms cubic-bezier(0.34, 1.2, 0.64, 1)",
+            }}
+          >
+            {ALPHA.split("").map((letter, idx) => {
+              const angle = idx * stepAngle;
+              // Letters at the back are dimmed; front letter is highlighted.
+              const delta = ((idx - rotor.position) % 26 + 26) % 26;
+              const front = delta === 0;
+              const visibility = Math.cos((delta <= 13 ? delta : delta - 26) * stepAngle * Math.PI / 180);
+              const opacity = visibility > 0 ? 0.25 + visibility * 0.75 : 0;
+              return (
+                <div
+                  key={letter}
+                  className="absolute left-1/2 top-1/2 flex h-5 w-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center font-mono text-[15px] font-semibold"
+                  style={{
+                    transform: `rotateX(${angle}deg) translateZ(${RADIUS}px)`,
+                    backfaceVisibility: "hidden",
+                    color: front ? "hsl(var(--primary))" : "hsl(var(--foreground) / 0.85)",
+                    textShadow: front
+                      ? "0 0 8px hsl(var(--primary) / 0.7)"
+                      : "none",
+                    opacity,
+                  }}
+                >
+                  {letter}
+                </div>
+              );
+            })}
+
+            {/* Subtle ridges between letters for mechanical feel */}
+            {ALPHA.split("").map((_, idx) => (
+              <div
+                key={`r${idx}`}
+                aria-hidden
+                className="absolute left-1/2 top-1/2 h-px w-16 -translate-x-1/2 bg-black/40"
+                style={{
+                  transform: `rotateX(${idx * stepAngle + stepAngle / 2}deg) translateZ(${RADIUS}px)`,
+                  backfaceVisibility: "hidden",
+                }}
+              />
+            ))}
+          </div>
+
+          {/* Front gradient mask — gives depth & focus on active letter */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 rounded-sm"
+            style={{
+              background:
+                "linear-gradient(to bottom, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.0) 35%, rgba(0,0,0,0.0) 65%, rgba(0,0,0,0.85) 100%)",
+            }}
+          />
+
+          {/* Active-letter window indicator (brass marker) */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute left-0 right-0 top-1/2 -translate-y-1/2 h-6 border-y border-primary/60 shadow-[0_0_10px_hsl(var(--primary)/0.25)_inset]"
+          />
+        </div>
+
+        <button
+          type="button"
+          aria-label="step up"
+          onClick={() => onChangePos(1)}
+          className="font-mono text-xs text-muted-foreground hover:text-primary transition-colors px-1"
+        >
+          ▼
         </button>
       </div>
     </div>
