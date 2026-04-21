@@ -135,18 +135,18 @@ type Part = {
 const layoutParts = (zones: Zone[]): Part[] => {
   const parts: Part[] = [];
   for (const zone of zones) {
-    const pad = 50;
+    const pad = 56;
     const inner = {
       x: zone.x + pad,
-      y: zone.y + pad,
+      y: zone.y + pad - 10,
       w: zone.w - pad * 2,
-      h: zone.h - pad * 2,
+      h: zone.h - pad * 2 + 10,
     };
     const n = zone.cluster.services.length;
     // single column stack, evenly spaced
-    const gap = 14;
-    const partH = Math.min(72, (inner.h - gap * (n - 1)) / n);
-    const partW = Math.min(360, inner.w);
+    const gap = 18;
+    const partH = Math.min(110, (inner.h - gap * (n - 1)) / n);
+    const partW = Math.min(440, inner.w);
     const startY = inner.y + (inner.h - (partH * n + gap * (n - 1))) / 2;
     const startX = inner.x + (inner.w - partW) / 2;
     zone.cluster.services.forEach((s, i) => {
