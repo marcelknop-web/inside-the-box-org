@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, ReactNode, useCallback, lazy, Suspense } from 'react';
+import { useState, useRef, useEffect, ReactNode, useCallback, useMemo, lazy, Suspense } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
 import { supabase } from '@/integrations/supabase/client';
@@ -1287,6 +1287,7 @@ const ChatView = () => {
    const [subtitleDone, setSubtitleDone] = useState(false);
    const [claimDone, setClaimDone] = useState(false);
    const [chatBarReady, setChatBarReady] = useState(false);
+   const [exampleIndex, setExampleIndex] = useState(0);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const crisisRef = useRef<CrisisSimulatorHandle>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -1413,6 +1414,53 @@ const ChatView = () => {
     window.addEventListener('resize', check);
     return () => window.removeEventListener('resize', check);
   }, []);
+
+  // Tool/wizard/simulator routes — chat bar is hidden on these (focused workflows)
+  const TOOL_SERVICES = useMemo(() => new Set([
+    'crisis-sim', 'dora-check', 'tisax-check', 'pci-check', 'ttx-check',
+    'nis2-quiz', 'ciso-sim', 'threatdrop', 'trigger-triage', 'cyber-frogger',
+    'elite-ship', 'cra-check', 'dora-compliance', 'nis2-compliance',
+    'iacs-e27', 'iec62443', 'butterfly-lab', 'soc-life', 'system-check',
+    'ttx-readiness', 'enigma', 'itsm', 'itsm-dev',
+  ]), []);
+  const isToolPage = !!activeService && TOOL_SERVICES.has(activeService);
+
+  // Rotating example questions for the chat placeholder (info pages only)
+  const exampleQuestions = useMemo(() => {
+    const all = {
+      de: [
+        'Welches Tool passt zu NIS-2?',
+        'Wann ist der nächste TTX-Termin?',
+        'Was bedeutet DORA Art. 17 für meinen Betrieb?',
+        'Welche Compliance-Tools bietet ihr?',
+        'Wie läuft ein Tabletop Exercise ab?',
+      ],
+      en: [
+        'Which tool fits NIS-2?',
+        'When is the next TTX session?',
+        'What does DORA Art. 17 mean for my org?',
+        'Which compliance tools do you offer?',
+        'How does a Tabletop Exercise work?',
+      ],
+      fr: [
+        'Quel outil convient pour NIS-2 ?',
+        'Quand est la prochaine session TTX ?',
+        'Que signifie DORA Art. 17 pour mon entreprise ?',
+        'Quels outils de conformité proposez-vous ?',
+        'Comment se déroule un Tabletop Exercise ?',
+      ],
+    } as const;
+    return all[(language as 'de' | 'en' | 'fr')] ?? all.en;
+  }, [language]);
+
+  // Rotate every 4s, but pause while the user is typing
+  useEffect(() => {
+    if (isToolPage || input.length > 0) return;
+    const id = window.setInterval(() => {
+      setExampleIndex(i => (i + 1) % exampleQuestions.length);
+    }, 4000);
+    return () => window.clearInterval(id);
+  }, [isToolPage, input.length, exampleQuestions.length]);
 
   const selectService = (id: string) => {
     navigateToService(id);
@@ -1668,11 +1716,13 @@ const ChatView = () => {
           )}
         </div>
 
-        {/* Input – always visible floating bar at bottom (desktop + mobile) */}
+        {/* Input – floating bar. Hidden on focused tool/wizard pages, visible on info pages and crisis-sim. */}
         {(() => {
-          const isTouchDevice = isMobile;
-          // On mobile with active service (except crisis/stress): hide completely
-          if (isTouchDevice && !!activeService && activeService !== 'crisis-sim') return null;
+          // Hide entirely on focused tool/wizard/simulator pages (except crisis-sim where chat IS the tool)
+          if (isToolPage && activeService !== 'crisis-sim') return null;
+          const placeholder = activeService === 'crisis-sim'
+            ? 'Ask me anything …'
+            : exampleQuestions[exampleIndex];
           return (
             <div
               className="fixed bottom-4 z-40 pointer-events-none transition-opacity duration-700 ease-out"
@@ -1690,8 +1740,8 @@ const ChatView = () => {
                     onChange={e => setInput(e.target.value)}
                     onKeyDown={handleKeyDown}
                     rows={1}
-                    placeholder="Ask me anything …"
-                    className="flex-1 bg-transparent px-3 md:px-4 py-2.5 text-base md:text-sm font-mono text-foreground placeholder:text-muted-foreground resize-none focus:outline-none max-h-[120px]"
+                    placeholder={placeholder}
+                    className="flex-1 bg-transparent px-3 md:px-4 py-2.5 text-base md:text-sm font-mono text-foreground placeholder:text-muted-foreground placeholder:transition-opacity placeholder:duration-500 resize-none focus:outline-none max-h-[120px]"
                     disabled={isLoading || (activeService === 'crisis-sim' && crisisRef.current?.isLoading())}
                   />
                   <button onClick={handleSend} disabled={!input.trim() || isLoading || (activeService === 'crisis-sim' && crisisRef.current?.isLoading())} className="m-1.5 p-2 rounded-lg bg-highlight text-highlight-foreground disabled:opacity-30 hover:bg-highlight/80 transition-electric">
