@@ -688,7 +688,7 @@ export const de = {
     quickActions: 'Schnellaktionen',
   },
   iscp: {
-    title: 'ISCP Quick Check — TTX-Szenarien ableiten',
+    title: 'ISCP Quick Check — die richtigen TTX-Szenarien finden',
     subtitle: 'ISCPs bewerten und daraus übergreifende Tabletop-Szenarien für das nächste TTX entwickeln.',
     whatIsIscp: 'Was ist ein ISCP?',
     whatIsIscpText: 'Ein Information Security Continuity Plan beschreibt, wie ein IT-Service bei einem Ausfall wiederhergestellt wird.',
