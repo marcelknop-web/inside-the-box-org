@@ -135,18 +135,18 @@ type Part = {
 const layoutParts = (zones: Zone[]): Part[] => {
   const parts: Part[] = [];
   for (const zone of zones) {
-    const pad = 50;
+    const pad = 56;
     const inner = {
       x: zone.x + pad,
-      y: zone.y + pad,
+      y: zone.y + pad - 10,
       w: zone.w - pad * 2,
-      h: zone.h - pad * 2,
+      h: zone.h - pad * 2 + 10,
     };
     const n = zone.cluster.services.length;
     // single column stack, evenly spaced
-    const gap = 14;
-    const partH = Math.min(72, (inner.h - gap * (n - 1)) / n);
-    const partW = Math.min(360, inner.w);
+    const gap = 18;
+    const partH = Math.min(110, (inner.h - gap * (n - 1)) / n);
+    const partW = Math.min(440, inner.w);
     const startY = inner.y + (inner.h - (partH * n + gap * (n - 1))) / 2;
     const startX = inner.x + (inner.w - partW) / 2;
     zone.cluster.services.forEach((s, i) => {
@@ -362,18 +362,17 @@ const FrameAxisLabels = () => {
   const colSpacing = (VIEW_W - 2 * MARGIN) / cols.length;
   const rowSpacing = (VIEW_H - 2 * MARGIN) / rows.length;
   return (
-    <g fill="hsl(var(--primary) / 0.55)" fontSize="11" fontWeight="500">
+    <g fill="hsl(var(--primary) / 0.6)" fontSize="18" fontWeight="500">
       {cols.map((c, i) => {
         const x = MARGIN + colSpacing * (i + 0.5);
         return (
           <g key={`c-${c}`}>
-            <text x={x} y={MARGIN - 8} textAnchor="middle">{c}</text>
-            <text x={x} y={VIEW_H - MARGIN + 18} textAnchor="middle">{c}</text>
-            {/* tick marks */}
+            <text x={x} y={MARGIN - 14} textAnchor="middle">{c}</text>
+            <text x={x} y={VIEW_H - MARGIN + 30} textAnchor="middle">{c}</text>
             {i > 0 && (
               <>
-                <line x1={MARGIN + colSpacing * i} y1={MARGIN} x2={MARGIN + colSpacing * i} y2={MARGIN + 6} stroke="hsl(var(--primary) / 0.35)" strokeWidth="0.6" />
-                <line x1={MARGIN + colSpacing * i} y1={VIEW_H - MARGIN} x2={MARGIN + colSpacing * i} y2={VIEW_H - MARGIN - 6} stroke="hsl(var(--primary) / 0.35)" strokeWidth="0.6" />
+                <line x1={MARGIN + colSpacing * i} y1={MARGIN} x2={MARGIN + colSpacing * i} y2={MARGIN + 8} stroke="hsl(var(--primary) / 0.4)" strokeWidth="0.8" />
+                <line x1={MARGIN + colSpacing * i} y1={VIEW_H - MARGIN} x2={MARGIN + colSpacing * i} y2={VIEW_H - MARGIN - 8} stroke="hsl(var(--primary) / 0.4)" strokeWidth="0.8" />
               </>
             )}
           </g>
@@ -383,12 +382,12 @@ const FrameAxisLabels = () => {
         const y = MARGIN + rowSpacing * (i + 0.5);
         return (
           <g key={`r-${r}`}>
-            <text x={MARGIN - 12} y={y + 4} textAnchor="middle">{r}</text>
-            <text x={VIEW_W - MARGIN + 14} y={y + 4} textAnchor="middle">{r}</text>
+            <text x={MARGIN - 22} y={y + 6} textAnchor="middle">{r}</text>
+            <text x={VIEW_W - MARGIN + 22} y={y + 6} textAnchor="middle">{r}</text>
             {i > 0 && (
               <>
-                <line x1={MARGIN} y1={MARGIN + rowSpacing * i} x2={MARGIN + 6} y2={MARGIN + rowSpacing * i} stroke="hsl(var(--primary) / 0.35)" strokeWidth="0.6" />
-                <line x1={VIEW_W - MARGIN} y1={MARGIN + rowSpacing * i} x2={VIEW_W - MARGIN - 6} y2={MARGIN + rowSpacing * i} stroke="hsl(var(--primary) / 0.35)" strokeWidth="0.6" />
+                <line x1={MARGIN} y1={MARGIN + rowSpacing * i} x2={MARGIN + 8} y2={MARGIN + rowSpacing * i} stroke="hsl(var(--primary) / 0.4)" strokeWidth="0.8" />
+                <line x1={VIEW_W - MARGIN} y1={MARGIN + rowSpacing * i} x2={VIEW_W - MARGIN - 8} y2={MARGIN + rowSpacing * i} stroke="hsl(var(--primary) / 0.4)" strokeWidth="0.8" />
               </>
             )}
           </g>
@@ -440,14 +439,14 @@ const ZoneHeader = ({ zone, t, active }: ZoneHeaderProps) => {
         style={{ transition: 'stroke 0.3s' }}
       />
       {/* zone code badge */}
-      <g transform={`translate(${zone.x + 22}, ${zone.y + 28})`}>
-        <text fontSize="10" fill="hsl(var(--primary) / 0.5)" letterSpacing="2">
+      <g transform={`translate(${zone.x + 26}, ${zone.y + 32})`}>
+        <text fontSize="14" fill="hsl(var(--primary) / 0.6)" letterSpacing="3">
           ZONE {zone.zoneLabel} · {zone.cluster.code}
         </text>
-        <text y={18} fontSize="13" fill={active ? 'hsl(var(--primary))' : 'hsl(var(--foreground) / 0.85)'} letterSpacing="1.5" style={{ transition: 'fill 0.3s' }}>
+        <text y={26} fontSize="20" fontWeight="500" fill={active ? 'hsl(var(--primary))' : 'hsl(var(--foreground) / 0.9)'} letterSpacing="2" style={{ transition: 'fill 0.3s' }}>
           {label}
         </text>
-        <line x1={0} y1={26} x2={150} y2={26} stroke="hsl(var(--primary) / 0.4)" strokeWidth="0.6" />
+        <line x1={0} y1={36} x2={220} y2={36} stroke="hsl(var(--primary) / 0.45)" strokeWidth="0.8" />
       </g>
     </g>
   );
@@ -520,32 +519,33 @@ const PartBox = ({ part, t, isHovered, dimmed, onEnter, onLeave, onClick }: Part
       ))}
       {/* Part code (top-left inside) */}
       <text
-        x={part.x + 12}
-        y={part.y + 18}
-        fontSize="9"
-        fill="hsl(var(--primary) / 0.7)"
-        letterSpacing="2"
+        x={part.x + 16}
+        y={part.y + 26}
+        fontSize="13"
+        fill="hsl(var(--primary) / 0.75)"
+        letterSpacing="2.5"
       >
         PART {part.node.code}
       </text>
       {/* Part title */}
       <text
-        x={part.x + 12}
-        y={part.y + 40}
-        fontSize="14"
+        x={part.x + 16}
+        y={part.y + 58}
+        fontSize="22"
+        fontWeight="500"
         fill={isHovered ? 'hsl(var(--primary))' : 'hsl(var(--foreground))'}
         style={{ transition: 'fill 0.25s' }}
       >
-        {truncate(t(part.node.titleKey), 38)}
+        {truncate(t(part.node.titleKey), 32)}
       </text>
       {/* Dimension hint (bottom edge) */}
       <text
-        x={part.x + part.w - 12}
-        y={part.y + part.h - 8}
-        fontSize="8"
+        x={part.x + part.w - 16}
+        y={part.y + part.h - 12}
+        fontSize="11"
         textAnchor="end"
         fill="hsl(var(--muted-foreground))"
-        letterSpacing="1.5"
+        letterSpacing="2"
       >
         ⌀ {Math.round(part.w)}×{Math.round(part.h)}
       </text>
@@ -580,8 +580,9 @@ const DimensionLines = ({ part }: DimensionLinesProps) => {
       {/* Dimension number */}
       <text
         x={part.x + part.w / 2}
-        y={dimY - 4}
-        fontSize="10"
+        y={dimY - 6}
+        fontSize="14"
+        fontWeight="500"
         textAnchor="middle"
         fill={stroke}
         stroke="none"
@@ -597,13 +598,14 @@ const DimensionLines = ({ part }: DimensionLinesProps) => {
       <polygon points={`${dimX},${part.y} ${dimX - arrowSize},${part.y - arrowSize} ${dimX + arrowSize},${part.y - arrowSize}`} />
       <polygon points={`${dimX},${part.y + part.h} ${dimX - arrowSize},${part.y + part.h + arrowSize} ${dimX + arrowSize},${part.y + part.h + arrowSize}`} />
       <text
-        x={dimX - 6}
+        x={dimX - 8}
         y={part.y + part.h / 2}
-        fontSize="10"
+        fontSize="14"
+        fontWeight="500"
         textAnchor="middle"
         fill={stroke}
         stroke="none"
-        transform={`rotate(-90 ${dimX - 6} ${part.y + part.h / 2})`}
+        transform={`rotate(-90 ${dimX - 8} ${part.y + part.h / 2})`}
       >
         {Math.round(part.h)}
       </text>
@@ -631,47 +633,44 @@ interface TitleBlockProps {
   hoveredTitle: string;
 }
 const TitleBlock = ({ dateStr, sheetNo, drawingNo, totalParts, hoveredCode, hoveredTitle }: TitleBlockProps) => {
-  const w = 540;
-  const h = 80;
+  const w = 720;
+  const h = 110;
   const x = VIEW_W - MARGIN - 6 - w;
   const y = VIEW_H - MARGIN - 6 - h;
-  // 4 columns
   const colW = w / 4;
   return (
     <g>
-      {/* outer */}
-      <rect x={x} y={y} width={w} height={h} fill="hsl(var(--background) / 0.85)" stroke="hsl(var(--primary) / 0.7)" strokeWidth="1" />
-      {/* internal dividers */}
-      <line x1={x + colW * 2} y1={y} x2={x + colW * 2} y2={y + h} stroke="hsl(var(--primary) / 0.55)" strokeWidth="0.6" />
-      <line x1={x + colW * 3} y1={y} x2={x + colW * 3} y2={y + h} stroke="hsl(var(--primary) / 0.55)" strokeWidth="0.6" />
-      <line x1={x + colW * 2} y1={y + h / 2} x2={x + colW * 3} y2={y + h / 2} stroke="hsl(var(--primary) / 0.4)" strokeWidth="0.5" />
-      <line x1={x + colW * 3} y1={y + h / 2} x2={x + w} y2={y + h / 2} stroke="hsl(var(--primary) / 0.4)" strokeWidth="0.5" />
+      <rect x={x} y={y} width={w} height={h} fill="hsl(var(--background) / 0.85)" stroke="hsl(var(--primary) / 0.7)" strokeWidth="1.2" />
+      <line x1={x + colW * 2} y1={y} x2={x + colW * 2} y2={y + h} stroke="hsl(var(--primary) / 0.55)" strokeWidth="0.8" />
+      <line x1={x + colW * 3} y1={y} x2={x + colW * 3} y2={y + h} stroke="hsl(var(--primary) / 0.55)" strokeWidth="0.8" />
+      <line x1={x + colW * 2} y1={y + h / 2} x2={x + colW * 3} y2={y + h / 2} stroke="hsl(var(--primary) / 0.4)" strokeWidth="0.6" />
+      <line x1={x + colW * 3} y1={y + h / 2} x2={x + w} y2={y + h / 2} stroke="hsl(var(--primary) / 0.4)" strokeWidth="0.6" />
 
-      {/* Col 1: project name (large) */}
-      <text x={x + 14} y={y + 22} fontSize="9" fill="hsl(var(--primary) / 0.6)" letterSpacing="2">PROJECT</text>
-      <text x={x + 14} y={y + 44} fontSize="16" fill="hsl(var(--foreground))" letterSpacing="1">INSIDE-THE-BOX</text>
-      <text x={x + 14} y={y + 64} fontSize="10" fill="hsl(var(--muted-foreground))" letterSpacing="1">Cybersecurity Practice · 13 / 4</text>
+      {/* Col 1: project name */}
+      <text x={x + 18} y={y + 28} fontSize="12" fill="hsl(var(--primary) / 0.65)" letterSpacing="3">PROJECT</text>
+      <text x={x + 18} y={y + 60} fontSize="22" fontWeight="500" fill="hsl(var(--foreground))" letterSpacing="2">INSIDE-THE-BOX</text>
+      <text x={x + 18} y={y + 88} fontSize="13" fill="hsl(var(--muted-foreground))" letterSpacing="1.5">Cybersecurity Practice · 13 / 4</text>
 
       {/* Col 2 (top): selected part */}
-      <text x={x + colW * 2 + 10} y={y + 14} fontSize="8" fill="hsl(var(--primary) / 0.6)" letterSpacing="2">SELECTED</text>
-      <text x={x + colW * 2 + 10} y={y + 32} fontSize="11" fill="hsl(var(--primary))" letterSpacing="1">{hoveredCode}</text>
-      <text x={x + colW * 2 + 10} y={y + 46} fontSize="9" fill="hsl(var(--foreground) / 0.85)">{truncate(hoveredTitle, 22)}</text>
+      <text x={x + colW * 2 + 14} y={y + 20} fontSize="11" fill="hsl(var(--primary) / 0.65)" letterSpacing="2.5">SELECTED</text>
+      <text x={x + colW * 2 + 14} y={y + 38} fontSize="14" fontWeight="500" fill="hsl(var(--primary))" letterSpacing="1.5">{hoveredCode}</text>
+      <text x={x + colW * 2 + 14} y={y + 52} fontSize="11" fill="hsl(var(--foreground) / 0.85)">{truncate(hoveredTitle, 22)}</text>
 
       {/* Col 2 (bottom): drawing no */}
-      <text x={x + colW * 2 + 10} y={y + 60} fontSize="8" fill="hsl(var(--primary) / 0.6)" letterSpacing="2">DWG NO</text>
-      <text x={x + colW * 2 + 10} y={y + 74} fontSize="9" fill="hsl(var(--foreground))">{drawingNo}</text>
+      <text x={x + colW * 2 + 14} y={y + 78} fontSize="11" fill="hsl(var(--primary) / 0.65)" letterSpacing="2.5">DWG NO</text>
+      <text x={x + colW * 2 + 14} y={y + 96} fontSize="12" fill="hsl(var(--foreground))">{drawingNo}</text>
 
-      {/* Col 3 (top): scale + date */}
-      <text x={x + colW * 3 + 10} y={y + 14} fontSize="8" fill="hsl(var(--primary) / 0.6)" letterSpacing="2">SCALE</text>
-      <text x={x + colW * 3 + 10} y={y + 32} fontSize="10" fill="hsl(var(--foreground))">1 : 1</text>
-      <text x={x + colW * 3 + 10} y={y + 46} fontSize="8" fill="hsl(var(--primary) / 0.6)" letterSpacing="2">DATE</text>
-      <text x={x + colW * 3 + 10} y={y + 62} fontSize="10" fill="hsl(var(--foreground))">{dateStr}</text>
+      {/* Col 3: scale + date */}
+      <text x={x + colW * 3 + 14} y={y + 20} fontSize="11" fill="hsl(var(--primary) / 0.65)" letterSpacing="2.5">SCALE</text>
+      <text x={x + colW * 3 + 14} y={y + 42} fontSize="13" fill="hsl(var(--foreground))">1 : 1</text>
+      <text x={x + colW * 3 + 14} y={y + 78} fontSize="11" fill="hsl(var(--primary) / 0.65)" letterSpacing="2.5">DATE</text>
+      <text x={x + colW * 3 + 14} y={y + 100} fontSize="13" fill="hsl(var(--foreground))">{dateStr}</text>
 
       {/* Col 4: sheet + part count */}
-      <text x={x + colW * 3 + colW / 2 + 10} y={y + 14} fontSize="8" fill="hsl(var(--primary) / 0.6)" letterSpacing="2">SHEET</text>
-      <text x={x + colW * 3 + colW / 2 + 10} y={y + 32} fontSize="10" fill="hsl(var(--foreground))">{sheetNo}</text>
-      <text x={x + colW * 3 + colW / 2 + 10} y={y + 46} fontSize="8" fill="hsl(var(--primary) / 0.6)" letterSpacing="2">PARTS</text>
-      <text x={x + colW * 3 + colW / 2 + 10} y={y + 62} fontSize="10" fill="hsl(var(--foreground))">{totalParts}</text>
+      <text x={x + colW * 3 + colW / 2 + 14} y={y + 20} fontSize="11" fill="hsl(var(--primary) / 0.65)" letterSpacing="2.5">SHEET</text>
+      <text x={x + colW * 3 + colW / 2 + 14} y={y + 42} fontSize="13" fill="hsl(var(--foreground))">{sheetNo}</text>
+      <text x={x + colW * 3 + colW / 2 + 14} y={y + 78} fontSize="11" fill="hsl(var(--primary) / 0.65)" letterSpacing="2.5">PARTS</text>
+      <text x={x + colW * 3 + colW / 2 + 14} y={y + 100} fontSize="13" fill="hsl(var(--foreground))">{totalParts}</text>
     </g>
   );
 };
@@ -686,22 +685,22 @@ const DescriptionLayer = ({ title, desc, code }: DescriptionLayerProps) => (
     className="absolute left-0 right-0 top-16 px-6 pointer-events-none z-20"
     aria-live="polite"
   >
-    <div className="max-w-3xl mx-auto text-center">
+    <div className="max-w-4xl mx-auto text-center">
       {code && (
-        <div className="font-mono text-[10px] tracking-[0.4em] text-primary/80 mb-2 animate-fade-in">
+        <div className="font-mono text-xs sm:text-sm tracking-[0.4em] text-primary/85 mb-3 animate-fade-in">
           PART {code} · CLICK TO ENTER
         </div>
       )}
       <h2
         key={title}
-        className="font-mono text-base sm:text-lg md:text-xl font-light leading-tight animate-fade-in"
+        className="font-mono text-xl sm:text-2xl md:text-3xl font-light leading-tight animate-fade-in"
         style={{ letterSpacing: '0.05em' }}
       >
         {title.toUpperCase()}
       </h2>
       <p
         key={desc}
-        className="text-xs text-muted-foreground max-w-xl mx-auto animate-fade-in mt-1"
+        className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto animate-fade-in mt-2"
       >
         {desc}
       </p>
