@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { Languages } from 'lucide-react';
@@ -6,166 +6,249 @@ import { PageMeta } from '@/components/PageMeta';
 import { useLanguage, nextLanguage } from '@/i18n/LanguageContext';
 
 /**
- * Hidden artistic constellation of the entire service offering.
- * Route: /overview — not linked from the main navigation.
+ * Hidden mandala overview at /overview.
  *
- * Visual metaphor: a star map. Four cluster-suns anchor the composition,
- * each surrounded by orbiting service-stars. Thin filaments connect them.
- * The whole canvas breathes (subtle pulse + parallax on cursor). Hover a
- * star to reveal its name and a one-line description directly in the
- * canvas. Click navigates straight to the service page (no detail sheet).
+ * Visual: a massive sun-wheel.
+ *  – Outer ring: 4 colored cluster sectors (Cyber Resilience, Regulation,
+ *    Governance, Insights). Each tinted Gold or Cyan.
+ *  – Inner ring: every service as a wedge inside its parent cluster.
+ *    Wedges are clickable and link straight to that service page.
+ *  – Center: a pulsing core with the active hover label.
+ *
+ * Interaction: hover lifts a wedge outward (radial bloom), neighbors
+ * recede slightly. Click navigates directly. The whole wheel breathes
+ * and accepts subtle parallax from cursor for depth.
  */
 
-type Node = {
+type ServiceNode = {
   id: string;
   titleKey: string;
   descKey: string;
-  /** Polar angle (deg) within the cluster orbit. */
-  angle: number;
-  /** Orbit radius from cluster center in viewBox units. */
-  radius: number;
 };
 
 type Cluster = {
   id: string;
   groupKey: string;
-  /** Cluster center in viewBox coords (0..1000 x, 0..700 y). */
-  cx: number;
-  cy: number;
-  /** Hue rotation hint for the sun glow (uses primary or highlight tokens via CSS vars). */
   tone: 'primary' | 'highlight';
-  nodes: Node[];
+  services: ServiceNode[];
 };
 
 const CLUSTERS: Cluster[] = [
   {
     id: 'resilience',
     groupKey: 'nav.groupCyberResilience',
-    cx: 270,
-    cy: 220,
     tone: 'primary',
-    nodes: [
-      { id: 'cyber-crisis-management', titleKey: 'consulting.crisisTitle', descKey: 'consulting.crisisDesc', angle: -110, radius: 130 },
-      { id: 'incident-management',     titleKey: 'consulting.incidentTitle', descKey: 'consulting.incidentDesc', angle: -25,  radius: 145 },
-      { id: 'arena-training',          titleKey: 'consulting.arenaTitle',    descKey: 'consulting.arenaDesc',    angle: 70,   radius: 120 },
+    services: [
+      { id: 'cyber-crisis-management', titleKey: 'consulting.crisisTitle',   descKey: 'consulting.crisisDesc' },
+      { id: 'incident-management',     titleKey: 'consulting.incidentTitle', descKey: 'consulting.incidentDesc' },
+      { id: 'arena-training',          titleKey: 'consulting.arenaTitle',    descKey: 'consulting.arenaDesc' },
     ],
   },
   {
     id: 'regulation',
     groupKey: 'nav.groupRegulation',
-    cx: 760,
-    cy: 200,
     tone: 'highlight',
-    nodes: [
-      { id: 'nis2-dora',     titleKey: 'consulting.nis2Title',  descKey: 'consulting.nis2Desc',  angle: -130, radius: 140 },
-      { id: 'dora-nis2-ttx', titleKey: 'nav.ttxTraining',       descKey: 'consulting.crisisDesc', angle: -40,  radius: 155 },
-      { id: 'isms',          titleKey: 'consulting.ismsTitle',  descKey: 'consulting.ismsDesc',  angle: 50,   radius: 130 },
-      { id: 'tisax-pci-dss', titleKey: 'consulting.tisaxTitle', descKey: 'consulting.tisaxDesc', angle: 140,  radius: 145 },
-    ],
-  },
-  {
-    id: 'governance',
-    groupKey: 'nav.groupGovernance',
-    cx: 250,
-    cy: 530,
-    tone: 'primary',
-    nodes: [
-      { id: 'virtual-ciso',          titleKey: 'consulting.vcisoTitle',  descKey: 'consulting.vcisoDesc',  angle: -150, radius: 135 },
-      { id: 'assessments-concepts',  titleKey: 'consulting.assessTitle', descKey: 'consulting.assessDesc', angle: -30,  radius: 130 },
+    services: [
+      { id: 'nis2-dora',     titleKey: 'consulting.nis2Title',  descKey: 'consulting.nis2Desc' },
+      { id: 'dora-nis2-ttx', titleKey: 'nav.ttxTraining',       descKey: 'consulting.crisisDesc' },
+      { id: 'isms',          titleKey: 'consulting.ismsTitle',  descKey: 'consulting.ismsDesc' },
+      { id: 'tisax-pci-dss', titleKey: 'consulting.tisaxTitle', descKey: 'consulting.tisaxDesc' },
     ],
   },
   {
     id: 'insights',
     groupKey: 'nav.groupInsights',
-    cx: 770,
-    cy: 540,
     tone: 'highlight',
-    nodes: [
-      { id: 'publications',      titleKey: 'consulting.pubTitle',         descKey: 'consulting.pubDesc',         angle: -135, radius: 135 },
-      { id: 'events-workshops',  titleKey: 'consulting.eventsTitle',      descKey: 'consulting.eventsDesc',      angle: -30,  radius: 145 },
-      { id: 'ai-workflows',      titleKey: 'consulting.aiWorkflowsTitle', descKey: 'consulting.aiWorkflowsDesc', angle: 90,   radius: 130 },
+    services: [
+      { id: 'publications',     titleKey: 'consulting.pubTitle',         descKey: 'consulting.pubDesc' },
+      { id: 'events-workshops', titleKey: 'consulting.eventsTitle',      descKey: 'consulting.eventsDesc' },
+      { id: 'ai-workflows',     titleKey: 'consulting.aiWorkflowsTitle', descKey: 'consulting.aiWorkflowsDesc' },
+    ],
+  },
+  {
+    id: 'governance',
+    groupKey: 'nav.groupGovernance',
+    tone: 'primary',
+    services: [
+      { id: 'virtual-ciso',         titleKey: 'consulting.vcisoTitle',  descKey: 'consulting.vcisoDesc' },
+      { id: 'assessments-concepts', titleKey: 'consulting.assessTitle', descKey: 'consulting.assessDesc' },
     ],
   },
 ];
 
-// Cross-cluster filaments: thematic bridges across the map.
-// Each pair is [serviceId, serviceId]; rendered as faint curves.
-const BRIDGES: Array<[string, string]> = [
-  ['nis2-dora', 'cyber-crisis-management'],
-  ['nis2-dora', 'isms'],
-  ['isms', 'assessments-concepts'],
-  ['virtual-ciso', 'isms'],
-  ['cyber-crisis-management', 'incident-management'],
-  ['incident-management', 'arena-training'],
-  ['dora-nis2-ttx', 'cyber-crisis-management'],
-  ['ai-workflows', 'incident-management'],
-  ['publications', 'events-workshops'],
-  ['assessments-concepts', 'tisax-pci-dss'],
-];
+// ── Geometry constants ─────────────────────────────────────────────────────
 
-// ── Geometry helpers ────────────────────────────────────────────────────────
+const VIEW = 1000;          // square viewBox
+const CENTER = VIEW / 2;
+const R_CORE = 72;          // central core radius
+const R_INNER = 110;        // inner edge of service ring
+const R_INNER_OUT = 320;    // outer edge of service ring
+const R_OUTER_IN = 340;     // inner edge of cluster ring
+const R_OUTER_OUT = 460;    // outer edge of cluster ring
+const HOVER_BLOOM = 28;     // px the wedge pushes outward on hover
+const GAP_DEG = 1.2;        // gap between wedges (degrees)
 
-const polar = (cx: number, cy: number, angleDeg: number, r: number) => {
-  const a = (angleDeg * Math.PI) / 180;
+// Helper: polar to cartesian
+const pt = (cx: number, cy: number, angleDeg: number, r: number) => {
+  const a = ((angleDeg - 90) * Math.PI) / 180; // -90 so 0deg points up
   return { x: cx + Math.cos(a) * r, y: cy + Math.sin(a) * r };
 };
 
-type Positioned = Node & { x: number; y: number; clusterId: string };
+/** Build an SVG path for an annular wedge (donut slice). */
+const wedgePath = (
+  cx: number,
+  cy: number,
+  startDeg: number,
+  endDeg: number,
+  rIn: number,
+  rOut: number
+): string => {
+  const large = endDeg - startDeg <= 180 ? 0 : 1;
+  const a = pt(cx, cy, startDeg, rOut);
+  const b = pt(cx, cy, endDeg, rOut);
+  const c = pt(cx, cy, endDeg, rIn);
+  const d = pt(cx, cy, startDeg, rIn);
+  return [
+    `M ${a.x} ${a.y}`,
+    `A ${rOut} ${rOut} 0 ${large} 1 ${b.x} ${b.y}`,
+    `L ${c.x} ${c.y}`,
+    `A ${rIn} ${rIn} 0 ${large} 0 ${d.x} ${d.y}`,
+    'Z',
+  ].join(' ');
+};
 
-const positionAll = (clusters: Cluster[]): Positioned[] =>
-  clusters.flatMap((c) =>
-    c.nodes.map((n) => ({ ...n, ...polar(c.cx, c.cy, n.angle, n.radius), clusterId: c.id }))
-  );
+/** Build an SVG path for a radial direction translation of a wedge — pre-baked into a transform. */
+const radialTransform = (midDeg: number, distance: number): string => {
+  const a = ((midDeg - 90) * Math.PI) / 180;
+  const dx = Math.cos(a) * distance;
+  const dy = Math.sin(a) * distance;
+  return `translate(${dx}, ${dy})`;
+};
+
+/** Curved text path id helper. */
+const arcPathId = (id: string) => `arc-${id}`;
+
+/** Build an arc path used as textPath baseline. */
+const arcPath = (cx: number, cy: number, startDeg: number, endDeg: number, r: number) => {
+  const a = pt(cx, cy, startDeg, r);
+  const b = pt(cx, cy, endDeg, r);
+  const large = endDeg - startDeg <= 180 ? 0 : 1;
+  return `M ${a.x} ${a.y} A ${r} ${r} 0 ${large} 1 ${b.x} ${b.y}`;
+};
+
+// ── Layout: compute angles ──────────────────────────────────────────────────
+
+type ClusterLayout = {
+  cluster: Cluster;
+  startDeg: number;
+  endDeg: number;
+  midDeg: number;
+  services: Array<{
+    node: ServiceNode;
+    startDeg: number;
+    endDeg: number;
+    midDeg: number;
+  }>;
+};
+
+const layoutWheel = (clusters: Cluster[]): ClusterLayout[] => {
+  const total = 360;
+  const per = total / clusters.length;
+  return clusters.map((cluster, i) => {
+    const cStart = i * per;
+    const cEnd = cStart + per;
+    const innerSpan = per - GAP_DEG * 2; // gap on each side
+    const innerStart = cStart + GAP_DEG;
+    const sCount = cluster.services.length;
+    const sSpan = (innerSpan - GAP_DEG * (sCount - 1)) / sCount;
+    const services = cluster.services.map((node, j) => {
+      const sStart = innerStart + j * (sSpan + GAP_DEG);
+      const sEnd = sStart + sSpan;
+      return { node, startDeg: sStart, endDeg: sEnd, midDeg: (sStart + sEnd) / 2 };
+    });
+    return {
+      cluster,
+      startDeg: cStart,
+      endDeg: cEnd,
+      midDeg: (cStart + cEnd) / 2,
+      services,
+    };
+  });
+};
 
 // ── Component ───────────────────────────────────────────────────────────────
-
-const VIEW_W = 1000;
-const VIEW_H = 700;
 
 const Overview = () => {
   const { t, language, setLanguage } = useLanguage();
   const navigate = useNavigate();
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [parallax, setParallax] = useState({ x: 0, y: 0 });
-  const svgRef = useRef<SVGSVGElement | null>(null);
+  const [rotate, setRotate] = useState(0);
 
-  const positioned = useMemo(() => positionAll(CLUSTERS), []);
-  const byId = useMemo(() => Object.fromEntries(positioned.map((p) => [p.id, p])), [positioned]);
-  const clusterById = useMemo(() => Object.fromEntries(CLUSTERS.map((c) => [c.id, c])), []);
+  const layout = useMemo(() => layoutWheel(CLUSTERS), []);
 
-  const hoveredNode = hoveredId ? byId[hoveredId] : null;
-  const hoveredCluster = hoveredNode ? clusterById[hoveredNode.clusterId] : null;
+  // Find hovered service + its cluster (for center label)
+  const hoveredInfo = useMemo(() => {
+    if (!hoveredId) return null;
+    if (hoveredId.startsWith('cluster:')) {
+      const id = hoveredId.slice(8);
+      const cl = layout.find((l) => l.cluster.id === id);
+      if (!cl) return null;
+      return { type: 'cluster' as const, cluster: cl, service: null };
+    }
+    for (const cl of layout) {
+      const s = cl.services.find((s) => s.node.id === hoveredId);
+      if (s) return { type: 'service' as const, cluster: cl, service: s };
+    }
+    return null;
+  }, [hoveredId, layout]);
 
-  // Mouse parallax — subtle, responsive
+  // Mouse parallax
   useEffect(() => {
     const handle = (e: MouseEvent) => {
       const w = window.innerWidth;
       const h = window.innerHeight;
-      const nx = (e.clientX / w - 0.5) * 2; // -1..1
-      const ny = (e.clientY / h - 0.5) * 2;
-      setParallax({ x: nx, y: ny });
+      setParallax({
+        x: (e.clientX / w - 0.5) * 2,
+        y: (e.clientY / h - 0.5) * 2,
+      });
     };
     window.addEventListener('mousemove', handle, { passive: true });
     return () => window.removeEventListener('mousemove', handle);
   }, []);
 
-  const handleNavigate = useCallback(
+  // Slow auto-rotation of the whole wheel — almost imperceptible
+  useEffect(() => {
+    let raf = 0;
+    let last = performance.now();
+    const tick = (now: number) => {
+      const dt = (now - last) / 1000;
+      last = now;
+      // pause rotation while hovering
+      if (!hoveredId) setRotate((r) => (r + dt * 1.2) % 360); // 1.2 deg/s
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [hoveredId]);
+
+  const handleClick = useCallback(
     (id: string) => navigate(`/${id}`),
     [navigate]
   );
 
   return (
-    <div className="min-h-screen w-full text-foreground overflow-hidden">
+    <div className="min-h-screen w-full text-foreground overflow-hidden relative">
       <PageMeta
-        title="Constellation"
-        description="A constellation of cybersecurity services from inside-the-box.org."
+        title="Mandala"
+        description="A mandala of cybersecurity services from inside-the-box.org."
       />
       <Helmet>
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 
-      {/* Top bar — minimal, almost invisible */}
-      <header className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-6 py-5">
+      {/* Top bar */}
+      <header className="absolute top-0 left-0 right-0 z-30 flex items-center justify-between px-6 py-5">
         <button
           onClick={() => navigate('/')}
           className="font-mono text-[10px] tracking-[0.3em] text-muted-foreground hover:text-primary transition-colors"
@@ -182,47 +265,45 @@ const Overview = () => {
         </button>
       </header>
 
-      {/* The canvas fills the viewport */}
-      <div className="relative w-full h-screen">
-        {/* Cosmic background dust */}
-        <div
-          aria-hidden
-          className="absolute inset-0"
-          style={{
-            background:
-              'radial-gradient(ellipse at 30% 30%, hsl(var(--primary) / 0.08), transparent 55%), radial-gradient(ellipse at 75% 70%, hsl(var(--highlight) / 0.06), transparent 60%)',
-          }}
-        />
-        <StarDust />
+      {/* Atmospheric backdrop */}
+      <div
+        aria-hidden
+        className="absolute inset-0"
+        style={{
+          background:
+            'radial-gradient(circle at 50% 50%, hsl(var(--primary) / 0.12) 0%, hsl(var(--background)) 60%), radial-gradient(circle at 80% 20%, hsl(var(--highlight) / 0.08), transparent 50%)',
+        }}
+      />
 
+      {/* The mandala fills the viewport */}
+      <div className="relative w-full h-screen flex items-center justify-center">
         <svg
-          ref={svgRef}
-          viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}
+          viewBox={`0 0 ${VIEW} ${VIEW}`}
           preserveAspectRatio="xMidYMid meet"
-          className="absolute inset-0 w-full h-full"
+          className="w-full h-full max-w-[min(100vh,100vw)] max-h-[min(100vh,100vw)]"
           style={{
-            transform: `translate3d(${parallax.x * -8}px, ${parallax.y * -8}px, 0)`,
-            transition: 'transform 0.4s cubic-bezier(0.2,0.8,0.2,1)',
+            transform: `translate3d(${parallax.x * -10}px, ${parallax.y * -10}px, 0)`,
+            transition: 'transform 0.5s cubic-bezier(0.2,0.8,0.2,1)',
           }}
         >
           <defs>
-            <radialGradient id="sunGlowPrimary" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.55" />
-              <stop offset="60%" stopColor="hsl(var(--primary))" stopOpacity="0.08" />
+            <radialGradient id="coreGlow" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.9" />
+              <stop offset="60%" stopColor="hsl(var(--primary))" stopOpacity="0.3" />
               <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0" />
             </radialGradient>
-            <radialGradient id="sunGlowHighlight" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="hsl(var(--highlight))" stopOpacity="0.5" />
-              <stop offset="60%" stopColor="hsl(var(--highlight))" stopOpacity="0.08" />
+            <radialGradient id="ringGlowPrimary" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0" />
+              <stop offset="70%" stopColor="hsl(var(--primary))" stopOpacity="0.18" />
+              <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0" />
+            </radialGradient>
+            <radialGradient id="ringGlowHighlight" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="hsl(var(--highlight))" stopOpacity="0" />
+              <stop offset="70%" stopColor="hsl(var(--highlight))" stopOpacity="0.18" />
               <stop offset="100%" stopColor="hsl(var(--highlight))" stopOpacity="0" />
             </radialGradient>
-            <radialGradient id="starGlow" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="hsl(var(--foreground))" stopOpacity="1" />
-              <stop offset="40%" stopColor="hsl(var(--primary))" stopOpacity="0.6" />
-              <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0" />
-            </radialGradient>
-            <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%">
-              <feGaussianBlur stdDeviation="3" result="b" />
+            <filter id="wedgeGlow" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="6" result="b" />
               <feMerge>
                 <feMergeNode in="b" />
                 <feMergeNode in="SourceGraphic" />
@@ -230,170 +311,230 @@ const Overview = () => {
             </filter>
           </defs>
 
-          {/* Cross-cluster bridges — drawn first, dimmest */}
-          <g>
-            {BRIDGES.map(([a, b], i) => {
-              const pa = byId[a];
-              const pb = byId[b];
-              if (!pa || !pb) return null;
-              const involved = hoveredId === a || hoveredId === b;
-              const dimmed = hoveredId !== null && !involved;
-              const mx = (pa.x + pb.x) / 2;
-              const my = (pa.y + pb.y) / 2 - 30;
+          {/* Outer atmospheric halo */}
+          <circle cx={CENTER} cy={CENTER} r={R_OUTER_OUT + 60} fill="url(#ringGlowPrimary)" opacity={0.6} />
+
+          {/* Whole wheel rotates slowly */}
+          <g
+            transform={`rotate(${rotate} ${CENTER} ${CENTER})`}
+            style={{ transition: hoveredId ? 'transform 0.6s ease' : 'none' }}
+          >
+            {/* Faint guide rings */}
+            <circle cx={CENTER} cy={CENTER} r={R_INNER} fill="none" stroke="hsl(var(--border))" strokeWidth="0.5" opacity="0.4" />
+            <circle cx={CENTER} cy={CENTER} r={R_INNER_OUT} fill="none" stroke="hsl(var(--border))" strokeWidth="0.5" opacity="0.4" />
+            <circle cx={CENTER} cy={CENTER} r={R_OUTER_OUT} fill="none" stroke="hsl(var(--border))" strokeWidth="0.5" opacity="0.4" />
+
+            {/* OUTER RING — cluster sectors */}
+            {layout.map((cl) => {
+              const isHovered = hoveredId === `cluster:${cl.cluster.id}`;
+              const containsHovered = hoveredInfo?.cluster.cluster.id === cl.cluster.id;
+              const dimmed = hoveredId !== null && !containsHovered;
+              const tone = cl.cluster.tone === 'primary' ? 'var(--primary)' : 'var(--highlight)';
+              const bloom = isHovered ? HOVER_BLOOM * 0.5 : 0;
               return (
-                <path
-                  key={i}
-                  d={`M ${pa.x} ${pa.y} Q ${mx} ${my} ${pb.x} ${pb.y}`}
-                  fill="none"
-                  stroke={involved ? 'hsl(var(--primary))' : 'hsl(var(--foreground))'}
-                  strokeWidth={involved ? 0.8 : 0.4}
-                  strokeOpacity={dimmed ? 0.04 : involved ? 0.55 : 0.12}
-                  strokeDasharray={involved ? '0' : '2 4'}
-                  style={{ transition: 'all 0.4s ease' }}
+                <g
+                  key={`cluster-${cl.cluster.id}`}
+                  transform={radialTransform(cl.midDeg, bloom)}
+                  style={{ transition: 'transform 0.45s cubic-bezier(0.2,0.8,0.2,1)' }}
+                >
+                  <path
+                    d={wedgePath(CENTER, CENTER, cl.startDeg + GAP_DEG, cl.endDeg - GAP_DEG, R_OUTER_IN, R_OUTER_OUT)}
+                    fill={`hsl(${tone} / ${dimmed ? 0.18 : isHovered ? 0.95 : 0.72})`}
+                    style={{ transition: 'fill 0.4s ease', cursor: 'pointer' }}
+                    onMouseEnter={() => setHoveredId(`cluster:${cl.cluster.id}`)}
+                    onMouseLeave={() => setHoveredId((c) => (c === `cluster:${cl.cluster.id}` ? null : c))}
+                  />
+                  {/* Curved cluster label along inner edge of outer ring */}
+                  <path
+                    id={arcPathId(cl.cluster.id)}
+                    d={arcPath(CENTER, CENTER, cl.startDeg + 3, cl.endDeg - 3, R_OUTER_IN + 22)}
+                    fill="none"
+                  />
+                  <text
+                    fontSize="14"
+                    letterSpacing="6"
+                    className="font-mono"
+                    fill={`hsl(var(--background))`}
+                    opacity={dimmed ? 0.4 : 0.9}
+                    style={{ transition: 'opacity 0.3s ease', pointerEvents: 'none' }}
+                  >
+                    <textPath href={`#${arcPathId(cl.cluster.id)}`} startOffset="50%" textAnchor="middle">
+                      {t(cl.cluster.groupKey).toUpperCase()}
+                    </textPath>
+                  </text>
+                </g>
+              );
+            })}
+
+            {/* INNER RING — service wedges */}
+            {layout.map((cl) =>
+              cl.services.map((s) => {
+                const isHovered = hoveredId === s.node.id;
+                const containsHovered = hoveredInfo?.cluster.cluster.id === cl.cluster.id;
+                const dimmed = hoveredId !== null && !isHovered;
+                const tone = cl.cluster.tone === 'primary' ? 'var(--primary)' : 'var(--highlight)';
+                const bloom = isHovered ? HOVER_BLOOM : 0;
+                const fillOpacity = isHovered ? 0.55 : containsHovered ? 0.32 : dimmed ? 0.08 : 0.22;
+                return (
+                  <g
+                    key={`svc-${s.node.id}`}
+                    transform={radialTransform(s.midDeg, bloom)}
+                    style={{ transition: 'transform 0.45s cubic-bezier(0.2,0.8,0.2,1)', cursor: 'pointer' }}
+                    onMouseEnter={() => setHoveredId(s.node.id)}
+                    onMouseLeave={() => setHoveredId((c) => (c === s.node.id ? null : c))}
+                    onClick={() => handleClick(s.node.id)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        handleClick(s.node.id);
+                      }
+                    }}
+                    tabIndex={0}
+                    role="link"
+                    aria-label={t(s.node.titleKey)}
+                  >
+                    <path
+                      d={wedgePath(CENTER, CENTER, s.startDeg, s.endDeg, R_INNER, R_INNER_OUT)}
+                      fill={`hsl(${tone} / ${fillOpacity})`}
+                      stroke={isHovered ? `hsl(${tone})` : `hsl(${tone} / 0.4)`}
+                      strokeWidth={isHovered ? 1.6 : 0.5}
+                      filter={isHovered ? 'url(#wedgeGlow)' : undefined}
+                      style={{ transition: 'all 0.35s ease' }}
+                    />
+                    {/* Curved service label along outer edge of inner ring */}
+                    <path
+                      id={arcPathId('s-' + s.node.id)}
+                      d={arcPath(CENTER, CENTER, s.startDeg + 1, s.endDeg - 1, R_INNER_OUT - 18)}
+                      fill="none"
+                    />
+                    <text
+                      fontSize={isHovered ? 13 : 11}
+                      letterSpacing="2"
+                      className="font-mono"
+                      fill={isHovered ? `hsl(${tone})` : 'hsl(var(--foreground))'}
+                      opacity={dimmed ? 0.35 : 0.92}
+                      style={{ transition: 'all 0.3s ease', pointerEvents: 'none' }}
+                    >
+                      <textPath href={`#${arcPathId('s-' + s.node.id)}`} startOffset="50%" textAnchor="middle">
+                        {shortLabel(t(s.node.titleKey)).toUpperCase()}
+                      </textPath>
+                    </text>
+                  </g>
+                );
+              })
+            )}
+
+            {/* Spokes between cluster sectors — visual separators */}
+            {layout.map((cl) => {
+              const a = pt(CENTER, CENTER, cl.startDeg, R_INNER);
+              const b = pt(CENTER, CENTER, cl.startDeg, R_OUTER_OUT);
+              return (
+                <line
+                  key={`spoke-${cl.cluster.id}`}
+                  x1={a.x}
+                  y1={a.y}
+                  x2={b.x}
+                  y2={b.y}
+                  stroke="hsl(var(--background))"
+                  strokeWidth="2"
+                  opacity="0.9"
                 />
               );
             })}
           </g>
 
-          {/* Suns + orbital lines + stars per cluster */}
-          {CLUSTERS.map((cluster) => {
-            const clusterHovered = hoveredNode?.clusterId === cluster.id;
-            const otherHovered = hoveredId !== null && !clusterHovered;
-            return (
-              <g key={cluster.id}>
-                {/* Sun glow */}
-                <circle
-                  cx={cluster.cx}
-                  cy={cluster.cy}
-                  r={170}
-                  fill={`url(#sunGlow${cluster.tone === 'primary' ? 'Primary' : 'Highlight'})`}
-                  opacity={otherHovered ? 0.35 : 1}
-                  style={{ transition: 'opacity 0.6s ease' }}
-                  className="animate-pulse-slow"
-                />
-                {/* Spokes from sun to each star */}
-                {cluster.nodes.map((n) => {
-                  const p = polar(cluster.cx, cluster.cy, n.angle, n.radius);
-                  const isHovered = hoveredId === n.id;
-                  return (
-                    <line
-                      key={`spoke-${n.id}`}
-                      x1={cluster.cx}
-                      y1={cluster.cy}
-                      x2={p.x}
-                      y2={p.y}
-                      stroke={isHovered ? 'hsl(var(--primary))' : 'hsl(var(--foreground))'}
-                      strokeWidth={isHovered ? 0.9 : 0.5}
-                      strokeOpacity={otherHovered && !isHovered ? 0.06 : isHovered ? 0.65 : 0.18}
-                      style={{ transition: 'all 0.35s ease' }}
-                    />
-                  );
-                })}
-                {/* Sun core */}
-                <circle
-                  cx={cluster.cx}
-                  cy={cluster.cy}
-                  r={6}
-                  fill={cluster.tone === 'primary' ? 'hsl(var(--primary))' : 'hsl(var(--highlight))'}
-                  opacity={0.9}
-                  filter="url(#softGlow)"
-                />
-                {/* Sun label */}
+          {/* Pulsing core (does NOT rotate) */}
+          <circle cx={CENTER} cy={CENTER} r={R_CORE + 30} fill="url(#coreGlow)" className="animate-pulse-slow" />
+          <circle cx={CENTER} cy={CENTER} r={R_CORE} fill="hsl(var(--background))" stroke="hsl(var(--primary))" strokeWidth="1.5" opacity="0.95" />
+          <circle cx={CENTER} cy={CENTER} r={R_CORE - 12} fill="none" stroke="hsl(var(--primary) / 0.4)" strokeWidth="0.5" />
+
+          {/* Center label group */}
+          <g style={{ pointerEvents: 'none' }}>
+            {hoveredInfo?.service ? (
+              <>
                 <text
-                  x={cluster.cx}
-                  y={cluster.cy + 200}
+                  x={CENTER}
+                  y={CENTER - 8}
                   textAnchor="middle"
-                  className="font-mono"
                   fontSize="9"
                   letterSpacing="3"
-                  fill="hsl(var(--muted-foreground))"
-                  opacity={otherHovered ? 0.3 : 0.7}
-                  style={{ transition: 'opacity 0.4s ease' }}
+                  className="font-mono"
+                  fill="hsl(var(--primary))"
+                  opacity="0.9"
                 >
-                  {t(cluster.groupKey).toUpperCase()}
+                  {t(hoveredInfo.cluster.cluster.groupKey).toUpperCase()}
                 </text>
-              </g>
-            );
-          })}
-
-          {/* Stars (interactive) — drawn last so they sit on top */}
-          {positioned.map((p) => {
-            const isHovered = hoveredId === p.id;
-            const isOtherHovered = hoveredId !== null && !isHovered;
-            return (
-              <g
-                key={p.id}
-                style={{ cursor: 'pointer', transition: 'opacity 0.35s ease' }}
-                opacity={isOtherHovered ? 0.35 : 1}
-                onMouseEnter={() => setHoveredId(p.id)}
-                onMouseLeave={() => setHoveredId((cur) => (cur === p.id ? null : cur))}
-                onClick={() => handleNavigate(p.id)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    handleNavigate(p.id);
-                  }
-                }}
-                tabIndex={0}
-                role="link"
-                aria-label={t(p.titleKey)}
-              >
-                {/* halo */}
-                <circle
-                  cx={p.x}
-                  cy={p.y}
-                  r={isHovered ? 22 : 14}
-                  fill="url(#starGlow)"
-                  opacity={isHovered ? 0.9 : 0.55}
-                  style={{ transition: 'all 0.3s ease' }}
-                  className={isHovered ? '' : 'animate-pulse-slow'}
-                />
-                {/* invisible larger hit target */}
-                <circle cx={p.x} cy={p.y} r={28} fill="transparent" />
-                {/* core */}
-                <circle
-                  cx={p.x}
-                  cy={p.y}
-                  r={isHovered ? 4 : 2.6}
-                  fill="hsl(var(--foreground))"
-                  style={{ transition: 'r 0.3s ease' }}
-                />
-                {/* short label always visible, faint */}
                 <text
-                  x={p.x}
-                  y={p.y + (p.y > 350 ? 40 : -22)}
+                  x={CENTER}
+                  y={CENTER + 14}
                   textAnchor="middle"
                   fontSize="11"
-                  fill="hsl(var(--foreground))"
-                  opacity={isHovered ? 1 : 0.55}
-                  style={{ transition: 'opacity 0.3s ease', pointerEvents: 'none' }}
                   className="font-mono"
+                  fill="hsl(var(--foreground))"
                 >
-                  {shortLabel(t(p.titleKey))}
+                  {trimForCore(t(hoveredInfo.service.node.titleKey))}
                 </text>
-              </g>
-            );
-          })}
+              </>
+            ) : hoveredInfo?.type === 'cluster' ? (
+              <text
+                x={CENTER}
+                y={CENTER + 4}
+                textAnchor="middle"
+                fontSize="11"
+                letterSpacing="3"
+                className="font-mono"
+                fill="hsl(var(--primary))"
+              >
+                {t(hoveredInfo.cluster.cluster.groupKey).toUpperCase()}
+              </text>
+            ) : (
+              <>
+                <text
+                  x={CENTER}
+                  y={CENTER - 4}
+                  textAnchor="middle"
+                  fontSize="9"
+                  letterSpacing="4"
+                  className="font-mono"
+                  fill="hsl(var(--primary))"
+                  opacity="0.85"
+                >
+                  INSIDE-THE-BOX
+                </text>
+                <text
+                  x={CENTER}
+                  y={CENTER + 12}
+                  textAnchor="middle"
+                  fontSize="8"
+                  letterSpacing="3"
+                  className="font-mono"
+                  fill="hsl(var(--muted-foreground))"
+                >
+                  13 SERVICES · 4 MODULES
+                </text>
+              </>
+            )}
+          </g>
         </svg>
 
-        {/* Reveal layer — bottom-anchored typographic gesture */}
-        <RevealLayer
-          title={hoveredNode ? t(hoveredNode.titleKey) : t('overview.title' as never)}
-          desc={
-            hoveredNode
-              ? t(hoveredNode.descKey)
-              : (t('overview.subtitle' as never) || 'Hover a star · Click to enter')
+        {/* Description strip — large typographic gesture, bottom-anchored */}
+        <DescriptionLayer
+          title={
+            hoveredInfo?.service
+              ? t(hoveredInfo.service.node.titleKey)
+              : hoveredInfo?.type === 'cluster'
+              ? t(hoveredInfo.cluster.cluster.groupKey)
+              : t('overview.title' as never)
           }
-          cluster={hoveredCluster ? t(hoveredCluster.groupKey) : ''}
-          isHover={!!hoveredNode}
+          desc={
+            hoveredInfo?.service
+              ? t(hoveredInfo.service.node.descKey)
+              : hoveredInfo?.type === 'cluster'
+              ? `${hoveredInfo.cluster.cluster.services.length} ${pluralize(language)}`
+              : t('overview.subtitle' as never) || 'Hover to explore · Click to enter'
+          }
+          isService={!!hoveredInfo?.service}
         />
-
-        {/* Foot signature */}
-        <div className="absolute bottom-4 left-0 right-0 flex justify-center pointer-events-none">
-          <span className="font-mono text-[9px] tracking-[0.4em] text-muted-foreground/50">
-            CONSTELLATION · 13 SERVICES
-          </span>
-        </div>
       </div>
     </div>
   );
@@ -401,81 +542,33 @@ const Overview = () => {
 
 // ── Sub-components ──────────────────────────────────────────────────────────
 
-/** Drift-twinkling background dots, purely decorative. */
-const StarDust = () => {
-  const dots = useMemo(
-    () =>
-      Array.from({ length: 90 }, (_, i) => ({
-        x: Math.random() * 100,
-        y: Math.random() * 100,
-        s: Math.random() * 1.4 + 0.3,
-        d: Math.random() * 5 + 4,
-        o: Math.random() * 0.5 + 0.15,
-        delay: Math.random() * 5,
-        key: i,
-      })),
-    []
-  );
-  return (
-    <div aria-hidden className="absolute inset-0 overflow-hidden pointer-events-none">
-      {dots.map((d) => (
-        <span
-          key={d.key}
-          className="absolute rounded-full bg-foreground"
-          style={{
-            left: `${d.x}%`,
-            top: `${d.y}%`,
-            width: `${d.s}px`,
-            height: `${d.s}px`,
-            opacity: d.o,
-            animation: `twinkle ${d.d}s ease-in-out ${d.delay}s infinite alternate`,
-          }}
-        />
-      ))}
-      <style>{`
-        @keyframes twinkle {
-          0%   { opacity: 0.1; transform: scale(0.8); }
-          100% { opacity: 0.85; transform: scale(1.3); }
-        }
-      `}</style>
-    </div>
-  );
-};
-
-interface RevealLayerProps {
+interface DescriptionLayerProps {
   title: string;
   desc: string;
-  cluster: string;
-  isHover: boolean;
+  isService: boolean;
 }
 
-const RevealLayer = ({ title, desc, cluster, isHover }: RevealLayerProps) => (
+const DescriptionLayer = ({ title, desc, isService }: DescriptionLayerProps) => (
   <div
-    className="absolute left-0 right-0 bottom-16 px-6 pointer-events-none"
+    className="absolute left-0 right-0 bottom-8 px-6 pointer-events-none z-20"
     aria-live="polite"
   >
-    <div className="max-w-3xl mx-auto text-center">
-      <p
-        className="font-mono text-[10px] tracking-[0.4em] text-primary mb-3 transition-opacity duration-300"
-        style={{ opacity: isHover ? 1 : 0.5 }}
-      >
-        {isHover ? cluster.toUpperCase() : 'INSIDE-THE-BOX · CONSTELLATION'}
-      </p>
-      <h1
+    <div className="max-w-2xl mx-auto text-center">
+      <h2
         key={title}
-        className="font-mono text-2xl sm:text-4xl md:text-5xl font-light leading-tight mb-3 animate-fade-in"
-        style={{ letterSpacing: '-0.01em' }}
+        className="font-mono text-xl sm:text-2xl md:text-3xl font-light leading-tight mb-2 animate-fade-in"
+        style={{ letterSpacing: '-0.005em' }}
       >
         {title}
-      </h1>
+      </h2>
       <p
         key={desc}
-        className="text-sm sm:text-base text-muted-foreground max-w-xl mx-auto animate-fade-in"
+        className="text-xs sm:text-sm text-muted-foreground max-w-xl mx-auto animate-fade-in"
       >
         {desc}
       </p>
-      {isHover && (
-        <p className="font-mono text-[10px] tracking-[0.3em] text-primary/70 mt-5 animate-fade-in">
+      {isService && (
+        <p className="font-mono text-[10px] tracking-[0.4em] text-primary/70 mt-3 animate-fade-in">
           → CLICK TO ENTER
         </p>
       )}
@@ -483,11 +576,22 @@ const RevealLayer = ({ title, desc, cluster, isHover }: RevealLayerProps) => (
   </div>
 );
 
-// Strip prefixes / shorten long titles for in-canvas labels.
+// ── Helpers ─────────────────────────────────────────────────────────────────
+
 function shortLabel(label: string): string {
-  // Take everything before first comma or em-dash; cap length.
   const cut = label.split(/[,—–]/)[0].trim();
-  return cut.length > 26 ? cut.slice(0, 24).trim() + '…' : cut;
+  return cut.length > 22 ? cut.slice(0, 20).trim() + '…' : cut;
+}
+
+function trimForCore(label: string): string {
+  const cut = label.split(/[,—–]/)[0].trim();
+  return cut.length > 24 ? cut.slice(0, 22).trim() + '…' : cut;
+}
+
+function pluralize(lang: string): string {
+  if (lang === 'de') return 'Vertiefungen';
+  if (lang === 'fr') return 'approfondissements';
+  return 'depths';
 }
 
 export default Overview;
