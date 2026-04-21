@@ -146,14 +146,21 @@ export default function TtxReadinessPage() {
           <p className="text-foreground/80 text-sm md:text-base font-sans leading-relaxed">{t(I18N.intro)}</p>
         </header>
 
-        {/* Sticky-ish progress + scale */}
-        <div className="sticky top-2 z-10 bg-background/85 backdrop-blur border border-primary/20 rounded-lg px-4 py-3 space-y-2">
+        {/* Progress + scale */}
+        <div className="bg-background/85 backdrop-blur border border-primary/20 rounded-lg px-4 py-3 space-y-2">
           <div className="flex items-center justify-between gap-3">
             <div className="font-mono text-xs md:text-sm">
-              <span className="text-muted-foreground">{t(I18N.total)}: </span>
-              <span className="text-primary font-bold">{score}</span>
-              <span className="text-muted-foreground"> / {MAX_TOTAL}</span>
-              <span className="text-muted-foreground ml-3">{totalAnswered}/{totalItems}</span>
+              <span className="text-muted-foreground">{t(I18N.question)} </span>
+              <span className="text-primary font-bold">{Math.min(currentIdx + 1, totalItems)}</span>
+              <span className="text-muted-foreground"> {t(I18N.of)} {totalItems}</span>
+              {totalAnswered > 0 && (
+                <>
+                  <span className="text-muted-foreground ml-3">·</span>
+                  <span className="text-muted-foreground ml-2">{t(I18N.total)}: </span>
+                  <span className="text-primary font-bold">{score}</span>
+                  <span className="text-muted-foreground">/{MAX_TOTAL}</span>
+                </>
+              )}
             </div>
             <button
               onClick={reset}
@@ -164,82 +171,68 @@ export default function TtxReadinessPage() {
           </div>
           <div className="h-1.5 w-full bg-muted/40 rounded overflow-hidden">
             <div
-              className="h-full bg-gradient-to-r from-primary to-highlight transition-all"
+              className="h-full bg-gradient-to-r from-primary to-highlight transition-all duration-500"
               style={{ width: `${(totalAnswered / totalItems) * 100}%` }}
             />
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-x-3 gap-y-1 text-[10px] md:text-[11px] font-mono text-muted-foreground">
-            <span>{t(I18N.scale0)}</span>
-            <span>{t(I18N.scale1)}</span>
-            <span>{t(I18N.scale2)}</span>
-            <span>{t(I18N.scale3)}</span>
-          </div>
         </div>
 
-        {/* Dimensions */}
-        <StaggerReveal stagger={100} className="space-y-3">
-          {DIMENSIONS.map(dim => {
-            const dimSum = [0, 1, 2].reduce((acc, i) => acc + (answers[`${dim.id}-${i}`] ?? 0), 0);
-            const answered = [0, 1, 2].filter(i => answers[`${dim.id}-${i}`] !== undefined).length;
-            return (
-              <section key={dim.id} className="bg-card/40 border border-primary/15 rounded-lg p-4">
-                <div className="flex items-center justify-between gap-3 mb-3">
-                  <h2 className="text-highlight font-mono text-sm md:text-base">{t(dim.title)}</h2>
-                  <span className="font-mono text-[11px] text-muted-foreground shrink-0">
-                    {dimSum}/{MAX_PER_DIM} · {answered}/3
-                  </span>
-                </div>
-                <div className="space-y-3">
-                  {dim.items.map((item, i) => {
-                    const key = `${dim.id}-${i}`;
-                    const val = answers[key];
-                    return (
-                      <div key={key} className="flex flex-col md:flex-row md:items-center gap-2 md:gap-3">
-                        <p className="text-foreground/85 text-sm font-sans leading-snug flex-1">{t(item)}</p>
-                        <div className="flex gap-1 shrink-0" role="radiogroup" aria-label={t(item)}>
-                          {[0, 1, 2, 3].map(n => {
-                            const sel = val === n;
-                            return (
-                              <button
-                                key={n}
-                                role="radio"
-                                aria-checked={sel}
-                                onClick={() => set(key, n)}
-                                className={`w-9 h-9 rounded border-2 font-mono text-sm transition-electric ${
-                                  sel
-                                    ? 'border-highlight bg-highlight/15 text-highlight'
-                                    : 'border-primary/40 text-foreground/70 hover:border-highlight hover:text-highlight'
-                                }`}
-                              >
-                                {n}
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </section>
-            );
-          })}
-        </StaggerReveal>
-
-        {/* Evaluate button */}
-        <div className="flex flex-col items-center gap-2">
-          <button
-            onClick={() => setShowResult(true)}
-            disabled={totalAnswered < totalItems}
-            className="px-6 py-3 font-mono text-sm md:text-base border-2 border-primary/60 bg-primary/10 text-primary rounded-lg transition-electric hover:bg-primary/20 hover:border-primary hover:shadow-[var(--shadow-electric)] disabled:opacity-40 disabled:cursor-not-allowed"
+        {/* Single-question wizard */}
+        {!showResult && currentQ && (
+          <section
+            key={currentQ.key}
+            className="bg-card/40 border border-primary/15 rounded-lg p-5 md:p-7 space-y-5 animate-in fade-in slide-in-from-bottom-2 duration-500"
           >
-            {t(I18N.evaluate)}
-          </button>
-          {totalAnswered < totalItems && (
-            <p className="text-muted-foreground text-xs font-mono">
-              {t(I18N.fillRemaining)}: {totalItems - totalAnswered}
-            </p>
-          )}
-        </div>
+            <div className="space-y-1">
+              <div className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
+                {t(currentQ.dim.title)}
+              </div>
+              <p className="text-foreground text-base md:text-lg font-sans leading-relaxed">
+                {t(currentQ.item)}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2" role="radiogroup" aria-label={t(currentQ.item)}>
+              {[
+                { n: 0, label: t(I18N.scale0) },
+                { n: 1, label: t(I18N.scale1) },
+                { n: 2, label: t(I18N.scale2) },
+                { n: 3, label: t(I18N.scale3) },
+              ].map(({ n, label }) => {
+                const sel = answers[currentQ.key] === n;
+                return (
+                  <button
+                    key={n}
+                    role="radio"
+                    aria-checked={sel}
+                    onClick={() => answer(n)}
+                    className={`text-left px-4 py-3 rounded border-2 font-mono text-sm transition-electric flex items-center gap-3 ${
+                      sel
+                        ? 'border-highlight bg-highlight/15 text-highlight'
+                        : 'border-primary/30 text-foreground/85 hover:border-highlight hover:bg-highlight/5 hover:text-highlight'
+                    }`}
+                  >
+                    <span className="font-bold text-base shrink-0 w-6 text-center">{n}</span>
+                    <span className="font-sans text-sm leading-snug">{label.replace(/^\d\s/, '')}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="flex items-center justify-between pt-2">
+              <button
+                onClick={goPrev}
+                disabled={currentIdx === 0}
+                className="flex items-center gap-1 text-xs font-mono text-muted-foreground hover:text-primary transition-electric disabled:opacity-30 disabled:cursor-not-allowed"
+              >
+                <ChevronLeft className="w-3 h-3" /> {t(I18N.previous)}
+              </button>
+              <span className="font-mono text-[11px] text-muted-foreground">
+                {currentQ.dim.id.toUpperCase()} · {currentQ.itemIndex + 1}/3
+              </span>
+            </div>
+          </section>
+        )}
 
         {/* Result */}
         {showResult && (
