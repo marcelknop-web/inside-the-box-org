@@ -39,6 +39,15 @@ import { LinkButton } from '@/components/LinkButton';
 import TtxRegistrationForm from '@/components/TtxRegistrationForm';
 import { NewsPanel } from '@/components/NewsPanel';
 import { RelatedServices } from '@/components/RelatedServices';
+import { NewDateBadge } from '@/components/NewDateBadge';
+
+// AI Lab tool publication dates (ISO YYYY-MM-DD).
+// Tools listed here show a "Neu/New/Nouveau" badge for 30 days from this date.
+// Add or update entries when you ship a new agent.
+const AI_TOOL_ADDED_AT: Record<string, string> = {
+  'soc-life': '2026-04-10',
+  'butterfly-lab': '2026-04-05',
+};
 
 interface NavLink { url: string; label: string; }
 interface AiResponse { message: string; links: NavLink[]; }
