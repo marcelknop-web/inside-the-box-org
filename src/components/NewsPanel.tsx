@@ -32,6 +32,21 @@ const NEWS: NewsItem[] = [
       fr: 'Huit dimensions, 24 questions. Score de maturité, radar et top-3 des lacunes pour DORA et NIS-2.',
     },
   },
+  {
+    date: '2026-04-15',
+    route: '/nis2-dora',
+    badge: { de: 'Termin', en: 'Date', fr: 'Date' },
+    title: {
+      de: 'TTX-Termin: 26.–30.10.2026 (ISACA Germany Chapter)',
+      en: 'TTX session: 26–30 Oct 2026 (ISACA Germany Chapter)',
+      fr: 'Session TTX : 26–30 oct. 2026 (ISACA Germany Chapter)',
+    },
+    desc: {
+      de: 'Cyber Security Expert Schulung — neuer Termin im Herbst 2026.',
+      en: 'Cyber Security Expert training — new autumn 2026 date.',
+      fr: 'Formation Cyber Security Expert — nouvelle date à l\'automne 2026.',
+    },
+  },
 ];
 
 
