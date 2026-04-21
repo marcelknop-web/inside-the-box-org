@@ -1,5 +1,5 @@
 import { useMemo, useState, useRef, useEffect } from 'react';
-import { ArrowLeft, RotateCcw, AlertTriangle, CheckCircle2, ChevronLeft } from 'lucide-react';
+import { ArrowLeft, RotateCcw, AlertTriangle, CheckCircle2, ChevronLeft, Scale, ShieldCheck, Gavel, FileCheck2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from 'recharts';
 import { PageMeta } from '@/components/PageMeta';
