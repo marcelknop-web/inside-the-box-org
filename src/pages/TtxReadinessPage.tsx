@@ -23,10 +23,10 @@ const I18N = {
     fr: 'Huit dimensions attendues par les superviseurs et auditeurs sous DORA et NIS-2. ~10 minutes. Bilan final : maturité, radar, 3 lacunes prioritaires avec recommandations concrètes.',
   } as L,
   scaleHeader: { de: 'Skala', en: 'Scale', fr: 'Échelle' } as L,
-  scale0: { de: '0 nicht zutreffend', en: '0 does not apply', fr: '0 non applicable' } as L,
-  scale1: { de: '1 teilweise', en: '1 partial', fr: '1 partiel' } as L,
-  scale2: { de: '2 überwiegend', en: '2 mostly', fr: '2 globalement' } as L,
-  scale3: { de: '3 voll auditfähig', en: '3 fully audit-ready', fr: '3 pleinement auditable' } as L,
+  scale0: { de: 'Nicht zutreffend', en: 'Does not apply', fr: 'Non applicable' } as L,
+  scale1: { de: 'Teilweise', en: 'Partial', fr: 'Partiel' } as L,
+  scale2: { de: 'Überwiegend', en: 'Mostly', fr: 'Globalement' } as L,
+  scale3: { de: 'Voll auditfähig', en: 'Fully audit-ready', fr: 'Pleinement auditable' } as L,
   total: { de: 'Gesamt', en: 'Total', fr: 'Total' } as L,
   reset: { de: 'Zurücksetzen', en: 'Reset', fr: 'Réinitialiser' } as L,
   evaluate: { de: 'Bewertung anzeigen', en: 'Show evaluation', fr: 'Afficher l\'évaluation' } as L,
@@ -206,14 +206,13 @@ export default function TtxReadinessPage() {
                     role="radio"
                     aria-checked={sel}
                     onClick={() => answer(n)}
-                    className={`text-left px-4 py-3 rounded border-2 font-mono text-sm transition-electric flex items-center gap-3 ${
+                    className={`text-left px-3 py-2.5 rounded border-2 font-sans text-sm transition-electric ${
                       sel
                         ? 'border-highlight bg-highlight/15 text-highlight'
                         : 'border-primary/30 text-foreground/85 hover:border-highlight hover:bg-highlight/5 hover:text-highlight'
                     }`}
                   >
-                    <span className="font-bold text-base shrink-0 w-6 text-center">{n}</span>
-                    <span className="font-sans text-sm leading-snug">{label.replace(/^\d\s/, '')}</span>
+                    {label}
                   </button>
                 );
               })}
