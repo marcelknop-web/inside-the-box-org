@@ -79,13 +79,15 @@ const CLUSTERS: Cluster[] = [
 ];
 
 // Mandala geometry — generous ring thickness so labels truly fill their cells
-const VB = 980;                          // viewBox dimension
+const VB = 1080;                         // viewBox dimension (room for outer label band)
 const HALF = VB / 2;
 const R_INNER = 78;                      // start of first ring (after centre)
-const RING_THICK = 88;                   // each ring thickness — bigger = more room for text
+const RING_THICK = 84;                   // each service ring thickness
 const MAX_RINGS = Math.max(...CLUSTERS.map((c) => c.services.length));   // 4
-const R_OUTER = R_INNER + RING_THICK * MAX_RINGS;                         // 430
-const R_LABELS = R_OUTER + 38;                                            // outer cluster names
+const R_OUTER = R_INNER + RING_THICK * MAX_RINGS;                         // 414
+const LABEL_BAND_THICK = 70;             // dedicated outer band for cluster labels
+const R_LABEL_OUT = R_OUTER + LABEL_BAND_THICK;                           // 484
+const R_LABEL_TEXT = R_OUTER + LABEL_BAND_THICK / 2;                      // 449 — text baseline
 
 // Sector geometry — each cluster gets one sector.
 // Sectors are evenly spaced around the circle.
@@ -365,12 +367,22 @@ const Overview = () => {
                     );
                   })}
 
+                  {/* Outer label band — flächig hinterlegt, prominent */}
+                  <path
+                    d={buildCell(R_OUTER, R_LABEL_OUT, sectorStart, sectorEnd)}
+                    fill={cluster.hex}
+                    fillOpacity={hoveredId && !cluster.services.some((s) => s.id === hoveredId) ? 0.5 : 0.92}
+                    stroke={cluster.hex}
+                    strokeOpacity={1}
+                    strokeWidth={1.2}
+                    style={{ transition: 'fill-opacity 0.25s' }}
+                  />
                   {/* Outer cluster name — curved along an arc beyond R_OUTER */}
                   <defs>
                     <path
                       id={`outer-${cluster.id}`}
                       d={buildTextArc(
-                        R_LABELS,
+                        R_LABEL_TEXT,
                         sectorStart + 4,
                         sectorEnd - 4,
                         ((sectorMid + rotation) % 360) > 90 && ((sectorMid + rotation) % 360) < 270,
@@ -379,10 +391,10 @@ const Overview = () => {
                   </defs>
                   <text
                     fontFamily="'IBM Plex Mono', monospace"
-                    fontSize={17}
-                    fontWeight={600}
-                    letterSpacing={6}
-                    fill={cluster.hex}
+                    fontSize={32}
+                    fontWeight={700}
+                    letterSpacing={9}
+                    fill="#0a0e1a"
                     style={{ pointerEvents: 'none' }}
                   >
                     <textPath
