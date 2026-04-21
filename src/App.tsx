@@ -15,6 +15,7 @@ const ItsmTool = lazy(() => import("./pages/ItsmTool"));
 const ItsmDevTool = lazy(() => import("./pages/ItsmDevTool"));
 const SocLife = lazy(() => import("./pages/SocLife"));
 const Enigma = lazy(() => import("./pages/Enigma"));
+const TtxReadinessPage = lazy(() => import("./pages/TtxReadinessPage"));
 
 const queryClient = new QueryClient();
 
@@ -37,6 +38,7 @@ const App = () => (
               <Route path="/itsm-dev" element={<Suspense fallback={null}><ItsmDevTool /></Suspense>} />
               <Route path="/soc-life" element={<ChatView />} />
               <Route path="/enigma" element={<Suspense fallback={null}><Enigma /></Suspense>} />
+              <Route path="/ttx-readiness" element={<Suspense fallback={null}><TtxReadinessPage /></Suspense>} />
               <Route path="/:serviceId" element={<ChatView />} />
               <Route path="*" element={<NotFound />} />
             </Routes>

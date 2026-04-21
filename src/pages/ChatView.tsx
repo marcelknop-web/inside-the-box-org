@@ -37,7 +37,6 @@ import Typewriter from '@/components/Typewriter';
 import TypedSection from '@/components/TypedSection';
 import { LinkButton } from '@/components/LinkButton';
 import TtxRegistrationForm from '@/components/TtxRegistrationForm';
-import TtxReadinessAssessment from '@/components/TtxReadinessAssessment';
 
 interface NavLink { url: string; label: string; }
 interface AiResponse { message: string; links: NavLink[]; }
