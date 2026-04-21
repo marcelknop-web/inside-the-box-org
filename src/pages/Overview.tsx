@@ -353,9 +353,9 @@ const Overview = () => {
                             return (
                               <text
                                 key={idx}
-                                fontFamily="'DM Sans', system-ui, sans-serif"
+                                fontFamily="'IBM Plex Mono', monospace"
                                 fontSize={lineSize}
-                                fontWeight={500}
+                                fontWeight={600}
                                 letterSpacing={lineSize * TRACK}
                                 textRendering="geometricPrecision"
                                 fill={isHovered ? '#0a0e1a' : '#f0f3f9'}
