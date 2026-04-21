@@ -150,7 +150,7 @@ export const de = {
   },
   related: {
     title: 'Ergänzende Leistungen',
-    subtitle: 'Themen, die häufig zusammen angefragt werden.',
+    subtitle: 'Themen, die damit zusammenhängen.',
   },
   consultingTeam: {
     title: 'Von Wem',
