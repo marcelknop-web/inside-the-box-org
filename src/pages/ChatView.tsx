@@ -886,7 +886,7 @@ const useServiceContent = () => {
             <button onClick={() => setActive('ttx-check')} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
               <ClipboardList size={20} className="text-highlight mt-0.5 flex-shrink-0" />
               <div>
-                <p className="text-highlight font-semibold font-mono text-sm">ISCP Quick Check</p>
+                <p className="text-highlight font-semibold font-mono text-sm">{t('aiWorkflows.agentTtxTitle')}</p>
                 <p className="text-foreground/80 text-xs">{t('aiWorkflows.agentTtxDesc')}</p>
               </div>
             </button>
