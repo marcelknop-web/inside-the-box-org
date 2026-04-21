@@ -155,7 +155,7 @@ const Overview = () => {
   }, [hoveredId]);
 
   return (
-    <div className="min-h-screen w-full text-foreground overflow-hidden relative bg-background flex flex-col">
+    <div className="min-h-screen w-full text-foreground overflow-hidden relative flex flex-col">
       <PageMeta
         title="Mandala"
         description="Grid mandala of cybersecurity services from inside-the-box.org."
@@ -164,13 +164,13 @@ const Overview = () => {
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 
-      {/* Halo */}
+      {/* Subtle halo — keeps the body's millimeter grid visible underneath */}
       <div
         aria-hidden
         className="absolute inset-0 pointer-events-none"
         style={{
           background:
-            'radial-gradient(ellipse at 50% 50%, hsl(var(--primary) / 0.08) 0%, hsl(var(--background)) 70%)',
+            'radial-gradient(ellipse at 50% 50%, hsl(var(--primary) / 0.06) 0%, transparent 55%)',
         }}
       />
 
@@ -253,25 +253,31 @@ const Overview = () => {
                      longest label in that ring), so all cells in a ring
                      share the same letter rhythm — like a printed plate. */}
                   {(() => {
-                    const GLYPH_W = 0.60;   // monospace cap-width / em
-                    const TRACK = 0.08;     // refined tracking (em)
-                    const PAD = 1.6;        // generous side padding
+                    // ── Print-grade typography settings ──────────────────
+                    // DM Sans (project narrative font) reads more refined
+                    // than mono at large sizes. Tracking is wide for an
+                    // engraved/letterpress feel.
+                    const GLYPH_W = 0.52;     // DM Sans avg cap-width / em
+                    const TRACK = 0.18;       // editorial wide tracking (em)
+                    const PAD = 1.8;          // breathing room at sector edges
                     const SIZE_FLOOR = 11;
-                    const SIZE_CEIL_RATIO = 0.36; // never taller than ~36 % of ring
-                    const arcStartGap = 6;
+                    const SIZE_CEIL_RATIO = 0.34;
+                    const arcStartGap = 8;
 
-                    // Pre-compute one fontSize per ring (shared across clusters
-                    // is impossible because each cluster has its own service
-                    // list, so per-cluster ring is fine for visual balance).
-                    const ringSizes: number[] = cluster.services.map((_, ringIdx) => {
+                    // ONE shared font size across the whole cluster, so all
+                    // service names within a quadrant share the same rhythm.
+                    // Computed from the most constrained ring (innermost).
+                    const ceil = RING_THICK * SIZE_CEIL_RATIO;
+                    const candidateSizes = cluster.services.map((svc, ringIdx) => {
                       const rMid = R_INNER + ringIdx * RING_THICK + RING_THICK / 2;
                       const arcLen = (rMid * (SECTOR_DEG - SECTOR_GAP_DEG - 2 * arcStartGap) * Math.PI) / 180;
-                      const ceil = RING_THICK * SIZE_CEIL_RATIO;
-                      // Find size where the longest label in this ring still fits one line
-                      const labelLen = t(cluster.services[ringIdx].titleKey).length;
-                      const fitOne = arcLen / (labelLen * (GLYPH_W + TRACK) + PAD);
-                      return Math.max(SIZE_FLOOR, Math.min(fitOne, ceil));
+                      const labelLen = t(svc.titleKey).length;
+                      // size where the label fits one line on this ring
+                      return arcLen / (labelLen * (GLYPH_W + TRACK) + PAD);
                     });
+                    // Take the smallest ring's natural fit, but cap by ring height
+                    const sharedSize = Math.max(SIZE_FLOOR, Math.min(...candidateSizes, ceil));
+                    const ringSizes: number[] = cluster.services.map(() => sharedSize);
 
                     return cluster.services.map((service, ringIdx) => {
                       const rIn = R_INNER + ringIdx * RING_THICK;
@@ -348,29 +354,32 @@ const Overview = () => {
                             ))}
                           </defs>
 
-                          {lines.map((line, idx) => (
-                            <text
-                              key={idx}
-                              fontFamily="'IBM Plex Mono', monospace"
-                              fontSize={lines.length === 2 ? fontSize * 0.82 : fontSize}
-                              fontWeight={500}
-                              letterSpacing={(lines.length === 2 ? fontSize * 0.82 : fontSize) * TRACK}
-                              textRendering="geometricPrecision"
-                              fill={isHovered ? '#0a0e1a' : '#eef1f7'}
-                              style={{
-                                pointerEvents: 'none',
-                                transition: 'fill 0.25s',
-                              }}
-                            >
-                              <textPath
-                                href={`#${service.id}-arc-${idx}`}
-                                startOffset="50%"
-                                textAnchor="middle"
+                          {lines.map((line, idx) => {
+                            const lineSize = lines.length === 2 ? fontSize * 0.78 : fontSize;
+                            return (
+                              <text
+                                key={idx}
+                                fontFamily="'DM Sans', system-ui, sans-serif"
+                                fontSize={lineSize}
+                                fontWeight={500}
+                                letterSpacing={lineSize * TRACK}
+                                textRendering="geometricPrecision"
+                                fill={isHovered ? '#0a0e1a' : '#f0f3f9'}
+                                style={{
+                                  pointerEvents: 'none',
+                                  transition: 'fill 0.25s',
+                                }}
                               >
-                                {line}
-                              </textPath>
-                            </text>
-                          ))}
+                                <textPath
+                                  href={`#${service.id}-arc-${idx}`}
+                                  startOffset="50%"
+                                  textAnchor="middle"
+                                >
+                                  {line}
+                                </textPath>
+                              </text>
+                            );
+                          })}
                         </g>
                       );
                     });
@@ -425,16 +434,17 @@ const Overview = () => {
                       14,
                       Math.min(
                         ((R_LABEL_TEXT * (SECTOR_DEG - SECTOR_GAP_DEG - 12) * Math.PI) / 180) /
-                          (bandLabel.length * 0.84 + 1.2),
-                        LABEL_BAND_THICK * 0.78,
+                          (bandLabel.length * 0.62 + 1.6),
+                        LABEL_BAND_THICK * 0.72,
                       ),
                     );
                     return (
                       <text
-                        fontFamily="'IBM Plex Mono', monospace"
+                        fontFamily="'DM Sans', system-ui, sans-serif"
                         fontSize={bandFit}
-                        fontWeight={700}
-                        letterSpacing={bandFit * 0.22}
+                        fontWeight={600}
+                        letterSpacing={bandFit * 0.24}
+                        textRendering="geometricPrecision"
                         fill="#0a0e1a"
                         style={{ pointerEvents: 'none' }}
                       >
