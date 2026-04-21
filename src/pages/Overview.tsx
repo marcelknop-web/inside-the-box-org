@@ -162,6 +162,7 @@ const layoutParts = (zones: Zone[]): Part[] => {
 const Overview = () => {
   const { t, language, setLanguage } = useLanguage();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const [hoveredId, setHoveredId] = useState<string | null>(null);
 
   const zones = useMemo(() => buildZones(), []);
