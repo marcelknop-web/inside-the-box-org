@@ -506,12 +506,16 @@ const Overview = () => {
         </svg>
       </div>
 
-      {/* Footer legend */}
-      <footer className="relative z-20 border-t border-primary/15 bg-background/70 backdrop-blur-sm">
-        <div className="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between gap-4 font-mono text-[10px] tracking-[0.3em] text-muted-foreground">
-          <span>{SECTOR_COUNT} SECTORS · {CLUSTERS.reduce((n, c) => n + c.services.length, 0)} CELLS</span>
-          <span className="hidden md:block">SECTOR · CLUSTER &nbsp; · &nbsp; RING · DEPTH &nbsp; · &nbsp; CLICK · OPEN</span>
-          <span>ITB-MANDALA-2026</span>
+      {/* Footer — minimal: copyright + contact */}
+      <footer className="relative z-20 border-t border-primary/10 bg-background/40 backdrop-blur-sm">
+        <div className="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between gap-4 font-mono text-[10px] tracking-[0.25em] text-muted-foreground">
+          <span>© {new Date().getFullYear()} INSIDE-THE-BOX</span>
+          <a
+            href="mailto:marcel@inside-the-box.org"
+            className="hover:text-primary transition-colors"
+          >
+            MARCEL@INSIDE-THE-BOX.ORG
+          </a>
         </div>
       </footer>
     </div>
