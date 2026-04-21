@@ -1562,8 +1562,12 @@ const ChatView = () => {
         'Comment intégrer les fournisseurs au SMSI ?',
       ],
     } as const;
-    return all[(language as 'de' | 'en' | 'fr')] ?? all.en;
-  }, [language]);
+    const list = all[(language as 'de' | 'en' | 'fr')] ?? all.en;
+    // On mobile, only keep short questions that fit on a single line in the chat bar
+    const maxLen = isMobile ? 34 : 999;
+    const filtered = list.filter(q => q.length <= maxLen);
+    return filtered.length > 0 ? filtered : list;
+  }, [language, isMobile]);
 
 
   // Rotate every 4s, but pause while the user is typing
