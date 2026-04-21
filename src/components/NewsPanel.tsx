@@ -79,12 +79,16 @@ export function NewsPanel({ onSelectService }: NewsPanelProps) {
     return d.toLocaleDateString(locale, { day: '2-digit', month: 'short' });
   };
 
+  // Service IDs that have their own top-level route (must use real navigation, not in-app service switch)
+  const STANDALONE_ROUTES = new Set(['ttx-readiness', 'enigma', 'itsm', 'itsm-dev', 'berlin-drift', 'soc-life', 'ttx-admin']);
+
   const handleClick = (route: string) => {
-    // Try in-app routing if a service id matches a known internal path
-    if (onSelectService && route.startsWith('/') && !route.includes('://')) {
+    if (route.startsWith('/') && !route.includes('://')) {
       const id = route.replace(/^\//, '');
-      onSelectService(id);
-      return;
+      if (onSelectService && !STANDALONE_ROUTES.has(id)) {
+        onSelectService(id);
+        return;
+      }
     }
     window.location.href = route;
   };
