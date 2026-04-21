@@ -705,6 +705,151 @@ const InfoBar = ({ t, hoveredPart }: InfoBarProps) => {
   );
 };
 
+// ── Mobile blueprint ───────────────────────────────────────────────────────
+
+interface MobileBlueprintProps {
+  t: (k: string) => string;
+  language: string;
+  setLanguage: (l: ReturnType<typeof nextLanguage>) => void;
+  navigate: (path: string) => void;
+  dateStr: string;
+  drawingNo: string;
+  totalParts: number;
+}
+
+const MobileBlueprint = ({
+  t,
+  language,
+  setLanguage,
+  navigate,
+  dateStr,
+  drawingNo,
+  totalParts,
+}: MobileBlueprintProps) => {
+  return (
+    <div className="min-h-screen w-full bg-background text-foreground relative">
+      <PageMeta
+        title="Blueprint"
+        description="Engineering blueprint of cybersecurity services from inside-the-box.org."
+      />
+      <Helmet>
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
+
+      {/* Faint grid background */}
+      <div
+        aria-hidden
+        className="fixed inset-0 pointer-events-none opacity-50"
+        style={{
+          backgroundImage:
+            'linear-gradient(hsl(var(--primary) / 0.06) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--primary) / 0.06) 1px, transparent 1px)',
+          backgroundSize: '20px 20px',
+        }}
+      />
+
+      {/* Top bar */}
+      <header className="relative z-30 flex items-center justify-between px-4 py-4 border-b border-primary/15">
+        <button
+          onClick={() => navigate('/')}
+          className="font-mono text-[11px] tracking-[0.3em] text-muted-foreground hover:text-primary transition-colors"
+        >
+          ← INSIDE-THE-BOX
+        </button>
+        <button
+          onClick={() => setLanguage(nextLanguage(language as Parameters<typeof nextLanguage>[0]))}
+          className="font-mono text-[11px] tracking-[0.3em] text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"
+          aria-label="Language"
+        >
+          <Languages className="w-3.5 h-3.5" />
+          {language.toUpperCase()}
+        </button>
+      </header>
+
+      {/* Sheet header — title block, mobile version */}
+      <div className="relative z-10 px-4 pt-5 pb-4 border-b border-primary/20">
+        <div className="font-mono text-[10px] tracking-[0.4em] text-primary/70 mb-1">
+          PROJECT
+        </div>
+        <h1 className="font-mono text-xl tracking-[0.15em] font-light text-foreground">
+          INSIDE-THE-BOX
+        </h1>
+        <p className="font-mono text-[11px] tracking-[0.2em] text-muted-foreground mt-1">
+          Cybersecurity Practice · {totalParts} / 4
+        </p>
+
+        <div className="mt-4 grid grid-cols-3 gap-2 font-mono text-[10px]">
+          <div>
+            <div className="tracking-[0.3em] text-primary/60">DWG</div>
+            <div className="text-foreground/85 mt-0.5 truncate">{drawingNo}</div>
+          </div>
+          <div>
+            <div className="tracking-[0.3em] text-primary/60">DATE</div>
+            <div className="text-foreground/85 mt-0.5">{dateStr}</div>
+          </div>
+          <div>
+            <div className="tracking-[0.3em] text-primary/60">SCALE</div>
+            <div className="text-foreground/85 mt-0.5">1 : 1</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Zones as sections */}
+      <div className="relative z-10 px-4 py-5 space-y-7 pb-12">
+        {CLUSTERS.map((cluster, zi) => {
+          const zoneLabel = ['A1', 'B1', 'A2', 'B2'][zi] ?? '—';
+          return (
+            <section key={cluster.id}>
+              {/* Zone header */}
+              <div className="flex items-baseline gap-3 mb-3">
+                <span className="font-mono text-[10px] tracking-[0.3em] text-primary/60">
+                  ZONE {zoneLabel} · {cluster.code}
+                </span>
+                <span className="flex-1 h-px bg-primary/20" />
+              </div>
+              <h2 className="font-mono text-base tracking-[0.18em] text-foreground/95 mb-3">
+                {t(cluster.groupKey).toUpperCase()}
+              </h2>
+
+              {/* Parts */}
+              <ul className="space-y-2.5">
+                {cluster.services.map((s) => (
+                  <li key={s.id}>
+                    <button
+                      onClick={() => navigate(`/${s.id}`)}
+                      className="group w-full text-left relative border border-primary/40 bg-background/60 px-4 py-3.5 active:bg-primary/10 active:border-primary transition-colors"
+                    >
+                      {/* Corner ticks */}
+                      <span className="absolute top-0 left-0 w-2 h-2 border-t border-l border-primary/70" />
+                      <span className="absolute top-0 right-0 w-2 h-2 border-t border-r border-primary/70" />
+                      <span className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-primary/70" />
+                      <span className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-primary/70" />
+
+                      <div className="font-mono text-[10px] tracking-[0.3em] text-primary/75">
+                        PART {s.code}
+                      </div>
+                      <div className="font-mono text-[15px] leading-snug text-foreground mt-1.5">
+                        {t(s.titleKey)}
+                      </div>
+                      <div className="flex items-center justify-between mt-2.5">
+                        <span className="text-[12px] text-muted-foreground line-clamp-2 pr-3">
+                          {t(s.descKey)}
+                        </span>
+                        <span className="font-mono text-[10px] tracking-[0.3em] text-primary shrink-0">
+                          OPEN →
+                        </span>
+                      </div>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
 // ── Helpers ────────────────────────────────────────────────────────────────
 
 function truncate(s: string, n: number): string {
