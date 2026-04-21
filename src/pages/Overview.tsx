@@ -6,14 +6,15 @@ import { PageMeta } from '@/components/PageMeta';
 import { useLanguage, nextLanguage } from '@/i18n/LanguageContext';
 
 /**
- * Hidden /overview — Lotus Mandala.
+ * Hidden /overview — Sri-Yantra-style Grid Mandala.
  *
- * A real mandala: a central core, surrounded by concentric petal layers.
- * Each layer (cluster) gets its own colour and petal count = number of services.
- * Cluster colour + service code make every petal individually identifiable.
- *
- * Pure SVG, sanftly rotating. Works on every viewport, instantly readable
- * as a mandala, and meditative rather than gimmicky.
+ * Structure: 4 sectors (clusters) × N rings (services per cluster).
+ * Each service has a unique cell, located by:
+ *   • Sector (cluster colour, outer label)
+ *   • Ring   (radial distance from centre)
+ * Service name is printed on a curved arc inside its cell — readable
+ * without hover. The whole mandala rotates very slowly; the text
+ * counter-rotates so labels never go upside down.
  */
 
 type ServiceNode = {
@@ -26,8 +27,7 @@ type Cluster = {
   id: string;
   groupKey: string;
   code: string;
-  colorVar: string; // hsl(var(--…)) usage
-  hex: string;      // raw hex for SVG fills (Tailwind tokens not available there)
+  hex: string;
   services: ServiceNode[];
 };
 
@@ -36,8 +36,7 @@ const CLUSTERS: Cluster[] = [
     id: 'resilience',
     groupKey: 'nav.groupCyberResilience',
     code: 'A',
-    colorVar: 'hsl(var(--primary))',
-    hex: '#f5b800', // gold — foundational
+    hex: '#f5b800',
     services: [
       { id: 'cyber-crisis-management', titleKey: 'consulting.crisisTitle',   code: 'A-01' },
       { id: 'incident-management',     titleKey: 'consulting.incidentTitle', code: 'A-02' },
@@ -48,8 +47,7 @@ const CLUSTERS: Cluster[] = [
     id: 'regulation',
     groupKey: 'nav.groupRegulation',
     code: 'B',
-    colorVar: 'hsl(var(--accent))',
-    hex: '#00bcd4', // cyan
+    hex: '#00bcd4',
     services: [
       { id: 'nis2-dora',     titleKey: 'consulting.nis2Title',  code: 'B-01' },
       { id: 'dora-nis2-ttx', titleKey: 'nav.ttxTraining',       code: 'B-02' },
@@ -61,8 +59,7 @@ const CLUSTERS: Cluster[] = [
     id: 'governance',
     groupKey: 'nav.groupGovernance',
     code: 'C',
-    colorVar: 'hsl(var(--primary))',
-    hex: '#e8a200', // amber
+    hex: '#e8a200',
     services: [
       { id: 'virtual-ciso',         titleKey: 'consulting.vcisoTitle',  code: 'C-01' },
       { id: 'assessments-concepts', titleKey: 'consulting.assessTitle', code: 'C-02' },
@@ -72,8 +69,7 @@ const CLUSTERS: Cluster[] = [
     id: 'insights',
     groupKey: 'nav.groupInsights',
     code: 'D',
-    colorVar: 'hsl(var(--accent))',
-    hex: '#7ee0ec', // light cyan
+    hex: '#7ee0ec',
     services: [
       { id: 'publications',     titleKey: 'consulting.pubTitle',         code: 'D-01' },
       { id: 'events-workshops', titleKey: 'consulting.eventsTitle',      code: 'D-02' },
@@ -82,19 +78,60 @@ const CLUSTERS: Cluster[] = [
   },
 ];
 
-// Petal radius per cluster (innermost = foundational)
-const RING_RADIUS = [110, 175, 235, 300];
+// Mandala geometry
+const VB = 900;                          // viewBox dimension
+const HALF = VB / 2;
+const R_INNER = 70;                      // start of first ring (after centre)
+const RING_THICK = 70;                   // each ring thickness
+const MAX_RINGS = Math.max(...CLUSTERS.map((c) => c.services.length));   // 4
+const R_OUTER = R_INNER + RING_THICK * MAX_RINGS;                         // 350
+const R_LABELS = R_OUTER + 40;                                            // outer cluster names
 
-// Petal SVG path — a teardrop / lotus petal pointing outward along +X.
-// Length tunable per ring; built as a smooth cubic Bezier shape.
-const buildPetal = (length: number, width: number) => {
-  const halfW = width / 2;
-  return `
-    M 0 0
-    C ${length * 0.25} ${-halfW}, ${length * 0.85} ${-halfW * 0.3}, ${length} 0
-    C ${length * 0.85} ${halfW * 0.3}, ${length * 0.25} ${halfW}, 0 0
-    Z
-  `;
+// Sector geometry — each cluster gets one sector.
+// Sectors are evenly spaced around the circle.
+const SECTOR_COUNT = CLUSTERS.length;     // 4
+const SECTOR_DEG = 360 / SECTOR_COUNT;    // 90°
+// Tiny gap between sectors so the mandala "breathes"
+const SECTOR_GAP_DEG = 1.2;
+
+const polar = (r: number, deg: number) => {
+  const rad = ((deg - 90) * Math.PI) / 180; // 0° at top, clockwise
+  return { x: r * Math.cos(rad), y: r * Math.sin(rad) };
+};
+
+// Build an annular-segment path (a "cell"): inner arc + outer arc + sides.
+const buildCell = (rIn: number, rOut: number, degStart: number, degEnd: number): string => {
+  const p1 = polar(rOut, degStart);
+  const p2 = polar(rOut, degEnd);
+  const p3 = polar(rIn, degEnd);
+  const p4 = polar(rIn, degStart);
+  const sweep = degEnd - degStart;
+  const largeArc = sweep > 180 ? 1 : 0;
+  return [
+    `M ${p1.x.toFixed(2)} ${p1.y.toFixed(2)}`,
+    `A ${rOut} ${rOut} 0 ${largeArc} 1 ${p2.x.toFixed(2)} ${p2.y.toFixed(2)}`,
+    `L ${p3.x.toFixed(2)} ${p3.y.toFixed(2)}`,
+    `A ${rIn} ${rIn} 0 ${largeArc} 0 ${p4.x.toFixed(2)} ${p4.y.toFixed(2)}`,
+    'Z',
+  ].join(' ');
+};
+
+// Build a centred arc path for text-on-path along the middle of a cell.
+// We need the arc to read left-to-right (top of mandala upright). For sectors
+// in the bottom half (90° < midDeg < 270°), flip the arc direction so the
+// text is not upside-down.
+const buildTextArc = (
+  r: number,
+  degStart: number,
+  degEnd: number,
+  flip: boolean,
+): string => {
+  const a = flip ? degEnd : degStart;
+  const b = flip ? degStart : degEnd;
+  const p1 = polar(r, a);
+  const p2 = polar(r, b);
+  const sweep = flip ? 0 : 1;
+  return `M ${p1.x.toFixed(2)} ${p1.y.toFixed(2)} A ${r} ${r} 0 0 ${sweep} ${p2.x.toFixed(2)} ${p2.y.toFixed(2)}`;
 };
 
 const Overview = () => {
@@ -103,14 +140,14 @@ const Overview = () => {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [rotation, setRotation] = useState(0);
 
-  // Sanfte Auto-Rotation
+  // Very slow rotation — meditative, doesn't fight readability
   useEffect(() => {
     let raf = 0;
     let last = performance.now();
     const tick = (now: number) => {
       const dt = (now - last) / 1000;
       last = now;
-      setRotation((r) => (r + dt * 4) % 360); // 4°/s
+      setRotation((r) => (r + dt * 1.2) % 360); // 1.2°/s — almost still
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
@@ -128,21 +165,17 @@ const Overview = () => {
     return null;
   }, [hoveredId]);
 
-  // ViewBox is centered on (0,0); leaves margin for outer petals + labels
-  const VB = 760;
-  const half = VB / 2;
-
   return (
     <div className="min-h-screen w-full text-foreground overflow-hidden relative bg-background flex flex-col">
       <PageMeta
         title="Mandala"
-        description="Lotus mandala of cybersecurity services from inside-the-box.org."
+        description="Grid mandala of cybersecurity services from inside-the-box.org."
       />
       <Helmet>
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 
-      {/* Soft halo */}
+      {/* Halo */}
       <div
         aria-hidden
         className="absolute inset-0 pointer-events-none"
@@ -170,22 +203,7 @@ const Overview = () => {
         </button>
       </header>
 
-      {/* Cluster legend (top right) */}
-      <aside className="absolute right-6 top-20 z-20 flex flex-col gap-2 text-right pointer-events-none">
-        <div className="font-mono text-[9px] tracking-[0.4em] text-muted-foreground mb-1">CLUSTERS</div>
-        {CLUSTERS.map((c) => (
-          <div key={c.id} className="flex items-center gap-2 justify-end font-mono text-[10px] tracking-[0.2em]">
-            <span className="text-foreground/85">{t(c.groupKey).toUpperCase()}</span>
-            <span
-              className="w-2.5 h-2.5 rounded-full inline-block"
-              style={{ backgroundColor: c.hex, boxShadow: `0 0 8px ${c.hex}` }}
-            />
-            <span className="text-muted-foreground w-3">{c.code}</span>
-          </div>
-        ))}
-      </aside>
-
-      {/* Selected indicator (bottom left) */}
+      {/* Selected indicator (bottom-left, fixed) */}
       <div className="absolute left-6 bottom-16 z-20 pointer-events-none">
         <div className="font-mono text-[9px] tracking-[0.4em] text-muted-foreground mb-1">SELECTED</div>
         <div
@@ -198,7 +216,7 @@ const Overview = () => {
           key={hovered?.service.titleKey ?? 'none-t'}
           className="font-mono text-[11px] tracking-[0.15em] text-foreground/90 mt-1 max-w-[260px] animate-fade-in"
         >
-          {hovered ? t(hovered.service.titleKey) : 'HOVER · INSPECT'}
+          {hovered ? t(hovered.service.titleKey) : 'HOVER · CLICK · OPEN'}
         </div>
         {hovered && (
           <div
@@ -210,218 +228,226 @@ const Overview = () => {
         )}
       </div>
 
-      {/* Mandala SVG */}
-      <div className="relative w-full flex-1 flex items-center justify-center px-4 py-16">
+      {/* Mandala */}
+      <div className="relative w-full flex-1 flex items-center justify-center px-2 py-12">
         <svg
-          viewBox={`${-half} ${-half} ${VB} ${VB}`}
-          className="w-full h-full max-w-[760px] max-h-[760px]"
+          viewBox={`${-HALF} ${-HALF} ${VB} ${VB}`}
+          className="w-full h-full max-w-[820px] max-h-[820px]"
           style={{ filter: 'drop-shadow(0 0 24px hsl(var(--primary) / 0.12))' }}
         >
-          {/* Background guide circles — very faint */}
-          {RING_RADIUS.map((r, i) => (
+          {/* Faint guide circles for every ring boundary */}
+          {Array.from({ length: MAX_RINGS + 1 }).map((_, i) => (
             <circle
               key={`g-${i}`}
               cx={0}
               cy={0}
-              r={r}
+              r={R_INNER + RING_THICK * i}
               fill="none"
-              stroke={CLUSTERS[i].hex}
-              strokeOpacity={0.12}
-              strokeWidth={0.6}
+              stroke="#f5b800"
+              strokeOpacity={0.1}
+              strokeWidth={0.5}
               strokeDasharray="2 4"
             />
           ))}
 
-          {/* Decorative outer petal halo (12-fold symmetry) */}
-          <g
-            opacity={0.18}
-            style={{ transform: `rotate(${-rotation * 0.3}deg)`, transformOrigin: '0 0', transformBox: 'fill-box' }}
-          >
-            {Array.from({ length: 24 }).map((_, i) => {
-              const angle = (i / 24) * 360;
-              return (
-                <g key={`halo-${i}`} transform={`rotate(${angle})`}>
-                  <path
-                    d={buildPetal(46, 14)}
-                    transform={`translate(${RING_RADIUS[3] + 24}, 0)`}
-                    fill={CLUSTERS[3].hex}
-                    fillOpacity={0.6}
-                  />
-                </g>
-              );
-            })}
-          </g>
-
-          {/* Cluster petal layers — counter-rotating for mandala motion */}
-          {CLUSTERS.map((cluster, ringIdx) => {
-            const radius = RING_RADIUS[ringIdx];
-            const count = cluster.services.length;
-            // Pad each ring to a higher symmetry — decorative empty petals
-            // soften the asymmetry of clusters with only 2-3 services.
-            const symmetry = ringIdx === 0 ? 12 : ringIdx === 1 ? 16 : ringIdx === 2 ? 8 : 12;
-            const dir = ringIdx % 2 === 0 ? 1 : -1;
-            const petalLen = ringIdx === 0 ? 70 : ringIdx === 1 ? 78 : ringIdx === 2 ? 70 : 78;
-            const petalWidth = ringIdx === 0 ? 38 : ringIdx === 1 ? 36 : ringIdx === 2 ? 32 : 30;
-            // Inner radius where the petal base sits
-            const baseR = radius - petalLen * 0.4;
-
-            return (
-              <g
-                key={cluster.id}
-                style={{
-                  transform: `rotate(${rotation * dir * (1 - ringIdx * 0.15)}deg)`,
-                  transformOrigin: '0 0',
-                  transformBox: 'fill-box',
-                  transition: 'opacity 0.4s',
-                  opacity: hoveredId && !cluster.services.some((s) => s.id === hoveredId) ? 0.45 : 1,
-                }}
-              >
-                {/* Decorative empty petals (symmetry filler) */}
-                {Array.from({ length: symmetry }).map((_, i) => {
-                  const angle = (i / symmetry) * 360;
-                  return (
-                    <g key={`fill-${i}`} transform={`rotate(${angle})`}>
-                      <path
-                        d={buildPetal(petalLen, petalWidth)}
-                        transform={`translate(${baseR}, 0)`}
-                        fill={cluster.hex}
-                        fillOpacity={0.05}
-                        stroke={cluster.hex}
-                        strokeOpacity={0.2}
-                        strokeWidth={0.5}
-                      />
-                    </g>
-                  );
-                })}
-
-                {/* Service petals — interactive */}
-                {cluster.services.map((service, i) => {
-                  // Distribute services evenly across the symmetry slots
-                  const slot = Math.round((i * symmetry) / count);
-                  const angle = (slot / symmetry) * 360;
-                  const isHovered = hoveredId === service.id;
-                  return (
-                    <g
-                      key={service.id}
-                      transform={`rotate(${angle})`}
-                      style={{ cursor: 'pointer' }}
-                      onMouseEnter={() => setHoveredId(service.id)}
-                      onMouseLeave={() => setHoveredId(null)}
-                      onClick={() => handleClick(service.id)}
-                    >
-                      {/* Service petal */}
-                      <path
-                        d={buildPetal(petalLen, petalWidth)}
-                        transform={`translate(${baseR}, 0)`}
-                        fill={cluster.hex}
-                        fillOpacity={isHovered ? 0.85 : 0.4}
-                        stroke={cluster.hex}
-                        strokeOpacity={isHovered ? 1 : 0.7}
-                        strokeWidth={isHovered ? 1.6 : 0.9}
-                        style={{
-                          transition: 'fill-opacity 0.25s, stroke-width 0.25s, filter 0.25s',
-                          filter: isHovered ? `drop-shadow(0 0 10px ${cluster.hex})` : 'none',
-                        }}
-                      />
-                      {/* Service code label inside the petal — counter-rotated to stay upright */}
-                      <g
-                        transform={`translate(${baseR + petalLen * 0.55}, 0) rotate(${-rotation * dir * (1 - ringIdx * 0.15) - angle})`}
-                      >
-                        <text
-                          textAnchor="middle"
-                          dominantBaseline="middle"
-                          fontFamily="'IBM Plex Mono', monospace"
-                          fontSize={isHovered ? 13 : 11}
-                          fontWeight={600}
-                          fill={isHovered ? '#0a0e1a' : cluster.hex}
-                          style={{ transition: 'fill 0.25s, font-size 0.25s', pointerEvents: 'none' }}
-                        >
-                          {service.code}
-                        </text>
-                      </g>
-                    </g>
-                  );
-                })}
-              </g>
-            );
-          })}
-
-          {/* Inner sacred-geometry layer: 6-pointed star + center */}
+          {/* Whole mandala rotates as one — labels counter-rotate per cell below */}
           <g
             style={{
-              transform: `rotate(${rotation * 0.5}deg)`,
+              transform: `rotate(${rotation}deg)`,
               transformOrigin: '0 0',
               transformBox: 'fill-box',
             }}
           >
-            {/* Triangle 1 */}
-            <polygon
-              points={trianglePoints(60, 0)}
-              fill="none"
-              stroke={CLUSTERS[0].hex}
-              strokeOpacity={0.55}
-              strokeWidth={1}
-            />
-            {/* Triangle 2 — inverted */}
-            <polygon
-              points={trianglePoints(60, 60)}
-              fill="none"
-              stroke={CLUSTERS[1].hex}
-              strokeOpacity={0.55}
-              strokeWidth={1}
-            />
+            {CLUSTERS.map((cluster, sIdx) => {
+              const sectorStart = sIdx * SECTOR_DEG + SECTOR_GAP_DEG / 2;
+              const sectorEnd = (sIdx + 1) * SECTOR_DEG - SECTOR_GAP_DEG / 2;
+              const sectorMid = (sectorStart + sectorEnd) / 2;
+
+              return (
+                <g key={cluster.id}>
+                  {/* Service cells inside this sector — one per ring */}
+                  {cluster.services.map((service, ringIdx) => {
+                    const rIn = R_INNER + ringIdx * RING_THICK;
+                    const rOut = rIn + RING_THICK;
+                    const isHovered = hoveredId === service.id;
+                    const dimmed = hoveredId !== null && !isHovered;
+
+                    // Label arc lives mid-cell. Flip if the sector mid is in
+                    // the bottom half so text doesn't read upside-down.
+                    // Account for global rotation when deciding flip.
+                    const effectiveMid = (sectorMid + rotation) % 360;
+                    const flip = effectiveMid > 90 && effectiveMid < 270;
+                    const rText = (rIn + rOut) / 2;
+                    const arcId = `arc-${service.id}`;
+                    // Slight inset so the curved text doesn't crash into the cell sides
+                    const textInset = 3;
+                    const arcStart = sectorStart + textInset;
+                    const arcEnd = sectorEnd - textInset;
+
+                    const label = t(service.titleKey).toUpperCase();
+
+                    return (
+                      <g
+                        key={service.id}
+                        style={{ cursor: 'pointer' }}
+                        onMouseEnter={() => setHoveredId(service.id)}
+                        onMouseLeave={() => setHoveredId(null)}
+                        onClick={() => handleClick(service.id)}
+                      >
+                        {/* Cell shape */}
+                        <path
+                          d={buildCell(rIn, rOut, sectorStart, sectorEnd)}
+                          fill={cluster.hex}
+                          fillOpacity={isHovered ? 0.55 : dimmed ? 0.06 : 0.14}
+                          stroke={cluster.hex}
+                          strokeOpacity={isHovered ? 1 : dimmed ? 0.25 : 0.55}
+                          strokeWidth={isHovered ? 1.6 : 0.8}
+                          style={{
+                            transition: 'fill-opacity 0.25s, stroke-opacity 0.25s, stroke-width 0.25s, filter 0.25s',
+                            filter: isHovered ? `drop-shadow(0 0 10px ${cluster.hex})` : 'none',
+                          }}
+                        />
+
+                        {/* Hidden arc the text follows */}
+                        <defs>
+                          <path
+                            id={arcId}
+                            d={buildTextArc(rText, arcStart, arcEnd, flip)}
+                          />
+                        </defs>
+
+                        {/* Service code — small, near inner edge */}
+                        <text
+                          fontFamily="'IBM Plex Mono', monospace"
+                          fontSize={8.5}
+                          letterSpacing={2}
+                          fill={cluster.hex}
+                          fillOpacity={isHovered ? 1 : 0.75}
+                          style={{ pointerEvents: 'none' }}
+                          dy={flip ? 14 : -14}
+                        >
+                          <textPath
+                            href={`#${arcId}`}
+                            startOffset="50%"
+                            textAnchor="middle"
+                          >
+                            {service.code}
+                          </textPath>
+                        </text>
+
+                        {/* Service name — main label, curved along arc */}
+                        <text
+                          fontFamily="'IBM Plex Mono', monospace"
+                          fontSize={isHovered ? 14 : 12.5}
+                          fontWeight={500}
+                          letterSpacing={1.5}
+                          fill={isHovered ? '#0a0e1a' : '#e9edf5'}
+                          style={{
+                            pointerEvents: 'none',
+                            transition: 'fill 0.25s, font-size 0.25s',
+                          }}
+                        >
+                          <textPath
+                            href={`#${arcId}`}
+                            startOffset="50%"
+                            textAnchor="middle"
+                          >
+                            {label}
+                          </textPath>
+                        </text>
+                      </g>
+                    );
+                  })}
+
+                  {/* Empty filler cells for shorter clusters — keep mandala symmetric */}
+                  {Array.from({ length: MAX_RINGS - cluster.services.length }).map((_, k) => {
+                    const ringIdx = cluster.services.length + k;
+                    const rIn = R_INNER + ringIdx * RING_THICK;
+                    const rOut = rIn + RING_THICK;
+                    return (
+                      <path
+                        key={`empty-${cluster.id}-${k}`}
+                        d={buildCell(rIn, rOut, sectorStart, sectorEnd)}
+                        fill={cluster.hex}
+                        fillOpacity={0.025}
+                        stroke={cluster.hex}
+                        strokeOpacity={0.18}
+                        strokeWidth={0.5}
+                        strokeDasharray="2 3"
+                      />
+                    );
+                  })}
+
+                  {/* Outer cluster name — curved along an arc beyond R_OUTER */}
+                  <defs>
+                    <path
+                      id={`outer-${cluster.id}`}
+                      d={buildTextArc(
+                        R_LABELS,
+                        sectorStart + 4,
+                        sectorEnd - 4,
+                        ((sectorMid + rotation) % 360) > 90 && ((sectorMid + rotation) % 360) < 270,
+                      )}
+                    />
+                  </defs>
+                  <text
+                    fontFamily="'IBM Plex Mono', monospace"
+                    fontSize={13}
+                    fontWeight={600}
+                    letterSpacing={4}
+                    fill={cluster.hex}
+                    style={{ pointerEvents: 'none' }}
+                  >
+                    <textPath
+                      href={`#outer-${cluster.id}`}
+                      startOffset="50%"
+                      textAnchor="middle"
+                    >
+                      {`${cluster.code} · ${t(cluster.groupKey).toUpperCase()}`}
+                    </textPath>
+                  </text>
+                </g>
+              );
+            })}
+
+            {/* Sector dividers — thin radial lines */}
+            {Array.from({ length: SECTOR_COUNT }).map((_, i) => {
+              const deg = i * SECTOR_DEG;
+              const p1 = polar(R_INNER, deg);
+              const p2 = polar(R_OUTER, deg);
+              return (
+                <line
+                  key={`div-${i}`}
+                  x1={p1.x}
+                  y1={p1.y}
+                  x2={p2.x}
+                  y2={p2.y}
+                  stroke="#f5b800"
+                  strokeOpacity={0.25}
+                  strokeWidth={0.6}
+                />
+              );
+            })}
           </g>
 
-          {/* Center — bindu */}
-          <circle cx={0} cy={0} r={18} fill={CLUSTERS[0].hex} fillOpacity={0.18} />
-          <circle cx={0} cy={0} r={9} fill={CLUSTERS[0].hex} />
-          <circle cx={0} cy={0} r={3} fill="#0a0e1a" />
+          {/* Centre — bindu (does not rotate) */}
+          <circle cx={0} cy={0} r={R_INNER - 8} fill="none" stroke="#f5b800" strokeOpacity={0.2} strokeWidth={0.6} />
+          <circle cx={0} cy={0} r={28} fill="#f5b800" fillOpacity={0.12} />
+          <circle cx={0} cy={0} r={14} fill="#f5b800" />
+          <circle cx={0} cy={0} r={4} fill="#0a0e1a" />
         </svg>
-
-        {/* Hover tooltip — fixed in viewport, no jumping */}
-        {hovered && (
-          <div
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 translate-y-[280px] pointer-events-none animate-fade-in"
-            style={{ maxWidth: '90%' }}
-          >
-            <div
-              className="font-mono px-4 py-2 border bg-background/90 backdrop-blur-sm text-center"
-              style={{ borderColor: hovered.cluster.hex }}
-            >
-              <div
-                className="text-[9px] tracking-[0.4em] mb-0.5"
-                style={{ color: hovered.cluster.hex }}
-              >
-                {hovered.service.code}
-              </div>
-              <div className="text-[12px] tracking-[0.18em] text-foreground">
-                {t(hovered.service.titleKey).toUpperCase()}
-              </div>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Footer legend */}
       <footer className="relative z-20 border-t border-primary/15 bg-background/70 backdrop-blur-sm">
         <div className="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between gap-4 font-mono text-[10px] tracking-[0.3em] text-muted-foreground">
-          <span>4 LAYERS · {CLUSTERS.reduce((n, c) => n + c.services.length, 0)} PETALS</span>
-          <span className="hidden md:block">HOVER · INSPECT &nbsp; · &nbsp; CLICK · OPEN</span>
+          <span>{SECTOR_COUNT} SECTORS · {CLUSTERS.reduce((n, c) => n + c.services.length, 0)} CELLS</span>
+          <span className="hidden md:block">SECTOR · CLUSTER &nbsp; · &nbsp; RING · DEPTH &nbsp; · &nbsp; CLICK · OPEN</span>
           <span>ITB-MANDALA-2026</span>
         </div>
       </footer>
     </div>
   );
-};
-
-// Equilateral triangle inscribed in radius r, optionally rotated (deg)
-const trianglePoints = (r: number, rotateDeg: number): string => {
-  const pts: string[] = [];
-  for (let i = 0; i < 3; i++) {
-    const a = ((i * 120 + rotateDeg - 90) * Math.PI) / 180;
-    pts.push(`${(Math.cos(a) * r).toFixed(2)},${(Math.sin(a) * r).toFixed(2)}`);
-  }
-  return pts.join(' ');
 };
 
 export default Overview;
