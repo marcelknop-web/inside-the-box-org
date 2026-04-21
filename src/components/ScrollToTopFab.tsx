@@ -13,27 +13,18 @@ export function ScrollToTopFab() {
   const { language } = useLanguage();
 
   useEffect(() => {
-    let lastScroller: HTMLElement | null = null;
-
-    const onScroll = (e: Event) => {
-      const target = e.target as HTMLElement | Document | null;
-      let top = 0;
-      if (target instanceof HTMLElement) {
-        top = target.scrollTop;
-        lastScroller = target;
-      } else {
-        top = window.scrollY || document.documentElement.scrollTop || 0;
+    let raf = 0;
+    const check = () => {
+      let max = window.scrollY || document.documentElement.scrollTop || 0;
+      const els = document.querySelectorAll<HTMLElement>('[class*="overflow-y"], main, .flex-1');
+      for (let i = 0; i < els.length; i++) {
+        if (els[i].scrollTop > max) max = els[i].scrollTop;
       }
-      setVisible(top > 600);
+      setVisible(max > 600);
+      raf = requestAnimationFrame(check);
     };
-
-    // Capture-phase listener catches scrolls from any nested container.
-    window.addEventListener('scroll', onScroll, { passive: true, capture: true });
-    return () => {
-      window.removeEventListener('scroll', onScroll, true);
-    };
-
-    // Expose lastScroller for the click handler via closure (reassigned below)
+    raf = requestAnimationFrame(check);
+    return () => cancelAnimationFrame(raf);
   }, []);
 
   const scrollToTop = () => {
