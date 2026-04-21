@@ -248,121 +248,133 @@ const Overview = () => {
 
               return (
                 <g key={cluster.id}>
-                  {/* Service cells inside this sector — one per ring */}
-                  {cluster.services.map((service, ringIdx) => {
-                    const rIn = R_INNER + ringIdx * RING_THICK;
-                    const rOut = rIn + RING_THICK;
-                    const isHovered = hoveredId === service.id;
-                    const dimmed = hoveredId !== null && !isHovered;
+                  {/* ── Ring-level typography settings ──────────────────────
+                     One uniform font size per ring (computed from the
+                     longest label in that ring), so all cells in a ring
+                     share the same letter rhythm — like a printed plate. */}
+                  {(() => {
+                    const GLYPH_W = 0.60;   // monospace cap-width / em
+                    const TRACK = 0.08;     // refined tracking (em)
+                    const PAD = 1.6;        // generous side padding
+                    const SIZE_FLOOR = 11;
+                    const SIZE_CEIL_RATIO = 0.36; // never taller than ~36 % of ring
+                    const arcStartGap = 6;
 
-                    const effectiveMid = (sectorMid + rotation) % 360;
-                    const flip = effectiveMid > 90 && effectiveMid < 270;
-                    const textInset = 5;
-                    const arcStart = sectorStart + textInset;
-                    const arcEnd = sectorEnd - textInset;
-
-                    const label = t(service.titleKey).toUpperCase();
-
-                    // Smart line break for long labels
-                    const splitLabel = (raw: string): string[] => {
-                      const max = 18;
-                      if (raw.length <= max) return [raw];
-                      const words = raw.split(/\s+/);
-                      if (words.length === 1) return [raw];
-                      let best = 1;
-                      let bestDiff = Infinity;
-                      for (let i = 1; i < words.length; i++) {
-                        const a = words.slice(0, i).join(' ');
-                        const b = words.slice(i).join(' ');
-                        const diff = Math.abs(a.length - b.length);
-                        if (diff < bestDiff) { bestDiff = diff; best = i; }
-                      }
-                      return [
-                        words.slice(0, best).join(' '),
-                        words.slice(best).join(' '),
-                      ];
-                    };
-                    const lines = splitLabel(label);
-
-                    // Letterpress sizing per line
-                    const GLYPH_W = 0.62;
-                    const TRACK = 0.12;
-                    const PAD = 1.0;
-                    const availableHeight = RING_THICK - 8;
-                    const lineHeight = lines.length === 2 ? availableHeight / 2.1 : availableHeight;
-
-                    // Stack lines: in unflipped orientation, first line outer, second line inner.
-                    const lineRadii = lines.length === 2
-                      ? flip
-                        ? [rIn + RING_THICK * 0.32, rIn + RING_THICK * 0.72]
-                        : [rIn + RING_THICK * 0.72, rIn + RING_THICK * 0.32]
-                      : [(rIn + rOut) / 2];
-
-                    const arcDeg = arcEnd - arcStart;
-                    const fitSizes = lineRadii.map((r, idx) => {
-                      const arcLen = (r * arcDeg * Math.PI) / 180;
-                      const txt = lines[idx];
-                      const fit = arcLen / (txt.length * (GLYPH_W + TRACK) + PAD);
-                      return Math.max(11, Math.min(fit, lineHeight * 0.78));
+                    // Pre-compute one fontSize per ring (shared across clusters
+                    // is impossible because each cluster has its own service
+                    // list, so per-cluster ring is fine for visual balance).
+                    const ringSizes: number[] = cluster.services.map((_, ringIdx) => {
+                      const rMid = R_INNER + ringIdx * RING_THICK + RING_THICK / 2;
+                      const arcLen = (rMid * (SECTOR_DEG - SECTOR_GAP_DEG - 2 * arcStartGap) * Math.PI) / 180;
+                      const ceil = RING_THICK * SIZE_CEIL_RATIO;
+                      // Find size where the longest label in this ring still fits one line
+                      const labelLen = t(cluster.services[ringIdx].titleKey).length;
+                      const fitOne = arcLen / (labelLen * (GLYPH_W + TRACK) + PAD);
+                      return Math.max(SIZE_FLOOR, Math.min(fitOne, ceil));
                     });
 
-                    return (
-                      <g
-                        key={service.id}
-                        style={{ cursor: 'pointer' }}
-                        onMouseEnter={() => setHoveredId(service.id)}
-                        onMouseLeave={() => setHoveredId(null)}
-                        onClick={() => handleClick(service.id)}
-                      >
-                        <path
-                          d={buildCell(rIn, rOut, sectorStart, sectorEnd)}
-                          fill={cluster.hex}
-                          fillOpacity={isHovered ? 0.55 : dimmed ? 0.06 : 0.14}
-                          stroke={cluster.hex}
-                          strokeOpacity={isHovered ? 1 : dimmed ? 0.25 : 0.55}
-                          strokeWidth={isHovered ? 1.6 : 0.8}
-                          style={{
-                            transition: 'fill-opacity 0.25s, stroke-opacity 0.25s, stroke-width 0.25s, filter 0.25s',
-                            filter: isHovered ? `drop-shadow(0 0 10px ${cluster.hex})` : 'none',
-                          }}
-                        />
+                    return cluster.services.map((service, ringIdx) => {
+                      const rIn = R_INNER + ringIdx * RING_THICK;
+                      const rOut = rIn + RING_THICK;
+                      const isHovered = hoveredId === service.id;
+                      const dimmed = hoveredId !== null && !isHovered;
 
-                        <defs>
-                          {lines.map((_, idx) => (
-                            <path
-                              key={idx}
-                              id={`${service.id}-arc-${idx}`}
-                              d={buildTextArc(lineRadii[idx], arcStart, arcEnd, flip)}
-                            />
-                          ))}
-                        </defs>
+                      const effectiveMid = (sectorMid + rotation) % 360;
+                      const flip = effectiveMid > 90 && effectiveMid < 270;
+                      const arcStart = sectorStart + arcStartGap;
+                      const arcEnd = sectorEnd - arcStartGap;
+                      const arcDeg = arcEnd - arcStart;
 
-                        {lines.map((line, idx) => (
-                          <text
-                            key={idx}
-                            fontFamily="'IBM Plex Mono', monospace"
-                            fontSize={fitSizes[idx]}
-                            fontWeight={600}
-                            letterSpacing={fitSizes[idx] * TRACK}
-                            textRendering="geometricPrecision"
-                            fill={isHovered ? '#0a0e1a' : '#f3f5fa'}
+                      const label = t(service.titleKey).toUpperCase();
+                      const fontSize = ringSizes[ringIdx];
+
+                      // Decide single vs double line — only break when one
+                      // line genuinely cannot render at the ring's font size.
+                      const rMid = (rIn + rOut) / 2;
+                      const arcLenMid = (rMid * arcDeg * Math.PI) / 180;
+                      const oneLineWidth = label.length * fontSize * (GLYPH_W + TRACK);
+                      const needsBreak = oneLineWidth > arcLenMid - PAD * fontSize;
+
+                      let lines: string[] = [label];
+                      if (needsBreak) {
+                        const words = label.split(/\s+/);
+                        if (words.length >= 2) {
+                          let best = 1;
+                          let bestDiff = Infinity;
+                          for (let i = 1; i < words.length; i++) {
+                            const a = words.slice(0, i).join(' ');
+                            const b = words.slice(i).join(' ');
+                            const diff = Math.abs(a.length - b.length);
+                            if (diff < bestDiff) { bestDiff = diff; best = i; }
+                          }
+                          lines = [words.slice(0, best).join(' '), words.slice(best).join(' ')];
+                        }
+                      }
+
+                      const lineRadii = lines.length === 2
+                        ? flip
+                          ? [rIn + RING_THICK * 0.34, rIn + RING_THICK * 0.66]
+                          : [rIn + RING_THICK * 0.66, rIn + RING_THICK * 0.34]
+                        : [rMid];
+
+                      return (
+                        <g
+                          key={service.id}
+                          style={{ cursor: 'pointer' }}
+                          onMouseEnter={() => setHoveredId(service.id)}
+                          onMouseLeave={() => setHoveredId(null)}
+                          onClick={() => handleClick(service.id)}
+                        >
+                          <path
+                            d={buildCell(rIn, rOut, sectorStart, sectorEnd)}
+                            fill={cluster.hex}
+                            fillOpacity={isHovered ? 0.5 : dimmed ? 0.05 : 0.12}
+                            stroke={cluster.hex}
+                            strokeOpacity={isHovered ? 1 : dimmed ? 0.22 : 0.5}
+                            strokeWidth={isHovered ? 1.4 : 0.7}
                             style={{
-                              pointerEvents: 'none',
-                              transition: 'fill 0.25s',
+                              transition: 'fill-opacity 0.25s, stroke-opacity 0.25s, stroke-width 0.25s, filter 0.25s',
+                              filter: isHovered ? `drop-shadow(0 0 10px ${cluster.hex})` : 'none',
                             }}
-                          >
-                            <textPath
-                              href={`#${service.id}-arc-${idx}`}
-                              startOffset="50%"
-                              textAnchor="middle"
+                          />
+
+                          <defs>
+                            {lines.map((_, idx) => (
+                              <path
+                                key={idx}
+                                id={`${service.id}-arc-${idx}`}
+                                d={buildTextArc(lineRadii[idx], arcStart, arcEnd, flip)}
+                              />
+                            ))}
+                          </defs>
+
+                          {lines.map((line, idx) => (
+                            <text
+                              key={idx}
+                              fontFamily="'IBM Plex Mono', monospace"
+                              fontSize={lines.length === 2 ? fontSize * 0.82 : fontSize}
+                              fontWeight={500}
+                              letterSpacing={(lines.length === 2 ? fontSize * 0.82 : fontSize) * TRACK}
+                              textRendering="geometricPrecision"
+                              fill={isHovered ? '#0a0e1a' : '#eef1f7'}
+                              style={{
+                                pointerEvents: 'none',
+                                transition: 'fill 0.25s',
+                              }}
                             >
-                              {line}
-                            </textPath>
-                          </text>
-                        ))}
-                      </g>
-                    );
-                  })}
+                              <textPath
+                                href={`#${service.id}-arc-${idx}`}
+                                startOffset="50%"
+                                textAnchor="middle"
+                              >
+                                {line}
+                              </textPath>
+                            </text>
+                          ))}
+                        </g>
+                      );
+                    });
+                  })()}
 
 
 
