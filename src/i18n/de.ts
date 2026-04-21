@@ -148,6 +148,10 @@ export const de = {
     industrySectors: 'Branchen',
     yearsCombined: 'Jahre Beratungserfahrung',
   },
+  related: {
+    title: 'Ergänzende Leistungen',
+    subtitle: 'Themen, die häufig zusammen angefragt werden.',
+  },
   consultingTeam: {
     title: 'Von Wem',
     intro: 'Zwei erfahrene Cybersecurity-Berater mit zusammen über 35 Jahren professioneller Beratungserfahrung.',

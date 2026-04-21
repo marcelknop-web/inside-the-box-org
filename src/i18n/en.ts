@@ -148,6 +148,10 @@ export const en = {
     industrySectors: 'Industry Sectors',
     yearsCombined: 'Years Combined Expertise',
   },
+  related: {
+    title: 'Related services',
+    subtitle: 'Topics that are often requested together.',
+  },
   consultingTeam: {
     title: 'By Whom',
     intro: 'Two senior cybersecurity consultants with combined 35+ years of professional consulting expertise.',

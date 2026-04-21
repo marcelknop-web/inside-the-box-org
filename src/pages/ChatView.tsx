@@ -38,6 +38,7 @@ import TypedSection from '@/components/TypedSection';
 import { LinkButton } from '@/components/LinkButton';
 import TtxRegistrationForm from '@/components/TtxRegistrationForm';
 import { NewsPanel } from '@/components/NewsPanel';
+import { RelatedServices } from '@/components/RelatedServices';
 
 interface NavLink { url: string; label: string; }
 interface AiResponse { message: string; links: NavLink[]; }
@@ -323,6 +324,7 @@ const useServiceContent = () => {
             {t('isms.ctaButton')}
           </button>
         </Block>
+        <RelatedServices serviceId="isms" onSelect={setActive} />
       </TypedSection>
     ),
     'nis2-dora': () => (
@@ -370,6 +372,7 @@ const useServiceContent = () => {
             {t('nis2.ctaButton')}
           </button>
         </Block>
+        <RelatedServices serviceId="nis2-dora" onSelect={setActive} />
       </TypedSection>
     ),
     'tisax-pci-dss': () => (
@@ -407,6 +410,7 @@ const useServiceContent = () => {
             {t('tisax.ctaButton')}
           </button>
         </Block>
+        <RelatedServices serviceId="tisax-pci-dss" onSelect={setActive} />
       </TypedSection>
     ),
     'assessments-concepts': () => (
@@ -442,6 +446,7 @@ const useServiceContent = () => {
             {t('assessments.ctaButton')}
           </button>
         </Block>
+        <RelatedServices serviceId="assessments-concepts" onSelect={setActive} />
       </TypedSection>
     ),
     'incident-management': () => (
@@ -479,6 +484,7 @@ const useServiceContent = () => {
             {t('incident.ctaButton')}
           </button>
         </Block>
+        <RelatedServices serviceId="incident-management" onSelect={setActive} />
       </TypedSection>
     ),
     'cyber-crisis-management': () => (
@@ -514,6 +520,7 @@ const useServiceContent = () => {
             {t('cyberCrisis.ctaButton')}
           </button>
         </Block>
+        <RelatedServices serviceId="cyber-crisis-management" onSelect={setActive} />
       </TypedSection>
     ),
     'arena-training': () => (
@@ -551,6 +558,7 @@ const useServiceContent = () => {
             {t('arena.ctaButton')}
           </button>
         </Block>
+        <RelatedServices serviceId="arena-training" onSelect={setActive} />
       </TypedSection>
     ),
     'events-workshops': () => (
@@ -646,6 +654,7 @@ const useServiceContent = () => {
             {t('events.ctaButton')}
           </button>
         </Block>
+        <RelatedServices serviceId="events-workshops" onSelect={setActive} />
 
       </TypedSection>
       </>
@@ -676,6 +685,7 @@ const useServiceContent = () => {
             {t('publications.ctaButton')}
           </button>
         </Block>
+        <RelatedServices serviceId="publications" onSelect={setActive} />
       </TypedSection>
     ),
     'virtual-ciso': () => (
@@ -713,6 +723,7 @@ const useServiceContent = () => {
             {t('vciso.ctaButton')}
           </button>
         </Block>
+        <RelatedServices serviceId="virtual-ciso" onSelect={setActive} />
       </TypedSection>
     ),
     'dora-nis2-ttx': () => (
@@ -810,6 +821,7 @@ const useServiceContent = () => {
             {t('ttx.ctaButton')}
           </button>
         </Block>
+        <RelatedServices serviceId="dora-nis2-ttx" onSelect={setActive} />
       </TypedSection>
     ),
     'ai-workflows': () => (
