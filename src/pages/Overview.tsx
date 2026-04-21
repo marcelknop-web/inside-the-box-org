@@ -261,17 +261,115 @@ const Overview = () => {
                     const isHovered = hoveredId === service.id;
                     const dimmed = hoveredId !== null && !isHovered;
 
-                    // Label arc lives mid-cell. Flip if the sector mid is in
-                    // the bottom half so text doesn't read upside-down.
                     const effectiveMid = (sectorMid + rotation) % 360;
                     const flip = effectiveMid > 90 && effectiveMid < 270;
-                    const rText = (rIn + rOut) / 2;
-                    const arcId = `arc-${service.id}`;
-                    const textInset = 4;
+                    const textInset = 5;
                     const arcStart = sectorStart + textInset;
                     const arcEnd = sectorEnd - textInset;
 
                     const label = t(service.titleKey).toUpperCase();
+
+                    // Smart line break for long labels
+                    const splitLabel = (raw: string): string[] => {
+                      const max = 18;
+                      if (raw.length <= max) return [raw];
+                      const words = raw.split(/\s+/);
+                      if (words.length === 1) return [raw];
+                      let best = 1;
+                      let bestDiff = Infinity;
+                      for (let i = 1; i < words.length; i++) {
+                        const a = words.slice(0, i).join(' ');
+                        const b = words.slice(i).join(' ');
+                        const diff = Math.abs(a.length - b.length);
+                        if (diff < bestDiff) { bestDiff = diff; best = i; }
+                      }
+                      return [
+                        words.slice(0, best).join(' '),
+                        words.slice(best).join(' '),
+                      ];
+                    };
+                    const lines = splitLabel(label);
+
+                    // Letterpress sizing per line
+                    const GLYPH_W = 0.62;
+                    const TRACK = 0.12;
+                    const PAD = 1.0;
+                    const availableHeight = RING_THICK - 8;
+                    const lineHeight = lines.length === 2 ? availableHeight / 2.1 : availableHeight;
+
+                    // Stack lines: in unflipped orientation, first line outer, second line inner.
+                    const lineRadii = lines.length === 2
+                      ? flip
+                        ? [rIn + RING_THICK * 0.32, rIn + RING_THICK * 0.72]
+                        : [rIn + RING_THICK * 0.72, rIn + RING_THICK * 0.32]
+                      : [(rIn + rOut) / 2];
+
+                    const arcDeg = arcEnd - arcStart;
+                    const fitSizes = lineRadii.map((r, idx) => {
+                      const arcLen = (r * arcDeg * Math.PI) / 180;
+                      const txt = lines[idx];
+                      const fit = arcLen / (txt.length * (GLYPH_W + TRACK) + PAD);
+                      return Math.max(11, Math.min(fit, lineHeight * 0.78));
+                    });
+
+                    return (
+                      <g
+                        key={service.id}
+                        style={{ cursor: 'pointer' }}
+                        onMouseEnter={() => setHoveredId(service.id)}
+                        onMouseLeave={() => setHoveredId(null)}
+                        onClick={() => handleClick(service.id)}
+                      >
+                        <path
+                          d={buildCell(rIn, rOut, sectorStart, sectorEnd)}
+                          fill={cluster.hex}
+                          fillOpacity={isHovered ? 0.55 : dimmed ? 0.06 : 0.14}
+                          stroke={cluster.hex}
+                          strokeOpacity={isHovered ? 1 : dimmed ? 0.25 : 0.55}
+                          strokeWidth={isHovered ? 1.6 : 0.8}
+                          style={{
+                            transition: 'fill-opacity 0.25s, stroke-opacity 0.25s, stroke-width 0.25s, filter 0.25s',
+                            filter: isHovered ? `drop-shadow(0 0 10px ${cluster.hex})` : 'none',
+                          }}
+                        />
+
+                        <defs>
+                          {lines.map((_, idx) => (
+                            <path
+                              key={idx}
+                              id={`${service.id}-arc-${idx}`}
+                              d={buildTextArc(lineRadii[idx], arcStart, arcEnd, flip)}
+                            />
+                          ))}
+                        </defs>
+
+                        {lines.map((line, idx) => (
+                          <text
+                            key={idx}
+                            fontFamily="'IBM Plex Mono', monospace"
+                            fontSize={fitSizes[idx]}
+                            fontWeight={600}
+                            letterSpacing={fitSizes[idx] * TRACK}
+                            textRendering="geometricPrecision"
+                            fill={isHovered ? '#0a0e1a' : '#f3f5fa'}
+                            style={{
+                              pointerEvents: 'none',
+                              transition: 'fill 0.25s',
+                            }}
+                          >
+                            <textPath
+                              href={`#${service.id}-arc-${idx}`}
+                              startOffset="50%"
+                              textAnchor="middle"
+                            >
+                              {line}
+                            </textPath>
+                          </text>
+                        ))}
+                      </g>
+                    );
+                  })}
+
 
                     // ── Letterpress sizing ─────────────────────────────────
                     // Compute the available arc length, then size the type so
