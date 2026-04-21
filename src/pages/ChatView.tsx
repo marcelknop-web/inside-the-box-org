@@ -2108,7 +2108,7 @@ const ChatView = () => {
                 opacity: chatBarReady ? 1 : 0,
               }}
             >
-              <div className="max-w-2xl ml-auto pointer-events-auto">
+              <div className="max-w-3xl ml-auto pointer-events-auto">
                 <div className="relative flex items-center bg-secondary/90 backdrop-blur-md rounded-xl border border-highlight/30 focus-within:border-highlight/60 transition-electric shadow-lg">
                   <textarea
                     ref={inputRef}
@@ -2117,7 +2117,7 @@ const ChatView = () => {
                     onKeyDown={handleKeyDown}
                     rows={1}
                     placeholder={placeholder}
-                    className="flex-1 bg-transparent px-3 md:px-4 py-2.5 text-base md:text-sm font-mono text-foreground placeholder:text-muted-foreground placeholder:transition-opacity placeholder:duration-500 resize-none focus:outline-none max-h-[120px]"
+                    className="flex-1 min-w-0 bg-transparent px-3 md:px-4 py-2.5 text-base md:text-[13px] font-mono text-foreground placeholder:text-muted-foreground placeholder:transition-opacity placeholder:duration-500 resize-none focus:outline-none max-h-[120px] truncate"
                     disabled={isLoading || (activeService === 'crisis-sim' && crisisRef.current?.isLoading())}
                   />
                   <button onClick={handleSend} disabled={!input.trim() || isLoading || (activeService === 'crisis-sim' && crisisRef.current?.isLoading())} className="m-1.5 p-2 rounded-lg bg-highlight text-highlight-foreground disabled:opacity-30 hover:bg-highlight/80 transition-electric">
