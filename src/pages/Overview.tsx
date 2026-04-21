@@ -38,9 +38,9 @@ const CLUSTERS: Cluster[] = [
     code: 'A',
     hex: '#f5b800',
     services: [
+      { id: 'arena-training',          titleKey: 'consulting.arenaTitle',    code: 'A-03' },
       { id: 'cyber-crisis-management', titleKey: 'consulting.crisisTitle',   code: 'A-01' },
       { id: 'incident-management',     titleKey: 'consulting.incidentTitle', code: 'A-02' },
-      { id: 'arena-training',          titleKey: 'consulting.arenaTitle',    code: 'A-03' },
     ],
   },
   {
@@ -49,10 +49,10 @@ const CLUSTERS: Cluster[] = [
     code: 'B',
     hex: '#00bcd4',
     services: [
-      { id: 'nis2-dora',     titleKey: 'consulting.nis2Title',  code: 'B-01' },
-      { id: 'dora-nis2-ttx', titleKey: 'nav.ttxTraining',       code: 'B-02' },
-      { id: 'isms',          titleKey: 'consulting.ismsTitle',  code: 'B-03' },
       { id: 'tisax-pci-dss', titleKey: 'consulting.tisaxTitle', code: 'B-04' },
+      { id: 'isms',          titleKey: 'consulting.ismsTitle',  code: 'B-03' },
+      { id: 'dora-nis2-ttx', titleKey: 'nav.ttxTraining',       code: 'B-02' },
+      { id: 'nis2-dora',     titleKey: 'consulting.nis2Title',  code: 'B-01' },
     ],
   },
   {
@@ -61,8 +61,8 @@ const CLUSTERS: Cluster[] = [
     code: 'C',
     hex: '#e8a200',
     services: [
-      { id: 'virtual-ciso',         titleKey: 'consulting.vcisoTitle',  code: 'C-01' },
       { id: 'assessments-concepts', titleKey: 'consulting.assessTitle', code: 'C-02' },
+      { id: 'virtual-ciso',         titleKey: 'consulting.vcisoTitle',  code: 'C-01' },
     ],
   },
   {
@@ -261,40 +261,57 @@ const Overview = () => {
                     const isHovered = hoveredId === service.id;
                     const dimmed = hoveredId !== null && !isHovered;
 
-                    // Label arc lives mid-cell. Flip if the sector mid is in
-                    // the bottom half so text doesn't read upside-down.
                     const effectiveMid = (sectorMid + rotation) % 360;
                     const flip = effectiveMid > 90 && effectiveMid < 270;
-                    const rText = (rIn + rOut) / 2;
-                    const arcId = `arc-${service.id}`;
-                    const textInset = 4;
+                    const textInset = 5;
                     const arcStart = sectorStart + textInset;
                     const arcEnd = sectorEnd - textInset;
 
                     const label = t(service.titleKey).toUpperCase();
 
-                    // ── Letterpress sizing ─────────────────────────────────
-                    // Compute the available arc length, then size the type so
-                    // the word physically fills the field — like hand-set
-                    // letterpress where the compositor picks the largest cut
-                    // that still fits the column.
-                    const arcLengthPx = (rText * (arcEnd - arcStart) * Math.PI) / 180;
-                    // Approx glyph aspect for IBM Plex Mono with our tracking.
-                    // Each letter consumes ~ (fontSize * GLYPH_W) horizontal px,
-                    // plus letter-spacing between glyphs.
-                    const GLYPH_W = 0.62;            // monospace cap-width / em
-                    const TRACKING_EM = 0.14;        // letter-spacing as em fraction
-                    const PAD_EM = 1.2;              // visual padding so type doesn't kiss the cell sides
-                    const charCount = label.length;
-                    const advancePerChar = GLYPH_W + TRACKING_EM;
-                    // size where line length == arc length
-                    const fitSize = arcLengthPx / (charCount * advancePerChar + PAD_EM);
-                    // Cap at the cell's radial thickness (so it never towers
-                    // taller than its ring) and keep a sensible floor.
-                    const verticalCap = RING_THICK * 0.46;
-                    const fontSize = Math.max(11, Math.min(fitSize, verticalCap));
-                    const letterSpacing = fontSize * TRACKING_EM;
-                    // Convert tracking-em to actual px for SVG letterSpacing
+                    // Smart line break for long labels
+                    const splitLabel = (raw: string): string[] => {
+                      const max = 18;
+                      if (raw.length <= max) return [raw];
+                      const words = raw.split(/\s+/);
+                      if (words.length === 1) return [raw];
+                      let best = 1;
+                      let bestDiff = Infinity;
+                      for (let i = 1; i < words.length; i++) {
+                        const a = words.slice(0, i).join(' ');
+                        const b = words.slice(i).join(' ');
+                        const diff = Math.abs(a.length - b.length);
+                        if (diff < bestDiff) { bestDiff = diff; best = i; }
+                      }
+                      return [
+                        words.slice(0, best).join(' '),
+                        words.slice(best).join(' '),
+                      ];
+                    };
+                    const lines = splitLabel(label);
+
+                    // Letterpress sizing per line
+                    const GLYPH_W = 0.62;
+                    const TRACK = 0.12;
+                    const PAD = 1.0;
+                    const availableHeight = RING_THICK - 8;
+                    const lineHeight = lines.length === 2 ? availableHeight / 2.1 : availableHeight;
+
+                    // Stack lines: in unflipped orientation, first line outer, second line inner.
+                    const lineRadii = lines.length === 2
+                      ? flip
+                        ? [rIn + RING_THICK * 0.32, rIn + RING_THICK * 0.72]
+                        : [rIn + RING_THICK * 0.72, rIn + RING_THICK * 0.32]
+                      : [(rIn + rOut) / 2];
+
+                    const arcDeg = arcEnd - arcStart;
+                    const fitSizes = lineRadii.map((r, idx) => {
+                      const arcLen = (r * arcDeg * Math.PI) / 180;
+                      const txt = lines[idx];
+                      const fit = arcLen / (txt.length * (GLYPH_W + TRACK) + PAD);
+                      return Math.max(11, Math.min(fit, lineHeight * 0.78));
+                    });
+
                     return (
                       <g
                         key={service.id}
@@ -303,7 +320,6 @@ const Overview = () => {
                         onMouseLeave={() => setHoveredId(null)}
                         onClick={() => handleClick(service.id)}
                       >
-                        {/* Cell shape */}
                         <path
                           d={buildCell(rIn, rOut, sectorStart, sectorEnd)}
                           fill={cluster.hex}
@@ -317,57 +333,44 @@ const Overview = () => {
                           }}
                         />
 
-                        {/* Hidden arc the text follows */}
                         <defs>
-                          <path
-                            id={arcId}
-                            d={buildTextArc(rText, arcStart, arcEnd, flip)}
-                          />
+                          {lines.map((_, idx) => (
+                            <path
+                              key={idx}
+                              id={`${service.id}-arc-${idx}`}
+                              d={buildTextArc(lineRadii[idx], arcStart, arcEnd, flip)}
+                            />
+                          ))}
                         </defs>
 
-                        {/* Service code — printed small, hugging the inner edge */}
-                        <text
-                          fontFamily="'IBM Plex Mono', monospace"
-                          fontSize={Math.max(9, fontSize * 0.42)}
-                          letterSpacing={Math.max(2, fontSize * 0.18)}
-                          fill={cluster.hex}
-                          fillOpacity={isHovered ? 1 : 0.85}
-                          style={{ pointerEvents: 'none' }}
-                          dy={flip ? fontSize * 0.95 : -fontSize * 0.95}
-                        >
-                          <textPath
-                            href={`#${arcId}`}
-                            startOffset="50%"
-                            textAnchor="middle"
+                        {lines.map((line, idx) => (
+                          <text
+                            key={idx}
+                            fontFamily="'IBM Plex Mono', monospace"
+                            fontSize={fitSizes[idx]}
+                            fontWeight={600}
+                            letterSpacing={fitSizes[idx] * TRACK}
+                            textRendering="geometricPrecision"
+                            fill={isHovered ? '#0a0e1a' : '#f3f5fa'}
+                            style={{
+                              pointerEvents: 'none',
+                              transition: 'fill 0.25s',
+                            }}
                           >
-                            {service.code}
-                          </textPath>
-                        </text>
-
-                        {/* Service name — letterpress: dimensioned to fill its cell */}
-                        <text
-                          fontFamily="'IBM Plex Mono', monospace"
-                          fontSize={fontSize}
-                          fontWeight={600}
-                          letterSpacing={letterSpacing}
-                          textRendering="geometricPrecision"
-                          fill={isHovered ? '#0a0e1a' : '#f3f5fa'}
-                          style={{
-                            pointerEvents: 'none',
-                            transition: 'fill 0.25s',
-                          }}
-                        >
-                          <textPath
-                            href={`#${arcId}`}
-                            startOffset="50%"
-                            textAnchor="middle"
-                          >
-                            {label}
-                          </textPath>
-                        </text>
+                            <textPath
+                              href={`#${service.id}-arc-${idx}`}
+                              startOffset="50%"
+                              textAnchor="middle"
+                            >
+                              {line}
+                            </textPath>
+                          </text>
+                        ))}
                       </g>
                     );
                   })}
+
+
 
                   {/* Empty filler cells for shorter clusters — keep mandala symmetric */}
                   {Array.from({ length: MAX_RINGS - cluster.services.length }).map((_, k) => {
