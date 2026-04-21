@@ -412,9 +412,9 @@ const Overview = () => {
                   </defs>
                   <text
                     fontFamily="'IBM Plex Mono', monospace"
-                    fontSize={32}
+                    fontSize={Math.max(14, Math.min(((R_LABEL_TEXT * (SECTOR_DEG - SECTOR_GAP_DEG - 12) * Math.PI) / 180) / ((`${cluster.code} · ${t(cluster.groupKey).toUpperCase()}`.length) * 0.84 + 1.2), LABEL_BAND_THICK * 0.62))}
                     fontWeight={700}
-                    letterSpacing={9}
+                    letterSpacing={Math.max(14, Math.min(((R_LABEL_TEXT * (SECTOR_DEG - SECTOR_GAP_DEG - 12) * Math.PI) / 180) / ((`${cluster.code} · ${t(cluster.groupKey).toUpperCase()}`.length) * 0.84 + 1.2), LABEL_BAND_THICK * 0.62)) * 0.22}
                     fill="#0a0e1a"
                     style={{ pointerEvents: 'none' }}
                   >
