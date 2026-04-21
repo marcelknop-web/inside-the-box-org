@@ -1641,6 +1641,22 @@ const ChatView = () => {
         'How do we get business units involved in risk analysis?',
         'What role should AI play in our defence strategy?',
         'How do we tell if an MSSP is actually delivering value?',
+        // Long — typical audit findings
+        'How do we close a finding on an incomplete asset inventory?',
+        'Why does patch management keep failing on OT systems?',
+        'How do we close the finding "no MFA for privileged accounts"?',
+        'How do we prove to the auditor that backups can really be restored?',
+        'How do we get out of an "IRP only on paper" finding?',
+        'How do we set up a credible log and SIEM review process?',
+        'How do we run a clean access rights recertification?',
+        'What does the auditor expect from our supplier risk management?',
+        'How do we move awareness from a video to real behaviour change?',
+        'How do we close findings on missing OT network segmentation?',
+        'How do we keep risk assessments current without endless effort?',
+        'How do we prioritise vulnerability findings by real business risk?',
+        'How do we replace shared accounts without breaking operations?',
+        'How do we build an audit-proof crypto and key management policy?',
+        'How do we deal with repeat findings in the next audit?',
       ],
       fr: [
         // Short (≤34) — questions clients pertinentes
