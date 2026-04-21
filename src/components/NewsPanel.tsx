@@ -22,9 +22,9 @@ const NEWS: NewsItem[] = [
     route: '/ttx-readiness',
     badge: { de: 'Neu', en: 'New', fr: 'Nouveau' },
     title: {
-      de: 'TTX Readiness · Self-Assessment',
-      en: 'TTX Readiness · Self-Assessment',
-      fr: 'TTX Readiness · Self-Assessment',
+      de: 'TTX Readiness · DORA & NIS-2',
+      en: 'TTX Readiness · DORA & NIS-2',
+      fr: 'TTX Readiness · DORA & NIS-2',
     },
     desc: {
       de: 'Acht Dimensionen, 24 Fragen. Reifegrad-Score, Radar und Top-3-Lücken für DORA und NIS-2.',
