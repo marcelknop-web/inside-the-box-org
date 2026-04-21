@@ -192,24 +192,46 @@ const Overview = () => {
         </button>
       </header>
 
-      {/* Selected indicator (bottom-left, fixed) */}
-      <div className="absolute left-6 bottom-16 z-20 pointer-events-none">
-        <div className="font-mono text-[9px] tracking-[0.4em] text-muted-foreground mb-2">SELECTED</div>
-        <div
-          key={hovered?.service.titleKey ?? 'none-t'}
-          className="font-mono font-semibold text-2xl md:text-3xl leading-[1.05] tracking-[0.04em] text-foreground max-w-[420px] animate-fade-in"
-        >
-          {hovered ? t(hovered.service.titleKey) : 'HOVER · CLICK · OPEN'}
-        </div>
-        {hovered && (
+      {/* Hover info (bottom-left) — only renders when something is hovered */}
+      {hovered && (() => {
+        // Map titleKey → descKey (existing i18n entries)
+        const descMap: Record<string, string> = {
+          'consulting.ismsTitle': 'consulting.ismsDesc',
+          'consulting.nis2Title': 'consulting.nis2Desc',
+          'consulting.tisaxTitle': 'consulting.tisaxDesc',
+          'consulting.assessTitle': 'consulting.assessDesc',
+          'consulting.incidentTitle': 'consulting.incidentDesc',
+          'consulting.crisisTitle': 'consulting.crisisDesc',
+          'consulting.arenaTitle': 'consulting.arenaDesc',
+          'consulting.eventsTitle': 'consulting.eventsDesc',
+          'consulting.pubTitle': 'consulting.pubDesc',
+          'consulting.vcisoTitle': 'consulting.vcisoDesc',
+          'consulting.aiWorkflowsTitle': 'consulting.aiWorkflowsDesc',
+          'nav.ttxTraining': 'nav.ttxTrainingDesc',
+        };
+        const descKey = descMap[hovered.service.titleKey];
+        return (
           <div
-            className="font-mono text-[10px] tracking-[0.35em] mt-3"
-            style={{ color: hovered.cluster.hex }}
+            key={hovered.service.titleKey}
+            className="absolute left-6 bottom-16 z-20 pointer-events-none max-w-[360px] animate-fade-in"
           >
-            {t(hovered.cluster.groupKey).toUpperCase()}
+            <div
+              className="font-mono text-[10px] tracking-[0.35em] mb-3"
+              style={{ color: hovered.cluster.hex }}
+            >
+              {t(hovered.cluster.groupKey).toUpperCase()}
+            </div>
+            <div className="font-mono font-semibold text-xl md:text-2xl leading-[1.1] tracking-[0.04em] text-foreground mb-3">
+              {t(hovered.service.titleKey)}
+            </div>
+            {descKey && (
+              <p className="font-sans text-sm leading-snug text-muted-foreground">
+                {t(descKey)}
+              </p>
+            )}
           </div>
-        )}
-      </div>
+        );
+      })()}
 
       {/* Mandala */}
       <div className="relative w-full flex-1 flex items-center justify-center px-2 py-12">
