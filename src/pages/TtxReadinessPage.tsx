@@ -1,10 +1,9 @@
 import { useMemo, useState, useRef, useEffect } from 'react';
-import { ArrowLeft, RotateCcw, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, RotateCcw, AlertTriangle, CheckCircle2, ChevronLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from 'recharts';
 import { PageMeta } from '@/components/PageMeta';
 import Typewriter from '@/components/Typewriter';
-import { StaggerReveal } from '@/components/StaggerReveal';
 import { useLanguage } from '@/i18n/LanguageContext';
 import {
   DIMENSIONS, MAX_PER_DIM, MAX_TOTAL, getVerdict, type L, type Lang,
