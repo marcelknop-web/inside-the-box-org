@@ -1,5 +1,5 @@
 import { useMemo, useState, useRef, useEffect } from 'react';
-import { ArrowLeft, RotateCcw, AlertTriangle, CheckCircle2, ChevronLeft } from 'lucide-react';
+import { ArrowLeft, RotateCcw, AlertTriangle, CheckCircle2, ChevronLeft, Scale, ShieldCheck, Gavel, FileCheck2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from 'recharts';
 import { PageMeta } from '@/components/PageMeta';
@@ -146,6 +146,51 @@ export default function TtxReadinessPage() {
           <p className="text-foreground/80 text-sm md:text-base font-sans leading-relaxed">{t(I18N.intro)}</p>
         </header>
 
+        {/* Why TTX matter — based on NIS-2 liability framing */}
+        <section className="bg-card/40 border border-primary/20 rounded-lg p-4 md:p-5 space-y-3">
+          <h2 className="font-mono text-xs uppercase tracking-wider text-highlight flex items-center gap-2">
+            <ShieldCheck className="w-3.5 h-3.5" />
+            {t({
+              de: 'Warum TTX entscheidend sind',
+              en: 'Why TTX matter',
+              fr: 'Pourquoi les TTX sont décisifs',
+            })}
+          </h2>
+          <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-5 gap-y-2.5 text-sm font-sans text-foreground/85 leading-relaxed">
+            <li className="flex items-start gap-2">
+              <Scale className="w-4 h-4 text-primary mt-0.5 shrink-0" />
+              <span>{t({
+                de: 'Persönliche Haftung der Geschäftsleitung unter NIS-2 Art. 20 — ohne Wirksamkeitsnachweis kaum abwendbar.',
+                en: 'Personal liability of management under NIS-2 Art. 20 — hard to deflect without proof of effectiveness.',
+                fr: 'Responsabilité personnelle de la direction sous NIS-2 art. 20 — difficile à écarter sans preuve d\'efficacité.',
+              })}</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <FileCheck2 className="w-4 h-4 text-primary mt-0.5 shrink-0" />
+              <span>{t({
+                de: 'NIS-2 Art. 21 Abs. 2 lit. f verlangt explizit die Bewertung der Wirksamkeit — Policies allein genügen nicht.',
+                en: 'NIS-2 Art. 21(2)(f) explicitly requires effectiveness assessment — policies alone aren\'t enough.',
+                fr: 'L\'art. 21 (2)(f) de NIS-2 exige explicitement l\'évaluation de l\'efficacité — les politiques ne suffisent pas.',
+              })}</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <Gavel className="w-4 h-4 text-primary mt-0.5 shrink-0" />
+              <span>{t({
+                de: 'Sanktionen bis 10 Mio. € oder 2 % des Weltjahresumsatzes, plus mögliches Tätigkeitsverbot der Leitung.',
+                en: 'Fines up to €10 M or 2 % of global annual turnover, plus possible management bans.',
+                fr: 'Amendes jusqu\'à 10 M€ ou 2 % du CA mondial annuel, plus interdiction d\'exercer possible.',
+              })}</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <ShieldCheck className="w-4 h-4 text-primary mt-0.5 shrink-0" />
+              <span>{t({
+                de: 'TTX sind das regulatorisch anerkannte und kostengünstigste Verfahren für auditfeste Wirksamkeitsnachweise.',
+                en: 'TTX are the regulator-accepted, most cost-efficient way to produce audit-grade evidence of effectiveness.',
+                fr: 'Les TTX sont la méthode reconnue et la plus économique pour produire des preuves d\'efficacité auditables.',
+              })}</span>
+            </li>
+          </ul>
+        </section>
         {/* Progress + scale */}
         <div className="bg-background/85 backdrop-blur border border-primary/20 rounded-lg px-4 py-3 space-y-2">
           <div className="flex items-center justify-between gap-3">
