@@ -37,6 +37,7 @@ import Typewriter from '@/components/Typewriter';
 import TypedSection from '@/components/TypedSection';
 import { LinkButton } from '@/components/LinkButton';
 import TtxRegistrationForm from '@/components/TtxRegistrationForm';
+import TtxReadinessAssessment from '@/components/TtxReadinessAssessment';
 
 interface NavLink { url: string; label: string; }
 interface AiResponse { message: string; links: NavLink[]; }
@@ -349,6 +350,7 @@ const useServiceContent = () => {
           <SubTitle variant="highlight">{t('nis2.refTitle')}</SubTitle>
           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mt-2">{t('nis2.refDesc')}</p>
         </Block>
+        <TtxReadinessAssessment />
         <Block className="bg-primary/5 border border-primary/20 rounded-xl">
           <SubTitle>{t('nis2.ctaTitle')}</SubTitle>
           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mt-2">{t('nis2.ctaDesc')}</p>
