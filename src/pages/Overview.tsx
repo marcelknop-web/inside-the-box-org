@@ -7,7 +7,25 @@ import { Html } from '@react-three/drei';
 import * as THREE from 'three';
 import { PageMeta } from '@/components/PageMeta';
 import { useLanguage, nextLanguage } from '@/i18n/LanguageContext';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { useEffect, useState as useReactState } from 'react';
+
+// Local, narrower mobile detection: only true touch phones get the list view.
+// The shared useIsMobile() uses 768px on the smaller dimension, which excludes
+// tablets and small desktop windows from the 3D scene.
+const useIsPhone = () => {
+  const [isPhone, setIsPhone] = useReactState(false);
+  useEffect(() => {
+    const check = () => {
+      const w = window.innerWidth;
+      const coarse = window.matchMedia('(pointer: coarse)').matches;
+      setIsPhone(w < 640 && coarse);
+    };
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
+  return isPhone;
+};
 
 /**
  * Hidden /overview — 3D Orbital Mandala.
