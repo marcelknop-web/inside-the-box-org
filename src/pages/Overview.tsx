@@ -339,7 +339,6 @@ const Ring = ({ cluster, ringIdx, radius, tilt, hoveredId, setHoveredId, onSelec
       <group ref={ref}>
         {/* Ring guide line */}
         <line>
-          {/* @ts-expect-error r3f primitive */}
           <primitive object={lineGeom} attach="geometry" />
           <lineBasicMaterial
             color={COLOR_PRIMARY}
