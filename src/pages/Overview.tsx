@@ -367,6 +367,16 @@ const Overview = () => {
                     );
                   })}
 
+                  {/* Outer label band — flächig hinterlegt, prominent */}
+                  <path
+                    d={buildCell(R_OUTER, R_LABEL_OUT, sectorStart, sectorEnd)}
+                    fill={cluster.hex}
+                    fillOpacity={hoveredId && !cluster.services.some((s) => s.id === hoveredId) ? 0.5 : 0.92}
+                    stroke={cluster.hex}
+                    strokeOpacity={1}
+                    strokeWidth={1.2}
+                    style={{ transition: 'fill-opacity 0.25s' }}
+                  />
                   {/* Outer cluster name — curved along an arc beyond R_OUTER */}
                   <defs>
                     <path
@@ -381,10 +391,10 @@ const Overview = () => {
                   </defs>
                   <text
                     fontFamily="'IBM Plex Mono', monospace"
-                    fontSize={17}
-                    fontWeight={600}
-                    letterSpacing={6}
-                    fill={cluster.hex}
+                    fontSize={32}
+                    fontWeight={700}
+                    letterSpacing={9}
+                    fill="#0a0e1a"
                     style={{ pointerEvents: 'none' }}
                   >
                     <textPath
