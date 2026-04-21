@@ -624,7 +624,7 @@ const useServiceContent = () => {
                 <p className="text-primary text-xs font-mono mt-1">{t('events.upcomingBechtleSocLink')}</p>
               </div>
             </a>
-            <a href="https://www.flane.de/course/cqure-soc#schedule" target="_blank" rel="noopener noreferrer" className="bg-primary/5 rounded-lg p-4 flex items-start gap-3 hover:bg-primary/10 transition-colors group">
+            <a href="https://www.flane.de/course/innovator-mcsoc?hl=soc" target="_blank" rel="noopener noreferrer" className="bg-primary/5 rounded-lg p-4 flex items-start gap-3 hover:bg-primary/10 transition-colors group">
               <Server size={20} className="text-primary mt-0.5 flex-shrink-0" />
               <div className="space-y-1 min-w-0">
                 <p className="font-semibold text-sm md:text-base font-sans text-primary group-hover:underline">{t('events.upcomingFastLaneSoc')}</p>
