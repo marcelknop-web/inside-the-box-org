@@ -808,16 +808,15 @@ const MobileBlueprint = ({
                       <span className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-primary/70" />
                       <span className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-primary/70" />
 
-                      <div className="font-mono text-[10px] tracking-[0.3em] text-primary/75">
-                        PART {s.code}
-                      </div>
-                      <div className="font-mono text-[15px] leading-snug text-foreground mt-1.5">
-                        {t(s.titleKey)}
-                      </div>
-                      <div className="flex items-center justify-between mt-2.5">
-                        <span className="text-[12px] text-muted-foreground line-clamp-2 pr-3">
-                          {t(s.descKey)}
-                        </span>
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="min-w-0">
+                          <div className="font-mono text-[10px] tracking-[0.3em] text-primary/75">
+                            PART {s.code}
+                          </div>
+                          <div className="font-mono text-[15px] leading-snug text-foreground mt-1.5">
+                            {t(s.titleKey)}
+                          </div>
+                        </div>
                         <span className="font-mono text-[10px] tracking-[0.3em] text-primary shrink-0">
                           OPEN →
                         </span>
