@@ -181,6 +181,20 @@ const Overview = () => {
   const drawingNo = 'ITB-OVERVIEW-2026';
   const totalParts = parts.length;
 
+  if (isMobile) {
+    return (
+      <MobileBlueprint
+        t={t}
+        language={language}
+        setLanguage={setLanguage}
+        navigate={navigate}
+        dateStr={dateStr}
+        drawingNo={drawingNo}
+        totalParts={totalParts}
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen w-full text-foreground overflow-hidden relative bg-background flex flex-col">
       <PageMeta
