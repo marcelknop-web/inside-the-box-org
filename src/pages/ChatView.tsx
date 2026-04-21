@@ -1287,6 +1287,7 @@ const ChatView = () => {
    const [subtitleDone, setSubtitleDone] = useState(false);
    const [claimDone, setClaimDone] = useState(false);
    const [chatBarReady, setChatBarReady] = useState(false);
+   const [exampleIndex, setExampleIndex] = useState(0);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const crisisRef = useRef<CrisisSimulatorHandle>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
