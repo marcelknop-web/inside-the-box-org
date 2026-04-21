@@ -9,7 +9,7 @@ import { useLanguage } from '@/i18n/LanguageContext';
  */
 export function ScrollToTopFab() {
   const [visible, setVisible] = useState(false);
-  const { lang } = useLanguage();
+  const { language } = useLanguage();
 
   useEffect(() => {
     const onScroll = () => setVisible(window.scrollY > 600);
@@ -19,7 +19,7 @@ export function ScrollToTopFab() {
   }, []);
 
   const label =
-    lang === 'de' ? 'Nach oben' : lang === 'fr' ? 'Haut de page' : 'Back to top';
+    language === 'de' ? 'Nach oben' : language === 'fr' ? 'Haut de page' : 'Back to top';
 
   return (
     <button
