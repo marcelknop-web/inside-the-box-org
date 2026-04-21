@@ -434,10 +434,10 @@ const Overview = () => {
                     );
                     return (
                       <text
-                        fontFamily="'DM Sans', system-ui, sans-serif"
+                        fontFamily="'IBM Plex Mono', monospace"
                         fontSize={bandFit}
-                        fontWeight={600}
-                        letterSpacing={bandFit * 0.24}
+                        fontWeight={700}
+                        letterSpacing={bandFit * 0.18}
                         textRendering="geometricPrecision"
                         fill="#0a0e1a"
                         style={{ pointerEvents: 'none' }}
