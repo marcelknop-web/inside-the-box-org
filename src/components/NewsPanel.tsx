@@ -108,7 +108,7 @@ export function NewsPanel({ onSelectService }: NewsPanelProps) {
                     </span>
                   )}
                 </div>
-                <p className="font-sans text-xs text-muted-foreground leading-relaxed mt-0.5">
+                <p className="hidden md:block font-sans text-xs text-muted-foreground leading-relaxed mt-0.5">
                   {t(item.desc)}
                 </p>
               </div>
