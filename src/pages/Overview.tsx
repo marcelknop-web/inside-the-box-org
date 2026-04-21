@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { Languages } from 'lucide-react';
@@ -6,18 +6,14 @@ import { PageMeta } from '@/components/PageMeta';
 import { useLanguage, nextLanguage } from '@/i18n/LanguageContext';
 
 /**
- * Hidden mandala overview at /overview.
+ * Hidden artistic overview at /overview.
  *
- * Visual: a massive sun-wheel.
- *  – Outer ring: 4 colored cluster sectors (Cyber Resilience, Regulation,
- *    Governance, Insights). Each tinted Gold or Cyan.
- *  – Inner ring: every service as a wedge inside its parent cluster.
- *    Wedges are clickable and link straight to that service page.
- *  – Center: a pulsing core with the active hover label.
+ * Visual metaphor: a living organism — flowing petals that bloom from a
+ * pulsing core. Each cluster is a soft lobe of color; each service is a
+ * rounded petal that drifts on its own micro-orbit. Hovering swells the
+ * petal and softens its neighbors. Click navigates to that service.
  *
- * Interaction: hover lifts a wedge outward (radial bloom), neighbors
- * recede slightly. Click navigates directly. The whole wheel breathes
- * and accepts subtle parallax from cursor for depth.
+ * No rigid sectors. Curves everywhere. Type breathes around the form.
  */
 
 type ServiceNode = {
@@ -76,129 +72,134 @@ const CLUSTERS: Cluster[] = [
   },
 ];
 
-// ── Geometry constants ─────────────────────────────────────────────────────
+// ── Geometry ───────────────────────────────────────────────────────────────
 
-const VIEW = 1000;          // square viewBox
+const VIEW = 1000;
 const CENTER = VIEW / 2;
-const R_CORE = 72;          // central core radius
-const R_INNER = 110;        // inner edge of service ring
-const R_INNER_OUT = 320;    // outer edge of service ring
-const R_OUTER_IN = 340;     // inner edge of cluster ring
-const R_OUTER_OUT = 460;    // outer edge of cluster ring
-const HOVER_BLOOM = 28;     // px the wedge pushes outward on hover
-const GAP_DEG = 1.2;        // gap between wedges (degrees)
+const R_CORE = 64;
+const R_LOBE = 240;        // distance of cluster lobe centers from core
+const LOBE_RADIUS = 195;   // size of the soft cluster blob
+const R_PETAL_ORBIT = 245; // distance of petals from core
+const PETAL_SIZE = 56;     // base petal radius
 
-// Helper: polar to cartesian
-const pt = (cx: number, cy: number, angleDeg: number, r: number) => {
-  const a = ((angleDeg - 90) * Math.PI) / 180; // -90 so 0deg points up
+const pol = (cx: number, cy: number, deg: number, r: number) => {
+  const a = ((deg - 90) * Math.PI) / 180;
   return { x: cx + Math.cos(a) * r, y: cy + Math.sin(a) * r };
 };
 
-/** Build an SVG path for an annular wedge (donut slice). */
-const wedgePath = (
-  cx: number,
-  cy: number,
-  startDeg: number,
-  endDeg: number,
-  rIn: number,
-  rOut: number
-): string => {
-  const large = endDeg - startDeg <= 180 ? 0 : 1;
-  const a = pt(cx, cy, startDeg, rOut);
-  const b = pt(cx, cy, endDeg, rOut);
-  const c = pt(cx, cy, endDeg, rIn);
-  const d = pt(cx, cy, startDeg, rIn);
-  return [
-    `M ${a.x} ${a.y}`,
-    `A ${rOut} ${rOut} 0 ${large} 1 ${b.x} ${b.y}`,
-    `L ${c.x} ${c.y}`,
-    `A ${rIn} ${rIn} 0 ${large} 0 ${d.x} ${d.y}`,
-    'Z',
-  ].join(' ');
+/** Build a smooth closed blob path from N points using cubic Bezier curves. */
+const blobPath = (points: Array<{ x: number; y: number }>): string => {
+  const n = points.length;
+  if (n < 3) return '';
+  const tension = 0.42; // higher = more curvy
+  let d = `M ${points[0].x} ${points[0].y}`;
+  for (let i = 0; i < n; i++) {
+    const p0 = points[(i - 1 + n) % n];
+    const p1 = points[i];
+    const p2 = points[(i + 1) % n];
+    const p3 = points[(i + 2) % n];
+    const cp1x = p1.x + (p2.x - p0.x) * tension * 0.5;
+    const cp1y = p1.y + (p2.y - p0.y) * tension * 0.5;
+    const cp2x = p2.x - (p3.x - p1.x) * tension * 0.5;
+    const cp2y = p2.y - (p3.y - p1.y) * tension * 0.5;
+    d += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p2.x} ${p2.y}`;
+  }
+  return d + ' Z';
 };
 
-/** Build an SVG path for a radial direction translation of a wedge — pre-baked into a transform. */
-const radialTransform = (midDeg: number, distance: number): string => {
-  const a = ((midDeg - 90) * Math.PI) / 180;
-  const dx = Math.cos(a) * distance;
-  const dy = Math.sin(a) * distance;
-  return `translate(${dx}, ${dy})`;
+/** Generate a soft, slightly irregular blob centered at (cx, cy) with given mean radius. */
+const softBlob = (cx: number, cy: number, meanR: number, seed: number, t: number): string => {
+  const N = 18;
+  const pts: Array<{ x: number; y: number }> = [];
+  for (let i = 0; i < N; i++) {
+    const ang = (i / N) * 360;
+    // Multiple sine layers for organic wobble
+    const wob =
+      Math.sin((ang * Math.PI) / 180 * 2 + seed + t * 0.5) * 0.06 +
+      Math.sin((ang * Math.PI) / 180 * 3 + seed * 1.7 + t * 0.3) * 0.04 +
+      Math.sin((ang * Math.PI) / 180 * 5 + seed * 2.3) * 0.03;
+    const r = meanR * (1 + wob);
+    pts.push(pol(cx, cy, ang, r));
+  }
+  return blobPath(pts);
 };
 
-/** Curved text path id helper. */
-const arcPathId = (id: string) => `arc-${id}`;
-
-/** Build an arc path used as textPath baseline. */
-const arcPath = (cx: number, cy: number, startDeg: number, endDeg: number, r: number) => {
-  const a = pt(cx, cy, startDeg, r);
-  const b = pt(cx, cy, endDeg, r);
-  const large = endDeg - startDeg <= 180 ? 0 : 1;
-  return `M ${a.x} ${a.y} A ${r} ${r} 0 ${large} 1 ${b.x} ${b.y}`;
-};
-
-// ── Layout: compute angles ──────────────────────────────────────────────────
+// ── Layout ─────────────────────────────────────────────────────────────────
 
 type ClusterLayout = {
   cluster: Cluster;
-  startDeg: number;
-  endDeg: number;
-  midDeg: number;
-  services: Array<{
+  angle: number;            // angle of lobe center
+  cx: number;
+  cy: number;
+  seed: number;
+  petals: Array<{
     node: ServiceNode;
-    startDeg: number;
-    endDeg: number;
-    midDeg: number;
+    angle: number;          // absolute angle from CENTER
+    cx: number;
+    cy: number;
+    seed: number;
+    orbitPhase: number;
+    orbitAmp: number;
   }>;
 };
 
-const layoutWheel = (clusters: Cluster[]): ClusterLayout[] => {
-  const total = 360;
-  const per = total / clusters.length;
+const layoutOrganism = (clusters: Cluster[]): ClusterLayout[] => {
+  const N = clusters.length;
   return clusters.map((cluster, i) => {
-    const cStart = i * per;
-    const cEnd = cStart + per;
-    const innerSpan = per - GAP_DEG * 2; // gap on each side
-    const innerStart = cStart + GAP_DEG;
+    const angle = (i / N) * 360;
+    const lobe = pol(CENTER, CENTER, angle, R_LOBE);
     const sCount = cluster.services.length;
-    const sSpan = (innerSpan - GAP_DEG * (sCount - 1)) / sCount;
-    const services = cluster.services.map((node, j) => {
-      const sStart = innerStart + j * (sSpan + GAP_DEG);
-      const sEnd = sStart + sSpan;
-      return { node, startDeg: sStart, endDeg: sEnd, midDeg: (sStart + sEnd) / 2 };
+    // spread petals across an arc of ~75deg around the lobe direction
+    const span = 78;
+    const start = angle - span / 2;
+    const step = sCount > 1 ? span / (sCount - 1) : 0;
+    const petals = cluster.services.map((node, j) => {
+      const a = sCount === 1 ? angle : start + j * step;
+      const p = pol(CENTER, CENTER, a, R_PETAL_ORBIT);
+      return {
+        node,
+        angle: a,
+        cx: p.x,
+        cy: p.y,
+        seed: i * 13 + j * 7 + 1.3,
+        orbitPhase: (i * 1.7 + j * 0.9) % (Math.PI * 2),
+        orbitAmp: 4 + (j % 2) * 3,
+      };
     });
     return {
       cluster,
-      startDeg: cStart,
-      endDeg: cEnd,
-      midDeg: (cStart + cEnd) / 2,
-      services,
+      angle,
+      cx: lobe.x,
+      cy: lobe.y,
+      seed: i * 11 + 0.7,
+      petals,
     };
   });
 };
 
-// ── Component ───────────────────────────────────────────────────────────────
+// ── Component ──────────────────────────────────────────────────────────────
 
 const Overview = () => {
   const { t, language, setLanguage } = useLanguage();
   const navigate = useNavigate();
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [parallax, setParallax] = useState({ x: 0, y: 0 });
-  const [rotate, setRotate] = useState(0);
+  const [time, setTime] = useState(0);
+  const rafRef = useRef<number>(0);
 
-  const layout = useMemo(() => layoutWheel(CLUSTERS), []);
+  const layout = useMemo(() => layoutOrganism(CLUSTERS), []);
 
-  // Find hovered service + its cluster (for center label)
   const hoveredInfo = useMemo(() => {
     if (!hoveredId) return null;
-    if (hoveredId.startsWith('cluster:')) {
-      const id = hoveredId.slice(8);
+    if (hoveredId.startsWith('lobe:')) {
+      const id = hoveredId.slice(5);
       const cl = layout.find((l) => l.cluster.id === id);
       if (!cl) return null;
-      return { type: 'cluster' as const, cluster: cl, service: null };
+      return { type: 'cluster' as const, cluster: cl, petal: null };
     }
     for (const cl of layout) {
-      const s = cl.services.find((s) => s.node.id === hoveredId);
-      if (s) return { type: 'service' as const, cluster: cl, service: s };
+      const p = cl.petals.find((p) => p.node.id === hoveredId);
+      if (p) return { type: 'service' as const, cluster: cl, petal: p };
     }
     return null;
   }, [hoveredId, layout]);
@@ -217,20 +218,18 @@ const Overview = () => {
     return () => window.removeEventListener('mousemove', handle);
   }, []);
 
-  // Slow auto-rotation of the whole wheel — almost imperceptible
+  // Continuous animation clock — drives breathing + petal drift
   useEffect(() => {
-    let raf = 0;
     let last = performance.now();
     const tick = (now: number) => {
       const dt = (now - last) / 1000;
       last = now;
-      // pause rotation while hovering
-      if (!hoveredId) setRotate((r) => (r + dt * 1.2) % 360); // 1.2 deg/s
-      raf = requestAnimationFrame(tick);
+      setTime((t) => t + dt);
+      rafRef.current = requestAnimationFrame(tick);
     };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [hoveredId]);
+    rafRef.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, []);
 
   const handleClick = useCallback(
     (id: string) => navigate(`/${id}`),
@@ -241,7 +240,7 @@ const Overview = () => {
     <div className="min-h-screen w-full text-foreground overflow-hidden relative">
       <PageMeta
         title="Mandala"
-        description="A mandala of cybersecurity services from inside-the-box.org."
+        description="A living mandala of cybersecurity services from inside-the-box.org."
       />
       <Helmet>
         <meta name="robots" content="noindex, nofollow" />
@@ -271,208 +270,233 @@ const Overview = () => {
         className="absolute inset-0"
         style={{
           background:
-            'radial-gradient(circle at 50% 50%, hsl(var(--primary) / 0.12) 0%, hsl(var(--background)) 60%), radial-gradient(circle at 80% 20%, hsl(var(--highlight) / 0.08), transparent 50%)',
+            'radial-gradient(ellipse at 50% 50%, hsl(var(--primary) / 0.14) 0%, hsl(var(--background)) 65%), radial-gradient(circle at 75% 25%, hsl(var(--highlight) / 0.10), transparent 55%), radial-gradient(circle at 20% 80%, hsl(var(--primary) / 0.06), transparent 50%)',
         }}
       />
 
-      {/* The mandala fills the viewport */}
+      {/* The organism */}
       <div className="relative w-full h-screen flex items-center justify-center">
         <svg
           viewBox={`0 0 ${VIEW} ${VIEW}`}
           preserveAspectRatio="xMidYMid meet"
           className="w-full h-full max-w-[min(100vh,100vw)] max-h-[min(100vh,100vw)]"
           style={{
-            transform: `translate3d(${parallax.x * -10}px, ${parallax.y * -10}px, 0)`,
-            transition: 'transform 0.5s cubic-bezier(0.2,0.8,0.2,1)',
+            transform: `translate3d(${parallax.x * -14}px, ${parallax.y * -14}px, 0)`,
+            transition: 'transform 0.6s cubic-bezier(0.2,0.8,0.2,1)',
           }}
         >
           <defs>
             <radialGradient id="coreGlow" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.9" />
-              <stop offset="60%" stopColor="hsl(var(--primary))" stopOpacity="0.3" />
+              <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.95" />
+              <stop offset="55%" stopColor="hsl(var(--primary))" stopOpacity="0.35" />
               <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0" />
             </radialGradient>
-            <radialGradient id="ringGlowPrimary" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0" />
-              <stop offset="70%" stopColor="hsl(var(--primary))" stopOpacity="0.18" />
-              <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0" />
+            <radialGradient id="lobePrimary" cx="50%" cy="50%" r="55%">
+              <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.55" />
+              <stop offset="60%" stopColor="hsl(var(--primary))" stopOpacity="0.22" />
+              <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0.02" />
             </radialGradient>
-            <radialGradient id="ringGlowHighlight" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="hsl(var(--highlight))" stopOpacity="0" />
-              <stop offset="70%" stopColor="hsl(var(--highlight))" stopOpacity="0.18" />
-              <stop offset="100%" stopColor="hsl(var(--highlight))" stopOpacity="0" />
+            <radialGradient id="lobeHighlight" cx="50%" cy="50%" r="55%">
+              <stop offset="0%" stopColor="hsl(var(--highlight))" stopOpacity="0.55" />
+              <stop offset="60%" stopColor="hsl(var(--highlight))" stopOpacity="0.22" />
+              <stop offset="100%" stopColor="hsl(var(--highlight))" stopOpacity="0.02" />
             </radialGradient>
-            <filter id="wedgeGlow" x="-50%" y="-50%" width="200%" height="200%">
-              <feGaussianBlur stdDeviation="6" result="b" />
+            <radialGradient id="petalPrimary" cx="40%" cy="35%" r="70%">
+              <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="1" />
+              <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0.55" />
+            </radialGradient>
+            <radialGradient id="petalHighlight" cx="40%" cy="35%" r="70%">
+              <stop offset="0%" stopColor="hsl(var(--highlight))" stopOpacity="1" />
+              <stop offset="100%" stopColor="hsl(var(--highlight))" stopOpacity="0.55" />
+            </radialGradient>
+            <filter id="softBloom" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="8" result="b" />
               <feMerge>
                 <feMergeNode in="b" />
                 <feMergeNode in="SourceGraphic" />
               </feMerge>
             </filter>
+            <filter id="goo" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="14" in="SourceGraphic" result="blur" />
+              <feColorMatrix
+                in="blur"
+                mode="matrix"
+                values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -10"
+                result="goo"
+              />
+              <feComposite in="SourceGraphic" in2="goo" operator="atop" />
+            </filter>
           </defs>
 
-          {/* Outer atmospheric halo */}
-          <circle cx={CENTER} cy={CENTER} r={R_OUTER_OUT + 60} fill="url(#ringGlowPrimary)" opacity={0.6} />
+          {/* Diffuse outer aura */}
+          <circle
+            cx={CENTER}
+            cy={CENTER}
+            r={R_LOBE + LOBE_RADIUS * 0.7}
+            fill="url(#coreGlow)"
+            opacity={0.4}
+          />
 
-          {/* Whole wheel rotates slowly */}
-          <g
-            transform={`rotate(${rotate} ${CENTER} ${CENTER})`}
-            style={{ transition: hoveredId ? 'transform 0.6s ease' : 'none' }}
-          >
-            {/* Faint guide rings */}
-            <circle cx={CENTER} cy={CENTER} r={R_INNER} fill="none" stroke="hsl(var(--border))" strokeWidth="0.5" opacity="0.4" />
-            <circle cx={CENTER} cy={CENTER} r={R_INNER_OUT} fill="none" stroke="hsl(var(--border))" strokeWidth="0.5" opacity="0.4" />
-            <circle cx={CENTER} cy={CENTER} r={R_OUTER_OUT} fill="none" stroke="hsl(var(--border))" strokeWidth="0.5" opacity="0.4" />
-
-            {/* OUTER RING — cluster sectors */}
+          {/* CLUSTER LOBES — soft, breathing blobs that gooify with petals */}
+          <g style={{ filter: 'url(#goo)' }}>
             {layout.map((cl) => {
-              const isHovered = hoveredId === `cluster:${cl.cluster.id}`;
+              const isHovered = hoveredId === `lobe:${cl.cluster.id}`;
               const containsHovered = hoveredInfo?.cluster.cluster.id === cl.cluster.id;
               const dimmed = hoveredId !== null && !containsHovered;
-              const tone = cl.cluster.tone === 'primary' ? 'var(--primary)' : 'var(--highlight)';
-              const bloom = isHovered ? HOVER_BLOOM * 0.5 : 0;
+              const grad = cl.cluster.tone === 'primary' ? 'url(#lobePrimary)' : 'url(#lobeHighlight)';
+              // breathing scale
+              const breathe = 1 + Math.sin(time * 0.6 + cl.seed) * 0.04;
+              const opacity = dimmed ? 0.25 : isHovered ? 1 : 0.85;
               return (
-                <g
-                  key={`cluster-${cl.cluster.id}`}
-                  transform={radialTransform(cl.midDeg, bloom)}
-                  style={{ transition: 'transform 0.45s cubic-bezier(0.2,0.8,0.2,1)' }}
-                >
+                <g key={`lobe-${cl.cluster.id}`} style={{ transition: 'opacity 0.5s ease' }} opacity={opacity}>
                   <path
-                    d={wedgePath(CENTER, CENTER, cl.startDeg + GAP_DEG, cl.endDeg - GAP_DEG, R_OUTER_IN, R_OUTER_OUT)}
-                    fill={`hsl(${tone} / ${dimmed ? 0.18 : isHovered ? 0.95 : 0.72})`}
-                    style={{ transition: 'fill 0.4s ease', cursor: 'pointer' }}
-                    onMouseEnter={() => setHoveredId(`cluster:${cl.cluster.id}`)}
-                    onMouseLeave={() => setHoveredId((c) => (c === `cluster:${cl.cluster.id}` ? null : c))}
+                    d={softBlob(cl.cx, cl.cy, LOBE_RADIUS * breathe, cl.seed, time)}
+                    fill={grad}
+                    onMouseEnter={() => setHoveredId(`lobe:${cl.cluster.id}`)}
+                    onMouseLeave={() =>
+                      setHoveredId((c) => (c === `lobe:${cl.cluster.id}` ? null : c))
+                    }
+                    style={{ cursor: 'pointer' }}
                   />
-                  {/* Curved cluster label along inner edge of outer ring */}
-                  <path
-                    id={arcPathId(cl.cluster.id)}
-                    d={arcPath(CENTER, CENTER, cl.startDeg + 3, cl.endDeg - 3, R_OUTER_IN + 22)}
-                    fill="none"
-                  />
-                  <text
-                    fontSize="14"
-                    letterSpacing="6"
-                    className="font-mono"
-                    fill={`hsl(var(--background))`}
-                    opacity={dimmed ? 0.4 : 0.9}
-                    style={{ transition: 'opacity 0.3s ease', pointerEvents: 'none' }}
-                  >
-                    <textPath href={`#${arcPathId(cl.cluster.id)}`} startOffset="50%" textAnchor="middle">
-                      {t(cl.cluster.groupKey).toUpperCase()}
-                    </textPath>
-                  </text>
                 </g>
               );
             })}
 
-            {/* INNER RING — service wedges */}
-            {layout.map((cl) =>
-              cl.services.map((s) => {
-                const isHovered = hoveredId === s.node.id;
-                const containsHovered = hoveredInfo?.cluster.cluster.id === cl.cluster.id;
-                const dimmed = hoveredId !== null && !isHovered;
-                const tone = cl.cluster.tone === 'primary' ? 'var(--primary)' : 'var(--highlight)';
-                const bloom = isHovered ? HOVER_BLOOM : 0;
-                const fillOpacity = isHovered ? 0.55 : containsHovered ? 0.32 : dimmed ? 0.08 : 0.22;
-                return (
-                  <g
-                    key={`svc-${s.node.id}`}
-                    transform={radialTransform(s.midDeg, bloom)}
-                    style={{ transition: 'transform 0.45s cubic-bezier(0.2,0.8,0.2,1)', cursor: 'pointer' }}
-                    onMouseEnter={() => setHoveredId(s.node.id)}
-                    onMouseLeave={() => setHoveredId((c) => (c === s.node.id ? null : c))}
-                    onClick={() => handleClick(s.node.id)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        handleClick(s.node.id);
-                      }
-                    }}
-                    tabIndex={0}
-                    role="link"
-                    aria-label={t(s.node.titleKey)}
-                  >
-                    <path
-                      d={wedgePath(CENTER, CENTER, s.startDeg, s.endDeg, R_INNER, R_INNER_OUT)}
-                      fill={`hsl(${tone} / ${fillOpacity})`}
-                      stroke={isHovered ? `hsl(${tone})` : `hsl(${tone} / 0.4)`}
-                      strokeWidth={isHovered ? 1.6 : 0.5}
-                      filter={isHovered ? 'url(#wedgeGlow)' : undefined}
-                      style={{ transition: 'all 0.35s ease' }}
-                    />
-                    {/* Curved service label along outer edge of inner ring */}
-                    <path
-                      id={arcPathId('s-' + s.node.id)}
-                      d={arcPath(CENTER, CENTER, s.startDeg + 1, s.endDeg - 1, R_INNER_OUT - 18)}
-                      fill="none"
-                    />
-                    <text
-                      fontSize={isHovered ? 13 : 11}
-                      letterSpacing="2"
-                      className="font-mono"
-                      fill={isHovered ? `hsl(${tone})` : 'hsl(var(--foreground))'}
-                      opacity={dimmed ? 0.35 : 0.92}
-                      style={{ transition: 'all 0.3s ease', pointerEvents: 'none' }}
-                    >
-                      <textPath href={`#${arcPathId('s-' + s.node.id)}`} startOffset="50%" textAnchor="middle">
-                        {shortLabel(t(s.node.titleKey)).toUpperCase()}
-                      </textPath>
-                    </text>
-                  </g>
-                );
-              })
-            )}
-
-            {/* Spokes between cluster sectors — visual separators */}
-            {layout.map((cl) => {
-              const a = pt(CENTER, CENTER, cl.startDeg, R_INNER);
-              const b = pt(CENTER, CENTER, cl.startDeg, R_OUTER_OUT);
-              return (
-                <line
-                  key={`spoke-${cl.cluster.id}`}
-                  x1={a.x}
-                  y1={a.y}
-                  x2={b.x}
-                  y2={b.y}
-                  stroke="hsl(var(--background))"
-                  strokeWidth="2"
-                  opacity="0.9"
-                />
-              );
-            })}
+            {/* Core blob inside the goo so everything melds */}
+            <path
+              d={softBlob(CENTER, CENTER, R_CORE * (1 + Math.sin(time * 1.2) * 0.05), 0, time)}
+              fill="hsl(var(--primary))"
+              opacity={0.85}
+            />
           </g>
 
-          {/* Pulsing core (does NOT rotate) */}
-          <circle cx={CENTER} cy={CENTER} r={R_CORE + 30} fill="url(#coreGlow)" className="animate-pulse-slow" />
-          <circle cx={CENTER} cy={CENTER} r={R_CORE} fill="hsl(var(--background))" stroke="hsl(var(--primary))" strokeWidth="1.5" opacity="0.95" />
-          <circle cx={CENTER} cy={CENTER} r={R_CORE - 12} fill="none" stroke="hsl(var(--primary) / 0.4)" strokeWidth="0.5" />
+          {/* PETALS — drift slightly on individual orbits */}
+          {layout.map((cl) =>
+            cl.petals.map((p) => {
+              const isHovered = hoveredId === p.node.id;
+              const containsHovered = hoveredInfo?.cluster.cluster.id === cl.cluster.id;
+              const dimmed = hoveredId !== null && !isHovered && !containsHovered;
+              // orbit drift along petal's angle (tangential motion)
+              const tangent = p.angle + 90;
+              const drift = Math.sin(time * 0.45 + p.orbitPhase) * p.orbitAmp;
+              const breath = 1 + Math.sin(time * 0.9 + p.seed) * 0.05;
+              const dx = Math.cos(((tangent - 90) * Math.PI) / 180) * drift;
+              const dy = Math.sin(((tangent - 90) * Math.PI) / 180) * drift;
+              const radialPush = isHovered ? 22 : 0;
+              const radDx = Math.cos(((p.angle - 90) * Math.PI) / 180) * radialPush;
+              const radDy = Math.sin(((p.angle - 90) * Math.PI) / 180) * radialPush;
+              const px = p.cx + dx + radDx;
+              const py = p.cy + dy + radDy;
+              const r = PETAL_SIZE * (isHovered ? 1.25 : breath);
+              const grad = cl.cluster.tone === 'primary' ? 'url(#petalPrimary)' : 'url(#petalHighlight)';
+              const tone = cl.cluster.tone === 'primary' ? 'var(--primary)' : 'var(--highlight)';
+              return (
+                <g
+                  key={`petal-${p.node.id}`}
+                  style={{ cursor: 'pointer', transition: 'opacity 0.4s ease' }}
+                  opacity={dimmed ? 0.3 : 1}
+                  onMouseEnter={() => setHoveredId(p.node.id)}
+                  onMouseLeave={() => setHoveredId((c) => (c === p.node.id ? null : c))}
+                  onClick={() => handleClick(p.node.id)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      handleClick(p.node.id);
+                    }
+                  }}
+                  tabIndex={0}
+                  role="link"
+                  aria-label={t(p.node.titleKey)}
+                >
+                  {/* soft outer halo on hover */}
+                  {isHovered && (
+                    <circle
+                      cx={px}
+                      cy={py}
+                      r={r * 1.6}
+                      fill={`hsl(${tone} / 0.18)`}
+                      filter="url(#softBloom)"
+                    />
+                  )}
+                  <path
+                    d={softBlob(px, py, r, p.seed, time)}
+                    fill={grad}
+                    stroke={isHovered ? `hsl(${tone})` : 'none'}
+                    strokeWidth={isHovered ? 1 : 0}
+                    style={{ transition: 'stroke-width 0.3s ease' }}
+                  />
+                  {/* tiny inner highlight dot — gives each petal a 'pearl' look */}
+                  <circle
+                    cx={px - r * 0.25}
+                    cy={py - r * 0.3}
+                    r={r * 0.12}
+                    fill="hsl(var(--background))"
+                    opacity={0.35}
+                  />
+                </g>
+              );
+            })
+          )}
 
-          {/* Center label group */}
+          {/* Hairline filaments from core to each petal — only on hover, very faint otherwise */}
+          {layout.map((cl) =>
+            cl.petals.map((p) => {
+              const isHovered = hoveredId === p.node.id;
+              const containsHovered = hoveredInfo?.cluster.cluster.id === cl.cluster.id;
+              const opacity = isHovered ? 0.55 : containsHovered ? 0.22 : 0.08;
+              const tone = cl.cluster.tone === 'primary' ? 'var(--primary)' : 'var(--highlight)';
+              // gentle curve via quadratic
+              const mid = pol(CENTER, CENTER, p.angle, R_LOBE * 0.55);
+              return (
+                <path
+                  key={`fil-${p.node.id}`}
+                  d={`M ${CENTER} ${CENTER} Q ${mid.x} ${mid.y} ${p.cx} ${p.cy}`}
+                  fill="none"
+                  stroke={`hsl(${tone})`}
+                  strokeWidth={isHovered ? 1.2 : 0.6}
+                  opacity={opacity}
+                  style={{ transition: 'all 0.4s ease', pointerEvents: 'none' }}
+                />
+              );
+            })
+          )}
+
+          {/* Core ring (decorative, above goo) */}
+          <circle
+            cx={CENTER}
+            cy={CENTER}
+            r={R_CORE + 14}
+            fill="none"
+            stroke="hsl(var(--primary) / 0.35)"
+            strokeWidth="0.6"
+            strokeDasharray="2 6"
+          />
+
+          {/* Center label */}
           <g style={{ pointerEvents: 'none' }}>
-            {hoveredInfo?.service ? (
+            {hoveredInfo?.petal ? (
               <>
                 <text
                   x={CENTER}
-                  y={CENTER - 8}
+                  y={CENTER - 6}
                   textAnchor="middle"
-                  fontSize="9"
+                  fontSize="8"
                   letterSpacing="3"
                   className="font-mono"
-                  fill="hsl(var(--primary))"
+                  fill="hsl(var(--background))"
                   opacity="0.9"
                 >
                   {t(hoveredInfo.cluster.cluster.groupKey).toUpperCase()}
                 </text>
                 <text
                   x={CENTER}
-                  y={CENTER + 14}
+                  y={CENTER + 12}
                   textAnchor="middle"
-                  fontSize="11"
+                  fontSize="10"
                   className="font-mono"
-                  fill="hsl(var(--foreground))"
+                  fill="hsl(var(--background))"
                 >
-                  {trimForCore(t(hoveredInfo.service.node.titleKey))}
+                  {trimForCore(t(hoveredInfo.petal.node.titleKey))}
                 </text>
               </>
             ) : hoveredInfo?.type === 'cluster' ? (
@@ -483,7 +507,7 @@ const Overview = () => {
                 fontSize="11"
                 letterSpacing="3"
                 className="font-mono"
-                fill="hsl(var(--primary))"
+                fill="hsl(var(--background))"
               >
                 {t(hoveredInfo.cluster.cluster.groupKey).toUpperCase()}
               </text>
@@ -491,56 +515,57 @@ const Overview = () => {
               <>
                 <text
                   x={CENTER}
-                  y={CENTER - 4}
+                  y={CENTER - 2}
                   textAnchor="middle"
-                  fontSize="9"
+                  fontSize="8"
                   letterSpacing="4"
                   className="font-mono"
-                  fill="hsl(var(--primary))"
-                  opacity="0.85"
+                  fill="hsl(var(--background))"
+                  opacity="0.95"
                 >
                   INSIDE-THE-BOX
                 </text>
                 <text
                   x={CENTER}
-                  y={CENTER + 12}
+                  y={CENTER + 13}
                   textAnchor="middle"
-                  fontSize="8"
+                  fontSize="7"
                   letterSpacing="3"
                   className="font-mono"
-                  fill="hsl(var(--muted-foreground))"
+                  fill="hsl(var(--background))"
+                  opacity="0.7"
                 >
-                  13 SERVICES · 4 MODULES
+                  13 · 4
                 </text>
               </>
             )}
           </g>
         </svg>
 
-        {/* Description strip — large typographic gesture, bottom-anchored */}
+        {/* Description strip */}
         <DescriptionLayer
           title={
-            hoveredInfo?.service
-              ? t(hoveredInfo.service.node.titleKey)
+            hoveredInfo?.petal
+              ? t(hoveredInfo.petal.node.titleKey)
               : hoveredInfo?.type === 'cluster'
               ? t(hoveredInfo.cluster.cluster.groupKey)
               : t('overview.title' as never)
           }
           desc={
-            hoveredInfo?.service
-              ? t(hoveredInfo.service.node.descKey)
+            hoveredInfo?.petal
+              ? t(hoveredInfo.petal.node.descKey)
               : hoveredInfo?.type === 'cluster'
               ? `${hoveredInfo.cluster.cluster.services.length} ${pluralize(language)}`
-              : t('overview.subtitle' as never) || 'Hover to explore · Click to enter'
+              : t('overview.subtitle' as never) || 'Hover to bloom · Click to enter'
           }
-          isService={!!hoveredInfo?.service}
+          isService={!!hoveredInfo?.petal}
         />
       </div>
     </div>
   );
 };
 
-// ── Sub-components ──────────────────────────────────────────────────────────
+// ── Sub-components ─────────────────────────────────────────────────────────
 
 interface DescriptionLayerProps {
   title: string;
@@ -576,16 +601,11 @@ const DescriptionLayer = ({ title, desc, isService }: DescriptionLayerProps) => 
   </div>
 );
 
-// ── Helpers ─────────────────────────────────────────────────────────────────
-
-function shortLabel(label: string): string {
-  const cut = label.split(/[,—–]/)[0].trim();
-  return cut.length > 22 ? cut.slice(0, 20).trim() + '…' : cut;
-}
+// ── Helpers ────────────────────────────────────────────────────────────────
 
 function trimForCore(label: string): string {
   const cut = label.split(/[,—–]/)[0].trim();
-  return cut.length > 24 ? cut.slice(0, 22).trim() + '…' : cut;
+  return cut.length > 22 ? cut.slice(0, 20).trim() + '…' : cut;
 }
 
 function pluralize(lang: string): string {
