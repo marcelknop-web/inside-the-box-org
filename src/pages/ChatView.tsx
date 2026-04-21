@@ -595,7 +595,7 @@ const useServiceContent = () => {
         <Block className="bg-primary/5 border border-primary/20 rounded-xl">
           <SubTitle>{t('events.upcomingTitle')}</SubTitle>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
-            <a href="https://www.isaca.de/seminare/seminare/seminare-f%C3%BCr-manager1/cyber-security-expert-20-04-2026.html" target="_blank" rel="noopener noreferrer" className="bg-primary/5 rounded-lg p-4 flex items-start gap-3 hover:bg-primary/10 transition-colors group">
+            <a href="https://www.isaca.de/seminare/seminare/seminare-f%C3%BCr-manager1/cyber-security-expert-26-10-2026.html" target="_blank" rel="noopener noreferrer" className="bg-primary/5 rounded-lg p-4 flex items-start gap-3 hover:bg-primary/10 transition-colors group">
               <ShieldCheck size={20} className="text-primary mt-0.5 flex-shrink-0" />
               <div className="space-y-1 min-w-0">
                 <p className="font-semibold text-sm md:text-base font-sans text-primary group-hover:underline">{t('events.upcomingIsacaCse')}</p>
