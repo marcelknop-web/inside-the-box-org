@@ -1737,6 +1737,22 @@ const ChatView = () => {
         'Comment impliquer les métiers dans l\'analyse de risque ?',
         'Quel rôle l\'IA doit-elle jouer dans notre défense ?',
         'Comment savoir si un MSSP délivre vraiment de la valeur ?',
+        // Long — findings d'audit typiques
+        'Comment lever un finding sur un inventaire d\'actifs incomplet ?',
+        'Pourquoi le patch management échoue-t-il si souvent en OT ?',
+        'Comment lever le finding "MFA absente sur les comptes privilégiés" ?',
+        'Comment prouver à l\'auditeur que les sauvegardes sont restaurables ?',
+        'Comment sortir d\'un finding "IRP uniquement sur papier" ?',
+        'Comment mettre en place une vraie revue des logs et du SIEM ?',
+        'Comment organiser une recertification des droits propre ?',
+        'Qu\'attend l\'auditeur de notre gestion du risque fournisseurs ?',
+        'Comment passer la sensibilisation du e-learning au comportement réel ?',
+        'Comment lever les findings sur la segmentation réseau OT ?',
+        'Comment maintenir l\'analyse de risque à jour sans surcharge ?',
+        'Comment prioriser les vulnérabilités par risque métier réel ?',
+        'Comment remplacer les comptes partagés sans casser la prod ?',
+        'Comment bâtir une politique de chiffrement et de clés auditable ?',
+        'Comment traiter les findings récurrents lors du re-audit ?',
       ],
     } as const;
     const list = all[(language as 'de' | 'en' | 'fr')] ?? all.en;
