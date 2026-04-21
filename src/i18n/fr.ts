@@ -625,6 +625,12 @@ export const fr = {
     allConsulting: 'Tous les services de conseil',
     contact: 'Contact',
   },
+  overview: {
+    title: 'Ce que nous livrons.',
+    subtitle: 'Quatre modules, treize approfondissements. Survolez pour mettre en évidence, cliquez pour entrer dans l\'offre.',
+    openService: 'Ouvrir le service',
+    close: 'Fermer',
+  },
   welcome: {
     title: 'inside-the-box.org',
     headerTitle: 'inside-the-box.org',

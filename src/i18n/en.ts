@@ -625,6 +625,12 @@ export const en = {
     allConsulting: 'All Consulting Services',
     contact: 'Contact',
   },
+  overview: {
+    title: 'What we deliver.',
+    subtitle: 'Four modules, thirteen depths. Hover to highlight a module. Click to enter the offering.',
+    openService: 'Open service',
+    close: 'Close',
+  },
   welcome: {
     title: 'inside-the-box.org',
     headerTitle: 'inside-the-box.org',

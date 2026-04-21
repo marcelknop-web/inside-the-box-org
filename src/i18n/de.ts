@@ -625,6 +625,12 @@ export const de = {
     allConsulting: 'Alle Beratungsleistungen',
     contact: 'Kontakt',
   },
+  overview: {
+    title: 'Was wir liefern.',
+    subtitle: 'Vier Module, dreizehn Vertiefungen. Hover, um Module hervorzuheben. Klick, um in das jeweilige Angebot einzusteigen.',
+    openService: 'Zum Service',
+    close: 'Schließen',
+  },
   welcome: {
     title: 'inside-the-box.org',
     headerTitle: 'inside-the-box.org',
