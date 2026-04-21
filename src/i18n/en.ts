@@ -688,8 +688,8 @@ export const en = {
     quickActions: 'Quick Actions',
   },
   iscp: {
-    title: 'ISCP Quick Check — TTX Prioritization',
-    subtitle: 'How urgently should this ISCP be tested in the next Tabletop Exercise?',
+    title: 'ISCP Quick Check — Build TTX Scenarios',
+    subtitle: 'Rate your ISCPs and derive cross-cutting tabletop scenarios for your next TTX.',
     whatIsIscp: 'What is an ISCP?',
     whatIsIscpText: 'An Information Security Continuity Plan describes how an IT service is restored in case of an outage.',
     whatIsTtx: 'What is a TTX?',
