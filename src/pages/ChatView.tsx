@@ -1186,7 +1186,7 @@ const useServiceContent = () => {
   return { contentMap, bindSetActive };
 };
 
-interface SidebarItem { id: string; icon: LucideIcon; label: string; }
+interface SidebarItem { id: string; icon: LucideIcon; label: string; isNew?: boolean; }
 interface SidebarGroup { title: string; items: SidebarItem[]; }
 
 const SidebarItems = ({ groups, activeId, onSelect }: { groups: SidebarGroup[]; activeId: string | null; onSelect: (id: string) => void }) => (
@@ -1203,7 +1203,17 @@ const SidebarItems = ({ groups, activeId, onSelect }: { groups: SidebarGroup[]; 
             }`}
           >
             <item.icon size={16} className={`flex-shrink-0 ${activeId === item.id ? 'text-highlight' : 'text-foreground/60 group-hover:text-highlight'}`} />
-            <span className="truncate font-rounded text-base">{item.label}</span>
+            <span className="truncate font-rounded text-base flex-1">{item.label}</span>
+            {item.isNew && (
+              <span
+                className="relative inline-flex h-1.5 w-1.5 flex-shrink-0"
+                aria-label="New"
+                title="New"
+              >
+                <span className="absolute inline-flex h-full w-full rounded-full bg-primary opacity-60 animate-ping" />
+                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-primary" />
+              </span>
+            )}
           </button>
         ))}
       </div>
