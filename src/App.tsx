@@ -5,6 +5,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { LanguageProvider } from "@/i18n/LanguageContext";
+import { RouteSkeleton } from "@/components/RouteSkeleton";
+import { ScrollToTopFab } from "@/components/ScrollToTopFab";
 import ChatView from "./pages/ChatView";
 import NotFound from "./pages/NotFound";
 import { lazy, Suspense } from "react";
@@ -32,16 +34,17 @@ const App = () => (
               <Route path="/nis2-compliance" element={<ChatView />} />
               <Route path="/iacs-e27" element={<ChatView />} />
               <Route path="/iec62443" element={<ChatView />} />
-              <Route path="/berlin-drift" element={<Suspense fallback={null}><EliteShipScene /></Suspense>} />
-              <Route path="/ttx-admin" element={<Suspense fallback={null}><TtxAdmin /></Suspense>} />
-              <Route path="/itsm" element={<Suspense fallback={null}><ItsmTool /></Suspense>} />
-              <Route path="/itsm-dev" element={<Suspense fallback={null}><ItsmDevTool /></Suspense>} />
+              <Route path="/berlin-drift" element={<Suspense fallback={<RouteSkeleton />}><EliteShipScene /></Suspense>} />
+              <Route path="/ttx-admin" element={<Suspense fallback={<RouteSkeleton />}><TtxAdmin /></Suspense>} />
+              <Route path="/itsm" element={<Suspense fallback={<RouteSkeleton />}><ItsmTool /></Suspense>} />
+              <Route path="/itsm-dev" element={<Suspense fallback={<RouteSkeleton />}><ItsmDevTool /></Suspense>} />
               <Route path="/soc-life" element={<ChatView />} />
-              <Route path="/enigma" element={<Suspense fallback={null}><Enigma /></Suspense>} />
-              <Route path="/ttx-readiness" element={<Suspense fallback={null}><TtxReadinessPage /></Suspense>} />
+              <Route path="/enigma" element={<Suspense fallback={<RouteSkeleton />}><Enigma /></Suspense>} />
+              <Route path="/ttx-readiness" element={<Suspense fallback={<RouteSkeleton />}><TtxReadinessPage /></Suspense>} />
               <Route path="/:serviceId" element={<ChatView />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
+            <ScrollToTopFab />
           </BrowserRouter>
         </TooltipProvider>
       </LanguageProvider>

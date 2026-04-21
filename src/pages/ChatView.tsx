@@ -1090,7 +1090,7 @@ const useServiceContent = () => {
                   </div>
                 </div>
                 <div className="bg-background/40 border border-border/30 rounded-lg p-4 mb-4">
-                  <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{t(`profiles.${key}.bio`)}</p>
+                  <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed max-w-prose">{t(`profiles.${key}.bio`)}</p>
                 </div>
                 <div className="bg-background/40 border border-border/30 rounded-lg p-4 space-y-1.5 text-sm font-sans">
                   <p><span className="text-primary font-semibold">{t(`profiles.${key}.focusLabel`)}:</span> <span className="text-foreground/80">{t(`profiles.${key}.focus`)}</span></p>
@@ -1468,7 +1468,17 @@ const ChatView = () => {
     if (!isMobile && !isTablet) inputRef.current?.focus();
   };
 
-  const lazyFallback = <div className="flex items-center justify-center h-32"><Loader2 className="animate-spin text-primary" size={28} /></div>;
+  const lazyFallback = (
+    <div className="px-2 py-6 animate-pulse" aria-busy="true" aria-live="polite">
+      <div className="space-y-3 max-w-2xl">
+        <div className="h-5 w-1/3 rounded bg-muted/40" />
+        <div className="h-3 w-2/3 rounded bg-muted/30" />
+        <div className="h-3 w-5/6 rounded bg-muted/25" />
+        <div className="h-24 rounded-lg bg-muted/20 mt-4" />
+      </div>
+      <span className="sr-only">Loading…</span>
+    </div>
+  );
 
   const serviceContent = activeService === 'crisis-sim'
     ? <Suspense fallback={lazyFallback}><CyberCrisisSimulator embedded ref={crisisRef} /></Suspense>
@@ -1725,10 +1735,11 @@ const ChatView = () => {
             : exampleQuestions[exampleIndex];
           return (
             <div
-              className="fixed bottom-4 z-40 pointer-events-none transition-opacity duration-700 ease-out"
+              className="fixed z-40 pointer-events-none transition-opacity duration-700 ease-out"
               style={{
                 left: isMobile ? '1rem' : (sidebarOpen ? 'calc(16rem + 1.5rem)' : '1.5rem'),
                 right: isMobile ? '1rem' : '0.75rem',
+                bottom: 'calc(1rem + env(safe-area-inset-bottom))',
                 opacity: chatBarReady ? 1 : 0,
               }}
             >
