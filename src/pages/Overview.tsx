@@ -78,14 +78,14 @@ const CLUSTERS: Cluster[] = [
   },
 ];
 
-// Mandala geometry
-const VB = 900;                          // viewBox dimension
+// Mandala geometry — generous ring thickness so labels truly fill their cells
+const VB = 980;                          // viewBox dimension
 const HALF = VB / 2;
-const R_INNER = 70;                      // start of first ring (after centre)
-const RING_THICK = 70;                   // each ring thickness
+const R_INNER = 78;                      // start of first ring (after centre)
+const RING_THICK = 88;                   // each ring thickness — bigger = more room for text
 const MAX_RINGS = Math.max(...CLUSTERS.map((c) => c.services.length));   // 4
-const R_OUTER = R_INNER + RING_THICK * MAX_RINGS;                         // 350
-const R_LABELS = R_OUTER + 40;                                            // outer cluster names
+const R_OUTER = R_INNER + RING_THICK * MAX_RINGS;                         // 430
+const R_LABELS = R_OUTER + 38;                                            // outer cluster names
 
 // Sector geometry — each cluster gets one sector.
 // Sectors are evenly spaced around the circle.
