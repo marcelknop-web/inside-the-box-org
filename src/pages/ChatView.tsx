@@ -39,6 +39,15 @@ import { LinkButton } from '@/components/LinkButton';
 import TtxRegistrationForm from '@/components/TtxRegistrationForm';
 import { NewsPanel } from '@/components/NewsPanel';
 import { RelatedServices } from '@/components/RelatedServices';
+import { NewDateBadge } from '@/components/NewDateBadge';
+
+// AI Lab tool publication dates (ISO YYYY-MM-DD).
+// Tools listed here show a "Neu/New/Nouveau" badge for 30 days from this date.
+// Add or update entries when you ship a new agent.
+const AI_TOOL_ADDED_AT: Record<string, string> = {
+  'soc-life': '2026-04-10',
+  'butterfly-lab': '2026-04-05',
+};
 
 interface NavLink { url: string; label: string; }
 interface AiResponse { message: string; links: NavLink[]; }
@@ -921,7 +930,10 @@ const useServiceContent = () => {
             <button onClick={() => setActive('soc-life')} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
               <Building2 size={20} className="text-highlight mt-0.5 flex-shrink-0" />
               <div>
-                <p className="text-highlight font-semibold font-mono text-sm">{t('aiWorkflows.agentSocLifeTitle')}</p>
+                <p className="text-highlight font-semibold font-mono text-sm flex items-center gap-2 flex-wrap">
+                  {t('aiWorkflows.agentSocLifeTitle')}
+                  {AI_TOOL_ADDED_AT['soc-life'] && <NewDateBadge addedAt={AI_TOOL_ADDED_AT['soc-life']} />}
+                </p>
                 <p className="text-foreground/80 text-xs">{t('aiWorkflows.agentSocLifeDesc')}</p>
               </div>
             </button>
@@ -937,7 +949,10 @@ const useServiceContent = () => {
             <button onClick={() => setActive('butterfly-lab')} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
               <TrendingDown size={20} className="text-highlight mt-0.5 flex-shrink-0" />
               <div>
-                <p className="text-highlight font-semibold font-mono text-sm">{t('aiWorkflows.butterflyTitle')}</p>
+                <p className="text-highlight font-semibold font-mono text-sm flex items-center gap-2 flex-wrap">
+                  {t('aiWorkflows.butterflyTitle')}
+                  {AI_TOOL_ADDED_AT['butterfly-lab'] && <NewDateBadge addedAt={AI_TOOL_ADDED_AT['butterfly-lab']} />}
+                </p>
                 <p className="text-foreground/80 text-xs">{t('aiWorkflows.butterflyDesc')}</p>
               </div>
             </button>
