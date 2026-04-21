@@ -520,32 +520,33 @@ const PartBox = ({ part, t, isHovered, dimmed, onEnter, onLeave, onClick }: Part
       ))}
       {/* Part code (top-left inside) */}
       <text
-        x={part.x + 12}
-        y={part.y + 18}
-        fontSize="9"
-        fill="hsl(var(--primary) / 0.7)"
-        letterSpacing="2"
+        x={part.x + 16}
+        y={part.y + 26}
+        fontSize="13"
+        fill="hsl(var(--primary) / 0.75)"
+        letterSpacing="2.5"
       >
         PART {part.node.code}
       </text>
       {/* Part title */}
       <text
-        x={part.x + 12}
-        y={part.y + 40}
-        fontSize="14"
+        x={part.x + 16}
+        y={part.y + 58}
+        fontSize="22"
+        fontWeight="500"
         fill={isHovered ? 'hsl(var(--primary))' : 'hsl(var(--foreground))'}
         style={{ transition: 'fill 0.25s' }}
       >
-        {truncate(t(part.node.titleKey), 38)}
+        {truncate(t(part.node.titleKey), 32)}
       </text>
       {/* Dimension hint (bottom edge) */}
       <text
-        x={part.x + part.w - 12}
-        y={part.y + part.h - 8}
-        fontSize="8"
+        x={part.x + part.w - 16}
+        y={part.y + part.h - 12}
+        fontSize="11"
         textAnchor="end"
         fill="hsl(var(--muted-foreground))"
-        letterSpacing="1.5"
+        letterSpacing="2"
       >
         ⌀ {Math.round(part.w)}×{Math.round(part.h)}
       </text>
