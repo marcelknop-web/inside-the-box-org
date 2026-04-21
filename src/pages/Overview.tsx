@@ -194,22 +194,16 @@ const Overview = () => {
 
       {/* Selected indicator (bottom-left, fixed) */}
       <div className="absolute left-6 bottom-16 z-20 pointer-events-none">
-        <div className="font-mono text-[9px] tracking-[0.4em] text-muted-foreground mb-1">SELECTED</div>
-        <div
-          key={hovered?.service.code ?? 'none'}
-          className="font-mono text-base tracking-[0.25em] text-primary animate-fade-in"
-        >
-          {hovered?.service.code ?? '—'}
-        </div>
+        <div className="font-mono text-[9px] tracking-[0.4em] text-muted-foreground mb-2">SELECTED</div>
         <div
           key={hovered?.service.titleKey ?? 'none-t'}
-          className="font-mono text-[11px] tracking-[0.15em] text-foreground/90 mt-1 max-w-[260px] animate-fade-in"
+          className="font-mono font-semibold text-2xl md:text-3xl leading-[1.05] tracking-[0.04em] text-foreground max-w-[420px] animate-fade-in"
         >
           {hovered ? t(hovered.service.titleKey) : 'HOVER · CLICK · OPEN'}
         </div>
         {hovered && (
           <div
-            className="font-mono text-[9px] tracking-[0.3em] mt-2"
+            className="font-mono text-[10px] tracking-[0.35em] mt-3"
             style={{ color: hovered.cluster.hex }}
           >
             {t(hovered.cluster.groupKey).toUpperCase()}
