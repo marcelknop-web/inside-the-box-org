@@ -3,45 +3,42 @@ import { ArrowUp } from 'lucide-react';
 import { useLanguage } from '@/i18n/LanguageContext';
 
 /**
- * Subtle scroll-to-top FAB. Appears after the user has scrolled
- * past 600px in either the window OR the app's main scrollable container.
- * Anchored bottom-right with iOS safe-area padding so it sits just above
- * the chat bar.
+ * Subtle scroll-to-top FAB. Listens to scroll events globally (capture
+ * phase) so it works for both window scroll and the app's inner
+ * scrollable container. Anchored bottom-right with iOS safe-area padding
+ * so it sits just above the chat bar.
  */
 export function ScrollToTopFab() {
   const [visible, setVisible] = useState(false);
   const { language } = useLanguage();
 
   useEffect(() => {
-    // The app uses an internal scrollable container (flex layout) on
-    // desktop, but the window itself scrolls on small viewports. Listen
-    // to both and any element matching common scroll-container patterns.
-    const getScrollY = (): number => {
-      let max = window.scrollY || 0;
-      // Walk all elements and pick the largest scrollTop — covers both
-      // window scroll and inner overflow-y containers.
-      const els = document.querySelectorAll<HTMLElement>('div');
-      for (let i = 0; i < els.length; i++) {
-        const el = els[i];
-        if (el.scrollTop > max) max = el.scrollTop;
+    let lastScroller: HTMLElement | null = null;
+
+    const onScroll = (e: Event) => {
+      const target = e.target as HTMLElement | Document | null;
+      let top = 0;
+      if (target instanceof HTMLElement) {
+        top = target.scrollTop;
+        lastScroller = target;
+      } else {
+        top = window.scrollY || document.documentElement.scrollTop || 0;
       }
-      return max;
+      setVisible(top > 600);
     };
 
-    const onScroll = () => setVisible(getScrollY() > 600);
-
-    onScroll();
+    // Capture-phase listener catches scrolls from any nested container.
     window.addEventListener('scroll', onScroll, { passive: true, capture: true });
-    document.addEventListener('scroll', onScroll, { passive: true, capture: true });
     return () => {
-      window.removeEventListener('scroll', onScroll, { capture: true } as any);
-      document.removeEventListener('scroll', onScroll, { capture: true } as any);
+      window.removeEventListener('scroll', onScroll, true);
     };
+
+    // Expose lastScroller for the click handler via closure (reassigned below)
   }, []);
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    // Also reset any inner scroll containers
+    // Reset any scrolled inner containers
     document.querySelectorAll<HTMLElement>('div').forEach((el) => {
       if (el.scrollTop > 0) el.scrollTo({ top: 0, behavior: 'smooth' });
     });
