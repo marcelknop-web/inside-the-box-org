@@ -1,4 +1,4 @@
-import React, { useRef, useMemo } from 'react';
+import React, { useRef, useMemo, useState, useEffect, useCallback } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
@@ -1157,9 +1157,29 @@ export default function EliteShipScene({ embedded = false }: { embedded?: boolea
   const initialRocks = useInitialRocks(mobile);
   const physics = useMemo(() => createRockPhysics(initialRocks), [initialRocks]);
   const { playing, start, stop, analysisRef } = useAudioAnalyser();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  useEffect(() => {
+    const onChange = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener('fullscreenchange', onChange);
+    return () => document.removeEventListener('fullscreenchange', onChange);
+  }, []);
+
+  const toggleFullscreen = useCallback(async () => {
+    try {
+      if (!document.fullscreenElement) {
+        await containerRef.current?.requestFullscreen?.();
+      } else {
+        await document.exitFullscreen?.();
+      }
+    } catch {
+      /* ignore */
+    }
+  }, []);
 
   return (
-    <div className={`relative w-full ${embedded ? 'h-[80vh] rounded-xl overflow-hidden' : 'h-screen'} overflow-hidden`} style={{ background: BG }}>
+    <div ref={containerRef} className={`relative w-full ${embedded && !isFullscreen ? 'h-[80vh] rounded-xl overflow-hidden' : 'h-screen'} overflow-hidden`} style={{ background: BG }}>
       {/* Solid black fallback behind WebGL canvas */}
       <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 0, background: '#000' }} />
 
@@ -1184,8 +1204,20 @@ export default function EliteShipScene({ embedded = false }: { embedded?: boolea
         <ClusterExplosion physics={physics} />
         <Pulsar />
       </Canvas>
-      
 
+      <button
+        onClick={toggleFullscreen}
+        aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+        className="absolute bottom-6 right-40 z-30 px-4 py-2 rounded border text-[11px] tracking-[0.2em] uppercase font-mono transition-opacity hover:opacity-100"
+        style={{
+          color: LINE_COLOR,
+          borderColor: LINE_COLOR + '40',
+          background: 'transparent',
+          opacity: 0.6,
+        }}
+      >
+        {isFullscreen ? '⤢ EXIT' : '⤢ FULLSCREEN'}
+      </button>
 
       <button
         onClick={playing ? stop : start}
