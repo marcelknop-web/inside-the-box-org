@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, ReactNode, useCallback, lazy, Suspense } from 'react';
+import { useState, useRef, useEffect, ReactNode, useCallback, useMemo, lazy, Suspense } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
 import { supabase } from '@/integrations/supabase/client';
