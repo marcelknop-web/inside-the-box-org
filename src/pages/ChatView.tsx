@@ -349,7 +349,16 @@ const useServiceContent = () => {
           <SubTitle variant="highlight">{t('nis2.refTitle')}</SubTitle>
           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mt-2">{t('nis2.refDesc')}</p>
         </Block>
-        <TtxReadinessAssessment />
+        <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
+          <SubTitle variant="highlight">{t('nis2.ttxReadinessTitle')}</SubTitle>
+          <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mt-2">{t('nis2.ttxReadinessDesc')}</p>
+          <a
+            href="/ttx-readiness"
+            className="mt-3 inline-flex items-center gap-2 text-highlight font-mono font-bold text-sm hover:text-primary transition-electric"
+          >
+            {t('nis2.ttxReadinessButton')}
+          </a>
+        </Block>
         <Block className="bg-primary/5 border border-primary/20 rounded-xl">
           <SubTitle>{t('nis2.ctaTitle')}</SubTitle>
           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mt-2">{t('nis2.ctaDesc')}</p>
