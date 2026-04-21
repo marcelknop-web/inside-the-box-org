@@ -37,6 +37,7 @@ import Typewriter from '@/components/Typewriter';
 import TypedSection from '@/components/TypedSection';
 import { LinkButton } from '@/components/LinkButton';
 import TtxRegistrationForm from '@/components/TtxRegistrationForm';
+import { NewsPanel } from '@/components/NewsPanel';
 
 interface NavLink { url: string; label: string; }
 interface AiResponse { message: string; links: NavLink[]; }
@@ -1584,6 +1585,17 @@ const ChatView = () => {
                 <p className="font-rounded text-base text-center text-foreground" style={{ fontWeight: 500 }}>
                   {t('welcome.heroSignature')}
                 </p>
+              </div>
+
+              {/* News panel – fade in last */}
+              <div
+                className="w-full"
+                style={{
+                  opacity: claimDone ? 1 : 0,
+                  transition: 'opacity 700ms ease-out 700ms',
+                }}
+              >
+                <NewsPanel onSelectService={selectService} />
               </div>
             </div>
           ) : (
