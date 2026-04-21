@@ -35,6 +35,7 @@ export const de = {
     events: 'Events',
     eventsWorkshops: 'Events & Trainings',
     ttxTraining: 'DORA & NIS2 TTX',
+    ttxTrainingDesc: 'Tabletop Exercises für DORA und NIS-2 — Krisenstab unter realen Bedingungen testen.',
   },
   start: {
     cyberTrainingRange: 'Cyber Training Range',
