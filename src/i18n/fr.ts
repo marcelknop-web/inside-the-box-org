@@ -545,6 +545,13 @@ export const fr = {
     copyrightText: 'Tout le contenu de ce site est soumis au droit d\'auteur allemand. En cas de violation constatée, veuillez m\'en informer – je retirerai le contenu sans délai.',
     dataProtection: 'Protection des données',
     dataProtectionText: 'L\'utilisation des coordonnées publiées à des fins de publicité non sollicitée est interdite.',
+    privacyTitle: 'Politique de confidentialité',
+    privacyIntro: 'Ce site ne traite des données à caractère personnel que dans la mesure nécessaire à son fonctionnement et au traitement des demandes. Le responsable du traitement est Marcel Knop (adresse ci-dessus).',
+    privacyHosting: 'Hébergement & journaux : le site est diffusé via Lovable / Vercel edge. Les données de connexion techniquement nécessaires (adresse IP, horodatage, user-agent) sont traitées brièvement dans les journaux serveur (art. 6, §1, f RGPD, intérêt légitime à la sécurité et à la stabilité).',
+    privacyContact: 'Prise de contact : si vous nous contactez par email, téléphone ou formulaire, vos données ne servent qu\'au traitement de votre demande (art. 6, §1, b et f RGPD) et sont supprimées dès qu\'elles ne sont plus nécessaires.',
+    privacyTools: 'Chat IA & outils : les saisies dans les outils IA (chat, outils de conformité) sont traitées de manière anonyme via le Lovable AI Gateway et ne sont pas stockées durablement. Les inscriptions tabletop sont stockées dans une base dédiée pour exécuter le contrat.',
+    privacyCookies: 'Cookies & traçage : aucun cookie marketing ou de traçage n\'est utilisé. Seul du stockage local techniquement nécessaire (par ex. langue) est conservé dans votre navigateur.',
+    privacyRights: 'Vos droits : vous disposez d\'un droit d\'accès, de rectification, d\'effacement, de limitation, de portabilité et d\'opposition, ainsi que du droit d\'introduire une réclamation auprès d\'une autorité de contrôle. Demandes : marcel@inside-the-box.org.',
     lastUpdated: 'Dernière mise à jour : 4 septembre 2025',
   },
   techReq: {
