@@ -434,16 +434,17 @@ const Overview = () => {
                       14,
                       Math.min(
                         ((R_LABEL_TEXT * (SECTOR_DEG - SECTOR_GAP_DEG - 12) * Math.PI) / 180) /
-                          (bandLabel.length * 0.84 + 1.2),
-                        LABEL_BAND_THICK * 0.78,
+                          (bandLabel.length * 0.62 + 1.6),
+                        LABEL_BAND_THICK * 0.72,
                       ),
                     );
                     return (
                       <text
-                        fontFamily="'IBM Plex Mono', monospace"
+                        fontFamily="'DM Sans', system-ui, sans-serif"
                         fontSize={bandFit}
-                        fontWeight={700}
-                        letterSpacing={bandFit * 0.22}
+                        fontWeight={600}
+                        letterSpacing={bandFit * 0.24}
+                        textRendering="geometricPrecision"
                         fill="#0a0e1a"
                         style={{ pointerEvents: 'none' }}
                       >
