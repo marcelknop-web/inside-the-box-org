@@ -362,18 +362,17 @@ const FrameAxisLabels = () => {
   const colSpacing = (VIEW_W - 2 * MARGIN) / cols.length;
   const rowSpacing = (VIEW_H - 2 * MARGIN) / rows.length;
   return (
-    <g fill="hsl(var(--primary) / 0.55)" fontSize="11" fontWeight="500">
+    <g fill="hsl(var(--primary) / 0.6)" fontSize="18" fontWeight="500">
       {cols.map((c, i) => {
         const x = MARGIN + colSpacing * (i + 0.5);
         return (
           <g key={`c-${c}`}>
-            <text x={x} y={MARGIN - 8} textAnchor="middle">{c}</text>
-            <text x={x} y={VIEW_H - MARGIN + 18} textAnchor="middle">{c}</text>
-            {/* tick marks */}
+            <text x={x} y={MARGIN - 14} textAnchor="middle">{c}</text>
+            <text x={x} y={VIEW_H - MARGIN + 30} textAnchor="middle">{c}</text>
             {i > 0 && (
               <>
-                <line x1={MARGIN + colSpacing * i} y1={MARGIN} x2={MARGIN + colSpacing * i} y2={MARGIN + 6} stroke="hsl(var(--primary) / 0.35)" strokeWidth="0.6" />
-                <line x1={MARGIN + colSpacing * i} y1={VIEW_H - MARGIN} x2={MARGIN + colSpacing * i} y2={VIEW_H - MARGIN - 6} stroke="hsl(var(--primary) / 0.35)" strokeWidth="0.6" />
+                <line x1={MARGIN + colSpacing * i} y1={MARGIN} x2={MARGIN + colSpacing * i} y2={MARGIN + 8} stroke="hsl(var(--primary) / 0.4)" strokeWidth="0.8" />
+                <line x1={MARGIN + colSpacing * i} y1={VIEW_H - MARGIN} x2={MARGIN + colSpacing * i} y2={VIEW_H - MARGIN - 8} stroke="hsl(var(--primary) / 0.4)" strokeWidth="0.8" />
               </>
             )}
           </g>
@@ -383,12 +382,12 @@ const FrameAxisLabels = () => {
         const y = MARGIN + rowSpacing * (i + 0.5);
         return (
           <g key={`r-${r}`}>
-            <text x={MARGIN - 12} y={y + 4} textAnchor="middle">{r}</text>
-            <text x={VIEW_W - MARGIN + 14} y={y + 4} textAnchor="middle">{r}</text>
+            <text x={MARGIN - 22} y={y + 6} textAnchor="middle">{r}</text>
+            <text x={VIEW_W - MARGIN + 22} y={y + 6} textAnchor="middle">{r}</text>
             {i > 0 && (
               <>
-                <line x1={MARGIN} y1={MARGIN + rowSpacing * i} x2={MARGIN + 6} y2={MARGIN + rowSpacing * i} stroke="hsl(var(--primary) / 0.35)" strokeWidth="0.6" />
-                <line x1={VIEW_W - MARGIN} y1={MARGIN + rowSpacing * i} x2={VIEW_W - MARGIN - 6} y2={MARGIN + rowSpacing * i} stroke="hsl(var(--primary) / 0.35)" strokeWidth="0.6" />
+                <line x1={MARGIN} y1={MARGIN + rowSpacing * i} x2={MARGIN + 8} y2={MARGIN + rowSpacing * i} stroke="hsl(var(--primary) / 0.4)" strokeWidth="0.8" />
+                <line x1={VIEW_W - MARGIN} y1={MARGIN + rowSpacing * i} x2={VIEW_W - MARGIN - 8} y2={MARGIN + rowSpacing * i} stroke="hsl(var(--primary) / 0.4)" strokeWidth="0.8" />
               </>
             )}
           </g>
