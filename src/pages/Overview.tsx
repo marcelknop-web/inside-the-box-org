@@ -155,7 +155,7 @@ const Overview = () => {
   }, [hoveredId]);
 
   return (
-    <div className="min-h-screen w-full text-foreground overflow-hidden relative bg-background flex flex-col">
+    <div className="min-h-screen w-full text-foreground overflow-hidden relative flex flex-col">
       <PageMeta
         title="Mandala"
         description="Grid mandala of cybersecurity services from inside-the-box.org."
@@ -164,13 +164,13 @@ const Overview = () => {
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 
-      {/* Halo */}
+      {/* Subtle halo — keeps the body's millimeter grid visible underneath */}
       <div
         aria-hidden
         className="absolute inset-0 pointer-events-none"
         style={{
           background:
-            'radial-gradient(ellipse at 50% 50%, hsl(var(--primary) / 0.08) 0%, hsl(var(--background)) 70%)',
+            'radial-gradient(ellipse at 50% 50%, hsl(var(--primary) / 0.06) 0%, transparent 55%)',
         }}
       />
 
