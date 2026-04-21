@@ -580,8 +580,9 @@ const DimensionLines = ({ part }: DimensionLinesProps) => {
       {/* Dimension number */}
       <text
         x={part.x + part.w / 2}
-        y={dimY - 4}
-        fontSize="10"
+        y={dimY - 6}
+        fontSize="14"
+        fontWeight="500"
         textAnchor="middle"
         fill={stroke}
         stroke="none"
@@ -597,13 +598,14 @@ const DimensionLines = ({ part }: DimensionLinesProps) => {
       <polygon points={`${dimX},${part.y} ${dimX - arrowSize},${part.y - arrowSize} ${dimX + arrowSize},${part.y - arrowSize}`} />
       <polygon points={`${dimX},${part.y + part.h} ${dimX - arrowSize},${part.y + part.h + arrowSize} ${dimX + arrowSize},${part.y + part.h + arrowSize}`} />
       <text
-        x={dimX - 6}
+        x={dimX - 8}
         y={part.y + part.h / 2}
-        fontSize="10"
+        fontSize="14"
+        fontWeight="500"
         textAnchor="middle"
         fill={stroke}
         stroke="none"
-        transform={`rotate(-90 ${dimX - 6} ${part.y + part.h / 2})`}
+        transform={`rotate(-90 ${dimX - 8} ${part.y + part.h / 2})`}
       >
         {Math.round(part.h)}
       </text>
