@@ -1415,6 +1415,53 @@ const ChatView = () => {
     return () => window.removeEventListener('resize', check);
   }, []);
 
+  // Tool/wizard/simulator routes — chat bar is hidden on these (focused workflows)
+  const TOOL_SERVICES = useMemo(() => new Set([
+    'crisis-sim', 'dora-check', 'tisax-check', 'pci-check', 'ttx-check',
+    'nis2-quiz', 'ciso-sim', 'threatdrop', 'trigger-triage', 'cyber-frogger',
+    'elite-ship', 'cra-check', 'dora-compliance', 'nis2-compliance',
+    'iacs-e27', 'iec62443', 'butterfly-lab', 'soc-life', 'system-check',
+    'ttx-readiness', 'enigma', 'itsm', 'itsm-dev',
+  ]), []);
+  const isToolPage = !!activeService && TOOL_SERVICES.has(activeService);
+
+  // Rotating example questions for the chat placeholder (info pages only)
+  const exampleQuestions = useMemo(() => {
+    const all = {
+      de: [
+        'Welches Tool passt zu NIS-2?',
+        'Wann ist der nächste TTX-Termin?',
+        'Was bedeutet DORA Art. 17 für meinen Betrieb?',
+        'Welche Compliance-Tools bietet ihr?',
+        'Wie läuft ein Tabletop Exercise ab?',
+      ],
+      en: [
+        'Which tool fits NIS-2?',
+        'When is the next TTX session?',
+        'What does DORA Art. 17 mean for my org?',
+        'Which compliance tools do you offer?',
+        'How does a Tabletop Exercise work?',
+      ],
+      fr: [
+        'Quel outil convient pour NIS-2 ?',
+        'Quand est la prochaine session TTX ?',
+        'Que signifie DORA Art. 17 pour mon entreprise ?',
+        'Quels outils de conformité proposez-vous ?',
+        'Comment se déroule un Tabletop Exercise ?',
+      ],
+    } as const;
+    return all[(language as 'de' | 'en' | 'fr')] ?? all.en;
+  }, [language]);
+
+  // Rotate every 4s, but pause while the user is typing
+  useEffect(() => {
+    if (isToolPage || input.length > 0) return;
+    const id = window.setInterval(() => {
+      setExampleIndex(i => (i + 1) % exampleQuestions.length);
+    }, 4000);
+    return () => window.clearInterval(id);
+  }, [isToolPage, input.length, exampleQuestions.length]);
+
   const selectService = (id: string) => {
     navigateToService(id);
     if (isMobile) setSidebarOpen(false);
