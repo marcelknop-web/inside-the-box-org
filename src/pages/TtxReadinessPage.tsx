@@ -10,7 +10,7 @@ import {
 } from '@/data/ttxReadinessData';
 
 const I18N = {
-  pageTitle: { de: 'TTX Readiness · Self-Assessment', en: 'TTX Readiness · Self-Assessment', fr: 'TTX Readiness · Self-Assessment' } as L,
+  pageTitle: { de: 'TTX Readiness · DORA & NIS-2', en: 'TTX Readiness · DORA & NIS-2', fr: 'TTX Readiness · DORA & NIS-2' } as L,
   metaDesc: {
     de: 'Self-Assessment für Tabletop-Exercise-Programme nach DORA und NIS-2. Acht Dimensionen, Reifegrad-Score, visuelle Auswertung.',
     en: 'Self-assessment for tabletop exercise programmes under DORA and NIS-2. Eight dimensions, maturity score, visual analysis.',
