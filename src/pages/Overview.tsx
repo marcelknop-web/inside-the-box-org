@@ -253,31 +253,25 @@ const Overview = () => {
                      longest label in that ring), so all cells in a ring
                      share the same letter rhythm — like a printed plate. */}
                   {(() => {
-                    // ── Print-grade typography settings ──────────────────
-                    // DM Sans (project narrative font) reads more refined
-                    // than mono at large sizes. Tracking is wide for an
-                    // engraved/letterpress feel.
-                    const GLYPH_W = 0.52;     // DM Sans avg cap-width / em
-                    const TRACK = 0.18;       // editorial wide tracking (em)
-                    const PAD = 1.8;          // breathing room at sector edges
-                    const SIZE_FLOOR = 11;
-                    const SIZE_CEIL_RATIO = 0.34;
-                    const arcStartGap = 8;
+                    // ── Print-grade typography ─────────────────────────
+                    // IBM Plex Mono (project data/header font), bold, normal
+                    // tracking — sized per ring to maximise legibility.
+                    const GLYPH_W = 0.62;     // monospace cap-width / em
+                    const TRACK = 0.04;       // tight, readable tracking
+                    const PAD = 1.4;
+                    const SIZE_FLOOR = 13;
+                    const SIZE_CEIL_RATIO = 0.46;
+                    const arcStartGap = 6;
 
-                    // ONE shared font size across the whole cluster, so all
-                    // service names within a quadrant share the same rhythm.
-                    // Computed from the most constrained ring (innermost).
+                    // One font size per ring (each ring's most constrained label)
                     const ceil = RING_THICK * SIZE_CEIL_RATIO;
-                    const candidateSizes = cluster.services.map((svc, ringIdx) => {
+                    const ringSizes: number[] = cluster.services.map((svc, ringIdx) => {
                       const rMid = R_INNER + ringIdx * RING_THICK + RING_THICK / 2;
                       const arcLen = (rMid * (SECTOR_DEG - SECTOR_GAP_DEG - 2 * arcStartGap) * Math.PI) / 180;
                       const labelLen = t(svc.titleKey).length;
-                      // size where the label fits one line on this ring
-                      return arcLen / (labelLen * (GLYPH_W + TRACK) + PAD);
+                      const fitOne = arcLen / (labelLen * (GLYPH_W + TRACK) + PAD);
+                      return Math.max(SIZE_FLOOR, Math.min(fitOne, ceil));
                     });
-                    // Take the smallest ring's natural fit, but cap by ring height
-                    const sharedSize = Math.max(SIZE_FLOOR, Math.min(...candidateSizes, ceil));
-                    const ringSizes: number[] = cluster.services.map(() => sharedSize);
 
                     return cluster.services.map((service, ringIdx) => {
                       const rIn = R_INNER + ringIdx * RING_THICK;
