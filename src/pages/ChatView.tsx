@@ -1171,6 +1171,17 @@ const useServiceContent = () => {
         <CardBlock icon={Scale} title={t('imprint.disclaimer')} desc={t('imprint.disclaimerText')} />
         <CardBlock icon={FileText} title={t('imprint.copyright')} desc={t('imprint.copyrightText')} />
         <CardBlock icon={Shield} title={t('imprint.dataProtection')} desc={t('imprint.dataProtectionText')} />
+        <Block className="bg-secondary/30">
+          <SubTitle>{t('imprint.privacyTitle')}</SubTitle>
+          <div className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed space-y-2 mt-2">
+            <p>{t('imprint.privacyIntro')}</p>
+            <p>{t('imprint.privacyHosting')}</p>
+            <p>{t('imprint.privacyContact')}</p>
+            <p>{t('imprint.privacyTools')}</p>
+            <p>{t('imprint.privacyCookies')}</p>
+            <p>{t('imprint.privacyRights')}</p>
+          </div>
+        </Block>
       </TypedSection>
     ),
     'tech-requirements': () => {

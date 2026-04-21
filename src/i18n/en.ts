@@ -545,6 +545,13 @@ export const en = {
     copyrightText: 'All content on this site is subject to German copyright law. If you notice any violations, please notify me — I will remove the content promptly. Use beyond private purposes requires written consent.',
     dataProtection: 'Data Protection',
     dataProtectionText: 'Use of published contact data for unsolicited advertising is prohibited.',
+    privacyTitle: 'Privacy Notice',
+    privacyIntro: 'This website only processes personal data to the extent necessary to operate the site and respond to enquiries. Controller is Marcel Knop (address see above).',
+    privacyHosting: 'Hosting & logs: The site is delivered via Lovable / Vercel edge. Technically required connection data (IP address, timestamp, user-agent) are processed briefly in server logs (Art. 6 (1) (f) GDPR, legitimate interest in security and stability).',
+    privacyContact: 'Contact: If you reach out by email, phone or contact form, your data is used solely to handle the enquiry (Art. 6 (1) (b) and (f) GDPR) and deleted once it is no longer needed.',
+    privacyTools: 'AI chat & tools: Inputs to the AI tools (chat, compliance tools) are processed anonymously via the Lovable AI Gateway and not stored permanently. Tabletop registrations are stored in a dedicated database to fulfil the contract.',
+    privacyCookies: 'Cookies & tracking: No marketing or tracking cookies are set. Only technically necessary local storage (e.g. language preference) is kept in your browser.',
+    privacyRights: 'Your rights: You have the right to access, rectify, erase, restrict, port and object to processing, and the right to lodge a complaint with a supervisory authority. Requests can be sent informally to marcel@inside-the-box.org.',
     lastUpdated: 'Last updated: 4th September, 2025',
   },
   techReq: {
