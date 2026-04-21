@@ -545,6 +545,13 @@ export const de = {
     copyrightText: 'Alle Inhalte dieser Seite unterliegen dem deutschen Urheberrecht. Bei Kenntnis von Verstößen bitte ich um Benachrichtigung – ich werde die Inhalte umgehend entfernen. Eine Nutzung über den privaten Gebrauch hinaus bedarf der schriftlichen Zustimmung.',
     dataProtection: 'Datenschutz',
     dataProtectionText: 'Die Nutzung veröffentlichter Kontaktdaten für unverlangte Werbung ist untersagt.',
+    privacyTitle: 'Datenschutzerklärung',
+    privacyIntro: 'Diese Website verarbeitet personenbezogene Daten nur in dem Umfang, der für Betrieb und Kontaktaufnahme nötig ist. Verantwortlich ist Marcel Knop (Adresse siehe oben).',
+    privacyHosting: 'Hosting & Logs: Die Seite wird über Lovable / Vercel-Edge bereitgestellt. Beim Abruf werden technisch notwendige Verbindungsdaten (IP-Adresse, Zeitpunkt, User-Agent) kurzzeitig in Server-Logs verarbeitet (Art. 6 Abs. 1 lit. f DSGVO, berechtigtes Interesse an Sicherheit und Stabilität).',
+    privacyContact: 'Kontaktaufnahme: Wenn Sie per E-Mail, Telefon oder Kontaktformular Kontakt aufnehmen, werden Ihre Angaben ausschließlich zur Bearbeitung der Anfrage verarbeitet (Art. 6 Abs. 1 lit. b und f DSGVO) und gelöscht, sobald sie nicht mehr benötigt werden.',
+    privacyTools: 'KI-Chat & Tools: Eingaben in die KI-Tools (z. B. Chat, Compliance-Tools) werden anonym über das Lovable AI Gateway verarbeitet und nicht dauerhaft gespeichert. Tabletop-Anmeldungen werden in einer eigenen Datenbank zur Vertragsabwicklung gespeichert.',
+    privacyCookies: 'Cookies & Tracking: Es werden keine Marketing- oder Tracking-Cookies gesetzt. Lediglich technisch notwendige Speicher (z. B. Spracheinstellung) werden lokal in Ihrem Browser abgelegt.',
+    privacyRights: 'Ihre Rechte: Sie haben das Recht auf Auskunft, Berichtigung, Löschung, Einschränkung, Datenübertragbarkeit und Widerspruch sowie das Recht auf Beschwerde bei einer Aufsichtsbehörde. Anfragen bitte formlos an marcel@inside-the-box.org.',
     lastUpdated: 'Zuletzt aktualisiert: 4. September 2025',
   },
   techReq: {
