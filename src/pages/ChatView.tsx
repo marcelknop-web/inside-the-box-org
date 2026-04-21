@@ -38,6 +38,7 @@ import TypedSection from '@/components/TypedSection';
 import { LinkButton } from '@/components/LinkButton';
 import TtxRegistrationForm from '@/components/TtxRegistrationForm';
 import { NewsPanel } from '@/components/NewsPanel';
+import { RelatedServices } from '@/components/RelatedServices';
 
 interface NavLink { url: string; label: string; }
 interface AiResponse { message: string; links: NavLink[]; }
@@ -323,9 +324,9 @@ const useServiceContent = () => {
             {t('isms.ctaButton')}
           </button>
         </Block>
+        <RelatedServices serviceId="isms" onSelect={setActive} />
       </TypedSection>
     ),
-    'nis2-dora': () => (
       <TypedSection title={t('nis2.title')} mode="typewriter" intro={<p>{t('nis2.intro')}</p>}>
         <Block className="bg-card/40 rounded-xl">
           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{t('nis2.introDetail')}</p>
@@ -370,9 +371,9 @@ const useServiceContent = () => {
             {t('nis2.ctaButton')}
           </button>
         </Block>
+        <RelatedServices serviceId="nis2-dora" onSelect={setActive} />
       </TypedSection>
     ),
-    'tisax-pci-dss': () => (
       <TypedSection title={t('tisax.title')} mode="typewriter" intro={<p>{t('tisax.intro')}</p>}>
         <Block className="bg-card/40 rounded-xl">
           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{t('tisax.introDetail')}</p>
@@ -407,9 +408,9 @@ const useServiceContent = () => {
             {t('tisax.ctaButton')}
           </button>
         </Block>
+        <RelatedServices serviceId="tisax-pci-dss" onSelect={setActive} />
       </TypedSection>
     ),
-    'assessments-concepts': () => (
       <TypedSection title={t('assessments.title')} mode="typewriter" intro={<p>{t('assessments.intro')}</p>}>
         <Block className="bg-card/40 rounded-xl">
           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{t('assessments.introDetail')}</p>
@@ -442,9 +443,9 @@ const useServiceContent = () => {
             {t('assessments.ctaButton')}
           </button>
         </Block>
+        <RelatedServices serviceId="assessments-concepts" onSelect={setActive} />
       </TypedSection>
     ),
-    'incident-management': () => (
       <TypedSection title={t('incident.title')} mode="typewriter" intro={<p>{t('incident.intro')}</p>}>
         <Block className="bg-card/40 rounded-xl">
           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{t('incident.introDetail')}</p>
@@ -479,9 +480,9 @@ const useServiceContent = () => {
             {t('incident.ctaButton')}
           </button>
         </Block>
+        <RelatedServices serviceId="incident-management" onSelect={setActive} />
       </TypedSection>
     ),
-    'cyber-crisis-management': () => (
       <TypedSection title={t('cyberCrisis.title')} mode="typewriter" intro={<p>{t('cyberCrisis.intro')}</p>}>
         <Block className="bg-card/40 rounded-xl">
           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{t('cyberCrisis.introDetail')}</p>
@@ -514,9 +515,9 @@ const useServiceContent = () => {
             {t('cyberCrisis.ctaButton')}
           </button>
         </Block>
+        <RelatedServices serviceId="cyber-crisis-management" onSelect={setActive} />
       </TypedSection>
     ),
-    'arena-training': () => (
       <TypedSection title={t('arena.title')} mode="typewriter" intro={<p>{t('arena.intro')}</p>}>
          <Block className="bg-card/40 rounded-xl">
            <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{t('arena.introDetail')}</p>
@@ -551,9 +552,9 @@ const useServiceContent = () => {
             {t('arena.ctaButton')}
           </button>
         </Block>
+        <RelatedServices serviceId="arena-training" onSelect={setActive} />
       </TypedSection>
     ),
-    'events-workshops': () => (
       <>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
           <img src="/lovable-uploads/fc4cff06-0e9d-41c4-bac3-73a041a924b3.png" alt="Presentation" className="rounded-xl w-full h-40 md:h-48 object-cover border border-border" />
@@ -646,11 +647,11 @@ const useServiceContent = () => {
             {t('events.ctaButton')}
           </button>
         </Block>
+        <RelatedServices serviceId="events-workshops" onSelect={setActive} />
 
       </TypedSection>
       </>
     ),
-    publications: () => (
       <TypedSection title={t('publications.title')} mode="typewriter" intro={<p>{t('publications.intro')}</p>}>
         <Block className="bg-primary/5 border border-primary/20 rounded-xl">
           <SubTitle>{t('publications.pubSectionTitle')}</SubTitle>
@@ -676,9 +677,9 @@ const useServiceContent = () => {
             {t('publications.ctaButton')}
           </button>
         </Block>
+        <RelatedServices serviceId="publications" onSelect={setActive} />
       </TypedSection>
     ),
-    'virtual-ciso': () => (
       <TypedSection title={t('vciso.title')} mode="typewriter" intro={<p>{t('vciso.intro')}</p>}>
         <Block className="bg-card/40 rounded-xl">
           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{t('vciso.introDetail')}</p>
@@ -713,9 +714,9 @@ const useServiceContent = () => {
             {t('vciso.ctaButton')}
           </button>
         </Block>
+        <RelatedServices serviceId="virtual-ciso" onSelect={setActive} />
       </TypedSection>
     ),
-    'dora-nis2-ttx': () => (
       <TypedSection title={t('ttx.title')} mode="typewriter" intro={<p>{t('ttx.intro')}</p>}>
         <Block className="bg-card/40 rounded-xl">
           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{t('ttx.introDetail')}</p>
@@ -810,6 +811,7 @@ const useServiceContent = () => {
             {t('ttx.ctaButton')}
           </button>
         </Block>
+        <RelatedServices serviceId="dora-nis2-ttx" onSelect={setActive} />
       </TypedSection>
     ),
     'ai-workflows': () => (
