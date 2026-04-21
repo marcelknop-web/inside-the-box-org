@@ -339,31 +339,19 @@ const Ring = ({ cluster, ringIdx, radius, tilt, hoveredId, setHoveredId, onSelec
     if (ref.current) ref.current.rotation.z += delta * speed * dir;
   });
 
-  const points = useMemo(() => {
-    const segments = 128;
-    const pts: THREE.Vector3[] = [];
-    for (let i = 0; i <= segments; i++) {
-      const a = (i / segments) * Math.PI * 2;
-      pts.push(new THREE.Vector3(Math.cos(a) * radius, Math.sin(a) * radius, 0));
-    }
-    return pts;
-  }, [radius]);
-
-  const lineGeom = useMemo(() => new THREE.BufferGeometry().setFromPoints(points), [points]);
-
   // Tilt the whole ring around the X axis
   return (
     <group rotation={[tilt, 0, 0]}>
       <group ref={ref}>
-        {/* Ring guide line */}
-        <line>
-          <primitive object={lineGeom} attach="geometry" />
-          <lineBasicMaterial
+        {/* Ring guide — torus doubles as visible line, avoids R3F <line> quirks */}
+        <mesh>
+          <torusGeometry args={[radius, 0.006, 8, 160]} />
+          <meshBasicMaterial
             color={COLOR_PRIMARY}
             transparent
-            opacity={0.18 + (3 - ringIdx) * 0.04}
+            opacity={0.35 + (3 - ringIdx) * 0.05}
           />
-        </line>
+        </mesh>
 
         {/* Subtle inner glow ring for depth */}
         <mesh>
