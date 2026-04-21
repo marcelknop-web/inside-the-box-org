@@ -324,14 +324,14 @@ const Overview = () => {
                           fill={cluster.hex}
                           fillOpacity={isHovered ? 1 : 0.75}
                           style={{ pointerEvents: 'none' }}
+                          dy={flip ? 14 : -14}
                         >
                           <textPath
                             href={`#${arcId}`}
                             startOffset="50%"
                             textAnchor="middle"
-                            side={flip ? 'right' : 'left'}
                           >
-                            <tspan dy={flip ? 14 : -14}>{service.code}</tspan>
+                            {service.code}
                           </textPath>
                         </text>
 
