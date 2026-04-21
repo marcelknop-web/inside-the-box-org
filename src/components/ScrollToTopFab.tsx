@@ -27,12 +27,13 @@ export function ScrollToTopFab() {
       aria-label={label}
       title={label}
       onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-      className={`fixed z-40 right-4 bottom-[calc(1rem+env(safe-area-inset-bottom))] h-10 w-10 rounded-full
-        bg-secondary/85 backdrop-blur-md border border-primary/30 text-primary
-        shadow-[0_4px_20px_hsl(216_50%_3%/0.6)] hover:border-primary/60
-        hover:bg-secondary/95 transition-all duration-300
+      className={`fixed z-50 right-3 md:right-4 h-10 w-10 rounded-full
+        bg-secondary/90 backdrop-blur-md border border-primary/40 text-primary
+        shadow-[0_4px_20px_hsl(216_50%_3%/0.6)] hover:border-primary/70
+        hover:bg-secondary hover:text-primary transition-all duration-300
         focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary
         ${visible ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-2 pointer-events-none'}`}
+      style={{ bottom: 'calc(4.5rem + env(safe-area-inset-bottom))' }}
     >
       <ArrowUp size={16} className="mx-auto" />
     </button>
