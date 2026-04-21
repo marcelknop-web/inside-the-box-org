@@ -115,7 +115,7 @@ const COLOR_DIM = '#3a4a66';
 const Overview = () => {
   const { t, language, setLanguage } = useLanguage();
   const navigate = useNavigate();
-  const isMobile = useIsMobile();
+  const isMobile = useIsPhone();
   const [hoveredId, setHoveredId] = useState<string | null>(null);
 
   const handleClick = useCallback((id: string) => navigate(`/${id}`), [navigate]);
