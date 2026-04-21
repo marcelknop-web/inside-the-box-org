@@ -407,22 +407,35 @@ const Overview = () => {
                       )}
                     />
                   </defs>
-                  <text
-                    fontFamily="'IBM Plex Mono', monospace"
-                    fontSize={Math.max(14, Math.min(((R_LABEL_TEXT * (SECTOR_DEG - SECTOR_GAP_DEG - 12) * Math.PI) / 180) / ((`${cluster.code} · ${t(cluster.groupKey).toUpperCase()}`.length) * 0.84 + 1.2), LABEL_BAND_THICK * 0.62))}
-                    fontWeight={700}
-                    letterSpacing={Math.max(14, Math.min(((R_LABEL_TEXT * (SECTOR_DEG - SECTOR_GAP_DEG - 12) * Math.PI) / 180) / ((`${cluster.code} · ${t(cluster.groupKey).toUpperCase()}`.length) * 0.84 + 1.2), LABEL_BAND_THICK * 0.62)) * 0.22}
-                    fill="#0a0e1a"
-                    style={{ pointerEvents: 'none' }}
-                  >
-                    <textPath
-                      href={`#outer-${cluster.id}`}
-                      startOffset="50%"
-                      textAnchor="middle"
-                    >
-                      {`${cluster.code} · ${t(cluster.groupKey).toUpperCase()}`}
-                    </textPath>
-                  </text>
+                  {(() => {
+                    const bandLabel = t(cluster.groupKey).toUpperCase();
+                    const bandFit = Math.max(
+                      14,
+                      Math.min(
+                        ((R_LABEL_TEXT * (SECTOR_DEG - SECTOR_GAP_DEG - 12) * Math.PI) / 180) /
+                          (bandLabel.length * 0.84 + 1.2),
+                        LABEL_BAND_THICK * 0.78,
+                      ),
+                    );
+                    return (
+                      <text
+                        fontFamily="'IBM Plex Mono', monospace"
+                        fontSize={bandFit}
+                        fontWeight={700}
+                        letterSpacing={bandFit * 0.22}
+                        fill="#0a0e1a"
+                        style={{ pointerEvents: 'none' }}
+                      >
+                        <textPath
+                          href={`#outer-${cluster.id}`}
+                          startOffset="50%"
+                          textAnchor="middle"
+                        >
+                          {bandLabel}
+                        </textPath>
+                      </text>
+                    );
+                  })()}
                 </g>
               );
             })}
