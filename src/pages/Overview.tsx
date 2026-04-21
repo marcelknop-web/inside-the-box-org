@@ -372,7 +372,7 @@ const Overview = () => {
                     <path
                       id={`outer-${cluster.id}`}
                       d={buildTextArc(
-                        R_LABELS,
+                        R_LABEL_TEXT,
                         sectorStart + 4,
                         sectorEnd - 4,
                         ((sectorMid + rotation) % 360) > 90 && ((sectorMid + rotation) % 360) < 270,
