@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { Languages } from 'lucide-react';
@@ -78,14 +78,14 @@ const CLUSTERS: Cluster[] = [
   },
 ];
 
-// Mandala geometry
-const VB = 900;                          // viewBox dimension
+// Mandala geometry — generous ring thickness so labels truly fill their cells
+const VB = 980;                          // viewBox dimension
 const HALF = VB / 2;
-const R_INNER = 70;                      // start of first ring (after centre)
-const RING_THICK = 70;                   // each ring thickness
+const R_INNER = 78;                      // start of first ring (after centre)
+const RING_THICK = 88;                   // each ring thickness — bigger = more room for text
 const MAX_RINGS = Math.max(...CLUSTERS.map((c) => c.services.length));   // 4
-const R_OUTER = R_INNER + RING_THICK * MAX_RINGS;                         // 350
-const R_LABELS = R_OUTER + 40;                                            // outer cluster names
+const R_OUTER = R_INNER + RING_THICK * MAX_RINGS;                         // 430
+const R_LABELS = R_OUTER + 38;                                            // outer cluster names
 
 // Sector geometry — each cluster gets one sector.
 // Sectors are evenly spaced around the circle.
@@ -138,21 +138,8 @@ const Overview = () => {
   const { t, language, setLanguage } = useLanguage();
   const navigate = useNavigate();
   const [hoveredId, setHoveredId] = useState<string | null>(null);
-  const [rotation, setRotation] = useState(0);
-
-  // Very slow rotation — meditative, doesn't fight readability
-  useEffect(() => {
-    let raf = 0;
-    let last = performance.now();
-    const tick = (now: number) => {
-      const dt = (now - last) / 1000;
-      last = now;
-      setRotation((r) => (r + dt * 1.2) % 360); // 1.2°/s — almost still
-      raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, []);
+  // Statisch — keine Bewegung. Bewegung lenkt vom Lesen ab.
+  const rotation = 0;
 
   const handleClick = useCallback((id: string) => navigate(`/${id}`), [navigate]);
 
@@ -319,12 +306,12 @@ const Overview = () => {
                         {/* Service code — small, near inner edge */}
                         <text
                           fontFamily="'IBM Plex Mono', monospace"
-                          fontSize={8.5}
-                          letterSpacing={2}
+                          fontSize={11}
+                          letterSpacing={3}
                           fill={cluster.hex}
-                          fillOpacity={isHovered ? 1 : 0.75}
+                          fillOpacity={isHovered ? 1 : 0.85}
                           style={{ pointerEvents: 'none' }}
-                          dy={flip ? 14 : -14}
+                          dy={flip ? 20 : -20}
                         >
                           <textPath
                             href={`#${arcId}`}
@@ -338,10 +325,10 @@ const Overview = () => {
                         {/* Service name — main label, curved along arc */}
                         <text
                           fontFamily="'IBM Plex Mono', monospace"
-                          fontSize={isHovered ? 14 : 12.5}
+                          fontSize={isHovered ? 20 : 18}
                           fontWeight={500}
-                          letterSpacing={1.5}
-                          fill={isHovered ? '#0a0e1a' : '#e9edf5'}
+                          letterSpacing={2}
+                          fill={isHovered ? '#0a0e1a' : '#f1f4fa'}
                           style={{
                             pointerEvents: 'none',
                             transition: 'fill 0.25s, font-size 0.25s',
@@ -392,9 +379,9 @@ const Overview = () => {
                   </defs>
                   <text
                     fontFamily="'IBM Plex Mono', monospace"
-                    fontSize={13}
+                    fontSize={17}
                     fontWeight={600}
-                    letterSpacing={4}
+                    letterSpacing={6}
                     fill={cluster.hex}
                     style={{ pointerEvents: 'none' }}
                   >
