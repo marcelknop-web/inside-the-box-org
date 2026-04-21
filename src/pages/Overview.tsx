@@ -306,12 +306,12 @@ const Overview = () => {
                         {/* Service code — small, near inner edge */}
                         <text
                           fontFamily="'IBM Plex Mono', monospace"
-                          fontSize={8.5}
-                          letterSpacing={2}
+                          fontSize={11}
+                          letterSpacing={3}
                           fill={cluster.hex}
-                          fillOpacity={isHovered ? 1 : 0.75}
+                          fillOpacity={isHovered ? 1 : 0.85}
                           style={{ pointerEvents: 'none' }}
-                          dy={flip ? 14 : -14}
+                          dy={flip ? 20 : -20}
                         >
                           <textPath
                             href={`#${arcId}`}
@@ -325,10 +325,10 @@ const Overview = () => {
                         {/* Service name — main label, curved along arc */}
                         <text
                           fontFamily="'IBM Plex Mono', monospace"
-                          fontSize={isHovered ? 14 : 12.5}
+                          fontSize={isHovered ? 20 : 18}
                           fontWeight={500}
-                          letterSpacing={1.5}
-                          fill={isHovered ? '#0a0e1a' : '#e9edf5'}
+                          letterSpacing={2}
+                          fill={isHovered ? '#0a0e1a' : '#f1f4fa'}
                           style={{
                             pointerEvents: 'none',
                             transition: 'fill 0.25s, font-size 0.25s',
@@ -379,9 +379,9 @@ const Overview = () => {
                   </defs>
                   <text
                     fontFamily="'IBM Plex Mono', monospace"
-                    fontSize={13}
+                    fontSize={17}
                     fontWeight={600}
-                    letterSpacing={4}
+                    letterSpacing={6}
                     fill={cluster.hex}
                     style={{ pointerEvents: 'none' }}
                   >
