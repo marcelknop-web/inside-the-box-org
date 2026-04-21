@@ -206,14 +206,13 @@ export default function TtxReadinessPage() {
                     role="radio"
                     aria-checked={sel}
                     onClick={() => answer(n)}
-                    className={`text-left px-4 py-3 rounded border-2 font-mono text-sm transition-electric flex items-center gap-3 ${
+                    className={`text-left px-3 py-2.5 rounded border-2 font-sans text-sm transition-electric ${
                       sel
                         ? 'border-highlight bg-highlight/15 text-highlight'
                         : 'border-primary/30 text-foreground/85 hover:border-highlight hover:bg-highlight/5 hover:text-highlight'
                     }`}
                   >
-                    <span className="font-bold text-base shrink-0 w-6 text-center">{n}</span>
-                    <span className="font-sans text-sm leading-snug">{label.replace(/^\d\s/, '')}</span>
+                    {label}
                   </button>
                 );
               })}
