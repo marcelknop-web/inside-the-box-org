@@ -354,29 +354,32 @@ const Overview = () => {
                             ))}
                           </defs>
 
-                          {lines.map((line, idx) => (
-                            <text
-                              key={idx}
-                              fontFamily="'IBM Plex Mono', monospace"
-                              fontSize={lines.length === 2 ? fontSize * 0.82 : fontSize}
-                              fontWeight={500}
-                              letterSpacing={(lines.length === 2 ? fontSize * 0.82 : fontSize) * TRACK}
-                              textRendering="geometricPrecision"
-                              fill={isHovered ? '#0a0e1a' : '#eef1f7'}
-                              style={{
-                                pointerEvents: 'none',
-                                transition: 'fill 0.25s',
-                              }}
-                            >
-                              <textPath
-                                href={`#${service.id}-arc-${idx}`}
-                                startOffset="50%"
-                                textAnchor="middle"
+                          {lines.map((line, idx) => {
+                            const lineSize = lines.length === 2 ? fontSize * 0.78 : fontSize;
+                            return (
+                              <text
+                                key={idx}
+                                fontFamily="'DM Sans', system-ui, sans-serif"
+                                fontSize={lineSize}
+                                fontWeight={500}
+                                letterSpacing={lineSize * TRACK}
+                                textRendering="geometricPrecision"
+                                fill={isHovered ? '#0a0e1a' : '#f0f3f9'}
+                                style={{
+                                  pointerEvents: 'none',
+                                  transition: 'fill 0.25s',
+                                }}
                               >
-                                {line}
-                              </textPath>
-                            </text>
-                          ))}
+                                <textPath
+                                  href={`#${service.id}-arc-${idx}`}
+                                  startOffset="50%"
+                                  textAnchor="middle"
+                                >
+                                  {line}
+                                </textPath>
+                              </text>
+                            );
+                          })}
                         </g>
                       );
                     });
