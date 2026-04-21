@@ -4,6 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import { Languages } from 'lucide-react';
 import { PageMeta } from '@/components/PageMeta';
 import { useLanguage, nextLanguage } from '@/i18n/LanguageContext';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 /**
  * Hidden /overview — Engineering Blueprint.
