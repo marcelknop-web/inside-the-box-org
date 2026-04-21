@@ -1,6 +1,7 @@
 import { useState, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, X, Languages } from 'lucide-react';
+import { Helmet } from 'react-helmet-async';
+import { ArrowRight, Languages } from 'lucide-react';
 import { PageMeta } from '@/components/PageMeta';
 import { useLanguage, nextLanguage } from '@/i18n/LanguageContext';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
@@ -107,10 +108,12 @@ const Overview = () => {
   return (
     <div className="min-h-screen w-full text-foreground">
       <PageMeta
-        title="Service Blueprint — inside-the-box.org"
+        title="Service Blueprint"
         description="Architektonische Übersicht aller Cybersecurity-Services von inside-the-box.org."
-        noindex
       />
+      <Helmet>
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
 
       {/* Top bar */}
       <header className="flex items-center justify-between px-4 sm:px-8 py-4 border-b border-border/40">
