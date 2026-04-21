@@ -34,7 +34,7 @@ const NEWS: NewsItem[] = [
   },
   {
     date: '2026-04-15',
-    route: '/nis2-dora',
+    route: '/dora-nis2-ttx',
     badge: { de: 'Termin', en: 'Date', fr: 'Date' },
     title: {
       de: 'TTX-Termin: 26.–30.10.2026 (ISACA Germany Chapter)',
