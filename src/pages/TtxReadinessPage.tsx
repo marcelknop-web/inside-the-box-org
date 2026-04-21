@@ -66,9 +66,21 @@ export default function TtxReadinessPage() {
 
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [showResult, setShowResult] = useState(false);
+  const [currentIdx, setCurrentIdx] = useState(0);
   const resultRef = useRef<HTMLDivElement | null>(null);
 
-  const totalItems = DIMENSIONS.length * 3;
+  // Flat list of all questions across all dimensions
+  const flatQuestions = useMemo(() =>
+    DIMENSIONS.flatMap(dim =>
+      dim.items.map((item, i) => ({
+        key: `${dim.id}-${i}`,
+        dim,
+        item,
+        itemIndex: i,
+      }))
+    ), []);
+
+  const totalItems = flatQuestions.length;
   const totalAnswered = Object.keys(answers).length;
   const score = useMemo(() => Object.values(answers).reduce((a, b) => a + b, 0), [answers]);
 
@@ -84,8 +96,28 @@ export default function TtxReadinessPage() {
     .sort((a, b) => a.score - b.score || a.id.localeCompare(b.id))
     .slice(0, 3), [dimScores]);
 
-  const set = (key: string, val: number) => setAnswers(p => ({ ...p, [key]: val }));
-  const reset = () => { setAnswers({}); setShowResult(false); };
+  const currentQ = flatQuestions[currentIdx];
+  const isLastQuestion = currentIdx === totalItems - 1;
+
+  const answer = (val: number) => {
+    if (!currentQ) return;
+    setAnswers(p => ({ ...p, [currentQ.key]: val }));
+    if (isLastQuestion) {
+      setShowResult(true);
+    } else {
+      setCurrentIdx(i => i + 1);
+    }
+  };
+
+  const goPrev = () => {
+    if (currentIdx > 0) setCurrentIdx(i => i - 1);
+  };
+
+  const reset = () => {
+    setAnswers({});
+    setShowResult(false);
+    setCurrentIdx(0);
+  };
 
   const verdict = getVerdict(score);
 
