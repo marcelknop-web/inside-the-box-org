@@ -38,9 +38,9 @@ const CLUSTERS: Cluster[] = [
     code: 'A',
     hex: '#f5b800',
     services: [
+      { id: 'arena-training',          titleKey: 'consulting.arenaTitle',    code: 'A-03' },
       { id: 'cyber-crisis-management', titleKey: 'consulting.crisisTitle',   code: 'A-01' },
       { id: 'incident-management',     titleKey: 'consulting.incidentTitle', code: 'A-02' },
-      { id: 'arena-training',          titleKey: 'consulting.arenaTitle',    code: 'A-03' },
     ],
   },
   {
@@ -49,10 +49,10 @@ const CLUSTERS: Cluster[] = [
     code: 'B',
     hex: '#00bcd4',
     services: [
-      { id: 'nis2-dora',     titleKey: 'consulting.nis2Title',  code: 'B-01' },
-      { id: 'dora-nis2-ttx', titleKey: 'nav.ttxTraining',       code: 'B-02' },
-      { id: 'isms',          titleKey: 'consulting.ismsTitle',  code: 'B-03' },
       { id: 'tisax-pci-dss', titleKey: 'consulting.tisaxTitle', code: 'B-04' },
+      { id: 'isms',          titleKey: 'consulting.ismsTitle',  code: 'B-03' },
+      { id: 'dora-nis2-ttx', titleKey: 'nav.ttxTraining',       code: 'B-02' },
+      { id: 'nis2-dora',     titleKey: 'consulting.nis2Title',  code: 'B-01' },
     ],
   },
   {
@@ -61,8 +61,8 @@ const CLUSTERS: Cluster[] = [
     code: 'C',
     hex: '#e8a200',
     services: [
-      { id: 'virtual-ciso',         titleKey: 'consulting.vcisoTitle',  code: 'C-01' },
       { id: 'assessments-concepts', titleKey: 'consulting.assessTitle', code: 'C-02' },
+      { id: 'virtual-ciso',         titleKey: 'consulting.vcisoTitle',  code: 'C-01' },
     ],
   },
   {
