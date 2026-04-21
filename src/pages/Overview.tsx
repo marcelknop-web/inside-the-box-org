@@ -685,22 +685,22 @@ const DescriptionLayer = ({ title, desc, code }: DescriptionLayerProps) => (
     className="absolute left-0 right-0 top-16 px-6 pointer-events-none z-20"
     aria-live="polite"
   >
-    <div className="max-w-3xl mx-auto text-center">
+    <div className="max-w-4xl mx-auto text-center">
       {code && (
-        <div className="font-mono text-[10px] tracking-[0.4em] text-primary/80 mb-2 animate-fade-in">
+        <div className="font-mono text-xs sm:text-sm tracking-[0.4em] text-primary/85 mb-3 animate-fade-in">
           PART {code} · CLICK TO ENTER
         </div>
       )}
       <h2
         key={title}
-        className="font-mono text-base sm:text-lg md:text-xl font-light leading-tight animate-fade-in"
+        className="font-mono text-xl sm:text-2xl md:text-3xl font-light leading-tight animate-fade-in"
         style={{ letterSpacing: '0.05em' }}
       >
         {title.toUpperCase()}
       </h2>
       <p
         key={desc}
-        className="text-xs text-muted-foreground max-w-xl mx-auto animate-fade-in mt-1"
+        className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto animate-fade-in mt-2"
       >
         {desc}
       </p>
