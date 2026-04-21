@@ -439,14 +439,14 @@ const ZoneHeader = ({ zone, t, active }: ZoneHeaderProps) => {
         style={{ transition: 'stroke 0.3s' }}
       />
       {/* zone code badge */}
-      <g transform={`translate(${zone.x + 22}, ${zone.y + 28})`}>
-        <text fontSize="10" fill="hsl(var(--primary) / 0.5)" letterSpacing="2">
+      <g transform={`translate(${zone.x + 26}, ${zone.y + 32})`}>
+        <text fontSize="14" fill="hsl(var(--primary) / 0.6)" letterSpacing="3">
           ZONE {zone.zoneLabel} · {zone.cluster.code}
         </text>
-        <text y={18} fontSize="13" fill={active ? 'hsl(var(--primary))' : 'hsl(var(--foreground) / 0.85)'} letterSpacing="1.5" style={{ transition: 'fill 0.3s' }}>
+        <text y={26} fontSize="20" fontWeight="500" fill={active ? 'hsl(var(--primary))' : 'hsl(var(--foreground) / 0.9)'} letterSpacing="2" style={{ transition: 'fill 0.3s' }}>
           {label}
         </text>
-        <line x1={0} y1={26} x2={150} y2={26} stroke="hsl(var(--primary) / 0.4)" strokeWidth="0.6" />
+        <line x1={0} y1={36} x2={220} y2={36} stroke="hsl(var(--primary) / 0.45)" strokeWidth="0.8" />
       </g>
     </g>
   );
