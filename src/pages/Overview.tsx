@@ -138,21 +138,8 @@ const Overview = () => {
   const { t, language, setLanguage } = useLanguage();
   const navigate = useNavigate();
   const [hoveredId, setHoveredId] = useState<string | null>(null);
-  const [rotation, setRotation] = useState(0);
-
-  // Very slow rotation — meditative, doesn't fight readability
-  useEffect(() => {
-    let raf = 0;
-    let last = performance.now();
-    const tick = (now: number) => {
-      const dt = (now - last) / 1000;
-      last = now;
-      setRotation((r) => (r + dt * 1.2) % 360); // 1.2°/s — almost still
-      raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, []);
+  // Statisch — keine Bewegung. Bewegung lenkt vom Lesen ab.
+  const rotation = 0;
 
   const handleClick = useCallback((id: string) => navigate(`/${id}`), [navigate]);
 
