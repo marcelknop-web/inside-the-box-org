@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { Languages } from 'lucide-react';
@@ -6,26 +6,29 @@ import { PageMeta } from '@/components/PageMeta';
 import { useLanguage, nextLanguage } from '@/i18n/LanguageContext';
 
 /**
- * Hidden artistic overview at /overview.
+ * Hidden /overview — Engineering Blueprint.
  *
- * Visual metaphor: a living organism — flowing petals that bloom from a
- * pulsing core. Each cluster is a soft lobe of color; each service is a
- * rounded petal that drifts on its own micro-orbit. Hovering swells the
- * petal and softens its neighbors. Click navigates to that service.
+ * Visual metaphor: a technical drawing of the practice. Services are
+ * components on a draughtsman's sheet — labelled boxes, dimension lines,
+ * crosshair axes, coordinate ticks, drawing-frame and title-block.
+ * Hover highlights a part; click navigates.
  *
- * No rigid sectors. Curves everywhere. Type breathes around the form.
+ * Strict palette: hairline strokes on a faint grid, primary accent for
+ * active part, muted for secondary marks. Nothing decorative — every
+ * mark "means" something.
  */
 
 type ServiceNode = {
   id: string;
   titleKey: string;
   descKey: string;
+  code: string; // part number e.g. "A-01"
 };
 
 type Cluster = {
   id: string;
   groupKey: string;
-  tone: 'primary' | 'highlight';
+  code: string; // sheet zone e.g. "A"
   services: ServiceNode[];
 };
 
@@ -33,148 +36,131 @@ const CLUSTERS: Cluster[] = [
   {
     id: 'resilience',
     groupKey: 'nav.groupCyberResilience',
-    tone: 'primary',
+    code: 'A',
     services: [
-      { id: 'cyber-crisis-management', titleKey: 'consulting.crisisTitle',   descKey: 'consulting.crisisDesc' },
-      { id: 'incident-management',     titleKey: 'consulting.incidentTitle', descKey: 'consulting.incidentDesc' },
-      { id: 'arena-training',          titleKey: 'consulting.arenaTitle',    descKey: 'consulting.arenaDesc' },
+      { id: 'cyber-crisis-management', titleKey: 'consulting.crisisTitle',   descKey: 'consulting.crisisDesc',   code: 'A-01' },
+      { id: 'incident-management',     titleKey: 'consulting.incidentTitle', descKey: 'consulting.incidentDesc', code: 'A-02' },
+      { id: 'arena-training',          titleKey: 'consulting.arenaTitle',    descKey: 'consulting.arenaDesc',    code: 'A-03' },
     ],
   },
   {
     id: 'regulation',
     groupKey: 'nav.groupRegulation',
-    tone: 'highlight',
+    code: 'B',
     services: [
-      { id: 'nis2-dora',     titleKey: 'consulting.nis2Title',  descKey: 'consulting.nis2Desc' },
-      { id: 'dora-nis2-ttx', titleKey: 'nav.ttxTraining',       descKey: 'consulting.crisisDesc' },
-      { id: 'isms',          titleKey: 'consulting.ismsTitle',  descKey: 'consulting.ismsDesc' },
-      { id: 'tisax-pci-dss', titleKey: 'consulting.tisaxTitle', descKey: 'consulting.tisaxDesc' },
-    ],
-  },
-  {
-    id: 'insights',
-    groupKey: 'nav.groupInsights',
-    tone: 'highlight',
-    services: [
-      { id: 'publications',     titleKey: 'consulting.pubTitle',         descKey: 'consulting.pubDesc' },
-      { id: 'events-workshops', titleKey: 'consulting.eventsTitle',      descKey: 'consulting.eventsDesc' },
-      { id: 'ai-workflows',     titleKey: 'consulting.aiWorkflowsTitle', descKey: 'consulting.aiWorkflowsDesc' },
+      { id: 'nis2-dora',     titleKey: 'consulting.nis2Title',  descKey: 'consulting.nis2Desc',  code: 'B-01' },
+      { id: 'dora-nis2-ttx', titleKey: 'nav.ttxTraining',       descKey: 'consulting.crisisDesc', code: 'B-02' },
+      { id: 'isms',          titleKey: 'consulting.ismsTitle',  descKey: 'consulting.ismsDesc',  code: 'B-03' },
+      { id: 'tisax-pci-dss', titleKey: 'consulting.tisaxTitle', descKey: 'consulting.tisaxDesc', code: 'B-04' },
     ],
   },
   {
     id: 'governance',
     groupKey: 'nav.groupGovernance',
-    tone: 'primary',
+    code: 'C',
     services: [
-      { id: 'virtual-ciso',         titleKey: 'consulting.vcisoTitle',  descKey: 'consulting.vcisoDesc' },
-      { id: 'assessments-concepts', titleKey: 'consulting.assessTitle', descKey: 'consulting.assessDesc' },
+      { id: 'virtual-ciso',         titleKey: 'consulting.vcisoTitle',  descKey: 'consulting.vcisoDesc',  code: 'C-01' },
+      { id: 'assessments-concepts', titleKey: 'consulting.assessTitle', descKey: 'consulting.assessDesc', code: 'C-02' },
+    ],
+  },
+  {
+    id: 'insights',
+    groupKey: 'nav.groupInsights',
+    code: 'D',
+    services: [
+      { id: 'publications',     titleKey: 'consulting.pubTitle',         descKey: 'consulting.pubDesc',         code: 'D-01' },
+      { id: 'events-workshops', titleKey: 'consulting.eventsTitle',      descKey: 'consulting.eventsDesc',      code: 'D-02' },
+      { id: 'ai-workflows',     titleKey: 'consulting.aiWorkflowsTitle', descKey: 'consulting.aiWorkflowsDesc', code: 'D-03' },
     ],
   },
 ];
 
-// ── Geometry ───────────────────────────────────────────────────────────────
+// ── Sheet geometry ─────────────────────────────────────────────────────────
 
-const VIEW = 1000;
-const CENTER = VIEW / 2;
-const R_CORE = 64;
-const R_LOBE = 240;        // distance of cluster lobe centers from core
-const LOBE_RADIUS = 195;   // size of the soft cluster blob
-const R_PETAL_ORBIT = 245; // distance of petals from core
-const PETAL_SIZE = 56;     // base petal radius
+const VIEW_W = 1600;
+const VIEW_H = 1000;
+const MARGIN = 60;        // sheet inner border
+const FRAME = 28;         // frame inside sheet edge
 
-const pol = (cx: number, cy: number, deg: number, r: number) => {
-  const a = ((deg - 90) * Math.PI) / 180;
-  return { x: cx + Math.cos(a) * r, y: cy + Math.sin(a) * r };
-};
+// Layout: 4 quadrants (zones A-D), divided by central crosshair.
+// Each zone hosts its services as labelled component boxes.
 
-/** Build a smooth closed blob path from N points using cubic Bezier curves. */
-const blobPath = (points: Array<{ x: number; y: number }>): string => {
-  const n = points.length;
-  if (n < 3) return '';
-  const tension = 0.42; // higher = more curvy
-  let d = `M ${points[0].x} ${points[0].y}`;
-  for (let i = 0; i < n; i++) {
-    const p0 = points[(i - 1 + n) % n];
-    const p1 = points[i];
-    const p2 = points[(i + 1) % n];
-    const p3 = points[(i + 2) % n];
-    const cp1x = p1.x + (p2.x - p0.x) * tension * 0.5;
-    const cp1y = p1.y + (p2.y - p0.y) * tension * 0.5;
-    const cp2x = p2.x - (p3.x - p1.x) * tension * 0.5;
-    const cp2y = p2.y - (p3.y - p1.y) * tension * 0.5;
-    d += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p2.x} ${p2.y}`;
-  }
-  return d + ' Z';
-};
-
-/** Generate a soft, slightly irregular blob centered at (cx, cy) with given mean radius. */
-const softBlob = (cx: number, cy: number, meanR: number, seed: number, t: number): string => {
-  const N = 18;
-  const pts: Array<{ x: number; y: number }> = [];
-  for (let i = 0; i < N; i++) {
-    const ang = (i / N) * 360;
-    // Multiple sine layers for organic wobble
-    const wob =
-      Math.sin((ang * Math.PI) / 180 * 2 + seed + t * 0.5) * 0.06 +
-      Math.sin((ang * Math.PI) / 180 * 3 + seed * 1.7 + t * 0.3) * 0.04 +
-      Math.sin((ang * Math.PI) / 180 * 5 + seed * 2.3) * 0.03;
-    const r = meanR * (1 + wob);
-    pts.push(pol(cx, cy, ang, r));
-  }
-  return blobPath(pts);
-};
-
-// ── Layout ─────────────────────────────────────────────────────────────────
-
-type ClusterLayout = {
+type Zone = {
   cluster: Cluster;
-  angle: number;            // angle of lobe center
-  cx: number;
-  cy: number;
-  seed: number;
-  petals: Array<{
-    node: ServiceNode;
-    angle: number;          // absolute angle from CENTER
-    cx: number;
-    cy: number;
-    seed: number;
-    orbitPhase: number;
-    orbitAmp: number;
-  }>;
+  // top-left & size of the zone (inside frame, after axis labels)
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  zoneLabel: string; // e.g. "A1"
 };
 
-const layoutOrganism = (clusters: Cluster[]): ClusterLayout[] => {
-  const N = clusters.length;
-  return clusters.map((cluster, i) => {
-    const angle = (i / N) * 360;
-    const lobe = pol(CENTER, CENTER, angle, R_LOBE);
-    const sCount = cluster.services.length;
-    // spread petals across an arc of ~75deg around the lobe direction
-    const span = 78;
-    const start = angle - span / 2;
-    const step = sCount > 1 ? span / (sCount - 1) : 0;
-    const petals = cluster.services.map((node, j) => {
-      const a = sCount === 1 ? angle : start + j * step;
-      const p = pol(CENTER, CENTER, a, R_PETAL_ORBIT);
-      return {
-        node,
-        angle: a,
-        cx: p.x,
-        cy: p.y,
-        seed: i * 13 + j * 7 + 1.3,
-        orbitPhase: (i * 1.7 + j * 0.9) % (Math.PI * 2),
-        orbitAmp: 4 + (j % 2) * 3,
-      };
-    });
+const buildZones = (): Zone[] => {
+  // After the main border, leave room for axis ticks; then split 2x2
+  const innerX = MARGIN + 60;
+  const innerY = MARGIN + 60;
+  const innerW = VIEW_W - innerX - MARGIN - 40;
+  const innerH = VIEW_H - innerY - MARGIN - 90; // leave space for title block
+  const colW = innerW / 2;
+  const rowH = innerH / 2;
+  // Order: A top-left, B top-right, C bottom-left, D bottom-right
+  const map = [
+    { id: 'resilience', col: 0, row: 0, label: 'A1' },
+    { id: 'regulation', col: 1, row: 0, label: 'B1' },
+    { id: 'governance', col: 0, row: 1, label: 'A2' },
+    { id: 'insights',   col: 1, row: 1, label: 'B2' },
+  ];
+  return map.map((m) => {
+    const cluster = CLUSTERS.find((c) => c.id === m.id)!;
     return {
       cluster,
-      angle,
-      cx: lobe.x,
-      cy: lobe.y,
-      seed: i * 11 + 0.7,
-      petals,
+      x: innerX + m.col * colW,
+      y: innerY + m.row * rowH,
+      w: colW,
+      h: rowH,
+      zoneLabel: m.label,
     };
   });
+};
+
+type Part = {
+  node: ServiceNode;
+  zone: Zone;
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+};
+
+const layoutParts = (zones: Zone[]): Part[] => {
+  const parts: Part[] = [];
+  for (const zone of zones) {
+    const pad = 50;
+    const inner = {
+      x: zone.x + pad,
+      y: zone.y + pad,
+      w: zone.w - pad * 2,
+      h: zone.h - pad * 2,
+    };
+    const n = zone.cluster.services.length;
+    // single column stack, evenly spaced
+    const gap = 14;
+    const partH = Math.min(72, (inner.h - gap * (n - 1)) / n);
+    const partW = Math.min(360, inner.w);
+    const startY = inner.y + (inner.h - (partH * n + gap * (n - 1))) / 2;
+    const startX = inner.x + (inner.w - partW) / 2;
+    zone.cluster.services.forEach((s, i) => {
+      parts.push({
+        node: s,
+        zone,
+        x: startX,
+        y: startY + i * (partH + gap),
+        w: partW,
+        h: partH,
+      });
+    });
+  }
+  return parts;
 };
 
 // ── Component ──────────────────────────────────────────────────────────────
@@ -184,27 +170,15 @@ const Overview = () => {
   const navigate = useNavigate();
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [parallax, setParallax] = useState({ x: 0, y: 0 });
-  const [time, setTime] = useState(0);
-  const rafRef = useRef<number>(0);
 
-  const layout = useMemo(() => layoutOrganism(CLUSTERS), []);
+  const zones = useMemo(() => buildZones(), []);
+  const parts = useMemo(() => layoutParts(zones), [zones]);
 
-  const hoveredInfo = useMemo(() => {
-    if (!hoveredId) return null;
-    if (hoveredId.startsWith('lobe:')) {
-      const id = hoveredId.slice(5);
-      const cl = layout.find((l) => l.cluster.id === id);
-      if (!cl) return null;
-      return { type: 'cluster' as const, cluster: cl, petal: null };
-    }
-    for (const cl of layout) {
-      const p = cl.petals.find((p) => p.node.id === hoveredId);
-      if (p) return { type: 'service' as const, cluster: cl, petal: p };
-    }
-    return null;
-  }, [hoveredId, layout]);
+  const hoveredPart = useMemo(
+    () => parts.find((p) => p.node.id === hoveredId) ?? null,
+    [parts, hoveredId]
+  );
 
-  // Mouse parallax
   useEffect(() => {
     const handle = (e: MouseEvent) => {
       const w = window.innerWidth;
@@ -218,29 +192,20 @@ const Overview = () => {
     return () => window.removeEventListener('mousemove', handle);
   }, []);
 
-  // Continuous animation clock — drives breathing + petal drift
-  useEffect(() => {
-    let last = performance.now();
-    const tick = (now: number) => {
-      const dt = (now - last) / 1000;
-      last = now;
-      setTime((t) => t + dt);
-      rafRef.current = requestAnimationFrame(tick);
-    };
-    rafRef.current = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(rafRef.current);
-  }, []);
+  const handleClick = useCallback((id: string) => navigate(`/${id}`), [navigate]);
 
-  const handleClick = useCallback(
-    (id: string) => navigate(`/${id}`),
-    [navigate]
-  );
+  // Sheet metadata (title block)
+  const today = new Date();
+  const dateStr = `${String(today.getDate()).padStart(2, '0')}.${String(today.getMonth() + 1).padStart(2, '0')}.${today.getFullYear()}`;
+  const sheetNo = '01 / 01';
+  const drawingNo = 'ITB-OVERVIEW-2026';
+  const totalParts = parts.length;
 
   return (
-    <div className="min-h-screen w-full text-foreground overflow-hidden relative">
+    <div className="min-h-screen w-full text-foreground overflow-hidden relative bg-background">
       <PageMeta
-        title="Mandala"
-        description="A living mandala of cybersecurity services from inside-the-box.org."
+        title="Blueprint"
+        description="Engineering blueprint of cybersecurity services from inside-the-box.org."
       />
       <Helmet>
         <meta name="robots" content="noindex, nofollow" />
@@ -264,301 +229,113 @@ const Overview = () => {
         </button>
       </header>
 
-      {/* Atmospheric backdrop */}
-      <div
-        aria-hidden
-        className="absolute inset-0"
-        style={{
-          background:
-            'radial-gradient(ellipse at 50% 50%, hsl(var(--primary) / 0.14) 0%, hsl(var(--background)) 65%), radial-gradient(circle at 75% 25%, hsl(var(--highlight) / 0.10), transparent 55%), radial-gradient(circle at 20% 80%, hsl(var(--primary) / 0.06), transparent 50%)',
-        }}
-      />
+      {/* Faint cyan grid backdrop — like blueprint paper */}
+      <BlueprintGrid />
 
-      {/* The organism */}
-      <div className="relative w-full h-screen flex items-center justify-center">
+      {/* The drawing */}
+      <div className="relative w-full h-screen flex items-center justify-center px-4 py-16">
         <svg
-          viewBox={`0 0 ${VIEW} ${VIEW}`}
+          viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}
           preserveAspectRatio="xMidYMid meet"
-          className="w-full h-full max-w-[min(100vh,100vw)] max-h-[min(100vh,100vw)]"
+          className="w-full h-full max-w-[min(95vw,calc(95vh*1.6))]"
           style={{
-            transform: `translate3d(${parallax.x * -14}px, ${parallax.y * -14}px, 0)`,
+            transform: `translate3d(${parallax.x * -6}px, ${parallax.y * -6}px, 0)`,
             transition: 'transform 0.6s cubic-bezier(0.2,0.8,0.2,1)',
+            fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace',
           }}
         >
           <defs>
-            <radialGradient id="coreGlow" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.95" />
-              <stop offset="55%" stopColor="hsl(var(--primary))" stopOpacity="0.35" />
-              <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0" />
-            </radialGradient>
-            <radialGradient id="lobePrimary" cx="50%" cy="50%" r="55%">
-              <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.55" />
-              <stop offset="60%" stopColor="hsl(var(--primary))" stopOpacity="0.22" />
-              <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0.02" />
-            </radialGradient>
-            <radialGradient id="lobeHighlight" cx="50%" cy="50%" r="55%">
-              <stop offset="0%" stopColor="hsl(var(--highlight))" stopOpacity="0.55" />
-              <stop offset="60%" stopColor="hsl(var(--highlight))" stopOpacity="0.22" />
-              <stop offset="100%" stopColor="hsl(var(--highlight))" stopOpacity="0.02" />
-            </radialGradient>
-            <radialGradient id="petalPrimary" cx="40%" cy="35%" r="70%">
-              <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="1" />
-              <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0.55" />
-            </radialGradient>
-            <radialGradient id="petalHighlight" cx="40%" cy="35%" r="70%">
-              <stop offset="0%" stopColor="hsl(var(--highlight))" stopOpacity="1" />
-              <stop offset="100%" stopColor="hsl(var(--highlight))" stopOpacity="0.55" />
-            </radialGradient>
-            <filter id="softBloom" x="-50%" y="-50%" width="200%" height="200%">
-              <feGaussianBlur stdDeviation="8" result="b" />
-              <feMerge>
-                <feMergeNode in="b" />
-                <feMergeNode in="SourceGraphic" />
-              </feMerge>
-            </filter>
-            <filter id="goo" x="-20%" y="-20%" width="140%" height="140%">
-              <feGaussianBlur stdDeviation="14" in="SourceGraphic" result="blur" />
-              <feColorMatrix
-                in="blur"
-                mode="matrix"
-                values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -10"
-                result="goo"
-              />
-              <feComposite in="SourceGraphic" in2="goo" operator="atop" />
-            </filter>
+            <pattern id="microGrid" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+              <path d="M 20 0 L 0 0 0 20" fill="none" stroke="hsl(var(--primary) / 0.06)" strokeWidth="0.4" />
+            </pattern>
+            <pattern id="majorGrid" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
+              <rect width="100" height="100" fill="url(#microGrid)" />
+              <path d="M 100 0 L 0 0 0 100" fill="none" stroke="hsl(var(--primary) / 0.12)" strokeWidth="0.6" />
+            </pattern>
           </defs>
 
-          {/* Diffuse outer aura */}
-          <circle
-            cx={CENTER}
-            cy={CENTER}
-            r={R_LOBE + LOBE_RADIUS * 0.7}
-            fill="url(#coreGlow)"
-            opacity={0.4}
+          {/* Sheet background grid */}
+          <rect
+            x={MARGIN}
+            y={MARGIN}
+            width={VIEW_W - 2 * MARGIN}
+            height={VIEW_H - 2 * MARGIN}
+            fill="url(#majorGrid)"
+            opacity="0.6"
           />
 
-          {/* CLUSTER LOBES — soft, breathing blobs that gooify with petals */}
-          <g style={{ filter: 'url(#goo)' }}>
-            {layout.map((cl) => {
-              const isHovered = hoveredId === `lobe:${cl.cluster.id}`;
-              const containsHovered = hoveredInfo?.cluster.cluster.id === cl.cluster.id;
-              const dimmed = hoveredId !== null && !containsHovered;
-              const grad = cl.cluster.tone === 'primary' ? 'url(#lobePrimary)' : 'url(#lobeHighlight)';
-              // breathing scale
-              const breathe = 1 + Math.sin(time * 0.6 + cl.seed) * 0.04;
-              const opacity = dimmed ? 0.25 : isHovered ? 1 : 0.85;
-              return (
-                <g key={`lobe-${cl.cluster.id}`} style={{ transition: 'opacity 0.5s ease' }} opacity={opacity}>
-                  <path
-                    d={softBlob(cl.cx, cl.cy, LOBE_RADIUS * breathe, cl.seed, time)}
-                    fill={grad}
-                    onMouseEnter={() => setHoveredId(`lobe:${cl.cluster.id}`)}
-                    onMouseLeave={() =>
-                      setHoveredId((c) => (c === `lobe:${cl.cluster.id}` ? null : c))
-                    }
-                    style={{ cursor: 'pointer' }}
-                  />
-                </g>
-              );
-            })}
-
-            {/* Core blob inside the goo so everything melds */}
-            <path
-              d={softBlob(CENTER, CENTER, R_CORE * (1 + Math.sin(time * 1.2) * 0.05), 0, time)}
-              fill="hsl(var(--primary))"
-              opacity={0.85}
-            />
-          </g>
-
-          {/* PETALS — drift slightly on individual orbits */}
-          {layout.map((cl) =>
-            cl.petals.map((p) => {
-              const isHovered = hoveredId === p.node.id;
-              const containsHovered = hoveredInfo?.cluster.cluster.id === cl.cluster.id;
-              const dimmed = hoveredId !== null && !isHovered && !containsHovered;
-              // orbit drift along petal's angle (tangential motion)
-              const tangent = p.angle + 90;
-              const drift = Math.sin(time * 0.45 + p.orbitPhase) * p.orbitAmp;
-              const breath = 1 + Math.sin(time * 0.9 + p.seed) * 0.05;
-              const dx = Math.cos(((tangent - 90) * Math.PI) / 180) * drift;
-              const dy = Math.sin(((tangent - 90) * Math.PI) / 180) * drift;
-              const radialPush = isHovered ? 22 : 0;
-              const radDx = Math.cos(((p.angle - 90) * Math.PI) / 180) * radialPush;
-              const radDy = Math.sin(((p.angle - 90) * Math.PI) / 180) * radialPush;
-              const px = p.cx + dx + radDx;
-              const py = p.cy + dy + radDy;
-              const r = PETAL_SIZE * (isHovered ? 1.25 : breath);
-              const grad = cl.cluster.tone === 'primary' ? 'url(#petalPrimary)' : 'url(#petalHighlight)';
-              const tone = cl.cluster.tone === 'primary' ? 'var(--primary)' : 'var(--highlight)';
-              return (
-                <g
-                  key={`petal-${p.node.id}`}
-                  style={{ cursor: 'pointer', transition: 'opacity 0.4s ease' }}
-                  opacity={dimmed ? 0.3 : 1}
-                  onMouseEnter={() => setHoveredId(p.node.id)}
-                  onMouseLeave={() => setHoveredId((c) => (c === p.node.id ? null : c))}
-                  onClick={() => handleClick(p.node.id)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      handleClick(p.node.id);
-                    }
-                  }}
-                  tabIndex={0}
-                  role="link"
-                  aria-label={t(p.node.titleKey)}
-                >
-                  {/* soft outer halo on hover */}
-                  {isHovered && (
-                    <circle
-                      cx={px}
-                      cy={py}
-                      r={r * 1.6}
-                      fill={`hsl(${tone} / 0.18)`}
-                      filter="url(#softBloom)"
-                    />
-                  )}
-                  <path
-                    d={softBlob(px, py, r, p.seed, time)}
-                    fill={grad}
-                    stroke={isHovered ? `hsl(${tone})` : 'none'}
-                    strokeWidth={isHovered ? 1 : 0}
-                    style={{ transition: 'stroke-width 0.3s ease' }}
-                  />
-                  {/* tiny inner highlight dot — gives each petal a 'pearl' look */}
-                  <circle
-                    cx={px - r * 0.25}
-                    cy={py - r * 0.3}
-                    r={r * 0.12}
-                    fill="hsl(var(--background))"
-                    opacity={0.35}
-                  />
-                </g>
-              );
-            })
-          )}
-
-          {/* Hairline filaments from core to each petal — only on hover, very faint otherwise */}
-          {layout.map((cl) =>
-            cl.petals.map((p) => {
-              const isHovered = hoveredId === p.node.id;
-              const containsHovered = hoveredInfo?.cluster.cluster.id === cl.cluster.id;
-              const opacity = isHovered ? 0.55 : containsHovered ? 0.22 : 0.08;
-              const tone = cl.cluster.tone === 'primary' ? 'var(--primary)' : 'var(--highlight)';
-              // gentle curve via quadratic
-              const mid = pol(CENTER, CENTER, p.angle, R_LOBE * 0.55);
-              return (
-                <path
-                  key={`fil-${p.node.id}`}
-                  d={`M ${CENTER} ${CENTER} Q ${mid.x} ${mid.y} ${p.cx} ${p.cy}`}
-                  fill="none"
-                  stroke={`hsl(${tone})`}
-                  strokeWidth={isHovered ? 1.2 : 0.6}
-                  opacity={opacity}
-                  style={{ transition: 'all 0.4s ease', pointerEvents: 'none' }}
-                />
-              );
-            })
-          )}
-
-          {/* Core ring (decorative, above goo) */}
-          <circle
-            cx={CENTER}
-            cy={CENTER}
-            r={R_CORE + 14}
+          {/* Outer frame (double-line, draughtsman style) */}
+          <rect
+            x={MARGIN}
+            y={MARGIN}
+            width={VIEW_W - 2 * MARGIN}
+            height={VIEW_H - 2 * MARGIN}
+            fill="none"
+            stroke="hsl(var(--primary) / 0.55)"
+            strokeWidth="1.2"
+          />
+          <rect
+            x={MARGIN + 6}
+            y={MARGIN + 6}
+            width={VIEW_W - 2 * MARGIN - 12}
+            height={VIEW_H - 2 * MARGIN - 12}
             fill="none"
             stroke="hsl(var(--primary) / 0.35)"
-            strokeWidth="0.6"
-            strokeDasharray="2 6"
+            strokeWidth="0.5"
           />
 
-          {/* Center label */}
-          <g style={{ pointerEvents: 'none' }}>
-            {hoveredInfo?.petal ? (
-              <>
-                <text
-                  x={CENTER}
-                  y={CENTER - 6}
-                  textAnchor="middle"
-                  fontSize="8"
-                  letterSpacing="3"
-                  className="font-mono"
-                  fill="hsl(var(--background))"
-                  opacity="0.9"
-                >
-                  {t(hoveredInfo.cluster.cluster.groupKey).toUpperCase()}
-                </text>
-                <text
-                  x={CENTER}
-                  y={CENTER + 12}
-                  textAnchor="middle"
-                  fontSize="10"
-                  className="font-mono"
-                  fill="hsl(var(--background))"
-                >
-                  {trimForCore(t(hoveredInfo.petal.node.titleKey))}
-                </text>
-              </>
-            ) : hoveredInfo?.type === 'cluster' ? (
-              <text
-                x={CENTER}
-                y={CENTER + 4}
-                textAnchor="middle"
-                fontSize="11"
-                letterSpacing="3"
-                className="font-mono"
-                fill="hsl(var(--background))"
-              >
-                {t(hoveredInfo.cluster.cluster.groupKey).toUpperCase()}
-              </text>
-            ) : (
-              <>
-                <text
-                  x={CENTER}
-                  y={CENTER - 2}
-                  textAnchor="middle"
-                  fontSize="8"
-                  letterSpacing="4"
-                  className="font-mono"
-                  fill="hsl(var(--background))"
-                  opacity="0.95"
-                >
-                  INSIDE-THE-BOX
-                </text>
-                <text
-                  x={CENTER}
-                  y={CENTER + 13}
-                  textAnchor="middle"
-                  fontSize="7"
-                  letterSpacing="3"
-                  className="font-mono"
-                  fill="hsl(var(--background))"
-                  opacity="0.7"
-                >
-                  13 · 4
-                </text>
-              </>
-            )}
-          </g>
+          {/* Axis labels (A B / 1 2) along the frame */}
+          <FrameAxisLabels />
+
+          {/* Central crosshair dividing zones */}
+          <CenterCrosshair />
+
+          {/* Zone headers */}
+          {zones.map((z) => (
+            <ZoneHeader key={`zh-${z.cluster.id}`} zone={z} t={t} active={hoveredPart?.zone.cluster.id === z.cluster.id} />
+          ))}
+
+          {/* Component boxes (parts) */}
+          {parts.map((p) => {
+            const isHovered = hoveredId === p.node.id;
+            const dimmed = hoveredId !== null && !isHovered;
+            return (
+              <PartBox
+                key={p.node.id}
+                part={p}
+                t={t}
+                isHovered={isHovered}
+                dimmed={dimmed}
+                onEnter={() => setHoveredId(p.node.id)}
+                onLeave={() => setHoveredId((c) => (c === p.node.id ? null : c))}
+                onClick={() => handleClick(p.node.id)}
+              />
+            );
+          })}
+
+          {/* Dimension lines from frame to hovered part */}
+          {hoveredPart && <DimensionLines part={hoveredPart} />}
+
+          {/* Title block (bottom-right) */}
+          <TitleBlock
+            dateStr={dateStr}
+            sheetNo={sheetNo}
+            drawingNo={drawingNo}
+            totalParts={totalParts}
+            hoveredCode={hoveredPart?.node.code ?? '—'}
+            hoveredTitle={hoveredPart ? t(hoveredPart.node.titleKey) : 'OVERVIEW'}
+          />
         </svg>
 
         {/* Description strip */}
         <DescriptionLayer
-          title={
-            hoveredInfo?.petal
-              ? t(hoveredInfo.petal.node.titleKey)
-              : hoveredInfo?.type === 'cluster'
-              ? t(hoveredInfo.cluster.cluster.groupKey)
-              : t('overview.title' as never)
-          }
+          title={hoveredPart ? t(hoveredPart.node.titleKey) : t('overview.title' as never) || 'Engineering Blueprint'}
           desc={
-            hoveredInfo?.petal
-              ? t(hoveredInfo.petal.node.descKey)
-              : hoveredInfo?.type === 'cluster'
-              ? `${hoveredInfo.cluster.cluster.services.length} ${pluralize(language)}`
-              : t('overview.subtitle' as never) || 'Hover to bloom · Click to enter'
+            hoveredPart
+              ? t(hoveredPart.node.descKey)
+              : t('overview.subtitle' as never) || 'Hover a part to inspect · Click to enter'
           }
-          isService={!!hoveredInfo?.petal}
+          code={hoveredPart?.node.code ?? null}
         />
       </div>
     </div>
@@ -567,51 +344,375 @@ const Overview = () => {
 
 // ── Sub-components ─────────────────────────────────────────────────────────
 
+const BlueprintGrid = () => (
+  <div
+    aria-hidden
+    className="absolute inset-0"
+    style={{
+      background:
+        'radial-gradient(ellipse at 50% 40%, hsl(var(--primary) / 0.05) 0%, hsl(var(--background)) 70%)',
+    }}
+  />
+);
+
+const FrameAxisLabels = () => {
+  // Top: 1 2 3 4 ; Left: A B C D — classic drawing zone refs
+  const cols = ['1', '2', '3', '4'];
+  const rows = ['A', 'B', 'C', 'D'];
+  const colSpacing = (VIEW_W - 2 * MARGIN) / cols.length;
+  const rowSpacing = (VIEW_H - 2 * MARGIN) / rows.length;
+  return (
+    <g fill="hsl(var(--primary) / 0.55)" fontSize="11" fontWeight="500">
+      {cols.map((c, i) => {
+        const x = MARGIN + colSpacing * (i + 0.5);
+        return (
+          <g key={`c-${c}`}>
+            <text x={x} y={MARGIN - 8} textAnchor="middle">{c}</text>
+            <text x={x} y={VIEW_H - MARGIN + 18} textAnchor="middle">{c}</text>
+            {/* tick marks */}
+            {i > 0 && (
+              <>
+                <line x1={MARGIN + colSpacing * i} y1={MARGIN} x2={MARGIN + colSpacing * i} y2={MARGIN + 6} stroke="hsl(var(--primary) / 0.35)" strokeWidth="0.6" />
+                <line x1={MARGIN + colSpacing * i} y1={VIEW_H - MARGIN} x2={MARGIN + colSpacing * i} y2={VIEW_H - MARGIN - 6} stroke="hsl(var(--primary) / 0.35)" strokeWidth="0.6" />
+              </>
+            )}
+          </g>
+        );
+      })}
+      {rows.map((r, i) => {
+        const y = MARGIN + rowSpacing * (i + 0.5);
+        return (
+          <g key={`r-${r}`}>
+            <text x={MARGIN - 12} y={y + 4} textAnchor="middle">{r}</text>
+            <text x={VIEW_W - MARGIN + 14} y={y + 4} textAnchor="middle">{r}</text>
+            {i > 0 && (
+              <>
+                <line x1={MARGIN} y1={MARGIN + rowSpacing * i} x2={MARGIN + 6} y2={MARGIN + rowSpacing * i} stroke="hsl(var(--primary) / 0.35)" strokeWidth="0.6" />
+                <line x1={VIEW_W - MARGIN} y1={MARGIN + rowSpacing * i} x2={VIEW_W - MARGIN - 6} y2={MARGIN + rowSpacing * i} stroke="hsl(var(--primary) / 0.35)" strokeWidth="0.6" />
+              </>
+            )}
+          </g>
+        );
+      })}
+    </g>
+  );
+};
+
+const CenterCrosshair = () => {
+  const cx = VIEW_W / 2;
+  const cy = VIEW_H / 2 - 25; // slightly above title block area
+  const inner = MARGIN + 60;
+  return (
+    <g stroke="hsl(var(--primary) / 0.3)" strokeWidth="0.5" strokeDasharray="6 4">
+      {/* horizontal */}
+      <line x1={inner} y1={cy} x2={VIEW_W - inner} y2={cy} />
+      {/* vertical */}
+      <line x1={cx} y1={inner} x2={cx} y2={VIEW_H - MARGIN - 90} />
+      {/* center mark */}
+      <g stroke="hsl(var(--primary) / 0.7)" strokeWidth="0.8" strokeDasharray="0">
+        <line x1={cx - 10} y1={cy} x2={cx + 10} y2={cy} />
+        <line x1={cx} y1={cy - 10} x2={cx} y2={cy + 10} />
+        <circle cx={cx} cy={cy} r="3" fill="none" />
+      </g>
+    </g>
+  );
+};
+
+interface ZoneHeaderProps {
+  zone: Zone;
+  t: (k: string) => string;
+  active: boolean;
+}
+const ZoneHeader = ({ zone, t, active }: ZoneHeaderProps) => {
+  const label = t(zone.cluster.groupKey).toUpperCase();
+  return (
+    <g>
+      {/* zone outline (very subtle) */}
+      <rect
+        x={zone.x + 8}
+        y={zone.y + 8}
+        width={zone.w - 16}
+        height={zone.h - 16}
+        fill="none"
+        stroke={active ? 'hsl(var(--primary) / 0.5)' : 'hsl(var(--primary) / 0.15)'}
+        strokeWidth="0.5"
+        strokeDasharray="2 4"
+        style={{ transition: 'stroke 0.3s' }}
+      />
+      {/* zone code badge */}
+      <g transform={`translate(${zone.x + 22}, ${zone.y + 28})`}>
+        <text fontSize="10" fill="hsl(var(--primary) / 0.5)" letterSpacing="2">
+          ZONE {zone.zoneLabel} · {zone.cluster.code}
+        </text>
+        <text y={18} fontSize="13" fill={active ? 'hsl(var(--primary))' : 'hsl(var(--foreground) / 0.85)'} letterSpacing="1.5" style={{ transition: 'fill 0.3s' }}>
+          {label}
+        </text>
+        <line x1={0} y1={26} x2={150} y2={26} stroke="hsl(var(--primary) / 0.4)" strokeWidth="0.6" />
+      </g>
+    </g>
+  );
+};
+
+interface PartBoxProps {
+  part: Part;
+  t: (k: string) => string;
+  isHovered: boolean;
+  dimmed: boolean;
+  onEnter: () => void;
+  onLeave: () => void;
+  onClick: () => void;
+}
+const PartBox = ({ part, t, isHovered, dimmed, onEnter, onLeave, onClick }: PartBoxProps) => {
+  const stroke = isHovered ? 'hsl(var(--primary))' : 'hsl(var(--primary) / 0.5)';
+  const fill = isHovered ? 'hsl(var(--primary) / 0.08)' : 'hsl(var(--background) / 0.6)';
+  const opacity = dimmed ? 0.3 : 1;
+
+  // Leader line: small tick from the box code label
+  return (
+    <g
+      style={{ cursor: 'pointer', transition: 'opacity 0.3s' }}
+      opacity={opacity}
+      onMouseEnter={onEnter}
+      onMouseLeave={onLeave}
+      onClick={onClick}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onClick();
+        }
+      }}
+      tabIndex={0}
+      role="link"
+      aria-label={t(part.node.titleKey)}
+    >
+      {/* Bounding rect */}
+      <rect
+        x={part.x}
+        y={part.y}
+        width={part.w}
+        height={part.h}
+        fill={fill}
+        stroke={stroke}
+        strokeWidth={isHovered ? 1.2 : 0.7}
+        style={{ transition: 'all 0.25s' }}
+      />
+      {/* Corner ticks */}
+      {[
+        [part.x, part.y],
+        [part.x + part.w, part.y],
+        [part.x, part.y + part.h],
+        [part.x + part.w, part.y + part.h],
+      ].map(([cx, cy], i) => (
+        <g key={i} stroke={stroke} strokeWidth="0.8">
+          <line
+            x1={cx + (i % 2 === 0 ? 0 : -6)}
+            y1={cy}
+            x2={cx + (i % 2 === 0 ? 6 : 0)}
+            y2={cy}
+          />
+          <line
+            x1={cx}
+            y1={cy + (i < 2 ? 0 : -6)}
+            x2={cx}
+            y2={cy + (i < 2 ? 6 : 0)}
+          />
+        </g>
+      ))}
+      {/* Part code (top-left inside) */}
+      <text
+        x={part.x + 12}
+        y={part.y + 18}
+        fontSize="9"
+        fill="hsl(var(--primary) / 0.7)"
+        letterSpacing="2"
+      >
+        PART {part.node.code}
+      </text>
+      {/* Part title */}
+      <text
+        x={part.x + 12}
+        y={part.y + 40}
+        fontSize="14"
+        fill={isHovered ? 'hsl(var(--primary))' : 'hsl(var(--foreground))'}
+        style={{ transition: 'fill 0.25s' }}
+      >
+        {truncate(t(part.node.titleKey), 38)}
+      </text>
+      {/* Dimension hint (bottom edge) */}
+      <text
+        x={part.x + part.w - 12}
+        y={part.y + part.h - 8}
+        fontSize="8"
+        textAnchor="end"
+        fill="hsl(var(--muted-foreground))"
+        letterSpacing="1.5"
+      >
+        ⌀ {Math.round(part.w)}×{Math.round(part.h)}
+      </text>
+    </g>
+  );
+};
+
+interface DimensionLinesProps {
+  part: Part;
+}
+const DimensionLines = ({ part }: DimensionLinesProps) => {
+  // Horizontal dimension above part (from left frame to part-left, and part-right to right frame)
+  const leftFrame = MARGIN + 6;
+  const rightFrame = VIEW_W - MARGIN - 6;
+  const topFrame = MARGIN + 6;
+  const bottomFrame = VIEW_H - MARGIN - 6;
+  const dimY = part.y - 18;
+  const dimX = part.x - 18;
+  const stroke = 'hsl(var(--primary) / 0.85)';
+  const arrowSize = 4;
+  return (
+    <g stroke={stroke} strokeWidth="0.6" fill={stroke}>
+      {/* Horizontal dimension line above part */}
+      <line x1={leftFrame} y1={dimY} x2={part.x} y2={dimY} />
+      <line x1={part.x + part.w} y1={dimY} x2={rightFrame} y2={dimY} />
+      {/* Extension lines */}
+      <line x1={part.x} y1={part.y} x2={part.x} y2={dimY - 4} strokeDasharray="2 3" />
+      <line x1={part.x + part.w} y1={part.y} x2={part.x + part.w} y2={dimY - 4} strokeDasharray="2 3" />
+      {/* Arrowheads (small triangles) */}
+      <polygon points={`${part.x},${dimY} ${part.x - arrowSize},${dimY - arrowSize} ${part.x - arrowSize},${dimY + arrowSize}`} />
+      <polygon points={`${part.x + part.w},${dimY} ${part.x + part.w + arrowSize},${dimY - arrowSize} ${part.x + part.w + arrowSize},${dimY + arrowSize}`} />
+      {/* Dimension number */}
+      <text
+        x={part.x + part.w / 2}
+        y={dimY - 4}
+        fontSize="10"
+        textAnchor="middle"
+        fill={stroke}
+        stroke="none"
+      >
+        {Math.round(part.w)}
+      </text>
+
+      {/* Vertical dimension to left of part */}
+      <line x1={dimX} y1={topFrame} x2={dimX} y2={part.y} />
+      <line x1={dimX} y1={part.y + part.h} x2={dimX} y2={bottomFrame} />
+      <line x1={part.x} y1={part.y} x2={dimX - 4} y2={part.y} strokeDasharray="2 3" />
+      <line x1={part.x} y1={part.y + part.h} x2={dimX - 4} y2={part.y + part.h} strokeDasharray="2 3" />
+      <polygon points={`${dimX},${part.y} ${dimX - arrowSize},${part.y - arrowSize} ${dimX + arrowSize},${part.y - arrowSize}`} />
+      <polygon points={`${dimX},${part.y + part.h} ${dimX - arrowSize},${part.y + part.h + arrowSize} ${dimX + arrowSize},${part.y + part.h + arrowSize}`} />
+      <text
+        x={dimX - 6}
+        y={part.y + part.h / 2}
+        fontSize="10"
+        textAnchor="middle"
+        fill={stroke}
+        stroke="none"
+        transform={`rotate(-90 ${dimX - 6} ${part.y + part.h / 2})`}
+      >
+        {Math.round(part.h)}
+      </text>
+
+      {/* Leader from part to title-block area (bottom-right) */}
+      <line
+        x1={part.x + part.w / 2}
+        y1={part.y + part.h / 2}
+        x2={VIEW_W - MARGIN - 360}
+        y2={VIEW_H - MARGIN - 80}
+        strokeDasharray="4 3"
+        opacity="0.5"
+      />
+      <circle cx={part.x + part.w / 2} cy={part.y + part.h / 2} r="2.5" fill={stroke} />
+    </g>
+  );
+};
+
+interface TitleBlockProps {
+  dateStr: string;
+  sheetNo: string;
+  drawingNo: string;
+  totalParts: number;
+  hoveredCode: string;
+  hoveredTitle: string;
+}
+const TitleBlock = ({ dateStr, sheetNo, drawingNo, totalParts, hoveredCode, hoveredTitle }: TitleBlockProps) => {
+  const w = 540;
+  const h = 80;
+  const x = VIEW_W - MARGIN - 6 - w;
+  const y = VIEW_H - MARGIN - 6 - h;
+  // 4 columns
+  const colW = w / 4;
+  return (
+    <g>
+      {/* outer */}
+      <rect x={x} y={y} width={w} height={h} fill="hsl(var(--background) / 0.85)" stroke="hsl(var(--primary) / 0.7)" strokeWidth="1" />
+      {/* internal dividers */}
+      <line x1={x + colW * 2} y1={y} x2={x + colW * 2} y2={y + h} stroke="hsl(var(--primary) / 0.55)" strokeWidth="0.6" />
+      <line x1={x + colW * 3} y1={y} x2={x + colW * 3} y2={y + h} stroke="hsl(var(--primary) / 0.55)" strokeWidth="0.6" />
+      <line x1={x + colW * 2} y1={y + h / 2} x2={x + colW * 3} y2={y + h / 2} stroke="hsl(var(--primary) / 0.4)" strokeWidth="0.5" />
+      <line x1={x + colW * 3} y1={y + h / 2} x2={x + w} y2={y + h / 2} stroke="hsl(var(--primary) / 0.4)" strokeWidth="0.5" />
+
+      {/* Col 1: project name (large) */}
+      <text x={x + 14} y={y + 22} fontSize="9" fill="hsl(var(--primary) / 0.6)" letterSpacing="2">PROJECT</text>
+      <text x={x + 14} y={y + 44} fontSize="16" fill="hsl(var(--foreground))" letterSpacing="1">INSIDE-THE-BOX</text>
+      <text x={x + 14} y={y + 64} fontSize="10" fill="hsl(var(--muted-foreground))" letterSpacing="1">Cybersecurity Practice · 13 / 4</text>
+
+      {/* Col 2 (top): selected part */}
+      <text x={x + colW * 2 + 10} y={y + 14} fontSize="8" fill="hsl(var(--primary) / 0.6)" letterSpacing="2">SELECTED</text>
+      <text x={x + colW * 2 + 10} y={y + 32} fontSize="11" fill="hsl(var(--primary))" letterSpacing="1">{hoveredCode}</text>
+      <text x={x + colW * 2 + 10} y={y + 46} fontSize="9" fill="hsl(var(--foreground) / 0.85)">{truncate(hoveredTitle, 22)}</text>
+
+      {/* Col 2 (bottom): drawing no */}
+      <text x={x + colW * 2 + 10} y={y + 60} fontSize="8" fill="hsl(var(--primary) / 0.6)" letterSpacing="2">DWG NO</text>
+      <text x={x + colW * 2 + 10} y={y + 74} fontSize="9" fill="hsl(var(--foreground))">{drawingNo}</text>
+
+      {/* Col 3 (top): scale + date */}
+      <text x={x + colW * 3 + 10} y={y + 14} fontSize="8" fill="hsl(var(--primary) / 0.6)" letterSpacing="2">SCALE</text>
+      <text x={x + colW * 3 + 10} y={y + 32} fontSize="10" fill="hsl(var(--foreground))">1 : 1</text>
+      <text x={x + colW * 3 + 10} y={y + 46} fontSize="8" fill="hsl(var(--primary) / 0.6)" letterSpacing="2">DATE</text>
+      <text x={x + colW * 3 + 10} y={y + 62} fontSize="10" fill="hsl(var(--foreground))">{dateStr}</text>
+
+      {/* Col 4: sheet + part count */}
+      <text x={x + colW * 3 + colW / 2 + 10} y={y + 14} fontSize="8" fill="hsl(var(--primary) / 0.6)" letterSpacing="2">SHEET</text>
+      <text x={x + colW * 3 + colW / 2 + 10} y={y + 32} fontSize="10" fill="hsl(var(--foreground))">{sheetNo}</text>
+      <text x={x + colW * 3 + colW / 2 + 10} y={y + 46} fontSize="8" fill="hsl(var(--primary) / 0.6)" letterSpacing="2">PARTS</text>
+      <text x={x + colW * 3 + colW / 2 + 10} y={y + 62} fontSize="10" fill="hsl(var(--foreground))">{totalParts}</text>
+    </g>
+  );
+};
+
 interface DescriptionLayerProps {
   title: string;
   desc: string;
-  isService: boolean;
+  code: string | null;
 }
-
-const DescriptionLayer = ({ title, desc, isService }: DescriptionLayerProps) => (
+const DescriptionLayer = ({ title, desc, code }: DescriptionLayerProps) => (
   <div
-    className="absolute left-0 right-0 bottom-8 px-6 pointer-events-none z-20"
+    className="absolute left-0 right-0 top-16 px-6 pointer-events-none z-20"
     aria-live="polite"
   >
-    <div className="max-w-2xl mx-auto text-center">
+    <div className="max-w-3xl mx-auto text-center">
+      {code && (
+        <div className="font-mono text-[10px] tracking-[0.4em] text-primary/80 mb-2 animate-fade-in">
+          PART {code} · CLICK TO ENTER
+        </div>
+      )}
       <h2
         key={title}
-        className="font-mono text-xl sm:text-2xl md:text-3xl font-light leading-tight mb-2 animate-fade-in"
-        style={{ letterSpacing: '-0.005em' }}
+        className="font-mono text-base sm:text-lg md:text-xl font-light leading-tight animate-fade-in"
+        style={{ letterSpacing: '0.05em' }}
       >
-        {title}
+        {title.toUpperCase()}
       </h2>
       <p
         key={desc}
-        className="text-xs sm:text-sm text-muted-foreground max-w-xl mx-auto animate-fade-in"
+        className="text-xs text-muted-foreground max-w-xl mx-auto animate-fade-in mt-1"
       >
         {desc}
       </p>
-      {isService && (
-        <p className="font-mono text-[10px] tracking-[0.4em] text-primary/70 mt-3 animate-fade-in">
-          → CLICK TO ENTER
-        </p>
-      )}
     </div>
   </div>
 );
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
-function trimForCore(label: string): string {
-  const cut = label.split(/[,—–]/)[0].trim();
-  return cut.length > 22 ? cut.slice(0, 20).trim() + '…' : cut;
-}
-
-function pluralize(lang: string): string {
-  if (lang === 'de') return 'Vertiefungen';
-  if (lang === 'fr') return 'approfondissements';
-  return 'depths';
+function truncate(s: string, n: number): string {
+  return s.length > n ? s.slice(0, n - 1).trim() + '…' : s;
 }
 
 export default Overview;
