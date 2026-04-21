@@ -633,47 +633,44 @@ interface TitleBlockProps {
   hoveredTitle: string;
 }
 const TitleBlock = ({ dateStr, sheetNo, drawingNo, totalParts, hoveredCode, hoveredTitle }: TitleBlockProps) => {
-  const w = 540;
-  const h = 80;
+  const w = 720;
+  const h = 110;
   const x = VIEW_W - MARGIN - 6 - w;
   const y = VIEW_H - MARGIN - 6 - h;
-  // 4 columns
   const colW = w / 4;
   return (
     <g>
-      {/* outer */}
-      <rect x={x} y={y} width={w} height={h} fill="hsl(var(--background) / 0.85)" stroke="hsl(var(--primary) / 0.7)" strokeWidth="1" />
-      {/* internal dividers */}
-      <line x1={x + colW * 2} y1={y} x2={x + colW * 2} y2={y + h} stroke="hsl(var(--primary) / 0.55)" strokeWidth="0.6" />
-      <line x1={x + colW * 3} y1={y} x2={x + colW * 3} y2={y + h} stroke="hsl(var(--primary) / 0.55)" strokeWidth="0.6" />
-      <line x1={x + colW * 2} y1={y + h / 2} x2={x + colW * 3} y2={y + h / 2} stroke="hsl(var(--primary) / 0.4)" strokeWidth="0.5" />
-      <line x1={x + colW * 3} y1={y + h / 2} x2={x + w} y2={y + h / 2} stroke="hsl(var(--primary) / 0.4)" strokeWidth="0.5" />
+      <rect x={x} y={y} width={w} height={h} fill="hsl(var(--background) / 0.85)" stroke="hsl(var(--primary) / 0.7)" strokeWidth="1.2" />
+      <line x1={x + colW * 2} y1={y} x2={x + colW * 2} y2={y + h} stroke="hsl(var(--primary) / 0.55)" strokeWidth="0.8" />
+      <line x1={x + colW * 3} y1={y} x2={x + colW * 3} y2={y + h} stroke="hsl(var(--primary) / 0.55)" strokeWidth="0.8" />
+      <line x1={x + colW * 2} y1={y + h / 2} x2={x + colW * 3} y2={y + h / 2} stroke="hsl(var(--primary) / 0.4)" strokeWidth="0.6" />
+      <line x1={x + colW * 3} y1={y + h / 2} x2={x + w} y2={y + h / 2} stroke="hsl(var(--primary) / 0.4)" strokeWidth="0.6" />
 
-      {/* Col 1: project name (large) */}
-      <text x={x + 14} y={y + 22} fontSize="9" fill="hsl(var(--primary) / 0.6)" letterSpacing="2">PROJECT</text>
-      <text x={x + 14} y={y + 44} fontSize="16" fill="hsl(var(--foreground))" letterSpacing="1">INSIDE-THE-BOX</text>
-      <text x={x + 14} y={y + 64} fontSize="10" fill="hsl(var(--muted-foreground))" letterSpacing="1">Cybersecurity Practice · 13 / 4</text>
+      {/* Col 1: project name */}
+      <text x={x + 18} y={y + 28} fontSize="12" fill="hsl(var(--primary) / 0.65)" letterSpacing="3">PROJECT</text>
+      <text x={x + 18} y={y + 60} fontSize="22" fontWeight="500" fill="hsl(var(--foreground))" letterSpacing="2">INSIDE-THE-BOX</text>
+      <text x={x + 18} y={y + 88} fontSize="13" fill="hsl(var(--muted-foreground))" letterSpacing="1.5">Cybersecurity Practice · 13 / 4</text>
 
       {/* Col 2 (top): selected part */}
-      <text x={x + colW * 2 + 10} y={y + 14} fontSize="8" fill="hsl(var(--primary) / 0.6)" letterSpacing="2">SELECTED</text>
-      <text x={x + colW * 2 + 10} y={y + 32} fontSize="11" fill="hsl(var(--primary))" letterSpacing="1">{hoveredCode}</text>
-      <text x={x + colW * 2 + 10} y={y + 46} fontSize="9" fill="hsl(var(--foreground) / 0.85)">{truncate(hoveredTitle, 22)}</text>
+      <text x={x + colW * 2 + 14} y={y + 20} fontSize="11" fill="hsl(var(--primary) / 0.65)" letterSpacing="2.5">SELECTED</text>
+      <text x={x + colW * 2 + 14} y={y + 38} fontSize="14" fontWeight="500" fill="hsl(var(--primary))" letterSpacing="1.5">{hoveredCode}</text>
+      <text x={x + colW * 2 + 14} y={y + 52} fontSize="11" fill="hsl(var(--foreground) / 0.85)">{truncate(hoveredTitle, 22)}</text>
 
       {/* Col 2 (bottom): drawing no */}
-      <text x={x + colW * 2 + 10} y={y + 60} fontSize="8" fill="hsl(var(--primary) / 0.6)" letterSpacing="2">DWG NO</text>
-      <text x={x + colW * 2 + 10} y={y + 74} fontSize="9" fill="hsl(var(--foreground))">{drawingNo}</text>
+      <text x={x + colW * 2 + 14} y={y + 78} fontSize="11" fill="hsl(var(--primary) / 0.65)" letterSpacing="2.5">DWG NO</text>
+      <text x={x + colW * 2 + 14} y={y + 96} fontSize="12" fill="hsl(var(--foreground))">{drawingNo}</text>
 
-      {/* Col 3 (top): scale + date */}
-      <text x={x + colW * 3 + 10} y={y + 14} fontSize="8" fill="hsl(var(--primary) / 0.6)" letterSpacing="2">SCALE</text>
-      <text x={x + colW * 3 + 10} y={y + 32} fontSize="10" fill="hsl(var(--foreground))">1 : 1</text>
-      <text x={x + colW * 3 + 10} y={y + 46} fontSize="8" fill="hsl(var(--primary) / 0.6)" letterSpacing="2">DATE</text>
-      <text x={x + colW * 3 + 10} y={y + 62} fontSize="10" fill="hsl(var(--foreground))">{dateStr}</text>
+      {/* Col 3: scale + date */}
+      <text x={x + colW * 3 + 14} y={y + 20} fontSize="11" fill="hsl(var(--primary) / 0.65)" letterSpacing="2.5">SCALE</text>
+      <text x={x + colW * 3 + 14} y={y + 42} fontSize="13" fill="hsl(var(--foreground))">1 : 1</text>
+      <text x={x + colW * 3 + 14} y={y + 78} fontSize="11" fill="hsl(var(--primary) / 0.65)" letterSpacing="2.5">DATE</text>
+      <text x={x + colW * 3 + 14} y={y + 100} fontSize="13" fill="hsl(var(--foreground))">{dateStr}</text>
 
       {/* Col 4: sheet + part count */}
-      <text x={x + colW * 3 + colW / 2 + 10} y={y + 14} fontSize="8" fill="hsl(var(--primary) / 0.6)" letterSpacing="2">SHEET</text>
-      <text x={x + colW * 3 + colW / 2 + 10} y={y + 32} fontSize="10" fill="hsl(var(--foreground))">{sheetNo}</text>
-      <text x={x + colW * 3 + colW / 2 + 10} y={y + 46} fontSize="8" fill="hsl(var(--primary) / 0.6)" letterSpacing="2">PARTS</text>
-      <text x={x + colW * 3 + colW / 2 + 10} y={y + 62} fontSize="10" fill="hsl(var(--foreground))">{totalParts}</text>
+      <text x={x + colW * 3 + colW / 2 + 14} y={y + 20} fontSize="11" fill="hsl(var(--primary) / 0.65)" letterSpacing="2.5">SHEET</text>
+      <text x={x + colW * 3 + colW / 2 + 14} y={y + 42} fontSize="13" fill="hsl(var(--foreground))">{sheetNo}</text>
+      <text x={x + colW * 3 + colW / 2 + 14} y={y + 78} fontSize="11" fill="hsl(var(--primary) / 0.65)" letterSpacing="2.5">PARTS</text>
+      <text x={x + colW * 3 + colW / 2 + 14} y={y + 100} fontSize="13" fill="hsl(var(--foreground))">{totalParts}</text>
     </g>
   );
 };
