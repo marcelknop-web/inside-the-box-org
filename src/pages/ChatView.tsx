@@ -1716,11 +1716,13 @@ const ChatView = () => {
           )}
         </div>
 
-        {/* Input – always visible floating bar at bottom (desktop + mobile) */}
+        {/* Input – floating bar. Hidden on focused tool/wizard pages, visible on info pages and crisis-sim. */}
         {(() => {
-          const isTouchDevice = isMobile;
-          // On mobile with active service (except crisis/stress): hide completely
-          if (isTouchDevice && !!activeService && activeService !== 'crisis-sim') return null;
+          // Hide entirely on focused tool/wizard/simulator pages (except crisis-sim where chat IS the tool)
+          if (isToolPage && activeService !== 'crisis-sim') return null;
+          const placeholder = activeService === 'crisis-sim'
+            ? 'Ask me anything …'
+            : exampleQuestions[exampleIndex];
           return (
             <div
               className="fixed bottom-4 z-40 pointer-events-none transition-opacity duration-700 ease-out"
@@ -1738,8 +1740,8 @@ const ChatView = () => {
                     onChange={e => setInput(e.target.value)}
                     onKeyDown={handleKeyDown}
                     rows={1}
-                    placeholder="Ask me anything …"
-                    className="flex-1 bg-transparent px-3 md:px-4 py-2.5 text-base md:text-sm font-mono text-foreground placeholder:text-muted-foreground resize-none focus:outline-none max-h-[120px]"
+                    placeholder={placeholder}
+                    className="flex-1 bg-transparent px-3 md:px-4 py-2.5 text-base md:text-sm font-mono text-foreground placeholder:text-muted-foreground placeholder:transition-opacity placeholder:duration-500 resize-none focus:outline-none max-h-[120px]"
                     disabled={isLoading || (activeService === 'crisis-sim' && crisisRef.current?.isLoading())}
                   />
                   <button onClick={handleSend} disabled={!input.trim() || isLoading || (activeService === 'crisis-sim' && crisisRef.current?.isLoading())} className="m-1.5 p-2 rounded-lg bg-highlight text-highlight-foreground disabled:opacity-30 hover:bg-highlight/80 transition-electric">
