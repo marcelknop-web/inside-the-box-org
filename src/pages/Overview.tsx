@@ -263,18 +263,38 @@ const Overview = () => {
 
                     // Label arc lives mid-cell. Flip if the sector mid is in
                     // the bottom half so text doesn't read upside-down.
-                    // Account for global rotation when deciding flip.
                     const effectiveMid = (sectorMid + rotation) % 360;
                     const flip = effectiveMid > 90 && effectiveMid < 270;
                     const rText = (rIn + rOut) / 2;
                     const arcId = `arc-${service.id}`;
-                    // Slight inset so the curved text doesn't crash into the cell sides
-                    const textInset = 3;
+                    const textInset = 4;
                     const arcStart = sectorStart + textInset;
                     const arcEnd = sectorEnd - textInset;
 
                     const label = t(service.titleKey).toUpperCase();
 
+                    // ── Letterpress sizing ─────────────────────────────────
+                    // Compute the available arc length, then size the type so
+                    // the word physically fills the field — like hand-set
+                    // letterpress where the compositor picks the largest cut
+                    // that still fits the column.
+                    const arcLengthPx = (rText * (arcEnd - arcStart) * Math.PI) / 180;
+                    // Approx glyph aspect for IBM Plex Mono with our tracking.
+                    // Each letter consumes ~ (fontSize * GLYPH_W) horizontal px,
+                    // plus letter-spacing between glyphs.
+                    const GLYPH_W = 0.62;            // monospace cap-width / em
+                    const TRACKING_EM = 0.14;        // letter-spacing as em fraction
+                    const PAD_EM = 1.2;              // visual padding so type doesn't kiss the cell sides
+                    const charCount = label.length;
+                    const advancePerChar = GLYPH_W + TRACKING_EM;
+                    // size where line length == arc length
+                    const fitSize = arcLengthPx / (charCount * advancePerChar + PAD_EM);
+                    // Cap at the cell's radial thickness (so it never towers
+                    // taller than its ring) and keep a sensible floor.
+                    const verticalCap = RING_THICK * 0.46;
+                    const fontSize = Math.max(11, Math.min(fitSize, verticalCap));
+                    const letterSpacing = fontSize * TRACKING_EM;
+                    // Convert tracking-em to actual px for SVG letterSpacing
                     return (
                       <g
                         key={service.id}
@@ -305,15 +325,15 @@ const Overview = () => {
                           />
                         </defs>
 
-                        {/* Service code — small, near inner edge */}
+                        {/* Service code — printed small, hugging the inner edge */}
                         <text
                           fontFamily="'IBM Plex Mono', monospace"
-                          fontSize={11}
-                          letterSpacing={3}
+                          fontSize={Math.max(9, fontSize * 0.42)}
+                          letterSpacing={Math.max(2, fontSize * 0.18)}
                           fill={cluster.hex}
                           fillOpacity={isHovered ? 1 : 0.85}
                           style={{ pointerEvents: 'none' }}
-                          dy={flip ? 20 : -20}
+                          dy={flip ? fontSize * 0.95 : -fontSize * 0.95}
                         >
                           <textPath
                             href={`#${arcId}`}
@@ -324,16 +344,17 @@ const Overview = () => {
                           </textPath>
                         </text>
 
-                        {/* Service name — main label, curved along arc */}
+                        {/* Service name — letterpress: dimensioned to fill its cell */}
                         <text
                           fontFamily="'IBM Plex Mono', monospace"
-                          fontSize={isHovered ? 20 : 18}
-                          fontWeight={500}
-                          letterSpacing={2}
-                          fill={isHovered ? '#0a0e1a' : '#f1f4fa'}
+                          fontSize={fontSize}
+                          fontWeight={600}
+                          letterSpacing={letterSpacing}
+                          textRendering="geometricPrecision"
+                          fill={isHovered ? '#0a0e1a' : '#f3f5fa'}
                           style={{
                             pointerEvents: 'none',
-                            transition: 'fill 0.25s, font-size 0.25s',
+                            transition: 'fill 0.25s',
                           }}
                         >
                           <textPath
@@ -391,9 +412,9 @@ const Overview = () => {
                   </defs>
                   <text
                     fontFamily="'IBM Plex Mono', monospace"
-                    fontSize={32}
+                    fontSize={Math.max(14, Math.min(((R_LABEL_TEXT * (SECTOR_DEG - SECTOR_GAP_DEG - 12) * Math.PI) / 180) / ((`${cluster.code} · ${t(cluster.groupKey).toUpperCase()}`.length) * 0.84 + 1.2), LABEL_BAND_THICK * 0.62))}
                     fontWeight={700}
-                    letterSpacing={9}
+                    letterSpacing={Math.max(14, Math.min(((R_LABEL_TEXT * (SECTOR_DEG - SECTOR_GAP_DEG - 12) * Math.PI) / 180) / ((`${cluster.code} · ${t(cluster.groupKey).toUpperCase()}`.length) * 0.84 + 1.2), LABEL_BAND_THICK * 0.62)) * 0.22}
                     fill="#0a0e1a"
                     style={{ pointerEvents: 'none' }}
                   >
