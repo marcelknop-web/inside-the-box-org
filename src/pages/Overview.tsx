@@ -664,38 +664,22 @@ const InfoBar = ({ t, hoveredPart }: InfoBarProps) => {
 
   return (
     <div className="relative z-20 border-t border-primary/20 bg-background/85 backdrop-blur-sm">
-      <div className="max-w-6xl mx-auto px-6 py-4 grid grid-cols-12 gap-4 items-start">
+      <div className="max-w-6xl mx-auto px-6 py-4 grid grid-cols-12 gap-4 items-center">
         {/* Left: code + zone */}
-        <div className="col-span-12 sm:col-span-3 flex sm:flex-col gap-3 sm:gap-1 items-center sm:items-start">
-          <div className="font-mono text-[10px] tracking-[0.35em] text-primary/65">PART</div>
-          <div key={code} className="font-mono text-base sm:text-lg text-primary tracking-[0.25em] animate-fade-in">
-            {code}
+        <div className="col-span-8 sm:col-span-10 flex gap-6 items-center">
+          <div className="flex flex-col">
+            <div className="font-mono text-[10px] tracking-[0.35em] text-primary/65">PART</div>
+            <div key={code} className="font-mono text-base sm:text-lg text-primary tracking-[0.25em] animate-fade-in">
+              {code}
+            </div>
           </div>
-          <div className="font-mono text-[10px] tracking-[0.3em] text-muted-foreground sm:mt-2">
+          <div className="font-mono text-[10px] tracking-[0.3em] text-muted-foreground">
             ZONE {zoneLabel}
           </div>
         </div>
 
-        {/* Middle: title + desc */}
-        <div className="col-span-12 sm:col-span-7 min-w-0">
-          <div className="font-mono text-[10px] tracking-[0.35em] text-primary/65 mb-1">SUBJECT</div>
-          <h2
-            key={title}
-            className="font-mono text-lg sm:text-xl md:text-2xl font-light leading-snug animate-fade-in truncate"
-            style={{ letterSpacing: '0.04em' }}
-          >
-            {title.toUpperCase()}
-          </h2>
-          <p
-            key={desc}
-            className="text-sm text-muted-foreground mt-1.5 line-clamp-2 animate-fade-in"
-          >
-            {desc}
-          </p>
-        </div>
-
         {/* Right: action */}
-        <div className="col-span-12 sm:col-span-2 flex sm:justify-end">
+        <div className="col-span-4 sm:col-span-2 flex justify-end">
           <div className="font-mono text-[10px] tracking-[0.35em] text-primary/85 border border-primary/40 px-3 py-2">
             {hoveredPart ? 'CLICK · OPEN' : 'HOVER · INSPECT'}
           </div>
