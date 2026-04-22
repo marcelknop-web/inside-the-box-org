@@ -77,12 +77,6 @@ const CLUSTERS: Cluster[] = [
   },
 ];
 
-// Inner-process labels (clockwise from top: ANALYSE, UMSETZUNG, TRAINING, AUDIT)
-const PROCESS_LABELS_BY_LANG: Record<string, [string, string, string, string]> = {
-  de: ['ANALYSE', 'UMSETZUNG', 'TRAINING', 'AUDIT'],
-  en: ['ANALYSE', 'EXECUTE',   'TRAIN',    'AUDIT'],
-  fr: ['ANALYSE', 'EXÉCUTION', 'FORMATION','AUDIT'],
-};
 
 // Cluster labels rendered inside the wheel (uppercase, English for impact)
 const CLUSTER_DISPLAY_LABEL: Record<string, string> = {
