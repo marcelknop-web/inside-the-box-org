@@ -449,10 +449,10 @@ const Overview = () => {
             />
             <text
               x={0}
-              y={-4}
+              y={-6}
               textAnchor="middle"
               fontFamily="'IBM Plex Mono', monospace"
-              fontSize={14}
+              fontSize={18}
               fontWeight={600}
               fill={GOLD}
               letterSpacing={0.5}
@@ -461,13 +461,13 @@ const Overview = () => {
             </text>
             <text
               x={0}
-              y={12}
+              y={16}
               textAnchor="middle"
               fontFamily="'IBM Plex Mono', monospace"
-              fontSize={6}
+              fontSize={8}
               fill={GOLD}
               fillOpacity={0.7}
-              letterSpacing={2}
+              letterSpacing={2.5}
             >
               PROZESSE UNTER STRESS
             </text>
