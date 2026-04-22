@@ -125,11 +125,21 @@ const Overview = () => {
   const { t, language, setLanguage } = useLanguage();
   const navigate = useNavigate();
   const [activeId, setActiveId] = useState<string>(PHASES[0].id);
+  const [entered, setEntered] = useState<boolean>(false);
 
   const handleClick = useCallback((id: string) => navigate(`/${id}`), [navigate]);
 
   const lang = language as 'en' | 'de' | 'fr';
   const active = PHASES.find((p) => p.id === activeId) ?? PHASES[0];
+
+  const enterCta =
+    lang === 'de' ? 'Übersicht öffnen' : lang === 'fr' ? 'Ouvrir l\'aperçu' : 'Open the overview';
+  const enterHint =
+    lang === 'de'
+      ? 'Fünf Phasen. Wo stehen Sie gerade?'
+      : lang === 'fr'
+      ? 'Cinq phases. Où en êtes-vous ?'
+      : 'Five phases. Where are you right now?';
 
   const headline =
     lang === 'de'
