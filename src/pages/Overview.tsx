@@ -181,10 +181,10 @@ const PhasesPreview = ({
                 aria-hidden
               />
             )}
-            {/* Diamond marker — pure symbol, no number (all phases are equal-rank). */}
+            {/* Diamond marker — solid gold fill (all phases equal-rank). */}
             <span className="relative flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 z-10 mb-1.5 sm:mb-2">
               <span
-                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[12px] h-[12px] sm:w-[14px] sm:h-[14px] rotate-45 border border-primary/50 bg-background"
+                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[12px] h-[12px] sm:w-[14px] sm:h-[14px] rotate-45 bg-primary"
                 aria-hidden
               />
             </span>
