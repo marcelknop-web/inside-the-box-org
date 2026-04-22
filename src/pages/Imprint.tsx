@@ -49,12 +49,18 @@ const Imprint = () => {
             </h2>
             <p className="space-y-1">
               <span className="block">
-                <a href="mailto:marcel@inside-the-box.org" className="text-primary hover:underline">
+                <a
+                  href="mailto:marcel@inside-the-box.org"
+                  className="text-primary underline underline-offset-2 decoration-primary/40 hover:decoration-primary transition-colors"
+                >
                   marcel@inside-the-box.org
                 </a>
               </span>
               <span className="block">
-                <a href="tel:+4915205691648" className="text-primary hover:underline">
+                <a
+                  href="tel:+4915205691648"
+                  className="text-primary underline underline-offset-2 decoration-primary/40 hover:decoration-primary transition-colors"
+                >
                   +49 1520 569 1648
                 </a>
               </span>
