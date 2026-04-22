@@ -38,8 +38,12 @@ export default defineConfig(({ mode }) => ({
           // Heavy/optional libs only loaded by specific tools — keep them
           // out of the initial chunk so the landing page stays lean.
           if (id.includes('three') || id.includes('@react-three')) return 'three';
-          if (id.includes('recharts') || id.includes('d3-')) return 'charts';
+          if (id.includes('recharts') || id.includes('d3-') || id.includes('victory-vendor')) return 'charts';
           if (id.includes('jspdf') || id.includes('html2canvas')) return 'pdf';
+          if (id.includes('framer-motion')) return 'motion';
+          if (id.includes('@supabase')) return 'supabase';
+          if (id.includes('date-fns')) return 'date-fns';
+          if (id.includes('lucide-react')) return 'icons';
           if (id.includes('@radix-ui')) return 'radix';
           if (
             id.includes('react-router') ||
