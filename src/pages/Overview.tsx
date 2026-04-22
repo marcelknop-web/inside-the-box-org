@@ -358,7 +358,7 @@ const Overview = () => {
               lPos.x < -8 ? 'end' : lPos.x > 8 ? 'start' : 'middle';
 
             // Diamond size + rotation (always upright — pointing radially outward)
-            const D = 14;
+            const D = 18;
             return (
               <g
                 key={service.id}
