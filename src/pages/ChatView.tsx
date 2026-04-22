@@ -739,6 +739,10 @@ const useServiceContent = () => {
     'dora-nis2-ttx': () => (
       <TypedSection title={t('ttx.title')} mode="typewriter" intro={<p>{t('ttx.intro')}</p>}>
         <Block className="bg-card/40 rounded-xl">
+          <div className="inline-flex items-center gap-2 mb-3 px-2.5 py-1 rounded-full bg-highlight/10 border border-highlight/30">
+            <span className="w-1.5 h-1.5 rounded-full bg-highlight" />
+            <span className="font-mono text-[10px] tracking-[0.2em] uppercase text-highlight">{t('ttx.hostedBy')}</span>
+          </div>
           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{t('ttx.introDetail')}</p>
           <p className="text-highlight text-sm font-mono mt-2">{t('ttx.focusNote')}</p>
         </Block>
