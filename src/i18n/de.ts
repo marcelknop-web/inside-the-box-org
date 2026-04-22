@@ -295,8 +295,8 @@ export const de = {
   },
   cyberCrisis: {
     title: 'Cyber-Krisenmanagement',
-    metaDesc: 'Wenn ein Angriff eskaliert, entscheiden Prozesse – nicht Pläne. Krisenmanagement-Training und Simulation.',
-    intro: 'Wenn ein Angriff eskaliert, entscheiden Prozesse – nicht Pläne.',
+    metaDesc: 'Wenn ein Angriff eskaliert, entscheiden Fähigkeiten – nicht Pläne. Krisenmanagement-Training und Simulation.',
+    intro: 'Wenn ein Angriff eskaliert, entscheiden Fähigkeiten – nicht Pläne.',
     introDetail: 'Die meisten Organisationen haben Notfallkonzepte. Die wenigsten wissen, ob sie unter Druck funktionieren. Wer das nicht vorher testet, testet es im Ernstfall – vor Aufsichtsbehörden, Medien und dem eigenen Vorstand.',
     sectionTitle: 'Was geübt werden muss – bevor der Druck kommt',
     planTitle: 'Governance und Entscheidungsstrukturen',
