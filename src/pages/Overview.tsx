@@ -716,10 +716,11 @@ const Overview = () => {
           interaction (diamond + verb + expandable detail). Extra top spacing
           (mt-12 sm:mt-20) sets it visually apart from the journey above. */}
       <section className="px-4 sm:px-6 pb-12 sm:pb-16 max-w-6xl mx-auto w-full mt-8 sm:mt-8 pt-6 sm:pt-6 border-t border-primary/10">
-        {/* Header row — same diamond + label pattern as a phase node */}
+        {/* Header row — same diamond + label pattern as a phase node.
+            On desktop, indent matches the inner padding of the phase detail card (p-8 = 2rem) so the diamond aligns with the "FÜHREN" label above. */}
         <button
           onClick={() => setReferencesOpen((v) => !v)}
-          className="w-full text-left group/ref"
+          className="w-full text-left group/ref md:pl-8"
           aria-expanded={referencesOpen}
         >
           <div className="flex items-start gap-4">
