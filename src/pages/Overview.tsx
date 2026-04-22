@@ -145,12 +145,12 @@ const Overview = () => {
 
   const hovered = useMemo(() => {
     if (!hoveredId) return null;
-    const slot = ALL_SERVICE_SLOTS.find((s) => s.service.id === hoveredId);
-    if (!slot) return null;
-    return { cluster: slot.cluster, service: slot.service };
+    const cluster = findClusterForService(hoveredId);
+    if (!cluster) return null;
+    const service = cluster.services.find((s) => s.id === hoveredId);
+    if (!service) return null;
+    return { cluster, service };
   }, [hoveredId]);
-
-  const processLabels = PROCESS_LABELS_BY_LANG[language] ?? PROCESS_LABELS_BY_LANG.en;
 
   // Cluster sector geometry — each cluster occupies 90° of the wheel
   const SECTOR_GAP = 1.5;
