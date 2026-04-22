@@ -307,9 +307,9 @@ const Overview = () => {
                 </defs>
                 <text
                   fontFamily="'IBM Plex Mono', monospace"
-                  fontSize={38}
+                  fontSize={fs.cluster}
                   fontWeight={600}
-                  letterSpacing={9}
+                  letterSpacing={fs.clusterTrack}
                   fill={GOLD}
                   textRendering="geometricPrecision"
                   style={{ pointerEvents: 'none' }}
