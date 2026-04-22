@@ -387,7 +387,7 @@ export const en = {
     agentCrisisDesc: 'AI-driven scenarios with real-time decision pressure',
     agentStressTitle: 'Stress Simulator',
     agentStressDesc: 'Realistic ambient noise for exercises under time pressure',
-    agentTtxTitle: 'ISCP Quick Check — find the right TTX scenarios',
+    agentTtxTitle: 'ISCP Quick Check',
     agentTtxDesc: 'Rate ISCPs and derive cross-cutting tabletop scenarios',
     agentDoraDesc: 'Reporting obligation under DORA Art. 19 – step by step',
     agentTisaxDesc: 'Determine assessment level and audit objectives per VDA ISA',
