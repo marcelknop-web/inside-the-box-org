@@ -62,11 +62,20 @@ serve(async (req) => {
   try {
     const body = await req.json();
     const question = body?.question;
+    const language = body?.language;
 
     // Validate input type and presence
     if (!question || typeof question !== "string") {
       return new Response(
         JSON.stringify({ error: "Invalid question format" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Validate optional language hint
+    if (language !== undefined && (typeof language !== "string" || !["de", "en", "fr"].includes(language))) {
+      return new Response(
+        JSON.stringify({ error: "Invalid language" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -108,6 +117,12 @@ serve(async (req) => {
           model: "google/gemini-3-flash-preview",
           messages: [
             { role: "system", content: SYSTEM_PROMPT },
+            ...(language
+              ? [{
+                  role: "system" as const,
+                  content: `LANGUAGE OVERRIDE: The user's UI is set to ${language === "de" ? "German" : language === "fr" ? "French" : "English"}. ALWAYS respond in ${language === "de" ? "German (use formal 'Sie')" : language === "fr" ? "French (use formal 'vous')" : "English"}, regardless of the language of the question. This overrides any other language instruction.`
+                }]
+              : []),
             { role: "user", content: trimmed },
           ],
           max_tokens: 1200,
