@@ -132,32 +132,9 @@ const textArc = (r: number, degStart: number, degEnd: number, flip: boolean): st
 };
 
 // === Service slot positioning ============================================
-// Distribute services evenly across the outer band, then place each one at a
-// fixed angle. We anchor each cluster's services around its centre.
-const ALL_SERVICE_SLOTS: Array<{
-  service: ServiceNode;
-  cluster: Cluster;
-  angleDeg: number;
-}> = (() => {
-  const slots: Array<{ service: ServiceNode; cluster: Cluster; angleDeg: number }> = [];
-  // Services span almost the full quadrant — denser, less empty arc
-  const SERVICE_SPREAD = 86;
-  for (const cluster of CLUSTERS) {
-    const n = cluster.services.length;
-    if (n === 0) continue;
-    // evenly spread across SERVICE_SPREAD around the cluster centre
-    const step = n === 1 ? 0 : SERVICE_SPREAD / (n - 1);
-    const start = cluster.centerDeg - (n === 1 ? 0 : SERVICE_SPREAD / 2);
-    for (let i = 0; i < n; i++) {
-      slots.push({
-        service: cluster.services[i],
-        cluster,
-        angleDeg: start + i * step,
-      });
-    }
-  }
-  return slots;
-})();
+// Lookup helper: find which cluster a hovered service belongs to.
+const findClusterForService = (id: string): Cluster | undefined =>
+  CLUSTERS.find((c) => c.services.some((s) => s.id === id));
 
 const Overview = () => {
   const { t, language, setLanguage } = useLanguage();
