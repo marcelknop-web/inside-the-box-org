@@ -134,25 +134,26 @@ const PhasesPreview = ({
   lang: 'en' | 'de' | 'fr';
 }) => (
   <div className="relative w-full max-w-2xl mx-auto pt-2 pb-4">
-    {/* Horizontal connector — runs from center of first to center of last diamond.
-        Diamond mask layers (bg-background) cover the line behind each diamond,
-        so it appears as a clean dashed-through line of sight. */}
-    <div
-      className="absolute top-[13px] sm:top-[15px] h-px bg-primary/30 pointer-events-none"
-      style={{ left: 'calc(100% / 10)', right: 'calc(100% / 10)' }}
-      aria-hidden
-    />
     <ol className="grid grid-cols-5 relative">
-      {phases.map((phase) => (
-        <li key={phase.id} className="flex flex-col items-center text-center">
-          {/* Diamond node — fixed 28px box; mask layer is slightly larger to cleanly cover the connector line */}
-          <span className="relative flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 z-10 mb-2">
+      {phases.map((phase, idx) => (
+        <li key={phase.id} className="relative flex flex-col items-center text-center">
+          {/* Connector segment — drawn between diamonds, never under them.
+              Each non-first node draws a line from the previous node's center to its own outer-left edge.
+              Diamond half-width: 11px (mobile) / 13px (sm). Node container is 50% of cell width. */}
+          {idx > 0 && (
             <span
-              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[22px] h-[22px] sm:w-[26px] sm:h-[26px] rotate-45 bg-background"
+              className="absolute h-px bg-primary/30 pointer-events-none top-[13px] sm:top-[15px]"
+              style={{
+                right: 'calc(50% + 11px)',
+                left: 'calc(-50% + 11px)',
+              }}
               aria-hidden
             />
+          )}
+          {/* Diamond node */}
+          <span className="relative flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 z-10 mb-2">
             <span
-              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[22px] h-[22px] sm:w-[26px] sm:h-[26px] rotate-45 border border-primary/50"
+              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[22px] h-[22px] sm:w-[26px] sm:h-[26px] rotate-45 border border-primary/50 bg-background"
               aria-hidden
             />
             <span className="relative font-mono text-[9px] sm:text-[10px] tracking-[0.1em] text-muted-foreground">
@@ -283,16 +284,22 @@ const Overview = () => {
       <section className="hidden md:block px-6 pb-4 max-w-6xl mx-auto w-full">
         <div className="relative pt-2">
           <ol className="grid grid-cols-5 relative">
-            {/* Connector line — spans only between first and last node centers */}
-            <div
-              className="absolute top-[26px] h-px bg-primary/25 pointer-events-none"
-              style={{ left: 'calc(100% / 10)', right: 'calc(100% / 10)' }}
-              aria-hidden
-            />
-            {PHASES.map((phase) => {
+            {PHASES.map((phase, idx) => {
               const isActive = phase.id === activeId;
               return (
-                <li key={phase.id} className="flex flex-col items-center">
+                <li key={phase.id} className="relative flex flex-col items-center">
+                  {/* Connector segment between diamonds — drawn from previous node center to this node's outer-left edge.
+                      Diamond half-width: 22px (44px diamond). */}
+                  {idx > 0 && (
+                    <span
+                      className="absolute h-px bg-primary/25 pointer-events-none top-[26px]"
+                      style={{
+                        right: 'calc(50% + 22px)',
+                        left: 'calc(-50% + 22px)',
+                      }}
+                      aria-hidden
+                    />
+                  )}
                   <button
                     onClick={() => setActiveId(phase.id)}
                     className="group flex flex-col items-center gap-4 text-center w-full px-2"
@@ -300,13 +307,8 @@ const Overview = () => {
                   >
                     {/* Node */}
                     <span className="relative flex items-center justify-center w-[52px] h-[52px] z-10">
-                      {/* Mask layer — solid bg blocks the connector line under the diamond */}
                       <span
-                        className="absolute inset-0 m-auto w-[44px] h-[44px] rotate-45 bg-background"
-                        aria-hidden
-                      />
-                      <span
-                        className={`absolute inset-0 m-auto w-[44px] h-[44px] rotate-45 border transition-all duration-300 ease-out ${
+                        className={`absolute inset-0 m-auto w-[44px] h-[44px] rotate-45 border bg-background transition-all duration-300 ease-out ${
                           isActive
                             ? 'border-primary bg-primary/10 phase-node-active'
                             : 'border-primary/50 group-hover:border-primary group-hover:scale-110 group-hover:bg-primary/5 group-hover:shadow-[0_0_18px_-6px_hsl(var(--primary)/0.55)]'
