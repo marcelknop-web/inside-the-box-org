@@ -293,42 +293,48 @@ const Overview = () => {
             const isActive = phase.id === activeId;
             return (
               <li key={phase.id} className="relative pl-11 pb-4 last:pb-0">
-                <button
-                  onClick={() => setActiveId(isActive ? '' : phase.id)}
-                  className="absolute left-0 top-0 flex items-center justify-center w-8 h-8"
-                  aria-expanded={isActive}
+                <div
+                  className={`transition-opacity duration-300 ${
+                    !activeId || isActive ? 'opacity-100' : 'opacity-30'
+                  }`}
                 >
-                  <span
-                    className={`absolute inset-0 m-auto w-8 h-8 rotate-45 border transition-all ${
-                      isActive ? 'border-primary bg-primary/10' : 'border-primary/40 bg-background'
-                    }`}
-                    aria-hidden
-                  />
-                  <span
-                    className={`relative font-mono text-[10px] tracking-[0.15em] ${
-                      isActive ? 'text-primary' : 'text-muted-foreground'
-                    }`}
+                  <button
+                    onClick={() => setActiveId(isActive ? '' : phase.id)}
+                    className="absolute left-0 top-0 flex items-center justify-center w-8 h-8"
+                    aria-expanded={isActive}
                   >
-                    {phase.number}
-                  </span>
-                </button>
+                    <span
+                      className={`absolute inset-0 m-auto w-8 h-8 rotate-45 border transition-all ${
+                        isActive ? 'border-primary bg-primary/10' : 'border-primary/40 bg-background'
+                      }`}
+                      aria-hidden
+                    />
+                    <span
+                      className={`relative font-mono text-[10px] tracking-[0.15em] ${
+                        isActive ? 'text-primary' : 'text-muted-foreground'
+                      }`}
+                    >
+                      {phase.number}
+                    </span>
+                  </button>
 
-                <button
-                  onClick={() => setActiveId(isActive ? '' : phase.id)}
-                  className="w-full text-left pt-0.5"
-                  aria-expanded={isActive}
-                >
-                  <div
-                    className={`font-mono text-[10px] tracking-[0.28em] mb-1 transition-colors ${
-                      isActive ? 'text-primary' : 'text-muted-foreground'
-                    }`}
+                  <button
+                    onClick={() => setActiveId(isActive ? '' : phase.id)}
+                    className="w-full text-left pt-0.5"
+                    aria-expanded={isActive}
                   >
-                    {phase.title[lang]}
-                  </div>
-                  <div className="font-mono text-[15px] font-medium text-foreground leading-snug">
-                    {phase.verb[lang]}
-                  </div>
-                </button>
+                    <div
+                      className={`font-mono text-[10px] tracking-[0.28em] mb-1 transition-colors ${
+                        isActive ? 'text-primary' : 'text-muted-foreground'
+                      }`}
+                    >
+                      {phase.title[lang]}
+                    </div>
+                    <div className="font-mono text-[15px] font-medium text-foreground leading-snug">
+                      {phase.verb[lang]}
+                    </div>
+                  </button>
+                </div>
 
                 {isActive && (
                   <div className="mt-3 animate-fade-in">
