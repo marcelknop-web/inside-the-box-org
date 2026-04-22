@@ -33,7 +33,9 @@ export const SiteChrome = ({
 
   const handleBrand = () => {
     if (onBrandClick) onBrandClick();
-    else navigate('/');
+    // Navigate to the overview but skip the hero opener — land directly on
+    // the journey-map (the "page after" the hero). Overview reads this flag.
+    else navigate('/', { state: { skipHero: true } });
   };
 
   return (

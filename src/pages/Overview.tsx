@@ -192,8 +192,20 @@ const PhasesPreview = ({
 const Overview = () => {
   const { t, language } = useLanguage();
   const navigate = useNavigate();
+  const location = useLocation();
   const [activeId, setActiveId] = useState<string>(PHASES[0].id);
-  const [entered, setEntered] = useState<boolean>(false);
+  // Brand link from sub-pages passes { state: { skipHero: true } } so we land
+  // directly on the journey map instead of the opener hero.
+  const [entered, setEntered] = useState<boolean>(
+    Boolean((location.state as { skipHero?: boolean } | null)?.skipHero),
+  );
+
+  // Honour the flag also on subsequent navigations (e.g. brand click again).
+  useEffect(() => {
+    if ((location.state as { skipHero?: boolean } | null)?.skipHero) {
+      setEntered(true);
+    }
+  }, [location.state, location.key]);
 
   const handleClick = useCallback((id: string) => navigate(`/${id}`), [navigate]);
 
