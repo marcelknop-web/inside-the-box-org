@@ -1809,8 +1809,8 @@ const ChatView = () => {
     <div className="h-screen flex overflow-hidden bg-transparent">
       <PageMeta title="inside-the-box" description="Cybersecurity Navigator" />
 
-      {/* Mobile sidebar overlay */}
-      {isMobile && sidebarOpen && (
+      {/* Mobile sidebar overlay — hidden on service sub-pages (linked from new homepage) */}
+      {isMobile && sidebarOpen && !activeService && (
         <div className="fixed inset-0 z-50 flex">
           <div className="absolute inset-0 bg-black/60" onClick={() => setSidebarOpen(false)} />
           <div className="relative w-[280px] h-full flex flex-col bg-card animate-in slide-in-from-left duration-200">
@@ -1832,8 +1832,8 @@ const ChatView = () => {
         </div>
       )}
 
-      {/* Desktop sidebar */}
-      {!isMobile && (
+      {/* Desktop sidebar — hidden on service sub-pages (linked from new homepage) */}
+      {!isMobile && !activeService && (
         <div className={`${sidebarOpen ? 'w-64' : 'w-0'} transition-all duration-300 flex-shrink-0 overflow-hidden`}>
           <div className="w-64 h-full flex flex-col bg-card border-r border-border">
             <div className="h-12 px-3 flex items-center justify-between bg-primary/10 border-b border-border flex-shrink-0">
@@ -1854,20 +1854,38 @@ const ChatView = () => {
       {/* Main */}
       <div className="flex-1 flex flex-col min-w-0">
         <div className="h-12 border-b border-border flex items-center px-3 gap-2 flex-shrink-0">
-          <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-1.5 rounded-md hover:bg-secondary text-muted-foreground transition-electric">
-            {!isMobile && sidebarOpen ? <ChevronLeft size={18} /> : <Menu size={18} />}
-          </button>
           {activeService ? (
-            <a href="/" className="flex-1 text-sm font-mono font-bold text-accent truncate text-center md:text-left hover:text-highlight transition-electric">
-              inside-the-box.org
-            </a>
+            <>
+              <button
+                onClick={() => navigate('/')}
+                className="p-1.5 rounded-md hover:bg-secondary text-muted-foreground transition-electric"
+                aria-label="Back to overview"
+              >
+                <ChevronLeft size={18} />
+              </button>
+              <a href="/" className="flex-1 text-sm font-mono font-bold text-accent truncate text-center md:text-left hover:text-highlight transition-electric">
+                inside-the-box.org
+              </a>
+              <div className="hidden md:flex gap-1">
+                {(['en', 'de', 'fr'] as const).map(lng => (
+                  <button key={lng} onClick={() => setLanguage(lng)} className={`rounded-lg border px-2 py-1 text-[11px] font-rounded font-bold uppercase tracking-wider transition-electric ${language === lng ? 'bg-highlight/20 border-highlight text-highlight' : 'border-highlight/30 text-highlight/60 hover:bg-highlight/10 hover:border-highlight/50 hover:text-highlight'}`}>
+                    {lng.toUpperCase()}
+                  </button>
+                ))}
+              </div>
+            </>
           ) : (
-            <span className="flex-1" />
-          )}
-          {isMobile && (
-            <button onClick={newChat} className="p-1.5 rounded-md hover:bg-secondary text-muted-foreground transition-electric">
-              <Plus size={18} />
-            </button>
+            <>
+              <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-1.5 rounded-md hover:bg-secondary text-muted-foreground transition-electric">
+                {!isMobile && sidebarOpen ? <ChevronLeft size={18} /> : <Menu size={18} />}
+              </button>
+              <span className="flex-1" />
+              {isMobile && (
+                <button onClick={newChat} className="p-1.5 rounded-md hover:bg-secondary text-muted-foreground transition-electric">
+                  <Plus size={18} />
+                </button>
+              )}
+            </>
           )}
         </div>
 
