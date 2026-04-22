@@ -422,6 +422,8 @@
 @media (prefers-reduced-motion: reduce) {
   .text-stress-flicker { animation: none; }
 }
+
+@layer components {
   .card-electric {
     @apply bg-card border border-border rounded-lg p-6 transition-electric hover:shadow-[var(--shadow-card)] hover:border-primary/30;
   }
