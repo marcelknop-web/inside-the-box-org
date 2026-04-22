@@ -236,7 +236,7 @@ const Overview = () => {
       )}
 
       {/* Mandala */}
-      <div className="relative w-full flex-1 flex items-center justify-center px-2 py-12">
+      <div className="relative w-full flex-1 flex items-center justify-center px-2 py-4">
         <svg
           viewBox={`${-HALF} ${-HALF} ${VB} ${VB}`}
           className="w-full h-full max-w-[960px] max-h-[960px]"
