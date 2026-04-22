@@ -7,6 +7,12 @@ import { useLanguage } from '@/i18n/LanguageContext';
  * phase) so it works for both window scroll and the app's inner
  * scrollable container. Anchored bottom-right with iOS safe-area padding
  * so it sits just above the chat bar.
+ *
+ * Performance note: the previous implementation polled `scrollTop` on every
+ * matching DOM node every animation frame (60×/s), which forced a layout
+ * recalculation per frame and triggered Lighthouse "Forced reflow" warnings.
+ * We now react to actual scroll events (capture phase, passive) and coalesce
+ * updates into a single rAF, only re-rendering when the visible flag flips.
  */
 export function ScrollToTopFab() {
   const [visible, setVisible] = useState(false);
@@ -14,17 +20,44 @@ export function ScrollToTopFab() {
 
   useEffect(() => {
     let raf = 0;
-    const check = () => {
+    let pending = false;
+    let currentlyVisible = false;
+
+    const measure = () => {
+      pending = false;
       let max = window.scrollY || document.documentElement.scrollTop || 0;
-      const els = document.querySelectorAll<HTMLElement>('[class*="overflow-y"], main, .flex-1');
+      // Walk only known scroll containers (cached selector). Reading
+      // scrollTop in a tight loop without intervening writes does not
+      // re-trigger layout, so this batch read is reflow-safe.
+      const els = document.querySelectorAll<HTMLElement>(
+        '[class*="overflow-y"], main, .flex-1',
+      );
       for (let i = 0; i < els.length; i++) {
-        if (els[i].scrollTop > max) max = els[i].scrollTop;
+        const t = els[i].scrollTop;
+        if (t > max) max = t;
       }
-      setVisible(max > 600);
-      raf = requestAnimationFrame(check);
+      const next = max > 600;
+      if (next !== currentlyVisible) {
+        currentlyVisible = next;
+        setVisible(next);
+      }
     };
-    raf = requestAnimationFrame(check);
-    return () => cancelAnimationFrame(raf);
+
+    const onScroll = () => {
+      if (pending) return;
+      pending = true;
+      raf = requestAnimationFrame(measure);
+    };
+
+    // Capture phase so inner scrollable containers also notify us.
+    window.addEventListener('scroll', onScroll, { capture: true, passive: true });
+    // Initial measurement (e.g. when navigating into a pre-scrolled view).
+    onScroll();
+
+    return () => {
+      window.removeEventListener('scroll', onScroll, { capture: true } as EventListenerOptions);
+      cancelAnimationFrame(raf);
+    };
   }, []);
 
   const scrollToTop = () => {
