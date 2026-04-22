@@ -186,7 +186,7 @@ const Overview = () => {
                 key={tile.id}
                 onMouseEnter={() => setHoveredId(tile.id)}
                 onMouseLeave={() => setHoveredId(null)}
-                className="bg-background p-6 md:p-7 flex flex-col group transition-colors hover:bg-primary/[0.04] min-h-[280px]"
+                className="bg-background/60 backdrop-blur-[2px] p-6 md:p-7 flex flex-col group transition-colors hover:bg-primary/[0.06] min-h-[280px]"
               >
                 {/* Tile label */}
                 <div className="font-mono text-[9px] tracking-[0.35em] text-primary/70 mb-4">
