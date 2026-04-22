@@ -242,7 +242,7 @@ const Overview = () => {
         <svg
           ref={svgRef}
           viewBox={`${-HALF} ${-HALF} ${VB} ${VB}`}
-          className="w-full h-full max-w-[960px] max-h-[960px]"
+          className="w-full h-full max-w-[960px] max-h-[960px] text-lg"
           style={{ filter: 'drop-shadow(0 0 28px hsl(var(--primary) / 0.18))' }}
         >
           {/* Faint outer guide circle for visual containment */}
