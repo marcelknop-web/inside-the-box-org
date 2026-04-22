@@ -423,6 +423,7 @@ export const de = {
     ctaTitle: 'Aus dem Lab in die Praxis',
     ctaDesc: 'Wenn ein Format Ihren Anwendungsfall trifft, lässt es sich als KI-gestützter Workflow in Ihre Organisation überführen – mit klarem Scope und prüffähiger Dokumentation.',
     ctaButton: '→ Zu den KI-Workflows',
+    ctaContact: '→ Gespräch vereinbaren',
   },
   arena: {
     title: 'TIBER-Test',
