@@ -675,7 +675,7 @@ export const de = {
       experience: 'KPMG: Consultant bis Senior Manager · Accenture: Senior Manager · Ernst & Young: Senior Manager',
     },
     andreas: {
-      bio: 'Ich unterstütze Organisationen in Informationssicherheit, Risikomanagement und Datenschutz. Mein Schwerpunkt liegt auf dem Aufbau und der Weiterentwicklung von ISMS sowie der strukturierten Umsetzung regulatorischer Anforderungen. Ich arbeite in regulierten Umgebungen und verbinde normative Anforderungen mit praktikablen Lösungen im operativen Betrieb. Zuvor war ich in Senior-Positionen bei PwC, EY und CSPi tätig.',
+      bio: 'Organisationen unterstütze ich dabei, Informationssicherheit, Risikomanagement und Datenschutz wirksam umzusetzen – strukturiert, prüfbar und im operativen Betrieb tragfähig.\n\nMein Fokus liegt auf dem Aufbau und der Weiterentwicklung von ISMS sowie der strukturierten Umsetzung regulatorischer Anforderungen in regulierten Umgebungen. Dabei verbinde ich normative Vorgaben mit praktikablen Lösungen, die im Alltag funktionieren.\n\nZuvor war ich in Senior-Positionen bei PwC, EY und CSPi tätig.',
       focusLabel: 'Schwerpunkte',
       focus: 'ISO/IEC 27001 · PCI-DSS · NIST · TISAX · Risikomanagement · Business Continuity · DSGVO · KRITIS',
       certsLabel: 'Zertifizierungen',
