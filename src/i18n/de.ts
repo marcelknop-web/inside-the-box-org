@@ -662,7 +662,7 @@ export const de = {
   },
   profiles: {
     marcel: {
-      bio: 'Organisationen unterstütze ich dabei, Cybersecurity und regulatorische Anforderungen wirksam umzusetzen – von der Standortbestimmung bis zur nachhaltigen Verankerung in Prozessen und Organisation.\n\nDabei schaffe ich belastbare Entscheidungsgrundlagen, begleite Organisationen zur Audit-Reife und stelle sicher, dass Sicherheits- und Krisenstrukturen im Ernstfall funktionieren.\n\nMeine Schwerpunkte liegen im Aufbau und der Weiterentwicklung von ISMS, der Umsetzung regulatorischer Anforderungen sowie im Cyber-Krisenmanagement.\n\nZuvor war ich in leitenden Funktionen bei KPMG, Accenture und EY tätig.',
+      bio: 'Ich helfe Organisationen, Cybersecurity und regulatorische Vorgaben in den Griff zu bekommen – vom ersten Blick auf den Ist-Zustand bis dahin, dass es im Alltag wirklich läuft.\n\nMein Anspruch: klare Entscheidungsgrundlagen, ehrliche Einschätzungen und Strukturen, die auch dann halten, wenn es brennt.\n\nSchwerpunkte: ISMS aufbauen und weiterentwickeln, regulatorische Themen umsetzen, Cyber-Krisenmanagement.\n\nDavor: leitende Rollen bei KPMG, Accenture und EY.',
       focusLabel: 'Schwerpunkte',
       focus: 'ISMS · TISAX · NIS2 · PCI-DSS · Cyber-Krisenmanagement · TIBER · BCM',
       certsLabel: 'Zertifizierungen',
