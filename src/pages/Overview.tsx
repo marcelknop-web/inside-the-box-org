@@ -209,16 +209,17 @@ const Overview = () => {
                     {/* Node */}
                     <span className="relative flex items-center justify-center w-[52px] h-[52px] bg-background z-10">
                       <span
-                        className={`absolute inset-0 m-auto w-[44px] h-[44px] rotate-45 border transition-all ${
+                        className={`absolute inset-0 m-auto w-[44px] h-[44px] rotate-45 border transition-all duration-300 ease-out ${
                           isActive
-                            ? 'border-primary bg-primary/10 shadow-[0_0_24px_-6px_hsl(var(--primary)/0.6)]'
-                            : 'border-primary/50 bg-background group-hover:border-primary/80'
+                            ? 'border-primary bg-primary/10 phase-node-active'
+                            : 'border-primary/50 bg-background group-hover:border-primary group-hover:scale-110 group-hover:bg-primary/5 group-hover:shadow-[0_0_18px_-6px_hsl(var(--primary)/0.55)]'
                         }`}
                         aria-hidden
                       />
                       <span
-                        className={`relative font-mono text-[11px] tracking-[0.15em] transition-colors ${
-                          isActive ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground'
+                        key={isActive ? `n-${phase.id}-active` : `n-${phase.id}`}
+                        className={`relative font-mono text-[11px] tracking-[0.15em] transition-colors duration-300 ${
+                          isActive ? 'text-primary' : 'text-muted-foreground group-hover:text-primary'
                         }`}
                       >
                         {phase.number}
@@ -226,8 +227,11 @@ const Overview = () => {
                     </span>
                     {/* Label */}
                     <span
-                      className={`font-mono text-[11px] tracking-[0.3em] transition-colors whitespace-nowrap ${
-                        isActive ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground'
+                      key={isActive ? `l-${phase.id}-active` : `l-${phase.id}`}
+                      className={`font-mono text-[11px] tracking-[0.3em] transition-colors duration-300 whitespace-nowrap ${
+                        isActive
+                          ? 'text-primary phase-label-emphasis'
+                          : 'text-muted-foreground group-hover:text-primary/90'
                       }`}
                     >
                       {phase.title[lang]}
@@ -243,7 +247,10 @@ const Overview = () => {
 
       {/* Active phase detail (desktop) */}
       <section className="hidden md:block flex-1 px-6 py-10 max-w-6xl mx-auto w-full">
-        <div className="grid grid-cols-12 gap-8 bg-background/60 backdrop-blur-[2px] border border-primary/15 p-8">
+        <div
+          key={active.id}
+          className="grid grid-cols-12 gap-8 bg-background/60 backdrop-blur-[2px] border border-primary/15 p-8 animate-fade-in"
+        >
           {/* Left — phase intro */}
           <div className="col-span-7">
             <div className="font-mono text-[10px] tracking-[0.35em] text-primary/70 mb-3">
@@ -266,7 +273,7 @@ const Overview = () => {
                 <li key={svc.id}>
                   <button
                     onClick={() => handleClick(svc.id)}
-                    className="w-full text-left flex items-center justify-between gap-3 font-mono text-sm tracking-[0.02em] text-foreground/90 hover:text-primary transition-colors py-2.5 border-b border-primary/10 group/svc"
+                    className="w-full text-left flex items-center justify-between gap-3 font-mono text-sm tracking-[0.02em] text-foreground/90 hover:text-primary hover:translate-x-1 transition-all duration-200 py-2.5 border-b border-primary/10 group/svc"
                   >
                     <span className="flex items-center gap-3 min-w-0">
                       <span
@@ -296,48 +303,51 @@ const Overview = () => {
             const isActive = phase.id === activeId;
             return (
               <li key={phase.id} className="relative pl-11 pb-4 last:pb-0">
-                <div
-                  className={`transition-opacity duration-300 ${
-                    !activeId || isActive ? 'opacity-100' : 'opacity-30'
-                  }`}
+                <button
+                  onClick={() => setActiveId(isActive ? '' : phase.id)}
+                  className="absolute left-0 top-0 flex items-center justify-center w-8 h-8 group/node"
+                  aria-expanded={isActive}
                 >
-                  <button
-                    onClick={() => setActiveId(isActive ? '' : phase.id)}
-                    className="absolute left-0 top-0 flex items-center justify-center w-8 h-8"
-                    aria-expanded={isActive}
+                  <span
+                    className={`absolute inset-0 m-auto w-8 h-8 rotate-45 border transition-all duration-300 ${
+                      isActive
+                        ? 'border-primary bg-primary/10 phase-node-active'
+                        : 'border-primary/40 bg-background group-hover/node:border-primary group-hover/node:bg-primary/5'
+                    }`}
+                    aria-hidden
+                  />
+                  <span
+                    className={`relative font-mono text-[10px] tracking-[0.15em] transition-colors ${
+                      isActive ? 'text-primary' : 'text-muted-foreground group-hover/node:text-primary'
+                    }`}
                   >
-                    <span
-                      className={`absolute inset-0 m-auto w-8 h-8 rotate-45 border transition-all ${
-                        isActive ? 'border-primary bg-primary/10' : 'border-primary/40 bg-background'
-                      }`}
-                      aria-hidden
-                    />
-                    <span
-                      className={`relative font-mono text-[10px] tracking-[0.15em] ${
-                        isActive ? 'text-primary' : 'text-muted-foreground'
-                      }`}
-                    >
-                      {phase.number}
-                    </span>
-                  </button>
+                    {phase.number}
+                  </span>
+                </button>
 
-                  <button
-                    onClick={() => setActiveId(isActive ? '' : phase.id)}
-                    className="w-full text-left pt-0.5"
-                    aria-expanded={isActive}
+                <button
+                  onClick={() => setActiveId(isActive ? '' : phase.id)}
+                  className="w-full text-left pt-0.5"
+                  aria-expanded={isActive}
+                >
+                  {/* Yellow phase title — always bright */}
+                  <div
+                    key={isActive ? `m-${phase.id}-active` : `m-${phase.id}`}
+                    className={`font-mono text-[10px] tracking-[0.28em] mb-1 transition-colors ${
+                      isActive ? 'text-primary phase-label-emphasis' : 'text-primary/80'
+                    }`}
                   >
-                    <div
-                      className={`font-mono text-[10px] tracking-[0.28em] mb-1 transition-colors ${
-                        isActive ? 'text-primary' : 'text-muted-foreground'
-                      }`}
-                    >
-                      {phase.title[lang]}
-                    </div>
-                    <div className="font-mono text-[15px] font-medium text-foreground leading-snug">
-                      {phase.verb[lang]}
-                    </div>
-                  </button>
-                </div>
+                    {phase.title[lang]}
+                  </div>
+                  {/* Verb — dimmed when another phase is active */}
+                  <div
+                    className={`font-mono text-[15px] font-medium leading-snug transition-opacity duration-300 ${
+                      !activeId || isActive ? 'text-foreground opacity-100' : 'text-foreground opacity-30'
+                    }`}
+                  >
+                    {phase.verb[lang]}
+                  </div>
+                </button>
 
                 {isActive && (
                   <div className="mt-3 animate-fade-in">
