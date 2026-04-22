@@ -396,9 +396,9 @@ const Overview = () => {
                   x={lPos.x}
                   y={lPos.y}
                   fontFamily="'IBM Plex Mono', monospace"
-                  fontSize={20}
+                  fontSize={24}
                   fontWeight={500}
-                  letterSpacing={0.8}
+                  letterSpacing={1}
                   fill={isHovered ? GOLD : '#e8ecf3'}
                   textAnchor={anchor}
                   dominantBaseline="middle"
