@@ -424,16 +424,16 @@ const Overview = () => {
                 </g>
 
                 {/* Hit area */}
-                <circle cx={dPos.x} cy={dPos.y} r={26} fill="transparent" />
+                <circle cx={dPos.x} cy={dPos.y} r={Math.max(20, fs.diamond * 1.6)} fill="transparent" />
 
                 {/* Horizontal label — always upright, never rotated */}
                 <text
                   x={lPos.x}
                   y={lPos.y}
                   fontFamily="'IBM Plex Mono', monospace"
-                  fontSize={24}
+                  fontSize={fs.service}
                   fontWeight={500}
-                  letterSpacing={1}
+                  letterSpacing={fs.serviceTrack}
                   fill={isHovered ? GOLD : '#e8ecf3'}
                   textAnchor={anchor}
                   dominantBaseline="middle"
