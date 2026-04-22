@@ -164,8 +164,11 @@ const PhasesPreview = ({
               aria-hidden
             />
           </span>
-          {/* Label — single line; scaled down on mobile so longest DE word fits. */}
-          <span className="font-mono text-[7px] sm:text-[9px] tracking-normal sm:tracking-[0.18em] text-muted-foreground/70 leading-[1.1] w-full px-0 whitespace-nowrap">
+          {/* Label — small, equal-rank text under each diamond. */}
+          <span
+            lang={lang}
+            className="font-mono text-[8px] sm:text-[9px] tracking-normal sm:tracking-[0.18em] text-muted-foreground/70 leading-[1.15] w-full px-0 break-words hyphens-auto"
+          >
             {phase.title[lang]}
           </span>
         </li>
