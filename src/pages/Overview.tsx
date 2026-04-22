@@ -216,10 +216,10 @@ const Overview = () => {
 
   const headline =
     lang === 'de'
-      ? 'Cyber-Resilienz in sechs Schritten.'
+      ? 'Cyber-Resilienz in fünf Schritten.'
       : lang === 'fr'
-      ? 'La cyber-résilience en six étapes.'
-      : 'Cyber-resilience in six steps.';
+      ? 'La cyber-résilience en cinq étapes.'
+      : 'Cyber-resilience in five steps.';
   const subline =
     lang === 'de'
       ? 'Wählen Sie den Schritt, der gerade ansteht.'
