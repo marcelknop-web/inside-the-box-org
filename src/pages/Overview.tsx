@@ -66,9 +66,9 @@ const PHASES: Phase[] = [
       fr: 'Vision claire de la situation et priorités pour décider en connaissance de cause',
     },
     description: {
-      en: 'Position, situation, gap — before anything else gets planned.',
-      de: 'Standortbestimmung, Lagebild, Gap-Analyse — bevor irgendetwas geplant wird.',
-      fr: 'État des lieux, situation, analyse d\'écart — avant toute planification.',
+      en: 'A solid baseline assessment as the foundation for every measure.',
+      de: 'Fundierte Standortbestimmung als Grundlage aller Maßnahmen.',
+      fr: 'Un état des lieux solide comme fondement de toute mesure.',
     },
     services: [
       { id: 'assessments-concepts', titleKey: 'consulting.assessTitle' },
