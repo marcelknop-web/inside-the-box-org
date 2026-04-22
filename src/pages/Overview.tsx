@@ -569,7 +569,7 @@ const Overview = () => {
               <div className="flex items-center gap-3 min-w-0">
                 <Mail className="w-4 h-4 text-primary flex-shrink-0" />
                 <div className="min-w-0">
-                  <div className="font-mono text-[10px] tracking-[0.25em] text-muted-foreground uppercase mb-0.5">Marcel Knop</div>
+                  <div className="font-mono text-[10px] tracking-[0.25em] text-muted-foreground uppercase mb-0.5">{lang === 'fr' ? 'E-mail · Marcel Knop' : 'E-Mail · Marcel Knop'}</div>
                   <div className="font-mono text-sm text-foreground truncate">marcel@inside-the-box.org</div>
                 </div>
               </div>
@@ -583,7 +583,7 @@ const Overview = () => {
               <div className="flex items-center gap-3 min-w-0">
                 <Phone className="w-4 h-4 text-primary flex-shrink-0" />
                 <div className="min-w-0">
-                  <div className="font-mono text-[10px] tracking-[0.25em] text-muted-foreground uppercase mb-0.5">Marcel Knop</div>
+                  <div className="font-mono text-[10px] tracking-[0.25em] text-muted-foreground uppercase mb-0.5">{lang === 'de' ? 'Mobil · Marcel Knop' : lang === 'fr' ? 'Mobile · Marcel Knop' : 'Mobile · Marcel Knop'}</div>
                   <div className="font-mono text-sm text-foreground">+49 1520 569 1648</div>
                 </div>
               </div>
