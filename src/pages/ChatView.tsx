@@ -9,6 +9,7 @@ import { PageMeta } from '@/components/PageMeta';
 import { useLanguage, nextLanguage } from '@/i18n/LanguageContext';
 import { consultantProfiles } from '@/data/consultantProfiles';
 import { GeometricSymbol } from '@/components/GeometricSymbol';
+import { ServiceSymbol, type ServiceTheme } from '@/components/ServiceSymbol';
 import { LucideIcon } from 'lucide-react';
 
 // Lazy-load heavy page components to reduce initial bundle size
@@ -1069,21 +1070,21 @@ const useServiceContent = () => {
     ),
     consulting: () => (
       <TypedSection title={t('consulting.title')} mode="typewriter" intro={<p>{t('consulting.intro')}</p>}>
-        {[
-          { icon: ShieldCheck, title: t('consulting.ismsTitle'), desc: t('consulting.ismsDesc'), id: 'isms' },
-          { icon: Network, title: t('consulting.nis2Title'), desc: t('consulting.nis2Desc'), id: 'nis2-dora' },
-          { icon: CreditCard, title: t('consulting.tisaxTitle'), desc: t('consulting.tisaxDesc'), id: 'tisax-pci-dss' },
-          { icon: Search, title: t('consulting.assessTitle'), desc: t('consulting.assessDesc'), id: 'assessments-concepts' },
-          { icon: Flame, title: t('consulting.incidentTitle'), desc: t('consulting.incidentDesc'), id: 'incident-management' },
-          { icon: Swords, title: t('consulting.crisisTitle'), desc: t('consulting.crisisDesc'), id: 'cyber-crisis-management' },
-          { icon: Target, title: t('consulting.arenaTitle'), desc: t('consulting.arenaDesc'), id: 'arena-training' },
-          { icon: Calendar, title: t('consulting.eventsTitle'), desc: t('consulting.eventsDesc'), id: 'events-workshops' },
-          { icon: FileText, title: t('consulting.pubTitle'), desc: t('consulting.pubDesc'), id: 'publications' },
-          { icon: UserCheck, title: t('consulting.vcisoTitle'), desc: t('consulting.vcisoDesc'), id: 'virtual-ciso' },
-          { icon: Zap, title: t('consulting.aiWorkflowsTitle'), desc: t('consulting.aiWorkflowsDesc'), id: 'ai-workflows' },
-        ].map(s => (
-          <div key={s.id} className="rounded-xl p-3 bg-primary/5 border border-primary/20 flex items-start gap-2 cursor-pointer hover:bg-primary/10 transition-electric" onClick={() => setActive(s.id)}>
-            <s.icon size={14} className="text-primary mt-0.5 flex-shrink-0" />
+        {([
+          { theme: 'isms', title: t('consulting.ismsTitle'), desc: t('consulting.ismsDesc'), id: 'isms' },
+          { theme: 'nis2-dora', title: t('consulting.nis2Title'), desc: t('consulting.nis2Desc'), id: 'nis2-dora' },
+          { theme: 'tisax-pci-dss', title: t('consulting.tisaxTitle'), desc: t('consulting.tisaxDesc'), id: 'tisax-pci-dss' },
+          { theme: 'assessments-concepts', title: t('consulting.assessTitle'), desc: t('consulting.assessDesc'), id: 'assessments-concepts' },
+          { theme: 'incident-management', title: t('consulting.incidentTitle'), desc: t('consulting.incidentDesc'), id: 'incident-management' },
+          { theme: 'cyber-crisis-management', title: t('consulting.crisisTitle'), desc: t('consulting.crisisDesc'), id: 'cyber-crisis-management' },
+          { theme: 'arena-training', title: t('consulting.arenaTitle'), desc: t('consulting.arenaDesc'), id: 'arena-training' },
+          { theme: 'events-workshops', title: t('consulting.eventsTitle'), desc: t('consulting.eventsDesc'), id: 'events-workshops' },
+          { theme: 'publications', title: t('consulting.pubTitle'), desc: t('consulting.pubDesc'), id: 'publications' },
+          { theme: 'virtual-ciso', title: t('consulting.vcisoTitle'), desc: t('consulting.vcisoDesc'), id: 'virtual-ciso' },
+          { theme: 'ai-workflows', title: t('consulting.aiWorkflowsTitle'), desc: t('consulting.aiWorkflowsDesc'), id: 'ai-workflows' },
+        ] as Array<{ theme: ServiceTheme; title: string; desc: string; id: string }>).map(s => (
+          <div key={s.id} className="rounded-xl p-3 bg-primary/5 border border-primary/20 flex items-start gap-2.5 cursor-pointer hover:bg-primary/10 transition-electric" onClick={() => setActive(s.id)}>
+            <ServiceSymbol theme={s.theme} size={20} className="text-primary mt-0.5 flex-shrink-0" />
             <div>
               <p className="text-primary font-semibold text-sm font-sans">{s.title} →</p>
               <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{s.desc}</p>
