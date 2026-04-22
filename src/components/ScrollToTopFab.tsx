@@ -62,8 +62,14 @@ export function ScrollToTopFab() {
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    // Reset any scrolled inner containers
-    document.querySelectorAll<HTMLElement>('div').forEach((el) => {
+    // Reset only known scroll containers — iterating over every <div> and
+    // reading scrollTop forces one layout per element, causing a noticeable
+    // reflow spike on the click. Scoping to the same selector used by the
+    // measurement loop keeps the click cheap and reflow-safe.
+    const els = document.querySelectorAll<HTMLElement>(
+      '[class*="overflow-y"], main, .flex-1',
+    );
+    els.forEach((el) => {
       if (el.scrollTop > 0) el.scrollTo({ top: 0, behavior: 'smooth' });
     });
   };
