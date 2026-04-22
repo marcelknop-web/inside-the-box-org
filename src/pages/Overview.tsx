@@ -231,7 +231,7 @@ const Overview = () => {
 
       {!entered ? (
         /* Opener Hero — claim-dominant hierarchy */
-        <section className="flex-1 flex items-center justify-center px-3 sm:px-6 py-8 sm:py-14 max-w-5xl mx-auto w-full">
+        <section className="flex-1 flex items-center justify-center px-5 sm:px-6 py-8 sm:py-14 max-w-5xl mx-auto w-full">
           <div className="w-full max-w-3xl text-center">
             {/* Category label */}
             <div
@@ -251,7 +251,7 @@ const Overview = () => {
 
             {/* Claim — dominant, with the "stress" word flickering */}
             <p
-              className="font-sans font-light text-[22px] sm:text-3xl md:text-5xl text-foreground leading-[1.18] tracking-[-0.01em] mb-5 opacity-0 animate-fade-in max-w-3xl mx-auto px-1"
+              className="font-sans font-light text-[20px] sm:text-3xl md:text-5xl text-foreground leading-[1.2] tracking-[-0.01em] mb-5 opacity-0 animate-fade-in max-w-3xl mx-auto"
               style={{ animationDelay: '420ms', animationFillMode: 'forwards' }}
             >
               {renderWithStressFlicker(t('welcome.heroSubtitle'), ['Stress', 'stress', 'pression'])}
@@ -277,7 +277,7 @@ const Overview = () => {
             {/* CTA — questioning. Allows wrapping on very narrow screens to never clip the question. */}
             <button
               onClick={() => setEntered(true)}
-              className="group inline-flex items-center justify-center gap-2 sm:gap-3 px-5 sm:px-8 py-3.5 sm:py-4 max-w-full border border-primary/50 hover:border-primary bg-primary/5 hover:bg-primary/10 text-primary font-mono text-[11px] sm:text-[14px] tracking-[0.18em] sm:tracking-[0.25em] leading-tight transition-all duration-300 hover:shadow-[0_0_30px_-8px_hsl(var(--primary)/0.6)] opacity-0 animate-fade-in text-center"
+              className="group inline-flex items-center justify-center gap-2 sm:gap-3 px-4 sm:px-8 py-3.5 sm:py-4 max-w-full border border-primary/50 hover:border-primary bg-primary/5 hover:bg-primary/10 text-primary font-mono text-[10px] sm:text-[14px] tracking-[0.16em] sm:tracking-[0.25em] leading-tight transition-all duration-300 hover:shadow-[0_0_30px_-8px_hsl(var(--primary)/0.6)] opacity-0 animate-fade-in text-center"
               style={{ animationDelay: '1200ms', animationFillMode: 'forwards' }}
               aria-label={enterCta}
             >

@@ -559,7 +559,7 @@ export const fr = {
     privacyCookies: 'Aucun cookie marketing ou de traçage n\'est utilisé. Seul du stockage local techniquement nécessaire (par ex. langue) est conservé dans votre navigateur.',
     privacyRightsTitle: 'Vos droits',
     privacyRights: 'Vous disposez d\'un droit d\'accès, de rectification, d\'effacement, de limitation, de portabilité et d\'opposition, ainsi que du droit d\'introduire une réclamation auprès d\'une autorité de contrôle. Demandes : marcel@inside-the-box.org.',
-    lastUpdated: 'Dernière mise à jour : 4 septembre 2025',
+    lastUpdatedPrefix: 'Dernière mise à jour :',
   },
   techReq: {
     title: 'Prérequis techniques',

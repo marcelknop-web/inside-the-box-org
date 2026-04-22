@@ -559,7 +559,7 @@ export const de = {
     privacyCookies: 'Es werden keine Marketing- oder Tracking-Cookies gesetzt. Lediglich technisch notwendige Speicher (z. B. Spracheinstellung) werden lokal in Ihrem Browser abgelegt.',
     privacyRightsTitle: 'Ihre Rechte',
     privacyRights: 'Sie haben das Recht auf Auskunft, Berichtigung, Löschung, Einschränkung, Datenübertragbarkeit und Widerspruch sowie das Recht auf Beschwerde bei einer Aufsichtsbehörde. Anfragen bitte formlos an marcel@inside-the-box.org.',
-    lastUpdated: 'Zuletzt aktualisiert: 4. September 2025',
+    lastUpdatedPrefix: 'Zuletzt aktualisiert:',
   },
   techReq: {
     title: 'Technische Voraussetzungen',
