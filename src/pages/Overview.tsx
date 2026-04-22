@@ -756,9 +756,13 @@ const Overview = () => {
           </div>
         </button>
 
-        {/* Collapsible body */}
+        {/* Collapsible body — popt in derselben Card-Hülle auf wie das Phase-Detail
+            (bg-background/60, backdrop-blur, border-primary/15, p-8). */}
         {referencesOpen && (
-          <div className="mt-4 sm:mt-5 animate-fade-in pl-0 sm:pl-12 md:pl-20">
+          <div
+            key="references-detail"
+            className="mt-4 sm:mt-5 bg-background/60 backdrop-blur-[2px] border border-primary/15 p-6 sm:p-8 animate-fade-in"
+          >
             <p className="font-sans text-[12px] sm:text-[13px] text-muted-foreground max-w-2xl leading-snug mb-5 sm:mb-6">
               {referenceSubline}
             </p>
