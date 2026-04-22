@@ -1809,8 +1809,8 @@ const ChatView = () => {
     <div className="h-screen flex overflow-hidden bg-transparent">
       <PageMeta title="inside-the-box" description="Cybersecurity Navigator" />
 
-      {/* Mobile sidebar overlay */}
-      {isMobile && sidebarOpen && (
+      {/* Mobile sidebar overlay — hidden on service sub-pages (linked from new homepage) */}
+      {isMobile && sidebarOpen && !activeService && (
         <div className="fixed inset-0 z-50 flex">
           <div className="absolute inset-0 bg-black/60" onClick={() => setSidebarOpen(false)} />
           <div className="relative w-[280px] h-full flex flex-col bg-card animate-in slide-in-from-left duration-200">
@@ -1832,8 +1832,8 @@ const ChatView = () => {
         </div>
       )}
 
-      {/* Desktop sidebar */}
-      {!isMobile && (
+      {/* Desktop sidebar — hidden on service sub-pages (linked from new homepage) */}
+      {!isMobile && !activeService && (
         <div className={`${sidebarOpen ? 'w-64' : 'w-0'} transition-all duration-300 flex-shrink-0 overflow-hidden`}>
           <div className="w-64 h-full flex flex-col bg-card border-r border-border">
             <div className="h-12 px-3 flex items-center justify-between bg-primary/10 border-b border-border flex-shrink-0">
