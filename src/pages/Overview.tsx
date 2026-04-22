@@ -187,6 +187,37 @@ const Overview = () => {
   // Cluster sector geometry — each cluster occupies 90° of the wheel
   const SECTOR_GAP = 1.5;
 
+  // Measure rendered SVG width to scale typography against viewBox (1200u)
+  const svgRef = useRef<SVGSVGElement | null>(null);
+  const [renderedWidth, setRenderedWidth] = useState(900);
+  useEffect(() => {
+    const el = svgRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const w = entry.contentRect.width;
+        if (w > 0) setRenderedWidth(w);
+      }
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  // Scale factor: at 900px+ we use full design sizes; below we shrink linearly.
+  // Floor at 0.55 so labels stay legible on tiny phones (svg keeps aspect ratio).
+  const scale = Math.max(0.55, Math.min(1, renderedWidth / 900));
+  const fs = {
+    cluster: 38 * scale,
+    clusterTrack: 9 * scale,
+    process: 26 * scale,
+    processTrack: 7 * scale,
+    service: Math.max(13, 24 * scale),
+    serviceTrack: Math.max(0.5, 1 * scale),
+    diamond: Math.max(10, 18 * scale),
+    coreTitle: Math.max(11, 18 * scale),
+    coreSub: Math.max(6, 8 * scale),
+  };
+
   return (
     <div className="min-h-screen w-full text-foreground overflow-hidden relative flex flex-col">
       <PageMeta
