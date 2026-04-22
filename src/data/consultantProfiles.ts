@@ -49,6 +49,12 @@ export const consultantProfiles = [
     role: 'Senior Cybersecurity Consultant',
     imageUrl: '/lovable-uploads/11e7ca2e-054c-44e6-8555-9f230229ef12.png',
     linkedinUrl: 'https://www.linkedin.com/in/andreasfunder/',
+    bio: 'Ich begleite Unternehmen bei Aufbau, Zertifizierung und Weiterentwicklung von Informationssicherheits- und Datenschutz-Programmen. Meine Arbeit umfasst u.\u00a0a. ISO/IEC 27001-Implementierungen, TISAX- und PCI-DSS-Vorbereitungen, Risikomanagement nach ISO/IEC 27005 sowie Business Continuity und KRITIS-Themen. Zuvor war ich als Manager bei PwC sowie als Senior Consultant bei EY und CSPi tätig, mit Projekten in Industrie, Automotive, Finanzdienstleistungen und im öffentlichen Sektor.',
+    meta: [
+      { label: 'Schwerpunkte', value: 'ISO/IEC 27001 · PCI-DSS · NIST · TISAX · Risikomanagement · BCM · DSGVO · KRITIS' },
+      { label: 'Zertifizierungen', value: 'ISO/IEC 27001 Lead Auditor & Implementer · ISO/IEC 27005 Risk Manager · BSI IT-Grundschutz-Praktiker · Datenschutzauditor (DSA-TÜV)' },
+      { label: 'Sprachen', value: 'Deutsch · Englisch · Französisch' },
+    ],
     sections: [
       {
         title: 'Schwerpunkte',
