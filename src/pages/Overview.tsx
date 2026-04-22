@@ -97,7 +97,6 @@ const PHASES: Phase[] = [
     services: [
       { id: 'dora-nis2-ttx', titleKey: 'nav.ttxTraining' },
       { id: 'arena-training', titleKey: 'consulting.arenaTitle' },
-      { id: 'red-team', titleKey: 'nav.redTeam' },
       { id: 'events-workshops', titleKey: 'consulting.eventsTitle' },
     ],
   },
