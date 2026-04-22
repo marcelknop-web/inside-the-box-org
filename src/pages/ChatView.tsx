@@ -313,12 +313,6 @@ const useServiceContent = () => {
             <GridItem icon={FileText} title={t('isms.bsiTitle')} desc={t('isms.bsiDesc')} variant="highlight" />
             <GridItem icon={Factory} title={t('isms.iec62443Title')} desc={t('isms.iec62443Desc')} variant="highlight" />
           </div>
-          <button
-            onClick={() => setActive('iec62443')}
-            className="mt-4 inline-flex items-center gap-2 text-highlight font-mono font-bold text-sm hover:text-primary transition-electric cursor-pointer bg-transparent border-none p-0"
-          >
-            {t('isms.iec62443ToolLink')}
-          </button>
         </Block>
         <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
           <SubTitle variant="highlight">{t('isms.refTitle')}</SubTitle>
