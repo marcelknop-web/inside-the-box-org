@@ -25,6 +25,7 @@ export type ServiceTheme =
   | 'publications'
   | 'virtual-ciso'
   | 'ai-workflows'
+  | 'soc-operations'
   /* Journey-Map-Phasen (Overview) */
   | 'phase-understand'
   | 'phase-comply'
