@@ -30,6 +30,7 @@ export const en = {
     securityConcepts: 'Security Concepts',
     virtualCiso: 'Virtual CISO',
     socSiem: 'SOC / SIEM',
+    socOps: 'SOC Operations',
     aiWorkflows: 'AI Lab',
     publications: 'Publications',
     events: 'Events',
