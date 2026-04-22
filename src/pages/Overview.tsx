@@ -31,9 +31,9 @@ const PHASES: Phase[] = [
     title: { en: 'UNDERSTAND', de: 'VERSTEHEN', fr: 'COMPRENDRE' },
     verb: { en: 'Where do we stand?', de: 'Wo stehen wir?', fr: 'Où en sommes-nous ?' },
     description: {
-      en: 'Map the terrain. Assessments, quick-checks, and a clear picture of the gap.',
-      de: 'Das Terrain kartieren. Assessments, Quick-Checks und ein klares Lagebild.',
-      fr: 'Cartographier le terrain. Évaluations, quick-checks et image claire de l\'écart.',
+      en: 'Position, situation, gap — before anything else gets planned.',
+      de: 'Standortbestimmung, Lagebild, Gap-Analyse — bevor irgendetwas geplant wird.',
+      fr: 'État des lieux, situation, analyse d\'écart — avant toute planification.',
     },
     services: [
       { id: 'assessments-concepts', titleKey: 'consulting.assessTitle' },
@@ -133,18 +133,18 @@ const Overview = () => {
 
   const headline =
     lang === 'de'
-      ? 'Die Reise zu echter Cyber-Resilienz.'
+      ? 'Cyber-Resilienz in fünf Schritten.'
       : lang === 'fr'
-      ? 'Le chemin vers une vraie cyber-résilience.'
-      : 'The journey to real cyber-resilience.';
+      ? 'La cyber-résilience en cinq étapes.'
+      : 'Cyber-resilience in five steps.';
   const subline =
     lang === 'de'
-      ? 'Fünf Phasen. Wählen Sie die, in der Sie gerade stehen.'
+      ? 'Wählen Sie den Schritt, der gerade ansteht.'
       : lang === 'fr'
-      ? 'Cinq phases. Choisissez celle où vous en êtes.'
-      : 'Five phases. Pick the one you\'re in right now.';
+      ? 'Choisissez l\'étape qui vous concerne.'
+      : 'Pick the step that matters right now.';
   const sectionLabel =
-    lang === 'de' ? '/ DIE REISE' : lang === 'fr' ? '/ LE PARCOURS' : '/ THE JOURNEY';
+    lang === 'de' ? '/ ÜBERSICHT' : lang === 'fr' ? '/ APERÇU' : '/ OVERVIEW';
   const servicesLabel =
     lang === 'de' ? 'Leistungen in dieser Phase' : lang === 'fr' ? 'Services dans cette phase' : 'Services in this phase';
 
