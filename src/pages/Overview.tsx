@@ -758,7 +758,7 @@ const Overview = () => {
 
         {/* Collapsible body */}
         {referencesOpen && (
-          <div className="mt-6 sm:mt-8 animate-fade-in pl-0 sm:pl-12">
+          <div className="mt-6 sm:mt-8 animate-fade-in pl-0 sm:pl-12 md:pl-20">
             <p className="font-sans text-sm sm:text-base text-muted-foreground max-w-2xl leading-snug mb-8 sm:mb-10">
               {referenceSubline}
             </p>
