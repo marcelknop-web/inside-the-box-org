@@ -426,15 +426,15 @@ const Overview = () => {
           {/* Outer faint diamond ring around centre */}
           <g>
             <rect
-              x={-R_PROCESS_IN + 6}
-              y={-R_PROCESS_IN + 6}
-              width={(R_PROCESS_IN - 6) * 2}
-              height={(R_PROCESS_IN - 6) * 2}
+              x={-R_CORE - 14}
+              y={-R_CORE - 14}
+              width={(R_CORE + 14) * 2}
+              height={(R_CORE + 14) * 2}
               transform="rotate(45)"
               fill="none"
               stroke={GOLD}
-              strokeOpacity={0.45}
-              strokeWidth={0.8}
+              strokeOpacity={0.35}
+              strokeWidth={0.6}
             />
             <rect
               x={-R_CORE}
