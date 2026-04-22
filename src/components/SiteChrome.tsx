@@ -121,10 +121,10 @@ export const SiteChrome = ({
             </SheetTitle>
             <SheetDescription className="font-sans text-sm text-muted-foreground leading-relaxed">
               {lang === 'de'
-                ? 'Zwei Senior-Berater, gemeinsam über 25 Jahre Erfahrung in Cybersecurity, Compliance und Krisenmanagement.'
+                ? 'Zwei Senior-Berater, gemeinsam über 35 Jahre Erfahrung in Cybersecurity, Compliance und Krisenmanagement.'
                 : lang === 'fr'
-                ? 'Deux consultants seniors, plus de 25 ans d\'expérience combinée en cybersécurité, conformité et gestion de crise.'
-                : 'Two senior consultants, 25+ combined years in cybersecurity, compliance and crisis management.'}
+                ? 'Deux consultants seniors, plus de 35 ans d\'expérience combinée en cybersécurité, conformité et gestion de crise.'
+                : 'Two senior consultants, 35+ combined years in cybersecurity, compliance and crisis management.'}
             </SheetDescription>
           </SheetHeader>
 
