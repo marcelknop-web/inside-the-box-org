@@ -387,7 +387,7 @@ export const de = {
     agentCrisisDesc: 'KI-gesteuerte Szenarien mit Echtzeit-Entscheidungsdruck',
     agentStressTitle: 'Stress-Simulator',
     agentStressDesc: 'Realistische Störgeräusche für Übungen unter Zeitdruck',
-    agentTtxTitle: 'ISCP Quick Check — die richtigen TTX-Szenarien finden',
+    agentTtxTitle: 'ISCP Quick Check',
     agentTtxDesc: 'ISCPs bewerten und daraus übergreifende Tabletop-Szenarien ableiten',
     agentDoraDesc: 'Meldepflicht nach DORA Art. 19 – Schritt für Schritt',
     agentTisaxDesc: 'Assessment-Level und Prüfziele nach VDA ISA ermitteln',
