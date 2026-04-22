@@ -149,6 +149,8 @@ export const fr = {
     vcisoDesc: 'Direction sécurité exécutive flexible.',
     aiWorkflowsTitle: 'Workflows IA',
     aiWorkflowsDesc: 'Automatisation IA pour les opérations de sécurité et la conformité.',
+    aiLabTitle: 'Lab IA',
+    aiLabDesc: 'Essayez simulations, checks et quiz directement dans le navigateur — sans connexion.',
     socOpsTitle: 'Opérations SOC & Playbooks',
     socOpsDesc: 'Cadres, processus et playbooks pour l\'exploitation du SOC — des politiques d\'incident aux chaînes d\'escalade.',
     clientsServed: 'Clients servis',
