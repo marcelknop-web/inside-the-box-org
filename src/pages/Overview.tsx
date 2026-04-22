@@ -179,8 +179,8 @@ const PhasesPreview = ({
               {phase.number}
             </span>
           </span>
-          {/* Label — full word on mobile (smaller font, tighter tracking, no clipping) */}
-          <span className="font-mono text-[7px] sm:text-[9px] tracking-[0.08em] sm:tracking-[0.18em] text-muted-foreground/70 leading-[1.05] w-full px-0">
+          {/* Label — wraps to 2 lines on mobile if needed; never clips. */}
+          <span className="font-mono text-[7px] sm:text-[9px] tracking-[0.06em] sm:tracking-[0.18em] text-muted-foreground/70 leading-[1.05] w-full px-0 break-words hyphens-none">
             {phase.title[lang]}
           </span>
         </li>
