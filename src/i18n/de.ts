@@ -410,6 +410,16 @@ export const de = {
     ctaTitle: 'Einstieg',
     ctaDesc: 'Pilotphase mit klar definiertem Rahmen: Analyse bestehender Prozesse, Implementierung, Übergabe. Ziel sind messbare Effizienzgewinne und nachhaltige Integration – keine Blackbox-Lösung, die nach Projektabschluss niemand versteht.',
     ctaButton: '→ Gespräch vereinbaren',
+    openKiLab: '→ Zum KI-Lab',
+  },
+  kiLab: {
+    title: 'KI-Lab',
+    metaDesc: 'Simulationen, Tests und Szenarien zum Ausprobieren – kein Login nötig.',
+    intro: 'Konzepte greifbar machen – am eigenen Bildschirm, in wenigen Minuten.',
+    introDetail: 'Jedes Tool ist ein eigenständiges Mini-Experiment: Compliance-Checks, Krisensimulationen, Awareness-Quizze und arcadige Lernformate. Direkt im Browser, ohne Anmeldung – um Bauchgefühl, Wissen und Reaktionsmuster ehrlich zu kalibrieren.',
+    ctaTitle: 'Aus dem Lab in die Praxis',
+    ctaDesc: 'Wenn ein Format Ihren Anwendungsfall trifft, lässt es sich als KI-gestützter Workflow in Ihre Organisation überführen – mit klarem Scope und prüffähiger Dokumentation.',
+    ctaButton: '→ Zu den KI-Workflows',
   },
   arena: {
     title: 'TIBER-Test',
