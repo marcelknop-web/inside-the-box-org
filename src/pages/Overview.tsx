@@ -255,6 +255,11 @@ const Overview = () => {
                   >
                     {/* Node */}
                     <span className="relative flex items-center justify-center w-[52px] h-[52px] z-10">
+                      {/* Mask layer — solid bg blocks the connector line under the diamond */}
+                      <span
+                        className="absolute inset-0 m-auto w-[44px] h-[44px] rotate-45 bg-background"
+                        aria-hidden
+                      />
                       <span
                         className={`absolute inset-0 m-auto w-[44px] h-[44px] rotate-45 border transition-all duration-300 ease-out ${
                           isActive
