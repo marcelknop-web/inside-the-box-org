@@ -25,6 +25,7 @@ export type ServiceTheme =
   | 'publications'
   | 'virtual-ciso'
   | 'ai-workflows'
+  | 'soc-operations'
   /* Journey-Map-Phasen (Overview) */
   | 'phase-understand'
   | 'phase-comply'
@@ -175,6 +176,18 @@ export const ServiceSymbol = ({ theme, size = 16, className, ...rest }: ServiceS
           <circle cx="5" cy="19" r="2" />
           <circle cx="19" cy="19" r="2" />
           <path d="M6.5 6.5 L10.5 10.5 M17.5 6.5 L13.5 10.5 M10.5 13.5 L6.5 17.5 M13.5 13.5 L17.5 17.5" />
+        </svg>
+      );
+
+    /* SOC Operations — Radar mit Sweep (Detection, Monitoring, Playbooks). */
+    case 'soc-operations':
+      return (
+        <svg {...props}>
+          <circle cx="12" cy="12" r="9" />
+          <circle cx="12" cy="12" r="5" />
+          <circle cx="12" cy="12" r="1.2" fill="currentColor" />
+          <path d="M12 12 L19 8" />
+          <path d="M12 3 V5 M12 19 V21 M3 12 H5 M19 12 H21" />
         </svg>
       );
 
