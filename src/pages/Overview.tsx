@@ -446,9 +446,11 @@ const Overview = () => {
         </div>
       </section>
 
-      {/* Mobile vertical list — equal-rank phases, no sequence indicator */}
+      {/* Mobile vertical list — diamonds connected by a thin line */}
       <section className="md:hidden flex-1 px-4 pb-10 max-w-6xl mx-auto w-full">
         <ul className="relative">
+          {/* Vertical connector behind the diamond column */}
+          <div className="absolute left-4 top-3 bottom-3 w-px bg-primary/20" aria-hidden />
           {PHASES.map((phase) => {
             const isActive = phase.id === activeId;
             return (
