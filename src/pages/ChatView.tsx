@@ -1144,6 +1144,7 @@ const useServiceContent = () => {
           { theme: 'tisax-pci-dss', title: t('consulting.tisaxTitle'), desc: t('consulting.tisaxDesc'), id: 'tisax-pci-dss' },
           { theme: 'assessments-concepts', title: t('consulting.assessTitle'), desc: t('consulting.assessDesc'), id: 'assessments-concepts' },
           { theme: 'incident-management', title: t('consulting.incidentTitle'), desc: t('consulting.incidentDesc'), id: 'incident-management' },
+          { theme: 'bcm', title: t('consulting.bcmTitle'), desc: t('consulting.bcmDesc'), id: 'bcm' },
           { theme: 'cyber-crisis-management', title: t('consulting.crisisTitle'), desc: t('consulting.crisisDesc'), id: 'cyber-crisis-management' },
           { theme: 'arena-training', title: t('consulting.arenaTitle'), desc: t('consulting.arenaDesc'), id: 'arena-training' },
           { theme: 'events-workshops', title: t('consulting.eventsTitle'), desc: t('consulting.eventsDesc'), id: 'events-workshops' },
@@ -1336,6 +1337,7 @@ const useSidebarGroups = (): SidebarGroup[] => {
         { id: 'why', icon: Target, label: t('nav.cyberTrainingRange') },
         { id: 'arena-training', icon: Target, label: t('nav.redTeam') },
         { id: 'incident-management', icon: Flame, label: t('nav.incidentMgmt') },
+        { id: 'bcm', icon: RefreshCw, label: t('nav.bcm') },
       ],
     },
     {
