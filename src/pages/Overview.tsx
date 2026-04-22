@@ -234,7 +234,8 @@ const Overview = () => {
   const [entered, setEntered] = useState<boolean>(
     Boolean((location.state as { skipHero?: boolean } | null)?.skipHero),
   );
-
+  // References section uses the same expand/collapse logic as the phases.
+  const [referencesOpen, setReferencesOpen] = useState(false);
   // React to brand-link navigations:
   //  • skipHero=true → land on the journey-map (entered=true)
   //  • no state      → replay the hero opener (entered=false)
