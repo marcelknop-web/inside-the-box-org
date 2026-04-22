@@ -249,14 +249,14 @@ const Overview = () => {
 
             <p
               className="font-mono text-[12px] sm:text-[13px] tracking-[0.25em] text-muted-foreground mt-6 opacity-0 animate-fade-in"
-              style={{ animationDelay: '1000ms', animationFillMode: 'forwards' }}
+              style={{ animationDelay: '1700ms', animationFillMode: 'forwards' }}
             >
               {enterHint}
             </p>
 
             <p
               className="font-mono text-[11px] sm:text-[12px] tracking-[0.2em] text-muted-foreground/70 mt-14 opacity-0 animate-fade-in"
-              style={{ animationDelay: '1200ms', animationFillMode: 'forwards' }}
+              style={{ animationDelay: '2000ms', animationFillMode: 'forwards' }}
             >
               {t('welcome.heroSignature')}
             </p>
