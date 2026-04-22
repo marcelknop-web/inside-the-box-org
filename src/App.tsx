@@ -33,21 +33,18 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <Routes>
+              {/* Active Journey + entry points */}
               <Route path="/" element={<Suspense fallback={<RouteSkeleton />}><Overview /></Suspense>} />
-              <Route path="/legacy" element={<ChatView />} />
-              <Route path="/overview" element={<Suspense fallback={<RouteSkeleton />}><Overview /></Suspense>} />
               <Route path="/impressum" element={<Suspense fallback={<RouteSkeleton />}><Imprint /></Suspense>} />
               <Route path="/imprint" element={<Suspense fallback={<RouteSkeleton />}><Imprint /></Suspense>} />
-              <Route path="/nis2-compliance" element={<ChatView />} />
-              <Route path="/iacs-e27" element={<ChatView />} />
-              <Route path="/iec62443" element={<ChatView />} />
-              <Route path="/berlin-drift" element={<Suspense fallback={<RouteSkeleton />}><EliteShipScene /></Suspense>} />
+
+              {/* Standalone tools (not part of the Journey, kept for direct/admin access) */}
               <Route path="/ttx-admin" element={<Suspense fallback={<RouteSkeleton />}><TtxAdmin /></Suspense>} />
               <Route path="/itsm" element={<Suspense fallback={<RouteSkeleton />}><ItsmTool /></Suspense>} />
               <Route path="/itsm-dev" element={<Suspense fallback={<RouteSkeleton />}><ItsmDevTool /></Suspense>} />
-              <Route path="/soc-life" element={<ChatView />} />
-              <Route path="/enigma" element={<Suspense fallback={<RouteSkeleton />}><Enigma /></Suspense>} />
               <Route path="/ttx-readiness" element={<Suspense fallback={<RouteSkeleton />}><TtxReadinessPage /></Suspense>} />
+
+              {/* Catch-all: every Journey service id (nis2-dora, virtual-ciso, …) renders ChatView */}
               <Route path="/:serviceId" element={<ChatView />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
