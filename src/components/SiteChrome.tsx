@@ -71,9 +71,9 @@ export const SiteChrome = ({
 
       {/* Footer */}
       <footer className="border-t border-primary/10 bg-background/40 backdrop-blur-sm">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex flex-nowrap items-center justify-between gap-3 sm:gap-4 font-mono text-[9px] sm:text-[10px] tracking-[0.15em] sm:tracking-[0.22em] text-muted-foreground">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex flex-nowrap items-center justify-between gap-3 sm:gap-4 font-mono text-[9px] sm:text-[10px] tracking-[0.12em] sm:tracking-[0.22em] text-muted-foreground">
           <span className="whitespace-nowrap">
-            <span className="hidden sm:inline">© {new Date().getFullYear()} </span>INSIDE-THE-BOX.ORG
+            <span className="hidden sm:inline">© {new Date().getFullYear()} </span>INSIDE-THE-BOX<span className="hidden sm:inline">.ORG</span>
           </span>
           <div className="flex items-center gap-3 sm:gap-5">
             <button
@@ -87,10 +87,10 @@ export const SiteChrome = ({
               target="_blank"
               rel="noopener noreferrer"
               aria-label="LinkedIn"
-              className="hover:text-primary transition-colors inline-flex items-center gap-1.5 uppercase whitespace-nowrap"
+              className="hidden sm:inline-flex hover:text-primary transition-colors items-center gap-1.5 uppercase whitespace-nowrap"
             >
               <Linkedin className="w-3 h-3" />
-              <span className="hidden sm:inline">LinkedIn</span>
+              <span>LinkedIn</span>
             </a>
             <a
               href="/impressum"
