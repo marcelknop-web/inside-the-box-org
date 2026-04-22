@@ -199,7 +199,9 @@ const Overview = () => {
                 <li key={phase.id} className="flex flex-col items-start">
                   <button
                     onClick={() => setActiveId(phase.id)}
-                    className="group flex flex-col items-start gap-3 text-left w-full"
+                    className={`group flex flex-col items-start gap-3 text-left w-full transition-opacity duration-300 ${
+                      isActive ? 'opacity-100' : 'opacity-30 hover:opacity-70'
+                    }`}
                     aria-current={isActive ? 'step' : undefined}
                   >
                     {/* Node */}
