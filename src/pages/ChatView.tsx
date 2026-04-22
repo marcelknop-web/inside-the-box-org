@@ -1923,14 +1923,20 @@ const ChatView = () => {
               >
                 <div className="max-w-3xl ml-auto pointer-events-auto">
                   <div className="relative flex items-center bg-secondary/90 backdrop-blur-md rounded-xl border border-highlight/30 focus-within:border-highlight/60 transition-electric shadow-lg">
+                    <div className="pl-3 md:pl-3.5 flex-shrink-0 text-highlight/70" aria-hidden="true">
+                      <Sparkles size={14} />
+                    </div>
                     <textarea
                       ref={inputRef}
                       value={input}
                       onChange={e => setInput(e.target.value)}
                       onKeyDown={handleKeyDown}
+                      onFocus={() => setInputFocused(true)}
+                      onBlur={() => setInputFocused(false)}
                       rows={1}
                       placeholder={placeholder}
-                      className="flex-1 min-w-0 bg-transparent px-3 md:px-4 py-2.5 text-base md:text-[13px] font-mono text-foreground placeholder:text-muted-foreground placeholder:transition-opacity placeholder:duration-500 resize-none focus:outline-none max-h-[120px] truncate"
+                      aria-label={activeService === 'crisis-sim' ? 'Chat input' : 'Ask the navigator'}
+                      className="flex-1 min-w-0 bg-transparent px-2.5 md:px-3 py-2.5 text-base md:text-sm font-mono text-foreground placeholder:text-muted-foreground placeholder:transition-opacity placeholder:duration-500 resize-none focus:outline-none max-h-[120px] truncate"
                       disabled={isLoading || (activeService === 'crisis-sim' && crisisRef.current?.isLoading())}
                     />
                     <button onClick={handleSend} disabled={!input.trim() || isLoading || (activeService === 'crisis-sim' && crisisRef.current?.isLoading())} className="m-1.5 p-2 rounded-lg bg-highlight text-highlight-foreground disabled:opacity-30 hover:bg-highlight/80 transition-electric">
@@ -2191,14 +2197,20 @@ const ChatView = () => {
             >
               <div className="max-w-3xl ml-auto pointer-events-auto">
                 <div className="relative flex items-center bg-secondary/90 backdrop-blur-md rounded-xl border border-highlight/30 focus-within:border-highlight/60 transition-electric shadow-lg">
+                  <div className="pl-3 md:pl-3.5 flex-shrink-0 text-highlight/70" aria-hidden="true">
+                    <Sparkles size={14} />
+                  </div>
                   <textarea
                     ref={inputRef}
                     value={input}
                     onChange={e => setInput(e.target.value)}
                     onKeyDown={handleKeyDown}
+                    onFocus={() => setInputFocused(true)}
+                    onBlur={() => setInputFocused(false)}
                     rows={1}
                     placeholder={placeholder}
-                    className="flex-1 min-w-0 bg-transparent px-3 md:px-4 py-2.5 text-base md:text-[13px] font-mono text-foreground placeholder:text-muted-foreground placeholder:transition-opacity placeholder:duration-500 resize-none focus:outline-none max-h-[120px] truncate"
+                    aria-label={activeService === 'crisis-sim' ? 'Chat input' : 'Ask the navigator'}
+                    className="flex-1 min-w-0 bg-transparent px-2.5 md:px-3 py-2.5 text-base md:text-sm font-mono text-foreground placeholder:text-muted-foreground placeholder:transition-opacity placeholder:duration-500 resize-none focus:outline-none max-h-[120px] truncate"
                     disabled={isLoading || (activeService === 'crisis-sim' && crisisRef.current?.isLoading())}
                   />
                   <button onClick={handleSend} disabled={!input.trim() || isLoading || (activeService === 'crisis-sim' && crisisRef.current?.isLoading())} className="m-1.5 p-2 rounded-lg bg-highlight text-highlight-foreground disabled:opacity-30 hover:bg-highlight/80 transition-electric">
