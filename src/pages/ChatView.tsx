@@ -865,20 +865,9 @@ const useServiceContent = () => {
           </ul>
         </Block>
 
-        <Block className="bg-primary/5 border border-primary/20 rounded-xl">
-          <SubTitle>{t('ttx.datesTitle')}</SubTitle>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-3">
-            {([{k:'date1',loc:'location'},{k:'date2',loc:'location'},{k:'date3',loc:'locationBerlin'}] as const).map(({k,loc}) => (
-              <div key={k} className="bg-card/40 rounded-lg p-3 border border-primary/10">
-                <p className="font-semibold text-sm text-primary font-sans">{t(`ttx.${k}` as any)}</p>
-                <p className="text-xs text-muted-foreground mt-1">{t(`ttx.${loc}` as any)}</p>
-              </div>
-            ))}
-          </div>
-          <div className="mt-3 bg-highlight/10 rounded-lg p-3 border border-highlight/20">
-            <p className="text-sm font-semibold text-highlight font-sans">{t('ttx.priceLabel')}</p>
-            <p className="text-foreground text-sm font-sans mt-1">{t('ttx.priceValue')}</p>
-          </div>
+        <Block className="bg-highlight/10 border border-highlight/20 rounded-xl">
+          <p className="text-sm font-semibold text-highlight font-sans">{t('ttx.priceLabel')}</p>
+          <p className="text-foreground text-sm font-sans mt-1">{t('ttx.priceValue')}</p>
         </Block>
 
         <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
