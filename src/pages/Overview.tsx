@@ -203,19 +203,22 @@ const Overview = () => {
     return () => ro.disconnect();
   }, []);
 
-  // Scale factor: at 900px+ we use full design sizes; below we shrink linearly.
-  // Floor at 0.55 so labels stay legible on tiny phones (svg keeps aspect ratio).
-  const scale = Math.max(0.55, Math.min(1, renderedWidth / 900));
+  // Compensation factor: SVG scales viewBox to renderedWidth.
+  // To keep labels at a constant *visible* px size, multiply font sizes by
+  // (designWidth / renderedWidth) when the SVG is rendered smaller than 900px.
+  // Capped at 1.9× so on very small phones we don't blow up text past the
+  // available arc length.
+  const comp = Math.min(1.9, Math.max(1, 900 / Math.max(renderedWidth, 1)));
   const fs = {
-    cluster: 38 * scale,
-    clusterTrack: 9 * scale,
-    process: 26 * scale,
-    processTrack: 7 * scale,
-    service: Math.max(13, 24 * scale),
-    serviceTrack: Math.max(0.5, 1 * scale),
-    diamond: Math.max(10, 18 * scale),
-    coreTitle: Math.max(11, 18 * scale),
-    coreSub: Math.max(6, 8 * scale),
+    cluster: 38 * comp,
+    clusterTrack: 9 * comp,
+    process: 26 * comp,
+    processTrack: 7 * comp,
+    service: 24 * comp,
+    serviceTrack: 1 * comp,
+    diamond: 18 * comp,
+    coreTitle: 18 * comp,
+    coreSub: 8 * comp,
   };
 
   return (
