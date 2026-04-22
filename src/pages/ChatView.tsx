@@ -1815,7 +1815,7 @@ const ChatView = () => {
           <div className="absolute inset-0 bg-black/60" onClick={() => setSidebarOpen(false)} />
           <div className="relative w-[280px] h-full flex flex-col bg-card animate-in slide-in-from-left duration-200">
             <div className="p-3 flex items-center justify-between bg-primary/10">
-              <button onClick={() => { navigateToService(null); setSidebarOpen(false); }} className="flex items-center gap-2 text-sm font-rounded font-bold text-primary hover:text-highlight transition-electric cursor-pointer bg-transparent border-none p-0"><GeometricSymbol size="xs" />inside-the-box.org</button>
+              <button onClick={() => { navigate('/'); setSidebarOpen(false); }} className="flex items-center gap-2 text-sm font-rounded font-bold text-primary hover:text-highlight transition-electric cursor-pointer bg-transparent border-none p-0"><GeometricSymbol size="xs" />inside-the-box.org</button>
               <button onClick={() => setSidebarOpen(false)} className="ml-2 p-2 rounded-lg text-muted-foreground hover:bg-secondary transition-electric">
                 <X size={18} />
               </button>
@@ -1837,7 +1837,7 @@ const ChatView = () => {
         <div className={`${sidebarOpen ? 'w-64' : 'w-0'} transition-all duration-300 flex-shrink-0 overflow-hidden`}>
           <div className="w-64 h-full flex flex-col bg-card border-r border-border">
             <div className="h-12 px-3 flex items-center justify-between bg-primary/10 border-b border-border flex-shrink-0">
-              <button onClick={() => navigateToService(null)} className="flex items-center gap-2 text-sm font-rounded font-bold text-primary hover:text-highlight transition-electric cursor-pointer bg-transparent border-none p-0"><GeometricSymbol size="xs" />inside-the-box.org</button>
+              <button onClick={() => navigate('/')} className="flex items-center gap-2 text-sm font-rounded font-bold text-primary hover:text-highlight transition-electric cursor-pointer bg-transparent border-none p-0"><GeometricSymbol size="xs" />inside-the-box.org</button>
               <div className="flex gap-1">
                 {(['en', 'de', 'fr'] as const).map(lng => (
                   <button key={lng} onClick={() => setLanguage(lng)} className={`rounded-lg border px-2 py-1.5 text-xs font-rounded font-bold uppercase tracking-wider transition-electric ${language === lng ? 'bg-highlight/20 border-highlight text-highlight' : 'border-highlight/30 text-highlight/60 hover:bg-highlight/10 hover:border-highlight/50 hover:text-highlight'}`}>
