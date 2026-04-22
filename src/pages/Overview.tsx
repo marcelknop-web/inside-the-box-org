@@ -283,21 +283,21 @@ const Overview = () => {
       </section>
 
       {/* Mobile vertical stepper */}
-      <section className="md:hidden flex-1 px-6 pb-12 max-w-6xl mx-auto w-full">
+      <section className="md:hidden flex-1 px-4 pb-10 max-w-6xl mx-auto w-full">
         <ol className="relative">
           {/* Vertical connector */}
-          <div className="absolute left-[18px] top-3 bottom-3 w-px bg-primary/20" aria-hidden />
+          <div className="absolute left-4 top-3 bottom-3 w-px bg-primary/20" aria-hidden />
           {PHASES.map((phase) => {
             const isActive = phase.id === activeId;
             return (
-              <li key={phase.id} className="relative pl-12 pb-6 last:pb-0">
+              <li key={phase.id} className="relative pl-11 pb-4 last:pb-0">
                 <button
                   onClick={() => setActiveId(isActive ? '' : phase.id)}
-                  className="absolute left-0 top-0 flex items-center justify-center w-9 h-9"
+                  className="absolute left-0 top-0 flex items-center justify-center w-8 h-8"
                   aria-expanded={isActive}
                 >
                   <span
-                    className={`absolute inset-0 m-auto w-9 h-9 rotate-45 border transition-all ${
+                    className={`absolute inset-0 m-auto w-8 h-8 rotate-45 border transition-all ${
                       isActive ? 'border-primary bg-primary/10' : 'border-primary/40 bg-background'
                     }`}
                     aria-hidden
@@ -313,24 +313,24 @@ const Overview = () => {
 
                 <button
                   onClick={() => setActiveId(isActive ? '' : phase.id)}
-                  className="w-full text-left"
+                  className="w-full text-left pt-0.5"
                   aria-expanded={isActive}
                 >
                   <div
-                    className={`font-mono text-[11px] tracking-[0.3em] mb-1 transition-colors ${
+                    className={`font-mono text-[10px] tracking-[0.28em] mb-1 transition-colors ${
                       isActive ? 'text-primary' : 'text-muted-foreground'
                     }`}
                   >
                     {phase.title[lang]}
                   </div>
-                  <div className="font-mono text-base font-medium text-foreground leading-snug">
+                  <div className="font-mono text-[15px] font-medium text-foreground leading-snug">
                     {phase.verb[lang]}
                   </div>
                 </button>
 
                 {isActive && (
                   <div className="mt-3 animate-fade-in">
-                    <p className="font-sans text-sm text-muted-foreground leading-snug mb-4">
+                    <p className="font-sans text-[13px] text-muted-foreground leading-snug mb-3">
                       {phase.description[lang]}
                     </p>
                     <ul className="space-y-0">
@@ -338,7 +338,7 @@ const Overview = () => {
                         <li key={svc.id}>
                           <button
                             onClick={() => handleClick(svc.id)}
-                            className="w-full text-left flex items-center justify-between gap-3 font-mono text-sm text-foreground/90 hover:text-primary transition-colors py-2.5 border-b border-primary/10"
+                            className="w-full text-left flex items-center justify-between gap-3 font-mono text-[13px] text-foreground/90 hover:text-primary transition-colors py-2 border-b border-primary/10"
                           >
                             <span className="flex items-center gap-2.5 min-w-0">
                               <span
