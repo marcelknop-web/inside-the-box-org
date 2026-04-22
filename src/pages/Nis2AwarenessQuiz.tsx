@@ -418,7 +418,7 @@ export default function Nis2AwarenessQuiz({ embedded = false }: { embedded?: boo
               <RotateCcw className="w-4 h-4 mr-2" /> {t(I18N.restart)}
             </Button>
           </div>
-          <p className="text-muted-foreground text-[10px] text-center italic">{t(I18N.disclaimer)}</p>
+          <p className="text-muted-foreground text-xs text-center italic">{t(I18N.disclaimer)}</p>
         </StaggerReveal>
       </div>
     );

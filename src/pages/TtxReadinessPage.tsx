@@ -453,7 +453,7 @@ export default function TtxReadinessPage() {
               </button>
             </div>
 
-            <p className="text-muted-foreground text-[11px] italic text-center">{t(I18N.disclaimer)}</p>
+            <p className="text-muted-foreground text-xs italic text-center">{t(I18N.disclaimer)}</p>
           </div>
         )}
       </div>
