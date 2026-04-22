@@ -98,14 +98,20 @@ export const ServiceSymbol = ({ theme, size = 16, className, ...rest }: ServiceS
         </svg>
       );
 
-    /* Cyber Crisis Management — Gekreuzte Schwerter über Schild (Konflikt). */
+    /* Cyber Crisis Management — Gekreuzte Schwerter (Konflikt, Verteidigung). */
     case 'cyber-crisis-management':
       return (
         <svg {...props}>
-          <path d="M12 12 L20 4 L21 3 L20.5 5 Z" />
-          <path d="M12 12 L4 4 L3 3 L3.5 5 Z" />
-          <path d="M12 12 L9 21 M12 12 L15 21" />
-          <circle cx="12" cy="12" r="1.4" />
+          {/* Schwert 1: links-oben → rechts-unten */}
+          <path d="M4 4 L15 15" />
+          <path d="M3 3 L5.5 3 L5.5 5.5 Z" fill="currentColor" />
+          <path d="M14 16 L17 19 L19 17 L16 14" />
+          <path d="M17.5 19.5 L20 22" />
+          {/* Schwert 2: rechts-oben → links-unten */}
+          <path d="M20 4 L9 15" />
+          <path d="M21 3 L18.5 3 L18.5 5.5 Z" fill="currentColor" />
+          <path d="M10 16 L7 19 L5 17 L8 14" />
+          <path d="M6.5 19.5 L4 22" />
         </svg>
       );
 
