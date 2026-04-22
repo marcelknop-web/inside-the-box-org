@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { ArrowRight } from 'lucide-react';
@@ -23,6 +23,26 @@ type Phase = {
   verb: { en: string; de: string; fr: string };
   description: { en: string; de: string; fr: string };
   services: Service[];
+};
+
+/**
+ * Render a sentence and animate occurrences of given "stress words" with a
+ * flickering effect — visualises the meaning of the word itself.
+ * Case-insensitive match, preserves original casing in the output.
+ */
+const renderWithStressFlicker = (text: string, words: string[]): React.ReactNode => {
+  if (!words.length) return text;
+  const pattern = new RegExp(`(${words.map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})`, 'gi');
+  const parts = text.split(pattern);
+  return parts.map((part, i) =>
+    pattern.test(part) ? (
+      <span key={i} className="text-stress-flicker font-medium">
+        {part}
+      </span>
+    ) : (
+      <span key={i}>{part}</span>
+    ),
+  );
 };
 
 const PHASES: Phase[] = [
@@ -134,12 +154,11 @@ const PhasesPreview = ({
   lang: 'en' | 'de' | 'fr';
 }) => (
   <div className="relative w-full max-w-2xl mx-auto pt-2 pb-4">
-    <ol className="grid grid-cols-5 relative">
+    <ol className="grid grid-cols-5 gap-0.5 sm:gap-1 relative">
       {phases.map((phase, idx) => (
-        <li key={phase.id} className="relative flex flex-col items-center text-center">
-          {/* Connector segment — drawn between diamonds, never under them.
-              Each non-first node draws a line from the previous node's center to its own outer-left edge.
-              Diamond half-width: 11px (mobile) / 13px (sm). Node container is 50% of cell width. */}
+        <li key={phase.id} className="relative flex flex-col items-center text-center min-w-0">
+          {/* Connector segment between diamonds — never under a diamond.
+              Diamond half-width: 11px (mobile) / 13px (sm). */}
           {idx > 0 && (
             <span
               className="absolute h-px bg-primary/30 pointer-events-none top-[13px] sm:top-[15px]"
@@ -151,7 +170,7 @@ const PhasesPreview = ({
             />
           )}
           {/* Diamond node */}
-          <span className="relative flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 z-10 mb-2">
+          <span className="relative flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 z-10 mb-1.5 sm:mb-2">
             <span
               className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[22px] h-[22px] sm:w-[26px] sm:h-[26px] rotate-45 border border-primary/50 bg-background"
               aria-hidden
@@ -160,8 +179,8 @@ const PhasesPreview = ({
               {phase.number}
             </span>
           </span>
-          {/* Label — all uniformly dimmed */}
-          <span className="font-mono text-[8px] sm:text-[9px] tracking-[0.2em] text-muted-foreground/70 leading-tight whitespace-nowrap overflow-hidden text-ellipsis w-full px-0.5">
+          {/* Label — wraps to 2 lines on mobile if needed; never clips. */}
+          <span className="font-mono text-[7px] sm:text-[9px] tracking-[0.06em] sm:tracking-[0.18em] text-muted-foreground/70 leading-[1.05] w-full px-0 break-words hyphens-none">
             {phase.title[lang]}
           </span>
         </li>
@@ -212,35 +231,35 @@ const Overview = () => {
 
       {!entered ? (
         /* Opener Hero — claim-dominant hierarchy */
-        <section className="flex-1 flex items-center justify-center px-4 sm:px-6 py-10 sm:py-14 max-w-5xl mx-auto w-full">
+        <section className="flex-1 flex items-center justify-center px-3 sm:px-6 py-8 sm:py-14 max-w-5xl mx-auto w-full">
           <div className="w-full max-w-3xl text-center">
             {/* Category label */}
             <div
-              className="font-mono text-[11px] sm:text-[13px] md:text-[14px] tracking-[0.4em] text-primary mb-6 opacity-0 animate-fade-in"
+              className="font-mono text-[10px] sm:text-[13px] md:text-[14px] tracking-[0.3em] sm:tracking-[0.4em] text-primary mb-5 sm:mb-6 opacity-0 animate-fade-in"
               style={{ animationDelay: '0ms', animationFillMode: 'forwards' }}
             >
               / {t('welcome.heroConsulting').toUpperCase()}
             </div>
 
-            {/* Wordmark — reduced ~35% (was text-7xl, now text-4xl→text-5xl max) */}
+            {/* Wordmark */}
             <h1
-              className="font-mono font-semibold text-2xl sm:text-3xl md:text-4xl leading-[1.05] tracking-[-0.02em] text-foreground/90 mb-8 opacity-0 animate-fade-in"
+              className="font-mono font-semibold text-xl sm:text-3xl md:text-4xl leading-[1.05] tracking-[-0.02em] text-foreground/90 mb-6 sm:mb-8 opacity-0 animate-fade-in"
               style={{ animationDelay: '180ms', animationFillMode: 'forwards' }}
             >
               {t('welcome.title')}
             </h1>
 
-            {/* Claim — now dominant */}
+            {/* Claim — dominant, with the "stress" word flickering */}
             <p
-              className="font-sans font-light text-2xl sm:text-3xl md:text-5xl text-foreground leading-[1.15] tracking-[-0.01em] mb-5 opacity-0 animate-fade-in max-w-3xl mx-auto"
+              className="font-sans font-light text-[22px] sm:text-3xl md:text-5xl text-foreground leading-[1.18] tracking-[-0.01em] mb-5 opacity-0 animate-fade-in max-w-3xl mx-auto px-1"
               style={{ animationDelay: '420ms', animationFillMode: 'forwards' }}
             >
-              {t('welcome.heroSubtitle')}
+              {renderWithStressFlicker(t('welcome.heroSubtitle'), ['Stress', 'stress', 'pression'])}
             </p>
 
             {/* Byline */}
             <p
-              className="font-mono text-[11px] sm:text-[12px] tracking-[0.18em] text-muted-foreground/70 mb-12 opacity-0 animate-fade-in"
+              className="font-mono text-[10px] sm:text-[12px] tracking-[0.14em] sm:tracking-[0.18em] text-muted-foreground/70 mb-10 sm:mb-12 opacity-0 animate-fade-in"
               style={{ animationDelay: '780ms', animationFillMode: 'forwards' }}
             >
               {t('welcome.heroByline')}
@@ -248,22 +267,22 @@ const Overview = () => {
 
             {/* Phases preview — non-interactive hint */}
             <div
-              className="mb-12 opacity-0 animate-fade-in"
+              className="mb-10 sm:mb-12 opacity-0 animate-fade-in"
               style={{ animationDelay: '950ms', animationFillMode: 'forwards' }}
               aria-hidden
             >
               <PhasesPreview phases={PHASES} lang={lang} />
             </div>
 
-            {/* CTA — questioning */}
+            {/* CTA — questioning. Allows wrapping on very narrow screens to never clip the question. */}
             <button
               onClick={() => setEntered(true)}
-              className="group inline-flex items-center gap-3 px-7 sm:px-8 py-4 border border-primary/50 hover:border-primary bg-primary/5 hover:bg-primary/10 text-primary font-mono text-[12px] sm:text-[14px] tracking-[0.25em] transition-all duration-300 hover:shadow-[0_0_30px_-8px_hsl(var(--primary)/0.6)] opacity-0 animate-fade-in"
+              className="group inline-flex items-center justify-center gap-2 sm:gap-3 px-5 sm:px-8 py-3.5 sm:py-4 max-w-full border border-primary/50 hover:border-primary bg-primary/5 hover:bg-primary/10 text-primary font-mono text-[11px] sm:text-[14px] tracking-[0.18em] sm:tracking-[0.25em] leading-tight transition-all duration-300 hover:shadow-[0_0_30px_-8px_hsl(var(--primary)/0.6)] opacity-0 animate-fade-in text-center"
               style={{ animationDelay: '1200ms', animationFillMode: 'forwards' }}
               aria-label={enterCta}
             >
-              <span>{enterCta.toUpperCase()}</span>
-              <ArrowRight className="w-4 h-4 -translate-x-1 group-hover:translate-x-0 transition-transform" />
+              <span className="break-words">{enterCta.toUpperCase()}</span>
+              <ArrowRight className="w-4 h-4 flex-shrink-0 -translate-x-1 group-hover:translate-x-0 transition-transform" />
             </button>
           </div>
         </section>
