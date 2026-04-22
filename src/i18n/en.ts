@@ -295,8 +295,8 @@ export const en = {
   },
   cyberCrisis: {
     title: 'Cyber Crisis Management',
-    metaDesc: 'When an attack escalates, processes decide — not plans. Crisis management training and simulation.',
-    intro: 'When an attack escalates, processes decide — not plans.',
+    metaDesc: 'When an attack escalates, capabilities decide — not plans. Crisis management training and simulation.',
+    intro: 'When an attack escalates, capabilities decide — not plans.',
     introDetail: 'Most organizations have emergency plans. Very few know if they work under pressure. If you don\'t test beforehand, you test in a real crisis — in front of regulators, the media, and your own board.',
     sectionTitle: 'What needs to be practiced — before the pressure hits',
     planTitle: 'Governance and Decision Structures',
