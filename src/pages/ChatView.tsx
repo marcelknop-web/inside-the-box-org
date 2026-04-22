@@ -493,6 +493,42 @@ const useServiceContent = () => {
         <RelatedServices serviceId="incident-management" onSelect={setActive} />
       </TypedSection>
     ),
+    'bcm': () => (
+      <TypedSection title={t('bcm.title')} mode="typewriter" intro={<p>{t('bcm.intro')}</p>}>
+        <Block className="bg-card/40 rounded-xl">
+          <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{t('bcm.introDetail')}</p>
+        </Block>
+        <Block className="bg-primary/5 border border-primary/20 rounded-xl">
+          <SubTitle>{t('bcm.sectionTitle')}</SubTitle>
+          <div className="grid grid-cols-1 gap-3 mt-2">
+            <GridItem icon={BarChart} title={t('bcm.step1Title')} desc={t('bcm.step1Desc')} />
+            <GridItem icon={ClipboardList} title={t('bcm.step2Title')} desc={t('bcm.step2Desc')} />
+            <GridItem icon={Users} title={t('bcm.step3Title')} desc={t('bcm.step3Desc')} />
+            <GridItem icon={RefreshCw} title={t('bcm.step4Title')} desc={t('bcm.step4Desc')} />
+            <GridItem icon={FileCheck} title={t('bcm.step5Title')} desc={t('bcm.step5Desc')} />
+          </div>
+        </Block>
+        <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
+          <SubTitle variant="highlight">{t('bcm.outcomesTitle')}</SubTitle>
+          <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mt-2">{t('bcm.outcomesDesc')}</p>
+        </Block>
+        <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
+          <SubTitle variant="highlight">{t('bcm.refTitle')}</SubTitle>
+          <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mt-2">{t('bcm.refDesc')}</p>
+        </Block>
+        <Block className="bg-primary/5 border border-primary/20 rounded-xl">
+          <SubTitle>{t('bcm.ctaTitle')}</SubTitle>
+          <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mt-2">{t('bcm.ctaDesc')}</p>
+          <button
+            onClick={() => setActive('contact')}
+            className="mt-3 inline-flex items-center gap-2 text-highlight font-mono font-bold text-sm hover:text-primary transition-electric cursor-pointer bg-transparent border-none p-0"
+          >
+            {t('bcm.ctaButton')}
+          </button>
+        </Block>
+        <RelatedServices serviceId="bcm" onSelect={setActive} />
+      </TypedSection>
+    ),
     'cyber-crisis-management': () => (
       <TypedSection title={t('cyberCrisis.title')} mode="typewriter" intro={<p>{t('cyberCrisis.intro')}</p>}>
         <Block className="bg-card/40 rounded-xl">
