@@ -46,20 +46,29 @@ export function SocMeters({ reputation, stress, coffee, score, shift, isNight, s
 
   return (
     <div className="rounded-lg border border-border/40 bg-background/40 px-2 py-1.5 sm:px-3 sm:py-2">
-      {/* Mobile: single row — status + 3 mini meters + score. No wrap. */}
-      <div className="flex items-center gap-2 sm:hidden">
-        <span className={cn("font-mono text-[10px] uppercase tracking-wider shrink-0", statusColor)}>
-          ●
-        </span>
-        <span className="font-mono text-[10px] tabular-nums text-muted-foreground shrink-0">
-          {mins}:{secs}
-        </span>
-        <div className="flex-1 grid grid-cols-3 gap-1.5 min-w-0">
+      {/* Mobile: two rows. Top: status · timer · score. Bottom: 3 meters. */}
+      <div className="flex flex-col gap-1.5 sm:hidden">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 min-w-0">
+            <span className={cn("font-mono text-[10px] uppercase tracking-wider shrink-0", statusColor)}>
+              ● {statusLabel}
+            </span>
+            <span className="font-mono text-[10px] tabular-nums text-muted-foreground shrink-0">
+              {mins}:{secs}
+            </span>
+          </div>
+          <div className="flex items-baseline gap-1.5 shrink-0">
+            <span className="font-mono text-[9px] uppercase tracking-wider text-muted-foreground">
+              {t("socLife.score")}
+            </span>
+            <span className="font-mono text-sm tabular-nums text-primary">{score}</span>
+          </div>
+        </div>
+        <div className="grid grid-cols-3 gap-2">
           <Meter label={t("socLife.meterReputation")} value={reputation} color="bg-primary" />
           <Meter label={t("socLife.meterStress")} value={stress} color={stress > 70 ? "bg-rose-500" : "bg-amber-400"} />
           <Meter label={t("socLife.meterCoffee")} value={coffee} color="bg-cyan-400" />
         </div>
-        <span className="font-mono text-sm tabular-nums text-primary shrink-0">{score}</span>
       </div>
 
       {/* Desktop / tablet: original layout with full labels and numbers. */}
