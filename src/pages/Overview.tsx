@@ -50,9 +50,9 @@ const PHASES: Phase[] = [
       fr: 'Répondre aux régulations.',
     },
     description: {
-      en: 'NIS-2, DORA, CRA, TISAX, PCI-DSS — audit-grade tools and structured programmes.',
-      de: 'NIS-2, DORA, CRA, TISAX, PCI-DSS — audit-taugliche Tools und strukturierte Programme.',
-      fr: 'NIS-2, DORA, CRA, TISAX, PCI-DSS — outils niveau audit et programmes structurés.',
+      en: 'NIS-2, DORA, CRA, TISAX, PCI-DSS — strategic guidance and structured programmes that get you audit-ready.',
+      de: 'NIS-2, DORA, CRA, TISAX, PCI-DSS — strategische Begleitung und strukturierte Programme bis zur Audit-Reife.',
+      fr: 'NIS-2, DORA, CRA, TISAX, PCI-DSS — accompagnement stratégique et programmes structurés jusqu\'à la maturité d\'audit.',
     },
     services: [
       { id: 'nis2-dora', titleKey: 'consulting.nis2Title' },
@@ -70,9 +70,9 @@ const PHASES: Phase[] = [
       fr: 'Piloter la sécurité comme une fonction.',
     },
     description: {
-      en: 'Fractional CISO leadership and AI-augmented workflows for lean security teams.',
-      de: 'CISO-Leadership auf Zeit und KI-gestützte Workflows für schlanke Security-Teams.',
-      fr: 'Leadership RSSI à temps partiel et workflows augmentés par l\'IA.',
+      en: 'Fractional CISO leadership and pragmatic operating models for lean security teams.',
+      de: 'CISO-Leadership auf Zeit und pragmatische Betriebsmodelle für schlanke Security-Teams.',
+      fr: 'Leadership RSSI à temps partiel et modèles opérationnels pragmatiques pour des équipes lean.',
     },
     services: [
       { id: 'virtual-ciso', titleKey: 'consulting.vcisoTitle' },
@@ -89,9 +89,9 @@ const PHASES: Phase[] = [
       fr: 'S\'entraîner avant que ça compte.',
     },
     description: {
-      en: 'Tabletop exercises, arena drills and simulators built for real-world pressure.',
-      de: 'Tabletop-Übungen, Arena-Drills und Simulatoren für echten Ernstfall-Druck.',
-      fr: 'Exercices tabletop, drills arena et simulateurs pour la pression réelle.',
+      en: 'Tabletop exercises, arena drills and hands-on training built for real-world pressure.',
+      de: 'Tabletop-Übungen, Arena-Drills und praxisnahe Trainings für echten Ernstfall-Druck.',
+      fr: 'Exercices tabletop, drills arena et formations pratiques pour la pression réelle.',
     },
     services: [
       { id: 'dora-nis2-ttx', titleKey: 'nav.ttxTraining' },
