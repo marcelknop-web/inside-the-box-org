@@ -711,10 +711,21 @@ const Overview = () => {
         </ul>
       </section>
 
-      {/* References — typographic logo wall (no actual logos), structured by sector */}
-      <section className="px-4 sm:px-6 pt-6 sm:pt-12 pb-12 sm:pb-16 max-w-6xl mx-auto w-full border-t border-primary/10">
-        <div className="font-mono text-[10px] tracking-[0.3em] sm:tracking-[0.35em] text-primary mb-3 sm:mb-4">
-          {referenceSectionLabel}
+      {/* References — own section under "Respond". Same visual language as a phase block,
+          marked with a diamond + phase-style label so it sits naturally below the journey. */}
+      <section className="px-4 sm:px-6 pt-8 sm:pt-14 pb-12 sm:pb-16 max-w-6xl mx-auto w-full border-t border-primary/10">
+        {/* Phase-style header: diamond + label, mirrors the journey markers */}
+        <div className="flex items-center gap-3 mb-4 sm:mb-5">
+          <span className="relative flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6">
+            <span
+              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[12px] h-[12px] sm:w-[14px] sm:h-[14px] rotate-45 border-[1.5px] border-primary bg-background"
+              style={{ boxShadow: '0 0 6px hsl(var(--primary) / 0.45), 0 1px 2px hsl(var(--primary) / 0.25)' }}
+              aria-hidden
+            />
+          </span>
+          <div className="font-mono text-[10px] tracking-[0.3em] sm:tracking-[0.35em] text-primary">
+            {referenceSectionLabel}
+          </div>
         </div>
         <h2 className="font-mono font-semibold text-[22px] leading-[1.15] sm:text-3xl md:text-4xl sm:leading-[1.1] tracking-[-0.01em] text-foreground mb-3 sm:mb-4">
           {referenceHeadline}
