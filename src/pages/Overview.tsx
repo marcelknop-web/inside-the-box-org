@@ -425,7 +425,7 @@ const Overview = () => {
               {active.services.map((svc) => (
                 <li key={svc.id}>
                   <button
-                    onClick={() => handleClick(svc.id)}
+                    onClick={() => handleClick(svc.id, active.id)}
                     className="w-full text-left flex items-center justify-between gap-3 font-mono text-sm tracking-[0.02em] text-foreground/90 hover:text-primary hover:translate-x-1 transition-all duration-200 py-2.5 border-b border-primary/10 group/svc"
                   >
                     <span className="flex items-center gap-3 min-w-0">
@@ -516,7 +516,7 @@ const Overview = () => {
                       {phase.services.map((svc) => (
                         <li key={svc.id}>
                           <button
-                            onClick={() => handleClick(svc.id)}
+                            onClick={() => handleClick(svc.id, phase.id)}
                             className="w-full text-left flex items-center justify-between gap-3 font-mono text-[13px] text-foreground/90 hover:text-primary transition-colors py-2 border-b border-primary/10"
                           >
                             <span className="flex items-center gap-2.5 min-w-0">
