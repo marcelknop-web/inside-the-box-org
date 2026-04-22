@@ -189,31 +189,35 @@ const Overview = () => {
 
       {/* Timeline (desktop) */}
       <section className="hidden md:block px-6 pb-4 max-w-6xl mx-auto w-full">
-        <div className="relative">
-          {/* Connector line */}
-          <div className="absolute left-0 right-0 top-[18px] h-px bg-primary/20" aria-hidden />
-          <ol className="grid grid-cols-5 gap-2 relative">
+        <div className="relative pt-2">
+          <ol className="grid grid-cols-5 relative">
+            {/* Connector line — spans only between first and last node centers */}
+            <div
+              className="absolute top-[26px] h-px bg-primary/25 pointer-events-none"
+              style={{ left: '10%', right: '10%' }}
+              aria-hidden
+            />
             {PHASES.map((phase) => {
               const isActive = phase.id === activeId;
               return (
-                <li key={phase.id} className="flex flex-col items-start">
+                <li key={phase.id} className="flex flex-col items-center">
                   <button
                     onClick={() => setActiveId(phase.id)}
-                    className="group flex flex-col items-start gap-3 text-left w-full"
+                    className="group flex flex-col items-center gap-4 text-center w-full px-2"
                     aria-current={isActive ? 'step' : undefined}
                   >
                     {/* Node */}
-                    <span className="relative flex items-center justify-center w-9 h-9">
+                    <span className="relative flex items-center justify-center w-[52px] h-[52px] bg-background z-10">
                       <span
-                        className={`absolute inset-0 m-auto w-9 h-9 rotate-45 border transition-all ${
+                        className={`absolute inset-0 m-auto w-[44px] h-[44px] rotate-45 border transition-all ${
                           isActive
-                            ? 'border-primary bg-primary/10'
-                            : 'border-primary/40 bg-background group-hover:border-primary/70'
+                            ? 'border-primary bg-primary/10 shadow-[0_0_24px_-6px_hsl(var(--primary)/0.6)]'
+                            : 'border-primary/50 bg-background group-hover:border-primary/80'
                         }`}
                         aria-hidden
                       />
                       <span
-                        className={`relative font-mono text-[10px] tracking-[0.15em] transition-colors ${
+                        className={`relative font-mono text-[11px] tracking-[0.15em] transition-colors ${
                           isActive ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground'
                         }`}
                       >
@@ -222,7 +226,7 @@ const Overview = () => {
                     </span>
                     {/* Label */}
                     <span
-                      className={`font-mono text-[11px] tracking-[0.3em] transition-colors ${
+                      className={`font-mono text-[11px] tracking-[0.3em] transition-colors whitespace-nowrap ${
                         isActive ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground'
                       }`}
                     >
@@ -235,6 +239,7 @@ const Overview = () => {
           </ol>
         </div>
       </section>
+
 
       {/* Active phase detail (desktop) */}
       <section className="hidden md:block flex-1 px-6 py-10 max-w-6xl mx-auto w-full">
