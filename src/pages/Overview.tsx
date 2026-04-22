@@ -92,13 +92,12 @@ const PHASES: Phase[] = [
       fr: 'S\'entraîner avant que ça compte.',
     },
     description: {
-      en: 'Tabletop exercises, arena drills and hands-on training built for real-world pressure.',
-      de: 'Tabletop-Übungen, Arena-Drills und praxisnahe Trainings für echten Ernstfall-Druck.',
-      fr: 'Exercices tabletop, drills arena et formations pratiques pour la pression réelle.',
+      en: 'Tabletop exercises and hands-on training built for real-world pressure.',
+      de: 'Tabletop-Übungen und praxisnahe Trainings für echten Ernstfall-Druck.',
+      fr: 'Exercices tabletop et formations pratiques pour la pression réelle.',
     },
     services: [
       { id: 'dora-nis2-ttx', titleKey: 'nav.ttxTraining' },
-      { id: 'arena-training', titleKey: 'consulting.arenaTitle' },
       { id: 'events-workshops', titleKey: 'consulting.eventsTitle' },
     ],
   },
@@ -112,13 +111,31 @@ const PHASES: Phase[] = [
       fr: 'Quand le pire arrive.',
     },
     description: {
-      en: 'Crisis management, incident response and red-teaming under real adversarial pressure.',
-      de: 'Krisenmanagement, Incident Response und Red-Teaming unter echtem Angriffsdruck.',
-      fr: 'Gestion de crise, réponse à incident et red-teaming sous pression adverse.',
+      en: 'Crisis management and incident response under real adversarial pressure.',
+      de: 'Krisenmanagement und Incident Response unter echtem Angriffsdruck.',
+      fr: 'Gestion de crise et réponse à incident sous pression adverse.',
     },
     services: [
       { id: 'cyber-crisis-management', titleKey: 'consulting.crisisTitle' },
       { id: 'incident-management', titleKey: 'consulting.incidentTitle' },
+    ],
+  },
+  {
+    id: 'verify',
+    number: '06',
+    title: { en: 'VERIFY', de: 'PRÜFEN', fr: 'VÉRIFIER' },
+    verb: {
+      en: 'Prove it works.',
+      de: 'Wirksamkeit nachweisen.',
+      fr: 'Prouver l\'efficacité.',
+    },
+    description: {
+      en: 'TIBER tests, certification audits and reviews — evidence that controls and response capabilities work in practice.',
+      de: 'TIBER-Tests, Zertifizierungs-Audits und Reviews — Wirksamkeitsnachweise für Kontrollen und Reaktionsfähigkeit.',
+      fr: 'Tests TIBER, audits de certification et revues — preuves que contrôles et capacités de réponse fonctionnent.',
+    },
+    services: [
+      { id: 'arena-training', titleKey: 'consulting.arenaTitle' },
       { id: 'red-team', titleKey: 'nav.redTeam' },
     ],
   },
