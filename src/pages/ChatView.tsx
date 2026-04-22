@@ -1473,6 +1473,91 @@ const ChatView = () => {
   ]), []);
   const isToolPage = !!activeService && TOOL_SERVICES.has(activeService);
 
+  // Service-specific example questions, shown when a service page is active.
+  // Falls back to the general pool below when no specific set exists.
+  const SERVICE_QUESTIONS: Record<string, Record<'de' | 'en' | 'fr', string[]>> = useMemo(() => ({
+    'isms': {
+      de: ['ISMS in 90 Tagen?', 'ISO 27001 oder BSI Grundschutz?', 'Wie weisen wir ISMS-Wirksamkeit nach?', 'Reifegradcheck für unser ISMS?'],
+      en: ['ISMS in 90 days?', 'ISO 27001 or BSI baseline?', 'How to prove ISMS effectiveness?', 'Maturity check for our ISMS?'],
+      fr: ['SMSI en 90 jours ?', 'ISO 27001 ou BSI ?', 'Comment prouver l\'efficacité du SMSI ?', 'Check maturité du SMSI ?'],
+    },
+    'nis2-dora': {
+      de: ['NIS-2 §30 Mindestmaßnahmen?', 'DORA Art. 28 Konzentration?', 'NIS-2 24-h-Frühwarnung umsetzen?', 'DORA-Gap-Analyse in 6 Wochen?'],
+      en: ['NIS-2 minimum measures?', 'DORA Art. 28 concentration?', 'NIS-2 24h early warning?', 'DORA gap analysis in 6 weeks?'],
+      fr: ['NIS-2 mesures minimales ?', 'DORA art. 28 concentration ?', 'Alerte 24h NIS-2 ?', 'Gap analysis DORA en 6 sem. ?'],
+    },
+    'tisax-pci-dss': {
+      de: ['TISAX-Readiness in 4 Wochen?', 'Welches TISAX-AL ist realistisch?', 'PCI-DSS SAQ-Auswahl?', 'Merchant-Level für PCI-DSS?'],
+      en: ['TISAX readiness in 4 weeks?', 'Which TISAX AL is realistic?', 'PCI-DSS SAQ selection?', 'Merchant level for PCI-DSS?'],
+      fr: ['TISAX readiness en 4 sem. ?', 'Quel niveau AL TISAX ?', 'Choix du SAQ PCI-DSS ?', 'Niveau marchand PCI-DSS ?'],
+    },
+    'assessments-concepts': {
+      de: ['Schutzbedarfsanalyse Kronjuwelen?', 'BIA für Kernprozesse?', 'Risikoappetit definieren?', 'Sicherheitskonzept nach BSI?'],
+      en: ['Crown jewels protection needs?', 'BIA for core processes?', 'Define risk appetite?', 'BSI security concept?'],
+      fr: ['Joyaux: besoins de protection ?', 'BIA des processus clés ?', 'Définir l\'appétit au risque ?', 'Concept de sécurité BSI ?'],
+    },
+    'incident-management': {
+      de: ['Incident Response Plan reif?', 'IR-Retainer richtig dimensionieren?', 'Major Incident: Schwellen klar?', 'Post-Incident-Review möglich?'],
+      en: ['Mature incident response plan?', 'Right-size IR retainer?', 'Major incident thresholds?', 'Post-incident review with us?'],
+      fr: ['Plan IR mature ?', 'Dimensionner un retainer IR ?', 'Seuils Major Incident ?', 'Post-incident review ?'],
+    },
+    'cyber-crisis-management': {
+      de: ['Krisenstab ohne Mandat?', 'Tabletop für unseren Vorstand?', 'Krisenübung im Q1 möglich?', 'Vorstand nie geübt?'],
+      en: ['Crisis team has no mandate?', 'Tabletop for our board?', 'Crisis exercise in Q1?', 'Board never exercised?'],
+      fr: ['Cellule de crise sans mandat ?', 'Tabletop pour notre comex ?', 'Exercice de crise au T1 ?', 'Comex jamais exercé ?'],
+    },
+    'arena-training': {
+      de: ['Cyber Training Range buchen?', 'SOC-Drill für unser Team?', 'Purple-Teaming sinnvoll?', 'Training für IR-Team?'],
+      en: ['Book a Cyber Training Range?', 'SOC drill for our team?', 'Purple teaming worth it?', 'Training for our IR team?'],
+      fr: ['Réserver Cyber Training Range ?', 'Drill SOC pour l\'équipe ?', 'Purple teaming utile ?', 'Formation pour l\'équipe IR ?'],
+    },
+    'events-workshops': {
+      de: ['Workshop für unser Management?', 'Event-Termine 2026?', 'Awareness-Format für C-Level?', 'Custom Workshop möglich?'],
+      en: ['Workshop for management?', 'Event dates in 2026?', 'C-level awareness format?', 'Custom workshop possible?'],
+      fr: ['Workshop pour la direction ?', 'Dates d\'événements 2026 ?', 'Format awareness C-level ?', 'Workshop sur mesure ?'],
+    },
+    'publications': {
+      de: ['Aktuelle Whitepaper?', 'Vortrag für unsere Konferenz?', 'Artikel zu NIS-2?', 'Referenz-Publikationen?'],
+      en: ['Latest whitepapers?', 'Speak at our conference?', 'Article on NIS-2?', 'Reference publications?'],
+      fr: ['Derniers livres blancs ?', 'Conférencier pour notre event ?', 'Article sur NIS-2 ?', 'Publications de référence ?'],
+    },
+    'virtual-ciso': {
+      de: ['vCISO für 6 Monate buchbar?', 'CISO-Übergangsphase abdecken?', 'Cyber-KPIs für den Vorstand?', 'Sparring für unseren CISO?'],
+      en: ['vCISO for 6 months?', 'Cover a CISO transition?', 'Cyber KPIs for the board?', 'Sparring for our CISO?'],
+      fr: ['vCISO sur 6 mois ?', 'Transition CISO ?', 'KPI cyber pour le comex ?', 'Sparring pour notre CISO ?'],
+    },
+    'dora-nis2-ttx': {
+      de: ['Tabletop-Termine 2026?', 'TTX-Format für DORA & NIS-2?', 'Wer sollte teilnehmen?', 'Was kostet ein Tabletop?'],
+      en: ['Tabletop dates in 2026?', 'TTX format for DORA & NIS-2?', 'Who should attend?', 'What does a tabletop cost?'],
+      fr: ['Dates tabletop 2026 ?', 'Format TTX DORA & NIS-2 ?', 'Qui doit participer ?', 'Coût d\'un tabletop ?'],
+    },
+    'ai-workflows': {
+      de: ['KI-Workflow für unser Team?', 'AI-Use-Case bewerten?', 'Sichere KI-Nutzung im Audit?', 'KI-Pilot in 4 Wochen?'],
+      en: ['AI workflow for our team?', 'Evaluate an AI use case?', 'Secure AI use in audits?', 'AI pilot in 4 weeks?'],
+      fr: ['Workflow IA pour l\'équipe ?', 'Évaluer un cas IA ?', 'Usage IA sécurisé en audit ?', 'Pilote IA en 4 semaines ?'],
+    },
+    'why': {
+      de: ['Warum euer Ansatz?', 'Was unterscheidet euch?', 'Referenzen für unseren Sektor?', 'Wie startet ein Projekt?'],
+      en: ['Why your approach?', 'What sets you apart?', 'References for our sector?', 'How does a project start?'],
+      fr: ['Pourquoi votre approche ?', 'Ce qui vous distingue ?', 'Références pour notre secteur ?', 'Comment démarre un projet ?'],
+    },
+    'training': {
+      de: ['Trainingskatalog 2026?', 'Inhouse-Training möglich?', 'Welche Formate bietet ihr?', 'Zertifizierte Trainings?'],
+      en: ['Training catalogue 2026?', 'In-house training possible?', 'Which formats do you offer?', 'Certified trainings?'],
+      fr: ['Catalogue formations 2026 ?', 'Formation in-house ?', 'Quels formats proposez-vous ?', 'Formations certifiantes ?'],
+    },
+    'consulting': {
+      de: ['Beratungspaket für NIS-2?', 'Festpreis-Angebot möglich?', 'Wie startet ein Mandat?', 'Erstgespräch buchen?'],
+      en: ['Consulting package for NIS-2?', 'Fixed-price offer possible?', 'How does a mandate start?', 'Book a first call?'],
+      fr: ['Forfait conseil NIS-2 ?', 'Offre au forfait possible ?', 'Comment démarre un mandat ?', 'Réserver un premier RDV ?'],
+    },
+    'contact': {
+      de: ['Habt ihr ein Erstgespräch frei?', 'Wie schnell könnt ihr starten?', 'Wo seid ihr erreichbar?', 'Per LinkedIn anschreiben?'],
+      en: ['Free slot for a first call?', 'How fast can you start?', 'How can we reach you?', 'Reach out via LinkedIn?'],
+      fr: ['Créneau pour un premier RDV ?', 'À quelle vitesse démarrer ?', 'Comment vous joindre ?', 'Contact via LinkedIn ?'],
+    },
+  }), []);
+
   // Rotating example questions for the chat placeholder (info pages only)
   const exampleQuestions = useMemo(() => {
     const all = {
@@ -1729,7 +1814,11 @@ const ChatView = () => {
         'Pouvons-nous co-construire un reporting cyber pour le comex ?',
       ],
     } as const;
-    const list = all[(language as 'de' | 'en' | 'fr')] ?? all.en;
+    const lang = (language as 'de' | 'en' | 'fr');
+    const serviceList = activeService ? SERVICE_QUESTIONS[activeService]?.[lang] : undefined;
+    const list = serviceList && serviceList.length > 0
+      ? serviceList
+      : (all[lang] ?? all.en);
     // On mobile, only keep short questions that fit on a single line in the chat bar
     const maxLen = isMobile ? 34 : 999;
     const filtered = list.filter(q => q.length <= maxLen);
@@ -1741,8 +1830,11 @@ const ChatView = () => {
       [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
     return shuffled;
-  }, [language, isMobile]);
+  }, [language, isMobile, activeService, SERVICE_QUESTIONS]);
 
+
+  // Reset rotation when the active service changes so the first question is service-relevant
+  useEffect(() => { setExampleIndex(0); }, [activeService]);
 
   // Rotate every 4s, but pause while the user is typing or focused on the input
   useEffect(() => {
