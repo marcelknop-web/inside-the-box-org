@@ -23,7 +23,7 @@ export const SiteChrome = ({
 }) => {
   const { language, setLanguage } = useLanguage();
   const navigate = useNavigate();
-  const [drawer, setDrawer] = useState<'team' | 'contact' | null>(null);
+  const [drawer, setDrawer] = useState<'team' | 'contact' | 'imprint' | null>(null);
   const lang = language as 'en' | 'de' | 'fr';
 
   const footerImprintLabel =
