@@ -38,6 +38,12 @@ export const SiteChrome = ({
     else navigate('/', { state: { skipHero: true } });
   };
 
+  // Footer brand link: always go back to the hero opener (no skipHero flag),
+  // so clicking the wordmark in the footer feels like "back to the start".
+  const handleFooterBrand = () => {
+    navigate('/');
+  };
+
   return (
     <div className="min-h-screen w-full text-foreground flex flex-col">
       {/* Top bar */}
@@ -83,9 +89,9 @@ export const SiteChrome = ({
       <footer className="border-t border-primary/10 bg-background/40 backdrop-blur-sm">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex flex-nowrap items-center justify-between gap-2.5 sm:gap-4 font-mono text-[9px] sm:text-[10px] tracking-[0.08em] sm:tracking-[0.22em] text-muted-foreground">
           <button
-            onClick={handleBrand}
+            onClick={handleFooterBrand}
             className="whitespace-nowrap hover:text-primary focus-visible:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-sm transition-colors no-underline text-left"
-            aria-label="inside-the-box — Journey"
+            aria-label="inside-the-box — Home"
           >
             <span className="hidden sm:inline">© {new Date().getFullYear()} </span>INSIDE-THE-BOX.ORG
           </button>
