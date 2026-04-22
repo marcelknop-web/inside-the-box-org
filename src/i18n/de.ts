@@ -272,7 +272,7 @@ export const de = {
     introDetail: 'Ob ein Incident-Response-Prozess funktioniert, zeigt sich nicht bei der Dokumentenprüfung – sondern wenn ein Vorfall eintritt. Wir prüfen bestehende Strukturen, schließen Lücken und implementieren Prozesse, die unter echtem Druck greifen: mit unvollständigen Informationen, parallelen Eskalationen und laufenden Meldefristen.',
     sectionTitle: 'Leistungsbereiche',
     step0Title: 'Audit bestehender IR-Strukturen',
-    step0Desc: 'Strukturierte Bewertung vorhandener Incident-Response-Prozesse gegen anerkannte Standards (ISO 27035, NIST SP 800-61, BSI IT-Grundschutz). Klassifizierungskriterien, Rollen, Eskalationspfade, Kommunikationslogik und regulatorische Meldepflichten werden auf Wirksamkeit geprüft – nicht nur auf Vorhandensein. Ergebnis ist eine priorisierte Gap-Analyse, keine Checkliste.',
+    step0Desc: 'Strukturierte Bewertung vorhandener Incident-Response-Prozesse gegen anerkannte Standards (ISO 27035, NIST SP 800-61, BSI IT-Grundschutz, IEC 62443 für OT/ICS). Klassifizierungskriterien, Rollen, Eskalationspfade, Kommunikationslogik und regulatorische Meldepflichten werden auf Wirksamkeit geprüft – nicht nur auf Vorhandensein. Ergebnis ist eine priorisierte Gap-Analyse, keine Checkliste.',
     step1Title: 'Prozessaufbau und Governance',
     step1Desc: 'Aufbau oder Überarbeitung von IR-Strukturen mit eindeutigen Klassifizierungsschemata, definierten Rollen und Eskalationspfaden. Regulatorische Anforderungen aus NIS-2 (Erstmeldung innerhalb 24 Stunden, Folgemeldung innerhalb 72 Stunden), DORA und KRITIS sind von Anfang an eingebettet – nicht nachträglich ergänzt.',
     step2Title: 'Erkennungsfähigkeit und Monitoring',
