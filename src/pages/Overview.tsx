@@ -460,6 +460,11 @@ const Overview = () => {
                   className="absolute left-0 top-0 flex items-center justify-center w-8 h-8 group/node"
                   aria-expanded={isActive}
                 >
+                  {/* Mask — solid bg blocks the vertical connector under the diamond */}
+                  <span
+                    className="absolute inset-0 m-auto w-6 h-6 rotate-45 bg-background"
+                    aria-hidden
+                  />
                   {/* Diamond marker — pure symbol, no number */}
                   <span
                     className={`absolute inset-0 m-auto w-5 h-5 rotate-45 border transition-all duration-300 ${
