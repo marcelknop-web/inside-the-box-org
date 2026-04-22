@@ -6,37 +6,54 @@ import { PageMeta } from '@/components/PageMeta';
 import { useLanguage, nextLanguage } from '@/i18n/LanguageContext';
 
 /**
- * /overview — Problem-First Grid
+ * /overview — Journey Map
  *
- * 6 Kacheln, formuliert aus Kundenperspektive ("Wir müssen...").
- * Jede Kachel listet die zugehörigen Services. Klick → Service-Seite.
+ * Fünf Phasen der Cyber-Reife eines Unternehmens, als geführter Pfad.
+ * Desktop: horizontale Timeline mit verbundenen Stationen.
+ * Mobile: vertikaler Stepper.
  */
 
-type Service = {
-  id: string;
-  titleKey: string;
-};
+type Service = { id: string; titleKey: string };
 
-type Tile = {
+type Phase = {
   id: string;
-  question: string;        // EN, kurz, in Kundensprache
-  questionDe: string;
-  questionFr: string;
-  answer: string;          // EN
-  answerDe: string;
-  answerFr: string;
+  number: string;
+  title: { en: string; de: string; fr: string };
+  verb: { en: string; de: string; fr: string };
+  description: { en: string; de: string; fr: string };
   services: Service[];
 };
 
-const TILES: Tile[] = [
+const PHASES: Phase[] = [
   {
-    id: 'compliance',
-    question: 'We need to become NIS-2 / DORA / CRA compliant.',
-    questionDe: 'Wir müssen NIS-2-, DORA- oder CRA-konform werden.',
-    questionFr: 'Nous devons être conformes NIS-2, DORA ou CRA.',
-    answer: 'Audit-grade tools and consulting for EU regulation.',
-    answerDe: 'Audit-taugliche Tools und Beratung für EU-Regulierung.',
-    answerFr: 'Outils et conseil de niveau audit pour la régulation UE.',
+    id: 'understand',
+    number: '01',
+    title: { en: 'UNDERSTAND', de: 'VERSTEHEN', fr: 'COMPRENDRE' },
+    verb: { en: 'Where do we stand?', de: 'Wo stehen wir?', fr: 'Où en sommes-nous ?' },
+    description: {
+      en: 'Map the terrain. Assessments, quick-checks, and a clear picture of the gap.',
+      de: 'Das Terrain kartieren. Assessments, Quick-Checks und ein klares Lagebild.',
+      fr: 'Cartographier le terrain. Évaluations, quick-checks et image claire de l\'écart.',
+    },
+    services: [
+      { id: 'assessments-concepts', titleKey: 'consulting.assessTitle' },
+      { id: 'publications', titleKey: 'consulting.pubTitle' },
+    ],
+  },
+  {
+    id: 'comply',
+    number: '02',
+    title: { en: 'COMPLY', de: 'KONFORM WERDEN', fr: 'SE CONFORMER' },
+    verb: {
+      en: 'Meet the regulations.',
+      de: 'Den Regulierungen gerecht werden.',
+      fr: 'Répondre aux régulations.',
+    },
+    description: {
+      en: 'NIS-2, DORA, CRA, TISAX, PCI-DSS — audit-grade tools and structured programmes.',
+      de: 'NIS-2, DORA, CRA, TISAX, PCI-DSS — audit-taugliche Tools und strukturierte Programme.',
+      fr: 'NIS-2, DORA, CRA, TISAX, PCI-DSS — outils niveau audit et programmes structurés.',
+    },
     services: [
       { id: 'nis2-dora', titleKey: 'consulting.nis2Title' },
       { id: 'tisax-pci-dss', titleKey: 'consulting.tisaxTitle' },
@@ -44,68 +61,62 @@ const TILES: Tile[] = [
     ],
   },
   {
-    id: 'leadership',
-    question: 'We lack a CISO or security leadership.',
-    questionDe: 'Uns fehlt ein CISO oder Security-Leadership.',
-    questionFr: 'Il nous manque un RSSI ou un leadership sécurité.',
-    answer: 'Fractional security leadership and assessments.',
-    answerDe: 'Security-Leadership auf Zeit und Standortbestimmung.',
-    answerFr: 'Leadership sécurité à temps partiel et évaluations.',
+    id: 'lead',
+    number: '03',
+    title: { en: 'LEAD', de: 'FÜHREN', fr: 'DIRIGER' },
+    verb: {
+      en: 'Run security like a function.',
+      de: 'Security als Funktion führen.',
+      fr: 'Piloter la sécurité comme une fonction.',
+    },
+    description: {
+      en: 'Fractional CISO leadership and AI-augmented workflows for lean security teams.',
+      de: 'CISO-Leadership auf Zeit und KI-gestützte Workflows für schlanke Security-Teams.',
+      fr: 'Leadership RSSI à temps partiel et workflows augmentés par l\'IA.',
+    },
     services: [
       { id: 'virtual-ciso', titleKey: 'consulting.vcisoTitle' },
-      { id: 'assessments-concepts', titleKey: 'consulting.assessTitle' },
+      { id: 'ai-workflows', titleKey: 'consulting.aiWorkflowsTitle' },
     ],
   },
   {
-    id: 'incident',
-    question: 'We just had — or fear — an incident.',
-    questionDe: 'Wir hatten — oder fürchten — einen Vorfall.',
-    questionFr: 'Nous avons eu — ou craignons — un incident.',
-    answer: 'Crisis management, response, and red-teaming.',
-    answerDe: 'Krisenmanagement, Response und Red-Teaming.',
-    answerFr: 'Gestion de crise, réponse et red-teaming.',
-    services: [
-      { id: 'cyber-crisis-management', titleKey: 'consulting.crisisTitle' },
-      { id: 'incident-management', titleKey: 'consulting.incidentTitle' },
-      { id: 'red-team', titleKey: 'nav.redTeam' },
-    ],
-  },
-  {
-    id: 'training',
-    question: 'Our team is not prepared for the worst.',
-    questionDe: 'Unser Team ist nicht auf den Ernstfall vorbereitet.',
-    questionFr: 'Notre équipe n\'est pas prête au pire.',
-    answer: 'Tabletop exercises, simulators, and arena drills.',
-    answerDe: 'Tabletop-Übungen, Simulatoren und Arena-Drills.',
-    answerFr: 'Exercices tabletop, simulateurs et drills arena.',
+    id: 'train',
+    number: '04',
+    title: { en: 'TRAIN', de: 'TRAINIEREN', fr: 'ENTRAÎNER' },
+    verb: {
+      en: 'Practice before it counts.',
+      de: 'Üben, bevor es zählt.',
+      fr: 'S\'entraîner avant que ça compte.',
+    },
+    description: {
+      en: 'Tabletop exercises, arena drills and simulators built for real-world pressure.',
+      de: 'Tabletop-Übungen, Arena-Drills und Simulatoren für echten Ernstfall-Druck.',
+      fr: 'Exercices tabletop, drills arena et simulateurs pour la pression réelle.',
+    },
     services: [
       { id: 'dora-nis2-ttx', titleKey: 'nav.ttxTraining' },
       { id: 'arena-training', titleKey: 'consulting.arenaTitle' },
-    ],
-  },
-  {
-    id: 'inspiration',
-    question: 'We want to learn what others are doing.',
-    questionDe: 'Wir möchten lernen, was andere bereits tun.',
-    questionFr: 'Nous voulons apprendre ce que font les autres.',
-    answer: 'Publications, events, and workshops.',
-    answerDe: 'Publikationen, Events und Workshops.',
-    answerFr: 'Publications, événements et ateliers.',
-    services: [
-      { id: 'publications', titleKey: 'consulting.pubTitle' },
       { id: 'events-workshops', titleKey: 'consulting.eventsTitle' },
     ],
   },
   {
-    id: 'ai',
-    question: 'We want AI in our security workflows.',
-    questionDe: 'Wir wollen KI in unseren Security-Workflows einsetzen.',
-    questionFr: 'Nous voulons de l\'IA dans nos workflows sécurité.',
-    answer: 'Practical AI workflows for security teams.',
-    answerDe: 'Praktische KI-Workflows für Security-Teams.',
-    answerFr: 'Workflows IA pratiques pour les équipes sécurité.',
+    id: 'respond',
+    number: '05',
+    title: { en: 'RESPOND', de: 'REAGIEREN', fr: 'RÉAGIR' },
+    verb: {
+      en: 'When the worst happens.',
+      de: 'Wenn der Ernstfall eintritt.',
+      fr: 'Quand le pire arrive.',
+    },
+    description: {
+      en: 'Crisis management, incident response and red-teaming under real adversarial pressure.',
+      de: 'Krisenmanagement, Incident Response und Red-Teaming unter echtem Angriffsdruck.',
+      fr: 'Gestion de crise, réponse à incident et red-teaming sous pression adverse.',
+    },
     services: [
-      { id: 'ai-workflows', titleKey: 'consulting.aiWorkflowsTitle' },
+      { id: 'cyber-crisis-management', titleKey: 'consulting.crisisTitle' },
+      { id: 'incident-management', titleKey: 'consulting.incidentTitle' },
+      { id: 'red-team', titleKey: 'nav.redTeam' },
     ],
   },
 ];
@@ -113,33 +124,35 @@ const TILES: Tile[] = [
 const Overview = () => {
   const { t, language, setLanguage } = useLanguage();
   const navigate = useNavigate();
-  const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [activeId, setActiveId] = useState<string>(PHASES[0].id);
 
   const handleClick = useCallback((id: string) => navigate(`/${id}`), [navigate]);
 
-  const getQuestion = (tile: Tile) =>
-    language === 'de' ? tile.questionDe : language === 'fr' ? tile.questionFr : tile.question;
-  const getAnswer = (tile: Tile) =>
-    language === 'de' ? tile.answerDe : language === 'fr' ? tile.answerFr : tile.answer;
+  const lang = language as 'en' | 'de' | 'fr';
+  const active = PHASES.find((p) => p.id === activeId) ?? PHASES[0];
 
   const headline =
-    language === 'de'
-      ? 'Wo stehen Sie gerade?'
-      : language === 'fr'
-      ? 'Où en êtes-vous ?'
-      : 'Where are you right now?';
+    lang === 'de'
+      ? 'Die Reise zu echter Cyber-Resilienz.'
+      : lang === 'fr'
+      ? 'Le chemin vers une vraie cyber-résilience.'
+      : 'The journey to real cyber-resilience.';
   const subline =
-    language === 'de'
-      ? 'Wählen Sie das Szenario, das am besten passt — wir zeigen die nächsten Schritte.'
-      : language === 'fr'
-      ? 'Choisissez le scénario qui correspond — nous montrons les prochaines étapes.'
-      : 'Pick the scenario that fits best — we\'ll show the next steps.';
+    lang === 'de'
+      ? 'Fünf Phasen. Wählen Sie die, in der Sie gerade stehen.'
+      : lang === 'fr'
+      ? 'Cinq phases. Choisissez celle où vous en êtes.'
+      : 'Five phases. Pick the one you\'re in right now.';
+  const sectionLabel =
+    lang === 'de' ? '/ DIE REISE' : lang === 'fr' ? '/ LE PARCOURS' : '/ THE JOURNEY';
+  const servicesLabel =
+    lang === 'de' ? 'Leistungen in dieser Phase' : lang === 'fr' ? 'Services dans cette phase' : 'Services in this phase';
 
   return (
     <div className="min-h-screen w-full text-foreground flex flex-col">
       <PageMeta
-        title="Overview"
-        description="Find the right cybersecurity service for your situation — from compliance to crisis response."
+        title="Journey"
+        description="The five phases of cyber-resilience — from understanding your gap to responding under pressure."
       />
       <Helmet>
         <meta name="robots" content="noindex, nofollow" />
@@ -165,9 +178,7 @@ const Overview = () => {
 
       {/* Headline */}
       <section className="px-6 pt-12 pb-8 max-w-6xl mx-auto w-full">
-        <div className="font-mono text-[10px] tracking-[0.35em] text-primary mb-4">
-          {language === 'de' ? '/ ÜBERSICHT' : language === 'fr' ? '/ APERÇU' : '/ OVERVIEW'}
-        </div>
+        <div className="font-mono text-[10px] tracking-[0.35em] text-primary mb-4">{sectionLabel}</div>
         <h1 className="font-mono font-semibold text-3xl md:text-5xl leading-[1.05] tracking-[-0.01em] text-foreground mb-4">
           {headline}
         </h1>
@@ -176,61 +187,178 @@ const Overview = () => {
         </p>
       </section>
 
-      {/* Tile grid */}
-      <main className="flex-1 px-6 pb-16 max-w-6xl mx-auto w-full">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-primary/15 border border-primary/15">
-          {TILES.map((tile) => {
-            const isHovered = hoveredId === tile.id;
-            return (
-              <article
-                key={tile.id}
-                onMouseEnter={() => setHoveredId(tile.id)}
-                onMouseLeave={() => setHoveredId(null)}
-                className="bg-background/60 backdrop-blur-[2px] p-6 md:p-7 flex flex-col group transition-colors hover:bg-primary/[0.06] min-h-[280px]"
-              >
-                {/* Tile label */}
-                <div className="font-mono text-[9px] tracking-[0.35em] text-primary/70 mb-4">
-                  {String(TILES.indexOf(tile) + 1).padStart(2, '0')} / {String(TILES.length).padStart(2, '0')}
-                </div>
-
-                {/* Question */}
-                <h2 className="font-mono font-medium text-lg md:text-xl leading-[1.25] tracking-[-0.005em] text-foreground mb-3">
-                  {getQuestion(tile)}
-                </h2>
-
-                {/* Answer / what we offer */}
-                <p className="font-sans text-sm text-muted-foreground leading-snug mb-5">
-                  {getAnswer(tile)}
-                </p>
-
-                {/* Services */}
-                <ul className="mt-auto space-y-1.5 pt-4 border-t border-primary/10">
-                  {tile.services.map((svc) => (
-                    <li key={svc.id}>
-                      <button
-                        onClick={() => handleClick(svc.id)}
-                        className="w-full text-left flex items-center justify-between gap-3 font-mono text-xs tracking-[0.05em] text-foreground/85 hover:text-primary transition-colors py-1.5 group/svc"
+      {/* Timeline (desktop) */}
+      <section className="hidden md:block px-6 pb-4 max-w-6xl mx-auto w-full">
+        <div className="relative">
+          {/* Connector line */}
+          <div className="absolute left-0 right-0 top-[18px] h-px bg-primary/20" aria-hidden />
+          <ol className="grid grid-cols-5 gap-2 relative">
+            {PHASES.map((phase) => {
+              const isActive = phase.id === activeId;
+              return (
+                <li key={phase.id} className="flex flex-col items-start">
+                  <button
+                    onClick={() => setActiveId(phase.id)}
+                    className="group flex flex-col items-start gap-3 text-left w-full"
+                    aria-current={isActive ? 'step' : undefined}
+                  >
+                    {/* Node */}
+                    <span className="relative flex items-center justify-center w-9 h-9">
+                      <span
+                        className={`absolute inset-0 m-auto w-9 h-9 rotate-45 border transition-all ${
+                          isActive
+                            ? 'border-primary bg-primary/10'
+                            : 'border-primary/40 bg-background group-hover:border-primary/70'
+                        }`}
+                        aria-hidden
+                      />
+                      <span
+                        className={`relative font-mono text-[10px] tracking-[0.15em] transition-colors ${
+                          isActive ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground'
+                        }`}
                       >
-                        <span className="flex items-center gap-2.5 min-w-0">
-                          <span
-                            className="inline-block w-1.5 h-1.5 rotate-45 border border-primary/60 group-hover/svc:bg-primary group-hover/svc:border-primary transition-colors flex-shrink-0"
-                            aria-hidden
-                          />
-                          <span className="truncate">{t(svc.titleKey)}</span>
-                        </span>
-                        <ArrowRight
-                          className="w-3 h-3 text-primary/0 group-hover/svc:text-primary -translate-x-1 group-hover/svc:translate-x-0 transition-all flex-shrink-0"
-                          aria-hidden
-                        />
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </article>
+                        {phase.number}
+                      </span>
+                    </span>
+                    {/* Label */}
+                    <span
+                      className={`font-mono text-[11px] tracking-[0.3em] transition-colors ${
+                        isActive ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground'
+                      }`}
+                    >
+                      {phase.title[lang]}
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
+          </ol>
+        </div>
+      </section>
+
+      {/* Active phase detail (desktop) */}
+      <section className="hidden md:block flex-1 px-6 py-10 max-w-6xl mx-auto w-full">
+        <div className="grid grid-cols-12 gap-8 bg-background/60 backdrop-blur-[2px] border border-primary/15 p-8">
+          {/* Left — phase intro */}
+          <div className="col-span-7">
+            <div className="font-mono text-[10px] tracking-[0.35em] text-primary/70 mb-3">
+              PHASE {active.number} / {String(PHASES.length).padStart(2, '0')}
+            </div>
+            <h2 className="font-mono font-semibold text-3xl lg:text-4xl leading-[1.1] tracking-[-0.005em] text-foreground mb-4">
+              {active.verb[lang]}
+            </h2>
+            <p className="font-sans text-base text-muted-foreground leading-relaxed max-w-xl">
+              {active.description[lang]}
+            </p>
+          </div>
+          {/* Right — services */}
+          <div className="col-span-5 border-l border-primary/15 pl-8">
+            <div className="font-mono text-[10px] tracking-[0.3em] text-primary/70 mb-4">
+              {servicesLabel.toUpperCase()}
+            </div>
+            <ul className="space-y-1">
+              {active.services.map((svc) => (
+                <li key={svc.id}>
+                  <button
+                    onClick={() => handleClick(svc.id)}
+                    className="w-full text-left flex items-center justify-between gap-3 font-mono text-sm tracking-[0.02em] text-foreground/90 hover:text-primary transition-colors py-2.5 border-b border-primary/10 group/svc"
+                  >
+                    <span className="flex items-center gap-3 min-w-0">
+                      <span
+                        className="inline-block w-1.5 h-1.5 rotate-45 border border-primary/60 group-hover/svc:bg-primary group-hover/svc:border-primary transition-colors flex-shrink-0"
+                        aria-hidden
+                      />
+                      <span className="truncate">{t(svc.titleKey)}</span>
+                    </span>
+                    <ArrowRight
+                      className="w-3.5 h-3.5 text-primary/0 group-hover/svc:text-primary -translate-x-1 group-hover/svc:translate-x-0 transition-all flex-shrink-0"
+                      aria-hidden
+                    />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      {/* Mobile vertical stepper */}
+      <section className="md:hidden flex-1 px-6 pb-12 max-w-6xl mx-auto w-full">
+        <ol className="relative">
+          {/* Vertical connector */}
+          <div className="absolute left-[18px] top-3 bottom-3 w-px bg-primary/20" aria-hidden />
+          {PHASES.map((phase) => {
+            const isActive = phase.id === activeId;
+            return (
+              <li key={phase.id} className="relative pl-12 pb-6 last:pb-0">
+                <button
+                  onClick={() => setActiveId(isActive ? '' : phase.id)}
+                  className="absolute left-0 top-0 flex items-center justify-center w-9 h-9"
+                  aria-expanded={isActive}
+                >
+                  <span
+                    className={`absolute inset-0 m-auto w-9 h-9 rotate-45 border transition-all ${
+                      isActive ? 'border-primary bg-primary/10' : 'border-primary/40 bg-background'
+                    }`}
+                    aria-hidden
+                  />
+                  <span
+                    className={`relative font-mono text-[10px] tracking-[0.15em] ${
+                      isActive ? 'text-primary' : 'text-muted-foreground'
+                    }`}
+                  >
+                    {phase.number}
+                  </span>
+                </button>
+
+                <button
+                  onClick={() => setActiveId(isActive ? '' : phase.id)}
+                  className="w-full text-left"
+                  aria-expanded={isActive}
+                >
+                  <div
+                    className={`font-mono text-[11px] tracking-[0.3em] mb-1 transition-colors ${
+                      isActive ? 'text-primary' : 'text-muted-foreground'
+                    }`}
+                  >
+                    {phase.title[lang]}
+                  </div>
+                  <div className="font-mono text-base font-medium text-foreground leading-snug">
+                    {phase.verb[lang]}
+                  </div>
+                </button>
+
+                {isActive && (
+                  <div className="mt-3 animate-fade-in">
+                    <p className="font-sans text-sm text-muted-foreground leading-snug mb-4">
+                      {phase.description[lang]}
+                    </p>
+                    <ul className="space-y-0">
+                      {phase.services.map((svc) => (
+                        <li key={svc.id}>
+                          <button
+                            onClick={() => handleClick(svc.id)}
+                            className="w-full text-left flex items-center justify-between gap-3 font-mono text-sm text-foreground/90 hover:text-primary transition-colors py-2.5 border-b border-primary/10"
+                          >
+                            <span className="flex items-center gap-2.5 min-w-0">
+                              <span
+                                className="inline-block w-1.5 h-1.5 rotate-45 border border-primary/60 flex-shrink-0"
+                                aria-hidden
+                              />
+                              <span className="truncate">{t(svc.titleKey)}</span>
+                            </span>
+                            <ArrowRight className="w-3.5 h-3.5 text-primary/70 flex-shrink-0" aria-hidden />
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </li>
             );
           })}
-        </div>
-      </main>
+        </ol>
+      </section>
 
       {/* Footer */}
       <footer className="border-t border-primary/10 bg-background/40 backdrop-blur-sm">
