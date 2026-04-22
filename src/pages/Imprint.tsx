@@ -58,7 +58,7 @@ const Imprint = () => {
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 
-      <main className="flex-1 px-4 sm:px-6 py-10 sm:py-14 max-w-3xl mx-auto w-full">
+      <main className="flex-1 px-4 sm:px-6 py-10 sm:py-14 max-w-3xl mx-auto w-full animate-fade-in">
         <div className="font-mono text-[11px] sm:text-[13px] tracking-[0.4em] text-primary mb-6">
           {sectionLabel}
         </div>
