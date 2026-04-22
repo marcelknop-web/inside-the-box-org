@@ -152,7 +152,8 @@ export default function TtxReadinessPage() {
           <h1 className="text-2xl md:text-3xl font-bold text-primary font-mono">
             <Typewriter text={t(I18N.pageTitle)} charDelay={6} />
           </h1>
-          <p className="text-foreground/80 text-sm md:text-base font-sans leading-relaxed">{t(I18N.intro)}</p>
+          <p className="text-foreground/90 text-base md:text-lg font-mono leading-snug">{t(I18N.pageSubtitle)}</p>
+          <p className="text-foreground/70 text-sm md:text-base font-sans leading-relaxed pt-1">{t(I18N.intro)}</p>
         </header>
 
         {/* Why TTX matter — based on NIS-2 liability framing */}
