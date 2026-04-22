@@ -410,6 +410,16 @@ export const fr = {
     ctaTitle: 'Démarrage',
     ctaDesc: 'Phase pilote avec un cadre clairement défini : analyse des processus existants, implémentation, transfert. L\'objectif est des gains d\'efficacité mesurables et une intégration durable – pas une solution boîte noire que personne ne comprend après la fin du projet.',
     ctaButton: '→ Convenir d\'un entretien',
+    openKiLab: '→ Ouvrir le Lab IA',
+  },
+  kiLab: {
+    title: 'Lab IA',
+    metaDesc: 'Simulations, tests et scénarios à explorer — aucune connexion requise.',
+    intro: 'Rendre les concepts tangibles — sur votre propre écran, en quelques minutes.',
+    introDetail: 'Chaque outil est une mini-expérience autonome : checks de conformité, simulations de crise, quiz de sensibilisation et formats d\'apprentissage façon arcade. Directement dans le navigateur, sans inscription — pour calibrer honnêtement intuition, connaissances et schémas de réaction.',
+    ctaTitle: 'Du lab à la pratique',
+    ctaDesc: 'Lorsqu\'un format correspond à votre cas d\'usage, il peut être transformé en workflow assisté par IA dans votre organisation — avec un périmètre clair et une documentation auditable.',
+    ctaButton: '→ Vers les workflows IA',
   },
   arena: {
     title: 'TIBER Test',
