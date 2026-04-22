@@ -288,7 +288,7 @@ export const de = {
     outcomesTitle: 'Was das bringt',
     outcomesDesc: 'Nach einem Projekt wissen Sie: Welche Prozesse halten unter Last, welche nicht. Wo Zuständigkeiten unklar sind. Ob Ihre Beweissicherung einer regulatorischen Prüfung standhält. Ob relevante Vorfälle überhaupt erkannt werden. Und ob Ihre Teams wissen, was zu tun ist – bevor sie es brauchen.',
     refTitle: 'Referenzen',
-    refDesc: 'Projekte aus Finanzdienstleistung, Energie, Automotive und kritischer Infrastruktur. Erfahrung mit regulatorischen Anforderungen nach NIS-2, DORA, BSI IT-Grundschutz und ISO 27035.',
+    refDesc: 'Projekte aus Finanzdienstleistung, Energie, Automotive und kritischer Infrastruktur. Erfahrung mit regulatorischen Anforderungen nach NIS-2, DORA, BSI IT-Grundschutz, ISO 27035 und IEC 62443 (OT/ICS).',
     ctaTitle: 'Nächster Schritt',
     ctaDesc: '30 Minuten, kein Pitch – sondern eine ehrliche Standortbestimmung: Reifegrad der Incident Response (Erkennung, Eskalation, Forensik, Meldepflichten), die zwei kritischsten Lücken und ob ein 24/7-Retainer überhaupt nötig ist.',
     ctaButton: '→ Kontakt aufnehmen',

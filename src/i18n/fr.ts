@@ -288,7 +288,7 @@ export const fr = {
     outcomesTitle: 'Ce que cela apporte',
     outcomesDesc: 'Après un projet, vous savez : quels processus tiennent sous charge et lesquels non. Où les responsabilités sont floues. Si votre préservation des preuves résiste à un examen réglementaire. Si les incidents pertinents sont détectés. Et si vos équipes savent quoi faire — avant d\'en avoir besoin.',
     refTitle: 'Références',
-    refDesc: 'Projets dans les services financiers, l\'énergie, l\'automobile et les infrastructures critiques. Expérience avec les exigences réglementaires NIS-2, DORA, BSI IT-Grundschutz et ISO 27035.',
+    refDesc: 'Projets dans les services financiers, l\'énergie, l\'automobile et les infrastructures critiques. Expérience avec les exigences réglementaires NIS-2, DORA, BSI IT-Grundschutz, ISO 27035 et IEC 62443 (OT/ICS).',
     ctaTitle: 'Prochaine étape',
     ctaDesc: '30 minutes, pas de pitch — un état des lieux honnête : maturité de la réponse aux incidents (détection, escalade, forensique, obligations de notification), les deux lacunes les plus critiques et la nécessité réelle d\'un retainer 24/7.',
     ctaButton: '→ Prendre contact',
