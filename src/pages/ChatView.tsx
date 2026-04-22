@@ -732,6 +732,37 @@ const useServiceContent = () => {
         <RelatedServices serviceId="virtual-ciso" onSelect={setActive} />
       </TypedSection>
     ),
+    'soc-operations': () => (
+      <TypedSection title={t('socOps.title')} mode="typewriter" intro={<p>{t('socOps.intro')}</p>}>
+        <Block className="bg-card/40 rounded-xl">
+          <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{t('socOps.introDetail')}</p>
+        </Block>
+        <Block className="bg-primary/5 border border-primary/20 rounded-xl">
+          <SubTitle>{t('socOps.sectionTitle')}</SubTitle>
+          <div className="grid grid-cols-1 gap-3 mt-2">
+            <GridItem icon={Settings} title={t('socOps.framework1Title')} desc={t('socOps.framework1Desc')} />
+            <GridItem icon={ClipboardList} title={t('socOps.framework2Title')} desc={t('socOps.framework2Desc')} />
+            <GridItem icon={AlertTriangle} title={t('socOps.framework3Title')} desc={t('socOps.framework3Desc')} />
+            <GridItem icon={BarChart} title={t('socOps.framework4Title')} desc={t('socOps.framework4Desc')} />
+          </div>
+        </Block>
+        <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
+          <SubTitle variant="highlight">{t('socOps.refTitle')}</SubTitle>
+          <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mt-2">{t('socOps.refDesc')}</p>
+        </Block>
+        <Block className="bg-primary/5 border border-primary/20 rounded-xl">
+          <SubTitle>{t('socOps.ctaTitle')}</SubTitle>
+          <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mt-2">{t('socOps.ctaDesc')}</p>
+          <button
+            onClick={() => setActive('contact')}
+            className="mt-3 inline-flex items-center gap-2 text-highlight font-mono font-bold text-sm hover:text-primary transition-electric cursor-pointer bg-transparent border-none p-0"
+          >
+            {t('socOps.ctaButton')}
+          </button>
+        </Block>
+        <RelatedServices serviceId="soc-operations" onSelect={setActive} />
+      </TypedSection>
+    ),
     'dora-nis2-ttx': () => (
       <TypedSection title={t('ttx.title')} mode="typewriter" intro={<p>{t('ttx.intro')}</p>}>
         <Block className="bg-card/40 rounded-xl">
@@ -1081,6 +1112,7 @@ const useServiceContent = () => {
           { theme: 'events-workshops', title: t('consulting.eventsTitle'), desc: t('consulting.eventsDesc'), id: 'events-workshops' },
           { theme: 'publications', title: t('consulting.pubTitle'), desc: t('consulting.pubDesc'), id: 'publications' },
           { theme: 'virtual-ciso', title: t('consulting.vcisoTitle'), desc: t('consulting.vcisoDesc'), id: 'virtual-ciso' },
+          { theme: 'soc-operations', title: t('consulting.socOpsTitle'), desc: t('consulting.socOpsDesc'), id: 'soc-operations' },
           { theme: 'ai-workflows', title: t('consulting.aiWorkflowsTitle'), desc: t('consulting.aiWorkflowsDesc'), id: 'ai-workflows' },
         ] as Array<{ theme: ServiceTheme; title: string; desc: string; id: string }>).map(s => (
           <div key={s.id} className="rounded-xl p-3 bg-primary/5 border border-primary/20 flex items-start gap-2.5 cursor-pointer hover:bg-primary/10 transition-electric" onClick={() => setActive(s.id)}>
@@ -1282,6 +1314,7 @@ const useSidebarGroups = (): SidebarGroup[] => {
       title: t('nav.groupGovernance'),
       items: [
         { id: 'virtual-ciso', icon: UserCheck, label: t('nav.virtualCiso') },
+        { id: 'soc-operations', icon: Radio, label: t('nav.socOps') },
         { id: 'assessments-concepts', icon: Search, label: t('nav.assessments') },
       ],
     },
