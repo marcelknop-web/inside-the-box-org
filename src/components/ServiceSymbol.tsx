@@ -179,6 +179,18 @@ export const ServiceSymbol = ({ theme, size = 16, className, ...rest }: ServiceS
         </svg>
       );
 
+    /* SOC Operations — Radar mit Sweep (Detection, Monitoring, Playbooks). */
+    case 'soc-operations':
+      return (
+        <svg {...props}>
+          <circle cx="12" cy="12" r="9" />
+          <circle cx="12" cy="12" r="5" />
+          <circle cx="12" cy="12" r="1.2" fill="currentColor" />
+          <path d="M12 12 L19 8" />
+          <path d="M12 3 V5 M12 19 V21 M3 12 H5 M19 12 H21" />
+        </svg>
+      );
+
     /* ───── Journey-Map-Phasen (Overview) ─────
        Jede Phase bekommt ein eigenes Mini-Symbol, gezeichnet so,
        dass es innerhalb des 28×28-Diamanten (rotiert 45°) lesbar bleibt.
