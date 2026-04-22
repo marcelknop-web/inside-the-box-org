@@ -133,6 +133,8 @@ export const de = {
     assessDesc: 'Risiken bewerten, Schwachstellen identifizieren und belastbare Sicherheitskonzepte erarbeiten.',
     incidentTitle: 'Incident Management',
     incidentDesc: 'Vorfälle erkennen, strukturiert reagieren und Prozesse aufbauen, die unter Druck funktionieren.',
+    bcmTitle: 'Notfallmanagement (BCM)',
+    bcmDesc: 'ISO 22301 und BSI-Standard 200-4: ISCPs, Notfallpläne und Notfallübungen, die im Ernstfall tragen.',
     crisisTitle: 'Cyber-Krisenmanagement',
     crisisDesc: 'Krisenorganisation aufbauen, Abläufe definieren und unter realistischen Bedingungen testen.',
     arenaTitle: 'TIBER Test',

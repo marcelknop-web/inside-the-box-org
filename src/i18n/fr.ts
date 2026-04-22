@@ -133,6 +133,8 @@ export const fr = {
     assessDesc: 'Analyse des menaces, tests de pénétration et développement de concepts de sécurité.',
     incidentTitle: 'Gestion des incidents',
     incidentDesc: 'Planification de la réponse, détection et procédures de crise.',
+    bcmTitle: 'Gestion de la continuité (PCA)',
+    bcmDesc: 'ISO 22301 et BSI 200-4 : PCA/PRA, plans de secours et exercices de continuité qui tiennent en situation réelle.',
     crisisTitle: 'Gestion de cyber-crise',
     crisisDesc: 'Stratégie de crise et exercices de simulation.',
     arenaTitle: 'TIBER Test',

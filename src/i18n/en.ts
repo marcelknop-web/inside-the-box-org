@@ -133,6 +133,8 @@ export const en = {
     assessDesc: 'Threat analysis, penetration testing, and security concept development.',
     incidentTitle: 'Incident Management',
     incidentDesc: 'Response planning, detection, and crisis procedures.',
+    bcmTitle: 'Business Continuity (BCM)',
+    bcmDesc: 'ISO 22301 and BSI Standard 200-4: ISCPs, contingency plans, and emergency exercises that hold up.',
     crisisTitle: 'Cyber Crisis Management',
     crisisDesc: 'Crisis strategy and simulation exercises.',
     arenaTitle: 'TIBER Test',
