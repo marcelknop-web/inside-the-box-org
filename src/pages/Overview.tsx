@@ -1,9 +1,11 @@
 import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { Languages, ArrowRight } from 'lucide-react';
+import { Languages, ArrowRight, Linkedin, Mail } from 'lucide-react';
 import { PageMeta } from '@/components/PageMeta';
 import { useLanguage, nextLanguage } from '@/i18n/LanguageContext';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
+import { consultantProfiles } from '@/data/consultantProfiles';
 
 /**
  * /overview — Journey Map
@@ -126,6 +128,7 @@ const Overview = () => {
   const navigate = useNavigate();
   const [activeId, setActiveId] = useState<string>(PHASES[0].id);
   const [entered, setEntered] = useState<boolean>(false);
+  const [drawer, setDrawer] = useState<'team' | 'contact' | null>(null);
 
   const handleClick = useCallback((id: string) => navigate(`/${id}`), [navigate]);
 
@@ -169,21 +172,35 @@ const Overview = () => {
       </Helmet>
 
       {/* Top bar */}
-      <header className="flex items-center justify-between px-4 sm:px-6 py-4 sm:py-5 border-b border-primary/10">
+      <header className="flex items-center justify-between px-4 sm:px-6 py-4 sm:py-5 border-b border-primary/10 gap-3">
         <button
           onClick={() => navigate('/')}
-          className="font-mono text-[10px] tracking-[0.25em] sm:tracking-[0.3em] text-muted-foreground hover:text-primary transition-colors"
+          className="font-mono text-[10px] tracking-[0.25em] sm:tracking-[0.3em] text-muted-foreground hover:text-primary transition-colors whitespace-nowrap"
         >
           ← INSIDE-THE-BOX
         </button>
-        <button
-          onClick={() => setLanguage(nextLanguage(language))}
-          className="font-mono text-[10px] tracking-[0.25em] sm:tracking-[0.3em] text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"
-          aria-label="Language"
-        >
-          <Languages className="w-3 h-3" />
-          {language.toUpperCase()}
-        </button>
+        <div className="flex items-center gap-3 sm:gap-5">
+          <button
+            onClick={() => setDrawer('team')}
+            className="font-mono text-[10px] tracking-[0.25em] sm:tracking-[0.3em] text-muted-foreground hover:text-primary transition-colors"
+          >
+            {lang === 'de' ? 'TEAM' : lang === 'fr' ? 'ÉQUIPE' : 'TEAM'}
+          </button>
+          <button
+            onClick={() => setDrawer('contact')}
+            className="font-mono text-[10px] tracking-[0.25em] sm:tracking-[0.3em] text-muted-foreground hover:text-primary transition-colors"
+          >
+            {lang === 'de' ? 'KONTAKT' : 'CONTACT'}
+          </button>
+          <button
+            onClick={() => setLanguage(nextLanguage(language))}
+            className="font-mono text-[10px] tracking-[0.25em] sm:tracking-[0.3em] text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"
+            aria-label="Language"
+          >
+            <Languages className="w-3 h-3" />
+            {language.toUpperCase()}
+          </button>
+        </div>
       </header>
 
       {!entered ? (
@@ -454,6 +471,141 @@ const Overview = () => {
           </span>
         </div>
       </footer>
+
+      {/* Team Drawer */}
+      <Sheet open={drawer === 'team'} onOpenChange={(o) => !o && setDrawer(null)}>
+        <SheetContent
+          side="right"
+          className="w-full sm:max-w-2xl bg-background border-l border-primary/20 overflow-y-auto"
+        >
+          <SheetHeader className="text-left mb-8">
+            <div className="font-mono text-[11px] tracking-[0.35em] text-primary mb-3">/ TEAM</div>
+            <SheetTitle className="font-mono font-semibold text-2xl sm:text-3xl text-foreground">
+              {lang === 'de'
+                ? 'Wer hinter inside-the-box steht'
+                : lang === 'fr'
+                ? 'Qui se cache derrière inside-the-box'
+                : 'The people behind inside-the-box'}
+            </SheetTitle>
+            <SheetDescription className="font-sans text-sm text-muted-foreground leading-relaxed">
+              {lang === 'de'
+                ? 'Zwei Senior-Berater, gemeinsam über 25 Jahre Erfahrung in Cybersecurity, Compliance und Krisenmanagement.'
+                : lang === 'fr'
+                ? 'Deux consultants seniors, plus de 25 ans d\'expérience combinée en cybersécurité, conformité et gestion de crise.'
+                : 'Two senior consultants, 25+ combined years in cybersecurity, compliance and crisis management.'}
+            </SheetDescription>
+          </SheetHeader>
+
+          <div className="space-y-8">
+            {consultantProfiles.map((p) => (
+              <article key={p.name} className="bg-background/40 border border-primary/15 p-5">
+                <header className="flex items-start gap-4 mb-4">
+                  <img
+                    src={p.imageUrl}
+                    alt={p.name}
+                    className="w-16 h-16 rounded-full object-cover border border-primary/30"
+                    loading="lazy"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-mono font-semibold text-base text-foreground">{p.name}</h3>
+                    <p className="font-mono text-[11px] tracking-[0.15em] text-primary/80 uppercase mt-1">{p.role}</p>
+                    {p.linkedinUrl && (
+                      <a
+                        href={p.linkedinUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 font-mono text-[11px] text-muted-foreground hover:text-primary transition-colors mt-2"
+                      >
+                        <Linkedin className="w-3 h-3" />
+                        LinkedIn
+                      </a>
+                    )}
+                  </div>
+                </header>
+
+                {p.bio && (
+                  <p className="font-sans text-sm text-foreground/80 leading-relaxed mb-4">{p.bio}</p>
+                )}
+
+                <dl className="grid grid-cols-1 gap-3">
+                  {p.sections.map((s) => (
+                    <div key={s.title} className="border-t border-primary/10 pt-3">
+                      <dt className="font-mono text-[10px] tracking-[0.25em] text-primary/70 uppercase mb-1.5">
+                        {s.title}
+                      </dt>
+                      <dd className="font-sans text-[13px] text-foreground/85 leading-snug space-y-0.5">
+                        {s.items.map((item, i) => (
+                          <div key={i}>{item}</div>
+                        ))}
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
+              </article>
+            ))}
+          </div>
+        </SheetContent>
+      </Sheet>
+
+      {/* Contact Drawer */}
+      <Sheet open={drawer === 'contact'} onOpenChange={(o) => !o && setDrawer(null)}>
+        <SheetContent
+          side="right"
+          className="w-full sm:max-w-md bg-background border-l border-primary/20"
+        >
+          <SheetHeader className="text-left mb-8">
+            <div className="font-mono text-[11px] tracking-[0.35em] text-primary mb-3">/ CONTACT</div>
+            <SheetTitle className="font-mono font-semibold text-2xl sm:text-3xl text-foreground">
+              {lang === 'de' ? 'Sprechen wir.' : lang === 'fr' ? 'Parlons-en.' : 'Let\'s talk.'}
+            </SheetTitle>
+            <SheetDescription className="font-sans text-sm text-muted-foreground leading-relaxed">
+              {lang === 'de'
+                ? '30 Minuten, kein Pitch — eine erste Klärung, wo Sie stehen und was als Nächstes ansteht.'
+                : lang === 'fr'
+                ? '30 minutes, pas de pitch — une première clarification de votre situation et des prochaines étapes.'
+                : '30 minutes, no pitch — a first clarification of where you stand and what comes next.'}
+            </SheetDescription>
+          </SheetHeader>
+
+          <div className="space-y-3">
+            <a
+              href="mailto:marcel@inside-the-box.org"
+              className="group flex items-center justify-between gap-3 p-4 border border-primary/20 hover:border-primary bg-background/40 hover:bg-primary/5 transition-all"
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                <Mail className="w-4 h-4 text-primary flex-shrink-0" />
+                <div className="min-w-0">
+                  <div className="font-mono text-[10px] tracking-[0.25em] text-muted-foreground uppercase mb-0.5">Marcel Knop</div>
+                  <div className="font-mono text-sm text-foreground truncate">marcel@inside-the-box.org</div>
+                </div>
+              </div>
+              <ArrowRight className="w-4 h-4 text-primary/0 group-hover:text-primary transition-colors flex-shrink-0" />
+            </a>
+
+            <a
+              href="https://www.linkedin.com/in/inside-the-box"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group flex items-center justify-between gap-3 p-4 border border-primary/20 hover:border-primary bg-background/40 hover:bg-primary/5 transition-all"
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                <Linkedin className="w-4 h-4 text-primary flex-shrink-0" />
+                <div className="min-w-0">
+                  <div className="font-mono text-[10px] tracking-[0.25em] text-muted-foreground uppercase mb-0.5">LinkedIn</div>
+                  <div className="font-mono text-sm text-foreground">inside-the-box</div>
+                </div>
+              </div>
+              <ArrowRight className="w-4 h-4 text-primary/0 group-hover:text-primary transition-colors flex-shrink-0" />
+            </a>
+          </div>
+
+          <p className="font-mono text-[10px] tracking-[0.2em] text-muted-foreground/70 mt-12 leading-relaxed whitespace-pre-line">
+            {lang === 'de'
+              ? 'Marcel Knop · Andreas Funder\nBad Emstal, Deutschland'
+              : 'Marcel Knop · Andreas Funder\nBad Emstal, Germany'}
+          </p>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };
