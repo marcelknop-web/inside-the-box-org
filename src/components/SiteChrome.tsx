@@ -47,30 +47,32 @@ export const SiteChrome = ({
   return (
     <div className="min-h-screen w-full text-foreground flex flex-col">
       {/* Top bar */}
-      <header className="flex items-center justify-between px-4 sm:px-6 py-4 sm:py-5 border-b border-primary/10 gap-3">
-        <button
-          onClick={handleBrand}
-          className="flex-shrink-0 transition-opacity hover:opacity-80"
-          aria-label="inside-the-box"
-          style={{ transform: 'scale(1.6)', transformOrigin: 'left center' }}
-        >
-          <GeometricSymbol size="xs" />
-        </button>
-        <div className="flex items-center gap-6 sm:gap-8">
+      <header className="border-b border-primary/10">
+        <div className="max-w-6xl mx-auto flex items-center justify-between px-4 sm:px-6 py-4 sm:py-5 gap-3">
           <button
-            onClick={() => setDrawer('team')}
-            className="font-mono text-[10px] tracking-[0.25em] sm:tracking-[0.3em] text-muted-foreground hover:text-primary transition-colors"
+            onClick={handleBrand}
+            className="flex-shrink-0 transition-opacity hover:opacity-80"
+            aria-label="inside-the-box"
+            style={{ transform: 'scale(1.6)', transformOrigin: 'left center' }}
           >
-            {lang === 'de' ? 'TEAM' : lang === 'fr' ? 'ÉQUIPE' : 'TEAM'}
+            <GeometricSymbol size="xs" />
           </button>
-          <button
-            onClick={() => setLanguage(nextLanguage(language))}
-            className="font-mono text-[10px] tracking-[0.25em] sm:tracking-[0.3em] text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"
-            aria-label="Language"
-          >
-            <Languages className="w-3 h-3" />
-            {language.toUpperCase()}
-          </button>
+          <div className="flex items-center gap-6 sm:gap-8">
+            <button
+              onClick={() => setDrawer('team')}
+              className="font-mono text-[10px] tracking-[0.25em] sm:tracking-[0.3em] text-muted-foreground hover:text-primary transition-colors"
+            >
+              {lang === 'de' ? 'TEAM' : lang === 'fr' ? 'ÉQUIPE' : 'TEAM'}
+            </button>
+            <button
+              onClick={() => setLanguage(nextLanguage(language))}
+              className="font-mono text-[10px] tracking-[0.25em] sm:tracking-[0.3em] text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"
+              aria-label="Language"
+            >
+              <Languages className="w-3 h-3" />
+              {language.toUpperCase()}
+            </button>
+          </div>
         </div>
       </header>
 
