@@ -154,7 +154,9 @@ const PhasesPreview = ({
   lang: 'en' | 'de' | 'fr';
 }) => (
   <div className="relative w-full max-w-2xl mx-auto pt-2 pb-4">
-    <ul className="grid grid-cols-5 gap-2 sm:gap-2 relative">
+    {/* Mobile: 3 columns (auto-wraps to 2 rows) — emphasises equal rank,
+        gives each label real breathing room. Desktop keeps 5-in-a-row. */}
+    <ul className="grid grid-cols-3 sm:grid-cols-5 gap-x-3 gap-y-3 sm:gap-2">
       {phases.map((phase) => (
         <li key={phase.id} className="relative flex flex-col items-center text-center min-w-0">
           {/* Diamond marker — pure symbol, no number (all phases are equal-rank). */}
@@ -164,9 +166,8 @@ const PhasesPreview = ({
               aria-hidden
             />
           </span>
-          {/* Label — equal-rank text under each diamond.
-              Lowercase on mobile so longer DE/FR words fit narrow grid cells. */}
-          <span className="font-mono text-[8px] sm:text-[9px] tracking-tight sm:tracking-[0.18em] text-muted-foreground/70 leading-[1.15] px-0 lowercase sm:normal-case">
+          {/* Label — equal-rank text under each diamond. */}
+          <span className="font-mono text-[10px] sm:text-[9px] tracking-[0.1em] sm:tracking-[0.18em] text-muted-foreground/70 leading-[1.15] w-full px-0">
             {phase.title[lang]}
           </span>
         </li>
