@@ -1,12 +1,10 @@
 import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { Languages, ArrowRight, Linkedin, Mail, Phone } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { PageMeta } from '@/components/PageMeta';
-import { useLanguage, nextLanguage } from '@/i18n/LanguageContext';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
-import { GeometricSymbol } from '@/components/GeometricSymbol';
-import { consultantProfiles } from '@/data/consultantProfiles';
+import { useLanguage } from '@/i18n/LanguageContext';
+import { SiteChrome } from '@/components/SiteChrome';
 
 /**
  * /overview — Journey Map
