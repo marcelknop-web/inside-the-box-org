@@ -338,32 +338,28 @@ const Overview = () => {
       {/* Timeline (desktop) */}
       <section className="hidden md:block px-6 pb-4 max-w-6xl mx-auto w-full">
         <div className="relative pt-2">
-          <ol className="grid grid-cols-5 relative">
+          <ol className="grid grid-cols-5 relative gap-0">
             {PHASES.map((phase, idx) => {
               const isActive = phase.id === activeId;
               return (
-                <li key={phase.id} className="relative flex flex-col items-center">
+                <li key={phase.id} className="relative flex flex-col items-center min-w-0">
                   {/* Connector segment between diamonds — drawn from previous node center to this node's outer-left edge.
-                      Diamond half-width: 22px (44px diamond). */}
+                      Diamond half-width: 18px mobile (36px diamond), 22px desktop (44px diamond). */}
                   {idx > 0 && (
                     <span
-                      className="absolute h-px bg-primary/25 pointer-events-none top-[26px]"
-                      style={{
-                        right: 'calc(50% + 22px)',
-                        left: 'calc(-50% + 22px)',
-                      }}
+                      className="absolute h-px bg-primary/25 pointer-events-none top-[22px] sm:top-[26px] right-[calc(50%+18px)] left-[calc(-50%+18px)] sm:right-[calc(50%+22px)] sm:left-[calc(-50%+22px)]"
                       aria-hidden
                     />
                   )}
                   <button
                     onClick={() => setActiveId(phase.id)}
-                    className="group flex flex-col items-center gap-4 text-center w-full px-2"
+                    className="group flex flex-col items-center gap-2 sm:gap-4 text-center w-full px-0.5 sm:px-2"
                     aria-current={isActive ? 'step' : undefined}
                   >
-                    {/* Node */}
-                    <span className="relative flex items-center justify-center w-[52px] h-[52px] z-10">
+                    {/* Node — smaller on mobile so labels have room */}
+                    <span className="relative flex items-center justify-center w-[44px] h-[44px] sm:w-[52px] sm:h-[52px] z-10">
                       <span
-                        className={`absolute inset-0 m-auto w-[44px] h-[44px] rotate-45 border bg-background transition-all duration-300 ease-out ${
+                        className={`absolute inset-0 m-auto w-[36px] h-[36px] sm:w-[44px] sm:h-[44px] rotate-45 border bg-background transition-all duration-300 ease-out ${
                           isActive
                             ? 'border-primary bg-primary/10 phase-node-active'
                             : 'border-primary/50 group-hover:border-primary group-hover:scale-110 group-hover:bg-primary/5 group-hover:shadow-[0_0_18px_-6px_hsl(var(--primary)/0.55)]'
@@ -372,17 +368,17 @@ const Overview = () => {
                       />
                       <span
                         key={isActive ? `n-${phase.id}-active` : `n-${phase.id}`}
-                        className={`relative font-mono text-[11px] tracking-[0.15em] transition-colors duration-300 ${
+                        className={`relative font-mono text-[10px] sm:text-[11px] tracking-[0.1em] sm:tracking-[0.15em] transition-colors duration-300 ${
                           isActive ? 'text-primary' : 'text-muted-foreground group-hover:text-primary'
                         }`}
                       >
                         {phase.number}
                       </span>
                     </span>
-                    {/* Label */}
+                    {/* Label — single line on mobile via tighter tracking & smaller size */}
                     <span
                       key={isActive ? `l-${phase.id}-active` : `l-${phase.id}`}
-                      className={`font-mono text-[11px] tracking-[0.3em] transition-colors duration-300 whitespace-nowrap ${
+                      className={`font-mono text-[9px] sm:text-[11px] tracking-[0.05em] sm:tracking-[0.3em] leading-tight transition-colors duration-300 whitespace-nowrap ${
                         isActive
                           ? 'text-primary phase-label-emphasis'
                           : 'text-muted-foreground group-hover:text-primary/90'
