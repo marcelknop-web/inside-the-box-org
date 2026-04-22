@@ -645,7 +645,7 @@ export const en = {
     heroClaim: 'Analysis · Implementation · Training · Audit',
     heroConsulting: 'Cyber-Resilience Consulting',
     heroQualifier: 'For regulated organisations in finance, industry and critical infrastructure.',
-    heroByline: 'By Marcel Knop and Andreas Funder.',
+    heroByline: 'Marcel Knop and Andreas Funder.',
     heroSignature: 'Marcel Knop · Andreas Funder',
     heroCta: 'Where do you stand right now?',
     intro: '',
