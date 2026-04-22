@@ -159,16 +159,16 @@ const Overview = () => {
       </Helmet>
 
       {/* Top bar */}
-      <header className="flex items-center justify-between px-6 py-5 border-b border-primary/10">
+      <header className="flex items-center justify-between px-4 sm:px-6 py-4 sm:py-5 border-b border-primary/10">
         <button
           onClick={() => navigate('/')}
-          className="font-mono text-[10px] tracking-[0.3em] text-muted-foreground hover:text-primary transition-colors"
+          className="font-mono text-[10px] tracking-[0.25em] sm:tracking-[0.3em] text-muted-foreground hover:text-primary transition-colors"
         >
           ← INSIDE-THE-BOX
         </button>
         <button
           onClick={() => setLanguage(nextLanguage(language))}
-          className="font-mono text-[10px] tracking-[0.3em] text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"
+          className="font-mono text-[10px] tracking-[0.25em] sm:tracking-[0.3em] text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"
           aria-label="Language"
         >
           <Languages className="w-3 h-3" />
@@ -177,12 +177,12 @@ const Overview = () => {
       </header>
 
       {/* Headline */}
-      <section className="px-6 pt-12 pb-8 max-w-6xl mx-auto w-full">
-        <div className="font-mono text-[10px] tracking-[0.35em] text-primary mb-4">{sectionLabel}</div>
-        <h1 className="font-mono font-semibold text-3xl md:text-5xl leading-[1.05] tracking-[-0.01em] text-foreground mb-4">
+      <section className="px-4 sm:px-6 pt-8 sm:pt-12 pb-6 sm:pb-8 max-w-6xl mx-auto w-full">
+        <div className="font-mono text-[10px] tracking-[0.3em] sm:tracking-[0.35em] text-primary mb-3 sm:mb-4">{sectionLabel}</div>
+        <h1 className="font-mono font-semibold text-[26px] leading-[1.1] sm:text-3xl md:text-5xl sm:leading-[1.05] tracking-[-0.01em] text-foreground mb-3 sm:mb-4">
           {headline}
         </h1>
-        <p className="font-sans text-base md:text-lg text-muted-foreground max-w-2xl leading-snug">
+        <p className="font-sans text-sm sm:text-base md:text-lg text-muted-foreground max-w-2xl leading-snug">
           {subline}
         </p>
       </section>
