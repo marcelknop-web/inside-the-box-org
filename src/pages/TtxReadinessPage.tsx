@@ -10,17 +10,26 @@ import {
 } from '@/data/ttxReadinessData';
 
 const I18N = {
-  pageTitle: { de: 'TTX Readiness · DORA & NIS-2', en: 'TTX Readiness · DORA & NIS-2', fr: 'TTX Readiness · DORA & NIS-2' } as L,
+  pageTitle: {
+    de: 'TTX Readiness Self-Assessment',
+    en: 'TTX Readiness Self-Assessment',
+    fr: 'Self-Assessment TTX Readiness',
+  } as L,
+  pageSubtitle: {
+    de: 'Wie reif ist Ihre Trainingsorganisation gegenüber DORA und NIS-2?',
+    en: 'How mature is your training organisation against DORA and NIS-2?',
+    fr: 'Quelle est la maturité de votre organisation de formation face à DORA et NIS-2 ?',
+  } as L,
   metaDesc: {
-    de: 'Self-Assessment für Tabletop-Exercise-Programme nach DORA und NIS-2. Acht Dimensionen, Reifegrad-Score, visuelle Auswertung.',
-    en: 'Self-assessment for tabletop exercise programmes under DORA and NIS-2. Eight dimensions, maturity score, visual analysis.',
-    fr: 'Self-assessment des programmes de tabletop sous DORA et NIS-2. Huit dimensions, score de maturité, analyse visuelle.',
+    de: 'Quick-Check zur Selbstbewertung: Wie gut erfüllt Ihre Trainingsorganisation die Anforderungen von DORA und NIS-2 an Tabletop-Exercises? Acht Dimensionen, Reifegrad-Score, Top-3-Schwächen.',
+    en: 'Self-assessment quick-check: how well does your training organisation meet DORA and NIS-2 requirements for tabletop exercises? Eight dimensions, maturity score, top-3 gaps.',
+    fr: 'Quick-check d\'auto-évaluation : votre organisation de formation répond-elle aux exigences de DORA et NIS-2 sur les tabletops ? Huit dimensions, score de maturité, 3 lacunes prioritaires.',
   } as L,
   back: { de: 'Zurück', en: 'Back', fr: 'Retour' } as L,
   intro: {
-    de: 'Acht Dimensionen, die Aufsicht und Auditoren unter DORA und NIS-2 erwarten. ~10 Minuten. Bewertung am Ende: Reifegrad, Radar, Top-3-Schwächen mit konkreten Empfehlungen.',
-    en: 'Eight dimensions that supervisors and auditors expect under DORA and NIS-2. ~10 minutes. Final scoring: maturity, radar, top-3 gaps with concrete recommendations.',
-    fr: 'Huit dimensions attendues par les superviseurs et auditeurs sous DORA et NIS-2. ~10 minutes. Bilan final : maturité, radar, 3 lacunes prioritaires avec recommandations concrètes.',
+    de: 'Ein Self-Assessment Quick-Check für Verantwortliche von Krisen- und Tabletop-Trainings: In ~10 Minuten prüfen Sie über acht Dimensionen, wie auditfest Ihr TTX-Programm gegenüber DORA Art. 24–25 und NIS-2 Art. 21 aufgestellt ist. Ergebnis: Reifegrad-Score, Radar pro Dimension und die drei dringendsten Schwächen mit konkreten Empfehlungen.',
+    en: 'A self-assessment quick-check for owners of crisis and tabletop training: in ~10 minutes you assess across eight dimensions how audit-ready your TTX programme is against DORA Art. 24–25 and NIS-2 Art. 21. Result: maturity score, per-dimension radar, and the three most urgent gaps with concrete recommendations.',
+    fr: 'Un quick-check d\'auto-évaluation pour les responsables des entraînements de crise et tabletop : en ~10 minutes, vous évaluez sur huit dimensions la maturité auditable de votre programme TTX face à DORA Art. 24–25 et NIS-2 Art. 21. Résultat : score de maturité, radar par dimension et les trois lacunes les plus urgentes avec recommandations concrètes.',
   } as L,
   scaleHeader: { de: 'Skala', en: 'Scale', fr: 'Échelle' } as L,
   scale0: { de: 'Nicht zutreffend', en: 'Does not apply', fr: 'Non applicable' } as L,
@@ -143,7 +152,8 @@ export default function TtxReadinessPage() {
           <h1 className="text-2xl md:text-3xl font-bold text-primary font-mono">
             <Typewriter text={t(I18N.pageTitle)} charDelay={6} />
           </h1>
-          <p className="text-foreground/80 text-sm md:text-base font-sans leading-relaxed">{t(I18N.intro)}</p>
+          <p className="text-foreground/90 text-base md:text-lg font-mono leading-snug">{t(I18N.pageSubtitle)}</p>
+          <p className="text-foreground/70 text-sm md:text-base font-sans leading-relaxed pt-1">{t(I18N.intro)}</p>
         </header>
 
         {/* Why TTX matter — based on NIS-2 liability framing */}
