@@ -777,7 +777,7 @@ const Overview = () => {
           </DialogDescription>
 
           <p
-            className="font-sans text-[12px] sm:text-[13px] text-muted-foreground max-w-2xl leading-snug mb-5 sm:mb-6 opacity-0 animate-fade-in"
+            className="font-sans text-[13px] sm:text-sm text-muted-foreground max-w-2xl leading-snug mb-5 sm:mb-6 opacity-0 animate-fade-in"
             style={{ animationDelay: '260ms', animationFillMode: 'forwards' }}
           >
             {referenceSubline}
@@ -792,14 +792,14 @@ const Overview = () => {
                 className="min-w-0 opacity-0 animate-fade-in"
                 style={{ animationDelay: `${360 + idx * 80}ms`, animationFillMode: 'forwards' }}
               >
-                <div className="font-mono text-[9px] tracking-[0.24em] text-primary/80 mb-1.5 pb-1 border-b border-primary/15">
+                <div className="font-mono text-[10px] tracking-[0.24em] text-primary/80 mb-1.5 pb-1 border-b border-primary/15">
                   {cluster.label[lang].toUpperCase()}
                 </div>
                 <ul className="flex flex-wrap gap-x-3 gap-y-0.5">
                   {cluster.clients.map((client) => (
                     <li
                       key={client}
-                      className="font-mono text-[11px] sm:text-[11.5px] tracking-[0.01em] text-foreground/85 leading-snug"
+                      className="font-mono text-[12px] sm:text-[13px] tracking-[0.01em] text-foreground/85 leading-snug"
                     >
                       {client}
                     </li>
@@ -811,7 +811,7 @@ const Overview = () => {
 
           {/* Highlight-Mandate: kuratierte aktuelle/strategische Projekte */}
           <div
-            className="font-mono text-[9px] tracking-[0.24em] text-primary/80 mb-2 pb-1 border-b border-primary/15 opacity-0 animate-fade-in"
+            className="font-mono text-[10px] tracking-[0.24em] text-primary/80 mb-2 pb-1 border-b border-primary/15 opacity-0 animate-fade-in"
             style={{ animationDelay: '780ms', animationFillMode: 'forwards' }}
           >
             {lang === 'de'
@@ -820,7 +820,7 @@ const Overview = () => {
               ? 'MANDATS SÉLECTIONNÉS'
               : 'SELECTED MANDATES'}
           </div>
-          <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-1 mb-3">
+          <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-1.5 mb-3">
             {highlightMandates.map((mandate, idx) => (
               <li
                 key={mandate.tag}
@@ -828,14 +828,14 @@ const Overview = () => {
                 style={{ animationDelay: `${860 + idx * 50}ms`, animationFillMode: 'forwards' }}
               >
                 <span
-                  className="inline-block w-1 h-1 mt-[6px] rotate-45 border border-primary/60 flex-shrink-0"
+                  className="inline-block w-1 h-1 mt-[7px] rotate-45 border border-primary/60 flex-shrink-0"
                   aria-hidden
                 />
                 <div className="min-w-0 flex-1">
-                  <span className="font-mono text-[9px] tracking-[0.16em] text-primary/90 mr-1.5 uppercase">
+                  <span className="font-mono text-[10px] tracking-[0.16em] text-primary/90 mr-1.5 uppercase">
                     {mandate.tag}
                   </span>
-                  <span className="font-sans text-[12px] text-foreground/90 leading-snug">
+                  <span className="font-sans text-[13px] sm:text-sm text-foreground/90 leading-snug">
                     {mandate.text[lang]}
                   </span>
                 </div>
@@ -844,7 +844,7 @@ const Overview = () => {
           </ul>
 
           <p
-            className="font-mono text-[9px] tracking-[0.16em] text-muted-foreground/70 italic opacity-0 animate-fade-in"
+            className="font-mono text-[11px] tracking-[0.12em] text-muted-foreground/70 italic opacity-0 animate-fade-in"
             style={{ animationDelay: '1280ms', animationFillMode: 'forwards' }}
           >
             {referenceFootnote}
