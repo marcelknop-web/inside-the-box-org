@@ -212,7 +212,7 @@ export const SiteChrome = ({
           className="w-full sm:max-w-md bg-background/85 backdrop-blur-md border-l border-primary/20"
         >
           <SheetHeader className="text-left mb-8">
-            <div className="font-mono text-[11px] tracking-[0.35em] text-primary mb-3">/ CONTACT</div>
+            <div className="font-mono text-[11px] tracking-[0.35em] text-primary mb-3">{lang === 'de' ? '/ KONTAKT' : '/ CONTACT'}</div>
             <SheetTitle className="font-mono font-semibold text-2xl sm:text-3xl text-foreground">
               {lang === 'de' ? 'Sprechen wir.' : lang === 'fr' ? 'Parlons-en.' : 'Let\'s talk.'}
             </SheetTitle>
@@ -314,7 +314,7 @@ export const SiteChrome = ({
             {/* Contact */}
             <div className="bg-card/40 rounded-xl px-5 py-4 font-sans text-[15px] text-foreground/85 leading-relaxed">
               <h3 className="font-mono text-[11px] tracking-[0.3em] text-primary/80 uppercase mb-3">
-                {lang === 'fr' ? 'Contact' : 'Kontakt'}
+                {lang === 'de' ? 'Kontakt' : 'Contact'}
               </h3>
               <div className="space-y-1">
                 <div>
