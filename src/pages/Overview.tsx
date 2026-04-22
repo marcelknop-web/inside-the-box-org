@@ -5,6 +5,16 @@ import { ArrowRight } from 'lucide-react';
 import { PageMeta } from '@/components/PageMeta';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { SiteChrome } from '@/components/SiteChrome';
+import { ServiceSymbol, type ServiceTheme } from '@/components/ServiceSymbol';
+
+/** Mapping: Phase-ID → ServiceSymbol-Theme für die Diamant-Marker. */
+const PHASE_SYMBOLS: Record<string, ServiceTheme> = {
+  understand: 'phase-understand',
+  comply: 'phase-comply',
+  govern: 'phase-govern',
+  train: 'phase-train',
+  respond: 'phase-respond',
+};
 
 /**
  * /overview — Journey Map
