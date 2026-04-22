@@ -427,6 +427,8 @@ const Overview = () => {
           })}
         </ol>
       </section>
+        </>
+      )}
 
       {/* Footer */}
       <footer className="border-t border-primary/10 bg-background/40 backdrop-blur-sm">
