@@ -60,7 +60,11 @@ const PHASES: Phase[] = [
     id: 'understand',
     number: '01',
     title: { en: 'UNDERSTAND', de: 'VERSTEHEN', fr: 'COMPRENDRE' },
-    verb: { en: 'Your current maturity', de: 'Ihr aktueller Reifegrad', fr: 'Votre niveau de maturité actuel' },
+    verb: {
+      en: 'Robust situational picture and clear priorities as a basis for decisions',
+      de: 'Belastbares Lagebild und klare Prioritäten als Entscheidungsgrundlage',
+      fr: 'Vision claire de la situation et priorités pour décider en connaissance de cause',
+    },
     description: {
       en: 'Position, situation, gap — before anything else gets planned.',
       de: 'Standortbestimmung, Lagebild, Gap-Analyse — bevor irgendetwas geplant wird.',
@@ -76,9 +80,9 @@ const PHASES: Phase[] = [
     number: '02',
     title: { en: 'ALIGN', de: 'AUSRICHTEN', fr: 'ALIGNER' },
     verb: {
-      en: 'Meet regulations with confidence',
-      de: 'Regulatorische Anforderungen sicher erfüllen',
-      fr: 'Répondre aux exigences réglementaires avec assurance',
+      en: 'Structured programmes and clear target pictures up to audit readiness',
+      de: 'Strukturierte Programme und klare Zielbilder bis zur Audit-Reife',
+      fr: 'Programmes structurés et cibles claires jusqu\'à la maturité d\'audit',
     },
     description: {
       en: 'Strategic guidance and structured programmes that get you audit-ready.',
@@ -96,9 +100,9 @@ const PHASES: Phase[] = [
     number: '03',
     title: { en: 'LEAD', de: 'FÜHREN', fr: 'DIRIGER' },
     verb: {
-      en: 'Steer security effectively',
-      de: 'Security wirksam steuern',
-      fr: 'Piloter la sécurité avec efficacité',
+      en: 'Clear responsibilities and effective governance models',
+      de: 'Klare Verantwortlichkeiten und wirksame Steuerungsmodelle',
+      fr: 'Responsabilités claires et modèles de pilotage efficaces',
     },
     description: {
       en: 'Fractional CISO leadership and pragmatic operating models for lean security teams.',
@@ -116,9 +120,9 @@ const PHASES: Phase[] = [
     number: '04',
     title: { en: 'TRAIN', de: 'TRAINIEREN', fr: 'ENTRAÎNER' },
     verb: {
-      en: 'Prepared when it matters',
-      de: 'Vorbereitet, wenn es darauf ankommt',
-      fr: 'Prêt quand cela compte',
+      en: 'Realistic exercises for resilient decisions under pressure',
+      de: 'Realitätsnahe Übungen für belastbare Entscheidungen unter Druck',
+      fr: 'Exercices réalistes pour des décisions solides sous pression',
     },
     description: {
       en: 'Tabletop exercises and hands-on training built for real-world pressure.',
@@ -136,9 +140,9 @@ const PHASES: Phase[] = [
     number: '05',
     title: { en: 'RESPOND', de: 'REAGIEREN', fr: 'RÉAGIR' },
     verb: {
-      en: 'Lead safely through cyber incidents',
-      de: 'Sicher durch Cybervorfälle führen',
-      fr: 'Piloter sereinement à travers les cyber-incidents',
+      en: 'Structured incident and crisis management under real adversarial pressure',
+      de: 'Strukturiertes Incident- und Krisenmanagement unter realem Angriffsdruck',
+      fr: 'Gestion d\'incident et de crise structurée sous pression adverse réelle',
     },
     description: {
       en: 'Crisis management and incident response under real adversarial pressure.',
