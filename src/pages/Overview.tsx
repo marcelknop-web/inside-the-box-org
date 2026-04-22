@@ -569,7 +569,7 @@ const Overview = () => {
 
 
       {/* Active phase detail (desktop) */}
-      <section className="hidden md:block flex-1 px-6 py-10 max-w-6xl mx-auto w-full">
+      <section className="hidden md:block flex-1 px-6 py-6 max-w-6xl mx-auto w-full">
         <div
           key={active.id}
           className="grid grid-cols-12 gap-8 bg-background/60 backdrop-blur-[2px] border border-primary/15 p-8 animate-fade-in"
