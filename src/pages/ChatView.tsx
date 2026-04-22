@@ -1812,12 +1812,44 @@ const ChatView = () => {
   // Service sub-pages reachable from the new homepage use the shared SiteChrome
   // (top bar + footer + Team/Contact drawers) for a unified brand surface.
   if (activeService) {
+    // Resolve current service label for the sheet header (falls back to nav.contact label etc.)
+    const activeServiceLabel =
+      sidebarGroups.flatMap(g => g.items).find(i => i.id === activeService)?.label ?? '';
+    // Close = back to journey-map. Brand-link convention: pass skipHero so the
+    // hero-opener does NOT replay; user lands directly on the journey overview.
+    const closeToJourney = () => navigate('/', { state: { skipHero: true } });
+    const closeLabel = language === 'de' ? 'Schließen' : language === 'fr' ? 'Fermer' : 'Close';
+
     return (
       <SiteChrome>
         <PageMeta title="inside-the-box" description="Cybersecurity Navigator" />
         <main className="flex-1 flex flex-col min-w-0 relative">
           <div ref={contentAreaRef} className="flex-1 overflow-y-auto" style={{ contain: 'layout style' }}>
-            <div className="w-full px-3 md:px-6 lg:px-10 py-4 md:py-6 pb-20 space-y-4 max-w-5xl mx-auto">
+            {/* Sheet-styled service surface — visually consistent with the
+                Team / Contact drawers (bg-background/85, backdrop-blur, brand
+                border, prominent close-X). Wraps the existing content stream
+                without changing any service rendering logic. */}
+            <div className="w-full px-3 md:px-6 lg:px-10 py-4 md:py-6 max-w-5xl mx-auto">
+              <section
+                aria-label={activeServiceLabel}
+                className="bg-background/85 backdrop-blur-md border border-primary/20 rounded-lg shadow-[0_8px_40px_-12px_hsl(var(--primary)/0.25)]"
+              >
+                {/* Sheet header — matches drawer header treatment */}
+                <header className="flex items-start justify-between gap-3 px-4 sm:px-6 pt-5 sm:pt-6 pb-4 border-b border-primary/10">
+                  <div className="min-w-0">
+                    <div className="font-mono text-[10px] sm:text-[11px] tracking-[0.3em] sm:tracking-[0.35em] text-primary mb-1.5">
+                      / {activeServiceLabel.toUpperCase()}
+                    </div>
+                  </div>
+                  <button
+                    onClick={closeToJourney}
+                    aria-label={closeLabel}
+                    className="flex-shrink-0 -mt-1 -mr-1 p-2 rounded-sm text-muted-foreground hover:text-primary focus-visible:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background transition-colors"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </header>
+                <div className="px-4 sm:px-6 lg:px-10 py-5 md:py-6 pb-20 space-y-4">
               {serviceContent && (() => {
                 if (activeService === 'crisis-sim' || activeService === 'elite-ship') {
                   return <div className="flex-1 min-w-0">{serviceContent}</div>;
