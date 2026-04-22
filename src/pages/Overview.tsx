@@ -476,7 +476,7 @@ const Overview = () => {
       <Sheet open={drawer === 'team'} onOpenChange={(o) => !o && setDrawer(null)}>
         <SheetContent
           side="right"
-          className="w-full sm:max-w-2xl bg-background border-l border-primary/20 overflow-y-auto"
+          className="w-full sm:max-w-2xl bg-background/85 backdrop-blur-md border-l border-primary/20 overflow-y-auto"
         >
           <SheetHeader className="text-left mb-8">
             <div className="font-mono text-[11px] tracking-[0.35em] text-primary mb-3">/ TEAM</div>
@@ -551,7 +551,7 @@ const Overview = () => {
       <Sheet open={drawer === 'contact'} onOpenChange={(o) => !o && setDrawer(null)}>
         <SheetContent
           side="right"
-          className="w-full sm:max-w-md bg-background border-l border-primary/20"
+          className="w-full sm:max-w-md bg-background/85 backdrop-blur-md border-l border-primary/20"
         >
           <SheetHeader className="text-left mb-8">
             <div className="font-mono text-[11px] tracking-[0.35em] text-primary mb-3">/ CONTACT</div>
