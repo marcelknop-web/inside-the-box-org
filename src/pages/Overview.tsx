@@ -346,9 +346,9 @@ const Overview = () => {
                 </defs>
                 <text
                   fontFamily="'IBM Plex Mono', monospace"
-                  fontSize={26}
+                  fontSize={fs.process}
                   fontWeight={500}
-                  letterSpacing={7}
+                  letterSpacing={fs.processTrack}
                   fill={GOLD}
                   fillOpacity={0.85}
                   textRendering="geometricPrecision"
