@@ -24,7 +24,13 @@ export type ServiceTheme =
   | 'events-workshops'
   | 'publications'
   | 'virtual-ciso'
-  | 'ai-workflows';
+  | 'ai-workflows'
+  /* Journey-Map-Phasen (Overview) */
+  | 'phase-understand'
+  | 'phase-comply'
+  | 'phase-govern'
+  | 'phase-train'
+  | 'phase-respond';
 
 interface ServiceSymbolProps extends Omit<SVGProps<SVGSVGElement>, 'children'> {
   theme: ServiceTheme;
