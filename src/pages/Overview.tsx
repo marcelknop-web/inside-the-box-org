@@ -413,11 +413,9 @@ const Overview = () => {
         </div>
       </section>
 
-      {/* Mobile vertical stepper */}
+      {/* Mobile vertical list — equal-rank phases, no sequence indicator */}
       <section className="md:hidden flex-1 px-4 pb-10 max-w-6xl mx-auto w-full">
-        <ol className="relative">
-          {/* Vertical connector */}
-          <div className="absolute left-4 top-3 bottom-3 w-px bg-primary/20" aria-hidden />
+        <ul className="relative">
           {PHASES.map((phase) => {
             const isActive = phase.id === activeId;
             return (
@@ -427,26 +425,15 @@ const Overview = () => {
                   className="absolute left-0 top-0 flex items-center justify-center w-8 h-8 group/node"
                   aria-expanded={isActive}
                 >
-                  {/* Mask layer — solid bg blocks the vertical connector line under the diamond */}
+                  {/* Diamond marker — pure symbol, no number */}
                   <span
-                    className="absolute inset-0 m-auto w-8 h-8 rotate-45 bg-background"
-                    aria-hidden
-                  />
-                  <span
-                    className={`absolute inset-0 m-auto w-8 h-8 rotate-45 border transition-all duration-300 ${
+                    className={`absolute inset-0 m-auto w-5 h-5 rotate-45 border transition-all duration-300 ${
                       isActive
                         ? 'border-primary bg-primary/10 phase-node-active'
                         : 'border-primary/40 group-hover/node:border-primary group-hover/node:bg-primary/5'
                     }`}
                     aria-hidden
                   />
-                  <span
-                    className={`relative font-mono text-[10px] tracking-[0.15em] transition-colors ${
-                      isActive ? 'text-primary' : 'text-muted-foreground group-hover/node:text-primary'
-                    }`}
-                  >
-                    {phase.number}
-                  </span>
                 </button>
 
                 <button
@@ -502,7 +489,7 @@ const Overview = () => {
               </li>
             );
           })}
-        </ol>
+        </ul>
       </section>
         </>
       )}
