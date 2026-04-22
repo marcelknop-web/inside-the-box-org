@@ -6,6 +6,7 @@ import { PageMeta } from '@/components/PageMeta';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { SiteChrome } from '@/components/SiteChrome';
 import { ServiceSymbol, type ServiceTheme } from '@/components/ServiceSymbol';
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 
 /** Mapping: Phase-ID → ServiceSymbol-Theme für die Diamant-Marker. */
 const PHASE_SYMBOLS: Record<string, ServiceTheme> = {
@@ -267,10 +268,10 @@ const Overview = () => {
 
   const headline =
     lang === 'de'
-      ? 'Cyber-Resilienz in fünf Schritten.'
+      ? 'Cyber-Resilienz in fünf Schritten'
       : lang === 'fr'
-      ? 'La cyber-résilience en cinq étapes.'
-      : 'Cyber-resilience in five steps.';
+      ? 'La cyber-résilience en cinq étapes'
+      : 'Cyber-resilience in five steps';
   const subline =
     lang === 'de'
       ? 'Wo stehen Sie gerade?'
@@ -756,72 +757,76 @@ const Overview = () => {
           </div>
         </button>
 
-        {/* Collapsible body — popt in derselben Card-Hülle auf wie das Phase-Detail
-            (bg-background/60, backdrop-blur, border-primary/15, p-8). */}
-        {referencesOpen && (
-          <div
-            key="references-detail"
-            className="mt-4 sm:mt-5 bg-background/60 backdrop-blur-[2px] border border-primary/15 p-6 sm:p-8 animate-fade-in"
-          >
-            <p className="font-sans text-[12px] sm:text-[13px] text-muted-foreground max-w-2xl leading-snug mb-5 sm:mb-6">
-              {referenceSubline}
-            </p>
-
-            {/* Branchen-Cluster: kategorisierte Kundennamen, rein typografisch.
-                Dichteres Grid (3 Spalten ab md) hält die Sektion auf einem Bildschirm sichtbar. */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-4 mb-6 sm:mb-7">
-              {referenceClusters.map((cluster) => (
-                <div key={cluster.label.en} className="min-w-0">
-                  <div className="font-mono text-[9px] tracking-[0.24em] text-primary/80 mb-1.5 pb-1 border-b border-primary/15">
-                    {cluster.label[lang].toUpperCase()}
-                  </div>
-                  <ul className="flex flex-wrap gap-x-3 gap-y-0.5">
-                    {cluster.clients.map((client) => (
-                      <li
-                        key={client}
-                        className="font-mono text-[11px] sm:text-[11.5px] tracking-[0.01em] text-foreground/85 leading-snug"
-                      >
-                        {client}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-
-            {/* Highlight-Mandate: kuratierte aktuelle/strategische Projekte */}
-            <div className="font-mono text-[9px] tracking-[0.24em] text-primary/80 mb-2 pb-1 border-b border-primary/15">
-              {lang === 'de'
-                ? 'AUSGEWÄHLTE MANDATE'
-                : lang === 'fr'
-                ? 'MANDATS SÉLECTIONNÉS'
-                : 'SELECTED MANDATES'}
-            </div>
-            <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-1 mb-3">
-              {highlightMandates.map((mandate) => (
-                <li key={mandate.tag} className="flex items-start gap-2 min-w-0">
-                  <span
-                    className="inline-block w-1 h-1 mt-[6px] rotate-45 border border-primary/60 flex-shrink-0"
-                    aria-hidden
-                  />
-                  <div className="min-w-0 flex-1">
-                    <span className="font-mono text-[9px] tracking-[0.16em] text-primary/90 mr-1.5 uppercase">
-                      {mandate.tag}
-                    </span>
-                    <span className="font-sans text-[12px] text-foreground/90 leading-snug">
-                      {mandate.text[lang]}
-                    </span>
-                  </div>
-                </li>
-              ))}
-            </ul>
-
-            <p className="font-mono text-[9px] tracking-[0.16em] text-muted-foreground/70 italic">
-              {referenceFootnote}
-            </p>
-          </div>
-        )}
       </section>
+
+      {/* References — modaler Dialog mit echtem Close (X), wie auf den anderen Themenseiten.
+          Der Trigger-Header darüber öffnet das Modal; geschlossen wird via X, Esc oder Overlay-Klick. */}
+      <Dialog open={referencesOpen} onOpenChange={setReferencesOpen}>
+        <DialogContent className="max-w-5xl w-[calc(100vw-2rem)] sm:w-full max-h-[90vh] overflow-y-auto bg-background/95 backdrop-blur-md border border-primary/20 p-6 sm:p-8">
+          <DialogTitle className="font-mono text-[10px] tracking-[0.3em] text-primary mb-1">
+            {referenceSectionLabel.replace('/ ', '')}
+          </DialogTitle>
+          <DialogDescription className="font-sans text-sm sm:text-base text-foreground/90 leading-snug mb-4">
+            {referenceHeadline}
+          </DialogDescription>
+
+          <p className="font-sans text-[12px] sm:text-[13px] text-muted-foreground max-w-2xl leading-snug mb-5 sm:mb-6">
+            {referenceSubline}
+          </p>
+
+          {/* Branchen-Cluster: kategorisierte Kundennamen, rein typografisch. */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-4 mb-6 sm:mb-7">
+            {referenceClusters.map((cluster) => (
+              <div key={cluster.label.en} className="min-w-0">
+                <div className="font-mono text-[9px] tracking-[0.24em] text-primary/80 mb-1.5 pb-1 border-b border-primary/15">
+                  {cluster.label[lang].toUpperCase()}
+                </div>
+                <ul className="flex flex-wrap gap-x-3 gap-y-0.5">
+                  {cluster.clients.map((client) => (
+                    <li
+                      key={client}
+                      className="font-mono text-[11px] sm:text-[11.5px] tracking-[0.01em] text-foreground/85 leading-snug"
+                    >
+                      {client}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+
+          {/* Highlight-Mandate: kuratierte aktuelle/strategische Projekte */}
+          <div className="font-mono text-[9px] tracking-[0.24em] text-primary/80 mb-2 pb-1 border-b border-primary/15">
+            {lang === 'de'
+              ? 'AUSGEWÄHLTE MANDATE'
+              : lang === 'fr'
+              ? 'MANDATS SÉLECTIONNÉS'
+              : 'SELECTED MANDATES'}
+          </div>
+          <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-1 mb-3">
+            {highlightMandates.map((mandate) => (
+              <li key={mandate.tag} className="flex items-start gap-2 min-w-0">
+                <span
+                  className="inline-block w-1 h-1 mt-[6px] rotate-45 border border-primary/60 flex-shrink-0"
+                  aria-hidden
+                />
+                <div className="min-w-0 flex-1">
+                  <span className="font-mono text-[9px] tracking-[0.16em] text-primary/90 mr-1.5 uppercase">
+                    {mandate.tag}
+                  </span>
+                  <span className="font-sans text-[12px] text-foreground/90 leading-snug">
+                    {mandate.text[lang]}
+                  </span>
+                </div>
+              </li>
+            ))}
+          </ul>
+
+          <p className="font-mono text-[9px] tracking-[0.16em] text-muted-foreground/70 italic">
+            {referenceFootnote}
+          </p>
+        </DialogContent>
+      </Dialog>
         </>
       )}
     </SiteChrome>
