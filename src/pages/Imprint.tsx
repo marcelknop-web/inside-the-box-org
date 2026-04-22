@@ -2,10 +2,16 @@ import { Helmet } from 'react-helmet-async';
 import { PageMeta } from '@/components/PageMeta';
 import { SiteChrome } from '@/components/SiteChrome';
 import { useLanguage } from '@/i18n/LanguageContext';
+import TypedSection from '@/components/TypedSection';
 
 /**
  * /impressum — Legal imprint + privacy notice.
  * Uses SiteChrome for shared header/footer/drawers.
+ *
+ * The page reuses the same TypedSection + StaggerReveal pattern as the
+ * service sub-pages (ChatView), so the title types in, then the intro,
+ * then the legal blocks reveal one after another. This keeps the entrance
+ * choreography identical across the journey.
  *
  * Link convention on this page (and across the site):
  *   • Inline prose links (email, phone, body links) ALWAYS carry an underline
@@ -51,6 +57,11 @@ const Imprint = () => {
   const sectionLabel =
     lang === 'de' ? '/ IMPRESSUM' : lang === 'fr' ? '/ MENTIONS LÉGALES' : '/ IMPRINT';
 
+  // Block style mirrors the bg-card/40 panels used on the service sub-pages
+  // so the visual rhythm matches once each block reveals.
+  const blockClass =
+    'bg-card/40 rounded-xl px-5 py-4 font-sans text-[15px] text-foreground/85 leading-relaxed';
+
   return (
     <SiteChrome>
       <PageMeta title={t('imprint.title')} description={t('imprint.metaDesc')} />
@@ -59,25 +70,17 @@ const Imprint = () => {
       </Helmet>
 
       <main className="flex-1 px-4 sm:px-6 py-10 sm:py-14 max-w-3xl mx-auto w-full">
-        <div
-          className="font-mono text-[11px] sm:text-[13px] tracking-[0.4em] text-primary mb-6 opacity-0 animate-fade-in"
-          style={{ animationDelay: '0ms', animationFillMode: 'forwards' }}
-        >
+        <div className="font-mono text-[11px] sm:text-[13px] tracking-[0.4em] text-primary mb-6">
           {sectionLabel}
         </div>
-        <h1
-          className="font-mono font-semibold text-3xl sm:text-4xl text-foreground leading-[1.1] mb-10 opacity-0 animate-fade-in"
-          style={{ animationDelay: '120ms', animationFillMode: 'forwards' }}
-        >
-          {t('imprint.title')}
-        </h1>
 
-        <div className="space-y-8 font-sans text-[15px] text-foreground/85 leading-relaxed">
+        <TypedSection
+          title={t('imprint.title')}
+          mode="typewriter"
+          intro={<p>{t('imprint.privacyIntro')}</p>}
+        >
           {/* Responsible */}
-          <section
-            className="opacity-0 animate-fade-in"
-            style={{ animationDelay: '240ms', animationFillMode: 'forwards' }}
-          >
+          <div className={blockClass}>
             <h2 className="font-mono text-[11px] tracking-[0.3em] text-primary/80 uppercase mb-3">
               {t('imprint.responsible')}
             </h2>
@@ -86,13 +89,10 @@ const Imprint = () => {
               <span className="block text-muted-foreground">inside-the-box.org</span>
               <span className="block text-muted-foreground">Bad Emstal, Deutschland</span>
             </p>
-          </section>
+          </div>
 
           {/* Contact */}
-          <section
-            className="opacity-0 animate-fade-in"
-            style={{ animationDelay: '320ms', animationFillMode: 'forwards' }}
-          >
+          <div className={blockClass}>
             <h2 className="font-mono text-[11px] tracking-[0.3em] text-primary/80 uppercase mb-3">
               {t('imprint.contactLabel')}
             </h2>
@@ -108,50 +108,37 @@ const Imprint = () => {
                 </a>
               </span>
             </p>
-          </section>
+          </div>
 
           {/* Disclaimer */}
-          <section
-            className="border-t border-primary/10 pt-6 opacity-0 animate-fade-in"
-            style={{ animationDelay: '400ms', animationFillMode: 'forwards' }}
-          >
+          <div className={blockClass}>
             <h2 className="font-mono text-[11px] tracking-[0.3em] text-primary/80 uppercase mb-3">
               {t('imprint.disclaimer')}
             </h2>
             <p>{t('imprint.disclaimerText')}</p>
-          </section>
+          </div>
 
           {/* Copyright */}
-          <section
-            className="border-t border-primary/10 pt-6 opacity-0 animate-fade-in"
-            style={{ animationDelay: '480ms', animationFillMode: 'forwards' }}
-          >
+          <div className={blockClass}>
             <h2 className="font-mono text-[11px] tracking-[0.3em] text-primary/80 uppercase mb-3">
               {t('imprint.copyright')}
             </h2>
             <p>{t('imprint.copyrightText')}</p>
-          </section>
+          </div>
 
           {/* Data protection — short notice */}
-          <section
-            className="border-t border-primary/10 pt-6 opacity-0 animate-fade-in"
-            style={{ animationDelay: '560ms', animationFillMode: 'forwards' }}
-          >
+          <div className={blockClass}>
             <h2 className="font-mono text-[11px] tracking-[0.3em] text-primary/80 uppercase mb-3">
               {t('imprint.dataProtection')}
             </h2>
             <p>{t('imprint.dataProtectionText')}</p>
-          </section>
+          </div>
 
-          {/* Privacy notice */}
-          <section
-            className="border-t border-primary/10 pt-8 mt-4 opacity-0 animate-fade-in"
-            style={{ animationDelay: '640ms', animationFillMode: 'forwards' }}
-          >
+          {/* Privacy notice — multi-section block */}
+          <div className={blockClass}>
             <h2 className="font-mono font-semibold text-2xl sm:text-3xl text-foreground leading-[1.1] mb-6">
               {t('imprint.privacyTitle')}
             </h2>
-            <p className="mb-6">{t('imprint.privacyIntro')}</p>
 
             <div className="space-y-5">
               <div>
@@ -185,19 +172,17 @@ const Imprint = () => {
                 <p>{renderWithEmailLink(t('imprint.privacyRights'))}</p>
               </div>
             </div>
-          </section>
+          </div>
 
-          <p
-            className="font-mono text-[11px] tracking-[0.18em] text-muted-foreground/70 pt-6 border-t border-primary/10 opacity-0 animate-fade-in"
-            style={{ animationDelay: '720ms', animationFillMode: 'forwards' }}
-          >
+          {/* Last updated footer line */}
+          <p className="font-mono text-[11px] tracking-[0.18em] text-muted-foreground/70 pt-2">
             {t('imprint.lastUpdatedPrefix')}{' '}
             {new Date(__BUILD_DATE__).toLocaleDateString(
               lang === 'de' ? 'de-DE' : lang === 'fr' ? 'fr-FR' : 'en-GB',
               { year: 'numeric', month: 'long', day: 'numeric' },
             )}
           </p>
-        </div>
+        </TypedSection>
       </main>
     </SiteChrome>
   );
