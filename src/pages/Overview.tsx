@@ -763,21 +763,35 @@ const Overview = () => {
           Der Trigger-Header darüber öffnet das Modal; geschlossen wird via X, Esc oder Overlay-Klick. */}
       <Dialog open={referencesOpen} onOpenChange={setReferencesOpen}>
         <DialogContent className="max-w-5xl w-[calc(100vw-2rem)] sm:w-full max-h-[90vh] overflow-y-auto bg-background/95 backdrop-blur-md border border-primary/20 p-6 sm:p-8">
-          <DialogTitle className="font-mono text-[10px] tracking-[0.3em] text-primary mb-1">
+          <DialogTitle
+            className="font-mono text-[10px] tracking-[0.3em] text-primary mb-1 opacity-0 animate-fade-in"
+            style={{ animationDelay: '60ms', animationFillMode: 'forwards' }}
+          >
             {referenceSectionLabel.replace('/ ', '')}
           </DialogTitle>
-          <DialogDescription className="font-sans text-sm sm:text-base text-foreground/90 leading-snug mb-4">
+          <DialogDescription
+            className="font-sans text-sm sm:text-base text-foreground/90 leading-snug mb-4 opacity-0 animate-fade-in"
+            style={{ animationDelay: '160ms', animationFillMode: 'forwards' }}
+          >
             {referenceHeadline}
           </DialogDescription>
 
-          <p className="font-sans text-[12px] sm:text-[13px] text-muted-foreground max-w-2xl leading-snug mb-5 sm:mb-6">
+          <p
+            className="font-sans text-[12px] sm:text-[13px] text-muted-foreground max-w-2xl leading-snug mb-5 sm:mb-6 opacity-0 animate-fade-in"
+            style={{ animationDelay: '260ms', animationFillMode: 'forwards' }}
+          >
             {referenceSubline}
           </p>
 
-          {/* Branchen-Cluster: kategorisierte Kundennamen, rein typografisch. */}
+          {/* Branchen-Cluster: kategorisierte Kundennamen, rein typografisch.
+              Jeder Cluster fährt mit leichter Verzögerung gestaffelt ein. */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-4 mb-6 sm:mb-7">
-            {referenceClusters.map((cluster) => (
-              <div key={cluster.label.en} className="min-w-0">
+            {referenceClusters.map((cluster, idx) => (
+              <div
+                key={cluster.label.en}
+                className="min-w-0 opacity-0 animate-fade-in"
+                style={{ animationDelay: `${360 + idx * 80}ms`, animationFillMode: 'forwards' }}
+              >
                 <div className="font-mono text-[9px] tracking-[0.24em] text-primary/80 mb-1.5 pb-1 border-b border-primary/15">
                   {cluster.label[lang].toUpperCase()}
                 </div>
@@ -796,7 +810,10 @@ const Overview = () => {
           </div>
 
           {/* Highlight-Mandate: kuratierte aktuelle/strategische Projekte */}
-          <div className="font-mono text-[9px] tracking-[0.24em] text-primary/80 mb-2 pb-1 border-b border-primary/15">
+          <div
+            className="font-mono text-[9px] tracking-[0.24em] text-primary/80 mb-2 pb-1 border-b border-primary/15 opacity-0 animate-fade-in"
+            style={{ animationDelay: '780ms', animationFillMode: 'forwards' }}
+          >
             {lang === 'de'
               ? 'AUSGEWÄHLTE MANDATE'
               : lang === 'fr'
@@ -804,8 +821,12 @@ const Overview = () => {
               : 'SELECTED MANDATES'}
           </div>
           <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-1 mb-3">
-            {highlightMandates.map((mandate) => (
-              <li key={mandate.tag} className="flex items-start gap-2 min-w-0">
+            {highlightMandates.map((mandate, idx) => (
+              <li
+                key={mandate.tag}
+                className="flex items-start gap-2 min-w-0 opacity-0 animate-fade-in"
+                style={{ animationDelay: `${860 + idx * 50}ms`, animationFillMode: 'forwards' }}
+              >
                 <span
                   className="inline-block w-1 h-1 mt-[6px] rotate-45 border border-primary/60 flex-shrink-0"
                   aria-hidden
@@ -822,7 +843,10 @@ const Overview = () => {
             ))}
           </ul>
 
-          <p className="font-mono text-[9px] tracking-[0.16em] text-muted-foreground/70 italic">
+          <p
+            className="font-mono text-[9px] tracking-[0.16em] text-muted-foreground/70 italic opacity-0 animate-fade-in"
+            style={{ animationDelay: '1280ms', animationFillMode: 'forwards' }}
+          >
             {referenceFootnote}
           </p>
         </DialogContent>
