@@ -166,7 +166,7 @@ const PhasesPreview = ({
           </span>
           {/* Label — equal-rank text under each diamond.
               Lowercase on mobile so longer DE/FR words fit narrow grid cells. */}
-          <span className="font-mono text-[8px] sm:text-[9px] tracking-tight sm:tracking-[0.18em] text-muted-foreground/70 leading-[1.15] w-full px-0 lowercase sm:normal-case whitespace-nowrap">
+          <span className="font-mono text-[8px] sm:text-[9px] tracking-tight sm:tracking-[0.18em] text-muted-foreground/70 leading-[1.15] px-0 lowercase sm:normal-case">
             {phase.title[lang]}
           </span>
         </li>
