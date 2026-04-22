@@ -60,7 +60,7 @@ const PHASES: Phase[] = [
     id: 'understand',
     number: '01',
     title: { en: 'UNDERSTAND', de: 'VERSTEHEN', fr: 'COMPRENDRE' },
-    verb: { en: 'Where do we stand?', de: 'Wo stehen wir?', fr: 'Où en sommes-nous ?' },
+    verb: { en: 'Your current maturity.', de: 'Ihr aktueller Reifegrad.', fr: 'Votre niveau de maturité actuel.' },
     description: {
       en: 'Position, situation, gap — before anything else gets planned.',
       de: 'Standortbestimmung, Lagebild, Gap-Analyse — bevor irgendetwas geplant wird.',
