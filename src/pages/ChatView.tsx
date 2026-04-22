@@ -1854,15 +1854,10 @@ const ChatView = () => {
                 if (activeService === 'crisis-sim' || activeService === 'elite-ship') {
                   return <div className="flex-1 min-w-0">{serviceContent}</div>;
                 }
-                const ActiveIcon = sidebarGroups.flatMap(g => g.items).find(i => i.id === activeService)?.icon || MessageCircle;
-                return (
-                  <div className="flex gap-3 items-start">
-                    <div className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 mt-[18px]">
-                      <ActiveIcon size={14} className="text-primary" />
-                    </div>
-                    <div className="flex-1 min-w-0">{serviceContent}</div>
-                  </div>
-                );
+                // Removed the leading round-icon avatar — the sheet header
+                // already labels the service (/ NIS2-DORA, etc.), so the extra
+                // visual marker only ate horizontal space on mobile.
+                return <div className="min-w-0">{serviceContent}</div>;
               })()}
               {messages.map((msg, i) => (
                 <div key={i} className={`flex gap-2 md:gap-3 ${msg.role === 'user' ? 'justify-end' : ''}`}>
