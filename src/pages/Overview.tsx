@@ -25,6 +25,26 @@ type Phase = {
   services: Service[];
 };
 
+/**
+ * Render a sentence and animate occurrences of given "stress words" with a
+ * flickering effect — visualises the meaning of the word itself.
+ * Case-insensitive match, preserves original casing in the output.
+ */
+const renderWithStressFlicker = (text: string, words: string[]): React.ReactNode => {
+  if (!words.length) return text;
+  const pattern = new RegExp(`(${words.map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})`, 'gi');
+  const parts = text.split(pattern);
+  return parts.map((part, i) =>
+    pattern.test(part) ? (
+      <span key={i} className="text-stress-flicker font-medium">
+        {part}
+      </span>
+    ) : (
+      <span key={i}>{part}</span>
+    ),
+  );
+};
+
 const PHASES: Phase[] = [
   {
     id: 'understand',
