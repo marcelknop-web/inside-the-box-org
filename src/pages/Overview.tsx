@@ -141,19 +141,19 @@ const PHASES: Phase[] = [
     number: '05',
     title: { en: 'RESPOND', de: 'REAGIEREN', fr: 'RÉAGIR' },
     verb: {
-      en: 'Structured incident and crisis management under real adversarial pressure',
-      de: 'Strukturiertes Incident- und Krisenmanagement unter realem Angriffsdruck',
-      fr: 'Gestion d\'incident et de crise structurée sous pression adverse réelle',
+      en: 'Structured incident, continuity and crisis management under real adversarial pressure',
+      de: 'Strukturiertes Incident-, Notfall- und Krisenmanagement unter realem Angriffsdruck',
+      fr: 'Gestion d\'incident, de continuité et de crise structurée sous pression adverse réelle',
     },
     description: {
-      en: 'Crisis management and incident response under real adversarial pressure.',
-      de: 'Krisenmanagement und Incident Response unter echtem Angriffsdruck.',
-      fr: 'Gestion de crise et réponse à incident sous pression adverse.',
+      en: 'Crisis management, business continuity and incident response under real adversarial pressure.',
+      de: 'Krisenmanagement, Notfallmanagement und Incident Response unter echtem Angriffsdruck.',
+      fr: 'Gestion de crise, continuité d\'activité et réponse à incident sous pression adverse.',
     },
     services: [
       { id: 'cyber-crisis-management', titleKey: 'consulting.crisisTitle' },
-      { id: 'incident-management', titleKey: 'consulting.incidentTitle' },
       { id: 'bcm', titleKey: 'consulting.bcmTitle' },
+      { id: 'incident-management', titleKey: 'consulting.incidentTitle' },
     ],
   },
 ];
