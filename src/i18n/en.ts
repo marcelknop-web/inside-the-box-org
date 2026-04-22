@@ -145,6 +145,8 @@ export const en = {
     vcisoDesc: 'Flexible executive security leadership.',
     aiWorkflowsTitle: 'AI-Powered Workflows',
     aiWorkflowsDesc: 'AI automation for security operations and compliance.',
+    socOpsTitle: 'SOC Operations & Playbooks',
+    socOpsDesc: 'Frameworks, processes, and playbooks for SOC operations — from incident policies to escalation paths.',
     clientsServed: 'Clients Served',
     industrySectors: 'Industry Sectors',
     yearsCombined: 'Years Combined Expertise',

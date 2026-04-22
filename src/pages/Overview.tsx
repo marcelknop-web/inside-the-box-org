@@ -107,6 +107,7 @@ const PHASES: Phase[] = [
     },
     services: [
       { id: 'virtual-ciso', titleKey: 'consulting.vcisoTitle' },
+      { id: 'soc-operations', titleKey: 'consulting.socOpsTitle' },
       { id: 'ai-workflows', titleKey: 'consulting.aiWorkflowsTitle' },
     ],
   },

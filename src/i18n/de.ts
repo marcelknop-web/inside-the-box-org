@@ -145,6 +145,8 @@ export const de = {
     vcisoDesc: 'CISO-Verantwortung übernehmen, ohne eine feste Stelle zu besetzen – strategisch und operativ.',
     aiWorkflowsTitle: 'KI-gestützte Workflows',
     aiWorkflowsDesc: 'Wiederkehrende Security-Aufgaben automatisieren – von Incident-Triage bis Compliance-Monitoring.',
+    socOpsTitle: 'SOC-Betrieb & Playbooks',
+    socOpsDesc: 'Rahmenwerke, Prozesse und Playbooks für den SOC-Betrieb – von Incident Policies bis Eskalationswegen.',
     clientsServed: 'Kunden betreut',
     industrySectors: 'Branchen',
     yearsCombined: 'Jahre Beratungserfahrung',
