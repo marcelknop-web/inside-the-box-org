@@ -741,7 +741,7 @@ const Overview = () => {
               >
                 {referenceSectionLabel.replace('/ ', '')}
               </div>
-              <div className="font-mono text-[15px] sm:text-2xl md:text-3xl font-medium leading-snug text-foreground">
+              <div className="font-sans text-sm sm:text-base font-normal leading-snug text-muted-foreground/80 group-hover/ref:text-muted-foreground transition-colors">
                 {referenceHeadline}
               </div>
             </div>
