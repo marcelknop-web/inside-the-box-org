@@ -63,6 +63,11 @@ const RELATED_MAP: Record<string, RelatedEntry[]> = {
     { id: 'cyber-crisis-management', titleKey: 'consulting.crisisTitle', descKey: 'consulting.crisisDesc' },
     { id: 'incident-management', titleKey: 'consulting.incidentTitle', descKey: 'consulting.incidentDesc' },
   ],
+  'soc-operations': [
+    { id: 'incident-management', titleKey: 'consulting.incidentTitle', descKey: 'consulting.incidentDesc' },
+    { id: 'virtual-ciso', titleKey: 'consulting.vcisoTitle', descKey: 'consulting.vcisoDesc' },
+    { id: 'cyber-crisis-management', titleKey: 'consulting.crisisTitle', descKey: 'consulting.crisisDesc' },
+  ],
 };
 
 interface RelatedServicesProps {

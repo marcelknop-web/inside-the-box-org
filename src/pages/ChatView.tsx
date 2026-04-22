@@ -1025,6 +1025,7 @@ const useServiceContent = () => {
             {t('aiWorkflows.ctaButton')}
           </button>
         </Block>
+        <RelatedServices serviceId="ai-workflows" onSelect={setActive} />
       </TypedSection>
     ),
     why: () => (
