@@ -112,12 +112,12 @@ export const SiteChrome = ({
               <Linkedin className="w-3 h-3" />
               <span>LinkedIn</span>
             </a>
-            <a
-              href="/impressum"
+            <button
+              onClick={() => setDrawer('imprint')}
               className="hover:text-primary focus-visible:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-sm transition-colors uppercase whitespace-nowrap no-underline"
             >
               {footerImprintLabel}
-            </a>
+            </button>
           </div>
         </div>
       </footer>
