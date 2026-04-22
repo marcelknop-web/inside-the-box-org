@@ -58,17 +58,26 @@ const Imprint = () => {
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 
-      <main className="flex-1 px-4 sm:px-6 py-10 sm:py-14 max-w-3xl mx-auto w-full animate-fade-in">
-        <div className="font-mono text-[11px] sm:text-[13px] tracking-[0.4em] text-primary mb-6">
+      <main className="flex-1 px-4 sm:px-6 py-10 sm:py-14 max-w-3xl mx-auto w-full">
+        <div
+          className="font-mono text-[11px] sm:text-[13px] tracking-[0.4em] text-primary mb-6 opacity-0 animate-fade-in"
+          style={{ animationDelay: '0ms', animationFillMode: 'forwards' }}
+        >
           {sectionLabel}
         </div>
-        <h1 className="font-mono font-semibold text-3xl sm:text-4xl text-foreground leading-[1.1] mb-10">
+        <h1
+          className="font-mono font-semibold text-3xl sm:text-4xl text-foreground leading-[1.1] mb-10 opacity-0 animate-fade-in"
+          style={{ animationDelay: '120ms', animationFillMode: 'forwards' }}
+        >
           {t('imprint.title')}
         </h1>
 
         <div className="space-y-8 font-sans text-[15px] text-foreground/85 leading-relaxed">
           {/* Responsible */}
-          <section>
+          <section
+            className="opacity-0 animate-fade-in"
+            style={{ animationDelay: '240ms', animationFillMode: 'forwards' }}
+          >
             <h2 className="font-mono text-[11px] tracking-[0.3em] text-primary/80 uppercase mb-3">
               {t('imprint.responsible')}
             </h2>
@@ -80,7 +89,10 @@ const Imprint = () => {
           </section>
 
           {/* Contact */}
-          <section>
+          <section
+            className="opacity-0 animate-fade-in"
+            style={{ animationDelay: '320ms', animationFillMode: 'forwards' }}
+          >
             <h2 className="font-mono text-[11px] tracking-[0.3em] text-primary/80 uppercase mb-3">
               {t('imprint.contactLabel')}
             </h2>
@@ -99,7 +111,10 @@ const Imprint = () => {
           </section>
 
           {/* Disclaimer */}
-          <section className="border-t border-primary/10 pt-6">
+          <section
+            className="border-t border-primary/10 pt-6 opacity-0 animate-fade-in"
+            style={{ animationDelay: '400ms', animationFillMode: 'forwards' }}
+          >
             <h2 className="font-mono text-[11px] tracking-[0.3em] text-primary/80 uppercase mb-3">
               {t('imprint.disclaimer')}
             </h2>
@@ -107,7 +122,10 @@ const Imprint = () => {
           </section>
 
           {/* Copyright */}
-          <section className="border-t border-primary/10 pt-6">
+          <section
+            className="border-t border-primary/10 pt-6 opacity-0 animate-fade-in"
+            style={{ animationDelay: '480ms', animationFillMode: 'forwards' }}
+          >
             <h2 className="font-mono text-[11px] tracking-[0.3em] text-primary/80 uppercase mb-3">
               {t('imprint.copyright')}
             </h2>
@@ -115,7 +133,10 @@ const Imprint = () => {
           </section>
 
           {/* Data protection — short notice */}
-          <section className="border-t border-primary/10 pt-6">
+          <section
+            className="border-t border-primary/10 pt-6 opacity-0 animate-fade-in"
+            style={{ animationDelay: '560ms', animationFillMode: 'forwards' }}
+          >
             <h2 className="font-mono text-[11px] tracking-[0.3em] text-primary/80 uppercase mb-3">
               {t('imprint.dataProtection')}
             </h2>
@@ -123,7 +144,10 @@ const Imprint = () => {
           </section>
 
           {/* Privacy notice */}
-          <section className="border-t border-primary/10 pt-8 mt-4">
+          <section
+            className="border-t border-primary/10 pt-8 mt-4 opacity-0 animate-fade-in"
+            style={{ animationDelay: '640ms', animationFillMode: 'forwards' }}
+          >
             <h2 className="font-mono font-semibold text-2xl sm:text-3xl text-foreground leading-[1.1] mb-6">
               {t('imprint.privacyTitle')}
             </h2>
@@ -163,7 +187,10 @@ const Imprint = () => {
             </div>
           </section>
 
-          <p className="font-mono text-[11px] tracking-[0.18em] text-muted-foreground/70 pt-6 border-t border-primary/10">
+          <p
+            className="font-mono text-[11px] tracking-[0.18em] text-muted-foreground/70 pt-6 border-t border-primary/10 opacity-0 animate-fade-in"
+            style={{ animationDelay: '720ms', animationFillMode: 'forwards' }}
+          >
             {t('imprint.lastUpdatedPrefix')}{' '}
             {new Date(__BUILD_DATE__).toLocaleDateString(
               lang === 'de' ? 'de-DE' : lang === 'fr' ? 'fr-FR' : 'en-GB',
