@@ -98,6 +98,8 @@ const PHASES: Phase[] = [
     },
     services: [
       { id: 'dora-nis2-ttx', titleKey: 'nav.ttxTraining' },
+      { id: 'arena-training', titleKey: 'consulting.arenaTitle' },
+      { id: 'red-team', titleKey: 'nav.redTeam' },
       { id: 'events-workshops', titleKey: 'consulting.eventsTitle' },
     ],
   },
@@ -120,32 +122,12 @@ const PHASES: Phase[] = [
       { id: 'incident-management', titleKey: 'consulting.incidentTitle' },
     ],
   },
-  {
-    id: 'verify',
-    number: '06',
-    title: { en: 'VERIFY', de: 'PRÜFEN', fr: 'VÉRIFIER' },
-    verb: {
-      en: 'Prove it works.',
-      de: 'Wirksamkeit nachweisen.',
-      fr: 'Prouver l\'efficacité.',
-    },
-    description: {
-      en: 'TIBER tests, certification audits and reviews — evidence that controls and response capabilities work in practice.',
-      de: 'TIBER-Tests, Zertifizierungs-Audits und Reviews — Wirksamkeitsnachweise für Kontrollen und Reaktionsfähigkeit.',
-      fr: 'Tests TIBER, audits de certification et revues — preuves que contrôles et capacités de réponse fonctionnent.',
-    },
-    services: [
-      { id: 'arena-training', titleKey: 'consulting.arenaTitle' },
-      { id: 'red-team', titleKey: 'nav.redTeam' },
-    ],
-  },
 ];
 
 /**
  * Compact non-interactive preview of all phases.
  * Used in the hero to hint at the structure waiting behind the CTA.
- * Shows diamonds 01–06 connected by a thin line, plus a dashed loop-back arrow
- * indicating that cyber-resilience is a continuous cycle.
+ * Shows diamonds 01–05 connected by a thin line.
  */
 const PhasesPreview = ({
   phases,
@@ -154,14 +136,14 @@ const PhasesPreview = ({
   phases: Phase[];
   lang: 'en' | 'de' | 'fr';
 }) => (
-  <div className="relative w-full max-w-2xl mx-auto pt-2 pb-12">
+  <div className="relative w-full max-w-2xl mx-auto pt-2 pb-4">
     {/* Horizontal connector */}
     <div
       className="absolute top-[14px] sm:top-[16px] h-px bg-primary/25 pointer-events-none"
-      style={{ left: 'calc(100% / 12)', right: 'calc(100% / 12)' }}
+      style={{ left: 'calc(100% / 10)', right: 'calc(100% / 10)' }}
       aria-hidden
     />
-    <ol className="grid grid-cols-6 relative gap-1">
+    <ol className="grid grid-cols-5 relative gap-1">
       {phases.map((phase) => (
         <li key={phase.id} className="flex flex-col items-center text-center px-0.5">
           {/* Diamond node */}
@@ -185,36 +167,6 @@ const PhasesPreview = ({
         </li>
       ))}
     </ol>
-    {/* Dashed loop-back arrow — sits clearly below the labels, suggesting the cycle */}
-    <svg
-      className="absolute left-0 right-0 mx-auto pointer-events-none"
-      style={{ bottom: '-2px', width: '92%', height: '28px' }}
-      viewBox="0 0 100 28"
-      preserveAspectRatio="none"
-      aria-hidden
-    >
-      <defs>
-        <marker
-          id="loopArrow"
-          viewBox="0 0 10 10"
-          refX="6"
-          refY="5"
-          markerWidth="5"
-          markerHeight="5"
-          orient="auto-start-reverse"
-        >
-          <path d="M 0 0 L 10 5 L 0 10 z" fill="hsl(var(--primary) / 0.55)" />
-        </marker>
-      </defs>
-      <path
-        d="M 96 4 C 96 24, 50 24, 4 24 L 4 18"
-        fill="none"
-        stroke="hsl(var(--primary) / 0.55)"
-        strokeWidth="0.6"
-        strokeDasharray="2 2"
-        markerEnd="url(#loopArrow)"
-      />
-    </svg>
   </div>
 );
 
@@ -372,11 +324,11 @@ const Overview = () => {
       {/* Timeline (desktop) */}
       <section className="hidden md:block px-6 pb-4 max-w-6xl mx-auto w-full">
         <div className="relative pt-2">
-          <ol className="grid grid-cols-6 relative">
+          <ol className="grid grid-cols-5 relative">
             {/* Connector line — spans only between first and last node centers */}
             <div
               className="absolute top-[26px] h-px bg-primary/25 pointer-events-none"
-              style={{ left: 'calc(100% / 12)', right: 'calc(100% / 12)' }}
+              style={{ left: 'calc(100% / 10)', right: 'calc(100% / 10)' }}
               aria-hidden
             />
             {PHASES.map((phase) => {
