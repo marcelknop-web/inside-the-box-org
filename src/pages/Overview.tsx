@@ -73,6 +73,7 @@ const PHASES: Phase[] = [
     },
     services: [
       { id: 'assessments-concepts', titleKey: 'consulting.assessTitle' },
+      { id: 'ki-lab', titleKey: 'consulting.aiLabTitle' },
       { id: 'publications', titleKey: 'consulting.pubTitle' },
     ],
   },

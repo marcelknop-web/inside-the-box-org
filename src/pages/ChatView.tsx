@@ -890,19 +890,10 @@ const useServiceContent = () => {
         <RelatedServices serviceId="dora-nis2-ttx" onSelect={setActive} />
       </TypedSection>
     ),
-    'ai-workflows': () => (
-      <TypedSection title={t('aiWorkflows.title')} mode="typewriter" intro={<p>{t('aiWorkflows.intro')}</p>}>
+    'ki-lab': () => (
+      <TypedSection title={t('kiLab.title')} mode="typewriter" intro={<p>{t('kiLab.intro')}</p>}>
         <Block className="bg-card/40 rounded-xl">
-          <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{t('aiWorkflows.introDetail')}</p>
-        </Block>
-
-        <Block className="bg-primary/5 border border-primary/20 rounded-xl">
-          <SubTitle>{t('aiWorkflows.areasTitle')}</SubTitle>
-          <div className="grid grid-cols-1 gap-3 mt-2">
-            <GridItem icon={Zap} title={t('aiWorkflows.irTitle')} desc={t('aiWorkflows.irDesc')} />
-            <GridItem icon={FileText} title={t('aiWorkflows.policyTitle')} desc={t('aiWorkflows.policyDesc')} />
-            <GridItem icon={Search} title={t('aiWorkflows.auditTitle')} desc={t('aiWorkflows.auditDesc')} />
-          </div>
+          <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{t('kiLab.introDetail')}</p>
         </Block>
 
         <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
@@ -1038,6 +1029,44 @@ const useServiceContent = () => {
               </div>
             </DialogContent>
           </Dialog>
+        </Block>
+
+        <Block className="bg-card/40 rounded-xl">
+          <p className="text-highlight font-mono font-bold text-sm">{t('kiLab.ctaTitle')}</p>
+          <p className="text-foreground/80 text-sm font-sans mt-1">{t('kiLab.ctaDesc')}</p>
+          <button
+            onClick={() => setActive('ai-workflows')}
+            className="mt-3 inline-flex items-center gap-2 text-highlight font-mono font-bold text-sm hover:text-primary transition-electric cursor-pointer bg-transparent border-none p-0"
+          >
+            {t('kiLab.ctaButton')}
+          </button>
+        </Block>
+      </TypedSection>
+    ),
+    'ai-workflows': () => (
+      <TypedSection title={t('aiWorkflows.title')} mode="typewriter" intro={<p>{t('aiWorkflows.intro')}</p>}>
+        <Block className="bg-card/40 rounded-xl">
+          <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{t('aiWorkflows.introDetail')}</p>
+        </Block>
+
+        <Block className="bg-primary/5 border border-primary/20 rounded-xl">
+          <SubTitle>{t('aiWorkflows.areasTitle')}</SubTitle>
+          <div className="grid grid-cols-1 gap-3 mt-2">
+            <GridItem icon={Zap} title={t('aiWorkflows.irTitle')} desc={t('aiWorkflows.irDesc')} />
+            <GridItem icon={FileText} title={t('aiWorkflows.policyTitle')} desc={t('aiWorkflows.policyDesc')} />
+            <GridItem icon={Search} title={t('aiWorkflows.auditTitle')} desc={t('aiWorkflows.auditDesc')} />
+          </div>
+        </Block>
+
+        <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
+          <SubTitle variant="highlight">{t('aiWorkflows.tryAgentsTitle')}</SubTitle>
+          <p className="text-foreground text-sm md:text-[15px] mb-3">{t('aiWorkflows.tryAgentsDesc')}</p>
+          <button
+            onClick={() => setActive('ki-lab')}
+            className="inline-flex items-center gap-2 text-highlight font-mono font-bold text-sm hover:text-primary transition-electric cursor-pointer bg-transparent border-none p-0"
+          >
+            {t('aiWorkflows.openKiLab')}
+          </button>
         </Block>
 
         <Block className="bg-primary/5 border border-primary/20 rounded-xl">
@@ -1351,7 +1380,8 @@ const useSidebarGroups = (): SidebarGroup[] => {
       items: [
         { id: 'publications', icon: FileText, label: t('nav.publications') },
         { id: 'events-workshops', icon: Calendar, label: t('nav.eventsWorkshops') },
-        { id: 'ai-workflows', icon: Zap, label: t('nav.aiWorkflows'), isNew: true },
+        { id: 'ki-lab', icon: Zap, label: t('nav.aiLab'), isNew: true },
+        { id: 'ai-workflows', icon: Zap, label: t('nav.aiWorkflows') },
       ],
     },
     {
