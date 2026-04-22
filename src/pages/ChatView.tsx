@@ -41,6 +41,7 @@ import { NewsPanel } from '@/components/NewsPanel';
 import { RelatedServices } from '@/components/RelatedServices';
 import { NewDateBadge } from '@/components/NewDateBadge';
 import { SiteChrome } from '@/components/SiteChrome';
+import { PasswordGate } from '@/components/PasswordGate';
 
 // AI Lab tool publication dates (ISO YYYY-MM-DD).
 // Tools listed here show a "Neu/New/Nouveau" badge for 30 days from this date.
@@ -1792,13 +1793,13 @@ const ChatView = () => {
     : activeService === 'elite-ship'
     ? <Suspense fallback={lazyFallback}><EliteShipScene embedded /></Suspense>
     : activeService === 'cra-check'
-    ? <Suspense fallback={lazyFallback}><CraComplianceTool embedded /></Suspense>
+    ? <Suspense fallback={lazyFallback}><PasswordGate storageKey="cra-check" label="CRA Compliance Tool"><CraComplianceTool embedded /></PasswordGate></Suspense>
     : activeService === 'dora-compliance'
-    ? <Suspense fallback={lazyFallback}><DoraComplianceTool embedded /></Suspense>
+    ? <Suspense fallback={lazyFallback}><PasswordGate storageKey="dora-compliance" label="DORA Compliance Tool"><DoraComplianceTool embedded /></PasswordGate></Suspense>
     : activeService === 'nis2-compliance'
-    ? <Suspense fallback={lazyFallback}><Nis2ComplianceTool embedded /></Suspense>
+    ? <Suspense fallback={lazyFallback}><PasswordGate storageKey="nis2-compliance" label="NIS-2 Compliance Tool"><Nis2ComplianceTool embedded /></PasswordGate></Suspense>
     : activeService === 'iacs-e27' || activeService === 'iec62443'
-    ? <Suspense fallback={lazyFallback}><Iec62443ComplianceTool embedded /></Suspense>
+    ? <Suspense fallback={lazyFallback}><PasswordGate storageKey="iec62443" label="IEC 62443 Compliance Tool"><Iec62443ComplianceTool embedded /></PasswordGate></Suspense>
     : activeService === 'butterfly-lab'
     ? <Suspense fallback={lazyFallback}><ButterflyEffectLab embedded /></Suspense>
     : activeService === 'soc-life'
