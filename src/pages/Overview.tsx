@@ -288,10 +288,10 @@ const Overview = () => {
     lang === 'de' ? '/ REFERENZEN' : lang === 'fr' ? '/ RÉFÉRENCES' : '/ REFERENCES';
   const referenceHeadline =
     lang === 'de'
-      ? 'Vertrauen aus 35+ Jahren gemeinsamer Erfahrung, 400+ Projekten.'
+      ? 'Vertrauen aus 35 Jahren gemeinsamer Erfahrung, 400+ Projekten.'
       : lang === 'fr'
-      ? 'Confiance bâtie sur 35+ ans d\'expérience commune et 400+ projets.'
-      : 'Trust built on 35+ years of shared experience and 400+ projects.';
+      ? 'Confiance bâtie sur 35 ans d\'expérience commune et 400+ projets.'
+      : 'Trust built on 35 years of shared experience and 400+ projects.';
   const referenceSubline =
     lang === 'de'
       ? 'Eine KI-Website bauen kann jeder. Belastbare Cybersecurity-Beratung über Jahrzehnte beweist sich an den Mandaten.'
