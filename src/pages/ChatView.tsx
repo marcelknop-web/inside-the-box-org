@@ -1905,6 +1905,8 @@ const ChatView = () => {
                 </div>
               )}
               <div ref={messagesEndRef} />
+                </div>
+              </section>
             </div>
           </div>
 
