@@ -186,8 +186,45 @@ const Overview = () => {
         </button>
       </header>
 
+      {!entered ? (
+        /* Opener Hero */
+        <section className="flex-1 flex items-center justify-center px-4 sm:px-6 py-12 sm:py-16 max-w-6xl mx-auto w-full">
+          <div className="w-full max-w-3xl text-center animate-fade-in">
+            <div className="font-mono text-[10px] tracking-[0.4em] text-primary mb-6">
+              / CYBERSECURITY CONSULTING
+            </div>
+            <h1 className="font-mono font-semibold text-4xl sm:text-5xl md:text-7xl leading-[1.02] tracking-[-0.02em] text-foreground mb-6">
+              {t('welcome.title')}
+            </h1>
+            <p className="font-sans text-lg sm:text-xl md:text-2xl text-foreground/85 leading-snug mb-3">
+              {t('welcome.heroSubtitle')}
+            </p>
+            <p className="font-mono text-[11px] sm:text-xs tracking-[0.3em] text-primary/80 mb-10">
+              {t('welcome.heroClaim').toUpperCase()}
+            </p>
+
+            <button
+              onClick={() => setEntered(true)}
+              className="group inline-flex items-center gap-3 px-8 py-4 border border-primary/50 hover:border-primary bg-primary/5 hover:bg-primary/10 text-primary font-mono text-xs sm:text-sm tracking-[0.3em] transition-all duration-300 hover:shadow-[0_0_30px_-8px_hsl(var(--primary)/0.6)]"
+              aria-label={enterCta}
+            >
+              <span>{enterCta.toUpperCase()}</span>
+              <ArrowRight className="w-4 h-4 -translate-x-1 group-hover:translate-x-0 transition-transform" />
+            </button>
+
+            <p className="font-mono text-[10px] tracking-[0.25em] text-muted-foreground mt-8">
+              {enterHint}
+            </p>
+
+            <p className="font-mono text-[10px] tracking-[0.2em] text-muted-foreground/70 mt-12">
+              {t('welcome.heroSignature')}
+            </p>
+          </div>
+        </section>
+      ) : (
+        <>
       {/* Headline */}
-      <section className="px-4 sm:px-6 pt-8 sm:pt-12 pb-6 sm:pb-8 max-w-6xl mx-auto w-full">
+      <section className="px-4 sm:px-6 pt-8 sm:pt-12 pb-6 sm:pb-8 max-w-6xl mx-auto w-full animate-fade-in">
         <div className="font-mono text-[10px] tracking-[0.3em] sm:tracking-[0.35em] text-primary mb-3 sm:mb-4">{sectionLabel}</div>
         <h1 className="font-mono font-semibold text-[26px] leading-[1.1] sm:text-3xl md:text-5xl sm:leading-[1.05] tracking-[-0.01em] text-foreground mb-3 sm:mb-4">
           {headline}
