@@ -1361,6 +1361,9 @@ const ChatView = () => {
   useEffect(() => { if (messages.length > 0) messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
   useEffect(() => {
     if (contentAreaRef.current) contentAreaRef.current.scrollTop = 0;
+    // Mobile: also reset window scroll so the next service is visible from the top
+    // (the inner content area may not be the actual scroll container on small screens).
+    window.scrollTo({ top: 0, behavior: 'auto' });
   }, [activeService]);
   useEffect(() => {
     const el = inputRef.current;
