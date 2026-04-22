@@ -295,8 +295,8 @@ export const fr = {
   },
   cyberCrisis: {
     title: 'Gestion de cyber-crise',
-    metaDesc: 'Quand une attaque s\'intensifie, ce sont les processus qui décident — pas les plans. Formation et simulation de gestion de crise.',
-    intro: 'Quand une attaque s\'intensifie, ce sont les processus qui décident — pas les plans.',
+    metaDesc: 'Quand une attaque s\'intensifie, ce sont les compétences qui décident — pas les plans. Formation et simulation de gestion de crise.',
+    intro: 'Quand une attaque s\'intensifie, ce sont les compétences qui décident — pas les plans.',
     introDetail: 'La plupart des organisations ont des plans d\'urgence. Très peu savent s\'ils fonctionnent sous pression. Si vous ne testez pas avant, vous testez en situation réelle — devant les régulateurs, les médias et votre propre conseil d\'administration.',
     sectionTitle: 'Ce qu\'il faut pratiquer — avant que la pression n\'arrive',
     planTitle: 'Gouvernance et structures décisionnelles',
