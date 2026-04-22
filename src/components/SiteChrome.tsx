@@ -76,8 +76,10 @@ export const SiteChrome = ({
         </div>
       </header>
 
-      {/* Page content */}
-      {children}
+      {/* Page content – flex-1 ensures the footer stays pinned to the
+          bottom on short pages (e.g. hero), keeping a consistent footer
+          baseline across the homepage and all sub-pages. */}
+      <div className="flex-1 flex flex-col">{children}</div>
 
       {/* Footer
           ----------------------------------------------------------------
