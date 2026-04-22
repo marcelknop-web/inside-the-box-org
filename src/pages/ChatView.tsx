@@ -1386,7 +1386,7 @@ const ChatView = () => {
     setIsLoading(true);
     try {
       const { data: responseData, error: fnError } = await supabase.functions.invoke('ask-navigator', {
-        body: { question: userMsg },
+        body: { question: userMsg, language },
       });
       if (fnError) throw fnError;
       setMessages(prev => [...prev, { role: 'assistant', content: responseData.message, links: responseData.links }]);
