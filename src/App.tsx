@@ -9,17 +9,20 @@ import { RouteSkeleton } from "@/components/RouteSkeleton";
 import { ScrollToTopFab } from "@/components/ScrollToTopFab";
 import ChatView from "./pages/ChatView";
 import NotFound from "./pages/NotFound";
+import Overview from "./pages/Overview";
 import { lazy, Suspense } from "react";
 
 // Active routes only. Archived (no longer in Routes, files retained for reference):
 //   /legacy, /overview, /berlin-drift, /enigma, /soc-life, /nis2-compliance,
 //   /iacs-e27, /iec62443 — all reachable via the unified /:serviceId catchall
 //   in ChatView, or removed from the Journey navigation entirely.
+// Overview is eager-loaded: it is the landing route, so lazy-loading it just
+// adds a critical request to the network dependency chain (HTML → JS → chunk)
+// without any UX benefit.
 const TtxAdmin = lazy(() => import("./pages/TtxAdmin"));
 const ItsmTool = lazy(() => import("./pages/ItsmTool"));
 const ItsmDevTool = lazy(() => import("./pages/ItsmDevTool"));
 const TtxReadinessPage = lazy(() => import("./pages/TtxReadinessPage"));
-const Overview = lazy(() => import("./pages/Overview"));
 const Imprint = lazy(() => import("./pages/Imprint"));
 
 const queryClient = new QueryClient();
@@ -34,7 +37,7 @@ const App = () => (
           <BrowserRouter>
             <Routes>
               {/* Active Journey + entry points */}
-              <Route path="/" element={<Suspense fallback={<RouteSkeleton />}><Overview /></Suspense>} />
+              <Route path="/" element={<Overview />} />
               <Route path="/impressum" element={<Suspense fallback={<RouteSkeleton />}><Imprint /></Suspense>} />
               <Route path="/imprint" element={<Suspense fallback={<RouteSkeleton />}><Imprint /></Suspense>} />
 
