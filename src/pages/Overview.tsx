@@ -154,30 +154,15 @@ const PhasesPreview = ({
   lang: 'en' | 'de' | 'fr';
 }) => (
   <div className="relative w-full max-w-2xl mx-auto pt-2 pb-4">
-    <ol className="grid grid-cols-5 gap-0.5 sm:gap-1 relative">
-      {phases.map((phase, idx) => (
+    <ul className="grid grid-cols-5 gap-1 sm:gap-2 relative">
+      {phases.map((phase) => (
         <li key={phase.id} className="relative flex flex-col items-center text-center min-w-0">
-          {/* Connector segment between diamonds — never under a diamond.
-              Diamond half-width: 11px (mobile) / 13px (sm). */}
-          {idx > 0 && (
+          {/* Diamond marker — pure symbol, no number (all phases are equal-rank). */}
+          <span className="relative flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 z-10 mb-1.5 sm:mb-2">
             <span
-              className="absolute h-px bg-primary/30 pointer-events-none top-[13px] sm:top-[15px]"
-              style={{
-                right: 'calc(50% + 11px)',
-                left: 'calc(-50% + 11px)',
-              }}
+              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[12px] h-[12px] sm:w-[14px] sm:h-[14px] rotate-45 border border-primary/50 bg-background"
               aria-hidden
             />
-          )}
-          {/* Diamond node */}
-          <span className="relative flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 z-10 mb-1.5 sm:mb-2">
-            <span
-              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[22px] h-[22px] sm:w-[26px] sm:h-[26px] rotate-45 border border-primary/50 bg-background"
-              aria-hidden
-            />
-            <span className="relative font-mono text-[9px] sm:text-[10px] tracking-[0.1em] text-muted-foreground">
-              {phase.number}
-            </span>
           </span>
           {/* Label — tight tracking on mobile so single words fit one line. */}
           <span className="font-mono text-[7px] sm:text-[9px] tracking-normal sm:tracking-[0.18em] text-muted-foreground/70 leading-[1.1] w-full px-0 break-words hyphens-none">
@@ -185,7 +170,7 @@ const PhasesPreview = ({
           </span>
         </li>
       ))}
-    </ol>
+    </ul>
   </div>
 );
 
