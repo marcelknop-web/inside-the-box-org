@@ -11,7 +11,7 @@ import { ServiceSymbol, type ServiceTheme } from '@/components/ServiceSymbol';
 const PHASE_SYMBOLS: Record<string, ServiceTheme> = {
   understand: 'phase-understand',
   comply: 'phase-comply',
-  govern: 'phase-govern',
+  lead: 'phase-govern',
   train: 'phase-train',
   respond: 'phase-respond',
 };
