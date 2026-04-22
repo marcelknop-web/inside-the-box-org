@@ -149,6 +149,8 @@ export const en = {
     vcisoDesc: 'Flexible executive security leadership.',
     aiWorkflowsTitle: 'AI-Powered Workflows',
     aiWorkflowsDesc: 'AI automation for security operations and compliance.',
+    aiLabTitle: 'AI Lab',
+    aiLabDesc: 'Try simulations, checks and quizzes directly in the browser — no login required.',
     socOpsTitle: 'SOC Operations & Playbooks',
     socOpsDesc: 'Frameworks, processes, and playbooks for SOC operations — from incident policies to escalation paths.',
     clientsServed: 'Clients Served',
