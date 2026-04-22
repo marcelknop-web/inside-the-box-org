@@ -288,7 +288,7 @@ export const en = {
     outcomesTitle: 'What You Get',
     outcomesDesc: 'After a project, you know: Which processes hold under load and which don\'t. Where responsibilities are unclear. Whether your evidence handling withstands regulatory scrutiny. Whether relevant incidents are detected at all. And whether your teams know what to do — before they need to.',
     refTitle: 'References',
-    refDesc: 'Projects in financial services, energy, automotive, and critical infrastructure. Experience with regulatory requirements under NIS-2, DORA, BSI IT-Grundschutz, and ISO 27035.',
+    refDesc: 'Projects in financial services, energy, automotive, and critical infrastructure. Experience with regulatory requirements under NIS-2, DORA, BSI IT-Grundschutz, ISO 27035, and IEC 62443 (OT/ICS).',
     ctaTitle: 'Next Step',
     ctaDesc: '30 minutes, no pitch — an honest baseline: incident response maturity (detection, escalation, forensics, reporting duties), the two most critical gaps, and whether a 24/7 retainer is actually needed.',
     ctaButton: '→ Get in touch',
