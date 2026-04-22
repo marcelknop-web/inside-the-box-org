@@ -31,7 +31,9 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <Routes>
-              <Route path="/" element={<ChatView />} />
+              <Route path="/" element={<Suspense fallback={<RouteSkeleton />}><Overview /></Suspense>} />
+              <Route path="/legacy" element={<ChatView />} />
+              <Route path="/overview" element={<Suspense fallback={<RouteSkeleton />}><Overview /></Suspense>} />
               <Route path="/nis2-compliance" element={<ChatView />} />
               <Route path="/iacs-e27" element={<ChatView />} />
               <Route path="/iec62443" element={<ChatView />} />
@@ -42,7 +44,6 @@ const App = () => (
               <Route path="/soc-life" element={<ChatView />} />
               <Route path="/enigma" element={<Suspense fallback={<RouteSkeleton />}><Enigma /></Suspense>} />
               <Route path="/ttx-readiness" element={<Suspense fallback={<RouteSkeleton />}><TtxReadinessPage /></Suspense>} />
-              <Route path="/overview" element={<Suspense fallback={<RouteSkeleton />}><Overview /></Suspense>} />
               <Route path="/:serviceId" element={<ChatView />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
