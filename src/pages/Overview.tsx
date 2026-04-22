@@ -31,9 +31,9 @@ const PHASES: Phase[] = [
     title: { en: 'UNDERSTAND', de: 'VERSTEHEN', fr: 'COMPRENDRE' },
     verb: { en: 'Where do we stand?', de: 'Wo stehen wir?', fr: 'Où en sommes-nous ?' },
     description: {
-      en: 'Map the terrain. Assessments, quick-checks, and a clear picture of the gap.',
-      de: 'Das Terrain kartieren. Assessments, Quick-Checks und ein klares Lagebild.',
-      fr: 'Cartographier le terrain. Évaluations, quick-checks et image claire de l\'écart.',
+      en: 'Standortbestimmung, Lagebild, Gap-Analyse — bevor irgendetwas geplant wird.',
+      de: 'Standortbestimmung, Lagebild, Gap-Analyse — bevor irgendetwas geplant wird.',
+      fr: 'État des lieux, situation, analyse d\'écart — avant toute planification.',
     },
     services: [
       { id: 'assessments-concepts', titleKey: 'consulting.assessTitle' },
