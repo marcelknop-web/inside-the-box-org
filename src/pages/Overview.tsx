@@ -209,11 +209,12 @@ const Overview = () => {
     Boolean((location.state as { skipHero?: boolean } | null)?.skipHero),
   );
 
-  // Honour the flag also on subsequent navigations (e.g. brand click again).
+  // React to brand-link navigations:
+  //  • skipHero=true → land on the journey-map (entered=true)
+  //  • no state      → replay the hero opener (entered=false)
   useEffect(() => {
-    if ((location.state as { skipHero?: boolean } | null)?.skipHero) {
-      setEntered(true);
-    }
+    const skip = (location.state as { skipHero?: boolean } | null)?.skipHero;
+    setEntered(Boolean(skip));
   }, [location.state, location.key]);
 
   // Persist phase selection so it survives navigation to a service sub-page.
