@@ -272,7 +272,7 @@ export const en = {
     introDetail: 'Whether an incident response process works doesn\'t show during a document review — but when an incident occurs. We assess existing structures, close gaps, and implement processes that hold under real pressure: with incomplete information, parallel escalations, and ongoing reporting deadlines.',
     sectionTitle: 'Service Areas',
     step0Title: 'Audit of Existing IR Structures',
-    step0Desc: 'Structured assessment of existing incident response processes against recognized standards (ISO 27035, NIST SP 800-61, BSI IT-Grundschutz). Classification criteria, roles, escalation paths, communication logic, and regulatory reporting obligations are tested for effectiveness — not just existence. The result is a prioritized gap analysis, not a checklist.',
+    step0Desc: 'Structured assessment of existing incident response processes against recognized standards (ISO 27035, NIST SP 800-61, BSI IT-Grundschutz, IEC 62443 for OT/ICS). Classification criteria, roles, escalation paths, communication logic, and regulatory reporting obligations are tested for effectiveness — not just existence. The result is a prioritized gap analysis, not a checklist.',
     step1Title: 'Process Design and Governance',
     step1Desc: 'Building or revising IR structures with unambiguous classification schemes, defined roles, and escalation paths. Regulatory requirements from NIS-2 (initial notification within 24 hours, follow-up within 72 hours), DORA, and critical infrastructure legislation are embedded from the start — not added retrospectively.',
     step2Title: 'Detection Capability and Monitoring',
