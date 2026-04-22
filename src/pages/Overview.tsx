@@ -258,7 +258,7 @@ const Overview = () => {
   return (
     <SiteChrome onBrandClick={() => { setEntered(true); window.scrollTo({ top: 0 }); }}>
       <PageMeta
-        title="Journey"
+        title="Cybersecurity Consulting & Crisis Training"
         description="The five phases of cyber-resilience — from understanding your gap to responding under pressure."
       />
       <Helmet>
