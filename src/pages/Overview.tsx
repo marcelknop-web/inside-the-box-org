@@ -5,6 +5,7 @@ import { Languages, ArrowRight, Linkedin, Mail, Phone } from 'lucide-react';
 import { PageMeta } from '@/components/PageMeta';
 import { useLanguage, nextLanguage } from '@/i18n/LanguageContext';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
+import { GeometricSymbol } from '@/components/GeometricSymbol';
 import { consultantProfiles } from '@/data/consultantProfiles';
 
 /**
