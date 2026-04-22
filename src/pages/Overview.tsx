@@ -274,7 +274,7 @@ const Overview = () => {
   const sectionLabel =
     lang === 'de' ? '/ ÜBERSICHT' : lang === 'fr' ? '/ APERÇU' : '/ OVERVIEW';
   const servicesLabel =
-    lang === 'de' ? 'Leistungen in dieser Phase' : lang === 'fr' ? 'Services dans cette phase' : 'Services in this phase';
+    lang === 'de' ? 'Unsere Leistungen' : lang === 'fr' ? 'Nos services' : 'Our services';
 
   return (
     <SiteChrome onBrandClick={() => { setEntered(true); window.scrollTo({ top: 0 }); }}>
