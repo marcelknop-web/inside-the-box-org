@@ -264,6 +264,126 @@ export const SiteChrome = ({
           </div>
         </SheetContent>
       </Sheet>
+
+      {/* Imprint Drawer */}
+      <Sheet open={drawer === 'imprint'} onOpenChange={(o) => !o && setDrawer(null)}>
+        <SheetContent
+          side="right"
+          className="w-full sm:max-w-2xl bg-background/85 backdrop-blur-md border-l border-primary/20 overflow-y-auto"
+        >
+          <SheetHeader className="text-left mb-8">
+            <div className="font-mono text-[11px] tracking-[0.35em] text-primary mb-3">
+              {lang === 'de' ? '/ IMPRESSUM' : lang === 'fr' ? '/ MENTIONS LÉGALES' : '/ IMPRINT'}
+            </div>
+            <SheetTitle className="font-mono font-semibold text-2xl sm:text-3xl text-foreground">
+              {lang === 'de' ? 'Impressum' : lang === 'fr' ? 'Mentions légales' : 'Imprint'}
+            </SheetTitle>
+            <SheetDescription className="font-sans text-sm text-muted-foreground leading-relaxed">
+              {lang === 'de'
+                ? 'Diese Website verarbeitet personenbezogene Daten nur in dem Umfang, der für Betrieb und Kontaktaufnahme nötig ist. Verantwortlich ist Marcel Knop (Adresse siehe unten).'
+                : lang === 'fr'
+                ? 'Ce site ne traite des données personnelles que dans la mesure nécessaire à son exploitation et à la prise de contact. Responsable : Marcel Knop (adresse ci-dessous).'
+                : 'This site only processes personal data to the extent necessary for operation and contact. Responsible: Marcel Knop (address below).'}
+            </SheetDescription>
+          </SheetHeader>
+
+          <div className="space-y-5">
+            {/* Responsible */}
+            <div className="bg-card/40 rounded-xl px-5 py-4 font-sans text-[15px] text-foreground/85 leading-relaxed">
+              <h3 className="font-mono text-[11px] tracking-[0.3em] text-primary/80 uppercase mb-3">
+                {lang === 'de' ? 'Verantwortlich für den Inhalt' : lang === 'fr' ? 'Responsable du contenu' : 'Responsible for content'}
+              </h3>
+              <div className="space-y-1">
+                <div className="font-medium text-foreground">Marcel Knop</div>
+                <div className="text-muted-foreground">inside-the-box.org</div>
+                <div className="text-muted-foreground">
+                  {lang === 'de' ? 'Bad Emstal, Deutschland' : lang === 'fr' ? 'Bad Emstal, Allemagne' : 'Bad Emstal, Germany'}
+                </div>
+              </div>
+            </div>
+
+            {/* Contact */}
+            <div className="bg-card/40 rounded-xl px-5 py-4 font-sans text-[15px] text-foreground/85 leading-relaxed">
+              <h3 className="font-mono text-[11px] tracking-[0.3em] text-primary/80 uppercase mb-3">
+                {lang === 'fr' ? 'Contact' : 'Kontakt'}
+              </h3>
+              <div className="space-y-1">
+                <div>
+                  <a href="mailto:marcel@inside-the-box.org" className="text-primary underline underline-offset-2 decoration-primary/40 hover:decoration-primary transition-colors">
+                    marcel@inside-the-box.org
+                  </a>
+                </div>
+                <div>
+                  <a href="tel:+4915205691648" className="text-primary underline underline-offset-2 decoration-primary/40 hover:decoration-primary transition-colors">
+                    +49 1520 569 1648
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            {/* Disclaimer */}
+            <div className="bg-card/40 rounded-xl px-5 py-4 font-sans text-[15px] text-foreground/85 leading-relaxed">
+              <h3 className="font-mono text-[11px] tracking-[0.3em] text-primary/80 uppercase mb-3">
+                {lang === 'de' ? 'Haftungsausschluss' : lang === 'fr' ? 'Avertissement' : 'Disclaimer'}
+              </h3>
+              <p>
+                {lang === 'de'
+                  ? 'Trotz sorgfältiger inhaltlicher Kontrolle übernehme ich keine Haftung für die Inhalte externer Links. Für den Inhalt der verlinkten Seiten sind ausschließlich deren Betreiber verantwortlich. Die Haftung für eigene Inhalte richtet sich nach § 7 TMG.'
+                  : lang === 'fr'
+                  ? 'Malgré un contrôle attentif du contenu, je décline toute responsabilité quant au contenu des liens externes. Seuls les exploitants des pages liées sont responsables de leur contenu.'
+                  : 'Despite careful content review, I assume no liability for the content of external links. Only the operators of the linked pages are responsible for their content.'}
+              </p>
+            </div>
+
+            {/* Copyright */}
+            <div className="bg-card/40 rounded-xl px-5 py-4 font-sans text-[15px] text-foreground/85 leading-relaxed">
+              <h3 className="font-mono text-[11px] tracking-[0.3em] text-primary/80 uppercase mb-3">
+                {lang === 'de' ? 'Urheberrecht' : lang === 'fr' ? 'Droits d\'auteur' : 'Copyright'}
+              </h3>
+              <p>
+                {lang === 'de'
+                  ? 'Alle Inhalte dieser Seite unterliegen dem deutschen Urheberrecht. Eine Nutzung über den privaten Gebrauch hinaus bedarf der schriftlichen Zustimmung.'
+                  : lang === 'fr'
+                  ? 'Tous les contenus de ce site sont soumis au droit d\'auteur allemand. Toute utilisation au-delà de l\'usage privé nécessite un accord écrit.'
+                  : 'All content on this site is subject to German copyright law. Use beyond private purposes requires written consent.'}
+              </p>
+            </div>
+
+            {/* Data Protection */}
+            <div className="bg-card/40 rounded-xl px-5 py-4 font-sans text-[15px] text-foreground/85 leading-relaxed">
+              <h3 className="font-mono text-[11px] tracking-[0.3em] text-primary/80 uppercase mb-3">
+                {lang === 'de' ? 'Datenschutz' : lang === 'fr' ? 'Protection des données' : 'Data Protection'}
+              </h3>
+              <div className="space-y-3">
+                <p>
+                  {lang === 'de'
+                    ? 'Die Seite wird über Lovable bereitgestellt. Beim Abruf werden technisch notwendige Verbindungsdaten (IP, Zeitpunkt, User-Agent) kurzzeitig in Server-Logs verarbeitet (Art. 6 Abs. 1 lit. f DSGVO).'
+                    : lang === 'fr'
+                    ? 'Le site est hébergé via Lovable. Lors de la consultation, les données de connexion techniquement nécessaires (IP, horodatage, user-agent) sont traitées brièvement dans les journaux du serveur (art. 6, par. 1, point f, RGPD).'
+                    : 'The site is hosted via Lovable. On access, technically necessary connection data (IP, timestamp, user-agent) is briefly processed in server logs (Art. 6(1)(f) GDPR).'}
+                </p>
+                <p>
+                  {lang === 'de'
+                    ? 'Eingaben in die KI-Tools werden anonym über das Lovable AI Gateway verarbeitet und nicht dauerhaft gespeichert. Es werden keine Marketing- oder Tracking-Cookies gesetzt.'
+                    : lang === 'fr'
+                    ? 'Les saisies dans les outils IA sont traitées anonymement via la passerelle Lovable AI et ne sont pas stockées de manière permanente. Aucun cookie marketing ou de suivi n\'est utilisé.'
+                    : 'Inputs to the AI tools are processed anonymously via the Lovable AI Gateway and not permanently stored. No marketing or tracking cookies are set.'}
+                </p>
+                <p>
+                  {lang === 'de'
+                    ? 'Sie haben das Recht auf Auskunft, Berichtigung, Löschung, Einschränkung und Widerspruch. Anfragen formlos an '
+                    : lang === 'fr'
+                    ? 'Vous avez le droit d\'accès, de rectification, de suppression, de limitation et d\'opposition. Demandes informelles à '
+                    : 'You have the right to access, correction, deletion, restriction and objection. Informal requests to '}
+                  <a href="mailto:marcel@inside-the-box.org" className="text-primary underline underline-offset-2 decoration-primary/40 hover:decoration-primary transition-colors">
+                    marcel@inside-the-box.org
+                  </a>.
+                </p>
+              </div>
+            </div>
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };
