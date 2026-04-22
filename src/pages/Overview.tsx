@@ -349,10 +349,18 @@ const Overview = () => {
       <section className="hidden md:block px-6 pb-4 max-w-6xl mx-auto w-full">
         <div className="relative pt-2">
           <ul className="grid grid-cols-5 relative gap-0">
-            {PHASES.map((phase) => {
+            {PHASES.map((phase, idx) => {
               const isActive = phase.id === activeId;
               return (
                 <li key={phase.id} className="relative flex flex-col items-center min-w-0">
+                  {/* Connector segment between diamonds.
+                      Diamond half-width = 16px (32px square). Node container is 52px high; diamond is centered → top ≈ 26px - 0.5px line. */}
+                  {idx > 0 && (
+                    <span
+                      className="absolute h-px bg-primary/25 pointer-events-none top-[26px] right-[calc(50%+16px)] left-[calc(-50%+16px)]"
+                      aria-hidden
+                    />
+                  )}
                   <button
                     onClick={() => setActiveId(phase.id)}
                     className="group flex flex-col items-center gap-2 sm:gap-4 text-center w-full px-0.5 sm:px-2"
