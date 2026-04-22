@@ -4,7 +4,7 @@ export const consultantProfiles = [
     role: 'Senior Cybersecurity Consultant',
     imageUrl: '/lovable-uploads/0b083536-ec9e-4eda-b874-e926cc196404.png',
     linkedinUrl: 'https://www.linkedin.com/in/inside-the-box',
-    bio: 'Ich unterstütze Organisationen bei der Umsetzung von Cybersecurity- und Compliance-Anforderungen mit Fokus auf ISMS, regulatorische Themen und Cyber-Krisenmanagement. Meine Arbeit umfasst u.\u00a0a. den Aufbau und die Weiterentwicklung von ISMS, die Vorbereitung und Begleitung von Audits sowie die Etablierung von Sicherheits- und Krisenprozessen. Zuvor war ich in leitenden Funktionen bei KPMG, Accenture und EY tätig.',
+    bio: 'Organisationen unterstütze ich dabei, Cybersecurity und regulatorische Anforderungen wirksam umzusetzen – von der Standortbestimmung bis zur nachhaltigen Verankerung in Prozessen und Organisation.\n\nDabei schaffe ich belastbare Entscheidungsgrundlagen, begleite Organisationen zur Audit-Reife und stelle sicher, dass Sicherheits- und Krisenstrukturen im Ernstfall funktionieren.\n\nMeine Schwerpunkte liegen im Aufbau und der Weiterentwicklung von ISMS, der Umsetzung regulatorischer Anforderungen sowie im Cyber-Krisenmanagement.\n\nZuvor war ich in leitenden Funktionen bei KPMG, Accenture und EY tätig.',
     meta: [
       { label: 'Schwerpunkte', value: 'ISMS · TISAX · NIS2 · PCI-DSS · Cyber-Krisenmanagement · TIBER · BCM' },
       { label: 'Zertifizierungen', value: 'CISSP · CISA · ISO/IEC 27001 & 22301 Lead Auditor · BSI IT-Grundschutz-Praktiker' },
