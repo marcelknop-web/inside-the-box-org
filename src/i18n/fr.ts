@@ -49,7 +49,7 @@ export const fr = {
   },
   index: {
     title: 'Cyber Training Range',
-    subtitle: 'Attendez-vous à l\'inattendu.',
+    subtitle: 'Attendez-vous à l\'inattendu',
     metaDesc: 'Simulations réalistes de cyberattaques et formation à la coordination de crise. Plus de 40 formations, plus de 350 personnes formées dans 6 pays.',
     intro: 'Lors de cyber-incidents, la technologie échoue rarement en premier – c\'est l\'organisation.',
     introDetail: 'La communication s\'effondre. Les décisions traînent. Les responsabilités se brouillent. Cela ne peut être évité par des concepts – seulement par l\'entraînement sous pression réelle.',
@@ -79,7 +79,7 @@ export const fr = {
   },
   training: {
     title: 'Thèmes de formation',
-    subtitle: 'De la ligne de commande à la direction.',
+    subtitle: 'De la ligne de commande à la direction',
     intro: 'Tous les thèmes sont intégrés dans des scénarios d\'attaque réalistes – de la première alerte au SOC jusqu\'à la décision en comité de direction.',
     metaDesc: 'Formation en cybersécurité de la ligne de commande à la direction. Forensique, analyse de malware, SIEM, gestion des incidents et communication de crise.',
     hostForensics: 'Forensique hôte & réseau',
@@ -95,7 +95,7 @@ export const fr = {
     crisisComm: 'Communication de crise',
     crisisCommDesc: 'Piloter la communication avec les parties prenantes pendant que la situation évolue.\nMaintenir la communication interne, externe et réglementaire de manière cohérente et maîtrisée.',
     methodsTitle: 'Méthodes',
-    methodsSubtitle: 'Comprendre. Décider. Agir.',
+    methodsSubtitle: 'Comprendre. Décider. Agir',
     knowledgeTransfer: 'Transfert de connaissances',
     knowledgeTransferDesc: 'Impulsions compactes sur les menaces actuelles, les exigences réglementaires et les meilleures pratiques opérationnelles.',
     groupExercises: 'Exercices de groupe',
@@ -160,7 +160,7 @@ export const fr = {
   },
   related: {
     title: 'Services complémentaires',
-    subtitle: 'Sujets fréquemment demandés ensemble.',
+    subtitle: 'Sujets fréquemment demandés ensemble',
   },
   consultingTeam: {
     title: 'Par Qui',
@@ -697,15 +697,15 @@ export const fr = {
     chatGenericError: 'Une erreur est survenue. Veuillez réessayer.',
   },
   overview: {
-    title: 'Ce que nous livrons.',
-    subtitle: 'Quatre modules, treize approfondissements. Survolez pour mettre en évidence, cliquez pour entrer dans l\'offre.',
+    title: 'Ce que nous livrons',
+    subtitle: 'Quatre modules, treize approfondissements. Survolez pour mettre en évidence, cliquez pour entrer dans l\'offre',
     openService: 'Ouvrir le service',
     close: 'Fermer',
   },
   welcome: {
     title: 'inside-the-box.org',
     headerTitle: 'inside-the-box.org',
-    heroSubtitle: 'Quand les processus doivent fonctionner sous pression.',
+    heroSubtitle: 'Quand les processus doivent fonctionner sous pression',
     heroClaim: 'Analyse · Mise en œuvre · Formation · Audit',
     heroConsulting: 'Conseil en cyber-résilience',
     heroQualifier: 'Pour les organisations régulées de la finance, de l\'industrie et des infrastructures critiques.',
@@ -770,7 +770,7 @@ export const fr = {
   },
   iscp: {
     title: 'ISCP Quick Check — trouver les bons scénarios TTX',
-    subtitle: 'Évaluer les ISCP et en déduire des scénarios tabletop transversaux pour le prochain TTX.',
+    subtitle: 'Évaluer les ISCP et en déduire des scénarios tabletop transversaux pour le prochain TTX',
     whatIsIscp: 'Qu\'est-ce qu\'un ISCP ?',
     whatIsIscpText: 'Un Information Security Continuity Plan décrit comment un service IT est restauré en cas de panne.',
     whatIsTtx: 'Qu\'est-ce qu\'un TTX ?',
@@ -1170,7 +1170,7 @@ export const fr = {
     metaTitle: 'SOC Life — Cyber-Sim Corporate',
     metaDesc: 'Un simulateur SOC corporate à Francfort dans l’esprit de Little Computer People. Salles, collègues, incidents — décider sous pression.',
     title: 'SOC LIFE',
-    subtitle: 'SOC corporate. Francfort-sur-le-Main. Décider sous pression.',
+    subtitle: 'SOC corporate. Francfort-sur-le-Main. Décider sous pression',
     intro: 'Déplacez votre analyste sur le plateau. Lisez le renseignement, prenez un café, échangez avec l’équipe. Quand un incident tombe : rejoignez la bonne salle et exécutez le bon playbook.',
     start: 'Lancer la garde',
     pause: 'Pause',

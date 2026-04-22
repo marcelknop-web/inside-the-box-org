@@ -220,7 +220,7 @@ export const SiteChrome = ({
           <SheetHeader className="text-left mb-8">
             <div className="font-mono text-[11px] tracking-[0.35em] text-primary mb-3">{lang === 'de' ? '/ KONTAKT' : '/ CONTACT'}</div>
             <SheetTitle className="font-mono font-semibold text-2xl sm:text-3xl text-foreground">
-              {lang === 'de' ? 'Sprechen wir.' : lang === 'fr' ? 'Parlons-en.' : 'Let\'s talk.'}
+              {lang === 'de' ? 'Sprechen wir' : lang === 'fr' ? 'Parlons-en' : 'Let\'s talk'}
             </SheetTitle>
             <SheetDescription className="font-sans text-sm text-muted-foreground leading-relaxed">
               {lang === 'de'
