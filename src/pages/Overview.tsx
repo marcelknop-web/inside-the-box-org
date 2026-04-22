@@ -269,6 +269,7 @@ const Overview = () => {
       {/* Mandala */}
       <div className="relative w-full flex-1 flex items-center justify-center px-2 py-4">
         <svg
+          ref={svgRef}
           viewBox={`${-HALF} ${-HALF} ${VB} ${VB}`}
           className="w-full h-full max-w-[960px] max-h-[960px]"
           style={{ filter: 'drop-shadow(0 0 28px hsl(var(--primary) / 0.18))' }}
