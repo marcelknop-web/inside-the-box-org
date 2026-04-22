@@ -712,80 +712,102 @@ const Overview = () => {
         </ul>
       </section>
 
-      {/* References — own section under "Respond". Same visual language as a phase block,
-          marked with a diamond + phase-style label so it sits naturally below the journey. */}
-      <section className="px-4 sm:px-6 pt-8 sm:pt-14 pb-12 sm:pb-16 max-w-6xl mx-auto w-full border-t border-primary/10">
-        {/* Phase-style header: diamond + label, mirrors the journey markers */}
-        <div className="flex items-center gap-3 mb-4 sm:mb-5">
-          <span className="relative flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6">
-            <span
-              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[12px] h-[12px] sm:w-[14px] sm:h-[14px] rotate-45 border-[1.5px] border-primary bg-background"
-              style={{ boxShadow: '0 0 6px hsl(var(--primary) / 0.45), 0 1px 2px hsl(var(--primary) / 0.25)' }}
-              aria-hidden
-            />
-          </span>
-          <div className="font-mono text-[10px] tracking-[0.3em] sm:tracking-[0.35em] text-primary">
-            {referenceSectionLabel}
-          </div>
-        </div>
-        <h2 className="font-mono font-semibold text-[22px] leading-[1.15] sm:text-3xl md:text-4xl sm:leading-[1.1] tracking-[-0.01em] text-foreground mb-3 sm:mb-4">
-          {referenceHeadline}
-        </h2>
-        <p className="font-sans text-sm sm:text-base text-muted-foreground max-w-2xl leading-snug mb-8 sm:mb-10">
-          {referenceSubline}
-        </p>
-
-        {/* Branchen-Cluster: kategorisierte Kundennamen, rein typografisch */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-7 mb-10 sm:mb-12">
-          {referenceClusters.map((cluster) => (
-            <div key={cluster.label.en} className="min-w-0">
-              <div className="font-mono text-[10px] tracking-[0.28em] text-primary/80 mb-3 pb-2 border-b border-primary/15">
-                {cluster.label[lang].toUpperCase()}
-              </div>
-              <ul className="flex flex-wrap gap-x-4 gap-y-1.5">
-                {cluster.clients.map((client) => (
-                  <li
-                    key={client}
-                    className="font-mono text-[12px] sm:text-[13px] tracking-[0.01em] text-foreground/85 leading-snug"
-                  >
-                    {client}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-
-        {/* Highlight-Mandate: kuratierte aktuelle/strategische Projekte */}
-        <div className="font-mono text-[10px] tracking-[0.28em] text-primary/80 mb-4 pb-2 border-b border-primary/15">
-          {lang === 'de'
-            ? 'AUSGEWÄHLTE MANDATE'
-            : lang === 'fr'
-            ? 'MANDATS SÉLECTIONNÉS'
-            : 'SELECTED MANDATES'}
-        </div>
-        <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3 mb-6">
-          {highlightMandates.map((mandate) => (
-            <li key={mandate.tag} className="flex items-start gap-3 min-w-0">
+      {/* References — own collapsible section under "Respond". Mirrors the phase
+          interaction (diamond + verb + expandable detail). Extra top spacing
+          (mt-12 sm:mt-20) sets it visually apart from the journey above. */}
+      <section className="px-4 sm:px-6 pb-12 sm:pb-16 max-w-6xl mx-auto w-full mt-12 sm:mt-20 pt-8 sm:pt-12 border-t border-primary/10">
+        {/* Header row — same diamond + label pattern as a phase node */}
+        <button
+          onClick={() => setReferencesOpen((v) => !v)}
+          className="w-full text-left group/ref"
+          aria-expanded={referencesOpen}
+        >
+          <div className="flex items-start gap-4">
+            <span className="relative flex items-center justify-center w-8 h-8 mt-0.5 flex-shrink-0">
               <span
-                className="inline-block w-1.5 h-1.5 mt-[7px] rotate-45 border border-primary/60 flex-shrink-0"
+                className={`absolute inset-0 m-auto w-5 h-5 rotate-45 border bg-background transition-all duration-300 ${
+                  referencesOpen
+                    ? 'border-primary bg-primary/10 phase-node-active'
+                    : 'border-primary/50 group-hover/ref:border-primary group-hover/ref:bg-primary/5'
+                }`}
                 aria-hidden
               />
-              <div className="min-w-0 flex-1">
-                <span className="font-mono text-[10px] tracking-[0.18em] text-primary/90 mr-2 uppercase">
-                  {mandate.tag}
-                </span>
-                <span className="font-sans text-[13px] sm:text-[14px] text-foreground/90 leading-snug">
-                  {mandate.text[lang]}
-                </span>
+            </span>
+            <div className="min-w-0 flex-1">
+              <div
+                className={`font-mono text-[10px] tracking-[0.28em] sm:tracking-[0.3em] mb-1 transition-colors ${
+                  referencesOpen ? 'text-primary phase-label-emphasis' : 'text-primary/80 group-hover/ref:text-primary'
+                }`}
+              >
+                {referenceSectionLabel.replace('/ ', '')}
               </div>
-            </li>
-          ))}
-        </ul>
+              <div className="font-mono text-[15px] sm:text-2xl md:text-3xl font-medium leading-snug text-foreground">
+                {referenceHeadline}
+              </div>
+            </div>
+          </div>
+        </button>
 
-        <p className="font-mono text-[10px] tracking-[0.18em] text-muted-foreground/70 italic">
-          {referenceFootnote}
-        </p>
+        {/* Collapsible body */}
+        {referencesOpen && (
+          <div className="mt-6 sm:mt-8 animate-fade-in pl-0 sm:pl-12">
+            <p className="font-sans text-sm sm:text-base text-muted-foreground max-w-2xl leading-snug mb-8 sm:mb-10">
+              {referenceSubline}
+            </p>
+
+            {/* Branchen-Cluster: kategorisierte Kundennamen, rein typografisch */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-7 mb-10 sm:mb-12">
+              {referenceClusters.map((cluster) => (
+                <div key={cluster.label.en} className="min-w-0">
+                  <div className="font-mono text-[10px] tracking-[0.28em] text-primary/80 mb-3 pb-2 border-b border-primary/15">
+                    {cluster.label[lang].toUpperCase()}
+                  </div>
+                  <ul className="flex flex-wrap gap-x-4 gap-y-1.5">
+                    {cluster.clients.map((client) => (
+                      <li
+                        key={client}
+                        className="font-mono text-[12px] sm:text-[13px] tracking-[0.01em] text-foreground/85 leading-snug"
+                      >
+                        {client}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+
+            {/* Highlight-Mandate: kuratierte aktuelle/strategische Projekte */}
+            <div className="font-mono text-[10px] tracking-[0.28em] text-primary/80 mb-4 pb-2 border-b border-primary/15">
+              {lang === 'de'
+                ? 'AUSGEWÄHLTE MANDATE'
+                : lang === 'fr'
+                ? 'MANDATS SÉLECTIONNÉS'
+                : 'SELECTED MANDATES'}
+            </div>
+            <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3 mb-6">
+              {highlightMandates.map((mandate) => (
+                <li key={mandate.tag} className="flex items-start gap-3 min-w-0">
+                  <span
+                    className="inline-block w-1.5 h-1.5 mt-[7px] rotate-45 border border-primary/60 flex-shrink-0"
+                    aria-hidden
+                  />
+                  <div className="min-w-0 flex-1">
+                    <span className="font-mono text-[10px] tracking-[0.18em] text-primary/90 mr-2 uppercase">
+                      {mandate.tag}
+                    </span>
+                    <span className="font-sans text-[13px] sm:text-[14px] text-foreground/90 leading-snug">
+                      {mandate.text[lang]}
+                    </span>
+                  </div>
+                </li>
+              ))}
+            </ul>
+
+            <p className="font-mono text-[10px] tracking-[0.18em] text-muted-foreground/70 italic">
+              {referenceFootnote}
+            </p>
+          </div>
+        )}
       </section>
         </>
       )}
