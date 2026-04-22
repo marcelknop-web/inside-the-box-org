@@ -662,7 +662,7 @@ export const fr = {
   },
   profiles: {
     marcel: {
-      bio: 'J\'accompagne les organisations dans la mise en œuvre des exigences en matière de cybersécurité et de conformité, avec un accent sur les SMSI, les sujets réglementaires et la gestion de cyber-crise. Mon travail comprend notamment la mise en place et le développement de SMSI, la préparation et l\'accompagnement d\'audits ainsi que l\'établissement de processus de sécurité et de gestion de crise. J\'ai auparavant occupé des postes de direction chez KPMG, Accenture et EY.',
+      bio: 'J\'accompagne les organisations dans la mise en œuvre efficace des exigences en cybersécurité et de conformité réglementaire – du diagnostic initial à l\'ancrage durable dans les processus et l\'organisation.\n\nJe fournis des bases de décision solides, accompagne les organisations vers la maturité d\'audit et m\'assure que les structures de sécurité et de gestion de crise fonctionnent en situation réelle.\n\nMes domaines clés sont la mise en place et le développement de SMSI, la mise en œuvre des exigences réglementaires et la gestion de cyber-crise.\n\nJ\'ai auparavant occupé des postes de direction chez KPMG, Accenture et EY.',
       focusLabel: 'Domaines clés',
       focus: 'SMSI · TISAX · NIS2 · PCI-DSS · Gestion de cyber-crise · TIBER · BCM',
       certsLabel: 'Certifications',
