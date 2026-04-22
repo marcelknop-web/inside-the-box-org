@@ -29,7 +29,7 @@ export function RoomActions({ currentRoom, onIdleAction }: RoomActionsProps) {
   const npcs = NPCS.filter((n) => n.homeRoom === currentRoom);
 
   return (
-    <div className="rounded-lg border border-border/40 bg-background/40 p-4 h-full flex flex-col gap-3">
+    <div className="rounded-lg border border-border/40 bg-background/40 p-3 sm:p-4 sm:h-full flex flex-col gap-3">
       {/* Room header */}
       <div>
         <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
