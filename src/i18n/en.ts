@@ -423,6 +423,7 @@ export const en = {
     ctaTitle: 'From the lab into practice',
     ctaDesc: 'When a format hits your use case, it can be turned into an AI-assisted workflow inside your organisation — with a clear scope and audit-ready documentation.',
     ctaButton: '→ Open AI workflows',
+    ctaContact: '→ Schedule a conversation',
   },
   arena: {
     title: 'TIBER Test',
