@@ -134,25 +134,26 @@ const PhasesPreview = ({
   lang: 'en' | 'de' | 'fr';
 }) => (
   <div className="relative w-full max-w-2xl mx-auto pt-2 pb-4">
-    {/* Horizontal connector — runs from center of first to center of last diamond.
-        Diamond mask layers (bg-background) cover the line behind each diamond,
-        so it appears as a clean dashed-through line of sight. */}
-    <div
-      className="absolute top-[13px] sm:top-[15px] h-px bg-primary/30 pointer-events-none"
-      style={{ left: 'calc(100% / 10)', right: 'calc(100% / 10)' }}
-      aria-hidden
-    />
     <ol className="grid grid-cols-5 relative">
-      {phases.map((phase) => (
-        <li key={phase.id} className="flex flex-col items-center text-center">
-          {/* Diamond node — fixed 28px box; mask layer is slightly larger to cleanly cover the connector line */}
-          <span className="relative flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 z-10 mb-2">
+      {phases.map((phase, idx) => (
+        <li key={phase.id} className="relative flex flex-col items-center text-center">
+          {/* Connector segment — drawn between diamonds, never under them.
+              Each non-first node draws a line from the previous node's center to its own outer-left edge.
+              Diamond half-width: 11px (mobile) / 13px (sm). Node container is 50% of cell width. */}
+          {idx > 0 && (
             <span
-              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[22px] h-[22px] sm:w-[26px] sm:h-[26px] rotate-45 bg-background"
+              className="absolute h-px bg-primary/30 pointer-events-none top-[13px] sm:top-[15px]"
+              style={{
+                right: 'calc(50% + 11px)',
+                left: 'calc(-50% + 11px)',
+              }}
               aria-hidden
             />
+          )}
+          {/* Diamond node */}
+          <span className="relative flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 z-10 mb-2">
             <span
-              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[22px] h-[22px] sm:w-[26px] sm:h-[26px] rotate-45 border border-primary/50"
+              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[22px] h-[22px] sm:w-[26px] sm:h-[26px] rotate-45 border border-primary/50 bg-background"
               aria-hidden
             />
             <span className="relative font-mono text-[9px] sm:text-[10px] tracking-[0.1em] text-muted-foreground">
