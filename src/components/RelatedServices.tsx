@@ -29,11 +29,17 @@ const RELATED_MAP: Record<string, RelatedEntry[]> = {
   ],
   'incident-management': [
     { id: 'cyber-crisis-management', titleKey: 'consulting.crisisTitle', descKey: 'consulting.crisisDesc' },
+    { id: 'bcm', titleKey: 'consulting.bcmTitle', descKey: 'consulting.bcmDesc' },
     { id: 'arena-training', titleKey: 'consulting.arenaTitle', descKey: 'consulting.arenaDesc' },
-    { id: 'nis2-dora', titleKey: 'consulting.nis2Title', descKey: 'consulting.nis2Desc' },
+  ],
+  'bcm': [
+    { id: 'incident-management', titleKey: 'consulting.incidentTitle', descKey: 'consulting.incidentDesc' },
+    { id: 'cyber-crisis-management', titleKey: 'consulting.crisisTitle', descKey: 'consulting.crisisDesc' },
+    { id: 'isms', titleKey: 'consulting.ismsTitle', descKey: 'consulting.ismsDesc' },
   ],
   'cyber-crisis-management': [
     { id: 'incident-management', titleKey: 'consulting.incidentTitle', descKey: 'consulting.incidentDesc' },
+    { id: 'bcm', titleKey: 'consulting.bcmTitle', descKey: 'consulting.bcmDesc' },
     { id: 'arena-training', titleKey: 'consulting.arenaTitle', descKey: 'consulting.arenaDesc' },
     { id: 'dora-nis2-ttx', titleKey: 'nav.ttxTraining', descKey: 'consulting.nis2Desc' },
   ],
