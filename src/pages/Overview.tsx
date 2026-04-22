@@ -247,7 +247,10 @@ const Overview = () => {
 
       {/* Active phase detail (desktop) */}
       <section className="hidden md:block flex-1 px-6 py-10 max-w-6xl mx-auto w-full">
-        <div className="grid grid-cols-12 gap-8 bg-background/60 backdrop-blur-[2px] border border-primary/15 p-8">
+        <div
+          key={active.id}
+          className="grid grid-cols-12 gap-8 bg-background/60 backdrop-blur-[2px] border border-primary/15 p-8 animate-fade-in"
+        >
           {/* Left — phase intro */}
           <div className="col-span-7">
             <div className="font-mono text-[10px] tracking-[0.35em] text-primary/70 mb-3">
@@ -270,7 +273,7 @@ const Overview = () => {
                 <li key={svc.id}>
                   <button
                     onClick={() => handleClick(svc.id)}
-                    className="w-full text-left flex items-center justify-between gap-3 font-mono text-sm tracking-[0.02em] text-foreground/90 hover:text-primary transition-colors py-2.5 border-b border-primary/10 group/svc"
+                    className="w-full text-left flex items-center justify-between gap-3 font-mono text-sm tracking-[0.02em] text-foreground/90 hover:text-primary hover:translate-x-1 transition-all duration-200 py-2.5 border-b border-primary/10 group/svc"
                   >
                     <span className="flex items-center gap-3 min-w-0">
                       <span
