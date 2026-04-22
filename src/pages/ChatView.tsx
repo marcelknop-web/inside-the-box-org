@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, ReactNode, useCallback, useMemo, lazy, Sus
 import { useParams, useNavigate } from 'react-router-dom';
 
 import { supabase } from '@/integrations/supabase/client';
-import { Send, Plus, MessageCircle, Shield, Target, BookOpen, AlertTriangle, Eye, Flame, Swords, Calendar, FileText, UserCheck, ChevronLeft, Menu, ShieldCheck, Search, Settings, Award, RotateCcw, Network, CreditCard, CheckCircle, FileCheck, Car, BarChart, RefreshCw, GraduationCap, ClipboardList, Zap, Crown, Users, Gamepad2, Monitor, Crosshair, CheckSquare, Mic, Radio, Video, Mail, Server, Bug, AlertCircle, MessageSquare, Building2, Plane, Landmark, Scale, Wifi, XCircle, HelpCircle, Loader2, X, Linkedin, Play, TrendingDown, Rocket, Fingerprint, Factory } from 'lucide-react';
+import { Send, Plus, MessageCircle, Shield, Target, BookOpen, AlertTriangle, Eye, Flame, Swords, Calendar, FileText, UserCheck, ChevronLeft, Menu, ShieldCheck, Search, Settings, Award, RotateCcw, Network, CreditCard, CheckCircle, FileCheck, Car, BarChart, RefreshCw, GraduationCap, ClipboardList, Zap, Crown, Users, Gamepad2, Monitor, Crosshair, CheckSquare, Mic, Radio, Video, Mail, Server, Bug, AlertCircle, MessageSquare, Building2, Plane, Landmark, Scale, Wifi, XCircle, HelpCircle, Loader2, X, Linkedin, Play, TrendingDown, Rocket, Fingerprint, Factory, Sparkles } from 'lucide-react';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { PageMeta } from '@/components/PageMeta';
