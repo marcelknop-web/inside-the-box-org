@@ -82,9 +82,13 @@ export const SiteChrome = ({
       */}
       <footer className="border-t border-primary/10 bg-background/40 backdrop-blur-sm">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex flex-nowrap items-center justify-between gap-2.5 sm:gap-4 font-mono text-[9px] sm:text-[10px] tracking-[0.08em] sm:tracking-[0.22em] text-muted-foreground">
-          <span className="whitespace-nowrap">
+          <button
+            onClick={handleBrand}
+            className="whitespace-nowrap hover:text-primary focus-visible:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-sm transition-colors no-underline text-left"
+            aria-label="inside-the-box — Journey"
+          >
             <span className="hidden sm:inline">© {new Date().getFullYear()} </span>INSIDE-THE-BOX.ORG
-          </span>
+          </button>
           <div className="flex items-center gap-3 sm:gap-5">
             <button
               onClick={() => setDrawer('contact')}
