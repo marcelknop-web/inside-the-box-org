@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { Languages } from 'lucide-react';
@@ -187,6 +187,40 @@ const Overview = () => {
   // Cluster sector geometry — each cluster occupies 90° of the wheel
   const SECTOR_GAP = 1.5;
 
+  // Measure rendered SVG width to scale typography against viewBox (1200u)
+  const svgRef = useRef<SVGSVGElement | null>(null);
+  const [renderedWidth, setRenderedWidth] = useState(900);
+  useEffect(() => {
+    const el = svgRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const w = entry.contentRect.width;
+        if (w > 0) setRenderedWidth(w);
+      }
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  // Compensation factor: SVG scales viewBox to renderedWidth.
+  // To keep labels at a constant *visible* px size, multiply font sizes by
+  // (designWidth / renderedWidth) when the SVG is rendered smaller than 900px.
+  // Capped at 1.9× so on very small phones we don't blow up text past the
+  // available arc length.
+  const comp = Math.min(1.9, Math.max(1, 900 / Math.max(renderedWidth, 1)));
+  const fs = {
+    cluster: 38 * comp,
+    clusterTrack: 9 * comp,
+    process: 26 * comp,
+    processTrack: 7 * comp,
+    service: 24 * comp,
+    serviceTrack: 1 * comp,
+    diamond: 18 * comp,
+    coreTitle: 18 * comp,
+    coreSub: 8 * comp,
+  };
+
   return (
     <div className="min-h-screen w-full text-foreground overflow-hidden relative flex flex-col">
       <PageMeta
@@ -238,6 +272,7 @@ const Overview = () => {
       {/* Mandala */}
       <div className="relative w-full flex-1 flex items-center justify-center px-2 py-4">
         <svg
+          ref={svgRef}
           viewBox={`${-HALF} ${-HALF} ${VB} ${VB}`}
           className="w-full h-full max-w-[960px] max-h-[960px]"
           style={{ filter: 'drop-shadow(0 0 28px hsl(var(--primary) / 0.18))' }}
@@ -272,9 +307,9 @@ const Overview = () => {
                 </defs>
                 <text
                   fontFamily="'IBM Plex Mono', monospace"
-                  fontSize={38}
+                  fontSize={fs.cluster}
                   fontWeight={600}
-                  letterSpacing={9}
+                  letterSpacing={fs.clusterTrack}
                   fill={GOLD}
                   textRendering="geometricPrecision"
                   style={{ pointerEvents: 'none' }}
@@ -311,9 +346,9 @@ const Overview = () => {
                 </defs>
                 <text
                   fontFamily="'IBM Plex Mono', monospace"
-                  fontSize={26}
+                  fontSize={fs.process}
                   fontWeight={500}
-                  letterSpacing={7}
+                  letterSpacing={fs.processTrack}
                   fill={GOLD}
                   fillOpacity={0.85}
                   textRendering="geometricPrecision"
@@ -358,7 +393,7 @@ const Overview = () => {
               lPos.x < -8 ? 'end' : lPos.x > 8 ? 'start' : 'middle';
 
             // Diamond size + rotation (always upright — pointing radially outward)
-            const D = 18;
+            const D = fs.diamond;
             return (
               <g
                 key={service.id}
@@ -389,16 +424,16 @@ const Overview = () => {
                 </g>
 
                 {/* Hit area */}
-                <circle cx={dPos.x} cy={dPos.y} r={26} fill="transparent" />
+                <circle cx={dPos.x} cy={dPos.y} r={Math.max(20, fs.diamond * 1.6)} fill="transparent" />
 
                 {/* Horizontal label — always upright, never rotated */}
                 <text
                   x={lPos.x}
                   y={lPos.y}
                   fontFamily="'IBM Plex Mono', monospace"
-                  fontSize={24}
+                  fontSize={fs.service}
                   fontWeight={500}
-                  letterSpacing={1}
+                  letterSpacing={fs.serviceTrack}
                   fill={isHovered ? GOLD : '#e8ecf3'}
                   textAnchor={anchor}
                   dominantBaseline="middle"
@@ -449,10 +484,10 @@ const Overview = () => {
             />
             <text
               x={0}
-              y={-6}
+              y={-fs.coreSub * 0.7}
               textAnchor="middle"
               fontFamily="'IBM Plex Mono', monospace"
-              fontSize={18}
+              fontSize={fs.coreTitle}
               fontWeight={600}
               fill={GOLD}
               letterSpacing={0.5}
@@ -461,10 +496,10 @@ const Overview = () => {
             </text>
             <text
               x={0}
-              y={16}
+              y={fs.coreTitle * 0.9}
               textAnchor="middle"
               fontFamily="'IBM Plex Mono', monospace"
-              fontSize={8}
+              fontSize={fs.coreSub}
               fill={GOLD}
               fillOpacity={0.7}
               letterSpacing={2.5}
