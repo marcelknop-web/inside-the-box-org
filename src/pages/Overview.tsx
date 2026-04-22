@@ -153,6 +153,7 @@ const PHASES: Phase[] = [
     services: [
       { id: 'cyber-crisis-management', titleKey: 'consulting.crisisTitle' },
       { id: 'incident-management', titleKey: 'consulting.incidentTitle' },
+      { id: 'bcm', titleKey: 'consulting.bcmTitle' },
     ],
   },
 ];

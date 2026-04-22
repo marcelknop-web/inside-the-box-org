@@ -493,6 +493,42 @@ const useServiceContent = () => {
         <RelatedServices serviceId="incident-management" onSelect={setActive} />
       </TypedSection>
     ),
+    'bcm': () => (
+      <TypedSection title={t('bcm.title')} mode="typewriter" intro={<p>{t('bcm.intro')}</p>}>
+        <Block className="bg-card/40 rounded-xl">
+          <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{t('bcm.introDetail')}</p>
+        </Block>
+        <Block className="bg-primary/5 border border-primary/20 rounded-xl">
+          <SubTitle>{t('bcm.sectionTitle')}</SubTitle>
+          <div className="grid grid-cols-1 gap-3 mt-2">
+            <GridItem icon={BarChart} title={t('bcm.step1Title')} desc={t('bcm.step1Desc')} />
+            <GridItem icon={ClipboardList} title={t('bcm.step2Title')} desc={t('bcm.step2Desc')} />
+            <GridItem icon={Users} title={t('bcm.step3Title')} desc={t('bcm.step3Desc')} />
+            <GridItem icon={RefreshCw} title={t('bcm.step4Title')} desc={t('bcm.step4Desc')} />
+            <GridItem icon={FileCheck} title={t('bcm.step5Title')} desc={t('bcm.step5Desc')} />
+          </div>
+        </Block>
+        <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
+          <SubTitle variant="highlight">{t('bcm.outcomesTitle')}</SubTitle>
+          <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mt-2">{t('bcm.outcomesDesc')}</p>
+        </Block>
+        <Block className="bg-highlight/5 border border-highlight/20 rounded-xl">
+          <SubTitle variant="highlight">{t('bcm.refTitle')}</SubTitle>
+          <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mt-2">{t('bcm.refDesc')}</p>
+        </Block>
+        <Block className="bg-primary/5 border border-primary/20 rounded-xl">
+          <SubTitle>{t('bcm.ctaTitle')}</SubTitle>
+          <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mt-2">{t('bcm.ctaDesc')}</p>
+          <button
+            onClick={() => setActive('contact')}
+            className="mt-3 inline-flex items-center gap-2 text-highlight font-mono font-bold text-sm hover:text-primary transition-electric cursor-pointer bg-transparent border-none p-0"
+          >
+            {t('bcm.ctaButton')}
+          </button>
+        </Block>
+        <RelatedServices serviceId="bcm" onSelect={setActive} />
+      </TypedSection>
+    ),
     'cyber-crisis-management': () => (
       <TypedSection title={t('cyberCrisis.title')} mode="typewriter" intro={<p>{t('cyberCrisis.intro')}</p>}>
         <Block className="bg-card/40 rounded-xl">
@@ -1108,6 +1144,7 @@ const useServiceContent = () => {
           { theme: 'tisax-pci-dss', title: t('consulting.tisaxTitle'), desc: t('consulting.tisaxDesc'), id: 'tisax-pci-dss' },
           { theme: 'assessments-concepts', title: t('consulting.assessTitle'), desc: t('consulting.assessDesc'), id: 'assessments-concepts' },
           { theme: 'incident-management', title: t('consulting.incidentTitle'), desc: t('consulting.incidentDesc'), id: 'incident-management' },
+          { theme: 'bcm', title: t('consulting.bcmTitle'), desc: t('consulting.bcmDesc'), id: 'bcm' },
           { theme: 'cyber-crisis-management', title: t('consulting.crisisTitle'), desc: t('consulting.crisisDesc'), id: 'cyber-crisis-management' },
           { theme: 'arena-training', title: t('consulting.arenaTitle'), desc: t('consulting.arenaDesc'), id: 'arena-training' },
           { theme: 'events-workshops', title: t('consulting.eventsTitle'), desc: t('consulting.eventsDesc'), id: 'events-workshops' },
@@ -1300,6 +1337,7 @@ const useSidebarGroups = (): SidebarGroup[] => {
         { id: 'why', icon: Target, label: t('nav.cyberTrainingRange') },
         { id: 'arena-training', icon: Target, label: t('nav.redTeam') },
         { id: 'incident-management', icon: Flame, label: t('nav.incidentMgmt') },
+        { id: 'bcm', icon: RefreshCw, label: t('nav.bcm') },
       ],
     },
     {
@@ -1535,6 +1573,11 @@ const ChatView = () => {
       de: ['Incident Response Plan reif?', 'IR-Retainer richtig dimensionieren?', 'Major Incident: Schwellen klar?', 'Post-Incident-Review möglich?'],
       en: ['Mature incident response plan?', 'Right-size IR retainer?', 'Major incident thresholds?', 'Post-incident review with us?'],
       fr: ['Plan IR mature ?', 'Dimensionner un retainer IR ?', 'Seuils Major Incident ?', 'Post-incident review ?'],
+    },
+    'bcm': {
+      de: ['BIA für Kernprozesse?', 'ISCPs nach BSI 200-4?', 'Notfallübung im Q2?', 'RTO/RPO realistisch?'],
+      en: ['BIA for core processes?', 'ISCPs per BSI 200-4?', 'Continuity exercise in Q2?', 'Realistic RTO/RPO?'],
+      fr: ['BIA des processus clés ?', 'ISCP selon BSI 200-4 ?', 'Exercice continuité au T2 ?', 'RTO/RPO réalistes ?'],
     },
     'cyber-crisis-management': {
       de: ['Krisenstab ohne Mandat?', 'Tabletop für unseren Vorstand?', 'Krisenübung im Q1 möglich?', 'Vorstand nie geübt?'],

@@ -26,6 +26,7 @@ export type ServiceTheme =
   | 'virtual-ciso'
   | 'ai-workflows'
   | 'soc-operations'
+  | 'bcm'
   /* Journey-Map-Phasen (Overview) */
   | 'phase-understand'
   | 'phase-comply'
@@ -188,6 +189,16 @@ export const ServiceSymbol = ({ theme, size = 16, className, ...rest }: ServiceS
           <circle cx="12" cy="12" r="1.2" fill="currentColor" />
           <path d="M12 12 L19 8" />
           <path d="M12 3 V5 M12 19 V21 M3 12 H5 M19 12 H21" />
+        </svg>
+      );
+
+    /* BCM / Notfallmanagement — Rettungsring (Lifebuoy: Kontinuität, Hilfe in der Not). */
+    case 'bcm':
+      return (
+        <svg {...props}>
+          <circle cx="12" cy="12" r="9" />
+          <circle cx="12" cy="12" r="3.5" />
+          <path d="M12 3 V8.5 M12 15.5 V21 M3 12 H8.5 M15.5 12 H21" />
         </svg>
       );
 
