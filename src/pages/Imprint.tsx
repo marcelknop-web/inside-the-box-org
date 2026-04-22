@@ -86,18 +86,12 @@ const Imprint = () => {
             </h2>
             <p className="space-y-1">
               <span className="block">
-                <a
-                  href="mailto:marcel@inside-the-box.org"
-                  className="text-primary underline underline-offset-2 decoration-primary/40 hover:decoration-primary transition-colors"
-                >
+                <a href="mailto:marcel@inside-the-box.org" className={inlineLink}>
                   marcel@inside-the-box.org
                 </a>
               </span>
               <span className="block">
-                <a
-                  href="tel:+4915205691648"
-                  className="text-primary underline underline-offset-2 decoration-primary/40 hover:decoration-primary transition-colors"
-                >
+                <a href="tel:+4915205691648" className={inlineLink}>
                   +49 1520 569 1648
                 </a>
               </span>
@@ -164,7 +158,7 @@ const Imprint = () => {
                 <h3 className="font-mono text-[11px] tracking-[0.25em] text-primary/80 uppercase mb-2">
                   {t('imprint.privacyRightsTitle')}
                 </h3>
-                <p>{t('imprint.privacyRights')}</p>
+                <p>{renderWithEmailLink(t('imprint.privacyRights'))}</p>
               </div>
             </div>
           </section>
