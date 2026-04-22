@@ -96,15 +96,15 @@ const CLUSTER_DISPLAY_LABEL: Record<string, string> = {
 const VB = 1200;
 const HALF = VB / 2;
 
-// Concentric radii
-const R_CORE = 70;        // small inner monogram circle
-const R_PROCESS_IN = 110; // inner ring start
-const R_PROCESS_OUT = 230;// inner ring end
-const R_CLUSTER_IN = 230; // cluster ring start
-const R_CLUSTER_OUT = 380;// cluster ring end
-const R_GUIDE = 430;      // outer faint guide circle (services live around this)
-const R_DIAMOND = 460;    // diamond marker centre
-const R_LABEL = 540;      // text radius
+// Concentric radii — tightly packed, fills the canvas
+const R_CORE = 92;         // central monogram tile
+const R_PROCESS_IN = 132;  // inner process ring start
+const R_PROCESS_OUT = 282; // inner process ring end
+const R_CLUSTER_IN = 282;  // cluster ring start (shares boundary)
+const R_CLUSTER_OUT = 462; // cluster ring end
+const R_GUIDE = 500;       // faint outer guide circle
+const R_DIAMOND = 524;     // diamond marker centre
+const R_LABEL = 560;       // service label baseline radius
 
 const GOLD = '#f5b800';
 
