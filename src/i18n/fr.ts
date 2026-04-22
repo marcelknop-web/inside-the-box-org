@@ -423,6 +423,7 @@ export const fr = {
     ctaTitle: 'Du lab à la pratique',
     ctaDesc: 'Lorsqu\'un format correspond à votre cas d\'usage, il peut être transformé en workflow assisté par IA dans votre organisation — avec un périmètre clair et une documentation auditable.',
     ctaButton: '→ Vers les workflows IA',
+    ctaContact: '→ Convenir d\'un entretien',
   },
   arena: {
     title: 'TIBER Test',
