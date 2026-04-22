@@ -460,6 +460,14 @@
     border-left: 2px solid hsl(var(--primary));
     padding: 0.25rem 0.75rem;
   }
+
+  /* Hanging indent for inline-marker bullet lists:
+     wrapped lines align with the text after the bullet, not under the bullet. */
+  ul.list-inside > li,
+  ol.list-inside > li {
+    padding-left: 1.25em;
+    text-indent: -1.25em;
+  }
 }
 
 /* Mobile typography (max-width: 640px) */
