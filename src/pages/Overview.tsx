@@ -174,10 +174,12 @@ const Overview = () => {
       {/* Top bar */}
       <header className="flex items-center justify-between px-4 sm:px-6 py-4 sm:py-5 border-b border-primary/10 gap-3">
         <button
-          onClick={() => navigate('/')}
-          className="font-mono text-[10px] tracking-[0.25em] sm:tracking-[0.3em] text-muted-foreground hover:text-primary transition-colors whitespace-nowrap"
+          onClick={() => setLanguage(nextLanguage(language))}
+          className="font-mono text-[10px] tracking-[0.25em] sm:tracking-[0.3em] text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"
+          aria-label="Language"
         >
-          ← INSIDE-THE-BOX
+          <Languages className="w-3 h-3" />
+          {language.toUpperCase()}
         </button>
         <div className="flex items-center gap-3 sm:gap-5">
           <button
@@ -191,14 +193,6 @@ const Overview = () => {
             className="font-mono text-[10px] tracking-[0.25em] sm:tracking-[0.3em] text-muted-foreground hover:text-primary transition-colors"
           >
             {lang === 'de' ? 'KONTAKT' : 'CONTACT'}
-          </button>
-          <button
-            onClick={() => setLanguage(nextLanguage(language))}
-            className="font-mono text-[10px] tracking-[0.25em] sm:tracking-[0.3em] text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"
-            aria-label="Language"
-          >
-            <Languages className="w-3 h-3" />
-            {language.toUpperCase()}
           </button>
         </div>
       </header>
