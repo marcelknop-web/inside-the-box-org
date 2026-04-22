@@ -239,8 +239,8 @@ const Overview = () => {
       <div className="relative w-full flex-1 flex items-center justify-center px-2 py-12">
         <svg
           viewBox={`${-HALF} ${-HALF} ${VB} ${VB}`}
-          className="w-full h-full max-w-[900px] max-h-[900px]"
-          style={{ filter: 'drop-shadow(0 0 24px hsl(var(--primary) / 0.15))' }}
+          className="w-full h-full max-w-[960px] max-h-[960px]"
+          style={{ filter: 'drop-shadow(0 0 28px hsl(var(--primary) / 0.18))' }}
         >
           {/* Outer guide circles */}
           <circle cx={0} cy={0} r={R_GUIDE} fill="none" stroke={GOLD} strokeOpacity={0.18} strokeWidth={0.6} />
