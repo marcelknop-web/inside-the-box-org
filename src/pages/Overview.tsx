@@ -154,38 +154,25 @@ const PhasesPreview = ({
   lang: 'en' | 'de' | 'fr';
 }) => (
   <div className="relative w-full max-w-2xl mx-auto pt-2 pb-4">
-    <ol className="grid grid-cols-5 gap-0.5 sm:gap-1 relative">
-      {phases.map((phase, idx) => (
+    {/* Mobile: 3 columns (auto-wraps to 2 rows) — emphasises equal rank,
+        gives each label real breathing room. Desktop keeps 5-in-a-row. */}
+    <ul className="grid grid-cols-3 sm:grid-cols-5 gap-x-3 gap-y-3 sm:gap-2">
+      {phases.map((phase) => (
         <li key={phase.id} className="relative flex flex-col items-center text-center min-w-0">
-          {/* Connector segment between diamonds — never under a diamond.
-              Diamond half-width: 11px (mobile) / 13px (sm). */}
-          {idx > 0 && (
+          {/* Diamond marker — pure symbol, no number (all phases are equal-rank). */}
+          <span className="relative flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 z-10 mb-1.5 sm:mb-2">
             <span
-              className="absolute h-px bg-primary/30 pointer-events-none top-[13px] sm:top-[15px]"
-              style={{
-                right: 'calc(50% + 11px)',
-                left: 'calc(-50% + 11px)',
-              }}
+              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[12px] h-[12px] sm:w-[14px] sm:h-[14px] rotate-45 border border-primary/50 bg-background"
               aria-hidden
             />
-          )}
-          {/* Diamond node */}
-          <span className="relative flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 z-10 mb-1.5 sm:mb-2">
-            <span
-              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[22px] h-[22px] sm:w-[26px] sm:h-[26px] rotate-45 border border-primary/50 bg-background"
-              aria-hidden
-            />
-            <span className="relative font-mono text-[9px] sm:text-[10px] tracking-[0.1em] text-muted-foreground">
-              {phase.number}
-            </span>
           </span>
-          {/* Label — tight tracking on mobile so single words fit one line. */}
-          <span className="font-mono text-[7px] sm:text-[9px] tracking-normal sm:tracking-[0.18em] text-muted-foreground/70 leading-[1.1] w-full px-0 break-words hyphens-none">
+          {/* Label — equal-rank text under each diamond. */}
+          <span className="font-mono text-[10px] sm:text-[9px] tracking-[0.1em] sm:tracking-[0.18em] text-muted-foreground/70 leading-[1.15] w-full px-0">
             {phase.title[lang]}
           </span>
         </li>
       ))}
-    </ol>
+    </ul>
   </div>
 );
 
@@ -338,42 +325,26 @@ const Overview = () => {
       {/* Timeline (desktop) */}
       <section className="hidden md:block px-6 pb-4 max-w-6xl mx-auto w-full">
         <div className="relative pt-2">
-          <ol className="grid grid-cols-5 relative gap-0">
-            {PHASES.map((phase, idx) => {
+          <ul className="grid grid-cols-5 relative gap-0">
+            {PHASES.map((phase) => {
               const isActive = phase.id === activeId;
               return (
                 <li key={phase.id} className="relative flex flex-col items-center min-w-0">
-                  {/* Connector segment between diamonds — drawn from previous node center to this node's outer-left edge.
-                      Diamond half-width: 18px mobile (36px diamond), 22px desktop (44px diamond). */}
-                  {idx > 0 && (
-                    <span
-                      className="absolute h-px bg-primary/25 pointer-events-none top-[22px] sm:top-[26px] right-[calc(50%+18px)] left-[calc(-50%+18px)] sm:right-[calc(50%+22px)] sm:left-[calc(-50%+22px)]"
-                      aria-hidden
-                    />
-                  )}
                   <button
                     onClick={() => setActiveId(phase.id)}
                     className="group flex flex-col items-center gap-2 sm:gap-4 text-center w-full px-0.5 sm:px-2"
-                    aria-current={isActive ? 'step' : undefined}
+                    aria-current={isActive ? 'true' : undefined}
                   >
-                    {/* Node — smaller on mobile so labels have room */}
+                    {/* Diamond marker — pure symbol, no number (all phases are equal-rank). */}
                     <span className="relative flex items-center justify-center w-[44px] h-[44px] sm:w-[52px] sm:h-[52px] z-10">
                       <span
-                        className={`absolute inset-0 m-auto w-[36px] h-[36px] sm:w-[44px] sm:h-[44px] rotate-45 border bg-background transition-all duration-300 ease-out ${
+                        className={`absolute inset-0 m-auto w-[28px] h-[28px] sm:w-[32px] sm:h-[32px] rotate-45 border bg-background transition-all duration-300 ease-out ${
                           isActive
                             ? 'border-primary bg-primary/10 phase-node-active'
                             : 'border-primary/50 group-hover:border-primary group-hover:scale-110 group-hover:bg-primary/5 group-hover:shadow-[0_0_18px_-6px_hsl(var(--primary)/0.55)]'
                         }`}
                         aria-hidden
                       />
-                      <span
-                        key={isActive ? `n-${phase.id}-active` : `n-${phase.id}`}
-                        className={`relative font-mono text-[10px] sm:text-[11px] tracking-[0.1em] sm:tracking-[0.15em] transition-colors duration-300 ${
-                          isActive ? 'text-primary' : 'text-muted-foreground group-hover:text-primary'
-                        }`}
-                      >
-                        {phase.number}
-                      </span>
                     </span>
                     {/* Label — single line on mobile via tighter tracking & smaller size */}
                     <span
@@ -390,7 +361,7 @@ const Overview = () => {
                 </li>
               );
             })}
-          </ol>
+          </ul>
         </div>
       </section>
 
@@ -404,7 +375,7 @@ const Overview = () => {
           {/* Left — phase intro */}
           <div className="col-span-7">
             <div className="font-mono text-[10px] tracking-[0.35em] text-primary/70 mb-3">
-              PHASE {active.number} / {String(PHASES.length).padStart(2, '0')}
+              {active.title[lang].toUpperCase()}
             </div>
             <h2 className="font-mono font-semibold text-3xl lg:text-4xl leading-[1.1] tracking-[-0.005em] text-foreground mb-4">
               {active.verb[lang]}
@@ -444,11 +415,9 @@ const Overview = () => {
         </div>
       </section>
 
-      {/* Mobile vertical stepper */}
+      {/* Mobile vertical list — equal-rank phases, no sequence indicator */}
       <section className="md:hidden flex-1 px-4 pb-10 max-w-6xl mx-auto w-full">
-        <ol className="relative">
-          {/* Vertical connector */}
-          <div className="absolute left-4 top-3 bottom-3 w-px bg-primary/20" aria-hidden />
+        <ul className="relative">
           {PHASES.map((phase) => {
             const isActive = phase.id === activeId;
             return (
@@ -458,26 +427,15 @@ const Overview = () => {
                   className="absolute left-0 top-0 flex items-center justify-center w-8 h-8 group/node"
                   aria-expanded={isActive}
                 >
-                  {/* Mask layer — solid bg blocks the vertical connector line under the diamond */}
+                  {/* Diamond marker — pure symbol, no number */}
                   <span
-                    className="absolute inset-0 m-auto w-8 h-8 rotate-45 bg-background"
-                    aria-hidden
-                  />
-                  <span
-                    className={`absolute inset-0 m-auto w-8 h-8 rotate-45 border transition-all duration-300 ${
+                    className={`absolute inset-0 m-auto w-5 h-5 rotate-45 border transition-all duration-300 ${
                       isActive
                         ? 'border-primary bg-primary/10 phase-node-active'
                         : 'border-primary/40 group-hover/node:border-primary group-hover/node:bg-primary/5'
                     }`}
                     aria-hidden
                   />
-                  <span
-                    className={`relative font-mono text-[10px] tracking-[0.15em] transition-colors ${
-                      isActive ? 'text-primary' : 'text-muted-foreground group-hover/node:text-primary'
-                    }`}
-                  >
-                    {phase.number}
-                  </span>
                 </button>
 
                 <button
@@ -533,7 +491,7 @@ const Overview = () => {
               </li>
             );
           })}
-        </ol>
+        </ul>
       </section>
         </>
       )}
