@@ -154,7 +154,7 @@ const PhasesPreview = ({
   lang: 'en' | 'de' | 'fr';
 }) => (
   <div className="relative w-full max-w-2xl mx-auto pt-2 pb-4">
-    <ul className="grid grid-cols-5 gap-1 sm:gap-2 relative">
+    <ul className="grid grid-cols-5 gap-2 sm:gap-2 relative">
       {phases.map((phase) => (
         <li key={phase.id} className="relative flex flex-col items-center text-center min-w-0">
           {/* Diamond marker — pure symbol, no number (all phases are equal-rank). */}
