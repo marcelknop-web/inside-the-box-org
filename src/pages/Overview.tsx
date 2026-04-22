@@ -494,6 +494,15 @@ const Overview = () => {
                     }`}
                     aria-hidden
                   />
+                  {/* Inner theme symbol — kept upright over the rotated diamond */}
+                  <ServiceSymbol
+                    theme={PHASE_SYMBOLS[phase.id]}
+                    size={12}
+                    aria-hidden
+                    className={`relative z-10 transition-colors duration-300 ${
+                      isActive ? 'text-primary' : 'text-primary/70 group-hover/node:text-primary'
+                    }`}
+                  />
                 </button>
 
                 <button
