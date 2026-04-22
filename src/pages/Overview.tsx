@@ -133,18 +133,18 @@ const Overview = () => {
 
   const headline =
     lang === 'de'
-      ? 'Die Reise zu echter Cyber-Resilienz.'
+      ? 'Cyber-Resilienz in fünf Schritten.'
       : lang === 'fr'
-      ? 'Le chemin vers une vraie cyber-résilience.'
-      : 'The journey to real cyber-resilience.';
+      ? 'La cyber-résilience en cinq étapes.'
+      : 'Cyber-resilience in five steps.';
   const subline =
     lang === 'de'
-      ? 'Fünf Phasen. Wählen Sie die, in der Sie gerade stehen.'
+      ? 'Wählen Sie den Schritt, der gerade ansteht.'
       : lang === 'fr'
-      ? 'Cinq phases. Choisissez celle où vous en êtes.'
-      : 'Five phases. Pick the one you\'re in right now.';
+      ? 'Choisissez l\'étape qui vous concerne.'
+      : 'Pick the step that matters right now.';
   const sectionLabel =
-    lang === 'de' ? '/ DIE REISE' : lang === 'fr' ? '/ LE PARCOURS' : '/ THE JOURNEY';
+    lang === 'de' ? '/ ÜBERSICHT' : lang === 'fr' ? '/ APERÇU' : '/ OVERVIEW';
   const servicesLabel =
     lang === 'de' ? 'Leistungen in dieser Phase' : lang === 'fr' ? 'Services dans cette phase' : 'Services in this phase';
 
