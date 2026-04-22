@@ -745,6 +745,13 @@ const Overview = () => {
                 {referenceHeadline}
               </div>
             </div>
+            {/* Arrow affordance — same style as service rows above. Rotates 90° when open. */}
+            <ArrowRight
+              className={`w-4 h-4 mt-2 flex-shrink-0 text-primary/70 group-hover/ref:text-primary transition-all duration-300 ${
+                referencesOpen ? 'rotate-90' : '-translate-x-1 group-hover/ref:translate-x-0'
+              }`}
+              aria-hidden
+            />
           </div>
         </button>
 
