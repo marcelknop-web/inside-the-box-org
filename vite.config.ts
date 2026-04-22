@@ -10,6 +10,11 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8080,
   },
+  define: {
+    // Build timestamp — used e.g. for the "Last updated" line on /impressum.
+    // Refreshed on every Vite build / dev start.
+    __BUILD_DATE__: JSON.stringify(new Date().toISOString()),
+  },
   plugins: [
     react(),
     mode === 'development' &&
