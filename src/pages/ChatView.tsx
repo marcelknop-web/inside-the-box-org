@@ -1332,6 +1332,7 @@ const ChatView = () => {
    const [claimDone, setClaimDone] = useState(false);
    const [chatBarReady, setChatBarReady] = useState(false);
    const [exampleIndex, setExampleIndex] = useState(0);
+   const [inputFocused, setInputFocused] = useState(false);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const crisisRef = useRef<CrisisSimulatorHandle>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -1743,14 +1744,14 @@ const ChatView = () => {
   }, [language, isMobile]);
 
 
-  // Rotate every 4s, but pause while the user is typing
+  // Rotate every 4s, but pause while the user is typing or focused on the input
   useEffect(() => {
-    if (isToolPage || input.length > 0) return;
+    if (isToolPage || input.length > 0 || inputFocused) return;
     const id = window.setInterval(() => {
       setExampleIndex(i => (i + 1) % exampleQuestions.length);
     }, 4000);
     return () => window.clearInterval(id);
-  }, [isToolPage, input.length, exampleQuestions.length]);
+  }, [isToolPage, input.length, inputFocused, exampleQuestions.length]);
 
   const selectService = (id: string) => {
     navigateToService(id);
