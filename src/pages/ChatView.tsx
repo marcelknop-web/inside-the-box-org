@@ -1153,7 +1153,7 @@ const useServiceContent = () => {
             <span className="text-primary font-semibold">{t('imprint.responsible')}</span><br />
             Marcel Knop<br />
             Appenrother Weg 14<br />
-            34308 Bad Emstal, Germany
+            {lang === 'de' ? '34308 Bad Emstal, Deutschland' : lang === 'fr' ? '34308 Bad Emstal, Allemagne' : '34308 Bad Emstal, Germany'}
           </p>
           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed mt-3">
             <span className="text-primary font-semibold">{t('imprint.contactLabel')}</span><br />
