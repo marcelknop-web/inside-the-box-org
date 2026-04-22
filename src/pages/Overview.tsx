@@ -378,11 +378,11 @@ const Overview = () => {
       {/* Timeline (desktop) */}
       <section className="hidden md:block px-6 pb-4 max-w-6xl mx-auto w-full">
         <div className="relative pt-2">
-          <ol className="grid grid-cols-5 relative">
+          <ol className="grid grid-cols-6 relative">
             {/* Connector line — spans only between first and last node centers */}
             <div
               className="absolute top-[26px] h-px bg-primary/25 pointer-events-none"
-              style={{ left: '10%', right: '10%' }}
+              style={{ left: 'calc(100% / 12)', right: 'calc(100% / 12)' }}
               aria-hidden
             />
             {PHASES.map((phase) => {
@@ -583,16 +583,32 @@ const Overview = () => {
 
       {/* Footer */}
       <footer className="border-t border-primary/10 bg-background/40 backdrop-blur-sm">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 font-mono text-[9px] sm:text-[10px] tracking-[0.15em] sm:tracking-[0.25em] text-muted-foreground whitespace-nowrap">
-          <span>
-            © {new Date().getFullYear()}{' '}
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex flex-wrap items-center justify-between gap-3 font-mono text-[9px] sm:text-[10px] tracking-[0.18em] sm:tracking-[0.22em] text-muted-foreground">
+          <span className="whitespace-nowrap">
+            © {new Date().getFullYear()} INSIDE-THE-BOX.ORG
+          </span>
+          <div className="flex items-center gap-4 sm:gap-5">
+            <button
+              onClick={() => setDrawer('contact')}
+              className="hover:text-primary transition-colors uppercase whitespace-nowrap"
+            >
+              {footerContactLabel}
+            </button>
+            <a
+              href="https://www.linkedin.com/in/inside-the-box"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-primary transition-colors inline-flex items-center gap-1.5 uppercase whitespace-nowrap"
+            >
+              <Linkedin className="w-3 h-3" /> LinkedIn
+            </a>
             <a
               href="/impressum"
-              className="hover:text-primary transition-colors"
+              className="hover:text-primary transition-colors uppercase whitespace-nowrap"
             >
-              INSIDE-THE-BOX.ORG
+              {footerImprintLabel}
             </a>
-          </span>
+          </div>
         </div>
       </footer>
 
