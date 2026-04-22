@@ -37,7 +37,7 @@ const App = () => (
           <BrowserRouter>
             <Routes>
               {/* Active Journey + entry points */}
-              <Route path="/" element={<Suspense fallback={<RouteSkeleton />}><Overview /></Suspense>} />
+              <Route path="/" element={<Overview />} />
               <Route path="/impressum" element={<Suspense fallback={<RouteSkeleton />}><Imprint /></Suspense>} />
               <Route path="/imprint" element={<Suspense fallback={<RouteSkeleton />}><Imprint /></Suspense>} />
 
