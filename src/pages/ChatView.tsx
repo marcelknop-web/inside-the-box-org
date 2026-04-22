@@ -1213,8 +1213,10 @@ const useServiceContent = () => {
                     )}
                   </div>
                 </div>
-                <div className="bg-background/40 border border-border/30 rounded-lg p-4 mb-4">
-                  <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed max-w-prose">{t(`profiles.${key}.bio`)}</p>
+                <div className="bg-background/40 border border-border/30 rounded-lg p-4 mb-4 space-y-3 max-w-prose">
+                  {t(`profiles.${key}.bio`).split('\n\n').map((para, i) => (
+                    <p key={i} className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{para}</p>
+                  ))}
                 </div>
                 <div className="bg-background/40 border border-border/30 rounded-lg p-4 space-y-1.5 text-sm font-sans">
                   <p><span className="text-primary font-semibold">{t(`profiles.${key}.focusLabel`)}:</span> <span className="text-foreground/80">{t(`profiles.${key}.focus`)}</span></p>
