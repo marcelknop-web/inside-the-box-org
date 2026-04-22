@@ -559,7 +559,7 @@ export const en = {
     privacyCookies: 'No marketing or tracking cookies are set. Only technically necessary local storage (e.g. language preference) is kept in your browser.',
     privacyRightsTitle: 'Your rights',
     privacyRights: 'You have the right to access, rectify, erase, restrict, port and object to processing, and the right to lodge a complaint with a supervisory authority. Requests can be sent informally to marcel@inside-the-box.org.',
-    lastUpdated: 'Last updated: 4th September, 2025',
+    lastUpdatedPrefix: 'Last updated:',
   },
   techReq: {
     title: 'Technical Requirements',

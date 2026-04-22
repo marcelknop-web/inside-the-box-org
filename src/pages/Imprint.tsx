@@ -127,7 +127,11 @@ const Imprint = () => {
           </section>
 
           <p className="font-mono text-[11px] tracking-[0.18em] text-muted-foreground/70 pt-6 border-t border-primary/10">
-            {t('imprint.lastUpdated')}
+            {t('imprint.lastUpdatedPrefix')}{' '}
+            {new Date(__BUILD_DATE__).toLocaleDateString(
+              lang === 'de' ? 'de-DE' : lang === 'fr' ? 'fr-FR' : 'en-GB',
+              { year: 'numeric', month: 'long', day: 'numeric' },
+            )}
           </p>
         </div>
       </main>
