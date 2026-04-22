@@ -141,6 +141,83 @@ const PHASES: Phase[] = [
   },
 ];
 
+/**
+ * Compact non-interactive preview of all phases.
+ * Used in the hero to hint at the structure waiting behind the CTA.
+ * Shows diamonds 01–06 connected by a thin line, plus a dashed loop-back arrow
+ * indicating that cyber-resilience is a continuous cycle.
+ */
+const PhasesPreview = ({
+  phases,
+  lang,
+}: {
+  phases: Phase[];
+  lang: 'en' | 'de' | 'fr';
+}) => (
+  <div className="relative w-full max-w-2xl mx-auto pt-2 pb-8">
+    {/* Horizontal connector */}
+    <div
+      className="absolute top-[14px] sm:top-[16px] h-px bg-primary/25 pointer-events-none"
+      style={{ left: 'calc(100% / 12)', right: 'calc(100% / 12)' }}
+      aria-hidden
+    />
+    {/* Dashed loop-back arrow — under the diamonds, suggesting the cycle */}
+    <svg
+      className="absolute left-0 right-0 mx-auto pointer-events-none"
+      style={{ top: '32px', width: '92%', height: '34px' }}
+      viewBox="0 0 100 34"
+      preserveAspectRatio="none"
+      aria-hidden
+    >
+      <defs>
+        <marker
+          id="loopArrow"
+          viewBox="0 0 10 10"
+          refX="6"
+          refY="5"
+          markerWidth="5"
+          markerHeight="5"
+          orient="auto-start-reverse"
+        >
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="hsl(var(--primary) / 0.45)" />
+        </marker>
+      </defs>
+      <path
+        d="M 96 2 C 96 28, 50 32, 4 32 L 4 30"
+        fill="none"
+        stroke="hsl(var(--primary) / 0.45)"
+        strokeWidth="0.6"
+        strokeDasharray="1.5 1.5"
+        markerEnd="url(#loopArrow)"
+      />
+    </svg>
+    <ol className="grid grid-cols-6 relative gap-1">
+      {phases.map((phase) => (
+        <li key={phase.id} className="flex flex-col items-center text-center px-0.5">
+          {/* Diamond node */}
+          <span className="relative flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 z-10 mb-2">
+            <span
+              className="absolute inset-0 m-auto w-6 h-6 sm:w-7 sm:h-7 rotate-45 bg-background"
+              aria-hidden
+            />
+            <span
+              className="absolute inset-0 m-auto w-6 h-6 sm:w-7 sm:h-7 rotate-45 border border-primary/40"
+              aria-hidden
+            />
+            <span className="relative font-mono text-[9px] sm:text-[10px] tracking-[0.1em] text-muted-foreground">
+              {phase.number}
+            </span>
+          </span>
+          {/* Label — all uniformly dimmed */}
+          <span className="font-mono text-[8px] sm:text-[9px] tracking-[0.2em] text-muted-foreground/70 leading-tight whitespace-nowrap overflow-hidden text-ellipsis w-full">
+            {phase.title[lang]}
+          </span>
+        </li>
+      ))}
+    </ol>
+  </div>
+);
+
 const Overview = () => {
   const { t, language, setLanguage } = useLanguage();
   const navigate = useNavigate();
