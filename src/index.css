@@ -394,7 +394,34 @@
   animation: phase-label-emphasis 0.55s ease-out;
 }
 
-@layer components {
+/* Stress flicker — used to animate the word "Stress/stress/pression" in the hero
+   subtitle. Conveys electrical instability without distracting from the rest of
+   the line. Subtle, irregular cadence. Pauses on prefers-reduced-motion. */
+@keyframes stress-flicker {
+  0%, 100% { opacity: 1; text-shadow: 0 0 6px hsl(var(--primary) / 0.35); }
+  6%   { opacity: 0.35; text-shadow: 0 0 2px hsl(var(--primary) / 0.6); }
+  8%   { opacity: 1;    text-shadow: 0 0 10px hsl(var(--primary) / 0.55); }
+  9%   { opacity: 0.55; }
+  10%  { opacity: 1; }
+  17%  { opacity: 0.4;  text-shadow: 0 0 1px hsl(var(--primary) / 0.4); }
+  18%  { opacity: 1; }
+  35%  { opacity: 0.7; }
+  36%  { opacity: 1; }
+  62%  { opacity: 0.3;  text-shadow: 0 0 14px hsl(var(--primary) / 0.7); }
+  63%  { opacity: 1; }
+  64%  { opacity: 0.6; }
+  65%  { opacity: 1; }
+  85%  { opacity: 0.85; }
+  87%  { opacity: 1; }
+}
+.text-stress-flicker {
+  color: hsl(var(--primary));
+  animation: stress-flicker 4.2s steps(1, end) infinite;
+  will-change: opacity, text-shadow;
+}
+@media (prefers-reduced-motion: reduce) {
+  .text-stress-flicker { animation: none; }
+}
   .card-electric {
     @apply bg-card border border-border rounded-lg p-6 transition-electric hover:shadow-[var(--shadow-card)] hover:border-primary/30;
   }
