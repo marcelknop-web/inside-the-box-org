@@ -71,7 +71,15 @@ export const SiteChrome = ({
       {/* Page content */}
       {children}
 
-      {/* Footer */}
+      {/* Footer
+          ----------------------------------------------------------------
+          Footer link convention (kept identical to the top-bar chrome):
+            • Never underlined — these are navigation chips, not prose links.
+            • Default colour: muted-foreground.
+            • Hover & keyboard-focus shift to text-primary.
+            • Focus is made visible with a subtle ring (no underline) so
+              keyboard users get a clear, brand-consistent indicator.
+      */}
       <footer className="border-t border-primary/10 bg-background/40 backdrop-blur-sm">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex flex-nowrap items-center justify-between gap-2.5 sm:gap-4 font-mono text-[9px] sm:text-[10px] tracking-[0.08em] sm:tracking-[0.22em] text-muted-foreground">
           <span className="whitespace-nowrap">
@@ -80,7 +88,7 @@ export const SiteChrome = ({
           <div className="flex items-center gap-3 sm:gap-5">
             <button
               onClick={() => setDrawer('contact')}
-              className="hover:text-primary transition-colors uppercase whitespace-nowrap"
+              className="hover:text-primary focus-visible:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-sm transition-colors uppercase whitespace-nowrap no-underline"
             >
               {footerContactLabel}
             </button>
@@ -89,14 +97,14 @@ export const SiteChrome = ({
               target="_blank"
               rel="noopener noreferrer"
               aria-label="LinkedIn"
-              className="hidden sm:inline-flex hover:text-primary transition-colors items-center gap-1.5 uppercase whitespace-nowrap"
+              className="hidden sm:inline-flex hover:text-primary focus-visible:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-sm transition-colors items-center gap-1.5 uppercase whitespace-nowrap no-underline"
             >
               <Linkedin className="w-3 h-3" />
               <span>LinkedIn</span>
             </a>
             <a
               href="/impressum"
-              className="hover:text-primary transition-colors uppercase whitespace-nowrap"
+              className="hover:text-primary focus-visible:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-sm transition-colors uppercase whitespace-nowrap no-underline"
             >
               {footerImprintLabel}
             </a>
