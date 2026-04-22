@@ -907,7 +907,7 @@ export default function SocLife({ embedded = false }: SocLifeProps = {}) {
                       </div>
                     </div>
                     {highscores.length === 0 ? (
-                      <div className="font-mono text-[11px] text-muted-foreground/70 italic py-2">
+                      <div className="font-mono text-xs text-muted-foreground/70 italic py-2">
                         {t("socLife.highscoreEmpty")}
                       </div>
                     ) : (
