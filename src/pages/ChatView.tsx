@@ -1806,6 +1806,114 @@ const ChatView = () => {
     ? <InlineSystemCheck t={t} />
     : activeService && contentMap[activeService] ? contentMap[activeService]() : null;
 
+  // Service sub-pages reachable from the new homepage use the shared SiteChrome
+  // (top bar + footer + Team/Contact drawers) for a unified brand surface.
+  if (activeService) {
+    return (
+      <SiteChrome>
+        <PageMeta title="inside-the-box" description="Cybersecurity Navigator" />
+        <main className="flex-1 flex flex-col min-w-0 relative">
+          <div ref={contentAreaRef} className="flex-1 overflow-y-auto" style={{ contain: 'layout style' }}>
+            <div className="w-full px-3 md:px-6 lg:px-10 py-4 md:py-6 pb-20 space-y-4 max-w-5xl mx-auto">
+              {serviceContent && (() => {
+                if (activeService === 'crisis-sim' || activeService === 'elite-ship') {
+                  return <div className="flex-1 min-w-0">{serviceContent}</div>;
+                }
+                const ActiveIcon = sidebarGroups.flatMap(g => g.items).find(i => i.id === activeService)?.icon || MessageCircle;
+                return (
+                  <div className="flex gap-3 items-start">
+                    <div className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 mt-[18px]">
+                      <ActiveIcon size={14} className="text-primary" />
+                    </div>
+                    <div className="flex-1 min-w-0">{serviceContent}</div>
+                  </div>
+                );
+              })()}
+              {messages.map((msg, i) => (
+                <div key={i} className={`flex gap-2 md:gap-3 ${msg.role === 'user' ? 'justify-end' : ''}`}>
+                  {msg.role === 'assistant' && (
+                    <div className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <MessageCircle size={14} className="text-primary" />
+                    </div>
+                  )}
+                  <div className={`max-w-[85%] md:max-w-[80%] rounded-2xl px-3 md:px-4 py-2.5 text-sm font-sans leading-relaxed tracking-wide ${msg.role === 'user' ? 'bg-secondary text-foreground' : 'text-foreground'}`}>
+                    <p>{msg.content}</p>
+                    {msg.links && msg.links.length > 0 && (
+                      <ul className="mt-2 space-y-1">
+                        {msg.links.map((link, j) => {
+                          const serviceId = sidebarGroups.flatMap(g => g.items).find(s => link.url.includes(s.id))?.id;
+                          return (
+                            <li key={j}>
+                              {serviceId ? (
+                                <button onClick={() => selectService(serviceId)} className="text-primary hover:underline text-sm font-sans text-left">→ {link.label}</button>
+                              ) : (
+                                <a href={link.url} className="text-primary hover:underline text-sm font-sans">→ {link.label}</a>
+                              )}
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    )}
+                  </div>
+                </div>
+              ))}
+              {isLoading && (
+                <div className="flex gap-3">
+                  <div className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                    <MessageCircle size={14} className="text-primary" />
+                  </div>
+                  <div className="flex items-center gap-1 py-2">
+                    <span className="w-2 h-2 rounded-full bg-muted-foreground animate-bounce" style={{ animationDelay: '0ms' }} />
+                    <span className="w-2 h-2 rounded-full bg-muted-foreground animate-bounce" style={{ animationDelay: '150ms' }} />
+                    <span className="w-2 h-2 rounded-full bg-muted-foreground animate-bounce" style={{ animationDelay: '300ms' }} />
+                  </div>
+                </div>
+              )}
+              <div ref={messagesEndRef} />
+            </div>
+          </div>
+
+          {/* Floating chat bar — same logic as legacy view */}
+          {(() => {
+            if (isToolPage && activeService !== 'crisis-sim') return null;
+            const placeholder = activeService === 'crisis-sim'
+              ? 'Ask me anything …'
+              : exampleQuestions[exampleIndex];
+            return (
+              <div
+                className="fixed z-40 pointer-events-none transition-opacity duration-700 ease-out"
+                style={{
+                  left: isMobile ? '1rem' : '1.5rem',
+                  right: isMobile ? '1rem' : '0.75rem',
+                  bottom: 'calc(1rem + env(safe-area-inset-bottom))',
+                  opacity: chatBarReady ? 1 : 0,
+                }}
+              >
+                <div className="max-w-3xl ml-auto pointer-events-auto">
+                  <div className="relative flex items-center bg-secondary/90 backdrop-blur-md rounded-xl border border-highlight/30 focus-within:border-highlight/60 transition-electric shadow-lg">
+                    <textarea
+                      ref={inputRef}
+                      value={input}
+                      onChange={e => setInput(e.target.value)}
+                      onKeyDown={handleKeyDown}
+                      rows={1}
+                      placeholder={placeholder}
+                      className="flex-1 min-w-0 bg-transparent px-3 md:px-4 py-2.5 text-base md:text-[13px] font-mono text-foreground placeholder:text-muted-foreground placeholder:transition-opacity placeholder:duration-500 resize-none focus:outline-none max-h-[120px] truncate"
+                      disabled={isLoading || (activeService === 'crisis-sim' && crisisRef.current?.isLoading())}
+                    />
+                    <button onClick={handleSend} disabled={!input.trim() || isLoading || (activeService === 'crisis-sim' && crisisRef.current?.isLoading())} className="m-1.5 p-2 rounded-lg bg-highlight text-highlight-foreground disabled:opacity-30 hover:bg-highlight/80 transition-electric">
+                      <Send size={14} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
+        </main>
+      </SiteChrome>
+    );
+  }
+
   return (
     <div className="h-screen flex overflow-hidden bg-transparent">
       <PageMeta title="inside-the-box" description="Cybersecurity Navigator" />
