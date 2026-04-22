@@ -92,13 +92,12 @@ const PHASES: Phase[] = [
       fr: 'S\'entraîner avant que ça compte.',
     },
     description: {
-      en: 'Tabletop exercises, arena drills and hands-on training built for real-world pressure.',
-      de: 'Tabletop-Übungen, Arena-Drills und praxisnahe Trainings für echten Ernstfall-Druck.',
-      fr: 'Exercices tabletop, drills arena et formations pratiques pour la pression réelle.',
+      en: 'Tabletop exercises and hands-on training built for real-world pressure.',
+      de: 'Tabletop-Übungen und praxisnahe Trainings für echten Ernstfall-Druck.',
+      fr: 'Exercices tabletop et formations pratiques pour la pression réelle.',
     },
     services: [
       { id: 'dora-nis2-ttx', titleKey: 'nav.ttxTraining' },
-      { id: 'arena-training', titleKey: 'consulting.arenaTitle' },
       { id: 'events-workshops', titleKey: 'consulting.eventsTitle' },
     ],
   },
@@ -112,17 +111,112 @@ const PHASES: Phase[] = [
       fr: 'Quand le pire arrive.',
     },
     description: {
-      en: 'Crisis management, incident response and red-teaming under real adversarial pressure.',
-      de: 'Krisenmanagement, Incident Response und Red-Teaming unter echtem Angriffsdruck.',
-      fr: 'Gestion de crise, réponse à incident et red-teaming sous pression adverse.',
+      en: 'Crisis management and incident response under real adversarial pressure.',
+      de: 'Krisenmanagement und Incident Response unter echtem Angriffsdruck.',
+      fr: 'Gestion de crise et réponse à incident sous pression adverse.',
     },
     services: [
       { id: 'cyber-crisis-management', titleKey: 'consulting.crisisTitle' },
       { id: 'incident-management', titleKey: 'consulting.incidentTitle' },
+    ],
+  },
+  {
+    id: 'verify',
+    number: '06',
+    title: { en: 'VERIFY', de: 'PRÜFEN', fr: 'VÉRIFIER' },
+    verb: {
+      en: 'Prove it works.',
+      de: 'Wirksamkeit nachweisen.',
+      fr: 'Prouver l\'efficacité.',
+    },
+    description: {
+      en: 'TIBER tests, certification audits and reviews — evidence that controls and response capabilities work in practice.',
+      de: 'TIBER-Tests, Zertifizierungs-Audits und Reviews — Wirksamkeitsnachweise für Kontrollen und Reaktionsfähigkeit.',
+      fr: 'Tests TIBER, audits de certification et revues — preuves que contrôles et capacités de réponse fonctionnent.',
+    },
+    services: [
+      { id: 'arena-training', titleKey: 'consulting.arenaTitle' },
       { id: 'red-team', titleKey: 'nav.redTeam' },
     ],
   },
 ];
+
+/**
+ * Compact non-interactive preview of all phases.
+ * Used in the hero to hint at the structure waiting behind the CTA.
+ * Shows diamonds 01–06 connected by a thin line, plus a dashed loop-back arrow
+ * indicating that cyber-resilience is a continuous cycle.
+ */
+const PhasesPreview = ({
+  phases,
+  lang,
+}: {
+  phases: Phase[];
+  lang: 'en' | 'de' | 'fr';
+}) => (
+  <div className="relative w-full max-w-2xl mx-auto pt-2 pb-8">
+    {/* Horizontal connector */}
+    <div
+      className="absolute top-[14px] sm:top-[16px] h-px bg-primary/25 pointer-events-none"
+      style={{ left: 'calc(100% / 12)', right: 'calc(100% / 12)' }}
+      aria-hidden
+    />
+    {/* Dashed loop-back arrow — under the diamonds, suggesting the cycle */}
+    <svg
+      className="absolute left-0 right-0 mx-auto pointer-events-none"
+      style={{ top: '32px', width: '92%', height: '34px' }}
+      viewBox="0 0 100 34"
+      preserveAspectRatio="none"
+      aria-hidden
+    >
+      <defs>
+        <marker
+          id="loopArrow"
+          viewBox="0 0 10 10"
+          refX="6"
+          refY="5"
+          markerWidth="5"
+          markerHeight="5"
+          orient="auto-start-reverse"
+        >
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="hsl(var(--primary) / 0.45)" />
+        </marker>
+      </defs>
+      <path
+        d="M 96 2 C 96 28, 50 32, 4 32 L 4 30"
+        fill="none"
+        stroke="hsl(var(--primary) / 0.45)"
+        strokeWidth="0.6"
+        strokeDasharray="1.5 1.5"
+        markerEnd="url(#loopArrow)"
+      />
+    </svg>
+    <ol className="grid grid-cols-6 relative gap-1">
+      {phases.map((phase) => (
+        <li key={phase.id} className="flex flex-col items-center text-center px-0.5">
+          {/* Diamond node */}
+          <span className="relative flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 z-10 mb-2">
+            <span
+              className="absolute inset-0 m-auto w-6 h-6 sm:w-7 sm:h-7 rotate-45 bg-background"
+              aria-hidden
+            />
+            <span
+              className="absolute inset-0 m-auto w-6 h-6 sm:w-7 sm:h-7 rotate-45 border border-primary/40"
+              aria-hidden
+            />
+            <span className="relative font-mono text-[9px] sm:text-[10px] tracking-[0.1em] text-muted-foreground">
+              {phase.number}
+            </span>
+          </span>
+          {/* Label — all uniformly dimmed */}
+          <span className="font-mono text-[8px] sm:text-[9px] tracking-[0.2em] text-muted-foreground/70 leading-tight whitespace-nowrap overflow-hidden text-ellipsis w-full">
+            {phase.title[lang]}
+          </span>
+        </li>
+      ))}
+    </ol>
+  </div>
+);
 
 const Overview = () => {
   const { t, language, setLanguage } = useLanguage();
@@ -136,21 +230,14 @@ const Overview = () => {
   const lang = language as 'en' | 'de' | 'fr';
   const active = PHASES.find((p) => p.id === activeId) ?? PHASES[0];
 
-  const enterCta =
-    lang === 'de' ? 'Übersicht öffnen' : lang === 'fr' ? 'Ouvrir l\'aperçu' : 'Open the overview';
-  const enterHint =
-    lang === 'de'
-      ? 'Fünf Phasen. Wo stehen Sie gerade?'
-      : lang === 'fr'
-      ? 'Cinq phases. Où en êtes-vous ?'
-      : 'Five phases. Where are you right now?';
+  const enterCta = t('welcome.heroCta');
 
   const headline =
     lang === 'de'
-      ? 'Cyber-Resilienz in fünf Schritten.'
+      ? 'Cyber-Resilienz in sechs Schritten.'
       : lang === 'fr'
-      ? 'La cyber-résilience en cinq étapes.'
-      : 'Cyber-resilience in five steps.';
+      ? 'La cyber-résilience en six étapes.'
+      : 'Cyber-resilience in six steps.';
   const subline =
     lang === 'de'
       ? 'Wählen Sie den Schritt, der gerade ansteht.'
@@ -161,6 +248,10 @@ const Overview = () => {
     lang === 'de' ? '/ ÜBERSICHT' : lang === 'fr' ? '/ APERÇU' : '/ OVERVIEW';
   const servicesLabel =
     lang === 'de' ? 'Leistungen in dieser Phase' : lang === 'fr' ? 'Services dans cette phase' : 'Services in this phase';
+  const footerImprintLabel =
+    lang === 'de' ? 'Impressum' : lang === 'fr' ? 'Mentions légales' : 'Imprint';
+  const footerContactLabel =
+    lang === 'de' ? 'Kontakt' : lang === 'fr' ? 'Contact' : 'Contact';
 
   return (
     <div className="min-h-screen w-full text-foreground flex flex-col">
@@ -207,57 +298,68 @@ const Overview = () => {
       </header>
 
       {!entered ? (
-        /* Opener Hero */
-        <section className="flex-1 flex items-center justify-center px-4 sm:px-6 py-12 sm:py-16 max-w-6xl mx-auto w-full">
+        /* Opener Hero — claim-dominant hierarchy */
+        <section className="flex-1 flex items-center justify-center px-4 sm:px-6 py-10 sm:py-14 max-w-5xl mx-auto w-full">
           <div className="w-full max-w-3xl text-center">
+            {/* Category label */}
             <div
               className="font-mono text-[11px] sm:text-[13px] md:text-[14px] tracking-[0.4em] text-primary mb-6 opacity-0 animate-fade-in"
               style={{ animationDelay: '0ms', animationFillMode: 'forwards' }}
             >
-              / CYBERSECURITY CONSULTING
+              / {t('welcome.heroConsulting').toUpperCase()}
             </div>
+
+            {/* Wordmark — reduced ~35% (was text-7xl, now text-4xl→text-5xl max) */}
             <h1
-              className="font-mono font-semibold text-4xl sm:text-5xl md:text-7xl leading-[1.02] tracking-[-0.02em] text-foreground mb-6 opacity-0 animate-fade-in"
+              className="font-mono font-semibold text-2xl sm:text-3xl md:text-4xl leading-[1.05] tracking-[-0.02em] text-foreground/90 mb-8 opacity-0 animate-fade-in"
               style={{ animationDelay: '180ms', animationFillMode: 'forwards' }}
             >
               {t('welcome.title')}
             </h1>
+
+            {/* Claim — now dominant */}
             <p
-              className="font-sans text-lg sm:text-xl md:text-2xl text-foreground/85 leading-snug mb-5 opacity-0 animate-fade-in"
+              className="font-sans font-light text-2xl sm:text-3xl md:text-5xl text-foreground leading-[1.15] tracking-[-0.01em] mb-5 opacity-0 animate-fade-in max-w-3xl mx-auto"
               style={{ animationDelay: '420ms', animationFillMode: 'forwards' }}
             >
               {t('welcome.heroSubtitle')}
             </p>
+
+            {/* Qualifier */}
             <p
-              className="font-mono text-[13px] sm:text-[14px] md:text-[15px] tracking-[0.32em] text-primary/85 mb-12 opacity-0 animate-fade-in"
+              className="font-sans text-sm sm:text-base text-muted-foreground leading-snug mb-3 opacity-0 animate-fade-in max-w-xl mx-auto"
               style={{ animationDelay: '620ms', animationFillMode: 'forwards' }}
             >
-              {t('welcome.heroClaim').toUpperCase()}
+              {t('welcome.heroQualifier')}
             </p>
 
+            {/* Byline */}
+            <p
+              className="font-mono text-[11px] sm:text-[12px] tracking-[0.18em] text-muted-foreground/70 mb-12 opacity-0 animate-fade-in"
+              style={{ animationDelay: '780ms', animationFillMode: 'forwards' }}
+            >
+              {t('welcome.heroByline')}
+            </p>
+
+            {/* Phases preview — non-interactive hint */}
+            <div
+              className="mb-12 opacity-0 animate-fade-in"
+              style={{ animationDelay: '950ms', animationFillMode: 'forwards' }}
+              aria-hidden
+            >
+              <PhasesPreview phases={PHASES} lang={lang} />
+            </div>
+
+            {/* CTA — questioning */}
             <button
               onClick={() => setEntered(true)}
-              className="group inline-flex items-center gap-3 px-8 py-4 border border-primary/50 hover:border-primary bg-primary/5 hover:bg-primary/10 text-primary font-mono text-sm sm:text-[15px] tracking-[0.3em] transition-all duration-300 hover:shadow-[0_0_30px_-8px_hsl(var(--primary)/0.6)] opacity-0 animate-fade-in"
-              style={{ animationDelay: '820ms', animationFillMode: 'forwards' }}
+              className="group inline-flex items-center gap-3 px-7 sm:px-8 py-4 border border-primary/50 hover:border-primary bg-primary/5 hover:bg-primary/10 text-primary font-mono text-[12px] sm:text-[14px] tracking-[0.25em] transition-all duration-300 hover:shadow-[0_0_30px_-8px_hsl(var(--primary)/0.6)] opacity-0 animate-fade-in"
+              style={{ animationDelay: '1200ms', animationFillMode: 'forwards' }}
               aria-label={enterCta}
             >
               <span>{enterCta.toUpperCase()}</span>
               <ArrowRight className="w-4 h-4 -translate-x-1 group-hover:translate-x-0 transition-transform" />
             </button>
-
-            <p
-              className="font-mono text-[12px] sm:text-[13px] tracking-[0.25em] text-muted-foreground mt-6 opacity-0 animate-fade-in"
-              style={{ animationDelay: '1700ms', animationFillMode: 'forwards' }}
-            >
-              {enterHint}
-            </p>
-
-            <p
-              className="font-mono text-[11px] sm:text-[12px] tracking-[0.2em] text-muted-foreground/70 mt-14 opacity-0 animate-fade-in"
-              style={{ animationDelay: '2000ms', animationFillMode: 'forwards' }}
-            >
-              {t('welcome.heroSignature')}
-            </p>
           </div>
         </section>
       ) : (
@@ -276,11 +378,11 @@ const Overview = () => {
       {/* Timeline (desktop) */}
       <section className="hidden md:block px-6 pb-4 max-w-6xl mx-auto w-full">
         <div className="relative pt-2">
-          <ol className="grid grid-cols-5 relative">
+          <ol className="grid grid-cols-6 relative">
             {/* Connector line — spans only between first and last node centers */}
             <div
               className="absolute top-[26px] h-px bg-primary/25 pointer-events-none"
-              style={{ left: '10%', right: '10%' }}
+              style={{ left: 'calc(100% / 12)', right: 'calc(100% / 12)' }}
               aria-hidden
             />
             {PHASES.map((phase) => {
@@ -481,16 +583,32 @@ const Overview = () => {
 
       {/* Footer */}
       <footer className="border-t border-primary/10 bg-background/40 backdrop-blur-sm">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 font-mono text-[9px] sm:text-[10px] tracking-[0.15em] sm:tracking-[0.25em] text-muted-foreground whitespace-nowrap">
-          <span>
-            © {new Date().getFullYear()}{' '}
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex flex-wrap items-center justify-between gap-3 font-mono text-[9px] sm:text-[10px] tracking-[0.18em] sm:tracking-[0.22em] text-muted-foreground">
+          <span className="whitespace-nowrap">
+            © {new Date().getFullYear()} INSIDE-THE-BOX.ORG
+          </span>
+          <div className="flex items-center gap-4 sm:gap-5">
+            <button
+              onClick={() => setDrawer('contact')}
+              className="hover:text-primary transition-colors uppercase whitespace-nowrap"
+            >
+              {footerContactLabel}
+            </button>
+            <a
+              href="https://www.linkedin.com/in/inside-the-box"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-primary transition-colors inline-flex items-center gap-1.5 uppercase whitespace-nowrap"
+            >
+              <Linkedin className="w-3 h-3" /> LinkedIn
+            </a>
             <a
               href="/impressum"
-              className="hover:text-primary transition-colors"
+              className="hover:text-primary transition-colors uppercase whitespace-nowrap"
             >
-              INSIDE-THE-BOX.ORG
+              {footerImprintLabel}
             </a>
-          </span>
+          </div>
         </div>
       </footer>
 
