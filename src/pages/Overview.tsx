@@ -60,7 +60,7 @@ const PHASES: Phase[] = [
     id: 'understand',
     number: '01',
     title: { en: 'UNDERSTAND', de: 'VERSTEHEN', fr: 'COMPRENDRE' },
-    verb: { en: 'Your current maturity.', de: 'Ihr aktueller Reifegrad.', fr: 'Votre niveau de maturité actuel.' },
+    verb: { en: 'Your current maturity', de: 'Ihr aktueller Reifegrad', fr: 'Votre niveau de maturité actuel' },
     description: {
       en: 'Position, situation, gap — before anything else gets planned.',
       de: 'Standortbestimmung, Lagebild, Gap-Analyse — bevor irgendetwas geplant wird.',
@@ -76,9 +76,9 @@ const PHASES: Phase[] = [
     number: '02',
     title: { en: 'ALIGN', de: 'AUSRICHTEN', fr: 'ALIGNER' },
     verb: {
-      en: 'Meet regulations with confidence.',
-      de: 'Regulatorische Anforderungen sicher erfüllen.',
-      fr: 'Répondre aux exigences réglementaires avec assurance.',
+      en: 'Meet regulations with confidence',
+      de: 'Regulatorische Anforderungen sicher erfüllen',
+      fr: 'Répondre aux exigences réglementaires avec assurance',
     },
     description: {
       en: 'Strategic guidance and structured programmes that get you audit-ready.',
@@ -96,9 +96,9 @@ const PHASES: Phase[] = [
     number: '03',
     title: { en: 'LEAD', de: 'FÜHREN', fr: 'DIRIGER' },
     verb: {
-      en: 'Steer security effectively.',
-      de: 'Security wirksam steuern.',
-      fr: 'Piloter la sécurité avec efficacité.',
+      en: 'Steer security effectively',
+      de: 'Security wirksam steuern',
+      fr: 'Piloter la sécurité avec efficacité',
     },
     description: {
       en: 'Fractional CISO leadership and pragmatic operating models for lean security teams.',
@@ -116,9 +116,9 @@ const PHASES: Phase[] = [
     number: '04',
     title: { en: 'TRAIN', de: 'TRAINIEREN', fr: 'ENTRAÎNER' },
     verb: {
-      en: 'Prepared when it matters.',
-      de: 'Vorbereitet, wenn es darauf ankommt.',
-      fr: 'Prêt quand cela compte.',
+      en: 'Prepared when it matters',
+      de: 'Vorbereitet, wenn es darauf ankommt',
+      fr: 'Prêt quand cela compte',
     },
     description: {
       en: 'Tabletop exercises and hands-on training built for real-world pressure.',
@@ -136,9 +136,9 @@ const PHASES: Phase[] = [
     number: '05',
     title: { en: 'RESPOND', de: 'REAGIEREN', fr: 'RÉAGIR' },
     verb: {
-      en: 'Lead safely through cyber incidents.',
-      de: 'Sicher durch Cybervorfälle führen.',
-      fr: 'Piloter sereinement à travers les cyber-incidents.',
+      en: 'Lead safely through cyber incidents',
+      de: 'Sicher durch Cybervorfälle führen',
+      fr: 'Piloter sereinement à travers les cyber-incidents',
     },
     description: {
       en: 'Crisis management and incident response under real adversarial pressure.',
