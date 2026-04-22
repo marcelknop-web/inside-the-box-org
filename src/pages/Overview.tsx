@@ -6,128 +6,132 @@ import { PageMeta } from '@/components/PageMeta';
 import { useLanguage, nextLanguage } from '@/i18n/LanguageContext';
 
 /**
- * Hidden /overview — Sri-Yantra-style Grid Mandala.
+ * /overview — Speichenrad-Mandala.
  *
- * Structure: 4 sectors (clusters) × N rings (services per cluster).
- * Each service has a unique cell, located by:
- *   • Sector (cluster colour, outer label)
- *   • Ring   (radial distance from centre)
- * Service name is printed on a curved arc inside its cell — readable
- * without hover. The whole mandala rotates very slowly; the text
- * counter-rotates so labels never go upside down.
+ *  • Innerer Ring: 4 Prozess-Phasen (ANALYSE / UMSETZUNG / TRAINING / AUDIT)
+ *  • Mittlerer Ring: 4 Cluster (CYBER RESILIENCE / COMPLIANCE / GOVERNANCE / INSIGHTS)
+ *  • Äußerer Ring: Service-Marker (Diamant) mit waagerechten Beschriftungen
+ *
+ *  Alles ist statisch, gut lesbar, ohne Rotation.
  */
 
 type ServiceNode = {
   id: string;
   titleKey: string;
-  code: string;
+  descKey?: string;
 };
 
 type Cluster = {
   id: string;
   groupKey: string;
-  code: string;
-  hex: string;
+  /** angle of cluster centre, in degrees (0° = top, clockwise) */
+  centerDeg: number;
+  /** Services rendered as diamonds around this cluster, ordered left-to-right */
   services: ServiceNode[];
 };
 
+// Cluster-Anordnung exakt wie Referenzbild:
+// CYBER RESILIENCE = oben rechts, COMPLIANCE = unten rechts,
+// GOVERNANCE = unten links, INSIGHTS = oben links.
 const CLUSTERS: Cluster[] = [
   {
     id: 'resilience',
     groupKey: 'nav.groupCyberResilience',
-    code: 'A',
-    hex: '#f5b800',
+    centerDeg: 45,
     services: [
-      { id: 'arena-training',          titleKey: 'consulting.arenaTitle',    code: 'A-03' },
-      { id: 'cyber-crisis-management', titleKey: 'consulting.crisisTitle',   code: 'A-01' },
-      { id: 'incident-management',     titleKey: 'consulting.incidentTitle', code: 'A-02' },
+      { id: 'cyber-crisis-management', titleKey: 'consulting.crisisTitle',   descKey: 'consulting.crisisDesc' },
+      { id: 'arena-training',          titleKey: 'consulting.arenaTitle',    descKey: 'consulting.arenaDesc'  },
+      { id: 'red-team',                titleKey: 'nav.redTeam',              descKey: undefined               },
+      { id: 'incident-management',     titleKey: 'consulting.incidentTitle', descKey: 'consulting.incidentDesc' },
     ],
   },
   {
     id: 'regulation',
-    groupKey: 'nav.groupRegulation',
-    code: 'B',
-    hex: '#00bcd4',
+    groupKey: 'compliance.label',
+    centerDeg: 135,
     services: [
-      { id: 'tisax-pci-dss', titleKey: 'consulting.tisaxTitle', code: 'B-04' },
-      { id: 'isms',          titleKey: 'consulting.ismsTitle',  code: 'B-03' },
-      { id: 'dora-nis2-ttx', titleKey: 'nav.ttxTraining',       code: 'B-02' },
-      { id: 'nis2-dora',     titleKey: 'consulting.nis2Title',  code: 'B-01' },
+      { id: 'nis2-dora',     titleKey: 'consulting.nis2Title',  descKey: 'consulting.nis2Desc'  },
+      { id: 'dora-nis2-ttx', titleKey: 'nav.ttxTraining',       descKey: 'nav.ttxTrainingDesc'  },
+      { id: 'isms',          titleKey: 'consulting.ismsTitle',  descKey: 'consulting.ismsDesc'  },
+      { id: 'tisax-pci-dss', titleKey: 'consulting.tisaxTitle', descKey: 'consulting.tisaxDesc' },
     ],
   },
   {
     id: 'governance',
     groupKey: 'nav.groupGovernance',
-    code: 'C',
-    hex: '#e8a200',
+    centerDeg: 225,
     services: [
-      { id: 'assessments-concepts', titleKey: 'consulting.assessTitle', code: 'C-02' },
-      { id: 'virtual-ciso',         titleKey: 'consulting.vcisoTitle',  code: 'C-01' },
+      { id: 'virtual-ciso',         titleKey: 'consulting.vcisoTitle',  descKey: 'consulting.vcisoDesc'  },
+      { id: 'assessments-concepts', titleKey: 'consulting.assessTitle', descKey: 'consulting.assessDesc' },
     ],
   },
   {
     id: 'insights',
     groupKey: 'nav.groupInsights',
-    code: 'D',
-    hex: '#7ee0ec',
+    centerDeg: 315,
     services: [
-      { id: 'publications',     titleKey: 'consulting.pubTitle',         code: 'D-01' },
-      { id: 'events-workshops', titleKey: 'consulting.eventsTitle',      code: 'D-02' },
-      { id: 'ai-workflows',     titleKey: 'consulting.aiWorkflowsTitle', code: 'D-03' },
+      { id: 'publications',     titleKey: 'consulting.pubTitle',         descKey: 'consulting.pubDesc'         },
+      { id: 'events-workshops', titleKey: 'consulting.eventsTitle',      descKey: 'consulting.eventsDesc'      },
+      { id: 'ai-workflows',     titleKey: 'consulting.aiWorkflowsTitle', descKey: 'consulting.aiWorkflowsDesc' },
     ],
   },
 ];
 
-// Mandala geometry — generous ring thickness so labels truly fill their cells
-const VB = 1080;                         // viewBox dimension (room for outer label band)
-const HALF = VB / 2;
-const R_INNER = 78;                      // start of first ring (after centre)
-const RING_THICK = 84;                   // each service ring thickness
-const MAX_RINGS = Math.max(...CLUSTERS.map((c) => c.services.length));   // 4
-const R_OUTER = R_INNER + RING_THICK * MAX_RINGS;                         // 414
-const LABEL_BAND_THICK = 70;             // dedicated outer band for cluster labels
-const R_LABEL_OUT = R_OUTER + LABEL_BAND_THICK;                           // 484
-const R_LABEL_TEXT = R_OUTER + LABEL_BAND_THICK / 2;                      // 449 — text baseline
+// Inner-process labels (clockwise from top: ANALYSE, UMSETZUNG, TRAINING, AUDIT)
+const PROCESS_LABELS_BY_LANG: Record<string, [string, string, string, string]> = {
+  de: ['ANALYSE', 'UMSETZUNG', 'TRAINING', 'AUDIT'],
+  en: ['ANALYSE', 'EXECUTE',   'TRAIN',    'AUDIT'],
+  fr: ['ANALYSE', 'EXÉCUTION', 'FORMATION','AUDIT'],
+};
 
-// Sector geometry — each cluster gets one sector.
-// Sectors are evenly spaced around the circle.
-const SECTOR_COUNT = CLUSTERS.length;     // 4
-const SECTOR_DEG = 360 / SECTOR_COUNT;    // 90°
-// Tiny gap between sectors so the mandala "breathes"
-const SECTOR_GAP_DEG = 1.2;
+// Cluster labels rendered inside the wheel (uppercase, English for impact)
+const CLUSTER_DISPLAY_LABEL: Record<string, string> = {
+  resilience: 'CYBER RESILIENCE',
+  regulation: 'COMPLIANCE',
+  governance: 'GOVERNANCE',
+  insights:   'INSIGHTS',
+};
+
+// === Geometry ============================================================
+const VB = 1200;
+const HALF = VB / 2;
+
+// Concentric radii
+const R_CORE = 70;        // small inner monogram circle
+const R_PROCESS_IN = 110; // inner ring start
+const R_PROCESS_OUT = 230;// inner ring end
+const R_CLUSTER_IN = 230; // cluster ring start
+const R_CLUSTER_OUT = 380;// cluster ring end
+const R_GUIDE = 430;      // outer faint guide circle (services live around this)
+const R_DIAMOND = 460;    // diamond marker centre
+const R_LABEL = 540;      // text radius
+
+const GOLD = '#f5b800';
 
 const polar = (r: number, deg: number) => {
-  const rad = ((deg - 90) * Math.PI) / 180; // 0° at top, clockwise
+  const rad = ((deg - 90) * Math.PI) / 180;
   return { x: r * Math.cos(rad), y: r * Math.sin(rad) };
 };
 
-// Build an annular-segment path (a "cell"): inner arc + outer arc + sides.
-const buildCell = (rIn: number, rOut: number, degStart: number, degEnd: number): string => {
+// Annular sector path (inner arc + outer arc + sides)
+const sectorPath = (rIn: number, rOut: number, degStart: number, degEnd: number): string => {
   const p1 = polar(rOut, degStart);
   const p2 = polar(rOut, degEnd);
   const p3 = polar(rIn, degEnd);
   const p4 = polar(rIn, degStart);
   const sweep = degEnd - degStart;
-  const largeArc = sweep > 180 ? 1 : 0;
+  const large = sweep > 180 ? 1 : 0;
   return [
     `M ${p1.x.toFixed(2)} ${p1.y.toFixed(2)}`,
-    `A ${rOut} ${rOut} 0 ${largeArc} 1 ${p2.x.toFixed(2)} ${p2.y.toFixed(2)}`,
+    `A ${rOut} ${rOut} 0 ${large} 1 ${p2.x.toFixed(2)} ${p2.y.toFixed(2)}`,
     `L ${p3.x.toFixed(2)} ${p3.y.toFixed(2)}`,
-    `A ${rIn} ${rIn} 0 ${largeArc} 0 ${p4.x.toFixed(2)} ${p4.y.toFixed(2)}`,
+    `A ${rIn} ${rIn} 0 ${large} 0 ${p4.x.toFixed(2)} ${p4.y.toFixed(2)}`,
     'Z',
   ].join(' ');
 };
 
-// Build a centred arc path for text-on-path along the middle of a cell.
-// We need the arc to read left-to-right (top of mandala upright). For sectors
-// in the bottom half (90° < midDeg < 270°), flip the arc direction so the
-// text is not upside-down.
-const buildTextArc = (
-  r: number,
-  degStart: number,
-  degEnd: number,
-  flip: boolean,
-): string => {
+// Centred text-on-path arc — flips so labels read left-to-right
+const textArc = (r: number, degStart: number, degEnd: number, flip: boolean): string => {
   const a = flip ? degEnd : degStart;
   const b = flip ? degStart : degEnd;
   const p1 = polar(r, a);
@@ -136,43 +140,61 @@ const buildTextArc = (
   return `M ${p1.x.toFixed(2)} ${p1.y.toFixed(2)} A ${r} ${r} 0 0 ${sweep} ${p2.x.toFixed(2)} ${p2.y.toFixed(2)}`;
 };
 
+// === Service slot positioning ============================================
+// Distribute services evenly across the outer band, then place each one at a
+// fixed angle. We anchor each cluster's services around its centre.
+const ALL_SERVICE_SLOTS: Array<{
+  service: ServiceNode;
+  cluster: Cluster;
+  angleDeg: number;
+}> = (() => {
+  const slots: Array<{ service: ServiceNode; cluster: Cluster; angleDeg: number }> = [];
+  const SERVICE_SPREAD = 80; // total degrees occupied by all services in one cluster
+  for (const cluster of CLUSTERS) {
+    const n = cluster.services.length;
+    if (n === 0) continue;
+    // evenly spread across SERVICE_SPREAD around the cluster centre
+    const step = n === 1 ? 0 : SERVICE_SPREAD / (n - 1);
+    const start = cluster.centerDeg - (n === 1 ? 0 : SERVICE_SPREAD / 2);
+    for (let i = 0; i < n; i++) {
+      slots.push({
+        service: cluster.services[i],
+        cluster,
+        angleDeg: start + i * step,
+      });
+    }
+  }
+  return slots;
+})();
+
 const Overview = () => {
   const { t, language, setLanguage } = useLanguage();
   const navigate = useNavigate();
   const [hoveredId, setHoveredId] = useState<string | null>(null);
-  // Statisch — keine Bewegung. Bewegung lenkt vom Lesen ab.
-  const rotation = 0;
 
   const handleClick = useCallback((id: string) => navigate(`/${id}`), [navigate]);
 
   const hovered = useMemo(() => {
     if (!hoveredId) return null;
-    for (const c of CLUSTERS) {
-      const s = c.services.find((x) => x.id === hoveredId);
-      if (s) return { cluster: c, service: s };
-    }
-    return null;
+    const slot = ALL_SERVICE_SLOTS.find((s) => s.service.id === hoveredId);
+    if (!slot) return null;
+    return { cluster: slot.cluster, service: slot.service };
   }, [hoveredId]);
+
+  const processLabels = PROCESS_LABELS_BY_LANG[language] ?? PROCESS_LABELS_BY_LANG.en;
+
+  // Cluster sector geometry — each cluster occupies 90° of the wheel
+  const SECTOR_GAP = 1.5;
 
   return (
     <div className="min-h-screen w-full text-foreground overflow-hidden relative flex flex-col">
       <PageMeta
         title="Mandala"
-        description="Grid mandala of cybersecurity services from inside-the-box.org."
+        description="Service mandala of inside-the-box.org — cybersecurity consulting & training overview."
       />
       <Helmet>
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
-
-      {/* Subtle halo — keeps the body's millimeter grid visible underneath */}
-      <div
-        aria-hidden
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background:
-            'radial-gradient(ellipse at 50% 50%, hsl(var(--primary) / 0.06) 0%, transparent 55%)',
-        }}
-      />
 
       {/* Top bar */}
       <header className="absolute top-0 left-0 right-0 z-30 flex items-center justify-between px-6 py-5">
@@ -192,321 +214,267 @@ const Overview = () => {
         </button>
       </header>
 
-      {/* Hover info (bottom-left) — only renders when something is hovered */}
-      {hovered && (() => {
-        // Map titleKey → descKey (existing i18n entries)
-        const descMap: Record<string, string> = {
-          'consulting.ismsTitle': 'consulting.ismsDesc',
-          'consulting.nis2Title': 'consulting.nis2Desc',
-          'consulting.tisaxTitle': 'consulting.tisaxDesc',
-          'consulting.assessTitle': 'consulting.assessDesc',
-          'consulting.incidentTitle': 'consulting.incidentDesc',
-          'consulting.crisisTitle': 'consulting.crisisDesc',
-          'consulting.arenaTitle': 'consulting.arenaDesc',
-          'consulting.eventsTitle': 'consulting.eventsDesc',
-          'consulting.pubTitle': 'consulting.pubDesc',
-          'consulting.vcisoTitle': 'consulting.vcisoDesc',
-          'consulting.aiWorkflowsTitle': 'consulting.aiWorkflowsDesc',
-          'nav.ttxTraining': 'nav.ttxTrainingDesc',
-        };
-        const descKey = descMap[hovered.service.titleKey];
-        return (
-          <div
-            key={hovered.service.titleKey}
-            className="absolute left-6 bottom-16 z-20 pointer-events-none max-w-[360px] animate-fade-in"
-          >
-            <div
-              className="font-mono text-[10px] tracking-[0.35em] mb-3"
-              style={{ color: hovered.cluster.hex }}
-            >
-              {t(hovered.cluster.groupKey).toUpperCase()}
-            </div>
-            <div className="font-mono font-semibold text-xl md:text-2xl leading-[1.1] tracking-[0.04em] text-foreground mb-3">
-              {t(hovered.service.titleKey)}
-            </div>
-            {descKey && (
-              <p className="font-sans text-sm leading-snug text-muted-foreground">
-                {t(descKey)}
-              </p>
-            )}
+      {/* Hover info (bottom-left) */}
+      {hovered && (
+        <div
+          key={hovered.service.titleKey}
+          className="absolute left-6 bottom-16 z-20 pointer-events-none max-w-[360px] animate-fade-in"
+        >
+          <div className="font-mono text-[10px] tracking-[0.35em] mb-3 text-primary">
+            {(CLUSTER_DISPLAY_LABEL[hovered.cluster.id] ?? t(hovered.cluster.groupKey)).toUpperCase()}
           </div>
-        );
-      })()}
+          <div className="font-mono font-semibold text-xl md:text-2xl leading-[1.1] tracking-[0.04em] text-foreground mb-3">
+            {t(hovered.service.titleKey)}
+          </div>
+          {hovered.service.descKey && (
+            <p className="font-sans text-sm leading-snug text-muted-foreground">
+              {t(hovered.service.descKey)}
+            </p>
+          )}
+        </div>
+      )}
 
       {/* Mandala */}
       <div className="relative w-full flex-1 flex items-center justify-center px-2 py-12">
         <svg
           viewBox={`${-HALF} ${-HALF} ${VB} ${VB}`}
-          className="w-full h-full max-w-[820px] max-h-[820px]"
-          style={{ filter: 'drop-shadow(0 0 24px hsl(var(--primary) / 0.12))' }}
+          className="w-full h-full max-w-[900px] max-h-[900px]"
+          style={{ filter: 'drop-shadow(0 0 24px hsl(var(--primary) / 0.15))' }}
         >
-          {/* Faint guide circles for every ring boundary */}
-          {Array.from({ length: MAX_RINGS + 1 }).map((_, i) => (
-            <circle
-              key={`g-${i}`}
-              cx={0}
-              cy={0}
-              r={R_INNER + RING_THICK * i}
-              fill="none"
-              stroke="#f5b800"
-              strokeOpacity={0.1}
-              strokeWidth={0.5}
-              strokeDasharray="2 4"
-            />
-          ))}
+          {/* Outer guide circles */}
+          <circle cx={0} cy={0} r={R_GUIDE} fill="none" stroke={GOLD} strokeOpacity={0.18} strokeWidth={0.6} />
+          <circle cx={0} cy={0} r={R_GUIDE + 80} fill="none" stroke={GOLD} strokeOpacity={0.08} strokeWidth={0.5} />
 
-          {/* Whole mandala rotates as one — labels counter-rotate per cell below */}
-          <g
-            style={{
-              transform: `rotate(${rotation}deg)`,
-              transformOrigin: '0 0',
-              transformBox: 'fill-box',
-            }}
-          >
-            {CLUSTERS.map((cluster, sIdx) => {
-              const sectorStart = sIdx * SECTOR_DEG + SECTOR_GAP_DEG / 2;
-              const sectorEnd = (sIdx + 1) * SECTOR_DEG - SECTOR_GAP_DEG / 2;
-              const sectorMid = (sectorStart + sectorEnd) / 2;
+          {/* === Cluster ring (mid) ============================================ */}
+          {CLUSTERS.map((cluster) => {
+            const start = cluster.centerDeg - 45 + SECTOR_GAP / 2;
+            const end = cluster.centerDeg + 45 - SECTOR_GAP / 2;
+            const mid = cluster.centerDeg;
+            const flip = mid > 90 && mid < 270;
+            const arcId = `cluster-arc-${cluster.id}`;
+            const label = CLUSTER_DISPLAY_LABEL[cluster.id] ?? t(cluster.groupKey).toUpperCase();
+            const isClusterHovered = hovered?.cluster.id === cluster.id;
 
-              return (
-                <g key={cluster.id}>
-                  {/* ── Ring-level typography settings ──────────────────────
-                     One uniform font size per ring (computed from the
-                     longest label in that ring), so all cells in a ring
-                     share the same letter rhythm — like a printed plate. */}
-                  {(() => {
-                    // ── Print-grade typography ─────────────────────────
-                    // IBM Plex Mono (project data/header font), bold, normal
-                    // tracking — sized per ring to maximise legibility.
-                    const GLYPH_W = 0.62;     // monospace cap-width / em
-                    const TRACK = 0.04;       // tight, readable tracking
-                    const PAD = 1.4;
-                    const SIZE_FLOOR = 13;
-                    const SIZE_CEIL_RATIO = 0.46;
-                    const arcStartGap = 6;
-
-                    // One font size per ring (each ring's most constrained label)
-                    const ceil = RING_THICK * SIZE_CEIL_RATIO;
-                    const ringSizes: number[] = cluster.services.map((svc, ringIdx) => {
-                      const rMid = R_INNER + ringIdx * RING_THICK + RING_THICK / 2;
-                      const arcLen = (rMid * (SECTOR_DEG - SECTOR_GAP_DEG - 2 * arcStartGap) * Math.PI) / 180;
-                      const labelLen = t(svc.titleKey).length;
-                      const fitOne = arcLen / (labelLen * (GLYPH_W + TRACK) + PAD);
-                      return Math.max(SIZE_FLOOR, Math.min(fitOne, ceil));
-                    });
-
-                    return cluster.services.map((service, ringIdx) => {
-                      const rIn = R_INNER + ringIdx * RING_THICK;
-                      const rOut = rIn + RING_THICK;
-                      const isHovered = hoveredId === service.id;
-                      const dimmed = hoveredId !== null && !isHovered;
-
-                      const effectiveMid = (sectorMid + rotation) % 360;
-                      const flip = effectiveMid > 90 && effectiveMid < 270;
-                      const arcStart = sectorStart + arcStartGap;
-                      const arcEnd = sectorEnd - arcStartGap;
-                      const arcDeg = arcEnd - arcStart;
-
-                      const label = t(service.titleKey).toUpperCase();
-                      const fontSize = ringSizes[ringIdx];
-
-                      // Decide single vs double line — only break when one
-                      // line genuinely cannot render at the ring's font size.
-                      const rMid = (rIn + rOut) / 2;
-                      const arcLenMid = (rMid * arcDeg * Math.PI) / 180;
-                      const oneLineWidth = label.length * fontSize * (GLYPH_W + TRACK);
-                      const needsBreak = oneLineWidth > arcLenMid - PAD * fontSize;
-
-                      let lines: string[] = [label];
-                      if (needsBreak) {
-                        const words = label.split(/\s+/);
-                        if (words.length >= 2) {
-                          let best = 1;
-                          let bestDiff = Infinity;
-                          for (let i = 1; i < words.length; i++) {
-                            const a = words.slice(0, i).join(' ');
-                            const b = words.slice(i).join(' ');
-                            const diff = Math.abs(a.length - b.length);
-                            if (diff < bestDiff) { bestDiff = diff; best = i; }
-                          }
-                          lines = [words.slice(0, best).join(' '), words.slice(best).join(' ')];
-                        }
-                      }
-
-                      const lineRadii = lines.length === 2
-                        ? flip
-                          ? [rIn + RING_THICK * 0.34, rIn + RING_THICK * 0.66]
-                          : [rIn + RING_THICK * 0.66, rIn + RING_THICK * 0.34]
-                        : [rMid];
-
-                      return (
-                        <g
-                          key={service.id}
-                          style={{ cursor: 'pointer' }}
-                          onMouseEnter={() => setHoveredId(service.id)}
-                          onMouseLeave={() => setHoveredId(null)}
-                          onClick={() => handleClick(service.id)}
-                        >
-                          <path
-                            d={buildCell(rIn, rOut, sectorStart, sectorEnd)}
-                            fill={cluster.hex}
-                            fillOpacity={isHovered ? 0.5 : dimmed ? 0.05 : 0.12}
-                            stroke={cluster.hex}
-                            strokeOpacity={isHovered ? 1 : dimmed ? 0.22 : 0.5}
-                            strokeWidth={isHovered ? 1.4 : 0.7}
-                            style={{
-                              transition: 'fill-opacity 0.25s, stroke-opacity 0.25s, stroke-width 0.25s, filter 0.25s',
-                              filter: isHovered ? `drop-shadow(0 0 10px ${cluster.hex})` : 'none',
-                            }}
-                          />
-
-                          <defs>
-                            {lines.map((_, idx) => (
-                              <path
-                                key={idx}
-                                id={`${service.id}-arc-${idx}`}
-                                d={buildTextArc(lineRadii[idx], arcStart, arcEnd, flip)}
-                              />
-                            ))}
-                          </defs>
-
-                          {lines.map((line, idx) => {
-                            const lineSize = lines.length === 2 ? fontSize * 0.78 : fontSize;
-                            return (
-                              <text
-                                key={idx}
-                                fontFamily="'IBM Plex Mono', monospace"
-                                fontSize={lineSize}
-                                fontWeight={600}
-                                letterSpacing={lineSize * TRACK}
-                                textRendering="geometricPrecision"
-                                fill={isHovered ? '#0a0e1a' : '#f0f3f9'}
-                                style={{
-                                  pointerEvents: 'none',
-                                  transition: 'fill 0.25s',
-                                }}
-                              >
-                                <textPath
-                                  href={`#${service.id}-arc-${idx}`}
-                                  startOffset="50%"
-                                  textAnchor="middle"
-                                >
-                                  {line}
-                                </textPath>
-                              </text>
-                            );
-                          })}
-                        </g>
-                      );
-                    });
-                  })()}
-
-
-
-                  {/* Empty filler cells for shorter clusters — keep mandala symmetric */}
-                  {Array.from({ length: MAX_RINGS - cluster.services.length }).map((_, k) => {
-                    const ringIdx = cluster.services.length + k;
-                    const rIn = R_INNER + ringIdx * RING_THICK;
-                    const rOut = rIn + RING_THICK;
-                    return (
-                      <path
-                        key={`empty-${cluster.id}-${k}`}
-                        d={buildCell(rIn, rOut, sectorStart, sectorEnd)}
-                        fill={cluster.hex}
-                        fillOpacity={0.025}
-                        stroke={cluster.hex}
-                        strokeOpacity={0.18}
-                        strokeWidth={0.5}
-                        strokeDasharray="2 3"
-                      />
-                    );
-                  })}
-
-                  {/* Outer label band — flächig hinterlegt, prominent */}
-                  <path
-                    d={buildCell(R_OUTER, R_LABEL_OUT, sectorStart, sectorEnd)}
-                    fill={cluster.hex}
-                    fillOpacity={hoveredId && !cluster.services.some((s) => s.id === hoveredId) ? 0.5 : 0.92}
-                    stroke={cluster.hex}
-                    strokeOpacity={1}
-                    strokeWidth={1.2}
-                    style={{ transition: 'fill-opacity 0.25s' }}
-                  />
-                  {/* Outer cluster name — curved along an arc beyond R_OUTER */}
-                  <defs>
-                    <path
-                      id={`outer-${cluster.id}`}
-                      d={buildTextArc(
-                        R_LABEL_TEXT,
-                        sectorStart + 4,
-                        sectorEnd - 4,
-                        ((sectorMid + rotation) % 360) > 90 && ((sectorMid + rotation) % 360) < 270,
-                      )}
-                    />
-                  </defs>
-                  {(() => {
-                    const bandLabel = t(cluster.groupKey).toUpperCase();
-                    const bandFit = Math.max(
-                      14,
-                      Math.min(
-                        ((R_LABEL_TEXT * (SECTOR_DEG - SECTOR_GAP_DEG - 12) * Math.PI) / 180) /
-                          (bandLabel.length * 0.62 + 1.6),
-                        LABEL_BAND_THICK * 0.72,
-                      ),
-                    );
-                    return (
-                      <text
-                        fontFamily="'IBM Plex Mono', monospace"
-                        fontSize={bandFit}
-                        fontWeight={700}
-                        letterSpacing={bandFit * 0.18}
-                        textRendering="geometricPrecision"
-                        fill="#0a0e1a"
-                        style={{ pointerEvents: 'none' }}
-                      >
-                        <textPath
-                          href={`#outer-${cluster.id}`}
-                          startOffset="50%"
-                          textAnchor="middle"
-                        >
-                          {bandLabel}
-                        </textPath>
-                      </text>
-                    );
-                  })()}
-                </g>
-              );
-            })}
-
-            {/* Sector dividers — thin radial lines */}
-            {Array.from({ length: SECTOR_COUNT }).map((_, i) => {
-              const deg = i * SECTOR_DEG;
-              const p1 = polar(R_INNER, deg);
-              const p2 = polar(R_OUTER, deg);
-              return (
-                <line
-                  key={`div-${i}`}
-                  x1={p1.x}
-                  y1={p1.y}
-                  x2={p2.x}
-                  y2={p2.y}
-                  stroke="#f5b800"
-                  strokeOpacity={0.25}
-                  strokeWidth={0.6}
+            return (
+              <g key={cluster.id}>
+                <path
+                  d={sectorPath(R_CLUSTER_IN, R_CLUSTER_OUT, start, end)}
+                  fill={GOLD}
+                  fillOpacity={isClusterHovered ? 0.18 : 0.08}
+                  stroke={GOLD}
+                  strokeOpacity={0.7}
+                  strokeWidth={1}
+                  style={{ transition: 'fill-opacity 0.25s' }}
                 />
-              );
-            })}
-          </g>
+                <defs>
+                  <path id={arcId} d={textArc((R_CLUSTER_IN + R_CLUSTER_OUT) / 2, start + 4, end - 4, flip)} />
+                </defs>
+                <text
+                  fontFamily="'IBM Plex Mono', monospace"
+                  fontSize={28}
+                  fontWeight={600}
+                  letterSpacing={6}
+                  fill={GOLD}
+                  textRendering="geometricPrecision"
+                  style={{ pointerEvents: 'none' }}
+                >
+                  <textPath href={`#${arcId}`} startOffset="50%" textAnchor="middle">
+                    {label}
+                  </textPath>
+                </text>
+              </g>
+            );
+          })}
 
-          {/* Centre — bindu (does not rotate) */}
-          <circle cx={0} cy={0} r={R_INNER - 8} fill="none" stroke="#f5b800" strokeOpacity={0.2} strokeWidth={0.6} />
-          <circle cx={0} cy={0} r={28} fill="#f5b800" fillOpacity={0.12} />
-          <circle cx={0} cy={0} r={14} fill="#f5b800" />
-          <circle cx={0} cy={0} r={4} fill="#0a0e1a" />
+          {/* === Process ring (inner) ========================================= */}
+          {processLabels.map((label, i) => {
+            // Process quadrants offset by 45° vs clusters so the spokes line up
+            // with the cluster gaps. Order clockwise from top: ANALYSE, UMSETZUNG, TRAINING, AUDIT.
+            const center = i * 90; // 0, 90, 180, 270
+            const start = center - 45 + SECTOR_GAP / 2;
+            const end = center + 45 - SECTOR_GAP / 2;
+            const flip = center > 90 && center < 270;
+            const arcId = `proc-arc-${i}`;
+            return (
+              <g key={`proc-${i}`}>
+                <path
+                  d={sectorPath(R_PROCESS_IN, R_PROCESS_OUT, start, end)}
+                  fill="none"
+                  stroke={GOLD}
+                  strokeOpacity={0.35}
+                  strokeWidth={0.8}
+                  strokeDasharray="3 4"
+                />
+                <defs>
+                  <path id={arcId} d={textArc((R_PROCESS_IN + R_PROCESS_OUT) / 2, start + 6, end - 6, flip)} />
+                </defs>
+                <text
+                  fontFamily="'IBM Plex Mono', monospace"
+                  fontSize={18}
+                  fontWeight={500}
+                  letterSpacing={5}
+                  fill={GOLD}
+                  fillOpacity={0.85}
+                  textRendering="geometricPrecision"
+                  style={{ pointerEvents: 'none' }}
+                >
+                  <textPath href={`#${arcId}`} startOffset="50%" textAnchor="middle">
+                    {label}
+                  </textPath>
+                </text>
+              </g>
+            );
+          })}
+
+          {/* Spokes between cluster sectors */}
+          {[0, 90, 180, 270].map((deg) => {
+            const p1 = polar(R_PROCESS_IN, deg);
+            const p2 = polar(R_CLUSTER_OUT, deg);
+            return (
+              <line
+                key={`spoke-${deg}`}
+                x1={p1.x}
+                y1={p1.y}
+                x2={p2.x}
+                y2={p2.y}
+                stroke={GOLD}
+                strokeOpacity={0.55}
+                strokeWidth={1}
+              />
+            );
+          })}
+
+          {/* === Service diamonds + horizontal labels ========================= */}
+          {ALL_SERVICE_SLOTS.map(({ service, cluster, angleDeg }) => {
+            const dPos = polar(R_DIAMOND, angleDeg);
+            const lPos = polar(R_LABEL, angleDeg);
+            const isHovered = hoveredId === service.id;
+            const dimmed = hoveredId !== null && !isHovered;
+            const label = t(service.titleKey);
+
+            // Anchor labels horizontally based on which side of the wheel they sit
+            const anchor: 'start' | 'middle' | 'end' =
+              lPos.x < -8 ? 'end' : lPos.x > 8 ? 'start' : 'middle';
+
+            // Diamond size + rotation (always upright — pointing radially outward)
+            const D = 14;
+            return (
+              <g
+                key={service.id}
+                style={{ cursor: 'pointer' }}
+                onMouseEnter={() => setHoveredId(service.id)}
+                onMouseLeave={() => setHoveredId(null)}
+                onClick={() => handleClick(service.id)}
+                opacity={dimmed ? 0.45 : 1}
+              >
+                {/* Diamond marker */}
+                <g transform={`translate(${dPos.x.toFixed(2)} ${dPos.y.toFixed(2)}) rotate(${angleDeg})`}>
+                  <rect
+                    x={-D}
+                    y={-D}
+                    width={D * 2}
+                    height={D * 2}
+                    transform="rotate(45)"
+                    fill={GOLD}
+                    fillOpacity={isHovered ? 0.95 : 0.12}
+                    stroke={GOLD}
+                    strokeOpacity={isHovered ? 1 : 0.85}
+                    strokeWidth={1.4}
+                    style={{
+                      transition: 'fill-opacity 0.2s, stroke-width 0.2s',
+                      filter: isHovered ? `drop-shadow(0 0 8px ${GOLD})` : 'none',
+                    }}
+                  />
+                </g>
+
+                {/* Hit area */}
+                <circle cx={dPos.x} cy={dPos.y} r={26} fill="transparent" />
+
+                {/* Horizontal label — always upright, never rotated */}
+                <text
+                  x={lPos.x}
+                  y={lPos.y}
+                  fontFamily="'IBM Plex Mono', monospace"
+                  fontSize={20}
+                  fontWeight={500}
+                  letterSpacing={0.8}
+                  fill={isHovered ? GOLD : '#e8ecf3'}
+                  textAnchor={anchor}
+                  dominantBaseline="middle"
+                  textRendering="geometricPrecision"
+                  style={{ transition: 'fill 0.2s', pointerEvents: 'none' }}
+                >
+                  {label}
+                </text>
+              </g>
+            );
+          })}
+
+          {/* === Centre monogram ============================================= */}
+          {/* Outer faint diamond ring around centre */}
+          <g>
+            <rect
+              x={-R_PROCESS_IN + 6}
+              y={-R_PROCESS_IN + 6}
+              width={(R_PROCESS_IN - 6) * 2}
+              height={(R_PROCESS_IN - 6) * 2}
+              transform="rotate(45)"
+              fill="none"
+              stroke={GOLD}
+              strokeOpacity={0.45}
+              strokeWidth={0.8}
+            />
+            <rect
+              x={-R_CORE}
+              y={-R_CORE}
+              width={R_CORE * 2}
+              height={R_CORE * 2}
+              transform="rotate(45)"
+              fill="hsl(var(--background))"
+              stroke={GOLD}
+              strokeOpacity={0.85}
+              strokeWidth={1.2}
+            />
+            <rect
+              x={-R_CORE * 0.55}
+              y={-R_CORE * 0.55}
+              width={R_CORE * 1.1}
+              height={R_CORE * 1.1}
+              transform="rotate(45)"
+              fill="none"
+              stroke={GOLD}
+              strokeOpacity={0.7}
+              strokeWidth={0.8}
+            />
+            <text
+              x={0}
+              y={-4}
+              textAnchor="middle"
+              fontFamily="'IBM Plex Mono', monospace"
+              fontSize={14}
+              fontWeight={600}
+              fill={GOLD}
+              letterSpacing={0.5}
+            >
+              inside-the-box
+            </text>
+            <text
+              x={0}
+              y={12}
+              textAnchor="middle"
+              fontFamily="'IBM Plex Mono', monospace"
+              fontSize={6}
+              fill={GOLD}
+              fillOpacity={0.7}
+              letterSpacing={2}
+            >
+              PROZESSE UNTER STRESS
+            </text>
+          </g>
         </svg>
       </div>
 
-      {/* Footer — minimal: copyright + contact */}
+      {/* Footer — copyright + contact */}
       <footer className="relative z-20 border-t border-primary/10 bg-background/40 backdrop-blur-sm">
         <div className="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between gap-4 font-mono text-[10px] tracking-[0.25em] text-muted-foreground">
           <span>© {new Date().getFullYear()} INSIDE-THE-BOX</span>
