@@ -201,7 +201,7 @@ const Overview = () => {
     lang === 'de' ? 'Leistungen in dieser Phase' : lang === 'fr' ? 'Services dans cette phase' : 'Services in this phase';
 
   return (
-    <SiteChrome onBrandClick={() => { setEntered(false); window.scrollTo({ top: 0 }); }}>
+    <SiteChrome onBrandClick={() => { setEntered(true); window.scrollTo({ top: 0 }); }}>
       <PageMeta
         title="Journey"
         description="The five phases of cyber-resilience — from understanding your gap to responding under pressure."
