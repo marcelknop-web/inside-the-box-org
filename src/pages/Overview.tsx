@@ -387,6 +387,15 @@ const Overview = () => {
                         }`}
                         aria-hidden
                       />
+                      {/* Inner theme symbol — kept upright (parent diamond is rotated). */}
+                      <ServiceSymbol
+                        theme={PHASE_SYMBOLS[phase.id]}
+                        size={18}
+                        aria-hidden
+                        className={`relative z-10 transition-colors duration-300 ${
+                          isActive ? 'text-primary' : 'text-primary/60 group-hover:text-primary'
+                        }`}
+                      />
                     </span>
                     {/* Label — single line on mobile via tighter tracking & smaller size */}
                     <span
