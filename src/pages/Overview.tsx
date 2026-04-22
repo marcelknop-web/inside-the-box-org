@@ -50,9 +50,9 @@ const PHASES: Phase[] = [
       fr: 'Répondre aux régulations.',
     },
     description: {
-      en: 'NIS-2, DORA, CRA, TISAX, PCI-DSS — audit-grade tools and structured programmes.',
-      de: 'NIS-2, DORA, CRA, TISAX, PCI-DSS — audit-taugliche Tools und strukturierte Programme.',
-      fr: 'NIS-2, DORA, CRA, TISAX, PCI-DSS — outils niveau audit et programmes structurés.',
+      en: 'NIS-2, DORA, CRA, TISAX, PCI-DSS — strategic guidance and structured programmes that get you audit-ready.',
+      de: 'NIS-2, DORA, CRA, TISAX, PCI-DSS — strategische Begleitung und strukturierte Programme bis zur Audit-Reife.',
+      fr: 'NIS-2, DORA, CRA, TISAX, PCI-DSS — accompagnement stratégique et programmes structurés jusqu\'à la maturité d\'audit.',
     },
     services: [
       { id: 'nis2-dora', titleKey: 'consulting.nis2Title' },
