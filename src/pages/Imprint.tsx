@@ -6,7 +6,44 @@ import { useLanguage } from '@/i18n/LanguageContext';
 /**
  * /impressum — Legal imprint + privacy notice.
  * Uses SiteChrome for shared header/footer/drawers.
+ *
+ * Link convention on this page (and across the site):
+ *   • Inline prose links (email, phone, body links) ALWAYS carry an underline
+ *     and use `text-primary` with subtle decoration that strengthens on hover.
+ *     Focus state shows a ring matching the brand color for accessibility.
+ *   • Navigation/chrome links (header, footer) NEVER carry an underline; they
+ *     use the muted color and shift to `text-primary` on hover/focus.
+ *
+ * The shared `inlineLink` class below is the single source of truth so all
+ * inline anchors render identically in default, hover and focus states.
  */
+const inlineLink =
+  'text-primary underline underline-offset-2 decoration-primary/40 ' +
+  'hover:decoration-primary focus-visible:decoration-primary ' +
+  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background ' +
+  'rounded-sm transition-colors';
+
+/**
+ * Replace any literal `marcel@inside-the-box.org` occurrence inside a translated
+ * string with a clickable, consistently-styled inline link. Keeps i18n strings
+ * free of markup while guaranteeing one visual treatment for the email.
+ */
+const renderWithEmailLink = (text: string) => {
+  const email = 'marcel@inside-the-box.org';
+  if (!text.includes(email)) return text;
+  const parts = text.split(email);
+  return parts.flatMap((part, i) =>
+    i < parts.length - 1
+      ? [
+          <span key={`p-${i}`}>{part}</span>,
+          <a key={`l-${i}`} href={`mailto:${email}`} className={inlineLink}>
+            {email}
+          </a>,
+        ]
+      : [<span key={`p-${i}`}>{part}</span>],
+  );
+};
+
 const Imprint = () => {
   const { t, language } = useLanguage();
   const lang = language as 'en' | 'de' | 'fr';
@@ -49,18 +86,12 @@ const Imprint = () => {
             </h2>
             <p className="space-y-1">
               <span className="block">
-                <a
-                  href="mailto:marcel@inside-the-box.org"
-                  className="text-primary underline underline-offset-2 decoration-primary/40 hover:decoration-primary transition-colors"
-                >
+                <a href="mailto:marcel@inside-the-box.org" className={inlineLink}>
                   marcel@inside-the-box.org
                 </a>
               </span>
               <span className="block">
-                <a
-                  href="tel:+4915205691648"
-                  className="text-primary underline underline-offset-2 decoration-primary/40 hover:decoration-primary transition-colors"
-                >
+                <a href="tel:+4915205691648" className={inlineLink}>
                   +49 1520 569 1648
                 </a>
               </span>
@@ -127,7 +158,7 @@ const Imprint = () => {
                 <h3 className="font-mono text-[11px] tracking-[0.25em] text-primary/80 uppercase mb-2">
                   {t('imprint.privacyRightsTitle')}
                 </h3>
-                <p>{t('imprint.privacyRights')}</p>
+                <p>{renderWithEmailLink(t('imprint.privacyRights'))}</p>
               </div>
             </div>
           </section>
