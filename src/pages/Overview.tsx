@@ -281,6 +281,151 @@ const Overview = () => {
   const servicesLabel =
     lang === 'de' ? 'Unsere Leistungen' : lang === 'fr' ? 'Nos services' : 'Our services';
 
+  // Kunden-Referenzen — kuratierte Liste aus dem CV (offiziell freigegeben)
+  // gegliedert in Branchen-Cluster, plus ausgewählte Highlight-Mandate.
+  const referenceSectionLabel =
+    lang === 'de' ? '/ REFERENZEN' : lang === 'fr' ? '/ RÉFÉRENCES' : '/ REFERENCES';
+  const referenceHeadline =
+    lang === 'de'
+      ? 'Vertrauen aus 25+ Jahren, 350+ Projekten.'
+      : lang === 'fr'
+      ? 'Confiance bâtie en 25+ ans, 350+ projets.'
+      : 'Trust built over 25+ years and 350+ projects.';
+  const referenceSubline =
+    lang === 'de'
+      ? 'Eine KI-Website bauen kann jeder. Belastbare Cybersecurity-Beratung über Jahrzehnte beweist sich an den Mandaten.'
+      : lang === 'fr'
+      ? 'N\'importe qui peut créer un site IA. Un conseil cybersécurité solide se prouve sur des décennies de mandats.'
+      : 'Anyone can spin up an AI website. Robust cybersecurity advisory proves itself across decades of mandates.';
+
+  const referenceClusters: { label: { de: string; en: string; fr: string }; clients: string[] }[] = [
+    {
+      label: {
+        de: 'Finanzdienstleister & Aufsicht',
+        en: 'Financial services & supervision',
+        fr: 'Services financiers & supervision',
+      },
+      clients: [
+        'BaFin', 'Deutsche Bank', 'Deutsche Bundesbank', 'ECB', 'Commerzbank',
+        'DKB', 'Comdirect', 'Swiss Life', 'MunichRe', 'Swiss Re', 'Allianz', 'ERGO',
+        'Hansainvest', 'Sal. Oppenheim', 'AirPlus', 'FI-TS', 'SAP Fioneer',
+      ],
+    },
+    {
+      label: {
+        de: 'KRITIS, Energie & Public',
+        en: 'KRITIS, energy & public sector',
+        fr: 'OIV, énergie & secteur public',
+      },
+      clients: ['RWE', 'EnBW', 'Deutsche Bahn', 'Deutsche Post / DHL', 'BSI / UP KRITIS', 'ADAC', 'Bundeswehr'],
+    },
+    {
+      label: {
+        de: 'Industrie, Automotive & OT',
+        en: 'Industry, automotive & OT',
+        fr: 'Industrie, automobile & OT',
+      },
+      clients: [
+        'Daimler', 'Mercedes-Benz Bank', 'Continental', 'BMW', 'General Motors',
+        'Opel Bank', 'VW Financial Services', 'WABCO', 'Siemens', 'KION', 'MAN',
+        'Bilfinger', 'SGL-Carbon', 'Arlanxeo', 'Merck', 'Pfizer', 'Alois Müller', 'Jägermeister',
+      ],
+    },
+    {
+      label: {
+        de: 'Aviation & Maritime',
+        en: 'Aviation & maritime',
+        fr: 'Aéronautique & maritime',
+      },
+      clients: ['Deutsche Lufthansa', 'Lufthansa Technik', 'Airbus', 'Fraport', 'Deutsche Flugsicherung', 'Hapag-Lloyd'],
+    },
+    {
+      label: {
+        de: 'Software, Tech & Retail',
+        en: 'Software, tech & retail',
+        fr: 'Logiciel, tech & retail',
+      },
+      clients: [
+        'SAP', 'Sage', 'arvato', 'Burda', 'CTS Eventim', 'Cyberport', 'Saturn',
+        'Tchibo', 'Zalando', 'Otto', 'VALOVIS', 'Diethelm Keller (CH)',
+      ],
+    },
+  ];
+
+  const highlightMandates: { tag: string; text: { de: string; en: string; fr: string } }[] = [
+    {
+      tag: 'DORA',
+      text: {
+        de: 'SAP Fioneer — DORA-konforme Incident-Reporting-Pipeline.',
+        en: 'SAP Fioneer — DORA-compliant incident-reporting pipeline.',
+        fr: 'SAP Fioneer — chaîne de reporting d\'incidents conforme DORA.',
+      },
+    },
+    {
+      tag: 'SOC / SIEM',
+      text: {
+        de: 'Deutsche Lufthansa — SIEM/CDC-Prozesstransformation und SOC-Runbooks.',
+        en: 'Deutsche Lufthansa — SIEM/CDC process transformation and SOC runbooks.',
+        fr: 'Deutsche Lufthansa — transformation des processus SIEM/CDC et runbooks SOC.',
+      },
+    },
+    {
+      tag: 'PART-IS',
+      text: {
+        de: 'Lufthansa Airlines & Technik — Scoping der PART-IS-Implementierung.',
+        en: 'Lufthansa Airlines & Technik — scoping of the PART-IS implementation.',
+        fr: 'Lufthansa Airlines & Technik — cadrage de la mise en œuvre PART-IS.',
+      },
+    },
+    {
+      tag: 'OT / Maritime',
+      text: {
+        de: 'Hapag-Lloyd — maritimes Cybersecurity-Framework für Starlink-Flottenkonnektivität.',
+        en: 'Hapag-Lloyd — maritime cybersecurity framework for Starlink fleet connectivity.',
+        fr: 'Hapag-Lloyd — cadre cybersécurité maritime pour la connectivité Starlink de flotte.',
+      },
+    },
+    {
+      tag: 'ISMS',
+      text: {
+        de: 'Diethelm Keller (CH) — konzernweites ISMS über zehn europäische Töchter.',
+        en: 'Diethelm Keller (CH) — group-wide ISMS across ten European subsidiaries.',
+        fr: 'Diethelm Keller (CH) — SMSI groupe sur dix filiales européennes.',
+      },
+    },
+    {
+      tag: 'TIBER-DE',
+      text: {
+        de: 'FI-TS — Konzeption und C-Level-Präsentation des TIBER-DE-Übungsframeworks.',
+        en: 'FI-TS — design and C-level presentation of the TIBER-DE exercise framework.',
+        fr: 'FI-TS — conception et présentation C-level du cadre d\'exercice TIBER-DE.',
+      },
+    },
+    {
+      tag: 'ISO 27001 / TISAX',
+      text: {
+        de: 'DataGuard — TISAX-Assessments und ISO-27001-Audits für Automotive-Zulieferer.',
+        en: 'DataGuard — TISAX assessments and ISO 27001 audits for automotive suppliers.',
+        fr: 'DataGuard — évaluations TISAX et audits ISO 27001 pour fournisseurs automobiles.',
+      },
+    },
+    {
+      tag: 'PCI-DSS',
+      text: {
+        de: 'Cyberport, AirPlus, Lufthansa — PCI-DSS-Implementierung und Beratung.',
+        en: 'Cyberport, AirPlus, Lufthansa — PCI-DSS implementation and advisory.',
+        fr: 'Cyberport, AirPlus, Lufthansa — mise en œuvre et conseil PCI-DSS.',
+      },
+    },
+  ];
+
+  const referenceFootnote =
+    lang === 'de'
+      ? 'Auswahl. Vollständige Mandatshistorie auf Anfrage.'
+      : lang === 'fr'
+      ? 'Sélection. Historique complet des mandats sur demande.'
+      : 'Selection. Full mandate history available on request.';
+
   return (
     <SiteChrome onBrandClick={() => { setEntered(true); window.scrollTo({ top: 0 }); }}>
       <PageMeta
