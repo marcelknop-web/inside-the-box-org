@@ -96,15 +96,15 @@ const CLUSTER_DISPLAY_LABEL: Record<string, string> = {
 const VB = 1200;
 const HALF = VB / 2;
 
-// Concentric radii
-const R_CORE = 70;        // small inner monogram circle
-const R_PROCESS_IN = 110; // inner ring start
-const R_PROCESS_OUT = 230;// inner ring end
-const R_CLUSTER_IN = 230; // cluster ring start
-const R_CLUSTER_OUT = 380;// cluster ring end
-const R_GUIDE = 430;      // outer faint guide circle (services live around this)
-const R_DIAMOND = 460;    // diamond marker centre
-const R_LABEL = 540;      // text radius
+// Concentric radii — tightly packed, fills the canvas
+const R_CORE = 92;         // central monogram tile
+const R_PROCESS_IN = 132;  // inner process ring start
+const R_PROCESS_OUT = 282; // inner process ring end
+const R_CLUSTER_IN = 282;  // cluster ring start (shares boundary)
+const R_CLUSTER_OUT = 462; // cluster ring end
+const R_GUIDE = 500;       // faint outer guide circle
+const R_DIAMOND = 524;     // diamond marker centre
+const R_LABEL = 560;       // service label baseline radius
 
 const GOLD = '#f5b800';
 
@@ -149,7 +149,8 @@ const ALL_SERVICE_SLOTS: Array<{
   angleDeg: number;
 }> = (() => {
   const slots: Array<{ service: ServiceNode; cluster: Cluster; angleDeg: number }> = [];
-  const SERVICE_SPREAD = 80; // total degrees occupied by all services in one cluster
+  // Services span almost the full quadrant — denser, less empty arc
+  const SERVICE_SPREAD = 86;
   for (const cluster of CLUSTERS) {
     const n = cluster.services.length;
     if (n === 0) continue;
@@ -235,11 +236,11 @@ const Overview = () => {
       )}
 
       {/* Mandala */}
-      <div className="relative w-full flex-1 flex items-center justify-center px-2 py-12">
+      <div className="relative w-full flex-1 flex items-center justify-center px-2 py-4">
         <svg
           viewBox={`${-HALF} ${-HALF} ${VB} ${VB}`}
-          className="w-full h-full max-w-[900px] max-h-[900px]"
-          style={{ filter: 'drop-shadow(0 0 24px hsl(var(--primary) / 0.15))' }}
+          className="w-full h-full max-w-[960px] max-h-[960px]"
+          style={{ filter: 'drop-shadow(0 0 28px hsl(var(--primary) / 0.18))' }}
         >
           {/* Outer guide circles */}
           <circle cx={0} cy={0} r={R_GUIDE} fill="none" stroke={GOLD} strokeOpacity={0.18} strokeWidth={0.6} />
@@ -271,9 +272,9 @@ const Overview = () => {
                 </defs>
                 <text
                   fontFamily="'IBM Plex Mono', monospace"
-                  fontSize={28}
+                  fontSize={38}
                   fontWeight={600}
-                  letterSpacing={6}
+                  letterSpacing={9}
                   fill={GOLD}
                   textRendering="geometricPrecision"
                   style={{ pointerEvents: 'none' }}
@@ -310,9 +311,9 @@ const Overview = () => {
                 </defs>
                 <text
                   fontFamily="'IBM Plex Mono', monospace"
-                  fontSize={18}
+                  fontSize={26}
                   fontWeight={500}
-                  letterSpacing={5}
+                  letterSpacing={7}
                   fill={GOLD}
                   fillOpacity={0.85}
                   textRendering="geometricPrecision"
@@ -357,7 +358,7 @@ const Overview = () => {
               lPos.x < -8 ? 'end' : lPos.x > 8 ? 'start' : 'middle';
 
             // Diamond size + rotation (always upright — pointing radially outward)
-            const D = 14;
+            const D = 18;
             return (
               <g
                 key={service.id}
@@ -395,9 +396,9 @@ const Overview = () => {
                   x={lPos.x}
                   y={lPos.y}
                   fontFamily="'IBM Plex Mono', monospace"
-                  fontSize={20}
+                  fontSize={24}
                   fontWeight={500}
-                  letterSpacing={0.8}
+                  letterSpacing={1}
                   fill={isHovered ? GOLD : '#e8ecf3'}
                   textAnchor={anchor}
                   dominantBaseline="middle"
@@ -448,10 +449,10 @@ const Overview = () => {
             />
             <text
               x={0}
-              y={-4}
+              y={-6}
               textAnchor="middle"
               fontFamily="'IBM Plex Mono', monospace"
-              fontSize={14}
+              fontSize={18}
               fontWeight={600}
               fill={GOLD}
               letterSpacing={0.5}
@@ -460,13 +461,13 @@ const Overview = () => {
             </text>
             <text
               x={0}
-              y={12}
+              y={16}
               textAnchor="middle"
               fontFamily="'IBM Plex Mono', monospace"
-              fontSize={6}
+              fontSize={8}
               fill={GOLD}
               fillOpacity={0.7}
-              letterSpacing={2}
+              letterSpacing={2.5}
             >
               PROZESSE UNTER STRESS
             </text>
