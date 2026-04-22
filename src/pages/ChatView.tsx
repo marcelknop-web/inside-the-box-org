@@ -1574,6 +1574,11 @@ const ChatView = () => {
       en: ['Mature incident response plan?', 'Right-size IR retainer?', 'Major incident thresholds?', 'Post-incident review with us?'],
       fr: ['Plan IR mature ?', 'Dimensionner un retainer IR ?', 'Seuils Major Incident ?', 'Post-incident review ?'],
     },
+    'bcm': {
+      de: ['BIA für Kernprozesse?', 'ISCPs nach BSI 200-4?', 'Notfallübung im Q2?', 'RTO/RPO realistisch?'],
+      en: ['BIA for core processes?', 'ISCPs per BSI 200-4?', 'Continuity exercise in Q2?', 'Realistic RTO/RPO?'],
+      fr: ['BIA des processus clés ?', 'ISCP selon BSI 200-4 ?', 'Exercice continuité au T2 ?', 'RTO/RPO réalistes ?'],
+    },
     'cyber-crisis-management': {
       de: ['Krisenstab ohne Mandat?', 'Tabletop für unseren Vorstand?', 'Krisenübung im Q1 möglich?', 'Vorstand nie geübt?'],
       en: ['Crisis team has no mandate?', 'Tabletop for our board?', 'Crisis exercise in Q1?', 'Board never exercised?'],
