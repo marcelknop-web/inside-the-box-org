@@ -89,9 +89,9 @@ const PHASES: Phase[] = [
       fr: 'S\'entraîner avant que ça compte.',
     },
     description: {
-      en: 'Tabletop exercises, arena drills and simulators built for real-world pressure.',
-      de: 'Tabletop-Übungen, Arena-Drills und Simulatoren für echten Ernstfall-Druck.',
-      fr: 'Exercices tabletop, drills arena et simulateurs pour la pression réelle.',
+      en: 'Tabletop exercises, arena drills and hands-on training built for real-world pressure.',
+      de: 'Tabletop-Übungen, Arena-Drills und praxisnahe Trainings für echten Ernstfall-Druck.',
+      fr: 'Exercices tabletop, drills arena et formations pratiques pour la pression réelle.',
     },
     services: [
       { id: 'dora-nis2-ttx', titleKey: 'nav.ttxTraining' },
