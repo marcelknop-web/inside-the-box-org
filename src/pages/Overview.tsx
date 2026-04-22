@@ -74,11 +74,11 @@ const PHASES: Phase[] = [
   {
     id: 'comply',
     number: '02',
-    title: { en: 'COMPLY', de: 'KONFORM WERDEN', fr: 'SE CONFORMER' },
+    title: { en: 'ALIGN', de: 'AUSRICHTEN', fr: 'ALIGNER' },
     verb: {
-      en: 'Meet the regulations.',
-      de: 'Den Regulierungen gerecht werden.',
-      fr: 'Répondre aux régulations.',
+      en: 'Meet regulations with confidence.',
+      de: 'Regulatorische Anforderungen sicher erfüllen.',
+      fr: 'Répondre aux exigences réglementaires avec assurance.',
     },
     description: {
       en: 'Strategic guidance and structured programmes that get you audit-ready.',
@@ -96,9 +96,9 @@ const PHASES: Phase[] = [
     number: '03',
     title: { en: 'LEAD', de: 'FÜHREN', fr: 'DIRIGER' },
     verb: {
-      en: 'Run security like a function.',
-      de: 'Security als Funktion führen.',
-      fr: 'Piloter la sécurité comme une fonction.',
+      en: 'Steer security effectively.',
+      de: 'Security wirksam steuern.',
+      fr: 'Piloter la sécurité avec efficacité.',
     },
     description: {
       en: 'Fractional CISO leadership and pragmatic operating models for lean security teams.',
@@ -116,9 +116,9 @@ const PHASES: Phase[] = [
     number: '04',
     title: { en: 'TRAIN', de: 'TRAINIEREN', fr: 'ENTRAÎNER' },
     verb: {
-      en: 'Practice before it counts.',
-      de: 'Üben, bevor es zählt.',
-      fr: 'S\'entraîner avant que ça compte.',
+      en: 'Prepared when it matters.',
+      de: 'Vorbereitet, wenn es darauf ankommt.',
+      fr: 'Prêt quand cela compte.',
     },
     description: {
       en: 'Tabletop exercises and hands-on training built for real-world pressure.',
@@ -136,9 +136,9 @@ const PHASES: Phase[] = [
     number: '05',
     title: { en: 'RESPOND', de: 'REAGIEREN', fr: 'RÉAGIR' },
     verb: {
-      en: 'When the worst happens.',
-      de: 'Wenn der Ernstfall eintritt.',
-      fr: 'Quand le pire arrive.',
+      en: 'Lead safely through cyber incidents.',
+      de: 'Sicher durch Cybervorfälle führen.',
+      fr: 'Piloter sereinement à travers les cyber-incidents.',
     },
     description: {
       en: 'Crisis management and incident response under real adversarial pressure.',
