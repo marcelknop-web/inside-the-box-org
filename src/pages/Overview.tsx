@@ -570,7 +570,7 @@ const Overview = () => {
 
 
       {/* Active phase detail (desktop) */}
-      <section className="hidden md:block flex-1 px-6 py-6 max-w-6xl mx-auto w-full">
+      <section className="hidden md:block px-6 py-6 max-w-6xl mx-auto w-full">
         <div
           key={active.id}
           className="grid grid-cols-12 gap-8 bg-background/60 backdrop-blur-[2px] border border-primary/15 p-8 animate-fade-in"
@@ -716,7 +716,7 @@ const Overview = () => {
       {/* References — own collapsible section under "Respond". Mirrors the phase
           interaction (diamond + verb + expandable detail). Extra top spacing
           (mt-12 sm:mt-20) sets it visually apart from the journey above. */}
-      <section className="px-4 sm:px-6 pb-12 sm:pb-10 max-w-6xl mx-auto w-full mt-8 sm:mt-4 pt-6 sm:pt-4 border-t border-primary/10">
+      <section className="px-4 sm:px-6 pb-12 sm:pb-10 max-w-6xl mx-auto w-full mt-4 sm:mt-2 pt-2">
         {/* Header row — same diamond + label pattern as a phase node.
             On desktop, indent matches the inner padding of the phase detail card (p-8 = 2rem) so the diamond aligns with the "FÜHREN" label above. */}
         <button
