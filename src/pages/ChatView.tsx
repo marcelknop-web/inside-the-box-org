@@ -117,7 +117,7 @@ const GridItem = ({ icon: Icon, title, subtitle, desc, variant = 'primary', href
           <p className={`font-semibold text-[15px] font-sans ${colorClass}`}>{title}</p>
         )}
         {subtitle && <p className={`${colorClass}/70 text-xs font-semibold font-sans uppercase tracking-wide`}>{subtitle}</p>}
-        <p className="text-foreground/75 text-sm font-sans leading-relaxed whitespace-pre-line break-words">{desc}</p>
+        <p className="text-foreground/75 text-[15px] font-sans leading-relaxed whitespace-pre-line break-words">{desc}</p>
       </div>
     </div>
   );
