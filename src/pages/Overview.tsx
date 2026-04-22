@@ -362,15 +362,8 @@ const Overview = () => {
 
       {/* Footer */}
       <footer className="border-t border-primary/10 bg-background/40 backdrop-blur-sm">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3 font-mono text-[9px] sm:text-[10px] tracking-[0.15em] sm:tracking-[0.25em] text-muted-foreground whitespace-nowrap">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 font-mono text-[9px] sm:text-[10px] tracking-[0.15em] sm:tracking-[0.25em] text-muted-foreground whitespace-nowrap">
           <span>© {new Date().getFullYear()} INSIDE-THE-BOX</span>
-          <a
-            href="mailto:marcel@inside-the-box.org"
-            className="hover:text-primary transition-colors truncate"
-          >
-            <span className="hidden sm:inline">MARCEL@INSIDE-THE-BOX.ORG</span>
-            <span className="sm:hidden">MARCEL@INSIDE-THE-BOX.ORG</span>
-          </a>
         </div>
       </footer>
     </div>
