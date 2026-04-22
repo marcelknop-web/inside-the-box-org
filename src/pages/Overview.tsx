@@ -157,21 +157,44 @@ const PhasesPreview = ({
     {/* Mobile: 3 columns (auto-wraps to 2 rows) — emphasises equal rank,
         gives each label real breathing room. Desktop keeps 5-in-a-row. */}
     <ul className="grid grid-cols-3 sm:grid-cols-5 gap-x-3 gap-y-3 sm:gap-2">
-      {phases.map((phase) => (
-        <li key={phase.id} className="relative flex flex-col items-center text-center min-w-0">
-          {/* Diamond marker — pure symbol, no number (all phases are equal-rank). */}
-          <span className="relative flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 z-10 mb-1.5 sm:mb-2">
-            <span
-              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[12px] h-[12px] sm:w-[14px] sm:h-[14px] rotate-45 border border-primary/50 bg-background"
-              aria-hidden
-            />
-          </span>
-          {/* Label — equal-rank text under each diamond. */}
-          <span className="font-mono text-[10px] sm:text-[9px] tracking-[0.1em] sm:tracking-[0.18em] text-muted-foreground/70 leading-[1.15] w-full px-0">
-            {phase.title[lang]}
-          </span>
-        </li>
-      ))}
+      {phases.map((phase, idx) => {
+        // Don't draw a connector on the first item of any row.
+        // Mobile = 3 cols → first of each row is idx 0 and 3.
+        // Desktop (sm+) = 5 cols → only idx 0 is first.
+        const isFirstMobileRow = idx % 3 === 0;
+        const isFirstDesktopRow = idx === 0;
+        return (
+          <li key={phase.id} className="relative flex flex-col items-center text-center min-w-0">
+            {/* Connector segment between diamonds (mobile breakpoint). */}
+            {!isFirstMobileRow && (
+              <span
+                className="absolute h-px bg-primary/30 pointer-events-none top-[10px] sm:hidden"
+                style={{ right: 'calc(50% + 7px)', left: 'calc(-50% + 7px)' }}
+                aria-hidden
+              />
+            )}
+            {/* Connector segment between diamonds (desktop breakpoint). */}
+            {!isFirstDesktopRow && (
+              <span
+                className="absolute h-px bg-primary/30 pointer-events-none hidden sm:block top-[12px]"
+                style={{ right: 'calc(50% + 8px)', left: 'calc(-50% + 8px)' }}
+                aria-hidden
+              />
+            )}
+            {/* Diamond marker — pure symbol, no number (all phases are equal-rank). */}
+            <span className="relative flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 z-10 mb-1.5 sm:mb-2">
+              <span
+                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[12px] h-[12px] sm:w-[14px] sm:h-[14px] rotate-45 border border-primary/50 bg-background"
+                aria-hidden
+              />
+            </span>
+            {/* Label — equal-rank text under each diamond. */}
+            <span className="font-mono text-[10px] sm:text-[9px] tracking-[0.1em] sm:tracking-[0.18em] text-muted-foreground/70 leading-[1.15] w-full px-0">
+              {phase.title[lang]}
+            </span>
+          </li>
+        );
+      })}
     </ul>
   </div>
 );
@@ -326,10 +349,18 @@ const Overview = () => {
       <section className="hidden md:block px-6 pb-4 max-w-6xl mx-auto w-full">
         <div className="relative pt-2">
           <ul className="grid grid-cols-5 relative gap-0">
-            {PHASES.map((phase) => {
+            {PHASES.map((phase, idx) => {
               const isActive = phase.id === activeId;
               return (
                 <li key={phase.id} className="relative flex flex-col items-center min-w-0">
+                  {/* Connector segment between diamonds.
+                      Diamond half-width = 16px (32px square). Node container is 52px high; diamond is centered → top ≈ 26px - 0.5px line. */}
+                  {idx > 0 && (
+                    <span
+                      className="absolute h-px bg-primary/25 pointer-events-none top-[26px] right-[calc(50%+16px)] left-[calc(-50%+16px)]"
+                      aria-hidden
+                    />
+                  )}
                   <button
                     onClick={() => setActiveId(phase.id)}
                     className="group flex flex-col items-center gap-2 sm:gap-4 text-center w-full px-0.5 sm:px-2"
@@ -415,9 +446,11 @@ const Overview = () => {
         </div>
       </section>
 
-      {/* Mobile vertical list — equal-rank phases, no sequence indicator */}
+      {/* Mobile vertical list — diamonds connected by a thin line */}
       <section className="md:hidden flex-1 px-4 pb-10 max-w-6xl mx-auto w-full">
         <ul className="relative">
+          {/* Vertical connector behind the diamond column */}
+          <div className="absolute left-4 top-3 bottom-3 w-px bg-primary/20" aria-hidden />
           {PHASES.map((phase) => {
             const isActive = phase.id === activeId;
             return (
@@ -427,6 +460,11 @@ const Overview = () => {
                   className="absolute left-0 top-0 flex items-center justify-center w-8 h-8 group/node"
                   aria-expanded={isActive}
                 >
+                  {/* Mask — solid bg blocks the vertical connector under the diamond */}
+                  <span
+                    className="absolute inset-0 m-auto w-6 h-6 rotate-45 bg-background"
+                    aria-hidden
+                  />
                   {/* Diamond marker — pure symbol, no number */}
                   <span
                     className={`absolute inset-0 m-auto w-5 h-5 rotate-45 border transition-all duration-300 ${
