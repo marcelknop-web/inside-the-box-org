@@ -423,6 +423,7 @@ export const en = {
   ttx: {
     title: 'DORA & NIS2 Tabletop Exercises',
     metaDesc: 'Hands-on 2-day training: Plan, conduct and evaluate Tabletop Exercises in line with DORA and NIS2.',
+    hostedBy: 'In-house workshop by inside-the-box.org',
     intro: 'Design, delivery, and evaluation of regulatory crisis simulations.',
     introDetail: 'This hands-on 2-day training teaches organisations how to plan, conduct and evaluate Tabletop Exercises (TTX) in compliance with DORA and NIS2. Participants learn to translate regulatory requirements into realistic crisis scenarios, train decision-making under pressure and measurably improve organisational resilience.',
     focusNote: 'A special focus lies on a realistic simulation where participants actively take on roles and make decisions.',

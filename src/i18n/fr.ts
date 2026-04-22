@@ -423,6 +423,7 @@ export const fr = {
   ttx: {
     title: 'DORA & NIS2 Tabletop Exercises',
     metaDesc: 'Formation pratique de 2 jours : planifier, réaliser et évaluer des Tabletop Exercises conformément à DORA et NIS2.',
+    hostedBy: 'Workshop animé par inside-the-box.org',
     intro: 'Conception, réalisation et évaluation de simulations de crise réglementaires.',
     introDetail: 'Cette formation pratique de 2 jours enseigne comment planifier, réaliser et évaluer des Tabletop Exercises (TTX) en conformité avec DORA et NIS2. Les participants apprennent à traduire les exigences réglementaires en scénarios de crise réalistes, à entraîner la prise de décision sous pression et à améliorer de manière mesurable la résilience organisationnelle.',
     focusNote: 'L\'accent est particulièrement mis sur une simulation réaliste dans laquelle les participants agissent activement dans des rôles et prennent des décisions.',
