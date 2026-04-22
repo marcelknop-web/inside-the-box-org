@@ -1380,8 +1380,8 @@ const useSidebarGroups = (): SidebarGroup[] => {
       items: [
         { id: 'publications', icon: FileText, label: t('nav.publications') },
         { id: 'events-workshops', icon: Calendar, label: t('nav.eventsWorkshops') },
-        { id: 'ki-lab', icon: Zap, label: t('nav.aiLab'), isNew: true },
         { id: 'ai-workflows', icon: Zap, label: t('nav.aiWorkflows') },
+        { id: 'ki-lab', icon: Zap, label: t('nav.aiLab'), isNew: true },
       ],
     },
     {
