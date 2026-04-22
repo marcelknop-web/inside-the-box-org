@@ -178,6 +178,60 @@ export const ServiceSymbol = ({ theme, size = 16, className, ...rest }: ServiceS
         </svg>
       );
 
+    /* ───── Journey-Map-Phasen (Overview) ─────
+       Jede Phase bekommt ein eigenes Mini-Symbol, gezeichnet so,
+       dass es innerhalb des 28×28-Diamanten (rotiert 45°) lesbar bleibt.
+       Die Symbole selbst sind NICHT rotiert — sie werden über dem
+       Diamant-Rahmen aufrecht gerendert. */
+
+    /* UNDERSTAND — Lupe (Standortbestimmung, Analyse). */
+    case 'phase-understand':
+      return (
+        <svg {...props}>
+          <circle cx="10.5" cy="10.5" r="6" />
+          <path d="M15 15 L20 20" />
+        </svg>
+      );
+
+    /* COMPLY — Häkchen im Kreis (Konformität, Audit-Reife). */
+    case 'phase-comply':
+      return (
+        <svg {...props}>
+          <circle cx="12" cy="12" r="9" />
+          <path d="M7.5 12.5 L10.5 15.5 L16.5 9" />
+        </svg>
+      );
+
+    /* GOVERN — Säulen / Tempel (Führung, Governance). */
+    case 'phase-govern':
+      return (
+        <svg {...props}>
+          <path d="M3 7 L12 3 L21 7" />
+          <path d="M5 7 V18 M9 7 V18 M15 7 V18 M19 7 V18" />
+          <path d="M3 18 H21" />
+          <path d="M2 21 H22" />
+        </svg>
+      );
+
+    /* TRAIN — Stoppuhr (Üben, Tempo, Wiederholung). */
+    case 'phase-train':
+      return (
+        <svg {...props}>
+          <circle cx="12" cy="13" r="8" />
+          <path d="M9.5 2.5 H14.5" />
+          <path d="M12 2.5 V5" />
+          <path d="M12 13 L12 8.5 M12 13 L15.5 15" />
+        </svg>
+      );
+
+    /* RESPOND — Blitz (Reaktion, akute Wirksamkeit). */
+    case 'phase-respond':
+      return (
+        <svg {...props}>
+          <path d="M13 2 L4 14 H11 L9 22 L20 9 H13 Z" />
+        </svg>
+      );
+
     default:
       return null;
   }
