@@ -190,16 +190,16 @@ const Overview = () => {
         /* Opener Hero */
         <section className="flex-1 flex items-center justify-center px-4 sm:px-6 py-12 sm:py-16 max-w-6xl mx-auto w-full">
           <div className="w-full max-w-3xl text-center animate-fade-in">
-            <div className="font-mono text-[10px] tracking-[0.4em] text-primary mb-6">
+            <div className="font-mono text-[10px] sm:text-[11px] tracking-[0.4em] text-primary mb-6">
               / CYBERSECURITY CONSULTING
             </div>
             <h1 className="font-mono font-semibold text-4xl sm:text-5xl md:text-7xl leading-[1.02] tracking-[-0.02em] text-foreground mb-6">
               {t('welcome.title')}
             </h1>
-            <p className="font-sans text-lg sm:text-xl md:text-2xl text-foreground/85 leading-snug mb-3">
+            <p className="font-sans text-lg sm:text-xl md:text-2xl text-foreground/85 leading-snug mb-5">
               {t('welcome.heroSubtitle')}
             </p>
-            <p className="font-mono text-[11px] sm:text-xs tracking-[0.3em] text-primary/80 mb-10">
+            <p className="font-mono text-[12px] sm:text-[13px] tracking-[0.32em] text-primary/85 mb-12">
               {t('welcome.heroClaim').toUpperCase()}
             </p>
 
@@ -212,11 +212,11 @@ const Overview = () => {
               <ArrowRight className="w-4 h-4 -translate-x-1 group-hover:translate-x-0 transition-transform" />
             </button>
 
-            <p className="font-mono text-[10px] tracking-[0.25em] text-muted-foreground mt-8">
+            <p className="font-mono text-[10px] tracking-[0.25em] text-muted-foreground mt-6">
               {enterHint}
             </p>
 
-            <p className="font-mono text-[10px] tracking-[0.2em] text-muted-foreground/70 mt-12">
+            <p className="font-mono text-[10px] tracking-[0.2em] text-muted-foreground/60 mt-14">
               {t('welcome.heroSignature')}
             </p>
           </div>
