@@ -56,7 +56,7 @@ export const SiteChrome = ({
         >
           <GeometricSymbol size="xs" />
         </button>
-        <div className="flex items-center gap-5 sm:gap-7">
+        <div className="flex items-center gap-6 sm:gap-8">
           <button
             onClick={() => setDrawer('team')}
             className="font-mono text-[10px] tracking-[0.25em] sm:tracking-[0.3em] text-muted-foreground hover:text-primary transition-colors"
