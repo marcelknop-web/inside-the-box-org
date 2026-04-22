@@ -5,6 +5,16 @@ import { ArrowRight } from 'lucide-react';
 import { PageMeta } from '@/components/PageMeta';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { SiteChrome } from '@/components/SiteChrome';
+import { ServiceSymbol, type ServiceTheme } from '@/components/ServiceSymbol';
+
+/** Mapping: Phase-ID → ServiceSymbol-Theme für die Diamant-Marker. */
+const PHASE_SYMBOLS: Record<string, ServiceTheme> = {
+  understand: 'phase-understand',
+  comply: 'phase-comply',
+  lead: 'phase-govern',
+  train: 'phase-train',
+  respond: 'phase-respond',
+};
 
 /**
  * /overview — Journey Map
@@ -377,6 +387,15 @@ const Overview = () => {
                         }`}
                         aria-hidden
                       />
+                      {/* Inner theme symbol — kept upright (parent diamond is rotated). */}
+                      <ServiceSymbol
+                        theme={PHASE_SYMBOLS[phase.id]}
+                        size={18}
+                        aria-hidden
+                        className={`relative z-10 transition-colors duration-300 ${
+                          isActive ? 'text-primary' : 'text-primary/60 group-hover:text-primary'
+                        }`}
+                      />
                     </span>
                     {/* Label — single line on mobile via tighter tracking & smaller size */}
                     <span
@@ -474,6 +493,15 @@ const Overview = () => {
                         : 'border-primary/40 group-hover/node:border-primary group-hover/node:bg-primary/5'
                     }`}
                     aria-hidden
+                  />
+                  {/* Inner theme symbol — kept upright over the rotated diamond */}
+                  <ServiceSymbol
+                    theme={PHASE_SYMBOLS[phase.id]}
+                    size={12}
+                    aria-hidden
+                    className={`relative z-10 transition-colors duration-300 ${
+                      isActive ? 'text-primary' : 'text-primary/70 group-hover/node:text-primary'
+                    }`}
                   />
                 </button>
 
