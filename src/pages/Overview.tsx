@@ -484,10 +484,10 @@ const Overview = () => {
             />
             <text
               x={0}
-              y={-6}
+              y={-fs.coreSub * 0.7}
               textAnchor="middle"
               fontFamily="'IBM Plex Mono', monospace"
-              fontSize={18}
+              fontSize={fs.coreTitle}
               fontWeight={600}
               fill={GOLD}
               letterSpacing={0.5}
@@ -496,8 +496,16 @@ const Overview = () => {
             </text>
             <text
               x={0}
-              y={16}
+              y={fs.coreTitle * 0.9}
               textAnchor="middle"
+              fontFamily="'IBM Plex Mono', monospace"
+              fontSize={fs.coreSub}
+              fill={GOLD}
+              fillOpacity={0.7}
+              letterSpacing={2.5}
+            >
+              PROZESSE UNTER STRESS
+            </text>
               fontFamily="'IBM Plex Mono', monospace"
               fontSize={8}
               fill={GOLD}
