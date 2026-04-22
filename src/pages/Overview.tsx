@@ -174,14 +174,24 @@ const Overview = () => {
 
       {/* Top bar */}
       <header className="flex items-center justify-between px-4 sm:px-6 py-4 sm:py-5 border-b border-primary/10 gap-3">
-        <button
-          onClick={() => setLanguage(nextLanguage(language))}
-          className="font-mono text-[10px] tracking-[0.25em] sm:tracking-[0.3em] text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"
-          aria-label="Language"
-        >
-          <Languages className="w-3 h-3" />
-          {language.toUpperCase()}
-        </button>
+        <div className="flex items-center gap-4 sm:gap-5">
+          <button
+            onClick={() => { setEntered(false); window.scrollTo({ top: 0 }); }}
+            className="flex-shrink-0 transition-opacity hover:opacity-80 animate-logo-breathe"
+            aria-label="inside-the-box"
+            style={{ transform: 'scale(1.6)', transformOrigin: 'left center' }}
+          >
+            <GeometricSymbol size="xs" />
+          </button>
+          <button
+            onClick={() => setLanguage(nextLanguage(language))}
+            className="font-mono text-[10px] tracking-[0.25em] sm:tracking-[0.3em] text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"
+            aria-label="Language"
+          >
+            <Languages className="w-3 h-3" />
+            {language.toUpperCase()}
+          </button>
+        </div>
         <div className="flex items-center gap-3 sm:gap-5">
           <button
             onClick={() => setDrawer('team')}
