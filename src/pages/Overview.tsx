@@ -179,8 +179,9 @@ const Overview = () => {
             onClick={() => { setEntered(false); window.scrollTo({ top: 0 }); }}
             className="flex-shrink-0 transition-opacity hover:opacity-80 animate-logo-breathe"
             aria-label="inside-the-box"
+            style={{ transform: 'scale(1.6)', transformOrigin: 'left center' }}
           >
-            <GeometricSymbol size="sm" className="!w-9 !h-9" />
+            <GeometricSymbol size="xs" />
           </button>
           <button
             onClick={() => setLanguage(nextLanguage(language))}
