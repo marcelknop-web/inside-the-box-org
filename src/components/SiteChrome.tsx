@@ -21,7 +21,7 @@ export const SiteChrome = ({
   children: ReactNode;
   onBrandClick?: () => void;
 }) => {
-  const { language, setLanguage } = useLanguage();
+  const { language, setLanguage, t } = useLanguage();
   const navigate = useNavigate();
   const [drawer, setDrawer] = useState<'team' | 'contact' | 'imprint' | null>(null);
   const lang = language as 'en' | 'de' | 'fr';
