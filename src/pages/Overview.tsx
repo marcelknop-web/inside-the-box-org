@@ -5,6 +5,7 @@ import { Languages, ArrowRight, Linkedin, Mail, Phone } from 'lucide-react';
 import { PageMeta } from '@/components/PageMeta';
 import { useLanguage, nextLanguage } from '@/i18n/LanguageContext';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
+import { GeometricSymbol } from '@/components/GeometricSymbol';
 import { consultantProfiles } from '@/data/consultantProfiles';
 
 /**
@@ -200,34 +201,53 @@ const Overview = () => {
       {!entered ? (
         /* Opener Hero */
         <section className="flex-1 flex items-center justify-center px-4 sm:px-6 py-12 sm:py-16 max-w-6xl mx-auto w-full">
-          <div className="w-full max-w-3xl text-center animate-fade-in">
-            <div className="font-mono text-[11px] sm:text-[13px] md:text-[14px] tracking-[0.4em] text-primary mb-6">
+          <div className="w-full max-w-3xl text-center">
+            <div
+              className="font-mono text-[11px] sm:text-[13px] md:text-[14px] tracking-[0.4em] text-primary mb-6 opacity-0 animate-fade-in"
+              style={{ animationDelay: '0ms', animationFillMode: 'forwards' }}
+            >
               / CYBERSECURITY CONSULTING
             </div>
-            <h1 className="font-mono font-semibold text-4xl sm:text-5xl md:text-7xl leading-[1.02] tracking-[-0.02em] text-foreground mb-6">
+            <h1
+              className="font-mono font-semibold text-4xl sm:text-5xl md:text-7xl leading-[1.02] tracking-[-0.02em] text-foreground mb-6 opacity-0 animate-fade-in"
+              style={{ animationDelay: '180ms', animationFillMode: 'forwards' }}
+            >
               {t('welcome.title')}
             </h1>
-            <p className="font-sans text-lg sm:text-xl md:text-2xl text-foreground/85 leading-snug mb-5">
+            <p
+              className="font-sans text-lg sm:text-xl md:text-2xl text-foreground/85 leading-snug mb-5 opacity-0 animate-fade-in"
+              style={{ animationDelay: '420ms', animationFillMode: 'forwards' }}
+            >
               {t('welcome.heroSubtitle')}
             </p>
-            <p className="font-mono text-[13px] sm:text-[14px] md:text-[15px] tracking-[0.32em] text-primary/85 mb-12">
+            <p
+              className="font-mono text-[13px] sm:text-[14px] md:text-[15px] tracking-[0.32em] text-primary/85 mb-12 opacity-0 animate-fade-in"
+              style={{ animationDelay: '620ms', animationFillMode: 'forwards' }}
+            >
               {t('welcome.heroClaim').toUpperCase()}
             </p>
 
             <button
               onClick={() => setEntered(true)}
-              className="group inline-flex items-center gap-3 px-8 py-4 border border-primary/50 hover:border-primary bg-primary/5 hover:bg-primary/10 text-primary font-mono text-sm sm:text-[15px] tracking-[0.3em] transition-all duration-300 hover:shadow-[0_0_30px_-8px_hsl(var(--primary)/0.6)]"
+              className="group inline-flex items-center gap-3 px-8 py-4 border border-primary/50 hover:border-primary bg-primary/5 hover:bg-primary/10 text-primary font-mono text-sm sm:text-[15px] tracking-[0.3em] transition-all duration-300 hover:shadow-[0_0_30px_-8px_hsl(var(--primary)/0.6)] opacity-0 animate-fade-in"
+              style={{ animationDelay: '820ms', animationFillMode: 'forwards' }}
               aria-label={enterCta}
             >
               <span>{enterCta.toUpperCase()}</span>
               <ArrowRight className="w-4 h-4 -translate-x-1 group-hover:translate-x-0 transition-transform" />
             </button>
 
-            <p className="font-mono text-[12px] sm:text-[13px] tracking-[0.25em] text-muted-foreground mt-6">
+            <p
+              className="font-mono text-[12px] sm:text-[13px] tracking-[0.25em] text-muted-foreground mt-6 opacity-0 animate-fade-in"
+              style={{ animationDelay: '1000ms', animationFillMode: 'forwards' }}
+            >
               {enterHint}
             </p>
 
-            <p className="font-mono text-[11px] sm:text-[12px] tracking-[0.2em] text-muted-foreground/70 mt-14">
+            <p
+              className="font-mono text-[11px] sm:text-[12px] tracking-[0.2em] text-muted-foreground/70 mt-14 opacity-0 animate-fade-in"
+              style={{ animationDelay: '1200ms', animationFillMode: 'forwards' }}
+            >
               {t('welcome.heroSignature')}
             </p>
           </div>
