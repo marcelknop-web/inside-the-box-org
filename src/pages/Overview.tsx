@@ -231,35 +231,35 @@ const Overview = () => {
 
       {!entered ? (
         /* Opener Hero — claim-dominant hierarchy */
-        <section className="flex-1 flex items-center justify-center px-4 sm:px-6 py-10 sm:py-14 max-w-5xl mx-auto w-full">
+        <section className="flex-1 flex items-center justify-center px-3 sm:px-6 py-8 sm:py-14 max-w-5xl mx-auto w-full">
           <div className="w-full max-w-3xl text-center">
             {/* Category label */}
             <div
-              className="font-mono text-[11px] sm:text-[13px] md:text-[14px] tracking-[0.4em] text-primary mb-6 opacity-0 animate-fade-in"
+              className="font-mono text-[10px] sm:text-[13px] md:text-[14px] tracking-[0.3em] sm:tracking-[0.4em] text-primary mb-5 sm:mb-6 opacity-0 animate-fade-in"
               style={{ animationDelay: '0ms', animationFillMode: 'forwards' }}
             >
               / {t('welcome.heroConsulting').toUpperCase()}
             </div>
 
-            {/* Wordmark — reduced ~35% (was text-7xl, now text-4xl→text-5xl max) */}
+            {/* Wordmark */}
             <h1
-              className="font-mono font-semibold text-2xl sm:text-3xl md:text-4xl leading-[1.05] tracking-[-0.02em] text-foreground/90 mb-8 opacity-0 animate-fade-in"
+              className="font-mono font-semibold text-xl sm:text-3xl md:text-4xl leading-[1.05] tracking-[-0.02em] text-foreground/90 mb-6 sm:mb-8 opacity-0 animate-fade-in"
               style={{ animationDelay: '180ms', animationFillMode: 'forwards' }}
             >
               {t('welcome.title')}
             </h1>
 
-            {/* Claim — now dominant */}
+            {/* Claim — dominant, with the "stress" word flickering */}
             <p
-              className="font-sans font-light text-2xl sm:text-3xl md:text-5xl text-foreground leading-[1.15] tracking-[-0.01em] mb-5 opacity-0 animate-fade-in max-w-3xl mx-auto"
+              className="font-sans font-light text-[22px] sm:text-3xl md:text-5xl text-foreground leading-[1.18] tracking-[-0.01em] mb-5 opacity-0 animate-fade-in max-w-3xl mx-auto px-1"
               style={{ animationDelay: '420ms', animationFillMode: 'forwards' }}
             >
-              {t('welcome.heroSubtitle')}
+              {renderWithStressFlicker(t('welcome.heroSubtitle'), ['Stress', 'stress', 'pression'])}
             </p>
 
             {/* Byline */}
             <p
-              className="font-mono text-[11px] sm:text-[12px] tracking-[0.18em] text-muted-foreground/70 mb-12 opacity-0 animate-fade-in"
+              className="font-mono text-[10px] sm:text-[12px] tracking-[0.14em] sm:tracking-[0.18em] text-muted-foreground/70 mb-10 sm:mb-12 opacity-0 animate-fade-in"
               style={{ animationDelay: '780ms', animationFillMode: 'forwards' }}
             >
               {t('welcome.heroByline')}
@@ -267,22 +267,22 @@ const Overview = () => {
 
             {/* Phases preview — non-interactive hint */}
             <div
-              className="mb-12 opacity-0 animate-fade-in"
+              className="mb-10 sm:mb-12 opacity-0 animate-fade-in"
               style={{ animationDelay: '950ms', animationFillMode: 'forwards' }}
               aria-hidden
             >
               <PhasesPreview phases={PHASES} lang={lang} />
             </div>
 
-            {/* CTA — questioning */}
+            {/* CTA — questioning. Allows wrapping on very narrow screens to never clip the question. */}
             <button
               onClick={() => setEntered(true)}
-              className="group inline-flex items-center gap-3 px-7 sm:px-8 py-4 border border-primary/50 hover:border-primary bg-primary/5 hover:bg-primary/10 text-primary font-mono text-[12px] sm:text-[14px] tracking-[0.25em] transition-all duration-300 hover:shadow-[0_0_30px_-8px_hsl(var(--primary)/0.6)] opacity-0 animate-fade-in"
+              className="group inline-flex items-center justify-center gap-2 sm:gap-3 px-5 sm:px-8 py-3.5 sm:py-4 max-w-full border border-primary/50 hover:border-primary bg-primary/5 hover:bg-primary/10 text-primary font-mono text-[11px] sm:text-[14px] tracking-[0.18em] sm:tracking-[0.25em] leading-tight transition-all duration-300 hover:shadow-[0_0_30px_-8px_hsl(var(--primary)/0.6)] opacity-0 animate-fade-in text-center"
               style={{ animationDelay: '1200ms', animationFillMode: 'forwards' }}
               aria-label={enterCta}
             >
-              <span>{enterCta.toUpperCase()}</span>
-              <ArrowRight className="w-4 h-4 -translate-x-1 group-hover:translate-x-0 transition-transform" />
+              <span className="break-words">{enterCta.toUpperCase()}</span>
+              <ArrowRight className="w-4 h-4 flex-shrink-0 -translate-x-1 group-hover:translate-x-0 transition-transform" />
             </button>
           </div>
         </section>
