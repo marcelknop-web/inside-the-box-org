@@ -662,7 +662,7 @@ export const en = {
   },
   profiles: {
     marcel: {
-      bio: 'I support organisations in implementing cybersecurity and compliance requirements, with a focus on ISMS, regulatory topics, and cyber crisis management. This includes building and advancing ISMS, preparing and supporting audits, and establishing security and crisis processes. Previously, I held senior positions at KPMG, Accenture, and EY.',
+      bio: 'I help organisations implement cybersecurity and regulatory requirements effectively – from initial assessment to sustainable integration into processes and organisation.\n\nI build reliable decision-making foundations, guide organisations to audit readiness, and ensure that security and crisis structures actually work when it counts.\n\nMy focus areas are building and advancing ISMS, implementing regulatory requirements, and cyber crisis management.\n\nPreviously, I held senior positions at KPMG, Accenture, and EY.',
       focusLabel: 'Focus Areas',
       focus: 'ISMS · TISAX · NIS2 · PCI-DSS · Cyber Crisis Management · TIBER · BCM',
       certsLabel: 'Certifications',
