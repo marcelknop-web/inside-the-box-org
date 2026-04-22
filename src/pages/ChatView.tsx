@@ -1831,18 +1831,6 @@ const ChatView = () => {
     }
     return shuffled;
   }, [language, isMobile, activeService, SERVICE_QUESTIONS]);
-    // On mobile, only keep short questions that fit on a single line in the chat bar
-    const maxLen = isMobile ? 34 : 999;
-    const filtered = list.filter(q => q.length <= maxLen);
-    const pool = filtered.length > 0 ? filtered : list;
-    // Fisher-Yates shuffle so each visit shows a different order
-    const shuffled = [...pool];
-    for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-    }
-    return shuffled;
-  }, [language, isMobile]);
 
 
   // Rotate every 4s, but pause while the user is typing or focused on the input
