@@ -136,7 +136,7 @@ const Overview = () => {
       : 'Pick the scenario that fits best — we\'ll show the next steps.';
 
   return (
-    <div className="min-h-screen w-full text-foreground flex flex-col bg-background">
+    <div className="min-h-screen w-full text-foreground flex flex-col">
       <PageMeta
         title="Overview"
         description="Find the right cybersecurity service for your situation — from compliance to crisis response."
