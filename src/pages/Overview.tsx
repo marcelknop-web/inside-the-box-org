@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { Languages, ArrowRight, Linkedin, Mail } from 'lucide-react';
+import { Languages, ArrowRight, Linkedin, Mail, Phone } from 'lucide-react';
 import { PageMeta } from '@/components/PageMeta';
 import { useLanguage, nextLanguage } from '@/i18n/LanguageContext';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
@@ -577,6 +577,20 @@ const Overview = () => {
             </a>
 
             <a
+              href="tel:+4915205691648"
+              className="group flex items-center justify-between gap-3 p-4 border border-primary/20 hover:border-primary bg-background/40 hover:bg-primary/5 transition-all"
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                <Phone className="w-4 h-4 text-primary flex-shrink-0" />
+                <div className="min-w-0">
+                  <div className="font-mono text-[10px] tracking-[0.25em] text-muted-foreground uppercase mb-0.5">Marcel Knop</div>
+                  <div className="font-mono text-sm text-foreground">+49 1520 569 1648</div>
+                </div>
+              </div>
+              <ArrowRight className="w-4 h-4 text-primary/0 group-hover:text-primary transition-colors flex-shrink-0" />
+            </a>
+
+            <a
               href="https://www.linkedin.com/in/inside-the-box"
               target="_blank"
               rel="noopener noreferrer"
@@ -592,12 +606,6 @@ const Overview = () => {
               <ArrowRight className="w-4 h-4 text-primary/0 group-hover:text-primary transition-colors flex-shrink-0" />
             </a>
           </div>
-
-          <p className="font-mono text-[10px] tracking-[0.2em] text-muted-foreground/70 mt-12 leading-relaxed whitespace-pre-line">
-            {lang === 'de'
-              ? 'Marcel Knop · Andreas Funder\nBad Emstal, Deutschland'
-              : 'Marcel Knop · Andreas Funder\nBad Emstal, Germany'}
-          </p>
         </SheetContent>
       </Sheet>
     </div>
