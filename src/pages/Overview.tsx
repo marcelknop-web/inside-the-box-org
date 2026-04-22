@@ -710,6 +710,71 @@ const Overview = () => {
           })}
         </ul>
       </section>
+
+      {/* References — typographic logo wall (no actual logos), structured by sector */}
+      <section className="px-4 sm:px-6 pt-6 sm:pt-12 pb-12 sm:pb-16 max-w-6xl mx-auto w-full border-t border-primary/10">
+        <div className="font-mono text-[10px] tracking-[0.3em] sm:tracking-[0.35em] text-primary mb-3 sm:mb-4">
+          {referenceSectionLabel}
+        </div>
+        <h2 className="font-mono font-semibold text-[22px] leading-[1.15] sm:text-3xl md:text-4xl sm:leading-[1.1] tracking-[-0.01em] text-foreground mb-3 sm:mb-4">
+          {referenceHeadline}
+        </h2>
+        <p className="font-sans text-sm sm:text-base text-muted-foreground max-w-2xl leading-snug mb-8 sm:mb-10">
+          {referenceSubline}
+        </p>
+
+        {/* Branchen-Cluster: kategorisierte Kundennamen, rein typografisch */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-7 mb-10 sm:mb-12">
+          {referenceClusters.map((cluster) => (
+            <div key={cluster.label.en} className="min-w-0">
+              <div className="font-mono text-[10px] tracking-[0.28em] text-primary/80 mb-3 pb-2 border-b border-primary/15">
+                {cluster.label[lang].toUpperCase()}
+              </div>
+              <ul className="flex flex-wrap gap-x-4 gap-y-1.5">
+                {cluster.clients.map((client) => (
+                  <li
+                    key={client}
+                    className="font-mono text-[12px] sm:text-[13px] tracking-[0.01em] text-foreground/85 leading-snug"
+                  >
+                    {client}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+
+        {/* Highlight-Mandate: kuratierte aktuelle/strategische Projekte */}
+        <div className="font-mono text-[10px] tracking-[0.28em] text-primary/80 mb-4 pb-2 border-b border-primary/15">
+          {lang === 'de'
+            ? 'AUSGEWÄHLTE MANDATE'
+            : lang === 'fr'
+            ? 'MANDATS SÉLECTIONNÉS'
+            : 'SELECTED MANDATES'}
+        </div>
+        <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3 mb-6">
+          {highlightMandates.map((mandate) => (
+            <li key={mandate.tag} className="flex items-start gap-3 min-w-0">
+              <span
+                className="inline-block w-1.5 h-1.5 mt-[7px] rotate-45 border border-primary/60 flex-shrink-0"
+                aria-hidden
+              />
+              <div className="min-w-0 flex-1">
+                <span className="font-mono text-[10px] tracking-[0.18em] text-primary/90 mr-2 uppercase">
+                  {mandate.tag}
+                </span>
+                <span className="font-sans text-[13px] sm:text-[14px] text-foreground/90 leading-snug">
+                  {mandate.text[lang]}
+                </span>
+              </div>
+            </li>
+          ))}
+        </ul>
+
+        <p className="font-mono text-[10px] tracking-[0.18em] text-muted-foreground/70 italic">
+          {referenceFootnote}
+        </p>
+      </section>
         </>
       )}
     </SiteChrome>
