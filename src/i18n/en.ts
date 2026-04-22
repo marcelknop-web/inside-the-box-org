@@ -607,6 +607,8 @@ export const en = {
       edu: 'Dipl.-Ing. Mechanical Engineering',
       langLabel: 'Languages',
       lang: 'German · English',
+      experienceLabel: 'Experience',
+      experience: 'KPMG: Consultant to Senior Manager · Accenture: Senior Manager · Ernst & Young: Senior Manager',
     },
     andreas: {
       bio: 'I support organisations in information security, risk management, and data privacy. My focus is on building and advancing ISMS as well as the structured implementation of regulatory requirements. I work in regulated environments and bridge normative requirements with practical solutions in day-to-day operations. Previously, I held senior positions at PwC, EY, and CSPi.',
@@ -618,6 +620,8 @@ export const en = {
       edu: 'B.Sc. Business Administration',
       langLabel: 'Languages',
       lang: 'German · English · French',
+      experienceLabel: 'Experience',
+      experience: 'PwC: Manager, Cybersecurity & Privacy · Ernst & Young: Senior Consultant · CSPi: Consultant Security & Data Privacy',
     },
   },
   footer: {

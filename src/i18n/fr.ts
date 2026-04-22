@@ -607,6 +607,8 @@ export const fr = {
       edu: 'Dipl.-Ing. Génie mécanique',
       langLabel: 'Langues',
       lang: 'Allemand · Anglais',
+      experienceLabel: 'Expérience',
+      experience: 'KPMG : Consultant à Senior Manager · Accenture : Senior Manager · Ernst & Young : Senior Manager',
     },
     andreas: {
       bio: 'J\'accompagne les organisations en sécurité de l\'information, gestion des risques et protection des données. Mon activité est centrée sur la mise en place et le développement de SMSI ainsi que sur la mise en œuvre structurée des exigences réglementaires. Je travaille dans des environnements réglementés et relie les exigences normatives à des solutions praticables dans les opérations quotidiennes. J\'ai auparavant occupé des postes seniors chez PwC, EY et CSPi.',
@@ -618,6 +620,8 @@ export const fr = {
       edu: 'B.Sc. Administration des affaires',
       langLabel: 'Langues',
       lang: 'Allemand · Anglais · Français',
+      experienceLabel: 'Expérience',
+      experience: 'PwC : Manager, Cybersécurité & Confidentialité · Ernst & Young : Senior Consultant · CSPi : Consultant Sécurité & Protection des données',
     },
   },
   footer: {

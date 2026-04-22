@@ -607,6 +607,8 @@ export const de = {
       edu: 'Dipl.-Ing. Maschinenbau',
       langLabel: 'Sprachen',
       lang: 'Deutsch · Englisch',
+      experienceLabel: 'Erfahrung',
+      experience: 'KPMG: Consultant bis Senior Manager · Accenture: Senior Manager · Ernst & Young: Senior Manager',
     },
     andreas: {
       bio: 'Ich unterstütze Organisationen in Informationssicherheit, Risikomanagement und Datenschutz. Mein Schwerpunkt liegt auf dem Aufbau und der Weiterentwicklung von ISMS sowie der strukturierten Umsetzung regulatorischer Anforderungen. Ich arbeite in regulierten Umgebungen und verbinde normative Anforderungen mit praktikablen Lösungen im operativen Betrieb. Zuvor war ich in Senior-Positionen bei PwC, EY und CSPi tätig.',
@@ -618,6 +620,8 @@ export const de = {
       edu: 'B.Sc. Betriebswirtschaftslehre',
       langLabel: 'Sprachen',
       lang: 'Deutsch · Englisch · Französisch',
+      experienceLabel: 'Erfahrung',
+      experience: 'PwC: Manager, Cybersecurity & Privacy · Ernst & Young: Senior Consultant · CSPi: Consultant Security & Data Privacy',
     },
   },
   footer: {
