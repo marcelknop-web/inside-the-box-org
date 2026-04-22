@@ -303,6 +303,7 @@ export const SiteChrome = ({
               </h3>
               <div className="space-y-1">
                 <div className="font-medium text-foreground">Marcel Knop</div>
+                <div className="text-muted-foreground">Independent Cybersecurity Consultant</div>
                 <div className="text-muted-foreground">Appenrother Weg 14</div>
                 <div className="text-muted-foreground">
                   {lang === 'de' ? '34308 Bad Emstal, Deutschland' : lang === 'fr' ? '34308 Bad Emstal, Allemagne' : '34308 Bad Emstal, Germany'}
