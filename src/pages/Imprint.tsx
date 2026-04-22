@@ -86,6 +86,7 @@ const Imprint = () => {
             </h2>
             <p className="space-y-1">
               <span className="block font-medium text-foreground">Marcel Knop</span>
+              <span className="block text-muted-foreground">Independent Cybersecurity Consultant</span>
               <span className="block text-muted-foreground">Appenrother Weg 14</span>
               <span className="block text-muted-foreground">34308 Bad Emstal, Deutschland</span>
             </p>
