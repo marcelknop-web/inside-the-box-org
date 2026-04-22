@@ -1560,6 +1560,11 @@ const ChatView = () => {
       en: ['vCISO for 6 months?', 'Cover a CISO transition?', 'Cyber KPIs for the board?', 'Sparring for our CISO?'],
       fr: ['vCISO sur 6 mois ?', 'Transition CISO ?', 'KPI cyber pour le comex ?', 'Sparring pour notre CISO ?'],
     },
+    'soc-operations': {
+      de: ['SOC-Playbooks aufbauen?', 'Eskalationswege definieren?', 'Incident Policies modernisieren?', 'SOC-Reifegrad bewerten?'],
+      en: ['Build SOC playbooks?', 'Define escalation paths?', 'Modernise incident policies?', 'Assess SOC maturity?'],
+      fr: ['Construire des playbooks SOC ?', 'Définir des chaînes d\'escalade ?', 'Moderniser les politiques d\'incident ?', 'Évaluer la maturité du SOC ?'],
+    },
     'dora-nis2-ttx': {
       de: ['Tabletop-Termine 2026?', 'TTX-Format für DORA & NIS-2?', 'Wer sollte teilnehmen?', 'Was kostet ein Tabletop?'],
       en: ['Tabletop dates in 2026?', 'TTX format for DORA & NIS-2?', 'Who should attend?', 'What does a tabletop cost?'],
