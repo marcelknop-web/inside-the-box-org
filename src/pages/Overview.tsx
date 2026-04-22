@@ -312,7 +312,7 @@ const Overview = () => {
                     className={`absolute inset-0 m-auto w-8 h-8 rotate-45 border transition-all duration-300 ${
                       isActive
                         ? 'border-primary bg-primary/10 phase-node-active'
-                        : 'border-primary/40 bg-background group-hover/node:border-primary group-hover/node:bg-primary/5'
+                        : 'border-primary/40 group-hover/node:border-primary group-hover/node:bg-primary/5'
                     }`}
                     aria-hidden
                   />
