@@ -189,11 +189,20 @@ const PhasesPreview = ({
   </div>
 );
 
+const PHASE_STORAGE_KEY = 'overview:lastPhase';
+
 const Overview = () => {
   const { t, language } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
-  const [activeId, setActiveId] = useState<string>(PHASES[0].id);
+  // Restore the last selected phase from sessionStorage so returning from a
+  // sub-page lands on the same step the user originally jumped from.
+  const [activeId, setActiveId] = useState<string>(() => {
+    if (typeof window === 'undefined') return PHASES[0].id;
+    const stored = window.sessionStorage.getItem(PHASE_STORAGE_KEY);
+    if (stored && PHASES.some((p) => p.id === stored)) return stored;
+    return PHASES[0].id;
+  });
   // Brand link from sub-pages passes { state: { skipHero: true } } so we land
   // directly on the journey map instead of the opener hero.
   const [entered, setEntered] = useState<boolean>(
@@ -207,7 +216,21 @@ const Overview = () => {
     }
   }, [location.state, location.key]);
 
-  const handleClick = useCallback((id: string) => navigate(`/${id}`), [navigate]);
+  // Persist phase selection so it survives navigation to a service sub-page.
+  useEffect(() => {
+    if (typeof window === 'undefined' || !activeId) return;
+    window.sessionStorage.setItem(PHASE_STORAGE_KEY, activeId);
+  }, [activeId]);
+
+  const handleClick = useCallback(
+    (id: string, phaseId: string) => {
+      if (typeof window !== 'undefined') {
+        window.sessionStorage.setItem(PHASE_STORAGE_KEY, phaseId);
+      }
+      navigate(`/${id}`);
+    },
+    [navigate],
+  );
 
   const lang = language as 'en' | 'de' | 'fr';
   const active = PHASES.find((p) => p.id === activeId) ?? PHASES[0];
@@ -402,7 +425,7 @@ const Overview = () => {
               {active.services.map((svc) => (
                 <li key={svc.id}>
                   <button
-                    onClick={() => handleClick(svc.id)}
+                    onClick={() => handleClick(svc.id, active.id)}
                     className="w-full text-left flex items-center justify-between gap-3 font-mono text-sm tracking-[0.02em] text-foreground/90 hover:text-primary hover:translate-x-1 transition-all duration-200 py-2.5 border-b border-primary/10 group/svc"
                   >
                     <span className="flex items-center gap-3 min-w-0">
@@ -493,7 +516,7 @@ const Overview = () => {
                       {phase.services.map((svc) => (
                         <li key={svc.id}>
                           <button
-                            onClick={() => handleClick(svc.id)}
+                            onClick={() => handleClick(svc.id, phase.id)}
                             className="w-full text-left flex items-center justify-between gap-3 font-mono text-[13px] text-foreground/90 hover:text-primary transition-colors py-2 border-b border-primary/10"
                           >
                             <span className="flex items-center gap-2.5 min-w-0">
