@@ -147,52 +147,60 @@ export const SiteChrome = ({
           </SheetHeader>
 
           <div className="space-y-8">
-            {consultantProfiles.map((p) => (
-              <article key={p.name} className="bg-background/40 border border-primary/15 p-5">
-                <header className="flex items-start gap-4 mb-4">
-                  <img
-                    src={p.imageUrl}
-                    alt={p.name}
-                    className="w-16 h-16 rounded-full object-cover border border-primary/30"
-                    loading="lazy"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-mono font-semibold text-base text-foreground">{p.name}</h3>
-                    <p className="font-mono text-[11px] tracking-[0.15em] text-primary/80 uppercase mt-1">{p.role}</p>
-                    {p.linkedinUrl && (
-                      <a
-                        href={p.linkedinUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 font-mono text-[11px] text-muted-foreground hover:text-primary transition-colors mt-2"
-                      >
-                        <Linkedin className="w-3 h-3" />
-                        LinkedIn
-                      </a>
-                    )}
-                  </div>
-                </header>
-
-                {p.bio && (
-                  <p className="font-sans text-sm text-foreground/80 leading-relaxed mb-4">{p.bio}</p>
-                )}
-
-                <dl className="grid grid-cols-1 gap-3">
-                  {p.sections.map((s) => (
-                    <div key={s.title} className="border-t border-primary/10 pt-3">
-                      <dt className="font-mono text-[10px] tracking-[0.25em] text-primary/70 uppercase mb-1.5">
-                        {s.title}
-                      </dt>
-                      <dd className="font-sans text-[13px] text-foreground/85 leading-snug space-y-0.5">
-                        {s.items.map((item, i) => (
-                          <div key={i}>{item}</div>
-                        ))}
-                      </dd>
+            {consultantProfiles.map((p) => {
+              const key = p.name === 'Marcel Knop' ? 'marcel' : 'andreas';
+              const sections = [
+                { label: t(`profiles.${key}.focusLabel`), value: t(`profiles.${key}.focus`) },
+                { label: t(`profiles.${key}.experienceLabel`), value: t(`profiles.${key}.experience`) },
+                { label: t(`profiles.${key}.certsLabel`), value: t(`profiles.${key}.certs`) },
+                { label: t(`profiles.${key}.eduLabel`), value: t(`profiles.${key}.edu`) },
+                { label: t(`profiles.${key}.langLabel`), value: t(`profiles.${key}.lang`) },
+              ];
+              return (
+                <article key={p.name} className="bg-background/40 border border-primary/15 p-5">
+                  <header className="flex items-start gap-4 mb-4">
+                    <img
+                      src={p.imageUrl}
+                      alt={p.name}
+                      className="w-16 h-16 rounded-full object-cover border border-primary/30"
+                      loading="lazy"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-mono font-semibold text-base text-foreground">{p.name}</h3>
+                      <p className="font-mono text-[11px] tracking-[0.15em] text-primary/80 uppercase mt-1">{p.role}</p>
+                      {p.linkedinUrl && (
+                        <a
+                          href={p.linkedinUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 font-mono text-[11px] text-muted-foreground hover:text-primary transition-colors mt-2"
+                        >
+                          <Linkedin className="w-3 h-3" />
+                          LinkedIn
+                        </a>
+                      )}
                     </div>
-                  ))}
-                </dl>
-              </article>
-            ))}
+                  </header>
+
+                  <p className="font-sans text-sm text-foreground/80 leading-relaxed mb-4">
+                    {t(`profiles.${key}.bio`)}
+                  </p>
+
+                  <dl className="grid grid-cols-1 gap-3">
+                    {sections.map((s) => (
+                      <div key={s.label} className="border-t border-primary/10 pt-3">
+                        <dt className="font-mono text-[10px] tracking-[0.25em] text-primary/70 uppercase mb-1.5">
+                          {s.label}
+                        </dt>
+                        <dd className="font-sans text-[13px] text-foreground/85 leading-snug">
+                          {s.value}
+                        </dd>
+                      </div>
+                    ))}
+                  </dl>
+                </article>
+              );
+            })}
           </div>
         </SheetContent>
       </Sheet>
