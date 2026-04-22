@@ -164,8 +164,8 @@ const PhasesPreview = ({
               aria-hidden
             />
           </span>
-          {/* Label — tight tracking on mobile so single words fit one line. */}
-          <span className="font-mono text-[7px] sm:text-[9px] tracking-normal sm:tracking-[0.18em] text-muted-foreground/70 leading-[1.1] w-full px-0 break-words hyphens-none">
+          {/* Label — single line; scaled down on mobile so longest DE word fits. */}
+          <span className="font-mono text-[7px] sm:text-[9px] tracking-normal sm:tracking-[0.18em] text-muted-foreground/70 leading-[1.1] w-full px-0 whitespace-nowrap">
             {phase.title[lang]}
           </span>
         </li>
