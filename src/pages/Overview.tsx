@@ -281,12 +281,6 @@ const Overview = () => {
             {lang === 'de' ? 'TEAM' : lang === 'fr' ? 'ÉQUIPE' : 'TEAM'}
           </button>
           <button
-            onClick={() => setDrawer('contact')}
-            className="font-mono text-[10px] tracking-[0.25em] sm:tracking-[0.3em] text-muted-foreground hover:text-primary transition-colors"
-          >
-            {lang === 'de' ? 'KONTAKT' : 'CONTACT'}
-          </button>
-          <button
             onClick={() => setLanguage(nextLanguage(language))}
             className="font-mono text-[10px] tracking-[0.25em] sm:tracking-[0.3em] text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"
             aria-label="Language"
