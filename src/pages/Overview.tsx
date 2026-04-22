@@ -274,11 +274,11 @@ const Overview = () => {
           className="w-full h-full max-w-[960px] max-h-[960px]"
           style={{ filter: 'drop-shadow(0 0 28px hsl(var(--primary) / 0.18))' }}
         >
-          {/* Outer guide circles */}
-          <circle cx={0} cy={0} r={R_GUIDE} fill="none" stroke={GOLD} strokeOpacity={0.18} strokeWidth={0.6} />
-          <circle cx={0} cy={0} r={R_GUIDE + 80} fill="none" stroke={GOLD} strokeOpacity={0.08} strokeWidth={0.5} />
+          {/* Faint outer guide circle for visual containment */}
+          <circle cx={0} cy={0} r={R_CLUSTER_OUT + 18} fill="none" stroke={GOLD} strokeOpacity={0.12} strokeWidth={0.6} />
+          <circle cx={0} cy={0} r={R_SERVICES_IN - 8} fill="none" stroke={GOLD} strokeOpacity={0.18} strokeWidth={0.5} />
 
-          {/* === Cluster ring (mid) ============================================ */}
+          {/* === Cluster ring (outer band) =================================== */}
           {CLUSTERS.map((cluster) => {
             const start = cluster.centerDeg - 45 + SECTOR_GAP / 2;
             const end = cluster.centerDeg + 45 - SECTOR_GAP / 2;
@@ -319,49 +319,9 @@ const Overview = () => {
             );
           })}
 
-          {/* === Process ring (inner) ========================================= */}
-          {processLabels.map((label, i) => {
-            // Process quadrants offset by 45° vs clusters so the spokes line up
-            // with the cluster gaps. Order clockwise from top: ANALYSE, UMSETZUNG, TRAINING, AUDIT.
-            const center = i * 90; // 0, 90, 180, 270
-            const start = center - 45 + SECTOR_GAP / 2;
-            const end = center + 45 - SECTOR_GAP / 2;
-            const flip = center > 90 && center < 270;
-            const arcId = `proc-arc-${i}`;
-            return (
-              <g key={`proc-${i}`}>
-                <path
-                  d={sectorPath(R_PROCESS_IN, R_PROCESS_OUT, start, end)}
-                  fill="none"
-                  stroke={GOLD}
-                  strokeOpacity={0.35}
-                  strokeWidth={0.8}
-                  strokeDasharray="3 4"
-                />
-                <defs>
-                  <path id={arcId} d={textArc((R_PROCESS_IN + R_PROCESS_OUT) / 2, start + 6, end - 6, flip)} />
-                </defs>
-                <text
-                  fontFamily="'IBM Plex Mono', monospace"
-                  fontSize={fs.process}
-                  fontWeight={500}
-                  letterSpacing={fs.processTrack}
-                  fill={GOLD}
-                  fillOpacity={0.85}
-                  textRendering="geometricPrecision"
-                  style={{ pointerEvents: 'none' }}
-                >
-                  <textPath href={`#${arcId}`} startOffset="50%" textAnchor="middle">
-                    {label}
-                  </textPath>
-                </text>
-              </g>
-            );
-          })}
-
-          {/* Spokes between cluster sectors */}
+          {/* Spokes between cluster sectors (separate the inner quadrants too) */}
           {[0, 90, 180, 270].map((deg) => {
-            const p1 = polar(R_PROCESS_IN, deg);
+            const p1 = polar(R_SERVICES_IN, deg);
             const p2 = polar(R_CLUSTER_OUT, deg);
             return (
               <line
@@ -371,74 +331,93 @@ const Overview = () => {
                 x2={p2.x}
                 y2={p2.y}
                 stroke={GOLD}
-                strokeOpacity={0.55}
-                strokeWidth={1}
+                strokeOpacity={0.45}
+                strokeWidth={0.8}
               />
             );
           })}
 
-          {/* === Service diamonds + horizontal labels ========================= */}
-          {ALL_SERVICE_SLOTS.map(({ service, cluster, angleDeg }) => {
-            const dPos = polar(R_DIAMOND, angleDeg);
-            const lPos = polar(R_LABEL, angleDeg);
-            const isHovered = hoveredId === service.id;
-            const dimmed = hoveredId !== null && !isHovered;
-            const label = t(service.titleKey);
+          {/* === Services inside each cluster quadrant ====================== */}
+          {/* Each quadrant lists its services as horizontal text rows, stacked
+              vertically along the radial axis of the cluster. */}
+          {CLUSTERS.map((cluster) => {
+            const services = cluster.services;
+            if (services.length === 0) return null;
 
-            // Anchor labels horizontally based on which side of the wheel they sit
-            const anchor: 'start' | 'middle' | 'end' =
-              lPos.x < -8 ? 'end' : lPos.x > 8 ? 'start' : 'middle';
+            // Radial direction unit vector (cluster centre direction)
+            const rad = ((cluster.centerDeg - 90) * Math.PI) / 180;
+            const ux = Math.cos(rad);
+            const uy = Math.sin(rad);
+            // Perpendicular (for tangential offsets if ever needed)
 
-            // Diamond size + rotation (always upright — pointing radially outward)
-            const D = fs.diamond;
+            // Distribute service rows along the radial line, between
+            // R_SERVICES_IN+pad and R_SERVICES_OUT-pad.
+            const innerPad = 18;
+            const outerPad = 18;
+            const rStart = R_SERVICES_IN + innerPad;
+            const rEnd = R_SERVICES_OUT - outerPad;
+            const span = rEnd - rStart;
+            const step = services.length === 1 ? 0 : span / (services.length - 1);
+
             return (
-              <g
-                key={service.id}
-                style={{ cursor: 'pointer' }}
-                onMouseEnter={() => setHoveredId(service.id)}
-                onMouseLeave={() => setHoveredId(null)}
-                onClick={() => handleClick(service.id)}
-                opacity={dimmed ? 0.45 : 1}
-              >
-                {/* Diamond marker */}
-                <g transform={`translate(${dPos.x.toFixed(2)} ${dPos.y.toFixed(2)}) rotate(${angleDeg})`}>
-                  <rect
-                    x={-D}
-                    y={-D}
-                    width={D * 2}
-                    height={D * 2}
-                    transform="rotate(45)"
-                    fill={GOLD}
-                    fillOpacity={isHovered ? 0.95 : 0.12}
-                    stroke={GOLD}
-                    strokeOpacity={isHovered ? 1 : 0.85}
-                    strokeWidth={1.4}
-                    style={{
-                      transition: 'fill-opacity 0.2s, stroke-width 0.2s',
-                      filter: isHovered ? `drop-shadow(0 0 8px ${GOLD})` : 'none',
-                    }}
-                  />
-                </g>
+              <g key={`svc-${cluster.id}`}>
+                {services.map((service, i) => {
+                  const r = rStart + i * step;
+                  const x = ux * r;
+                  const y = uy * r;
+                  const isHovered = hoveredId === service.id;
+                  const dimmed = hoveredId !== null && !isHovered;
+                  const label = t(service.titleKey);
 
-                {/* Hit area */}
-                <circle cx={dPos.x} cy={dPos.y} r={Math.max(20, fs.diamond * 1.6)} fill="transparent" />
-
-                {/* Horizontal label — always upright, never rotated */}
-                <text
-                  x={lPos.x}
-                  y={lPos.y}
-                  fontFamily="'IBM Plex Mono', monospace"
-                  fontSize={fs.service}
-                  fontWeight={500}
-                  letterSpacing={fs.serviceTrack}
-                  fill={isHovered ? GOLD : '#e8ecf3'}
-                  textAnchor={anchor}
-                  dominantBaseline="middle"
-                  textRendering="geometricPrecision"
-                  style={{ transition: 'fill 0.2s', pointerEvents: 'none' }}
-                >
-                  {label}
-                </text>
+                  return (
+                    <g
+                      key={service.id}
+                      style={{ cursor: 'pointer' }}
+                      onMouseEnter={() => setHoveredId(service.id)}
+                      onMouseLeave={() => setHoveredId(null)}
+                      onClick={() => handleClick(service.id)}
+                      opacity={dimmed ? 0.4 : 1}
+                    >
+                      {/* Hover hit area — generous for usability */}
+                      <rect
+                        x={x - 140}
+                        y={y - fs.service * 0.9}
+                        width={280}
+                        height={fs.service * 1.8}
+                        fill="transparent"
+                      />
+                      {/* Bullet diamond preceding the label */}
+                      <g transform={`translate(${(x - fs.service * 0.55).toFixed(2)} ${y.toFixed(2)}) rotate(45)`}>
+                        <rect
+                          x={-fs.service * 0.18}
+                          y={-fs.service * 0.18}
+                          width={fs.service * 0.36}
+                          height={fs.service * 0.36}
+                          fill={isHovered ? GOLD : 'none'}
+                          stroke={GOLD}
+                          strokeOpacity={isHovered ? 1 : 0.7}
+                          strokeWidth={1}
+                          style={{ transition: 'fill 0.2s, stroke-opacity 0.2s' }}
+                        />
+                      </g>
+                      <text
+                        x={x + fs.service * 0.1}
+                        y={y}
+                        fontFamily="'IBM Plex Mono', monospace"
+                        fontSize={fs.service}
+                        fontWeight={500}
+                        letterSpacing={fs.serviceTrack}
+                        fill={isHovered ? GOLD : '#e8ecf3'}
+                        textAnchor="start"
+                        dominantBaseline="middle"
+                        textRendering="geometricPrecision"
+                        style={{ transition: 'fill 0.2s', pointerEvents: 'none' }}
+                      >
+                        {label}
+                      </text>
+                    </g>
+                  );
+                })}
               </g>
             );
           })}
