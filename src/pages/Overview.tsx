@@ -70,9 +70,9 @@ const PHASES: Phase[] = [
       fr: 'Piloter la sécurité comme une fonction.',
     },
     description: {
-      en: 'Fractional CISO leadership and AI-augmented workflows for lean security teams.',
-      de: 'CISO-Leadership auf Zeit und KI-gestützte Workflows für schlanke Security-Teams.',
-      fr: 'Leadership RSSI à temps partiel et workflows augmentés par l\'IA.',
+      en: 'Fractional CISO leadership and pragmatic operating models for lean security teams.',
+      de: 'CISO-Leadership auf Zeit und pragmatische Betriebsmodelle für schlanke Security-Teams.',
+      fr: 'Leadership RSSI à temps partiel et modèles opérationnels pragmatiques pour des équipes lean.',
     },
     services: [
       { id: 'virtual-ciso', titleKey: 'consulting.vcisoTitle' },
