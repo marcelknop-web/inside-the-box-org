@@ -207,12 +207,12 @@ const Overview = () => {
                     aria-current={isActive ? 'step' : undefined}
                   >
                     {/* Node */}
-                    <span className="relative flex items-center justify-center w-[52px] h-[52px] bg-background z-10">
+                    <span className="relative flex items-center justify-center w-[52px] h-[52px] z-10">
                       <span
                         className={`absolute inset-0 m-auto w-[44px] h-[44px] rotate-45 border transition-all duration-300 ease-out ${
                           isActive
                             ? 'border-primary bg-primary/10 phase-node-active'
-                            : 'border-primary/50 bg-background group-hover:border-primary group-hover:scale-110 group-hover:bg-primary/5 group-hover:shadow-[0_0_18px_-6px_hsl(var(--primary)/0.55)]'
+                            : 'border-primary/50 group-hover:border-primary group-hover:scale-110 group-hover:bg-primary/5 group-hover:shadow-[0_0_18px_-6px_hsl(var(--primary)/0.55)]'
                         }`}
                         aria-hidden
                       />
