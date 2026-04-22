@@ -1034,12 +1034,20 @@ const useServiceContent = () => {
         <Block className="bg-card/40 rounded-xl">
           <p className="text-highlight font-mono font-bold text-sm">{t('kiLab.ctaTitle')}</p>
           <p className="text-foreground/80 text-sm font-sans mt-1">{t('kiLab.ctaDesc')}</p>
-          <button
-            onClick={() => setActive('ai-workflows')}
-            className="mt-3 inline-flex items-center gap-2 text-highlight font-mono font-bold text-sm hover:text-primary transition-electric cursor-pointer bg-transparent border-none p-0"
-          >
-            {t('kiLab.ctaButton')}
-          </button>
+          <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2">
+            <button
+              onClick={() => setActive('ai-workflows')}
+              className="inline-flex items-center gap-2 text-highlight font-mono font-bold text-sm hover:text-primary transition-electric cursor-pointer bg-transparent border-none p-0"
+            >
+              {t('kiLab.ctaButton')}
+            </button>
+            <button
+              onClick={() => setActive('contact')}
+              className="inline-flex items-center gap-2 text-primary font-mono font-bold text-sm hover:text-highlight transition-electric cursor-pointer bg-transparent border-none p-0"
+            >
+              {t('kiLab.ctaContact')}
+            </button>
+          </div>
         </Block>
       </TypedSection>
     ),
