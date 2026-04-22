@@ -506,14 +506,6 @@ const Overview = () => {
             >
               PROZESSE UNTER STRESS
             </text>
-              fontFamily="'IBM Plex Mono', monospace"
-              fontSize={8}
-              fill={GOLD}
-              fillOpacity={0.7}
-              letterSpacing={2.5}
-            >
-              PROZESSE UNTER STRESS
-            </text>
           </g>
         </svg>
       </div>
