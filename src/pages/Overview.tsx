@@ -758,23 +758,24 @@ const Overview = () => {
 
         {/* Collapsible body */}
         {referencesOpen && (
-          <div className="mt-6 sm:mt-8 animate-fade-in pl-0 sm:pl-12 md:pl-20">
-            <p className="font-sans text-sm sm:text-base text-muted-foreground max-w-2xl leading-snug mb-8 sm:mb-10">
+          <div className="mt-4 sm:mt-5 animate-fade-in pl-0 sm:pl-12 md:pl-20">
+            <p className="font-sans text-[12px] sm:text-[13px] text-muted-foreground max-w-2xl leading-snug mb-5 sm:mb-6">
               {referenceSubline}
             </p>
 
-            {/* Branchen-Cluster: kategorisierte Kundennamen, rein typografisch */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-7 mb-10 sm:mb-12">
+            {/* Branchen-Cluster: kategorisierte Kundennamen, rein typografisch.
+                Dichteres Grid (3 Spalten ab md) hält die Sektion auf einem Bildschirm sichtbar. */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-4 mb-6 sm:mb-7">
               {referenceClusters.map((cluster) => (
                 <div key={cluster.label.en} className="min-w-0">
-                  <div className="font-mono text-[10px] tracking-[0.28em] text-primary/80 mb-3 pb-2 border-b border-primary/15">
+                  <div className="font-mono text-[9px] tracking-[0.24em] text-primary/80 mb-1.5 pb-1 border-b border-primary/15">
                     {cluster.label[lang].toUpperCase()}
                   </div>
-                  <ul className="flex flex-wrap gap-x-4 gap-y-1.5">
+                  <ul className="flex flex-wrap gap-x-3 gap-y-0.5">
                     {cluster.clients.map((client) => (
                       <li
                         key={client}
-                        className="font-mono text-[12px] sm:text-[13px] tracking-[0.01em] text-foreground/85 leading-snug"
+                        className="font-mono text-[11px] sm:text-[11.5px] tracking-[0.01em] text-foreground/85 leading-snug"
                       >
                         {client}
                       </li>
@@ -785,25 +786,25 @@ const Overview = () => {
             </div>
 
             {/* Highlight-Mandate: kuratierte aktuelle/strategische Projekte */}
-            <div className="font-mono text-[10px] tracking-[0.28em] text-primary/80 mb-4 pb-2 border-b border-primary/15">
+            <div className="font-mono text-[9px] tracking-[0.24em] text-primary/80 mb-2 pb-1 border-b border-primary/15">
               {lang === 'de'
                 ? 'AUSGEWÄHLTE MANDATE'
                 : lang === 'fr'
                 ? 'MANDATS SÉLECTIONNÉS'
                 : 'SELECTED MANDATES'}
             </div>
-            <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3 mb-6">
+            <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-1 mb-3">
               {highlightMandates.map((mandate) => (
-                <li key={mandate.tag} className="flex items-start gap-3 min-w-0">
+                <li key={mandate.tag} className="flex items-start gap-2 min-w-0">
                   <span
-                    className="inline-block w-1.5 h-1.5 mt-[7px] rotate-45 border border-primary/60 flex-shrink-0"
+                    className="inline-block w-1 h-1 mt-[6px] rotate-45 border border-primary/60 flex-shrink-0"
                     aria-hidden
                   />
                   <div className="min-w-0 flex-1">
-                    <span className="font-mono text-[10px] tracking-[0.18em] text-primary/90 mr-2 uppercase">
+                    <span className="font-mono text-[9px] tracking-[0.16em] text-primary/90 mr-1.5 uppercase">
                       {mandate.tag}
                     </span>
-                    <span className="font-sans text-[13px] sm:text-[14px] text-foreground/90 leading-snug">
+                    <span className="font-sans text-[12px] text-foreground/90 leading-snug">
                       {mandate.text[lang]}
                     </span>
                   </div>
@@ -811,7 +812,7 @@ const Overview = () => {
               ))}
             </ul>
 
-            <p className="font-mono text-[10px] tracking-[0.18em] text-muted-foreground/70 italic">
+            <p className="font-mono text-[9px] tracking-[0.16em] text-muted-foreground/70 italic">
               {referenceFootnote}
             </p>
           </div>
