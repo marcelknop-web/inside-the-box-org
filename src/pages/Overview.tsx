@@ -237,14 +237,6 @@ const Overview = () => {
               {t('welcome.heroSubtitle')}
             </p>
 
-            {/* Qualifier */}
-            <p
-              className="font-sans text-sm sm:text-base text-muted-foreground leading-snug mb-3 opacity-0 animate-fade-in max-w-xl mx-auto"
-              style={{ animationDelay: '620ms', animationFillMode: 'forwards' }}
-            >
-              {t('welcome.heroQualifier')}
-            </p>
-
             {/* Byline */}
             <p
               className="font-mono text-[11px] sm:text-[12px] tracking-[0.18em] text-muted-foreground/70 mb-12 opacity-0 animate-fade-in"

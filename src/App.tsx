@@ -19,6 +19,7 @@ const SocLife = lazy(() => import("./pages/SocLife"));
 const Enigma = lazy(() => import("./pages/Enigma"));
 const TtxReadinessPage = lazy(() => import("./pages/TtxReadinessPage"));
 const Overview = lazy(() => import("./pages/Overview"));
+const Imprint = lazy(() => import("./pages/Imprint"));
 
 const queryClient = new QueryClient();
 
@@ -34,6 +35,8 @@ const App = () => (
               <Route path="/" element={<Suspense fallback={<RouteSkeleton />}><Overview /></Suspense>} />
               <Route path="/legacy" element={<ChatView />} />
               <Route path="/overview" element={<Suspense fallback={<RouteSkeleton />}><Overview /></Suspense>} />
+              <Route path="/impressum" element={<Suspense fallback={<RouteSkeleton />}><Imprint /></Suspense>} />
+              <Route path="/imprint" element={<Suspense fallback={<RouteSkeleton />}><Imprint /></Suspense>} />
               <Route path="/nis2-compliance" element={<ChatView />} />
               <Route path="/iacs-e27" element={<ChatView />} />
               <Route path="/iec62443" element={<ChatView />} />
