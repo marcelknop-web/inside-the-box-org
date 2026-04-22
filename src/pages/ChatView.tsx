@@ -1388,7 +1388,7 @@ const ChatView = () => {
       if (fnError) throw fnError;
       setMessages(prev => [...prev, { role: 'assistant', content: responseData.message, links: responseData.links }]);
     } catch {
-      setMessages(prev => [...prev, { role: 'assistant', content: 'Etwas ist schiefgelaufen. Bitte versuche es erneut.' }]);
+      setMessages(prev => [...prev, { role: 'assistant', content: t('common.chatGenericError') }]);
     } finally {
       setIsLoading(false);
     }

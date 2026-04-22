@@ -625,6 +625,7 @@ export const de = {
   common: {
     allConsulting: 'Alle Beratungsleistungen',
     contact: 'Kontakt',
+    chatGenericError: 'Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut.',
   },
   overview: {
     title: 'Was wir liefern.',

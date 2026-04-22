@@ -11,12 +11,13 @@ import ChatView from "./pages/ChatView";
 import NotFound from "./pages/NotFound";
 import { lazy, Suspense } from "react";
 
-const EliteShipScene = lazy(() => import("./pages/EliteShipScene"));
+// Active routes only. Archived (no longer in Routes, files retained for reference):
+//   /legacy, /overview, /berlin-drift, /enigma, /soc-life, /nis2-compliance,
+//   /iacs-e27, /iec62443 — all reachable via the unified /:serviceId catchall
+//   in ChatView, or removed from the Journey navigation entirely.
 const TtxAdmin = lazy(() => import("./pages/TtxAdmin"));
 const ItsmTool = lazy(() => import("./pages/ItsmTool"));
 const ItsmDevTool = lazy(() => import("./pages/ItsmDevTool"));
-const SocLife = lazy(() => import("./pages/SocLife"));
-const Enigma = lazy(() => import("./pages/Enigma"));
 const TtxReadinessPage = lazy(() => import("./pages/TtxReadinessPage"));
 const Overview = lazy(() => import("./pages/Overview"));
 const Imprint = lazy(() => import("./pages/Imprint"));
@@ -32,21 +33,18 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <Routes>
+              {/* Active Journey + entry points */}
               <Route path="/" element={<Suspense fallback={<RouteSkeleton />}><Overview /></Suspense>} />
-              <Route path="/legacy" element={<ChatView />} />
-              <Route path="/overview" element={<Suspense fallback={<RouteSkeleton />}><Overview /></Suspense>} />
               <Route path="/impressum" element={<Suspense fallback={<RouteSkeleton />}><Imprint /></Suspense>} />
               <Route path="/imprint" element={<Suspense fallback={<RouteSkeleton />}><Imprint /></Suspense>} />
-              <Route path="/nis2-compliance" element={<ChatView />} />
-              <Route path="/iacs-e27" element={<ChatView />} />
-              <Route path="/iec62443" element={<ChatView />} />
-              <Route path="/berlin-drift" element={<Suspense fallback={<RouteSkeleton />}><EliteShipScene /></Suspense>} />
+
+              {/* Standalone tools (not part of the Journey, kept for direct/admin access) */}
               <Route path="/ttx-admin" element={<Suspense fallback={<RouteSkeleton />}><TtxAdmin /></Suspense>} />
               <Route path="/itsm" element={<Suspense fallback={<RouteSkeleton />}><ItsmTool /></Suspense>} />
               <Route path="/itsm-dev" element={<Suspense fallback={<RouteSkeleton />}><ItsmDevTool /></Suspense>} />
-              <Route path="/soc-life" element={<ChatView />} />
-              <Route path="/enigma" element={<Suspense fallback={<RouteSkeleton />}><Enigma /></Suspense>} />
               <Route path="/ttx-readiness" element={<Suspense fallback={<RouteSkeleton />}><TtxReadinessPage /></Suspense>} />
+
+              {/* Catch-all: every Journey service id (nis2-dora, virtual-ciso, …) renders ChatView */}
               <Route path="/:serviceId" element={<ChatView />} />
               <Route path="*" element={<NotFound />} />
             </Routes>

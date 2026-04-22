@@ -625,6 +625,7 @@ export const fr = {
   common: {
     allConsulting: 'Tous les services de conseil',
     contact: 'Contact',
+    chatGenericError: 'Une erreur est survenue. Veuillez réessayer.',
   },
   overview: {
     title: 'Ce que nous livrons.',
