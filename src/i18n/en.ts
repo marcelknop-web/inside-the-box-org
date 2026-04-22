@@ -410,6 +410,16 @@ export const en = {
     ctaTitle: 'Getting Started',
     ctaDesc: 'Pilot phase with a clearly defined scope: analysis of existing processes, implementation, handover. The goal is measurable efficiency gains and sustainable integration – not a black-box solution nobody understands after the project ends.',
     ctaButton: '→ Schedule a conversation',
+    openKiLab: '→ Open the AI Lab',
+  },
+  kiLab: {
+    title: 'AI Lab',
+    metaDesc: 'Simulations, tests and scenarios to explore — no login required.',
+    intro: 'Make concepts tangible — on your own screen, in just a few minutes.',
+    introDetail: 'Every tool is a self-contained mini experiment: compliance checks, crisis simulations, awareness quizzes and arcade-style learning formats. Directly in the browser, no sign-up — to honestly calibrate gut feeling, knowledge and reaction patterns.',
+    ctaTitle: 'From the lab into practice',
+    ctaDesc: 'When a format hits your use case, it can be turned into an AI-assisted workflow inside your organisation — with a clear scope and audit-ready documentation.',
+    ctaButton: '→ Open AI workflows',
   },
   arena: {
     title: 'TIBER Test',
