@@ -47,7 +47,7 @@ const CLUSTERS: Cluster[] = [
   },
   {
     id: 'regulation',
-    groupKey: 'compliance.label',
+    groupKey: 'nav.groupRegulation',
     centerDeg: 135,
     services: [
       { id: 'nis2-dora',     titleKey: 'consulting.nis2Title',  descKey: 'consulting.nis2Desc'  },
