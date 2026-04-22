@@ -149,7 +149,8 @@ const ALL_SERVICE_SLOTS: Array<{
   angleDeg: number;
 }> = (() => {
   const slots: Array<{ service: ServiceNode; cluster: Cluster; angleDeg: number }> = [];
-  const SERVICE_SPREAD = 80; // total degrees occupied by all services in one cluster
+  // Services span almost the full quadrant — denser, less empty arc
+  const SERVICE_SPREAD = 86;
   for (const cluster of CLUSTERS) {
     const n = cluster.services.length;
     if (n === 0) continue;
