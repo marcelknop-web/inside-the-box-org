@@ -128,6 +128,7 @@ const Overview = () => {
   const navigate = useNavigate();
   const [activeId, setActiveId] = useState<string>(PHASES[0].id);
   const [entered, setEntered] = useState<boolean>(false);
+  const [drawer, setDrawer] = useState<'team' | 'contact' | null>(null);
 
   const handleClick = useCallback((id: string) => navigate(`/${id}`), [navigate]);
 
