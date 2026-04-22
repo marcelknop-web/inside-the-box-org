@@ -267,10 +267,10 @@ const Overview = () => {
       : 'Cyber-resilience in five steps.';
   const subline =
     lang === 'de'
-      ? 'Wählen Sie den Schritt, der gerade ansteht.'
+      ? 'Starten Sie dort, wo Sie stehen.'
       : lang === 'fr'
-      ? 'Choisissez l\'étape qui vous concerne.'
-      : 'Pick the step that matters right now.';
+      ? 'Commencez là où vous en êtes.'
+      : 'Start where you stand.';
   const sectionLabel =
     lang === 'de' ? '/ ÜBERSICHT' : lang === 'fr' ? '/ APERÇU' : '/ OVERVIEW';
   const servicesLabel =
