@@ -153,21 +153,14 @@ const Overview = () => {
   const lang = language as 'en' | 'de' | 'fr';
   const active = PHASES.find((p) => p.id === activeId) ?? PHASES[0];
 
-  const enterCta =
-    lang === 'de' ? 'Übersicht öffnen' : lang === 'fr' ? 'Ouvrir l\'aperçu' : 'Open the overview';
-  const enterHint =
-    lang === 'de'
-      ? 'Fünf Phasen. Wo stehen Sie gerade?'
-      : lang === 'fr'
-      ? 'Cinq phases. Où en êtes-vous ?'
-      : 'Five phases. Where are you right now?';
+  const enterCta = t('welcome.heroCta');
 
   const headline =
     lang === 'de'
-      ? 'Cyber-Resilienz in fünf Schritten.'
+      ? 'Cyber-Resilienz in sechs Schritten.'
       : lang === 'fr'
-      ? 'La cyber-résilience en cinq étapes.'
-      : 'Cyber-resilience in five steps.';
+      ? 'La cyber-résilience en six étapes.'
+      : 'Cyber-resilience in six steps.';
   const subline =
     lang === 'de'
       ? 'Wählen Sie den Schritt, der gerade ansteht.'
@@ -178,6 +171,10 @@ const Overview = () => {
     lang === 'de' ? '/ ÜBERSICHT' : lang === 'fr' ? '/ APERÇU' : '/ OVERVIEW';
   const servicesLabel =
     lang === 'de' ? 'Leistungen in dieser Phase' : lang === 'fr' ? 'Services dans cette phase' : 'Services in this phase';
+  const footerImprintLabel =
+    lang === 'de' ? 'Impressum' : lang === 'fr' ? 'Mentions légales' : 'Imprint';
+  const footerContactLabel =
+    lang === 'de' ? 'Kontakt' : lang === 'fr' ? 'Contact' : 'Contact';
 
   return (
     <div className="min-h-screen w-full text-foreground flex flex-col">
