@@ -49,7 +49,7 @@ export const en = {
   },
   index: {
     title: 'Cyber Training Range',
-    subtitle: 'Expect the unexpected.',
+    subtitle: 'Expect the unexpected',
     metaDesc: 'Realistic cyber attack simulations and crisis coordination training. 40+ trainings delivered, 350+ people trained across 6 countries.',
     intro: 'In cyber incidents, technology rarely fails first – the organization does.',
     introDetail: 'Communication breaks down. Decisions stall. Accountabilities blur. This cannot be prevented by concepts – only by training under real pressure.',
@@ -79,7 +79,7 @@ export const en = {
   },
   training: {
     title: 'Training Topics',
-    subtitle: 'From Command Line to Boardroom.',
+    subtitle: 'From Command Line to Boardroom',
     intro: 'All topics are embedded in realistic attack scenarios – from the initial SOC alert to the boardroom decision.',
     metaDesc: 'Cybersecurity training from command line to boardroom. Host forensics, malware analysis, SIEM, incident management, and crisis communication.',
     hostForensics: 'Host & Network Forensics',
@@ -95,7 +95,7 @@ export const en = {
     crisisComm: 'Crisis Communication',
     crisisCommDesc: 'Manage stakeholder communication while the situation is still developing.\nKeep internal, external, and regulatory communication consistent and controlled.',
     methodsTitle: 'Methods',
-    methodsSubtitle: 'Understand. Decide. Act.',
+    methodsSubtitle: 'Understand. Decide. Act',
     knowledgeTransfer: 'Knowledge Transfer',
     knowledgeTransferDesc: 'Compact impulses on current threat landscapes, regulatory requirements, and operational best practices.',
     groupExercises: 'Group Exercises',
@@ -160,7 +160,7 @@ export const en = {
   },
   related: {
     title: 'Related services',
-    subtitle: 'Topics that are often requested together.',
+    subtitle: 'Topics that are often requested together',
   },
   consultingTeam: {
     title: 'By Whom',
@@ -697,15 +697,15 @@ export const en = {
     chatGenericError: 'Something went wrong. Please try again.',
   },
   overview: {
-    title: 'What we deliver.',
-    subtitle: 'Four modules, thirteen depths. Hover to highlight a module. Click to enter the offering.',
+    title: 'What we deliver',
+    subtitle: 'Four modules, thirteen depths. Hover to highlight a module. Click to enter the offering',
     openService: 'Open service',
     close: 'Close',
   },
   welcome: {
     title: 'inside-the-box.org',
     headerTitle: 'inside-the-box.org',
-    heroSubtitle: 'When processes must work under stress.',
+    heroSubtitle: 'When processes must work under stress',
     heroClaim: 'Analysis · Implementation · Training · Audit',
     heroConsulting: 'Cyber-Resilience Consulting',
     heroQualifier: 'For regulated organisations in finance, industry and critical infrastructure.',
@@ -770,7 +770,7 @@ export const en = {
   },
   iscp: {
     title: 'ISCP Quick Check — find the right TTX scenarios',
-    subtitle: 'Rate your ISCPs and derive cross-cutting tabletop scenarios for your next TTX.',
+    subtitle: 'Rate your ISCPs and derive cross-cutting tabletop scenarios for your next TTX',
     whatIsIscp: 'What is an ISCP?',
     whatIsIscpText: 'An Information Security Continuity Plan describes how an IT service is restored in case of an outage.',
     whatIsTtx: 'What is a TTX?',
@@ -1170,7 +1170,7 @@ export const en = {
     metaTitle: 'SOC Life — Corporate Cyber-Sim',
     metaDesc: 'A retro Frankfurt corporate SOC simulator in the spirit of Little Computer People. Rooms, colleagues, incidents — decide under pressure.',
     title: 'SOC LIFE',
-    subtitle: 'Corporate SOC. Frankfurt am Main. Decide under pressure.',
+    subtitle: 'Corporate SOC. Frankfurt am Main. Decide under pressure',
     intro: 'Move your analyst across the floor. Read threat intel, grab a coffee, chat with the team. When an incident drops: get into the right room and run the right playbook.',
     start: 'Start shift',
     pause: 'Pause',

@@ -49,7 +49,7 @@ export const de = {
   },
   index: {
     title: 'Cyber Training Range',
-    subtitle: 'Erwarten Sie das Unerwartete.',
+    subtitle: 'Erwarten Sie das Unerwartete',
     metaDesc: 'Realistische Cyberangriff-Simulationen und Krisenkoordinationstraining. 40+ Trainings, 350+ Teilnehmer in 6 Ländern.',
     intro: 'Bei Cybervorfällen scheitert selten zuerst die Technik – sondern die Organisation.',
     introDetail: 'Kommunikation bricht ein. Entscheidungen verzögern sich. Verantwortlichkeiten verschwimmen. Das lässt sich nicht durch Konzepte verhindern – nur durch Übung unter realem Druck.',
@@ -79,7 +79,7 @@ export const de = {
   },
   training: {
     title: 'Trainingsthemen',
-    subtitle: 'Von der Kommandozeile bis zum Vorstand.',
+    subtitle: 'Von der Kommandozeile bis zum Vorstand',
     intro: 'Alle Themen sind in realistische Angriffsszenarien eingebettet – vom Erstalarm im SOC bis zur Entscheidung im Vorstand.',
     metaDesc: 'Cybersecurity-Training von der Kommandozeile bis zum Vorstand. Host-Forensik, Malware-Analyse, SIEM, Incident Management und Krisenkommunikation.',
     hostForensics: 'Host- & Netzwerk-Forensik',
@@ -95,7 +95,7 @@ export const de = {
     crisisComm: 'Krisenkommunikation',
     crisisCommDesc: 'Stakeholder-Kommunikation steuern, während die Lage sich entwickelt.\nInterne, externe und regulatorische Kommunikation konsistent und kontrolliert führen.',
     methodsTitle: 'Methoden',
-    methodsSubtitle: 'Verstehen. Entscheiden. Handeln.',
+    methodsSubtitle: 'Verstehen. Entscheiden. Handeln',
     knowledgeTransfer: 'Wissenstransfer',
     knowledgeTransferDesc: 'Kompakte Impulse zu aktuellen Bedrohungslagen, regulatorischen Anforderungen und operativen Best Practices.',
     groupExercises: 'Gruppenübungen',
@@ -160,7 +160,7 @@ export const de = {
   },
   related: {
     title: 'Ergänzende Leistungen',
-    subtitle: 'Themen, die damit zusammenhängen.',
+    subtitle: 'Themen, die damit zusammenhängen',
   },
   consultingTeam: {
     title: 'Von Wem',
@@ -697,15 +697,15 @@ export const de = {
     chatGenericError: 'Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut.',
   },
   overview: {
-    title: 'Was wir liefern.',
-    subtitle: 'Vier Module, dreizehn Vertiefungen. Hover, um Module hervorzuheben. Klick, um in das jeweilige Angebot einzusteigen.',
+    title: 'Was wir liefern',
+    subtitle: 'Vier Module, dreizehn Vertiefungen. Hover, um Module hervorzuheben. Klick, um in das jeweilige Angebot einzusteigen',
     openService: 'Zum Service',
     close: 'Schließen',
   },
   welcome: {
     title: 'inside-the-box.org',
     headerTitle: 'inside-the-box.org',
-    heroSubtitle: 'Wenn Prozesse unter Stress funktionieren müssen.',
+    heroSubtitle: 'Wenn Prozesse unter Stress funktionieren müssen',
     heroClaim: 'Analyse · Umsetzung · Training · Audit',
     heroConsulting: 'Cyber-Resilienz-Beratung',
     heroQualifier: 'Für regulierte Unternehmen in Finanz, Industrie und kritischer Infrastruktur.',
@@ -770,7 +770,7 @@ export const de = {
   },
   iscp: {
     title: 'ISCP Quick Check — die richtigen TTX-Szenarien finden',
-    subtitle: 'ISCPs bewerten und daraus übergreifende Tabletop-Szenarien für das nächste TTX entwickeln.',
+    subtitle: 'ISCPs bewerten und daraus übergreifende Tabletop-Szenarien für das nächste TTX entwickeln',
     whatIsIscp: 'Was ist ein ISCP?',
     whatIsIscpText: 'Ein Information Security Continuity Plan beschreibt, wie ein IT-Service bei einem Ausfall wiederhergestellt wird.',
     whatIsTtx: 'Was ist ein TTX?',
@@ -1250,7 +1250,7 @@ export const de = {
     metaTitle: 'SOC Life — Corporate Cyber-Sim',
     metaDesc: 'Ein Corporate SOC-Simulator in Frankfurt im Stil von Little Computer People. Räume, Kollegen, Incidents — entscheide unter Druck.',
     title: 'SOC LIFE',
-    subtitle: 'Corporate SOC. Frankfurt am Main. Entscheide unter Druck.',
+    subtitle: 'Corporate SOC. Frankfurt am Main. Entscheide unter Druck',
     intro: 'Bewege deinen Analysten durch das Stockwerk. Lies Threat-Intel, hole Kaffee, smalltalke mit Kollegen. Wenn ein Vorfall reinkommt: in den richtigen Raum gehen und das passende Playbook abarbeiten.',
     start: 'Schicht starten',
     pause: 'Pause',
