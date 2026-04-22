@@ -181,10 +181,11 @@ const PhasesPreview = ({
                 aria-hidden
               />
             )}
-            {/* Diamond marker — solid gold fill (all phases equal-rank). */}
+            {/* Diamond marker — outlined gold (all phases equal-rank), with subtle glow shadow. */}
             <span className="relative flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 z-10 mb-1.5 sm:mb-2">
               <span
-                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[12px] h-[12px] sm:w-[14px] sm:h-[14px] rotate-45 bg-primary"
+                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[12px] h-[12px] sm:w-[14px] sm:h-[14px] rotate-45 border-[1.5px] border-primary bg-background"
+                style={{ boxShadow: '0 0 6px hsl(var(--primary) / 0.45), 0 1px 2px hsl(var(--primary) / 0.25)' }}
                 aria-hidden
               />
             </span>
