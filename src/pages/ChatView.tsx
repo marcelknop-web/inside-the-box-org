@@ -1833,6 +1833,9 @@ const ChatView = () => {
   }, [language, isMobile, activeService, SERVICE_QUESTIONS]);
 
 
+  // Reset rotation when the active service changes so the first question is service-relevant
+  useEffect(() => { setExampleIndex(0); }, [activeService]);
+
   // Rotate every 4s, but pause while the user is typing or focused on the input
   useEffect(() => {
     if (isToolPage || input.length > 0 || inputFocused) return;
