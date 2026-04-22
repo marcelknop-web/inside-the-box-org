@@ -11,12 +11,13 @@ import ChatView from "./pages/ChatView";
 import NotFound from "./pages/NotFound";
 import { lazy, Suspense } from "react";
 
-const EliteShipScene = lazy(() => import("./pages/EliteShipScene"));
+// Active routes only. Archived (no longer in Routes, files retained for reference):
+//   /legacy, /overview, /berlin-drift, /enigma, /soc-life, /nis2-compliance,
+//   /iacs-e27, /iec62443 — all reachable via the unified /:serviceId catchall
+//   in ChatView, or removed from the Journey navigation entirely.
 const TtxAdmin = lazy(() => import("./pages/TtxAdmin"));
 const ItsmTool = lazy(() => import("./pages/ItsmTool"));
 const ItsmDevTool = lazy(() => import("./pages/ItsmDevTool"));
-const SocLife = lazy(() => import("./pages/SocLife"));
-const Enigma = lazy(() => import("./pages/Enigma"));
 const TtxReadinessPage = lazy(() => import("./pages/TtxReadinessPage"));
 const Overview = lazy(() => import("./pages/Overview"));
 const Imprint = lazy(() => import("./pages/Imprint"));
