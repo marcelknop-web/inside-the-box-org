@@ -171,11 +171,10 @@ const PhasesPreview = ({
 );
 
 const Overview = () => {
-  const { t, language, setLanguage } = useLanguage();
+  const { t, language } = useLanguage();
   const navigate = useNavigate();
   const [activeId, setActiveId] = useState<string>(PHASES[0].id);
   const [entered, setEntered] = useState<boolean>(false);
-  const [drawer, setDrawer] = useState<'team' | 'contact' | null>(null);
 
   const handleClick = useCallback((id: string) => navigate(`/${id}`), [navigate]);
 
@@ -200,13 +199,9 @@ const Overview = () => {
     lang === 'de' ? '/ ÜBERSICHT' : lang === 'fr' ? '/ APERÇU' : '/ OVERVIEW';
   const servicesLabel =
     lang === 'de' ? 'Leistungen in dieser Phase' : lang === 'fr' ? 'Services dans cette phase' : 'Services in this phase';
-  const footerImprintLabel =
-    lang === 'de' ? 'Impressum' : lang === 'fr' ? 'Mentions légales' : 'Imprint';
-  const footerContactLabel =
-    lang === 'de' ? 'Kontakt' : lang === 'fr' ? 'Contact' : 'Contact';
 
   return (
-    <div className="min-h-screen w-full text-foreground flex flex-col">
+    <SiteChrome onBrandClick={() => { setEntered(false); window.scrollTo({ top: 0 }); }}>
       <PageMeta
         title="Journey"
         description="The five phases of cyber-resilience — from understanding your gap to responding under pressure."
@@ -214,34 +209,6 @@ const Overview = () => {
       <Helmet>
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
-
-      {/* Top bar */}
-      <header className="flex items-center justify-between px-4 sm:px-6 py-4 sm:py-5 border-b border-primary/10 gap-3">
-        <button
-          onClick={() => { setEntered(false); window.scrollTo({ top: 0 }); }}
-          className="flex-shrink-0 transition-opacity hover:opacity-80"
-          aria-label="inside-the-box"
-          style={{ transform: 'scale(1.6)', transformOrigin: 'left center' }}
-        >
-          <GeometricSymbol size="xs" />
-        </button>
-        <div className="flex items-center gap-3 sm:gap-5">
-          <button
-            onClick={() => setDrawer('team')}
-            className="font-mono text-[10px] tracking-[0.25em] sm:tracking-[0.3em] text-muted-foreground hover:text-primary transition-colors"
-          >
-            {lang === 'de' ? 'TEAM' : lang === 'fr' ? 'ÉQUIPE' : 'TEAM'}
-          </button>
-          <button
-            onClick={() => setLanguage(nextLanguage(language))}
-            className="font-mono text-[10px] tracking-[0.25em] sm:tracking-[0.3em] text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"
-            aria-label="Language"
-          >
-            <Languages className="w-3 h-3" />
-            {language.toUpperCase()}
-          </button>
-        </div>
-      </header>
 
       {!entered ? (
         /* Opener Hero — claim-dominant hierarchy */
