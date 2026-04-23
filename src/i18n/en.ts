@@ -662,7 +662,7 @@ export const en = {
   },
   profiles: {
     marcel: {
-      bio: 'I help organisations get a real grip on cybersecurity and regulation – from an honest look at where things stand to making it actually work day to day.\n\nWhat I aim for: clear decisions, straight talk, and structures that hold when things get rough.\n\nFocus: building and growing ISMS, getting regulatory work done, cyber crisis management.\n\nBefore this: senior roles at KPMG, Accenture, and EY.',
+      bio: 'I make sure security is embedded in organisations in a way that holds up when it really matters.',
       focusLabel: 'Focus Areas',
       focus: 'ISMS · TISAX · NIS2 · PCI-DSS · Cyber Crisis Management · TIBER · BCM',
       certsLabel: 'Certifications',
