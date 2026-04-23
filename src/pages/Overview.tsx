@@ -607,11 +607,11 @@ const Overview = () => {
                 <li key={svc.id}>
                   <button
                     onClick={() => handleClick(svc.id, active.id)}
-                    className="w-full text-left flex items-center justify-between gap-3 font-mono text-base tracking-[0.02em] text-foreground hover:text-primary hover:translate-x-1 transition-all duration-200 py-3 border-b border-primary/15 hover:border-primary/40 group/svc"
+                    className="w-full text-left flex items-center justify-between gap-3 font-mono text-base tracking-[0.02em] text-foreground hover:text-primary hover:translate-x-1 transition-all duration-200 py-3 px-2 -mx-2 border-b border-primary/15 hover:border-primary/40 hover:shadow-[0_0_24px_-10px_hsl(var(--primary)/0.6)] group/svc"
                   >
                     <span className="flex items-center gap-3 min-w-0">
                       <span
-                        className="inline-block w-2 h-2 rotate-45 border border-primary/70 group-hover/svc:bg-primary group-hover/svc:border-primary transition-colors flex-shrink-0"
+                        className="inline-block w-2 h-2 rotate-45 border border-primary/70 group-hover/svc:bg-primary group-hover/svc:border-primary group-hover/svc:shadow-[0_0_8px_hsl(var(--primary)/0.7)] transition-all flex-shrink-0"
                         aria-hidden
                       />
                       <span className="truncate">{t(svc.titleKey)}</span>
