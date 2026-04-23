@@ -409,7 +409,7 @@ export const en = {
     eliteTitle: 'Had Enough of Security?',
     eliteDesc: 'Switch off, fly, let go — a meditative 3D scene to unwind',
     enigmaTitle: 'Enigma I — Encrypt a Message',
-    enigmaDesc: 'Rotors, plugboard, reflector — fully working. For love letters to the CISO or the next stand-up.',
+    enigmaDesc: 'Fully working. For love letters to the CISO or the next stand-up.',
     agentYtTitle: 'Video Injects',
     agentYtDesc: 'AI-generated news videos as situational briefings for crisis exercises',
     ctaTitle: 'Getting Started',
