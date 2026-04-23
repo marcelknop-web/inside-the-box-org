@@ -183,19 +183,24 @@ const PhasesPreview = ({
         const isFirstDesktopRow = idx === 0;
         return (
           <li key={phase.id} className="group/phase relative flex flex-col items-center text-center min-w-0 cursor-default">
-            {/* Connector segment between diamonds (mobile breakpoint). */}
+            {/* Connector segment between diamonds (mobile breakpoint).
+                Mobile diamond: 12px rotated → diagonal half = 12 * √2 / 2 ≈ 8.5px.
+                Container is w-5 (20px), so left/right half = 10px → gap = 10 - 8.5 ≈ 1.5px.
+                Line sits at vertical center of the diamond (top 10px = half of w-5 container). */}
             {!isFirstMobileRow && (
               <span
-                className="absolute h-px bg-primary/40 pointer-events-none top-[10px] sm:hidden"
-                style={{ right: 'calc(50% + 9px)', left: 'calc(-50% + 9px)' }}
+                className="absolute h-px bg-primary/40 pointer-events-none top-[10px] -translate-y-1/2 sm:hidden"
+                style={{ right: 'calc(50% + 8.5px)', left: 'calc(-50% + 8.5px)' }}
                 aria-hidden
               />
             )}
-            {/* Connector segment between diamonds (desktop breakpoint). */}
+            {/* Connector segment between diamonds (desktop breakpoint).
+                Desktop diamond: 14px rotated → diagonal half ≈ 9.9px.
+                Container is sm:w-6 (24px), top center = 12px. */}
             {!isFirstDesktopRow && (
               <span
-                className="absolute h-px bg-primary/40 pointer-events-none hidden sm:block top-[12px]"
-                style={{ right: 'calc(50% + 11px)', left: 'calc(-50% + 11px)' }}
+                className="absolute h-px bg-primary/40 pointer-events-none hidden sm:block top-[12px] -translate-y-1/2"
+                style={{ right: 'calc(50% + 9.9px)', left: 'calc(-50% + 9.9px)' }}
                 aria-hidden
               />
             )}
