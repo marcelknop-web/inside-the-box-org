@@ -536,7 +536,10 @@ const Overview = () => {
       ) : (
         <>
       {/* Headline */}
-      <section className="px-4 sm:px-6 pt-8 sm:pt-6 pb-6 sm:pb-4 max-w-6xl mx-auto w-full animate-fade-in">
+      <section
+        className="px-4 sm:px-6 pt-8 sm:pt-6 pb-6 sm:pb-4 max-w-6xl mx-auto w-full opacity-0 animate-fade-in"
+        style={{ animationDelay: '0ms', animationFillMode: 'forwards' }}
+      >
         <div className="font-mono text-[10px] tracking-[0.3em] sm:tracking-[0.35em] text-primary mb-3 sm:mb-4">{sectionLabel}</div>
         <h1 className="font-mono font-semibold text-[26px] leading-[1.1] sm:text-3xl md:text-5xl sm:leading-[1.05] tracking-[-0.01em] text-foreground mb-3 sm:mb-4">
           {headline}
