@@ -662,7 +662,7 @@ export const de = {
   },
   profiles: {
     marcel: {
-      bio: 'Ich sorge dafür, dass Security nicht nur compliant ist – sondern im Ernstfall funktioniert.\n\nDavor: leitende Rollen bei KPMG, Accenture und EY.',
+      bio: 'Ich sorge dafür, dass Security nicht nur compliant ist – sondern im Ernstfall funktioniert.',
       focusLabel: 'Schwerpunkte',
       focus: 'ISMS · TISAX · NIS2 · PCI-DSS · Cyber-Krisenmanagement · TIBER · BCM',
       certsLabel: 'Zertifizierungen',
