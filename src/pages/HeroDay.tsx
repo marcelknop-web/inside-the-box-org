@@ -32,22 +32,36 @@ const HeroDay = () => {
 
   return (
     <div
-      className="min-h-screen w-full flex flex-col"
+      className="min-h-screen w-full flex flex-col relative"
       style={{
-        // Warm Tageslicht-Hintergrund:
-        //  • Sanfter Lichtkegel oben-links (warmes Weiß)
-        //  • Sehr dezentes 50px-Raster für Struktur (kaum sichtbar)
-        //  • Basis: warmes Off-White
+        // Tag-Variante – Millimeterpapier in warmem Cream:
+        //  • Basis: warmes Cream-Papier (#f5efe0 → #ede4cf), leicht vergilbt
+        //  • Sanfter Lichtkegel oben-links (kühles Tageslicht-Weiß)
+        //  • Cyan-Hauch unten-rechts als Gegengewicht zum Gold
+        //  • Millimeterpapier-Raster in warmem Sepia-Ton:
+        //      – feines 5px-Raster (sehr leise, „Millimeter")
+        //      – mittleres 25px-Raster (etwas kräftiger, „halber Zentimeter")
+        //      – grobes 50px-Raster (am sichtbarsten, „Zentimeter")
         color: '#1a2535',
         background: [
-          'radial-gradient(ellipse at 15% 0%, rgba(255, 244, 214, 0.85) 0%, transparent 55%)',
-          'radial-gradient(ellipse at 85% 100%, rgba(245, 184, 0, 0.06) 0%, transparent 60%)',
-          'linear-gradient(rgba(20, 28, 40, 0.05) 1px, transparent 1px)',
-          'linear-gradient(90deg, rgba(20, 28, 40, 0.05) 1px, transparent 1px)',
-          'linear-gradient(180deg, #fafaf6 0%, #f3efe5 100%)',
+          'radial-gradient(ellipse at 12% -5%, rgba(255, 250, 235, 0.95) 0%, transparent 55%)',
+          'radial-gradient(ellipse at 88% 105%, rgba(0, 188, 212, 0.08) 0%, transparent 55%)',
+          'radial-gradient(ellipse at 70% 30%, rgba(245, 184, 0, 0.07) 0%, transparent 50%)',
+          'linear-gradient(rgba(120, 95, 40, 0.06) 1px, transparent 1px)',
+          'linear-gradient(90deg, rgba(120, 95, 40, 0.06) 1px, transparent 1px)',
+          'linear-gradient(rgba(120, 95, 40, 0.10) 1px, transparent 1px)',
+          'linear-gradient(90deg, rgba(120, 95, 40, 0.10) 1px, transparent 1px)',
+          'linear-gradient(rgba(120, 95, 40, 0.16) 1px, transparent 1px)',
+          'linear-gradient(90deg, rgba(120, 95, 40, 0.16) 1px, transparent 1px)',
+          'linear-gradient(180deg, #f5efe0 0%, #ede4cf 100%)',
         ].join(', '),
-        backgroundSize:
-          '100% 100%, 100% 100%, 50px 50px, 50px 50px, 100% 100%',
+        backgroundSize: [
+          '100% 100%', '100% 100%', '100% 100%',
+          '5px 5px', '5px 5px',
+          '25px 25px', '25px 25px',
+          '50px 50px', '50px 50px',
+          '100% 100%',
+        ].join(', '),
       }}
     >
       <PageMeta
