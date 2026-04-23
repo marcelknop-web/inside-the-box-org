@@ -571,7 +571,7 @@ const Overview = () => {
                   )}
                   <button
                     onClick={() => setActiveId(phase.id)}
-                    className="group flex flex-col items-center gap-2 sm:gap-4 text-center w-full px-0.5 sm:px-2"
+                    className="flex flex-col items-center gap-2 sm:gap-4 text-center w-full px-0.5 sm:px-2 cursor-default"
                     aria-current={isActive ? 'true' : undefined}
                   >
                     {/* Diamond marker — pure symbol, no number (all phases are equal-rank). */}
@@ -680,7 +680,7 @@ const Overview = () => {
               <li key={phase.id} className="relative pl-11 pb-4 last:pb-0">
                 <button
                   onClick={() => setActiveId(isActive ? '' : phase.id)}
-                  className="absolute left-0 top-0 flex items-center justify-center w-8 h-8 group/node"
+                  className="absolute left-0 top-0 flex items-center justify-center w-8 h-8 cursor-default"
                   aria-expanded={isActive}
                 >
                   {/* Mask — solid bg blocks the vertical connector under the diamond */}
@@ -710,7 +710,7 @@ const Overview = () => {
 
                 <button
                   onClick={() => setActiveId(isActive ? '' : phase.id)}
-                  className="w-full text-left pt-0.5"
+                  className="w-full text-left pt-0.5 cursor-default"
                   aria-expanded={isActive}
                 >
                   {/* Yellow phase title — always bright */}
