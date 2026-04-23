@@ -408,7 +408,7 @@ export const en = {
     butterflyDesc: 'Experience interactively how tiny parameter changes can tip nonlinear systems',
     eliteTitle: 'Had Enough of Security?',
     eliteDesc: 'Switch off, fly, let go — a meditative 3D scene to unwind',
-    enigmaTitle: 'Enigma I — Encrypt a Message',
+    enigmaTitle: 'Enigma I',
     enigmaDesc: 'Fully working. For love letters to the CISO or the next stand-up.',
     agentYtTitle: 'Video Injects',
     agentYtDesc: 'AI-generated news videos as situational briefings for crisis exercises',
