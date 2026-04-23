@@ -919,7 +919,7 @@ const Overview = () => {
 
           {/* ─── LAYER 3 — CLIENT LIST (de-emphasized supporting proof) ── */}
           <div
-            className="font-mono text-[11px] tracking-[0.24em] text-muted-foreground mb-4 pb-2 border-b border-primary/15 opacity-0 animate-fade-in"
+            className="font-mono text-[14px] sm:text-[16px] tracking-[0.24em] text-muted-foreground mb-5 pb-3 border-b border-primary/15 opacity-0 animate-fade-in"
             style={{ animationDelay: '1280ms', animationFillMode: 'forwards' }}
           >
             {lang === 'de'
