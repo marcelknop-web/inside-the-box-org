@@ -591,7 +591,7 @@ const Overview = () => {
           </div>
           {/* Right — services */}
           <div className="col-span-5 border-l border-primary/15 pl-8">
-            <div className="font-mono text-[10px] tracking-[0.3em] text-primary/70 mb-4">
+            <div className="font-mono text-[12px] tracking-[0.26em] text-primary mb-4">
               {servicesLabel.toUpperCase()}
             </div>
             <ul className="space-y-1">
@@ -599,17 +599,17 @@ const Overview = () => {
                 <li key={svc.id}>
                   <button
                     onClick={() => handleClick(svc.id, active.id)}
-                    className="w-full text-left flex items-center justify-between gap-3 font-mono text-sm tracking-[0.02em] text-foreground/90 hover:text-primary hover:translate-x-1 transition-all duration-200 py-2.5 border-b border-primary/10 group/svc"
+                    className="w-full text-left flex items-center justify-between gap-3 font-mono text-base tracking-[0.02em] text-foreground hover:text-primary hover:translate-x-1 transition-all duration-200 py-3 border-b border-primary/15 hover:border-primary/40 group/svc"
                   >
                     <span className="flex items-center gap-3 min-w-0">
                       <span
-                        className="inline-block w-1.5 h-1.5 rotate-45 border border-primary/60 group-hover/svc:bg-primary group-hover/svc:border-primary transition-colors flex-shrink-0"
+                        className="inline-block w-2 h-2 rotate-45 border border-primary/70 group-hover/svc:bg-primary group-hover/svc:border-primary transition-colors flex-shrink-0"
                         aria-hidden
                       />
                       <span className="truncate">{t(svc.titleKey)}</span>
                     </span>
                     <ArrowRight
-                      className="w-3.5 h-3.5 text-primary/0 group-hover/svc:text-primary -translate-x-1 group-hover/svc:translate-x-0 transition-all flex-shrink-0"
+                      className="w-4 h-4 text-primary/0 group-hover/svc:text-primary -translate-x-1 group-hover/svc:translate-x-0 transition-all flex-shrink-0"
                       aria-hidden
                     />
                   </button>
