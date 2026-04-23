@@ -187,14 +187,12 @@ const PhasesPreview = ({
                 the exact same vertical center, regardless of label height. */}
             <div className="relative w-full flex items-center justify-center mb-1.5 sm:mb-2">
               {/* Connector segment — mobile breakpoint.
-                  Mobile diamond: 12px rotated square → diagonal half ≈ 8.5px (touches the side corners).
-                  Top is nudged up to match the diamond's optical centre (the gold drop-shadow
-                  shifts the visual centre upwards). */}
+                  The line must pass through the exact geometric centre of the rotated square,
+                  because the side corners of a diamond sit on that horizontal axis. */}
               {!isFirstMobileRow && (
                 <span
-                  className="absolute h-px bg-primary/40 pointer-events-none sm:hidden"
+                  className="absolute h-px bg-primary/60 pointer-events-none sm:hidden top-1/2 -translate-y-1/2"
                   style={{
-                    top: 'calc(50% - 3px)',
                     right: 'calc(50% + 8.5px)',
                     left: 'calc(-50% + 8.5px)',
                   }}
@@ -202,12 +200,12 @@ const PhasesPreview = ({
                 />
               )}
               {/* Connector segment — desktop breakpoint.
-                  Desktop diamond: 14px rotated square → diagonal half ≈ 9.9px (touches the side corners). */}
+                  Desktop diamond: 14px rotated square → half diagonal ≈ 9.9px,
+                  so the line ends exactly at the diamond's side corners. */}
               {!isFirstDesktopRow && (
                 <span
-                  className="absolute h-px bg-primary/40 pointer-events-none hidden sm:block"
+                  className="absolute h-px bg-primary/60 pointer-events-none hidden sm:block top-1/2 -translate-y-1/2"
                   style={{
-                    top: 'calc(50% - 3px)',
                     right: 'calc(50% + 9.9px)',
                     left: 'calc(-50% + 9.9px)',
                   }}
