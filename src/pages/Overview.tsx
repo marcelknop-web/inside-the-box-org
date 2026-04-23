@@ -897,7 +897,7 @@ const Overview = () => {
             ].map((c, idx) => (
               <div
                 key={c.client}
-                className="group/case bg-background/40 border border-primary/20 hover:border-primary/50 hover:bg-background/60 transition-all duration-300 p-5 sm:p-6 opacity-0 animate-fade-in hover:shadow-[0_0_24px_-12px_hsl(var(--primary)/0.5)]"
+                className="bg-background/40 border border-primary/20 transition-all duration-300 p-5 sm:p-6 opacity-0 animate-fade-in"
                 style={{ animationDelay: `${320 + idx * 90}ms`, animationFillMode: 'forwards' }}
               >
                 <div className="font-mono text-[11px] tracking-[0.22em] text-primary mb-2">
