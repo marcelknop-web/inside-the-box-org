@@ -107,16 +107,6 @@ export const SiteChrome = ({
             >
               {footerContactLabel}
             </button>
-            <a
-              href="https://www.linkedin.com/in/inside-the-box"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="LinkedIn"
-              className="hidden sm:inline-flex hover:text-primary focus-visible:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-sm transition-colors items-center gap-1.5 uppercase whitespace-nowrap no-underline"
-            >
-              <Linkedin className="w-3 h-3" />
-              <span>LinkedIn</span>
-            </a>
             <button
               onClick={() => setDrawer('imprint')}
               className="hover:text-primary focus-visible:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-sm transition-colors uppercase whitespace-nowrap no-underline"
