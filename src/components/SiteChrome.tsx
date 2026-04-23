@@ -33,9 +33,10 @@ export const SiteChrome = ({
 
   const handleBrand = () => {
     if (onBrandClick) onBrandClick();
-    // Navigate to the overview but skip the hero opener — land directly on
-    // the journey-map (the "page after" the hero). Overview reads this flag.
-    else navigate('/', { state: { skipHero: true } });
+    // Navigate to the homepage hero (opener). On sub-pages, clicking the
+    // logo should always feel like "back to the start" — not jump straight
+    // into the journey-map.
+    else navigate('/');
   };
 
   // Footer brand link: always go back to the hero opener (no skipHero flag),
