@@ -575,7 +575,7 @@ const Overview = () => {
                   )}
                   <button
                     onClick={() => setActiveId(phase.id)}
-                    className="flex flex-col items-center gap-2 sm:gap-4 text-center w-full px-0.5 sm:px-2 cursor-default"
+                    className="group flex flex-col items-center gap-2 sm:gap-4 text-center w-full px-0.5 sm:px-2"
                     aria-current={isActive ? 'true' : undefined}
                   >
                     {/* Diamond marker — pure symbol, no number (all phases are equal-rank). */}
@@ -584,7 +584,7 @@ const Overview = () => {
                         className={`absolute inset-0 m-auto w-[28px] h-[28px] sm:w-[32px] sm:h-[32px] rotate-45 border bg-background transition-all duration-300 ease-out ${
                           isActive
                             ? 'border-primary bg-primary/10 phase-node-active'
-                            : 'border-primary/50'
+                            : 'border-primary/50 group-hover:border-primary group-hover:scale-110 group-hover:bg-primary/5 group-hover:shadow-[0_0_18px_-6px_hsl(var(--primary)/0.55)]'
                         }`}
                         aria-hidden
                       />
@@ -594,7 +594,7 @@ const Overview = () => {
                         size={18}
                         aria-hidden
                         className={`relative z-10 transition-colors duration-300 ${
-                          isActive ? 'text-primary' : 'text-primary/60'
+                          isActive ? 'text-primary' : 'text-primary/60 group-hover:text-primary'
                         }`}
                       />
                     </span>
@@ -604,7 +604,7 @@ const Overview = () => {
                       className={`font-mono text-[11px] sm:text-[14px] font-medium tracking-[0.08em] sm:tracking-[0.28em] leading-tight transition-colors duration-300 whitespace-nowrap ${
                         isActive
                           ? 'text-primary phase-label-emphasis'
-                          : 'text-foreground/80'
+                          : 'text-foreground/80 group-hover:text-primary'
                       }`}
                     >
                       {phase.title[lang]}
@@ -684,7 +684,7 @@ const Overview = () => {
               <li key={phase.id} className="relative pl-11 pb-4 last:pb-0">
                 <button
                   onClick={() => setActiveId(isActive ? '' : phase.id)}
-                  className="absolute left-0 top-0 flex items-center justify-center w-8 h-8 cursor-default"
+                  className="absolute left-0 top-0 flex items-center justify-center w-8 h-8 group/node"
                   aria-expanded={isActive}
                 >
                   {/* Mask — solid bg blocks the vertical connector under the diamond */}
@@ -697,7 +697,7 @@ const Overview = () => {
                     className={`absolute inset-0 m-auto w-5 h-5 rotate-45 border transition-all duration-300 ${
                       isActive
                         ? 'border-primary bg-primary/10 phase-node-active'
-                        : 'border-primary/40'
+                        : 'border-primary/40 group-hover/node:border-primary group-hover/node:bg-primary/5'
                     }`}
                     aria-hidden
                   />
@@ -707,14 +707,14 @@ const Overview = () => {
                     size={12}
                     aria-hidden
                     className={`relative z-10 transition-colors duration-300 ${
-                      isActive ? 'text-primary' : 'text-primary/70'
+                      isActive ? 'text-primary' : 'text-primary/70 group-hover/node:text-primary'
                     }`}
                   />
                 </button>
 
                 <button
                   onClick={() => setActiveId(isActive ? '' : phase.id)}
-                  className="w-full text-left pt-0.5 cursor-default"
+                  className="w-full text-left pt-0.5"
                   aria-expanded={isActive}
                 >
                   {/* Yellow phase title — always bright */}
