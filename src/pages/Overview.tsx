@@ -183,7 +183,11 @@ const PhasesPreview = ({
           Each row gets its own continuous connector line. */}
       <div className="sm:hidden space-y-4">
         {mobileRows.map((row, rowIdx) => (
-          <ul key={`m-row-${rowIdx}`} className="relative grid grid-cols-3 gap-x-4">
+          <ul
+            key={`m-row-${rowIdx}`}
+            className="relative grid gap-x-4"
+            style={{ gridTemplateColumns: `repeat(${row.length}, minmax(0, 1fr))` }}
+          >
             {/* Continuous connector line — only spans between the first and
                 last diamond of the row, so it never overshoots an outer edge. */}
             {row.length > 1 && (
@@ -201,16 +205,16 @@ const PhasesPreview = ({
             {row.map((phase) => (
               <li
                 key={phase.id}
-                className="group/phase relative flex flex-col items-center text-center min-w-0 cursor-default"
+                className="relative flex flex-col items-center text-center min-w-0 cursor-default"
               >
                 <span className="relative flex items-center justify-center w-5 h-5 z-10 mb-1.5">
                   <span
-                    className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[12px] h-[12px] rotate-45 border-[1.5px] border-primary bg-background transition-all duration-300 group-hover/phase:scale-125 group-hover/phase:bg-primary/20"
+                    className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[12px] h-[12px] rotate-45 border-[1.5px] border-primary bg-background"
                     style={{ boxShadow: '0 0 6px hsl(var(--primary) / 0.45), 0 1px 2px hsl(var(--primary) / 0.25)' }}
                     aria-hidden
                   />
                 </span>
-                <span className="font-mono text-[12px] tracking-[0.14em] text-foreground/85 leading-[1.2] w-full px-0 transition-colors duration-300 group-hover/phase:text-primary">
+                <span className="font-mono text-[12px] tracking-[0.14em] text-foreground/85 leading-[1.2] w-full px-0">
                   {phase.title[lang]}
                 </span>
               </li>
@@ -235,16 +239,16 @@ const PhasesPreview = ({
         {phases.map((phase) => (
           <li
             key={phase.id}
-            className="group/phase relative flex flex-col items-center text-center min-w-0 cursor-default"
+            className="relative flex flex-col items-center text-center min-w-0 cursor-default"
           >
             <span className="relative flex items-center justify-center w-6 h-6 z-10 mb-2">
               <span
-                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[14px] h-[14px] rotate-45 border-[1.5px] border-primary bg-background transition-all duration-300 group-hover/phase:scale-125 group-hover/phase:bg-primary/20"
+                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[14px] h-[14px] rotate-45 border-[1.5px] border-primary bg-background"
                 style={{ boxShadow: '0 0 6px hsl(var(--primary) / 0.45), 0 1px 2px hsl(var(--primary) / 0.25)' }}
                 aria-hidden
               />
             </span>
-            <span className="font-mono text-[13px] tracking-[0.22em] text-foreground/85 leading-[1.2] w-full px-0 transition-colors duration-300 group-hover/phase:text-primary">
+            <span className="font-mono text-[13px] tracking-[0.22em] text-foreground/85 leading-[1.2] w-full px-0">
               {phase.title[lang]}
             </span>
           </li>
