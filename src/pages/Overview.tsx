@@ -769,7 +769,7 @@ const Overview = () => {
                 className={`absolute inset-0 m-auto w-5 h-5 rotate-45 border bg-background transition-all duration-300 ${
                   referencesOpen
                     ? 'border-primary bg-primary/10 phase-node-active'
-                    : 'border-primary/50 group-hover/ref:border-primary group-hover/ref:bg-primary/5 group-hover/ref:shadow-[0_0_8px_hsl(var(--primary)/0.7)]'
+                    : 'border-primary/50 group-hover/ref:border-primary group-hover/ref:bg-primary group-hover/ref:shadow-[0_0_12px_hsl(var(--primary)/0.7)]'
                 }`}
                 aria-hidden
               />
