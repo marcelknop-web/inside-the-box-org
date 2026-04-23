@@ -177,7 +177,7 @@ export const SiteChrome = ({
                     </div>
                   </header>
 
-                  <div className="font-sans text-sm text-foreground/80 leading-relaxed mb-4 space-y-3">
+                  <div className="font-sans text-[15px] text-foreground/85 leading-relaxed mb-4 space-y-3">
                     {t(`profiles.${key}.bio`).split('\n\n').map((para, i) => (
                       <p key={i}>{para}</p>
                     ))}
@@ -186,10 +186,10 @@ export const SiteChrome = ({
                   <dl className="grid grid-cols-1 gap-3">
                     {sections.map((s) => (
                       <div key={s.label} className="border-t border-primary/10 pt-3">
-                        <dt className="font-mono text-[10px] tracking-[0.25em] text-primary/70 uppercase mb-1.5">
+                        <dt className="font-mono text-[12px] tracking-[0.25em] text-primary/70 uppercase mb-1.5">
                           {s.label}
                         </dt>
-                        <dd className="font-sans text-[13px] text-foreground/85 leading-snug">
+                        <dd className="font-sans text-[15px] text-foreground/85 leading-relaxed">
                           {s.value}
                         </dd>
                       </div>
