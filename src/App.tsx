@@ -46,7 +46,7 @@ const App = () => (
               <Route path="/ttx-admin" element={<Suspense fallback={<RouteSkeleton />}><TtxAdmin /></Suspense>} />
               <Route path="/itsm" element={<Suspense fallback={<RouteSkeleton />}><ItsmTool /></Suspense>} />
               <Route path="/itsm-dev" element={<Suspense fallback={<RouteSkeleton />}><ItsmDevTool /></Suspense>} />
-              <Route path="/ttx-readiness" element={<Suspense fallback={<RouteSkeleton />}><TtxReadinessPage /></Suspense>} /></Suspense>} />
+              <Route path="/ttx-readiness" element={<Suspense fallback={<RouteSkeleton />}><TtxReadinessPage /></Suspense>} />
               <Route path="/hero-day" element={<Suspense fallback={<RouteSkeleton />}><HeroDay /></Suspense>} />
 
               {/* Catch-all: every Journey service id (nis2-dora, virtual-ciso, …) renders ChatView */}
