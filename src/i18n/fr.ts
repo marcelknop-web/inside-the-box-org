@@ -675,7 +675,7 @@ export const fr = {
       experience: 'KPMG : Consultant à Senior Manager · Accenture : Senior Manager · Ernst & Young : Senior Manager',
     },
     andreas: {
-      bio: 'J\'accompagne les organisations dans la mise en œuvre effective de la sécurité de l\'information, de la gestion des risques et de la protection des données – structurée, auditable et viable dans les opérations quotidiennes.\n\nMon focus : la mise en place et l\'évolution de SMSI ainsi que la mise en œuvre structurée des exigences réglementaires dans des environnements régulés. Je relie les exigences normatives à des solutions praticables qui tiennent au quotidien.\n\nJ\'ai auparavant occupé des postes seniors chez PwC, EY et CSPi.',
+      bio: 'J\'ancre la conformité dans les organisations de sorte que les exigences réglementaires soient mises en œuvre de manière structurée.',
       focusLabel: 'Domaines clés',
       focus: 'ISO/IEC 27001 · PCI-DSS · NIST · TISAX · Gestion des risques · Continuité d\'activité · RGPD · KRITIS',
       certsLabel: 'Certifications',
