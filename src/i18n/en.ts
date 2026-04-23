@@ -385,8 +385,6 @@ export const en = {
     tryAgentsTitle: 'AI Lab – Test Directly in Your Browser',
     tryAgentsDesc: 'Simulations, tests and scenarios to explore – no login required.',
     agentCrisisDesc: 'AI-driven scenarios with real-time decision pressure',
-    agentStressTitle: 'Stress Simulator',
-    agentStressDesc: 'Realistic ambient noise for exercises under time pressure',
     agentTtxTitle: 'ISCP Quick Check',
     agentTtxDesc: 'Rate ISCPs and derive cross-cutting tabletop scenarios',
     agentDoraDesc: 'Reporting obligation under DORA Art. 19 – step by step',

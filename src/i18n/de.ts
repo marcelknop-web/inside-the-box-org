@@ -385,8 +385,6 @@ export const de = {
     tryAgentsTitle: 'KI-Lab – direkt im Browser testen',
     tryAgentsDesc: 'Simulationen, Tests und Szenarien zum Ausprobieren – kein Login nötig.',
     agentCrisisDesc: 'KI-gesteuerte Szenarien mit Echtzeit-Entscheidungsdruck',
-    agentStressTitle: 'Stress-Simulator',
-    agentStressDesc: 'Realistische Störgeräusche für Übungen unter Zeitdruck',
     agentTtxTitle: 'ISCP Quick Check',
     agentTtxDesc: 'ISCPs bewerten und daraus übergreifende Tabletop-Szenarien ableiten',
     agentDoraDesc: 'Meldepflicht nach DORA Art. 19 – Schritt für Schritt',
