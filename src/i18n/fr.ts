@@ -408,7 +408,7 @@ export const fr = {
     butterflyDesc: 'Découvrez de manière interactive comment de minuscules changements de paramètres peuvent faire basculer des systèmes non linéaires',
     eliteTitle: 'Assez de sécurité ?',
     eliteDesc: 'Déconnectez, volez, lâchez prise — une scène 3D méditative pour se détendre',
-    enigmaTitle: 'Enigma I — Chiffrer un message',
+    enigmaTitle: 'Enigma I',
     enigmaDesc: 'Pleinement fonctionnelle. Pour des lettres d\'amour au RSSI ou le prochain stand-up.',
     agentYtTitle: 'Vidéos d\'injection',
     agentYtDesc: 'Vidéos d\'actualité générées par IA comme briefings pour exercices de crise',

@@ -408,7 +408,7 @@ export const de = {
     butterflyDesc: 'Interaktiv erleben, wie kleinste Parameteränderungen nichtlineare Systeme kippen lassen',
     eliteTitle: 'Keine Lust auf Security?',
     eliteDesc: 'Abschalten, fliegen, loslassen – eine meditative 3D-Szene zum Entspannen',
-    enigmaTitle: 'Enigma I — Nachrichten verschlüsseln',
+    enigmaTitle: 'Enigma I',
     enigmaDesc: 'Voll funktionsfähig. Für Liebesbriefe an den CISO oder den nächsten Stand-up.',
     agentYtTitle: 'Video-Einspieler',
     agentYtDesc: 'KI-generierte Nachrichtenvideos als Lagebilder für Krisenübungen',
