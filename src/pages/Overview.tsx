@@ -769,7 +769,7 @@ const Overview = () => {
         <DialogContent className="max-w-5xl w-[calc(100vw-2rem)] sm:w-full max-h-[90vh] overflow-y-auto bg-background/95 backdrop-blur-md border border-primary/20 p-6 sm:p-10">
           {/* ─── LAYER 1 — PROOF OF IMPACT ─────────────────────────────── */}
           <DialogTitle
-            className="font-mono text-[11px] sm:text-[12px] tracking-[0.3em] text-primary mb-3 opacity-0 animate-fade-in"
+            className="font-mono text-[15px] sm:text-[17px] tracking-[0.3em] text-primary mb-4 opacity-0 animate-fade-in"
             style={{ animationDelay: '60ms', animationFillMode: 'forwards' }}
           >
             {referenceSectionLabel.replace('/ ', '')}
