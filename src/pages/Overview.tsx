@@ -505,7 +505,7 @@ const Overview = () => {
         <h1 className="font-mono font-semibold text-[26px] leading-[1.1] sm:text-3xl md:text-5xl sm:leading-[1.05] tracking-[-0.01em] text-foreground mb-3 sm:mb-4">
           {headline}
         </h1>
-        <p className="font-sans text-sm sm:text-base md:text-lg text-muted-foreground max-w-2xl leading-snug">
+        <p className="font-sans text-base sm:text-lg md:text-xl text-foreground/80 max-w-2xl leading-snug">
           {subline}
         </p>
       </section>
