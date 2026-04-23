@@ -174,7 +174,7 @@ const PhasesPreview = ({
   <div className="relative w-full max-w-2xl mx-auto pt-2 pb-4">
     {/* Mobile: 3 columns (auto-wraps to 2 rows) — emphasises equal rank,
         gives each label real breathing room. Desktop keeps 5-in-a-row. */}
-    <ul className="grid grid-cols-3 sm:grid-cols-5 gap-x-3 gap-y-3 sm:gap-2">
+    <ul className="grid grid-cols-3 sm:grid-cols-5 gap-x-4 gap-y-4 sm:gap-x-5 sm:gap-y-3">
       {phases.map((phase, idx) => {
         // Don't draw a connector on the first item of any row.
         // Mobile = 3 cols → first of each row is idx 0 and 3.
@@ -182,7 +182,7 @@ const PhasesPreview = ({
         const isFirstMobileRow = idx % 3 === 0;
         const isFirstDesktopRow = idx === 0;
         return (
-          <li key={phase.id} className="relative flex flex-col items-center text-center min-w-0">
+          <li key={phase.id} className="group/phase relative flex flex-col items-center text-center min-w-0 cursor-default">
             {/* Connector segment between diamonds (mobile breakpoint). */}
             {!isFirstMobileRow && (
               <span
@@ -202,13 +202,13 @@ const PhasesPreview = ({
             {/* Diamond marker — outlined gold (all phases equal-rank), with subtle glow shadow. */}
             <span className="relative flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 z-10 mb-1.5 sm:mb-2">
               <span
-                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[12px] h-[12px] sm:w-[14px] sm:h-[14px] rotate-45 border-[1.5px] border-primary bg-background"
+                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[12px] h-[12px] sm:w-[14px] sm:h-[14px] rotate-45 border-[1.5px] border-primary bg-background transition-all duration-300 group-hover/phase:scale-125 group-hover/phase:bg-primary/20"
                 style={{ boxShadow: '0 0 6px hsl(var(--primary) / 0.45), 0 1px 2px hsl(var(--primary) / 0.25)' }}
                 aria-hidden
               />
             </span>
             {/* Label — equal-rank text under each diamond. */}
-            <span className="font-mono text-[10px] sm:text-[9px] tracking-[0.1em] sm:tracking-[0.18em] text-muted-foreground/70 leading-[1.15] w-full px-0">
+            <span className="font-mono text-[12px] sm:text-[13px] tracking-[0.14em] sm:tracking-[0.22em] text-foreground/85 leading-[1.2] w-full px-0 transition-colors duration-300 group-hover/phase:text-primary">
               {phase.title[lang]}
             </span>
           </li>
@@ -470,7 +470,7 @@ const Overview = () => {
 
             {/* Byline */}
             <p
-              className="font-mono text-[10px] sm:text-[12px] tracking-[0.14em] sm:tracking-[0.18em] text-muted-foreground/70 mb-10 sm:mb-12 opacity-0 animate-fade-in"
+              className="font-mono text-[13px] sm:text-[15px] tracking-[0.2em] sm:tracking-[0.24em] text-foreground/85 mb-10 sm:mb-12 opacity-0 animate-fade-in"
               style={{ animationDelay: '780ms', animationFillMode: 'forwards' }}
             >
               {t('welcome.heroByline')}
@@ -488,12 +488,12 @@ const Overview = () => {
             {/* CTA — questioning. Allows wrapping on very narrow screens to never clip the question. */}
             <button
               onClick={() => setEntered(true)}
-              className="group inline-flex items-center justify-center gap-2 sm:gap-3 px-4 sm:px-8 py-3.5 sm:py-4 max-w-full border border-primary/50 hover:border-primary bg-primary/5 hover:bg-primary/10 text-primary font-mono text-[10px] sm:text-[14px] tracking-[0.16em] sm:tracking-[0.25em] leading-tight transition-all duration-300 hover:shadow-[0_0_30px_-8px_hsl(var(--primary)/0.6)] opacity-0 animate-fade-in text-center"
+              className="group inline-flex items-center justify-center gap-2 sm:gap-3 px-5 sm:px-10 py-4 sm:py-5 max-w-full border-2 border-primary/70 hover:border-primary bg-primary/10 hover:bg-primary/20 text-primary font-mono text-[12px] sm:text-[16px] font-medium tracking-[0.18em] sm:tracking-[0.28em] leading-tight transition-all duration-300 shadow-[0_0_18px_-10px_hsl(var(--primary)/0.5)] hover:shadow-[0_0_40px_-6px_hsl(var(--primary)/0.75)] hover:-translate-y-0.5 opacity-0 animate-fade-in text-center"
               style={{ animationDelay: '1200ms', animationFillMode: 'forwards' }}
               aria-label={enterCta}
             >
               <span className="break-words">{enterCta.toUpperCase()}</span>
-              <ArrowRight className="w-4 h-4 flex-shrink-0 -translate-x-1 group-hover:translate-x-0 transition-transform" />
+              <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0 -translate-x-1 group-hover:translate-x-0 transition-transform" />
             </button>
           </div>
         </section>
