@@ -667,7 +667,10 @@ const Overview = () => {
       </section>
 
       {/* Mobile vertical list — diamonds connected by a thin line */}
-      <section className="md:hidden flex-1 px-4 pb-10 max-w-6xl mx-auto w-full">
+      <section
+        className="md:hidden flex-1 px-4 pb-10 max-w-6xl mx-auto w-full opacity-0 animate-fade-in"
+        style={{ animationDelay: '320ms', animationFillMode: 'forwards' }}
+      >
         <ul className="relative">
           {/* Vertical connector behind the diamond column */}
           <div className="absolute left-4 top-3 bottom-3 w-px bg-primary/20" aria-hidden />
