@@ -186,16 +186,16 @@ const PhasesPreview = ({
             {/* Connector segment between diamonds (mobile breakpoint). */}
             {!isFirstMobileRow && (
               <span
-                className="absolute h-px bg-primary/30 pointer-events-none top-[10px] sm:hidden"
-                style={{ right: 'calc(50% + 7px)', left: 'calc(-50% + 7px)' }}
+                className="absolute h-px bg-primary/40 pointer-events-none top-[10px] sm:hidden"
+                style={{ right: 'calc(50% + 9px)', left: 'calc(-50% + 9px)' }}
                 aria-hidden
               />
             )}
             {/* Connector segment between diamonds (desktop breakpoint). */}
             {!isFirstDesktopRow && (
               <span
-                className="absolute h-px bg-primary/30 pointer-events-none hidden sm:block top-[12px]"
-                style={{ right: 'calc(50% + 8px)', left: 'calc(-50% + 8px)' }}
+                className="absolute h-px bg-primary/40 pointer-events-none hidden sm:block top-[12px]"
+                style={{ right: 'calc(50% + 11px)', left: 'calc(-50% + 11px)' }}
                 aria-hidden
               />
             )}
@@ -519,10 +519,11 @@ const Overview = () => {
               return (
                 <li key={phase.id} className="relative flex flex-col items-center min-w-0">
                   {/* Connector segment between diamonds.
-                      Diamond half-width = 16px (32px square). Node container is 52px high; diamond is centered → top ≈ 26px - 0.5px line. */}
+                      Container is 44px (md) / 52px (sm+ within md), diamond rotated 28/32px.
+                      Center vertically: 22px / 26px. Gap from center: half-diagonal of rotated square = side/2. */}
                   {idx > 0 && (
                     <span
-                      className="absolute h-px bg-primary/25 pointer-events-none top-[26px] right-[calc(50%+16px)] left-[calc(-50%+16px)]"
+                      className="absolute h-px bg-primary/40 pointer-events-none top-[22px] sm:top-[26px] right-[calc(50%+18px)] left-[calc(-50%+18px)] sm:right-[calc(50%+20px)] sm:left-[calc(-50%+20px)]"
                       aria-hidden
                     />
                   )}
