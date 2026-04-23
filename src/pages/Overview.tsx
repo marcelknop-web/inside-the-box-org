@@ -615,7 +615,10 @@ const Overview = () => {
 
 
       {/* Active phase detail (desktop) */}
-      <section className="hidden md:block px-6 py-6 max-w-6xl mx-auto w-full">
+      <section
+        className="hidden md:block px-6 py-6 max-w-6xl mx-auto w-full opacity-0 animate-fade-in"
+        style={{ animationDelay: '640ms', animationFillMode: 'forwards' }}
+      >
         <div
           key={active.id}
           className="grid grid-cols-12 gap-8 bg-background/60 backdrop-blur-[2px] border border-primary/15 p-8 animate-fade-in"
