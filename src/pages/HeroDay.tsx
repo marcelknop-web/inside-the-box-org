@@ -108,7 +108,12 @@ const HeroDay = () => {
           {/* Category label */}
           <div
             className="font-mono text-[10px] sm:text-[13px] md:text-[14px] tracking-[0.3em] sm:tracking-[0.4em] mb-5 sm:mb-6 opacity-0 animate-fade-in"
-            style={{ color: '#a07a00', animationDelay: '0ms', animationFillMode: 'forwards' }}
+            style={{
+              color: '#7a5400',
+              textShadow: '0 1px 0 rgba(255, 250, 235, 0.9)',
+              animationDelay: '0ms',
+              animationFillMode: 'forwards',
+            }}
           >
             / {t('welcome.heroConsulting').toUpperCase()}
           </div>
@@ -116,15 +121,25 @@ const HeroDay = () => {
           {/* Wordmark */}
           <h1
             className="font-mono font-semibold text-xl sm:text-3xl md:text-4xl leading-[1.05] tracking-[-0.02em] mb-6 sm:mb-8 opacity-0 animate-fade-in"
-            style={{ color: '#1a2535', animationDelay: '180ms', animationFillMode: 'forwards' }}
+            style={{
+              color: '#0a1420',
+              textShadow: '0 1px 0 rgba(255, 250, 235, 0.95), 0 0 24px rgba(255, 250, 235, 0.7)',
+              animationDelay: '180ms',
+              animationFillMode: 'forwards',
+            }}
           >
             {t('welcome.title')}
           </h1>
 
           {/* Claim */}
           <p
-            className="font-sans font-light text-[20px] sm:text-3xl md:text-5xl leading-[1.2] tracking-[-0.01em] mb-5 opacity-0 animate-fade-in max-w-3xl mx-auto"
-            style={{ color: '#1a2535', animationDelay: '420ms', animationFillMode: 'forwards' }}
+            className="font-sans font-normal text-[20px] sm:text-3xl md:text-5xl leading-[1.2] tracking-[-0.01em] mb-5 opacity-0 animate-fade-in max-w-3xl mx-auto"
+            style={{
+              color: '#0a1420',
+              textShadow: '0 1px 0 rgba(255, 250, 235, 0.95), 0 0 32px rgba(255, 250, 235, 0.85)',
+              animationDelay: '420ms',
+              animationFillMode: 'forwards',
+            }}
           >
             {t('welcome.heroSubtitle')}
           </p>
@@ -132,7 +147,12 @@ const HeroDay = () => {
           {/* Byline */}
           <p
             className="font-mono text-[10px] sm:text-[12px] tracking-[0.14em] sm:tracking-[0.18em] mb-10 sm:mb-12 opacity-0 animate-fade-in"
-            style={{ color: '#6a7689', animationDelay: '780ms', animationFillMode: 'forwards' }}
+            style={{
+              color: '#3a4658',
+              textShadow: '0 1px 0 rgba(255, 250, 235, 0.85)',
+              animationDelay: '780ms',
+              animationFillMode: 'forwards',
+            }}
           >
             {t('welcome.heroByline')}
           </p>
