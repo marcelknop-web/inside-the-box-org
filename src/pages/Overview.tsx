@@ -186,16 +186,16 @@ const PhasesPreview = ({
             {/* Connector segment between diamonds (mobile breakpoint). */}
             {!isFirstMobileRow && (
               <span
-                className="absolute h-px bg-primary/30 pointer-events-none top-[10px] sm:hidden"
-                style={{ right: 'calc(50% + 7px)', left: 'calc(-50% + 7px)' }}
+                className="absolute h-px bg-primary/40 pointer-events-none top-[10px] sm:hidden"
+                style={{ right: 'calc(50% + 9px)', left: 'calc(-50% + 9px)' }}
                 aria-hidden
               />
             )}
             {/* Connector segment between diamonds (desktop breakpoint). */}
             {!isFirstDesktopRow && (
               <span
-                className="absolute h-px bg-primary/30 pointer-events-none hidden sm:block top-[12px]"
-                style={{ right: 'calc(50% + 8px)', left: 'calc(-50% + 8px)' }}
+                className="absolute h-px bg-primary/40 pointer-events-none hidden sm:block top-[12px]"
+                style={{ right: 'calc(50% + 11px)', left: 'calc(-50% + 11px)' }}
                 aria-hidden
               />
             )}
