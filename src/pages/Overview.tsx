@@ -580,7 +580,7 @@ const Overview = () => {
                         className={`absolute inset-0 m-auto w-[28px] h-[28px] sm:w-[32px] sm:h-[32px] rotate-45 border bg-background transition-all duration-300 ease-out ${
                           isActive
                             ? 'border-primary bg-primary/10 phase-node-active'
-                            : 'border-primary/50 group-hover:border-primary group-hover:scale-110 group-hover:bg-primary/5 group-hover:shadow-[0_0_18px_-6px_hsl(var(--primary)/0.55)]'
+                            : 'border-primary/50'
                         }`}
                         aria-hidden
                       />
@@ -590,7 +590,7 @@ const Overview = () => {
                         size={18}
                         aria-hidden
                         className={`relative z-10 transition-colors duration-300 ${
-                          isActive ? 'text-primary' : 'text-primary/60 group-hover:text-primary'
+                          isActive ? 'text-primary' : 'text-primary/60'
                         }`}
                       />
                     </span>
@@ -600,7 +600,7 @@ const Overview = () => {
                       className={`font-mono text-[11px] sm:text-[14px] font-medium tracking-[0.08em] sm:tracking-[0.28em] leading-tight transition-colors duration-300 whitespace-nowrap ${
                         isActive
                           ? 'text-primary phase-label-emphasis'
-                          : 'text-foreground/80 group-hover:text-primary'
+                          : 'text-foreground/80'
                       }`}
                     >
                       {phase.title[lang]}
@@ -693,7 +693,7 @@ const Overview = () => {
                     className={`absolute inset-0 m-auto w-5 h-5 rotate-45 border transition-all duration-300 ${
                       isActive
                         ? 'border-primary bg-primary/10 phase-node-active'
-                        : 'border-primary/40 group-hover/node:border-primary group-hover/node:bg-primary/5'
+                        : 'border-primary/40'
                     }`}
                     aria-hidden
                   />
@@ -703,7 +703,7 @@ const Overview = () => {
                     size={12}
                     aria-hidden
                     className={`relative z-10 transition-colors duration-300 ${
-                      isActive ? 'text-primary' : 'text-primary/70 group-hover/node:text-primary'
+                      isActive ? 'text-primary' : 'text-primary/70'
                     }`}
                   />
                 </button>
