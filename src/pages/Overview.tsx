@@ -592,7 +592,7 @@ const Overview = () => {
           </div>
           {/* Right — services */}
           <div className="col-span-5 border-l border-primary/15 pl-8">
-            <div className="font-mono text-[12px] tracking-[0.26em] text-primary mb-4">
+            <div className="font-mono text-[12px] tracking-[0.3em] text-primary mb-4">
               {servicesLabel.toUpperCase()}
             </div>
             <ul className="space-y-1">
@@ -740,7 +740,7 @@ const Overview = () => {
             </span>
             <div className="min-w-0 flex-1">
               <div
-                className={`font-mono text-[10px] tracking-[0.28em] sm:tracking-[0.3em] mb-1 transition-colors ${
+                className={`font-mono text-[12px] tracking-[0.3em] mb-1 transition-colors ${
                   referencesOpen ? 'text-primary phase-label-emphasis' : 'text-primary/80 group-hover/ref:text-primary'
                 }`}
               >
