@@ -187,14 +187,14 @@ const PhasesPreview = ({
                 the exact same vertical center, regardless of label height. */}
             <div className="relative w-full flex items-center justify-center mb-1.5 sm:mb-2">
               {/* Connector segment — mobile breakpoint.
-                  Mobile diamond: 12px rotated square → diagonal half ≈ 8.5px.
-                  Slight upward nudge (calc 50% - 1px) to compensate for the
-                  diamond's downward drop-shadow which shifts its visual center. */}
+                  Mobile diamond: 12px rotated square → diagonal half ≈ 8.5px (touches the side corners).
+                  Top is nudged up to match the diamond's optical centre (the gold drop-shadow
+                  shifts the visual centre upwards). */}
               {!isFirstMobileRow && (
                 <span
                   className="absolute h-px bg-primary/40 pointer-events-none sm:hidden"
                   style={{
-                    top: 'calc(50% - 1px)',
+                    top: 'calc(50% - 3px)',
                     right: 'calc(50% + 8.5px)',
                     left: 'calc(-50% + 8.5px)',
                   }}
@@ -202,12 +202,12 @@ const PhasesPreview = ({
                 />
               )}
               {/* Connector segment — desktop breakpoint.
-                  Desktop diamond: 14px rotated square → diagonal half ≈ 9.9px. */}
+                  Desktop diamond: 14px rotated square → diagonal half ≈ 9.9px (touches the side corners). */}
               {!isFirstDesktopRow && (
                 <span
                   className="absolute h-px bg-primary/40 pointer-events-none hidden sm:block"
                   style={{
-                    top: 'calc(50% - 1px)',
+                    top: 'calc(50% - 3px)',
                     right: 'calc(50% + 9.9px)',
                     left: 'calc(-50% + 9.9px)',
                   }}
@@ -740,7 +740,7 @@ const Overview = () => {
             On desktop, indent matches the inner padding of the phase detail card (p-8 = 2rem) so the diamond aligns with the "FÜHREN" label above. */}
         <button
           onClick={() => setReferencesOpen((v) => !v)}
-          className="w-full text-left group/ref md:pl-8"
+          className="w-full text-left group/ref md:pl-8 px-2 -mx-2 py-2 hover:shadow-[0_0_24px_-10px_hsl(var(--primary)/0.6)] transition-all duration-200"
           aria-expanded={referencesOpen}
         >
           <div className="flex items-start gap-4">
@@ -749,7 +749,7 @@ const Overview = () => {
                 className={`absolute inset-0 m-auto w-5 h-5 rotate-45 border bg-background transition-all duration-300 ${
                   referencesOpen
                     ? 'border-primary bg-primary/10 phase-node-active'
-                    : 'border-primary/50 group-hover/ref:border-primary group-hover/ref:bg-primary/5'
+                    : 'border-primary/50 group-hover/ref:border-primary group-hover/ref:bg-primary/5 group-hover/ref:shadow-[0_0_8px_hsl(var(--primary)/0.7)]'
                 }`}
                 aria-hidden
               />
@@ -766,10 +766,13 @@ const Overview = () => {
                 {referenceHeadline}
               </div>
             </div>
-            {/* Arrow affordance — same style as service rows above. Rotates 90° when open. */}
+            {/* Arrow affordance — matches service rows above: hidden by default, slides in on hover.
+                When section is open, rotates 90° and stays visible. */}
             <ArrowRight
-              className={`w-4 h-4 mt-2 flex-shrink-0 text-primary/70 group-hover/ref:text-primary transition-all duration-300 ${
-                referencesOpen ? 'rotate-90' : '-translate-x-1 group-hover/ref:translate-x-0'
+              className={`w-4 h-4 mt-2 flex-shrink-0 transition-all duration-300 ${
+                referencesOpen
+                  ? 'text-primary rotate-90'
+                  : 'text-primary/0 group-hover/ref:text-primary -translate-x-1 group-hover/ref:translate-x-0'
               }`}
               aria-hidden
             />
