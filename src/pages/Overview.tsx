@@ -431,7 +431,7 @@ const Overview = () => {
       : 'Selection. Full mandate history available on request.';
 
   return (
-    <SiteChrome onBrandClick={() => { setEntered(true); window.scrollTo({ top: 0 }); }}>
+    <SiteChrome onBrandClick={() => { setEntered(false); window.scrollTo({ top: 0 }); }}>
       <PageMeta
         title="Cybersecurity Consulting & Crisis Training"
         description="The five phases of cyber-resilience — from understanding your gap to responding under pressure."
