@@ -554,10 +554,10 @@ const Overview = () => {
                     {/* Label — single line on mobile via tighter tracking & smaller size */}
                     <span
                       key={isActive ? `l-${phase.id}-active` : `l-${phase.id}`}
-                      className={`font-mono text-[9px] sm:text-[11px] tracking-[0.05em] sm:tracking-[0.3em] leading-tight transition-colors duration-300 whitespace-nowrap ${
+                      className={`font-mono text-[11px] sm:text-[14px] font-medium tracking-[0.08em] sm:tracking-[0.28em] leading-tight transition-colors duration-300 whitespace-nowrap ${
                         isActive
                           ? 'text-primary phase-label-emphasis'
-                          : 'text-muted-foreground group-hover:text-primary/90'
+                          : 'text-foreground/80 group-hover:text-primary'
                       }`}
                     >
                       {phase.title[lang]}
