@@ -974,14 +974,14 @@ const Overview = () => {
                 className="min-w-0 opacity-0 animate-fade-in"
                 style={{ animationDelay: `${1340 + idx * 70}ms`, animationFillMode: 'forwards' }}
               >
-                <div className="font-mono text-[10px] tracking-[0.22em] text-muted-foreground/80 mb-2 pb-1 border-b border-primary/10">
+                <div className="font-mono text-[12px] sm:text-[13px] tracking-[0.22em] text-muted-foreground/90 mb-3 pb-1.5 border-b border-primary/15">
                   {cluster.label[lang].toUpperCase()}
                 </div>
                 <ul className="flex flex-wrap gap-x-3 gap-y-1.5">
                   {cluster.clients.map((client) => (
                     <li
                       key={client}
-                      className="font-mono text-[12px] tracking-[0.01em] text-foreground/65 leading-relaxed"
+                      className="font-mono text-[14px] sm:text-[15px] tracking-[0.01em] text-foreground/80 leading-relaxed"
                     >
                       {client}
                     </li>
