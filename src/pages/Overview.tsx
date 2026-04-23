@@ -833,10 +833,10 @@ const Overview = () => {
             style={{ animationDelay: '160ms', animationFillMode: 'forwards' }}
           >
             {lang === 'de'
-              ? 'Erfahrung, die unter Druck funktioniert.'
+              ? 'Nachweisbare Erfahrung aus komplexen Projekten.'
               : lang === 'fr'
-              ? 'Une expérience qui tient sous pression.'
-              : 'Experience that holds under pressure.'}
+              ? 'Une expérience démontrée sur des projets complexes.'
+              : 'Proven experience from complex projects.'}
           </DialogDescription>
 
           <p
