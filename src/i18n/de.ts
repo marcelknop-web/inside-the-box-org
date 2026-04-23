@@ -409,7 +409,7 @@ export const de = {
     eliteTitle: 'Keine Lust auf Security?',
     eliteDesc: 'Abschalten, fliegen, loslassen – eine meditative 3D-Szene zum Entspannen',
     enigmaTitle: 'Enigma I — Nachrichten verschlüsseln',
-    enigmaDesc: 'Walzen, Steckbrett, Reflektor — voll funktionsfähig. Für Liebesbriefe an den CISO oder den nächsten Stand-up.',
+    enigmaDesc: 'Voll funktionsfähig. Für Liebesbriefe an den CISO oder den nächsten Stand-up.',
     agentYtTitle: 'Video-Einspieler',
     agentYtDesc: 'KI-generierte Nachrichtenvideos als Lagebilder für Krisenübungen',
     ctaTitle: 'Einstieg',

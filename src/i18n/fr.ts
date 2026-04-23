@@ -409,7 +409,7 @@ export const fr = {
     eliteTitle: 'Assez de sécurité ?',
     eliteDesc: 'Déconnectez, volez, lâchez prise — une scène 3D méditative pour se détendre',
     enigmaTitle: 'Enigma I — Chiffrer un message',
-    enigmaDesc: 'Rotors, tableau de connexions, réflecteur — pleinement fonctionnelle. Pour des lettres d\'amour au RSSI ou le prochain stand-up.',
+    enigmaDesc: 'Pleinement fonctionnelle. Pour des lettres d\'amour au RSSI ou le prochain stand-up.',
     agentYtTitle: 'Vidéos d\'injection',
     agentYtDesc: 'Vidéos d\'actualité générées par IA comme briefings pour exercices de crise',
     ctaTitle: 'Démarrage',
