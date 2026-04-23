@@ -312,7 +312,7 @@ const Overview = () => {
       : 'Cyber-resilience in five steps';
   const subline =
     lang === 'de'
-      ? 'Wo stehen Sie gerade?'
+      ? 'Wo liegt Ihr aktueller Fokus?'
       : lang === 'fr'
       ? 'Où en êtes-vous ?'
       : 'Where do you stand?';
