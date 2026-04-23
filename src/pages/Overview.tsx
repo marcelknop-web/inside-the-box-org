@@ -505,7 +505,7 @@ const Overview = () => {
         <h1 className="font-mono font-semibold text-[26px] leading-[1.1] sm:text-3xl md:text-5xl sm:leading-[1.05] tracking-[-0.01em] text-foreground mb-3 sm:mb-4">
           {headline}
         </h1>
-        <p className="font-sans text-sm sm:text-base md:text-lg text-muted-foreground max-w-2xl leading-snug">
+        <p className="font-sans text-base sm:text-lg md:text-xl text-foreground/80 max-w-2xl leading-snug">
           {subline}
         </p>
       </section>
@@ -554,10 +554,10 @@ const Overview = () => {
                     {/* Label — single line on mobile via tighter tracking & smaller size */}
                     <span
                       key={isActive ? `l-${phase.id}-active` : `l-${phase.id}`}
-                      className={`font-mono text-[9px] sm:text-[11px] tracking-[0.05em] sm:tracking-[0.3em] leading-tight transition-colors duration-300 whitespace-nowrap ${
+                      className={`font-mono text-[11px] sm:text-[14px] font-medium tracking-[0.08em] sm:tracking-[0.28em] leading-tight transition-colors duration-300 whitespace-nowrap ${
                         isActive
                           ? 'text-primary phase-label-emphasis'
-                          : 'text-muted-foreground group-hover:text-primary/90'
+                          : 'text-foreground/80 group-hover:text-primary'
                       }`}
                     >
                       {phase.title[lang]}
@@ -579,19 +579,19 @@ const Overview = () => {
         >
           {/* Left — phase intro */}
           <div className="col-span-7">
-            <div className="font-mono text-[10px] tracking-[0.35em] text-primary/70 mb-3">
+            <div className="font-mono text-[12px] tracking-[0.3em] text-primary mb-3">
               {active.title[lang].toUpperCase()}
             </div>
             <h2 className="font-mono font-semibold text-3xl lg:text-4xl leading-[1.1] tracking-[-0.005em] text-foreground mb-4">
               {active.verb[lang]}
             </h2>
-            <p className="font-sans text-base text-muted-foreground leading-relaxed max-w-xl">
+            <p className="font-sans text-base sm:text-lg text-foreground/75 leading-relaxed max-w-xl">
               {active.description[lang]}
             </p>
           </div>
           {/* Right — services */}
           <div className="col-span-5 border-l border-primary/15 pl-8">
-            <div className="font-mono text-[10px] tracking-[0.3em] text-primary/70 mb-4">
+            <div className="font-mono text-[12px] tracking-[0.26em] text-primary mb-4">
               {servicesLabel.toUpperCase()}
             </div>
             <ul className="space-y-1">
@@ -599,17 +599,17 @@ const Overview = () => {
                 <li key={svc.id}>
                   <button
                     onClick={() => handleClick(svc.id, active.id)}
-                    className="w-full text-left flex items-center justify-between gap-3 font-mono text-sm tracking-[0.02em] text-foreground/90 hover:text-primary hover:translate-x-1 transition-all duration-200 py-2.5 border-b border-primary/10 group/svc"
+                    className="w-full text-left flex items-center justify-between gap-3 font-mono text-base tracking-[0.02em] text-foreground hover:text-primary hover:translate-x-1 transition-all duration-200 py-3 border-b border-primary/15 hover:border-primary/40 group/svc"
                   >
                     <span className="flex items-center gap-3 min-w-0">
                       <span
-                        className="inline-block w-1.5 h-1.5 rotate-45 border border-primary/60 group-hover/svc:bg-primary group-hover/svc:border-primary transition-colors flex-shrink-0"
+                        className="inline-block w-2 h-2 rotate-45 border border-primary/70 group-hover/svc:bg-primary group-hover/svc:border-primary transition-colors flex-shrink-0"
                         aria-hidden
                       />
                       <span className="truncate">{t(svc.titleKey)}</span>
                     </span>
                     <ArrowRight
-                      className="w-3.5 h-3.5 text-primary/0 group-hover/svc:text-primary -translate-x-1 group-hover/svc:translate-x-0 transition-all flex-shrink-0"
+                      className="w-4 h-4 text-primary/0 group-hover/svc:text-primary -translate-x-1 group-hover/svc:translate-x-0 transition-all flex-shrink-0"
                       aria-hidden
                     />
                   </button>
@@ -667,15 +667,15 @@ const Overview = () => {
                   {/* Yellow phase title — always bright */}
                   <div
                     key={isActive ? `m-${phase.id}-active` : `m-${phase.id}`}
-                    className={`font-mono text-[10px] tracking-[0.28em] mb-1 transition-colors ${
-                      isActive ? 'text-primary phase-label-emphasis' : 'text-primary/80'
+                    className={`font-mono text-[12px] font-medium tracking-[0.24em] mb-1.5 transition-colors ${
+                      isActive ? 'text-primary phase-label-emphasis' : 'text-primary/90'
                     }`}
                   >
                     {phase.title[lang]}
                   </div>
                   {/* Verb — dimmed when another phase is active */}
                   <div
-                    className={`font-mono text-[15px] font-medium leading-snug transition-opacity duration-300 ${
+                    className={`font-mono text-[16px] font-medium leading-snug transition-opacity duration-300 ${
                       !activeId || isActive ? 'text-foreground opacity-100' : 'text-foreground opacity-30'
                     }`}
                   >
@@ -685,7 +685,7 @@ const Overview = () => {
 
                 {isActive && (
                   <div className="mt-3 animate-fade-in">
-                    <p className="font-sans text-[13px] text-muted-foreground leading-snug mb-3">
+                    <p className="font-sans text-[15px] text-foreground/75 leading-snug mb-3">
                       {phase.description[lang]}
                     </p>
                     <ul className="space-y-0">
@@ -693,16 +693,16 @@ const Overview = () => {
                         <li key={svc.id}>
                           <button
                             onClick={() => handleClick(svc.id, phase.id)}
-                            className="w-full text-left flex items-center justify-between gap-3 font-mono text-[13px] text-foreground/90 hover:text-primary transition-colors py-2 border-b border-primary/10"
+                            className="w-full text-left flex items-center justify-between gap-3 font-mono text-[15px] text-foreground hover:text-primary transition-colors py-2.5 border-b border-primary/15"
                           >
                             <span className="flex items-center gap-2.5 min-w-0">
                               <span
-                                className="inline-block w-1.5 h-1.5 rotate-45 border border-primary/60 flex-shrink-0"
+                                className="inline-block w-2 h-2 rotate-45 border border-primary/70 flex-shrink-0"
                                 aria-hidden
                               />
                               <span className="truncate">{t(svc.titleKey)}</span>
                             </span>
-                            <ArrowRight className="w-3.5 h-3.5 text-primary/70 flex-shrink-0" aria-hidden />
+                            <ArrowRight className="w-4 h-4 text-primary/70 flex-shrink-0" aria-hidden />
                           </button>
                         </li>
                       ))}
