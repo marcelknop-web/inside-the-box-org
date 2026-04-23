@@ -408,6 +408,8 @@ export const en = {
     butterflyDesc: 'Experience interactively how tiny parameter changes can tip nonlinear systems',
     eliteTitle: 'Had Enough of Security?',
     eliteDesc: 'Switch off, fly, let go — a meditative 3D scene to unwind',
+    enigmaTitle: 'Enigma I — Encrypt a Message',
+    enigmaDesc: 'Before AI crypto agents, there were rotors and plugboards. A fully working Enigma I — for love letters to the CISO or to spice up the next stand-up.',
     agentYtTitle: 'Video Injects',
     agentYtDesc: 'AI-generated news videos as situational briefings for crisis exercises',
     ctaTitle: 'Getting Started',
