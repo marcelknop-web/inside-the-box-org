@@ -685,7 +685,7 @@ const Overview = () => {
 
                 {isActive && (
                   <div className="mt-3 animate-fade-in">
-                    <p className="font-sans text-[13px] text-muted-foreground leading-snug mb-3">
+                    <p className="font-sans text-[15px] text-foreground/75 leading-snug mb-3">
                       {phase.description[lang]}
                     </p>
                     <ul className="space-y-0">
@@ -693,16 +693,16 @@ const Overview = () => {
                         <li key={svc.id}>
                           <button
                             onClick={() => handleClick(svc.id, phase.id)}
-                            className="w-full text-left flex items-center justify-between gap-3 font-mono text-[13px] text-foreground/90 hover:text-primary transition-colors py-2 border-b border-primary/10"
+                            className="w-full text-left flex items-center justify-between gap-3 font-mono text-[15px] text-foreground hover:text-primary transition-colors py-2.5 border-b border-primary/15"
                           >
                             <span className="flex items-center gap-2.5 min-w-0">
                               <span
-                                className="inline-block w-1.5 h-1.5 rotate-45 border border-primary/60 flex-shrink-0"
+                                className="inline-block w-2 h-2 rotate-45 border border-primary/70 flex-shrink-0"
                                 aria-hidden
                               />
                               <span className="truncate">{t(svc.titleKey)}</span>
                             </span>
-                            <ArrowRight className="w-3.5 h-3.5 text-primary/70 flex-shrink-0" aria-hidden />
+                            <ArrowRight className="w-4 h-4 text-primary/70 flex-shrink-0" aria-hidden />
                           </button>
                         </li>
                       ))}
