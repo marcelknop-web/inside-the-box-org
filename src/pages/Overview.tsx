@@ -174,7 +174,7 @@ const PhasesPreview = ({
   <div className="relative w-full max-w-2xl mx-auto pt-2 pb-4">
     {/* Mobile: 3 columns (auto-wraps to 2 rows) — emphasises equal rank,
         gives each label real breathing room. Desktop keeps 5-in-a-row. */}
-    <ul className="grid grid-cols-3 sm:grid-cols-5 gap-x-3 gap-y-3 sm:gap-2">
+    <ul className="grid grid-cols-3 sm:grid-cols-5 gap-x-4 gap-y-4 sm:gap-x-5 sm:gap-y-3">
       {phases.map((phase, idx) => {
         // Don't draw a connector on the first item of any row.
         // Mobile = 3 cols → first of each row is idx 0 and 3.
