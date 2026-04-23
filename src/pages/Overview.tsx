@@ -763,46 +763,186 @@ const Overview = () => {
       </section>
 
       {/* References — modaler Dialog mit echtem Close (X), wie auf den anderen Themenseiten.
-          Der Trigger-Header darüber öffnet das Modal; geschlossen wird via X, Esc oder Overlay-Klick. */}
+          Der Trigger-Header darüber öffnet das Modal; geschlossen wird via X, Esc oder Overlay-Klick.
+          Struktur: Layer 1 (Proof of Impact) → Layer 2 (Selected Mandates) → Layer 3 (Client list) → Conversion. */}
       <Dialog open={referencesOpen} onOpenChange={setReferencesOpen}>
-        <DialogContent className="max-w-5xl w-[calc(100vw-2rem)] sm:w-full max-h-[90vh] overflow-y-auto bg-background/95 backdrop-blur-md border border-primary/20 p-6 sm:p-8">
+        <DialogContent className="max-w-5xl w-[calc(100vw-2rem)] sm:w-full max-h-[90vh] overflow-y-auto bg-background/95 backdrop-blur-md border border-primary/20 p-6 sm:p-10">
+          {/* ─── LAYER 1 — PROOF OF IMPACT ─────────────────────────────── */}
           <DialogTitle
-            className="font-mono text-[10px] tracking-[0.3em] text-primary mb-1 opacity-0 animate-fade-in"
+            className="font-mono text-[11px] sm:text-[12px] tracking-[0.3em] text-primary mb-3 opacity-0 animate-fade-in"
             style={{ animationDelay: '60ms', animationFillMode: 'forwards' }}
           >
             {referenceSectionLabel.replace('/ ', '')}
           </DialogTitle>
           <DialogDescription
-            className="font-sans text-sm sm:text-base text-foreground/90 leading-snug mb-4 opacity-0 animate-fade-in"
+            className="font-mono font-semibold text-2xl sm:text-3xl md:text-4xl leading-[1.1] tracking-[-0.01em] text-foreground mb-4 opacity-0 animate-fade-in"
             style={{ animationDelay: '160ms', animationFillMode: 'forwards' }}
           >
-            {referenceHeadline}
+            {lang === 'de'
+              ? 'Erfahrung, die unter Druck funktioniert.'
+              : lang === 'fr'
+              ? 'Une expérience qui tient sous pression.'
+              : 'Experience that holds under pressure.'}
           </DialogDescription>
 
           <p
-            className="font-sans text-[13px] sm:text-sm text-muted-foreground max-w-2xl leading-snug mb-5 sm:mb-6 opacity-0 animate-fade-in"
+            className="font-sans text-base sm:text-lg text-foreground/80 max-w-3xl leading-relaxed mb-8 sm:mb-10 opacity-0 animate-fade-in"
             style={{ animationDelay: '260ms', animationFillMode: 'forwards' }}
           >
-            {referenceSubline}
+            {lang === 'de'
+              ? '35 Jahre gemeinsame Erfahrung. 400+ Projekte in regulierten und kritischen Umgebungen.'
+              : lang === 'fr'
+              ? '35 ans d\'expérience commune. 400+ projets dans des environnements régulés et critiques.'
+              : '35 years of shared experience. 400+ projects across regulated and critical environments.'}
           </p>
 
-          {/* Branchen-Cluster: kategorisierte Kundennamen, rein typografisch.
-              Jeder Cluster fährt mit leichter Verzögerung gestaffelt ein. */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-4 mb-6 sm:mb-7">
+          {/* Featured cases — visually dominant cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5 mb-12 sm:mb-14">
+            {[
+              {
+                tag: 'DORA',
+                client: 'SAP Fioneer',
+                desc: {
+                  de: 'Aufbau einer DORA-konformen Incident-Reporting-Pipeline.',
+                  en: 'DORA-compliant incident-reporting pipeline.',
+                  fr: 'Chaîne de reporting d\'incidents conforme DORA.',
+                },
+                outcome: {
+                  de: 'Vom Whitepaper zur prüfbaren Meldekette in unter sechs Monaten.',
+                  en: 'From whitepaper to auditable reporting chain in under six months.',
+                  fr: 'Du livre blanc à une chaîne auditable en moins de six mois.',
+                },
+              },
+              {
+                tag: 'SOC / SIEM',
+                client: 'Deutsche Lufthansa',
+                desc: {
+                  de: 'SIEM/CDC-Prozesstransformation und SOC-Runbooks.',
+                  en: 'SIEM/CDC process transformation and SOC runbooks.',
+                  fr: 'Transformation des processus SIEM/CDC et runbooks SOC.',
+                },
+                outcome: {
+                  de: 'Skalierte Detection-Pipeline mit messbar kürzerer MTTD.',
+                  en: 'Scaled detection pipeline with measurably shorter MTTD.',
+                  fr: 'Pipeline de détection scalable avec MTTD mesurablement réduit.',
+                },
+              },
+              {
+                tag: 'TIBER-DE',
+                client: 'FI-TS',
+                desc: {
+                  de: 'Konzeption und C-Level-Präsentation des TIBER-DE-Übungsframeworks.',
+                  en: 'Design and C-level presentation of the TIBER-DE exercise framework.',
+                  fr: 'Conception et présentation C-level du cadre d\'exercice TIBER-DE.',
+                },
+                outcome: {
+                  de: 'Übungsdesign vom Vorstand getragen, von der Aufsicht akzeptiert.',
+                  en: 'Exercise design endorsed by the board, accepted by the regulator.',
+                  fr: 'Conception validée par le comité exécutif et acceptée par le régulateur.',
+                },
+              },
+              {
+                tag: 'OT / MARITIME',
+                client: 'Hapag-Lloyd',
+                desc: {
+                  de: 'Maritimes Cybersecurity-Framework für Starlink-Flottenkonnektivität.',
+                  en: 'Maritime cybersecurity framework for Starlink fleet connectivity.',
+                  fr: 'Cadre cybersécurité maritime pour la connectivité Starlink de flotte.',
+                },
+                outcome: {
+                  de: 'OT-Risiko an Bord erstmals systematisch greifbar.',
+                  en: 'On-board OT risk made systematically tangible for the first time.',
+                  fr: 'Risque OT à bord rendu systématiquement maîtrisable.',
+                },
+              },
+            ].map((c, idx) => (
+              <div
+                key={c.client}
+                className="group/case bg-background/40 border border-primary/20 hover:border-primary/50 hover:bg-background/60 transition-all duration-300 p-5 sm:p-6 opacity-0 animate-fade-in hover:shadow-[0_0_24px_-12px_hsl(var(--primary)/0.5)]"
+                style={{ animationDelay: `${320 + idx * 90}ms`, animationFillMode: 'forwards' }}
+              >
+                <div className="font-mono text-[11px] tracking-[0.22em] text-primary mb-2">
+                  {c.tag}
+                </div>
+                <div className="font-mono font-semibold text-lg sm:text-xl text-foreground mb-2 leading-tight">
+                  {c.client}
+                </div>
+                <p className="font-sans text-base text-foreground/85 leading-snug mb-3">
+                  {c.desc[lang]}
+                </p>
+                <p className="font-sans text-[14px] text-foreground/65 italic leading-snug border-t border-primary/15 pt-3">
+                  {c.outcome[lang]}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          {/* ─── LAYER 2 — SELECTED MANDATES (structured cards) ────────── */}
+          <div
+            className="font-mono text-[11px] sm:text-[12px] tracking-[0.26em] text-primary mb-4 pb-2 border-b border-primary/25 opacity-0 animate-fade-in"
+            style={{ animationDelay: '760ms', animationFillMode: 'forwards' }}
+          >
+            {lang === 'de'
+              ? 'AUSGEWÄHLTE MANDATE'
+              : lang === 'fr'
+              ? 'MANDATS SÉLECTIONNÉS'
+              : 'SELECTED MANDATES'}
+          </div>
+          <ul className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 mb-12 sm:mb-14">
+            {highlightMandates.map((mandate, idx) => {
+              // Split "Client — description" so client gets its own line
+              const txt = mandate.text[lang];
+              const dashIdx = txt.indexOf('—');
+              const client = dashIdx > 0 ? txt.slice(0, dashIdx).trim() : '';
+              const desc = dashIdx > 0 ? txt.slice(dashIdx + 1).trim() : txt;
+              return (
+                <li
+                  key={mandate.tag}
+                  className="bg-background/30 border border-primary/15 hover:border-primary/35 transition-colors duration-300 p-4 sm:p-5 opacity-0 animate-fade-in"
+                  style={{ animationDelay: `${840 + idx * 50}ms`, animationFillMode: 'forwards' }}
+                >
+                  <div className="font-mono text-[10px] tracking-[0.22em] text-primary mb-2 uppercase">
+                    {mandate.tag}
+                  </div>
+                  <p className="font-sans text-[15px] sm:text-base text-foreground leading-snug mb-1.5">
+                    {desc}
+                  </p>
+                  {client && (
+                    <p className="font-mono text-[12px] tracking-[0.04em] text-foreground/55">
+                      {client}
+                    </p>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+
+          {/* ─── LAYER 3 — CLIENT LIST (de-emphasized supporting proof) ── */}
+          <div
+            className="font-mono text-[11px] tracking-[0.24em] text-muted-foreground mb-4 pb-2 border-b border-primary/15 opacity-0 animate-fade-in"
+            style={{ animationDelay: '1280ms', animationFillMode: 'forwards' }}
+          >
+            {lang === 'de'
+              ? 'AUSZUG RELEVANTER MANDANTEN'
+              : lang === 'fr'
+              ? 'EXTRAIT DE MANDANTS PERTINENTS'
+              : 'EXTRACT OF RELEVANT CLIENTS'}
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-6 mb-10">
             {referenceClusters.map((cluster, idx) => (
               <div
                 key={cluster.label.en}
                 className="min-w-0 opacity-0 animate-fade-in"
-                style={{ animationDelay: `${360 + idx * 80}ms`, animationFillMode: 'forwards' }}
+                style={{ animationDelay: `${1340 + idx * 70}ms`, animationFillMode: 'forwards' }}
               >
-                <div className="font-mono text-[10px] tracking-[0.24em] text-primary/80 mb-1.5 pb-1 border-b border-primary/15">
+                <div className="font-mono text-[10px] tracking-[0.22em] text-muted-foreground/80 mb-2 pb-1 border-b border-primary/10">
                   {cluster.label[lang].toUpperCase()}
                 </div>
-                <ul className="flex flex-wrap gap-x-3 gap-y-0.5">
+                <ul className="flex flex-wrap gap-x-3 gap-y-1.5">
                   {cluster.clients.map((client) => (
                     <li
                       key={client}
-                      className="font-mono text-[12px] sm:text-[13px] tracking-[0.01em] text-foreground/85 leading-snug"
+                      className="font-mono text-[12px] tracking-[0.01em] text-foreground/65 leading-relaxed"
                     >
                       {client}
                     </li>
@@ -812,46 +952,61 @@ const Overview = () => {
             ))}
           </div>
 
-          {/* Highlight-Mandate: kuratierte aktuelle/strategische Projekte */}
-          <div
-            className="font-mono text-[10px] tracking-[0.24em] text-primary/80 mb-2 pb-1 border-b border-primary/15 opacity-0 animate-fade-in"
-            style={{ animationDelay: '780ms', animationFillMode: 'forwards' }}
-          >
-            {lang === 'de'
-              ? 'AUSGEWÄHLTE MANDATE'
-              : lang === 'fr'
-              ? 'MANDATS SÉLECTIONNÉS'
-              : 'SELECTED MANDATES'}
-          </div>
-          <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-1.5 mb-3">
-            {highlightMandates.map((mandate, idx) => (
-              <li
-                key={mandate.tag}
-                className="flex items-start gap-2 min-w-0 opacity-0 animate-fade-in"
-                style={{ animationDelay: `${860 + idx * 50}ms`, animationFillMode: 'forwards' }}
-              >
-                <span
-                  className="inline-block w-1 h-1 mt-[7px] rotate-45 border border-primary/60 flex-shrink-0"
-                  aria-hidden
-                />
-                <div className="min-w-0 flex-1">
-                  <span className="font-mono text-[10px] tracking-[0.16em] text-primary/90 mr-1.5 uppercase">
-                    {mandate.tag}
-                  </span>
-                  <span className="font-sans text-[13px] sm:text-sm text-foreground/90 leading-snug">
-                    {mandate.text[lang]}
-                  </span>
-                </div>
-              </li>
-            ))}
-          </ul>
-
           <p
-            className="font-mono text-[11px] tracking-[0.12em] text-muted-foreground/70 italic opacity-0 animate-fade-in"
-            style={{ animationDelay: '1280ms', animationFillMode: 'forwards' }}
+            className="font-mono text-[11px] tracking-[0.12em] text-muted-foreground/70 italic mb-12 sm:mb-14 opacity-0 animate-fade-in"
+            style={{ animationDelay: '1700ms', animationFillMode: 'forwards' }}
           >
             {referenceFootnote}
           </p>
+
+          {/* ─── CONVERSION BLOCK — slightly provocative transition ─────── */}
+          <div
+            className="border-t border-primary/30 pt-10 sm:pt-12 opacity-0 animate-fade-in"
+            style={{ animationDelay: '1820ms', animationFillMode: 'forwards' }}
+          >
+            <h3 className="font-mono font-semibold text-2xl sm:text-3xl md:text-4xl leading-[1.15] tracking-[-0.01em] text-foreground mb-3">
+              {lang === 'de'
+                ? 'Die entscheidende Frage ist nicht, was dokumentiert ist.'
+                : lang === 'fr'
+                ? 'La vraie question n\'est pas ce qui est documenté.'
+                : 'The real question is not what is documented.'}
+            </h3>
+            <p className="font-sans text-lg sm:text-xl text-foreground/75 leading-snug mb-8 max-w-3xl">
+              {lang === 'de'
+                ? 'Sondern was unter Stress tatsächlich funktioniert.'
+                : lang === 'fr'
+                ? 'Mais ce qui tient réellement sous pression.'
+                : 'But what actually holds under pressure.'}
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 sm:items-center">
+              <button
+                onClick={() => {
+                  setReferencesOpen(false);
+                  navigate('/dora-nis2-ttx');
+                }}
+                className="group inline-flex items-center justify-center gap-3 px-6 sm:px-8 py-4 border-2 border-primary/70 hover:border-primary bg-primary/10 hover:bg-primary/20 text-primary font-mono text-[13px] sm:text-[15px] font-medium tracking-[0.22em] sm:tracking-[0.28em] transition-all duration-300 shadow-[0_0_18px_-10px_hsl(var(--primary)/0.5)] hover:shadow-[0_0_40px_-6px_hsl(var(--primary)/0.75)] hover:-translate-y-0.5"
+              >
+                <span>
+                  {lang === 'de' ? 'TTX DURCHFÜHREN' : lang === 'fr' ? 'RÉALISER UN TTX' : 'RUN A TTX'}
+                </span>
+                <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 -translate-x-1 group-hover:translate-x-0 transition-transform" />
+              </button>
+              <button
+                onClick={() => {
+                  setReferencesOpen(false);
+                  setActiveId('understand');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                className="font-mono text-[12px] sm:text-[13px] tracking-[0.18em] text-foreground/70 hover:text-primary transition-colors px-2 py-2 text-left sm:text-center"
+              >
+                {lang === 'de'
+                  ? 'WO STEHT IHRE ORGANISATION WIRKLICH? →'
+                  : lang === 'fr'
+                  ? 'OÙ EN EST RÉELLEMENT VOTRE ORGANISATION ? →'
+                  : 'WHERE DOES YOUR ORGANISATION REALLY STAND? →'}
+              </button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
         </>
