@@ -196,8 +196,8 @@ const HeroDay = () => {
                         />
                       </span>
                       <span
-                        className="font-mono text-[10px] sm:text-[9px] tracking-[0.1em] sm:tracking-[0.18em] leading-[1.15] w-full px-0"
-                        style={{ color: '#6a7689' }}
+                        className="font-mono font-medium text-[10px] sm:text-[9px] tracking-[0.1em] sm:tracking-[0.18em] leading-[1.15] w-full px-0"
+                        style={{ color: '#1a2535', textShadow: '0 1px 0 rgba(255, 250, 235, 0.85)' }}
                       >
                         {phase[lang]}
                       </span>
@@ -215,9 +215,9 @@ const HeroDay = () => {
             style={{
               animationDelay: '1200ms',
               animationFillMode: 'forwards',
-              borderColor: 'rgba(200, 149, 0, 0.6)',
-              background: 'rgba(245, 184, 0, 0.08)',
-              color: '#7a5e00',
+              borderColor: '#c89500',
+              background: 'rgba(255, 250, 235, 0.7)',
+              color: '#5a3e00',
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.borderColor = '#c89500';
