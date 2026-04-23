@@ -879,7 +879,7 @@ const Overview = () => {
 
           {/* ─── LAYER 2 — SELECTED MANDATES (structured cards) ────────── */}
           <div
-            className="font-mono text-[11px] sm:text-[12px] tracking-[0.26em] text-primary mb-4 pb-2 border-b border-primary/25 opacity-0 animate-fade-in"
+            className="font-mono text-[15px] sm:text-[17px] tracking-[0.26em] text-primary mb-5 pb-3 border-b border-primary/25 opacity-0 animate-fade-in"
             style={{ animationDelay: '760ms', animationFillMode: 'forwards' }}
           >
             {lang === 'de'
