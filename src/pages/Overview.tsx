@@ -767,7 +767,10 @@ const Overview = () => {
       {/* References — own collapsible section under "Respond". Mirrors the phase
           interaction (diamond + verb + expandable detail). Extra top spacing
           (mt-12 sm:mt-20) sets it visually apart from the journey above. */}
-      <section className="px-4 sm:px-6 pb-12 sm:pb-10 max-w-6xl mx-auto w-full mt-4 sm:mt-2 pt-2">
+      <section
+        className="px-4 sm:px-6 pb-12 sm:pb-10 max-w-6xl mx-auto w-full mt-4 sm:mt-2 pt-2 opacity-0 animate-fade-in"
+        style={{ animationDelay: '960ms', animationFillMode: 'forwards' }}
+      >
         {/* Header row — same diamond + label pattern as a phase node.
             On desktop, indent matches the inner padding of the phase detail card (p-8 = 2rem) so the diamond aligns with the "FÜHREN" label above. */}
         <button
