@@ -188,11 +188,16 @@ const PhasesPreview = ({
             <div className="relative w-full flex items-center justify-center mb-1.5 sm:mb-2">
               {/* Connector segment — mobile breakpoint.
                   Mobile diamond: 12px rotated square → diagonal half ≈ 8.5px.
-                  Line is vertically centered via flex (items-center on parent). */}
+                  Slight upward nudge (calc 50% - 1px) to compensate for the
+                  diamond's downward drop-shadow which shifts its visual center. */}
               {!isFirstMobileRow && (
                 <span
-                  className="absolute h-px bg-primary/40 pointer-events-none top-1/2 -translate-y-1/2 sm:hidden"
-                  style={{ right: 'calc(50% + 8.5px)', left: 'calc(-50% + 8.5px)' }}
+                  className="absolute h-px bg-primary/40 pointer-events-none sm:hidden"
+                  style={{
+                    top: 'calc(50% - 1px)',
+                    right: 'calc(50% + 8.5px)',
+                    left: 'calc(-50% + 8.5px)',
+                  }}
                   aria-hidden
                 />
               )}
@@ -200,8 +205,12 @@ const PhasesPreview = ({
                   Desktop diamond: 14px rotated square → diagonal half ≈ 9.9px. */}
               {!isFirstDesktopRow && (
                 <span
-                  className="absolute h-px bg-primary/40 pointer-events-none hidden sm:block top-1/2 -translate-y-1/2"
-                  style={{ right: 'calc(50% + 9.9px)', left: 'calc(-50% + 9.9px)' }}
+                  className="absolute h-px bg-primary/40 pointer-events-none hidden sm:block"
+                  style={{
+                    top: 'calc(50% - 1px)',
+                    right: 'calc(50% + 9.9px)',
+                    left: 'calc(-50% + 9.9px)',
+                  }}
                   aria-hidden
                 />
               )}
