@@ -24,6 +24,7 @@ const ItsmTool = lazy(() => import("./pages/ItsmTool"));
 const ItsmDevTool = lazy(() => import("./pages/ItsmDevTool"));
 const TtxReadinessPage = lazy(() => import("./pages/TtxReadinessPage"));
 const Imprint = lazy(() => import("./pages/Imprint"));
+const HeroDay = lazy(() => import("./pages/HeroDay"));
 
 const queryClient = new QueryClient();
 
@@ -46,6 +47,7 @@ const App = () => (
               <Route path="/itsm" element={<Suspense fallback={<RouteSkeleton />}><ItsmTool /></Suspense>} />
               <Route path="/itsm-dev" element={<Suspense fallback={<RouteSkeleton />}><ItsmDevTool /></Suspense>} />
               <Route path="/ttx-readiness" element={<Suspense fallback={<RouteSkeleton />}><TtxReadinessPage /></Suspense>} />
+              <Route path="/hero-day" element={<Suspense fallback={<RouteSkeleton />}><HeroDay /></Suspense>} />
 
               {/* Catch-all: every Journey service id (nis2-dora, virtual-ciso, …) renders ChatView */}
               <Route path="/:serviceId" element={<ChatView />} />
