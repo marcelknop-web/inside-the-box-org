@@ -183,35 +183,37 @@ const PhasesPreview = ({
         const isFirstDesktopRow = idx === 0;
         return (
           <li key={phase.id} className="group/phase relative flex flex-col items-center text-center min-w-0 cursor-default">
-            {/* Connector segment between diamonds (mobile breakpoint).
-                Mobile diamond: 12px rotated → diagonal half = 12 * √2 / 2 ≈ 8.5px.
-                Container is w-5 (20px), so left/right half = 10px → gap = 10 - 8.5 ≈ 1.5px.
-                Line sits at vertical center of the diamond (top 10px = half of w-5 container). */}
-            {!isFirstMobileRow && (
-              <span
-                className="absolute h-px bg-primary/40 pointer-events-none top-[10px] -translate-y-1/2 sm:hidden"
-                style={{ right: 'calc(50% + 8.5px)', left: 'calc(-50% + 8.5px)' }}
-                aria-hidden
-              />
-            )}
-            {/* Connector segment between diamonds (desktop breakpoint).
-                Desktop diamond: 14px rotated → diagonal half ≈ 9.9px.
-                Container is sm:w-6 (24px), top center = 12px. */}
-            {!isFirstDesktopRow && (
-              <span
-                className="absolute h-px bg-primary/40 pointer-events-none hidden sm:block top-[12px] -translate-y-1/2"
-                style={{ right: 'calc(50% + 9.9px)', left: 'calc(-50% + 9.9px)' }}
-                aria-hidden
-              />
-            )}
-            {/* Diamond marker — outlined gold (all phases equal-rank), with subtle glow shadow. */}
-            <span className="relative flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 z-10 mb-1.5 sm:mb-2">
-              <span
-                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[12px] h-[12px] sm:w-[14px] sm:h-[14px] rotate-45 border-[1.5px] border-primary bg-background transition-all duration-300 group-hover/phase:scale-125 group-hover/phase:bg-primary/20"
-                style={{ boxShadow: '0 0 6px hsl(var(--primary) / 0.45), 0 1px 2px hsl(var(--primary) / 0.25)' }}
-                aria-hidden
-              />
-            </span>
+            {/* Diamond row: holds the marker AND the connector line so they share
+                the exact same vertical center, regardless of label height. */}
+            <div className="relative w-full flex items-center justify-center mb-1.5 sm:mb-2">
+              {/* Connector segment — mobile breakpoint.
+                  Mobile diamond: 12px rotated square → diagonal half ≈ 8.5px.
+                  Line is vertically centered via flex (items-center on parent). */}
+              {!isFirstMobileRow && (
+                <span
+                  className="absolute h-px bg-primary/40 pointer-events-none top-1/2 -translate-y-1/2 sm:hidden"
+                  style={{ right: 'calc(50% + 8.5px)', left: 'calc(-50% + 8.5px)' }}
+                  aria-hidden
+                />
+              )}
+              {/* Connector segment — desktop breakpoint.
+                  Desktop diamond: 14px rotated square → diagonal half ≈ 9.9px. */}
+              {!isFirstDesktopRow && (
+                <span
+                  className="absolute h-px bg-primary/40 pointer-events-none hidden sm:block top-1/2 -translate-y-1/2"
+                  style={{ right: 'calc(50% + 9.9px)', left: 'calc(-50% + 9.9px)' }}
+                  aria-hidden
+                />
+              )}
+              {/* Diamond marker — outlined gold (all phases equal-rank), with subtle glow shadow. */}
+              <span className="relative flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 z-10">
+                <span
+                  className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[12px] h-[12px] sm:w-[14px] sm:h-[14px] rotate-45 border-[1.5px] border-primary bg-background transition-all duration-300 group-hover/phase:scale-125 group-hover/phase:bg-primary/20"
+                  style={{ boxShadow: '0 0 6px hsl(var(--primary) / 0.45), 0 1px 2px hsl(var(--primary) / 0.25)' }}
+                  aria-hidden
+                />
+              </span>
+            </div>
             {/* Label — equal-rank text under each diamond. */}
             <span className="font-mono text-[12px] sm:text-[13px] tracking-[0.14em] sm:tracking-[0.22em] text-foreground/85 leading-[1.2] w-full px-0 transition-colors duration-300 group-hover/phase:text-primary">
               {phase.title[lang]}
