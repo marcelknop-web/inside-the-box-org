@@ -470,7 +470,7 @@ const Overview = () => {
 
             {/* Byline */}
             <p
-              className="font-mono text-[10px] sm:text-[12px] tracking-[0.14em] sm:tracking-[0.18em] text-muted-foreground/70 mb-10 sm:mb-12 opacity-0 animate-fade-in"
+              className="font-mono text-[13px] sm:text-[15px] tracking-[0.2em] sm:tracking-[0.24em] text-foreground/85 mb-10 sm:mb-12 opacity-0 animate-fade-in"
               style={{ animationDelay: '780ms', animationFillMode: 'forwards' }}
             >
               {t('welcome.heroByline')}
@@ -488,12 +488,12 @@ const Overview = () => {
             {/* CTA — questioning. Allows wrapping on very narrow screens to never clip the question. */}
             <button
               onClick={() => setEntered(true)}
-              className="group inline-flex items-center justify-center gap-2 sm:gap-3 px-4 sm:px-8 py-3.5 sm:py-4 max-w-full border border-primary/50 hover:border-primary bg-primary/5 hover:bg-primary/10 text-primary font-mono text-[10px] sm:text-[14px] tracking-[0.16em] sm:tracking-[0.25em] leading-tight transition-all duration-300 hover:shadow-[0_0_30px_-8px_hsl(var(--primary)/0.6)] opacity-0 animate-fade-in text-center"
+              className="group inline-flex items-center justify-center gap-2 sm:gap-3 px-5 sm:px-10 py-4 sm:py-5 max-w-full border-2 border-primary/70 hover:border-primary bg-primary/10 hover:bg-primary/20 text-primary font-mono text-[12px] sm:text-[16px] font-medium tracking-[0.18em] sm:tracking-[0.28em] leading-tight transition-all duration-300 shadow-[0_0_18px_-10px_hsl(var(--primary)/0.5)] hover:shadow-[0_0_40px_-6px_hsl(var(--primary)/0.75)] hover:-translate-y-0.5 opacity-0 animate-fade-in text-center"
               style={{ animationDelay: '1200ms', animationFillMode: 'forwards' }}
               aria-label={enterCta}
             >
               <span className="break-words">{enterCta.toUpperCase()}</span>
-              <ArrowRight className="w-4 h-4 flex-shrink-0 -translate-x-1 group-hover:translate-x-0 transition-transform" />
+              <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0 -translate-x-1 group-hover:translate-x-0 transition-transform" />
             </button>
           </div>
         </section>
