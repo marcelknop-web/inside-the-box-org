@@ -953,60 +953,11 @@ const Overview = () => {
           </div>
 
           <p
-            className="font-mono text-[11px] tracking-[0.12em] text-muted-foreground/70 italic mb-12 sm:mb-14 opacity-0 animate-fade-in"
+            className="font-mono text-[11px] tracking-[0.12em] text-muted-foreground/70 italic opacity-0 animate-fade-in"
             style={{ animationDelay: '1700ms', animationFillMode: 'forwards' }}
           >
             {referenceFootnote}
           </p>
-
-          {/* ─── CONVERSION BLOCK — slightly provocative transition ─────── */}
-          <div
-            className="border-t border-primary/30 pt-10 sm:pt-12 opacity-0 animate-fade-in"
-            style={{ animationDelay: '1820ms', animationFillMode: 'forwards' }}
-          >
-            <h3 className="font-mono font-semibold text-2xl sm:text-3xl md:text-4xl leading-[1.15] tracking-[-0.01em] text-foreground mb-3">
-              {lang === 'de'
-                ? 'Die entscheidende Frage ist nicht, was dokumentiert ist.'
-                : lang === 'fr'
-                ? 'La vraie question n\'est pas ce qui est documenté.'
-                : 'The real question is not what is documented.'}
-            </h3>
-            <p className="font-sans text-lg sm:text-xl text-foreground/75 leading-snug mb-8 max-w-3xl">
-              {lang === 'de'
-                ? 'Sondern was unter Stress tatsächlich funktioniert.'
-                : lang === 'fr'
-                ? 'Mais ce qui tient réellement sous pression.'
-                : 'But what actually holds under pressure.'}
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 sm:items-center">
-              <button
-                onClick={() => {
-                  setReferencesOpen(false);
-                  navigate('/dora-nis2-ttx');
-                }}
-                className="group inline-flex items-center justify-center gap-3 px-6 sm:px-8 py-4 border-2 border-primary/70 hover:border-primary bg-primary/10 hover:bg-primary/20 text-primary font-mono text-[13px] sm:text-[15px] font-medium tracking-[0.22em] sm:tracking-[0.28em] transition-all duration-300 shadow-[0_0_18px_-10px_hsl(var(--primary)/0.5)] hover:shadow-[0_0_40px_-6px_hsl(var(--primary)/0.75)] hover:-translate-y-0.5"
-              >
-                <span>
-                  {lang === 'de' ? 'TTX DURCHFÜHREN' : lang === 'fr' ? 'RÉALISER UN TTX' : 'RUN A TTX'}
-                </span>
-                <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 -translate-x-1 group-hover:translate-x-0 transition-transform" />
-              </button>
-              <button
-                onClick={() => {
-                  setReferencesOpen(false);
-                  setActiveId('understand');
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                }}
-                className="font-mono text-[12px] sm:text-[13px] tracking-[0.18em] text-foreground/70 hover:text-primary transition-colors px-2 py-2 text-left sm:text-center"
-              >
-                {lang === 'de'
-                  ? 'WO STEHT IHRE ORGANISATION WIRKLICH? →'
-                  : lang === 'fr'
-                  ? 'OÙ EN EST RÉELLEMENT VOTRE ORGANISATION ? →'
-                  : 'WHERE DOES YOUR ORGANISATION REALLY STAND? →'}
-              </button>
-            </div>
-          </div>
         </DialogContent>
       </Dialog>
         </>
