@@ -61,13 +61,13 @@ export const SiteChrome = ({
           <div className="flex items-center gap-6 sm:gap-8">
             <button
               onClick={() => setDrawer('team')}
-              className="font-mono text-[10px] tracking-[0.25em] sm:tracking-[0.3em] text-muted-foreground hover:text-primary transition-colors"
+              className="font-mono text-[12px] tracking-[0.3em] text-muted-foreground hover:text-primary transition-colors"
             >
               {lang === 'de' ? 'TEAM' : lang === 'fr' ? 'ÉQUIPE' : 'TEAM'}
             </button>
             <button
               onClick={() => setLanguage(nextLanguage(language))}
-              className="font-mono text-[10px] tracking-[0.25em] sm:tracking-[0.3em] text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"
+              className="font-mono text-[12px] tracking-[0.3em] text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"
               aria-label="Language"
             >
               <Languages className="w-3 h-3" />
@@ -134,7 +134,7 @@ export const SiteChrome = ({
           className="w-full sm:max-w-2xl bg-background/85 backdrop-blur-md border-l border-primary/20 overflow-y-auto"
         >
           <SheetHeader className="text-left mb-8">
-            <div className="font-mono text-[11px] tracking-[0.35em] text-primary mb-3">/ TEAM</div>
+            <div className="font-mono text-[12px] tracking-[0.3em] text-primary mb-3">/ TEAM</div>
             <SheetTitle className="font-mono font-semibold text-2xl sm:text-3xl text-foreground">
               {lang === 'de'
                 ? 'Wer hinter inside-the-box steht'
@@ -219,7 +219,7 @@ export const SiteChrome = ({
           className="w-full sm:max-w-md bg-background/85 backdrop-blur-md border-l border-primary/20"
         >
           <SheetHeader className="text-left mb-8">
-            <div className="font-mono text-[11px] tracking-[0.35em] text-primary mb-3">{lang === 'de' ? '/ KONTAKT' : '/ CONTACT'}</div>
+            <div className="font-mono text-[12px] tracking-[0.3em] text-primary mb-3">{lang === 'de' ? '/ KONTAKT' : '/ CONTACT'}</div>
             <SheetTitle className="font-mono font-semibold text-2xl sm:text-3xl text-foreground">
               {lang === 'de' ? 'Sprechen wir' : lang === 'fr' ? 'Parlons-en' : 'Let\'s talk'}
             </SheetTitle>
@@ -287,7 +287,7 @@ export const SiteChrome = ({
           className="w-full sm:max-w-2xl bg-background/85 backdrop-blur-md border-l border-primary/20 overflow-y-auto"
         >
           <SheetHeader className="text-left mb-8">
-            <div className="font-mono text-[11px] tracking-[0.35em] text-primary mb-3">
+            <div className="font-mono text-[12px] tracking-[0.3em] text-primary mb-3">
               {lang === 'de' ? '/ IMPRESSUM' : lang === 'fr' ? '/ MENTIONS LÉGALES' : '/ IMPRINT'}
             </div>
             <SheetTitle className="font-mono font-semibold text-2xl sm:text-3xl text-foreground">
