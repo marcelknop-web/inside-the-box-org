@@ -85,7 +85,7 @@ const HeroDay = () => {
       </div>
 
       {/* Top-Bar (vereinfachte Day-Version) */}
-      <header className="border-b" style={{ borderColor: 'rgba(20, 28, 40, 0.08)' }}>
+      <header className="border-b relative" style={{ borderColor: 'rgba(120, 95, 40, 0.18)' }}>
         <div className="max-w-6xl mx-auto flex items-center justify-between px-4 sm:px-6 py-4 sm:py-5 gap-3">
           <a
             href="/"
@@ -95,7 +95,7 @@ const HeroDay = () => {
           >
             INSIDE-THE-BOX
           </a>
-          <div className="flex items-center gap-6 sm:gap-8 font-mono text-[10px] tracking-[0.3em]" style={{ color: '#4a5a72' }}>
+          <div className="flex items-center gap-6 sm:gap-8 font-mono text-[10px] tracking-[0.3em]" style={{ color: '#5a6478' }}>
             <span>TEAM</span>
             <span>{lang.toUpperCase()}</span>
           </div>
