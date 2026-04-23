@@ -170,67 +170,89 @@ const PhasesPreview = ({
 }: {
   phases: Phase[];
   lang: 'en' | 'de' | 'fr';
-}) => (
-  <div className="relative w-full max-w-2xl mx-auto pt-2 pb-4">
-    {/* Mobile: 3 columns (auto-wraps to 2 rows) — emphasises equal rank,
-        gives each label real breathing room. Desktop keeps 5-in-a-row. */}
-    <ul className="grid grid-cols-3 sm:grid-cols-5 gap-x-4 gap-y-4 sm:gap-x-5 sm:gap-y-3">
-      {phases.map((phase, idx) => {
-        // Don't draw a connector on the first item of any row.
-        // Mobile = 3 cols → first of each row is idx 0 and 3.
-        // Desktop (sm+) = 5 cols → only idx 0 is first.
-        const isFirstMobileRow = idx % 3 === 0;
-        const isFirstDesktopRow = idx === 0;
-        return (
-          <li key={phase.id} className="group/phase relative flex flex-col items-center text-center min-w-0 cursor-default">
-            {/* Diamond row: holds the marker AND the connector line so they share
-                the exact same vertical center, regardless of label height. */}
-            <div className="relative w-full flex items-center justify-center mb-1.5 sm:mb-2">
-              {/* Connector segment — mobile breakpoint.
-                  The line must pass through the exact geometric centre of the rotated square,
-                  because the side corners of a diamond sit on that horizontal axis. */}
-              {!isFirstMobileRow && (
-                <span
-                  className="absolute h-px bg-primary/60 pointer-events-none sm:hidden top-1/2 -translate-y-1/2"
-                  style={{
-                    right: 'calc(50% + 8.5px)',
-                    left: 'calc(-50% + 8.5px)',
-                  }}
-                  aria-hidden
-                />
-              )}
-              {/* Connector segment — desktop breakpoint.
-                  Desktop diamond: 14px rotated square → half diagonal ≈ 9.9px,
-                  so the line ends exactly at the diamond's side corners. */}
-              {!isFirstDesktopRow && (
-                <span
-                  className="absolute h-px bg-primary/60 pointer-events-none hidden sm:block top-1/2 -translate-y-1/2"
-                  style={{
-                    right: 'calc(50% + 9.9px)',
-                    left: 'calc(-50% + 9.9px)',
-                  }}
-                  aria-hidden
-                />
-              )}
-              {/* Diamond marker — outlined gold (all phases equal-rank), with subtle glow shadow. */}
-              <span className="relative flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 z-10">
-                <span
-                  className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[12px] h-[12px] sm:w-[14px] sm:h-[14px] rotate-45 border-[1.5px] border-primary bg-background transition-all duration-300 group-hover/phase:scale-125 group-hover/phase:bg-primary/20"
-                  style={{ boxShadow: '0 0 6px hsl(var(--primary) / 0.45), 0 1px 2px hsl(var(--primary) / 0.25)' }}
-                  aria-hidden
-                />
-              </span>
-            </div>
-            {/* Label — equal-rank text under each diamond. */}
-            <span className="font-mono text-[12px] sm:text-[13px] tracking-[0.14em] sm:tracking-[0.22em] text-foreground/85 leading-[1.2] w-full px-0 transition-colors duration-300 group-hover/phase:text-primary">
+}) => {
+  // Group phases by mobile row (3 columns) and desktop row (5 columns) so
+  // we can render ONE continuous horizontal line per row, behind the diamonds.
+  // The diamonds use bg-background, which visually masks the line beneath them
+  // and produces clean side-to-side connectors with no gaps or one-sided lines.
+  const mobileRows: Phase[][] = [];
+  for (let i = 0; i < phases.length; i += 3) mobileRows.push(phases.slice(i, i + 3));
+  return (
+    <div className="relative w-full max-w-2xl mx-auto pt-2 pb-4">
+      {/* MOBILE LAYOUT (<sm): 3-column grid that wraps to 2 rows.
+          Each row gets its own continuous connector line. */}
+      <div className="sm:hidden space-y-4">
+        {mobileRows.map((row, rowIdx) => (
+          <ul key={`m-row-${rowIdx}`} className="relative grid grid-cols-3 gap-x-4">
+            {/* Continuous connector line — only spans between the first and
+                last diamond of the row, so it never overshoots an outer edge. */}
+            {row.length > 1 && (
+              <span
+                aria-hidden
+                className="absolute h-px bg-primary/60 pointer-events-none top-[10px]"
+                style={{
+                  // Left edge starts at the centre of the first column.
+                  left: `calc((100% / ${row.length}) / 2)`,
+                  // Right edge ends at the centre of the last column.
+                  right: `calc((100% / ${row.length}) / 2)`,
+                }}
+              />
+            )}
+            {row.map((phase) => (
+              <li
+                key={phase.id}
+                className="group/phase relative flex flex-col items-center text-center min-w-0 cursor-default"
+              >
+                <span className="relative flex items-center justify-center w-5 h-5 z-10 mb-1.5">
+                  <span
+                    className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[12px] h-[12px] rotate-45 border-[1.5px] border-primary bg-background transition-all duration-300 group-hover/phase:scale-125 group-hover/phase:bg-primary/20"
+                    style={{ boxShadow: '0 0 6px hsl(var(--primary) / 0.45), 0 1px 2px hsl(var(--primary) / 0.25)' }}
+                    aria-hidden
+                  />
+                </span>
+                <span className="font-mono text-[12px] tracking-[0.14em] text-foreground/85 leading-[1.2] w-full px-0 transition-colors duration-300 group-hover/phase:text-primary">
+                  {phase.title[lang]}
+                </span>
+              </li>
+            ))}
+          </ul>
+        ))}
+      </div>
+
+      {/* DESKTOP LAYOUT (sm+): single row of 5 diamonds with one continuous line. */}
+      <ul className="hidden sm:grid sm:grid-cols-5 sm:gap-x-5 sm:gap-y-3 relative">
+        {/* Continuous connector line — spans from the centre of the first
+            column to the centre of the last column. The diamonds, with their
+            opaque bg-background fill, mask the line beneath them. */}
+        <span
+          aria-hidden
+          className="absolute h-px bg-primary/60 pointer-events-none top-[12px]"
+          style={{
+            left: `calc((100% / ${phases.length}) / 2)`,
+            right: `calc((100% / ${phases.length}) / 2)`,
+          }}
+        />
+        {phases.map((phase) => (
+          <li
+            key={phase.id}
+            className="group/phase relative flex flex-col items-center text-center min-w-0 cursor-default"
+          >
+            <span className="relative flex items-center justify-center w-6 h-6 z-10 mb-2">
+              <span
+                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[14px] h-[14px] rotate-45 border-[1.5px] border-primary bg-background transition-all duration-300 group-hover/phase:scale-125 group-hover/phase:bg-primary/20"
+                style={{ boxShadow: '0 0 6px hsl(var(--primary) / 0.45), 0 1px 2px hsl(var(--primary) / 0.25)' }}
+                aria-hidden
+              />
+            </span>
+            <span className="font-mono text-[13px] tracking-[0.22em] text-foreground/85 leading-[1.2] w-full px-0 transition-colors duration-300 group-hover/phase:text-primary">
               {phase.title[lang]}
             </span>
           </li>
-        );
-      })}
-    </ul>
-  </div>
-);
+        ))}
+      </ul>
+    </div>
+  );
+};
 
 const PHASE_STORAGE_KEY = 'overview:lastPhase';
 
