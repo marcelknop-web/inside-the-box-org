@@ -208,7 +208,7 @@ const PhasesPreview = ({
               />
             </span>
             {/* Label — equal-rank text under each diamond. */}
-            <span className="font-mono text-[10px] sm:text-[9px] tracking-[0.1em] sm:tracking-[0.18em] text-muted-foreground/70 leading-[1.15] w-full px-0">
+            <span className="font-mono text-[12px] sm:text-[13px] tracking-[0.14em] sm:tracking-[0.22em] text-foreground/85 leading-[1.2] w-full px-0">
               {phase.title[lang]}
             </span>
           </li>
