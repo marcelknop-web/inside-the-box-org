@@ -550,7 +550,10 @@ const Overview = () => {
       </section>
 
       {/* Timeline (desktop) */}
-      <section className="hidden md:block px-6 pb-4 max-w-6xl mx-auto w-full">
+      <section
+        className="hidden md:block px-6 pb-4 max-w-6xl mx-auto w-full opacity-0 animate-fade-in"
+        style={{ animationDelay: '320ms', animationFillMode: 'forwards' }}
+      >
         <div className="relative pt-2">
           <ul className="grid grid-cols-5 relative gap-0">
             {PHASES.map((phase, idx) => {
