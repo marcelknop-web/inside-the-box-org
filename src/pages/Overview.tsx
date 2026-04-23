@@ -579,13 +579,13 @@ const Overview = () => {
         >
           {/* Left — phase intro */}
           <div className="col-span-7">
-            <div className="font-mono text-[10px] tracking-[0.35em] text-primary/70 mb-3">
+            <div className="font-mono text-[12px] tracking-[0.3em] text-primary mb-3">
               {active.title[lang].toUpperCase()}
             </div>
             <h2 className="font-mono font-semibold text-3xl lg:text-4xl leading-[1.1] tracking-[-0.005em] text-foreground mb-4">
               {active.verb[lang]}
             </h2>
-            <p className="font-sans text-base text-muted-foreground leading-relaxed max-w-xl">
+            <p className="font-sans text-base sm:text-lg text-foreground/75 leading-relaxed max-w-xl">
               {active.description[lang]}
             </p>
           </div>
