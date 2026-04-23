@@ -667,15 +667,15 @@ const Overview = () => {
                   {/* Yellow phase title — always bright */}
                   <div
                     key={isActive ? `m-${phase.id}-active` : `m-${phase.id}`}
-                    className={`font-mono text-[10px] tracking-[0.28em] mb-1 transition-colors ${
-                      isActive ? 'text-primary phase-label-emphasis' : 'text-primary/80'
+                    className={`font-mono text-[12px] font-medium tracking-[0.24em] mb-1.5 transition-colors ${
+                      isActive ? 'text-primary phase-label-emphasis' : 'text-primary/90'
                     }`}
                   >
                     {phase.title[lang]}
                   </div>
                   {/* Verb — dimmed when another phase is active */}
                   <div
-                    className={`font-mono text-[15px] font-medium leading-snug transition-opacity duration-300 ${
+                    className={`font-mono text-[16px] font-medium leading-snug transition-opacity duration-300 ${
                       !activeId || isActive ? 'text-foreground opacity-100' : 'text-foreground opacity-30'
                     }`}
                   >
