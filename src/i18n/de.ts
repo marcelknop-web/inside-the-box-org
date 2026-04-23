@@ -662,7 +662,7 @@ export const de = {
   },
   profiles: {
     marcel: {
-      bio: 'Ich helfe Organisationen, Cybersecurity und regulatorische Vorgaben in den Griff zu bekommen – vom ersten Blick auf den Ist-Zustand bis dahin, dass es im Alltag wirklich läuft.\n\nMein Anspruch: klare Entscheidungsgrundlagen, ehrliche Einschätzungen und Strukturen, die auch dann halten, wenn es brennt.\n\nSchwerpunkte: ISMS aufbauen und weiterentwickeln, regulatorische Themen umsetzen, Cyber-Krisenmanagement.\n\nDavor: leitende Rollen bei KPMG, Accenture und EY.',
+      bio: 'Ich sorge dafür, dass Security nicht nur compliant ist – sondern im Ernstfall funktioniert.\n\nDavor: leitende Rollen bei KPMG, Accenture und EY.',
       focusLabel: 'Schwerpunkte',
       focus: 'ISMS · TISAX · NIS2 · PCI-DSS · Cyber-Krisenmanagement · TIBER · BCM',
       certsLabel: 'Zertifizierungen',
