@@ -675,7 +675,7 @@ export const en = {
       experience: 'KPMG: Consultant to Senior Manager · Accenture: Senior Manager · Ernst & Young: Senior Manager',
     },
     andreas: {
-      bio: 'I support organisations in implementing information security, risk management, and data privacy effectively – structured, auditable, and workable in day-to-day operations.\n\nMy focus is on building and advancing ISMS and the structured implementation of regulatory requirements in regulated environments. I bridge normative requirements with practical solutions that hold up in real operations.\n\nPreviously, I held senior positions at PwC, EY, and CSPi.',
+      bio: 'I embed compliance in organisations so that regulatory requirements are implemented in a structured way.',
       focusLabel: 'Focus Areas',
       focus: 'ISO/IEC 27001 · PCI-DSS · NIST · TISAX · Risk Management · Business Continuity · GDPR · KRITIS',
       certsLabel: 'Certifications',
