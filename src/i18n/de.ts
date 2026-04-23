@@ -662,7 +662,7 @@ export const de = {
   },
   profiles: {
     marcel: {
-      bio: 'Ich sorge dafür, dass Security nicht nur compliant ist – sondern im Ernstfall funktioniert.',
+      bio: 'Ich sorge dafür, dass Security so in Organisationen verankert ist, dass sie im Ernstfall funktioniert.',
       focusLabel: 'Schwerpunkte',
       focus: 'ISMS · TISAX · NIS2 · PCI-DSS · Cyber-Krisenmanagement · TIBER · BCM',
       certsLabel: 'Zertifizierungen',
