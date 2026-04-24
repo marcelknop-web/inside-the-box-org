@@ -244,7 +244,7 @@ export function ConsequenceOverlay({ data, onContinue }: Props) {
             </Button>
           </div>
         )}
-      </div>
+      </>
     </div>
   );
 }
