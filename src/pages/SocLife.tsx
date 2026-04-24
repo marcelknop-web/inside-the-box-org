@@ -94,17 +94,18 @@ function pickTier(weights: TierWeights, exclude?: IncidentTier): IncidentTier {
 
 /** Pick the next incident:
  *   1. Choose a tier from the difficulty curve.
- *   2. Filter INCIDENTS to that tier, exclude the most recent N to avoid
- *      repetition, and exclude the previous category to keep variety.
+ *   2. Filter the supplied catalogue to that tier, exclude the most recent N
+ *      to avoid repetition, and exclude the previous category to keep variety.
  *   3. If filtering empties the pool, progressively relax the constraints. */
 function pickNextIncident(
+  catalogue: Incident[],
   completed: number,
   recentIds: string[],
   lastCategory: IncidentCategory | null,
 ): Incident {
   const profile = DIFFICULTY_CURVE[Math.min(completed, DIFFICULTY_CURVE.length - 1)];
   const tier = pickTier(profile);
-  const sameTier = INCIDENTS.filter((i) => (i.tier ?? "medium") === tier);
+  const sameTier = catalogue.filter((i) => (i.tier ?? "medium") === tier);
 
   // Strict: not recently shown AND different category from previous.
   const strict = sameTier.filter(
@@ -120,8 +121,8 @@ function pickNextIncident(
   if (sameTier.length) return sameTier[Math.floor(Math.random() * sameTier.length)];
 
   // Last resort: any incident not just shown.
-  const anyOk = INCIDENTS.filter((i) => !recentIds.includes(i.id));
-  const pool = anyOk.length ? anyOk : INCIDENTS;
+  const anyOk = catalogue.filter((i) => !recentIds.includes(i.id));
+  const pool = anyOk.length ? anyOk : catalogue;
   return pool[Math.floor(Math.random() * pool.length)];
 }
 
@@ -129,10 +130,28 @@ interface SocLifeProps {
   /** When embedded inside ChatView the page chrome (full-viewport wrapper,
    *  Helmet meta) is suppressed and the simulator fills its parent container. */
   embedded?: boolean;
+  /** Variant — controls i18n root, default catalogue, default reason resolver
+   *  and default storage namespace. Defaults to "it" (classic SOC Life). */
+  variant?: SocLifeVariant;
+  /** Override the incident catalogue. Defaults to the IT catalogue. */
+  incidents?: Incident[];
+  /** Override the comic-incident id set (drives the cheesy "audit" music). */
+  comicIds?: Set<string>;
+  /** Override the rationale resolver (per-option / tier+phase fallback). */
+  reasonResolver?: ReasonResolver;
 }
 
-export default function SocLife({ embedded = false }: SocLifeProps = {}) {
-  const { t, language } = useLanguage();
+function SocLifeInner({
+  embedded = false,
+  incidents,
+  comicIds,
+  reasonResolver,
+}: Required<Pick<SocLifeProps, "embedded">> &
+  Omit<SocLifeProps, "embedded" | "variant">) {
+  const { t, language } = useVariantT();
+  const INCIDENTS = incidents ?? IT_INCIDENTS;
+  const COMIC_INCIDENT_IDS = comicIds ?? IT_COMIC_INCIDENT_IDS;
+  const resolveReason = reasonResolver ?? itReasonFor;
   const audio = useSocLifeAudio();
 
   const [started, setStarted] = useState(false);
