@@ -1009,7 +1009,7 @@ const SURPRISE_AUDITOR: Incident = {
         ) },
         { id: "exaggerate", correct: false, delta: -6, label: L(
           "Souverän behaupten „quartalsweise, vollständig durchgespielt mit allen Stakeholdern“ und hoffen, dass er nicht nach Beleg fragt",
-          "Confidently claim „quarterly, fully exercised with all stakeholders" and hope he doesn't ask for evidence",
+          "Confidently claim ‘quarterly, fully exercised with all stakeholders’ and hope he doesn't ask for evidence",
           "Affirmer avec aplomb « trimestriellement, joué intégralement avec tous les acteurs » et espérer qu'il ne demande pas de preuve",
         ) },
         { id: "deflect_to_ciso", correct: false, delta: -3, label: L(
