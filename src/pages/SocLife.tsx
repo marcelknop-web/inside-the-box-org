@@ -785,7 +785,7 @@ function SocLifeInner({
                 a nested scrollbar — the parent grid expands and the page
                 scrolls as a single surface. The inner overflow-y-auto only
                 kicks in from lg upwards where the sidebar is a true column. */}
-            <aside className="min-h-0 lg:flex-1 lg:overflow-y-auto">
+            <aside className="min-h-0 lg:flex-1 lg:overflow-y-auto relative">
               {activeIncident ? (
                 <IncidentPanel
                   incident={activeIncident}
@@ -799,6 +799,18 @@ function SocLifeInner({
                 />
               ) : (
                 <RoomActions currentRoom={currentRoom} onIdleAction={handleIdle} />
+              )}
+
+              {/* Consequence overlay — anchored to the IncidentPanel column so
+                  the pop-up appears exactly where the user just clicked their
+                  answer, instead of jumping across the screen from the
+                  game-grid centre. On mobile the column already spans the
+                  full width, so behaviour stays identical there. */}
+              {consequence && !gameOver && (
+                <ConsequenceOverlay
+                  data={consequence}
+                  onContinue={continueAfterConsequence}
+                />
               )}
             </aside>
 
