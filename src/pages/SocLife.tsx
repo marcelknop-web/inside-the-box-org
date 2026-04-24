@@ -522,6 +522,27 @@ function SocLifeInner({
   }, [audio, t]);
 
   function handleTimeout() {
+    if (activeIncident) {
+      const step = activeIncident.steps[stepIdx];
+      const bestAnswer =
+        step.options.find((o) => o.correct) ??
+        [...step.options].sort((a, b) => b.delta - a.delta)[0];
+      setDecisionHistory((h) => [...h, {
+        id: `${activeIncident.id}:${step.id}:timeout:${h.length}`,
+        incidentId: activeIncident.id,
+        incidentTitle: activeIncident.title[language],
+        stepId: step.id,
+        stepTitle: step.title[language],
+        prompt: step.prompt[language],
+        chosenLabel: "No action taken before timeout",
+        bestAnswerLabel: bestAnswer?.label[language],
+        correct: false,
+        timedOut: true,
+        repDelta: -8,
+        stressDelta: 6,
+        reason: "Decision window expired. In OT incidents, delay itself becomes a consequence: the process keeps running while uncertainty grows.",
+      }]);
+    }
     audio.playSfx("fail_buzz", 0.5);
     toast.error(t("feedback.timeout"), { duration: 1600 });
     setReputation((r) => Math.max(0, r - 8));
