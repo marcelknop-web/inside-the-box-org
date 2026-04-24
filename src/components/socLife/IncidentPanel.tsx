@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-import { useLanguage } from "@/i18n/LanguageContext";
 import { Incident, PlaybookStep, ROOMS, RoomId, Lang, IncidentTier } from "@/data/socLifeData";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useVariantT } from "./variantContext";
 
 /** Letter-by-letter reveal — guides the user's eye to incoming briefing text.
  *  When `start` is false the typewriter sits at empty so we can sequence
@@ -72,7 +72,7 @@ function shuffleOptions<T>(arr: T[], seed: string): T[] {
 export function IncidentPanel({
   incident, step, stepIndex, totalSteps, currentRoom, timeLeftMs, onChoose, onGoToRoom,
 }: IncidentPanelProps) {
-  const { t, language } = useLanguage();
+  const { t, language } = useVariantT();
   const lang = language as Lang;
   // Reseed per page-load too, so refresh varies the order.
   const sessionSeed = useMemo(() => Math.random().toString(36).slice(2, 8), []);
@@ -152,10 +152,10 @@ export function IncidentPanel({
   // reads at a glance: routine = cool/calm, major = hot.
   const tier: IncidentTier = incident.tier ?? "medium";
   const tierLabel: Record<IncidentTier, string> = {
-    easy:   t("socLife.tierEasy"),
-    medium: t("socLife.tierMedium"),
-    hard:   t("socLife.tierHard"),
-    comic:  t("socLife.tierComic"),
+    easy:   t("tierEasy"),
+    medium: t("tierMedium"),
+    hard:   t("tierHard"),
+    comic:  t("tierComic"),
   };
   const tierClasses: Record<IncidentTier, string> = {
     easy:   "border-emerald-500/40 bg-emerald-500/10 text-emerald-300",
@@ -168,7 +168,7 @@ export function IncidentPanel({
     <div className="rounded-lg border border-rose-500/40 bg-background/95 p-4 shadow-[0_0_0_1px_hsl(var(--destructive)/0.2)] max-w-full overflow-hidden">
       <div className="mb-3 flex items-center justify-between gap-2 font-mono text-[11px] uppercase tracking-wider">
         <div className="flex items-center gap-2 min-w-0">
-          <span className={cn("text-rose-300 truncate", !titleDone && "animate-pulse")}>▲ {t("socLife.incomingIncident")}</span>
+          <span className={cn("text-rose-300 truncate", !titleDone && "animate-pulse")}>▲ {t("incomingIncident")}</span>
           <span
             className={cn(
               "shrink-0 rounded-sm border px-1.5 py-px text-[9px] font-bold tracking-[0.12em]",
@@ -214,13 +214,13 @@ export function IncidentPanel({
         <div className="mb-3 ml-7 animate-fade-in">
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] font-mono uppercase tracking-wider mb-2">
             <span className="text-muted-foreground break-words">
-              {t("socLife.incidentRoomHint")}:{" "}
+              {t("incidentRoomHint")}:{" "}
               <span className={cn("ml-1", inRightRoom ? "text-emerald-400" : "text-cyan-300")}>
-                {requiredRoom ? t(`socLife.rooms.${requiredRoom.i18n}.name`) : "—"}
+                {requiredRoom ? t(`rooms.${requiredRoom.i18n}.name`) : "—"}
               </span>
             </span>
             <span className="text-muted-foreground">
-              {t("socLife.timeLeft")}: <span className={cn("ml-1", sec <= 5 ? "text-rose-400 animate-pulse" : "text-foreground")}>{sec}s</span>
+              {t("timeLeft")}: <span className={cn("ml-1", sec <= 5 ? "text-rose-400 animate-pulse" : "text-foreground")}>{sec}s</span>
             </span>
           </div>
           {/* Timer bar — tick marks on a calm track, smoothly draining fill,
@@ -272,7 +272,7 @@ export function IncidentPanel({
           {!inRightRoom && requiredRoom ? (
             <div className="space-y-2">
               <div className="rounded-md border border-cyan-400/40 bg-cyan-400/10 p-3 font-mono text-xs text-cyan-200">
-                {t("socLife.feedback.chooseRoomFirst")}
+                {t("feedback.chooseRoomFirst")}
               </div>
               {onGoToRoom && (
                 <Button
@@ -280,7 +280,7 @@ export function IncidentPanel({
                   className="w-full justify-center font-mono"
                   onClick={() => onGoToRoom(step.requiredRoom!)}
                 >
-                  → {t("socLife.feedback.goToRoomCta")}: {t(`socLife.rooms.${requiredRoom.i18n}.name`)}
+                  → {t("feedback.goToRoomCta")}: {t(`rooms.${requiredRoom.i18n}.name`)}
                 </Button>
               )}
             </div>
