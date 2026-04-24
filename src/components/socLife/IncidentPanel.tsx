@@ -130,9 +130,10 @@ export function IncidentPanel({
   // For step ≥ 2 the title/brief are already fully shown — gate the rest
   // on stepKey directly so meta + prompt revive immediately for the new step
   // without waiting on a (no-op) title cascade.
-  const metaStarts = isFirstStep
-    ? (useDelayedFlag(900, [briefDone]) && briefDone)
-    : useDelayedFlag(150, [stepKey]);
+  // We must always call both hooks (Rules of Hooks) and pick at render time.
+  const metaAfterBrief = useDelayedFlag(900, [briefDone]) && briefDone;
+  const metaAfterStep  = useDelayedFlag(150, [stepKey]);
+  const metaStarts     = isFirstStep ? metaAfterBrief : metaAfterStep;
 
   const promptStarts = metaStarts;
   const typedPrompt  = useTypewriter(promptText, 18, promptStarts);
