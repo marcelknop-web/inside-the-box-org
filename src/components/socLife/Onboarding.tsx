@@ -45,23 +45,23 @@ export function Onboarding({ onClose }: OnboardingProps) {
   const slides: { Preview: ComponentType<{ className?: string }>; title: string; body: string }[] = [
     {
       Preview: FloorplanPreview,
-      title: t("socLife.onboarding.s1Title"),
-      body:  t("socLife.onboarding.s1Body"),
+      title: t("onboarding.s1Title"),
+      body:  t("onboarding.s1Body"),
     },
     {
       Preview: MetersPreview,
-      title: t("socLife.onboarding.s2Title"),
-      body:  t("socLife.onboarding.s2Body"),
+      title: t("onboarding.s2Title"),
+      body:  t("onboarding.s2Body"),
     },
     {
       Preview: IncidentPreview,
-      title: t("socLife.onboarding.s3Title"),
-      body:  t("socLife.onboarding.s3Body"),
+      title: t("onboarding.s3Title"),
+      body:  t("onboarding.s3Body"),
     },
     {
       Preview: ConsequencePreview,
-      title: t("socLife.onboarding.s4Title"),
-      body:  t("socLife.onboarding.s4Body"),
+      title: t("onboarding.s4Title"),
+      body:  t("onboarding.s4Body"),
     },
   ];
 
@@ -73,13 +73,13 @@ export function Onboarding({ onClose }: OnboardingProps) {
         {/* Header: tag + skip */}
         <div className="mb-3 flex items-center justify-between gap-2">
           <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-primary">
-            {t("socLife.onboarding.tag")} · {idx + 1}/{total}
+            {t("onboarding.tag")} · {idx + 1}/{total}
           </span>
           <button
             onClick={onClose}
             className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors"
           >
-            {t("socLife.onboarding.skip")} ✕
+            {t("onboarding.skip")} ✕
           </button>
         </div>
 
@@ -120,7 +120,7 @@ export function Onboarding({ onClose }: OnboardingProps) {
               className="flex-1 font-mono"
               onClick={() => setIdx((i) => Math.max(0, i - 1))}
             >
-              ← {t("socLife.onboarding.back")}
+              ← {t("onboarding.back")}
             </Button>
           )}
           <Button
@@ -129,7 +129,7 @@ export function Onboarding({ onClose }: OnboardingProps) {
             onClick={() => isLast ? onClose() : setIdx((i) => i + 1)}
             autoFocus
           >
-            {isLast ? t("socLife.onboarding.gotIt") : t("socLife.onboarding.next")} →
+            {isLast ? t("onboarding.gotIt") : t("onboarding.next")} →
           </Button>
         </div>
       </div>
