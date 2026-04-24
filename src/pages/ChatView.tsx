@@ -2082,7 +2082,11 @@ const ChatView = () => {
                     <X className="w-4 h-4" />
                   </button>
                 </header>
-                <div className="px-4 sm:px-6 lg:px-10 py-5 md:py-6 pb-20 space-y-4">
+                <div className={`py-5 md:py-6 pb-20 space-y-4 ${
+                  activeService === 'soc-life' || activeService === 'ot-soc-life' || activeService === 'elite-ship' || activeService === 'butterfly-lab' || activeService === 'crisis-sim'
+                    ? 'px-2 sm:px-3 lg:px-4'
+                    : 'px-4 sm:px-6 lg:px-10'
+                }`}>
               {serviceContent && (() => {
                 if (activeService === 'crisis-sim' || activeService === 'elite-ship') {
                   return <div className="flex-1 min-w-0">{serviceContent}</div>;
