@@ -1102,6 +1102,7 @@ function renderRoom(
 
 export function DollHouse({ current, highlight, onMove, maxHeight, isNight = false, alertRoom = null }: DollHouseProps) {
   const { t } = useVariantT();
+  const { variant } = useSocLifeVariant();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const wrapRef = useRef<HTMLDivElement | null>(null);
   const [scale, setScale] = useState(3);
@@ -1232,7 +1233,7 @@ export function DollHouse({ current, highlight, onMove, maxHeight, isNight = fal
       ROOMS.forEach((room) => {
         const x = room.col * ROOM_W;
         const y = roomTopY(room.row);
-        renderRoom(ctx, room.id, x, y, t, isNightRef.current);
+        renderRoom(ctx, room.id, x, y, t, isNightRef.current, variant);
       });
 
       // Corridor strip
