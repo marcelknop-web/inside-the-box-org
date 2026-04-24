@@ -1060,6 +1060,47 @@ function SocLifeInner({
                         {Math.floor(shiftSec % 60).toString().padStart(2, "0")}
                       </div>
                     </div>
+                    <div className="rounded-md border border-border/40 bg-background/60 p-3">
+                      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Correct calls</div>
+                      <div className="mt-1 text-lg text-foreground tabular-nums">{reportData.correctCalls} / {reportData.totalCalls}</div>
+                    </div>
+                    <div className="rounded-md border border-border/40 bg-background/60 p-3">
+                      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Risky calls</div>
+                      <div className="mt-1 text-lg text-foreground tabular-nums">{reportData.riskyCalls}</div>
+                    </div>
+                  </div>
+
+                  {/* Player report — recommendations from this shift's mis-judgements. */}
+                  <div className="mb-4 rounded-md border border-primary/30 bg-background/60 p-4">
+                    <div className="mb-3 flex items-baseline justify-between gap-2">
+                      <div className="font-mono text-[10px] uppercase tracking-wider text-primary">Player report</div>
+                      <div className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">{reportData.totalCalls} call{reportData.totalCalls === 1 ? "" : "s"}</div>
+                    </div>
+                    {reportData.recommendations.length === 0 ? (
+                      <p className="text-sm leading-relaxed text-muted-foreground">
+                        Clean run. Your decisions stayed largely process-safe and well-sequenced under pressure. Keep prioritising verification before action and coordination over speed.
+                      </p>
+                    ) : (
+                      <div className="space-y-3">
+                        {reportData.recommendations.map((item) => (
+                          <div key={`${item.title}-${item.example.id}`} className="rounded-md border border-border/40 bg-background/50 p-3">
+                            <div className="flex flex-wrap items-center justify-between gap-2">
+                              <div className="font-mono text-xs text-foreground">{item.title}</div>
+                              <div className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">{item.count} issue{item.count === 1 ? "" : "s"}</div>
+                            </div>
+                            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{item.body}</p>
+                            <div className="mt-2 rounded-md border border-border/30 bg-background/70 p-2">
+                              <div className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">Example</div>
+                              <div className="mt-1 text-sm text-foreground">{item.example.incidentTitle} · {item.example.stepTitle}</div>
+                              <div className="mt-1 text-sm text-muted-foreground">Your call: <span className="text-foreground/90">„{item.example.chosenLabel}“</span></div>
+                              {item.example.bestAnswerLabel && (
+                                <div className="mt-1 text-sm text-emerald-300/90">Textbook: „{item.example.bestAnswerLabel}“</div>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
 
                   {/* Highscore name entry — only when this score qualifies for the Top 10
