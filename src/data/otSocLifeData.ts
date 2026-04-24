@@ -4,19 +4,26 @@
 // specifics — Purdue model layering (L0-L3.5), conduits/zones (IEC 62443),
 // and the SAIC priority order (Safety > Availability > Integrity > Confidentiality).
 //
-// All wrong answers are realistic IT-style mistakes a freshly-rotated analyst
-// would make under pressure (e.g. powering a PLC during a live batch, scanning
-// an OT segment with active probes, taking the historian offline mid-shift).
-// The "correct" call always respects safety-of-life and process continuity.
+// DESIGN PRINCIPLE FOR OPTION COPY (read this before editing!):
+//   • All three options per step are written with comparable length, register
+//     and apparent professionalism. The "wrong" picks are NOT cartoonish
+//     blunders — they are realistic IT-style reflexes a freshly-rotated
+//     analyst would defend in a debrief ("we contained immediately", "we
+//     followed AV process", "we shipped to vendor for forensics").
+//   • Most incorrect options are *less-optimal*, not catastrophic: they
+//     skip a coordination step, move too fast for OT cadence, or apply an
+//     IT pattern (wipe & reimage, blanket block, AV scan) where SAIC-aware
+//     judgement is required. Only one option per step is the "best" call.
+//   • Avoid absolutism in the option text ("never", "always", "the only").
+//     The rationale tier in `otSocLifeReasonOverrides.ts` does the
+//     teaching — the option itself reads as something a real analyst would
+//     actually type into a ticket.
 //
 // We deliberately re-use the IT room model (soc_floor / siem / forensics / noc /
 // server_room / war_room / ciso_office / kitchen) because the existing pixel-
 // art DollHouse renders only those rooms. The OT context comes from the i18n
 // labels (room.<id>.name swaps to "Control Room", "OT-SIEM", "Engineering WS"…)
 // and from the incident copy itself.
-//
-// Re-exports the shared types so OtSocLife.tsx can import everything from a
-// single module — keeps the variant boundary clean.
 
 import {
   Incident, IncidentTier, IncidentCategory, Lang, LocaleStr,
@@ -67,14 +74,14 @@ const PLC_WRITE: Incident = {
           "Examiner la capture SPAN passive de l'IDS OT et confronter la séquence WriteRegister à l'ingénierie",
         ) },
         { id: "active_scan", correct: false, delta: -5, label: L(
-          "Schnell aktiv per Nmap im OT-Segment scannen, um die Quell-IP zu finden",
-          "Quickly run an active Nmap scan inside the OT segment to find the source IP",
-          "Lancer un scan Nmap actif dans le segment OT pour trouver l'IP source",
+          "Per Nmap im OT-Segment aktiv scannen, um die Quell-IP und offene Ports der schreibenden Station zu identifizieren",
+          "Run an active Nmap scan inside the OT segment to identify the source IP and open ports of the writing station",
+          "Lancer un scan Nmap actif dans le segment OT pour identifier l'IP source et les ports ouverts de la station qui écrit",
         ) },
         { id: "ping_plc", correct: false, delta: -4, label: L(
-          "Die SPS direkt anpingen und einen Read-Coils-Probe schicken, um Reaktion zu prüfen",
-          "Ping the PLC directly and send a Read-Coils probe to check responsiveness",
-          "Pinger directement l'API et envoyer un Read-Coils pour vérifier la réactivité",
+          "Die SPS direkt anpingen und einen Read-Coils-Probe schicken, um Erreichbarkeit und Funktionscode zu verifizieren",
+          "Ping the PLC directly and send a Read-Coils probe to verify reachability and function-code response",
+          "Pinger directement l'API et envoyer un Read-Coils pour vérifier l'accessibilité et la réponse du code fonction",
         ) },
       ],
     },
@@ -92,15 +99,15 @@ const PLC_WRITE: Incident = {
           "Tighten the conduit rule between L3 and L2 — only the approved engineering workstation may write to the PLC, signed off with the shift lead",
           "Resserrer la règle de conduit entre L3 et L2 — seul le poste d'ingénierie agréé peut écrire vers l'API, validé avec le chef de quart",
         ) },
-        { id: "power_off_plc", correct: false, delta: -10, label: L(
-          "SPS sofort stromlos schalten, damit keine weiteren Schreibbefehle ankommen",
-          "Power off the PLC immediately so no more write commands can land",
-          "Couper l'alimentation de l'API pour qu'aucune écriture supplémentaire n'aboutisse",
+        { id: "power_off_plc", correct: false, delta: -8, label: L(
+          "Die SPS kontrolliert stromlos schalten, damit keine weiteren Schreibbefehle durchkommen, und parallel die Linienleitung informieren",
+          "Power down the PLC in a controlled manner so no further write commands can land, and inform the line lead in parallel",
+          "Couper l'alimentation de l'API de manière contrôlée pour qu'aucune écriture supplémentaire n'aboutisse, et informer le responsable de ligne en parallèle",
         ) },
         { id: "block_all_l2", correct: false, delta: -6, label: L(
-          "Den gesamten L2/L3-Übergang trennen, inklusive Historian und HMI",
-          "Sever the entire L2/L3 boundary, historian and HMI included",
-          "Couper l'ensemble du passage L2/L3, historian et HMI compris",
+          "Den gesamten L2/L3-Übergang trennen, inklusive Historian und HMI, bis das Engineering den Vorfall freigibt",
+          "Sever the entire L2/L3 boundary, historian and HMI included, until engineering clears the incident",
+          "Couper l'ensemble du passage L2/L3, historian et HMI compris, jusqu'à ce que l'ingénierie lève l'incident",
         ) },
       ],
     },
@@ -119,14 +126,14 @@ const PLC_WRITE: Incident = {
           "Informer d'abord le chef de quart, le responsable safety et l'ingénierie OT, évaluer ensemble le risque procédé et personnes, puis escalader vers l'IT",
         ) },
         { id: "it_only", correct: false, delta: -5, label: L(
-          "Nur den IT-CISO eskalieren — die Anlage soll erst informiert werden, wenn alles klar ist",
-          "Escalate only to the IT CISO — production gets briefed once everything is clear",
-          "Escalader uniquement au CISO IT — la production sera informée une fois que tout sera clair",
+          "Direkt zum IT-CISO eskalieren, parallel im SOC-Ticket dokumentieren und die Anlage erst informieren, wenn das Bild belastbar ist",
+          "Escalate straight to the IT CISO, document in parallel in the SOC ticket and brief production once the picture is solid",
+          "Escalader directement au CISO IT, documenter en parallèle dans le ticket SOC et informer la production une fois l'image consolidée",
         ) },
         { id: "press_now", correct: false, delta: -6, label: L(
-          "Frühzeitig Pressestelle und Vorstand vorwarnen, bevor das Engineering überhaupt einen Befund hat",
-          "Pre-warn comms and the board before engineering has any finding at all",
-          "Prévenir la presse et le board avant même que l'ingénierie n'ait un constat",
+          "Pressestelle und Vorstand frühzeitig vorwarnen, damit die Kommunikation steht, bevor irgendetwas nach außen dringt",
+          "Pre-warn comms and the board early so messaging is ready before anything leaks externally",
+          "Prévenir la presse et le board tôt afin que la communication soit prête avant toute fuite externe",
         ) },
       ],
     },
@@ -163,14 +170,14 @@ const EWS_COMPROMISE: Incident = {
           "Examiner la télémétrie OT et l'arbre de processus EDR, vérifier si le poste a déjà émis des écritures vers les API",
         ) },
         { id: "wipe_now", correct: false, delta: -5, label: L(
-          "Die EWS sofort plattmachen und neu installieren — dann ist die Bedrohung weg",
-          "Wipe the EWS immediately and reinstall — threat gone",
-          "Repaver le poste tout de suite et réinstaller — la menace est neutralisée",
+          "Die EWS sofort plattmachen und aus dem Golden Image neu installieren, um den Beaconing-Prozess sicher zu beenden",
+          "Wipe the EWS immediately and reinstall from the golden image to terminate the beaconing process for sure",
+          "Repaver le poste tout de suite et réinstaller depuis l'image golden pour stopper le beaconing à coup sûr",
         ) },
         { id: "ask_engineer", correct: false, delta: -4, label: L(
-          "Den zuständigen Engineer anrufen und fragen, ob er gerade etwas Ungewöhnliches getan hat",
-          "Call the responsible engineer and ask whether they just did something unusual",
-          "Appeler l'ingénieur en charge et lui demander s'il vient de faire quelque chose d'inhabituel",
+          "Den zuständigen Engineer per Telefon kontaktieren und fragen, ob er gerade ein Tool oder Update auf der Workstation laufen hat",
+          "Phone the responsible engineer and ask whether they are currently running a tool or update on the workstation",
+          "Appeler l'ingénieur en charge et lui demander s'il exécute actuellement un outil ou une mise à jour sur le poste",
         ) },
       ],
     },
@@ -188,15 +195,15 @@ const EWS_COMPROMISE: Incident = {
           "Block the EWS at the L2 conduit and disable engineering accounts at the OT firewall, in parallel align a backup EWS with the shift lead",
           "Bloquer le poste au niveau du conduit L2 et désactiver les comptes d'ingénierie sur le firewall OT, en parallèle valider un poste de secours avec le chef de quart",
         ) },
-        { id: "shutdown_plant", correct: false, delta: -10, label: L(
-          "Sicherheitshalber die gesamte Linie stoppen, bis die EWS sauber ist",
-          "Stop the entire production line as a precaution, until the EWS is clean",
-          "Arrêter toute la ligne par précaution, jusqu'à ce que le poste soit propre",
+        { id: "shutdown_plant", correct: false, delta: -8, label: L(
+          "Sicherheitshalber die gesamte Linie kontrolliert stoppen, bis die EWS sauber wiederhergestellt und freigegeben ist",
+          "Stop the entire production line in a controlled way as a precaution, until the EWS is cleanly restored and signed off",
+          "Arrêter toute la ligne de manière contrôlée par précaution, jusqu'à ce que le poste soit restauré proprement et validé",
         ) },
         { id: "ad_disable", correct: false, delta: -4, label: L(
-          "Nur das AD-Konto des Users deaktivieren und einen vollen Antiviren-Scan starten",
-          "Just disable the user's AD account and start a full antivirus scan",
-          "Désactiver uniquement le compte AD de l'utilisateur et lancer un scan antivirus complet",
+          "Das AD-Konto des Users deaktivieren und einen vollen Antiviren-Scan auf der EWS starten, parallel ein neues Ticket im SOC öffnen",
+          "Disable the user's AD account and start a full antivirus scan on the EWS, opening a new SOC ticket in parallel",
+          "Désactiver le compte AD de l'utilisateur et lancer un scan antivirus complet sur le poste, ouvrir un nouveau ticket SOC en parallèle",
         ) },
       ],
     },
@@ -215,14 +222,14 @@ const EWS_COMPROMISE: Incident = {
           "Capturer d'abord la mémoire volatile et l'état réseau, puis image disque hors ligne, documenter la chaîne de garde avec numéro de série et chef de quart",
         ) },
         { id: "snapshot_only", correct: false, delta: -4, label: L(
-          "Einen Hypervisor-Snapshot ziehen — die EWS läuft auf einer VM",
-          "Just take a hypervisor snapshot — the EWS runs in a VM",
-          "Faire seulement un snapshot d'hyperviseur — le poste tourne sur une VM",
+          "Einen Hypervisor-Snapshot ziehen und das Ticket damit schließen — die EWS läuft auf einer VM, das Image reicht für die Forensik",
+          "Take a hypervisor snapshot and close the ticket with it — the EWS runs in a VM, the image is sufficient for forensics",
+          "Faire un snapshot d'hyperviseur et clôturer le ticket avec — le poste tourne sur VM, l'image suffit pour la forensique",
         ) },
         { id: "send_back", correct: false, delta: -7, label: L(
-          "Das Gerät direkt an den Hersteller schicken, der hat bessere Forensik-Tools",
-          "Ship the device straight to the vendor — they have better forensic tools",
-          "Renvoyer la machine au fournisseur — il a de meilleurs outils forensiques",
+          "Das Gerät direkt an den Hersteller schicken — der hat spezialisierte Forensik-Tools und kann den Vorfall im RMA-Prozess bearbeiten",
+          "Ship the device straight to the vendor — they have specialised forensic tools and can handle the case under RMA",
+          "Renvoyer la machine au fournisseur — il a des outils forensiques spécialisés et peut traiter le cas en RMA",
         ) },
       ],
     },
@@ -258,15 +265,15 @@ const SIS_BYPASS: Incident = {
           "Loop in the safety officer immediately, physically engage the SIS write-lock, identify the source of the attempt in engineering logs",
           "Impliquer immédiatement le responsable safety, engager physiquement le verrou d'écriture SIS, identifier la source dans les logs d'ingénierie",
         ) },
-        { id: "wait_log", correct: false, delta: -8, label: L(
-          "Erst die Korrelation mit anderen Alerts abwarten — vielleicht Fehlalarm der HMI",
-          "Wait for correlation with other alerts first — could be an HMI false positive",
-          "Attendre la corrélation avec d'autres alertes — peut-être faux positif du HMI",
+        { id: "wait_log", correct: false, delta: -7, label: L(
+          "Erst die Korrelation mit anderen SIEM-Alerts abwarten, um einen möglichen Fehlalarm der HMI auszuschließen, bevor das Werk involviert wird",
+          "Wait for correlation with other SIEM alerts first to rule out an HMI false positive before involving the plant",
+          "Attendre la corrélation avec d'autres alertes SIEM pour écarter un faux positif HMI avant d'impliquer l'usine",
         ) },
         { id: "ask_vendor", correct: false, delta: -5, label: L(
-          "Nur den SIS-Hersteller per E-Mail informieren und auf Rückmeldung warten",
-          "Just email the SIS vendor and wait for a response",
-          "Envoyer un mail au fournisseur SIS et attendre la réponse",
+          "Den SIS-Hersteller per E-Mail informieren und auf eine offizielle Stellungnahme warten, bevor lokale Maßnahmen ergriffen werden",
+          "Email the SIS vendor and wait for an official statement before taking any local action",
+          "Envoyer un mail au fournisseur SIS et attendre une prise de position officielle avant toute action locale",
         ) },
       ],
     },
@@ -280,15 +287,15 @@ const SIS_BYPASS: Incident = {
           "Hard-segregate the SIS zone from the BPCS conduit, allow engineering writes only via the physical key switch",
           "Séparer strictement la zone SIS du conduit BPCS, n'autoriser les écritures d'ingénierie que via la clé physique",
         ) },
-        { id: "stop_process", correct: false, delta: -7, label: L(
-          "Den Brenner-Prozess sofort herunterfahren, das ist die sicherste Option",
-          "Shut down the burner process immediately — that's the safest option",
-          "Arrêter immédiatement le procédé brûleur — c'est l'option la plus sûre",
+        { id: "stop_process", correct: false, delta: -6, label: L(
+          "Den Brenner-Prozess vorsorglich nach Standard-Shutdown-Procedure herunterfahren, bis die SIS-Integrität extern bestätigt ist",
+          "Shut down the burner process per the standard shutdown procedure as a precaution, until SIS integrity is externally confirmed",
+          "Arrêter le procédé brûleur selon la procédure d'arrêt standard par précaution, jusqu'à confirmation externe de l'intégrité SIS",
         ) },
         { id: "block_engineering", correct: false, delta: -5, label: L(
-          "Alle Engineering-Konten unternehmensweit deaktivieren",
-          "Disable every engineering account company-wide",
-          "Désactiver tous les comptes d'ingénierie à l'échelle de l'entreprise",
+          "Alle Engineering-Konten unternehmensweit deaktivieren, bis die Quelle des Schreibversuchs eindeutig identifiziert ist",
+          "Disable every engineering account company-wide until the source of the write attempt has been identified beyond doubt",
+          "Désactiver tous les comptes d'ingénierie dans l'entreprise jusqu'à identification certaine de l'origine de la tentative",
         ) },
       ],
     },
@@ -303,14 +310,14 @@ const SIS_BYPASS: Incident = {
           "Informer d'abord la direction site, le comité safety et l'autorité (Seveso/NIS-2) selon la matrice d'escalade, mettre à jour le registre d'incidents",
         ) },
         { id: "internal_only", correct: false, delta: -6, label: L(
-          "Strikt intern halten — Aufsichtsbehörde erst informieren, wenn nachweislich etwas passiert ist",
-          "Keep it strictly internal — only inform the regulator if something demonstrably happened",
-          "Garder en interne — n'informer l'autorité que si quelque chose s'est réellement passé",
+          "Strikt intern halten und die Aufsichtsbehörde erst informieren, wenn ein nachweisbarer Schaden oder Datenabfluss vorliegt",
+          "Keep it strictly internal and only inform the regulator once there is demonstrable damage or data exfiltration",
+          "Garder strictement en interne et n'informer l'autorité qu'en cas de dommage avéré ou d'exfiltration de données",
         ) },
         { id: "vendor_first", correct: false, delta: -4, label: L(
-          "Nur den SIS-Hersteller einbinden, der soll das mit der Behörde klären",
-          "Only loop the SIS vendor — let them deal with the regulator",
-          "Impliquer uniquement le fournisseur SIS — qu'il s'occupe de l'autorité",
+          "Zunächst nur den SIS-Hersteller einbinden und die Klärung mit der Aufsichtsbehörde im Rahmen des Vendor-Supportvertrags abwickeln",
+          "Loop only the SIS vendor first and run the regulator clarification through the vendor support contract",
+          "Impliquer d'abord uniquement le fournisseur SIS et traiter la clarification avec l'autorité dans le cadre du contrat de support",
         ) },
       ],
     },
@@ -347,14 +354,14 @@ const VENDOR_REMOTE: Incident = {
           "Rappel out-of-band sur la hotline du fournisseur listée au contrat, en parallèle examiner l'enregistrement de session du jump host",
         ) },
         { id: "trust_session", correct: false, delta: -5, label: L(
-          "Da MFA bestanden wurde, als legitim einstufen und das Ticket schließen",
-          "MFA passed — classify as legitimate and close the ticket",
-          "MFA validé — classer comme légitime et clôturer le ticket",
+          "Da MFA und Konto-Validierung sauber bestanden wurden, die Sitzung als legitimen Notfall-Zugriff einstufen und das Ticket schließen",
+          "Since MFA and account validation passed cleanly, classify the session as a legitimate emergency access and close the ticket",
+          "Comme la MFA et la validation du compte sont passées proprement, classer la session comme accès d'urgence légitime et clôturer le ticket",
         ) },
         { id: "kill_now", correct: false, delta: -4, label: L(
-          "Die RDP-Sitzung sofort hart abreißen und alle Vendor-Konten sperren",
-          "Hard-kill the RDP session and lock every vendor account immediately",
-          "Couper sèchement la session RDP et bloquer tous les comptes fournisseur",
+          "Die RDP-Sitzung sofort beenden und alle Vendor-Konten am Jump-Host vorsorglich sperren, bis die Ursache geklärt ist",
+          "Terminate the RDP session immediately and lock every vendor account at the jump host as a precaution, until the cause is clarified",
+          "Couper la session RDP immédiatement et verrouiller tous les comptes fournisseur sur le jump host par précaution, jusqu'à clarification",
         ) },
       ],
     },
@@ -369,14 +376,14 @@ const VENDOR_REMOTE: Incident = {
           "Passer la session en mode supervisé, l'ingénierie OT regarde en direct, les droits d'écriture sont libérés un par un",
         ) },
         { id: "block_vendor_lan", correct: false, delta: -5, label: L(
-          "Den Vendor-VLAN komplett vom OT-Netz trennen, Wartungstickets nachträglich klären",
-          "Sever the vendor VLAN entirely from the OT network, sort out maintenance tickets later",
-          "Couper le VLAN fournisseur du réseau OT, traiter les tickets de maintenance ensuite",
+          "Den Vendor-VLAN komplett vom OT-Netz trennen und offene Wartungstickets im Anschluss über den Service-Manager nachträglich klären",
+          "Sever the vendor VLAN entirely from the OT network and sort out open maintenance tickets afterwards through the service manager",
+          "Couper le VLAN fournisseur du réseau OT et traiter ensuite les tickets de maintenance ouverts via le service manager",
         ) },
         { id: "snmp_trap", correct: false, delta: -4, label: L(
-          "Nur einen SNMP-Trap an den Vendor schicken und auf Rückmeldung warten",
-          "Just send an SNMP trap to the vendor and wait for a response",
-          "Envoyer juste un trap SNMP au fournisseur et attendre",
+          "Einen SNMP-Trap und eine E-Mail-Benachrichtigung an den Vendor schicken und auf eine offizielle Rückmeldung warten",
+          "Send an SNMP trap and an email notification to the vendor and wait for an official response",
+          "Envoyer un trap SNMP et une notification e-mail au fournisseur et attendre une réponse officielle",
         ) },
       ],
     },
@@ -391,14 +398,14 @@ const VENDOR_REMOTE: Incident = {
           "Restreindre l'accès fournisseur à des fenêtres nommées, comptes JIT basés sur ticket, enregistrement de session obligatoire",
         ) },
         { id: "vpn_only", correct: false, delta: -3, label: L(
-          "Nur 'noch ein zusätzliches VPN' verlangen — der Rest bleibt wie er ist",
-          "Just demand 'one more VPN layer' — leave the rest as-is",
-          "Exiger 'juste un VPN de plus' — laisser le reste tel quel",
+          "Eine zusätzliche VPN-Schicht vor dem Jump-Host anfordern und die bestehenden Vendor-Prozesse ansonsten unverändert lassen",
+          "Demand an additional VPN layer in front of the jump host and otherwise leave the existing vendor processes unchanged",
+          "Exiger une couche VPN supplémentaire devant le jump host et laisser le reste des processus fournisseur inchangé",
         ) },
         { id: "trust_contract", correct: false, delta: -4, label: L(
-          "Sich auf die Klauseln im Vendor-Vertrag verlassen, technisch nichts ändern",
-          "Rely on the vendor contract clauses, change nothing technically",
-          "Se reposer sur les clauses du contrat, ne rien changer techniquement",
+          "Sich auf die Vertraulichkeits- und Sicherheitsklauseln im Vendor-Vertrag verlassen und technisch keine zusätzliche Maßnahme einführen",
+          "Rely on the confidentiality and security clauses in the vendor contract and introduce no additional technical measure",
+          "Se reposer sur les clauses de confidentialité et sécurité du contrat fournisseur et n'introduire aucune mesure technique supplémentaire",
         ) },
       ],
     },
@@ -435,14 +442,14 @@ const ICS_RANSOMWARE: Incident = {
           "Vérifier la télémétrie EDR et contrôler si le ransomware a déjà sondé des chemins vers L3 ou L2",
         ) },
         { id: "shutdown_dmz", correct: false, delta: -4, label: L(
-          "Den IDMZ-Server sauber herunterfahren, dann ein Image ziehen",
-          "Cleanly shut down the IDMZ server, then take an image",
-          "Éteindre proprement le serveur IDMZ, puis prendre une image",
+          "Den IDMZ-Server kontrolliert herunterfahren, anschließend ein Forensik-Image ziehen und das System aus dem Backup neu aufsetzen",
+          "Cleanly shut down the IDMZ server, then take a forensic image and rebuild the system from backup",
+          "Éteindre proprement le serveur IDMZ, prendre ensuite une image forensique et reconstruire le système à partir du backup",
         ) },
         { id: "wait_av", correct: false, delta: -5, label: L(
-          "Warten, bis der Antivirus die Familie eindeutig identifiziert hat",
-          "Wait until antivirus has clearly identified the malware family",
-          "Attendre que l'antivirus ait clairement identifié la famille",
+          "Warten, bis die Antiviren-Signaturen die Ransomware-Familie eindeutig identifiziert haben, bevor weitere Maßnahmen ergriffen werden",
+          "Wait until antivirus signatures have clearly identified the ransomware family before taking further action",
+          "Attendre que les signatures antivirus aient clairement identifié la famille avant toute action supplémentaire",
         ) },
       ],
     },
@@ -460,15 +467,15 @@ const ICS_RANSOMWARE: Incident = {
           "Switch the L3.5/L3 conduit to deny-by-default, allow only documented OT data flows explicitly, with the shift lead in the loop",
           "Passer le conduit L3.5/L3 en deny-by-default, n'autoriser explicitement que les flux OT documentés, chef de quart impliqué",
         ) },
-        { id: "kill_all_ot", correct: false, delta: -8, label: L(
-          "Sofort alle Verbindungen zwischen IT und OT trennen, einschließlich Historian und Visualisierung",
-          "Immediately sever every link between IT and OT, including historian and HMI",
-          "Couper immédiatement toutes les liaisons IT-OT, y compris historian et HMI",
+        { id: "kill_all_ot", correct: false, delta: -7, label: L(
+          "Alle Verbindungen zwischen IT und OT pauschal trennen, einschließlich Historian und HMI-Visualisierung, bis das Bild klar ist",
+          "Severe every link between IT and OT in one sweep, including historian and HMI visualisation, until the picture is clear",
+          "Couper en bloc toutes les liaisons IT-OT, y compris historian et visualisation HMI, jusqu'à ce que l'image soit claire",
         ) },
-        { id: "leave_running", correct: false, delta: -5, label: L(
-          "Den Server unter Beobachtung weiterlaufen lassen, in der Hoffnung mehr IOCs zu sammeln",
-          "Leave the server running under observation, hoping to gather more IOCs",
-          "Laisser le serveur tourner sous observation pour récolter plus d'IOCs",
+        { id: "leave_running", correct: false, delta: -6, label: L(
+          "Den Server unter Beobachtung weiterlaufen lassen, um zusätzliche IOCs und Lateral-Movement-Muster für die Analyse zu sammeln",
+          "Leave the server running under observation to collect additional IOCs and lateral-movement patterns for analysis",
+          "Laisser le serveur tourner sous observation pour récolter davantage d'IOCs et de schémas de mouvement latéral",
         ) },
       ],
     },
@@ -483,14 +490,14 @@ const ICS_RANSOMWARE: Incident = {
           "Vérifier l'intégrité du backup hors ligne, restaurer proprement, puis reconstruire le workflow de patches avec signatures et allowlist",
         ) },
         { id: "latest_online", correct: false, delta: -5, label: L(
-          "Einfach das jüngste Online-Backup zurückspielen, ohne Integritätscheck",
-          "Just restore the most recent online backup, no integrity check",
-          "Restaurer simplement le backup en ligne le plus récent, sans vérification",
+          "Das jüngste Online-Backup direkt zurückspielen, um den Service so schnell wie möglich wieder verfügbar zu machen",
+          "Restore the most recent online backup directly to bring the service back online as fast as possible",
+          "Restaurer directement le backup en ligne le plus récent pour rétablir le service au plus vite",
         ) },
-        { id: "rebuild_blind", correct: false, delta: -4, label: L(
-          "Server neu aufsetzen ohne Ursachen-Analyse, der Vendor liefert ja morgen einen neuen",
-          "Rebuild the server without root cause analysis — the vendor ships a new one tomorrow",
-          "Reconstruire sans analyse de cause — le fournisseur en livre un nouveau demain",
+        { id: "rebuild_blind", correct: false, delta: -5, label: L(
+          "Den Server vom Vendor-Image neu aufsetzen und die Ursachen-Analyse parallel zur Wiederinbetriebnahme laufen lassen",
+          "Rebuild the server from the vendor image and run the root-cause analysis in parallel to bringing the system back online",
+          "Reconstruire le serveur depuis l'image fournisseur et mener l'analyse de cause en parallèle de la remise en service",
         ) },
       ],
     },
@@ -527,14 +534,14 @@ const HISTORIAN_TAMPER: Incident = {
           "Comparer les valeurs avec les répliques edge et les rapports de quart papier, préserver l'audit log et les timestamps du système de fichiers",
         ) },
         { id: "ask_operator", correct: false, delta: -4, label: L(
-          "Den Anlagenfahrer fragen, ob er sich an die Werte erinnert",
-          "Ask the operator if they remember the values",
-          "Demander à l'opérateur s'il se souvient des valeurs",
+          "Den Anlagenfahrer der betroffenen Schicht befragen, um aus seinem Gedächtnis eine Vergleichsbasis für die Werte zu rekonstruieren",
+          "Interview the operator of the affected shift to reconstruct a comparison baseline for the values from memory",
+          "Interroger l'opérateur de la garde concernée pour reconstruire une base de comparaison des valeurs à partir de sa mémoire",
         ) },
-        { id: "delete_diff", correct: false, delta: -8, label: L(
-          "Die abweichenden Datensätze direkt löschen und neu aus den SPS importieren",
-          "Just delete the deviating records and re-import from the PLCs",
-          "Supprimer directement les enregistrements divergents et ré-importer depuis les API",
+        { id: "delete_diff", correct: false, delta: -7, label: L(
+          "Die abweichenden Datensätze direkt löschen und den Historian sauber aus den SPS-Buffern neu importieren, um den Konflikt zu beheben",
+          "Delete the deviating records directly and cleanly re-import the historian from the PLC buffers to resolve the conflict",
+          "Supprimer directement les enregistrements divergents et ré-importer proprement l'historian depuis les buffers API pour lever le conflit",
         ) },
       ],
     },
@@ -549,14 +556,14 @@ const HISTORIAN_TAMPER: Incident = {
           "Snapshot read-only immédiat de l'historian, documenter la chaîne de garde avec timestamps et chef de quart, geler les répliques",
         ) },
         { id: "live_query", correct: false, delta: -4, label: L(
-          "Live im Produktiv-Historian queryen, um die Abweichungen zu lokalisieren",
-          "Run live queries against the production historian to locate the deviations",
-          "Faire des requêtes live sur l'historian de production pour localiser les écarts",
+          "Live-Queries im Produktiv-Historian fahren, um die abweichenden Datensätze zu lokalisieren, bevor irgendetwas eingefroren wird",
+          "Run live queries against the production historian to locate the deviating records before anything is frozen",
+          "Faire des requêtes live sur l'historian de production pour localiser les enregistrements divergents avant tout gel",
         ) },
         { id: "wait_qa", correct: false, delta: -5, label: L(
-          "Warten, bis die Qualitätsabteilung morgen ihre eigene Analyse fährt",
-          "Wait until QA runs their own analysis tomorrow",
-          "Attendre que la qualité fasse sa propre analyse demain",
+          "Warten, bis die Qualitätsabteilung am nächsten Werktag ihre eigene formale Analyse fährt, und bis dahin keine zusätzlichen Daten ziehen",
+          "Wait until QA runs their own formal analysis on the next business day, and pull no additional data until then",
+          "Attendre que la qualité fasse sa propre analyse formelle le prochain jour ouvré, sans extraire de données supplémentaires d'ici là",
         ) },
       ],
     },
@@ -575,14 +582,14 @@ const HISTORIAN_TAMPER: Incident = {
           "Impliquer formellement la qualité, la conformité, la direction et éventuellement l'autorité, bloquer les charges concernées jusqu'à clarification",
         ) },
         { id: "it_only", correct: false, delta: -6, label: L(
-          "Nur den IT-CISO informieren, Qualität wird das schon selber merken",
-          "Only inform the IT CISO — QA will notice on their own",
-          "N'informer que le CISO IT — la qualité s'en apercevra toute seule",
+          "Zunächst nur den IT-CISO informieren und auf den nächsten regulären QA-Review warten, der die Abweichung ohnehin erkennen würde",
+          "Inform only the IT CISO first and wait for the next regular QA review, which would detect the deviation anyway",
+          "N'informer d'abord que le CISO IT et attendre la prochaine revue qualité, qui détecterait de toute façon l'écart",
         ) },
         { id: "release_anyway", correct: false, delta: -8, label: L(
-          "Die Chargen vorerst freigeben, parallel die Untersuchung laufen lassen",
-          "Release the batches anyway and let the investigation run in parallel",
-          "Libérer les charges malgré tout et laisser l'enquête tourner en parallèle",
+          "Die betroffenen Chargen vorerst freigeben und die Untersuchung parallel laufen lassen, um Lieferverpflichtungen einzuhalten",
+          "Release the affected batches for now and run the investigation in parallel to keep delivery commitments",
+          "Libérer les charges concernées dans un premier temps et mener l'enquête en parallèle pour tenir les engagements de livraison",
         ) },
       ],
     },
@@ -618,15 +625,15 @@ const SCAN_STORM: Incident = {
           "Have the scan aborted immediately, call the shift lead and jointly check plant status",
           "Faire interrompre le scan tout de suite, appeler le chef de quart et vérifier l'état de l'usine ensemble",
         ) },
-        { id: "let_finish", correct: false, delta: -7, label: L(
-          "Den Scan zu Ende laufen lassen — wir wollen den vollständigen Asset-Bericht",
-          "Let the scan finish — we want the complete asset report",
-          "Laisser le scan finir — on veut le rapport d'inventaire complet",
+        { id: "let_finish", correct: false, delta: -6, label: L(
+          "Den Scan kontrolliert zu Ende laufen lassen, um einen vollständigen Asset-Bericht zu erhalten und die Doppelarbeit zu vermeiden",
+          "Let the scan finish in a controlled manner to obtain a complete asset report and avoid having to repeat the work",
+          "Laisser le scan se terminer de façon contrôlée pour obtenir un rapport d'inventaire complet et éviter de refaire le travail",
         ) },
         { id: "restart_plc", correct: false, delta: -5, label: L(
-          "Die SPS in Fault einfach neu starten, das löst sich von selbst",
-          "Just restart the PLCs in fault — that resolves itself",
-          "Redémarrer les API en défaut — ça se résout tout seul",
+          "Die SPS in Fault per Standardprozedur neu starten, um die Anlage zügig wieder in den Normalbetrieb zu bringen",
+          "Restart the PLCs in fault per standard procedure to swiftly bring the plant back to normal operation",
+          "Redémarrer les API en défaut selon la procédure standard pour ramener rapidement l'usine en fonctionnement normal",
         ) },
       ],
     },
@@ -640,15 +647,15 @@ const SCAN_STORM: Incident = {
           "Forbid active scans in OT, deploy and document a passive discovery sensor (e.g. via SPAN)",
           "Interdire les scans actifs en OT, déployer et documenter un capteur de découverte passif (via SPAN)",
         ) },
-        { id: "ban_intern", correct: false, delta: -3, label: L(
-          "Den Praktikanten formell entlassen — Lehre für alle anderen",
-          "Formally dismiss the intern — a lesson for everyone else",
-          "Licencier formellement le stagiaire — leçon pour les autres",
+        { id: "ban_intern", correct: false, delta: -4, label: L(
+          "Den Praktikanten formell entlassen und den Vorfall als personelles Versagen im HR-System dokumentieren",
+          "Formally dismiss the intern and document the incident as a personnel failure in the HR system",
+          "Licencier formellement le stagiaire et documenter l'incident comme défaillance personnelle dans le système RH",
         ) },
         { id: "no_change", correct: false, delta: -5, label: L(
-          "Nichts ändern — beim nächsten Mal wird er aufpassen",
-          "Change nothing — next time they'll be careful",
-          "Ne rien changer — la prochaine fois il fera attention",
+          "Keine technischen Änderungen einführen und stattdessen das Engineering um eine zusätzliche Awareness-Session bitten",
+          "Introduce no technical changes and instead ask engineering to run an additional awareness session",
+          "N'introduire aucun changement technique et demander plutôt à l'ingénierie une session de sensibilisation supplémentaire",
         ) },
       ],
     },
@@ -662,15 +669,15 @@ const SCAN_STORM: Incident = {
           "Lessons-learned to OT engineering and the IT SOC, entry in the incident register with action and target date",
           "Lessons-learned à l'ingénierie OT et au SOC IT, entrée au registre avec action et échéance",
         ) },
-        { id: "hush", correct: false, delta: -3, label: L(
-          "Intern still halten — war ja kein 'echter' Vorfall",
-          "Keep it internal and quiet — wasn't a 'real' incident",
-          "Garder ça discret en interne — pas un 'vrai' incident",
+        { id: "hush", correct: false, delta: -4, label: L(
+          "Den Vorfall intern still halten, um den Praktikanten zu schützen, da kein produktionsrelevanter Schaden entstanden ist",
+          "Keep the incident internal and quiet to protect the intern, as no production-relevant damage occurred",
+          "Garder l'incident discret en interne pour protéger le stagiaire, aucun dommage pertinent pour la production n'étant survenu",
         ) },
-        { id: "blame_only", correct: false, delta: -2, label: L(
-          "Den Praktikanten in der All-Hands-Mail namentlich nennen",
-          "Name the intern in the all-hands email",
-          "Citer le stagiaire dans le mail à toute l'entreprise",
+        { id: "blame_only", correct: false, delta: -3, label: L(
+          "Den Praktikanten in der All-Hands-Mail namentlich nennen, damit alle anderen aus dem Vorfall lernen können",
+          "Name the intern in the all-hands email so everyone else can learn from the incident",
+          "Citer le stagiaire dans le mail à toute l'entreprise pour que les autres apprennent de l'incident",
         ) },
       ],
     },
@@ -707,14 +714,14 @@ const L2_WORM: Incident = {
           "Construire un graphe de mouvement latéral à partir de l'IDS OT et de l'EDR, identifier les cellules touchées, impliquer l'opérateur par cellule",
         ) },
         { id: "endpoint_only", correct: false, delta: -5, label: L(
-          "Nur die ursprüngliche EWS tief analysieren, der Rest klärt sich",
-          "Only deep-dive the origin EWS — the rest will sort itself out",
-          "Analyser uniquement le poste d'origine — le reste se résoudra",
+          "Zunächst nur die ursprüngliche EWS tief analysieren und davon ausgehen, dass die Ausbreitung von dort aus rekonstruierbar ist",
+          "Deep-dive the origin EWS first and assume the spread can be reconstructed from there",
+          "Analyser d'abord en profondeur le poste d'origine et partir du principe que la propagation peut être reconstituée à partir de là",
         ) },
         { id: "ask_intern", correct: false, delta: -4, label: L(
-          "Im Engineering nachfragen, ob jemand von einem USB-Stick weiß",
-          "Ask around in engineering if anyone knows about a USB stick",
-          "Demander à l'ingénierie si quelqu'un connaît une clé USB",
+          "Im Engineering und beim Werkschutz nachfragen, ob jemandem ein USB-Stick aus den letzten Tagen aufgefallen ist",
+          "Ask around in engineering and site security whether anyone noticed a USB stick over the last few days",
+          "Demander à l'ingénierie et à la sécurité du site si quelqu'un a remarqué une clé USB ces derniers jours",
         ) },
       ],
     },
@@ -729,14 +736,14 @@ const L2_WORM: Incident = {
           "Mettre en quarantaine cellule par cellule sur le switch OT, désactiver les comptes EWS cellule par cellule, prioriser avec le chef de quart",
         ) },
         { id: "kill_all_smb", correct: false, delta: -6, label: L(
-          "Den gesamten SMB-Verkehr im OT pauschal blocken, auch zwischen Engineering und Historian",
-          "Blanket-block all SMB traffic in OT, including between engineering and historian",
-          "Bloquer en bloc tout le SMB en OT, y compris entre ingénierie et historian",
+          "Den gesamten SMB-Verkehr im OT pauschal blocken, einschließlich der Verbindung zwischen Engineering und Historian",
+          "Blanket-block all SMB traffic in OT, including the connection between engineering and the historian",
+          "Bloquer en bloc tout le SMB en OT, y compris la liaison entre ingénierie et historian",
         ) },
-        { id: "shutdown_plant", correct: false, delta: -8, label: L(
-          "Vorsorglich die gesamte Linie stoppen, bis alle EWS sauber sind",
-          "Stop the whole line as a precaution, until every EWS is clean",
-          "Arrêter toute la ligne par précaution, jusqu'à ce que chaque poste soit propre",
+        { id: "shutdown_plant", correct: false, delta: -7, label: L(
+          "Vorsorglich die gesamte Linie kontrolliert stoppen, bis jede EWS sauber überprüft und wieder freigegeben ist",
+          "Stop the whole line in a controlled way as a precaution, until every EWS has been cleanly checked and re-cleared",
+          "Arrêter toute la ligne de manière contrôlée par précaution, jusqu'à ce que chaque poste soit vérifié proprement et libéré",
         ) },
       ],
     },
@@ -751,14 +758,14 @@ const L2_WORM: Incident = {
           "Réinstaller les postes d'ingénierie depuis des golden images, désactiver durement les ports USB via policy, imposer des outils d'ingénierie signés",
         ) },
         { id: "av_scan_only", correct: false, delta: -5, label: L(
-          "Auf jeder EWS einen vollen Antiviren-Scan laufen lassen und Ergebnis vertrauen",
-          "Run a full antivirus scan on every EWS and trust the result",
-          "Lancer un scan antivirus complet sur chaque poste et faire confiance au résultat",
+          "Auf jeder EWS einen vollen Antiviren-Scan laufen lassen und das Ergebnis als Freigabekriterium für die Wiederinbetriebnahme nutzen",
+          "Run a full antivirus scan on every EWS and use the result as the release criterion for bringing the systems back online",
+          "Lancer un scan antivirus complet sur chaque poste et utiliser le résultat comme critère de validation pour la remise en service",
         ) },
         { id: "reflash_plc", correct: false, delta: -6, label: L(
-          "Vorsorglich alle SPS mit dem letzten Firmware-Image neu flashen",
-          "As a precaution, re-flash every PLC with the latest firmware image",
-          "Par précaution, re-flasher chaque API avec le dernier firmware",
+          "Vorsorglich alle SPS mit dem letzten signierten Firmware-Image neu flashen, um eine mögliche Persistenz im Step7-Code auszuschließen",
+          "As a precaution, re-flash every PLC with the latest signed firmware image to rule out possible persistence in the Step7 code",
+          "Par précaution, re-flasher chaque API avec le dernier firmware signé pour écarter une éventuelle persistance dans le code Step7",
         ) },
       ],
     },
@@ -795,14 +802,14 @@ const HMI_TAKEOVER: Incident = {
           "Vérifier l'accessibilité depuis un réseau de test isolé, corréler l'audit HMI avec les logs du firewall edge pour les logins externes",
         ) },
         { id: "live_login", correct: false, delta: -5, label: L(
-          "Sich kurz live mit 'admin/admin' einloggen, um die Lücke selbst zu bestätigen",
-          "Briefly log in as 'admin/admin' yourself to confirm the hole",
-          "Se connecter brièvement en 'admin/admin' soi-même pour confirmer la faille",
+          "Sich kurz live mit 'admin/admin' am HMI einloggen, um die Lücke selbst zu bestätigen, bevor der Vendor informiert wird",
+          "Briefly log in to the HMI as 'admin/admin' yourself to confirm the hole before the vendor is informed",
+          "Se connecter brièvement en 'admin/admin' sur le HMI pour confirmer la faille avant d'informer le fournisseur",
         ) },
-        { id: "trust_intel", correct: false, delta: -3, label: L(
-          "Dem Feed direkt vertrauen und ohne eigene Prüfung sofort handeln",
-          "Trust the feed directly and act without verifying yourself",
-          "Faire confiance au flux et agir sans vérification interne",
+        { id: "trust_intel", correct: false, delta: -4, label: L(
+          "Dem Threat-Intel-Feed direkt vertrauen und ohne eigene technische Verifikation sofort die Eindämmungsmaßnahmen einleiten",
+          "Trust the threat-intel feed directly and start the containment measures immediately without own technical verification",
+          "Faire confiance au flux threat intel et lancer immédiatement les mesures de confinement sans vérification technique propre",
         ) },
       ],
     },
@@ -817,14 +824,14 @@ const HMI_TAKEOVER: Incident = {
           "Restreindre le HMI au edge à une allowlist, désactiver le compte par défaut et créer des comptes individuels avec MFA pour les opérateurs",
         ) },
         { id: "shutdown_hmi", correct: false, delta: -6, label: L(
-          "Das HMI sofort komplett vom Netz nehmen, die Schicht muss kurz blind fahren",
-          "Take the HMI fully offline immediately — the shift will run blind for a bit",
-          "Couper complètement le HMI — la garde tournera à l'aveugle un moment",
+          "Das HMI sofort komplett vom Netz nehmen und die Schicht in Abstimmung mit dem Anlagenfahrer kurz blind weiterfahren lassen",
+          "Take the HMI fully offline immediately and let the shift run blind for a short while in coordination with the operator",
+          "Couper complètement le HMI immédiatement et laisser la garde tourner brièvement à l'aveugle en accord avec l'opérateur",
         ) },
-        { id: "rename_user", correct: false, delta: -4, label: L(
-          "Nur den Benutzer 'admin' in 'admin1' umbenennen, Passwort behalten",
-          "Just rename 'admin' to 'admin1' and keep the password",
-          "Renommer juste 'admin' en 'admin1' et garder le mot de passe",
+        { id: "rename_user", correct: false, delta: -5, label: L(
+          "Nur den Benutzer 'admin' in 'admin1' umbenennen und das vorhandene Passwort beibehalten, um die Skripte nicht zu brechen",
+          "Just rename user 'admin' to 'admin1' and keep the existing password so as not to break the scripts",
+          "Renommer juste l'utilisateur 'admin' en 'admin1' et conserver le mot de passe existant pour ne pas casser les scripts",
         ) },
       ],
     },
@@ -838,15 +845,15 @@ const HMI_TAKEOVER: Incident = {
           "Scan the asset inventory for 'externally reachable + default creds', report to plant management and CISO, action plan with owner and target date",
           "Inventorier les actifs 'exposés externe + creds par défaut', signaler à la direction site et au CISO, plan d'action avec responsable et échéance",
         ) },
-        { id: "blame_vendor", correct: false, delta: -3, label: L(
-          "Nur den HMI-Hersteller verantwortlich machen, intern keine Maßnahme",
-          "Just blame the HMI vendor — no internal action",
-          "Ne mettre en cause que le fournisseur HMI — aucune action interne",
+        { id: "blame_vendor", correct: false, delta: -4, label: L(
+          "Den HMI-Hersteller im Ticket als Hauptverantwortlichen führen und intern auf den nächsten regulären Patch-Zyklus warten",
+          "Record the HMI vendor as the main responsible party in the ticket and internally wait for the next regular patch cycle",
+          "Désigner le fournisseur HMI comme principal responsable dans le ticket et attendre en interne le prochain cycle de patch",
         ) },
         { id: "no_report", correct: false, delta: -6, label: L(
-          "Nichts melden — solange keiner draußen drauf war, ist es kein Vorfall",
-          "Don't report — as long as nobody outside used it, it's not an incident",
-          "Ne rien signaler — tant que personne d'extérieur n'a utilisé, ce n'est pas un incident",
+          "Auf eine offizielle Meldung verzichten, solange keine externe Anmeldung im Audit-Log nachweisbar ist und der Vorfall intern bleibt",
+          "Skip the formal report as long as no external login is provable in the audit log and the incident remains internal",
+          "Renoncer au signalement officiel tant qu'aucun login externe n'est prouvable dans l'audit log et que l'incident reste interne",
         ) },
       ],
     },
@@ -882,15 +889,15 @@ const UPS_TAMPER: Incident = {
           "Site security secures the location physically, OT engineering walks the DR checklist in parallel and checks whether the plant is on UPS",
           "La sécurité du site sécurise physiquement, l'ingénierie OT déroule la checklist DR en parallèle et vérifie si l'usine est sur USV",
         ) },
-        { id: "go_alone", correct: false, delta: -5, label: L(
-          "Selbst zur Schaltanlage gehen und kurz nachschauen — geht ja schneller",
-          "Walk over to the substation yourself for a quick look — faster that way",
-          "Aller soi-même jeter un œil — plus rapide ainsi",
+        { id: "go_alone", correct: false, delta: -6, label: L(
+          "Selbst zur Schaltanlage gehen und die Lage kurz vor Ort prüfen, das spart die Wartezeit auf den Werkschutz",
+          "Walk over to the substation yourself and check the situation on site briefly — saves waiting for site security",
+          "Aller soi-même à la sous-station et évaluer rapidement sur place — cela évite l'attente de la sécurité du site",
         ) },
         { id: "panic_shutdown", correct: false, delta: -7, label: L(
-          "Vorsorglich die gesamte Anlage runterfahren, bevor die USV fällt",
-          "As a precaution, shut down the whole plant before the UPS drops",
-          "Par précaution, arrêter toute l'usine avant que l'USV ne lâche",
+          "Vorsorglich die gesamte Anlage kontrolliert herunterfahren, bevor die USV ausfällt und die Produktion ungeplant verliert",
+          "As a precaution, shut down the whole plant in a controlled way before the UPS drops and production is lost unplanned",
+          "Par précaution, arrêter l'ensemble de l'usine de manière contrôlée avant que l'USV ne lâche et que la production ne soit perdue",
         ) },
       ],
     },
@@ -904,15 +911,15 @@ const UPS_TAMPER: Incident = {
           "Brief shift lead, site security, OT engineering and the CISO briefly and factually, open an incident register entry in parallel",
           "Briefer brièvement et factuellement chef de quart, sécurité site, ingénierie OT et CISO, ouvrir une entrée au registre en parallèle",
         ) },
-        { id: "all_hands", correct: false, delta: -4, label: L(
-          "Sofort eine Mail an alle Mitarbeitenden mit Foto der offenen Tür schicken",
-          "Send an immediate all-hands email with a photo of the open door",
-          "Envoyer immédiatement un mail à tous avec photo de la porte ouverte",
+        { id: "all_hands", correct: false, delta: -5, label: L(
+          "Sofort eine All-Hands-Mail mit Foto der offenen Tür schicken, damit alle Mitarbeitenden auf der Hut sind",
+          "Send an immediate all-hands email with a photo of the open door so every employee is on alert",
+          "Envoyer immédiatement un mail à tous avec photo de la porte ouverte pour que chacun reste vigilant",
         ) },
-        { id: "silent", correct: false, delta: -3, label: L(
-          "Nichts kommunizieren, vielleicht war es ja nur der Reinigungsdienst",
-          "Communicate nothing — maybe it was just cleaning",
-          "Ne rien communiquer — c'était peut-être juste le ménage",
+        { id: "silent", correct: false, delta: -4, label: L(
+          "Vorerst nichts kommunizieren, bis geklärt ist, ob es sich nicht doch nur um den Reinigungsdienst oder eine geplante Wartung handelt",
+          "Communicate nothing for now until it is clarified that this isn't simply the cleaning service or a planned maintenance task",
+          "Ne rien communiquer pour l'instant jusqu'à ce qu'il soit clair qu'il ne s'agit pas simplement du ménage ou d'une maintenance planifiée",
         ) },
       ],
     },
