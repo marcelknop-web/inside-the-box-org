@@ -321,6 +321,67 @@ function SocLifeInner({
   const recentIncidentIdsRef = useRef<string[]>([]);
   const lastCategoryRef = useRef<IncidentCategory | null>(null);
 
+  const reportData = useMemo(() => {
+    const mistakes = decisionHistory.filter((record) => record.timedOut || !record.correct);
+    const grouped = new Map<string, { count: number; example: DecisionRecord }>();
+
+    for (const record of mistakes) {
+      const key = recommendationKeyForRecord(record);
+      const existing = grouped.get(key);
+      if (existing) {
+        existing.count += 1;
+      } else {
+        grouped.set(key, { count: 1, example: record });
+      }
+    }
+
+    const recommendationMeta = (key: string) => {
+      switch (key) {
+        case "reportFocusVerify":
+          return {
+            title: "Verify before acting",
+            body: "Your weaker calls tended to happen in the first read. In OT, slow initial verification beats fast assumptions — use passive evidence, operator context and engineering validation before touching the process.",
+          };
+        case "reportFocusContain":
+          return {
+            title: "Contain with process awareness",
+            body: "Several misses came from containment choices that were too broad or too fast. Prefer conduit-level isolation, scoped account control and coordination with operations over blanket shutdowns or IT-style blocks.",
+          };
+        case "reportFocusEvidence":
+          return {
+            title: "Protect evidence and recovery options",
+            body: "Your mis-judgements show risk around forensics and recovery. Preserve volatile state, maintain chain-of-custody and avoid irreversible actions before you understand what the system is doing.",
+          };
+        case "reportFocusCoordination":
+          return {
+            title: "Escalate in the right order",
+            body: "Some of your weaker decisions were coordination issues. In OT incidents, shift lead, engineering and safety stakeholders often need to be aligned before broader management or external communication.",
+          };
+        default:
+          return {
+            title: "Reduce rushed judgement",
+            body: "Your report shows a few avoidable pressure decisions. Read the prompt fully, separate signal from urgency and prefer defensible, process-safe actions over fast but brittle responses.",
+          };
+      }
+    };
+
+    const recommendations = Array.from(grouped.entries())
+      .sort((a, b) => b[1].count - a[1].count)
+      .slice(0, 3)
+      .map(([key, value]) => ({
+        ...recommendationMeta(key),
+        count: value.count,
+        example: value.example,
+      }));
+
+    return {
+      totalCalls: decisionHistory.length,
+      correctCalls: decisionHistory.filter((record) => record.correct && !record.timedOut).length,
+      riskyCalls: mistakes.length,
+      recommendations,
+    };
+  }, [decisionHistory]);
+
   // Day/night is automatic and bound to the player's local clock:
   // night runs 20:00–06:00 local time. Re-evaluated on every tick via shiftSec.
   const isNight = useMemo(
