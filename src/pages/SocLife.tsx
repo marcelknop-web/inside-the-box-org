@@ -156,6 +156,18 @@ function loadStoredIncidentIds(storageKey: string): string[] {
   }
 }
 
+function recommendationKeyForRecord(record: DecisionRecord): string {
+  if (record.timedOut) return "reportFocusTimeout";
+  const stepId = record.stepId.toLowerCase();
+
+  if (/verify|scope|triage|detect/.test(stepId)) return "reportFocusVerify";
+  if (/contain|isolate|mitigate/.test(stepId)) return "reportFocusContain";
+  if (/preserve|forensic|recover/.test(stepId)) return "reportFocusEvidence";
+  if (/coord|report|comms|hr_legal|escalate/.test(stepId)) return "reportFocusCoordination";
+
+  return "reportFocusDefault";
+}
+
 interface SocLifeProps {
   /** When embedded inside ChatView the page chrome (full-viewport wrapper,
    *  Helmet meta) is suppressed and the simulator fills its parent container. */
