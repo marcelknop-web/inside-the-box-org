@@ -1440,23 +1440,31 @@ export const en = {
     metaDesc: 'Cross-training simulator for IT SOC analysts moving into OT / ICS. Modbus anomalies, PLC logic writes, SIS bypass, Purdue-aware decisions under pressure.',
     title: 'OT-SOC LIFE',
     subtitle: 'Industrial SOC. Plant floor in scope. Safety before availability',
-    intro: 'You are an IT analyst on rotation into the OT SOC. The same eight rooms — but now they front a real plant. Read the brief, pick the right room, and remember: you are upstream of moving machinery and people.',
+    intro: 'You are an IT analyst on rotation into the OT SOC. The eight rooms now map to a real plant — Purdue levels 1 to 3.5, with the control room and engineering bench upstream of moving machinery and people. Read the brief, pick the right room, and remember: safety before availability, availability before confidentiality.',
     incomingIncident: 'Incoming OT incident',
     rooms: {
-      soc_floor:   { name: 'OT-SOC floor',     desc: 'Tier-1 OT triage. Asset inventory, alerts from the OT-IDS.' },
-      siem:        { name: 'OT-SIEM console',  desc: 'Passive Modbus / S7 / DNP3 correlation, IOC matching.' },
-      forensics:   { name: 'OT-Forensics lab', desc: 'PLC logic diffs, SPAN captures, project-file integrity.' },
-      noc:         { name: 'OT-NOC',           desc: 'Conduits, zone firewalls, jump host monitoring.' },
-      server_room: { name: 'Engineering WS',   desc: 'EWS, vendor laptops, project files. Handle with care.' },
-      war_room:    { name: 'IR war room',      desc: 'Joint IT/OT bridge with shift lead and engineering.' },
-      ciso_office: { name: 'CISO / Plant Mgr', desc: 'Escalation to CISO and the plant manager. Safety first.' },
-      kitchen:     { name: 'Break room',       desc: 'Coffee, decompress, talk to the shift crew.' },
+      // Tier-1 OT operations: process operators watching the line in real time.
+      soc_floor:   { name: 'Control Room (L2)',        desc: 'Operator HMI stations and alarm wall. First eyes on the process — flow, pressure, temperature, batch state.' },
+      // Passive monitoring console: Nozomi / Claroty / Dragos style.
+      siem:        { name: 'OT-IDS / SIEM Console',    desc: 'Passive Modbus, S7 and DNP3 correlation. Asset baselines, ICS-CERT advisories, IOC matching against L1/L2 traffic.' },
+      // Project-file and logic forensics.
+      forensics:   { name: 'PLC Forensics Bench',      desc: 'Offline PLC logic diffs, SPAN captures, project-file integrity. Compare running code against the signed gold copy.' },
+      // The conduit / DMZ between IT and OT.
+      noc:         { name: 'IT/OT DMZ (L3.5)',         desc: 'Zone firewalls, jump hosts, data diode and historian replica. Every packet between IT and the plant transits here.' },
+      // Engineering workstation: where logic gets pushed to PLCs.
+      server_room: { name: 'Engineering Workstation',  desc: 'EWS, vendor laptops, signed project files. The only desk authorised to write to PLCs — handle with extreme care.' },
+      // Joint crisis bridge.
+      war_room:    { name: 'Joint IT/OT Bridge',       desc: 'Crisis bridge with the OT shift lead, process engineering and the IT IR team. Decisions live or die here.' },
+      // Plant authority — the person who can stop the line.
+      ciso_office: { name: 'Plant Manager Office',     desc: 'Escalation point for safety-vs-availability calls. Authority to halt production sits in this room.' },
+      // Shift culture & decompression.
+      kitchen:     { name: 'Shift Handover Room',      desc: 'Coffee, crew chat, last-shift notes on the whiteboard. Where context actually gets transferred.' },
     },
     npcs: {
-      junior:   { name: 'Lina (Junior OT analyst)',  greet: 'Got a weird WriteRegister sequence on the mixer line …' },
-      ir_lead:  { name: 'Tobi (OT IR lead)',          greet: 'Anything that touches the plant floor goes through me.' },
-      ciso:     { name: 'Ms. Albrecht (CISO)',        greet: 'Brief and precise. And remember: safety first.' },
-      sysadmin: { name: 'Murat (Process engineer)',   greet: 'PLCs are running. Please don\'t restart anything live.' },
+      junior:   { name: 'Lina (Junior OT analyst)',     greet: 'Got an anomalous WriteRegister sequence on the mixer line — is that a setpoint change?' },
+      ir_lead:  { name: 'Tobi (OT IR lead)',             greet: 'Anything that touches L1 or L2 goes through me. No silent fixes on the floor.' },
+      ciso:     { name: 'Ms. Albrecht (Plant Manager)',  greet: 'Brief and precise. I can stop the line — convince me, or convince me not to.' },
+      sysadmin: { name: 'Murat (Lead I&C engineer)',     greet: 'PLCs are live. Please don\'t restart, re-flash or "test" anything without me in the room.' },
     },
     idle: {
       coffee:        { name: 'Grab coffee',                result: 'Stress -10, Coffee +20' },
@@ -1466,33 +1474,33 @@ export const en = {
       stretch:       { name: 'Stretch',                    result: 'Stress -5' },
       byRoom: {
         soc_floor: {
-          threat_intel: { name: 'Walk the OT asset inventory',   result: 'Reputation +2' },
-          smalltalk:    { name: 'Chat with Lina about the alert', result: 'Stress -8' },
+          threat_intel: { name: 'Watch the alarm wall for setpoint drift',  result: 'Reputation +2' },
+          smalltalk:    { name: 'Chat with the operator about the batch',   result: 'Stress -8' },
         },
         siem: {
-          threat_intel: { name: 'Check ICS-CERT advisories in the SIEM', result: 'Reputation +2' },
-          playbook:     { name: 'Review passive Modbus / S7 detections',  result: 'Reputation +3, Stress +5' },
+          threat_intel: { name: 'Check ICS-CERT advisories against assets', result: 'Reputation +2' },
+          playbook:     { name: 'Review passive Modbus / S7 detections',    result: 'Reputation +3, Stress +5' },
         },
         forensics: {
-          playbook: { name: 'Walk the PLC project-file diff checklist', result: 'Reputation +3, Stress +5' },
+          playbook: { name: 'Diff running PLC logic vs. signed gold copy',  result: 'Reputation +3, Stress +5' },
         },
         noc: {
-          threat_intel: { name: 'Inspect conduit firewall logs', result: 'Reputation +2' },
+          threat_intel: { name: 'Inspect conduit firewall and jump-host logs', result: 'Reputation +2' },
         },
         server_room: {
-          stretch: { name: 'Stretch between the engineering racks', result: 'Stress -5' },
+          stretch: { name: 'Stretch behind the engineering bench',          result: 'Stress -5' },
         },
         war_room: {
-          playbook:  { name: 'Walk the joint IT/OT runbook',  result: 'Reputation +3, Stress +5' },
-          smalltalk: { name: 'Sync with the OT IR lead',      result: 'Stress -8' },
+          playbook:  { name: 'Walk the joint IT/OT runbook with the bridge', result: 'Reputation +3, Stress +5' },
+          smalltalk: { name: 'Sync quietly with the OT IR lead',             result: 'Stress -8' },
         },
         ciso_office: {
-          playbook: { name: 'Review the safety-vs-availability matrix', result: 'Reputation +3, Stress +5' },
+          playbook: { name: 'Review the safety-vs-availability matrix',     result: 'Reputation +3, Stress +5' },
         },
         kitchen: {
-          coffee:    { name: 'Pull an espresso from the machine',   result: 'Stress -10, Coffee +20' },
-          smalltalk: { name: 'Talk to Murat about today\'s batch',  result: 'Stress -8' },
-          stretch:   { name: 'Breathe by the window',               result: 'Stress -5' },
+          coffee:    { name: 'Pull an espresso and read the handover board', result: 'Stress -10, Coffee +20' },
+          smalltalk: { name: 'Talk to Murat about today\'s batch',           result: 'Stress -8' },
+          stretch:   { name: 'Breathe by the window facing the plant',      result: 'Stress -5' },
         },
       },
     },
