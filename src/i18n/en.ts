@@ -1460,6 +1460,22 @@ export const en = {
       // Shift culture & decompression.
       kitchen:     { name: 'Shift Handover Room',      desc: 'Coffee, crew chat, last-shift notes on the whiteboard. Where context actually gets transferred.' },
     },
+    onboarding: {
+      tag: 'OT briefing',
+      skip: 'Skip',
+      back: 'Back',
+      next: 'Next',
+      gotIt: 'Got it',
+      showAgain: 'Show intro',
+      s1Title: 'Move across the Purdue stack',
+      s1Body:  'Eight rooms map to a real plant: Control Room (L2), OT-IDS / SIEM, PLC Forensics Bench, IT/OT DMZ (L3.5), Engineering Workstation, Joint IT/OT Bridge, Plant Manager Office, Shift Handover. Pick the room that owns the next move.',
+      s2Title: 'SAIC, not CIA',
+      s2Body:  'Reputation is your standing on the plant — drop to zero and the shift lead pulls you. Stress slows decisions, coffee helps. Priority order: Safety > Availability > Integrity > Confidentiality.',
+      s3Title: 'When an OT incident drops',
+      s3Body:  'Klaxon fires. Read the brief — Modbus, S7, SIS, vendor RDP, IDMZ ransomware — get to the required room, and choose before the timer ends. Visibility into L1/L2 is mostly indirect (mirrored traffic, IDS), so verify before you act on the process.',
+      s4Title: 'Read the consequence, then move on',
+      s4Body:  'After each call you see the verdict, reputation and stress impact, plus the rationale. Most calls have one best answer and one acceptable-with-risk option — the timer pauses until you click "Continue".',
+    },
     npcs: {
       junior:   { name: 'Lina (Junior OT analyst)',     greet: 'Got an anomalous WriteRegister sequence on the mixer line — is that a setpoint change?' },
       ir_lead:  { name: 'Tobi (OT IR lead)',             greet: 'Anything that touches L1 or L2 goes through me. No silent fixes on the floor.' },
