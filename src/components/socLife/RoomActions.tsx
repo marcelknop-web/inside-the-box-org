@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
-import { useLanguage } from "@/i18n/LanguageContext";
 import { NPCS, ROOMS, RoomId } from "@/data/socLifeData";
 import { resolveIdleLabel } from "./idleI18n";
+import { useVariantT } from "./variantContext";
 
 export type IdleAction = "coffee" | "threat_intel" | "playbook" | "smalltalk" | "stretch";
 
@@ -23,7 +23,7 @@ const ACTIONS_BY_ROOM: Record<RoomId, IdleAction[]> = {
 };
 
 export function RoomActions({ currentRoom, onIdleAction }: RoomActionsProps) {
-  const { t } = useLanguage();
+  const { t } = useVariantT();
   const room = ROOMS.find((r) => r.id === currentRoom)!;
   const actions = ACTIONS_BY_ROOM[currentRoom];
   const npcs = NPCS.filter((n) => n.homeRoom === currentRoom);
@@ -33,13 +33,13 @@ export function RoomActions({ currentRoom, onIdleAction }: RoomActionsProps) {
       {/* Room header */}
       <div>
         <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-          {t("socLife.here")}
+          {t("here")}
         </div>
         <div className="font-mono text-base text-primary mt-0.5">
-          {t(`socLife.rooms.${room.i18n}.name`)}
+          {t(`rooms.${room.i18n}.name`)}
         </div>
         <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-          {t(`socLife.rooms.${room.i18n}.desc`)}
+          {t(`rooms.${room.i18n}.desc`)}
         </p>
       </div>
 
@@ -49,10 +49,10 @@ export function RoomActions({ currentRoom, onIdleAction }: RoomActionsProps) {
           {npcs.map((npc) => (
             <div key={npc.id} className="text-xs">
               <span className="font-mono text-cyan-300">
-                {t(`socLife.npcs.${npc.i18n}.name`)}:
+                {t(`npcs.${npc.i18n}.name`)}:
               </span>{" "}
               <span className="text-muted-foreground italic">
-                « {t(`socLife.npcs.${npc.i18n}.greet`)} »
+                « {t(`npcs.${npc.i18n}.greet`)} »
               </span>
             </div>
           ))}
@@ -62,7 +62,7 @@ export function RoomActions({ currentRoom, onIdleAction }: RoomActionsProps) {
       {/* Actions */}
       <div className="mt-auto pt-3 border-t border-border/30">
         <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground mb-2">
-          {t("socLife.actions")}
+          {t("actions")}
         </div>
         <div className="flex flex-col gap-1.5">
           {actions.map((a) => (

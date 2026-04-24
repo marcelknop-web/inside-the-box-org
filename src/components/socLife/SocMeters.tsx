@@ -1,5 +1,5 @@
-import { useLanguage } from "@/i18n/LanguageContext";
 import { cn } from "@/lib/utils";
+import { useVariantT } from "./variantContext";
 
 interface MetersProps {
   reputation: number; // 0-100
@@ -32,13 +32,13 @@ function Meter({ label, value, color }: { label: string; value: number; color: s
 }
 
 export function SocMeters({ reputation, stress, coffee, score, shift, isNight, status }: MetersProps) {
-  const { t } = useLanguage();
+  const { t } = useVariantT();
   const mins = Math.floor(shift / 60).toString().padStart(2, "0");
   const secs = (shift % 60).toString().padStart(2, "0");
   const statusLabel =
-    status === "calm" ? t("socLife.statusCalm") :
-    status === "oncall" ? t("socLife.statusOnCall") :
-    t("socLife.statusIncident");
+    status === "calm" ? t("statusCalm") :
+    status === "oncall" ? t("statusOnCall") :
+    t("statusIncident");
   const statusColor =
     status === "calm" ? "text-emerald-400" :
     status === "oncall" ? "text-amber-300" :
@@ -59,15 +59,15 @@ export function SocMeters({ reputation, stress, coffee, score, shift, isNight, s
           </div>
           <div className="flex items-baseline gap-1.5 shrink-0">
             <span className="font-mono text-[9px] uppercase tracking-wider text-muted-foreground">
-              {t("socLife.score")}
+              {t("score")}
             </span>
             <span className="font-mono text-sm tabular-nums text-primary">{score}</span>
           </div>
         </div>
         <div className="grid grid-cols-3 gap-2">
-          <Meter label={t("socLife.meterReputation")} value={reputation} color="bg-primary" />
-          <Meter label={t("socLife.meterStress")} value={stress} color={stress > 70 ? "bg-rose-500" : "bg-amber-400"} />
-          <Meter label={t("socLife.meterCoffee")} value={coffee} color="bg-cyan-400" />
+          <Meter label={t("meterReputation")} value={reputation} color="bg-primary" />
+          <Meter label={t("meterStress")} value={stress} color={stress > 70 ? "bg-rose-500" : "bg-amber-400"} />
+          <Meter label={t("meterCoffee")} value={coffee} color="bg-cyan-400" />
         </div>
       </div>
 
@@ -78,17 +78,17 @@ export function SocMeters({ reputation, stress, coffee, score, shift, isNight, s
             ● {statusLabel}
           </span>
           <span className="font-mono text-[11px] tabular-nums text-muted-foreground">
-            {mins}:{secs} · {isNight ? t("socLife.night") : t("socLife.day")}
+            {mins}:{secs} · {isNight ? t("night") : t("day")}
           </span>
         </div>
         <div className="flex-1 grid grid-cols-3 gap-3 min-w-[220px]">
-          <Meter label={t("socLife.meterReputation")} value={reputation} color="bg-primary" />
-          <Meter label={t("socLife.meterStress")} value={stress} color={stress > 70 ? "bg-rose-500" : "bg-amber-400"} />
-          <Meter label={t("socLife.meterCoffee")} value={coffee} color="bg-cyan-400" />
+          <Meter label={t("meterReputation")} value={reputation} color="bg-primary" />
+          <Meter label={t("meterStress")} value={stress} color={stress > 70 ? "bg-rose-500" : "bg-amber-400"} />
+          <Meter label={t("meterCoffee")} value={coffee} color="bg-cyan-400" />
         </div>
         <div className="flex items-baseline gap-2 shrink-0">
           <span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
-            {t("socLife.score")}
+            {t("score")}
           </span>
           <span className="font-mono text-base tabular-nums text-primary">{score}</span>
         </div>

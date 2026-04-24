@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { useLanguage } from "@/i18n/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useVariantT } from "./variantContext";
 
 /** Letter-by-letter typewriter, gated on `start`. Mirrors the pattern used
  *  in IncidentPanel so reveal cadence feels consistent across the game. */
@@ -68,7 +68,7 @@ interface Props {
  *   severe    — wrong + heavy loss (delta <= -4)
  */
 export function ConsequenceOverlay({ data, onContinue }: Props) {
-  const { t } = useLanguage();
+  const { t } = useVariantT();
 
   // Allow Enter / Space to dismiss for keyboard users.
   useEffect(() => {
@@ -92,7 +92,7 @@ export function ConsequenceOverlay({ data, onContinue }: Props) {
     ? data.repDelta >= 6 ? "excellent" : "solid"
     : data.repDelta <= -8 ? "severe" : "risky";
 
-  const verdictText = t(`socLife.consequence.${tier}`);
+  const verdictText = t(`consequence.${tier}`);
   const accent =
     tier === "excellent" ? "border-emerald-500/60 shadow-[0_0_0_1px_hsl(142_70%_45%/0.25),0_20px_60px_-10px_hsl(142_70%_45%/0.4)]"
     : tier === "solid"   ? "border-cyan-400/50 shadow-[0_0_0_1px_hsl(190_90%_50%/0.2),0_20px_60px_-10px_hsl(190_90%_50%/0.35)]"
@@ -159,7 +159,7 @@ export function ConsequenceOverlay({ data, onContinue }: Props) {
         {/* Verdict header */}
         <div className={cn("mb-2 flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.25em]", verdictColor)}>
           <span className="text-base leading-none">{symbol}</span>
-          <span>{t("socLife.consequence.verdict")}</span>
+          <span>{t("consequence.verdict")}</span>
         </div>
         <h3 className={cn("mb-3 font-mono text-lg sm:text-xl leading-tight min-h-[1.5em]", verdictColor)}>
           {typedTitle}
@@ -170,7 +170,7 @@ export function ConsequenceOverlay({ data, onContinue }: Props) {
         {callStarts && (
           <div className="mb-3 rounded-md border border-border/40 bg-background/60 p-3 animate-fade-in">
             <div className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground mb-1">
-              {t("socLife.consequence.yourCall")}
+              {t("consequence.yourCall")}
             </div>
             <div className="text-sm text-foreground leading-snug min-h-[1.4em]">
               „{typedCall}“
@@ -188,7 +188,7 @@ export function ConsequenceOverlay({ data, onContinue }: Props) {
             :                      "border-l-rose-500/70",
           )}>
             <div className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground mb-1">
-              {t("socLife.consequence.rationale")}
+              {t("consequence.rationale")}
             </div>
             <div className="text-sm text-foreground/90 leading-relaxed min-h-[1.4em]">
               {typedReason}
@@ -202,7 +202,7 @@ export function ConsequenceOverlay({ data, onContinue }: Props) {
         {showBest && bestStarts && (
           <div className="mb-3 rounded-md border border-emerald-500/40 bg-emerald-500/5 px-3 py-2 animate-fade-in">
             <div className="font-mono text-[10px] uppercase tracking-wider text-emerald-300/90 mb-1">
-              ✓ {t("socLife.consequence.bestAnswer")}
+              ✓ {t("consequence.bestAnswer")}
             </div>
             <div className="text-sm text-foreground leading-snug min-h-[1.4em]">
               „{typedBest}“
@@ -217,7 +217,7 @@ export function ConsequenceOverlay({ data, onContinue }: Props) {
             <div className="mb-4 grid grid-cols-2 gap-2 font-mono text-xs">
               <div className="rounded-md border border-border/40 bg-background/60 p-2.5">
                 <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                  {t("socLife.consequence.reputation")}
+                  {t("consequence.reputation")}
                 </div>
                 <div className={cn("mt-0.5 text-base tabular-nums", repColor)}>
                   {fmt(data.repDelta)}
@@ -225,7 +225,7 @@ export function ConsequenceOverlay({ data, onContinue }: Props) {
               </div>
               <div className="rounded-md border border-border/40 bg-background/60 p-2.5">
                 <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                  {t("socLife.consequence.stress")}
+                  {t("consequence.stress")}
                 </div>
                 <div className={cn("mt-0.5 text-base tabular-nums", stressColor)}>
                   {fmt(data.stressDelta)}
@@ -239,7 +239,7 @@ export function ConsequenceOverlay({ data, onContinue }: Props) {
               size="lg"
               autoFocus
             >
-              {t("socLife.consequence.continue")} →
+              {t("consequence.continue")} →
             </Button>
           </div>
         )}
