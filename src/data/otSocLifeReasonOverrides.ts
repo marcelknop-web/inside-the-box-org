@@ -118,6 +118,47 @@ export const OT_REASON_OVERRIDES: Record<string, Reason> = {
   "ups_tampering::comms::shift_security_ciso":  R("Brief the people who can act, open the register entry. Factual, not dramatic."),
   "ups_tampering::comms::all_hands":            R("All-hands with a photo of an open door turns rumour into panic."),
   "ups_tampering::comms::silent":               R("Silence prevents the shift lead from preparing a contingency. Quiet ≠ safe."),
+
+  // 11 — Surprise auditor (comic)
+  "surprise_auditor::greet::verify_then_room":   R("Verify identity, pull a chaperone, walk to a neutral room. Boring, professional, audit-friendly."),
+  "surprise_auditor::greet::show_everything":    R("Live tickets and dashboards over the shoulder is uncontrolled disclosure — and breaks need-to-know."),
+  "surprise_auditor::greet::stall_him":          R("Sending an auditor away with vending-machine coffee writes itself into the report — and not in your favour."),
+  "surprise_auditor::evidence::redacted_pack":   R("Approved redacted pack with timestamps, owners and action status is exactly what evidence-based audits want."),
+  "surprise_auditor::evidence::open_ticket_system":R("Direct read access to the live ticketing system over-shares cases unrelated to the audit scope."),
+  "surprise_auditor::evidence::make_it_up":      R("Fabricating an ‘example report’ on the fly is misrepresentation. That's a finding — and depending on jurisdiction, more."),
+  "surprise_auditor::trick_q::honest_with_plan": R("Honest answer plus the protocol of the last TTX in the same repo is exactly the trail an auditor wants to follow."),
+  "surprise_auditor::trick_q::exaggerate":       R("Claiming quarterly TTX with no evidence trail is a finding waiting to be written down."),
+  "surprise_auditor::trick_q::deflect_to_ciso":  R("Deflecting a basic readiness question to the CISO signals the team doesn't own its own plan."),
+
+  // 12 — Historian DNS exfil
+  "historian_dns_exfil::verify::passive_dns":      R("Passive DNS plus NetFlow against the historian baseline gives you evidence without poking the asset."),
+  "historian_dns_exfil::verify::block_dns":        R("Blocking the resolver before you scope the source destroys the very telemetry you need to confirm exfil."),
+  "historian_dns_exfil::verify::reboot_historian": R("Reboot wipes memory state and any in-flight beacon. You just blinded the investigation."),
+  "historian_dns_exfil::contain::sinkhole_egress": R("Internal sinkhole plus egress narrowing keeps the channel observable while it can no longer reach the attacker. Textbook."),
+  "historian_dns_exfil::contain::cut_internet":    R("Cutting the whole DMZ uplink is a sledgehammer that takes legitimate egress (NTP, vendor updates) with it."),
+  "historian_dns_exfil::contain::leave_running":   R("‘More telemetry’ while data leaves the building is not analysis — it's letting the breach continue."),
+  "historian_dns_exfil::report::ciso_legal_dpo":   R("CISO + Legal + DPO + early-warning is the NIS-2 / GDPR baseline. Don't keep it in the SOC silo."),
+  "historian_dns_exfil::report::wait_proof":       R("Waiting for ‘hard proof’ pushes you past the 24h NIS-2 early-warning window. Suspicion is enough to notify."),
+  "historian_dns_exfil::report::vendor_first":     R("Vendor first means you've handed an unverified third party the first read on your incident. Wrong order."),
+
+  // 13 — Rogue wireless AP
+  "rogue_wifi_ap::locate::triangulate_with_facility": R("Coordinated triangulation with facility and the shift lead keeps both safety and chain-of-custody intact."),
+  "rogue_wifi_ap::locate::deauth_blind":              R("Blind deauth fires before you know the source — could be a contractor's legitimate test rig or even a paired safety device."),
+  "rogue_wifi_ap::locate::ignore_wlan":               R("‘Wired OT can't be hit by Wi-Fi’ ignores HMIs with dual NICs and engineering laptops bridging both. The AP is real, the risk is real."),
+  "rogue_wifi_ap::contain::physical_then_wids":       R("Physical seizure with site security plus narrow WIDS containment preserves evidence and avoids over-blocking."),
+  "rogue_wifi_ap::contain::block_all_wireless":       R("Blanket blocking every 2.4 GHz signal kills the maintenance tablet and any safety-paired beacon. Over-broad."),
+  "rogue_wifi_ap::contain::destroy_on_sight":         R("Lone-wolf removal breaks both safety procedure and chain-of-custody — and may put you in a substation you shouldn't enter alone."),
+
+  // 14 — Alarm flood spoof
+  "alarm_flood_spoof::verify::cross_check_field": R("Operator visual + historian sensor cross-check + safety officer in the loop is the only way to separate spoofed alarms from real trips."),
+  "alarm_flood_spoof::verify::ack_all":           R("Mass-acknowledging hides exactly the alarm you needed to see. If one trip is real, you just owned the consequence."),
+  "alarm_flood_spoof::verify::blame_hmi":         R("Vendor-bug-by-default skips the security hypothesis entirely. Spoofing looks like a bug until it isn't."),
+  "alarm_flood_spoof::contain::filter_at_gateway":R("Rate-limit + duplicate filter for the affected class only, with engineering, keeps real safety alarms reaching the operator."),
+  "alarm_flood_spoof::contain::kill_alarm_service":R("Killing the alarm service is killing safety supervision. Operators are now blind to anything — real or fake."),
+  "alarm_flood_spoof::contain::reboot_hmis":      R("Sequential reboots without root cause means the next flood will hit during the next batch. You bought time, not safety."),
+  "alarm_flood_spoof::report::timeline_evidence": R("Clean timeline + tags + filter rule + safety co-sign is the evidence pack any post-mortem and any auditor will ask for."),
+  "alarm_flood_spoof::report::verbal_only":       R("‘Plant runs again, no paperwork needed’ is exactly how the next flood happens unannounced."),
+  "alarm_flood_spoof::report::blame_operator":    R("Putting the operator in the report without evidence is a culture problem and an audit finding rolled into one."),
 };
 
 /** Lookup helper — same shape as the IT version. */
