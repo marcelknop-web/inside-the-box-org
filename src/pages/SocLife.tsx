@@ -127,6 +127,47 @@ function pickNextIncident(
   return pool[Math.floor(Math.random() * pool.length)];
 }
 
+interface DecisionRecord {
+  id: string;
+  incidentId: string;
+  incidentTitle: string;
+  stepId: string;
+  stepTitle: string;
+  prompt: string;
+  chosenLabel: string;
+  bestAnswerLabel?: string;
+  correct: boolean;
+  timedOut?: boolean;
+  repDelta: number;
+  stressDelta: number;
+  reason: string;
+}
+
+function loadStoredIncidentIds(storageKey: string): string[] {
+  try {
+    const raw = localStorage.getItem(storageKey);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed)
+      ? parsed.filter((entry): entry is string => typeof entry === "string")
+      : [];
+  } catch {
+    return [];
+  }
+}
+
+function recommendationKeyForRecord(record: DecisionRecord): string {
+  if (record.timedOut) return "reportFocusTimeout";
+  const stepId = record.stepId.toLowerCase();
+
+  if (/verify|scope|triage|detect/.test(stepId)) return "reportFocusVerify";
+  if (/contain|isolate|mitigate/.test(stepId)) return "reportFocusContain";
+  if (/preserve|forensic|recover/.test(stepId)) return "reportFocusEvidence";
+  if (/coord|report|comms|hr_legal|escalate/.test(stepId)) return "reportFocusCoordination";
+
+  return "reportFocusDefault";
+}
+
 interface SocLifeProps {
   /** When embedded inside ChatView the page chrome (full-viewport wrapper,
    *  Helmet meta) is suppressed and the simulator fills its parent container. */
@@ -176,12 +217,14 @@ function SocLifeInner({
   // so multiple browser tabs stay roughly in sync. `playerName` persists across
   // shifts so returning players don't have to re-type it.
   const [highscores, setHighscores] = useState<HighscoreEntry[]>([]);
+  const [decisionHistory, setDecisionHistory] = useState<DecisionRecord[]>([]);
   // Variant-specific localStorage namespace so IT and OT highscores / player
   // names don't clobber each other.
   const { storageNs } = useSocLifeVariantInternal();
   const NAME_KEY = `${storageNs}.playerName`;
   const ONBOARDED_KEY = `${storageNs}.onboarded`;
   const HIGHSCORE_KEY = `${storageNs}.highscores.v1`;
+  const LAST_SHIFT_INCIDENTS_KEY = `${storageNs}.lastShiftIncidentIds.v1`;
   const [playerName, setPlayerName] = useState<string>(() => {
     try { return localStorage.getItem(NAME_KEY) || ""; } catch { return ""; }
   });
@@ -277,6 +320,67 @@ function SocLifeInner({
   // Window size = floor(N/2) keeps variety while still allowing rotation.
   const recentIncidentIdsRef = useRef<string[]>([]);
   const lastCategoryRef = useRef<IncidentCategory | null>(null);
+
+  const reportData = useMemo(() => {
+    const mistakes = decisionHistory.filter((record) => record.timedOut || !record.correct);
+    const grouped = new Map<string, { count: number; example: DecisionRecord }>();
+
+    for (const record of mistakes) {
+      const key = recommendationKeyForRecord(record);
+      const existing = grouped.get(key);
+      if (existing) {
+        existing.count += 1;
+      } else {
+        grouped.set(key, { count: 1, example: record });
+      }
+    }
+
+    const recommendationMeta = (key: string) => {
+      switch (key) {
+        case "reportFocusVerify":
+          return {
+            title: "Verify before acting",
+            body: "Your weaker calls tended to happen in the first read. In OT, slow initial verification beats fast assumptions — use passive evidence, operator context and engineering validation before touching the process.",
+          };
+        case "reportFocusContain":
+          return {
+            title: "Contain with process awareness",
+            body: "Several misses came from containment choices that were too broad or too fast. Prefer conduit-level isolation, scoped account control and coordination with operations over blanket shutdowns or IT-style blocks.",
+          };
+        case "reportFocusEvidence":
+          return {
+            title: "Protect evidence and recovery options",
+            body: "Your mis-judgements show risk around forensics and recovery. Preserve volatile state, maintain chain-of-custody and avoid irreversible actions before you understand what the system is doing.",
+          };
+        case "reportFocusCoordination":
+          return {
+            title: "Escalate in the right order",
+            body: "Some of your weaker decisions were coordination issues. In OT incidents, shift lead, engineering and safety stakeholders often need to be aligned before broader management or external communication.",
+          };
+        default:
+          return {
+            title: "Reduce rushed judgement",
+            body: "Your report shows a few avoidable pressure decisions. Read the prompt fully, separate signal from urgency and prefer defensible, process-safe actions over fast but brittle responses.",
+          };
+      }
+    };
+
+    const recommendations = Array.from(grouped.entries())
+      .sort((a, b) => b[1].count - a[1].count)
+      .slice(0, 3)
+      .map(([key, value]) => ({
+        ...recommendationMeta(key),
+        count: value.count,
+        example: value.example,
+      }));
+
+    return {
+      totalCalls: decisionHistory.length,
+      correctCalls: decisionHistory.filter((record) => record.correct && !record.timedOut).length,
+      riskyCalls: mistakes.length,
+      recommendations,
+    };
+  }, [decisionHistory]);
 
   // Day/night is automatic and bound to the player's local clock:
   // night runs 20:00–06:00 local time. Re-evaluated on every tick via shiftSec.
@@ -620,9 +724,14 @@ function SocLifeInner({
     audio.setMusicMode("calm");
     setHighscores(loadHighscores(HIGHSCORE_KEY));
     setHighscoreSubmitted(false);
+    try {
+      window.localStorage.setItem(LAST_SHIFT_INCIDENTS_KEY, JSON.stringify(recentIncidentIdsRef.current));
+    } catch {
+      // ignore
+    }
     const id = window.setTimeout(() => setGameOverActionsReady(true), 2200);
     return () => window.clearTimeout(id);
-  }, [gameOver, audio]);
+  }, [gameOver, audio, HIGHSCORE_KEY, LAST_SHIFT_INCIDENTS_KEY]);
 
   const submitHighscore = () => {
     const name = playerName.trim().slice(0, HIGHSCORE_NAME_MAX) || "ANON";
