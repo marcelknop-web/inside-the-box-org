@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { useLanguage } from "@/i18n/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useVariantT } from "./variantContext";
 
 /** Letter-by-letter typewriter, gated on `start`. Mirrors the pattern used
  *  in IncidentPanel so reveal cadence feels consistent across the game. */
