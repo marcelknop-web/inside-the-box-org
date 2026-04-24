@@ -1017,6 +1017,7 @@ function renderRoom(
   y: number,
   t: number,
   isNight: boolean,
+  variant: SocLifeVariant,
 ) {
   drawWallpaper(ctx, x, y, ROOM_W, ROOM_H - 4);
   drawFloor(ctx, x, y + ROOM_H - 4, ROOM_W, 4);
