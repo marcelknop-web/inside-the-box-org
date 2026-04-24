@@ -68,7 +68,7 @@ interface Props {
  *   severe    — wrong + heavy loss (delta <= -4)
  */
 export function ConsequenceOverlay({ data, onContinue }: Props) {
-  const { t } = useLanguage();
+  const { t } = useVariantT();
 
   // Allow Enter / Space to dismiss for keyboard users.
   useEffect(() => {
@@ -92,7 +92,7 @@ export function ConsequenceOverlay({ data, onContinue }: Props) {
     ? data.repDelta >= 6 ? "excellent" : "solid"
     : data.repDelta <= -8 ? "severe" : "risky";
 
-  const verdictText = t(`socLife.consequence.${tier}`);
+  const verdictText = t(`consequence.${tier}`);
   const accent =
     tier === "excellent" ? "border-emerald-500/60 shadow-[0_0_0_1px_hsl(142_70%_45%/0.25),0_20px_60px_-10px_hsl(142_70%_45%/0.4)]"
     : tier === "solid"   ? "border-cyan-400/50 shadow-[0_0_0_1px_hsl(190_90%_50%/0.2),0_20px_60px_-10px_hsl(190_90%_50%/0.35)]"
