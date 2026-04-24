@@ -5,9 +5,9 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useSocLifeAudio } from "@/hooks/useSocLifeAudio";
 import {
-  Incident, INCIDENTS, PlaybookStep,
-  ROOMS, RoomId, COMIC_INCIDENT_IDS,
-  IncidentTier, IncidentCategory,
+  Incident, INCIDENTS as IT_INCIDENTS, PlaybookStep,
+  ROOMS, RoomId, COMIC_INCIDENT_IDS as IT_COMIC_INCIDENT_IDS,
+  IncidentTier, IncidentCategory, Lang,
 } from "@/data/socLifeData";
 import { DollHouse } from "@/components/socLife/DollHouse";
 import { SocMeters } from "@/components/socLife/SocMeters";
@@ -16,12 +16,23 @@ import { RoomActions, IdleAction } from "@/components/socLife/RoomActions";
 import { resolveIdleLabel } from "@/components/socLife/idleI18n";
 import { ConsequenceOverlay, ConsequenceData } from "@/components/socLife/ConsequenceOverlay";
 import { Onboarding } from "@/components/socLife/Onboarding";
-import { reasonFor } from "@/data/socLifeReasons";
+import { reasonFor as itReasonFor } from "@/data/socLifeReasons";
 import {
   loadHighscores, saveHighscore, qualifiesForHighscore,
   HIGHSCORE_NAME_MAX, HighscoreEntry,
 } from "@/utils/socLifeHighscore";
 import { resolveIsNight } from "@/utils/socLifeDayNight";
+import {
+  SocLifeVariant, SocLifeVariantProvider, useVariantT,
+} from "@/components/socLife/variantContext";
+
+/** Reason resolver signature — same as IT/OT-specific helpers in `data/`. */
+export type ReasonResolver = (
+  incident: Incident,
+  step: PlaybookStep,
+  option: Incident["steps"][number]["options"][number],
+  lang: Lang,
+) => string;
 
 const TICK_MS = 250;
 const MIN_INCIDENT_GAP_MS = 18_000;
