@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, ReactNode } from "react";
 import { useLanguage } from "@/i18n/LanguageContext";
+import { en } from "@/i18n/en";
 
 /**
  * SOC Life ships in two flavours that share the same engine, components,
@@ -14,6 +15,11 @@ import { useLanguage } from "@/i18n/LanguageContext";
  * translate room / NPC / UI strings against the right i18n root, with an
  * automatic fallback to the IT root for any keys the OT variant inherits
  * unchanged.
+ *
+ * IMPORTANT: the OT variant is locked to English content regardless of the
+ * UI language picker. The OT scenarios are authored as a single
+ * authoritative English wording — we deliberately bypass the active
+ * language and resolve directly against the EN dictionary.
  */
 export type SocLifeVariant = "it" | "ot";
 
@@ -51,23 +57,33 @@ export function useSocLifeVariant(): VariantInfo {
   return useContext(VariantContext);
 }
 
+/* ------------------------------------------------------------------ */
+/* English-locked resolver for the OT variant                          */
+/* ------------------------------------------------------------------ */
+
+function getNestedRaw(obj: any, path: string): any {
+  return path.split(".").reduce((acc, part) => acc?.[part], obj);
+}
+
+function resolveEnString(key: string): string {
+  const v = getNestedRaw(en, key);
+  return typeof v === "string" ? v : key;
+}
+
+function resolveEnArray(key: string): string[] {
+  const v = getNestedRaw(en, key);
+  return Array.isArray(v) ? v : [];
+}
+
 /**
  * Variant-aware translation hook.
  *
- * Resolves keys against the active variant's root first ("otSocLife.foo"),
- * and silently falls back to the IT root ("socLife.foo") when the variant
- * does not override that particular key. This means the OT variant only
- * needs to ship overrides for the strings that actually differ from IT —
- * everything else (verdict tiers, onboarding glue text, button labels …)
- * inherits from the canonical SOC Life translations for free.
+ * IT variant: resolves against the active UI language (DE/EN/FR) under
+ * the `socLife.*` root.
  *
- * Usage:
- *   const t = useVariantT();
- *   t("title")          // → otSocLife.title (or socLife.title fallback)
- *   t("rooms.siem.name")
- *
- * For top-level keys outside the SOC Life namespace (rare), pass the full
- * key starting with the root and call `useLanguage().t` directly instead.
+ * OT variant: resolves against EN only — first under `otSocLife.*`, then
+ * falls back to `socLife.*` for any key the OT variant inherits
+ * unchanged. The active UI language is ignored on purpose.
  */
 export function useVariantT(): {
   t: (key: string) => string;
@@ -80,12 +96,11 @@ export function useVariantT(): {
   const t = useCallback(
     (key: string): string => {
       if (i18nRoot === "socLife") return rawT(`socLife.${key}`);
-      const variantKey = `${i18nRoot}.${key}`;
-      const v = rawT(variantKey);
-      // `t()` returns the lookup key itself when nothing matched — that's
-      // our sentinel for "no override defined, fall back to IT root".
+      // OT variant — English only.
+      const variantKey = `otSocLife.${key}`;
+      const v = resolveEnString(variantKey);
       if (v !== variantKey) return v;
-      return rawT(`socLife.${key}`);
+      return resolveEnString(`socLife.${key}`);
     },
     [i18nRoot, rawT],
   );
@@ -93,12 +108,17 @@ export function useVariantT(): {
   const tArray = useCallback(
     (key: string): string[] => {
       if (i18nRoot === "socLife") return rawTArray(`socLife.${key}`);
-      const arr = rawTArray(`${i18nRoot}.${key}`);
+      // OT variant — English only.
+      const arr = resolveEnArray(`otSocLife.${key}`);
       if (arr.length > 0) return arr;
-      return rawTArray(`socLife.${key}`);
+      return resolveEnArray(`socLife.${key}`);
     },
     [i18nRoot, rawTArray],
   );
 
-  return { t, tArray, language: language as "de" | "en" | "fr" };
+  // Report EN to consumers so any locale-dependent rendering inside the
+  // OT shell (e.g. reason resolver) also stays English.
+  const reportedLanguage = i18nRoot === "otSocLife" ? "en" : (language as "de" | "en" | "fr");
+
+  return { t, tArray, language: reportedLanguage };
 }
