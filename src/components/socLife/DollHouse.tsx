@@ -1056,14 +1056,19 @@ function renderRoom(
       break;
     }
     case "server_room": {
-      drawRack(ctx, x + 4, y + 6, t);
-      drawRack(ctx, x + 22, y + 6, t + 80);
-      drawRack(ctx, x + 40, y + 6, t + 160);
-      // Floor cable tray
-      drawRect(ctx, x + 2, y + ROOM_H - 8, ROOM_W - 4, 1, "#3a2a14");
-      drawPx(ctx, x + 10, y + ROOM_H - 9, C.amber);
-      drawPx(ctx, x + 30, y + ROOM_H - 9, C.cyan);
-      drawPx(ctx, x + 50, y + ROOM_H - 9, C.green);
+      if (variant === "ot") {
+        // OT-SOC Life: this slot is the Engineering Workstation, not a server room.
+        drawEngineeringWorkstation(ctx, x, y, t);
+      } else {
+        drawRack(ctx, x + 4, y + 6, t);
+        drawRack(ctx, x + 22, y + 6, t + 80);
+        drawRack(ctx, x + 40, y + 6, t + 160);
+        // Floor cable tray
+        drawRect(ctx, x + 2, y + ROOM_H - 8, ROOM_W - 4, 1, "#3a2a14");
+        drawPx(ctx, x + 10, y + ROOM_H - 9, C.amber);
+        drawPx(ctx, x + 30, y + ROOM_H - 9, C.cyan);
+        drawPx(ctx, x + 50, y + ROOM_H - 9, C.green);
+      }
       break;
     }
     case "war_room": {
