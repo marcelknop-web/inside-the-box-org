@@ -1034,7 +1034,7 @@ function SocLifeInner({
                 Gives the user time to read what happened before any CTA appears. */}
             {gameOver && (
               <div className="absolute inset-0 z-30 flex items-center justify-center bg-background/85 backdrop-blur-sm animate-fade-in">
-                <div className="mx-3 max-w-md w-full max-h-[92vh] overflow-y-auto rounded-lg border border-rose-500/50 bg-background/95 p-5 sm:p-6 shadow-[0_0_0_1px_hsl(var(--destructive)/0.25),0_20px_60px_-10px_hsl(var(--destructive)/0.4)]">
+                <div className="mx-3 max-w-2xl w-full max-h-[92vh] overflow-y-auto rounded-lg border border-rose-500/50 bg-background/95 p-5 sm:p-6 shadow-[0_0_0_1px_hsl(var(--destructive)/0.25),0_20px_60px_-10px_hsl(var(--destructive)/0.4)]">
                   <div className="mb-2 font-mono text-[11px] uppercase tracking-[0.25em] text-rose-400">
                     ▲ {t("gameOverTitle")}
                   </div>
