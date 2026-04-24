@@ -31,6 +31,7 @@ const Nis2ComplianceTool = lazy(() => import('./Nis2ComplianceTool'));
 const Iec62443ComplianceTool = lazy(() => import('./Iec62443ComplianceTool'));
 const ButterflyEffectLab = lazy(() => import('./ButterflyEffectLab'));
 const SocLife = lazy(() => import('./SocLife'));
+const OtSocLife = lazy(() => import('./OtSocLife'));
 
 import { StaggerReveal } from '@/components/StaggerReveal';
 import GlitchText from '@/components/GlitchText';
@@ -49,6 +50,7 @@ import { PasswordGate } from '@/components/PasswordGate';
 // Add or update entries when you ship a new agent.
 const AI_TOOL_ADDED_AT: Record<string, string> = {
   'soc-life': '2026-04-10',
+  'ot-soc-life': '2026-04-24',
   'butterfly-lab': '2026-04-05',
 };
 
@@ -985,6 +987,16 @@ const useServiceContent = () => {
                 <p className="text-foreground/80 text-xs">{t('aiWorkflows.agentSocLifeDesc')}</p>
               </div>
             </button>
+            <button onClick={() => setActive('ot-soc-life')} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
+              <Factory size={20} className="text-highlight mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="text-highlight font-semibold font-mono text-sm flex items-center gap-2 flex-wrap">
+                  {t('aiWorkflows.agentOtSocLifeTitle')}
+                  {AI_TOOL_ADDED_AT['ot-soc-life'] && <NewDateBadge addedAt={AI_TOOL_ADDED_AT['ot-soc-life']} />}
+                </p>
+                <p className="text-foreground/80 text-xs">{t('aiWorkflows.agentOtSocLifeDesc')}</p>
+              </div>
+            </button>
             {/* — Media — */}
             <button onClick={() => setYtDialogOpen(true)} className="flex items-start gap-3 p-3 rounded-lg border border-highlight/20 bg-highlight/5 hover:bg-highlight/10 hover:border-highlight/40 transition-electric text-left">
               <Play size={20} className="text-highlight mt-0.5 flex-shrink-0" />
@@ -1428,7 +1440,7 @@ const ChatView = () => {
   const deriveServiceId = useCallback((): string | null => {
     if (routeServiceId) return routeServiceId;
     const path = window.location.pathname.replace(/^\//, '');
-    const explicitRoutes = ['nis2-compliance', 'iacs-e27', 'iec62443', 'soc-life'];
+    const explicitRoutes = ['nis2-compliance', 'iacs-e27', 'iec62443', 'soc-life', 'ot-soc-life'];
     if (explicitRoutes.includes(path)) return path;
     return null;
   }, [routeServiceId]);
@@ -1545,7 +1557,7 @@ const ChatView = () => {
         // Desktop with active service: open immediately — except for SocLife,
         // where the simulator should get full focus on first load. The user
         // can still open the sidebar manually via the trigger.
-        if (activeService !== 'soc-life') {
+        if (activeService !== 'soc-life' && activeService !== 'ot-soc-life') {
           setSidebarOpen(true);
         }
         setSidebarInitialized(true);
@@ -1581,7 +1593,7 @@ const ChatView = () => {
     'crisis-sim', 'dora-check', 'tisax-check', 'pci-check', 'ttx-check',
     'nis2-quiz', 'ciso-sim', 'threatdrop', 'trigger-triage', 'cyber-frogger',
     'elite-ship', 'cra-check', 'dora-compliance', 'nis2-compliance',
-    'iacs-e27', 'iec62443', 'butterfly-lab', 'soc-life', 'system-check',
+    'iacs-e27', 'iec62443', 'butterfly-lab', 'soc-life', 'ot-soc-life', 'system-check',
     'ttx-readiness', 'enigma', 'itsm', 'itsm-dev',
   ]), []);
   const isToolPage = !!activeService && TOOL_SERVICES.has(activeService);
@@ -2020,6 +2032,8 @@ const ChatView = () => {
     ? <Suspense fallback={lazyFallback}><ButterflyEffectLab embedded /></Suspense>
     : activeService === 'soc-life'
     ? <Suspense fallback={lazyFallback}><SocLife embedded /></Suspense>
+    : activeService === 'ot-soc-life'
+    ? <Suspense fallback={lazyFallback}><OtSocLife embedded /></Suspense>
     : activeService === 'system-check'
     ? <InlineSystemCheck t={t} />
     : activeService && contentMap[activeService] ? contentMap[activeService]() : null;
