@@ -850,15 +850,10 @@ function SocLifeInner({
               </div>
             )}
 
-            {/* Consequence overlay: blocks input, surfaces the outcome of the
-                last choice in differentiated language. User must dismiss to
-                continue — replaces the previous toast-spam. */}
-            {consequence && !gameOver && (
-              <ConsequenceOverlay
-                data={consequence}
-                onContinue={continueAfterConsequence}
-              />
-            )}
+            {/* Consequence overlay is now rendered inside the IncidentPanel
+                <aside> above so it appears anchored to the answer column the
+                user just clicked, not centred over the entire game grid. */}
+
 
             {/* Pause overlay: clear visual confirmation that the game is frozen.
                 Click anywhere or press Resume to continue. */}
