@@ -1255,7 +1255,7 @@ const ALARM_FLOOD: Incident = {
         ) },
         { id: "verbal_only", correct: false, delta: -5, label: L(
           "Nur mündlich an die Schichtleitung übergeben, weil die Anlage „läuft ja wieder“ und niemand zusätzliche Bürokratie braucht",
-          "Hand over verbally to the shift lead only, because the plant „is running again" and nobody needs extra paperwork",
+          "Hand over verbally to the shift lead only, because the plant ‘is running again’ and nobody needs extra paperwork",
           "Transmettre uniquement à l'oral au chef de quart, parce que l'usine « tourne à nouveau » et que personne n'a besoin de paperasse en plus",
         ) },
         { id: "blame_operator", correct: false, delta: -7, label: L(
