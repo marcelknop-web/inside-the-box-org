@@ -1,6 +1,4 @@
-import { useEffect } from "react";
 import { Helmet } from "react-helmet-async";
-import { useLanguage } from "@/i18n/LanguageContext";
 import SocLife from "./SocLife";
 import { INCIDENTS as OT_INCIDENTS, COMIC_INCIDENT_IDS as OT_COMIC_INCIDENT_IDS } from "@/data/otSocLifeData";
 import { otReasonFor } from "@/data/otSocLifeReasons";
@@ -12,26 +10,16 @@ interface OtSocLifeProps {
 /**
  * OT-SOC Life — IT-SOC engine, OT/ICS content.
  *
- * Re-uses the entire SocLife shell (rooms, audio, meters, scoring, highscore
- * board, onboarding) and only swaps the incident catalogue, the rationale
- * resolver, the i18n root (via the variant provider inside SocLife), and the
- * localStorage namespace.
+ * Re-uses the entire SocLife shell and only swaps the incident catalogue,
+ * the rationale resolver, the i18n root, and the localStorage namespace.
  *
- * Locked to English on mount per product decision: the OT scenarios are
- * authored as a cross-training tool for SOC analysts, and we ship a single
- * authoritative wording rather than three half-curated translations.
+ * Content is **locked to English** at the resolver level (see
+ * `useVariantT()` in `variantContext.tsx`) — the global UI language
+ * picker is left untouched, but every string rendered inside the OT
+ * shell is read from the English dictionary regardless. This avoids the
+ * mount-time language-flash and the half-translated fallback chain.
  */
 export default function OtSocLife({ embedded = false }: OtSocLifeProps = {}) {
-  const { language, setLanguage } = useLanguage();
-
-  useEffect(() => {
-    if (language !== "en") setLanguage("en");
-    // Only run on mount + when this page is active. We deliberately don't
-    // restore the previous language on unmount — the user may want to keep
-    // browsing in English afterwards, and the language picker is one click
-    // away in the chrome.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   return (
     <>
