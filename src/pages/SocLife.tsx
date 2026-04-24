@@ -550,29 +550,51 @@ function SocLifeInner({
   }
 
   const handleChoose = useCallback((optionId: string) => {
-    if (!activeIncident || consequence || paused) return; // ignore clicks while overlay is up or paused
+    if (!activeIncident || consequence || paused) return;
     const step = activeIncident.steps[stepIdx];
     const opt = step.options.find((o) => o.id === optionId);
     if (!opt) return;
     if (step.requiredRoom && step.requiredRoom !== currentRoom) return;
 
-    // Apply effects immediately so meters react in real time, but DON'T advance
-    // the step yet — we want the player to read the consequence first.
-    const stressDelta = opt.correct ? -2 : +6;
+    // Defensive textbook-answer fallback: if the scenario has no `correct: true`
+    // option, treat the highest-delta option as the textbook answer so the
+    // overlay always surfaces a "best answer" hint.
+    const hasFlaggedCorrect = step.options.some((o) => o.correct);
+    const bestAnswer =
+      step.options.find((o) => o.correct) ??
+      [...step.options].sort((a, b) => b.delta - a.delta)[0];
+    const isCorrect = opt.correct || (!hasFlaggedCorrect && opt === bestAnswer);
+
+    const stressDelta = isCorrect ? -2 : +6;
     setReputation((r) => Math.max(0, Math.min(100, r + opt.delta)));
     setStress((s) => Math.min(100, Math.max(0, s + stressDelta)));
-    if (opt.correct) setScore((s) => s + 10);
+    if (isCorrect) setScore((s) => s + 10);
 
-    audio.playSfx(opt.correct ? "success_chime" : "fail_buzz", 0.45);
+    audio.playSfx(isCorrect ? "success_chime" : "fail_buzz", 0.45);
 
-    const bestAnswer = step.options.find((o) => o.correct);
-    setConsequence({
-      optionLabel: opt.label[language],
-      correct: opt.correct,
+    const reason = resolveReason(activeIncident, step, opt, language);
+    setDecisionHistory((h) => [...h, {
+      id: `${activeIncident.id}:${step.id}:${opt.id}:${h.length}`,
+      incidentId: activeIncident.id,
+      incidentTitle: activeIncident.title[language],
+      stepId: step.id,
+      stepTitle: step.title[language],
+      prompt: step.prompt[language],
+      chosenLabel: opt.label[language],
+      bestAnswerLabel: bestAnswer?.label[language],
+      correct: isCorrect,
       repDelta: opt.delta,
       stressDelta,
-      reason: resolveReason(activeIncident, step, opt, language),
-      bestAnswerLabel: !opt.correct && bestAnswer
+      reason,
+    }]);
+
+    setConsequence({
+      optionLabel: opt.label[language],
+      correct: isCorrect,
+      repDelta: opt.delta,
+      stressDelta,
+      reason,
+      bestAnswerLabel: !isCorrect && bestAnswer
         ? bestAnswer.label[language]
         : undefined,
     });
