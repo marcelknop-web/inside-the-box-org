@@ -2058,7 +2058,11 @@ const ChatView = () => {
                 Team / Contact drawers (bg-background/85, backdrop-blur, brand
                 border, prominent close-X). Wraps the existing content stream
                 without changing any service rendering logic. */}
-            <div className="w-full px-3 md:px-6 lg:px-10 py-4 md:py-6 max-w-5xl mx-auto">
+            <div className={`w-full px-3 md:px-6 lg:px-10 py-4 md:py-6 mx-auto ${
+              activeService === 'soc-life' || activeService === 'ot-soc-life' || activeService === 'elite-ship' || activeService === 'butterfly-lab' || activeService === 'crisis-sim'
+                ? 'max-w-[1700px]'
+                : 'max-w-5xl'
+            }`}>
               <section
                 aria-label={activeServiceLabel}
                 className="bg-background/85 backdrop-blur-md border border-primary/20 rounded-lg shadow-[0_8px_40px_-12px_hsl(var(--primary)/0.25)]"
