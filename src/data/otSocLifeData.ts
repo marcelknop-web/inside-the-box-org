@@ -926,6 +926,348 @@ const UPS_TAMPER: Incident = {
   ],
 };
 
+// ============================================================================
+// 11 — Surprise auditor on the floor (comic relief)
+// ============================================================================
+const SURPRISE_AUDITOR: Incident = {
+  id: "surprise_auditor",
+  tier: "comic",
+  category: "process",
+  title: L(
+    "Auditor steht plötzlich im SOC",
+    "Surprise auditor on the SOC floor",
+    "Un auditeur débarque dans le SOC",
+  ),
+  brief: L(
+    "Ein externer NIS-2-Auditor steht unangekündigt vor der Tür, mit Klemmbrett, Lanyard und drei Fragen, die er „nur kurz“ klären will.",
+    "An external NIS-2 auditor turns up unannounced at the door, clipboard in hand, lanyard swinging, and three questions he just wants to clear up quickly.",
+    "Un auditeur NIS-2 externe se présente à l'improviste, planchette en main, badge au cou, et trois questions qu'il veut juste tirer au clair.",
+  ),
+  initialDelayMs: 11_000,
+  steps: [
+    {
+      id: "greet", requiredRoom: "war_room", timeLimitMs: 22_000,
+      title: L("Empfang", "Greet", "Accueil"),
+      prompt: L("Wie reagieren?", "How do you react?", "Comment réagir ?"),
+      options: [
+        { id: "verify_then_room", correct: true, delta: +6, label: L(
+          "Identität am Empfang verifizieren lassen, Begleitperson aus Compliance dazuholen und in den War Room mit Whiteboard führen, Telefone vorher leise stellen",
+          "Have reception verify the auditor's identity, pull a chaperone from compliance, walk him to the war room with a whiteboard, silence the phones first",
+          "Faire vérifier l'identité à l'accueil, demander un accompagnant compliance, l'amener en war room avec tableau, mettre les téléphones en silencieux",
+        ) },
+        { id: "show_everything", correct: false, delta: -4, label: L(
+          "Den Auditor direkt im SOC herumführen, ihm spontan über die Schulter Live-Tickets und SIEM-Dashboards zeigen, damit er sieht, dass „nichts zu verbergen“ ist",
+          "Walk the auditor straight into the SOC, show him live tickets and SIEM dashboards over your shoulder so he sees there is nothing to hide",
+          "Faire entrer l'auditeur directement dans le SOC, lui montrer tickets live et tableaux SIEM par-dessus l'épaule pour montrer que rien n'est caché",
+        ) },
+        { id: "stall_him", correct: false, delta: -3, label: L(
+          "Sagen, dass leider gerade niemand Zeit hat, ihn auf nächste Woche vertrösten und ihm einen Kaffee aus dem Automaten anbieten",
+          "Tell him nobody has time right now, ask him to come back next week, and offer him a vending-machine coffee on the way out",
+          "Lui dire que personne n'a le temps maintenant, le renvoyer à la semaine prochaine et lui offrir un café du distributeur en partant",
+        ) },
+      ],
+    },
+    {
+      id: "evidence", requiredRoom: "ciso_office", timeLimitMs: 24_000,
+      title: L("Evidenz", "Evidence", "Preuves"),
+      prompt: L(
+        "Er fragt nach dem letzten OT-Incident-Bericht. Was zeigen?",
+        "He asks for the last OT incident report. What do you show?",
+        "Il demande le dernier rapport d'incident OT. Que montrer ?",
+      ),
+      options: [
+        { id: "redacted_pack", correct: true, delta: +7, label: L(
+          "Den freigegebenen, redigierten Vorfallbericht aus dem Document-Repo zeigen, mit Zeitstempeln, Owner und Maßnahmenstatus, alles unter Aufsicht der Compliance",
+          "Hand over the approved, redacted incident report from the document repo — timestamps, owners, action status, with compliance present",
+          "Présenter le rapport d'incident approuvé et expurgé du dépôt documentaire — horodatages, responsables, statut des actions, en présence de compliance",
+        ) },
+        { id: "open_ticket_system", correct: false, delta: -5, label: L(
+          "Ihm direkten Lesezugriff auf das laufende Ticketsystem geben, damit er „sich selbst überzeugen“ kann, wie transparent das Team arbeitet",
+          "Give him direct read access to the live ticketing system so he can see for himself how transparent the team works",
+          "Lui donner un accès lecture direct au système de tickets en cours pour qu'il « se rende compte par lui-même » de la transparence",
+        ) },
+        { id: "make_it_up", correct: false, delta: -7, label: L(
+          "Schnell ein „Beispielreport“-Dokument neu zusammenklicken, das so aussieht, als wäre es schon immer da gewesen, und ihm das aushändigen",
+          "Quickly assemble a fresh „example report" document that looks like it has always been there and hand him that one",
+          "Bricoler vite un « rapport-exemple » qui a l'air d'avoir toujours existé et le lui remettre",
+        ) },
+      ],
+    },
+    {
+      id: "trick_q", requiredRoom: "war_room", timeLimitMs: 20_000,
+      title: L("Fangfrage", "Trick question", "Question piège"),
+      prompt: L(
+        "„Wie oft testen Sie Ihren Notfallplan?“ — Antwort?",
+        "\"How often do you test your incident response plan?\" — answer?",
+        "« À quelle fréquence testez-vous votre plan d'urgence ? » — réponse ?",
+      ),
+      options: [
+        { id: "honest_with_plan", correct: true, delta: +6, label: L(
+          "Ehrlich antworten: zuletzt vor X Monaten als Tabletop, nächster Termin steht im Plan, und das Protokoll des letzten TTX liegt im selben Repo",
+          "Answer honestly: last tabletop X months ago, the next slot is on the plan, and the protocol of the last TTX is in the same repo",
+          "Répondre honnêtement : dernier tabletop il y a X mois, le prochain est planifié, et le compte rendu du dernier TTX est dans le même dépôt",
+        ) },
+        { id: "exaggerate", correct: false, delta: -6, label: L(
+          "Souverän behaupten „quartalsweise, vollständig durchgespielt mit allen Stakeholdern“ und hoffen, dass er nicht nach Beleg fragt",
+          "Confidently claim „quarterly, fully exercised with all stakeholders" and hope he doesn't ask for evidence",
+          "Affirmer avec aplomb « trimestriellement, joué intégralement avec tous les acteurs » et espérer qu'il ne demande pas de preuve",
+        ) },
+        { id: "deflect_to_ciso", correct: false, delta: -3, label: L(
+          "Erklären, das sei eine Frage für den CISO, ihn bitten, das Thema später schriftlich nachzureichen, und das Gespräch elegant umlenken",
+          "Explain that this is a CISO question, ask him to submit it in writing later, and steer the conversation elsewhere",
+          "Expliquer que c'est une question pour le CISO, lui demander de la soumettre par écrit, et rediriger la discussion",
+        ) },
+      ],
+    },
+  ],
+};
+
+// ============================================================================
+// 12 — DNS exfiltration from a historian replica
+// ============================================================================
+const HISTORIAN_DNS_EXFIL: Incident = {
+  id: "historian_dns_exfil",
+  tier: "hard",
+  category: "network",
+  title: L(
+    "DNS-Exfil aus Historian-Replica",
+    "DNS exfil from historian replica",
+    "Exfiltration DNS depuis la réplique historian",
+  ),
+  brief: L(
+    "Im DMZ-Resolver fallen lange Base32-Subdomains auf — Quelle ist der Read-only-Historian-Spiegel in der L3.5-Zone.",
+    "DMZ resolver shows long base32 subdomains — source is the read-only historian replica in the L3.5 zone.",
+    "Le résolveur DMZ remonte de longs sous-domaines en base32 — la source est la réplique historian en lecture seule en L3.5.",
+  ),
+  initialDelayMs: 10_000,
+  steps: [
+    {
+      id: "verify", requiredRoom: "siem", timeLimitMs: 22_000,
+      title: L("Verifizieren", "Verify", "Vérifier"),
+      prompt: L("Wie validieren?", "How do you validate?", "Comment valider ?"),
+      options: [
+        { id: "passive_dns", correct: true, delta: +7, label: L(
+          "Passive-DNS und NetFlow korrelieren, Subdomain-Entropie und Anfragefrequenz mit dem Baseline-Profil des Historians abgleichen",
+          "Correlate passive DNS with NetFlow, compare subdomain entropy and query rate against the historian's baseline profile",
+          "Corréler le DNS passif et le NetFlow, comparer l'entropie des sous-domaines et la fréquence à la baseline de l'historian",
+        ) },
+        { id: "block_dns", correct: false, delta: -5, label: L(
+          "Sofort den DNS-Resolver in der DMZ blocken, damit kein weiterer Datenabfluss möglich ist, und parallel das Engineering informieren",
+          "Block the DMZ DNS resolver immediately to stop further exfil, then inform engineering in parallel",
+          "Bloquer immédiatement le résolveur DNS DMZ pour stopper toute fuite, puis informer l'ingénierie en parallèle",
+        ) },
+        { id: "reboot_historian", correct: false, delta: -6, label: L(
+          "Den Historian-Spiegel neu starten und beobachten, ob das Verhalten nach dem Reboot verschwindet — schneller als jede Korrelation",
+          "Reboot the historian replica and watch whether the behaviour disappears after restart — faster than any correlation work",
+          "Redémarrer la réplique historian et observer si le comportement disparaît après reboot — plus rapide qu'une corrélation",
+        ) },
+      ],
+    },
+    {
+      id: "contain", requiredRoom: "noc", timeLimitMs: 22_000,
+      title: L("Eindämmung", "Contain", "Confinement"),
+      prompt: L("Wie eindämmen?", "How do you contain?", "Comment confiner ?"),
+      options: [
+        { id: "sinkhole_egress", correct: true, delta: +8, label: L(
+          "Den verdächtigen Domain-Suffix in einen internen Sinkhole umlenken, Egress aus L3.5 auf den freigegebenen Resolver einschränken, Snapshot vor jeder Änderung",
+          "Sinkhole the suspicious domain suffix internally, restrict L3.5 egress to the approved resolver only, snapshot before any change",
+          "Détourner le suffixe suspect vers un sinkhole interne, restreindre la sortie L3.5 au résolveur approuvé, snapshot avant chaque modification",
+        ) },
+        { id: "cut_internet", correct: false, delta: -5, label: L(
+          "Die gesamte Internet-Anbindung der OT-DMZ pauschal kappen, bis die Quelle eindeutig identifiziert ist",
+          "Sever the entire OT DMZ internet uplink wholesale until the source is unambiguously identified",
+          "Couper l'ensemble de la liaison Internet de la DMZ OT jusqu'à identification claire de la source",
+        ) },
+        { id: "leave_running", correct: false, delta: -7, label: L(
+          "Den Datenstrom weiterlaufen lassen, um „mehr Telemetrie für die Analyse zu sammeln“, bevor man eingreift",
+          "Let the data stream keep running to „gather more telemetry for analysis" before intervening",
+          "Laisser le flux continuer pour « collecter plus de télémétrie pour l'analyse » avant d'intervenir",
+        ) },
+      ],
+    },
+    {
+      id: "report", requiredRoom: "ciso_office", timeLimitMs: 22_000,
+      title: L("Meldung", "Report", "Signalement"),
+      prompt: L("Wer wird informiert?", "Who is informed?", "Qui informer ?"),
+      options: [
+        { id: "ciso_legal_dpo", correct: true, delta: +6, label: L(
+          "CISO, Legal und DPO einbinden, NIS-2-Frühwarnung vorbereiten, parallel den vermuteten Datenumfang aus dem Historian-Schema ableiten",
+          "Loop in CISO, legal and DPO, prepare the NIS-2 early warning, derive the likely data scope from the historian schema in parallel",
+          "Impliquer CISO, juridique et DPO, préparer l'alerte précoce NIS-2, déduire en parallèle l'étendue probable des données depuis le schéma historian",
+        ) },
+        { id: "wait_proof", correct: false, delta: -6, label: L(
+          "Erstmal abwarten, bis ein „handfester Beweis“ für tatsächlichen Datenabfluss vorliegt, bevor irgendjemand außerhalb des SOC informiert wird",
+          "Wait until there is „hard proof" of actual data loss before informing anyone outside the SOC",
+          "Attendre une « preuve solide » d'une exfiltration effective avant d'informer qui que ce soit hors du SOC",
+        ) },
+        { id: "vendor_first", correct: false, delta: -4, label: L(
+          "Zuerst den Historian-Hersteller kontaktieren und ihn bitten, das Verhalten remote zu analysieren, bevor man intern eskaliert",
+          "Contact the historian vendor first and ask them to analyse the behaviour remotely before escalating internally",
+          "Contacter d'abord l'éditeur de l'historian et lui demander d'analyser le comportement à distance avant toute escalade interne",
+        ) },
+      ],
+    },
+  ],
+};
+
+// ============================================================================
+// 13 — Rogue wireless AP on the plant floor
+// ============================================================================
+const ROGUE_WIFI: Incident = {
+  id: "rogue_wifi_ap",
+  tier: "medium",
+  category: "network",
+  title: L(
+    "Unbekannter WLAN-AP in der Halle",
+    "Unknown wireless AP in the plant",
+    "Point d'accès Wi-Fi inconnu en atelier",
+  ),
+  brief: L(
+    "WIDS meldet eine fremde SSID „PLC-Service“ aus der Verpackungshalle, mit Signal stark genug, um zwei HMIs zu erreichen.",
+    "WIDS reports a foreign SSID „PLC-Service" from the packaging hall, signal strong enough to reach two HMIs.",
+    "Le WIDS signale une SSID inconnue « PLC-Service » dans le hall de conditionnement, signal assez fort pour atteindre deux IHM.",
+  ),
+  initialDelayMs: 11_000,
+  steps: [
+    {
+      id: "locate", requiredRoom: "siem", timeLimitMs: 22_000,
+      title: L("Lokalisieren", "Locate", "Localiser"),
+      prompt: L("Wie aufspüren?", "How do you locate it?", "Comment le localiser ?"),
+      options: [
+        { id: "triangulate_with_facility", correct: true, delta: +7, label: L(
+          "Mit Facility und Werkschutz koordiniert die WIDS-Trianguation laufen lassen und vor Ort prüfen, idealerweise mit dem zuständigen Schichtführer",
+          "Run WIDS triangulation in coordination with facility and site security and verify on site, ideally with the responsible shift lead present",
+          "Lancer la triangulation WIDS en coordination avec facility et la sécurité du site et vérifier sur place, idéalement avec le chef de quart",
+        ) },
+        { id: "deauth_blind", correct: false, delta: -5, label: L(
+          "Sofort eine Deauth-Welle gegen den AP fahren, damit potenzielle Clients nicht weiter verbinden können, bevor die Quelle bekannt ist",
+          "Fire an immediate deauth wave at the AP so potential clients can't keep connecting before the source is known",
+          "Déclencher tout de suite une vague de déauth contre l'AP pour empêcher les clients de se reconnecter avant identification",
+        ) },
+        { id: "ignore_wlan", correct: false, delta: -6, label: L(
+          "Ignorieren, weil das produktive OT-Netz kabelgebunden ist und ein WLAN-AP „technisch nicht stören kann“",
+          "Ignore it, because the production OT network is wired and a wireless AP „can't technically interfere"",
+          "Ignorer, parce que le réseau OT productif est filaire et qu'un AP Wi-Fi « ne peut techniquement pas gêner »",
+        ) },
+      ],
+    },
+    {
+      id: "contain", requiredRoom: "noc", timeLimitMs: 22_000,
+      title: L("Eindämmung", "Contain", "Confinement"),
+      prompt: L("Wie eindämmen?", "How do you contain?", "Comment confiner ?"),
+      options: [
+        { id: "physical_then_wids", correct: true, delta: +8, label: L(
+          "Werkschutz lokalisiert und sichert das Gerät physisch, WIDS-Containment bleibt auf den verdächtigen MAC-Bereich begrenzt, Beweiskette gewahrt",
+          "Site security physically locates and secures the device, WIDS containment stays scoped to the suspect MAC range, chain of custody preserved",
+          "La sécurité site localise et sécurise physiquement l'appareil, le confinement WIDS reste limité à la plage MAC suspecte, chaîne de garde préservée",
+        ) },
+        { id: "block_all_wireless", correct: false, delta: -5, label: L(
+          "Pauschal jeden 2.4-GHz-Funk im Werk blocken, bis das Thema geklärt ist — auch das Wartungstablet der Facility",
+          "Blanket-block every 2.4 GHz signal in the plant until this is sorted — including the facility maintenance tablet",
+          "Bloquer en bloc toute émission 2,4 GHz dans l'usine jusqu'à clarification — y compris la tablette maintenance facility",
+        ) },
+        { id: "destroy_on_sight", correct: false, delta: -7, label: L(
+          "Selbst in die Halle gehen, das Gerät abziehen und entsorgen — schneller als auf Werkschutz und Beweissicherung zu warten",
+          "Walk into the hall yourself, unplug the device and dispose of it — faster than waiting for site security and evidence handling",
+          "Aller soi-même dans le hall, débrancher l'appareil et le jeter — plus rapide qu'attendre la sécurité site et la mise sous scellés",
+        ) },
+      ],
+    },
+  ],
+};
+
+// ============================================================================
+// 14 — Spoofed safety alarm flood from a fieldbus
+// ============================================================================
+const ALARM_FLOOD: Incident = {
+  id: "alarm_flood_spoof",
+  tier: "hard",
+  category: "endpoint",
+  title: L(
+    "Alarm-Flut auf dem HMI",
+    "Alarm flood on the HMI",
+    "Inondation d'alarmes sur l'IHM",
+  ),
+  brief: L(
+    "Innerhalb von 90 Sekunden feuern die HMIs der Linie 3 über 400 Alarme — viele identisch, einige fingieren Safety-Trips ohne Sensor-Korrelation.",
+    "Within 90 seconds, line 3 HMIs fire 400+ alarms — many identical, some fake safety trips with no sensor correlation.",
+    "En 90 secondes, les IHM de la ligne 3 émettent plus de 400 alarmes — beaucoup identiques, certaines fausses signalisations safety sans corrélation capteur.",
+  ),
+  initialDelayMs: 8_000,
+  steps: [
+    {
+      id: "verify", requiredRoom: "war_room", timeLimitMs: 18_000,
+      title: L("Verifizieren", "Verify", "Vérifier"),
+      prompt: L(
+        "Echte Trips oder Spoofing — wie zuerst klären?",
+        "Real trips or spoofing — how do you decide first?",
+        "Vraies coupures ou spoofing — comment trancher d'abord ?",
+      ),
+      options: [
+        { id: "cross_check_field", correct: true, delta: +7, label: L(
+          "Schichtleitung und Bediener nach Sicht-Status fragen, Sensorwerte aus dem Historian gegen die HMI-Alarme cross-checken, Safety-Officer informieren",
+          "Ask shift lead and operators for visual status, cross-check sensor values from the historian against HMI alarms, inform the safety officer",
+          "Demander le statut visuel au chef de quart et aux opérateurs, croiser les valeurs capteurs de l'historian avec les alarmes IHM, informer le responsable safety",
+        ) },
+        { id: "ack_all", correct: false, delta: -7, label: L(
+          "Alle Alarme zentral acknowledgen, damit die Operatoren wieder klare Sicht haben und der Lärmpegel auf der Linie sinkt",
+          "Acknowledge all alarms centrally so the operators get a clear view again and the noise level on the line drops",
+          "Acquitter toutes les alarmes en central pour que les opérateurs retrouvent une vue claire et que le bruit baisse sur la ligne",
+        ) },
+        { id: "blame_hmi", correct: false, delta: -5, label: L(
+          "Sofort von einem HMI-Software-Bug ausgehen, den Hersteller anrufen und auf einen Patch warten, bevor man weiter eskaliert",
+          "Assume an HMI software bug straight away, call the vendor, and wait for a patch before escalating further",
+          "Conclure tout de suite à un bug logiciel IHM, appeler l'éditeur et attendre un patch avant d'escalader davantage",
+        ) },
+      ],
+    },
+    {
+      id: "contain", requiredRoom: "noc", timeLimitMs: 20_000,
+      title: L("Eindämmung", "Contain", "Confinement"),
+      prompt: L("Wie eindämmen?", "How do you contain?", "Comment confiner ?"),
+      options: [
+        { id: "filter_at_gateway", correct: true, delta: +7, label: L(
+          "Am OT-Gateway temporär einen Rate-Limiter und Duplikat-Filter für die betroffene Alarmklasse setzen, gemeinsam mit Engineering, ohne echte Safety-Alarme zu unterdrücken",
+          "Apply a temporary rate limiter and duplicate filter at the OT gateway for the affected alarm class, jointly with engineering, without suppressing real safety alarms",
+          "Appliquer temporairement un rate-limiter et un filtre de doublons sur la passerelle OT pour la classe d'alarme concernée, conjointement avec l'ingénierie, sans étouffer les vraies alarmes safety",
+        ) },
+        { id: "kill_alarm_service", correct: false, delta: -8, label: L(
+          "Den Alarm-Service auf den HMIs schlicht abschalten, damit der Bediener wieder ungestört arbeiten kann",
+          "Simply shut off the alarm service on the HMIs so the operator can work undisturbed again",
+          "Tout simplement arrêter le service d'alarmes sur les IHM pour que l'opérateur puisse retravailler sans gêne",
+        ) },
+        { id: "reboot_hmis", correct: false, delta: -5, label: L(
+          "Alle HMIs der Linie 3 nacheinander durchstarten, in der Hoffnung, dass der Spuk nach dem Reboot vorbei ist",
+          "Reboot all line 3 HMIs one by one, hoping the noise is gone after restart",
+          "Redémarrer toutes les IHM de la ligne 3 une par une, en espérant que le bruit disparaisse après reboot",
+        ) },
+      ],
+    },
+    {
+      id: "report", requiredRoom: "ciso_office", timeLimitMs: 20_000,
+      title: L("Meldung", "Report", "Signalement"),
+      prompt: L("Was dokumentieren?", "What do you document?", "Que documenter ?"),
+      options: [
+        { id: "timeline_evidence", correct: true, delta: +6, label: L(
+          "Zeitleiste, betroffene Tags, Filterregel und Beteiligte sauber dokumentieren, Safety-Officer mitzeichnen lassen, Ticket mit Anhang an Engineering und CISO",
+          "Document timeline, affected tags, the filter rule and the people involved cleanly, have the safety officer co-sign, ticket with attachment to engineering and CISO",
+          "Documenter proprement la chronologie, les tags touchés, la règle de filtrage et les intervenants, faire co-signer le responsable safety, ticket avec pièce jointe à l'ingénierie et au CISO",
+        ) },
+        { id: "verbal_only", correct: false, delta: -5, label: L(
+          "Nur mündlich an die Schichtleitung übergeben, weil die Anlage „läuft ja wieder“ und niemand zusätzliche Bürokratie braucht",
+          "Hand over verbally to the shift lead only, because the plant „is running again" and nobody needs extra paperwork",
+          "Transmettre uniquement à l'oral au chef de quart, parce que l'usine « tourne à nouveau » et que personne n'a besoin de paperasse en plus",
+        ) },
+        { id: "blame_operator", correct: false, delta: -7, label: L(
+          "Im Bericht festhalten, dass die Bediener falsch quittiert hätten, damit das Thema sauber abgelegt werden kann",
+          "Write in the report that the operators acknowledged incorrectly, so the topic can be cleanly archived",
+          "Indiquer dans le rapport que les opérateurs ont mal acquitté, afin que le sujet puisse être proprement classé",
+        ) },
+      ],
+    },
+  ],
+};
+
 // ----------------- Catalogue + comic flagging -----------------
 export const INCIDENTS: Incident[] = [
   PLC_WRITE,
@@ -938,9 +1280,14 @@ export const INCIDENTS: Incident[] = [
   L2_WORM,
   HMI_TAKEOVER,
   UPS_TAMPER,
+  SURPRISE_AUDITOR,
+  HISTORIAN_DNS_EXFIL,
+  ROGUE_WIFI,
+  ALARM_FLOOD,
 ];
 
 /** Comic-relief incidents trigger the cheesy "audit" music mode. */
 export const COMIC_INCIDENT_IDS = new Set<string>([
   "ups_tampering",
+  "surprise_auditor",
 ]);
