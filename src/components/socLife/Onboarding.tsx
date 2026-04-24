@@ -1,7 +1,7 @@
-import { useEffect, useState, ComponentType } from "react";
+import { useEffect, useState, ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { useVariantT } from "./variantContext";
+import { useVariantT, useSocLifeVariant } from "./variantContext";
 import {
   FloorplanPreview, MetersPreview, IncidentPreview, ConsequencePreview,
 } from "./OnboardingPreviews";
@@ -22,6 +22,7 @@ interface OnboardingProps {
  */
 export function Onboarding({ onClose }: OnboardingProps) {
   const { t } = useVariantT();
+  const { variant } = useSocLifeVariant();
   const [idx, setIdx] = useState(0);
   const total = 4;
   const isLast = idx === total - 1;
@@ -42,30 +43,46 @@ export function Onboarding({ onClose }: OnboardingProps) {
     return () => window.removeEventListener("keydown", onKey);
   }, [isLast, onClose]);
 
-  const slides: { Preview: ComponentType<{ className?: string }>; title: string; body: string }[] = [
-    {
-      Preview: FloorplanPreview,
-      title: t("onboarding.s1Title"),
-      body:  t("onboarding.s1Body"),
-    },
-    {
-      Preview: MetersPreview,
-      title: t("onboarding.s2Title"),
-      body:  t("onboarding.s2Body"),
-    },
-    {
-      Preview: IncidentPreview,
-      title: t("onboarding.s3Title"),
-      body:  t("onboarding.s3Body"),
-    },
-    {
-      Preview: ConsequencePreview,
-      title: t("onboarding.s4Title"),
-      body:  t("onboarding.s4Body"),
-    },
+  // English-only preview labels for the OT variant; the IT variant keeps
+  // the existing German hardcoded defaults inside the preview SVGs.
+  const isOt = variant === "ot";
+  const previews: ReactNode[] = [
+    <FloorplanPreview
+      labels={isOt ? {
+        topRow:    ["CTRL", "SIEM", "FOR", "DMZ"],
+        bottomRow: ["BRDG", "MGR",  "EWS", "HOFF"],
+      } : undefined}
+    />,
+    <MetersPreview />,
+    <IncidentPreview
+      labels={isOt ? {
+        tag:        "▲ Incoming OT incident",
+        title:      "Suspected ransomware in IDMZ",
+        roomLabel:  "ROOM:",
+        roomValue:  "DMZ",
+        timerLabel: "TIME",
+      } : undefined}
+    />,
+    <ConsequencePreview
+      labels={isOt ? {
+        tag:         "✓ VERDICT",
+        verdict:     "Textbook response.",
+        quote:       "“Capture IOCs, then close the conduit”",
+        repLabel:    "REPUTATION",
+        stressLabel: "STRESS",
+      } : undefined}
+    />,
+  ];
+
+  const slides: { title: string; body: string }[] = [
+    { title: t("onboarding.s1Title"), body: t("onboarding.s1Body") },
+    { title: t("onboarding.s2Title"), body: t("onboarding.s2Body") },
+    { title: t("onboarding.s3Title"), body: t("onboarding.s3Body") },
+    { title: t("onboarding.s4Title"), body: t("onboarding.s4Body") },
   ];
 
   const slide = slides[idx];
+  const preview = previews[idx];
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/85 backdrop-blur-sm animate-fade-in p-3">
@@ -86,7 +103,7 @@ export function Onboarding({ onClose }: OnboardingProps) {
         {/* Slide content: animated SVG preview + title + body */}
         <div className="mb-5">
           <div className="mb-3 rounded-md border border-border/40 bg-background/60 p-2">
-            <slide.Preview />
+            {preview}
           </div>
           <h3 className="mb-2 font-mono text-lg sm:text-xl text-foreground leading-tight">
             {slide.title}
