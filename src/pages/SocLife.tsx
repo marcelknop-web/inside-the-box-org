@@ -724,9 +724,14 @@ function SocLifeInner({
     audio.setMusicMode("calm");
     setHighscores(loadHighscores(HIGHSCORE_KEY));
     setHighscoreSubmitted(false);
+    try {
+      window.localStorage.setItem(LAST_SHIFT_INCIDENTS_KEY, JSON.stringify(recentIncidentIdsRef.current));
+    } catch {
+      // ignore
+    }
     const id = window.setTimeout(() => setGameOverActionsReady(true), 2200);
     return () => window.clearTimeout(id);
-  }, [gameOver, audio]);
+  }, [gameOver, audio, HIGHSCORE_KEY, LAST_SHIFT_INCIDENTS_KEY]);
 
   const submitHighscore = () => {
     const name = playerName.trim().slice(0, HIGHSCORE_NAME_MAX) || "ANON";
