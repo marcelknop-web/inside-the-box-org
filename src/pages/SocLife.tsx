@@ -127,6 +127,35 @@ function pickNextIncident(
   return pool[Math.floor(Math.random() * pool.length)];
 }
 
+interface DecisionRecord {
+  id: string;
+  incidentId: string;
+  incidentTitle: string;
+  stepId: string;
+  stepTitle: string;
+  prompt: string;
+  chosenLabel: string;
+  bestAnswerLabel?: string;
+  correct: boolean;
+  timedOut?: boolean;
+  repDelta: number;
+  stressDelta: number;
+  reason: string;
+}
+
+function loadStoredIncidentIds(storageKey: string): string[] {
+  try {
+    const raw = localStorage.getItem(storageKey);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed)
+      ? parsed.filter((entry): entry is string => typeof entry === "string")
+      : [];
+  } catch {
+    return [];
+  }
+}
+
 interface SocLifeProps {
   /** When embedded inside ChatView the page chrome (full-viewport wrapper,
    *  Helmet meta) is suppressed and the simulator fills its parent container. */
