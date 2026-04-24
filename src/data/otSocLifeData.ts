@@ -1080,7 +1080,7 @@ const HISTORIAN_DNS_EXFIL: Incident = {
         ) },
         { id: "leave_running", correct: false, delta: -7, label: L(
           "Den Datenstrom weiterlaufen lassen, um „mehr Telemetrie für die Analyse zu sammeln“, bevor man eingreift",
-          "Let the data stream keep running to „gather more telemetry for analysis" before intervening",
+          "Let the data stream keep running to ‘gather more telemetry for analysis’ before intervening",
           "Laisser le flux continuer pour « collecter plus de télémétrie pour l'analyse » avant d'intervenir",
         ) },
       ],
