@@ -560,7 +560,7 @@ function SocLifeInner({
       restart();
       return;
     }
-    if (window.confirm(t("socLife.confirmRestart"))) restart();
+    if (window.confirm(t("confirmRestart"))) restart();
   };
 
   // Track native fullscreen state (e.g. user pressing ESC) so the icon stays in sync.
@@ -653,8 +653,8 @@ function SocLifeInner({
     >
       {!embedded && (
         <Helmet>
-          <title>{t("socLife.metaTitle")}</title>
-          <meta name="description" content={t("socLife.metaDesc")} />
+          <title>{t("metaTitle")}</title>
+          <meta name="description" content={t("metaDesc")} />
         </Helmet>
       )}
 
@@ -666,7 +666,7 @@ function SocLifeInner({
               inside-the-box · sim
             </div>
             <h1 className="font-mono text-sm sm:text-xl md:text-2xl text-primary leading-tight truncate">
-              {t("socLife.title")}
+              {t("title")}
             </h1>
           </div>
           {started && (
@@ -675,32 +675,32 @@ function SocLifeInner({
                 size="sm" variant="outline" className="font-mono h-7 sm:h-8 px-2 text-xs"
                 onClick={() => setPaused((p) => !p)}
                 disabled={gameOver}
-                aria-label={paused ? t("socLife.resume") : t("socLife.pause")}
-                title={paused ? t("socLife.resume") : t("socLife.pause")}
+                aria-label={paused ? t("resume") : t("pause")}
+                title={paused ? t("resume") : t("pause")}
               >
                 {paused ? "▶" : "❚❚"}
               </Button>
               <Button
                 size="sm" variant="outline" className="font-mono h-7 sm:h-8 px-2 text-xs"
                 onClick={() => audio.setEnabled(!audio.enabled)}
-                aria-label={audio.enabled ? t("socLife.soundOff") : t("socLife.soundOn")}
-                title={audio.enabled ? t("socLife.soundOff") : t("socLife.soundOn")}
+                aria-label={audio.enabled ? t("soundOff") : t("soundOn")}
+                title={audio.enabled ? t("soundOff") : t("soundOn")}
               >
                 {audio.enabled ? `🔊` : `🔇`}
               </Button>
               <Button
                 size="sm" variant="outline" className="font-mono h-7 sm:h-8 px-2 text-xs"
                 onClick={toggleFullscreen}
-                aria-label={isFullscreen ? (t("socLife.fullscreenExit") || "Exit fullscreen") : (t("socLife.fullscreenEnter") || "Fullscreen")}
-                title={isFullscreen ? (t("socLife.fullscreenExit") || "Exit fullscreen") : (t("socLife.fullscreenEnter") || "Fullscreen")}
+                aria-label={isFullscreen ? (t("fullscreenExit") || "Exit fullscreen") : (t("fullscreenEnter") || "Fullscreen")}
+                title={isFullscreen ? (t("fullscreenExit") || "Exit fullscreen") : (t("fullscreenEnter") || "Fullscreen")}
               >
                 {isFullscreen ? "⤡" : "⛶"}
               </Button>
               <Button
                 size="sm" variant="outline" className="font-mono h-7 sm:h-8 px-2 text-xs"
                 onClick={confirmRestart}
-                aria-label={t("socLife.restartShift")}
-                title={t("socLife.restartShift")}
+                aria-label={t("restartShift")}
+                title={t("restartShift")}
               >
                 ↻
               </Button>
@@ -711,19 +711,19 @@ function SocLifeInner({
         {!started && (
           <section className="rounded-lg border border-border/40 bg-background/40 p-4 sm:p-6 max-w-2xl overflow-y-auto">
             <p className="mb-3 text-sm text-muted-foreground sm:text-base">
-              {t("socLife.subtitle")}
+              {t("subtitle")}
             </p>
             <p className="mb-4 text-sm text-muted-foreground sm:text-base">
-              {t("socLife.intro")}
+              {t("intro")}
             </p>
             <p className="mb-5 font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
-              {t("socLife.audioHint")}
+              {t("audioHint")}
             </p>
 
 
             <div className="flex flex-wrap items-center gap-2">
               <Button size="lg" onClick={startShift} className="font-mono">
-                ▶ {t("socLife.start")}
+                ▶ {t("start")}
               </Button>
               <Button
                 size="lg"
@@ -731,7 +731,7 @@ function SocLifeInner({
                 onClick={() => setShowOnboarding(true)}
                 className="font-mono"
               >
-                ? {t("socLife.onboarding.showAgain")}
+                ? {t("onboarding.showAgain")}
               </Button>
             </div>
           </section>
@@ -853,17 +853,17 @@ function SocLifeInner({
                 className="absolute inset-0 z-30 flex items-center justify-center bg-background/80 backdrop-blur-sm animate-fade-in cursor-pointer"
                 onClick={() => setPaused(false)}
                 role="button"
-                aria-label={t("socLife.resume")}
+                aria-label={t("resume")}
               >
                 <div className="mx-3 max-w-sm w-full rounded-lg border border-primary/40 bg-background/95 p-6 sm:p-8 text-center shadow-[0_0_0_1px_hsl(var(--primary)/0.2),0_20px_60px_-10px_hsl(var(--primary)/0.3)]">
                   <div className="mb-2 font-mono text-[11px] uppercase tracking-[0.25em] text-primary">
-                    ❚❚ {t("socLife.pause")}
+                    ❚❚ {t("pause")}
                   </div>
                   <h2 className="mb-3 font-mono text-2xl sm:text-3xl text-foreground leading-tight">
-                    {t("socLife.pausedHeadline") || "Schicht angehalten"}
+                    {t("pausedHeadline") || "Schicht angehalten"}
                   </h2>
                   <p className="text-sm text-muted-foreground">
-                    {t("socLife.pausedHint") || "Klicken oder ▶ drücken, um fortzufahren."}
+                    {t("pausedHint") || "Klicken oder ▶ drücken, um fortzufahren."}
                   </p>
                 </div>
               </div>
@@ -875,24 +875,24 @@ function SocLifeInner({
               <div className="absolute inset-0 z-30 flex items-center justify-center bg-background/85 backdrop-blur-sm animate-fade-in">
                 <div className="mx-3 max-w-md w-full max-h-[92vh] overflow-y-auto rounded-lg border border-rose-500/50 bg-background/95 p-5 sm:p-6 shadow-[0_0_0_1px_hsl(var(--destructive)/0.25),0_20px_60px_-10px_hsl(var(--destructive)/0.4)]">
                   <div className="mb-2 font-mono text-[11px] uppercase tracking-[0.25em] text-rose-400">
-                    ▲ {t("socLife.gameOverTitle")}
+                    ▲ {t("gameOverTitle")}
                   </div>
                   <h2 className="mb-2 font-mono text-xl sm:text-2xl text-foreground leading-tight">
-                    {t("socLife.gameOverHeadline")}
+                    {t("gameOverHeadline")}
                   </h2>
                   <p className="mb-4 text-sm text-muted-foreground leading-relaxed">
-                    {t("socLife.gameOverFlavor")}
+                    {t("gameOverFlavor")}
                   </p>
                   <div className="mb-4 grid grid-cols-2 gap-3 font-mono text-xs">
                     <div className="rounded-md border border-border/40 bg-background/60 p-3">
                       <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                        {t("socLife.gameOverFinalScore")}
+                        {t("gameOverFinalScore")}
                       </div>
                       <div className="mt-1 text-lg text-primary">{score}</div>
                     </div>
                     <div className="rounded-md border border-border/40 bg-background/60 p-3">
                       <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                        {t("socLife.gameOverShift")}
+                        {t("gameOverShift")}
                       </div>
                       <div className="mt-1 text-lg text-foreground">
                         {Math.floor(shiftSec / 60).toString().padStart(2, "0")}:
@@ -906,14 +906,14 @@ function SocLifeInner({
                   {qualifies && (
                     <div className="mb-4 rounded-md border border-primary/40 bg-primary/5 p-3">
                       <div className="mb-2 font-mono text-[10px] uppercase tracking-wider text-primary">
-                        ★ {t("socLife.highscoreNew")}
+                        ★ {t("highscoreNew")}
                       </div>
                       <div className="flex flex-col sm:flex-row gap-2">
                         <input
                           type="text"
                           value={playerName}
                           onChange={(e) => setPlayerName(e.target.value.slice(0, HIGHSCORE_NAME_MAX))}
-                          placeholder={t("socLife.highscoreNamePlaceholder")}
+                          placeholder={t("highscoreNamePlaceholder")}
                           maxLength={HIGHSCORE_NAME_MAX}
                           autoFocus
                           className="flex-1 rounded-md border border-border/60 bg-background px-3 py-2 font-mono text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-primary"
@@ -924,14 +924,14 @@ function SocLifeInner({
                           onClick={submitHighscore}
                           className="font-mono shrink-0"
                         >
-                          {t("socLife.highscoreSave")}
+                          {t("highscoreSave")}
                         </Button>
                       </div>
                       <button
                         onClick={() => setHighscoreSubmitted(true)}
                         className="mt-2 font-mono text-[10px] uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors"
                       >
-                        {t("socLife.highscoreSkip")}
+                        {t("highscoreSkip")}
                       </button>
                     </div>
                   )}
@@ -940,12 +940,12 @@ function SocLifeInner({
                   <div className="mb-4 rounded-md border border-border/40 bg-background/60 p-3">
                     <div className="mb-2 flex items-baseline justify-between gap-2">
                       <div className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
-                        ☷ {t("socLife.highscoreTitle")}
+                        ☷ {t("highscoreTitle")}
                       </div>
                     </div>
                     {highscores.length === 0 ? (
                       <div className="font-mono text-xs text-muted-foreground/70 italic py-2">
-                        {t("socLife.highscoreEmpty")}
+                        {t("highscoreEmpty")}
                       </div>
                     ) : (
                       <ol className="space-y-0.5 font-mono text-[11px]">
@@ -960,7 +960,7 @@ function SocLifeInner({
                                 : "flex items-baseline gap-2 px-1.5 py-0.5 text-foreground/85"}
                             >
                               <span className="w-5 text-right text-muted-foreground tabular-nums">{i + 1}.</span>
-                              <span className="flex-1 truncate">{entry.name}{isMine && <span className="ml-1 text-[9px] uppercase tracking-wider text-primary/70">· {t("socLife.highscoreYou")}</span>}</span>
+                              <span className="flex-1 truncate">{entry.name}{isMine && <span className="ml-1 text-[9px] uppercase tracking-wider text-primary/70">· {t("highscoreYou")}</span>}</span>
                               <span className="tabular-nums text-muted-foreground/80">{entry.incidents}</span>
                               <span className="w-12 text-right tabular-nums">{entry.score}</span>
                             </li>
@@ -978,7 +978,7 @@ function SocLifeInner({
                         onClick={restart}
                         className="w-full font-mono animate-fade-in"
                       >
-                        ↻ {t("socLife.restart")}
+                        ↻ {t("restart")}
                       </Button>
                     ) : (
                       <div className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground/60 text-center">
