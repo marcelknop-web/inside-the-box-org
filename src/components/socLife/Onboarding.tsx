@@ -1,7 +1,7 @@
-import { useEffect, useState, ComponentType } from "react";
+import { useEffect, useState, ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { useVariantT } from "./variantContext";
+import { useVariantT, useSocLifeVariant } from "./variantContext";
 import {
   FloorplanPreview, MetersPreview, IncidentPreview, ConsequencePreview,
 } from "./OnboardingPreviews";
@@ -86,7 +86,7 @@ export function Onboarding({ onClose }: OnboardingProps) {
         {/* Slide content: animated SVG preview + title + body */}
         <div className="mb-5">
           <div className="mb-3 rounded-md border border-border/40 bg-background/60 p-2">
-            <slide.Preview />
+            {preview}
           </div>
           <h3 className="mb-2 font-mono text-lg sm:text-xl text-foreground leading-tight">
             {slide.title}
