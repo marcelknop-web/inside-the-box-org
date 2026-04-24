@@ -947,7 +947,17 @@ function SocLifeInner({
                 scrolls as a single surface. The inner overflow-y-auto only
                 kicks in from lg upwards where the sidebar is a true column. */}
             <aside className="min-h-0 lg:flex-1 lg:overflow-y-auto relative">
-              {activeIncident ? (
+              {/* Consequence takes over the column entirely while shown — this
+                  prevents the previous "two stacked panels" effect where the
+                  consequence overlay sat above an unchanged IncidentPanel that
+                  still displayed the prompt and answer buttons, looking like a
+                  duplicate. Single panel = single focus. */}
+              {consequence && !gameOver ? (
+                <ConsequenceOverlay
+                  data={consequence}
+                  onContinue={continueAfterConsequence}
+                />
+              ) : activeIncident ? (
                 <IncidentPanel
                   incident={activeIncident}
                   step={activeIncident.steps[stepIdx]}
@@ -960,18 +970,6 @@ function SocLifeInner({
                 />
               ) : (
                 <RoomActions currentRoom={currentRoom} onIdleAction={handleIdle} />
-              )}
-
-              {/* Consequence overlay — anchored to the IncidentPanel column so
-                  the pop-up appears exactly where the user just clicked their
-                  answer, instead of jumping across the screen from the
-                  game-grid centre. On mobile the column already spans the
-                  full width, so behaviour stays identical there. */}
-              {consequence && !gameOver && (
-                <ConsequenceOverlay
-                  data={consequence}
-                  onContinue={continueAfterConsequence}
-                />
               )}
             </aside>
 
