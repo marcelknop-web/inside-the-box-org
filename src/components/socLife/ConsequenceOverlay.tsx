@@ -154,8 +154,8 @@ export function ConsequenceOverlay({ data, onContinue }: Props) {
   return (
     // Outer wrapper handles overflow so the panel can scroll on tiny viewports
     // instead of pushing layout around when reason text length varies.
-    <div className="absolute inset-0 z-40 flex items-start sm:items-center justify-center bg-background/85 backdrop-blur-sm animate-fade-in p-3 overflow-y-auto">
-      <div className={cn("max-w-md w-full my-auto rounded-lg border bg-background/95 p-4 sm:p-5", accent)}>
+    <div className="absolute inset-x-0 top-0 z-40 p-2 sm:p-3 pointer-events-none">
+      <div className={cn("w-full max-h-[calc(100%-1rem)] overflow-y-auto rounded-lg border bg-background/95 backdrop-blur-sm p-4 sm:p-5 animate-fade-in pointer-events-auto", accent)}>
         {/* Verdict header */}
         <div className={cn("mb-2 flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.25em]", verdictColor)}>
           <span className="text-base leading-none">{symbol}</span>

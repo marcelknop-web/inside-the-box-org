@@ -76,9 +76,21 @@ export function IncidentPanel({
   const lang = language as Lang;
   // Reseed per page-load too, so refresh varies the order.
   const sessionSeed = useMemo(() => Math.random().toString(36).slice(2, 8), []);
+  // Defensive guarantee: if a scenario somehow ships without an explicit
+  // `correct: true` flag, mark the highest-delta option as the textbook
+  // answer so players always have a "right" textbook choice on offer.
+  const safeOptions = useMemo(() => {
+    if (step.options.length === 0) return step.options;
+    if (step.options.some((o) => o.correct)) return step.options;
+    const best = step.options.reduce(
+      (acc, opt) => (opt.delta > acc.delta ? opt : acc),
+      step.options[0],
+    );
+    return step.options.map((o) => (o === best ? { ...o, correct: true } : o));
+  }, [step.options]);
   const shuffledOptions = useMemo(
-    () => shuffleOptions(step.options, `${sessionSeed}:${incident.id}:${step.id}`),
-    [step, incident.id, sessionSeed],
+    () => shuffleOptions(safeOptions, `${sessionSeed}:${incident.id}:${step.id}`),
+    [safeOptions, incident.id, step.id, sessionSeed],
   );
   const inRightRoom = step.requiredRoom == null || step.requiredRoom === currentRoom;
   const requiredRoom = step.requiredRoom
