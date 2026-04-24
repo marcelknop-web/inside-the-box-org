@@ -152,9 +152,9 @@ const PHASES: Phase[] = [
       fr: 'Gestion de crise, continuité d\'activité et réponse à incident sous pression adverse.',
     },
     services: [
-      { id: 'cyber-crisis-management', titleKey: 'consulting.crisisTitle' },
-      { id: 'bcm', titleKey: 'consulting.bcmTitle' },
       { id: 'incident-management', titleKey: 'consulting.incidentTitle' },
+      { id: 'bcm', titleKey: 'consulting.bcmTitle' },
+      { id: 'cyber-crisis-management', titleKey: 'consulting.crisisTitle' },
     ],
   },
 ];
