@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ROOMS, RoomId, NPCS, NpcId } from "@/data/socLifeData";
-import { useLanguage } from "@/i18n/LanguageContext";
+import { useVariantT } from "./variantContext";
 import { cn } from "@/lib/utils";
 
 interface DollHouseProps {
@@ -962,7 +962,7 @@ function renderRoom(
 }
 
 export function DollHouse({ current, highlight, onMove, maxHeight, isNight = false, alertRoom = null }: DollHouseProps) {
-  const { t } = useLanguage();
+  const { t } = useVariantT();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const wrapRef = useRef<HTMLDivElement | null>(null);
   const [scale, setScale] = useState(3);
@@ -1768,7 +1768,7 @@ export function DollHouse({ current, highlight, onMove, maxHeight, isNight = fal
               onClick={() => room.id !== current && onMove(room.id)}
               className="absolute pointer-events-auto text-left flex"
               style={{ left: `${leftPct}%`, top: `${topPct}%`, width: `${widthPct}%` }}
-              title={t(`socLife.rooms.${room.i18n}.name`)}
+              title={t(`rooms.${room.i18n}.name`)}
             >
               <span
                 className={cn(
@@ -1783,7 +1783,7 @@ export function DollHouse({ current, highlight, onMove, maxHeight, isNight = fal
                     : "bg-background/80 text-foreground/80 hover:bg-background hover:text-foreground"
                 )}
               >
-                {t(`socLife.rooms.${room.i18n}.name`)}
+                {t(`rooms.${room.i18n}.name`)}
               </span>
             </button>
           );
