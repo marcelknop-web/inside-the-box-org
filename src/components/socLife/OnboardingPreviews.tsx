@@ -13,11 +13,33 @@ import { cn } from "@/lib/utils";
 
 interface PreviewProps { className?: string }
 
+/** Optional label overrides so the OT variant can ship English-only strings
+ *  without forking the whole preview. Falls back to the IT defaults. */
+export interface FloorplanLabels {
+  topRow?: [string, string, string, string];
+  bottomRow?: [string, string, string, string];
+}
+export interface IncidentLabels {
+  tag?: string;        // e.g. "▲ Incoming incident"
+  title?: string;      // e.g. "Suspected ransomware"
+  roomLabel?: string;  // e.g. "ROOM:"
+  roomValue?: string;  // e.g. "SIEM"
+  timerLabel?: string; // e.g. "TIME"
+}
+export interface ConsequenceLabels {
+  tag?: string;        // e.g. "✓ VERDICT"
+  verdict?: string;    // e.g. "Textbook response."
+  quote?: string;      // e.g. "“Capture IOCs, then block sender”"
+  repLabel?: string;
+  stressLabel?: string;
+}
+
 /* ============================================================
  * Slide 1 — Floor plan + walking analyst
  * ============================================================ */
-export function FloorplanPreview({ className }: PreviewProps) {
-  // 4 cols × 2 rows of rooms. Walk path traces a few rooms.
+export function FloorplanPreview({ className, labels }: PreviewProps & { labels?: FloorplanLabels }) {
+  const top = labels?.topRow    ?? ["SOC", "SIEM", "FOR", "NOC"];
+  const bot = labels?.bottomRow ?? ["WAR", "CISO", "SRV", "KIT"];
   return (
     <div className={cn("w-full", className)}>
       <svg viewBox="0 0 320 130" className="w-full h-auto block" aria-hidden="true">
@@ -41,25 +63,23 @@ export function FloorplanPreview({ className }: PreviewProps) {
           }
         `}</style>
 
-        {/* Top row: SOC, SIEM, Forensics, NOC */}
+        {/* Top row */}
         {[0,1,2,3].map((i) => (
           <rect key={`t${i}`} x={10 + i*78} y={10} width={68} height={48} rx={3}
             className={cn("fp-room", i === 2 && "fp-room-active")} />
         ))}
-        {/* Bottom row: War, CISO, Server, Kitchen */}
+        {/* Bottom row */}
         {[0,1,2,3].map((i) => (
           <rect key={`b${i}`} x={10 + i*78} y={72} width={68} height={48} rx={3} className="fp-room" />
         ))}
 
         {/* Tiny labels */}
-        <text className="fp-label" x={18} y={22}>SOC</text>
-        <text className="fp-label" x={96} y={22}>SIEM</text>
-        <text className="fp-label" x={174} y={22}>FOR</text>
-        <text className="fp-label" x={252} y={22}>NOC</text>
-        <text className="fp-label" x={18} y={84}>WAR</text>
-        <text className="fp-label" x={96} y={84}>CISO</text>
-        <text className="fp-label" x={174} y={84}>SRV</text>
-        <text className="fp-label" x={252} y={84}>KIT</text>
+        {top.map((label, i) => (
+          <text key={`tl${i}`} className="fp-label" x={18 + i*78} y={22}>{label}</text>
+        ))}
+        {bot.map((label, i) => (
+          <text key={`bl${i}`} className="fp-label" x={18 + i*78} y={84}>{label}</text>
+        ))}
 
         {/* Walking analyst */}
         <g style={{ transformOrigin: "0 0" }}>
@@ -117,7 +137,12 @@ export function MetersPreview({ className }: PreviewProps) {
 /* ============================================================
  * Slide 3 — Incoming incident: klaxon + room flash + timer drain
  * ============================================================ */
-export function IncidentPreview({ className }: PreviewProps) {
+export function IncidentPreview({ className, labels }: PreviewProps & { labels?: IncidentLabels }) {
+  const tag        = labels?.tag        ?? "▲ Eingehender Vorfall";
+  const title      = labels?.title      ?? "Ransomware-Verdacht";
+  const roomLabel  = labels?.roomLabel  ?? "RAUM:";
+  const roomValue  = labels?.roomValue  ?? "SIEM";
+  const timerLabel = labels?.timerLabel ?? "ZEIT";
   return (
     <div className={cn("w-full", className)}>
       <svg viewBox="0 0 320 130" className="w-full h-auto block" aria-hidden="true">
@@ -148,17 +173,17 @@ export function IncidentPreview({ className }: PreviewProps) {
         <g transform="translate(22, 24)">
           <circle className="ic-klaxon" r={4} />
         </g>
-        <text className="ic-tag" x={34} y={27}>▲ Eingehender Vorfall</text>
+        <text className="ic-tag" x={34} y={27}>{tag}</text>
 
         {/* Title */}
-        <text className="ic-title" x={22} y={52}>Ransomware-Verdacht</text>
+        <text className="ic-title" x={22} y={52}>{title}</text>
 
         {/* Required room hint */}
-        <text className="ic-room" x={22} y={72}>RAUM:</text>
-        <text className="ic-room-v" x={56} y={72}>SIEM</text>
+        <text className="ic-room" x={22} y={72}>{roomLabel}</text>
+        <text className="ic-room-v" x={56} y={72}>{roomValue}</text>
 
         {/* Timer label + draining bar */}
-        <text className="ic-room" x={22} y={92}>ZEIT</text>
+        <text className="ic-room" x={22} y={92}>{timerLabel}</text>
         <rect className="ic-bartrk" x={22} y={98} width={276} height={6} rx={3} />
         <rect className="ic-bar"    x={22} y={98} width={276} height={6} rx={3} />
       </svg>
@@ -169,7 +194,12 @@ export function IncidentPreview({ className }: PreviewProps) {
 /* ============================================================
  * Slide 4 — Consequence card: verdict + deltas
  * ============================================================ */
-export function ConsequencePreview({ className }: PreviewProps) {
+export function ConsequencePreview({ className, labels }: PreviewProps & { labels?: ConsequenceLabels }) {
+  const tag         = labels?.tag         ?? "✓ BEWERTUNG";
+  const verdict     = labels?.verdict     ?? "Lehrbuchreife Reaktion.";
+  const quote       = labels?.quote       ?? "„IOCs erfassen, dann Sender blocken“";
+  const repLabel    = labels?.repLabel    ?? "REPUTATION";
+  const stressLabel = labels?.stressLabel ?? "STRESS";
   return (
     <div className={cn("w-full", className)}>
       <svg viewBox="0 0 320 130" className="w-full h-auto block" aria-hidden="true">
@@ -195,18 +225,18 @@ export function ConsequencePreview({ className }: PreviewProps) {
 
         <g>
           <rect className="cq-card" x={10} y={10} width={300} height={110} rx={5} />
-          <text className="cq-tag"  x={22} y={28}>✓ BEWERTUNG</text>
-          <text className="cq-verd" x={22} y={48}>Lehrbuchreife Reaktion.</text>
-          <text className="cq-quote" x={22} y={66}>„IOCs erfassen, dann Sender blocken"</text>
+          <text className="cq-tag"  x={22} y={28}>{tag}</text>
+          <text className="cq-verd" x={22} y={48}>{verdict}</text>
+          <text className="cq-quote" x={22} y={66}>{quote}</text>
 
           {/* Reputation delta */}
           <rect className="cq-chip" x={22}  y={78} width={130} height={32} rx={3} />
-          <text className="cq-clab" x={30}  y={90}>REPUTATION</text>
+          <text className="cq-clab" x={30}  y={90}>{repLabel}</text>
           <text className="cq-pos"  x={30}  y={104}>+6</text>
 
           {/* Stress delta (negative = good, shown green) */}
           <rect className="cq-chip" x={168} y={78} width={130} height={32} rx={3} />
-          <text className="cq-clab" x={176} y={90}>STRESS</text>
+          <text className="cq-clab" x={176} y={90}>{stressLabel}</text>
           <text className="cq-neg"  x={176} y={104}>−2</text>
         </g>
       </svg>
