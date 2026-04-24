@@ -1097,7 +1097,7 @@ const HISTORIAN_DNS_EXFIL: Incident = {
         ) },
         { id: "wait_proof", correct: false, delta: -6, label: L(
           "Erstmal abwarten, bis ein „handfester Beweis“ für tatsächlichen Datenabfluss vorliegt, bevor irgendjemand außerhalb des SOC informiert wird",
-          "Wait until there is „hard proof" of actual data loss before informing anyone outside the SOC",
+          "Wait until there is ‘hard proof’ of actual data loss before informing anyone outside the SOC",
           "Attendre une « preuve solide » d'une exfiltration effective avant d'informer qui que ce soit hors du SOC",
         ) },
         { id: "vendor_first", correct: false, delta: -4, label: L(
