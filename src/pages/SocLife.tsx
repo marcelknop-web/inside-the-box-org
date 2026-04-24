@@ -5,9 +5,9 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useSocLifeAudio } from "@/hooks/useSocLifeAudio";
 import {
-  Incident, INCIDENTS, PlaybookStep,
-  ROOMS, RoomId, COMIC_INCIDENT_IDS,
-  IncidentTier, IncidentCategory,
+  Incident, INCIDENTS as IT_INCIDENTS, PlaybookStep,
+  ROOMS, RoomId, COMIC_INCIDENT_IDS as IT_COMIC_INCIDENT_IDS,
+  IncidentTier, IncidentCategory, Lang,
 } from "@/data/socLifeData";
 import { DollHouse } from "@/components/socLife/DollHouse";
 import { SocMeters } from "@/components/socLife/SocMeters";
@@ -16,12 +16,24 @@ import { RoomActions, IdleAction } from "@/components/socLife/RoomActions";
 import { resolveIdleLabel } from "@/components/socLife/idleI18n";
 import { ConsequenceOverlay, ConsequenceData } from "@/components/socLife/ConsequenceOverlay";
 import { Onboarding } from "@/components/socLife/Onboarding";
-import { reasonFor } from "@/data/socLifeReasons";
+import { reasonFor as itReasonFor } from "@/data/socLifeReasons";
 import {
   loadHighscores, saveHighscore, qualifiesForHighscore,
   HIGHSCORE_NAME_MAX, HighscoreEntry,
 } from "@/utils/socLifeHighscore";
 import { resolveIsNight } from "@/utils/socLifeDayNight";
+import {
+  SocLifeVariant, SocLifeVariantProvider, useVariantT,
+  useSocLifeVariant as useSocLifeVariantInternal,
+} from "@/components/socLife/variantContext";
+
+/** Reason resolver signature — same as IT/OT-specific helpers in `data/`. */
+export type ReasonResolver = (
+  incident: Incident,
+  step: PlaybookStep,
+  option: Incident["steps"][number]["options"][number],
+  lang: Lang,
+) => string;
 
 const TICK_MS = 250;
 const MIN_INCIDENT_GAP_MS = 18_000;
@@ -83,17 +95,18 @@ function pickTier(weights: TierWeights, exclude?: IncidentTier): IncidentTier {
 
 /** Pick the next incident:
  *   1. Choose a tier from the difficulty curve.
- *   2. Filter INCIDENTS to that tier, exclude the most recent N to avoid
- *      repetition, and exclude the previous category to keep variety.
+ *   2. Filter the supplied catalogue to that tier, exclude the most recent N
+ *      to avoid repetition, and exclude the previous category to keep variety.
  *   3. If filtering empties the pool, progressively relax the constraints. */
 function pickNextIncident(
+  catalogue: Incident[],
   completed: number,
   recentIds: string[],
   lastCategory: IncidentCategory | null,
 ): Incident {
   const profile = DIFFICULTY_CURVE[Math.min(completed, DIFFICULTY_CURVE.length - 1)];
   const tier = pickTier(profile);
-  const sameTier = INCIDENTS.filter((i) => (i.tier ?? "medium") === tier);
+  const sameTier = catalogue.filter((i) => (i.tier ?? "medium") === tier);
 
   // Strict: not recently shown AND different category from previous.
   const strict = sameTier.filter(
@@ -109,8 +122,8 @@ function pickNextIncident(
   if (sameTier.length) return sameTier[Math.floor(Math.random() * sameTier.length)];
 
   // Last resort: any incident not just shown.
-  const anyOk = INCIDENTS.filter((i) => !recentIds.includes(i.id));
-  const pool = anyOk.length ? anyOk : INCIDENTS;
+  const anyOk = catalogue.filter((i) => !recentIds.includes(i.id));
+  const pool = anyOk.length ? anyOk : catalogue;
   return pool[Math.floor(Math.random() * pool.length)];
 }
 
@@ -118,10 +131,28 @@ interface SocLifeProps {
   /** When embedded inside ChatView the page chrome (full-viewport wrapper,
    *  Helmet meta) is suppressed and the simulator fills its parent container. */
   embedded?: boolean;
+  /** Variant — controls i18n root, default catalogue, default reason resolver
+   *  and default storage namespace. Defaults to "it" (classic SOC Life). */
+  variant?: SocLifeVariant;
+  /** Override the incident catalogue. Defaults to the IT catalogue. */
+  incidents?: Incident[];
+  /** Override the comic-incident id set (drives the cheesy "audit" music). */
+  comicIds?: Set<string>;
+  /** Override the rationale resolver (per-option / tier+phase fallback). */
+  reasonResolver?: ReasonResolver;
 }
 
-export default function SocLife({ embedded = false }: SocLifeProps = {}) {
-  const { t, language } = useLanguage();
+function SocLifeInner({
+  embedded = false,
+  incidents,
+  comicIds,
+  reasonResolver,
+}: Required<Pick<SocLifeProps, "embedded">> &
+  Omit<SocLifeProps, "embedded" | "variant">) {
+  const { t, language } = useVariantT();
+  const INCIDENTS = incidents ?? IT_INCIDENTS;
+  const COMIC_INCIDENT_IDS = comicIds ?? IT_COMIC_INCIDENT_IDS;
+  const resolveReason = reasonResolver ?? itReasonFor;
   const audio = useSocLifeAudio();
 
   const [started, setStarted] = useState(false);
@@ -145,11 +176,17 @@ export default function SocLife({ embedded = false }: SocLifeProps = {}) {
   // so multiple browser tabs stay roughly in sync. `playerName` persists across
   // shifts so returning players don't have to re-type it.
   const [highscores, setHighscores] = useState<HighscoreEntry[]>([]);
+  // Variant-specific localStorage namespace so IT and OT highscores / player
+  // names don't clobber each other.
+  const { storageNs } = useSocLifeVariantInternal();
+  const NAME_KEY = `${storageNs}.playerName`;
+  const ONBOARDED_KEY = `${storageNs}.onboarded`;
+  const HIGHSCORE_KEY = `${storageNs}.highscores.v1`;
   const [playerName, setPlayerName] = useState<string>(() => {
-    try { return localStorage.getItem("socLife.playerName") || ""; } catch { return ""; }
+    try { return localStorage.getItem(NAME_KEY) || ""; } catch { return ""; }
   });
   const [highscoreSubmitted, setHighscoreSubmitted] = useState(false);
-  const qualifies = gameOver && !highscoreSubmitted && qualifiesForHighscore(score);
+  const qualifies = gameOver && !highscoreSubmitted && qualifiesForHighscore(score, HIGHSCORE_KEY);
 
   const [isFullscreen, setIsFullscreen] = useState(false);
   // CSS-based pseudo-fullscreen for browsers without Fullscreen API support
@@ -207,7 +244,7 @@ export default function SocLife({ embedded = false }: SocLifeProps = {}) {
   const [showOnboarding, setShowOnboarding] = useState<boolean>(false);
   const closeOnboarding = useCallback(() => {
     setShowOnboarding(false);
-    try { window.localStorage.setItem("socLife.onboarded", "1"); } catch { /* ignore */ }
+    try { window.localStorage.setItem(ONBOARDED_KEY, "1"); } catch { /* ignore */ }
   }, []);
 
   const [activeIncident, setActiveIncident] = useState<Incident | null>(null);
@@ -338,6 +375,7 @@ export default function SocLife({ embedded = false }: SocLifeProps = {}) {
 
   const spawnIncident = useCallback(() => {
     const inc = pickNextIncident(
+      INCIDENTS,
       incidentsCompleted,
       recentIncidentIdsRef.current,
       lastCategoryRef.current,
@@ -354,11 +392,11 @@ export default function SocLife({ embedded = false }: SocLifeProps = {}) {
     setConsequence(null);
     nextIncidentAtRef.current = 0;
     audio.playSfx("incident_klaxon", 0.6);
-    toast(t("socLife.incomingIncident"), {
-      description: inc.title[language as "de" | "en" | "fr"],
+    toast(t("incomingIncident"), {
+      description: inc.title[language],
       duration: 2200,
     });
-  }, [audio, t, language, incidentsCompleted]);
+  }, [audio, t, language, incidentsCompleted, INCIDENTS]);
 
   const finishIncident = useCallback((escalated: boolean) => {
     setActiveIncident(null);
@@ -370,18 +408,18 @@ export default function SocLife({ embedded = false }: SocLifeProps = {}) {
     setIncidentsCompleted((n) => n + 1);
     if (escalated) {
       audio.playSfx("escalation", 0.5);
-      toast.error(t("socLife.incidentEscalated"), { duration: 1800 });
+      toast.error(t("incidentEscalated"), { duration: 1800 });
       setReputation((r) => Math.max(0, r - 10));
     } else {
       audio.playSfx("success_chime", 0.55);
-      toast.success(t("socLife.incidentResolved"), { duration: 1800 });
+      toast.success(t("incidentResolved"), { duration: 1800 });
       setScore((s) => s + 50);
     }
   }, [audio, t]);
 
   function handleTimeout() {
     audio.playSfx("fail_buzz", 0.5);
-    toast.error(t("socLife.feedback.timeout"), { duration: 1600 });
+    toast.error(t("feedback.timeout"), { duration: 1600 });
     setReputation((r) => Math.max(0, r - 8));
     finishIncident(true);
   }
@@ -404,16 +442,16 @@ export default function SocLife({ embedded = false }: SocLifeProps = {}) {
 
     const bestAnswer = step.options.find((o) => o.correct);
     setConsequence({
-      optionLabel: opt.label[language as "de" | "en" | "fr"],
+      optionLabel: opt.label[language],
       correct: opt.correct,
       repDelta: opt.delta,
       stressDelta,
-      reason: reasonFor(activeIncident, step, opt, language as "de" | "en" | "fr"),
+      reason: resolveReason(activeIncident, step, opt, language),
       bestAnswerLabel: !opt.correct && bestAnswer
-        ? bestAnswer.label[language as "de" | "en" | "fr"]
+        ? bestAnswer.label[language]
         : undefined,
     });
-  }, [activeIncident, stepIdx, currentRoom, audio, language, consequence, paused]);
+  }, [activeIncident, stepIdx, currentRoom, audio, language, consequence, paused, resolveReason]);
 
   // Called when the player dismisses the consequence overlay — only now do we
   // advance to the next step (or finish the incident).
@@ -508,7 +546,7 @@ export default function SocLife({ embedded = false }: SocLifeProps = {}) {
     // First-time visitors see the intro right after starting their shift,
     // so they actually know what they're about to do.
     try {
-      if (!window.localStorage.getItem("socLife.onboarded")) {
+      if (!window.localStorage.getItem(ONBOARDED_KEY)) {
         setShowOnboarding(true);
       }
     } catch { /* ignore */ }
@@ -523,7 +561,7 @@ export default function SocLife({ embedded = false }: SocLifeProps = {}) {
       restart();
       return;
     }
-    if (window.confirm(t("socLife.confirmRestart"))) restart();
+    if (window.confirm(t("confirmRestart"))) restart();
   };
 
   // Track native fullscreen state (e.g. user pressing ESC) so the icon stays in sync.
@@ -580,7 +618,7 @@ export default function SocLife({ embedded = false }: SocLifeProps = {}) {
   useEffect(() => {
     if (!gameOver) return;
     audio.setMusicMode("calm");
-    setHighscores(loadHighscores());
+    setHighscores(loadHighscores(HIGHSCORE_KEY));
     setHighscoreSubmitted(false);
     const id = window.setTimeout(() => setGameOverActionsReady(true), 2200);
     return () => window.clearTimeout(id);
@@ -588,10 +626,11 @@ export default function SocLife({ embedded = false }: SocLifeProps = {}) {
 
   const submitHighscore = () => {
     const name = playerName.trim().slice(0, HIGHSCORE_NAME_MAX) || "ANON";
-    try { localStorage.setItem("socLife.playerName", name); } catch { /* ignore */ }
-    const updated = saveHighscore({
-      name, score, incidents: incidentsCompleted, shiftSec: Math.floor(shiftSec),
-    });
+    try { localStorage.setItem(NAME_KEY, name); } catch { /* ignore */ }
+    const updated = saveHighscore(
+      { name, score, incidents: incidentsCompleted, shiftSec: Math.floor(shiftSec) },
+      HIGHSCORE_KEY,
+    );
     setHighscores(updated);
     setHighscoreSubmitted(true);
   };
@@ -616,8 +655,8 @@ export default function SocLife({ embedded = false }: SocLifeProps = {}) {
     >
       {!embedded && (
         <Helmet>
-          <title>{t("socLife.metaTitle")}</title>
-          <meta name="description" content={t("socLife.metaDesc")} />
+          <title>{t("metaTitle")}</title>
+          <meta name="description" content={t("metaDesc")} />
         </Helmet>
       )}
 
@@ -629,7 +668,7 @@ export default function SocLife({ embedded = false }: SocLifeProps = {}) {
               inside-the-box · sim
             </div>
             <h1 className="font-mono text-sm sm:text-xl md:text-2xl text-primary leading-tight truncate">
-              {t("socLife.title")}
+              {t("title")}
             </h1>
           </div>
           {started && (
@@ -638,32 +677,32 @@ export default function SocLife({ embedded = false }: SocLifeProps = {}) {
                 size="sm" variant="outline" className="font-mono h-7 sm:h-8 px-2 text-xs"
                 onClick={() => setPaused((p) => !p)}
                 disabled={gameOver}
-                aria-label={paused ? t("socLife.resume") : t("socLife.pause")}
-                title={paused ? t("socLife.resume") : t("socLife.pause")}
+                aria-label={paused ? t("resume") : t("pause")}
+                title={paused ? t("resume") : t("pause")}
               >
                 {paused ? "▶" : "❚❚"}
               </Button>
               <Button
                 size="sm" variant="outline" className="font-mono h-7 sm:h-8 px-2 text-xs"
                 onClick={() => audio.setEnabled(!audio.enabled)}
-                aria-label={audio.enabled ? t("socLife.soundOff") : t("socLife.soundOn")}
-                title={audio.enabled ? t("socLife.soundOff") : t("socLife.soundOn")}
+                aria-label={audio.enabled ? t("soundOff") : t("soundOn")}
+                title={audio.enabled ? t("soundOff") : t("soundOn")}
               >
                 {audio.enabled ? `🔊` : `🔇`}
               </Button>
               <Button
                 size="sm" variant="outline" className="font-mono h-7 sm:h-8 px-2 text-xs"
                 onClick={toggleFullscreen}
-                aria-label={isFullscreen ? (t("socLife.fullscreenExit") || "Exit fullscreen") : (t("socLife.fullscreenEnter") || "Fullscreen")}
-                title={isFullscreen ? (t("socLife.fullscreenExit") || "Exit fullscreen") : (t("socLife.fullscreenEnter") || "Fullscreen")}
+                aria-label={isFullscreen ? (t("fullscreenExit") || "Exit fullscreen") : (t("fullscreenEnter") || "Fullscreen")}
+                title={isFullscreen ? (t("fullscreenExit") || "Exit fullscreen") : (t("fullscreenEnter") || "Fullscreen")}
               >
                 {isFullscreen ? "⤡" : "⛶"}
               </Button>
               <Button
                 size="sm" variant="outline" className="font-mono h-7 sm:h-8 px-2 text-xs"
                 onClick={confirmRestart}
-                aria-label={t("socLife.restartShift")}
-                title={t("socLife.restartShift")}
+                aria-label={t("restartShift")}
+                title={t("restartShift")}
               >
                 ↻
               </Button>
@@ -674,19 +713,19 @@ export default function SocLife({ embedded = false }: SocLifeProps = {}) {
         {!started && (
           <section className="rounded-lg border border-border/40 bg-background/40 p-4 sm:p-6 max-w-2xl overflow-y-auto">
             <p className="mb-3 text-sm text-muted-foreground sm:text-base">
-              {t("socLife.subtitle")}
+              {t("subtitle")}
             </p>
             <p className="mb-4 text-sm text-muted-foreground sm:text-base">
-              {t("socLife.intro")}
+              {t("intro")}
             </p>
             <p className="mb-5 font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
-              {t("socLife.audioHint")}
+              {t("audioHint")}
             </p>
 
 
             <div className="flex flex-wrap items-center gap-2">
               <Button size="lg" onClick={startShift} className="font-mono">
-                ▶ {t("socLife.start")}
+                ▶ {t("start")}
               </Button>
               <Button
                 size="lg"
@@ -694,7 +733,7 @@ export default function SocLife({ embedded = false }: SocLifeProps = {}) {
                 onClick={() => setShowOnboarding(true)}
                 className="font-mono"
               >
-                ? {t("socLife.onboarding.showAgain")}
+                ? {t("onboarding.showAgain")}
               </Button>
             </div>
           </section>
@@ -816,17 +855,17 @@ export default function SocLife({ embedded = false }: SocLifeProps = {}) {
                 className="absolute inset-0 z-30 flex items-center justify-center bg-background/80 backdrop-blur-sm animate-fade-in cursor-pointer"
                 onClick={() => setPaused(false)}
                 role="button"
-                aria-label={t("socLife.resume")}
+                aria-label={t("resume")}
               >
                 <div className="mx-3 max-w-sm w-full rounded-lg border border-primary/40 bg-background/95 p-6 sm:p-8 text-center shadow-[0_0_0_1px_hsl(var(--primary)/0.2),0_20px_60px_-10px_hsl(var(--primary)/0.3)]">
                   <div className="mb-2 font-mono text-[11px] uppercase tracking-[0.25em] text-primary">
-                    ❚❚ {t("socLife.pause")}
+                    ❚❚ {t("pause")}
                   </div>
                   <h2 className="mb-3 font-mono text-2xl sm:text-3xl text-foreground leading-tight">
-                    {t("socLife.pausedHeadline") || "Schicht angehalten"}
+                    {t("pausedHeadline") || "Schicht angehalten"}
                   </h2>
                   <p className="text-sm text-muted-foreground">
-                    {t("socLife.pausedHint") || "Klicken oder ▶ drücken, um fortzufahren."}
+                    {t("pausedHint") || "Klicken oder ▶ drücken, um fortzufahren."}
                   </p>
                 </div>
               </div>
@@ -838,24 +877,24 @@ export default function SocLife({ embedded = false }: SocLifeProps = {}) {
               <div className="absolute inset-0 z-30 flex items-center justify-center bg-background/85 backdrop-blur-sm animate-fade-in">
                 <div className="mx-3 max-w-md w-full max-h-[92vh] overflow-y-auto rounded-lg border border-rose-500/50 bg-background/95 p-5 sm:p-6 shadow-[0_0_0_1px_hsl(var(--destructive)/0.25),0_20px_60px_-10px_hsl(var(--destructive)/0.4)]">
                   <div className="mb-2 font-mono text-[11px] uppercase tracking-[0.25em] text-rose-400">
-                    ▲ {t("socLife.gameOverTitle")}
+                    ▲ {t("gameOverTitle")}
                   </div>
                   <h2 className="mb-2 font-mono text-xl sm:text-2xl text-foreground leading-tight">
-                    {t("socLife.gameOverHeadline")}
+                    {t("gameOverHeadline")}
                   </h2>
                   <p className="mb-4 text-sm text-muted-foreground leading-relaxed">
-                    {t("socLife.gameOverFlavor")}
+                    {t("gameOverFlavor")}
                   </p>
                   <div className="mb-4 grid grid-cols-2 gap-3 font-mono text-xs">
                     <div className="rounded-md border border-border/40 bg-background/60 p-3">
                       <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                        {t("socLife.gameOverFinalScore")}
+                        {t("gameOverFinalScore")}
                       </div>
                       <div className="mt-1 text-lg text-primary">{score}</div>
                     </div>
                     <div className="rounded-md border border-border/40 bg-background/60 p-3">
                       <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                        {t("socLife.gameOverShift")}
+                        {t("gameOverShift")}
                       </div>
                       <div className="mt-1 text-lg text-foreground">
                         {Math.floor(shiftSec / 60).toString().padStart(2, "0")}:
@@ -869,14 +908,14 @@ export default function SocLife({ embedded = false }: SocLifeProps = {}) {
                   {qualifies && (
                     <div className="mb-4 rounded-md border border-primary/40 bg-primary/5 p-3">
                       <div className="mb-2 font-mono text-[10px] uppercase tracking-wider text-primary">
-                        ★ {t("socLife.highscoreNew")}
+                        ★ {t("highscoreNew")}
                       </div>
                       <div className="flex flex-col sm:flex-row gap-2">
                         <input
                           type="text"
                           value={playerName}
                           onChange={(e) => setPlayerName(e.target.value.slice(0, HIGHSCORE_NAME_MAX))}
-                          placeholder={t("socLife.highscoreNamePlaceholder")}
+                          placeholder={t("highscoreNamePlaceholder")}
                           maxLength={HIGHSCORE_NAME_MAX}
                           autoFocus
                           className="flex-1 rounded-md border border-border/60 bg-background px-3 py-2 font-mono text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-primary"
@@ -887,14 +926,14 @@ export default function SocLife({ embedded = false }: SocLifeProps = {}) {
                           onClick={submitHighscore}
                           className="font-mono shrink-0"
                         >
-                          {t("socLife.highscoreSave")}
+                          {t("highscoreSave")}
                         </Button>
                       </div>
                       <button
                         onClick={() => setHighscoreSubmitted(true)}
                         className="mt-2 font-mono text-[10px] uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors"
                       >
-                        {t("socLife.highscoreSkip")}
+                        {t("highscoreSkip")}
                       </button>
                     </div>
                   )}
@@ -903,12 +942,12 @@ export default function SocLife({ embedded = false }: SocLifeProps = {}) {
                   <div className="mb-4 rounded-md border border-border/40 bg-background/60 p-3">
                     <div className="mb-2 flex items-baseline justify-between gap-2">
                       <div className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
-                        ☷ {t("socLife.highscoreTitle")}
+                        ☷ {t("highscoreTitle")}
                       </div>
                     </div>
                     {highscores.length === 0 ? (
                       <div className="font-mono text-xs text-muted-foreground/70 italic py-2">
-                        {t("socLife.highscoreEmpty")}
+                        {t("highscoreEmpty")}
                       </div>
                     ) : (
                       <ol className="space-y-0.5 font-mono text-[11px]">
@@ -923,7 +962,7 @@ export default function SocLife({ embedded = false }: SocLifeProps = {}) {
                                 : "flex items-baseline gap-2 px-1.5 py-0.5 text-foreground/85"}
                             >
                               <span className="w-5 text-right text-muted-foreground tabular-nums">{i + 1}.</span>
-                              <span className="flex-1 truncate">{entry.name}{isMine && <span className="ml-1 text-[9px] uppercase tracking-wider text-primary/70">· {t("socLife.highscoreYou")}</span>}</span>
+                              <span className="flex-1 truncate">{entry.name}{isMine && <span className="ml-1 text-[9px] uppercase tracking-wider text-primary/70">· {t("highscoreYou")}</span>}</span>
                               <span className="tabular-nums text-muted-foreground/80">{entry.incidents}</span>
                               <span className="w-12 text-right tabular-nums">{entry.score}</span>
                             </li>
@@ -941,7 +980,7 @@ export default function SocLife({ embedded = false }: SocLifeProps = {}) {
                         onClick={restart}
                         className="w-full font-mono animate-fade-in"
                       >
-                        ↻ {t("socLife.restart")}
+                        ↻ {t("restart")}
                       </Button>
                     ) : (
                       <div className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground/60 text-center">
@@ -960,5 +999,30 @@ export default function SocLife({ embedded = false }: SocLifeProps = {}) {
           demand via the "?" button on the welcome screen. */}
       {showOnboarding && <Onboarding onClose={closeOnboarding} />}
     </div>
+  );
+}
+
+/**
+ * Public SocLife shell. Wraps the inner game in a `SocLifeVariantProvider` so
+ * all sub-components and the inner `useVariantT()` resolve the right i18n
+ * root. Without an explicit `variant` prop this stays the classic IT SOC Life
+ * experience (default catalogue + IT reason resolver + `socLife.*` storage).
+ */
+export default function SocLife({
+  embedded = false,
+  variant = "it",
+  incidents,
+  comicIds,
+  reasonResolver,
+}: SocLifeProps = {}) {
+  return (
+    <SocLifeVariantProvider variant={variant}>
+      <SocLifeInner
+        embedded={embedded}
+        incidents={incidents}
+        comicIds={comicIds}
+        reasonResolver={reasonResolver}
+      />
+    </SocLifeVariantProvider>
   );
 }
