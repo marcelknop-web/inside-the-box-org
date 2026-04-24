@@ -1146,7 +1146,7 @@ const ROGUE_WIFI: Incident = {
         ) },
         { id: "ignore_wlan", correct: false, delta: -6, label: L(
           "Ignorieren, weil das produktive OT-Netz kabelgebunden ist und ein WLAN-AP „technisch nicht stören kann“",
-          "Ignore it, because the production OT network is wired and a wireless AP „can't technically interfere"",
+          "Ignore it, because the production OT network is wired and a wireless AP ‘can't technically interfere’",
           "Ignorer, parce que le réseau OT productif est filaire et qu'un AP Wi-Fi « ne peut techniquement pas gêner »",
         ) },
       ],
