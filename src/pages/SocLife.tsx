@@ -24,6 +24,7 @@ import {
 import { resolveIsNight } from "@/utils/socLifeDayNight";
 import {
   SocLifeVariant, SocLifeVariantProvider, useVariantT,
+  useSocLifeVariant as useSocLifeVariantInternal,
 } from "@/components/socLife/variantContext";
 
 /** Reason resolver signature — same as IT/OT-specific helpers in `data/`. */
@@ -243,7 +244,7 @@ function SocLifeInner({
   const [showOnboarding, setShowOnboarding] = useState<boolean>(false);
   const closeOnboarding = useCallback(() => {
     setShowOnboarding(false);
-    try { window.localStorage.setItem("socLife.onboarded", "1"); } catch { /* ignore */ }
+    try { window.localStorage.setItem(ONBOARDED_KEY, "1"); } catch { /* ignore */ }
   }, []);
 
   const [activeIncident, setActiveIncident] = useState<Incident | null>(null);
@@ -545,7 +546,7 @@ function SocLifeInner({
     // First-time visitors see the intro right after starting their shift,
     // so they actually know what they're about to do.
     try {
-      if (!window.localStorage.getItem("socLife.onboarded")) {
+      if (!window.localStorage.getItem(ONBOARDED_KEY)) {
         setShowOnboarding(true);
       }
     } catch { /* ignore */ }
@@ -617,7 +618,7 @@ function SocLifeInner({
   useEffect(() => {
     if (!gameOver) return;
     audio.setMusicMode("calm");
-    setHighscores(loadHighscores());
+    setHighscores(loadHighscores(HIGHSCORE_KEY));
     setHighscoreSubmitted(false);
     const id = window.setTimeout(() => setGameOverActionsReady(true), 2200);
     return () => window.clearTimeout(id);
@@ -625,10 +626,11 @@ function SocLifeInner({
 
   const submitHighscore = () => {
     const name = playerName.trim().slice(0, HIGHSCORE_NAME_MAX) || "ANON";
-    try { localStorage.setItem("socLife.playerName", name); } catch { /* ignore */ }
-    const updated = saveHighscore({
-      name, score, incidents: incidentsCompleted, shiftSec: Math.floor(shiftSec),
-    });
+    try { localStorage.setItem(NAME_KEY, name); } catch { /* ignore */ }
+    const updated = saveHighscore(
+      { name, score, incidents: incidentsCompleted, shiftSec: Math.floor(shiftSec) },
+      HIGHSCORE_KEY,
+    );
     setHighscores(updated);
     setHighscoreSubmitted(true);
   };
@@ -997,5 +999,30 @@ function SocLifeInner({
           demand via the "?" button on the welcome screen. */}
       {showOnboarding && <Onboarding onClose={closeOnboarding} />}
     </div>
+  );
+}
+
+/**
+ * Public SocLife shell. Wraps the inner game in a `SocLifeVariantProvider` so
+ * all sub-components and the inner `useVariantT()` resolve the right i18n
+ * root. Without an explicit `variant` prop this stays the classic IT SOC Life
+ * experience (default catalogue + IT reason resolver + `socLife.*` storage).
+ */
+export default function SocLife({
+  embedded = false,
+  variant = "it",
+  incidents,
+  comicIds,
+  reasonResolver,
+}: SocLifeProps = {}) {
+  return (
+    <SocLifeVariantProvider variant={variant}>
+      <SocLifeInner
+        embedded={embedded}
+        incidents={incidents}
+        comicIds={comicIds}
+        reasonResolver={reasonResolver}
+      />
+    </SocLifeVariantProvider>
   );
 }
