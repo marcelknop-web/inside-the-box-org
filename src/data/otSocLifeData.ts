@@ -988,7 +988,7 @@ const SURPRISE_AUDITOR: Incident = {
         ) },
         { id: "make_it_up", correct: false, delta: -7, label: L(
           "Schnell ein „Beispielreport“-Dokument neu zusammenklicken, das so aussieht, als wäre es schon immer da gewesen, und ihm das aushändigen",
-          "Quickly assemble a fresh „example report" document that looks like it has always been there and hand him that one",
+          "Quickly assemble a fresh ‘example report’ document that looks like it has always been there and hand him that one",
           "Bricoler vite un « rapport-exemple » qui a l'air d'avoir toujours existé et le lui remettre",
         ) },
       ],
