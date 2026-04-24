@@ -217,12 +217,14 @@ function SocLifeInner({
   // so multiple browser tabs stay roughly in sync. `playerName` persists across
   // shifts so returning players don't have to re-type it.
   const [highscores, setHighscores] = useState<HighscoreEntry[]>([]);
+  const [decisionHistory, setDecisionHistory] = useState<DecisionRecord[]>([]);
   // Variant-specific localStorage namespace so IT and OT highscores / player
   // names don't clobber each other.
   const { storageNs } = useSocLifeVariantInternal();
   const NAME_KEY = `${storageNs}.playerName`;
   const ONBOARDED_KEY = `${storageNs}.onboarded`;
   const HIGHSCORE_KEY = `${storageNs}.highscores.v1`;
+  const LAST_SHIFT_INCIDENTS_KEY = `${storageNs}.lastShiftIncidentIds.v1`;
   const [playerName, setPlayerName] = useState<string>(() => {
     try { return localStorage.getItem(NAME_KEY) || ""; } catch { return ""; }
   });
