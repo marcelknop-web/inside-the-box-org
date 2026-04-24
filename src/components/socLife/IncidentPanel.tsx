@@ -95,21 +95,30 @@ export function IncidentPanel({
   // === Sequenced reveal cascade ===
   // The klaxon sound has just played in SocLife when the incident spawns.
   // We give the user a beat to LOOK before any text starts typing, then
-  // unlock each section one at a time with a pause between them so the eye
-  // can track the order: alarm → title (blinking) → brief → meta → prompt
-  // → actions.
+  // unlock each section one at a time with a pause between them.
   //
-  // IMPORTANT: We key the cascade on `${incident.id}:${stepIndex}` only
-  // (NOT on `step.id`) so React-fast-refresh, language toggles or other
-  // re-renders that produce a fresh `step` reference don't accidentally
-  // restart the cascade mid-way through.
+  // SCOPE OF THE ANIMATION:
+  //   • Title (1) and Brief (2) belong to the *incident* — they only
+  //     animate ONCE when a new incident arrives. On subsequent step
+  //     transitions inside the same incident they stay fully visible
+  //     so the user isn't forced to re-read what they already know.
+  //   • Meta (3) updates instantly (room hint + timer change per step).
+  //   • Prompt (4) is the only block that re-animates on every step,
+  //     because it's genuinely new copy each time.
+  //
+  // Keying:
+  //   – incidentKey changes only when the incident itself changes, so the
+  //     title/brief cascade does not restart mid-incident.
+  //   – stepKey changes per step, driving the prompt re-type.
+  const incidentKey = incident.id;
   const stepKey = `${incident.id}:${stepIndex}`;
+  const isFirstStep = stepIndex === 0;
+
   // T+0     klaxon already firing, panel mounts
-  // T+700   title starts typing (blinking)
-  // After title typed + 1100ms pause → brief
-  // After brief typed +  900ms pause → meta + prompt
-  // After prompt typed + 500ms pause → actions
-  const titleStarts = useDelayedFlag(700, [stepKey]);
+  // T+700   title starts typing (blinking)         — only on incident arrival
+  // After title typed + 1100ms pause → brief        — only on incident arrival
+  // Step transitions: title/brief stay; prompt re-types after a short beat.
+  const titleStarts = useDelayedFlag(700, [incidentKey]);
 
   const typedTitle  = useTypewriter(titleText, 26, titleStarts);
   const titleDone   = titleStarts && typedTitle.length >= titleText.length;
@@ -118,7 +127,13 @@ export function IncidentPanel({
   const typedBrief  = useTypewriter(briefText, 16, briefStarts);
   const briefDone   = briefStarts && typedBrief.length >= briefText.length;
 
-  const metaStarts  = useDelayedFlag(900, [briefDone]) && briefDone;
+  // For step ≥ 2 the title/brief are already fully shown — gate the rest
+  // on stepKey directly so meta + prompt revive immediately for the new step
+  // without waiting on a (no-op) title cascade.
+  // We must always call both hooks (Rules of Hooks) and pick at render time.
+  const metaAfterBrief = useDelayedFlag(900, [briefDone]) && briefDone;
+  const metaAfterStep  = useDelayedFlag(150, [stepKey]);
+  const metaStarts     = isFirstStep ? metaAfterBrief : metaAfterStep;
 
   const promptStarts = metaStarts;
   const typedPrompt  = useTypewriter(promptText, 18, promptStarts);
