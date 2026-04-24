@@ -175,11 +175,17 @@ function SocLifeInner({
   // so multiple browser tabs stay roughly in sync. `playerName` persists across
   // shifts so returning players don't have to re-type it.
   const [highscores, setHighscores] = useState<HighscoreEntry[]>([]);
+  // Variant-specific localStorage namespace so IT and OT highscores / player
+  // names don't clobber each other.
+  const { storageNs } = useSocLifeVariantInternal();
+  const NAME_KEY = `${storageNs}.playerName`;
+  const ONBOARDED_KEY = `${storageNs}.onboarded`;
+  const HIGHSCORE_KEY = `${storageNs}.highscores.v1`;
   const [playerName, setPlayerName] = useState<string>(() => {
-    try { return localStorage.getItem("socLife.playerName") || ""; } catch { return ""; }
+    try { return localStorage.getItem(NAME_KEY) || ""; } catch { return ""; }
   });
   const [highscoreSubmitted, setHighscoreSubmitted] = useState(false);
-  const qualifies = gameOver && !highscoreSubmitted && qualifiesForHighscore(score);
+  const qualifies = gameOver && !highscoreSubmitted && qualifiesForHighscore(score, HIGHSCORE_KEY);
 
   const [isFullscreen, setIsFullscreen] = useState(false);
   // CSS-based pseudo-fullscreen for browsers without Fullscreen API support
@@ -368,6 +374,7 @@ function SocLifeInner({
 
   const spawnIncident = useCallback(() => {
     const inc = pickNextIncident(
+      INCIDENTS,
       incidentsCompleted,
       recentIncidentIdsRef.current,
       lastCategoryRef.current,
@@ -384,11 +391,11 @@ function SocLifeInner({
     setConsequence(null);
     nextIncidentAtRef.current = 0;
     audio.playSfx("incident_klaxon", 0.6);
-    toast(t("socLife.incomingIncident"), {
-      description: inc.title[language as "de" | "en" | "fr"],
+    toast(t("incomingIncident"), {
+      description: inc.title[language],
       duration: 2200,
     });
-  }, [audio, t, language, incidentsCompleted]);
+  }, [audio, t, language, incidentsCompleted, INCIDENTS]);
 
   const finishIncident = useCallback((escalated: boolean) => {
     setActiveIncident(null);
@@ -400,18 +407,18 @@ function SocLifeInner({
     setIncidentsCompleted((n) => n + 1);
     if (escalated) {
       audio.playSfx("escalation", 0.5);
-      toast.error(t("socLife.incidentEscalated"), { duration: 1800 });
+      toast.error(t("incidentEscalated"), { duration: 1800 });
       setReputation((r) => Math.max(0, r - 10));
     } else {
       audio.playSfx("success_chime", 0.55);
-      toast.success(t("socLife.incidentResolved"), { duration: 1800 });
+      toast.success(t("incidentResolved"), { duration: 1800 });
       setScore((s) => s + 50);
     }
   }, [audio, t]);
 
   function handleTimeout() {
     audio.playSfx("fail_buzz", 0.5);
-    toast.error(t("socLife.feedback.timeout"), { duration: 1600 });
+    toast.error(t("feedback.timeout"), { duration: 1600 });
     setReputation((r) => Math.max(0, r - 8));
     finishIncident(true);
   }
@@ -434,16 +441,16 @@ function SocLifeInner({
 
     const bestAnswer = step.options.find((o) => o.correct);
     setConsequence({
-      optionLabel: opt.label[language as "de" | "en" | "fr"],
+      optionLabel: opt.label[language],
       correct: opt.correct,
       repDelta: opt.delta,
       stressDelta,
-      reason: reasonFor(activeIncident, step, opt, language as "de" | "en" | "fr"),
+      reason: resolveReason(activeIncident, step, opt, language),
       bestAnswerLabel: !opt.correct && bestAnswer
-        ? bestAnswer.label[language as "de" | "en" | "fr"]
+        ? bestAnswer.label[language]
         : undefined,
     });
-  }, [activeIncident, stepIdx, currentRoom, audio, language, consequence, paused]);
+  }, [activeIncident, stepIdx, currentRoom, audio, language, consequence, paused, resolveReason]);
 
   // Called when the player dismisses the consequence overlay — only now do we
   // advance to the next step (or finish the incident).
