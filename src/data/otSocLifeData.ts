@@ -932,7 +932,7 @@ const UPS_TAMPER: Incident = {
 const SURPRISE_AUDITOR: Incident = {
   id: "surprise_auditor",
   tier: "comic",
-  category: "process",
+  category: "governance",
   title: L(
     "Auditor steht plötzlich im SOC",
     "Surprise auditor on the SOC floor",
