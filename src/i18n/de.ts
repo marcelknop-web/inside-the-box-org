@@ -402,6 +402,8 @@ export const de = {
     agentFroggerDesc: 'Arcade-Format trifft Cybersecurity-Awareness',
     agentSocLifeTitle: 'SOC Life',
     agentSocLifeDesc: 'Corporate SOC-Simulation in Frankfurt – Räume, Kollegen, Incidents',
+    agentOtSocLifeTitle: 'OT-SOC Life',
+    agentOtSocLifeDesc: 'Cross-Training für IT-Analysten — ICS, Purdue-Modell, Safety > Availability',
     butterflyTitle: 'Butterfly Effect Lab',
     butterflyDesc: 'Interaktiv erleben, wie kleinste Parameteränderungen nichtlineare Systeme kippen lassen',
     eliteTitle: 'Keine Lust auf Security?',

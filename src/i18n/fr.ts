@@ -402,6 +402,8 @@ export const fr = {
     agentFroggerDesc: 'Format arcade et sensibilisation cybersécurité',
     agentSocLifeTitle: 'SOC Life',
     agentSocLifeDesc: 'Simulateur SOC corporate à Francfort — salles, collègues, incidents',
+    agentOtSocLifeTitle: 'OT-SOC Life',
+    agentOtSocLifeDesc: 'Cross-training pour analystes IT — ICS, modèle Purdue, Safety > Availability',
     butterflyTitle: 'Laboratoire Effet Papillon',
     butterflyDesc: 'Découvrez de manière interactive comment de minuscules changements de paramètres peuvent faire basculer des systèmes non linéaires',
     eliteTitle: 'Assez de sécurité ?',
