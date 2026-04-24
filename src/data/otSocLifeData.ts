@@ -1124,7 +1124,7 @@ const ROGUE_WIFI: Incident = {
   ),
   brief: L(
     "WIDS meldet eine fremde SSID „PLC-Service“ aus der Verpackungshalle, mit Signal stark genug, um zwei HMIs zu erreichen.",
-    "WIDS reports a foreign SSID „PLC-Service" from the packaging hall, signal strong enough to reach two HMIs.",
+    "WIDS reports a foreign SSID ‘PLC-Service’ from the packaging hall, signal strong enough to reach two HMIs.",
     "Le WIDS signale une SSID inconnue « PLC-Service » dans le hall de conditionnement, signal assez fort pour atteindre deux IHM.",
   ),
   initialDelayMs: 11_000,
