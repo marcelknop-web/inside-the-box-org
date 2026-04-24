@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ROOMS, RoomId, NPCS, NpcId } from "@/data/socLifeData";
-import { useVariantT } from "./variantContext";
+import { useVariantT, useSocLifeVariant, type SocLifeVariant } from "./variantContext";
 import { cn } from "@/lib/utils";
 
 interface DollHouseProps {
@@ -536,6 +536,139 @@ function drawRack(ctx: CanvasRenderingContext2D, x: number, y: number, t: number
     const linkUp = rand1(Math.floor(t / 1200) + i * 3) > 0.08;
     drawPx(ctx, x + 11, ry + 1, linkUp ? C.cyan : C.cyanDim);
   }
+}
+
+// ---------------------------------------------------------------------
+// OT Engineering Workstation
+// ---------------------------------------------------------------------
+// A realistic, IEC-62443-flavoured engineering desk:
+//   - L-shaped desk with engineering PC running ladder logic on a CRT
+//   - Handheld programming terminal (think Siemens PG / Allen-Bradley HHT)
+//     tethered by a coiled cable to a wall-mounted PLC + I/O module
+//   - PLC has a 3-position key-switch (RUN / PROG / REMOTE) — currently RUN —
+//     and module status LEDs (PWR steady, RUN slow blink, COMM bursty, FAULT off)
+//   - Wall shelf with a "GOLD COPY" backup cartridge and a sealed USB lockbox
+//   - Hard-hat on a hook + warning placard ("AUTHORISED ENGINEERING ONLY")
+//
+// Everything is laid out in the standard 64×56 room grid (room top at y, the
+// floor strip lives below y+ROOM_H-4).
+function drawEngineeringWorkstation(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  t: number,
+) {
+  // ----- Wall-mounted PLC chassis (top-left) ---------------------------
+  // Backplane
+  drawRect(ctx, x + 4, y + 4, 24, 16, "#1a1a26");
+  drawRect(ctx, x + 5, y + 5, 22, 14, "#0e0e18");
+  // CPU module (leftmost slot)
+  drawRect(ctx, x + 6, y + 6, 5, 12, "#2a2a3a");
+  // CPU faceplate label strip
+  drawRect(ctx, x + 6, y + 6, 5, 2, "#3a3a4a");
+  // Status LEDs on CPU: PWR (steady green), RUN (slow blink), FAULT (off)
+  drawPx(ctx, x + 7, y + 9, C.green);                                  // PWR
+  const runBlink = (Math.sin(t / 380) + 1) * 0.5 > 0.4;                // RUN ~1.2 Hz
+  drawPx(ctx, x + 9, y + 9, runBlink ? C.green : C.greenDim);
+  drawPx(ctx, x + 7, y + 11, "#2a1a1a");                               // FAULT off
+  // Key-switch — 3 positions, indicator currently at RUN (middle)
+  drawRect(ctx, x + 6, y + 14, 5, 4, "#1a1a22");
+  drawPx(ctx, x + 8, y + 16, C.amber);                                  // key barrel
+  drawPx(ctx, x + 7, y + 16, C.greenDim);                               // PROG dot (left)
+  drawPx(ctx, x + 9, y + 16, C.cyanDim);                                // REMOTE dot (right)
+
+  // I/O modules (slots 2..5) — each with a tiny strip of channel LEDs
+  for (let s = 0; s < 4; s++) {
+    const mx = x + 12 + s * 4;
+    drawRect(ctx, mx, y + 6, 3, 12, "#26263a");
+    drawRect(ctx, mx, y + 6, 3, 1, "#3a3a4a");
+    // 4 channel LEDs per module — bursty input/output activity
+    for (let ch = 0; ch < 4; ch++) {
+      const seed = s * 17 + ch * 5;
+      const on = rand1(Math.floor(t / 220) + seed) > 0.55;
+      drawPx(ctx, mx + 1, y + 9 + ch * 2, on ? C.amber : "#2a1a08");
+    }
+  }
+  // Coiled programming cable from PLC down to the handheld
+  drawRect(ctx, x + 28, y + 12, 1, 6, "#3a3a4a");
+  drawRect(ctx, x + 28, y + 18, 4, 1, "#3a3a4a");
+  drawPx(ctx, x + 30, y + 17, "#2a2a3a");
+  drawPx(ctx, x + 31, y + 19, "#2a2a3a");
+
+  // ----- Wall shelf (top-right): gold-copy backup + USB lockbox --------
+  // Shelf plank
+  drawRect(ctx, x + 32, y + 8, 28, 1, "#3a2a1a");
+  drawRect(ctx, x + 32, y + 9, 28, 1, "#2a1a10");
+  // GOLD COPY cartridge (LTO-style)
+  drawRect(ctx, x + 34, y + 4, 8, 4, "#1a1a22");
+  drawRect(ctx, x + 35, y + 5, 6, 2, C.gold);
+  drawPx(ctx, x + 36, y + 6, "#0a0a14");                                // label dot
+  // Sealed USB lockbox (red lid = tamper-evident)
+  drawRect(ctx, x + 44, y + 4, 6, 4, "#2a2a3a");
+  drawRect(ctx, x + 44, y + 4, 6, 1, C.redDim);
+  drawPx(ctx, x + 47, y + 6, C.amber);                                  // padlock
+  // Binder of P&IDs / function-block diagrams
+  drawRect(ctx, x + 52, y + 3, 6, 5, "#3a2a1a");
+  drawRect(ctx, x + 53, y + 4, 4, 3, "#5a3820");
+  drawPx(ctx, x + 55, y + 5, C.gold);
+
+  // Warning placard above the desk
+  drawRect(ctx, x + 32, y + 12, 16, 6, "#2a1a08");
+  drawRect(ctx, x + 33, y + 13, 14, 4, C.amber);
+  // Two stripes to read as warning text
+  drawRect(ctx, x + 34, y + 14, 12, 1, "#2a1a08");
+  drawRect(ctx, x + 34, y + 16, 8, 1, "#2a1a08");
+  // Hard-hat hook
+  drawRect(ctx, x + 51, y + 13, 7, 4, C.amber);
+  drawRect(ctx, x + 52, y + 12, 5, 1, C.amber);                         // hat brim
+  drawPx(ctx, x + 50, y + 14, "#3a3a4a");                               // hook
+
+  // ----- L-shaped engineering desk along the lower half ----------------
+  // Main desk slab (left portion) and return (right portion)
+  drawRect(ctx, x + 2, y + 36, 36, 3, "#3a2a1a");
+  drawRect(ctx, x + 2, y + 39, 2, 12, "#2a1a14");
+  drawRect(ctx, x + 36, y + 39, 2, 12, "#2a1a14");
+  drawRect(ctx, x + 38, y + 36, 22, 3, "#3a2a1a");
+  drawRect(ctx, x + 58, y + 39, 2, 12, "#2a1a14");
+
+  // Engineering CRT — ladder-logic-ish bars (use existing CRT renderer)
+  drawCrt(ctx, x + 8, y + 27, C.green, t, 41);
+  // Mechanical keyboard in front of CRT
+  drawRect(ctx, x + 6, y + 39, 16, 2, "#1a1a26");
+  for (let k = 0; k < 8; k++) drawPx(ctx, x + 7 + k * 2, y + 39, "#3a3a4a");
+  // Mouse + mouse-pad
+  drawRect(ctx, x + 24, y + 38, 5, 4, "#1a1a22");
+  drawRect(ctx, x + 26, y + 39, 2, 2, "#3a3a4a");
+
+  // Handheld programming terminal sitting on the desk return
+  // (small device with a 2-line monochrome display + keypad)
+  drawRect(ctx, x + 40, y + 30, 14, 8, "#1a1a22");
+  drawRect(ctx, x + 41, y + 31, 12, 3, C.amber);                        // backlit LCD
+  // LCD scrolling cursor
+  const cur = Math.floor(t / 350) % 10;
+  drawPx(ctx, x + 42 + cur, y + 32, "#2a1a08");
+  // Keypad — 4×3 dots
+  for (let r = 0; r < 3; r++)
+    for (let c = 0; c < 4; c++)
+      drawPx(ctx, x + 42 + c * 3, y + 35 + r, "#3a3a4a");
+  // Coiled cable trailing off the back of the handheld
+  drawPx(ctx, x + 53, y + 30, "#3a3a4a");
+  drawPx(ctx, x + 54, y + 29, "#3a3a4a");
+
+  // Tagged-out lockout/tagout padlock hanging on the desk edge
+  drawRect(ctx, x + 32, y + 39, 2, 3, C.red);
+  drawPx(ctx, x + 33, y + 38, "#3a3a4a");                               // shackle
+
+  // Engineering chair, pushed in
+  drawRect(ctx, x + 14, y + 44, 7, 7, "#1a1a26");
+  drawRect(ctx, x + 14, y + 44, 7, 1, "#3a3a4a");
+  drawPx(ctx, x + 17, y + 51, "#3a3a4a");                               // caster
+
+  // Floor-mounted cable raceway under the desk
+  drawRect(ctx, x + 2, y + 51, 60, 1, "#3a2a14");
+  drawPx(ctx, x + 12, y + 52, C.amber);
+  drawPx(ctx, x + 30, y + 52, C.green);
+  drawPx(ctx, x + 50, y + 52, C.cyan);
 }
 
 // Coffee machine 10x14 + steaming cup
