@@ -1431,4 +1431,7 @@ export const fr = {
       s4Body:  'Après chaque choix, un verdict et l’effet sur réputation et stress s’affichent. Prenez le temps — le timer pause jusqu’à ce que vous cliquiez « Continuer ».',
     },
   },
+  // OT-SOC Life — anglais uniquement (outil de cross-training). OtSocLife.tsx
+  // force la langue à EN ; ce stub satisfait simplement le contrat de type.
+  otSocLife: {} as never,
 };

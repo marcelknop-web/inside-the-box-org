@@ -1512,4 +1512,8 @@ export const de = {
       s4Body:  'Nach jeder Wahl siehst du Bewertung, Reputations- und Stress-Effekt. Nimm dir den Moment — der Timer pausiert, bis du „Weiter" klickst.',
     },
   },
+  // OT-SOC Life — bewusst nur Englisch (Cross-Training-Tool für SOC-Analysten).
+  // Beim Aufruf erzwingt OtSocLife.tsx die EN-Sprache; dieser Stub erfüllt
+  // nur den Translations-Typvertrag.
+  otSocLife: {} as never,
 };
