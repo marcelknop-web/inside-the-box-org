@@ -522,6 +522,27 @@ function SocLifeInner({
   }, [audio, t]);
 
   function handleTimeout() {
+    if (activeIncident) {
+      const step = activeIncident.steps[stepIdx];
+      const bestAnswer =
+        step.options.find((o) => o.correct) ??
+        [...step.options].sort((a, b) => b.delta - a.delta)[0];
+      setDecisionHistory((h) => [...h, {
+        id: `${activeIncident.id}:${step.id}:timeout:${h.length}`,
+        incidentId: activeIncident.id,
+        incidentTitle: activeIncident.title[language],
+        stepId: step.id,
+        stepTitle: step.title[language],
+        prompt: step.prompt[language],
+        chosenLabel: "No action taken before timeout",
+        bestAnswerLabel: bestAnswer?.label[language],
+        correct: false,
+        timedOut: true,
+        repDelta: -8,
+        stressDelta: 6,
+        reason: "Decision window expired. In OT incidents, delay itself becomes a consequence: the process keeps running while uncertainty grows.",
+      }]);
+    }
     audio.playSfx("fail_buzz", 0.5);
     toast.error(t("feedback.timeout"), { duration: 1600 });
     setReputation((r) => Math.max(0, r - 8));
@@ -529,29 +550,51 @@ function SocLifeInner({
   }
 
   const handleChoose = useCallback((optionId: string) => {
-    if (!activeIncident || consequence || paused) return; // ignore clicks while overlay is up or paused
+    if (!activeIncident || consequence || paused) return;
     const step = activeIncident.steps[stepIdx];
     const opt = step.options.find((o) => o.id === optionId);
     if (!opt) return;
     if (step.requiredRoom && step.requiredRoom !== currentRoom) return;
 
-    // Apply effects immediately so meters react in real time, but DON'T advance
-    // the step yet — we want the player to read the consequence first.
-    const stressDelta = opt.correct ? -2 : +6;
+    // Defensive textbook-answer fallback: if the scenario has no `correct: true`
+    // option, treat the highest-delta option as the textbook answer so the
+    // overlay always surfaces a "best answer" hint.
+    const hasFlaggedCorrect = step.options.some((o) => o.correct);
+    const bestAnswer =
+      step.options.find((o) => o.correct) ??
+      [...step.options].sort((a, b) => b.delta - a.delta)[0];
+    const isCorrect = opt.correct || (!hasFlaggedCorrect && opt === bestAnswer);
+
+    const stressDelta = isCorrect ? -2 : +6;
     setReputation((r) => Math.max(0, Math.min(100, r + opt.delta)));
     setStress((s) => Math.min(100, Math.max(0, s + stressDelta)));
-    if (opt.correct) setScore((s) => s + 10);
+    if (isCorrect) setScore((s) => s + 10);
 
-    audio.playSfx(opt.correct ? "success_chime" : "fail_buzz", 0.45);
+    audio.playSfx(isCorrect ? "success_chime" : "fail_buzz", 0.45);
 
-    const bestAnswer = step.options.find((o) => o.correct);
-    setConsequence({
-      optionLabel: opt.label[language],
-      correct: opt.correct,
+    const reason = resolveReason(activeIncident, step, opt, language);
+    setDecisionHistory((h) => [...h, {
+      id: `${activeIncident.id}:${step.id}:${opt.id}:${h.length}`,
+      incidentId: activeIncident.id,
+      incidentTitle: activeIncident.title[language],
+      stepId: step.id,
+      stepTitle: step.title[language],
+      prompt: step.prompt[language],
+      chosenLabel: opt.label[language],
+      bestAnswerLabel: bestAnswer?.label[language],
+      correct: isCorrect,
       repDelta: opt.delta,
       stressDelta,
-      reason: resolveReason(activeIncident, step, opt, language),
-      bestAnswerLabel: !opt.correct && bestAnswer
+      reason,
+    }]);
+
+    setConsequence({
+      optionLabel: opt.label[language],
+      correct: isCorrect,
+      repDelta: opt.delta,
+      stressDelta,
+      reason,
+      bestAnswerLabel: !isCorrect && bestAnswer
         ? bestAnswer.label[language]
         : undefined,
     });
@@ -991,7 +1034,7 @@ function SocLifeInner({
                 Gives the user time to read what happened before any CTA appears. */}
             {gameOver && (
               <div className="absolute inset-0 z-30 flex items-center justify-center bg-background/85 backdrop-blur-sm animate-fade-in">
-                <div className="mx-3 max-w-md w-full max-h-[92vh] overflow-y-auto rounded-lg border border-rose-500/50 bg-background/95 p-5 sm:p-6 shadow-[0_0_0_1px_hsl(var(--destructive)/0.25),0_20px_60px_-10px_hsl(var(--destructive)/0.4)]">
+                <div className="mx-3 max-w-2xl w-full max-h-[92vh] overflow-y-auto rounded-lg border border-rose-500/50 bg-background/95 p-5 sm:p-6 shadow-[0_0_0_1px_hsl(var(--destructive)/0.25),0_20px_60px_-10px_hsl(var(--destructive)/0.4)]">
                   <div className="mb-2 font-mono text-[11px] uppercase tracking-[0.25em] text-rose-400">
                     ▲ {t("gameOverTitle")}
                   </div>
@@ -1017,6 +1060,47 @@ function SocLifeInner({
                         {Math.floor(shiftSec % 60).toString().padStart(2, "0")}
                       </div>
                     </div>
+                    <div className="rounded-md border border-border/40 bg-background/60 p-3">
+                      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Correct calls</div>
+                      <div className="mt-1 text-lg text-foreground tabular-nums">{reportData.correctCalls} / {reportData.totalCalls}</div>
+                    </div>
+                    <div className="rounded-md border border-border/40 bg-background/60 p-3">
+                      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Risky calls</div>
+                      <div className="mt-1 text-lg text-foreground tabular-nums">{reportData.riskyCalls}</div>
+                    </div>
+                  </div>
+
+                  {/* Player report — recommendations from this shift's mis-judgements. */}
+                  <div className="mb-4 rounded-md border border-primary/30 bg-background/60 p-4">
+                    <div className="mb-3 flex items-baseline justify-between gap-2">
+                      <div className="font-mono text-[10px] uppercase tracking-wider text-primary">Player report</div>
+                      <div className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">{reportData.totalCalls} call{reportData.totalCalls === 1 ? "" : "s"}</div>
+                    </div>
+                    {reportData.recommendations.length === 0 ? (
+                      <p className="text-sm leading-relaxed text-muted-foreground">
+                        Clean run. Your decisions stayed largely process-safe and well-sequenced under pressure. Keep prioritising verification before action and coordination over speed.
+                      </p>
+                    ) : (
+                      <div className="space-y-3">
+                        {reportData.recommendations.map((item) => (
+                          <div key={`${item.title}-${item.example.id}`} className="rounded-md border border-border/40 bg-background/50 p-3">
+                            <div className="flex flex-wrap items-center justify-between gap-2">
+                              <div className="font-mono text-xs text-foreground">{item.title}</div>
+                              <div className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">{item.count} issue{item.count === 1 ? "" : "s"}</div>
+                            </div>
+                            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{item.body}</p>
+                            <div className="mt-2 rounded-md border border-border/30 bg-background/70 p-2">
+                              <div className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">Example</div>
+                              <div className="mt-1 text-sm text-foreground">{item.example.incidentTitle} · {item.example.stepTitle}</div>
+                              <div className="mt-1 text-sm text-muted-foreground">Your call: <span className="text-foreground/90">„{item.example.chosenLabel}“</span></div>
+                              {item.example.bestAnswerLabel && (
+                                <div className="mt-1 text-sm text-emerald-300/90">Textbook: „{item.example.bestAnswerLabel}“</div>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
 
                   {/* Highscore name entry — only when this score qualifies for the Top 10
