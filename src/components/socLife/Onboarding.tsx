@@ -1,7 +1,7 @@
 import { useEffect, useState, ComponentType } from "react";
-import { useLanguage } from "@/i18n/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useVariantT } from "./variantContext";
 import {
   FloorplanPreview, MetersPreview, IncidentPreview, ConsequencePreview,
 } from "./OnboardingPreviews";
@@ -21,7 +21,7 @@ interface OnboardingProps {
  *  Slide 4 — Consequence (verdict, deltas, continue)
  */
 export function Onboarding({ onClose }: OnboardingProps) {
-  const { t } = useLanguage();
+  const { t } = useVariantT();
   const [idx, setIdx] = useState(0);
   const total = 4;
   const isLast = idx === total - 1;
