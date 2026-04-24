@@ -683,7 +683,16 @@ function SocLifeInner({
     setStepIdx(0);
     setConsequence(null);
     setCurrentRoom("soc_floor");
-    recentIncidentIdsRef.current = [];
+    // Seed the recent-ids window from the previous shift so the very first
+    // incident of this run can never be the same as the one(s) the player
+    // just played. Without this seed the picker starts with an empty window
+    // and may serve the same opener twice in a row.
+    let priorIds: string[] = [];
+    try {
+      const raw = window.localStorage.getItem(LAST_SHIFT_INCIDENTS_KEY);
+      if (raw) priorIds = JSON.parse(raw) as string[];
+    } catch { /* ignore */ }
+    recentIncidentIdsRef.current = Array.isArray(priorIds) ? priorIds.slice(0, 3) : [];
     lastCategoryRef.current = null;
     // Grace period at shift start — gives the player ~20s to walk around the
     // floor, try out the controls and read the meters before the first
