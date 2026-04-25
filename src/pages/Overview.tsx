@@ -569,7 +569,7 @@ const Overview = () => {
                       Center vertically: 22px / 26px. Gap from center: half-diagonal of rotated square = side/2. */}
                   {idx > 0 && (
                     <span
-                      className="absolute h-px bg-primary/60 pointer-events-none top-[22px] sm:top-[26px] right-[calc(50%+18px)] left-[calc(-50%+18px)] sm:right-[calc(50%+20px)] sm:left-[calc(-50%+20px)]"
+                      className="absolute h-0.5 bg-primary/70 pointer-events-none top-[22px] sm:top-[26px] right-[calc(50%+18px)] left-[calc(-50%+18px)] sm:right-[calc(50%+20px)] sm:left-[calc(-50%+20px)]"
                       aria-hidden
                     />
                   )}
