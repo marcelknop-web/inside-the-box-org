@@ -677,7 +677,7 @@ const Overview = () => {
       >
         <ul className="relative">
           {/* Vertical connector behind the diamond column */}
-          <div className="absolute left-4 top-3 bottom-3 w-px bg-primary/20" aria-hidden />
+          <div className="absolute left-[15px] top-3 -bottom-6 w-0.5 bg-primary/60" aria-hidden />
           {PHASES.map((phase) => {
             const isActive = phase.id === activeId;
             return (
