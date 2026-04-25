@@ -795,13 +795,13 @@ const Overview = () => {
             </span>
             <div className="min-w-0 flex-1">
               <div
-                className={`font-mono text-[12px] tracking-[0.3em] mb-1 transition-colors ${
-                  referencesOpen ? 'text-primary phase-label-emphasis' : 'text-primary/80 group-hover/ref:text-primary'
+                className={`font-mono text-[12px] font-medium tracking-[0.24em] mb-1.5 transition-colors ${
+                  referencesOpen ? 'text-primary phase-label-emphasis' : 'text-primary/90 group-hover/ref:text-primary'
                 }`}
               >
                 {referenceSectionLabel.replace('/ ', '')}
               </div>
-              <div className="font-sans text-sm sm:text-base font-normal leading-snug text-muted-foreground/80 group-hover/ref:text-muted-foreground transition-colors">
+              <div className="font-mono text-[16px] font-medium leading-snug text-foreground group-hover/ref:text-foreground transition-colors">
                 {referenceHeadline}
               </div>
             </div>
