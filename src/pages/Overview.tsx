@@ -142,9 +142,9 @@ const PHASES: Phase[] = [
     number: '05',
     title: { en: 'RESPOND', de: 'REAGIEREN', fr: 'RÉAGIR' },
     verb: {
-      en: 'Structured incident, continuity and crisis management under real adversarial pressure',
-      de: 'Strukturiertes Incident-, Notfall- und Krisenmanagement unter realem Angriffsdruck',
-      fr: 'Gestion d\'incident, de continuité et de crise structurée sous pression adverse réelle',
+      en: 'Incident, continuity and crisis under real pressure.',
+      de: 'Incident, Notfall und Krise unter echtem Angriffsdruck.',
+      fr: 'Incident, continuité et crise sous pression réelle.',
     },
     description: {
       en: 'Crisis management, business continuity and incident response under real adversarial pressure.',
