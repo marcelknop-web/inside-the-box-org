@@ -62,7 +62,7 @@ const PHASES: Phase[] = [
     number: '01',
     title: { en: 'UNDERSTAND', de: 'VERSTEHEN', fr: 'COMPRENDRE' },
     verb: {
-      en: 'Belastbares Lagebild, klare Prioritäten.',
+      en: 'Robust situational picture, clear priorities.',
       de: 'Belastbares Lagebild, klare Prioritäten.',
       fr: 'Vision claire, priorités nettes.',
     },
