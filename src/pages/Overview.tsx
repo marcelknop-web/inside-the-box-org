@@ -337,10 +337,10 @@ const Overview = () => {
       : 'Trust built on 35 years of shared experience and 400+ projects.';
   const referenceSubline =
     lang === 'de'
-      ? 'Eine KI-Website bauen kann jeder. Belastbare Cybersecurity-Beratung über Jahrzehnte beweist sich an den Mandaten.'
+      ? 'KI-Websites baut jeder. Belastbare Cybersecurity beweist sich am Mandat.'
       : lang === 'fr'
-      ? 'N\'importe qui peut créer un site IA. Un conseil cybersécurité solide se prouve sur des décennies de mandats.'
-      : 'Anyone can spin up an AI website. Robust cybersecurity advisory proves itself across decades of mandates.';
+      ? 'Tout le monde fait un site IA. Le conseil cyber se prouve au mandat.'
+      : 'Anyone builds an AI site. Solid cyber advisory proves itself in the mandate.';
 
   const referenceClusters: { label: { de: string; en: string; fr: string }; clients: string[] }[] = [
     {
