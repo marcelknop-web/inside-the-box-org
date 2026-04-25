@@ -824,7 +824,7 @@ const Overview = () => {
           Der Trigger-Header darüber öffnet das Modal; geschlossen wird via X, Esc oder Overlay-Klick.
           Struktur: Layer 1 (Proof of Impact) → Layer 2 (Selected Mandates) → Layer 3 (Client list) → Conversion. */}
       <Dialog open={referencesOpen} onOpenChange={setReferencesOpen}>
-        <DialogContent className="max-w-5xl w-[calc(100vw-2rem)] sm:w-full max-h-[90vh] overflow-y-auto bg-background/95 backdrop-blur-md border border-primary/20 p-6 sm:p-10">
+        <DialogContent className="max-w-5xl w-[calc(100vw-2rem)] sm:w-full max-h-[90vh] overflow-y-auto bg-background/95 backdrop-blur-md border border-primary/20 p-6 sm:p-10 [&>button.absolute]:top-6 [&>button.absolute]:right-6 sm:[&>button.absolute]:top-8 sm:[&>button.absolute]:right-8">
           {/* ─── LAYER 1 — PROOF OF IMPACT ─────────────────────────────── */}
           <DialogTitle
             className="font-mono text-[15px] sm:text-[17px] tracking-[0.3em] text-primary mb-4 opacity-0 animate-fade-in"
