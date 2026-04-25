@@ -777,8 +777,8 @@ const Overview = () => {
       >
         {/* Mobile-only vertical connector continuing from the last phase diamond
             down to the References diamond. Aligns with the diamond column
-            (left-4 padding + 15px to hit the diamond centre). */}
-        <div className="md:hidden absolute left-[calc(1rem+15px)] -top-2 h-[calc(0.75rem+0.5rem)] w-0.5 bg-primary/60" aria-hidden />
+            (pl-4 = 1rem + 15.5px to hit the diamond centre). */}
+        <div className="md:hidden absolute left-[calc(1rem+15.5px)] -top-6 h-[calc(1.5rem+0.5rem+12px)] w-px bg-primary/60" aria-hidden />
         {/* Header row — same diamond + label pattern as a phase node.
             On desktop, indent matches the inner padding of the phase detail card (p-8 = 2rem) so the diamond aligns with the "FÜHREN" label above. */}
         <button
