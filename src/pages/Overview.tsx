@@ -62,9 +62,9 @@ const PHASES: Phase[] = [
     number: '01',
     title: { en: 'UNDERSTAND', de: 'VERSTEHEN', fr: 'COMPRENDRE' },
     verb: {
-      en: 'Robust situational picture and clear priorities as a basis for decisions',
-      de: 'Belastbares Lagebild und klare Prioritäten als Entscheidungsgrundlage',
-      fr: 'Vision claire de la situation et priorités pour décider en connaissance de cause',
+      en: 'Belastbares Lagebild, klare Prioritäten.',
+      de: 'Belastbares Lagebild, klare Prioritäten.',
+      fr: 'Vision claire, priorités nettes.',
     },
     description: {
       en: 'A solid baseline assessment as the foundation for every measure.',
