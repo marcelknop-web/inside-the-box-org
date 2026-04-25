@@ -569,7 +569,7 @@ const Overview = () => {
                       Center vertically: 22px / 26px. Gap from center: half-diagonal of rotated square = side/2. */}
                   {idx > 0 && (
                     <span
-                      className="absolute h-px bg-primary/60 pointer-events-none top-[22px] sm:top-[26px] right-[calc(50%+18px)] left-[calc(-50%+18px)] sm:right-[calc(50%+20px)] sm:left-[calc(-50%+20px)]"
+                      className="absolute h-0.5 bg-primary/70 pointer-events-none top-[22px] sm:top-[26px] right-[calc(50%+18px)] left-[calc(-50%+18px)] sm:right-[calc(50%+20px)] sm:left-[calc(-50%+20px)]"
                       aria-hidden
                     />
                   )}
@@ -677,7 +677,7 @@ const Overview = () => {
       >
         <ul className="relative">
           {/* Vertical connector behind the diamond column */}
-          <div className="absolute left-4 top-3 bottom-3 w-px bg-primary/20" aria-hidden />
+          <div className="absolute left-[15px] top-3 -bottom-6 w-0.5 bg-primary/60" aria-hidden />
           {PHASES.map((phase) => {
             const isActive = phase.id === activeId;
             return (
@@ -772,9 +772,13 @@ const Overview = () => {
           interaction (diamond + verb + expandable detail). Extra top spacing
           (mt-12 sm:mt-20) sets it visually apart from the journey above. */}
       <section
-        className="px-4 sm:px-6 pb-12 sm:pb-10 max-w-6xl mx-auto w-full mt-4 sm:mt-2 pt-2 opacity-0 animate-fade-in"
+        className="relative px-4 sm:px-6 pb-12 sm:pb-10 max-w-6xl mx-auto w-full mt-4 sm:mt-2 pt-2 opacity-0 animate-fade-in"
         style={{ animationDelay: '960ms', animationFillMode: 'forwards' }}
       >
+        {/* Mobile-only vertical connector continuing from the last phase diamond
+            down to the References diamond. Aligns with the diamond column
+            (left-4 padding + 15px to hit the diamond centre). */}
+        <div className="md:hidden absolute left-[calc(1rem+15px)] -top-2 h-[calc(0.75rem+0.5rem)] w-0.5 bg-primary/60" aria-hidden />
         {/* Header row — same diamond + label pattern as a phase node.
             On desktop, indent matches the inner padding of the phase detail card (p-8 = 2rem) so the diamond aligns with the "FÜHREN" label above. */}
         <button
