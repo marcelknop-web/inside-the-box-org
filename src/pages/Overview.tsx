@@ -122,9 +122,9 @@ const PHASES: Phase[] = [
     number: '04',
     title: { en: 'TRAIN', de: 'TRAINIEREN', fr: 'ENTRAÎNER' },
     verb: {
-      en: 'Realistic exercises for resilient decisions under pressure',
-      de: 'Realitätsnahe Übungen für belastbare Entscheidungen unter Druck',
-      fr: 'Exercices réalistes pour des décisions solides sous pression',
+      en: 'Realistic exercises for decisions under pressure.',
+      de: 'Realitätsnahe Übungen für Entscheidungen unter Druck.',
+      fr: 'Exercices réalistes pour décider sous pression.',
     },
     description: {
       en: 'Tabletop exercises and hands-on training built for real-world pressure.',
