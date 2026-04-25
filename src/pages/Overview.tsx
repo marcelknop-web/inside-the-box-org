@@ -82,7 +82,7 @@ const PHASES: Phase[] = [
     number: '02',
     title: { en: 'ALIGN', de: 'AUSRICHTEN', fr: 'ALIGNER' },
     verb: {
-      en: 'Strukturierte Programme bis zur Audit-Reife.',
+      en: 'Structured programmes to audit readiness.',
       de: 'Strukturierte Programme bis zur Audit-Reife.',
       fr: 'Programmes structurés jusqu\'à l\'audit.',
     },
