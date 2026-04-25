@@ -685,6 +685,19 @@ const useServiceContent = () => {
                 <p className="text-primary text-xs font-mono mt-1">{t('events.upcomingFastLaneSocLink')}</p>
               </div>
             </a>
+            <button
+              type="button"
+              onClick={() => setActive('dora-nis2-ttx')}
+              className="bg-primary/5 rounded-lg p-4 flex items-start gap-3 hover:bg-primary/10 transition-colors group text-left border-none cursor-pointer"
+            >
+              <ClipboardList size={20} className="text-primary mt-0.5 flex-shrink-0" />
+              <div className="space-y-1 min-w-0">
+                <p className="font-semibold text-sm md:text-base font-sans text-primary group-hover:underline">{t('events.upcomingTtx')}</p>
+                <p className="text-highlight text-sm font-mono font-semibold">{t('events.upcomingTtxDate')}</p>
+                <p className="text-foreground/70 text-xs font-mono">{t('events.upcomingTtxLocation')}</p>
+                <p className="text-primary text-xs font-mono mt-1">{t('events.upcomingTtxLink')}</p>
+              </div>
+            </button>
           </div>
         </Block>
 
