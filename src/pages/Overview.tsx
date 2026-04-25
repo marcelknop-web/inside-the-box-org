@@ -62,9 +62,9 @@ const PHASES: Phase[] = [
     number: '01',
     title: { en: 'UNDERSTAND', de: 'VERSTEHEN', fr: 'COMPRENDRE' },
     verb: {
-      en: 'Robust situational picture and clear priorities as a basis for decisions',
-      de: 'Belastbares Lagebild und klare Prioritäten als Entscheidungsgrundlage',
-      fr: 'Vision claire de la situation et priorités pour décider en connaissance de cause',
+      en: 'Robust situational picture, clear priorities.',
+      de: 'Belastbares Lagebild, klare Prioritäten.',
+      fr: 'Vision claire, priorités nettes.',
     },
     description: {
       en: 'A solid baseline assessment as the foundation for every measure.',
@@ -82,9 +82,9 @@ const PHASES: Phase[] = [
     number: '02',
     title: { en: 'ALIGN', de: 'AUSRICHTEN', fr: 'ALIGNER' },
     verb: {
-      en: 'Structured programmes and clear target pictures up to audit readiness',
-      de: 'Strukturierte Programme und klare Zielbilder bis zur Audit-Reife',
-      fr: 'Programmes structurés et cibles claires jusqu\'à la maturité d\'audit',
+      en: 'Structured programmes to audit readiness.',
+      de: 'Strukturierte Programme bis zur Audit-Reife.',
+      fr: 'Programmes structurés jusqu\'à l\'audit.',
     },
     description: {
       en: 'Strategic guidance and structured programmes that get you audit-ready.',
@@ -102,9 +102,9 @@ const PHASES: Phase[] = [
     number: '03',
     title: { en: 'LEAD', de: 'FÜHREN', fr: 'DIRIGER' },
     verb: {
-      en: 'Clear responsibilities and effective governance models',
-      de: 'Klare Verantwortlichkeiten und wirksame Steuerungsmodelle',
-      fr: 'Responsabilités claires et modèles de pilotage efficaces',
+      en: 'Clear responsibilities, effective governance.',
+      de: 'Klare Verantwortung, wirksame Steuerung.',
+      fr: 'Responsabilités claires, pilotage efficace.',
     },
     description: {
       en: 'Fractional CISO leadership and pragmatic operating models for lean security teams.',
@@ -122,9 +122,9 @@ const PHASES: Phase[] = [
     number: '04',
     title: { en: 'TRAIN', de: 'TRAINIEREN', fr: 'ENTRAÎNER' },
     verb: {
-      en: 'Realistic exercises for resilient decisions under pressure',
-      de: 'Realitätsnahe Übungen für belastbare Entscheidungen unter Druck',
-      fr: 'Exercices réalistes pour des décisions solides sous pression',
+      en: 'Realistic exercises for decisions under pressure.',
+      de: 'Realitätsnahe Übungen für Entscheidungen unter Druck.',
+      fr: 'Exercices réalistes pour décider sous pression.',
     },
     description: {
       en: 'Tabletop exercises and hands-on training built for real-world pressure.',
@@ -142,9 +142,9 @@ const PHASES: Phase[] = [
     number: '05',
     title: { en: 'RESPOND', de: 'REAGIEREN', fr: 'RÉAGIR' },
     verb: {
-      en: 'Structured incident, continuity and crisis management under real adversarial pressure',
-      de: 'Strukturiertes Incident-, Notfall- und Krisenmanagement unter realem Angriffsdruck',
-      fr: 'Gestion d\'incident, de continuité et de crise structurée sous pression adverse réelle',
+      en: 'Incident, continuity and crisis under real pressure.',
+      de: 'Incident, Notfall und Krise unter echtem Angriffsdruck.',
+      fr: 'Incident, continuité et crise sous pression réelle.',
     },
     description: {
       en: 'Crisis management, business continuity and incident response under real adversarial pressure.',
