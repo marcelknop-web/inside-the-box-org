@@ -102,9 +102,9 @@ const PHASES: Phase[] = [
     number: '03',
     title: { en: 'LEAD', de: 'FÜHREN', fr: 'DIRIGER' },
     verb: {
-      en: 'Clear responsibilities and effective governance models',
-      de: 'Klare Verantwortlichkeiten und wirksame Steuerungsmodelle',
-      fr: 'Responsabilités claires et modèles de pilotage efficaces',
+      en: 'Clear responsibilities, effective governance.',
+      de: 'Klare Verantwortung, wirksame Steuerung.',
+      fr: 'Responsabilités claires, pilotage efficace.',
     },
     description: {
       en: 'Fractional CISO leadership and pragmatic operating models for lean security teams.',
