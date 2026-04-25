@@ -82,9 +82,9 @@ const PHASES: Phase[] = [
     number: '02',
     title: { en: 'ALIGN', de: 'AUSRICHTEN', fr: 'ALIGNER' },
     verb: {
-      en: 'Structured programmes and clear target pictures up to audit readiness',
-      de: 'Strukturierte Programme und klare Zielbilder bis zur Audit-Reife',
-      fr: 'Programmes structurés et cibles claires jusqu\'à la maturité d\'audit',
+      en: 'Strukturierte Programme bis zur Audit-Reife.',
+      de: 'Strukturierte Programme bis zur Audit-Reife.',
+      fr: 'Programmes structurés jusqu\'à l\'audit.',
     },
     description: {
       en: 'Strategic guidance and structured programmes that get you audit-ready.',
