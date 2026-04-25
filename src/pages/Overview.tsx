@@ -569,7 +569,7 @@ const Overview = () => {
                       Center vertically: 22px / 26px. Gap from center: half-diagonal of rotated square = side/2. */}
                   {idx > 0 && (
                     <span
-                      className="absolute h-0.5 bg-primary/70 pointer-events-none top-[22px] sm:top-[26px] right-[calc(50%+18px)] left-[calc(-50%+18px)] sm:right-[calc(50%+20px)] sm:left-[calc(-50%+20px)]"
+                      className="absolute h-px bg-primary/70 pointer-events-none top-[22px] sm:top-[26px] right-[calc(50%+18px)] left-[calc(-50%+18px)] sm:right-[calc(50%+20px)] sm:left-[calc(-50%+20px)]"
                       aria-hidden
                     />
                   )}
@@ -677,7 +677,7 @@ const Overview = () => {
       >
         <ul className="relative">
           {/* Vertical connector behind the diamond column */}
-          <div className="absolute left-[15px] top-3 -bottom-6 w-0.5 bg-primary/60" aria-hidden />
+          <div className="absolute left-[15.5px] top-3 -bottom-10 w-px bg-primary/60" aria-hidden />
           {PHASES.map((phase) => {
             const isActive = phase.id === activeId;
             return (
@@ -777,8 +777,8 @@ const Overview = () => {
       >
         {/* Mobile-only vertical connector continuing from the last phase diamond
             down to the References diamond. Aligns with the diamond column
-            (left-4 padding + 15px to hit the diamond centre). */}
-        <div className="md:hidden absolute left-[calc(1rem+15px)] -top-2 h-[calc(0.75rem+0.5rem)] w-0.5 bg-primary/60" aria-hidden />
+            (pl-4 = 1rem + 15.5px to hit the diamond centre). */}
+        <div className="md:hidden absolute left-[calc(1rem+15.5px)] -top-6 h-[calc(1.5rem+0.5rem+12px)] w-px bg-primary/60" aria-hidden />
         {/* Header row — same diamond + label pattern as a phase node.
             On desktop, indent matches the inner padding of the phase detail card (p-8 = 2rem) so the diamond aligns with the "FÜHREN" label above. */}
         <button
