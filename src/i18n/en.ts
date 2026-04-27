@@ -609,6 +609,8 @@ export const en = {
     title: 'Imprint',
     metaDesc: 'Legal information and contact details for inside-the-box.org. Marcel Knop, Bad Emstal, Germany.',
     responsible: 'Responsible for content',
+    vatLabel: 'VAT identification number',
+    vatHint: 'pursuant to § 27 a German VAT Act',
     contactLabel: 'Contact',
     vatId: 'VAT ID',
     insurance: 'Professional liability insurance',

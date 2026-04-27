@@ -609,6 +609,8 @@ export const de = {
     title: 'Impressum',
     metaDesc: 'Rechtliche Informationen und Kontaktdaten für inside-the-box.org. Marcel Knop, Bad Emstal, Deutschland.',
     responsible: 'Verantwortlich für den Inhalt',
+    vatLabel: 'Umsatzsteuer-Identifikationsnummer',
+    vatHint: 'gemäß § 27 a UStG',
     contactLabel: 'Kontakt',
     vatId: 'USt-IdNr.',
     insurance: 'Berufshaftpflichtversicherung',
