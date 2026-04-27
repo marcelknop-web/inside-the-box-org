@@ -153,20 +153,44 @@ export function IncidentPanel({
 
   const actionsReady = useDelayedFlag(500, [promptDone]) && promptDone;
 
-  // Numbered, sequential reveal — each block "unlocks" only when the previous
-  // typewriter has finished, so the eye knows exactly where to look next.
-  const stepNum = (n: number, active: boolean, done: boolean) => (
-    <span
+  // Section label — small uppercase tag that prefixes each major block of
+  // the briefing ticket. Active sections (still typing) glow rose, completed
+  // ones turn emerald, untouched ones stay muted. Replaces the old numeric
+  // pills for a more "ops console" feel.
+  const sectionLabel = (label: string, active: boolean, done: boolean) => (
+    <div
       className={cn(
-        "inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full font-mono text-[10px] font-bold",
-        done && "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40",
-        active && !done && "bg-rose-500/30 text-rose-200 border border-rose-400/60 animate-pulse",
-        !active && !done && "bg-muted/30 text-muted-foreground/50 border border-muted/30",
+        "mb-1.5 flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.18em]",
+        done && "text-emerald-300/90",
+        active && !done && "text-rose-200 animate-pulse",
+        !active && !done && "text-muted-foreground/60",
       )}
     >
-      {n}
-    </span>
+      <span
+        className={cn(
+          "h-px flex-1 max-w-[14px]",
+          done && "bg-emerald-400/50",
+          active && !done && "bg-rose-400/60",
+          !active && !done && "bg-muted-foreground/30",
+        )}
+      />
+      <span>{label}</span>
+      <span
+        className={cn(
+          "h-px flex-1",
+          done && "bg-emerald-400/30",
+          active && !done && "bg-rose-400/40",
+          !active && !done && "bg-muted-foreground/20",
+        )}
+      />
+    </div>
   );
+
+  // Short, stable ticket id — gives each inject a SOC-ticket feel.
+  const ticketId = useMemo(() => {
+    const base = `${incident.id}`.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 6) || "INJECT";
+    return `INC-${base}-${String(stepIndex + 1).padStart(2, "0")}`;
+  }, [incident.id, stepIndex]);
 
   const showTitleRow = true;       // always visible (cursor blinks while waiting)
   const showBrief    = briefStarts;
@@ -192,10 +216,14 @@ export function IncidentPanel({
   };
 
   return (
-    <div className="rounded-lg border border-rose-500/40 bg-background/95 p-4 shadow-[0_0_0_1px_hsl(var(--destructive)/0.2)] max-w-full overflow-hidden">
-      <div className="mb-3 flex items-center justify-between gap-2 font-mono text-[11px] uppercase tracking-wider">
+    <div className="rounded-lg border border-rose-500/40 bg-background/95 shadow-[0_0_0_1px_hsl(var(--destructive)/0.2),0_10px_40px_-10px_hsl(var(--destructive)/0.35)] max-w-full overflow-hidden">
+      {/* === TICKET HEADER BANNER ===
+          A solid bar that reads instantly as "incoming SOC ticket":
+          severity tag · ticket id · step counter. Distinct background so
+          the eye registers it as the metadata strip, separate from body. */}
+      <div className="flex items-center justify-between gap-2 border-b border-rose-500/30 bg-rose-500/10 px-3 py-2 font-mono text-[10px] uppercase tracking-[0.15em]">
         <div className="flex items-center gap-2 min-w-0">
-          <span className={cn("text-rose-300 truncate", !titleDone && "animate-pulse")}>▲ {t("incomingIncident")}</span>
+          <span className={cn("text-rose-300 shrink-0", !titleDone && "animate-pulse")}>▲ {t("incomingIncident")}</span>
           <span
             className={cn(
               "shrink-0 rounded-sm border px-1.5 py-px text-[9px] font-bold tracking-[0.12em]",
@@ -204,132 +232,149 @@ export function IncidentPanel({
           >
             {tierLabel[tier]}
           </span>
+          <span className="hidden sm:inline text-muted-foreground/70 truncate">· {ticketId}</span>
         </div>
-        <span className="text-muted-foreground shrink-0">{stepIndex + 1} / {totalSteps}</span>
+        <span className="text-muted-foreground shrink-0 tabular-nums">
+          {stepIndex + 1} / {totalSteps}
+        </span>
       </div>
 
-      {/* 1 — Title (blinks while waiting/typing for emphasis) */}
-      <div className="mb-3 flex items-start gap-2">
-        {stepNum(1, !titleDone, titleDone)}
-        <h3
-          className={cn(
-            "font-mono text-base sm:text-lg break-words min-h-[1.5em] leading-snug flex-1",
-            titleDone ? "text-foreground" : "text-rose-200",
-            !titleDone && "animate-pulse",
+      <div className="p-4 space-y-4">
+
+        {/* ============== SECTION 1 — BRIEFING ==============
+            Headline + plain-language summary. Highest visual weight: this
+            is the "what just happened" block the analyst must read first. */}
+        <section>
+          {sectionLabel(t("briefingLabel") ?? "Briefing", !titleDone || (showBrief && !briefDone), briefDone)}
+          <h3
+            className={cn(
+              "font-mono text-base sm:text-lg break-words min-h-[1.5em] leading-snug",
+              titleDone ? "text-foreground" : "text-rose-200",
+              !titleDone && "animate-pulse",
+            )}
+          >
+            {typedTitle || (titleStarts ? "" : "…")}
+            {titleStarts && !titleDone && (
+              <span className="ml-0.5 inline-block w-2 h-4 align-middle bg-rose-300 animate-pulse" />
+            )}
+          </h3>
+          {showBrief && (
+            <p className="mt-1.5 text-xs sm:text-sm text-muted-foreground break-words min-h-[2.4em] leading-relaxed animate-fade-in">
+              {typedBrief}
+              {!briefDone && <span className="ml-0.5 inline-block w-1.5 h-3 align-middle bg-muted-foreground animate-pulse" />}
+            </p>
           )}
-        >
-          {typedTitle || (titleStarts ? "" : "…")}
-          {titleStarts && !titleDone && (
-            <span className="ml-0.5 inline-block w-2 h-4 align-middle bg-rose-300 animate-pulse" />
-          )}
-        </h3>
-      </div>
+        </section>
 
-      {/* 2 — Brief */}
-      {showBrief && (
-        <div className="mb-3 flex items-start gap-2 animate-fade-in">
-          {stepNum(2, !briefDone, briefDone)}
-          <p className="text-xs sm:text-sm text-muted-foreground break-words min-h-[2.4em] leading-relaxed flex-1">
-            {typedBrief}
-            {!briefDone && <span className="ml-0.5 inline-block w-1.5 h-3 align-middle bg-muted-foreground animate-pulse" />}
-          </p>
-        </div>
-      )}
-
-      {/* 3 — Meta (room + timer) */}
-      {showMeta && (
-        <div className="mb-3 ml-7 animate-fade-in">
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] font-mono uppercase tracking-wider mb-2">
-            <span className="text-muted-foreground break-words">
-              {t("incidentRoomHint")}:{" "}
-              <span className={cn("ml-1", inRightRoom ? "text-emerald-400" : "text-cyan-300")}>
-                {requiredRoom ? t(`rooms.${requiredRoom.i18n}.name`) : "—"}
-              </span>
-            </span>
-            <span className="text-muted-foreground">
-              {t("timeLeft")}: <span className={cn("ml-1", sec <= 5 ? "text-rose-400 animate-pulse" : "text-foreground")}>{sec}s</span>
-            </span>
-          </div>
-          {/* Timer bar — tick marks on a calm track, smoothly draining fill,
-              colour shifts from cyan → amber → rose as time runs out. */}
-          <div className="relative h-2 w-full overflow-hidden rounded-sm border border-border/50 bg-background/80">
-            {/* Subtle tick marks every 10% for a "studio meter" feel */}
-            <div
-              aria-hidden
-              className="pointer-events-none absolute inset-0 opacity-40"
-              style={{
-                backgroundImage:
-                  "repeating-linear-gradient(to right, transparent 0, transparent calc(10% - 1px), hsl(var(--border)) calc(10% - 1px), hsl(var(--border)) 10%)",
-              }}
-            />
-            <div
-              className={cn(
-                "h-full transition-[width,background-color] duration-150 ease-linear",
-                sec <= 5
-                  ? "bg-rose-500 shadow-[0_0_6px_hsl(var(--destructive)/0.6)]"
-                  : sec <= 10
-                  ? "bg-amber-400"
-                  : "bg-cyan-400",
-              )}
-              style={{ width: `${pct}%` }}
-            />
-          </div>
-        </div>
-      )}
-
-      {/* 4 — Prompt */}
-      {showPrompt && (
-        <div className="mb-3 flex items-start gap-2 animate-fade-in">
-          {stepNum(4, !promptDone, promptDone)}
-          <div className="flex-1">
-            <div className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground break-words mb-1">
-              {step.title[lang]}
-            </div>
-            <div className="text-sm text-foreground break-words min-h-[1.4em] leading-relaxed">
-              {typedPrompt}
-              {!promptDone && <span className="ml-0.5 inline-block w-1.5 h-3 align-middle bg-foreground/60 animate-pulse" />}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* 5 — Action area: only after the prompt is fully revealed AND user is in the right room */}
-      {showActions && (
-        <div className="ml-7 animate-fade-in">
-          {!inRightRoom && requiredRoom ? (
-            <div className="space-y-2">
-              <div className="rounded-md border border-cyan-400/40 bg-cyan-400/10 p-3 font-mono text-xs text-cyan-200">
-                {t("feedback.chooseRoomFirst")}
-              </div>
-              {onGoToRoom && (
-                <Button
-                  variant="default"
-                  className="w-full justify-center font-mono"
-                  onClick={() => onGoToRoom(step.requiredRoom!)}
-                >
-                  → {t("feedback.goToRoomCta")}: {t(`rooms.${requiredRoom.i18n}.name`)}
-                </Button>
-              )}
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 gap-2">
-              {shuffledOptions.map((opt, i) => (
-                <Button
-                  key={opt.id}
-                  variant="outline"
-                  className="justify-start whitespace-normal text-left h-auto py-2 px-3 font-sans gap-2"
-                  onClick={() => onChoose(opt.id)}
-                >
-                  <span className="font-mono text-[10px] text-muted-foreground shrink-0">
-                    {String.fromCharCode(65 + i)}
+        {/* ============== SECTION 2 — SITUATION ==============
+            Operational metadata as a compact key/value strip + timer bar.
+            Designed to be glanceable: where do I need to be, how long do I
+            have. Sits in a subdued container so it doesn't fight the body. */}
+        {showMeta && (
+          <section className="animate-fade-in">
+            {sectionLabel(t("situationLabel") ?? "Situation", false, true)}
+            <div className="rounded-md border border-border/50 bg-background/60 px-3 py-2.5 space-y-2">
+              <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-[11px] font-mono">
+                <div className="flex flex-col min-w-0">
+                  <span className="text-muted-foreground/70 uppercase tracking-wider text-[9px]">
+                    {t("incidentRoomHint")}
                   </span>
-                  <span className="flex-1">{opt.label[lang]}</span>
-                </Button>
-              ))}
+                  <span className={cn("truncate font-semibold", inRightRoom ? "text-emerald-400" : "text-cyan-300")}>
+                    {requiredRoom ? t(`rooms.${requiredRoom.i18n}.name`) : "—"}
+                  </span>
+                </div>
+                <div className="flex flex-col min-w-0 text-right">
+                  <span className="text-muted-foreground/70 uppercase tracking-wider text-[9px]">
+                    {t("timeLeft")}
+                  </span>
+                  <span className={cn("font-semibold tabular-nums", sec <= 5 ? "text-rose-400 animate-pulse" : "text-foreground")}>
+                    {sec}s
+                  </span>
+                </div>
+              </div>
+              {/* Timer bar */}
+              <div className="relative h-2 w-full overflow-hidden rounded-sm border border-border/50 bg-background/80">
+                <div
+                  aria-hidden
+                  className="pointer-events-none absolute inset-0 opacity-40"
+                  style={{
+                    backgroundImage:
+                      "repeating-linear-gradient(to right, transparent 0, transparent calc(10% - 1px), hsl(var(--border)) calc(10% - 1px), hsl(var(--border)) 10%)",
+                  }}
+                />
+                <div
+                  className={cn(
+                    "h-full transition-[width,background-color] duration-150 ease-linear",
+                    sec <= 5
+                      ? "bg-rose-500 shadow-[0_0_6px_hsl(var(--destructive)/0.6)]"
+                      : sec <= 10
+                      ? "bg-amber-400"
+                      : "bg-cyan-400",
+                  )}
+                  style={{ width: `${pct}%` }}
+                />
+              </div>
             </div>
-          )}
-        </div>
-      )}
+          </section>
+        )}
+
+        {/* ============== SECTION 3 — DECISION ==============
+            The actual ask: prompt copy + answer options (or "go to room"
+            redirect). Boxed so the actionable area is unambiguous. */}
+        {showPrompt && (
+          <section className="animate-fade-in">
+            {sectionLabel(t("decisionLabel") ?? "Decision", !promptDone, promptDone)}
+            <div className="rounded-md border border-border/60 bg-card/40 p-3 space-y-3">
+              <div>
+                <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground/80 break-words mb-1">
+                  {step.title[lang]}
+                </div>
+                <div className="text-sm text-foreground break-words min-h-[1.4em] leading-relaxed">
+                  {typedPrompt}
+                  {!promptDone && <span className="ml-0.5 inline-block w-1.5 h-3 align-middle bg-foreground/60 animate-pulse" />}
+                </div>
+              </div>
+
+              {showActions && (
+                <div className="animate-fade-in">
+                  {!inRightRoom && requiredRoom ? (
+                    <div className="space-y-2">
+                      <div className="rounded-md border border-cyan-400/40 bg-cyan-400/10 p-3 font-mono text-xs text-cyan-200">
+                        {t("feedback.chooseRoomFirst")}
+                      </div>
+                      {onGoToRoom && (
+                        <Button
+                          variant="default"
+                          className="w-full justify-center font-mono"
+                          onClick={() => onGoToRoom(step.requiredRoom!)}
+                        >
+                          → {t("feedback.goToRoomCta")}: {t(`rooms.${requiredRoom.i18n}.name`)}
+                        </Button>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 gap-2">
+                      {shuffledOptions.map((opt, i) => (
+                        <Button
+                          key={opt.id}
+                          variant="outline"
+                          className="justify-start whitespace-normal text-left h-auto py-2 px-3 font-sans gap-2 hover:border-primary/60 hover:bg-primary/5"
+                          onClick={() => onChoose(opt.id)}
+                        >
+                          <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-sm border border-border bg-background/60 font-mono text-[10px] font-bold text-muted-foreground">
+                            {String.fromCharCode(65 + i)}
+                          </span>
+                          <span className="flex-1">{opt.label[lang]}</span>
+                        </Button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </section>
+        )}
+      </div>
     </div>
   );
 }
