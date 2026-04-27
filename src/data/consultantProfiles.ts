@@ -2,7 +2,7 @@ export const consultantProfiles = [
   {
     name: 'Marcel Knop',
     role: 'Senior Cybersecurity Consultant',
-    imageUrl: '/lovable-uploads/0b083536-ec9e-4eda-b874-e926cc196404.png',
+    imageUrl: '/lovable-uploads/marcel-knop.webp',
     linkedinUrl: 'https://www.linkedin.com/in/inside-the-box',
     bio: 'Organisationen unterstütze ich dabei, Cybersecurity und regulatorische Anforderungen wirksam umzusetzen – von der Standortbestimmung bis zur nachhaltigen Verankerung in Prozessen und Organisation.\n\nDabei schaffe ich belastbare Entscheidungsgrundlagen, begleite Organisationen zur Audit-Reife und stelle sicher, dass Sicherheits- und Krisenstrukturen im Ernstfall funktionieren.\n\nMeine Schwerpunkte liegen im Aufbau und der Weiterentwicklung von ISMS, der Umsetzung regulatorischer Anforderungen sowie im Cyber-Krisenmanagement.\n\nZuvor war ich in leitenden Funktionen bei KPMG, Accenture und EY tätig.',
     meta: [
