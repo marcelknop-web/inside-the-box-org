@@ -360,10 +360,15 @@ export function IncidentPanel({
                         <Button
                           key={opt.id}
                           variant="outline"
-                          className="justify-start whitespace-normal text-left h-auto py-2 px-3 font-sans gap-2 hover:border-primary/60 hover:bg-primary/5"
+                          // Hover state forces yellow primary background + dark
+                          // foreground on every nested element so the option
+                          // text and the A/B/C/D pill stay legible (the previous
+                          // semi-transparent primary tint washed out the body
+                          // copy on light themes).
+                          className="group justify-start whitespace-normal text-left h-auto py-2 px-3 font-sans gap-2 transition-colors hover:bg-primary hover:text-primary-foreground hover:border-primary focus-visible:bg-primary focus-visible:text-primary-foreground focus-visible:border-primary"
                           onClick={() => onChoose(opt.id)}
                         >
-                          <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-sm border border-border bg-background/60 font-mono text-[10px] font-bold text-muted-foreground">
+                          <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-sm border border-border bg-background/60 font-mono text-[10px] font-bold text-muted-foreground transition-colors group-hover:bg-primary-foreground/15 group-hover:text-primary-foreground group-hover:border-primary-foreground/40 group-focus-visible:bg-primary-foreground/15 group-focus-visible:text-primary-foreground group-focus-visible:border-primary-foreground/40">
                             {String.fromCharCode(65 + i)}
                           </span>
                           <span className="flex-1">{opt.label[lang]}</span>
