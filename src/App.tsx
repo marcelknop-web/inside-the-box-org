@@ -12,10 +12,9 @@ import NotFound from "./pages/NotFound";
 import Overview from "./pages/Overview";
 import { lazy, Suspense } from "react";
 
-// Active routes only. Archived (no longer in Routes, files retained for reference):
-//   /legacy, /overview, /berlin-drift, /enigma, /soc-life, /nis2-compliance,
-//   /iacs-e27, /iec62443 — all reachable via the unified /:serviceId catchall
-//   in ChatView, or removed from the Journey navigation entirely.
+// Active routes only. Standalone tools and the unified /:serviceId catchall
+// (handled by ChatView) cover everything else. Older archived routes
+// (/legacy, /berlin-drift, /imprint, …) have been removed entirely.
 // Overview is eager-loaded: it is the landing route, so lazy-loading it just
 // adds a critical request to the network dependency chain (HTML → JS → chunk)
 // without any UX benefit.
