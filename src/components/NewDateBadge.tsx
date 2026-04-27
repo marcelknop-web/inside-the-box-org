@@ -4,8 +4,8 @@ import { useLanguage } from '@/i18n/LanguageContext';
  * Pure date-based "new" badge. Renders a small pulsing gold dot + label
  * if `addedAt` is within the last `maxDays` days (default 30).
  *
- * Unlike <NewBadge>, this does not use localStorage — it's purely a
- * function of the publication date, so all visitors see the same state.
+ * Purely a function of the publication date — no localStorage, so all
+ * visitors see the same state.
  *
  * Usage: <NewDateBadge addedAt="2026-04-15" />
  */

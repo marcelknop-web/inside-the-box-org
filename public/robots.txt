@@ -5,6 +5,5 @@ Allow: /
 Disallow: /itsm-dev
 Disallow: /itsm-dev-tool.html
 Disallow: /ttx-admin
-Disallow: /berlin-drift
 
 Sitemap: https://www.inside-the-box.org/sitemap.xml

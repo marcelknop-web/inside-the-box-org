@@ -80,7 +80,7 @@ export function NewsPanel({ onSelectService }: NewsPanelProps) {
   };
 
   // Service IDs that have their own top-level route (must use real navigation, not in-app service switch)
-  const STANDALONE_ROUTES = new Set(['ttx-readiness', 'enigma', 'itsm', 'itsm-dev', 'berlin-drift', 'soc-life', 'ttx-admin']);
+  const STANDALONE_ROUTES = new Set(['ttx-readiness', 'enigma', 'itsm', 'itsm-dev', 'soc-life', 'ttx-admin']);
 
   const handleClick = (route: string) => {
     if (route.startsWith('/') && !route.includes('://')) {
