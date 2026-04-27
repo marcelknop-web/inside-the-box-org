@@ -308,6 +308,28 @@ export const SiteChrome = ({
               </div>
             </div>
 
+            {/* VAT ID — § 5 TMG / § 27 a UStG. Mirrors the standalone
+                /imprint page so the drawer is legally complete. */}
+            <div className="bg-card/40 rounded-xl px-5 py-4 font-sans text-[15px] text-foreground/85 leading-relaxed">
+              <h3 className="font-mono text-[11px] tracking-[0.3em] text-primary/80 uppercase mb-3">
+                {lang === 'de'
+                  ? 'Umsatzsteuer-Identifikationsnummer'
+                  : lang === 'fr'
+                  ? 'Numéro d’identification TVA'
+                  : 'VAT identification number'}
+              </h3>
+              <div className="space-y-1">
+                <div className="font-medium text-foreground tracking-wider">DE328906053</div>
+                <div className="text-muted-foreground text-sm">
+                  {lang === 'de'
+                    ? 'gemäß § 27 a UStG'
+                    : lang === 'fr'
+                    ? 'selon l’art. 27 a de la loi allemande sur la TVA'
+                    : 'pursuant to § 27 a German VAT Act'}
+                </div>
+              </div>
+            </div>
+
             {/* Contact */}
             <div className="bg-card/40 rounded-xl px-5 py-4 font-sans text-[15px] text-foreground/85 leading-relaxed">
               <h3 className="font-mono text-[11px] tracking-[0.3em] text-primary/80 uppercase mb-3">
