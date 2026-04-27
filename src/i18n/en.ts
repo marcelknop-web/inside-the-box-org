@@ -1449,6 +1449,9 @@ export const en = {
     subtitle: 'Industrial SOC. Plant floor in scope. Safety before availability',
     intro: 'You are an IT analyst on rotation into the OT SOC. The eight rooms now map to a real plant — Purdue levels 1 to 3.5, with the control room and engineering bench upstream of moving machinery and people. Read the brief, pick the right room, and remember: safety before availability, availability before confidentiality.',
     incomingIncident: 'Incoming OT incident',
+    briefingLabel: 'Briefing',
+    situationLabel: 'Situation',
+    decisionLabel: 'Decision',
     rooms: {
       // Tier-1 OT operations: process operators watching the line in real time.
       soc_floor:   { name: 'Control Room (L2)',        desc: 'Operator HMI stations and alarm wall. First eyes on the process — flow, pressure, temperature, batch state.' },
