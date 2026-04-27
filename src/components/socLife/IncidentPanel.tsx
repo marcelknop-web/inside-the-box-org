@@ -281,7 +281,7 @@ export function IncidentPanel({
                   <span className="text-muted-foreground/70 uppercase tracking-wider text-[9px]">
                     {t("incidentRoomHint")}
                   </span>
-                  <span className={cn("truncate font-semibold", inRightRoom ? "text-emerald-400" : "text-cyan-300")}>
+                  <span className={cn("font-semibold break-words leading-tight", inRightRoom ? "text-emerald-400" : "text-cyan-300")}>
                     {requiredRoom ? t(`rooms.${requiredRoom.i18n}.name`) : "—"}
                   </span>
                 </div>
