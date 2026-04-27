@@ -310,10 +310,10 @@ const Overview = () => {
 
   const headline =
     lang === 'de'
-      ? 'Cyber-Resilienz in fünf Schritten'
+      ? 'Vom Lagebild zur Handlungsfähigkeit'
       : lang === 'fr'
-      ? 'La cyber-résilience en cinq étapes'
-      : 'Cyber-resilience in five steps';
+      ? "De la vision situationnelle à la capacité d'action"
+      : 'From situational awareness to operational capability';
   const subline =
     lang === 'de'
       ? 'Wo liegt Ihr aktueller Fokus?'
