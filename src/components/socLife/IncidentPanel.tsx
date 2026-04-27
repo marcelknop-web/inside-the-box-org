@@ -153,20 +153,44 @@ export function IncidentPanel({
 
   const actionsReady = useDelayedFlag(500, [promptDone]) && promptDone;
 
-  // Numbered, sequential reveal — each block "unlocks" only when the previous
-  // typewriter has finished, so the eye knows exactly where to look next.
-  const stepNum = (n: number, active: boolean, done: boolean) => (
-    <span
+  // Section label — small uppercase tag that prefixes each major block of
+  // the briefing ticket. Active sections (still typing) glow rose, completed
+  // ones turn emerald, untouched ones stay muted. Replaces the old numeric
+  // pills for a more "ops console" feel.
+  const sectionLabel = (label: string, active: boolean, done: boolean) => (
+    <div
       className={cn(
-        "inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full font-mono text-[10px] font-bold",
-        done && "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40",
-        active && !done && "bg-rose-500/30 text-rose-200 border border-rose-400/60 animate-pulse",
-        !active && !done && "bg-muted/30 text-muted-foreground/50 border border-muted/30",
+        "mb-1.5 flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.18em]",
+        done && "text-emerald-300/90",
+        active && !done && "text-rose-200 animate-pulse",
+        !active && !done && "text-muted-foreground/60",
       )}
     >
-      {n}
-    </span>
+      <span
+        className={cn(
+          "h-px flex-1 max-w-[14px]",
+          done && "bg-emerald-400/50",
+          active && !done && "bg-rose-400/60",
+          !active && !done && "bg-muted-foreground/30",
+        )}
+      />
+      <span>{label}</span>
+      <span
+        className={cn(
+          "h-px flex-1",
+          done && "bg-emerald-400/30",
+          active && !done && "bg-rose-400/40",
+          !active && !done && "bg-muted-foreground/20",
+        )}
+      />
+    </div>
   );
+
+  // Short, stable ticket id — gives each inject a SOC-ticket feel.
+  const ticketId = useMemo(() => {
+    const base = `${incident.id}`.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 6) || "INJECT";
+    return `INC-${base}-${String(stepIndex + 1).padStart(2, "0")}`;
+  }, [incident.id, stepIndex]);
 
   const showTitleRow = true;       // always visible (cursor blinks while waiting)
   const showBrief    = briefStarts;
