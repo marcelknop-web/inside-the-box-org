@@ -221,20 +221,22 @@ export function IncidentPanel({
           A solid bar that reads instantly as "incoming SOC ticket":
           severity tag · ticket id · step counter. Distinct background so
           the eye registers it as the metadata strip, separate from body. */}
-      <div className="flex items-center justify-between gap-2 border-b border-rose-500/30 bg-rose-500/10 px-3 py-2 font-mono text-[10px] uppercase tracking-[0.15em]">
-        <div className="flex items-center gap-2 min-w-0">
-          <span className={cn("text-rose-300 shrink-0", !titleDone && "animate-pulse")}>▲ {t("incomingIncident")}</span>
+      <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1 border-b border-rose-500/30 bg-rose-500/10 px-3 py-2 font-mono text-[10px] uppercase tracking-[0.12em]">
+        <div className="flex items-center gap-1.5 min-w-0 flex-wrap">
+          <span className={cn("text-rose-300 shrink-0", !titleDone && "animate-pulse")}>
+            ▲ {t("incomingIncident")}
+          </span>
           <span
             className={cn(
-              "shrink-0 rounded-sm border px-1.5 py-px text-[9px] font-bold tracking-[0.12em]",
+              "shrink-0 rounded-sm border px-1.5 py-px text-[9px] font-bold tracking-[0.1em]",
               tierClasses[tier],
             )}
           >
             {tierLabel[tier]}
           </span>
-          <span className="hidden sm:inline text-muted-foreground/70 truncate">· {ticketId}</span>
+          <span className="hidden md:inline text-muted-foreground/70 truncate">· {ticketId}</span>
         </div>
-        <span className="text-muted-foreground shrink-0 tabular-nums">
+        <span className="text-muted-foreground shrink-0 tabular-nums ml-auto">
           {stepIndex + 1} / {totalSteps}
         </span>
       </div>
@@ -279,7 +281,7 @@ export function IncidentPanel({
                   <span className="text-muted-foreground/70 uppercase tracking-wider text-[9px]">
                     {t("incidentRoomHint")}
                   </span>
-                  <span className={cn("truncate font-semibold", inRightRoom ? "text-emerald-400" : "text-cyan-300")}>
+                  <span className={cn("font-semibold break-words leading-tight", inRightRoom ? "text-emerald-400" : "text-cyan-300")}>
                     {requiredRoom ? t(`rooms.${requiredRoom.i18n}.name`) : "—"}
                   </span>
                 </div>

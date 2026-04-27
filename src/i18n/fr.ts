@@ -609,6 +609,8 @@ export const fr = {
     title: 'Mentions légales',
     metaDesc: 'Informations juridiques et coordonnées pour inside-the-box.org. Marcel Knop, Bad Emstal, Allemagne.',
     responsible: 'Responsable du contenu',
+    vatLabel: 'Numéro d’identification TVA',
+    vatHint: 'selon l’art. 27 a de la loi allemande sur la TVA',
     contactLabel: 'Contact',
     vatId: 'N° TVA',
     insurance: 'Assurance responsabilité professionnelle',

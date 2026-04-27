@@ -92,6 +92,19 @@ const Imprint = () => {
             </p>
           </div>
 
+          {/* VAT ID — § 5 TMG / § 27 a UStG. Sits directly after the
+              "Responsible" block because German imprint conventions group
+              the VAT identifier with the legal-entity disclosure. */}
+          <div className={blockClass}>
+            <h2 className="font-mono text-[11px] tracking-[0.3em] text-primary/80 uppercase mb-3">
+              {t('imprint.vatLabel')}
+            </h2>
+            <p className="space-y-1">
+              <span className="block font-medium text-foreground tracking-wider">DE328906053</span>
+              <span className="block text-muted-foreground text-sm">{t('imprint.vatHint')}</span>
+            </p>
+          </div>
+
           {/* Contact */}
           <div className={blockClass}>
             <h2 className="font-mono text-[11px] tracking-[0.3em] text-primary/80 uppercase mb-3">
