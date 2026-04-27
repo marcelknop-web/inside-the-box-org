@@ -23,7 +23,8 @@ const TtxAdmin = lazy(() => import("./pages/TtxAdmin"));
 const ItsmTool = lazy(() => import("./pages/ItsmTool"));
 const ItsmDevTool = lazy(() => import("./pages/ItsmDevTool"));
 const TtxReadinessPage = lazy(() => import("./pages/TtxReadinessPage"));
-const Imprint = lazy(() => import("./pages/Imprint"));
+// Imprint route removed — the imprint is now exclusively shown via the
+// SiteChrome drawer (footer "Impressum" link opens the overlay).
 const Enigma = lazy(() => import("./pages/Enigma"));
 
 const queryClient = new QueryClient();
@@ -39,8 +40,7 @@ const App = () => (
             <Routes>
               {/* Active Journey + entry points */}
               <Route path="/" element={<Overview />} />
-              <Route path="/impressum" element={<Suspense fallback={<RouteSkeleton />}><Imprint /></Suspense>} />
-              <Route path="/imprint" element={<Suspense fallback={<RouteSkeleton />}><Imprint /></Suspense>} />
+              {/* Imprint is now drawer-only — see SiteChrome footer link. */}
 
               {/* Standalone tools (not part of the Journey, kept for direct/admin access) */}
               <Route path="/ttx-admin" element={<Suspense fallback={<RouteSkeleton />}><TtxAdmin /></Suspense>} />
