@@ -509,15 +509,16 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
     if (!runRef.current) return;
     const s = stateRef.current;
 
-    const stepsThisFrame = STEPS_PER_FRAME;
+    const dt = dtForLinks(s.n);
+    const stepsThisFrame = stepsForLinks(s.n);
 
     for (let i = 0; i < stepsThisFrame; i++) {
-      s.a = rk4Step(s.a, DT);
-      s.b = rk4Step(s.b, DT);
+      s.a = rk4Step(s.a, dt);
+      s.b = rk4Step(s.b, dt);
 
-      // Store [θ1, θ2] so trails are resolution-independent
-      const anglesA: [number, number] = [s.a.θ1, s.a.θ2];
-      const anglesB: [number, number] = [s.b.θ1, s.b.θ2];
+      // Store full angle vector so trails are resolution-independent
+      const anglesA = [...s.a.θ];
+      const anglesB = [...s.b.θ];
       s.trailA.push(anglesA);
       s.trailB.push(anglesB);
       s.permTrailA.push(anglesA);
@@ -527,10 +528,10 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
       s.step++;
 
       if (s.step % 30 === 0) {
-        const pA = pendulumPositions(s.a, 1, 0, 0);
-        const pB = pendulumPositions(s.b, 1, 0, 0);
-        const dist = Math.sqrt((pA.x2 - pB.x2) ** 2 + (pA.y2 - pB.y2) ** 2);
-        s.divData.push({ t: +(s.step * DT).toFixed(2), d: +dist.toFixed(4) });
+        const [ax, ay] = tipPosition(s.a);
+        const [bx, by] = tipPosition(s.b);
+        const dist = Math.sqrt((ax - bx) ** 2 + (ay - by) ** 2);
+        s.divData.push({ t: +(s.step * dt).toFixed(2), d: +dist.toFixed(4) });
         if (s.divData.length > 200) s.divData.shift();
       }
     }
@@ -539,18 +540,22 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
 
     if (s.step % 30 === 0 || s.step % stepsThisFrame === 0) {
       setDivData([...s.divData]);
-      const posA = pendulumPositions(s.a, 1, 0, 0);
-      const posB = pendulumPositions(s.b, 1, 0, 0);
-      const dist = Math.sqrt((posA.x2 - posB.x2) ** 2 + (posA.y2 - posB.y2) ** 2);
+      const [ax, ay] = tipPosition(s.a);
+      const [bx, by] = tipPosition(s.b);
+      const dist = Math.sqrt((ax - bx) ** 2 + (ay - by) ** 2);
       setLiveDistance(dist);
-      // Speed difference (angular velocities)
-      const speedDiff = Math.sqrt((s.a.ω1 - s.b.ω1) ** 2 + (s.a.ω2 - s.b.ω2) ** 2);
+      // Speed difference (RMS over all angular velocities)
+      let speedSq = 0;
+      for (let i = 0; i < s.n; i++) speedSq += (s.a.ω[i] - s.b.ω[i]) ** 2;
+      const speedDiff = Math.sqrt(speedSq);
       setLiveSpeedDiff(speedDiff);
-      // Angle difference
-      const angleDiff = Math.sqrt(
-        (Math.sin(s.a.θ1) - Math.sin(s.b.θ1)) ** 2 + (Math.cos(s.a.θ1) - Math.cos(s.b.θ1)) ** 2 +
-        (Math.sin(s.a.θ2) - Math.sin(s.b.θ2)) ** 2 + (Math.cos(s.a.θ2) - Math.cos(s.b.θ2)) ** 2
-      );
+      // Angle difference (sum of unit-vector distances per joint)
+      let angleSq = 0;
+      for (let i = 0; i < s.n; i++) {
+        angleSq += (Math.sin(s.a.θ[i]) - Math.sin(s.b.θ[i])) ** 2
+                 + (Math.cos(s.a.θ[i]) - Math.cos(s.b.θ[i])) ** 2;
+      }
+      const angleDiff = Math.sqrt(angleSq);
       setLiveAngleDiff(angleDiff);
       // Push combined deviation to EKG buffer
       const combined = dist + speedDiff / 5 + angleDiff;
@@ -560,7 +565,7 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
     }
 
     rafRef.current = requestAnimationFrame(animate);
-  }, [drawFrame]);
+  }, [drawFrame, drawEkg]);
 
   useEffect(() => {
     if (running) {
