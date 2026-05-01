@@ -321,7 +321,7 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
     drawFrame();
   }, [makeInitialState, offsetDeg]);
 
-  useEffect(() => { resetSim(); }, [offsetDeg]);
+  useEffect(() => { resetSim(); }, [offsetDeg, numLinks]);
 
   /* ── Canvas drawing ──────────────────────────────────────── */
 
