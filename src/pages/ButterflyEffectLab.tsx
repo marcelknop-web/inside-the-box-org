@@ -5,79 +5,137 @@ import { Button } from '@/components/ui/button';
 import { Play, Pause, RotateCcw } from 'lucide-react';
 import { useLanguage } from '@/i18n/LanguageContext';
 
-/* ── Double Pendulum Physics ─────────────────────────────────── */
+/* ── N-Pendulum Physics (generic Lagrangian) ─────────────────── */
 
+/** State: n angles + n angular velocities. Each rod has unit length and unit mass. */
 interface PendulumState {
-  θ1: number; θ2: number; ω1: number; ω2: number;
+  θ: number[]; // length n
+  ω: number[]; // length n
 }
 
 const G = 9.81;
-const L1 = 1;
-const L2 = 1;
-const M1 = 1;
-const M2 = 1;
+const ROD_LEN = 1;   // each rod length
+const ROD_MASS = 1;  // each point mass
 
-/** Compute angular accelerations for a double pendulum */
-const doublePendulumAccel = (s: PendulumState): { α1: number; α2: number } => {
-  const { θ1, θ2, ω1, ω2 } = s;
-  const Δ = θ1 - θ2;
-  const sinΔ = Math.sin(Δ);
-  const cosΔ = Math.cos(Δ);
+/**
+ * Solve for angular accelerations α of an n-link planar pendulum chain.
+ * Uses the standard Lagrangian formulation:
+ *   M(θ) · α = b(θ, ω)
+ * where:
+ *   M[i][j] = (n - max(i,j)) * L_i * L_j * cos(θ_i - θ_j)   (mass = 1 each)
+ *   b[i]    = -Σ_j (n - max(i,j)) * L_i * L_j * sin(θ_i - θ_j) * ω_j^2
+ *             - (n - i) * G * L_i * sin(θ_i)
+ *
+ * Indices are 0-based here; "n - max(i,j)" counts the number of point masses
+ * hanging at or below the deeper of the two links (using 1-based convention
+ * mass index k contributes for k >= max(i,j)+1, i.e. n - max(i,j) masses).
+ */
+const computeAccel = (s: PendulumState): number[] => {
+  const n = s.θ.length;
+  const L = ROD_LEN;
 
-  const denom1 = (M1 + M2) * L1 - M2 * L1 * cosΔ * cosΔ;
-  const α1 = (-M2 * L1 * ω1 * ω1 * sinΔ * cosΔ
-    + M2 * G * Math.sin(θ2) * cosΔ
-    - M2 * L2 * ω2 * ω2 * sinΔ
-    - (M1 + M2) * G * Math.sin(θ1)) / denom1;
+  // Build M and b
+  const M: number[][] = Array.from({ length: n }, () => new Array(n).fill(0));
+  const b: number[] = new Array(n).fill(0);
 
-  const denom2 = (L2 / L1) * denom1;
-  const α2 = (M2 * L2 * ω2 * ω2 * sinΔ * cosΔ
-    + (M1 + M2) * G * Math.sin(θ1) * cosΔ
-    + (M1 + M2) * L1 * ω1 * ω1 * sinΔ
-    - (M1 + M2) * G * Math.sin(θ2)) / denom2;
+  for (let i = 0; i < n; i++) {
+    for (let j = 0; j < n; j++) {
+      const k = n - Math.max(i, j); // # of masses contributing
+      M[i][j] = k * L * L * Math.cos(s.θ[i] - s.θ[j]);
+    }
+    let bi = 0;
+    for (let j = 0; j < n; j++) {
+      const k = n - Math.max(i, j);
+      bi -= k * L * L * Math.sin(s.θ[i] - s.θ[j]) * s.ω[j] * s.ω[j];
+    }
+    bi -= (n - i) * G * L * Math.sin(s.θ[i]);
+    b[i] = bi;
+  }
 
-  return { α1, α2 };
+  // Solve M α = b via Gaussian elimination with partial pivoting
+  return solveLinear(M, b);
 };
+
+const solveLinear = (A: number[][], b: number[]): number[] => {
+  const n = b.length;
+  // augmented copy
+  const a: number[][] = A.map((row, i) => [...row, b[i]]);
+
+  for (let i = 0; i < n; i++) {
+    // pivot
+    let piv = i;
+    let max = Math.abs(a[i][i]);
+    for (let r = i + 1; r < n; r++) {
+      const v = Math.abs(a[r][i]);
+      if (v > max) { max = v; piv = r; }
+    }
+    if (piv !== i) { const tmp = a[i]; a[i] = a[piv]; a[piv] = tmp; }
+    const div = a[i][i] || 1e-12;
+    for (let r = i + 1; r < n; r++) {
+      const f = a[r][i] / div;
+      for (let c = i; c <= n; c++) a[r][c] -= f * a[i][c];
+    }
+  }
+  // back-substitute
+  const x = new Array(n).fill(0);
+  for (let i = n - 1; i >= 0; i--) {
+    let sum = a[i][n];
+    for (let c = i + 1; c < n; c++) sum -= a[i][c] * x[c];
+    x[i] = sum / (a[i][i] || 1e-12);
+  }
+  return x;
+};
+
+const cloneState = (s: PendulumState): PendulumState => ({
+  θ: [...s.θ], ω: [...s.ω],
+});
 
 /** RK4 integration step */
 const rk4Step = (s: PendulumState, dt: number): PendulumState => {
+  const n = s.θ.length;
   const deriv = (st: PendulumState) => {
-    const { α1, α2 } = doublePendulumAccel(st);
-    return { dθ1: st.ω1, dθ2: st.ω2, dω1: α1, dω2: α2 };
+    const α = computeAccel(st);
+    return { dθ: [...st.ω], dω: α };
   };
+
+  const addScaled = (base: PendulumState, k: { dθ: number[]; dω: number[] }, f: number): PendulumState => ({
+    θ: base.θ.map((v, i) => v + k.dθ[i] * f),
+    ω: base.ω.map((v, i) => v + k.dω[i] * f),
+  });
 
   const k1 = deriv(s);
-  const s2: PendulumState = {
-    θ1: s.θ1 + k1.dθ1 * dt / 2, θ2: s.θ2 + k1.dθ2 * dt / 2,
-    ω1: s.ω1 + k1.dω1 * dt / 2, ω2: s.ω2 + k1.dω2 * dt / 2,
-  };
-  const k2 = deriv(s2);
-  const s3: PendulumState = {
-    θ1: s.θ1 + k2.dθ1 * dt / 2, θ2: s.θ2 + k2.dθ2 * dt / 2,
-    ω1: s.ω1 + k2.dω1 * dt / 2, ω2: s.ω2 + k2.dω2 * dt / 2,
-  };
-  const k3 = deriv(s3);
-  const s4: PendulumState = {
-    θ1: s.θ1 + k3.dθ1 * dt, θ2: s.θ2 + k3.dθ2 * dt,
-    ω1: s.ω1 + k3.dω1 * dt, ω2: s.ω2 + k3.dω2 * dt,
-  };
-  const k4 = deriv(s4);
+  const k2 = deriv(addScaled(s, k1, dt / 2));
+  const k3 = deriv(addScaled(s, k2, dt / 2));
+  const k4 = deriv(addScaled(s, k3, dt));
 
-  return {
-    θ1: s.θ1 + (k1.dθ1 + 2 * k2.dθ1 + 2 * k3.dθ1 + k4.dθ1) * dt / 6,
-    θ2: s.θ2 + (k1.dθ2 + 2 * k2.dθ2 + 2 * k3.dθ2 + k4.dθ2) * dt / 6,
-    ω1: s.ω1 + (k1.dω1 + 2 * k2.dω1 + 2 * k3.dω1 + k4.dω1) * dt / 6,
-    ω2: s.ω2 + (k1.dω2 + 2 * k2.dω2 + 2 * k3.dω2 + k4.dω2) * dt / 6,
-  };
+  const out: PendulumState = { θ: new Array(n), ω: new Array(n) };
+  for (let i = 0; i < n; i++) {
+    out.θ[i] = s.θ[i] + (k1.dθ[i] + 2 * k2.dθ[i] + 2 * k3.dθ[i] + k4.dθ[i]) * dt / 6;
+    out.ω[i] = s.ω[i] + (k1.dω[i] + 2 * k2.dω[i] + 2 * k3.dω[i] + k4.dω[i]) * dt / 6;
+  }
+  return out;
 };
 
-/** Convert pendulum state to tip positions */
-const pendulumPositions = (s: PendulumState, scale: number, cx: number, cy: number) => {
-  const x1 = cx + L1 * Math.sin(s.θ1) * scale;
-  const y1 = cy + L1 * Math.cos(s.θ1) * scale;
-  const x2 = x1 + L2 * Math.sin(s.θ2) * scale;
-  const y2 = y1 + L2 * Math.cos(s.θ2) * scale;
-  return { x1, y1, x2, y2 };
+/** Compute joint positions (including pivot at index 0). Returns n+1 points. */
+const jointPositions = (s: PendulumState, scale: number, cx: number, cy: number): [number, number][] => {
+  const pts: [number, number][] = [[cx, cy]];
+  let x = cx, y = cy;
+  for (let i = 0; i < s.θ.length; i++) {
+    x += ROD_LEN * Math.sin(s.θ[i]) * scale;
+    y += ROD_LEN * Math.cos(s.θ[i]) * scale;
+    pts.push([x, y]);
+  }
+  return pts;
+};
+
+/** Tip position of pendulum (last joint), scaled. */
+const tipPosition = (s: PendulumState, scale = 1): [number, number] => {
+  let x = 0, y = 0;
+  for (let i = 0; i < s.θ.length; i++) {
+    x += ROD_LEN * Math.sin(s.θ[i]) * scale;
+    y += ROD_LEN * Math.cos(s.θ[i]) * scale;
+  }
+  return [x, y];
 };
 
 /* ── Translations ────────────────────────────────────────────── */
@@ -184,14 +242,17 @@ interface Props {
 const DT = 0.002;
 const STEPS_PER_FRAME = 6;
 const MAX_TRAIL = 1500;
+const MIN_LINKS = 2;
+const MAX_LINKS = 8;
+const DEFAULT_LINKS = 3;
 
 const ButterflyEffectLab = ({ embedded }: Props) => {
   const { language } = useLanguage();
   const t = texts[language] || texts.de;
 
   const angle1 = 120;
-  const angle2 = 120;
   const [offsetDeg, setOffsetDeg] = useState(3.6); // 1% of 360°
+  const [numLinks, setNumLinks] = useState(DEFAULT_LINKS);
   const [running, setRunning] = useState(false);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -200,28 +261,35 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
 
   const toRad = (d: number) => (d * Math.PI) / 180;
 
-  const makeInitialState = useCallback((extraOffset = 0): PendulumState => ({
-    θ1: toRad(angle1 + extraOffset),
-    θ2: toRad(angle2),
-    ω1: 0,
-    ω2: 0,
-  }), [angle1, angle2]);
+  // Adaptive timestep: smaller dt for more links to keep RK4 stable
+  const dtForLinks = (n: number) => DT * (n <= 3 ? 1 : n <= 5 ? 0.5 : 0.25);
+  const stepsForLinks = (n: number) => Math.max(STEPS_PER_FRAME, Math.round(STEPS_PER_FRAME * (n <= 3 ? 1 : n <= 5 ? 2 : 4)));
+
+  const makeInitialState = useCallback((n: number, extraOffset = 0): PendulumState => {
+    const θ: number[] = [];
+    for (let i = 0; i < n; i++) {
+      θ.push(toRad(angle1 + (i === 0 ? extraOffset : 0)));
+    }
+    return { θ, ω: new Array(n).fill(0) };
+  }, [angle1]);
 
   const stateRef = useRef<{
     a: PendulumState; b: PendulumState;
-    trailA: [number, number][]; trailB: [number, number][];
-    permTrailA: [number, number][]; permTrailB: [number, number][];
+    trailA: number[][]; trailB: number[][]; // each entry: array of n angles
+    permTrailA: number[][]; permTrailB: number[][];
     divData: { t: number; d: number }[];
     step: number;
+    n: number;
   }>({
-    a: makeInitialState(0),
-    b: makeInitialState(0.001),
+    a: makeInitialState(DEFAULT_LINKS, 0),
+    b: makeInitialState(DEFAULT_LINKS, 0.001),
     trailA: [],
     trailB: [],
     permTrailA: [],
     permTrailB: [],
     divData: [],
     step: 0,
+    n: DEFAULT_LINKS,
   });
 
   const [divData, setDivData] = useState<{ t: number; d: number }[]>([]);
@@ -235,8 +303,9 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
     setRunning(false);
     runRef.current = false;
     const s = stateRef.current;
-    s.a = makeInitialState(0);
-    s.b = makeInitialState(offsetDeg);
+    s.n = numLinks;
+    s.a = makeInitialState(numLinks, 0);
+    s.b = makeInitialState(numLinks, offsetDeg);
     s.trailA = [];
     s.trailB = [];
     s.permTrailA = [];
@@ -252,7 +321,7 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
     drawFrame();
   }, [makeInitialState, offsetDeg]);
 
-  useEffect(() => { resetSim(); }, [offsetDeg]);
+  useEffect(() => { resetSim(); }, [offsetDeg, numLinks]);
 
   /* ── Canvas drawing ──────────────────────────────────────── */
 
@@ -282,26 +351,26 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
       ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
     }
 
-    // Pivot exactly centered; scale so full reach (2 arms) nearly touches edges
+    // Pivot exactly centered; scale so full reach (n arms) nearly touches edges
     const padding = 15;
-    const maxReach = 2; // L1 + L2
+    const s = stateRef.current;
+    const maxReach = s.n * ROD_LEN;
     const scale = Math.min((w - padding * 2) / (maxReach * 2), (h - padding * 2) / (maxReach * 2)) * 0.95;
     const cx = w / 2;
     const cy = h / 2;
 
-    const s = stateRef.current;
-
-    // Helper: project stored angles [θ1, θ2] to pixel position of tip
-    const tipPixel = (angles: [number, number]): [number, number] => {
-      const x1 = cx + L1 * Math.sin(angles[0]) * scale;
-      const y1 = cy + L1 * Math.cos(angles[0]) * scale;
-      const x2 = x1 + L2 * Math.sin(angles[1]) * scale;
-      const y2 = y1 + L2 * Math.cos(angles[1]) * scale;
-      return [x2, y2];
+    // Helper: project stored angles array → tip pixel
+    const tipPixel = (angles: number[]): [number, number] => {
+      let x = cx, y = cy;
+      for (let i = 0; i < angles.length; i++) {
+        x += ROD_LEN * Math.sin(angles[i]) * scale;
+        y += ROD_LEN * Math.cos(angles[i]) * scale;
+      }
+      return [x, y];
     };
 
     // Draw permanent trails (faint background)
-    const drawAnglesTrail = (trail: [number, number][], color: string, alpha: number, width: number) => {
+    const drawAnglesTrail = (trail: number[][], color: string, alpha: number, width: number) => {
       if (trail.length < 2) return;
       ctx.beginPath();
       ctx.strokeStyle = color;
@@ -323,36 +392,38 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
     drawAnglesTrail(s.trailA, 'hsl(180, 80%, 55%)', 0.6, 1.2);
     drawAnglesTrail(s.trailB, 'hsl(30, 90%, 55%)', 0.6, 1.2);
 
-    // Draw pendulums
+    // Draw pendulums (n-link chain)
     const drawPendulum = (st: PendulumState, color: string, label: string) => {
-      const { x1, y1, x2, y2 } = pendulumPositions(st, scale, cx, cy);
+      const pts = jointPositions(st, scale, cx, cy);
 
       // Rods
       ctx.beginPath();
       ctx.strokeStyle = color;
       ctx.lineWidth = 2.5;
       ctx.globalAlpha = 0.9;
-      ctx.moveTo(cx, cy);
-      ctx.lineTo(x1, y1);
-      ctx.lineTo(x2, y2);
+      ctx.moveTo(pts[0][0], pts[0][1]);
+      for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
       ctx.stroke();
 
       // Pivot
       ctx.fillStyle = 'hsl(0, 0%, 60%)';
       ctx.beginPath(); ctx.arc(cx, cy, 4, 0, Math.PI * 2); ctx.fill();
 
-      // Joint
+      // Joints (intermediate)
       ctx.fillStyle = color;
-      ctx.beginPath(); ctx.arc(x1, y1, 5, 0, Math.PI * 2); ctx.fill();
+      for (let i = 1; i < pts.length - 1; i++) {
+        ctx.beginPath(); ctx.arc(pts[i][0], pts[i][1], 4, 0, Math.PI * 2); ctx.fill();
+      }
 
-      // Tip
-      ctx.beginPath(); ctx.arc(x2, y2, 6, 0, Math.PI * 2); ctx.fill();
+      // Tip (last point)
+      const [tx, ty] = pts[pts.length - 1];
+      ctx.beginPath(); ctx.arc(tx, ty, 6, 0, Math.PI * 2); ctx.fill();
       ctx.globalAlpha = 1;
 
       // Label
       ctx.font = '11px monospace';
       ctx.fillStyle = color;
-      ctx.fillText(label, x2 + 10, y2 - 5);
+      ctx.fillText(label, tx + 10, ty - 5);
     };
 
     drawPendulum(s.a, 'hsl(180, 80%, 55%)', 'A');
@@ -361,7 +432,7 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
     // Legend
     ctx.font = '11px monospace';
     ctx.fillStyle = 'hsl(180, 80%, 55%)';
-    ctx.fillText(`${t.trajectory} A`, 12, 20);
+    ctx.fillText(`${t.trajectory} A · n=${s.n}`, 12, 20);
     ctx.fillStyle = 'hsl(30, 90%, 55%)';
     const pct = offsetDeg / 360 * 100; const pctStr = pct < 0.0001 ? pct.toFixed(7) : pct < 0.01 ? pct.toFixed(5) : pct.toFixed(4);
     ctx.fillText(`${t.trajectory} B (Δ = ${pctStr} %)`, 12, 36);
@@ -438,15 +509,16 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
     if (!runRef.current) return;
     const s = stateRef.current;
 
-    const stepsThisFrame = STEPS_PER_FRAME;
+    const dt = dtForLinks(s.n);
+    const stepsThisFrame = stepsForLinks(s.n);
 
     for (let i = 0; i < stepsThisFrame; i++) {
-      s.a = rk4Step(s.a, DT);
-      s.b = rk4Step(s.b, DT);
+      s.a = rk4Step(s.a, dt);
+      s.b = rk4Step(s.b, dt);
 
-      // Store [θ1, θ2] so trails are resolution-independent
-      const anglesA: [number, number] = [s.a.θ1, s.a.θ2];
-      const anglesB: [number, number] = [s.b.θ1, s.b.θ2];
+      // Store full angle vector so trails are resolution-independent
+      const anglesA = [...s.a.θ];
+      const anglesB = [...s.b.θ];
       s.trailA.push(anglesA);
       s.trailB.push(anglesB);
       s.permTrailA.push(anglesA);
@@ -456,10 +528,10 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
       s.step++;
 
       if (s.step % 30 === 0) {
-        const pA = pendulumPositions(s.a, 1, 0, 0);
-        const pB = pendulumPositions(s.b, 1, 0, 0);
-        const dist = Math.sqrt((pA.x2 - pB.x2) ** 2 + (pA.y2 - pB.y2) ** 2);
-        s.divData.push({ t: +(s.step * DT).toFixed(2), d: +dist.toFixed(4) });
+        const [ax, ay] = tipPosition(s.a);
+        const [bx, by] = tipPosition(s.b);
+        const dist = Math.sqrt((ax - bx) ** 2 + (ay - by) ** 2);
+        s.divData.push({ t: +(s.step * dt).toFixed(2), d: +dist.toFixed(4) });
         if (s.divData.length > 200) s.divData.shift();
       }
     }
@@ -468,18 +540,22 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
 
     if (s.step % 30 === 0 || s.step % stepsThisFrame === 0) {
       setDivData([...s.divData]);
-      const posA = pendulumPositions(s.a, 1, 0, 0);
-      const posB = pendulumPositions(s.b, 1, 0, 0);
-      const dist = Math.sqrt((posA.x2 - posB.x2) ** 2 + (posA.y2 - posB.y2) ** 2);
+      const [ax, ay] = tipPosition(s.a);
+      const [bx, by] = tipPosition(s.b);
+      const dist = Math.sqrt((ax - bx) ** 2 + (ay - by) ** 2);
       setLiveDistance(dist);
-      // Speed difference (angular velocities)
-      const speedDiff = Math.sqrt((s.a.ω1 - s.b.ω1) ** 2 + (s.a.ω2 - s.b.ω2) ** 2);
+      // Speed difference (RMS over all angular velocities)
+      let speedSq = 0;
+      for (let i = 0; i < s.n; i++) speedSq += (s.a.ω[i] - s.b.ω[i]) ** 2;
+      const speedDiff = Math.sqrt(speedSq);
       setLiveSpeedDiff(speedDiff);
-      // Angle difference
-      const angleDiff = Math.sqrt(
-        (Math.sin(s.a.θ1) - Math.sin(s.b.θ1)) ** 2 + (Math.cos(s.a.θ1) - Math.cos(s.b.θ1)) ** 2 +
-        (Math.sin(s.a.θ2) - Math.sin(s.b.θ2)) ** 2 + (Math.cos(s.a.θ2) - Math.cos(s.b.θ2)) ** 2
-      );
+      // Angle difference (sum of unit-vector distances per joint)
+      let angleSq = 0;
+      for (let i = 0; i < s.n; i++) {
+        angleSq += (Math.sin(s.a.θ[i]) - Math.sin(s.b.θ[i])) ** 2
+                 + (Math.cos(s.a.θ[i]) - Math.cos(s.b.θ[i])) ** 2;
+      }
+      const angleDiff = Math.sqrt(angleSq);
       setLiveAngleDiff(angleDiff);
       // Push combined deviation to EKG buffer
       const combined = dist + speedDiff / 5 + angleDiff;
@@ -489,7 +565,7 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
     }
 
     rafRef.current = requestAnimationFrame(animate);
-  }, [drawFrame]);
+  }, [drawFrame, drawEkg]);
 
   useEffect(() => {
     if (running) {
@@ -543,6 +619,22 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
             {(() => { const p = offsetDeg / 360 * 100; return p < 0.0001 ? p.toFixed(7) : p < 0.01 ? p.toFixed(5) : p.toFixed(4); })()} %
           </span>
         </div>
+        <div className="flex items-center gap-1.5">
+          <span className="text-[9px] text-muted-foreground font-mono whitespace-nowrap">
+            {language === 'de' ? 'Glieder' : language === 'fr' ? 'Maillons' : 'Links'}
+          </span>
+          <Slider
+            value={[numLinks]}
+            min={MIN_LINKS}
+            max={MAX_LINKS}
+            step={1}
+            onValueChange={([v]) => setNumLinks(v)}
+            className="w-24 md:w-32"
+          />
+          <span className="text-[9px] text-primary font-mono font-bold whitespace-nowrap">
+            n = {numLinks}
+          </span>
+        </div>
       </div>
 
       {/* Main content – fills remaining space */}
@@ -564,7 +656,7 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
             <LiveGauge
               label={language === 'de' ? 'Abstand' : language === 'fr' ? 'Distance' : 'Distance'}
               value={liveDistance}
-              max={4}
+              max={2 * numLinks}
               color="hsl(180, 80%, 55%)"
               warningColor="hsl(35, 90%, 55%)"
               dangerColor="hsl(0, 85%, 60%)"
@@ -575,7 +667,7 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
             <LiveGauge
               label={language === 'de' ? 'Tempo Δ' : language === 'fr' ? 'Vitesse Δ' : 'Speed Δ'}
               value={liveSpeedDiff}
-              max={20}
+              max={20 * Math.sqrt(numLinks / 2)}
               color="hsl(260, 70%, 60%)"
               warningColor="hsl(280, 70%, 55%)"
               dangerColor="hsl(320, 80%, 55%)"
@@ -586,7 +678,7 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
             <LiveGauge
               label={language === 'de' ? 'Winkel Δ' : language === 'fr' ? 'Angle Δ' : 'Angle Δ'}
               value={liveAngleDiff}
-              max={2.83}
+              max={2.83 * Math.sqrt(numLinks / 2)}
               color="hsl(45, 90%, 55%)"
               warningColor="hsl(30, 90%, 55%)"
               dangerColor="hsl(0, 85%, 60%)"
