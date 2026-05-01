@@ -351,26 +351,26 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
       ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
     }
 
-    // Pivot exactly centered; scale so full reach (2 arms) nearly touches edges
+    // Pivot exactly centered; scale so full reach (n arms) nearly touches edges
     const padding = 15;
-    const maxReach = 2; // L1 + L2
+    const s = stateRef.current;
+    const maxReach = s.n * ROD_LEN;
     const scale = Math.min((w - padding * 2) / (maxReach * 2), (h - padding * 2) / (maxReach * 2)) * 0.95;
     const cx = w / 2;
     const cy = h / 2;
 
-    const s = stateRef.current;
-
-    // Helper: project stored angles [θ1, θ2] to pixel position of tip
-    const tipPixel = (angles: [number, number]): [number, number] => {
-      const x1 = cx + L1 * Math.sin(angles[0]) * scale;
-      const y1 = cy + L1 * Math.cos(angles[0]) * scale;
-      const x2 = x1 + L2 * Math.sin(angles[1]) * scale;
-      const y2 = y1 + L2 * Math.cos(angles[1]) * scale;
-      return [x2, y2];
+    // Helper: project stored angles array → tip pixel
+    const tipPixel = (angles: number[]): [number, number] => {
+      let x = cx, y = cy;
+      for (let i = 0; i < angles.length; i++) {
+        x += ROD_LEN * Math.sin(angles[i]) * scale;
+        y += ROD_LEN * Math.cos(angles[i]) * scale;
+      }
+      return [x, y];
     };
 
     // Draw permanent trails (faint background)
-    const drawAnglesTrail = (trail: [number, number][], color: string, alpha: number, width: number) => {
+    const drawAnglesTrail = (trail: number[][], color: string, alpha: number, width: number) => {
       if (trail.length < 2) return;
       ctx.beginPath();
       ctx.strokeStyle = color;
@@ -392,36 +392,38 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
     drawAnglesTrail(s.trailA, 'hsl(180, 80%, 55%)', 0.6, 1.2);
     drawAnglesTrail(s.trailB, 'hsl(30, 90%, 55%)', 0.6, 1.2);
 
-    // Draw pendulums
+    // Draw pendulums (n-link chain)
     const drawPendulum = (st: PendulumState, color: string, label: string) => {
-      const { x1, y1, x2, y2 } = pendulumPositions(st, scale, cx, cy);
+      const pts = jointPositions(st, scale, cx, cy);
 
       // Rods
       ctx.beginPath();
       ctx.strokeStyle = color;
       ctx.lineWidth = 2.5;
       ctx.globalAlpha = 0.9;
-      ctx.moveTo(cx, cy);
-      ctx.lineTo(x1, y1);
-      ctx.lineTo(x2, y2);
+      ctx.moveTo(pts[0][0], pts[0][1]);
+      for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
       ctx.stroke();
 
       // Pivot
       ctx.fillStyle = 'hsl(0, 0%, 60%)';
       ctx.beginPath(); ctx.arc(cx, cy, 4, 0, Math.PI * 2); ctx.fill();
 
-      // Joint
+      // Joints (intermediate)
       ctx.fillStyle = color;
-      ctx.beginPath(); ctx.arc(x1, y1, 5, 0, Math.PI * 2); ctx.fill();
+      for (let i = 1; i < pts.length - 1; i++) {
+        ctx.beginPath(); ctx.arc(pts[i][0], pts[i][1], 4, 0, Math.PI * 2); ctx.fill();
+      }
 
-      // Tip
-      ctx.beginPath(); ctx.arc(x2, y2, 6, 0, Math.PI * 2); ctx.fill();
+      // Tip (last point)
+      const [tx, ty] = pts[pts.length - 1];
+      ctx.beginPath(); ctx.arc(tx, ty, 6, 0, Math.PI * 2); ctx.fill();
       ctx.globalAlpha = 1;
 
       // Label
       ctx.font = '11px monospace';
       ctx.fillStyle = color;
-      ctx.fillText(label, x2 + 10, y2 - 5);
+      ctx.fillText(label, tx + 10, ty - 5);
     };
 
     drawPendulum(s.a, 'hsl(180, 80%, 55%)', 'A');
@@ -430,7 +432,7 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
     // Legend
     ctx.font = '11px monospace';
     ctx.fillStyle = 'hsl(180, 80%, 55%)';
-    ctx.fillText(`${t.trajectory} A`, 12, 20);
+    ctx.fillText(`${t.trajectory} A · n=${s.n}`, 12, 20);
     ctx.fillStyle = 'hsl(30, 90%, 55%)';
     const pct = offsetDeg / 360 * 100; const pctStr = pct < 0.0001 ? pct.toFixed(7) : pct < 0.01 ? pct.toFixed(5) : pct.toFixed(4);
     ctx.fillText(`${t.trajectory} B (Δ = ${pctStr} %)`, 12, 36);
