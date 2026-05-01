@@ -678,7 +678,7 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
             <LiveGauge
               label={language === 'de' ? 'Winkel Δ' : language === 'fr' ? 'Angle Δ' : 'Angle Δ'}
               value={liveAngleDiff}
-              max={2.83}
+              max={2.83 * Math.sqrt(numLinks / 2)}
               color="hsl(45, 90%, 55%)"
               warningColor="hsl(30, 90%, 55%)"
               dangerColor="hsl(0, 85%, 60%)"
