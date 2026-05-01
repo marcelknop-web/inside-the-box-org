@@ -5,79 +5,137 @@ import { Button } from '@/components/ui/button';
 import { Play, Pause, RotateCcw } from 'lucide-react';
 import { useLanguage } from '@/i18n/LanguageContext';
 
-/* ── Double Pendulum Physics ─────────────────────────────────── */
+/* ── N-Pendulum Physics (generic Lagrangian) ─────────────────── */
 
+/** State: n angles + n angular velocities. Each rod has unit length and unit mass. */
 interface PendulumState {
-  θ1: number; θ2: number; ω1: number; ω2: number;
+  θ: number[]; // length n
+  ω: number[]; // length n
 }
 
 const G = 9.81;
-const L1 = 1;
-const L2 = 1;
-const M1 = 1;
-const M2 = 1;
+const ROD_LEN = 1;   // each rod length
+const ROD_MASS = 1;  // each point mass
 
-/** Compute angular accelerations for a double pendulum */
-const doublePendulumAccel = (s: PendulumState): { α1: number; α2: number } => {
-  const { θ1, θ2, ω1, ω2 } = s;
-  const Δ = θ1 - θ2;
-  const sinΔ = Math.sin(Δ);
-  const cosΔ = Math.cos(Δ);
+/**
+ * Solve for angular accelerations α of an n-link planar pendulum chain.
+ * Uses the standard Lagrangian formulation:
+ *   M(θ) · α = b(θ, ω)
+ * where:
+ *   M[i][j] = (n - max(i,j)) * L_i * L_j * cos(θ_i - θ_j)   (mass = 1 each)
+ *   b[i]    = -Σ_j (n - max(i,j)) * L_i * L_j * sin(θ_i - θ_j) * ω_j^2
+ *             - (n - i) * G * L_i * sin(θ_i)
+ *
+ * Indices are 0-based here; "n - max(i,j)" counts the number of point masses
+ * hanging at or below the deeper of the two links (using 1-based convention
+ * mass index k contributes for k >= max(i,j)+1, i.e. n - max(i,j) masses).
+ */
+const computeAccel = (s: PendulumState): number[] => {
+  const n = s.θ.length;
+  const L = ROD_LEN;
 
-  const denom1 = (M1 + M2) * L1 - M2 * L1 * cosΔ * cosΔ;
-  const α1 = (-M2 * L1 * ω1 * ω1 * sinΔ * cosΔ
-    + M2 * G * Math.sin(θ2) * cosΔ
-    - M2 * L2 * ω2 * ω2 * sinΔ
-    - (M1 + M2) * G * Math.sin(θ1)) / denom1;
+  // Build M and b
+  const M: number[][] = Array.from({ length: n }, () => new Array(n).fill(0));
+  const b: number[] = new Array(n).fill(0);
 
-  const denom2 = (L2 / L1) * denom1;
-  const α2 = (M2 * L2 * ω2 * ω2 * sinΔ * cosΔ
-    + (M1 + M2) * G * Math.sin(θ1) * cosΔ
-    + (M1 + M2) * L1 * ω1 * ω1 * sinΔ
-    - (M1 + M2) * G * Math.sin(θ2)) / denom2;
+  for (let i = 0; i < n; i++) {
+    for (let j = 0; j < n; j++) {
+      const k = n - Math.max(i, j); // # of masses contributing
+      M[i][j] = k * L * L * Math.cos(s.θ[i] - s.θ[j]);
+    }
+    let bi = 0;
+    for (let j = 0; j < n; j++) {
+      const k = n - Math.max(i, j);
+      bi -= k * L * L * Math.sin(s.θ[i] - s.θ[j]) * s.ω[j] * s.ω[j];
+    }
+    bi -= (n - i) * G * L * Math.sin(s.θ[i]);
+    b[i] = bi;
+  }
 
-  return { α1, α2 };
+  // Solve M α = b via Gaussian elimination with partial pivoting
+  return solveLinear(M, b);
 };
+
+const solveLinear = (A: number[][], b: number[]): number[] => {
+  const n = b.length;
+  // augmented copy
+  const a: number[][] = A.map((row, i) => [...row, b[i]]);
+
+  for (let i = 0; i < n; i++) {
+    // pivot
+    let piv = i;
+    let max = Math.abs(a[i][i]);
+    for (let r = i + 1; r < n; r++) {
+      const v = Math.abs(a[r][i]);
+      if (v > max) { max = v; piv = r; }
+    }
+    if (piv !== i) { const tmp = a[i]; a[i] = a[piv]; a[piv] = tmp; }
+    const div = a[i][i] || 1e-12;
+    for (let r = i + 1; r < n; r++) {
+      const f = a[r][i] / div;
+      for (let c = i; c <= n; c++) a[r][c] -= f * a[i][c];
+    }
+  }
+  // back-substitute
+  const x = new Array(n).fill(0);
+  for (let i = n - 1; i >= 0; i--) {
+    let sum = a[i][n];
+    for (let c = i + 1; c < n; c++) sum -= a[i][c] * x[c];
+    x[i] = sum / (a[i][i] || 1e-12);
+  }
+  return x;
+};
+
+const cloneState = (s: PendulumState): PendulumState => ({
+  θ: [...s.θ], ω: [...s.ω],
+});
 
 /** RK4 integration step */
 const rk4Step = (s: PendulumState, dt: number): PendulumState => {
+  const n = s.θ.length;
   const deriv = (st: PendulumState) => {
-    const { α1, α2 } = doublePendulumAccel(st);
-    return { dθ1: st.ω1, dθ2: st.ω2, dω1: α1, dω2: α2 };
+    const α = computeAccel(st);
+    return { dθ: [...st.ω], dω: α };
   };
+
+  const addScaled = (base: PendulumState, k: { dθ: number[]; dω: number[] }, f: number): PendulumState => ({
+    θ: base.θ.map((v, i) => v + k.dθ[i] * f),
+    ω: base.ω.map((v, i) => v + k.dω[i] * f),
+  });
 
   const k1 = deriv(s);
-  const s2: PendulumState = {
-    θ1: s.θ1 + k1.dθ1 * dt / 2, θ2: s.θ2 + k1.dθ2 * dt / 2,
-    ω1: s.ω1 + k1.dω1 * dt / 2, ω2: s.ω2 + k1.dω2 * dt / 2,
-  };
-  const k2 = deriv(s2);
-  const s3: PendulumState = {
-    θ1: s.θ1 + k2.dθ1 * dt / 2, θ2: s.θ2 + k2.dθ2 * dt / 2,
-    ω1: s.ω1 + k2.dω1 * dt / 2, ω2: s.ω2 + k2.dω2 * dt / 2,
-  };
-  const k3 = deriv(s3);
-  const s4: PendulumState = {
-    θ1: s.θ1 + k3.dθ1 * dt, θ2: s.θ2 + k3.dθ2 * dt,
-    ω1: s.ω1 + k3.dω1 * dt, ω2: s.ω2 + k3.dω2 * dt,
-  };
-  const k4 = deriv(s4);
+  const k2 = deriv(addScaled(s, k1, dt / 2));
+  const k3 = deriv(addScaled(s, k2, dt / 2));
+  const k4 = deriv(addScaled(s, k3, dt));
 
-  return {
-    θ1: s.θ1 + (k1.dθ1 + 2 * k2.dθ1 + 2 * k3.dθ1 + k4.dθ1) * dt / 6,
-    θ2: s.θ2 + (k1.dθ2 + 2 * k2.dθ2 + 2 * k3.dθ2 + k4.dθ2) * dt / 6,
-    ω1: s.ω1 + (k1.dω1 + 2 * k2.dω1 + 2 * k3.dω1 + k4.dω1) * dt / 6,
-    ω2: s.ω2 + (k1.dω2 + 2 * k2.dω2 + 2 * k3.dω2 + k4.dω2) * dt / 6,
-  };
+  const out: PendulumState = { θ: new Array(n), ω: new Array(n) };
+  for (let i = 0; i < n; i++) {
+    out.θ[i] = s.θ[i] + (k1.dθ[i] + 2 * k2.dθ[i] + 2 * k3.dθ[i] + k4.dθ[i]) * dt / 6;
+    out.ω[i] = s.ω[i] + (k1.dω[i] + 2 * k2.dω[i] + 2 * k3.dω[i] + k4.dω[i]) * dt / 6;
+  }
+  return out;
 };
 
-/** Convert pendulum state to tip positions */
-const pendulumPositions = (s: PendulumState, scale: number, cx: number, cy: number) => {
-  const x1 = cx + L1 * Math.sin(s.θ1) * scale;
-  const y1 = cy + L1 * Math.cos(s.θ1) * scale;
-  const x2 = x1 + L2 * Math.sin(s.θ2) * scale;
-  const y2 = y1 + L2 * Math.cos(s.θ2) * scale;
-  return { x1, y1, x2, y2 };
+/** Compute joint positions (including pivot at index 0). Returns n+1 points. */
+const jointPositions = (s: PendulumState, scale: number, cx: number, cy: number): [number, number][] => {
+  const pts: [number, number][] = [[cx, cy]];
+  let x = cx, y = cy;
+  for (let i = 0; i < s.θ.length; i++) {
+    x += ROD_LEN * Math.sin(s.θ[i]) * scale;
+    y += ROD_LEN * Math.cos(s.θ[i]) * scale;
+    pts.push([x, y]);
+  }
+  return pts;
+};
+
+/** Tip position of pendulum (last joint), scaled. */
+const tipPosition = (s: PendulumState, scale = 1): [number, number] => {
+  let x = 0, y = 0;
+  for (let i = 0; i < s.θ.length; i++) {
+    x += ROD_LEN * Math.sin(s.θ[i]) * scale;
+    y += ROD_LEN * Math.cos(s.θ[i]) * scale;
+  }
+  return [x, y];
 };
 
 /* ── Translations ────────────────────────────────────────────── */
