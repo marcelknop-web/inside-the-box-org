@@ -242,14 +242,17 @@ interface Props {
 const DT = 0.002;
 const STEPS_PER_FRAME = 6;
 const MAX_TRAIL = 1500;
+const MIN_LINKS = 2;
+const MAX_LINKS = 8;
+const DEFAULT_LINKS = 3;
 
 const ButterflyEffectLab = ({ embedded }: Props) => {
   const { language } = useLanguage();
   const t = texts[language] || texts.de;
 
   const angle1 = 120;
-  const angle2 = 120;
   const [offsetDeg, setOffsetDeg] = useState(3.6); // 1% of 360°
+  const [numLinks, setNumLinks] = useState(DEFAULT_LINKS);
   const [running, setRunning] = useState(false);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -258,28 +261,35 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
 
   const toRad = (d: number) => (d * Math.PI) / 180;
 
-  const makeInitialState = useCallback((extraOffset = 0): PendulumState => ({
-    θ1: toRad(angle1 + extraOffset),
-    θ2: toRad(angle2),
-    ω1: 0,
-    ω2: 0,
-  }), [angle1, angle2]);
+  // Adaptive timestep: smaller dt for more links to keep RK4 stable
+  const dtForLinks = (n: number) => DT * (n <= 3 ? 1 : n <= 5 ? 0.5 : 0.25);
+  const stepsForLinks = (n: number) => Math.max(STEPS_PER_FRAME, Math.round(STEPS_PER_FRAME * (n <= 3 ? 1 : n <= 5 ? 2 : 4)));
+
+  const makeInitialState = useCallback((n: number, extraOffset = 0): PendulumState => {
+    const θ: number[] = [];
+    for (let i = 0; i < n; i++) {
+      θ.push(toRad(angle1 + (i === 0 ? extraOffset : 0)));
+    }
+    return { θ, ω: new Array(n).fill(0) };
+  }, [angle1]);
 
   const stateRef = useRef<{
     a: PendulumState; b: PendulumState;
-    trailA: [number, number][]; trailB: [number, number][];
-    permTrailA: [number, number][]; permTrailB: [number, number][];
+    trailA: number[][]; trailB: number[][]; // each entry: array of n angles
+    permTrailA: number[][]; permTrailB: number[][];
     divData: { t: number; d: number }[];
     step: number;
+    n: number;
   }>({
-    a: makeInitialState(0),
-    b: makeInitialState(0.001),
+    a: makeInitialState(DEFAULT_LINKS, 0),
+    b: makeInitialState(DEFAULT_LINKS, 0.001),
     trailA: [],
     trailB: [],
     permTrailA: [],
     permTrailB: [],
     divData: [],
     step: 0,
+    n: DEFAULT_LINKS,
   });
 
   const [divData, setDivData] = useState<{ t: number; d: number }[]>([]);
@@ -293,8 +303,9 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
     setRunning(false);
     runRef.current = false;
     const s = stateRef.current;
-    s.a = makeInitialState(0);
-    s.b = makeInitialState(offsetDeg);
+    s.n = numLinks;
+    s.a = makeInitialState(numLinks, 0);
+    s.b = makeInitialState(numLinks, offsetDeg);
     s.trailA = [];
     s.trailB = [];
     s.permTrailA = [];
