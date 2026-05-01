@@ -656,7 +656,7 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
             <LiveGauge
               label={language === 'de' ? 'Abstand' : language === 'fr' ? 'Distance' : 'Distance'}
               value={liveDistance}
-              max={4}
+              max={2 * numLinks}
               color="hsl(180, 80%, 55%)"
               warningColor="hsl(35, 90%, 55%)"
               dangerColor="hsl(0, 85%, 60%)"
