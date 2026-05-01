@@ -619,6 +619,22 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
             {(() => { const p = offsetDeg / 360 * 100; return p < 0.0001 ? p.toFixed(7) : p < 0.01 ? p.toFixed(5) : p.toFixed(4); })()} %
           </span>
         </div>
+        <div className="flex items-center gap-1.5">
+          <span className="text-[9px] text-muted-foreground font-mono whitespace-nowrap">
+            {language === 'de' ? 'Glieder' : language === 'fr' ? 'Maillons' : 'Links'}
+          </span>
+          <Slider
+            value={[numLinks]}
+            min={MIN_LINKS}
+            max={MAX_LINKS}
+            step={1}
+            onValueChange={([v]) => setNumLinks(v)}
+            className="w-24 md:w-32"
+          />
+          <span className="text-[9px] text-primary font-mono font-bold whitespace-nowrap">
+            n = {numLinks}
+          </span>
+        </div>
       </div>
 
       {/* Main content – fills remaining space */}
