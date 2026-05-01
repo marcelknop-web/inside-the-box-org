@@ -667,7 +667,7 @@ const ButterflyEffectLab = ({ embedded }: Props) => {
             <LiveGauge
               label={language === 'de' ? 'Tempo Δ' : language === 'fr' ? 'Vitesse Δ' : 'Speed Δ'}
               value={liveSpeedDiff}
-              max={20}
+              max={20 * Math.sqrt(numLinks / 2)}
               color="hsl(260, 70%, 60%)"
               warningColor="hsl(280, 70%, 55%)"
               dangerColor="hsl(320, 80%, 55%)"
