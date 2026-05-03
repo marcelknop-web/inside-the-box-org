@@ -266,6 +266,93 @@ export const SiteChrome = ({
               </div>
               <ArrowRight className="w-4 h-4 text-primary/0 group-hover:text-primary transition-colors flex-shrink-0" />
             </a>
+
+            {/* PGP Public Key — for encrypted email to marcel@inside-the-box.org */}
+            <details className="group border border-primary/20 bg-background/40 open:border-primary/40 transition-all">
+              <summary className="flex items-center justify-between gap-3 p-4 cursor-pointer hover:bg-primary/5 list-none [&::-webkit-details-marker]:hidden">
+                <div className="flex items-center gap-3 min-w-0">
+                  <Mail className="w-4 h-4 text-primary flex-shrink-0" />
+                  <div className="min-w-0">
+                    <div className="font-mono text-[10px] tracking-[0.25em] text-muted-foreground uppercase mb-0.5">
+                      {lang === 'de' ? 'PGP Public Key' : lang === 'fr' ? 'Clé publique PGP' : 'PGP Public Key'}
+                    </div>
+                    <div className="font-mono text-sm text-foreground">
+                      {lang === 'de' ? 'Für verschlüsselte E-Mails' : lang === 'fr' ? 'Pour e-mails chiffrés' : 'For encrypted email'}
+                    </div>
+                  </div>
+                </div>
+                <ArrowRight className="w-4 h-4 text-primary/60 group-open:rotate-90 transition-transform flex-shrink-0" />
+              </summary>
+              <pre className="px-4 pb-4 pt-0 max-h-64 overflow-auto font-mono text-[10px] leading-relaxed text-muted-foreground whitespace-pre select-all">
+{`-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: MailClient.Security v10.4.5326+97a2e75a43
+
+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
+=jzzN
+-----END PGP PUBLIC KEY BLOCK-----`}
+              </pre>
+            </details>
+
+            <a
+              href="https://www.linkedin.com/in/inside-the-box"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group flex items-center justify-between gap-3 p-4 border border-primary/20 hover:border-primary bg-background/40 hover:bg-primary/5 transition-all"
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                <Linkedin className="w-4 h-4 text-primary flex-shrink-0" />
+                <div className="min-w-0">
+                  <div className="font-mono text-[10px] tracking-[0.25em] text-muted-foreground uppercase mb-0.5">LinkedIn</div>
+                  <div className="font-mono text-sm text-foreground">inside-the-box</div>
+                </div>
+              </div>
+              <ArrowRight className="w-4 h-4 text-primary/0 group-hover:text-primary transition-colors flex-shrink-0" />
+            </a>
           </div>
         </SheetContent>
       </Sheet>
