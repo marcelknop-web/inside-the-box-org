@@ -337,22 +337,6 @@ ex+8Fo04HNLzSXpkNzlj335QJomtBJkJ9xRZHIU=
 -----END PGP PUBLIC KEY BLOCK-----`}
               </pre>
             </details>
-
-            <a
-              href="https://www.linkedin.com/in/inside-the-box"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group flex items-center justify-between gap-3 p-4 border border-primary/20 hover:border-primary bg-background/40 hover:bg-primary/5 transition-all"
-            >
-              <div className="flex items-center gap-3 min-w-0">
-                <Linkedin className="w-4 h-4 text-primary flex-shrink-0" />
-                <div className="min-w-0">
-                  <div className="font-mono text-[10px] tracking-[0.25em] text-muted-foreground uppercase mb-0.5">LinkedIn</div>
-                  <div className="font-mono text-sm text-foreground">inside-the-box</div>
-                </div>
-              </div>
-              <ArrowRight className="w-4 h-4 text-primary/0 group-hover:text-primary transition-colors flex-shrink-0" />
-            </a>
           </div>
         </SheetContent>
       </Sheet>
