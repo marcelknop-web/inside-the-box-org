@@ -191,7 +191,7 @@ export const fr = {
     refTitle: 'Références',
     refDesc: 'Projets dans les services financiers, l\'énergie, l\'automobile, l\'administration publique et les infrastructures critiques. Certifications : CISSP, CISA, ISO 27001 Lead Auditor.',
     ctaTitle: 'Prochaine étape',
-    ctaDesc: '30 minutes, pas de pitch — une première orientation : standard adapté (ISO 27001, BSI Grundschutz ou hybride), périmètre réaliste et les trois leviers les plus impactants pour les 90 prochains jours.',
+    ctaDesc: '30 minutes, technique et concret : standard adapté (ISO 27001, BSI Grundschutz ou hybride), périmètre réaliste et les trois leviers les plus impactants pour les 90 prochains jours.',
     ctaButton: '→ Prendre contact',
     allConsulting: 'Tous les services de conseil',
   },
@@ -217,7 +217,7 @@ export const fr = {
     refTitle: 'Références',
     refDesc: 'Projets dans les services financiers, l\'énergie, l\'automobile et les infrastructures critiques. Certifications : CISSP, CISA, ISO 27001 Lead Auditor.',
     ctaTitle: 'Prochaine étape',
-    ctaDesc: '30 minutes, pas de pitch — une première clarification : périmètre NIS-2 (essentiel ou important), obligation d\'enregistrement, responsabilité personnelle de la direction et les trois lacunes les plus urgentes avant l\'échéance.',
+    ctaDesc: '30 minutes, en direct avec le consultant : périmètre NIS-2 (essentiel ou important), obligation d\'enregistrement, responsabilité personnelle de la direction et les trois lacunes les plus urgentes avant l\'échéance.',
     ctaButton: '→ Prendre contact',
     ttxReadinessTitle: 'Self-Assessment TTX Readiness',
     ttxReadinessDesc: 'En ~10 minutes, évaluez la maturité de votre programme de tabletops face à DORA Art. 24–25 et NIS-2 Art. 21. Résultat : score de maturité, radar par dimension, 3 lacunes prioritaires avec recommandations concrètes.',
@@ -247,7 +247,7 @@ export const fr = {
     refTitle: 'Références',
     refDesc: 'Projets dans l\'automobile et les services financiers. Expérience d\'évaluations initiales et de suivi sur les deux référentiels. Certifications : CISSP, CISA, ISO 27001 Lead Auditor.',
     ctaTitle: 'Prochaine étape',
-    ctaDesc: '30 minutes, pas de pitch — un positionnement concret : label TISAX requis et niveau d\'assessment (AL2 ou AL3), protection des prototypes, part sur site et délai réaliste de préparation jusqu\'à l\'audit.',
+    ctaDesc: '30 minutes, langage clair plutôt que slides : label TISAX requis et niveau d\'assessment (AL2 ou AL3), protection des prototypes, part sur site et délai réaliste de préparation jusqu\'à l\'audit.',
     ctaButton: '→ Prendre contact',
   },
   assessments: {
@@ -271,7 +271,7 @@ export const fr = {
     refTitle: 'Références',
     refDesc: 'Évaluations et concepts pour des organisations dans les services financiers, l\'énergie, l\'automobile, l\'administration publique et les infrastructures critiques. Certifications : CISSP, CISA, ISO 27001 Lead Auditor.',
     ctaTitle: 'Prochaine étape',
-    ctaDesc: '30 minutes, pas de pitch — un positionnement : le format adapté (analyse de risques, concept de sécurité, test d\'intrusion ou audit de maturité), la profondeur appropriée et ce qui peut réalistement être priorisé en premier.',
+    ctaDesc: '30 minutes de sparring d\'architecture : le format adapté (analyse de risques, concept de sécurité, test d\'intrusion ou audit de maturité), la profondeur appropriée et ce qui peut réalistement être priorisé en premier.',
     ctaButton: '→ Prendre contact',
   },
   incident: {
@@ -299,7 +299,7 @@ export const fr = {
     refTitle: 'Références',
     refDesc: 'Projets dans les services financiers, l\'énergie, l\'automobile et les infrastructures critiques. Expérience avec les exigences réglementaires NIS-2, DORA, BSI IT-Grundschutz, ISO 27035 et IEC 62443 (OT/ICS).',
     ctaTitle: 'Prochaine étape',
-    ctaDesc: '30 minutes, pas de pitch — un état des lieux honnête : maturité de la réponse aux incidents (détection, escalade, forensique, obligations de notification), les deux lacunes les plus critiques et la nécessité réelle d\'un retainer 24/7.',
+    ctaDesc: '30 minutes, un état des lieux honnête : maturité de la réponse aux incidents (détection, escalade, forensique, obligations de notification), les deux lacunes les plus critiques et la nécessité réelle d\'un retainer 24/7.',
     ctaButton: '→ Prendre contact',
   },
   bcm: {
@@ -323,7 +323,7 @@ export const fr = {
     refTitle: 'Références',
     refDesc: 'Projets BCM dans les services financiers, l\'énergie, l\'automobile et les infrastructures critiques. Expérience avec ISO 22301, BSI-Standard 200-4 et les exigences de continuité de DORA et NIS-2.',
     ctaTitle: 'Prochaine étape',
-    ctaDesc: '30 minutes, pas de pitch — un état des lieux honnête : maturité BCM (BIA, ISCP, organisation de continuité, pratique d\'exercices), exigences réglementaires (ISO 22301, BSI 200-4, DORA, NIS-2) et les deux lacunes les plus urgentes avant le prochain audit.',
+    ctaDesc: '30 minutes, technique et concret : maturité BCM (BIA, ISCP, organisation de continuité, pratique d\'exercices), exigences réglementaires (ISO 22301, BSI 200-4, DORA, NIS-2) et les deux lacunes les plus urgentes avant le prochain audit.',
     ctaButton: '→ Prendre contact',
   },
   cyberCrisis: {
@@ -347,7 +347,7 @@ export const fr = {
     refTitle: 'Références',
     refDesc: 'Projets dans les services financiers, l\'énergie, l\'automobile et les infrastructures critiques. Expérience avec les exigences réglementaires selon BSI, NIS-2, DORA et ISO 22301.',
     ctaTitle: 'Prochaine étape',
-    ctaDesc: 'Un premier échange dure 30 minutes. Pas de pitch, pas de présentation — juste une évaluation de la capacité de crise réelle de vos structures existantes.',
+    ctaDesc: 'Un premier échange dure 30 minutes — une évaluation honnête de la capacité de crise réelle de vos structures existantes.',
     ctaButton: '→ Prendre contact',
   },
   socOps: {
@@ -447,7 +447,7 @@ export const fr = {
     refTitle: 'À qui cela s\'adresse',
     refDesc: 'Banques, assureurs, prestataires de services de paiement et opérateurs d\'infrastructures critiques qui doivent démontrer leur conformité TIBER ou veulent connaître leur résilience réelle — pas seulement sur le papier.',
     ctaTitle: 'Prochaine étape',
-    ctaDesc: '30 minutes, pas de pitch — une évaluation honnête de la TIBER-readiness : maturité du scoping, intégration de la threat intelligence, aptitude de la blue team et délai réaliste jusqu\'au test supervisé.',
+    ctaDesc: '30 minutes en langage clair sur la TIBER-readiness : maturité du scoping, intégration de la threat intelligence, aptitude de la blue team et délai réaliste jusqu\'au test supervisé.',
     ctaButton: '→ Prendre contact',
   },
   events: {
@@ -580,7 +580,7 @@ export const fr = {
     eduTitle: 'Supports de formation',
     eduDesc: 'Supports de formation pour praticiens et responsables sécurité — développés à partir de la pratique projet, pas des manuels. Utilisés dans les exercices de crise, les programmes de sensibilisation et les formations techniques.',
     ctaTitle: 'Prochaine étape',
-    ctaDesc: 'Un premier échange dure 30 minutes. Pas de pitch — juste une évaluation du format adapté à votre situation.',
+    ctaDesc: 'Un premier échange dure 30 minutes — une évaluation honnête du format adapté à votre situation.',
     ctaButton: '→ Prendre contact',
   },
   vciso: {
@@ -602,7 +602,7 @@ export const fr = {
     refTitle: 'Références',
     refDesc: 'Expérience de projets dans les services financiers, l\'énergie, l\'automobile et les infrastructures critiques. Certifications : CISSP, CISA, ISO 27001 Lead Auditor.',
     ctaTitle: 'Prochaine étape',
-    ctaDesc: '30 minutes, pas de pitch — une lecture honnête : si un vCISO ou un mandat intérimaire correspond à la situation actuelle, le volume réaliste en jours et une date de démarrage envisageable.',
+    ctaDesc: '30 minutes, une lecture honnête : si un vCISO ou un mandat intérimaire correspond à la situation actuelle, le volume réaliste en jours et une date de démarrage envisageable.',
     ctaButton: '→ Prendre contact',
   },
   imprint: {
