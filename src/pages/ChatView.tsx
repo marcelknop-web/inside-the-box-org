@@ -608,9 +608,9 @@ const useServiceContent = () => {
     'events-workshops': () => (
       <>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
-          <img src="/lovable-uploads/fc4cff06-0e9d-41c4-bac3-73a041a924b3.png" alt="Presentation" className="rounded-xl w-full h-40 md:h-48 object-cover border border-border" />
-          <img src="/lovable-uploads/f463db5a-733d-4e4e-b151-d3e33ebe8997.png" alt="Training" className="rounded-xl w-full h-40 md:h-48 object-cover border border-border" />
-          <img src="/lovable-uploads/48ad82c3-84e8-4161-93d5-d79b509f7cc4.png" alt="Conference" className="rounded-xl w-full h-40 md:h-48 object-cover border border-border" />
+          <img src="/lovable-uploads/fc4cff06-0e9d-41c4-bac3-73a041a924b3.webp" alt="Presentation" width={800} height={534} loading="lazy" decoding="async" className="rounded-xl w-full h-40 md:h-48 object-cover border border-border" />
+          <img src="/lovable-uploads/f463db5a-733d-4e4e-b151-d3e33ebe8997.webp" alt="Training" width={800} height={534} loading="lazy" decoding="async" className="rounded-xl w-full h-40 md:h-48 object-cover border border-border" />
+          <img src="/lovable-uploads/48ad82c3-84e8-4161-93d5-d79b509f7cc4.webp" alt="Conference" width={800} height={534} loading="lazy" decoding="async" className="rounded-xl w-full h-40 md:h-48 object-cover border border-border" />
         </div>
         <TypedSection title={t('events.title')} mode="typewriter" intro={<p>{t('events.intro')}</p>}>
 
