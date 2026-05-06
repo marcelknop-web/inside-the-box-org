@@ -483,7 +483,7 @@ export const en = {
     upcomingFastLaneSocLocation: 'FLEX: Berlin / Munich / Hamburg / Online',
     upcomingFastLaneSocLink: '→ Book now',
     upcomingTtx: 'DORA & NIS2 Tabletop Exercises',
-    upcomingTtxDate: '7–8 May · 17–18 Sep · 3–4 Dec 2026',
+    upcomingTtxDate: '17–18 Sep · 3–4 Dec 2026',
     upcomingTtxLocation: 'Online · Online (ISACA) · Berlin',
     upcomingTtxLink: '→ Dates & registration',
     ctaTitle: 'Inquiries',
