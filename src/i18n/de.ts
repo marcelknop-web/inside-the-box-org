@@ -191,7 +191,7 @@ export const de = {
     refTitle: 'Referenzen',
     refDesc: 'Projekte aus Finanzdienstleistung, Energie, Automotive, öffentlicher Verwaltung und kritischer Infrastruktur. Zertifizierungen: CISSP, CISA, ISO 27001 Lead Auditor.',
     ctaTitle: 'Nächster Schritt',
-    ctaDesc: '30 Minuten, kein Pitch – sondern eine erste Einordnung: passender Standard (ISO 27001, BSI Grundschutz oder Hybrid), realistischer Scope und die drei größten Hebel für die nächsten 90 Tage.',
+    ctaDesc: '30 Minuten, technisch und konkret: passender Standard (ISO 27001, BSI Grundschutz oder Hybrid), realistischer Scope und die drei größten Hebel für die nächsten 90 Tage.',
     ctaButton: '→ Kontakt aufnehmen',
     allConsulting: 'Alle Beratungsleistungen',
   },
@@ -217,7 +217,7 @@ export const de = {
     refTitle: 'Referenzen',
     refDesc: 'Projekte aus Finanzdienstleistung, Energie, Automotive und kritischer Infrastruktur. Zertifizierungen: CISSP, CISA, ISO 27001 Lead Auditor.',
     ctaTitle: 'Nächster Schritt',
-    ctaDesc: '30 Minuten, kein Pitch – sondern eine erste Klärung: NIS-2-Betroffenheit (essentiell oder wichtig), Registrierungspflicht, persönliche Geschäftsleitungs-Haftung und die drei dringendsten Lücken bis zum Stichtag.',
+    ctaDesc: '30 Minuten, direkt mit dem Berater: NIS-2-Betroffenheit (essentiell oder wichtig), Registrierungspflicht, persönliche Geschäftsleitungs-Haftung und die drei dringendsten Lücken bis zum Stichtag.',
     ctaButton: '→ Kontakt aufnehmen',
     ttxReadinessTitle: 'TTX Readiness Self-Assessment',
     ttxReadinessDesc: 'In ~10 Minuten den Reifegrad Ihres Tabletop-Programms gegen DORA Art. 24–25 und NIS-2 Art. 21 prüfen. Ergebnis: Reifegrad-Score, Radar pro Dimension, Top-3-Schwächen mit konkreten Empfehlungen.',
@@ -247,7 +247,7 @@ export const de = {
     refTitle: 'Referenzen',
     refDesc: 'Projekte aus Automotive und Finanzdienstleistung. Erfahrung aus Erst- und Folgeassessments auf beiden Rahmenwerken. Zertifizierungen: CISSP, CISA, ISO 27001 Lead Auditor.',
     ctaTitle: 'Nächster Schritt',
-    ctaDesc: '30 Minuten, kein Pitch – sondern eine konkrete Verortung: erforderliches TISAX-Label und Assessment-Level (AL2 oder AL3), Prototypen-Schutz, Vor-Ort-Anteile und realistische Vorbereitungsdauer bis zum Audit.',
+    ctaDesc: '30 Minuten, Klartext statt Folien: erforderliches TISAX-Label und Assessment-Level (AL2 oder AL3), Prototypen-Schutz, Vor-Ort-Anteile und realistische Vorbereitungsdauer bis zum Audit.',
     ctaButton: '→ Kontakt aufnehmen',
   },
   assessments: {
@@ -271,7 +271,7 @@ export const de = {
     refTitle: 'Referenzen',
     refDesc: 'Assessments und Konzepte für Organisationen aus Finanzdienstleistung, Energie, Automotive, öffentlicher Verwaltung und kritischer Infrastruktur. Zertifizierungen: CISSP, CISA, ISO 27001 Lead Auditor.',
     ctaTitle: 'Nächster Schritt',
-    ctaDesc: '30 Minuten, kein Pitch – sondern eine Einordnung: passendes Format (Risikoanalyse, Sicherheitskonzept, Pen-Test oder Reifegrad-Audit), sinnvoller Tiefgang und die Frage, was sich davon priorisieren lässt.',
+    ctaDesc: '30 Minuten Architektur-Sparring: passendes Format (Risikoanalyse, Sicherheitskonzept, Pen-Test oder Reifegrad-Audit), sinnvoller Tiefgang und die Frage, was sich davon priorisieren lässt.',
     ctaButton: '→ Kontakt aufnehmen',
   },
   incident: {
@@ -299,7 +299,7 @@ export const de = {
     refTitle: 'Referenzen',
     refDesc: 'Projekte aus Finanzdienstleistung, Energie, Automotive und kritischer Infrastruktur. Erfahrung mit regulatorischen Anforderungen nach NIS-2, DORA, BSI IT-Grundschutz, ISO 27035 und IEC 62443 (OT/ICS).',
     ctaTitle: 'Nächster Schritt',
-    ctaDesc: '30 Minuten, kein Pitch – sondern eine ehrliche Standortbestimmung: Reifegrad der Incident Response (Erkennung, Eskalation, Forensik, Meldepflichten), die zwei kritischsten Lücken und ob ein 24/7-Retainer überhaupt nötig ist.',
+    ctaDesc: '30 Minuten, ehrliche Standortbestimmung: Reifegrad der Incident Response (Erkennung, Eskalation, Forensik, Meldepflichten), die zwei kritischsten Lücken und ob ein 24/7-Retainer überhaupt nötig ist.',
     ctaButton: '→ Kontakt aufnehmen',
   },
   bcm: {
@@ -323,7 +323,7 @@ export const de = {
     refTitle: 'Referenzen',
     refDesc: 'BCM-Projekte aus Finanzdienstleistung, Energie, Automotive und kritischer Infrastruktur. Erfahrung mit ISO 22301, BSI-Standard 200-4 sowie den Continuity-Anforderungen aus DORA und NIS-2.',
     ctaTitle: 'Nächster Schritt',
-    ctaDesc: '30 Minuten, kein Pitch – sondern eine ehrliche Standortbestimmung: BCM-Reifegrad (BIA, ISCPs, Notfallorganisation, Übungspraxis), regulatorische Anforderungen (ISO 22301, BSI 200-4, DORA, NIS-2) und die zwei dringendsten Lücken bis zum nächsten Audit.',
+    ctaDesc: '30 Minuten, technisch und konkret: BCM-Reifegrad (BIA, ISCPs, Notfallorganisation, Übungspraxis), regulatorische Anforderungen (ISO 22301, BSI 200-4, DORA, NIS-2) und die zwei dringendsten Lücken bis zum nächsten Audit.',
     ctaButton: '→ Kontakt aufnehmen',
   },
   cyberCrisis: {
@@ -347,7 +347,7 @@ export const de = {
     refTitle: 'Referenzen',
     refDesc: 'Projekte aus Finanzdienstleistung, Energie, Automotive und kritischer Infrastruktur. Erfahrung mit regulatorischen Anforderungen nach BSI-Grundschutz, NIS-2, DORA und ISO 22301.',
     ctaTitle: 'Sprechen wir darüber',
-    ctaDesc: '30 Minuten, kein Pitch – nur eine ehrliche Einschätzung, wo Ihre Krisenorganisation heute steht und was der wirkungsvollste nächste Schritt wäre.',
+    ctaDesc: '30 Minuten, ehrliche Einschätzung: wo die Krisenorganisation heute steht und was der wirkungsvollste nächste Schritt wäre.',
     ctaButton: '→ Kontakt aufnehmen',
   },
   socOps: {
@@ -447,7 +447,7 @@ export const de = {
     refTitle: 'Für wen das relevant ist',
     refDesc: 'Banken, Versicherungen, Zahlungsdienstleister und kritische Infrastrukturen, die TIBER regulatorisch nachweisen müssen oder ihre tatsächliche Resilienz kennen wollen – nicht nur auf dem Papier.',
     ctaTitle: 'Nächster Schritt',
-    ctaDesc: '30 Minuten, kein Pitch – sondern eine ehrliche TIBER-Readiness-Einschätzung: Scoping-Reife, Threat-Intelligence-Anbindung, Eignung des Blue Teams und der realistische Zeithorizont bis zum Test mit der Aufsicht.',
+    ctaDesc: '30 Minuten Klartext zur TIBER-Readiness: Scoping-Reife, Threat-Intelligence-Anbindung, Eignung des Blue Teams und der realistische Zeithorizont bis zum Test mit der Aufsicht.',
     ctaButton: '→ Kontakt aufnehmen',
   },
   events: {
@@ -580,7 +580,7 @@ export const de = {
     eduTitle: 'Schulungsmaterialien',
     eduDesc: 'Trainingsunterlagen für Praktiker und Sicherheitsmanager – entwickelt aus der Projektpraxis, nicht aus dem Lehrbuch. Eingesetzt in Krisenübungen, Awareness-Programmen und technischen Trainings.',
     ctaTitle: 'Nächster Schritt',
-    ctaDesc: 'Ein Erstgespräch dauert 30 Minuten. Kein Pitch – nur eine Einschätzung, ob und welches Format zur Situation passt.',
+    ctaDesc: 'Ein Erstgespräch dauert 30 Minuten — eine ehrliche Einschätzung, ob und welches Format zur Situation passt.',
     ctaButton: '→ Kontakt aufnehmen',
   },
   vciso: {
@@ -602,7 +602,7 @@ export const de = {
     refTitle: 'Referenzen',
     refDesc: 'Projekterfahrung in Finanzdienstleistung, Energie, Automotive und kritischer Infrastruktur. Zertifizierungen: CISSP, CISA, ISO 27001 Lead Auditor.',
     ctaTitle: 'Nächster Schritt',
-    ctaDesc: '30 Minuten, kein Pitch – sondern eine ehrliche Einordnung: ob ein vCISO oder ein Interim-Mandat zur aktuellen Lage passt, mit welchem Tageumfang gerechnet werden sollte und ab wann ein Start realistisch wäre.',
+    ctaDesc: '30 Minuten, ehrliche Einordnung: ob ein vCISO oder ein Interim-Mandat zur aktuellen Lage passt, mit welchem Tageumfang gerechnet werden sollte und ab wann ein Start realistisch wäre.',
     ctaButton: '→ Kontakt aufnehmen',
   },
   imprint: {
