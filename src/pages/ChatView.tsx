@@ -2172,7 +2172,7 @@ const ChatView = () => {
                 }}
               >
                 <div className="max-w-3xl ml-auto pointer-events-auto">
-                  <div className="relative flex items-center bg-secondary/90 backdrop-blur-md rounded-xl border border-highlight/30 focus-within:border-highlight/60 transition-electric shadow-lg">
+                  <div className="relative flex items-center bg-secondary/90 backdrop-blur-md rounded-xl border border-highlight/30 focus-within:border-highlight/60 transition-electric shadow-lg focus-within:shadow-[0_0_24px_hsl(var(--highlight)/0.18)]">
                     <div className="pl-3 md:pl-3.5 flex-shrink-0 text-highlight/70" aria-hidden="true">
                       <Sparkles size={14} />
                     </div>
