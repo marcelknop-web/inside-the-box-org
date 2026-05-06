@@ -191,7 +191,7 @@ export const en = {
     refTitle: 'References',
     refDesc: 'Projects in financial services, energy, automotive, public administration, and critical infrastructure. Certifications: CISSP, CISA, ISO 27001 Lead Auditor.',
     ctaTitle: 'Next Step',
-    ctaDesc: '30 minutes, no pitch — a first orientation: which standard fits (ISO 27001, BSI Grundschutz or hybrid), a realistic scope, and the three highest-leverage moves for the next 90 days.',
+    ctaDesc: '30 minutes, technical and concrete: which standard fits (ISO 27001, BSI Grundschutz or hybrid), a realistic scope, and the three highest-leverage moves for the next 90 days.',
     ctaButton: '→ Get in touch',
     allConsulting: 'All Consulting Services',
   },
@@ -217,7 +217,7 @@ export const en = {
     refTitle: 'References',
     refDesc: 'Projects in financial services, energy, automotive, and critical infrastructure. Certifications: CISSP, CISA, ISO 27001 Lead Auditor.',
     ctaTitle: 'Next Step',
-    ctaDesc: '30 minutes, no pitch — a first clarification: NIS-2 scope (essential or important), registration duty, personal management liability, and the three most urgent gaps before the deadline.',
+    ctaDesc: '30 minutes, direct with the consultant: NIS-2 scope (essential or important), registration duty, personal management liability, and the three most urgent gaps before the deadline.',
     ctaButton: '→ Get in touch',
     ttxReadinessTitle: 'TTX Readiness Self-Assessment',
     ttxReadinessDesc: 'In ~10 minutes, assess the maturity of your tabletop programme against DORA Art. 24–25 and NIS-2 Art. 21. Result: maturity score, per-dimension radar, top-3 gaps with concrete recommendations.',
@@ -247,7 +247,7 @@ export const en = {
     refTitle: 'References',
     refDesc: 'Projects in automotive and financial services. Experience from initial and follow-up assessments on both frameworks. Certifications: CISSP, CISA, ISO 27001 Lead Auditor.',
     ctaTitle: 'Next Step',
-    ctaDesc: '30 minutes, no pitch — a concrete positioning: required TISAX label and assessment level (AL2 or AL3), prototype protection, on-site share, and a realistic preparation timeline up to the audit.',
+    ctaDesc: '30 minutes, plain talk instead of slides: required TISAX label and assessment level (AL2 or AL3), prototype protection, on-site share, and a realistic preparation timeline up to the audit.',
     ctaButton: '→ Get in touch',
   },
   assessments: {
@@ -271,7 +271,7 @@ export const en = {
     refTitle: 'References',
     refDesc: 'Assessments and concepts for organizations in financial services, energy, automotive, public administration, and critical infrastructure. Certifications: CISSP, CISA, ISO 27001 Lead Auditor.',
     ctaTitle: 'Next Step',
-    ctaDesc: '30 minutes, no pitch — a positioning: the right format (risk analysis, security concept, pen-test or maturity audit), the appropriate depth, and which parts can realistically be prioritized first.',
+    ctaDesc: '30 minutes of architecture sparring: the right format (risk analysis, security concept, pen-test or maturity audit), the appropriate depth, and which parts can realistically be prioritized first.',
     ctaButton: '→ Get in touch',
   },
   incident: {
@@ -299,7 +299,7 @@ export const en = {
     refTitle: 'References',
     refDesc: 'Projects in financial services, energy, automotive, and critical infrastructure. Experience with regulatory requirements under NIS-2, DORA, BSI IT-Grundschutz, ISO 27035, and IEC 62443 (OT/ICS).',
     ctaTitle: 'Next Step',
-    ctaDesc: '30 minutes, no pitch — an honest baseline: incident response maturity (detection, escalation, forensics, reporting duties), the two most critical gaps, and whether a 24/7 retainer is actually needed.',
+    ctaDesc: '30 minutes, an honest baseline: incident response maturity (detection, escalation, forensics, reporting duties), the two most critical gaps, and whether a 24/7 retainer is actually needed.',
     ctaButton: '→ Get in touch',
   },
   bcm: {
@@ -323,7 +323,7 @@ export const en = {
     refTitle: 'References',
     refDesc: 'BCM projects in financial services, energy, automotive, and critical infrastructure. Experience with ISO 22301, BSI Standard 200-4, and the continuity requirements of DORA and NIS-2.',
     ctaTitle: 'Next Step',
-    ctaDesc: '30 minutes, no pitch — an honest baseline: BCM maturity (BIA, ISCPs, continuity organisation, exercise practice), regulatory requirements (ISO 22301, BSI 200-4, DORA, NIS-2), and the two most urgent gaps before your next audit.',
+    ctaDesc: '30 minutes, technical and concrete: BCM maturity (BIA, ISCPs, continuity organisation, exercise practice), regulatory requirements (ISO 22301, BSI 200-4, DORA, NIS-2), and the two most urgent gaps before your next audit.',
     ctaButton: '→ Get in touch',
   },
   cyberCrisis: {
@@ -347,7 +347,7 @@ export const en = {
     refTitle: 'References',
     refDesc: 'Projects in financial services, energy, automotive, and critical infrastructure. Experience with regulatory requirements under BSI standards, NIS-2, DORA, and ISO 22301.',
     ctaTitle: 'Next Step',
-    ctaDesc: 'An initial conversation takes 30 minutes. No pitch, no presentation — just an assessment of how crisis-ready your existing structures actually are.',
+    ctaDesc: 'An initial conversation takes 30 minutes — an honest assessment of how crisis-ready your existing structures actually are.',
     ctaButton: '→ Get in touch',
   },
   socOps: {
@@ -447,7 +447,7 @@ export const en = {
     refTitle: 'Who this is for',
     refDesc: 'Banks, insurers, payment service providers, and critical infrastructure operators who need to demonstrate TIBER compliance or want to know their actual resilience — not just on paper.',
     ctaTitle: 'Next Step',
-    ctaDesc: '30 minutes, no pitch — an honest TIBER-readiness check: scoping maturity, threat intelligence integration, blue-team fitness, and the realistic timeline up to a supervised live test.',
+    ctaDesc: '30 minutes of plain talk on TIBER-readiness: scoping maturity, threat intelligence integration, blue-team fitness, and the realistic timeline up to a supervised live test.',
     ctaButton: '→ Get in touch',
   },
   events: {
@@ -580,7 +580,7 @@ export const en = {
     eduTitle: 'Training Materials',
     eduDesc: 'Training materials for practitioners and security managers — developed from project practice, not from textbooks. Used in crisis exercises, awareness programs, and technical trainings.',
     ctaTitle: 'Next Step',
-    ctaDesc: 'An initial conversation takes 30 minutes. No pitch — just an assessment of whether and which format fits your situation.',
+    ctaDesc: 'An initial conversation takes 30 minutes — an honest assessment of whether and which format fits your situation.',
     ctaButton: '→ Get in touch',
   },
   vciso: {
@@ -602,7 +602,7 @@ export const en = {
     refTitle: 'References',
     refDesc: 'Project experience in financial services, energy, automotive, and critical infrastructure. Certifications: CISSP, CISA, ISO 27001 Lead Auditor.',
     ctaTitle: 'Next Step',
-    ctaDesc: '30 minutes, no pitch — an honest read: whether a vCISO or interim mandate fits the current situation, the realistic day-rate scope, and a feasible start date.',
+    ctaDesc: '30 minutes, an honest read: whether a vCISO or interim mandate fits the current situation, the realistic day-rate scope, and a feasible start date.',
     ctaButton: '→ Get in touch',
   },
   imprint: {
