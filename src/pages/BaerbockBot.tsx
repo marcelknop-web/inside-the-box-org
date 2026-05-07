@@ -43,6 +43,18 @@ export default function BaerbockBot() {
   const [speakingId, setSpeakingId] = useState<string | null>(null);
   const [avatarOn, setAvatarOn] = useState(true);
   const [mouth, setMouth] = useState(0);
+  const VOICE_OPTIONS = [
+    { key: "matilda", label: "Matilda — warm" },
+    { key: "lily", label: "Lily — energisch" },
+    { key: "sarah", label: "Sarah — sanft" },
+    { key: "alice", label: "Alice — bestimmt" },
+    { key: "jessica", label: "Jessica — dramatisch" },
+    { key: "laura", label: "Laura — freundlich" },
+  ];
+  const [voice, setVoice] = useState<string>(() => {
+    try { return localStorage.getItem("baerbock-voice") || "matilda"; } catch { return "matilda"; }
+  });
+  useEffect(() => { try { localStorage.setItem("baerbock-voice", voice); } catch {} }, [voice]);
   // streamingText: the raw text currently being received from server (full so far)
   const [streamRaw, setStreamRaw] = useState("");
   // visibleLen: how many chars of streamRaw are revealed via typewriter
