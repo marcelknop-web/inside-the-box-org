@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { Send, Volume2, VolumeX, RotateCcw, Loader2 } from "lucide-react";
+import { Send, Volume2, VolumeX, RotateCcw, Loader2, User, UserX } from "lucide-react";
+import BaerbockAvatar from "@/components/BaerbockAvatar";
 
 type Msg = { id: string; role: "user" | "assistant"; content: string };
 
@@ -40,12 +41,18 @@ export default function BaerbockBot() {
   const [isLoading, setIsLoading] = useState(false);
   const [ttsOn, setTtsOn] = useState(true);
   const [speakingId, setSpeakingId] = useState<string | null>(null);
+  const [avatarOn, setAvatarOn] = useState(true);
+  const [mouth, setMouth] = useState(0);
   // streamingText: the raw text currently being received from server (full so far)
   const [streamRaw, setStreamRaw] = useState("");
   // visibleLen: how many chars of streamRaw are revealed via typewriter
   const [visibleLen, setVisibleLen] = useState(0);
   const streamingId = useRef<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const sourceRef = useRef<MediaElementAudioSourceNode | null>(null);
+  const rafRef = useRef<number | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const ttsOnRef = useRef(ttsOn);
   ttsOnRef.current = ttsOn;
@@ -74,6 +81,33 @@ export default function BaerbockBot() {
     return () => clearTimeout(id);
   }, [streamRaw, visibleLen]);
 
+  function stopMouthLoop() {
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    rafRef.current = null;
+    setMouth(0);
+  }
+
+  function startMouthLoop() {
+    const analyser = analyserRef.current;
+    if (!analyser) return;
+    const buf = new Uint8Array(analyser.frequencyBinCount);
+    const loop = () => {
+      analyser.getByteTimeDomainData(buf);
+      // RMS around 128 midpoint
+      let sum = 0;
+      for (let i = 0; i < buf.length; i++) {
+        const v = (buf[i] - 128) / 128;
+        sum += v * v;
+      }
+      const rms = Math.sqrt(sum / buf.length);
+      // Scale and smooth
+      const target = Math.min(1, rms * 3.2);
+      setMouth((prev) => prev + (target - prev) * 0.45);
+      rafRef.current = requestAnimationFrame(loop);
+    };
+    rafRef.current = requestAnimationFrame(loop);
+  }
+
   async function speak(text: string, msgId: string) {
     if (!ttsOnRef.current) return;
     try {
@@ -86,12 +120,39 @@ export default function BaerbockBot() {
       if (!r.ok) throw new Error("tts");
       const data = await r.json();
       if (audioRef.current) { audioRef.current.pause(); }
+      stopMouthLoop();
       const audio = new Audio(`data:audio/mpeg;base64,${data.audioContent}`);
+      audio.crossOrigin = "anonymous";
       audioRef.current = audio;
-      audio.onended = () => setSpeakingId((cur) => (cur === msgId ? null : cur));
-      audio.onerror = () => setSpeakingId(null);
+
+      // Lip sync wiring
+      try {
+        if (!audioCtxRef.current) {
+          const Ctx = (window.AudioContext || (window as any).webkitAudioContext);
+          audioCtxRef.current = new Ctx();
+        }
+        const ctx = audioCtxRef.current!;
+        if (ctx.state === "suspended") await ctx.resume();
+        const src = ctx.createMediaElementSource(audio);
+        const analyser = ctx.createAnalyser();
+        analyser.fftSize = 1024;
+        src.connect(analyser);
+        analyser.connect(ctx.destination);
+        sourceRef.current = src;
+        analyserRef.current = analyser;
+      } catch (e) {
+        // ignore — playback still works without lip sync
+      }
+
+      audio.onplay = () => startMouthLoop();
+      audio.onended = () => {
+        stopMouthLoop();
+        setSpeakingId((cur) => (cur === msgId ? null : cur));
+      };
+      audio.onerror = () => { stopMouthLoop(); setSpeakingId(null); };
       await audio.play();
     } catch {
+      stopMouthLoop();
       setSpeakingId(null);
     }
   }
@@ -99,6 +160,7 @@ export default function BaerbockBot() {
   function stopSpeaking() {
     audioRef.current?.pause();
     audioRef.current = null;
+    stopMouthLoop();
     setSpeakingId(null);
   }
 
@@ -247,6 +309,14 @@ export default function BaerbockBot() {
             </div>
           </div>
           <button
+            onClick={() => setAvatarOn((v) => !v)}
+            title={avatarOn ? "Avatar ausblenden" : "Avatar einblenden"}
+            className="p-2 rounded-lg hover:bg-white/5 transition-colors text-white/70 hover:text-white"
+            aria-label="Avatar umschalten"
+          >
+            {avatarOn ? <User size={18} /> : <UserX size={18} />}
+          </button>
+          <button
             onClick={toggleTts}
             title={ttsOn ? "Stimme aus" : "Stimme an"}
             className="p-2 rounded-lg hover:bg-white/5 transition-colors text-white/70 hover:text-white"
@@ -264,6 +334,28 @@ export default function BaerbockBot() {
           </button>
         </div>
       </header>
+
+      {avatarOn && (
+        <div className="border-b border-white/5 bg-gradient-to-b from-black/30 to-transparent">
+          <div className="max-w-3xl mx-auto px-4 py-5 flex items-center gap-5">
+            <div className="relative shrink-0">
+              <div
+                className={`absolute inset-0 rounded-full ${speakingId ? "baerbock-pulse" : ""}`}
+                style={{ borderRadius: "9999px" }}
+              />
+              <BaerbockAvatar mouth={speakingId ? mouth : 0} speaking={!!speakingId} size={148} />
+            </div>
+            <div className="min-w-0">
+              <div className="text-lg font-semibold tracking-tight">Annalena, [[stratigisch]] für euch da</div>
+              <div className="text-sm text-white/60 mt-1 leading-snug">
+                {speakingId
+                  ? "Spricht gerade — ganz [[ehrlich engagiert]]…"
+                  : "Stell mir eine Frage — ich freu mich [[riesig riesig]]."}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Messages */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto">
