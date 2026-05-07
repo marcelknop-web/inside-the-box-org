@@ -119,6 +119,11 @@ export default function BaerbockBot() {
       });
       if (!r.ok) throw new Error("tts");
       const data = await r.json();
+      if (data?.fallback || !data?.audioContent) {
+        // ElevenLabs unavailable — use browser TTS as fallback
+        browserSpeak(text, msgId);
+        return;
+      }
       if (audioRef.current) { audioRef.current.pause(); }
       stopMouthLoop();
       const audio = new Audio(`data:audio/mpeg;base64,${data.audioContent}`);
