@@ -453,7 +453,7 @@ export default function BaerbockBot() {
             </button>
           </div>
           <div className="text-[10px] text-white/30 text-center mt-2">
-            Satire · Sprachausgabe via ElevenLabs · Verhaspler sind <span className="text-baerbock-accent">pink markiert</span>
+            Satire · Sprachausgabe via ElevenLabs · Verhaspler sind dezent unterstrichen
           </div>
         </div>
       </div>
