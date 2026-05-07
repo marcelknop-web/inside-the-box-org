@@ -384,7 +384,7 @@ export default function BaerbockBot() {
                 <BaerbockAvatar mouth={speakingId ? mouth : 0} speaking={!!speakingId} size={96} />
               </div>
               <div className="min-w-0">
-                <div className="text-base font-semibold tracking-tight">Annalena, [[stratigisch]] für euch da</div>
+                <div className="text-base font-semibold tracking-tight">ACAB-Bot — Annalena, [[stratigisch]] für euch da</div>
                 <div className="text-xs text-white/60 mt-0.5 leading-snug">
                   {speakingId
                     ? "Spricht gerade — ganz [[ehrlich engagiert]]…"
