@@ -422,7 +422,7 @@ export default function BaerbockBot() {
                 {m.role === "assistant" && (
                   <div className="flex items-center gap-2 mb-1.5">
                     <span className={`w-2 h-2 rounded-full bg-baerbock-accent ${speakingId === m.id ? "baerbock-pulse" : ""}`} />
-                    <span className="text-[11px] uppercase tracking-wider text-white/40">Bockbaer-Bot</span>
+                    <span className="text-[11px] uppercase tracking-wider text-white/40">ACAB-Bot</span>
                     {ttsOn && (
                       <button
                         onClick={() => (speakingId === m.id ? stopSpeaking() : speak(m.content, m.id))}
