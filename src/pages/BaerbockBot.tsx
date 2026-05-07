@@ -43,6 +43,18 @@ export default function BaerbockBot() {
   const [speakingId, setSpeakingId] = useState<string | null>(null);
   const [avatarOn, setAvatarOn] = useState(true);
   const [mouth, setMouth] = useState(0);
+  const VOICE_OPTIONS = [
+    { key: "matilda", label: "Matilda — warm" },
+    { key: "lily", label: "Lily — energisch" },
+    { key: "sarah", label: "Sarah — sanft" },
+    { key: "alice", label: "Alice — bestimmt" },
+    { key: "jessica", label: "Jessica — dramatisch" },
+    { key: "laura", label: "Laura — freundlich" },
+  ];
+  const [voice, setVoice] = useState<string>(() => {
+    try { return localStorage.getItem("baerbock-voice") || "matilda"; } catch { return "matilda"; }
+  });
+  useEffect(() => { try { localStorage.setItem("baerbock-voice", voice); } catch {} }, [voice]);
   // streamingText: the raw text currently being received from server (full so far)
   const [streamRaw, setStreamRaw] = useState("");
   // visibleLen: how many chars of streamRaw are revealed via typewriter
@@ -150,7 +162,7 @@ export default function BaerbockBot() {
       const r = await fetch(TTS_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${ANON}` },
-        body: JSON.stringify({ text }),
+        body: JSON.stringify({ text, voice }),
       });
       if (!r.ok) throw new Error("tts");
       const data = await r.json();
@@ -357,6 +369,19 @@ export default function BaerbockBot() {
             >
               {avatarOn ? <User size={18} /> : <UserX size={18} />}
             </button>
+            <select
+              value={voice}
+              onChange={(e) => setVoice(e.target.value)}
+              title="Stimme wählen"
+              aria-label="Stimme wählen"
+              className="hidden sm:block bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-xs text-white/80 hover:bg-white/10 focus:outline-none focus:border-[hsl(var(--baerbock-accent)/0.5)]"
+            >
+              {VOICE_OPTIONS.map((v) => (
+                <option key={v.key} value={v.key} className="bg-[hsl(230_30%_8%)]">
+                  {v.label}
+                </option>
+              ))}
+            </select>
             <button
               onClick={toggleTts}
               title={ttsOn ? "Stimme aus" : "Stimme an"}
