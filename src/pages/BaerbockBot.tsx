@@ -22,7 +22,7 @@ function RenderMessage({ text }: { text: string }) {
           return (
             <span
               key={i}
-              className="text-white/90 underline decoration-white/20 decoration-dotted underline-offset-[3px]"
+              className="text-baerbock-accent font-medium underline decoration-baerbock-accent/60 decoration-wavy underline-offset-[3px]"
               title="Verhaspler"
             >
               {m[1]}
@@ -490,7 +490,7 @@ export default function BaerbockBot() {
             </button>
           </div>
           <div className="text-[10px] text-white/30 text-center mt-2">
-            Satire · Sprachausgabe via ElevenLabs · Verhaspler sind dezent unterstrichen
+            Satire · Sprachausgabe via ElevenLabs · Verhaspler sind hervorgehoben
           </div>
         </div>
       </div>
