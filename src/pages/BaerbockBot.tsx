@@ -9,7 +9,7 @@ const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/baerbock-cha
 const TTS_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/baerbock-tts`;
 const ANON = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
-const TYPE_SPEED = 14; // ms per char for typewriter reveal of finished text
+const TYPE_SPEED = 28; // ms per char for typewriter reveal (Buchstabe für Buchstabe)
 
 // Renders text with [[verhaspler]] highlighted
 function RenderMessage({ text }: { text: string }) {
