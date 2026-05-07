@@ -25,6 +25,7 @@ const TtxReadinessPage = lazy(() => import("./pages/TtxReadinessPage"));
 // Imprint route removed — the imprint is now exclusively shown via the
 // SiteChrome drawer (footer "Impressum" link opens the overlay).
 const Enigma = lazy(() => import("./pages/Enigma"));
+const BaerbockBot = lazy(() => import("./pages/BaerbockBot"));
 
 const queryClient = new QueryClient();
 
