@@ -22,7 +22,7 @@ function RenderMessage({ text }: { text: string }) {
           return (
             <span
               key={i}
-              className="text-baerbock-accent font-medium underline decoration-baerbock-accent/60 decoration-wavy underline-offset-[3px]"
+              className="text-baerbock-accent font-medium"
               title="Verhaspler"
             >
               {m[1]}
@@ -333,66 +333,69 @@ export default function BaerbockBot() {
         }
       `}</style>
 
-      {/* Header */}
-      <header className="border-b border-white/5 backdrop-blur-md bg-black/20 sticky top-0 z-10">
-        <div className="max-w-3xl mx-auto px-4 py-3 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full grid place-items-center text-lg font-semibold bg-gradient-to-br from-[hsl(320_95%_70%)] to-[hsl(280_60%_50%)] text-white shadow-lg">
-            B
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="font-semibold tracking-tight">Bockbaer-Bot</div>
-            <div className="text-xs text-white/50 truncate">
-              Beraterin für [[regulatösischen]] Anforderungen, [[Sicherity by Design]] & [[Wahn-Verbindungen]]
+      {/* Sticky Header + Avatar */}
+      <div className="sticky top-0 z-10 backdrop-blur-md bg-black/40 border-b border-white/5">
+        <header>
+          <div className="max-w-3xl mx-auto px-4 py-3 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full grid place-items-center text-lg font-semibold bg-gradient-to-br from-[hsl(320_95%_70%)] to-[hsl(280_60%_50%)] text-white shadow-lg">
+              B
             </div>
+            <div className="flex-1 min-w-0">
+              <div className="font-semibold tracking-tight">Bockbaer-Bot</div>
+              <div className="text-xs text-white/50 truncate">
+                Beraterin für [[regulatösischen]] Anforderungen, [[Sicherity by Design]] & [[Wahn-Verbindungen]]
+              </div>
+            </div>
+            <button
+              onClick={() => setAvatarOn((v) => !v)}
+              title={avatarOn ? "Avatar ausblenden" : "Avatar einblenden"}
+              className="p-2 rounded-lg hover:bg-white/5 transition-colors text-white/70 hover:text-white"
+              aria-label="Avatar umschalten"
+            >
+              {avatarOn ? <User size={18} /> : <UserX size={18} />}
+            </button>
+            <button
+              onClick={toggleTts}
+              title={ttsOn ? "Stimme aus" : "Stimme an"}
+              className="p-2 rounded-lg hover:bg-white/5 transition-colors text-white/70 hover:text-white"
+              aria-label="Sprachausgabe umschalten"
+            >
+              {ttsOn ? <Volume2 size={18} /> : <VolumeX size={18} />}
+            </button>
+            <button
+              onClick={clearChat}
+              title="Verlauf löschen"
+              className="p-2 rounded-lg hover:bg-white/5 transition-colors text-white/70 hover:text-white"
+              aria-label="Chat löschen"
+            >
+              <RotateCcw size={18} />
+            </button>
           </div>
-          <button
-            onClick={() => setAvatarOn((v) => !v)}
-            title={avatarOn ? "Avatar ausblenden" : "Avatar einblenden"}
-            className="p-2 rounded-lg hover:bg-white/5 transition-colors text-white/70 hover:text-white"
-            aria-label="Avatar umschalten"
-          >
-            {avatarOn ? <User size={18} /> : <UserX size={18} />}
-          </button>
-          <button
-            onClick={toggleTts}
-            title={ttsOn ? "Stimme aus" : "Stimme an"}
-            className="p-2 rounded-lg hover:bg-white/5 transition-colors text-white/70 hover:text-white"
-            aria-label="Sprachausgabe umschalten"
-          >
-            {ttsOn ? <Volume2 size={18} /> : <VolumeX size={18} />}
-          </button>
-          <button
-            onClick={clearChat}
-            title="Verlauf löschen"
-            className="p-2 rounded-lg hover:bg-white/5 transition-colors text-white/70 hover:text-white"
-            aria-label="Chat löschen"
-          >
-            <RotateCcw size={18} />
-          </button>
-        </div>
-      </header>
+        </header>
 
-      {avatarOn && (
-        <div className="border-b border-white/5 bg-gradient-to-b from-black/30 to-transparent">
-          <div className="max-w-3xl mx-auto px-4 py-5 flex items-center gap-5">
-            <div className="relative shrink-0">
-              <div
-                className={`absolute inset-0 rounded-full ${speakingId ? "baerbock-pulse" : ""}`}
-                style={{ borderRadius: "9999px" }}
-              />
-              <BaerbockAvatar mouth={speakingId ? mouth : 0} speaking={!!speakingId} size={148} />
-            </div>
-            <div className="min-w-0">
-              <div className="text-lg font-semibold tracking-tight">Annalena, [[stratigisch]] für euch da</div>
-              <div className="text-sm text-white/60 mt-1 leading-snug">
-                {speakingId
-                  ? "Spricht gerade — ganz [[ehrlich engagiert]]…"
-                  : "Stell mir eine Frage — ich freu mich [[riesig riesig]]."}
+        {avatarOn && (
+          <div className="border-t border-white/5 bg-gradient-to-b from-black/30 to-transparent">
+            <div className="max-w-3xl mx-auto px-4 py-4 flex items-center gap-4">
+              <div className="relative shrink-0">
+                <div
+                  className={`absolute inset-0 rounded-full ${speakingId ? "baerbock-pulse" : ""}`}
+                  style={{ borderRadius: "9999px" }}
+                />
+                <BaerbockAvatar mouth={speakingId ? mouth : 0} speaking={!!speakingId} size={96} />
+              </div>
+              <div className="min-w-0">
+                <div className="text-base font-semibold tracking-tight">Annalena, [[stratigisch]] für euch da</div>
+                <div className="text-xs text-white/60 mt-0.5 leading-snug">
+                  {speakingId
+                    ? "Spricht gerade — ganz [[ehrlich engagiert]]…"
+                    : "Stell mir eine Frage — ich freu mich [[riesig riesig]]."}
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
+
 
       {/* Messages */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto">
