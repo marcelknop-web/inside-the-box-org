@@ -445,7 +445,7 @@ export default function BaerbockBot() {
               <div className="max-w-[85%] rounded-2xl px-4 py-3 text-[15px] leading-relaxed whitespace-pre-wrap baerbock-bubble-bot">
                 <div className="flex items-center gap-2 mb-1.5">
                   <span className="w-2 h-2 rounded-full bg-baerbock-accent baerbock-pulse" />
-                  <span className="text-[11px] uppercase tracking-wider text-white/40">Bockbaer-Bot</span>
+                  <span className="text-[11px] uppercase tracking-wider text-white/40">ACAB-Bot</span>
                 </div>
                 <span className="baerbock-caret">
                   <RenderMessage text={streamRaw.slice(0, visibleLen)} />
