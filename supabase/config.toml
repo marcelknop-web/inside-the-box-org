@@ -23,3 +23,9 @@ verify_jwt = false
 
 [functions.soc-life-audio]
 verify_jwt = false
+
+[functions.baerbock-chat]
+verify_jwt = false
+
+[functions.baerbock-tts]
+verify_jwt = false
