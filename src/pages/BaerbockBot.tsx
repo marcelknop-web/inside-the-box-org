@@ -108,6 +108,38 @@ export default function BaerbockBot() {
     rafRef.current = requestAnimationFrame(loop);
   }
 
+  function browserSpeak(text: string, msgId: string) {
+    try {
+      const synth = window.speechSynthesis;
+      if (!synth) { setSpeakingId(null); return; }
+      synth.cancel();
+      const clean = text.replace(/\[\[(.*?)\]\]/g, "$1");
+      const u = new SpeechSynthesisUtterance(clean);
+      u.lang = "de-DE";
+      u.rate = 1.05;
+      u.pitch = 1.25;
+      const voices = synth.getVoices();
+      const de = voices.find((v) => v.lang?.startsWith("de") && /female|frau|anna|petra|katja/i.test(v.name))
+        || voices.find((v) => v.lang?.startsWith("de"));
+      if (de) u.voice = de;
+      // Fake mouth animation since we have no analyser
+      let t = 0;
+      const fake = () => {
+        t += 0.12;
+        setMouth(0.35 + Math.abs(Math.sin(t * 6)) * 0.5);
+        rafRef.current = requestAnimationFrame(fake);
+      };
+      rafRef.current = requestAnimationFrame(fake);
+      u.onend = () => { stopMouthLoop(); setSpeakingId((cur) => (cur === msgId ? null : cur)); };
+      u.onerror = () => { stopMouthLoop(); setSpeakingId(null); };
+      setSpeakingId(msgId);
+      synth.speak(u);
+    } catch {
+      stopMouthLoop();
+      setSpeakingId(null);
+    }
+  }
+
   async function speak(text: string, msgId: string) {
     if (!ttsOnRef.current) return;
     try {
