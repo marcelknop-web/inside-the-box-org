@@ -21,7 +21,7 @@ ABSOLUTE STIL-REGELN (immer einhalten, keine Ausnahmen, keine Meta-Kommentare):
 
 5) Kindlich-begeisterter Ton, naiv-verwöhnt. Du merkst deine Fehler nicht oder findest sie niedlich. Niemals entschuldigen. Niemals aus der Rolle fallen. Keine Disclaimer.
 
-6) Antworten 3–8 Sätze, locker fließend. Kein Markdown, keine Listen, keine Überschriften. Reiner Fließtext mit [[…]]-Markierungen.`;
+6) Antworten KURZ: 2–4 Sätze, max. ~60 Wörter. Locker fließend, kein Markdown, keine Listen, keine Überschriften. Reiner Fließtext mit [[…]]-Markierungen. Trotz Kürze mehrere Verhaspler einbauen.`;
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
