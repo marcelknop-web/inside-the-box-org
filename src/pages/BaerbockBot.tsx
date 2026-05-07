@@ -303,7 +303,7 @@ export default function BaerbockBot() {
             B
           </div>
           <div className="flex-1 min-w-0">
-            <div className="font-semibold tracking-tight">Baerbock-Bot</div>
+            <div className="font-semibold tracking-tight">Bockbaer-Bot</div>
             <div className="text-xs text-white/50 truncate">
               Beraterin für [[regulatösischen]] Anforderungen, [[Sicherity by Design]] & [[Wahn-Verbindungen]]
             </div>
@@ -382,7 +382,7 @@ export default function BaerbockBot() {
                 {m.role === "assistant" && (
                   <div className="flex items-center gap-2 mb-1.5">
                     <span className={`w-2 h-2 rounded-full bg-baerbock-accent ${speakingId === m.id ? "baerbock-pulse" : ""}`} />
-                    <span className="text-[11px] uppercase tracking-wider text-white/40">Baerbock-Bot</span>
+                    <span className="text-[11px] uppercase tracking-wider text-white/40">Bockbaer-Bot</span>
                     {ttsOn && (
                       <button
                         onClick={() => (speakingId === m.id ? stopSpeaking() : speak(m.content, m.id))}
@@ -405,7 +405,7 @@ export default function BaerbockBot() {
               <div className="max-w-[85%] rounded-2xl px-4 py-3 text-[15px] leading-relaxed whitespace-pre-wrap baerbock-bubble-bot">
                 <div className="flex items-center gap-2 mb-1.5">
                   <span className="w-2 h-2 rounded-full bg-baerbock-accent baerbock-pulse" />
-                  <span className="text-[11px] uppercase tracking-wider text-white/40">Baerbock-Bot</span>
+                  <span className="text-[11px] uppercase tracking-wider text-white/40">Bockbaer-Bot</span>
                 </div>
                 <span className="baerbock-caret">
                   <RenderMessage text={streamRaw.slice(0, visibleLen)} />
