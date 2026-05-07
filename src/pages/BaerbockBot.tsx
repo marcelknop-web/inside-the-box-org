@@ -22,7 +22,7 @@ function RenderMessage({ text }: { text: string }) {
           return (
             <span
               key={i}
-              className="text-baerbock-accent font-semibold underline decoration-baerbock-accent/40 decoration-wavy underline-offset-4"
+              className="text-white/90 underline decoration-white/20 decoration-dotted underline-offset-[3px]"
               title="Verhaspler"
             >
               {m[1]}
