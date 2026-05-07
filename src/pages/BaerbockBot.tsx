@@ -9,7 +9,7 @@ const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/baerbock-cha
 const TTS_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/baerbock-tts`;
 const ANON = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
-const TYPE_SPEED = 14; // ms per char for typewriter reveal of finished text
+const TYPE_SPEED = 28; // ms per char for typewriter reveal (Buchstabe für Buchstabe)
 
 // Renders text with [[verhaspler]] highlighted
 function RenderMessage({ text }: { text: string }) {
@@ -69,15 +69,18 @@ export default function BaerbockBot() {
     try { sessionStorage.setItem(STORAGE_KEY, JSON.stringify(messages)); } catch {}
   }, [messages]);
 
-  // Auto-scroll
+  // Auto-scroll — instant during streaming so user always sees the latest letters
   useEffect(() => {
-    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
+    const el = scrollRef.current;
+    if (!el) return;
+    const isStreaming = !!streamRaw;
+    el.scrollTo({ top: el.scrollHeight, behavior: isStreaming ? "auto" : "smooth" });
   }, [messages, streamRaw, visibleLen]);
 
-  // Typewriter reveal
+  // Typewriter reveal — Buchstabe für Buchstabe
   useEffect(() => {
     if (visibleLen >= streamRaw.length) return;
-    const id = setTimeout(() => setVisibleLen((v) => Math.min(streamRaw.length, v + 2)), TYPE_SPEED);
+    const id = setTimeout(() => setVisibleLen((v) => Math.min(streamRaw.length, v + 1)), TYPE_SPEED);
     return () => clearTimeout(id);
   }, [streamRaw, visibleLen]);
 
