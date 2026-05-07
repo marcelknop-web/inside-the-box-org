@@ -81,6 +81,33 @@ export default function BaerbockBot() {
     return () => clearTimeout(id);
   }, [streamRaw, visibleLen]);
 
+  function stopMouthLoop() {
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    rafRef.current = null;
+    setMouth(0);
+  }
+
+  function startMouthLoop() {
+    const analyser = analyserRef.current;
+    if (!analyser) return;
+    const buf = new Uint8Array(analyser.frequencyBinCount);
+    const loop = () => {
+      analyser.getByteTimeDomainData(buf);
+      // RMS around 128 midpoint
+      let sum = 0;
+      for (let i = 0; i < buf.length; i++) {
+        const v = (buf[i] - 128) / 128;
+        sum += v * v;
+      }
+      const rms = Math.sqrt(sum / buf.length);
+      // Scale and smooth
+      const target = Math.min(1, rms * 3.2);
+      setMouth((prev) => prev + (target - prev) * 0.45);
+      rafRef.current = requestAnimationFrame(loop);
+    };
+    rafRef.current = requestAnimationFrame(loop);
+  }
+
   async function speak(text: string, msgId: string) {
     if (!ttsOnRef.current) return;
     try {
@@ -93,12 +120,39 @@ export default function BaerbockBot() {
       if (!r.ok) throw new Error("tts");
       const data = await r.json();
       if (audioRef.current) { audioRef.current.pause(); }
+      stopMouthLoop();
       const audio = new Audio(`data:audio/mpeg;base64,${data.audioContent}`);
+      audio.crossOrigin = "anonymous";
       audioRef.current = audio;
-      audio.onended = () => setSpeakingId((cur) => (cur === msgId ? null : cur));
-      audio.onerror = () => setSpeakingId(null);
+
+      // Lip sync wiring
+      try {
+        if (!audioCtxRef.current) {
+          const Ctx = (window.AudioContext || (window as any).webkitAudioContext);
+          audioCtxRef.current = new Ctx();
+        }
+        const ctx = audioCtxRef.current!;
+        if (ctx.state === "suspended") await ctx.resume();
+        const src = ctx.createMediaElementSource(audio);
+        const analyser = ctx.createAnalyser();
+        analyser.fftSize = 1024;
+        src.connect(analyser);
+        analyser.connect(ctx.destination);
+        sourceRef.current = src;
+        analyserRef.current = analyser;
+      } catch (e) {
+        // ignore — playback still works without lip sync
+      }
+
+      audio.onplay = () => startMouthLoop();
+      audio.onended = () => {
+        stopMouthLoop();
+        setSpeakingId((cur) => (cur === msgId ? null : cur));
+      };
+      audio.onerror = () => { stopMouthLoop(); setSpeakingId(null); };
       await audio.play();
     } catch {
+      stopMouthLoop();
       setSpeakingId(null);
     }
   }
@@ -106,6 +160,7 @@ export default function BaerbockBot() {
   function stopSpeaking() {
     audioRef.current?.pause();
     audioRef.current = null;
+    stopMouthLoop();
     setSpeakingId(null);
   }
 
