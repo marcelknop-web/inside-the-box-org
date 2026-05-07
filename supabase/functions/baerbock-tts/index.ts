@@ -36,8 +36,9 @@ serve(async (req) => {
     if (!r.ok) {
       const t = await r.text();
       console.error("eleven error", r.status, t);
-      return new Response(JSON.stringify({ error: "tts failed" }),
-        { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      // Return 200 with fallback flag so client can use browser TTS instead of crashing
+      return new Response(JSON.stringify({ fallback: true, reason: t.slice(0, 200) }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
     const buf = await r.arrayBuffer();
     return new Response(JSON.stringify({ audioContent: base64Encode(new Uint8Array(buf)) }), {
