@@ -41,12 +41,18 @@ export default function BaerbockBot() {
   const [isLoading, setIsLoading] = useState(false);
   const [ttsOn, setTtsOn] = useState(true);
   const [speakingId, setSpeakingId] = useState<string | null>(null);
+  const [avatarOn, setAvatarOn] = useState(true);
+  const [mouth, setMouth] = useState(0);
   // streamingText: the raw text currently being received from server (full so far)
   const [streamRaw, setStreamRaw] = useState("");
   // visibleLen: how many chars of streamRaw are revealed via typewriter
   const [visibleLen, setVisibleLen] = useState(0);
   const streamingId = useRef<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const sourceRef = useRef<MediaElementAudioSourceNode | null>(null);
+  const rafRef = useRef<number | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const ttsOnRef = useRef(ttsOn);
   ttsOnRef.current = ttsOn;
