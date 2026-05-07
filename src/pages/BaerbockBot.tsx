@@ -369,6 +369,19 @@ export default function BaerbockBot() {
             >
               {avatarOn ? <User size={18} /> : <UserX size={18} />}
             </button>
+            <select
+              value={voice}
+              onChange={(e) => setVoice(e.target.value)}
+              title="Stimme wählen"
+              aria-label="Stimme wählen"
+              className="hidden sm:block bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-xs text-white/80 hover:bg-white/10 focus:outline-none focus:border-[hsl(var(--baerbock-accent)/0.5)]"
+            >
+              {VOICE_OPTIONS.map((v) => (
+                <option key={v.key} value={v.key} className="bg-[hsl(230_30%_8%)]">
+                  {v.label}
+                </option>
+              ))}
+            </select>
             <button
               onClick={toggleTts}
               title={ttsOn ? "Stimme aus" : "Stimme an"}
