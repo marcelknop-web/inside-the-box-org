@@ -341,9 +341,9 @@ export default function BaerbockBot() {
               B
             </div>
             <div className="flex-1 min-w-0">
-              <div className="font-semibold tracking-tight">Bockbaer-Bot</div>
+            <div className="font-semibold tracking-tight">ACAB-Bot</div>
               <div className="text-xs text-white/50 truncate">
-                Beraterin für [[regulatösischen]] Anforderungen, [[Sicherity by Design]] & [[Wahn-Verbindungen]]
+                Annalena Charlotte Alma Baerbock — [[stratigisch]] für euch da
               </div>
             </div>
             <button
