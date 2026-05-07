@@ -309,6 +309,14 @@ export default function BaerbockBot() {
             </div>
           </div>
           <button
+            onClick={() => setAvatarOn((v) => !v)}
+            title={avatarOn ? "Avatar ausblenden" : "Avatar einblenden"}
+            className="p-2 rounded-lg hover:bg-white/5 transition-colors text-white/70 hover:text-white"
+            aria-label="Avatar umschalten"
+          >
+            {avatarOn ? <User size={18} /> : <UserX size={18} />}
+          </button>
+          <button
             onClick={toggleTts}
             title={ttsOn ? "Stimme aus" : "Stimme an"}
             className="p-2 rounded-lg hover:bg-white/5 transition-colors text-white/70 hover:text-white"
@@ -326,6 +334,28 @@ export default function BaerbockBot() {
           </button>
         </div>
       </header>
+
+      {avatarOn && (
+        <div className="border-b border-white/5 bg-gradient-to-b from-black/30 to-transparent">
+          <div className="max-w-3xl mx-auto px-4 py-5 flex items-center gap-5">
+            <div className="relative shrink-0">
+              <div
+                className={`absolute inset-0 rounded-full ${speakingId ? "baerbock-pulse" : ""}`}
+                style={{ borderRadius: "9999px" }}
+              />
+              <BaerbockAvatar mouth={speakingId ? mouth : 0} speaking={!!speakingId} size={148} />
+            </div>
+            <div className="min-w-0">
+              <div className="text-lg font-semibold tracking-tight">Annalena, [[stratigisch]] für euch da</div>
+              <div className="text-sm text-white/60 mt-1 leading-snug">
+                {speakingId
+                  ? "Spricht gerade — ganz [[ehrlich engagiert]]…"
+                  : "Stell mir eine Frage — ich freu mich [[riesig riesig]]."}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Messages */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto">
