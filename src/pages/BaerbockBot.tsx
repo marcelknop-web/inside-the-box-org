@@ -168,18 +168,25 @@ export default function BaerbockBot() {
       const r = await fetch(TTS_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${ANON}` },
-        body: JSON.stringify({ text, voice }),
+        body: JSON.stringify({ text, voice, voiceId: customVoiceId.trim() || undefined }),
       });
       if (!r.ok) throw new Error("tts");
-      const data = await r.json();
-      if (data?.fallback || !data?.audioContent) {
-        // ElevenLabs unavailable — use browser TTS as fallback
-        browserSpeak(text, msgId);
-        return;
+      const ct = r.headers.get("Content-Type") || "";
+      let audioUrl: string;
+      if (ct.startsWith("audio/")) {
+        const blob = await r.blob();
+        audioUrl = URL.createObjectURL(blob);
+      } else {
+        const data = await r.json();
+        if (data?.fallback || !data?.audioContent) {
+          browserSpeak(text, msgId);
+          return;
+        }
+        audioUrl = `data:audio/mpeg;base64,${data.audioContent}`;
       }
       if (audioRef.current) { audioRef.current.pause(); }
       stopMouthLoop();
-      const audio = new Audio(`data:audio/mpeg;base64,${data.audioContent}`);
+      const audio = new Audio(audioUrl);
       audio.crossOrigin = "anonymous";
       audioRef.current = audio;
 
