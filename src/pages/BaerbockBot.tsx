@@ -387,7 +387,8 @@ export default function BaerbockBot() {
               onChange={(e) => setVoice(e.target.value)}
               title="Stimme wählen"
               aria-label="Stimme wählen"
-              className="hidden sm:block bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-xs text-white/80 hover:bg-white/10 focus:outline-none focus:border-[hsl(var(--baerbock-accent)/0.5)]"
+              disabled={!!customVoiceId.trim()}
+              className="hidden sm:block bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-xs text-white/80 hover:bg-white/10 focus:outline-none focus:border-[hsl(var(--baerbock-accent)/0.5)] disabled:opacity-40"
             >
               {VOICE_OPTIONS.map((v) => (
                 <option key={v.key} value={v.key} className="bg-[hsl(230_30%_8%)]">
@@ -395,6 +396,22 @@ export default function BaerbockBot() {
                 </option>
               ))}
             </select>
+            <input
+              type="text"
+              value={customVoiceId}
+              onChange={(e) => setCustomVoiceId(e.target.value)}
+              placeholder="Voice-ID (optional)"
+              title="Eigene ElevenLabs Voice-ID (überschreibt die Auswahl)"
+              className="hidden md:block bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-xs text-white/80 placeholder-white/30 w-32 focus:outline-none focus:border-[hsl(var(--baerbock-accent)/0.5)]"
+            />
+            <button
+              onClick={() => setLiveMode((v) => !v)}
+              title={liveMode ? "Live-Modus schließen" : "Live-Modus öffnen"}
+              className={`p-2 rounded-lg transition-colors ${liveMode ? "bg-[hsl(var(--baerbock-accent)/0.2)] text-[hsl(var(--baerbock-accent))]" : "hover:bg-white/5 text-white/70 hover:text-white"}`}
+              aria-label="Live-Modus umschalten"
+            >
+              <Mic size={18} />
+            </button>
             <button
               onClick={toggleTts}
               title={ttsOn ? "Stimme aus" : "Stimme an"}
