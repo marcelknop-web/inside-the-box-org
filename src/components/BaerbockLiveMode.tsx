@@ -1,5 +1,5 @@
 import { Component, ReactNode, useCallback, useEffect, useState } from "react";
-import { useConversation } from "@elevenlabs/react";
+import { useConversation, ConversationProvider } from "@elevenlabs/react";
 import { Mic, PhoneOff, Loader2 } from "lucide-react";
 
 const TOKEN_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/baerbock-realtime-token`;
@@ -131,7 +131,9 @@ function LiveModeInner({ onClose }: { onClose: () => void }) {
 export default function BaerbockLiveMode({ onClose }: { onClose: () => void }) {
   return (
     <LiveBoundary onClose={onClose}>
-      <LiveModeInner onClose={onClose} />
+      <ConversationProvider>
+        <LiveModeInner onClose={onClose} />
+      </ConversationProvider>
     </LiveBoundary>
   );
 }
