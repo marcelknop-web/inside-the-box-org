@@ -131,7 +131,9 @@ function LiveModeInner({ onClose }: { onClose: () => void }) {
 export default function BaerbockLiveMode({ onClose }: { onClose: () => void }) {
   return (
     <LiveBoundary onClose={onClose}>
-      <LiveModeInner onClose={onClose} />
+      <ConversationProvider>
+        <LiveModeInner onClose={onClose} />
+      </ConversationProvider>
     </LiveBoundary>
   );
 }
