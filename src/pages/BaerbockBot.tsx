@@ -167,7 +167,7 @@ export default function BaerbockBot() {
       const r = await fetch(TTS_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${ANON}` },
-        body: JSON.stringify({ text, voice, voiceId: effectiveVoiceId || undefined }),
+        body: JSON.stringify({ text, voiceId: VOICE_ID }),
       });
       if (!r.ok) throw new Error("tts");
       const ct = r.headers.get("Content-Type") || "";
