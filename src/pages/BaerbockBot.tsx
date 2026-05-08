@@ -56,31 +56,7 @@ export default function BaerbockBot() {
   const [speakingId, setSpeakingId] = useState<string | null>(null);
   const [avatarOn, setAvatarOn] = useState(true);
   const [mouth, setMouth] = useState(0);
-  const VOICE_OPTIONS = [
-    { key: "matilda", label: "Matilda — warm" },
-    { key: "lily", label: "Lily — energisch" },
-    { key: "sarah", label: "Sarah — sanft" },
-    { key: "alice", label: "Alice — bestimmt" },
-    { key: "jessica", label: "Jessica — dramatisch" },
-    { key: "laura", label: "Laura — freundlich" },
-  ];
-  const [voice, setVoice] = useState<string>(() => {
-    try { return localStorage.getItem("baerbock-voice") || "matilda"; } catch { return "matilda"; }
-  });
-  useEffect(() => { try { localStorage.setItem("baerbock-voice", voice); } catch {} }, [voice]);
-  const DEFAULT_VOICE_ID = "HJlmIyWJJNtgQXBOYqLe";
-  const [customVoiceId, setCustomVoiceId] = useState<string>(() => {
-    try { return localStorage.getItem("baerbock-voice-id") ?? DEFAULT_VOICE_ID; } catch { return DEFAULT_VOICE_ID; }
-  });
-  const voiceIdValidation = useMemo(() => validateVoiceId(customVoiceId), [customVoiceId]);
-  const voiceIdError = voiceIdValidation.ok === false ? voiceIdValidation.error : null;
-  const effectiveVoiceId = voiceIdValidation.ok ? customVoiceId.trim() : "";
-  // Persist only valid IDs (or empty) so a broken value doesn't survive reloads.
-  useEffect(() => {
-    try {
-      if (voiceIdValidation.ok) localStorage.setItem("baerbock-voice-id", customVoiceId.trim());
-    } catch {}
-  }, [customVoiceId, voiceIdValidation.ok]);
+  const VOICE_ID = "HJlmIyWJJNtgQXBOYqLe";
   const [liveMode, setLiveMode] = useState(false);
   // streamingText: the raw text currently being received from server (full so far)
   const [streamRaw, setStreamRaw] = useState("");
