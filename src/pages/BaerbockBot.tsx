@@ -1,14 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { Send, Volume2, VolumeX, RotateCcw, Loader2, User, UserX, Mic } from "lucide-react";
-import BaerbockAvatar from "@/components/BaerbockAvatar";
-import BaerbockLiveMode from "@/components/BaerbockLiveMode";
-
+import { Send, RotateCcw, Loader2 } from "lucide-react";
 
 type Msg = { id: string; role: "user" | "assistant"; content: string };
 
 const STORAGE_KEY = "baerbock-bot-history-v1";
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/baerbock-chat`;
-const TTS_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/baerbock-tts`;
 const ANON = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
 const TYPE_SPEED = 28; // ms per char for typewriter reveal (Buchstabe für Buchstabe)
@@ -41,25 +37,10 @@ export default function BaerbockBot() {
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [ttsOn, setTtsOn] = useState(true);
-  const [speakingId, setSpeakingId] = useState<string | null>(null);
-  const [avatarOn, setAvatarOn] = useState(true);
-  const [mouth, setMouth] = useState(0);
-  const VOICE_ID = "HJlmIyWJJNtgQXBOYqLe";
-  const [liveMode, setLiveMode] = useState(false);
-  // streamingText: the raw text currently being received from server (full so far)
   const [streamRaw, setStreamRaw] = useState("");
-  // visibleLen: how many chars of streamRaw are revealed via typewriter
   const [visibleLen, setVisibleLen] = useState(0);
   const streamingId = useRef<string | null>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const audioCtxRef = useRef<AudioContext | null>(null);
-  const analyserRef = useRef<AnalyserNode | null>(null);
-  const sourceRef = useRef<MediaElementAudioSourceNode | null>(null);
-  const rafRef = useRef<number | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
-  const ttsOnRef = useRef(ttsOn);
-  ttsOnRef.current = ttsOn;
   const visibleLenRef = useRef(0);
   visibleLenRef.current = visibleLen;
 
@@ -75,7 +56,7 @@ export default function BaerbockBot() {
     try { sessionStorage.setItem(STORAGE_KEY, JSON.stringify(messages)); } catch {}
   }, [messages]);
 
-  // Auto-scroll — instant during streaming so user always sees the latest letters
+  // Auto-scroll
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
@@ -83,139 +64,12 @@ export default function BaerbockBot() {
     el.scrollTo({ top: el.scrollHeight, behavior: isStreaming ? "auto" : "smooth" });
   }, [messages, streamRaw, visibleLen]);
 
-  // Typewriter reveal — Buchstabe für Buchstabe
+  // Typewriter reveal
   useEffect(() => {
     if (visibleLen >= streamRaw.length) return;
     const id = setTimeout(() => setVisibleLen((v) => Math.min(streamRaw.length, v + 1)), TYPE_SPEED);
     return () => clearTimeout(id);
   }, [streamRaw, visibleLen]);
-
-  function stopMouthLoop() {
-    if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    rafRef.current = null;
-    setMouth(0);
-  }
-
-  function startMouthLoop() {
-    const analyser = analyserRef.current;
-    if (!analyser) return;
-    const buf = new Uint8Array(analyser.frequencyBinCount);
-    const loop = () => {
-      analyser.getByteTimeDomainData(buf);
-      // RMS around 128 midpoint
-      let sum = 0;
-      for (let i = 0; i < buf.length; i++) {
-        const v = (buf[i] - 128) / 128;
-        sum += v * v;
-      }
-      const rms = Math.sqrt(sum / buf.length);
-      // Scale and smooth
-      const target = Math.min(1, rms * 3.2);
-      setMouth((prev) => prev + (target - prev) * 0.45);
-      rafRef.current = requestAnimationFrame(loop);
-    };
-    rafRef.current = requestAnimationFrame(loop);
-  }
-
-  function browserSpeak(text: string, msgId: string) {
-    try {
-      const synth = window.speechSynthesis;
-      if (!synth) { setSpeakingId(null); return; }
-      synth.cancel();
-      const clean = text.replace(/\[\[(.*?)\]\]/g, "$1");
-      const u = new SpeechSynthesisUtterance(clean);
-      u.lang = "de-DE";
-      u.rate = 1.05;
-      u.pitch = 1.25;
-      const voices = synth.getVoices();
-      const de = voices.find((v) => v.lang?.startsWith("de") && /female|frau|anna|petra|katja/i.test(v.name))
-        || voices.find((v) => v.lang?.startsWith("de"));
-      if (de) u.voice = de;
-      // Fake mouth animation since we have no analyser
-      let t = 0;
-      const fake = () => {
-        t += 0.12;
-        setMouth(0.35 + Math.abs(Math.sin(t * 6)) * 0.5);
-        rafRef.current = requestAnimationFrame(fake);
-      };
-      rafRef.current = requestAnimationFrame(fake);
-      u.onend = () => { stopMouthLoop(); setSpeakingId((cur) => (cur === msgId ? null : cur)); };
-      u.onerror = () => { stopMouthLoop(); setSpeakingId(null); };
-      setSpeakingId(msgId);
-      synth.speak(u);
-    } catch {
-      stopMouthLoop();
-      setSpeakingId(null);
-    }
-  }
-
-  async function speak(text: string, msgId: string) {
-    if (!ttsOnRef.current) return;
-    try {
-      setSpeakingId(msgId);
-      const r = await fetch(TTS_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${ANON}` },
-        body: JSON.stringify({ text, voiceId: VOICE_ID }),
-      });
-      if (!r.ok) throw new Error("tts");
-      const ct = r.headers.get("Content-Type") || "";
-      let audioUrl: string;
-      if (ct.startsWith("audio/")) {
-        const blob = await r.blob();
-        audioUrl = URL.createObjectURL(blob);
-      } else {
-        const data = await r.json();
-        if (data?.fallback || !data?.audioContent) {
-          browserSpeak(text, msgId);
-          return;
-        }
-        audioUrl = `data:audio/mpeg;base64,${data.audioContent}`;
-      }
-      if (audioRef.current) { audioRef.current.pause(); }
-      stopMouthLoop();
-      const audio = new Audio(audioUrl);
-      audio.crossOrigin = "anonymous";
-      audioRef.current = audio;
-
-      // Lip sync wiring
-      try {
-        if (!audioCtxRef.current) {
-          const Ctx = (window.AudioContext || (window as any).webkitAudioContext);
-          audioCtxRef.current = new Ctx();
-        }
-        const ctx = audioCtxRef.current!;
-        if (ctx.state === "suspended") await ctx.resume();
-        const src = ctx.createMediaElementSource(audio);
-        const analyser = ctx.createAnalyser();
-        analyser.fftSize = 1024;
-        src.connect(analyser);
-        analyser.connect(ctx.destination);
-        sourceRef.current = src;
-        analyserRef.current = analyser;
-      } catch (e) {
-        // ignore — playback still works without lip sync
-      }
-
-      audio.onplay = () => startMouthLoop();
-      audio.onended = () => {
-        stopMouthLoop();
-        setSpeakingId((cur) => (cur === msgId ? null : cur));
-      };
-      audio.onerror = () => { stopMouthLoop(); setSpeakingId(null); };
-      await audio.play();
-    } catch {
-      stopMouthLoop();
-      setSpeakingId(null);
-    }
-  }
-
-  function stopSpeaking() {
-    audioRef.current?.pause();
-    audioRef.current = null;
-    stopMouthLoop();
-    setSpeakingId(null);
-  }
 
   async function send() {
     const text = input.trim();
@@ -270,8 +124,7 @@ export default function BaerbockBot() {
           }
         }
       }
-      // Wait for the typewriter to catch up before committing — otherwise the
-      // remaining tail would pop in as one block (kills the 90s modem feel).
+      // Wait for typewriter to catch up
       await new Promise<void>((resolve) => {
         const check = () => {
           if (visibleLenRef.current >= assembled.length) resolve();
@@ -279,15 +132,12 @@ export default function BaerbockBot() {
         };
         check();
       });
-      // Commit final message
       const id = streamingId.current ?? crypto.randomUUID();
       const finalMsg: Msg = { id, role: "assistant", content: assembled };
       setMessages((prev) => [...prev, finalMsg]);
       setStreamRaw("");
       setVisibleLen(0);
       streamingId.current = null;
-      // TTS after the message is committed
-      if (assembled.trim()) speak(assembled, id);
     } catch (e: any) {
       const errMsg: Msg = {
         id: crypto.randomUUID(),
@@ -303,17 +153,8 @@ export default function BaerbockBot() {
   }
 
   function clearChat() {
-    stopSpeaking();
     setMessages([]);
     sessionStorage.removeItem(STORAGE_KEY);
-  }
-
-  function toggleTts() {
-    setTtsOn((v) => {
-      const nv = !v;
-      if (!nv) stopSpeaking();
-      return nv;
-    });
   }
 
   return (
@@ -328,7 +169,6 @@ export default function BaerbockBot() {
         fontFamily: "'Inter', -apple-system, system-ui, sans-serif",
       }}
     >
-      {/* Inline component styles + accent token */}
       <style>{`
         :root { --baerbock-accent: 320 95% 70%; }
         .text-baerbock-accent { color: hsl(var(--baerbock-accent)); }
@@ -348,17 +188,8 @@ export default function BaerbockBot() {
           animation: bb-blink 1s steps(2,start) infinite;
         }
         @keyframes bb-blink { to { visibility: hidden; } }
-        .baerbock-pulse {
-          box-shadow: 0 0 0 0 hsl(var(--baerbock-accent) / 0.7);
-          animation: bb-pulse 1.4s infinite;
-        }
-        @keyframes bb-pulse {
-          70% { box-shadow: 0 0 0 12px hsl(var(--baerbock-accent) / 0); }
-          100% { box-shadow: 0 0 0 0 hsl(var(--baerbock-accent) / 0); }
-        }
       `}</style>
 
-      {/* Sticky Header + Avatar */}
       <div className="sticky top-0 z-10 backdrop-blur-md bg-black/40 border-b border-white/5">
         <header>
           <div className="max-w-3xl mx-auto px-4 py-3 flex items-center gap-3">
@@ -366,35 +197,11 @@ export default function BaerbockBot() {
               B
             </div>
             <div className="flex-1 min-w-0">
-            <div className="font-semibold tracking-tight">ACAB-Bot</div>
+              <div className="font-semibold tracking-tight">ACAB-Bot</div>
               <div className="text-xs text-white/50 truncate">
                 Annalena Charlotte Alma Baerbock — [[stratigisch]] für euch da
               </div>
             </div>
-            <button
-              onClick={() => setAvatarOn((v) => !v)}
-              title={avatarOn ? "Avatar ausblenden" : "Avatar einblenden"}
-              className="p-2 rounded-lg hover:bg-white/5 transition-colors text-white/70 hover:text-white"
-              aria-label="Avatar umschalten"
-            >
-              {avatarOn ? <User size={18} /> : <UserX size={18} />}
-            </button>
-            <button
-              onClick={() => setLiveMode((v) => !v)}
-              title={liveMode ? "Live-Modus schließen" : "Live-Modus öffnen"}
-              className={`p-2 rounded-lg transition-colors ${liveMode ? "bg-[hsl(var(--baerbock-accent)/0.2)] text-[hsl(var(--baerbock-accent))]" : "hover:bg-white/5 text-white/70 hover:text-white"}`}
-              aria-label="Live-Modus umschalten"
-            >
-              <Mic size={18} />
-            </button>
-            <button
-              onClick={toggleTts}
-              title={ttsOn ? "Stimme aus" : "Stimme an"}
-              className="p-2 rounded-lg hover:bg-white/5 transition-colors text-white/70 hover:text-white"
-              aria-label="Sprachausgabe umschalten"
-            >
-              {ttsOn ? <Volume2 size={18} /> : <VolumeX size={18} />}
-            </button>
             <button
               onClick={clearChat}
               title="Verlauf löschen"
@@ -405,31 +212,7 @@ export default function BaerbockBot() {
             </button>
           </div>
         </header>
-
-        {avatarOn && (
-          <div className="border-t border-white/5 bg-gradient-to-b from-black/30 to-transparent">
-            <div className="max-w-3xl mx-auto px-4 py-4 flex items-center gap-4">
-              <div className="relative shrink-0">
-                <div
-                  className={`absolute inset-0 rounded-full ${speakingId ? "baerbock-pulse" : ""}`}
-                  style={{ borderRadius: "9999px" }}
-                />
-                <BaerbockAvatar mouth={speakingId ? mouth : 0} speaking={!!speakingId} size={96} />
-              </div>
-              <div className="min-w-0">
-                <div className="text-base font-semibold tracking-tight">ACAB-Bot — Annalena, [[stratigisch]] für euch da</div>
-                <div className="text-xs text-white/60 mt-0.5 leading-snug">
-                  {speakingId
-                    ? "Spricht gerade — ganz [[ehrlich engagiert]]…"
-                    : "Stell mir eine Frage — ich freu mich [[riesig riesig]]."}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-        {liveMode && <BaerbockLiveMode onClose={() => setLiveMode(false)} />}
       </div>
-
 
       {/* Messages */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto">
@@ -455,17 +238,8 @@ export default function BaerbockBot() {
               >
                 {m.role === "assistant" && (
                   <div className="flex items-center gap-2 mb-1.5">
-                    <span className={`w-2 h-2 rounded-full bg-baerbock-accent ${speakingId === m.id ? "baerbock-pulse" : ""}`} />
+                    <span className="w-2 h-2 rounded-full bg-baerbock-accent" />
                     <span className="text-[11px] uppercase tracking-wider text-white/40">ACAB-Bot</span>
-                    {ttsOn && (
-                      <button
-                        onClick={() => (speakingId === m.id ? stopSpeaking() : speak(m.content, m.id))}
-                        className="ml-auto text-white/40 hover:text-white/80 text-[11px] flex items-center gap-1"
-                      >
-                        {speakingId === m.id ? <VolumeX size={12} /> : <Volume2 size={12} />}
-                        {speakingId === m.id ? "Stop" : "Hören"}
-                      </button>
-                    )}
                   </div>
                 )}
                 <RenderMessage text={m.content} />
@@ -473,12 +247,11 @@ export default function BaerbockBot() {
             </div>
           ))}
 
-          {/* Streaming bubble (typewriter) */}
           {streamRaw && (
             <div className="flex justify-start">
               <div className="max-w-[85%] rounded-2xl px-4 py-3 text-[15px] leading-relaxed whitespace-pre-wrap baerbock-bubble-bot">
                 <div className="flex items-center gap-2 mb-1.5">
-                  <span className="w-2 h-2 rounded-full bg-baerbock-accent baerbock-pulse" />
+                  <span className="w-2 h-2 rounded-full bg-baerbock-accent" />
                   <span className="text-[11px] uppercase tracking-wider text-white/40">ACAB-Bot</span>
                 </div>
                 <span className="baerbock-caret">
@@ -527,7 +300,7 @@ export default function BaerbockBot() {
             </button>
           </div>
           <div className="text-[10px] text-white/30 text-center mt-2">
-            Satire · Sprachausgabe via ElevenLabs · Verhaspler sind hervorgehoben
+            Satire · Verhaspler sind hervorgehoben
           </div>
         </div>
       </div>
