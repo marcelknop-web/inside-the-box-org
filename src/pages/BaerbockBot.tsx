@@ -205,6 +205,14 @@ export default function BaerbockBot() {
               </div>
             </div>
             <button
+              onClick={() => setAvatarOn((v) => !v)}
+              title={avatarOn ? "Avatar ausblenden" : "Avatar einblenden"}
+              className="p-2 rounded-lg hover:bg-white/5 transition-colors text-white/70 hover:text-white"
+              aria-label="Avatar umschalten"
+            >
+              {avatarOn ? <User size={18} /> : <UserX size={18} />}
+            </button>
+            <button
               onClick={clearChat}
               title="Verlauf löschen"
               className="p-2 rounded-lg hover:bg-white/5 transition-colors text-white/70 hover:text-white"
@@ -214,6 +222,22 @@ export default function BaerbockBot() {
             </button>
           </div>
         </header>
+
+        {avatarOn && (
+          <div className="border-t border-white/5 bg-gradient-to-b from-black/30 to-transparent">
+            <div className="max-w-3xl mx-auto px-4 py-4 flex items-center gap-4">
+              <div className="shrink-0">
+                <BaerbockAvatar mouth={0} speaking={false} size={96} />
+              </div>
+              <div className="min-w-0">
+                <div className="text-base font-semibold tracking-tight">ACAB-Bot — Annalena, [[stratigisch]] für euch da</div>
+                <div className="text-xs text-white/60 mt-0.5 leading-snug">
+                  Stell mir eine Frage — ich freu mich [[riesig riesig]].
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Messages */}
