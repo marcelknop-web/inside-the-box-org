@@ -56,6 +56,11 @@ export default function BaerbockBot() {
     try { return localStorage.getItem("baerbock-voice") || "matilda"; } catch { return "matilda"; }
   });
   useEffect(() => { try { localStorage.setItem("baerbock-voice", voice); } catch {} }, [voice]);
+  const [customVoiceId, setCustomVoiceId] = useState<string>(() => {
+    try { return localStorage.getItem("baerbock-voice-id") || ""; } catch { return ""; }
+  });
+  useEffect(() => { try { localStorage.setItem("baerbock-voice-id", customVoiceId); } catch {} }, [customVoiceId]);
+  const [liveMode, setLiveMode] = useState(false);
   // streamingText: the raw text currently being received from server (full so far)
   const [streamRaw, setStreamRaw] = useState("");
   // visibleLen: how many chars of streamRaw are revealed via typewriter
