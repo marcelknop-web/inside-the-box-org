@@ -1,19 +1,8 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Send, Volume2, VolumeX, RotateCcw, Loader2, User, UserX, Mic } from "lucide-react";
-import { toast } from "sonner";
 import BaerbockAvatar from "@/components/BaerbockAvatar";
 import BaerbockLiveMode from "@/components/BaerbockLiveMode";
 
-// ElevenLabs voice IDs are 20-char base62 strings (e.g. "HJlmIyWJJNtgQXBOYqLe").
-const VOICE_ID_RE = /^[A-Za-z0-9]{20}$/;
-function validateVoiceId(raw: string): { ok: true } | { ok: false; error: string } {
-  if (/\s/.test(raw)) return { ok: false, error: "Keine Leerzeichen erlaubt." };
-  const v = raw.trim();
-  if (!v) return { ok: true };
-  if (v.length !== 20) return { ok: false, error: `Voice-ID muss genau 20 Zeichen haben (aktuell ${v.length}).` };
-  if (!VOICE_ID_RE.test(v)) return { ok: false, error: "Nur Buchstaben und Zahlen erlaubt (keine Sonderzeichen)." };
-  return { ok: true };
-}
 
 type Msg = { id: string; role: "user" | "assistant"; content: string };
 
