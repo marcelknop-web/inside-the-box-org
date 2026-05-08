@@ -390,48 +390,6 @@ export default function BaerbockBot() {
             >
               {avatarOn ? <User size={18} /> : <UserX size={18} />}
             </button>
-            <select
-              value={voice}
-              onChange={(e) => setVoice(e.target.value)}
-              title="Stimme wählen"
-              aria-label="Stimme wählen"
-              disabled={!!effectiveVoiceId}
-              className="hidden sm:block bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-xs text-white/80 hover:bg-white/10 focus:outline-none focus:border-[hsl(var(--baerbock-accent)/0.5)] disabled:opacity-40"
-            >
-              {VOICE_OPTIONS.map((v) => (
-                <option key={v.key} value={v.key} className="bg-[hsl(230_30%_8%)]">
-                  {v.label}
-                </option>
-              ))}
-            </select>
-            <div className="hidden md:flex flex-col">
-              <input
-                type="text"
-                value={customVoiceId}
-                onChange={(e) => setCustomVoiceId(e.target.value)}
-                onBlur={() => {
-                  if (voiceIdError) toast.error("Ungültige Voice-ID", { description: voiceIdError });
-                }}
-                placeholder="Voice-ID (optional)"
-                title="Eigene ElevenLabs Voice-ID (überschreibt die Auswahl)"
-                aria-invalid={!!voiceIdError}
-                aria-describedby="voice-id-error"
-                spellCheck={false}
-                autoCorrect="off"
-                autoCapitalize="off"
-                maxLength={32}
-                className={`bg-white/5 border rounded-lg px-2 py-1 text-xs text-white/80 placeholder-white/30 w-40 focus:outline-none ${
-                  voiceIdError
-                    ? "border-red-500/60 focus:border-red-500"
-                    : "border-white/10 focus:border-[hsl(var(--baerbock-accent)/0.5)]"
-                }`}
-              />
-              {voiceIdError && (
-                <span id="voice-id-error" className="text-[10px] text-red-400 mt-0.5 max-w-40 leading-tight">
-                  {voiceIdError}
-                </span>
-              )}
-            </div>
             <button
               onClick={() => setLiveMode((v) => !v)}
               title={liveMode ? "Live-Modus schließen" : "Live-Modus öffnen"}
