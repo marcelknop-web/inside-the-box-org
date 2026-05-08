@@ -56,8 +56,9 @@ export default function BaerbockBot() {
     try { return localStorage.getItem("baerbock-voice") || "matilda"; } catch { return "matilda"; }
   });
   useEffect(() => { try { localStorage.setItem("baerbock-voice", voice); } catch {} }, [voice]);
+  const DEFAULT_VOICE_ID = "HJlmIyWJJNtgQXBOYqLe";
   const [customVoiceId, setCustomVoiceId] = useState<string>(() => {
-    try { return localStorage.getItem("baerbock-voice-id") || ""; } catch { return ""; }
+    try { return localStorage.getItem("baerbock-voice-id") ?? DEFAULT_VOICE_ID; } catch { return DEFAULT_VOICE_ID; }
   });
   useEffect(() => { try { localStorage.setItem("baerbock-voice-id", customVoiceId); } catch {} }, [customVoiceId]);
   const [liveMode, setLiveMode] = useState(false);
