@@ -1,7 +1,19 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Send, Volume2, VolumeX, RotateCcw, Loader2, User, UserX, Mic } from "lucide-react";
+import { toast } from "sonner";
 import BaerbockAvatar from "@/components/BaerbockAvatar";
 import BaerbockLiveMode from "@/components/BaerbockLiveMode";
+
+// ElevenLabs voice IDs are 20-char base62 strings (e.g. "HJlmIyWJJNtgQXBOYqLe").
+const VOICE_ID_RE = /^[A-Za-z0-9]{20}$/;
+function validateVoiceId(raw: string): { ok: true } | { ok: false; error: string } {
+  if (/\s/.test(raw)) return { ok: false, error: "Keine Leerzeichen erlaubt." };
+  const v = raw.trim();
+  if (!v) return { ok: true };
+  if (v.length !== 20) return { ok: false, error: `Voice-ID muss genau 20 Zeichen haben (aktuell ${v.length}).` };
+  if (!VOICE_ID_RE.test(v)) return { ok: false, error: "Nur Buchstaben und Zahlen erlaubt (keine Sonderzeichen)." };
+  return { ok: true };
+}
 
 type Msg = { id: string; role: "user" | "assistant"; content: string };
 
@@ -60,7 +72,15 @@ export default function BaerbockBot() {
   const [customVoiceId, setCustomVoiceId] = useState<string>(() => {
     try { return localStorage.getItem("baerbock-voice-id") ?? DEFAULT_VOICE_ID; } catch { return DEFAULT_VOICE_ID; }
   });
-  useEffect(() => { try { localStorage.setItem("baerbock-voice-id", customVoiceId); } catch {} }, [customVoiceId]);
+  const voiceIdValidation = useMemo(() => validateVoiceId(customVoiceId), [customVoiceId]);
+  const voiceIdError = voiceIdValidation.ok === false ? voiceIdValidation.error : null;
+  const effectiveVoiceId = voiceIdValidation.ok ? customVoiceId.trim() : "";
+  // Persist only valid IDs (or empty) so a broken value doesn't survive reloads.
+  useEffect(() => {
+    try {
+      if (voiceIdValidation.ok) localStorage.setItem("baerbock-voice-id", customVoiceId.trim());
+    } catch {}
+  }, [customVoiceId, voiceIdValidation.ok]);
   const [liveMode, setLiveMode] = useState(false);
   // streamingText: the raw text currently being received from server (full so far)
   const [streamRaw, setStreamRaw] = useState("");
@@ -169,7 +189,7 @@ export default function BaerbockBot() {
       const r = await fetch(TTS_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${ANON}` },
-        body: JSON.stringify({ text, voice, voiceId: customVoiceId.trim() || undefined }),
+        body: JSON.stringify({ text, voice, voiceId: effectiveVoiceId || undefined }),
       });
       if (!r.ok) throw new Error("tts");
       const ct = r.headers.get("Content-Type") || "";
@@ -388,7 +408,7 @@ export default function BaerbockBot() {
               onChange={(e) => setVoice(e.target.value)}
               title="Stimme wählen"
               aria-label="Stimme wählen"
-              disabled={!!customVoiceId.trim()}
+              disabled={!!effectiveVoiceId}
               className="hidden sm:block bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-xs text-white/80 hover:bg-white/10 focus:outline-none focus:border-[hsl(var(--baerbock-accent)/0.5)] disabled:opacity-40"
             >
               {VOICE_OPTIONS.map((v) => (
@@ -397,14 +417,34 @@ export default function BaerbockBot() {
                 </option>
               ))}
             </select>
-            <input
-              type="text"
-              value={customVoiceId}
-              onChange={(e) => setCustomVoiceId(e.target.value)}
-              placeholder="Voice-ID (optional)"
-              title="Eigene ElevenLabs Voice-ID (überschreibt die Auswahl)"
-              className="hidden md:block bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-xs text-white/80 placeholder-white/30 w-32 focus:outline-none focus:border-[hsl(var(--baerbock-accent)/0.5)]"
-            />
+            <div className="hidden md:flex flex-col">
+              <input
+                type="text"
+                value={customVoiceId}
+                onChange={(e) => setCustomVoiceId(e.target.value)}
+                onBlur={() => {
+                  if (voiceIdError) toast.error("Ungültige Voice-ID", { description: voiceIdError });
+                }}
+                placeholder="Voice-ID (optional)"
+                title="Eigene ElevenLabs Voice-ID (überschreibt die Auswahl)"
+                aria-invalid={!!voiceIdError}
+                aria-describedby="voice-id-error"
+                spellCheck={false}
+                autoCorrect="off"
+                autoCapitalize="off"
+                maxLength={32}
+                className={`bg-white/5 border rounded-lg px-2 py-1 text-xs text-white/80 placeholder-white/30 w-40 focus:outline-none ${
+                  voiceIdError
+                    ? "border-red-500/60 focus:border-red-500"
+                    : "border-white/10 focus:border-[hsl(var(--baerbock-accent)/0.5)]"
+                }`}
+              />
+              {voiceIdError && (
+                <span id="voice-id-error" className="text-[10px] text-red-400 mt-0.5 max-w-40 leading-tight">
+                  {voiceIdError}
+                </span>
+              )}
+            </div>
             <button
               onClick={() => setLiveMode((v) => !v)}
               title={liveMode ? "Live-Modus schließen" : "Live-Modus öffnen"}
