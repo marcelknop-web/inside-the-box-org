@@ -38,6 +38,7 @@ export default function BaerbockBot() {
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [avatarOn, setAvatarOn] = useState(true);
   const [streamRaw, setStreamRaw] = useState("");
   const [visibleLen, setVisibleLen] = useState(0);
   const streamingId = useRef<string | null>(null);
