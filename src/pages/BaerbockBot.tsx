@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { Send, Volume2, VolumeX, RotateCcw, Loader2, User, UserX } from "lucide-react";
+import { Send, Volume2, VolumeX, RotateCcw, Loader2, User, UserX, Mic } from "lucide-react";
 import BaerbockAvatar from "@/components/BaerbockAvatar";
+import BaerbockLiveMode from "@/components/BaerbockLiveMode";
 
 type Msg = { id: string; role: "user" | "assistant"; content: string };
 
