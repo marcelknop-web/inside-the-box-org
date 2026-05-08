@@ -73,7 +73,7 @@ export default function BaerbockBot() {
     try { return localStorage.getItem("baerbock-voice-id") ?? DEFAULT_VOICE_ID; } catch { return DEFAULT_VOICE_ID; }
   });
   const voiceIdValidation = useMemo(() => validateVoiceId(customVoiceId), [customVoiceId]);
-  const voiceIdError = voiceIdValidation.ok ? null : voiceIdValidation.error;
+  const voiceIdError = !voiceIdValidation.ok ? voiceIdValidation.error : null;
   const effectiveVoiceId = voiceIdValidation.ok ? customVoiceId.trim() : "";
   // Persist only valid IDs (or empty) so a broken value doesn't survive reloads.
   useEffect(() => {
