@@ -452,6 +452,7 @@ export default function BaerbockBot() {
             </div>
           </div>
         )}
+        {liveMode && <BaerbockLiveMode onClose={() => setLiveMode(false)} />}
       </div>
 
 
