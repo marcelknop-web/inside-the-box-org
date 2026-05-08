@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { Send, Volume2, VolumeX, RotateCcw, Loader2, User, UserX } from "lucide-react";
+import { Send, Volume2, VolumeX, RotateCcw, Loader2, User, UserX, Mic } from "lucide-react";
 import BaerbockAvatar from "@/components/BaerbockAvatar";
+import BaerbockLiveMode from "@/components/BaerbockLiveMode";
 
 type Msg = { id: string; role: "user" | "assistant"; content: string };
 
@@ -55,6 +56,11 @@ export default function BaerbockBot() {
     try { return localStorage.getItem("baerbock-voice") || "matilda"; } catch { return "matilda"; }
   });
   useEffect(() => { try { localStorage.setItem("baerbock-voice", voice); } catch {} }, [voice]);
+  const [customVoiceId, setCustomVoiceId] = useState<string>(() => {
+    try { return localStorage.getItem("baerbock-voice-id") || ""; } catch { return ""; }
+  });
+  useEffect(() => { try { localStorage.setItem("baerbock-voice-id", customVoiceId); } catch {} }, [customVoiceId]);
+  const [liveMode, setLiveMode] = useState(false);
   // streamingText: the raw text currently being received from server (full so far)
   const [streamRaw, setStreamRaw] = useState("");
   // visibleLen: how many chars of streamRaw are revealed via typewriter
@@ -162,18 +168,25 @@ export default function BaerbockBot() {
       const r = await fetch(TTS_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${ANON}` },
-        body: JSON.stringify({ text, voice }),
+        body: JSON.stringify({ text, voice, voiceId: customVoiceId.trim() || undefined }),
       });
       if (!r.ok) throw new Error("tts");
-      const data = await r.json();
-      if (data?.fallback || !data?.audioContent) {
-        // ElevenLabs unavailable — use browser TTS as fallback
-        browserSpeak(text, msgId);
-        return;
+      const ct = r.headers.get("Content-Type") || "";
+      let audioUrl: string;
+      if (ct.startsWith("audio/")) {
+        const blob = await r.blob();
+        audioUrl = URL.createObjectURL(blob);
+      } else {
+        const data = await r.json();
+        if (data?.fallback || !data?.audioContent) {
+          browserSpeak(text, msgId);
+          return;
+        }
+        audioUrl = `data:audio/mpeg;base64,${data.audioContent}`;
       }
       if (audioRef.current) { audioRef.current.pause(); }
       stopMouthLoop();
-      const audio = new Audio(`data:audio/mpeg;base64,${data.audioContent}`);
+      const audio = new Audio(audioUrl);
       audio.crossOrigin = "anonymous";
       audioRef.current = audio;
 
@@ -374,7 +387,8 @@ export default function BaerbockBot() {
               onChange={(e) => setVoice(e.target.value)}
               title="Stimme wählen"
               aria-label="Stimme wählen"
-              className="hidden sm:block bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-xs text-white/80 hover:bg-white/10 focus:outline-none focus:border-[hsl(var(--baerbock-accent)/0.5)]"
+              disabled={!!customVoiceId.trim()}
+              className="hidden sm:block bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-xs text-white/80 hover:bg-white/10 focus:outline-none focus:border-[hsl(var(--baerbock-accent)/0.5)] disabled:opacity-40"
             >
               {VOICE_OPTIONS.map((v) => (
                 <option key={v.key} value={v.key} className="bg-[hsl(230_30%_8%)]">
@@ -382,6 +396,22 @@ export default function BaerbockBot() {
                 </option>
               ))}
             </select>
+            <input
+              type="text"
+              value={customVoiceId}
+              onChange={(e) => setCustomVoiceId(e.target.value)}
+              placeholder="Voice-ID (optional)"
+              title="Eigene ElevenLabs Voice-ID (überschreibt die Auswahl)"
+              className="hidden md:block bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-xs text-white/80 placeholder-white/30 w-32 focus:outline-none focus:border-[hsl(var(--baerbock-accent)/0.5)]"
+            />
+            <button
+              onClick={() => setLiveMode((v) => !v)}
+              title={liveMode ? "Live-Modus schließen" : "Live-Modus öffnen"}
+              className={`p-2 rounded-lg transition-colors ${liveMode ? "bg-[hsl(var(--baerbock-accent)/0.2)] text-[hsl(var(--baerbock-accent))]" : "hover:bg-white/5 text-white/70 hover:text-white"}`}
+              aria-label="Live-Modus umschalten"
+            >
+              <Mic size={18} />
+            </button>
             <button
               onClick={toggleTts}
               title={ttsOn ? "Stimme aus" : "Stimme an"}
@@ -422,6 +452,7 @@ export default function BaerbockBot() {
             </div>
           </div>
         )}
+        {liveMode && <BaerbockLiveMode onClose={() => setLiveMode(false)} />}
       </div>
 
 
