@@ -408,7 +408,7 @@ export default function BaerbockBot() {
               onChange={(e) => setVoice(e.target.value)}
               title="Stimme wählen"
               aria-label="Stimme wählen"
-              disabled={!!customVoiceId.trim()}
+              disabled={!!effectiveVoiceId}
               className="hidden sm:block bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-xs text-white/80 hover:bg-white/10 focus:outline-none focus:border-[hsl(var(--baerbock-accent)/0.5)] disabled:opacity-40"
             >
               {VOICE_OPTIONS.map((v) => (
