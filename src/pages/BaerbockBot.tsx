@@ -303,6 +303,15 @@ export default function BaerbockBot() {
           }
         }
       }
+      // Wait for the typewriter to catch up before committing — otherwise the
+      // remaining tail would pop in as one block (kills the 90s modem feel).
+      await new Promise<void>((resolve) => {
+        const check = () => {
+          if (visibleLenRef.current >= assembled.length) resolve();
+          else setTimeout(check, TYPE_SPEED);
+        };
+        check();
+      });
       // Commit final message
       const id = streamingId.current ?? crypto.randomUUID();
       const finalMsg: Msg = { id, role: "assistant", content: assembled };
