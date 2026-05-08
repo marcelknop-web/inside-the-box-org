@@ -72,7 +72,15 @@ export default function BaerbockBot() {
   const [customVoiceId, setCustomVoiceId] = useState<string>(() => {
     try { return localStorage.getItem("baerbock-voice-id") ?? DEFAULT_VOICE_ID; } catch { return DEFAULT_VOICE_ID; }
   });
-  useEffect(() => { try { localStorage.setItem("baerbock-voice-id", customVoiceId); } catch {} }, [customVoiceId]);
+  const voiceIdValidation = useMemo(() => validateVoiceId(customVoiceId), [customVoiceId]);
+  const voiceIdError = voiceIdValidation.ok ? null : voiceIdValidation.error;
+  const effectiveVoiceId = voiceIdValidation.ok ? customVoiceId.trim() : "";
+  // Persist only valid IDs (or empty) so a broken value doesn't survive reloads.
+  useEffect(() => {
+    try {
+      if (voiceIdValidation.ok) localStorage.setItem("baerbock-voice-id", customVoiceId.trim());
+    } catch {}
+  }, [customVoiceId, voiceIdValidation.ok]);
   const [liveMode, setLiveMode] = useState(false);
   // streamingText: the raw text currently being received from server (full so far)
   const [streamRaw, setStreamRaw] = useState("");
