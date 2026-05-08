@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { Component, ReactNode, useCallback, useEffect, useState } from "react";
 import { useConversation } from "@elevenlabs/react";
 import { Mic, PhoneOff, Loader2 } from "lucide-react";
 
@@ -7,7 +7,26 @@ const ANON = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
 const STORE_AGENT = "baerbock-agent-id";
 
-export default function BaerbockLiveMode({ onClose }: { onClose: () => void }) {
+class LiveBoundary extends Component<{ onClose: () => void; children: ReactNode }, { err: string | null }> {
+  state = { err: null as string | null };
+  static getDerivedStateFromError(e: any) { return { err: e?.message || "Live-Modus konnte nicht geladen werden." }; }
+  componentDidCatch(e: any) { console.error("[LiveMode]", e); }
+  render() {
+    if (this.state.err) {
+      return (
+        <div className="border-t border-white/5 bg-black/40">
+          <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between gap-3">
+            <div className="text-xs text-red-300">Live-Modus nicht verfügbar: {this.state.err}</div>
+            <button onClick={this.props.onClose} className="text-xs text-white/60 hover:text-white">Schließen</button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+function LiveModeInner({ onClose }: { onClose: () => void }) {
   const [agentId, setAgentId] = useState<string>(() => {
     try { return localStorage.getItem(STORE_AGENT) || ""; } catch { return ""; }
   });
@@ -27,14 +46,24 @@ export default function BaerbockLiveMode({ onClose }: { onClose: () => void }) {
     if (!agentId.trim()) { setError("Bitte Agent-ID eingeben."); return; }
     setConnecting(true);
     try {
-      await navigator.mediaDevices.getUserMedia({ audio: true });
+      // Permission check first — surface clear errors without blowing up the tree.
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        // Stop tracks; the SDK will request its own.
+        stream.getTracks().forEach((t) => t.stop());
+      } catch (mediaErr: any) {
+        if (mediaErr?.name === "NotAllowedError") throw new Error("Mikrofon-Zugriff verweigert. Bitte in den Browser-Einstellungen erlauben.");
+        if (mediaErr?.name === "NotFoundError") throw new Error("Kein Mikrofon gefunden.");
+        if (mediaErr?.name === "NotReadableError") throw new Error("Mikrofon wird von einer anderen App verwendet.");
+        throw new Error(mediaErr?.message || "Mikrofon-Zugriff fehlgeschlagen.");
+      }
       const r = await fetch(TOKEN_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${ANON}` },
         body: JSON.stringify({ agentId: agentId.trim() }),
       });
-      const data = await r.json();
-      if (!r.ok || !data?.token) throw new Error(data?.error || "Kein Token erhalten");
+      const data = await r.json().catch(() => ({}));
+      if (!r.ok || !data?.token) throw new Error(data?.error || `Kein Token erhalten (HTTP ${r.status})`);
       await conversation.startSession({
         conversationToken: data.token,
         connectionType: "webrtc",
@@ -96,5 +125,13 @@ export default function BaerbockLiveMode({ onClose }: { onClose: () => void }) {
         {error && <div className="text-xs text-red-300">{error}</div>}
       </div>
     </div>
+  );
+}
+
+export default function BaerbockLiveMode({ onClose }: { onClose: () => void }) {
+  return (
+    <LiveBoundary onClose={onClose}>
+      <LiveModeInner onClose={onClose} />
+    </LiveBoundary>
   );
 }
