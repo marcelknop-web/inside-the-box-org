@@ -95,6 +95,8 @@ export default function BaerbockBot() {
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const ttsOnRef = useRef(ttsOn);
   ttsOnRef.current = ttsOn;
+  const visibleLenRef = useRef(0);
+  visibleLenRef.current = visibleLen;
 
   // Load history
   useEffect(() => {
