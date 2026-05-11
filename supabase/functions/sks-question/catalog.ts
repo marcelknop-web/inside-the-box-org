@@ -1,5 +1,7 @@
-// SKS amtlicher Fragenkatalog – Edge Function copy
-export const SKS_CATALOG = {
+// SKS amtlicher Fragenkatalog – ground truth
+export interface SksQA { q: string; a: string }
+export type SksTopic = "navigation" | "recht" | "wetter" | "seemannschaft";
+export const SKS_CATALOG: Record<SksTopic, SksQA[]> = {
   "navigation": [
     {
       "q": "Worauf müssen Sie als Schiffsführer vor Reiseantritt hinsichtlich der Seekarten und Seebücher achten?",
@@ -1257,5 +1259,633 @@ export const SKS_CATALOG = {
       "q": "1. Wie bestimmen Sie an Bord die Windstärke, wenn keine Windmessanlage vorhanden ist?\n2. Wie bestimmen Sie an Bord die Windrichtung, wenn keine Windmessanlage vorhanden ist?",
       "a": "1. Die Windstärke wird geschätzt mithilfe der Beaufortskala in Anlehnung an das Seegangsbild\n2. Die Windrichtung wird anhand der Verlagerung der Wellenkämme geschätzt"
     }
+  ],
+  "seemannschaft": [
+    {
+      "q": "Was versteht man im Bootsbau unter Gelcoat?",
+      "a": "Die äußere Schutzschicht eines Bauteils aus Glasfaser verstärktem Kunststoff."
+    },
+    {
+      "q": "Was versteht man beim GFK-Bootsbau unter Sandwichverfahren (GFK = Glasfaser verstärkter Kunststoff)?",
+      "a": "Zwischen zwei GFK-Schichten wird eine Zwischenlage zur Versteifung einlaminiert, z.B. aus Balsaholz."
+    },
+    {
+      "q": "Welchen Vorteil hat die Sandwich-Bauweise gegenüber der Massivbauweise bei GFK-Yachten (GFK = Glasfaser verstärkter Kunststoff)?",
+      "a": "Große Steifheit, Verwindungsfestigkeit, geringes Gewicht, gute Isolierung."
+    },
+    {
+      "q": "Beschreiben Sie die Vor- und Nachteile von Stahl als Baumaterial für Yachten!",
+      "a": "Vorteile: zuverlässiges, problemloses Baumaterial mit sehr hoher Festigkeit und langer Lebensdauer. Nachteile: hohes Gewicht, Rostanfälligkeit."
+    },
+    {
+      "q": "Was bedeutet der Begriff „Kategorie\" im Zusammenhang mit dem CE-Zeichen für Wassersportfahrzeuge?",
+      "a": "Mit der Kategorie legt der Hersteller fest, in welchem Fahrtgebiet, bis zu welcher Windstärke und bis zu welcher charakteristischen Wellenhöhe das Fahrzeug sicher betrieben werden kann."
+    },
+    {
+      "q": "Welche Kategorien können im Zusammenhang mit dem CE-Zeichen für Wassersportfahrzeuge vergeben werden?",
+      "a": "A Hochsee\nB Außerhalb von Küstengewässern\nC Küstennahe Gewässer\nD Geschützte Gewässer"
+    },
+    {
+      "q": "Was bedeutet die im Zusammenhang mit dem CE-Zeichen für Wassersportfahrzeuge angegebene Kategorie „B Außerhalb von Küstengewässern\"?",
+      "a": "Das Fahrzeug ist ausgelegt für Fahrten außerhalb von Küstengewässern, in denen Windstärken bis einschließlich 8 Bft und signifikante Wellenhöhen bis einschließlich 4 m auftreten können."
+    },
+    {
+      "q": "Beschreiben Sie den Aufbau einer Radsteuerung mit Seilzügen!",
+      "a": "Das Rad dreht ein Zahnrad, über das eine Kette in der Steuersäule nach unten verläuft. Die Kette ist mit den Steuerseilen verbunden, welche über Umlenkrollen zum Ruderquadranten führen."
+    },
+    {
+      "q": "Wie nennt man die Teile des „stehenden Gutes\", die den Mast nach vorn, achtern und seitlich verankern?",
+      "a": "Stagen und Wanten."
+    },
+    {
+      "q": "1. Wozu dienen Backstagen? 2. Bei welchen Takelungen werden sie vor allem gefahren?",
+      "a": "1. Zum zusätzlichen Abstagen des Mastes nach achtern\n2. Bei 7/8-Takelung und anderen nicht toppgetakelten Yachten"
+    },
+    {
+      "q": "Was ist das „laufende Gut“?",
+      "a": "Tauwerk, das zum Setzen, Bergen oder Bedienen der Segel oder anderer Teile der Takelage dient."
+    },
+    {
+      "q": "Was gehört zur regelmäßigen Pflege der Segel?",
+      "a": "1. Nasse Segel trocknen\n2. Segel vor Sonnenlicht schützen\n3. Salzwasserreste abspülen\n4. Beschädigungen umgehend beseitigen"
+    },
+    {
+      "q": "Warum sollten Vorsegel für schweres Wetter im Unterliek hochgeschnitten sein?",
+      "a": "Damit überkommende Seen nicht ins Segel schlagen und so Rigg und Segel belasten."
+    },
+    {
+      "q": "Was ist ein Trysegel und wie wird es gefahren?",
+      "a": "Ein Schwerwettersegel, das anstelle des Großsegels mit losem Unterliek gefahren wird."
+    },
+    {
+      "q": "Warum soll man das Schlagen eines Segels vermeiden, vor allem bei stärkerem Wind?",
+      "a": "Um Beschädigungen zu vermeiden."
+    },
+    {
+      "q": "Wozu dienen Segellatten?",
+      "a": "Zur Profilierung des Segels, damit das Achterliek nicht einklappt."
+    },
+    {
+      "q": "Wozu dient ein Cunningham-Stropp?",
+      "a": "Zur Regulierung der Vorliekspannung des Großsegels, um es so zu trimmen."
+    },
+    {
+      "q": "Welche Segel sollte eine Segelyacht in der Küstenfahrt mindestens an Bord haben?",
+      "a": "1. Reffbares Großsegel\n2. reffbare Rollfock oder Vorsegel verschiedener Größen\n3. Sturmfock"
+    },
+    {
+      "q": "Wozu dient eine Vorsegel-Rollreffeinrichtung?",
+      "a": "Mit ihr wird das Vorsegel um das Vorstag gerollt und kann stufenlos verkleinert werden."
+    },
+    {
+      "q": "Wozu dient eine Großsegel-Rollreffeinrichtung?",
+      "a": "Mit ihr wird das Großsegel entweder im Mast oder im Baum aufgerollt und kann stufenlos verkleinert werden."
+    },
+    {
+      "q": "Wozu dient der Lenzkorb am Ansaugstutzen einer Lenzpumpe und wie erhalten Sie ihre Funktionsfähigkeit?",
+      "a": "Der Lenzkorb verhindert Verunreinigungen und Verstopfungen der Lenzpumpe. Er muss regelmäßig überprüft und gereinigt werden."
+    },
+    {
+      "q": "Welche Lenzvorrichtungen und -möglichkeiten sollten auf jeder seegehenden Yacht vorhanden sein?",
+      "a": "Zwei voneinander unabhängige Bilgenpumpen, von denen eine über Deck und eine unter Deck bedienbar ist, sowie 2 Pützen mit Leinen."
+    },
+    {
+      "q": "Warum sollten Sie mehr als einen Anker an Bord haben, möglichst unterschiedlicher Art?",
+      "a": "1. Als Ersatz bei Verlust\n2. zum Verwarpen oder Verkatten\n3. um unterschiedliche Ankergründe berücksichtigen zu können\n4. um bei schwerem Wetter oder in Tidengewässern vor 2 Ankern liegen zu können"
+    },
+    {
+      "q": "Wie viele Fender und Festmacheleinen sollten Sie mindestens an Bord haben?",
+      "a": "4 Festmacheleinen und 4 Fender."
+    },
+    {
+      "q": "Was sollte auf jeder Yacht außer Festmacheleinen, Fallen und Schoten an Tauwerk vorhanden sein?",
+      "a": "Reservetauwerk, Wurfleine, Schlepptrosse und Ankerleine."
+    },
+    {
+      "q": "Für welche unterschiedlichen Reparaturbereiche sollten Sie Ersatzteile und Werkzeug an Bord haben?",
+      "a": "1. Segelreparaturen\n2. Reparaturen an Rumpf und Rigg\n3. Motorreparaturen\n4. Elektroreparaturen\n5. Reparaturen an Schlauchleitungen"
+    },
+    {
+      "q": "Welches Werkzeug sollten Sie zur Segelreparatur an Bord haben?",
+      "a": "Segelhandschuh, Segelnadeln, Segelgarn, Wachs, Zange und selbstklebendes Segeltuch."
+    },
+    {
+      "q": "Ihr Mast ist gebrochen, eine Bergung ist nicht möglich. Welche Werkzeuge benötigen Sie, um die Takelage zu kappen?",
+      "a": "Bolzenschneider, Metallsäge mit Ersatzblättern, Schraubenschlüssel und verschiedene Zangen."
+    },
+    {
+      "q": "Welches Kleinmaterial und Kleinwerkzeug muss an Bord jederzeit greifbar sein?",
+      "a": "Zeisinge, Bändselwerk, Tape, Reserveschäkel, Schäkelöffner, Bordmesser und Kombizange."
+    },
+    {
+      "q": "Womit muss insbesondere eine Yacht mit Maschinensteuerung zusätzlich ausgerüstet sein und warum sollten alle Mitsegler mit dieser Einrichtung vertraut sein?",
+      "a": "Mit einer Notpinne. Sie muss ggf. in kürzester Zeit einsatzbereit sein."
+    },
+    {
+      "q": "Wo finden Sie amtliche Informationen über die Ausrüstung und Sicherheit von Sportbooten, die auch bei der Beurteilung von Sportbootunfällen herangezogen werden?",
+      "a": "1. „Sicherheit im See- und Küstenbereich, Sorgfaltsregeln für Wassersportler\", herausgegeben vom BSH\n2. „Sicherheit auf dem Wasser, Leitfaden für Wassersportler\", herausgegeben vom Bundesministerium für Verkehr, Bau und Stadtentwicklung"
+    },
+    {
+      "q": "Warum müssen auf Yachten zusätzlich zu elektrisch oder motorgetriebenen Lenzpumpen auch Handlengepumpen vorhanden sein?",
+      "a": "Weil sie auch bei Strom- oder Motorausfall betätigt werden können."
+    },
+    {
+      "q": "Warum ist Flüssiggas (Propan, Butan) an Bord einer Yacht besonders gefährlich?",
+      "a": "Es ist schwerer als Luft, sinkt nach unten und bildet mit Luft ein explosives Gemisch; es kann sich im Schiffsinneren (z.B. in der Bilge) sammeln."
+    },
+    {
+      "q": "Welche vier Bedienelemente besitzt ein mit Handpumpe betriebenes Bord-WC auf einer Yacht?",
+      "a": "1. Seeventil und Spülwasserschlauch (Seewasser)\n2. Handpumpe für Toilettenspülung\n3. Hebel zur Unterbrechung der Seewasserzufuhr (Handpumpe dient dann nur zum Abpumpen)\n4. Abwasserschlauch (via Fäkalientank) zum Seeventil"
+    },
+    {
+      "q": "Beschreiben Sie in fünf Schritten die Bedienung eines Bord-WCs auf einer Yacht!",
+      "a": "1. Seeventil für Seewasserspülung öffnen\n2. Handpumpe betätigen, sodass das Becken gespült wird und gleichzeitig die Fäkalien abfließen - ausgiebig spülen\n3. Seewasserzufuhr unterbrechen (Hebel umlegen)\n4. Becken mit Handpumpe leer pumpen\n5. Seeventile für Zu- und Abfluss schließen"
+    },
+    {
+      "q": "Was versteht man unter der Stabilität eines Schiffes?",
+      "a": "Unter Stabilität eines Schiffes versteht man seine Eigenschaft, in aufrechter Lage zu schwimmen und sich aus einer Krängung wieder aufzurichten."
+    },
+    {
+      "q": "Wovon hängt eine in ruhigem Wasser vorhandene Stabilität zusätzlich in schwerem Wetter ab?",
+      "a": "Die Stabilität in schwerem Wetter hängt zusätzlich von Wellen und Seegang, besonders von brechenden Wellen, ab."
+    },
+    {
+      "q": "Was versteht man unter 1. Formschwerpunkt F und 2. Massenschwerpunkt (Gewichtsschwerpunkt G)? Welche Kräfte wirken in den beiden Punkten?",
+      "a": "1. Im Formschwerpunkt F kann man die Masse des vom Schiff verdrängten Wassers vereinigt denken. In F wirkt die Auftriebskraft senkrecht zur Wasseroberfläche nach oben.\n2. Im Massenschwerpunkt G kann man die Masse des Schiffes einschließlich Ausrüstung und Besatzung vereinigt denken. In G wirkt die Gewichtskraft senkrecht zur Wasseroberfläche nach unten."
+    },
+    {
+      "q": "Was geschieht bei einer Neigung des Schiffes, z.B. durch seitlichen Winddruck, solange sich die Lage des Massenschwerpunktes (Gewichtsschwerpunktes) nicht verändert (Begründung)?",
+      "a": "Der Formschwerpunkt F wandert zur geneigten Seite aus, weil dort ein größerer Teil des Bootskörpers unter Wasser gelangt. Die Wirklinie der Auftriebskraft bekommt dadurch einen seitlichen Abstand zur Wirklinie der Gewichtskraft. Es entsteht ein Kräftepaar, der seitliche Abstand zwischen den Wirklinien ist der Hebelarm. Es entsteht ein aufrichtendes Moment, welches gleich dem Produkt aus Gewichtskraft und Hebelarm ist."
+    },
+    {
+      "q": "Erklären Sie mithilfe eines Vektorparallelogramms aus wahrem Wind (wW), Fahrtwind (Fw) und scheinbarem Wind, warum beim Einfallen einer Bö (Windzunahme) der scheinbare Wind raumt.",
+      "a": "Der „scheinbare Wind\" fällt etwas achterlicher ein, er „raumt\" und das Segelboot kann etwas höher an den „wahren Wind\" gehen."
+    },
+    {
+      "q": "Auf Amwindkurs mussten Sie reffen. Ein entgegenkommendes Boot gleicher Größe segelt unreff. Wie erklären Sie das?",
+      "a": "Der scheinbare Wind ist unterschiedlich stark. Er ist auf Amwindkursen stärker und auf Raumschot- oder Vorwindkursen schwächer als der wahre Wind."
+    },
+    {
+      "q": "Warum wird die Versetzung einer Yacht durch den Wind mit zunehmender Krängung größer?",
+      "a": "Der Lateralplan wird kleiner, dadurch verringert sich der seitliche Widerstand des Schiffes im Wasser."
+    },
+    {
+      "q": "Welchen Einfluss hat zunehmende Krängung auf den Trimm eines Segelbootes? (Begründung)",
+      "a": "Die Luvgierigkeit nimmt zu, weil der Segeldruckpunkt nach Lee auswandert."
+    },
+    {
+      "q": "Sie segeln am Wind, Krängung und Ruderdruck nehmen stark zu. 1. Wie bezeichnet man das Verhalten des Bootes? 2. Mit welchen Mitteln können Sie Krängung und Ruderdruck vermindern?",
+      "a": "1. Luvgierigkeit\n2. Traveller nach Lee setzen und/oder Großschot (etwas) fieren, Großsegel reffen"
+    },
+    {
+      "q": "Welche Funktion hat ein Unterliekstrecker und wie kann damit der Trimm des Großsegels beeinflusst werden?",
+      "a": "Er reguliert die Spannung des Unterlieks. Je nach Zugkraft wird der untere Teil des Großsegels flacher oder bauchiger."
+    },
+    {
+      "q": "Das Vorliek der Fock wirft Falten. Welches ist die häufigste Ursache?",
+      "a": "Das Fall ist nicht genügend durchgesetzt."
+    },
+    {
+      "q": "Das Unterliek Ihres Vorsegels killt. Was ist die Ursache?",
+      "a": "Der Holepunkt der Schot liegt zu weit vorne."
+    },
+    {
+      "q": "Das Achterliek Ihres Vorsegels killt. Was ist die Ursache?",
+      "a": "Der Holepunkt der Schot liegt zu weit achtern."
+    },
+    {
+      "q": "Wozu dienen Windfäden am Segel?",
+      "a": "Sie machen den Strömungsverlauf am Segel sichtbar, um das Segel optimal trimmen zu können."
+    },
+    {
+      "q": "1. Wann sollte ein Großsegel flach getrimmt sein? 2. Wie kann ein Großsegel flach getrimmt werden?",
+      "a": "1. Bei Starkwind\n2. Dichtholen von Unterliek- und Vorliekstrecker, Dichtholen der Großschot, Durchsetzen des Großfalls, Spannen des Achterstags, Traveller nach Lee"
+    },
+    {
+      "q": "Mit welchen sechs Teilen des laufenden und des stehenden Gutes können Sie ein Großsegel trimmen?",
+      "a": "Großschot, Traveller, Unterliekstrecker, Cunningham-Strecker, Großfall, Achterstag."
+    },
+    {
+      "q": "Wozu dienen „Opferanoden\" und wann sollten sie ausgewechselt werden?",
+      "a": "Sie dienen dem Schutz gegen Schäden durch Elektrolyse. Anoden müssen nach einer Saison ersetzt werden, nicht erst wenn sie verbraucht sind."
+    },
+    {
+      "q": "Wie schützt man auf Kunststoffyachten den Propeller gegen Elektrolyse?",
+      "a": "Durch eine Zinkanode auf der Propellerwelle."
+    },
+    {
+      "q": "Welche Sicherheitsmaßnahmen sind vor und beim Tanken von Diesel zu treffen?",
+      "a": "1. Maschine abstellen\n2. offenes Feuer löschen (Rauchen einstellen)\n3. Maßnahmen gegen Überlaufen treffen"
+    },
+    {
+      "q": "Wie können Sie beim Tanken Umweltverschmutzungen vermeiden?",
+      "a": "1. Tanköffnung mit Ölbindetüchern umlegen\n2. möglichst an Zapfsäulen mit Zapfhahn tanken\n3. beim Tanken aus Kanistern großen Trichter mit Schlauch benutzen\n4. Nachfüllen aus Kanistern bei Wind und bewegter See möglichst vermeiden"
+    },
+    {
+      "q": "Wozu dient das Wendegetriebe eines Motors?",
+      "a": "1. Zum Ein- und Auskuppeln des Propellers\n2. zum Umsteuern des Propellers auf Rückwärtsfahrt\n3. zur Drehzahluntersetzung"
+    },
+    {
+      "q": "Welche Maßnahmen sind vor dem Anlassen eines eingebauten Motors zu treffen?",
+      "a": "1. Hauptstromschalter einschalten\n2. Kraftstoff- und Kühlwasserventile öffnen\n3. Getriebe auf „neutral\" stellen"
+    },
+    {
+      "q": "Was sollte nach dem Anlassen der Maschine kontrolliert werden?",
+      "a": "1. Kühlwasserdurchlauf\n2. Öldruck und Ladung\n3. Motorengeräusche\n4. Auspuffgase"
+    },
+    {
+      "q": "Was können erste Störungsanzeichen im Motorbetrieb sein?",
+      "a": "Ungewöhnliche und fremde Motorengeräusche, Vibrationen, Aufleuchten der Ladekontrolle bzw. Öldruckkontrolle und die entsprechenden akustischen Warnungen."
+    },
+    {
+      "q": "Wie können Sie einen Dieselmotor abstellen, wenn die vorgesehene Abstellvorrichtung defekt ist?",
+      "a": "1. Kraftstoffzufuhr unterbrechen\n2. Verschließen des Luftansaugrohres / der Luftansaugrohre"
+    },
+    {
+      "q": "Der Dieselmotor Ihres Bootes startet nicht. Welche Fehler, die Sie selbst überprüfen können, könnten die Ursache sein?",
+      "a": "Anlasserdrehzahl zu gering (Batterie zu schwach)\nkein Kraftstoff im Tank\nLuft in der Kraftstoffleitung\nfalsche Bedienung der Kaltstarthilfe (eventuell Vorglühen zu kurz)\nAnlasser defekt"
+    },
+    {
+      "q": "Der Motor Ihres Bootes bleibt beim Einkuppeln stehen. Nennen Sie mögliche Ursachen.",
+      "a": "Propellerwelle durch Tauwerk o.Ä. blockiert\nSchwerlauf des Getriebes wegen defekter Zahnräder, Lagerschaden, dickem Öl\nverbogene Propellerwelle"
+    },
+    {
+      "q": "Während Sie unter Maschine laufen, steigt plötzlich die Kühlwassertemperatur stark an. Ihre Yacht ist mit einem Saildrive-Antrieb ausgestattet. 1. Welche typische Ursache hat der Temperaturanstieg, wenn eine technische Störung unwahrscheinlich ist? 2. Wie können Sie die Störung einfach beheben?",
+      "a": "Fremdkörper (Folienstücke, Plastiktüten, Pflanzenteile o.Ä.) haben den Kühlwassereinlass verstopft\nMehrmals abwechselnd vor- und zurückfahren, sodass sich die Fremdkörper vom Kühlwassereinlass lösen"
+    },
+    {
+      "q": "Welche Propeller werden auf Yachten mit Einbaumotor eingesetzt?",
+      "a": "Festflügelpropeller, Faltpropeller, Drehflügel- und Verstellpropeller."
+    },
+    {
+      "q": "Was müssen Sie beim Aufstoppen unter Maschine mit einem Faltpropeller beachten?",
+      "a": "Der Propeller entfaltet sich evtl. erst bei relativ hoher Drehzahl und der Wirkungsgrad ist geringer als beim Festflügelpropeller."
+    },
+    {
+      "q": "Mit welchen vier Angaben werden Propeller auf Yachten beschrieben?",
+      "a": "Anzahl der Flügel, Größe ihrer Fläche, Durchmesser und Steigung."
+    },
+    {
+      "q": "Was sollten Sie beachten, wenn Sie den kleinen Außenborder mit eingebautem Tank Ihres Beibootes an Bord verstauen? (Begründung)",
+      "a": "1. Tank und Vergaser müssen leer sein\n2. Lagerung an Deck oder in einer Backskiste mit Außenentlüftung, niemals unter Deck\n3. Restbenzin und entweichende Benzingase bilden mit Luft ein leicht entzündliches Gemisch"
+    },
+    {
+      "q": "Wozu dient ein Wasserabscheider in der Kraftstoffleitung?",
+      "a": "In ihm sammelt sich das Kondenswasser aus dem Tank; dadurch werden Startschwierigkeiten vermieden."
+    },
+    {
+      "q": "Warum sollten Sie bei seltener Motorbenutzung den eingebauten Tank eines Dieselmotors möglichst vollgetankt halten?",
+      "a": "Um Kondenswasserbildung zu verringern, was zu Startschwierigkeiten führen kann."
+    },
+    {
+      "q": "Welche Motor-Ersatzteile bzw. Schmierstoffe sollten Sie mindestens an Bord haben?",
+      "a": "1. Impeller für die Wasserpumpe"
+    },
+    {
+      "q": "1. Was bedeutet die Angabe einer Batteriekapazität „2x60 Ah“? (Begründung) 2. Welche Nettokapazität steht in dem Fall zur Verfügung? (Begründung)",
+      "a": "1. Es handelt sich um 2 Batterien (Akkus) mit jeweils 60 Amperestunden, insgesamt also 120 Ah Nennkapazität\n2. Dem entspricht eine Nettokapazität von etwa 72 Ah, da ein Akku kaum über 80% seiner Nennkapazität geladen werden kann"
+    },
+    {
+      "q": "Geben Sie die benötigte Strommenge (in Amperestunden) an, um bei einer 12-Volt-Anlage zwei Verbraucher mit je 24 Watt 10 Stunden betreiben zu können (mit Angabe der Berechnung)!",
+      "a": "Benötigte Strommenge je Verbraucher bei 12 Volt: 24:12 = 2 Ampere. Strommenge mal Anzahl der Verbraucher mal Anzahl der Stunden ergibt: 2 A x 2 x 10 h = 40 Ah"
+    },
+    {
+      "q": "Wie muss Tauwerk beschaffen sein, das für Festmacheleinen, Anker- und Schlepptrosse verwendet wird?",
+      "a": "Es muss bruchfest und elastisch sein."
+    },
+    {
+      "q": "Wodurch können Sie verhindern, dass Festmacheleinen durch Schamfilen in Klüsen oder an Kanten an der Pier beschädigt werden?",
+      "a": "Durch einen gegen Verrutschen gesicherten Plastikschlauch, der über den Festmacher an die Scheuerstelle gezogen wird, hilfsweise mit Tuchstreifen."
+    },
+    {
+      "q": "Was müssen Sie hinsichtlich der Festigkeit bedenken, wenn Sie zwei Leinen zusammenknoten?",
+      "a": "Beim Knoten können Festigkeitsverluste bis zu 50% auftreten."
+    },
+    {
+      "q": "Wodurch können Sie verhindern, dass bei Tauwerk aus unterschiedlichem Innen- und Außenmaterial die Seele in den Mantel rutscht?",
+      "a": "Durch einen genähten Takling."
+    },
+    {
+      "q": "Wie sind längsseits liegende Fahrzeuge festzumachen?",
+      "a": "Vorleine, Achterleine, Vorspring, Achterspring."
+    },
+    {
+      "q": "Wie können Sie mithilfe von zwei Fendern und einem Fenderbrett Ihr Boot festmachen, wenn die Pier mit vorspringenden Pfählen versehen ist?",
+      "a": "Die Fender werden waagerecht mit einem Fenderbrett davor angebracht, sodass das Boot an den Pfählen nicht beschädigt wird."
+    },
+    {
+      "q": "Was ist an Land beim Reinigen eines mit Antifouling behandelten Unterwasserschiffes zu beachten?",
+      "a": "Umweltschutzbestimmungen beachten, d.h. das Schiff nur auf einem entsprechend ausgerüsteten Reinigungsplatz abspritzen und Wasser und Schmutz auffangen, also nicht in die Kanalisation leiten."
+    },
+    {
+      "q": "Schlechte Kontakte und Korrosion",
+      "a": "Kontakte fest anziehen, korrodierte Stellen mit feinstem Schleifpapier säubern, Kontaktspray verwenden"
+    },
+    {
+      "q": "Warum müssen Schäden im Gelcoat unverzüglich beseitigt werden?",
+      "a": "Das Laminat unter der Gelcoatschicht nimmt sonst Wasser auf und wird dadurch beschädigt."
+    },
+    {
+      "q": "Welche Daten sollten mindestens an Bord im Logbuch dokumentiert werden?",
+      "a": "Namen und Funktionen der Crewmitglieder\nBeginn und Ende einer Fahrt\nin angemessenen Zeitabständen: Position, Kurs, Geschwindigkeit, Strömung, Wetter, Luftdruck"
+    },
+    {
+      "q": "Worauf müssen Sie vor dem Setzen des Großsegels achten? Welche Gefahr besteht nach dem Setzen, solange der Wind von vorne kommt?",
+      "a": "Großschot und Baumniederholer müssen ausreichend Lose haben\nDas Großfall muss frei laufen und darf nicht vertörnt sein\nVerletzungsgefahr durch schlagenden Großbaum"
+    },
+    {
+      "q": "Was tun Sie, wenn Ihr Großsegel unter der untersten Lattentasche einreißt?",
+      "a": "Untere Latte entfernen\nSegel bis über den Riss reffen"
+    },
+    {
+      "q": "Wozu dient ein Bullenstander? Wie wird er gefahren?",
+      "a": "Er soll das ungewollte Überkommen des Großbaums bei achterlichen Winden verhindern. Von der Baumnock zum Vorschiff."
+    },
+    {
+      "q": "Warum muss beim Segeln vor dem Wind oder mit raumem Wind der Baumniederholer entsprechend der Windstärke durchgesetzt werden?",
+      "a": "Um das Steigen des Baumes zu verhindern."
+    },
+    {
+      "q": "Wenn gleich große Boote im Päckchen oder in der Box zusammenliegen, kann es zu Berührungen und Schäden in der Takelage kommen. Wie ist das zu verhindern?",
+      "a": "Boote versetzt legen, damit die Masten nicht auf gleicher Höhe sind oder Boote im Wechsel Heck/Bug zur Pier legen."
+    },
+    {
+      "q": "Worauf ist beim Liegen in einer Box zu achten, wenn Schwell in den Hafen läuft?",
+      "a": "Dass benachbarte Boote mit ihren Masten versetzt liegen und nicht gegeneinander schlagen."
+    },
+    {
+      "q": "Sie sind mit ihrer Segelyacht auf See. Was veranlassen Sie bei einem Gewitteraufzug?",
+      "a": "1. Vorsegel rechtzeitig verkleinern\n2. Großsegel klar zum Reffen oder Bergen\n3. Schlechtwetterkleidung, Sicherheitsgurte und Rettungswesten anlegen\n4. Position in Karte eintragen"
+    },
+    {
+      "q": "Sie übernehmen in einem Hafen eine Ihnen unbekannte Yacht. Wie machen Sie sich zu Reisebeginn mit den Segeleigenschaften vertraut?",
+      "a": "Ich fahre diverse Manöver - Wende, Halse, Q-Wende, verschiedene Rettungsmanöver - mit unterschiedlicher Geschwindigkeit und Besegelung."
+    },
+    {
+      "q": "Wie verhalten Sie sich nach einem Mastbruch, was müssen Sie veranlassen?",
+      "a": "1. Nach Möglichkeit den Mast an Bord nehmen und sichern\n2. Falls nicht möglich, Mast und Wanten kappen, um Rumpfschäden zu vermeiden"
+    },
+    {
+      "q": "Von welchen Faktoren ist die Länge eines Nahezu-Aufschießers zu einer im Wasser treibenden Person abhängig?",
+      "a": "Geschwindigkeit, Wind, Seegang, Strömung und Form und Gewicht des Bootes."
+    },
+    {
+      "q": "Sie wollen in eine Box einlaufen. Wie bereiten Sie die Achterleinen vor und machen sie fest?",
+      "a": "Achterleinen mit Auge versehen (z.B. Palstek), möglichst früh über die Pfähle legen, bei seitlichem Wind zuerst über den Luvpfahl."
+    },
+    {
+      "q": "Welchen Nachteil hat ein Saildrive-Antrieb, insbesondere bei Hafenmanövern?",
+      "a": "Durch den großen Abstand zwischen Propeller und Ruder wird dieses nicht direkt angeströmt. Das kann die Manövrierfähigkeit beim Anfahren etwas verschlechtern."
+    },
+    {
+      "q": "Was ist ein Bugstrahlruder und wozu dient es?",
+      "a": "Eine im Bug einer Yacht befindliche Röhre mit einem Propeller, mit dem ein Querschub und damit ein Drehen des Buges bei geringen Vorausgeschwindigkeiten erreicht werden kann."
+    },
+    {
+      "q": "Bei welchen Manövern können Sie ein Bugstrahlruder sinnvoll einsetzen?",
+      "a": "1. Beim An- und Ablegen\n2. Beim Drehen auf engem Raum"
+    },
+    {
+      "q": "Sie liegen längsseits mit der Steuerbordseite an einer Pier. Beschreiben Sie ein Ablegemanöver unter gleichzeitigem Einsatz von Bugstrahlruder und Maschine.",
+      "a": "1. Hebel für Bugstrahlruder nach Backbord legen, sodass der Bug von der Pier weggedrückt wird (nach Backbord schwenkt) und gleichzeitig\n2. Ruderlage deutlich nach Steuerbord und langsame Fahrt voraus, sodass das Heck nach Backbord ausschwenkt. So wird das Schiff fast parallel von der Pier abgedrückt."
+    },
+    {
+      "q": "Wie können Sie im freien Seeraum auf einer Segelyacht einen Sturm abwettern?",
+      "a": "1. Durch Beiliegen: Lenzen vor Topp und Takel, dabei Leinen achteraus schleppen; Liegen vor Treibanker oder Treibsack"
+    },
+    {
+      "q": "Warum kann das Anlaufen eines Hafens bei auflandigem Starkwind bzw. schwerem Wetter gefährlich werden?",
+      "a": "Gefahr durch Grundseen bzw. Kreuzseen. Möglichkeit von Querstrom."
+    },
+    {
+      "q": "Warum kann eine Leeküste bei schwerem Wetter einer Segelyacht gefährlich werden?",
+      "a": "Wenn die Yacht sich nicht freikreuzen kann, droht Strandung."
+    },
+    {
+      "q": "Mit welchem Manöver können Sie bei Starkwind das Halsen vermeiden (Name)? Vervollständigen Sie die Skizze durch Einzeichnen der Kurslinie und geben Sie die erforderlichen Manöver an.",
+      "a": "Q-Wende: Anluven bis zum Gegenamwindkurs, dann Wenden, dann wieder Abfallen auf den gewünschten Kurs."
+    },
+    {
+      "q": "Was erreicht man mit dem Ausbringen eines Treibankers bei schwerer See?",
+      "a": "Man hält bei richtiger Leinenlänge den Bug im Wind und verringert die Driftgeschwindigkeit."
+    },
+    {
+      "q": "Worauf müssen Sie achten, wenn Sie in Tidegewässern längsseits einer Pier festgemacht haben?",
+      "a": "1. Die Wassertiefe muss auch bei Niedrigwasser ausreichen oder ein sicheres Aufsetzen muss gewährleistet sein\n2. Die Leinen müssen für den Tidenstieg oder -fall ausreichend lang sein. Bei größerem Tidenhub darf das Fahrzeug keinesfalls unbeaufsichtigt bleiben"
+    },
+    {
+      "q": "Sie kreuzen bei frischem Wind und mitlaufendem Gezeitenstrom (Wind gegen Strom) nach Luv auf. Welche Auswirkungen hat ein gegen den Wind setzender Strom auf den Seegang?",
+      "a": "Durch den Strom entsteht eine kurze, steile und kabbelige See."
+    },
+    {
+      "q": "Wie wirkt sich mitlaufender Strom auf die Fahrt eines Fahrzeugs und die Loganzeige aus?",
+      "a": "1. Der Strom erhöht die Fahrt über Grund\n2. Das Log zeigt dies nicht an"
+    },
+    {
+      "q": "Welche Hilfsmittel können Sie einsetzen, um einen Überbordfallenen an Deck zu bekommen?",
+      "a": "Bewegliche (und gesicherte) Badeleiter, evtl. Großschot, beschwerte Trittschlinge, Rettungsstalje, Unterfangen mit kleinem Segel, Bergegurt, Dingi."
+    },
+    {
+      "q": "Welche Sofortmaßnahmen sind einzuleiten, wenn jemand über Bord gefallen ist?",
+      "a": "1. Ruf: „Mensch über Bord!“\n2. Rettungsmittel zuwerfen\n3. Ausguck halten, Mensch im Auge behalten\n4. Maschine starten\n5. Mensch-über-Bord-Manöver einleiten\n6. Notmeldung abgeben\n7. ggf. Markierungsblitzboje werfen\n8. ggf. MOB-Taste eines satellitengestützten Navigationsgerätes drücken\n9. Bergung durchführen"
+    },
+    {
+      "q": "Nennen Sie die grundsätzlichen Schritte und ihre Ziele zur Rettung einer über Bord gegangenen Person.",
+      "a": "1. Maschine starten\n2. Suche, Herstellung eines Sichtkontaktes zur über Bord gegangenen Person\n3. Mensch-über-Bord-Manöver, Annäherung an die im Wasser treibende Person und Herstellung einer ersten Leinenverbindung\n4. Bergung, sicheres und schnelles An-Bord-Nehmen der Person\n5. Erste Hilfe, Betreuung\n6. ggf. Notalarm abgeben"
+    },
+    {
+      "q": "Mit welchen Hilfsmitteln können Sie den Bezugspunkt (internationaler Begriff: Datum) für die Suche nach einem Überbordgefallenen sichern?",
+      "a": "1. Markierungsblitzboje\n2. MOB-Taste eines satellitengestützten Navigationsgerätes (z.B. GPS)"
+    },
+    {
+      "q": "Was gehört u.a. zur Sicherheitsausrüstung einer 10-m-Yacht? Nennen Sie mindestens sechs Ausrüstungsgegenstände.",
+      "a": "1. Lenzpumpen und Pützen\n2. Lecksicherungsmaterial\n3. Feuerlöscher\n4. Werkzeug und Ersatzteile\n5. Seenotsignalmittel\n6. Handlampen\n7. Funkeinrichtung\n8. Anker\n9. Erste-Hilfe-Ausrüstung"
+    },
+    {
+      "q": "Was gehört zur Sicherheitsausrüstung der Besatzung in der Küstenfahrt?",
+      "a": "1. Rettungsweste und Sicherheitsgurt (Lifebelt) für jedes Besatzungsmitglied\n2. Rettungsfloss (Rettungsinsel)\n3. Rettungskragen mit Tagesignal und Nachtsignal\n4. Erste-Hilfe-Ausrüstung mit Anleitung"
+    },
+    {
+      "q": "Wie erhalten Sie Kenntnis über das nächste Wartungsdatum einer Rettungsinsel?",
+      "a": "Die runde auf der Insel klebende farbige Serviceplakette oder das bei der letzten Wartung mitgelieferte Zertifikat geben Auskunft über den nächsten Wartungstermin."
+    },
+    {
+      "q": "Worauf müssen Sie bei Ihren Automatikrettungswesten hinsichtlich der Funktionssicherheit achten?",
+      "a": "Auf regelmäßige Wartung. Wartungsfälligkeit erkennbar an der farbigen Serviceplakette."
+    },
+    {
+      "q": "Was ist auf Deck einer Yacht ein Strecktau (auch Laufleine genannt) und wozu dient es?",
+      "a": "Ein neben der Fußreling verlaufender starker Draht, Gurt oder eine starke Leine zwischen Cockpit und Vorschiff, straff gespannt zum Einpicken der Sicherheitsleine (Lifebelt)."
+    },
+    {
+      "q": "Welche Seenotsignalmittel sollten Sie an Bord haben? Nennen Sie mindestens sechs Beispiele.",
+      "a": "1. Handfackeln, rot\n2. Handraketen, rot"
+    },
+    {
+      "q": "Welche Feuerlöscheinrichtungen sollten an Bord vorhanden sein?",
+      "a": "Feuerlöscher (ABC-Pulverlöscher und eventuell CO₂-Löscher)\nPütz zum Löschen von Bränden fester Stoffe\nFeuerlöschdecke\nLöschdurchlass für geschlossene Motorräume, der das Löschen von Bränden mit CO₂- Löschern ohne Sauerstoffzutritt ermöglicht"
+    },
+    {
+      "q": "Welche Feuerlöscharten sind für Sportboote geeignet? Wie und wo sind sie an Bord unterzubringen?",
+      "a": "Der ABC-Pulverlöscher, für geschlossene Motorräume der CO₂-Löscher\nDer Feuerlöscher muss gebrauchsfertig und leicht erreichbar sein; CO₂-Löscher nicht im Schiffsinneren unterbringen (Erstickungsgefahr bei Leckage)\nEr soll in der Nähe der Maschinenräume, der Kombüse sowie der Koch- oder Heizstelle montiert sein"
+    },
+    {
+      "q": "Wie wird die ständige Funktionssicherheit eines Feuerlöschers sichergestellt?",
+      "a": "Durch Einhaltung des vorgeschriebenen Prüftermins, ersichtlich auf der Prüfplakette\nDer Feuerlöscher muss vor Feuchtigkeit und Korrosion geschützt werden"
+    },
+    {
+      "q": "Wie wird ein Brand an Bord wirksam bekämpft?",
+      "a": "Brand unter Kontrolle bringen, Brandherd lokalisieren, geeignetes Löschmittel einsetzen, Löschmittel gezielt anwenden."
+    },
+    {
+      "q": "Was ist vor Reisebeginn beim Seeklarmachen zu überprüfen und zu beachten? Nennen Sie mindestens sechs Beispiele.",
+      "a": "Seetüchtigkeit der Yacht\nZahl und Zustand der Segel\nTreibstoffvorrat\nNavigationsunterlagen\nSicherheitseinweisung der Besatzung\nRettungsmittel\nSeenotsignale\nTrinkwasser- und Proviantvorräte\nFunktionsfähigkeit des Motors\nFunktionsfähigkeit der elektronischen Navigationsgeräte\nLenzeinrichtungen\nFeuerlöscher\nBoots- und Personalpapiere\nBetriebsfähigkeit der UKW-Seefunkanlage"
+    },
+    {
+      "q": "Was gehört zur Sicherheitseinweisung der gesamten Besatzung vor Reisebeginn? Nennen Sie mindestens sechs Beispiele.",
+      "a": "Einweisung in Gebrauch und Bedienung:\nder Rettungswesten und Sicherheitsgurte\ndes Rettungsflosses\nder Signalmittel\nder Lenzpumpen\nder Seeventile und des Bord-WC"
+    },
+    {
+      "q": "In welche technischen Einrichtungen/Ausrüstungen muss der Schiffsführer die Besatzung vor Reiseantritt unbedingt einweisen? Nennen Sie mindestens sechs Beispiele.",
+      "a": "1. Ankergeschirr\n2. Lenzeinrichtung\n3. Feuerlöscheinrichtungen\n4. Motoranlage\n5. Seeventile\n6. UKW-Sprechfunkanlage\n7. MOB-Taste vom satellitengestützten Gerät (z.B. GPS)\n8. Seenotsignalmittel\n9. Notrudereinrichtung"
+    },
+    {
+      "q": "Welche Sicherheitsmaßnahmen sind vor jedem Auslaufen durchzuführen? Nennen Sie mindestens sechs Beispiele.",
+      "a": "1. Wetterbericht einholen\n2. Kontrolle der Sicherheitsausrüstung\n3. Kontrolle von Motor und Schaltung\n4. Kontrolle der nautischen Geräte\n5. Kontrolle der Bilge\n6. Überprüfen des Wasser- und Kraftstoffvorrats\n7. Kontrolle der Schall- und Lichtsignaleinrichtung\n8. Kontrolle der Navigationslichter\n9. Bereitlegen der aktuellen Seekarten und nautischen Veröffentlichungen"
+    },
+    {
+      "q": "Warum sollten alle Crewmitglieder Lage und Funktion sämtlicher Pumpen und Ventile kennen?",
+      "a": "Damit im Bedarfsfall sie jeder bedienen kann."
+    },
+    {
+      "q": "Warum sollte die Crew in die Funktion des Bord-WC eingewiesen werden?",
+      "a": "Weil durch unsachgemäße Bedienung Wasser ins Bootsinnere gelangen kann."
+    },
+    {
+      "q": "Warum sollte die Crew vor Reisebeginn in die Funktion des Ankergeschirrs und die Durchführung eines Ankermanövers eingewiesen werden?",
+      "a": "Damit jeder den Anker sicher ausbringen und einholen kann."
+    },
+    {
+      "q": "Wie verhalten Sie sich, wenn Ihr Schiff leckgeschlagen ist?",
+      "a": "1. Meldung abgeben\n2. Je nach Erfordernissen Fahrt aus dem Schiff nehmen\n3. Lenzpumpen betätigen, Lecksuche, Leck mit Bordmitteln abdichten\n4. Küste bzw. flaches Wasser ansteuern\n5. Fahrzeug so trimmen, dass Leckstelle aus dem Wasser kommt bzw. möglichst wenig unter Wasser ist"
+    },
+    {
+      "q": "Was tun Sie, wenn Ihr Schiff leckgeschlagen ist und das Wasser im Schiff trotz aller Maßnahmen weiter steigt?",
+      "a": "1. Notzeichen geben, Funkmeldung abgeben, ggf. Radartransponder einschalten\n2. Verlassen des Bootes vorbereiten, Rettungswesten anlegen, Rettungsinsel klarmachen\n3. Wenn möglich, ruhiges Flachwasser anlaufen und Schiff auf Grund setzen"
+    },
+    {
+      "q": "Welche Folgen können Grundberührungen und harte Stöße, z.B. bei Anlegemanövern, oder Kollisionen mit treibenden Gegenständen haben?",
+      "a": "1. Eine Beschädigung der Bordwand kann eintreten\n2. Es kann Sinkgefahr entstehen"
+    },
+    {
+      "q": "Welche grundsätzliche Verhaltensweise sollte beachtet und welche Maßnahmen sollten ergriffen werden, wenn Ihr Schiff in Seenot kommt?",
+      "a": "1. Ruhe bewahren und überlegt handeln\n2. Notalarm abgeben, ggf. Radartransponder einschalten\n3. Rettungsfloss klarmachen\n4. Rettungsweste und Sicherheitsgurt anlegen\n5. So lange wie möglich an Bord bleiben\n6. Wärmende Kleidung anziehen"
+    },
+    {
+      "q": "Welche Maßnahmen treffen Sie, bevor Sie von Ihrem Fahrzeug in ein Rettungsfloss übersteigen?",
+      "a": "1. Rettungsweste und Sicherheitsgurt anlegen\n2. Warme Kleidung anziehen\n3. Nach Möglichkeit vorher reichlich warme Flüssigkeit trinken\n4. Soweit noch nicht geschehen, Proviant, Wasser, Seenotsignalmittel und ggf. Seenotfunkbake, Radartransponder und UKW-Handsprechfunkgeräte in die Rettungsinsel bringen"
+    },
+    {
+      "q": "Warum sollte ein sinkendes Schiff im Notfall so spät wie möglich verlassen werden?",
+      "a": "1. Die Überlebensmöglichkeiten sind auf dem Schiff größer\n2. Ein Schiff ist besser zu orten\n3. Einstieg in das Rettungsfloss und Aufenthalt können sehr schwierig sein"
+    },
+    {
+      "q": "Erklären Sie die Handhabung der Hubschrauberrettungsschlinge im Einsatz!",
+      "a": "1. Bei offener Rettungsschlinge: zuerst den Karabinerhaken einpicken\n2. Mit dem Kopf und beiden Armen in die Rettungsschlinge einsteigen\n3. Die Arme müssen nach unten gedrückt werden und die Hände sind zu schließen\n4. Das Windenseil muss frei hängen, es darf nicht an Bord befestigt werden"
+    },
+    {
+      "q": "Wann dürfen Notzeichen gegeben werden?",
+      "a": "Nach Feststellung des Notfalls, auf Anordnung des Schiffsführers; bei unmittelbarer Gefahr für das Schiff oder die Besatzung, die ohne fremde Hilfe nicht überwunden werden kann."
+    },
+    {
+      "q": "Wann darf ein UKW-Sprechfunkgerät auch ohne entsprechenden Befähigungsnachweis benutzt werden?",
+      "a": "In Notfällen."
+    },
+    {
+      "q": "Worauf ist zu achten, wenn Crewmitglieder seekrank sind?",
+      "a": "1. Aufenthalt im Cockpit beaufsichtigen und Crewmitglieder gegen Überbordfallen sichern\n2. Flüssigkeitsverlust ausgleichen (Wasser)\n3. Crewmitglied anhalten, zur Küste oder zum Horizont zu schauen\n4. mit Arbeiten beschäftigen"
+    },
+    {
+      "q": "Wozu dient ein Reitgewicht (Gleitgewicht, Ankergewicht) beim Ankern?",
+      "a": "Es soll die Ankertrosse auf den Grund ziehen, damit der Anker nicht durch einen zu steilen Winkel aus dem Grund gebrochen wird. Es wirkt ruckdämpfend."
+    },
+    {
+      "q": "Warum sollte beim Verwenden einer Ankertrosse ein Kettenvorlauf benutzt werden?",
+      "a": "Damit der Zug auf den Anker nicht zu steil wird."
+    },
+    {
+      "q": "Welchen Ankergrund sollten Sie nach Möglichkeit meiden?",
+      "a": "Steinige, verkrautete und stark schlammige Böden."
+    },
+    {
+      "q": "Wie können Sie die Haltekraft eines Ankers erhöhen, wenn Sie auf engem Raum (z.B. zwischen zwei Stegen) nicht die erforderliche Kettenlänge stecken können?",
+      "a": "Mit einem Reitgewicht, um so den Anker besser am Boden zu halten."
+    },
+    {
+      "q": "Ankers verbessern?",
+      "a": "1. Mehr Trosse oder Kette stecken\n2. Reitgewicht verwenden"
+    },
+    {
+      "q": "Sie wollen auf verkrautetem Grund ankern. Ihnen steht ein Leichtgewichtanker und ein Stockanker zur Verfügung. Welchen benutzen Sie und warum?",
+      "a": "Den Stockanker, weil er sich insbesondere auch aufgrund seines höheren Gewichtes besser eingräbt."
+    },
+    {
+      "q": "Wozu dient eine Ankerboje?",
+      "a": "1. Sie zeigt die Lage des Ankers an\n2. Mit der Tripleine kann das Bergen eines unklaren Ankers unterstützt werden"
+    },
+    {
+      "q": "Wie erkennen Sie, ob der Anker hält?",
+      "a": "1. Vibration von Kette oder Trosse prüfen\n2. Einrucken des Ankers prüfen\n3. durch wiederholtes Peilen und ggf. Schätzungen des Abstandes zu anderen Schiffen oder zu Landmarken\n4. falls GPS vorhanden ist, Ankeralarmfunktion einschalten"
+    },
+    {
+      "q": "Welche Ankerarten finden überwiegend auf Sportbooten Verwendung? Nennen Sie drei.",
+      "a": "1. Patentanker\n2. Stockanker (einklappbarer Stock)\n3. Draggen (klappbare Flunken)\n4. Pflugscharanker"
+    },
+    {
+      "q": "Nennen Sie drei Ankertypen, die vom Germanischen Lloyd als Anker mit hoher Haltekraft anerkannt sind!",
+      "a": "Bruce-Anker, CQR-Anker, Danforth-Anker, D'Hone-Anker."
+    },
+    {
+      "q": "Welches sind die Vorteile einer Ankerkette gegenüber einer Ankerleine? Wie kombiniert man auf Yachten häufig die Systeme?",
+      "a": "1. Die Kette unterstützt das Eingraben, verkleinert den Schwojeraum, wirkt ruckdämpfend, kann nicht an Steinen durchscheuern und erhöht die Haltekraft des Ankers\n2. Es wird zwischen Anker und Leine ein Kettenvorlauf von drei bis fünf Meter Länge gefahren"
+    },
+    {
+      "q": "Warum soll eine Ankerleine nicht an den Anker geknotet werden? Warum muss die Ankerkette mit einem Taustropp am Schiff bzw. im Kettenkasten befestigt werden?",
+      "a": "1. Knoten reduzieren die Bruchlast einer Leine um bis zu 50%\n2. Damit die Kette im Notfall schnell gekappt werden kann"
+    },
+    {
+      "q": "Sie wollen in einer Bucht ankern, in der das (ausreichend tiefe) Wasser unterschiedliche Färbungen zeigt. Wo wählen Sie den Ankerplatz? (Begründung)",
+      "a": "Ich ankere auf hellem Wasser. Begründung: Der Grund ist hier sandig, der Anker hält gut. Dunkler Grund weist auf Bewuchs hin, wo der Anker schlecht hält."
+    },
+    {
+      "q": "Warum darf der Anker nicht zusammen mit seiner Leine am Ankerplatz über Bord geworfen werden?",
+      "a": "Die Leine könnte mit dem Anker vertörnen und dadurch das Eingraben verhindern. Der Anker würde dann nicht halten."
+    },
+    {
+      "q": "Warum sollten Sie nicht zu dicht hinter dem Heck eines vorbeifahrenden Schiffes durchfahren?",
+      "a": "Sog und Hecksee können das eigene Boot erheblich gefährden."
+    },
+    {
+      "q": "Was müssen Sie beim Passieren eines großen Schiffes bei dessen Kursänderungen, z.B. in einem kurvenreichen Fahrwasser beachten?",
+      "a": "Bei einer Kursänderung schwenkt das Heck deutlich in die entgegengesetzte Richtung aus, also nach Backbord bei einer Kursänderung nach Steuerbord und umgekehrt."
+    },
+    {
+      "q": "Mit welchen Stoppstrecken und Stoppzeiten müssen Sie bei großen Schiffen in voller Fahrt rechnen und wovon hängen sie ab?",
+      "a": "Abhängig von Schiffstyp und -größe, Beladungszustand und Ausgangsgeschwindigkeit ist mit dem 8- bis 12-fachen der Schiffslänge und mit bis zu 8 bis 12 Minuten Dauer zu rechnen (z.B. ein 300 m langes Containerschiff voll geladen mit 24 kn: Stoppstrecke ca. 2 sm, Stoppzeit ca. 12 Minuten)."
+    },
+    {
+      "q": "Auf vielen großen Schiffen ist die Sicht nach vorne eingeschränkt. Welchen Abstand vor einem Schiff müssen Sie als nicht einsehbar mindestens berücksichtigen?",
+      "a": "Sichtbeschränkung nach voraus maximal 2 Schiffslängen oder 500 Meter."
+    },
+    {
+      "q": "Wie können Sie die Wahrscheinlichkeit erhöhen, im Radar von anderen Fahrzeugen gesehen zu werden?",
+      "a": "Durch einen möglichst hoch und fest angebrachten passiven Radarreflektor bzw. besser noch durch einen „aktiven\" Radarreflektor."
+    }
   ]
-} as const;
+};
+export const SKS_TOPIC_LABELS: Record<SksTopic, string> = {
+  navigation: "Navigation",
+  recht: "Schifffahrtsrecht",
+  wetter: "Wetterkunde",
+  seemannschaft: "Seemannschaft",
+};

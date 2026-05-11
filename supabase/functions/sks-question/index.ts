@@ -58,6 +58,7 @@ const TOPIC_LABEL: Record<string, string> = {
   navigation: "Navigation",
   recht: "Schifffahrtsrecht",
   wetter: "Wetterkunde",
+  seemannschaft: "Seemannschaft",
 };
 
 serve(async (req) => {
@@ -73,7 +74,7 @@ serve(async (req) => {
   try {
     const body = await req.json().catch(() => ({}));
     const topicRaw = body?.topic as string | undefined;
-    const validTopics = ["navigation", "recht", "wetter"] as const;
+    const validTopics = ["navigation", "recht", "wetter", "seemannschaft"] as const;
     const topic = validTopics.includes(topicRaw as any) ? (topicRaw as typeof validTopics[number]) : null;
     const difficulty = Math.min(10, Math.max(1, body?.difficulty || 5));
     const sourceIndex = Number.isInteger(body?.sourceIndex) ? body.sourceIndex : -1;

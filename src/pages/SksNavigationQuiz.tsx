@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { RotateCcw, CheckCircle2, XCircle, ArrowRight, Percent, Users, Trophy, Flame, Clock, Star, Zap, Loader2, Compass, Scale, CloudSun, Shuffle, RefreshCcw } from 'lucide-react';
+import { RotateCcw, CheckCircle2, XCircle, ArrowRight, Percent, Users, Trophy, Flame, Clock, Star, Zap, Loader2, Compass, Scale, CloudSun, Shuffle, RefreshCcw, Anchor } from 'lucide-react';
 import { PageMeta } from '@/components/PageMeta';
 import Typewriter from '@/components/Typewriter';
 import { StaggerReveal } from '@/components/StaggerReveal';
@@ -17,7 +17,7 @@ const TOPIC_LABEL: Record<Topic, string> = {
 };
 
 function topicPoolSize(t: Topic): number {
-  if (t === 'mixed') return SKS_CATALOG.navigation.length + SKS_CATALOG.recht.length + SKS_CATALOG.wetter.length;
+  if (t === 'mixed') return SKS_CATALOG.navigation.length + SKS_CATALOG.recht.length + SKS_CATALOG.wetter.length + SKS_CATALOG.seemannschaft.length;
   return SKS_CATALOG[t].length;
 }
 
@@ -358,6 +358,7 @@ export default function SksNavigationQuiz({ embedded = false }: { embedded?: boo
       { id: 'navigation', label: 'Navigation', sub: `${SKS_CATALOG.navigation.length} Fragen`, Icon: Compass },
       { id: 'recht', label: 'Schifffahrtsrecht', sub: `${SKS_CATALOG.recht.length} Fragen`, Icon: Scale },
       { id: 'wetter', label: 'Wetterkunde', sub: `${SKS_CATALOG.wetter.length} Fragen`, Icon: CloudSun },
+      { id: 'seemannschaft', label: 'Seemannschaft', sub: `${SKS_CATALOG.seemannschaft.length} Fragen`, Icon: Anchor },
       { id: 'mixed', label: 'Alle Themen gemischt', sub: `${topicPoolSize('mixed')} Fragen`, Icon: Shuffle },
     ];
     return (
