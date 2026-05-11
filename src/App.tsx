@@ -26,6 +26,7 @@ const TtxReadinessPage = lazy(() => import("./pages/TtxReadinessPage"));
 // SiteChrome drawer (footer "Impressum" link opens the overlay).
 const Enigma = lazy(() => import("./pages/Enigma"));
 const BaerbockBot = lazy(() => import("./pages/BaerbockBot"));
+const SksNavigationQuiz = lazy(() => import("./pages/SksNavigationQuiz"));
 
 const queryClient = new QueryClient();
 
