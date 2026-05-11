@@ -89,6 +89,9 @@ const Nordstern = () => {
   // Patzer-Versicherung verbraucht (Maschinist)
   const [insuranceAvailable, setInsuranceAvailable] = useState(false);
 
+  // Maritime sound design
+  const audio = useNordsternAudio();
+
   const stage = STAGES[state.currentStage];
   const isLast = state.currentStage >= STAGES.length;
 
