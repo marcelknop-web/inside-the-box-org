@@ -5,6 +5,7 @@ import { PageMeta } from '@/components/PageMeta';
 import {
   Anchor, Compass, Wind, Loader2, CheckCircle2, XCircle, ArrowRight, Trophy,
   RotateCcw, Sparkles, Waves, Zap, BookOpen, Users, X, ShieldCheck, Flame, CloudLightning,
+  Volume2, VolumeX,
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { SKS_CATALOG } from '@/data/sksQuestions';
@@ -13,6 +14,7 @@ import {
   loadState, saveState, resetState, loadDeck, saveDeck, review, dueCards,
   CREW_POOL, pickNewCrew, type SrsCard, type NordsternState, type CrewMember, type KnowledgeCard,
 } from '@/lib/nordstern/sm2';
+import { useNordsternAudio } from '@/hooks/useNordsternAudio';
 
 type Topic = 'navigation' | 'recht' | 'wetter' | 'seemannschaft';
 
