@@ -784,7 +784,7 @@ export default function SksNavigationQuiz({ embedded = false }: { embedded?: boo
                   <p className="text-foreground/70 text-sm leading-relaxed">{question.explanation}</p>
                 </div>
               </div>
-              {isCorrect && !won && (
+              {(isCorrect || paukMode) && !won && (
                 <div className="flex justify-end">
                   <button onClick={handleNext} className="relative group px-6 py-2.5" style={{ clipPath: diamondClip }}>
                     <div className="absolute inset-0 bg-gradient-to-r from-highlight/30 via-highlight/50 to-highlight/30 group-hover:from-highlight/50 group-hover:via-highlight/70 group-hover:to-highlight/50 transition-all" style={{ clipPath: diamondClip }} />
