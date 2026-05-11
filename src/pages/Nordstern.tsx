@@ -257,6 +257,7 @@ const Nordstern = () => {
       } else {
         const passed = sessionCorrect >= Math.floor((SCENE_QUESTIONS + HARBOR_QUESTIONS) * 0.6);
         if (passed) {
+          audio.playBell(880, 1.8, 0.55);
           const crew = pickNewCrew(state.crew);
           if (crew) setNewCrew(crew);
           setState(s => {
@@ -271,6 +272,7 @@ const Nordstern = () => {
           });
           setPhase(state.currentStage + 1 >= STAGES.length ? 'finished' : 'completed');
         } else {
+          audio.playBell(330, 1.2, 0.4);
           setPhase('completed');
         }
       }
