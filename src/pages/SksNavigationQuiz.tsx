@@ -250,7 +250,7 @@ export default function SksNavigationQuiz({ embedded = false }: { embedded?: boo
         setTimeout(() => playMilestone(), 500);
         setTimeout(() => setShowMilestone(false), 2500);
       }
-      if (currentQ === QUIZ_SIZE - 1) {
+      if (currentQ === QUIZ_SIZE - 1 && !paukMode) {
         setWon(true);
         const newBest = Math.max(bestScore, QUIZ_SIZE);
         setBestScore(newBest);
