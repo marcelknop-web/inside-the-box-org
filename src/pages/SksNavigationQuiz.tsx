@@ -141,10 +141,10 @@ export default function SksNavigationQuiz({ embedded = false }: { embedded?: boo
 
   // Fetch first question when game starts
   useEffect(() => {
-    if (started && !gameOver && !won && !question && !loadingQuestion) {
-      fetchQuestion(currentQ);
+    if (started && topic && !gameOver && !won && !question && !loadingQuestion) {
+      fetchQuestion(currentQ, topic);
     }
-  }, [started, currentQ, gameOver, won]);
+  }, [started, topic, currentQ, gameOver, won]);
 
   // Timer
   useEffect(() => {
