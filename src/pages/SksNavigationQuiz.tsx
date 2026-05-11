@@ -262,14 +262,19 @@ export default function SksNavigationQuiz({ embedded = false }: { embedded?: boo
       }
     } else {
       setStreak(0);
-      setGameOver(true);
-      const newBest = Math.max(bestScore, score);
-      setBestScore(newBest);
-      try { localStorage.setItem(STORAGE_KEY, String(newBest)); } catch {}
-      const secLevel = SAFETY_NETS.filter(idx => idx < currentQ).reverse()[0];
-      const secAmount = secLevel !== undefined ? MONEY_LEVELS[secLevel] : '0';
-      saveSksBoard(score, secAmount);
-      setTimeout(() => playDefeat(), 300);
+      if (paukMode) {
+        // Pauken: keine Game-Over, einfach weitermachen
+        setTimeout(() => playWrong?.(), 200);
+      } else {
+        setGameOver(true);
+        const newBest = Math.max(bestScore, score);
+        setBestScore(newBest);
+        try { localStorage.setItem(STORAGE_KEY, String(newBest)); } catch {}
+        const secLevel = SAFETY_NETS.filter(idx => idx < currentQ).reverse()[0];
+        const secAmount = secLevel !== undefined ? MONEY_LEVELS[secLevel] : '0';
+        saveSksBoard(score, secAmount);
+        setTimeout(() => playDefeat(), 300);
+      }
     }
   };
 
