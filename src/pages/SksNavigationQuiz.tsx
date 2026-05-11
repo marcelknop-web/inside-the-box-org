@@ -473,9 +473,17 @@ export default function SksNavigationQuiz({ embedded = false }: { embedded?: boo
               {won ? t({ de: 'Kannst du es nochmal schaffen?', en: 'Can you do it again?', fr: 'Pouvez-vous recommencer ?' })
                 : t({ de: 'Jede Runde generiert neue Fragen – versuchen Sie es erneut.', en: 'Every round generates new questions – try again.', fr: 'Chaque tour génère de nouvelles questions – réessayez.' })}
             </p>
-            <Button onClick={restart} variant="outline" className="border-primary/40 text-primary hover:bg-primary/10 hover:border-primary/60 font-mono font-bold tracking-wider">
-              <RotateCcw className="w-4 h-4 mr-2" /> {t(I18N.restart)}
-            </Button>
+            <div className="flex flex-wrap items-center justify-center gap-2">
+              <Button onClick={() => restart(true)} variant="outline" className="border-primary/40 text-primary hover:bg-primary/10 hover:border-primary/60 font-mono font-bold tracking-wider">
+                <RotateCcw className="w-4 h-4 mr-2" /> Weiter im Themenblock
+              </Button>
+              <Button onClick={() => { setTopic(null); restart(false); }} variant="ghost" className="text-muted-foreground hover:text-primary font-mono text-xs">
+                Thema wechseln
+              </Button>
+              <Button onClick={resetTopicProgress} variant="ghost" className="text-muted-foreground hover:text-destructive font-mono text-xs">
+                <RefreshCcw className="w-3 h-3 mr-1" /> Fortschritt zurücksetzen
+              </Button>
+            </div>
           </div>
           <p className="text-muted-foreground text-xs text-center italic">{t(I18N.disclaimer)}</p>
         </StaggerReveal>
@@ -507,7 +515,7 @@ export default function SksNavigationQuiz({ embedded = false }: { embedded?: boo
           {loadError && (
             <div className="text-center space-y-3">
               <p className="text-destructive text-sm">{t(I18N.error)}</p>
-              <Button onClick={() => fetchQuestion(currentQ)} variant="outline" className="border-primary/40 text-primary">
+              <Button onClick={() => fetchQuestion(currentQ, topic)} variant="outline" className="border-primary/40 text-primary">
                 <RotateCcw className="w-4 h-4 mr-2" /> {t({ de: 'Erneut versuchen', en: 'Retry', fr: 'Réessayer' })}
               </Button>
             </div>
