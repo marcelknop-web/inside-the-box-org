@@ -70,11 +70,21 @@ function saveSksBoard(score: number, amount: string) {
 }
 
 export default function SksNavigationQuiz({ embedded = false }: { embedded?: boolean }) {
-  const { language } = useLanguage();
-  const lang = language as 'de' | 'en' | 'fr';
-  const t = (obj: Record<string, string>) => obj[lang] || obj.en;
+  const lang: 'de' = 'de';
+  const t = (obj: Record<string, string>) => obj.de;
   const isMobile = useIsMobile();
   const { playQuestionReveal, playCorrect, playWrong, playSelect, playConfirm, playVictory, playDefeat, playTick, playTickUrgent, playMilestone } = useMillionaireSound();
+
+  // ── Topic & sequential progress ──
+  const [topic, setTopic] = useState<Topic | null>(null);
+  const cursorKey = (tp: Topic) => `sks_quiz_cursor_${tp}`;
+  const readCursor = (tp: Topic) => {
+    try { return parseInt(localStorage.getItem(cursorKey(tp)) || '0', 10) || 0; } catch { return 0; }
+  };
+  const writeCursor = (tp: Topic, v: number) => {
+    try { localStorage.setItem(cursorKey(tp), String(v)); } catch {}
+  };
+  const startIndexRef = useRef<number>(0);
 
   const [started, setStarted] = useState(embedded);
   const [currentQ, setCurrentQ] = useState(0);
