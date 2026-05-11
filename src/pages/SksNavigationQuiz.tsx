@@ -243,7 +243,7 @@ export default function SksNavigationQuiz({ embedded = false }: { embedded?: boo
     setAudienceResults(null);
     setShowSpeedBonus(false);
     setQuestion(null);
-    fetchQuestion(nextQ);
+    fetchQuestion(nextQ, topic);
   };
 
   const useFiftyFifty = useCallback(() => {
@@ -284,7 +284,12 @@ export default function SksNavigationQuiz({ embedded = false }: { embedded?: boo
     setAudienceResults(results);
   }, [audienceUsed, confirmed, question, hiddenOptions]);
 
-  const restart = () => {
+  const restart = (advanceCursor: boolean) => {
+    if (topic && advanceCursor) {
+      const newCursor = (startIndexRef.current + QUIZ_SIZE) % topicPoolSize(topic);
+      startIndexRef.current = newCursor;
+      writeCursor(topic, newCursor);
+    }
     setStarted(embedded);
     setCurrentQ(0);
     setSelected(null);
@@ -302,7 +307,19 @@ export default function SksNavigationQuiz({ embedded = false }: { embedded?: boo
     setTimeLeft(QUESTION_TIME);
     setQuestion(null);
     setLoadError(false);
-    usedIndicesRef.current = [];
+  };
+
+  const chooseTopic = (tp: Topic) => {
+    setTopic(tp);
+    startIndexRef.current = readCursor(tp);
+    setStarted(true);
+  };
+
+  const resetTopicProgress = () => {
+    if (!topic) return;
+    startIndexRef.current = 0;
+    writeCursor(topic, 0);
+    restart(false);
   };
 
   const getSecuredLevel = () => {
