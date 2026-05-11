@@ -358,6 +358,7 @@ export default function SksNavigationQuiz({ embedded = false }: { embedded?: boo
       { id: 'navigation', label: 'Navigation', sub: `${SKS_CATALOG.navigation.length} Fragen`, Icon: Compass },
       { id: 'recht', label: 'Schifffahrtsrecht', sub: `${SKS_CATALOG.recht.length} Fragen`, Icon: Scale },
       { id: 'wetter', label: 'Wetterkunde', sub: `${SKS_CATALOG.wetter.length} Fragen`, Icon: CloudSun },
+      { id: 'seemannschaft', label: 'Seemannschaft', sub: `${SKS_CATALOG.seemannschaft.length} Fragen`, Icon: Anchor },
       { id: 'mixed', label: 'Alle Themen gemischt', sub: `${topicPoolSize('mixed')} Fragen`, Icon: Shuffle },
     ];
     return (
