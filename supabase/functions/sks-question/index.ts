@@ -1,0 +1,140 @@
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { SKS_NAVIGATION_QA } from "./catalog.ts";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+};
+
+// Rate limiting
+const RATE_LIMIT_WINDOW_MS = 60_000;
+const MAX_REQUESTS_PER_WINDOW = 20;
+const MAX_DAILY_REQUESTS = 600;
+const ipRateMap = new Map<string, { count: number; resetAt: number }>();
+let dailyCount = 0;
+let dailyResetAt = Date.now() + 86_400_000;
+
+function rateOk(ip: string) {
+  const now = Date.now();
+  if (now > dailyResetAt) { dailyCount = 0; dailyResetAt = now + 86_400_000; }
+  if (dailyCount >= MAX_DAILY_REQUESTS) return { ok: false, retry: 3600 };
+  const e = ipRateMap.get(ip);
+  if (!e || now > e.resetAt) {
+    ipRateMap.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
+    dailyCount++;
+    return { ok: true };
+  }
+  if (e.count >= MAX_REQUESTS_PER_WINDOW) return { ok: false, retry: Math.ceil((e.resetAt - now) / 1000) };
+  e.count++; dailyCount++;
+  return { ok: true };
+}
+
+const SYSTEM = `Du wandelst eine amtliche SKS-Prüfungsfrage (Sportküstenschifferschein, Themenbereich Navigation) in eine "Wer wird Millionär?"-Quizfrage mit 4 Antwortmöglichkeiten um.
+
+EINGABE: Originalfrage + amtliche Musterantwort.
+
+REGELN:
+- Gib AUSSCHLIESSLICH gültiges JSON zurück, kein Markdown, keine Kommentare.
+- Genau 4 Optionen. Genau 1 korrekte Antwort. correct = Index 0-3.
+- Die amtliche Musterantwort ist die KORREKTE Antwort. Du darfst sie sprachlich straffen (1-2 Sätze, prägnant), inhaltlich aber NICHT verändern. Keine Fakten erfinden.
+- Die 3 falschen Optionen sind plausible Distraktoren: typische Verwechslungen, ähnliche Begriffe, häufige Anfängerfehler. Sie müssen klar falsch sein, aber nicht offensichtlich absurd.
+- Alle 4 Optionen vergleichbar in Länge und Stil (keine verräterisch lange korrekte Antwort).
+- Optionen ohne Buchstaben-Präfix (kein "A) ").
+- "explanation": 1-2 Sätze, erklärt warum die richtige Antwort stimmt; nenne, wenn passend, BSH, NfS, WGS 84, ED 50, NTM, KVR etc.
+- Frage formal, Siezen, knapp.
+- SCHWIERIGKEIT (1-10): höhere Werte → subtilere Distraktoren (Zahlenwerte minimal verändert, ähnliche Fachbegriffe vertauscht); niedrige Werte → klarere Unterschiede.
+- Antworte in der angeforderten SPRACHE (de/en/fr). Fachbegriffe (BSH, WGS 84, NfS, NTM, ED 50, GPS) bleiben unverändert.
+
+AUSGABE:
+{
+  "question": "...",
+  "options": ["...","...","...","..."],
+  "correct": 0,
+  "explanation": "..."
+}`;
+
+serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || req.headers.get("cf-connecting-ip") || "unknown";
+  const rl = rateOk(ip);
+  if (!rl.ok) {
+    return new Response(JSON.stringify({ error: "Too many requests, please wait." }),
+      { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json", "Retry-After": String(rl.retry ?? 60) } });
+  }
+
+  try {
+    const body = await req.json().catch(() => ({}));
+    const language = body?.language || "de";
+    const difficulty = Math.min(10, Math.max(1, body?.difficulty || 5));
+    const usedIndices: number[] = Array.isArray(body?.usedIndices) ? body.usedIndices : [];
+
+    const KEY = Deno.env.get("LOVABLE_API_KEY");
+    if (!KEY) {
+      return new Response(JSON.stringify({ error: "Service temporarily unavailable" }),
+        { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
+    // Pick a random unused question
+    const pool = SKS_NAVIGATION_QA.map((_, i) => i).filter(i => !usedIndices.includes(i));
+    const available = pool.length > 0 ? pool : SKS_NAVIGATION_QA.map((_, i) => i);
+    const sourceIndex = available[Math.floor(Math.random() * available.length)];
+    const source = SKS_NAVIGATION_QA[sourceIndex];
+
+    const langMap: Record<string, string> = { de: "Deutsch", en: "English", fr: "Français" };
+    const userMsg = `Sprache: ${langMap[language] || "Deutsch"}
+Schwierigkeitsgrad: ${difficulty}/10
+
+ORIGINAL-FRAGE: ${source.q}
+AMTLICHE ANTWORT: ${source.a}
+
+Erzeuge jetzt die Multiple-Choice-Frage als JSON.`;
+
+    const r = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${KEY}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "google/gemini-2.5-flash",
+        messages: [
+          { role: "system", content: SYSTEM },
+          { role: "user", content: userMsg },
+        ],
+        max_tokens: 1200,
+        temperature: 0.8,
+      }),
+    });
+
+    if (!r.ok) {
+      if (r.status === 429) return new Response(JSON.stringify({ error: "Rate limited, please try again later." }),
+        { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      if (r.status === 402) return new Response(JSON.stringify({ error: "Service temporarily unavailable." }),
+        { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      const t = await r.text();
+      console.error("[sks-question] upstream:", r.status, t);
+      return new Response(JSON.stringify({ error: "Service temporarily unavailable" }),
+        { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
+    const data = await r.json();
+    let content = data.choices?.[0]?.message?.content || "";
+    content = content.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+    let parsed: any;
+    try { parsed = JSON.parse(content); } catch {
+      console.error("[sks-question] parse fail:", content);
+      return new Response(JSON.stringify({ error: "Failed to generate question" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+    if (!parsed.question || !Array.isArray(parsed.options) || parsed.options.length !== 4 || typeof parsed.correct !== "number" || !parsed.explanation) {
+      console.error("[sks-question] bad structure:", JSON.stringify(parsed));
+      return new Response(JSON.stringify({ error: "Failed to generate question" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+    parsed.sourceIndex = sourceIndex;
+    return new Response(JSON.stringify(parsed), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+  } catch (e) {
+    console.error("sks-question error:", e);
+    return new Response(JSON.stringify({ error: "Service temporarily unavailable" }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+  }
+});
