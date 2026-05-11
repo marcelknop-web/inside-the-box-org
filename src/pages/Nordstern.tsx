@@ -521,6 +521,30 @@ const HomeScreen: React.FC<{
   </div>
 );
 
+const HeaderIconButton: React.FC<{
+  onClick: () => void;
+  label: string;
+  ariaLabel: string;
+  children: React.ReactNode;
+}> = ({ onClick, label, ariaLabel, children }) => (
+  <div className="relative group">
+    <button
+      onClick={onClick}
+      className="ml-1 px-1.5 py-1 rounded border border-border/50 hover:border-primary/50 hover:text-primary flex items-center"
+      title={label}
+      aria-label={ariaLabel}
+    >
+      {children}
+    </button>
+    <div
+      role="tooltip"
+      className="pointer-events-none absolute right-0 top-full mt-1 z-50 whitespace-nowrap rounded border border-border/60 bg-background/95 px-2 py-1 text-[10px] font-mono text-foreground/90 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity shadow-lg"
+    >
+      {label}
+    </div>
+  </div>
+);
+
 const Stat: React.FC<{ label: string; value: React.ReactNode }> = ({ label, value }) => (
   <div className="bg-card/40 border border-border/30 rounded-md p-2 md:p-3">
     <div className="text-base md:text-xl text-primary font-bold">{value}</div>
