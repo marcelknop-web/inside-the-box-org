@@ -469,25 +469,66 @@ const Stat: React.FC<{ label: string; value: React.ReactNode }> = ({ label, valu
   </div>
 );
 
+const TOPIC_EMOJI: Record<Topic, string> = {
+  navigation: '🧭', recht: '⚖️', wetter: '🌬️', seemannschaft: '⚓',
+};
+
+// Visual wind dial showing Bft strength
+const WindDial: React.FC<{ bft: number }> = ({ bft }) => {
+  const pct = Math.min(1, bft / 9);
+  return (
+    <svg viewBox="0 0 60 60" className="w-16 h-16 md:w-20 md:h-20">
+      <circle cx="30" cy="30" r="26" fill="none" stroke="currentColor" strokeWidth="2" className="text-muted/40" />
+      <circle cx="30" cy="30" r="26" fill="none" stroke="currentColor" strokeWidth="2"
+        strokeDasharray={`${pct * 163} 163`} strokeLinecap="round"
+        transform="rotate(-90 30 30)" className="text-primary" />
+      <text x="30" y="28" textAnchor="middle" fontSize="18" className="fill-primary font-bold" style={{ fontFamily: 'IBM Plex Mono, monospace' }}>{bft}</text>
+      <text x="30" y="42" textAnchor="middle" fontSize="7" className="fill-muted-foreground" style={{ fontFamily: 'IBM Plex Mono, monospace' }}>BFT</text>
+    </svg>
+  );
+};
+
 const Briefing: React.FC<{ stage: Stage; wind: typeof WIND_LABELS[0]; crewCount: number; onGo: () => void }> = ({ stage, wind, crewCount, onGo }) => (
   <div className="flex-1 min-h-0 max-w-2xl w-full mx-auto flex flex-col justify-center gap-4">
-    <div className="text-center">
+    <div className="text-center shrink-0">
       <div className="text-[10px] font-mono text-primary tracking-widest">BRIEFING</div>
-      <h2 className="text-xl md:text-3xl font-bold mt-1">{stage.from} → {stage.to}</h2>
+      <h2 className="text-xl md:text-3xl font-bold mt-1 leading-tight">{stage.from} → {stage.to}</h2>
     </div>
-    <div className="bg-card/50 border border-border/50 rounded-lg p-4 space-y-3">
-      <p className="italic text-sm md:text-base text-muted-foreground">"{stage.scene}"</p>
-      <div className="flex items-center gap-4 text-xs md:text-sm flex-wrap pt-2 border-t border-border/30">
-        <span className="flex items-center gap-1"><Waves className="w-4 h-4 text-primary" />{stage.nm} sm</span>
-        <span className="flex items-center gap-1"><Wind className="w-4 h-4 text-primary" />{wind.bft} Bft</span>
-        <span className="flex items-center gap-1"><Compass className="w-4 h-4 text-primary" />{TOPIC_LABEL[stage.topicHint]}</span>
-        {crewCount > 0 && <span className="flex items-center gap-1"><Users className="w-4 h-4 text-primary" />{crewCount} Crew</span>}
+
+    {/* Visual hero card */}
+    <div className="relative bg-gradient-to-br from-card/60 to-card/30 border border-border/50 rounded-lg p-4 md:p-5 overflow-hidden">
+      <div className="absolute -right-4 -top-4 text-7xl md:text-8xl opacity-10 select-none pointer-events-none">{TOPIC_EMOJI[stage.topicHint]}</div>
+      <div className="relative flex items-center gap-4">
+        <WindDial bft={wind.bft} />
+        <div className="flex-1 min-w-0">
+          <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">{wind.label}</div>
+          <div className="text-sm md:text-base text-foreground/90 italic leading-snug line-clamp-3">"{stage.scene}"</div>
+        </div>
+      </div>
+      <div className="relative grid grid-cols-3 gap-2 mt-4 pt-3 border-t border-border/30">
+        <div className="text-center">
+          <Waves className="w-4 h-4 mx-auto text-primary" />
+          <div className="text-base font-bold font-mono mt-0.5">{stage.nm}<span className="text-[10px] text-muted-foreground ml-0.5">sm</span></div>
+        </div>
+        <div className="text-center">
+          <div className="text-xl">{TOPIC_EMOJI[stage.topicHint]}</div>
+          <div className="text-[10px] font-mono uppercase text-muted-foreground mt-0.5">{TOPIC_LABEL[stage.topicHint]}</div>
+        </div>
+        <div className="text-center">
+          <Users className="w-4 h-4 mx-auto text-primary" />
+          <div className="text-base font-bold font-mono mt-0.5">{crewCount}<span className="text-[10px] text-muted-foreground ml-0.5">Crew</span></div>
+        </div>
       </div>
     </div>
-    <div className="text-center text-xs text-muted-foreground">
-      5 Szenen-Fragen · 3 Hafenmanöver · 60 % zum Bestehen
+
+    <div className="flex items-center justify-center gap-1.5 text-[11px] font-mono text-muted-foreground shrink-0">
+      <span className="text-primary">5</span>×Szene
+      <span className="opacity-40">·</span>
+      <span className="text-primary">3</span>×Hafen
+      <span className="opacity-40">·</span>
+      <span className="text-primary">60%</span> bestehen
     </div>
-    <Button onClick={onGo} className="w-full"><ArrowRight className="w-4 h-4" />Etappe starten</Button>
+    <Button onClick={onGo} className="w-full shrink-0"><ArrowRight className="w-4 h-4" />Leinen los</Button>
   </div>
 );
 
