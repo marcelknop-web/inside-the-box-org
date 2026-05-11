@@ -346,25 +346,76 @@ const RouteMap: React.FC<{ currentStage: number }> = ({ currentStage }) => (
       <pattern id="grid" width="5" height="5" patternUnits="userSpaceOnUse">
         <path d="M 5 0 L 0 0 0 5" fill="none" stroke="currentColor" strokeWidth="0.1" className="text-primary/10" />
       </pattern>
+      <radialGradient id="sea" cx="50%" cy="50%" r="70%">
+        <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.04" />
+        <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0" />
+      </radialGradient>
+      <filter id="glow"><feGaussianBlur stdDeviation="0.6" /></filter>
     </defs>
+    <rect width="100" height="80" fill="url(#sea)" />
     <rect width="100" height="80" fill="url(#grid)" />
+    {/* wave hints */}
+    {[18, 30, 45, 65].map(y => (
+      <path key={y} d={`M0 ${y} Q 25 ${y - 1.5}, 50 ${y} T 100 ${y}`} fill="none" stroke="currentColor" strokeWidth="0.15" className="text-primary/20" />
+    ))}
+    {/* compass rose */}
+    <g transform="translate(92,8)" className="text-primary/40">
+      <circle r="3" fill="none" stroke="currentColor" strokeWidth="0.15" />
+      <path d="M0,-3 L0.6,0 L0,3 L-0.6,0 Z" fill="currentColor" />
+      <text y="-4" textAnchor="middle" fontSize="1.6" className="fill-primary/60 font-mono">N</text>
+    </g>
     <polyline points={PORTS.map(p => `${p.x},${p.y}`).join(' ')} fill="none" stroke="currentColor" strokeWidth="0.4" strokeDasharray="1 1" className="text-primary/40" />
-    <polyline points={PORTS.slice(0, currentStage + 1).map(p => `${p.x},${p.y}`).join(' ')} fill="none" stroke="currentColor" strokeWidth="0.6" className="text-primary" />
+    <polyline points={PORTS.slice(0, currentStage + 1).map(p => `${p.x},${p.y}`).join(' ')} fill="none" stroke="currentColor" strokeWidth="0.7" className="text-primary" filter="url(#glow)" />
+    <polyline points={PORTS.slice(0, currentStage + 1).map(p => `${p.x},${p.y}`).join(' ')} fill="none" stroke="currentColor" strokeWidth="0.5" className="text-primary" />
     {PORTS.map((p, i) => {
       const done = i <= currentStage;
       const active = i === currentStage;
       return (
         <g key={p.name}>
+          {active && <circle cx={p.x} cy={p.y} r="2.5" className="fill-primary/30"><animate attributeName="r" values="1.6;3;1.6" dur="2.4s" repeatCount="indefinite" /><animate attributeName="opacity" values="0.6;0;0.6" dur="2.4s" repeatCount="indefinite" /></circle>}
           <circle cx={p.x} cy={p.y} r={active ? 1.4 : 0.8} className={active ? 'fill-primary' : done ? 'fill-primary/60' : 'fill-muted-foreground/40'} />
           <text x={p.x} y={p.y - 2} textAnchor="middle" fontSize="2" className={active ? 'fill-primary font-bold' : 'fill-muted-foreground'}>{p.name}</text>
         </g>
       );
     })}
     {currentStage < PORTS.length && (
-      <text x={PORTS[currentStage].x} y={PORTS[currentStage].y + 0.8} textAnchor="middle" fontSize="3.5">⛵</text>
+      <text x={PORTS[currentStage].x} y={PORTS[currentStage].y + 0.8} textAnchor="middle" fontSize="4">⛵</text>
     )}
   </svg>
 );
+
+// Mini route ribbon for in-question HUD
+const RouteRibbon: React.FC<{ currentStage: number; questionIdx: number; limit: number; phase: 'scene' | 'harbor' }> = ({ currentStage, questionIdx, limit, phase }) => {
+  // Compute virtual progress along PORTS path
+  const segStart = PORTS[currentStage];
+  const segEnd = PORTS[Math.min(currentStage + 1, PORTS.length - 1)];
+  const t = phase === 'scene'
+    ? (questionIdx / (limit + 3)) // scenes fill ~5/8
+    : (5 / 8) + ((questionIdx + 1) / (3 + 5)); // harbor fills remaining
+  const tx = segStart.x + (segEnd.x - segStart.x) * Math.min(1, t);
+  const ty = segStart.y + (segEnd.y - segStart.y) * Math.min(1, t);
+  return (
+    <svg viewBox="0 0 100 18" className="w-full h-8 md:h-10" preserveAspectRatio="none">
+      <line x1="0" y1="9" x2="100" y2="9" stroke="currentColor" strokeWidth="0.3" strokeDasharray="1.2 1.2" className="text-primary/25" />
+      {PORTS.map((p, i) => {
+        const x = (i / (PORTS.length - 1)) * 100;
+        const done = i <= currentStage;
+        const active = i === currentStage;
+        return (
+          <g key={i}>
+            <circle cx={x} cy={9} r={active ? 1.6 : 1} className={done ? 'fill-primary' : 'fill-muted-foreground/40'} />
+            {active && <circle cx={x} cy={9} r="3" className="fill-primary/25"><animate attributeName="r" values="2;4;2" dur="2s" repeatCount="indefinite" /><animate attributeName="opacity" values="0.5;0;0.5" dur="2s" repeatCount="indefinite" /></circle>}
+            <text x={x} y={17} textAnchor="middle" fontSize="2.6" className={active ? 'fill-primary font-bold' : 'fill-muted-foreground/60'} style={{ fontFamily: 'IBM Plex Mono, monospace' }}>{p.name.slice(0, 4)}</text>
+          </g>
+        );
+      })}
+      {/* boat */}
+      <g transform={`translate(${(currentStage / (PORTS.length - 1)) * 100 + ((1 / (PORTS.length - 1)) * 100) * Math.min(1, t)} 9)`}>
+        <text textAnchor="middle" fontSize="5" y="1.8">⛵</text>
+      </g>
+    </svg>
+  );
+};
 
 const HomeScreen: React.FC<{
   state: NordsternState; stage?: Stage; isLast: boolean; wind: typeof WIND_LABELS[0];
