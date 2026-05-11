@@ -112,23 +112,24 @@ export default function SksNavigationQuiz({ embedded = false }: { embedded?: boo
   const [showMilestone, setShowMilestone] = useState(false);
   const [showSpeedBonus, setShowSpeedBonus] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const usedIndicesRef = useRef<number[]>([]);
 
-  // Fetch question from edge function
-  const fetchQuestion = useCallback(async (questionIndex: number) => {
+
+  // Fetch question from edge function (sequential, per-topic)
+  const fetchQuestion = useCallback(async (questionIndex: number, tp: Topic | null) => {
+    if (!tp) return;
     setLoadingQuestion(true);
     setLoadError(false);
     setQuestion(null);
     try {
       const difficulty = questionIndex + 1; // 1-10
+      const poolSize = topicPoolSize(tp);
+      const sourceIndex = (startIndexRef.current + questionIndex) % poolSize;
       const { data, error } = await supabase.functions.invoke('sks-question', {
-        body: { language: lang, difficulty, usedIndices: usedIndicesRef.current },
+        body: { topic: tp === 'mixed' ? undefined : tp, difficulty, sourceIndex },
       });
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
-      const q = data as AiQuestion & { sourceIndex?: number };
-      if (typeof q.sourceIndex === 'number') usedIndicesRef.current = [...usedIndicesRef.current, q.sourceIndex];
-      setQuestion(q);
+      setQuestion(data as AiQuestion);
       setLoadingQuestion(false);
       playQuestionReveal();
     } catch (e) {
@@ -136,7 +137,7 @@ export default function SksNavigationQuiz({ embedded = false }: { embedded?: boo
       setLoadError(true);
       setLoadingQuestion(false);
     }
-  }, [lang, playQuestionReveal]);
+  }, [playQuestionReveal]);
 
   // Fetch first question when game starts
   useEffect(() => {
