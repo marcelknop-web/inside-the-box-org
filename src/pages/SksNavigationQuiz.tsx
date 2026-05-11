@@ -17,7 +17,7 @@ const TOPIC_LABEL: Record<Topic, string> = {
 };
 
 function topicPoolSize(t: Topic): number {
-  if (t === 'mixed') return SKS_CATALOG.navigation.length + SKS_CATALOG.recht.length + SKS_CATALOG.wetter.length;
+  if (t === 'mixed') return SKS_CATALOG.navigation.length + SKS_CATALOG.recht.length + SKS_CATALOG.wetter.length + SKS_CATALOG.seemannschaft.length;
   return SKS_CATALOG[t].length;
 }
 
