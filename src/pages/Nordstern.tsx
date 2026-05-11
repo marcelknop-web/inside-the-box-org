@@ -307,28 +307,28 @@ const Nordstern = () => {
               <span className="text-orange-400 flex items-center gap-0.5"><Flame className="w-3 h-3" />{state.correctStreak}</span>
             )}
             {dueCount > 0 && <span className="text-yellow-400">↻{dueCount}</span>}
-            <button
+            <HeaderIconButton
               onClick={() => { audio.ensure(); audio.setMuted(!audio.muted); }}
-              className="ml-1 p-1 rounded border border-border/50 hover:border-primary/50 hover:text-primary"
-              title={audio.muted ? 'Sound an' : 'Sound aus'}
-              aria-label={audio.muted ? 'Sound einschalten' : 'Sound ausschalten'}
+              label={audio.muted ? 'Sound an' : 'Sound aus'}
+              ariaLabel={audio.muted ? 'Sound einschalten' : 'Sound ausschalten'}
             >
               {audio.muted ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
-            </button>
-            <button
+            </HeaderIconButton>
+            <HeaderIconButton
               onClick={() => setIntroOpen(true)}
-              className="ml-1 p-1 rounded border border-border/50 hover:border-primary/50 hover:text-primary"
-              title="Hilfe / Einführung"
-              aria-label="Hilfe"
+              label="Einführung"
+              ariaLabel="Einführung öffnen"
             >
               <HelpCircle className="w-3.5 h-3.5" />
-            </button>
-            <button
+            </HeaderIconButton>
+            <HeaderIconButton
               onClick={() => setLogbuchOpen(true)}
-              className="ml-1 px-2 py-1 rounded border border-border/50 hover:border-primary/50 hover:text-primary flex items-center gap-1"
+              label="Fortschritt & Statistik"
+              ariaLabel="Logbuch öffnen"
             >
-              <BookOpen className="w-3 h-3" />Logbuch
-            </button>
+              <BookOpen className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline ml-1 text-[11px]">Logbuch</span>
+            </HeaderIconButton>
           </div>
         </div>
       </header>
