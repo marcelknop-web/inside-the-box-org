@@ -337,12 +337,18 @@ export default function SksNavigationQuiz({ embedded = false }: { embedded?: boo
   const wrapperClass = embedded ? 'space-y-3' : 'min-h-screen p-4 max-w-4xl mx-auto bg-transparent';
   const diamondClip = 'polygon(4% 50%, 7% 0%, 93% 0%, 96% 50%, 93% 100%, 7% 100%)';
 
-  // ── Entry screen ──
-  if (!started) {
+  // ── Entry screen: topic picker ──
+  if (!started || !topic) {
+    const topics: { id: Topic; label: string; sub: string; Icon: typeof Compass }[] = [
+      { id: 'navigation', label: 'Navigation', sub: `${SKS_CATALOG.navigation.length} Fragen`, Icon: Compass },
+      { id: 'recht', label: 'Schifffahrtsrecht', sub: `${SKS_CATALOG.recht.length} Fragen`, Icon: Scale },
+      { id: 'wetter', label: 'Wetterkunde', sub: `${SKS_CATALOG.wetter.length} Fragen`, Icon: CloudSun },
+      { id: 'mixed', label: 'Alle Themen gemischt', sub: `${topicPoolSize('mixed')} Fragen`, Icon: Shuffle },
+    ];
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
-        <PageMeta title="SKS Navigation Quiz" description="SKS Navigation Quiz" />
-        <div className="text-center space-y-8 max-w-md relative">
+        <PageMeta title="SKS Quiz" description="SKS Quiz – Wer wird Skipper?" />
+        <div className="text-center space-y-8 max-w-xl relative">
           <div className="absolute inset-0 -top-20 bg-[radial-gradient(ellipse_at_center,hsl(45_100%_48%/0.08)_0%,transparent_70%)] pointer-events-none" />
           <div className="relative mx-auto w-28 h-28">
             <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-primary/10 to-transparent rounded-full animate-pulse" />
@@ -352,27 +358,36 @@ export default function SksNavigationQuiz({ embedded = false }: { embedded?: boo
           </div>
           <div className="space-y-3">
             <h1 className="text-3xl md:text-4xl font-bold text-primary font-mono tracking-widest uppercase">SKS</h1>
-            <p className="text-lg text-foreground/70 font-mono tracking-wide">Navigation Quiz</p>
+            <p className="text-lg text-foreground/70 font-mono tracking-wide">Wer wird Skipper?</p>
             <div className="w-16 h-0.5 bg-gradient-to-r from-transparent via-primary to-transparent mx-auto" />
           </div>
-          <p className="text-foreground/60 text-sm leading-relaxed max-w-sm mx-auto">{t(I18N.intro)}</p>
-          {bestScore > 0 && (
-            <div className="flex items-center justify-center gap-2 text-primary text-sm">
-              <Star size={14} className="fill-primary" />
-              <span className="font-mono font-bold">{bestScore}/{QUIZ_SIZE}</span>
-              <span className="text-foreground/50">{t({ de: 'Persönlicher Rekord', en: 'Personal Best', fr: 'Record personnel' })}</span>
-            </div>
-          )}
-          <button onClick={() => { setStarted(true); fetchQuestion(0); }} className="relative group px-10 py-4 mx-auto" style={{ clipPath: diamondClip }}>
-            <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-primary/30 to-primary/20 group-hover:from-primary/30 group-hover:via-primary/50 group-hover:to-primary/30 transition-all duration-500" />
-            <div className="absolute inset-[1px] bg-gradient-to-b from-card via-secondary to-card" style={{ clipPath: diamondClip }} />
-            <span className="relative text-primary font-mono font-bold text-lg tracking-wider uppercase group-hover:text-foreground transition-colors">{t(I18N.start)}</span>
-          </button>
+          <p className="text-foreground/60 text-sm leading-relaxed max-w-md mx-auto">
+            Zehn Fragen aus dem amtlichen SKS-Fragenkatalog. Vier Antworten, zwei Joker. Themenbereich wählen — die Fragen werden systematisch durchgegangen und Ihr Fortschritt bleibt gespeichert.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-md mx-auto">
+            {topics.map(({ id, label, sub, Icon }) => {
+              const cursor = readCursor(id);
+              const pool = topicPoolSize(id);
+              return (
+                <button key={id} onClick={() => chooseTopic(id)}
+                  className="group relative p-4 rounded-xl border border-primary/30 bg-card/60 hover:bg-primary/10 hover:border-primary/60 transition-all text-left">
+                  <div className="flex items-center gap-3">
+                    <Icon className="w-5 h-5 text-primary flex-shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-primary font-mono font-bold text-sm tracking-wider">{label}</p>
+                      <p className="text-muted-foreground text-[11px] font-mono">{sub} · Fortschritt {cursor}/{pool}</p>
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
           <div className="flex items-center justify-center gap-6 text-muted-foreground text-xs">
             <span className="flex items-center gap-1.5"><Clock size={12} className="text-primary/60" /> <span className="font-mono">{QUESTION_TIME}s</span></span>
             <span className="flex items-center gap-1.5"><Flame size={12} className="text-primary/60" /> Streak</span>
             <span className="flex items-center gap-1.5"><Zap size={12} className="text-primary/60" /> Speed</span>
           </div>
+          <p className="text-muted-foreground text-[10px] italic max-w-sm mx-auto">{t(I18N.disclaimer)}</p>
         </div>
       </div>
     );
