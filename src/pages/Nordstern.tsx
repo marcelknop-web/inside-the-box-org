@@ -308,6 +308,7 @@ const Nordstern = () => {
           {(phase === 'scene' || phase === 'harbor') && (
             <QuestionPanel
               phase={phase} questionIdx={questionIdx} stage={stage}
+              currentStage={state.currentStage}
               current={current} loading={loading} error={error}
               selected={selected} revealed={revealed} eliminated={eliminated}
               sessionCorrect={sessionCorrect} sessionTotal={sessionTotal}
@@ -346,25 +347,76 @@ const RouteMap: React.FC<{ currentStage: number }> = ({ currentStage }) => (
       <pattern id="grid" width="5" height="5" patternUnits="userSpaceOnUse">
         <path d="M 5 0 L 0 0 0 5" fill="none" stroke="currentColor" strokeWidth="0.1" className="text-primary/10" />
       </pattern>
+      <radialGradient id="sea" cx="50%" cy="50%" r="70%">
+        <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.04" />
+        <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0" />
+      </radialGradient>
+      <filter id="glow"><feGaussianBlur stdDeviation="0.6" /></filter>
     </defs>
+    <rect width="100" height="80" fill="url(#sea)" />
     <rect width="100" height="80" fill="url(#grid)" />
+    {/* wave hints */}
+    {[18, 30, 45, 65].map(y => (
+      <path key={y} d={`M0 ${y} Q 25 ${y - 1.5}, 50 ${y} T 100 ${y}`} fill="none" stroke="currentColor" strokeWidth="0.15" className="text-primary/20" />
+    ))}
+    {/* compass rose */}
+    <g transform="translate(92,8)" className="text-primary/40">
+      <circle r="3" fill="none" stroke="currentColor" strokeWidth="0.15" />
+      <path d="M0,-3 L0.6,0 L0,3 L-0.6,0 Z" fill="currentColor" />
+      <text y="-4" textAnchor="middle" fontSize="1.6" className="fill-primary/60 font-mono">N</text>
+    </g>
     <polyline points={PORTS.map(p => `${p.x},${p.y}`).join(' ')} fill="none" stroke="currentColor" strokeWidth="0.4" strokeDasharray="1 1" className="text-primary/40" />
-    <polyline points={PORTS.slice(0, currentStage + 1).map(p => `${p.x},${p.y}`).join(' ')} fill="none" stroke="currentColor" strokeWidth="0.6" className="text-primary" />
+    <polyline points={PORTS.slice(0, currentStage + 1).map(p => `${p.x},${p.y}`).join(' ')} fill="none" stroke="currentColor" strokeWidth="0.7" className="text-primary" filter="url(#glow)" />
+    <polyline points={PORTS.slice(0, currentStage + 1).map(p => `${p.x},${p.y}`).join(' ')} fill="none" stroke="currentColor" strokeWidth="0.5" className="text-primary" />
     {PORTS.map((p, i) => {
       const done = i <= currentStage;
       const active = i === currentStage;
       return (
         <g key={p.name}>
+          {active && <circle cx={p.x} cy={p.y} r="2.5" className="fill-primary/30"><animate attributeName="r" values="1.6;3;1.6" dur="2.4s" repeatCount="indefinite" /><animate attributeName="opacity" values="0.6;0;0.6" dur="2.4s" repeatCount="indefinite" /></circle>}
           <circle cx={p.x} cy={p.y} r={active ? 1.4 : 0.8} className={active ? 'fill-primary' : done ? 'fill-primary/60' : 'fill-muted-foreground/40'} />
           <text x={p.x} y={p.y - 2} textAnchor="middle" fontSize="2" className={active ? 'fill-primary font-bold' : 'fill-muted-foreground'}>{p.name}</text>
         </g>
       );
     })}
     {currentStage < PORTS.length && (
-      <text x={PORTS[currentStage].x} y={PORTS[currentStage].y + 0.8} textAnchor="middle" fontSize="3.5">⛵</text>
+      <text x={PORTS[currentStage].x} y={PORTS[currentStage].y + 0.8} textAnchor="middle" fontSize="4">⛵</text>
     )}
   </svg>
 );
+
+// Mini route ribbon for in-question HUD
+const RouteRibbon: React.FC<{ currentStage: number; questionIdx: number; limit: number; phase: 'scene' | 'harbor' }> = ({ currentStage, questionIdx, limit, phase }) => {
+  // Compute virtual progress along PORTS path
+  const segStart = PORTS[currentStage];
+  const segEnd = PORTS[Math.min(currentStage + 1, PORTS.length - 1)];
+  const t = phase === 'scene'
+    ? (questionIdx / (limit + 3)) // scenes fill ~5/8
+    : (5 / 8) + ((questionIdx + 1) / (3 + 5)); // harbor fills remaining
+  const tx = segStart.x + (segEnd.x - segStart.x) * Math.min(1, t);
+  const ty = segStart.y + (segEnd.y - segStart.y) * Math.min(1, t);
+  return (
+    <svg viewBox="0 0 100 18" className="w-full h-8 md:h-10" preserveAspectRatio="none">
+      <line x1="0" y1="9" x2="100" y2="9" stroke="currentColor" strokeWidth="0.3" strokeDasharray="1.2 1.2" className="text-primary/25" />
+      {PORTS.map((p, i) => {
+        const x = (i / (PORTS.length - 1)) * 100;
+        const done = i <= currentStage;
+        const active = i === currentStage;
+        return (
+          <g key={i}>
+            <circle cx={x} cy={9} r={active ? 1.6 : 1} className={done ? 'fill-primary' : 'fill-muted-foreground/40'} />
+            {active && <circle cx={x} cy={9} r="3" className="fill-primary/25"><animate attributeName="r" values="2;4;2" dur="2s" repeatCount="indefinite" /><animate attributeName="opacity" values="0.5;0;0.5" dur="2s" repeatCount="indefinite" /></circle>}
+            <text x={x} y={17} textAnchor="middle" fontSize="2.6" className={active ? 'fill-primary font-bold' : 'fill-muted-foreground/60'} style={{ fontFamily: 'IBM Plex Mono, monospace' }}>{p.name.slice(0, 4)}</text>
+          </g>
+        );
+      })}
+      {/* boat */}
+      <g transform={`translate(${(currentStage / (PORTS.length - 1)) * 100 + ((1 / (PORTS.length - 1)) * 100) * Math.min(1, t)} 9)`}>
+        <text textAnchor="middle" fontSize="5" y="1.8">⛵</text>
+      </g>
+    </svg>
+  );
+};
 
 const HomeScreen: React.FC<{
   state: NordsternState; stage?: Stage; isLast: boolean; wind: typeof WIND_LABELS[0];
@@ -417,25 +469,66 @@ const Stat: React.FC<{ label: string; value: React.ReactNode }> = ({ label, valu
   </div>
 );
 
+const TOPIC_EMOJI: Record<Topic, string> = {
+  navigation: '🧭', recht: '⚖️', wetter: '🌬️', seemannschaft: '⚓',
+};
+
+// Visual wind dial showing Bft strength
+const WindDial: React.FC<{ bft: number }> = ({ bft }) => {
+  const pct = Math.min(1, bft / 9);
+  return (
+    <svg viewBox="0 0 60 60" className="w-16 h-16 md:w-20 md:h-20">
+      <circle cx="30" cy="30" r="26" fill="none" stroke="currentColor" strokeWidth="2" className="text-muted/40" />
+      <circle cx="30" cy="30" r="26" fill="none" stroke="currentColor" strokeWidth="2"
+        strokeDasharray={`${pct * 163} 163`} strokeLinecap="round"
+        transform="rotate(-90 30 30)" className="text-primary" />
+      <text x="30" y="28" textAnchor="middle" fontSize="18" className="fill-primary font-bold" style={{ fontFamily: 'IBM Plex Mono, monospace' }}>{bft}</text>
+      <text x="30" y="42" textAnchor="middle" fontSize="7" className="fill-muted-foreground" style={{ fontFamily: 'IBM Plex Mono, monospace' }}>BFT</text>
+    </svg>
+  );
+};
+
 const Briefing: React.FC<{ stage: Stage; wind: typeof WIND_LABELS[0]; crewCount: number; onGo: () => void }> = ({ stage, wind, crewCount, onGo }) => (
   <div className="flex-1 min-h-0 max-w-2xl w-full mx-auto flex flex-col justify-center gap-4">
-    <div className="text-center">
+    <div className="text-center shrink-0">
       <div className="text-[10px] font-mono text-primary tracking-widest">BRIEFING</div>
-      <h2 className="text-xl md:text-3xl font-bold mt-1">{stage.from} → {stage.to}</h2>
+      <h2 className="text-xl md:text-3xl font-bold mt-1 leading-tight">{stage.from} → {stage.to}</h2>
     </div>
-    <div className="bg-card/50 border border-border/50 rounded-lg p-4 space-y-3">
-      <p className="italic text-sm md:text-base text-muted-foreground">"{stage.scene}"</p>
-      <div className="flex items-center gap-4 text-xs md:text-sm flex-wrap pt-2 border-t border-border/30">
-        <span className="flex items-center gap-1"><Waves className="w-4 h-4 text-primary" />{stage.nm} sm</span>
-        <span className="flex items-center gap-1"><Wind className="w-4 h-4 text-primary" />{wind.bft} Bft</span>
-        <span className="flex items-center gap-1"><Compass className="w-4 h-4 text-primary" />{TOPIC_LABEL[stage.topicHint]}</span>
-        {crewCount > 0 && <span className="flex items-center gap-1"><Users className="w-4 h-4 text-primary" />{crewCount} Crew</span>}
+
+    {/* Visual hero card */}
+    <div className="relative bg-gradient-to-br from-card/60 to-card/30 border border-border/50 rounded-lg p-4 md:p-5 overflow-hidden">
+      <div className="absolute -right-4 -top-4 text-7xl md:text-8xl opacity-10 select-none pointer-events-none">{TOPIC_EMOJI[stage.topicHint]}</div>
+      <div className="relative flex items-center gap-4">
+        <WindDial bft={wind.bft} />
+        <div className="flex-1 min-w-0">
+          <div className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">{wind.label}</div>
+          <div className="text-sm md:text-base text-foreground/90 italic leading-snug line-clamp-3">"{stage.scene}"</div>
+        </div>
+      </div>
+      <div className="relative grid grid-cols-3 gap-2 mt-4 pt-3 border-t border-border/30">
+        <div className="text-center">
+          <Waves className="w-4 h-4 mx-auto text-primary" />
+          <div className="text-base font-bold font-mono mt-0.5">{stage.nm}<span className="text-[10px] text-muted-foreground ml-0.5">sm</span></div>
+        </div>
+        <div className="text-center">
+          <div className="text-xl">{TOPIC_EMOJI[stage.topicHint]}</div>
+          <div className="text-[10px] font-mono uppercase text-muted-foreground mt-0.5">{TOPIC_LABEL[stage.topicHint]}</div>
+        </div>
+        <div className="text-center">
+          <Users className="w-4 h-4 mx-auto text-primary" />
+          <div className="text-base font-bold font-mono mt-0.5">{crewCount}<span className="text-[10px] text-muted-foreground ml-0.5">Crew</span></div>
+        </div>
       </div>
     </div>
-    <div className="text-center text-xs text-muted-foreground">
-      5 Szenen-Fragen · 3 Hafenmanöver · 60 % zum Bestehen
+
+    <div className="flex items-center justify-center gap-1.5 text-[11px] font-mono text-muted-foreground shrink-0">
+      <span className="text-primary">5</span>×Szene
+      <span className="opacity-40">·</span>
+      <span className="text-primary">3</span>×Hafen
+      <span className="opacity-40">·</span>
+      <span className="text-primary">60%</span> bestehen
     </div>
-    <Button onClick={onGo} className="w-full"><ArrowRight className="w-4 h-4" />Etappe starten</Button>
+    <Button onClick={onGo} className="w-full shrink-0"><ArrowRight className="w-4 h-4" />Leinen los</Button>
   </div>
 );
 
@@ -443,6 +536,7 @@ const QuestionPanel: React.FC<{
   phase: 'scene' | 'harbor';
   questionIdx: number;
   stage?: Stage;
+  currentStage: number;
   current: AiQuestion | null;
   loading: boolean;
   error: string | null;
@@ -460,54 +554,68 @@ const QuestionPanel: React.FC<{
   onNext: () => void;
   onRetry: () => void;
   onJoker: () => void;
-}> = ({ phase, questionIdx, stage, current, loading, error, selected, revealed, eliminated,
+}> = ({ phase, questionIdx, stage, currentStage, current, loading, error, selected, revealed, eliminated,
        sessionCorrect, sessionTotal, stormActive, jokersLeft, maxJokers,
        insuranceAvailable, newKnowledge, onAnswer, onNext, onRetry, onJoker }) => {
   const limit = phase === 'scene' ? SCENE_QUESTIONS : HARBOR_QUESTIONS;
+  const topicEmoji = stage ? TOPIC_EMOJI[stage.topicHint] : '🧭';
   return (
-    <div className="flex-1 min-h-0 max-w-2xl w-full mx-auto flex flex-col gap-2 md:gap-3 overflow-hidden">
-      {/* HUD */}
-      <div className="flex items-center justify-between text-[11px] font-mono gap-2 shrink-0">
-        <span className="text-primary">
-          {phase === 'scene' ? `SZENE ${questionIdx + 1}/${limit}` : `⚓ HAFEN ${questionIdx + 1}/${limit}`}
-        </span>
-        <div className="flex items-center gap-2">
+    <div className="flex-1 min-h-0 max-w-2xl w-full mx-auto flex flex-col gap-2 md:gap-3 overflow-hidden relative">
+      {/* Storm overlay – flashes behind everything */}
+      {stormActive && !loading && (
+        <div className="absolute inset-0 pointer-events-none rounded-lg overflow-hidden -z-0">
+          <div className="absolute inset-0 bg-destructive/5 animate-pulse" />
+          <div className="absolute top-2 right-2 text-destructive/70 animate-pulse">
+            <CloudLightning className="w-8 h-8" />
+          </div>
+        </div>
+      )}
+
+      {/* Route ribbon HUD */}
+      <div className="shrink-0 text-primary/60">
+        <RouteRibbon currentStage={currentStage} questionIdx={questionIdx} limit={limit} phase={phase} />
+      </div>
+
+      {/* Compact icon HUD */}
+      <div className="flex items-center justify-between gap-2 shrink-0">
+        <div className="flex items-center gap-1.5">
+          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary/15 text-primary text-sm">{phase === 'scene' ? topicEmoji : '⚓'}</span>
+          <span className="font-mono text-[11px] text-muted-foreground">
+            <span className="text-primary">{questionIdx + 1}</span>/{limit}
+          </span>
+          {stormActive && (
+            <span className="ml-1 inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-destructive/15 border border-destructive/40 text-destructive text-[10px] font-mono animate-pulse">
+              <CloudLightning className="w-3 h-3" />STURM
+            </span>
+          )}
+        </div>
+        <div className="flex items-center gap-1.5">
           {insuranceAvailable && (
-            <span className="flex items-center gap-1 text-cyan-400" title="Patzer-Versicherung">
-              <ShieldCheck className="w-3 h-3" />1×
+            <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-cyan-500/15 border border-cyan-500/40 text-cyan-400" title="Patzer-Versicherung">
+              <ShieldCheck className="w-3.5 h-3.5" />
             </span>
           )}
           <button
             onClick={onJoker}
             disabled={revealed || jokersLeft <= 0 || loading}
-            className="px-1.5 py-0.5 rounded border border-primary/40 text-primary disabled:opacity-40 disabled:cursor-not-allowed hover:bg-primary/10 flex items-center gap-1"
-            title="50/50"
+            className="relative inline-flex items-center justify-center w-7 h-7 rounded-full border border-primary/40 text-primary disabled:opacity-30 disabled:cursor-not-allowed hover:bg-primary/10 transition"
+            title="50/50 Joker"
           >
-            <Zap className="w-3 h-3" />50/50 ({jokersLeft})
+            <Zap className="w-3.5 h-3.5" />
+            <span className="absolute -top-1 -right-1 text-[9px] font-mono bg-primary text-primary-foreground rounded-full w-3.5 h-3.5 flex items-center justify-center">{jokersLeft}</span>
           </button>
-          <span className="text-muted-foreground">{sessionCorrect}/{sessionTotal} ✓</span>
+          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-card/50 border border-border/40 font-mono text-[10px]">
+            <CheckCircle2 className="w-3 h-3 text-green-500" /><span className="text-primary">{sessionCorrect}</span><span className="text-muted-foreground">/{sessionTotal}</span>
+          </span>
         </div>
-      </div>
-
-      {/* Sturm-Warnung */}
-      {stormActive && !loading && (
-        <div className="bg-destructive/10 border border-destructive/40 rounded-md px-2 py-1.5 flex items-center gap-2 text-xs shrink-0">
-          <CloudLightning className="w-3.5 h-3.5 text-destructive shrink-0" />
-          <span><strong>Sturm:</strong> Schwierigkeit +1.</span>
-        </div>
-      )}
-
-      {/* Progress dots */}
-      <div className="flex gap-1 shrink-0">
-        {Array.from({ length: limit }).map((_, i) => (
-          <div key={i} className={`h-1 flex-1 rounded-full ${i < questionIdx ? 'bg-primary' : i === questionIdx ? 'bg-primary/60' : 'bg-muted'}`} />
-        ))}
       </div>
 
       {loading && (
         <div className="flex-1 min-h-0 bg-card/50 border border-border/50 rounded-lg p-6 text-center flex flex-col items-center justify-center">
-          <Loader2 className="w-6 h-6 animate-spin text-primary" />
-          <p className="text-sm text-muted-foreground mt-3">{phase === 'harbor' ? 'Hafenmanöver wird vorbereitet…' : 'Frage wird vorbereitet…'}</p>
+          <div className="relative">
+            <Compass className="w-10 h-10 text-primary animate-spin" style={{ animationDuration: '2s' }} />
+          </div>
+          <p className="text-xs font-mono uppercase tracking-widest text-muted-foreground mt-3">Kurs setzen…</p>
         </div>
       )}
 
@@ -520,8 +628,9 @@ const QuestionPanel: React.FC<{
 
       {current && !loading && !error && (
         <div className="flex-1 min-h-0 flex flex-col gap-2 md:gap-3 overflow-hidden">
-          <div className="bg-card/50 border border-border/50 rounded-lg p-3 md:p-4 shrink-0">
-            <p className="text-sm md:text-base font-medium leading-snug">
+          <div className="relative bg-card/50 border border-border/50 rounded-lg p-3 md:p-4 shrink-0 overflow-hidden">
+            <div className="absolute -right-2 -top-2 text-5xl opacity-[0.07] select-none pointer-events-none">{topicEmoji}</div>
+            <p className="relative text-sm md:text-base font-medium leading-snug">
               {highlight(current.question, current.keywords)}
             </p>
           </div>
@@ -538,21 +647,27 @@ const QuestionPanel: React.FC<{
                   onClick={() => onAnswer(i)}
                   disabled={revealed || isEliminated}
                   className={[
-                    'text-left px-3 py-2 md:py-2.5 rounded-lg border transition-all flex items-start gap-2',
+                    'group text-left pl-2 pr-3 py-2 md:py-2.5 rounded-lg border transition-all flex items-center gap-3',
                     isCorrect ? 'border-green-500/60 bg-green-500/10' :
                     isWrong ? 'border-destructive/60 bg-destructive/10' :
                     isSel ? 'border-primary/60 bg-primary/10' :
                     isEliminated ? 'border-border/30 bg-card/10 opacity-30 line-through' :
-                    'border-border/50 bg-card/30 hover:border-primary/40 hover:bg-card/60',
+                    'border-border/50 bg-card/30 hover:border-primary/50 hover:bg-card/60 hover:translate-x-0.5',
                     revealed || isEliminated ? 'cursor-not-allowed' : 'cursor-pointer',
                   ].join(' ')}
                 >
-                  <span className="font-mono text-[10px] text-muted-foreground mt-1">{'ABCD'[i]}</span>
+                  <span className={[
+                    'shrink-0 inline-flex items-center justify-center w-7 h-7 rounded-full font-mono text-xs font-bold border transition',
+                    isCorrect ? 'border-green-500/60 bg-green-500/20 text-green-400' :
+                    isWrong ? 'border-destructive/60 bg-destructive/20 text-destructive' :
+                    isSel ? 'border-primary/60 bg-primary/20 text-primary' :
+                    'border-border/60 bg-background/40 text-muted-foreground group-hover:border-primary/60 group-hover:text-primary',
+                  ].join(' ')}>
+                    {isCorrect ? <CheckCircle2 className="w-4 h-4" /> : isWrong ? <XCircle className="w-4 h-4" /> : 'ABCD'[i]}
+                  </span>
                   <span className="flex-1 text-sm leading-snug">
                     {revealed && i === current.correct ? highlight(opt, current.keywords) : opt}
                   </span>
-                  {isCorrect && <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0 mt-0.5" />}
-                  {isWrong && <XCircle className="w-4 h-4 text-destructive shrink-0 mt-0.5" />}
                 </button>
               );
             })}
@@ -565,7 +680,7 @@ const QuestionPanel: React.FC<{
                 <span>{highlight(current.explanation, current.keywords)}</span>
               </div>
               {newKnowledge && (
-                <div className="flex items-center gap-2 text-[11px] bg-cyan-500/10 border border-cyan-500/30 rounded-md px-2 py-1 text-cyan-300 shrink-0">
+                <div className="flex items-center gap-2 text-[11px] bg-cyan-500/10 border border-cyan-500/30 rounded-md px-2 py-1 text-cyan-300 shrink-0 animate-in fade-in zoom-in-95">
                   <BookOpen className="w-3.5 h-3.5" />
                   Neue Logbuch-Karte gesammelt.
                 </div>
