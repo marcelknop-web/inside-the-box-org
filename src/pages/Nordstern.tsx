@@ -195,6 +195,7 @@ const Nordstern = () => {
       setInsuranceAvailable(false);
     }
     const effectiveCorrect = correct || usedInsurance;
+    if (effectiveCorrect) audio.playCorrect(); else audio.playWrong();
 
     setSessionTotal(s => s + 1);
     if (effectiveCorrect) setSessionCorrect(s => s + 1);
