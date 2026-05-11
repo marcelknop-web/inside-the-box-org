@@ -589,40 +589,40 @@ const Completed: React.FC<{
 }> = ({ stage, accuracy, correct, total, newCrew, onContinue }) => {
   const passed = accuracy >= 60;
   return (
-    <div className="max-w-xl mx-auto text-center space-y-6">
+    <div className="flex-1 min-h-0 max-w-xl mx-auto text-center flex flex-col items-center justify-center gap-4 py-2">
       {passed ? (
         <>
-          <div className="text-5xl">⚓</div>
-          <h2 className="text-2xl md:text-3xl font-bold">{stage.to} erreicht</h2>
-          <p className="text-muted-foreground">Patch ins Logbuch: <span className="text-primary font-semibold">{stage.to}</span></p>
+          <div className="text-4xl md:text-5xl">⚓</div>
+          <h2 className="text-xl md:text-3xl font-bold">{stage.to} erreicht</h2>
+          <p className="text-sm text-muted-foreground">Patch ins Logbuch: <span className="text-primary font-semibold">{stage.to}</span></p>
         </>
       ) : (
         <>
-          <div className="text-5xl">🌊</div>
-          <h2 className="text-2xl md:text-3xl font-bold">Vor Anker</h2>
-          <p className="text-muted-foreground">Wetter unbeständig – die Etappe wiederholt sich. Pauken hilft.</p>
+          <div className="text-4xl md:text-5xl">🌊</div>
+          <h2 className="text-xl md:text-3xl font-bold">Vor Anker</h2>
+          <p className="text-sm text-muted-foreground">Wetter unbeständig – die Etappe wiederholt sich. Pauken hilft.</p>
         </>
       )}
-      <div className="bg-card/50 border border-border/50 rounded-lg p-4 inline-block">
-        <div className="text-3xl font-bold text-primary">{accuracy}%</div>
+      <div className="bg-card/50 border border-border/50 rounded-lg p-3 inline-block">
+        <div className="text-2xl md:text-3xl font-bold text-primary">{accuracy}%</div>
         <div className="text-xs text-muted-foreground">{correct} von {total} richtig</div>
       </div>
 
       {passed && newCrew && (
-        <div className="bg-primary/10 border border-primary/30 rounded-lg p-4 max-w-md mx-auto text-left animate-in fade-in zoom-in-95">
-          <div className="text-xs font-mono text-primary tracking-widest mb-2">NEUES CREW-MITGLIED</div>
+        <div className="bg-primary/10 border border-primary/30 rounded-lg p-3 max-w-md w-full text-left animate-in fade-in zoom-in-95">
+          <div className="text-[10px] font-mono text-primary tracking-widest mb-1">NEUES CREW-MITGLIED</div>
           <div className="flex items-center gap-3">
-            <div className="text-3xl">{newCrew.emoji}</div>
-            <div>
-              <div className="font-bold">{newCrew.name}</div>
+            <div className="text-2xl">{newCrew.emoji}</div>
+            <div className="min-w-0">
+              <div className="font-bold text-sm">{newCrew.name}</div>
               <div className="text-xs text-muted-foreground">{newCrew.role}</div>
-              <div className="text-sm text-primary mt-1">{newCrew.effect}</div>
+              <div className="text-xs text-primary mt-0.5">{newCrew.effect}</div>
             </div>
           </div>
         </div>
       )}
 
-      <Button onClick={onContinue} size="lg" className="w-full md:w-auto">
+      <Button onClick={onContinue} className="w-full md:w-auto">
         Zur Karte <ArrowRight className="w-4 h-4" />
       </Button>
     </div>
@@ -630,20 +630,18 @@ const Completed: React.FC<{
 };
 
 const Finished: React.FC<{ state: NordsternState; onReset: () => void }> = ({ state, onReset }) => (
-  <div className="max-w-xl mx-auto text-center space-y-6 py-8">
-    <Trophy className="w-16 h-16 text-primary mx-auto" />
-    <h2 className="text-3xl md:text-4xl font-bold">Bodrum erreicht!</h2>
-    <p className="text-muted-foreground">
-      Sie haben {state.totalAnswered} Fragen beantwortet, davon {state.totalCorrect} richtig
-      ({Math.round(state.totalCorrect / Math.max(1, state.totalAnswered) * 100)} %).
-      Best-Streak: {state.bestStreak}.
+  <div className="flex-1 min-h-0 max-w-xl mx-auto text-center flex flex-col items-center justify-center gap-4">
+    <Trophy className="w-12 h-12 md:w-16 md:h-16 text-primary" />
+    <h2 className="text-2xl md:text-4xl font-bold">Bodrum erreicht!</h2>
+    <p className="text-sm text-muted-foreground">
+      {state.totalAnswered} Fragen, {state.totalCorrect} richtig ({Math.round(state.totalCorrect / Math.max(1, state.totalAnswered) * 100)} %). Best-Streak: {state.bestStreak}.
     </p>
-    <div className="flex flex-wrap gap-2 justify-center">
+    <div className="flex flex-wrap gap-1.5 justify-center">
       {state.patches.map(p => (
-        <span key={p} className="text-xs font-mono px-2 py-1 rounded-full bg-primary/10 border border-primary/30 text-primary">⚓ {p}</span>
+        <span key={p} className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-primary/10 border border-primary/30 text-primary">⚓ {p}</span>
       ))}
     </div>
-    <Button onClick={onReset} size="lg"><RotateCcw className="w-4 h-4" />Neue Reise</Button>
+    <Button onClick={onReset}><RotateCcw className="w-4 h-4" />Neue Reise</Button>
   </div>
 );
 
