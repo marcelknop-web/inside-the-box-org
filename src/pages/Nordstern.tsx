@@ -156,6 +156,7 @@ const Nordstern = () => {
     setNewCrew(null);
     setNewKnowledge(null);
     setPhase('scene');
+    audio.playFoghorn();
     fetchQuestion('scene');
   };
 
@@ -164,6 +165,13 @@ const Nordstern = () => {
     if (phase === 'scene' && stormQuestionIdx === questionIdx) setStormActive(true);
     else setStormActive(false);
   }, [phase, questionIdx, stormQuestionIdx]);
+
+  // Wind- und Sturm-Audio mit Spielzustand koppeln
+  useEffect(() => {
+    const inGame = phase === 'scene' || phase === 'harbor';
+    audio.setWind(inGame ? wind.bft : 2);
+  }, [wind.bft, phase, audio]);
+  useEffect(() => { audio.setStorm(stormActive); }, [stormActive, audio]);
 
   const useFiftyFifty = () => {
     if (!current || revealed || jokersLeft <= 0) return;
