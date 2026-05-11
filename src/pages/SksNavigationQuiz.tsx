@@ -75,16 +75,34 @@ export default function SksNavigationQuiz({ embedded = false }: { embedded?: boo
   const isMobile = useIsMobile();
   const { playQuestionReveal, playCorrect, playWrong, playSelect, playConfirm, playVictory, playDefeat, playTick, playTickUrgent, playMilestone } = useMillionaireSound();
 
-  // ── Topic & sequential progress ──
+  // ── Topic & random-but-tracked progress ──
   const [topic, setTopic] = useState<Topic | null>(null);
-  const cursorKey = (tp: Topic) => `sks_quiz_cursor_${tp}`;
-  const readCursor = (tp: Topic) => {
-    try { return parseInt(localStorage.getItem(cursorKey(tp)) || '0', 10) || 0; } catch { return 0; }
+  const seenKey = (tp: Topic) => `sks_quiz_seen_${tp}`;
+  const readSeen = (tp: Topic): number[] => {
+    try { return JSON.parse(localStorage.getItem(seenKey(tp)) || '[]'); } catch { return []; }
   };
-  const writeCursor = (tp: Topic, v: number) => {
-    try { localStorage.setItem(cursorKey(tp), String(v)); } catch {}
+  const writeSeen = (tp: Topic, arr: number[]) => {
+    try { localStorage.setItem(seenKey(tp), JSON.stringify(arr)); } catch {}
   };
-  const startIndexRef = useRef<number>(0);
+  // The 10 source indices chosen for the current round
+  const roundIndicesRef = useRef<number[]>([]);
+
+  const pickRoundIndices = (tp: Topic): number[] => {
+    const pool = topicPoolSize(tp);
+    let seen = readSeen(tp);
+    // Reset if we've consumed (almost) the whole pool
+    if (seen.length + QUIZ_SIZE > pool) seen = [];
+    const available: number[] = [];
+    for (let i = 0; i < pool; i++) if (!seen.includes(i)) available.push(i);
+    // Fisher-Yates shuffle
+    for (let i = available.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [available[i], available[j]] = [available[j], available[i]];
+    }
+    const chosen = available.slice(0, QUIZ_SIZE);
+    writeSeen(tp, [...seen, ...chosen]);
+    return chosen;
+  };
 
   const [started, setStarted] = useState(embedded);
   const [currentQ, setCurrentQ] = useState(0);
@@ -114,16 +132,15 @@ export default function SksNavigationQuiz({ embedded = false }: { embedded?: boo
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
 
-  // Fetch question from edge function (sequential, per-topic)
+  // Fetch question from edge function (random indices, ascending difficulty)
   const fetchQuestion = useCallback(async (questionIndex: number, tp: Topic | null) => {
     if (!tp) return;
     setLoadingQuestion(true);
     setLoadError(false);
     setQuestion(null);
     try {
-      const difficulty = questionIndex + 1; // 1-10
-      const poolSize = topicPoolSize(tp);
-      const sourceIndex = (startIndexRef.current + questionIndex) % poolSize;
+      const difficulty = questionIndex + 1; // 1-10, aufsteigend
+      const sourceIndex = roundIndicesRef.current[questionIndex] ?? Math.floor(Math.random() * topicPoolSize(tp));
       const { data, error } = await supabase.functions.invoke('sks-question', {
         body: { topic: tp === 'mixed' ? undefined : tp, difficulty, sourceIndex },
       });
@@ -284,11 +301,9 @@ export default function SksNavigationQuiz({ embedded = false }: { embedded?: boo
     setAudienceResults(results);
   }, [audienceUsed, confirmed, question, hiddenOptions]);
 
-  const restart = (advanceCursor: boolean) => {
-    if (topic && advanceCursor) {
-      const newCursor = (startIndexRef.current + QUIZ_SIZE) % topicPoolSize(topic);
-      startIndexRef.current = newCursor;
-      writeCursor(topic, newCursor);
+  const restart = (newRound: boolean) => {
+    if (topic && newRound) {
+      roundIndicesRef.current = pickRoundIndices(topic);
     }
     setStarted(embedded);
     setCurrentQ(0);
@@ -311,14 +326,14 @@ export default function SksNavigationQuiz({ embedded = false }: { embedded?: boo
 
   const chooseTopic = (tp: Topic) => {
     setTopic(tp);
-    startIndexRef.current = readCursor(tp);
+    roundIndicesRef.current = pickRoundIndices(tp);
     setStarted(true);
   };
 
   const resetTopicProgress = () => {
     if (!topic) return;
-    startIndexRef.current = 0;
-    writeCursor(topic, 0);
+    writeSeen(topic, []);
+    roundIndicesRef.current = pickRoundIndices(topic);
     restart(false);
   };
 
@@ -366,7 +381,7 @@ export default function SksNavigationQuiz({ embedded = false }: { embedded?: boo
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-md mx-auto">
             {topics.map(({ id, label, sub, Icon }) => {
-              const cursor = readCursor(id);
+              const cursor = readSeen(id).length;
               const pool = topicPoolSize(id);
               return (
                 <button key={id} onClick={() => chooseTopic(id)}
@@ -375,7 +390,7 @@ export default function SksNavigationQuiz({ embedded = false }: { embedded?: boo
                     <Icon className="w-5 h-5 text-primary flex-shrink-0" />
                     <div className="flex-1 min-w-0">
                       <p className="text-primary font-mono font-bold text-sm tracking-wider">{label}</p>
-                      <p className="text-muted-foreground text-[11px] font-mono">{sub} · Fortschritt {cursor}/{pool}</p>
+                      <p className="text-muted-foreground text-[11px] font-mono">{sub} · Gesehen {cursor}/{pool}</p>
                     </div>
                   </div>
                 </button>
@@ -542,7 +557,7 @@ export default function SksNavigationQuiz({ embedded = false }: { embedded?: boo
               <Typewriter text={t(I18N.title)} charDelay={8} />
             </h1>
             <p className="text-[10px] md:text-xs font-mono text-muted-foreground/70 tracking-wider truncate">
-              {TOPIC_LABEL[topic]} · Block {Math.floor(startIndexRef.current / QUIZ_SIZE) + 1} von {Math.ceil(topicPoolSize(topic) / QUIZ_SIZE)}
+              {TOPIC_LABEL[topic]} · {readSeen(topic).length}/{topicPoolSize(topic)} gesehen · Zufall + aufsteigend
             </p>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
