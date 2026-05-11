@@ -267,7 +267,7 @@ const Nordstern = () => {
   const dueCount = dueCards(deck).length;
 
   return (
-    <div className="h-[100dvh] bg-background text-foreground flex flex-col overflow-hidden">
+    <div className="h-screen [height:100svh] [height:100dvh] max-h-screen [max-height:100dvh] bg-background text-foreground flex flex-col overflow-hidden">
       <PageMeta title="Nordstern – SKS-Pauken als Roguelike" description="Mediterrane Lernreise von Athen nach Bodrum. Spaced Repetition, adaptive Schwierigkeit, szenische SKS-Fragen." />
 
       <header className="border-b border-border/40 bg-background/60 backdrop-blur shrink-0">
