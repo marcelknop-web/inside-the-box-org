@@ -5,7 +5,7 @@ import { PageMeta } from '@/components/PageMeta';
 import {
   Anchor, Compass, Wind, Loader2, CheckCircle2, XCircle, ArrowRight, Trophy,
   RotateCcw, Sparkles, Waves, Zap, BookOpen, Users, X, ShieldCheck, Flame, CloudLightning,
-  Volume2, VolumeX,
+  Volume2, VolumeX, HelpCircle, Map, Award,
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { SKS_CATALOG } from '@/data/sksQuestions';
@@ -85,6 +85,14 @@ const Nordstern = () => {
 
   // Logbuch-Modal
   const [logbuchOpen, setLogbuchOpen] = useState(false);
+  // Intro-Overlay (Erstbesuch)
+  const [introOpen, setIntroOpen] = useState<boolean>(() => {
+    try { return localStorage.getItem('nordstern.introSeen') !== '1'; } catch { return true; }
+  });
+  const closeIntro = () => {
+    setIntroOpen(false);
+    try { localStorage.setItem('nordstern.introSeen', '1'); } catch { /* noop */ }
+  };
 
   // Patzer-Versicherung verbraucht (Maschinist)
   const [insuranceAvailable, setInsuranceAvailable] = useState(false);
@@ -308,6 +316,14 @@ const Nordstern = () => {
               {audio.muted ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
             </button>
             <button
+              onClick={() => setIntroOpen(true)}
+              className="ml-1 p-1 rounded border border-border/50 hover:border-primary/50 hover:text-primary"
+              title="Hilfe / Einführung"
+              aria-label="Hilfe"
+            >
+              <HelpCircle className="w-3.5 h-3.5" />
+            </button>
+            <button
               onClick={() => setLogbuchOpen(true)}
               className="ml-1 px-2 py-1 rounded border border-border/50 hover:border-primary/50 hover:text-primary flex items-center gap-1"
             >
@@ -359,6 +375,7 @@ const Nordstern = () => {
       </main>
 
       {logbuchOpen && <Logbuch state={state} onClose={() => setLogbuchOpen(false)} />}
+      {introOpen && <Intro onClose={closeIntro} />}
     </div>
   );
 };
@@ -411,34 +428,52 @@ const RouteMap: React.FC<{ currentStage: number }> = ({ currentStage }) => (
 
 // Mini route ribbon for in-question HUD
 const RouteRibbon: React.FC<{ currentStage: number; questionIdx: number; limit: number; phase: 'scene' | 'harbor' }> = ({ currentStage, questionIdx, limit, phase }) => {
-  // Compute virtual progress along PORTS path
-  const segStart = PORTS[currentStage];
-  const segEnd = PORTS[Math.min(currentStage + 1, PORTS.length - 1)];
-  const t = phase === 'scene'
-    ? (questionIdx / (limit + 3)) // scenes fill ~5/8
-    : (5 / 8) + ((questionIdx + 1) / (3 + 5)); // harbor fills remaining
-  const tx = segStart.x + (segEnd.x - segStart.x) * Math.min(1, t);
-  const ty = segStart.y + (segEnd.y - segStart.y) * Math.min(1, t);
+  // Progress 0..1 along the trip Athens→Bodrum (stage + intra-stage progress)
+  const intra = phase === 'scene'
+    ? (questionIdx + 1) / (SCENE_QUESTIONS + HARBOR_QUESTIONS)
+    : (SCENE_QUESTIONS + questionIdx + 1) / (SCENE_QUESTIONS + HARBOR_QUESTIONS);
+  const stageT = Math.min(1, intra);
+  const boatPct = ((currentStage + stageT) / (PORTS.length - 1)) * 100;
+  const completedPct = (currentStage / (PORTS.length - 1)) * 100;
+
   return (
-    <svg viewBox="0 0 100 18" className="w-full h-8 md:h-10" preserveAspectRatio="none">
-      <line x1="0" y1="9" x2="100" y2="9" stroke="currentColor" strokeWidth="0.3" strokeDasharray="1.2 1.2" className="text-primary/25" />
-      {PORTS.map((p, i) => {
-        const x = (i / (PORTS.length - 1)) * 100;
-        const done = i <= currentStage;
-        const active = i === currentStage;
-        return (
-          <g key={i}>
-            <circle cx={x} cy={9} r={active ? 1.6 : 1} className={done ? 'fill-primary' : 'fill-muted-foreground/40'} />
-            {active && <circle cx={x} cy={9} r="3" className="fill-primary/25"><animate attributeName="r" values="2;4;2" dur="2s" repeatCount="indefinite" /><animate attributeName="opacity" values="0.5;0;0.5" dur="2s" repeatCount="indefinite" /></circle>}
-            <text x={x} y={17} textAnchor="middle" fontSize="2.6" className={active ? 'fill-primary font-bold' : 'fill-muted-foreground/60'} style={{ fontFamily: 'IBM Plex Mono, monospace' }}>{p.name.slice(0, 4)}</text>
-          </g>
-        );
-      })}
-      {/* boat */}
-      <g transform={`translate(${(currentStage / (PORTS.length - 1)) * 100 + ((1 / (PORTS.length - 1)) * 100) * Math.min(1, t)} 9)`}>
-        <text textAnchor="middle" fontSize="5" y="1.8">⛵</text>
-      </g>
-    </svg>
+    <div className="relative w-full select-none px-3 pt-1 pb-5">
+      {/* Track */}
+      <div className="relative h-[3px] rounded-full bg-border/40 overflow-visible">
+        {/* completed */}
+        <div className="absolute inset-y-0 left-0 rounded-full bg-primary/70" style={{ width: `${completedPct}%` }} />
+        {/* current leg */}
+        <div className="absolute inset-y-0 rounded-full bg-primary"
+             style={{ left: `${completedPct}%`, width: `${Math.max(0, boatPct - completedPct)}%` }} />
+        {/* Port dots */}
+        {PORTS.map((p, i) => {
+          const x = (i / (PORTS.length - 1)) * 100;
+          const done = i < currentStage;
+          const active = i === currentStage;
+          return (
+            <div key={p.name} className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center" style={{ left: `${x}%` }}>
+              <div className={[
+                'rounded-full transition-all',
+                active ? 'w-3 h-3 bg-primary ring-2 ring-primary/30 ring-offset-2 ring-offset-background shadow-[0_0_10px_hsl(var(--primary)/0.55)]'
+                       : done ? 'w-2 h-2 bg-primary/80'
+                              : 'w-1.5 h-1.5 bg-muted-foreground/40',
+              ].join(' ')} />
+              <span className={[
+                'absolute top-4 font-mono text-[10px] tracking-wide whitespace-nowrap',
+                active ? 'text-primary font-semibold' : done ? 'text-primary/70' : 'text-muted-foreground/60',
+                // edge alignment: leftmost left-aligned, rightmost right-aligned
+                i === 0 ? 'left-0 translate-x-0' : i === PORTS.length - 1 ? 'right-0 left-auto' : '',
+              ].join(' ')}>{p.name}</span>
+            </div>
+          );
+        })}
+        {/* Boat marker — slightly above the line so it doesn't obscure the active port */}
+        <div className="absolute -top-4 text-base leading-none -translate-x-1/2 transition-[left] duration-500 ease-out"
+             style={{ left: `${boatPct}%`, filter: 'drop-shadow(0 1px 2px hsl(var(--primary) / 0.5))' }}>
+          ⛵
+        </div>
+      </div>
+    </div>
   );
 };
 
@@ -857,4 +892,65 @@ const Logbuch: React.FC<{ state: NordsternState; onClose: () => void }> = ({ sta
   );
 };
 
+const Intro: React.FC<{ onClose: () => void }> = ({ onClose }) => {
+  const [step, setStep] = useState(0);
+  const slides = [
+    {
+      icon: <Map className="w-8 h-8 text-primary" />,
+      title: 'Sieben Etappen, ein Ziel',
+      body: 'Von Athen nach Bodrum. Jede Etappe = 5 Szenen-Fragen unterwegs + 3 Hafenmanöver. 60 % richtig zum Bestehen.',
+    },
+    {
+      icon: <Compass className="w-8 h-8 text-primary" />,
+      title: 'Adaptives Pauken',
+      body: 'Die KI passt die Schwierigkeit live an deinen Streak an. Falsch beantwortete Fragen kommen als Wiederholung (↻) zurück — Spaced Repetition statt Auswendiglernen.',
+    },
+    {
+      icon: <Zap className="w-8 h-8 text-primary" />,
+      title: 'Joker & Sturm',
+      body: '50/50 eliminiert zwei falsche Optionen pro Etappe. Bei Sturm steigt die Schwierigkeit. Eine Crew gibt Boni: Lotse +Joker, Maschinist mit Patzer-Versicherung.',
+    },
+    {
+      icon: <Award className="w-8 h-8 text-primary" />,
+      title: 'Logbuch sammelt alles',
+      body: 'Häfen, Crew und Wissenskarten landen im Logbuch oben rechts. Schau jederzeit rein, um Gelerntes zu wiederholen.',
+    },
+  ];
+  const last = step === slides.length - 1;
+  const s = slides[step];
+
+  return (
+    <div className="fixed inset-0 z-50 bg-background/85 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
+      <div className="bg-card border border-border rounded-lg max-w-md w-full p-5 md:p-6 space-y-4 shadow-[0_10px_40px_-10px_hsl(var(--primary)/0.4)]">
+        <div className="flex items-center justify-between">
+          <span className="font-mono text-[10px] tracking-widest text-primary">EINFÜHRUNG · {step + 1}/{slides.length}</span>
+          <button onClick={onClose} className="text-muted-foreground hover:text-foreground" aria-label="Schließen"><X className="w-4 h-4" /></button>
+        </div>
+        <div className="flex items-start gap-3">
+          <div className="shrink-0 w-12 h-12 rounded-lg bg-primary/10 border border-primary/30 flex items-center justify-center">
+            {s.icon}
+          </div>
+          <div className="min-w-0">
+            <h3 className="text-base md:text-lg font-bold leading-tight">{s.title}</h3>
+            <p className="text-sm text-muted-foreground leading-snug mt-1">{s.body}</p>
+          </div>
+        </div>
+        <div className="flex items-center justify-center gap-1.5 pt-1">
+          {slides.map((_, i) => (
+            <button key={i} onClick={() => setStep(i)} aria-label={`Slide ${i + 1}`}
+              className={`h-1.5 rounded-full transition-all ${i === step ? 'w-6 bg-primary' : 'w-1.5 bg-muted-foreground/30 hover:bg-muted-foreground/60'}`} />
+          ))}
+        </div>
+        <div className="flex gap-2">
+          {step > 0 && <Button variant="outline" size="sm" className="flex-1" onClick={() => setStep(s => s - 1)}>Zurück</Button>}
+          <Button size="sm" className="flex-1" onClick={() => last ? onClose() : setStep(s => s + 1)}>
+            {last ? <>Leinen los <Anchor className="w-4 h-4" /></> : <>Weiter <ArrowRight className="w-4 h-4" /></>}
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export default Nordstern;
+
