@@ -599,7 +599,7 @@ export default function SksNavigationQuiz({ embedded = false }: { embedded?: boo
 
       <div className={`flex gap-5 ${showLadder ? '' : 'flex-col'}`}>
         <div className="flex-1 min-w-0 space-y-4">
-          <StaggerReveal key={`question-${currentQ}`} stagger={isMobile ? 600 : 350}>
+          <StaggerReveal key={`question-${currentQ}`} stagger={120}>
             {/* Jokers */}
             <div className="flex items-center gap-2">
               <button onClick={useFiftyFifty} disabled={fiftyFiftyUsed || confirmed}
@@ -721,7 +721,7 @@ export default function SksNavigationQuiz({ embedded = false }: { embedded?: boo
 
           {/* Explanation */}
           {confirmed && (
-            <StaggerReveal stagger={300}>
+            <StaggerReveal stagger={100}>
               <div className={`flex items-start gap-3 p-4 rounded-xl border ${isCorrect ? 'border-success/30 bg-success/5' : 'border-destructive/30 bg-destructive/5'}`}>
                 {isCorrect ? <CheckCircle2 className="w-5 h-5 text-success mt-0.5 flex-shrink-0" /> : <XCircle className="w-5 h-5 text-destructive mt-0.5 flex-shrink-0" />}
                 <div>
