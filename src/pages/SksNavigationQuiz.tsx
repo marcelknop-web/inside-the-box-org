@@ -308,7 +308,7 @@ export default function SksNavigationQuiz({ embedded = false }: { embedded?: boo
           </div>
           <div className="space-y-3">
             <h1 className="text-3xl md:text-4xl font-bold text-primary font-mono tracking-widest uppercase">SKS</h1>
-            <p className="text-lg text-foreground/70 font-mono tracking-wide">Awareness Quiz</p>
+            <p className="text-lg text-foreground/70 font-mono tracking-wide">Navigation Quiz</p>
             <div className="w-16 h-0.5 bg-gradient-to-r from-transparent via-primary to-transparent mx-auto" />
           </div>
           <p className="text-foreground/60 text-sm leading-relaxed max-w-sm mx-auto">{t(I18N.intro)}</p>
