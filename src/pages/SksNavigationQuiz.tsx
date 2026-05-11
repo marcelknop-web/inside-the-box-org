@@ -301,11 +301,9 @@ export default function SksNavigationQuiz({ embedded = false }: { embedded?: boo
     setAudienceResults(results);
   }, [audienceUsed, confirmed, question, hiddenOptions]);
 
-  const restart = (advanceCursor: boolean) => {
-    if (topic && advanceCursor) {
-      const newCursor = (startIndexRef.current + QUIZ_SIZE) % topicPoolSize(topic);
-      startIndexRef.current = newCursor;
-      writeCursor(topic, newCursor);
+  const restart = (newRound: boolean) => {
+    if (topic && newRound) {
+      roundIndicesRef.current = pickRoundIndices(topic);
     }
     setStarted(embedded);
     setCurrentQ(0);
@@ -328,14 +326,14 @@ export default function SksNavigationQuiz({ embedded = false }: { embedded?: boo
 
   const chooseTopic = (tp: Topic) => {
     setTopic(tp);
-    startIndexRef.current = readCursor(tp);
+    roundIndicesRef.current = pickRoundIndices(tp);
     setStarted(true);
   };
 
   const resetTopicProgress = () => {
     if (!topic) return;
-    startIndexRef.current = 0;
-    writeCursor(topic, 0);
+    writeSeen(topic, []);
+    roundIndicesRef.current = pickRoundIndices(topic);
     restart(false);
   };
 
