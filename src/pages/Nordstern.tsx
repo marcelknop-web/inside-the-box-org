@@ -5,6 +5,7 @@ import { PageMeta } from '@/components/PageMeta';
 import {
   Anchor, Compass, Wind, Loader2, CheckCircle2, XCircle, ArrowRight, Trophy,
   RotateCcw, Sparkles, Waves, Zap, BookOpen, Users, X, ShieldCheck, Flame, CloudLightning,
+  Volume2, VolumeX,
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { SKS_CATALOG } from '@/data/sksQuestions';
@@ -13,6 +14,7 @@ import {
   loadState, saveState, resetState, loadDeck, saveDeck, review, dueCards,
   CREW_POOL, pickNewCrew, type SrsCard, type NordsternState, type CrewMember, type KnowledgeCard,
 } from '@/lib/nordstern/sm2';
+import { useNordsternAudio } from '@/hooks/useNordsternAudio';
 
 type Topic = 'navigation' | 'recht' | 'wetter' | 'seemannschaft';
 
@@ -87,6 +89,9 @@ const Nordstern = () => {
   // Patzer-Versicherung verbraucht (Maschinist)
   const [insuranceAvailable, setInsuranceAvailable] = useState(false);
 
+  // Maritime sound design
+  const audio = useNordsternAudio();
+
   const stage = STAGES[state.currentStage];
   const isLast = state.currentStage >= STAGES.length;
 
@@ -151,6 +156,7 @@ const Nordstern = () => {
     setNewCrew(null);
     setNewKnowledge(null);
     setPhase('scene');
+    audio.playFoghorn();
     fetchQuestion('scene');
   };
 
@@ -159,6 +165,13 @@ const Nordstern = () => {
     if (phase === 'scene' && stormQuestionIdx === questionIdx) setStormActive(true);
     else setStormActive(false);
   }, [phase, questionIdx, stormQuestionIdx]);
+
+  // Wind- und Sturm-Audio mit Spielzustand koppeln
+  useEffect(() => {
+    const inGame = phase === 'scene' || phase === 'harbor';
+    audio.setWind(inGame ? wind.bft : 2);
+  }, [wind.bft, phase, audio]);
+  useEffect(() => { audio.setStorm(stormActive); }, [stormActive, audio]);
 
   const useFiftyFifty = () => {
     if (!current || revealed || jokersLeft <= 0) return;
@@ -182,6 +195,7 @@ const Nordstern = () => {
       setInsuranceAvailable(false);
     }
     const effectiveCorrect = correct || usedInsurance;
+    if (effectiveCorrect) audio.playCorrect(); else audio.playWrong();
 
     setSessionTotal(s => s + 1);
     if (effectiveCorrect) setSessionCorrect(s => s + 1);
@@ -243,6 +257,7 @@ const Nordstern = () => {
       } else {
         const passed = sessionCorrect >= Math.floor((SCENE_QUESTIONS + HARBOR_QUESTIONS) * 0.6);
         if (passed) {
+          audio.playBell(880, 1.8, 0.55);
           const crew = pickNewCrew(state.crew);
           if (crew) setNewCrew(crew);
           setState(s => {
@@ -257,6 +272,7 @@ const Nordstern = () => {
           });
           setPhase(state.currentStage + 1 >= STAGES.length ? 'finished' : 'completed');
         } else {
+          audio.playBell(330, 1.2, 0.4);
           setPhase('completed');
         }
       }
@@ -284,8 +300,16 @@ const Nordstern = () => {
             )}
             {dueCount > 0 && <span className="text-yellow-400">↻{dueCount}</span>}
             <button
+              onClick={() => { audio.ensure(); audio.setMuted(!audio.muted); }}
+              className="ml-1 p-1 rounded border border-border/50 hover:border-primary/50 hover:text-primary"
+              title={audio.muted ? 'Sound an' : 'Sound aus'}
+              aria-label={audio.muted ? 'Sound einschalten' : 'Sound ausschalten'}
+            >
+              {audio.muted ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
+            </button>
+            <button
               onClick={() => setLogbuchOpen(true)}
-              className="ml-2 px-2 py-1 rounded border border-border/50 hover:border-primary/50 hover:text-primary flex items-center gap-1"
+              className="ml-1 px-2 py-1 rounded border border-border/50 hover:border-primary/50 hover:text-primary flex items-center gap-1"
             >
               <BookOpen className="w-3 h-3" />Logbuch
             </button>
