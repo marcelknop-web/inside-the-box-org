@@ -381,7 +381,7 @@ export default function SksNavigationQuiz({ embedded = false }: { embedded?: boo
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-md mx-auto">
             {topics.map(({ id, label, sub, Icon }) => {
-              const cursor = readCursor(id);
+              const cursor = readSeen(id).length;
               const pool = topicPoolSize(id);
               return (
                 <button key={id} onClick={() => chooseTopic(id)}
@@ -390,7 +390,7 @@ export default function SksNavigationQuiz({ embedded = false }: { embedded?: boo
                     <Icon className="w-5 h-5 text-primary flex-shrink-0" />
                     <div className="flex-1 min-w-0">
                       <p className="text-primary font-mono font-bold text-sm tracking-wider">{label}</p>
-                      <p className="text-muted-foreground text-[11px] font-mono">{sub} · Fortschritt {cursor}/{pool}</p>
+                      <p className="text-muted-foreground text-[11px] font-mono">{sub} · Gesehen {cursor}/{pool}</p>
                     </div>
                   </div>
                 </button>
