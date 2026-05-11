@@ -293,50 +293,47 @@ const Nordstern = () => {
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-4 py-6 md:py-10">
-        {phase === 'home' && (
-          <HomeScreen
-            state={state} stage={stage} isLast={isLast} wind={wind}
-            onStart={() => setPhase('briefing')}
-            onReset={() => { resetState(); setState(loadState()); setDeck({}); }}
-          />
-        )}
-        {phase === 'briefing' && stage && (
-          <Briefing stage={stage} wind={wind} crewCount={state.crew.length} onGo={startStage} />
-        )}
-        {(phase === 'scene' || phase === 'harbor') && (
-          <QuestionPanel
-            phase={phase} questionIdx={questionIdx} stage={stage}
-            current={current} loading={loading} error={error}
-            selected={selected} revealed={revealed} eliminated={eliminated}
-            sessionCorrect={sessionCorrect} sessionTotal={sessionTotal}
-            stormActive={stormActive} jokersLeft={jokersLeft} maxJokers={maxJokers}
-            insuranceAvailable={insuranceAvailable}
-            newKnowledge={newKnowledge}
-            onAnswer={onAnswer} onNext={onNext}
-            onRetry={() => fetchQuestion(phase === 'scene' ? 'scene' : 'harbor')}
-            onJoker={useFiftyFifty}
-          />
-        )}
-        {phase === 'completed' && stage && (
-          <Completed
-            stage={stage} accuracy={sessionAccuracy}
-            correct={sessionCorrect} total={sessionTotal}
-            newCrew={newCrew}
-            onContinue={() => setPhase('home')}
-          />
-        )}
-        {phase === 'finished' && (
-          <Finished state={state} onReset={() => { resetState(); setState(loadState()); setDeck({}); setPhase('home'); }} />
-        )}
+      <main className="flex-1 min-h-0 overflow-hidden">
+        <div className="h-full max-w-5xl mx-auto px-3 py-3 md:py-4 flex flex-col">
+          {phase === 'home' && (
+            <HomeScreen
+              state={state} stage={stage} isLast={isLast} wind={wind}
+              onStart={() => setPhase('briefing')}
+              onReset={() => { resetState(); setState(loadState()); setDeck({}); }}
+            />
+          )}
+          {phase === 'briefing' && stage && (
+            <Briefing stage={stage} wind={wind} crewCount={state.crew.length} onGo={startStage} />
+          )}
+          {(phase === 'scene' || phase === 'harbor') && (
+            <QuestionPanel
+              phase={phase} questionIdx={questionIdx} stage={stage}
+              current={current} loading={loading} error={error}
+              selected={selected} revealed={revealed} eliminated={eliminated}
+              sessionCorrect={sessionCorrect} sessionTotal={sessionTotal}
+              stormActive={stormActive} jokersLeft={jokersLeft} maxJokers={maxJokers}
+              insuranceAvailable={insuranceAvailable}
+              newKnowledge={newKnowledge}
+              onAnswer={onAnswer} onNext={onNext}
+              onRetry={() => fetchQuestion(phase === 'scene' ? 'scene' : 'harbor')}
+              onJoker={useFiftyFifty}
+            />
+          )}
+          {phase === 'completed' && stage && (
+            <Completed
+              stage={stage} accuracy={sessionAccuracy}
+              correct={sessionCorrect} total={sessionTotal}
+              newCrew={newCrew}
+              onContinue={() => setPhase('home')}
+            />
+          )}
+          {phase === 'finished' && (
+            <Finished state={state} onReset={() => { resetState(); setState(loadState()); setDeck({}); setPhase('home'); }} />
+          )}
+        </div>
       </main>
 
       {logbuchOpen && <Logbuch state={state} onClose={() => setLogbuchOpen(false)} />}
-
-      <footer className="text-center text-xs text-muted-foreground/70 pb-8 px-4">
-        Trainingsspiel auf Basis des amtlichen SKS-Fragenkatalogs. Ersetzt keine Prüfungsvorbereitung mit anerkanntem Lehrmaterial.
-        {' · '}<Link to="/sks-quiz" className="underline hover:text-primary">Klassisches Quiz</Link>
-      </footer>
     </div>
   );
 };
