@@ -26,6 +26,22 @@ interface AiQuestion {
   options: string[];
   correct: number;
   explanation: string;
+  keywords?: string[];
+}
+
+// Highlight keywords in a text by wrapping them in <mark>
+function highlightKeywords(text: string, keywords?: string[]): React.ReactNode {
+  if (!keywords || keywords.length === 0) return text;
+  const escaped = keywords
+    .filter(k => k && k.length >= 2)
+    .map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+    .sort((a, b) => b.length - a.length);
+  if (escaped.length === 0) return text;
+  const re = new RegExp(`(${escaped.join('|')})`, 'gi');
+  const parts = text.split(re);
+  return parts.map((p, i) =>
+    re.test(p) ? <mark key={i} className="bg-primary/20 text-primary font-semibold rounded px-0.5">{p}</mark> : <span key={i}>{p}</span>
+  );
 }
 
 const QUIZ_SIZE = 10;
