@@ -50,6 +50,7 @@ const App = () => (
               <Route path="/ttx-readiness" element={<Suspense fallback={<RouteSkeleton />}><TtxReadinessPage /></Suspense>} />
               <Route path="/enigma" element={<Suspense fallback={<RouteSkeleton />}><Enigma /></Suspense>} />
               <Route path="/bockbaer-bot" element={<Suspense fallback={<RouteSkeleton />}><BaerbockBot /></Suspense>} />
+              <Route path="/sks-quiz" element={<Suspense fallback={<RouteSkeleton />}><SksNavigationQuiz /></Suspense>} />
 
               {/* Catch-all: every Journey service id (nis2-dora, virtual-ciso, …) renders ChatView */}
               <Route path="/:serviceId" element={<ChatView />} />
