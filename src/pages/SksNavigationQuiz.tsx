@@ -721,7 +721,7 @@ export default function SksNavigationQuiz({ embedded = false }: { embedded?: boo
 
           {/* Explanation */}
           {confirmed && (
-            <StaggerReveal stagger={300}>
+            <StaggerReveal stagger={100}>
               <div className={`flex items-start gap-3 p-4 rounded-xl border ${isCorrect ? 'border-success/30 bg-success/5' : 'border-destructive/30 bg-destructive/5'}`}>
                 {isCorrect ? <CheckCircle2 className="w-5 h-5 text-success mt-0.5 flex-shrink-0" /> : <XCircle className="w-5 h-5 text-destructive mt-0.5 flex-shrink-0" />}
                 <div>
