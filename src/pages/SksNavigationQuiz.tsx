@@ -297,7 +297,7 @@ export default function SksNavigationQuiz({ embedded = false }: { embedded?: boo
   if (!started) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
-        <PageMeta title="NIS-2 Awareness Quiz" description="NIS-2 Awareness Quiz" />
+        <PageMeta title="SKS Navigation Quiz" description="SKS Navigation Quiz" />
         <div className="text-center space-y-8 max-w-md relative">
           <div className="absolute inset-0 -top-20 bg-[radial-gradient(ellipse_at_center,hsl(45_100%_48%/0.08)_0%,transparent_70%)] pointer-events-none" />
           <div className="relative mx-auto w-28 h-28">
@@ -307,7 +307,7 @@ export default function SksNavigationQuiz({ embedded = false }: { embedded?: boo
             </div>
           </div>
           <div className="space-y-3">
-            <h1 className="text-3xl md:text-4xl font-bold text-primary font-mono tracking-widest uppercase">NIS-2</h1>
+            <h1 className="text-3xl md:text-4xl font-bold text-primary font-mono tracking-widest uppercase">SKS</h1>
             <p className="text-lg text-foreground/70 font-mono tracking-wide">Awareness Quiz</p>
             <div className="w-16 h-0.5 bg-gradient-to-r from-transparent via-primary to-transparent mx-auto" />
           </div>
@@ -344,7 +344,7 @@ export default function SksNavigationQuiz({ embedded = false }: { embedded?: boo
 
     return (
       <div className={wrapperClass}>
-        <PageMeta title="NIS-2 Awareness Quiz" description="NIS-2 Awareness Quiz" />
+        <PageMeta title="SKS Navigation Quiz" description="SKS Navigation Quiz" />
         <div className="text-center mb-6">
           <h1 className={`${embedded ? 'text-lg' : 'text-2xl md:text-3xl'} font-bold text-primary font-mono tracking-widest uppercase`}>
             <Typewriter text={t(I18N.title)} charDelay={8} />
@@ -428,7 +428,7 @@ export default function SksNavigationQuiz({ embedded = false }: { embedded?: boo
   if (loadingQuestion || !question) {
     return (
       <div className={wrapperClass}>
-        <PageMeta title="NIS-2 Awareness Quiz" description="NIS-2 Awareness Quiz" />
+        <PageMeta title="SKS Navigation Quiz" description="SKS Navigation Quiz" />
         <div className="flex flex-col items-center justify-center gap-6 py-20">
           <div className="relative">
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,hsl(45_100%_48%/0.1)_0%,transparent_70%)]" />
@@ -465,7 +465,7 @@ export default function SksNavigationQuiz({ embedded = false }: { embedded?: boo
 
   return (
     <div className={wrapperClass}>
-      <PageMeta title="NIS-2 Awareness Quiz" description="NIS-2 Awareness Quiz" />
+      <PageMeta title="SKS Navigation Quiz" description="SKS Navigation Quiz" />
 
       {/* Top HUD */}
       <div className="mb-5 space-y-3">
