@@ -38,9 +38,10 @@ function highlightKeywords(text: string, keywords?: string[]): React.ReactNode {
     .sort((a, b) => b.length - a.length);
   if (escaped.length === 0) return text;
   const re = new RegExp(`(${escaped.join('|')})`, 'gi');
+  const matcher = new RegExp(`^(${escaped.join('|')})$`, 'i');
   const parts = text.split(re);
   return parts.map((p, i) =>
-    re.test(p) ? <mark key={i} className="bg-primary/20 text-primary font-semibold rounded px-0.5">{p}</mark> : <span key={i}>{p}</span>
+    matcher.test(p) ? <mark key={i} className="bg-primary/20 text-primary font-semibold rounded px-0.5">{p}</mark> : <span key={i}>{p}</span>
   );
 }
 
