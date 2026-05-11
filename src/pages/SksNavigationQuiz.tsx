@@ -25,8 +25,8 @@ const OPTION_LETTERS = ['A', 'B', 'C', 'D'];
 const STORAGE_KEY = 'sks_nav_quiz_best';
 
 const I18N: Record<string, Record<string, string>> = {
-  title: { de: 'NIS-2 Awareness Quiz', en: 'NIS-2 Awareness Quiz', fr: 'Quiz NIS-2' },
-  intro: { de: 'Zehn Fragen. Aufsteigende Schwierigkeit. Zwei Joker. Wie weit kommen Sie?', en: 'Ten questions. Rising difficulty. Two jokers. How far will you get?', fr: 'Dix questions. Difficulté croissante. Deux jokers. Jusqu\'où irez-vous ?' },
+  title: { de: 'SKS Navigation Quiz', en: 'SKS Navigation Quiz', fr: 'Quiz SKS Navigation' },
+  intro: { de: 'Zehn Fragen aus dem amtlichen SKS-Fragenkatalog Navigation. Vier Antworten. Zwei Joker. Wie weit kommen Sie?', en: 'Ten questions from the official German SKS navigation catalogue. Four answers. Two lifelines. How far will you get?', fr: 'Dix questions du catalogue officiel SKS Navigation. Quatre réponses. Deux jokers. Jusqu\'où irez-vous ?' },
   start: { de: 'Start', en: 'Start', fr: 'Commencer' },
   confirm: { de: 'Finale Antwort', en: 'Final Answer', fr: 'Réponse finale' },
   correct: { de: 'Richtig!', en: 'Correct!', fr: 'Correct !' },
