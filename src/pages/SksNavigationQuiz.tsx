@@ -184,9 +184,9 @@ export default function SksNavigationQuiz({ embedded = false }: { embedded?: boo
     }
   }, [started, topic, currentQ, gameOver, won]);
 
-  // Timer
+  // Timer (disabled in Pauk-Modus)
   useEffect(() => {
-    if (!started || gameOver || won || confirmed || loadingQuestion || !question) {
+    if (paukMode || !started || gameOver || won || confirmed || loadingQuestion || !question) {
       if (timerRef.current) clearInterval(timerRef.current);
       return;
     }
@@ -203,10 +203,11 @@ export default function SksNavigationQuiz({ embedded = false }: { embedded?: boo
       });
     }, 1000);
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
-  }, [currentQ, started, gameOver, won, confirmed, loadingQuestion, question]);
+  }, [currentQ, started, gameOver, won, confirmed, loadingQuestion, question, paukMode]);
 
-  // Time out
+  // Time out (only relevant outside Pauk-Modus)
   useEffect(() => {
+    if (paukMode) return;
     if (timeLeft === 0 && started && !gameOver && !won && !confirmed && question) {
       setGameOver(true);
       const newBest = Math.max(bestScore, score);
@@ -214,7 +215,7 @@ export default function SksNavigationQuiz({ embedded = false }: { embedded?: boo
       try { localStorage.setItem(STORAGE_KEY, String(newBest)); } catch {}
       setTimeout(() => playDefeat(), 300);
     }
-  }, [timeLeft, started, gameOver, won, confirmed, question]);
+  }, [timeLeft, started, gameOver, won, confirmed, question, paukMode]);
 
   // Delay game-over screen to let the defeat melody play
   useEffect(() => {
