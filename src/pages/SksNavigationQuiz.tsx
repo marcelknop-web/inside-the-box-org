@@ -506,7 +506,7 @@ export default function SksNavigationQuiz({ embedded = false }: { embedded?: boo
               <p className="text-foreground/50 text-xs mb-3 font-mono">{question.question}</p>
               <div className="flex items-start gap-2">
                 <XCircle className="w-4 h-4 text-destructive mt-0.5 flex-shrink-0" />
-                <p className="text-foreground/70 text-sm leading-relaxed">{question.explanation}</p>
+                <p className="text-foreground/70 text-sm leading-relaxed">{highlightKeywords(question.explanation, question.keywords)}</p>
               </div>
             </div>
           )}
@@ -683,7 +683,7 @@ export default function SksNavigationQuiz({ embedded = false }: { embedded?: boo
             <div className="relative">
               <div className="absolute -inset-[1px] bg-gradient-to-r from-transparent via-primary/40 to-transparent rounded-2xl" />
               <div className="relative bg-gradient-to-b from-secondary via-card to-secondary rounded-2xl p-4 md:p-6 border border-primary/20">
-                <p className="text-foreground text-sm md:text-base leading-relaxed text-center font-medium">{question.question}</p>
+                <p className="text-foreground text-sm md:text-base leading-relaxed text-center font-medium">{highlightKeywords(question.question, question.keywords)}</p>
               </div>
             </div>
 
@@ -742,7 +742,7 @@ export default function SksNavigationQuiz({ embedded = false }: { embedded?: boo
                     <div className={`absolute inset-[1px] bg-gradient-to-b ${innerBg}`} style={{ clipPath: diamondClip }} />
                     <div className={`relative ${padClass} text-sm ${textClass} break-words`}>
                       <span className="font-mono font-bold mr-2 text-primary/80 flex-shrink-0">{OPTION_LETTERS[i]}:</span>
-                      {opt}
+                      {confirmed && i === question.correct ? highlightKeywords(opt, question.keywords) : opt}
                     </div>
                     {!confirmed && <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" style={{ clipPath: diamondClip }} />}
                   </button>
@@ -794,7 +794,7 @@ export default function SksNavigationQuiz({ embedded = false }: { embedded?: boo
                     {isCorrect ? t(I18N.correct) : t(I18N.incorrect)}
                     {isCorrect && streak > 1 && <span className="ml-2 text-primary text-xs">🔥 {streak}x Streak!</span>}
                   </p>
-                  <p className="text-foreground/70 text-sm leading-relaxed">{question.explanation}</p>
+                  <p className="text-foreground/70 text-sm leading-relaxed">{highlightKeywords(question.explanation, question.keywords)}</p>
                 </div>
               </div>
               {(isCorrect || paukMode) && !won && (
