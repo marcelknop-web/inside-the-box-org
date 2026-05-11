@@ -535,17 +535,27 @@ export default function SksNavigationQuiz({ embedded = false }: { embedded?: boo
       <PageMeta title="SKS Navigation Quiz" description="SKS Navigation Quiz" />
 
       {/* Top HUD */}
-      <div className="mb-5 space-y-3">
-        <div className="flex items-center justify-between">
-          <h1 className={`${embedded ? 'text-lg' : 'text-xl md:text-2xl'} font-bold text-primary font-mono tracking-widest uppercase`}>
-            <Typewriter text={t(I18N.title)} charDelay={8} />
-          </h1>
-          {streak > 1 && (
-            <div className="flex items-center gap-1 text-primary text-sm font-bold animate-pulse font-mono">
-              <Flame size={16} className={streak >= 5 ? 'text-destructive' : ''} />
-              <span>{streak}x</span>
-            </div>
-          )}
+      <div className="mb-4 space-y-2.5">
+        <div className="flex items-center justify-between gap-2">
+          <div className="min-w-0 flex-1">
+            <h1 className={`${embedded ? 'text-base' : 'text-lg md:text-2xl'} font-bold text-primary font-mono tracking-widest uppercase truncate`}>
+              <Typewriter text={t(I18N.title)} charDelay={8} />
+            </h1>
+            <p className="text-[10px] md:text-xs font-mono text-muted-foreground/70 tracking-wider truncate">
+              {TOPIC_LABEL[topic]} · Block {Math.floor(startIndexRef.current / QUIZ_SIZE) + 1} von {Math.ceil(topicPoolSize(topic) / QUIZ_SIZE)}
+            </p>
+          </div>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            {streak > 1 && (
+              <div className="flex items-center gap-1 text-primary text-sm font-bold animate-pulse font-mono">
+                <Flame size={16} className={streak >= 5 ? 'text-destructive' : ''} />
+                <span>{streak}x</span>
+              </div>
+            )}
+            <button onClick={() => { setTopic(null); restart(false); }} className="text-muted-foreground hover:text-primary text-[10px] font-mono uppercase tracking-wider px-2 py-1 rounded border border-border/40 hover:border-primary/40 transition-colors">
+              Thema
+            </button>
+          </div>
         </div>
         <div className="relative">
           <div className="h-1 bg-muted/20 rounded-full overflow-hidden">
