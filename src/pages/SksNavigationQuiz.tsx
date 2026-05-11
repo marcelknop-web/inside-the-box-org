@@ -303,7 +303,7 @@ export default function SksNavigationQuiz({ embedded = false }: { embedded?: boo
           <div className="relative mx-auto w-28 h-28">
             <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-primary/10 to-transparent rounded-full animate-pulse" />
             <div className="absolute inset-3 rotate-45 border-2 border-primary/60 bg-gradient-to-br from-primary/20 to-card flex items-center justify-center shadow-[0_0_40px_hsl(45_100%_48%/0.3)]">
-              <span className="text-3xl -rotate-45">💎</span>
+              <span className="text-3xl -rotate-45">🧭</span>
             </div>
           </div>
           <div className="space-y-3">
