@@ -122,6 +122,10 @@ export default function SksNavigationQuiz({ embedded = false }: { embedded?: boo
   };
 
   const [started, setStarted] = useState(embedded);
+  const [paukMode, setPaukMode] = useState<boolean>(() => {
+    try { return localStorage.getItem('sks_pauk_mode') === '1'; } catch { return false; }
+  });
+  useEffect(() => { try { localStorage.setItem('sks_pauk_mode', paukMode ? '1' : '0'); } catch {} }, [paukMode]);
   const [currentQ, setCurrentQ] = useState(0);
   const [question, setQuestion] = useState<AiQuestion | null>(null);
   const [loadingQuestion, setLoadingQuestion] = useState(false);
