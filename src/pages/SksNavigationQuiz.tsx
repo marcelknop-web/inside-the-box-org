@@ -280,6 +280,15 @@ export default function SksNavigationQuiz({ embedded = false }: { embedded?: boo
 
   const handleNext = () => {
     const nextQ = currentQ + 1;
+    // Pauk-Modus: nach 10 Fragen automatisch neue Runde
+    if (paukMode && nextQ >= QUIZ_SIZE) {
+      if (topic) roundIndicesRef.current = pickRoundIndices(topic);
+      setCurrentQ(0);
+      setSelected(null); setConfirmed(false); setHiddenOptions([]); setAudienceResults(null);
+      setQuestion(null);
+      fetchQuestion(0, topic);
+      return;
+    }
     setCurrentQ(nextQ);
     setSelected(null);
     setConfirmed(false);
