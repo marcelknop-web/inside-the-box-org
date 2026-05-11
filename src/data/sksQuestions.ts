@@ -1,5 +1,7 @@
-// SKS amtlicher Fragenkatalog – Edge Function copy
-export const SKS_CATALOG = {
+// SKS amtlicher Fragenkatalog – ground truth
+export interface SksQA { q: string; a: string }
+export type SksTopic = "navigation" | "recht" | "wetter";
+export const SKS_CATALOG: Record<SksTopic, SksQA[]> = {
   "navigation": [
     {
       "q": "Worauf müssen Sie als Schiffsführer vor Reiseantritt hinsichtlich der Seekarten und Seebücher achten?",
@@ -1258,4 +1260,9 @@ export const SKS_CATALOG = {
       "a": "1. Die Windstärke wird geschätzt mithilfe der Beaufortskala in Anlehnung an das Seegangsbild\n2. Die Windrichtung wird anhand der Verlagerung der Wellenkämme geschätzt"
     }
   ]
-} as const;
+};
+export const SKS_TOPIC_LABELS: Record<SksTopic, string> = {
+  navigation: "Navigation",
+  recht: "Schifffahrtsrecht",
+  wetter: "Wetterkunde",
+};
