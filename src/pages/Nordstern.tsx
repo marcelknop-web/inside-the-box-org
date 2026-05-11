@@ -316,6 +316,14 @@ const Nordstern = () => {
               {audio.muted ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
             </button>
             <button
+              onClick={() => setIntroOpen(true)}
+              className="ml-1 p-1 rounded border border-border/50 hover:border-primary/50 hover:text-primary"
+              title="Hilfe / Einführung"
+              aria-label="Hilfe"
+            >
+              <HelpCircle className="w-3.5 h-3.5" />
+            </button>
+            <button
               onClick={() => setLogbuchOpen(true)}
               className="ml-1 px-2 py-1 rounded border border-border/50 hover:border-primary/50 hover:text-primary flex items-center gap-1"
             >
