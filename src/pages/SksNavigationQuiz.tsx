@@ -557,7 +557,7 @@ export default function SksNavigationQuiz({ embedded = false }: { embedded?: boo
               <Typewriter text={t(I18N.title)} charDelay={8} />
             </h1>
             <p className="text-[10px] md:text-xs font-mono text-muted-foreground/70 tracking-wider truncate">
-              {TOPIC_LABEL[topic]} · Block {Math.floor(startIndexRef.current / QUIZ_SIZE) + 1} von {Math.ceil(topicPoolSize(topic) / QUIZ_SIZE)}
+              {TOPIC_LABEL[topic]} · {readSeen(topic).length}/{topicPoolSize(topic)} gesehen · Zufall + aufsteigend
             </p>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
