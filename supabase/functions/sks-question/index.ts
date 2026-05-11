@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { SKS_NAVIGATION_QA } from "./catalog.ts";
+import { SKS_CATALOG } from "./catalog.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -9,8 +9,8 @@ const corsHeaders = {
 
 // Rate limiting
 const RATE_LIMIT_WINDOW_MS = 60_000;
-const MAX_REQUESTS_PER_WINDOW = 20;
-const MAX_DAILY_REQUESTS = 600;
+const MAX_REQUESTS_PER_WINDOW = 30;
+const MAX_DAILY_REQUESTS = 1500;
 const ipRateMap = new Map<string, { count: number; resetAt: number }>();
 let dailyCount = 0;
 let dailyResetAt = Date.now() + 86_400_000;
@@ -30,21 +30,21 @@ function rateOk(ip: string) {
   return { ok: true };
 }
 
-const SYSTEM = `Du wandelst eine amtliche SKS-Prüfungsfrage (Sportküstenschifferschein, Themenbereich Navigation) in eine "Wer wird Millionär?"-Quizfrage mit 4 Antwortmöglichkeiten um.
+const SYSTEM = `Du wandelst eine amtliche SKS-Prüfungsfrage (Sportküstenschifferschein) in eine "Wer wird Millionär?"-Quizfrage mit 4 Antwortmöglichkeiten um.
 
-EINGABE: Originalfrage + amtliche Musterantwort.
+EINGABE: Originalfrage + amtliche Musterantwort + Themenbereich (Navigation / Schifffahrtsrecht / Wetterkunde).
 
 REGELN:
 - Gib AUSSCHLIESSLICH gültiges JSON zurück, kein Markdown, keine Kommentare.
+- Sprache: Deutsch. Siezen. Formal.
 - Genau 4 Optionen. Genau 1 korrekte Antwort. correct = Index 0-3.
-- Die amtliche Musterantwort ist die KORREKTE Antwort. Du darfst sie sprachlich straffen (1-2 Sätze, prägnant), inhaltlich aber NICHT verändern. Keine Fakten erfinden.
-- Die 3 falschen Optionen sind plausible Distraktoren: typische Verwechslungen, ähnliche Begriffe, häufige Anfängerfehler. Sie müssen klar falsch sein, aber nicht offensichtlich absurd.
+- Die amtliche Musterantwort IST die korrekte Antwort. Du darfst sie sprachlich straffen (1–2 Sätze, prägnant), inhaltlich aber NICHT verändern. Keine Fakten erfinden, keine Werte ändern.
+- Die 3 falschen Optionen sind plausible Distraktoren: typische Verwechslungen, ähnliche Begriffe, häufige Anfängerfehler aus dem maritimen Kontext. Sie müssen klar falsch sein, aber nicht offensichtlich absurd.
 - Alle 4 Optionen vergleichbar in Länge und Stil (keine verräterisch lange korrekte Antwort).
 - Optionen ohne Buchstaben-Präfix (kein "A) ").
-- "explanation": 1-2 Sätze, erklärt warum die richtige Antwort stimmt; nenne, wenn passend, BSH, NfS, WGS 84, ED 50, NTM, KVR etc.
-- Frage formal, Siezen, knapp.
-- SCHWIERIGKEIT (1-10): höhere Werte → subtilere Distraktoren (Zahlenwerte minimal verändert, ähnliche Fachbegriffe vertauscht); niedrige Werte → klarere Unterschiede.
-- Antworte in der angeforderten SPRACHE (de/en/fr). Fachbegriffe (BSH, WGS 84, NfS, NTM, ED 50, GPS) bleiben unverändert.
+- "explanation": 1–2 Sätze, erklärt warum die Antwort richtig ist; bei Bedarf mit Bezug auf KVR, SeeSchStrO, SBG, BSH, NfS, WGS 84, NTM, Beaufort, Land-/Seewind etc.
+- SCHWIERIGKEIT (1–10): höhere Werte → subtilere Distraktoren (Zahlenwerte minimal verändert, ähnliche Fachbegriffe vertauscht); niedrige Werte → klarere Unterschiede.
+- Bei Antworten mit konkreten Zahlen (Längen, Höhen, Lichtsektoren, Bußgeldhöhen) bleibt der korrekte Wert exakt erhalten.
 
 AUSGABE:
 {
@@ -53,6 +53,12 @@ AUSGABE:
   "correct": 0,
   "explanation": "..."
 }`;
+
+const TOPIC_LABEL: Record<string, string> = {
+  navigation: "Navigation",
+  recht: "Schifffahrtsrecht",
+  wetter: "Wetterkunde",
+};
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
@@ -66,9 +72,11 @@ serve(async (req) => {
 
   try {
     const body = await req.json().catch(() => ({}));
-    const language = body?.language || "de";
+    const topicRaw = body?.topic as string | undefined;
+    const validTopics = ["navigation", "recht", "wetter"] as const;
+    const topic = validTopics.includes(topicRaw as any) ? (topicRaw as typeof validTopics[number]) : null;
     const difficulty = Math.min(10, Math.max(1, body?.difficulty || 5));
-    const usedIndices: number[] = Array.isArray(body?.usedIndices) ? body.usedIndices : [];
+    const sourceIndex = Number.isInteger(body?.sourceIndex) ? body.sourceIndex : -1;
 
     const KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!KEY) {
@@ -76,14 +84,28 @@ serve(async (req) => {
         { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    // Pick a random unused question
-    const pool = SKS_NAVIGATION_QA.map((_, i) => i).filter(i => !usedIndices.includes(i));
-    const available = pool.length > 0 ? pool : SKS_NAVIGATION_QA.map((_, i) => i);
-    const sourceIndex = available[Math.floor(Math.random() * available.length)];
-    const source = SKS_NAVIGATION_QA[sourceIndex];
+    // Resolve source question
+    let resolvedTopic: typeof validTopics[number];
+    let pool;
+    let resolvedIndex: number;
+    if (topic) {
+      resolvedTopic = topic;
+      pool = SKS_CATALOG[topic];
+      resolvedIndex = sourceIndex >= 0 ? sourceIndex % pool.length : Math.floor(Math.random() * pool.length);
+    } else {
+      // Mixed mode – round-robin by sourceIndex across topics
+      const allEntries: Array<{ t: typeof validTopics[number]; i: number }> = [];
+      for (const t of validTopics) {
+        for (let i = 0; i < SKS_CATALOG[t].length; i++) allEntries.push({ t, i });
+      }
+      const pick = sourceIndex >= 0 ? allEntries[sourceIndex % allEntries.length] : allEntries[Math.floor(Math.random() * allEntries.length)];
+      resolvedTopic = pick.t;
+      resolvedIndex = pick.i;
+      pool = SKS_CATALOG[resolvedTopic];
+    }
+    const source = pool[resolvedIndex];
 
-    const langMap: Record<string, string> = { de: "Deutsch", en: "English", fr: "Français" };
-    const userMsg = `Sprache: ${langMap[language] || "Deutsch"}
+    const userMsg = `Themenbereich: ${TOPIC_LABEL[resolvedTopic]}
 Schwierigkeitsgrad: ${difficulty}/10
 
 ORIGINAL-FRAGE: ${source.q}
@@ -130,7 +152,10 @@ Erzeuge jetzt die Multiple-Choice-Frage als JSON.`;
       return new Response(JSON.stringify({ error: "Failed to generate question" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
-    parsed.sourceIndex = sourceIndex;
+    parsed.topic = resolvedTopic;
+    parsed.sourceIndex = resolvedIndex;
+    parsed.topicLabel = TOPIC_LABEL[resolvedTopic];
+    parsed.poolSize = pool.length;
     return new Response(JSON.stringify(parsed), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
   } catch (e) {
     console.error("sks-question error:", e);
