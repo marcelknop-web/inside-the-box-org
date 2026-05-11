@@ -85,6 +85,14 @@ const Nordstern = () => {
 
   // Logbuch-Modal
   const [logbuchOpen, setLogbuchOpen] = useState(false);
+  // Intro-Overlay (Erstbesuch)
+  const [introOpen, setIntroOpen] = useState<boolean>(() => {
+    try { return localStorage.getItem('nordstern.introSeen') !== '1'; } catch { return true; }
+  });
+  const closeIntro = () => {
+    setIntroOpen(false);
+    try { localStorage.setItem('nordstern.introSeen', '1'); } catch { /* noop */ }
+  };
 
   // Patzer-Versicherung verbraucht (Maschinist)
   const [insuranceAvailable, setInsuranceAvailable] = useState(false);
