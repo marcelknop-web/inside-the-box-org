@@ -637,7 +637,7 @@ export default function SksNavigationQuiz({ embedded = false }: { embedded?: boo
 
       <div className={`flex gap-5 ${showLadder ? '' : 'flex-col'}`}>
         <div className="flex-1 min-w-0 space-y-4">
-          <StaggerReveal key={`question-${currentQ}`} stagger={120}>
+          <StaggerReveal key={`question-${currentQ}`} stagger={paukMode ? 0 : 80}>
             {/* Jokers */}
             <div className="flex items-center gap-2">
               <button onClick={useFiftyFifty} disabled={fiftyFiftyUsed || confirmed}
