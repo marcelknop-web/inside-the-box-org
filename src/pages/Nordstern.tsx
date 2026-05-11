@@ -341,7 +341,7 @@ const Nordstern = () => {
 // ---------- Komponenten ----------
 
 const RouteMap: React.FC<{ currentStage: number }> = ({ currentStage }) => (
-  <svg viewBox="0 0 100 80" className="w-full h-auto" preserveAspectRatio="xMidYMid meet">
+  <svg viewBox="0 0 100 80" className="w-full h-full max-h-full" preserveAspectRatio="xMidYMid meet">
     <defs>
       <pattern id="grid" width="5" height="5" patternUnits="userSpaceOnUse">
         <path d="M 5 0 L 0 0 0 5" fill="none" stroke="currentColor" strokeWidth="0.1" className="text-primary/10" />
