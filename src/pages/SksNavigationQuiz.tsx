@@ -90,6 +90,7 @@ export default function SksNavigationQuiz({ embedded = false }: { embedded?: boo
   const [showMilestone, setShowMilestone] = useState(false);
   const [showSpeedBonus, setShowSpeedBonus] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const usedIndicesRef = useRef<number[]>([]);
 
   // Fetch question from edge function
   const fetchQuestion = useCallback(async (questionIndex: number) => {
@@ -99,11 +100,13 @@ export default function SksNavigationQuiz({ embedded = false }: { embedded?: boo
     try {
       const difficulty = questionIndex + 1; // 1-10
       const { data, error } = await supabase.functions.invoke('sks-question', {
-        body: { language: lang, difficulty },
+        body: { language: lang, difficulty, usedIndices: usedIndicesRef.current },
       });
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
-      setQuestion(data as AiQuestion);
+      const q = data as AiQuestion & { sourceIndex?: number };
+      if (typeof q.sourceIndex === 'number') usedIndicesRef.current = [...usedIndicesRef.current, q.sourceIndex];
+      setQuestion(q);
       setLoadingQuestion(false);
       playQuestionReveal();
     } catch (e) {
