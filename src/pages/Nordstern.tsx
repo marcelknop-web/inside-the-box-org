@@ -308,6 +308,7 @@ const Nordstern = () => {
           {(phase === 'scene' || phase === 'harbor') && (
             <QuestionPanel
               phase={phase} questionIdx={questionIdx} stage={stage}
+              currentStage={state.currentStage}
               current={current} loading={loading} error={error}
               selected={selected} revealed={revealed} eliminated={eliminated}
               sessionCorrect={sessionCorrect} sessionTotal={sessionTotal}
