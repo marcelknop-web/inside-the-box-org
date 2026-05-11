@@ -375,6 +375,7 @@ const Nordstern = () => {
       </main>
 
       {logbuchOpen && <Logbuch state={state} onClose={() => setLogbuchOpen(false)} />}
+      {introOpen && <Intro onClose={closeIntro} />}
     </div>
   );
 };
