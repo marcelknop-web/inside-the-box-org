@@ -300,8 +300,16 @@ const Nordstern = () => {
             )}
             {dueCount > 0 && <span className="text-yellow-400">↻{dueCount}</span>}
             <button
+              onClick={() => { audio.ensure(); audio.setMuted(!audio.muted); }}
+              className="ml-1 p-1 rounded border border-border/50 hover:border-primary/50 hover:text-primary"
+              title={audio.muted ? 'Sound an' : 'Sound aus'}
+              aria-label={audio.muted ? 'Sound einschalten' : 'Sound ausschalten'}
+            >
+              {audio.muted ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
+            </button>
+            <button
               onClick={() => setLogbuchOpen(true)}
-              className="ml-2 px-2 py-1 rounded border border-border/50 hover:border-primary/50 hover:text-primary flex items-center gap-1"
+              className="ml-1 px-2 py-1 rounded border border-border/50 hover:border-primary/50 hover:text-primary flex items-center gap-1"
             >
               <BookOpen className="w-3 h-3" />Logbuch
             </button>
