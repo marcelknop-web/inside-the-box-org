@@ -536,6 +536,7 @@ const QuestionPanel: React.FC<{
   phase: 'scene' | 'harbor';
   questionIdx: number;
   stage?: Stage;
+  currentStage: number;
   current: AiQuestion | null;
   loading: boolean;
   error: string | null;
@@ -553,54 +554,68 @@ const QuestionPanel: React.FC<{
   onNext: () => void;
   onRetry: () => void;
   onJoker: () => void;
-}> = ({ phase, questionIdx, stage, current, loading, error, selected, revealed, eliminated,
+}> = ({ phase, questionIdx, stage, currentStage, current, loading, error, selected, revealed, eliminated,
        sessionCorrect, sessionTotal, stormActive, jokersLeft, maxJokers,
        insuranceAvailable, newKnowledge, onAnswer, onNext, onRetry, onJoker }) => {
   const limit = phase === 'scene' ? SCENE_QUESTIONS : HARBOR_QUESTIONS;
+  const topicEmoji = stage ? TOPIC_EMOJI[stage.topicHint] : '🧭';
   return (
-    <div className="flex-1 min-h-0 max-w-2xl w-full mx-auto flex flex-col gap-2 md:gap-3 overflow-hidden">
-      {/* HUD */}
-      <div className="flex items-center justify-between text-[11px] font-mono gap-2 shrink-0">
-        <span className="text-primary">
-          {phase === 'scene' ? `SZENE ${questionIdx + 1}/${limit}` : `⚓ HAFEN ${questionIdx + 1}/${limit}`}
-        </span>
-        <div className="flex items-center gap-2">
+    <div className="flex-1 min-h-0 max-w-2xl w-full mx-auto flex flex-col gap-2 md:gap-3 overflow-hidden relative">
+      {/* Storm overlay – flashes behind everything */}
+      {stormActive && !loading && (
+        <div className="absolute inset-0 pointer-events-none rounded-lg overflow-hidden -z-0">
+          <div className="absolute inset-0 bg-destructive/5 animate-pulse" />
+          <div className="absolute top-2 right-2 text-destructive/70 animate-pulse">
+            <CloudLightning className="w-8 h-8" />
+          </div>
+        </div>
+      )}
+
+      {/* Route ribbon HUD */}
+      <div className="shrink-0 text-primary/60">
+        <RouteRibbon currentStage={currentStage} questionIdx={questionIdx} limit={limit} phase={phase} />
+      </div>
+
+      {/* Compact icon HUD */}
+      <div className="flex items-center justify-between gap-2 shrink-0">
+        <div className="flex items-center gap-1.5">
+          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary/15 text-primary text-sm">{phase === 'scene' ? topicEmoji : '⚓'}</span>
+          <span className="font-mono text-[11px] text-muted-foreground">
+            <span className="text-primary">{questionIdx + 1}</span>/{limit}
+          </span>
+          {stormActive && (
+            <span className="ml-1 inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-destructive/15 border border-destructive/40 text-destructive text-[10px] font-mono animate-pulse">
+              <CloudLightning className="w-3 h-3" />STURM
+            </span>
+          )}
+        </div>
+        <div className="flex items-center gap-1.5">
           {insuranceAvailable && (
-            <span className="flex items-center gap-1 text-cyan-400" title="Patzer-Versicherung">
-              <ShieldCheck className="w-3 h-3" />1×
+            <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-cyan-500/15 border border-cyan-500/40 text-cyan-400" title="Patzer-Versicherung">
+              <ShieldCheck className="w-3.5 h-3.5" />
             </span>
           )}
           <button
             onClick={onJoker}
             disabled={revealed || jokersLeft <= 0 || loading}
-            className="px-1.5 py-0.5 rounded border border-primary/40 text-primary disabled:opacity-40 disabled:cursor-not-allowed hover:bg-primary/10 flex items-center gap-1"
-            title="50/50"
+            className="relative inline-flex items-center justify-center w-7 h-7 rounded-full border border-primary/40 text-primary disabled:opacity-30 disabled:cursor-not-allowed hover:bg-primary/10 transition"
+            title="50/50 Joker"
           >
-            <Zap className="w-3 h-3" />50/50 ({jokersLeft})
+            <Zap className="w-3.5 h-3.5" />
+            <span className="absolute -top-1 -right-1 text-[9px] font-mono bg-primary text-primary-foreground rounded-full w-3.5 h-3.5 flex items-center justify-center">{jokersLeft}</span>
           </button>
-          <span className="text-muted-foreground">{sessionCorrect}/{sessionTotal} ✓</span>
+          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-card/50 border border-border/40 font-mono text-[10px]">
+            <CheckCircle2 className="w-3 h-3 text-green-500" /><span className="text-primary">{sessionCorrect}</span><span className="text-muted-foreground">/{sessionTotal}</span>
+          </span>
         </div>
-      </div>
-
-      {/* Sturm-Warnung */}
-      {stormActive && !loading && (
-        <div className="bg-destructive/10 border border-destructive/40 rounded-md px-2 py-1.5 flex items-center gap-2 text-xs shrink-0">
-          <CloudLightning className="w-3.5 h-3.5 text-destructive shrink-0" />
-          <span><strong>Sturm:</strong> Schwierigkeit +1.</span>
-        </div>
-      )}
-
-      {/* Progress dots */}
-      <div className="flex gap-1 shrink-0">
-        {Array.from({ length: limit }).map((_, i) => (
-          <div key={i} className={`h-1 flex-1 rounded-full ${i < questionIdx ? 'bg-primary' : i === questionIdx ? 'bg-primary/60' : 'bg-muted'}`} />
-        ))}
       </div>
 
       {loading && (
         <div className="flex-1 min-h-0 bg-card/50 border border-border/50 rounded-lg p-6 text-center flex flex-col items-center justify-center">
-          <Loader2 className="w-6 h-6 animate-spin text-primary" />
-          <p className="text-sm text-muted-foreground mt-3">{phase === 'harbor' ? 'Hafenmanöver wird vorbereitet…' : 'Frage wird vorbereitet…'}</p>
+          <div className="relative">
+            <Compass className="w-10 h-10 text-primary animate-spin" style={{ animationDuration: '2s' }} />
+          </div>
+          <p className="text-xs font-mono uppercase tracking-widest text-muted-foreground mt-3">Kurs setzen…</p>
         </div>
       )}
 
@@ -613,8 +628,9 @@ const QuestionPanel: React.FC<{
 
       {current && !loading && !error && (
         <div className="flex-1 min-h-0 flex flex-col gap-2 md:gap-3 overflow-hidden">
-          <div className="bg-card/50 border border-border/50 rounded-lg p-3 md:p-4 shrink-0">
-            <p className="text-sm md:text-base font-medium leading-snug">
+          <div className="relative bg-card/50 border border-border/50 rounded-lg p-3 md:p-4 shrink-0 overflow-hidden">
+            <div className="absolute -right-2 -top-2 text-5xl opacity-[0.07] select-none pointer-events-none">{topicEmoji}</div>
+            <p className="relative text-sm md:text-base font-medium leading-snug">
               {highlight(current.question, current.keywords)}
             </p>
           </div>
@@ -631,21 +647,27 @@ const QuestionPanel: React.FC<{
                   onClick={() => onAnswer(i)}
                   disabled={revealed || isEliminated}
                   className={[
-                    'text-left px-3 py-2 md:py-2.5 rounded-lg border transition-all flex items-start gap-2',
+                    'group text-left pl-2 pr-3 py-2 md:py-2.5 rounded-lg border transition-all flex items-center gap-3',
                     isCorrect ? 'border-green-500/60 bg-green-500/10' :
                     isWrong ? 'border-destructive/60 bg-destructive/10' :
                     isSel ? 'border-primary/60 bg-primary/10' :
                     isEliminated ? 'border-border/30 bg-card/10 opacity-30 line-through' :
-                    'border-border/50 bg-card/30 hover:border-primary/40 hover:bg-card/60',
+                    'border-border/50 bg-card/30 hover:border-primary/50 hover:bg-card/60 hover:translate-x-0.5',
                     revealed || isEliminated ? 'cursor-not-allowed' : 'cursor-pointer',
                   ].join(' ')}
                 >
-                  <span className="font-mono text-[10px] text-muted-foreground mt-1">{'ABCD'[i]}</span>
+                  <span className={[
+                    'shrink-0 inline-flex items-center justify-center w-7 h-7 rounded-full font-mono text-xs font-bold border transition',
+                    isCorrect ? 'border-green-500/60 bg-green-500/20 text-green-400' :
+                    isWrong ? 'border-destructive/60 bg-destructive/20 text-destructive' :
+                    isSel ? 'border-primary/60 bg-primary/20 text-primary' :
+                    'border-border/60 bg-background/40 text-muted-foreground group-hover:border-primary/60 group-hover:text-primary',
+                  ].join(' ')}>
+                    {isCorrect ? <CheckCircle2 className="w-4 h-4" /> : isWrong ? <XCircle className="w-4 h-4" /> : 'ABCD'[i]}
+                  </span>
                   <span className="flex-1 text-sm leading-snug">
                     {revealed && i === current.correct ? highlight(opt, current.keywords) : opt}
                   </span>
-                  {isCorrect && <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0 mt-0.5" />}
-                  {isWrong && <XCircle className="w-4 h-4 text-destructive shrink-0 mt-0.5" />}
                 </button>
               );
             })}
@@ -658,7 +680,7 @@ const QuestionPanel: React.FC<{
                 <span>{highlight(current.explanation, current.keywords)}</span>
               </div>
               {newKnowledge && (
-                <div className="flex items-center gap-2 text-[11px] bg-cyan-500/10 border border-cyan-500/30 rounded-md px-2 py-1 text-cyan-300 shrink-0">
+                <div className="flex items-center gap-2 text-[11px] bg-cyan-500/10 border border-cyan-500/30 rounded-md px-2 py-1 text-cyan-300 shrink-0 animate-in fade-in zoom-in-95">
                   <BookOpen className="w-3.5 h-3.5" />
                   Neue Logbuch-Karte gesammelt.
                 </div>
