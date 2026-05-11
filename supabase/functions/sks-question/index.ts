@@ -30,27 +30,29 @@ function rateOk(ip: string) {
   return { ok: true };
 }
 
-const SYSTEM = `Du wandelst eine amtliche SKS-Prüfungsfrage (Sportküstenschifferschein) in eine "Wer wird Millionär?"-Quizfrage mit 4 Antwortmöglichkeiten um.
-
-EINGABE: Originalfrage + amtliche Musterantwort + Themenbereich (Navigation / Schifffahrtsrecht / Wetterkunde).
+const SYSTEM = `Du wandelst eine amtliche SKS-Prüfungsfrage in eine "Wer wird Millionär?"-Quizfrage um.
 
 REGELN:
-- Gib AUSSCHLIESSLICH gültiges JSON zurück, kein Markdown, keine Kommentare.
+- Gib AUSSCHLIESSLICH gültiges JSON zurück, kein Markdown-Block.
 - Sprache: Deutsch. Siezen. Formal.
-- Genau 4 Optionen. Genau 1 korrekte Antwort. correct = Index 0-3.
-- Die amtliche Musterantwort IST die korrekte Antwort. Du darfst sie sprachlich straffen (1–2 Sätze, prägnant), inhaltlich aber NICHT verändern. Keine Fakten erfinden, keine Werte ändern.
-- Die 3 falschen Optionen sind plausible Distraktoren: typische Verwechslungen, ähnliche Begriffe, häufige Anfängerfehler aus dem maritimen Kontext. Sie müssen klar falsch sein, aber nicht offensichtlich absurd.
-- Alle 4 Optionen vergleichbar in Länge und Stil (keine verräterisch lange korrekte Antwort).
-- Optionen ohne Buchstaben-Präfix (kein "A) ").
-- "explanation": 1–2 Sätze, erklärt warum die Antwort richtig ist; bei Bedarf mit Bezug auf KVR, SeeSchStrO, SBG, BSH, NfS, WGS 84, NTM, Beaufort, Land-/Seewind etc.
-- SCHWIERIGKEIT (1–10): höhere Werte → subtilere Distraktoren (Zahlenwerte minimal verändert, ähnliche Fachbegriffe vertauscht); niedrige Werte → klarere Unterschiede.
-- Bei Antworten mit konkreten Zahlen (Längen, Höhen, Lichtsektoren, Bußgeldhöhen) bleibt der korrekte Wert exakt erhalten.
+- "question": KNAPP und prägnant formulieren (max. ~20 Wörter, möglichst 1 Satz). Unnötige Wiederholungen, Floskeln und einleitende Phrasen weglassen. Kernfrage erhalten, Bedeutung unverändert.
+- Genau 4 Optionen. Genau 1 korrekte Antwort. correct = Index 0–3.
+- WICHTIG: Verteile die korrekte Antwort ZUFÄLLIG auf eine der vier Positionen — NICHT immer 0. Würfle bewusst.
+- Optionen kurz halten (1 Satz, max. ~15 Wörter), vergleichbar in Länge.
+- Die amtliche Musterantwort IST inhaltlich die korrekte Option (sprachlich straffen erlaubt, Fakten und Zahlenwerte unverändert).
+- Die 3 Distraktoren sind plausibel: typische Verwechslungen aus dem maritimen Kontext, klar falsch, nicht absurd.
+- Optionen ohne Buchstaben-Präfix.
+- "keywords": 2–5 zentrale Schlüsselwörter/Fachbegriffe aus der korrekten Antwort/Frage (Substantive, Werte, Abkürzungen wie "KVR", "WGS 84", "Backbord"). Werden im UI gehighlightet.
+- "explanation": 1–2 prägnante Sätze, warum die Antwort richtig ist; nutze ggf. KVR, SeeSchStrO, BSH, WGS 84, NfS, Beaufort etc.
+- SCHWIERIGKEIT (1–10): hoch → subtilere Distraktoren; niedrig → klarere Unterschiede.
+- Bei Zahlen (Längen, Höhen, Sektoren, Bußgelder) bleibt der korrekte Wert exakt.
 
 AUSGABE:
 {
   "question": "...",
   "options": ["...","...","...","..."],
   "correct": 0,
+  "keywords": ["...","..."],
   "explanation": "..."
 }`;
 
@@ -153,6 +155,19 @@ Erzeuge jetzt die Multiple-Choice-Frage als JSON.`;
       return new Response(JSON.stringify({ error: "Failed to generate question" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
+    // Server-side shuffle so correct answer position is truly random
+    {
+      const correctText = parsed.options[parsed.correct];
+      const order = [0, 1, 2, 3];
+      for (let i = order.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [order[i], order[j]] = [order[j], order[i]];
+      }
+      const newOptions = order.map((o: number) => parsed.options[o]);
+      parsed.options = newOptions;
+      parsed.correct = newOptions.indexOf(correctText);
+    }
+    if (!Array.isArray(parsed.keywords)) parsed.keywords = [];
     parsed.topic = resolvedTopic;
     parsed.sourceIndex = resolvedIndex;
     parsed.topicLabel = TOPIC_LABEL[resolvedTopic];

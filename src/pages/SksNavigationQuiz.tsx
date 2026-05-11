@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { RotateCcw, CheckCircle2, XCircle, ArrowRight, Percent, Users, Trophy, Flame, Clock, Star, Zap, Loader2, Compass, Scale, CloudSun, Shuffle, RefreshCcw, Anchor } from 'lucide-react';
 import { PageMeta } from '@/components/PageMeta';
@@ -26,6 +26,23 @@ interface AiQuestion {
   options: string[];
   correct: number;
   explanation: string;
+  keywords?: string[];
+}
+
+// Highlight keywords in a text by wrapping them in <mark>
+function highlightKeywords(text: string, keywords?: string[]): React.ReactNode {
+  if (!keywords || keywords.length === 0) return text;
+  const escaped = keywords
+    .filter(k => k && k.length >= 2)
+    .map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+    .sort((a, b) => b.length - a.length);
+  if (escaped.length === 0) return text;
+  const re = new RegExp(`(${escaped.join('|')})`, 'gi');
+  const matcher = new RegExp(`^(${escaped.join('|')})$`, 'i');
+  const parts = text.split(re);
+  return parts.map((p, i) =>
+    matcher.test(p) ? <mark key={i} className="bg-primary/20 text-primary font-semibold rounded px-0.5">{p}</mark> : <span key={i}>{p}</span>
+  );
 }
 
 const QUIZ_SIZE = 10;
@@ -105,6 +122,10 @@ export default function SksNavigationQuiz({ embedded = false }: { embedded?: boo
   };
 
   const [started, setStarted] = useState(embedded);
+  const [paukMode, setPaukMode] = useState<boolean>(() => {
+    try { return localStorage.getItem('sks_pauk_mode') === '1'; } catch { return false; }
+  });
+  useEffect(() => { try { localStorage.setItem('sks_pauk_mode', paukMode ? '1' : '0'); } catch {} }, [paukMode]);
   const [currentQ, setCurrentQ] = useState(0);
   const [question, setQuestion] = useState<AiQuestion | null>(null);
   const [loadingQuestion, setLoadingQuestion] = useState(false);
@@ -163,9 +184,9 @@ export default function SksNavigationQuiz({ embedded = false }: { embedded?: boo
     }
   }, [started, topic, currentQ, gameOver, won]);
 
-  // Timer
+  // Timer (disabled in Pauk-Modus)
   useEffect(() => {
-    if (!started || gameOver || won || confirmed || loadingQuestion || !question) {
+    if (paukMode || !started || gameOver || won || confirmed || loadingQuestion || !question) {
       if (timerRef.current) clearInterval(timerRef.current);
       return;
     }
@@ -182,10 +203,11 @@ export default function SksNavigationQuiz({ embedded = false }: { embedded?: boo
       });
     }, 1000);
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
-  }, [currentQ, started, gameOver, won, confirmed, loadingQuestion, question]);
+  }, [currentQ, started, gameOver, won, confirmed, loadingQuestion, question, paukMode]);
 
-  // Time out
+  // Time out (only relevant outside Pauk-Modus)
   useEffect(() => {
+    if (paukMode) return;
     if (timeLeft === 0 && started && !gameOver && !won && !confirmed && question) {
       setGameOver(true);
       const newBest = Math.max(bestScore, score);
@@ -193,7 +215,7 @@ export default function SksNavigationQuiz({ embedded = false }: { embedded?: boo
       try { localStorage.setItem(STORAGE_KEY, String(newBest)); } catch {}
       setTimeout(() => playDefeat(), 300);
     }
-  }, [timeLeft, started, gameOver, won, confirmed, question]);
+  }, [timeLeft, started, gameOver, won, confirmed, question, paukMode]);
 
   // Delay game-over screen to let the defeat melody play
   useEffect(() => {
@@ -228,7 +250,7 @@ export default function SksNavigationQuiz({ embedded = false }: { embedded?: boo
         setTimeout(() => playMilestone(), 500);
         setTimeout(() => setShowMilestone(false), 2500);
       }
-      if (currentQ === QUIZ_SIZE - 1) {
+      if (currentQ === QUIZ_SIZE - 1 && !paukMode) {
         setWon(true);
         const newBest = Math.max(bestScore, QUIZ_SIZE);
         setBestScore(newBest);
@@ -240,19 +262,33 @@ export default function SksNavigationQuiz({ embedded = false }: { embedded?: boo
       }
     } else {
       setStreak(0);
-      setGameOver(true);
-      const newBest = Math.max(bestScore, score);
-      setBestScore(newBest);
-      try { localStorage.setItem(STORAGE_KEY, String(newBest)); } catch {}
-      const secLevel = SAFETY_NETS.filter(idx => idx < currentQ).reverse()[0];
-      const secAmount = secLevel !== undefined ? MONEY_LEVELS[secLevel] : '0';
-      saveSksBoard(score, secAmount);
-      setTimeout(() => playDefeat(), 300);
+      if (paukMode) {
+        // Pauken: keine Game-Over, einfach weitermachen
+        setTimeout(() => playWrong?.(), 200);
+      } else {
+        setGameOver(true);
+        const newBest = Math.max(bestScore, score);
+        setBestScore(newBest);
+        try { localStorage.setItem(STORAGE_KEY, String(newBest)); } catch {}
+        const secLevel = SAFETY_NETS.filter(idx => idx < currentQ).reverse()[0];
+        const secAmount = secLevel !== undefined ? MONEY_LEVELS[secLevel] : '0';
+        saveSksBoard(score, secAmount);
+        setTimeout(() => playDefeat(), 300);
+      }
     }
   };
 
   const handleNext = () => {
     const nextQ = currentQ + 1;
+    // Pauk-Modus: nach 10 Fragen automatisch neue Runde
+    if (paukMode && nextQ >= QUIZ_SIZE) {
+      if (topic) roundIndicesRef.current = pickRoundIndices(topic);
+      setCurrentQ(0);
+      setSelected(null); setConfirmed(false); setHiddenOptions([]); setAudienceResults(null);
+      setQuestion(null);
+      fetchQuestion(0, topic);
+      return;
+    }
     setCurrentQ(nextQ);
     setSelected(null);
     setConfirmed(false);
@@ -398,10 +434,23 @@ export default function SksNavigationQuiz({ embedded = false }: { embedded?: boo
               );
             })}
           </div>
+          {/* Pauk-Modus Toggle */}
+          <button
+            onClick={() => setPaukMode(p => !p)}
+            className={`mx-auto flex items-center gap-3 px-4 py-2.5 rounded-xl border transition-all ${paukMode ? 'border-highlight/60 bg-highlight/10 text-highlight shadow-[0_0_20px_hsl(187_100%_42%/0.15)]' : 'border-border/40 bg-card/40 text-muted-foreground hover:border-highlight/40 hover:text-highlight'}`}
+          >
+            <div className={`w-9 h-5 rounded-full relative transition-colors ${paukMode ? 'bg-highlight/40' : 'bg-muted/40'}`}>
+              <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-background transition-all ${paukMode ? 'left-[18px]' : 'left-0.5'}`} />
+            </div>
+            <div className="text-left">
+              <p className="font-mono font-bold text-xs uppercase tracking-wider">Pauk-Modus {paukMode ? 'an' : 'aus'}</p>
+              <p className="text-[10px] font-mono opacity-70">Ohne Timer, ohne Game-Over — endlos lernen</p>
+            </div>
+          </button>
           <div className="flex items-center justify-center gap-6 text-muted-foreground text-xs">
-            <span className="flex items-center gap-1.5"><Clock size={12} className="text-primary/60" /> <span className="font-mono">{QUESTION_TIME}s</span></span>
+            {!paukMode && <span className="flex items-center gap-1.5"><Clock size={12} className="text-primary/60" /> <span className="font-mono">{QUESTION_TIME}s</span></span>}
             <span className="flex items-center gap-1.5"><Flame size={12} className="text-primary/60" /> Streak</span>
-            <span className="flex items-center gap-1.5"><Zap size={12} className="text-primary/60" /> Speed</span>
+            {!paukMode && <span className="flex items-center gap-1.5"><Zap size={12} className="text-primary/60" /> Speed</span>}
           </div>
           <p className="text-muted-foreground text-[10px] italic max-w-sm mx-auto">{t(I18N.disclaimer)}</p>
         </div>
@@ -457,7 +506,7 @@ export default function SksNavigationQuiz({ embedded = false }: { embedded?: boo
               <p className="text-foreground/50 text-xs mb-3 font-mono">{question.question}</p>
               <div className="flex items-start gap-2">
                 <XCircle className="w-4 h-4 text-destructive mt-0.5 flex-shrink-0" />
-                <p className="text-foreground/70 text-sm leading-relaxed">{question.explanation}</p>
+                <p className="text-foreground/70 text-sm leading-relaxed">{highlightKeywords(question.explanation, question.keywords)}</p>
               </div>
             </div>
           )}
@@ -582,12 +631,17 @@ export default function SksNavigationQuiz({ embedded = false }: { embedded?: boo
           ))}
         </div>
         <div className="flex items-center gap-3">
-          <div className="flex-1 relative h-1 bg-muted/15 rounded-full overflow-hidden">
-            <div className={`h-full rounded-full transition-all duration-1000 ease-linear ${timerCritical ? 'bg-destructive animate-pulse' : timerUrgent ? 'bg-primary' : 'bg-highlight/40'}`} style={{ width: `${timerPct}%` }} />
-          </div>
-          <span className={`font-mono text-xs tabular-nums min-w-[2.5rem] text-right ${timerCritical ? 'text-destructive font-bold animate-pulse' : timerUrgent ? 'text-primary' : 'text-muted-foreground'}`}>
-            <Clock size={10} className="inline mr-1" />{timeLeft}s
-          </span>
+          {!paukMode && (
+            <>
+              <div className="flex-1 relative h-1 bg-muted/15 rounded-full overflow-hidden">
+                <div className={`h-full rounded-full transition-all duration-1000 ease-linear ${timerCritical ? 'bg-destructive animate-pulse' : timerUrgent ? 'bg-primary' : 'bg-highlight/40'}`} style={{ width: `${timerPct}%` }} />
+              </div>
+              <span className={`font-mono text-xs tabular-nums min-w-[2.5rem] text-right ${timerCritical ? 'text-destructive font-bold animate-pulse' : timerUrgent ? 'text-primary' : 'text-muted-foreground'}`}>
+                <Clock size={10} className="inline mr-1" />{timeLeft}s
+              </span>
+            </>
+          )}
+          {paukMode && <span className="flex-1 font-mono text-[10px] text-highlight/80 uppercase tracking-widest">Pauk-Modus</span>}
           <span className="font-mono text-xs text-muted-foreground/60">{currentQ + 1}/{QUIZ_SIZE}</span>
         </div>
       </div>
@@ -615,7 +669,7 @@ export default function SksNavigationQuiz({ embedded = false }: { embedded?: boo
 
       <div className={`flex gap-5 ${showLadder ? '' : 'flex-col'}`}>
         <div className="flex-1 min-w-0 space-y-4">
-          <StaggerReveal key={`question-${currentQ}`} stagger={120}>
+          <StaggerReveal key={`question-${currentQ}`} stagger={paukMode ? 0 : 80}>
             {/* Jokers */}
             <div className="flex items-center gap-2">
               <button onClick={useFiftyFifty} disabled={fiftyFiftyUsed || confirmed}
@@ -634,7 +688,7 @@ export default function SksNavigationQuiz({ embedded = false }: { embedded?: boo
             <div className="relative">
               <div className="absolute -inset-[1px] bg-gradient-to-r from-transparent via-primary/40 to-transparent rounded-2xl" />
               <div className="relative bg-gradient-to-b from-secondary via-card to-secondary rounded-2xl p-4 md:p-6 border border-primary/20">
-                <p className="text-foreground text-sm md:text-base leading-relaxed text-center font-medium">{question.question}</p>
+                <p className="text-foreground text-sm md:text-base leading-relaxed text-center font-medium">{highlightKeywords(question.question, question.keywords)}</p>
               </div>
             </div>
 
@@ -693,7 +747,7 @@ export default function SksNavigationQuiz({ embedded = false }: { embedded?: boo
                     <div className={`absolute inset-[1px] bg-gradient-to-b ${innerBg}`} style={{ clipPath: diamondClip }} />
                     <div className={`relative ${padClass} text-sm ${textClass} break-words`}>
                       <span className="font-mono font-bold mr-2 text-primary/80 flex-shrink-0">{OPTION_LETTERS[i]}:</span>
-                      {opt}
+                      {confirmed && i === question.correct ? highlightKeywords(opt, question.keywords) : opt}
                     </div>
                     {!confirmed && <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" style={{ clipPath: diamondClip }} />}
                   </button>
@@ -737,7 +791,7 @@ export default function SksNavigationQuiz({ embedded = false }: { embedded?: boo
 
           {/* Explanation */}
           {confirmed && (
-            <StaggerReveal stagger={100}>
+            <StaggerReveal stagger={paukMode ? 0 : 60}>
               <div className={`flex items-start gap-3 p-4 rounded-xl border ${isCorrect ? 'border-success/30 bg-success/5' : 'border-destructive/30 bg-destructive/5'}`}>
                 {isCorrect ? <CheckCircle2 className="w-5 h-5 text-success mt-0.5 flex-shrink-0" /> : <XCircle className="w-5 h-5 text-destructive mt-0.5 flex-shrink-0" />}
                 <div>
@@ -745,10 +799,10 @@ export default function SksNavigationQuiz({ embedded = false }: { embedded?: boo
                     {isCorrect ? t(I18N.correct) : t(I18N.incorrect)}
                     {isCorrect && streak > 1 && <span className="ml-2 text-primary text-xs">🔥 {streak}x Streak!</span>}
                   </p>
-                  <p className="text-foreground/70 text-sm leading-relaxed">{question.explanation}</p>
+                  <p className="text-foreground/70 text-sm leading-relaxed">{highlightKeywords(question.explanation, question.keywords)}</p>
                 </div>
               </div>
-              {isCorrect && !won && (
+              {(isCorrect || paukMode) && !won && (
                 <div className="flex justify-end">
                   <button onClick={handleNext} className="relative group px-6 py-2.5" style={{ clipPath: diamondClip }}>
                     <div className="absolute inset-0 bg-gradient-to-r from-highlight/30 via-highlight/50 to-highlight/30 group-hover:from-highlight/50 group-hover:via-highlight/70 group-hover:to-highlight/50 transition-all" style={{ clipPath: diamondClip }} />
