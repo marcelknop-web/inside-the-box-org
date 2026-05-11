@@ -418,24 +418,24 @@ const Stat: React.FC<{ label: string; value: React.ReactNode }> = ({ label, valu
 );
 
 const Briefing: React.FC<{ stage: Stage; wind: typeof WIND_LABELS[0]; crewCount: number; onGo: () => void }> = ({ stage, wind, crewCount, onGo }) => (
-  <div className="max-w-2xl mx-auto space-y-6">
+  <div className="flex-1 min-h-0 max-w-2xl w-full mx-auto flex flex-col justify-center gap-4">
     <div className="text-center">
-      <div className="text-xs font-mono text-primary tracking-widest">BRIEFING</div>
-      <h2 className="text-2xl md:text-3xl font-bold mt-1">{stage.from} → {stage.to}</h2>
+      <div className="text-[10px] font-mono text-primary tracking-widest">BRIEFING</div>
+      <h2 className="text-xl md:text-3xl font-bold mt-1">{stage.from} → {stage.to}</h2>
     </div>
-    <div className="bg-card/50 border border-border/50 rounded-lg p-4 md:p-6 space-y-3">
-      <p className="italic text-muted-foreground">"{stage.scene}"</p>
-      <div className="flex items-center gap-4 text-sm flex-wrap pt-2 border-t border-border/30">
+    <div className="bg-card/50 border border-border/50 rounded-lg p-4 space-y-3">
+      <p className="italic text-sm md:text-base text-muted-foreground">"{stage.scene}"</p>
+      <div className="flex items-center gap-4 text-xs md:text-sm flex-wrap pt-2 border-t border-border/30">
         <span className="flex items-center gap-1"><Waves className="w-4 h-4 text-primary" />{stage.nm} sm</span>
         <span className="flex items-center gap-1"><Wind className="w-4 h-4 text-primary" />{wind.bft} Bft</span>
         <span className="flex items-center gap-1"><Compass className="w-4 h-4 text-primary" />{TOPIC_LABEL[stage.topicHint]}</span>
         {crewCount > 0 && <span className="flex items-center gap-1"><Users className="w-4 h-4 text-primary" />{crewCount} Crew</span>}
       </div>
     </div>
-    <div className="text-center text-sm text-muted-foreground">
+    <div className="text-center text-xs text-muted-foreground">
       5 Szenen-Fragen · 3 Hafenmanöver · 60 % zum Bestehen
     </div>
-    <Button onClick={onGo} className="w-full" size="lg"><ArrowRight className="w-4 h-4" />Etappe starten</Button>
+    <Button onClick={onGo} className="w-full"><ArrowRight className="w-4 h-4" />Etappe starten</Button>
   </div>
 );
 
