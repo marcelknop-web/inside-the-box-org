@@ -279,6 +279,7 @@ export default function SksNavigationQuiz({ embedded = false }: { embedded?: boo
     setTimeLeft(QUESTION_TIME);
     setQuestion(null);
     setLoadError(false);
+    usedIndicesRef.current = [];
   };
 
   const getSecuredLevel = () => {
