@@ -892,4 +892,65 @@ const Logbuch: React.FC<{ state: NordsternState; onClose: () => void }> = ({ sta
   );
 };
 
+const Intro: React.FC<{ onClose: () => void }> = ({ onClose }) => {
+  const [step, setStep] = useState(0);
+  const slides = [
+    {
+      icon: <Map className="w-8 h-8 text-primary" />,
+      title: 'Sieben Etappen, ein Ziel',
+      body: 'Von Athen nach Bodrum. Jede Etappe = 5 Szenen-Fragen unterwegs + 3 Hafenmanöver. 60 % richtig zum Bestehen.',
+    },
+    {
+      icon: <Compass className="w-8 h-8 text-primary" />,
+      title: 'Adaptives Pauken',
+      body: 'Die KI passt die Schwierigkeit live an deinen Streak an. Falsch beantwortete Fragen kommen als Wiederholung (↻) zurück — Spaced Repetition statt Auswendiglernen.',
+    },
+    {
+      icon: <Zap className="w-8 h-8 text-primary" />,
+      title: 'Joker & Sturm',
+      body: '50/50 eliminiert zwei falsche Optionen pro Etappe. Bei Sturm steigt die Schwierigkeit. Eine Crew gibt Boni: Lotse +Joker, Maschinist mit Patzer-Versicherung.',
+    },
+    {
+      icon: <Award className="w-8 h-8 text-primary" />,
+      title: 'Logbuch sammelt alles',
+      body: 'Häfen, Crew und Wissenskarten landen im Logbuch oben rechts. Schau jederzeit rein, um Gelerntes zu wiederholen.',
+    },
+  ];
+  const last = step === slides.length - 1;
+  const s = slides[step];
+
+  return (
+    <div className="fixed inset-0 z-50 bg-background/85 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
+      <div className="bg-card border border-border rounded-lg max-w-md w-full p-5 md:p-6 space-y-4 shadow-[0_10px_40px_-10px_hsl(var(--primary)/0.4)]">
+        <div className="flex items-center justify-between">
+          <span className="font-mono text-[10px] tracking-widest text-primary">EINFÜHRUNG · {step + 1}/{slides.length}</span>
+          <button onClick={onClose} className="text-muted-foreground hover:text-foreground" aria-label="Schließen"><X className="w-4 h-4" /></button>
+        </div>
+        <div className="flex items-start gap-3">
+          <div className="shrink-0 w-12 h-12 rounded-lg bg-primary/10 border border-primary/30 flex items-center justify-center">
+            {s.icon}
+          </div>
+          <div className="min-w-0">
+            <h3 className="text-base md:text-lg font-bold leading-tight">{s.title}</h3>
+            <p className="text-sm text-muted-foreground leading-snug mt-1">{s.body}</p>
+          </div>
+        </div>
+        <div className="flex items-center justify-center gap-1.5 pt-1">
+          {slides.map((_, i) => (
+            <button key={i} onClick={() => setStep(i)} aria-label={`Slide ${i + 1}`}
+              className={`h-1.5 rounded-full transition-all ${i === step ? 'w-6 bg-primary' : 'w-1.5 bg-muted-foreground/30 hover:bg-muted-foreground/60'}`} />
+          ))}
+        </div>
+        <div className="flex gap-2">
+          {step > 0 && <Button variant="outline" size="sm" className="flex-1" onClick={() => setStep(s => s - 1)}>Zurück</Button>}
+          <Button size="sm" className="flex-1" onClick={() => last ? onClose() : setStep(s => s + 1)}>
+            {last ? <>Leinen los <Anchor className="w-4 h-4" /></> : <>Weiter <ArrowRight className="w-4 h-4" /></>}
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export default Nordstern;
+
