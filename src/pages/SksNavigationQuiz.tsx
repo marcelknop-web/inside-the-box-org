@@ -631,12 +631,17 @@ export default function SksNavigationQuiz({ embedded = false }: { embedded?: boo
           ))}
         </div>
         <div className="flex items-center gap-3">
-          <div className="flex-1 relative h-1 bg-muted/15 rounded-full overflow-hidden">
-            <div className={`h-full rounded-full transition-all duration-1000 ease-linear ${timerCritical ? 'bg-destructive animate-pulse' : timerUrgent ? 'bg-primary' : 'bg-highlight/40'}`} style={{ width: `${timerPct}%` }} />
-          </div>
-          <span className={`font-mono text-xs tabular-nums min-w-[2.5rem] text-right ${timerCritical ? 'text-destructive font-bold animate-pulse' : timerUrgent ? 'text-primary' : 'text-muted-foreground'}`}>
-            <Clock size={10} className="inline mr-1" />{timeLeft}s
-          </span>
+          {!paukMode && (
+            <>
+              <div className="flex-1 relative h-1 bg-muted/15 rounded-full overflow-hidden">
+                <div className={`h-full rounded-full transition-all duration-1000 ease-linear ${timerCritical ? 'bg-destructive animate-pulse' : timerUrgent ? 'bg-primary' : 'bg-highlight/40'}`} style={{ width: `${timerPct}%` }} />
+              </div>
+              <span className={`font-mono text-xs tabular-nums min-w-[2.5rem] text-right ${timerCritical ? 'text-destructive font-bold animate-pulse' : timerUrgent ? 'text-primary' : 'text-muted-foreground'}`}>
+                <Clock size={10} className="inline mr-1" />{timeLeft}s
+              </span>
+            </>
+          )}
+          {paukMode && <span className="flex-1 font-mono text-[10px] text-highlight/80 uppercase tracking-widest">Pauk-Modus</span>}
           <span className="font-mono text-xs text-muted-foreground/60">{currentQ + 1}/{QUIZ_SIZE}</span>
         </div>
       </div>
