@@ -434,10 +434,23 @@ export default function SksNavigationQuiz({ embedded = false }: { embedded?: boo
               );
             })}
           </div>
+          {/* Pauk-Modus Toggle */}
+          <button
+            onClick={() => setPaukMode(p => !p)}
+            className={`mx-auto flex items-center gap-3 px-4 py-2.5 rounded-xl border transition-all ${paukMode ? 'border-highlight/60 bg-highlight/10 text-highlight shadow-[0_0_20px_hsl(187_100%_42%/0.15)]' : 'border-border/40 bg-card/40 text-muted-foreground hover:border-highlight/40 hover:text-highlight'}`}
+          >
+            <div className={`w-9 h-5 rounded-full relative transition-colors ${paukMode ? 'bg-highlight/40' : 'bg-muted/40'}`}>
+              <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-background transition-all ${paukMode ? 'left-[18px]' : 'left-0.5'}`} />
+            </div>
+            <div className="text-left">
+              <p className="font-mono font-bold text-xs uppercase tracking-wider">Pauk-Modus {paukMode ? 'an' : 'aus'}</p>
+              <p className="text-[10px] font-mono opacity-70">Ohne Timer, ohne Game-Over — endlos lernen</p>
+            </div>
+          </button>
           <div className="flex items-center justify-center gap-6 text-muted-foreground text-xs">
-            <span className="flex items-center gap-1.5"><Clock size={12} className="text-primary/60" /> <span className="font-mono">{QUESTION_TIME}s</span></span>
+            {!paukMode && <span className="flex items-center gap-1.5"><Clock size={12} className="text-primary/60" /> <span className="font-mono">{QUESTION_TIME}s</span></span>}
             <span className="flex items-center gap-1.5"><Flame size={12} className="text-primary/60" /> Streak</span>
-            <span className="flex items-center gap-1.5"><Zap size={12} className="text-primary/60" /> Speed</span>
+            {!paukMode && <span className="flex items-center gap-1.5"><Zap size={12} className="text-primary/60" /> Speed</span>}
           </div>
           <p className="text-muted-foreground text-[10px] italic max-w-sm mx-auto">{t(I18N.disclaimer)}</p>
         </div>
