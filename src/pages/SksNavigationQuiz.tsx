@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { RotateCcw, CheckCircle2, XCircle, ArrowRight, Percent, Users, Trophy, Flame, Clock, Star, Zap, Loader2, Compass, Scale, CloudSun, Shuffle, RefreshCcw, Anchor } from 'lucide-react';
 import { PageMeta } from '@/components/PageMeta';
