@@ -370,55 +370,42 @@ const HomeScreen: React.FC<{
   state: NordsternState; stage?: Stage; isLast: boolean; wind: typeof WIND_LABELS[0];
   onStart: () => void; onReset: () => void;
 }> = ({ state, stage, isLast, wind, onStart, onReset }) => (
-  <div className="space-y-6">
-    <div className="text-center space-y-2">
-      <h1 className="text-3xl md:text-4xl font-bold tracking-tight">⛵ Nordstern</h1>
-      <p className="text-sm md:text-base text-muted-foreground max-w-2xl mx-auto">
-        Sieben Etappen von Athen nach Bodrum. Jede Seemeile eine Frage. Falsche Antworten kehren als Wetterfront zurück – bis sie sitzen.
+  <div className="flex-1 min-h-0 flex flex-col gap-3 md:gap-4">
+    <div className="text-center shrink-0">
+      <h1 className="text-xl md:text-3xl font-bold tracking-tight">⛵ Nordstern</h1>
+      <p className="text-[11px] md:text-sm text-muted-foreground max-w-2xl mx-auto leading-snug">
+        Sieben Etappen von Athen nach Bodrum. Falsche Antworten kehren als Wetterfront zurück.
       </p>
     </div>
 
-    <div className="bg-card/50 border border-border/50 rounded-lg p-4 md:p-6">
-      <RouteMap currentStage={state.currentStage} />
+    <div className="flex-1 min-h-0 bg-card/50 border border-border/50 rounded-lg p-2 md:p-4 flex items-center justify-center">
+      <div className="w-full max-h-full"><RouteMap currentStage={state.currentStage} /></div>
     </div>
 
     {isLast ? (
-      <div className="text-center space-y-4 bg-primary/10 border border-primary/30 rounded-lg p-6">
-        <Trophy className="w-12 h-12 mx-auto text-primary" />
-        <h2 className="text-xl font-bold">Bodrum erreicht – Reise abgeschlossen.</h2>
-        <Button onClick={onReset} variant="outline"><RotateCcw className="w-4 h-4" />Neue Reise</Button>
+      <div className="text-center space-y-3 bg-primary/10 border border-primary/30 rounded-lg p-4 shrink-0">
+        <Trophy className="w-10 h-10 mx-auto text-primary" />
+        <h2 className="text-lg font-bold">Bodrum erreicht – Reise abgeschlossen.</h2>
+        <Button onClick={onReset} variant="outline" size="sm"><RotateCcw className="w-4 h-4" />Neue Reise</Button>
       </div>
     ) : stage && (
-      <div className="bg-card/50 border border-border/50 rounded-lg p-4 md:p-6 space-y-4">
-        <div className="flex items-start justify-between gap-4 flex-wrap">
-          <div>
-            <div className="text-xs font-mono text-muted-foreground">NÄCHSTE ETAPPE</div>
-            <h2 className="text-xl md:text-2xl font-bold">{stage.from} → {stage.to}</h2>
-            <div className="text-sm text-muted-foreground">{stage.nm} sm · Schwerpunkt: {TOPIC_LABEL[stage.topicHint]}</div>
-          </div>
-          <div className="text-right">
-            <div className="text-xs font-mono text-muted-foreground flex items-center gap-1 justify-end"><Wind className="w-3 h-3" />WETTER</div>
-            <div className="text-sm">{wind.bft} Bft · {wind.label}</div>
-            <div className="text-xs text-muted-foreground">{wind.desc}</div>
-          </div>
+      <div className="bg-card/50 border border-border/50 rounded-lg p-3 md:p-4 shrink-0 flex items-center justify-between gap-3 flex-wrap">
+        <div className="min-w-0">
+          <div className="text-[10px] font-mono text-muted-foreground">NÄCHSTE ETAPPE</div>
+          <h2 className="text-base md:text-xl font-bold leading-tight">{stage.from} → {stage.to}</h2>
+          <div className="text-xs text-muted-foreground">{stage.nm} sm · {TOPIC_LABEL[stage.topicHint]} · {wind.bft} Bft {wind.label}</div>
         </div>
-        <Button onClick={onStart} className="w-full md:w-auto" size="lg">
+        <Button onClick={onStart} size="sm">
           <Anchor className="w-4 h-4" />Leinen los
         </Button>
       </div>
     )}
 
-    <div className="grid grid-cols-4 gap-2 md:gap-3 text-center text-xs font-mono">
-      <Stat label="Beantwortet" value={state.totalAnswered} />
+    <div className="grid grid-cols-4 gap-2 text-center text-xs font-mono shrink-0">
+      <Stat label="Beantw." value={state.totalAnswered} />
       <Stat label="Richtig" value={state.totalCorrect} />
-      <Stat label="Best-Streak" value={state.bestStreak} />
+      <Stat label="Streak" value={state.bestStreak} />
       <Stat label="Häfen" value={`${state.patches.length}/${STAGES.length}`} />
-    </div>
-
-    <div className="text-center">
-      <button onClick={onReset} className="text-xs text-muted-foreground/60 hover:text-muted-foreground underline">
-        Reise zurücksetzen
-      </button>
     </div>
   </div>
 );
