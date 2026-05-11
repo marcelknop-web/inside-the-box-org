@@ -267,16 +267,16 @@ const Nordstern = () => {
   const dueCount = dueCards(deck).length;
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="h-[100dvh] bg-background text-foreground flex flex-col overflow-hidden">
       <PageMeta title="Nordstern – SKS-Pauken als Roguelike" description="Mediterrane Lernreise von Athen nach Bodrum. Spaced Repetition, adaptive Schwierigkeit, szenische SKS-Fragen." />
 
-      <header className="border-b border-border/40 bg-background/60 backdrop-blur sticky top-0 z-10">
-        <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+      <header className="border-b border-border/40 bg-background/60 backdrop-blur shrink-0">
+        <div className="max-w-5xl mx-auto px-3 py-2 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <Compass className="w-5 h-5 text-primary" />
-            <span className="font-mono text-sm tracking-widest text-primary">NORDSTERN</span>
+            <Compass className="w-4 h-4 text-primary" />
+            <span className="font-mono text-xs tracking-widest text-primary">NORDSTERN</span>
           </div>
-          <div className="flex items-center gap-2 text-xs font-mono text-muted-foreground">
+          <div className="flex items-center gap-2 text-[11px] font-mono text-muted-foreground">
             <span>E{Math.min(state.currentStage + 1, STAGES.length)}/{STAGES.length}</span>
             <span className="text-primary">D{state.difficulty}</span>
             {state.correctStreak > 0 && (
