@@ -411,34 +411,52 @@ const RouteMap: React.FC<{ currentStage: number }> = ({ currentStage }) => (
 
 // Mini route ribbon for in-question HUD
 const RouteRibbon: React.FC<{ currentStage: number; questionIdx: number; limit: number; phase: 'scene' | 'harbor' }> = ({ currentStage, questionIdx, limit, phase }) => {
-  // Compute virtual progress along PORTS path
-  const segStart = PORTS[currentStage];
-  const segEnd = PORTS[Math.min(currentStage + 1, PORTS.length - 1)];
-  const t = phase === 'scene'
-    ? (questionIdx / (limit + 3)) // scenes fill ~5/8
-    : (5 / 8) + ((questionIdx + 1) / (3 + 5)); // harbor fills remaining
-  const tx = segStart.x + (segEnd.x - segStart.x) * Math.min(1, t);
-  const ty = segStart.y + (segEnd.y - segStart.y) * Math.min(1, t);
+  // Progress 0..1 along the trip Athens→Bodrum (stage + intra-stage progress)
+  const intra = phase === 'scene'
+    ? (questionIdx + 1) / (SCENE_QUESTIONS + HARBOR_QUESTIONS)
+    : (SCENE_QUESTIONS + questionIdx + 1) / (SCENE_QUESTIONS + HARBOR_QUESTIONS);
+  const stageT = Math.min(1, intra);
+  const boatPct = ((currentStage + stageT) / (PORTS.length - 1)) * 100;
+  const completedPct = (currentStage / (PORTS.length - 1)) * 100;
+
   return (
-    <svg viewBox="0 0 100 18" className="w-full h-8 md:h-10" preserveAspectRatio="none">
-      <line x1="0" y1="9" x2="100" y2="9" stroke="currentColor" strokeWidth="0.3" strokeDasharray="1.2 1.2" className="text-primary/25" />
-      {PORTS.map((p, i) => {
-        const x = (i / (PORTS.length - 1)) * 100;
-        const done = i <= currentStage;
-        const active = i === currentStage;
-        return (
-          <g key={i}>
-            <circle cx={x} cy={9} r={active ? 1.6 : 1} className={done ? 'fill-primary' : 'fill-muted-foreground/40'} />
-            {active && <circle cx={x} cy={9} r="3" className="fill-primary/25"><animate attributeName="r" values="2;4;2" dur="2s" repeatCount="indefinite" /><animate attributeName="opacity" values="0.5;0;0.5" dur="2s" repeatCount="indefinite" /></circle>}
-            <text x={x} y={17} textAnchor="middle" fontSize="2.6" className={active ? 'fill-primary font-bold' : 'fill-muted-foreground/60'} style={{ fontFamily: 'IBM Plex Mono, monospace' }}>{p.name.slice(0, 4)}</text>
-          </g>
-        );
-      })}
-      {/* boat */}
-      <g transform={`translate(${(currentStage / (PORTS.length - 1)) * 100 + ((1 / (PORTS.length - 1)) * 100) * Math.min(1, t)} 9)`}>
-        <text textAnchor="middle" fontSize="5" y="1.8">⛵</text>
-      </g>
-    </svg>
+    <div className="relative w-full select-none px-3 pt-1 pb-5">
+      {/* Track */}
+      <div className="relative h-[3px] rounded-full bg-border/40 overflow-visible">
+        {/* completed */}
+        <div className="absolute inset-y-0 left-0 rounded-full bg-primary/70" style={{ width: `${completedPct}%` }} />
+        {/* current leg */}
+        <div className="absolute inset-y-0 rounded-full bg-primary"
+             style={{ left: `${completedPct}%`, width: `${Math.max(0, boatPct - completedPct)}%` }} />
+        {/* Port dots */}
+        {PORTS.map((p, i) => {
+          const x = (i / (PORTS.length - 1)) * 100;
+          const done = i < currentStage;
+          const active = i === currentStage;
+          return (
+            <div key={p.name} className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center" style={{ left: `${x}%` }}>
+              <div className={[
+                'rounded-full transition-all',
+                active ? 'w-3 h-3 bg-primary ring-2 ring-primary/30 ring-offset-2 ring-offset-background shadow-[0_0_10px_hsl(var(--primary)/0.55)]'
+                       : done ? 'w-2 h-2 bg-primary/80'
+                              : 'w-1.5 h-1.5 bg-muted-foreground/40',
+              ].join(' ')} />
+              <span className={[
+                'absolute top-4 font-mono text-[10px] tracking-wide whitespace-nowrap',
+                active ? 'text-primary font-semibold' : done ? 'text-primary/70' : 'text-muted-foreground/60',
+                // edge alignment: leftmost left-aligned, rightmost right-aligned
+                i === 0 ? 'left-0 translate-x-0' : i === PORTS.length - 1 ? 'right-0 left-auto' : '',
+              ].join(' ')}>{p.name}</span>
+            </div>
+          );
+        })}
+        {/* Boat marker — slightly above the line so it doesn't obscure the active port */}
+        <div className="absolute -top-4 text-base leading-none -translate-x-1/2 transition-[left] duration-500 ease-out"
+             style={{ left: `${boatPct}%`, filter: 'drop-shadow(0 1px 2px hsl(var(--primary) / 0.5))' }}>
+          ⛵
+        </div>
+      </div>
+    </div>
   );
 };
 
