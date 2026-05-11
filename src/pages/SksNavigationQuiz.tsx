@@ -1,13 +1,25 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { RotateCcw, CheckCircle2, XCircle, ArrowRight, Percent, Users, Trophy, Flame, Clock, Star, Zap, Loader2 } from 'lucide-react';
+import { RotateCcw, CheckCircle2, XCircle, ArrowRight, Percent, Users, Trophy, Flame, Clock, Star, Zap, Loader2, Compass, Scale, CloudSun, Shuffle, RefreshCcw } from 'lucide-react';
 import { PageMeta } from '@/components/PageMeta';
 import Typewriter from '@/components/Typewriter';
-import { useLanguage } from '@/i18n/LanguageContext';
 import { StaggerReveal } from '@/components/StaggerReveal';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useMillionaireSound } from '@/hooks/useMillionaireSound';
 import { supabase } from '@/integrations/supabase/client';
+import { SKS_CATALOG, SKS_TOPIC_LABELS, type SksTopic } from '@/data/sksQuestions';
+
+type Topic = SksTopic | 'mixed';
+
+const TOPIC_LABEL: Record<Topic, string> = {
+  ...SKS_TOPIC_LABELS,
+  mixed: 'Alle Themen gemischt',
+};
+
+function topicPoolSize(t: Topic): number {
+  if (t === 'mixed') return SKS_CATALOG.navigation.length + SKS_CATALOG.recht.length + SKS_CATALOG.wetter.length;
+  return SKS_CATALOG[t].length;
+}
 
 interface AiQuestion {
   question: string;
