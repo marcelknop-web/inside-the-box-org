@@ -155,6 +155,19 @@ Erzeuge jetzt die Multiple-Choice-Frage als JSON.`;
       return new Response(JSON.stringify({ error: "Failed to generate question" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
+    // Server-side shuffle so correct answer position is truly random
+    {
+      const correctText = parsed.options[parsed.correct];
+      const order = [0, 1, 2, 3];
+      for (let i = order.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [order[i], order[j]] = [order[j], order[i]];
+      }
+      const newOptions = order.map((o: number) => parsed.options[o]);
+      parsed.options = newOptions;
+      parsed.correct = newOptions.indexOf(correctText);
+    }
+    if (!Array.isArray(parsed.keywords)) parsed.keywords = [];
     parsed.topic = resolvedTopic;
     parsed.sourceIndex = resolvedIndex;
     parsed.topicLabel = TOPIC_LABEL[resolvedTopic];
