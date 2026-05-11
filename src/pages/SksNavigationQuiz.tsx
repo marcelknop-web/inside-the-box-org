@@ -39,7 +39,7 @@ const I18N: Record<string, Record<string, string>> = {
   reached: { de: 'Erreicht', en: 'Reached', fr: 'Atteint' },
   safetyNet: { de: 'Sicherheitsnetz erreicht', en: 'Safety net reached', fr: 'Filet de sécurité atteint' },
   audience: { de: 'Publikum', en: 'Audience', fr: 'Public' },
-  disclaimer: { de: 'Dieses Quiz dient der Sensibilisierung und ersetzt keine Rechtsberatung.', en: 'This quiz is for awareness purposes and does not replace legal advice.', fr: 'Ce quiz est informatif et ne remplace pas un avis juridique.' },
+  disclaimer: { de: 'Trainingsquiz auf Basis des amtlichen SKS-Fragenkatalogs Navigation. Ersetzt keine Prüfungsvorbereitung mit anerkanntem Lehrmaterial.', en: 'Training quiz based on the official German SKS navigation catalogue. Not a substitute for accredited exam preparation.', fr: 'Quiz d\'entraînement basé sur le catalogue officiel SKS Navigation. Ne remplace pas une préparation officielle.' },
   loading: { de: 'Frage wird generiert...', en: 'Generating question...', fr: 'Génération de la question...' },
   error: { de: 'Frage konnte nicht geladen werden. Erneut versuchen.', en: 'Failed to load question. Try again.', fr: 'Impossible de charger la question. Réessayer.' },
 };
