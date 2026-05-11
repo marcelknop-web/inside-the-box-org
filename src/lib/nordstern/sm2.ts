@@ -49,41 +49,64 @@ export function dueCards(deck: Record<string, SrsCard>, now = Date.now()): SrsCa
   return Object.values(deck).filter(c => c.dueAt <= now).sort((a, b) => a.dueAt - b.dueAt);
 }
 
+// --- Crew ---
+export interface CrewMember {
+  id: string; name: string; role: string; effect: string; emoji: string;
+}
+export const CREW_POOL: CrewMember[] = [
+  { id: 'lotse',    name: 'Kostas',  role: 'Lotse',       effect: '+1 Joker pro Etappe',                emoji: '🧭' },
+  { id: 'meteo',    name: 'Ariadne', role: 'Wetterfrau',  effect: 'Sturm-Vorwarnung',                   emoji: '🌤️' },
+  { id: 'mechanic', name: 'Yannis',  role: 'Maschinist',  effect: 'Patzer-Versicherung 1× pro Reise',   emoji: '🔧' },
+  { id: 'cook',     name: 'Sofia',   role: 'Smut',        effect: 'Moralbonus auf Streak',              emoji: '🍲' },
+  { id: 'navigator',name: 'Dimitri', role: 'Navigator',   effect: 'Schwierigkeit −1 im Hafenmanöver',   emoji: '📐' },
+];
+
+export interface KnowledgeCard {
+  topic: string; sourceIndex: number; q: string; a: string; addedAt: number;
+}
+
 // --- Spielstand ---
 export interface NordsternState {
   boatName: string;
-  currentStage: number; // 0..6
+  currentStage: number;
   completedStages: string[];
-  difficulty: number; // 3..8
+  difficulty: number;
   correctStreak: number;
+  bestStreak: number;
   totalCorrect: number;
   totalAnswered: number;
-  patches: string[]; // gesammelte Hafen-Patches
-  windSeed: number; // für Wetter-Variation
+  patches: string[];
+  crew: string[];
+  knowledgeCards: KnowledgeCard[];
+  windSeed: number;
+  insuranceUsed: boolean;
 }
 
 const STATE_KEY = 'nordstern_state_v1';
+const DEFAULT_STATE: NordsternState = {
+  boatName: 'Nordstern', currentStage: 0, completedStages: [],
+  difficulty: 4, correctStreak: 0, bestStreak: 0,
+  totalCorrect: 0, totalAnswered: 0, patches: [],
+  crew: [], knowledgeCards: [], windSeed: Math.floor(Math.random() * 1000),
+  insuranceUsed: false,
+};
 
 export function loadState(): NordsternState {
   try {
     const raw = localStorage.getItem(STATE_KEY);
-    if (raw) return JSON.parse(raw);
+    if (raw) return { ...DEFAULT_STATE, ...JSON.parse(raw) };
   } catch {}
-  return {
-    boatName: 'Nordstern',
-    currentStage: 0,
-    completedStages: [],
-    difficulty: 4,
-    correctStreak: 0,
-    totalCorrect: 0,
-    totalAnswered: 0,
-    patches: [],
-    windSeed: Math.floor(Math.random() * 1000),
-  };
+  return { ...DEFAULT_STATE };
 }
 export function saveState(s: NordsternState) {
   try { localStorage.setItem(STATE_KEY, JSON.stringify(s)); } catch {}
 }
 export function resetState() {
   try { localStorage.removeItem(STATE_KEY); localStorage.removeItem(KEY); } catch {}
+}
+
+export function pickNewCrew(owned: string[]): CrewMember | null {
+  const remaining = CREW_POOL.filter(c => !owned.includes(c.id));
+  if (remaining.length === 0) return null;
+  return remaining[Math.floor(Math.random() * remaining.length)];
 }
