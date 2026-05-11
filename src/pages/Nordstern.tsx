@@ -430,8 +430,8 @@ const HomeScreen: React.FC<{
       </p>
     </div>
 
-    <div className="flex-1 min-h-0 bg-card/50 border border-border/50 rounded-lg p-2 md:p-4 flex items-center justify-center">
-      <div className="w-full max-h-full"><RouteMap currentStage={state.currentStage} /></div>
+    <div className="flex-1 min-h-0 bg-card/50 border border-border/50 rounded-lg p-2 md:p-4 flex items-center justify-center overflow-hidden">
+      <RouteMap currentStage={state.currentStage} />
     </div>
 
     {isLast ? (
