@@ -29,6 +29,7 @@ const BaerbockBot = lazy(() => import("./pages/BaerbockBot"));
 const SksNavigationQuiz = lazy(() => import("./pages/SksNavigationQuiz"));
 const Nordstern = lazy(() => import("./pages/Nordstern"));
 const Sitemap = lazy(() => import("./pages/Sitemap"));
+const PrivacyDataflow = lazy(() => import("./pages/PrivacyDataflow"));
 
 const queryClient = new QueryClient();
 
@@ -55,6 +56,7 @@ const App = () => (
               <Route path="/sks-quiz" element={<Suspense fallback={<RouteSkeleton />}><SksNavigationQuiz /></Suspense>} />
               <Route path="/nordstern" element={<Suspense fallback={<RouteSkeleton />}><Nordstern /></Suspense>} />
               <Route path="/sitemap" element={<Suspense fallback={<RouteSkeleton />}><Sitemap /></Suspense>} />
+              <Route path="/datenschutz-tools" element={<Suspense fallback={<RouteSkeleton />}><PrivacyDataflow /></Suspense>} />
 
               {/* Catch-all: every Journey service id (nis2-dora, virtual-ciso, …) renders ChatView */}
               <Route path="/:serviceId" element={<ChatView />} />
