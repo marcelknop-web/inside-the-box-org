@@ -32,6 +32,7 @@ const Iec62443ComplianceTool = lazy(() => import('./Iec62443ComplianceTool'));
 const ButterflyEffectLab = lazy(() => import('./ButterflyEffectLab'));
 const SocLife = lazy(() => import('./SocLife'));
 const OtSocLife = lazy(() => import('./OtSocLife'));
+const AiActReadinessTool = lazy(() => import('./AiActReadinessTool'));
 
 import { StaggerReveal } from '@/components/StaggerReveal';
 import GlitchText from '@/components/GlitchText';
