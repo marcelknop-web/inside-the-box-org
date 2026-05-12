@@ -32,6 +32,7 @@ const Iec62443ComplianceTool = lazy(() => import('./Iec62443ComplianceTool'));
 const ButterflyEffectLab = lazy(() => import('./ButterflyEffectLab'));
 const SocLife = lazy(() => import('./SocLife'));
 const OtSocLife = lazy(() => import('./OtSocLife'));
+const AiActReadinessTool = lazy(() => import('./AiActReadinessTool'));
 
 import { StaggerReveal } from '@/components/StaggerReveal';
 import GlitchText from '@/components/GlitchText';
@@ -1453,7 +1454,7 @@ const ChatView = () => {
   const deriveServiceId = useCallback((): string | null => {
     if (routeServiceId) return routeServiceId;
     const path = window.location.pathname.replace(/^\//, '');
-    const explicitRoutes = ['nis2-compliance', 'iacs-e27', 'iec62443', 'soc-life', 'ot-soc-life'];
+    const explicitRoutes = ['nis2-compliance', 'iacs-e27', 'iec62443', 'soc-life', 'ot-soc-life', 'ai-act-readiness'];
     if (explicitRoutes.includes(path)) return path;
     return null;
   }, [routeServiceId]);
@@ -1607,7 +1608,7 @@ const ChatView = () => {
     'nis2-quiz', 'ciso-sim', 'threatdrop', 'trigger-triage', 'cyber-frogger',
     'elite-ship', 'cra-check', 'dora-compliance', 'nis2-compliance',
     'iacs-e27', 'iec62443', 'butterfly-lab', 'soc-life', 'ot-soc-life', 'system-check',
-    'ttx-readiness', 'enigma', 'itsm', 'itsm-dev',
+    'ttx-readiness', 'enigma', 'itsm', 'itsm-dev', 'ai-act-readiness',
   ]), []);
   const isToolPage = !!activeService && TOOL_SERVICES.has(activeService);
 
@@ -2047,6 +2048,8 @@ const ChatView = () => {
     ? <Suspense fallback={lazyFallback}><SocLife embedded /></Suspense>
     : activeService === 'ot-soc-life'
     ? <Suspense fallback={lazyFallback}><OtSocLife embedded /></Suspense>
+    : activeService === 'ai-act-readiness'
+    ? <Suspense fallback={lazyFallback}><PasswordGate storageKey="ai-act-readiness" label="EU AI Act Readiness Assessment"><AiActReadinessTool embedded /></PasswordGate></Suspense>
     : activeService === 'system-check'
     ? <InlineSystemCheck t={t} />
     : activeService && contentMap[activeService] ? contentMap[activeService]() : null;
