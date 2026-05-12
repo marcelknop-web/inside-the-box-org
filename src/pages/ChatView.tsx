@@ -2048,6 +2048,8 @@ const ChatView = () => {
     ? <Suspense fallback={lazyFallback}><SocLife embedded /></Suspense>
     : activeService === 'ot-soc-life'
     ? <Suspense fallback={lazyFallback}><OtSocLife embedded /></Suspense>
+    : activeService === 'ai-act-readiness'
+    ? <Suspense fallback={lazyFallback}><PasswordGate storageKey="ai-act-readiness" label="EU AI Act Readiness Assessment"><AiActReadinessTool embedded /></PasswordGate></Suspense>
     : activeService === 'system-check'
     ? <InlineSystemCheck t={t} />
     : activeService && contentMap[activeService] ? contentMap[activeService]() : null;
