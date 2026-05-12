@@ -1454,7 +1454,7 @@ const ChatView = () => {
   const deriveServiceId = useCallback((): string | null => {
     if (routeServiceId) return routeServiceId;
     const path = window.location.pathname.replace(/^\//, '');
-    const explicitRoutes = ['nis2-compliance', 'iacs-e27', 'iec62443', 'soc-life', 'ot-soc-life'];
+    const explicitRoutes = ['nis2-compliance', 'iacs-e27', 'iec62443', 'soc-life', 'ot-soc-life', 'ai-act-readiness'];
     if (explicitRoutes.includes(path)) return path;
     return null;
   }, [routeServiceId]);
