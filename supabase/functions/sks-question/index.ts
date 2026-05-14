@@ -144,8 +144,20 @@ Erzeuge jetzt die Multiple-Choice-Frage als JSON.`;
     const data = await r.json();
     let content = data.choices?.[0]?.message?.content || "";
     content = content.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
-    let parsed: any;
-    try { parsed = JSON.parse(content); } catch {
+    const tryParse = (s: string) => { try { return JSON.parse(s); } catch { return null; } };
+    let parsed: any = tryParse(content);
+    if (!parsed) {
+      // Common LLM mistake: closing options array with `}` instead of `]`
+      // Find "options": [ ... } and replace the wrong closer.
+      const fixed = content.replace(/("options"\s*:\s*\[[^\]]*?)\}(\s*,\s*"correct")/, "$1]$2");
+      parsed = tryParse(fixed);
+    }
+    if (!parsed) {
+      // Last resort: extract first {...} block
+      const m = content.match(/\{[\s\S]*\}/);
+      if (m) parsed = tryParse(m[0]);
+    }
+    if (!parsed) {
       console.error("[sks-question] parse fail:", content);
       return new Response(JSON.stringify({ error: "Failed to generate question" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
