@@ -30,6 +30,7 @@ const SksNavigationQuiz = lazy(() => import("./pages/SksNavigationQuiz"));
 const Nordstern = lazy(() => import("./pages/Nordstern"));
 const Sitemap = lazy(() => import("./pages/Sitemap"));
 const PrivacyDataflow = lazy(() => import("./pages/PrivacyDataflow"));
+const Iec62443Ur26ComplianceTool = lazy(() => import("./pages/Iec62443Ur26ComplianceTool"));
 
 const queryClient = new QueryClient();
 
@@ -57,6 +58,7 @@ const App = () => (
               <Route path="/nordstern" element={<Suspense fallback={<RouteSkeleton />}><Nordstern /></Suspense>} />
               <Route path="/sitemap" element={<Suspense fallback={<RouteSkeleton />}><Sitemap /></Suspense>} />
               <Route path="/datenschutz-tools" element={<Suspense fallback={<RouteSkeleton />}><PrivacyDataflow /></Suspense>} />
+              <Route path="/iacs-ur26" element={<Suspense fallback={<RouteSkeleton />}><Iec62443Ur26ComplianceTool /></Suspense>} />
 
               {/* Catch-all: every Journey service id (nis2-dora, virtual-ciso, …) renders ChatView */}
               <Route path="/:serviceId" element={<ChatView />} />
