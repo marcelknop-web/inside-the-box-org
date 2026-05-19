@@ -8,6 +8,7 @@ import { LanguageProvider } from "@/i18n/LanguageContext";
 import { RouteSkeleton } from "@/components/RouteSkeleton";
 import { ScrollToTopFab } from "@/components/ScrollToTopFab";
 import ChatView from "./pages/ChatView";
+import { PasswordGate } from "@/components/PasswordGate";
 import NotFound from "./pages/NotFound";
 import Overview from "./pages/Overview";
 import { lazy, Suspense } from "react";
