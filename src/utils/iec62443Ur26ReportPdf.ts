@@ -503,7 +503,7 @@ export async function generateIec62443Ur26Report(data: Iec62443ReportData): Prom
   pdf.newPage();
   const abbrEntries = lang === 'de' ? [
     { abbr: 'IACS', meaning: 'International Association of Classification Societies' },
-    { abbr: 'UR E26', meaning: 'Unified Requirement E27 — Cyber Resilience of On-Board Systems and Equipment' },
+    { abbr: 'UR E26', meaning: 'Unified Requirement E26 — Cyber Resilience of Ships' },
     { abbr: 'UR E26', meaning: 'Unified Requirement E26 — Cyber Resilience of Ships' },
     { abbr: 'CBS', meaning: 'Computer Based System — Rechnergestütztes Bordsystem' },
     { abbr: 'ECDIS', meaning: 'Electronic Chart Display and Information System' },
@@ -516,7 +516,7 @@ export async function generateIec62443Ur26Report(data: Iec62443ReportData): Prom
     { abbr: 'P0-P3', meaning: 'Prioritätsstufen: P0=Sofort, P1=Kurzfristig, P2=Mittelfristig, P3=Empfohlen' },
   ] : [
     { abbr: 'IACS', meaning: 'International Association of Classification Societies' },
-    { abbr: 'UR E26', meaning: 'Unified Requirement E27 — Cyber Resilience of On-Board Systems and Equipment' },
+    { abbr: 'UR E26', meaning: 'Unified Requirement E26 — Cyber Resilience of Ships' },
     { abbr: 'UR E26', meaning: 'Unified Requirement E26 — Cyber Resilience of Ships' },
     { abbr: 'CBS', meaning: 'Computer Based System' },
     { abbr: 'ECDIS', meaning: 'Electronic Chart Display and Information System' },
