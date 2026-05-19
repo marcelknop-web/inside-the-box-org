@@ -5,50 +5,46 @@
 type T = (key: string) => string;
 
 // ── Ship System Types (CBS in scope of E26) ─────────────────
-const ST_KEYS = ['propulsion', 'steering', 'navigation', 'power', 'cargo', 'comms', 'safety', 'ecdis'] as const;
-const ST_ICONS = ['⚙️', '🔄', '🧭', '⚡', '📦', '📡', '🛟', '🗺️'];
-const ST_T_KEYS = ['stPropulsion', 'stSteering', 'stNavigation', 'stPower', 'stCargo', 'stComms', 'stSafety', 'stEcdis'];
-const ST_DESC_KEYS = ['stPropulsionDesc', 'stSteeringDesc', 'stNavigationDesc', 'stPowerDesc', 'stCargoDesc', 'stCommsDesc', 'stSafetyDesc', 'stEcdisDesc'];
+// English-only labels (no i18n) — tool is English-only.
+const SYSTEM_TYPES = [
+  { id: 'propulsion', icon: '⚙️', label: 'Propulsion Control', desc: 'Main engine, thrusters, propeller pitch & RPM control' },
+  { id: 'steering',   icon: '🔄', label: 'Steering Gear',       desc: 'Rudder control, autopilot, heading reference' },
+  { id: 'navigation', icon: '🧭', label: 'Navigation Systems',  desc: 'GPS/GNSS, RADAR, AIS, gyrocompass, speed log' },
+  { id: 'power',      icon: '⚡', label: 'Power Management',     desc: 'Generators, switchboards, PMS, emergency power' },
+  { id: 'cargo',      icon: '📦', label: 'Cargo Handling',      desc: 'Ballast, cargo monitoring, IGS, loading computer' },
+  { id: 'comms',      icon: '📡', label: 'Communications',      desc: 'GMDSS, VSAT, VHF/UHF, satellite uplink' },
+  { id: 'safety',     icon: '🛟', label: 'Safety Systems',      desc: 'Fire detection, watertight doors, alarm & monitoring' },
+  { id: 'ecdis',      icon: '🗺️', label: 'ECDIS / IBS',         desc: 'Electronic chart display, integrated bridge system' },
+] as const;
 
-export function getSystemTypes(t: T) {
-  return ST_KEYS.map((id, i) => ({
-    id,
-    label: t(`iec.${ST_T_KEYS[i]}`),
-    icon: ST_ICONS[i],
-    desc: t(`iec.${ST_DESC_KEYS[i]}`),
-  }));
+export function getSystemTypes(_t?: T) {
+  return SYSTEM_TYPES.map(s => ({ ...s }));
 }
 
 // ── Security Levels (SL 1-4 from IEC 62443, referenced by E27) ──
-const SL_IDS = ['sl1', 'sl2', 'sl3', 'sl4'] as const;
-const SL_COLORS = [
-  'border-green-500 bg-green-500/10 text-green-400',
-  'border-yellow-500 bg-yellow-500/10 text-yellow-400',
-  'border-orange-500 bg-orange-500/10 text-orange-400',
-  'border-destructive bg-destructive/10 text-destructive',
-];
-const SL_KEYS = ['slSl1', 'slSl2', 'slSl3', 'slSl4'];
+const SECURITY_LEVELS = [
+  { id: 'sl1', label: 'SL 1 — Casual',     color: 'border-green-500 bg-green-500/10 text-green-400',          desc: 'Protection against casual or coincidental violation' },
+  { id: 'sl2', label: 'SL 2 — Intentional', color: 'border-yellow-500 bg-yellow-500/10 text-yellow-400',       desc: 'Protection against intentional violation using simple means with low resources' },
+  { id: 'sl3', label: 'SL 3 — Sophisticated', color: 'border-orange-500 bg-orange-500/10 text-orange-400',     desc: 'Protection against intentional violation using sophisticated means with moderate resources' },
+  { id: 'sl4', label: 'SL 4 — Nation-State', color: 'border-destructive bg-destructive/10 text-destructive',   desc: 'Protection against intentional violation using sophisticated means with extended resources' },
+] as const;
 
-export function getSecurityLevels(t: T) {
-  return SL_IDS.map((id, i) => ({
-    id,
-    label: t(`iec.${SL_KEYS[i]}`),
-    color: SL_COLORS[i],
-    desc: t(`iec.${SL_KEYS[i]}Desc`),
-  }));
+export function getSecurityLevels(_t?: T) {
+  return SECURITY_LEVELS.map(s => ({ ...s }));
 }
 
 // ── Ship Network Zones ──────────────────────────────────────
-const ZC_IDS = ['bridge', 'engineroom', 'crew', 'cargo_ot', 'safety_zone', 'shore'] as const;
-const ZC_ICONS = ['🚢', '⚙️', '👥', '📦', '🛟', '🌐'];
-const ZC_KEYS = ['zcBridge', 'zcEngineRoom', 'zcCrew', 'zcCargoOt', 'zcSafetyZone', 'zcShore'];
+const ZONE_CONDUITS = [
+  { id: 'bridge',       icon: '🚢', label: 'Bridge / Navigation Zone' },
+  { id: 'engineroom',   icon: '⚙️', label: 'Engine Room / Machinery Zone' },
+  { id: 'crew',         icon: '👥', label: 'Crew / Accommodation Network' },
+  { id: 'cargo_ot',     icon: '📦', label: 'Cargo OT Zone' },
+  { id: 'safety_zone',  icon: '🛟', label: 'Safety Zone (SIS)' },
+  { id: 'shore',        icon: '🌐', label: 'Shore Connection / Satellite Link' },
+] as const;
 
-export function getZoneConduits(t: T) {
-  return ZC_IDS.map((id, i) => ({
-    id,
-    label: t(`iec.${ZC_KEYS[i]}`),
-    icon: ZC_ICONS[i],
-  }));
+export function getZoneConduits(_t?: T) {
+  return ZONE_CONDUITS.map(z => ({ ...z }));
 }
 
 // ── Maritime Protocol/Interface Options ─────────────────────
@@ -64,35 +60,44 @@ export const PROTOCOL_OPTS = [
 ] as const;
 
 // ── Security Measures (mapped to E27 Table 1 categories) ────
-const SM_IDS = ['iac', 'uc', 'si', 'dc', 'rdf', 'tre', 'ra', 'patch', 'backup', 'segmentation', 'monitoring', 'physical', 'training', 'vendor', 'incident'] as const;
-const SM_LABEL_KEYS = ['smIac', 'smUc', 'smSi', 'smDc', 'smRdf', 'smTre', 'smRa', 'smPatch', 'smBackup', 'smSegmentation', 'smMonitoring', 'smPhysical', 'smTraining', 'smVendor', 'smIncident'];
-const SM_CAT_KEYS = ['catAccess', 'catAccess', 'catIntegrity', 'catConfidentiality', 'catResilience', 'catResponse', 'catGovernance', 'catOps', 'catResilience', 'catNetwork', 'catDetection', 'catPhysical', 'catGovernance', 'catSupplyChain', 'catResponse'];
+const SECURITY_MEASURES = [
+  { id: 'iac',          label: 'Identification & Authentication Control',  cat: 'Access Control' },
+  { id: 'uc',           label: 'Use Control / Authorization',              cat: 'Access Control' },
+  { id: 'si',           label: 'System Integrity',                         cat: 'Integrity' },
+  { id: 'dc',           label: 'Data Confidentiality (Encryption)',        cat: 'Confidentiality' },
+  { id: 'rdf',          label: 'Restricted Data Flow (Zones & Conduits)',  cat: 'Resilience' },
+  { id: 'tre',          label: 'Timely Response to Events',                cat: 'Response' },
+  { id: 'ra',           label: 'Resource Availability',                    cat: 'Governance' },
+  { id: 'patch',        label: 'Patch & Vulnerability Management',         cat: 'Operations' },
+  { id: 'backup',       label: 'Backup & Recovery',                        cat: 'Resilience' },
+  { id: 'segmentation', label: 'Network Segmentation',                     cat: 'Network' },
+  { id: 'monitoring',   label: 'Security Monitoring & Logging',            cat: 'Detection' },
+  { id: 'physical',     label: 'Physical Security',                        cat: 'Physical' },
+  { id: 'training',     label: 'Crew Training & Awareness',                cat: 'Governance' },
+  { id: 'vendor',       label: 'Supplier / Vendor Management',             cat: 'Supply Chain' },
+  { id: 'incident',     label: 'Incident Response Plan',                   cat: 'Response' },
+] as const;
 
-export function getSecurityMeasures(t: T) {
-  return SM_IDS.map((id, i) => ({
-    id,
-    label: t(`iec.${SM_LABEL_KEYS[i]}`),
-    cat: t(`iec.${SM_CAT_KEYS[i]}`),
-  }));
+export function getSecurityMeasures(_t?: T) {
+  return SECURITY_MEASURES.map(m => ({ ...m }));
 }
 
-export function getSecurityCategories(t: T) {
-  return [...new Set(getSecurityMeasures(t).map(m => m.cat))];
+export function getSecurityCategories(_t?: T) {
+  return [...new Set(SECURITY_MEASURES.map(m => m.cat))];
 }
 
 // ── Attach Types ────────────────────────────────────────────
-const ATT_IDS = ['arch', 'riskAssess', 'policy', 'zoneMap', 'pentest', 'other'] as const;
-const ATT_ICONS = ['🗺️', '📊', '📋', '🗂️', '🔍', '📎'];
-const ATT_ACCEPTS = ['.pdf,.png,.jpg,.svg,.pptx,.vsdx,.drawio', '.pdf,.xlsx,.docx', '.pdf,.docx', '.pdf,.png,.jpg,.svg,.vsdx', '.pdf,.docx', '*'];
-const ATT_KEYS = ['attArch', 'attRiskAssess', 'attPolicy', 'attZoneMap', 'attPentest', 'attOther'];
+const ATTACH_TYPES = [
+  { id: 'arch',       icon: '🗺️', label: 'Architecture / Network Diagram', accept: '.pdf,.png,.jpg,.svg,.pptx,.vsdx,.drawio' },
+  { id: 'riskAssess', icon: '📊', label: 'Risk Assessment',                accept: '.pdf,.xlsx,.docx' },
+  { id: 'policy',     icon: '📋', label: 'Security Policy / Procedure',    accept: '.pdf,.docx' },
+  { id: 'zoneMap',    icon: '🗂️', label: 'Zones & Conduits Map',           accept: '.pdf,.png,.jpg,.svg,.vsdx' },
+  { id: 'pentest',    icon: '🔍', label: 'Pentest / Audit Report',         accept: '.pdf,.docx' },
+  { id: 'other',      icon: '📎', label: 'Other Evidence',                 accept: '*' },
+] as const;
 
-export function getAttachTypes(t: T) {
-  return ATT_IDS.map((id, i) => ({
-    id,
-    label: t(`iec.${ATT_KEYS[i]}`),
-    icon: ATT_ICONS[i],
-    accept: ATT_ACCEPTS[i],
-  }));
+export function getAttachTypes(_t?: T) {
+  return ATTACH_TYPES.map(a => ({ ...a }));
 }
 
 // ── E27 Requirement Categories (based on E27 Table 1 + Table 2 grouping) ──
