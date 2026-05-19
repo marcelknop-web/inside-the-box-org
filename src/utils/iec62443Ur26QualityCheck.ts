@@ -55,11 +55,11 @@ export function runQualityCheck(
     passed: passReqs + partialReqs + failReqs === reqs.length, severity: 'critical',
   });
 
-  // A2: Traceability — threats linked to E27 requirement
+  // A2: Traceability — threats linked to E26 requirement
   const threatsWithoutRef = threats.filter(th => !th.iecRef || th.iecRef.trim() === '');
   checks.push({
     id: 'A2-1', category: 'consistency',
-    label: t('Jeder Threat mit E27-Anforderung verknüpft', 'Every threat linked to E27 requirement', 'Chaque menace liée à une exigence E27'),
+    label: t('Jeder Threat mit E26-Anforderung verknüpft', 'Every threat linked to E26 requirement', 'Chaque menace liée à une exigence E26'),
     detail: threatsWithoutRef.length > 0 ? `${threatsWithoutRef.length} ${t('ohne Verknüpfung', 'unlinked', 'non liées')}` : t('Alle verknüpft', 'All linked', 'Toutes liées'),
     passed: threatsWithoutRef.length === 0, severity: 'major',
   });
@@ -172,7 +172,7 @@ export function runQualityCheck(
   const frCats = new Set(threats.map(th => th.fr));
   checks.push({
     id: 'D3', category: 'editorial',
-    label: t('Alle E27-Kategorien abgedeckt', 'All E27 categories covered', 'Toutes catégories E27 couvertes'),
+    label: t('Alle E26-Kategorien abgedeckt', 'All E26 categories covered', 'Toutes catégories E26 couvertes'),
     detail: `${frCats.size}/7 (${[...frCats].sort().join(', ')})`,
     passed: frCats.size >= 5, severity: 'major',
   });
