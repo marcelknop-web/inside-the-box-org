@@ -30,6 +30,7 @@ const SksNavigationQuiz = lazy(() => import("./pages/SksNavigationQuiz"));
 const Nordstern = lazy(() => import("./pages/Nordstern"));
 const Sitemap = lazy(() => import("./pages/Sitemap"));
 const PrivacyDataflow = lazy(() => import("./pages/PrivacyDataflow"));
+const Iec62443Ur26ComplianceTool = lazy(() => import("./pages/Iec62443Ur26ComplianceTool"));
 
 const queryClient = new QueryClient();
 
