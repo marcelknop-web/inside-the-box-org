@@ -61,7 +61,7 @@ const I18N = {
   sources: { de: 'Quellenverweise', en: 'Source References', fr: 'Sources' },
   priority: { de: 'Priorität', en: 'Priority', fr: 'Priorité' },
   effort: { de: 'Geschätzter Aufwand', en: 'Estimated Effort', fr: 'Effort estimé' },
-  iecRef: { de: 'E27-Referenz', en: 'E27 Reference', fr: 'Référence E27' },
+  iecRef: { de: 'E26-Referenz', en: 'E26 Reference', fr: 'Référence E26' },
   fr: { de: 'Anforderungskategorie', en: 'Requirement Category', fr: 'Catégorie d\'exigence' },
   reproducibility: { de: 'Reproduzierbarkeit', en: 'Reproducibility', fr: 'Reproductibilité' },
   evidenceQuality: { de: 'Evidenz-Qualität', en: 'Evidence Quality', fr: 'Qualité de la preuve' },
@@ -80,7 +80,7 @@ function riskLabel(score: number, lang: Lang): string {
   return lang === 'de' ? 'Gering' : lang === 'fr' ? 'Faible' : 'Low';
 }
 
-export async function generateIec62443Report(data: Iec62443ReportData): Promise<void> {
+export async function generateIec62443Ur26Report(data: Iec62443ReportData): Promise<void> {
   const { intakeData, threats, reqs, language: lang, isDraft, qaChecks, fixLog } = data;
   const dateStr = new Date().toLocaleDateString(lang === 'de' ? 'de-DE' : lang === 'fr' ? 'fr-FR' : 'en-GB');
 
@@ -96,7 +96,7 @@ export async function generateIec62443Report(data: Iec62443ReportData): Promise<
   const pdf = await createPdfDoc({
     lang,
     isDraft,
-    reportPrefix: 'E27',
+    reportPrefix: 'E26',
     confidentialLabel: t(I18N.confidential, lang),
     pageLabel: t(I18N.page, lang),
     draftWatermark: lang === 'de' ? 'ENTWURF' : lang === 'fr' ? 'BROUILLON' : 'DRAFT',
@@ -135,10 +135,10 @@ export async function generateIec62443Report(data: Iec62443ReportData): Promise<
 
   // Contextual lead-in paragraph
   const contextLead = lang === 'de'
-    ? `Der vorliegende Bericht dokumentiert die Ergebnisse der Cyber-Resilience-Prüfung des Schiffs bzw. Systems ${intakeData.facilityName} gemäß IACS UR E26. Die Bewertung wurde anhand der Anforderungen aus Table 1 und Table 2 der IACS UR E26 durchgeführt, wobei insgesamt ${threats.length} Bedrohungsszenarien analysiert und ${reqs.length} Anforderungen geprüft wurden.`
+    ? `Der vorliegende Bericht dokumentiert die Ergebnisse der Cyber-Resilience-Prüfung des Schiffs bzw. Systems ${intakeData.facilityName} gemäß IACS UR E26. Die Bewertung wurde anhand der Anforderungen aus Kapitel 4–16 der IACS UR E26 durchgeführt, wobei insgesamt ${threats.length} Bedrohungsszenarien analysiert und ${reqs.length} Anforderungen geprüft wurden.`
     : lang === 'fr'
     ? `Le présent rapport documente les résultats de l'évaluation de la cyber-résilience du navire/système ${intakeData.facilityName} conformément à l'IACS UR E26. L'évaluation a été réalisée sur la base des exigences des Tables 1 et 2 de l'IACS UR E26, portant sur ${threats.length} scénarios de menaces et ${reqs.length} exigences.`
-    : `This report documents the results of the cyber resilience assessment of vessel/system ${intakeData.facilityName} in accordance with IACS UR E26. The assessment was conducted against the requirements of Table 1 and Table 2 of IACS UR E26, covering ${threats.length} threat scenarios and ${reqs.length} requirements.`;
+    : `This report documents the results of the cyber resilience assessment of vessel/system ${intakeData.facilityName} in accordance with IACS UR E26. The assessment was conducted against the requirements of Chapters 4–16 of IACS UR E26, covering ${threats.length} threat scenarios and ${reqs.length} requirements.`;
   pdf.introText(contextLead);
 
   // Verdict
@@ -416,8 +416,8 @@ export async function generateIec62443Report(data: Iec62443ReportData): Promise<
   pdf.heading(t(I18N.sec6, lang));
   pdf.addBookmark(t(I18N.sec6, lang));
   const contextText = lang === 'de'
-    ? `Der vorliegende Bericht dokumentiert die Ergebnisse einer strukturierten Sicherheitsbewertung des Schiffs bzw. Systems ${intakeData.facilityName} gemäß den Anforderungen der IACS UR E26 (Cyber Resilience of On-Board Systems and Equipment). Die Prüfung wurde am ${dateStr} durchgeführt.\n\nZielsetzung der Bewertung war die systematische Identifikation und Bewertung von Bedrohungen für die an Bord installierten rechnergestützten Systeme (Computer Based Systems, CBS) sowie die Feststellung des Konformitätsgrads gegenüber den 41 Anforderungen der IACS UR E26 (Tabelle 1 und Tabelle 2).\n\nDer Bericht richtet sich an Reeder, Schiffsführung, den Electro-Technical Officer (ETO) bzw. IT-Verantwortlichen an Bord sowie an die zuständige Klassifikationsgesellschaft.`
-    : `This report documents the results of a structured security assessment of vessel/system ${intakeData.facilityName} pursuant to the requirements of IACS UR E26 (Cyber Resilience of On-Board Systems and Equipment). The assessment was conducted on ${dateStr}.\n\nThe objective was the systematic identification and assessment of threats to Computer Based Systems (CBS) installed on board, as well as the determination of the degree of compliance with the 41 requirements set out in IACS UR E26 (Table 1 and Table 2).\n\nThis report is intended for ship owners, vessel management, the Electro-Technical Officer (ETO) or IT responsible on board, and the relevant classification society.`;
+    ? `Der vorliegende Bericht dokumentiert die Ergebnisse einer strukturierten Sicherheitsbewertung des Schiffs bzw. Systems ${intakeData.facilityName} gemäß den Anforderungen der IACS UR E26 (Cyber Resilience of Ships). Die Prüfung wurde am ${dateStr} durchgeführt.\n\nZielsetzung der Bewertung war die systematische Identifikation und Bewertung von Bedrohungen für die an Bord installierten rechnergestützten Systeme (Computer Based Systems, CBS) sowie die Feststellung des Konformitätsgrads gegenüber den Anforderungen der IACS UR E26 (Kapitel 4–16) (Kapitel 4–16).\n\nDer Bericht richtet sich an Reeder, Schiffsführung, den Electro-Technical Officer (ETO) bzw. IT-Verantwortlichen an Bord sowie an die zuständige Klassifikationsgesellschaft.`
+    : `This report documents the results of a structured security assessment of vessel/system ${intakeData.facilityName} pursuant to the requirements of IACS UR E26 (Cyber Resilience of Ships). The assessment was conducted on ${dateStr}.\n\nThe objective was the systematic identification and assessment of threats to Computer Based Systems (CBS) installed on board, as well as the determination of the degree of compliance with the requirements set out in IACS UR E26 (Chapters 4–16) (Chapters 4–16).\n\nThis report is intended for ship owners, vessel management, the Electro-Technical Officer (ETO) or IT responsible on board, and the relevant classification society.`;
   pdf.bodyParagraph(contextText);
 
   /* 7. METHODOLOGY */
@@ -425,8 +425,8 @@ export async function generateIec62443Report(data: Iec62443ReportData): Promise<
   pdf.heading(t(I18N.sec7, lang));
   pdf.addBookmark(t(I18N.sec7, lang));
   const methodText = lang === 'de'
-    ? `Die Bewertung folgt einem strukturierten, sechsstufigen Audit-Prozess:\n\n1. Scope-Definition: Identifikation der zu prüfenden rechnergestützten Bordsysteme (CBS) gemäß IACS UR E26. Der Prüfungsumfang wird gemeinsam mit dem Auftraggeber festgelegt.\n\n2. Bedrohungsanalyse: Systematische Identifikation und Dokumentation von Bedrohungsszenarien, die für die an Bord installierten CBS relevant sind.\n\n3. Risikobewertung: Bewertung jedes Bedrohungsszenarios anhand einer 5×5-Matrix nach Eintrittswahrscheinlichkeit und Auswirkungsschwere.\n\n4. E27-Mapping: Abgleich der identifizierten Bedrohungen mit den 41 Anforderungen der IACS UR E26 (Tabelle 1 und Tabelle 2) zur Feststellung des Konformitätsgrads.\n\n5. Maßnahmenableitung: Ableitung priorisierter Handlungsempfehlungen (P0 bis P3) mit konkreten Umsetzungskriterien und Aufwandsschätzungen.\n\n6. Qualitätssicherung: Automatisierte Validierung der Berichtskonsistenz, Evidenzqualität und fachlichen Korrektheit mittels regelbasierter Prüflogik.`
-    : `The assessment follows a structured, six-step audit process:\n\n1. Scope Definition: Identification of Computer Based Systems (CBS) on board to be assessed per IACS UR E26. The scope is jointly defined with the commissioning party.\n\n2. Threat Analysis: Systematic identification and documentation of threat scenarios relevant to the CBS installed on board.\n\n3. Risk Assessment: Evaluation of each threat scenario using a 5×5 matrix by likelihood and impact severity.\n\n4. E27 Mapping: Alignment of identified threats with the 41 requirements of IACS UR E26 (Table 1 and Table 2) to determine the degree of compliance.\n\n5. Remediation Planning: Derivation of prioritised recommendations (P0 through P3) with concrete acceptance criteria and effort estimates.\n\n6. Quality Assurance: Automated validation of report consistency, evidence quality, and technical correctness using rule-based verification logic.`;
+    ? `Die Bewertung folgt einem strukturierten, sechsstufigen Audit-Prozess:\n\n1. Scope-Definition: Identifikation der zu prüfenden rechnergestützten Bordsysteme (CBS) gemäß IACS UR E26. Der Prüfungsumfang wird gemeinsam mit dem Auftraggeber festgelegt.\n\n2. Bedrohungsanalyse: Systematische Identifikation und Dokumentation von Bedrohungsszenarien, die für die an Bord installierten CBS relevant sind.\n\n3. Risikobewertung: Bewertung jedes Bedrohungsszenarios anhand einer 5×5-Matrix nach Eintrittswahrscheinlichkeit und Auswirkungsschwere.\n\n4. E26-Mapping: Abgleich der identifizierten Bedrohungen mit den Anforderungen der IACS UR E26 (Kapitel 4–16) (Kapitel 4–16) zur Feststellung des Konformitätsgrads.\n\n5. Maßnahmenableitung: Ableitung priorisierter Handlungsempfehlungen (P0 bis P3) mit konkreten Umsetzungskriterien und Aufwandsschätzungen.\n\n6. Qualitätssicherung: Automatisierte Validierung der Berichtskonsistenz, Evidenzqualität und fachlichen Korrektheit mittels regelbasierter Prüflogik.`
+    : `The assessment follows a structured, six-step audit process:\n\n1. Scope Definition: Identification of Computer Based Systems (CBS) on board to be assessed per IACS UR E26. The scope is jointly defined with the commissioning party.\n\n2. Threat Analysis: Systematic identification and documentation of threat scenarios relevant to the CBS installed on board.\n\n3. Risk Assessment: Evaluation of each threat scenario using a 5×5 matrix by likelihood and impact severity.\n\n4. E26 Mapping: Alignment of identified threats with the requirements of IACS UR E26 (Chapters 4–16) (Chapters 4–16) to determine the degree of compliance.\n\n5. Remediation Planning: Derivation of prioritised recommendations (P0 through P3) with concrete acceptance criteria and effort estimates.\n\n6. Quality Assurance: Automated validation of report consistency, evidence quality, and technical correctness using rule-based verification logic.`;
   pdf.bodyParagraph(methodText);
 
   /* 8. DISCLAIMER */
@@ -446,12 +446,12 @@ export async function generateIec62443Report(data: Iec62443ReportData): Promise<
 
   pdf.mappingTable(
     threats.map(th => ({ id: threatId(th), name: th.name, category: th.fr, ref: th.iecRef, evidenceId: `E-${String(th.id).padStart(3, '0')}`, score: `${th.likelihood * th.impact}` })),
-    { title: lang === 'de' ? 'Bedrohungs-Mapping' : 'Threat Mapping', colId: 'ID', colName: lang === 'de' ? 'Bezeichnung' : 'Name', colCat: 'Kat.', colRef: 'E27-Ref', colEvidence: lang === 'de' ? 'Evidenz' : 'Evidence', colScore: 'Score' }
+    { title: lang === 'de' ? 'Bedrohungs-Mapping' : 'Threat Mapping', colId: 'ID', colName: lang === 'de' ? 'Bezeichnung' : 'Name', colCat: 'Kat.', colRef: 'E26-Ref', colEvidence: lang === 'de' ? 'Evidenz' : 'Evidence', colScore: 'Score' }
   );
 
   pdf.mappingTable(
     reqs.map(r => ({ id: r.id, name: r.name, category: r.status.toUpperCase(), ref: r.article, evidenceId: r.priority || '—' })),
-    { title: lang === 'de' ? 'Anforderungs-Mapping' : 'Requirement Mapping', colId: 'ID', colName: lang === 'de' ? 'Bezeichnung' : 'Name', colCat: 'Status', colRef: 'E27-Ref', colEvidence: lang === 'de' ? 'Priorität' : 'Priority' }
+    { title: lang === 'de' ? 'Anforderungs-Mapping' : 'Requirement Mapping', colId: 'ID', colName: lang === 'de' ? 'Bezeichnung' : 'Name', colCat: 'Status', colRef: 'E26-Ref', colEvidence: lang === 'de' ? 'Priorität' : 'Priority' }
   );
 
   /* APPENDIX B — QA */
@@ -503,7 +503,7 @@ export async function generateIec62443Report(data: Iec62443ReportData): Promise<
   pdf.newPage();
   const abbrEntries = lang === 'de' ? [
     { abbr: 'IACS', meaning: 'International Association of Classification Societies' },
-    { abbr: 'UR E27', meaning: 'Unified Requirement E27 — Cyber Resilience of On-Board Systems and Equipment' },
+    { abbr: 'UR E26', meaning: 'Unified Requirement E27 — Cyber Resilience of On-Board Systems and Equipment' },
     { abbr: 'UR E26', meaning: 'Unified Requirement E26 — Cyber Resilience of Ships' },
     { abbr: 'CBS', meaning: 'Computer Based System — Rechnergestütztes Bordsystem' },
     { abbr: 'ECDIS', meaning: 'Electronic Chart Display and Information System' },
@@ -516,7 +516,7 @@ export async function generateIec62443Report(data: Iec62443ReportData): Promise<
     { abbr: 'P0-P3', meaning: 'Prioritätsstufen: P0=Sofort, P1=Kurzfristig, P2=Mittelfristig, P3=Empfohlen' },
   ] : [
     { abbr: 'IACS', meaning: 'International Association of Classification Societies' },
-    { abbr: 'UR E27', meaning: 'Unified Requirement E27 — Cyber Resilience of On-Board Systems and Equipment' },
+    { abbr: 'UR E26', meaning: 'Unified Requirement E27 — Cyber Resilience of On-Board Systems and Equipment' },
     { abbr: 'UR E26', meaning: 'Unified Requirement E26 — Cyber Resilience of Ships' },
     { abbr: 'CBS', meaning: 'Computer Based System' },
     { abbr: 'ECDIS', meaning: 'Electronic Chart Display and Information System' },
@@ -531,6 +531,6 @@ export async function generateIec62443Report(data: Iec62443ReportData): Promise<
   pdf.abbreviationLegend(abbrEntries, lang === 'de' ? 'Abkürzungsverzeichnis' : 'Abbreviations');
 
   /* SAVE */
-  const filename = `IACS_UR_E27_Assessment_${intakeData.facilityName.replace(/[^a-zA-Z0-9]/g, '_')}_${dateStr.replace(/\//g, '-')}.pdf`;
+  const filename = `IACS_UR_E26_Assessment_${intakeData.facilityName.replace(/[^a-zA-Z0-9]/g, '_')}_${dateStr.replace(/\//g, '-')}.pdf`;
   pdf.save(filename);
 }
