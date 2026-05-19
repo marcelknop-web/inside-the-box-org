@@ -30,11 +30,13 @@ export function applyAuditFixes(
         fixedThreats.forEach(th => {
           if (!th.iecRef || th.iecRef.trim() === '') {
             const catToRef: Record<string, string> = {
-              IAC: 'E27-01 (SR 1.1)', UC: 'E27-08 (SR 2.1)', SI: 'E27-17 (SR 3.1)', DC: 'E27-22 (SR 4.1)',
-              AL: 'E27-13 (SR 2.8)', RA: 'E27-25 (SR 7.1)', UTN: 'E27-36 (SR 1.13)',
+              IAC: 'E26-Ch.9 (Access Control)', UC: 'E26-Ch.6 (Physical Security)',
+              SI: 'E26-Ch.4 (Equipment Identification)', DC: 'E26-Ch.5 (Information Sharing)',
+              AL: 'E26-Ch.15 (Network Monitoring)', RA: 'E26-Ch.13 (Recovery Plan)',
+              UTN: 'E26-Ch.7 (Network Protection)',
             };
-            th.iecRef = catToRef[th.fr] || 'E27-01 (SR 1.1)';
-            fixes.push(t(`${threatId(th)}: E27-Verknüpfung abgeleitet -> ${th.iecRef}`, `${threatId(th)}: E27 link derived -> ${th.iecRef}`, `${threatId(th)}: Lien E27 dérivé -> ${th.iecRef}`));
+            th.iecRef = catToRef[th.fr] || 'E26-Ch.9 (Access Control)';
+            fixes.push(t(`${threatId(th)}: E26-Verknüpfung abgeleitet -> ${th.iecRef}`, `${threatId(th)}: E26 link derived -> ${th.iecRef}`, `${threatId(th)}: Lien E26 dérivé -> ${th.iecRef}`));
           }
         });
         break;
