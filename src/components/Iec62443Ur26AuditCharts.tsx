@@ -12,7 +12,7 @@ import { FR_CATEGORIES } from '@/data/iec62443Data';
 const RISK_COLORS = { critical: '#dc2626', high: '#f97316', medium: '#eab308', low: '#22c55e' };
 const STATUS_COLORS = { pass: '#22c55e', partial: '#eab308', fail: '#dc2626' };
 
-export function Iec62443AuditCharts({ threats, reqs }: { threats: IecThreat[]; reqs: IecReq[] }) {
+export function Iec62443Ur26AuditCharts({ threats, reqs }: { threats: IecThreat[]; reqs: IecReq[] }) {
   // Category Radar
   const frData = useMemo(() => {
     const counts: Record<string, number> = {};
