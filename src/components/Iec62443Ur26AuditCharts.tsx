@@ -1,5 +1,5 @@
 /**
- * IACS UR E27 Audit Charts — Visual representation of key audit findings
+ * IACS UR E26 Audit Charts — Visual representation of key audit findings
  */
 import { useMemo } from 'react';
 import {

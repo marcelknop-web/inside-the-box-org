@@ -222,7 +222,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
       stepContent = (
         <StaggerReveal resetKey="intake-1" stagger={300}>
           <SubStepHeader current={1} total={INTAKE_STEPS} title="Target Security Level (SL-T)" subtitle="What protection level is required?" />
-          <InfoBox icon="📘" title="Security Levels per E27/IEC 62443" color="blue">Security Levels define the required protection grade against different threat scenarios — from opportunistic attackers (SL 1) to state-sponsored actors (SL 4).</InfoBox>
+          <InfoBox icon="📘" title="Security Levels per IEC 62443 (referenced by E26)" color="blue">Security Levels define the required protection grade against different threat scenarios — from opportunistic attackers (SL 1) to state-sponsored actors (SL 4).</InfoBox>
           <div className="space-y-2">
             {securityLevels.map(sl => (
               <button key={sl.id} onClick={() => setField('securityLevel', sl.id)} className={`w-full text-left border-2 rounded-xl px-4 py-3 transition-all ${d.securityLevel === sl.id ? sl.color + ' shadow' : 'border-border bg-card hover:border-muted-foreground/30'}`}>
@@ -272,7 +272,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
             ))}
           </div>
           {d.protocols.some(p => p.includes('NMEA') || p.includes('Serial')) && (
-            <InfoBox icon="⚠️" color="amber">NMEA and serial protocols offer no native authentication or encryption. Compensating measures (network segmentation, gateways) are required per UR E27.</InfoBox>
+            <InfoBox icon="⚠️" color="amber">NMEA and serial protocols offer no native authentication or encryption. Compensating measures (network segmentation, gateways) are required per UR E26.</InfoBox>
           )}
         </StaggerReveal>
       );
