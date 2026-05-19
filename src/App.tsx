@@ -8,6 +8,7 @@ import { LanguageProvider } from "@/i18n/LanguageContext";
 import { RouteSkeleton } from "@/components/RouteSkeleton";
 import { ScrollToTopFab } from "@/components/ScrollToTopFab";
 import ChatView from "./pages/ChatView";
+import { PasswordGate } from "@/components/PasswordGate";
 import NotFound from "./pages/NotFound";
 import Overview from "./pages/Overview";
 import { lazy, Suspense } from "react";
@@ -58,7 +59,7 @@ const App = () => (
               <Route path="/nordstern" element={<Suspense fallback={<RouteSkeleton />}><Nordstern /></Suspense>} />
               <Route path="/sitemap" element={<Suspense fallback={<RouteSkeleton />}><Sitemap /></Suspense>} />
               <Route path="/datenschutz-tools" element={<Suspense fallback={<RouteSkeleton />}><PrivacyDataflow /></Suspense>} />
-              <Route path="/iacs-ur26" element={<Suspense fallback={<RouteSkeleton />}><Iec62443Ur26ComplianceTool /></Suspense>} />
+              <Route path="/iacs-ur26" element={<Suspense fallback={<RouteSkeleton />}><PasswordGate storageKey="iec62443-ur26" label="IACS UR E26 Compliance Tool"><Iec62443Ur26ComplianceTool /></PasswordGate></Suspense>} />
 
               {/* Catch-all: every Journey service id (nis2-dora, virtual-ciso, …) renders ChatView */}
               <Route path="/:serviceId" element={<ChatView />} />
