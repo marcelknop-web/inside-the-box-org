@@ -75,13 +75,18 @@ const wrapBlockForType = (root: HTMLElement, totalDurationMs: number) => {
     const frag = document.createDocumentFragment();
     for (let i = 0; i < text.length; i++) {
       const ch = text[i];
-      // Whitespace: reveal instantly with its sibling so layout never breaks.
+      const span = document.createElement('span');
+      // Whitespace: wrap too (as an immediately-visible element) so that
+      // flex/inline-flex parents — e.g. shadcn <Button> with gap-2 — don't
+      // strip the whitespace as anonymous flex items.
       if (ch === ' ' || ch === '\n' || ch === '\t') {
-        frag.appendChild(document.createTextNode(ch));
+        span.className = 'ttype-space';
+        span.textContent = ch === '\n' ? '\n' : '\u00A0';
+        // Non-breaking space keeps word boundaries visible without collapsing
+        frag.appendChild(span);
         cursor++;
         continue;
       }
-      const span = document.createElement('span');
       span.className = 'ttype-char';
       span.textContent = ch;
       const delay = Math.round(cursor * msPerChar);
