@@ -7,30 +7,36 @@ interface StaggerRevealProps {
   stagger?: number;
   /** Wait this long before revealing the first child */
   startDelay?: number;
+  /** Extra wait (ms) before revealing the FINAL child — use to give users
+   *  time to read the body before a CTA button materialises. */
+  lastChildExtraDelay?: number;
   /** Reset animation sequence when this value changes */
   resetKey?: string | number;
 }
 
-export const StaggerReveal = ({ children, className = '', stagger = 350, startDelay = 0, resetKey }: StaggerRevealProps) => {
+export const StaggerReveal = ({
+  children,
+  className = '',
+  stagger = 350,
+  startDelay = 0,
+  lastChildExtraDelay = 0,
+  resetKey,
+}: StaggerRevealProps) => {
   const items = Children.toArray(children);
   const [visibleCount, setVisibleCount] = useState(0);
   const [started, setStarted] = useState(startDelay <= 0);
-  // Suppress transition during resets to avoid flash
   const [suppressTransition, setSuppressTransition] = useState(false);
   const prevKeyRef = useRef(resetKey);
 
-  // Reset when section changes — suppress transition to avoid flash
+  // Reset when section changes
   useEffect(() => {
     if (prevKeyRef.current !== resetKey) {
       prevKeyRef.current = resetKey;
       setSuppressTransition(true);
       setVisibleCount(0);
       setStarted(false);
-      // Re-enable transitions after a frame
       requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          setSuppressTransition(false);
-        });
+        requestAnimationFrame(() => setSuppressTransition(false));
       });
     }
   }, [resetKey]);
@@ -41,7 +47,6 @@ export const StaggerReveal = ({ children, className = '', stagger = 350, startDe
       setStarted(true);
       return;
     }
-
     setStarted(false);
     const t = setTimeout(() => setStarted(true), startDelay);
     return () => clearTimeout(t);
@@ -49,27 +54,34 @@ export const StaggerReveal = ({ children, className = '', stagger = 350, startDe
 
   useEffect(() => {
     if (!started || visibleCount >= items.length) return;
+    // First child: small initial hold. Last child: optional extra hold.
+    const isFirst = visibleCount === 0;
+    const isLast = visibleCount === items.length - 1;
+    const delay = isFirst ? 200 : stagger + (isLast ? lastChildExtraDelay : 0);
     const timer = setTimeout(() => {
       setVisibleCount(prev => prev + 1);
-    }, visibleCount === 0 ? 200 : stagger);
+    }, delay);
     return () => clearTimeout(timer);
-  }, [started, visibleCount, items.length, stagger]);
-
+  }, [started, visibleCount, items.length, stagger, lastChildExtraDelay]);
 
   return (
     <div className={`space-y-5 md:space-y-3 ${className}`}>
-      {items.map((child, i) => (
-        <div
-          key={i}
-          style={{
-            opacity: i < visibleCount ? 1 : 0,
-            transform: i < visibleCount ? 'translateY(0)' : 'translateY(14px)',
-            transition: suppressTransition ? 'none' : 'opacity 500ms ease-out, transform 500ms ease-out',
-          }}
-        >
-          {child}
-        </div>
-      ))}
+      {items.map((child, i) => {
+        const visible = i < visibleCount;
+        return (
+          <div
+            key={i}
+            className={visible && !suppressTransition ? 'animate-instrument-on' : ''}
+            style={{
+              opacity: visible ? 1 : 0,
+              // Fallback for reduced motion / suppressed transitions
+              transition: suppressTransition ? 'none' : undefined,
+            }}
+          >
+            {child}
+          </div>
+        );
+      })}
     </div>
   );
 };
