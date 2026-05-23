@@ -194,22 +194,6 @@ const BlindSpotSimulator = () => {
   };
 
 
-  const submitAssessment = () => {
-    if (!userRole) return;
-    const phase = PHASES[(screen as { phaseIdx: number }).phaseIdx];
-    // Persist user input + each AI output into history for that role
-    Object.entries(aiOutputs).forEach(([aiRole, text]) => {
-      appendHistory(aiRole, [
-        {
-          role: "user",
-          content: `[${phase.name}] Situation: ${phase.situation}\n${userRole.name} said: "${userAssessment || "(no comment)"}"`,
-        },
-        { role: "assistant", content: text },
-      ]);
-    });
-    setScreen({ kind: "decision", phaseIdx: (screen as { phaseIdx: number }).phaseIdx });
-  };
-
   const isUserIC = userRole?.id === "ic";
 
   const requestAiIcDecision = async (phaseIdx: number) => {
