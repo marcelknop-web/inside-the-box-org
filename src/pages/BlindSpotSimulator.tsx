@@ -368,7 +368,7 @@ const BlindSpotSimulator = () => {
   };
 
   const handleAiIcAuto = async (
-    recommendation?: { stance: "YES" | "NO" | "CONDITIONAL"; reasoning: string },
+    recommendation?: { stance: "YES" | "NO" | "CONDITIONAL"; reasoning: string; remainingSecs: number },
   ) => {
     if (!("phaseIdx" in screen) || !userRole) return;
     const phaseIdx = screen.phaseIdx;
