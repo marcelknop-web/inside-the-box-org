@@ -959,50 +959,27 @@ const BlindSpotSimulator = () => {
                       className="rounded-xl border-2 border-black/20 h-full min-h-0 flex flex-col overflow-hidden animate-fade-in shadow-[0_12px_40px_rgba(0,0,0,1)] relative"
                       style={{ backgroundColor: "#f5b800" }}
                     >
-                      {/* Pop-up notch */}
                       <div className="absolute -top-2 left-6 w-4 h-4 bg-[#f5b800] rotate-45 border-t-2 border-l-2 border-black/10" />
-                      <div
-                        className="flex items-center justify-between px-4 py-2.5 border-b border-black/15"
-                      >
+                      <div className="flex items-center justify-between px-4 py-2.5 border-b border-black/15">
                         <span className="font-mono text-[11px] text-black/70 uppercase tracking-wider">
-                          Your input required
+                          Your call
                         </span>
-                        <span className="font-mono text-[10px] text-black/50 animate-pulse">
-                          ● live
-                        </span>
+                        <span className="font-mono text-[10px] text-black/50 animate-pulse">● live</span>
                       </div>
 
-                      <div className="flex-1 overflow-y-auto p-3 space-y-3 min-h-1/4">
-                        <p className="font-mono text-[10px] text-black/60 uppercase tracking-wider">
+                      <div className="flex-1 overflow-y-auto p-4 flex flex-col justify-center gap-3 min-h-1/4">
+                        <p className="text-[15px] text-black/90 leading-snug font-semibold">
+                          {phase.decisionQuestion}
+                        </p>
+                        <p className="font-mono text-[11px] text-black/60">
                           {isUserIC
-                            ? "The team is waiting for your call. Post it in the team chat →"
-                            : `IC is waiting for ${userRole.name}'s recommendation. Reply in the team chat →`}
+                            ? "Post YES / NO / CONDITIONAL in chat →"
+                            : "Send your recommendation in chat →"}
                         </p>
-                        <div className="rounded-md border-2 border-black/20 bg-black/10 p-3">
-                          <p className="font-mono text-[10px] text-black/70 uppercase tracking-wider mb-1.5">
-                            {isUserIC ? "Decision to call" : "Question on the table"}
-                          </p>
-                          <p className="text-[13px] text-black/90 leading-relaxed font-medium">
-                            {phase.decisionQuestion}
-                          </p>
-                        </div>
-                        <div className="rounded-md border border-black/15 bg-black/5 p-2.5 font-mono text-[11px] text-black/70 space-y-1">
-                          <div>
-                            <span className="text-black/90 font-semibold">IEC 62443:</span> {phase.iec62443Ref}
-                          </div>
-                          {phase.nis2Flag && (
-                            <div>
-                              <span className="text-red-700 font-semibold">NIS-2:</span> {phase.nis2Flag}
-                            </div>
-                          )}
-                        </div>
-                        <p className="font-mono text-[10px] text-black/50 italic">
-                          Post your decision in the team chat — it will be recorded as your call.
-                        </p>
-
                       </div>
                     </div>
                   )}
+
                 </div>
 
 
