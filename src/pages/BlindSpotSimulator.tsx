@@ -24,6 +24,9 @@ import {
   totalScore,
 } from "@/utils/blindSpotScoring";
 import { StaggerReveal } from "@/components/StaggerReveal";
+import { ObjectiveHud, ObjectiveStep } from "@/components/blindSpot/ObjectiveHud";
+import { PhaseTransition } from "@/components/blindSpot/PhaseTransition";
+import { sfx } from "@/utils/blindSpotSfx";
 
 
 type Screen =
