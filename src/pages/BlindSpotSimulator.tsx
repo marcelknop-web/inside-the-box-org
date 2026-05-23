@@ -149,10 +149,8 @@ const BlindSpotSimulator = () => {
   const resetPhaseLocalState = () => {
     setUserAssessment("");
     setAiOutputs({});
-    setDecisionChoice(null);
-    setDecisionReasoning("");
-    setAiIcDecision("");
     setPushbackUsed(false);
+    setCommitting(false);
     setPhaseUserMsgCount(0);
     setEvidence([]);
     setDecisionReady(false);
@@ -189,93 +187,9 @@ const BlindSpotSimulator = () => {
 
   const isUserIC = userRole?.id === "ic";
 
-  const requestAiIcDecision = async (phaseIdx: number) => {
-    if (!userRole) return;
-    setAiIcLoading(true);
-    setAiIcDecision("");
-    try {
-      const phase = PHASES[phaseIdx];
-      const { data, error } = await supabase.functions.invoke("blind-spot-chat", {
-        body: {
-          mode: "ic-decision",
-          aiRole: "Incident Commander",
-          userRole: userRole.name,
-          phaseName: phase.name,
-          phaseTimestamp: phase.timestamp,
-          situation: phase.situation,
-          userInput: `${phase.decisionQuestion}\n\nTeam input so far: ${userRole.name} said: "${userAssessment || "(no comment)"}". Other team panels: ${Object.entries(
-            aiOutputs,
-          )
-            .map(([r, t]) => `${r}: ${t}`)
-            .join(" | ")}`,
-          history: history["Incident Commander"] ?? [],
-        },
-      });
-      if (error) throw error;
-      if (data?.error) throw new Error(data.error);
-      setAiIcDecision(data.text as string);
-    } catch (e) {
-      toast({ title: "AI IC unavailable", description: e instanceof Error ? e.message : "Unknown", variant: "destructive" });
-    } finally {
-      setAiIcLoading(false);
-    }
-  };
-
-  // Auto-fetch AI IC decision when user enters decision screen as non-IC
-  const ensureAiIcLoaded = (phaseIdx: number) => {
-    if (!isUserIC && !aiIcDecision && !aiIcLoading) {
-      requestAiIcDecision(phaseIdx);
-    }
-  };
-
   const parseAiChoice = (txt: string): "YES" | "NO" | "CONDITIONAL" => {
     const m = txt.match(/DECISION:\s*(YES|NO|CONDITIONAL)/i);
     return (m?.[1]?.toUpperCase() as "YES" | "NO" | "CONDITIONAL") ?? "CONDITIONAL";
-  };
-
-  const commitDecision = (phaseIdx: number, opts: { pushback?: boolean }) => {
-    const phase = PHASES[phaseIdx];
-    let newRecord: DecisionRecord;
-    if (isUserIC) {
-      if (!decisionChoice || !decisionReasoning.trim()) {
-        toast({ title: "Decision incomplete", description: "Pick Yes / No / Conditional and provide reasoning.", variant: "destructive" });
-        return;
-      }
-      newRecord = {
-        phase: phase.name,
-        timestamp: phase.timestamp,
-        question: phase.decisionQuestion,
-        choice: decisionChoice,
-        reasoning: decisionReasoning,
-        icBy: "user",
-        iec62443Ref: phase.iec62443Ref,
-        nis2Flag: phase.nis2Flag,
-      };
-    } else {
-      newRecord = {
-        phase: phase.name,
-        timestamp: phase.timestamp,
-        question: phase.decisionQuestion,
-        choice: parseAiChoice(aiIcDecision),
-        reasoning:
-          aiIcDecision +
-          (opts.pushback ? `\n\n[${userRole?.name} pushed back; IC reaffirmed]` : ""),
-        icBy: "ai",
-        iec62443Ref: phase.iec62443Ref,
-        nis2Flag: phase.nis2Flag,
-      };
-    }
-
-    const updated = [...decisions, newRecord];
-    setDecisions(updated);
-
-    const next = phaseIdx + 1;
-    if (next >= PHASES.length) {
-      runDebrief(updated);
-      setScreen({ kind: "debrief" });
-    } else {
-      beginPhase(next);
-    }
   };
 
   /* ---- Modal-driven commit ---- */
