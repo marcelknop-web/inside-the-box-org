@@ -1,6 +1,9 @@
 import { ReactNode, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { INITIAL_ALERT, ROLES, Role } from "@/data/blindSpotScenario";
+import { INITIAL_ALERT, PHASES, ROLES, Role } from "@/data/blindSpotScenario";
+import { SystemsStatusPanel } from "./SystemsStatusPanel";
+import { ObjectiveHud } from "./ObjectiveHud";
+import { PhaseProgress } from "./PhaseProgress";
 
 /**
  * Briefing as a guided slide deck. One topic per slide so the user
