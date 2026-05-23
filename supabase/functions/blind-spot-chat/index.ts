@@ -119,18 +119,28 @@ Deno.serve(async (req) => {
             `Phase ${i + 1} — ${d.phase}\nQ: ${d.question}\nChoice: ${d.choice}\nReasoning: ${d.reasoning}\nDecided by: ${d.icBy === "user" ? "user (IC)" : "AI IC"}`,
         )
         .join("\n\n");
+      const role = body.userRole ?? "the participant";
       messages = [
         {
           role: "system",
           content:
-            "You are a senior OT incident response assessor with deep IEC 62443 and NIS-2 knowledge. Be terse, factual, no fluff. Never invent facts not in the decision log.",
+            "You are an IEC 62443 and NIS-2 expert reviewing a tabletop exercise debrief. Be terse, direct, professional. No praise padding. No generic statements. Never invent facts not in the decision log.",
         },
         {
           role: "user",
           content:
-            `Assess this tabletop exercise decision log for netsecure.no "Blind Spot" scenario.\n\n${log}\n\n` +
-            `Return JSON ONLY with this exact shape:\n` +
-            `{\n  "perDecision": [{ "iec62443": "<1-2 sentences>", "nis2": "met" | "at_risk" | "missed", "nis2Note": "<one sentence>" }, ...],\n  "lessons": ["<bullet>", "<bullet>", "<bullet>"],\n  "overall": "Strong response" | "Adequate" | "Critical gaps found",\n  "overallNote": "<1-2 sentences>"\n}\nReturn 4 perDecision items in the same order as the input. No prose outside JSON.`,
+            `Participant played: ${role}.\nScenario: netsecure.no "Blind Spot" OT crisis.\n\nDECISION LOG:\n${log}\n\n` +
+            `Return JSON ONLY with this exact shape and no prose outside JSON:\n` +
+            `{\n` +
+            `  "perDecision": [{ "iec62443": "<1-2 sentences>", "nis2": "met" | "at_risk" | "missed", "nis2Note": "<one sentence>" }, ...],\n` +
+            `  "overallAssessment": "<3-4 sentences, professional tone>",\n` +
+            `  "lessons": ["<single sentence>", "<single sentence>", "<single sentence>"],\n` +
+            `  "iec62443Gap": "<one specific control gap, 1-2 sentences>",\n` +
+            `  "nis2Gap": "<one specific NIS-2 obligation gap, 1-2 sentences>",\n` +
+            `  "rating": "STRONG RESPONSE" | "ADEQUATE" | "CRITICAL GAPS",\n` +
+            `  "ratingNote": "<one sentence explaining the rating>"\n` +
+            `}\n` +
+            `Return 4 perDecision items in the same order as the input. Determine rating from perDecision: 4 met = STRONG RESPONSE; 2-3 met = ADEQUATE; 0-1 met = CRITICAL GAPS.`,
         },
       ];
     }
