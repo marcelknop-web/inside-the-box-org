@@ -18,6 +18,20 @@ let ambient: {
   lfoGain: GainNode;
 } | null = null;
 
+// Industrial bed (server-room HVAC + motor hum + intermittent plant events).
+// Sits underneath the SOC ambient bed without muddying it.
+let industrial: {
+  starts: OscillatorNode[];
+  loopSrcs: AudioBufferSourceNode[];
+  gain: GainNode;
+  motorGain: GainNode;
+  hvacGain: GainNode;
+  sirenGain: GainNode;
+  schedTimer: number | null;
+  sirenTimer: number | null;
+  level: 1 | 2 | 3 | 4;
+} | null = null;
+
 const ensure = (): AudioContext | null => {
   if (typeof window === "undefined") return null;
   if (ctx) return ctx;
@@ -375,5 +389,151 @@ export const sfx = {
     tone(ac, 622, { type: "sawtooth", attack: 0.01, hold: 0.1, release: 0.15, peak: 0.06, filterType: "lowpass", filterFreq: 2400, filterQ: 2, wet: 0.4, startOffset: 0.05 });
     tone(ac, 466, { type: "sawtooth", attack: 0.01, hold: 0.1, release: 0.2, peak: 0.07, filterType: "lowpass", filterFreq: 2400, filterQ: 2, wet: 0.4, startOffset: 0.22 });
     tone(ac, 622, { type: "sawtooth", attack: 0.01, hold: 0.1, release: 0.25, peak: 0.05, filterType: "lowpass", filterFreq: 2400, filterQ: 2, wet: 0.45, startOffset: 0.42 });
+  },
+
+  /**
+   * Industrial OT bed: HVAC roar + motor hum + intermittent plant events
+   * (relay clicks, PLC beeps, valve hiss). Severity (1..4) scales motor
+   * detune, alarm density and adds a distant SIS klaxon at level >= 3.
+   */
+  industrialStart: (level: 1 | 2 | 3 | 4 = 1) => {
+    const ac = ensure();
+    if (!ac || industrial) return;
+    if (ac.state === "suspended") void ac.resume();
+
+    const bus = ac.createGain();
+    bus.gain.value = 0.0001;
+    bus.gain.exponentialRampToValueAtTime(0.22, ac.currentTime + 3.0);
+    route(ac, bus, 0.12);
+
+    // --- HVAC / server-room roar: brown noise through lowpass ---
+    const hvacSrc = ac.createBufferSource();
+    hvacSrc.buffer = makeNoiseBuffer(ac, 6, "brown");
+    hvacSrc.loop = true;
+    const hvacLp = ac.createBiquadFilter();
+    hvacLp.type = "lowpass"; hvacLp.frequency.value = 520; hvacLp.Q.value = 0.6;
+    const hvacGain = ac.createGain(); hvacGain.gain.value = 0.42;
+    hvacSrc.connect(hvacLp).connect(hvacGain).connect(bus);
+
+    // --- Motor hum: 50Hz mains + slight detuned partial ---
+    const motor1 = ac.createOscillator(); motor1.type = "sawtooth"; motor1.frequency.value = 50;
+    const motor2 = ac.createOscillator(); motor2.type = "sawtooth"; motor2.frequency.value = 100; motor2.detune.value = -8;
+    const motor3 = ac.createOscillator(); motor3.type = "sine";     motor3.frequency.value = 25;
+    const motorLp = ac.createBiquadFilter();
+    motorLp.type = "lowpass"; motorLp.frequency.value = 320; motorLp.Q.value = 1.1;
+    const motorGain = ac.createGain(); motorGain.gain.value = 0.10;
+    motor1.connect(motorLp); motor2.connect(motorLp); motor3.connect(motorLp);
+    motorLp.connect(motorGain).connect(bus);
+
+    // Slow motor wobble so it feels alive.
+    const wobLfo = ac.createOscillator(); wobLfo.type = "sine"; wobLfo.frequency.value = 0.13;
+    const wobGain = ac.createGain(); wobGain.gain.value = 6;
+    wobLfo.connect(wobGain).connect(motor1.detune);
+
+    // Distant SIS siren channel — silent unless level >= 3.
+    const sirenGain = ac.createGain(); sirenGain.gain.value = 0.0;
+    sirenGain.connect(bus);
+
+    motor1.start(); motor2.start(); motor3.start(); wobLfo.start(); hvacSrc.start();
+
+    industrial = {
+      starts: [motor1, motor2, motor3, wobLfo],
+      loopSrcs: [hvacSrc],
+      gain: bus,
+      motorGain,
+      hvacGain,
+      sirenGain,
+      schedTimer: null,
+      sirenTimer: null,
+      level,
+    };
+
+    // --- Random plant events scheduler: relay click, PLC beep, valve hiss ---
+    const scheduleNext = () => {
+      if (!industrial) return;
+      const lvl = industrial.level;
+      // Faster cadence at higher severity.
+      const base = 4200 - (lvl - 1) * 600; // ms
+      const next = base + Math.random() * (4500 - lvl * 400);
+      industrial.schedTimer = window.setTimeout(() => {
+        if (!industrial) return;
+        const ac2 = ensure(); if (!ac2) return;
+        const roll = Math.random();
+        // Event mix shifts with severity.
+        if (roll < 0.34) {
+          // Relay click (mechanical contactor).
+          noiseBurst(ac2, { duration: 0.04, kind: "white", filterType: "bandpass", filterStart: 2400, Q: 6, peak: 0.10, attack: 0.001, release: 0.04, wet: 0.18 });
+          tone(ac2, 1600, { type: "square", attack: 0.001, hold: 0.0, release: 0.03, peak: 0.025, wet: 0.1, startOffset: 0.005 });
+        } else if (roll < 0.62) {
+          // PLC / HMI confirmation beep.
+          tone(ac2, 1320, { type: "sine", attack: 0.003, hold: 0.04, release: 0.10, peak: 0.04, wet: 0.25 });
+        } else if (roll < 0.82) {
+          // Valve / pneumatic hiss.
+          noiseBurst(ac2, { duration: 0.55, kind: "white", filterType: "bandpass", filterStart: 5200, filterEnd: 3200, Q: 1.2, peak: 0.06, attack: 0.05, release: 0.5, wet: 0.2 });
+        } else if (lvl >= 2) {
+          // Distant pump start-up / motor spin.
+          tone(ac2, 70, { type: "sawtooth", attack: 0.4, hold: 0.3, release: 0.8, peak: 0.08, sweepTo: 95, filterFreq: 360, filterQ: 1, wet: 0.25 });
+        } else {
+          // Soft tick of cooling fan oscillator.
+          noiseBurst(ac2, { duration: 0.02, kind: "white", filterType: "highpass", filterStart: 5200, peak: 0.03, release: 0.02, wet: 0.1 });
+        }
+        scheduleNext();
+      }, next);
+    };
+    scheduleNext();
+
+    // --- SIS klaxon loop, only audible from severity 3 upward ---
+    const scheduleSiren = () => {
+      if (!industrial) return;
+      const lvl = industrial.level;
+      if (lvl < 3) {
+        industrial.sirenTimer = window.setTimeout(scheduleSiren, 4000);
+        return;
+      }
+      const ac2 = ensure(); if (!ac2) return;
+      const period = lvl >= 4 ? 7000 : 11000;
+      industrial.sirenTimer = window.setTimeout(() => {
+        if (!industrial) return;
+        // Two-tone klaxon, distant (lowpassed + low peak).
+        tone(ac2, 540, { type: "sawtooth", attack: 0.08, hold: 0.35, release: 0.4, peak: 0.05, filterType: "lowpass", filterFreq: 1400, filterQ: 1.5, wet: 0.55 });
+        tone(ac2, 410, { type: "sawtooth", attack: 0.08, hold: 0.35, release: 0.4, peak: 0.05, filterType: "lowpass", filterFreq: 1400, filterQ: 1.5, wet: 0.55, startOffset: 0.5 });
+        scheduleSiren();
+      }, period);
+    };
+    scheduleSiren();
+  },
+
+  /** Update industrial severity without restarting the bed. */
+  industrialSetLevel: (level: 1 | 2 | 3 | 4) => {
+    const ac = ensure();
+    if (!ac || !industrial) return;
+    industrial.level = level;
+    const t = ac.currentTime;
+    // Motors lean louder & dirtier as severity climbs.
+    const motorTarget = 0.08 + (level - 1) * 0.025;
+    const hvacTarget  = 0.42 + (level - 1) * 0.04;
+    industrial.motorGain.gain.cancelScheduledValues(t);
+    industrial.motorGain.gain.linearRampToValueAtTime(motorTarget, t + 1.2);
+    industrial.hvacGain.gain.cancelScheduledValues(t);
+    industrial.hvacGain.gain.linearRampToValueAtTime(hvacTarget, t + 1.2);
+  },
+
+  industrialStop: () => {
+    const ac = ensure();
+    if (!ac || !industrial) return;
+    const t = ac.currentTime;
+    industrial.gain.gain.cancelScheduledValues(t);
+    industrial.gain.gain.setValueAtTime(industrial.gain.gain.value, t);
+    industrial.gain.gain.exponentialRampToValueAtTime(0.0001, t + 1.0);
+    const ind = industrial;
+    industrial = null;
+    if (ind.schedTimer != null) clearTimeout(ind.schedTimer);
+    if (ind.sirenTimer != null) clearTimeout(ind.sirenTimer);
+    window.setTimeout(() => {
+      try {
+        ind.starts.forEach((n) => n.stop());
+        ind.loopSrcs.forEach((n) => n.stop());
+      } catch { /* ignore */ }
+    }, 1200);
   },
 };
