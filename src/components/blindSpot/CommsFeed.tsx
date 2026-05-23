@@ -103,10 +103,10 @@ const SPLUNK_CARD: AlertCard = {
     ["Rule", "Lateral movement"],
     ["Source", "10.10.20.50"],
     ["Dest", "10.10.20.30"],
-    ["Time", "22:47:31"],
+    ["Time", "23:47:31"],
   ],
   rawLog:
-    `2026-05-23T22:47:31.482Z host=splunk-idx01 source="WinEventLog:Security" sourcetype=XmlWinEventLog
+    `2026-05-23T23:47:31.482Z host=splunk-idx01 source="WinEventLog:Security" sourcetype=XmlWinEventLog
 EventCode=4624  LogonType=3  TargetUserName="svc_backup"  TargetDomainName="NORPOWER"
 IpAddress=10.10.20.50  IpPort=49872  WorkstationName="JUMP-DMZ-01"
 ProcessName="C:\\\\Windows\\\\System32\\\\lsass.exe"  AuthenticationPackageName=NTLM
