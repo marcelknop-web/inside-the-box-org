@@ -461,6 +461,8 @@ const Field = ({ k, v, accent }: { k: string; v: string; accent?: string }) => (
  */
 const CockpitTour = () => {
   const previewPhase = PHASES[0];
+  const [activeStep, setActiveStep] = useState(1);
+  const totalSteps = 6;
 
   const items = [
     { n: 1, t: "Phase progress",  d: "IEC 62443 lifecycle. Shows where you are: Detect → Contain → Respond → Recover → Learn." },
@@ -470,6 +472,8 @@ const CockpitTour = () => {
     { n: 5, t: "Implications · Your call", d: "Bottom-left. AI bridge readout — turns yellow with the question when it's your move." },
     { n: 6, t: "Team chat",       d: "Right column. You talk to the bridge here. Your last message becomes your rationale." },
   ];
+
+  const isActive = (n: number) => n === activeStep;
 
   return (
     <div className="grid xl:grid-cols-[1.55fr_1fr] gap-5">
@@ -486,15 +490,15 @@ const CockpitTour = () => {
 
         {/* Non-interactive wrapper so clicks don't escape into mock state. */}
         <div className="pointer-events-none select-none flex flex-col gap-2">
-          <Annotated n={1} side="left">
+          <Annotated n={1} active={isActive(1)} side="left">
             <PhaseProgress currentPhase={1} phases={PHASES} streak={0} verdict={null} />
           </Annotated>
 
-          <Annotated n={2} side="left">
+          <Annotated n={2} active={isActive(2)} side="left">
             <SystemsStatusPanel phaseIndex={1} />
           </Annotated>
 
-          <Annotated n={3} side="left">
+          <Annotated n={3} active={isActive(3)} side="left">
             <ObjectiveHud
               phase={previewPhase}
               totalPhases={PHASES.length}
@@ -507,35 +511,71 @@ const CockpitTour = () => {
 
           <div className="grid grid-cols-[1fr_1fr] gap-2 mt-1">
             <div className="grid grid-rows-2 gap-2">
-              <Annotated n={4} side="left">
+              <Annotated n={4} active={isActive(4)} side="left">
                 <MockEvidence />
               </Annotated>
-              <Annotated n={5} side="left">
+              <Annotated n={5} active={isActive(5)} side="left">
                 <MockImplications />
               </Annotated>
             </div>
-            <Annotated n={6} side="right">
+            <Annotated n={6} active={isActive(6)} side="right">
               <MockChat />
             </Annotated>
           </div>
         </div>
       </div>
 
-      {/* Legend — same visual language as the slide cards. */}
-      <ol className="space-y-2">
-        {items.map((it) => (
-          <li
-            key={it.n}
-            className="flex gap-3 rounded-lg border border-white/10 bg-background/30 p-3 hover:border-[#f5b800]/40 transition-colors"
+      {/* Legend — only the active step is fully visible; others are dimmed. */}
+      <div className="flex flex-col gap-3">
+        <ol className="space-y-2 flex-1">
+          {items.map((it) => {
+            const active = isActive(it.n);
+            return (
+              <li
+                key={it.n}
+                className={`flex gap-3 rounded-lg border p-3 transition-all duration-300 ${
+                  active
+                    ? "border-[#f5b800]/50 bg-[#f5b800]/10"
+                    : "border-white/5 bg-background/20 opacity-40"
+                }`}
+              >
+                <CallOut n={it.n} active={active} />
+                <div className="min-w-1">
+                  <div className={`font-mono text-[12px] ${active ? "text-white" : "text-white/50"}`}>
+                    {it.t}
+                  </div>
+                  {active && (
+                    <div className="text-white/70 text-xs leading-relaxed mt-1 animate-fade-in">
+                      {it.d}
+                    </div>
+                  )}
+                </div>
+              </li>
+            );
+          })}
+        </ol>
+
+        {/* Step navigation */}
+        <div className="flex items-center justify-between gap-2 pt-2 border-t border-white/10">
+          <button
+            onClick={() => setActiveStep((s) => Math.max(1, s - 1))}
+            disabled={activeStep === 1}
+            className="font-mono text-[10px] uppercase tracking-wider text-white/60 hover:text-white disabled:opacity-25 transition-colors"
           >
-            <CallOut n={it.n} />
-            <div className="min-w-0">
-              <div className="font-mono text-[12px] text-white/90">{it.t}</div>
-              <div className="text-white/55 text-xs leading-relaxed mt-0.5">{it.d}</div>
-            </div>
-          </li>
-        ))}
-      </ol>
+            ← Prev
+          </button>
+          <span className="font-mono text-[10px] text-[#f5b800] tracking-wider">
+            {String(activeStep).padStart(2, "0")} / {String(totalSteps).padStart(2, "0")}
+          </span>
+          <button
+            onClick={() => setActiveStep((s) => Math.min(totalSteps, s + 1))}
+            disabled={activeStep === totalSteps}
+            className="font-mono text-[10px] uppercase tracking-wider text-white/60 hover:text-white disabled:opacity-25 transition-colors"
+          >
+            Next →
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
@@ -543,20 +583,34 @@ const CockpitTour = () => {
 /* ---------- Annotation primitives ---------- */
 
 const Annotated = ({
-  n, side = "left", children,
-}: { n: number; side?: "left" | "right"; children: ReactNode }) => (
+  n, side = "left", active, children,
+}: { n: number; side?: "left" | "right"; active: boolean; children: ReactNode }) => (
   <div className="relative">
-    <div className={`absolute -top-2 ${side === "left" ? "-left-2" : "-right-2"} z-20`}>
-      <CallOut n={n} />
+    <div
+      className={`absolute -top-2 z-20 transition-all duration-300 ${
+        side === "left" ? "-left-2" : "-right-2"
+      } ${active ? "opacity-100 scale-100" : "opacity-0 scale-75"}`}
+    >
+      <CallOut n={n} active={active} />
     </div>
-    <div className="rounded-lg ring-1 ring-[#f5b800]/15 hover:ring-[#f5b800]/30 transition-shadow">
+    <div
+      className={`rounded-lg transition-all duration-300 ${
+        active ? "ring-1 ring-[#f5b800]/40 shadow-[0_0_20px_rgba(245,184,0,0.08)]" : "ring-1 ring-white/5"
+      }`}
+    >
       {children}
     </div>
   </div>
 );
 
-const CallOut = ({ n }: { n: number }) => (
-  <span className="inline-flex shrink-0 items-center justify-center w-7 h-7 rounded-full border border-[#f5b800] bg-[#0e0e10] text-[#f5b800] font-mono text-xs font-bold shadow-[0_0_12px_rgba(245,184,0,0.45)]">
+const CallOut = ({ n, active }: { n: number; active?: boolean }) => (
+  <span
+    className={`inline-flex shrink-0 items-center justify-center w-7 h-7 rounded-full border font-mono text-xs font-bold transition-all duration-300 ${
+      active
+        ? "border-[#f5b800] bg-[#0e0e10] text-[#f5b800] shadow-[0_0_16px_rgba(245,184,0,0.55)]"
+        : "border-white/15 bg-[#0e0e10] text-white/30 shadow-none"
+    }`}
+  >
     {n}
   </span>
 );
