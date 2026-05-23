@@ -67,32 +67,40 @@ export const StaggerReveal = ({
     return () => clearTimeout(t);
   }, [startDelay, resetKey]);
 
-  // Schedule next reveal — pause = type-duration of just-revealed block + small breath.
+  // Schedule next reveal. We measure the block ABOUT to be revealed so its
+  // CSS sweep duration is set before it mounts visibly, and we use the
+  // PREVIOUSLY-revealed block's text to size the pause that precedes it.
   useEffect(() => {
     if (!started || visibleCount >= items.length) return;
 
+    // 1. Measure the next block's text and stash its type duration BEFORE reveal.
+    const nextEl = itemRefs.current[visibleCount];
+    const nextText = nextEl?.innerText ?? '';
+    const nextTypeMs = estimateTypeMs(nextText);
+    setTypeDurations(prev => {
+      if (prev[visibleCount] === nextTypeMs) return prev;
+      const next = prev.slice();
+      next[visibleCount] = nextTypeMs;
+      return next;
+    });
+
+    // 2. Compute pause length.
     let delay: number;
     if (visibleCount === 0) {
-      delay = 80; // first child: near-instant
+      delay = 80;
     } else {
-      const justRevealed = itemRefs.current[visibleCount - 1];
-      const text = justRevealed?.innerText ?? '';
-      const typeMs = estimateTypeMs(text);
-      // Persist for this block so its CSS animation matches our schedule.
-      setTypeDurations(prev => {
-        if (prev[visibleCount - 1] === typeMs) return prev;
-        const next = prev.slice();
-        next[visibleCount - 1] = typeMs;
-        return next;
-      });
+      const prevEl = itemRefs.current[visibleCount - 1];
+      const prevText = prevEl?.innerText ?? '';
+      const prevTypeMs = estimateTypeMs(prevText);
       const softFloor = Math.min(stagger, MAX_PAUSE_MS);
-      delay = Math.min(MAX_PAUSE_MS, Math.max(softFloor, typeMs + GAP_AFTER_TYPE_MS));
+      delay = Math.min(MAX_PAUSE_MS, Math.max(softFloor, prevTypeMs + GAP_AFTER_TYPE_MS));
       if (visibleCount === items.length - 1) delay += Math.round(lastChildExtraDelay * 0.5);
     }
 
     const t = setTimeout(() => setVisibleCount(v => v + 1), delay);
     return () => clearTimeout(t);
   }, [started, visibleCount, items.length, stagger, lastChildExtraDelay]);
+
 
   return (
     <div className={`space-y-5 md:space-y-3 ${className}`}>
