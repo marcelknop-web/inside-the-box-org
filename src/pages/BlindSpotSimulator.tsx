@@ -1,17 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import {
   INITIAL_ALERT,
-  NETWORK_ZONES,
   PHASES,
   ROLES,
   Role,
   RoleId,
-  phaseColor,
 } from "@/data/blindSpotScenario";
 import { PhaseProgress } from "@/components/blindSpot/PhaseProgress";
 import { CommsFeed, CommsFeedHandle, AlertCard } from "@/components/blindSpot/CommsFeed";
@@ -23,7 +20,6 @@ import { GameOverOverlay } from "@/components/blindSpot/GameOverOverlay";
 import {
   PhaseScoreBreakdown,
   scorePhase,
-  totalScore,
 } from "@/utils/blindSpotScoring";
 import { StaggerReveal } from "@/components/StaggerReveal";
 import { ObjectiveHud, ObjectiveStep } from "@/components/blindSpot/ObjectiveHud";
