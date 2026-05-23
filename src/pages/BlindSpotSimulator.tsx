@@ -493,17 +493,39 @@ const BlindSpotSimulator = () => {
 
   // The user's last chat message after the scripted sequence ends becomes
   // the decision (IC) or the recommendation to the AI IC.
-  const commitFromChat = (phaseIdx: number) => {
+  // We DO NOT regex-match the user's words into YES/NO/CONDITIONAL — the user's
+  // actual text is preserved as reasoning, and an LLM classifies the implied
+  // stance from that verbatim text against the phase's decision question.
+  const commitFromChat = async (phaseIdx: number) => {
     if (modalFiredRef.current === phaseIdx) return;
     modalFiredRef.current = phaseIdx;
+    const phase = PHASES[phaseIdx];
     const text = (userAssessment || "").trim();
-    const choice: DecisionChoice = /\bconditional\b/i.test(text)
-      ? "CONDITIONAL"
-      : /\b(no|do not|don't|hold|wait)\b/i.test(text)
-      ? "NO"
-      : /\b(yes|go|isolate|terminate|notify|authoris|authorize|restart|kill)\b/i.test(text)
-      ? "YES"
-      : "CONDITIONAL";
+
+    let choice: DecisionChoice = "CONDITIONAL";
+    if (text) {
+      try {
+        const { data } = await supabase.functions.invoke("blind-spot-chat", {
+          body: {
+            mode: "classify-stance",
+            decisionQuestion: phase.decisionQuestion,
+            userInput: text,
+          },
+        });
+        const token = String((data?.text as string) ?? "")
+          .trim()
+          .toUpperCase()
+          .match(/\b(YES|NO|CONDITIONAL|UNCLEAR)\b/)?.[1];
+        if (token === "YES" || token === "NO" || token === "CONDITIONAL") {
+          choice = token;
+        } else {
+          choice = "CONDITIONAL";
+        }
+      } catch {
+        choice = "CONDITIONAL";
+      }
+    }
+
     if (isUserIC) {
       handleUserCommit(choice, text || "(no rationale provided in chat)", 0);
     } else {
