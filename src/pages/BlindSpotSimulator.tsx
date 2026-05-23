@@ -496,6 +496,8 @@ const BlindSpotSimulator = () => {
     setDecisions([]);
     setDebrief(null);
     setHistory({});
+    setPhaseScores([]);
+    setShowGameOver(false);
     resetPhaseLocalState();
     setScreen({ kind: "roleSelect" });
   };
