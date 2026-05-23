@@ -990,8 +990,8 @@ const BlindSpotSimulator = () => {
               <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr] gap-3 flex-1 min-h-0">
 
 
-                {/* LEFT COLUMN — Evidence (full height until decision needed, then top half) */}
-                <div className={decisionReady ? "grid grid-rows-2 gap-3 min-h-0" : "min-h-0"}>
+                {/* LEFT COLUMN — Evidence (top) + Implications / "Your call" (bottom) */}
+                <div className="grid grid-rows-2 gap-3 min-h-0">
 
                   <EvidencePanel
                     phaseName={phase.name}
@@ -1001,10 +1001,10 @@ const BlindSpotSimulator = () => {
                     alerts={evidence}
                   />
 
-                  {/* Brief panel — appears only when IC needs input from this role.
-                      All communication happens in the team chat. This box only
-                      informs the player what is expected of them in the chat. */}
-                  {decisionReady && (
+                  {/* Bottom-left quadrant:
+                      - default: live implications panel reading the bridge chatter
+                      - when IC needs the player's call: yellow "Your call" briefing */}
+                  {decisionReady ? (
                     <div
                       className="rounded-xl border-2 border-black/20 h-full min-h-0 flex flex-col overflow-hidden animate-fade-in shadow-[0_12px_40px_rgba(0,0,0,1)] relative"
                       style={{ backgroundColor: "#f5b800" }}
@@ -1028,9 +1028,15 @@ const BlindSpotSimulator = () => {
                         </p>
                       </div>
                     </div>
+                  ) : (
+                    <ImplicationsPanel
+                      aiOutputs={aiOutputs}
+                      phaseIndex={phase.index}
+                    />
                   )}
 
                 </div>
+
 
 
 
