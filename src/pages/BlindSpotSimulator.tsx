@@ -454,7 +454,7 @@ const BlindSpotSimulator = () => {
         <title>Blind Spot — OT Cyber Crisis Simulation</title>
         <meta
           name="description"
-          content="Single-player OT cyber crisis tabletop exercise. Play one role, AI plays the rest. Scenario: APT via compromised vendor VPN at netsecure.no."
+          content="Single-player OT cyber crisis tabletop exercise. Play one role, AI plays the rest. Scenario: APT via compromised vendor VPN at NorPower."
         />
       </Helmet>
 
@@ -469,7 +469,7 @@ const BlindSpotSimulator = () => {
         {screen.kind === "welcome" && (
           <div className="min-h-[70vh] flex flex-col justify-center items-center text-center">
             <p className="font-mono text-[#f5b800] tracking-[0.3em] text-sm mb-6">
-              NETSECURE<span className="text-white/40">.NO</span>
+              NORPOWER
             </p>
             <h1 className="font-mono text-4xl md:text-6xl font-bold mb-4 tracking-tight">
               BLIND SPOT
@@ -481,7 +481,7 @@ const BlindSpotSimulator = () => {
               <p>
                 A single-player tabletop exercise. You pick one of four crisis-team roles.
                 An AI plays the other three in real time. You face four phases of an APT
-                intrusion via a compromised vendor VPN at netsecure.no in Oslo.
+                intrusion via a compromised vendor VPN at NorPower in Oslo.
               </p>
               <p className="text-white/60 text-sm">
                 Estimated time: ~45 minutes. No login. Ephemeral session.
@@ -551,7 +551,7 @@ const BlindSpotSimulator = () => {
               <p className="font-mono text-xs text-[#f5b800] uppercase tracking-wider mb-2">
                 Scenario briefing
               </p>
-              <h2 className="font-mono text-2xl">netsecure.no — Oslo · ~200 staff</h2>
+              <h2 className="font-mono text-2xl">NorPower — Oslo · ~200 staff</h2>
               <p className="text-white/70 text-sm mt-1">
                 IT/OT security services provider with in-house SOC, OT-Ops and IR team.
               </p>

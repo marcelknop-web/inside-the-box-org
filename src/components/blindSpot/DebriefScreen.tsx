@@ -182,7 +182,7 @@ export const DebriefScreen = ({
               className="font-mono mt-3"
               style={{ color: "#9ca3af", fontSize: "13px" }}
             >
-              netsecure.no · {dateStr} · Role played:{" "}
+              NorPower · {dateStr} · Role played:{" "}
               <span style={{ color: "#f5b800" }}>{userRoleName}</span>
             </p>
           </div>
