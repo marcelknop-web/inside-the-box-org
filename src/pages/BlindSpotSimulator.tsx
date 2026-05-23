@@ -93,6 +93,10 @@ const BlindSpotSimulator = () => {
     Array<{ card: AlertCard; time: string; source: string }>
   >([]);
 
+  // Sequential reveal of the decision panel within an inject phase
+  // 0 = nothing, 1 = situation visible (immediate), 2 = decision Q, 3 = compliance refs, 4 = submit area
+  const [revealStep, setRevealStep] = useState(0);
+
   const DECISION_OPTIONS: Record<number, { yes: string; no: string; conditional: string }> = {
     1: {
       yes: "Terminate session and revoke vendor access",
