@@ -16,6 +16,12 @@ import {
 import { PhaseProgress } from "@/components/blindSpot/PhaseProgress";
 import { CommsFeed, CommsFeedHandle } from "@/components/blindSpot/CommsFeed";
 import { DecisionModal, DecisionChoice } from "@/components/blindSpot/DecisionModal";
+import { GameOverOverlay } from "@/components/blindSpot/GameOverOverlay";
+import {
+  PhaseScoreBreakdown,
+  scorePhase,
+  totalScore,
+} from "@/utils/blindSpotScoring";
 
 
 type Screen =
