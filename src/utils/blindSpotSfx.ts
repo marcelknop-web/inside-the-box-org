@@ -18,6 +18,20 @@ let ambient: {
   lfoGain: GainNode;
 } | null = null;
 
+// Industrial bed (server-room HVAC + motor hum + intermittent plant events).
+// Sits underneath the SOC ambient bed without muddying it.
+let industrial: {
+  starts: OscillatorNode[];
+  loopSrcs: AudioBufferSourceNode[];
+  gain: GainNode;
+  motorGain: GainNode;
+  hvacGain: GainNode;
+  sirenGain: GainNode;
+  schedTimer: number | null;
+  sirenTimer: number | null;
+  level: 1 | 2 | 3 | 4;
+} | null = null;
+
 const ensure = (): AudioContext | null => {
   if (typeof window === "undefined") return null;
   if (ctx) return ctx;
