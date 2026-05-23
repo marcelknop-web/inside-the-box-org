@@ -2,6 +2,7 @@ import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState }
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { sfx } from "@/utils/blindSpotSfx";
 
 export interface CommsFeedHandle {
   appendAssistant: (role: Exclude<CommsRole, "YOU">, body: string) => void;
@@ -352,6 +353,7 @@ export const CommsFeed = forwardRef<CommsFeedHandle, Props>(function CommsFeed(
         timers.push(
           window.setTimeout(() => {
             const time = stepTime(base, item.offset);
+            sfx.systemAlert();
             onSystemAlert?.({ card: item.card, time, source: String(item.source) });
             if (!hideSystemMessages) {
               setMessages((m) => [
@@ -371,11 +373,15 @@ export const CommsFeed = forwardRef<CommsFeedHandle, Props>(function CommsFeed(
       } else {
         const typingAt = fireDelay;
         const messageAt = fireDelay + 1800;
-        timers.push(window.setTimeout(() => setTypingRole(item.role), typingAt));
+        timers.push(window.setTimeout(() => {
+          sfx.typing();
+          setTypingRole(item.role);
+        }, typingAt));
         timers.push(
           window.setTimeout(async () => {
             const text = await fetchAiMessage(item.role, item.prompt, []);
             setTypingRole(null);
+            sfx.chatIncoming();
             setMessages((m) => [
               ...m,
               {
@@ -513,6 +519,7 @@ export const CommsFeed = forwardRef<CommsFeedHandle, Props>(function CommsFeed(
     if (!text || sending) return;
     setSending(true);
     setInput("");
+    sfx.userSend();
     const offset = Math.max(1, messages.length * 2);
     setMessages((m) => [
       ...m,
@@ -531,7 +538,10 @@ export const CommsFeed = forwardRef<CommsFeedHandle, Props>(function CommsFeed(
     });
 
     const responder = pickResponder(text);
-    setTimeout(() => setTypingRole(responder), 400);
+    setTimeout(() => {
+      sfx.typing();
+      setTypingRole(responder);
+    }, 400);
 
     const reply = await fetchAiMessage(
       responder,
@@ -540,6 +550,7 @@ export const CommsFeed = forwardRef<CommsFeedHandle, Props>(function CommsFeed(
     );
     setTimeout(() => {
       setTypingRole(null);
+      sfx.chatIncoming();
       setMessages((m) => [
         ...m,
         {

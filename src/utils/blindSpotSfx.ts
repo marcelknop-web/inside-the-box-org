@@ -48,4 +48,24 @@ export const sfx = {
     beep(440, 0.1, "triangle", 0.05);
     beep(330, 0.18, "triangle", 0.05, 0.08);
   },
+  // Subtle "pop" when an AI chat message lands — draws the eye to the chat panel.
+  chatIncoming: () => {
+    beep(620, 0.05, "sine", 0.035);
+    beep(820, 0.07, "sine", 0.03, 0.04);
+  },
+  // Very short tick when a teammate starts typing.
+  typing: () => {
+    beep(1200, 0.03, "sine", 0.02);
+  },
+  // Short confirm when the user sends their own message.
+  userSend: () => {
+    beep(540, 0.06, "triangle", 0.04);
+    beep(720, 0.08, "triangle", 0.035, 0.05);
+  },
+  // Heavier "klaxon" for a new system alert card on the left panel.
+  systemAlert: () => {
+    beep(540, 0.09, "sawtooth", 0.05);
+    beep(380, 0.14, "sawtooth", 0.05, 0.1);
+    beep(540, 0.09, "sawtooth", 0.04, 0.24);
+  },
 };
