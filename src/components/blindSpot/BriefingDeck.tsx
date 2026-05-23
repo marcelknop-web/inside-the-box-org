@@ -583,20 +583,34 @@ const CockpitTour = () => {
 /* ---------- Annotation primitives ---------- */
 
 const Annotated = ({
-  n, side = "left", children,
-}: { n: number; side?: "left" | "right"; children: ReactNode }) => (
+  n, side = "left", active, children,
+}: { n: number; side?: "left" | "right"; active: boolean; children: ReactNode }) => (
   <div className="relative">
-    <div className={`absolute -top-2 ${side === "left" ? "-left-2" : "-right-2"} z-20`}>
-      <CallOut n={n} />
+    <div
+      className={`absolute -top-2 z-20 transition-all duration-300 ${
+        side === "left" ? "-left-2" : "-right-2"
+      } ${active ? "opacity-100 scale-100" : "opacity-0 scale-75"}`}
+    >
+      <CallOut n={n} active={active} />
     </div>
-    <div className="rounded-lg ring-1 ring-[#f5b800]/15 hover:ring-[#f5b800]/30 transition-shadow">
+    <div
+      className={`rounded-lg transition-all duration-300 ${
+        active ? "ring-1 ring-[#f5b800]/40 shadow-[0_0_20px_rgba(245,184,0,0.08)]" : "ring-1 ring-white/5"
+      }`}
+    >
       {children}
     </div>
   </div>
 );
 
-const CallOut = ({ n }: { n: number }) => (
-  <span className="inline-flex shrink-0 items-center justify-center w-7 h-7 rounded-full border border-[#f5b800] bg-[#0e0e10] text-[#f5b800] font-mono text-xs font-bold shadow-[0_0_12px_rgba(245,184,0,0.45)]">
+const CallOut = ({ n, active }: { n: number; active?: boolean }) => (
+  <span
+    className={`inline-flex shrink-0 items-center justify-center w-7 h-7 rounded-full border font-mono text-xs font-bold transition-all duration-300 ${
+      active
+        ? "border-[#f5b800] bg-[#0e0e10] text-[#f5b800] shadow-[0_0_16px_rgba(245,184,0,0.55)]"
+        : "border-white/15 bg-[#0e0e10] text-white/30 shadow-none"
+    }`}
+  >
     {n}
   </span>
 );
