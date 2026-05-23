@@ -865,7 +865,24 @@ const BlindSpotSimulator = () => {
           </div>
         )}
       </main>
+
+      {userRole && screen.kind === "inject" && (() => {
+        const phase = PHASES[screen.phaseIdx];
+        return (
+          <DecisionModal
+            open={modalOpen}
+            isUserIC={isUserIC}
+            question={phase.decisionQuestion}
+            options={DECISION_OPTIONS[phase.index]}
+            iec62443Ref={phase.iec62443Ref}
+            nis2Flag={phase.nis2Flag}
+            onCommitUser={handleUserCommit}
+            onAiIcAuto={handleAiIcAuto}
+          />
+        );
+      })()}
     </div>
+
   );
 };
 
