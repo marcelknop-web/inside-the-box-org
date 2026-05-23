@@ -44,6 +44,7 @@ interface Props {
   onLatestByRole: (latest: Record<string, string>) => void;
   onLastUserMessage: (text: string) => void;
   onSequenceComplete?: () => void;
+  onScriptedDone?: () => void;
   onUserMessageCount?: (count: number) => void;
   onSystemAlert?: (alert: { card: AlertCard; time: string; source: string }) => void;
   hideSystemMessages?: boolean;
@@ -270,6 +271,7 @@ export const CommsFeed = forwardRef<CommsFeedHandle, Props>(function CommsFeed(
     onLatestByRole,
     onLastUserMessage,
     onSequenceComplete,
+    onScriptedDone,
     onUserMessageCount,
     onSystemAlert,
     hideSystemMessages,
@@ -374,6 +376,12 @@ export const CommsFeed = forwardRef<CommsFeedHandle, Props>(function CommsFeed(
     return () => timers.forEach((t) => window.clearTimeout(t));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phaseIndex]);
+
+  /* ---- Fire onScriptedDone as soon as scripted sequence finishes ---- */
+  useEffect(() => {
+    if (scriptedDone) onScriptedDone?.();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scriptedDone, phaseIndex]);
 
   /* ---- Gate: fire onSequenceComplete only when scripted done AND user sent ≥1 msg ---- */
   useEffect(() => {
