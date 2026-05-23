@@ -74,6 +74,7 @@ const BlindSpotSimulator = () => {
   // Decision modal state
   const feedRef = useRef<CommsFeedHandle>(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [phaseUserMsgCount, setPhaseUserMsgCount] = useState(0);
   const modalFiredRef = useRef<number | null>(null);
 
   const DECISION_OPTIONS: Record<number, { yes: string; no: string; conditional: string }> = {
@@ -114,6 +115,7 @@ const BlindSpotSimulator = () => {
     setDecisionReasoning("");
     setAiIcDecision("");
     setPushbackUsed(false);
+    setPhaseUserMsgCount(0);
   };
 
   const appendHistory = (aiRole: string, entries: Array<{ role: "user" | "assistant"; content: string }>) => {
@@ -319,10 +321,15 @@ const BlindSpotSimulator = () => {
     advanceAfterCommit(phaseIdx, record);
   };
 
-  const handleAiIcAuto = async () => {
+  const handleAiIcAuto = async (
+    recommendation?: { stance: "YES" | "NO" | "CONDITIONAL"; reasoning: string },
+  ) => {
     if (!("phaseIdx" in screen) || !userRole) return;
     const phaseIdx = screen.phaseIdx;
     const phase = PHASES[phaseIdx];
+    const recBlock = recommendation
+      ? `\n\nDirect recommendation from ${userRole.name}: RECOMMEND ${recommendation.stance} — "${recommendation.reasoning}". Weigh this seriously; you may follow or override, but must address it in your reasoning.`
+      : "";
     try {
       const { data, error } = await supabase.functions.invoke("blind-spot-chat", {
         body: {
@@ -336,7 +343,7 @@ const BlindSpotSimulator = () => {
             aiOutputs,
           )
             .map(([r, t]) => `${r}: ${t}`)
-            .join(" | ")}`,
+            .join(" | ")}${recBlock}`,
           history: history["Incident Commander"] ?? [],
         },
       });
@@ -346,12 +353,15 @@ const BlindSpotSimulator = () => {
       const opts = DECISION_OPTIONS[phase.index];
       const optionLabel =
         choice === "YES" ? opts.yes : choice === "NO" ? opts.no : opts.conditional;
+      const recPrefix = recommendation
+        ? `[${userRole.name} recommended ${recommendation.stance}: "${recommendation.reasoning}"]\n\n`
+        : "";
       const record: DecisionRecord = {
         phase: phase.name,
         timestamp: phase.timestamp,
         question: phase.decisionQuestion,
         choice,
-        reasoning: text,
+        reasoning: recPrefix + text,
         icBy: "ai",
         iec62443Ref: phase.iec62443Ref,
         nis2Flag: phase.nis2Flag,
@@ -636,13 +646,19 @@ const BlindSpotSimulator = () => {
                     placeholder="Optional — private notes that feed the IC decision context."
                     className="min-h-[120px] bg-background/60 border-white/10 font-mono text-sm flex-1"
                   />
-                  <div className="flex justify-end mt-3">
+                  <div className="flex flex-col items-end gap-1.5 mt-3">
                     <Button
                       onClick={() => triggerModalForPhase(screen.phaseIdx)}
-                      className="bg-[#f5b800] text-black hover:bg-[#f5b800]/90 font-mono uppercase tracking-wider"
+                      disabled={phaseUserMsgCount < 1}
+                      className="bg-[#f5b800] text-black hover:bg-[#f5b800]/90 font-mono uppercase tracking-wider disabled:opacity-40"
                     >
                       Open IC decision →
                     </Button>
+                    {phaseUserMsgCount < 1 && (
+                      <p className="font-mono text-[10px] text-white/50">
+                        Send at least one message in the comms feed to engage IC.
+                      </p>
+                    )}
                   </div>
                 </div>
 
@@ -657,6 +673,7 @@ const BlindSpotSimulator = () => {
                   onLastUserMessage={(text) => {
                     if (text && !userAssessment) setUserAssessment(text);
                   }}
+                  onUserMessageCount={(n) => setPhaseUserMsgCount(n)}
                   onSequenceComplete={() => triggerModalForPhase(screen.phaseIdx)}
                 />
 
