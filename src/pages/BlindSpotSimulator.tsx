@@ -710,7 +710,9 @@ const BlindSpotSimulator = () => {
                     alerts={evidence}
                   />
 
-                  {/* Decision panel — appears only when IC needs input */}
+                  {/* Brief panel — appears only when IC needs input from this role.
+                      All communication happens in the team chat. This box only
+                      informs the player what is expected of them in the chat. */}
                   {decisionReady && (
                     <div
                       className="rounded-lg border h-full min-h-0 flex flex-col overflow-hidden animate-fade-in"
@@ -721,17 +723,22 @@ const BlindSpotSimulator = () => {
                         style={{ borderColor: "#2a2a2a" }}
                       >
                         <span className="font-mono text-[11px] text-[#f5b800] uppercase tracking-wider">
-                          {isUserIC ? "Your decision call" : "Pending IC decision"}
+                          Your input required
                         </span>
-                        <span className="font-mono text-[10px] text-white/40">
-                          Msgs sent: {phaseUserMsgCount}
+                        <span className="font-mono text-[10px] text-white/40 animate-pulse">
+                          ● live
                         </span>
                       </div>
 
                       <div className="flex-1 overflow-y-auto p-3 space-y-3 min-h-0">
+                        <p className="font-mono text-[10px] text-white/50 uppercase tracking-wider">
+                          {isUserIC
+                            ? "The team is waiting for your call. Post it in the team chat →"
+                            : `IC is waiting for ${userRole.name}'s recommendation. Reply in the team chat →`}
+                        </p>
                         <div className="rounded-md border-2 border-[#f5b800]/50 bg-[#f5b800]/5 p-3">
                           <p className="font-mono text-[10px] text-[#f5b800] uppercase tracking-wider mb-1.5">
-                            Decision question
+                            {isUserIC ? "Decision to call" : "Question on the table"}
                           </p>
                           <p className="text-[13px] text-white/90 leading-relaxed">
                             {phase.decisionQuestion}
@@ -747,25 +754,14 @@ const BlindSpotSimulator = () => {
                             </div>
                           )}
                         </div>
-                      </div>
-
-                      <div className="border-t p-3 space-y-2 shrink-0" style={{ borderColor: "#2a2a2a" }}>
-                        <Button
-                          onClick={() => triggerModalForPhase(screen.phaseIdx)}
-                          disabled={phaseUserMsgCount < 1}
-                          className="w-full bg-[#f5b800] text-black hover:bg-[#f5b800]/90 font-mono uppercase tracking-wider text-xs disabled:opacity-40"
-                        >
-                          {isUserIC ? "Open IC decision →" : "Submit recommendation →"}
-                        </Button>
-                        {phaseUserMsgCount < 1 && (
-                          <p className="font-mono text-[10px] text-white/50 text-center">
-                            Send at least one message in the team chat to engage IC.
-                          </p>
-                        )}
+                        <p className="font-mono text-[10px] text-white/40 italic">
+                          Type your stance in the chat. The decision dialog opens automatically once you send.
+                        </p>
                       </div>
                     </div>
                   )}
                 </div>
+
 
 
 
