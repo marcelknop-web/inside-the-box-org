@@ -713,7 +713,7 @@ const BlindSpotSimulator = () => {
                       style={{ borderColor: "#2a2a2a" }}
                     >
                       <span className="font-mono text-[11px] text-[#f5b800] uppercase tracking-wider">
-                        {isUserIC ? "Your decision call" : "Pending IC decision"} · Notes
+                        {isUserIC ? "Your decision call" : "Pending IC decision"}
                       </span>
                       <span className="font-mono text-[10px] text-white/40">
                         Msgs sent: {phaseUserMsgCount}
@@ -738,18 +738,6 @@ const BlindSpotSimulator = () => {
                             <span className="text-red-300">NIS-2:</span> {phase.nis2Flag}
                           </div>
                         )}
-                      </div>
-
-                      <div>
-                        <p className="font-mono text-[10px] text-white/50 uppercase tracking-wider mb-1.5">
-                          Private notes · {userRole.name}
-                        </p>
-                        <Textarea
-                          value={userAssessment}
-                          onChange={(e) => setUserAssessment(e.target.value)}
-                          placeholder="Optional — private notes that feed the IC decision context."
-                          className="min-h-[110px] bg-background/60 border-white/10 font-mono text-sm resize-none"
-                        />
                       </div>
                     </div>
 
