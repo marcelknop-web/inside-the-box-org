@@ -88,6 +88,11 @@ const BlindSpotSimulator = () => {
   const [phaseUserMsgCount, setPhaseUserMsgCount] = useState(0);
   const modalFiredRef = useRef<number | null>(null);
 
+  // Evidence panel — system alerts mirrored from CommsFeed
+  const [evidence, setEvidence] = useState<
+    Array<{ card: AlertCard; time: string; source: string }>
+  >([]);
+
   const DECISION_OPTIONS: Record<number, { yes: string; no: string; conditional: string }> = {
     1: {
       yes: "Terminate session and revoke vendor access",
