@@ -24,6 +24,8 @@ export interface AlertCard {
   title: string;
   rows: Array<[string, string]>;
   body?: string;
+  /** Optional original log line(s) — shown verbatim below the parsed card. */
+  rawLog?: string;
 }
 
 interface FeedMessage {
@@ -102,6 +104,13 @@ const SPLUNK_CARD: AlertCard = {
     ["Dest", "10.10.20.30"],
     ["Time", "22:47:31"],
   ],
+  rawLog:
+    `2026-05-23T22:47:31.482Z host=splunk-idx01 source="WinEventLog:Security" sourcetype=XmlWinEventLog
+EventCode=4624  LogonType=3  TargetUserName="svc_backup"  TargetDomainName="NORPOWER"
+IpAddress=10.10.20.50  IpPort=49872  WorkstationName="JUMP-DMZ-01"
+ProcessName="C:\\\\Windows\\\\System32\\\\lsass.exe"  AuthenticationPackageName=NTLM
+[correlation_rule="lateral_movement_v3"  risk_score=78  notable=true]
+-> 10.10.20.30  (SRV-FILE01)  share=ADMIN$  status=0x0`,
 };
 
 const CLAROTY_CARD: AlertCard = {
@@ -113,6 +122,12 @@ const CLAROTY_CARD: AlertCard = {
     ["Protocol", "S7comm"],
     ["Severity", "CRITICAL"],
   ],
+  rawLog:
+    `2026-05-23T23:32:10.117Z claroty-ctd  alert_id=CTD-44192  severity=CRITICAL
+asset="PLC-01"  ip=10.10.30.11  vendor=Siemens  model=S7-1500  zone=OT-SIM
+event="Unauthorised config write"  protocol=S7comm  function=PLC_WRITE(0x05)
+src=10.10.20.50  src_zone=DMZ  dst=10.10.30.11  bytes=438
+baseline_violation=true  policy="OT_WRITE_DENY"  ack=false`,
 };
 
 const SIS_CARD: AlertCard = {
@@ -124,6 +139,12 @@ const SIS_CARD: AlertCard = {
     ["Protocol", "Safety bus"],
     ["Severity", "CRITICAL"],
   ],
+  rawLog:
+    `2026-05-24T00:17:04.903Z claroty-ctd  alert_id=CTD-44260  severity=CRITICAL
+asset="SIS-01"  ip=10.10.30.99  vendor=HIMA  model=HIMax  zone=SIS (air-gapped)
+event="SIS pre-alarm — emergency shutdown initiated"  protocol="Safety bus (proprietary)"
+trigger="process_temp>limit"  setpoint=88C  measured=94.2C  duration=12s
+action=ESD_STAGE_1  operator_ack=pending`,
 };
 
 const RANSOM_CARD: AlertCard = {
@@ -697,6 +718,29 @@ const AlertCardView = ({ card }: { card: AlertCard }) => {
             </div>
           ))}
         </div>
+      )}
+
+      {card.rawLog && <RawLogBlock log={card.rawLog} />}
+    </div>
+  );
+};
+
+const RawLogBlock = ({ log }: { log: string }) => {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="mt-3 border-t border-white/10 pt-2">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className="font-mono text-[10px] uppercase tracking-wider text-white/45 hover:text-[#f5b800] transition-colors flex items-center gap-1.5"
+      >
+        <span>{open ? "▾" : "▸"}</span>
+        <span>Raw log</span>
+      </button>
+      {open && (
+        <pre className="mt-2 rounded-sm border border-white/10 bg-black/60 p-2 font-mono text-[10.5px] leading-relaxed text-emerald-200/85 whitespace-pre-wrap break-all overflow-x-auto">
+          {log}
+        </pre>
       )}
     </div>
   );
