@@ -413,7 +413,13 @@ const BlindSpotSimulator = () => {
         nis2Flag: phase.nis2Flag,
       };
       postCommitFeedMessages(phaseIdx, choice, optionLabel, "ai");
-      advanceAfterCommit(phaseIdx, record);
+      advanceAfterCommit(phaseIdx, record, {
+        isUserIC: false,
+        userStance: recommendation?.stance ?? null,
+        userReasoning: recommendation?.reasoning ?? "",
+        remainingSecs: recommendation?.remainingSecs ?? 0,
+        pushbackUsed,
+      });
     } catch (e) {
       toast({
         title: "AI IC unavailable",
