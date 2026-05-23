@@ -304,8 +304,11 @@ export const CommsFeed = forwardRef<CommsFeedHandle, Props>(function CommsFeed(
   const [typingRole, setTypingRole] = useState<CommsRole | null>(null);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
-  const [userMsgCount, setUserMsgCount] = useState(0);
-  const [scriptedDone, setScriptedDone] = useState(false);
+  // Tag both pieces of progress state with the phase they belong to.
+  // Without this, a stale "scriptedDone=true / userMsgCount>=1" from the
+  // previous phase fires the gate immediately on the new phase mount.
+  const [userMsgs, setUserMsgs] = useState<{ phase: number; count: number }>({ phase: phaseIndex, count: 0 });
+  const [scriptedDonePhase, setScriptedDonePhase] = useState<number | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const seqStartedRef = useRef<number | null>(null);
   const completeFiredRef = useRef<number | null>(null);
