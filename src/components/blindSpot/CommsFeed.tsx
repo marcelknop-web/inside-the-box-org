@@ -719,6 +719,29 @@ const AlertCardView = ({ card }: { card: AlertCard }) => {
           ))}
         </div>
       )}
+
+      {card.rawLog && <RawLogBlock log={card.rawLog} />}
+    </div>
+  );
+};
+
+const RawLogBlock = ({ log }: { log: string }) => {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="mt-3 border-t border-white/10 pt-2">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className="font-mono text-[10px] uppercase tracking-wider text-white/45 hover:text-[#f5b800] transition-colors flex items-center gap-1.5"
+      >
+        <span>{open ? "▾" : "▸"}</span>
+        <span>Raw log</span>
+      </button>
+      {open && (
+        <pre className="mt-2 rounded-sm border border-white/10 bg-black/60 p-2 font-mono text-[10.5px] leading-relaxed text-emerald-200/85 whitespace-pre-wrap break-all overflow-x-auto">
+          {log}
+        </pre>
+      )}
     </div>
   );
 };
