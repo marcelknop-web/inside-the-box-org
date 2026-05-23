@@ -110,7 +110,15 @@ export const DebriefScreen = ({
   loading,
   onRestart,
 }: Props) => {
-  const dateStr = useMemo(() => new Date().toLocaleDateString(), []);
+  const dateStr = useMemo(
+    () =>
+      new Date().toLocaleDateString("en-GB", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      }),
+    [],
+  );
 
   const counts = useMemo(() => {
     const c = { met: 0, at_risk: 0, missed: 0 };
