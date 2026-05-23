@@ -539,7 +539,7 @@ export const CommsFeed = forwardRef<CommsFeedHandle, Props>(function CommsFeed(
           situation,
           userInput: explicitInstruction,
           history: [...recent, ...extraHistory],
-          systemPromptOverride: COMMS_SYSTEM_PROMPT(aiRole, phaseName, phaseTimestamp),
+          systemPromptOverride: COMMS_SYSTEM_PROMPT(aiRole, phaseName, phaseTimestamp, userRoleName),
         },
       });
       if (error) throw error;
