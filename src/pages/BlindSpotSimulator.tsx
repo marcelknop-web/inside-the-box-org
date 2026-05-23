@@ -429,32 +429,7 @@ const BlindSpotSimulator = () => {
 
 
 
-  const pushBackOnIC = async (phaseIdx: number) => {
-    if (pushbackUsed || !userRole) return;
-    setPushbackUsed(true);
-    setAiIcLoading(true);
-    try {
-      const phase = PHASES[phaseIdx];
-      const { data, error } = await supabase.functions.invoke("blind-spot-chat", {
-        body: {
-          mode: "ic-decision",
-          aiRole: "Incident Commander",
-          userRole: userRole.name,
-          phaseName: phase.name,
-          phaseTimestamp: phase.timestamp,
-          situation: phase.situation,
-          userInput: `${userRole.name} pushed back on your previous decision. Reconsider in 3-5 sentences. You may reaffirm or adjust. Start again with "DECISION: YES/NO/CONDITIONAL".\n\nYour previous decision: ${aiIcDecision}\n\nPushback context: ${userRole.name} disagrees and wants you to revisit.`,
-          history: history["Incident Commander"] ?? [],
-        },
-      });
-      if (error) throw error;
-      setAiIcDecision(data.text as string);
-    } catch (e) {
-      toast({ title: "Pushback failed", description: e instanceof Error ? e.message : "Unknown", variant: "destructive" });
-    } finally {
-      setAiIcLoading(false);
-    }
-  };
+
 
   const runDebrief = async (finalDecisions: DecisionRecord[]) => {
     setDebriefLoading(true);
