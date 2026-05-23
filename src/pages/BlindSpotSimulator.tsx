@@ -298,7 +298,7 @@ const BlindSpotSimulator = () => {
     setPhaseScores(nextScores);
 
     const next = phaseIdx + 1;
-    setModalOpen(false);
+    // (no modal to close)
     window.setTimeout(() => {
       if (next >= PHASES.length) {
         runDebrief(updated);
