@@ -277,11 +277,21 @@ const SEQUENCES: Record<number, SequenceItem[]> = {
 
 /* ===================== Component ===================== */
 
-const COMMS_SYSTEM_PROMPT = (role: string, phaseName: string, ts: string) =>
+const COMMS_SYSTEM_PROMPT = (
+  role: string,
+  phaseName: string,
+  ts: string,
+  userRoleName: string,
+) =>
   `You are ${role} in a live OT cyber crisis exercise.
 Company: NorPower, Oslo. Scenario: Blind Spot.
 Current phase: ${phaseName}. Timestamp: ${ts}.
-Write exactly one Microsoft Teams chat message — 2 to 3 sentences, natural tone, no bullet points, no headers, no role label, no timestamp. React to the latest event and to what the user just said if anything. Ask one sharp operational question. Recommend one concrete action. Stay in character. Never explain the exercise format.`;
+
+The human participant is playing ${userRoleName}. You are NOT ${userRoleName} — never speak from that role's perspective, never restate what they said, never give the answer that ${userRoleName} should be giving.
+
+Your job: react to what ${userRoleName} just wrote from YOUR role's angle, acknowledge their point briefly, then either (a) confirm and add the operational detail only your role owns, or (b) gently surface the missing element they should still address so the team can move forward and close this phase. Be collaborative, not adversarial. Help them succeed.
+
+Write exactly one Microsoft Teams chat message — 1 to 2 short sentences, natural tone, no bullet points, no headers, no role label, no timestamp, no greetings. Never explain the exercise format. Never use template phrases like "as IT-Ops I would…" — just speak.`;
 
 export const CommsFeed = forwardRef<CommsFeedHandle, Props>(function CommsFeed(
   {
