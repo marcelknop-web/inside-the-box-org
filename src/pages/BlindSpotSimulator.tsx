@@ -645,17 +645,52 @@ const BlindSpotSimulator = () => {
           <div className="space-y-6">
             <header>
               <p className="font-mono text-xs text-[#f5b800] uppercase tracking-wider mb-2">
-                Scenario briefing
+                Pre-exercise briefing
               </p>
-              <h2 className="font-mono text-2xl">NorPower — Oslo · ~200 staff</h2>
-              <p className="text-white/70 text-sm mt-1">
-                IT/OT security services provider with in-house SOC, OT-Ops and IR team.
+              <h2 className="font-mono text-2xl">Welcome aboard, {userRole.name}.</h2>
+              <p className="text-white/70 text-sm mt-2 leading-relaxed">
+                Take 60 seconds to read this. You'll be dropped into a live OT crisis right after.
+                Everything below is the context you would already have on day one of the job.
               </p>
             </header>
 
             <div className="rounded-lg border border-white/10 bg-background/40 p-5">
               <h3 className="font-mono text-sm uppercase tracking-wider text-[#f5b800] mb-3">
-                Network zones
+                1 · The company — NorPower AS
+              </h3>
+              <div className="grid sm:grid-cols-2 gap-x-6 gap-y-2 text-sm text-white/85 font-mono">
+                <div><span className="text-white/50">Sector:</span> Energy utility (regional grid + small generation)</div>
+                <div><span className="text-white/50">HQ:</span> Oslo, Norway</div>
+                <div><span className="text-white/50">Staff:</span> ~200 (40 in OT/engineering)</div>
+                <div><span className="text-white/50">Regulation:</span> NIS-2 essential entity, NSM oversight</div>
+                <div><span className="text-white/50">Clients:</span> Municipal utilities, industrial customers</div>
+                <div><span className="text-white/50">Posture:</span> ISO 27001 certified, IEC 62443 in rollout</div>
+              </div>
+              <p className="text-white/70 text-sm mt-3 leading-relaxed">
+                NorPower runs its own SOC (3 analysts, 24/7 on-call), an OT-Ops team that owns the
+                plant floor, and a small IR cell. A third-party PLC integrator has remote access
+                for vendor maintenance — a known but tolerated risk.
+              </p>
+            </div>
+
+            <div className="rounded-lg border border-white/10 bg-background/40 p-5">
+              <h3 className="font-mono text-sm uppercase tracking-wider text-[#f5b800] mb-3">
+                2 · Environment & key systems
+              </h3>
+              <ul className="text-sm text-white/85 space-y-1.5 font-mono">
+                <li><span className="text-[#f5b800]">SIEM:</span> Splunk Enterprise — feeds EDR, firewall, AD, VPN, OT historian.</li>
+                <li><span className="text-[#f5b800]">OT monitoring:</span> Claroty CTD — passive monitoring of OT Sim Network + SIS.</li>
+                <li><span className="text-[#f5b800]">PLCs:</span> Siemens S7-1500 on the client simulation line.</li>
+                <li><span className="text-[#f5b800]">SIS:</span> Air-gapped safety PLC (10.10.30.99) — last line of defence.</li>
+                <li><span className="text-[#f5b800]">Historian:</span> OSIsoft PI server in OT zone.</li>
+                <li><span className="text-[#f5b800]">Remote access:</span> Vendor VPN via Jump Host (10.10.20.50) in IT/OT DMZ.</li>
+                <li><span className="text-[#f5b800]">Backups:</span> Immutable, offline copies — last validated 6 days ago.</li>
+              </ul>
+            </div>
+
+            <div className="rounded-lg border border-white/10 bg-background/40 p-5">
+              <h3 className="font-mono text-sm uppercase tracking-wider text-[#f5b800] mb-3">
+                3 · Network zones (Purdue-aligned)
               </h3>
               <table className="w-full font-mono text-sm">
                 <thead className="text-white/50 text-xs uppercase">
@@ -675,28 +710,44 @@ const BlindSpotSimulator = () => {
                   ))}
                 </tbody>
               </table>
+              <p className="text-white/60 text-xs mt-3 leading-relaxed">
+                Conduits between zones are firewalled. Corporate IT ↔ DMZ is fully inspected.
+                DMZ ↔ OT is restricted to whitelisted protocols (OPC UA, historian sync). SIS is
+                air-gapped — no IP path from any other zone.
+              </p>
             </div>
 
             <div className="rounded-lg border border-amber-400/40 bg-amber-400/5 p-5">
               <p className="font-mono text-xs text-amber-300 uppercase tracking-wider mb-2">
-                Initial SIEM alert · {INITIAL_ALERT.source} · {INITIAL_ALERT.severity}
+                4 · The situation — Initial SIEM alert · {INITIAL_ALERT.source} · {INITIAL_ALERT.severity}
               </p>
               <p className="font-mono text-xs text-white/50 mb-2">{INITIAL_ALERT.timestamp}</p>
-              <p className="text-white/85">{INITIAL_ALERT.detail}</p>
+              <p className="text-white/85 leading-relaxed">{INITIAL_ALERT.detail}</p>
+              <p className="text-white/70 text-sm mt-3 leading-relaxed">
+                It's 23:47. Most of the office is dark. The SOC analyst on shift escalated to the
+                on-call bridge. You and the rest of the response team have just joined the call.
+              </p>
             </div>
 
             <div className="rounded-lg border border-white/10 bg-background/40 p-5">
-              <p className="font-mono text-xs text-white/50 uppercase mb-2">Roles played by the AI</p>
-              <p className="font-mono text-sm">
-                {aiRoleNames.join(" · ")}
+              <h3 className="font-mono text-sm uppercase tracking-wider text-[#f5b800] mb-3">
+                5 · Who's on the bridge
+              </h3>
+              <p className="font-mono text-xs text-white/50 mb-1">You play</p>
+              <p className="font-mono text-sm text-[#f5b800] mb-1">{userRole.name}</p>
+              <p className="text-white/70 text-sm mb-3 leading-relaxed">{userRole.description}</p>
+              <p className="font-mono text-xs text-white/50 mb-1">AI teammates</p>
+              <p className="font-mono text-sm text-white/85">{aiRoleNames.join(" · ")}</p>
+              <p className="text-white/60 text-xs mt-3 leading-relaxed">
+                All communication happens in the team chat. The IC drives decisions; everyone else
+                feeds intel, raises concerns, recommends actions. Four phases. NIS-2 clock starts
+                ticking at Phase 2.
               </p>
-              <p className="font-mono text-xs text-white/50 mt-3">You play</p>
-              <p className="font-mono text-sm text-[#f5b800]">{userRole.name}</p>
             </div>
 
             <div className="flex justify-end">
               <Button onClick={() => beginPhase(0)} className="bg-[#f5b800] text-black hover:bg-[#f5b800]/90 font-mono uppercase tracking-wider">
-                Phase 1 begins →
+                I'm ready — Phase 1 begins →
               </Button>
             </div>
           </div>
