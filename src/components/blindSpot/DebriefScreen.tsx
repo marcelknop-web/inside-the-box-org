@@ -82,10 +82,10 @@ const ALERTS: AlertPoint[] = [
 ];
 
 const sevColor = (s: AlertPoint["severity"]) =>
-  s === "CRIT" ? "#ef4444" : s === "HIGH" ? "#f59e0b" : s === "MED" ? "#facc15" : "#9ca3af";
+  s === "CRIT" ? "#ef4444" : s === "HIGH" ? "#F5A623" : s === "MED" ? "#eab308" : "#6b7280";
 
 const choiceColor = (c: DebriefDecision["choice"]) =>
-  c === "YES" ? "#10b981" : c === "NO" ? "#ef4444" : "#f59e0b";
+  c === "YES" ? "#22c55e" : c === "NO" ? "#ef4444" : "#F5A623";
 
 const nis2Pill = (s: "met" | "at_risk" | "missed") => {
   if (s === "met")
