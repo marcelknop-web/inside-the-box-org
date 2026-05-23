@@ -60,6 +60,8 @@ const ROLE_DISPLAY_NAME: Record<RoleId, string> = {
 const BlindSpotSimulator = () => {
   const [screen, setScreen] = useState<Screen>({ kind: "welcome" });
   const [userRole, setUserRole] = useState<Role | null>(null);
+  // Briefing has two pages: 'intro' (company/systems/network) → 'mission' (alert/phases/roles)
+  const [briefingStep, setBriefingStep] = useState<"intro" | "mission">("intro");
 
   // Per-phase user assessment text
   const [userAssessment, setUserAssessment] = useState("");
