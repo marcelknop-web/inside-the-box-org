@@ -271,6 +271,7 @@ export const CommsFeed = forwardRef<CommsFeedHandle, Props>(function CommsFeed(
     onLatestByRole,
     onLastUserMessage,
     onSequenceComplete,
+    onScriptedDone,
     onUserMessageCount,
     onSystemAlert,
     hideSystemMessages,
