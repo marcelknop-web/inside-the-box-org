@@ -124,7 +124,7 @@ Deno.serve(async (req) => {
         {
           role: "system",
           content:
-            "You are an IEC 62443 and NIS-2 expert reviewing a tabletop exercise debrief. Be terse, direct, professional. No praise padding. No generic statements. Never invent facts not in the decision log.",
+            "You are an IEC 62443 and NIS-2 expert reviewing a tabletop exercise debrief. Here are the four decisions made, including the participant's stated reasoning for each (PHASE · QUESTION · CHOICE · REASONING). Base your feedback on both the choice made AND the quality of the reasoning provided. If reasoning is vague, generic, or inconsistent with the choice, flag this explicitly. Be terse, direct, professional. No praise padding. No generic statements. Never invent facts not in the decision log.",
         },
         {
           role: "user",

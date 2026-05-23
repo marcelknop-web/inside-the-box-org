@@ -42,10 +42,19 @@ const tsToMinutes = (t: string): number => {
   return /h/i.test(m[2] ?? "") ? n * 60 : n;
 };
 
+const fmtTPlus = (min: number): string => {
+  const m = Math.round(min);
+  if (m === 0) return "T+0";
+  if (m < 60) return `T+${m}m`;
+  const h = Math.floor(m / 60);
+  const rest = m % 60;
+  return rest === 0 ? `T+${h}h` : `T+${h}h${rest}m`;
+};
+
 const PHASE_STARTS = [0, 45, 90, 240]; // minutes
 const PHASE_LABELS = ["P1", "P2", "P3", "P4"];
 const X_AXIS_MIN = 0;
-const X_AXIS_MAX = 240;
+const X_AXIS_MAX = 270;
 const TIMELINE_WIDTH = 1200; // virtual px, container scrolls
 const TIMELINE_HEIGHT = 140;
 
@@ -58,20 +67,34 @@ interface AlertPoint {
   text: string;
 }
 
-// Built from the scripted alert sequence in CommsFeed
+// Hard-coded alert sequence matching the scripted comms feed per phase
 const ALERTS: AlertPoint[] = [
-  { minute: 0, severity: "HIGH", text: "Splunk SIEM — Lateral movement from Jump Host (10.10.20.50)" },
-  { minute: 45, severity: "CRIT", text: "Claroty — Unauthorised S7comm write to PLC-01" },
-  { minute: 90, severity: "CRIT", text: "Claroty — SIS pre-alarm; emergency shutdown executed" },
-  { minute: 90.2, severity: "INFO", text: "Incoming ransom message on encrypted channel" },
-  { minute: 240, severity: "MED", text: "Forensics report — partial restart technically feasible" },
+  // Phase 1
+  { minute: 0,        severity: "CRIT", text: "Anomalous vendor VPN session · src: 10.10.20.50" },
+  { minute: 0 + 31/60,  severity: "MED",  text: "Port scan · Jump Host → OT Historian" },
+  { minute: 0 + 48/60,  severity: "HIGH", text: "Auth attempt · OT Historian · vendor account" },
+  // Phase 2
+  { minute: 45,       severity: "CRIT", text: "Unauthorised S7comm write · PLC-01" },
+  { minute: 45 + 10/60, severity: "CRIT", text: "Ransomware payload · ENG-WS-01" },
+  { minute: 46,       severity: "HIGH", text: "OT Historian unreachable · 10.10.20.30" },
+  { minute: 47,       severity: "INFO", text: "NIS-2 incident clock started" },
+  // Phase 3
+  { minute: 90,       severity: "CRIT", text: "SIS pre-alarm triggered · 10.10.30.99" },
+  { minute: 91,       severity: "CRIT", text: "Emergency shutdown executed" },
+  { minute: 92,       severity: "CRIT", text: "Ransom note displayed · HMI-01 · SCADA-SRV" },
+  { minute: 93,       severity: "HIGH", text: "Encrypted external message received" },
+  // Phase 4
+  { minute: 240,      severity: "INFO", text: "Forensics team engaged" },
+  { minute: 240 + 10/60, severity: "INFO", text: "PLC-02 + SIS unaffected — partial restart feasible" },
+  { minute: 240 + 20/60, severity: "MED",  text: "Media inquiry received" },
+  { minute: 240 + 30/60, severity: "HIGH", text: "NIS-2 window: ~68h remaining" },
 ];
 
 const sevColor = (s: AlertPoint["severity"]) =>
-  s === "CRIT" ? "#ef4444" : s === "HIGH" ? "#f59e0b" : s === "MED" ? "#facc15" : "#9ca3af";
+  s === "CRIT" ? "#ef4444" : s === "HIGH" ? "#F5A623" : s === "MED" ? "#eab308" : "#6b7280";
 
 const choiceColor = (c: DebriefDecision["choice"]) =>
-  c === "YES" ? "#10b981" : c === "NO" ? "#ef4444" : "#f59e0b";
+  c === "YES" ? "#22c55e" : c === "NO" ? "#ef4444" : "#F5A623";
 
 const nis2Pill = (s: "met" | "at_risk" | "missed") => {
   if (s === "met")
@@ -96,7 +119,15 @@ export const DebriefScreen = ({
   loading,
   onRestart,
 }: Props) => {
-  const dateStr = useMemo(() => new Date().toLocaleDateString(), []);
+  const dateStr = useMemo(
+    () =>
+      new Date().toLocaleDateString("en-GB", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      }),
+    [],
+  );
 
   const counts = useMemo(() => {
     const c = { met: 0, at_risk: 0, missed: 0 };
@@ -234,10 +265,11 @@ export const DebriefScreen = ({
                 </g>
               );
             })}
-            {/* X-axis labels every 30min */}
-            {Array.from({ length: 9 }).map((_, i) => {
+            {/* X-axis labels every 30min, 0..270 */}
+            {Array.from({ length: 10 }).map((_, i) => {
               const m = i * 30;
               const x = xFor(m);
+              const label = fmtTPlus(m);
               return (
                 <g key={`tick-${i}`}>
                   <line
@@ -255,7 +287,7 @@ export const DebriefScreen = ({
                     fontSize={10}
                     textAnchor="middle"
                   >
-                    {m === 0 ? "T+0" : m >= 60 ? `T+${(m / 60).toFixed(m % 60 ? 1 : 0)}h` : `T+${m}m`}
+                    {label}
                   </text>
                 </g>
               );
@@ -272,21 +304,23 @@ export const DebriefScreen = ({
 
             {/* Alert dots */}
             {ALERTS.map((a, i) => (
-              <g key={`alert-${i}`}>
-                <title>{`[${a.severity}] ${a.text}`}</title>
+              <g key={`alert-${i}`} style={{ cursor: "help" }}>
+                <title>{`[${a.severity}] — ${a.text} · ${fmtTPlus(a.minute)}`}</title>
                 <circle cx={xFor(a.minute)} cy={40} r={6} fill={sevColor(a.severity)} />
               </g>
             ))}
 
-            {/* Decision diamonds */}
+            {/* Decision diamonds (12×12 rotated square) */}
             {decisions.map((d, i) => {
               const m = tsToMinutes(d.timestamp);
               const x = xFor(m);
               const y = 80;
-              const s = 8;
+              const s = 8; // half-diagonal ~ 12px diagonal square
+              const truncReason =
+                d.reasoning.length > 60 ? `${d.reasoning.slice(0, 60)}…` : d.reasoning;
               return (
-                <g key={`dec-${i}`}>
-                  <title>{`${d.question}\nChoice: ${d.choice}\nReasoning: ${d.reasoning}`}</title>
+                <g key={`dec-${i}`} style={{ cursor: "help" }}>
+                  <title>{`P${i + 1} · ${d.choice} · ${truncReason}`}</title>
                   <polygon
                     points={`${x},${y - s} ${x + s},${y} ${x},${y + s} ${x - s},${y}`}
                     fill={choiceColor(d.choice)}
@@ -362,8 +396,14 @@ export const DebriefScreen = ({
                     <td style={{ padding: "10px 12px", color: choiceColor(d.choice) }}>
                       {d.choice}
                     </td>
-                    <td style={{ padding: "10px 12px", color: "#d1d5db", maxWidth: 260 }}>
-                      {d.reasoning}
+                    <td style={{ padding: "10px 12px", color: "#d1d5db", maxWidth: 320, whiteSpace: "pre-wrap" }}>
+                      {d.reasoning.trim().length < 20 ? (
+                        <span style={{ color: "#6b7280", fontStyle: "italic" }}>
+                          — no reasoning recorded
+                        </span>
+                      ) : (
+                        d.reasoning
+                      )}
                     </td>
                     <td style={{ padding: "10px 12px", color: "#9ca3af", maxWidth: 200 }}>
                       {d.iec62443Ref}
