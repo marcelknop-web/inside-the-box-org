@@ -871,7 +871,7 @@ const BlindSpotSimulator = () => {
             : "watch";
           return (
             <div className="flex flex-col flex-1 min-h-0 gap-2">
-              <Iec62443Stepper phaseIndex={phase.index} />
+              <SystemsStatusPanel phaseIndex={phase.index} />
               <ObjectiveHud
                 phase={phase}
                 totalPhases={PHASES.length}
