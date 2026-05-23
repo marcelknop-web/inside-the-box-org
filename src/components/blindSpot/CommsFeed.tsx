@@ -43,7 +43,9 @@ interface Props {
   userRoleName: string; // e.g. "IT-Ops"
   onLatestByRole: (latest: Record<string, string>) => void;
   onLastUserMessage: (text: string) => void;
+  onSequenceComplete?: () => void;
 }
+
 
 /* ===================== Constants ===================== */
 
