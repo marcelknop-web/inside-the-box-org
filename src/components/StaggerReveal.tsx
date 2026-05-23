@@ -13,16 +13,18 @@ interface StaggerRevealProps {
   resetKey?: string | number;
 }
 
-/** Reading-speed model. ~230 wpm ≈ 4 chars / 100ms, plus a small base for visual settle. */
-const MS_PER_CHAR = 32;
-const BASE_MS = 650;
-const MAX_PAUSE_MS = 11000;
+/** Reading-speed model — tuned to feel responsive, not sluggish. */
+const MS_PER_CHAR = 17;      // ~350 wpm — confident skim pace
+const BASE_MS = 220;          // visual settle after power-on flicker
+const MIN_PAUSE_MS = 480;     // never feel like the app is stalled
+const MAX_PAUSE_MS = 4200;    // cap longest dwell so momentum stays
 
 const estimateReadMs = (text: string) => {
   const chars = text.trim().replace(/\s+/g, ' ').length;
-  if (chars === 0) return 0;
-  return Math.min(MAX_PAUSE_MS, chars * MS_PER_CHAR + BASE_MS);
+  if (chars === 0) return MIN_PAUSE_MS;
+  return Math.min(MAX_PAUSE_MS, Math.max(MIN_PAUSE_MS, chars * MS_PER_CHAR + BASE_MS));
 };
+
 
 export const StaggerReveal = ({
   children,
@@ -69,15 +71,19 @@ export const StaggerReveal = ({
 
     let delay: number;
     if (visibleCount === 0) {
-      // first child: small initial settle
-      delay = 200;
+      delay = 120; // first child: near-instant
     } else {
       const justRevealed = itemRefs.current[visibleCount - 1];
       const text = justRevealed?.innerText ?? '';
       const readMs = estimateReadMs(text);
-      delay = Math.max(stagger, readMs);
-      if (visibleCount === items.length - 1) delay += lastChildExtraDelay;
+      // `stagger` is only a SOFT floor and is itself capped at MAX_PAUSE_MS,
+      // so a caller passing a generous value can't accidentally make the UI feel sluggish.
+      const softFloor = Math.min(stagger, MAX_PAUSE_MS);
+      delay = Math.max(softFloor, readMs);
+      // Halve the extra hold so the CTA never feels like a stall.
+      if (visibleCount === items.length - 1) delay += Math.round(lastChildExtraDelay * 0.5);
     }
+
 
     const t = setTimeout(() => setVisibleCount(v => v + 1), delay);
     return () => clearTimeout(t);
