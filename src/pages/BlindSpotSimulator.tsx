@@ -642,111 +642,243 @@ const BlindSpotSimulator = () => {
 
         {/* ===== Briefing ===== */}
         {screen.kind === "briefing" && userRole && (
-          <div className="space-y-6">
-            <header>
-              <p className="font-mono text-xs text-[#f5b800] uppercase tracking-wider mb-2">
-                Pre-exercise briefing
-              </p>
-              <h2 className="font-mono text-2xl">Welcome aboard, {userRole.name}.</h2>
-              <p className="text-white/70 text-sm mt-2 leading-relaxed">
-                Take 60 seconds to read this. You'll be dropped into a live OT crisis right after.
-                Everything below is the context you would already have on day one of the job.
-              </p>
-            </header>
-
-            <div className="rounded-lg border border-white/10 bg-background/40 p-5">
-              <h3 className="font-mono text-sm uppercase tracking-wider text-[#f5b800] mb-3">
-                1 · The company — NorPower AS
-              </h3>
-              <div className="grid sm:grid-cols-2 gap-x-6 gap-y-2 text-sm text-white/85 font-mono">
-                <div><span className="text-white/50">Sector:</span> Energy utility (regional grid + small generation)</div>
-                <div><span className="text-white/50">HQ:</span> Oslo, Norway</div>
-                <div><span className="text-white/50">Staff:</span> ~200 (40 in OT/engineering)</div>
-                <div><span className="text-white/50">Regulation:</span> NIS-2 essential entity, NSM oversight</div>
-                <div><span className="text-white/50">Clients:</span> Municipal utilities, industrial customers</div>
-                <div><span className="text-white/50">Posture:</span> ISO 27001 certified, IEC 62443 in rollout</div>
+          <div className="space-y-5">
+            {/* HERO */}
+            <div className="relative overflow-hidden rounded-xl border border-[#f5b800]/40 bg-gradient-to-br from-[#f5b800]/10 via-background/60 to-background/40 p-6">
+              <div className="absolute inset-0 opacity-[0.07] pointer-events-none"
+                style={{
+                  backgroundImage:
+                    "linear-gradient(rgba(245,184,0,0.4) 1px, transparent 1px), linear-gradient(90deg, rgba(245,184,0,0.4) 1px, transparent 1px)",
+                  backgroundSize: "24px 24px",
+                }}
+              />
+              <div className="relative flex items-start gap-5 flex-wrap">
+                <div className="shrink-0 w-16 h-16 rounded-lg border-2 border-[#f5b800] bg-[#f5b800]/20 flex items-center justify-center">
+                  <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#f5b800" strokeWidth="1.5">
+                    <path d="M12 2 L3 6 v6 c0 5 4 9 9 10 5 -1 9 -5 9 -10 V6 z" />
+                    <path d="M9 12 l2 2 l4 -4" />
+                  </svg>
+                </div>
+                <div className="flex-1 min-w-[260px]">
+                  <p className="font-mono text-[10px] text-[#f5b800] uppercase tracking-[0.3em] mb-1">
+                    ▲ Pre-exercise briefing
+                  </p>
+                  <h2 className="font-mono text-2xl leading-tight">Welcome aboard, {userRole.name}.</h2>
+                  <p className="text-white/70 text-sm mt-2 leading-relaxed max-w-2xl">
+                    60-second read. You are about to drop into a live OT crisis at NorPower.
+                    This is the context you would already have on day one.
+                  </p>
+                </div>
+                <div className="shrink-0 grid grid-cols-2 gap-2 font-mono text-[10px] uppercase tracking-wider">
+                  <div className="border border-white/15 rounded px-2 py-1">
+                    <div className="text-white/40">Location</div>
+                    <div className="text-white/90">Oslo · NO</div>
+                  </div>
+                  <div className="border border-white/15 rounded px-2 py-1">
+                    <div className="text-white/40">Local time</div>
+                    <div className="text-[#f5b800]">23:47</div>
+                  </div>
+                  <div className="border border-white/15 rounded px-2 py-1">
+                    <div className="text-white/40">Phases</div>
+                    <div className="text-white/90">4 + debrief</div>
+                  </div>
+                  <div className="border border-white/15 rounded px-2 py-1">
+                    <div className="text-white/40">Duration</div>
+                    <div className="text-white/90">~20 min</div>
+                  </div>
+                </div>
               </div>
-              <p className="text-white/70 text-sm mt-3 leading-relaxed">
+            </div>
+
+            {/* COMPANY CARD */}
+            <div className="rounded-lg border border-white/10 bg-background/40 p-5">
+              <div className="flex items-center gap-3 mb-4">
+                <span className="font-mono text-[10px] text-[#f5b800] bg-[#f5b800]/10 border border-[#f5b800]/30 rounded px-2 py-0.5 uppercase tracking-wider">01</span>
+                <h3 className="font-mono text-sm uppercase tracking-wider text-white/90">The company — NorPower AS</h3>
+              </div>
+              <div className="grid sm:grid-cols-3 gap-3">
+                {[
+                  ["Sector", "Energy utility"],
+                  ["HQ", "Oslo, Norway"],
+                  ["Staff", "~200 · 40 in OT"],
+                  ["Regulation", "NIS-2 essential · NSM"],
+                  ["Clients", "Municipal + industrial"],
+                  ["Posture", "ISO 27001 · IEC 62443"],
+                ].map(([k, v]) => (
+                  <div key={k} className="border border-white/10 rounded p-3 bg-background/30">
+                    <div className="font-mono text-[10px] text-white/40 uppercase tracking-wider">{k}</div>
+                    <div className="font-mono text-sm text-white/90 mt-0.5">{v}</div>
+                  </div>
+                ))}
+              </div>
+              <p className="text-white/65 text-sm mt-4 leading-relaxed border-l-2 border-[#f5b800]/40 pl-3">
                 NorPower runs its own SOC (3 analysts, 24/7 on-call), an OT-Ops team that owns the
-                plant floor, and a small IR cell. A third-party PLC integrator has remote access
+                plant floor, and a small IR cell. A third-party PLC integrator has remote VPN access
                 for vendor maintenance — a known but tolerated risk.
               </p>
             </div>
 
+            {/* KEY SYSTEMS GRID */}
             <div className="rounded-lg border border-white/10 bg-background/40 p-5">
-              <h3 className="font-mono text-sm uppercase tracking-wider text-[#f5b800] mb-3">
-                2 · Environment & key systems
-              </h3>
-              <ul className="text-sm text-white/85 space-y-1.5 font-mono">
-                <li><span className="text-[#f5b800]">SIEM:</span> Splunk Enterprise — feeds EDR, firewall, AD, VPN, OT historian.</li>
-                <li><span className="text-[#f5b800]">OT monitoring:</span> Claroty CTD — passive monitoring of OT Sim Network + SIS.</li>
-                <li><span className="text-[#f5b800]">PLCs:</span> Siemens S7-1500 on the client simulation line.</li>
-                <li><span className="text-[#f5b800]">SIS:</span> Air-gapped safety PLC (10.10.30.99) — last line of defence.</li>
-                <li><span className="text-[#f5b800]">Historian:</span> OSIsoft PI server in OT zone.</li>
-                <li><span className="text-[#f5b800]">Remote access:</span> Vendor VPN via Jump Host (10.10.20.50) in IT/OT DMZ.</li>
-                <li><span className="text-[#f5b800]">Backups:</span> Immutable, offline copies — last validated 6 days ago.</li>
-              </ul>
+              <div className="flex items-center gap-3 mb-4">
+                <span className="font-mono text-[10px] text-[#f5b800] bg-[#f5b800]/10 border border-[#f5b800]/30 rounded px-2 py-0.5 uppercase tracking-wider">02</span>
+                <h3 className="font-mono text-sm uppercase tracking-wider text-white/90">Key systems</h3>
+              </div>
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                {[
+                  { i: "◆", k: "SIEM", v: "Splunk Enterprise", d: "EDR, FW, AD, VPN, historian" },
+                  { i: "◉", k: "OT monitoring", v: "Claroty CTD", d: "passive OT + SIS" },
+                  { i: "▣", k: "PLCs", v: "Siemens S7-1500", d: "client sim line" },
+                  { i: "⬢", k: "SIS", v: "Air-gapped PLC", d: "10.10.30.99 — last line" },
+                  { i: "▤", k: "Historian", v: "OSIsoft PI", d: "OT zone" },
+                  { i: "⇄", k: "Remote access", v: "Vendor VPN", d: "Jump Host 10.10.20.50" },
+                  { i: "◳", k: "Backups", v: "Immutable / offline", d: "last validated 6d ago" },
+                  { i: "✦", k: "Identity", v: "Active Directory", d: "MFA on admin only" },
+                  { i: "✉", k: "Comms", v: "MS Teams bridge", d: "24/7 on-call rota" },
+                ].map(({ i, k, v, d }) => (
+                  <div key={k} className="flex gap-3 border border-white/10 rounded p-2.5 bg-background/30 hover:border-[#f5b800]/40 transition-colors">
+                    <div className="shrink-0 w-8 h-8 rounded border border-[#f5b800]/40 bg-[#f5b800]/10 flex items-center justify-center text-[#f5b800] text-lg">{i}</div>
+                    <div className="min-w-0">
+                      <div className="font-mono text-[10px] text-white/40 uppercase tracking-wider">{k}</div>
+                      <div className="font-mono text-sm text-white/90 truncate">{v}</div>
+                      <div className="font-mono text-[10px] text-white/50 truncate">{d}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
 
+            {/* NETWORK DIAGRAM */}
             <div className="rounded-lg border border-white/10 bg-background/40 p-5">
-              <h3 className="font-mono text-sm uppercase tracking-wider text-[#f5b800] mb-3">
-                3 · Network zones (Purdue-aligned)
-              </h3>
-              <table className="w-full font-mono text-sm">
-                <thead className="text-white/50 text-xs uppercase">
-                  <tr>
-                    <th className="text-left py-1 pr-4">Zone</th>
-                    <th className="text-left py-1 pr-4">Name</th>
-                    <th className="text-left py-1">CIDR</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {NETWORK_ZONES.map((z) => (
-                    <tr key={z.cidr} className="border-t border-white/5">
-                      <td className="py-1.5 pr-4 text-[#f5b800]">{z.zone}</td>
-                      <td className="py-1.5 pr-4">{z.name}</td>
-                      <td className="py-1.5">{z.cidr}</td>
-                    </tr>
+              <div className="flex items-center gap-3 mb-4">
+                <span className="font-mono text-[10px] text-[#f5b800] bg-[#f5b800]/10 border border-[#f5b800]/30 rounded px-2 py-0.5 uppercase tracking-wider">03</span>
+                <h3 className="font-mono text-sm uppercase tracking-wider text-white/90">Network — Purdue model</h3>
+              </div>
+              <div className="overflow-x-auto">
+                <svg viewBox="0 0 720 280" className="w-full min-w-[640px] h-auto font-mono">
+                  <defs>
+                    <marker id="bsArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                      <path d="M0,0 L10,5 L0,10 z" fill="#f5b80088" />
+                    </marker>
+                  </defs>
+
+                  {/* Zone bands */}
+                  {[
+                    { y: 10, label: "ZONE 1 · CORPORATE IT", cidr: "10.10.10.0/24", color: "#00bcd4" },
+                    { y: 80, label: "ZONE 2 · IT/OT DMZ", cidr: "10.10.20.0/24", color: "#f5b800" },
+                    { y: 150, label: "ZONE 3 · OT SIM NETWORK", cidr: "10.10.30.0/24", color: "#ef6c5a" },
+                    { y: 220, label: "SIS · AIR-GAPPED SAFETY PLC", cidr: "10.10.30.99", color: "#a0e85b" },
+                  ].map((z) => (
+                    <g key={z.label}>
+                      <rect x="10" y={z.y} width="700" height="55" rx="6"
+                        fill={z.color} fillOpacity="0.06" stroke={z.color} strokeOpacity="0.35" />
+                      <text x="22" y={z.y + 18} fill={z.color} fillOpacity="0.9" fontSize="10" letterSpacing="2">{z.label}</text>
+                      <text x="22" y={z.y + 34} fill="#ffffff" fillOpacity="0.5" fontSize="9">{z.cidr}</text>
+                    </g>
                   ))}
-                </tbody>
-              </table>
-              <p className="text-white/60 text-xs mt-3 leading-relaxed">
-                Conduits between zones are firewalled. Corporate IT ↔ DMZ is fully inspected.
-                DMZ ↔ OT is restricted to whitelisted protocols (OPC UA, historian sync). SIS is
-                air-gapped — no IP path from any other zone.
+
+                  {/* Nodes */}
+                  {[
+                    { x: 230, y: 24, w: 90, label: "Workstations", zone: 0 },
+                    { x: 340, y: 24, w: 90, label: "AD / Splunk", zone: 0 },
+                    { x: 450, y: 24, w: 90, label: "Mail / Web", zone: 0 },
+                    { x: 230, y: 94, w: 100, label: "Jump Host", note: "10.10.20.50", zone: 1, hot: true },
+                    { x: 350, y: 94, w: 100, label: "Vendor VPN", zone: 1 },
+                    { x: 470, y: 94, w: 100, label: "Historian Sync", zone: 1 },
+                    { x: 230, y: 164, w: 100, label: "Eng Workstation", zone: 2 },
+                    { x: 350, y: 164, w: 100, label: "PI Historian", zone: 2 },
+                    { x: 470, y: 164, w: 100, label: "Siemens S7 PLC", zone: 2 },
+                    { x: 350, y: 234, w: 140, label: "Safety PLC (SIS)", zone: 3 },
+                  ].map((n, i) => (
+                    <g key={i}>
+                      <rect x={n.x} y={n.y} width={n.w} height="30" rx="4"
+                        fill={n.hot ? "#f5b80022" : "#ffffff08"}
+                        stroke={n.hot ? "#f5b800" : "#ffffff55"}
+                        strokeWidth={n.hot ? "1.5" : "1"} />
+                      <text x={n.x + n.w / 2} y={n.y + 14} textAnchor="middle" fill="#fff" fillOpacity="0.9" fontSize="10">{n.label}</text>
+                      {n.note && <text x={n.x + n.w / 2} y={n.y + 25} textAnchor="middle" fill="#f5b800" fontSize="8">{n.note}</text>}
+                    </g>
+                  ))}
+
+                  {/* Conduits */}
+                  <line x1="385" y1="55" x2="385" y2="92" stroke="#f5b80088" strokeWidth="1" markerEnd="url(#bsArrow)" />
+                  <line x1="385" y1="125" x2="385" y2="162" stroke="#f5b80088" strokeWidth="1" strokeDasharray="3 3" markerEnd="url(#bsArrow)" />
+                  <line x1="420" y1="195" x2="420" y2="232" stroke="#a0e85b55" strokeWidth="1" strokeDasharray="2 4" />
+                  <text x="395" y="148" fill="#f5b80099" fontSize="8">OPC UA · whitelisted</text>
+                  <text x="425" y="218" fill="#a0e85b99" fontSize="8">air-gap (no IP path)</text>
+                </svg>
+              </div>
+              <p className="text-white/55 text-[11px] mt-3 leading-relaxed font-mono">
+                Conduits firewalled. IT ↔ DMZ fully inspected. DMZ ↔ OT restricted to OPC UA and historian sync. SIS isolated.
               </p>
             </div>
 
-            <div className="rounded-lg border border-amber-400/40 bg-amber-400/5 p-5">
-              <p className="font-mono text-xs text-amber-300 uppercase tracking-wider mb-2">
-                4 · The situation — Initial SIEM alert · {INITIAL_ALERT.source} · {INITIAL_ALERT.severity}
-              </p>
-              <p className="font-mono text-xs text-white/50 mb-2">{INITIAL_ALERT.timestamp}</p>
+            {/* SITUATION — ALERT */}
+            <div className="rounded-lg border border-amber-400/50 bg-gradient-to-r from-amber-400/15 to-amber-400/5 p-5 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-amber-400/10 rounded-full blur-2xl" />
+              <div className="flex items-center gap-3 mb-3 relative">
+                <span className="font-mono text-[10px] text-amber-300 bg-amber-400/20 border border-amber-300/40 rounded px-2 py-0.5 uppercase tracking-wider">04</span>
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-400" />
+                </span>
+                <h3 className="font-mono text-sm uppercase tracking-wider text-amber-200">The situation — Live SIEM alert</h3>
+              </div>
+              <div className="grid sm:grid-cols-4 gap-3 mb-3 font-mono text-[11px]">
+                <div><div className="text-white/40 uppercase">Source</div><div className="text-white/90">{INITIAL_ALERT.source}</div></div>
+                <div><div className="text-white/40 uppercase">Severity</div><div className="text-amber-300">{INITIAL_ALERT.severity}</div></div>
+                <div><div className="text-white/40 uppercase">Timestamp</div><div className="text-white/90">{INITIAL_ALERT.timestamp}</div></div>
+                <div><div className="text-white/40 uppercase">Status</div><div className="text-white/90">Bridge convened</div></div>
+              </div>
               <p className="text-white/85 leading-relaxed">{INITIAL_ALERT.detail}</p>
-              <p className="text-white/70 text-sm mt-3 leading-relaxed">
-                It's 23:47. Most of the office is dark. The SOC analyst on shift escalated to the
-                on-call bridge. You and the rest of the response team have just joined the call.
+              <p className="text-white/65 text-sm mt-3 leading-relaxed italic">
+                It's 23:47. Most of the office is dark. SOC escalated to the on-call bridge. You just joined the call.
               </p>
             </div>
 
+            {/* PHASE TIMELINE */}
             <div className="rounded-lg border border-white/10 bg-background/40 p-5">
-              <h3 className="font-mono text-sm uppercase tracking-wider text-[#f5b800] mb-3">
-                5 · Who's on the bridge
-              </h3>
-              <p className="font-mono text-xs text-white/50 mb-1">You play</p>
-              <p className="font-mono text-sm text-[#f5b800] mb-1">{userRole.name}</p>
-              <p className="text-white/70 text-sm mb-3 leading-relaxed">{userRole.description}</p>
-              <p className="font-mono text-xs text-white/50 mb-1">AI teammates</p>
-              <p className="font-mono text-sm text-white/85">{aiRoleNames.join(" · ")}</p>
-              <p className="text-white/60 text-xs mt-3 leading-relaxed">
-                All communication happens in the team chat. The IC drives decisions; everyone else
-                feeds intel, raises concerns, recommends actions. Four phases. NIS-2 clock starts
-                ticking at Phase 2.
+              <div className="flex items-center gap-3 mb-4">
+                <span className="font-mono text-[10px] text-[#f5b800] bg-[#f5b800]/10 border border-[#f5b800]/30 rounded px-2 py-0.5 uppercase tracking-wider">05</span>
+                <h3 className="font-mono text-sm uppercase tracking-wider text-white/90">What's ahead — 4 phases</h3>
+              </div>
+              <div className="grid sm:grid-cols-4 gap-2">
+                {PHASES.map((p) => (
+                  <div key={p.index} className={`rounded border p-3 ${phaseColor(p.colorKey)}`}>
+                    <div className="font-mono text-[10px] uppercase tracking-wider opacity-70">{p.timestamp}</div>
+                    <div className="font-mono text-sm mt-1">Phase {p.index}</div>
+                    <div className="font-mono text-[11px] mt-1 opacity-90 line-clamp-2">{p.name.split("—")[1]?.trim() ?? p.name}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* ROLES */}
+            <div className="rounded-lg border border-white/10 bg-background/40 p-5">
+              <div className="flex items-center gap-3 mb-4">
+                <span className="font-mono text-[10px] text-[#f5b800] bg-[#f5b800]/10 border border-[#f5b800]/30 rounded px-2 py-0.5 uppercase tracking-wider">06</span>
+                <h3 className="font-mono text-sm uppercase tracking-wider text-white/90">Who's on the bridge</h3>
+              </div>
+              <div className="grid sm:grid-cols-4 gap-2">
+                {ROLES.map((r) => {
+                  const isYou = r.id === userRole.id;
+                  return (
+                    <div key={r.id} className={`rounded border p-3 ${isYou ? "border-[#f5b800] bg-[#f5b800]/10" : "border-white/10 bg-background/30"}`}>
+                      <div className={`font-mono text-[10px] uppercase tracking-wider ${isYou ? "text-[#f5b800]" : "text-white/40"}`}>
+                        {isYou ? "▶ You" : "AI"}
+                      </div>
+                      <div className={`font-mono text-sm mt-1 ${isYou ? "text-[#f5b800]" : "text-white/85"}`}>{r.name}</div>
+                    </div>
+                  );
+                })}
+              </div>
+              <p className="text-white/60 text-xs mt-4 leading-relaxed font-mono">
+                All communication happens in the team chat. IC drives decisions. NIS-2 clock starts at Phase 2.
               </p>
             </div>
 
-            <div className="flex justify-end">
-              <Button onClick={() => beginPhase(0)} className="bg-[#f5b800] text-black hover:bg-[#f5b800]/90 font-mono uppercase tracking-wider">
+            <div className="flex justify-end pt-2">
+              <Button onClick={() => beginPhase(0)} className="bg-[#f5b800] text-black hover:bg-[#f5b800]/90 font-mono uppercase tracking-wider shadow-[0_0_30px_rgba(245,184,0,0.4)]">
                 I'm ready — Phase 1 begins →
               </Button>
             </div>
