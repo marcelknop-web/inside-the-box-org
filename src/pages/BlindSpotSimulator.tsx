@@ -16,7 +16,7 @@ import { EvidencePanel } from "@/components/blindSpot/EvidencePanel";
 import { ImplicationsPanel } from "@/components/blindSpot/ImplicationsPanel";
 import { Iec62443Stepper } from "@/components/blindSpot/Iec62443Stepper";
 
-import { DecisionChoice } from "@/components/blindSpot/DecisionModal";
+type DecisionChoice = "YES" | "NO" | "CONDITIONAL";
 import { GameOverOverlay } from "@/components/blindSpot/GameOverOverlay";
 import {
   PhaseScoreBreakdown,
