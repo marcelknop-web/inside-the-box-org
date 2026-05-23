@@ -14,7 +14,8 @@ import {
   phaseColor,
 } from "@/data/blindSpotScenario";
 import { PhaseProgress } from "@/components/blindSpot/PhaseProgress";
-import { CommsFeed, CommsFeedHandle } from "@/components/blindSpot/CommsFeed";
+import { CommsFeed, CommsFeedHandle, AlertCard } from "@/components/blindSpot/CommsFeed";
+import { EvidencePanel } from "@/components/blindSpot/EvidencePanel";
 import { DecisionModal, DecisionChoice } from "@/components/blindSpot/DecisionModal";
 import { GameOverOverlay } from "@/components/blindSpot/GameOverOverlay";
 import {
@@ -87,6 +88,11 @@ const BlindSpotSimulator = () => {
   const [phaseUserMsgCount, setPhaseUserMsgCount] = useState(0);
   const modalFiredRef = useRef<number | null>(null);
 
+  // Evidence panel — system alerts mirrored from CommsFeed
+  const [evidence, setEvidence] = useState<
+    Array<{ card: AlertCard; time: string; source: string }>
+  >([]);
+
   const DECISION_OPTIONS: Record<number, { yes: string; no: string; conditional: string }> = {
     1: {
       yes: "Terminate session and revoke vendor access",
@@ -126,6 +132,7 @@ const BlindSpotSimulator = () => {
     setAiIcDecision("");
     setPushbackUsed(false);
     setPhaseUserMsgCount(0);
+    setEvidence([]);
   };
 
   const appendHistory = (aiRole: string, entries: Array<{ role: "user" | "assistant"; content: string }>) => {
@@ -528,7 +535,7 @@ const BlindSpotSimulator = () => {
         <PhaseProgress currentPhase={currentPhaseForProgress} phases={PHASES} />
       )}
 
-      <main className={screen.kind === "debrief" ? "w-full" : "max-w-5xl mx-auto px-4 py-8"}>
+      <main className={screen.kind === "debrief" ? "w-full" : screen.kind === "inject" ? "max-w-[1600px] mx-auto px-4 py-6" : "max-w-5xl mx-auto px-4 py-8"}>
         {/* ===== Welcome ===== */}
         {screen.kind === "welcome" && (
           <div className="min-h-[70vh] flex flex-col justify-center items-center text-center">
@@ -670,52 +677,31 @@ const BlindSpotSimulator = () => {
           </div>
         )}
 
-        {/* ===== Inject ===== */}
+        {/* ===== Inject (Quad Split) ===== */}
         {screen.kind === "inject" && userRole && (() => {
           const phase = PHASES[screen.phaseIdx];
           return (
-            <div className="space-y-6">
-              <div className={`inline-flex font-mono text-xs uppercase tracking-wider px-3 py-1.5 rounded border ${phaseColor(phase.colorKey)}`}>
-                {phase.name} · {phase.timestamp}
-              </div>
-
-              <div className="rounded-lg border border-white/10 bg-background/40 p-5">
-                <p className="font-mono text-xs text-white/50 uppercase mb-2">Situation update</p>
-                <p className="text-white/90 leading-relaxed">{phase.situation}</p>
-                {phase.nis2Flag && (
-                  <p className="mt-3 font-mono text-xs text-red-300 border-l-2 border-red-400 pl-3">
-                    {phase.nis2Flag}
-                  </p>
-                )}
-              </div>
-
-              <div className="grid lg:grid-cols-2 gap-4">
-                <div className="rounded-lg border border-[#f5b800]/40 bg-background/40 p-5 flex flex-col">
-                  <p className="font-mono text-xs text-[#f5b800] uppercase tracking-wider mb-3">
-                    Your private notes as {userRole.name}
-                  </p>
-                  <Textarea
-                    value={userAssessment}
-                    onChange={(e) => setUserAssessment(e.target.value)}
-                    placeholder="Optional — private notes that feed the IC decision context."
-                    className="min-h-[120px] bg-background/60 border-white/10 font-mono text-sm flex-1"
-                  />
-                  <div className="flex flex-col items-end gap-1.5 mt-3">
-                    <Button
-                      onClick={() => triggerModalForPhase(screen.phaseIdx)}
-                      disabled={phaseUserMsgCount < 1}
-                      className="bg-[#f5b800] text-black hover:bg-[#f5b800]/90 font-mono uppercase tracking-wider disabled:opacity-40"
-                    >
-                      Open IC decision →
-                    </Button>
-                    {phaseUserMsgCount < 1 && (
-                      <p className="font-mono text-[10px] text-white/50">
-                        Send at least one message in the comms feed to engage IC.
-                      </p>
-                    )}
-                  </div>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className={`inline-flex font-mono text-xs uppercase tracking-wider px-3 py-1.5 rounded border ${phaseColor(phase.colorKey)}`}>
+                  {phase.name} · {phase.timestamp}
                 </div>
+                <p className="font-mono text-[11px] text-white/50 uppercase tracking-wider">
+                  You play <span className="text-[#f5b800]">{userRole.name}</span>
+                </p>
+              </div>
 
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                {/* TL — Evidence / Injects */}
+                <EvidencePanel
+                  phaseName={phase.name}
+                  phaseTimestamp={phase.timestamp}
+                  situation={phase.situation}
+                  nis2Flag={phase.nis2Flag}
+                  alerts={evidence}
+                />
+
+                {/* TR — Team Chat */}
                 <CommsFeed
                   ref={feedRef}
                   phaseIndex={phase.index}
@@ -723,6 +709,8 @@ const BlindSpotSimulator = () => {
                   phaseTimestamp={phase.timestamp}
                   situation={phase.situation}
                   userRoleName={userRole.name}
+                  hideSystemMessages
+                  onSystemAlert={(a) => setEvidence((prev) => [...prev, a])}
                   onLatestByRole={(latest) => setAiOutputs(latest)}
                   onLastUserMessage={(text) => {
                     if (text && !userAssessment) setUserAssessment(text);
@@ -731,11 +719,85 @@ const BlindSpotSimulator = () => {
                   onSequenceComplete={() => triggerModalForPhase(screen.phaseIdx)}
                 />
 
-              </div>
+                {/* BL — Private notes */}
+                <div
+                  className="rounded-lg border h-[420px] flex flex-col overflow-hidden"
+                  style={{ backgroundColor: "#111111", borderColor: "#2a2a2a" }}
+                >
+                  <div
+                    className="flex items-center justify-between px-4 py-2.5 border-b"
+                    style={{ borderColor: "#2a2a2a" }}
+                  >
+                    <span className="font-mono text-[11px] text-[#f5b800] uppercase tracking-wider">
+                      Your private notes · {userRole.name}
+                    </span>
+                  </div>
+                  <div className="flex-1 p-3">
+                    <Textarea
+                      value={userAssessment}
+                      onChange={(e) => setUserAssessment(e.target.value)}
+                      placeholder="Optional — private notes that feed the IC decision context."
+                      className="h-full bg-background/60 border-white/10 font-mono text-sm resize-none"
+                    />
+                  </div>
+                </div>
 
+                {/* BR — Decision brief */}
+                <div
+                  className="rounded-lg border h-[420px] flex flex-col overflow-hidden"
+                  style={{ backgroundColor: "#111111", borderColor: "#2a2a2a" }}
+                >
+                  <div
+                    className="flex items-center justify-between px-4 py-2.5 border-b"
+                    style={{ borderColor: "#2a2a2a" }}
+                  >
+                    <span className="font-mono text-[11px] text-[#f5b800] uppercase tracking-wider">
+                      {isUserIC ? "Your decision call" : "Pending IC decision"}
+                    </span>
+                    <span className="font-mono text-[10px] text-white/40">
+                      Msgs sent: {phaseUserMsgCount}
+                    </span>
+                  </div>
+                  <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                    <div className="rounded-md border-2 border-[#f5b800]/50 bg-[#f5b800]/5 p-3">
+                      <p className="font-mono text-[10px] text-[#f5b800] uppercase tracking-wider mb-1.5">
+                        Decision question
+                      </p>
+                      <p className="text-[13px] text-white/90 leading-relaxed">
+                        {phase.decisionQuestion}
+                      </p>
+                    </div>
+                    <div className="rounded-md border border-white/10 bg-background/40 p-3 font-mono text-[11px] text-white/60 space-y-1">
+                      <div>
+                        <span className="text-[#f5b800]">IEC 62443:</span> {phase.iec62443Ref}
+                      </div>
+                      {phase.nis2Flag && (
+                        <div>
+                          <span className="text-red-300">NIS-2:</span> {phase.nis2Flag}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <div className="border-t p-3 space-y-2" style={{ borderColor: "#2a2a2a" }}>
+                    <Button
+                      onClick={() => triggerModalForPhase(screen.phaseIdx)}
+                      disabled={phaseUserMsgCount < 1}
+                      className="w-full bg-[#f5b800] text-black hover:bg-[#f5b800]/90 font-mono uppercase tracking-wider text-xs disabled:opacity-40"
+                    >
+                      {isUserIC ? "Open IC decision →" : "Submit recommendation →"}
+                    </Button>
+                    {phaseUserMsgCount < 1 && (
+                      <p className="font-mono text-[10px] text-white/50 text-center">
+                        Send at least one message in the team chat to engage IC.
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
           );
         })()}
+
 
         {/* ===== Decision ===== */}
         {screen.kind === "decision" && userRole && (() => {
