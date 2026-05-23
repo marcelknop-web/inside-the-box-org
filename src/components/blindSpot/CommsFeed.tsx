@@ -621,7 +621,7 @@ export const CommsFeed = forwardRef<CommsFeedHandle, Props>(function CommsFeed(
       setTypingRole(responder);
       const reply = await fetchAiMessage(
         responder,
-        `${userRoleName} just said: "${text}". Respond now in character from YOUR role's perspective only — do not speak for ${userRoleName}.`,
+        `${userRoleName} just said on the bridge: "${text}".\n\nEvaluate that from YOUR role's expertise. If it is sound, confirm and add the one detail only your role owns. If it is wrong, weak, missing a critical angle, or unsafe, push back directly and say WHY in one concrete sentence (cite the specific operational, safety, or compliance gap). If it is vague, ask one sharp follow-up. Do not speak for ${userRoleName}.`,
         [],
       );
       setTypingRole(null);
