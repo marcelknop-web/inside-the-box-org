@@ -87,6 +87,20 @@ const BlindSpotSimulator = () => {
   // Gamification
   const [phaseScores, setPhaseScores] = useState<PhaseScoreBreakdown[]>([]);
   const [showGameOver, setShowGameOver] = useState(false);
+  // Momentum: consecutive phases scored ≥ 70. Drops to 0 on a drift.
+  const [streak, setStreak] = useState(0);
+  // Verdict pulse: brief mono badge after each commit, auto-clears.
+  const [lastVerdict, setLastVerdict] = useState<{
+    tier: "sharp" | "solid" | "mixed" | "drift";
+    label: string;
+    score: number;
+  } | null>(null);
+  useEffect(() => {
+    if (!lastVerdict) return;
+    const t = window.setTimeout(() => setLastVerdict(null), 3400);
+    return () => window.clearTimeout(t);
+  }, [lastVerdict]);
+
 
   // Decision modal state
   const feedRef = useRef<CommsFeedHandle>(null);
@@ -316,6 +330,19 @@ const BlindSpotSimulator = () => {
     });
     const nextScores = [...phaseScores, breakdown];
     setPhaseScores(nextScores);
+
+    // ── Momentum / verdict pulse — restrained dopamine loop ──
+    const s = breakdown.total;
+    const tier: "sharp" | "solid" | "mixed" | "drift" =
+      s >= 85 ? "sharp" : s >= 70 ? "solid" : s >= 50 ? "mixed" : "drift";
+    const label =
+      tier === "sharp" ? "SHARP CALL"
+      : tier === "solid" ? "SOLID CALL"
+      : tier === "mixed" ? "MIXED CALL"
+      : "DRIFT";
+    setLastVerdict({ tier, label, score: s });
+    setStreak((prev) => (s >= 70 ? prev + 1 : 0));
+
 
     const next = phaseIdx + 1;
     // (no modal to close)
@@ -583,7 +610,13 @@ const BlindSpotSimulator = () => {
       {(screen.kind === "inject" ||
         screen.kind === "decision" ||
         screen.kind === "debrief") && (
-        <PhaseProgress currentPhase={currentPhaseForProgress} phases={PHASES} />
+        <PhaseProgress
+          currentPhase={currentPhaseForProgress}
+          phases={PHASES}
+          streak={streak}
+          verdict={lastVerdict}
+        />
+
       )}
 
       <main className={screen.kind === "debrief" ? "w-full" : screen.kind === "inject" ? "max-w-[1600px] mx-auto px-3 py-2 h-[calc(100vh-64px)] flex flex-col" : "max-w-5xl mx-auto px-4 py-8"}>
