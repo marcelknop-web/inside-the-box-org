@@ -557,7 +557,8 @@ export const CommsFeed = forwardRef<CommsFeedHandle, Props>(function CommsFeed(
       </div>
     </div>
   );
-};
+});
+
 
 /* ===================== Sub-components ===================== */
 
