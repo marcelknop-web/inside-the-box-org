@@ -554,6 +554,12 @@ const BlindSpotSimulator = () => {
     setScreen({ kind: "roleSelect" });
   };
 
+  // Stop ambient bed when leaving the live exercise (debrief or unmount).
+  useEffect(() => {
+    if (screen.kind === "debrief") sfx.ambientStop();
+  }, [screen.kind]);
+  useEffect(() => () => sfx.ambientStop(), []);
+
   /* ============= Renderers ============= */
 
   const phaseIdx = "phaseIdx" in screen ? screen.phaseIdx : 0;
