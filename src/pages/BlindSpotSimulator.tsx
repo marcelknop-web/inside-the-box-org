@@ -319,10 +319,15 @@ const BlindSpotSimulator = () => {
     advanceAfterCommit(phaseIdx, record);
   };
 
-  const handleAiIcAuto = async () => {
+  const handleAiIcAuto = async (
+    recommendation?: { stance: "YES" | "NO" | "CONDITIONAL"; reasoning: string },
+  ) => {
     if (!("phaseIdx" in screen) || !userRole) return;
     const phaseIdx = screen.phaseIdx;
     const phase = PHASES[phaseIdx];
+    const recBlock = recommendation
+      ? `\n\nDirect recommendation from ${userRole.name}: RECOMMEND ${recommendation.stance} — "${recommendation.reasoning}". Weigh this seriously; you may follow or override, but must address it in your reasoning.`
+      : "";
     try {
       const { data, error } = await supabase.functions.invoke("blind-spot-chat", {
         body: {
@@ -336,7 +341,7 @@ const BlindSpotSimulator = () => {
             aiOutputs,
           )
             .map(([r, t]) => `${r}: ${t}`)
-            .join(" | ")}`,
+            .join(" | ")}${recBlock}`,
           history: history["Incident Commander"] ?? [],
         },
       });
@@ -346,12 +351,15 @@ const BlindSpotSimulator = () => {
       const opts = DECISION_OPTIONS[phase.index];
       const optionLabel =
         choice === "YES" ? opts.yes : choice === "NO" ? opts.no : opts.conditional;
+      const recPrefix = recommendation
+        ? `[${userRole.name} recommended ${recommendation.stance}: "${recommendation.reasoning}"]\n\n`
+        : "";
       const record: DecisionRecord = {
         phase: phase.name,
         timestamp: phase.timestamp,
         question: phase.decisionQuestion,
         choice,
-        reasoning: text,
+        reasoning: recPrefix + text,
         icBy: "ai",
         iec62443Ref: phase.iec62443Ref,
         nis2Flag: phase.nis2Flag,
