@@ -170,45 +170,43 @@ const BlindSpotSimulator = () => {
 
   const commitDecision = (phaseIdx: number, opts: { pushback?: boolean }) => {
     const phase = PHASES[phaseIdx];
+    let newRecord: DecisionRecord;
     if (isUserIC) {
       if (!decisionChoice || !decisionReasoning.trim()) {
         toast({ title: "Decision incomplete", description: "Pick Yes / No / Conditional and provide reasoning.", variant: "destructive" });
         return;
       }
-      setDecisions((d) => [
-        ...d,
-        {
-          phase: phase.name,
-          timestamp: phase.timestamp,
-          question: phase.decisionQuestion,
-          choice: decisionChoice,
-          reasoning: decisionReasoning,
-          icBy: "user",
-          iec62443Ref: phase.iec62443Ref,
-          nis2Flag: phase.nis2Flag,
-        },
-      ]);
+      newRecord = {
+        phase: phase.name,
+        timestamp: phase.timestamp,
+        question: phase.decisionQuestion,
+        choice: decisionChoice,
+        reasoning: decisionReasoning,
+        icBy: "user",
+        iec62443Ref: phase.iec62443Ref,
+        nis2Flag: phase.nis2Flag,
+      };
     } else {
-      setDecisions((d) => [
-        ...d,
-        {
-          phase: phase.name,
-          timestamp: phase.timestamp,
-          question: phase.decisionQuestion,
-          choice: parseAiChoice(aiIcDecision),
-          reasoning:
-            aiIcDecision +
-            (opts.pushback ? `\n\n[${userRole?.name} pushed back; IC reaffirmed]` : ""),
-          icBy: "ai",
-          iec62443Ref: phase.iec62443Ref,
-          nis2Flag: phase.nis2Flag,
-        },
-      ]);
+      newRecord = {
+        phase: phase.name,
+        timestamp: phase.timestamp,
+        question: phase.decisionQuestion,
+        choice: parseAiChoice(aiIcDecision),
+        reasoning:
+          aiIcDecision +
+          (opts.pushback ? `\n\n[${userRole?.name} pushed back; IC reaffirmed]` : ""),
+        icBy: "ai",
+        iec62443Ref: phase.iec62443Ref,
+        nis2Flag: phase.nis2Flag,
+      };
     }
+
+    const updated = [...decisions, newRecord];
+    setDecisions(updated);
 
     const next = phaseIdx + 1;
     if (next >= PHASES.length) {
-      runDebrief([...decisions, /* the just-appended one */]);
+      runDebrief(updated);
       setScreen({ kind: "debrief" });
     } else {
       beginPhase(next);
