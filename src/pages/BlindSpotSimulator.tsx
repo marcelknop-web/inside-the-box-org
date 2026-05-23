@@ -14,7 +14,8 @@ import {
   phaseColor,
 } from "@/data/blindSpotScenario";
 import { PhaseProgress } from "@/components/blindSpot/PhaseProgress";
-import { CommsFeed, CommsFeedHandle } from "@/components/blindSpot/CommsFeed";
+import { CommsFeed, CommsFeedHandle, AlertCard } from "@/components/blindSpot/CommsFeed";
+import { EvidencePanel } from "@/components/blindSpot/EvidencePanel";
 import { DecisionModal, DecisionChoice } from "@/components/blindSpot/DecisionModal";
 import { GameOverOverlay } from "@/components/blindSpot/GameOverOverlay";
 import {
