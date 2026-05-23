@@ -2,6 +2,7 @@ import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState }
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { sfx } from "@/utils/blindSpotSfx";
 
 export interface CommsFeedHandle {
   appendAssistant: (role: Exclude<CommsRole, "YOU">, body: string) => void;
