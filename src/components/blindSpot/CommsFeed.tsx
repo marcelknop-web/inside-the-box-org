@@ -24,6 +24,8 @@ export interface AlertCard {
   title: string;
   rows: Array<[string, string]>;
   body?: string;
+  /** Optional original log line(s) — shown verbatim below the parsed card. */
+  rawLog?: string;
 }
 
 interface FeedMessage {
