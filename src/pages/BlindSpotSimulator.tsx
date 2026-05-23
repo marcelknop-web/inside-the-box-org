@@ -84,7 +84,7 @@ const BlindSpotSimulator = () => {
 
   // Decision modal state
   const feedRef = useRef<CommsFeedHandle>(null);
-  const [modalOpen, setModalOpen] = useState(false);
+  // Modal removed — decisions are committed directly from chat. Phase-fired guard only.
   const [phaseUserMsgCount, setPhaseUserMsgCount] = useState(0);
   const modalFiredRef = useRef<number | null>(null);
 
