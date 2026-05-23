@@ -528,7 +528,7 @@ export const CommsFeed = forwardRef<CommsFeedHandle, Props>(function CommsFeed(
 
   return (
     <div
-      className="flex flex-col rounded-lg border h-[640px] overflow-hidden"
+      className="flex flex-col rounded-lg border h-full min-h-0 overflow-hidden"
       style={{ backgroundColor: "#111111", borderColor: "#2a2a2a" }}
     >
       {/* Header */}
