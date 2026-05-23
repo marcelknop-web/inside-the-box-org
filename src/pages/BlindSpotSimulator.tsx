@@ -15,6 +15,7 @@ import { CommsFeed, CommsFeedHandle, AlertCard } from "@/components/blindSpot/Co
 import { EvidencePanel } from "@/components/blindSpot/EvidencePanel";
 import { ImplicationsPanel } from "@/components/blindSpot/ImplicationsPanel";
 import { SystemsStatusPanel } from "@/components/blindSpot/SystemsStatusPanel";
+import { BriefingDeck } from "@/components/blindSpot/BriefingDeck";
 
 type DecisionChoice = "YES" | "NO" | "CONDITIONAL";
 import { GameOverOverlay } from "@/components/blindSpot/GameOverOverlay";
@@ -61,8 +62,8 @@ const ROLE_DISPLAY_NAME: Record<RoleId, string> = {
 const BlindSpotSimulator = () => {
   const [screen, setScreen] = useState<Screen>({ kind: "welcome" });
   const [userRole, setUserRole] = useState<Role | null>(null);
-  // Briefing has two pages: 'intro' (company/systems/network) → 'mission' (alert/phases/roles)
-  const [briefingStep, setBriefingStep] = useState<"intro" | "mission">("intro");
+
+
 
   // Per-phase user assessment text (latest user chat message of the phase)
   const [userAssessment, setUserAssessment] = useState("");
@@ -169,7 +170,6 @@ const BlindSpotSimulator = () => {
   const pickRole = (role: Role) => setScreen({ kind: "confirmRole", role });
   const confirmRole = (role: Role) => {
     setUserRole(role);
-    setBriefingStep("intro");
     setScreen({ kind: "briefing" });
   };
 
@@ -603,269 +603,11 @@ const BlindSpotSimulator = () => {
           </div>
         )}
 
-        {/* ===== Briefing ===== */}
+        {/* ===== Briefing (slide deck) ===== */}
         {screen.kind === "briefing" && userRole && (
-          <StaggerReveal stagger={250} startDelay={120} lastChildExtraDelay={400} resetKey={briefingStep}>
-            {/* HERO */}
-            <div className="relative overflow-hidden rounded-xl border border-[#f5b800]/40 bg-gradient-to-br from-[#f5b800]/10 via-background/60 to-background/40 p-6">
-              <div className="absolute inset-0 opacity-[0.07] pointer-events-none"
-                style={{
-                  backgroundImage:
-                    "linear-gradient(rgba(245,184,0,0.4) 1px, transparent 1px), linear-gradient(90deg, rgba(245,184,0,0.4) 1px, transparent 1px)",
-                  backgroundSize: "24px 24px",
-                }}
-              />
-              <div className="relative flex items-start gap-5 flex-wrap">
-                <div className="shrink-0 w-16 h-16 rounded-lg border-2 border-[#f5b800] bg-[#f5b800]/20 flex items-center justify-center">
-                  <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#f5b800" strokeWidth="1.5">
-                    <path d="M12 2 L3 6 v6 c0 5 4 9 9 10 5 -1 9 -5 9 -10 V6 z" />
-                    <path d="M9 12 l2 2 l4 -4" />
-                  </svg>
-                </div>
-                <div className="flex-1 min-w-[260px]">
-                  <p className="font-mono text-[10px] text-[#f5b800] uppercase tracking-[0.3em] mb-1">
-                    ▲ {briefingStep === "intro" ? "Part 1 · Introduction" : "Part 2 · Mission briefing"}
-                  </p>
-                  <h2 className="font-mono text-2xl leading-tight">
-                    {briefingStep === "intro" ? `Welcome aboard, ${userRole.name}.` : "Mission briefing — stand by."}
-                  </h2>
-                  <p className="text-white/70 text-sm mt-2 leading-relaxed max-w-2xl">
-                    {briefingStep === "intro"
-                      ? "Get to know NorPower, its systems and its network. This is the context you would already have on day one."
-                      : "Here is the live alert that pulled you onto the bridge, the phases ahead, and the team you'll work with."}
-                  </p>
-                </div>
-                <div className="shrink-0 grid grid-cols-2 gap-2 font-mono text-[10px] uppercase tracking-wider">
-                  <div className="border border-white/15 rounded px-2 py-1">
-                    <div className="text-white/40">Location</div>
-                    <div className="text-white/90">Oslo · NO</div>
-                  </div>
-                  <div className="border border-white/15 rounded px-2 py-1">
-                    <div className="text-white/40">Local time</div>
-                    <div className="text-[#f5b800]">23:47</div>
-                  </div>
-                  {briefingStep === "mission" && (
-                    <>
-                      <div className="border border-white/15 rounded px-2 py-1">
-                        <div className="text-white/40">Phases</div>
-                        <div className="text-white/90">4 + debrief</div>
-                      </div>
-                      <div className="border border-white/15 rounded px-2 py-1">
-                        <div className="text-white/40">Duration</div>
-                        <div className="text-white/90">~20 min</div>
-                      </div>
-                    </>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {briefingStep === "intro" && (
-            <>
-            {/* COMPANY CARD */}
-            <div className="rounded-lg border border-white/10 bg-background/40 p-5">
-              <div className="flex items-center gap-3 mb-4">
-                <span className="font-mono text-[10px] text-[#f5b800] bg-[#f5b800]/10 border border-[#f5b800]/30 rounded px-2 py-0.5 uppercase tracking-wider">01</span>
-                <h3 className="font-mono text-sm uppercase tracking-wider text-white/90">The company — NorPower AS</h3>
-              </div>
-              <div className="grid sm:grid-cols-3 gap-3">
-                {[
-                  ["Sector", "Energy utility"],
-                  ["HQ", "Oslo, Norway"],
-                  ["Staff", "~200 · 40 in OT"],
-                  ["Regulation", "NIS-2 essential · NSM"],
-                  ["Clients", "Municipal + industrial"],
-                  ["Posture", "ISO 27001 · IEC 62443"],
-                ].map(([k, v]) => (
-                  <div key={k} className="border border-white/10 rounded p-3 bg-background/30">
-                    <div className="font-mono text-[10px] text-white/40 uppercase tracking-wider">{k}</div>
-                    <div className="font-mono text-sm text-white/90 mt-0.5">{v}</div>
-                  </div>
-                ))}
-              </div>
-              <p className="text-white/65 text-sm mt-4 leading-relaxed border-l-2 border-[#f5b800]/40 pl-3">
-                NorPower runs its own SOC (3 analysts, 24/7 on-call), an OT-Ops team that owns the
-                plant floor, and a small IR cell. A third-party PLC integrator has remote VPN access
-                for vendor maintenance — a known but tolerated risk.
-              </p>
-            </div>
-
-            {/* KEY SYSTEMS GRID */}
-            <div className="rounded-lg border border-white/10 bg-background/40 p-5">
-              <div className="flex items-center gap-3 mb-4">
-                <span className="font-mono text-[10px] text-[#f5b800] bg-[#f5b800]/10 border border-[#f5b800]/30 rounded px-2 py-0.5 uppercase tracking-wider">02</span>
-                <h3 className="font-mono text-sm uppercase tracking-wider text-white/90">Key systems</h3>
-              </div>
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
-                {[
-                  { i: "◆", k: "SIEM", v: "Splunk Enterprise", d: "EDR, FW, AD, VPN, historian" },
-                  { i: "◉", k: "OT monitoring", v: "Claroty CTD", d: "passive OT + SIS" },
-                  { i: "▣", k: "PLCs", v: "Siemens S7-1500", d: "client sim line" },
-                  { i: "⬢", k: "SIS", v: "Air-gapped PLC", d: "10.10.30.99 — last line" },
-                  { i: "▤", k: "Historian", v: "OSIsoft PI", d: "OT zone" },
-                  { i: "⇄", k: "Remote access", v: "Vendor VPN", d: "Jump Host 10.10.20.50" },
-                  { i: "◳", k: "Backups", v: "Immutable / offline", d: "last validated 6d ago" },
-                  { i: "✦", k: "Identity", v: "Active Directory", d: "MFA on admin only" },
-                  { i: "✉", k: "Comms", v: "MS Teams bridge", d: "24/7 on-call rota" },
-                ].map(({ i, k, v, d }) => (
-                  <div key={k} className="flex gap-3 border border-white/10 rounded p-2.5 bg-background/30 hover:border-[#f5b800]/40 transition-colors">
-                    <div className="shrink-0 w-8 h-8 rounded border border-[#f5b800]/40 bg-[#f5b800]/10 flex items-center justify-center text-[#f5b800] text-lg">{i}</div>
-                    <div className="min-w-0">
-                      <div className="font-mono text-[10px] text-white/40 uppercase tracking-wider">{k}</div>
-                      <div className="font-mono text-sm text-white/90 truncate">{v}</div>
-                      <div className="font-mono text-[10px] text-white/50 truncate">{d}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* NETWORK DIAGRAM */}
-            <div className="rounded-lg border border-white/10 bg-background/40 p-5">
-              <div className="flex items-center gap-3 mb-4">
-                <span className="font-mono text-[10px] text-[#f5b800] bg-[#f5b800]/10 border border-[#f5b800]/30 rounded px-2 py-0.5 uppercase tracking-wider">03</span>
-                <h3 className="font-mono text-sm uppercase tracking-wider text-white/90">Network — Purdue model</h3>
-              </div>
-              <div className="overflow-x-auto">
-                <svg viewBox="0 0 720 280" className="w-full min-w-[640px] h-auto font-mono">
-                  <defs>
-                    <marker id="bsArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
-                      <path d="M0,0 L10,5 L0,10 z" fill="#f5b80088" />
-                    </marker>
-                  </defs>
-
-                  {/* Zone bands */}
-                  {[
-                    { y: 10, label: "ZONE 1 · CORPORATE IT", cidr: "10.10.10.0/24", color: "#00bcd4" },
-                    { y: 80, label: "ZONE 2 · IT/OT DMZ", cidr: "10.10.20.0/24", color: "#f5b800" },
-                    { y: 150, label: "ZONE 3 · OT SIM NETWORK", cidr: "10.10.30.0/24", color: "#ef6c5a" },
-                    { y: 220, label: "SIS · AIR-GAPPED SAFETY PLC", cidr: "10.10.30.99", color: "#a0e85b" },
-                  ].map((z) => (
-                    <g key={z.label}>
-                      <rect x="10" y={z.y} width="700" height="55" rx="6"
-                        fill={z.color} fillOpacity="0.06" stroke={z.color} strokeOpacity="0.35" />
-                      <text x="22" y={z.y + 18} fill={z.color} fillOpacity="0.9" fontSize="10" letterSpacing="2">{z.label}</text>
-                      <text x="22" y={z.y + 34} fill="#ffffff" fillOpacity="0.5" fontSize="9">{z.cidr}</text>
-                    </g>
-                  ))}
-
-                  {/* Nodes */}
-                  {[
-                    { x: 230, y: 24, w: 90, label: "Workstations", zone: 0 },
-                    { x: 340, y: 24, w: 90, label: "AD / Splunk", zone: 0 },
-                    { x: 450, y: 24, w: 90, label: "Mail / Web", zone: 0 },
-                    { x: 230, y: 94, w: 100, label: "Jump Host", note: "10.10.20.50", zone: 1, hot: true },
-                    { x: 350, y: 94, w: 100, label: "Vendor VPN", zone: 1 },
-                    { x: 470, y: 94, w: 100, label: "Historian Sync", zone: 1 },
-                    { x: 230, y: 164, w: 100, label: "Eng Workstation", zone: 2 },
-                    { x: 350, y: 164, w: 100, label: "PI Historian", zone: 2 },
-                    { x: 470, y: 164, w: 100, label: "Siemens S7 PLC", zone: 2 },
-                    { x: 350, y: 234, w: 140, label: "Safety PLC (SIS)", zone: 3 },
-                  ].map((n, i) => (
-                    <g key={i}>
-                      <rect x={n.x} y={n.y} width={n.w} height="30" rx="4"
-                        fill={n.hot ? "#f5b80022" : "#ffffff08"}
-                        stroke={n.hot ? "#f5b800" : "#ffffff55"}
-                        strokeWidth={n.hot ? "1.5" : "1"} />
-                      <text x={n.x + n.w / 2} y={n.y + 14} textAnchor="middle" fill="#fff" fillOpacity="0.9" fontSize="10">{n.label}</text>
-                      {n.note && <text x={n.x + n.w / 2} y={n.y + 25} textAnchor="middle" fill="#f5b800" fontSize="8">{n.note}</text>}
-                    </g>
-                  ))}
-
-                  {/* Conduits */}
-                  <line x1="385" y1="55" x2="385" y2="92" stroke="#f5b80088" strokeWidth="1" markerEnd="url(#bsArrow)" />
-                  <line x1="385" y1="125" x2="385" y2="162" stroke="#f5b80088" strokeWidth="1" strokeDasharray="3 3" markerEnd="url(#bsArrow)" />
-                  <line x1="420" y1="195" x2="420" y2="232" stroke="#a0e85b55" strokeWidth="1" strokeDasharray="2 4" />
-                  <text x="395" y="148" fill="#f5b80099" fontSize="8">OPC UA · whitelisted</text>
-                  <text x="425" y="218" fill="#a0e85b99" fontSize="8">air-gap (no IP path)</text>
-                </svg>
-              </div>
-              <p className="text-white/55 text-[11px] mt-3 leading-relaxed font-mono">
-                Conduits firewalled. IT ↔ DMZ fully inspected. DMZ ↔ OT restricted to OPC UA and historian sync. SIS isolated.
-              </p>
-            </div>
-
-            {/* INTRO → MISSION CTA */}
-            <div className="flex justify-end pt-2">
-              <Button
-                onClick={() => setBriefingStep("mission")}
-                className="bg-[#f5b800] text-black hover:bg-[#f5b800]/90 font-mono uppercase tracking-wider shadow-[0_0_30px_rgba(245,184,0,0.4)]"
-              >
-                Continue →
-              </Button>
-            </div>
-            </>
-            )}
-
-            {briefingStep === "mission" && (
-            <>
-            {/* BACK LINK */}
-            <div className="flex justify-start">
-              <button
-                onClick={() => setBriefingStep("intro")}
-                className="font-mono text-[11px] text-white/50 hover:text-[#f5b800] uppercase tracking-wider transition-colors"
-              >
-                ← Back to introduction
-              </button>
-            </div>
-
-            {/* SITUATION — ALERT */}
-            <div className="rounded-lg border border-amber-400/50 bg-gradient-to-r from-amber-400/15 to-amber-400/5 p-5 relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-24 h-24 bg-amber-400/10 rounded-full blur-2xl" />
-              <div className="flex items-center gap-3 mb-3 relative">
-                <span className="font-mono text-[10px] text-amber-300 bg-amber-400/20 border border-amber-300/40 rounded px-2 py-0.5 uppercase tracking-wider">04</span>
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-400" />
-                </span>
-                <h3 className="font-mono text-sm uppercase tracking-wider text-amber-200">The situation — Live SIEM alert</h3>
-              </div>
-              <div className="grid sm:grid-cols-4 gap-3 mb-3 font-mono text-[11px]">
-                <div><div className="text-white/40 uppercase">Source</div><div className="text-white/90">{INITIAL_ALERT.source}</div></div>
-                <div><div className="text-white/40 uppercase">Severity</div><div className="text-amber-300">{INITIAL_ALERT.severity}</div></div>
-                <div><div className="text-white/40 uppercase">Timestamp</div><div className="text-white/90">{INITIAL_ALERT.timestamp}</div></div>
-                <div><div className="text-white/40 uppercase">Status</div><div className="text-white/90">Bridge convened</div></div>
-              </div>
-              <p className="text-white/85 leading-relaxed">{INITIAL_ALERT.detail}</p>
-              <p className="text-white/65 text-sm mt-3 leading-relaxed italic">
-                It's 23:47. Most of the office is dark. SOC escalated to the on-call bridge. You just joined the call.
-              </p>
-            </div>
-
-
-            {/* ROLES */}
-            <div className="rounded-lg border border-white/10 bg-background/40 p-5">
-              <div className="flex items-center gap-3 mb-4">
-                <span className="font-mono text-[10px] text-[#f5b800] bg-[#f5b800]/10 border border-[#f5b800]/30 rounded px-2 py-0.5 uppercase tracking-wider">06</span>
-                <h3 className="font-mono text-sm uppercase tracking-wider text-white/90">Who's on the bridge</h3>
-              </div>
-              <div className="grid sm:grid-cols-4 gap-2">
-                {ROLES.map((r) => {
-                  const isYou = r.id === userRole.id;
-                  return (
-                    <div key={r.id} className={`rounded border p-3 ${isYou ? "border-[#f5b800] bg-[#f5b800]/10" : "border-white/10 bg-background/30"}`}>
-                      <div className={`font-mono text-[10px] uppercase tracking-wider ${isYou ? "text-[#f5b800]" : "text-white/40"}`}>
-                        {isYou ? "▶ You" : "AI"}
-                      </div>
-                      <div className={`font-mono text-sm mt-1 ${isYou ? "text-[#f5b800]" : "text-white/85"}`}>{r.name}</div>
-                    </div>
-                  );
-                })}
-              </div>
-              <p className="text-white/60 text-xs mt-4 leading-relaxed font-mono">
-                All communication happens in the team chat. IC drives decisions. NIS-2 clock starts at Phase 2.
-              </p>
-            </div>
-
-            <div className="flex justify-end pt-2">
-              <Button onClick={() => beginPhase(0)} className="bg-[#f5b800] text-black hover:bg-[#f5b800]/90 font-mono uppercase tracking-wider shadow-[0_0_30px_rgba(245,184,0,0.4)]">
-                I'm ready — Phase 1 begins →
-              </Button>
-            </div>
-            </>
-            )}
-          </StaggerReveal>
+          <BriefingDeck userRole={userRole} onStart={() => beginPhase(0)} />
         )}
+
 
         {/* ===== Inject (Quad Split) ===== */}
         {screen.kind === "inject" && userRole && (() => {
