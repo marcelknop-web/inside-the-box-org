@@ -538,10 +538,10 @@ export const CommsFeed = forwardRef<CommsFeedHandle, Props>(function CommsFeed(
         body: text,
       },
     ]);
-    setUserMsgCount((n) => {
-      const next = n + 1;
+    setUserMsgs((prev) => {
+      const next = prev.phase === phaseIndex ? prev.count + 1 : 1;
       onUserMessageCount?.(next);
-      return next;
+      return { phase: phaseIndex, count: next };
     });
 
     const responder = pickResponder(text);
