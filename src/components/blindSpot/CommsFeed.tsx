@@ -283,15 +283,19 @@ const COMMS_SYSTEM_PROMPT = (
   ts: string,
   userRoleName: string,
 ) =>
-  `You are ${role} in a live OT cyber crisis exercise.
-Company: NorPower, Oslo. Scenario: Blind Spot.
+  `You are ${role} in a live OT cyber crisis exercise on the NorPower "Blind Spot" bridge call.
 Current phase: ${phaseName}. Timestamp: ${ts}.
 
-The human participant is playing ${userRoleName}. You are NOT ${userRoleName} — never speak from that role's perspective, never restate what they said, never give the answer that ${userRoleName} should be giving.
+The human participant plays ${userRoleName}. You are NOT ${userRoleName} — never speak for them, never answer the question that is theirs to answer.
 
-Your job: react to what ${userRoleName} just wrote from YOUR role's angle, acknowledge their point briefly, then either (a) confirm and add the operational detail only your role owns, or (b) gently surface the missing element they should still address so the team can move forward and close this phase. Be collaborative, not adversarial. Help them succeed.
+You are an experienced operator. Treat ${userRoleName} as a peer, not a student. Read what they actually wrote and judge it from YOUR role's expertise:
+- If their point is sound, acknowledge it briefly and add the one operational detail only your role owns.
+- If their point is wrong, weak, missing a critical angle, contradicts what your role is seeing, or violates IEC 62443 / NIS-2 obligations your role would catch — push back directly and explain WHY in one concrete sentence grounded in your role's expertise. Reference the specific gap (e.g. "that risks the SIS air-gap", "EDR telemetry contradicts that", "NIS-2 clock already started — that delay is not free").
+- If their point is vague, ask one sharp follow-up to force specificity.
 
-Write exactly one Microsoft Teams chat message — 1 to 2 short sentences, natural tone, no bullet points, no headers, no role label, no timestamp, no greetings. Never explain the exercise format. Never use template phrases like "as IT-Ops I would…" — just speak.`;
+Never invent facts that are not in the scenario or chat so far. Never use template phrases like "as IT-Ops I would…". Speak like a real engineer on a 23:47 bridge call — terse, professional, willing to disagree.
+
+Write exactly one Microsoft Teams chat message — 1 to 2 short sentences, natural tone, no bullets, no headers, no role label, no timestamp, no greetings.`;
 
 export const CommsFeed = forwardRef<CommsFeedHandle, Props>(function CommsFeed(
   {
@@ -617,7 +621,7 @@ export const CommsFeed = forwardRef<CommsFeedHandle, Props>(function CommsFeed(
       setTypingRole(responder);
       const reply = await fetchAiMessage(
         responder,
-        `${userRoleName} just said: "${text}". Respond now in character from YOUR role's perspective only — do not speak for ${userRoleName}.`,
+        `${userRoleName} just said on the bridge: "${text}".\n\nEvaluate that from YOUR role's expertise. If it is sound, confirm and add the one detail only your role owns. If it is wrong, weak, missing a critical angle, or unsafe, push back directly and say WHY in one concrete sentence (cite the specific operational, safety, or compliance gap). If it is vague, ask one sharp follow-up. Do not speak for ${userRoleName}.`,
         [],
       );
       setTypingRole(null);

@@ -7,13 +7,14 @@ interface ChatMessage {
 }
 
 interface RequestBody {
-  mode: "role" | "ic-decision" | "debrief" | "comms";
+  mode: "role" | "ic-decision" | "debrief" | "comms" | "classify-stance";
   aiRole?: string;
   userRole?: string;
   phaseName?: string;
   phaseTimestamp?: string;
   situation?: string;
   userInput?: string;
+  decisionQuestion?: string;
   history?: ChatMessage[];
   systemPromptOverride?: string;
   decisions?: Array<{
@@ -109,6 +110,19 @@ Deno.serve(async (req) => {
             `Situation: ${body.situation}\n\n` +
             `Question to decide: ${body.userInput}\n\n` +
             `Issue your decision now in 3-5 sentences. Format: start with "DECISION: YES" or "DECISION: NO" or "DECISION: CONDITIONAL — <one-line condition>". Then a short rationale referencing the team input. End with a clear next-step order.`,
+        },
+      ];
+    } else if (body.mode === "classify-stance") {
+      messages = [
+        {
+          role: "system",
+          content:
+            "You classify a participant's free-text response to a yes/no/conditional decision question in an OT crisis exercise. Read the participant's words and infer their actual stance. Do not invent content. Respond with ONLY one token: YES, NO, or CONDITIONAL. CONDITIONAL means they propose action under explicit constraints or they hedge meaningfully. If the text is ambiguous or has no stance, respond UNCLEAR.",
+        },
+        {
+          role: "user",
+          content:
+            `Decision question:\n${body.decisionQuestion ?? ""}\n\nParticipant said (verbatim):\n"${body.userInput ?? ""}"\n\nReply with one token only: YES | NO | CONDITIONAL | UNCLEAR.`,
         },
       ];
     } else {
