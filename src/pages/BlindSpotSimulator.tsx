@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -14,7 +14,9 @@ import {
   phaseColor,
 } from "@/data/blindSpotScenario";
 import { PhaseProgress } from "@/components/blindSpot/PhaseProgress";
-import { CommsFeed } from "@/components/blindSpot/CommsFeed";
+import { CommsFeed, CommsFeedHandle } from "@/components/blindSpot/CommsFeed";
+import { DecisionModal, DecisionChoice } from "@/components/blindSpot/DecisionModal";
+
 
 type Screen =
   | { kind: "welcome" }
