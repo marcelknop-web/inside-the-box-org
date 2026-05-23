@@ -320,7 +320,7 @@ export const DecisionModal = ({
           <button
             type="button"
             disabled={!canCommit}
-            onClick={() => choice && onCommitUser(choice, reasoning.trim())}
+            onClick={() => choice && onCommitUser(choice, reasoning.trim(), remaining)}
             className="w-full rounded-md font-mono text-sm uppercase tracking-wider transition-opacity disabled:opacity-40"
             style={{
               padding: "12px 16px",
