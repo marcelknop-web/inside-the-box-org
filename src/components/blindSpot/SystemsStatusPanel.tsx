@@ -66,40 +66,36 @@ export const SystemsStatusPanel = ({ phaseIndex }: Props) => {
 
   return (
     <div className="rounded-lg border border-white/10 bg-background/40 px-3 py-2 shrink-0">
-      <div className="flex items-center justify-between mb-2">
+      <div className="flex items-center justify-between mb-1.5">
         <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-white/45">
-          Production · Systems status
+          Production · Systems
         </span>
-        <div className="flex items-center gap-3 font-mono text-[9px] uppercase tracking-wider">
-          <span className="text-[#34d399]">● {counts.ok} ok</span>
-          <span className="text-[#f5b800]">● {counts.watch} watch</span>
-          <span className="text-[#fb923c]">● {counts.alarm} alarm</span>
-          <span className="text-white/45">● {counts.down} down</span>
+        <div className="flex items-center gap-3 font-mono text-[9px] uppercase tracking-wider text-white/55">
+          <span title="Healthy"><span className="text-[#34d399]">●</span> {counts.ok}</span>
+          <span title="Watch"><span className="text-[#f5b800]">●</span> {counts.watch}</span>
+          <span title="Alarm"><span className="text-[#fb923c]">●</span> {counts.alarm}</span>
+          <span title="Down"><span className="text-white/45">●</span> {counts.down}</span>
         </div>
       </div>
 
-      <ol className="grid grid-cols-3 md:grid-cols-6 gap-2">
+      <ol className="grid grid-cols-3 md:grid-cols-6 gap-1.5">
         {SYSTEMS.map((s) => {
           const st = map[s.key];
           const style = STYLE[st];
+          const showLabel = st !== "OK";
           return (
             <li
               key={s.key}
-              className={`rounded border ${style.border} ${style.bg} px-2 py-1.5 flex flex-col gap-0.5 transition-colors`}
-              title={`${s.label} — ${st}`}
+              className={`rounded border ${style.border} ${style.bg} px-2 py-1 flex items-center gap-1.5 min-w-0 transition-colors`}
+              title={`${s.label} — ${s.zone} — ${st}`}
             >
-              <div className="flex items-center gap-1.5 min-w-0">
-                <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${style.dot}`} aria-hidden />
-                <span className="font-mono text-[10px] text-white/85 truncate">{s.label}</span>
-              </div>
-              <div className="flex items-baseline justify-between gap-2">
-                <span className="font-mono text-[8.5px] uppercase tracking-wider text-white/35 truncate">
-                  {s.zone}
-                </span>
+              <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${style.dot}`} aria-hidden />
+              <span className="font-mono text-[10px] text-white/85 truncate flex-1">{s.label}</span>
+              {showLabel && (
                 <span className={`font-mono text-[9px] font-bold uppercase tracking-wider ${style.text}`}>
                   {st}
                 </span>
-              </div>
+              )}
             </li>
           );
         })}

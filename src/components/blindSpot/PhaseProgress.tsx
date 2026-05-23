@@ -59,43 +59,34 @@ export const PhaseProgress = ({ currentPhase, streak = 0, verdict = null }: Prop
 
   return (
     <div className="border-b border-white/5 bg-gradient-to-b from-black/60 to-transparent">
-      <div className="max-w-[1600px] mx-auto px-4 pt-4 pb-3">
-        {/* Header strip */}
-        <div className="flex items-center justify-between mb-3 font-mono text-[10px] uppercase tracking-[0.22em]">
-          <div className="flex items-center gap-2 text-white/50">
+      <div className="max-w-[1600px] mx-auto px-4 pt-3 pb-2">
+        {/* Header strip — single line, low contrast */}
+        <div className="flex items-center justify-between mb-2 font-mono text-[10px] uppercase tracking-[0.22em] text-white/45">
+          <div className="flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-[#f5b800] animate-pulse" />
-            <span>IEC 62443 · Incident Response Lifecycle</span>
+            <span>IEC 62443 · Incident Response</span>
           </div>
-          <div className="flex items-center gap-3">
-            {streak >= 2 && (
-              <span
-                key={streak}
-                className="flex items-center gap-1.5 px-2 py-0.5 rounded border border-[#f5b800]/50 bg-[#f5b800]/10 text-[#f5b800] animate-[fade-in_240ms_ease-out]"
-                title="Consecutive solid calls"
-              >
-                <Flame className="w-3 h-3" strokeWidth={2.5} />
-                <span>Momentum ×{streak}</span>
-              </span>
-            )}
-            <div className="text-white/40 hidden sm:block">
-              Stage <span className="text-[#f5b800]">{Math.max(currentIdx + 1, 1)}</span>
-              <span className="text-white/30"> / {total}</span>
-            </div>
-          </div>
+          {streak >= 2 && (
+            <span
+              key={streak}
+              className="flex items-center gap-1.5 px-2 py-0.5 rounded border border-[#f5b800]/50 bg-[#f5b800]/10 text-[#f5b800] animate-[fade-in_240ms_ease-out]"
+              title="Consecutive solid calls"
+            >
+              <Flame className="w-3 h-3" strokeWidth={2.5} />
+              <span>×{streak}</span>
+            </span>
+          )}
         </div>
 
 
         {/* Rail */}
         <div className="relative">
-          {/* Base track */}
           <div className="absolute left-0 right-0 top-[18px] h-px bg-white/10" />
-          {/* Filled track */}
           <div
             className="absolute left-0 top-[18px] h-px bg-gradient-to-r from-[#f5b800] via-[#f5b800] to-[#00bcd4] transition-all duration-700 ease-out shadow-[0_0_8px_rgba(245,184,0,0.6)]"
             style={{ width: `${progressPct}%` }}
           />
 
-          {/* Nodes */}
           <ol className="relative grid grid-cols-5 gap-2">
             {STAGES.map((s) => {
               const state = stateOf(s.key, currentPhase);
@@ -112,11 +103,15 @@ export const PhaseProgress = ({ currentPhase, streak = 0, verdict = null }: Prop
                 state === "current"
                   ? "text-[#f5b800]"
                   : state === "past"
-                  ? "text-white/70"
-                  : "text-white/35";
+                  ? "text-white/60"
+                  : "text-white/30";
 
               return (
-                <li key={String(s.key)} className="flex flex-col items-center text-center min-w-0">
+                <li
+                  key={String(s.key)}
+                  className="flex flex-col items-center text-center min-w-0"
+                  title={`${s.short} — ${s.code} · ${s.sub}`}
+                >
                   <div
                     className={`relative z-10 w-9 h-9 rounded-full border flex items-center justify-center transition-all duration-300 ${ring}`}
                   >
@@ -126,19 +121,14 @@ export const PhaseProgress = ({ currentPhase, streak = 0, verdict = null }: Prop
                     <Icon className="w-4 h-4" strokeWidth={2.25} />
                   </div>
 
-                  <div className={`mt-2 font-mono text-[11px] font-bold uppercase tracking-[0.18em] ${labelColor}`}>
+                  <div className={`mt-1.5 font-mono text-[11px] font-bold uppercase tracking-[0.18em] ${labelColor}`}>
                     {s.short}
                   </div>
-                  <div className="font-mono text-[9px] uppercase tracking-[0.16em] text-white/30 mt-0.5 truncate max-w-full">
-                    {s.code}
-                  </div>
-                  <div
-                    className={`hidden md:block text-[10px] mt-1 truncate max-w-full ${
-                      state === "current" ? "text-white/70" : "text-white/30"
-                    }`}
-                  >
-                    {s.sub}
-                  </div>
+                  {state === "current" && (
+                    <div className="font-mono text-[9px] uppercase tracking-[0.16em] text-white/40 mt-0.5 truncate max-w-full">
+                      {s.sub}
+                    </div>
+                  )}
                 </li>
               );
             })}

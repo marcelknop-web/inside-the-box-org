@@ -243,6 +243,8 @@ export const ImplicationsPanel = ({ aiOutputs, phaseIndex }: Props) => {
   }, [aiOutputs]);
 
   const anySignal = Object.values(meters).some((m) => m.value > 0);
+  const active = DIMENSIONS.filter((d) => meters[d.key].value > 0);
+  const dormant = DIMENSIONS.filter((d) => meters[d.key].value === 0);
 
   return (
     <div className="rounded-lg border border-white/10 bg-background/40 h-full min-h-0 flex flex-col overflow-hidden">
@@ -255,7 +257,7 @@ export const ImplicationsPanel = ({ aiOutputs, phaseIndex }: Props) => {
           </span>
         </div>
         <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-white/35">
-          derived from bridge chatter
+          {active.length}/{DIMENSIONS.length} active
         </span>
       </div>
 
@@ -263,11 +265,11 @@ export const ImplicationsPanel = ({ aiOutputs, phaseIndex }: Props) => {
       <div className="flex-1 min-h-0 overflow-y-auto px-3 py-2 space-y-1.5">
         {!anySignal && (
           <div className="text-[11px] text-white/40 font-mono italic py-3">
-            Listening to the bridge… implications appear as the team speaks.
+            Listening to the bridge…
           </div>
         )}
 
-        {DIMENSIONS.map((dim) => {
+        {active.map((dim) => {
           const m = meters[dim.key];
           const Icon = dim.Icon;
           const pct = Math.round(m.value);
@@ -275,28 +277,21 @@ export const ImplicationsPanel = ({ aiOutputs, phaseIndex }: Props) => {
           return (
             <div
               key={dim.key}
-              className={`group rounded border ${
-                pct > 0 ? dim.color : "border-white/10"
-              } bg-black/20 px-2 py-1.5 transition-colors`}
+              className={`group rounded border ${dim.color} bg-black/20 px-2 py-1.5 transition-colors`}
+              title={dim.hint}
             >
               <div className="flex items-center gap-2">
-                <Icon
-                  className={`w-3 h-3 shrink-0 ${pct > 0 ? "" : "opacity-40"}`}
-                  strokeWidth={2.25}
-                />
+                <Icon className="w-3 h-3 shrink-0" strokeWidth={2.25} />
                 <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-white/80 flex-1 truncate">
                   {dim.label}
                 </span>
                 <span
-                  className={`font-mono text-[10px] tabular-nums ${
-                    pct > 0 ? "text-white/85" : "text-white/30"
-                  } ${bumped ? "animate-pulse" : ""}`}
+                  className={`font-mono text-[10px] tabular-nums text-white/85 ${bumped ? "animate-pulse" : ""}`}
                 >
                   {pct.toString().padStart(2, "0")}
                 </span>
               </div>
 
-              {/* Bar */}
               <div className="mt-1 h-1 rounded-full bg-white/5 overflow-hidden">
                 <div
                   className={`h-full rounded-full bg-gradient-to-r ${dim.fillFrom} ${dim.fillTo} transition-all duration-700 ease-out`}
@@ -304,7 +299,6 @@ export const ImplicationsPanel = ({ aiOutputs, phaseIndex }: Props) => {
                 />
               </div>
 
-              {/* Quote */}
               {m.quote && (
                 <div className="mt-1 flex items-start gap-1.5">
                   <span className="font-mono text-[9px] uppercase tracking-[0.18em] text-white/40 shrink-0 mt-px">
@@ -315,14 +309,28 @@ export const ImplicationsPanel = ({ aiOutputs, phaseIndex }: Props) => {
                   </span>
                 </div>
               )}
-              {!m.quote && pct === 0 && (
-                <div className="mt-1 text-[9.5px] text-white/30 font-mono">
-                  {dim.hint}
-                </div>
-              )}
             </div>
           );
         })}
+
+        {/* Dormant dimensions — compact chip row so nothing is hidden */}
+        {dormant.length > 0 && (
+          <div className="pt-1 flex flex-wrap gap-1">
+            {dormant.map((dim) => {
+              const Icon = dim.Icon;
+              return (
+                <span
+                  key={dim.key}
+                  title={`${dim.label} — ${dim.hint}`}
+                  className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded border border-white/10 bg-black/20 font-mono text-[9px] uppercase tracking-[0.16em] text-white/35"
+                >
+                  <Icon className="w-2.5 h-2.5 opacity-60" strokeWidth={2.25} />
+                  {dim.label}
+                </span>
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
   );
