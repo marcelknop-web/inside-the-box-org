@@ -610,7 +610,13 @@ const BlindSpotSimulator = () => {
       {(screen.kind === "inject" ||
         screen.kind === "decision" ||
         screen.kind === "debrief") && (
-        <PhaseProgress currentPhase={currentPhaseForProgress} phases={PHASES} />
+        <PhaseProgress
+          currentPhase={currentPhaseForProgress}
+          phases={PHASES}
+          streak={streak}
+          verdict={lastVerdict}
+        />
+
       )}
 
       <main className={screen.kind === "debrief" ? "w-full" : screen.kind === "inject" ? "max-w-[1600px] mx-auto px-3 py-2 h-[calc(100vh-64px)] flex flex-col" : "max-w-5xl mx-auto px-4 py-8"}>
