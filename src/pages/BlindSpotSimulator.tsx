@@ -37,7 +37,6 @@ type Screen =
   | { kind: "confirmRole"; role: Role }
   | { kind: "briefing" }
   | { kind: "inject"; phaseIdx: number }
-  | { kind: "decision"; phaseIdx: number }
   | { kind: "debrief" };
 
 interface DecisionRecord {
