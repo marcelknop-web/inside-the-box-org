@@ -370,6 +370,12 @@
   animation-timing-function: steps(1, end);
   animation-fill-mode: forwards;
 }
+/* Whitespace wrapper — visible immediately, preserves the literal space
+   even inside flex/inline-flex parents (e.g. shadcn <Button>) where
+   anonymous text nodes would otherwise be stripped. */
+.ttype-space {
+  white-space: pre;
+}
 @media (prefers-reduced-motion: reduce) {
   .ttype-char { opacity: 1 !important; animation: none !important; }
 }
