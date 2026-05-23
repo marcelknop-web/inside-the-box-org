@@ -331,6 +331,19 @@ const BlindSpotSimulator = () => {
     const nextScores = [...phaseScores, breakdown];
     setPhaseScores(nextScores);
 
+    // ── Momentum / verdict pulse — restrained dopamine loop ──
+    const s = breakdown.total;
+    const tier: "sharp" | "solid" | "mixed" | "drift" =
+      s >= 85 ? "sharp" : s >= 70 ? "solid" : s >= 50 ? "mixed" : "drift";
+    const label =
+      tier === "sharp" ? "SHARP CALL"
+      : tier === "solid" ? "SOLID CALL"
+      : tier === "mixed" ? "MIXED CALL"
+      : "DRIFT";
+    setLastVerdict({ tier, label, score: s });
+    setStreak((prev) => (s >= 70 ? prev + 1 : 0));
+
+
     const next = phaseIdx + 1;
     // (no modal to close)
     window.setTimeout(() => {
