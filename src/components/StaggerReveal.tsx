@@ -14,11 +14,11 @@ interface StaggerRevealProps {
 }
 
 /** Typewriter cadence — every character of every block "prints in" in reading order. */
-const MS_PER_CHAR = 14;
-const MIN_TYPE_MS = 360;
-const MAX_TYPE_MS = 2600;
-const GAP_AFTER_TYPE_MS = 180;
-const MAX_PAUSE_MS = 3200;
+const MS_PER_CHAR = 6;
+const MIN_TYPE_MS = 140;
+const MAX_TYPE_MS = 700;
+const GAP_AFTER_TYPE_MS = 60;
+const MAX_PAUSE_MS = 800;
 
 const estimateTypeMs = (chars: number) => {
   if (chars <= 0) return MIN_TYPE_MS;
