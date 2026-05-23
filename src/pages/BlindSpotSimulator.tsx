@@ -442,11 +442,30 @@ const BlindSpotSimulator = () => {
     }
   };
 
-  const triggerModalForPhase = (phaseIdx: number) => {
+  // The user's last chat message after the scripted sequence ends becomes
+  // the decision (IC) or the recommendation to the AI IC.
+  const commitFromChat = (phaseIdx: number) => {
     if (modalFiredRef.current === phaseIdx) return;
     modalFiredRef.current = phaseIdx;
-    setModalOpen(true);
+    const text = (userAssessment || "").trim();
+    const choice: DecisionChoice = /\bconditional\b/i.test(text)
+      ? "CONDITIONAL"
+      : /\b(no|do not|don't|hold|wait)\b/i.test(text)
+      ? "NO"
+      : /\b(yes|go|isolate|terminate|notify|authoris|authorize|restart|kill)\b/i.test(text)
+      ? "YES"
+      : "CONDITIONAL";
+    if (isUserIC) {
+      handleUserCommit(choice, text || "(no rationale provided in chat)", 0);
+    } else {
+      handleAiIcAuto({
+        stance: choice,
+        reasoning: text || "(no rationale provided in chat)",
+        remainingSecs: 0,
+      });
+    }
   };
+
 
 
   const pushBackOnIC = async (phaseIdx: number) => {
