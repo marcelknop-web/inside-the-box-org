@@ -81,7 +81,10 @@ export const DecisionModal = ({
   const optionLabel = (k: DecisionChoice) =>
     k === "YES" ? options.yes : k === "NO" ? options.no : options.conditional;
 
-  const canCommit = !!choice && reasoning.trim().length > 0;
+  const trimmedLen = reasoning.trim().length;
+  const MIN_REASONING = 20;
+  const reasoningTooShort = trimmedLen < MIN_REASONING;
+  const canCommit = !!choice && !reasoningTooShort;
 
   return (
     <div
