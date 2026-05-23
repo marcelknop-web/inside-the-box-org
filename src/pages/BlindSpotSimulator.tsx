@@ -578,34 +578,37 @@ const BlindSpotSimulator = () => {
         {/* ===== Welcome ===== */}
         {screen.kind === "welcome" && (
           <div className="min-h-[70vh] flex flex-col justify-center items-center text-center">
-            <p className="font-mono text-[#f5b800] tracking-[0.3em] text-sm mb-6">
-              NORPOWER
-            </p>
-            <h1 className="font-mono text-4xl md:text-6xl font-bold mb-4 tracking-tight">
-              BLIND SPOT
-            </h1>
-            <p className="font-mono text-sm text-white/60 mb-10">
-              OT CYBER CRISIS · TABLETOP SIMULATION
-            </p>
-            <div className="max-w-2xl text-white/80 leading-relaxed mb-10 space-y-4">
-              <p>
-                A single-player tabletop exercise. You pick one of four crisis-team roles.
-                An AI plays the other three in real time. You face four phases of an APT
-                intrusion via a compromised vendor VPN at NorPower in Oslo.
+            <StaggerReveal stagger={1800} startDelay={500} className="w-full flex flex-col items-center">
+              <p className="font-mono text-[#f5b800] tracking-[0.3em] text-sm mb-6">
+                NORPOWER
               </p>
-              <p className="text-white/60 text-sm">
+              <h1 className="font-mono text-4xl md:text-6xl font-bold mb-4 tracking-tight">
+                BLIND SPOT
+              </h1>
+              <p className="font-mono text-sm text-white/60 mb-10">
+                OT CYBER CRISIS · TABLETOP SIMULATION
+              </p>
+              <div className="max-w-2xl text-white/80 leading-relaxed mb-6">
+                <p>
+                  A single-player tabletop exercise. You pick one of four crisis-team roles.
+                  An AI plays the other three in real time. You face four phases of an APT
+                  intrusion via a compromised vendor VPN at NorPower in Oslo.
+                </p>
+              </div>
+              <p className="text-white/60 text-sm mb-10 max-w-2xl">
                 Estimated time: ~45 minutes. No login. Ephemeral session.
               </p>
-            </div>
-            <Button
-              size="lg"
-              className="bg-[#f5b800] text-black hover:bg-[#f5b800]/90 font-mono uppercase tracking-wider"
-              onClick={startExercise}
-            >
-              Start Exercise →
-            </Button>
+              <Button
+                size="lg"
+                className="bg-[#f5b800] text-black hover:bg-[#f5b800]/90 font-mono uppercase tracking-wider"
+                onClick={startExercise}
+              >
+                Start Exercise →
+              </Button>
+            </StaggerReveal>
           </div>
         )}
+
 
         {/* ===== Role Select ===== */}
         {screen.kind === "roleSelect" && (
