@@ -246,25 +246,30 @@ export const ImplicationsPanel = ({ aiOutputs, phaseIndex }: Props) => {
   const active = DIMENSIONS.filter((d) => meters[d.key].value > 0);
   const dormant = DIMENSIONS.filter((d) => meters[d.key].value === 0);
 
+  const severity = (v: number) =>
+    v >= 66 ? { label: "HIGH", tone: "text-rose-300 bg-rose-500/15 border-rose-400/40" }
+    : v >= 33 ? { label: "MED", tone: "text-amber-300 bg-amber-500/15 border-amber-400/40" }
+    : { label: "LOW", tone: "text-white/60 bg-white/5 border-white/15" };
+
   return (
     <div className="rounded-lg border border-white/10 bg-background/40 h-full min-h-0 flex flex-col overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between px-3 py-2 border-b border-white/10 bg-black/30">
         <div className="flex items-center gap-2">
           <span className="w-1.5 h-1.5 rounded-full bg-[#f5b800] animate-pulse" />
-          <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-white/70">
-            Implications · live read
+          <span className="font-mono text-[11px] uppercase tracking-[0.22em] text-white/80">
+            Implications
           </span>
         </div>
-        <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-white/35">
-          {active.length}/{DIMENSIONS.length} active
+        <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-white/45">
+          {active.length}/{DIMENSIONS.length}
         </span>
       </div>
 
       {/* Body */}
-      <div className="flex-1 min-h-0 overflow-y-auto px-3 py-2 space-y-1.5">
+      <div className="flex-1 min-h-0 overflow-y-auto px-3 py-3 space-y-2">
         {!anySignal && (
-          <div className="text-[11px] text-white/40 font-mono italic py-3">
+          <div className="text-[12px] text-white/50 font-mono italic py-3">
             Listening to the bridge…
           </div>
         )}
@@ -273,56 +278,44 @@ export const ImplicationsPanel = ({ aiOutputs, phaseIndex }: Props) => {
           const m = meters[dim.key];
           const Icon = dim.Icon;
           const pct = Math.round(m.value);
+          const sev = severity(pct);
           const bumped = m.bumpedAt > 0 && Date.now() - m.bumpedAt < 1200;
           return (
             <div
               key={dim.key}
-              className={`group rounded border ${dim.color} bg-black/20 px-2 py-1.5 transition-colors`}
-              title={dim.hint}
+              className={`rounded-md border ${dim.color} bg-black/30 px-2.5 py-2 ${bumped ? "ring-1 ring-white/20" : ""}`}
+              title={m.quote ? `“${m.quote}” — ${m.byRole}` : dim.hint}
             >
               <div className="flex items-center gap-2">
-                <Icon className="w-3 h-3 shrink-0" strokeWidth={2.25} />
-                <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-white/80 flex-1 truncate">
+                <Icon className="w-4 h-4 shrink-0" strokeWidth={2.25} />
+                <span className="text-[13px] font-medium text-white/95 flex-1 truncate">
                   {dim.label}
                 </span>
-                <span
-                  className={`font-mono text-[10px] tabular-nums text-white/85 ${bumped ? "animate-pulse" : ""}`}
-                >
-                  {pct.toString().padStart(2, "0")}
+                <span className={`font-mono text-[10px] px-1.5 py-0.5 rounded border ${sev.tone} tracking-[0.15em]`}>
+                  {sev.label}
                 </span>
               </div>
 
-              <div className="mt-1 h-1 rounded-full bg-white/5 overflow-hidden">
+              <div className="mt-2 h-1.5 rounded-full bg-white/5 overflow-hidden">
                 <div
                   className={`h-full rounded-full bg-gradient-to-r ${dim.fillFrom} ${dim.fillTo} transition-all duration-700 ease-out`}
                   style={{ width: `${pct}%` }}
                 />
               </div>
-
-              {m.quote && (
-                <div className="mt-1 flex items-start gap-1.5">
-                  <span className="font-mono text-[9px] uppercase tracking-[0.18em] text-white/40 shrink-0 mt-px">
-                    {m.byRole}
-                  </span>
-                  <span className="text-[10.5px] leading-snug text-white/70 italic">
-                    “{m.quote}”
-                  </span>
-                </div>
-              )}
             </div>
           );
         })}
 
         {/* Dormant dimensions — compact chip row so nothing is hidden */}
         {dormant.length > 0 && (
-          <div className="pt-1 flex flex-wrap gap-1">
+          <div className="pt-2 mt-1 border-t border-white/5 flex flex-wrap gap-1">
             {dormant.map((dim) => {
               const Icon = dim.Icon;
               return (
                 <span
                   key={dim.key}
                   title={`${dim.label} — ${dim.hint}`}
-                  className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded border border-white/10 bg-black/20 font-mono text-[9px] uppercase tracking-[0.16em] text-white/35"
+                  className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded border border-white/10 bg-black/20 text-[10px] text-white/40"
                 >
                   <Icon className="w-2.5 h-2.5 opacity-60" strokeWidth={2.25} />
                   {dim.label}
@@ -335,3 +328,4 @@ export const ImplicationsPanel = ({ aiOutputs, phaseIndex }: Props) => {
     </div>
   );
 };
+
