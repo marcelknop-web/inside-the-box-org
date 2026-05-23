@@ -639,13 +639,17 @@ const BlindSpotSimulator = () => {
                     className="min-h-[120px] bg-background/60 border-white/10 font-mono text-sm flex-1"
                   />
                   <div className="flex justify-end mt-3">
-                    <Button onClick={submitAssessment} className="bg-[#f5b800] text-black hover:bg-[#f5b800]/90 font-mono uppercase tracking-wider">
-                      Proceed to IC decision →
+                    <Button
+                      onClick={() => triggerModalForPhase(screen.phaseIdx)}
+                      className="bg-[#f5b800] text-black hover:bg-[#f5b800]/90 font-mono uppercase tracking-wider"
+                    >
+                      Open IC decision →
                     </Button>
                   </div>
                 </div>
 
                 <CommsFeed
+                  ref={feedRef}
                   phaseIndex={phase.index}
                   phaseName={phase.name}
                   phaseTimestamp={phase.timestamp}
@@ -655,7 +659,9 @@ const BlindSpotSimulator = () => {
                   onLastUserMessage={(text) => {
                     if (text && !userAssessment) setUserAssessment(text);
                   }}
+                  onSequenceComplete={() => triggerModalForPhase(screen.phaseIdx)}
                 />
+
               </div>
 
             </div>
