@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -14,7 +14,9 @@ import {
   phaseColor,
 } from "@/data/blindSpotScenario";
 import { PhaseProgress } from "@/components/blindSpot/PhaseProgress";
-import { CommsFeed } from "@/components/blindSpot/CommsFeed";
+import { CommsFeed, CommsFeedHandle } from "@/components/blindSpot/CommsFeed";
+import { DecisionModal, DecisionChoice } from "@/components/blindSpot/DecisionModal";
+
 
 type Screen =
   | { kind: "welcome" }
@@ -71,6 +73,35 @@ const BlindSpotSimulator = () => {
   const [decisions, setDecisions] = useState<DecisionRecord[]>([]);
   const [debrief, setDebrief] = useState<DebriefData | null>(null);
   const [debriefLoading, setDebriefLoading] = useState(false);
+
+  // Decision modal state
+  const feedRef = useRef<CommsFeedHandle>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const modalFiredRef = useRef<number | null>(null);
+
+  const DECISION_OPTIONS: Record<number, { yes: string; no: string; conditional: string }> = {
+    1: {
+      yes: "Terminate session and revoke vendor access",
+      no: "Keep session live, monitor only",
+      conditional: "Throttle session, alert vendor, ready a kill switch",
+    },
+    2: {
+      yes: "Isolate OT Sim Network and notify clients",
+      no: "Continue monitoring, hold isolation",
+      conditional: "Partial isolation + forensic monitoring",
+    },
+    3: {
+      yes: "Notify NSM, issue holding statement, reject attacker",
+      no: "Delay notification, no public statement",
+      conditional: "Notify NSM only, hold public comms",
+    },
+    4: {
+      yes: "Authorise conditional restart under forensic monitoring",
+      no: "Hold restart until full forensic clearance",
+      conditional: "Restart only validated zones in gated phases",
+    },
+  };
+
 
   const aiRoleNames = useMemo(() => {
     if (!userRole) return [] as string[];
@@ -212,6 +243,139 @@ const BlindSpotSimulator = () => {
       beginPhase(next);
     }
   };
+
+  /* ---- Modal-driven commit ---- */
+
+  const advanceAfterCommit = (phaseIdx: number, record: DecisionRecord) => {
+    const updated = [...decisions, record];
+    setDecisions(updated);
+    const next = phaseIdx + 1;
+    setModalOpen(false);
+    window.setTimeout(() => {
+      if (next >= PHASES.length) {
+        runDebrief(updated);
+        setScreen({ kind: "debrief" });
+      } else {
+        modalFiredRef.current = null;
+        beginPhase(next);
+      }
+    }, 3000);
+  };
+
+  const postCommitFeedMessages = async (
+    phaseIdx: number,
+    choice: DecisionChoice,
+    optionLabel: string,
+    icBy: "user" | "ai",
+    reasoningSnippet?: string,
+  ) => {
+    const phase = PHASES[phaseIdx];
+    const summary =
+      icBy === "user"
+        ? `Decision committed: ${choice} — ${optionLabel}. Execute now.`
+        : `Decision committed: ${choice} — ${optionLabel}.`;
+    feedRef.current?.appendAssistant("Incident Commander", summary);
+
+    // Pick one other role to acknowledge
+    const others = (["IT-Ops", "OT-Ops", "Management & Comms"] as const).filter(
+      (r) => r !== (userRole?.name as string),
+    );
+    const ack = others[Math.floor(Math.random() * others.length)];
+    try {
+      const { data } = await supabase.functions.invoke("blind-spot-chat", {
+        body: {
+          mode: "comms",
+          aiRole: ack,
+          userRole: userRole?.name,
+          phaseName: phase.name,
+          phaseTimestamp: phase.timestamp,
+          situation: phase.situation,
+          userInput: `IC just committed: ${choice} — ${optionLabel}. ${reasoningSnippet ?? ""} Acknowledge in one short sentence and state your immediate next action.`,
+          history: [],
+        },
+      });
+      const text = (data?.text as string) ?? `Acknowledged. Executing.`;
+      window.setTimeout(() => feedRef.current?.appendAssistant(ack, text), 1200);
+    } catch {
+      /* ignore */
+    }
+  };
+
+  const handleUserCommit = (choice: DecisionChoice, reasoning: string) => {
+    if (!("phaseIdx" in screen)) return;
+    const phaseIdx = screen.phaseIdx;
+    const phase = PHASES[phaseIdx];
+    const opts = DECISION_OPTIONS[phase.index];
+    const optionLabel =
+      choice === "YES" ? opts.yes : choice === "NO" ? opts.no : opts.conditional;
+    const record: DecisionRecord = {
+      phase: phase.name,
+      timestamp: phase.timestamp,
+      question: phase.decisionQuestion,
+      choice,
+      reasoning,
+      icBy: "user",
+      iec62443Ref: phase.iec62443Ref,
+      nis2Flag: phase.nis2Flag,
+    };
+    postCommitFeedMessages(phaseIdx, choice, optionLabel, "user", reasoning);
+    advanceAfterCommit(phaseIdx, record);
+  };
+
+  const handleAiIcAuto = async () => {
+    if (!("phaseIdx" in screen) || !userRole) return;
+    const phaseIdx = screen.phaseIdx;
+    const phase = PHASES[phaseIdx];
+    try {
+      const { data, error } = await supabase.functions.invoke("blind-spot-chat", {
+        body: {
+          mode: "ic-decision",
+          aiRole: "Incident Commander",
+          userRole: userRole.name,
+          phaseName: phase.name,
+          phaseTimestamp: phase.timestamp,
+          situation: phase.situation,
+          userInput: `${phase.decisionQuestion}\n\nTeam input so far: ${userRole.name} said: "${userAssessment || "(no comment)"}". Other team panels: ${Object.entries(
+            aiOutputs,
+          )
+            .map(([r, t]) => `${r}: ${t}`)
+            .join(" | ")}`,
+          history: history["Incident Commander"] ?? [],
+        },
+      });
+      if (error) throw error;
+      const text = (data?.text as string) ?? "";
+      const choice = parseAiChoice(text);
+      const opts = DECISION_OPTIONS[phase.index];
+      const optionLabel =
+        choice === "YES" ? opts.yes : choice === "NO" ? opts.no : opts.conditional;
+      const record: DecisionRecord = {
+        phase: phase.name,
+        timestamp: phase.timestamp,
+        question: phase.decisionQuestion,
+        choice,
+        reasoning: text,
+        icBy: "ai",
+        iec62443Ref: phase.iec62443Ref,
+        nis2Flag: phase.nis2Flag,
+      };
+      postCommitFeedMessages(phaseIdx, choice, optionLabel, "ai");
+      advanceAfterCommit(phaseIdx, record);
+    } catch (e) {
+      toast({
+        title: "AI IC unavailable",
+        description: e instanceof Error ? e.message : "Unknown",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const triggerModalForPhase = (phaseIdx: number) => {
+    if (modalFiredRef.current === phaseIdx) return;
+    modalFiredRef.current = phaseIdx;
+    setModalOpen(true);
+  };
+
 
   const pushBackOnIC = async (phaseIdx: number) => {
     if (pushbackUsed || !userRole) return;
@@ -475,13 +639,17 @@ const BlindSpotSimulator = () => {
                     className="min-h-[120px] bg-background/60 border-white/10 font-mono text-sm flex-1"
                   />
                   <div className="flex justify-end mt-3">
-                    <Button onClick={submitAssessment} className="bg-[#f5b800] text-black hover:bg-[#f5b800]/90 font-mono uppercase tracking-wider">
-                      Proceed to IC decision →
+                    <Button
+                      onClick={() => triggerModalForPhase(screen.phaseIdx)}
+                      className="bg-[#f5b800] text-black hover:bg-[#f5b800]/90 font-mono uppercase tracking-wider"
+                    >
+                      Open IC decision →
                     </Button>
                   </div>
                 </div>
 
                 <CommsFeed
+                  ref={feedRef}
                   phaseIndex={phase.index}
                   phaseName={phase.name}
                   phaseTimestamp={phase.timestamp}
@@ -491,7 +659,9 @@ const BlindSpotSimulator = () => {
                   onLastUserMessage={(text) => {
                     if (text && !userAssessment) setUserAssessment(text);
                   }}
+                  onSequenceComplete={() => triggerModalForPhase(screen.phaseIdx)}
                 />
+
               </div>
 
             </div>
@@ -695,7 +865,24 @@ const BlindSpotSimulator = () => {
           </div>
         )}
       </main>
+
+      {userRole && screen.kind === "inject" && (() => {
+        const phase = PHASES[screen.phaseIdx];
+        return (
+          <DecisionModal
+            open={modalOpen}
+            isUserIC={isUserIC}
+            question={phase.decisionQuestion}
+            options={DECISION_OPTIONS[phase.index]}
+            iec62443Ref={phase.iec62443Ref}
+            nis2Flag={phase.nis2Flag}
+            onCommitUser={handleUserCommit}
+            onAiIcAuto={handleAiIcAuto}
+          />
+        );
+      })()}
     </div>
+
   );
 };
 
