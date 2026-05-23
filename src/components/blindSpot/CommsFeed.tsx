@@ -268,6 +268,7 @@ export const CommsFeed = forwardRef<CommsFeedHandle, Props>(function CommsFeed(
     onLatestByRole,
     onLastUserMessage,
     onSequenceComplete,
+    onUserMessageCount,
   },
   ref,
 ) {
@@ -275,8 +276,11 @@ export const CommsFeed = forwardRef<CommsFeedHandle, Props>(function CommsFeed(
   const [typingRole, setTypingRole] = useState<CommsRole | null>(null);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
+  const [userMsgCount, setUserMsgCount] = useState(0);
+  const [scriptedDone, setScriptedDone] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const seqStartedRef = useRef<number | null>(null);
+  const completeFiredRef = useRef<number | null>(null);
 
   const base = PHASE_BASE_TIME[phaseIndex];
 
@@ -301,6 +305,10 @@ export const CommsFeed = forwardRef<CommsFeedHandle, Props>(function CommsFeed(
     seqStartedRef.current = phaseIndex;
     setMessages([]);
     setTypingRole(null);
+    setUserMsgCount(0);
+    setScriptedDone(false);
+    completeFiredRef.current = null;
+    onUserMessageCount?.(0);
 
     const seq = SEQUENCES[phaseIndex] ?? [];
     const timers: number[] = [];
@@ -349,13 +357,27 @@ export const CommsFeed = forwardRef<CommsFeedHandle, Props>(function CommsFeed(
       }
     });
 
-    if (onSequenceComplete && seq.length > 0) {
-      timers.push(window.setTimeout(() => onSequenceComplete(), lastMessageAt + 8000));
+    if (seq.length > 0) {
+      timers.push(window.setTimeout(() => setScriptedDone(true), lastMessageAt + 8000));
+    } else {
+      setScriptedDone(true);
     }
 
     return () => timers.forEach((t) => window.clearTimeout(t));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phaseIndex]);
+
+  /* ---- Gate: fire onSequenceComplete only when scripted done AND user sent ≥1 msg ---- */
+  useEffect(() => {
+    if (!onSequenceComplete) return;
+    if (completeFiredRef.current === phaseIndex) return;
+    if (scriptedDone && userMsgCount >= 1) {
+      completeFiredRef.current = phaseIndex;
+      onSequenceComplete();
+    }
+  }, [scriptedDone, userMsgCount, phaseIndex, onSequenceComplete]);
+
+
 
 
   /* ---- Sync derived state up ---- */
