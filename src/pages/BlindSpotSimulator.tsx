@@ -38,12 +38,9 @@ interface DecisionRecord {
   nis2Flag?: string;
 }
 
-interface DebriefData {
-  perDecision: Array<{ iec62443: string; nis2: "met" | "at_risk" | "missed"; nis2Note: string }>;
-  lessons: string[];
-  overall: string;
-  overallNote: string;
-}
+import { DebriefScreen, DebriefAnalysis } from "@/components/blindSpot/DebriefScreen";
+
+type DebriefData = DebriefAnalysis;
 
 const ROLE_DISPLAY_NAME: Record<RoleId, string> = {
   "it-ops": "IT-Ops",
@@ -410,6 +407,7 @@ const BlindSpotSimulator = () => {
       const { data, error } = await supabase.functions.invoke("blind-spot-chat", {
         body: {
           mode: "debrief",
+          userRole: userRole?.name,
           decisions: finalDecisions.map((d) => ({
             phase: d.phase,
             question: d.question,
@@ -466,7 +464,7 @@ const BlindSpotSimulator = () => {
         <PhaseProgress currentPhase={currentPhaseForProgress} phases={PHASES} />
       )}
 
-      <main className="max-w-5xl mx-auto px-4 py-8">
+      <main className={screen.kind === "debrief" ? "w-full" : "max-w-5xl mx-auto px-4 py-8"}>
         {/* ===== Welcome ===== */}
         {screen.kind === "welcome" && (
           <div className="min-h-[70vh] flex flex-col justify-center items-center text-center">
@@ -759,110 +757,22 @@ const BlindSpotSimulator = () => {
         })()}
 
         {/* ===== Debrief ===== */}
-        {screen.kind === "debrief" && (
-          <div className="space-y-6">
-            <header>
-              <p className="font-mono text-xs text-[#f5b800] uppercase tracking-wider mb-2">
-                Exercise complete
-              </p>
-              <h2 className="font-mono text-3xl">Debrief</h2>
-            </header>
-
-            <div className="rounded-lg border border-white/10 bg-background/40 overflow-hidden">
-              <table className="w-full text-sm">
-                <thead className="bg-white/5 font-mono text-xs uppercase text-white/60">
-                  <tr>
-                    <th className="text-left p-3">Phase</th>
-                    <th className="text-left p-3">T</th>
-                    <th className="text-left p-3">Decision</th>
-                    <th className="text-left p-3">By</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {decisions.map((d, i) => (
-                    <tr key={i} className="border-t border-white/5">
-                      <td className="p-3 font-mono text-xs">{d.phase}</td>
-                      <td className="p-3 font-mono text-xs text-white/60">{d.timestamp}</td>
-                      <td className="p-3 font-mono text-[#f5b800]">{d.choice}</td>
-                      <td className="p-3 font-mono text-xs text-white/60 uppercase">{d.icBy}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            {debriefLoading && (
-              <p className="text-white/60 text-sm animate-pulse text-center py-8">
-                Assessor is reviewing your decisions…
-              </p>
-            )}
-
-            {debrief && (
-              <>
-                <div className={`rounded-lg border p-5 ${
-                  debrief.overall === "Strong response"
-                    ? "border-emerald-400/40 bg-emerald-400/5"
-                    : debrief.overall === "Adequate"
-                    ? "border-amber-400/40 bg-amber-400/5"
-                    : "border-red-400/40 bg-red-400/5"
-                }`}>
-                  <p className="font-mono text-xs uppercase tracking-wider text-white/60 mb-2">
-                    Overall performance
-                  </p>
-                  <p className="font-mono text-xl mb-2">{debrief.overall}</p>
-                  <p className="text-white/80 text-sm leading-relaxed">{debrief.overallNote}</p>
-                </div>
-
-                <div className="space-y-3">
-                  <h3 className="font-mono text-sm uppercase tracking-wider text-[#f5b800]">
-                    Per-decision feedback
-                  </h3>
-                  {debrief.perDecision.map((p, i) => (
-                    <div key={i} className="rounded-lg border border-white/10 bg-background/40 p-4">
-                      <p className="font-mono text-xs text-white/50 mb-2">
-                        {decisions[i]?.phase} — Choice: <span className="text-[#f5b800]">{decisions[i]?.choice}</span>
-                      </p>
-                      <p className="text-sm text-white/85 mb-2"><span className="font-mono text-xs text-[#f5b800]">IEC 62443:</span> {p.iec62443}</p>
-                      <p className="text-sm text-white/85">
-                        <span className={`font-mono text-xs uppercase ${
-                          p.nis2 === "met" ? "text-emerald-300" : p.nis2 === "at_risk" ? "text-amber-300" : "text-red-300"
-                        }`}>
-                          NIS-2: {p.nis2.replace("_", " ")}
-                        </span>{" "}
-                        — {p.nis2Note}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="rounded-lg border border-white/10 bg-background/40 p-5">
-                  <h3 className="font-mono text-sm uppercase tracking-wider text-[#f5b800] mb-3">
-                    Lessons learned
-                  </h3>
-                  <ul className="space-y-2">
-                    {debrief.lessons.map((l, i) => (
-                      <li key={i} className="text-white/85 text-sm flex gap-3">
-                        <span className="text-[#f5b800] font-mono">{i + 1}.</span>
-                        <span>{l}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </>
-            )}
-
-            <div className="flex gap-3 flex-wrap pt-4">
-              <Button
-                onClick={() => window.print()}
-                className="bg-[#f5b800] text-black hover:bg-[#f5b800]/90 font-mono uppercase tracking-wider"
-              >
-                Download session summary (PDF)
-              </Button>
-              <Button variant="outline" onClick={restart} className="font-mono uppercase tracking-wider">
-                Restart with a different role
-              </Button>
-            </div>
-          </div>
+        {screen.kind === "debrief" && userRole && (
+          <DebriefScreen
+            userRoleName={userRole.name}
+            decisions={decisions.map((d) => ({
+              phase: d.phase,
+              timestamp: d.timestamp,
+              question: d.question,
+              choice: d.choice,
+              reasoning: d.reasoning,
+              iec62443Ref: d.iec62443Ref,
+              nis2Flag: d.nis2Flag,
+            }))}
+            analysis={debrief}
+            loading={debriefLoading}
+            onRestart={restart}
+          />
         )}
       </main>
 
