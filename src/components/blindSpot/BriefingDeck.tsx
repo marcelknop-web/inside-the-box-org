@@ -453,94 +453,82 @@ const Field = ({ k, v, accent }: { k: string; v: string; accent?: string }) => (
 );
 
 /**
- * Cockpit tour — a schematic of the live exercise screen with numbered
- * call-outs and a legend. Not interactive; just teaches the player
- * where to look before the real cockpit appears.
+ * Cockpit tour — renders the REAL cockpit panels (PhaseProgress,
+ * SystemsStatusPanel, ObjectiveHud) plus faithful mocks of the three
+ * lower panels, with numbered call-out badges floating over each one
+ * and a matching legend on the right. Desktop-first composition so
+ * the briefing slide and the live cockpit look "from one mold".
  */
 const CockpitTour = () => {
+  const previewPhase = PHASES[0];
+
   const items = [
-    { n: 1, t: "Phase progress",      d: "Top bar. Shows current phase, streak and your last verdict." },
-    { n: 2, t: "Systems status",      d: "Six tiles — health of vendor VPN, jump host, historian, PLCs, SIS." },
-    { n: 3, t: "Objective HUD",       d: "What the IC needs from you right now: WATCH, ENGAGE or DECIDE." },
-    { n: 4, t: "Evidence panel",      d: "Left-top. The situation + incoming SIEM/Claroty alerts for this phase." },
-    { n: 5, t: "Implications · Your call", d: "Left-bottom. AI bridge readout — turns yellow when it's your move." },
-    { n: 6, t: "Team chat",           d: "Right column. Where you talk to the bridge and post your rationale." },
+    { n: 1, t: "Phase progress",  d: "IEC 62443 lifecycle. Shows where you are: Detect → Contain → Respond → Recover → Learn." },
+    { n: 2, t: "Systems status",  d: "Six tiles — health of vendor VPN, jump host, OT historian, engineering WS, PLCs and the SIS." },
+    { n: 3, t: "Objective HUD",   d: "Your current marching order: WATCH, ENGAGE or DECIDE. Read this first every phase." },
+    { n: 4, t: "Evidence panel",  d: "Top-left. The situation brief plus every SIEM / Claroty inject that lands this phase." },
+    { n: 5, t: "Implications · Your call", d: "Bottom-left. AI bridge readout — turns yellow with the question when it's your move." },
+    { n: 6, t: "Team chat",       d: "Right column. You talk to the bridge here. Your last message becomes your rationale." },
   ];
+
   return (
-    <div className="grid lg:grid-cols-[1.15fr_1fr] gap-5">
-      {/* Schematic */}
-      <div className="rounded-lg border border-white/10 bg-[#0e0e10] p-3 relative">
-        <div className="font-mono text-[9px] uppercase tracking-[0.25em] text-white/35 mb-2 flex items-center justify-between">
-          <span>Live exercise · cockpit</span>
-          <span className="text-[#f5b800]/70">PHASE 1 · T+0</span>
+    <div className="grid xl:grid-cols-[1.55fr_1fr] gap-5">
+      {/* Real cockpit, scaled down and non-interactive. */}
+      <div className="relative rounded-xl border border-white/10 bg-[#0e0e10] p-3 overflow-hidden">
+        <div className="flex items-center justify-between mb-2.5">
+          <span className="font-mono text-[9px] uppercase tracking-[0.25em] text-white/35">
+            Live exercise · cockpit preview
+          </span>
+          <span className="font-mono text-[9px] uppercase tracking-[0.25em] text-[#f5b800]/70">
+            Phase 1 · T+0
+          </span>
         </div>
 
-        {/* (1) progress bar */}
-        <Strip n={1} label="Phase progress">
-          <div className="flex items-center gap-1 px-2 py-1">
-            {[1, 2, 3, 4].map((p) => (
-              <div
-                key={p}
-                className={`h-1.5 flex-1 rounded-full ${p === 1 ? "bg-[#f5b800]" : "bg-white/15"}`}
-              />
-            ))}
-          </div>
-        </Strip>
+        {/* Non-interactive wrapper so clicks don't escape into mock state. */}
+        <div className="pointer-events-none select-none flex flex-col gap-2">
+          <Annotated n={1} side="left">
+            <PhaseProgress currentPhase={1} phases={PHASES} streak={0} verdict={null} />
+          </Annotated>
 
-        {/* (2) systems status */}
-        <Strip n={2} label="Systems status">
-          <div className="grid grid-cols-6 gap-1 p-1.5">
-            {["ok", "watch", "ok", "ok", "ok", "ok"].map((s, i) => (
-              <div
-                key={i}
-                className={`h-6 rounded border ${
-                  s === "watch"
-                    ? "border-[#f5b800]/40 bg-[#f5b800]/10"
-                    : "border-white/10 bg-white/[0.03]"
-                } flex items-center justify-center`}
-              >
-                <span
-                  className={`w-1 h-1 rounded-full ${
-                    s === "watch" ? "bg-[#f5b800]" : "bg-emerald-400"
-                  }`}
-                />
-              </div>
-            ))}
-          </div>
-        </Strip>
+          <Annotated n={2} side="left">
+            <SystemsStatusPanel phaseIndex={1} />
+          </Annotated>
 
-        {/* (3) objective HUD */}
-        <Strip n={3} label="Objective HUD">
-          <div className="px-2.5 py-1.5 flex items-center gap-2">
-            <span className="font-mono text-[9px] text-emerald-300 border border-emerald-300/40 bg-emerald-300/10 rounded px-1.5 py-0.5">
-              WATCH
-            </span>
-            <span className="font-mono text-[9px] text-white/55">
-              Read the alert. Listen to the bridge.
-            </span>
-          </div>
-        </Strip>
+          <Annotated n={3} side="left">
+            <ObjectiveHud
+              phase={previewPhase}
+              totalPhases={PHASES.length}
+              userRoleName="You"
+              step="watch"
+              alertsCount={1}
+              userMsgCount={0}
+            />
+          </Annotated>
 
-        {/* (4) + (5) + (6) main grid */}
-        <div className="grid grid-cols-[1fr_1fr] gap-1.5 mt-1.5">
-          <div className="grid grid-rows-2 gap-1.5">
-            <Block n={4} label="Evidence" tone="cool" />
-            <Block n={5} label="Implications / Your call" tone="warm" />
+          <div className="grid grid-cols-[1fr_1fr] gap-2 mt-1">
+            <div className="grid grid-rows-2 gap-2">
+              <Annotated n={4} side="left">
+                <MockEvidence />
+              </Annotated>
+              <Annotated n={5} side="left">
+                <MockImplications />
+              </Annotated>
+            </div>
+            <Annotated n={6} side="right">
+              <MockChat />
+            </Annotated>
           </div>
-          <Block n={6} label="Team chat" tone="dim" tall />
         </div>
       </div>
 
-      {/* Legend */}
-      <ol className="space-y-2.5">
+      {/* Legend — same visual language as the slide cards. */}
+      <ol className="space-y-2">
         {items.map((it) => (
           <li
             key={it.n}
-            className="flex gap-3 rounded border border-white/10 bg-background/30 p-3"
+            className="flex gap-3 rounded-lg border border-white/10 bg-background/30 p-3 hover:border-[#f5b800]/40 transition-colors"
           >
-            <span className="shrink-0 w-7 h-7 rounded-full border border-[#f5b800] bg-[#f5b800]/15 text-[#f5b800] font-mono text-sm flex items-center justify-center">
-              {it.n}
-            </span>
+            <CallOut n={it.n} />
             <div className="min-w-0">
               <div className="font-mono text-[12px] text-white/90">{it.t}</div>
               <div className="text-white/55 text-xs leading-relaxed mt-0.5">{it.d}</div>
@@ -552,53 +540,127 @@ const CockpitTour = () => {
   );
 };
 
-const Strip = ({
-  n, label, children,
-}: { n: number; label: string; children: ReactNode }) => (
-  <div className="relative mb-1.5 rounded border border-white/10 bg-white/[0.02]">
-    <Tag n={n} />
-    {children}
-    <span className="absolute right-2 top-1/2 -translate-y-1/2 font-mono text-[8px] uppercase tracking-wider text-white/30">
-      {label}
-    </span>
+/* ---------- Annotation primitives ---------- */
+
+const Annotated = ({
+  n, side = "left", children,
+}: { n: number; side?: "left" | "right"; children: ReactNode }) => (
+  <div className="relative">
+    <div className={`absolute -top-2 ${side === "left" ? "-left-2" : "-right-2"} z-20`}>
+      <CallOut n={n} />
+    </div>
+    <div className="rounded-lg ring-1 ring-[#f5b800]/15 hover:ring-[#f5b800]/30 transition-shadow">
+      {children}
+    </div>
   </div>
 );
 
-const Block = ({
-  n, label, tone, tall,
-}: { n: number; label: string; tone: "cool" | "warm" | "dim"; tall?: boolean }) => {
-  const toneCls =
-    tone === "warm"
-      ? "border-[#f5b800]/40 bg-[#f5b800]/8"
-      : tone === "cool"
-      ? "border-white/10 bg-white/[0.03]"
-      : "border-white/10 bg-white/[0.015]";
-  return (
-    <div
-      className={`relative rounded border ${toneCls} ${tall ? "min-h-[150px]" : "min-h-[68px]"} p-2`}
-    >
-      <Tag n={n} />
-      <div className="font-mono text-[9px] uppercase tracking-wider text-white/45 ml-7">
-        {label}
-      </div>
-      {/* fake lines */}
-      <div className="absolute inset-x-3 bottom-3 space-y-1">
-        <div className="h-1 rounded bg-white/10 w-3/4" />
-        <div className="h-1 rounded bg-white/10 w-1/2" />
-        {tall && (
-          <>
-            <div className="h-1 rounded bg-white/10 w-5/6" />
-            <div className="h-1 rounded bg-white/10 w-2/3" />
-            <div className="h-1 rounded bg-white/10 w-1/3" />
-          </>
-        )}
-      </div>
-    </div>
-  );
-};
-
-const Tag = ({ n }: { n: number }) => (
-  <span className="absolute left-1.5 top-1.5 z-10 w-5 h-5 rounded-full border border-[#f5b800] bg-[#0e0e10] text-[#f5b800] font-mono text-[10px] flex items-center justify-center">
+const CallOut = ({ n }: { n: number }) => (
+  <span className="inline-flex shrink-0 items-center justify-center w-7 h-7 rounded-full border border-[#f5b800] bg-[#0e0e10] text-[#f5b800] font-mono text-xs font-bold shadow-[0_0_12px_rgba(245,184,0,0.45)]">
     {n}
   </span>
+);
+
+/* ---------- Faithful mocks of the three lower panels ---------- */
+
+const MockEvidence = () => (
+  <div
+    className="flex flex-col rounded-lg border h-full min-h-[170px] overflow-hidden"
+    style={{ backgroundColor: "#111111", borderColor: "#2a2a2a" }}
+  >
+    <div className="flex items-center justify-between px-3 py-2 border-b" style={{ borderColor: "#2a2a2a" }}>
+      <span className="font-mono text-[10px] text-white/50 uppercase tracking-wider">
+        Injects · Evidence
+      </span>
+      <span className="font-mono text-[9px] text-white/40">T+0</span>
+    </div>
+    <div className="p-3 space-y-2">
+      <p className="text-white/75 text-[11px] leading-snug">
+        Splunk fires a HIGH alert: anomalous vendor VPN session, lateral
+        movement attempt from Jump Host toward OT Historian.
+      </p>
+      <div className="rounded border border-amber-400/40 bg-amber-400/5 px-2 py-1.5">
+        <div className="flex items-center justify-between">
+          <span className="font-mono text-[9px] text-amber-300 uppercase tracking-wider">SIEM · HIGH</span>
+          <span className="font-mono text-[9px] text-white/40">23:47</span>
+        </div>
+        <div className="font-mono text-[10px] text-white/80 mt-0.5 truncate">
+          Vendor VPN session · off-hours
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+const MockImplications = () => (
+  <div
+    className="flex flex-col rounded-lg border h-full min-h-[170px] overflow-hidden"
+    style={{ backgroundColor: "#111111", borderColor: "#2a2a2a" }}
+  >
+    <div className="flex items-center justify-between px-3 py-2 border-b" style={{ borderColor: "#2a2a2a" }}>
+      <span className="font-mono text-[10px] text-white/50 uppercase tracking-wider">
+        Implications · bridge readout
+      </span>
+      <span className="font-mono text-[9px] text-[#f5b800]/70 animate-pulse">● live</span>
+    </div>
+    <div className="p-3 space-y-1.5">
+      {[
+        ["IT-Ops",  "EDR clean on Jump Host. Pulling VPN auth logs."],
+        ["OT-Ops",  "Plant nominal. Historian read-only verified."],
+        ["Mgmt",    "Holding statement drafted, not sent."],
+      ].map(([who, txt]) => (
+        <div key={who} className="text-[10.5px] leading-snug">
+          <span className="font-mono text-[#f5b800]">{who}: </span>
+          <span className="text-white/70">{txt}</span>
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
+const MockChat = () => (
+  <div
+    className="flex flex-col rounded-lg border h-full min-h-[358px] overflow-hidden"
+    style={{ backgroundColor: "#111111", borderColor: "#2a2a2a" }}
+  >
+    <div className="flex items-center justify-between px-3 py-2 border-b" style={{ borderColor: "#2a2a2a" }}>
+      <span className="font-mono text-[10px] text-white/50 uppercase tracking-wider">
+        Team chat · the bridge
+      </span>
+      <span className="font-mono text-[9px] text-white/40">Phase 1</span>
+    </div>
+    <div className="flex-1 p-3 space-y-2 overflow-hidden">
+      {[
+        { who: "IC",     txt: "Bridge open. Read me the SIEM alert.", you: false },
+        { who: "IT-Ops", txt: "HIGH on vendor VPN, lateral from Jump Host.", you: false },
+        { who: "OT-Ops", txt: "Plant green. Historian unaffected so far.", you: false },
+        { who: "You",    txt: "Recommend revoke vendor session now.", you: true },
+      ].map((m, i) => (
+        <div key={i} className={`flex ${m.you ? "justify-end" : "justify-start"}`}>
+          <div
+            className={`max-w-[85%] rounded-md px-2 py-1 text-[10.5px] leading-snug ${
+              m.you
+                ? "bg-[#f5b800]/15 border border-[#f5b800]/40 text-white"
+                : "bg-white/[0.04] border border-white/10 text-white/80"
+            }`}
+          >
+            <div className={`font-mono text-[8.5px] uppercase tracking-wider mb-0.5 ${
+              m.you ? "text-[#f5b800]" : "text-white/40"
+            }`}>
+              {m.who}
+            </div>
+            {m.txt}
+          </div>
+        </div>
+      ))}
+    </div>
+    <div className="px-3 py-2 border-t flex items-center gap-2" style={{ borderColor: "#2a2a2a" }}>
+      <div className="flex-1 rounded border border-white/10 bg-white/[0.03] px-2 py-1.5 font-mono text-[10px] text-white/35">
+        Type your message…
+      </div>
+      <div className="rounded bg-[#f5b800] text-black font-mono text-[9px] uppercase tracking-wider px-2 py-1.5">
+        Send
+      </div>
+    </div>
+  </div>
 );
