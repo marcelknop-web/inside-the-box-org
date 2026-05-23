@@ -1,119 +1,40 @@
-## Ziel
+## Blind Spot — OT Crisis Simulator
 
-Ein neues Compliance-Tool **„EU AI Act Readiness Assessment"** unter `/ai-act-readiness` (über `ChatView`-Catchall, mit `PasswordGate` wie die anderen Tools), das die jeweils besten Bausteine der bestehenden Tools kombiniert:
+New single-player TTX app at route `/blind-spot`, following the project's existing tech-atelier patterns (dark bg, gold #f5b800 accent, DM Sans / IBM Plex Mono, Edge Function for AI).
 
-- **Aus NIS-2:** Phasenmodell (Intake → Risikolandschaft → Anforderungen → Report) + Quality-Gates + Auto-Fixes + PDF-Engine
-- **Aus CRA:** Produkt-/System-spezifische Klassifizierung (hier: AI-System-Klassifizierung statt Produktkategorien)
-- **Aus IEC 62443/UR27:** Strukturierte Risikobewertung mit Reifegradmodell und Audit-Charts (Radar/Heatmap/Gantt)
-- **Aus DORA:** KI-gestützte Reasoning-Edge-Function für Klassifizierungs-Begründungen
+### Important deviation from prompt
+You asked for Anthropic Claude API called from the frontend. Per project standards I'll use the **Lovable AI Gateway** (anonymous, no key needed, already wired everywhere else) via a new Edge Function `blind-spot-chat`. Model: `google/gemini-2.5-flash` (fast, in-character role play). Same behavior, no API key setup, no frontend secret exposure. Tell me if you want Claude specifically — that needs an `ANTHROPIC_API_KEY` secret + different edge function.
 
-## Regulatorische Basis
+### Build steps
 
-EU-Verordnung 2024/1689 (AI Act). Abgedeckte Kernbereiche:
+1. **Edge Function** `supabase/functions/blind-spot-chat/index.ts`
+   - Accepts `{ role, phase, situation, userRole, userInput, history }`
+   - Builds role-specific system prompt (IT-Ops / OT-Ops / IC / Mgmt-Comms variants)
+   - Calls Lovable AI Gateway, returns assistant text
+   - Handles 429/402 with user-facing errors
+   - `verify_jwt = false` in `config.toml`
 
-1. **Risikoklassifizierung** — Verbotene Praktiken (Art. 5), Hochrisiko-Systeme (Art. 6 + Anhang III), GPAI (Art. 51 ff.), begrenztes/minimales Risiko
-2. **Anforderungen für Hochrisiko-Systeme** — Risikomanagement (Art. 9), Daten-Governance (Art. 10), Technische Dokumentation (Art. 11), Aufzeichnungen (Art. 12), Transparenz (Art. 13), Menschliche Aufsicht (Art. 14), Genauigkeit/Robustheit/Cybersicherheit (Art. 15)
-3. **Pflichten der Anbieter** (Art. 16) und **Betreiber** (Art. 26)
-4. **GPAI-Modelle** — Art. 53 (alle GPAI) + Art. 55 (systemisches Risiko)
-5. **Transparenzpflichten** (Art. 50) — KI-Interaktion, Deepfakes, synthetische Inhalte
-6. **Konformitätsbewertung & CE-Kennzeichnung** (Art. 43, 48)
+2. **Scenario data** `src/data/blindSpotScenario.ts`
+   - 4 roles with descriptions
+   - 4 phases (T+0 / T+45 / T+90 / T+4h) with situation text, color, IC question, IEC 62443 / NIS-2 refs
+   - Network zone table, company facts
 
-## Datei-Struktur
+3. **Page** `src/pages/BlindSpotSimulator.tsx` — state machine driving all 12 screens:
+   - `welcome` → `roleSelect` → `briefing` → per phase (`inject` → `decision`) ×4 → `debrief`
+   - Session state: chosen role, decision log `[{phase, choice, reasoning, timestamp}]`, full message history per AI role for context coherence
+   - PDF debrief uses existing `pdfCore.ts` pattern (windows-1252 safe)
 
-```text
-src/
-  pages/
-    AiActReadinessTool.tsx          (~1000 Zeilen, Vorbild Nis2ComplianceTool)
-  components/
-    AiActAuditCharts.tsx            (~230 Zeilen, Vorbild Nis2AuditCharts)
-  data/
-    aiActData.ts                    (~600 Zeilen — Risiken, Anforderungen, Demo-Szenarien)
-    aiActDataI18n.ts                (~200 Zeilen)
-  utils/
-    aiActQualityCheck.ts            (~320 Zeilen)
-    aiActAuditFixes.ts              (~160 Zeilen)
-    aiActReportPdf.ts               (~1100 Zeilen, basierend auf nis2ReportPdf)
-supabase/functions/
-  ai-act-reasoning/index.ts         (Edge Function, Vorbild dora-reasoning)
-```
+4. **Components** (in `src/components/blindSpot/`):
+   - `PhaseProgress.tsx` — top 1→2→3→4→Debrief dots, amber for current
+   - `RoleCard.tsx` — 2×2 grid card
+   - `AiRolePanel.tsx` — role label, icon, streaming/loading shimmer (pulsing gold border), markdown body
+   - `DecisionBox.tsx` — Yes/No/Conditional + reasoning OR AI-IC display with Accept/Push back
 
-Plus Erweiterungen in:
-- `src/i18n/{de,en,fr}.ts` — `aiAct.*`-Namespace (~80 Keys)
-- `src/pages/ChatView.tsx` — Lazy-Import + Service-Definition + `explicitRoutes`-Eintrag + Navigations-Eintrag
+5. **Route** in `src/App.tsx`: lazy `/blind-spot`, no nav link (matches `/iacs-ur26` pattern). No password gate unless you want one.
 
-## Phasenmodell (analog NIS-2)
+6. **Design**: `bg-background/40` panels, IBM Plex Mono for timestamps/zone tables/phase badges, DM Sans for prose. Phase color coding via tailwind classes mapped from scenario data. Mobile single-column.
 
-1. **Intake-Wizard (8 Schritte)**
-   - Organisation & Rolle (Anbieter / Betreiber / Importeur / Händler)
-   - AI-System-Beschreibung (Name, Zweck, Domäne)
-   - Risikoklasse-Indikatoren (Anhang-III-Bereiche, Echtzeit-Biometrie, etc.)
-   - GPAI-Klassifizierung (Foundation Model? FLOPS-Schwelle? Systemisches Risiko?)
-   - Daten & Trainingsbasis (Quellen, Bias-Tests, DSGVO-Konformität)
-   - Implementierte Maßnahmen (Reifegradmodell: aktiv / dokumentiert / auditiert / zertifiziert) — z. B. Risikomanagementsystem, Logging, Human Oversight, Robustheitstests
-   - Bekannte Lücken & Dokumenten-Upload (nur Metadaten)
-   - Zusammenfassung & Demo-Szenarien (Cycling-Button)
-
-2. **Risikoklassifizierung** — Automatische Einstufung in *verboten / hochrisiko / GPAI / begrenzt / minimal* basierend auf Intake. Mit Begründung (optional via Edge Function).
-
-3. **AI-Risikolandschaft** — Strukturiertes Risiko-Modell:
-   - Kategorien: **B**ias/Fairness, **R**obustness, **T**ransparency, **P**rivacy, **S**ecurity, **G**overnance/Oversight, **E**nvironmental
-   - Pro Risiko: likelihood × impact (5×5), Evidenz, Quellen, AI-Act-Artikelreferenz
-   - Heatmap + Radar
-
-4. **Anforderungs-Mapping** — Pass/Partial/Fail je AI-Act-Artikel, mit Lücke, Maßnahme, SMARTen Kriterien, Aufwand, Priorität (P0–P3)
-
-5. **Report & Export** — Quality-Check → Auto-Fixes → PDF („AI-ACT-YYYY-XXXXX")
-
-## Quality-Gates (analog DORA/NIS-2)
-
-- **A. Konsistenz** — Bidirektionale Traceability Risiko ↔ AI-Act-Artikel
-- **B. Fachlich** — Plausibilität: Hochrisiko-System ohne Risikomanagement (Art. 9) → fail erzwingen; GPAI mit FLOPS ≥ 10²⁵ → systemisches Risiko erzwingen
-- **C. Evidenz** — Evidenzqualität bei kritischen Risiken
-- **D. Redaktion** — Tippfehler, Formatierung
-- **E. Regulatorik** — Verbotene Praktiken (Art. 5) → automatisch `failed`-Verdikt
-
-## Charts (analog NIS-2)
-
-- KPI-Karten + Compliance-Gauge
-- Radar (B/R/T/P/S/G/E-Kategorien)
-- 5×5-Heatmap der AI-Risiken
-- Top-5-Risiken Bar-Chart
-- AI-Act-Kapitel-Konformität (Art. 9–15, 16, 26, 50, 53, 55)
-- Gantt-Roadmap nach Priorität (P0 0–4 Wo., P1 1–3 Mo., P2 3–6 Mo., P3 6–12 Mo.)
-
-## PDF-Bericht (Vorbild nis2ReportPdf)
-
-Struktur: Deckblatt → TOC → 1 Ausgangslage → 2 Management Summary (mit Risikoklasse + ROI) → 3 Prüfungsgegenstand (3.1 Organisation, 3.2 AI-System, 3.3 Maßnahmen, 3.4 bekannte Schwachstellen, 3.5 Dokumentation) → 4 Feststellungen (4.1 Risikolandschaft, 4.2 Konformitätslücken) → 5 Roadmap → 6 Methodik → Anhänge A–E (strukturierte Daten, Werkzeuge, Evidenz, QA, Arbeitspapiere). Windows-1252-Encoding, jsPDF, client-seitig.
-
-## Edge Function `ai-act-reasoning`
-
-Eingabe: Intake-Daten + Klassifizierungs-Verdict (`prohibited` / `highRisk` / `gpaiSystemic` / `gpai` / `limited` / `minimal`) + Sprache. Ausgabe: Begründungstext basierend auf AI-Act-Artikel-Kriterien. Modell: `google/gemini-3-flash-preview` via Lovable AI Gateway. Rate-Limiting (10/min/IP, 300/Tag) wie `dora-reasoning`.
-
-## i18n
-
-Vollständig DE/EN/FR via `aiAct.*`-Namespace. Tonalität konsistent mit Memory-Regeln (impersonal DE, terse, professional, IBM Plex Mono für Daten, DM Sans für Narrativ).
-
-## Integration in ChatView
-
-- Lazy-Import `AiActReadinessTool`
-- Service-Definition `'ai-act-readiness'` (Icon `Brain` oder `Cpu`)
-- `explicitRoutes` ergänzen → URL `/ai-act-readiness` funktioniert direkt
-- Navigations-Eintrag in „Compliance"-Cluster mit `isNew: true`
-- `PasswordGate` analog zu `cra-check` / `nis2-compliance`
-
-## Out of Scope
-
-- Keine Persistenz in Supabase (analog zu allen anderen Compliance-Tools — alles client-seitig)
-- Keine Anbindung an externe AI-Register/Notified Bodies
-- Keine Übersetzung des PDF-Reports (Bericht bleibt deutsch wie bei NIS-2)
-- Keine eigene Auth (PasswordGate genügt)
-
-## Technische Risiken
-
-- **Datenmodellierung AI Act ist umfangreich** — Wir beschränken uns auf Hochrisiko-Anforderungen Art. 9–15 + 16/26/50/53/55. Erweiterung später möglich.
-- **Klassifizierungs-Logik (verboten vs. Hochrisiko)** kann komplex werden — wir nutzen klare Indikator-Checkboxes im Intake statt Freitext-Heuristik.
-- **Bundle-Größe** — Lazy-Loading + Code-Splitting wie bei den anderen Tools.
-
-## Geschätzter Umfang
-
-~3500 Zeilen neuer Code + Edge Function + i18n. Implementierung in einem Rutsch möglich, da die Vorlagen 1:1 adaptiert werden.
+### Out of scope (call out if needed)
+- i18n (DE/EN/FR) — content is English-only per scenario; can add later
+- No persistence (ephemeral session as you specified)
+- No analytics / leaderboard
