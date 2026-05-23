@@ -63,19 +63,16 @@ const BlindSpotSimulator = () => {
   // Briefing has two pages: 'intro' (company/systems/network) → 'mission' (alert/phases/roles)
   const [briefingStep, setBriefingStep] = useState<"intro" | "mission">("intro");
 
-  // Per-phase user assessment text
+  // Per-phase user assessment text (latest user chat message of the phase)
   const [userAssessment, setUserAssessment] = useState("");
   // Per-phase AI role outputs (keyed by aiRole) -> latest text
   const [aiOutputs, setAiOutputs] = useState<Record<string, string>>({});
   // Conversation history per AI role across phases
   const [history, setHistory] = useState<Record<string, Array<{ role: "user" | "assistant"; content: string }>>>({});
 
-  // Decision state
-  const [decisionChoice, setDecisionChoice] = useState<"YES" | "NO" | "CONDITIONAL" | null>(null);
-  const [decisionReasoning, setDecisionReasoning] = useState("");
-  const [aiIcDecision, setAiIcDecision] = useState<string>("");
-  const [aiIcLoading, setAiIcLoading] = useState(false);
+  // Pushback (one per phase) — user can challenge the AI IC before committing
   const [pushbackUsed, setPushbackUsed] = useState(false);
+  const [committing, setCommitting] = useState(false);
 
   const [decisions, setDecisions] = useState<DecisionRecord[]>([]);
   const [debrief, setDebrief] = useState<DebriefData | null>(null);
