@@ -44,6 +44,7 @@ interface Props {
   onLatestByRole: (latest: Record<string, string>) => void;
   onLastUserMessage: (text: string) => void;
   onSequenceComplete?: () => void;
+  onScriptedDone?: () => void;
   onUserMessageCount?: (count: number) => void;
   onSystemAlert?: (alert: { card: AlertCard; time: string; source: string }) => void;
   hideSystemMessages?: boolean;
