@@ -691,18 +691,86 @@ const BlindSpotSimulator = () => {
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 md:grid-rows-2 gap-3 flex-1 min-h-0">
+              <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr] gap-3 flex-1 min-h-0">
 
-                {/* TL — Evidence / Injects */}
-                <EvidencePanel
-                  phaseName={phase.name}
-                  phaseTimestamp={phase.timestamp}
-                  situation={phase.situation}
-                  nis2Flag={phase.nis2Flag}
-                  alerts={evidence}
-                />
+                {/* LEFT COLUMN — Evidence (top) + Decision+Notes (bottom) */}
+                <div className="grid grid-rows-2 gap-3 min-h-0">
+                  <EvidencePanel
+                    phaseName={phase.name}
+                    phaseTimestamp={phase.timestamp}
+                    situation={phase.situation}
+                    nis2Flag={phase.nis2Flag}
+                    alerts={evidence}
+                  />
 
-                {/* TR — Team Chat */}
+                  {/* Combined Decision + Private notes */}
+                  <div
+                    className="rounded-lg border h-full min-h-0 flex flex-col overflow-hidden"
+                    style={{ backgroundColor: "#111111", borderColor: "#2a2a2a" }}
+                  >
+                    <div
+                      className="flex items-center justify-between px-4 py-2.5 border-b"
+                      style={{ borderColor: "#2a2a2a" }}
+                    >
+                      <span className="font-mono text-[11px] text-[#f5b800] uppercase tracking-wider">
+                        {isUserIC ? "Your decision call" : "Pending IC decision"} · Notes
+                      </span>
+                      <span className="font-mono text-[10px] text-white/40">
+                        Msgs sent: {phaseUserMsgCount}
+                      </span>
+                    </div>
+
+                    <div className="flex-1 overflow-y-auto p-3 space-y-3 min-h-0">
+                      <div className="rounded-md border-2 border-[#f5b800]/50 bg-[#f5b800]/5 p-3">
+                        <p className="font-mono text-[10px] text-[#f5b800] uppercase tracking-wider mb-1.5">
+                          Decision question
+                        </p>
+                        <p className="text-[13px] text-white/90 leading-relaxed">
+                          {phase.decisionQuestion}
+                        </p>
+                      </div>
+                      <div className="rounded-md border border-white/10 bg-background/40 p-2.5 font-mono text-[11px] text-white/60 space-y-1">
+                        <div>
+                          <span className="text-[#f5b800]">IEC 62443:</span> {phase.iec62443Ref}
+                        </div>
+                        {phase.nis2Flag && (
+                          <div>
+                            <span className="text-red-300">NIS-2:</span> {phase.nis2Flag}
+                          </div>
+                        )}
+                      </div>
+
+                      <div>
+                        <p className="font-mono text-[10px] text-white/50 uppercase tracking-wider mb-1.5">
+                          Private notes · {userRole.name}
+                        </p>
+                        <Textarea
+                          value={userAssessment}
+                          onChange={(e) => setUserAssessment(e.target.value)}
+                          placeholder="Optional — private notes that feed the IC decision context."
+                          className="min-h-[110px] bg-background/60 border-white/10 font-mono text-sm resize-none"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="border-t p-3 space-y-2 shrink-0" style={{ borderColor: "#2a2a2a" }}>
+                      <Button
+                        onClick={() => triggerModalForPhase(screen.phaseIdx)}
+                        disabled={phaseUserMsgCount < 1}
+                        className="w-full bg-[#f5b800] text-black hover:bg-[#f5b800]/90 font-mono uppercase tracking-wider text-xs disabled:opacity-40"
+                      >
+                        {isUserIC ? "Open IC decision →" : "Submit recommendation →"}
+                      </Button>
+                      {phaseUserMsgCount < 1 && (
+                        <p className="font-mono text-[10px] text-white/50 text-center">
+                          Send at least one message in the team chat to engage IC.
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* RIGHT COLUMN — Team Chat (full height to right edge) */}
                 <CommsFeed
                   ref={feedRef}
                   phaseIndex={phase.index}
@@ -719,82 +787,8 @@ const BlindSpotSimulator = () => {
                   onUserMessageCount={(n) => setPhaseUserMsgCount(n)}
                   onSequenceComplete={() => triggerModalForPhase(screen.phaseIdx)}
                 />
-
-                {/* BL — Private notes */}
-                <div
-                  className="rounded-lg border h-full min-h-0 flex flex-col overflow-hidden"
-                  style={{ backgroundColor: "#111111", borderColor: "#2a2a2a" }}
-                >
-                  <div
-                    className="flex items-center justify-between px-4 py-2.5 border-b"
-                    style={{ borderColor: "#2a2a2a" }}
-                  >
-                    <span className="font-mono text-[11px] text-[#f5b800] uppercase tracking-wider">
-                      Your private notes · {userRole.name}
-                    </span>
-                  </div>
-                  <div className="flex-1 p-3">
-                    <Textarea
-                      value={userAssessment}
-                      onChange={(e) => setUserAssessment(e.target.value)}
-                      placeholder="Optional — private notes that feed the IC decision context."
-                      className="h-full bg-background/60 border-white/10 font-mono text-sm resize-none"
-                    />
-                  </div>
-                </div>
-
-                {/* BR — Decision brief */}
-                <div
-                  className="rounded-lg border h-full min-h-0 flex flex-col overflow-hidden"
-                  style={{ backgroundColor: "#111111", borderColor: "#2a2a2a" }}
-                >
-                  <div
-                    className="flex items-center justify-between px-4 py-2.5 border-b"
-                    style={{ borderColor: "#2a2a2a" }}
-                  >
-                    <span className="font-mono text-[11px] text-[#f5b800] uppercase tracking-wider">
-                      {isUserIC ? "Your decision call" : "Pending IC decision"}
-                    </span>
-                    <span className="font-mono text-[10px] text-white/40">
-                      Msgs sent: {phaseUserMsgCount}
-                    </span>
-                  </div>
-                  <div className="flex-1 overflow-y-auto p-4 space-y-3">
-                    <div className="rounded-md border-2 border-[#f5b800]/50 bg-[#f5b800]/5 p-3">
-                      <p className="font-mono text-[10px] text-[#f5b800] uppercase tracking-wider mb-1.5">
-                        Decision question
-                      </p>
-                      <p className="text-[13px] text-white/90 leading-relaxed">
-                        {phase.decisionQuestion}
-                      </p>
-                    </div>
-                    <div className="rounded-md border border-white/10 bg-background/40 p-3 font-mono text-[11px] text-white/60 space-y-1">
-                      <div>
-                        <span className="text-[#f5b800]">IEC 62443:</span> {phase.iec62443Ref}
-                      </div>
-                      {phase.nis2Flag && (
-                        <div>
-                          <span className="text-red-300">NIS-2:</span> {phase.nis2Flag}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  <div className="border-t p-3 space-y-2" style={{ borderColor: "#2a2a2a" }}>
-                    <Button
-                      onClick={() => triggerModalForPhase(screen.phaseIdx)}
-                      disabled={phaseUserMsgCount < 1}
-                      className="w-full bg-[#f5b800] text-black hover:bg-[#f5b800]/90 font-mono uppercase tracking-wider text-xs disabled:opacity-40"
-                    >
-                      {isUserIC ? "Open IC decision →" : "Submit recommendation →"}
-                    </Button>
-                    {phaseUserMsgCount < 1 && (
-                      <p className="font-mono text-[10px] text-white/50 text-center">
-                        Send at least one message in the team chat to engage IC.
-                      </p>
-                    )}
-                  </div>
-                </div>
               </div>
+
             </div>
           );
         })()}
