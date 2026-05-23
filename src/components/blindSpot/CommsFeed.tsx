@@ -44,6 +44,7 @@ interface Props {
   onLatestByRole: (latest: Record<string, string>) => void;
   onLastUserMessage: (text: string) => void;
   onSequenceComplete?: () => void;
+  onUserMessageCount?: (count: number) => void;
 }
 
 
