@@ -801,7 +801,7 @@ const BlindSpotSimulator = () => {
                   }}
                   onUserMessageCount={(n) => setPhaseUserMsgCount(n)}
                   onScriptedDone={() => setDecisionReady(true)}
-                  onSequenceComplete={() => triggerModalForPhase(screen.phaseIdx)}
+                  onSequenceComplete={() => commitFromChat(screen.phaseIdx)}
                 />
               </div>
 
