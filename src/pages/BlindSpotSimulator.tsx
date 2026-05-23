@@ -665,12 +665,15 @@ const BlindSpotSimulator = () => {
                 </div>
                 <div className="flex-1 min-w-[260px]">
                   <p className="font-mono text-[10px] text-[#f5b800] uppercase tracking-[0.3em] mb-1">
-                    ▲ Pre-exercise briefing
+                    ▲ {briefingStep === "intro" ? "Part 1 · Introduction" : "Part 2 · Mission briefing"}
                   </p>
-                  <h2 className="font-mono text-2xl leading-tight">Welcome aboard, {userRole.name}.</h2>
+                  <h2 className="font-mono text-2xl leading-tight">
+                    {briefingStep === "intro" ? `Welcome aboard, ${userRole.name}.` : "Mission briefing — stand by."}
+                  </h2>
                   <p className="text-white/70 text-sm mt-2 leading-relaxed max-w-2xl">
-                    60-second read. You are about to drop into a live OT crisis at NorPower.
-                    This is the context you would already have on day one.
+                    {briefingStep === "intro"
+                      ? "Get to know NorPower, its systems and its network. This is the context you would already have on day one."
+                      : "Here is the live alert that pulled you onto the bridge, the phases ahead, and the team you'll work with."}
                   </p>
                 </div>
                 <div className="shrink-0 grid grid-cols-2 gap-2 font-mono text-[10px] uppercase tracking-wider">
