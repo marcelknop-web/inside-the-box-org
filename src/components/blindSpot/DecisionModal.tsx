@@ -19,8 +19,8 @@ interface Props {
   seconds?: number;
   /** Called when user commits as IC. */
   onCommitUser: (choice: DecisionChoice, reasoning: string) => void;
-  /** Called when running as non-IC — modal asks parent to fetch AI IC decision after delay. */
-  onAiIcAuto: () => void;
+  /** Called when running as non-IC — receives the user's recommendation to IC. */
+  onAiIcAuto: (recommendation: { stance: DecisionChoice; reasoning: string }) => void;
 }
 
 const OPTS: OptionDef[] = [
@@ -38,6 +38,8 @@ const fmt = (s: number) => {
   return `${sign}${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
 };
 
+const MIN_REASONING = 20;
+
 export const DecisionModal = ({
   open,
   isUserIC,
@@ -53,6 +55,11 @@ export const DecisionModal = ({
   const [reasoning, setReasoning] = useState("");
   const [remaining, setRemaining] = useState(seconds);
   const [hover, setHover] = useState<DecisionChoice | null>(null);
+
+  // Non-IC recommendation state
+  const [recStance, setRecStance] = useState<DecisionChoice | null>(null);
+  const [recReasoning, setRecReasoning] = useState("");
+  const [recSent, setRecSent] = useState(false);
   const autoFiredRef = useRef(false);
 
   useEffect(() => {
@@ -61,16 +68,25 @@ export const DecisionModal = ({
       setReasoning("");
       setRemaining(seconds);
       setHover(null);
+      setRecStance(null);
+      setRecReasoning("");
+      setRecSent(false);
       autoFiredRef.current = false;
       return;
     }
-    if (!isUserIC && !autoFiredRef.current) {
-      autoFiredRef.current = true;
-      window.setTimeout(() => onAiIcAuto(), 4000);
-    }
     const t = window.setInterval(() => setRemaining((r) => r - 1), 1000);
     return () => window.clearInterval(t);
-  }, [open, isUserIC, seconds, onAiIcAuto]);
+  }, [open, seconds]);
+
+  // Non-IC: only after user submits recommendation, schedule AI IC auto-decision
+  useEffect(() => {
+    if (!open || isUserIC || !recSent || autoFiredRef.current) return;
+    autoFiredRef.current = true;
+    const id = window.setTimeout(() => {
+      if (recStance) onAiIcAuto({ stance: recStance, reasoning: recReasoning.trim() });
+    }, 4000);
+    return () => window.clearTimeout(id);
+  }, [open, isUserIC, recSent, recStance, recReasoning, onAiIcAuto]);
 
   if (!open) return null;
 
@@ -82,9 +98,12 @@ export const DecisionModal = ({
     k === "YES" ? options.yes : k === "NO" ? options.no : options.conditional;
 
   const trimmedLen = reasoning.trim().length;
-  const MIN_REASONING = 20;
   const reasoningTooShort = trimmedLen < MIN_REASONING;
   const canCommit = !!choice && !reasoningTooShort;
+
+  const recTrimmedLen = recReasoning.trim().length;
+  const recTooShort = recTrimmedLen < MIN_REASONING;
+  const canSendRec = !!recStance && !recTooShort;
 
   return (
     <div
@@ -107,7 +126,11 @@ export const DecisionModal = ({
             className="inline-flex items-center gap-2 px-2.5 py-1 rounded font-mono text-[11px] uppercase tracking-wider"
             style={{ backgroundColor: "#ef4444", color: "#000" }}
           >
-            ⚠ {isUserIC ? "IC Decision Required" : "IC Decision in Progress"}
+            ⚠ {isUserIC
+              ? "IC Decision Required"
+              : recSent
+              ? "IC Decision in Progress"
+              : "Your Recommendation Required"}
           </span>
           <div className="text-right">
             <div
@@ -198,6 +221,67 @@ export const DecisionModal = ({
               </div>
             )}
           </>
+        ) : !recSent ? (
+          <>
+            <p className="font-mono text-[11px] uppercase tracking-wider text-white/60 mb-3 text-center">
+              Recommend a stance to the Incident Commander
+            </p>
+            <div className="space-y-2 mb-5">
+              {OPTS.map((o) => {
+                const selected = recStance === o.key;
+                return (
+                  <button
+                    key={o.key}
+                    type="button"
+                    onClick={() => setRecStance(o.key)}
+                    className="w-full rounded-md font-mono text-sm uppercase tracking-wider transition-all"
+                    style={{
+                      padding: "14px 16px",
+                      backgroundColor: selected ? o.hover : "#222",
+                      border: `1px solid ${selected ? o.hover : "#444"}`,
+                      color: selected ? "#000" : "#fff",
+                      transform: selected ? "scale(1.02)" : "scale(1)",
+                      textAlign: "left",
+                    }}
+                  >
+                    <span className="font-bold mr-2">RECOMMEND {o.label}</span>
+                    <span className="opacity-80 normal-case tracking-normal">
+                      — {optionLabel(o.key)}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {recStance && (
+              <div className="mb-5 animate-fade-in">
+                <label className="block font-mono text-[11px] uppercase tracking-wider text-white/60 mb-2">
+                  Your rationale to the IC (required)
+                </label>
+                <div className="relative">
+                  <textarea
+                    value={recReasoning}
+                    maxLength={240}
+                    onChange={(e) => setRecReasoning(e.target.value)}
+                    rows={3}
+                    className="w-full rounded-md px-3 py-2 font-mono text-sm text-white resize-none focus:outline-none"
+                    style={{ backgroundColor: "#111", border: "1px solid #F5A623" }}
+                  />
+                  <span
+                    className="absolute bottom-1.5 right-2 font-mono text-[10px]"
+                    style={{ color: recTooShort ? "#ef4444" : "rgba(255,255,255,0.4)" }}
+                  >
+                    {recTrimmedLen}/240
+                  </span>
+                </div>
+                {recTooShort && (
+                  <p className="font-mono mt-1.5" style={{ color: "#ef4444", fontSize: "11px" }}>
+                    Rationale too short — explain your recommendation (min. 20 characters)
+                  </p>
+                )}
+              </div>
+            )}
+          </>
         ) : (
           <div className="mb-6 flex items-center justify-center gap-3 py-6">
             <span
@@ -205,7 +289,7 @@ export const DecisionModal = ({
               style={{ backgroundColor: "#F5A623" }}
             />
             <span className="font-mono text-sm text-white/70">
-              Waiting for Incident Commander…
+              Recommendation sent — waiting for Incident Commander…
             </span>
           </div>
         )}
@@ -222,7 +306,7 @@ export const DecisionModal = ({
           )}
         </div>
 
-        {/* Commit */}
+        {/* Commit / Send */}
         {isUserIC && (
           <button
             type="button"
@@ -236,6 +320,21 @@ export const DecisionModal = ({
             }}
           >
             Commit decision →
+          </button>
+        )}
+        {!isUserIC && !recSent && (
+          <button
+            type="button"
+            disabled={!canSendRec}
+            onClick={() => setRecSent(true)}
+            className="w-full rounded-md font-mono text-sm uppercase tracking-wider transition-opacity disabled:opacity-40"
+            style={{
+              padding: "12px 16px",
+              backgroundColor: "#F5A623",
+              color: "#000",
+            }}
+          >
+            Send recommendation to IC →
           </button>
         )}
       </div>
