@@ -304,8 +304,11 @@ export const CommsFeed = forwardRef<CommsFeedHandle, Props>(function CommsFeed(
   const [typingRole, setTypingRole] = useState<CommsRole | null>(null);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
-  const [userMsgCount, setUserMsgCount] = useState(0);
-  const [scriptedDone, setScriptedDone] = useState(false);
+  // Tag both pieces of progress state with the phase they belong to.
+  // Without this, a stale "scriptedDone=true / userMsgCount>=1" from the
+  // previous phase fires the gate immediately on the new phase mount.
+  const [userMsgs, setUserMsgs] = useState<{ phase: number; count: number }>({ phase: phaseIndex, count: 0 });
+  const [scriptedDonePhase, setScriptedDonePhase] = useState<number | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const seqStartedRef = useRef<number | null>(null);
   const completeFiredRef = useRef<number | null>(null);
@@ -333,8 +336,8 @@ export const CommsFeed = forwardRef<CommsFeedHandle, Props>(function CommsFeed(
     seqStartedRef.current = phaseIndex;
     setMessages([]);
     setTypingRole(null);
-    setUserMsgCount(0);
-    setScriptedDone(false);
+    setUserMsgs({ phase: phaseIndex, count: 0 });
+    setScriptedDonePhase(null);
     completeFiredRef.current = null;
     onUserMessageCount?.(0);
 
@@ -399,9 +402,9 @@ export const CommsFeed = forwardRef<CommsFeedHandle, Props>(function CommsFeed(
     });
 
     if (seq.length > 0) {
-      timers.push(window.setTimeout(() => setScriptedDone(true), lastMessageAt + 8000));
+      timers.push(window.setTimeout(() => setScriptedDonePhase(phaseIndex), lastMessageAt + 8000));
     } else {
-      setScriptedDone(true);
+      setScriptedDonePhase(phaseIndex);
     }
 
     return () => timers.forEach((t) => window.clearTimeout(t));
@@ -410,19 +413,23 @@ export const CommsFeed = forwardRef<CommsFeedHandle, Props>(function CommsFeed(
 
   /* ---- Fire onScriptedDone as soon as scripted sequence finishes ---- */
   useEffect(() => {
-    if (scriptedDone) onScriptedDone?.();
+    if (scriptedDonePhase === phaseIndex) onScriptedDone?.();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [scriptedDone, phaseIndex]);
+  }, [scriptedDonePhase, phaseIndex]);
 
-  /* ---- Gate: fire onSequenceComplete only when scripted done AND user sent ≥1 msg ---- */
+  /* ---- Gate: fire onSequenceComplete only when scripted done AND user sent ≥1 msg, both scoped to current phase ---- */
   useEffect(() => {
     if (!onSequenceComplete) return;
     if (completeFiredRef.current === phaseIndex) return;
-    if (scriptedDone && userMsgCount >= 1) {
+    if (
+      scriptedDonePhase === phaseIndex &&
+      userMsgs.phase === phaseIndex &&
+      userMsgs.count >= 1
+    ) {
       completeFiredRef.current = phaseIndex;
       onSequenceComplete();
     }
-  }, [scriptedDone, userMsgCount, phaseIndex, onSequenceComplete]);
+  }, [scriptedDonePhase, userMsgs, phaseIndex, onSequenceComplete]);
 
 
 
@@ -531,10 +538,10 @@ export const CommsFeed = forwardRef<CommsFeedHandle, Props>(function CommsFeed(
         body: text,
       },
     ]);
-    setUserMsgCount((n) => {
-      const next = n + 1;
+    setUserMsgs((prev) => {
+      const next = prev.phase === phaseIndex ? prev.count + 1 : 1;
       onUserMessageCount?.(next);
-      return next;
+      return { phase: phaseIndex, count: next };
     });
 
     const responder = pickResponder(text);
