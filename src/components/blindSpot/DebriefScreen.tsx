@@ -58,13 +58,27 @@ interface AlertPoint {
   text: string;
 }
 
-// Built from the scripted alert sequence in CommsFeed
+// Hard-coded alert sequence matching the scripted comms feed per phase
 const ALERTS: AlertPoint[] = [
-  { minute: 0, severity: "HIGH", text: "Splunk SIEM — Lateral movement from Jump Host (10.10.20.50)" },
-  { minute: 45, severity: "CRIT", text: "Claroty — Unauthorised S7comm write to PLC-01" },
-  { minute: 90, severity: "CRIT", text: "Claroty — SIS pre-alarm; emergency shutdown executed" },
-  { minute: 90.2, severity: "INFO", text: "Incoming ransom message on encrypted channel" },
-  { minute: 240, severity: "MED", text: "Forensics report — partial restart technically feasible" },
+  // Phase 1
+  { minute: 0,        severity: "CRIT", text: "Anomalous vendor VPN session · src: 10.10.20.50" },
+  { minute: 0 + 31/60,  severity: "MED",  text: "Port scan · Jump Host → OT Historian" },
+  { minute: 0 + 48/60,  severity: "HIGH", text: "Auth attempt · OT Historian · vendor account" },
+  // Phase 2
+  { minute: 45,       severity: "CRIT", text: "Unauthorised S7comm write · PLC-01" },
+  { minute: 45 + 10/60, severity: "CRIT", text: "Ransomware payload · ENG-WS-01" },
+  { minute: 46,       severity: "HIGH", text: "OT Historian unreachable · 10.10.20.30" },
+  { minute: 47,       severity: "INFO", text: "NIS-2 incident clock started" },
+  // Phase 3
+  { minute: 90,       severity: "CRIT", text: "SIS pre-alarm triggered · 10.10.30.99" },
+  { minute: 91,       severity: "CRIT", text: "Emergency shutdown executed" },
+  { minute: 92,       severity: "CRIT", text: "Ransom note displayed · HMI-01 · SCADA-SRV" },
+  { minute: 93,       severity: "HIGH", text: "Encrypted external message received" },
+  // Phase 4
+  { minute: 240,      severity: "INFO", text: "Forensics team engaged" },
+  { minute: 240 + 10/60, severity: "INFO", text: "PLC-02 + SIS unaffected — partial restart feasible" },
+  { minute: 240 + 20/60, severity: "MED",  text: "Media inquiry received" },
+  { minute: 240 + 30/60, severity: "HIGH", text: "NIS-2 window: ~68h remaining" },
 ];
 
 const sevColor = (s: AlertPoint["severity"]) =>
