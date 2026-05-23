@@ -74,6 +74,7 @@ const BlindSpotSimulator = () => {
   // Decision modal state
   const feedRef = useRef<CommsFeedHandle>(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [phaseUserMsgCount, setPhaseUserMsgCount] = useState(0);
   const modalFiredRef = useRef<number | null>(null);
 
   const DECISION_OPTIONS: Record<number, { yes: string; no: string; conditional: string }> = {
