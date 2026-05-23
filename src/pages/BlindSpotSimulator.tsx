@@ -883,22 +883,6 @@ const BlindSpotSimulator = () => {
               </p>
             </div>
 
-            {/* PHASE TIMELINE */}
-            <div className="rounded-lg border border-white/10 bg-background/40 p-5">
-              <div className="flex items-center gap-3 mb-4">
-                <span className="font-mono text-[10px] text-[#f5b800] bg-[#f5b800]/10 border border-[#f5b800]/30 rounded px-2 py-0.5 uppercase tracking-wider">05</span>
-                <h3 className="font-mono text-sm uppercase tracking-wider text-white/90">What's ahead — 4 phases</h3>
-              </div>
-              <div className="grid sm:grid-cols-4 gap-2">
-                {PHASES.map((p) => (
-                  <div key={p.index} className={`rounded border p-3 ${phaseColor(p.colorKey)}`}>
-                    <div className="font-mono text-[10px] uppercase tracking-wider opacity-70">{p.timestamp}</div>
-                    <div className="font-mono text-sm mt-1">Phase {p.index}</div>
-                    <div className="font-mono text-[11px] mt-1 opacity-90 line-clamp-2">{p.name.split("—")[1]?.trim() ?? p.name}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
 
             {/* ROLES */}
             <div className="rounded-lg border border-white/10 bg-background/40 p-5">
