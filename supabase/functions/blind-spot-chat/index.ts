@@ -82,7 +82,22 @@ Deno.serve(async (req) => {
               : `Give your in-character first reaction.`),
         },
       ];
+    } else if (body.mode === "comms") {
+      const sys =
+        body.systemPromptOverride ??
+        `You are ${body.aiRole} in a live OT cyber crisis exercise. Company: netsecure.no, Oslo. Scenario: Blind Spot. Current phase: ${body.phaseName} (${body.phaseTimestamp}). Write exactly one Microsoft Teams chat message — 2 to 3 sentences, natural tone, no bullet points, no headers, no role label, no timestamp. React to the latest event and the user's last message if any. Ask one sharp operational question. Recommend one concrete action. Stay in character. Never explain the exercise format.`;
+      messages = [
+        { role: "system", content: sys },
+        ...(body.history ?? []),
+        {
+          role: "user",
+          content:
+            (body.situation ? `Situation: ${body.situation}\n\n` : "") +
+            (body.userInput ?? `Write your next message now.`),
+        },
+      ];
     } else if (body.mode === "ic-decision") {
+
       // AI IC responds with a decision referencing user input
       messages = [
         { role: "system", content: buildSystemPrompt({ ...body, aiRole: "Incident Commander" }) },
