@@ -1166,6 +1166,13 @@ const BlindSpotSimulator = () => {
         )}
       </main>
 
+      <PhaseTransition
+        phase={transitionPhaseIdx !== null ? PHASES[transitionPhaseIdx] : null}
+        show={transitionVisible}
+        onDone={() => setTransitionVisible(false)}
+      />
+
+
       {userRole && showGameOver && (
         <GameOverOverlay
           open={showGameOver}
