@@ -685,14 +685,18 @@ const BlindSpotSimulator = () => {
                     <div className="text-white/40">Local time</div>
                     <div className="text-[#f5b800]">23:47</div>
                   </div>
-                  <div className="border border-white/15 rounded px-2 py-1">
-                    <div className="text-white/40">Phases</div>
-                    <div className="text-white/90">4 + debrief</div>
-                  </div>
-                  <div className="border border-white/15 rounded px-2 py-1">
-                    <div className="text-white/40">Duration</div>
-                    <div className="text-white/90">~20 min</div>
-                  </div>
+                  {briefingStep === "mission" && (
+                    <>
+                      <div className="border border-white/15 rounded px-2 py-1">
+                        <div className="text-white/40">Phases</div>
+                        <div className="text-white/90">4 + debrief</div>
+                      </div>
+                      <div className="border border-white/15 rounded px-2 py-1">
+                        <div className="text-white/40">Duration</div>
+                        <div className="text-white/90">~20 min</div>
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
