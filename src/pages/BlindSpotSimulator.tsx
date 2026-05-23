@@ -774,8 +774,9 @@ const BlindSpotSimulator = () => {
                           )}
                         </div>
                         <p className="font-mono text-[10px] text-white/40 italic">
-                          Type your stance in the chat. The decision dialog opens automatically once you send.
+                          Post your decision in the team chat — it will be recorded as your call.
                         </p>
+
                       </div>
                     </div>
                   )}
