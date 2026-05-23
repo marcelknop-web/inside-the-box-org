@@ -148,7 +148,7 @@ const BlindSpotSimulator = () => {
   const resetPhaseLocalState = () => {
     setUserAssessment("");
     setAiOutputs({});
-    setPushbackUsed(false);
+    
     setCommitting(false);
     setPhaseUserMsgCount(0);
     setEvidence([]);
