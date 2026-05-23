@@ -7,13 +7,14 @@ interface ChatMessage {
 }
 
 interface RequestBody {
-  mode: "role" | "ic-decision" | "debrief" | "comms";
+  mode: "role" | "ic-decision" | "debrief" | "comms" | "classify-stance";
   aiRole?: string;
   userRole?: string;
   phaseName?: string;
   phaseTimestamp?: string;
   situation?: string;
   userInput?: string;
+  decisionQuestion?: string;
   history?: ChatMessage[];
   systemPromptOverride?: string;
   decisions?: Array<{
