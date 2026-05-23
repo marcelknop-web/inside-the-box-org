@@ -11,65 +11,27 @@ interface Props {
   userMsgCount: number;
 }
 
-const STEPS: Array<{ key: ObjectiveStep; label: string; hint: string }> = [
-  { key: "watch", label: "Watch incoming alerts", hint: "Read the SIEM / OT alerts as they land on the left panel." },
-  { key: "engage", label: "Engage in team chat", hint: "Post your read of the situation in the team chat on the right." },
-  { key: "decide", label: "Commit your call", hint: "Post your decision in the chat — it gets recorded as your call." },
-];
+const HINTS: Record<ObjectiveStep, string> = {
+  watch: "Read the incoming alerts on the left.",
+  engage: "Talk it through with the team in chat.",
+  decide: "Post your call in chat — it's recorded as your decision.",
+};
 
-export const ObjectiveHud = ({ phase, totalPhases, userRoleName, step, alertsCount, userMsgCount }: Props) => {
-  const stepIdx = STEPS.findIndex((s) => s.key === step);
-  const current = STEPS[stepIdx];
-
+export const ObjectiveHud = ({ phase, totalPhases, userRoleName, step }: Props) => {
   return (
-    <div className="rounded-lg border border-[#f5b800]/40 bg-gradient-to-r from-[#f5b800]/10 via-background/60 to-background/40 px-3 py-2 shrink-0">
-      <div className="flex items-center gap-4 flex-wrap">
-        {/* Phase pill */}
-        <div className={`inline-flex font-mono text-[11px] uppercase tracking-wider px-2.5 py-1 rounded border ${phaseColor(phase.colorKey)}`}>
-          Phase {phase.index}/{totalPhases} · {phase.timestamp}
-        </div>
-
-        {/* Step tracker */}
-        <div className="flex items-center gap-2 flex-1 min-w-[260px]">
-          {STEPS.map((s, i) => {
-            const done = i < stepIdx;
-            const active = i === stepIdx;
-            return (
-              <div key={s.key} className="flex items-center gap-2">
-                <div
-                  className={`flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wider px-2 py-1 rounded border transition-colors ${
-                    active
-                      ? "border-[#f5b800] text-[#f5b800] bg-[#f5b800]/10"
-                      : done
-                      ? "border-emerald-400/40 text-emerald-300/80 bg-emerald-400/5"
-                      : "border-white/10 text-white/30"
-                  }`}
-                >
-                  <span className={`w-1.5 h-1.5 rounded-full ${active ? "bg-[#f5b800] animate-pulse" : done ? "bg-emerald-400" : "bg-white/20"}`} />
-                  {done ? "✓ " : ""}
-                  {s.label}
-                </div>
-                {i < STEPS.length - 1 && <span className="text-white/15 font-mono">→</span>}
-              </div>
-            );
-          })}
-        </div>
-
-        {/* You play */}
-        <p className="font-mono text-[10px] text-white/50 uppercase tracking-wider">
-          You: <span className="text-[#f5b800]">{userRoleName}</span>
-        </p>
+    <div className="rounded-lg border border-[#f5b800]/30 bg-background/40 px-3 py-2 shrink-0 flex items-center gap-3 flex-wrap">
+      <div className={`inline-flex font-mono text-[11px] uppercase tracking-wider px-2.5 py-1 rounded border ${phaseColor(phase.colorKey)}`}>
+        Phase {phase.index}/{totalPhases}
       </div>
 
-      {/* Next-action hint */}
-      <div className="mt-1.5 flex items-center gap-2 text-[11px] font-mono text-white/65">
+      <div className="flex items-center gap-2 flex-1 min-w-[240px] text-[12px] font-mono">
         <span className="text-[#f5b800] animate-pulse">▶</span>
-        <span className="text-white/80">Next:</span>
-        <span>{current?.hint}</span>
-        <span className="ml-auto text-white/40">
-          alerts {alertsCount} · your msgs {userMsgCount}
-        </span>
+        <span className="text-white/85">{HINTS[step]}</span>
       </div>
+
+      <p className="font-mono text-[10px] text-white/40 uppercase tracking-wider">
+        You · <span className="text-[#f5b800]">{userRoleName}</span>
+      </p>
     </div>
   );
 };
