@@ -87,9 +87,6 @@ const wrapBlockForType = (root: HTMLElement, totalDurationMs: number) => {
         cursor++;
         continue;
       }
-        cursor++;
-        continue;
-      }
       span.className = 'ttype-char';
       span.textContent = ch;
       const delay = Math.round(cursor * msPerChar);
