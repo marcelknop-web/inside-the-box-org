@@ -396,8 +396,14 @@ export const DebriefScreen = ({
                     <td style={{ padding: "10px 12px", color: choiceColor(d.choice) }}>
                       {d.choice}
                     </td>
-                    <td style={{ padding: "10px 12px", color: "#d1d5db", maxWidth: 260 }}>
-                      {d.reasoning}
+                    <td style={{ padding: "10px 12px", color: "#d1d5db", maxWidth: 320, whiteSpace: "pre-wrap" }}>
+                      {d.reasoning.trim().length < 20 ? (
+                        <span style={{ color: "#6b7280", fontStyle: "italic" }}>
+                          — no reasoning recorded
+                        </span>
+                      ) : (
+                        d.reasoning
+                      )}
                     </td>
                     <td style={{ padding: "10px 12px", color: "#9ca3af", maxWidth: 200 }}>
                       {d.iec62443Ref}
