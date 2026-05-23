@@ -16,7 +16,7 @@ import {
 import { PhaseProgress } from "@/components/blindSpot/PhaseProgress";
 import { CommsFeed, CommsFeedHandle, AlertCard } from "@/components/blindSpot/CommsFeed";
 import { EvidencePanel } from "@/components/blindSpot/EvidencePanel";
-import { DecisionModal, DecisionChoice } from "@/components/blindSpot/DecisionModal";
+import { DecisionChoice } from "@/components/blindSpot/DecisionModal";
 import { GameOverOverlay } from "@/components/blindSpot/GameOverOverlay";
 import {
   PhaseScoreBreakdown,
@@ -84,7 +84,7 @@ const BlindSpotSimulator = () => {
 
   // Decision modal state
   const feedRef = useRef<CommsFeedHandle>(null);
-  const [modalOpen, setModalOpen] = useState(false);
+  // Modal removed — decisions are committed directly from chat. Phase-fired guard only.
   const [phaseUserMsgCount, setPhaseUserMsgCount] = useState(0);
   const modalFiredRef = useRef<number | null>(null);
 
@@ -298,7 +298,7 @@ const BlindSpotSimulator = () => {
     setPhaseScores(nextScores);
 
     const next = phaseIdx + 1;
-    setModalOpen(false);
+    // (no modal to close)
     window.setTimeout(() => {
       if (next >= PHASES.length) {
         runDebrief(updated);
@@ -442,11 +442,30 @@ const BlindSpotSimulator = () => {
     }
   };
 
-  const triggerModalForPhase = (phaseIdx: number) => {
+  // The user's last chat message after the scripted sequence ends becomes
+  // the decision (IC) or the recommendation to the AI IC.
+  const commitFromChat = (phaseIdx: number) => {
     if (modalFiredRef.current === phaseIdx) return;
     modalFiredRef.current = phaseIdx;
-    setModalOpen(true);
+    const text = (userAssessment || "").trim();
+    const choice: DecisionChoice = /\bconditional\b/i.test(text)
+      ? "CONDITIONAL"
+      : /\b(no|do not|don't|hold|wait)\b/i.test(text)
+      ? "NO"
+      : /\b(yes|go|isolate|terminate|notify|authoris|authorize|restart|kill)\b/i.test(text)
+      ? "YES"
+      : "CONDITIONAL";
+    if (isUserIC) {
+      handleUserCommit(choice, text || "(no rationale provided in chat)", 0);
+    } else {
+      handleAiIcAuto({
+        stance: choice,
+        reasoning: text || "(no rationale provided in chat)",
+        remainingSecs: 0,
+      });
+    }
   };
+
 
 
   const pushBackOnIC = async (phaseIdx: number) => {
@@ -755,8 +774,9 @@ const BlindSpotSimulator = () => {
                           )}
                         </div>
                         <p className="font-mono text-[10px] text-white/40 italic">
-                          Type your stance in the chat. The decision dialog opens automatically once you send.
+                          Post your decision in the team chat — it will be recorded as your call.
                         </p>
+
                       </div>
                     </div>
                   )}
@@ -782,7 +802,7 @@ const BlindSpotSimulator = () => {
                   }}
                   onUserMessageCount={(n) => setPhaseUserMsgCount(n)}
                   onScriptedDone={() => setDecisionReady(true)}
-                  onSequenceComplete={() => triggerModalForPhase(screen.phaseIdx)}
+                  onSequenceComplete={() => commitFromChat(screen.phaseIdx)}
                 />
               </div>
 
@@ -912,24 +932,8 @@ const BlindSpotSimulator = () => {
           }}
         />
       )}
-
-
-      {userRole && screen.kind === "inject" && (() => {
-        const phase = PHASES[screen.phaseIdx];
-        return (
-          <DecisionModal
-            open={modalOpen}
-            isUserIC={isUserIC}
-            question={phase.decisionQuestion}
-            options={DECISION_OPTIONS[phase.index]}
-            iec62443Ref={phase.iec62443Ref}
-            nis2Flag={phase.nis2Flag}
-            onCommitUser={handleUserCommit}
-            onAiIcAuto={handleAiIcAuto}
-          />
-        );
-      })()}
     </div>
+
 
   );
 };
