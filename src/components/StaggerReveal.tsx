@@ -81,9 +81,12 @@ const wrapBlockForType = (root: HTMLElement, totalDurationMs: number) => {
       // strip the whitespace as anonymous flex items.
       if (ch === ' ' || ch === '\n' || ch === '\t') {
         span.className = 'ttype-space';
-        span.textContent = ch === '\n' ? '\n' : '\u00A0';
-        // Non-breaking space keeps word boundaries visible without collapsing
+        span.textContent = ch;
+        // ttype-space sets white-space: pre to keep the literal space
         frag.appendChild(span);
+        cursor++;
+        continue;
+      }
         cursor++;
         continue;
       }
