@@ -316,7 +316,11 @@ export const CommsFeed = forwardRef<CommsFeedHandle, Props>(function CommsFeed(
     completeFiredRef.current = null;
     onUserMessageCount?.(0);
 
-    const seq = SEQUENCES[phaseIndex] ?? [];
+    // Filter out scripted AI messages for the role the user is playing —
+    // the user fulfils that role themselves.
+    const seq = (SEQUENCES[phaseIndex] ?? []).filter(
+      (item) => item.kind !== "ai" || item.role !== userRoleName,
+    );
     const timers: number[] = [];
     let lastMessageAt = 0;
 
