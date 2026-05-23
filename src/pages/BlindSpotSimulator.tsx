@@ -244,6 +244,139 @@ const BlindSpotSimulator = () => {
     }
   };
 
+  /* ---- Modal-driven commit ---- */
+
+  const advanceAfterCommit = (phaseIdx: number, record: DecisionRecord) => {
+    const updated = [...decisions, record];
+    setDecisions(updated);
+    const next = phaseIdx + 1;
+    setModalOpen(false);
+    window.setTimeout(() => {
+      if (next >= PHASES.length) {
+        runDebrief(updated);
+        setScreen({ kind: "debrief" });
+      } else {
+        modalFiredRef.current = null;
+        beginPhase(next);
+      }
+    }, 3000);
+  };
+
+  const postCommitFeedMessages = async (
+    phaseIdx: number,
+    choice: DecisionChoice,
+    optionLabel: string,
+    icBy: "user" | "ai",
+    reasoningSnippet?: string,
+  ) => {
+    const phase = PHASES[phaseIdx];
+    const summary =
+      icBy === "user"
+        ? `Decision committed: ${choice} — ${optionLabel}. Execute now.`
+        : `Decision committed: ${choice} — ${optionLabel}.`;
+    feedRef.current?.appendAssistant("Incident Commander", summary);
+
+    // Pick one other role to acknowledge
+    const others = (["IT-Ops", "OT-Ops", "Management & Comms"] as const).filter(
+      (r) => r !== (userRole?.name as string),
+    );
+    const ack = others[Math.floor(Math.random() * others.length)];
+    try {
+      const { data } = await supabase.functions.invoke("blind-spot-chat", {
+        body: {
+          mode: "comms",
+          aiRole: ack,
+          userRole: userRole?.name,
+          phaseName: phase.name,
+          phaseTimestamp: phase.timestamp,
+          situation: phase.situation,
+          userInput: `IC just committed: ${choice} — ${optionLabel}. ${reasoningSnippet ?? ""} Acknowledge in one short sentence and state your immediate next action.`,
+          history: [],
+        },
+      });
+      const text = (data?.text as string) ?? `Acknowledged. Executing.`;
+      window.setTimeout(() => feedRef.current?.appendAssistant(ack, text), 1200);
+    } catch {
+      /* ignore */
+    }
+  };
+
+  const handleUserCommit = (choice: DecisionChoice, reasoning: string) => {
+    if (!("phaseIdx" in screen)) return;
+    const phaseIdx = screen.phaseIdx;
+    const phase = PHASES[phaseIdx];
+    const opts = DECISION_OPTIONS[phase.index];
+    const optionLabel =
+      choice === "YES" ? opts.yes : choice === "NO" ? opts.no : opts.conditional;
+    const record: DecisionRecord = {
+      phase: phase.name,
+      timestamp: phase.timestamp,
+      question: phase.decisionQuestion,
+      choice,
+      reasoning,
+      icBy: "user",
+      iec62443Ref: phase.iec62443Ref,
+      nis2Flag: phase.nis2Flag,
+    };
+    postCommitFeedMessages(phaseIdx, choice, optionLabel, "user", reasoning);
+    advanceAfterCommit(phaseIdx, record);
+  };
+
+  const handleAiIcAuto = async () => {
+    if (!("phaseIdx" in screen) || !userRole) return;
+    const phaseIdx = screen.phaseIdx;
+    const phase = PHASES[phaseIdx];
+    try {
+      const { data, error } = await supabase.functions.invoke("blind-spot-chat", {
+        body: {
+          mode: "ic-decision",
+          aiRole: "Incident Commander",
+          userRole: userRole.name,
+          phaseName: phase.name,
+          phaseTimestamp: phase.timestamp,
+          situation: phase.situation,
+          userInput: `${phase.decisionQuestion}\n\nTeam input so far: ${userRole.name} said: "${userAssessment || "(no comment)"}". Other team panels: ${Object.entries(
+            aiOutputs,
+          )
+            .map(([r, t]) => `${r}: ${t}`)
+            .join(" | ")}`,
+          history: history["Incident Commander"] ?? [],
+        },
+      });
+      if (error) throw error;
+      const text = (data?.text as string) ?? "";
+      const choice = parseAiChoice(text);
+      const opts = DECISION_OPTIONS[phase.index];
+      const optionLabel =
+        choice === "YES" ? opts.yes : choice === "NO" ? opts.no : opts.conditional;
+      const record: DecisionRecord = {
+        phase: phase.name,
+        timestamp: phase.timestamp,
+        question: phase.decisionQuestion,
+        choice,
+        reasoning: text,
+        icBy: "ai",
+        iec62443Ref: phase.iec62443Ref,
+        nis2Flag: phase.nis2Flag,
+      };
+      postCommitFeedMessages(phaseIdx, choice, optionLabel, "ai");
+      advanceAfterCommit(phaseIdx, record);
+    } catch (e) {
+      toast({
+        title: "AI IC unavailable",
+        description: e instanceof Error ? e.message : "Unknown",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const triggerModalForPhase = (phaseIdx: number) => {
+    if (modalFiredRef.current === phaseIdx) return;
+    modalFiredRef.current = phaseIdx;
+    setModalOpen(true);
+  };
+
+
   const pushBackOnIC = async (phaseIdx: number) => {
     if (pushbackUsed || !userRole) return;
     setPushbackUsed(true);
