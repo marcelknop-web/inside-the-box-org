@@ -535,7 +535,7 @@ const BlindSpotSimulator = () => {
         <PhaseProgress currentPhase={currentPhaseForProgress} phases={PHASES} />
       )}
 
-      <main className={screen.kind === "debrief" ? "w-full" : screen.kind === "inject" ? "max-w-[1600px] mx-auto px-4 py-6" : "max-w-5xl mx-auto px-4 py-8"}>
+      <main className={screen.kind === "debrief" ? "w-full" : screen.kind === "inject" ? "max-w-[1600px] mx-auto px-3 py-2 h-[calc(100vh-64px)] flex flex-col" : "max-w-5xl mx-auto px-4 py-8"}>
         {/* ===== Welcome ===== */}
         {screen.kind === "welcome" && (
           <div className="min-h-[70vh] flex flex-col justify-center items-center text-center">
@@ -681,9 +681,9 @@ const BlindSpotSimulator = () => {
         {screen.kind === "inject" && userRole && (() => {
           const phase = PHASES[screen.phaseIdx];
           return (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className={`inline-flex font-mono text-xs uppercase tracking-wider px-3 py-1.5 rounded border ${phaseColor(phase.colorKey)}`}>
+            <div className="flex flex-col flex-1 min-h-0 gap-2">
+              <div className="flex items-center justify-between shrink-0">
+                <div className={`inline-flex font-mono text-[11px] uppercase tracking-wider px-2.5 py-1 rounded border ${phaseColor(phase.colorKey)}`}>
                   {phase.name} · {phase.timestamp}
                 </div>
                 <p className="font-mono text-[11px] text-white/50 uppercase tracking-wider">
@@ -691,7 +691,8 @@ const BlindSpotSimulator = () => {
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 md:grid-rows-2 gap-3 flex-1 min-h-0">
+
                 {/* TL — Evidence / Injects */}
                 <EvidencePanel
                   phaseName={phase.name}
@@ -721,7 +722,7 @@ const BlindSpotSimulator = () => {
 
                 {/* BL — Private notes */}
                 <div
-                  className="rounded-lg border h-[420px] flex flex-col overflow-hidden"
+                  className="rounded-lg border h-full min-h-0 flex flex-col overflow-hidden"
                   style={{ backgroundColor: "#111111", borderColor: "#2a2a2a" }}
                 >
                   <div
@@ -744,7 +745,7 @@ const BlindSpotSimulator = () => {
 
                 {/* BR — Decision brief */}
                 <div
-                  className="rounded-lg border h-[420px] flex flex-col overflow-hidden"
+                  className="rounded-lg border h-full min-h-0 flex flex-col overflow-hidden"
                   style={{ backgroundColor: "#111111", borderColor: "#2a2a2a" }}
                 >
                   <div
