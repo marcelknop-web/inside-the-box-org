@@ -335,7 +335,10 @@ export const DecisionModal = ({
           <button
             type="button"
             disabled={!canSendRec}
-            onClick={() => setRecSent(true)}
+            onClick={() => {
+              recRemainingRef.current = remaining;
+              setRecSent(true);
+            }}
             className="w-full rounded-md font-mono text-sm uppercase tracking-wider transition-opacity disabled:opacity-40"
             style={{
               padding: "12px 16px",
