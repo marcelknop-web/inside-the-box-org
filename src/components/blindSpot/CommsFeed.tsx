@@ -1,7 +1,12 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+
+export interface CommsFeedHandle {
+  appendAssistant: (role: Exclude<CommsRole, "YOU">, body: string) => void;
+}
+
 
 /* ===================== Types ===================== */
 
