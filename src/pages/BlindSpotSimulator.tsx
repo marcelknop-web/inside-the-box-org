@@ -87,6 +87,20 @@ const BlindSpotSimulator = () => {
   // Gamification
   const [phaseScores, setPhaseScores] = useState<PhaseScoreBreakdown[]>([]);
   const [showGameOver, setShowGameOver] = useState(false);
+  // Momentum: consecutive phases scored ≥ 70. Drops to 0 on a drift.
+  const [streak, setStreak] = useState(0);
+  // Verdict pulse: brief mono badge after each commit, auto-clears.
+  const [lastVerdict, setLastVerdict] = useState<{
+    tier: "sharp" | "solid" | "mixed" | "drift";
+    label: string;
+    score: number;
+  } | null>(null);
+  useEffect(() => {
+    if (!lastVerdict) return;
+    const t = window.setTimeout(() => setLastVerdict(null), 3400);
+    return () => window.clearTimeout(t);
+  }, [lastVerdict]);
+
 
   // Decision modal state
   const feedRef = useRef<CommsFeedHandle>(null);
