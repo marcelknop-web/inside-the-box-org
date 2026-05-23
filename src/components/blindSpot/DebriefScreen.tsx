@@ -45,7 +45,7 @@ const tsToMinutes = (t: string): number => {
 const PHASE_STARTS = [0, 45, 90, 240]; // minutes
 const PHASE_LABELS = ["P1", "P2", "P3", "P4"];
 const X_AXIS_MIN = 0;
-const X_AXIS_MAX = 240;
+const X_AXIS_MAX = 270;
 const TIMELINE_WIDTH = 1200; // virtual px, container scrolls
 const TIMELINE_HEIGHT = 140;
 
