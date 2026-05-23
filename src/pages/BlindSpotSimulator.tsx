@@ -157,7 +157,10 @@ const BlindSpotSimulator = () => {
 
   /* ============= Flow handlers ============= */
 
-  const startExercise = () => setScreen({ kind: "roleSelect" });
+  const startExercise = () => {
+    sfx.resume();
+    setScreen({ kind: "roleSelect" });
+  };
   const pickRole = (role: Role) => setScreen({ kind: "confirmRole", role });
   const confirmRole = (role: Role) => {
     setUserRole(role);
@@ -169,9 +172,12 @@ const BlindSpotSimulator = () => {
     resetPhaseLocalState();
     setTransitionPhaseIdx(phaseIdx);
     setTransitionVisible(true);
+    sfx.resume();
+    sfx.ambientStart();
     sfx.phaseChange();
     setScreen({ kind: "inject", phaseIdx });
   };
+
 
   const submitAssessment = () => {
     if (!userRole) return;
