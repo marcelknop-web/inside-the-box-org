@@ -710,54 +710,46 @@ const BlindSpotSimulator = () => {
                     alerts={evidence}
                   />
 
-                  {/* Combined Decision + Private notes */}
-                  <div
-                    className="rounded-lg border h-full min-h-0 flex flex-col overflow-hidden"
-                    style={{ backgroundColor: "#111111", borderColor: "#2a2a2a" }}
-                  >
+                  {/* Decision panel — appears only when IC needs input */}
+                  {decisionReady && (
                     <div
-                      className="flex items-center justify-between px-4 py-2.5 border-b"
-                      style={{ borderColor: "#2a2a2a" }}
+                      className="rounded-lg border h-full min-h-0 flex flex-col overflow-hidden animate-fade-in"
+                      style={{ backgroundColor: "#111111", borderColor: "#2a2a2a" }}
                     >
-                      <span className="font-mono text-[11px] text-[#f5b800] uppercase tracking-wider">
-                        {isUserIC ? "Your decision call" : "Pending IC decision"}
-                      </span>
-                      <span className="font-mono text-[10px] text-white/40">
-                        Msgs sent: {phaseUserMsgCount}
-                      </span>
-                    </div>
+                      <div
+                        className="flex items-center justify-between px-4 py-2.5 border-b"
+                        style={{ borderColor: "#2a2a2a" }}
+                      >
+                        <span className="font-mono text-[11px] text-[#f5b800] uppercase tracking-wider">
+                          {isUserIC ? "Your decision call" : "Pending IC decision"}
+                        </span>
+                        <span className="font-mono text-[10px] text-white/40">
+                          Msgs sent: {phaseUserMsgCount}
+                        </span>
+                      </div>
 
-                    <div className="flex-1 overflow-y-auto p-3 space-y-3 min-h-0">
-                      {decisionReady ? (
-                        <>
-                          <div className="rounded-md border-2 border-[#f5b800]/50 bg-[#f5b800]/5 p-3 animate-fade-in">
-                            <p className="font-mono text-[10px] text-[#f5b800] uppercase tracking-wider mb-1.5">
-                              Decision question
-                            </p>
-                            <p className="text-[13px] text-white/90 leading-relaxed">
-                              {phase.decisionQuestion}
-                            </p>
+                      <div className="flex-1 overflow-y-auto p-3 space-y-3 min-h-0">
+                        <div className="rounded-md border-2 border-[#f5b800]/50 bg-[#f5b800]/5 p-3">
+                          <p className="font-mono text-[10px] text-[#f5b800] uppercase tracking-wider mb-1.5">
+                            Decision question
+                          </p>
+                          <p className="text-[13px] text-white/90 leading-relaxed">
+                            {phase.decisionQuestion}
+                          </p>
+                        </div>
+                        <div className="rounded-md border border-white/10 bg-background/40 p-2.5 font-mono text-[11px] text-white/60 space-y-1">
+                          <div>
+                            <span className="text-[#f5b800]">IEC 62443:</span> {phase.iec62443Ref}
                           </div>
-                          <div className="rounded-md border border-white/10 bg-background/40 p-2.5 font-mono text-[11px] text-white/60 space-y-1 animate-fade-in">
+                          {phase.nis2Flag && (
                             <div>
-                              <span className="text-[#f5b800]">IEC 62443:</span> {phase.iec62443Ref}
+                              <span className="text-red-300">NIS-2:</span> {phase.nis2Flag}
                             </div>
-                            {phase.nis2Flag && (
-                              <div>
-                                <span className="text-red-300">NIS-2:</span> {phase.nis2Flag}
-                              </div>
-                            )}
-                          </div>
-                        </>
-                      ) : (
-                        <p className="font-mono text-[11px] text-white/40 italic px-1">
-                          Standing by — monitor the team chat…
-                        </p>
-                      )}
-                    </div>
+                          )}
+                        </div>
+                      </div>
 
-                    {decisionReady && (
-                      <div className="border-t p-3 space-y-2 shrink-0 animate-fade-in" style={{ borderColor: "#2a2a2a" }}>
+                      <div className="border-t p-3 space-y-2 shrink-0" style={{ borderColor: "#2a2a2a" }}>
                         <Button
                           onClick={() => triggerModalForPhase(screen.phaseIdx)}
                           disabled={phaseUserMsgCount < 1}
@@ -771,9 +763,10 @@ const BlindSpotSimulator = () => {
                           </p>
                         )}
                       </div>
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </div>
+
 
 
 
