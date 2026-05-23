@@ -722,7 +722,7 @@ const BlindSpotSimulator = () => {
 
                 {/* BL — Private notes */}
                 <div
-                  className="rounded-lg border h-[420px] flex flex-col overflow-hidden"
+                  className="rounded-lg border h-full min-h-0 flex flex-col overflow-hidden"
                   style={{ backgroundColor: "#111111", borderColor: "#2a2a2a" }}
                 >
                   <div
