@@ -23,6 +23,7 @@ import {
   scorePhase,
   totalScore,
 } from "@/utils/blindSpotScoring";
+import { StaggerReveal } from "@/components/StaggerReveal";
 
 
 type Screen =
@@ -642,7 +643,7 @@ const BlindSpotSimulator = () => {
 
         {/* ===== Briefing ===== */}
         {screen.kind === "briefing" && userRole && (
-          <div className="space-y-5">
+          <StaggerReveal stagger={700} startDelay={200}>
             {/* HERO */}
             <div className="relative overflow-hidden rounded-xl border border-[#f5b800]/40 bg-gradient-to-br from-[#f5b800]/10 via-background/60 to-background/40 p-6">
               <div className="absolute inset-0 opacity-[0.07] pointer-events-none"
@@ -882,7 +883,7 @@ const BlindSpotSimulator = () => {
                 I'm ready — Phase 1 begins →
               </Button>
             </div>
-          </div>
+          </StaggerReveal>
         )}
 
         {/* ===== Inject (Quad Split) ===== */}
