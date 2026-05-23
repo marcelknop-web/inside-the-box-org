@@ -353,6 +353,7 @@ export const CommsFeed = forwardRef<CommsFeedHandle, Props>(function CommsFeed(
         timers.push(
           window.setTimeout(() => {
             const time = stepTime(base, item.offset);
+            sfx.systemAlert();
             onSystemAlert?.({ card: item.card, time, source: String(item.source) });
             if (!hideSystemMessages) {
               setMessages((m) => [
@@ -372,11 +373,15 @@ export const CommsFeed = forwardRef<CommsFeedHandle, Props>(function CommsFeed(
       } else {
         const typingAt = fireDelay;
         const messageAt = fireDelay + 1800;
-        timers.push(window.setTimeout(() => setTypingRole(item.role), typingAt));
+        timers.push(window.setTimeout(() => {
+          sfx.typing();
+          setTypingRole(item.role);
+        }, typingAt));
         timers.push(
           window.setTimeout(async () => {
             const text = await fetchAiMessage(item.role, item.prompt, []);
             setTypingRole(null);
+            sfx.chatIncoming();
             setMessages((m) => [
               ...m,
               {
