@@ -73,10 +73,10 @@ const ROLE_INITIAL: Record<string, string> = {
 };
 
 const PHASE_BASE_TIME: Record<number, [number, number, number]> = {
-  1: [22, 47, 31],
-  2: [23, 32, 10],
-  3: [0, 17, 4],
-  4: [2, 47, 22],
+  1: [23, 47, 31],
+  2: [0, 32, 10],
+  3: [1, 17, 4],
+  4: [3, 47, 22],
 };
 
 const fmtTime = ([h, m, s]: [number, number, number]) =>
