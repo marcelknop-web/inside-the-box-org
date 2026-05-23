@@ -170,7 +170,6 @@ const BlindSpotSimulator = () => {
   const pickRole = (role: Role) => setScreen({ kind: "confirmRole", role });
   const confirmRole = (role: Role) => {
     setUserRole(role);
-    setBriefingStep("intro");
     setScreen({ kind: "briefing" });
   };
 
