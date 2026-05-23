@@ -483,6 +483,11 @@ export const CommsFeed = forwardRef<CommsFeedHandle, Props>(function CommsFeed(
         body: text,
       },
     ]);
+    setUserMsgCount((n) => {
+      const next = n + 1;
+      onUserMessageCount?.(next);
+      return next;
+    });
 
     const responder = pickResponder(text);
     setTimeout(() => setTypingRole(responder), 400);
