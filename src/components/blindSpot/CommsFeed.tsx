@@ -431,6 +431,53 @@ export const CommsFeed = forwardRef<CommsFeedHandle, Props>(function CommsFeed(
     }
   }, [scriptedDonePhase, userMsgs, phaseIndex, onSequenceComplete]);
 
+  /* ---- Idle nudges: if user stays silent after scripted sequence, teammates remind them ---- */
+  const nudgeCountRef = useRef<{ phase: number; count: number }>({ phase: phaseIndex, count: 0 });
+  useEffect(() => {
+    if (nudgeCountRef.current.phase !== phaseIndex) {
+      nudgeCountRef.current = { phase: phaseIndex, count: 0 };
+    }
+    if (scriptedDonePhase !== phaseIndex) return;
+    if (userMsgs.phase === phaseIndex && userMsgs.count >= 1) return;
+    if (nudgeCountRef.current.count >= 2) return;
+
+    const delay = nudgeCountRef.current.count === 0 ? 22000 : 25000;
+    const others: CommsRole[] = (
+      ["Incident Commander", "IT-Ops", "OT-Ops", "Management & Comms"] as CommsRole[]
+    ).filter((r) => r !== (userRoleName as CommsRole));
+    const nudger = others[nudgeCountRef.current.count % others.length];
+    const escalate = nudgeCountRef.current.count >= 1;
+
+    const t = window.setTimeout(async () => {
+      if (userMsgs.phase === phaseIndex && userMsgs.count >= 1) return;
+      sfx.typing();
+      setTypingRole(nudger);
+      const prompt = escalate
+        ? `${userRoleName} has still not responded. Call them out directly by role, sharper tone, demand their read on the current situation in one short sentence. No greetings.`
+        : `${userRoleName} has gone quiet. Address them directly by role and ask for their current read on the situation. One short sentence, natural tone, no greetings.`;
+      const text = await fetchAiMessage(nudger, prompt, []);
+      setTypingRole(null);
+      sfx.chatIncoming();
+      nudgeCountRef.current = {
+        phase: phaseIndex,
+        count: nudgeCountRef.current.count + 1,
+      };
+      setMessages((m) => [
+        ...m,
+        {
+          id: `${phaseIndex}-nudge-${nudger}-${Date.now()}`,
+          kind: "chat",
+          role: nudger,
+          time: stepTime(base, m.length * 2 + 6),
+          body: text,
+        },
+      ]);
+    }, delay);
+
+    return () => window.clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scriptedDonePhase, userMsgs, phaseIndex]);
+
 
 
 
