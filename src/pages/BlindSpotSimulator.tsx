@@ -74,6 +74,35 @@ const BlindSpotSimulator = () => {
   const [debrief, setDebrief] = useState<DebriefData | null>(null);
   const [debriefLoading, setDebriefLoading] = useState(false);
 
+  // Decision modal state
+  const feedRef = useRef<CommsFeedHandle>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const modalFiredRef = useRef<number | null>(null);
+
+  const DECISION_OPTIONS: Record<number, { yes: string; no: string; conditional: string }> = {
+    1: {
+      yes: "Terminate session and revoke vendor access",
+      no: "Keep session live, monitor only",
+      conditional: "Throttle session, alert vendor, ready a kill switch",
+    },
+    2: {
+      yes: "Isolate OT Sim Network and notify clients",
+      no: "Continue monitoring, hold isolation",
+      conditional: "Partial isolation + forensic monitoring",
+    },
+    3: {
+      yes: "Notify NSM, issue holding statement, reject attacker",
+      no: "Delay notification, no public statement",
+      conditional: "Notify NSM only, hold public comms",
+    },
+    4: {
+      yes: "Authorise conditional restart under forensic monitoring",
+      no: "Hold restart until full forensic clearance",
+      conditional: "Restart only validated zones in gated phases",
+    },
+  };
+
+
   const aiRoleNames = useMemo(() => {
     if (!userRole) return [] as string[];
     return ROLES.filter((r) => r.id !== userRole.id).map((r) => ROLE_DISPLAY_NAME[r.id]);
