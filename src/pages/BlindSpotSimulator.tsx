@@ -832,7 +832,7 @@ const BlindSpotSimulator = () => {
                 onClick={() => setBriefingStep("mission")}
                 className="bg-[#f5b800] text-black hover:bg-[#f5b800]/90 font-mono uppercase tracking-wider shadow-[0_0_30px_rgba(245,184,0,0.4)]"
               >
-                Continue → Mission briefing
+                Continue →
               </Button>
             </div>
             </>
