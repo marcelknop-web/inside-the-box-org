@@ -463,38 +463,37 @@ const BlindSpotSimulator = () => {
                 )}
               </div>
 
-              <div className="grid md:grid-cols-3 gap-4">
-                {aiRoleNames.map((r) => (
-                  <AiRolePanel
-                    key={r}
-                    aiRole={r}
-                    userRole={userRole.name}
-                    phaseName={phase.name}
-                    phaseTimestamp={phase.timestamp}
-                    situation={phase.situation}
-                    history={history[r] ?? []}
-                    triggerKey={`${r}-${phase.index}`}
-                    onReady={(text) => setAiOutputs((o) => ({ ...o, [r]: text }))}
+              <div className="grid lg:grid-cols-2 gap-4">
+                <div className="rounded-lg border border-[#f5b800]/40 bg-background/40 p-5 flex flex-col">
+                  <p className="font-mono text-xs text-[#f5b800] uppercase tracking-wider mb-3">
+                    Your private notes as {userRole.name}
+                  </p>
+                  <Textarea
+                    value={userAssessment}
+                    onChange={(e) => setUserAssessment(e.target.value)}
+                    placeholder="Optional — private notes that feed the IC decision context."
+                    className="min-h-[120px] bg-background/60 border-white/10 font-mono text-sm flex-1"
                   />
-                ))}
+                  <div className="flex justify-end mt-3">
+                    <Button onClick={submitAssessment} className="bg-[#f5b800] text-black hover:bg-[#f5b800]/90 font-mono uppercase tracking-wider">
+                      Proceed to IC decision →
+                    </Button>
+                  </div>
+                </div>
+
+                <CommsFeed
+                  phaseIndex={phase.index}
+                  phaseName={phase.name}
+                  phaseTimestamp={phase.timestamp}
+                  situation={phase.situation}
+                  userRoleName={userRole.name}
+                  onLatestByRole={(latest) => setAiOutputs(latest)}
+                  onLastUserMessage={(text) => {
+                    if (text && !userAssessment) setUserAssessment(text);
+                  }}
+                />
               </div>
 
-              <div className="rounded-lg border border-[#f5b800]/40 bg-background/40 p-5">
-                <p className="font-mono text-xs text-[#f5b800] uppercase tracking-wider mb-2">
-                  Your assessment as {userRole.name}
-                </p>
-                <Textarea
-                  value={userAssessment}
-                  onChange={(e) => setUserAssessment(e.target.value)}
-                  placeholder="What do you see? What do you do? What do you ask the team?"
-                  className="min-h-[120px] bg-background/60 border-white/10 font-mono text-sm"
-                />
-                <div className="flex justify-end mt-3">
-                  <Button onClick={submitAssessment} className="bg-[#f5b800] text-black hover:bg-[#f5b800]/90 font-mono uppercase tracking-wider">
-                    Submit assessment →
-                  </Button>
-                </div>
-              </div>
             </div>
           );
         })()}
