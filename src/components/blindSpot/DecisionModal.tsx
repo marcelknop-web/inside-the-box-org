@@ -180,10 +180,21 @@ export const DecisionModal = ({
                       border: "1px solid #F5A623",
                     }}
                   />
-                  <span className="absolute bottom-1.5 right-2 font-mono text-[10px] text-white/40">
-                    {reasoning.length}/200
+                  <span
+                    className="absolute bottom-1.5 right-2 font-mono text-[10px]"
+                    style={{ color: reasoningTooShort ? "#ef4444" : "rgba(255,255,255,0.4)" }}
+                  >
+                    {trimmedLen}/200
                   </span>
                 </div>
+                {reasoningTooShort && (
+                  <p
+                    className="font-mono mt-1.5"
+                    style={{ color: "#ef4444", fontSize: "11px" }}
+                  >
+                    Reasoning too short — describe your rationale (min. 20 characters)
+                  </p>
+                )}
               </div>
             )}
           </>
