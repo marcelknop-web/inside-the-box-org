@@ -77,6 +77,10 @@ const BlindSpotSimulator = () => {
   const [debrief, setDebrief] = useState<DebriefData | null>(null);
   const [debriefLoading, setDebriefLoading] = useState(false);
 
+  // Gamification
+  const [phaseScores, setPhaseScores] = useState<PhaseScoreBreakdown[]>([]);
+  const [showGameOver, setShowGameOver] = useState(false);
+
   // Decision modal state
   const feedRef = useRef<CommsFeedHandle>(null);
   const [modalOpen, setModalOpen] = useState(false);
