@@ -336,7 +336,11 @@ const BlindSpotSimulator = () => {
     }
   };
 
-  const handleUserCommit = (choice: DecisionChoice, reasoning: string) => {
+  const handleUserCommit = (
+    choice: DecisionChoice,
+    reasoning: string,
+    remainingSecs: number,
+  ) => {
     if (!("phaseIdx" in screen)) return;
     const phaseIdx = screen.phaseIdx;
     const phase = PHASES[phaseIdx];
@@ -354,7 +358,13 @@ const BlindSpotSimulator = () => {
       nis2Flag: phase.nis2Flag,
     };
     postCommitFeedMessages(phaseIdx, choice, optionLabel, "user", reasoning);
-    advanceAfterCommit(phaseIdx, record);
+    advanceAfterCommit(phaseIdx, record, {
+      isUserIC: true,
+      userStance: choice,
+      userReasoning: reasoning,
+      remainingSecs,
+      pushbackUsed: false,
+    });
   };
 
   const handleAiIcAuto = async (
