@@ -917,9 +917,30 @@ const BlindSpotSimulator = () => {
                         </p>
                         <p className="font-mono text-[11px] text-black/60">
                           {isUserIC
-                            ? "Post YES / NO / CONDITIONAL in chat →"
-                            : "Send your recommendation in chat →"}
+                            ? "Post your YES / NO / CONDITIONAL read in chat, then commit."
+                            : "Post your recommendation in chat, then commit."}
                         </p>
+                        {phaseUserMsgCount > 0 && (
+                          <p className="font-mono text-[10px] text-black/50">
+                            Your latest message will be used as rationale.
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="px-4 py-3 border-t border-black/15 bg-black/5 flex items-center justify-between gap-2">
+                        <span className="font-mono text-[10px] text-black/55 uppercase tracking-wider">
+                          {phaseUserMsgCount === 0
+                            ? "Awaiting your input"
+                            : `${phaseUserMsgCount} msg${phaseUserMsgCount > 1 ? "s" : ""} sent`}
+                        </span>
+                        <Button
+                          size="sm"
+                          disabled={committing || phaseUserMsgCount === 0 || !userAssessment.trim()}
+                          onClick={() => commitFromChat(screen.phaseIdx)}
+                          className="bg-black text-[#f5b800] hover:bg-black/85 font-mono uppercase tracking-wider text-[11px] h-8 px-3 disabled:opacity-40"
+                        >
+                          {committing ? "Committing…" : "Commit decision →"}
+                        </Button>
                       </div>
                     </div>
                   ) : (
@@ -951,14 +972,13 @@ const BlindSpotSimulator = () => {
                   }}
                   onLatestByRole={(latest) => setAiOutputs(latest)}
                   onLastUserMessage={(text) => {
-                    if (text && !userAssessment) setUserAssessment(text);
+                    if (text) setUserAssessment(text);
                   }}
                   onUserMessageCount={(n) => setPhaseUserMsgCount(n)}
                   onScriptedDone={() => {
                     setDecisionReady(true);
                     sfx.inputRequired();
                   }}
-                  onSequenceComplete={() => commitFromChat(screen.phaseIdx)}
                 />
               </div>
 
