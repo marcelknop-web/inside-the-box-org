@@ -601,32 +601,44 @@ export const CommsFeed = forwardRef<CommsFeedHandle, Props>(function CommsFeed(
       return { phase: phaseIndex, count: next };
     });
 
-    const responder = pickResponder(text);
-    setTimeout(() => {
+    const others: CommsRole[] = (
+      ["IT-Ops", "OT-Ops", "Incident Commander", "Management & Comms"] as CommsRole[]
+    ).filter((r) => r !== (userRoleName as CommsRole));
+    const primary = pickResponder(text);
+    const secondaryPool = others.filter((r) => r !== primary);
+    const secondary =
+      secondaryPool.length > 0
+        ? secondaryPool[Math.floor(Math.random() * secondaryPool.length)]
+        : null;
+
+    const postReply = async (responder: CommsRole, delayMs: number, offsetTick: number) => {
+      await new Promise((res) => setTimeout(res, delayMs));
       sfx.typing();
       setTypingRole(responder);
-    }, 400);
-
-    const reply = await fetchAiMessage(
-      responder,
-      `${userRoleName} just said: "${text}". Respond now in character.`,
-      [],
-    );
-    setTimeout(() => {
+      const reply = await fetchAiMessage(
+        responder,
+        `${userRoleName} just said: "${text}". Respond now in character from YOUR role's perspective only — do not speak for ${userRoleName}.`,
+        [],
+      );
       setTypingRole(null);
       sfx.chatIncoming();
       setMessages((m) => [
         ...m,
         {
-          id: `${phaseIndex}-ai-${responder}-reply-${Date.now()}`,
+          id: `${phaseIndex}-ai-${responder}-reply-${Date.now()}-${offsetTick}`,
           kind: "chat",
           role: responder,
-          time: stepTime(base, offset + 3),
+          time: stepTime(base, offset + 3 + offsetTick),
           body: reply,
         },
       ]);
-      setSending(false);
-    }, 1600);
+    };
+
+    await postReply(primary, 400, 0);
+    if (secondary && Math.random() < 0.75) {
+      await postReply(secondary, 900, 2);
+    }
+    setSending(false);
   };
 
   const participants = useMemo(
