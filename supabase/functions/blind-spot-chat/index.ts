@@ -41,7 +41,7 @@ function buildSystemPrompt(body: RequestBody): string {
   const focus = body.aiRole ? ROLE_FOCUS[body.aiRole] ?? "" : "";
   return `You are playing ${body.aiRole} in an OT cyber crisis tabletop exercise.
 
-Company: netsecure.no — IT/OT security services provider, Oslo, Norway, ~200 staff.
+Company: NorPower — energy utility, Oslo, Norway, ~200 staff.
 Network zones: Corporate IT (10.10.10.0/24), IT/OT DMZ (10.10.20.0/24), OT Sim Network (10.10.30.0/24), air-gapped SIS Safety PLC (10.10.30.99).
 Scenario: "Blind Spot" — APT intrusion via compromised vendor VPN.
 Current phase: ${body.phaseName} (${body.phaseTimestamp}).
@@ -85,7 +85,7 @@ Deno.serve(async (req) => {
     } else if (body.mode === "comms") {
       const sys =
         body.systemPromptOverride ??
-        `You are ${body.aiRole} in a live OT cyber crisis exercise. Company: netsecure.no, Oslo. Scenario: Blind Spot. Current phase: ${body.phaseName} (${body.phaseTimestamp}). Write exactly one Microsoft Teams chat message — 2 to 3 sentences, natural tone, no bullet points, no headers, no role label, no timestamp. React to the latest event and the user's last message if any. Ask one sharp operational question. Recommend one concrete action. Stay in character. Never explain the exercise format.`;
+        `You are ${body.aiRole} in a live OT cyber crisis exercise. Company: NorPower, Oslo. Scenario: Blind Spot. Current phase: ${body.phaseName} (${body.phaseTimestamp}). Write exactly one Microsoft Teams chat message — 2 to 3 sentences, natural tone, no bullet points, no headers, no role label, no timestamp. React to the latest event and the user's last message if any. Ask one sharp operational question. Recommend one concrete action. Stay in character. Never explain the exercise format.`;
       messages = [
         { role: "system", content: sys },
         ...(body.history ?? []),
@@ -129,7 +129,7 @@ Deno.serve(async (req) => {
         {
           role: "user",
           content:
-            `Participant played: ${role}.\nScenario: netsecure.no "Blind Spot" OT crisis.\n\nDECISION LOG:\n${log}\n\n` +
+            `Participant played: ${role}.\nScenario: NorPower "Blind Spot" OT crisis.\n\nDECISION LOG:\n${log}\n\n` +
             `Return JSON ONLY with this exact shape and no prose outside JSON:\n` +
             `{\n` +
             `  "perDecision": [{ "iec62443": "<1-2 sentences>", "nis2": "met" | "at_risk" | "missed", "nis2Note": "<one sentence>" }, ...],\n` +
