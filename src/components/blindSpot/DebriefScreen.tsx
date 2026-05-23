@@ -42,6 +42,15 @@ const tsToMinutes = (t: string): number => {
   return /h/i.test(m[2] ?? "") ? n * 60 : n;
 };
 
+const fmtTPlus = (min: number): string => {
+  const m = Math.round(min);
+  if (m === 0) return "T+0";
+  if (m < 60) return `T+${m}m`;
+  const h = Math.floor(m / 60);
+  const rest = m % 60;
+  return rest === 0 ? `T+${h}h` : `T+${h}h${rest}m`;
+};
+
 const PHASE_STARTS = [0, 45, 90, 240]; // minutes
 const PHASE_LABELS = ["P1", "P2", "P3", "P4"];
 const X_AXIS_MIN = 0;
