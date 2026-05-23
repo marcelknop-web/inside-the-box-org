@@ -137,19 +137,9 @@ const BlindSpotSimulator = () => {
     setPushbackUsed(false);
     setPhaseUserMsgCount(0);
     setEvidence([]);
-    setRevealStep(0);
+    setDecisionReady(false);
   };
 
-  // Drive the staged reveal whenever an inject phase begins
-  useEffect(() => {
-    if (screen.kind !== "inject") return;
-    setRevealStep(1);
-    const timers: number[] = [];
-    timers.push(window.setTimeout(() => setRevealStep((s) => Math.max(s, 2)), 1400));
-    timers.push(window.setTimeout(() => setRevealStep((s) => Math.max(s, 3)), 3000));
-    timers.push(window.setTimeout(() => setRevealStep((s) => Math.max(s, 4)), 4600));
-    return () => timers.forEach((t) => window.clearTimeout(t));
-  }, [screen.kind, "phaseIdx" in screen ? screen.phaseIdx : -1]);
 
   const appendHistory = (aiRole: string, entries: Array<{ role: "user" | "assistant"; content: string }>) => {
     setHistory((h) => ({ ...h, [aiRole]: [...(h[aiRole] ?? []), ...entries] }));
