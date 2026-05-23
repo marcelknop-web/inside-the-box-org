@@ -336,8 +336,8 @@ export const CommsFeed = forwardRef<CommsFeedHandle, Props>(function CommsFeed(
     seqStartedRef.current = phaseIndex;
     setMessages([]);
     setTypingRole(null);
-    setUserMsgCount(0);
-    setScriptedDone(false);
+    setUserMsgs({ phase: phaseIndex, count: 0 });
+    setScriptedDonePhase(null);
     completeFiredRef.current = null;
     onUserMessageCount?.(0);
 
