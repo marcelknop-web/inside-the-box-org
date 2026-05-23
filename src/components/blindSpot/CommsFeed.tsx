@@ -402,9 +402,9 @@ export const CommsFeed = forwardRef<CommsFeedHandle, Props>(function CommsFeed(
     });
 
     if (seq.length > 0) {
-      timers.push(window.setTimeout(() => setScriptedDone(true), lastMessageAt + 8000));
+      timers.push(window.setTimeout(() => setScriptedDonePhase(phaseIndex), lastMessageAt + 8000));
     } else {
-      setScriptedDone(true);
+      setScriptedDonePhase(phaseIndex);
     }
 
     return () => timers.forEach((t) => window.clearTimeout(t));
@@ -413,19 +413,23 @@ export const CommsFeed = forwardRef<CommsFeedHandle, Props>(function CommsFeed(
 
   /* ---- Fire onScriptedDone as soon as scripted sequence finishes ---- */
   useEffect(() => {
-    if (scriptedDone) onScriptedDone?.();
+    if (scriptedDonePhase === phaseIndex) onScriptedDone?.();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [scriptedDone, phaseIndex]);
+  }, [scriptedDonePhase, phaseIndex]);
 
-  /* ---- Gate: fire onSequenceComplete only when scripted done AND user sent ≥1 msg ---- */
+  /* ---- Gate: fire onSequenceComplete only when scripted done AND user sent ≥1 msg, both scoped to current phase ---- */
   useEffect(() => {
     if (!onSequenceComplete) return;
     if (completeFiredRef.current === phaseIndex) return;
-    if (scriptedDone && userMsgCount >= 1) {
+    if (
+      scriptedDonePhase === phaseIndex &&
+      userMsgs.phase === phaseIndex &&
+      userMsgs.count >= 1
+    ) {
       completeFiredRef.current = phaseIndex;
       onSequenceComplete();
     }
-  }, [scriptedDone, userMsgCount, phaseIndex, onSequenceComplete]);
+  }, [scriptedDonePhase, userMsgs, phaseIndex, onSequenceComplete]);
 
 
 
