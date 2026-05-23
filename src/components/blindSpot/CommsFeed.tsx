@@ -349,7 +349,7 @@ export const CommsFeed = forwardRef<CommsFeedHandle, Props>(function CommsFeed(
     });
 
     if (onSequenceComplete && seq.length > 0) {
-      timers.push(window.setTimeout(() => onSequenceComplete(), lastMessageAt + 1200));
+      timers.push(window.setTimeout(() => onSequenceComplete(), lastMessageAt + 8000));
     }
 
     return () => timers.forEach((t) => window.clearTimeout(t));
