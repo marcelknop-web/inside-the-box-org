@@ -697,6 +697,8 @@ const BlindSpotSimulator = () => {
               </div>
             </div>
 
+            {briefingStep === "intro" && (
+            <>
             {/* COMPANY CARD */}
             <div className="rounded-lg border border-white/10 bg-background/40 p-5">
               <div className="flex items-center gap-3 mb-4">
