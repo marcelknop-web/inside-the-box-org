@@ -60,6 +60,8 @@ const ROLE_DISPLAY_NAME: Record<RoleId, string> = {
 const BlindSpotSimulator = () => {
   const [screen, setScreen] = useState<Screen>({ kind: "welcome" });
   const [userRole, setUserRole] = useState<Role | null>(null);
+  // Briefing has two pages: 'intro' (company/systems/network) → 'mission' (alert/phases/roles)
+  const [briefingStep, setBriefingStep] = useState<"intro" | "mission">("intro");
 
   // Per-phase user assessment text
   const [userAssessment, setUserAssessment] = useState("");
@@ -152,6 +154,7 @@ const BlindSpotSimulator = () => {
   const pickRole = (role: Role) => setScreen({ kind: "confirmRole", role });
   const confirmRole = (role: Role) => {
     setUserRole(role);
+    setBriefingStep("intro");
     setScreen({ kind: "briefing" });
   };
 
@@ -643,7 +646,7 @@ const BlindSpotSimulator = () => {
 
         {/* ===== Briefing ===== */}
         {screen.kind === "briefing" && userRole && (
-          <StaggerReveal stagger={700} startDelay={200}>
+          <StaggerReveal stagger={700} startDelay={200} resetKey={briefingStep}>
             {/* HERO */}
             <div className="relative overflow-hidden rounded-xl border border-[#f5b800]/40 bg-gradient-to-br from-[#f5b800]/10 via-background/60 to-background/40 p-6">
               <div className="absolute inset-0 opacity-[0.07] pointer-events-none"
@@ -662,12 +665,15 @@ const BlindSpotSimulator = () => {
                 </div>
                 <div className="flex-1 min-w-[260px]">
                   <p className="font-mono text-[10px] text-[#f5b800] uppercase tracking-[0.3em] mb-1">
-                    ▲ Pre-exercise briefing
+                    ▲ {briefingStep === "intro" ? "Part 1 · Introduction" : "Part 2 · Mission briefing"}
                   </p>
-                  <h2 className="font-mono text-2xl leading-tight">Welcome aboard, {userRole.name}.</h2>
+                  <h2 className="font-mono text-2xl leading-tight">
+                    {briefingStep === "intro" ? `Welcome aboard, ${userRole.name}.` : "Mission briefing — stand by."}
+                  </h2>
                   <p className="text-white/70 text-sm mt-2 leading-relaxed max-w-2xl">
-                    60-second read. You are about to drop into a live OT crisis at NorPower.
-                    This is the context you would already have on day one.
+                    {briefingStep === "intro"
+                      ? "Get to know NorPower, its systems and its network. This is the context you would already have on day one."
+                      : "Here is the live alert that pulled you onto the bridge, the phases ahead, and the team you'll work with."}
                   </p>
                 </div>
                 <div className="shrink-0 grid grid-cols-2 gap-2 font-mono text-[10px] uppercase tracking-wider">
@@ -691,6 +697,8 @@ const BlindSpotSimulator = () => {
               </div>
             </div>
 
+            {briefingStep === "intro" && (
+            <>
             {/* COMPANY CARD */}
             <div className="rounded-lg border border-white/10 bg-background/40 p-5">
               <div className="flex items-center gap-3 mb-4">
@@ -814,6 +822,30 @@ const BlindSpotSimulator = () => {
               </p>
             </div>
 
+            {/* INTRO → MISSION CTA */}
+            <div className="flex justify-end pt-2">
+              <Button
+                onClick={() => setBriefingStep("mission")}
+                className="bg-[#f5b800] text-black hover:bg-[#f5b800]/90 font-mono uppercase tracking-wider shadow-[0_0_30px_rgba(245,184,0,0.4)]"
+              >
+                Continue → Mission briefing
+              </Button>
+            </div>
+            </>
+            )}
+
+            {briefingStep === "mission" && (
+            <>
+            {/* BACK LINK */}
+            <div className="flex justify-start">
+              <button
+                onClick={() => setBriefingStep("intro")}
+                className="font-mono text-[11px] text-white/50 hover:text-[#f5b800] uppercase tracking-wider transition-colors"
+              >
+                ← Back to introduction
+              </button>
+            </div>
+
             {/* SITUATION — ALERT */}
             <div className="rounded-lg border border-amber-400/50 bg-gradient-to-r from-amber-400/15 to-amber-400/5 p-5 relative overflow-hidden">
               <div className="absolute top-0 right-0 w-24 h-24 bg-amber-400/10 rounded-full blur-2xl" />
@@ -883,6 +915,8 @@ const BlindSpotSimulator = () => {
                 I'm ready — Phase 1 begins →
               </Button>
             </div>
+            </>
+            )}
           </StaggerReveal>
         )}
 
