@@ -256,10 +256,11 @@ export const DebriefScreen = ({
                 </g>
               );
             })}
-            {/* X-axis labels every 30min */}
-            {Array.from({ length: 9 }).map((_, i) => {
+            {/* X-axis labels every 30min, 0..270 */}
+            {Array.from({ length: 10 }).map((_, i) => {
               const m = i * 30;
               const x = xFor(m);
+              const label = fmtTPlus(m);
               return (
                 <g key={`tick-${i}`}>
                   <line
@@ -277,7 +278,7 @@ export const DebriefScreen = ({
                     fontSize={10}
                     textAnchor="middle"
                   >
-                    {m === 0 ? "T+0" : m >= 60 ? `T+${(m / 60).toFixed(m % 60 ? 1 : 0)}h` : `T+${m}m`}
+                    {label}
                   </text>
                 </g>
               );
@@ -294,21 +295,23 @@ export const DebriefScreen = ({
 
             {/* Alert dots */}
             {ALERTS.map((a, i) => (
-              <g key={`alert-${i}`}>
-                <title>{`[${a.severity}] ${a.text}`}</title>
+              <g key={`alert-${i}`} style={{ cursor: "help" }}>
+                <title>{`[${a.severity}] — ${a.text} · ${fmtTPlus(a.minute)}`}</title>
                 <circle cx={xFor(a.minute)} cy={40} r={6} fill={sevColor(a.severity)} />
               </g>
             ))}
 
-            {/* Decision diamonds */}
+            {/* Decision diamonds (12×12 rotated square) */}
             {decisions.map((d, i) => {
               const m = tsToMinutes(d.timestamp);
               const x = xFor(m);
               const y = 80;
-              const s = 8;
+              const s = 8; // half-diagonal ~ 12px diagonal square
+              const truncReason =
+                d.reasoning.length > 60 ? `${d.reasoning.slice(0, 60)}…` : d.reasoning;
               return (
-                <g key={`dec-${i}`}>
-                  <title>{`${d.question}\nChoice: ${d.choice}\nReasoning: ${d.reasoning}`}</title>
+                <g key={`dec-${i}`} style={{ cursor: "help" }}>
+                  <title>{`P${i + 1} · ${d.choice} · ${truncReason}`}</title>
                   <polygon
                     points={`${x},${y - s} ${x + s},${y} ${x},${y + s} ${x - s},${y}`}
                     fill={choiceColor(d.choice)}
