@@ -407,6 +407,7 @@ const BlindSpotSimulator = () => {
       const { data, error } = await supabase.functions.invoke("blind-spot-chat", {
         body: {
           mode: "debrief",
+          userRole: userRole?.name,
           decisions: finalDecisions.map((d) => ({
             phase: d.phase,
             question: d.question,
