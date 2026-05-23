@@ -132,6 +132,7 @@ const BlindSpotSimulator = () => {
     setAiIcDecision("");
     setPushbackUsed(false);
     setPhaseUserMsgCount(0);
+    setEvidence([]);
   };
 
   const appendHistory = (aiRole: string, entries: Array<{ role: "user" | "assistant"; content: string }>) => {
