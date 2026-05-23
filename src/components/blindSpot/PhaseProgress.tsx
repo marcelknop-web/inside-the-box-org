@@ -1,10 +1,17 @@
 import { Phase } from "@/data/blindSpotScenario";
-import { Radar, ShieldAlert, ShieldCheck, RotateCcw, BookOpen } from "lucide-react";
+import { Radar, ShieldAlert, ShieldCheck, RotateCcw, BookOpen, Flame } from "lucide-react";
+
+type VerdictTier = "sharp" | "solid" | "mixed" | "drift";
 
 interface Props {
   currentPhase: 1 | 2 | 3 | 4 | "debrief";
   phases: Phase[];
+  /** Consecutive phases scored ≥ 70. ≥2 reveals a subtle momentum chip. */
+  streak?: number;
+  /** Brief post-commit verdict pulse. Auto-cleared by parent. */
+  verdict?: { tier: VerdictTier; label: string; score: number } | null;
 }
+
 
 /**
  * IEC 62443 Incident Response Lifecycle visualisation.
