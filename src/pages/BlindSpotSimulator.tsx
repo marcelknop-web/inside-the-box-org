@@ -699,8 +699,9 @@ const BlindSpotSimulator = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr] gap-3 flex-1 min-h-0">
 
-                {/* LEFT COLUMN — Evidence (top) + Decision+Notes (bottom) */}
-                <div className="grid grid-rows-2 gap-3 min-h-0">
+                {/* LEFT COLUMN — Evidence (full height until decision needed, then top half) */}
+                <div className={decisionReady ? "grid grid-rows-2 gap-3 min-h-0" : "min-h-0"}>
+
                   <EvidencePanel
                     phaseName={phase.name}
                     phaseTimestamp={phase.timestamp}
