@@ -1034,13 +1034,19 @@ const BlindSpotSimulator = () => {
                   situation={phase.situation}
                   userRoleName={userRole.name}
                   hideSystemMessages
-                  onSystemAlert={(a) => setEvidence((prev) => [...prev, a])}
+                  onSystemAlert={(a) => {
+                    setEvidence((prev) => [...prev, a]);
+                    sfx.alert();
+                  }}
                   onLatestByRole={(latest) => setAiOutputs(latest)}
                   onLastUserMessage={(text) => {
                     if (text && !userAssessment) setUserAssessment(text);
                   }}
                   onUserMessageCount={(n) => setPhaseUserMsgCount(n)}
-                  onScriptedDone={() => setDecisionReady(true)}
+                  onScriptedDone={() => {
+                    setDecisionReady(true);
+                    sfx.inputRequired();
+                  }}
                   onSequenceComplete={() => commitFromChat(screen.phaseIdx)}
                 />
               </div>
