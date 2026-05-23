@@ -1,0 +1,601 @@
+import { ReactNode, useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { INITIAL_ALERT, ROLES, Role } from "@/data/blindSpotScenario";
+
+/**
+ * Briefing as a guided slide deck. One topic per slide so the user
+ * can absorb the context at their own pace instead of scrolling a wall.
+ *
+ *   0. Welcome aboard
+ *   1. NorPower — the company
+ *   2. Key systems
+ *   3. Network — Purdue zones
+ *   4. The live alert (situation)
+ *   5. Who's on the bridge (roles)
+ *   6. Cockpit tour — where everything is on screen
+ *   7. Ready to start
+ */
+
+interface Props {
+  userRole: Role;
+  onStart: () => void;
+}
+
+interface Slide {
+  id: string;
+  /** Short label shown in the dot navigator. */
+  label: string;
+  /** Eyebrow line at top of the slide. */
+  kicker: string;
+  /** Slide headline. */
+  title: string;
+  /** One-line lede under the title. */
+  lede?: string;
+  body: ReactNode;
+}
+
+const PILL = "font-mono text-[10px] uppercase tracking-[0.2em]";
+
+export const BriefingDeck = ({ userRole, onStart }: Props) => {
+  const [idx, setIdx] = useState(0);
+
+  const slides: Slide[] = [
+    /* ---------------- 0 · Welcome ---------------- */
+    {
+      id: "welcome",
+      label: "Welcome",
+      kicker: "Part 1 · Orientation",
+      title: `Welcome aboard, ${userRole.name}.`,
+      lede: "Eight quick slides set the scene. Then the bridge opens.",
+      body: (
+        <div className="grid sm:grid-cols-2 gap-3 max-w-3xl">
+          <Tile k="Location" v="Oslo · NO" />
+          <Tile k="Local time" v="23:47" accent />
+          <Tile k="Phases" v="4 + debrief" />
+          <Tile k="Duration" v="≈ 20 min" />
+          <div className="sm:col-span-2 mt-2 rounded border border-white/10 bg-background/40 p-4">
+            <p className="text-white/70 text-sm leading-relaxed">
+              You will play <span className="text-[#f5b800] font-mono">{userRole.name}</span>.
+              The other three roles are run by AI teammates. Decisions are committed in the
+              team chat — the system reads your last message as your rationale.
+            </p>
+          </div>
+        </div>
+      ),
+    },
+
+    /* ---------------- 1 · Company ---------------- */
+    {
+      id: "company",
+      label: "Company",
+      kicker: "Topic 01",
+      title: "NorPower AS",
+      lede: "Norwegian energy utility. Mid-size, regulated, OT-heavy.",
+      body: (
+        <>
+          <div className="grid sm:grid-cols-3 gap-3 max-w-4xl">
+            {[
+              ["Sector", "Energy utility"],
+              ["HQ", "Oslo, Norway"],
+              ["Staff", "~200 · 40 in OT"],
+              ["Regulation", "NIS-2 essential · NSM"],
+              ["Clients", "Municipal + industrial"],
+              ["Posture", "ISO 27001 · IEC 62443"],
+            ].map(([k, v]) => (
+              <Tile key={k} k={k} v={v} />
+            ))}
+          </div>
+          <p className="text-white/65 text-sm mt-5 leading-relaxed border-l-2 border-[#f5b800]/40 pl-3 max-w-3xl">
+            NorPower runs its own SOC (3 analysts, 24/7 on-call), an OT-Ops team that owns
+            the plant floor, and a small IR cell. A third-party PLC integrator has remote
+            VPN access for vendor maintenance — a known but tolerated risk.
+          </p>
+        </>
+      ),
+    },
+
+    /* ---------------- 2 · Key systems ---------------- */
+    {
+      id: "systems",
+      label: "Systems",
+      kicker: "Topic 02",
+      title: "Key systems",
+      lede: "What you have on the floor and in the SOC.",
+      body: (
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+          {[
+            { i: "◆", k: "SIEM", v: "Splunk Enterprise", d: "EDR, FW, AD, VPN, historian" },
+            { i: "◉", k: "OT monitoring", v: "Claroty CTD", d: "passive OT + SIS" },
+            { i: "▣", k: "PLCs", v: "Siemens S7-1500", d: "client sim line" },
+            { i: "⬢", k: "SIS", v: "Air-gapped PLC", d: "10.10.30.99 — last line" },
+            { i: "▤", k: "Historian", v: "OSIsoft PI", d: "OT zone" },
+            { i: "⇄", k: "Remote access", v: "Vendor VPN", d: "Jump Host 10.10.20.50" },
+            { i: "◳", k: "Backups", v: "Immutable / offline", d: "last validated 6d ago" },
+            { i: "✦", k: "Identity", v: "Active Directory", d: "MFA on admin only" },
+            { i: "✉", k: "Comms", v: "MS Teams bridge", d: "24/7 on-call rota" },
+          ].map(({ i, k, v, d }) => (
+            <div
+              key={k}
+              className="flex gap-3 border border-white/10 rounded p-2.5 bg-background/30 hover:border-[#f5b800]/40 transition-colors"
+            >
+              <div className="shrink-0 w-8 h-8 rounded border border-[#f5b800]/40 bg-[#f5b800]/10 flex items-center justify-center text-[#f5b800] text-lg">
+                {i}
+              </div>
+              <div className="min-w-0">
+                <div className="font-mono text-[10px] text-white/40 uppercase tracking-wider">{k}</div>
+                <div className="font-mono text-sm text-white/90 truncate">{v}</div>
+                <div className="font-mono text-[10px] text-white/50 truncate">{d}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      ),
+    },
+
+    /* ---------------- 3 · Network ---------------- */
+    {
+      id: "network",
+      label: "Network",
+      kicker: "Topic 03",
+      title: "Network — Purdue zones",
+      lede: "Four zones, conduits firewalled, SIS air-gapped.",
+      body: (
+        <>
+          <div className="overflow-x-auto rounded-lg border border-white/10 bg-background/40 p-4">
+            <svg viewBox="0 0 720 280" className="w-full min-w-[640px] h-auto font-mono">
+              <defs>
+                <marker
+                  id="bsArrow2"
+                  viewBox="0 0 10 10"
+                  refX="9"
+                  refY="5"
+                  markerWidth="6"
+                  markerHeight="6"
+                  orient="auto"
+                >
+                  <path d="M0,0 L10,5 L0,10 z" fill="#f5b80088" />
+                </marker>
+              </defs>
+              {[
+                { y: 10, label: "ZONE 1 · CORPORATE IT", cidr: "10.10.10.0/24", color: "#00bcd4" },
+                { y: 80, label: "ZONE 2 · IT/OT DMZ", cidr: "10.10.20.0/24", color: "#f5b800" },
+                { y: 150, label: "ZONE 3 · OT SIM NETWORK", cidr: "10.10.30.0/24", color: "#ef6c5a" },
+                { y: 220, label: "SIS · AIR-GAPPED SAFETY PLC", cidr: "10.10.30.99", color: "#a0e85b" },
+              ].map((z) => (
+                <g key={z.label}>
+                  <rect
+                    x="10" y={z.y} width="700" height="55" rx="6"
+                    fill={z.color} fillOpacity="0.06" stroke={z.color} strokeOpacity="0.35"
+                  />
+                  <text x="22" y={z.y + 18} fill={z.color} fillOpacity="0.9" fontSize="10" letterSpacing="2">
+                    {z.label}
+                  </text>
+                  <text x="22" y={z.y + 34} fill="#ffffff" fillOpacity="0.5" fontSize="9">
+                    {z.cidr}
+                  </text>
+                </g>
+              ))}
+              {[
+                { x: 230, y: 24, w: 90, label: "Workstations" },
+                { x: 340, y: 24, w: 90, label: "AD / Splunk" },
+                { x: 450, y: 24, w: 90, label: "Mail / Web" },
+                { x: 230, y: 94, w: 100, label: "Jump Host", note: "10.10.20.50", hot: true },
+                { x: 350, y: 94, w: 100, label: "Vendor VPN" },
+                { x: 470, y: 94, w: 100, label: "Historian Sync" },
+                { x: 230, y: 164, w: 100, label: "Eng Workstation" },
+                { x: 350, y: 164, w: 100, label: "PI Historian" },
+                { x: 470, y: 164, w: 100, label: "Siemens S7 PLC" },
+                { x: 350, y: 234, w: 140, label: "Safety PLC (SIS)" },
+              ].map((n, i) => (
+                <g key={i}>
+                  <rect
+                    x={n.x} y={n.y} width={n.w} height="30" rx="4"
+                    fill={n.hot ? "#f5b80022" : "#ffffff08"}
+                    stroke={n.hot ? "#f5b800" : "#ffffff55"}
+                    strokeWidth={n.hot ? "1.5" : "1"}
+                  />
+                  <text x={n.x + n.w / 2} y={n.y + 14} textAnchor="middle" fill="#fff" fillOpacity="0.9" fontSize="10">
+                    {n.label}
+                  </text>
+                  {n.note && (
+                    <text x={n.x + n.w / 2} y={n.y + 25} textAnchor="middle" fill="#f5b800" fontSize="8">
+                      {n.note}
+                    </text>
+                  )}
+                </g>
+              ))}
+              <line x1="385" y1="55" x2="385" y2="92" stroke="#f5b80088" strokeWidth="1" markerEnd="url(#bsArrow2)" />
+              <line x1="385" y1="125" x2="385" y2="162" stroke="#f5b80088" strokeWidth="1" strokeDasharray="3 3" markerEnd="url(#bsArrow2)" />
+              <line x1="420" y1="195" x2="420" y2="232" stroke="#a0e85b55" strokeWidth="1" strokeDasharray="2 4" />
+              <text x="395" y="148" fill="#f5b80099" fontSize="8">OPC UA · whitelisted</text>
+              <text x="425" y="218" fill="#a0e85b99" fontSize="8">air-gap (no IP path)</text>
+            </svg>
+          </div>
+          <p className="text-white/55 text-[11px] mt-3 leading-relaxed font-mono max-w-3xl">
+            IT ↔ DMZ fully inspected. DMZ ↔ OT restricted to OPC UA and historian sync. SIS isolated.
+          </p>
+        </>
+      ),
+    },
+
+    /* ---------------- 4 · Situation ---------------- */
+    {
+      id: "situation",
+      label: "Alert",
+      kicker: "Topic 04 · live",
+      title: "The situation",
+      lede: "23:47. SOC just escalated. You joined the bridge call.",
+      body: (
+        <div className="rounded-lg border border-amber-400/50 bg-gradient-to-r from-amber-400/15 to-amber-400/5 p-5 relative overflow-hidden max-w-4xl">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-amber-400/10 rounded-full blur-2xl" />
+          <div className="flex items-center gap-3 mb-3 relative">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-400" />
+            </span>
+            <h3 className="font-mono text-sm uppercase tracking-wider text-amber-200">
+              Live SIEM alert
+            </h3>
+          </div>
+          <div className="grid sm:grid-cols-4 gap-3 mb-3 font-mono text-[11px]">
+            <Field k="Source" v={INITIAL_ALERT.source} />
+            <Field k="Severity" v={INITIAL_ALERT.severity} accent="text-amber-300" />
+            <Field k="Timestamp" v={INITIAL_ALERT.timestamp} />
+            <Field k="Status" v="Bridge convened" />
+          </div>
+          <p className="text-white/85 leading-relaxed">{INITIAL_ALERT.detail}</p>
+          <p className="text-white/65 text-sm mt-3 leading-relaxed italic">
+            It's late. Most of the office is dark. SOC escalated to the on-call bridge.
+          </p>
+        </div>
+      ),
+    },
+
+    /* ---------------- 5 · Roles ---------------- */
+    {
+      id: "roles",
+      label: "Bridge",
+      kicker: "Topic 05",
+      title: "Who's on the bridge",
+      lede: "You hold one seat. AI fills the other three.",
+      body: (
+        <>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 max-w-5xl">
+            {ROLES.map((r) => {
+              const you = r.id === userRole.id;
+              return (
+                <div
+                  key={r.id}
+                  className={`rounded-lg border p-4 ${you ? "border-[#f5b800] bg-[#f5b800]/10" : "border-white/10 bg-background/30"}`}
+                >
+                  <div className={`${PILL} ${you ? "text-[#f5b800]" : "text-white/40"}`}>
+                    {you ? "▶ You" : "AI"}
+                  </div>
+                  <div className={`font-mono text-base mt-1.5 ${you ? "text-[#f5b800]" : "text-white/90"}`}>
+                    {r.name}
+                  </div>
+                  <p className="text-white/60 text-xs leading-relaxed mt-2">{r.description}</p>
+                </div>
+              );
+            })}
+          </div>
+          <p className="text-white/60 text-xs mt-5 leading-relaxed font-mono max-w-3xl">
+            All communication happens in the team chat. The Incident Commander drives decisions.
+            NIS-2 clock starts at Phase 2.
+          </p>
+        </>
+      ),
+    },
+
+    /* ---------------- 6 · Cockpit tour ---------------- */
+    {
+      id: "cockpit",
+      label: "Cockpit",
+      kicker: "Topic 06 · how it works",
+      title: "Your cockpit",
+      lede: "One screen, four zones. Read top to bottom, left to right.",
+      body: <CockpitTour />,
+    },
+
+    /* ---------------- 7 · Ready ---------------- */
+    {
+      id: "ready",
+      label: "Start",
+      kicker: "Ready",
+      title: "Phase 1 is queued.",
+      lede: "When you commit a decision, the clock advances and the next phase loads.",
+      body: (
+        <div className="max-w-3xl space-y-4">
+          <div className="grid sm:grid-cols-3 gap-3">
+            <Tile k="Phase 1" v="Initial Anomaly" />
+            <Tile k="Phase 2" v="Confirmed Compromise" accent />
+            <Tile k="Phase 3" v="Safety Threshold" />
+          </div>
+          <div className="rounded border border-[#f5b800]/40 bg-[#f5b800]/5 p-4">
+            <p className="font-mono text-[11px] text-[#f5b800] uppercase tracking-wider mb-1">
+              House rules
+            </p>
+            <ul className="text-white/75 text-sm leading-relaxed space-y-1 list-disc pl-5">
+              <li>Talk to the bridge in chat. Your last message is your rationale.</li>
+              <li>Press <span className="font-mono text-[#f5b800]">Commit decision</span> when ready.</li>
+              <li>Safety first. Availability second. Disclosure on the regulator clock.</li>
+            </ul>
+          </div>
+        </div>
+      ),
+    },
+  ];
+
+  const slide = slides[idx];
+  const isFirst = idx === 0;
+  const isLast = idx === slides.length - 1;
+
+  // Keyboard nav: ← → / PageUp / PageDown
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "ArrowRight" || e.key === "PageDown") {
+        if (!isLast) setIdx((i) => i + 1);
+        else onStart();
+      } else if (e.key === "ArrowLeft" || e.key === "PageUp") {
+        if (!isFirst) setIdx((i) => i - 1);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [isFirst, isLast, onStart]);
+
+  return (
+    <div className="flex flex-col gap-4">
+      {/* Deck header — progress + dot nav */}
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <span className={`${PILL} text-[#f5b800]`}>
+          ▲ Briefing · {String(idx + 1).padStart(2, "0")} / {String(slides.length).padStart(2, "0")}
+        </span>
+        <div className="flex items-center gap-1.5">
+          {slides.map((s, i) => (
+            <button
+              key={s.id}
+              onClick={() => setIdx(i)}
+              title={s.label}
+              aria-label={`Go to slide ${i + 1}: ${s.label}`}
+              className={`h-1.5 rounded-full transition-all ${
+                i === idx
+                  ? "w-8 bg-[#f5b800]"
+                  : i < idx
+                  ? "w-3 bg-[#f5b800]/40 hover:bg-[#f5b800]/70"
+                  : "w-3 bg-white/15 hover:bg-white/30"
+              }`}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Slide card */}
+      <div
+        key={slide.id}
+        className="relative overflow-hidden rounded-xl border border-white/10 bg-background/40 animate-fade-in"
+      >
+        {/* corner grid */}
+        <div
+          className="absolute inset-0 opacity-[0.05] pointer-events-none"
+          style={{
+            backgroundImage:
+              "linear-gradient(rgba(245,184,0,0.4) 1px, transparent 1px), linear-gradient(90deg, rgba(245,184,0,0.4) 1px, transparent 1px)",
+            backgroundSize: "32px 32px",
+          }}
+        />
+        <div className="relative p-6 md:p-8">
+          <p className={`${PILL} text-[#f5b800] mb-2`}>{slide.kicker}</p>
+          <h2 className="font-mono text-2xl md:text-3xl text-white leading-tight">{slide.title}</h2>
+          {slide.lede && (
+            <p className="text-white/70 text-sm md:text-base mt-2 leading-relaxed max-w-3xl">
+              {slide.lede}
+            </p>
+          )}
+          <div className="mt-6">{slide.body}</div>
+        </div>
+      </div>
+
+      {/* Footer nav */}
+      <div className="flex items-center justify-between gap-2">
+        <Button
+          variant="outline"
+          onClick={() => setIdx((i) => Math.max(0, i - 1))}
+          disabled={isFirst}
+          className="font-mono uppercase tracking-wider border-white/15 text-white/80 hover:text-white disabled:opacity-30"
+        >
+          ← Back
+        </Button>
+        <span className="font-mono text-[10px] text-white/35 uppercase tracking-wider hidden sm:block">
+          ← → keys to navigate
+        </span>
+        {isLast ? (
+          <Button
+            onClick={onStart}
+            className="bg-[#f5b800] text-black hover:bg-[#f5b800]/90 font-mono uppercase tracking-wider shadow-[0_0_30px_rgba(245,184,0,0.4)]"
+          >
+            Start exercise →
+          </Button>
+        ) : (
+          <Button
+            onClick={() => setIdx((i) => i + 1)}
+            className="bg-[#f5b800] text-black hover:bg-[#f5b800]/90 font-mono uppercase tracking-wider"
+          >
+            Continue →
+          </Button>
+        )}
+      </div>
+    </div>
+  );
+};
+
+/* ============================================================
+ * Sub-components
+ * ============================================================ */
+
+const Tile = ({ k, v, accent = false }: { k: string; v: string; accent?: boolean }) => (
+  <div className="border border-white/10 rounded p-3 bg-background/30">
+    <div className="font-mono text-[10px] text-white/40 uppercase tracking-wider">{k}</div>
+    <div className={`font-mono text-sm mt-0.5 ${accent ? "text-[#f5b800]" : "text-white/90"}`}>
+      {v}
+    </div>
+  </div>
+);
+
+const Field = ({ k, v, accent }: { k: string; v: string; accent?: string }) => (
+  <div>
+    <div className="text-white/40 uppercase">{k}</div>
+    <div className={accent ?? "text-white/90"}>{v}</div>
+  </div>
+);
+
+/**
+ * Cockpit tour — a schematic of the live exercise screen with numbered
+ * call-outs and a legend. Not interactive; just teaches the player
+ * where to look before the real cockpit appears.
+ */
+const CockpitTour = () => {
+  const items = [
+    { n: 1, t: "Phase progress",      d: "Top bar. Shows current phase, streak and your last verdict." },
+    { n: 2, t: "Systems status",      d: "Six tiles — health of vendor VPN, jump host, historian, PLCs, SIS." },
+    { n: 3, t: "Objective HUD",       d: "What the IC needs from you right now: WATCH, ENGAGE or DECIDE." },
+    { n: 4, t: "Evidence panel",      d: "Left-top. The situation + incoming SIEM/Claroty alerts for this phase." },
+    { n: 5, t: "Implications · Your call", d: "Left-bottom. AI bridge readout — turns yellow when it's your move." },
+    { n: 6, t: "Team chat",           d: "Right column. Where you talk to the bridge and post your rationale." },
+  ];
+  return (
+    <div className="grid lg:grid-cols-[1.15fr_1fr] gap-5">
+      {/* Schematic */}
+      <div className="rounded-lg border border-white/10 bg-[#0e0e10] p-3 relative">
+        <div className="font-mono text-[9px] uppercase tracking-[0.25em] text-white/35 mb-2 flex items-center justify-between">
+          <span>Live exercise · cockpit</span>
+          <span className="text-[#f5b800]/70">PHASE 1 · T+0</span>
+        </div>
+
+        {/* (1) progress bar */}
+        <Strip n={1} label="Phase progress">
+          <div className="flex items-center gap-1 px-2 py-1">
+            {[1, 2, 3, 4].map((p) => (
+              <div
+                key={p}
+                className={`h-1.5 flex-1 rounded-full ${p === 1 ? "bg-[#f5b800]" : "bg-white/15"}`}
+              />
+            ))}
+          </div>
+        </Strip>
+
+        {/* (2) systems status */}
+        <Strip n={2} label="Systems status">
+          <div className="grid grid-cols-6 gap-1 p-1.5">
+            {["ok", "watch", "ok", "ok", "ok", "ok"].map((s, i) => (
+              <div
+                key={i}
+                className={`h-6 rounded border ${
+                  s === "watch"
+                    ? "border-[#f5b800]/40 bg-[#f5b800]/10"
+                    : "border-white/10 bg-white/[0.03]"
+                } flex items-center justify-center`}
+              >
+                <span
+                  className={`w-1 h-1 rounded-full ${
+                    s === "watch" ? "bg-[#f5b800]" : "bg-emerald-400"
+                  }`}
+                />
+              </div>
+            ))}
+          </div>
+        </Strip>
+
+        {/* (3) objective HUD */}
+        <Strip n={3} label="Objective HUD">
+          <div className="px-2.5 py-1.5 flex items-center gap-2">
+            <span className="font-mono text-[9px] text-emerald-300 border border-emerald-300/40 bg-emerald-300/10 rounded px-1.5 py-0.5">
+              WATCH
+            </span>
+            <span className="font-mono text-[9px] text-white/55">
+              Read the alert. Listen to the bridge.
+            </span>
+          </div>
+        </Strip>
+
+        {/* (4) + (5) + (6) main grid */}
+        <div className="grid grid-cols-[1fr_1fr] gap-1.5 mt-1.5">
+          <div className="grid grid-rows-2 gap-1.5">
+            <Block n={4} label="Evidence" tone="cool" />
+            <Block n={5} label="Implications / Your call" tone="warm" />
+          </div>
+          <Block n={6} label="Team chat" tone="dim" tall />
+        </div>
+      </div>
+
+      {/* Legend */}
+      <ol className="space-y-2.5">
+        {items.map((it) => (
+          <li
+            key={it.n}
+            className="flex gap-3 rounded border border-white/10 bg-background/30 p-3"
+          >
+            <span className="shrink-0 w-7 h-7 rounded-full border border-[#f5b800] bg-[#f5b800]/15 text-[#f5b800] font-mono text-sm flex items-center justify-center">
+              {it.n}
+            </span>
+            <div className="min-w-0">
+              <div className="font-mono text-[12px] text-white/90">{it.t}</div>
+              <div className="text-white/55 text-xs leading-relaxed mt-0.5">{it.d}</div>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </div>
+  );
+};
+
+const Strip = ({
+  n, label, children,
+}: { n: number; label: string; children: ReactNode }) => (
+  <div className="relative mb-1.5 rounded border border-white/10 bg-white/[0.02]">
+    <Tag n={n} />
+    {children}
+    <span className="absolute right-2 top-1/2 -translate-y-1/2 font-mono text-[8px] uppercase tracking-wider text-white/30">
+      {label}
+    </span>
+  </div>
+);
+
+const Block = ({
+  n, label, tone, tall,
+}: { n: number; label: string; tone: "cool" | "warm" | "dim"; tall?: boolean }) => {
+  const toneCls =
+    tone === "warm"
+      ? "border-[#f5b800]/40 bg-[#f5b800]/8"
+      : tone === "cool"
+      ? "border-white/10 bg-white/[0.03]"
+      : "border-white/10 bg-white/[0.015]";
+  return (
+    <div
+      className={`relative rounded border ${toneCls} ${tall ? "min-h-[150px]" : "min-h-[68px]"} p-2`}
+    >
+      <Tag n={n} />
+      <div className="font-mono text-[9px] uppercase tracking-wider text-white/45 ml-7">
+        {label}
+      </div>
+      {/* fake lines */}
+      <div className="absolute inset-x-3 bottom-3 space-y-1">
+        <div className="h-1 rounded bg-white/10 w-3/4" />
+        <div className="h-1 rounded bg-white/10 w-1/2" />
+        {tall && (
+          <>
+            <div className="h-1 rounded bg-white/10 w-5/6" />
+            <div className="h-1 rounded bg-white/10 w-2/3" />
+            <div className="h-1 rounded bg-white/10 w-1/3" />
+          </>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const Tag = ({ n }: { n: number }) => (
+  <span className="absolute left-1.5 top-1.5 z-10 w-5 h-5 rounded-full border border-[#f5b800] bg-[#0e0e10] text-[#f5b800] font-mono text-[10px] flex items-center justify-center">
+    {n}
+  </span>
+);
