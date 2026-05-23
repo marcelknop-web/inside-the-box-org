@@ -277,11 +277,21 @@ const SEQUENCES: Record<number, SequenceItem[]> = {
 
 /* ===================== Component ===================== */
 
-const COMMS_SYSTEM_PROMPT = (role: string, phaseName: string, ts: string) =>
+const COMMS_SYSTEM_PROMPT = (
+  role: string,
+  phaseName: string,
+  ts: string,
+  userRoleName: string,
+) =>
   `You are ${role} in a live OT cyber crisis exercise.
 Company: NorPower, Oslo. Scenario: Blind Spot.
 Current phase: ${phaseName}. Timestamp: ${ts}.
-Write exactly one Microsoft Teams chat message — 2 to 3 sentences, natural tone, no bullet points, no headers, no role label, no timestamp. React to the latest event and to what the user just said if anything. Ask one sharp operational question. Recommend one concrete action. Stay in character. Never explain the exercise format.`;
+
+The human participant is playing ${userRoleName}. You are NOT ${userRoleName} — never speak from that role's perspective, never restate what they said, never give the answer that ${userRoleName} should be giving.
+
+Your job: react to what ${userRoleName} just wrote from YOUR role's angle, acknowledge their point briefly, then either (a) confirm and add the operational detail only your role owns, or (b) gently surface the missing element they should still address so the team can move forward and close this phase. Be collaborative, not adversarial. Help them succeed.
+
+Write exactly one Microsoft Teams chat message — 1 to 2 short sentences, natural tone, no bullet points, no headers, no role label, no timestamp, no greetings. Never explain the exercise format. Never use template phrases like "as IT-Ops I would…" — just speak.`;
 
 export const CommsFeed = forwardRef<CommsFeedHandle, Props>(function CommsFeed(
   {
@@ -529,7 +539,7 @@ export const CommsFeed = forwardRef<CommsFeedHandle, Props>(function CommsFeed(
           situation,
           userInput: explicitInstruction,
           history: [...recent, ...extraHistory],
-          systemPromptOverride: COMMS_SYSTEM_PROMPT(aiRole, phaseName, phaseTimestamp),
+          systemPromptOverride: COMMS_SYSTEM_PROMPT(aiRole, phaseName, phaseTimestamp, userRoleName),
         },
       });
       if (error) throw error;
@@ -591,32 +601,44 @@ export const CommsFeed = forwardRef<CommsFeedHandle, Props>(function CommsFeed(
       return { phase: phaseIndex, count: next };
     });
 
-    const responder = pickResponder(text);
-    setTimeout(() => {
+    const others: CommsRole[] = (
+      ["IT-Ops", "OT-Ops", "Incident Commander", "Management & Comms"] as CommsRole[]
+    ).filter((r) => r !== (userRoleName as CommsRole));
+    const primary = pickResponder(text);
+    const secondaryPool = others.filter((r) => r !== primary);
+    const secondary =
+      secondaryPool.length > 0
+        ? secondaryPool[Math.floor(Math.random() * secondaryPool.length)]
+        : null;
+
+    const postReply = async (responder: CommsRole, delayMs: number, offsetTick: number) => {
+      await new Promise((res) => setTimeout(res, delayMs));
       sfx.typing();
       setTypingRole(responder);
-    }, 400);
-
-    const reply = await fetchAiMessage(
-      responder,
-      `${userRoleName} just said: "${text}". Respond now in character.`,
-      [],
-    );
-    setTimeout(() => {
+      const reply = await fetchAiMessage(
+        responder,
+        `${userRoleName} just said: "${text}". Respond now in character from YOUR role's perspective only — do not speak for ${userRoleName}.`,
+        [],
+      );
       setTypingRole(null);
       sfx.chatIncoming();
       setMessages((m) => [
         ...m,
         {
-          id: `${phaseIndex}-ai-${responder}-reply-${Date.now()}`,
+          id: `${phaseIndex}-ai-${responder}-reply-${Date.now()}-${offsetTick}`,
           kind: "chat",
           role: responder,
-          time: stepTime(base, offset + 3),
+          time: stepTime(base, offset + 3 + offsetTick),
           body: reply,
         },
       ]);
-      setSending(false);
-    }, 1600);
+    };
+
+    await postReply(primary, 400, 0);
+    if (secondary && Math.random() < 0.75) {
+      await postReply(secondary, 900, 2);
+    }
+    setSending(false);
   };
 
   const participants = useMemo(
