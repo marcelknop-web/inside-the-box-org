@@ -14,6 +14,7 @@ import { PhaseProgress } from "@/components/blindSpot/PhaseProgress";
 import { CommsFeed, CommsFeedHandle, AlertCard } from "@/components/blindSpot/CommsFeed";
 import { EvidencePanel } from "@/components/blindSpot/EvidencePanel";
 import { ImplicationsPanel } from "@/components/blindSpot/ImplicationsPanel";
+import { Iec62443Stepper } from "@/components/blindSpot/Iec62443Stepper";
 
 import { DecisionChoice } from "@/components/blindSpot/DecisionModal";
 import { GameOverOverlay } from "@/components/blindSpot/GameOverOverlay";
@@ -872,6 +873,7 @@ const BlindSpotSimulator = () => {
             : "watch";
           return (
             <div className="flex flex-col flex-1 min-h-0 gap-2">
+              <Iec62443Stepper phaseIndex={phase.index} />
               <ObjectiveHud
                 phase={phase}
                 totalPhases={PHASES.length}
