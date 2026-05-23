@@ -167,6 +167,9 @@ const BlindSpotSimulator = () => {
 
   const beginPhase = (phaseIdx: number) => {
     resetPhaseLocalState();
+    setTransitionPhaseIdx(phaseIdx);
+    setTransitionVisible(true);
+    sfx.phaseChange();
     setScreen({ kind: "inject", phaseIdx });
   };
 
