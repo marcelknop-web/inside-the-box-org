@@ -24,6 +24,9 @@ import {
   totalScore,
 } from "@/utils/blindSpotScoring";
 import { StaggerReveal } from "@/components/StaggerReveal";
+import { ObjectiveHud, ObjectiveStep } from "@/components/blindSpot/ObjectiveHud";
+import { PhaseTransition } from "@/components/blindSpot/PhaseTransition";
+import { sfx } from "@/utils/blindSpotSfx";
 
 
 type Screen =
@@ -100,6 +103,10 @@ const BlindSpotSimulator = () => {
   // (i.e. when IC actually needs input from the role)
   const [decisionReady, setDecisionReady] = useState(false);
 
+  // Phase transition splash (Sims-style)
+  const [transitionPhaseIdx, setTransitionPhaseIdx] = useState<number | null>(null);
+  const [transitionVisible, setTransitionVisible] = useState(false);
+
   const DECISION_OPTIONS: Record<number, { yes: string; no: string; conditional: string }> = {
     1: {
       yes: "Terminate session and revoke vendor access",
@@ -160,6 +167,9 @@ const BlindSpotSimulator = () => {
 
   const beginPhase = (phaseIdx: number) => {
     resetPhaseLocalState();
+    setTransitionPhaseIdx(phaseIdx);
+    setTransitionVisible(true);
+    sfx.phaseChange();
     setScreen({ kind: "inject", phaseIdx });
   };
 
@@ -927,18 +937,24 @@ const BlindSpotSimulator = () => {
         {/* ===== Inject (Quad Split) ===== */}
         {screen.kind === "inject" && userRole && (() => {
           const phase = PHASES[screen.phaseIdx];
+          const step: ObjectiveStep = decisionReady
+            ? "decide"
+            : evidence.length > 0 || phase.index === 4
+            ? "engage"
+            : "watch";
           return (
             <div className="flex flex-col flex-1 min-h-0 gap-2">
-              <div className="flex items-center justify-between shrink-0">
-                <div className={`inline-flex font-mono text-[11px] uppercase tracking-wider px-2.5 py-1 rounded border ${phaseColor(phase.colorKey)}`}>
-                  {phase.name} · {phase.timestamp}
-                </div>
-                <p className="font-mono text-[11px] text-white/50 uppercase tracking-wider">
-                  You play <span className="text-[#f5b800]">{userRole.name}</span>
-                </p>
-              </div>
+              <ObjectiveHud
+                phase={phase}
+                totalPhases={PHASES.length}
+                userRoleName={userRole.name}
+                step={step}
+                alertsCount={evidence.length}
+                userMsgCount={phaseUserMsgCount}
+              />
 
               <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr] gap-3 flex-1 min-h-0">
+
 
                 {/* LEFT COLUMN — Evidence (full height until decision needed, then top half) */}
                 <div className={decisionReady ? "grid grid-rows-2 gap-3 min-h-0" : "min-h-0"}>
@@ -1018,13 +1034,19 @@ const BlindSpotSimulator = () => {
                   situation={phase.situation}
                   userRoleName={userRole.name}
                   hideSystemMessages
-                  onSystemAlert={(a) => setEvidence((prev) => [...prev, a])}
+                  onSystemAlert={(a) => {
+                    setEvidence((prev) => [...prev, a]);
+                    sfx.alert();
+                  }}
                   onLatestByRole={(latest) => setAiOutputs(latest)}
                   onLastUserMessage={(text) => {
                     if (text && !userAssessment) setUserAssessment(text);
                   }}
                   onUserMessageCount={(n) => setPhaseUserMsgCount(n)}
-                  onScriptedDone={() => setDecisionReady(true)}
+                  onScriptedDone={() => {
+                    setDecisionReady(true);
+                    sfx.inputRequired();
+                  }}
                   onSequenceComplete={() => commitFromChat(screen.phaseIdx)}
                 />
               </div>
@@ -1143,6 +1165,13 @@ const BlindSpotSimulator = () => {
           />
         )}
       </main>
+
+      <PhaseTransition
+        phase={transitionPhaseIdx !== null ? PHASES[transitionPhaseIdx] : null}
+        show={transitionVisible}
+        onDone={() => setTransitionVisible(false)}
+      />
+
 
       {userRole && showGameOver && (
         <GameOverOverlay
