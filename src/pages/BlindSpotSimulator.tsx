@@ -791,6 +791,7 @@ const BlindSpotSimulator = () => {
                     if (text && !userAssessment) setUserAssessment(text);
                   }}
                   onUserMessageCount={(n) => setPhaseUserMsgCount(n)}
+                  onScriptedDone={() => setDecisionReady(true)}
                   onSequenceComplete={() => triggerModalForPhase(screen.phaseIdx)}
                 />
               </div>
