@@ -737,42 +737,55 @@ const BlindSpotSimulator = () => {
                     </div>
 
                     <div className="flex-1 overflow-y-auto p-3 space-y-3 min-h-0">
-                      <div className="rounded-md border-2 border-[#f5b800]/50 bg-[#f5b800]/5 p-3">
-                        <p className="font-mono text-[10px] text-[#f5b800] uppercase tracking-wider mb-1.5">
-                          Decision question
-                        </p>
-                        <p className="text-[13px] text-white/90 leading-relaxed">
-                          {phase.decisionQuestion}
-                        </p>
-                      </div>
-                      <div className="rounded-md border border-white/10 bg-background/40 p-2.5 font-mono text-[11px] text-white/60 space-y-1">
-                        <div>
-                          <span className="text-[#f5b800]">IEC 62443:</span> {phase.iec62443Ref}
+                      {revealStep >= 2 ? (
+                        <div className="rounded-md border-2 border-[#f5b800]/50 bg-[#f5b800]/5 p-3 animate-fade-in">
+                          <p className="font-mono text-[10px] text-[#f5b800] uppercase tracking-wider mb-1.5">
+                            Decision question
+                          </p>
+                          <p className="text-[13px] text-white/90 leading-relaxed">
+                            {phase.decisionQuestion}
+                          </p>
                         </div>
-                        {phase.nis2Flag && (
+                      ) : (
+                        <p className="font-mono text-[11px] text-white/40 italic px-1">
+                          Awaiting decision brief…
+                        </p>
+                      )}
+                      {revealStep >= 3 && (
+                        <div className="rounded-md border border-white/10 bg-background/40 p-2.5 font-mono text-[11px] text-white/60 space-y-1 animate-fade-in">
                           <div>
-                            <span className="text-red-300">NIS-2:</span> {phase.nis2Flag}
+                            <span className="text-[#f5b800]">IEC 62443:</span> {phase.iec62443Ref}
                           </div>
-                        )}
-                      </div>
+                          {phase.nis2Flag && (
+                            <div>
+                              <span className="text-red-300">NIS-2:</span> {phase.nis2Flag}
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
 
                     <div className="border-t p-3 space-y-2 shrink-0" style={{ borderColor: "#2a2a2a" }}>
                       <Button
                         onClick={() => triggerModalForPhase(screen.phaseIdx)}
-                        disabled={phaseUserMsgCount < 1}
+                        disabled={revealStep < 4 || phaseUserMsgCount < 1}
                         className="w-full bg-[#f5b800] text-black hover:bg-[#f5b800]/90 font-mono uppercase tracking-wider text-xs disabled:opacity-40"
                       >
                         {isUserIC ? "Open IC decision →" : "Submit recommendation →"}
                       </Button>
-                      {phaseUserMsgCount < 1 && (
-                        <p className="font-mono text-[10px] text-white/50 text-center">
+                      {revealStep < 4 ? (
+                        <p className="font-mono text-[10px] text-white/40 text-center">
+                          Read the brief first…
+                        </p>
+                      ) : phaseUserMsgCount < 1 ? (
+                        <p className="font-mono text-[10px] text-white/50 text-center animate-fade-in">
                           Send at least one message in the team chat to engage IC.
                         </p>
-                      )}
+                      ) : null}
                     </div>
                   </div>
                 </div>
+
 
                 {/* RIGHT COLUMN — Team Chat (full height to right edge) */}
                 <CommsFeed
