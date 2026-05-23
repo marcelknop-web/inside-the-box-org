@@ -1,17 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import {
   INITIAL_ALERT,
-  NETWORK_ZONES,
   PHASES,
   ROLES,
   Role,
   RoleId,
-  phaseColor,
 } from "@/data/blindSpotScenario";
 import { PhaseProgress } from "@/components/blindSpot/PhaseProgress";
 import { CommsFeed, CommsFeedHandle, AlertCard } from "@/components/blindSpot/CommsFeed";
@@ -23,7 +20,6 @@ import { GameOverOverlay } from "@/components/blindSpot/GameOverOverlay";
 import {
   PhaseScoreBreakdown,
   scorePhase,
-  totalScore,
 } from "@/utils/blindSpotScoring";
 import { StaggerReveal } from "@/components/StaggerReveal";
 import { ObjectiveHud, ObjectiveStep } from "@/components/blindSpot/ObjectiveHud";
@@ -37,7 +33,6 @@ type Screen =
   | { kind: "confirmRole"; role: Role }
   | { kind: "briefing" }
   | { kind: "inject"; phaseIdx: number }
-  | { kind: "decision"; phaseIdx: number }
   | { kind: "debrief" };
 
 interface DecisionRecord {
@@ -68,19 +63,16 @@ const BlindSpotSimulator = () => {
   // Briefing has two pages: 'intro' (company/systems/network) → 'mission' (alert/phases/roles)
   const [briefingStep, setBriefingStep] = useState<"intro" | "mission">("intro");
 
-  // Per-phase user assessment text
+  // Per-phase user assessment text (latest user chat message of the phase)
   const [userAssessment, setUserAssessment] = useState("");
   // Per-phase AI role outputs (keyed by aiRole) -> latest text
   const [aiOutputs, setAiOutputs] = useState<Record<string, string>>({});
   // Conversation history per AI role across phases
   const [history, setHistory] = useState<Record<string, Array<{ role: "user" | "assistant"; content: string }>>>({});
 
-  // Decision state
-  const [decisionChoice, setDecisionChoice] = useState<"YES" | "NO" | "CONDITIONAL" | null>(null);
-  const [decisionReasoning, setDecisionReasoning] = useState("");
-  const [aiIcDecision, setAiIcDecision] = useState<string>("");
-  const [aiIcLoading, setAiIcLoading] = useState(false);
+  // Pushback (one per phase) — user can challenge the AI IC before committing
   const [pushbackUsed, setPushbackUsed] = useState(false);
+  const [committing, setCommitting] = useState(false);
 
   const [decisions, setDecisions] = useState<DecisionRecord[]>([]);
   const [debrief, setDebrief] = useState<DebriefData | null>(null);
@@ -157,10 +149,8 @@ const BlindSpotSimulator = () => {
   const resetPhaseLocalState = () => {
     setUserAssessment("");
     setAiOutputs({});
-    setDecisionChoice(null);
-    setDecisionReasoning("");
-    setAiIcDecision("");
     setPushbackUsed(false);
+    setCommitting(false);
     setPhaseUserMsgCount(0);
     setEvidence([]);
     setDecisionReady(false);
@@ -195,111 +185,11 @@ const BlindSpotSimulator = () => {
   };
 
 
-  const submitAssessment = () => {
-    if (!userRole) return;
-    const phase = PHASES[(screen as { phaseIdx: number }).phaseIdx];
-    // Persist user input + each AI output into history for that role
-    Object.entries(aiOutputs).forEach(([aiRole, text]) => {
-      appendHistory(aiRole, [
-        {
-          role: "user",
-          content: `[${phase.name}] Situation: ${phase.situation}\n${userRole.name} said: "${userAssessment || "(no comment)"}"`,
-        },
-        { role: "assistant", content: text },
-      ]);
-    });
-    setScreen({ kind: "decision", phaseIdx: (screen as { phaseIdx: number }).phaseIdx });
-  };
-
   const isUserIC = userRole?.id === "ic";
-
-  const requestAiIcDecision = async (phaseIdx: number) => {
-    if (!userRole) return;
-    setAiIcLoading(true);
-    setAiIcDecision("");
-    try {
-      const phase = PHASES[phaseIdx];
-      const { data, error } = await supabase.functions.invoke("blind-spot-chat", {
-        body: {
-          mode: "ic-decision",
-          aiRole: "Incident Commander",
-          userRole: userRole.name,
-          phaseName: phase.name,
-          phaseTimestamp: phase.timestamp,
-          situation: phase.situation,
-          userInput: `${phase.decisionQuestion}\n\nTeam input so far: ${userRole.name} said: "${userAssessment || "(no comment)"}". Other team panels: ${Object.entries(
-            aiOutputs,
-          )
-            .map(([r, t]) => `${r}: ${t}`)
-            .join(" | ")}`,
-          history: history["Incident Commander"] ?? [],
-        },
-      });
-      if (error) throw error;
-      if (data?.error) throw new Error(data.error);
-      setAiIcDecision(data.text as string);
-    } catch (e) {
-      toast({ title: "AI IC unavailable", description: e instanceof Error ? e.message : "Unknown", variant: "destructive" });
-    } finally {
-      setAiIcLoading(false);
-    }
-  };
-
-  // Auto-fetch AI IC decision when user enters decision screen as non-IC
-  const ensureAiIcLoaded = (phaseIdx: number) => {
-    if (!isUserIC && !aiIcDecision && !aiIcLoading) {
-      requestAiIcDecision(phaseIdx);
-    }
-  };
 
   const parseAiChoice = (txt: string): "YES" | "NO" | "CONDITIONAL" => {
     const m = txt.match(/DECISION:\s*(YES|NO|CONDITIONAL)/i);
     return (m?.[1]?.toUpperCase() as "YES" | "NO" | "CONDITIONAL") ?? "CONDITIONAL";
-  };
-
-  const commitDecision = (phaseIdx: number, opts: { pushback?: boolean }) => {
-    const phase = PHASES[phaseIdx];
-    let newRecord: DecisionRecord;
-    if (isUserIC) {
-      if (!decisionChoice || !decisionReasoning.trim()) {
-        toast({ title: "Decision incomplete", description: "Pick Yes / No / Conditional and provide reasoning.", variant: "destructive" });
-        return;
-      }
-      newRecord = {
-        phase: phase.name,
-        timestamp: phase.timestamp,
-        question: phase.decisionQuestion,
-        choice: decisionChoice,
-        reasoning: decisionReasoning,
-        icBy: "user",
-        iec62443Ref: phase.iec62443Ref,
-        nis2Flag: phase.nis2Flag,
-      };
-    } else {
-      newRecord = {
-        phase: phase.name,
-        timestamp: phase.timestamp,
-        question: phase.decisionQuestion,
-        choice: parseAiChoice(aiIcDecision),
-        reasoning:
-          aiIcDecision +
-          (opts.pushback ? `\n\n[${userRole?.name} pushed back; IC reaffirmed]` : ""),
-        icBy: "ai",
-        iec62443Ref: phase.iec62443Ref,
-        nis2Flag: phase.nis2Flag,
-      };
-    }
-
-    const updated = [...decisions, newRecord];
-    setDecisions(updated);
-
-    const next = phaseIdx + 1;
-    if (next >= PHASES.length) {
-      runDebrief(updated);
-      setScreen({ kind: "debrief" });
-    } else {
-      beginPhase(next);
-    }
   };
 
   /* ---- Modal-driven commit ---- */
@@ -483,55 +373,62 @@ const BlindSpotSimulator = () => {
         pushbackUsed,
       });
     } catch (e) {
+      // Recover so the user can retry
+      modalFiredRef.current = null;
+      setCommitting(false);
       toast({
         title: "AI IC unavailable",
-        description: e instanceof Error ? e.message : "Unknown",
+        description: (e instanceof Error ? e.message : "Unknown") + " — try Commit again.",
         variant: "destructive",
       });
     }
   };
 
-  // The user's last chat message after the scripted sequence ends becomes
-  // the decision (IC) or the recommendation to the AI IC.
-  // We DO NOT regex-match the user's words into YES/NO/CONDITIONAL — the user's
-  // actual text is preserved as reasoning, and an LLM classifies the implied
-  // stance from that verbatim text against the phase's decision question.
+  // The user's chat input (latest message of the phase) becomes the decision
+  // (if user is IC) or the recommendation to the AI IC. We never regex-match
+  // the user's words into YES/NO/CONDITIONAL — an LLM classifies the implied
+  // stance from the verbatim text.
   const commitFromChat = async (phaseIdx: number) => {
-    if (modalFiredRef.current === phaseIdx) return;
-    modalFiredRef.current = phaseIdx;
-    const phase = PHASES[phaseIdx];
+    if (modalFiredRef.current === phaseIdx || committing) return;
     const text = (userAssessment || "").trim();
+    if (!text) {
+      toast({
+        title: "Say something first",
+        description: "Post your read in the team chat before committing.",
+        variant: "destructive",
+      });
+      return;
+    }
+    modalFiredRef.current = phaseIdx;
+    setCommitting(true);
+    const phase = PHASES[phaseIdx];
 
     let choice: DecisionChoice = "CONDITIONAL";
-    if (text) {
-      try {
-        const { data } = await supabase.functions.invoke("blind-spot-chat", {
-          body: {
-            mode: "classify-stance",
-            decisionQuestion: phase.decisionQuestion,
-            userInput: text,
-          },
-        });
-        const token = String((data?.text as string) ?? "")
-          .trim()
-          .toUpperCase()
-          .match(/\b(YES|NO|CONDITIONAL|UNCLEAR)\b/)?.[1];
-        if (token === "YES" || token === "NO" || token === "CONDITIONAL") {
-          choice = token;
-        } else {
-          choice = "CONDITIONAL";
-        }
-      } catch {
-        choice = "CONDITIONAL";
+    try {
+      const { data } = await supabase.functions.invoke("blind-spot-chat", {
+        body: {
+          mode: "classify-stance",
+          decisionQuestion: phase.decisionQuestion,
+          userInput: text,
+        },
+      });
+      const token = String((data?.text as string) ?? "")
+        .trim()
+        .toUpperCase()
+        .match(/\b(YES|NO|CONDITIONAL|UNCLEAR)\b/)?.[1];
+      if (token === "YES" || token === "NO" || token === "CONDITIONAL") {
+        choice = token;
       }
+    } catch {
+      // Fall through with CONDITIONAL — non-fatal
     }
 
     if (isUserIC) {
-      handleUserCommit(choice, text || "(no rationale provided in chat)", 0);
+      handleUserCommit(choice, text, 0);
     } else {
-      handleAiIcAuto({
+      await handleAiIcAuto({
         stance: choice,
-        reasoning: text || "(no rationale provided in chat)",
+        reasoning: text,
         remainingSecs: 0,
       });
     }
@@ -539,32 +436,8 @@ const BlindSpotSimulator = () => {
 
 
 
-  const pushBackOnIC = async (phaseIdx: number) => {
-    if (pushbackUsed || !userRole) return;
-    setPushbackUsed(true);
-    setAiIcLoading(true);
-    try {
-      const phase = PHASES[phaseIdx];
-      const { data, error } = await supabase.functions.invoke("blind-spot-chat", {
-        body: {
-          mode: "ic-decision",
-          aiRole: "Incident Commander",
-          userRole: userRole.name,
-          phaseName: phase.name,
-          phaseTimestamp: phase.timestamp,
-          situation: phase.situation,
-          userInput: `${userRole.name} pushed back on your previous decision. Reconsider in 3-5 sentences. You may reaffirm or adjust. Start again with "DECISION: YES/NO/CONDITIONAL".\n\nYour previous decision: ${aiIcDecision}\n\nPushback context: ${userRole.name} disagrees and wants you to revisit.`,
-          history: history["Incident Commander"] ?? [],
-        },
-      });
-      if (error) throw error;
-      setAiIcDecision(data.text as string);
-    } catch (e) {
-      toast({ title: "Pushback failed", description: e instanceof Error ? e.message : "Unknown", variant: "destructive" });
-    } finally {
-      setAiIcLoading(false);
-    }
-  };
+
+
 
   const runDebrief = async (finalDecisions: DecisionRecord[]) => {
     setDebriefLoading(true);
@@ -617,7 +490,7 @@ const BlindSpotSimulator = () => {
   const currentPhaseForProgress: 1 | 2 | 3 | 4 | "debrief" =
     screen.kind === "debrief"
       ? "debrief"
-      : screen.kind === "inject" || screen.kind === "decision"
+      : screen.kind === "inject"
       ? ((phaseIdx + 1) as 1 | 2 | 3 | 4)
       : 1;
 
@@ -632,7 +505,6 @@ const BlindSpotSimulator = () => {
       </Helmet>
 
       {(screen.kind === "inject" ||
-        screen.kind === "decision" ||
         screen.kind === "debrief") && (
         <PhaseProgress
           currentPhase={currentPhaseForProgress}
@@ -1045,9 +917,30 @@ const BlindSpotSimulator = () => {
                         </p>
                         <p className="font-mono text-[11px] text-black/60">
                           {isUserIC
-                            ? "Post YES / NO / CONDITIONAL in chat →"
-                            : "Send your recommendation in chat →"}
+                            ? "Post your YES / NO / CONDITIONAL read in chat, then commit."
+                            : "Post your recommendation in chat, then commit."}
                         </p>
+                        {phaseUserMsgCount > 0 && (
+                          <p className="font-mono text-[10px] text-black/50">
+                            Your latest message will be used as rationale.
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="px-4 py-3 border-t border-black/15 bg-black/5 flex items-center justify-between gap-2">
+                        <span className="font-mono text-[10px] text-black/55 uppercase tracking-wider">
+                          {phaseUserMsgCount === 0
+                            ? "Awaiting your input"
+                            : `${phaseUserMsgCount} msg${phaseUserMsgCount > 1 ? "s" : ""} sent`}
+                        </span>
+                        <Button
+                          size="sm"
+                          disabled={committing || phaseUserMsgCount === 0 || !userAssessment.trim()}
+                          onClick={() => commitFromChat(screen.phaseIdx)}
+                          className="bg-black text-[#f5b800] hover:bg-black/85 font-mono uppercase tracking-wider text-[11px] h-8 px-3 disabled:opacity-40"
+                        >
+                          {committing ? "Committing…" : "Commit decision →"}
+                        </Button>
                       </div>
                     </div>
                   ) : (
@@ -1079,14 +972,13 @@ const BlindSpotSimulator = () => {
                   }}
                   onLatestByRole={(latest) => setAiOutputs(latest)}
                   onLastUserMessage={(text) => {
-                    if (text && !userAssessment) setUserAssessment(text);
+                    if (text) setUserAssessment(text);
                   }}
                   onUserMessageCount={(n) => setPhaseUserMsgCount(n)}
                   onScriptedDone={() => {
                     setDecisionReady(true);
                     sfx.inputRequired();
                   }}
-                  onSequenceComplete={() => commitFromChat(screen.phaseIdx)}
                 />
               </div>
 
@@ -1095,95 +987,7 @@ const BlindSpotSimulator = () => {
         })()}
 
 
-        {/* ===== Decision ===== */}
-        {screen.kind === "decision" && userRole && (() => {
-          const phase = PHASES[screen.phaseIdx];
-          ensureAiIcLoaded(screen.phaseIdx);
-          return (
-            <div className="space-y-6">
-              <div className={`inline-flex font-mono text-xs uppercase tracking-wider px-3 py-1.5 rounded border ${phaseColor(phase.colorKey)}`}>
-                Decision point · {phase.timestamp}
-              </div>
 
-              <div className="rounded-lg border-2 border-[#f5b800]/60 bg-[#f5b800]/5 p-6 text-center">
-                <p className="font-mono text-xs text-[#f5b800] uppercase tracking-wider mb-3">
-                  Incident Commander decision
-                </p>
-                <p className="text-lg text-white leading-relaxed">{phase.decisionQuestion}</p>
-              </div>
-
-              {isUserIC ? (
-                <div className="rounded-lg border border-white/10 bg-background/40 p-5 space-y-4">
-                  <div className="flex gap-3">
-                    {(["YES", "NO", "CONDITIONAL"] as const).map((c) => (
-                      <Button
-                        key={c}
-                        variant={decisionChoice === c ? "default" : "outline"}
-                        onClick={() => setDecisionChoice(c)}
-                        className={`font-mono uppercase tracking-wider flex-1 ${
-                          decisionChoice === c ? "bg-[#f5b800] text-black hover:bg-[#f5b800]/90" : ""
-                        }`}
-                      >
-                        {c}
-                      </Button>
-                    ))}
-                  </div>
-                  <Textarea
-                    value={decisionReasoning}
-                    onChange={(e) => setDecisionReasoning(e.target.value)}
-                    placeholder="Reasoning (required) — what informs this call?"
-                    className="min-h-[120px] bg-background/60 border-white/10 font-mono text-sm"
-                  />
-                  <Button
-                    onClick={() => commitDecision(screen.phaseIdx, {})}
-                    className="bg-[#f5b800] text-black hover:bg-[#f5b800]/90 font-mono uppercase tracking-wider w-full"
-                  >
-                    Commit decision →
-                  </Button>
-                </div>
-              ) : (
-                <div className="rounded-lg border border-white/10 bg-background/40 p-5 space-y-4">
-                  <p className="font-mono text-xs text-[#f5b800] uppercase tracking-wider">
-                    AI Incident Commander
-                  </p>
-                  {aiIcLoading ? (
-                    <p className="text-white/60 text-sm animate-pulse">IC is deciding…</p>
-                  ) : (
-                    <p className="text-white/90 leading-relaxed whitespace-pre-wrap">{aiIcDecision || "—"}</p>
-                  )}
-                  {!aiIcLoading && aiIcDecision && (
-                    <div className="flex gap-3 pt-2">
-                      <Button
-                        onClick={() => commitDecision(screen.phaseIdx, { pushback: pushbackUsed })}
-                        className="bg-[#f5b800] text-black hover:bg-[#f5b800]/90 font-mono uppercase tracking-wider flex-1"
-                      >
-                        Accept
-                      </Button>
-                      <Button
-                        variant="outline"
-                        disabled={pushbackUsed}
-                        onClick={() => pushBackOnIC(screen.phaseIdx)}
-                        className="font-mono uppercase tracking-wider flex-1"
-                      >
-                        {pushbackUsed ? "Pushback used" : "Push back"}
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              <div className="rounded-lg border border-white/10 bg-background/40 p-4 text-xs font-mono text-white/60">
-                <span className="text-[#f5b800]">IEC 62443 ref:</span> {phase.iec62443Ref}
-                {phase.nis2Flag && (
-                  <>
-                    <br />
-                    <span className="text-red-300">NIS-2:</span> {phase.nis2Flag}
-                  </>
-                )}
-              </div>
-            </div>
-          );
-        })()}
 
         {/* ===== Debrief ===== */}
         {screen.kind === "debrief" && userRole && (
