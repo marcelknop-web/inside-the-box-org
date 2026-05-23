@@ -324,16 +324,20 @@ export const CommsFeed = forwardRef<CommsFeedHandle, Props>(function CommsFeed(
       if (item.kind === "system") {
         timers.push(
           window.setTimeout(() => {
-            setMessages((m) => [
-              ...m,
-              {
-                id: `${phaseIndex}-sys-${item.offset}`,
-                kind: "system",
-                role: item.source,
-                time: stepTime(base, item.offset),
-                card: item.card,
-              },
-            ]);
+            const time = stepTime(base, item.offset);
+            onSystemAlert?.({ card: item.card, time, source: String(item.source) });
+            if (!hideSystemMessages) {
+              setMessages((m) => [
+                ...m,
+                {
+                  id: `${phaseIndex}-sys-${item.offset}`,
+                  kind: "system",
+                  role: item.source,
+                  time,
+                  card: item.card,
+                },
+              ]);
+            }
           }, fireDelay),
         );
         lastMessageAt = Math.max(lastMessageAt, fireDelay);
