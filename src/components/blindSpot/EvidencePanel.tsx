@@ -39,24 +39,12 @@ export const EvidencePanel = ({
       </div>
 
       <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
-        {/* Situation block */}
-        <div className="rounded-md border border-white/10 bg-background/40 p-3">
-          <p className="font-mono text-[10px] uppercase tracking-wider text-[#f5b800] mb-1.5">
-            Situation · {phaseName}
-          </p>
-          <p className="text-[13px] text-white/85 leading-relaxed">{situation}</p>
-          {nis2Flag && (
-            <p className="mt-2 font-mono text-[11px] text-red-300 border-l-2 border-red-400 pl-2">
-              {nis2Flag}
-            </p>
-          )}
-        </div>
-
         {alerts.length === 0 && (
           <p className="font-mono text-[11px] text-white/40 italic px-1">
             Awaiting telemetry…
           </p>
         )}
+
 
         {alerts.map((a, i) => (
           <div key={`${a.source}-${i}`} className="animate-fade-in">
