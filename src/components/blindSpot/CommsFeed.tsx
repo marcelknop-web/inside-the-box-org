@@ -586,27 +586,29 @@ const TypingIndicator = ({ role }: { role: CommsRole }) => {
 };
 
 const AlertCardView = ({ card }: { card: AlertCard }) => {
-  const borderStyle =
-    card.kind === "splunk"
-      ? { borderLeft: "3px solid #f59e0b", backgroundColor: "#1a1408" }
-      : card.kind === "claroty"
-      ? { borderLeft: "3px solid #fb923c", backgroundColor: "#1a1208" }
-      : { borderLeft: "3px solid #ef4444", backgroundColor: "#1a0000" };
+  const accent =
+    card.kind === "splunk" ? "#f59e0b" : card.kind === "claroty" ? "#fb923c" : "#ef4444";
+  const bg =
+    card.kind === "ransom" ? "#1a0000" : card.kind === "splunk" ? "#1a1408" : "#1a1208";
+  const titleColor =
+    card.kind === "splunk" ? "#fbbf24" : card.kind === "claroty" ? "#fdba74" : "#fca5a5";
 
   return (
     <div
-      className="rounded-md p-3 mt-1 animate-fade-in"
-      style={{ ...borderStyle, border: borderStyle.borderLeft + ", 1px solid #2a2a2a" } as React.CSSProperties}
+      className="rounded-md p-3 mt-1 animate-fade-in border"
+      style={{
+        backgroundColor: bg,
+        borderColor: "#2a2a2a",
+        borderLeft: `3px solid ${accent}`,
+      }}
     >
       <div
         className="font-mono text-[10px] uppercase tracking-wider mb-2"
-        style={{
-          color:
-            card.kind === "splunk" ? "#fbbf24" : card.kind === "claroty" ? "#fdba74" : "#fca5a5",
-        }}
+        style={{ color: titleColor }}
       >
         {card.title}
       </div>
+
       {card.body ? (
         <p className="font-mono text-[12px] text-white/90 whitespace-pre-wrap leading-relaxed">
           {card.body}
