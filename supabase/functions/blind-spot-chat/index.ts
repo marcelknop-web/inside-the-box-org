@@ -7,14 +7,15 @@ interface ChatMessage {
 }
 
 interface RequestBody {
-  mode: "role" | "ic-decision" | "debrief";
-  aiRole?: string; // "IT-Ops" | "OT-Ops" | "Incident Commander" | "Management & Comms"
+  mode: "role" | "ic-decision" | "debrief" | "comms";
+  aiRole?: string;
   userRole?: string;
   phaseName?: string;
   phaseTimestamp?: string;
   situation?: string;
   userInput?: string;
   history?: ChatMessage[];
+  systemPromptOverride?: string;
   decisions?: Array<{
     phase: string;
     question: string;
@@ -23,6 +24,7 @@ interface RequestBody {
     icBy: "user" | "ai";
   }>;
 }
+
 
 const ROLE_FOCUS: Record<string, string> = {
   "IT-Ops":
