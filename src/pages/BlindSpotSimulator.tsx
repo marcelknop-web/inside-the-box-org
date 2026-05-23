@@ -14,7 +14,7 @@ import {
   phaseColor,
 } from "@/data/blindSpotScenario";
 import { PhaseProgress } from "@/components/blindSpot/PhaseProgress";
-import { AiRolePanel } from "@/components/blindSpot/AiRolePanel";
+import { CommsFeed } from "@/components/blindSpot/CommsFeed";
 
 type Screen =
   | { kind: "welcome" }
