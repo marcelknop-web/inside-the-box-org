@@ -144,7 +144,31 @@ export const PhaseProgress = ({ currentPhase, streak = 0, verdict = null }: Prop
             })}
           </ol>
         </div>
+
+        {/* Verdict pulse — single mono line, auto-fades */}
+        {verdict && (
+          <div
+            key={`${verdict.label}-${verdict.score}`}
+            className="mt-3 flex items-center justify-center animate-[fade-in_220ms_ease-out]"
+          >
+            <div
+              className={`inline-flex items-center gap-2 px-2.5 py-1 rounded border font-mono text-[10px] uppercase tracking-[0.22em] ${verdictColor}`}
+            >
+              <span>▲</span>
+              <span>{verdict.label}</span>
+              <span className="opacity-60">·</span>
+              <span>{verdict.score} / 100</span>
+              {streak >= 2 && verdict.tier !== "drift" && (
+                <>
+                  <span className="opacity-60">·</span>
+                  <span>momentum holds</span>
+                </>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
 };
+
