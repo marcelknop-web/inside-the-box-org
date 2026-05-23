@@ -18,9 +18,9 @@ interface Props {
   /** Seconds for the countdown. Default 180. */
   seconds?: number;
   /** Called when user commits as IC. */
-  onCommitUser: (choice: DecisionChoice, reasoning: string) => void;
-  /** Called when running as non-IC — receives the user's recommendation to IC. */
-  onAiIcAuto: (recommendation: { stance: DecisionChoice; reasoning: string }) => void;
+  onCommitUser: (choice: DecisionChoice, reasoning: string, remainingSecs: number) => void;
+  /** Called when running as non-IC — receives the user's recommendation to IC + remaining timer secs. */
+  onAiIcAuto: (recommendation: { stance: DecisionChoice; reasoning: string; remainingSecs: number }) => void;
 }
 
 const OPTS: OptionDef[] = [
