@@ -179,6 +179,9 @@ const BlindSpotSimulator = () => {
     setTransitionVisible(true);
     sfx.resume();
     sfx.ambientStart();
+    const lvl = (phaseIdx + 1) as 1 | 2 | 3 | 4;
+    sfx.industrialStart(lvl);
+    sfx.industrialSetLevel(lvl);
     sfx.phaseChange();
     setScreen({ kind: "inject", phaseIdx });
   };
