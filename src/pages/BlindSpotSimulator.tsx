@@ -15,6 +15,7 @@ import { CommsFeed, CommsFeedHandle, AlertCard } from "@/components/blindSpot/Co
 import { EvidencePanel } from "@/components/blindSpot/EvidencePanel";
 import { ImplicationsPanel } from "@/components/blindSpot/ImplicationsPanel";
 import { SystemsStatusPanel } from "@/components/blindSpot/SystemsStatusPanel";
+import { BriefingDeck } from "@/components/blindSpot/BriefingDeck";
 
 type DecisionChoice = "YES" | "NO" | "CONDITIONAL";
 import { GameOverOverlay } from "@/components/blindSpot/GameOverOverlay";
