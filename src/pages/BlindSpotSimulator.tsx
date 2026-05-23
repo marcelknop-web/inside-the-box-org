@@ -646,13 +646,19 @@ const BlindSpotSimulator = () => {
                     placeholder="Optional — private notes that feed the IC decision context."
                     className="min-h-[120px] bg-background/60 border-white/10 font-mono text-sm flex-1"
                   />
-                  <div className="flex justify-end mt-3">
+                  <div className="flex flex-col items-end gap-1.5 mt-3">
                     <Button
                       onClick={() => triggerModalForPhase(screen.phaseIdx)}
-                      className="bg-[#f5b800] text-black hover:bg-[#f5b800]/90 font-mono uppercase tracking-wider"
+                      disabled={phaseUserMsgCount < 1}
+                      className="bg-[#f5b800] text-black hover:bg-[#f5b800]/90 font-mono uppercase tracking-wider disabled:opacity-40"
                     >
                       Open IC decision →
                     </Button>
+                    {phaseUserMsgCount < 1 && (
+                      <p className="font-mono text-[10px] text-white/50">
+                        Send at least one message in the comms feed to engage IC.
+                      </p>
+                    )}
                   </div>
                 </div>
 
@@ -667,6 +673,7 @@ const BlindSpotSimulator = () => {
                   onLastUserMessage={(text) => {
                     if (text && !userAssessment) setUserAssessment(text);
                   }}
+                  onUserMessageCount={(n) => setPhaseUserMsgCount(n)}
                   onSequenceComplete={() => triggerModalForPhase(screen.phaseIdx)}
                 />
 
