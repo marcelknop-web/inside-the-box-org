@@ -882,7 +882,7 @@ const BlindSpotSimulator = () => {
                 I'm ready — Phase 1 begins →
               </Button>
             </div>
-          </div>
+          </StaggerReveal>
         )}
 
         {/* ===== Inject (Quad Split) ===== */}
