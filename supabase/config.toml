@@ -29,3 +29,6 @@ verify_jwt = false
 
 [functions.baerbock-tts]
 verify_jwt = false
+
+[functions.blind-spot-chat]
+verify_jwt = false

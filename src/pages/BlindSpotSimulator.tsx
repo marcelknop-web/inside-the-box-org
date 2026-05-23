@@ -1,0 +1,703 @@
+import { useMemo, useState } from "react";
+import { Helmet } from "react-helmet-async";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
+import {
+  INITIAL_ALERT,
+  NETWORK_ZONES,
+  PHASES,
+  ROLES,
+  Role,
+  RoleId,
+  phaseColor,
+} from "@/data/blindSpotScenario";
+import { PhaseProgress } from "@/components/blindSpot/PhaseProgress";
+import { AiRolePanel } from "@/components/blindSpot/AiRolePanel";
+
+type Screen =
+  | { kind: "welcome" }
+  | { kind: "roleSelect" }
+  | { kind: "confirmRole"; role: Role }
+  | { kind: "briefing" }
+  | { kind: "inject"; phaseIdx: number }
+  | { kind: "decision"; phaseIdx: number }
+  | { kind: "debrief" };
+
+interface DecisionRecord {
+  phase: string;
+  timestamp: string;
+  question: string;
+  choice: "YES" | "NO" | "CONDITIONAL";
+  reasoning: string;
+  icBy: "user" | "ai";
+  iec62443Ref: string;
+  nis2Flag?: string;
+}
+
+interface DebriefData {
+  perDecision: Array<{ iec62443: string; nis2: "met" | "at_risk" | "missed"; nis2Note: string }>;
+  lessons: string[];
+  overall: string;
+  overallNote: string;
+}
+
+const ROLE_DISPLAY_NAME: Record<RoleId, string> = {
+  "it-ops": "IT-Ops",
+  "ot-ops": "OT-Ops",
+  ic: "Incident Commander",
+  mgmt: "Management & Comms",
+};
+
+const BlindSpotSimulator = () => {
+  const [screen, setScreen] = useState<Screen>({ kind: "welcome" });
+  const [userRole, setUserRole] = useState<Role | null>(null);
+
+  // Per-phase user assessment text
+  const [userAssessment, setUserAssessment] = useState("");
+  // Per-phase AI role outputs (keyed by aiRole) -> latest text
+  const [aiOutputs, setAiOutputs] = useState<Record<string, string>>({});
+  // Conversation history per AI role across phases
+  const [history, setHistory] = useState<Record<string, Array<{ role: "user" | "assistant"; content: string }>>>({});
+
+  // Decision state
+  const [decisionChoice, setDecisionChoice] = useState<"YES" | "NO" | "CONDITIONAL" | null>(null);
+  const [decisionReasoning, setDecisionReasoning] = useState("");
+  const [aiIcDecision, setAiIcDecision] = useState<string>("");
+  const [aiIcLoading, setAiIcLoading] = useState(false);
+  const [pushbackUsed, setPushbackUsed] = useState(false);
+
+  const [decisions, setDecisions] = useState<DecisionRecord[]>([]);
+  const [debrief, setDebrief] = useState<DebriefData | null>(null);
+  const [debriefLoading, setDebriefLoading] = useState(false);
+
+  const aiRoleNames = useMemo(() => {
+    if (!userRole) return [] as string[];
+    return ROLES.filter((r) => r.id !== userRole.id).map((r) => ROLE_DISPLAY_NAME[r.id]);
+  }, [userRole]);
+
+  /* ============= Helpers ============= */
+
+  const resetPhaseLocalState = () => {
+    setUserAssessment("");
+    setAiOutputs({});
+    setDecisionChoice(null);
+    setDecisionReasoning("");
+    setAiIcDecision("");
+    setPushbackUsed(false);
+  };
+
+  const appendHistory = (aiRole: string, entries: Array<{ role: "user" | "assistant"; content: string }>) => {
+    setHistory((h) => ({ ...h, [aiRole]: [...(h[aiRole] ?? []), ...entries] }));
+  };
+
+  /* ============= Flow handlers ============= */
+
+  const startExercise = () => setScreen({ kind: "roleSelect" });
+  const pickRole = (role: Role) => setScreen({ kind: "confirmRole", role });
+  const confirmRole = (role: Role) => {
+    setUserRole(role);
+    setScreen({ kind: "briefing" });
+  };
+
+  const beginPhase = (phaseIdx: number) => {
+    resetPhaseLocalState();
+    setScreen({ kind: "inject", phaseIdx });
+  };
+
+  const submitAssessment = () => {
+    if (!userRole) return;
+    const phase = PHASES[(screen as { phaseIdx: number }).phaseIdx];
+    // Persist user input + each AI output into history for that role
+    Object.entries(aiOutputs).forEach(([aiRole, text]) => {
+      appendHistory(aiRole, [
+        {
+          role: "user",
+          content: `[${phase.name}] Situation: ${phase.situation}\n${userRole.name} said: "${userAssessment || "(no comment)"}"`,
+        },
+        { role: "assistant", content: text },
+      ]);
+    });
+    setScreen({ kind: "decision", phaseIdx: (screen as { phaseIdx: number }).phaseIdx });
+  };
+
+  const isUserIC = userRole?.id === "ic";
+
+  const requestAiIcDecision = async (phaseIdx: number) => {
+    if (!userRole) return;
+    setAiIcLoading(true);
+    setAiIcDecision("");
+    try {
+      const phase = PHASES[phaseIdx];
+      const { data, error } = await supabase.functions.invoke("blind-spot-chat", {
+        body: {
+          mode: "ic-decision",
+          aiRole: "Incident Commander",
+          userRole: userRole.name,
+          phaseName: phase.name,
+          phaseTimestamp: phase.timestamp,
+          situation: phase.situation,
+          userInput: `${phase.decisionQuestion}\n\nTeam input so far: ${userRole.name} said: "${userAssessment || "(no comment)"}". Other team panels: ${Object.entries(
+            aiOutputs,
+          )
+            .map(([r, t]) => `${r}: ${t}`)
+            .join(" | ")}`,
+          history: history["Incident Commander"] ?? [],
+        },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      setAiIcDecision(data.text as string);
+    } catch (e) {
+      toast({ title: "AI IC unavailable", description: e instanceof Error ? e.message : "Unknown", variant: "destructive" });
+    } finally {
+      setAiIcLoading(false);
+    }
+  };
+
+  // Auto-fetch AI IC decision when user enters decision screen as non-IC
+  const ensureAiIcLoaded = (phaseIdx: number) => {
+    if (!isUserIC && !aiIcDecision && !aiIcLoading) {
+      requestAiIcDecision(phaseIdx);
+    }
+  };
+
+  const parseAiChoice = (txt: string): "YES" | "NO" | "CONDITIONAL" => {
+    const m = txt.match(/DECISION:\s*(YES|NO|CONDITIONAL)/i);
+    return (m?.[1]?.toUpperCase() as "YES" | "NO" | "CONDITIONAL") ?? "CONDITIONAL";
+  };
+
+  const commitDecision = (phaseIdx: number, opts: { pushback?: boolean }) => {
+    const phase = PHASES[phaseIdx];
+    let newRecord: DecisionRecord;
+    if (isUserIC) {
+      if (!decisionChoice || !decisionReasoning.trim()) {
+        toast({ title: "Decision incomplete", description: "Pick Yes / No / Conditional and provide reasoning.", variant: "destructive" });
+        return;
+      }
+      newRecord = {
+        phase: phase.name,
+        timestamp: phase.timestamp,
+        question: phase.decisionQuestion,
+        choice: decisionChoice,
+        reasoning: decisionReasoning,
+        icBy: "user",
+        iec62443Ref: phase.iec62443Ref,
+        nis2Flag: phase.nis2Flag,
+      };
+    } else {
+      newRecord = {
+        phase: phase.name,
+        timestamp: phase.timestamp,
+        question: phase.decisionQuestion,
+        choice: parseAiChoice(aiIcDecision),
+        reasoning:
+          aiIcDecision +
+          (opts.pushback ? `\n\n[${userRole?.name} pushed back; IC reaffirmed]` : ""),
+        icBy: "ai",
+        iec62443Ref: phase.iec62443Ref,
+        nis2Flag: phase.nis2Flag,
+      };
+    }
+
+    const updated = [...decisions, newRecord];
+    setDecisions(updated);
+
+    const next = phaseIdx + 1;
+    if (next >= PHASES.length) {
+      runDebrief(updated);
+      setScreen({ kind: "debrief" });
+    } else {
+      beginPhase(next);
+    }
+  };
+
+  const pushBackOnIC = async (phaseIdx: number) => {
+    if (pushbackUsed || !userRole) return;
+    setPushbackUsed(true);
+    setAiIcLoading(true);
+    try {
+      const phase = PHASES[phaseIdx];
+      const { data, error } = await supabase.functions.invoke("blind-spot-chat", {
+        body: {
+          mode: "ic-decision",
+          aiRole: "Incident Commander",
+          userRole: userRole.name,
+          phaseName: phase.name,
+          phaseTimestamp: phase.timestamp,
+          situation: phase.situation,
+          userInput: `${userRole.name} pushed back on your previous decision. Reconsider in 3-5 sentences. You may reaffirm or adjust. Start again with "DECISION: YES/NO/CONDITIONAL".\n\nYour previous decision: ${aiIcDecision}\n\nPushback context: ${userRole.name} disagrees and wants you to revisit.`,
+          history: history["Incident Commander"] ?? [],
+        },
+      });
+      if (error) throw error;
+      setAiIcDecision(data.text as string);
+    } catch (e) {
+      toast({ title: "Pushback failed", description: e instanceof Error ? e.message : "Unknown", variant: "destructive" });
+    } finally {
+      setAiIcLoading(false);
+    }
+  };
+
+  const runDebrief = async (finalDecisions: DecisionRecord[]) => {
+    setDebriefLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("blind-spot-chat", {
+        body: {
+          mode: "debrief",
+          decisions: finalDecisions.map((d) => ({
+            phase: d.phase,
+            question: d.question,
+            choice: d.choice,
+            reasoning: d.reasoning,
+            icBy: d.icBy,
+          })),
+        },
+      });
+      if (error) throw error;
+      const raw = (data?.text as string) ?? "";
+      const jsonMatch = raw.match(/\{[\s\S]*\}/);
+      const parsed = jsonMatch ? JSON.parse(jsonMatch[0]) : null;
+      if (parsed) setDebrief(parsed);
+    } catch (e) {
+      toast({ title: "Debrief generation failed", description: e instanceof Error ? e.message : "Unknown", variant: "destructive" });
+    } finally {
+      setDebriefLoading(false);
+    }
+  };
+
+  const restart = () => {
+    setUserRole(null);
+    setDecisions([]);
+    setDebrief(null);
+    setHistory({});
+    resetPhaseLocalState();
+    setScreen({ kind: "roleSelect" });
+  };
+
+  /* ============= Renderers ============= */
+
+  const phaseIdx = "phaseIdx" in screen ? screen.phaseIdx : 0;
+  const currentPhaseForProgress: 1 | 2 | 3 | 4 | "debrief" =
+    screen.kind === "debrief"
+      ? "debrief"
+      : screen.kind === "inject" || screen.kind === "decision"
+      ? ((phaseIdx + 1) as 1 | 2 | 3 | 4)
+      : 1;
+
+  return (
+    <div className="min-h-screen bg-[#1C1C1E] text-white">
+      <Helmet>
+        <title>Blind Spot — OT Cyber Crisis Simulation</title>
+        <meta
+          name="description"
+          content="Single-player OT cyber crisis tabletop exercise. Play one role, AI plays the rest. Scenario: APT via compromised vendor VPN at netsecure.no."
+        />
+      </Helmet>
+
+      {(screen.kind === "inject" ||
+        screen.kind === "decision" ||
+        screen.kind === "debrief") && (
+        <PhaseProgress currentPhase={currentPhaseForProgress} phases={PHASES} />
+      )}
+
+      <main className="max-w-5xl mx-auto px-4 py-8">
+        {/* ===== Welcome ===== */}
+        {screen.kind === "welcome" && (
+          <div className="min-h-[70vh] flex flex-col justify-center items-center text-center">
+            <p className="font-mono text-[#f5b800] tracking-[0.3em] text-sm mb-6">
+              NETSECURE<span className="text-white/40">.NO</span>
+            </p>
+            <h1 className="font-mono text-4xl md:text-6xl font-bold mb-4 tracking-tight">
+              BLIND SPOT
+            </h1>
+            <p className="font-mono text-sm text-white/60 mb-10">
+              OT CYBER CRISIS · TABLETOP SIMULATION
+            </p>
+            <div className="max-w-2xl text-white/80 leading-relaxed mb-10 space-y-4">
+              <p>
+                A single-player tabletop exercise. You pick one of four crisis-team roles.
+                An AI plays the other three in real time. You face four phases of an APT
+                intrusion via a compromised vendor VPN at netsecure.no in Oslo.
+              </p>
+              <p className="text-white/60 text-sm">
+                Estimated time: ~45 minutes. No login. Ephemeral session.
+              </p>
+            </div>
+            <Button
+              size="lg"
+              className="bg-[#f5b800] text-black hover:bg-[#f5b800]/90 font-mono uppercase tracking-wider"
+              onClick={startExercise}
+            >
+              Start Exercise →
+            </Button>
+          </div>
+        )}
+
+        {/* ===== Role Select ===== */}
+        {screen.kind === "roleSelect" && (
+          <div>
+            <h2 className="font-mono text-2xl uppercase tracking-wider text-[#f5b800] mb-2">
+              Select your role
+            </h2>
+            <p className="text-white/60 mb-8 text-sm">
+              The AI will play the other three roles for the entire exercise.
+            </p>
+            <div className="grid md:grid-cols-2 gap-4">
+              {ROLES.map((r) => (
+                <div
+                  key={r.id}
+                  className="rounded-lg border border-white/10 bg-background/40 p-6 hover:border-[#f5b800]/60 transition-colors"
+                >
+                  <h3 className="font-mono text-[#f5b800] text-lg mb-2">{r.name}</h3>
+                  <p className="text-sm text-white/75 mb-4 leading-relaxed">{r.description}</p>
+                  <Button
+                    variant="outline"
+                    onClick={() => pickRole(r)}
+                    className="font-mono text-xs uppercase tracking-wider"
+                  >
+                    Play this role
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ===== Confirm Role ===== */}
+        {screen.kind === "confirmRole" && (
+          <div className="max-w-xl mx-auto rounded-lg border border-[#f5b800]/50 bg-background/40 p-8">
+            <p className="font-mono text-xs text-white/50 uppercase tracking-wider mb-2">Confirm role</p>
+            <h2 className="font-mono text-2xl text-[#f5b800] mb-3">{screen.role.name}</h2>
+            <p className="text-white/80 mb-6 leading-relaxed">{screen.role.description}</p>
+            <div className="flex gap-3">
+              <Button onClick={() => confirmRole(screen.role)} className="bg-[#f5b800] text-black hover:bg-[#f5b800]/90 font-mono uppercase tracking-wider">
+                Confirm &amp; Begin
+              </Button>
+              <Button variant="outline" onClick={() => setScreen({ kind: "roleSelect" })} className="font-mono uppercase tracking-wider">
+                Back
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* ===== Briefing ===== */}
+        {screen.kind === "briefing" && userRole && (
+          <div className="space-y-6">
+            <header>
+              <p className="font-mono text-xs text-[#f5b800] uppercase tracking-wider mb-2">
+                Scenario briefing
+              </p>
+              <h2 className="font-mono text-2xl">netsecure.no — Oslo · ~200 staff</h2>
+              <p className="text-white/70 text-sm mt-1">
+                IT/OT security services provider with in-house SOC, OT-Ops and IR team.
+              </p>
+            </header>
+
+            <div className="rounded-lg border border-white/10 bg-background/40 p-5">
+              <h3 className="font-mono text-sm uppercase tracking-wider text-[#f5b800] mb-3">
+                Network zones
+              </h3>
+              <table className="w-full font-mono text-sm">
+                <thead className="text-white/50 text-xs uppercase">
+                  <tr>
+                    <th className="text-left py-1 pr-4">Zone</th>
+                    <th className="text-left py-1 pr-4">Name</th>
+                    <th className="text-left py-1">CIDR</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {NETWORK_ZONES.map((z) => (
+                    <tr key={z.cidr} className="border-t border-white/5">
+                      <td className="py-1.5 pr-4 text-[#f5b800]">{z.zone}</td>
+                      <td className="py-1.5 pr-4">{z.name}</td>
+                      <td className="py-1.5">{z.cidr}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="rounded-lg border border-amber-400/40 bg-amber-400/5 p-5">
+              <p className="font-mono text-xs text-amber-300 uppercase tracking-wider mb-2">
+                Initial SIEM alert · {INITIAL_ALERT.source} · {INITIAL_ALERT.severity}
+              </p>
+              <p className="font-mono text-xs text-white/50 mb-2">{INITIAL_ALERT.timestamp}</p>
+              <p className="text-white/85">{INITIAL_ALERT.detail}</p>
+            </div>
+
+            <div className="rounded-lg border border-white/10 bg-background/40 p-5">
+              <p className="font-mono text-xs text-white/50 uppercase mb-2">Roles played by the AI</p>
+              <p className="font-mono text-sm">
+                {aiRoleNames.join(" · ")}
+              </p>
+              <p className="font-mono text-xs text-white/50 mt-3">You play</p>
+              <p className="font-mono text-sm text-[#f5b800]">{userRole.name}</p>
+            </div>
+
+            <div className="flex justify-end">
+              <Button onClick={() => beginPhase(0)} className="bg-[#f5b800] text-black hover:bg-[#f5b800]/90 font-mono uppercase tracking-wider">
+                Phase 1 begins →
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* ===== Inject ===== */}
+        {screen.kind === "inject" && userRole && (() => {
+          const phase = PHASES[screen.phaseIdx];
+          return (
+            <div className="space-y-6">
+              <div className={`inline-flex font-mono text-xs uppercase tracking-wider px-3 py-1.5 rounded border ${phaseColor(phase.colorKey)}`}>
+                {phase.name} · {phase.timestamp}
+              </div>
+
+              <div className="rounded-lg border border-white/10 bg-background/40 p-5">
+                <p className="font-mono text-xs text-white/50 uppercase mb-2">Situation update</p>
+                <p className="text-white/90 leading-relaxed">{phase.situation}</p>
+                {phase.nis2Flag && (
+                  <p className="mt-3 font-mono text-xs text-red-300 border-l-2 border-red-400 pl-3">
+                    {phase.nis2Flag}
+                  </p>
+                )}
+              </div>
+
+              <div className="grid md:grid-cols-3 gap-4">
+                {aiRoleNames.map((r) => (
+                  <AiRolePanel
+                    key={r}
+                    aiRole={r}
+                    userRole={userRole.name}
+                    phaseName={phase.name}
+                    phaseTimestamp={phase.timestamp}
+                    situation={phase.situation}
+                    history={history[r] ?? []}
+                    triggerKey={`${r}-${phase.index}`}
+                    onReady={(text) => setAiOutputs((o) => ({ ...o, [r]: text }))}
+                  />
+                ))}
+              </div>
+
+              <div className="rounded-lg border border-[#f5b800]/40 bg-background/40 p-5">
+                <p className="font-mono text-xs text-[#f5b800] uppercase tracking-wider mb-2">
+                  Your assessment as {userRole.name}
+                </p>
+                <Textarea
+                  value={userAssessment}
+                  onChange={(e) => setUserAssessment(e.target.value)}
+                  placeholder="What do you see? What do you do? What do you ask the team?"
+                  className="min-h-[120px] bg-background/60 border-white/10 font-mono text-sm"
+                />
+                <div className="flex justify-end mt-3">
+                  <Button onClick={submitAssessment} className="bg-[#f5b800] text-black hover:bg-[#f5b800]/90 font-mono uppercase tracking-wider">
+                    Submit assessment →
+                  </Button>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
+
+        {/* ===== Decision ===== */}
+        {screen.kind === "decision" && userRole && (() => {
+          const phase = PHASES[screen.phaseIdx];
+          ensureAiIcLoaded(screen.phaseIdx);
+          return (
+            <div className="space-y-6">
+              <div className={`inline-flex font-mono text-xs uppercase tracking-wider px-3 py-1.5 rounded border ${phaseColor(phase.colorKey)}`}>
+                Decision point · {phase.timestamp}
+              </div>
+
+              <div className="rounded-lg border-2 border-[#f5b800]/60 bg-[#f5b800]/5 p-6 text-center">
+                <p className="font-mono text-xs text-[#f5b800] uppercase tracking-wider mb-3">
+                  Incident Commander decision
+                </p>
+                <p className="text-lg text-white leading-relaxed">{phase.decisionQuestion}</p>
+              </div>
+
+              {isUserIC ? (
+                <div className="rounded-lg border border-white/10 bg-background/40 p-5 space-y-4">
+                  <div className="flex gap-3">
+                    {(["YES", "NO", "CONDITIONAL"] as const).map((c) => (
+                      <Button
+                        key={c}
+                        variant={decisionChoice === c ? "default" : "outline"}
+                        onClick={() => setDecisionChoice(c)}
+                        className={`font-mono uppercase tracking-wider flex-1 ${
+                          decisionChoice === c ? "bg-[#f5b800] text-black hover:bg-[#f5b800]/90" : ""
+                        }`}
+                      >
+                        {c}
+                      </Button>
+                    ))}
+                  </div>
+                  <Textarea
+                    value={decisionReasoning}
+                    onChange={(e) => setDecisionReasoning(e.target.value)}
+                    placeholder="Reasoning (required) — what informs this call?"
+                    className="min-h-[120px] bg-background/60 border-white/10 font-mono text-sm"
+                  />
+                  <Button
+                    onClick={() => commitDecision(screen.phaseIdx, {})}
+                    className="bg-[#f5b800] text-black hover:bg-[#f5b800]/90 font-mono uppercase tracking-wider w-full"
+                  >
+                    Commit decision →
+                  </Button>
+                </div>
+              ) : (
+                <div className="rounded-lg border border-white/10 bg-background/40 p-5 space-y-4">
+                  <p className="font-mono text-xs text-[#f5b800] uppercase tracking-wider">
+                    AI Incident Commander
+                  </p>
+                  {aiIcLoading ? (
+                    <p className="text-white/60 text-sm animate-pulse">IC is deciding…</p>
+                  ) : (
+                    <p className="text-white/90 leading-relaxed whitespace-pre-wrap">{aiIcDecision || "—"}</p>
+                  )}
+                  {!aiIcLoading && aiIcDecision && (
+                    <div className="flex gap-3 pt-2">
+                      <Button
+                        onClick={() => commitDecision(screen.phaseIdx, { pushback: pushbackUsed })}
+                        className="bg-[#f5b800] text-black hover:bg-[#f5b800]/90 font-mono uppercase tracking-wider flex-1"
+                      >
+                        Accept
+                      </Button>
+                      <Button
+                        variant="outline"
+                        disabled={pushbackUsed}
+                        onClick={() => pushBackOnIC(screen.phaseIdx)}
+                        className="font-mono uppercase tracking-wider flex-1"
+                      >
+                        {pushbackUsed ? "Pushback used" : "Push back"}
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <div className="rounded-lg border border-white/10 bg-background/40 p-4 text-xs font-mono text-white/60">
+                <span className="text-[#f5b800]">IEC 62443 ref:</span> {phase.iec62443Ref}
+                {phase.nis2Flag && (
+                  <>
+                    <br />
+                    <span className="text-red-300">NIS-2:</span> {phase.nis2Flag}
+                  </>
+                )}
+              </div>
+            </div>
+          );
+        })()}
+
+        {/* ===== Debrief ===== */}
+        {screen.kind === "debrief" && (
+          <div className="space-y-6">
+            <header>
+              <p className="font-mono text-xs text-[#f5b800] uppercase tracking-wider mb-2">
+                Exercise complete
+              </p>
+              <h2 className="font-mono text-3xl">Debrief</h2>
+            </header>
+
+            <div className="rounded-lg border border-white/10 bg-background/40 overflow-hidden">
+              <table className="w-full text-sm">
+                <thead className="bg-white/5 font-mono text-xs uppercase text-white/60">
+                  <tr>
+                    <th className="text-left p-3">Phase</th>
+                    <th className="text-left p-3">T</th>
+                    <th className="text-left p-3">Decision</th>
+                    <th className="text-left p-3">By</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {decisions.map((d, i) => (
+                    <tr key={i} className="border-t border-white/5">
+                      <td className="p-3 font-mono text-xs">{d.phase}</td>
+                      <td className="p-3 font-mono text-xs text-white/60">{d.timestamp}</td>
+                      <td className="p-3 font-mono text-[#f5b800]">{d.choice}</td>
+                      <td className="p-3 font-mono text-xs text-white/60 uppercase">{d.icBy}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {debriefLoading && (
+              <p className="text-white/60 text-sm animate-pulse text-center py-8">
+                Assessor is reviewing your decisions…
+              </p>
+            )}
+
+            {debrief && (
+              <>
+                <div className={`rounded-lg border p-5 ${
+                  debrief.overall === "Strong response"
+                    ? "border-emerald-400/40 bg-emerald-400/5"
+                    : debrief.overall === "Adequate"
+                    ? "border-amber-400/40 bg-amber-400/5"
+                    : "border-red-400/40 bg-red-400/5"
+                }`}>
+                  <p className="font-mono text-xs uppercase tracking-wider text-white/60 mb-2">
+                    Overall performance
+                  </p>
+                  <p className="font-mono text-xl mb-2">{debrief.overall}</p>
+                  <p className="text-white/80 text-sm leading-relaxed">{debrief.overallNote}</p>
+                </div>
+
+                <div className="space-y-3">
+                  <h3 className="font-mono text-sm uppercase tracking-wider text-[#f5b800]">
+                    Per-decision feedback
+                  </h3>
+                  {debrief.perDecision.map((p, i) => (
+                    <div key={i} className="rounded-lg border border-white/10 bg-background/40 p-4">
+                      <p className="font-mono text-xs text-white/50 mb-2">
+                        {decisions[i]?.phase} — Choice: <span className="text-[#f5b800]">{decisions[i]?.choice}</span>
+                      </p>
+                      <p className="text-sm text-white/85 mb-2"><span className="font-mono text-xs text-[#f5b800]">IEC 62443:</span> {p.iec62443}</p>
+                      <p className="text-sm text-white/85">
+                        <span className={`font-mono text-xs uppercase ${
+                          p.nis2 === "met" ? "text-emerald-300" : p.nis2 === "at_risk" ? "text-amber-300" : "text-red-300"
+                        }`}>
+                          NIS-2: {p.nis2.replace("_", " ")}
+                        </span>{" "}
+                        — {p.nis2Note}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="rounded-lg border border-white/10 bg-background/40 p-5">
+                  <h3 className="font-mono text-sm uppercase tracking-wider text-[#f5b800] mb-3">
+                    Lessons learned
+                  </h3>
+                  <ul className="space-y-2">
+                    {debrief.lessons.map((l, i) => (
+                      <li key={i} className="text-white/85 text-sm flex gap-3">
+                        <span className="text-[#f5b800] font-mono">{i + 1}.</span>
+                        <span>{l}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </>
+            )}
+
+            <div className="flex gap-3 flex-wrap pt-4">
+              <Button
+                onClick={() => window.print()}
+                className="bg-[#f5b800] text-black hover:bg-[#f5b800]/90 font-mono uppercase tracking-wider"
+              >
+                Download session summary (PDF)
+              </Button>
+              <Button variant="outline" onClick={restart} className="font-mono uppercase tracking-wider">
+                Restart with a different role
+              </Button>
+            </div>
+          </div>
+        )}
+      </main>
+    </div>
+  );
+};
+
+export default BlindSpotSimulator;
