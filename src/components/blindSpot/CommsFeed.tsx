@@ -377,6 +377,12 @@ export const CommsFeed = forwardRef<CommsFeedHandle, Props>(function CommsFeed(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phaseIndex]);
 
+  /* ---- Fire onScriptedDone as soon as scripted sequence finishes ---- */
+  useEffect(() => {
+    if (scriptedDone) onScriptedDone?.();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scriptedDone, phaseIndex]);
+
   /* ---- Gate: fire onSequenceComplete only when scripted done AND user sent ≥1 msg ---- */
   useEffect(() => {
     if (!onSequenceComplete) return;
