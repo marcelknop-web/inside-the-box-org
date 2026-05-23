@@ -847,6 +847,19 @@ const BlindSpotSimulator = () => {
         )}
       </main>
 
+      {userRole && showGameOver && (
+        <GameOverOverlay
+          open={showGameOver}
+          roleName={userRole.name}
+          breakdowns={phaseScores}
+          onContinue={() => {
+            setShowGameOver(false);
+            setScreen({ kind: "debrief" });
+          }}
+        />
+      )}
+
+
       {userRole && screen.kind === "inject" && (() => {
         const phase = PHASES[screen.phaseIdx];
         return (
