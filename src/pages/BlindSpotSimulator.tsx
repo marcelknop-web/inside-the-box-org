@@ -600,7 +600,7 @@ const BlindSpotSimulator = () => {
   const currentPhaseForProgress: 1 | 2 | 3 | 4 | "debrief" =
     screen.kind === "debrief"
       ? "debrief"
-      : screen.kind === "inject" || screen.kind === "decision"
+      : screen.kind === "inject"
       ? ((phaseIdx + 1) as 1 | 2 | 3 | 4)
       : 1;
 
@@ -615,7 +615,6 @@ const BlindSpotSimulator = () => {
       </Helmet>
 
       {(screen.kind === "inject" ||
-        screen.kind === "decision" ||
         screen.kind === "debrief") && (
         <PhaseProgress
           currentPhase={currentPhaseForProgress}
