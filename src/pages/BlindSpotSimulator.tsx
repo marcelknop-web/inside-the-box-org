@@ -590,7 +590,7 @@ const BlindSpotSimulator = () => {
         {/* ===== Welcome ===== */}
         {screen.kind === "welcome" && (
           <div className="min-h-[70vh] flex flex-col justify-center items-center text-center">
-            <StaggerReveal stagger={1800} startDelay={500} className="w-full flex flex-col items-center">
+            <StaggerReveal stagger={1800} startDelay={500} lastChildExtraDelay={4500} className="w-full flex flex-col items-center">
               <p className="font-mono text-[#f5b800] tracking-[0.3em] text-sm mb-6">
                 NORPOWER
               </p>
@@ -671,7 +671,7 @@ const BlindSpotSimulator = () => {
 
         {/* ===== Briefing ===== */}
         {screen.kind === "briefing" && userRole && (
-          <StaggerReveal stagger={2200} startDelay={600} resetKey={briefingStep}>
+          <StaggerReveal stagger={2200} startDelay={600} lastChildExtraDelay={5000} resetKey={briefingStep}>
             {/* HERO */}
             <div className="relative overflow-hidden rounded-xl border border-[#f5b800]/40 bg-gradient-to-br from-[#f5b800]/10 via-background/60 to-background/40 p-6">
               <div className="absolute inset-0 opacity-[0.07] pointer-events-none"

@@ -357,6 +357,24 @@
   .text-stress-flicker { animation: none; }
 }
 
+/* Instrument power-on reveal — cinematic stagger */
+@keyframes instrument-power-on {
+  0%   { opacity: 0; filter: brightness(0.4) blur(2px) saturate(0.6); transform: translateY(10px) scaleY(0.94); }
+  12%  { opacity: 0.85; filter: brightness(2.2) blur(0.5px) saturate(1.4); transform: translateY(2px) scaleY(1.015); }
+  22%  { opacity: 0.18; filter: brightness(0.8) blur(0); }
+  38%  { opacity: 0.7; filter: brightness(1.35); }
+  52%  { opacity: 0.32; filter: brightness(0.95); }
+  70%  { opacity: 0.92; filter: brightness(1.1); }
+  100% { opacity: 1; filter: brightness(1) blur(0) saturate(1); transform: translateY(0) scaleY(1); }
+}
+.animate-instrument-on {
+  animation: instrument-power-on 720ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  transform-origin: center top;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-instrument-on { animation: none; opacity: 1; transform: none; filter: none; }
+}
+
 @layer components {
   .card-electric {
     @apply bg-card border border-border rounded-lg p-6 transition-electric hover:shadow-[var(--shadow-card)] hover:border-primary/30;
