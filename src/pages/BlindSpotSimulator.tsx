@@ -822,6 +822,30 @@ const BlindSpotSimulator = () => {
               </p>
             </div>
 
+            {/* INTRO → MISSION CTA */}
+            <div className="flex justify-end pt-2">
+              <Button
+                onClick={() => setBriefingStep("mission")}
+                className="bg-[#f5b800] text-black hover:bg-[#f5b800]/90 font-mono uppercase tracking-wider shadow-[0_0_30px_rgba(245,184,0,0.4)]"
+              >
+                Continue → Mission briefing
+              </Button>
+            </div>
+            </>
+            )}
+
+            {briefingStep === "mission" && (
+            <>
+            {/* BACK LINK */}
+            <div className="flex justify-start">
+              <button
+                onClick={() => setBriefingStep("intro")}
+                className="font-mono text-[11px] text-white/50 hover:text-[#f5b800] uppercase tracking-wider transition-colors"
+              >
+                ← Back to introduction
+              </button>
+            </div>
+
             {/* SITUATION — ALERT */}
             <div className="rounded-lg border border-amber-400/50 bg-gradient-to-r from-amber-400/15 to-amber-400/5 p-5 relative overflow-hidden">
               <div className="absolute top-0 right-0 w-24 h-24 bg-amber-400/10 rounded-full blur-2xl" />
