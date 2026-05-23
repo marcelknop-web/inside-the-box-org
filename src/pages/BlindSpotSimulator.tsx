@@ -373,59 +373,67 @@ const BlindSpotSimulator = () => {
         pushbackUsed,
       });
     } catch (e) {
+      // Recover so the user can retry
+      modalFiredRef.current = null;
+      setCommitting(false);
       toast({
         title: "AI IC unavailable",
-        description: e instanceof Error ? e.message : "Unknown",
+        description: (e instanceof Error ? e.message : "Unknown") + " — try Commit again.",
         variant: "destructive",
       });
     }
   };
 
-  // The user's last chat message after the scripted sequence ends becomes
-  // the decision (IC) or the recommendation to the AI IC.
-  // We DO NOT regex-match the user's words into YES/NO/CONDITIONAL — the user's
-  // actual text is preserved as reasoning, and an LLM classifies the implied
-  // stance from that verbatim text against the phase's decision question.
+  // The user's chat input (latest message of the phase) becomes the decision
+  // (if user is IC) or the recommendation to the AI IC. We never regex-match
+  // the user's words into YES/NO/CONDITIONAL — an LLM classifies the implied
+  // stance from the verbatim text.
   const commitFromChat = async (phaseIdx: number) => {
-    if (modalFiredRef.current === phaseIdx) return;
-    modalFiredRef.current = phaseIdx;
-    const phase = PHASES[phaseIdx];
+    if (modalFiredRef.current === phaseIdx || committing) return;
     const text = (userAssessment || "").trim();
+    if (!text) {
+      toast({
+        title: "Say something first",
+        description: "Post your read in the team chat before committing.",
+        variant: "destructive",
+      });
+      return;
+    }
+    modalFiredRef.current = phaseIdx;
+    setCommitting(true);
+    const phase = PHASES[phaseIdx];
 
     let choice: DecisionChoice = "CONDITIONAL";
-    if (text) {
-      try {
-        const { data } = await supabase.functions.invoke("blind-spot-chat", {
-          body: {
-            mode: "classify-stance",
-            decisionQuestion: phase.decisionQuestion,
-            userInput: text,
-          },
-        });
-        const token = String((data?.text as string) ?? "")
-          .trim()
-          .toUpperCase()
-          .match(/\b(YES|NO|CONDITIONAL|UNCLEAR)\b/)?.[1];
-        if (token === "YES" || token === "NO" || token === "CONDITIONAL") {
-          choice = token;
-        } else {
-          choice = "CONDITIONAL";
-        }
-      } catch {
-        choice = "CONDITIONAL";
+    try {
+      const { data } = await supabase.functions.invoke("blind-spot-chat", {
+        body: {
+          mode: "classify-stance",
+          decisionQuestion: phase.decisionQuestion,
+          userInput: text,
+        },
+      });
+      const token = String((data?.text as string) ?? "")
+        .trim()
+        .toUpperCase()
+        .match(/\b(YES|NO|CONDITIONAL|UNCLEAR)\b/)?.[1];
+      if (token === "YES" || token === "NO" || token === "CONDITIONAL") {
+        choice = token;
       }
+    } catch {
+      // Fall through with CONDITIONAL — non-fatal
     }
 
     if (isUserIC) {
-      handleUserCommit(choice, text || "(no rationale provided in chat)", 0);
+      handleUserCommit(choice, text, 0);
     } else {
-      handleAiIcAuto({
+      await handleAiIcAuto({
         stance: choice,
-        reasoning: text || "(no rationale provided in chat)",
+        reasoning: text,
         remainingSecs: 0,
       });
     }
   };
+
 
 
 
