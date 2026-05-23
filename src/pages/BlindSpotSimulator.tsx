@@ -590,7 +590,7 @@ const BlindSpotSimulator = () => {
         {/* ===== Welcome ===== */}
         {screen.kind === "welcome" && (
           <div className="min-h-[70vh] flex flex-col justify-center items-center text-center">
-            <StaggerReveal stagger={1800} startDelay={500} className="w-full flex flex-col items-center">
+            <StaggerReveal stagger={1800} startDelay={500} lastChildExtraDelay={4500} className="w-full flex flex-col items-center">
               <p className="font-mono text-[#f5b800] tracking-[0.3em] text-sm mb-6">
                 NORPOWER
               </p>
