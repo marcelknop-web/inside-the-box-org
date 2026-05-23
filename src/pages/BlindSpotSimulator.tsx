@@ -38,12 +38,9 @@ interface DecisionRecord {
   nis2Flag?: string;
 }
 
-interface DebriefData {
-  perDecision: Array<{ iec62443: string; nis2: "met" | "at_risk" | "missed"; nis2Note: string }>;
-  lessons: string[];
-  overall: string;
-  overallNote: string;
-}
+import { DebriefScreen, DebriefAnalysis } from "@/components/blindSpot/DebriefScreen";
+
+type DebriefData = DebriefAnalysis;
 
 const ROLE_DISPLAY_NAME: Record<RoleId, string> = {
   "it-ops": "IT-Ops",
