@@ -255,15 +255,41 @@ const BlindSpotSimulator = () => {
 
   /* ---- Modal-driven commit ---- */
 
-  const advanceAfterCommit = (phaseIdx: number, record: DecisionRecord) => {
+  const advanceAfterCommit = (
+    phaseIdx: number,
+    record: DecisionRecord,
+    scoreInputs: {
+      isUserIC: boolean;
+      userStance: DecisionChoice | null;
+      userReasoning: string;
+      remainingSecs: number;
+      pushbackUsed: boolean;
+    },
+  ) => {
     const updated = [...decisions, record];
     setDecisions(updated);
+    const phase = PHASES[phaseIdx];
+    const breakdown = scorePhase({
+      phaseIndex: phase.index,
+      isUserIC: scoreInputs.isUserIC,
+      finalStance: record.choice,
+      userStance: scoreInputs.userStance,
+      userReasoning: scoreInputs.userReasoning,
+      remainingSecs: scoreInputs.remainingSecs,
+      totalSecs: 180,
+      chatMessages: phaseUserMsgCount,
+      hasNis2Flag: !!phase.nis2Flag,
+      pushbackUsed: scoreInputs.pushbackUsed,
+    });
+    const nextScores = [...phaseScores, breakdown];
+    setPhaseScores(nextScores);
+
     const next = phaseIdx + 1;
     setModalOpen(false);
     window.setTimeout(() => {
       if (next >= PHASES.length) {
         runDebrief(updated);
-        setScreen({ kind: "debrief" });
+        setShowGameOver(true);
       } else {
         modalFiredRef.current = null;
         beginPhase(next);
