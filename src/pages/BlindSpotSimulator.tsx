@@ -23,6 +23,7 @@ import {
   scorePhase,
   totalScore,
 } from "@/utils/blindSpotScoring";
+import { StaggerReveal } from "@/components/StaggerReveal";
 
 
 type Screen =
