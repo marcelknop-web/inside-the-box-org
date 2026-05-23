@@ -14,7 +14,7 @@ import { PhaseProgress } from "@/components/blindSpot/PhaseProgress";
 import { CommsFeed, CommsFeedHandle, AlertCard } from "@/components/blindSpot/CommsFeed";
 import { EvidencePanel } from "@/components/blindSpot/EvidencePanel";
 import { ImplicationsPanel } from "@/components/blindSpot/ImplicationsPanel";
-import { Iec62443Stepper } from "@/components/blindSpot/Iec62443Stepper";
+import { SystemsStatusPanel } from "@/components/blindSpot/SystemsStatusPanel";
 
 type DecisionChoice = "YES" | "NO" | "CONDITIONAL";
 import { GameOverOverlay } from "@/components/blindSpot/GameOverOverlay";
