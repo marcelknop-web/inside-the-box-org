@@ -16,6 +16,12 @@ import {
 import { PhaseProgress } from "@/components/blindSpot/PhaseProgress";
 import { CommsFeed, CommsFeedHandle } from "@/components/blindSpot/CommsFeed";
 import { DecisionModal, DecisionChoice } from "@/components/blindSpot/DecisionModal";
+import { GameOverOverlay } from "@/components/blindSpot/GameOverOverlay";
+import {
+  PhaseScoreBreakdown,
+  scorePhase,
+  totalScore,
+} from "@/utils/blindSpotScoring";
 
 
 type Screen =
@@ -70,6 +76,10 @@ const BlindSpotSimulator = () => {
   const [decisions, setDecisions] = useState<DecisionRecord[]>([]);
   const [debrief, setDebrief] = useState<DebriefData | null>(null);
   const [debriefLoading, setDebriefLoading] = useState(false);
+
+  // Gamification
+  const [phaseScores, setPhaseScores] = useState<PhaseScoreBreakdown[]>([]);
+  const [showGameOver, setShowGameOver] = useState(false);
 
   // Decision modal state
   const feedRef = useRef<CommsFeedHandle>(null);
@@ -245,15 +255,41 @@ const BlindSpotSimulator = () => {
 
   /* ---- Modal-driven commit ---- */
 
-  const advanceAfterCommit = (phaseIdx: number, record: DecisionRecord) => {
+  const advanceAfterCommit = (
+    phaseIdx: number,
+    record: DecisionRecord,
+    scoreInputs: {
+      isUserIC: boolean;
+      userStance: DecisionChoice | null;
+      userReasoning: string;
+      remainingSecs: number;
+      pushbackUsed: boolean;
+    },
+  ) => {
     const updated = [...decisions, record];
     setDecisions(updated);
+    const phase = PHASES[phaseIdx];
+    const breakdown = scorePhase({
+      phaseIndex: phase.index,
+      isUserIC: scoreInputs.isUserIC,
+      finalStance: record.choice,
+      userStance: scoreInputs.userStance,
+      userReasoning: scoreInputs.userReasoning,
+      remainingSecs: scoreInputs.remainingSecs,
+      totalSecs: 180,
+      chatMessages: phaseUserMsgCount,
+      hasNis2Flag: !!phase.nis2Flag,
+      pushbackUsed: scoreInputs.pushbackUsed,
+    });
+    const nextScores = [...phaseScores, breakdown];
+    setPhaseScores(nextScores);
+
     const next = phaseIdx + 1;
     setModalOpen(false);
     window.setTimeout(() => {
       if (next >= PHASES.length) {
         runDebrief(updated);
-        setScreen({ kind: "debrief" });
+        setShowGameOver(true);
       } else {
         modalFiredRef.current = null;
         beginPhase(next);
@@ -300,7 +336,11 @@ const BlindSpotSimulator = () => {
     }
   };
 
-  const handleUserCommit = (choice: DecisionChoice, reasoning: string) => {
+  const handleUserCommit = (
+    choice: DecisionChoice,
+    reasoning: string,
+    remainingSecs: number,
+  ) => {
     if (!("phaseIdx" in screen)) return;
     const phaseIdx = screen.phaseIdx;
     const phase = PHASES[phaseIdx];
@@ -318,11 +358,17 @@ const BlindSpotSimulator = () => {
       nis2Flag: phase.nis2Flag,
     };
     postCommitFeedMessages(phaseIdx, choice, optionLabel, "user", reasoning);
-    advanceAfterCommit(phaseIdx, record);
+    advanceAfterCommit(phaseIdx, record, {
+      isUserIC: true,
+      userStance: choice,
+      userReasoning: reasoning,
+      remainingSecs,
+      pushbackUsed: false,
+    });
   };
 
   const handleAiIcAuto = async (
-    recommendation?: { stance: "YES" | "NO" | "CONDITIONAL"; reasoning: string },
+    recommendation?: { stance: "YES" | "NO" | "CONDITIONAL"; reasoning: string; remainingSecs: number },
   ) => {
     if (!("phaseIdx" in screen) || !userRole) return;
     const phaseIdx = screen.phaseIdx;
@@ -367,7 +413,13 @@ const BlindSpotSimulator = () => {
         nis2Flag: phase.nis2Flag,
       };
       postCommitFeedMessages(phaseIdx, choice, optionLabel, "ai");
-      advanceAfterCommit(phaseIdx, record);
+      advanceAfterCommit(phaseIdx, record, {
+        isUserIC: false,
+        userStance: recommendation?.stance ?? null,
+        userReasoning: recommendation?.reasoning ?? "",
+        remainingSecs: recommendation?.remainingSecs ?? 0,
+        pushbackUsed,
+      });
     } catch (e) {
       toast({
         title: "AI IC unavailable",
@@ -444,6 +496,8 @@ const BlindSpotSimulator = () => {
     setDecisions([]);
     setDebrief(null);
     setHistory({});
+    setPhaseScores([]);
+    setShowGameOver(false);
     resetPhaseLocalState();
     setScreen({ kind: "roleSelect" });
   };
@@ -792,6 +846,19 @@ const BlindSpotSimulator = () => {
           />
         )}
       </main>
+
+      {userRole && showGameOver && (
+        <GameOverOverlay
+          open={showGameOver}
+          roleName={userRole.name}
+          breakdowns={phaseScores}
+          onContinue={() => {
+            setShowGameOver(false);
+            setScreen({ kind: "debrief" });
+          }}
+        />
+      )}
+
 
       {userRole && screen.kind === "inject" && (() => {
         const phase = PHASES[screen.phaseIdx];

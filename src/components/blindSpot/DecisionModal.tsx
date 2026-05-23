@@ -18,9 +18,9 @@ interface Props {
   /** Seconds for the countdown. Default 180. */
   seconds?: number;
   /** Called when user commits as IC. */
-  onCommitUser: (choice: DecisionChoice, reasoning: string) => void;
-  /** Called when running as non-IC — receives the user's recommendation to IC. */
-  onAiIcAuto: (recommendation: { stance: DecisionChoice; reasoning: string }) => void;
+  onCommitUser: (choice: DecisionChoice, reasoning: string, remainingSecs: number) => void;
+  /** Called when running as non-IC — receives the user's recommendation to IC + remaining timer secs. */
+  onAiIcAuto: (recommendation: { stance: DecisionChoice; reasoning: string; remainingSecs: number }) => void;
 }
 
 const OPTS: OptionDef[] = [
@@ -78,12 +78,21 @@ export const DecisionModal = ({
     return () => window.clearInterval(t);
   }, [open, seconds]);
 
+  // Capture timer at the moment the non-IC user sends their recommendation
+  // so the speed bonus reflects when *they* acted, not when the AI replies.
+  const recRemainingRef = useRef<number>(seconds);
+
   // Non-IC: only after user submits recommendation, schedule AI IC auto-decision
   useEffect(() => {
     if (!open || isUserIC || !recSent || autoFiredRef.current) return;
     autoFiredRef.current = true;
     const id = window.setTimeout(() => {
-      if (recStance) onAiIcAuto({ stance: recStance, reasoning: recReasoning.trim() });
+      if (recStance)
+        onAiIcAuto({
+          stance: recStance,
+          reasoning: recReasoning.trim(),
+          remainingSecs: recRemainingRef.current,
+        });
     }, 4000);
     return () => window.clearTimeout(id);
   }, [open, isUserIC, recSent, recStance, recReasoning, onAiIcAuto]);
@@ -311,7 +320,7 @@ export const DecisionModal = ({
           <button
             type="button"
             disabled={!canCommit}
-            onClick={() => choice && onCommitUser(choice, reasoning.trim())}
+            onClick={() => choice && onCommitUser(choice, reasoning.trim(), remaining)}
             className="w-full rounded-md font-mono text-sm uppercase tracking-wider transition-opacity disabled:opacity-40"
             style={{
               padding: "12px 16px",
@@ -326,7 +335,10 @@ export const DecisionModal = ({
           <button
             type="button"
             disabled={!canSendRec}
-            onClick={() => setRecSent(true)}
+            onClick={() => {
+              recRemainingRef.current = remaining;
+              setRecSent(true);
+            }}
             className="w-full rounded-md font-mono text-sm uppercase tracking-wider transition-opacity disabled:opacity-40"
             style={{
               padding: "12px 16px",
