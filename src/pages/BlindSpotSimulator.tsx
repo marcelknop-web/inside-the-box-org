@@ -369,7 +369,7 @@ const BlindSpotSimulator = () => {
         userStance: recommendation?.stance ?? null,
         userReasoning: recommendation?.reasoning ?? "",
         remainingSecs: recommendation?.remainingSecs ?? 0,
-        pushbackUsed,
+        pushbackUsed: false,
       });
     } catch (e) {
       // Recover so the user can retry
