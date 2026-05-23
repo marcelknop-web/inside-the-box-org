@@ -71,8 +71,6 @@ const BlindSpotSimulator = () => {
   // Conversation history per AI role across phases
   const [history, setHistory] = useState<Record<string, Array<{ role: "user" | "assistant"; content: string }>>>({});
 
-  // Pushback (one per phase) — user can challenge the AI IC before committing
-  const [pushbackUsed, setPushbackUsed] = useState(false);
   const [committing, setCommitting] = useState(false);
 
   const [decisions, setDecisions] = useState<DecisionRecord[]>([]);
