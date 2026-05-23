@@ -519,6 +519,7 @@ export const CommsFeed = forwardRef<CommsFeedHandle, Props>(function CommsFeed(
     if (!text || sending) return;
     setSending(true);
     setInput("");
+    sfx.userSend();
     const offset = Math.max(1, messages.length * 2);
     setMessages((m) => [
       ...m,
@@ -537,7 +538,10 @@ export const CommsFeed = forwardRef<CommsFeedHandle, Props>(function CommsFeed(
     });
 
     const responder = pickResponder(text);
-    setTimeout(() => setTypingRole(responder), 400);
+    setTimeout(() => {
+      sfx.typing();
+      setTypingRole(responder);
+    }, 400);
 
     const reply = await fetchAiMessage(
       responder,
@@ -546,6 +550,7 @@ export const CommsFeed = forwardRef<CommsFeedHandle, Props>(function CommsFeed(
     );
     setTimeout(() => {
       setTypingRole(null);
+      sfx.chatIncoming();
       setMessages((m) => [
         ...m,
         {
