@@ -16,7 +16,7 @@ import { EvidencePanel } from "@/components/blindSpot/EvidencePanel";
 import { ImplicationsPanel } from "@/components/blindSpot/ImplicationsPanel";
 import { Iec62443Stepper } from "@/components/blindSpot/Iec62443Stepper";
 
-import { DecisionChoice } from "@/components/blindSpot/DecisionModal";
+type DecisionChoice = "YES" | "NO" | "CONDITIONAL";
 import { GameOverOverlay } from "@/components/blindSpot/GameOverOverlay";
 import {
   PhaseScoreBreakdown,
@@ -71,8 +71,6 @@ const BlindSpotSimulator = () => {
   // Conversation history per AI role across phases
   const [history, setHistory] = useState<Record<string, Array<{ role: "user" | "assistant"; content: string }>>>({});
 
-  // Pushback (one per phase) — user can challenge the AI IC before committing
-  const [pushbackUsed, setPushbackUsed] = useState(false);
   const [committing, setCommitting] = useState(false);
 
   const [decisions, setDecisions] = useState<DecisionRecord[]>([]);
@@ -150,7 +148,7 @@ const BlindSpotSimulator = () => {
   const resetPhaseLocalState = () => {
     setUserAssessment("");
     setAiOutputs({});
-    setPushbackUsed(false);
+    
     setCommitting(false);
     setPhaseUserMsgCount(0);
     setEvidence([]);
@@ -371,7 +369,7 @@ const BlindSpotSimulator = () => {
         userStance: recommendation?.stance ?? null,
         userReasoning: recommendation?.reasoning ?? "",
         remainingSecs: recommendation?.remainingSecs ?? 0,
-        pushbackUsed,
+        pushbackUsed: false,
       });
     } catch (e) {
       // Recover so the user can retry
