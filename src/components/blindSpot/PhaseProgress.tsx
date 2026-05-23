@@ -46,10 +46,16 @@ const stateOf = (stage: StageKey, current: StageKey): "past" | "current" | "futu
   return (stage as number) < (current as number) ? "past" : "future";
 };
 
-export const PhaseProgress = ({ currentPhase }: Props) => {
+export const PhaseProgress = ({ currentPhase, streak = 0, verdict = null }: Props) => {
   const total = STAGES.length;
   const currentIdx = STAGES.findIndex((s) => s.key === currentPhase);
   const progressPct = currentIdx <= 0 ? 0 : (currentIdx / (total - 1)) * 100;
+
+  const verdictColor =
+    verdict?.tier === "sharp" ? "text-[#f5b800] border-[#f5b800]/60 bg-[#f5b800]/10"
+    : verdict?.tier === "solid" ? "text-[#a0e85b] border-[#a0e85b]/50 bg-[#a0e85b]/10"
+    : verdict?.tier === "mixed" ? "text-amber-300 border-amber-300/50 bg-amber-300/10"
+    : "text-rose-300 border-rose-300/50 bg-rose-300/10";
 
   return (
     <div className="border-b border-white/5 bg-gradient-to-b from-black/60 to-transparent">
@@ -60,11 +66,24 @@ export const PhaseProgress = ({ currentPhase }: Props) => {
             <span className="w-1.5 h-1.5 rounded-full bg-[#f5b800] animate-pulse" />
             <span>IEC 62443 · Incident Response Lifecycle</span>
           </div>
-          <div className="text-white/40 hidden sm:block">
-            Stage <span className="text-[#f5b800]">{Math.max(currentIdx + 1, 1)}</span>
-            <span className="text-white/30"> / {total}</span>
+          <div className="flex items-center gap-3">
+            {streak >= 2 && (
+              <span
+                key={streak}
+                className="flex items-center gap-1.5 px-2 py-0.5 rounded border border-[#f5b800]/50 bg-[#f5b800]/10 text-[#f5b800] animate-[fade-in_240ms_ease-out]"
+                title="Consecutive solid calls"
+              >
+                <Flame className="w-3 h-3" strokeWidth={2.5} />
+                <span>Momentum ×{streak}</span>
+              </span>
+            )}
+            <div className="text-white/40 hidden sm:block">
+              Stage <span className="text-[#f5b800]">{Math.max(currentIdx + 1, 1)}</span>
+              <span className="text-white/30"> / {total}</span>
+            </div>
           </div>
         </div>
+
 
         {/* Rail */}
         <div className="relative">
