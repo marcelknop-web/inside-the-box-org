@@ -535,7 +535,7 @@ const BlindSpotSimulator = () => {
         <PhaseProgress currentPhase={currentPhaseForProgress} phases={PHASES} />
       )}
 
-      <main className={screen.kind === "debrief" ? "w-full" : screen.kind === "inject" ? "max-w-[1600px] mx-auto px-4 py-6" : "max-w-5xl mx-auto px-4 py-8"}>
+      <main className={screen.kind === "debrief" ? "w-full" : screen.kind === "inject" ? "max-w-[1600px] mx-auto px-3 py-2 h-[calc(100vh-64px)] flex flex-col" : "max-w-5xl mx-auto px-4 py-8"}>
         {/* ===== Welcome ===== */}
         {screen.kind === "welcome" && (
           <div className="min-h-[70vh] flex flex-col justify-center items-center text-center">
