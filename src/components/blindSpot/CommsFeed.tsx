@@ -257,15 +257,19 @@ Company: netsecure.no, Oslo. Scenario: Blind Spot.
 Current phase: ${phaseName}. Timestamp: ${ts}.
 Write exactly one Microsoft Teams chat message — 2 to 3 sentences, natural tone, no bullet points, no headers, no role label, no timestamp. React to the latest event and to what the user just said if anything. Ask one sharp operational question. Recommend one concrete action. Stay in character. Never explain the exercise format.`;
 
-export const CommsFeed = ({
-  phaseIndex,
-  phaseName,
-  phaseTimestamp,
-  situation,
-  userRoleName,
-  onLatestByRole,
-  onLastUserMessage,
-}: Props) => {
+export const CommsFeed = forwardRef<CommsFeedHandle, Props>(function CommsFeed(
+  {
+    phaseIndex,
+    phaseName,
+    phaseTimestamp,
+    situation,
+    userRoleName,
+    onLatestByRole,
+    onLastUserMessage,
+    onSequenceComplete,
+  },
+  ref,
+) {
   const [messages, setMessages] = useState<FeedMessage[]>([]);
   const [typingRole, setTypingRole] = useState<CommsRole | null>(null);
   const [input, setInput] = useState("");
@@ -274,6 +278,21 @@ export const CommsFeed = ({
   const seqStartedRef = useRef<number | null>(null);
 
   const base = PHASE_BASE_TIME[phaseIndex];
+
+  useImperativeHandle(ref, () => ({
+    appendAssistant: (role, body) => {
+      setMessages((m) => [
+        ...m,
+        {
+          id: `${phaseIndex}-injected-${role}-${Date.now()}`,
+          kind: "chat",
+          role,
+          time: stepTime(base, m.length * 2 + 5),
+          body,
+        },
+      ]);
+    },
+  }));
 
   /* ---- Reset + run scripted sequence per phase ---- */
   useEffect(() => {
@@ -284,11 +303,10 @@ export const CommsFeed = ({
 
     const seq = SEQUENCES[phaseIndex] ?? [];
     const timers: number[] = [];
-    let runningOffset = 0;
+    let lastMessageAt = 0;
 
     seq.forEach((item) => {
-      runningOffset = item.offset;
-      const fireDelay = (item.offset + 1) * 800; // pacing
+      const fireDelay = (item.offset + 1) * 800;
 
       if (item.kind === "system") {
         timers.push(
@@ -305,38 +323,39 @@ export const CommsFeed = ({
             ]);
           }, fireDelay),
         );
+        lastMessageAt = Math.max(lastMessageAt, fireDelay);
       } else {
-        // typing indicator then message
         const typingAt = fireDelay;
         const messageAt = fireDelay + 1800;
-        timers.push(
-          window.setTimeout(() => setTypingRole(item.role), typingAt),
-        );
+        timers.push(window.setTimeout(() => setTypingRole(item.role), typingAt));
         timers.push(
           window.setTimeout(async () => {
             const text = await fetchAiMessage(item.role, item.prompt, []);
             setTypingRole(null);
-            setMessages((m) => {
-              const next: FeedMessage[] = [
-                ...m,
-                {
-                  id: `${phaseIndex}-ai-${item.role}-${item.offset}`,
-                  kind: "chat",
-                  role: item.role,
-                  time: stepTime(base, item.offset + 2),
-                  body: text,
-                },
-              ];
-              return next;
-            });
+            setMessages((m) => [
+              ...m,
+              {
+                id: `${phaseIndex}-ai-${item.role}-${item.offset}`,
+                kind: "chat",
+                role: item.role,
+                time: stepTime(base, item.offset + 2),
+                body: text,
+              },
+            ]);
           }, messageAt),
         );
+        lastMessageAt = Math.max(lastMessageAt, messageAt);
       }
     });
+
+    if (onSequenceComplete && seq.length > 0) {
+      timers.push(window.setTimeout(() => onSequenceComplete(), lastMessageAt + 1200));
+    }
 
     return () => timers.forEach((t) => window.clearTimeout(t));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phaseIndex]);
+
 
   /* ---- Sync derived state up ---- */
   useEffect(() => {
