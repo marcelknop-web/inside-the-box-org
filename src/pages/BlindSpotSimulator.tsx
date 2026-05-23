@@ -103,6 +103,10 @@ const BlindSpotSimulator = () => {
   // (i.e. when IC actually needs input from the role)
   const [decisionReady, setDecisionReady] = useState(false);
 
+  // Phase transition splash (Sims-style)
+  const [transitionPhaseIdx, setTransitionPhaseIdx] = useState<number | null>(null);
+  const [transitionVisible, setTransitionVisible] = useState(false);
+
   const DECISION_OPTIONS: Record<number, { yes: string; no: string; conditional: string }> = {
     1: {
       yes: "Terminate session and revoke vendor access",
