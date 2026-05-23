@@ -17,9 +17,9 @@ export type CommsRole =
   | "Management & Comms"
   | "YOU";
 
-type SystemKind = "splunk" | "claroty" | "ransom";
+export type SystemKind = "splunk" | "claroty" | "ransom";
 
-interface AlertCard {
+export interface AlertCard {
   kind: SystemKind;
   title: string;
   rows: Array<[string, string]>;
@@ -45,6 +45,8 @@ interface Props {
   onLastUserMessage: (text: string) => void;
   onSequenceComplete?: () => void;
   onUserMessageCount?: (count: number) => void;
+  onSystemAlert?: (alert: { card: AlertCard; time: string; source: string }) => void;
+  hideSystemMessages?: boolean;
 }
 
 
