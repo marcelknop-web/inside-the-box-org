@@ -915,6 +915,8 @@ const BlindSpotSimulator = () => {
                 I'm ready — Phase 1 begins →
               </Button>
             </div>
+            </>
+            )}
           </StaggerReveal>
         )}
 
