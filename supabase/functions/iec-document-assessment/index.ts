@@ -11,11 +11,44 @@ interface DocForAssessment {
   type: string;
   text: string;
 }
+interface AssessmentContext {
+  facilityName?: string;
+  systemTypes?: string[];
+  securityLevel?: string;
+  description?: string;
+  zones?: string[];
+  protocols?: string[];
+  measures?: string[];
+  knownIssues?: string;
+}
 
 const MAX_DOCS = 15;
 const MAX_REQS = 60;
 const MAX_TEXT = 60000;
 const MAX_TOTAL_TEXT = 220000;
+
+const arr = (v: unknown, max: number, itemLen: number): string[] =>
+  Array.isArray(v) ? v.map((x) => String(x).slice(0, itemLen)).filter(Boolean).slice(0, max) : [];
+
+function buildContext(raw: unknown): AssessmentContext | null {
+  if (!raw || typeof raw !== 'object') return null;
+  const c = raw as Record<string, unknown>;
+  const ctx: AssessmentContext = {
+    facilityName: String(c.facilityName || '').slice(0, 200) || undefined,
+    systemTypes: arr(c.systemTypes, 30, 120),
+    securityLevel: String(c.securityLevel || '').slice(0, 60) || undefined,
+    description: String(c.description || '').slice(0, 2000) || undefined,
+    zones: arr(c.zones, 30, 120),
+    protocols: arr(c.protocols, 40, 120),
+    measures: arr(c.measures, 60, 200),
+    knownIssues: String(c.knownIssues || '').slice(0, 2000) || undefined,
+  };
+  const hasAny =
+    ctx.facilityName || ctx.securityLevel || ctx.description || ctx.knownIssues ||
+    (ctx.systemTypes && ctx.systemTypes.length) || (ctx.zones && ctx.zones.length) ||
+    (ctx.protocols && ctx.protocols.length) || (ctx.measures && ctx.measures.length);
+  return hasAny ? ctx : null;
+}
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
@@ -58,6 +91,8 @@ Deno.serve(async (req) => {
 
     const langName = language === 'de' ? 'German' : language === 'fr' ? 'French' : 'English';
 
+    const ctx = buildContext(body.context);
+
     const docBlock = docs
       .map((d, i) => `=== DOCUMENT ${i + 1}: "${d.name}" (${d.type}) ===\n${d.text}`)
       .join('\n\n');
@@ -65,6 +100,20 @@ Deno.serve(async (req) => {
     const reqBlock = reqs
       .map((r) => `- id: ${r.id} | ${r.article} — ${r.name}\n  Acceptance criteria: ${r.criteria.join(' | ') || '(none listed)'}`)
       .join('\n');
+
+    let contextBlock = '';
+    if (ctx) {
+      const lines: string[] = [];
+      if (ctx.facilityName) lines.push(`Vessel / facility: ${ctx.facilityName}`);
+      if (ctx.systemTypes?.length) lines.push(`System types in scope: ${ctx.systemTypes.join(', ')}`);
+      if (ctx.securityLevel) lines.push(`Target security level: ${ctx.securityLevel}`);
+      if (ctx.zones?.length) lines.push(`Zones / conduits: ${ctx.zones.join(', ')}`);
+      if (ctx.protocols?.length) lines.push(`Protocols in use: ${ctx.protocols.join(', ')}`);
+      if (ctx.measures?.length) lines.push(`Measures declared in intake: ${ctx.measures.join(', ')}`);
+      if (ctx.description) lines.push(`System description: ${ctx.description}`);
+      if (ctx.knownIssues) lines.push(`Known issues stated by the operator: ${ctx.knownIssues}`);
+      contextBlock = `=== SYSTEM CONTEXT (intake answers) ===\n${lines.join('\n')}\n\n`;
+    }
 
     const systemPrompt = `You are a maritime cyber security auditor assessing compliance with IACS UR ${standard} (IEC 62443 based) for on-board Computer Based Systems (CBS).
 You evaluate ONLY against the actual content of the supplied evidence documents.
@@ -77,10 +126,14 @@ STRICT DATA INTEGRITY RULES — these are non-negotiable:
    - "fail": no relevant documented evidence found.
 4. "sourceDoc" must be the exact document name the evidence came from, or "" if none.
 5. "confidence" reflects how directly the document text supports your verdict.
+HOW TO USE THE SYSTEM CONTEXT (if provided):
+- Use it ONLY to interpret scope, terminology and relevance (e.g. which systems, zones, protocols and target security level the evidence must cover) and to judge completeness against the stated target security level.
+- The system context is NOT evidence. Statements in the intake (e.g. a measure marked as "in place") never count as documented evidence and must NEVER raise a status on their own — only document content can.
 Write "rationale" in ${langName}. Keep evidence quotes in their original document language.
 Return a verdict for EVERY requirement id provided.`;
 
-    const userPrompt = `EVIDENCE DOCUMENTS:\n${docBlock}\n\n=== REQUIREMENTS TO ASSESS ===\n${reqBlock}`;
+    const userPrompt = `${contextBlock}EVIDENCE DOCUMENTS:\n${docBlock}\n\n=== REQUIREMENTS TO ASSESS ===\n${reqBlock}`;
+
 
     const tool = {
       type: 'function',

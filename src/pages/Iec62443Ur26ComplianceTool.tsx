@@ -993,11 +993,27 @@ const Iec62443Ur26ComplianceTool = ({ embedded }: { embedded?: boolean }) => {
     setLoadingMsg(`Analysing ${readableDocs.length} document(s) against the IACS UR E26 requirements…`);
     try {
       const lang = detectLanguage(extractTexts(data as unknown as Record<string, unknown>)) as 'de' | 'en' | 'fr';
+      const measures = Object.entries(data.measures || {})
+        .filter(([, m]) => m && (m.active || m.documented || m.audited || m.certified))
+        .map(([k, m]) => {
+          const flags = [m.active && 'active', m.documented && 'documented', m.audited && 'audited', m.certified && 'certified'].filter(Boolean).join('/');
+          return `${k} (${flags})`;
+        });
       const result = await assessDocuments(
         'E26',
         IEC_REQS.map(r => ({ id: r.id, article: r.article, name: r.name, criteria: r.criteria })),
         readableDocs.map(f => ({ name: f.name, type: f.type, text: f.text || '' })),
         lang,
+        {
+          facilityName: data.facilityName,
+          systemTypes: data.systemTypes,
+          securityLevel: data.securityLevel,
+          description: data.description,
+          zones: data.zones,
+          protocols: data.protocols,
+          measures,
+          knownIssues: data.knownIssues,
+        },
       );
       setDocAssessments(result.assessments);
       setDocsAnalyzed(result.documentsAnalyzed);

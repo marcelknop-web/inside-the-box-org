@@ -13,6 +13,24 @@ export interface DocForAssessment {
   text: string;
 }
 
+/**
+ * Context derived from the user's intake answers. Passed to the AI so it can
+ * judge document relevance and completeness against the actual system scope
+ * (ship/system types, target security level, zones, protocols, declared
+ * measures). The AI must still only use document content as evidence — context
+ * never substitutes for documented evidence (Data Integrity Policy).
+ */
+export interface AssessmentContext {
+  facilityName?: string;
+  systemTypes?: string[];
+  securityLevel?: string;
+  description?: string;
+  zones?: string[];
+  protocols?: string[];
+  measures?: string[];
+  knownIssues?: string;
+}
+
 export interface ReqAssessment {
   id: string;
   status: 'pass' | 'partial' | 'fail';
@@ -58,9 +76,10 @@ async function assessBatch(
   reqs: ReqForAssessment[],
   docs: DocForAssessment[],
   language: 'de' | 'en' | 'fr',
+  context?: AssessmentContext,
 ): Promise<DocAssessmentResult> {
   const { data, error } = await supabase.functions.invoke('iec-document-assessment', {
-    body: { standard, reqs, docs, language },
+    body: { standard, reqs, docs, language, context },
   });
   if (error) throw error;
   if (!data || !Array.isArray(data.assessments)) {
@@ -75,6 +94,11 @@ async function assessBatch(
  * and returns a content-based compliance verdict. The AI is instructed to never
  * invent evidence (Data Integrity Policy) — missing evidence => fail.
  *
+ * The optional intake `context` (system scope, target SL, zones, protocols,
+ * declared measures) is forwarded so the AI can judge relevance and
+ * completeness more accurately — yielding the best possible assessment without
+ * weakening the evidence rules.
+ *
  * To support an arbitrary number of uploaded documents, documents are split into
  * batches that each fit within the AI payload budget. Per requirement, the
  * strongest verdict across all batches wins (pass > partial > fail, then higher
@@ -85,19 +109,21 @@ export async function assessDocuments(
   reqs: ReqForAssessment[],
   docs: DocForAssessment[],
   language: 'de' | 'en' | 'fr',
+  context?: AssessmentContext,
 ): Promise<DocAssessmentResult> {
   const usable = docs.filter((d) => (d.text || '').trim().length > 0);
   const batches = splitIntoBatches(usable);
   if (batches.length <= 1) {
-    return assessBatch(standard, reqs, usable, language);
+    return assessBatch(standard, reqs, usable, language, context);
   }
+
 
   const best = new Map<string, ReqAssessment>();
   const analyzed = new Set<string>();
 
   // Sequential to avoid hitting AI rate limits with many documents.
   for (const batch of batches) {
-    const result = await assessBatch(standard, reqs, batch, language);
+    const result = await assessBatch(standard, reqs, batch, language, context);
     result.documentsAnalyzed.forEach((n) => analyzed.add(n));
     for (const a of result.assessments) {
       const prev = best.get(a.id);
