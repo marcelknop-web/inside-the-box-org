@@ -147,8 +147,9 @@ export async function assessDocuments(
       best.get(r.id) ?? {
         id: r.id,
         status: 'fail' as const,
+        basis: 'none' as const,
         evidence: '',
-        rationale: 'No documented evidence found in the uploaded documents.',
+        rationale: 'Not declared in the intake and no documented evidence found.',
         sourceDoc: '',
         confidence: 'low' as const,
       },
