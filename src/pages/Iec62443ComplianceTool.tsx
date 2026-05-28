@@ -963,7 +963,10 @@ const MAIN_STEPS = ['Data Collection', 'Threat Landscape', 'Risk Matrix', 'E27 M
 const Iec62443ComplianceTool = ({ embedded }: { embedded?: boolean }) => {
   const [step, setStepRaw] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [loadingMsg, setLoadingMsg] = useState<string>('CBS threats are being identified and assessed against IACS UR E27.');
   const [intakeData, setIntakeData] = useState<IecIntakeData>(EMPTY_INTAKE);
+  const [docAssessments, setDocAssessments] = useState<ReqAssessment[] | null>(null);
+  const [docsAnalyzed, setDocsAnalyzed] = useState<string[]>([]);
   const contentRef = useRef<HTMLDivElement>(null);
 
   const scrollToTop = useCallback(() => {
@@ -973,15 +976,63 @@ const Iec62443ComplianceTool = ({ embedded }: { embedded?: boolean }) => {
 
   const setStep = useCallback((s: number) => { setStepRaw(s); setTimeout(scrollToTop, 50); }, [scrollToTop]);
 
-  const handleIntakeFinish = useCallback((data: IecIntakeData) => {
+  const handleIntakeFinish = useCallback(async (data: IecIntakeData) => {
     setIntakeData(data);
+    setDocAssessments(null);
+    setDocsAnalyzed([]);
     setLoading(true);
-    setTimeout(() => { setLoading(false); setStep(1); }, 2000);
+
+    const readableDocs = data.files.filter(f => f.extractStatus === 'ok' && (f.text || '').trim().length > 0);
+
+    if (readableDocs.length === 0) {
+      setLoadingMsg('CBS threats are being identified and assessed against IACS UR E27.');
+      setTimeout(() => { setLoading(false); setStep(1); }, 1500);
+      return;
+    }
+
+    setLoadingMsg(`Analysing ${readableDocs.length} document(s) against the IACS UR E27 requirements…`);
+    try {
+      const lang = detectLanguage(extractTexts(data as unknown as Record<string, unknown>)) as 'de' | 'en' | 'fr';
+      const result = await assessDocuments(
+        'E27',
+        IEC_REQS.map(r => ({ id: r.id, article: r.article, name: r.name, criteria: r.criteria })),
+        readableDocs.map(f => ({ name: f.name, type: f.type, text: f.text || '' })),
+        lang,
+      );
+      setDocAssessments(result.assessments);
+      setDocsAnalyzed(result.documentsAnalyzed);
+      toast.success(`Document analysis complete — ${result.documentsAnalyzed.length} document(s) evaluated against ${result.assessments.length} requirements.`);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Document analysis failed';
+      toast.error(`Document analysis failed: ${msg}. Proceeding with the standard requirement baseline.`);
+    } finally {
+      setLoading(false);
+      setStep(1);
+    }
   }, [setStep]);
 
-  const reset = useCallback(() => { setStep(0); setIntakeData(EMPTY_INTAKE); }, [setStep]);
+  const effectiveReqs = useMemo<IecReq[]>(() => {
+    if (!docAssessments) return IEC_REQS;
+    const byId = new Map(docAssessments.map(a => [a.id, a]));
+    return IEC_REQS.map(r => {
+      const a = byId.get(r.id);
+      if (!a) return r;
+      const evidence = a.evidence
+        ? `${a.evidence}${a.sourceDoc ? ` (source: ${a.sourceDoc})` : ''}`
+        : r.evidence;
+      return {
+        ...r,
+        status: a.status,
+        evidence,
+        rationale: a.rationale || r.rationale,
+      };
+    });
+  }, [docAssessments]);
+
+  const reset = useCallback(() => { setStep(0); setIntakeData(EMPTY_INTAKE); setDocAssessments(null); setDocsAnalyzed([]); }, [setStep]);
 
   const progressPct = ((step + 1) / MAIN_STEPS.length) * 100;
+
 
   return (
     <div className={embedded ? '' : 'min-h-screen bg-background'}>
