@@ -217,11 +217,15 @@ Write "rationale" in ${langName}; keep evidence quotes in their original documen
     const assessments = reqs.map((r) => {
       const a = byId.get(r.id);
       const status = a && ['pass', 'partial', 'fail'].includes(String(a.status)) ? String(a.status) : 'fail';
+      const basis = a && ['declared', 'document', 'declared_document', 'none'].includes(String(a.basis))
+        ? String(a.basis)
+        : 'none';
       return {
         id: r.id,
         status,
+        basis,
         evidence: a ? String(a.evidence || '').slice(0, 1000) : '',
-        rationale: a ? String(a.rationale || '').slice(0, 1500) : 'No documented evidence found in the uploaded documents.',
+        rationale: a ? String(a.rationale || '').slice(0, 1500) : 'Not declared in the intake and no documented evidence found.',
         sourceDoc: a ? String(a.sourceDoc || '').slice(0, 200) : '',
         confidence: a && ['high', 'medium', 'low'].includes(String(a.confidence)) ? String(a.confidence) : 'low',
       };
