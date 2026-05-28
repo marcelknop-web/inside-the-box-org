@@ -13,6 +13,24 @@ export interface DocForAssessment {
   text: string;
 }
 
+/**
+ * Context derived from the user's intake answers. Passed to the AI so it can
+ * judge document relevance and completeness against the actual system scope
+ * (ship/system types, target security level, zones, protocols, declared
+ * measures). The AI must still only use document content as evidence — context
+ * never substitutes for documented evidence (Data Integrity Policy).
+ */
+export interface AssessmentContext {
+  facilityName?: string;
+  systemTypes?: string[];
+  securityLevel?: string;
+  description?: string;
+  zones?: string[];
+  protocols?: string[];
+  measures?: string[];
+  knownIssues?: string;
+}
+
 export interface ReqAssessment {
   id: string;
   status: 'pass' | 'partial' | 'fail';
