@@ -11,11 +11,44 @@ interface DocForAssessment {
   type: string;
   text: string;
 }
+interface AssessmentContext {
+  facilityName?: string;
+  systemTypes?: string[];
+  securityLevel?: string;
+  description?: string;
+  zones?: string[];
+  protocols?: string[];
+  measures?: string[];
+  knownIssues?: string;
+}
 
 const MAX_DOCS = 15;
 const MAX_REQS = 60;
 const MAX_TEXT = 60000;
 const MAX_TOTAL_TEXT = 220000;
+
+const arr = (v: unknown, max: number, itemLen: number): string[] =>
+  Array.isArray(v) ? v.map((x) => String(x).slice(0, itemLen)).filter(Boolean).slice(0, max) : [];
+
+function buildContext(raw: unknown): AssessmentContext | null {
+  if (!raw || typeof raw !== 'object') return null;
+  const c = raw as Record<string, unknown>;
+  const ctx: AssessmentContext = {
+    facilityName: String(c.facilityName || '').slice(0, 200) || undefined,
+    systemTypes: arr(c.systemTypes, 30, 120),
+    securityLevel: String(c.securityLevel || '').slice(0, 60) || undefined,
+    description: String(c.description || '').slice(0, 2000) || undefined,
+    zones: arr(c.zones, 30, 120),
+    protocols: arr(c.protocols, 40, 120),
+    measures: arr(c.measures, 60, 200),
+    knownIssues: String(c.knownIssues || '').slice(0, 2000) || undefined,
+  };
+  const hasAny =
+    ctx.facilityName || ctx.securityLevel || ctx.description || ctx.knownIssues ||
+    (ctx.systemTypes && ctx.systemTypes.length) || (ctx.zones && ctx.zones.length) ||
+    (ctx.protocols && ctx.protocols.length) || (ctx.measures && ctx.measures.length);
+  return hasAny ? ctx : null;
+}
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
