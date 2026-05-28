@@ -155,6 +155,15 @@ export interface MeasureEntry {
   certified: boolean;
 }
 
+export interface IecFile {
+  name: string;
+  size: number;
+  type: string;
+  text?: string;
+  extractStatus?: 'ok' | 'empty' | 'unsupported' | 'error' | 'pending';
+  extractError?: string;
+}
+
 export interface IecIntakeData {
   facilityName: string;
   systemTypes: string[];
@@ -166,7 +175,7 @@ export interface IecIntakeData {
   customRole: string;
   measures: Record<string, MeasureEntry>;
   knownIssues: string;
-  files: { name: string; size: number; type: string }[];
+  files: IecFile[];
 }
 
 export const EMPTY_INTAKE: IecIntakeData = {

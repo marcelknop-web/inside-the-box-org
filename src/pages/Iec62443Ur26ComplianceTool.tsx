@@ -19,6 +19,9 @@ import {
   DEMO_SCENARIOS,
   type IecThreat, type IecReq, type IecIntakeData, type MeasureEntry, EMPTY_INTAKE,
 } from '@/data/iec62443Ur26Data';
+import { extractDocumentText } from '@/lib/documentExtraction';
+import { assessDocuments, type ReqAssessment } from '@/lib/iecDocumentAssessment';
+import { toast } from 'sonner';
 
 // ── Helpers ─────────────────────────────────────────────────────
 
@@ -156,8 +159,23 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
 
   const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
-    const newFiles = Array.from(e.target.files).map(f => ({ name: f.name, size: f.size, type: activeUploadType || 'other' }));
-    setD(prev => ({ ...prev, files: [...prev.files, ...newFiles] }));
+    const picked = Array.from(e.target.files);
+    const startIndex = { current: 0 };
+    setD(prev => {
+      startIndex.current = prev.files.length;
+      const pending = picked.map(f => ({ name: f.name, size: f.size, type: activeUploadType || 'other', extractStatus: 'pending' as const }));
+      return { ...prev, files: [...prev.files, ...pending] };
+    });
+    picked.forEach((file, i) => {
+      const targetIdx = startIndex.current + i;
+      extractDocumentText(file).then(({ text, status, error }) => {
+        setD(prev => {
+          const files = [...prev.files];
+          if (files[targetIdx]) files[targetIdx] = { ...files[targetIdx], text, extractStatus: status, extractError: error };
+          return { ...prev, files };
+        });
+      });
+    });
     e.target.value = '';
   }, [activeUploadType]);
 
@@ -410,12 +428,22 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
               <div className="space-y-1.5">
                 {d.files.map((f, i) => {
                   const typeInfo = attachTypes.find(at => at.id === f.type) || { icon: '📎', label: 'Document' };
+                  const st = f.extractStatus;
+                  const badge = st === 'pending' ? { txt: 'Reading…', cls: 'text-muted-foreground' }
+                    : st === 'ok' ? { txt: `✓ ${((f.text?.length || 0) / 1000).toFixed(1)}k chars`, cls: 'text-green-600' }
+                    : st === 'empty' ? { txt: 'No text found', cls: 'text-yellow-600' }
+                    : st === 'unsupported' ? { txt: 'Format not readable', cls: 'text-yellow-600' }
+                    : st === 'error' ? { txt: 'Read error', cls: 'text-destructive' }
+                    : null;
                   return (
                     <div key={i} className="flex items-center gap-3 bg-card border border-border rounded-lg px-3 py-2.5 text-sm">
                       <span className="text-lg flex-shrink-0">{typeInfo.icon}</span>
                       <div className="flex-1 min-w-0">
                         <div className="font-medium text-foreground truncate">{f.name}</div>
-                        <div className="text-xs text-muted-foreground">{typeInfo.label} · <span className="font-mono">{(f.size / 1024).toFixed(0)} KB</span></div>
+                        <div className="text-xs text-muted-foreground">
+                          {typeInfo.label} · <span className="font-mono">{(f.size / 1024).toFixed(0)} KB</span>
+                          {badge && <> · <span className={`font-medium ${badge.cls}`}>{badge.txt}</span></>}
+                        </div>
                       </div>
                       <button onClick={() => removeFile(i)} className="text-muted-foreground hover:text-destructive font-bold text-lg leading-none transition-colors">×</button>
                     </div>
@@ -424,8 +452,9 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
               </div>
             </div>
           )}
-          <InfoBox icon="🔒" color="green">Files are not stored or transmitted.</InfoBox>
+          <InfoBox icon="🔒" color="green">Document content is analysed in your browser; only extracted text is sent to the assessment AI — original files are never uploaded or stored.</InfoBox>
         </StaggerReveal>
+
       );
       break;
     case 7:
@@ -934,7 +963,10 @@ const MAIN_STEPS = ['Data Collection', 'Threat Landscape', 'Risk Matrix', 'E26 M
 const Iec62443Ur26ComplianceTool = ({ embedded }: { embedded?: boolean }) => {
   const [step, setStepRaw] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [loadingMsg, setLoadingMsg] = useState<string>('CBS threats are being identified and assessed against IACS UR E26.');
   const [intakeData, setIntakeData] = useState<IecIntakeData>(EMPTY_INTAKE);
+  const [docAssessments, setDocAssessments] = useState<ReqAssessment[] | null>(null);
+  const [docsAnalyzed, setDocsAnalyzed] = useState<string[]>([]);
   const contentRef = useRef<HTMLDivElement>(null);
 
   const scrollToTop = useCallback(() => {
@@ -944,15 +976,58 @@ const Iec62443Ur26ComplianceTool = ({ embedded }: { embedded?: boolean }) => {
 
   const setStep = useCallback((s: number) => { setStepRaw(s); setTimeout(scrollToTop, 50); }, [scrollToTop]);
 
-  const handleIntakeFinish = useCallback((data: IecIntakeData) => {
+  const handleIntakeFinish = useCallback(async (data: IecIntakeData) => {
     setIntakeData(data);
+    setDocAssessments(null);
+    setDocsAnalyzed([]);
     setLoading(true);
-    setTimeout(() => { setLoading(false); setStep(1); }, 2000);
+
+    const readableDocs = data.files.filter(f => f.extractStatus === 'ok' && (f.text || '').trim().length > 0);
+
+    if (readableDocs.length === 0) {
+      setLoadingMsg('CBS threats are being identified and assessed against IACS UR E26.');
+      setTimeout(() => { setLoading(false); setStep(1); }, 1500);
+      return;
+    }
+
+    setLoadingMsg(`Analysing ${readableDocs.length} document(s) against the IACS UR E26 requirements…`);
+    try {
+      const lang = detectLanguage(extractTexts(data as unknown as Record<string, unknown>)) as 'de' | 'en' | 'fr';
+      const result = await assessDocuments(
+        'E26',
+        IEC_REQS.map(r => ({ id: r.id, article: r.article, name: r.name, criteria: r.criteria })),
+        readableDocs.map(f => ({ name: f.name, type: f.type, text: f.text || '' })),
+        lang,
+      );
+      setDocAssessments(result.assessments);
+      setDocsAnalyzed(result.documentsAnalyzed);
+      toast.success(`Document analysis complete — ${result.documentsAnalyzed.length} document(s) evaluated against ${result.assessments.length} requirements.`);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Document analysis failed';
+      toast.error(`Document analysis failed: ${msg}. Proceeding with the standard requirement baseline.`);
+    } finally {
+      setLoading(false);
+      setStep(1);
+    }
   }, [setStep]);
 
-  const reset = useCallback(() => { setStep(0); setIntakeData(EMPTY_INTAKE); }, [setStep]);
+  const effectiveReqs = useMemo<IecReq[]>(() => {
+    if (!docAssessments) return IEC_REQS;
+    const byId = new Map(docAssessments.map(a => [a.id, a]));
+    return IEC_REQS.map(r => {
+      const a = byId.get(r.id);
+      if (!a) return r;
+      const evidence = a.evidence
+        ? `${a.evidence}${a.sourceDoc ? ` (source: ${a.sourceDoc})` : ''}`
+        : r.evidence;
+      return { ...r, status: a.status, evidence, rationale: a.rationale || r.rationale };
+    });
+  }, [docAssessments]);
+
+  const reset = useCallback(() => { setStep(0); setIntakeData(EMPTY_INTAKE); setDocAssessments(null); setDocsAnalyzed([]); }, [setStep]);
 
   const progressPct = ((step + 1) / MAIN_STEPS.length) * 100;
+
 
   return (
     <div className={embedded ? '' : 'min-h-screen bg-background'}>
@@ -976,7 +1051,7 @@ const Iec62443Ur26ComplianceTool = ({ embedded }: { embedded?: boolean }) => {
           <div className="bg-card rounded-xl border border-border p-16 text-center">
             <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-5" />
             <div className="text-foreground font-semibold text-lg mb-2">Performing Maritime Cyber Risk Analysis…</div>
-            <div className="text-muted-foreground text-sm">CBS threats are being identified and assessed against IACS UR E26.</div>
+            <div className="text-muted-foreground text-sm">{loadingMsg}</div>
           </div>
         ) : (
           <div>
@@ -988,12 +1063,19 @@ const Iec62443Ur26ComplianceTool = ({ embedded }: { embedded?: boolean }) => {
                 </Button>
               )}
             </div>
+            {step > 0 && docsAnalyzed.length > 0 && (
+              <div className="mb-4 flex items-start gap-2 bg-primary/5 border border-primary/20 rounded-lg px-3 py-2.5 text-xs text-foreground">
+                <span className="text-base leading-none">📄</span>
+                <span>Requirement compliance was evaluated against the content of <strong>{docsAnalyzed.length}</strong> uploaded document(s): {docsAnalyzed.join(', ')}.</span>
+              </div>
+            )}
             {step === 0 && <IntakeWizard onFinish={handleIntakeFinish} />}
             {step === 1 && <ThreatModel threats={IEC_THREATS} onNext={() => setStep(2)} />}
             {step === 2 && <RiskAssessment threats={IEC_THREATS} onNext={() => setStep(3)} />}
-            {step === 3 && <IecMapping reqs={IEC_REQS} onNext={() => setStep(4)} />}
-            {step === 4 && <ReportView intakeData={intakeData} threats={IEC_THREATS} reqs={IEC_REQS} />}
+            {step === 3 && <IecMapping reqs={effectiveReqs} onNext={() => setStep(4)} />}
+            {step === 4 && <ReportView intakeData={intakeData} threats={IEC_THREATS} reqs={effectiveReqs} />}
           </div>
+
         )}
       </div>
     </div>
