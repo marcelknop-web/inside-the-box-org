@@ -91,6 +91,8 @@ Deno.serve(async (req) => {
 
     const langName = language === 'de' ? 'German' : language === 'fr' ? 'French' : 'English';
 
+    const ctx = buildContext(body.context);
+
     const docBlock = docs
       .map((d, i) => `=== DOCUMENT ${i + 1}: "${d.name}" (${d.type}) ===\n${d.text}`)
       .join('\n\n');
@@ -98,6 +100,20 @@ Deno.serve(async (req) => {
     const reqBlock = reqs
       .map((r) => `- id: ${r.id} | ${r.article} — ${r.name}\n  Acceptance criteria: ${r.criteria.join(' | ') || '(none listed)'}`)
       .join('\n');
+
+    let contextBlock = '';
+    if (ctx) {
+      const lines: string[] = [];
+      if (ctx.facilityName) lines.push(`Vessel / facility: ${ctx.facilityName}`);
+      if (ctx.systemTypes?.length) lines.push(`System types in scope: ${ctx.systemTypes.join(', ')}`);
+      if (ctx.securityLevel) lines.push(`Target security level: ${ctx.securityLevel}`);
+      if (ctx.zones?.length) lines.push(`Zones / conduits: ${ctx.zones.join(', ')}`);
+      if (ctx.protocols?.length) lines.push(`Protocols in use: ${ctx.protocols.join(', ')}`);
+      if (ctx.measures?.length) lines.push(`Measures declared in intake: ${ctx.measures.join(', ')}`);
+      if (ctx.description) lines.push(`System description: ${ctx.description}`);
+      if (ctx.knownIssues) lines.push(`Known issues stated by the operator: ${ctx.knownIssues}`);
+      contextBlock = `=== SYSTEM CONTEXT (intake answers) ===\n${lines.join('\n')}\n\n`;
+    }
 
     const systemPrompt = `You are a maritime cyber security auditor assessing compliance with IACS UR ${standard} (IEC 62443 based) for on-board Computer Based Systems (CBS).
 You evaluate ONLY against the actual content of the supplied evidence documents.
@@ -110,10 +126,14 @@ STRICT DATA INTEGRITY RULES — these are non-negotiable:
    - "fail": no relevant documented evidence found.
 4. "sourceDoc" must be the exact document name the evidence came from, or "" if none.
 5. "confidence" reflects how directly the document text supports your verdict.
+HOW TO USE THE SYSTEM CONTEXT (if provided):
+- Use it ONLY to interpret scope, terminology and relevance (e.g. which systems, zones, protocols and target security level the evidence must cover) and to judge completeness against the stated target security level.
+- The system context is NOT evidence. Statements in the intake (e.g. a measure marked as "in place") never count as documented evidence and must NEVER raise a status on their own — only document content can.
 Write "rationale" in ${langName}. Keep evidence quotes in their original document language.
 Return a verdict for EVERY requirement id provided.`;
 
-    const userPrompt = `EVIDENCE DOCUMENTS:\n${docBlock}\n\n=== REQUIREMENTS TO ASSESS ===\n${reqBlock}`;
+    const userPrompt = `${contextBlock}EVIDENCE DOCUMENTS:\n${docBlock}\n\n=== REQUIREMENTS TO ASSESS ===\n${reqBlock}`;
+
 
     const tool = {
       type: 'function',
