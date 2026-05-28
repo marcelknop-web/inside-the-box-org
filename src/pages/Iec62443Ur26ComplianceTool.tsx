@@ -428,12 +428,22 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
               <div className="space-y-1.5">
                 {d.files.map((f, i) => {
                   const typeInfo = attachTypes.find(at => at.id === f.type) || { icon: '📎', label: 'Document' };
+                  const st = f.extractStatus;
+                  const badge = st === 'pending' ? { txt: 'Reading…', cls: 'text-muted-foreground' }
+                    : st === 'ok' ? { txt: `✓ ${((f.text?.length || 0) / 1000).toFixed(1)}k chars`, cls: 'text-green-600' }
+                    : st === 'empty' ? { txt: 'No text found', cls: 'text-yellow-600' }
+                    : st === 'unsupported' ? { txt: 'Format not readable', cls: 'text-yellow-600' }
+                    : st === 'error' ? { txt: 'Read error', cls: 'text-destructive' }
+                    : null;
                   return (
                     <div key={i} className="flex items-center gap-3 bg-card border border-border rounded-lg px-3 py-2.5 text-sm">
                       <span className="text-lg flex-shrink-0">{typeInfo.icon}</span>
                       <div className="flex-1 min-w-0">
                         <div className="font-medium text-foreground truncate">{f.name}</div>
-                        <div className="text-xs text-muted-foreground">{typeInfo.label} · <span className="font-mono">{(f.size / 1024).toFixed(0)} KB</span></div>
+                        <div className="text-xs text-muted-foreground">
+                          {typeInfo.label} · <span className="font-mono">{(f.size / 1024).toFixed(0)} KB</span>
+                          {badge && <> · <span className={`font-medium ${badge.cls}`}>{badge.txt}</span></>}
+                        </div>
                       </div>
                       <button onClick={() => removeFile(i)} className="text-muted-foreground hover:text-destructive font-bold text-lg leading-none transition-colors">×</button>
                     </div>
@@ -442,8 +452,9 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
               </div>
             </div>
           )}
-          <InfoBox icon="🔒" color="green">Files are not stored or transmitted.</InfoBox>
+          <InfoBox icon="🔒" color="green">Document content is analysed in your browser; only extracted text is sent to the assessment AI — original files are never uploaded or stored.</InfoBox>
         </StaggerReveal>
+
       );
       break;
     case 7:
