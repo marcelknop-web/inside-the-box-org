@@ -243,7 +243,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
       stepContent = (
         <StaggerReveal resetKey="intake-2" stagger={300}>
           <SubStepHeader current={2} total={INTAKE_STEPS} title="On-Board Network Zones" subtitle="Which network zones are present on board?" />
-          <InfoBox icon="💡" color="blue">IACS UR E26 defines security zones on board. Segmentation between bridge, engine room, crew IT, and shore connections is essential for cyber resilience.</InfoBox>
+          <InfoBox icon="💡" color="blue">IACS UR E27 defines security zones on board. Segmentation between bridge, engine room, crew IT, and shore connections is essential for cyber resilience.</InfoBox>
           <div>
             <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">System Description</label>
             <textarea rows={4} className="w-full border border-border rounded-lg px-3 py-2.5 text-sm bg-background text-foreground focus:ring-2 focus:ring-primary outline-none resize-none" placeholder="e.g. Integrated bridge system with ECDIS, Radar/ARPA, AIS, Engine Control System..." value={d.description} onChange={e => setField('description', e.target.value)} />
@@ -281,7 +281,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
       stepContent = (
         <StaggerReveal resetKey="intake-4" stagger={300}>
           <SubStepHeader current={4} total={INTAKE_STEPS} title="Roles and Responsibilities" subtitle="Who is responsible for cyber resilience on board?" />
-          <InfoBox icon="💡" color="blue">IACS UR E26 requires clearly defined roles for cyber risk management on board and ashore.</InfoBox>
+          <InfoBox icon="💡" color="blue">IACS UR E27 requires clearly defined roles for cyber risk management on board and ashore.</InfoBox>
           <div>
             <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Common Roles</label>
             <div className="flex flex-wrap gap-2">
