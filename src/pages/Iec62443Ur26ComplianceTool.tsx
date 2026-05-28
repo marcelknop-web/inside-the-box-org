@@ -1051,7 +1051,7 @@ const Iec62443Ur26ComplianceTool = ({ embedded }: { embedded?: boolean }) => {
           <div className="bg-card rounded-xl border border-border p-16 text-center">
             <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-5" />
             <div className="text-foreground font-semibold text-lg mb-2">Performing Maritime Cyber Risk Analysis…</div>
-            <div className="text-muted-foreground text-sm">CBS threats are being identified and assessed against IACS UR E26.</div>
+            <div className="text-muted-foreground text-sm">{loadingMsg}</div>
           </div>
         ) : (
           <div>
@@ -1063,12 +1063,19 @@ const Iec62443Ur26ComplianceTool = ({ embedded }: { embedded?: boolean }) => {
                 </Button>
               )}
             </div>
+            {step > 0 && docsAnalyzed.length > 0 && (
+              <div className="mb-4 flex items-start gap-2 bg-primary/5 border border-primary/20 rounded-lg px-3 py-2.5 text-xs text-foreground">
+                <span className="text-base leading-none">📄</span>
+                <span>Requirement compliance was evaluated against the content of <strong>{docsAnalyzed.length}</strong> uploaded document(s): {docsAnalyzed.join(', ')}.</span>
+              </div>
+            )}
             {step === 0 && <IntakeWizard onFinish={handleIntakeFinish} />}
             {step === 1 && <ThreatModel threats={IEC_THREATS} onNext={() => setStep(2)} />}
             {step === 2 && <RiskAssessment threats={IEC_THREATS} onNext={() => setStep(3)} />}
-            {step === 3 && <IecMapping reqs={IEC_REQS} onNext={() => setStep(4)} />}
-            {step === 4 && <ReportView intakeData={intakeData} threats={IEC_THREATS} reqs={IEC_REQS} />}
+            {step === 3 && <IecMapping reqs={effectiveReqs} onNext={() => setStep(4)} />}
+            {step === 4 && <ReportView intakeData={intakeData} threats={IEC_THREATS} reqs={effectiveReqs} />}
           </div>
+
         )}
       </div>
     </div>
