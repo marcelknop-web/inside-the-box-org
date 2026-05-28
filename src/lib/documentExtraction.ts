@@ -31,7 +31,7 @@ async function extractPdf(file: File): Promise<string> {
   for (let i = 1; i <= pages; i++) {
     const page = await doc.getPage(i);
     const content = await page.getTextContent();
-    const strings = content.items.map((it: { str?: string }) => it.str || '');
+    const strings = content.items.map((it) => ('str' in it ? it.str : ''));
     out += strings.join(' ') + '\n';
     if (out.length > MAX_CHARS_PER_DOC) break;
   }
