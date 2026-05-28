@@ -204,7 +204,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
       case 3: setD(prev => ({ ...prev, protocols: scenario.protocols })); break;
       case 4: setD(prev => ({ ...prev, roles: scenario.roles })); break;
       case 5: setD(prev => ({ ...prev, measures: scenario.measures, knownIssues: scenario.knownIssues })); break;
-      case 6: setD(prev => ({ ...prev, files: scenario.files })); break;
+      case 6: setD(prev => ({ ...prev, files: scenario.files.map((f) => ({ ...f, id: crypto.randomUUID() })) })); break;
     }
   }, [sub]);
 
