@@ -4,7 +4,7 @@
 
 type T = (key: string) => string;
 
-// ── Ship System Types (CBS in scope of E26) ─────────────────
+// ── Ship System Types (CBS in scope of E27) ─────────────────
 // English-only labels (no i18n) — tool is English-only.
 const SYSTEM_TYPES = [
   { id: 'propulsion', icon: '⚙️', label: 'Propulsion Control', desc: 'Main engine, thrusters, propeller pitch & RPM control' },
