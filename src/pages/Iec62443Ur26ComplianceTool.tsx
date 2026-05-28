@@ -438,7 +438,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
             <div>
               <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Uploaded Files ({d.files.length})</div>
               <div className="space-y-1.5">
-                {d.files.map((f, i) => {
+                {d.files.map((f) => {
                   const typeInfo = attachTypes.find(at => at.id === f.type) || { icon: '📎', label: 'Document' };
                   const st = f.extractStatus;
                   const badge = st === 'pending' ? { txt: 'Reading…', cls: 'text-muted-foreground' }
@@ -448,7 +448,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
                     : st === 'error' ? { txt: 'Read error', cls: 'text-destructive' }
                     : null;
                   return (
-                    <div key={i} className="flex items-center gap-3 bg-card border border-border rounded-lg px-3 py-2.5 text-sm">
+                    <div key={f.id} className="flex items-center gap-3 bg-card border border-border rounded-lg px-3 py-2.5 text-sm">
                       <span className="text-lg flex-shrink-0">{typeInfo.icon}</span>
                       <div className="flex-1 min-w-0">
                         <div className="font-medium text-foreground truncate">{f.name}</div>
