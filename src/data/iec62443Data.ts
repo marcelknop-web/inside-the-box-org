@@ -156,6 +156,7 @@ export interface MeasureEntry {
 }
 
 export interface IecFile {
+  id: string;
   name: string;
   size: number;
   type: string;
