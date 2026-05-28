@@ -390,8 +390,14 @@ export const IEC_REQS: IecReq[] = [
     evidence: 'The engine control system enters a defined safe state on CBS failure (dead ship condition procedure). ECDIS has a paper-based fallback.',
     rationale: 'The requirement is met. Fail-safe behavior is documented and has been tested.',
     measure: '', criteria: [], effort: '', priority: '' },
+  { id: 'SI-5', article: 'E27-19 (SR 3.3)', name: 'Security Functionality Verification', status: 'fail',
+    gap: 'Firmware updates applied without cryptographic signature verification',
+    evidence: 'Firmware updates are applied exclusively via USB without cryptographic signature verification. A modified firmware image was accepted without error during testing.',
+    rationale: 'The requirement is not met. Without signature verification, tampered firmware can be installed on safety-critical CBS, enabling persistent compromise.',
+    measure: '1. Enforce cryptographic signature verification for all CBS firmware. 2. Restrict update sources to signed vendor packages. 3. Log and verify every update.',
+    criteria: ['Firmware signature verification enforced on all CBS', 'Only signed vendor packages accepted'],
+    effort: '24-40h', priority: 'P1' },
 
-  // DC — Data Confidentiality
   { id: 'DC-1', article: 'E27-22 (SR 4.1)', name: 'Information Confidentiality', status: 'fail',
     gap: 'Unencrypted communication to shore network',
     evidence: 'HTTP connections to the fleet management system without TLS encryption were identified. Crew login credentials are transmitted in cleartext.',
