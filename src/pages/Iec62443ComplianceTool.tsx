@@ -203,8 +203,8 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
     case 0:
       stepContent = (
         <StaggerReveal resetKey="intake-0" stagger={300}>
-          <SubStepHeader current={0} total={INTAKE_STEPS} title="Identify Vessel / System" subtitle="Which CBS is being assessed?" />
-          <InfoBox icon="🚢" color="blue">IACS UR E27 defines requirements for the cyber resilience of on-board systems and equipment (Computer Based Systems — CBS). Identify the vessel or system under assessment.</InfoBox>
+          <SubStepHeader current={0} total={INTAKE_STEPS} title="Identify System / Equipment" subtitle="Which on-board CBS is being assessed?" />
+          <InfoBox icon="🚢" color="blue">IACS UR E27 defines requirements for the cyber resilience of individual on-board systems and equipment (Computer Based Systems — CBS), based on the IEC 62443 system requirements (SR). It targets the system/equipment level supplied to the vessel. Identify the specific CBS under assessment.</InfoBox>
           <div>
             <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Vessel Name / CBS Designation</label>
             <input className="w-full border border-border rounded-lg px-3 py-2.5 text-sm bg-background text-foreground focus:ring-2 focus:ring-primary outline-none" placeholder="e.g. MV Northern Spirit — Integrated Bridge System" value={d.facilityName} onChange={e => setField('facilityName', e.target.value)} />
