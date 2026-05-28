@@ -115,22 +115,29 @@ Deno.serve(async (req) => {
       contextBlock = `=== SYSTEM CONTEXT (intake answers) ===\n${lines.join('\n')}\n\n`;
     }
 
-    const systemPrompt = `You are a maritime cyber security auditor assessing compliance with IACS UR ${standard} (IEC 62443 based) for on-board Computer Based Systems (CBS).
-You evaluate ONLY against the actual content of the supplied evidence documents.
-STRICT DATA INTEGRITY RULES — these are non-negotiable:
-1. NEVER invent, assume, or extrapolate evidence. If a document does not explicitly support a requirement, it is NOT met.
-2. "evidence" must be a short verbatim quote or precise reference taken from the documents. If none exists, evidence MUST be an empty string.
-3. Determine "status" purely from documented evidence:
-   - "pass": ALL acceptance criteria are explicitly and concretely evidenced in the documents.
-   - "partial": some criteria are evidenced but not all, or evidence is vague/incomplete.
-   - "fail": no relevant documented evidence found.
-4. "sourceDoc" must be the exact document name the evidence came from, or "" if none.
-5. "confidence" reflects how directly the document text supports your verdict.
-HOW TO USE THE SYSTEM CONTEXT (if provided):
-- Use it ONLY to interpret scope, terminology and relevance (e.g. which systems, zones, protocols and target security level the evidence must cover) and to judge completeness against the stated target security level.
-- The system context is NOT evidence. Statements in the intake (e.g. a measure marked as "in place") never count as documented evidence and must NEVER raise a status on their own — only document content can.
-Write "rationale" in ${langName}. Keep evidence quotes in their original document language.
-Return a verdict for EVERY requirement id provided.`;
+    const systemPrompt = `You are a maritime cyber security assessor evaluating compliance with IACS UR ${standard} (IEC 62443 based) for on-board Computer Based Systems (CBS).
+This is a self-assessment: the operator's intake answers are TRUSTED self-declarations and form the BASIS of the evaluation. The uploaded documents COMPLEMENT and verify those declarations — they do not have to prove every single intake statement.
+
+HOW TO DETERMINE "status" for each requirement:
+1. Start from the SYSTEM CONTEXT / intake declarations. Map the declared measures, systems, zones and protocols to the requirement. A relevant measure declared as in place / documented counts as a self-declared control.
+   - "pass": the declaration (optionally reinforced by documents) indicates the control is fully in place for all acceptance criteria.
+   - "partial": the declaration indicates the control is only partially in place, or only some criteria are covered.
+   - "fail": nothing in the intake or documents indicates the control exists.
+2. Documents COMPLEMENT the declaration:
+   - If a document confirms a declared control, keep/raise the status and provide a verbatim quote as evidence.
+   - If a document reveals ADDITIONAL controls not declared, you may raise the status based on the document.
+   - If a document clearly CONTRADICTS a declaration (explicitly states the control is absent), do NOT silently override it — keep the self-declared status but note the discrepancy in "rationale" and lower "confidence".
+
+"basis" — how the verdict is grounded (REQUIRED):
+   - "declared": based on intake self-declaration only, no document evidence.
+   - "document": based on document evidence only (not declared in intake).
+   - "declared_document": declared in intake AND confirmed by a document.
+   - "none": neither declared nor documented (status must be "fail").
+
+"evidence": a short verbatim quote/reference from a document if one exists, otherwise an empty string. NEVER invent document quotes.
+"sourceDoc": exact document name the evidence came from, or "" if none.
+"confidence": "high" = declared and document-confirmed; "medium" = clearly declared OR solid document evidence; "low" = weak/indirect or contradicted.
+Write "rationale" in ${langName}; keep evidence quotes in their original document language. Return a verdict for EVERY requirement id.`;
 
     const userPrompt = `${contextBlock}EVIDENCE DOCUMENTS:\n${docBlock}\n\n=== REQUIREMENTS TO ASSESS ===\n${reqBlock}`;
 
@@ -139,7 +146,7 @@ Return a verdict for EVERY requirement id provided.`;
       type: 'function',
       function: {
         name: 'submit_assessment',
-        description: 'Submit the content-based compliance assessment for every requirement.',
+        description: 'Submit the combined (self-declaration + document) compliance assessment for every requirement.',
         parameters: {
           type: 'object',
           properties: {
@@ -150,12 +157,13 @@ Return a verdict for EVERY requirement id provided.`;
                 properties: {
                   id: { type: 'string' },
                   status: { type: 'string', enum: ['pass', 'partial', 'fail'] },
+                  basis: { type: 'string', enum: ['declared', 'document', 'declared_document', 'none'] },
                   evidence: { type: 'string' },
                   rationale: { type: 'string' },
                   sourceDoc: { type: 'string' },
                   confidence: { type: 'string', enum: ['high', 'medium', 'low'] },
                 },
-                required: ['id', 'status', 'evidence', 'rationale', 'sourceDoc', 'confidence'],
+                required: ['id', 'status', 'basis', 'evidence', 'rationale', 'sourceDoc', 'confidence'],
                 additionalProperties: false,
               },
             },
