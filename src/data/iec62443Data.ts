@@ -228,11 +228,11 @@ export const IEC_THREATS: IecThreat[] = [
     sources: ['IACS UR E27 Table 1 SI-22: Information confidentiality', 'IEC 62443-3-3 SR 4.1'], evidenceQuality: 4, reproducibility: 'medium' },
 
   // AL — Audit & Logging (2)
-  { id: 7, fr: 'AL', name: 'No Centralized Security Monitoring On Board', component: 'Ship Network — Monitoring', attacker: 'APT / Insider', path: 'No anomaly detection → attacks go undetected → free lateral movement in network', iecRef: 'E27-24 (SR 6.1)',
+  { id: 7, fr: 'AL', name: 'No Centralized Security Monitoring On Board', component: 'Ship Network — Monitoring', attacker: 'APT / Insider', path: 'No anomaly detection → attacks go undetected → free lateral movement in network', iecRef: 'E27-13 (SR 2.8)',
     likelihood: 4, impact: 4,
     evidence: 'Infrastructure review revealed that no intrusion detection system is installed in the ship network. No centralized log aggregation is in place. Individual systems log locally, but logs are not systematically evaluated.',
     rationale: 'Likelihood is rated 4 as attacks without monitoring infrastructure go undetected. Impact is rated 4 as undetected compromise enables escalation to safety systems.',
-    sources: ['IACS UR E27 Table 1 SI-24: Audit log accessibility', 'IEC 62443-3-3 SR 6.1'], evidenceQuality: 4, reproducibility: 'medium' },
+    sources: ['IACS UR E27 Table 1 SI-13: Auditable events', 'IEC 62443-3-3 SR 2.8', 'IEC 62443-3-3 SR 6.1'], evidenceQuality: 4, reproducibility: 'medium' },
   { id: 13, fr: 'AL', name: 'Audit Logs Without Timestamp Synchronization', component: 'CBS — NTP/Time Synchronization', attacker: 'Any Attacker', path: 'No NTP synchronization → log correlation impossible → forensics impeded', iecRef: 'E27-16 (SR 2.11)',
     likelihood: 5, impact: 2,
     evidence: 'A spot check revealed that CBS system clocks deviate by up to 47 minutes. No NTP server is installed on board. Logs are not correlatable.',
