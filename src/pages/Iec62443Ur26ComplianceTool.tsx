@@ -19,6 +19,9 @@ import {
   DEMO_SCENARIOS,
   type IecThreat, type IecReq, type IecIntakeData, type MeasureEntry, EMPTY_INTAKE,
 } from '@/data/iec62443Ur26Data';
+import { extractDocumentText } from '@/lib/documentExtraction';
+import { assessDocuments, type ReqAssessment } from '@/lib/iecDocumentAssessment';
+import { toast } from 'sonner';
 
 // ── Helpers ─────────────────────────────────────────────────────
 
