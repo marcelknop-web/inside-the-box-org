@@ -500,8 +500,20 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
             {sub === 6 ? 'Review Summary' : 'Next'}
           </Button>
         ) : (
-          <Button onClick={() => onFinish(d)} className="font-semibold">Start Assessment</Button>
+          <div className="flex items-center gap-3">
+            {d.files.some(f => f.extractStatus === 'pending') && (
+              <span className="text-xs text-muted-foreground">Reading documents… please wait</span>
+            )}
+            <Button
+              onClick={() => onFinish(d)}
+              disabled={d.files.some(f => f.extractStatus === 'pending')}
+              className="font-semibold"
+            >
+              Start Assessment
+            </Button>
+          </div>
         )}
+
       </div>
     </div>
   );
