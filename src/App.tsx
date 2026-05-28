@@ -32,6 +32,7 @@ const Nordstern = lazy(() => import("./pages/Nordstern"));
 const Sitemap = lazy(() => import("./pages/Sitemap"));
 const PrivacyDataflow = lazy(() => import("./pages/PrivacyDataflow"));
 const Iec62443Ur26ComplianceTool = lazy(() => import("./pages/Iec62443Ur26ComplianceTool"));
+const Iec62443ComplianceTool = lazy(() => import("./pages/Iec62443ComplianceTool"));
 const BlindSpotSimulator = lazy(() => import("./pages/BlindSpotSimulator"));
 
 const queryClient = new QueryClient();
@@ -61,6 +62,7 @@ const App = () => (
               <Route path="/sitemap" element={<Suspense fallback={<RouteSkeleton />}><Sitemap /></Suspense>} />
               <Route path="/datenschutz-tools" element={<Suspense fallback={<RouteSkeleton />}><PrivacyDataflow /></Suspense>} />
               <Route path="/iacs-ur26" element={<Suspense fallback={<RouteSkeleton />}><PasswordGate storageKey="iec62443-ur26" label="IACS UR E26 Compliance Tool"><Iec62443Ur26ComplianceTool /></PasswordGate></Suspense>} />
+              <Route path="/iacs-ur27" element={<Suspense fallback={<RouteSkeleton />}><PasswordGate storageKey="iec62443" label="IACS UR E27 Compliance Tool"><Iec62443ComplianceTool /></PasswordGate></Suspense>} />
               <Route path="/blind-spot" element={<Suspense fallback={<RouteSkeleton />}><BlindSpotSimulator /></Suspense>} />
 
               {/* Catch-all: every Journey service id (nis2-dora, virtual-ciso, …) renders ChatView */}
