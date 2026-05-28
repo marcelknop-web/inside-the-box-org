@@ -398,6 +398,7 @@ export const IEC_REQS: IecReq[] = [
     criteria: ['Firmware signature verification enforced on all CBS', 'Only signed vendor packages accepted'],
     effort: '24-40h', priority: 'P1' },
 
+  // DC — Data Confidentiality
   { id: 'DC-1', article: 'E27-22 (SR 4.1)', name: 'Information Confidentiality', status: 'fail',
     gap: 'Unencrypted communication to shore network',
     evidence: 'HTTP connections to the fleet management system without TLS encryption were identified. Crew login credentials are transmitted in cleartext.',
