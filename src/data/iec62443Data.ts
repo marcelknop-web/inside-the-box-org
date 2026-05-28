@@ -262,6 +262,56 @@ export const IEC_THREATS: IecThreat[] = [
     evidence: 'Configuration check revealed that a remote desktop connection via VSAT operates without multi-factor authentication. The vendor VPN connection is permanently active. No approval by on-board personnel is required.',
     rationale: 'Likelihood is rated 3 as a permanently active remote access connection is a documented attack vector. Impact is rated 5 as uncontrolled full access to safety-critical CBS is possible.',
     sources: ['IACS UR E27 Table 2 SI-37: Explicit access request approval', 'IEC 62443-3-3 SR 1.13 RE1'], evidenceQuality: 4, reproducibility: 'medium' },
+
+  // ── Additional findings linked to remaining requirements (traceability) ──
+  // IAC — Account lifecycle (E27-02 / SR 1.3)
+  { id: 15, fr: 'IAC', name: 'Crew Accounts Not Deactivated on Sign-Off', component: 'CBS — User Account Lifecycle', attacker: 'Former Crew / Insider', path: 'No account lifecycle process → accounts of departed crew remain active → unauthorized access after sign-off', iecRef: 'E27-02 (SR 1.3)',
+    likelihood: 4, impact: 3,
+    evidence: 'Review of user administration showed that crew accounts are not deactivated upon sign-off. Several accounts of crew members who had already left the vessel were still active. Service accounts have no expiry date.',
+    rationale: 'Likelihood is rated 4 as the absence of an account lifecycle process is systematic. Impact is rated 3 as orphaned accounts enable unauthorized access but no immediate safety effect.',
+    sources: ['IACS UR E27 Table 1 SI-02: Account management', 'IEC 62443-3-3 SR 1.3'], evidenceQuality: 4, reproducibility: 'easy' },
+
+  // UC — Session lock (E27-12 / SR 2.5)
+  { id: 16, fr: 'UC', name: 'No Automatic Session Lock on Bridge Workstations', component: 'Bridge Workstations — Session Management', attacker: 'Opportunistic Insider / Visitor', path: 'No automatic session lock → unattended workstation during port call → unauthorized configuration changes', iecRef: 'E27-12 (SR 2.5)',
+    likelihood: 4, impact: 2,
+    evidence: 'Inspection confirmed that ECDIS and radar workstations have no automatic session lock. Logged-in sessions remain active indefinitely, including during port calls when external personnel are on board.',
+    rationale: 'Likelihood is rated 4 as unattended active sessions are common during watch changes and port calls. Impact is rated 2 as misuse requires physical bridge access.',
+    sources: ['IACS UR E27 Table 1 SI-12: Session lock', 'IEC 62443-3-3 SR 2.5'], evidenceQuality: 4, reproducibility: 'easy' },
+
+  // SI — Communication integrity on inter-system bus (E27-17 / SR 3.1)
+  { id: 17, fr: 'SI', name: 'No Integrity Protection on Bridge Data Network', component: 'IEC 61162-450 Bridge Network — Data Integrity', attacker: 'Network Attacker (local)', path: 'No message integrity on inter-system bus → injected/altered sensor telegrams accepted by IBS', iecRef: 'E27-17 (SR 3.1)',
+    likelihood: 4, impact: 4,
+    evidence: 'Analysis of the IEC 61162-450 shipboard data network revealed that sensor telegrams are transmitted without message authentication or integrity protection. A crafted telegram with a falsified heading value was accepted by the integrated bridge system without validation.',
+    rationale: 'Likelihood is rated 4 as the bus lacks any integrity mechanism and local network access is feasible. Impact is rated 4 as falsified sensor data can mislead navigation decisions.',
+    sources: ['IACS UR E27 Table 1 SI-17: Communication integrity', 'IEC 62443-3-3 SR 3.1', 'IEC 61162-460'], evidenceQuality: 4, reproducibility: 'medium' },
+
+  // SI — Input validation (E27-20 / SR 3.5)
+  { id: 18, fr: 'SI', name: 'No Input Validation on Fleet Management Interface', component: 'Fleet Management Interface — Data Ingestion', attacker: 'Compromised Shore System', path: 'External data accepted without validation → malformed payload → application fault on CBS', iecRef: 'E27-20 (SR 3.5)',
+    likelihood: 3, impact: 3,
+    evidence: 'Testing of the fleet management interface showed that data received from shore is processed without input validation or sanitisation. Oversized and malformed records caused the receiving application to terminate unexpectedly.',
+    rationale: 'Likelihood is rated 3 as exploitation requires a compromised or malicious shore source. Impact is rated 3 as application faults are recoverable but disrupt operational data exchange.',
+    sources: ['IACS UR E27 Table 1 SI-20: Input validation', 'IEC 62443-3-3 SR 3.5'], evidenceQuality: 3, reproducibility: 'medium' },
+
+  // DC — Use of cryptography (E27-23 / SR 4.3)
+  { id: 19, fr: 'DC', name: 'Deprecated TLS and Self-Signed Certificates', component: 'CBS — TLS/Certificate Configuration', attacker: 'Man-in-the-Middle (shore link)', path: 'TLS 1.0 and self-signed certificates → downgrade/MITM → interception of shore traffic', iecRef: 'E27-23 (SR 4.3)',
+    likelihood: 3, impact: 3,
+    evidence: 'Configuration review found TLS 1.0 still enabled on several systems and exclusively self-signed certificates in use. No certificate lifecycle management exists; expired certificates were observed.',
+    rationale: 'Likelihood is rated 3 as downgrade attacks on the shore link require positioning on the communication path. Impact is rated 3 as confidentiality of operational data is at risk.',
+    sources: ['IACS UR E27 Table 1 SI-23: Use of cryptography', 'IEC 62443-3-3 SR 4.3'], evidenceQuality: 4, reproducibility: 'medium' },
+
+  // RA — Control system backup (E27-27 / SR 7.3)
+  { id: 20, fr: 'RA', name: 'No Documented Backup Strategy for CBS', component: 'CBS — Backup & Configuration Storage', attacker: 'Ransomware / Hardware Failure', path: 'No documented backups → no clean restore point → prolonged outage after failure or ransomware', iecRef: 'E27-27 (SR 7.3)',
+    likelihood: 3, impact: 4,
+    evidence: 'Document review revealed that no backup strategy for CBS configurations exists. The date of the last backup is unknown and no restore test has ever been performed. Configuration data resides only on the operational systems.',
+    rationale: 'Likelihood is rated 3 as backup gaps surface only under failure or attack conditions. Impact is rated 4 as recovery without a clean restore point can take days until the next port.',
+    sources: ['IACS UR E27 Table 1 SI-27: Control system backup', 'IEC 62443-3-3 SR 7.3'], evidenceQuality: 3, reproducibility: 'hard' },
+
+  // UTN — Multifactor authentication for untrusted networks (E27-32 / SR 1.1 RE2)
+  { id: 21, fr: 'UTN', name: 'Single-Factor Remote Access over Untrusted Network', component: 'VSAT — Remote Access Authentication', attacker: 'External Attacker', path: 'Remote access with password only → credential theft → unauthorized CBS access from shore', iecRef: 'E27-32 (SR 1.1 RE2)',
+    likelihood: 3, impact: 5,
+    evidence: 'Configuration check confirmed that remote desktop access via VSAT relies on single-factor password authentication. No multi-factor mechanism is enforced for access originating from untrusted networks.',
+    rationale: 'Likelihood is rated 3 as remote credential compromise is a documented attack vector. Impact is rated 5 as unauthorized remote access to safety-critical CBS is possible.',
+    sources: ['IACS UR E27 Table 2 SI-32: Multifactor authentication for untrusted networks', 'IEC 62443-3-3 SR 1.1 RE2'], evidenceQuality: 4, reproducibility: 'medium' },
 ];
 
 // ── IACS UR E27 Requirements (Table 1: 31 + Table 2: 10 = 41, consolidated to 22 key items) ──
