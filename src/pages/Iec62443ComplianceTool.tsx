@@ -450,8 +450,36 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
                   );
                 })}
               </div>
+              {(() => {
+                const total = d.files.length;
+                const done = d.files.filter(f => f.extractStatus !== 'pending').length;
+                const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+                const busy = done < total;
+                return (
+                  <div className="mt-3">
+                    <div className="flex items-center justify-between text-xs mb-1.5">
+                      <span className={`font-medium ${busy ? 'text-primary' : 'text-green-600'}`}>
+                        {busy ? 'Reading documents…' : 'All documents read'}
+                      </span>
+                      <span className="font-mono text-muted-foreground">{done}/{total} · {pct}%</span>
+                    </div>
+                    <div className="h-2 w-full rounded-full bg-secondary overflow-hidden">
+                      <div
+                        className={`h-full rounded-full transition-all duration-300 ${busy ? 'bg-primary' : 'bg-green-600'}`}
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
+                    {busy && (
+                      <div className="text-xs text-muted-foreground mt-1.5">
+                        Please wait until all documents are read — the assessment uses their content.
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
             </div>
           )}
+
           <InfoBox icon="🔒" color="green">Document content is analysed in your browser; only extracted text is sent to the assessment AI — original files are never uploaded or stored.</InfoBox>
         </StaggerReveal>
 
