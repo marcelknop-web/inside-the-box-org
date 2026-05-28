@@ -160,28 +160,40 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
   const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
     const picked = Array.from(e.target.files);
-    const startIndex = { current: 0 };
-    setD(prev => {
-      startIndex.current = prev.files.length;
-      const pending = picked.map(f => ({ name: f.name, size: f.size, type: activeUploadType || 'other', extractStatus: 'pending' as const }));
-      return { ...prev, files: [...prev.files, ...pending] };
-    });
-    picked.forEach((file, i) => {
-      const targetIdx = startIndex.current + i;
+    const entries = picked.map((file) => ({ id: crypto.randomUUID(), file }));
+    setD(prev => ({
+      ...prev,
+      files: [
+        ...prev.files,
+        ...entries.map(({ id, file }) => ({
+          id,
+          name: file.name,
+          size: file.size,
+          type: activeUploadType || 'other',
+          extractStatus: 'pending' as const,
+        })),
+      ],
+    }));
+    entries.forEach(({ id, file }) => {
       extractDocumentText(file).then(({ text, status, error }) => {
-        setD(prev => {
-          const files = [...prev.files];
-          if (files[targetIdx]) files[targetIdx] = { ...files[targetIdx], text, extractStatus: status, extractError: error };
-          return { ...prev, files };
-        });
+        setD(prev => ({
+          ...prev,
+          files: prev.files.map(f => f.id === id ? { ...f, text, extractStatus: status, extractError: error } : f),
+        }));
+      }).catch((err) => {
+        setD(prev => ({
+          ...prev,
+          files: prev.files.map(f => f.id === id ? { ...f, text: '', extractStatus: 'error' as const, extractError: err instanceof Error ? err.message : 'Extraction failed' } : f),
+        }));
       });
     });
     e.target.value = '';
   }, [activeUploadType]);
 
-  const removeFile = useCallback((idx: number) => {
-    setD(prev => ({ ...prev, files: prev.files.filter((_, i) => i !== idx) }));
+  const removeFile = useCallback((id: string) => {
+    setD(prev => ({ ...prev, files: prev.files.filter((f) => f.id !== id) }));
   }, []);
+
 
   const canNext = useMemo(() => [
     d.facilityName.trim().length > 0 && d.systemTypes.length > 0,
