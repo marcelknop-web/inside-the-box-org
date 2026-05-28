@@ -159,8 +159,23 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
 
   const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
-    const newFiles = Array.from(e.target.files).map(f => ({ name: f.name, size: f.size, type: activeUploadType || 'other' }));
-    setD(prev => ({ ...prev, files: [...prev.files, ...newFiles] }));
+    const picked = Array.from(e.target.files);
+    const startIndex = { current: 0 };
+    setD(prev => {
+      startIndex.current = prev.files.length;
+      const pending = picked.map(f => ({ name: f.name, size: f.size, type: activeUploadType || 'other', extractStatus: 'pending' as const }));
+      return { ...prev, files: [...prev.files, ...pending] };
+    });
+    picked.forEach((file, i) => {
+      const targetIdx = startIndex.current + i;
+      extractDocumentText(file).then(({ text, status, error }) => {
+        setD(prev => {
+          const files = [...prev.files];
+          if (files[targetIdx]) files[targetIdx] = { ...files[targetIdx], text, extractStatus: status, extractError: error };
+          return { ...prev, files };
+        });
+      });
+    });
     e.target.value = '';
   }, [activeUploadType]);
 
