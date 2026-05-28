@@ -123,7 +123,7 @@ export async function assessDocuments(
 
   // Sequential to avoid hitting AI rate limits with many documents.
   for (const batch of batches) {
-    const result = await assessBatch(standard, reqs, batch, language);
+    const result = await assessBatch(standard, reqs, batch, language, context);
     result.documentsAnalyzed.forEach((n) => analyzed.add(n));
     for (const a of result.assessments) {
       const prev = best.get(a.id);
