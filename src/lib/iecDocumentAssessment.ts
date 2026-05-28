@@ -31,9 +31,12 @@ export interface AssessmentContext {
   knownIssues?: string;
 }
 
+export type AssessmentBasis = 'declared' | 'document' | 'declared_document' | 'none';
+
 export interface ReqAssessment {
   id: string;
   status: 'pass' | 'partial' | 'fail';
+  basis: AssessmentBasis; // how the verdict is grounded (self-declaration vs document)
   evidence: string; // concrete quote / reference found in the documents, or empty
   rationale: string;
   sourceDoc: string; // document name the evidence came from, or ''
@@ -144,8 +147,9 @@ export async function assessDocuments(
       best.get(r.id) ?? {
         id: r.id,
         status: 'fail' as const,
+        basis: 'none' as const,
         evidence: '',
-        rationale: 'No documented evidence found in the uploaded documents.',
+        rationale: 'Not declared in the intake and no documented evidence found.',
         sourceDoc: '',
         confidence: 'low' as const,
       },

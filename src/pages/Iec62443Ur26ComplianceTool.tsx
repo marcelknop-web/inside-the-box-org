@@ -1030,15 +1030,26 @@ const Iec62443Ur26ComplianceTool = ({ embedded }: { embedded?: boolean }) => {
   const effectiveReqs = useMemo<IecReq[]>(() => {
     if (!docAssessments) return IEC_REQS;
     const byId = new Map(docAssessments.map(a => [a.id, a]));
+    const basisLabel: Record<string, string> = {
+      declared: 'Self-declared (intake)',
+      document: 'Document-verified',
+      declared_document: 'Self-declared & document-verified',
+      none: '',
+    };
     return IEC_REQS.map(r => {
       const a = byId.get(r.id);
       if (!a) return r;
-      const evidence = a.evidence
+      const label = basisLabel[a.basis] || '';
+      const docEvidence = a.evidence
         ? `${a.evidence}${a.sourceDoc ? ` (source: ${a.sourceDoc})` : ''}`
-        : r.evidence;
+        : '';
+      const evidence = label
+        ? `[${label}] ${docEvidence || (a.basis === 'declared' ? 'Based on intake self-declaration; no supporting document quote available.' : r.evidence)}`
+        : (docEvidence || r.evidence);
       return { ...r, status: a.status, evidence, rationale: a.rationale || r.rationale };
     });
   }, [docAssessments]);
+
 
   const reset = useCallback(() => { setStep(0); setIntakeData(EMPTY_INTAKE); setDocAssessments(null); setDocsAnalyzed([]); }, [setStep]);
 
