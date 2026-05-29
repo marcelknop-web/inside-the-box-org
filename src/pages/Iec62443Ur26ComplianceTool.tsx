@@ -854,14 +854,14 @@ function IecMapping({ reqs, onNext }: { reqs: IecReq[]; onNext: () => void }) {
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
             <span className={`text-2xl font-bold font-mono ${scoreColor}`}>{score}%</span>
-            <span className="text-[10px] text-muted-foreground font-medium">Readiness</span>
+            <span className="text-[10px] text-muted-foreground font-medium">Addressed</span>
           </div>
         </div>
         <div className="flex-1 text-center sm:text-left">
-          <div className="text-lg font-bold text-foreground mb-1">IACS UR E26 Compliance Score</div>
+          <div className="text-lg font-bold text-foreground mb-1">IACS UR E26 Applicability Summary</div>
           <div className="text-sm text-muted-foreground mb-4">{reqs.length} requirements assessed</div>
           <div className="flex gap-5 text-sm flex-wrap justify-center sm:justify-start">
-            {([['Compliant', pass, 'bg-green-500'], ['Partial', partial, 'bg-yellow-500'], ['Non-Compliant', fail, 'bg-destructive']] as [string, number, string][]).map(([label, count, bg]) => (
+            {([[VERDICT_LABELS.not_applicable.en, pass, 'bg-green-500'], [VERDICT_LABELS.partially_applicable.en, partial, 'bg-yellow-500'], [VERDICT_LABELS.applicable.en, fail, 'bg-destructive']] as [string, number, string][]).map(([label, count, bg]) => (
               <span key={label} className="flex items-center gap-2">
                 <span className={`w-3 h-3 rounded-full ${bg} inline-block`} />
                 <span className="text-muted-foreground">{label}:</span>
