@@ -1237,6 +1237,7 @@ const Iec62443Ur26ComplianceTool = ({ embedded }: { embedded?: boolean }) => {
         },
       );
       setDocAssessments(result.assessments);
+      setReviewSummary(result.summary || null);
       setDocsAnalyzed(result.documentsAnalyzed);
       toast.success(`Document analysis complete — ${result.documentsAnalyzed.length} document(s) evaluated against ${result.assessments.length} requirements.`);
     } catch (err) {
