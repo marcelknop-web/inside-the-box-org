@@ -160,28 +160,40 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
   const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
     const picked = Array.from(e.target.files);
-    const startIndex = { current: 0 };
-    setD(prev => {
-      startIndex.current = prev.files.length;
-      const pending = picked.map(f => ({ name: f.name, size: f.size, type: activeUploadType || 'other', extractStatus: 'pending' as const }));
-      return { ...prev, files: [...prev.files, ...pending] };
-    });
-    picked.forEach((file, i) => {
-      const targetIdx = startIndex.current + i;
+    const entries = picked.map((file) => ({ id: crypto.randomUUID(), file }));
+    setD(prev => ({
+      ...prev,
+      files: [
+        ...prev.files,
+        ...entries.map(({ id, file }) => ({
+          id,
+          name: file.name,
+          size: file.size,
+          type: activeUploadType || 'other',
+          extractStatus: 'pending' as const,
+        })),
+      ],
+    }));
+    entries.forEach(({ id, file }) => {
       extractDocumentText(file).then(({ text, status, error }) => {
-        setD(prev => {
-          const files = [...prev.files];
-          if (files[targetIdx]) files[targetIdx] = { ...files[targetIdx], text, extractStatus: status, extractError: error };
-          return { ...prev, files };
-        });
+        setD(prev => ({
+          ...prev,
+          files: prev.files.map(f => f.id === id ? { ...f, text, extractStatus: status, extractError: error } : f),
+        }));
+      }).catch((err) => {
+        setD(prev => ({
+          ...prev,
+          files: prev.files.map(f => f.id === id ? { ...f, text: '', extractStatus: 'error' as const, extractError: err instanceof Error ? err.message : 'Extraction failed' } : f),
+        }));
       });
     });
     e.target.value = '';
   }, [activeUploadType]);
 
-  const removeFile = useCallback((idx: number) => {
-    setD(prev => ({ ...prev, files: prev.files.filter((_, i) => i !== idx) }));
+  const removeFile = useCallback((id: string) => {
+    setD(prev => ({ ...prev, files: prev.files.filter((f) => f.id !== id) }));
   }, []);
+
 
   const canNext = useMemo(() => [
     d.facilityName.trim().length > 0 && d.systemTypes.length > 0,
@@ -204,7 +216,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
       case 3: setD(prev => ({ ...prev, protocols: scenario.protocols })); break;
       case 4: setD(prev => ({ ...prev, roles: scenario.roles })); break;
       case 5: setD(prev => ({ ...prev, measures: scenario.measures, knownIssues: scenario.knownIssues })); break;
-      case 6: setD(prev => ({ ...prev, files: scenario.files })); break;
+      case 6: setD(prev => ({ ...prev, files: scenario.files.map((f) => ({ ...f, id: crypto.randomUUID() })) })); break;
     }
   }, [sub]);
 
@@ -426,7 +438,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
             <div>
               <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Uploaded Files ({d.files.length})</div>
               <div className="space-y-1.5">
-                {d.files.map((f, i) => {
+                {d.files.map((f) => {
                   const typeInfo = attachTypes.find(at => at.id === f.type) || { icon: '📎', label: 'Document' };
                   const st = f.extractStatus;
                   const badge = st === 'pending' ? { txt: 'Reading…', cls: 'text-muted-foreground' }
@@ -436,7 +448,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
                     : st === 'error' ? { txt: 'Read error', cls: 'text-destructive' }
                     : null;
                   return (
-                    <div key={i} className="flex items-center gap-3 bg-card border border-border rounded-lg px-3 py-2.5 text-sm">
+                    <div key={f.id} className="flex items-center gap-3 bg-card border border-border rounded-lg px-3 py-2.5 text-sm">
                       <span className="text-lg flex-shrink-0">{typeInfo.icon}</span>
                       <div className="flex-1 min-w-0">
                         <div className="font-medium text-foreground truncate">{f.name}</div>
@@ -445,7 +457,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
                           {badge && <> · <span className={`font-medium ${badge.cls}`}>{badge.txt}</span></>}
                         </div>
                       </div>
-                      <button onClick={() => removeFile(i)} className="text-muted-foreground hover:text-destructive font-bold text-lg leading-none transition-colors">×</button>
+                      <button onClick={() => removeFile(f.id)} className="text-muted-foreground hover:text-destructive font-bold text-lg leading-none transition-colors">×</button>
                     </div>
                   );
                 })}
