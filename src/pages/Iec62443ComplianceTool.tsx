@@ -17,6 +17,7 @@ import {
   PROTOCOL_OPTS, getSecurityMeasures, getSecurityCategories,
   getAttachTypes, IEC_THREATS, IEC_REQS, FR_CATEGORIES, threatId,
   DEMO_SCENARIOS,
+  verdictFromStatus, VERDICT_LABELS, VERDICT_STYLES, originalRatingLabel, type IecVerdict,
   type IecThreat, type IecReq, type IecIntakeData, type MeasureEntry, EMPTY_INTAKE,
 } from '@/data/iec62443Data';
 import { extractDocumentText } from '@/lib/documentExtraction';
