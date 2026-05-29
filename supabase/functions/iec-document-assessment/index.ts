@@ -235,7 +235,7 @@ Write all narrative ("rationale", "generalisedFinding", "clientResponse", "resid
 
     const aiData = await aiRes.json();
     const call = aiData?.choices?.[0]?.message?.tool_calls?.[0];
-    let parsed: { assessments?: unknown } = {};
+    let parsed: { assessments?: unknown; summary?: unknown } = {};
     try {
       parsed = JSON.parse(call?.function?.arguments || '{}');
     } catch (_e) {
@@ -264,10 +264,25 @@ Write all narrative ("rationale", "generalisedFinding", "clientResponse", "resid
         rationale: a ? String(a.rationale || '').slice(0, 1500) : 'Not declared in the intake and no documented evidence found.',
         sourceDoc: a ? String(a.sourceDoc || '').slice(0, 200) : '',
         confidence: a && ['high', 'medium', 'low'].includes(String(a.confidence)) ? String(a.confidence) : 'low',
+        generalisedFinding: a ? String(a.generalisedFinding || '').slice(0, 600) : '',
+        clientResponse: a ? String(a.clientResponse || '').slice(0, 600) : '',
+        residualScopeNote: a ? String(a.residualScopeNote || '').slice(0, 600) : '',
       };
     });
 
-    return json({ assessments, documentsAnalyzed: docs.map((d) => d.name) }, 200);
+    const rawSummary = (parsed.summary && typeof parsed.summary === 'object') ? parsed.summary as Record<string, unknown> : {};
+    const summary = {
+      coreFinding: String(rawSummary.coreFinding || '').slice(0, 2000),
+      recommendation: String(rawSummary.recommendation || '').slice(0, 1200),
+      residualScopeItems: Array.isArray(rawSummary.residualScopeItems)
+        ? (rawSummary.residualScopeItems as Record<string, unknown>[]).slice(0, 6).map((s) => ({
+            title: String(s.title || '').slice(0, 200),
+            detail: String(s.detail || '').slice(0, 600),
+          })).filter((s) => s.title)
+        : [],
+    };
+
+    return json({ assessments, summary, documentsAnalyzed: docs.map((d) => d.name) }, 200);
   } catch (err) {
     console.error('iec-document-assessment error', err);
     return json({ error: 'internal_error', message: err instanceof Error ? err.message : 'Unknown error' }, 500);
