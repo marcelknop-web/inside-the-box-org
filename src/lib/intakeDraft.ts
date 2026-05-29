@@ -50,18 +50,17 @@ export function clearLocalDraft(key: string): void {
 // Files that were still being read when the draft was saved can never finish
 // reading after a reload (the original File object is gone). Normalise any
 // lingering "pending" status so the assessment gate is never blocked forever.
-export function sanitizeDraftFiles<T extends { files?: Array<{ extractStatus?: string;[k: string]: unknown }> }>(
-  data: T,
-): T {
-  if (!data || !Array.isArray(data.files)) return data;
+export function sanitizeDraftFiles<T>(data: T): T {
+  const anyData = data as unknown as { files?: Array<{ extractStatus?: string;[k: string]: unknown }> };
+  if (!anyData || !Array.isArray(anyData.files)) return data;
   return {
     ...data,
-    files: data.files.map((f) =>
+    files: anyData.files.map((f) =>
       f.extractStatus === 'pending'
         ? { ...f, extractStatus: 'error', extractError: 'Please re-upload this document.' }
         : f,
     ),
-  };
+  } as T;
 }
 
 export async function saveCloudDraft<T>(tool: string, data: T): Promise<string> {
