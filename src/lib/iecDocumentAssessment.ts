@@ -134,11 +134,13 @@ export async function assessDocuments(
 
   const best = new Map<string, ReqAssessment>();
   const analyzed = new Set<string>();
+  let summary: ReviewSummaryResult | undefined;
 
   // Sequential to avoid hitting AI rate limits with many documents.
   for (const batch of batches) {
     const result = await assessBatch(standard, reqs, batch, language, context);
     result.documentsAnalyzed.forEach((n) => analyzed.add(n));
+    if (!summary && result.summary && result.summary.coreFinding) summary = result.summary;
     for (const a of result.assessments) {
       const prev = best.get(a.id);
       if (!prev) {
@@ -166,5 +168,5 @@ export async function assessDocuments(
       },
   );
 
-  return { assessments, documentsAnalyzed: Array.from(analyzed) };
+  return { assessments, documentsAnalyzed: Array.from(analyzed), summary };
 }
