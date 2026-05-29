@@ -1,40 +1,57 @@
-## Blind Spot — OT Crisis Simulator
+## Goal
 
-New single-player TTX app at route `/blind-spot`, following the project's existing tech-atelier patterns (dark bg, gold #f5b800 accent, DM Sans / IBM Plex Mono, Edge Function for AI).
+Replace the current compliance report (online results + PDF) for both IACS tools (UR E27 and UR E26) with the "Applicability Review" structure from the uploaded reference document. Verdicts switch to **Not applicable / Partially applicable / Applicable**, and the AI generates the narrative per finding.
 
-### Important deviation from prompt
-You asked for Anthropic Claude API called from the frontend. Per project standards I'll use the **Lovable AI Gateway** (anonymous, no key needed, already wired everywhere else) via a new Edge Function `blind-spot-chat`. Model: `google/gemini-2.5-flash` (fast, in-character role play). Same behavior, no API key setup, no frontend secret exposure. Tell me if you want Claude specifically — that needs an `ANTHROPIC_API_KEY` secret + different edge function.
+## Approach (robust, low-risk)
 
-### Build steps
+Keep the internal scoring engine intact (status `pass|partial|fail` stays under the hood, so QA, charts, risk math keep working) and add a thin **verdict mapping layer** plus AI-generated narrative. Mapping:
 
-1. **Edge Function** `supabase/functions/blind-spot-chat/index.ts`
-   - Accepts `{ role, phase, situation, userRole, userInput, history }`
-   - Builds role-specific system prompt (IT-Ops / OT-Ops / IC / Mgmt-Comms variants)
-   - Calls Lovable AI Gateway, returns assistant text
-   - Handles 429/402 with user-facing errors
-   - `verify_jwt = false` in `config.toml`
+```text
+pass    -> Not applicable        (green)
+partial -> Partially applicable  (amber)
+fail    -> Applicable            (red)
+```
 
-2. **Scenario data** `src/data/blindSpotScenario.ts`
-   - 4 roles with descriptions
-   - 4 phases (T+0 / T+45 / T+90 / T+4h) with situation text, color, IC question, IEC 62443 / NIS-2 refs
-   - Network zone table, company facts
+This makes the visible model fully applicability-based while avoiding a destabilising rewrite of the validated QA/fix engine.
 
-3. **Page** `src/pages/BlindSpotSimulator.tsx` — state machine driving all 12 screens:
-   - `welcome` → `roleSelect` → `briefing` → per phase (`inject` → `decision`) ×4 → `debrief`
-   - Session state: chosen role, decision log `[{phase, choice, reasoning, timestamp}]`, full message history per AI role for context coherence
-   - PDF debrief uses existing `pdfCore.ts` pattern (windows-1252 safe)
+## Report structure (online + PDF), mirrored from the reference
 
-4. **Components** (in `src/components/blindSpot/`):
-   - `PhaseProgress.tsx` — top 1→2→3→4→Debrief dots, amber for current
-   - `RoleCard.tsx` — 2×2 grid card
-   - `AiRolePanel.tsx` — role label, icon, streaming/loading shimmer (pulsing gold border), markdown body
-   - `DecisionBox.tsx` — Yes/No/Conditional + reasoning OR AI-IC display with Accept/Push back
+1. Cover / title block (client, product, subject, date, CONFIDENTIAL)
+2. Executive Summary — core finding paragraph + verdict overview counts (Critical / Not applicable / Partially applicable)
+3. Key residual scope items + Recommendation
+4. Introduction & Scope
+5. Device characteristics table (from intake)
+6. Key Assessment Principles
+7. Individual Findings — per finding: Category, E27/E26 reference, Original Risk Rating, Verdict, Generalised Finding, Client Response, Residual Scope Note
+8. Complete Control Assessment Matrix (all controls: ID, SR ref, topic, verdict, rationale)
+9. Conclusion
 
-5. **Route** in `src/App.tsx`: lazy `/blind-spot`, no nav link (matches `/iacs-ur26` pattern). No password gate unless you want one.
+## Work items
 
-6. **Design**: `bg-background/40` panels, IBM Plex Mono for timestamps/zone tables/phase badges, DM Sans for prose. Phase color coding via tailwind classes mapped from scenario data. Mobile single-column.
+1. **Data model** (`src/data/iec62443Data.ts`)
+   - Add optional fields to `IecThreat`: `verdict?`, `generalisedFinding?`, `clientResponse?`, `residualScopeNote?`.
+   - Add `ReviewSummary` type (`coreFinding`, `recommendation`, `residualScopeItems[]`).
+   - Add helpers: `verdictFromStatus(status)`, `VERDICT_LABELS` (de/en/fr), `originalRatingLabel(threat)`.
 
-### Out of scope (call out if needed)
-- i18n (DE/EN/FR) — content is English-only per scenario; can add later
-- No persistence (ephemeral session as you specified)
-- No analytics / leaderboard
+2. **AI edge function** (`supabase/functions/iec-document-assessment/index.ts`)
+   - Accept `threats` in addition to `reqs`.
+   - Extend tool schema to return: per-finding `{ verdict, generalisedFinding, clientResponse, residualScopeNote }`, per-control verdict+rationale, and a `summary` object.
+   - Keep Data Integrity Policy (no invented evidence).
+
+3. **Assessment lib** (`src/lib/iecDocumentAssessment.ts`)
+   - Extend result types; merge review fields onto threats and summary into state.
+
+4. **Online results** (`Iec62443ComplianceTool.tsx` + `Iec62443Ur26ComplianceTool.tsx`)
+   - Rebuild `ReportView` to the 9-section structure; `StatusBadge` and the mapping panel relabelled to applicability terms.
+
+5. **PDF** (`iec62443ReportPdf.ts` + `iec62443Ur26ReportPdf.ts`)
+   - Reorder/relabel sections to match; render per-finding narrative and the control matrix.
+
+6. **Charts / QA** (`Iec62443AuditCharts.tsx`, `Iec62443Ur26AuditCharts.tsx`, both `*QualityCheck.ts`)
+   - Relabel donut to applicability terms; relax score-forcing QA rules (A3-1/A3-1b/B1/B2/E1) so a high-original-rating finding can legitimately be "Not applicable"; add completeness checks for the new narrative fields.
+
+## Notes / decisions to confirm during build
+- "Original Risk Rating" per finding is derived from the linked threat's likelihood × impact (e.g. "Critical (Score 20)").
+- Key Assessment Principles section uses standard boilerplate text (trilingual), not AI-generated, to keep it stable.
+
+After implementation: build check + render a test PDF and visually QA every page before delivering.
