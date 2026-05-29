@@ -215,10 +215,10 @@ export const SiteChrome = ({
             </SheetTitle>
             <SheetDescription className="font-sans text-sm text-muted-foreground leading-relaxed">
               {lang === 'de'
-                ? '30 Minuten, kein Pitch — eine erste Klärung, wo Sie stehen und was als Nächstes ansteht.'
+                ? '30 Minuten, kein Pitch.'
                 : lang === 'fr'
-                ? '30 minutes, pas de pitch — une première clarification de votre situation et des prochaines étapes.'
-                : '30 minutes, no pitch — a first clarification of where you stand and what comes next.'}
+                ? '30 minutes, pas de pitch.'
+                : '30 minutes, no pitch.'}
             </SheetDescription>
           </SheetHeader>
 
