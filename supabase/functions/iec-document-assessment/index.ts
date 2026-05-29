@@ -137,7 +137,19 @@ HOW TO DETERMINE "status" for each requirement:
 "evidence": a short verbatim quote/reference from a document if one exists, otherwise an empty string. NEVER invent document quotes.
 "sourceDoc": exact document name the evidence came from, or "" if none.
 "confidence": "high" = declared and document-confirmed; "medium" = clearly declared OR solid document evidence; "low" = weak/indirect or contradicted.
-Write "rationale" in ${langName}; keep evidence quotes in their original document language. Return a verdict for EVERY requirement id.`;
+
+APPLICABILITY REVIEW NARRATIVE (REQUIRED for every requirement) — this report is framed as an Applicability Review. In addition to the status, provide:
+   - "generalisedFinding": one neutral sentence describing the underlying control/finding in general terms (what the requirement protects against), independent of this specific system.
+   - "clientResponse": one sentence summarising the operator's declared position for this control, grounded in the intake declarations / documents (e.g. what they stated is in place or out of scope). If nothing was declared, state that plainly.
+   - "residualScopeNote": for "partial" and "fail" controls, one sentence describing what residual scope or gap remains and must still be addressed. For "pass" controls, briefly state why no residual scope remains (e.g. not applicable to this architecture / fully addressed).
+Map the status to the applicability verdict shown to the reader: pass = "Not applicable", partial = "Partially applicable", fail = "Applicable" (full residual scope). Judge applicability from the actual system context — a control may legitimately be "Not applicable" even if its generic risk rating is high, when the architecture or scope rules it out.
+
+OVERALL SUMMARY (REQUIRED, in the "summary" object):
+   - "coreFinding": 2-3 sentences summarising the overall applicability outcome for this system.
+   - "recommendation": 1-2 sentences with the headline recommendation.
+   - "residualScopeItems": up to 5 of the most important residual scope items, each { "title", "detail" }.
+
+Write all narrative ("rationale", "generalisedFinding", "clientResponse", "residualScopeNote", "coreFinding", "recommendation", residual scope items) in ${langName}; keep evidence quotes in their original document language. Return a verdict for EVERY requirement id.`;
 
     const userPrompt = `${contextBlock}EVIDENCE DOCUMENTS:\n${docBlock}\n\n=== REQUIREMENTS TO ASSESS ===\n${reqBlock}`;
 
@@ -162,13 +174,37 @@ Write "rationale" in ${langName}; keep evidence quotes in their original documen
                   rationale: { type: 'string' },
                   sourceDoc: { type: 'string' },
                   confidence: { type: 'string', enum: ['high', 'medium', 'low'] },
+                  generalisedFinding: { type: 'string' },
+                  clientResponse: { type: 'string' },
+                  residualScopeNote: { type: 'string' },
                 },
-                required: ['id', 'status', 'basis', 'evidence', 'rationale', 'sourceDoc', 'confidence'],
+                required: ['id', 'status', 'basis', 'evidence', 'rationale', 'sourceDoc', 'confidence', 'generalisedFinding', 'clientResponse', 'residualScopeNote'],
                 additionalProperties: false,
               },
             },
+            summary: {
+              type: 'object',
+              properties: {
+                coreFinding: { type: 'string' },
+                recommendation: { type: 'string' },
+                residualScopeItems: {
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    properties: {
+                      title: { type: 'string' },
+                      detail: { type: 'string' },
+                    },
+                    required: ['title', 'detail'],
+                    additionalProperties: false,
+                  },
+                },
+              },
+              required: ['coreFinding', 'recommendation', 'residualScopeItems'],
+              additionalProperties: false,
+            },
           },
-          required: ['assessments'],
+          required: ['assessments', 'summary'],
           additionalProperties: false,
         },
       },
@@ -199,7 +235,7 @@ Write "rationale" in ${langName}; keep evidence quotes in their original documen
 
     const aiData = await aiRes.json();
     const call = aiData?.choices?.[0]?.message?.tool_calls?.[0];
-    let parsed: { assessments?: unknown } = {};
+    let parsed: { assessments?: unknown; summary?: unknown } = {};
     try {
       parsed = JSON.parse(call?.function?.arguments || '{}');
     } catch (_e) {
@@ -228,10 +264,25 @@ Write "rationale" in ${langName}; keep evidence quotes in their original documen
         rationale: a ? String(a.rationale || '').slice(0, 1500) : 'Not declared in the intake and no documented evidence found.',
         sourceDoc: a ? String(a.sourceDoc || '').slice(0, 200) : '',
         confidence: a && ['high', 'medium', 'low'].includes(String(a.confidence)) ? String(a.confidence) : 'low',
+        generalisedFinding: a ? String(a.generalisedFinding || '').slice(0, 600) : '',
+        clientResponse: a ? String(a.clientResponse || '').slice(0, 600) : '',
+        residualScopeNote: a ? String(a.residualScopeNote || '').slice(0, 600) : '',
       };
     });
 
-    return json({ assessments, documentsAnalyzed: docs.map((d) => d.name) }, 200);
+    const rawSummary = (parsed.summary && typeof parsed.summary === 'object') ? parsed.summary as Record<string, unknown> : {};
+    const summary = {
+      coreFinding: String(rawSummary.coreFinding || '').slice(0, 2000),
+      recommendation: String(rawSummary.recommendation || '').slice(0, 1200),
+      residualScopeItems: Array.isArray(rawSummary.residualScopeItems)
+        ? (rawSummary.residualScopeItems as Record<string, unknown>[]).slice(0, 6).map((s) => ({
+            title: String(s.title || '').slice(0, 200),
+            detail: String(s.detail || '').slice(0, 600),
+          })).filter((s) => s.title)
+        : [],
+    };
+
+    return json({ assessments, summary, documentsAnalyzed: docs.map((d) => d.name) }, 200);
   } catch (err) {
     console.error('iec-document-assessment error', err);
     return json({ error: 'internal_error', message: err instanceof Error ? err.message : 'Unknown error' }, 500);

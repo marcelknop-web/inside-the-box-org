@@ -146,6 +146,52 @@ export interface IecReq {
   criteria: string[];
   effort: string;
   priority: string;
+  // ── Applicability Review narrative (AI-generated) ──
+  generalisedFinding?: string; // neutral description of the underlying finding
+  clientResponse?: string;     // the operator's declared position / context
+  residualScopeNote?: string;  // what scope remains for partial/applicable verdicts
+}
+
+// ── Applicability Review verdict model ──────────────────────────
+// The internal scoring engine keeps the pass/partial/fail status. For the
+// Applicability Review presentation we map status onto an applicability verdict:
+//   pass    -> not_applicable  (control/threat is addressed / out of scope)
+//   partial -> partially_applicable
+//   fail    -> applicable      (full residual scope applies)
+export type IecVerdict = 'not_applicable' | 'partially_applicable' | 'applicable';
+
+export function verdictFromStatus(status: IecReq['status']): IecVerdict {
+  if (status === 'pass') return 'not_applicable';
+  if (status === 'partial') return 'partially_applicable';
+  return 'applicable';
+}
+
+export const VERDICT_LABELS: Record<IecVerdict, Record<string, string>> = {
+  not_applicable: { de: 'Nicht anwendbar', en: 'Not applicable', fr: 'Non applicable' },
+  partially_applicable: { de: 'Teilweise anwendbar', en: 'Partially applicable', fr: 'Partiellement applicable' },
+  applicable: { de: 'Anwendbar', en: 'Applicable', fr: 'Applicable' },
+};
+
+// Tailwind colour tokens for each verdict (online UI).
+export const VERDICT_STYLES: Record<IecVerdict, { badge: string; dot: string; hex: string }> = {
+  not_applicable: { badge: 'bg-green-500/10 text-green-400 border border-green-500/20', dot: 'bg-green-500', hex: '#22c55e' },
+  partially_applicable: { badge: 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20', dot: 'bg-yellow-500', hex: '#eab308' },
+  applicable: { badge: 'bg-destructive/10 text-destructive border border-destructive/20', dot: 'bg-destructive', hex: '#dc2626' },
+};
+
+// Human-readable original risk rating derived from a threat's likelihood × impact.
+export function originalRatingLabel(score: number, lang: string = 'en'): string {
+  if (score >= 20) return lang === 'de' ? `Kritisch (${score})` : lang === 'fr' ? `Critique (${score})` : `Critical (${score})`;
+  if (score >= 13) return lang === 'de' ? `Hoch (${score})` : lang === 'fr' ? `Élevé (${score})` : `High (${score})`;
+  if (score >= 6) return lang === 'de' ? `Mittel (${score})` : lang === 'fr' ? `Moyen (${score})` : `Medium (${score})`;
+  return lang === 'de' ? `Niedrig (${score})` : lang === 'fr' ? `Faible (${score})` : `Low (${score})`;
+}
+
+// Aggregated narrative produced by the AI for the executive summary.
+export interface ReviewSummary {
+  coreFinding: string;
+  recommendation: string;
+  residualScopeItems: { title: string; detail: string }[];
 }
 
 export interface MeasureEntry {
