@@ -306,8 +306,8 @@ export async function generateIec62443Report(data: Iec62443ReportData): Promise<
   pdf.addBookmark(t(I18N.sec3b, lang), 2);
 
   const introReqs = lang === 'de'
-    ? `Die nachfolgende Übersicht dokumentiert die Einzelbewertung jeder geprüften IACS-UR-E27-Anforderung. Für festgestellte Abweichungen werden konkrete Maßnahmen sowie nachweisbare Umsetzungskriterien (Definition of Done) angegeben, um eine strukturierte Nachverfolgung zu ermöglichen.`
-    : `The following overview documents the individual assessment of each audited IACS UR E27 requirement. For identified deviations, concrete measures and verifiable acceptance criteria (Definition of Done) are provided to enable structured follow-up.`;
+    ? `Die nachfolgende Übersicht dokumentiert die Einzelbewertung der Anwendbarkeit jeder geprüften IACS-UR-E27-Anforderung. Für anwendbare und teilweise anwendbare Anforderungen werden konkrete Maßnahmen sowie nachweisbare Umsetzungskriterien (Definition of Done) angegeben, um eine strukturierte Nachverfolgung des Restumfangs zu ermöglichen.`
+    : `The following overview documents the individual applicability assessment of each reviewed IACS UR E27 requirement. For applicable and partially applicable requirements, concrete measures and verifiable acceptance criteria (Definition of Done) are provided to enable structured follow-up of the residual scope.`;
   pdf.introText(introReqs);
 
   const frGroups = Object.keys(FR_CATEGORIES);
