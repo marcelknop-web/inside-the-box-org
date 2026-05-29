@@ -1199,6 +1199,7 @@ const Iec62443Ur26ComplianceTool = ({ embedded }: { embedded?: boolean }) => {
   const handleIntakeFinish = useCallback(async (data: IecIntakeData) => {
     setIntakeData(data);
     setDocAssessments(null);
+    setReviewSummary(null);
     setDocsAnalyzed([]);
     setLoading(true);
 
