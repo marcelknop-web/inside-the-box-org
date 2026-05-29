@@ -17,6 +17,7 @@ export interface Iec62443ReportData {
   qaChecks?: QaCheck[];
   fixLog?: string[];
   qaIterations?: number;
+  reviewSummary?: ReviewSummary;
 }
 
 const I18N = {
