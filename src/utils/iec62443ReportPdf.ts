@@ -208,41 +208,49 @@ export async function generateIec62443Report(data: Iec62443ReportData): Promise<
 
   // Recommended Actions
   pdf.heading(lang === 'de' ? 'Handlungsempfehlung' : lang === 'fr' ? 'Recommandation' : 'Recommended Action', 2);
-  const actionText = lang === 'de'
-    ? isCompliant
-      ? 'Es wird empfohlen, den Konformitätsnachweis zu dokumentieren und eine jährliche Neubewertung im Rahmen des kontinuierlichen Verbesserungsprozesses einzuplanen.'
-      : `Es wird dringend empfohlen, die in Abschnitt 4 aufgeführten Sofortmaßnahmen (P0) mit klaren Verantwortlichkeiten und verbindlichen Fristen zu versehen. Bis zur vollständigen Schließung aller kritischen Abweichungen sollte ein wöchentliches Tracking-Verfahren etabliert werden.`
+  const actionText = reviewSummary?.recommendation
+    ? reviewSummary.recommendation
+    : lang === 'de'
+    ? noResidualScope
+      ? 'Es wird empfohlen, die Anwendbarkeitsbewertung zu dokumentieren und eine jährliche Neubewertung im Rahmen des kontinuierlichen Verbesserungsprozesses einzuplanen.'
+      : `Es wird dringend empfohlen, die im Restumfang verbleibenden Anforderungen mit klaren Verantwortlichkeiten und verbindlichen Fristen zu versehen. Bis zur vollständigen Behandlung aller kritischen Punkte sollte ein wöchentliches Tracking-Verfahren etabliert werden.`
     : lang === 'fr'
-    ? isCompliant
-      ? 'Il est recommandé de documenter la preuve de conformité et de planifier une réévaluation annuelle dans le cadre du processus d\'amélioration continue.'
-      : `Il est fortement recommandé d'attribuer aux actions immédiates (P0) listées en section 4 des responsabilités claires et des échéances contraignantes. Un suivi hebdomadaire devrait être mis en place jusqu'à la résolution complète de tous les écarts critiques.`
-    : isCompliant
-    ? 'It is recommended to document the compliance evidence and schedule an annual reassessment as part of the continuous improvement process.'
-    : `It is strongly recommended that the immediate actions (P0) listed in Section 4 be assigned clear ownership and binding deadlines. A weekly tracking process should be established until all critical gaps have been fully remediated.`;
+    ? noResidualScope
+      ? 'Il est recommandé de documenter l\'évaluation d\'applicabilité et de planifier une réévaluation annuelle dans le cadre du processus d\'amélioration continue.'
+      : `Il est fortement recommandé d'attribuer aux exigences du périmètre résiduel des responsabilités claires et des échéances contraignantes. Un suivi hebdomadaire devrait être mis en place jusqu'au traitement complet de tous les points critiques.`
+    : noResidualScope
+    ? 'It is recommended to document the applicability assessment and schedule an annual reassessment as part of the continuous improvement process.'
+    : `It is strongly recommended that the requirements remaining in residual scope be assigned clear ownership and binding deadlines. A weekly tracking process should be established until all critical items have been fully addressed.`;
   pdf.bodyParagraph(actionText);
 
-  /* 2. COMPLIANCE STATEMENT */
+  /* 2. APPLICABILITY STATEMENT */
   pdf.newPage();
   pdf.heading(t(I18N.sec2, lang));
   pdf.addBookmark(t(I18N.sec2, lang));
 
-  const complianceVerdict = lang === 'de'
-    ? isCompliant
-      ? `Auf Grundlage der durchgeführten Prüfung wird festgestellt, dass das Schiff bzw. System ${intakeData.facilityName} die Anforderungen der IACS UR E27 vollständig erfüllt.`
+  const applicabilityVerdict = lang === 'de'
+    ? noResidualScope
+      ? `Auf Grundlage der durchgeführten Anwendbarkeitsprüfung wird festgestellt, dass für das Schiff bzw. System ${intakeData.facilityName} keine offenen Anforderungen der IACS UR E27 im Restumfang verbleiben.`
       : complianceRate >= 60
-      ? `Das Schiff bzw. System ${intakeData.facilityName} erfüllt die Anforderungen der IACS UR E27 bedingt. Die gewichtete Konformitätsrate beträgt ${complianceRate} %. Einzelne Abweichungen sind innerhalb der im Maßnahmenplan definierten Fristen zu beheben.`
-      : `Das Schiff bzw. System ${intakeData.facilityName} erfüllt die Anforderungen der IACS UR E27 nicht. Die gewichtete Konformitätsrate von ${complianceRate} % liegt unterhalb des Schwellenwerts für eine bedingte Konformität. Eine umfassende Überarbeitung der CBS-Sicherheitsarchitektur ist vor dem nächsten Klasseerneuerungsbesuch zwingend erforderlich.`
-    : isCompliant
-    ? `Based on the assessment conducted, it is determined that vessel/system ${intakeData.facilityName} fully meets the requirements of IACS UR E27.`
+      ? `Für das Schiff bzw. System ${intakeData.facilityName} verbleibt ein überschaubarer Restumfang anwendbarer Anforderungen der IACS UR E27. Die gewichtete Abdeckungsrate beträgt ${complianceRate} %. Die verbleibenden anwendbaren Anforderungen sind innerhalb der im Maßnahmenplan definierten Fristen zu behandeln.`
+      : `Für das Schiff bzw. System ${intakeData.facilityName} verbleibt ein wesentlicher Restumfang anwendbarer Anforderungen der IACS UR E27. Die gewichtete Abdeckungsrate von ${complianceRate} % liegt unterhalb des angestrebten Schwellenwerts. Eine umfassende Überarbeitung der CBS-Sicherheitsarchitektur ist vor dem nächsten Klasseerneuerungsbesuch zwingend erforderlich.`
+    : lang === 'fr'
+    ? noResidualScope
+      ? `Sur la base de l'évaluation d'applicabilité réalisée, il est constaté qu'aucune exigence de l'IACS UR E27 ne subsiste dans le périmètre résiduel du navire/système ${intakeData.facilityName}.`
+      : complianceRate >= 60
+      ? `Un périmètre résiduel limité d'exigences applicables de l'IACS UR E27 subsiste pour le navire/système ${intakeData.facilityName}. Le taux de couverture pondéré est de ${complianceRate} %. Les exigences applicables restantes doivent être traitées dans les délais définis dans le plan d'action.`
+      : `Un périmètre résiduel important d'exigences applicables de l'IACS UR E27 subsiste pour le navire/système ${intakeData.facilityName}. Le taux de couverture pondéré de ${complianceRate} % est inférieur au seuil visé. Une refonte complète de l'architecture de sécurité CBS est requise avant la prochaine visite de renouvellement de classe.`
+    : noResidualScope
+    ? `Based on the applicability review conducted, it is determined that no IACS UR E27 requirements remain within the residual scope of vessel/system ${intakeData.facilityName}.`
     : complianceRate >= 60
-    ? `Vessel/system ${intakeData.facilityName} conditionally meets the requirements of IACS UR E27. The weighted compliance rate is ${complianceRate}%. Individual deviations must be resolved within the timeframes defined in the remediation plan.`
-    : `Vessel/system ${intakeData.facilityName} does not meet the requirements of IACS UR E27. The weighted compliance rate of ${complianceRate}% falls below the threshold for conditional compliance. A comprehensive overhaul of the CBS security architecture is required prior to the next class renewal survey.`;
+    ? `A limited residual scope of applicable IACS UR E27 requirements remains for vessel/system ${intakeData.facilityName}. The weighted coverage rate is ${complianceRate}%. The remaining applicable requirements must be addressed within the timeframes defined in the remediation plan.`
+    : `A substantial residual scope of applicable IACS UR E27 requirements remains for vessel/system ${intakeData.facilityName}. The weighted coverage rate of ${complianceRate}% falls below the targeted threshold. A comprehensive overhaul of the CBS security architecture is required prior to the next class renewal survey.`;
 
-  pdf.verdictBox(complianceVerdict);
+  pdf.verdictBox(applicabilityVerdict);
 
   const methodNote = lang === 'de'
-    ? `Die Bewertungsmethodik gewichtet konforme Anforderungen mit 100 %, teilweise konforme mit 50 % und nicht konforme mit 0 %. Aus der Verteilung von ${passReqs.length} konformen, ${partialReqs.length} teilweise konformen und ${failReqs.length} nicht konformen Anforderungen bei insgesamt ${reqs.length} geprüften Anforderungen ergibt sich die gewichtete Konformitätsrate von ${complianceRate} %.`
-    : `The assessment methodology weights compliant requirements at 100%, partially compliant at 50%, and non-compliant at 0%. From the distribution of ${passReqs.length} compliant, ${partialReqs.length} partially compliant, and ${failReqs.length} non-compliant requirements out of ${reqs.length} assessed requirements, a weighted compliance rate of ${complianceRate}% is derived.`;
+    ? `Die Anwendbarkeitsmethodik gewichtet nicht anwendbare Anforderungen mit 100 %, teilweise anwendbare mit 50 % und vollständig anwendbare (Restumfang) mit 0 %. Aus der Verteilung von ${passReqs.length} nicht anwendbaren, ${partialReqs.length} teilweise anwendbaren und ${failReqs.length} vollständig anwendbaren Anforderungen bei insgesamt ${reqs.length} geprüften Anforderungen ergibt sich die gewichtete Abdeckungsrate von ${complianceRate} %.`
+    : `The applicability methodology weights not-applicable requirements at 100%, partially applicable at 50%, and fully applicable (residual scope) at 0%. From the distribution of ${passReqs.length} not applicable, ${partialReqs.length} partially applicable, and ${failReqs.length} fully applicable requirements out of ${reqs.length} reviewed requirements, a weighted coverage rate of ${complianceRate}% is derived.`;
   pdf.bodyText(methodNote);
 
   /* 3. DETAILED FINDINGS */
