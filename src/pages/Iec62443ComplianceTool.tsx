@@ -1114,6 +1114,7 @@ const Iec62443ComplianceTool = ({ embedded }: { embedded?: boolean }) => {
   const handleIntakeFinish = useCallback(async (data: IecIntakeData) => {
     setIntakeData(data);
     setDocAssessments(null);
+    setReviewSummary(null);
     setDocsAnalyzed([]);
     setLoading(true);
 
