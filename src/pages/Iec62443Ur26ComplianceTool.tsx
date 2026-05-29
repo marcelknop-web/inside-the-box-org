@@ -1,6 +1,6 @@
-import { useState, useCallback, useRef, useMemo, memo } from 'react';
+import { useState, useCallback, useRef, useMemo, useEffect, memo } from 'react';
 import { Button } from '@/components/ui/button';
-import { RotateCcw, ChevronDown, ChevronUp, Loader2, FileText, ShieldCheck } from 'lucide-react';
+import { RotateCcw, ChevronDown, ChevronUp, Loader2, FileText, ShieldCheck, Cloud, CloudUpload, Trash2, Check } from 'lucide-react';
 import { applyAuditFixes } from '@/utils/iec62443Ur26AuditFixes';
 import { generateIec62443Ur26Report } from '@/utils/iec62443Ur26ReportPdf';
 import { detectLanguage, extractTexts } from '@/utils/detectLanguage';
