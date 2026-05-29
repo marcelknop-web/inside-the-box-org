@@ -180,6 +180,16 @@ export async function generateIec62443Report(data: Iec62443ReportData): Promise<
     [`${complianceRate} %`, lang === 'de' ? 'Abdeckungsrate' : lang === 'fr' ? 'Taux de couverture' : 'Coverage Rate'],
   ]);
 
+  // Verdict Overview (Applicability) — matches the Applicability Review template tiles
+  pdf.heading(t(I18N.verdictOverview, lang), 2);
+  pdf.kpiRow([
+    [String(critRisks.length), lang === 'de' ? 'Kritisch' : lang === 'fr' ? 'Critique' : 'Critical'],
+    [String(passReqs.length), t(I18N.pass, lang)],
+    [String(partialReqs.length), t(I18N.partial, lang)],
+    [String(failReqs.length), t(I18N.fail, lang)],
+  ]);
+
+
   // Applicability Distribution
   pdf.heading(lang === 'de' ? 'Anwendbarkeitsverteilung' : lang === 'fr' ? 'Répartition de l\'applicabilité' : 'Applicability Distribution', 2);
   pdf.complianceBar(passReqs.length, partialReqs.length, failReqs.length, {
