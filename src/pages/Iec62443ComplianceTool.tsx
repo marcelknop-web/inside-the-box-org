@@ -844,7 +844,7 @@ function IecMapping({ reqs, onNext }: { reqs: IecReq[]; onNext: () => void }) {
 
   return (
     <StaggerReveal resetKey="cm" stagger={300}>
-      <InfoBox icon="📋" title="IACS UR E27 Compliance Assessment" color="blue">Assessment of the vessel against the requirements of IACS UR E27 (Table 1 + Table 2).</InfoBox>
+      <InfoBox icon="📋" title="IACS UR E27 Applicability Review" color="blue">Applicability of each IACS UR E27 control (Table 1 + Table 2) to the declared scope.</InfoBox>
 
       {/* Score Overview */}
       <div className="bg-card border border-border rounded-xl p-6 flex flex-col sm:flex-row items-center gap-6">
