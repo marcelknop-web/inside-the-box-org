@@ -1330,7 +1330,7 @@ const Iec62443Ur26ComplianceTool = ({ embedded }: { embedded?: boolean }) => {
             {step === 1 && <ThreatModel threats={IEC_THREATS} onNext={() => setStep(2)} />}
             {step === 2 && <RiskAssessment threats={IEC_THREATS} onNext={() => setStep(3)} />}
             {step === 3 && <IecMapping reqs={effectiveReqs} onNext={() => setStep(4)} />}
-            {step === 4 && <ReportView intakeData={intakeData} threats={IEC_THREATS} reqs={effectiveReqs} />}
+            {step === 4 && <ReportView intakeData={intakeData} threats={IEC_THREATS} reqs={effectiveReqs} reviewSummary={reviewSummary} />}
           </div>
 
         )}
