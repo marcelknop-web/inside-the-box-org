@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      compliance_intake_drafts: {
+        Row: {
+          code: string
+          created_at: string
+          data: Json
+          id: string
+          tool: string
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          data: Json
+          id?: string
+          tool: string
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          data?: Json
+          id?: string
+          tool?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       ttx_registrations: {
         Row: {
           company: string | null

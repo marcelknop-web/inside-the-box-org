@@ -1,6 +1,6 @@
-import { useState, useCallback, useRef, useMemo, memo } from 'react';
+import { useState, useCallback, useRef, useMemo, useEffect, memo } from 'react';
 import { Button } from '@/components/ui/button';
-import { RotateCcw, ChevronDown, ChevronUp, Loader2, FileText, ShieldCheck } from 'lucide-react';
+import { RotateCcw, ChevronDown, ChevronUp, Loader2, FileText, ShieldCheck, Cloud, CloudUpload, Trash2, Check } from 'lucide-react';
 import { applyAuditFixes } from '@/utils/iec62443Ur26AuditFixes';
 import { generateIec62443Ur26Report } from '@/utils/iec62443Ur26ReportPdf';
 import { detectLanguage, extractTexts } from '@/utils/detectLanguage';
@@ -21,7 +21,11 @@ import {
 } from '@/data/iec62443Ur26Data';
 import { extractDocumentText } from '@/lib/documentExtraction';
 import { assessDocuments, type ReqAssessment } from '@/lib/iecDocumentAssessment';
+import { loadLocalDraft, saveLocalDraft, clearLocalDraft, sanitizeDraftFiles, saveCloudDraft, loadCloudDraft } from '@/lib/intakeDraft';
 import { toast } from 'sonner';
+
+const DRAFT_KEY = 'ur26';
+const DRAFT_TOOL = 'E26';
 
 // ── Helpers ─────────────────────────────────────────────────────
 
@@ -124,10 +128,60 @@ const INTAKE_STEPS = 6;
 
 function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
   const { t } = useLanguage();
-  const [sub, setSub] = useState(0);
-  const [d, setD] = useState<IecIntakeData>(EMPTY_INTAKE);
+  const restored = useRef(loadLocalDraft<IecIntakeData>(DRAFT_KEY));
+  const [sub, setSub] = useState(() => restored.current?.sub ?? 0);
+  const [d, setD] = useState<IecIntakeData>(() =>
+    restored.current ? sanitizeDraftFiles(restored.current.data) : EMPTY_INTAKE,
+  );
   const fileRef = useRef<HTMLInputElement>(null);
   const [activeUploadType, setActiveUploadType] = useState<string | null>(null);
+  const [cloudBusy, setCloudBusy] = useState(false);
+  const [cloudCode, setCloudCode] = useState('');
+  const [loadCode, setLoadCode] = useState('');
+
+  // Auto-save every change locally (best-effort safety net).
+  useEffect(() => {
+    saveLocalDraft(DRAFT_KEY, { sub, data: d, savedAt: Date.now() });
+  }, [sub, d]);
+
+  const handleCloudSave = useCallback(async () => {
+    setCloudBusy(true);
+    try {
+      const code = await saveCloudDraft(DRAFT_TOOL, d);
+      setCloudCode(code);
+      toast.success(`Saved to cloud — your restore code: ${code}`);
+    } catch {
+      toast.error('Cloud save failed. Your inputs are still saved locally.');
+    } finally {
+      setCloudBusy(false);
+    }
+  }, [d]);
+
+  const handleCloudLoad = useCallback(async () => {
+    const code = loadCode.trim();
+    if (!code) return;
+    setCloudBusy(true);
+    try {
+      const { data: loaded } = await loadCloudDraft<IecIntakeData>(code);
+      setD(sanitizeDraftFiles(loaded));
+      setSub(0);
+      setLoadCode('');
+      toast.success('Draft loaded from cloud.');
+    } catch {
+      toast.error('No draft found for this code.');
+    } finally {
+      setCloudBusy(false);
+    }
+  }, [loadCode]);
+
+  const handleClearDraft = useCallback(() => {
+    clearLocalDraft(DRAFT_KEY);
+    setD(EMPTY_INTAKE);
+    setSub(0);
+    setCloudCode('');
+    toast.success('Saved inputs cleared.');
+  }, []);
+
 
   const systemTypes = useMemo(() => getSystemTypes(t), [t]);
   const securityLevels = useMemo(() => getSecurityLevels(t), [t]);
@@ -528,6 +582,34 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
 
   return (
     <div>
+      <div className="mb-4 flex flex-wrap items-center gap-x-3 gap-y-2 bg-card border border-border rounded-lg px-3 py-2.5 text-xs">
+        <span className="flex items-center gap-1.5 text-green-600 font-medium">
+          <Check className="w-3.5 h-3.5" /> Inputs are saved automatically
+        </span>
+        <div className="flex flex-wrap items-center gap-2 sm:ml-auto">
+          <Button size="sm" variant="outline" onClick={handleCloudSave} disabled={cloudBusy} className="h-7 text-xs">
+            <CloudUpload className="w-3.5 h-3.5 mr-1" /> Save to cloud
+          </Button>
+          {cloudCode && (
+            <code className="px-2 py-1 rounded bg-primary/10 text-primary font-mono font-semibold select-all">{cloudCode}</code>
+          )}
+          <div className="flex items-center gap-1">
+            <input
+              value={loadCode}
+              onChange={(e) => setLoadCode(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') handleCloudLoad(); }}
+              placeholder="Restore code"
+              className="w-28 border border-border rounded-md px-2 py-1 text-xs bg-background text-foreground focus:ring-2 focus:ring-primary outline-none uppercase"
+            />
+            <Button size="sm" variant="ghost" onClick={handleCloudLoad} disabled={cloudBusy || !loadCode.trim()} className="h-7 text-xs">
+              <Cloud className="w-3.5 h-3.5 mr-1" /> Load
+            </Button>
+          </div>
+          <Button size="sm" variant="ghost" onClick={handleClearDraft} className="h-7 text-xs text-muted-foreground hover:text-destructive">
+            <Trash2 className="w-3.5 h-3.5 mr-1" /> Clear
+          </Button>
+        </div>
+      </div>
       {stepContent}
       <div className="flex items-center justify-between mt-6 pt-4 border-t border-border/50">
         <div className="flex items-center gap-2">
