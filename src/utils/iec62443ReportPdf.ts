@@ -66,6 +66,18 @@ const I18N = {
   fr: { de: 'Anforderungskategorie', en: 'Requirement Category', fr: 'Catégorie d\'exigence' },
   reproducibility: { de: 'Reproduzierbarkeit', en: 'Reproducibility', fr: 'Reproductibilité' },
   evidenceQuality: { de: 'Evidenz-Qualität', en: 'Evidence Quality', fr: 'Qualité de la preuve' },
+  verdict: { de: 'Verdict', en: 'Verdict', fr: 'Verdict' },
+  originalRating: { de: 'Ursprüngliche Risikobewertung', en: 'Original Risk Rating', fr: 'Évaluation initiale du risque' },
+  generalisedFinding: { de: 'Verallgemeinerte Feststellung', en: 'Generalised Finding', fr: 'Constatation généralisée' },
+  clientResponse: { de: 'Stellungnahme des Kunden', en: 'Client Response', fr: 'Réponse du client' },
+  residualScopeNote: { de: 'Anmerkung zum Restumfang', en: 'Residual Scope Note', fr: 'Note sur le périmètre résiduel' },
+  residualScope: { de: 'Restumfang (Residual E27 Scope)', en: 'Residual E27 Scope', fr: 'Périmètre résiduel E27' },
+  verdictOverview: { de: 'Verdict-Überblick', en: 'Verdict Overview', fr: 'Aperçu des verdicts' },
+  controlMatrix: { de: 'Vollständige E27 Control-Assessment-Matrix', en: 'Complete E27 Control Assessment Matrix', fr: 'Matrice complète d\'évaluation des contrôles E27' },
+  colId: { de: 'ID', en: 'ID', fr: 'ID' },
+  colRef: { de: 'SR-Ref.', en: 'SR Ref.', fr: 'Réf. SR' },
+  colTopic: { de: 'Thema', en: 'Topic', fr: 'Sujet' },
+  colVerdict: { de: 'Verdict', en: 'Verdict', fr: 'Verdict' },
 };
 
 type Lang = 'de' | 'en' | 'fr';
