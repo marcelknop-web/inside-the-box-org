@@ -389,6 +389,65 @@ export async function generateIec62443Report(data: Iec62443ReportData): Promise<
     });
   });
 
+  // 3.3 Complete E27 Control Assessment Matrix
+  pdf.newPage();
+  pdf.heading(t(I18N.controlMatrix, lang), 2);
+  pdf.addBookmark(t(I18N.controlMatrix, lang), 2);
+
+  const matrixCols = {
+    id: LAYOUT.LEFT,
+    ref: LAYOUT.LEFT + 24,
+    topic: LAYOUT.LEFT + 60,
+    verdict: LAYOUT.LEFT + 140,
+  };
+
+  const drawMatrixHeader = () => {
+    pdf.doc.setFont(pdf.headFontName, 'bold');
+    pdf.doc.setFontSize(7);
+    pdf.doc.setTextColor(...C.mid);
+    pdf.doc.text(t(I18N.colId, lang).toUpperCase(), matrixCols.id, pdf.y);
+    pdf.doc.text(t(I18N.colRef, lang).toUpperCase(), matrixCols.ref, pdf.y);
+    pdf.doc.text(t(I18N.colTopic, lang).toUpperCase(), matrixCols.topic, pdf.y);
+    pdf.doc.text(t(I18N.colVerdict, lang).toUpperCase(), matrixCols.verdict, pdf.y);
+    pdf.y += 2;
+    pdf.doc.setDrawColor(...C.navy);
+    pdf.doc.setLineWidth(0.25);
+    pdf.doc.line(LAYOUT.LEFT, pdf.y, LAYOUT.RIGHT, pdf.y);
+    pdf.y += 4;
+  };
+
+  drawMatrixHeader();
+
+  reqs.forEach((r, idx) => {
+    if (pdf.y + 6 > LAYOUT.BOTTOM) {
+      pdf.newPage();
+      drawMatrixHeader();
+    }
+    if (idx % 2 === 0) {
+      pdf.doc.setFillColor(...C.bg);
+      pdf.doc.rect(LAYOUT.LEFT, pdf.y - 3, LAYOUT.WIDTH, 5.5, 'F');
+    }
+    const verdict = verdictFromStatus(r.status);
+    const verdictLabel = VERDICT_LABELS[verdict][lang];
+    const topic = pdf.doc.splitTextToSize(r.name, matrixCols.verdict - matrixCols.topic - 4)[0] || r.name;
+    pdf.doc.setFont(pdf.dataFontName, 'normal');
+    pdf.doc.setFontSize(7);
+    pdf.doc.setTextColor(...C.dark);
+    pdf.doc.text(r.id, matrixCols.id, pdf.y);
+    pdf.doc.text(r.article.replace(/^E27[-\s]*\d+\s*/i, '').replace(/[()]/g, '') || '—', matrixCols.ref, pdf.y);
+    pdf.doc.setFont(pdf.bodyFontName, 'normal');
+    pdf.doc.text(topic, matrixCols.topic, pdf.y);
+    const vColor = r.status === 'pass' ? C.pass : r.status === 'partial' ? C.partial : C.fail;
+    pdf.doc.setFont(pdf.headFontName, 'bold');
+    pdf.doc.setTextColor(...vColor);
+    pdf.doc.text(verdictLabel, matrixCols.verdict, pdf.y);
+    pdf.doc.setTextColor(...C.dark);
+    pdf.y += 5;
+  });
+  pdf.y += 4;
+
+
+
   /* 4. RECOMMENDATIONS & ROADMAP */
   pdf.newPage();
   pdf.heading(t(I18N.sec4, lang));
