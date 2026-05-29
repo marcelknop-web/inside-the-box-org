@@ -21,7 +21,11 @@ import {
 } from '@/data/iec62443Data';
 import { extractDocumentText } from '@/lib/documentExtraction';
 import { assessDocuments, type ReqAssessment } from '@/lib/iecDocumentAssessment';
+import { loadLocalDraft, saveLocalDraft, clearLocalDraft, sanitizeDraftFiles, saveCloudDraft, loadCloudDraft } from '@/lib/intakeDraft';
 import { toast } from 'sonner';
+
+const DRAFT_KEY = 'ur27';
+const DRAFT_TOOL = 'E27';
 
 // ── Helpers ─────────────────────────────────────────────────────
 
