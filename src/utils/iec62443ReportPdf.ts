@@ -82,7 +82,7 @@ function riskLabel(score: number, lang: Lang): string {
 }
 
 export async function generateIec62443Report(data: Iec62443ReportData): Promise<void> {
-  const { intakeData, threats, reqs, language: lang, isDraft, qaChecks, fixLog } = data;
+  const { intakeData, threats, reqs, language: lang, isDraft, qaChecks, fixLog, reviewSummary } = data;
   const dateStr = new Date().toLocaleDateString(lang === 'de' ? 'de-DE' : lang === 'fr' ? 'fr-FR' : 'en-GB');
 
   const passReqs = reqs.filter(r => r.status === 'pass');
