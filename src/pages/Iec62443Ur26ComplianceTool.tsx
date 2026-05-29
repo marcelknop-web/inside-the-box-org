@@ -457,7 +457,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
                           {badge && <> · <span className={`font-medium ${badge.cls}`}>{badge.txt}</span></>}
                         </div>
                       </div>
-                      <button onClick={() => removeFile(i)} className="text-muted-foreground hover:text-destructive font-bold text-lg leading-none transition-colors">×</button>
+                      <button onClick={() => removeFile(f.id)} className="text-muted-foreground hover:text-destructive font-bold text-lg leading-none transition-colors">×</button>
                     </div>
                   );
                 })}
