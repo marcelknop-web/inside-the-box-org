@@ -20,7 +20,7 @@ import {
   type IecThreat, type IecReq, type IecIntakeData, type MeasureEntry, EMPTY_INTAKE,
 } from '@/data/iec62443Data';
 import { extractDocumentText } from '@/lib/documentExtraction';
-import { assessDocuments, type ReqAssessment } from '@/lib/iecDocumentAssessment';
+import { assessDocuments, type ReqAssessment, type ReviewSummaryResult } from '@/lib/iecDocumentAssessment';
 import { loadLocalDraft, saveLocalDraft, clearLocalDraft, sanitizeDraftFiles, saveCloudDraft, loadCloudDraft } from '@/lib/intakeDraft';
 import { toast } from 'sonner';
 
