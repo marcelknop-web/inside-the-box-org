@@ -1185,6 +1185,7 @@ const Iec62443Ur26ComplianceTool = ({ embedded }: { embedded?: boolean }) => {
   const [loadingMsg, setLoadingMsg] = useState<string>('CBS threats are being identified and assessed against IACS UR E26.');
   const [intakeData, setIntakeData] = useState<IecIntakeData>(EMPTY_INTAKE);
   const [docAssessments, setDocAssessments] = useState<ReqAssessment[] | null>(null);
+  const [reviewSummary, setReviewSummary] = useState<ReviewSummaryResult | null>(null);
   const [docsAnalyzed, setDocsAnalyzed] = useState<string[]>([]);
   const contentRef = useRef<HTMLDivElement>(null);
 
