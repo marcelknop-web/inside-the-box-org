@@ -20,7 +20,8 @@ import {
   type IecThreat, type IecReq, type IecIntakeData, type MeasureEntry, EMPTY_INTAKE,
 } from '@/data/iec62443Ur26Data';
 import { extractDocumentText } from '@/lib/documentExtraction';
-import { assessDocuments, type ReqAssessment } from '@/lib/iecDocumentAssessment';
+import { assessDocuments, type ReqAssessment, type ReviewSummaryResult } from '@/lib/iecDocumentAssessment';
+import { verdictFromStatus, VERDICT_LABELS, VERDICT_STYLES, originalRatingLabel, type IecVerdict } from '@/data/iec62443Data';
 import { loadLocalDraft, saveLocalDraft, clearLocalDraft, sanitizeDraftFiles, saveCloudDraft, loadCloudDraft } from '@/lib/intakeDraft';
 import { toast } from 'sonner';
 
@@ -38,9 +39,9 @@ function riskLevel(l: number, i: number) {
 }
 
 const StatusBadge = memo(({ status }: { status: string }) => {
-  if (status === 'pass') return <span className="px-2 py-0.5 rounded text-xs font-bold bg-green-500/10 text-green-400 border border-green-500/20">Compliant</span>;
-  if (status === 'partial') return <span className="px-2 py-0.5 rounded text-xs font-bold bg-yellow-500/10 text-yellow-400 border border-yellow-500/20">Partial</span>;
-  return <span className="px-2 py-0.5 rounded text-xs font-bold bg-destructive/10 text-destructive border border-destructive/20">Non-Compliant</span>;
+  const verdict = verdictFromStatus(status as IecReq['status']);
+  const style = VERDICT_STYLES[verdict];
+  return <span className={`px-2 py-0.5 rounded text-xs font-bold ${style.badge}`}>{VERDICT_LABELS[verdict].en}</span>;
 });
 
 const ScoreBar = memo(({ value }: { value: number }) => {
@@ -842,7 +843,7 @@ function IecMapping({ reqs, onNext }: { reqs: IecReq[]; onNext: () => void }) {
 
   return (
     <StaggerReveal resetKey="cm" stagger={300}>
-      <InfoBox icon="📋" title="IACS UR E26 Compliance Assessment" color="blue">Assessment of the vessel against the requirements of IACS UR E26 (Chapters 4–16).</InfoBox>
+      <InfoBox icon="📋" title="IACS UR E26 Applicability Review" color="blue">Applicability of each IACS UR E26 requirement (Chapters 4–16) to the declared scope.</InfoBox>
 
       {/* Score Overview */}
       <div className="bg-card border border-border rounded-xl p-6 flex flex-col sm:flex-row items-center gap-6">
@@ -853,14 +854,14 @@ function IecMapping({ reqs, onNext }: { reqs: IecReq[]; onNext: () => void }) {
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
             <span className={`text-2xl font-bold font-mono ${scoreColor}`}>{score}%</span>
-            <span className="text-[10px] text-muted-foreground font-medium">Readiness</span>
+            <span className="text-[10px] text-muted-foreground font-medium">Addressed</span>
           </div>
         </div>
         <div className="flex-1 text-center sm:text-left">
-          <div className="text-lg font-bold text-foreground mb-1">IACS UR E26 Compliance Score</div>
+          <div className="text-lg font-bold text-foreground mb-1">IACS UR E26 Applicability Summary</div>
           <div className="text-sm text-muted-foreground mb-4">{reqs.length} requirements assessed</div>
           <div className="flex gap-5 text-sm flex-wrap justify-center sm:justify-start">
-            {([['Compliant', pass, 'bg-green-500'], ['Partial', partial, 'bg-yellow-500'], ['Non-Compliant', fail, 'bg-destructive']] as [string, number, string][]).map(([label, count, bg]) => (
+            {([[VERDICT_LABELS.not_applicable.en, pass, 'bg-green-500'], [VERDICT_LABELS.partially_applicable.en, partial, 'bg-yellow-500'], [VERDICT_LABELS.applicable.en, fail, 'bg-destructive']] as [string, number, string][]).map(([label, count, bg]) => (
               <span key={label} className="flex items-center gap-2">
                 <span className={`w-3 h-3 rounded-full ${bg} inline-block`} />
                 <span className="text-muted-foreground">{label}:</span>
@@ -918,7 +919,12 @@ function IecMapping({ reqs, onNext }: { reqs: IecReq[]; onNext: () => void }) {
 
 // ── Phase 5: Report ───────────────────────────────────────────
 
-function ReportView({ intakeData, threats, reqs }: { intakeData: IecIntakeData; threats: IecThreat[]; reqs: IecReq[] }) {
+function VerdictBadge({ verdict }: { verdict: IecVerdict }) {
+  const s = VERDICT_STYLES[verdict];
+  return <span className={`px-2 py-0.5 rounded text-xs font-bold whitespace-nowrap ${s.badge}`}>{VERDICT_LABELS[verdict].en}</span>;
+}
+
+function ReportView({ intakeData, threats, reqs, reviewSummary }: { intakeData: IecIntakeData; threats: IecThreat[]; reqs: IecReq[]; reviewSummary: ReviewSummaryResult | null }) {
   const [localThreats, setLocalThreats] = useState<IecThreat[]>(() => threats.map(th => ({ ...th, sources: [...th.sources] })));
   const [localReqs, setLocalReqs] = useState<IecReq[]>(() => reqs.map(r => ({ ...r, criteria: [...r.criteria] })));
   const [qaResult, setQaResult] = useState<QaResult | null>(null);
@@ -927,12 +933,32 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IecIntakeData; 
   const [, setPreFixQaChecks] = useState<QaCheck[] | null>(null);
   const [allFixLogs, setAllFixLogs] = useState<string[]>([]);
 
-  const critRisks = useMemo(() => localThreats.filter(th => th.likelihood * th.impact >= 20), [localThreats]);
-  const failReqs = useMemo(() => localReqs.filter(r => r.status === 'fail'), [localReqs]);
+  // Verdict counts (applicability model)
+  const counts = useMemo(() => {
+    const na = localReqs.filter(r => r.status === 'pass').length;
+    const partial = localReqs.filter(r => r.status === 'partial').length;
+    const applicable = localReqs.filter(r => r.status === 'fail').length;
+    return { na, partial, applicable };
+  }, [localReqs]);
+
+  // Original risk rating per requirement, derived from linked threats.
+  const ratingFor = useCallback((r: IecReq): number => {
+    const linked = localThreats.filter(th => th.iecRef === r.article);
+    return linked.length > 0 ? Math.max(...linked.map(th => th.likelihood * th.impact)) : 0;
+  }, [localThreats]);
+
+  const critFindings = useMemo(() => localThreats.filter(th => th.likelihood * th.impact >= 20).length, [localThreats]);
+
+  // Individual findings: controls that are applicable or partially applicable.
+  const findings = useMemo(() => localReqs.filter(r => r.status !== 'pass'), [localReqs]);
   const today = useMemo(() => new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' }), []);
 
   const securityLevels = useMemo(() => getSecurityLevels((k: string) => k), []);
   const slName = securityLevels.find(sl => sl.id === intakeData.securityLevel)?.label || intakeData.securityLevel || '—';
+
+  const residualItems = reviewSummary?.residualScopeItems && reviewSummary.residualScopeItems.length > 0
+    ? reviewSummary.residualScopeItems
+    : findings.filter(r => r.residualScopeNote).slice(0, 5).map(r => ({ title: r.name, detail: r.residualScopeNote || '' }));
 
   const handleQaAndFix = useCallback(() => {
     setQaRunning(true);
@@ -962,87 +988,146 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IecIntakeData; 
 
   return (
     <StaggerReveal resetKey="rp" stagger={300}>
-      <InfoBox icon="✅" title="Assessment Complete" color="green">The IACS UR E26 assessment has been performed. Run the quality check to validate the report.</InfoBox>
+      <InfoBox icon="✅" title="Applicability Review Complete" color="green">The IACS UR E26 applicability review has been performed. Run the quality check to validate the report before export.</InfoBox>
 
       {/* Report Header */}
       <div className="bg-card border border-border rounded-xl overflow-hidden">
         <div className="border-l-4 border-primary p-6">
           <div className="flex flex-col sm:flex-row items-start justify-between gap-3">
             <div>
-              <div className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest mb-1">IACS UR E26 Assessment Report</div>
+              <div className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest mb-1">IACS UR E26 Applicability Review</div>
               <div className="text-xl font-bold text-foreground">{intakeData.facilityName}</div>
             </div>
             <div className="sm:text-right text-xs text-muted-foreground space-y-0.5">
               <div className="font-mono">{today}</div>
               <div className="font-medium">{slName}</div>
+              <div className="uppercase tracking-wider text-[10px] text-destructive font-bold">Confidential</div>
             </div>
           </div>
-          <div className="h-px bg-border my-4" />
-          <p className="text-sm text-foreground leading-relaxed">
-            For vessel/system <strong>{intakeData.facilityName}</strong>, <strong>{localThreats.length} threats</strong> were identified, of which <strong className="text-destructive">{critRisks.length} are critical</strong>. Out of {localReqs.length} assessed requirements, <strong className="text-destructive">{failReqs.length} are non-compliant</strong>.
-          </p>
         </div>
       </div>
 
-      {/* KPIs */}
-      <div className="grid grid-cols-3 gap-3">
-        <KpiCard label="Threats" value={localThreats.length} />
-        <KpiCard label="Critical Risks" value={critRisks.length} accent="danger" />
-        <KpiCard label="Non-Compliant" value={failReqs.length} accent="danger" />
-      </div>
+      {/* 1. Executive Summary */}
+      <SectionCard title="Executive Summary" icon="📌">
+        <p className="text-sm text-foreground leading-relaxed mb-4">
+          {reviewSummary?.coreFinding || `This applicability review evaluated ${localReqs.length} IACS UR E26 requirements against the declared scope of ${intakeData.facilityName}. ${counts.applicable} requirements are fully applicable, ${counts.partial} are partially applicable, and ${counts.na} are not applicable to this architecture.`}
+        </p>
+        <div className="grid grid-cols-3 gap-3">
+          <div className="bg-destructive/5 border border-destructive/20 rounded-lg p-3 text-center">
+            <div className="text-2xl font-bold font-mono text-destructive">{counts.applicable}</div>
+            <div className="text-[11px] text-muted-foreground mt-0.5">{VERDICT_LABELS.applicable.en}</div>
+          </div>
+          <div className="bg-yellow-500/5 border border-yellow-500/20 rounded-lg p-3 text-center">
+            <div className="text-2xl font-bold font-mono text-yellow-500">{counts.partial}</div>
+            <div className="text-[11px] text-muted-foreground mt-0.5">{VERDICT_LABELS.partially_applicable.en}</div>
+          </div>
+          <div className="bg-green-500/5 border border-green-500/20 rounded-lg p-3 text-center">
+            <div className="text-2xl font-bold font-mono text-green-500">{counts.na}</div>
+            <div className="text-[11px] text-muted-foreground mt-0.5">{VERDICT_LABELS.not_applicable.en}</div>
+          </div>
+        </div>
+        {critFindings > 0 && (
+          <div className="text-xs text-muted-foreground mt-3">{critFindings} of the underlying findings carry a critical original risk rating.</div>
+        )}
+      </SectionCard>
+
+      {/* 2. Residual scope + recommendation */}
+      {(residualItems.length > 0 || reviewSummary?.recommendation) && (
+        <SectionCard title="Key Residual Scope & Recommendation" icon="🎯">
+          {residualItems.length > 0 && (
+            <div className="space-y-2 mb-4">
+              {residualItems.map((it, i) => (
+                <div key={i} className="border border-border rounded-lg px-3 py-2">
+                  <div className="text-sm font-semibold text-foreground">{it.title}</div>
+                  {it.detail && <div className="text-xs text-muted-foreground mt-0.5">{it.detail}</div>}
+                </div>
+              ))}
+            </div>
+          )}
+          {reviewSummary?.recommendation && (
+            <div className="bg-primary/5 border border-primary/20 rounded-lg px-3 py-2 text-sm">
+              <span className="font-semibold text-primary">Recommendation: </span>
+              <span className="text-foreground">{reviewSummary.recommendation}</span>
+            </div>
+          )}
+        </SectionCard>
+      )}
+
+      {/* 3. Scope */}
+      <SectionCard title="Introduction & Scope" icon="📋">
+        <div className="space-y-2 text-sm">
+          {intakeData.description && <p className="text-foreground leading-relaxed">{intakeData.description}</p>}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1 text-xs mt-2">
+            <div><span className="text-muted-foreground">Target Security Level: </span><span className="text-foreground font-medium">{slName}</span></div>
+            {intakeData.systemTypes.length > 0 && <div><span className="text-muted-foreground">CBS Types: </span><span className="text-foreground font-medium">{intakeData.systemTypes.join(', ')}</span></div>}
+            {intakeData.zones.length > 0 && <div><span className="text-muted-foreground">Zones: </span><span className="text-foreground font-medium">{intakeData.zones.join(', ')}</span></div>}
+            {intakeData.protocols.length > 0 && <div><span className="text-muted-foreground">Protocols: </span><span className="text-foreground font-medium">{intakeData.protocols.join(', ')}</span></div>}
+          </div>
+        </div>
+      </SectionCard>
 
       {/* Charts */}
-      <SectionCard title="Assessment Overview" icon="📊">
+      <SectionCard title="Applicability Overview" icon="📊">
         <Iec62443Ur26AuditCharts threats={localThreats} reqs={localReqs} />
       </SectionCard>
 
-      {/* Critical risks */}
-      {critRisks.length > 0 && (
-        <SectionCard title={`Critical Risks (${critRisks.length})`} icon="🔴" className="border-destructive/30">
+      {/* 4. Individual Findings */}
+      {findings.length > 0 && (
+        <SectionCard title={`Individual Findings (${findings.length})`} icon="🔍">
           <div className="space-y-3">
-            {critRisks.map(th => (
-              <div key={th.id} className="flex items-start gap-3 bg-destructive/5 border border-destructive/15 rounded-lg p-3">
-                <span className="font-mono text-xs text-destructive font-bold bg-destructive/10 px-2 py-1 rounded-md flex-shrink-0">{threatId(th)}</span>
-                <div className="flex-1 min-w-0">
-                  <div className="font-semibold text-foreground text-sm">{th.name}</div>
-                  <div className="text-xs text-muted-foreground mt-0.5">{th.component}</div>
-                  <div className="text-xs text-muted-foreground mt-1">
-                    Score: <span className="font-mono font-bold text-destructive">{th.likelihood} × {th.impact} = {th.likelihood * th.impact}</span>
+            {findings.map((r, i) => {
+              const verdict = verdictFromStatus(r.status);
+              const score = ratingFor(r);
+              return (
+                <div key={r.id} className="border border-border rounded-lg p-4 space-y-2">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-start gap-3 min-w-0">
+                      <span className="font-mono text-xs font-bold bg-secondary px-2 py-1 rounded-md flex-shrink-0 text-muted-foreground">{i + 1}</span>
+                      <div className="min-w-0">
+                        <div className="font-semibold text-foreground text-sm">{r.name}</div>
+                        <div className="text-xs text-muted-foreground mt-0.5">{FR_CATEGORIES[r.id.split('-')[0]]?.label.en || ''} · {r.article}</div>
+                      </div>
+                    </div>
+                    <VerdictBadge verdict={verdict} />
+                  </div>
+                  <div className="ml-10 space-y-1.5 text-xs">
+                    {score > 0 && <div><span className="font-semibold text-muted-foreground">Original Risk Rating: </span><span className="text-foreground">{originalRatingLabel(score, 'en')}</span></div>}
+                    {r.generalisedFinding && <div><span className="font-semibold text-muted-foreground">Generalised Finding: </span><span className="text-foreground">{r.generalisedFinding}</span></div>}
+                    {r.clientResponse && <div><span className="font-semibold text-muted-foreground">Client Response: </span><span className="text-foreground">{r.clientResponse}</span></div>}
+                    {r.residualScopeNote && <div className="bg-secondary/40 border border-border rounded-md px-2.5 py-1.5"><span className="font-semibold text-muted-foreground">Residual Scope Note: </span><span className="text-foreground">{r.residualScopeNote}</span></div>}
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </SectionCard>
       )}
 
-      {/* Fail reqs */}
-      {failReqs.length > 0 && (
-        <SectionCard title={`Non-Compliant Requirements (${failReqs.length})`} icon="⚠️" className="border-destructive/20">
-          <div className="space-y-3">
-            {failReqs.map((r, i) => (
-              <div key={r.id} className="border border-border rounded-lg p-4 space-y-2">
-                <div className="flex items-start gap-3">
-                  <span className="font-bold text-destructive font-mono text-sm bg-destructive/10 w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0">{i + 1}</span>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-semibold text-foreground text-sm">{r.name}</div>
-                    <div className="text-xs text-muted-foreground mt-0.5">{r.article}</div>
-                  </div>
-                </div>
-                <div className="ml-10 space-y-2 text-sm">
-                  <div className="text-xs"><span className="font-semibold text-muted-foreground">Evidence: </span><span className="text-foreground">{r.evidence}</span></div>
-                  {r.measure && (
-                    <div className="bg-primary/5 border border-primary/15 rounded-lg px-3 py-2 text-xs">
-                      <span className="font-semibold text-primary">Measure: </span><span className="text-foreground">{r.measure}</span>
-                    </div>
-                  )}
-                  <CriteriaBlock criteria={r.criteria} />
-                </div>
-              </div>
-            ))}
-          </div>
-        </SectionCard>
-      )}
+      {/* 5. Complete Control Assessment Matrix */}
+      <SectionCard title={`Complete Control Assessment Matrix (${localReqs.length})`} icon="🗂️">
+        <div className="overflow-x-auto">
+          <table className="w-full text-xs">
+            <thead>
+              <tr className="text-left text-muted-foreground border-b border-border">
+                <th className="py-2 pr-3 font-semibold">ID</th>
+                <th className="py-2 pr-3 font-semibold">Reference</th>
+                <th className="py-2 pr-3 font-semibold">Control</th>
+                <th className="py-2 pr-3 font-semibold">Verdict</th>
+              </tr>
+            </thead>
+            <tbody>
+              {localReqs.map(r => (
+                <tr key={r.id} className="border-b border-border/50 align-top">
+                  <td className="py-2 pr-3 font-mono text-foreground">{r.id}</td>
+                  <td className="py-2 pr-3 text-muted-foreground">{r.article}</td>
+                  <td className="py-2 pr-3 text-foreground">{r.name}</td>
+                  <td className="py-2 pr-3"><VerdictBadge verdict={verdictFromStatus(r.status)} /></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </SectionCard>
 
       {qaResult && qaExpanded && (
         <QualityCheckPanel result={qaResult} fixLogs={allFixLogs} categories={QA_CATEGORIES} />
@@ -1052,7 +1137,7 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IecIntakeData; 
       <div className="bg-card border border-border rounded-xl p-5">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <div className="text-sm font-bold text-foreground">Export Report</div>
+            <div className="text-sm font-bold text-foreground">Export Applicability Review</div>
             <div className="text-xs text-muted-foreground mt-0.5">
               {qaResult ? 'Quality check complete — PDF export ready' : 'Run the quality check to validate the report'}
             </div>
@@ -1074,6 +1159,7 @@ function ReportView({ intakeData, threats, reqs }: { intakeData: IecIntakeData; 
                     qaChecks: qaResult.checks,
                     fixLog: allFixLogs,
                     qaIterations: 1,
+                    reviewSummary: reviewSummary || undefined,
                   });
                 }}
                 className="font-semibold"
@@ -1099,6 +1185,7 @@ const Iec62443Ur26ComplianceTool = ({ embedded }: { embedded?: boolean }) => {
   const [loadingMsg, setLoadingMsg] = useState<string>('CBS threats are being identified and assessed against IACS UR E26.');
   const [intakeData, setIntakeData] = useState<IecIntakeData>(EMPTY_INTAKE);
   const [docAssessments, setDocAssessments] = useState<ReqAssessment[] | null>(null);
+  const [reviewSummary, setReviewSummary] = useState<ReviewSummaryResult | null>(null);
   const [docsAnalyzed, setDocsAnalyzed] = useState<string[]>([]);
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -1112,6 +1199,7 @@ const Iec62443Ur26ComplianceTool = ({ embedded }: { embedded?: boolean }) => {
   const handleIntakeFinish = useCallback(async (data: IecIntakeData) => {
     setIntakeData(data);
     setDocAssessments(null);
+    setReviewSummary(null);
     setDocsAnalyzed([]);
     setLoading(true);
 
@@ -1149,6 +1237,7 @@ const Iec62443Ur26ComplianceTool = ({ embedded }: { embedded?: boolean }) => {
         },
       );
       setDocAssessments(result.assessments);
+      setReviewSummary(result.summary || null);
       setDocsAnalyzed(result.documentsAnalyzed);
       toast.success(`Document analysis complete — ${result.documentsAnalyzed.length} document(s) evaluated against ${result.assessments.length} requirements.`);
     } catch (err) {
@@ -1179,12 +1268,20 @@ const Iec62443Ur26ComplianceTool = ({ embedded }: { embedded?: boolean }) => {
       const evidence = label
         ? `[${label}] ${docEvidence || (a.basis === 'declared' ? 'Based on intake self-declaration; no supporting document quote available.' : r.evidence)}`
         : (docEvidence || r.evidence);
-      return { ...r, status: a.status, evidence, rationale: a.rationale || r.rationale };
+      return {
+        ...r,
+        status: a.status,
+        evidence,
+        rationale: a.rationale || r.rationale,
+        generalisedFinding: a.generalisedFinding || r.generalisedFinding,
+        clientResponse: a.clientResponse || r.clientResponse,
+        residualScopeNote: a.residualScopeNote || r.residualScopeNote,
+      };
     });
   }, [docAssessments]);
 
 
-  const reset = useCallback(() => { setStep(0); setIntakeData(EMPTY_INTAKE); setDocAssessments(null); setDocsAnalyzed([]); }, [setStep]);
+  const reset = useCallback(() => { setStep(0); setIntakeData(EMPTY_INTAKE); setDocAssessments(null); setReviewSummary(null); setDocsAnalyzed([]); }, [setStep]);
 
   const progressPct = ((step + 1) / MAIN_STEPS.length) * 100;
 
@@ -1233,7 +1330,7 @@ const Iec62443Ur26ComplianceTool = ({ embedded }: { embedded?: boolean }) => {
             {step === 1 && <ThreatModel threats={IEC_THREATS} onNext={() => setStep(2)} />}
             {step === 2 && <RiskAssessment threats={IEC_THREATS} onNext={() => setStep(3)} />}
             {step === 3 && <IecMapping reqs={effectiveReqs} onNext={() => setStep(4)} />}
-            {step === 4 && <ReportView intakeData={intakeData} threats={IEC_THREATS} reqs={effectiveReqs} />}
+            {step === 4 && <ReportView intakeData={intakeData} threats={IEC_THREATS} reqs={effectiveReqs} reviewSummary={reviewSummary} />}
           </div>
 
         )}
