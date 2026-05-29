@@ -1188,6 +1188,9 @@ const Iec62443ComplianceTool = ({ embedded }: { embedded?: boolean }) => {
         status: a.status,
         evidence,
         rationale: a.rationale || r.rationale,
+        generalisedFinding: a.generalisedFinding || r.generalisedFinding,
+        clientResponse: a.clientResponse || r.clientResponse,
+        residualScopeNote: a.residualScopeNote || r.residualScopeNote,
       };
     });
   }, [docAssessments]);
