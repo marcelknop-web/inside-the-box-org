@@ -39,9 +39,9 @@ function riskLevel(l: number, i: number) {
 }
 
 const StatusBadge = memo(({ status }: { status: string }) => {
-  if (status === 'pass') return <span className="px-2 py-0.5 rounded text-xs font-bold bg-green-500/10 text-green-400 border border-green-500/20">Compliant</span>;
-  if (status === 'partial') return <span className="px-2 py-0.5 rounded text-xs font-bold bg-yellow-500/10 text-yellow-400 border border-yellow-500/20">Partial</span>;
-  return <span className="px-2 py-0.5 rounded text-xs font-bold bg-destructive/10 text-destructive border border-destructive/20">Non-Compliant</span>;
+  const verdict = verdictFromStatus(status as IecReq['status']);
+  const style = VERDICT_STYLES[verdict];
+  return <span className={`px-2 py-0.5 rounded text-xs font-bold ${style.badge}`}>{VERDICT_LABELS[verdict].en}</span>;
 });
 
 const ScoreBar = memo(({ value }: { value: number }) => {
