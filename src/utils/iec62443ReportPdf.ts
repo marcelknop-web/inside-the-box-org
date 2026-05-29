@@ -361,6 +361,20 @@ export async function generateIec62443Report(data: Iec62443ReportData): Promise<
       pdf.y += 6;
       pdf.metaLine(`${r.article}`);
 
+      // Applicability Review verdict + original risk rating
+      const verdictLabel = VERDICT_LABELS[verdictFromStatus(r.status)][lang];
+      pdf.fieldInline(t(I18N.verdict, lang), verdictLabel, 4);
+      const linkedThreatsForReq = threats.filter(th => th.iecRef === r.article);
+      if (linkedThreatsForReq.length > 0) {
+        const maxThreatScore = Math.max(...linkedThreatsForReq.map(th => th.likelihood * th.impact));
+        pdf.fieldInline(t(I18N.originalRating, lang), originalRatingLabel(maxThreatScore, lang), 4);
+      }
+
+      // Template narrative fields
+      if (r.generalisedFinding) { pdf.sectionLabel(t(I18N.generalisedFinding, lang)); pdf.bodyText(r.generalisedFinding, 4); }
+      if (r.clientResponse) { pdf.sectionLabel(t(I18N.clientResponse, lang)); pdf.bodyText(r.clientResponse, 4); }
+      if (r.residualScopeNote) { pdf.sectionLabel(t(I18N.residualScopeNote, lang)); pdf.bodyText(r.residualScopeNote, 4); }
+
       if (r.evidence) { pdf.sectionLabel(t(I18N.evidence, lang)); pdf.bodyText(humanizeEvidence(r.evidence, lang), 4); }
       if (r.rationale) { pdf.sectionLabel(t(I18N.rationale, lang)); pdf.bodyText(r.rationale, 4); }
 
