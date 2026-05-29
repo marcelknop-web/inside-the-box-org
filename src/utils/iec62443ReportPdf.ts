@@ -66,6 +66,18 @@ const I18N = {
   fr: { de: 'Anforderungskategorie', en: 'Requirement Category', fr: 'Catégorie d\'exigence' },
   reproducibility: { de: 'Reproduzierbarkeit', en: 'Reproducibility', fr: 'Reproductibilité' },
   evidenceQuality: { de: 'Evidenz-Qualität', en: 'Evidence Quality', fr: 'Qualité de la preuve' },
+  verdict: { de: 'Verdict', en: 'Verdict', fr: 'Verdict' },
+  originalRating: { de: 'Ursprüngliche Risikobewertung', en: 'Original Risk Rating', fr: 'Évaluation initiale du risque' },
+  generalisedFinding: { de: 'Verallgemeinerte Feststellung', en: 'Generalised Finding', fr: 'Constatation généralisée' },
+  clientResponse: { de: 'Stellungnahme des Kunden', en: 'Client Response', fr: 'Réponse du client' },
+  residualScopeNote: { de: 'Anmerkung zum Restumfang', en: 'Residual Scope Note', fr: 'Note sur le périmètre résiduel' },
+  residualScope: { de: 'Restumfang (Residual E27 Scope)', en: 'Residual E27 Scope', fr: 'Périmètre résiduel E27' },
+  verdictOverview: { de: 'Verdict-Überblick', en: 'Verdict Overview', fr: 'Aperçu des verdicts' },
+  controlMatrix: { de: 'Vollständige E27 Control-Assessment-Matrix', en: 'Complete E27 Control Assessment Matrix', fr: 'Matrice complète d\'évaluation des contrôles E27' },
+  colId: { de: 'ID', en: 'ID', fr: 'ID' },
+  colRef: { de: 'SR-Ref.', en: 'SR Ref.', fr: 'Réf. SR' },
+  colTopic: { de: 'Thema', en: 'Topic', fr: 'Sujet' },
+  colVerdict: { de: 'Verdict', en: 'Verdict', fr: 'Verdict' },
 };
 
 type Lang = 'de' | 'en' | 'fr';
@@ -168,6 +180,16 @@ export async function generateIec62443Report(data: Iec62443ReportData): Promise<
     [`${complianceRate} %`, lang === 'de' ? 'Abdeckungsrate' : lang === 'fr' ? 'Taux de couverture' : 'Coverage Rate'],
   ]);
 
+  // Verdict Overview (Applicability) — matches the Applicability Review template tiles
+  pdf.heading(t(I18N.verdictOverview, lang), 2);
+  pdf.kpiRow([
+    [String(critRisks.length), lang === 'de' ? 'Kritisch' : lang === 'fr' ? 'Critique' : 'Critical'],
+    [String(passReqs.length), t(I18N.pass, lang)],
+    [String(partialReqs.length), t(I18N.partial, lang)],
+    [String(failReqs.length), t(I18N.fail, lang)],
+  ]);
+
+
   // Applicability Distribution
   pdf.heading(lang === 'de' ? 'Anwendbarkeitsverteilung' : lang === 'fr' ? 'Répartition de l\'applicabilité' : 'Applicability Distribution', 2);
   pdf.complianceBar(passReqs.length, partialReqs.length, failReqs.length, {
@@ -222,6 +244,17 @@ export async function generateIec62443Report(data: Iec62443ReportData): Promise<
     ? 'It is recommended to document the applicability assessment and schedule an annual reassessment as part of the continuous improvement process.'
     : `It is strongly recommended that the requirements remaining in residual scope be assigned clear ownership and binding deadlines. A weekly tracking process should be established until all critical items have been fully addressed.`;
   pdf.bodyParagraph(actionText);
+
+  // Residual E27 Scope — key residual scope items from the AI review summary
+  if (reviewSummary?.residualScopeItems && reviewSummary.residualScopeItems.length > 0) {
+    pdf.heading(t(I18N.residualScope, lang), 2);
+    reviewSummary.residualScopeItems.forEach(item => {
+      pdf.checkSpace(16);
+      pdf.field(item.title, item.detail);
+    });
+  }
+
+
 
   /* 2. APPLICABILITY STATEMENT */
   pdf.newPage();
@@ -328,6 +361,20 @@ export async function generateIec62443Report(data: Iec62443ReportData): Promise<
       pdf.y += 6;
       pdf.metaLine(`${r.article}`);
 
+      // Applicability Review verdict + original risk rating
+      const verdictLabel = VERDICT_LABELS[verdictFromStatus(r.status)][lang];
+      pdf.fieldInline(t(I18N.verdict, lang), verdictLabel, 4);
+      const linkedThreatsForReq = threats.filter(th => th.iecRef === r.article);
+      if (linkedThreatsForReq.length > 0) {
+        const maxThreatScore = Math.max(...linkedThreatsForReq.map(th => th.likelihood * th.impact));
+        pdf.fieldInline(t(I18N.originalRating, lang), originalRatingLabel(maxThreatScore, lang), 4);
+      }
+
+      // Template narrative fields
+      if (r.generalisedFinding) { pdf.sectionLabel(t(I18N.generalisedFinding, lang)); pdf.bodyText(r.generalisedFinding, 4); }
+      if (r.clientResponse) { pdf.sectionLabel(t(I18N.clientResponse, lang)); pdf.bodyText(r.clientResponse, 4); }
+      if (r.residualScopeNote) { pdf.sectionLabel(t(I18N.residualScopeNote, lang)); pdf.bodyText(r.residualScopeNote, 4); }
+
       if (r.evidence) { pdf.sectionLabel(t(I18N.evidence, lang)); pdf.bodyText(humanizeEvidence(r.evidence, lang), 4); }
       if (r.rationale) { pdf.sectionLabel(t(I18N.rationale, lang)); pdf.bodyText(r.rationale, 4); }
 
@@ -341,6 +388,65 @@ export async function generateIec62443Report(data: Iec62443ReportData): Promise<
       pdf.y += 3;
     });
   });
+
+  // 3.3 Complete E27 Control Assessment Matrix
+  pdf.newPage();
+  pdf.heading(t(I18N.controlMatrix, lang), 2);
+  pdf.addBookmark(t(I18N.controlMatrix, lang), 2);
+
+  const matrixCols = {
+    id: LAYOUT.LEFT,
+    ref: LAYOUT.LEFT + 24,
+    topic: LAYOUT.LEFT + 60,
+    verdict: LAYOUT.LEFT + 140,
+  };
+
+  const drawMatrixHeader = () => {
+    pdf.doc.setFont(pdf.headFontName, 'bold');
+    pdf.doc.setFontSize(7);
+    pdf.doc.setTextColor(...C.mid);
+    pdf.doc.text(t(I18N.colId, lang).toUpperCase(), matrixCols.id, pdf.y);
+    pdf.doc.text(t(I18N.colRef, lang).toUpperCase(), matrixCols.ref, pdf.y);
+    pdf.doc.text(t(I18N.colTopic, lang).toUpperCase(), matrixCols.topic, pdf.y);
+    pdf.doc.text(t(I18N.colVerdict, lang).toUpperCase(), matrixCols.verdict, pdf.y);
+    pdf.y += 2;
+    pdf.doc.setDrawColor(...C.navy);
+    pdf.doc.setLineWidth(0.25);
+    pdf.doc.line(LAYOUT.LEFT, pdf.y, LAYOUT.RIGHT, pdf.y);
+    pdf.y += 4;
+  };
+
+  drawMatrixHeader();
+
+  reqs.forEach((r, idx) => {
+    if (pdf.y + 6 > LAYOUT.BOTTOM) {
+      pdf.newPage();
+      drawMatrixHeader();
+    }
+    if (idx % 2 === 0) {
+      pdf.doc.setFillColor(...C.bg);
+      pdf.doc.rect(LAYOUT.LEFT, pdf.y - 3, LAYOUT.WIDTH, 5.5, 'F');
+    }
+    const verdict = verdictFromStatus(r.status);
+    const verdictLabel = VERDICT_LABELS[verdict][lang];
+    const topic = pdf.doc.splitTextToSize(r.name, matrixCols.verdict - matrixCols.topic - 4)[0] || r.name;
+    pdf.doc.setFont(pdf.dataFontName, 'normal');
+    pdf.doc.setFontSize(7);
+    pdf.doc.setTextColor(...C.dark);
+    pdf.doc.text(r.id, matrixCols.id, pdf.y);
+    pdf.doc.text(r.article.replace(/^E27[-\s]*\d+\s*/i, '').replace(/[()]/g, '') || '—', matrixCols.ref, pdf.y);
+    pdf.doc.setFont(pdf.bodyFontName, 'normal');
+    pdf.doc.text(topic, matrixCols.topic, pdf.y);
+    const vColor = r.status === 'pass' ? C.pass : r.status === 'partial' ? C.partial : C.fail;
+    pdf.doc.setFont(pdf.headFontName, 'bold');
+    pdf.doc.setTextColor(...vColor);
+    pdf.doc.text(verdictLabel, matrixCols.verdict, pdf.y);
+    pdf.doc.setTextColor(...C.dark);
+    pdf.y += 5;
+  });
+  pdf.y += 4;
+
+
 
   /* 4. RECOMMENDATIONS & ROADMAP */
   pdf.newPage();
