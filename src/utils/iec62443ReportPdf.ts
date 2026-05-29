@@ -2,8 +2,8 @@
  * IACS UR E27 PDF Report — Audit-grade report for Maritime Cyber Resilience
  * Uses PdfDoc from pdfCore.ts for consistent, premium layout
  */
-import type { IecThreat, IecReq, IecIntakeData } from '@/data/iec62443Data';
-import { threatId, FR_CATEGORIES } from '@/data/iec62443Data';
+import type { IecThreat, IecReq, IecIntakeData, ReviewSummary } from '@/data/iec62443Data';
+import { threatId, FR_CATEGORIES, verdictFromStatus, VERDICT_LABELS, originalRatingLabel } from '@/data/iec62443Data';
 import type { QaCheck } from '@/utils/iec62443QualityCheck';
 import { createPdfDoc, LAYOUT, C, humanizeEvidence, evidenceProcedure } from '@/utils/pdfCore';
 
@@ -16,6 +16,7 @@ export interface Iec62443ReportData {
   qaChecks?: QaCheck[];
   fixLog?: string[];
   qaIterations?: number;
+  reviewSummary?: ReviewSummary;
 }
 
 const I18N = {
