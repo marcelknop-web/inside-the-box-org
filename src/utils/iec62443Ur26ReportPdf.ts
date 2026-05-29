@@ -83,7 +83,7 @@ function riskLabel(score: number, lang: Lang): string {
 }
 
 export async function generateIec62443Ur26Report(data: Iec62443ReportData): Promise<void> {
-  const { intakeData, threats, reqs, language: lang, isDraft, qaChecks, fixLog } = data;
+  const { intakeData, threats, reqs, language: lang, isDraft, qaChecks, fixLog, reviewSummary } = data;
   const dateStr = new Date().toLocaleDateString(lang === 'de' ? 'de-DE' : lang === 'fr' ? 'fr-FR' : 'en-GB');
 
   const passReqs = reqs.filter(r => r.status === 'pass');
@@ -133,28 +133,30 @@ export async function generateIec62443Ur26Report(data: Iec62443ReportData): Prom
   pdf.heading(t(I18N.sec1, lang));
   pdf.addBookmark(t(I18N.sec1, lang));
 
-  const isCompliant = critRisks.length === 0 && failReqs.length === 0;
+  const noResidualScope = critRisks.length === 0 && failReqs.length === 0;
 
   // Contextual lead-in paragraph
   const contextLead = lang === 'de'
-    ? `Der vorliegende Bericht dokumentiert die Ergebnisse der Cyber-Resilience-Prüfung des Schiffs bzw. Systems ${intakeData.facilityName} gemäß IACS UR E26. Die Bewertung wurde anhand der Anforderungen aus Kapitel 4–16 der IACS UR E26 durchgeführt, wobei insgesamt ${threats.length} Bedrohungsszenarien analysiert und ${reqs.length} Anforderungen geprüft wurden.`
+    ? `Der vorliegende Bericht dokumentiert die Ergebnisse der Anwendbarkeitsprüfung des Schiffs bzw. Systems ${intakeData.facilityName} gemäß IACS UR E26. Die Bewertung wurde anhand der Anforderungen aus Kapitel 4–16 der IACS UR E26 durchgeführt, wobei insgesamt ${threats.length} Bedrohungsszenarien analysiert und ${reqs.length} Anforderungen auf ihre Anwendbarkeit hin geprüft wurden.`
     : lang === 'fr'
-    ? `Le présent rapport documente les résultats de l'évaluation de la cyber-résilience du navire/système ${intakeData.facilityName} conformément à l'IACS UR E26. L'évaluation a été réalisée sur la base des exigences des Tables 1 et 2 de l'IACS UR E26, portant sur ${threats.length} scénarios de menaces et ${reqs.length} exigences.`
-    : `This report documents the results of the cyber resilience assessment of vessel/system ${intakeData.facilityName} in accordance with IACS UR E26. The assessment was conducted against the requirements of Chapters 4–16 of IACS UR E26, covering ${threats.length} threat scenarios and ${reqs.length} requirements.`;
+    ? `Le présent rapport documente les résultats de l'évaluation d'applicabilité du navire/système ${intakeData.facilityName} conformément à l'IACS UR E26. L'évaluation a porté sur les exigences des chapitres 4 à 16 de l'IACS UR E26, couvrant ${threats.length} scénarios de menaces et l'applicabilité de ${reqs.length} exigences.`
+    : `This report documents the results of the applicability review of vessel/system ${intakeData.facilityName} in accordance with IACS UR E26. The review assessed the requirements of Chapters 4–16 of IACS UR E26, covering ${threats.length} threat scenarios and the applicability of ${reqs.length} requirements.`;
   pdf.introText(contextLead);
 
-  // Verdict
-  const verdictText = lang === 'de'
-    ? isCompliant
-      ? `Im Rahmen der durchgeführten Prüfung konnte festgestellt werden, dass das Schiff bzw. System ${intakeData.facilityName} die Anforderungen gemäß IACS UR E26 vollständig erfüllt. Kritische Abweichungen wurden nicht identifiziert.`
-      : `Die Prüfung des Schiffs bzw. Systems ${intakeData.facilityName} ergibt eine Konformitätsrate von ${complianceRate} % gegenüber den Anforderungen der IACS UR E26. Insgesamt wurden ${critRisks.length} kritische Risiken sowie ${failReqs.length} nicht konforme Anforderungen festgestellt, die unverzügliche Gegenmaßnahmen erfordern.`
+  // Verdict — prefer AI-generated core finding when available
+  const verdictText = reviewSummary?.coreFinding
+    ? reviewSummary.coreFinding
+    : lang === 'de'
+    ? noResidualScope
+      ? `Im Rahmen der durchgeführten Anwendbarkeitsprüfung konnte festgestellt werden, dass für das Schiff bzw. System ${intakeData.facilityName} keine offenen Anforderungen im Restumfang (residual scope) der IACS UR E26 verbleiben.`
+      : `Die Anwendbarkeitsprüfung des Schiffs bzw. Systems ${intakeData.facilityName} ergibt eine Abdeckungsrate von ${complianceRate} % gegenüber den Anforderungen der IACS UR E26. Insgesamt wurden ${critRisks.length} kritische Risiken sowie ${failReqs.length} vollständig anwendbare Anforderungen im Restumfang festgestellt, die vorrangige Behandlung erfordern.`
     : lang === 'fr'
-    ? isCompliant
-      ? `L'évaluation a permis de constater que le navire/système ${intakeData.facilityName} satisfait pleinement aux exigences de l'IACS UR E26. Aucun écart critique n'a été identifié.`
-      : `L'évaluation du navire/système ${intakeData.facilityName} aboutit à un taux de conformité de ${complianceRate} % par rapport aux exigences de l'IACS UR E26. Au total, ${critRisks.length} risques critiques et ${failReqs.length} exigences non conformes ont été identifiés, nécessitant des mesures correctives immédiates.`
-    : isCompliant
-    ? `The assessment has determined that vessel/system ${intakeData.facilityName} fully meets the requirements set out in IACS UR E26. No critical deviations were identified.`
-    : `The assessment of vessel/system ${intakeData.facilityName} yields a compliance rate of ${complianceRate}% against the requirements of IACS UR E26. A total of ${critRisks.length} critical risks and ${failReqs.length} non-compliant requirements were identified, necessitating immediate remediation.`;
+    ? noResidualScope
+      ? `L'évaluation d'applicabilité a permis de constater qu'aucune exigence de l'IACS UR E26 ne subsiste dans le périmètre résiduel du navire/système ${intakeData.facilityName}.`
+      : `L'évaluation d'applicabilité du navire/système ${intakeData.facilityName} aboutit à un taux de couverture de ${complianceRate} % par rapport aux exigences de l'IACS UR E26. Au total, ${critRisks.length} risques critiques et ${failReqs.length} exigences pleinement applicables dans le périmètre résiduel ont été identifiés, nécessitant un traitement prioritaire.`
+    : noResidualScope
+    ? `The applicability review has determined that no IACS UR E26 requirements remain within the residual scope of vessel/system ${intakeData.facilityName}.`
+    : `The applicability review of vessel/system ${intakeData.facilityName} yields a coverage rate of ${complianceRate}% against the requirements of IACS UR E26. A total of ${critRisks.length} critical risks and ${failReqs.length} fully applicable requirements in residual scope were identified, requiring priority treatment.`;
 
   pdf.verdictBox(verdictText);
 
@@ -163,15 +165,15 @@ export async function generateIec62443Ur26Report(data: Iec62443ReportData): Prom
   pdf.kpiRow([
     [String(threats.length), lang === 'de' ? 'Bedrohungen' : lang === 'fr' ? 'Menaces' : 'Threats'],
     [String(critRisks.length), lang === 'de' ? 'Kritisch (≥ 20)' : lang === 'fr' ? 'Critique (≥ 20)' : 'Critical (≥ 20)'],
-    [String(failReqs.length), lang === 'de' ? 'Nicht konform' : lang === 'fr' ? 'Non conforme' : 'Non-Compliant'],
-    [`${complianceRate} %`, lang === 'de' ? 'Konformitätsrate' : lang === 'fr' ? 'Taux de conformité' : 'Compliance Rate'],
+    [String(failReqs.length), lang === 'de' ? 'Anwendbar (Restumfang)' : lang === 'fr' ? 'Applicable (résiduel)' : 'Applicable (residual)'],
+    [`${complianceRate} %`, lang === 'de' ? 'Abdeckungsrate' : lang === 'fr' ? 'Taux de couverture' : 'Coverage Rate'],
   ]);
 
-  // Compliance Distribution
-  pdf.heading(lang === 'de' ? 'Konformitätsverteilung' : lang === 'fr' ? 'Répartition de la conformité' : 'Compliance Distribution', 2);
+  // Applicability Distribution
+  pdf.heading(lang === 'de' ? 'Anwendbarkeitsverteilung' : lang === 'fr' ? 'Répartition de l\'applicabilité' : 'Applicability Distribution', 2);
   pdf.complianceBar(passReqs.length, partialReqs.length, failReqs.length, {
     pass: t(I18N.pass, lang), partial: t(I18N.partial, lang), fail: t(I18N.fail, lang),
-    title: lang === 'de' ? 'IACS UR E26 Konformitätsverteilung' : lang === 'fr' ? 'Répartition de la conformité IACS UR E26' : 'IACS UR E26 Compliance Distribution',
+    title: lang === 'de' ? 'IACS UR E26 Anwendbarkeitsverteilung' : lang === 'fr' ? 'Répartition de l\'applicabilité IACS UR E26' : 'IACS UR E26 Applicability Distribution',
   });
 
   // Risk Distribution
@@ -207,41 +209,49 @@ export async function generateIec62443Ur26Report(data: Iec62443ReportData): Prom
 
   // Recommended Actions
   pdf.heading(lang === 'de' ? 'Handlungsempfehlung' : lang === 'fr' ? 'Recommandation' : 'Recommended Action', 2);
-  const actionText = lang === 'de'
-    ? isCompliant
-      ? 'Es wird empfohlen, den Konformitätsnachweis zu dokumentieren und eine jährliche Neubewertung im Rahmen des kontinuierlichen Verbesserungsprozesses einzuplanen.'
-      : `Es wird dringend empfohlen, die in Abschnitt 4 aufgeführten Sofortmaßnahmen (P0) mit klaren Verantwortlichkeiten und verbindlichen Fristen zu versehen. Bis zur vollständigen Schließung aller kritischen Abweichungen sollte ein wöchentliches Tracking-Verfahren etabliert werden.`
+  const actionText = reviewSummary?.recommendation
+    ? reviewSummary.recommendation
+    : lang === 'de'
+    ? noResidualScope
+      ? 'Es wird empfohlen, die Anwendbarkeitsbewertung zu dokumentieren und eine jährliche Neubewertung im Rahmen des kontinuierlichen Verbesserungsprozesses einzuplanen.'
+      : `Es wird dringend empfohlen, die im Restumfang verbleibenden Anforderungen mit klaren Verantwortlichkeiten und verbindlichen Fristen zu versehen. Bis zur vollständigen Behandlung aller kritischen Punkte sollte ein wöchentliches Tracking-Verfahren etabliert werden.`
     : lang === 'fr'
-    ? isCompliant
-      ? 'Il est recommandé de documenter la preuve de conformité et de planifier une réévaluation annuelle dans le cadre du processus d\'amélioration continue.'
-      : `Il est fortement recommandé d'attribuer aux actions immédiates (P0) listées en section 4 des responsabilités claires et des échéances contraignantes. Un suivi hebdomadaire devrait être mis en place jusqu'à la résolution complète de tous les écarts critiques.`
-    : isCompliant
-    ? 'It is recommended to document the compliance evidence and schedule an annual reassessment as part of the continuous improvement process.'
-    : `It is strongly recommended that the immediate actions (P0) listed in Section 4 be assigned clear ownership and binding deadlines. A weekly tracking process should be established until all critical gaps have been fully remediated.`;
+    ? noResidualScope
+      ? 'Il est recommandé de documenter l\'évaluation d\'applicabilité et de planifier une réévaluation annuelle dans le cadre du processus d\'amélioration continue.'
+      : `Il est fortement recommandé d'attribuer aux exigences du périmètre résiduel des responsabilités claires et des échéances contraignantes. Un suivi hebdomadaire devrait être mis en place jusqu'au traitement complet de tous les points critiques.`
+    : noResidualScope
+    ? 'It is recommended to document the applicability assessment and schedule an annual reassessment as part of the continuous improvement process.'
+    : `It is strongly recommended that the requirements remaining in residual scope be assigned clear ownership and binding deadlines. A weekly tracking process should be established until all critical items have been fully addressed.`;
   pdf.bodyParagraph(actionText);
 
-  /* 2. COMPLIANCE STATEMENT */
+  /* 2. APPLICABILITY STATEMENT */
   pdf.newPage();
   pdf.heading(t(I18N.sec2, lang));
   pdf.addBookmark(t(I18N.sec2, lang));
 
-  const complianceVerdict = lang === 'de'
-    ? isCompliant
-      ? `Auf Grundlage der durchgeführten Prüfung wird festgestellt, dass das Schiff bzw. System ${intakeData.facilityName} die Anforderungen der IACS UR E26 vollständig erfüllt.`
+  const applicabilityVerdict = lang === 'de'
+    ? noResidualScope
+      ? `Auf Grundlage der durchgeführten Anwendbarkeitsprüfung wird festgestellt, dass für das Schiff bzw. System ${intakeData.facilityName} keine offenen Anforderungen der IACS UR E26 im Restumfang verbleiben.`
       : complianceRate >= 60
-      ? `Das Schiff bzw. System ${intakeData.facilityName} erfüllt die Anforderungen der IACS UR E26 bedingt. Die gewichtete Konformitätsrate beträgt ${complianceRate} %. Einzelne Abweichungen sind innerhalb der im Maßnahmenplan definierten Fristen zu beheben.`
-      : `Das Schiff bzw. System ${intakeData.facilityName} erfüllt die Anforderungen der IACS UR E26 nicht. Die gewichtete Konformitätsrate von ${complianceRate} % liegt unterhalb des Schwellenwerts für eine bedingte Konformität. Eine umfassende Überarbeitung der CBS-Sicherheitsarchitektur ist vor dem nächsten Klasseerneuerungsbesuch zwingend erforderlich.`
-    : isCompliant
-    ? `Based on the assessment conducted, it is determined that vessel/system ${intakeData.facilityName} fully meets the requirements of IACS UR E26.`
+      ? `Für das Schiff bzw. System ${intakeData.facilityName} verbleibt ein überschaubarer Restumfang anwendbarer Anforderungen der IACS UR E26. Die gewichtete Abdeckungsrate beträgt ${complianceRate} %. Die verbleibenden anwendbaren Anforderungen sind innerhalb der im Maßnahmenplan definierten Fristen zu behandeln.`
+      : `Für das Schiff bzw. System ${intakeData.facilityName} verbleibt ein wesentlicher Restumfang anwendbarer Anforderungen der IACS UR E26. Die gewichtete Abdeckungsrate von ${complianceRate} % liegt unterhalb des angestrebten Schwellenwerts. Eine umfassende Überarbeitung der CBS-Sicherheitsarchitektur ist vor dem nächsten Klasseerneuerungsbesuch zwingend erforderlich.`
+    : lang === 'fr'
+    ? noResidualScope
+      ? `Sur la base de l'évaluation d'applicabilité réalisée, il est constaté qu'aucune exigence de l'IACS UR E26 ne subsiste dans le périmètre résiduel du navire/système ${intakeData.facilityName}.`
+      : complianceRate >= 60
+      ? `Un périmètre résiduel limité d'exigences applicables de l'IACS UR E26 subsiste pour le navire/système ${intakeData.facilityName}. Le taux de couverture pondéré est de ${complianceRate} %. Les exigences applicables restantes doivent être traitées dans les délais définis dans le plan d'action.`
+      : `Un périmètre résiduel important d'exigences applicables de l'IACS UR E26 subsiste pour le navire/système ${intakeData.facilityName}. Le taux de couverture pondéré de ${complianceRate} % est inférieur au seuil visé. Une refonte complète de l'architecture de sécurité CBS est requise avant la prochaine visite de renouvellement de classe.`
+    : noResidualScope
+    ? `Based on the applicability review conducted, it is determined that no IACS UR E26 requirements remain within the residual scope of vessel/system ${intakeData.facilityName}.`
     : complianceRate >= 60
-    ? `Vessel/system ${intakeData.facilityName} conditionally meets the requirements of IACS UR E26. The weighted compliance rate is ${complianceRate}%. Individual deviations must be resolved within the timeframes defined in the remediation plan.`
-    : `Vessel/system ${intakeData.facilityName} does not meet the requirements of IACS UR E26. The weighted compliance rate of ${complianceRate}% falls below the threshold for conditional compliance. A comprehensive overhaul of the CBS security architecture is required prior to the next class renewal survey.`;
+    ? `A limited residual scope of applicable IACS UR E26 requirements remains for vessel/system ${intakeData.facilityName}. The weighted coverage rate is ${complianceRate}%. The remaining applicable requirements must be addressed within the timeframes defined in the remediation plan.`
+    : `A substantial residual scope of applicable IACS UR E26 requirements remains for vessel/system ${intakeData.facilityName}. The weighted coverage rate of ${complianceRate}% falls below the targeted threshold. A comprehensive overhaul of the CBS security architecture is required prior to the next class renewal survey.`;
 
-  pdf.verdictBox(complianceVerdict);
+  pdf.verdictBox(applicabilityVerdict);
 
   const methodNote = lang === 'de'
-    ? `Die Bewertungsmethodik gewichtet konforme Anforderungen mit 100 %, teilweise konforme mit 50 % und nicht konforme mit 0 %. Aus der Verteilung von ${passReqs.length} konformen, ${partialReqs.length} teilweise konformen und ${failReqs.length} nicht konformen Anforderungen bei insgesamt ${reqs.length} geprüften Anforderungen ergibt sich die gewichtete Konformitätsrate von ${complianceRate} %.`
-    : `The assessment methodology weights compliant requirements at 100%, partially compliant at 50%, and non-compliant at 0%. From the distribution of ${passReqs.length} compliant, ${partialReqs.length} partially compliant, and ${failReqs.length} non-compliant requirements out of ${reqs.length} assessed requirements, a weighted compliance rate of ${complianceRate}% is derived.`;
+    ? `Die Anwendbarkeitsmethodik gewichtet nicht anwendbare Anforderungen mit 100 %, teilweise anwendbare mit 50 % und vollständig anwendbare (Restumfang) mit 0 %. Aus der Verteilung von ${passReqs.length} nicht anwendbaren, ${partialReqs.length} teilweise anwendbaren und ${failReqs.length} vollständig anwendbaren Anforderungen bei insgesamt ${reqs.length} geprüften Anforderungen ergibt sich die gewichtete Abdeckungsrate von ${complianceRate} %.`
+    : `The applicability methodology weights not-applicable requirements at 100%, partially applicable at 50%, and fully applicable (residual scope) at 0%. From the distribution of ${passReqs.length} not applicable, ${partialReqs.length} partially applicable, and ${failReqs.length} fully applicable requirements out of ${reqs.length} reviewed requirements, a weighted coverage rate of ${complianceRate}% is derived.`;
   pdf.bodyText(methodNote);
 
   /* 3. DETAILED FINDINGS */
@@ -297,8 +307,8 @@ export async function generateIec62443Ur26Report(data: Iec62443ReportData): Prom
   pdf.addBookmark(t(I18N.sec3b, lang), 2);
 
   const introReqs = lang === 'de'
-    ? `Die nachfolgende Übersicht dokumentiert die Einzelbewertung jeder geprüften IACS-UR-E26-Anforderung. Für festgestellte Abweichungen werden konkrete Maßnahmen sowie nachweisbare Umsetzungskriterien (Definition of Done) angegeben, um eine strukturierte Nachverfolgung zu ermöglichen.`
-    : `The following overview documents the individual assessment of each audited IACS UR E26 requirement. For identified deviations, concrete measures and verifiable acceptance criteria (Definition of Done) are provided to enable structured follow-up.`;
+    ? `Die nachfolgende Übersicht dokumentiert die Einzelbewertung der Anwendbarkeit jeder geprüften IACS-UR-E26-Anforderung. Für anwendbare und teilweise anwendbare Anforderungen werden konkrete Maßnahmen sowie nachweisbare Umsetzungskriterien (Definition of Done) angegeben, um eine strukturierte Nachverfolgung des Restumfangs zu ermöglichen.`
+    : `The following overview documents the individual applicability assessment of each reviewed IACS UR E26 requirement. For applicable and partially applicable requirements, concrete measures and verifiable acceptance criteria (Definition of Done) are provided to enable structured follow-up of the residual scope.`;
   pdf.introText(introReqs);
 
   const frGroups = Object.keys(FR_CATEGORIES);
@@ -418,8 +428,8 @@ export async function generateIec62443Ur26Report(data: Iec62443ReportData): Prom
   pdf.heading(t(I18N.sec6, lang));
   pdf.addBookmark(t(I18N.sec6, lang));
   const contextText = lang === 'de'
-    ? `Der vorliegende Bericht dokumentiert die Ergebnisse einer strukturierten Sicherheitsbewertung des Schiffs bzw. Systems ${intakeData.facilityName} gemäß den Anforderungen der IACS UR E26 (Cyber Resilience of Ships). Die Prüfung wurde am ${dateStr} durchgeführt.\n\nZielsetzung der Bewertung war die systematische Identifikation und Bewertung von Bedrohungen für die an Bord installierten rechnergestützten Systeme (Computer Based Systems, CBS) sowie die Feststellung des Konformitätsgrads gegenüber den Anforderungen der IACS UR E26 (Kapitel 4–16) (Kapitel 4–16).\n\nDer Bericht richtet sich an Reeder, Schiffsführung, den Electro-Technical Officer (ETO) bzw. IT-Verantwortlichen an Bord sowie an die zuständige Klassifikationsgesellschaft.`
-    : `This report documents the results of a structured security assessment of vessel/system ${intakeData.facilityName} pursuant to the requirements of IACS UR E26 (Cyber Resilience of Ships). The assessment was conducted on ${dateStr}.\n\nThe objective was the systematic identification and assessment of threats to Computer Based Systems (CBS) installed on board, as well as the determination of the degree of compliance with the requirements set out in IACS UR E26 (Chapters 4–16) (Chapters 4–16).\n\nThis report is intended for ship owners, vessel management, the Electro-Technical Officer (ETO) or IT responsible on board, and the relevant classification society.`;
+    ? `Der vorliegende Bericht dokumentiert die Ergebnisse einer strukturierten Anwendbarkeitsprüfung des Schiffs bzw. Systems ${intakeData.facilityName} gemäß den Anforderungen der IACS UR E26 (Cyber Resilience of Ships). Die Prüfung wurde am ${dateStr} durchgeführt.\n\nZielsetzung der Bewertung war die systematische Identifikation und Bewertung von Bedrohungen für die an Bord installierten rechnergestützten Systeme (Computer Based Systems, CBS) sowie die Feststellung der Anwendbarkeit der Anforderungen der IACS UR E26 (Kapitel 4–16) und des daraus resultierenden Restumfangs.\n\nDer Bericht richtet sich an Reeder, Schiffsführung, den Electro-Technical Officer (ETO) bzw. IT-Verantwortlichen an Bord sowie an die zuständige Klassifikationsgesellschaft.`
+    : `This report documents the results of a structured applicability review of vessel/system ${intakeData.facilityName} pursuant to the requirements of IACS UR E26 (Cyber Resilience of Ships). The review was conducted on ${dateStr}.\n\nThe objective was the systematic identification and assessment of threats to Computer Based Systems (CBS) installed on board, as well as the determination of the applicability of the requirements set out in IACS UR E26 (Chapters 4–16) and the resulting residual scope.\n\nThis report is intended for ship owners, vessel management, the Electro-Technical Officer (ETO) or IT responsible on board, and the relevant classification society.`;
   pdf.bodyParagraph(contextText);
 
   /* 7. METHODOLOGY */
@@ -427,8 +437,8 @@ export async function generateIec62443Ur26Report(data: Iec62443ReportData): Prom
   pdf.heading(t(I18N.sec7, lang));
   pdf.addBookmark(t(I18N.sec7, lang));
   const methodText = lang === 'de'
-    ? `Die Bewertung folgt einem strukturierten, sechsstufigen Audit-Prozess:\n\n1. Scope-Definition: Identifikation der zu prüfenden rechnergestützten Bordsysteme (CBS) gemäß IACS UR E26. Der Prüfungsumfang wird gemeinsam mit dem Auftraggeber festgelegt.\n\n2. Bedrohungsanalyse: Systematische Identifikation und Dokumentation von Bedrohungsszenarien, die für die an Bord installierten CBS relevant sind.\n\n3. Risikobewertung: Bewertung jedes Bedrohungsszenarios anhand einer 5×5-Matrix nach Eintrittswahrscheinlichkeit und Auswirkungsschwere.\n\n4. E26-Mapping: Abgleich der identifizierten Bedrohungen mit den Anforderungen der IACS UR E26 (Kapitel 4–16) (Kapitel 4–16) zur Feststellung des Konformitätsgrads.\n\n5. Maßnahmenableitung: Ableitung priorisierter Handlungsempfehlungen (P0 bis P3) mit konkreten Umsetzungskriterien und Aufwandsschätzungen.\n\n6. Qualitätssicherung: Automatisierte Validierung der Berichtskonsistenz, Evidenzqualität und fachlichen Korrektheit mittels regelbasierter Prüflogik.`
-    : `The assessment follows a structured, six-step audit process:\n\n1. Scope Definition: Identification of Computer Based Systems (CBS) on board to be assessed per IACS UR E26. The scope is jointly defined with the commissioning party.\n\n2. Threat Analysis: Systematic identification and documentation of threat scenarios relevant to the CBS installed on board.\n\n3. Risk Assessment: Evaluation of each threat scenario using a 5×5 matrix by likelihood and impact severity.\n\n4. E26 Mapping: Alignment of identified threats with the requirements of IACS UR E26 (Chapters 4–16) (Chapters 4–16) to determine the degree of compliance.\n\n5. Remediation Planning: Derivation of prioritised recommendations (P0 through P3) with concrete acceptance criteria and effort estimates.\n\n6. Quality Assurance: Automated validation of report consistency, evidence quality, and technical correctness using rule-based verification logic.`;
+    ? `Die Bewertung folgt einem strukturierten, sechsstufigen Prüfprozess:\n\n1. Scope-Definition: Identifikation der zu prüfenden rechnergestützten Bordsysteme (CBS) gemäß IACS UR E26. Der Prüfungsumfang wird gemeinsam mit dem Auftraggeber festgelegt.\n\n2. Bedrohungsanalyse: Systematische Identifikation und Dokumentation von Bedrohungsszenarien, die für die an Bord installierten CBS relevant sind.\n\n3. Risikobewertung: Bewertung jedes Bedrohungsszenarios anhand einer 5×5-Matrix nach Eintrittswahrscheinlichkeit und Auswirkungsschwere.\n\n4. E26-Anwendbarkeitsabgleich: Abgleich der identifizierten Bedrohungen mit den Anforderungen der IACS UR E26 (Kapitel 4–16) zur Feststellung der Anwendbarkeit und des Restumfangs.\n\n5. Maßnahmenableitung: Ableitung priorisierter Handlungsempfehlungen (P0 bis P3) mit konkreten Umsetzungskriterien und Aufwandsschätzungen.\n\n6. Qualitätssicherung: Automatisierte Validierung der Berichtskonsistenz, Evidenzqualität und fachlichen Korrektheit mittels regelbasierter Prüflogik.`
+    : `The review follows a structured, six-step process:\n\n1. Scope Definition: Identification of Computer Based Systems (CBS) on board to be assessed per IACS UR E26. The scope is jointly defined with the commissioning party.\n\n2. Threat Analysis: Systematic identification and documentation of threat scenarios relevant to the CBS installed on board.\n\n3. Risk Assessment: Evaluation of each threat scenario using a 5×5 matrix by likelihood and impact severity.\n\n4. E26 Applicability Mapping: Alignment of identified threats with the requirements of IACS UR E26 (Chapters 4–16) to determine applicability and residual scope.\n\n5. Remediation Planning: Derivation of prioritised recommendations (P0 through P3) with concrete acceptance criteria and effort estimates.\n\n6. Quality Assurance: Automated validation of report consistency, evidence quality, and technical correctness using rule-based verification logic.`;
   pdf.bodyParagraph(methodText);
 
   /* 8. DISCLAIMER */
