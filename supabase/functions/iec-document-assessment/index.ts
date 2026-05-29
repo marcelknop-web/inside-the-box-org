@@ -137,7 +137,19 @@ HOW TO DETERMINE "status" for each requirement:
 "evidence": a short verbatim quote/reference from a document if one exists, otherwise an empty string. NEVER invent document quotes.
 "sourceDoc": exact document name the evidence came from, or "" if none.
 "confidence": "high" = declared and document-confirmed; "medium" = clearly declared OR solid document evidence; "low" = weak/indirect or contradicted.
-Write "rationale" in ${langName}; keep evidence quotes in their original document language. Return a verdict for EVERY requirement id.`;
+
+APPLICABILITY REVIEW NARRATIVE (REQUIRED for every requirement) — this report is framed as an Applicability Review. In addition to the status, provide:
+   - "generalisedFinding": one neutral sentence describing the underlying control/finding in general terms (what the requirement protects against), independent of this specific system.
+   - "clientResponse": one sentence summarising the operator's declared position for this control, grounded in the intake declarations / documents (e.g. what they stated is in place or out of scope). If nothing was declared, state that plainly.
+   - "residualScopeNote": for "partial" and "fail" controls, one sentence describing what residual scope or gap remains and must still be addressed. For "pass" controls, briefly state why no residual scope remains (e.g. not applicable to this architecture / fully addressed).
+Map the status to the applicability verdict shown to the reader: pass = "Not applicable", partial = "Partially applicable", fail = "Applicable" (full residual scope). Judge applicability from the actual system context — a control may legitimately be "Not applicable" even if its generic risk rating is high, when the architecture or scope rules it out.
+
+OVERALL SUMMARY (REQUIRED, in the "summary" object):
+   - "coreFinding": 2-3 sentences summarising the overall applicability outcome for this system.
+   - "recommendation": 1-2 sentences with the headline recommendation.
+   - "residualScopeItems": up to 5 of the most important residual scope items, each { "title", "detail" }.
+
+Write all narrative ("rationale", "generalisedFinding", "clientResponse", "residualScopeNote", "coreFinding", "recommendation", residual scope items) in ${langName}; keep evidence quotes in their original document language. Return a verdict for EVERY requirement id.`;
 
     const userPrompt = `${contextBlock}EVIDENCE DOCUMENTS:\n${docBlock}\n\n=== REQUIREMENTS TO ASSESS ===\n${reqBlock}`;
 
