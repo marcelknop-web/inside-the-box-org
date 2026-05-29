@@ -128,10 +128,60 @@ const INTAKE_STEPS = 6;
 
 function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
   const { t } = useLanguage();
-  const [sub, setSub] = useState(0);
-  const [d, setD] = useState<IecIntakeData>(EMPTY_INTAKE);
+  const restored = useRef(loadLocalDraft<IecIntakeData>(DRAFT_KEY));
+  const [sub, setSub] = useState(() => restored.current?.sub ?? 0);
+  const [d, setD] = useState<IecIntakeData>(() =>
+    restored.current ? sanitizeDraftFiles(restored.current.data) : EMPTY_INTAKE,
+  );
   const fileRef = useRef<HTMLInputElement>(null);
   const [activeUploadType, setActiveUploadType] = useState<string | null>(null);
+  const [cloudBusy, setCloudBusy] = useState(false);
+  const [cloudCode, setCloudCode] = useState('');
+  const [loadCode, setLoadCode] = useState('');
+
+  // Auto-save every change locally (best-effort safety net).
+  useEffect(() => {
+    saveLocalDraft(DRAFT_KEY, { sub, data: d, savedAt: Date.now() });
+  }, [sub, d]);
+
+  const handleCloudSave = useCallback(async () => {
+    setCloudBusy(true);
+    try {
+      const code = await saveCloudDraft(DRAFT_TOOL, d);
+      setCloudCode(code);
+      toast.success(`Saved to cloud — your restore code: ${code}`);
+    } catch {
+      toast.error('Cloud save failed. Your inputs are still saved locally.');
+    } finally {
+      setCloudBusy(false);
+    }
+  }, [d]);
+
+  const handleCloudLoad = useCallback(async () => {
+    const code = loadCode.trim();
+    if (!code) return;
+    setCloudBusy(true);
+    try {
+      const { data: loaded } = await loadCloudDraft<IecIntakeData>(code);
+      setD(sanitizeDraftFiles(loaded));
+      setSub(0);
+      setLoadCode('');
+      toast.success('Draft loaded from cloud.');
+    } catch {
+      toast.error('No draft found for this code.');
+    } finally {
+      setCloudBusy(false);
+    }
+  }, [loadCode]);
+
+  const handleClearDraft = useCallback(() => {
+    clearLocalDraft(DRAFT_KEY);
+    setD(EMPTY_INTAKE);
+    setSub(0);
+    setCloudCode('');
+    toast.success('Saved inputs cleared.');
+  }, []);
+
 
   const systemTypes = useMemo(() => getSystemTypes(t), [t]);
   const securityLevels = useMemo(() => getSecurityLevels(t), [t]);
