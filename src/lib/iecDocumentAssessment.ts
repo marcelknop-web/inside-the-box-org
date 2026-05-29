@@ -41,11 +41,22 @@ export interface ReqAssessment {
   rationale: string;
   sourceDoc: string; // document name the evidence came from, or ''
   confidence: 'high' | 'medium' | 'low';
+  // Applicability Review narrative (AI-generated)
+  generalisedFinding?: string;
+  clientResponse?: string;
+  residualScopeNote?: string;
+}
+
+export interface ReviewSummaryResult {
+  coreFinding: string;
+  recommendation: string;
+  residualScopeItems: { title: string; detail: string }[];
 }
 
 export interface DocAssessmentResult {
   assessments: ReqAssessment[];
   documentsAnalyzed: string[];
+  summary?: ReviewSummaryResult;
 }
 
 // Keep each AI call comfortably under the edge function / model limits so an
