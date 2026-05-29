@@ -1268,7 +1268,15 @@ const Iec62443Ur26ComplianceTool = ({ embedded }: { embedded?: boolean }) => {
       const evidence = label
         ? `[${label}] ${docEvidence || (a.basis === 'declared' ? 'Based on intake self-declaration; no supporting document quote available.' : r.evidence)}`
         : (docEvidence || r.evidence);
-      return { ...r, status: a.status, evidence, rationale: a.rationale || r.rationale };
+      return {
+        ...r,
+        status: a.status,
+        evidence,
+        rationale: a.rationale || r.rationale,
+        generalisedFinding: a.generalisedFinding || r.generalisedFinding,
+        clientResponse: a.clientResponse || r.clientResponse,
+        residualScopeNote: a.residualScopeNote || r.residualScopeNote,
+      };
     });
   }, [docAssessments]);
 
