@@ -213,13 +213,6 @@ export const SiteChrome = ({
             <SheetTitle className="font-mono font-semibold text-2xl sm:text-3xl text-foreground">
               {lang === 'de' ? 'Sprechen wir' : lang === 'fr' ? 'Parlons-en' : 'Let\'s talk'}
             </SheetTitle>
-            <SheetDescription className="font-sans text-sm text-muted-foreground leading-relaxed">
-              {lang === 'de'
-                ? 'Ein kurzes, unverbindliches Gespräch — 30 Minuten, ganz ohne Pitch.'
-                : lang === 'fr'
-                ? 'Un échange court et sans engagement — 30 minutes, sans aucun pitch.'
-                : 'A short, no-strings chat — 30 minutes, no pitch.'}
-            </SheetDescription>
           </SheetHeader>
 
           <div className="space-y-3">
