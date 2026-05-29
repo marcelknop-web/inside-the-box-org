@@ -32,3 +32,5 @@ verify_jwt = false
 
 [functions.blind-spot-chat]
 verify_jwt = false
+[functions.intake-draft]
+verify_jwt = false
