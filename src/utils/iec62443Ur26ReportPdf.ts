@@ -2,7 +2,7 @@
  * IACS UR E26 PDF Report — Audit-grade report for Maritime Cyber Resilience
  * Uses PdfDoc from pdfCore.ts for consistent, premium layout
  */
-import type { IecThreat, IecReq, IecIntakeData } from '@/data/iec62443Ur26Data';
+import type { IecThreat, IecReq, IecIntakeData, ReviewSummary } from '@/data/iec62443Ur26Data';
 import { threatId, FR_CATEGORIES } from '@/data/iec62443Ur26Data';
 import type { QaCheck } from '@/utils/iec62443Ur26QualityCheck';
 import { createPdfDoc, LAYOUT, C, humanizeEvidence, evidenceProcedure } from '@/utils/pdfCore';
