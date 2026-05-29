@@ -1281,7 +1281,7 @@ const Iec62443Ur26ComplianceTool = ({ embedded }: { embedded?: boolean }) => {
   }, [docAssessments]);
 
 
-  const reset = useCallback(() => { setStep(0); setIntakeData(EMPTY_INTAKE); setDocAssessments(null); setDocsAnalyzed([]); }, [setStep]);
+  const reset = useCallback(() => { setStep(0); setIntakeData(EMPTY_INTAKE); setDocAssessments(null); setReviewSummary(null); setDocsAnalyzed([]); }, [setStep]);
 
   const progressPct = ((step + 1) / MAIN_STEPS.length) * 100;
 
