@@ -245,6 +245,17 @@ export async function generateIec62443Report(data: Iec62443ReportData): Promise<
     : `It is strongly recommended that the requirements remaining in residual scope be assigned clear ownership and binding deadlines. A weekly tracking process should be established until all critical items have been fully addressed.`;
   pdf.bodyParagraph(actionText);
 
+  // Residual E27 Scope — key residual scope items from the AI review summary
+  if (reviewSummary?.residualScopeItems && reviewSummary.residualScopeItems.length > 0) {
+    pdf.heading(t(I18N.residualScope, lang), 2);
+    reviewSummary.residualScopeItems.forEach(item => {
+      pdf.checkSpace(16);
+      pdf.field(item.title, item.detail);
+    });
+  }
+
+
+
   /* 2. APPLICABILITY STATEMENT */
   pdf.newPage();
   pdf.heading(t(I18N.sec2, lang));
