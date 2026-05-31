@@ -35,6 +35,7 @@ const OtSocLife = lazy(() => import('./OtSocLife'));
 const AiActReadinessTool = lazy(() => import('./AiActReadinessTool'));
 
 import { StaggerReveal } from '@/components/StaggerReveal';
+import { ScrollReveal } from '@/components/ScrollReveal';
 import GlitchText from '@/components/GlitchText';
 import Typewriter from '@/components/Typewriter';
 import TypedSection from '@/components/TypedSection';
@@ -423,7 +424,11 @@ const useServiceContent = () => {
       </TypedSection>
     ),
     'assessments-concepts': () => (
-      <TypedSection title={t('assessments.title')} mode="typewriter" intro={<p>{t('assessments.intro')}</p>}>
+      <ScrollReveal>
+        <div className="rounded-2xl px-5 py-4 text-base font-sans leading-relaxed tracking-wide text-foreground">
+          <SectionTitle>{t('assessments.title')}</SectionTitle>
+          <p className="text-primary">{t('assessments.intro')}</p>
+        </div>
         <Block className="bg-card/40 rounded-xl">
           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{t('assessments.introDetail')}</p>
         </Block>
@@ -456,7 +461,8 @@ const useServiceContent = () => {
           </button>
         </Block>
         <RelatedServices serviceId="assessments-concepts" onSelect={setActive} />
-      </TypedSection>
+      </ScrollReveal>
+
     ),
     'incident-management': () => (
       <TypedSection title={t('incident.title')} mode="typewriter" intro={<p>{t('incident.intro')}</p>}>
