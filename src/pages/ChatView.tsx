@@ -35,6 +35,7 @@ const OtSocLife = lazy(() => import('./OtSocLife'));
 const AiActReadinessTool = lazy(() => import('./AiActReadinessTool'));
 
 import { StaggerReveal } from '@/components/StaggerReveal';
+import { ScrollReveal } from '@/components/ScrollReveal';
 import GlitchText from '@/components/GlitchText';
 import Typewriter from '@/components/Typewriter';
 import TypedSection from '@/components/TypedSection';
