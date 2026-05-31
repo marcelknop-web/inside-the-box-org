@@ -423,7 +423,11 @@ const useServiceContent = () => {
       </TypedSection>
     ),
     'assessments-concepts': () => (
-      <TypedSection title={t('assessments.title')} mode="typewriter" intro={<p>{t('assessments.intro')}</p>}>
+      <ScrollReveal>
+        <div className="rounded-2xl px-5 py-4 text-base font-sans leading-relaxed tracking-wide text-foreground">
+          <SectionTitle>{t('assessments.title')}</SectionTitle>
+          <p className="text-primary">{t('assessments.intro')}</p>
+        </div>
         <Block className="bg-card/40 rounded-xl">
           <p className="text-foreground text-sm md:text-[15px] font-sans leading-relaxed">{t('assessments.introDetail')}</p>
         </Block>
