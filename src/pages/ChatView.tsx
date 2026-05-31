@@ -460,7 +460,8 @@ const useServiceContent = () => {
           </button>
         </Block>
         <RelatedServices serviceId="assessments-concepts" onSelect={setActive} />
-      </TypedSection>
+      </ScrollReveal>
+
     ),
     'incident-management': () => (
       <TypedSection title={t('incident.title')} mode="typewriter" intro={<p>{t('incident.intro')}</p>}>
