@@ -62,7 +62,8 @@ const sections: Section[] = [
     entries: [
       { label: 'NIS-2 Compliance Tool', path: '/nis2-compliance', desc: 'Audit-Workflow inkl. PDF-Report nach NIS-2.' },
       { label: 'DORA Compliance Tool', path: '/dora-nis2-ttx', desc: 'DORA Selbstbewertung mit Edge-Function-Reasoning.' },
-      { label: 'CRA / IACS-E27', path: '/iacs-e27', desc: 'Cyber Resilience Act + UR E27 Marine.' },
+      { label: 'IACS UR E26', path: '/iacs-ur26', desc: 'Maritime Cyber-Resilience — Schiff als Ganzes (IACS UR E26).' },
+      { label: 'CRA / IACS UR E27', path: '/iacs-ur27', desc: 'Cyber Resilience Act + UR E27 Marine — Einzelsysteme.' },
       { label: 'IEC 62443', path: '/iec62443', desc: 'OT-Security nach IEC 62443.' },
       { label: 'TISAX Assessment Classifier', path: '/tisax-pci-dss', desc: 'AL1–AL3 Klassifizierungs-Wizard.' },
       { label: 'PCI-DSS SAQ Navigator', path: '/tisax-pci-dss', desc: 'Selbstbewertungs-Pfad-Wizard.' },
