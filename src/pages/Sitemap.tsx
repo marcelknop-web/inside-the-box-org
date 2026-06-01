@@ -96,6 +96,7 @@ const sections: Section[] = [
       { label: 'Butterfly Effect Lab', path: '/ki-lab', desc: 'Kausalketten-Visualisierung.' },
       { label: 'Elite Ship Scene', path: '/ki-lab', desc: 'WebGL Demo-Szene.' },
       { label: 'Enigma', path: '/enigma', desc: 'Enigma-Maschine Simulation.' },
+      { label: 'Blind Spot Simulator', path: '/blind-spot', desc: 'Simulator für Navigation-Blind-Spot-Szenarien.' },
       { label: 'Bockbär Bot', path: '/bockbaer-bot', desc: 'Persona-Chatbot Demo.' },
       { label: 'Nordstern', path: '/nordstern', desc: 'Maritime Nautik-Lerngame.' },
     ],
