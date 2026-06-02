@@ -662,8 +662,21 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
       <div className="flex items-center justify-between mt-6 pt-4 border-t border-border/50">
         <div className="flex items-center gap-2">
           {sub > 0 && <Button variant="outline" onClick={() => setSub(sub - 1)}>Back</Button>}
-          {sub <= 6 && <Button variant="ghost" size="sm" onClick={handleDemo} className="text-xs text-muted-foreground">Demo</Button>}
-        </div>
+          {sub <= 6 && (
+            <>
+              <Button variant="ghost" size="sm" onClick={handleDemo} className="text-xs text-muted-foreground">Demo</Button>
+              <select
+                value=""
+                onChange={(e) => { if (e.target.value !== '') loadScenario(Number(e.target.value)); }}
+                className="border border-border rounded-md px-2 py-1 text-xs bg-background text-foreground focus:ring-2 focus:ring-primary outline-none max-w-[14rem]"
+              >
+                <option value="">Load test case…</option>
+                {DEMO_SCENARIOS.map((s, i) => (
+                  <option key={i} value={i}>{s.facility.name}</option>
+                ))}
+              </select>
+            </>
+          )}
         {sub < 7 ? (
           <Button onClick={() => setSub(sub + 1)} disabled={!canNext[sub]} className="font-semibold">
             {sub === 6 ? 'Review Summary' : 'Next'}
