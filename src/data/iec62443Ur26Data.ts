@@ -21,13 +21,40 @@
 // Re-export shared infrastructure from the UR E27 data file (types, helpers,
 // system types, security levels, zones, protocols, measures, attach types).
 export {
-  getSystemTypes, getSecurityLevels, getZoneConduits,
+  getSecurityLevels, getZoneConduits,
   PROTOCOL_OPTS, getSecurityMeasures, getSecurityCategories,
   getAttachTypes, threatId, EMPTY_INTAKE,
 } from './iec62443Data';
 export type { IecThreat, IecReq, IecIntakeData, MeasureEntry } from './iec62443Data';
 
 import type { IecThreat, IecReq, MeasureEntry } from './iec62443Data';
+
+// ── Ship System Types (CBS in scope of E26 — ship-as-a-whole view) ───────────
+// E26 covers the whole vessel, so the scope of computer-based systems is broader
+// than the E27 component view. English-only labels (tool is English-only).
+const E26_SYSTEM_TYPES = [
+  { id: 'propulsion',   icon: '⚙️', label: 'Propulsion Control',                desc: 'Main engine, thrusters, propeller pitch & RPM control' },
+  { id: 'steering',     icon: '🔄', label: 'Steering Gear',                     desc: 'Rudder control, autopilot, heading reference' },
+  { id: 'navigation',   icon: '🧭', label: 'Navigation Systems',               desc: 'GPS/GNSS, RADAR, AIS, gyrocompass, speed log' },
+  { id: 'ecdis',        icon: '🗺️', label: 'ECDIS',                            desc: 'Electronic chart display & information system' },
+  { id: 'ibs',          icon: '🧭', label: 'Integrated Bridge System (IBS)',    desc: 'Integrated bridge / conning, workstation integration' },
+  { id: 'power',        icon: '⚡', label: 'Power Management',                  desc: 'Generators, switchboards, PMS, emergency power' },
+  { id: 'ias',          icon: '🏭', label: 'Machinery Automation / IAS',        desc: 'Integrated automation system, machinery control & alarms' },
+  { id: 'cargo',        icon: '📦', label: 'Cargo Handling',                    desc: 'Ballast, cargo monitoring, IGS, loading computer' },
+  { id: 'comms',        icon: '📡', label: 'Communications',                    desc: 'GMDSS, VSAT, VHF/UHF, satellite uplink' },
+  { id: 'remote',       icon: '🛰️', label: 'Remote Access & Shore Connectivity', desc: 'Remote maintenance, shore links, OEM connectivity' },
+  { id: 'safety',       icon: '🛟', label: 'Safety Systems',                    desc: 'Fire detection, watertight doors, alarm & monitoring' },
+  { id: 'access',       icon: '🚪', label: 'Access Control & Physical Security', desc: 'Physical access, CCTV, intrusion detection' },
+  { id: 'water',        icon: '💧', label: 'Water & Utility Systems',           desc: 'Fresh/ballast water, bilge, sewage, fuel utilities' },
+  { id: 'hvac',         icon: '❄️', label: 'HVAC & Environmental Control',      desc: 'Heating, ventilation, air-conditioning, environmental' },
+  { id: 'performance',  icon: '📊', label: 'Performance Monitoring & Analytics', desc: 'Voyage/performance monitoring, data analytics' },
+  { id: 'deck',         icon: '🏗️', label: 'Deck Machinery / Cranes',          desc: 'Winches, windlasses, cranes, mooring equipment' },
+  { id: 'dp',           icon: '🚢', label: 'Dynamic Positioning (DP)',          desc: 'DP control, position reference, thruster allocation' },
+] as const;
+
+export function getSystemTypes(_t?: (key: string) => string) {
+  return E26_SYSTEM_TYPES.map(s => ({ ...s }));
+}
 
 // ── E26 Requirement Categories (grouping of E26 chapters 4-16) ───────────────
 export const FR_CATEGORIES: Record<string, { label: Record<string, string>; dot: string; badge: string }> = {
