@@ -300,6 +300,29 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
               {systemTypes.map(st => <Chip key={st.id} label={st.label} icon={st.icon} desc={st.desc} selected={d.systemTypes.includes(st.id)} onClick={() => toggleArray('systemTypes', st.id)} />)}
             </div>
           </div>
+          <div>
+            <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Assessment Depth</label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <button onClick={() => setField('extendedMatrix', false)} className={`text-left border-2 rounded-xl px-4 py-3 transition-all ${!d.extendedMatrix ? 'border-primary bg-primary/10 shadow' : 'border-border bg-card hover:border-muted-foreground/30'}`}>
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <div className="font-semibold text-sm text-foreground">⚡ Rapid Assessment</div>
+                    <div className="text-xs text-muted-foreground mt-0.5">15 core technical controls — quick UR E26 readiness scan.</div>
+                  </div>
+                  {!d.extendedMatrix && <span className="text-primary flex-shrink-0">✓</span>}
+                </div>
+              </button>
+              <button onClick={() => setField('extendedMatrix', true)} className={`text-left border-2 rounded-xl px-4 py-3 transition-all ${d.extendedMatrix ? 'border-primary bg-primary/10 shadow' : 'border-border bg-card hover:border-muted-foreground/30'}`}>
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <div className="font-semibold text-sm text-foreground">🛡️ Extended Assessment</div>
+                    <div className="text-xs text-muted-foreground mt-0.5">35 controls — adds governance, risk, change, vulnerability, supplier, incident & awareness.</div>
+                  </div>
+                  {d.extendedMatrix && <span className="text-primary flex-shrink-0">✓</span>}
+                </div>
+              </button>
+            </div>
+          </div>
         </StaggerReveal>
       );
       break;
