@@ -654,4 +654,19 @@ export const DEMO_SCENARIOS: DemoScenario[] = [
       { name: 'WiFi_Audit_PortStavanger.pdf', size: 480_000, type: 'pentest' },
     ],
   },
+  {
+    facility: { name: 'MV Aurora Seas — Cruise Ship (In Service)', types: ['propulsion', 'navigation', 'ibs', 'power', 'comms', 'safety', 'hvac', 'access'] },
+    securityLevel: 'sl2',
+    description: 'In-service 3,200-passenger cruise vessel. Integrated bridge system, podded propulsion, large passenger guest network (cabin WiFi, IPTV, point-of-sale), HVAC and access control across guest areas, plus safety and machinery automation. Cyber-resilience assessment for IACS UR E26 with strong focus on isolating the passenger/hospitality IT from safety-critical OT.',
+    zones: ['bridge', 'engineroom', 'crew', 'safety_zone', 'shore'],
+    protocols: ['NMEA 0183', 'NMEA 2000', 'IEC 61162-450', 'Modbus TCP', 'OPC-UA', 'HTTPS/REST', 'VSAT/Fleet Broadband', 'VPN (IPsec)', 'Wireless (WiFi)', 'USB'],
+    roles: ['Owner/Fleet Manager', 'Captain', 'Chief Engineer', 'IT/ETO Officer', 'Hotel/Guest Services Manager', 'Safety Officer'],
+    measures: { iac: { active: true, documented: true, audited: false, certified: false }, segmentation: { active: true, documented: false, audited: false, certified: false }, backup: { active: true, documented: false, audited: false, certified: false }, physical: { active: true, documented: true, audited: false, certified: false } },
+    knownIssues: 'Guest WiFi VLAN reachable from crew network, shared admin accounts on HVAC/access controllers, POS systems patched ad-hoc, OEM remote tunnel to propulsion always-on, no IDS on OT network.',
+    files: [
+      { name: 'AuroraSeas_ShipNetwork_AsBuilt.pdf', size: 3_100_000, type: 'arch' },
+      { name: 'CBS_Register_Cruise_2025.xlsx', size: 880_000, type: 'riskAssess' },
+      { name: 'Guest_vs_OT_Segmentation_Review.pdf', size: 1_050_000, type: 'zoneMap' },
+    ],
+  },
 ];
