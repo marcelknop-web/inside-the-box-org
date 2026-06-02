@@ -683,7 +683,7 @@ function ThreatModel({ threats, onNext }: { threats: IecThreat[]; onNext: () => 
       <InfoBox icon="🔍" title="Maritime Threat Landscape" color="blue">The threat analysis is based on the chapter structure of IACS UR E26 and identifies vulnerabilities in the Computer Based Systems (CBS) on board.</InfoBox>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        {Object.entries(FR_CATEGORIES).map(([key, meta]) => (
+        {Object.entries(FR_CATEGORIES).filter(([key]) => (frCounts[key] || 0) > 0).map(([key, meta]) => (
           <div key={key} className="bg-card border border-border rounded-xl p-3.5 text-center hover:border-primary/30 transition-colors">
             <div className={`w-2.5 h-2.5 rounded-full ${meta.dot} mx-auto mb-2`} />
             <div className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide leading-tight">{meta.label.en}</div>
