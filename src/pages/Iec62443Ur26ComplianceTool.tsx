@@ -16,7 +16,7 @@ import {
   getSystemTypes, getSecurityLevels, getZoneConduits,
   PROTOCOL_OPTS, getSecurityMeasures, getSecurityCategories,
   getAttachTypes, IEC_THREATS, getReqs, FR_CATEGORIES, threatId,
-  DEMO_SCENARIOS,
+  DEMO_SCENARIOS, computeCbsScores,
   type IecThreat, type IecReq, type IecIntakeData, type MeasureEntry, EMPTY_INTAKE,
 } from '@/data/iec62443Ur26Data';
 import { extractDocumentText } from '@/lib/documentExtraction';
@@ -301,26 +301,30 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
             </div>
           </div>
           <div>
-            <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Assessment Depth</label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              <button onClick={() => setField('extendedMatrix', false)} className={`text-left border-2 rounded-xl px-4 py-3 transition-all ${!d.extendedMatrix ? 'border-primary bg-primary/10 shadow' : 'border-border bg-card hover:border-muted-foreground/30'}`}>
-                <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <div className="font-semibold text-sm text-foreground">⚡ Rapid Assessment</div>
-                    <div className="text-xs text-muted-foreground mt-0.5">15 core technical controls — quick UR E26 readiness scan.</div>
-                  </div>
-                  {!d.extendedMatrix && <span className="text-primary flex-shrink-0">✓</span>}
-                </div>
-              </button>
-              <button onClick={() => setField('extendedMatrix', true)} className={`text-left border-2 rounded-xl px-4 py-3 transition-all ${d.extendedMatrix ? 'border-primary bg-primary/10 shadow' : 'border-border bg-card hover:border-muted-foreground/30'}`}>
-                <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <div className="font-semibold text-sm text-foreground">🛡️ Extended Assessment</div>
-                    <div className="text-xs text-muted-foreground mt-0.5">35 controls — adds governance, risk, change, vulnerability, supplier, incident & awareness.</div>
-                  </div>
-                  {d.extendedMatrix && <span className="text-primary flex-shrink-0">✓</span>}
-                </div>
-              </button>
+            <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Assessment Type</label>
+            <div className="grid grid-cols-1 gap-2">
+              {[
+                { id: 'rapid' as const, icon: '🚀', title: 'Rapid Assessment', sub: 'Management-Level Overview', bullets: ['15 Core Controls', 'Ship-wide · Document review', 'Executive summary · RAG rating'], effort: '0.5–1 PT', ideal: 'First baseline · smaller owners · pre-project' },
+                { id: 'extended' as const, icon: '📋', title: 'Extended Assessment', sub: 'Full UR E26 Readiness', bullets: ['35 Controls', 'Governance + technical', 'Evidence review · gap analysis · action plan'], effort: '2–3 PT', ideal: 'Newbuilds · class-review prep · cyber programmes' },
+                { id: 'deepdive' as const, icon: '⚓', title: 'CBS Deep Dive', sub: 'System-by-System Technical', bullets: ['All 35 Controls', 'Score per CBS (ECDIS, PMS, IAS, …)', 'Per-CBS readiness matrix'], effort: 'high tier', ideal: 'Critical ships · tankers · offshore · ferries · post-incident' },
+              ].map(opt => {
+                const active = (d.assessmentType ?? 'rapid') === opt.id;
+                return (
+                  <button key={opt.id} onClick={() => setField('assessmentType', opt.id)} className={`text-left border-2 rounded-xl px-4 py-3 transition-all ${active ? 'border-primary bg-primary/10 shadow' : 'border-border bg-card hover:border-muted-foreground/30'}`}>
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <div className="font-semibold text-sm text-foreground">{opt.icon} {opt.title} <span className="text-muted-foreground font-normal">· {opt.sub}</span></div>
+                        <div className="text-xs text-muted-foreground mt-1 flex flex-wrap gap-x-2 gap-y-0.5">{opt.bullets.map((b, i) => <span key={i}>{i > 0 && <span className="text-muted-foreground/40">•</span>} {b}</span>)}</div>
+                        <div className="text-[11px] text-muted-foreground/70 mt-1">Ideal: {opt.ideal}</div>
+                      </div>
+                      <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                        <span className="text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded bg-secondary text-foreground">{opt.effort}</span>
+                        {active && <span className="text-primary">✓</span>}
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           </div>
         </StaggerReveal>
@@ -580,7 +584,7 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
           <SubStepHeader current={5} total={INTAKE_STEPS} title="Summary" subtitle="Review your inputs before starting the assessment." />
           {[
             { label: 'Vessel/System', val: d.facilityName || '—' },
-            { label: 'Assessment Depth', val: d.extendedMatrix ? 'Extended (35 controls)' : 'Rapid (15 controls)' },
+            { label: 'Assessment Type', val: d.assessmentType === 'deepdive' ? 'CBS Deep Dive (35 controls + per-CBS matrix)' : d.assessmentType === 'extended' ? 'Extended (35 controls)' : 'Rapid (15 controls)' },
             { label: 'CBS Types', val: d.systemTypes.map(id => systemTypes.find(st => st.id === id)?.label).join(', ') || '—' },
             { label: 'Security Level', val: securityLevels.find(sl => sl.id === d.securityLevel)?.label || '—' },
             { label: 'Zones', val: d.zones.map(id => zoneConduits.find(zc => zc.id === id)?.label).join(', ') || '—' },
@@ -975,6 +979,10 @@ function ReportView({ intakeData, threats, reqs, reviewSummary }: { intakeData: 
 
   // Individual findings: controls that are applicable or partially applicable.
   const findings = useMemo(() => localReqs.filter(r => r.status !== 'pass'), [localReqs]);
+  const cbsScores = useMemo(
+    () => intakeData.assessmentType === 'deepdive' ? computeCbsScores(localReqs, intakeData.systemTypes) : [],
+    [localReqs, intakeData.assessmentType, intakeData.systemTypes],
+  );
   const today = useMemo(() => new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' }), []);
 
   const securityLevels = useMemo(() => getSecurityLevels((k: string) => k), []);
@@ -1094,6 +1102,31 @@ function ReportView({ intakeData, threats, reqs, reviewSummary }: { intakeData: 
       <SectionCard title="Applicability Overview" icon="📊">
         <Iec62443Ur26AuditCharts threats={localThreats} reqs={localReqs} />
       </SectionCard>
+
+      {/* CBS Deep Dive — per-system readiness matrix */}
+      {intakeData.assessmentType === 'deepdive' && cbsScores.length > 0 && (
+        <SectionCard title={`CBS Deep Dive — System-by-System Readiness (${cbsScores.length})`} icon="⚓">
+          <p className="text-xs text-muted-foreground mb-3">Per-CBS readiness derived from the assessed status of the controls relevant to each system (Pass 100 · Partial 50 · Fail 0). Higher is better.</p>
+          <div className="space-y-2">
+            {cbsScores.map(c => {
+              const band = c.score >= 80 ? 'bg-green-500' : c.score >= 60 ? 'bg-yellow-500' : c.score >= 40 ? 'bg-orange-500' : 'bg-destructive';
+              const txt = c.score >= 80 ? 'text-green-500' : c.score >= 60 ? 'text-yellow-500' : c.score >= 40 ? 'text-orange-500' : 'text-destructive';
+              return (
+                <div key={c.id} className="border border-border rounded-lg px-3 py-2.5">
+                  <div className="flex items-center justify-between gap-3 mb-1.5">
+                    <div className="text-sm font-medium text-foreground min-w-0 truncate">{c.icon} {c.label}</div>
+                    <div className={`text-sm font-bold font-mono flex-shrink-0 ${txt}`}>{c.score}%</div>
+                  </div>
+                  <div className="h-2 rounded-full bg-secondary overflow-hidden">
+                    <div className={`h-full ${band} rounded-full transition-all`} style={{ width: `${c.score}%` }} />
+                  </div>
+                  <div className="text-[11px] text-muted-foreground mt-1 font-mono">{c.applicable} controls · {c.pass} pass · {c.partial} partial · {c.fail} fail</div>
+                </div>
+              );
+            })}
+          </div>
+        </SectionCard>
+      )}
 
       {/* 4. Individual Findings */}
       {findings.length > 0 && (
@@ -1246,7 +1279,7 @@ const Iec62443Ur26ComplianceTool = ({ embedded }: { embedded?: boolean }) => {
         });
       const result = await assessDocuments(
         'E26',
-        getReqs(data.extendedMatrix).map(r => ({ id: r.id, article: r.article, name: r.name, criteria: r.criteria })),
+        getReqs(data.assessmentType).map(r => ({ id: r.id, article: r.article, name: r.name, criteria: r.criteria })),
         readableDocs.map(f => ({ name: f.name, type: f.type, text: f.text || '' })),
         lang,
         {
@@ -1274,7 +1307,7 @@ const Iec62443Ur26ComplianceTool = ({ embedded }: { embedded?: boolean }) => {
   }, [setStep]);
 
   const effectiveReqs = useMemo<IecReq[]>(() => {
-    const baseReqs = getReqs(intakeData?.extendedMatrix);
+    const baseReqs = getReqs(intakeData?.assessmentType);
     if (!docAssessments) return baseReqs;
     const byId = new Map(docAssessments.map(a => [a.id, a]));
     const basisLabel: Record<string, string> = {
@@ -1303,7 +1336,7 @@ const Iec62443Ur26ComplianceTool = ({ embedded }: { embedded?: boolean }) => {
         residualScopeNote: a.residualScopeNote || r.residualScopeNote,
       };
     });
-  }, [docAssessments, intakeData?.extendedMatrix]);
+  }, [docAssessments, intakeData?.assessmentType]);
 
 
   const reset = useCallback(() => { setStep(0); setIntakeData(EMPTY_INTAKE); setDocAssessments(null); setReviewSummary(null); setDocsAnalyzed([]); }, [setStep]);

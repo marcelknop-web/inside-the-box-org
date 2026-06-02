@@ -3,7 +3,7 @@
  * Uses PdfDoc from pdfCore.ts for consistent, premium layout
  */
 import type { IecThreat, IecReq, IecIntakeData } from '@/data/iec62443Ur26Data';
-import { threatId, FR_CATEGORIES } from '@/data/iec62443Ur26Data';
+import { threatId, FR_CATEGORIES, computeCbsScores } from '@/data/iec62443Ur26Data';
 import type { ReviewSummary } from '@/data/iec62443Data';
 import type { QaCheck } from '@/utils/iec62443Ur26QualityCheck';
 import { createPdfDoc, LAYOUT, C, humanizeEvidence, evidenceProcedure } from '@/utils/pdfCore';
@@ -342,6 +342,30 @@ export async function generateIec62443Ur26Report(data: Iec62443ReportData): Prom
       pdf.y += 3;
     });
   });
+
+  /* 3b. CBS DEEP DIVE — per-system readiness matrix */
+  if (intakeData.assessmentType === 'deepdive' && intakeData.systemTypes.length > 0) {
+    const cbsScores = computeCbsScores(reqs, intakeData.systemTypes);
+    if (cbsScores.length > 0) {
+      pdf.newPage();
+      const ddTitle = lang === 'de' ? 'CBS Deep Dive — Bewertung je System' : lang === 'fr' ? 'CBS Deep Dive — évaluation par système' : 'CBS Deep Dive — System-by-System Readiness';
+      pdf.heading(ddTitle);
+      pdf.addBookmark(ddTitle);
+      pdf.introText(lang === 'de'
+        ? 'Die Bewertung je CBS leitet sich ausschließlich aus dem bewerteten Status der für das jeweilige System relevanten Controls ab (Erfüllt 100 · Teilweise 50 · Nicht erfüllt 0). Es werden keine Werte erfunden.'
+        : lang === 'fr'
+          ? 'Le score par CBS découle uniquement du statut évalué des contrôles pertinents pour chaque système (Conforme 100 · Partiel 50 · Non conforme 0). Aucune valeur n\'est inventée.'
+          : 'Each CBS score is derived solely from the assessed status of the controls relevant to that system (Pass 100 · Partial 50 · Fail 0). No values are invented.');
+      const pad = (s: string, n: number) => (s.length > n ? s.slice(0, n - 1) + '…' : s.padEnd(n));
+      pdf.dataTableHeader(`${pad('CBS', 30)}${pad('Score', 8)}${pad('Ctrls', 7)}${pad('Pass', 6)}${pad('Part', 6)}${pad('Fail', 6)}`);
+      cbsScores.forEach(c => {
+        const plain = c.label.replace(/[^\x20-\x7E]/g, '').trim();
+        pdf.dataTableRow(`${pad(plain, 30)}${pad(c.score + '%', 8)}${pad(String(c.applicable), 7)}${pad(String(c.pass), 6)}${pad(String(c.partial), 6)}${pad(String(c.fail), 6)}`);
+      });
+    }
+  }
+
+
 
   /* 4. RECOMMENDATIONS & ROADMAP */
   pdf.newPage();

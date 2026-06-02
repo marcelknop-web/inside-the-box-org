@@ -223,8 +223,8 @@ export interface IecIntakeData {
   measures: Record<string, MeasureEntry>;
   knownIssues: string;
   files: IecFile[];
-  // UR E26 only: choose the extended (~35-control) matrix vs the rapid 15-control baseline.
-  extendedMatrix?: boolean;
+  // UR E26 only: assessment depth / product tier (rapid 15 · extended 35 · deepdive 35 + per-CBS matrix).
+  assessmentType?: 'rapid' | 'extended' | 'deepdive';
 }
 
 export const EMPTY_INTAKE: IecIntakeData = {
