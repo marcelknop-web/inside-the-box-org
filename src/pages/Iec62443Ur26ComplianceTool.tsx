@@ -983,6 +983,24 @@ function ReportView({ intakeData, threats, reqs, reviewSummary, docBased }: { in
     () => intakeData.assessmentType === 'deepdive' ? computeCbsScores(localReqs, intakeData.systemTypes) : [],
     [localReqs, intakeData.assessmentType, intakeData.systemTypes],
   );
+  // Highest risk = lowest readiness score; lowest risk = highest readiness score.
+  const riskRanking = useMemo(() => {
+    if (cbsScores.length < 2) return { highest: [] as typeof cbsScores, lowest: [] as typeof cbsScores };
+    const byScore = [...cbsScores].sort((a, b) => a.score - b.score);
+    const n = Math.min(3, Math.floor(byScore.length / 2) || 1);
+    const highest = byScore.slice(0, n);
+    const lowest = [...byScore].reverse().slice(0, n);
+    return { highest, lowest };
+  }, [cbsScores]);
+  // CBS-grouped findings: per system, the relevant non-compliant controls with
+  // their system-specific recommendations. Derived only from assessed statuses.
+  const cbsFindings = useMemo(() => {
+    if (intakeData.assessmentType !== 'deepdive') return [];
+    return cbsScores.map(c => ({
+      ...c,
+      controls: localReqs.filter(r => r.status !== 'pass' && controlAppliesToCbs(r.id, c.id)),
+    })).filter(c => c.controls.length > 0);
+  }, [cbsScores, localReqs, intakeData.assessmentType]);
   const today = useMemo(() => new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' }), []);
 
   const securityLevels = useMemo(() => getSecurityLevels((k: string) => k), []);
