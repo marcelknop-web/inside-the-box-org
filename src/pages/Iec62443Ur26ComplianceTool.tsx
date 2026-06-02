@@ -301,26 +301,30 @@ function IntakeWizard({ onFinish }: { onFinish: (d: IecIntakeData) => void }) {
             </div>
           </div>
           <div>
-            <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Assessment Depth</label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              <button onClick={() => setField('extendedMatrix', false)} className={`text-left border-2 rounded-xl px-4 py-3 transition-all ${!d.extendedMatrix ? 'border-primary bg-primary/10 shadow' : 'border-border bg-card hover:border-muted-foreground/30'}`}>
-                <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <div className="font-semibold text-sm text-foreground">⚡ Rapid Assessment</div>
-                    <div className="text-xs text-muted-foreground mt-0.5">15 core technical controls — quick UR E26 readiness scan.</div>
-                  </div>
-                  {!d.extendedMatrix && <span className="text-primary flex-shrink-0">✓</span>}
-                </div>
-              </button>
-              <button onClick={() => setField('extendedMatrix', true)} className={`text-left border-2 rounded-xl px-4 py-3 transition-all ${d.extendedMatrix ? 'border-primary bg-primary/10 shadow' : 'border-border bg-card hover:border-muted-foreground/30'}`}>
-                <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <div className="font-semibold text-sm text-foreground">🛡️ Extended Assessment</div>
-                    <div className="text-xs text-muted-foreground mt-0.5">35 controls — adds governance, risk, change, vulnerability, supplier, incident & awareness.</div>
-                  </div>
-                  {d.extendedMatrix && <span className="text-primary flex-shrink-0">✓</span>}
-                </div>
-              </button>
+            <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Assessment Type</label>
+            <div className="grid grid-cols-1 gap-2">
+              {[
+                { id: 'rapid' as const, icon: '🚀', title: 'Rapid Assessment', sub: 'Management-Level Overview', bullets: ['15 Core Controls', 'Ship-wide · Document review', 'Executive summary · RAG rating'], effort: '0.5–1 PT', ideal: 'First baseline · smaller owners · pre-project' },
+                { id: 'extended' as const, icon: '📋', title: 'Extended Assessment', sub: 'Full UR E26 Readiness', bullets: ['35 Controls', 'Governance + technical', 'Evidence review · gap analysis · action plan'], effort: '2–3 PT', ideal: 'Newbuilds · class-review prep · cyber programmes' },
+                { id: 'deepdive' as const, icon: '⚓', title: 'CBS Deep Dive', sub: 'System-by-System Technical', bullets: ['All 35 Controls', 'Score per CBS (ECDIS, PMS, IAS, …)', 'Per-CBS readiness matrix'], effort: 'high tier', ideal: 'Critical ships · tankers · offshore · ferries · post-incident' },
+              ].map(opt => {
+                const active = (d.assessmentType ?? 'rapid') === opt.id;
+                return (
+                  <button key={opt.id} onClick={() => setField('assessmentType', opt.id)} className={`text-left border-2 rounded-xl px-4 py-3 transition-all ${active ? 'border-primary bg-primary/10 shadow' : 'border-border bg-card hover:border-muted-foreground/30'}`}>
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <div className="font-semibold text-sm text-foreground">{opt.icon} {opt.title} <span className="text-muted-foreground font-normal">· {opt.sub}</span></div>
+                        <div className="text-xs text-muted-foreground mt-1 flex flex-wrap gap-x-2 gap-y-0.5">{opt.bullets.map((b, i) => <span key={i}>{i > 0 && <span className="text-muted-foreground/40">•</span>} {b}</span>)}</div>
+                        <div className="text-[11px] text-muted-foreground/70 mt-1">Ideal: {opt.ideal}</div>
+                      </div>
+                      <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                        <span className="text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded bg-secondary text-foreground">{opt.effort}</span>
+                        {active && <span className="text-primary">✓</span>}
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           </div>
         </StaggerReveal>
