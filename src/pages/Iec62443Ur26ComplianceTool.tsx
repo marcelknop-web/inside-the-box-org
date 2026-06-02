@@ -1250,7 +1250,8 @@ const Iec62443Ur26ComplianceTool = ({ embedded }: { embedded?: boolean }) => {
   }, [setStep]);
 
   const effectiveReqs = useMemo<IecReq[]>(() => {
-    if (!docAssessments) return IEC_REQS;
+    const baseReqs = getReqs(intakeData?.extendedMatrix);
+    if (!docAssessments) return baseReqs;
     const byId = new Map(docAssessments.map(a => [a.id, a]));
     const basisLabel: Record<string, string> = {
       declared: 'Self-declared (intake)',
