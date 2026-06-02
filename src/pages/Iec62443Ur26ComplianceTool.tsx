@@ -1259,7 +1259,7 @@ const Iec62443Ur26ComplianceTool = ({ embedded }: { embedded?: boolean }) => {
       declared_document: 'Self-declared & document-verified',
       none: '',
     };
-    return IEC_REQS.map(r => {
+    return baseReqs.map(r => {
       const a = byId.get(r.id);
       if (!a) return r;
       const label = basisLabel[a.basis] || '';
