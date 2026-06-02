@@ -1001,7 +1001,9 @@ function ReportView({ intakeData, threats, reqs, reviewSummary, docBased }: { in
       let finalThreats = localThreats;
       let finalReqs = localReqs;
       let fixLogs: string[] = [];
-      if (initialQa.failed > 0) {
+      // In a real (document-based) run, never auto-fix: the assessment is the
+      // single source of truth and must not be mutated with derived content.
+      if (!docBased && initialQa.failed > 0) {
         const result = applyAuditFixes(localThreats, localReqs, initialQa.checks.filter(c => !c.passed), 'en', intakeData);
         finalThreats = result.threats; finalReqs = result.reqs; fixLogs = result.fixes;
         setLocalThreats(finalThreats); setLocalReqs(finalReqs); setAllFixLogs(fixLogs);
