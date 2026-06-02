@@ -1222,7 +1222,7 @@ const Iec62443Ur26ComplianceTool = ({ embedded }: { embedded?: boolean }) => {
         });
       const result = await assessDocuments(
         'E26',
-        IEC_REQS.map(r => ({ id: r.id, article: r.article, name: r.name, criteria: r.criteria })),
+        getReqs(data.extendedMatrix).map(r => ({ id: r.id, article: r.article, name: r.name, criteria: r.criteria })),
         readableDocs.map(f => ({ name: f.name, type: f.type, text: f.text || '' })),
         lang,
         {
