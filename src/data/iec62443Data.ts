@@ -223,6 +223,8 @@ export interface IecIntakeData {
   measures: Record<string, MeasureEntry>;
   knownIssues: string;
   files: IecFile[];
+  // UR E26 only: choose the extended (~35-control) matrix vs the rapid 15-control baseline.
+  extendedMatrix?: boolean;
 }
 
 export const EMPTY_INTAKE: IecIntakeData = {
