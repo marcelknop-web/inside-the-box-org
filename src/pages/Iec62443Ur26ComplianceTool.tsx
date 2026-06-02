@@ -1279,7 +1279,7 @@ const Iec62443Ur26ComplianceTool = ({ embedded }: { embedded?: boolean }) => {
         residualScopeNote: a.residualScopeNote || r.residualScopeNote,
       };
     });
-  }, [docAssessments]);
+  }, [docAssessments, intakeData?.extendedMatrix]);
 
 
   const reset = useCallback(() => { setStep(0); setIntakeData(EMPTY_INTAKE); setDocAssessments(null); setReviewSummary(null); setDocsAnalyzed([]); }, [setStep]);
