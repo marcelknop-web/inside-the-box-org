@@ -1416,10 +1416,10 @@ const Iec62443Ur26ComplianceTool = ({ embedded }: { embedded?: boolean }) => {
               </div>
             )}
             {step === 0 && <IntakeWizard onFinish={handleIntakeFinish} />}
-            {step === 1 && <ThreatModel threats={IEC_THREATS} onNext={() => setStep(2)} />}
-            {step === 2 && <RiskAssessment threats={IEC_THREATS} onNext={() => setStep(3)} />}
+            {step === 1 && <ThreatModel threats={activeThreats} onNext={() => setStep(2)} />}
+            {step === 2 && <RiskAssessment threats={activeThreats} onNext={() => setStep(3)} />}
             {step === 3 && <IecMapping reqs={effectiveReqs} onNext={() => setStep(4)} />}
-            {step === 4 && <ReportView intakeData={intakeData} threats={IEC_THREATS} reqs={effectiveReqs} reviewSummary={reviewSummary} />}
+            {step === 4 && <ReportView intakeData={intakeData} threats={activeThreats} reqs={effectiveReqs} reviewSummary={reviewSummary} docBased={docBased} />}
           </div>
 
         )}
