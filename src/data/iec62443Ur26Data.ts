@@ -464,10 +464,96 @@ export const IEC_REQS_GOVERNANCE: IecReq[] = [
 // Full extended matrix = 15 technical baseline controls + 20 governance/lifecycle controls.
 export const IEC_REQS_EXTENDED: IecReq[] = [...IEC_REQS, ...IEC_REQS_GOVERNANCE];
 
-// Returns the active requirement set for the assessment depth chosen in intake.
-export function getReqs(extended: boolean | undefined): IecReq[] {
-  return extended ? IEC_REQS_EXTENDED : IEC_REQS;
+// ── Assessment depth / product tiers ─────────────────────────────────────────
+//   rapid    → 15 core technical controls (management overview, 0.5–1 PT)
+//   extended → 35 controls, governance + technical (full readiness, 2–3 PT)
+//   deepdive → 35 controls + per-CBS score matrix (system-by-system, high tier)
+export type AssessmentType = 'rapid' | 'extended' | 'deepdive';
+
+export function normalizeAssessmentType(v: AssessmentType | boolean | undefined): AssessmentType {
+  if (v === true) return 'extended';
+  if (v === false || v === undefined) return 'rapid';
+  return v;
 }
+
+// Returns the active requirement set for the assessment depth chosen in intake.
+export function getReqs(type: AssessmentType | boolean | undefined): IecReq[] {
+  return normalizeAssessmentType(type) === 'rapid' ? IEC_REQS : IEC_REQS_EXTENDED;
+}
+
+// ── Control × CBS relevance matrix (CBS Deep Dive) ───────────────────────────
+// Maps each control to the CBS system-type ids it materially applies to.
+// '*' = ship-wide control that applies to every CBS. Per-CBS scores are derived
+// purely from the real assessed status of the control set relevant to that CBS —
+// no values are invented (Data Integrity Policy).
+export const CONTROL_CBS_RELEVANCE: Record<string, string[]> = {
+  // Technical baseline (Ch. 4-16)
+  'IAC-1': ['*'],
+  'IAC-2': ['ibs', 'ecdis', 'navigation', 'dp'],
+  'UC-1': ['*'],
+  'UC-2': ['*'],
+  'SI-1': ['*'],
+  'SI-2': ['ias', 'power', 'propulsion', 'steering', 'dp', 'safety'],
+  'DC-1': ['cargo', 'comms', 'performance', 'remote'],
+  'AL-1': ['*'],
+  'AL-2': ['*'],
+  'RA-1': ['navigation', 'ecdis', 'ibs', 'propulsion', 'power', 'steering', 'dp'],
+  'RA-2': ['steering', 'propulsion', 'power', 'dp'],
+  'UTN-1': ['*'],
+  'UTN-2': ['ibs', 'comms', 'navigation', 'access'],
+  'UTN-3': ['remote', 'ias', 'propulsion', 'power'],
+  'UTN-4': ['comms', 'remote'],
+  // Governance & lifecycle (extended)
+  'GOV-1': ['*'], 'GOV-2': ['*'], 'GOV-3': ['*'],
+  'RM-1': ['*'], 'RM-2': ['*'], 'RM-3': ['*'],
+  'CM-1': ['*'], 'CM-2': ['*'],
+  'CM-3': ['ias', 'power', 'propulsion', 'navigation', 'ecdis', 'ibs', 'dp'],
+  'VM-1': ['*'],
+  'VM-2': ['ias', 'power', 'propulsion', 'navigation', 'ecdis', 'ibs', 'dp', 'comms'],
+  'VM-3': ['ias', 'power', 'propulsion', 'remote'],
+  'TP-1': ['ias', 'propulsion', 'power', 'cargo', 'safety'],
+  'TP-2': ['remote', 'ias', 'propulsion', 'power'],
+  'TP-3': ['ias', 'propulsion', 'power', 'navigation', 'ecdis', 'ibs', 'dp'],
+  'IR-1': ['*'], 'IR-2': ['*'], 'IR-3': ['*'],
+  'AT-1': ['*'], 'AT-2': ['*'],
+};
+
+export function controlAppliesToCbs(reqId: string, cbsId: string): boolean {
+  const rel = CONTROL_CBS_RELEVANCE[reqId];
+  if (!rel || rel.includes('*')) return true;
+  return rel.includes(cbsId);
+}
+
+const STATUS_SCORE: Record<IecReq['status'], number> = { pass: 100, partial: 50, fail: 0 };
+
+export interface CbsScore {
+  id: string;
+  label: string;
+  icon: string;
+  score: number;            // 0-100, rounded
+  applicable: number;       // controls relevant to this CBS
+  pass: number;
+  partial: number;
+  fail: number;
+}
+
+// Computes a per-CBS readiness score from the real control statuses, filtered by
+// the control×CBS relevance matrix. Pass=100, Partial=50, Fail=0.
+export function computeCbsScores(reqs: IecReq[], systemTypeIds: string[]): CbsScore[] {
+  const typeMeta = getSystemTypes();
+  return systemTypeIds.map(id => {
+    const meta = typeMeta.find(s => s.id === id);
+    const relevant = reqs.filter(r => controlAppliesToCbs(r.id, id));
+    const pass = relevant.filter(r => r.status === 'pass').length;
+    const partial = relevant.filter(r => r.status === 'partial').length;
+    const fail = relevant.filter(r => r.status === 'fail').length;
+    const score = relevant.length > 0
+      ? Math.round(relevant.reduce((sum, r) => sum + STATUS_SCORE[r.status], 0) / relevant.length)
+      : 0;
+    return { id, label: meta?.label || id, icon: meta?.icon || '⚙️', score, applicable: relevant.length, pass, partial, fail };
+  }).sort((a, b) => b.score - a.score);
+}
+
 
 
 
