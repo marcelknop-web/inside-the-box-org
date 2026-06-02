@@ -3,7 +3,7 @@
  * Uses PdfDoc from pdfCore.ts for consistent, premium layout
  */
 import type { IecThreat, IecReq, IecIntakeData } from '@/data/iec62443Ur26Data';
-import { threatId, FR_CATEGORIES } from '@/data/iec62443Ur26Data';
+import { threatId, FR_CATEGORIES, computeCbsScores } from '@/data/iec62443Ur26Data';
 import type { ReviewSummary } from '@/data/iec62443Data';
 import type { QaCheck } from '@/utils/iec62443Ur26QualityCheck';
 import { createPdfDoc, LAYOUT, C, humanizeEvidence, evidenceProcedure } from '@/utils/pdfCore';
